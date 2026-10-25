@@ -163,3 +163,9 @@
 - **What:** Parked: installable app (PWA), health/personal data privacy, device clock skew.
 - **Why:** Global multi-platform review; owner chose IDEAS for these (time zones, migrations, scale, Unicode-safe blanks, plurals/RTL habits, accessibility, sync-safe log and "keep my data" go in Phase 3).
 - **Files:** IDEAS.md, CHANGELOG.md
+
+## 2026-10-26
+
+- **What:** Phase 3 plan approved (with owner's prototype fixes) and recorded in README. Step 1: database version 2 adds `cards` (scheduling state, `due` indexed), `reviewLogs` (append-only history) and `settings` tables; Block gets optional `source` and `derivedFrom`. Added study-day helpers (local calendar, 4 am rollover, UTC storage), a "keep my data" request at start-up, and an upgrade test proving Phase 1–2 data survives.
+- **Why:** Foundation for cards, reviews, settings, FSRS and future sync/AI without later rebuilds.
+- **Files:** src/core/types.ts, src/core/db.ts, src/core/time.ts, src/core/time.test.ts, src/core/storage.ts, src/core/storage.test.ts, src/core/migration.test.ts, src/main.tsx, README.md, CHANGELOG.md

@@ -93,4 +93,79 @@ export interface Block extends BaseRecord {
   content: JsonObject
   /** Position among sibling blocks (lower comes first). */
   order: OrderKey
+  /**
+   * Where the content came from. An open string so new sources need no core
+   * change: `typed` (default when unset), later `ai`, `voice`, `handwriting`.
+   */
+  source?: string
+  /**
+   * The block this one was made from (e.g. typed text converted from
+   * handwriting). Unset = not derived. Kept even if that block is deleted.
+   */
+  derivedFrom?: string
+}
+
+/** How well a card was remembered (the four review buttons). */
+export type Rating = 'again' | 'hard' | 'good' | 'easy'
+
+/**
+ * Scheduling state of one recall card, stored apart from the card's text so
+ * editing a card never resets its schedule. One block can produce several
+ * cards (a Card block makes one; each fill-in-the-blank makes one).
+ * Can always be rebuilt by replaying the card's review log.
+ */
+export interface Card extends BaseRecord {
+  /** Block that produces the card (a Card block, or a block with blanks). */
+  blockId: string
+  /** Which card of that block: 'main' for a Card block, else the blank id. */
+  part: string
+  /** Copied from the block for fast "review this page/notebook" lookups. */
+  pageId: string
+  notebookId: string
+  /** Next review time (UTC ms). New cards: their creation time. */
+  due: number
+  /** Current gap between reviews in days (0 = new or relearning). */
+  intervalDays: number
+  /** Position on the fixed-step ladder (fixed-steps scheduler). */
+  step: number
+  /** Times reviewed (normal reviews only) and times forgotten. */
+  reps: number
+  lapses: number
+  /** Suspended cards stay saved but never appear in reviews. null = active. */
+  suspendedAt: number | null
+  /** Extra state a scheduler may keep (e.g. FSRS stability/difficulty). */
+  schedulerData?: JsonObject
+}
+
+/**
+ * One review of one card. Append-only: entries are never edited or deleted,
+ * so schedulers (e.g. FSRS) and future sync can replay the full history.
+ */
+export interface ReviewLog {
+  id: string
+  cardId: string
+  rating: Rating
+  /** When the review happened (UTC ms). */
+  createdAt: number
+  /** Time from showing the card to rating it, in ms. */
+  durationMs: number
+  /** 'cram' = Practice anyway on a card that was not due; it changed nothing. */
+  kind: 'review' | 'cram'
+  /** Scheduler that made the decision, e.g. 'fixed' or 'fsrs'. */
+  scheduler: string
+  dueBefore: number
+  dueAfter: number
+  intervalBefore: number
+  intervalAfter: number
+}
+
+/**
+ * A stored value for a synced setting (see the settings registry). Settings
+ * marked "this device only" are kept in the browser instead.
+ */
+export interface SettingValue {
+  /** The setting's registry id, e.g. 'review.newPerDay'. */
+  id: string
+  value: JsonValue
+  updatedAt: number
 }

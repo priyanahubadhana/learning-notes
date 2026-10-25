@@ -133,3 +133,9 @@
 - **What:** Workflow update: planning questions one at a time, build-step questions all together; login/hosting/HTTPS rules deferred to Phase 6–7; monthly budget ₹0; added IDEAS.md for parked ideas.
 - **Why:** Merge the owner's new project prompt with the existing rules (owner approved).
 - **Files:** CLAUDE.md, README.md, IDEAS.md, CHANGELOG.md
+
+## 2026-10-25
+
+- **What:** Parked idea: AI learning companion (screen + voice → notes, keyword summary, flashcards).
+- **Why:** Owner idea for Phase 7; kept out of the current phase.
+- **Files:** IDEAS.md, CHANGELOG.md

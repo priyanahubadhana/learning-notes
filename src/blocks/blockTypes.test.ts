@@ -36,7 +36,7 @@ describe('block type registry', () => {
 })
 
 describe('built-in block types', () => {
-  it('includes every Phase 1 block type', () => {
+  it('includes every built-in block type', () => {
     expect(blockTypes.list().map((d) => d.type)).toEqual([
       'paragraph',
       'heading',
@@ -48,6 +48,7 @@ describe('built-in block types', () => {
       'codeBlock',
       'image',
       'callout',
+      'card',
       'pageLink',
     ])
   })

@@ -111,3 +111,39 @@ body {
 .bn-root input[type='checkbox'] {
   accent-color: var(--color-accent);
 }
+
+/*
+ * Card block (recall): the question line plus its nested answer blocks sit
+ * in one soft box; the answer gets an "A" label (text set by PageEditor).
+ */
+.bn-block:has(> .bn-block-content[data-content-type='card']) {
+  margin: 6px 0;
+  padding: 6px 12px 8px;
+  border: 1px solid var(--color-line);
+  border-radius: 10px;
+  background: var(--color-soft);
+}
+.recall-card-label {
+  width: 18px;
+  font-size: 12px;
+  font-weight: 700;
+  color: var(--color-muted);
+}
+.bn-block:has(> .bn-block-content[data-content-type='card']) > .bn-block-group {
+  position: relative;
+  margin-left: 0;
+  margin-top: 4px;
+  padding-top: 4px;
+  padding-left: 28px;
+  border-top: 1px dashed var(--color-line);
+}
+.bn-block:has(> .bn-block-content[data-content-type='card'])
+  > .bn-block-group::before {
+  content: var(--card-answer-label, 'A');
+  position: absolute;
+  left: 0;
+  top: 8px;
+  font-size: 12px;
+  font-weight: 700;
+  color: var(--color-muted);
+}

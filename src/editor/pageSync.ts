@@ -1,6 +1,7 @@
 import { saveBlockChanges } from '../core/blockService'
 import type { LearningNotesDB } from '../core/db'
 import type { Block } from '../core/types'
+import { syncCardRecords } from '../recall/cardService'
 import { createAutosaver } from './autosave'
 import { createSnapshot, diffBlocks, type BlockDraft } from './diff'
 
@@ -35,6 +36,7 @@ export function createPageSync(
   const autosaver = createAutosaver(async () => {
     const { changes, next } = diffBlocks(snapshot, readDrafts())
     await saveBlockChanges(db, pageId, changes)
+    await syncCardRecords(db, pageId) // new Card blocks get a review schedule
     snapshot = next // only after a successful save
   }, delayMs)
 

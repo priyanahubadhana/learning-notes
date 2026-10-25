@@ -4,8 +4,19 @@ import {
   insertOrUpdateBlockForSlashMenu,
 } from '@blocknote/core'
 import { BlockNoteView } from '@blocknote/mantine'
-import { SuggestionMenuController, useCreateBlockNote } from '@blocknote/react'
-import { useContext, useEffect, useState, type RefObject } from 'react'
+import {
+  SideMenu,
+  SideMenuController,
+  SuggestionMenuController,
+  useCreateBlockNote,
+} from '@blocknote/react'
+import {
+  useContext,
+  useEffect,
+  useState,
+  type CSSProperties,
+  type RefObject,
+} from 'react'
 import { AppUiContext } from '../app/appUi'
 import { runTask } from '../app/errors'
 import { editorColorScheme } from '../app/theme'
@@ -14,6 +25,8 @@ import { listBlocks } from '../core/blockService'
 import type { LearningNotesDB } from '../core/db'
 import type { Block, Page } from '../core/types'
 import { createPage } from '../pages/pageService'
+import { t } from '../i18n/t'
+import { AppDragHandleMenu } from './CardMenu'
 import { codeBlockKeys } from './codeBlockKeys'
 import { EditorContext, type EditorApi } from './editorContext'
 import { editorToDrafts, recordsToEditor, withoutIds } from './mapping'
@@ -166,7 +179,19 @@ function LoadedPageEditor({
         onChange={sync.changed}
         theme={editorColorScheme(theme)}
         slashMenu={false}
+        sideMenu={false}
+        // The Card answer label is drawn by CSS (index.css) from this text.
+        style={
+          {
+            '--card-answer-label': JSON.stringify(t('card.answer')),
+          } as CSSProperties
+        }
       >
+        <SideMenuController
+          sideMenu={(props) => (
+            <SideMenu {...props} dragHandleMenu={AppDragHandleMenu} />
+          )}
+        />
         <SuggestionMenuController
           triggerCharacter="/"
           getItems={async (query) =>

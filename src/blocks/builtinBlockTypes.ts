@@ -49,6 +49,7 @@ export const builtinBlockTypes: readonly BlockTypeDefinition[] = [
     label: 'Callout',
     createContent: () => ({ text: [], emoji: '💡' }),
   },
+  { type: 'card', label: 'Card', createContent: () => ({ text: [] }) },
   {
     type: 'pageLink',
     label: 'Page link',

@@ -3,6 +3,7 @@ import {
   getDefaultReactSlashMenuItems,
   type DefaultReactSuggestionItem,
 } from '@blocknote/react'
+import { cardSlashItem } from './cardActions'
 import type { AppSchema } from './schema'
 
 type Editor = AppSchema['BlockNoteEditor']
@@ -22,7 +23,7 @@ export interface SlashMenuActions {
 
 /**
  * Items for the "/" menu: BlockNote's defaults for our block types (it only
- * offers types in our schema), plus Callout, template actions and
+ * offers types in our schema), plus Callout, Card, template actions and
  * "New sub-page".
  */
 export function buildSlashMenuItems(
@@ -48,6 +49,7 @@ export function buildSlashMenuItems(
       insertOrUpdateBlockForSlashMenu(editor, { type: 'callout' }),
   }
   items.splice(quoteIndex === -1 ? items.length : quoteIndex + 1, 0, callout)
+  items.push(cardSlashItem(editor))
 
   items.push({
     title: 'Insert template…',

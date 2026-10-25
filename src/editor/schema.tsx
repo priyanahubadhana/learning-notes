@@ -4,6 +4,7 @@ import {
   defaultProps,
 } from '@blocknote/core'
 import { createReactBlockSpec } from '@blocknote/react'
+import { t } from '../i18n/t'
 import { PageLinkView } from './PageLinkView'
 
 /**
@@ -45,6 +46,28 @@ const createPageLink = createReactBlockSpec(
   },
 )
 
+/**
+ * Card: a recall card. Its text is the question; the blocks nested inside it
+ * are the answer (styled in index.css). Scheduling lives in recall/.
+ */
+const createCard = createReactBlockSpec(
+  { type: 'card', propSchema: {}, content: 'inline' },
+  {
+    render: ({ contentRef }) => (
+      <div className="flex w-full items-baseline gap-2.5">
+        <span
+          contentEditable={false}
+          className="recall-card-label select-none"
+          aria-hidden
+        >
+          {t('card.question')}
+        </span>
+        <div className="flex-1 font-medium" ref={contentRef} />
+      </div>
+    ),
+  },
+)
+
 const {
   paragraph,
   heading,
@@ -70,6 +93,7 @@ export const schema = BlockNoteSchema.create({
     image,
     callout: createCallout(),
     pageLink: createPageLink(),
+    card: createCard(),
   },
 })
 

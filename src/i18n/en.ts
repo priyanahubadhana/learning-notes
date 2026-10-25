@@ -60,6 +60,14 @@ export const en = {
   'settings.goodSteps.remove': 'Remove last step',
   'settings.goodSteps.step': 'Step {n}, in days',
 
+  // Cards
+  'card.make': 'Make card',
+  'card.question': 'Q',
+  'card.answer': 'A',
+  'card.slash.title': 'Card',
+  'card.slash.subtext': 'Question with a hidden answer, for review',
+  'card.slash.group': 'Recall',
+
   // Units
   'unit.minutes': 'minutes',
   'unit.days': 'days',

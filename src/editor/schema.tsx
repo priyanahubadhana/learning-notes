@@ -1,0 +1,81 @@
+import {
+  BlockNoteSchema,
+  defaultBlockSpecs,
+  defaultProps,
+} from '@blocknote/core'
+import { createReactBlockSpec } from '@blocknote/react'
+import { PageLinkView } from './PageLinkView'
+
+/**
+ * BlockNote editor schema: which block types the editor can show.
+ * Limited to the Phase 1 block types (see blocks/builtinBlockTypes.ts).
+ */
+
+/** Callout: highlighted text with an emoji. Not built into BlockNote. */
+const createCallout = createReactBlockSpec(
+  {
+    type: 'callout',
+    propSchema: {
+      textColor: defaultProps.textColor,
+      emoji: { default: '💡' },
+    },
+    content: 'inline',
+  },
+  {
+    render: ({ block, contentRef }) => (
+      <div className="flex w-full gap-3 rounded-lg bg-soft px-4 py-3.5">
+        <span contentEditable={false} className="select-none">
+          {block.props.emoji}
+        </span>
+        <div className="flex-1" ref={contentRef} />
+      </div>
+    ),
+  },
+)
+
+/** Page link: a link to another page, created from the slash menu. */
+const createPageLink = createReactBlockSpec(
+  {
+    type: 'pageLink',
+    propSchema: { pageId: { default: '' } },
+    content: 'none',
+  },
+  {
+    render: ({ block }) => <PageLinkView pageId={block.props.pageId} />,
+  },
+)
+
+const {
+  paragraph,
+  heading,
+  bulletListItem,
+  numberedListItem,
+  checkListItem,
+  quote,
+  divider,
+  codeBlock,
+  image,
+} = defaultBlockSpecs
+
+export const schema = BlockNoteSchema.create({
+  blockSpecs: {
+    paragraph,
+    heading,
+    bulletListItem,
+    numberedListItem,
+    checkListItem,
+    quote,
+    divider,
+    codeBlock,
+    image,
+    callout: createCallout(),
+    pageLink: createPageLink(),
+  },
+})
+
+export type AppSchema = typeof schema
+
+/** Block type names the editor can display; others stay hidden (and safe). */
+export const editorBlockTypes: ReadonlySet<string> = new Set(
+  Object.keys(schema.blockSchema),
+)

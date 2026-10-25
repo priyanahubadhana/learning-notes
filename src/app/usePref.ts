@@ -1,0 +1,13 @@
+import { useEffect, useState } from 'react'
+import { readPref, writePref } from './uiPrefs'
+
+/** Like useState, but remembered on this device (see uiPrefs.ts). */
+export function usePref<T>(
+  key: string,
+  isValid: (value: unknown) => value is T,
+  fallback: T,
+) {
+  const [value, setValue] = useState(() => readPref(key, isValid, fallback))
+  useEffect(() => writePref(key, value), [key, value])
+  return [value, setValue] as const
+}

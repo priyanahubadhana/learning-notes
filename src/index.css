@@ -1,0 +1,110 @@
+@import 'tailwindcss';
+
+/*
+ * Design tokens (from prototype.html). Tailwind turns these into classes
+ * such as bg-side, text-muted, border-line. Themes (step 6b) override them.
+ */
+@theme {
+  --color-bg: #fff;
+  --color-side: #f7f7f5;
+  --color-ink: #1d1d1f;
+  --color-muted: #8a8a8e;
+  --color-line: #ececec;
+  --color-accent: #2f6feb;
+  --color-hover: rgba(0, 0, 0, 0.04);
+  --color-soft: #f4f6fb;
+
+  --font-sans:
+    -apple-system, BlinkMacSystemFont, 'SF Pro Text', 'Inter', system-ui,
+    sans-serif;
+}
+
+/* Themes: Day is the default above; Night and Sepia override the tokens. */
+:root {
+  color-scheme: light;
+}
+:root[data-theme='night'] {
+  --color-bg: #161618;
+  --color-side: #1e1e21;
+  --color-ink: #ececee;
+  --color-muted: #8e8e93;
+  --color-line: #2c2c30;
+  --color-accent: #5e9bff;
+  --color-hover: rgba(255, 255, 255, 0.05);
+  --color-soft: #22252c;
+  color-scheme: dark; /* native controls & scrollbars */
+}
+:root[data-theme='sepia'] {
+  --color-bg: #f8f1e3;
+  --color-side: #f1e8d6;
+  --color-ink: #433422;
+  --color-muted: #9a8a72;
+  --color-line: #e6dac3;
+  --color-accent: #b5762a;
+  --color-hover: rgba(90, 60, 20, 0.06);
+  --color-soft: #efe4cc;
+}
+
+body {
+  margin: 0;
+  background: var(--color-bg);
+  color: var(--color-ink);
+  font: 15px/1.6 var(--font-sans);
+  transition:
+    background-color 0.25s,
+    color 0.25s;
+}
+
+/*
+ * Editor (BlockNote): use our font and theme tokens, so it follows the
+ * theme. Selectors are extra-specific to beat BlockNote's own defaults.
+ */
+.bn-root.bn-root[data-color-scheme] {
+  --bn-font-family: var(--font-sans);
+  /* transparent: fades with the page instead of switching abruptly */
+  --bn-colors-editor-background: transparent;
+  --bn-colors-editor-text: var(--color-ink);
+  --bn-colors-menu-background: var(--color-bg);
+  --bn-colors-menu-text: var(--color-ink);
+  --bn-colors-tooltip-background: var(--color-side);
+  --bn-colors-tooltip-text: var(--color-ink);
+  --bn-colors-hovered-background: var(--color-hover);
+  --bn-colors-hovered-text: var(--color-ink);
+  --bn-colors-selected-background: var(--color-accent);
+  --bn-colors-selected-text: #fff;
+  --bn-colors-disabled-background: var(--color-side);
+  --bn-colors-disabled-text: var(--color-muted);
+  --bn-colors-border: var(--color-line);
+  --bn-colors-shadow: rgba(0, 0, 0, 0.14);
+  --bn-colors-side-menu: var(--color-muted);
+}
+/* Text aligned with the page title. */
+.bn-container .bn-editor {
+  padding-inline: 0;
+}
+/* Code blocks: soft surface instead of BlockNote's fixed black. */
+.bn-root .bn-block-content[data-content-type='codeBlock'] {
+  background-color: var(--color-soft);
+  color: var(--color-ink);
+}
+.bn-root .bn-block-content[data-content-type='codeBlock'] > pre {
+  --bn-suggestion-surface: var(--color-soft);
+  font:
+    13px/1.55 'SF Mono',
+    ui-monospace,
+    Menlo,
+    monospace;
+}
+/* Quotes: theme ink instead of fixed grey. */
+.bn-root [data-content-type='quote'] blockquote {
+  border-left: 3px solid var(--color-ink);
+  color: var(--color-ink);
+}
+/* Page links to deleted pages: hide only that block (not its parent). */
+.bn-block-outer:has(> .bn-block > .bn-block-content [data-hidden-page-link]) {
+  display: none;
+}
+/* To-do checkboxes in the accent colour. */
+.bn-root input[type='checkbox'] {
+  accent-color: var(--color-accent);
+}

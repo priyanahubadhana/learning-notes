@@ -289,3 +289,9 @@
 - **What:** "Duplicate" in the block menu (⋮⋮): copies a block and everything nested in it right below it (new ids, so a copied Card or blank is a new card with a fresh schedule); Ctrl+Z undoes it.
 - **Why:** Owner request (approved Phase 3 addition).
 - **Files:** src/editor/blockActions.ts, src/editor/CardMenu.tsx, src/i18n/en.ts, e2e/cards.spec.ts, README.md, CHANGELOG.md
+
+## 2026-10-26
+
+- **What:** Phase 3 end-check fixes: `.env` files are git-ignored (secrets never committed); stored FSRS data is checked before use (damaged data → the card restarts cleanly instead of getting a broken due date).
+- **Why:** Phase 3 security review.
+- **Files:** .gitignore, src/recall/fsrsScheduler.ts, src/recall/reviewService.test.ts, CHANGELOG.md

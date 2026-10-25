@@ -549,3 +549,19 @@ describe('FSRS (the default scheduler)', () => {
     expect(rebuildCard(original, logs)).toEqual(stored)
   })
 })
+
+describe('FSRS with damaged stored data', () => {
+  it('still schedules the card (as a fresh start) instead of breaking', async () => {
+    await addCard('a', {
+      due: NOW,
+      schedulerData: { scheduler: 'fsrs', stability: 'oops' },
+    })
+    const { card } = await rateCard(db, 'c-a', 'good', {
+      durationMs: 1,
+      now: NOW,
+    })
+    expect(Number.isFinite(card.due)).toBe(true)
+    expect(card.schedulerData).toMatchObject({ scheduler: 'fsrs' })
+    expect(Number.isFinite(card.schedulerData?.stability)).toBe(true)
+  })
+})

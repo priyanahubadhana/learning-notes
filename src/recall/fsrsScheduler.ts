@@ -56,8 +56,17 @@ function engine({ againMinutes, targetMemory }: SchedulerSettings) {
   )
 }
 
+const isNumber = (x: unknown): x is number =>
+  typeof x === 'number' && Number.isFinite(x)
+
+/** Stored FSRS state, checked (damaged data counts as none: a fresh start). */
 const isFsrsData = (data: JsonObject | undefined): data is FsrsData =>
-  data?.scheduler === 'fsrs'
+  data?.scheduler === 'fsrs' &&
+  isNumber(data.stability) &&
+  isNumber(data.difficulty) &&
+  isNumber(data.state) &&
+  isNumber(data.learningStep) &&
+  (data.lastReview === null || isNumber(data.lastReview))
 
 /** The card as ts-fsrs sees it (a fresh FSRS card if it has no FSRS data). */
 function toFsrs(card: Card): FsrsCard {

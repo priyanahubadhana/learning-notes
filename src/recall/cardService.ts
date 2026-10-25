@@ -1,11 +1,13 @@
 import type { LearningNotesDB } from '../core/db'
 import { newRecordFields } from '../core/records'
 import type { Block, Card } from '../core/types'
+import { blankIds } from '../editor/mapping'
 
 /**
- * Recall cards: the scheduling records behind Card blocks (and, from step 4,
- * fill-in-the-blanks). The card's text lives in its block; this service only
- * makes sure every card has a scheduling record. Records are never deleted:
+ * Recall cards: the scheduling records behind Card blocks and
+ * fill-in-the-blanks (one card per blank; part = the blank's id). The card's
+ * text lives in its block; this service only makes sure every card has a
+ * scheduling record. Records are never deleted:
  * if a Card block is turned back into text (e.g. Undo), its record stays, so
  * redoing it keeps the review history. Reviews skip cards whose block is no
  * longer a live card.
@@ -41,9 +43,17 @@ export function newCard(
   }
 }
 
+/** The cards a block makes: its Card (if it is one) plus one per blank. */
+export function cardParts(block: Pick<Block, 'type' | 'content'>): string[] {
+  return [
+    ...(block.type === CARD_BLOCK_TYPE ? [MAIN_PART] : []),
+    ...blankIds(block.content),
+  ]
+}
+
 /**
- * Creates missing card records for the live Card blocks on a page. Safe to
- * call after every save: existing records are left untouched.
+ * Creates missing card records for the live Card blocks and blanks on a
+ * page. Safe to call after every save: existing records are left untouched.
  */
 export async function syncCardRecords(
   db: LearningNotesDB,
@@ -53,23 +63,24 @@ export async function syncCardRecords(
   await db.transaction('rw', db.pages, db.blocks, db.cards, async () => {
     const page = await db.pages.get(pageId)
     if (!page) return
-    const cardBlocks = await db.blocks
+    const blocks = await db.blocks
       .where('pageId')
       .equals(pageId)
-      .filter((b) => b.type === CARD_BLOCK_TYPE && b.deletedAt === null)
+      .filter((b) => b.deletedAt === null)
       .toArray()
-    if (cardBlocks.length === 0) return
+    const wanted = blocks.flatMap((block) =>
+      cardParts(block).map((part) => ({ block, part })),
+    )
+    if (wanted.length === 0) return
 
     const existing = await db.cards
       .where('blockId')
-      .anyOf(cardBlocks.map((b) => b.id))
+      .anyOf([...new Set(wanted.map((w) => w.block.id))])
       .toArray()
-    const hasCard = new Set(
-      existing.filter((c) => c.part === MAIN_PART).map((c) => c.blockId),
-    )
-    const missing = cardBlocks
-      .filter((b) => !hasCard.has(b.id))
-      .map((b) => newCard(b, page.notebookId, MAIN_PART, now))
+    const has = new Set(existing.map((c) => `${c.blockId}/${c.part}`))
+    const missing = wanted
+      .filter(({ block, part }) => !has.has(`${block.id}/${part}`))
+      .map(({ block, part }) => newCard(block, page.notebookId, part, now))
     if (missing.length > 0) await db.cards.bulkAdd(missing)
   })
 }

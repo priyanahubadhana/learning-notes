@@ -1,3 +1,5 @@
+// Browser types for helpers that run code inside the page.
+/// <reference lib="dom" />
 import { expect, type Locator, type Page } from '@playwright/test'
 
 /**
@@ -157,3 +159,42 @@ export async function trashAction(
   await entry.hover()
   await entry.getByTitle(action, { exact: true }).click()
 }
+
+/** Selects `text` (within one line) in the editor, like dragging the mouse. */
+export async function selectText(page: Page, text: string) {
+  await page.evaluate((wanted) => {
+    const root = document.querySelector('.bn-editor')!
+    const walker = document.createTreeWalker(root, NodeFilter.SHOW_TEXT)
+    for (let node = walker.nextNode(); node; node = walker.nextNode()) {
+      const at = node.textContent!.indexOf(wanted)
+      if (at < 0) continue
+      const range = document.createRange()
+      range.setStart(node, at)
+      range.setEnd(node, at + wanted.length)
+      const selection = window.getSelection()!
+      selection.removeAllRanges()
+      selection.addRange(range)
+      return
+    }
+    throw new Error('Text not found: ' + wanted)
+  }, text)
+}
+
+/** Number of review records in the app database. */
+export const cardRecordCount = (page: Page) =>
+  page.evaluate(
+    () =>
+      new Promise<number>((resolve) => {
+        const open = indexedDB.open('learning-notes')
+        open.onsuccess = () => {
+          const count = open.result
+            .transaction('cards')
+            .objectStore('cards')
+            .count()
+          count.onsuccess = () => {
+            resolve(count.result)
+            open.result.close()
+          }
+        }
+      }),
+  )

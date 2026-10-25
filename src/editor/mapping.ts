@@ -96,6 +96,28 @@ export function toPlainText(content: JsonObject): string {
 }
 
 /**
+ * Ids of the fill-in-the-blanks in a block's `content.text` (runs styled
+ * `blank`, including inside links), in order, without repeats.
+ */
+export function blankIds(content: JsonObject): string[] {
+  const ids: string[] = []
+  const visit = (runs: JsonValue | undefined) => {
+    if (!Array.isArray(runs)) return
+    for (const run of runs) {
+      if (!run || typeof run !== 'object' || Array.isArray(run)) continue
+      const styles = run.styles
+      if (styles && typeof styles === 'object' && !Array.isArray(styles)) {
+        const id = styles.blank
+        if (typeof id === 'string' && !ids.includes(id)) ids.push(id)
+      }
+      visit(run.content) // links hold their own runs
+    }
+  }
+  visit(content.text)
+  return ids
+}
+
+/**
  * Removes ids from editor blocks (and their children), so BlockNote gives
  * them new ones, e.g. when inserting a template into a page.
  */

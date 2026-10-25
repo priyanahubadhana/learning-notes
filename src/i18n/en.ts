@@ -68,6 +68,12 @@ export const en = {
   'card.slash.subtext': 'Question with a hidden answer, for review',
   'card.slash.group': 'Recall',
 
+  // Fill-in-the-blank
+  'blank.make': 'Make blank (hide these words in review)',
+  'blank.remove': 'Remove blank',
+  'blank.button': 'Blank',
+  'card.button': 'Card',
+
   // Units
   'unit.minutes': 'minutes',
   'unit.days': 'days',

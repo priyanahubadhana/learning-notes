@@ -109,7 +109,7 @@ Business logic (services) has no UI code, so it can be reused later (e.g. iOS). 
 
 ## Project Status
 
-**Current phase:** Phase 2 — complete (automated checks and owner visual checks passed). Phase 3 in progress (step 3 of 8 done). Phase 1 complete 2026-10-25.
+**Current phase:** Phase 2 — complete (automated checks and owner visual checks passed). Phase 3 in progress (step 4 of 8 done). Phase 1 complete 2026-10-25.
 
 | Step                                                    | Status |
 | ------------------------------------------------------- | ------ |
@@ -128,49 +128,52 @@ Business logic (services) has no UI code, so it can be reused later (e.g. iOS). 
 | Phase 3, step 1: data model v2 + upgrade                | Done   |
 | Phase 3, step 2: settings registry + Settings screen    | Done   |
 | Phase 3, step 3: Card block + Make card (Undo)          | Done   |
+| Phase 3, step 4: fill-in-the-blank + selection toolbar  | Done   |
 
 ## Decision Log
 
-| Date       | Decision                                                                                                                                              | Why                                                                     |
-| ---------- | ----------------------------------------------------------------------------------------------------------------------------------------------------- | ----------------------------------------------------------------------- |
-| 2026-10-25 | Data model Workspace → Notebooks → Pages → Blocks; each block its own record                                                                          | Flexible, editor-independent, sync-friendly                             |
-| 2026-10-25 | Block data stored in Dexie, not inside the editor                                                                                                     | Editor can be swapped later                                             |
-| 2026-10-25 | IDs are UUIDs generated on the device                                                                                                                 | Offline creation, no clashes when syncing later                         |
-| 2026-10-25 | `order` uses fractional-index string keys                                                                                                             | Reordering changes only the moved record                                |
-| 2026-10-25 | Soft delete (`deletedAt`), cascading to children in one transaction                                                                                   | Allows restore/trash and syncing deletions later                        |
-| 2026-10-25 | All reads/writes go through service functions                                                                                                         | Business logic separate from UI (reusable for iOS)                      |
-| 2026-10-25 | Block types are a registry; unknown types are still stored                                                                                            | New block types need no core changes; data is never lost                |
-| 2026-10-25 | BlockNote's data format is known only by `editor/mapping.ts`                                                                                          | Swapping the editor means rewriting one file                            |
-| 2026-10-25 | While a page is open, data flows editor → database only; saves are debounced (~0.5 s) and write only changed blocks                                   | No save loops; few writes                                               |
-| 2026-10-25 | Blocks the editor can't show (unknown types) are hidden, never deleted                                                                                | No data loss when types are added/removed                               |
-| 2026-10-25 | Sidebar/breadcrumb update live via `dexie-react-hooks` (reads still go through services)                                                              | UI always matches the data, no manual refresh                           |
-| 2026-10-25 | Display preferences (open page, expanded items, theme) stored in localStorage, not the database                                                       | Per-device conveniences, not notes data                                 |
-| 2026-10-25 | Sidebar "+" on a page only creates the sub-page; links come from the slash menu                                                                       | Never edits a page while it is open elsewhere                           |
-| 2026-10-25 | Own code-block keys (override BlockNote's): Enter on empty last line / Ctrl+Enter leave; Shift+Enter = new line                                       | Easy, predictable way out of code; fixes Shift+Enter bug                |
-| 2026-10-25 | Editor behaviour tested with a real BlockNote editor in Vitest (jsdom)                                                                                | Catches keyboard/menu regressions without a browser                     |
-| 2026-10-25 | Links to deleted pages are hidden but kept saved                                                                                                      | They reappear if the page is restored                                   |
-| 2026-10-25 | Trash added to Phase 1; lists only what was deleted directly; Restore brings back everything deleted at the same moment                               | Completes soft delete; protects the owner's data                        |
-| 2026-10-25 | "Delete forever" erases content but keeps an empty marker (`purgedAt`)                                                                                | Gone for good, yet a future sync can still tell other devices           |
-| 2026-10-25 | Restoring a page whose notebook is in Trash restores only the notebook too; if its parent page is still deleted, it goes to the top level             | Restore always works without bringing back unrelated pages              |
-| 2026-10-25 | Git (local) with a commit after each step; LF line endings via `.gitattributes`                                                                       | Any step can be undone; consistent files across systems                 |
-| 2026-10-25 | Playwright end-to-end tests (Chromium only) for user flows; Trash browser checks automated                                                            | Claude tests the UI itself; fewer manual checks                         |
-| 2026-10-25 | Workflow: questions up front, Claude builds and tests everything, one final report with visual checks                                                 | Faster steps, less back-and-forth                                       |
-| 2026-10-25 | Journal = a special notebook (`kind: 'journal'`); day pages under month pages, newest first                                                           | Reuses pages; tidy after hundreds of days                               |
-| 2026-10-25 | Templates = normal pages in a hidden "Templates" notebook, shown in their own section; using one copies its blocks (new ids)                          | Edit templates like pages; no new storage                               |
-| 2026-10-25 | Five general starter templates, created once; "Daily journal" protected                                                                               | Useful from day one for any field; Today always works                   |
-| 2026-10-25 | "+" opens Blank page / From template; page action bar with Save as template (Import/Export coming in Phase 6)                                         | One tidy button; actions clearly visible                                |
-| 2026-10-25 | Planning questions one at a time; build-step questions all together                                                                                   | Deep planning, fewer round trips while building                         |
-| 2026-10-25 | Login/hosting/HTTPS rules deferred to Phase 6–7; budget ₹0                                                                                            | No accounts or hosting yet; everything is free and local                |
-| 2026-10-25 | IDEAS.md added for parked ideas                                                                                                                       | Keeps phases focused                                                    |
-| 2026-10-26 | Phase 3 plan approved (see Phase 3 Plan)                                                                                                              | Owner sign-off after prototype testing                                  |
-| 2026-10-26 | DB v2: `cards` (schedule state, due indexed), `reviewLogs` (append-only), `settings`; Block gains optional `source`, `derivedFrom`                    | Schedule separate from text; history for FSRS/sync; AI-ready            |
-| 2026-10-26 | Study days follow the local calendar with a 4 am rollover; stored times are UTC                                                                       | Correct across time zones and daylight saving                           |
-| 2026-10-26 | Settings registry: each setting defined once (pluggable); synced settings in the database, device settings (theme) in the browser under their old key | One value per setting in every category; no lost theme                  |
-| 2026-10-26 | Settings save on Enter/leaving the field; invalid input shows a message and is never saved                                                            | Clear feedback, safe data                                               |
-| 2026-10-26 | Card block: question = its text, answer = its nested blocks; "Make card" in the block menu (⋮⋮) and "/card"                                           | Rich answers; Undo, saving and the editor bridge work unchanged         |
-| 2026-10-26 | A card record is created after each save for new Card blocks and never deleted (Undo keeps it)                                                        | Redo keeps review history; reviews skip blocks that are no longer cards |
+| Date       | Decision                                                                                                                                              | Why                                                                       |
+| ---------- | ----------------------------------------------------------------------------------------------------------------------------------------------------- | ------------------------------------------------------------------------- |
+| 2026-10-25 | Data model Workspace → Notebooks → Pages → Blocks; each block its own record                                                                          | Flexible, editor-independent, sync-friendly                               |
+| 2026-10-25 | Block data stored in Dexie, not inside the editor                                                                                                     | Editor can be swapped later                                               |
+| 2026-10-25 | IDs are UUIDs generated on the device                                                                                                                 | Offline creation, no clashes when syncing later                           |
+| 2026-10-25 | `order` uses fractional-index string keys                                                                                                             | Reordering changes only the moved record                                  |
+| 2026-10-25 | Soft delete (`deletedAt`), cascading to children in one transaction                                                                                   | Allows restore/trash and syncing deletions later                          |
+| 2026-10-25 | All reads/writes go through service functions                                                                                                         | Business logic separate from UI (reusable for iOS)                        |
+| 2026-10-25 | Block types are a registry; unknown types are still stored                                                                                            | New block types need no core changes; data is never lost                  |
+| 2026-10-25 | BlockNote's data format is known only by `editor/mapping.ts`                                                                                          | Swapping the editor means rewriting one file                              |
+| 2026-10-25 | While a page is open, data flows editor → database only; saves are debounced (~0.5 s) and write only changed blocks                                   | No save loops; few writes                                                 |
+| 2026-10-25 | Blocks the editor can't show (unknown types) are hidden, never deleted                                                                                | No data loss when types are added/removed                                 |
+| 2026-10-25 | Sidebar/breadcrumb update live via `dexie-react-hooks` (reads still go through services)                                                              | UI always matches the data, no manual refresh                             |
+| 2026-10-25 | Display preferences (open page, expanded items, theme) stored in localStorage, not the database                                                       | Per-device conveniences, not notes data                                   |
+| 2026-10-25 | Sidebar "+" on a page only creates the sub-page; links come from the slash menu                                                                       | Never edits a page while it is open elsewhere                             |
+| 2026-10-25 | Own code-block keys (override BlockNote's): Enter on empty last line / Ctrl+Enter leave; Shift+Enter = new line                                       | Easy, predictable way out of code; fixes Shift+Enter bug                  |
+| 2026-10-25 | Editor behaviour tested with a real BlockNote editor in Vitest (jsdom)                                                                                | Catches keyboard/menu regressions without a browser                       |
+| 2026-10-25 | Links to deleted pages are hidden but kept saved                                                                                                      | They reappear if the page is restored                                     |
+| 2026-10-25 | Trash added to Phase 1; lists only what was deleted directly; Restore brings back everything deleted at the same moment                               | Completes soft delete; protects the owner's data                          |
+| 2026-10-25 | "Delete forever" erases content but keeps an empty marker (`purgedAt`)                                                                                | Gone for good, yet a future sync can still tell other devices             |
+| 2026-10-25 | Restoring a page whose notebook is in Trash restores only the notebook too; if its parent page is still deleted, it goes to the top level             | Restore always works without bringing back unrelated pages                |
+| 2026-10-25 | Git (local) with a commit after each step; LF line endings via `.gitattributes`                                                                       | Any step can be undone; consistent files across systems                   |
+| 2026-10-25 | Playwright end-to-end tests (Chromium only) for user flows; Trash browser checks automated                                                            | Claude tests the UI itself; fewer manual checks                           |
+| 2026-10-25 | Workflow: questions up front, Claude builds and tests everything, one final report with visual checks                                                 | Faster steps, less back-and-forth                                         |
+| 2026-10-25 | Journal = a special notebook (`kind: 'journal'`); day pages under month pages, newest first                                                           | Reuses pages; tidy after hundreds of days                                 |
+| 2026-10-25 | Templates = normal pages in a hidden "Templates" notebook, shown in their own section; using one copies its blocks (new ids)                          | Edit templates like pages; no new storage                                 |
+| 2026-10-25 | Five general starter templates, created once; "Daily journal" protected                                                                               | Useful from day one for any field; Today always works                     |
+| 2026-10-25 | "+" opens Blank page / From template; page action bar with Save as template (Import/Export coming in Phase 6)                                         | One tidy button; actions clearly visible                                  |
+| 2026-10-25 | Planning questions one at a time; build-step questions all together                                                                                   | Deep planning, fewer round trips while building                           |
+| 2026-10-25 | Login/hosting/HTTPS rules deferred to Phase 6–7; budget ₹0                                                                                            | No accounts or hosting yet; everything is free and local                  |
+| 2026-10-25 | IDEAS.md added for parked ideas                                                                                                                       | Keeps phases focused                                                      |
+| 2026-10-26 | Phase 3 plan approved (see Phase 3 Plan)                                                                                                              | Owner sign-off after prototype testing                                    |
+| 2026-10-26 | DB v2: `cards` (schedule state, due indexed), `reviewLogs` (append-only), `settings`; Block gains optional `source`, `derivedFrom`                    | Schedule separate from text; history for FSRS/sync; AI-ready              |
+| 2026-10-26 | Study days follow the local calendar with a 4 am rollover; stored times are UTC                                                                       | Correct across time zones and daylight saving                             |
+| 2026-10-26 | Settings registry: each setting defined once (pluggable); synced settings in the database, device settings (theme) in the browser under their old key | One value per setting in every category; no lost theme                    |
+| 2026-10-26 | Settings save on Enter/leaving the field; invalid input shows a message and is never saved                                                            | Clear feedback, safe data                                                 |
+| 2026-10-26 | Card block: question = its text, answer = its nested blocks; "Make card" in the block menu (⋮⋮) and "/card"                                           | Rich answers; Undo, saving and the editor bridge work unchanged           |
+| 2026-10-26 | A card record is created after each save for new Card blocks and never deleted (Undo keeps it)                                                        | Redo keeps review history; reviews skip blocks that are no longer cards   |
+| 2026-10-26 | Blanks are a text style whose value is the blank id; each blank is its own card; selection snaps to whole words                                       | Survives edits, emoji and any script; one sentence can hold several cards |
+| 2026-10-26 | "Make blank" and "Make card" also in the selection toolbar                                                                                            | Works on touch screens (block menu is hover-only)                         |
 
-**Next steps:** Phase 3, step 4 (fill-in-the-blank cards). See IDEAS.md for parked ideas.
+**Next steps:** Phase 3, step 5 (scheduler, Review screen, Practice anyway). See IDEAS.md for parked ideas.
 
 ## Known Limitations
 

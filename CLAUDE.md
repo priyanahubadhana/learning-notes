@@ -15,7 +15,8 @@
 - **Planning a phase:** ask open-ended questions one at a time (never yes/no); for each decision explain the options simply, give pros/cons and a recommendation; challenge ideas when there is a better way; give each phase a Definition of Done; end planning with ONE checklist of decisions for the owner to approve.
 - **Start of a build step:** ask all questions for the step together, up front, each with a recommendation.
 - **During the step:** build, then test everything yourself (Vitest unit tests + Playwright end-to-end tests) and fix failures without asking.
-- **End of the step:** report only when it is done: a short summary, a brief self-review (better option, risk, or early fix), and one final list of visual checks for the owner (explain any term they may not know).
+- **Self-testing:** test everything possible yourself with Playwright, including screenshots in all three themes (Day, Night, Sepia) and at phone width; fix what you find.
+- **End of the step:** report only when it is done: a short summary, a brief self-review (better option, risk, or early fix), at most 2–3 visual checks that truly need human eyes (explain any term the owner may not know), and finish with a "Quick summary" of 3–5 keyword bullets.
 - Still ask before big token-heavy work or anything irreversible.
 - Explain in simple, practical terms: what it is, what it does, why, and the alternatives, with a recommendation.
 - Collect small issues the owner finds during testing into a polish list and fix them in the next step.

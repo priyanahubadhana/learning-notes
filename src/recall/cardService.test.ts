@@ -1,7 +1,7 @@
 import { afterEach, beforeEach, describe, expect, it } from 'vitest'
 import type { LearningNotesDB } from '../core/db'
 import { createTestDb } from '../core/testing'
-import type { Block } from '../core/types'
+import type { Block, JsonObject } from '../core/types'
 import { CARD_BLOCK_TYPE, syncCardRecords } from './cardService'
 
 const T = 1_700_000_000_000
@@ -70,6 +70,28 @@ describe('syncCardRecords', () => {
     const cards = await db.cards.toArray()
     expect(cards).toHaveLength(1)
     expect(cards[0].step).toBe(3)
+  })
+
+  it('creates one card per blank, plus the Card itself', async () => {
+    const run = (text: string, blank?: string): JsonObject => ({
+      type: 'text',
+      text,
+      styles: blank ? { blank } : {},
+    })
+    await db.blocks.add({
+      ...block('c1', CARD_BLOCK_TYPE),
+      content: {
+        text: [
+          run('S2: '),
+          run('aortic', 'b1'),
+          run(' + '),
+          run('pulmonary', 'b2'),
+        ],
+      },
+    })
+    await syncCardRecords(db, 'p1', T)
+    const parts = (await db.cards.toArray()).map((c) => c.part).sort()
+    expect(parts).toEqual(['b1', 'b2', 'main'])
   })
 
   it('keeps the record when a card turns back into text', async () => {

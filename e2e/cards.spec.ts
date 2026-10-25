@@ -1,29 +1,13 @@
-// Browser types for the database check that runs inside the page.
-/// <reference lib="dom" />
 import { expect, test, type Page } from '@playwright/test'
-import { createNotebook, slashCommand, typeInEditor } from './helpers.ts'
+import {
+  cardRecordCount,
+  createNotebook,
+  slashCommand,
+  typeInEditor,
+} from './helpers.ts'
 
 const cards = (page: Page) =>
   page.locator('.bn-block-content[data-content-type="card"]')
-
-/** Number of review records in the app database. */
-const cardRecordCount = (page: Page) =>
-  page.evaluate(
-    () =>
-      new Promise<number>((resolve) => {
-        const open = indexedDB.open('learning-notes')
-        open.onsuccess = () => {
-          const count = open.result
-            .transaction('cards')
-            .objectStore('cards')
-            .count()
-          count.onsuccess = () => {
-            resolve(count.result)
-            open.result.close()
-          }
-        }
-      }),
-  )
 
 /** Opens the ⋮⋮ block menu of the block containing `text`. */
 async function openBlockMenu(page: Page, text: string) {

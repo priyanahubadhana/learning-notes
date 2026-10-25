@@ -5,6 +5,7 @@ import {
 } from '@blocknote/core'
 import { BlockNoteView } from '@blocknote/mantine'
 import {
+  FormattingToolbarController,
   SideMenu,
   SideMenuController,
   SuggestionMenuController,
@@ -27,6 +28,7 @@ import type { Block, Page } from '../core/types'
 import { createPage } from '../pages/pageService'
 import { t } from '../i18n/t'
 import { AppDragHandleMenu } from './CardMenu'
+import { AppFormattingToolbar } from './SelectionToolbar'
 import { codeBlockKeys } from './codeBlockKeys'
 import { EditorContext, type EditorApi } from './editorContext'
 import { editorToDrafts, recordsToEditor, withoutIds } from './mapping'
@@ -180,6 +182,7 @@ function LoadedPageEditor({
         theme={editorColorScheme(theme)}
         slashMenu={false}
         sideMenu={false}
+        formattingToolbar={false}
         // The Card answer label is drawn by CSS (index.css) from this text.
         style={
           {
@@ -187,6 +190,7 @@ function LoadedPageEditor({
           } as CSSProperties
         }
       >
+        <FormattingToolbarController formattingToolbar={AppFormattingToolbar} />
         <SideMenuController
           sideMenu={(props) => (
             <SideMenu {...props} dragHandleMenu={AppDragHandleMenu} />

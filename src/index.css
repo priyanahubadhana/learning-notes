@@ -113,10 +113,11 @@ body {
 }
 
 /*
+ * Card block (recall). React blocks sit inside a `.node-card` wrapper.
  * Card block (recall): the question line plus its nested answer blocks sit
  * in one soft box; the answer gets an "A" label (text set by PageEditor).
  */
-.bn-block:has(> .bn-block-content[data-content-type='card']) {
+.bn-block:has(> .node-card, > [data-content-type='card']) {
   margin: 6px 0;
   padding: 6px 12px 8px;
   border: 1px solid var(--color-line);
@@ -129,7 +130,7 @@ body {
   font-weight: 700;
   color: var(--color-muted);
 }
-.bn-block:has(> .bn-block-content[data-content-type='card']) > .bn-block-group {
+.bn-block:has(> .node-card, > [data-content-type='card']) > .bn-block-group {
   position: relative;
   margin-left: 0;
   margin-top: 4px;
@@ -137,7 +138,7 @@ body {
   padding-left: 28px;
   border-top: 1px dashed var(--color-line);
 }
-.bn-block:has(> .bn-block-content[data-content-type='card'])
+.bn-block:has(> .node-card, > [data-content-type='card'])
   > .bn-block-group::before {
   content: var(--card-answer-label, 'A');
   position: absolute;
@@ -146,4 +147,19 @@ body {
   font-size: 12px;
   font-weight: 700;
   color: var(--color-muted);
+}
+
+/* Fill-in-the-blank: words that will be hidden in review. */
+.recall-blank {
+  padding: 0 2px;
+  border-radius: 3px;
+  border-bottom: 1.5px dashed var(--color-accent);
+  background: color-mix(in srgb, var(--color-accent) 14%, transparent);
+}
+/* No nesting line inside a card: the "A" label marks the answer instead. */
+.bn-block:has(> .node-card, > [data-content-type='card'])
+  > .bn-block-group
+  > .bn-block-outer::before {
+  content: none;
+  border: none;
 }

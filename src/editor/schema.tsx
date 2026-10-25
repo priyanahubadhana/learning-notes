@@ -2,8 +2,9 @@ import {
   BlockNoteSchema,
   defaultBlockSpecs,
   defaultProps,
+  defaultStyleSpecs,
 } from '@blocknote/core'
-import { createReactBlockSpec } from '@blocknote/react'
+import { createReactBlockSpec, createReactStyleSpec } from '@blocknote/react'
 import { t } from '../i18n/t'
 import { PageLinkView } from './PageLinkView'
 
@@ -68,6 +69,19 @@ const createCard = createReactBlockSpec(
   },
 )
 
+/**
+ * Blank: words hidden in review (fill-in-the-blank). The style value is the
+ * blank's id, which is also its card part (see editor/blankActions.ts).
+ */
+const blank = createReactStyleSpec(
+  { type: 'blank', propSchema: 'string' },
+  {
+    render: ({ contentRef }) => (
+      <span className="recall-blank" data-blank ref={contentRef} />
+    ),
+  },
+)
+
 const {
   paragraph,
   heading,
@@ -95,6 +109,7 @@ export const schema = BlockNoteSchema.create({
     pageLink: createPageLink(),
     card: createCard(),
   },
+  styleSpecs: { ...defaultStyleSpecs, blank },
 })
 
 export type AppSchema = typeof schema

@@ -40,7 +40,7 @@ For anyone in any field (writers, vloggers, learners, philosophers, technicians,
 - **"/" menu:** "Insert template…" (adds a template's blocks at the cursor) and "Save page as template".
 - **Page action bar** (top right): Save as template; Import and Export shown as "coming soon" (Phase 6).
 
-## Phase 3 Plan — Recall & Spaced Repetition (approved 2026-10-26, in progress)
+## Phase 3 Plan — Recall & Spaced Repetition (approved 2026-10-26; built and end checks done 2026-10-26)
 
 - **Cards:** Card block (question/answer) from "/"; "Make card" turns any block into an editable Card; fill-in-the-blank by highlighting text (one card per blank, snapped to whole words); no `::` syntax. Ctrl+Z undoes Make card / Make blank. Cards link to their source block ("derived from"); a deleted source keeps the card. Suspend (with Undo toast).
 - **Review:** Again/Hard/Good/Easy (keys 1–4, Space/Enter reveals), each showing its next interval. Global "Review · count", "Review this notebook/page", "Got wrong (7 days)" (cards rated Again in the last 7 days; changed 2026-10-26). Practice anyway (cram): not-due cards keep their schedule, due cards count normally, Again repeats in-session, logged as `cram`. On phones the reveal/rating buttons are pinned to the bottom (portrait and landscape); "Open note"/"Suspend" are tap-sized.
@@ -56,7 +56,7 @@ For anyone in any field (writers, vloggers, learners, philosophers, technicians,
 ## Roadmap (likely, not final — may change)
 
 2. Learning Daily Journal + Templates — done
-3. Recall & Spaced Repetition
+3. Recall & Spaced Repetition — done (end checks passed; awaiting owner check of Duplicate + regional dates)
 4. Organisation & Connection (tags, links, search, history — including page version history)
 5. Databases & interactive blocks
 6. Data safety, export, encryption, sync
@@ -114,7 +114,7 @@ Business logic (services) has no UI code, so it can be reused later (e.g. iOS). 
 
 ## Project Status
 
-**Current phase:** Phase 2 — complete (automated checks and owner visual checks passed). Phase 3 in progress (steps 1–8 done; next: Phase 3 end checks). Phase 1 complete 2026-10-25.
+**Current phase:** Phase 2 — complete (automated checks and owner visual checks passed). Phase 3 — built, all tests pass, end checks done 2026-10-26 (focused code + security review, LEARNING.md); closes after the owner checks Duplicate block and regional dates. Phase 1 complete 2026-10-25.
 
 | Step                                                    | Status |
 | ------------------------------------------------------- | ------ |
@@ -221,7 +221,8 @@ Business logic (services) has no UI code, so it can be reused later (e.g. iOS). 
 - **Step 8 — done 2026-10-26:** FSRS scheduler (`recall/fsrsScheduler.ts`, ts-fsrs 5.4.2) is the default; settings "Scheduler" (FSRS · Simple steps) and "Target memory" (70–97 %). Each scheduler has `adopt(card, history, settings)`: a card last handled by another scheduler is taken over at its next preview/rating (FSRS replays its review log; Simple steps picks the ladder step from the current gap); due dates never move on switching. `scheduledBy(card)` = `schedulerData.scheduler` (none = fixed). Review session: any card still in short (minutes) steps waits and returns in the same session; buttons show minutes until a card has a day gap. Tests: FSRS block in `reviewService.test.ts`, `reviewSession.test.ts`, `e2e/review.spec.ts` (FSRS flow + Settings switch).
 - **Duplicate block — done 2026-10-26:** `editor/blockActions.ts` (`copyWithoutIds`, `duplicateBlock`), menu item in `editor/CardMenu.tsx`; test in `e2e/cards.spec.ts`. Dates follow the user's region via `dateLocale()` in `i18n/t.ts`.
 - Also today: All cards search ~8× faster (cursor paging) and one due-date style in both card lists (`CardStatusLabel`).
-- **Next: Phase 3 end checks** (`rules/phase-end.md`: security/code review, upgrade + 10k-card tests, owner visual checks, Definition of Done). Start with `/next`.
+- **Phase 3 end checks — done 2026-10-26:** 220 unit + 54 e2e tests pass (incl. upgrade, 10k-card, 3 themes + phone screenshots); npm audit 0; focused code review (scheduling + log, FSRS takeover, card sync, DB upgrade, template copy) found no bugs; fixes: `.env` git-ignored, stored FSRS data validated. LEARNING.md created (Phase 3 section).
+- **Next:** owner checks Duplicate block + regional dates → Phase 3 closed → **Phase 4 planning** (Organisation & Connection; `rules/planning.md`, plan mode, review IDEAS.md first). Start with `/next`.
 - See IDEAS.md for parked ideas.
 
 ## Known Limitations

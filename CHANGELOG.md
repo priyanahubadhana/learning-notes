@@ -295,3 +295,9 @@
 - **What:** Phase 3 end-check fixes: `.env` files are git-ignored (secrets never committed); stored FSRS data is checked before use (damaged data → the card restarts cleanly instead of getting a broken due date).
 - **Why:** Phase 3 security review.
 - **Files:** .gitignore, src/recall/fsrsScheduler.ts, src/recall/reviewService.test.ts, CHANGELOG.md
+
+## 2026-10-26
+
+- **What:** Phase 3 end checks: all tests pass (220 unit, 54 e2e), npm audit 0, focused code + security review (no bugs found beyond the fixes above). Created LEARNING.md (Phase 3 section). README status/handoff, CLAUDE.md project files and IDEAS (5 review notes) updated.
+- **Why:** `rules/phase-end.md`.
+- **Files:** LEARNING.md, README.md, CLAUDE.md, IDEAS.md, CHANGELOG.md

@@ -39,4 +39,5 @@ Learning Notes App: a premium, minimal second brain (Notion + OneNote + Anki). W
 - **README.md** — includes "Next steps — handoff" and "Project Status & Decision Log".
 - **CHANGELOG.md** — after every change, a dated entry: what changed, why, files touched.
 - **IDEAS.md** — parked ideas (date, short description, likely phase).
-- Keep README, CLAUDE.md, CHANGELOG, IDEAS and `rules/` up to date.
+- **LEARNING.md** — plain-language explanation of each finished phase, with examples.
+- Keep README, CLAUDE.md, CHANGELOG, IDEAS, LEARNING and `rules/` up to date.

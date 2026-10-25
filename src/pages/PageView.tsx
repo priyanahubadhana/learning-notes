@@ -9,15 +9,18 @@ import {
 } from 'react'
 import { AppUiContext } from '../app/appUi'
 import { runTask } from '../app/errors'
+import { listBlocks } from '../core/blockService'
 import type { LearningNotesDB } from '../core/db'
 import type { Page } from '../core/types'
 import { PageEditor } from '../editor/PageEditor'
 import type { EditorApi } from '../editor/editorContext'
+import { revealBlock } from '../editor/revealBlock'
 import { dateKey } from '../journal/dates'
 import { t } from '../i18n/t'
 import { getNotebook } from '../notebooks/notebookService'
 import { saveAsTemplate } from '../templates/templateService'
 import { getPagePath } from './pageService'
+import { pageSections } from './sections'
 import { createTitleSaver } from './titleSaver'
 
 interface PageViewProps {
@@ -146,6 +149,7 @@ export function PageView({
         autoFocus={autoFocusTitle}
         onEnter={() => editor.current?.focus()}
       />
+      <SectionChips db={db} pageId={page.id} />
       <PageEditor
         db={db}
         pageId={page.id}
@@ -156,6 +160,35 @@ export function PageView({
         editorRef={editor}
       />
     </div>
+  )
+}
+
+/**
+ * Jump chips for the page's sections (top-level headings), pinned to the top
+ * while scrolling. Shown only on pages with enough sections.
+ */
+function SectionChips({ db, pageId }: { db: LearningNotesDB; pageId: string }) {
+  const sections = useLiveQuery(
+    async () => pageSections(await listBlocks(db, pageId)),
+    [db, pageId],
+  )
+  if (!sections?.length) return null
+  return (
+    <nav
+      aria-label={t('sections.label')}
+      className="sticky top-0 z-10 -mx-3 mb-3 flex gap-1.5 overflow-x-auto bg-bg px-3 py-2"
+    >
+      {sections.map((s) => (
+        <button
+          key={s.blockId}
+          type="button"
+          onClick={() => revealBlock(s.blockId)}
+          className="max-w-[220px] shrink-0 truncate rounded-full border border-line px-3 py-1.5 text-[13px] leading-none text-muted hover:border-accent hover:text-accent"
+        >
+          {s.title}
+        </button>
+      ))}
+    </nav>
   )
 }
 

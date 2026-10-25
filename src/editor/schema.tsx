@@ -6,6 +6,7 @@ import {
 } from '@blocknote/core'
 import { createReactBlockSpec, createReactStyleSpec } from '@blocknote/react'
 import { t } from '../i18n/t'
+import { CardListView } from '../recall/CardListView'
 import { PageLinkView } from './PageLinkView'
 
 /**
@@ -69,6 +70,20 @@ const createCard = createReactBlockSpec(
   },
 )
 
+/** Card list: a live, read-only list of the cards on the page. */
+const createCardList = createReactBlockSpec(
+  {
+    type: 'cardList',
+    propSchema: { includeSubpages: { default: false } },
+    content: 'none',
+  },
+  {
+    render: ({ block }) => (
+      <CardListView includeSubpages={block.props.includeSubpages} />
+    ),
+  },
+)
+
 /**
  * Blank: words hidden in review (fill-in-the-blank). The style value is the
  * blank's id, which is also its card part (see editor/blankActions.ts).
@@ -108,6 +123,7 @@ export const schema = BlockNoteSchema.create({
     callout: createCallout(),
     pageLink: createPageLink(),
     card: createCard(),
+    cardList: createCardList(),
   },
   styleSpecs: { ...defaultStyleSpecs, blank },
 })

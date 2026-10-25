@@ -1,0 +1,149 @@
+import { listBlocks } from '../core/blockService'
+import type { LearningNotesDB } from '../core/db'
+import type { Block, Card, JsonValue, Page } from '../core/types'
+import { getPage, listPages } from '../pages/pageService'
+import { CARD_BLOCK_TYPE, cardParts } from './cardService'
+import { isNewCard } from './reviewService'
+
+/**
+ * Data for the live "Card list" block: the cards on a page (optionally its
+ * sub-pages too), in reading order, with a short status for each.
+ */
+
+export type CardStatus = 'new' | 'due' | 'later' | 'suspended'
+
+export interface CardRow {
+  cardId: string
+  blockId: string
+  pageId: string
+  /** Title of the sub-page the card is on; null when on the list's page. */
+  pageTitle: string | null
+  /** The question text; for a blank card, its blank shows as "…". */
+  question: string
+  status: CardStatus
+  due: number
+}
+
+/** Plain text of rich-text runs, with the blank `blankId` shown as "…". */
+export function maskedText(runs: JsonValue | undefined, blankId?: string) {
+  let out = ''
+  let inBlank = false // one "…" per blank, even if split over runs
+  const visit = (list: JsonValue | undefined) => {
+    if (!Array.isArray(list)) return
+    for (const run of list) {
+      if (!run || typeof run !== 'object' || Array.isArray(run)) continue
+      const styles = run.styles
+      const blank =
+        styles && typeof styles === 'object' && !Array.isArray(styles)
+          ? styles.blank
+          : undefined
+      if (blankId !== undefined && blank === blankId) {
+        if (!inBlank) out += '…'
+        inBlank = true
+        continue
+      }
+      inBlank = false
+      if (typeof run.text === 'string') out += run.text
+      visit(run.content) // links hold their own runs
+    }
+  }
+  visit(runs)
+  return out.trim()
+}
+
+export function cardStatus(card: Card, now: number): CardStatus {
+  if (card.suspendedAt !== null) return 'suspended'
+  if (isNewCard(card)) return 'new'
+  return card.due <= now ? 'due' : 'later'
+}
+
+/** A page and (optionally) its sub-pages, parents first, in tree order. */
+async function pagesInTree(
+  db: LearningNotesDB,
+  root: Page,
+  includeSubpages: boolean,
+): Promise<Page[]> {
+  if (!includeSubpages) return [root]
+  const childrenOf = new Map<string | null, Page[]>()
+  for (const page of await listPages(db, root.notebookId)) {
+    const list = childrenOf.get(page.parentId) ?? []
+    list.push(page)
+    childrenOf.set(page.parentId, list)
+  }
+  const result: Page[] = []
+  const walk = (page: Page) => {
+    result.push(page)
+    childrenOf.get(page.id)?.forEach(walk)
+  }
+  walk(root)
+  return result
+}
+
+/** A page's blocks in reading order (each block before its children). */
+function readingOrder(blocks: Block[]): Block[] {
+  const childrenOf = new Map<string | null, Block[]>()
+  for (const block of blocks) {
+    const list = childrenOf.get(block.parentId) ?? []
+    list.push(block)
+    childrenOf.set(block.parentId, list)
+  }
+  const result: Block[] = []
+  const walk = (parentId: string | null) => {
+    for (const block of childrenOf.get(parentId) ?? []) {
+      result.push(block)
+      walk(block.id)
+    }
+  }
+  walk(null)
+  return result
+}
+
+/** The card rows for a Card list block on `pageId`. */
+export async function listCardRows(
+  db: LearningNotesDB,
+  pageId: string,
+  includeSubpages: boolean,
+  now: number = Date.now(),
+): Promise<CardRow[]> {
+  const root = await getPage(db, pageId)
+  if (!root) return []
+  const pages = await pagesInTree(db, root, includeSubpages)
+  const cards = await db.cards
+    .where('pageId')
+    .anyOf(pages.map((p) => p.id))
+    .filter((c) => c.deletedAt === null)
+    .toArray()
+  const cardsOf = new Map<string, Card[]>()
+  for (const card of cards) {
+    const list = cardsOf.get(card.blockId) ?? []
+    list.push(card)
+    cardsOf.set(card.blockId, list)
+  }
+
+  const pagesWithCards = new Set(cards.map((c) => c.pageId))
+  const rows: CardRow[] = []
+  for (const page of pages) {
+    if (!pagesWithCards.has(page.id)) continue // skip reading empty pages
+    for (const block of readingOrder(await listBlocks(db, page.id))) {
+      const own = cardsOf.get(block.id)
+      if (!own) continue
+      const parts = cardParts(block) // blanks in the order they appear
+      own.sort((a, b) => parts.indexOf(a.part) - parts.indexOf(b.part))
+      for (const card of own) {
+        rows.push({
+          cardId: card.id,
+          blockId: block.id,
+          pageId: page.id,
+          pageTitle: page.id === root.id ? null : page.title,
+          question: maskedText(
+            block.content.text,
+            block.type === CARD_BLOCK_TYPE ? undefined : card.part,
+          ),
+          status: cardStatus(card, now),
+          due: card.due,
+        })
+      }
+    }
+  }
+  return rows
+}

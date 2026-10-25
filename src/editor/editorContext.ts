@@ -4,7 +4,11 @@ import type { LearningNotesDB } from '../core/db'
 /** What custom editor blocks (e.g. page links) need from the app. */
 export interface EditorAppContext {
   db: LearningNotesDB
+  /** The page this editor shows. */
+  pageId: string
   openPage: (pageId: string) => void
+  /** Opens a page (if not already open) and scrolls to one of its blocks. */
+  openBlock: (pageId: string, blockId: string) => void
 }
 
 export const EditorContext = createContext<EditorAppContext | null>(null)

@@ -33,6 +33,7 @@ import { codeBlockKeys } from './codeBlockKeys'
 import { EditorContext, type EditorApi } from './editorContext'
 import { editorToDrafts, recordsToEditor, withoutIds } from './mapping'
 import { createPageSync } from './pageSync'
+import { revealBlock } from './revealBlock'
 import { editorBlockTypes, schema } from './schema'
 import { buildSlashMenuItems } from './slashMenu'
 
@@ -174,8 +175,14 @@ function LoadedPageEditor({
         )
     : undefined
 
+  /** Card list rows: open the card's page if needed, then scroll to it. */
+  const openBlock = (targetPageId: string, blockId: string) => {
+    if (targetPageId !== pageId) onOpenPage(targetPageId)
+    revealBlock(blockId)
+  }
+
   return (
-    <EditorContext value={{ db, openPage: onOpenPage }}>
+    <EditorContext value={{ db, pageId, openPage: onOpenPage, openBlock }}>
       <BlockNoteView
         editor={editor}
         onChange={sync.changed}

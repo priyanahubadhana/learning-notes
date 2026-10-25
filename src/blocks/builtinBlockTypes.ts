@@ -51,6 +51,11 @@ export const builtinBlockTypes: readonly BlockTypeDefinition[] = [
   },
   { type: 'card', label: 'Card', createContent: () => ({ text: [] }) },
   {
+    type: 'cardList',
+    label: 'Card list',
+    createContent: () => ({ includeSubpages: false }),
+  },
+  {
     type: 'pageLink',
     label: 'Page link',
     createContent: () => ({ pageId: '' }),

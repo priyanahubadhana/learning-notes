@@ -7,6 +7,24 @@
  * language needs), then call `t('key', { count })`.
  */
 export const en = {
+  // Card list block
+  'cardList.title': 'Cards on this page',
+  'cardList.titleTree': 'Cards on this page and its sub-pages',
+  'cardList.count_one': '{count} card',
+  'cardList.count_other': '{count} cards',
+  'cardList.empty':
+    'No cards yet. Type “/card”, or select words and choose Blank. They appear here as you make them.',
+  'cardList.noQuestion': 'Card with no question yet',
+  'cardList.showAll_one': 'Show all {count} cards',
+  'cardList.showAll_other': 'Show all {count} cards',
+  'cardList.status.new': 'New',
+  'cardList.status.due': 'Due',
+  'cardList.status.suspended': 'Suspended',
+  'cardList.slash.title': 'Card list',
+  'cardList.slash.subtext': 'Live list of the cards on this page',
+  // Section chips
+  'sections.label': 'Sections',
+
   // Starter templates (text is copied into the user's notes once)
   'templates.lesson': 'Lesson',
   'templates.lessonLarge': 'Lesson (large topic)',

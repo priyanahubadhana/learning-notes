@@ -49,6 +49,7 @@ describe('built-in block types', () => {
       'image',
       'callout',
       'card',
+      'cardList',
       'pageLink',
     ])
   })

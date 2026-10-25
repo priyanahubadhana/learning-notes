@@ -4,6 +4,7 @@ import {
   type DefaultReactSuggestionItem,
 } from '@blocknote/react'
 import { cardSlashItem } from './cardActions'
+import { t } from '../i18n/t'
 import type { AppSchema } from './schema'
 
 type Editor = AppSchema['BlockNoteEditor']
@@ -50,6 +51,15 @@ export function buildSlashMenuItems(
   }
   items.splice(quoteIndex === -1 ? items.length : quoteIndex + 1, 0, callout)
   items.push(cardSlashItem(editor))
+  items.push({
+    title: t('cardList.slash.title'),
+    subtext: t('cardList.slash.subtext'),
+    aliases: ['cards', 'list', 'flashcards', 'deck'],
+    group: t('card.slash.group'),
+    icon: <span aria-hidden>🗂</span>,
+    onItemClick: () =>
+      insertOrUpdateBlockForSlashMenu(editor, { type: 'cardList' }),
+  })
 
   items.push({
     title: 'Insert template…',

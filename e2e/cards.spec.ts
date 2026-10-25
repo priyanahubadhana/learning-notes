@@ -65,3 +65,38 @@ test('"/card" inserts an empty card', async ({ page }) => {
   await page.keyboard.type('What is a covalent bond?')
   await expect(cards(page)).toContainText('What is a covalent bond?')
 })
+
+test('Duplicate copies a card with its answer as a new card; Ctrl+Z undoes it', async ({
+  page,
+}) => {
+  await page.goto('/')
+  await createNotebook(page, 'Cardiology', 'Heart sounds')
+  await typeInEditor(page, 'Which valves close in S2?')
+  await openBlockMenu(page, 'Which valves close in S2?')
+  await page.getByRole('menuitem', { name: 'Make card' }).click()
+  await page.keyboard.type('Aortic and pulmonary')
+  await page.waitForTimeout(800) // autosave
+  await expect.poll(() => cardRecordCount(page)).toBe(1)
+
+  await openBlockMenu(page, 'Which valves close in S2?')
+  await page.getByRole('menuitem', { name: 'Duplicate' }).click()
+  await expect(cards(page)).toHaveCount(2)
+  await expect(
+    page.locator('.bn-block-content', { hasText: 'Aortic and pulmonary' }),
+  ).toHaveCount(2)
+  await page.waitForTimeout(800) // autosave
+  await expect.poll(() => cardRecordCount(page)).toBe(2)
+
+  await page.keyboard.press('ControlOrMeta+z')
+  await expect(cards(page)).toHaveCount(1)
+
+  // Plain text blocks duplicate too.
+  await page.keyboard.press('ControlOrMeta+End')
+  await page.keyboard.press('Enter')
+  await page.keyboard.type('A plain note')
+  await openBlockMenu(page, 'A plain note')
+  await page.getByRole('menuitem', { name: 'Duplicate' }).click()
+  await expect(
+    page.locator('.bn-block-content', { hasText: 'A plain note' }),
+  ).toHaveCount(2)
+})

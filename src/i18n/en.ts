@@ -126,6 +126,7 @@ export const en = {
 
   // Cards
   'card.make': 'Make card',
+  'block.duplicate': 'Duplicate',
   'card.question': 'Q',
   'card.answer': 'A',
   'card.slash.title': 'Card',

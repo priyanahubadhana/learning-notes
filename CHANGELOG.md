@@ -283,3 +283,9 @@
 - **What:** Card due dates and the "day starts at" times now follow each user's regional style (e.g. "12 Nov" in India/UK, "Nov 12" in the US) via `dateLocale()` / `withRegion()`. "Duplicate block" added to the Phase 3 plan (owner approved).
 - **Why:** Owner visual-check feedback.
 - **Files:** src/i18n/t.ts (+ test), src/recall/cardList.ts (+ test), src/settings/builtinSettings.ts, README.md, CHANGELOG.md
+
+## 2026-10-26
+
+- **What:** "Duplicate" in the block menu (⋮⋮): copies a block and everything nested in it right below it (new ids, so a copied Card or blank is a new card with a fresh schedule); Ctrl+Z undoes it.
+- **Why:** Owner request (approved Phase 3 addition).
+- **Files:** src/editor/blockActions.ts, src/editor/CardMenu.tsx, src/i18n/en.ts, e2e/cards.spec.ts, README.md, CHANGELOG.md

@@ -12,6 +12,7 @@ import {
   listChildPages,
   listPages,
   movePage,
+  movePageToTopLevel,
   renamePage,
 } from './pageService'
 
@@ -99,6 +100,18 @@ describe('pageService', () => {
 
     await movePage(db, b.id, null, 99) // and back to top level, at the end
     expect(await titles(null)).toEqual(['C', 'A', 'B'])
+  })
+
+  it('moves a sub-page to the top level, at the end, with its own sub-pages', async () => {
+    const a = await createPage(db, nb, null, 'A')
+    await createPage(db, nb, null, 'B')
+    const a1 = await createPage(db, nb, a.id, 'A1')
+    await createPage(db, nb, a1.id, 'A1x')
+
+    await movePageToTopLevel(db, a1.id)
+    expect(await titles(null)).toEqual(['A', 'B', 'A1'])
+    expect(await titles(a.id)).toEqual([])
+    expect(await titles(a1.id)).toEqual(['A1x'])
   })
 
   it('refuses to move a page inside itself or its descendants', async () => {

@@ -161,6 +161,17 @@ export async function movePage(
   })
 }
 
+/**
+ * Makes a sub-page a normal (top-level) page of its notebook, placed at the
+ * end. Its own sub-pages and content move with it.
+ */
+export async function movePageToTopLevel(
+  db: LearningNotesDB,
+  id: string,
+): Promise<void> {
+  await movePage(db, id, null, Number.MAX_SAFE_INTEGER)
+}
+
 /** Soft-deletes a page, all its sub-pages, and all their blocks. */
 export async function deletePage(
   db: LearningNotesDB,

@@ -115,3 +115,9 @@
 - **What:** Tooling and workflow. Installed Git; repository created with Phase 1 as the first commit; `.gitattributes` keeps LF line endings. Added Playwright end-to-end tests (Chromium) with shared helpers; the four Trash browser checks are now automated (`npm run test:e2e`). Trash toggle arrow hidden from screen readers (clean accessible name). Viewport meta updated as BlockNote recommends. CLAUDE.md workflow updated: questions up front, Claude builds and tests everything (unit + Playwright) and fixes failures, one final report with visual checks; still asks before token-heavy or irreversible work.
 - **Why:** Owner request: safe snapshots, automated UI testing, faster steps.
 - **Files:** .gitattributes, .gitignore, package.json, package-lock.json, playwright.config.ts, tsconfig.node.json, e2e/{helpers.ts, trash.spec.ts}, src/trash/TrashSection.tsx, index.html, CLAUDE.md, README.md, CHANGELOG.md
+
+## 2026-10-25
+
+- **What:** "Move to top level" (↰) hover action on sub-pages in the sidebar: the page becomes a normal page of its notebook, placed at the end, keeping its own sub-pages and content; breadcrumb updates live. New service `movePageToTopLevel`, unit test and Playwright test (90 unit + 5 e2e passing).
+- **Why:** Owner request (before Phase 2); no drag-and-drop yet.
+- **Files:** src/pages/{pageService.ts, pageService.test.ts, PageTree.tsx}, e2e/pages.spec.ts, README.md, CHANGELOG.md

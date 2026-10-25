@@ -6,7 +6,7 @@ import type { TreeState } from '../app/useTreeState'
 import type { LearningNotesDB } from '../core/db'
 import { descendantIds } from '../core/records'
 import type { Page } from '../core/types'
-import { listPages, renamePage } from './pageService'
+import { listPages, movePageToTopLevel, renamePage } from './pageService'
 
 interface PageTreeProps {
   db: LearningNotesDB
@@ -84,6 +84,14 @@ export function PageTree({
               </button>
             )}
             <span className="flex opacity-0 group-focus-within:opacity-100 group-hover:opacity-100">
+              {page.parentId !== null && (
+                <IconButton
+                  title="Move to top level"
+                  onClick={() => runTask(movePageToTopLevel(db, page.id))}
+                >
+                  ↰
+                </IconButton>
+              )}
               <IconButton
                 title="Add sub-page"
                 onClick={() => onAddSubPage(page.id)}

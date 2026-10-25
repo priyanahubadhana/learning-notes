@@ -24,7 +24,7 @@ For anyone in any field (writers, vloggers, learners, philosophers, technicians,
 ## Main Features (Phase 1 — complete)
 
 - Notebooks: create, rename, delete, drag to reorder; sidebar with pages
-- Pages with nested sub-pages; big title and breadcrumb
+- Pages with nested sub-pages; big title and breadcrumb; move a sub-page to the top level (↰)
 - Block editor: text, headings, lists, to-do, quote, divider, code, image (by URL), callout; drag to reorder
 - Slash (/) menu for blocks and new sub-pages (inserts a live link to the new page)
 - Autosave on this device (browser database), only changed blocks
@@ -132,5 +132,5 @@ Business logic (services) has no UI code, so it can be reused later (e.g. iOS). 
 - **Desktop only for now:** the sidebar has a fixed width; there is no phone layout yet.
 - **Images by URL only:** there is no upload or image storage yet.
 - **Pages can't be dragged** in the sidebar tree (notebooks can).
-- **End-to-end tests cover Trash so far:** other UI flows are still checked by hand; new features get Playwright tests as they are built.
+- **End-to-end tests cover Trash and moving pages so far:** other UI flows are still checked by hand; new features get Playwright tests as they are built.
 - **First load size:** the editor library makes the app about 1.3 MB (≈400 KB compressed). Fine on localhost; can be split up before hosting.

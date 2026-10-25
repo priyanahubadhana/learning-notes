@@ -40,7 +40,7 @@ For anyone in any field (writers, vloggers, learners, philosophers, technicians,
 - **"/" menu:** "Insert template…" (adds a template's blocks at the cursor) and "Save page as template".
 - **Page action bar** (top right): Save as template; Import and Export shown as "coming soon" (Phase 6).
 
-## Phase 3 Plan — Recall & Spaced Repetition (approved 2026-10-26; built and end checks done 2026-10-26)
+## Phase 3 Plan — Recall & Spaced Repetition (approved 2026-10-26; complete 2026-10-26)
 
 - **Cards:** Card block (question/answer) from "/"; "Make card" turns any block into an editable Card; fill-in-the-blank by highlighting text (one card per blank, snapped to whole words); no `::` syntax. Ctrl+Z undoes Make card / Make blank. Cards link to their source block ("derived from"); a deleted source keeps the card. Suspend (with Undo toast).
 - **Review:** Again/Hard/Good/Easy (keys 1–4, Space/Enter reveals), each showing its next interval. Global "Review · count", "Review this notebook/page", "Got wrong (7 days)" (cards rated Again in the last 7 days; changed 2026-10-26). Practice anyway (cram): not-due cards keep their schedule, due cards count normally, Again repeats in-session, logged as `cram`. On phones the reveal/rating buttons are pinned to the bottom (portrait and landscape); "Open note"/"Suspend" are tap-sized.
@@ -56,7 +56,7 @@ For anyone in any field (writers, vloggers, learners, philosophers, technicians,
 ## Roadmap (likely, not final — may change)
 
 2. Learning Daily Journal + Templates — done
-3. Recall & Spaced Repetition — done (end checks passed; awaiting owner check of Duplicate + regional dates)
+3. Recall & Spaced Repetition — done
 4. Organisation & Connection (tags, links, search, history — including page version history)
 5. Databases & interactive blocks
 6. Data safety, export, encryption, sync
@@ -114,7 +114,7 @@ Business logic (services) has no UI code, so it can be reused later (e.g. iOS). 
 
 ## Project Status
 
-**Current phase:** Phase 2 — complete (automated checks and owner visual checks passed). Phase 3 — built, all tests pass, end checks done 2026-10-26 (focused code + security review, LEARNING.md); closes after the owner checks Duplicate block and regional dates. Phase 1 complete 2026-10-25.
+**Current phase:** Phase 4 — Organisation & Connection, planning started 2026-10-26. Phase 3 complete 2026-10-26 (all tests, security review, owner visual checks passed). Phase 2 complete. Phase 1 complete 2026-10-25.
 
 | Step                                                    | Status |
 | ------------------------------------------------------- | ------ |
@@ -223,7 +223,8 @@ Business logic (services) has no UI code, so it can be reused later (e.g. iOS). 
 - Also today: All cards search ~8× faster (cursor paging) and one due-date style in both card lists (`CardStatusLabel`).
 - **Phase 3 end checks — done 2026-10-26:** 220 unit + 54 e2e tests pass (incl. upgrade, 10k-card, 3 themes + phone screenshots); npm audit 0; focused code review (scheduling + log, FSRS takeover, card sync, DB upgrade, template copy) found no bugs; fixes: `.env` git-ignored, stored FSRS data validated. LEARNING.md created (Phase 3 section).
 - **Duplicate fix — done 2026-10-26:** block saves and card records in one transaction; opening a page adds missing card records. 222 unit + 56 e2e pass.
-- **Next:** owner re-checks Duplicate block (Card + blank → All cards + Review) + regional dates → Phase 3 closed → **Phase 4 planning** (Organisation & Connection; `rules/planning.md`, plan mode, review IDEAS.md first). Start with `/next`.
+- **Phase 3 closed 2026-10-26:** owner visual checks passed (Duplicate incl. the fix, regional dates).
+- **Next:** **Phase 4 planning** (Organisation & Connection) in plan mode per `rules/planning.md`; IDEAS.md reviewed. Must include: page moves update their cards' `notebookId`/`pageId`. Start with `/next`.
 - See IDEAS.md for parked ideas.
 
 ## Known Limitations

@@ -45,9 +45,13 @@ Settings has a search box and categories (General, Review, Journal, APIs). Each 
 
 ### Quality and safety
 
-- **Testing:** 220 automatic unit tests and 54 browser tests, including:
+- **Testing:** 222 automatic unit tests and 56 browser tests, including:
   - a database upgrade test, so older data keeps working
   - speed tests with 10,000 cards (All cards search ≈ 0.08 s)
   - screenshots in the Day, Night and Sepia themes and at phone size
 - **Data safety:** card schedules live apart from your note text, so a schedule problem can never damage notes. Damaged schedule data restarts that card's schedule cleanly instead of breaking it.
 - **Dependencies:** the FSRS library (ts-fsrs) is free (MIT licence), has no extra dependencies, and has 0 known vulnerabilities.
+
+### Last fix before closing
+
+A duplicated card sometimes didn't show in All cards or Review. Saving a card is two writes: the block (its text) and the card record (its schedule). They are now written together in one **transaction**, which means "both or neither", like a bank transfer that can't take money out without putting it in. Opening a page also re-creates any missing card records, which repaired the copies that were already broken.

@@ -307,3 +307,9 @@
 - **What:** Fix: a duplicated Card or blank line could be saved without its card record, so it never showed in All cards or Review. Block saves and card records are now written in one transaction (both or neither), and opening a page adds any missing card records (repairs existing data). Tests: duplicated Card and blank line each get their own record, rollback when the card write fails (`pageSync.test.ts`); `e2e/duplicateCards.spec.ts` (All cards and Review after refresh).
 - **Why:** Owner visual check found the bug.
 - **Files:** src/editor/pageSync.ts (+ test), src/editor/PageEditor.tsx, e2e/duplicateCards.spec.ts, README.md, CHANGELOG.md
+
+## 2026-10-26
+
+- **What:** Phase 3 closed (owner visual checks passed, incl. the Duplicate fix). Phase 4 planning started.
+- **Why:** `rules/phase-end.md` Definition of Done met.
+- **Files:** README.md, LEARNING.md, CHANGELOG.md

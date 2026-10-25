@@ -79,6 +79,61 @@ describe('createPageSync', () => {
     expect((await db.blocks.get('b1'))?.content).toEqual({ text: 'Hello' })
   })
 
+  it('a duplicated Card and blank line each get their own card record', async () => {
+    const page = await openPage()
+    const card = (id: string): BlockDraft => ({
+      id,
+      parentId: null,
+      type: 'card',
+      content: {
+        text: [{ type: 'text', text: 'Which valves close in S2?', styles: {} }],
+      },
+    })
+    const blankLine = (id: string): BlockDraft => ({
+      id,
+      parentId: null,
+      type: 'paragraph',
+      content: {
+        text: [
+          { type: 'text', text: 'S2 closes the ', styles: {} },
+          { type: 'text', text: 'aortic valve', styles: { blank: 'blank-1' } },
+        ],
+      },
+    })
+    page.editor = [card('c1'), blankLine('p1')]
+    await page.sync.flush()
+    expect(await db.cards.count()).toBe(2)
+
+    // Duplicate: same content (same blank id), new block ids.
+    page.editor = [card('c1'), card('c2'), blankLine('p1'), blankLine('p2')]
+    await page.sync.flush()
+    const cards = await db.cards.toArray()
+    expect(cards.map((c) => `${c.blockId}/${c.part}`).sort()).toEqual([
+      'c1/main',
+      'c2/main',
+      'p1/blank-1',
+      'p2/blank-1',
+    ])
+    expect(new Set(cards.map((c) => c.id)).size).toBe(4)
+  })
+
+  it('never saves a Card block without its card record', async () => {
+    const page = await openPage()
+    vi.spyOn(db.cards, 'bulkAdd').mockRejectedValueOnce(new Error('disk full'))
+    page.editor = [
+      { id: 'c1', parentId: null, type: 'card', content: { text: [] } },
+    ]
+    const logged = vi.spyOn(console, 'error').mockImplementation(() => {})
+    await page.sync.flush()
+    expect(logged).toHaveBeenCalledWith('Autosave failed', expect.any(Error))
+    expect(await db.blocks.get('c1')).toBeUndefined() // rolled back together
+
+    page.sync.changed() // the next edit's save retries both
+    await page.sync.flush()
+    expect(await db.blocks.get('c1')).toBeDefined()
+    expect(await db.cards.where('blockId').equals('c1').count()).toBe(1)
+  })
+
   it('keeps hidden unknown-type blocks when the user deletes others', async () => {
     const shown = await createBlock(db, { pageId, type: 'paragraph' })
     const mystery = await createBlock(db, { pageId, type: 'future-block' })

@@ -222,7 +222,8 @@ Business logic (services) has no UI code, so it can be reused later (e.g. iOS). 
 - **Duplicate block — done 2026-10-26:** `editor/blockActions.ts` (`copyWithoutIds`, `duplicateBlock`), menu item in `editor/CardMenu.tsx`; test in `e2e/cards.spec.ts`. Dates follow the user's region via `dateLocale()` in `i18n/t.ts`.
 - Also today: All cards search ~8× faster (cursor paging) and one due-date style in both card lists (`CardStatusLabel`).
 - **Phase 3 end checks — done 2026-10-26:** 220 unit + 54 e2e tests pass (incl. upgrade, 10k-card, 3 themes + phone screenshots); npm audit 0; focused code review (scheduling + log, FSRS takeover, card sync, DB upgrade, template copy) found no bugs; fixes: `.env` git-ignored, stored FSRS data validated. LEARNING.md created (Phase 3 section).
-- **Next:** owner checks Duplicate block + regional dates → Phase 3 closed → **Phase 4 planning** (Organisation & Connection; `rules/planning.md`, plan mode, review IDEAS.md first). Start with `/next`.
+- **Duplicate fix — done 2026-10-26:** block saves and card records in one transaction; opening a page adds missing card records. 222 unit + 56 e2e pass.
+- **Next:** owner re-checks Duplicate block (Card + blank → All cards + Review) + regional dates → Phase 3 closed → **Phase 4 planning** (Organisation & Connection; `rules/planning.md`, plan mode, review IDEAS.md first). Start with `/next`.
 - See IDEAS.md for parked ideas.
 
 ## Known Limitations

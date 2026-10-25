@@ -301,3 +301,9 @@
 - **What:** Phase 3 end checks: all tests pass (220 unit, 54 e2e), npm audit 0, focused code + security review (no bugs found beyond the fixes above). Created LEARNING.md (Phase 3 section). README status/handoff, CLAUDE.md project files and IDEAS (5 review notes) updated.
 - **Why:** `rules/phase-end.md`.
 - **Files:** LEARNING.md, README.md, CLAUDE.md, IDEAS.md, CHANGELOG.md
+
+## 2026-10-26
+
+- **What:** Fix: a duplicated Card or blank line could be saved without its card record, so it never showed in All cards or Review. Block saves and card records are now written in one transaction (both or neither), and opening a page adds any missing card records (repairs existing data). Tests: duplicated Card and blank line each get their own record, rollback when the card write fails (`pageSync.test.ts`); `e2e/duplicateCards.spec.ts` (All cards and Review after refresh).
+- **Why:** Owner visual check found the bug.
+- **Files:** src/editor/pageSync.ts (+ test), src/editor/PageEditor.tsx, e2e/duplicateCards.spec.ts, README.md, CHANGELOG.md

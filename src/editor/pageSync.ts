@@ -35,8 +35,12 @@ export function createPageSync(
 
   const autosaver = createAutosaver(async () => {
     const { changes, next } = diffBlocks(snapshot, readDrafts())
-    await saveBlockChanges(db, pageId, changes)
-    await syncCardRecords(db, pageId) // new Card blocks get a review schedule
+    // One transaction: a saved Card block (new, pasted or duplicated) never
+    // ends up without its review schedule.
+    await db.transaction('rw', db.pages, db.blocks, db.cards, async () => {
+      await saveBlockChanges(db, pageId, changes)
+      await syncCardRecords(db, pageId)
+    })
     snapshot = next // only after a successful save
   }, delayMs)
 

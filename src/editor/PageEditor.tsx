@@ -25,6 +25,7 @@ import { runTask } from '../app/errors'
 import { editorColorScheme } from '../app/theme'
 import { ThemeContext } from '../app/themeContext'
 import { listBlocks } from '../core/blockService'
+import { syncCardRecords } from '../recall/cardService'
 import type { LearningNotesDB } from '../core/db'
 import type { Block, Page } from '../core/types'
 import { createPage } from '../pages/pageService'
@@ -63,12 +64,16 @@ export function PageEditor(props: PageEditorProps) {
 
   useEffect(() => {
     let cancelled = false
-    listBlocks(db, pageId).then(
-      (records) => {
-        if (!cancelled) setLoaded({ pageId, records })
-      },
-      (error: unknown) => console.error('Could not load page', error),
-    )
+    // Also adds any missing card records (e.g. older data saved before
+    // blocks and cards were saved together); writes nothing otherwise.
+    syncCardRecords(db, pageId)
+      .then(() => listBlocks(db, pageId))
+      .then(
+        (records) => {
+          if (!cancelled) setLoaded({ pageId, records })
+        },
+        (error: unknown) => console.error('Could not load page', error),
+      )
     return () => {
       cancelled = true
     }

@@ -7,6 +7,7 @@ import {
   findNotebookOfKind,
 } from '../notebooks/notebookService'
 import { createPage, getPage, listChildPages } from '../pages/pageService'
+import { syncCardRecords } from '../recall/cardService'
 import { STARTER_TEMPLATES } from './starterTemplates'
 
 /**
@@ -106,12 +107,19 @@ export async function createPageFromTemplate(
   parentId: string | null,
   templateId: string,
 ): Promise<Page> {
-  return db.transaction('rw', db.notebooks, db.pages, db.blocks, async () => {
-    if (!(await getPage(db, templateId))) throw new Error('Template not found')
-    const page = await createPage(db, notebookId, parentId)
-    await copyBlocks(db, templateId, page.id, NOT_COPIED)
-    return page
-  })
+  return db.transaction(
+    'rw',
+    [db.notebooks, db.pages, db.blocks, db.cards],
+    async () => {
+      if (!(await getPage(db, templateId))) {
+        throw new Error('Template not found')
+      }
+      const page = await createPage(db, notebookId, parentId)
+      await copyBlocks(db, templateId, page.id, NOT_COPIED)
+      await syncCardRecords(db, page.id) // copied cards get a schedule
+      return page
+    },
+  )
 }
 
 /**

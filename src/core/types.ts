@@ -157,6 +157,11 @@ export interface ReviewLog {
   dueAfter: number
   intervalBefore: number
   intervalAfter: number
+  stepAfter: number
+  /** True for a card's first normal review (counts toward the new-card limit). */
+  isNew: boolean
+  /** Scheduler state after the review, if the scheduler keeps any. */
+  schedulerDataAfter?: JsonObject
 }
 
 /**

@@ -1,6 +1,7 @@
 import { copyBlocks } from '../core/blockService'
 import type { LearningNotesDB } from '../core/db'
 import type { Notebook, Page } from '../core/types'
+import { syncCardRecords } from '../recall/cardService'
 import {
   createNotebook,
   findNotebookOfKind,
@@ -38,7 +39,7 @@ export async function openJournalDay(
 ): Promise<{ page: Page; created: boolean }> {
   return db.transaction(
     'rw',
-    [db.workspaces, db.notebooks, db.pages, db.blocks],
+    [db.workspaces, db.notebooks, db.pages, db.blocks, db.cards],
     async () => {
       const journal = await ensureJournal(db, workspaceId)
       const pages = await listPages(db, journal.id)
@@ -59,7 +60,10 @@ export async function openJournalDay(
 
       await ensureTemplates(db, workspaceId)
       const daily = await getDailyTemplate(db, workspaceId)
-      if (daily) await copyBlocks(db, daily.id, page.id, ['pageLink'])
+      if (daily) {
+        await copyBlocks(db, daily.id, page.id, ['pageLink'])
+        await syncCardRecords(db, page.id) // copied cards get a schedule
+      }
       return { page, created: true }
     },
   )

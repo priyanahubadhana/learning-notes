@@ -13,6 +13,7 @@
 ## Working Style
 
 - **Planning a phase:** ask open-ended questions one at a time (never yes/no); for each decision explain the options simply, give pros/cons and a recommendation; challenge ideas when there is a better way; give each phase a Definition of Done; end planning with ONE checklist of decisions for the owner to approve.
+- **One full step per chat:** work one full step per chat, not one sub-step per chat (e.g. do all of Step 5 — 5a, 5b, and so on — in the same chat). Only suggest a new chat when a whole step is finished. If the chat gets long, suggest `/compact` instead of a new chat.
 - **Start of a build step:** ask all questions for the step together, up front, each with a recommendation.
 - **During the step:** build, then test everything yourself (Vitest unit tests + Playwright end-to-end tests) and fix failures without asking.
 - **Self-testing:** test everything possible yourself with Playwright, including screenshots in all three themes (Day, Night, Sepia) and at phone width; fix what you find.

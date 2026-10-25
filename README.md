@@ -85,7 +85,7 @@ Everything beyond Phase 1. In particular: AI features, accounts/cloud sync, iOS 
 | `src/trash/`     | Trash service and sidebar section                                                                                                       |
 | `src/journal/`   | Daily journal service and date helpers                                                                                                  |
 | `src/templates/` | Template service, starter templates, template picker, Templates section                                                                 |
-| `src/recall/`    | Recall cards: card records (scheduling) for Card blocks                                                                                 |
+| `src/recall/`    | Recall cards: card records, schedulers (fixed steps; FSRS later), review queue, rating + review log, suspend                            |
 | `src/settings/`  | Settings registry, built-in settings, settings service (database or device), Settings screen                                            |
 | `src/i18n/`      | `t()` text helper and the English text file (`en.ts`)                                                                                   |
 | `src/app/`       | App-wide pieces: preferences, themes, small UI components                                                                               |
@@ -109,7 +109,7 @@ Business logic (services) has no UI code, so it can be reused later (e.g. iOS). 
 
 ## Project Status
 
-**Current phase:** Phase 2 — complete (automated checks and owner visual checks passed). Phase 3 in progress (steps 1–4 done; next: 5a). Phase 1 complete 2026-10-25.
+**Current phase:** Phase 2 — complete (automated checks and owner visual checks passed). Phase 3 in progress (steps 1–4 and 5a done; next: 5b). Phase 1 complete 2026-10-25.
 
 | Step                                                    | Status |
 | ------------------------------------------------------- | ------ |
@@ -175,8 +175,8 @@ Business logic (services) has no UI code, so it can be reused later (e.g. iOS). 
 
 **Next steps — handoff for a new session:**
 
-- **Step 5a (next, ~50k tokens, logic only, no UI):** `recall/` scheduler interface (swappable; FSRS added in step 8) with the fixed-steps scheduler: Again → `review.againMinutes` and back to step 0 (lapse); Hard → same step; Good → next step; Easy → skip one; intervals from `review.goodSteps`, due dates via `core/time.ts` (study days, `general.dayStartHour`). A preview function giving each button's next interval (the Review buttons must always match current settings — owner fix #1). Rating writes the append-only `reviewLogs` entry (rating, duration, before/after, scheduler, kind) and updates the `cards` record in one transaction; card state rebuildable from the log. Cram rules: not-due cards logged as `cram` and unchanged; due cards count normally. Review queue: due cards (`due` index) for all / notebook / page / "missed in last 7 days", skipping suspended cards and cards whose block is deleted or no longer makes that part (`cardParts`), plus card-record sync for pages created from templates; new-card limit (`review.newPerDay`) and optional review cap. Suspend/unsuspend. Unit tests incl. a 10,000-card speed test.
-- **Step 5b (~70k tokens):** Review screen (global "Review · count" in sidebar, "Review this notebook/page", Practice anyway), Show answer (Space/Enter) and Again/Hard/Good/Easy (keys 1–4) with intervals; blanks shown as "…" until revealed; on phones reveal/rating buttons pinned to the bottom, card shrinks to fit, portrait and landscape (fix #6); tap-sized "Open note"/"Suspend" with an Undo toast (fix #7); e2e tests + screenshots in all themes and phone width.
+- **Step 5a — done 2026-10-26:** `recall/scheduler.ts` (swappable `Scheduler` interface, fixed-steps scheduler, `previewRatings`) and `recall/reviewService.ts` (`getReviewQueue` for all / notebook / page / missed, `rateCard` with cram rule, `previewCard` reading fresh settings, `rebuildCard(FromLog)`, suspend/unsuspend). Review logs now also store `stepAfter` and `isNew` (needed for rebuild and the new-card limit). Pages from templates and journal days get card records. 10,000-card queue test runs in ~0.2 s.
+- **Step 5b (next, ~70k tokens):** UI only — use `getReviewQueue`, `previewCard`, `rateCard`, `suspendCard`/`unsuspendCard` from `recall/reviewService.ts`; refresh previews after a settings change. Review screen (global "Review · count" in sidebar, "Review this notebook/page", Practice anyway), Show answer (Space/Enter) and Again/Hard/Good/Easy (keys 1–4) with intervals; blanks shown as "…" until revealed; on phones reveal/rating buttons pinned to the bottom, card shrinks to fit, portrait and landscape (fix #6); tap-sized "Open note"/"Suspend" with an Undo toast (fix #7); e2e tests + screenshots in all themes and phone width.
 - Then steps 6 (Lesson templates + live list, pinned section chips — fix #5), 7 (polish: "Save as template" name dialog), 8 (FSRS via ts-fsrs, or move to Phase 4).
 - See IDEAS.md for parked ideas.
 

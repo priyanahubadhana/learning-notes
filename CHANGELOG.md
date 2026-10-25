@@ -193,3 +193,9 @@
 - **What:** Night theme: the fill-in-the-blank highlight is stronger (owner feedback: too faint); Day and Sepia unchanged. Step 5 split into 5a (scheduler, review log, queue, speed test) and 5b (Review screen); README has handoff notes for the next session.
 - **Why:** Readability in Night; keep each step under ~80k tokens and continue cleanly in a new session.
 - **Files:** src/index.css, README.md, CHANGELOG.md
+
+## 2026-10-26
+
+- **What:** Phase 3 step 5a (logic only). Swappable scheduler interface with the fixed-steps scheduler (Again → minutes + step 0, Hard stays, Good +1, Easy +2, gaps from settings, due on study-day start) and a button preview. Review service: review queue (all / notebook / page / missed in last 7 days; skips suspended, deleted, no-longer-card and template cards; new-card limit and review cap count today's work), rating writes the review log and card together (not-due cards logged as cram, unchanged), card rebuild from log, suspend/unsuspend. Review log gains `stepAfter` and `isNew`. Pages from templates and new journal days now get card records. Tests incl. a 10,000-card speed test.
+- **Why:** Approved Phase 3 plan (step 5a); data side of the Review screen (5b).
+- **Files:** src/recall/scheduler.ts, src/recall/scheduler.test.ts, src/recall/reviewService.ts, src/recall/reviewService.test.ts, src/core/types.ts, src/templates/templateService.ts, src/journal/journalService.ts, README.md, CHANGELOG.md

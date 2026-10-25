@@ -40,6 +40,17 @@ For anyone in any field (writers, vloggers, learners, philosophers, technicians,
 - **"/" menu:** "Insert template…" (adds a template's blocks at the cursor) and "Save page as template".
 - **Page action bar** (top right): Save as template; Import and Export shown as "coming soon" (Phase 6).
 
+## Phase 3 Plan — Recall & Spaced Repetition (approved 2026-10-26, in progress)
+
+- **Cards:** Card block (question/answer) from "/"; "Make card" turns any block into an editable Card; fill-in-the-blank by highlighting text (one card per blank, snapped to whole words); no `::` syntax. Ctrl+Z undoes Make card / Make blank. Cards link to their source block ("derived from"); a deleted source keeps the card. Suspend (with Undo toast).
+- **Review:** Again/Hard/Good/Easy (keys 1–4, Space/Enter reveals), each showing its next interval. Global "Review · count", "Review this notebook/page", "Cards I missed (7 days)". Practice anyway (cram): not-due cards keep their schedule, due cards count normally, Again repeats in-session, logged as `cram`. On phones the reveal/rating buttons are pinned to the bottom (portrait and landscape); "Open note"/"Suspend" are tap-sized.
+- **Scheduler:** swappable. Default fixed steps (Again 10 min; Good 1→3→7→14→30→60 days; Hard repeats; Easy skips one). FSRS (ts-fsrs) as the last step, or Phase 4 if the phase runs long. Append-only review log; card state stored apart from text and rebuildable from the log. Limits: 20 new/day, no review cap. Day starts 4 am; times in UTC.
+- **Lesson templates:** "Lesson" (one page: Detailed notes, Keyword summary, Flashcards + live card list) and "Lesson (large topic)" (sub-pages). Section jump chips pinned at the top while scrolling.
+- **Settings:** registry (id, label/description keys, home + extra categories, default, synced/device scope; "secret" type later). Screen: All (search), General, Review, Journal, APIs. Step boxes sit below the label.
+- **Quality:** `t()` text, plurals, RTL-safe layout, responsive/touch/accessible, DB upgrade test, "keep my data" request, 10,000-card speed test. Polish: name dialog for "Save as template".
+- **Steps:** 1 Data + upgrade · 2 Settings · 3 Card block + Make card · 4 Blanks · 5 Scheduler + Review + cram · 6 Lesson templates + live list · 7 Polish · 8 FSRS.
+- **Definition of Done:** all above built (or FSRS formally moved), all unit + e2e tests pass (incl. upgrade and 10k-card tests), security/code review reported, docs updated, owner visual checks passed.
+
 ## Roadmap (likely, not final — may change)
 
 2. Learning Daily Journal + Templates — done
@@ -95,7 +106,7 @@ Business logic (services) has no UI code, so it can be reused later (e.g. iOS). 
 
 ## Project Status
 
-**Current phase:** Phase 2 — complete (automated checks and owner visual checks passed). Phase 3 in planning. Phase 1 complete 2026-10-25.
+**Current phase:** Phase 2 — complete (automated checks and owner visual checks passed). Phase 3 in progress (step 1 of 8 done). Phase 1 complete 2026-10-25.
 
 | Step                                                    | Status |
 | ------------------------------------------------------- | ------ |
@@ -111,6 +122,7 @@ Business logic (services) has no UI code, so it can be reused later (e.g. iOS). 
 | 7. Docs + final checks                                  | Done   |
 | Extra: Move a sub-page to the top level                 | Done   |
 | Phase 2: Journal, templates, page action bar            | Done   |
+| Phase 3, step 1: data model v2 + upgrade                | Done   |
 
 ## Decision Log
 
@@ -145,12 +157,11 @@ Business logic (services) has no UI code, so it can be reused later (e.g. iOS). 
 | 2026-10-25 | Planning questions one at a time; build-step questions all together                                                                       | Deep planning, fewer round trips while building               |
 | 2026-10-25 | Login/hosting/HTTPS rules deferred to Phase 6–7; budget ₹0                                                                                | No accounts or hosting yet; everything is free and local      |
 | 2026-10-25 | IDEAS.md added for parked ideas                                                                                                           | Keeps phases focused                                          |
+| 2026-10-26 | Phase 3 plan approved (see Phase 3 Plan)                                                                                                  | Owner sign-off after prototype testing                        |
+| 2026-10-26 | DB v2: `cards` (schedule state, due indexed), `reviewLogs` (append-only), `settings`; Block gains optional `source`, `derivedFrom`        | Schedule separate from text; history for FSRS/sync; AI-ready  |
+| 2026-10-26 | Study days follow the local calendar with a 4 am rollover; stored times are UTC                                                           | Correct across time zones and daylight saving                 |
 
-**Polish list (fix in Phase 3):**
-
-- "Save as template" (action bar and "/" menu) first opens a small dialog with the name pre-filled from the page title, to edit and confirm before saving.
-
-**Next steps:** plan Phase 3 (Recall & Spaced Repetition). See IDEAS.md for parked ideas.
+**Next steps:** Phase 3, step 2 (settings registry + screen). See IDEAS.md for parked ideas.
 
 ## Known Limitations
 

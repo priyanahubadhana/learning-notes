@@ -13,6 +13,7 @@
   --color-accent: #2f6feb;
   --color-hover: rgba(0, 0, 0, 0.04);
   --color-soft: #f4f6fb;
+  --color-danger: #c8402f;
 
   --font-sans:
     -apple-system, BlinkMacSystemFont, 'SF Pro Text', 'Inter', system-ui,
@@ -32,6 +33,7 @@
   --color-accent: #5e9bff;
   --color-hover: rgba(255, 255, 255, 0.05);
   --color-soft: #22252c;
+  --color-danger: #ff7b6b;
   color-scheme: dark; /* native controls & scrollbars */
 }
 :root[data-theme='sepia'] {
@@ -43,6 +45,7 @@
   --color-accent: #b5762a;
   --color-hover: rgba(90, 60, 20, 0.06);
   --color-soft: #efe4cc;
+  --color-danger: #b23a2a;
 }
 
 body {

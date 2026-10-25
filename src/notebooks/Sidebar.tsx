@@ -11,6 +11,7 @@ import { PageTree } from '../pages/PageTree'
 import { deletePage } from '../pages/pageService'
 import { TemplatesSection } from '../templates/TemplatesSection'
 import { TrashSection } from '../trash/TrashSection'
+import { t } from '../i18n/t'
 import { deleteNotebook, moveNotebook, renameNotebook } from './notebookService'
 
 interface SidebarProps {
@@ -26,6 +27,9 @@ interface SidebarProps {
   onRenamingChange: (id: string | null) => void
   onOpenPage: (pageId: string | null) => void
   onOpenToday: () => void
+  /** True while the Settings screen is shown. */
+  settingsOpen: boolean
+  onOpenSettings: () => void
   onCreateNotebook: () => void
   /** `templateId`: copy that template's content into the new page. */
   onCreatePage: (
@@ -68,6 +72,8 @@ export function Sidebar({
   onRenamingChange,
   onOpenPage,
   onOpenToday,
+  settingsOpen,
+  onOpenSettings,
   onCreateNotebook,
   onCreatePage,
   onCreateTemplate,
@@ -302,6 +308,19 @@ export function Sidebar({
         />
       )}
 
+      <button
+        type="button"
+        onClick={onOpenSettings}
+        aria-current={settingsOpen ? 'page' : undefined}
+        className={`mx-0.5 mt-1 flex min-h-9 items-center gap-2 rounded-lg px-2.5 text-left text-sm transition-colors hover:bg-hover ${
+          settingsOpen ? 'bg-hover font-semibold' : ''
+        }`}
+      >
+        <span aria-hidden className="text-muted">
+          ⚙
+        </span>
+        {t('settings.title')}
+      </button>
       <div role="group" aria-label="Theme" className="flex gap-1.5 p-2.5">
         {THEMES.map((t) => (
           <button

@@ -169,3 +169,9 @@
 - **What:** Phase 3 plan approved (with owner's prototype fixes) and recorded in README. Step 1: database version 2 adds `cards` (scheduling state, `due` indexed), `reviewLogs` (append-only history) and `settings` tables; Block gets optional `source` and `derivedFrom`. Added study-day helpers (local calendar, 4 am rollover, UTC storage), a "keep my data" request at start-up, and an upgrade test proving Phase 1–2 data survives.
 - **Why:** Foundation for cards, reviews, settings, FSRS and future sync/AI without later rebuilds.
 - **Files:** src/core/types.ts, src/core/db.ts, src/core/time.ts, src/core/time.test.ts, src/core/storage.ts, src/core/storage.test.ts, src/core/migration.test.ts, src/main.tsx, README.md, CHANGELOG.md
+
+## 2026-10-26
+
+- **What:** Phase 3, step 2. Added the `t()` text helper (placeholders, number formatting, plurals, English fallback) with `en.ts`; a pluggable settings registry (categories, multi-category settings, validators); a settings service (synced settings in the database, device settings in the browser; invalid values never saved, corrupt stored values read as defaults); and the Settings screen (All with search, General, Review, Journal, APIs; controls below labels; "Also in"; Reset; inline errors; chips on narrow screens). Sidebar gets a Settings button; the theme now goes through the registry (same storage key, so sidebar and Settings stay in step). Added a `danger` colour token.
+- **Why:** Phase 3 needs editable review settings (limits, steps, day start); one registry keeps settings consistent and extendable.
+- **Files:** src/i18n/en.ts, src/i18n/t.ts, src/i18n/t.test.ts, src/settings/registry.ts, src/settings/builtinSettings.ts, src/settings/settingsService.ts, src/settings/useSetting.ts, src/settings/SettingsScreen.tsx, src/settings/settings.test.ts, src/App.tsx, src/notebooks/Sidebar.tsx, src/index.css, e2e/settings.spec.ts, README.md, CHANGELOG.md

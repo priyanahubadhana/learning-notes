@@ -2,7 +2,7 @@ import { useLiveQuery } from 'dexie-react-hooks'
 import { useEffect, useRef, useState } from 'react'
 import { AppUiContext, type AppUi, type PickerMode } from './app/appUi'
 import { runTask } from './app/errors'
-import { THEME_PREF_KEY, applyTheme, isTheme } from './app/theme'
+import { applyTheme } from './app/theme'
 import { ThemeContext } from './app/themeContext'
 import { Toast } from './app/ui'
 import { isStringOrNull } from './app/uiPrefs'
@@ -16,6 +16,9 @@ import { Sidebar } from './notebooks/Sidebar'
 import { createNotebook, listNotebooks } from './notebooks/notebookService'
 import { PageView } from './pages/PageView'
 import { createPage, getPage } from './pages/pageService'
+import { theme as themeSetting } from './settings/builtinSettings'
+import { SettingsScreen } from './settings/SettingsScreen'
+import { useDeviceSetting } from './settings/useSetting'
 import { TemplatePicker } from './templates/TemplatePicker'
 import {
   createPageFromTemplate,
@@ -43,11 +46,17 @@ function App() {
     isStringOrNull,
     null,
   )
+  // Settings replaces the open page in the main area until a page is opened.
+  const [showSettings, setShowSettings] = useState(false)
+  const openPage = (id: string | null) => {
+    setShowSettings(false)
+    setCurrentPageId(id)
+  }
   const [renamingNotebookId, setRenamingNotebookId] = useState<string | null>(
     null,
   )
   const tree = useTreeState()
-  const [theme, setTheme] = usePref(THEME_PREF_KEY, isTheme, 'day')
+  const [theme, setTheme] = useDeviceSetting(themeSetting)
   useEffect(() => applyTheme(theme), [theme])
 
   useEffect(() => {
@@ -94,7 +103,7 @@ function App() {
     tree.expandNotebook(page.notebookId)
     if (page.parentId) tree.expandPage(page.parentId)
     setFocusTitlePageId(focusTitle ? page.id : null)
-    setCurrentPageId(page.id)
+    openPage(page.id)
   }
 
   const createPageIn = async (
@@ -192,22 +201,26 @@ function App() {
             onThemeChange={setTheme}
             renamingNotebookId={renamingNotebookId}
             onRenamingChange={setRenamingNotebookId}
-            onOpenPage={setCurrentPageId}
+            onOpenPage={openPage}
             onOpenToday={() => runTask(openToday())}
             onCreateNotebook={() => runTask(createNotebookAndOpen())}
             onCreatePage={(notebookId, parentId, templateId) =>
               runTask(createPageIn(notebookId, parentId, true, templateId))
             }
             onCreateTemplate={() => runTask(newTemplate())}
+            settingsOpen={showSettings}
+            onOpenSettings={() => setShowSettings(true)}
           />
           <main className="flex-1 overflow-auto">
-            {currentPage ? (
+            {showSettings ? (
+              <SettingsScreen db={db} />
+            ) : currentPage ? (
               <PageView
                 key={currentPage.id}
                 db={db}
                 page={currentPage}
                 autoFocusTitle={focusTitlePageId === currentPage.id}
-                onOpenPage={setCurrentPageId}
+                onOpenPage={openPage}
                 onOpenNewPage={openNewPage}
                 onNewPageFromTemplate={(id) => runTask(newPageFromTemplate(id))}
               />

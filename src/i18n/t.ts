@@ -1,0 +1,55 @@
+import { en } from './en'
+
+/**
+ * Translation helper: `t('settings.title')` → "Settings".
+ *
+ * - `{name}` placeholders are filled from `params` (numbers are formatted for
+ *   the current language, e.g. 1,000 vs 1.000).
+ * - Plurals: `t('settings.count', { count: 3 })` picks `settings.count_other`
+ *   using the browser's plural rules for the language.
+ * - A missing key returns the key itself, so a gap is visible but never crashes.
+ */
+
+type PluralForm = Intl.LDMLPluralRule
+type BaseKey<K> = K extends `${infer B}_${PluralForm}` ? B : K
+
+/** Every valid key (plural keys are used without their `_one`/`_other` suffix). */
+export type MessageKey = BaseKey<keyof typeof en>
+
+type Messages = Partial<Record<string, string>>
+
+let locale = 'en'
+let messages: Messages = en
+let pluralRules = new Intl.PluralRules(locale)
+let numberFormat = new Intl.NumberFormat(locale)
+
+/** Switches language. Keys missing from `next` fall back to English. */
+export function setMessages(nextLocale: string, next: Messages): void {
+  locale = nextLocale
+  messages = { ...en, ...next }
+  pluralRules = new Intl.PluralRules(locale)
+  numberFormat = new Intl.NumberFormat(locale)
+}
+
+/** The current language code (for `Intl` date/number formatting). */
+export const currentLocale = (): string => locale
+
+export function t(
+  key: MessageKey,
+  params?: Record<string, string | number>,
+): string {
+  const count = params?.count
+  const text =
+    (typeof count === 'number'
+      ? (messages[`${key}_${pluralRules.select(count)}`] ??
+        messages[`${key}_other`])
+      : undefined) ??
+    messages[key] ??
+    key
+  if (!params) return text
+  return text.replace(/\{(\w+)\}/g, (match, name: string) => {
+    const value = params[name]
+    if (value === undefined) return match
+    return typeof value === 'number' ? numberFormat.format(value) : value
+  })
+}

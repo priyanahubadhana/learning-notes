@@ -113,7 +113,7 @@ Business logic (services) has no UI code, so it can be reused later (e.g. iOS). 
 
 ## Project Status
 
-**Current phase:** Phase 2 — complete (automated checks and owner visual checks passed). Phase 3 in progress (steps 1–5 done; next: 6). Phase 1 complete 2026-10-25.
+**Current phase:** Phase 2 — complete (automated checks and owner visual checks passed). Phase 3 in progress (steps 1–7 done; next: 8). Phase 1 complete 2026-10-25.
 
 | Step                                                    | Status |
 | ------------------------------------------------------- | ------ |
@@ -133,6 +133,10 @@ Business logic (services) has no UI code, so it can be reused later (e.g. iOS). 
 | Phase 3, step 2: settings registry + Settings screen    | Done   |
 | Phase 3, step 3: Card block + Make card (Undo)          | Done   |
 | Phase 3, step 4: fill-in-the-blank + selection toolbar  | Done   |
+| Phase 3, step 5: scheduler, review log, Review screen   | Done   |
+| Phase 3, step 6: Lesson templates + live Card list      | Done   |
+| Phase 3, step 7: polish (7a, 7b, 7c All cards hub)      | Done   |
+| Phase 3, step 8: FSRS                                   | Next   |
 
 ## Decision Log
 
@@ -195,6 +199,8 @@ Business logic (services) has no UI code, so it can be reused later (e.g. iOS). 
 | 2026-10-26 | Card inside an answer: "next line" = right after the nearest enclosing Card (the empty "/card" line is removed); the setting is read ahead so "Always…" acts instantly; a card placed inside shows in the outer card's answer in review (owner OK)      | Predictable; no wait or cursor jump                                                         |
 | 2026-10-26 | Reusable `AppUi.choose` question dialog and `openSettings(settingId)` deep link                                                                                                                                                                         | Later prompts can link to their setting the same way                                        |
 | 2026-10-26 | All cards: soonest due first; includes suspended cards (shown as Suspended), leaves out deleted, empty and template cards; later cards show their due date; search scans card text for now (search index in Phase 4)                                    | Simple and complete; fast enough at 10,000 cards                                            |
+| 2026-10-26 | Due labels, one style in Card list and All cards: "in 10 minutes" / "tomorrow" / "in 3 days" within a week, then a short date (year only if not this year) in the app's language                                                                        | Relative reads best for soon, a date for far away; one shared `CardStatusLabel`             |
+| 2026-10-26 | All cards paging uses a cursor (last due + same-due count) instead of an offset; search reads page/notebook names only for matches; search pause 250 → 150 ms                                                                                           | Full search of 10,000 cards 0.65 s → 0.08 s in tests                                        |
 
 **Next steps — handoff for a new session:**
 

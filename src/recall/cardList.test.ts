@@ -7,7 +7,7 @@ import { getOrCreateDefaultWorkspace } from '../core/workspaceService'
 import { plainText } from '../editor/mapping'
 import { createNotebook } from '../notebooks/notebookService'
 import { createPage } from '../pages/pageService'
-import { listCardRows } from './cardList'
+import { dueLabel, listCardRows } from './cardList'
 import { CARD_BLOCK_TYPE, maskedText, syncCardRecords } from './cardService'
 
 let db: LearningNotesDB
@@ -145,5 +145,23 @@ describe('empty cards', () => {
     expect(
       (await listCardRows(db, page.id, false)).map((r) => r.question),
     ).toEqual(['Real question'])
+  })
+})
+
+describe('dueLabel', () => {
+  const now = Date.UTC(2026, 9, 26, 12)
+  const min = 60_000
+  const day = 24 * 60 * min
+
+  it('says how long until a card is due within a week', () => {
+    expect(dueLabel(now + 10 * min, now)).toBe('in 10 minutes')
+    expect(dueLabel(now + 3 * 60 * min, now)).toBe('in 3 hours')
+    expect(dueLabel(now + day, now)).toBe('tomorrow')
+    expect(dueLabel(now + 3 * day, now)).toBe('in 3 days')
+  })
+
+  it('shows a short date from a week on, with the year only if different', () => {
+    expect(dueLabel(now + 10 * day, now)).toBe('Nov 5')
+    expect(dueLabel(Date.UTC(2027, 0, 15, 12), now)).toBe('Jan 15, 2027')
   })
 })

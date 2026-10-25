@@ -259,3 +259,15 @@
 - **What:** Phase 3 Step 7c — "All cards" hub: a sidebar button opens one list of every card (question, notebook · page, status), with search and "Load more"; clicking a card opens its note and highlights the card. One `queryCards` service so tags, filters and a table view can plug in later. Step 7 complete.
 - **Why:** Owner request (approved Step 7 extension).
 - **Files:** src/recall/cardQuery.ts (+ test, incl. 10,000-card speed test), src/recall/AllCardsScreen.tsx, src/notebooks/Sidebar.tsx, src/App.tsx, src/i18n/en.ts, e2e/allCards.spec.ts, README.md, CHANGELOG.md
+
+## 2026-10-26
+
+- **What:** README Project Status table brought up to date (Phase 3 steps 5–7 done; step 8 next).
+- **Why:** The table still said "next: 6".
+- **Files:** README.md, CHANGELOG.md
+
+## 2026-10-26
+
+- **What:** All cards search ~8× faster (10,000-card full search 0.65 s → 0.08 s in tests): paging resumes from a cursor instead of an offset (Dexie's offset forced a slow card-by-card read), page/notebook names are read only for matching cards, search pause 250 → 150 ms. One due-date style in the Card list and All cards (shared `CardStatusLabel`, `dueLabel`, `useMinuteClock`). Speed test limit tightened 5 s → 1 s; new paging tests (same due time, search).
+- **Why:** Owner request.
+- **Files:** src/recall/cardQuery.ts (+ test), src/recall/cardList.ts (+ test), src/recall/CardStatusLabel.tsx, src/recall/useMinuteClock.ts, src/recall/CardListView.tsx, src/recall/AllCardsScreen.tsx, README.md, CHANGELOG.md

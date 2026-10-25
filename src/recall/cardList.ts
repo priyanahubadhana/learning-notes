@@ -1,3 +1,4 @@
+import { currentLocale } from '../i18n/t'
 import { listBlocks } from '../core/blockService'
 import type { LearningNotesDB } from '../core/db'
 import type { Block, Card, Page } from '../core/types'
@@ -124,4 +125,35 @@ export async function listCardRows(
     }
   }
   return rows
+}
+
+/** Due dates further away than this show as a date instead of "in N days". */
+const RELATIVE_DAYS = 7
+
+const DAY_MS = 24 * 60 * 60_000
+
+/**
+ * A card's status for card lists: "New", "Due", "Suspended", or when a
+ * later card comes back. One style everywhere: "in 10 minutes", "tomorrow",
+ * "in 3 days" within a week, then a short date ("12 Nov"; with the year
+ * when it is not this year).
+ */
+export function dueLabel(due: number, now: number): string {
+  const ms = due - now
+  if (ms >= RELATIVE_DAYS * DAY_MS) {
+    const sameYear = new Date(due).getFullYear() === new Date(now).getFullYear()
+    return new Intl.DateTimeFormat(currentLocale(), {
+      day: 'numeric',
+      month: 'short',
+      year: sameYear ? undefined : 'numeric',
+    }).format(due)
+  }
+  const format = new Intl.RelativeTimeFormat(currentLocale(), {
+    numeric: 'auto',
+  })
+  const minutes = Math.ceil(ms / 60_000)
+  if (minutes < 60) return format.format(minutes, 'minute')
+  const hours = Math.round(minutes / 60)
+  if (hours < 24) return format.format(hours, 'hour')
+  return format.format(Math.round(hours / 24), 'day')
 }

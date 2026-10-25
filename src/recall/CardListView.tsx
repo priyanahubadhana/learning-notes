@@ -1,8 +1,10 @@
 import { useLiveQuery } from 'dexie-react-hooks'
-import { useContext, useEffect, useState } from 'react'
+import { useContext, useState } from 'react'
 import { EditorContext } from '../editor/editorContext'
-import { currentLocale, t } from '../i18n/t'
-import { listCardRows, type CardRow } from './cardList'
+import { t } from '../i18n/t'
+import { listCardRows } from './cardList'
+import { CardStatusLabel } from './CardStatusLabel'
+import { useMinuteClock } from './useMinuteClock'
 
 /** Rows shown before "Show all" (keeps very large pages quick). */
 const FIRST_ROWS = 100
@@ -65,7 +67,7 @@ export function CardListView({
                     {row.pageTitle || t('review.untitled')}
                   </span>
                 )}
-                <StatusLabel row={row} now={now} />
+                <CardStatusLabel status={row.status} due={row.due} now={now} />
               </button>
             </li>
           ))}
@@ -82,48 +84,4 @@ export function CardListView({
       )}
     </section>
   )
-}
-
-const STATUS_KEYS = {
-  new: 'cardList.status.new',
-  due: 'cardList.status.due',
-  suspended: 'cardList.status.suspended',
-} as const
-
-function StatusLabel({ row, now }: { row: CardRow; now: number }) {
-  const text =
-    row.status === 'later'
-      ? relativeTime(row.due - now)
-      : t(STATUS_KEYS[row.status])
-  return (
-    <span
-      className={`shrink-0 text-xs ${
-        row.status === 'due' ? 'font-medium text-accent' : 'text-muted'
-      }`}
-    >
-      {text}
-    </span>
-  )
-}
-
-/** "in 10 minutes", "tomorrow", "in 3 days" (in the app's language). */
-function relativeTime(ms: number): string {
-  const format = new Intl.RelativeTimeFormat(currentLocale(), {
-    numeric: 'auto',
-  })
-  const minutes = Math.ceil(ms / 60_000)
-  if (minutes < 60) return format.format(minutes, 'minute')
-  const hours = Math.round(minutes / 60)
-  if (hours < 24) return format.format(hours, 'hour')
-  return format.format(Math.round(hours / 24), 'day')
-}
-
-/** The current time, updated each minute (so "due" labels stay right). */
-function useMinuteClock(): number {
-  const [now, setNow] = useState(() => Date.now())
-  useEffect(() => {
-    const id = setInterval(() => setNow(Date.now()), 60_000)
-    return () => clearInterval(id)
-  }, [])
-  return now
 }

@@ -1,8 +1,10 @@
 import { useLiveQuery } from 'dexie-react-hooks'
 import { useEffect, useId, useState } from 'react'
 import type { LearningNotesDB } from '../core/db'
-import { currentLocale, t } from '../i18n/t'
-import { queryCards, type CardHit, type CardQuery } from './cardQuery'
+import { t } from '../i18n/t'
+import { queryCards, type CardQuery } from './cardQuery'
+import { CardStatusLabel } from './CardStatusLabel'
+import { useMinuteClock } from './useMinuteClock'
 
 /** Cards per "Load more". */
 const PAGE_SIZE = 100
@@ -20,12 +22,13 @@ export function AllCardsScreen({
   onOpenNote: (pageId: string, blockId: string) => void
 }) {
   const [search, setSearch] = useState('')
-  const query = useDebounced<CardQuery>({ search }, 250)
+  const query = useDebounced<CardQuery>({ search }, 150)
   const [pages, setPages] = useState(1)
   const count = pages * PAGE_SIZE
+  const now = useMinuteClock()
   const result = useLiveQuery(
-    () => queryCards(db, query, { limit: count }),
-    [db, query.search, count],
+    () => queryCards(db, query, { limit: count }, now),
+    [db, query.search, count, now],
   )
   const searchId = useId()
 
@@ -73,7 +76,7 @@ export function AllCardsScreen({
                     {hit.pageTitle || t('review.untitled')}
                   </span>
                 </span>
-                <Status hit={hit} />
+                <CardStatusLabel status={hit.status} due={hit.due} now={now} />
               </button>
             </li>
           ))}
@@ -89,31 +92,6 @@ export function AllCardsScreen({
         </button>
       )}
     </div>
-  )
-}
-
-const STATUS_KEYS = {
-  new: 'cardList.status.new',
-  due: 'cardList.status.due',
-  suspended: 'cardList.status.suspended',
-} as const
-
-function Status({ hit }: { hit: CardHit }) {
-  const text =
-    hit.status === 'later'
-      ? new Intl.DateTimeFormat(currentLocale(), {
-          day: 'numeric',
-          month: 'short',
-        }).format(hit.due)
-      : t(STATUS_KEYS[hit.status])
-  return (
-    <span
-      className={`shrink-0 text-xs ${
-        hit.status === 'due' ? 'font-medium text-accent' : 'text-muted'
-      }`}
-    >
-      {text}
-    </span>
   )
 }
 

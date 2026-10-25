@@ -13,7 +13,7 @@ import {
   newCard,
   syncCardRecords,
 } from './cardService'
-import { queryCards } from './cardQuery'
+import { queryCards, type CardCursor } from './cardQuery'
 
 let db: LearningNotesDB
 let ws: string
@@ -46,6 +46,18 @@ async function pageWithCards(notebook: string, ...questions: string[]) {
 
 const questions = async (search?: string) =>
   (await queryCards(db, { search })).hits.map((h) => h.question)
+
+/** Every question, read `limit` at a time through `next`. */
+async function pageThrough(limit: number, search?: string) {
+  const seen: string[] = []
+  let after: CardCursor | null = null
+  do {
+    const page = await queryCards(db, { search }, { after, limit })
+    seen.push(...page.hits.map((h) => h.question))
+    after = page.next
+  } while (after !== null)
+  return seen
+}
 
 describe('queryCards', () => {
   it('lists every card with its page, notebook and status', async () => {
@@ -84,14 +96,24 @@ describe('queryCards', () => {
   it('pages through results with `next`', async () => {
     const many = Array.from({ length: 7 }, (_, i) => `Q${i}`)
     await pageWithCards('A', ...many)
-    const seen: string[] = []
-    let after: number | null = 0
-    while (after !== null) {
-      const page = await queryCards(db, {}, { after, limit: 3 })
-      seen.push(...page.hits.map((h) => h.question))
-      after = page.next
-    }
-    expect(seen.sort()).toEqual(many)
+    expect((await pageThrough(3)).sort()).toEqual(many)
+  })
+
+  it('pages correctly when many cards share the same due time', async () => {
+    const many = Array.from({ length: 7 }, (_, i) => `Q${i}`)
+    await pageWithCards('A', ...many)
+    await db.cards.toCollection().modify({ due: 1000 })
+    expect((await pageThrough(3)).sort()).toEqual(many)
+    expect((await pageThrough(1)).sort()).toEqual(many)
+  })
+
+  it('pages through search results', async () => {
+    await pageWithCards('A', 'Cat 1', 'Dog', 'Cat 2', 'Bird', 'Cat 3')
+    expect((await pageThrough(2, 'cat')).sort()).toEqual([
+      'Cat 1',
+      'Cat 2',
+      'Cat 3',
+    ])
   })
 })
 
@@ -128,6 +150,6 @@ describe('speed', () => {
     const fullScan = performance.now() - started
 
     expect(firstPage).toBeLessThan(1000)
-    expect(fullScan).toBeLessThan(5000)
+    expect(fullScan).toBeLessThan(1000)
   }, 30_000)
 })

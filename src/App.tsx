@@ -1,11 +1,16 @@
 import { useLiveQuery } from 'dexie-react-hooks'
 import { useEffect, useRef, useState } from 'react'
-import { AppUiContext, type AppUi, type PickerMode } from './app/appUi'
+import {
+  AppUiContext,
+  type AppUi,
+  type ChoiceRequest,
+  type PickerMode,
+} from './app/appUi'
 import { runTask } from './app/errors'
 import { applyTheme } from './app/theme'
 import { ThemeContext } from './app/themeContext'
 import type { ToastAction } from './app/appUi'
-import { Toast } from './app/ui'
+import { Toast, ChoiceDialog } from './app/ui'
 import { isStringOrNull } from './app/uiPrefs'
 import { usePref } from './app/usePref'
 import { useTreeState } from './app/useTreeState'
@@ -33,6 +38,12 @@ import {
 // Cached so React StrictMode's double effect cannot create things twice.
 let workspacePromise: Promise<Workspace> | undefined
 
+/** An open question (AppUi.choose), waiting for the user's answer. */
+interface ChoiceState {
+  request: ChoiceRequest
+  resolve: (value: string | null) => void
+}
+
 /** An open template picker, waiting for the user's choice. */
 interface PickerRequest {
   mode: PickerMode
@@ -52,6 +63,13 @@ function App() {
   )
   // Settings replaces the open page in the main area until a page is opened.
   const [showSettings, setShowSettings] = useState(false)
+  // Setting to scroll to and highlight when Settings opens (e.g. from a dialog).
+  const [settingsFocus, setSettingsFocus] = useState<string | null>(null)
+  const openSettings = (settingId?: string) => {
+    setReviewScope(null)
+    setSettingsFocus(settingId ?? null)
+    setShowSettings(true)
+  }
   // Review replaces the open page the same way (null = not reviewing).
   const [reviewScope, setReviewScope] = useState<ReviewScope | null>(null)
   const openPage = (id: string | null) => {
@@ -94,6 +112,7 @@ function App() {
 
   // ---- App-wide UI: template picker and toasts ----
   const [picker, setPicker] = useState<PickerRequest | null>(null)
+  const [choice, setChoice] = useState<ChoiceState | null>(null)
   const [toastMessage, setToastMessage] = useState<{
     message: string
     action?: ToastAction
@@ -102,6 +121,9 @@ function App() {
   const appUi: AppUi = {
     chooseTemplate: (mode) =>
       new Promise((resolve) => setPicker({ mode, resolve })),
+    choose: (request) =>
+      new Promise((resolve) => setChoice({ request, resolve })),
+    openSettings,
     toast: (message, action) => {
       // Choosing the action also closes the toast.
       const closing = action && {
@@ -235,10 +257,7 @@ function App() {
             }
             onCreateTemplate={() => runTask(newTemplate())}
             settingsOpen={showSettings}
-            onOpenSettings={() => {
-              setReviewScope(null)
-              setShowSettings(true)
-            }}
+            onOpenSettings={() => openSettings()}
             reviewOpen={
               reviewScope?.kind === 'all' || reviewScope?.kind === 'wrong'
             }
@@ -246,7 +265,11 @@ function App() {
           />
           <main className="flex-1 overflow-auto">
             {showSettings ? (
-              <SettingsScreen db={db} />
+              <SettingsScreen
+                key={settingsFocus ?? ''}
+                db={db}
+                focusId={settingsFocus ?? undefined}
+              />
             ) : reviewScope ? (
               <ReviewScreen
                 key={JSON.stringify(reviewScope)}
@@ -306,6 +329,16 @@ function App() {
               setPicker(null)
               picker.resolve(result)
             }}
+          />
+        )}
+        {choice && (
+          <ChoiceDialog
+            request={choice.request}
+            onDone={(value) => {
+              setChoice(null)
+              choice.resolve(value)
+            }}
+            onOpenSetting={openSettings}
           />
         )}
         {toastMessage && (

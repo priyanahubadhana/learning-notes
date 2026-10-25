@@ -19,6 +19,8 @@ import {
   type RefObject,
 } from 'react'
 import { AppUiContext } from '../app/appUi'
+import { nestedCardPlacement } from '../settings/builtinSettings'
+import { useSyncedSetting } from '../settings/useSetting'
 import { runTask } from '../app/errors'
 import { editorColorScheme } from '../app/theme'
 import { ThemeContext } from '../app/themeContext'
@@ -30,6 +32,7 @@ import { t } from '../i18n/t'
 import { AppDragHandleMenu } from './CardMenu'
 import { AppFormattingToolbar } from './SelectionToolbar'
 import { codeBlockKeys } from './codeBlockKeys'
+import type { NestedCardPlace } from './cardActions'
 import { EditorContext, type EditorApi } from './editorContext'
 import { editorToDrafts, recordsToEditor, withoutIds } from './mapping'
 import { createPageSync } from './pageSync'
@@ -87,7 +90,7 @@ function LoadedPageEditor({
   editorRef,
   records,
 }: PageEditorProps & { records: Block[] }) {
-  const { chooseTemplate, toast } = useContext(AppUiContext)
+  const { chooseTemplate, toast, choose } = useContext(AppUiContext)
   // Blocks go in as the editor's starting content, so loading is not an edit.
   const [initialContent] = useState(() => {
     const blocks = recordsToEditor(records, editorBlockTypes)
@@ -167,6 +170,30 @@ function LoadedPageEditor({
       })(),
     )
 
+  /**
+   * "/card" inside an answer: the setting decides at once (read ahead, so
+   * the card goes in like any other), or we ask.
+   */
+  const nestedPreference = useSyncedSetting(db, nestedCardPlacement)
+  const placeNestedCard = ():
+    NestedCardPlace | Promise<NestedCardPlace | null> => {
+    const preference = nestedPreference ?? nestedCardPlacement.defaultValue
+    if (preference !== 'ask') return preference
+    return askNestedCard()
+  }
+  const askNestedCard = async (): Promise<NestedCardPlace | null> => {
+    const answer = await choose({
+      title: t('nestedCard.title'),
+      message: t('nestedCard.message'),
+      options: [
+        { value: 'inside', label: t('nestedCard.inside') },
+        { value: 'nextLine', label: t('nestedCard.nextLine'), primary: true },
+      ],
+      settingId: nestedCardPlacement.id,
+    })
+    return answer === 'inside' || answer === 'nextLine' ? answer : null
+  }
+
   /** "/ Save page as template": save latest edits first. */
   const saveAsTemplate = onSaveAsTemplate
     ? () =>
@@ -222,6 +249,7 @@ function LoadedPageEditor({
                 onNewSubPage: newSubPage,
                 onInsertTemplate: insertTemplate,
                 onSaveAsTemplate: saveAsTemplate,
+                onPlaceNestedCard: placeNestedCard,
               }),
               query,
             )

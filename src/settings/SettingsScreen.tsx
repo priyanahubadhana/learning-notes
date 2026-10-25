@@ -1,4 +1,5 @@
-import { use, useId, useState } from 'react'
+import { use, useEffect, useId, useRef, useState } from 'react'
+import { revealWhenReady } from '../editor/revealBlock'
 import { AppUiContext } from '../app/appUi'
 import type { LearningNotesDB } from '../core/db'
 import type { JsonValue } from '../core/types'
@@ -16,8 +17,30 @@ import { useDeviceSetting, useSyncedSetting } from './useSetting'
 
 const ALL = 'all'
 
-export function SettingsScreen({ db }: { db: LearningNotesDB }) {
-  const [category, setCategory] = useState(ALL)
+/**
+ * `focusId`: a setting to open at (its home category), scrolled to and
+ * highlighted, e.g. from a dialog's "Change in Settings" link.
+ */
+export function SettingsScreen({
+  db,
+  focusId,
+}: {
+  db: LearningNotesDB
+  focusId?: string
+}) {
+  const [category, setCategory] = useState(
+    () => (focusId && settingsRegistry.get(focusId)?.category) || ALL,
+  )
+  const root = useRef<HTMLDivElement>(null)
+  useEffect(() => {
+    if (!focusId) return
+    revealWhenReady(
+      () =>
+        root.current?.querySelector<HTMLElement>(
+          `[data-setting-id="${CSS.escape(focusId)}"]`,
+        ) ?? null,
+    )
+  }, [focusId])
   const [query, setQuery] = useState('')
   const categories = settingsRegistry.categories()
   const current = categories.find((c) => c.id === category)
@@ -50,7 +73,10 @@ export function SettingsScreen({ db }: { db: LearningNotesDB }) {
   ]
 
   return (
-    <div className="mx-auto max-w-[760px] px-4 pt-8 pb-24 md:px-12 md:pt-12">
+    <div
+      ref={root}
+      className="mx-auto max-w-[760px] px-4 pt-8 pb-24 md:px-12 md:pt-12"
+    >
       <h1 className="text-[32px] leading-tight font-bold tracking-[-0.02em]">
         {t('settings.title')}
       </h1>
@@ -191,6 +217,7 @@ function RowLayout({
 
   return (
     <section
+      data-setting-id={definition.id}
       aria-labelledby={labelId}
       className="border-b border-line py-4 last:border-b-0"
     >

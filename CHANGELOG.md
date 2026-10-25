@@ -247,3 +247,9 @@
 - **What:** Phase 3 Step 7a — "Save as template" asks for a name (prefilled with the page title); "Open note" in Review opens the page and scrolls to the card; Cards with no question are left out of reviews, the due count and card lists until a question is typed; "Review these cards" button on the Card list (covers sub-pages when the list does). Plan extended with 7b/7c (owner approved).
 - **Why:** Step 7 polish plus owner requests after the Step 6 checks.
 - **Files:** src/app/ui.tsx, src/pages/PageView.tsx, src/templates/templateService.ts (+ test), src/recall/cardService.ts, src/recall/cardList.ts (+ test), src/recall/CardListView.tsx, src/recall/reviewService.ts (+ test), src/recall/ReviewScreen.tsx, src/editor/editorContext.ts, src/editor/PageEditor.tsx, src/App.tsx, src/i18n/en.ts, e2e/helpers.ts, e2e/lesson.spec.ts, e2e/review.spec.ts, e2e/templates.spec.ts, README.md, IDEAS.md
+
+## 2026-10-26
+
+- **What:** Phase 3 Step 7b — typing "/card" inside a card's answer asks "Put the card inside this answer, or on the next line below the card?" (Next line is the default), with a "Change in Settings" link; new Review setting "New card inside an answer" (Ask every time · Always next line · Always inside). Settings can open at one setting, highlighted.
+- **Why:** Owner request (approved Step 7 extension).
+- **Files:** src/editor/cardActions.tsx (+ test), src/editor/slashMenu.tsx, src/editor/PageEditor.tsx, src/editor/revealBlock.ts, src/app/appUi.ts, src/app/ui.tsx, src/App.tsx, src/settings/builtinSettings.ts, src/settings/SettingsScreen.tsx, src/i18n/en.ts, e2e/nestedCard.spec.ts, README.md, CHANGELOG.md

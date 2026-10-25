@@ -137,6 +137,27 @@ export const goodSteps: SettingDefinition<number[]> = {
   control: { kind: 'steps', ...STEP_LIMITS, unitKey: 'unit.days' },
 }
 
+/** Where "/card" puts a new card when typed inside a card's answer. */
+export const NESTED_CARD_CHOICES = ['ask', 'nextLine', 'inside'] as const
+export type NestedCardChoice = (typeof NESTED_CARD_CHOICES)[number]
+
+export const nestedCardPlacement: SettingDefinition<NestedCardChoice> = {
+  id: 'review.nestedCard',
+  labelKey: 'settings.nestedCard.label',
+  descriptionKey: 'settings.nestedCard.description',
+  category: 'review',
+  scope: 'synced',
+  defaultValue: 'ask',
+  isValid: isOneOf<NestedCardChoice>(NESTED_CARD_CHOICES),
+  control: {
+    kind: 'select',
+    options: NESTED_CARD_CHOICES.map((value) => ({
+      value,
+      label: () => t(`settings.nestedCard.${value}`),
+    })),
+  },
+}
+
 for (const definition of [
   theme,
   dayStartHour,
@@ -144,6 +165,7 @@ for (const definition of [
   reviewsPerDay,
   againMinutes,
   goodSteps,
+  nestedCardPlacement,
 ]) {
   settingsRegistry.register(definition as SettingDefinition)
 }

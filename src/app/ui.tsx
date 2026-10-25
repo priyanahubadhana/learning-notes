@@ -1,6 +1,6 @@
 import { useEffect, useRef, useState, type ComponentProps } from 'react'
 import { t } from '../i18n/t'
-import type { ToastAction } from './appUi'
+import type { ChoiceRequest, ToastAction } from './appUi'
 
 /** Small UI building blocks shared across features. */
 
@@ -288,6 +288,75 @@ export function NameDialog({
           </button>
         </div>
       </form>
+    </dialog>
+  )
+}
+
+/**
+ * Modal question with a few answer buttons (AppUi.choose). Esc or a click
+ * outside cancels. The primary answer has focus, so Enter picks it.
+ */
+export function ChoiceDialog({
+  request,
+  onDone,
+  onOpenSetting,
+}: {
+  request: ChoiceRequest
+  onDone: (value: string | null) => void
+  /** "Change in Settings" (closes the dialog as cancelled first). */
+  onOpenSetting: (settingId: string) => void
+}) {
+  const ref = useRef<HTMLDialogElement>(null)
+  const primary = useRef<HTMLButtonElement>(null)
+  useEffect(() => {
+    ref.current?.showModal()
+    primary.current?.focus() // showModal would focus the first button
+  }, [])
+  const { settingId } = request
+
+  return (
+    <dialog
+      ref={ref}
+      aria-label={request.title}
+      onCancel={() => onDone(null)}
+      onClick={(e) => {
+        if (e.target === ref.current) onDone(null) // click on the backdrop
+      }}
+      className="m-auto w-[min(27rem,calc(100vw-2rem))] rounded-xl border border-line bg-bg p-5 text-ink shadow-[0_12px_32px_rgba(0,0,0,0.14)] backdrop:bg-black/20"
+    >
+      <h2 className="mb-1.5 text-[15px] font-semibold">{request.title}</h2>
+      <p className="mb-5 text-sm leading-relaxed text-muted">
+        {request.message}
+      </p>
+      <div className="flex flex-wrap items-center justify-end gap-2 text-sm">
+        {settingId && (
+          <button
+            type="button"
+            onClick={() => {
+              onDone(null)
+              onOpenSetting(settingId)
+            }}
+            className="me-auto min-h-9 rounded-lg px-1 text-[13px] text-muted underline decoration-line underline-offset-4 hover:text-ink"
+          >
+            {t('dialog.changeInSettings')}
+          </button>
+        )}
+        {request.options.map((option) => (
+          <button
+            key={option.value}
+            type="button"
+            ref={option.primary ? primary : undefined}
+            onClick={() => onDone(option.value)}
+            className={`min-h-9 rounded-lg px-3 py-1.5 ${
+              option.primary
+                ? 'bg-accent font-medium text-white hover:opacity-90'
+                : 'border border-line hover:bg-hover'
+            }`}
+          >
+            {option.label}
+          </button>
+        ))}
+      </div>
     </dialog>
   )
 }

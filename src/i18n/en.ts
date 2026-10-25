@@ -9,6 +9,19 @@
 export const en = {
   // Shared dialogs
   'dialog.cancel': 'Cancel',
+  'dialog.changeInSettings': 'Change in Settings',
+  // Card typed inside an answer
+  'nestedCard.title': 'New card inside an answer',
+  'nestedCard.message':
+    'Put the card inside this answer, or on the next line below the card?',
+  'nestedCard.nextLine': 'Next line',
+  'nestedCard.inside': 'Inside this answer',
+  'settings.nestedCard.label': 'New card inside an answer',
+  'settings.nestedCard.description':
+    'When you type “/card” inside a card’s answer: ask each time, or always put the new card on the next line below the card, or inside the answer.',
+  'settings.nestedCard.ask': 'Ask every time',
+  'settings.nestedCard.nextLine': 'Always next line',
+  'settings.nestedCard.inside': 'Always inside',
   // Save as template
   'saveTemplate.title': 'Save as template',
   'saveTemplate.label': 'Template name',

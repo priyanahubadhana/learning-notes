@@ -48,8 +48,60 @@ export function makeCard(editor: Editor, block: EditorBlock): boolean {
   return true
 }
 
-/** "/" menu item: a new, empty Card with an empty answer line. */
-export function cardSlashItem(editor: Editor): DefaultReactSuggestionItem {
+/** Where a card typed inside another card's answer goes. */
+export type NestedCardPlace = 'inside' | 'nextLine'
+
+/** The Card whose answer `block` is in (nearest one), if any. */
+export function enclosingCard(
+  editor: Editor,
+  block: EditorBlock,
+): EditorBlock | undefined {
+  let parent = editor.getParentBlock(block)
+  while (parent) {
+    if (parent.type === CARD_BLOCK_TYPE) return parent
+    parent = editor.getParentBlock(parent)
+  }
+  return undefined
+}
+
+/** A new, empty Card at the cursor, with an empty answer line. */
+function insertCardHere(editor: Editor) {
+  const card = insertOrUpdateBlockForSlashMenu(editor, {
+    type: CARD_BLOCK_TYPE,
+  })
+  editor.updateBlock(card, { children: [{ type: 'paragraph' }] })
+  editor.setTextCursorPosition(card.id, 'start')
+}
+
+/**
+ * A new, empty Card on the line right after `card` (not nested in it). The
+ * empty line "/card" was typed on is removed.
+ */
+function insertCardAfter(editor: Editor, card: EditorBlock, from: string) {
+  const [created] = editor.insertBlocks(
+    [{ type: CARD_BLOCK_TYPE, children: [{ type: 'paragraph' }] }],
+    card,
+    'after',
+  )
+  const line = editor.getBlock(from)
+  const empty =
+    line?.type === 'paragraph' &&
+    Array.isArray(line.content) &&
+    line.content.length === 0 &&
+    line.children.length === 0
+  if (empty) editor.removeBlocks([line])
+  editor.setTextCursorPosition(created, 'start')
+}
+
+/**
+ * "/" menu item: a new, empty Card with an empty answer line. Inside a
+ * card's answer, `placeNested` decides where it goes (null = cancel); it
+ * answers at once when a setting decides, or later after asking.
+ */
+export function cardSlashItem(
+  editor: Editor,
+  placeNested?: () => NestedCardPlace | null | Promise<NestedCardPlace | null>,
+): DefaultReactSuggestionItem {
   return {
     title: t('card.slash.title'),
     subtext: t('card.slash.subtext'),
@@ -57,11 +109,29 @@ export function cardSlashItem(editor: Editor): DefaultReactSuggestionItem {
     group: t('card.slash.group'),
     icon: <span aria-hidden>🃏</span>,
     onItemClick: () => {
-      const card = insertOrUpdateBlockForSlashMenu(editor, {
-        type: CARD_BLOCK_TYPE,
+      const current = editor.getTextCursorPosition().block
+      const outer = placeNested && enclosingCard(editor, current)
+      if (!outer) {
+        insertCardHere(editor)
+        return
+      }
+      const place = (choice: NestedCardPlace | null) => {
+        if (choice === 'inside') insertCardHere(editor)
+        else if (choice === 'nextLine')
+          insertCardAfter(editor, outer, current.id)
+      }
+      const choice = placeNested()
+      if (!(choice instanceof Promise)) {
+        place(choice)
+        return
+      }
+      void choice.then((answer) => {
+        if (!editor.getBlock(current.id)) return // line gone meanwhile
+        // The dialog took focus: return to the "/card" line first.
+        editor.focus()
+        editor.setTextCursorPosition(current.id, 'end')
+        place(answer)
       })
-      editor.updateBlock(card, { children: [{ type: 'paragraph' }] })
-      editor.setTextCursorPosition(card.id, 'start')
     },
   }
 }

@@ -9,6 +9,16 @@ export interface ToastAction {
   onSelect: () => void
 }
 
+/** A small question with a few answers (see AppUi.choose). */
+export interface ChoiceRequest {
+  title: string
+  message: string
+  /** Buttons, in order; `primary` is the default (gets focus, Enter). */
+  options: { value: string; label: string; primary?: boolean }[]
+  /** Shows a "Change in Settings" link that opens this setting. */
+  settingId?: string
+}
+
 /** App-wide UI services any component can use (provided by App). */
 export interface AppUi {
   /**
@@ -18,9 +28,15 @@ export interface AppUi {
   chooseTemplate: (mode: PickerMode) => Promise<string | null>
   /** Shows a short message at the bottom of the screen, with an optional action (e.g. Undo). */
   toast: (message: string, action?: ToastAction) => void
+  /** Asks a question; resolves to the chosen value, or null if cancelled. */
+  choose: (request: ChoiceRequest) => Promise<string | null>
+  /** Opens Settings, optionally at one setting (highlighted). */
+  openSettings: (settingId?: string) => void
 }
 
 export const AppUiContext = createContext<AppUi>({
   chooseTemplate: async () => null,
   toast: () => {},
+  choose: async () => null,
+  openSettings: () => {},
 })

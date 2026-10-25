@@ -3,7 +3,7 @@ import {
   getDefaultReactSlashMenuItems,
   type DefaultReactSuggestionItem,
 } from '@blocknote/react'
-import { cardSlashItem } from './cardActions'
+import { cardSlashItem, type NestedCardPlace } from './cardActions'
 import { t } from '../i18n/t'
 import type { AppSchema } from './schema'
 
@@ -20,6 +20,9 @@ export interface SlashMenuActions {
   onInsertTemplate: () => void
   /** Left out of the menu when undefined (e.g. on template pages). */
   onSaveAsTemplate?: () => void
+  /** "/card" inside a card's answer: where the new card goes. */
+  onPlaceNestedCard?: () =>
+    NestedCardPlace | null | Promise<NestedCardPlace | null>
 }
 
 /**
@@ -29,7 +32,12 @@ export interface SlashMenuActions {
  */
 export function buildSlashMenuItems(
   editor: Editor,
-  { onNewSubPage, onInsertTemplate, onSaveAsTemplate }: SlashMenuActions,
+  {
+    onNewSubPage,
+    onInsertTemplate,
+    onSaveAsTemplate,
+    onPlaceNestedCard,
+  }: SlashMenuActions,
 ): DefaultReactSuggestionItem[] {
   const items = getDefaultReactSlashMenuItems(editor).map((item) => {
     const extra = EXTRA_ALIASES[item.title]
@@ -50,7 +58,7 @@ export function buildSlashMenuItems(
       insertOrUpdateBlockForSlashMenu(editor, { type: 'callout' }),
   }
   items.splice(quoteIndex === -1 ? items.length : quoteIndex + 1, 0, callout)
-  items.push(cardSlashItem(editor))
+  items.push(cardSlashItem(editor, onPlaceNestedCard))
   items.push({
     title: t('cardList.slash.title'),
     subtext: t('cardList.slash.subtext'),

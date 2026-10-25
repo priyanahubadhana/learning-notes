@@ -1,6 +1,7 @@
 import { expect, test, type Page } from '@playwright/test'
 import {
   cardRecordCount,
+  highlighted,
   createNotebook,
   selectText,
   sidebar,
@@ -110,11 +111,12 @@ test('blanks show "…" until revealed; Practice anyway; Suspend with Undo', asy
   await page.getByRole('status').getByRole('button', { name: 'Undo' }).click()
   await expect(review(page).locator('.review-blank')).toBeVisible()
 
-  // Open note goes back to the page; Esc-closed review shows notes again.
+  // Open note goes back to the page and highlights the card.
   await review(page).getByRole('button', { name: 'Open note' }).click()
   await expect(page.getByRole('textbox', { name: 'Page title' })).toHaveValue(
     'Heart sounds',
   )
+  await expect.poll(() => highlighted(page)).not.toBe('')
 })
 
 test('notebook review and empty states', async ({ page }) => {

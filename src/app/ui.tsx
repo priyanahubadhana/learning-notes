@@ -1,4 +1,5 @@
 import { useEffect, useRef, useState, type ComponentProps } from 'react'
+import { t } from '../i18n/t'
 import type { ToastAction } from './appUi'
 
 /** Small UI building blocks shared across features. */
@@ -207,6 +208,86 @@ export function ConfirmDialog({
           {confirmLabel}
         </button>
       </div>
+    </dialog>
+  )
+}
+
+interface NameDialogProps {
+  title: string
+  label: string
+  initialValue: string
+  confirmLabel: string
+  onConfirm: (name: string) => void
+  onCancel: () => void
+}
+
+/**
+ * Modal dialog asking for a name (e.g. "Save as template"). Enter saves,
+ * Esc cancels. The text starts selected so typing replaces it.
+ */
+export function NameDialog({
+  title,
+  label,
+  initialValue,
+  confirmLabel,
+  onConfirm,
+  onCancel,
+}: NameDialogProps) {
+  const ref = useRef<HTMLDialogElement>(null)
+  const input = useRef<HTMLInputElement>(null)
+  const [value, setValue] = useState(initialValue)
+
+  useEffect(() => {
+    ref.current?.showModal()
+    input.current?.select()
+  }, [])
+
+  return (
+    <dialog
+      ref={ref}
+      aria-label={title}
+      onCancel={onCancel}
+      onClick={(e) => {
+        if (e.target === ref.current) onCancel() // click on the backdrop
+      }}
+      className="m-auto w-[min(22rem,calc(100vw-2rem))] rounded-xl border border-line bg-bg p-5 text-ink shadow-[0_12px_32px_rgba(0,0,0,0.14)] backdrop:bg-black/20"
+    >
+      <form
+        onSubmit={(e) => {
+          e.preventDefault()
+          onConfirm(value.trim())
+        }}
+      >
+        <h2 className="mb-3 text-[15px] font-semibold">{title}</h2>
+        <label
+          className="mb-1.5 block text-xs text-muted"
+          htmlFor="name-dialog"
+        >
+          {label}
+        </label>
+        <input
+          id="name-dialog"
+          ref={input}
+          value={value}
+          onChange={(e) => setValue(e.target.value)}
+          className="mb-5 w-full rounded-lg border border-line bg-bg px-3 py-2 text-sm outline-none focus:border-accent"
+        />
+        <div className="flex justify-end gap-2 text-sm">
+          <button
+            type="button"
+            onClick={onCancel}
+            className="min-h-9 rounded-lg px-3 py-1.5 text-muted hover:bg-hover hover:text-ink"
+          >
+            {t('dialog.cancel')}
+          </button>
+          <button
+            type="submit"
+            className="min-h-9 rounded-lg bg-accent px-3 py-1.5 font-medium text-white hover:opacity-90"
+          >
+            {confirmLabel}
+          </button>
+        </div>
+      </form>
     </dialog>
   )
 }

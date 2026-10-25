@@ -130,8 +130,10 @@ describe('templates', () => {
 
     const template = await saveAsTemplate(db, ws, page.id)
     expect(template.title).toBe('My method')
+    const named = await saveAsTemplate(db, ws, page.id, '  Lab report  ')
+    expect(named.title).toBe('Lab report')
     expect(await texts(template.id)).toEqual(['paragraph:Step one'])
-    expect((await listTemplates(db, ws)).at(-1)?.id).toBe(template.id)
+    expect((await listTemplates(db, ws)).at(-1)?.id).toBe(named.id)
   })
 })
 

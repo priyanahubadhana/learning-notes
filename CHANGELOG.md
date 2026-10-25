@@ -241,3 +241,9 @@
 - **What:** Parked card-management ideas (tags, filters, table view, bulk actions, saved decks, most-failed, stats/streaks, empty-card cleanup).
 - **Why:** Owner request after Step 6 checks; for Phases 4–5.
 - **Files:** IDEAS.md, CHANGELOG.md
+
+## 2026-10-26
+
+- **What:** Phase 3 Step 7a — "Save as template" asks for a name (prefilled with the page title); "Open note" in Review opens the page and scrolls to the card; Cards with no question are left out of reviews, the due count and card lists until a question is typed; "Review these cards" button on the Card list (covers sub-pages when the list does). Plan extended with 7b/7c (owner approved).
+- **Why:** Step 7 polish plus owner requests after the Step 6 checks.
+- **Files:** src/app/ui.tsx, src/pages/PageView.tsx, src/templates/templateService.ts (+ test), src/recall/cardService.ts, src/recall/cardList.ts (+ test), src/recall/CardListView.tsx, src/recall/reviewService.ts (+ test), src/recall/ReviewScreen.tsx, src/editor/editorContext.ts, src/editor/PageEditor.tsx, src/App.tsx, src/i18n/en.ts, e2e/helpers.ts, e2e/lesson.spec.ts, e2e/review.spec.ts, e2e/templates.spec.ts, README.md, IDEAS.md

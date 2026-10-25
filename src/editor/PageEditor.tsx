@@ -43,6 +43,8 @@ interface PageEditorProps {
   notebookId: string
   /** Opens an existing page (e.g. clicking a page link). */
   onOpenPage: (pageId: string) => void
+  /** Reviews this page's cards (Card list button); unset on templates. */
+  onReviewCards?: (includeSubpages: boolean) => void
   /** Opens a page just created here (e.g. "New sub-page" in the / menu). */
   onOpenNewPage: (page: Page) => void
   /** "/ Save page as template" (left out of the menu when undefined). */
@@ -79,6 +81,7 @@ function LoadedPageEditor({
   pageId,
   notebookId,
   onOpenPage,
+  onReviewCards,
   onOpenNewPage,
   onSaveAsTemplate,
   editorRef,
@@ -182,7 +185,15 @@ function LoadedPageEditor({
   }
 
   return (
-    <EditorContext value={{ db, pageId, openPage: onOpenPage, openBlock }}>
+    <EditorContext
+      value={{
+        db,
+        pageId,
+        openPage: onOpenPage,
+        openBlock,
+        reviewCards: onReviewCards,
+      }}
+    >
       <BlockNoteView
         editor={editor}
         onChange={sync.changed}

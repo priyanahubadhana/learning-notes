@@ -1,5 +1,6 @@
 import type { LearningNotesDB } from '../core/db'
 import { createId } from '../core/ids'
+import { descendantIds } from '../core/records'
 import { addStudyDays, studyDayStart } from '../core/time'
 import { listBlocks } from '../core/blockService'
 import type { Card, JsonValue, Rating, ReviewLog } from '../core/types'
@@ -11,7 +12,8 @@ import {
   reviewsPerDay,
 } from '../settings/builtinSettings'
 import { getSetting } from '../settings/settingsService'
-import { cardParts, MAIN_PART } from './cardService'
+import { listPages } from '../pages/pageService'
+import { cardParts, hasQuestion, MAIN_PART } from './cardService'
 import {
   fixedStepsScheduler,
   previewRatings,
@@ -31,7 +33,8 @@ import {
 export type ReviewScope =
   | { kind: 'all' }
   | { kind: 'notebook'; notebookId: string }
-  | { kind: 'page'; pageId: string }
+  /** includeSubpages: also the page's sub-pages (any depth). */
+  | { kind: 'page'; pageId: string; includeSubpages?: boolean }
   | { kind: 'wrong' }
 
 export interface ReviewQueue {
@@ -86,15 +89,28 @@ async function dueCardsInScope(
     case 'page':
       return db.cards
         .where('pageId')
-        .equals(scope.pageId)
+        .anyOf(await pageIdsInScope(db, scope))
         .filter((c) => c.due <= now)
         .toArray()
   }
 }
 
+/** The page, plus its sub-pages (any depth) when the scope asks for them. */
+async function pageIdsInScope(
+  db: LearningNotesDB,
+  scope: Extract<ReviewScope, { kind: 'page' }>,
+): Promise<string[]> {
+  if (!scope.includeSubpages) return [scope.pageId]
+  const page = await db.pages.get(scope.pageId)
+  if (!page) return [scope.pageId]
+  const pages = await listPages(db, page.notebookId)
+  return [scope.pageId, ...descendantIds(pages, scope.pageId)]
+}
+
 /**
  * Keeps only cards that should be reviewed: not suspended, block still
- * live and still making that card, and not in the Templates notebook.
+ * live and still making that card, a Card with a question (empty ones
+ * wait until one is typed), and not in the Templates notebook.
  */
 async function reviewable(db: LearningNotesDB, cards: Card[]): Promise<Card[]> {
   const active = cards.filter((c) => c.suspendedAt === null)
@@ -106,7 +122,9 @@ async function reviewable(db: LearningNotesDB, cards: Card[]): Promise<Card[]> {
   ])
   const parts = new Map<string, Set<string>>()
   blocks.forEach((b) => {
-    if (b && b.deletedAt === null) parts.set(b.id, new Set(cardParts(b)))
+    if (b && b.deletedAt === null && hasQuestion(b)) {
+      parts.set(b.id, new Set(cardParts(b)))
+    }
   })
   const skip = new Set(templateNotebooks)
   return active.filter(
@@ -251,7 +269,7 @@ export async function getPracticeCards(
     case 'page': {
       const cards =
         scope.kind === 'page'
-          ? db.cards.where('pageId').equals(scope.pageId)
+          ? db.cards.where('pageId').anyOf(await pageIdsInScope(db, scope))
           : db.cards.where('notebookId').equals(scope.notebookId)
       const all = await reviewable(db, await cards.toArray())
       return all.sort(byDue).slice(0, limit)

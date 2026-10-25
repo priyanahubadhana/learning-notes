@@ -51,7 +51,7 @@ const block = (
   pageId,
   parentId: null,
   type: CARD_BLOCK_TYPE,
-  content: { text: [] },
+  content: { text: [{ type: 'text', text: 'Question?', styles: {} }] },
   order: 'a0',
   ...over,
 })
@@ -425,4 +425,39 @@ describe('speed', () => {
     // fake-indexeddb is far slower than a real browser; this is a ceiling.
     expect(ms).toBeLessThan(3000)
   }, 30_000)
+})
+
+describe('empty cards and sub-page scope', () => {
+  it('a Card with no question is left out until one is typed', async () => {
+    await addCard('full')
+    await addCard('empty')
+    await db.blocks.update('empty', { content: { text: [] } })
+    const scope = { kind: 'page', pageId: 'p1' } as const
+    expect(ids((await getReviewQueue(db, scope, NOW)).cards)).toEqual([
+      'c-full',
+    ])
+    expect(ids(await getPracticeCards(db, scope))).toEqual(['c-full'])
+
+    await db.blocks.update('empty', {
+      content: { text: [{ type: 'text', text: 'Now?', styles: {} }] },
+    })
+    expect((await getReviewQueue(db, scope, NOW)).cards).toHaveLength(2)
+  })
+
+  it('page scope includes sub-pages only when asked', async () => {
+    await db.pages.add({
+      ...base,
+      id: 'p-sub',
+      notebookId: 'nb1',
+      parentId: 'p1',
+      title: 'Sub',
+      order: 'a1',
+    })
+    await addCard('top')
+    await addCard('sub', {}, 'p-sub')
+    const queue = (includeSubpages: boolean) =>
+      getReviewQueue(db, { kind: 'page', pageId: 'p1', includeSubpages }, NOW)
+    expect(ids((await queue(false)).cards)).toEqual(['c-top'])
+    expect(ids((await queue(true)).cards).sort()).toEqual(['c-sub', 'c-top'])
+  })
 })

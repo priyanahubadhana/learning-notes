@@ -1,8 +1,13 @@
 import { listBlocks } from '../core/blockService'
 import type { LearningNotesDB } from '../core/db'
-import type { Block, Card, JsonValue, Page } from '../core/types'
+import type { Block, Card, Page } from '../core/types'
 import { getPage, listPages } from '../pages/pageService'
-import { CARD_BLOCK_TYPE, cardParts } from './cardService'
+import {
+  CARD_BLOCK_TYPE,
+  cardParts,
+  hasQuestion,
+  maskedText,
+} from './cardService'
 import { isNewCard } from './reviewService'
 
 /**
@@ -22,33 +27,6 @@ export interface CardRow {
   question: string
   status: CardStatus
   due: number
-}
-
-/** Plain text of rich-text runs, with the blank `blankId` shown as "…". */
-export function maskedText(runs: JsonValue | undefined, blankId?: string) {
-  let out = ''
-  let inBlank = false // one "…" per blank, even if split over runs
-  const visit = (list: JsonValue | undefined) => {
-    if (!Array.isArray(list)) return
-    for (const run of list) {
-      if (!run || typeof run !== 'object' || Array.isArray(run)) continue
-      const styles = run.styles
-      const blank =
-        styles && typeof styles === 'object' && !Array.isArray(styles)
-          ? styles.blank
-          : undefined
-      if (blankId !== undefined && blank === blankId) {
-        if (!inBlank) out += '…'
-        inBlank = true
-        continue
-      }
-      inBlank = false
-      if (typeof run.text === 'string') out += run.text
-      visit(run.content) // links hold their own runs
-    }
-  }
-  visit(runs)
-  return out.trim()
 }
 
 export function cardStatus(card: Card, now: number): CardStatus {
@@ -126,7 +104,7 @@ export async function listCardRows(
     if (!pagesWithCards.has(page.id)) continue // skip reading empty pages
     for (const block of readingOrder(await listBlocks(db, page.id))) {
       const own = cardsOf.get(block.id)
-      if (!own) continue
+      if (!own || !hasQuestion(block)) continue // empty Cards are left out
       const parts = cardParts(block) // blanks in the order they appear
       own.sort((a, b) => parts.indexOf(a.part) - parts.indexOf(b.part))
       for (const card of own) {

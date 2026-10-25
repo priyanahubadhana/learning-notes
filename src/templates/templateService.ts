@@ -183,12 +183,14 @@ export async function createPageFromTemplate(
 
 /**
  * Saves a copy of a page as a new template (same title, blocks and
- * sub-pages; page links are left out). Returns the new template.
+ * sub-pages; page links are left out). `title` names the template
+ * (default: the page's title). Returns the new template.
  */
 export async function saveAsTemplate(
   db: LearningNotesDB,
   workspaceId: string,
   pageId: string,
+  title?: string,
 ): Promise<Page> {
   return db.transaction(
     'rw',
@@ -201,7 +203,7 @@ export async function saveAsTemplate(
         db,
         notebook.id,
         null,
-        page.title || 'Untitled',
+        title?.trim() || page.title || 'Untitled',
       )
       await copyPageTree(db, pageId, template.id, false)
       return template

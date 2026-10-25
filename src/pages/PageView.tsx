@@ -9,6 +9,7 @@ import {
 } from 'react'
 import { AppUiContext } from '../app/appUi'
 import { runTask } from '../app/errors'
+import { NameDialog } from '../app/ui'
 import { listBlocks } from '../core/blockService'
 import type { LearningNotesDB } from '../core/db'
 import type { Page } from '../core/types'
@@ -33,8 +34,8 @@ interface PageViewProps {
   onOpenNewPage: (page: Page) => void
   /** "New page from this template" (template pages only). */
   onNewPageFromTemplate: (templateId: string) => void
-  /** Opens the Review screen for this page's cards. */
-  onReview: () => void
+  /** Opens the Review screen for this page's cards (and sub-pages'). */
+  onReview: (includeSubpages?: boolean) => void
 }
 
 /** An open page: breadcrumb, action bar, banner, title and block editor. */
@@ -58,13 +59,23 @@ export function PageView({
   const isTemplate = notebook?.kind === 'templates'
   const isToday = page.journalDate === dateKey(new Date())
 
+  // "Save as template" asks for a name first.
+  const [naming, setNaming] = useState(false)
+  const saveTemplate = () => setNaming(true)
+
   /** Saves a copy of this page (latest edits included) as a template. */
-  const saveTemplate = () =>
+  const saveTemplateAs = (name: string) =>
     runTask(
       (async () => {
+        setNaming(false)
         if (!notebook) return
         await editor.current?.flush()
-        const template = await saveAsTemplate(db, notebook.workspaceId, page.id)
+        const template = await saveAsTemplate(
+          db,
+          notebook.workspaceId,
+          page.id,
+          name,
+        )
         toast(
           `Saved “${template.title}” as a template. Find it under Templates.`,
         )
@@ -98,7 +109,7 @@ export function PageView({
         </nav>
         <div role="toolbar" aria-label="Page actions" className="flex gap-1.5">
           {notebook && !isTemplate && (
-            <ActionButton icon="⟳" onClick={onReview}>
+            <ActionButton icon="⟳" onClick={() => onReview()}>
               {t('review.thisPage')}
             </ActionButton>
           )}
@@ -156,9 +167,20 @@ export function PageView({
         notebookId={page.notebookId}
         onOpenPage={onOpenPage}
         onOpenNewPage={onOpenNewPage}
+        onReviewCards={notebook && !isTemplate ? onReview : undefined}
         onSaveAsTemplate={notebook && !isTemplate ? saveTemplate : undefined}
         editorRef={editor}
       />
+      {naming && (
+        <NameDialog
+          title={t('saveTemplate.title')}
+          label={t('saveTemplate.label')}
+          initialValue={page.title}
+          confirmLabel={t('saveTemplate.confirm')}
+          onConfirm={saveTemplateAs}
+          onCancel={() => setNaming(false)}
+        />
+      )}
     </div>
   )
 }

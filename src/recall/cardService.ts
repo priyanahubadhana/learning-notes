@@ -1,6 +1,6 @@
 import type { LearningNotesDB } from '../core/db'
 import { newRecordFields } from '../core/records'
-import type { Block, Card } from '../core/types'
+import type { Block, Card, JsonValue } from '../core/types'
 import { blankIds } from '../editor/mapping'
 
 /**
@@ -83,4 +83,40 @@ export async function syncCardRecords(
       .map(({ block, part }) => newCard(block, page.notebookId, part, now))
     if (missing.length > 0) await db.cards.bulkAdd(missing)
   })
+}
+
+/** Plain text of rich-text runs, with the blank `blankId` shown as "…". */
+export function maskedText(runs: JsonValue | undefined, blankId?: string) {
+  let out = ''
+  let inBlank = false // one "…" per blank, even if split over runs
+  const visit = (list: JsonValue | undefined) => {
+    if (!Array.isArray(list)) return
+    for (const run of list) {
+      if (!run || typeof run !== 'object' || Array.isArray(run)) continue
+      const styles = run.styles
+      const blank =
+        styles && typeof styles === 'object' && !Array.isArray(styles)
+          ? styles.blank
+          : undefined
+      if (blankId !== undefined && blank === blankId) {
+        if (!inBlank) out += '…'
+        inBlank = true
+        continue
+      }
+      inBlank = false
+      if (typeof run.text === 'string') out += run.text
+      visit(run.content) // links hold their own runs
+    }
+  }
+  visit(runs)
+  return out.trim()
+}
+
+/**
+ * False for a Card block whose question has no text yet. Such cards stay
+ * saved but are left out of reviews and card lists until a question is
+ * typed. (A blank always has text, so blank cards always count.)
+ */
+export function hasQuestion(block: Pick<Block, 'type' | 'content'>): boolean {
+  return block.type !== CARD_BLOCK_TYPE || maskedText(block.content.text) !== ''
 }

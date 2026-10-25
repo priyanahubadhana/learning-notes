@@ -198,3 +198,13 @@ export const cardRecordCount = (page: Page) =>
         }
       }),
   )
+
+/** Text of the blocks being highlighted after a jump ('' if none). */
+export const highlighted = (page: Page) =>
+  page.evaluate(() =>
+    document
+      .getAnimations()
+      .filter((a) => a.id === 'reveal' && a.playState === 'running')
+      .map((a) => (a.effect as KeyframeEffect | null)?.target?.textContent)
+      .join(' | '),
+  )

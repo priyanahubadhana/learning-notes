@@ -39,7 +39,8 @@ interface ReviewScreenProps {
   db: LearningNotesDB
   scope: ReviewScope
   onScopeChange: (scope: ReviewScope) => void
-  onOpenPage: (pageId: string) => void
+  /** Opens the card's page and scrolls to the card. */
+  onOpenNote: (pageId: string, blockId: string) => void
   onClose: () => void
 }
 
@@ -47,7 +48,7 @@ export function ReviewScreen({
   db,
   scope,
   onScopeChange,
-  onOpenPage,
+  onOpenNote,
   onClose,
 }: ReviewScreenProps) {
   const ui = useContext(AppUiContext)
@@ -265,7 +266,9 @@ export function ReviewScreen({
                 </p>
               )}
               <div className="mt-3 flex justify-center gap-2 text-[13px]">
-                <QuietButton onClick={() => onOpenPage(card.pageId)}>
+                <QuietButton
+                  onClick={() => onOpenNote(card.pageId, card.blockId)}
+                >
                   {t('review.openNote')}
                 </QuietButton>
                 <QuietButton onClick={() => runTask(suspend())}>

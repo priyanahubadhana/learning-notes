@@ -7,8 +7,8 @@ import { getOrCreateDefaultWorkspace } from '../core/workspaceService'
 import { plainText } from '../editor/mapping'
 import { createNotebook } from '../notebooks/notebookService'
 import { createPage } from '../pages/pageService'
-import { listCardRows, maskedText } from './cardList'
-import { CARD_BLOCK_TYPE, syncCardRecords } from './cardService'
+import { listCardRows } from './cardList'
+import { CARD_BLOCK_TYPE, maskedText, syncCardRecords } from './cardService'
 
 let db: LearningNotesDB
 let notebookId: string
@@ -133,5 +133,17 @@ describe('listCardRows', () => {
     expect(
       (await listCardRows(db, page.id, false)).map((r) => r.question),
     ).toEqual(['nested', 'after'])
+  })
+})
+
+describe('empty cards', () => {
+  it('a Card with no question is not listed', async () => {
+    const page = await createPage(db, notebookId, null, 'P')
+    await addCard(page.id, '')
+    await addCard(page.id, 'Real question')
+    await syncCardRecords(db, page.id)
+    expect(
+      (await listCardRows(db, page.id, false)).map((r) => r.question),
+    ).toEqual(['Real question'])
   })
 })

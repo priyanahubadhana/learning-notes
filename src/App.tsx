@@ -23,6 +23,7 @@ import { theme as themeSetting } from './settings/builtinSettings'
 import { SettingsScreen } from './settings/SettingsScreen'
 import { useDeviceSetting } from './settings/useSetting'
 import { TemplatePicker } from './templates/TemplatePicker'
+import { revealBlock } from './editor/revealBlock'
 import {
   createPageFromTemplate,
   createTemplate,
@@ -252,7 +253,10 @@ function App() {
                 db={db}
                 scope={reviewScope}
                 onScopeChange={setReviewScope}
-                onOpenPage={(id) => openPage(id)}
+                onOpenNote={(pageId, blockId) => {
+                  openPage(pageId)
+                  revealBlock(blockId)
+                }}
                 onClose={() => setReviewScope(null)}
               />
             ) : currentPage ? (
@@ -263,8 +267,12 @@ function App() {
                 autoFocusTitle={focusTitlePageId === currentPage.id}
                 onOpenPage={openPage}
                 onOpenNewPage={openNewPage}
-                onReview={() =>
-                  openReview({ kind: 'page', pageId: currentPage.id })
+                onReview={(includeSubpages) =>
+                  openReview({
+                    kind: 'page',
+                    pageId: currentPage.id,
+                    includeSubpages,
+                  })
                 }
                 onNewPageFromTemplate={(id) => runTask(newPageFromTemplate(id))}
               />

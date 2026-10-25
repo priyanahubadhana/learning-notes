@@ -9,6 +9,8 @@ export interface EditorAppContext {
   openPage: (pageId: string) => void
   /** Opens a page (if not already open) and scrolls to one of its blocks. */
   openBlock: (pageId: string, blockId: string) => void
+  /** Reviews this page's cards (and its sub-pages'); unset on templates. */
+  reviewCards?: (includeSubpages: boolean) => void
 }
 
 export const EditorContext = createContext<EditorAppContext | null>(null)

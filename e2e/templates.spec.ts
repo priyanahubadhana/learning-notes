@@ -68,13 +68,20 @@ test('Save as template from the action bar and from the "/" menu', async ({
   await createNotebook(page, 'Notes', 'My method')
   await typeInEditor(page, 'Step one')
 
+  // The name dialog starts with the page title; Enter saves.
   await page.getByRole('button', { name: 'Save as template' }).click()
+  const name = page.getByRole('dialog', { name: 'Save as template' })
+  await expect(name.getByLabel('Template name')).toHaveValue('My method')
+  await expect(name.getByLabel('Template name')).toBeFocused()
+  await page.keyboard.press('Enter')
   await expect(page.getByRole('status')).toContainText(
     'Saved “My method” as a template',
   )
   await expect.poll(() => templateNames(page)).toContain('My method')
 
   await slashCommand(page, 'save page')
+  await expect(name.getByLabel('Template name')).toBeFocused()
+  await page.keyboard.press('Enter')
   await expect
     .poll(async () =>
       (await templateNames(page)).filter((n) => n === 'My method'),

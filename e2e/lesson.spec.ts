@@ -1,6 +1,7 @@
 import { expect, test, type Page } from '@playwright/test'
 import {
   cardRecordCount,
+  highlighted,
   createNotebook,
   rowAction,
   sidebar,
@@ -9,15 +10,6 @@ import {
 const editor = (page: Page) => page.locator('.bn-editor')
 const cardList = (page: Page) =>
   editor(page).getByRole('region', { name: /^Cards on this page/ })
-/** Text of the blocks being highlighted after a jump ('' if none). */
-const highlighted = (page: Page) =>
-  page.evaluate(() =>
-    document
-      .getAnimations()
-      .filter((a) => a.id === 'reveal' && a.playState === 'running')
-      .map((a) => (a.effect as KeyframeEffect | null)?.target?.textContent)
-      .join(' | '),
-  )
 const chips = (page: Page) => page.getByRole('navigation', { name: 'Sections' })
 
 /** New page in the "Biology" notebook from a template (name pattern). */
@@ -73,6 +65,15 @@ test('Lesson: section chips and a live card list that jumps to the card', async 
   await expect
     .poll(() => highlighted(page))
     .toContain('What does the nucleus hold?')
+
+  // "Review these cards" reviews just this page.
+  await cardList(page)
+    .getByRole('button', { name: 'Review these cards' })
+    .click()
+  await expect(page.locator('main section').first()).toContainText(
+    'What does the nucleus hold?',
+  )
+  await page.keyboard.press('Escape')
 
   // Chips stay pinned and jump to their heading.
   await expect(chips(page)).toHaveCSS('position', 'sticky')

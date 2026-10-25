@@ -38,6 +38,15 @@ export function CardListView({
         <span aria-hidden>🃏</span>
         <span className="flex-1">{t(title)}</span>
         <span>{t('cardList.count', { count: rows.length })}</span>
+        {app?.reviewCards && rows.length > 0 && (
+          <button
+            type="button"
+            onClick={() => app.reviewCards?.(includeSubpages)}
+            className="-my-1 min-h-8 rounded-md px-2 tracking-normal text-accent normal-case hover:bg-hover"
+          >
+            {t('cardList.review')}
+          </button>
+        )}
       </div>
       {rows.length === 0 ? (
         <p className="px-2 py-1.5 text-sm text-muted">{t('cardList.empty')}</p>
@@ -50,9 +59,7 @@ export function CardListView({
                 onClick={() => app?.openBlock(row.pageId, row.blockId)}
                 className="flex min-h-10 w-full items-center gap-3 rounded-lg px-2 py-1.5 text-start text-sm hover:bg-hover focus-visible:bg-hover"
               >
-                <span className="min-w-0 flex-1 truncate">
-                  {row.question || t('cardList.noQuestion')}
-                </span>
+                <span className="min-w-0 flex-1 truncate">{row.question}</span>
                 {row.pageTitle !== null && (
                   <span className="max-w-[35%] shrink-0 truncate text-xs text-muted">
                     {row.pageTitle || t('review.untitled')}

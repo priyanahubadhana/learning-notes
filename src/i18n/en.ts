@@ -78,7 +78,7 @@ export const en = {
   'review.title': 'Review',
   'review.titleNotebook': 'Review · {name}',
   'review.titlePage': 'Review · {name}',
-  'review.titleMissed': 'Cards I missed',
+  'review.titleWrong': 'Cards I got wrong',
   'review.sidebar': 'Review',
   'review.sidebarHint': 'Review the cards due today',
   'review.dueCount_one': '{count} card due',
@@ -87,7 +87,7 @@ export const en = {
   'review.thisPage': 'Review',
   'review.scope': 'Which cards',
   'review.scope.all': 'All due',
-  'review.scope.missed': 'Missed (7 days)',
+  'review.scope.wrong': 'Got wrong (7 days)',
   'review.left_one': '{count} left',
   'review.left_other': '{count} left',
   'review.close': 'Close review',
@@ -116,8 +116,9 @@ export const en = {
   'review.noCards':
     'No cards here yet. Type “/” and choose Card, or highlight words and choose Blank.',
   'review.practice': 'Practice anyway',
+  'review.wrongEmpty': 'No cards marked Again in the last 7 days.',
   'review.practiceHint':
-    'Go through cards early. Their schedules stay the same.',
+    'Practising doesn’t change when cards come back. New cards beyond today’s limit stay new.',
   'review.back': 'Back to notes',
 
   // Intervals (button labels)

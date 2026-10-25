@@ -239,7 +239,7 @@ function App() {
               setShowSettings(true)
             }}
             reviewOpen={
-              reviewScope?.kind === 'all' || reviewScope?.kind === 'missed'
+              reviewScope?.kind === 'all' || reviewScope?.kind === 'wrong'
             }
             onOpenReview={openReview}
           />

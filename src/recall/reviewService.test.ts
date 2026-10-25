@@ -20,6 +20,7 @@ import {
 } from '../templates/templateService'
 import { CARD_BLOCK_TYPE, MAIN_PART, newCard } from './cardService'
 import {
+  countsAsReview,
   getCardFace,
   getPracticeCards,
   getReviewQueue,
@@ -146,7 +147,7 @@ describe('review queue', () => {
     expect(ids(q.cards).sort()).toEqual(['c-k1', 'c-ok'])
   })
 
-  it('filters by notebook, page and missed in the last 7 days', async () => {
+  it('filters by notebook and page', async () => {
     await db.notebooks.add({
       ...base,
       id: 'nb2',
@@ -165,7 +166,7 @@ describe('review queue', () => {
     await addCard('a', learned(NOW - DAY))
     await addCard('b', learned(NOW - 10 * DAY), 'p2')
     await addCard('c', learned(NOW - DAY), 'p3', 'nb2')
-    await addCard('today', learned(NOW - 60_000)) // due today: not "missed"
+    await addCard('today', learned(NOW - 60_000))
     await addCard('new', { due: NOW - 2 * DAY })
 
     const nb = await getReviewQueue(
@@ -176,8 +177,21 @@ describe('review queue', () => {
     expect(ids(nb.cards).sort()).toEqual(['c-a', 'c-b', 'c-new', 'c-today'])
     const page = await getReviewQueue(db, { kind: 'page', pageId: 'p2' }, NOW)
     expect(ids(page.cards)).toEqual(['c-b'])
-    const missed = await getReviewQueue(db, { kind: 'missed' }, NOW)
-    expect(ids(missed.cards).sort()).toEqual(['c-a', 'c-c'])
+  })
+
+  it('"Got wrong" lists cards rated Again in the last 7 days', async () => {
+    await addCard('recent', learned(NOW - DAY))
+    await addCard('old', learned(NOW - 20 * DAY))
+    await addCard('fine', learned(NOW - DAY))
+    await rateCard(db, 'c-recent', 'again', {
+      durationMs: 1,
+      now: NOW - 2 * DAY,
+    })
+    await rateCard(db, 'c-old', 'again', { durationMs: 1, now: NOW - 10 * DAY })
+    await rateCard(db, 'c-fine', 'good', { durationMs: 1, now: NOW - 2 * DAY })
+    const wrong = await getReviewQueue(db, { kind: 'wrong' }, NOW)
+    expect(ids(wrong.cards)).toEqual(['c-recent'])
+    expect(await getPracticeCards(db, { kind: 'wrong' })).toEqual([])
   })
 
   it('applies the new-card limit and review cap, counting what was done today', async () => {
@@ -327,7 +341,26 @@ describe('practice anyway', () => {
     expect(ids(page)).toEqual(['c-near', 'c-far'])
     const all = await getPracticeCards(db, { kind: 'all' }, 2)
     expect(ids(all)).toEqual(['c-near', 'c-other'])
-    expect(await getPracticeCards(db, { kind: 'missed' })).toEqual([])
+  })
+
+  it('new cards past the daily limit are practice: they stay new', async () => {
+    await setSetting(db, newCardsPerDay, 1)
+    await addCard('n1')
+    await addCard('n2')
+    expect(await countsAsReview(db, (await db.cards.get('c-n1'))!, NOW)).toBe(
+      true,
+    )
+    await rateCard(db, 'c-n1', 'good', { durationMs: 1, now: NOW })
+    const n2 = (await db.cards.get('c-n2'))!
+    expect(await countsAsReview(db, n2, NOW + 1)).toBe(false)
+    const { log } = await rateCard(db, 'c-n2', 'good', {
+      durationMs: 1,
+      now: NOW + 1,
+    })
+    expect(log.kind).toBe('cram')
+    expect(await db.cards.get('c-n2')).toEqual(n2)
+    // Next study day it counts again.
+    expect(await countsAsReview(db, n2, NOW + DAY)).toBe(true)
   })
 
   it('a practised Again card keeps its schedule', async () => {

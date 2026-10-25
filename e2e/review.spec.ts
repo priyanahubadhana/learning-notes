@@ -70,6 +70,11 @@ test('review a card: reveal, intervals, Again stays hidden until due', async ({
   await expect(review(page)).toContainText('All caught up.')
   await expect(review(page)).toContainText('You reviewed 2 cards.')
   await expect(reviewButton(page)).toHaveText(/^\S*\s*Review$/)
+
+  // "Got wrong (7 days)": the card rated Again comes back as practice.
+  await review(page).getByRole('button', { name: 'Got wrong (7 days)' }).click()
+  await expect(review(page)).toContainText('Which valves close in S1?')
+  await expect(review(page)).toContainText('schedule stays the same')
 })
 
 test('blanks show "…" until revealed; Practice anyway; Suspend with Undo', async ({

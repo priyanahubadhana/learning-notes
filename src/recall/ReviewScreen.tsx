@@ -6,6 +6,7 @@ import type { LearningNotesDB } from '../core/db'
 import type { JsonValue, Rating } from '../core/types'
 import { t } from '../i18n/t'
 import {
+  countsAsReview,
   getCardFace,
   getPracticeCards,
   getReviewQueue,
@@ -51,8 +52,6 @@ export function ReviewScreen({
 }: ReviewScreenProps) {
   const ui = useContext(AppUiContext)
   const [session, setSession] = useState<ReviewSession | null>(null)
-  /** When Practice anyway began (null = normal review). */
-  const [practiceStart, setPracticeStart] = useState<number | null>(null)
   const [revealed, setRevealed] = useState(false)
   const [now, setNow] = useState(() => Date.now())
   const shownAt = useRef(0)
@@ -100,7 +99,11 @@ export function ReviewScreen({
   const preview = useLiveQuery(async () => {
     if (!card) return null
     const at = Date.now()
-    return { at, states: await previewCard(db, card, at) }
+    const [states, counts] = await Promise.all([
+      previewCard(db, card, at),
+      countsAsReview(db, card, at),
+    ])
+    return { at, states, counts }
   }, [card?.id, card?.due])
   const scopeName = useLiveQuery(async () => {
     if (scope.kind === 'page') return (await db.pages.get(scope.pageId))?.title
@@ -109,15 +112,12 @@ export function ReviewScreen({
     return undefined
   }, [scopeKey])
   const hasCards = useLiveQuery(
-    async () =>
-      scope.kind === 'missed' ||
-      (await getPracticeCards(db, scope, 1)).length > 0,
+    async () => (await getPracticeCards(db, scope, 1)).length > 0,
     [scopeKey],
   )
 
-  // Practising a card that was not due: its schedule stays the same.
-  const practising =
-    practiceStart !== null && !!card && card.due > practiceStart
+  // Practice (not due, or a new card past today's limit): schedule unchanged.
+  const practising = preview?.counts === false
 
   const reveal = () => setRevealed(true)
 
@@ -160,7 +160,6 @@ export function ReviewScreen({
 
   const practice = async () => {
     const cards = await getPracticeCards(db, scope)
-    setPracticeStart(Date.now())
     setRevealed(false)
     setSession(startSession(cards))
   }
@@ -197,8 +196,8 @@ export function ReviewScreen({
   }, [])
 
   const title =
-    scope.kind === 'missed'
-      ? t('review.titleMissed')
+    scope.kind === 'wrong'
+      ? t('review.titleWrong')
       : scope.kind === 'all'
         ? t('review.title')
         : t(
@@ -218,13 +217,13 @@ export function ReviewScreen({
         <h1 className="min-w-0 flex-1 truncate text-base font-semibold">
           {title}
         </h1>
-        {(scope.kind === 'all' || scope.kind === 'missed') && (
+        {(scope.kind === 'all' || scope.kind === 'wrong') && (
           <div
             role="group"
             aria-label={t('review.scope')}
             className="flex rounded-lg border border-line p-0.5 text-[13px]"
           >
-            {(['all', 'missed'] as const).map((kind) => (
+            {(['all', 'wrong'] as const).map((kind) => (
               <button
                 key={kind}
                 type="button"
@@ -289,8 +288,14 @@ export function ReviewScreen({
           ) : (
             <Finished
               reviewed={session.done}
-              hasCards={hasCards ?? true}
-              canPractice={scope.kind !== 'missed'}
+              emptyMessage={
+                scope.kind === 'wrong'
+                  ? t('review.wrongEmpty')
+                  : (hasCards ?? true)
+                    ? t('review.nothingDue')
+                    : t('review.noCards')
+              }
+              canPractice={scope.kind !== 'wrong' && (hasCards ?? true)}
               onPractice={() => runTask(practice())}
               onClose={onClose}
             />
@@ -492,13 +497,13 @@ function Runs({
 
 function Finished({
   reviewed,
-  hasCards,
+  emptyMessage,
   canPractice,
   onPractice,
   onClose,
 }: {
   reviewed: number
-  hasCards: boolean
+  emptyMessage: string
   canPractice: boolean
   onPractice: () => void
   onClose: () => void
@@ -506,11 +511,7 @@ function Finished({
   return (
     <Message>
       <p className="text-[17px] font-semibold">
-        {reviewed > 0
-          ? t('review.done')
-          : hasCards
-            ? t('review.nothingDue')
-            : t('review.noCards')}
+        {reviewed > 0 ? t('review.done') : emptyMessage}
       </p>
       {reviewed > 0 && (
         <p className="text-[13px] text-muted">
@@ -518,7 +519,7 @@ function Finished({
         </p>
       )}
       <div className="mt-3 flex flex-wrap justify-center gap-2">
-        {canPractice && hasCards && (
+        {canPractice && (
           <button
             type="button"
             onClick={onPractice}
@@ -536,7 +537,7 @@ function Finished({
           {t('review.back')}
         </button>
       </div>
-      {canPractice && hasCards && (
+      {canPractice && (
         <p className="text-[12px] text-muted">{t('review.practiceHint')}</p>
       )}
     </Message>

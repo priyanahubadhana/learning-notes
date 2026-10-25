@@ -27,12 +27,12 @@ import {
  * indexes so the queue stays fast with tens of thousands of cards.
  */
 
-/** Which cards to review. 'missed' = came due in the last 7 study days. */
+/** Which cards to review. 'wrong' = rated Again in the last 7 study days. */
 export type ReviewScope =
   | { kind: 'all' }
   | { kind: 'notebook'; notebookId: string }
   | { kind: 'page'; pageId: string }
-  | { kind: 'missed' }
+  | { kind: 'wrong' }
 
 export interface ReviewQueue {
   /** Cards in the order to show them: due reviews first, then new cards. */
@@ -41,7 +41,7 @@ export interface ReviewQueue {
   newCount: number
 }
 
-const MISSED_DAYS = 7
+const WRONG_DAYS = 7
 
 /** Reads the scheduler settings fresh, so previews match current settings. */
 export async function getSchedulerSettings(
@@ -71,19 +71,12 @@ export async function previewCard(
 /** Cards due by `now` in the scope (unfiltered). */
 async function dueCardsInScope(
   db: LearningNotesDB,
-  scope: ReviewScope,
+  scope: Exclude<ReviewScope, { kind: 'wrong' }>,
   now: number,
-  hour: number,
 ): Promise<Card[]> {
   switch (scope.kind) {
     case 'all':
       return db.cards.where('due').belowOrEqual(now).toArray()
-    case 'missed': {
-      const from = addStudyDays(now, -MISSED_DAYS, hour)
-      const to = studyDayStart(now, hour)
-      const cards = await db.cards.where('due').between(from, to).toArray()
-      return cards.filter((c) => !isNewCard(c))
-    }
     case 'notebook':
       return db.cards
         .where('notebookId')
@@ -151,8 +144,12 @@ export async function getReviewQueue(
     getSetting(db, newCardsPerDay),
     getSetting(db, reviewsPerDay),
   ])
+  if (scope.kind === 'wrong') {
+    const cards = await wrongCards(db, now, hour)
+    return { cards, reviewCount: cards.length, newCount: 0 }
+  }
   const [due, done] = await Promise.all([
-    dueCardsInScope(db, scope, now, hour).then((c) => reviewable(db, c)),
+    dueCardsInScope(db, scope, now).then((c) => reviewable(db, c)),
     doneToday(db, now, hour),
   ])
 
@@ -177,6 +174,46 @@ export async function getReviewQueue(
   }
 }
 
+/**
+ * Cards rated Again in the last 7 study days, soonest due first. They are
+ * mostly not due yet, so rating them is practice (schedule unchanged).
+ */
+async function wrongCards(
+  db: LearningNotesDB,
+  now: number,
+  hour: number,
+): Promise<Card[]> {
+  const ids = await db.reviewLogs
+    .where('createdAt')
+    .aboveOrEqual(addStudyDays(now, -WRONG_DAYS, hour))
+    .filter((l) => l.rating === 'again')
+    .toArray()
+  const unique = [...new Set(ids.map((l) => l.cardId))]
+  const cards = (await db.cards.bulkGet(unique)).filter((c) => !!c)
+  return (await reviewable(db, cards)).sort(
+    (a, b) => a.due - b.due || a.createdAt - b.createdAt,
+  )
+}
+
+/**
+ * Whether rating `card` now is a normal review (true) or practice that
+ * leaves its schedule alone (false): not due yet, or a new card beyond
+ * today's new-card limit (it stays new and joins reviews on a later day).
+ */
+export async function countsAsReview(
+  db: LearningNotesDB,
+  card: Card,
+  now: number = Date.now(),
+): Promise<boolean> {
+  if (card.due > now) return false
+  if (!isNewCard(card)) return true
+  const [hour, limit] = await Promise.all([
+    getSetting(db, dayStartHour),
+    getSetting(db, newCardsPerDay),
+  ])
+  return (await doneToday(db, now, hour)).newDone < limit
+}
+
 /** Cards per round of Practice anyway. */
 export const PRACTICE_ROUND = 50
 const PRACTICE_CHUNK = 200
@@ -184,7 +221,8 @@ const PRACTICE_CHUNK = 200
 /**
  * Cards for Practice anyway: every active card in the scope, soonest due
  * first, up to `limit`. Not-due cards keep their schedule when rated
- * (cram); due ones count normally. 'missed' has no practice round.
+ * (cram); due ones count normally, except new cards beyond today's limit
+ * (see `countsAsReview`). 'wrong' has no practice round: it already is one.
  */
 export async function getPracticeCards(
   db: LearningNotesDB,
@@ -193,7 +231,7 @@ export async function getPracticeCards(
 ): Promise<Card[]> {
   const byDue = (a: Card, b: Card) => a.due - b.due || a.createdAt - b.createdAt
   switch (scope.kind) {
-    case 'missed':
+    case 'wrong':
       return []
     case 'all': {
       // Walk the `due` index in chunks so a huge collection is never loaded.
@@ -269,8 +307,8 @@ export interface RateOptions {
 }
 
 /**
- * Rates a card. A due card is rescheduled; a card that is not due yet
- * (Practice anyway) is logged as 'cram' and left unchanged. The log entry
+ * Rates a card. A normal review reschedules it; practice (see
+ * `countsAsReview`) is logged as 'cram' and leaves the card unchanged. The log entry
  * and the card update are saved in one transaction, so they never disagree.
  */
 export async function rateCard(
@@ -284,46 +322,50 @@ export async function rateCard(
   }: RateOptions,
 ): Promise<{ card: Card; log: ReviewLog }> {
   const settings = await getSchedulerSettings(db)
-  return db.transaction('rw', db.cards, db.reviewLogs, async () => {
-    const card = await db.cards.get(cardId)
-    if (!card) throw new Error('Card not found')
+  return db.transaction(
+    'rw',
+    [db.cards, db.reviewLogs, db.settings],
+    async () => {
+      const card = await db.cards.get(cardId)
+      if (!card) throw new Error('Card not found')
 
-    const isDue = card.due <= now
-    const next: ScheduleState = isDue
-      ? scheduler.next(card, rating, now, settings)
-      : card
-    const log: ReviewLog = {
-      id: createId(),
-      cardId,
-      rating,
-      createdAt: now,
-      durationMs: Math.max(0, Math.round(durationMs)),
-      kind: isDue ? 'review' : 'cram',
-      scheduler: scheduler.id,
-      dueBefore: card.due,
-      dueAfter: next.due,
-      intervalBefore: card.intervalDays,
-      intervalAfter: next.intervalDays,
-      stepAfter: next.step,
-      isNew: isDue && isNewCard(card),
-      ...(next.schedulerData && { schedulerDataAfter: next.schedulerData }),
-    }
-    await db.reviewLogs.add(log)
-    if (!isDue) return { card, log }
+      const isDue = await countsAsReview(db, card, now)
+      const next: ScheduleState = isDue
+        ? scheduler.next(card, rating, now, settings)
+        : card
+      const log: ReviewLog = {
+        id: createId(),
+        cardId,
+        rating,
+        createdAt: now,
+        durationMs: Math.max(0, Math.round(durationMs)),
+        kind: isDue ? 'review' : 'cram',
+        scheduler: scheduler.id,
+        dueBefore: card.due,
+        dueAfter: next.due,
+        intervalBefore: card.intervalDays,
+        intervalAfter: next.intervalDays,
+        stepAfter: next.step,
+        isNew: isDue && isNewCard(card),
+        ...(next.schedulerData && { schedulerDataAfter: next.schedulerData }),
+      }
+      await db.reviewLogs.add(log)
+      if (!isDue) return { card, log }
 
-    const updated: Card = {
-      ...card,
-      due: next.due,
-      intervalDays: next.intervalDays,
-      step: next.step,
-      lapses: next.lapses,
-      reps: card.reps + 1,
-      updatedAt: now,
-      ...(next.schedulerData && { schedulerData: next.schedulerData }),
-    }
-    await db.cards.put(updated)
-    return { card: updated, log }
-  })
+      const updated: Card = {
+        ...card,
+        due: next.due,
+        intervalDays: next.intervalDays,
+        step: next.step,
+        lapses: next.lapses,
+        reps: card.reps + 1,
+        updatedAt: now,
+        ...(next.schedulerData && { schedulerData: next.schedulerData }),
+      }
+      await db.cards.put(updated)
+      return { card: updated, log }
+    },
+  )
 }
 
 /**

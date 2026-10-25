@@ -95,7 +95,7 @@ Business logic (services) has no UI code, so it can be reused later (e.g. iOS). 
 
 ## Project Status
 
-**Current phase:** Phase 2 — complete (automated checks passed; owner visual checks pending). Phase 1 complete 2026-10-25.
+**Current phase:** Phase 2 — complete (automated checks and owner visual checks passed). Phase 3 in planning. Phase 1 complete 2026-10-25.
 
 | Step                                                    | Status |
 | ------------------------------------------------------- | ------ |
@@ -145,6 +145,10 @@ Business logic (services) has no UI code, so it can be reused later (e.g. iOS). 
 | 2026-10-25 | Planning questions one at a time; build-step questions all together                                                                       | Deep planning, fewer round trips while building               |
 | 2026-10-25 | Login/hosting/HTTPS rules deferred to Phase 6–7; budget ₹0                                                                                | No accounts or hosting yet; everything is free and local      |
 | 2026-10-25 | IDEAS.md added for parked ideas                                                                                                           | Keeps phases focused                                          |
+
+**Polish list (fix in Phase 3):**
+
+- "Save as template" (action bar and "/" menu) first opens a small dialog with the name pre-filled from the page title, to edit and confirm before saving.
 
 **Next steps:** plan Phase 3 (Recall & Spaced Repetition). See IDEAS.md for parked ideas.
 

@@ -139,3 +139,9 @@
 - **What:** Parked idea: AI learning companion (screen + voice → notes, keyword summary, flashcards).
 - **Why:** Owner idea for Phase 7; kept out of the current phase.
 - **Files:** IDEAS.md, CHANGELOG.md
+
+## 2026-10-25
+
+- **What:** Phase 2 owner visual checks passed; added polish item (name dialog for "Save as template") for Phase 3.
+- **Why:** Record sign-off and owner feedback.
+- **Files:** README.md, CHANGELOG.md

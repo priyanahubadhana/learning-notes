@@ -253,3 +253,9 @@
 - **What:** Phase 3 Step 7b — typing "/card" inside a card's answer asks "Put the card inside this answer, or on the next line below the card?" (Next line is the default), with a "Change in Settings" link; new Review setting "New card inside an answer" (Ask every time · Always next line · Always inside). Settings can open at one setting, highlighted.
 - **Why:** Owner request (approved Step 7 extension).
 - **Files:** src/editor/cardActions.tsx (+ test), src/editor/slashMenu.tsx, src/editor/PageEditor.tsx, src/editor/revealBlock.ts, src/app/appUi.ts, src/app/ui.tsx, src/App.tsx, src/settings/builtinSettings.ts, src/settings/SettingsScreen.tsx, src/i18n/en.ts, e2e/nestedCard.spec.ts, README.md, CHANGELOG.md
+
+## 2026-10-26
+
+- **What:** Phase 3 Step 7c — "All cards" hub: a sidebar button opens one list of every card (question, notebook · page, status), with search and "Load more"; clicking a card opens its note and highlights the card. One `queryCards` service so tags, filters and a table view can plug in later. Step 7 complete.
+- **Why:** Owner request (approved Step 7 extension).
+- **Files:** src/recall/cardQuery.ts (+ test, incl. 10,000-card speed test), src/recall/AllCardsScreen.tsx, src/notebooks/Sidebar.tsx, src/App.tsx, src/i18n/en.ts, e2e/allCards.spec.ts, README.md, CHANGELOG.md

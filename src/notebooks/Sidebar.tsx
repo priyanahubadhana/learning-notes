@@ -34,6 +34,9 @@ interface SidebarProps {
   onOpenSettings: () => void
   /** True while the global Review screen is shown. */
   reviewOpen: boolean
+  /** The All cards hub is open (highlights its button). */
+  cardsOpen: boolean
+  onOpenCards: () => void
   onOpenReview: (scope: ReviewScope) => void
   onCreateNotebook: () => void
   /** `templateId`: copy that template's content into the new page. */
@@ -81,6 +84,8 @@ export function Sidebar({
   onOpenSettings,
   reviewOpen,
   onOpenReview,
+  cardsOpen,
+  onOpenCards,
   onCreateNotebook,
   onCreatePage,
   onCreateTemplate,
@@ -202,6 +207,19 @@ export function Sidebar({
             {dueCount}
           </span>
         )}
+      </button>
+      <button
+        type="button"
+        onClick={onOpenCards}
+        aria-current={cardsOpen ? 'page' : undefined}
+        className={`mb-2 -mt-1 flex min-h-9 w-full items-center gap-2 rounded-lg px-2.5 text-left text-sm transition-colors hover:bg-hover ${
+          cardsOpen ? 'bg-hover font-semibold' : ''
+        }`}
+      >
+        <span aria-hidden className="text-muted">
+          ▤
+        </span>
+        <span className="flex-1">{t('cards.sidebar')}</span>
       </button>
       <div className="flex items-center justify-between px-2.5 pt-2.5 pb-1 text-[11px] tracking-[0.06em] text-muted uppercase">
         Notebooks

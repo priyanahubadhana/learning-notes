@@ -29,6 +29,7 @@ import { SettingsScreen } from './settings/SettingsScreen'
 import { useDeviceSetting } from './settings/useSetting'
 import { TemplatePicker } from './templates/TemplatePicker'
 import { revealBlock } from './editor/revealBlock'
+import { AllCardsScreen } from './recall/AllCardsScreen'
 import {
   createPageFromTemplate,
   createTemplate,
@@ -67,18 +68,23 @@ function App() {
   const [settingsFocus, setSettingsFocus] = useState<string | null>(null)
   const openSettings = (settingId?: string) => {
     setReviewScope(null)
+    setShowCards(false)
     setSettingsFocus(settingId ?? null)
     setShowSettings(true)
   }
   // Review replaces the open page the same way (null = not reviewing).
   const [reviewScope, setReviewScope] = useState<ReviewScope | null>(null)
+  // The All cards hub replaces the open page the same way.
+  const [showCards, setShowCards] = useState(false)
   const openPage = (id: string | null) => {
     setShowSettings(false)
     setReviewScope(null)
+    setShowCards(false)
     setCurrentPageId(id)
   }
   const openReview = (scope: ReviewScope) => {
     setShowSettings(false)
+    setShowCards(false)
     setReviewScope(scope)
   }
   const [renamingNotebookId, setRenamingNotebookId] = useState<string | null>(
@@ -262,6 +268,12 @@ function App() {
               reviewScope?.kind === 'all' || reviewScope?.kind === 'wrong'
             }
             onOpenReview={openReview}
+            cardsOpen={showCards && !showSettings && !reviewScope}
+            onOpenCards={() => {
+              setShowSettings(false)
+              setReviewScope(null)
+              setShowCards(true)
+            }}
           />
           <main className="flex-1 overflow-auto">
             {showSettings ? (
@@ -281,6 +293,14 @@ function App() {
                   revealBlock(blockId)
                 }}
                 onClose={() => setReviewScope(null)}
+              />
+            ) : showCards ? (
+              <AllCardsScreen
+                db={db}
+                onOpenNote={(pageId, blockId) => {
+                  openPage(pageId)
+                  revealBlock(blockId)
+                }}
               />
             ) : currentPage ? (
               <PageView

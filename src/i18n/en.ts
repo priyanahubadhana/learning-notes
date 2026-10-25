@@ -27,6 +27,15 @@ export const en = {
   'saveTemplate.label': 'Template name',
   'saveTemplate.confirm': 'Save template',
 
+  // All cards hub
+  'cards.sidebar': 'All cards',
+  'cards.title': 'All cards',
+  'cards.search': 'Search cards',
+  'cards.empty':
+    'No cards yet. Make one with “/card” in any note, or select words and choose Blank.',
+  'cards.noMatch': 'No cards match “{query}”.',
+  'cards.more': 'Load more',
+
   // Card list block
   'cardList.title': 'Cards on this page',
   'cardList.titleTree': 'Cards on this page and its sub-pages',

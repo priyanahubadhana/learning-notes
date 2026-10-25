@@ -205,3 +205,9 @@
 - **What:** New working rule: one full step per chat (e.g. all of Step 5 — 5a, 5b — in one chat); suggest `/compact` instead of a new chat when it gets long.
 - **Why:** Owner request; avoids re-loading context for every sub-step.
 - **Files:** CLAUDE.md, CHANGELOG.md
+
+## 2026-10-26
+
+- **What:** Restructured project rules: short core CLAUDE.md plus topic files in `rules/` (planning, building, sessions, testing, architecture, global, scalability, security, phase-end); added `/next` command; parked off-computer backup idea.
+- **Why:** Owner request; load only the rules the current work needs to save tokens. All existing binding rules kept (stricter "tests pass before a change is done" kept).
+- **Files:** CLAUDE.md, rules/*.md, .claude/commands/next.md, IDEAS.md, CHANGELOG.md

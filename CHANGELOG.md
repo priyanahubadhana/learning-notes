@@ -277,3 +277,9 @@
 - **What:** Phase 3 Step 8 — FSRS scheduler (ts-fsrs 5.4.2) as the default, with settings "Scheduler" (FSRS · Simple steps) and "Target memory" (70–97 %, default 90 %). New cards repeat after "Again" minutes before their first day gap (Anki style). Switching scheduler never moves cards: each card is taken over from its review history at its next review. Review session keeps cards in short steps; buttons show minutes for them (fixes "0 days"). Step 8 done.
 - **Why:** Smarter review gaps — fewer reviews for the same memory (owner approved: FSRS default, target setting, short steps).
 - **Files:** package.json, package-lock.json, src/recall/fsrsScheduler.ts, src/recall/scheduler.ts (+ test), src/recall/reviewService.ts (+ test), src/recall/reviewSession.ts (+ test), src/recall/ReviewScreen.tsx, src/settings/builtinSettings.ts, src/i18n/en.ts, e2e/review.spec.ts, README.md, IDEAS.md, CHANGELOG.md
+
+## 2026-10-26
+
+- **What:** Card due dates and the "day starts at" times now follow each user's regional style (e.g. "12 Nov" in India/UK, "Nov 12" in the US) via `dateLocale()` / `withRegion()`. "Duplicate block" added to the Phase 3 plan (owner approved).
+- **Why:** Owner visual-check feedback.
+- **Files:** src/i18n/t.ts (+ test), src/recall/cardList.ts (+ test), src/settings/builtinSettings.ts, README.md, CHANGELOG.md

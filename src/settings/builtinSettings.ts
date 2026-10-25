@@ -1,6 +1,6 @@
 import { isTheme, THEME_PREF_KEY, THEMES, type Theme } from '../app/theme'
 import { DEFAULT_DAY_START_HOUR } from '../core/time'
-import { currentLocale, t } from '../i18n/t'
+import { dateLocale, t } from '../i18n/t'
 import {
   createSettingsRegistry,
   isIntInRange,
@@ -39,9 +39,9 @@ settingsRegistry.registerCategory({
   emptyKey: 'settings.apis.empty',
 })
 
-/** Formats an hour of the day in the user's language (e.g. "4:00 AM"). */
+/** Formats an hour of the day in the user's regional style (e.g. "4:00 AM" or "04:00"). */
 const hourLabel = (hour: number) => () =>
-  new Intl.DateTimeFormat(currentLocale(), {
+  new Intl.DateTimeFormat(dateLocale(), {
     hour: 'numeric',
     minute: '2-digit',
   }).format(new Date(2000, 0, 1, hour))

@@ -1,4 +1,4 @@
-import { currentLocale } from '../i18n/t'
+import { dateLocale } from '../i18n/t'
 import { listBlocks } from '../core/blockService'
 import type { LearningNotesDB } from '../core/db'
 import type { Block, Card, Page } from '../core/types'
@@ -142,13 +142,13 @@ export function dueLabel(due: number, now: number): string {
   const ms = due - now
   if (ms >= RELATIVE_DAYS * DAY_MS) {
     const sameYear = new Date(due).getFullYear() === new Date(now).getFullYear()
-    return new Intl.DateTimeFormat(currentLocale(), {
+    return new Intl.DateTimeFormat(dateLocale(), {
       day: 'numeric',
       month: 'short',
       year: sameYear ? undefined : 'numeric',
     }).format(due)
   }
-  const format = new Intl.RelativeTimeFormat(currentLocale(), {
+  const format = new Intl.RelativeTimeFormat(dateLocale(), {
     numeric: 'auto',
   })
   const minutes = Math.ceil(ms / 60_000)

@@ -1,4 +1,4 @@
-import { afterEach, beforeEach, describe, expect, it } from 'vitest'
+import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
 import { createBlock, deleteBlock } from '../core/blockService'
 import type { LearningNotesDB } from '../core/db'
 import { createTestDb } from '../core/testing'
@@ -149,6 +149,9 @@ describe('empty cards', () => {
 })
 
 describe('dueLabel', () => {
+  afterEach(() => {
+    vi.unstubAllGlobals()
+  })
   const now = Date.UTC(2026, 9, 26, 12)
   const min = 60_000
   const day = 24 * 60 * min
@@ -161,7 +164,15 @@ describe('dueLabel', () => {
   })
 
   it('shows a short date from a week on, with the year only if different', () => {
+    vi.stubGlobal('navigator', { languages: ['en-US'] })
     expect(dueLabel(now + 10 * day, now)).toBe('Nov 5')
     expect(dueLabel(Date.UTC(2027, 0, 15, 12), now)).toBe('Jan 15, 2027')
+  })
+
+  it('dates follow the region of the user', () => {
+    vi.stubGlobal('navigator', { languages: ['en-IN'] })
+    expect(dueLabel(now + 10 * day, now)).toBe('5 Nov')
+    vi.stubGlobal('navigator', { languages: ['en-GB'] })
+    expect(dueLabel(Date.UTC(2027, 0, 15, 12), now)).toBe('15 Jan 2027')
   })
 })

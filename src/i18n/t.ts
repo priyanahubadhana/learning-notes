@@ -34,6 +34,26 @@ export function setMessages(nextLocale: string, next: Messages): void {
 /** The current language code (for `Intl` date/number formatting). */
 export const currentLocale = (): string => locale
 
+/**
+ * Locale for dates and times: the app's language in the style of the
+ * user's own region, e.g. app "en" with browser "en-IN" → "12 Nov", with
+ * "en-US" → "Nov 12".
+ */
+export const dateLocale = (): string =>
+  withRegion(locale, globalThis.navigator?.languages?.[0])
+
+/** `appLocale` with the region of `browserLocale`, if it has one. */
+export function withRegion(appLocale: string, browserLocale?: string): string {
+  try {
+    const region = browserLocale && new Intl.Locale(browserLocale).region
+    return region
+      ? new Intl.Locale(appLocale, { region }).toString()
+      : appLocale
+  } catch {
+    return appLocale
+  }
+}
+
 export function t(
   key: MessageKey,
   params?: Record<string, string | number>,

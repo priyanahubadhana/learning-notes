@@ -1,6 +1,6 @@
 import { afterEach, describe, expect, it } from 'vitest'
 import { en } from './en'
-import { setMessages, t, type MessageKey } from './t'
+import { setMessages, t, withRegion, type MessageKey } from './t'
 
 afterEach(() => setMessages('en', en))
 
@@ -29,5 +29,25 @@ describe('t()', () => {
 
   it('shows the key instead of crashing when text is missing', () => {
     expect(t('missing.key' as MessageKey)).toBe('missing.key')
+  })
+})
+
+describe('withRegion (dates in the user’s regional style)', () => {
+  it('takes the region from the browser language', () => {
+    expect(withRegion('en', 'en-IN')).toBe('en-IN')
+    expect(withRegion('en', 'de-DE')).toBe('en-DE')
+    const day = new Date(2026, 10, 12)
+    const short = (loc: string) =>
+      new Intl.DateTimeFormat(loc, { day: 'numeric', month: 'short' }).format(
+        day,
+      )
+    expect(short(withRegion('en', 'en-IN'))).toBe('12 Nov')
+    expect(short(withRegion('en', 'en-US'))).toBe('Nov 12')
+  })
+
+  it('keeps the app language when the browser gives no region', () => {
+    expect(withRegion('en', 'en')).toBe('en')
+    expect(withRegion('en', undefined)).toBe('en')
+    expect(withRegion('en', 'not a locale!')).toBe('en')
   })
 })

@@ -145,3 +145,9 @@
 - **What:** Phase 2 owner visual checks passed; added polish item (name dialog for "Save as template") for Phase 3.
 - **Why:** Record sign-off and owner feedback.
 - **Files:** README.md, CHANGELOG.md
+
+## 2026-10-25
+
+- **What:** Parked ideas: handwriting ink block, Anki .apkg import/export, multiple languages.
+- **Why:** Owner ideas for later phases; kept out of Phase 3.
+- **Files:** IDEAS.md, CHANGELOG.md

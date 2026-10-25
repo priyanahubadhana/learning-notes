@@ -142,6 +142,11 @@ Business logic (services) has no UI code, so it can be reused later (e.g. iOS). 
 | 2026-10-25 | Templates = normal pages in a hidden "Templates" notebook, shown in their own section; using one copies its blocks (new ids)              | Edit templates like pages; no new storage                     |
 | 2026-10-25 | Five general starter templates, created once; "Daily journal" protected                                                                   | Useful from day one for any field; Today always works         |
 | 2026-10-25 | "+" opens Blank page / From template; page action bar with Save as template (Import/Export coming in Phase 6)                             | One tidy button; actions clearly visible                      |
+| 2026-10-25 | Planning questions one at a time; build-step questions all together                                                                       | Deep planning, fewer round trips while building               |
+| 2026-10-25 | Login/hosting/HTTPS rules deferred to Phase 6–7; budget ₹0                                                                                | No accounts or hosting yet; everything is free and local      |
+| 2026-10-25 | IDEAS.md added for parked ideas                                                                                                           | Keeps phases focused                                          |
+
+**Next steps:** plan Phase 3 (Recall & Spaced Repetition). See IDEAS.md for parked ideas.
 
 ## Known Limitations
 

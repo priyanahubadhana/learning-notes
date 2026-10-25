@@ -12,7 +12,8 @@
 
 ## Working Style
 
-- **Start of a step:** ask all questions for the step together, up front, each with a recommendation.
+- **Planning a phase:** ask open-ended questions one at a time (never yes/no); for each decision explain the options simply, give pros/cons and a recommendation; challenge ideas when there is a better way; give each phase a Definition of Done; end planning with ONE checklist of decisions for the owner to approve.
+- **Start of a build step:** ask all questions for the step together, up front, each with a recommendation.
 - **During the step:** build, then test everything yourself (Vitest unit tests + Playwright end-to-end tests) and fix failures without asking.
 - **End of the step:** report only when it is done: a short summary, a brief self-review (better option, risk, or early fix), and one final list of visual checks for the owner (explain any term they may not know).
 - Still ask before big token-heavy work or anything irreversible.
@@ -45,6 +46,8 @@
 ## Things We Said No To (for now)
 
 - No AI features, no accounts/cloud sync, no iOS, no collaboration, no hosting setup.
+- Login, hosting, HTTPS and deployment rules apply only from Phase 6–7, when sync/hosting are planned.
+- Monthly budget: ₹0 (free tools, runs locally). Ask before anything that costs money.
 - No building beyond the current phase. No skipping phases.
 - No switching editor from BlockNote or stack choices without asking.
 
@@ -64,5 +67,6 @@
 
 ## Documentation
 
-- Keep README.md, CLAUDE.md and CHANGELOG.md updated.
+- Keep README.md, CLAUDE.md, CHANGELOG.md and IDEAS.md updated.
+- New ideas that come up mid-build go into IDEAS.md (date, short description, likely phase), not into the current phase. Check IDEAS.md before each phase.
 - After every change, add a dated CHANGELOG entry: what changed, why, files touched.

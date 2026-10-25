@@ -211,3 +211,9 @@
 - **What:** Restructured project rules: short core CLAUDE.md plus topic files in `rules/` (planning, building, sessions, testing, architecture, global, scalability, security, phase-end); added `/next` command; parked off-computer backup idea.
 - **Why:** Owner request; load only the rules the current work needs to save tokens. All existing binding rules kept (stricter "tests pass before a change is done" kept).
 - **Files:** CLAUDE.md, rules/*.md, .claude/commands/next.md, IDEAS.md, CHANGELOG.md
+
+## 2026-10-26
+
+- **What:** Rule additions: model choice reminder (Opus/Sonnet) and `/clear` + `/next` at step end (sessions), plan mode while planning (planning), LEARNING.md per phase (phase-end); parked "shuffle" for Practice anyway.
+- **Why:** Owner approved.
+- **Files:** rules/sessions.md, rules/planning.md, rules/phase-end.md, IDEAS.md, CHANGELOG.md

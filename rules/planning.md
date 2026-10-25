@@ -1,5 +1,6 @@
 # Planning
 
+- Use plan mode (no file changes) while discussing; leave it only to build an approved mockup.
 - Planning is fully open-ended: ask one question at a time, never yes/no.
 - For each decision: explain the options simply, with pros/cons and a recommendation, and invite the owner's own ideas.
 - Give as many suggestions as possible, ranked. Challenge ideas when there is a better way.

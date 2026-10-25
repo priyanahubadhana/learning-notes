@@ -157,3 +157,9 @@
 - **What:** New rules: `t()` translation keys for all new UI text; new screens responsive and touch-friendly. Parked: converting Phase 1–2 text, full phone/tablet layout (before hosting).
 - **Why:** Owner approved; app is meant to be global and multi-platform.
 - **Files:** CLAUDE.md, IDEAS.md, CHANGELOG.md
+
+## 2026-10-25
+
+- **What:** Parked: installable app (PWA), health/personal data privacy, device clock skew.
+- **Why:** Global multi-platform review; owner chose IDEAS for these (time zones, migrations, scale, Unicode-safe blanks, plurals/RTL habits, accessibility, sync-safe log and "keep my data" go in Phase 3).
+- **Files:** IDEAS.md, CHANGELOG.md

@@ -187,3 +187,9 @@
 - **What:** Phase 3, step 4. Fill-in-the-blank: select words and choose "Blank" in the selection toolbar; the selection snaps to whole words (any language, emoji-safe), the words get a dashed "blank" style, and each blank becomes its own card (part = blank id). Using it on a blank removes it; Ctrl+Z undoes it in one step. The selection toolbar also gets "Card" (Make card), so both work on touch screens. Card records now cover blanks. Fixed the Card box styling (it never matched BlockNote's React wrapper) and hid the nesting line inside cards. New rule in CLAUDE.md: self-test with Playwright and screenshots in all themes and at phone width; at most 2–3 owner checks; reports end with a Quick summary.
 - **Why:** Fill-in-the-blank cards (approved plan, fix #4) and touch-friendly card creation.
 - **Files:** src/editor/blankActions.ts, src/editor/blankActions.test.ts, src/editor/SelectionToolbar.tsx, src/editor/schema.tsx, src/editor/PageEditor.tsx, src/editor/mapping.ts, src/recall/cardService.ts, src/recall/cardService.test.ts, src/i18n/en.ts, src/index.css, e2e/blanks.spec.ts, e2e/cards.spec.ts, e2e/helpers.ts, CLAUDE.md, README.md, IDEAS.md, CHANGELOG.md
+
+## 2026-10-26
+
+- **What:** Night theme: the fill-in-the-blank highlight is stronger (owner feedback: too faint); Day and Sepia unchanged. Step 5 split into 5a (scheduler, review log, queue, speed test) and 5b (Review screen); README has handoff notes for the next session.
+- **Why:** Readability in Night; keep each step under ~80k tokens and continue cleanly in a new session.
+- **Files:** src/index.css, README.md, CHANGELOG.md

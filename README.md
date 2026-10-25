@@ -48,7 +48,7 @@ For anyone in any field (writers, vloggers, learners, philosophers, technicians,
 - **Lesson templates:** "Lesson" (one page: Detailed notes, Keyword summary, Flashcards + live card list) and "Lesson (large topic)" (sub-pages). Section jump chips pinned at the top while scrolling.
 - **Settings:** registry (id, label/description keys, home + extra categories, default, synced/device scope; "secret" type later). Screen: All (search), General, Review, Journal, APIs. Step boxes sit below the label.
 - **Quality:** `t()` text, plurals, RTL-safe layout, responsive/touch/accessible, DB upgrade test, "keep my data" request, 10,000-card speed test. Polish: name dialog for "Save as template".
-- **Steps:** 1 Data + upgrade · 2 Settings · 3 Card block + Make card · 4 Blanks · 5 Scheduler + Review + cram · 6 Lesson templates + live list · 7 Polish · 8 FSRS.
+- **Steps:** 1 Data + upgrade · 2 Settings · 3 Card block + Make card · 4 Blanks · 5a Scheduler + review log + speed test · 5b Review screen + cram · 6 Lesson templates + live list · 7 Polish · 8 FSRS.
 - **Definition of Done:** all above built (or FSRS formally moved), all unit + e2e tests pass (incl. upgrade and 10k-card tests), security/code review reported, docs updated, owner visual checks passed.
 
 ## Roadmap (likely, not final — may change)
@@ -109,7 +109,7 @@ Business logic (services) has no UI code, so it can be reused later (e.g. iOS). 
 
 ## Project Status
 
-**Current phase:** Phase 2 — complete (automated checks and owner visual checks passed). Phase 3 in progress (step 4 of 8 done). Phase 1 complete 2026-10-25.
+**Current phase:** Phase 2 — complete (automated checks and owner visual checks passed). Phase 3 in progress (steps 1–4 done; next: 5a). Phase 1 complete 2026-10-25.
 
 | Step                                                    | Status |
 | ------------------------------------------------------- | ------ |
@@ -173,7 +173,12 @@ Business logic (services) has no UI code, so it can be reused later (e.g. iOS). 
 | 2026-10-26 | Blanks are a text style whose value is the blank id; each blank is its own card; selection snaps to whole words                                       | Survives edits, emoji and any script; one sentence can hold several cards |
 | 2026-10-26 | "Make blank" and "Make card" also in the selection toolbar                                                                                            | Works on touch screens (block menu is hover-only)                         |
 
-**Next steps:** Phase 3, step 5 (scheduler, Review screen, Practice anyway). See IDEAS.md for parked ideas.
+**Next steps — handoff for a new session:**
+
+- **Step 5a (next, ~50k tokens, logic only, no UI):** `recall/` scheduler interface (swappable; FSRS added in step 8) with the fixed-steps scheduler: Again → `review.againMinutes` and back to step 0 (lapse); Hard → same step; Good → next step; Easy → skip one; intervals from `review.goodSteps`, due dates via `core/time.ts` (study days, `general.dayStartHour`). A preview function giving each button's next interval (the Review buttons must always match current settings — owner fix #1). Rating writes the append-only `reviewLogs` entry (rating, duration, before/after, scheduler, kind) and updates the `cards` record in one transaction; card state rebuildable from the log. Cram rules: not-due cards logged as `cram` and unchanged; due cards count normally. Review queue: due cards (`due` index) for all / notebook / page / "missed in last 7 days", skipping suspended cards and cards whose block is deleted or no longer makes that part (`cardParts`), plus card-record sync for pages created from templates; new-card limit (`review.newPerDay`) and optional review cap. Suspend/unsuspend. Unit tests incl. a 10,000-card speed test.
+- **Step 5b (~70k tokens):** Review screen (global "Review · count" in sidebar, "Review this notebook/page", Practice anyway), Show answer (Space/Enter) and Again/Hard/Good/Easy (keys 1–4) with intervals; blanks shown as "…" until revealed; on phones reveal/rating buttons pinned to the bottom, card shrinks to fit, portrait and landscape (fix #6); tap-sized "Open note"/"Suspend" with an Undo toast (fix #7); e2e tests + screenshots in all themes and phone width.
+- Then steps 6 (Lesson templates + live list, pinned section chips — fix #5), 7 (polish: "Save as template" name dialog), 8 (FSRS via ts-fsrs, or move to Phase 4).
+- See IDEAS.md for parked ideas.
 
 ## Known Limitations
 

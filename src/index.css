@@ -163,3 +163,8 @@ body {
   content: none;
   border: none;
 }
+/* Night: the soft tint needs more strength to read on a dark background. */
+:root[data-theme='night'] .recall-blank {
+  background: color-mix(in srgb, var(--color-accent) 28%, transparent);
+  border-bottom-color: color-mix(in srgb, var(--color-accent) 85%, white);
+}

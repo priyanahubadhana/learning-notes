@@ -235,3 +235,9 @@
 - **What:** Phase 3 Step 6 — "Lesson" and "Lesson (large topic)" starter templates (added once to existing workspaces; deleted ones don't return); templates now copy sub-pages, with links re-pointed to the copies; "Card list" block (live list of the page's cards, optionally sub-pages, status per card, click jumps and highlights the card; also in the "/" menu); pinned section jump chips on pages with 3+ top-level headings.
 - **Why:** Approved Phase 3 plan (step 6, owner chose all recommended options).
 - **Files:** src/templates/starterTemplates.ts, src/templates/templateService.ts (+ test), src/core/blockService.ts, src/core/types.ts, src/recall/cardList.ts (+ test), src/recall/CardListView.tsx, src/editor/schema.tsx, src/editor/slashMenu.tsx, src/editor/editorContext.ts, src/editor/PageEditor.tsx, src/editor/revealBlock.ts, src/blocks/builtinBlockTypes.ts (+ test), src/pages/sections.ts (+ test), src/pages/PageView.tsx, src/i18n/en.ts, e2e/lesson.spec.ts, e2e/templates.spec.ts, README.md, IDEAS.md
+
+## 2026-10-26
+
+- **What:** Parked card-management ideas (tags, filters, table view, bulk actions, saved decks, most-failed, stats/streaks, empty-card cleanup).
+- **Why:** Owner request after Step 6 checks; for Phases 4–5.
+- **Files:** IDEAS.md, CHANGELOG.md

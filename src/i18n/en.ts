@@ -106,12 +106,20 @@ export const en = {
   'settings.maxPerDay.label': 'Reviews per day',
   'settings.maxPerDay.description': 'Leave empty for no limit.',
   'settings.maxPerDay.empty': 'No limit',
+  'settings.scheduler.label': 'Scheduler',
+  'settings.scheduler.description':
+    'How the app picks when each card comes back. FSRS learns how well you remember each card, so you review less for the same memory. Switching never moves cards already scheduled.',
+  'settings.scheduler.fsrs': 'FSRS (smart)',
+  'settings.scheduler.fixed': 'Simple steps',
+  'settings.targetMemory.label': 'Target memory',
+  'settings.targetMemory.description':
+    'FSRS: how sure you want to be of remembering a card when it comes back. Higher means more reviews.',
   'settings.againMinutes.label': '“Again” brings the card back after',
   'settings.againMinutes.description':
-    'The card also comes back later in the same session.',
+    'The card also comes back later in the same session. With FSRS, a new card repeats after this time before its first day gap.',
   'settings.goodSteps.label': 'Steps for “Good”',
   'settings.goodSteps.description':
-    'Days between reviews. “Hard” repeats the current step, “Easy” skips one, “Again” starts over.',
+    'Simple steps only. Days between reviews. “Hard” repeats the current step, “Easy” skips one, “Again” starts over.',
   'settings.goodSteps.add': 'Add step',
   'settings.goodSteps.remove': 'Remove last step',
   'settings.goodSteps.step': 'Step {n}, in days',
@@ -187,4 +195,5 @@ export const en = {
   // Units
   'unit.minutes': 'minutes',
   'unit.days': 'days',
+  'unit.percent': '%',
 } as const

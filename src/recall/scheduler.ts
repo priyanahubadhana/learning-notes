@@ -1,11 +1,12 @@
 import { addStudyDays } from '../core/time'
-import type { Card, JsonObject, Rating } from '../core/types'
+import { fsrsScheduler } from './fsrsScheduler'
+import type { Card, JsonObject, Rating, ReviewLog } from '../core/types'
 
 /**
  * Schedulers decide when a card comes back after a rating. They are pure
  * (no database, no clock of their own) and swappable: the review service
- * only talks to this interface, so FSRS can be added later beside the
- * fixed-steps scheduler without changing callers.
+ * only talks to this interface (fixed steps here, FSRS in
+ * `fsrsScheduler.ts`).
  */
 
 /** The four ratings, in button order (keys 1–4). */
@@ -19,6 +20,8 @@ export interface SchedulerSettings {
   goodSteps: number[]
   /** Local hour when a new study day begins. */
   dayStartHour: number
+  /** FSRS: chance (%) of still remembering a card when it comes back. */
+  targetMemory: number
 }
 
 /** The card fields a scheduler may change. */
@@ -36,7 +39,21 @@ export interface Scheduler {
     now: number,
     settings: SchedulerSettings,
   ): ScheduleState
+  /**
+   * The card ready for `next` when another scheduler (or none) handled it
+   * last: fills in this scheduler's state from the card's review history.
+   * Keeps the card's due date, so switching never moves cards.
+   */
+  adopt(card: Card, history: ReviewLog[], settings: SchedulerSettings): Card
 }
+
+/** Id of the scheduler that last scheduled a card ('fixed' keeps no data). */
+export const scheduledBy = (card: Card): string => {
+  const id = card.schedulerData?.scheduler
+  return typeof id === 'string' ? id : fixedStepsSchedulerId
+}
+
+const fixedStepsSchedulerId = 'fixed'
 
 const MINUTE_MS = 60_000
 
@@ -48,7 +65,12 @@ const MINUTE_MS = 60_000
  * ladder is shortened in settings, cards above it act as being at the top.
  */
 export const fixedStepsScheduler: Scheduler = {
-  id: 'fixed',
+  id: fixedStepsSchedulerId,
+  // The step whose gap matches the card's current gap (0 while learning).
+  adopt(card, _history, { goodSteps }) {
+    const step = goodSteps.filter((days) => days <= card.intervalDays).length
+    return { ...card, step, schedulerData: undefined }
+  },
   next(card, rating, now, { againMinutes, goodSteps, dayStartHour }) {
     if (rating === 'again') {
       return {
@@ -74,9 +96,10 @@ export const fixedStepsScheduler: Scheduler = {
   },
 }
 
-/** Schedulers by id (FSRS joins in a later step). */
+/** Schedulers by id (the "Scheduler" setting picks one). */
 export const schedulers: Record<string, Scheduler> = {
   [fixedStepsScheduler.id]: fixedStepsScheduler,
+  [fsrsScheduler.id]: fsrsScheduler,
 }
 
 /** What each button would do right now (shown on the Review buttons). */

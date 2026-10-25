@@ -3,20 +3,30 @@ import { createId } from '../core/ids'
 import { descendantIds } from '../core/records'
 import { addStudyDays, studyDayStart } from '../core/time'
 import { listBlocks } from '../core/blockService'
-import type { Card, JsonValue, Rating, ReviewLog } from '../core/types'
+import type {
+  Card,
+  JsonObject,
+  JsonValue,
+  Rating,
+  ReviewLog,
+} from '../core/types'
 import {
   againMinutes,
   dayStartHour,
   goodSteps,
   newCardsPerDay,
   reviewsPerDay,
+  schedulerChoice,
+  targetMemory,
 } from '../settings/builtinSettings'
 import { getSetting } from '../settings/settingsService'
 import { listPages } from '../pages/pageService'
 import { cardParts, hasQuestion, MAIN_PART } from './cardService'
+import { fsrsScheduler } from './fsrsScheduler'
 import {
-  fixedStepsScheduler,
   previewRatings,
+  scheduledBy,
+  schedulers,
   type ScheduleState,
   type Scheduler,
   type SchedulerSettings,
@@ -50,12 +60,38 @@ const WRONG_DAYS = 7
 export async function getSchedulerSettings(
   db: LearningNotesDB,
 ): Promise<SchedulerSettings> {
-  const [minutes, steps, hour] = await Promise.all([
+  const [minutes, steps, hour, target] = await Promise.all([
     getSetting(db, againMinutes),
     getSetting(db, goodSteps),
     getSetting(db, dayStartHour),
+    getSetting(db, targetMemory),
   ])
-  return { againMinutes: minutes, goodSteps: steps, dayStartHour: hour }
+  return {
+    againMinutes: minutes,
+    goodSteps: steps,
+    dayStartHour: hour,
+    targetMemory: target,
+  }
+}
+
+/** The scheduler picked in Settings › Review. */
+export async function getScheduler(db: LearningNotesDB): Promise<Scheduler> {
+  return schedulers[await getSetting(db, schedulerChoice)] ?? fsrsScheduler
+}
+
+/**
+ * The card ready for `scheduler`: if another scheduler handled it last,
+ * the new one takes over using the card's review history (due date kept).
+ */
+async function readyFor(
+  db: LearningNotesDB,
+  card: Card,
+  scheduler: Scheduler,
+  settings: SchedulerSettings,
+): Promise<Card> {
+  if (scheduledBy(card) === scheduler.id) return card
+  const history = await db.reviewLogs.where('cardId').equals(card.id).toArray()
+  return scheduler.adopt(card, history, settings)
 }
 
 /** A card is new until its first normal review. */
@@ -66,9 +102,12 @@ export async function previewCard(
   db: LearningNotesDB,
   card: Card,
   now: number = Date.now(),
-  scheduler: Scheduler = fixedStepsScheduler,
+  scheduler?: Scheduler,
 ): Promise<Record<Rating, ScheduleState>> {
-  return previewRatings(card, now, await getSchedulerSettings(db), scheduler)
+  const settings = await getSchedulerSettings(db)
+  const using = scheduler ?? (await getScheduler(db))
+  const ready = await readyFor(db, card, using, settings)
+  return previewRatings(ready, now, settings, using)
 }
 
 /** Cards due by `now` in the scope (unfiltered). */
@@ -333,13 +372,10 @@ export async function rateCard(
   db: LearningNotesDB,
   cardId: string,
   rating: Rating,
-  {
-    durationMs,
-    now = Date.now(),
-    scheduler = fixedStepsScheduler,
-  }: RateOptions,
+  { durationMs, now = Date.now(), scheduler: picked }: RateOptions,
 ): Promise<{ card: Card; log: ReviewLog }> {
   const settings = await getSchedulerSettings(db)
+  const scheduler = picked ?? (await getScheduler(db))
   return db.transaction(
     'rw',
     [db.cards, db.reviewLogs, db.settings],
@@ -348,8 +384,9 @@ export async function rateCard(
       if (!card) throw new Error('Card not found')
 
       const isDue = await countsAsReview(db, card, now)
+      const ready = isDue ? await readyFor(db, card, scheduler, settings) : card
       const next: ScheduleState = isDue
-        ? scheduler.next(card, rating, now, settings)
+        ? scheduler.next(ready, rating, now, settings)
         : card
       const log: ReviewLog = {
         id: createId(),
@@ -370,16 +407,18 @@ export async function rateCard(
       await db.reviewLogs.add(log)
       if (!isDue) return { card, log }
 
-      const updated: Card = {
-        ...card,
-        due: next.due,
-        intervalDays: next.intervalDays,
-        step: next.step,
-        lapses: next.lapses,
-        reps: card.reps + 1,
-        updatedAt: now,
-        ...(next.schedulerData && { schedulerData: next.schedulerData }),
-      }
+      const updated: Card = withSchedulerData(
+        {
+          ...card,
+          due: next.due,
+          intervalDays: next.intervalDays,
+          step: next.step,
+          lapses: next.lapses,
+          reps: card.reps + 1,
+          updatedAt: now,
+        },
+        next.schedulerData,
+      )
       await db.cards.put(updated)
       return { card: updated, log }
     },
@@ -406,17 +445,27 @@ export function rebuildCard(card: Card, logs: ReviewLog[]): Card {
       lapses: 0,
     }
   }
-  return {
-    ...card,
-    due: last.dueAfter,
-    intervalDays: last.intervalAfter,
-    step: last.stepAfter,
-    reps: reviews.length,
-    lapses: reviews.filter((l) => l.rating === 'again' && l.intervalBefore > 0)
-      .length,
-    updatedAt: Math.max(card.updatedAt, last.createdAt),
-    ...(last.schedulerDataAfter && { schedulerData: last.schedulerDataAfter }),
-  }
+  return withSchedulerData(
+    {
+      ...card,
+      due: last.dueAfter,
+      intervalDays: last.intervalAfter,
+      step: last.stepAfter,
+      reps: reviews.length,
+      lapses: reviews.filter(
+        (l) => l.rating === 'again' && l.intervalBefore > 0,
+      ).length,
+      updatedAt: Math.max(card.updatedAt, last.createdAt),
+    },
+    last.schedulerDataAfter,
+  )
+}
+
+/** `card` with `schedulerData` set to `data`, or without it if none. */
+function withSchedulerData(card: Card, data: JsonObject | undefined): Card {
+  const rest = { ...card }
+  delete rest.schedulerData
+  return data ? { ...rest, schedulerData: data } : rest
 }
 
 /** Rebuilds a stored card from its log and saves it. */

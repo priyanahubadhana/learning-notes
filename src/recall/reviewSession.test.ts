@@ -27,7 +27,12 @@ describe('review session', () => {
     expect(nextWaitingAt(s)).toBe(NOW + 600_000)
 
     // Not yet: still hidden, even with nothing else left.
-    s = afterRating(s, 'good', card('b', NOW + 86_400_000), true)
+    s = afterRating(
+      s,
+      'good',
+      { ...card('b', NOW + 86_400_000), intervalDays: 1 },
+      true,
+    )
     s = releaseWaiting(s, NOW + 599_000)
     expect(currentCard(s)).toBeNull()
     expect(s.waiting).toHaveLength(1)
@@ -58,9 +63,28 @@ describe('review session', () => {
     expect(ids(s.queue)).toEqual(['a'])
   })
 
-  it('other ratings take the card out', () => {
+  it('a card moved to a day gap leaves the session', () => {
     let s = startSession([card('a'), card('b')])
-    s = afterRating(s, 'hard', card('a'), true)
+    s = afterRating(
+      s,
+      'hard',
+      { ...card('a', NOW + 86_400_000), intervalDays: 1 },
+      true,
+    )
+    expect(ids(s.queue)).toEqual(['b'])
+    expect(s.waiting).toEqual([])
+  })
+
+  it('Good on a card still in short steps (FSRS new card) waits too', () => {
+    let s = startSession([card('a'), card('b')])
+    s = afterRating(s, 'good', card('a', NOW + 600_000), true)
+    expect(ids(s.queue)).toEqual(['b'])
+    expect(ids(s.waiting)).toEqual(['a'])
+  })
+
+  it('other ratings in practice take the card out', () => {
+    let s = startSession([card('a'), card('b')])
+    s = afterRating(s, 'good', card('a'), false)
     expect(ids(s.queue)).toEqual(['b'])
   })
 

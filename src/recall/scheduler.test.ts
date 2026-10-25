@@ -13,6 +13,7 @@ const settings: SchedulerSettings = {
   againMinutes: 10,
   goodSteps: [1, 3, 7, 14, 30, 60],
   dayStartHour: 4,
+  targetMemory: 90,
 }
 const card = (over: Partial<Card> = {}): Card => ({
   ...newCard({ id: 'b1', pageId: 'p1' }, 'nb1', 'main', NOW),

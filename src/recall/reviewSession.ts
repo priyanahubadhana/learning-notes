@@ -4,8 +4,9 @@ import type { Card, Rating } from '../core/types'
  * One review session in memory (pure, no database): which card to show
  * next, and where a card goes after it is rated.
  *
- * - A card rated Again on a real review is due again in a few minutes. It
- *   waits, hidden, until then, and comes back first once its time is up.
+ * - A card rated on a real review that is due again within minutes (Again,
+ *   or FSRS short steps for new cards) waits, hidden, until then, and comes
+ *   back first once its time is up.
  * - In Practice anyway, a card that was not due keeps its schedule; Again
  *   puts it back a few cards later instead.
  */
@@ -16,7 +17,7 @@ export const PRACTICE_REPEAT_GAP = 3
 export interface ReviewSession {
   /** Cards still to show, in order. */
   queue: Card[]
-  /** Again cards hidden until their `due` time. */
+  /** Cards in short (minutes) steps, hidden until their `due` time. */
   waiting: Card[]
   /** Cards rated (each rating counts once). */
   done: number
@@ -56,8 +57,14 @@ export function afterRating(
 ): ReviewSession {
   const rest = s.queue.slice(1)
   const done = s.done + 1
+  if (wasDue) {
+    // Still in short steps (no day gap yet): it comes back this session.
+    if (after.intervalDays === 0) {
+      return { queue: rest, waiting: [...s.waiting, after], done }
+    }
+    return { ...s, queue: rest, done }
+  }
   if (rating !== 'again') return { ...s, queue: rest, done }
-  if (wasDue) return { queue: rest, waiting: [...s.waiting, after], done }
   const at = Math.min(PRACTICE_REPEAT_GAP, rest.length)
   return {
     ...s,

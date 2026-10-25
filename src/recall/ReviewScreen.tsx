@@ -346,11 +346,7 @@ export function ReviewScreen({
                     </span>
                     <span className="text-[12px] text-muted tabular-nums">
                       {!practising && preview
-                        ? intervalLabel(
-                            preview.states[rating],
-                            preview.at,
-                            rating,
-                          )
+                        ? intervalLabel(preview.states[rating], preview.at)
                         : i + 1}
                     </span>
                   </button>
@@ -364,13 +360,12 @@ export function ReviewScreen({
   )
 }
 
-/** "10 min" for Again, "3 days" otherwise. */
+/** "10 min" while in short steps (no day gap yet), "3 days" otherwise. */
 function intervalLabel(
   next: { due: number; intervalDays: number },
   at: number,
-  rating: Rating,
 ): string {
-  if (rating === 'again') {
+  if (next.intervalDays === 0) {
     const minutes = Math.max(1, Math.round((next.due - at) / 60_000))
     return t('interval.minutes', { count: minutes })
   }

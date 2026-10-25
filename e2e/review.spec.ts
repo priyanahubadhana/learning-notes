@@ -50,9 +50,9 @@ test('review a card: reveal, intervals, Again stays hidden until due', async ({
   const ratings = review(page).getByRole('group', { name: /Rate how well/ })
   await expect(ratings.getByRole('button')).toHaveText([
     'Again10 min',
-    'Hard1 day',
-    'Good1 day',
-    'Easy3 days',
+    'Hard10 min',
+    'Good10 min',
+    /^Easy\d+ days$/,
   ])
 
   // Again: hidden, with a countdown, until its 10 minutes are up.
@@ -66,10 +66,19 @@ test('review a card: reveal, intervals, Again stays hidden until due', async ({
   await page.clock.fastForward('01:05')
   await expect(review(page)).toContainText('Which valves close in S1?')
 
+  // FSRS: a new card repeats once more after 10 minutes, then gets days.
   await page.keyboard.press('Enter')
   await page.keyboard.press('3') // Good
+  await expect(review(page)).toContainText(
+    'Done for now — 1 card comes back in',
+  )
+  await page.clock.fastForward('10:05')
+  await expect(review(page)).toContainText('Which valves close in S1?')
+  await page.keyboard.press('Enter')
+  await expect(ratings.getByRole('button').nth(2)).toHaveText(/^Good\d+ days?$/)
+  await page.keyboard.press('3') // Good
   await expect(review(page)).toContainText('All caught up.')
-  await expect(review(page)).toContainText('You reviewed 2 cards.')
+  await expect(review(page)).toContainText('You reviewed 3 cards.')
   await expect(reviewButton(page)).toHaveText(/^\S*\s*Review$/)
 
   // "Got wrong (7 days)": the card rated Again comes back as practice.
@@ -94,7 +103,8 @@ test('blanks show "…" until revealed; Practice anyway; Suspend with Undo', asy
   await expect(review(page)).not.toContainText('aortic')
   await review(page).getByRole('button', { name: 'Show answer' }).click()
   await expect(review(page).locator('mark')).toHaveText('aortic')
-  await review(page).getByRole('button', { name: /^Good/ }).click()
+  // Easy skips the short steps.
+  await review(page).getByRole('button', { name: /^Easy/ }).click()
   await expect(review(page)).toContainText('All caught up.')
 
   // Practice anyway: the card is not due, so its schedule stays the same.
@@ -117,6 +127,32 @@ test('blanks show "…" until revealed; Practice anyway; Suspend with Undo', asy
     'Heart sounds',
   )
   await expect.poll(() => highlighted(page)).not.toBe('')
+})
+
+test('Settings: Simple steps scheduler changes the button gaps', async ({
+  page,
+}) => {
+  await page.goto('/')
+  await sidebar(page).getByRole('button', { name: 'Settings' }).click()
+  const scheduler = page.getByRole('combobox', { name: 'Scheduler' })
+  await expect(scheduler).toHaveValue('fsrs')
+  await scheduler.selectOption({ label: 'Simple steps' })
+  await expect(
+    page.getByRole('textbox', { name: 'Target memory' }),
+  ).toHaveValue('90')
+
+  await createNotebook(page, 'Cardiology', 'Heart sounds')
+  await makeCard(page, 'Which valves close in S2?', 'Aortic and pulmonary')
+  await reviewButton(page).click()
+  await expect(review(page)).toContainText('Which valves close in S2?')
+  await page.keyboard.press('Space')
+  const ratings = review(page).getByRole('group', { name: /Rate how well/ })
+  await expect(ratings.getByRole('button')).toHaveText([
+    'Again10 min',
+    'Hard1 day',
+    'Good1 day',
+    'Easy3 days',
+  ])
 })
 
 test('notebook review and empty states', async ({ page }) => {

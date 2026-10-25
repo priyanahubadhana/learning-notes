@@ -271,3 +271,9 @@
 - **What:** All cards search ~8× faster (10,000-card full search 0.65 s → 0.08 s in tests): paging resumes from a cursor instead of an offset (Dexie's offset forced a slow card-by-card read), page/notebook names are read only for matching cards, search pause 250 → 150 ms. One due-date style in the Card list and All cards (shared `CardStatusLabel`, `dueLabel`, `useMinuteClock`). Speed test limit tightened 5 s → 1 s; new paging tests (same due time, search).
 - **Why:** Owner request.
 - **Files:** src/recall/cardQuery.ts (+ test), src/recall/cardList.ts (+ test), src/recall/CardStatusLabel.tsx, src/recall/useMinuteClock.ts, src/recall/CardListView.tsx, src/recall/AllCardsScreen.tsx, README.md, CHANGELOG.md
+
+## 2026-10-26
+
+- **What:** Phase 3 Step 8 — FSRS scheduler (ts-fsrs 5.4.2) as the default, with settings "Scheduler" (FSRS · Simple steps) and "Target memory" (70–97 %, default 90 %). New cards repeat after "Again" minutes before their first day gap (Anki style). Switching scheduler never moves cards: each card is taken over from its review history at its next review. Review session keeps cards in short steps; buttons show minutes for them (fixes "0 days"). Step 8 done.
+- **Why:** Smarter review gaps — fewer reviews for the same memory (owner approved: FSRS default, target setting, short steps).
+- **Files:** package.json, package-lock.json, src/recall/fsrsScheduler.ts, src/recall/scheduler.ts (+ test), src/recall/reviewService.ts (+ test), src/recall/reviewSession.ts (+ test), src/recall/ReviewScreen.tsx, src/settings/builtinSettings.ts, src/i18n/en.ts, e2e/review.spec.ts, README.md, IDEAS.md, CHANGELOG.md

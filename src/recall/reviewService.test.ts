@@ -11,6 +11,8 @@ import {
   goodSteps,
   newCardsPerDay,
   reviewsPerDay,
+  schedulerChoice,
+  targetMemory,
 } from '../settings/builtinSettings'
 import { setSetting } from '../settings/settingsService'
 import {
@@ -234,6 +236,11 @@ describe('review queue', () => {
 })
 
 describe('rating', () => {
+  // These check the Simple steps rules; FSRS has its own tests below.
+  beforeEach(async () => {
+    await setSetting(db, schedulerChoice, 'fixed')
+  })
+
   it('reschedules a due card and writes one log entry', async () => {
     await addCard('a', learned(NOW - DAY))
     const { card, log } = await rateCard(db, 'c-a', 'good', {
@@ -459,5 +466,86 @@ describe('empty cards and sub-page scope', () => {
       getReviewQueue(db, { kind: 'page', pageId: 'p1', includeSubpages }, NOW)
     expect(ids((await queue(false)).cards)).toEqual(['c-top'])
     expect(ids((await queue(true)).cards).sort()).toEqual(['c-sub', 'c-top'])
+  })
+})
+
+describe('FSRS (the default scheduler)', () => {
+  const MIN = 60_000
+  const rate = (rating: 'again' | 'hard' | 'good' | 'easy', now: number) =>
+    rateCard(db, 'c-a', rating, { durationMs: 1, now })
+
+  it('a new card repeats after "Again" minutes, then moves to day gaps', async () => {
+    await addCard('a', { due: NOW })
+    const first = await rate('good', NOW)
+    expect(first.card.due).toBe(NOW + 10 * MIN)
+    expect(first.card.intervalDays).toBe(0)
+    expect(first.log).toMatchObject({ scheduler: 'fsrs', isNew: true })
+    expect(first.log.schedulerDataAfter).toMatchObject({ scheduler: 'fsrs' })
+
+    const second = await rate('good', first.card.due)
+    expect(second.card.intervalDays).toBeGreaterThanOrEqual(1)
+    expect(second.card.due).toBe(
+      addStudyDays(first.card.due, second.card.intervalDays),
+    )
+    expect(second.log.isNew).toBe(false)
+  })
+
+  it('Again on a learned card comes back after "Again" minutes and counts a lapse', async () => {
+    await addCard('a', { due: NOW })
+    let t = NOW
+    for (const r of ['good', 'good'] as const) t = (await rate(r, t)).card.due
+    const { card } = await rate('again', t)
+    expect(card.due).toBe(t + 10 * MIN)
+    expect(card.lapses).toBe(1)
+  })
+
+  it('a higher target memory gives shorter gaps', async () => {
+    await addCard('a', { due: NOW })
+    let t = NOW
+    for (const r of ['good', 'good'] as const) t = (await rate(r, t)).card.due
+    const c = (await db.cards.get('c-a'))!
+    const at = async (target: number) => {
+      await setSetting(db, targetMemory, target)
+      return (await previewCard(db, c, t)).good.intervalDays
+    }
+    expect(await at(95)).toBeLessThan(await at(80))
+  })
+
+  it('switching takes over cards from their history without moving them', async () => {
+    await setSetting(db, schedulerChoice, 'fixed')
+    await addCard('a', { due: NOW })
+    let t = NOW
+    for (const r of ['good', 'good', 'good'] as const)
+      t = (await rate(r, t)).card.due
+    const fixed = (await db.cards.get('c-a'))!
+    expect(fixed.schedulerData).toBeUndefined()
+
+    // Switching itself changes nothing stored.
+    await setSetting(db, schedulerChoice, 'fsrs')
+    expect(await db.cards.get('c-a')).toEqual(fixed)
+    const preview = await previewCard(db, fixed, t)
+    expect(preview.good.intervalDays).toBeGreaterThan(1)
+
+    const { card, log } = await rate('good', t)
+    expect(log.scheduler).toBe('fsrs')
+    expect(card.schedulerData).toMatchObject({ scheduler: 'fsrs', state: 2 })
+    expect(card.reps).toBe(4)
+
+    // And back: the ladder step is worked out from the current gap.
+    await setSetting(db, schedulerChoice, 'fixed')
+    const back = await rate('good', card.due)
+    expect(back.card.schedulerData).toBeUndefined()
+    expect(back.log.scheduler).toBe('fixed')
+    expect(back.card.intervalDays).toBeGreaterThanOrEqual(card.intervalDays)
+  })
+
+  it('card state can be rebuilt from the log', async () => {
+    const original = await addCard('a', { due: NOW })
+    let t = NOW
+    for (const r of ['good', 'good', 'again', 'hard', 'easy'] as const)
+      t = (await rate(r, t)).card.due
+    const stored = (await db.cards.get('c-a'))!
+    const logs = await db.reviewLogs.where('cardId').equals('c-a').toArray()
+    expect(rebuildCard(original, logs)).toEqual(stored)
   })
 })

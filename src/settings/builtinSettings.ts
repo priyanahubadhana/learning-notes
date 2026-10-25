@@ -137,6 +137,38 @@ export const goodSteps: SettingDefinition<number[]> = {
   control: { kind: 'steps', ...STEP_LIMITS, unitKey: 'unit.days' },
 }
 
+/** How review gaps are picked (ids in `recall/scheduler.ts`). */
+export const SCHEDULER_CHOICES = ['fsrs', 'fixed'] as const
+export type SchedulerChoice = (typeof SCHEDULER_CHOICES)[number]
+
+export const schedulerChoice: SettingDefinition<SchedulerChoice> = {
+  id: 'review.scheduler',
+  labelKey: 'settings.scheduler.label',
+  descriptionKey: 'settings.scheduler.description',
+  category: 'review',
+  scope: 'synced',
+  defaultValue: 'fsrs',
+  isValid: isOneOf<SchedulerChoice>(SCHEDULER_CHOICES),
+  control: {
+    kind: 'select',
+    options: SCHEDULER_CHOICES.map((value) => ({
+      value,
+      label: () => t(`settings.scheduler.${value}`),
+    })),
+  },
+}
+
+export const targetMemory: SettingDefinition<number> = {
+  id: 'review.targetMemory',
+  labelKey: 'settings.targetMemory.label',
+  descriptionKey: 'settings.targetMemory.description',
+  category: 'review',
+  scope: 'synced',
+  defaultValue: 90,
+  isValid: isIntInRange(70, 97),
+  control: { kind: 'number', min: 70, max: 97, unitKey: 'unit.percent' },
+}
+
 /** Where "/card" puts a new card when typed inside a card's answer. */
 export const NESTED_CARD_CHOICES = ['ask', 'nextLine', 'inside'] as const
 export type NestedCardChoice = (typeof NESTED_CARD_CHOICES)[number]
@@ -163,6 +195,8 @@ for (const definition of [
   dayStartHour,
   newCardsPerDay,
   reviewsPerDay,
+  schedulerChoice,
+  targetMemory,
   againMinutes,
   goodSteps,
   nestedCardPlacement,

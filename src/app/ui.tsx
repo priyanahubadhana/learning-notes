@@ -1,4 +1,5 @@
 import { useEffect, useRef, useState, type ComponentProps } from 'react'
+import type { ToastAction } from './appUi'
 
 /** Small UI building blocks shared across features. */
 
@@ -126,14 +127,32 @@ export function MenuPopover({
   )
 }
 
-/** Short message at the bottom of the screen (render it only while shown). */
-export function Toast({ message }: { message: string }) {
+/**
+ * Short message at the bottom of the screen (render it only while shown).
+ * An optional action (e.g. Undo) is a tap-sized button inside it.
+ */
+export function Toast({
+  message,
+  action,
+}: {
+  message: string
+  action?: ToastAction
+}) {
   return (
     <div
       role="status"
-      className="fixed bottom-5 left-1/2 z-40 max-w-[calc(100vw-32px)] -translate-x-1/2 rounded-[10px] bg-ink px-3.5 py-2 text-[13px] text-bg shadow-[0_8px_24px_rgba(0,0,0,0.14)]"
+      className="fixed bottom-5 left-1/2 z-40 flex max-w-[calc(100vw-32px)] -translate-x-1/2 items-center gap-3 rounded-[10px] bg-ink px-3.5 py-2 text-[13px] text-bg shadow-[0_8px_24px_rgba(0,0,0,0.14)]"
     >
-      {message}
+      <span>{message}</span>
+      {action && (
+        <button
+          type="button"
+          onClick={action.onSelect}
+          className="-my-1 min-h-9 shrink-0 rounded-md px-2.5 font-semibold text-bg underline underline-offset-2 hover:bg-bg/15"
+        >
+          {action.label}
+        </button>
+      )}
     </div>
   )
 }

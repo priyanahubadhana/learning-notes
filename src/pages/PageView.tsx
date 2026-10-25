@@ -14,6 +14,7 @@ import type { Page } from '../core/types'
 import { PageEditor } from '../editor/PageEditor'
 import type { EditorApi } from '../editor/editorContext'
 import { dateKey } from '../journal/dates'
+import { t } from '../i18n/t'
 import { getNotebook } from '../notebooks/notebookService'
 import { saveAsTemplate } from '../templates/templateService'
 import { getPagePath } from './pageService'
@@ -29,6 +30,8 @@ interface PageViewProps {
   onOpenNewPage: (page: Page) => void
   /** "New page from this template" (template pages only). */
   onNewPageFromTemplate: (templateId: string) => void
+  /** Opens the Review screen for this page's cards. */
+  onReview: () => void
 }
 
 /** An open page: breadcrumb, action bar, banner, title and block editor. */
@@ -39,6 +42,7 @@ export function PageView({
   onOpenPage,
   onOpenNewPage,
   onNewPageFromTemplate,
+  onReview,
 }: PageViewProps) {
   const { toast } = useContext(AppUiContext)
   const path = useLiveQuery(() => getPagePath(db, page.id), [db, page.id]) ?? []
@@ -90,6 +94,11 @@ export function PageView({
           ))}
         </nav>
         <div role="toolbar" aria-label="Page actions" className="flex gap-1.5">
+          {notebook && !isTemplate && (
+            <ActionButton icon="⟳" onClick={onReview}>
+              {t('review.thisPage')}
+            </ActionButton>
+          )}
           {notebook && !isTemplate && (
             <ActionButton icon="📋" onClick={saveTemplate}>
               Save as template

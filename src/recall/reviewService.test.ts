@@ -20,6 +20,8 @@ import {
 } from '../templates/templateService'
 import { CARD_BLOCK_TYPE, MAIN_PART, newCard } from './cardService'
 import {
+  getCardFace,
+  getPracticeCards,
   getReviewQueue,
   previewCard,
   rateCard,
@@ -312,6 +314,54 @@ describe('pages from templates', () => {
     const cards = await db.cards.where('pageId').equals(page.id).toArray()
     expect(cards).toHaveLength(1)
     expect(cards[0]).toMatchObject({ notebookId: nb.id, part: MAIN_PART })
+  })
+})
+
+describe('practice anyway', () => {
+  it('lists active cards in the scope, soonest due first, up to the limit', async () => {
+    await addCard('far', learned(NOW + 9 * DAY))
+    await addCard('near', learned(NOW + DAY))
+    await addCard('other', learned(NOW + 2 * DAY), 'p2')
+    await addCard('sus', { ...learned(NOW), suspendedAt: NOW })
+    const page = await getPracticeCards(db, { kind: 'page', pageId: 'p1' })
+    expect(ids(page)).toEqual(['c-near', 'c-far'])
+    const all = await getPracticeCards(db, { kind: 'all' }, 2)
+    expect(ids(all)).toEqual(['c-near', 'c-other'])
+    expect(await getPracticeCards(db, { kind: 'missed' })).toEqual([])
+  })
+
+  it('a practised Again card keeps its schedule', async () => {
+    const before = await addCard('a', learned(NOW + 5 * DAY))
+    await rateCard(db, 'c-a', 'again', { durationMs: 1, now: NOW })
+    expect(await db.cards.get('c-a')).toEqual(before)
+  })
+})
+
+describe('card face', () => {
+  it('a Card block shows its children as the answer', async () => {
+    const card = await addCard('q')
+    await db.blocks.update('q', {
+      content: { text: [{ type: 'text', text: 'Q?', styles: {} }] },
+    })
+    await db.blocks.add(block('a1', 'p1', { parentId: 'q', order: 'a0' }))
+    await db.blocks.add(block('a2', 'p1', { parentId: 'a1', order: 'a0' }))
+    const face = await getCardFace(db, card)
+    expect(face).toMatchObject({ kind: 'card', pageTitle: 'P' })
+    expect(face?.answer.map((b) => [b.id, b.depth])).toEqual([
+      ['a1', 0],
+      ['a2', 1],
+    ])
+  })
+
+  it('a blank shows its block text with the blank id', async () => {
+    await db.blocks.add(
+      block('bl', 'p1', { type: 'paragraph', content: blankContent('k1') }),
+    )
+    const card = newCard({ id: 'bl', pageId: 'p1' }, 'nb1', 'k1', 0)
+    const face = await getCardFace(db, card)
+    expect(face).toMatchObject({ kind: 'blank', blankId: 'k1', answer: [] })
+    await db.blocks.update('bl', { deletedAt: NOW })
+    expect(await getCardFace(db, card)).toBeNull()
   })
 })
 

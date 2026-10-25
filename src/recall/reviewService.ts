@@ -1,7 +1,8 @@
 import type { LearningNotesDB } from '../core/db'
 import { createId } from '../core/ids'
 import { addStudyDays, studyDayStart } from '../core/time'
-import type { Card, Rating, ReviewLog } from '../core/types'
+import { listBlocks } from '../core/blockService'
+import type { Card, JsonValue, Rating, ReviewLog } from '../core/types'
 import {
   againMinutes,
   dayStartHour,
@@ -10,7 +11,7 @@ import {
   reviewsPerDay,
 } from '../settings/builtinSettings'
 import { getSetting } from '../settings/settingsService'
-import { cardParts } from './cardService'
+import { cardParts, MAIN_PART } from './cardService'
 import {
   fixedStepsScheduler,
   previewRatings,
@@ -176,6 +177,90 @@ export async function getReviewQueue(
   }
 }
 
+/** Cards per round of Practice anyway. */
+export const PRACTICE_ROUND = 50
+const PRACTICE_CHUNK = 200
+
+/**
+ * Cards for Practice anyway: every active card in the scope, soonest due
+ * first, up to `limit`. Not-due cards keep their schedule when rated
+ * (cram); due ones count normally. 'missed' has no practice round.
+ */
+export async function getPracticeCards(
+  db: LearningNotesDB,
+  scope: ReviewScope,
+  limit = PRACTICE_ROUND,
+): Promise<Card[]> {
+  const byDue = (a: Card, b: Card) => a.due - b.due || a.createdAt - b.createdAt
+  switch (scope.kind) {
+    case 'missed':
+      return []
+    case 'all': {
+      // Walk the `due` index in chunks so a huge collection is never loaded.
+      const picked: Card[] = []
+      for (let offset = 0; picked.length < limit; offset += PRACTICE_CHUNK) {
+        const chunk = await db.cards
+          .orderBy('due')
+          .offset(offset)
+          .limit(PRACTICE_CHUNK)
+          .toArray()
+        if (chunk.length === 0) break
+        picked.push(...(await reviewable(db, chunk)))
+      }
+      return picked.slice(0, limit)
+    }
+    case 'notebook':
+    case 'page': {
+      const cards =
+        scope.kind === 'page'
+          ? db.cards.where('pageId').equals(scope.pageId)
+          : db.cards.where('notebookId').equals(scope.notebookId)
+      const all = await reviewable(db, await cards.toArray())
+      return all.sort(byDue).slice(0, limit)
+    }
+  }
+}
+
+/** What a card shows: the question (with its blank hidden) and the answer. */
+export interface CardFace {
+  kind: 'card' | 'blank'
+  /** The block's text runs (`content.text`). */
+  text: JsonValue
+  /** For a blank: the blank id to hide until revealed. */
+  blankId?: string
+  /** For a Card block: the answer blocks (all nested blocks, in order). */
+  answer: { id: string; text: JsonValue; depth: number }[]
+  pageTitle: string
+}
+
+/** Loads what to show for a card (null if its block is gone). */
+export async function getCardFace(
+  db: LearningNotesDB,
+  card: Card,
+): Promise<CardFace | null> {
+  const [block, page] = await Promise.all([
+    db.blocks.get(card.blockId),
+    db.pages.get(card.pageId),
+  ])
+  if (!block || block.deletedAt !== null) return null
+  const base = { text: block.content.text ?? [], pageTitle: page?.title ?? '' }
+  if (card.part !== MAIN_PART) {
+    return { ...base, kind: 'blank', blankId: card.part, answer: [] }
+  }
+
+  // The answer = the Card block's children (and theirs), in page order.
+  const blocks = await listBlocks(db, card.pageId)
+  const answer: CardFace['answer'] = []
+  const addChildren = (parentId: string, depth: number) => {
+    for (const child of blocks.filter((b) => b.parentId === parentId)) {
+      answer.push({ id: child.id, text: child.content.text ?? [], depth })
+      addChildren(child.id, depth + 1)
+    }
+  }
+  addChildren(block.id, 0)
+  return { ...base, kind: 'card', answer }
+}
+
 export interface RateOptions {
   /** Time from showing the card to rating it. */
   durationMs: number
@@ -304,4 +389,12 @@ export async function unsuspendCard(
   now: number = Date.now(),
 ): Promise<void> {
   await db.cards.update(cardId, { suspendedAt: null, updatedAt: now })
+}
+
+/** How many cards are due now across everything (the sidebar count). */
+export async function countDue(
+  db: LearningNotesDB,
+  now: number = Date.now(),
+): Promise<number> {
+  return (await getReviewQueue(db, { kind: 'all' }, now)).cards.length
 }

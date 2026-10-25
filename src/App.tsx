@@ -4,6 +4,7 @@ import { AppUiContext, type AppUi, type PickerMode } from './app/appUi'
 import { runTask } from './app/errors'
 import { applyTheme } from './app/theme'
 import { ThemeContext } from './app/themeContext'
+import type { ToastAction } from './app/appUi'
 import { Toast } from './app/ui'
 import { isStringOrNull } from './app/uiPrefs'
 import { usePref } from './app/usePref'
@@ -16,6 +17,8 @@ import { Sidebar } from './notebooks/Sidebar'
 import { createNotebook, listNotebooks } from './notebooks/notebookService'
 import { PageView } from './pages/PageView'
 import { createPage, getPage } from './pages/pageService'
+import { ReviewScreen } from './recall/ReviewScreen'
+import type { ReviewScope } from './recall/reviewService'
 import { theme as themeSetting } from './settings/builtinSettings'
 import { SettingsScreen } from './settings/SettingsScreen'
 import { useDeviceSetting } from './settings/useSetting'
@@ -48,9 +51,16 @@ function App() {
   )
   // Settings replaces the open page in the main area until a page is opened.
   const [showSettings, setShowSettings] = useState(false)
+  // Review replaces the open page the same way (null = not reviewing).
+  const [reviewScope, setReviewScope] = useState<ReviewScope | null>(null)
   const openPage = (id: string | null) => {
     setShowSettings(false)
+    setReviewScope(null)
     setCurrentPageId(id)
+  }
+  const openReview = (scope: ReviewScope) => {
+    setShowSettings(false)
+    setReviewScope(scope)
   }
   const [renamingNotebookId, setRenamingNotebookId] = useState<string | null>(
     null,
@@ -83,15 +93,30 @@ function App() {
 
   // ---- App-wide UI: template picker and toasts ----
   const [picker, setPicker] = useState<PickerRequest | null>(null)
-  const [toastMessage, setToastMessage] = useState<string | null>(null)
+  const [toastMessage, setToastMessage] = useState<{
+    message: string
+    action?: ToastAction
+  } | null>(null)
   const toastTimer = useRef<ReturnType<typeof setTimeout>>(undefined)
   const appUi: AppUi = {
     chooseTemplate: (mode) =>
       new Promise((resolve) => setPicker({ mode, resolve })),
-    toast: (message) => {
-      setToastMessage(message)
+    toast: (message, action) => {
+      // Choosing the action also closes the toast.
+      const closing = action && {
+        ...action,
+        onSelect: () => {
+          setToastMessage(null)
+          action.onSelect()
+        },
+      }
+      setToastMessage({ message, action: closing })
       clearTimeout(toastTimer.current)
-      toastTimer.current = setTimeout(() => setToastMessage(null), 3200)
+      // Toasts with an action stay longer, so there is time to tap it.
+      toastTimer.current = setTimeout(
+        () => setToastMessage(null),
+        action ? 6000 : 3200,
+      )
     },
   }
 
@@ -209,11 +234,27 @@ function App() {
             }
             onCreateTemplate={() => runTask(newTemplate())}
             settingsOpen={showSettings}
-            onOpenSettings={() => setShowSettings(true)}
+            onOpenSettings={() => {
+              setReviewScope(null)
+              setShowSettings(true)
+            }}
+            reviewOpen={
+              reviewScope?.kind === 'all' || reviewScope?.kind === 'missed'
+            }
+            onOpenReview={openReview}
           />
           <main className="flex-1 overflow-auto">
             {showSettings ? (
               <SettingsScreen db={db} />
+            ) : reviewScope ? (
+              <ReviewScreen
+                key={JSON.stringify(reviewScope)}
+                db={db}
+                scope={reviewScope}
+                onScopeChange={setReviewScope}
+                onOpenPage={(id) => openPage(id)}
+                onClose={() => setReviewScope(null)}
+              />
             ) : currentPage ? (
               <PageView
                 key={currentPage.id}
@@ -222,6 +263,9 @@ function App() {
                 autoFocusTitle={focusTitlePageId === currentPage.id}
                 onOpenPage={openPage}
                 onOpenNewPage={openNewPage}
+                onReview={() =>
+                  openReview({ kind: 'page', pageId: currentPage.id })
+                }
                 onNewPageFromTemplate={(id) => runTask(newPageFromTemplate(id))}
               />
             ) : notebooks.length === 0 && currentPage === null ? (
@@ -256,7 +300,9 @@ function App() {
             }}
           />
         )}
-        {toastMessage && <Toast message={toastMessage} />}
+        {toastMessage && (
+          <Toast message={toastMessage.message} action={toastMessage.action} />
+        )}
       </AppUiContext>
     </ThemeContext>
   )

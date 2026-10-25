@@ -1,0 +1,568 @@
+import { useLiveQuery } from 'dexie-react-hooks'
+import { useContext, useEffect, useRef, useState, type ReactNode } from 'react'
+import { AppUiContext } from '../app/appUi'
+import { runTask } from '../app/errors'
+import type { LearningNotesDB } from '../core/db'
+import type { JsonValue, Rating } from '../core/types'
+import { t } from '../i18n/t'
+import {
+  getCardFace,
+  getPracticeCards,
+  getReviewQueue,
+  previewCard,
+  rateCard,
+  suspendCard,
+  unsuspendCard,
+  type CardFace,
+  type ReviewScope,
+} from './reviewService'
+import {
+  afterRating,
+  currentCard,
+  nextWaitingAt,
+  putBack,
+  releaseWaiting,
+  skipCurrent,
+  startSession,
+  type ReviewSession,
+} from './reviewSession'
+import { RATINGS } from './scheduler'
+
+/**
+ * The Review screen: shows due cards one at a time. Space/Enter shows the
+ * answer, keys 1–4 rate it, Esc closes. On phones it fills the screen with
+ * the buttons pinned to the bottom.
+ */
+
+interface ReviewScreenProps {
+  db: LearningNotesDB
+  scope: ReviewScope
+  onScopeChange: (scope: ReviewScope) => void
+  onOpenPage: (pageId: string) => void
+  onClose: () => void
+}
+
+export function ReviewScreen({
+  db,
+  scope,
+  onScopeChange,
+  onOpenPage,
+  onClose,
+}: ReviewScreenProps) {
+  const ui = useContext(AppUiContext)
+  const [session, setSession] = useState<ReviewSession | null>(null)
+  /** When Practice anyway began (null = normal review). */
+  const [practiceStart, setPracticeStart] = useState<number | null>(null)
+  const [revealed, setRevealed] = useState(false)
+  const [now, setNow] = useState(() => Date.now())
+  const shownAt = useRef(0)
+  const busy = useRef(false)
+
+  // The session starts from the due queue. (The parent remounts this
+  // screen with a new `key` when the scope changes.)
+  const scopeKey = JSON.stringify(scope)
+  useEffect(() => {
+    let live = true
+    getReviewQueue(db, scope).then(
+      (q) => live && setSession(startSession(q.cards)),
+      (error: unknown) => console.error('Could not load reviews', error),
+    )
+    return () => {
+      live = false
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps -- keyed by scopeKey
+  }, [db, scopeKey])
+
+  const card = session ? currentCard(session) : null
+  const waitingAt = session ? nextWaitingAt(session) : null
+
+  // Restart the answer timer whenever a card is shown.
+  useEffect(() => {
+    shownAt.current = Date.now()
+  }, [card?.id, session?.done])
+
+  // Only waiting cards left: count down, then bring them back.
+  useEffect(() => {
+    if (card || waitingAt === null) return
+    const timer = setInterval(() => {
+      const time = Date.now()
+      setNow(time)
+      if (time >= waitingAt) setSession((s) => s && releaseWaiting(s, time))
+    }, 1000)
+    return () => clearInterval(timer)
+  }, [card, waitingAt])
+
+  const face = useLiveQuery(
+    async () => (card ? getCardFace(db, card) : null),
+    [card?.id],
+  )
+  // Live: re-runs when settings change, so intervals always match them.
+  const preview = useLiveQuery(async () => {
+    if (!card) return null
+    const at = Date.now()
+    return { at, states: await previewCard(db, card, at) }
+  }, [card?.id, card?.due])
+  const scopeName = useLiveQuery(async () => {
+    if (scope.kind === 'page') return (await db.pages.get(scope.pageId))?.title
+    if (scope.kind === 'notebook')
+      return (await db.notebooks.get(scope.notebookId))?.title
+    return undefined
+  }, [scopeKey])
+  const hasCards = useLiveQuery(
+    async () =>
+      scope.kind === 'missed' ||
+      (await getPracticeCards(db, scope, 1)).length > 0,
+    [scopeKey],
+  )
+
+  // Practising a card that was not due: its schedule stays the same.
+  const practising =
+    practiceStart !== null && !!card && card.due > practiceStart
+
+  const reveal = () => setRevealed(true)
+
+  const rate = async (rating: Rating) => {
+    if (!card || busy.current) return
+    busy.current = true
+    try {
+      const time = Date.now()
+      const { card: after, log } = await rateCard(db, card.id, rating, {
+        durationMs: time - shownAt.current,
+        now: time,
+      })
+      const wasDue = log.kind === 'review'
+      setSession(
+        (s) => s && releaseWaiting(afterRating(s, rating, after, wasDue), time),
+      )
+      setRevealed(false)
+    } finally {
+      busy.current = false
+    }
+  }
+
+  const suspend = async () => {
+    if (!card) return
+    const suspended = card
+    await suspendCard(db, suspended.id)
+    setSession((s) => s && skipCurrent(s))
+    setRevealed(false)
+    ui.toast(t('review.suspended'), {
+      label: t('review.undo'),
+      onSelect: () =>
+        runTask(
+          (async () => {
+            await unsuspendCard(db, suspended.id)
+            setSession((s) => s && putBack(s, suspended))
+          })(),
+        ),
+    })
+  }
+
+  const practice = async () => {
+    const cards = await getPracticeCards(db, scope)
+    setPracticeStart(Date.now())
+    setRevealed(false)
+    setSession(startSession(cards))
+  }
+
+  // Keyboard (handler in a ref so it always sees fresh state).
+  const onKey = useRef<(e: KeyboardEvent) => void>(() => {})
+  useEffect(() => {
+    onKey.current = (e) => {
+      if (e.ctrlKey || e.metaKey || e.altKey) return
+      const target = e.target as HTMLElement
+      if (target.closest('input, textarea, [contenteditable="true"]')) return
+      if (e.key === 'Escape') {
+        onClose()
+        return
+      }
+      if (!card) return
+      if (!revealed && (e.key === ' ' || e.key === 'Enter')) {
+        if (target.closest('button')) return // the focused button handles it
+        e.preventDefault()
+        reveal()
+        return
+      }
+      const index = ['1', '2', '3', '4'].indexOf(e.key)
+      if (revealed && index >= 0) {
+        e.preventDefault()
+        runTask(rate(RATINGS[index]))
+      }
+    }
+  })
+  useEffect(() => {
+    const listener = (e: KeyboardEvent) => onKey.current(e)
+    window.addEventListener('keydown', listener)
+    return () => window.removeEventListener('keydown', listener)
+  }, [])
+
+  const title =
+    scope.kind === 'missed'
+      ? t('review.titleMissed')
+      : scope.kind === 'all'
+        ? t('review.title')
+        : t(
+            scope.kind === 'page' ? 'review.titlePage' : 'review.titleNotebook',
+            {
+              name: scopeName || t('review.untitled'),
+            },
+          )
+  const left = session ? session.queue.length + session.waiting.length : 0
+
+  return (
+    <section
+      aria-label={title}
+      className="flex h-full flex-col bg-bg text-ink max-sm:fixed max-sm:inset-0 max-sm:z-30"
+    >
+      <header className="flex flex-wrap items-center gap-x-3 gap-y-2 border-b border-line px-4 py-2.5">
+        <h1 className="min-w-0 flex-1 truncate text-base font-semibold">
+          {title}
+        </h1>
+        {(scope.kind === 'all' || scope.kind === 'missed') && (
+          <div
+            role="group"
+            aria-label={t('review.scope')}
+            className="flex rounded-lg border border-line p-0.5 text-[13px]"
+          >
+            {(['all', 'missed'] as const).map((kind) => (
+              <button
+                key={kind}
+                type="button"
+                aria-pressed={scope.kind === kind}
+                onClick={() => onScopeChange({ kind })}
+                className={`min-h-8 rounded-md px-2.5 ${
+                  scope.kind === kind ? 'bg-soft font-medium' : 'text-muted'
+                }`}
+              >
+                {t(`review.scope.${kind}`)}
+              </button>
+            ))}
+          </div>
+        )}
+        {left > 0 && (
+          <span className="text-[13px] text-muted tabular-nums">
+            {t('review.left', { count: left })}
+          </span>
+        )}
+        <button
+          type="button"
+          onClick={onClose}
+          aria-label={t('review.close')}
+          title={t('review.close')}
+          className="flex size-11 items-center justify-center rounded-lg text-lg text-muted hover:bg-hover hover:text-ink"
+        >
+          ×
+        </button>
+      </header>
+
+      <div className="min-h-0 flex-1 overflow-auto px-4 py-6">
+        <div className="mx-auto max-w-[640px]">
+          {!session ? null : card && face ? (
+            <>
+              <CardView face={face} revealed={revealed} />
+              {practising && (
+                <p className="mt-3 text-center text-[13px] text-muted">
+                  {t('review.practising')}
+                </p>
+              )}
+              <div className="mt-3 flex justify-center gap-2 text-[13px]">
+                <QuietButton onClick={() => onOpenPage(card.pageId)}>
+                  {t('review.openNote')}
+                </QuietButton>
+                <QuietButton onClick={() => runTask(suspend())}>
+                  {t('review.suspend')}
+                </QuietButton>
+              </div>
+            </>
+          ) : card ? null : waitingAt !== null ? (
+            <Message>
+              <p className="text-[15px]">
+                {t('review.waiting', {
+                  count: session.waiting.length,
+                  time: countdown(waitingAt - now),
+                })}
+              </p>
+              <p className="text-[13px] text-muted">
+                {t('review.waitingHint')}
+              </p>
+            </Message>
+          ) : (
+            <Finished
+              reviewed={session.done}
+              hasCards={hasCards ?? true}
+              canPractice={scope.kind !== 'missed'}
+              onPractice={() => runTask(practice())}
+              onClose={onClose}
+            />
+          )}
+        </div>
+      </div>
+
+      {card && face && (
+        <footer className="border-t border-line px-4 pt-3 pb-[max(12px,env(safe-area-inset-bottom))]">
+          <div className="mx-auto max-w-[640px]">
+            {!revealed ? (
+              <button
+                type="button"
+                onClick={reveal}
+                className="flex min-h-12 w-full items-center justify-center gap-2 rounded-xl bg-accent text-[15px] font-medium text-white hover:opacity-90"
+              >
+                {t('review.show')}
+                <kbd className="rounded bg-white/20 px-1.5 font-mono text-[11px]">
+                  Space
+                </kbd>
+              </button>
+            ) : (
+              <div
+                role="group"
+                aria-label={t('review.rateHint')}
+                className="grid grid-cols-4 gap-2"
+              >
+                {RATINGS.map((rating, i) => (
+                  <button
+                    key={rating}
+                    type="button"
+                    onClick={() => runTask(rate(rating))}
+                    className={`flex min-h-14 flex-col items-center justify-center rounded-xl border bg-bg px-1 transition-colors hover:bg-hover ${
+                      rating === 'again'
+                        ? 'border-line text-danger'
+                        : rating === 'good'
+                          ? 'border-accent text-accent'
+                          : 'border-line'
+                    }`}
+                  >
+                    <span className="text-[15px] font-medium">
+                      {t(`review.rating.${rating}`)}
+                    </span>
+                    <span className="text-[12px] text-muted tabular-nums">
+                      {!practising && preview
+                        ? intervalLabel(
+                            preview.states[rating],
+                            preview.at,
+                            rating,
+                          )
+                        : i + 1}
+                    </span>
+                  </button>
+                ))}
+              </div>
+            )}
+          </div>
+        </footer>
+      )}
+    </section>
+  )
+}
+
+/** "10 min" for Again, "3 days" otherwise. */
+function intervalLabel(
+  next: { due: number; intervalDays: number },
+  at: number,
+  rating: Rating,
+): string {
+  if (rating === 'again') {
+    const minutes = Math.max(1, Math.round((next.due - at) / 60_000))
+    return t('interval.minutes', { count: minutes })
+  }
+  return t('interval.days', { count: next.intervalDays })
+}
+
+/** m:ss for the waiting countdown. */
+function countdown(ms: number): string {
+  const total = Math.max(0, Math.ceil(ms / 1000))
+  return t('interval.countdown', {
+    m: Math.floor(total / 60),
+    s: String(total % 60).padStart(2, '0'),
+  })
+}
+
+function CardView({ face, revealed }: { face: CardFace; revealed: boolean }) {
+  return (
+    <article className="rounded-2xl border border-line bg-bg px-5 py-6 shadow-[0_1px_2px_rgba(0,0,0,0.04)] sm:px-7">
+      {face.kind === 'blank' && (
+        <p className="mb-2 text-[11px] tracking-[0.06em] text-muted uppercase">
+          {t('review.blank')}
+        </p>
+      )}
+      <p className="text-lg leading-relaxed break-words">
+        <Runs
+          runs={face.text}
+          hiddenBlank={revealed ? undefined : face.blankId}
+          shownBlank={revealed ? face.blankId : undefined}
+        />
+      </p>
+      {face.kind === 'card' && revealed && (
+        <div className="mt-5 border-t border-line pt-5 text-[16px] leading-relaxed break-words">
+          {face.answer.length === 0 ? (
+            <p className="text-muted">{t('review.noAnswer')}</p>
+          ) : (
+            face.answer.map((b) => (
+              <p
+                key={b.id}
+                style={{ paddingInlineStart: b.depth * 18 }}
+                className="mb-1.5 min-h-[1lh]"
+              >
+                <Runs runs={b.text} />
+              </p>
+            ))
+          )}
+        </div>
+      )}
+      <p className="mt-5 text-[12px] text-muted">
+        {t('review.from', { page: face.pageTitle || t('review.untitled') })}
+      </p>
+    </article>
+  )
+}
+
+type Run = {
+  type?: string
+  text?: string
+  styles?: Record<string, unknown>
+  content?: JsonValue
+}
+
+const asRuns = (value: JsonValue | undefined): Run[] =>
+  Array.isArray(value)
+    ? value.filter(
+        (r): r is Run & JsonValue =>
+          !!r && typeof r === 'object' && !Array.isArray(r),
+      )
+    : []
+
+/**
+ * Read-only text of a block. The blank being asked is shown as "…" (all
+ * its words collapse into one gap) or highlighted once revealed.
+ */
+function Runs({
+  runs,
+  hiddenBlank,
+  shownBlank,
+}: {
+  runs: JsonValue | undefined
+  hiddenBlank?: string
+  shownBlank?: string
+}) {
+  const out: ReactNode[] = []
+  let previousHidden = false
+  asRuns(runs).forEach((run, i) => {
+    if (run.type === 'link') {
+      out.push(
+        <span key={i} className="underline decoration-line underline-offset-2">
+          <Runs
+            runs={run.content}
+            hiddenBlank={hiddenBlank}
+            shownBlank={shownBlank}
+          />
+        </span>,
+      )
+      previousHidden = false
+      return
+    }
+    const styles = run.styles ?? {}
+    const blank = typeof styles.blank === 'string' ? styles.blank : undefined
+    if (blank && blank === hiddenBlank) {
+      if (!previousHidden) {
+        out.push(
+          <span key={i} className="review-blank" aria-label={t('review.blank')}>
+            …
+          </span>,
+        )
+      }
+      previousHidden = true
+      return
+    }
+    previousHidden = false
+    let node: ReactNode = run.text ?? ''
+    if (styles.code)
+      node = <code className="font-mono text-[0.9em]">{node}</code>
+    if (styles.bold) node = <strong>{node}</strong>
+    if (styles.italic) node = <em>{node}</em>
+    if (styles.underline) node = <u>{node}</u>
+    if (styles.strike) node = <s>{node}</s>
+    if (blank && blank === shownBlank) {
+      node = <mark className="recall-blank text-ink">{node}</mark>
+    }
+    out.push(<span key={i}>{node}</span>)
+  })
+  return <>{out}</>
+}
+
+function Finished({
+  reviewed,
+  hasCards,
+  canPractice,
+  onPractice,
+  onClose,
+}: {
+  reviewed: number
+  hasCards: boolean
+  canPractice: boolean
+  onPractice: () => void
+  onClose: () => void
+}) {
+  return (
+    <Message>
+      <p className="text-[17px] font-semibold">
+        {reviewed > 0
+          ? t('review.done')
+          : hasCards
+            ? t('review.nothingDue')
+            : t('review.noCards')}
+      </p>
+      {reviewed > 0 && (
+        <p className="text-[13px] text-muted">
+          {t('review.doneCount', { count: reviewed })}
+        </p>
+      )}
+      <div className="mt-3 flex flex-wrap justify-center gap-2">
+        {canPractice && hasCards && (
+          <button
+            type="button"
+            onClick={onPractice}
+            title={t('review.practiceHint')}
+            className="min-h-11 rounded-lg bg-accent px-4 text-sm font-medium text-white hover:opacity-90"
+          >
+            {t('review.practice')}
+          </button>
+        )}
+        <button
+          type="button"
+          onClick={onClose}
+          className="min-h-11 rounded-lg border border-line px-4 text-sm hover:bg-hover"
+        >
+          {t('review.back')}
+        </button>
+      </div>
+      {canPractice && hasCards && (
+        <p className="text-[12px] text-muted">{t('review.practiceHint')}</p>
+      )}
+    </Message>
+  )
+}
+
+function Message({ children }: { children: ReactNode }) {
+  return (
+    <div className="mt-[12vh] flex flex-col items-center gap-2 text-center">
+      {children}
+    </div>
+  )
+}
+
+function QuietButton({
+  onClick,
+  children,
+}: {
+  onClick: () => void
+  children: string
+}) {
+  return (
+    <button
+      type="button"
+      onClick={onClick}
+      className="min-h-11 rounded-lg px-3 text-muted hover:bg-hover hover:text-ink"
+    >
+      {children}
+    </button>
+  )
+}

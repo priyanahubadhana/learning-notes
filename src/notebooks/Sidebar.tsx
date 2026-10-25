@@ -1,4 +1,5 @@
-import { useContext, useState, type DragEvent } from 'react'
+import { useLiveQuery } from 'dexie-react-hooks'
+import { useContext, useEffect, useState, type DragEvent } from 'react'
 import { AppUiContext } from '../app/appUi'
 import { runTask } from '../app/errors'
 import { THEMES, THEME_LABELS, type Theme } from '../app/theme'
@@ -12,6 +13,7 @@ import { deletePage } from '../pages/pageService'
 import { TemplatesSection } from '../templates/TemplatesSection'
 import { TrashSection } from '../trash/TrashSection'
 import { t } from '../i18n/t'
+import { countDue, type ReviewScope } from '../recall/reviewService'
 import { deleteNotebook, moveNotebook, renameNotebook } from './notebookService'
 
 interface SidebarProps {
@@ -30,6 +32,9 @@ interface SidebarProps {
   /** True while the Settings screen is shown. */
   settingsOpen: boolean
   onOpenSettings: () => void
+  /** True while the global Review screen is shown. */
+  reviewOpen: boolean
+  onOpenReview: (scope: ReviewScope) => void
   onCreateNotebook: () => void
   /** `templateId`: copy that template's content into the new page. */
   onCreatePage: (
@@ -74,6 +79,8 @@ export function Sidebar({
   onOpenToday,
   settingsOpen,
   onOpenSettings,
+  reviewOpen,
+  onOpenReview,
   onCreateNotebook,
   onCreatePage,
   onCreateTemplate,
@@ -81,6 +88,15 @@ export function Sidebar({
   const { chooseTemplate } = useContext(AppUiContext)
   const [pending, setPending] = useState<PendingDelete | null>(null)
   const [addMenu, setAddMenu] = useState<AddMenu | null>(null)
+
+  // Due count for the Review button; re-checked every minute so cards
+  // that come due (e.g. after Again) show up without other changes.
+  const [minute, setMinute] = useState(() => Date.now())
+  useEffect(() => {
+    const timer = setInterval(() => setMinute(Date.now()), 60_000)
+    return () => clearInterval(timer)
+  }, [])
+  const dueCount = useLiveQuery(() => countDue(db, minute), [db, minute])
 
   const openAddMenu = (
     anchor: DOMRect,
@@ -159,6 +175,28 @@ export function Sidebar({
           Alt+T
         </kbd>
       </button>
+      <button
+        type="button"
+        onClick={() => onOpenReview({ kind: 'all' })}
+        aria-current={reviewOpen ? 'page' : undefined}
+        title={t('review.sidebarHint')}
+        className={`mb-2 flex min-h-9 w-full items-center gap-2 rounded-lg px-2.5 text-left text-sm transition-colors hover:bg-hover ${
+          reviewOpen ? 'bg-hover font-semibold' : ''
+        }`}
+      >
+        <span aria-hidden className="text-muted">
+          ⟳
+        </span>
+        <span className="flex-1">{t('review.sidebar')}</span>
+        {dueCount !== undefined && dueCount > 0 && (
+          <span
+            aria-label={t('review.dueCount', { count: dueCount })}
+            className="rounded-full bg-accent px-2 text-[12px] leading-5 font-medium text-white tabular-nums"
+          >
+            {dueCount}
+          </span>
+        )}
+      </button>
       <div className="flex items-center justify-between px-2.5 pt-2.5 pb-1 text-[11px] tracking-[0.06em] text-muted uppercase">
         Notebooks
         <IconButton title="New notebook" onClick={onCreateNotebook}>
@@ -234,6 +272,19 @@ export function Sidebar({
                       }
                     >
                       +
+                    </IconButton>
+                  )}
+                  {notebook.kind !== 'templates' && (
+                    <IconButton
+                      title={t('review.thisNotebook')}
+                      onClick={() =>
+                        onOpenReview({
+                          kind: 'notebook',
+                          notebookId: notebook.id,
+                        })
+                      }
+                    >
+                      ⟳
                     </IconButton>
                   )}
                   <IconButton

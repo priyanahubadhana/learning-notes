@@ -217,3 +217,9 @@
 - **What:** Rule additions: model choice reminder (Opus/Sonnet) and `/clear` + `/next` at step end (sessions), plan mode while planning (planning), LEARNING.md per phase (phase-end); parked "shuffle" for Practice anyway.
 - **Why:** Owner approved.
 - **Files:** rules/sessions.md, rules/planning.md, rules/phase-end.md, IDEAS.md, CHANGELOG.md
+
+## 2026-10-26
+
+- **What:** Phase 3 Step 5b — Review screen: Show answer (Space/Enter), Again/Hard/Good/Easy (keys 1–4) with live intervals, blanks shown as "…" until revealed, Again cards hidden until due (countdown), Practice anyway, Suspend with Undo toast, Open note; sidebar "Review" with live due count, Review per notebook and per page, "Missed (7 days)" toggle; phone layout (portrait and landscape) with buttons pinned to the bottom.
+- **Why:** Lets the owner actually study the cards made in steps 3–4 (approved Phase 3 plan; owner chose all recommended options).
+- **Files:** src/recall/ReviewScreen.tsx, src/recall/reviewSession.ts (+ test), src/recall/reviewService.ts (+ test), src/App.tsx, src/notebooks/Sidebar.tsx, src/pages/PageView.tsx, src/app/ui.tsx, src/app/appUi.ts, src/i18n/en.ts, src/index.css, e2e/review.spec.ts, README.md, IDEAS.md

@@ -96,7 +96,13 @@ export function Sidebar({
     const timer = setInterval(() => setMinute(Date.now()), 60_000)
     return () => clearInterval(timer)
   }, [])
-  const dueCount = useLiveQuery(() => countDue(db, minute), [db, minute])
+  // `minute` only triggers the re-check; the count uses the exact time.
+  const dueCount = useLiveQuery(async () => {
+    // Counting the whole table makes the live query also re-run when a
+    // card is added or rescheduled outside the "due by now" range.
+    await db.cards.count()
+    return countDue(db, Date.now())
+  }, [db, minute])
 
   const openAddMenu = (
     anchor: DOMRect,

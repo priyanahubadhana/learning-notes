@@ -212,7 +212,7 @@ export function ReviewScreen({
   return (
     <section
       aria-label={title}
-      className="flex h-full flex-col bg-bg text-ink max-sm:fixed max-sm:inset-0 max-sm:z-30"
+      className="flex h-full flex-col bg-bg text-ink phone:fixed phone:inset-0 phone:z-30"
     >
       <header className="flex flex-wrap items-center gap-x-3 gap-y-2 border-b border-line px-4 py-2.5">
         <h1 className="min-w-0 flex-1 truncate text-base font-semibold">
@@ -255,7 +255,7 @@ export function ReviewScreen({
         </button>
       </header>
 
-      <div className="min-h-0 flex-1 overflow-auto px-4 py-6">
+      <div className="min-h-0 flex-1 overflow-auto px-4 py-6 phone:py-4">
         <div className="mx-auto max-w-[640px]">
           {!session ? null : card && face ? (
             <>
@@ -304,6 +304,8 @@ export function ReviewScreen({
             {!revealed ? (
               <button
                 type="button"
+                // Focused so Space/Enter shows the answer straight away.
+                autoFocus
                 onClick={reveal}
                 className="flex min-h-12 w-full items-center justify-center gap-2 rounded-xl bg-accent text-[15px] font-medium text-white hover:opacity-90"
               >

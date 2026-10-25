@@ -1,5 +1,12 @@
 @import 'tailwindcss';
 
+/* Phone-sized screens: narrow (portrait) or short (landscape). */
+@custom-variant phone {
+  @media (width < 40rem), (height < 32rem) {
+    @slot;
+  }
+}
+
 /*
  * Design tokens (from prototype.html). Tailwind turns these into classes
  * such as bg-side, text-muted, border-line. Themes (step 6b) override them.

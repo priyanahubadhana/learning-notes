@@ -66,6 +66,7 @@ export async function addPage(
     parentName,
     kind === 'page' ? 'Add page' : 'Add sub-page',
   )
+  await page.getByRole('menuitem', { name: 'Blank page' }).click()
   // New pages open with the cursor in the title.
   const field = page.getByRole('textbox', { name: 'Page title' })
   await expect(field).toBeFocused()
@@ -88,6 +89,25 @@ export async function typeInEditor(page: Page, text: string) {
   await page.locator('.bn-editor').click()
   await page.keyboard.type(text)
   await page.waitForTimeout(800) // autosave runs ~0.5 s after typing stops
+}
+
+/** The Templates section's template names, in order. */
+export async function templateNames(page: Page): Promise<string[]> {
+  const rows = sidebar(page)
+    .locator('div.group')
+    .filter({ has: page.locator('span', { hasText: /^(📋|☀)$/ }) })
+  return (await rows.allInnerTexts()).map((t) =>
+    t.replace(/[📋☀×]/gu, '').trim(),
+  )
+}
+
+/** Types a "/" command in the editor and picks the first match. */
+export async function slashCommand(page: Page, query: string) {
+  await page.locator('.bn-editor').click()
+  await page.keyboard.press('Control+End')
+  await page.keyboard.press('Enter')
+  await page.keyboard.type(`/${query}`)
+  await page.keyboard.press('Enter')
 }
 
 /** Clicks a button in the open confirm dialog. */

@@ -52,7 +52,7 @@
 
 - TypeScript strict mode; no `any` unless justified.
 - Prettier formatting.
-- Folders grouped by feature (e.g. `core/`, `notebooks/`, `pages/`, `editor/`, `blocks/`, `trash/`, `app/`; see README "Project Structure").
+- Folders grouped by feature (e.g. `core/`, `notebooks/`, `pages/`, `editor/`, `blocks/`, `trash/`, `journal/`, `templates/`, `app/`; see README "Project Structure").
 - Clear, commented, production-quality code.
 
 ## Testing Requirements

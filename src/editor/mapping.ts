@@ -74,6 +74,49 @@ export function recordsToEditor(
   return build(null)
 }
 
+/** Rich text for `content.text` from a plain string (e.g. starter templates). */
+export function plainText(text: string): JsonValue {
+  return text ? [{ type: 'text', text, styles: {} }] : []
+}
+
+/** The plain text of a block's `content.text` (e.g. for previews). */
+export function toPlainText(content: JsonObject): string {
+  const runs = content.text
+  if (!Array.isArray(runs)) return ''
+  return runs
+    .map((run) =>
+      run &&
+      typeof run === 'object' &&
+      !Array.isArray(run) &&
+      typeof run.text === 'string'
+        ? run.text
+        : '',
+    )
+    .join('')
+}
+
+/**
+ * Removes ids from editor blocks (and their children), so BlockNote gives
+ * them new ones, e.g. when inserting a template into a page.
+ */
+export function withoutIds(blocks: EditorPartialBlock[]): EditorPartialBlock[] {
+  return blocks.map((block) => {
+    const {
+      id: _id,
+      children,
+      ...rest
+    } = block as EditorPartialBlock & {
+      id?: string
+      children?: EditorPartialBlock[]
+    }
+    void _id
+    return {
+      ...rest,
+      children: withoutIds(children ?? []),
+    } as EditorPartialBlock
+  })
+}
+
 function toEditorBlock(
   record: Block,
   children: EditorPartialBlock[],

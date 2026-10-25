@@ -121,3 +121,9 @@
 - **What:** "Move to top level" (↰) hover action on sub-pages in the sidebar: the page becomes a normal page of its notebook, placed at the end, keeping its own sub-pages and content; breadcrumb updates live. New service `movePageToTopLevel`, unit test and Playwright test (90 unit + 5 e2e passing).
 - **Why:** Owner request (before Phase 2); no drag-and-drop yet.
 - **Files:** src/pages/{pageService.ts, pageService.test.ts, PageTree.tsx}, e2e/pages.spec.ts, README.md, CHANGELOG.md
+
+## 2026-10-25
+
+- **What:** Phase 2 (Learning Daily Journal + Templates). Today button + `Alt+T` open today's journal page (created from the protected "Daily journal" template) in an auto-created Journal notebook, grouped by month, newest first. Templates section: templates are pages in a hidden Templates notebook; five general starter templates created once. "+" menu (Blank page / From template…) with a template picker; "New page from this template" on template pages; "/" menu "Insert template…" and "Save page as template"; page action bar (Save as template; Import/Export disabled "coming soon", Phase 6). Toast messages. New services: `copyBlocks`, journal (`openJournalDay`), templates (`ensureTemplates`, `createPageFromTemplate`, `saveAsTemplate`, summaries); mapping helpers `plainText`/`toPlainText`/`withoutIds` (BlockNote format stays in mapping.ts). Prototype updated first (action bar) and approved. 105 unit + 13 e2e tests passing (e2e run twice, no flakiness).
+- **Why:** Phase 2 as planned and approved by the owner.
+- **Files:** src/core/{types.ts, blockService.ts}, src/notebooks/{notebookService.ts, Sidebar.tsx}, src/pages/{pageService.ts, PageTree.tsx, PageView.tsx}, src/editor/{mapping.ts, mapping.test.ts, PageEditor.tsx, editorContext.ts, slashMenu.tsx, slashMenu.test.ts}, src/journal/_, src/templates/_, src/app/{appUi.ts, ui.tsx}, src/App.tsx, e2e/{helpers.ts, journal.spec.ts, templates.spec.ts}, README.md, CLAUDE.md, CHANGELOG.md

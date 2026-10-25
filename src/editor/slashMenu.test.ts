@@ -6,7 +6,7 @@ import { describe, expect, it, vi } from 'vitest'
 import { buildSlashMenuItems } from './slashMenu'
 import { schema } from './schema'
 
-function setup() {
+function setup(withSave = true) {
   const editor = BlockNoteEditor.create({
     schema,
     initialContent: [{ id: 'p', type: 'paragraph' }],
@@ -14,13 +14,41 @@ function setup() {
   editor.mount(document.createElement('div'))
   editor.setTextCursorPosition('p', 'start')
   const onNewSubPage = vi.fn()
-  const items = buildSlashMenuItems(editor, onNewSubPage)
+  const onInsertTemplate = vi.fn()
+  const onSaveAsTemplate = vi.fn()
+  const items = buildSlashMenuItems(editor, {
+    onNewSubPage,
+    onInsertTemplate,
+    onSaveAsTemplate: withSave ? onSaveAsTemplate : undefined,
+  })
   const search = (query: string) =>
     filterSuggestionItems(items, query).map((i) => i.title)
-  return { editor, items, search, onNewSubPage }
+  return {
+    editor,
+    items,
+    search,
+    onNewSubPage,
+    onInsertTemplate,
+    onSaveAsTemplate,
+  }
 }
 
 describe('slash menu', () => {
+  it('offers template actions, and hides "Save page as template" when not allowed', () => {
+    const { search, items, onInsertTemplate, onSaveAsTemplate } = setup()
+    expect(search('template')).toEqual(
+      expect.arrayContaining(['Insert template…', 'Save page as template']),
+    )
+    items.find((i) => i.title === 'Insert template…')!.onItemClick()
+    items.find((i) => i.title === 'Save page as template')!.onItemClick()
+    expect(onInsertTemplate).toHaveBeenCalledOnce()
+    expect(onSaveAsTemplate).toHaveBeenCalledOnce()
+
+    expect(setup(false).search('template')).not.toContain(
+      'Save page as template',
+    )
+  })
+
   it('finds the checklist when typing "todo"', () => {
     expect(setup().search('todo')[0]).toBe('Check List')
   })

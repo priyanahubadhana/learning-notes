@@ -6,6 +6,7 @@ import {
 import { BlockNoteView } from '@blocknote/mantine'
 import { SuggestionMenuController, useCreateBlockNote } from '@blocknote/react'
 import { useContext, useEffect, useState, type RefObject } from 'react'
+import { AppUiContext } from '../app/appUi'
 import { runTask } from '../app/errors'
 import { editorColorScheme } from '../app/theme'
 import { ThemeContext } from '../app/themeContext'
@@ -14,8 +15,8 @@ import type { LearningNotesDB } from '../core/db'
 import type { Block, Page } from '../core/types'
 import { createPage } from '../pages/pageService'
 import { codeBlockKeys } from './codeBlockKeys'
-import { EditorContext } from './editorContext'
-import { editorToDrafts, recordsToEditor } from './mapping'
+import { EditorContext, type EditorApi } from './editorContext'
+import { editorToDrafts, recordsToEditor, withoutIds } from './mapping'
 import { createPageSync } from './pageSync'
 import { editorBlockTypes, schema } from './schema'
 import { buildSlashMenuItems } from './slashMenu'
@@ -28,8 +29,10 @@ interface PageEditorProps {
   onOpenPage: (pageId: string) => void
   /** Opens a page just created here (e.g. "New sub-page" in the / menu). */
   onOpenNewPage: (page: Page) => void
-  /** Filled with a function that focuses the editor (e.g. Enter in title). */
-  focusRef?: RefObject<(() => void) | null>
+  /** "/ Save page as template" (left out of the menu when undefined). */
+  onSaveAsTemplate?: () => void
+  /** Filled with focus/flush controls for the page around the editor. */
+  editorRef?: RefObject<EditorApi | null>
 }
 
 /** Loads a page's blocks, then shows the editor for that page. */
@@ -61,9 +64,11 @@ function LoadedPageEditor({
   notebookId,
   onOpenPage,
   onOpenNewPage,
-  focusRef,
+  onSaveAsTemplate,
+  editorRef,
   records,
 }: PageEditorProps & { records: Block[] }) {
+  const { chooseTemplate, toast } = useContext(AppUiContext)
   // Blocks go in as the editor's starting content, so loading is not an edit.
   const [initialContent] = useState(() => {
     const blocks = recordsToEditor(records, editorBlockTypes)
@@ -80,12 +85,12 @@ function LoadedPageEditor({
   )
 
   useEffect(() => {
-    if (!focusRef) return
-    focusRef.current = () => editor.focus()
+    if (!editorRef) return
+    editorRef.current = { focus: () => editor.focus(), flush: sync.flush }
     return () => {
-      focusRef.current = null
+      editorRef.current = null
     }
-  }, [editor, focusRef])
+  }, [editor, editorRef, sync])
 
   useEffect(() => {
     // Save right away when leaving the page or hiding the tab.
@@ -120,6 +125,40 @@ function LoadedPageEditor({
       })(),
     )
 
+  /** "/ Insert template…": copy a template's blocks in at the cursor. */
+  const insertTemplate = () =>
+    runTask(
+      (async () => {
+        const templateId = await chooseTemplate('insert')
+        if (!templateId) return
+        const records = (await listBlocks(db, templateId)).filter(
+          (b) => b.type !== 'pageLink',
+        )
+        const blocks = withoutIds(recordsToEditor(records, editorBlockTypes))
+        if (blocks.length === 0) return
+
+        const current = editor.getTextCursorPosition().block
+        const emptyLine =
+          current.type === 'paragraph' &&
+          Array.isArray(current.content) &&
+          current.content.length === 0
+        if (emptyLine) editor.replaceBlocks([current], blocks)
+        else editor.insertBlocks(blocks, current, 'after')
+        toast('Template inserted')
+      })(),
+    )
+
+  /** "/ Save page as template": save latest edits first. */
+  const saveAsTemplate = onSaveAsTemplate
+    ? () =>
+        runTask(
+          (async () => {
+            await sync.flush()
+            onSaveAsTemplate()
+          })(),
+        )
+    : undefined
+
   return (
     <EditorContext value={{ db, openPage: onOpenPage }}>
       <BlockNoteView
@@ -132,7 +171,11 @@ function LoadedPageEditor({
           triggerCharacter="/"
           getItems={async (query) =>
             filterSuggestionItems(
-              buildSlashMenuItems(editor, newSubPage),
+              buildSlashMenuItems(editor, {
+                onNewSubPage: newSubPage,
+                onInsertTemplate: insertTemplate,
+                onSaveAsTemplate: saveAsTemplate,
+              }),
               query,
             )
           }

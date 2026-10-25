@@ -92,6 +92,8 @@ export async function createPage(
   notebookId: string,
   parentId: string | null = null,
   title = '', // empty: the UI shows an "Untitled" placeholder
+  /** Optional journal/template markers (see Page). */
+  extra: Pick<Page, 'journalDate' | 'journalMonth' | 'templateRole'> = {},
 ): Promise<Page> {
   return db.transaction('rw', db.notebooks, db.pages, async () => {
     await getLive(db.notebooks, notebookId)
@@ -106,6 +108,7 @@ export async function createPage(
         siblings.map((p) => p.order),
         siblings.length,
       ),
+      ...extra,
     }
     await db.pages.add(page)
     return page
@@ -179,10 +182,14 @@ export async function deletePage(
 ): Promise<void> {
   await db.transaction('rw', db.pages, db.blocks, async () => {
     const page = await getLive(db.pages, id)
-    const deletedAt = Date.now()
-
     const pages = await livePages(db, page.notebookId)
     const pageIds = [id, ...descendantIds(pages, id)]
+    if (
+      pages.some((p) => pageIds.includes(p.id) && p.templateRole === 'daily')
+    ) {
+      throw new Error('The Daily journal template is protected')
+    }
+    const deletedAt = Date.now()
     const blockIds = (await db.blocks.where('pageId').anyOf(pageIds).toArray())
       .filter(isLive)
       .map((b) => b.id)

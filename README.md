@@ -32,9 +32,17 @@ For anyone in any field (writers, vloggers, learners, philosophers, technicians,
 - Themes: Day, Night, Sepia (remembered, editor included)
 - Keyboard shortcuts (below)
 
+## Phase 2 Features — Learning Daily Journal + Templates (complete)
+
+- **Today** button (and `Alt+T`): opens today's journal page, creating it from the "Daily journal" template. Journal pages live in a "Journal" notebook, grouped by month, newest first.
+- **Templates** section in the sidebar: templates are normal pages you edit like any page. Five starter templates (Daily journal, Study notes, Meeting notes, Reading notes, Project plan). "Daily journal" is protected (edit or rename, not delete).
+- **New page from a template:** the notebook/page "+" opens a small menu (Blank page / From template…), or "New page from this template" on a template.
+- **"/" menu:** "Insert template…" (adds a template's blocks at the cursor) and "Save page as template".
+- **Page action bar** (top right): Save as template; Import and Export shown as "coming soon" (Phase 6).
+
 ## Roadmap (likely, not final — may change)
 
-2. Learning Daily Journal + Templates
+2. Learning Daily Journal + Templates — done
 3. Recall & Spaced Repetition
 4. Organisation & Connection (tags, links, search, history — including page version history)
 5. Databases & interactive blocks
@@ -64,6 +72,8 @@ Everything beyond Phase 1. In particular: AI features, accounts/cloud sync, iOS 
 | `src/editor/`    | BlockNote integration: mapping (only file that knows BlockNote's format), change detection, autosave, schema, slash menu, custom blocks |
 | `src/blocks/`    | Built-in block type definitions                                                                                                         |
 | `src/trash/`     | Trash service and sidebar section                                                                                                       |
+| `src/journal/`   | Daily journal service and date helpers                                                                                                  |
+| `src/templates/` | Template service, starter templates, template picker, Templates section                                                                 |
 | `src/app/`       | App-wide pieces: preferences, themes, small UI components                                                                               |
 
 Business logic (services) has no UI code, so it can be reused later (e.g. iOS). Tests sit next to the code as `*.test.ts`.
@@ -74,6 +84,7 @@ Business logic (services) has no UI code, so it can be reused later (e.g. iOS). 
 | --------------------------------------------------- | ---------------------------------------------------------------- |
 | `Alt+N` (`Option+N` on Mac)                         | New page in the current notebook                                 |
 | `Alt+Shift+N`                                       | New sub-page of the open page                                    |
+| `Alt+T` (`Option+T` on Mac)                         | Open today's journal page                                        |
 | `Enter` in a page title                             | Jump into the page content                                       |
 | Double-click a notebook or page name in the sidebar | Rename it (`Enter` saves, `Esc` cancels)                         |
 | `/` in the editor                                   | Block menu (try `/todo`, `/callout`, `/page` for a new sub-page) |
@@ -84,7 +95,7 @@ Business logic (services) has no UI code, so it can be reused later (e.g. iOS). 
 
 ## Project Status
 
-**Current phase:** Phase 1 — complete (all automated and browser checks passed, 2026-10-25)
+**Current phase:** Phase 2 — complete (automated checks passed; owner visual checks pending). Phase 1 complete 2026-10-25.
 
 | Step                                                    | Status |
 | ------------------------------------------------------- | ------ |
@@ -98,6 +109,8 @@ Business logic (services) has no UI code, so it can be reused later (e.g. iOS). 
 | 6c. UI: slash menu (callout, new sub-page link)         | Done   |
 | 6d. Trash (restore, delete forever)                     | Done   |
 | 7. Docs + final checks                                  | Done   |
+| Extra: Move a sub-page to the top level                 | Done   |
+| Phase 2: Journal, templates, page action bar            | Done   |
 
 ## Decision Log
 
@@ -125,6 +138,10 @@ Business logic (services) has no UI code, so it can be reused later (e.g. iOS). 
 | 2026-10-25 | Git (local) with a commit after each step; LF line endings via `.gitattributes`                                                           | Any step can be undone; consistent files across systems       |
 | 2026-10-25 | Playwright end-to-end tests (Chromium only) for user flows; Trash browser checks automated                                                | Claude tests the UI itself; fewer manual checks               |
 | 2026-10-25 | Workflow: questions up front, Claude builds and tests everything, one final report with visual checks                                     | Faster steps, less back-and-forth                             |
+| 2026-10-25 | Journal = a special notebook (`kind: 'journal'`); day pages under month pages, newest first                                               | Reuses pages; tidy after hundreds of days                     |
+| 2026-10-25 | Templates = normal pages in a hidden "Templates" notebook, shown in their own section; using one copies its blocks (new ids)              | Edit templates like pages; no new storage                     |
+| 2026-10-25 | Five general starter templates, created once; "Daily journal" protected                                                                   | Useful from day one for any field; Today always works         |
+| 2026-10-25 | "+" opens Blank page / From template; page action bar with Save as template (Import/Export coming in Phase 6)                             | One tidy button; actions clearly visible                      |
 
 ## Known Limitations
 
@@ -132,5 +149,6 @@ Business logic (services) has no UI code, so it can be reused later (e.g. iOS). 
 - **Desktop only for now:** the sidebar has a fixed width; there is no phone layout yet.
 - **Images by URL only:** there is no upload or image storage yet.
 - **Pages can't be dragged** in the sidebar tree (notebooks can).
-- **End-to-end tests cover Trash and moving pages so far:** other UI flows are still checked by hand; new features get Playwright tests as they are built.
+- **Journal titles are English** ("Sunday 25 October 2026"); other languages later.
+- **End-to-end tests cover Trash, moving pages, journal and templates so far:** other UI flows are still checked by hand; new features get Playwright tests as they are built.
 - **First load size:** the editor library makes the app about 1.3 MB (≈400 KB compressed). Fine on localhost; can be split up before hosting.

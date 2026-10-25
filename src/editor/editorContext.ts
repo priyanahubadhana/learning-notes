@@ -8,3 +8,10 @@ export interface EditorAppContext {
 }
 
 export const EditorContext = createContext<EditorAppContext | null>(null)
+
+/** What the page around the editor can ask it to do. */
+export interface EditorApi {
+  focus: () => void
+  /** Saves pending edits now (e.g. before "Save as template"). */
+  flush: () => Promise<void>
+}

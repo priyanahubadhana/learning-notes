@@ -6,6 +6,7 @@ import type { TreeState } from '../app/useTreeState'
 import type { LearningNotesDB } from '../core/db'
 import { descendantIds } from '../core/records'
 import type { Page } from '../core/types'
+import { shortDayLabel } from '../journal/dates'
 import { listPages, movePageToTopLevel, renamePage } from './pageService'
 
 interface PageTreeProps {
@@ -13,8 +14,11 @@ interface PageTreeProps {
   notebookId: string
   currentPageId: string | null
   tree: TreeState
+  /** Journal notebook: newest first, short date labels, no add/move. */
+  journal?: boolean
   onOpen: (pageId: string) => void
-  onAddSubPage: (parentId: string) => void
+  /** `anchor`: the + button's position, for the Blank/Template menu. */
+  onAddSubPage: (parentId: string, anchor: DOMRect) => void
   /** `affectsCurrent`: the open page is this page or inside it. */
   onRequestDelete: (page: Page, affectsCurrent: boolean) => void
 }
@@ -25,6 +29,7 @@ export function PageTree({
   notebookId,
   currentPageId,
   tree,
+  journal = false,
   onOpen,
   onAddSubPage,
   onRequestDelete,
@@ -38,6 +43,13 @@ export function PageTree({
     const list = childrenOf.get(page.parentId) ?? []
     list.push(page)
     childrenOf.set(page.parentId, list)
+  }
+  if (journal) {
+    // Newest month and day first ("YYYY-MM(-DD)" keys sort as text).
+    const key = (p: Page) => p.journalDate ?? p.journalMonth ?? ''
+    for (const list of childrenOf.values()) {
+      list.sort((a, b) => (key(a) < key(b) ? 1 : key(a) > key(b) ? -1 : 0))
+    }
   }
 
   const renderLevel = (parentId: string | null, depth: number): ReactNode =>
@@ -80,11 +92,13 @@ export function PageTree({
                 onDoubleClick={() => setRenamingId(page.id)}
                 className="flex-1 truncate text-left"
               >
-                {page.title || 'Untitled'}
+                {page.journalDate
+                  ? shortDayLabel(page.journalDate)
+                  : page.title || 'Untitled'}
               </button>
             )}
             <span className="flex opacity-0 group-focus-within:opacity-100 group-hover:opacity-100">
-              {page.parentId !== null && (
+              {!journal && page.parentId !== null && (
                 <IconButton
                   title="Move to top level"
                   onClick={() => runTask(movePageToTopLevel(db, page.id))}
@@ -92,12 +106,19 @@ export function PageTree({
                   ↰
                 </IconButton>
               )}
-              <IconButton
-                title="Add sub-page"
-                onClick={() => onAddSubPage(page.id)}
-              >
-                +
-              </IconButton>
+              {!journal && (
+                <IconButton
+                  title="Add sub-page"
+                  onClick={(e) =>
+                    onAddSubPage(
+                      page.id,
+                      e.currentTarget.getBoundingClientRect(),
+                    )
+                  }
+                >
+                  +
+                </IconButton>
+              )}
               <IconButton
                 title="Delete page"
                 onClick={() => onRequestDelete(page, affectsCurrent)}

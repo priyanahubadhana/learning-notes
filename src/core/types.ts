@@ -51,6 +51,12 @@ export interface Notebook extends BaseRecord {
   title: string
   /** Position among sibling notebooks (lower comes first). */
   order: OrderKey
+  /**
+   * Special notebooks: 'journal' holds daily pages (by month); 'templates'
+   * holds template pages and is shown in its own sidebar section.
+   * Unset = a normal notebook.
+   */
+  kind?: 'journal' | 'templates'
 }
 
 /** A page lives in a notebook and can nest under another page. */
@@ -61,6 +67,12 @@ export interface Page extends BaseRecord {
   title: string
   /** Position among sibling pages (lower comes first). */
   order: OrderKey
+  /** Journal day page: its local date, "YYYY-MM-DD". */
+  journalDate?: string
+  /** Journal month page: its month, "YYYY-MM". */
+  journalMonth?: string
+  /** 'daily': the protected template that fills new journal days. */
+  templateRole?: 'daily'
 }
 
 /**

@@ -22,7 +22,10 @@ export async function getNotebook(
   return notebook && isLive(notebook) ? notebook : undefined
 }
 
-/** Lists the live notebooks in a workspace, in display order. */
+/**
+ * Lists the live notebooks in a workspace, in display order. The Templates
+ * notebook is left out (it has its own sidebar section).
+ */
 export async function listNotebooks(
   db: LearningNotesDB,
   workspaceId: string,
@@ -31,7 +34,20 @@ export async function listNotebooks(
     .where('workspaceId')
     .equals(workspaceId)
     .toArray()
-  return all.filter(isLive).sort(byOrder)
+  return all.filter((n) => isLive(n) && n.kind !== 'templates').sort(byOrder)
+}
+
+/** Finds the live notebook of a special kind (journal or templates). */
+export async function findNotebookOfKind(
+  db: LearningNotesDB,
+  workspaceId: string,
+  kind: NonNullable<Notebook['kind']>,
+): Promise<Notebook | undefined> {
+  const all = await db.notebooks
+    .where('workspaceId')
+    .equals(workspaceId)
+    .toArray()
+  return all.filter((n) => isLive(n) && n.kind === kind).sort(byOrder)[0]
 }
 
 /** Creates a notebook at the end of the list. */
@@ -39,6 +55,7 @@ export async function createNotebook(
   db: LearningNotesDB,
   workspaceId: string,
   title = 'Untitled',
+  kind?: Notebook['kind'],
 ): Promise<Notebook> {
   return db.transaction('rw', db.workspaces, db.notebooks, async () => {
     await getLive(db.workspaces, workspaceId)
@@ -48,6 +65,7 @@ export async function createNotebook(
       workspaceId,
       title,
       order: orderBetween(last?.order ?? null, null),
+      ...(kind && { kind }),
     }
     await db.notebooks.add(notebook)
     return notebook

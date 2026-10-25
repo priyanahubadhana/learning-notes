@@ -12,13 +12,22 @@ const EXTRA_ALIASES: Record<string, string[]> = {
   'Check List': ['todo', 'to-do', 'task', 'checkbox'],
 }
 
+/** App actions the "/" menu can trigger. */
+export interface SlashMenuActions {
+  onNewSubPage: () => void
+  onInsertTemplate: () => void
+  /** Left out of the menu when undefined (e.g. on template pages). */
+  onSaveAsTemplate?: () => void
+}
+
 /**
  * Items for the "/" menu: BlockNote's defaults for our block types (it only
- * offers types in our schema), plus Callout and "New sub-page".
+ * offers types in our schema), plus Callout, template actions and
+ * "New sub-page".
  */
 export function buildSlashMenuItems(
   editor: Editor,
-  onNewSubPage: () => void,
+  { onNewSubPage, onInsertTemplate, onSaveAsTemplate }: SlashMenuActions,
 ): DefaultReactSuggestionItem[] {
   const items = getDefaultReactSlashMenuItems(editor).map((item) => {
     const extra = EXTRA_ALIASES[item.title]
@@ -40,6 +49,24 @@ export function buildSlashMenuItems(
   }
   items.splice(quoteIndex === -1 ? items.length : quoteIndex + 1, 0, callout)
 
+  items.push({
+    title: 'Insert template…',
+    subtext: 'Add a template’s blocks here',
+    aliases: ['template', 'insert'],
+    group: 'Templates',
+    icon: <span aria-hidden>📋</span>,
+    onItemClick: onInsertTemplate,
+  })
+  if (onSaveAsTemplate) {
+    items.push({
+      title: 'Save page as template',
+      subtext: 'Reuse this page’s layout for new pages',
+      aliases: ['template', 'save'],
+      group: 'Templates',
+      icon: <span aria-hidden>💾</span>,
+      onItemClick: onSaveAsTemplate,
+    })
+  }
   items.push({
     title: 'New sub-page',
     subtext: 'Create a page inside this one and link to it',

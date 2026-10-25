@@ -1,9 +1,21 @@
 import { useLiveQuery } from 'dexie-react-hooks'
-import { Fragment, useEffect, useLayoutEffect, useRef, useState } from 'react'
+import {
+  Fragment,
+  useContext,
+  useEffect,
+  useLayoutEffect,
+  useRef,
+  useState,
+} from 'react'
+import { AppUiContext } from '../app/appUi'
+import { runTask } from '../app/errors'
 import type { LearningNotesDB } from '../core/db'
 import type { Page } from '../core/types'
 import { PageEditor } from '../editor/PageEditor'
+import type { EditorApi } from '../editor/editorContext'
+import { dateKey } from '../journal/dates'
 import { getNotebook } from '../notebooks/notebookService'
+import { saveAsTemplate } from '../templates/templateService'
 import { getPagePath } from './pageService'
 import { createTitleSaver } from './titleSaver'
 
@@ -15,54 +27,115 @@ interface PageViewProps {
   onOpenPage: (pageId: string) => void
   /** Opens a page just created from inside this page. */
   onOpenNewPage: (page: Page) => void
+  /** "New page from this template" (template pages only). */
+  onNewPageFromTemplate: (templateId: string) => void
 }
 
-/** An open page: breadcrumb, title and block editor. */
+/** An open page: breadcrumb, action bar, banner, title and block editor. */
 export function PageView({
   db,
   page,
   autoFocusTitle,
   onOpenPage,
   onOpenNewPage,
+  onNewPageFromTemplate,
 }: PageViewProps) {
+  const { toast } = useContext(AppUiContext)
   const path = useLiveQuery(() => getPagePath(db, page.id), [db, page.id]) ?? []
   const notebook = useLiveQuery(
     () => getNotebook(db, page.notebookId),
     [db, page.notebookId],
   )
-  const focusEditor = useRef<(() => void) | null>(null)
+  const editor = useRef<EditorApi | null>(null)
+
+  const isTemplate = notebook?.kind === 'templates'
+  const isToday = page.journalDate === dateKey(new Date())
+
+  /** Saves a copy of this page (latest edits included) as a template. */
+  const saveTemplate = () =>
+    runTask(
+      (async () => {
+        if (!notebook) return
+        await editor.current?.flush()
+        const template = await saveAsTemplate(db, notebook.workspaceId, page.id)
+        toast(
+          `Saved “${template.title}” as a template. Find it under Templates.`,
+        )
+      })(),
+    )
 
   return (
-    <div className="mx-auto max-w-[720px] px-14 pt-[72px] pb-[200px]">
-      <nav
-        aria-label="Breadcrumb"
-        className="mb-7 flex min-h-5 flex-wrap items-center gap-1 text-xs leading-5 text-muted"
-      >
-        <span>{notebook?.title}</span>
-        {path.map((p, i) => (
-          <Fragment key={p.id}>
-            <span>/</span>
-            {i < path.length - 1 ? (
-              <button
-                type="button"
-                onClick={() => onOpenPage(p.id)}
-                className="leading-5 hover:text-ink"
-              >
-                {p.title || 'Untitled'}
-              </button>
-            ) : (
-              <span>{p.title || 'Untitled'}</span>
-            )}
-          </Fragment>
-        ))}
-      </nav>
+    <div className="mx-auto max-w-[720px] px-14 pt-[64px] pb-[200px]">
+      <div className="mb-6 flex flex-wrap items-center gap-2">
+        <nav
+          aria-label="Breadcrumb"
+          className="flex min-h-5 flex-1 flex-wrap items-center gap-1 text-xs leading-5 text-muted"
+        >
+          <span>{notebook?.title}</span>
+          {path.map((p, i) => (
+            <Fragment key={p.id}>
+              <span>/</span>
+              {i < path.length - 1 ? (
+                <button
+                  type="button"
+                  onClick={() => onOpenPage(p.id)}
+                  className="leading-5 hover:text-ink"
+                >
+                  {p.title || 'Untitled'}
+                </button>
+              ) : (
+                <span>{p.title || 'Untitled'}</span>
+              )}
+            </Fragment>
+          ))}
+        </nav>
+        <div role="toolbar" aria-label="Page actions" className="flex gap-1.5">
+          {notebook && !isTemplate && (
+            <ActionButton icon="📋" onClick={saveTemplate}>
+              Save as template
+            </ActionButton>
+          )}
+          <ActionButton icon="⤓" soon>
+            Import
+          </ActionButton>
+          <ActionButton icon="⤒" soon>
+            Export
+          </ActionButton>
+        </div>
+      </div>
+
+      {isTemplate && (
+        <Banner icon="📋">
+          <span className="min-w-[160px] flex-1">
+            <b className="font-semibold text-ink">Template.</b> New pages copy
+            this. Editing it doesn’t change pages you already made.
+          </span>
+          <button
+            type="button"
+            onClick={() => onNewPageFromTemplate(page.id)}
+            className="rounded-lg bg-accent px-3 py-1.5 text-[13px] text-white hover:opacity-90"
+          >
+            New page from this template
+          </button>
+        </Banner>
+      )}
+      {isToday && (
+        <Banner icon="☀">
+          <span className="flex-1">
+            <b className="font-semibold text-ink">Today’s journal</b>, made from
+            your “Daily journal” template. Edit that template to change future
+            days.
+          </span>
+        </Banner>
+      )}
+
       <TitleInput
         key={page.id}
         db={db}
         pageId={page.id}
         savedTitle={page.title}
         autoFocus={autoFocusTitle}
-        onEnter={() => focusEditor.current?.()}
+        onEnter={() => editor.current?.focus()}
       />
       <PageEditor
         db={db}
@@ -70,8 +143,55 @@ export function PageView({
         notebookId={page.notebookId}
         onOpenPage={onOpenPage}
         onOpenNewPage={onOpenNewPage}
-        focusRef={focusEditor}
+        onSaveAsTemplate={notebook && !isTemplate ? saveTemplate : undefined}
+        editorRef={editor}
       />
+    </div>
+  )
+}
+
+/** Button in the page action bar; `soon` = shown but disabled. */
+function ActionButton({
+  icon,
+  soon = false,
+  onClick,
+  children,
+}: {
+  icon: string
+  soon?: boolean
+  onClick?: () => void
+  children: string
+}) {
+  return (
+    <button
+      type="button"
+      onClick={onClick}
+      disabled={soon}
+      title={soon ? 'Coming soon (Phase 6: data safety and export)' : undefined}
+      className="inline-flex items-center gap-1.5 rounded-lg border border-line bg-bg px-2.5 py-1.5 text-[13px] leading-none transition-colors enabled:hover:border-accent enabled:hover:text-accent disabled:cursor-not-allowed disabled:text-muted"
+    >
+      <span aria-hidden>{icon}</span>
+      {children}
+      {soon && (
+        <span className="rounded-full bg-soft px-1.5 py-0.5 text-[10px] tracking-[0.06em] uppercase">
+          Soon
+        </span>
+      )}
+    </button>
+  )
+}
+
+function Banner({
+  icon,
+  children,
+}: {
+  icon: string
+  children: React.ReactNode
+}) {
+  return (
+    <div className="mb-5 flex flex-wrap items-center gap-2.5 rounded-[10px] bg-soft px-3.5 py-2.5 text-[13px] text-muted">
+      <span aria-hidden>{icon}</span>
+      {children}
     </div>
   )
 }

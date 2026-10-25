@@ -54,6 +54,90 @@ export function RenameInput({
   )
 }
 
+export interface MenuItem {
+  label: string
+  icon: string
+  onSelect: () => void
+}
+
+/**
+ * Small menu that opens below a button (`anchor` is the button's position).
+ * Closes on outside click, Esc, or choosing an item.
+ */
+export function MenuPopover({
+  anchor,
+  items,
+  onClose,
+}: {
+  anchor: DOMRect
+  items: MenuItem[]
+  onClose: () => void
+}) {
+  const ref = useRef<HTMLDivElement>(null)
+  const close = useRef(onClose)
+  useEffect(() => {
+    close.current = onClose
+  })
+
+  useEffect(() => {
+    ref.current?.querySelector('button')?.focus()
+    const onDown = (e: MouseEvent) => {
+      if (!ref.current?.contains(e.target as Node)) close.current()
+    }
+    const onKey = (e: KeyboardEvent) => {
+      if (e.key === 'Escape') close.current()
+    }
+    document.addEventListener('mousedown', onDown)
+    document.addEventListener('keydown', onKey)
+    return () => {
+      document.removeEventListener('mousedown', onDown)
+      document.removeEventListener('keydown', onKey)
+    }
+  }, [])
+
+  return (
+    <div
+      ref={ref}
+      role="menu"
+      style={{
+        left: Math.min(anchor.left, window.innerWidth - 230),
+        top: Math.min(anchor.bottom + 6, window.innerHeight - 110),
+      }}
+      className="fixed z-20 w-52 rounded-[10px] border border-line bg-bg p-1.5 text-ink shadow-[0_12px_32px_rgba(0,0,0,0.14)]"
+    >
+      {items.map((item) => (
+        <button
+          key={item.label}
+          type="button"
+          role="menuitem"
+          onClick={() => {
+            onClose()
+            item.onSelect()
+          }}
+          className="flex w-full items-center gap-2.5 rounded-md px-2.5 py-1.5 text-left text-sm outline-none hover:bg-hover focus:bg-hover"
+        >
+          <span aria-hidden className="w-5 text-center text-muted">
+            {item.icon}
+          </span>
+          {item.label}
+        </button>
+      ))}
+    </div>
+  )
+}
+
+/** Short message at the bottom of the screen (render it only while shown). */
+export function Toast({ message }: { message: string }) {
+  return (
+    <div
+      role="status"
+      className="fixed bottom-5 left-1/2 z-40 max-w-[calc(100vw-32px)] -translate-x-1/2 rounded-[10px] bg-ink px-3.5 py-2 text-[13px] text-bg shadow-[0_8px_24px_rgba(0,0,0,0.14)]"
+    >
+      {message}
+    </div>
+  )
+}
+
 interface ConfirmDialogProps {
   message: string
   confirmLabel: string

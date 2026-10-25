@@ -1,4 +1,5 @@
 import type { LearningNotesDB } from './db'
+import { createId } from './ids'
 import { byOrder, orderAtIndex } from './order'
 import {
   descendantIds,
@@ -176,6 +177,45 @@ export async function saveBlockChanges(
       .filter((b): b is Block => !!b && isLive(b) && b.pageId === pageId)
       .map((b) => b.id)
     await softDeleteMany(db.blocks, toDelete, now)
+  })
+}
+
+/**
+ * Copies all live blocks of one page onto another (e.g. from a template).
+ * Copies get new ids; nesting and order are kept. Blocks of `skipTypes`
+ * (and anything nested inside them) are left out.
+ */
+export async function copyBlocks(
+  db: LearningNotesDB,
+  fromPageId: string,
+  toPageId: string,
+  skipTypes: readonly string[] = [],
+): Promise<void> {
+  await db.transaction('rw', db.pages, db.blocks, async () => {
+    await getLive(db.pages, toPageId)
+    const source = await listBlocks(db, fromPageId)
+    const skipped = new Set(
+      source.filter((b) => skipTypes.includes(b.type)).map((b) => b.id),
+    )
+    for (const id of [...skipped]) {
+      descendantIds(source, id).forEach((d) => skipped.add(d))
+    }
+
+    const newIds = new Map(source.map((b) => [b.id, createId()]))
+    const now = Date.now()
+    const copies = source
+      .filter((b) => !skipped.has(b.id))
+      .map((b): Block => ({
+        ...b,
+        id: newIds.get(b.id)!,
+        pageId: toPageId,
+        parentId: b.parentId === null ? null : (newIds.get(b.parentId) ?? null),
+        content: structuredClone(b.content),
+        createdAt: now,
+        updatedAt: now,
+        deletedAt: null,
+      }))
+    await db.blocks.bulkAdd(copies)
   })
 }
 

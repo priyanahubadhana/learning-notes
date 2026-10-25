@@ -1,7 +1,14 @@
 import { describe, expect, it } from 'vitest'
 import { assignOrders } from '../core/order'
 import type { Block, JsonObject } from '../core/types'
-import { editorToDrafts, recordsToEditor, type EditorBlock } from './mapping'
+import {
+  editorToDrafts,
+  plainText,
+  recordsToEditor,
+  toPlainText,
+  withoutIds,
+  type EditorBlock,
+} from './mapping'
 
 const T = 1_700_000_000_000
 const supported = new Set(['paragraph', 'heading', 'image', 'checkListItem'])
@@ -74,6 +81,30 @@ describe('editorToDrafts', () => {
         content: { url: 'pic.png', caption: '' },
       },
     ])
+  })
+})
+
+describe('text helpers', () => {
+  it('plainText and toPlainText round-trip', () => {
+    expect(toPlainText({ text: plainText('Hello') })).toBe('Hello')
+    expect(plainText('')).toEqual([])
+    expect(toPlainText({ url: 'x' })).toBe('')
+  })
+
+  it('withoutIds strips ids at every level', () => {
+    const blocks = recordsToEditor(
+      [
+        record('a', 'paragraph', { text: [] }, null, 'a0'),
+        record('b', 'paragraph', { text: [] }, 'a', 'a0'),
+      ],
+      supported,
+    )
+    const stripped = withoutIds(blocks) as unknown as {
+      id?: string
+      children: { id?: string }[]
+    }[]
+    expect(stripped[0].id).toBeUndefined()
+    expect(stripped[0].children[0].id).toBeUndefined()
   })
 })
 

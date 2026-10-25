@@ -1,13 +1,16 @@
-import { useState, type DragEvent } from 'react'
+import { useContext, useState, type DragEvent } from 'react'
+import { AppUiContext } from '../app/appUi'
 import { runTask } from '../app/errors'
 import { THEMES, THEME_LABELS, type Theme } from '../app/theme'
-import { ConfirmDialog, IconButton, RenameInput } from '../app/ui'
+import { ConfirmDialog, IconButton, MenuPopover, RenameInput } from '../app/ui'
 import type { TreeState } from '../app/useTreeState'
 import type { LearningNotesDB } from '../core/db'
 import type { Notebook, Page } from '../core/types'
+import { dateKey, shortDayLabel } from '../journal/dates'
 import { PageTree } from '../pages/PageTree'
-import { TrashSection } from '../trash/TrashSection'
 import { deletePage } from '../pages/pageService'
+import { TemplatesSection } from '../templates/TemplatesSection'
+import { TrashSection } from '../trash/TrashSection'
 import { deleteNotebook, moveNotebook, renameNotebook } from './notebookService'
 
 interface SidebarProps {
@@ -22,8 +25,22 @@ interface SidebarProps {
   renamingNotebookId: string | null
   onRenamingChange: (id: string | null) => void
   onOpenPage: (pageId: string | null) => void
+  onOpenToday: () => void
   onCreateNotebook: () => void
-  onCreatePage: (notebookId: string, parentId: string | null) => void
+  /** `templateId`: copy that template's content into the new page. */
+  onCreatePage: (
+    notebookId: string,
+    parentId: string | null,
+    templateId?: string,
+  ) => void
+  onCreateTemplate: () => void
+}
+
+/** The open "+" menu (Blank page / From template…). */
+interface AddMenu {
+  anchor: DOMRect
+  notebookId: string
+  parentId: string | null
 }
 
 /** A pending delete, waiting for the user to confirm. */
@@ -50,10 +67,29 @@ export function Sidebar({
   renamingNotebookId,
   onRenamingChange,
   onOpenPage,
+  onOpenToday,
   onCreateNotebook,
   onCreatePage,
+  onCreateTemplate,
 }: SidebarProps) {
+  const { chooseTemplate } = useContext(AppUiContext)
   const [pending, setPending] = useState<PendingDelete | null>(null)
+  const [addMenu, setAddMenu] = useState<AddMenu | null>(null)
+
+  const openAddMenu = (
+    anchor: DOMRect,
+    notebookId: string,
+    parentId: string | null,
+  ) => setAddMenu({ anchor, notebookId, parentId })
+
+  const requestTemplateDelete = (template: Page) =>
+    setPending({
+      message: `Delete the template “${template.title || 'Untitled'}”? Pages made from it stay as they are.`,
+      run: async () => {
+        await deletePage(db, template.id)
+        if (currentPage?.id === template.id) onOpenPage(null)
+      },
+    })
   const [dragId, setDragId] = useState<string | null>(null)
   const [dropTarget, setDropTarget] = useState<DropTarget | null>(null)
 
@@ -102,6 +138,21 @@ export function Sidebar({
       <div className="px-2.5 pt-1 pb-3.5 font-semibold tracking-[-0.01em]">
         ◐ Learning Notes
       </div>
+      <button
+        type="button"
+        onClick={onOpenToday}
+        aria-label="Open today’s journal"
+        title="Open today’s journal page (Alt+T)"
+        className="mb-2 flex w-full items-center gap-2 rounded-lg border border-line bg-bg px-2.5 py-1.5 text-left text-sm transition-colors hover:border-accent"
+      >
+        <span aria-hidden>☀</span>
+        <span className="flex-1">
+          Today · {shortDayLabel(dateKey(new Date()))}
+        </span>
+        <kbd className="rounded border border-line bg-side px-1 font-mono text-[11px] text-muted">
+          Alt+T
+        </kbd>
+      </button>
       <div className="flex items-center justify-between px-2.5 pt-2.5 pb-1 text-[11px] tracking-[0.06em] text-muted uppercase">
         Notebooks
         <IconButton title="New notebook" onClick={onCreateNotebook}>
@@ -165,12 +216,20 @@ export function Sidebar({
                   </button>
                 )}
                 <span className="flex opacity-0 group-focus-within:opacity-100 group-hover:opacity-100">
-                  <IconButton
-                    title="Add page"
-                    onClick={() => onCreatePage(notebook.id, null)}
-                  >
-                    +
-                  </IconButton>
+                  {notebook.kind !== 'journal' && (
+                    <IconButton
+                      title="Add page"
+                      onClick={(e) =>
+                        openAddMenu(
+                          e.currentTarget.getBoundingClientRect(),
+                          notebook.id,
+                          null,
+                        )
+                      }
+                    >
+                      +
+                    </IconButton>
+                  )}
                   <IconButton
                     title="Rename"
                     onClick={() => onRenamingChange(notebook.id)}
@@ -191,9 +250,10 @@ export function Sidebar({
                   notebookId={notebook.id}
                   currentPageId={currentPage?.id ?? null}
                   tree={tree}
+                  journal={notebook.kind === 'journal'}
                   onOpen={onOpenPage}
-                  onAddSubPage={(parentId) =>
-                    onCreatePage(notebook.id, parentId)
+                  onAddSubPage={(parentId, anchor) =>
+                    openAddMenu(anchor, notebook.id, parentId)
                   }
                   onRequestDelete={requestPageDelete}
                 />
@@ -201,8 +261,46 @@ export function Sidebar({
             </div>
           )
         })}
+        <TemplatesSection
+          db={db}
+          workspaceId={workspaceId}
+          currentPageId={currentPage?.id ?? null}
+          onOpen={onOpenPage}
+          onCreate={onCreateTemplate}
+          onRequestDelete={requestTemplateDelete}
+        />
         <TrashSection db={db} workspaceId={workspaceId} />
       </nav>
+
+      {addMenu && (
+        <MenuPopover
+          anchor={addMenu.anchor}
+          onClose={() => setAddMenu(null)}
+          items={[
+            {
+              label: 'Blank page',
+              icon: '📄',
+              onSelect: () =>
+                onCreatePage(addMenu.notebookId, addMenu.parentId),
+            },
+            {
+              label: 'From template…',
+              icon: '📋',
+              onSelect: () =>
+                runTask(
+                  chooseTemplate('new').then((templateId) => {
+                    if (templateId === null) return // cancelled
+                    onCreatePage(
+                      addMenu.notebookId,
+                      addMenu.parentId,
+                      templateId || undefined,
+                    )
+                  }),
+                ),
+            },
+          ]}
+        />
+      )}
 
       <div role="group" aria-label="Theme" className="flex gap-1.5 p-2.5">
         {THEMES.map((t) => (

@@ -8,19 +8,47 @@ import {
 } from '../notebooks/notebookService'
 import { createPage, getPage, listChildPages } from '../pages/pageService'
 import { syncCardRecords } from '../recall/cardService'
-import { STARTER_TEMPLATES } from './starterTemplates'
+import {
+  STARTER_VERSION,
+  starterTemplates,
+  type StarterPage,
+} from './starterTemplates'
 
 /**
  * Templates are normal pages inside a special "Templates" notebook, so they
  * are edited like any page. Using a template copies its blocks.
  */
 
-/** Block types never copied from/to templates (links point to one page). */
-const NOT_COPIED = ['pageLink']
+/** Creates one starter page (and its sub-pages) from its definition. */
+async function addStarterPage(
+  db: LearningNotesDB,
+  notebookId: string,
+  parentId: string | null,
+  starter: StarterPage & { role?: 'daily'; children?: StarterPage[] },
+): Promise<string> {
+  const page = await createPage(db, notebookId, parentId, starter.title, {
+    ...(starter.role && { templateRole: starter.role }),
+  })
+  const childIds: string[] = []
+  for (const child of starter.children ?? []) {
+    childIds.push(await addStarterPage(db, notebookId, page.id, child))
+  }
+  for (const block of starter.blocks) {
+    // A link to "child N" (see childLink) points at that sub-page's id.
+    const { childIndex } = block.content
+    const content =
+      typeof childIndex === 'number'
+        ? { pageId: childIds[childIndex] }
+        : block.content
+    await createBlock(db, { pageId: page.id, type: block.type, content })
+  }
+  return page.id
+}
 
 /**
  * Returns the Templates notebook, creating it (with the starter templates)
- * the first time.
+ * the first time. Older workspaces get starters added since their version
+ * once (upgrade), so a deleted starter never comes back.
  */
 export async function ensureTemplates(
   db: LearningNotesDB,
@@ -31,25 +59,57 @@ export async function ensureTemplates(
     [db.workspaces, db.notebooks, db.pages, db.blocks],
     async () => {
       const existing = await findNotebookOfKind(db, workspaceId, 'templates')
-      if (existing) return existing
+      const seeded = existing ? (existing.starterVersion ?? 1) : 0
+      if (existing && seeded >= STARTER_VERSION) return existing
 
-      const notebook = await createNotebook(
-        db,
-        workspaceId,
-        'Templates',
-        'templates',
-      )
-      for (const starter of STARTER_TEMPLATES) {
-        const page = await createPage(db, notebook.id, null, starter.title, {
-          ...(starter.role && { templateRole: starter.role }),
-        })
-        for (const block of starter.blocks) {
-          await createBlock(db, { pageId: page.id, ...block })
+      const notebook =
+        existing ??
+        (await createNotebook(db, workspaceId, 'Templates', 'templates'))
+      for (const starter of starterTemplates()) {
+        if ((starter.since ?? 1) > seeded) {
+          await addStarterPage(db, notebook.id, null, starter)
         }
       }
-      return notebook
+      const changes = { starterVersion: STARTER_VERSION, updatedAt: Date.now() }
+      await db.notebooks.update(notebook.id, changes)
+      return { ...notebook, ...changes }
     },
   )
+}
+
+/**
+ * Copies a page's blocks and its live sub-pages (any depth, keeping their
+ * titles) under a new page. Links to pages inside the copied tree point
+ * at the copies; other page links are left out. With `withCards`,
+ * copied cards get a schedule. Pages made by this copy are never copied
+ * again (the target may sit inside the source's own sub-pages).
+ */
+async function copyPageTree(
+  db: LearningNotesDB,
+  fromPageId: string,
+  toPageId: string,
+  withCards: boolean,
+  made: Set<string> = new Set([toPageId]),
+): Promise<void> {
+  const from = (await getPage(db, fromPageId))!
+  const to = (await getPage(db, toPageId))!
+  const copies = new Map<string, string>() // sub-page id → its copy
+  for (const child of await listChildPages(db, from.notebookId, from.id)) {
+    if (made.has(child.id)) continue
+    const copy = await createPage(db, to.notebookId, to.id, child.title)
+    made.add(copy.id)
+    copies.set(child.id, copy.id)
+  }
+
+  await copyBlocks(db, fromPageId, toPageId, [], (block) => {
+    if (block.type !== 'pageLink') return undefined
+    const target = copies.get(String(block.content.pageId))
+    return target ? { ...block.content, pageId: target } : null
+  })
+  if (withCards) await syncCardRecords(db, toPageId)
+  for (const [childId, copyId] of copies) {
+    await copyPageTree(db, childId, copyId, withCards, made)
+  }
 }
 
 /** Template pages of a workspace, in order. */
@@ -100,7 +160,7 @@ export async function getDailyTemplate(
   )
 }
 
-/** Creates a page whose content is copied from a template. */
+/** Creates a page whose content (and sub-pages) are copied from a template. */
 export async function createPageFromTemplate(
   db: LearningNotesDB,
   notebookId: string,
@@ -115,16 +175,15 @@ export async function createPageFromTemplate(
         throw new Error('Template not found')
       }
       const page = await createPage(db, notebookId, parentId)
-      await copyBlocks(db, templateId, page.id, NOT_COPIED)
-      await syncCardRecords(db, page.id) // copied cards get a schedule
+      await copyPageTree(db, templateId, page.id, true) // cards get a schedule
       return page
     },
   )
 }
 
 /**
- * Saves a copy of a page as a new template (same title and blocks; page
- * links are left out). Returns the new template.
+ * Saves a copy of a page as a new template (same title, blocks and
+ * sub-pages; page links are left out). Returns the new template.
  */
 export async function saveAsTemplate(
   db: LearningNotesDB,
@@ -144,7 +203,7 @@ export async function saveAsTemplate(
         null,
         page.title || 'Untitled',
       )
-      await copyBlocks(db, pageId, template.id, NOT_COPIED)
+      await copyPageTree(db, pageId, template.id, false)
       return template
     },
   )

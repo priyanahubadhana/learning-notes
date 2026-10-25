@@ -24,6 +24,8 @@ test('starter templates are listed; Daily journal cannot be deleted', async ({
       'Meeting notes',
       'Reading notes',
       'Project plan',
+      'Lesson',
+      'Lesson (large topic)',
     ])
   await row(page, 'Daily journal').hover()
   await expect(

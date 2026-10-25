@@ -57,6 +57,11 @@ export interface Notebook extends BaseRecord {
    * Unset = a normal notebook.
    */
   kind?: 'journal' | 'templates'
+  /**
+   * Templates notebook only: the starter-template version already added
+   * (unset = 1). Newer starters are added once when this is lower.
+   */
+  starterVersion?: number
 }
 
 /** A page lives in a notebook and can nest under another page. */

@@ -183,19 +183,26 @@ export async function saveBlockChanges(
 /**
  * Copies all live blocks of one page onto another (e.g. from a template).
  * Copies get new ids; nesting and order are kept. Blocks of `skipTypes`
- * (and anything nested inside them) are left out.
+ * (and anything nested inside them) are left out. `rewrite` can change a
+ * block's content (return new content) or leave it out (return null).
  */
 export async function copyBlocks(
   db: LearningNotesDB,
   fromPageId: string,
   toPageId: string,
   skipTypes: readonly string[] = [],
+  rewrite: (block: Block) => JsonObject | null | undefined = () => undefined,
 ): Promise<void> {
   await db.transaction('rw', db.pages, db.blocks, async () => {
     await getLive(db.pages, toPageId)
     const source = await listBlocks(db, fromPageId)
+    const contents = new Map(source.map((b) => [b.id, rewrite(b)]))
     const skipped = new Set(
-      source.filter((b) => skipTypes.includes(b.type)).map((b) => b.id),
+      source
+        .filter(
+          (b) => skipTypes.includes(b.type) || contents.get(b.id) === null,
+        )
+        .map((b) => b.id),
     )
     for (const id of [...skipped]) {
       descendantIds(source, id).forEach((d) => skipped.add(d))
@@ -210,7 +217,7 @@ export async function copyBlocks(
         id: newIds.get(b.id)!,
         pageId: toPageId,
         parentId: b.parentId === null ? null : (newIds.get(b.parentId) ?? null),
-        content: structuredClone(b.content),
+        content: structuredClone(contents.get(b.id) ?? b.content),
         createdAt: now,
         updatedAt: now,
         deletedAt: null,

@@ -7,6 +7,15 @@
  * language needs), then call `t('key', { count })`.
  */
 export const en = {
+  // Starter templates (text is copied into the user's notes once)
+  'templates.lesson': 'Lesson',
+  'templates.lessonLarge': 'Lesson (large topic)',
+  'templates.lesson.notes': 'Detailed notes',
+  'templates.lesson.summary': 'Keyword summary',
+  'templates.lesson.cards': 'Flashcards',
+  'templates.lesson.overview': 'Overview',
+  'templates.lesson.allCards': 'All cards',
+
   // Settings screen
   'settings.title': 'Settings',
   'settings.search': 'Search all settings',

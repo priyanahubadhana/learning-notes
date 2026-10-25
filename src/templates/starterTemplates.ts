@@ -1,5 +1,6 @@
 import type { JsonObject } from '../core/types'
 import { plainText } from '../editor/mapping'
+import { t } from '../i18n/t'
 
 /**
  * Starter templates, created once per workspace. General building blocks
@@ -11,12 +12,24 @@ export interface StarterBlock {
   type: string
   content: JsonObject
 }
-export interface StarterTemplate {
+export interface StarterPage {
   title: string
-  /** 'daily' marks the protected template that fills new journal days. */
-  role?: 'daily'
   blocks: StarterBlock[]
 }
+export interface StarterTemplate extends StarterPage {
+  /** 'daily' marks the protected template that fills new journal days. */
+  role?: 'daily'
+  /** Starter version that added this template (unset = 1, the originals). */
+  since?: number
+  /** Sub-pages, copied along with the template. */
+  children?: StarterPage[]
+}
+
+/**
+ * Bump when adding starter templates (and set their `since`). Existing
+ * workspaces get the new ones once; deleted ones never come back.
+ */
+export const STARTER_VERSION = 2
 
 const heading = (text: string): StarterBlock => ({
   type: 'heading',
@@ -42,8 +55,19 @@ const callout = (text: string): StarterBlock => ({
   type: 'callout',
   content: { emoji: '💡', text: plainText(text) },
 })
+/** Live list of the page's cards (and its sub-pages' with includeSubpages). */
+const cardList = (includeSubpages = false): StarterBlock => ({
+  type: 'cardList',
+  content: { includeSubpages },
+})
+/** Link to the template's sub-page number `childIndex` (set when seeding). */
+const childLink = (childIndex: number): StarterBlock => ({
+  type: 'pageLink',
+  content: { childIndex },
+})
 
-export const STARTER_TEMPLATES: StarterTemplate[] = [
+/** Built when seeding, so titles use the language active at that time. */
+export const starterTemplates = (): StarterTemplate[] => [
   {
     title: 'Daily journal',
     role: 'daily',
@@ -107,6 +131,36 @@ export const STARTER_TEMPLATES: StarterTemplate[] = [
       bullet(),
       heading('Next step'),
       todo(),
+    ],
+  },
+  {
+    title: t('templates.lesson'),
+    since: 2,
+    blocks: [
+      heading(t('templates.lesson.notes')),
+      paragraph(),
+      heading(t('templates.lesson.summary')),
+      bullet(),
+      heading(t('templates.lesson.cards')),
+      cardList(),
+    ],
+  },
+  {
+    title: t('templates.lessonLarge'),
+    since: 2,
+    blocks: [
+      heading(t('templates.lesson.overview')),
+      paragraph(),
+      childLink(0),
+      childLink(1),
+      childLink(2),
+      heading(t('templates.lesson.allCards')),
+      cardList(true),
+    ],
+    children: [
+      { title: t('templates.lesson.notes'), blocks: [paragraph()] },
+      { title: t('templates.lesson.summary'), blocks: [bullet()] },
+      { title: t('templates.lesson.cards'), blocks: [cardList()] },
     ],
   },
 ]

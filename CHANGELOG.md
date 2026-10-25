@@ -151,3 +151,9 @@
 - **What:** Parked ideas: handwriting ink block, Anki .apkg import/export, multiple languages.
 - **Why:** Owner ideas for later phases; kept out of Phase 3.
 - **Files:** IDEAS.md, CHANGELOG.md
+
+## 2026-10-25
+
+- **What:** New rules: `t()` translation keys for all new UI text; new screens responsive and touch-friendly. Parked: converting Phase 1–2 text, full phone/tablet layout (before hosting).
+- **Why:** Owner approved; app is meant to be global and multi-platform.
+- **Files:** CLAUDE.md, IDEAS.md, CHANGELOG.md

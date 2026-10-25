@@ -57,6 +57,8 @@
 - Prettier formatting.
 - Folders grouped by feature (e.g. `core/`, `notebooks/`, `pages/`, `editor/`, `blocks/`, `trash/`, `journal/`, `templates/`, `app/`; see README "Project Structure").
 - Clear, commented, production-quality code.
+- No hard-coded user-facing text (from Phase 3): use `t("key")` backed by one English strings file; dates/numbers via `Intl`. Phase 1–2 text is converted later (see IDEAS.md).
+- New screens are responsive and touch-friendly (large tap targets, no hover-only actions).
 
 ## Testing Requirements
 

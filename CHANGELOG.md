@@ -102,10 +102,16 @@
 
 ## 2026-10-25
 
-- **What:** Phase 1 signed off. Owner passed all Trash browser checks (restore page with sub-pages, delete forever with confirm, restore whole notebook, restore a page whose notebook was in Trash). README status updated.
+- **What:** Phase 1 signed off (Git snapshot `80f6bb9`). Owner passed all Trash browser checks (restore page with sub-pages, delete forever with confirm, restore whole notebook, restore a page whose notebook was in Trash). README status updated.
 - **Why:** Record that Phase 1 is complete.
 - **Files:** README.md, CHANGELOG.md
 - **Files:** package.json, package-lock.json, src/editor/{codeBlockKeys.ts, codeBlockKeys.test.ts, slashMenu.tsx, slashMenu.test.ts, PageLinkView.tsx, editorContext.ts, schema.tsx, PageEditor.tsx}, src/blocks/{builtinBlockTypes.ts, blockTypes.test.ts}, src/pages/PageView.tsx, src/App.tsx, README.md, CHANGELOG.md
 - **Files:** index.html, src/index.css, src/App.tsx, src/app/{theme.ts, theme.test.ts, themeContext.ts}, src/notebooks/Sidebar.tsx, src/editor/PageEditor.tsx, README.md, CHANGELOG.md
 - **Files:** package.json, package-lock.json, index.html, src/index.css, src/App.tsx, src/app/{errors.ts, ui.tsx, uiPrefs.ts, uiPrefs.test.ts, usePref.ts, useTreeState.ts}, src/notebooks/{Sidebar.tsx, notebookService.ts, notebookService.test.ts}, src/pages/{PageTree.tsx, PageView.tsx, titleSaver.ts, titleSaver.test.ts, pageService.ts, pageService.test.ts}, src/editor/{PageEditor.tsx, schema.tsx}, README.md, CHANGELOG.md
 - **Files:** src/core/order.ts, src/core/blockService.ts, src/editor/{mapping.ts, diff.ts, autosave.ts, pageSync.ts, schema.tsx, PageEditor.tsx} + tests, src/core/helpers.test.ts, src/core/blockService.test.ts, src/App.tsx, src/editor/.gitkeep (removed), README.md, CHANGELOG.md
+
+## 2026-10-25
+
+- **What:** Tooling and workflow. Installed Git; repository created with Phase 1 as the first commit; `.gitattributes` keeps LF line endings. Added Playwright end-to-end tests (Chromium) with shared helpers; the four Trash browser checks are now automated (`npm run test:e2e`). Trash toggle arrow hidden from screen readers (clean accessible name). Viewport meta updated as BlockNote recommends. CLAUDE.md workflow updated: questions up front, Claude builds and tests everything (unit + Playwright) and fixes failures, one final report with visual checks; still asks before token-heavy or irreversible work.
+- **Why:** Owner request: safe snapshots, automated UI testing, faster steps.
+- **Files:** .gitattributes, .gitignore, package.json, package-lock.json, playwright.config.ts, tsconfig.node.json, e2e/{helpers.ts, trash.spec.ts}, src/trash/TrashSection.tsx, index.html, CLAUDE.md, README.md, CHANGELOG.md

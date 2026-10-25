@@ -50,7 +50,9 @@ export function TrashSection({ db, workspaceId }: TrashSectionProps) {
         aria-expanded={open}
         className="flex w-full items-center gap-1.5 rounded-md px-2.5 py-1 text-[11px] tracking-[0.06em] text-muted uppercase hover:bg-hover"
       >
-        <span className="w-3 text-[10px]">{open ? '▾' : '▸'}</span>
+        <span aria-hidden className="w-3 text-[10px]">
+          {open ? '▾' : '▸'}
+        </span>
         Trash{count > 0 && ` · ${count}`}
       </button>
 

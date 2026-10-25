@@ -60,7 +60,7 @@
 - Vitest for core logic (data model, storage, block operations). Add tests with every logic change.
 - Editor behaviour (keys, slash menu) is tested with a real BlockNote editor via jsdom (`// @vitest-environment jsdom`).
 - All tests must pass before a change is called done.
-- Playwright end-to-end tests to be added later.
+- Playwright end-to-end tests (`e2e/`, `npm run test:e2e`) for user flows; add one for every new UI feature. Shared steps live in `e2e/helpers.ts`.
 
 ## Documentation
 

@@ -17,7 +17,9 @@ For anyone in any field (writers, vloggers, learners, philosophers, technicians,
 | BlockNote (built on TipTap)                                     | Notion-style blocks, slash menu and drag handles out of the box; TipTap underneath for deeper control later |
 | IndexedDB via Dexie (+ `dexie-react-hooks`)                     | Local-first, offline storage; the UI updates live when data changes                                         |
 | `fractional-indexing`                                           | Order keys, so moving an item rewrites only that item                                                       |
-| Vitest (+ jsdom for editor tests)                               | Fast tests for core logic and editor behaviour (Playwright later)                                           |
+| Vitest (+ jsdom for editor tests)                               | Fast tests for core logic and editor behaviour                                                              |
+| Playwright (Chromium)                                           | End-to-end tests: a real browser clicks through the app                                                     |
+| Git                                                             | Snapshots of the project after each step (local only)                                                       |
 
 ## Main Features (Phase 1 — complete)
 
@@ -48,7 +50,7 @@ Everything beyond Phase 1. In particular: AI features, accounts/cloud sync, iOS 
 1. Install Node.js (LTS) and VS Code.
 2. In the project folder: `npm install`
 3. Start: `npm run dev` then open the localhost URL shown.
-4. Test: `npm test` (or `npm run test:watch` while coding)
+4. Test: `npm test` (or `npm run test:watch` while coding); end-to-end: `npm run test:e2e` (first time only: `npx playwright install chromium`)
 5. Other checks: `npm run lint`, `npm run format:check`, `npm run build`
 6. Format code: `npm run format`
 
@@ -120,6 +122,9 @@ Business logic (services) has no UI code, so it can be reused later (e.g. iOS). 
 | 2026-10-25 | Trash added to Phase 1; lists only what was deleted directly; Restore brings back everything deleted at the same moment                   | Completes soft delete; protects the owner's data              |
 | 2026-10-25 | "Delete forever" erases content but keeps an empty marker (`purgedAt`)                                                                    | Gone for good, yet a future sync can still tell other devices |
 | 2026-10-25 | Restoring a page whose notebook is in Trash restores only the notebook too; if its parent page is still deleted, it goes to the top level | Restore always works without bringing back unrelated pages    |
+| 2026-10-25 | Git (local) with a commit after each step; LF line endings via `.gitattributes`                                                           | Any step can be undone; consistent files across systems       |
+| 2026-10-25 | Playwright end-to-end tests (Chromium only) for user flows; Trash browser checks automated                                                | Claude tests the UI itself; fewer manual checks               |
+| 2026-10-25 | Workflow: questions up front, Claude builds and tests everything, one final report with visual checks                                     | Faster steps, less back-and-forth                             |
 
 ## Known Limitations
 
@@ -127,5 +132,5 @@ Business logic (services) has no UI code, so it can be reused later (e.g. iOS). 
 - **Desktop only for now:** the sidebar has a fixed width; there is no phone layout yet.
 - **Images by URL only:** there is no upload or image storage yet.
 - **Pages can't be dragged** in the sidebar tree (notebooks can).
-- **No automated UI tests yet:** logic and editor behaviour are tested; clicking through the UI is checked by hand until Playwright is added.
+- **End-to-end tests cover Trash so far:** other UI flows are still checked by hand; new features get Playwright tests as they are built.
 - **First load size:** the editor library makes the app about 1.3 MB (≈400 KB compressed). Fine on localhost; can be split up before hosting.

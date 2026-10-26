@@ -471,3 +471,9 @@
 - **What:** Phase 5 clickable mockup `prototype-phase5.html` (fake data): notebook tabs (Notes · Database · Cards · Revise preview), Study tracker as Dashboard (tiles, donut, line, bars, progress, heatmap), Table (auto columns, ★ confidence, Status auto or set by you, + Column with More types, Formula helper), Board (drag between statuses), row page, New database templates, All databases hub, "/database" block in a note. Self-tested in Chromium in 3 themes and at phone width (no errors, no sideways scroll).
 - **Why:** Mockup first: the owner tries the look and flow before building.
 - **Files:** prototype-phase5.html, CHANGELOG.md
+
+## 2026-10-27
+
+- **What:** Phase 5 mockup updated after owner feedback, then approved: Status menu is a real menu that stays open until a pick (Table and Board "Move to…"); column headers open a sort/filter menu (filters per column, active ones as removable chips, "Clear all"); "How Auto decides" hint in the Status menus and row page; new sidebar "All cards" page (all notebooks, Sort menu, "Review N due"). Phase 5 plan and decision log updated.
+- **Why:** Owner mockup feedback; All cards reverses the 2026-10-26 decision (owner OK).
+- **Files:** prototype-phase5.html, README.md, CHANGELOG.md

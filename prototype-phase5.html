@@ -5,7 +5,7 @@
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
 <title>Learning Notes Phase 5 Mockup</title>
 <style>
-/* Phase 5 mockup: notebook tabs, Study tracker (Dashboard · Table · Board), All databases, "/database" in a note.
+/* Phase 5 mockup: notebook tabs, Study tracker (Dashboard · Table · Board; column menus sort and filter), All databases, All cards, "/database" in a note.
    Colours = the app's own Day / Night / Sepia tokens (src/index.css). Fake data; nothing is saved. */
 :root {
   --bg: #fff; --side: #f7f7f5; --ink: #1d1d1f; --muted: #6e6e73; --line: #ececec;
@@ -124,9 +124,21 @@ tr:hover .rowopen, .rowopen:focus-visible { opacity: 1; }
 .addrow { display: block; width: 100%; text-align: left; padding: 7px 10px; color: var(--muted); border-top: 1px solid var(--line); }
 .addrow:hover { background: var(--hover); color: var(--ink); }
 .addcol { color: var(--muted); }
+.colh { display: flex; align-items: center; gap: 6px; width: 100%; padding: 7px 10px; color: inherit; font: inherit; text-align: left; }
+.colh:hover, .colh[aria-expanded="true"] { background: var(--hover); color: var(--ink); }
+.colh .ind { margin-left: auto; color: var(--accent); font-size: 11px; }
+.fchips { display: flex; flex-wrap: wrap; gap: 6px; align-items: center; margin: -4px 0 10px; font-size: 12.5px; }
+.fchip { display: inline-flex; gap: 6px; align-items: center; padding: 2px 4px 2px 10px; border-radius: 999px; background: var(--mark); color: var(--ink); }
+.fchip button { color: var(--muted); padding: 0 5px; }
+.menu .mi.on::after { content: "✓"; margin-left: auto; color: var(--accent); }
+.menu label.mi { cursor: pointer; align-items: center; }
+.menu .mi input { margin: 0; }
+.menu .hint { font-size: 12px; color: var(--muted); line-height: 1.5; padding: 6px 8px 4px; max-width: 290px; }
+.menu .hint b { color: var(--ink); font-weight: 500; }
+.info { color: var(--muted); font-size: 12px; cursor: help; }
 .menu { position: absolute; z-index: 30; min-width: 240px; max-width: min(320px, 90vw); background: var(--bg); border: 1px solid var(--line); border-radius: 10px; box-shadow: var(--shadow); padding: 6px; }
 .menu .mh { font-size: 11px; color: var(--muted); padding: 6px 8px 2px; text-transform: uppercase; letter-spacing: .05em; }
-.menu .mi { display: flex; gap: 10px; width: 100%; text-align: left; padding: 6px 8px; border-radius: 6px; align-items: baseline; }
+.menu .mi { display: flex; gap: 10px; width: 100%; box-sizing: border-box; text-align: left; padding: 6px 8px; border-radius: 6px; align-items: baseline; }
 .menu .mi:hover { background: var(--hover); }
 .menu .mi .ty { font-family: var(--mono); font-size: 11px; color: var(--muted); width: 22px; flex: none; }
 .menu .mi small { color: var(--muted); display: block; font-size: 11.5px; }
@@ -142,9 +154,8 @@ tr:hover .rowopen, .rowopen:focus-visible { opacity: 1; }
 .bcard .t { font-weight: 600; margin-bottom: 6px; display: flex; justify-content: space-between; gap: 6px; }
 .bcard .m { display: flex; flex-wrap: wrap; gap: 4px 10px; font-size: 12px; color: var(--muted); }
 .pick { position: relative; display: inline-flex; align-items: center; gap: 4px; cursor: pointer; }
-.pick select { position: absolute; inset: 0; opacity: 0; cursor: pointer; }
 .pick .caret { color: var(--muted); font-size: 10px; }
-.bcard select { display: none; font-size: 12px; border: 1px solid var(--line); border-radius: 6px; background: var(--bg); margin-top: 6px; }
+.bcard .moveto { display: none; font-size: 12px; border: 1px solid var(--line); border-radius: 6px; padding: 1px 8px; margin-top: 6px; color: var(--muted); }
 .pin { font-size: 11px; color: var(--s1); }
 
 /* Panels and dialogs */
@@ -196,7 +207,7 @@ tr:hover .rowopen, .rowopen:focus-visible { opacity: 1; }
   h1 { font-size: 24px; }
   .props { grid-template-columns: 1fr; gap: 2px; }
   .props .k { margin-top: 8px; }
-  .bcard select { display: inline-block; }
+  .bcard .moveto { display: inline-block; }
 }
 </style>
 </head>
@@ -234,7 +245,26 @@ const daysTo = (d) => d ? Math.round((new Date(d) - TODAY) / 864e5) : null;
 const fmt = (d) => d ? new Date(d).toLocaleDateString(undefined, { day: 'numeric', month: 'short' }) : '—';
 const esc = (s) => String(s).replace(/[&<>"]/g, (c) => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;' }[c]));
 
-const state = { screen: 'notebook', tab: 'database', view: 'dashboard', extraCols: [] };
+const state = { screen: 'notebook', tab: 'database', view: 'dashboard', extraCols: [], sort: null, filters: {}, cardSort: 'due', menu: null };
+const AUTO_HINT = '<b>How Auto decides</b> (from your reviews of this lesson\'s cards):<br>• <b>Not started</b>: no reviews yet<br>• <b>Learning</b>: under 75% correct<br>• <b>Mastered</b>: 90% or more correct and no cards due<br>• <b>Review</b>: everything in between<br>Pick a status yourself (📌) to override it; "Auto" hands it back.';
+
+// Table columns: how each sorts and which filters it offers.
+const COLS = [
+  { k: 'name', label: 'Lesson', ty: '↗', auto: 1, val: (l) => l.name.toLowerCase(), filters: [['started', 'Has reviews', (l) => l.pct != null]] },
+  { k: 'status', label: 'Status', ty: '◉', auto: 1, val: (l) => STATUSES.indexOf(status(l)), multi: STATUSES },
+  { k: 'conf', label: 'Confidence', ty: '★', val: (l) => l.conf, filters: [['c3', '★★★ or more', (l) => l.conf >= 3], ['c0', 'Not rated', (l) => !l.conf]] },
+  { k: 'last', label: 'Last revised', ty: '▣', auto: 1, val: (l) => l.last || '', filters: [['old', 'Over 5 days ago', (l) => (daysSince(l.last) ?? 99) > 5], ['never', 'Never', (l) => !l.last]] },
+  { k: 'due', label: 'Cards due', ty: '#', auto: 1, val: (l) => l.due, filters: [['hasdue', 'Has cards due', (l) => l.due > 0]] },
+  { k: 'pct', label: '% correct', ty: '%', auto: 1, val: (l) => l.pct ?? -1, filters: [['weak', 'Under 75%', (l) => l.pct != null && l.pct < 75]] },
+  { k: 'exam', label: 'Exam date', ty: '▣', val: (l) => l.exam || '9', filters: [['soon', 'Within 30 days', (l) => (daysTo(l.exam) ?? 999) <= 30]] },
+  { k: 'since', label: 'Days since revised', ty: 'ƒ', val: (l) => daysSince(l.last) ?? 999, filters: [['week', 'More than 7', (l) => (daysSince(l.last) ?? 999) > 7]] },
+];
+const colOf = (k) => COLS.find((c) => c.k === k);
+const passes = (l) => Object.entries(state.filters).every(([k, f]) => {
+  const c = colOf(k);
+  return c.multi ? f.includes(status(l)) : c.filters.find((x) => x[0] === f)[2](l);
+});
+const filterLabel = (k, f) => { const c = colOf(k); return c.label + ': ' + (c.multi ? f.join(', ') : c.filters.find((x) => x[0] === f)[1]); };
 
 /* ---------- Sidebar ---------- */
 function renderSide() {
@@ -243,8 +273,9 @@ function renderSide() {
     <div class="brand">◐ Learning Notes</div>
     <button class="navbtn"><span class="ic">☀</span>Today</button>
     <button class="navbtn"><span class="ic">⌕</span>Search<span class="n">Ctrl+K</span></button>
-    <button class="navbtn"><span class="ic">⟳</span>Review<span class="n">14</span></button>
+    <button class="navbtn"><span class="ic">⟳</span>Review<span class="n">23</span></button>
     <button class="navbtn ${state.screen === 'all' ? 'on' : ''}" data-act="all"><span class="ic">▦</span>All databases<span class="n">5</span></button>
+    <button class="navbtn ${state.screen === 'cards' ? 'on' : ''}" data-act="allcards"><span class="ic">◫</span>All cards<span class="n">212</span></button>
     <div class="sect">Notebooks <span>+</span></div>
     ${nb('Cardiology', state.screen === 'notebook')}
     <button class="navbtn sub" data-act="note">Heart failure</button>
@@ -331,22 +362,22 @@ function stars(i, n) {
 function table() {
   const extra = state.extraCols;
   const head = `<tr>
-    <th><div><span class="ty">↗</span>Lesson <span class="auto" title="Filled in by the app">auto</span></div></th>
-    <th><div><span class="ty">◉</span>Status <span class="auto">auto</span></div></th>
-    <th><div><span class="ty">★</span>Confidence</div></th>
-    <th><div><span class="ty">▣</span>Last revised <span class="auto">auto</span></div></th>
-    <th><div><span class="ty">#</span>Cards due <span class="auto">auto</span></div></th>
-    <th><div><span class="ty">%</span>% correct <span class="auto">auto</span></div></th>
-    <th><div><span class="ty">▣</span>Exam date</div></th>
-    <th><div><span class="ty">ƒ</span>Days since revised</div></th>
+    ${COLS.map((c) => {
+      const sorted = state.sort?.k === c.k ? (state.sort.dir > 0 ? '↑' : '↓') : '';
+      const filtered = state.filters[c.k] ? '⏷' : '';
+      return `<th><button class="colh" data-act="colmenu" data-c="${c.k}" aria-haspopup="menu" aria-expanded="${state.menu === c.k}"><span class="ty">${c.ty}</span>${c.label}${c.auto ? ' <span class="auto" title="Filled in by the app">auto</span>' : ''}${c.k === 'status' ? ' <span class="info" title="How Auto decides: open this menu">ⓘ</span>' : ''}<span class="ind">${sorted}${filtered}</span></button></th>`;
+    }).join('')}
     ${extra.map((c) => `<th><div><span class="ty">${c.icon}</span>${esc(c.name)}</div></th>`).join('')}
     <th><div><button class="addcol" data-act="addcol" aria-label="Add column">+ Column</button></div></th></tr>`;
-  const rows = lessons.map((l, i) => {
+  const shown = lessons.map((l, i) => ({ l, i })).filter(({ l }) => passes(l));
+  if (state.sort) { const c = colOf(state.sort.k); shown.sort((a, b) => (c.val(a.l) > c.val(b.l) ? 1 : c.val(a.l) < c.val(b.l) ? -1 : 0) * state.sort.dir); }
+  const chips = Object.entries(state.filters).map(([k, f]) => `<span class="fchip">${esc(filterLabel(k, f))}<button data-act="unfilter" data-c="${k}" aria-label="Remove filter">×</button></span>`).join('');
+  const sortChip = state.sort ? `<span class="fchip">Sorted: ${colOf(state.sort.k).label} ${state.sort.dir > 0 ? '↑' : '↓'}<button data-act="unsort" aria-label="Remove sort">×</button></span>` : '';
+  const rows = shown.map(({ l, i }) => {
     const st = status(l);
     return `<tr>
       <td><div><b>${esc(l.name)}</b><button class="rowopen" data-act="open" data-i="${i}">Open ↗</button></div></td>
-      <td><div><label class="pick"><span class="chip dotc" style="--c:${SCOL[st]}">${st}</span>${l.statusSet ? '<span class="pin" title="Set by you">📌</span>' : ''}<span class="caret">▾</span>
-        <select data-act="setstatus" data-i="${i}" aria-label="Status"><option value="">Auto (${autoStatus(l)})</option>${STATUSES.map((s) => `<option ${l.statusSet === s ? 'selected' : ''}>${s}</option>`).join('')}</select></label></div></td>
+      <td><div><button class="pick" data-act="statusmenu" data-i="${i}" aria-haspopup="menu" aria-label="Status: ${st}"><span class="chip dotc" style="--c:${SCOL[st]}">${st}</span>${l.statusSet ? '<span class="pin" title="Set by you">📌</span>' : ''}<span class="caret">▾</span></button></div></td>
       <td><div>${stars(i, l.conf)}</div></td>
       <td><div class="muted">${fmt(l.last)}</div></td>
       <td><div class="num">${l.due}</div></td>
@@ -356,9 +387,10 @@ function table() {
       ${extra.map(() => '<td><div><input aria-label="Value" placeholder="—"></div></td>').join('')}
       <td></td></tr>`;
   }).join('');
-  return `<div class="tablewrap"><table>${head}${rows}</table>
+  const bar = chips || sortChip ? `<div class="fchips">${sortChip}${chips}<button class="link" data-act="clearall">Clear all</button><span class="muted">${shown.length} of ${lessons.length} lessons</span></div>` : '';
+  return `${bar}<div class="tablewrap"><table>${head}${rows || `<tr><td colspan="${COLS.length + extra.length + 1}"><div class="muted">No lessons match these filters.</div></td></tr>`}</table>
     <button class="addrow" data-act="addrow">+ New row</button></div>
-    <p class="note"><span class="auto">auto</span> columns are filled in from your notes and reviews. Status can be set by you (📌) and returned to Auto. "Days since revised" is a Formula: <code>DAYS(TODAY(), [Last revised])</code>.</p>`;
+    <p class="note"><span class="auto">auto</span> columns are filled in from your notes and reviews. Click a column name to sort or filter. Status can be set by you (📌) and returned to Auto; its menu explains how Auto decides. "Days since revised" is a Formula: <code>DAYS(TODAY(), [Last revised])</code>.</p>`;
 }
 
 function board() {
@@ -368,7 +400,7 @@ function board() {
       ${items.map(({ l, i }) => `<div class="bcard" draggable="true" data-i="${i}">
         <div class="t"><span>${esc(l.name)}</span>${l.statusSet ? '<span class="pin" title="Set by you">📌</span>' : ''}</div>
         <div class="m"><span>${'★'.repeat(l.conf) || 'No rating'}</span><span>${l.due} due</span><span>${l.pct == null ? '—' : l.pct + '%'}</span></div>
-        <select data-act="setstatus" data-i="${i}" aria-label="Move to"><option value="${l.statusSet || ''}">Move to…</option><option value="">Auto (${autoStatus(l)})</option>${STATUSES.filter((x) => x !== s).map((x) => `<option>${x}</option>`).join('')}</select>
+        <button class="moveto" data-act="statusmenu" data-i="${i}" aria-haspopup="menu">Move to… ▾</button>
       </div>`).join('')}</div>`;
   }).join('')}</div>
   <p class="note">Drag a card to another column (or use "Move to…" on a phone). Grouped by Status; any Choice column can be the grouping.</p>`;
@@ -395,11 +427,7 @@ function notebook() {
     body = dbHeader('Study tracker', 'one row per lesson · fills itself') +
       (state.view === 'dashboard' ? dashboard() : state.view === 'table' ? table() : board());
   } else if (state.tab === 'cards') {
-    const cards = [['What closes to make S1?', 'Heart sounds', 'In 12 days', ''], ['Normal PR interval?', 'ECG basics', 'Due', 'due'], ['First-line drug in HFrEF?', 'Heart failure', 'Wrong 3×', 'wrong'], ['Atrial flutter rate?', 'Arrhythmias', 'Due', 'due'], ['Stage 2 hypertension BP?', 'Hypertension', 'In 20 days', '']];
-    body = `<div class="dbhead"><span class="dbname">90 cards <small>from this notebook's notes</small></span><span class="grow"></span>
-      <button class="btn" data-act="toast" data-msg="Sort: Due first · Most failed · Recently changed">Sort: Due first</button><button class="btn pri" data-act="toast" data-msg="Opens Review for this notebook's 14 due cards">Review 14 due</button></div>
-      <div class="list">${cards.map((c) => `<button class="li" data-act="toast" data-msg="Opens the note at this card"><b style="font-weight:500">${c[0]}</b><span class="muted" style="font-size:12.5px">${c[1]}</span><span class="r"><span class="chip" style="--c:${c[3] === 'wrong' ? 'var(--danger)' : c[3] ? 'var(--accent)' : 'var(--s0)'}">${c[2]}</span></span></button>`).join('')}</div>
-      <p class="note">Cards stay inside your notes; this tab gathers them (same engine as Search › Cards).</p>`;
+    body = cardsView(false);
   } else {
     body = `<p class="note" style="margin-top:0">Preview of 5B. Mark lines in a note as <span class="mark mk-key">Key point</span> <span class="mark mk-word">Keyword</span> <span class="mark mk-must">Must know</span>; each lesson gets a sheet you can read before an exam.</p>
       <div class="sheet"><h3>Heart failure <button class="link" data-act="note">Open note</button></h3>
@@ -413,6 +441,31 @@ function notebook() {
   return `<div class="crumbs">Notebook</div><h1>Cardiology</h1>
     <div class="tabs" role="tablist">${t('notes', 'Notes')}${t('database', 'Database')}${t('cards', 'Cards')}${t('revise', 'Revise', 1)}
       <button class="tab-more" data-act="toast" data-msg="Tabs: rename or hide (custom tab templates later)" aria-label="Tab options">⋯</button></div>${body}`;
+}
+
+// [question, notebook, page, status text, kind, days until due, times wrong, changed (days ago)]
+const CARDS = [
+  ['What closes to make S1?', 'Cardiology', 'Heart sounds', 'In 12 days', '', 12, 0, 3],
+  ['Normal PR interval?', 'Cardiology', 'ECG basics', 'Due', 'due', 0, 1, 1],
+  ['First-line drug in HFrEF?', 'Cardiology', 'Heart failure', 'Wrong 3×', 'wrong', 0, 3, 2],
+  ['Atrial flutter rate?', 'Cardiology', 'Arrhythmias', 'Due', 'due', 0, 2, 4],
+  ['Stage 2 hypertension BP?', 'Cardiology', 'Hypertension', 'In 20 days', '', 20, 0, 6],
+  ['Mechanism of furosemide?', 'Pharmacology', 'Diuretics', 'Due', 'due', 0, 0, 2],
+  ['Antidote for warfarin?', 'Pharmacology', 'Anticoagulants', 'Wrong 2×', 'wrong', 0, 2, 1],
+  ['"To remember" in Spanish?', 'Spanish', 'Verbs 1', 'In 3 days', '', 3, 1, 5],
+];
+const CARD_SORTS = { due: 'Due first', failed: 'Most failed', recent: 'Recently changed' };
+function cardsView(all) {
+  const list = CARDS.filter((c) => all || c[1] === 'Cardiology').sort((a, b) =>
+    state.cardSort === 'failed' ? b[6] - a[6] : state.cardSort === 'recent' ? a[7] - b[7] : a[5] - b[5]);
+  const total = all ? 212 : 90, due = all ? 23 : 14;
+  return `<div class="dbhead"><span class="dbname">${total} cards <small>${all ? 'from every notebook' : "from this notebook's notes"}</small></span><span class="grow"></span>
+    <button class="btn" data-act="cardsort" aria-haspopup="menu">Sort: ${CARD_SORTS[state.cardSort]} ▾</button><button class="btn pri" data-act="toast" data-msg="Opens Review for ${all ? 'all' : "this notebook's"} ${due} due cards (Practice anyway when none are due)">Review ${due} due</button></div>
+    <div class="list">${list.map((c) => `<button class="li" data-act="toast" data-msg="Opens the note at this card"><b style="font-weight:500">${esc(c[0])}</b><span class="muted" style="font-size:12.5px">${all ? esc(c[1]) + ' · ' : ''}${esc(c[2])}</span><span class="r"><span class="chip" style="--c:${c[4] === 'wrong' ? 'var(--danger)' : c[4] ? 'var(--accent)' : 'var(--s0)'}">${c[3]}</span></span></button>`).join('')}</div>
+    <p class="note">Cards stay inside your notes; this ${all ? 'page' : 'tab'} gathers them (same engine as Search › Cards, which can also filter by tag and status).</p>`;
+}
+function allCards() {
+  return `<div class="crumbs">All cards</div><h1>All cards</h1>${cardsView(true)}`;
 }
 
 function noteScreen() {
@@ -438,11 +491,11 @@ function allDbs() {
 
 function render() {
   renderSide();
-  main.innerHTML = state.screen === 'all' ? allDbs() : state.screen === 'note' ? noteScreen() : notebook();
+  main.innerHTML = state.screen === 'all' ? allDbs() : state.screen === 'cards' ? allCards() : state.screen === 'note' ? noteScreen() : notebook();
 }
 
 /* ---------- Layers: row page, menus, dialogs ---------- */
-function closeLayer() { layer.innerHTML = ''; }
+function closeLayer() { layer.innerHTML = ''; if (state.menu) { state.menu = null; render(); } }
 function toast(msg) {
   const el = document.createElement('div'); el.className = 'toast'; el.textContent = msg; document.body.append(el);
   setTimeout(() => el.remove(), 2600);
@@ -452,7 +505,7 @@ function openRow(i) {
   layer.innerHTML = `<div class="scrim" data-act="close"><div class="panel" role="dialog" aria-label="${esc(l.name)}">
     <div class="crumbs">Cardiology › Study tracker</div><h2>${esc(l.name)}</h2>
     <div class="props">
-      <span class="k">Status <span class="auto">auto</span></span><span><span class="chip dotc" style="--c:${SCOL[status(l)]}">${status(l)}</span> ${l.statusSet ? '<button class="link" data-act="reset" data-i="' + i + '">Back to auto</button>' : ''}</span>
+      <span class="k">Status <span class="auto">auto</span> <span class="info" title="Auto: Not started = no reviews · Learning = under 75% correct · Mastered = 90%+ and nothing due · Review = in between">ⓘ</span></span><span><span class="chip dotc" style="--c:${SCOL[status(l)]}">${status(l)}</span> ${l.statusSet ? '<button class="link" data-act="reset" data-i="' + i + '">Back to auto</button>' : ''}</span>
       <span class="k">Confidence</span><span>${stars(i, l.conf)}</span>
       <span class="k">Last revised <span class="auto">auto</span></span><span>${fmt(l.last)}</span>
       <span class="k">Cards due <span class="auto">auto</span></span><span>${l.due} of ${l.cards}</span>
@@ -468,6 +521,35 @@ function openRow(i) {
 function menuAt(btn, html) {
   const r = btn.getBoundingClientRect();
   layer.innerHTML = `<div class="scrim center" data-act="close" style="background:transparent;padding:0"><div class="menu" style="top:${Math.min(r.bottom + 4, innerHeight - 380)}px;left:${Math.max(8, Math.min(r.left, innerWidth - 330))}px">${html}</div></div>`;
+}
+function statusMenu(btn, i) {
+  const l = lessons[i], cur = l.statusSet;
+  menuAt(btn, `<div class="mh">Status</div>
+    <button class="mi ${cur ? '' : 'on'}" data-act="setstatus" data-i="${i}" data-s=""><span class="ty">⟲</span><span>Auto<small>now: ${autoStatus(l)}</small></span></button>
+    <div class="sep"></div>
+    ${STATUSES.map((s) => `<button class="mi ${cur === s ? 'on' : ''}" data-act="setstatus" data-i="${i}" data-s="${s}"><span class="ty">📌</span><span class="chip dotc" style="--c:${SCOL[s]}">${s}</span></button>`).join('')}
+    <div class="sep"></div><div class="hint">${AUTO_HINT}</div>`);
+}
+function headMenu(k) {
+  const c = colOf(k), btn = document.querySelector(`.colh[data-c="${k}"]`), f = state.filters[k];
+  const s = state.sort?.k === k ? state.sort.dir : 0;
+  const isNum = ['conf', 'due', 'pct', 'since'].includes(k), isDate = ['last', 'exam'].includes(k);
+  const [up, down] = isNum ? ['Low → high', 'High → low'] : isDate ? ['Oldest first', 'Newest first'] : k === 'status' ? ['Not started → Mastered', 'Mastered → Not started'] : ['A → Z', 'Z → A'];
+  const filt = c.multi
+    ? c.multi.map((x) => `<label class="mi"><input type="checkbox" data-act="filtmulti" data-c="${k}" data-v="${x}" ${!f || f.includes(x) ? 'checked' : ''}><span class="chip dotc" style="--c:${SCOL[x]}">${x}</span></label>`).join('')
+    : c.filters.map((x) => `<button class="mi ${f === x[0] ? 'on' : ''}" data-act="filt" data-c="${k}" data-v="${x[0]}"><span class="ty">⏷</span><span>${x[1]}</span></button>`).join('');
+  menuAt(btn, `<div class="mh">Sort</div>
+    <button class="mi ${s > 0 ? 'on' : ''}" data-act="sort" data-c="${k}" data-d="1"><span class="ty">↑</span><span>${up}</span></button>
+    <button class="mi ${s < 0 ? 'on' : ''}" data-act="sort" data-c="${k}" data-d="-1"><span class="ty">↓</span><span>${down}</span></button>
+    <div class="sep"></div><div class="mh">Filter</div>${filt}
+    ${f ? `<button class="mi" data-act="unfilter" data-c="${k}"><span class="ty">×</span><span>Clear filter</span></button>` : ''}
+    <div class="sep"></div>
+    <button class="mi" data-act="toast" data-msg="Hide column (show it again from the view's options)"><span class="ty">◌</span><span>Hide column</span></button>
+    ${c.auto ? '' : '<button class="mi" data-act="toast" data-msg="Rename, change type, or delete this column"><span class="ty">✎</span><span>Edit column</span></button>'}
+    ${k === 'status' ? `<div class="sep"></div><div class="hint">${AUTO_HINT}</div>` : ''}`);
+}
+function cardSortMenu(btn) {
+  menuAt(btn, `<div class="mh">Sort cards</div>${Object.entries(CARD_SORTS).map(([k, v]) => `<button class="mi ${state.cardSort === k ? 'on' : ''}" data-act="setcardsort" data-v="${k}"><span class="ty">↕</span><span>${v}</span></button>`).join('')}`);
 }
 function colMenu(btn, more) {
   const basic = [['T', 'Text'], ['#', 'Number', '%, ₹/$ or ★ rating'], ['▣', 'Date'], ['◉', 'Choice', 'pick one, coloured pill'], ['◎', 'Choices', 'pick several'], ['☑', 'Checkbox'], ['🔗', 'Web link'], ['#', 'Tag', 'your #tags'], ['↗', 'Note link', 'points to a page']];
@@ -517,9 +599,27 @@ document.addEventListener('click', (e) => {
   if (a === 'close') { if (e.target !== el && el.classList.contains('scrim')) return; closeLayer(); if (el.dataset.msg) toast(el.dataset.msg); return; }
   if (el.dataset.msg && a === 'toast') return toast(el.dataset.msg);
   if (a === 'menu') return side.classList.toggle('open');
+  // Menus stay open until something is picked (or Esc / a click outside).
+  const done = () => { state.menu = null; layer.innerHTML = ''; render(); };
+  if (a === 'statusmenu') return statusMenu(el, i);
+  if (a === 'setstatus') { const l = lessons[i]; if (el.dataset.s) l.statusSet = el.dataset.s; else delete l.statusSet; if (document.querySelector('.panel')) return openRow(i); done(); return toast(el.dataset.s ? 'Status set by you 📌' : 'Status back to Auto'); }
+  if (a === 'colmenu') { state.menu = el.dataset.c; render(); return headMenu(state.menu); }
+  if (a === 'sort') { state.sort = { k: el.dataset.c, dir: +el.dataset.d }; return done(); }
+  if (a === 'filt') { state.filters[el.dataset.c] = el.dataset.v; return done(); }
+  if (a === 'filtmulti') {
+    const k = el.dataset.c, picked = [...layer.querySelectorAll('[data-act="filtmulti"]:checked')].map((x) => x.dataset.v);
+    if (picked.length === STATUSES.length) delete state.filters[k]; else state.filters[k] = picked;
+    render(); return headMenu(k); // ticking keeps the menu open
+  }
+  if (a === 'unfilter') { delete state.filters[el.dataset.c]; return done(); }
+  if (a === 'unsort') { state.sort = null; return render(); }
+  if (a === 'clearall') { state.sort = null; state.filters = {}; return render(); }
+  if (a === 'cardsort') return cardSortMenu(el);
+  if (a === 'setcardsort') { state.cardSort = el.dataset.v; return done(); }
   side.classList.remove('open');
   if (a === 'nb' || a === 'gotracker') { Object.assign(state, { screen: 'notebook', tab: 'database', view: 'dashboard' }); }
   else if (a === 'all') state.screen = 'all';
+  else if (a === 'allcards') state.screen = 'cards';
   else if (a === 'note') state.screen = 'note';
   else if (a === 'tab') state.tab = el.dataset.t;
   else if (a === 'view') state.view = el.dataset.v;
@@ -539,7 +639,6 @@ document.addEventListener('click', (e) => {
 });
 document.addEventListener('change', (e) => {
   const el = e.target;
-  if (el.dataset.act === 'setstatus') { const l = lessons[+el.dataset.i]; if (el.value) l.statusSet = el.value; else delete l.statusSet; render(); }
   if (el.dataset.act === 'exam') lessons[+el.dataset.i].exam = el.value;
 });
 document.addEventListener('input', (e) => { if (e.target.id === 'fx') fxPreview(e.target.value); });

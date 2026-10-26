@@ -7,12 +7,13 @@ import { shortcutLabel } from '../app/keys'
 import { ConfirmDialog, IconButton, MenuPopover, RenameInput } from '../app/ui'
 import type { TreeState } from '../app/useTreeState'
 import type { LearningNotesDB } from '../core/db'
-import type { Notebook, Page } from '../core/types'
+import type { Notebook, Page, SavedSearch } from '../core/types'
 import { dateKey, shortDayLabel } from '../journal/dates'
 import { PageTree } from '../pages/PageTree'
 import { deletePage, getPage } from '../pages/pageService'
 import { TemplatesSection } from '../templates/TemplatesSection'
 import { TrashSection } from '../trash/TrashSection'
+import { SavedSearchesSection } from '../search/SavedSearchesSection'
 import { t } from '../i18n/t'
 import { countDue, type ReviewScope } from '../recall/reviewService'
 import { deleteNotebook, moveNotebook, renameNotebook } from './notebookService'
@@ -39,6 +40,10 @@ interface SidebarProps {
   searchOpen: boolean
   /** Opens the search popup. */
   onOpenSearch: () => void
+  /** The saved search open in the Search screen, if any. */
+  savedSearchId: string | null
+  onOpenSavedSearch: (saved: SavedSearch) => void
+  onReviewSavedSearch: (saved: SavedSearch) => void
   onOpenReview: (scope: ReviewScope) => void
   onCreateNotebook: () => void
   /** `templateId`: copy that template's content into the new page. */
@@ -88,6 +93,9 @@ export function Sidebar({
   onOpenReview,
   searchOpen,
   onOpenSearch,
+  savedSearchId,
+  onOpenSavedSearch,
+  onReviewSavedSearch,
   onCreateNotebook,
   onCreatePage,
   onCreateTemplate,
@@ -230,6 +238,12 @@ export function Sidebar({
           </span>
         )}
       </button>
+      <SavedSearchesSection
+        db={db}
+        activeId={savedSearchId}
+        onOpen={onOpenSavedSearch}
+        onReview={onReviewSavedSearch}
+      />
       <div className="flex items-center justify-between px-2.5 pt-2.5 pb-1 text-[11px] tracking-[0.06em] text-muted uppercase">
         Notebooks
         <IconButton title="New notebook" onClick={onCreateNotebook}>

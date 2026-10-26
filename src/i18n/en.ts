@@ -32,6 +32,25 @@ export const en = {
   'saveTemplate.label': 'Template name',
   'saveTemplate.confirm': 'Save template',
 
+  // Saved searches (decks)
+  'saved.title': 'Saved searches',
+  'saved.untitled': 'Untitled search',
+  'saved.save': 'Save search',
+  'saved.saveConfirm': 'Save',
+  'saved.name': 'Name',
+  'saved.defaultName': 'My search',
+  'saved.saved': 'Saved “{name}” in the sidebar',
+  'saved.update': 'Save changes',
+  'saved.updated': 'Saved changes to “{name}”',
+  'saved.rename': 'Rename saved search',
+  'saved.renameConfirm': 'Rename',
+  'saved.delete': 'Delete saved search',
+  'saved.deleteMessage':
+    'Delete the saved search “{name}”? Your notes and cards stay as they are.',
+  'saved.deleteConfirm': 'Delete',
+  'saved.review_one': 'Review this deck ({count} card)',
+  'saved.review_other': 'Review this deck ({count} cards)',
+
   // Search (popup and screen)
   'search.title': 'Search',
   'search.sidebar': 'Search',

@@ -132,6 +132,59 @@ test('Trash: found only when asked; Restore brings the page back', async ({
   ).toBeVisible()
 })
 
+test('saved searches: save, open, change, review the deck, rename, delete', async ({
+  page,
+}) => {
+  await openSearchPopup(page)
+  await page.keyboard.type('nucleus')
+  await page.keyboard.press('Enter')
+  await page.getByRole('button', { name: '☆ Save search' }).click()
+  const name = page.getByRole('textbox', { name: 'Name' })
+  await expect(name).toHaveValue('nucleus')
+  await name.fill('Nucleus deck')
+  await page.getByRole('button', { name: 'Save', exact: true }).click()
+  await expect(
+    page.getByText('Saved “Nucleus deck” in the sidebar'),
+  ).toBeVisible()
+  await expect(
+    page.getByRole('heading', { name: 'Nucleus deck' }),
+  ).toBeVisible()
+  const saved = sidebar(page).locator('div.group', { hasText: 'Nucleus deck' })
+  await expect(saved).toContainText('2')
+  await saved.hover()
+  await page.screenshot({ path: 'test-results/screens/saved-search-Day.png' })
+
+  // Review the deck from the sidebar.
+  await saved.getByTitle('Review this deck (1 card)').click()
+  await expect(
+    page.getByRole('heading', { name: 'Review · Nucleus deck' }),
+  ).toBeVisible()
+
+  // Open it again, change it, save the change.
+  await saved.getByRole('button', { name: 'Nucleus deck' }).click()
+  await expect(screenBox(page)).toHaveValue('nucleus')
+  await expect(page.getByRole('button', { name: 'Save changes' })).toHaveCount(
+    0,
+  )
+  await page.getByRole('button', { name: /^Cards/ }).click()
+  await page.getByRole('button', { name: 'Save changes' }).click()
+  await expect(page.getByText('Saved changes to “Nucleus deck”')).toBeVisible()
+  await expect(saved).toContainText('1')
+
+  // Rename, then delete (notes stay).
+  await saved.hover()
+  await saved.getByTitle('Rename saved search').click()
+  await page.getByRole('textbox', { name: 'Name' }).fill('Cell deck')
+  await page.getByRole('button', { name: 'Rename', exact: true }).click()
+  const renamed = sidebar(page).locator('div.group', { hasText: 'Cell deck' })
+  await expect(renamed).toBeVisible()
+  await expect(page.getByRole('heading', { name: 'Cell deck' })).toBeVisible()
+  await renamed.hover()
+  await renamed.getByTitle('Delete saved search').click()
+  await confirmDialog(page, 'Delete')
+  await expect(sidebar(page).getByText('Saved searches')).toHaveCount(0)
+})
+
 for (const [theme, width, height] of [
   ['Day', 1280, 800],
   ['Night', 1280, 800],

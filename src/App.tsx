@@ -16,7 +16,7 @@ import { usePref } from './app/usePref'
 import { t } from './i18n/t'
 import { useTreeState } from './app/useTreeState'
 import { db } from './core/db'
-import type { Page, Workspace } from './core/types'
+import type { Page, SavedSearch, Workspace } from './core/types'
 import { getOrCreateDefaultWorkspace } from './core/workspaceService'
 import { ensureSearchIndex } from './search/searchService'
 import { openJournalDay } from './journal/journalService'
@@ -35,9 +35,12 @@ import { rememberPage } from './search/recentPages'
 import { SearchPopup } from './search/SearchPopup'
 import {
   describeHits,
+  runSearch,
   type SearchHit,
   type SearchQuery,
 } from './search/searchQuery'
+import { getSavedSearch, readSavedQuery } from './search/savedSearchService'
+import { SaveSearchActions } from './search/SaveSearchActions'
 import { SearchScreen } from './search/SearchScreen'
 import { restorePage } from './trash/trashService'
 import {
@@ -89,6 +92,8 @@ function App() {
   const [search, setSearch] = useState<{
     query: SearchQuery
     key: number
+    /** Set when a saved search is open. */
+    savedId?: string
   } | null>(null)
   const [searchPopup, setSearchPopup] = useState(false)
   const openPage = (id: string | null) => {
@@ -103,11 +108,24 @@ function App() {
     setSearch(null)
     setReviewScope(scope)
   }
-  const openSearch = (query: SearchQuery) => {
+  const openSearch = (query: SearchQuery, savedId?: string) => {
     setShowSettings(false)
     setReviewScope(null)
     setSearchPopup(false)
-    setSearch({ query, key: Date.now() })
+    setSearch({ query, key: Date.now(), savedId })
+  }
+  const savedSearch = useLiveQuery(
+    async () =>
+      search?.savedId ? getSavedSearch(db, search.savedId) : undefined,
+    [search?.savedId],
+  )
+  /** Reviews the cards a saved search finds (a deck). */
+  const reviewSavedSearch = async (saved: SavedSearch) => {
+    const { hits } = await runSearch(db, readSavedQuery(saved.query))
+    const blockIds = hits.flatMap((h) =>
+      h.type === 'card' && h.blockId ? [h.blockId] : [],
+    )
+    openReview({ kind: 'blocks', blockIds, name: saved.name })
   }
   /** Opens a search result at its block; one in the Trash offers Restore. */
   const openHit = async (hit: SearchHit) => {
@@ -326,8 +344,19 @@ function App() {
               reviewScope?.kind === 'all' || reviewScope?.kind === 'wrong'
             }
             onOpenReview={openReview}
-            searchOpen={!!search && !showSettings && !reviewScope}
+            searchOpen={
+              !!search && !search.savedId && !showSettings && !reviewScope
+            }
             onOpenSearch={() => setSearchPopup(true)}
+            savedSearchId={
+              search && !showSettings && !reviewScope
+                ? (search.savedId ?? null)
+                : null
+            }
+            onOpenSavedSearch={(saved) =>
+              openSearch(readSavedQuery(saved.query), saved.id)
+            }
+            onReviewSavedSearch={(saved) => runTask(reviewSavedSearch(saved))}
           />
           <main className="flex-1 overflow-auto">
             {showSettings ? (
@@ -353,6 +382,17 @@ function App() {
                 key={search.key}
                 db={db}
                 initial={search.query}
+                title={savedSearch?.name}
+                actions={(query) => (
+                  <SaveSearchActions
+                    db={db}
+                    query={query}
+                    saved={savedSearch}
+                    onSaved={(saved) =>
+                      setSearch((s) => s && { ...s, savedId: saved.id })
+                    }
+                  />
+                )}
                 onOpenHit={(hit) => runTask(openHit(hit))}
                 onReview={(blockIds, name) =>
                   openReview({ kind: 'blocks', blockIds, name })

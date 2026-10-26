@@ -3,6 +3,7 @@ import { useEffect, useId, useRef, useState } from 'react'
 import type { LearningNotesDB } from '../core/db'
 import { t } from '../i18n/t'
 import { readRecentPages } from './recentPages'
+import { searchWords } from './searchText'
 import {
   DEFAULT_FILTERS,
   RESULT_TYPES,
@@ -89,7 +90,7 @@ export function SearchPopup({
     } else if (e.key === 'Enter' && !e.nativeEvent.isComposing) {
       e.preventDefault()
       if (selected >= 0) openRow(selected)
-      else if (active) seeAll()
+      else if (searchWords(text).length > 0 || type === 'card') seeAll()
     }
   }
 

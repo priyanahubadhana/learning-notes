@@ -465,3 +465,9 @@
 - **What:** Phase 5 plan approved and recorded ("Phase 5 Plan" in README): notebook tabs (Notes · Database · Cards · Revise), Study tracker, universal databases with Formula/Relation/Rollup, Table/Dashboard/Board (5A) and Calendar/Gallery (5B), Revise tab, CSV + own-file import/export (moved from Phase 6). Roadmap, decision log, handoff and IDEAS updated.
 - **Why:** Owner's vision: one app for all data, simple for beginners, deep for experts.
 - **Files:** README.md, IDEAS.md, CHANGELOG.md
+
+## 2026-10-27
+
+- **What:** Phase 5 clickable mockup `prototype-phase5.html` (fake data): notebook tabs (Notes · Database · Cards · Revise preview), Study tracker as Dashboard (tiles, donut, line, bars, progress, heatmap), Table (auto columns, ★ confidence, Status auto or set by you, + Column with More types, Formula helper), Board (drag between statuses), row page, New database templates, All databases hub, "/database" block in a note. Self-tested in Chromium in 3 themes and at phone width (no errors, no sideways scroll).
+- **Why:** Mockup first: the owner tries the look and flow before building.
+- **Files:** prototype-phase5.html, CHANGELOG.md

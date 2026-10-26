@@ -355,3 +355,9 @@
 - **What:** Phase 4, Step 0b (part 3) and Step 0 close. Template sub-pages fold out under their template in the sidebar (`PageTree` gained `rootId` and an optional "+"); deleting a template while one of its sub-pages is open now closes it. README handoff, status, Decision Log; IDEAS: Step 0 ideas marked done, TypeScript 7 re-parked to Phase 5.
 - **Why:** Phase 4 plan, Step 0 polish; owner choices at step start.
 - **Files:** src/pages/PageTree.tsx, src/templates/TemplatesSection.tsx, src/notebooks/Sidebar.tsx, e2e/templates.spec.ts, e2e/helpers.ts, README.md, IDEAS.md, CHANGELOG.md
+
+## 2026-10-26
+
+- **What:** Rules updated (owner approved): owner checks have no fixed number, only what tests cannot check; whole steps are built without stopping, asking first only above ~150k tokens (was 80k per sub-step).
+- **Why:** Owner's project prompt asks for larger chunks, fewer questions and only genuine hand checks.
+- **Files:** rules/testing.md, rules/sessions.md, CLAUDE.md, README.md, CHANGELOG.md

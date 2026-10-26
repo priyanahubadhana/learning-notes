@@ -9,7 +9,7 @@ Learning Notes App: a premium, minimal second brain (Notion + OneNote + Anki). W
 ## Working With the Owner
 
 - Owner is a beginner: explain simply — what it is, what it does, why it matters.
-- Tokens are scarce: ask before anything token-heavy, with a rough size estimate. Keep replies short; show only changed code; don't re-read files unnecessarily; no unrequested extras.
+- Tokens matter: build whole steps without stopping; ask first only if a step looks bigger than ~150k tokens. Keep replies short; show only changed code; don't re-read files unnecessarily; no unrequested extras.
 - Be honest, not agreeable: flag weak ideas and suggest better ones.
 - Routine updates to project files: just do them. Changes to the plan, rules or past decisions: tell the owner and wait for OK.
 

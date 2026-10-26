@@ -325,3 +325,9 @@
 - **What:** Mockup fixes from owner testing: "Phone view" switch and "Try # and [[" button in the top bar; tag ⋯ always faintly visible and right-click opens it; text without letters (e.g. "[") counts as an empty search; one toast at a time; Merge example tag in use and clearer wording.
 - **Why:** Owner couldn't find the dashed box, the ⋯ menu or the phone layout; "[" listed everything.
 - **Files:** prototype-phase4.html, CHANGELOG.md
+
+## 2026-10-26
+
+- **What:** Phase 4 plan approved and recorded: "Phase 4 Plan" section (search, links, tags, step-0 fixes, "Did you mean…?" spelling suggestion only when a search has no results), roadmap (page version history moved to Phase 6), status table with Phase 4 steps, Decision Log, handoff. IDEAS: 10 ideas marked "In Phase 4 plan"; parked unlinked mentions, create page from [[, typo-tolerant search.
+- **Why:** Owner approved the plan checklist after testing the mockup.
+- **Files:** README.md, IDEAS.md, CHANGELOG.md

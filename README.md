@@ -53,13 +53,26 @@ For anyone in any field (writers, vloggers, learners, philosophers, technicians,
 - **Steps:** 1 Data + upgrade · 2 Settings · 3 Card block + Make card · 4 Blanks · 5a Scheduler + review log + speed test · 5b Review screen + cram · 6 Lesson templates + live list · 7 Polish (7a, 7b, 7c) · 8 FSRS.
 - **Definition of Done:** all above built (or FSRS formally moved), all unit + e2e tests pass (incl. upgrade and 10k-card tests), security/code review reported, docs updated, owner visual checks passed.
 
+## Phase 4 Plan — Organisation & Connection (approved 2026-10-26)
+
+- **Mockup:** `prototype-phase4.html` (double-click to open; fake data). Approved after owner testing.
+- **Search:** Ctrl+K / 🔍 opens a popup (box, chips All · Pages · Notes · Cards, top results grouped, keyboard); "See all" / Enter expands into the full Search screen: filters with counts after searching (notebook, tag step by step, card status), "More filters" (changed date, include Journal / Templates / Trash, sort Best match · Recently changed · Most failed), views List · Compact · Grouped (remembered), saved searches in the sidebar. Phone: full screen. Covers page titles, all text, cards and blanks, journal days, templates, tags; Trash only when ticked. One filter/result-type registry so future features plug in. Text with no letters or digits is an empty search.
+- **"Did you mean…?":** only when a search has no results; suggests the closest words that exist in the index (1–2 letters off); click runs it. No suggestion for scripts without letter spelling (Chinese, Japanese, Thai).
+- **Engine:** own word index in IndexedDB (no new library, ₹0): prefix match, accent/case-insensitive, `Intl.Segmenter` word splitting, ranking title > card > text, updated in the same save as the blocks, chunked backfill on upgrade. Typo-tolerant matching later.
+- **All cards** hub is replaced by Search with the Cards chip. Saved card searches are decks ("Review these cards").
+- **Links:** [[ picker (search-backed) to a page, heading or card; stores ids and shows the current title, so renames/moves never break links; a deleted target falls back to the page. "Linked from" at the end of each page with the surrounding sentence; page-link blocks count.
+- **Tags:** chips under the title + "Add tag"; typing # opens a picker that tags that block / its Card ("C#", "#1" stay text unless a tag is picked); cards inherit page tags; nested tags with / (sidebar tree, step-by-step filters; a parent includes its children). Tags are records, so rename/move updates everywhere. Tools: rename, move, merge, delete (asks; never deletes notes), optional colour (grey by default); a tag opens Search filtered to it.
+- **Fixes and polish:** moving a page updates its cards' `notebookId`/`pageId`; "Delete forever" clears card records and review logs but keeps a small deletion marker (id + `deletedAt`) for sync; hide "Steps for Good" under FSRS; template sub-pages in the sidebar; optional shuffle for Practice anyway.
+- **Steps:** 0 Fixes + polish · 1 Data model v3 + upgrade test · 2 Search index service (+ 10k/100k speed tests) · 3a Search popup · 3b Search screen + "Did you mean…?" + All cards folded in · 3c Saved searches / decks · 4 Links + Linked from · 5a Tags (chips, # picker, inheritance, nesting) · 5b Tag tools (tree, rename/move/merge/delete, colour, tag → Search) · 6 Card tools in Search (most failed, empty-card cleanup) · 7 Phase end checks.
+- **Definition of Done:** all above built; all unit + e2e tests pass (incl. upgrade test and 10k+ speed tests for search, tags, links); security + code review reported; docs updated; owner visual checks passed.
+
 ## Roadmap (likely, not final — may change)
 
 2. Learning Daily Journal + Templates — done
 3. Recall & Spaced Repetition — done
-4. Organisation & Connection (tags, links, search, history — including page version history)
+4. Organisation & Connection (search, links, tags) — plan approved 2026-10-26
 5. Databases & interactive blocks
-6. Data safety, export, encryption, sync
+6. Data safety, export, encryption, sync, page version history (moved from Phase 4 on 2026-10-26)
 7. Future: AI, semantic search, website, iOS app, collaboration
 
 ## Out of Scope (for now)
@@ -114,7 +127,7 @@ Business logic (services) has no UI code, so it can be reused later (e.g. iOS). 
 
 ## Project Status
 
-**Current phase:** Phase 4 — Organisation & Connection, planning started 2026-10-26. Phase 3 complete 2026-10-26 (all tests, security review, owner visual checks passed). Phase 2 complete. Phase 1 complete 2026-10-25.
+**Current phase:** Phase 4 — Organisation & Connection, plan approved 2026-10-26; building starts with Step 0. Phase 3 complete 2026-10-26 (all tests, security review, owner visual checks passed). Phase 2 complete. Phase 1 complete 2026-10-25.
 
 | Step                                                    | Status |
 | ------------------------------------------------------- | ------ |
@@ -138,6 +151,14 @@ Business logic (services) has no UI code, so it can be reused later (e.g. iOS). 
 | Phase 3, step 6: Lesson templates + live Card list      | Done   |
 | Phase 3, step 7: polish (7a, 7b, 7c All cards hub)      | Done   |
 | Phase 3, step 8: FSRS                                   | Done   |
+| Phase 4, step 0: fixes + polish                         | To do  |
+| Phase 4, step 1: data model v3 + upgrade                | To do  |
+| Phase 4, step 2: search index service                   | To do  |
+| Phase 4, step 3: search UI (3a, 3b, 3c)                 | To do  |
+| Phase 4, step 4: links + Linked from                    | To do  |
+| Phase 4, step 5: tags (5a, 5b)                          | To do  |
+| Phase 4, step 6: card tools in Search                   | To do  |
+| Phase 4, step 7: phase end checks                       | To do  |
 
 ## Decision Log
 
@@ -209,6 +230,12 @@ Business logic (services) has no UI code, so it can be reused later (e.g. iOS). 
 | 2026-10-26 | Review buttons may differ from the final due by about a day for long gaps (fuzz uses the exact rating time)                                                                                                                                             | Same as Anki; keeps buttons simple                                                                                 |
 | 2026-10-26 | Dates and times use the app language in the user's regional style (`dateLocale()`: app "en" + browser "en-IN" → "12 Nov"; "en-US" → "Nov 12"); journal titles stay en-GB (stored text, see Known Limitations)                                           | Owner request; numbers and text stay in the app language                                                           |
 | 2026-10-26 | "Duplicate block" added to Phase 3 (owner approved plan change)                                                                                                                                                                                         | Small editor polish; built before the end checks so they cover it                                                  |
+| 2026-10-26 | Phase 4 plan approved (see Phase 4 Plan): search, links, tags, step-0 fixes, "Did you mean…?"                                                                                                                                                           | Owner sign-off after testing the clickable mockup                                                                  |
+| 2026-10-26 | Page version history moved from Phase 4 to Phase 6 (data safety)                                                                                                                                                                                        | Fits with backups/export; keeps Phase 4 focused                                                                    |
+| 2026-10-26 | Search uses our own IndexedDB word index (prefix, accent-insensitive, `Intl.Segmenter`), no search library                                                                                                                                              | ₹0, low memory, all languages, scales to large collections; typo matching can plug in later                        |
+| 2026-10-26 | All cards hub replaced by Search (Cards chip); saved card searches are review decks                                                                                                                                                                     | One list instead of two; decks come free with saved searches                                                       |
+| 2026-10-26 | Links and tags store ids (tags are records with `parentId`), never names                                                                                                                                                                                | Renames and moves never break links or tags                                                                        |
+| 2026-10-26 | "Delete forever" keeps a small deletion marker (id + `deletedAt`) for card records and review logs                                                                                                                                                      | Like pages: lets future sync know what was deleted                                                                 |
 
 **Next steps — handoff for a new session:**
 
@@ -224,7 +251,8 @@ Business logic (services) has no UI code, so it can be reused later (e.g. iOS). 
 - **Phase 3 end checks — done 2026-10-26:** 220 unit + 54 e2e tests pass (incl. upgrade, 10k-card, 3 themes + phone screenshots); npm audit 0; focused code review (scheduling + log, FSRS takeover, card sync, DB upgrade, template copy) found no bugs; fixes: `.env` git-ignored, stored FSRS data validated. LEARNING.md created (Phase 3 section).
 - **Duplicate fix — done 2026-10-26:** block saves and card records in one transaction; opening a page adds missing card records. 222 unit + 56 e2e pass.
 - **Phase 3 closed 2026-10-26:** owner visual checks passed (Duplicate incl. the fix, regional dates).
-- **Next:** **Phase 4 planning** (Organisation & Connection) in plan mode per `rules/planning.md`; IDEAS.md reviewed. Must include: page moves update their cards' `notebookId`/`pageId`. Start with `/next`.
+- **Phase 4 plan approved 2026-10-26:** see "Phase 4 Plan" above; mockup `prototype-phase4.html`.
+- **Next:** **Phase 4, Step 0** (fixes + polish: page move updates cards, "Delete forever" deletion markers, hide "Steps for Good" under FSRS, template sub-pages in sidebar, Practice shuffle). Start a fresh session with `/next`.
 - See IDEAS.md for parked ideas.
 
 ## Known Limitations

@@ -1,7 +1,7 @@
 import type { LearningNotesDB } from '../core/db'
 import type { Card, Notebook, SearchEntry } from '../core/types'
 import { cardStatus, type CardStatus } from '../recall/cardList'
-import { wrongCardIds } from '../recall/reviewService'
+import { failCounts, wrongCardIds } from '../recall/reviewService'
 import { ownTagNames, taggedEntryIds, tagsOf } from '../tags/tagQuery'
 import { tagMap } from '../tags/tagService'
 import { findMatches } from './searchService'
@@ -26,18 +26,23 @@ const TYPE_OF: Record<SearchEntry['kind'], ResultType> = {
   card: 'card',
 }
 
-/** Card status filter: the card statuses, plus "Got wrong" (7 days). */
-export type StatusFilter = CardStatus | 'wrong'
+/**
+ * Card status filter: the card statuses, plus "Got wrong" (7 days) and
+ * "Empty" (Cards with no question; they have no other status).
+ */
+export type StatusFilter = CardStatus | 'wrong' | 'empty'
 export const STATUS_FILTERS: readonly StatusFilter[] = [
   'due',
   'new',
   'wrong',
   'later',
   'suspended',
+  'empty',
 ]
 
 export type ChangedFilter = 'any' | 'week' | 'month'
-export type SortOrder = 'best' | 'recent'
+/** 'failed' = cards rated Again most often first (then everything else). */
+export type SortOrder = 'best' | 'recent' | 'failed'
 
 export interface SearchFilters {
   notebookId: string | null
@@ -87,6 +92,10 @@ export interface SearchHit {
   due?: number
   /** Card results: every status filter the block matches. */
   statuses?: Set<StatusFilter>
+  /** An empty Card (no question): no status, never reviewed. */
+  empty?: boolean
+  /** Card results, "Most failed" sort only: Again ratings, all time. */
+  fails?: number
   /** Its tags, own and inherited, with their parents; unset = none. */
   tags?: Set<string>
 }
@@ -293,10 +302,11 @@ async function collect(
         updatedAt: entry.updatedAt,
         deleted: !!entry.deleted,
         place: placeOf.get(entry.notebookId) ?? null,
+        ...(entry.empty && { empty: true }),
       },
     ]
   })
-  await addCardStatus(db, hits, now)
+  await addCardStatus(db, hits, now, query.filters.sort === 'failed')
   const tagSets = await tagsOf(db, hits)
   for (const hit of hits) hit.tags = tagSets.get(hit.id)
 
@@ -352,9 +362,18 @@ function placeFor(notebook: Notebook): SearchHit['place'] {
   return null
 }
 
-function sorter(sort: SortOrder, browsing: boolean) {
+function sorter(
+  sort: SortOrder,
+  browsing: boolean,
+): (a: SearchHit, b: SearchHit) => number {
   const recent = (a: SearchHit, b: SearchHit) => b.updatedAt - a.updatedAt
   if (sort === 'recent') return recent
+  if (sort === 'failed') {
+    // Cards by Again count; results that are not cards come last.
+    const then = sorter('best', browsing)
+    return (a: SearchHit, b: SearchHit) =>
+      (b.fails ?? -1) - (a.fails ?? -1) || then(a, b)
+  }
   if (browsing) {
     return (a: SearchHit, b: SearchHit) =>
       (a.due ?? Infinity) - (b.due ?? Infinity) || recent(a, b)
@@ -378,12 +397,19 @@ async function entriesByIds(db: LearningNotesDB, ids: string[]) {
     .map((entry) => ({ entry, score: 0 }))
 }
 
-/** Adds status and due date to card results (one read of their cards). */
+/**
+ * Adds status and due date to card results (one read of their cards), and
+ * with `withFails` their Again counts. Empty Cards get only 'empty'.
+ */
 async function addCardStatus(
   db: LearningNotesDB,
   hits: SearchHit[],
   now: number,
+  withFails: boolean,
 ): Promise<void> {
+  for (const hit of hits) {
+    if (hit.empty) hit.statuses = new Set(['empty'])
+  }
   const cardHits = hits.filter((h) => h.type === 'card' && h.blockId)
   if (cardHits.length === 0) return
   // Many results: one plain read of all cards beats thousands of key
@@ -405,8 +431,11 @@ async function addCardStatus(
     list.push(card)
     byBlock.set(card.blockId, list)
   }
+  const fails = withFails ? await failCounts(db, cards, MANY_KEYS) : null
   for (const hit of cardHits) {
     const list = byBlock.get(hit.blockId!) ?? []
+    if (fails) hit.fails = list.reduce((n, c) => n + (fails.get(c.id) ?? 0), 0)
+    if (hit.empty) continue // listed, but never reviewed: no status
     const statuses = new Set<StatusFilter>()
     for (const card of list) {
       statuses.add(cardStatus(card, now))

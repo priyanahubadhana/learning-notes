@@ -113,7 +113,7 @@ export function readSavedQuery(stored: JsonObject): SearchQuery {
     journal: bool(f.journal, d.journal),
     templates: bool(f.templates, d.templates),
     trash: bool(f.trash, d.trash),
-    sort: oneOf(f.sort, ['best', 'recent'] as const, d.sort),
+    sort: oneOf(f.sort, ['best', 'recent', 'failed'] as const, d.sort),
   }
   return {
     text: typeof stored.text === 'string' ? stored.text : '',

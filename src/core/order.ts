@@ -17,6 +17,15 @@ export function orderBetween(
   return generateKeyBetween(before, after)
 }
 
+/** Returns `n` increasing keys between `before` and `after` (null = open end). */
+export function ordersBetween(
+  before: OrderKey | null,
+  after: OrderKey | null,
+  n: number,
+): OrderKey[] {
+  return generateNKeysBetween(before, after, n)
+}
+
 /**
  * Returns a key that places an item at `index` among already-sorted sibling
  * keys (which must not include the item itself). Out-of-range indexes are

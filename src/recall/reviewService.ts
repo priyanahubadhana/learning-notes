@@ -273,6 +273,30 @@ export async function wrongCardIds(
 }
 
 /**
+ * How often each of `cards` was rated Again, all time (Practice anyway
+ * included), for "Most failed". Cards never failed are left out. Above
+ * `manyKeys` cards one plain read of the log beats per-card lookups.
+ */
+export async function failCounts(
+  db: LearningNotesDB,
+  cards: readonly Pick<Card, 'id'>[],
+  manyKeys: number,
+): Promise<Map<string, number>> {
+  const ids = new Set(cards.map((c) => c.id))
+  const counts = new Map<string, number>()
+  if (ids.size === 0) return counts
+  const logs =
+    ids.size > manyKeys
+      ? db.reviewLogs.filter((l) => l.rating === 'again' && ids.has(l.cardId))
+      : db.reviewLogs
+          .where('cardId')
+          .anyOf([...ids])
+          .filter((l) => l.rating === 'again')
+  await logs.each((l) => counts.set(l.cardId, (counts.get(l.cardId) ?? 0) + 1))
+  return counts
+}
+
+/**
  * Whether rating `card` now is a normal review (true) or practice that
  * leaves its schedule alone (false): not due yet, or a new card beyond
  * today's new-card limit (it stays new and joins reviews on a later day).

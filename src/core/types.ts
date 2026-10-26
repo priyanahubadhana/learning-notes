@@ -229,6 +229,8 @@ export interface SearchEntry {
   updatedAt: number
   /** Set while the page/block is in the Trash (found only on request). */
   deleted?: true
+  /** A Card with no question yet: listed as "Empty", never reviewed. */
+  empty?: true
 }
 
 /** One link written in a block, to a page, or a heading/card on it. */

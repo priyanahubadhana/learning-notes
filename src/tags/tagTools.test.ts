@@ -8,6 +8,7 @@ import { inlineTagIds, TAG, toPlainText } from '../editor/mapping'
 import { createNotebook } from '../notebooks/notebookService'
 import { createPage, deletePage } from '../pages/pageService'
 import { syncCardRecords } from '../recall/cardService'
+import { restorePage } from '../trash/trashService'
 import {
   createSavedSearch,
   getSavedSearch,
@@ -132,6 +133,24 @@ describe('merge and delete', () => {
     expect(tagPathName(tags, keptValves.id)).toBe('cardio/valves')
     const deck = readSavedQuery((await getSavedSearch(db, saved.id))!.query)
     expect(deck.filters.tagId).toBe(cardio.id)
+  })
+
+  it('rewrites tags in notes on pages in the Trash (they come back on Restore)', async () => {
+    const page = await createPage(db, nb, null, 'Old notes')
+    const typo = await tag('cardoi')
+    const cardio = await tag('cardio')
+    const gone = await tag('gone')
+    const b = await block(page.id, [tagRun(typo.id), tagRun(gone.id)])
+    await deletePage(db, page.id)
+
+    expect(await mergeTag(db, typo.id, cardio.id)).toEqual([page.id])
+    await deleteTag(db, gone.id)
+    expect(inlineTagIds(await reread(b))).toEqual([cardio.id])
+
+    await restorePage(db, page.id)
+    expect(inlineTagIds(await reread(b))).toEqual([cardio.id])
+    const rows = await db.blockTags.where('blockId').equals(b.id).toArray()
+    expect(rows.map((r) => r.tagId)).toEqual([cardio.id])
   })
 
   it('delete keeps notes, lifts sub-tags, and saved searches use the parent', async () => {

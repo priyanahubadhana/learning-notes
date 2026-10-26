@@ -98,7 +98,11 @@ export function ResultRow({
               : 'line-clamp-2 [overflow-wrap:anywhere]'
           }`}
         >
-          <Highlighted text={main} query={query} />
+          {hit.empty && !main ? (
+            <span className="text-muted italic">{t('search.emptyCard')}</span>
+          ) : (
+            <Highlighted text={main} query={query} />
+          )}
         </span>
         <span
           className={`block truncate text-xs text-muted ${compact ? 'ms-auto shrink-0 max-w-[45%]' : 'mt-0.5'}`}
@@ -109,8 +113,20 @@ export function ResultRow({
           )}
         </span>
       </span>
-      {hit.status && hit.due !== undefined && (
-        <CardStatusLabel status={hit.status} due={hit.due} now={now} />
+      {!!hit.fails && (
+        <span className="shrink-0 text-xs font-medium text-danger">
+          {t('search.fails', { count: hit.fails })}
+        </span>
+      )}
+      {hit.empty ? (
+        <span className="shrink-0 text-xs text-muted">
+          {t('search.emptyLabel')}
+        </span>
+      ) : (
+        hit.status &&
+        hit.due !== undefined && (
+          <CardStatusLabel status={hit.status} due={hit.due} now={now} />
+        )
       )}
     </button>
   )

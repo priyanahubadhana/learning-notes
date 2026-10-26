@@ -1,6 +1,6 @@
 import type { Block, JsonValue, Page, SearchEntry } from '../core/types'
 import { noteLinkProps } from '../editor/mapping'
-import { cardParts } from '../recall/cardService'
+import { cardParts, hasQuestion } from '../recall/cardService'
 
 /**
  * Turning notes into search words. Pure functions shared by the index
@@ -11,9 +11,10 @@ import { cardParts } from '../recall/cardService'
 /**
  * Bump when splitting/folding or entry contents change: rebuilds the index
  * (and the links and block tags lists, see links/linkRows.ts and
- * tags/tagRows.ts). 2 = links (Phase 4 Step 4), 3 = block tags (Step 5).
+ * tags/tagRows.ts). 2 = links (Phase 4 Step 4), 3 = block tags (Step 5),
+ * 4 = empty Cards get an entry (Step 6).
  */
-export const SEARCH_INDEX_VERSION = 3
+export const SEARCH_INDEX_VERSION = 4
 
 /** Longer "words" (e.g. pasted hashes) are cut to this many characters. */
 const MAX_WORD_LENGTH = 40
@@ -95,7 +96,8 @@ export function pageEntry(page: Page): SearchEntry | null {
 
 /**
  * The entry for a block, or null when there is nothing to find. A block
- * that makes cards (a Card, or text with blanks) ranks as a card.
+ * that makes cards (a Card, or text with blanks) ranks as a card. An empty
+ * Card (no question) always gets one, so the Cards list can show it.
  */
 export function blockEntry(
   block: Block,
@@ -103,7 +105,8 @@ export function blockEntry(
 ): SearchEntry | null {
   if (block.purgedAt !== undefined) return null
   const words = searchWords(blockText(block.content))
-  if (words.length === 0) return null
+  const empty = !hasQuestion(block)
+  if (words.length === 0 && !empty) return null
   return {
     id: block.id,
     kind: cardParts(block).length > 0 ? 'card' : 'text',
@@ -112,6 +115,7 @@ export function blockEntry(
     blockId: block.id,
     words,
     updatedAt: block.updatedAt,
+    ...(empty && { empty: true }),
     ...(block.deletedAt !== null && { deleted: true }),
   }
 }

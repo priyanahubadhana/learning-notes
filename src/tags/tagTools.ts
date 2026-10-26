@@ -155,6 +155,22 @@ async function rewriteTags(
       const byId = new Map(tags.map((t) => [t.id, t]))
       const pagesTouched = new Set<string>()
 
+      // Blocks on pages in the Trash have no tag rows, but come back on
+      // Restore, so their tags are rewritten too. Read once, when needed.
+      let trashBlockIds: Promise<string[]> | undefined
+      const inTrash = () =>
+        (trashBlockIds ??= (async () => {
+          const pageIds = await db.pages
+            .filter((p) => p.deletedAt !== null && p.purgedAt === undefined)
+            .primaryKeys()
+          if (pageIds.length === 0) return []
+          return db.blocks
+            .where('pageId')
+            .anyOf(pageIds)
+            .filter((b) => b.deletedAt !== null && b.purgedAt === undefined)
+            .primaryKeys()
+        })())
+
       /** Gives a tag a new parent; same-named tags there are merged. */
       const reparent = async (child: Tag, parentId: string | null) => {
         const twin = sibling([...byId.values()], parentId, child.name, child.id)
@@ -180,10 +196,12 @@ async function rewriteTags(
           await db.pages.update(page.id, { tagIds: kept, updatedAt: now })
         }
         const rows = await db.blockTags.where('tagId').equals(fromId).toArray()
-        const blocks = await db.blocks.bulkGet(rows.map((r) => r.blockId))
+        const blocks = await db.blocks.bulkGet([
+          ...new Set([...rows.map((r) => r.blockId), ...(await inTrash())]),
+        ])
         const changed: Block[] = []
         for (const block of blocks) {
-          if (!block) continue
+          if (!block || !inlineTagIds(block).includes(fromId)) continue
           const has = inlineTagIds(block).includes(toId ?? '')
           const content = mapInlineTags(block.content, (tag) =>
             tag.tagId !== fromId

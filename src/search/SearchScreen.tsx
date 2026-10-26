@@ -1,6 +1,15 @@
 import { useLiveQuery } from 'dexie-react-hooks'
-import { useEffect, useId, useRef, useState, type ReactNode } from 'react'
+import {
+  useContext,
+  useEffect,
+  useId,
+  useRef,
+  useState,
+  type ReactNode,
+} from 'react'
+import { AppUiContext } from '../app/appUi'
 import { usePref } from '../app/usePref'
+import { removeEmptyCards, restoreEmptyCards } from '../recall/emptyCards'
 import type { LearningNotesDB } from '../core/db'
 import { t, type MessageKey } from '../i18n/t'
 import { tagMap, tagPathIn, tagPathName } from '../tags/tagService'
@@ -31,6 +40,7 @@ const STATUS_KEY: Record<StatusFilter, MessageKey> = {
   wrong: 'search.status.wrong',
   later: 'search.status.later',
   suspended: 'search.status.suspended',
+  empty: 'search.status.empty',
 }
 
 /**
@@ -113,8 +123,19 @@ export function SearchScreen({
   const details = useHitDetails(db, visible)
   const active = !!outcome?.active
   const cardIds = hits.flatMap((h) =>
-    h.type === 'card' && h.blockId ? [h.blockId] : [],
+    h.type === 'card' && h.blockId && !h.empty ? [h.blockId] : [],
   )
+  const emptyIds = hits.flatMap((h) =>
+    h.empty && h.blockId && !h.deleted ? [h.blockId] : [],
+  )
+  const ui = useContext(AppUiContext)
+  const removeEmpty = async () => {
+    const removed = await removeEmptyCards(db, emptyIds)
+    ui.toast(t('search.removedEmpty', { count: removed.count }), {
+      label: t('review.undo'),
+      onSelect: () => void restoreEmptyCards(db, removed),
+    })
+  }
   const showStatus =
     active &&
     (type === 'card' ||
@@ -312,6 +333,16 @@ export function SearchScreen({
             </span>
             <span className="flex flex-wrap gap-2">
               {actions?.(query)}
+              {filters.status === 'empty' && emptyIds.length > 0 && (
+                <button
+                  type="button"
+                  onClick={() => void removeEmpty()}
+                  title={t('search.removeEmptyHint')}
+                  className="min-h-8 rounded-lg border border-line px-3 text-[13px] text-danger hover:border-danger"
+                >
+                  {t('search.removeEmpty', { count: emptyIds.length })}
+                </button>
+              )}
               {cardIds.length > 0 && (
                 <button
                   type="button"
@@ -565,6 +596,7 @@ function MoreFilters({
   const sorts: [SortOrder, MessageKey][] = [
     ['best', 'search.sort.best'],
     ['recent', 'search.sort.recent'],
+    ['failed', 'search.sort.failed'],
   ]
   const heading = 'mb-1 text-xs font-semibold text-muted'
   return (

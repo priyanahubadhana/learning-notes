@@ -18,6 +18,7 @@ import { searchWords } from './searchText'
  */
 
 let db: LearningNotesDB
+const DAY = 24 * 60 * 60 * 1000
 
 beforeEach(() => {
   db = createTestDb()
@@ -163,8 +164,35 @@ describe('search speed', () => {
     const [rare, rareTime] = await time(() => runSearch(db, query('zygo')))
     expect(rare.hits).toHaveLength(10)
 
+    // Most failed: 50,000 older reviews, every 7th an Again.
+    await db.reviewLogs.bulkAdd(
+      Array.from({ length: 50_000 }, (_, i) => ({
+        id: `r${i}`,
+        cardId: `c${(i * 7919) % 10_000}`,
+        rating: i % 7 === 0 ? ('again' as const) : ('good' as const),
+        createdAt: now - 30 * DAY - i,
+        durationMs: 1000,
+        kind: 'review' as const,
+        scheduler: 'fsrs',
+        dueBefore: now,
+        dueAfter: now,
+        intervalBefore: 1,
+        intervalAfter: 1,
+        stepAfter: 0,
+        isNew: false,
+      })),
+    )
+    const [failed, failedTime] = await time(() =>
+      runSearch(db, query('', { sort: 'failed' })),
+    )
+    expect(failed.hits).toHaveLength(10_000)
+    const fails = failed.hits.map((h) => h.fails!)
+    expect(fails.reduce((a, b) => a + b, 0)).toBe(Math.ceil(50_000 / 7))
+    expect(fails).toEqual([...fails].sort((a, b) => b - a))
+
     expect(browseTime).toBeLessThan(3000)
     expect(everyTime).toBeLessThan(3000)
     expect(rareTime).toBeLessThan(200)
+    expect(failedTime).toBeLessThan(4000)
   }, 60_000)
 })

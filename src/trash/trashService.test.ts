@@ -14,6 +14,8 @@ import {
   getPage,
   listChildPages,
 } from '../pages/pageService'
+import { CARD_BLOCK_TYPE, syncCardRecords } from '../recall/cardService'
+import { countDue, rateCard } from '../recall/reviewService'
 import {
   listTrash,
   purgeNotebook,
@@ -162,6 +164,44 @@ describe('delete forever', () => {
     expect((await db.pages.get(a1.id))?.purgedAt).toEqual(expect.any(Number))
     expect((await db.blocks.get(block.id))?.content).toEqual({})
     expect((await db.pages.get(b.id))?.title).toBe('B')
+  })
+
+  it('erases the cards and review logs of the deleted blocks', async () => {
+    const { a, a1, b } = await sample()
+    const card = async (pageId: string) => {
+      await createBlock(db, {
+        pageId,
+        type: CARD_BLOCK_TYPE,
+        content: { text: [{ type: 'text', text: 'Q?', styles: {} }] },
+      })
+      await syncCardRecords(db, pageId)
+      return (await db.cards.where('pageId').equals(pageId).first())!
+    }
+    const gone = await card(a1.id)
+    const kept = await card(b.id)
+    await rateCard(db, gone.id, 'good', { durationMs: 1000 })
+    await rateCard(db, kept.id, 'good', { durationMs: 1000 })
+    tick()
+    await deletePage(db, a.id)
+
+    await purgePage(db, a.id)
+    expect(await db.cards.get(gone.id)).toMatchObject({
+      purgedAt: expect.any(Number),
+      deletedAt: expect.any(Number),
+      due: Number.MAX_SAFE_INTEGER,
+    })
+    expect((await db.cards.get(gone.id))?.schedulerData).toBeUndefined()
+    const [log] = await db.reviewLogs.where('cardId').equals(gone.id).toArray()
+    expect(log).toMatchObject({ purgedAt: expect.any(Number), durationMs: 0 })
+    expect(log.schedulerDataAfter).toBeUndefined()
+
+    expect((await db.cards.get(kept.id))?.purgedAt).toBeUndefined()
+    const [keptLog] = await db.reviewLogs
+      .where('cardId')
+      .equals(kept.id)
+      .toArray()
+    expect(keptLog.purgedAt).toBeUndefined()
+    expect(await countDue(db, Date.now() + 365 * 86_400_000)).toBe(1)
   })
 
   it('is all-or-nothing', async () => {

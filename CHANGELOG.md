@@ -331,3 +331,9 @@
 - **What:** Phase 4 plan approved and recorded: "Phase 4 Plan" section (search, links, tags, step-0 fixes, "Did you mean…?" spelling suggestion only when a search has no results), roadmap (page version history moved to Phase 6), status table with Phase 4 steps, Decision Log, handoff. IDEAS: 10 ideas marked "In Phase 4 plan"; parked unlinked mentions, create page from [[, typo-tolerant search.
 - **Why:** Owner approved the plan checklist after testing the mockup.
 - **Files:** README.md, IDEAS.md, CHANGELOG.md
+
+## 2026-10-26
+
+- **What:** Phase 4, Step 0a. "Delete forever" now also erases the cards of the deleted blocks (kept as markers with `purgedAt`, far-future `due` so due lookups skip them) and their review logs (details erased; rating, kind and time kept so today's review counts stay right; `purgedAt` added to `ReviewLog`). Page move: no fix needed (pages cannot change notebook and blocks cannot change page today); added a guard note in `movePage` for a future "move to another notebook".
+- **Why:** Phase 4 plan, Step 0 fixes (risk notes from the Phase 3 review).
+- **Files:** src/trash/trashService.ts, src/trash/trashService.test.ts, src/core/types.ts, src/pages/pageService.ts, CHANGELOG.md

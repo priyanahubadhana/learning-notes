@@ -145,6 +145,7 @@ export interface Card extends BaseRecord {
 /**
  * One review of one card. Append-only: entries are never edited or deleted,
  * so schedulers (e.g. FSRS) and future sync can replay the full history.
+ * The only exception is "Delete forever", which erases the details.
  */
 export interface ReviewLog {
   id: string
@@ -167,6 +168,8 @@ export interface ReviewLog {
   isNew: boolean
   /** Scheduler state after the review, if the scheduler keeps any. */
   schedulerDataAfter?: JsonObject
+  /** Set when the card was deleted forever; the details are erased. */
+  purgedAt?: number
 }
 
 /**

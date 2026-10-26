@@ -7,7 +7,7 @@ import {
   purgeMany,
   restoreMany,
 } from '../core/records'
-import type { BaseRecord, Notebook, Page } from '../core/types'
+import type { BaseRecord, Card, Notebook, Page } from '../core/types'
 
 /**
  * Trash: deleted notebooks and pages, with Restore and Delete forever.
@@ -115,6 +115,45 @@ async function blocksOf(
     .map((b) => b.id)
 }
 
+/**
+ * Erases the recall cards of deleted-forever blocks and their review logs.
+ * Both stay as small markers (id + `purgedAt`) for a future sync. Erased
+ * cards get a far-future `due`, so due-card lookups never read them again.
+ */
+async function purgeCardsOf(
+  db: LearningNotesDB,
+  blockIds: string[],
+  now: number,
+): Promise<void> {
+  const cardIds = (await db.cards.where('blockId').anyOf(blockIds).toArray())
+    .filter((c) => c.purgedAt === undefined)
+    .map((c) => c.id)
+  if (cardIds.length === 0) return
+  const emptied: Partial<Card> = {
+    deletedAt: now,
+    due: Number.MAX_SAFE_INTEGER,
+    schedulerData: undefined,
+  }
+  await purgeMany(db.cards, cardIds, emptied, now)
+
+  // Rating, kind and time are kept so today's review counts stay right.
+  const logIds = await db.reviewLogs
+    .where('cardId')
+    .anyOf(cardIds)
+    .primaryKeys()
+  const changes = {
+    durationMs: 0,
+    dueBefore: 0,
+    dueAfter: 0,
+    intervalBefore: 0,
+    intervalAfter: 0,
+    stepAfter: 0,
+    schedulerDataAfter: undefined,
+    purgedAt: now,
+  }
+  await db.reviewLogs.bulkUpdate(logIds.map((key) => ({ key, changes })))
+}
+
 /** Restores a notebook with the pages and blocks deleted together with it. */
 export async function restoreNotebook(
   db: LearningNotesDB,
@@ -187,7 +226,8 @@ export async function purgeNotebook(
   db: LearningNotesDB,
   id: string,
 ): Promise<void> {
-  await db.transaction('rw', db.notebooks, db.pages, db.blocks, async () => {
+  const tables = [db.notebooks, db.pages, db.blocks, db.cards, db.reviewLogs]
+  await db.transaction('rw', tables, async () => {
     await getTrashed<Notebook>(db.notebooks, id)
     const now = Date.now()
     const pageIds = (await db.pages.where('notebookId').equals(id).toArray())
@@ -198,6 +238,7 @@ export async function purgeNotebook(
     await purgeMany(db.notebooks, [id], { title: '' }, now)
     await purgeMany(db.pages, pageIds, { title: '' }, now)
     await purgeMany(db.blocks, blockIds, { content: {} }, now)
+    await purgeCardsOf(db, blockIds, now)
   })
 }
 
@@ -206,7 +247,8 @@ export async function purgePage(
   db: LearningNotesDB,
   id: string,
 ): Promise<void> {
-  await db.transaction('rw', db.pages, db.blocks, async () => {
+  const tables = [db.pages, db.blocks, db.cards, db.reviewLogs]
+  await db.transaction('rw', tables, async () => {
     const page = await getTrashed<Page>(db.pages, id)
     const now = Date.now()
     const pages = await db.pages
@@ -218,5 +260,6 @@ export async function purgePage(
 
     await purgeMany(db.pages, pageIds, { title: '' }, now)
     await purgeMany(db.blocks, blockIds, { content: {} }, now)
+    await purgeCardsOf(db, blockIds, now)
   })
 }

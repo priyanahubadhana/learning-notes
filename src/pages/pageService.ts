@@ -156,6 +156,8 @@ export async function movePage(
       siblings.map((p) => p.order),
       toIndex,
     )
+    // Pages stay in their notebook, so cards' copied `pageId`/`notebookId`
+    // stay right. A future "move to another notebook" must update them too.
     await db.pages.update(id, {
       parentId: newParentId,
       order,

@@ -44,6 +44,24 @@ export async function listPages(
 }
 
 /**
+ * The pages of a notebook's Notes tree: like listPages, but without
+ * database row pages and their sub-pages (they open from their database).
+ */
+export async function listNotePages(
+  db: LearningNotesDB,
+  notebookId: string,
+): Promise<Page[]> {
+  const pages = await listPages(db, notebookId)
+  const rowIds = pages.filter((p) => p.databaseId).map((p) => p.id)
+  if (rowIds.length === 0) return pages
+  const hidden = new Set(rowIds)
+  for (const id of rowIds) {
+    for (const child of descendantIds(pages, id)) hidden.add(child)
+  }
+  return pages.filter((p) => !hidden.has(p.id))
+}
+
+/**
  * The chain of pages from the top level down to `pageId` (inclusive),
  * e.g. for a breadcrumb. Empty if the page is missing or deleted.
  */

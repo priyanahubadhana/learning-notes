@@ -257,6 +257,11 @@ export interface Database extends BaseRecord {
    * notebook's top-level pages (lessons), not row pages. Unset = normal.
    */
   kind?: 'studyTracker'
+  /**
+   * Name of the title column (the row page's title), e.g. "Name" or
+   * "Lesson"; formulas refer to it as `[Name]`. Unset = "Name".
+   */
+  titleName?: string
   /** View to open on; unset = Dashboard once it has rows, else Table. */
   openViewId?: string
 }

@@ -7,6 +7,7 @@ import {
   softDeleteMany,
 } from '../core/records'
 import type { Notebook } from '../core/types'
+import { softDeleteDatabaseParts } from '../databases/databaseParts'
 import { defaultNotebookTabs } from '../databases/notebookTabs'
 
 /**
@@ -25,7 +26,8 @@ export async function getNotebook(
 
 /**
  * Lists the live notebooks in a workspace, in display order. The Templates
- * notebook is left out (it has its own sidebar section).
+ * notebook is left out (it has its own sidebar section), and so is the
+ * hidden home of rows of databases outside any notebook.
  */
 export async function listNotebooks(
   db: LearningNotesDB,
@@ -35,7 +37,11 @@ export async function listNotebooks(
     .where('workspaceId')
     .equals(workspaceId)
     .toArray()
-  return all.filter((n) => isLive(n) && n.kind !== 'templates').sort(byOrder)
+  return all
+    .filter(
+      (n) => isLive(n) && n.kind !== 'templates' && n.kind !== 'databases',
+    )
+    .sort(byOrder)
 }
 
 /** Finds the live notebook of a special kind (journal or templates). */
@@ -106,14 +112,33 @@ export async function moveNotebook(
   })
 }
 
-/** Soft-deletes a notebook together with all its pages and their blocks. */
+/**
+ * Soft-deletes a notebook together with all its pages and their blocks,
+ * and its databases (Study tracker included) with their columns and views.
+ */
 export async function deleteNotebook(
   db: LearningNotesDB,
   id: string,
 ): Promise<void> {
-  await db.transaction('rw', db.notebooks, db.pages, db.blocks, async () => {
+  const tables = [
+    db.notebooks,
+    db.pages,
+    db.blocks,
+    db.databases,
+    db.dbColumns,
+    db.dbViews,
+  ]
+  await db.transaction('rw', tables, async () => {
     await getLive(db.notebooks, id)
     const deletedAt = Date.now()
+
+    const databases = await db.databases
+      .where('notebookId')
+      .equals(id)
+      .toArray()
+    for (const database of databases.filter(isLive)) {
+      await softDeleteDatabaseParts(db, database, deletedAt)
+    }
 
     const pageIds = (await db.pages.where('notebookId').equals(id).toArray())
       .filter(isLive)

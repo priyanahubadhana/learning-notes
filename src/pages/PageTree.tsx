@@ -7,7 +7,7 @@ import type { LearningNotesDB } from '../core/db'
 import { descendantIds } from '../core/records'
 import type { Page } from '../core/types'
 import { shortDayLabel } from '../journal/dates'
-import { listPages, movePageToTopLevel, renamePage } from './pageService'
+import { listNotePages, movePageToTopLevel, renamePage } from './pageService'
 
 interface PageTreeProps {
   db: LearningNotesDB
@@ -37,7 +37,10 @@ export function PageTree({
   onAddSubPage,
   onRequestDelete,
 }: PageTreeProps) {
-  const pages = useLiveQuery(() => listPages(db, notebookId), [db, notebookId])
+  const pages = useLiveQuery(
+    () => listNotePages(db, notebookId),
+    [db, notebookId],
+  )
   const [renamingId, setRenamingId] = useState<string | null>(null)
   if (!pages) return null
 

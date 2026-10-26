@@ -39,8 +39,10 @@ interface Token {
 }
 
 class ParseError extends Error {
-  constructor(public readonly result: FormulaError) {
+  readonly result: FormulaError
+  constructor(result: FormulaError) {
     super(result.error)
+    this.result = result
   }
 }
 

@@ -5,10 +5,13 @@ import { ConfirmDialog, IconButton } from '../app/ui'
 import { isBoolean } from '../app/uiPrefs'
 import { usePref } from '../app/usePref'
 import type { LearningNotesDB } from '../core/db'
+import { t } from '../i18n/t'
 import {
   listTrash,
+  purgeDatabase,
   purgeNotebook,
   purgePage,
+  restoreDatabase,
   restoreNotebook,
   restorePage,
   type TrashItem,
@@ -32,13 +35,17 @@ export function TrashSection({ db, workspaceId }: TrashSectionProps) {
     runTask(
       item.kind === 'notebook'
         ? restoreNotebook(db, item.id)
-        : restorePage(db, item.id),
+        : item.kind === 'database'
+          ? restoreDatabase(db, item.id)
+          : restorePage(db, item.id),
     )
   const purge = (item: TrashItem) =>
     runTask(
       item.kind === 'notebook'
         ? purgeNotebook(db, item.id)
-        : purgePage(db, item.id),
+        : item.kind === 'database'
+          ? purgeDatabase(db, item.id)
+          : purgePage(db, item.id),
     )
 
   const count = items?.length ?? 0
@@ -66,7 +73,11 @@ export function TrashSection({ db, workspaceId }: TrashSectionProps) {
             className="group flex items-center gap-1.5 rounded-md py-1 pr-2 pl-5 text-sm hover:bg-hover"
           >
             <span aria-hidden className="w-4 text-center text-xs">
-              {item.kind === 'notebook' ? '📓' : '📄'}
+              {item.kind === 'notebook'
+                ? '📓'
+                : item.kind === 'database'
+                  ? '🗃️'
+                  : '📄'}
             </span>
             <span className="min-w-0 flex-1">
               <span className="block truncate text-muted">
@@ -75,7 +86,9 @@ export function TrashSection({ db, workspaceId }: TrashSectionProps) {
               <span className="block truncate text-[11px] text-muted/80">
                 {item.kind === 'notebook'
                   ? `${item.pageCount} page${item.pageCount === 1 ? '' : 's'}`
-                  : `in ${item.notebookTitle || 'Untitled'}`}
+                  : item.kind === 'database'
+                    ? t('trash.databaseRows', { count: item.rowCount })
+                    : `in ${item.notebookTitle || 'Untitled'}`}
               </span>
             </span>
             <span className="flex opacity-0 group-focus-within:opacity-100 group-hover:opacity-100">
@@ -95,7 +108,11 @@ export function TrashSection({ db, workspaceId }: TrashSectionProps) {
       {purging && (
         <ConfirmDialog
           message={`Delete “${purging.title || 'Untitled'}” forever? ${
-            purging.kind === 'notebook' ? 'Its pages will be deleted too. ' : ''
+            purging.kind === 'notebook'
+              ? 'Its pages will be deleted too. '
+              : purging.kind === 'database'
+                ? `${t('trash.databaseRowsToo')} `
+                : ''
           }This can’t be undone.`}
           confirmLabel="Delete forever"
           onCancel={() => setPurging(null)}

@@ -67,6 +67,11 @@ export interface SettingDefinition<T extends JsonValue = JsonValue> {
   /** Checks any stored or entered value; invalid values are never saved. */
   isValid: (value: unknown) => value is T
   control: SettingControl
+  /**
+   * Shown in Settings only while another (synced) setting has one of these
+   * values, e.g. scheduler-specific settings. The value is kept either way.
+   */
+  shownWhen?: { settingId: string; values: readonly JsonValue[] }
 }
 
 export interface SettingsRegistry {
@@ -102,6 +107,12 @@ export function createSettingsRegistry(): SettingsRegistry {
         if (!categories.has(id)) {
           throw new Error(`Unknown settings category "${id}"`)
         }
+      }
+      const controller = definition.shownWhen?.settingId
+      if (controller && settings.get(controller)?.scope !== 'synced') {
+        throw new Error(
+          `shownWhen needs a registered synced setting: ${controller}`,
+        )
       }
       if (!definition.isValid(definition.defaultValue)) {
         throw new Error(`Invalid default for setting ${definition.id}`)

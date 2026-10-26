@@ -1,3 +1,4 @@
+import { useLiveQuery } from 'dexie-react-hooks'
 import { use, useEffect, useId, useRef, useState } from 'react'
 import { revealWhenReady } from '../editor/revealBlock'
 import { AppUiContext } from '../app/appUi'
@@ -6,7 +7,7 @@ import type { JsonValue } from '../core/types'
 import { t } from '../i18n/t'
 import { settingsRegistry } from './builtinSettings'
 import type { SettingControl, SettingDefinition } from './registry'
-import { setSetting } from './settingsService'
+import { getSetting, setSetting } from './settingsService'
 import { useDeviceSetting, useSyncedSetting } from './useSetting'
 
 /**
@@ -45,30 +46,27 @@ export function SettingsScreen({
   const categories = settingsRegistry.categories()
   const current = categories.find((c) => c.id === category)
 
+  const visible = useVisibleSettings(db)
   const q = query.trim().toLowerCase()
   const shown =
     category === ALL
-      ? settingsRegistry
-          .list()
-          .filter(
-            (s) =>
-              !q ||
-              `${t(s.labelKey)} ${t(s.descriptionKey)}`
-                .toLowerCase()
-                .includes(q),
-          )
-      : settingsRegistry.inCategory(category)
+      ? visible.filter(
+          (s) =>
+            !q ||
+            `${t(s.labelKey)} ${t(s.descriptionKey)}`.toLowerCase().includes(q),
+        )
+      : inCategory(visible, category)
 
   const tabs = [
     {
       id: ALL,
       label: t('settings.category.all'),
-      count: settingsRegistry.list().length,
+      count: visible.length,
     },
     ...categories.map((c) => ({
       id: c.id,
       label: t(c.labelKey),
-      count: settingsRegistry.inCategory(c.id).length,
+      count: inCategory(visible, c.id).length,
     })),
   ]
 
@@ -134,6 +132,33 @@ export function SettingsScreen({
 }
 
 /** Picks where the value comes from (database or this device). */
+const inCategory = (visible: SettingDefinition[], category: string) => {
+  const ids = new Set(settingsRegistry.inCategory(category).map((s) => s.id))
+  return visible.filter((s) => ids.has(s.id))
+}
+
+/** All settings, minus those hidden by `shownWhen` (hidden while loading). */
+function useVisibleSettings(db: LearningNotesDB): SettingDefinition[] {
+  const all = settingsRegistry.list()
+  const controllers = useLiveQuery(async () => {
+    const ids = [
+      ...new Set(
+        all.flatMap((s) => (s.shownWhen ? [s.shownWhen.settingId] : [])),
+      ),
+    ]
+    const values = await Promise.all(
+      ids.map((id) => getSetting(db, settingsRegistry.get(id)!)),
+    )
+    return new Map(ids.map((id, i) => [id, values[i]]))
+  }, [db])
+  return all.filter(
+    (s) =>
+      !s.shownWhen ||
+      (controllers !== undefined &&
+        s.shownWhen.values.includes(controllers.get(s.shownWhen.settingId)!)),
+  )
+}
+
 function SettingRow(props: {
   db: LearningNotesDB
   definition: SettingDefinition

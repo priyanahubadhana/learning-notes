@@ -13,6 +13,13 @@ async function openSettings(page: Page) {
   ).toBeVisible()
 }
 
+/** "Steps for Good" is shown only with the Simple steps scheduler. */
+async function useSimpleSteps(page: Page) {
+  await main(page)
+    .getByRole('combobox', { name: 'Scheduler' })
+    .selectOption({ label: 'Simple steps' })
+}
+
 test('a changed setting is saved and survives a reload; Reset restores it', async ({
   page,
 }) => {
@@ -52,6 +59,7 @@ test('invalid input shows a clear message and is not saved', async ({
   )
 
   // Steps must rise: 3 → 2 is refused.
+  await useSimpleSteps(page)
   const steps = settingRow(page, 'Steps for “Good”')
   await steps.getByRole('textbox', { name: 'Step 2, in days' }).fill('1')
   await steps.getByRole('textbox', { name: 'Step 2, in days' }).press('Enter')
@@ -71,6 +79,7 @@ test('invalid input shows a clear message and is not saved', async ({
 
 test('steps can be added and removed', async ({ page }) => {
   await openSettings(page)
+  await useSimpleSteps(page)
   const steps = settingRow(page, 'Steps for “Good”')
   await steps.getByRole('button', { name: /Add step/ }).click()
   await expect(

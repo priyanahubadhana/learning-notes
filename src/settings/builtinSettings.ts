@@ -135,6 +135,7 @@ export const goodSteps: SettingDefinition<number[]> = {
     STEP_LIMITS.maxCount,
   ),
   control: { kind: 'steps', ...STEP_LIMITS, unitKey: 'unit.days' },
+  shownWhen: { settingId: 'review.scheduler', values: ['fixed'] },
 }
 
 /** How review gaps are picked (ids in `recall/scheduler.ts`). */
@@ -167,6 +168,7 @@ export const targetMemory: SettingDefinition<number> = {
   defaultValue: 90,
   isValid: isIntInRange(70, 97),
   control: { kind: 'number', min: 70, max: 97, unitKey: 'unit.percent' },
+  shownWhen: { settingId: 'review.scheduler', values: ['fsrs'] },
 }
 
 /** Where "/card" puts a new card when typed inside a card's answer. */

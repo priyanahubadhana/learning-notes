@@ -60,6 +60,11 @@ describe('settings registry', () => {
     expect(() => r.register({ ...def, id: 'y', defaultValue: -1 })).toThrow(
       /default/,
     )
+    const hidden = { settingId: 'missing', values: [1] }
+    expect(() => r.register({ ...def, id: 'z', shownWhen: hidden })).toThrow(
+      /shownWhen/,
+    )
+    r.register({ ...def, id: 'w', shownWhen: { ...hidden, settingId: def.id } })
   })
 
   it('accepts only rising whole-number steps', () => {

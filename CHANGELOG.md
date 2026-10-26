@@ -337,3 +337,9 @@
 - **What:** Phase 4, Step 0a. "Delete forever" now also erases the cards of the deleted blocks (kept as markers with `purgedAt`, far-future `due` so due lookups skip them) and their review logs (details erased; rating, kind and time kept so today's review counts stay right; `purgedAt` added to `ReviewLog`). Page move: no fix needed (pages cannot change notebook and blocks cannot change page today); added a guard note in `movePage` for a future "move to another notebook".
 - **Why:** Phase 4 plan, Step 0 fixes (risk notes from the Phase 3 review).
 - **Files:** src/trash/trashService.ts, src/trash/trashService.test.ts, src/core/types.ts, src/pages/pageService.ts, CHANGELOG.md
+
+## 2026-10-26
+
+- **What:** Phase 4, Step 0b (part 1). Settings can now be shown only while another setting has certain values (`shownWhen` in the settings registry; checked when registering). "Steps for Good" shows only with Simple steps, "Target memory" only with FSRS. Values are kept while hidden. Category counts follow what is shown.
+- **Why:** Phase 4 plan, Step 0 polish: no settings that do nothing for the chosen scheduler.
+- **Files:** src/settings/registry.ts, src/settings/builtinSettings.ts, src/settings/SettingsScreen.tsx, src/settings/settings.test.ts, e2e/settings.spec.ts, e2e/review.spec.ts, CHANGELOG.md

@@ -136,10 +136,13 @@ test('Settings: Simple steps scheduler changes the button gaps', async ({
   await sidebar(page).getByRole('button', { name: 'Settings' }).click()
   const scheduler = page.getByRole('combobox', { name: 'Scheduler' })
   await expect(scheduler).toHaveValue('fsrs')
+  const target = page.getByRole('textbox', { name: 'Target memory' })
+  const steps = page.getByRole('region', { name: 'Steps for “Good”' })
+  await expect(target).toHaveValue('90')
+  await expect(steps).toBeHidden()
   await scheduler.selectOption({ label: 'Simple steps' })
-  await expect(
-    page.getByRole('textbox', { name: 'Target memory' }),
-  ).toHaveValue('90')
+  await expect(steps).toBeVisible()
+  await expect(target).toBeHidden()
 
   await createNotebook(page, 'Cardiology', 'Heart sounds')
   await makeCard(page, 'Which valves close in S2?', 'Aortic and pulmonary')

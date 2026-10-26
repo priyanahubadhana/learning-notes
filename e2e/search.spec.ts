@@ -62,7 +62,9 @@ test('popup: recent pages, grouped results, keyboard, open at the block', async 
   await expect.poll(() => highlighted(page)).toContain('nucleus holds')
 
   // The sidebar button opens it too; Enter without a pick shows all.
-  await sidebar(page).getByRole('button', { name: /^Search/ }).click()
+  await sidebar(page)
+    .getByRole('button', { name: /^Search/ })
+    .click()
   await page.keyboard.type('mitochondria')
   await expect(
     page.getByRole('dialog', { name: 'Search' }).getByRole('option'),

@@ -459,3 +459,9 @@
 - **What:** Phase 4 closed: owner visual checks passed (search, links, tags, saved searches, card tools). Roadmap, status and handoff updated; Phase 5 planning next.
 - **Why:** Phase 4 Definition of Done met.
 - **Files:** README.md, LEARNING.md, CHANGELOG.md
+
+## 2026-10-27
+
+- **What:** Phase 5 plan approved and recorded ("Phase 5 Plan" in README): notebook tabs (Notes · Database · Cards · Revise), Study tracker, universal databases with Formula/Relation/Rollup, Table/Dashboard/Board (5A) and Calendar/Gallery (5B), Revise tab, CSV + own-file import/export (moved from Phase 6). Roadmap, decision log, handoff and IDEAS updated.
+- **Why:** Owner's vision: one app for all data, simple for beginners, deep for experts.
+- **Files:** README.md, IDEAS.md, CHANGELOG.md

@@ -411,3 +411,13 @@
   - Tests: `tagService.test.ts` (names, dedupe, picker, page/block tags, backfill, inheritance, 10,000-card tag browse), `tagActions.test.ts` (real editor), `e2e/tags.spec.ts` (+ screenshots in 3 themes and phone). 291 unit + 76 e2e pass.
 - **Why:** Phase 4 plan, Step 5a.
 - **Files:** src/tags/{tagNames,tagService,tagRows,tagQuery,tagStyle}.ts, src/tags/{TagChip,TagPicker,PageTags}.tsx, src/tags/tagService.test.ts, src/editor/{mapping,tagActions,editorContext}.ts, src/editor/{TagView,schema,PageEditor}.tsx, src/editor/tagActions.test.ts, src/search/{indexMiddleware,searchService,searchText,searchQuery,savedSearchService}.ts, src/search/SearchScreen.tsx, src/pages/PageView.tsx, src/recall/ReviewScreen.tsx, src/templates/templateService.ts, src/App.tsx, src/i18n/en.ts, src/index.css, e2e/tags.spec.ts, README.md, IDEAS.md, CHANGELOG.md
+
+## 2026-10-27
+
+- **What:** Phase 4 Step 5b — tag tools.
+  - **Sidebar "Tags":** tree of tags (sub-tags fold out), counts, "+" New tag, "No tags yet" note; a tag opens Search filtered to it.
+  - **Tag tools (⋯ or right-click):** Rename, Move under… (or Top level), Merge into… (sub-tags move under the kept tag), Colour (6 colours or none), Delete tag (asks; notes and cards stay, sub-tags move up a level). Renaming, moving and colouring show everywhere at once; merge/delete also update tags typed in text and saved searches, and reload the open page.
+  - **Search:** result rows show their tags; typed words also match tag names ("exam" finds what is tagged #exam).
+  - Tests: `tagTools.test.ts` (rename/move rules, merge, delete, counts, tag words, 10,000-note count), `e2e/tagTools.spec.ts` (tree, tools, search rows, 10,000-note merge in real Chrome: 2.6 s), screenshots show the tree. 299 unit + 81 e2e pass.
+- **Why:** Phase 4 plan, Step 5b.
+- **Files:** src/tags/{tagTools,tagQuery}.ts, src/tags/{TagsSection,TagPicker}.tsx, src/tags/tagTools.test.ts, src/search/{searchQuery,SearchResults}.ts(x), src/search/searchQuery.test.ts, src/notebooks/Sidebar.tsx, src/App.tsx, src/i18n/en.ts, e2e/{tagTools,tags}.spec.ts, README.md, CHANGELOG.md, IDEAS.md

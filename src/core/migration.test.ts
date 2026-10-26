@@ -142,14 +142,16 @@ async function expectVersion3TablesWork(db: LearningNotesDB) {
 
   // Word index: prefix lookups through the multi-entry index.
   const entry = { pageId: 'p1', notebookId: 'nb1' }
-  await db.searchEntries.bulkAdd([
-    { ...entry, id: 'title:p1', kind: 'title', words: ['cells'] },
+  // bulkPut: saving the page above already indexed its title.
+  await db.searchEntries.bulkPut([
+    { ...entry, id: 'title:p1', kind: 'title', words: ['cells'], updatedAt: T },
     {
       ...entry,
       id: 'b1',
       kind: 'text',
       blockId: 'b1',
       words: ['mitochondria', 'mitral'],
+      updatedAt: T,
     },
   ])
   const hits = await db.searchEntries.where('words').startsWith('mit').toArray()

@@ -1,4 +1,5 @@
 import Dexie, { type EntityTable } from 'dexie'
+import { searchIndexMiddleware } from '../search/indexMiddleware'
 import type {
   Block,
   BlockTag,
@@ -79,6 +80,10 @@ export class LearningNotesDB extends Dexie {
       blockTags: 'id, blockId, pageId, tagId',
       meta: 'id',
     })
+
+    // Every save of a page or block also updates its search entry, in the
+    // same transaction (see search/indexMiddleware.ts).
+    this.use(searchIndexMiddleware)
   }
 }
 

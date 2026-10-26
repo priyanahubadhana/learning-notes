@@ -225,6 +225,10 @@ export interface SearchEntry {
   blockId?: string
   /** Normalised words (lower case, no accents), each once. */
   words: string[]
+  /** When the title/block last changed (ties; "Recently changed" sort). */
+  updatedAt: number
+  /** Set while the page/block is in the Trash (found only on request). */
+  deleted?: true
 }
 
 /** One link written in a block, to a page, or a heading/card on it. */

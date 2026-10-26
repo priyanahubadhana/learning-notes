@@ -17,6 +17,7 @@ import { useTreeState } from './app/useTreeState'
 import { db } from './core/db'
 import type { Page, Workspace } from './core/types'
 import { getOrCreateDefaultWorkspace } from './core/workspaceService'
+import { ensureSearchIndex } from './search/searchService'
 import { openJournalDay } from './journal/journalService'
 import { Sidebar } from './notebooks/Sidebar'
 import { createNotebook, listNotebooks } from './notebooks/notebookService'
@@ -98,6 +99,10 @@ function App() {
     workspacePromise ??= (async () => {
       const ws = await getOrCreateDefaultWorkspace(db)
       await ensureTemplates(db, ws.id) // starter templates on first run
+      // Indexes notes saved before search existed; runs in the background.
+      ensureSearchIndex(db).catch((error: unknown) =>
+        console.error('Could not build the search index', error),
+      )
       return ws
     })()
     workspacePromise.then(setWorkspace, (error: unknown) =>

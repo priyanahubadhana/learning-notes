@@ -367,3 +367,9 @@
 - **What:** Phase 4 Step 1 (data model v3). New tables: `tags` (nesting via `parentId`, optional colour), `savedSearches`, `meta`, and rebuildable helper lists `searchEntries` (word list per title/block, multi-entry `*words` index for prefix search), `links` (block → page/heading/card) and `blockTags`. Pages get optional `tagIds` (multi-entry index). "Delete forever" also erases a page's tags. Upgrade tests for version 1 → 3 and version 2 → 3 (all Phase 1–3 data kept; new indexes work). Architecture rule: helper lists are rebuildable copies (owner approved).
 - **Why:** Foundation for search, links and tags (Phase 4 Steps 2–6).
 - **Files:** src/core/types.ts, src/core/db.ts, src/core/migration.test.ts, src/trash/trashService.ts, src/trash/trashService.test.ts, rules/architecture.md, README.md, CHANGELOG.md
+
+## 2026-10-26
+
+- **What:** Phase 4 Step 2 (search index service). New `src/search/`: word splitting (`Intl.Segmenter`, case/accent folding that keeps letters of other scripts), a Dexie middleware that updates `searchEntries` inside every page/block save (titles, text, cards; Trash flag; Delete forever and emptied blocks removed; page moved to another notebook takes its entries along), `searchIndex` (all words as word starts, reads only the rarest word's entries, ranked title > card > text + whole-word bonus + newest), `ensureSearchIndex` (chunked, resumable backfill, started at app launch; rebuild on index version change). `SearchEntry` gained `updatedAt` and `deleted` (no database change). Tests incl. 10k notes and 100k entries speed tests.
+- **Why:** Engine for the Search popup/screen, links and tags (Phase 4 Steps 3–6).
+- **Files:** src/search/searchText.ts, src/search/indexMiddleware.ts, src/search/searchService.ts, src/search/*.test.ts, src/core/db.ts, src/core/types.ts, src/core/migration.test.ts, src/App.tsx, README.md, IDEAS.md, CHANGELOG.md

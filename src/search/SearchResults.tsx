@@ -1,3 +1,4 @@
+import type { MouseEvent } from 'react'
 import { t } from '../i18n/t'
 import { CardStatusLabel } from '../recall/CardStatusLabel'
 import { highlightParts, snippet } from './highlight'
@@ -57,6 +58,7 @@ export function ResultRow({
   now,
   compact = false,
   selected = false,
+  plain = false,
   onOpen,
 }: {
   id?: string
@@ -66,6 +68,8 @@ export function ResultRow({
   now: number
   compact?: boolean
   selected?: boolean
+  /** A normal button (reachable with Tab), not an option of a listbox. */
+  plain?: boolean
   onOpen: (hit: SearchHit) => void
 }) {
   const main =
@@ -76,11 +80,14 @@ export function ResultRow({
     <button
       id={id}
       type="button"
-      role="option"
-      aria-selected={selected}
-      tabIndex={-1}
+      {...(!plain && {
+        role: 'option',
+        'aria-selected': selected,
+        tabIndex: -1,
+        // Keeps focus in the search box.
+        onMouseDown: (e: MouseEvent) => e.preventDefault(),
+      })}
       onClick={() => onOpen(hit)}
-      onMouseDown={(e) => e.preventDefault()} // keep focus in the search box
       className={`flex w-full gap-2.5 rounded-lg px-2.5 text-start hover:bg-hover ${
         compact ? 'min-h-9 items-center py-1' : 'min-h-11 items-start py-2'
       } ${selected ? 'bg-hover shadow-[inset_2px_0_0_var(--color-accent)]' : ''}`}

@@ -20,6 +20,7 @@ import type { Page, SavedSearch, Workspace } from './core/types'
 import { getOrCreateDefaultWorkspace } from './core/workspaceService'
 import { ensureSearchIndex } from './search/searchService'
 import { openJournalDay } from './journal/journalService'
+import { NotebookScreen } from './notebooks/NotebookScreen'
 import { Sidebar } from './notebooks/Sidebar'
 import { createNotebook, listNotebooks } from './notebooks/notebookService'
 import { PageView } from './pages/PageView'
@@ -76,6 +77,12 @@ function App() {
     isStringOrNull,
     null,
   )
+  // An open notebook (its tabs) replaces the open page the same way.
+  const [notebookId, setNotebookId] = usePref(
+    'currentNotebook',
+    isStringOrNull,
+    null,
+  )
   // Settings replaces the open page in the main area until a page is opened.
   const [showSettings, setShowSettings] = useState(false)
   // Setting to scroll to and highlight when Settings opens (e.g. from a dialog).
@@ -83,6 +90,7 @@ function App() {
   const openSettings = (settingId?: string) => {
     setReviewScope(null)
     setSearch(null)
+    setNotebookId(null)
     setSettingsFocus(settingId ?? null)
     setShowSettings(true)
   }
@@ -97,22 +105,32 @@ function App() {
     savedId?: string
   } | null>(null)
   const [searchPopup, setSearchPopup] = useState(false)
+  /** Opens a notebook's tabs (Notes · Database · Cards). */
+  const openNotebook = (id: string) => {
+    setShowSettings(false)
+    setReviewScope(null)
+    setSearch(null)
+    setNotebookId(id)
+  }
   const openPage = (id: string | null) => {
     setShowSettings(false)
     setReviewScope(null)
     setSearch(null)
+    setNotebookId(null)
     setCurrentPageId(id)
     if (id) rememberPage(id)
   }
   const openReview = (scope: ReviewScope) => {
     setShowSettings(false)
     setSearch(null)
+    setNotebookId(null)
     setReviewScope(scope)
   }
   const openSearch = (query: SearchQuery, savedId?: string) => {
     setShowSettings(false)
     setReviewScope(null)
     setSearchPopup(false)
+    setNotebookId(null)
     setSearch({ query, key: Date.now(), savedId })
   }
   /** Search screen showing everything with a tag. */
@@ -181,6 +199,9 @@ function App() {
   const notebooks = useLiveQuery(
     () => workspace && listNotebooks(db, workspace.id),
     [workspace],
+  )
+  const openNotebookRecord = notebooks?.find(
+    (n) => n.id === notebookId && !n.kind,
   )
   const currentPage = useLiveQuery(
     async () =>
@@ -342,6 +363,8 @@ function App() {
             renamingNotebookId={renamingNotebookId}
             onRenamingChange={setRenamingNotebookId}
             onOpenPage={openPage}
+            openNotebookId={openNotebookRecord?.id ?? null}
+            onOpenNotebook={openNotebook}
             onOpenToday={() => runTask(openToday())}
             onCreateNotebook={() => runTask(createNotebookAndOpen())}
             onCreatePage={(notebookId, parentId, templateId) =>
@@ -415,6 +438,17 @@ function App() {
                   openReview({ kind: 'blocks', blockIds, name })
                 }
                 onClose={() => setSearch(null)}
+              />
+            ) : openNotebookRecord ? (
+              <NotebookScreen
+                key={openNotebookRecord.id}
+                db={db}
+                notebook={openNotebookRecord}
+                onOpenPage={openPage}
+                onCreatePage={(id) => runTask(createPageIn(id, null))}
+                onOpenHit={(hit) => runTask(openHit(hit))}
+                onReview={openReview}
+                onClose={() => setNotebookId(null)}
               />
             ) : currentPage ? (
               <PageView

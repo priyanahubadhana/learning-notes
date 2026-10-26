@@ -6,7 +6,7 @@ import {
   newRecordFields,
   softDeleteMany,
 } from '../core/records'
-import type { Notebook } from '../core/types'
+import type { Notebook, NotebookTab } from '../core/types'
 import { softDeleteDatabaseParts } from '../databases/databaseParts'
 import { defaultNotebookTabs } from '../databases/notebookTabs'
 
@@ -150,5 +150,41 @@ export async function deleteNotebook(
     await softDeleteMany(db.notebooks, [id], deletedAt)
     await softDeleteMany(db.pages, pageIds, deletedAt)
     await softDeleteMany(db.blocks, blockIds, deletedAt)
+  })
+}
+
+/**
+ * Renames and/or hides one of a notebook's tabs. `title` '' gives the tab
+ * back its default name. The last visible tab cannot be hidden.
+ */
+export async function updateNotebookTab(
+  db: LearningNotesDB,
+  notebookId: string,
+  tabId: string,
+  changes: { title?: string; hidden?: boolean },
+): Promise<void> {
+  await db.transaction('rw', db.notebooks, async () => {
+    const notebook = await getLive(db.notebooks, notebookId)
+    const tabs = notebook.tabs ?? []
+    if (!tabs.some((tab) => tab.id === tabId)) {
+      throw new Error(`Unknown tab: ${tabId}`)
+    }
+    const next = tabs.map((tab) => {
+      if (tab.id !== tabId) return tab
+      const title = (changes.title ?? tab.title ?? '').trim().slice(0, 100)
+      const hidden = changes.hidden ?? tab.hidden ?? false
+      const updated: NotebookTab = { ...tab, title, hidden }
+      // Unset = default name / shown (keeps stored records small).
+      if (!title) delete updated.title
+      if (!hidden) delete updated.hidden
+      return updated
+    })
+    if (next.every((tab) => tab.hidden)) {
+      throw new Error('A notebook keeps one visible tab')
+    }
+    await db.notebooks.update(notebookId, {
+      tabs: next,
+      updatedAt: Date.now(),
+    })
   })
 }

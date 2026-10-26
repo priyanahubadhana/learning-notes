@@ -11,6 +11,7 @@ import {
   listNotebooks,
   moveNotebook,
   renameNotebook,
+  updateNotebookTab,
 } from './notebookService'
 
 let db: LearningNotesDB
@@ -123,5 +124,34 @@ describe('notebookService', () => {
     // Notebook and page writes happened earlier but were rolled back.
     expect((await db.notebooks.get(nb.id))?.deletedAt).toBeNull()
     expect((await db.pages.get(page.id))?.deletedAt).toBeNull()
+  })
+})
+
+describe('notebook tabs', () => {
+  it('renames, resets, hides and shows a tab', async () => {
+    const nb = await createNotebook(db, ws, 'A')
+    const tab = async (id: string) =>
+      (await getNotebook(db, nb.id))?.tabs?.find((x) => x.id === id)
+    await updateNotebookTab(db, nb.id, 'cards', { title: '  Flashcards ' })
+    expect((await tab('cards'))?.title).toBe('Flashcards')
+    await updateNotebookTab(db, nb.id, 'cards', { hidden: true })
+    expect(await tab('cards')).toMatchObject({
+      title: 'Flashcards',
+      hidden: true,
+    })
+    await updateNotebookTab(db, nb.id, 'cards', { title: '', hidden: false })
+    expect(await tab('cards')).toEqual({ id: 'cards', kind: 'cards' })
+  })
+
+  it('keeps one visible tab and rejects unknown tabs', async () => {
+    const nb = await createNotebook(db, ws, 'A')
+    await updateNotebookTab(db, nb.id, 'notes', { hidden: true })
+    await updateNotebookTab(db, nb.id, 'cards', { hidden: true })
+    await expect(
+      updateNotebookTab(db, nb.id, 'database', { hidden: true }),
+    ).rejects.toThrow()
+    await expect(
+      updateNotebookTab(db, nb.id, 'nope', { title: 'X' }),
+    ).rejects.toThrow()
   })
 })

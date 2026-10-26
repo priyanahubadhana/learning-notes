@@ -31,6 +31,9 @@ interface SidebarProps {
   renamingNotebookId: string | null
   onRenamingChange: (id: string | null) => void
   onOpenPage: (pageId: string | null) => void
+  /** The notebook whose tabs are open in the main area, if any. */
+  openNotebookId: string | null
+  onOpenNotebook: (notebookId: string) => void
   onOpenToday: () => void
   /** True while the Settings screen is shown. */
   settingsOpen: boolean
@@ -90,6 +93,8 @@ export function Sidebar({
   renamingNotebookId,
   onRenamingChange,
   onOpenPage,
+  openNotebookId,
+  onOpenNotebook,
   onOpenToday,
   settingsOpen,
   onOpenSettings,
@@ -286,8 +291,8 @@ export function Sidebar({
                   setDropTarget(null)
                 }}
                 className={`group flex items-center gap-1.5 rounded-md px-2 py-1 text-sm hover:bg-hover ${line} ${
-                  dragId === notebook.id ? 'opacity-40' : ''
-                }`}
+                  openNotebookId === notebook.id ? 'bg-hover' : ''
+                } ${dragId === notebook.id ? 'opacity-40' : ''}`}
               >
                 <button
                   type="button"
@@ -309,7 +314,19 @@ export function Sidebar({
                 ) : (
                   <button
                     type="button"
-                    onClick={() => tree.toggleNotebook(notebook.id)}
+                    onClick={() => {
+                      // A normal notebook opens (its tabs); special ones fold.
+                      if (notebook.kind) {
+                        tree.toggleNotebook(notebook.id)
+                        return
+                      }
+                      tree.expandNotebook(notebook.id)
+                      onOpenNotebook(notebook.id)
+                    }}
+                    aria-current={
+                      openNotebookId === notebook.id ? 'page' : undefined
+                    }
+                    title={notebook.kind ? undefined : t('notebook.open')}
                     onDoubleClick={() => onRenamingChange(notebook.id)}
                     className="flex-1 truncate text-left font-semibold"
                   >

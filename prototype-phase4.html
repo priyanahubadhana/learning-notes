@@ -1,0 +1,809 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<style>body { margin: 0 } [hidden] { display: none !important }</style>
+<title>Learning Notes Phase 4 Mockup</title>
+<meta name="claude:viewport-fit-sides" content="cover">
+<style>
+/* Layout: the real app shell (sidebar + page), with the Phase 4 search popup, Search screen and pickers on top.
+   Colours = the app's own Day / Night / Sepia tokens (src/index.css). */
+:root {
+  --bg: #fff; --side: #f7f7f5; --ink: #1d1d1f; --muted: #6e6e73; --line: #ececec;
+  --accent: #2f6feb; --hover: rgba(0,0,0,.045); --soft: #f4f6fb; --danger: #c8402f;
+  --chip: #efefed; --mark: rgba(47,111,235,.16); --shadow: 0 12px 40px rgba(0,0,0,.16), 0 2px 6px rgba(0,0,0,.06);
+  --font: ui-sans-serif, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Noto Sans", "Helvetica Neue", Arial, sans-serif;
+  --mono: ui-monospace, "SF Mono", Menlo, Consolas, monospace;
+}
+@media (prefers-color-scheme: dark) { :root:not([data-theme="light"]) {
+  --bg: #161618; --side: #1e1e21; --ink: #ececee; --muted: #9a9aa0; --line: #2c2c30;
+  --accent: #5e9bff; --hover: rgba(255,255,255,.055); --soft: #22252c; --danger: #ff7b6b;
+  --chip: #2a2a2e; --mark: rgba(94,155,255,.24); --shadow: 0 12px 40px rgba(0,0,0,.5); color-scheme: dark } }
+:root[data-theme="dark"] {
+  --bg: #161618; --side: #1e1e21; --ink: #ececee; --muted: #9a9aa0; --line: #2c2c30;
+  --accent: #5e9bff; --hover: rgba(255,255,255,.055); --soft: #22252c; --danger: #ff7b6b;
+  --chip: #2a2a2e; --mark: rgba(94,155,255,.24); --shadow: 0 12px 40px rgba(0,0,0,.5); color-scheme: dark }
+/* The mockup's own theme switch (app themes) wins over the viewer theme. */
+body.t-day { --bg: #fff; --side: #f7f7f5; --ink: #1d1d1f; --muted: #6e6e73; --line: #ececec; --accent: #2f6feb; --hover: rgba(0,0,0,.045); --soft: #f4f6fb; --danger: #c8402f; --chip: #efefed; --mark: rgba(47,111,235,.16); --shadow: 0 12px 40px rgba(0,0,0,.16), 0 2px 6px rgba(0,0,0,.06); color-scheme: light }
+body.t-night { --bg: #161618; --side: #1e1e21; --ink: #ececee; --muted: #9a9aa0; --line: #2c2c30; --accent: #5e9bff; --hover: rgba(255,255,255,.055); --soft: #22252c; --danger: #ff7b6b; --chip: #2a2a2e; --mark: rgba(94,155,255,.24); --shadow: 0 12px 40px rgba(0,0,0,.5); color-scheme: dark }
+body.t-sepia { --bg: #f8f1e3; --side: #f1e8d6; --ink: #433422; --muted: #85755c; --line: #e6dac3; --accent: #a8691f; --hover: rgba(90,60,20,.06); --soft: #efe4cc; --danger: #b23a2a; --chip: #ebdfc6; --mark: rgba(181,118,42,.2); --shadow: 0 12px 40px rgba(70,45,10,.18); color-scheme: light }
+
+html, body { height: 100%; }
+body { background: var(--bg); color: var(--ink); font-family: var(--font); font-size: 14px; display: flex; flex-direction: column; }
+button { font: inherit; color: inherit; background: none; border: 0; cursor: pointer; padding: 0; }
+input { font: inherit; color: inherit; }
+:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; border-radius: 4px; }
+
+/* Mockup bar (not part of the app) */
+.mockbar { display: flex; flex-wrap: wrap; align-items: center; gap: 6px 14px; padding-block: 7px; padding-left: max(16px, env(safe-area-inset-left, 0px)); padding-right: max(16px, env(safe-area-inset-right, 0px)); background: var(--soft); border-bottom: 1px solid var(--line); font-size: 12px; color: var(--muted); }
+.mockbar b { color: var(--ink); font-weight: 600; }
+.seg { display: inline-flex; border: 1px solid var(--line); border-radius: 7px; overflow: hidden; }
+.seg button { padding: 3px 9px; }
+.seg button[aria-pressed="true"] { background: var(--ink); color: var(--bg); }
+.mockbar label { display: inline-flex; gap: 5px; align-items: center; cursor: pointer; }
+
+.app { flex: 1; display: flex; min-height: 0; position: relative; }
+aside { width: 260px; flex: none; background: var(--side); border-right: 1px solid var(--line); overflow-y: auto; padding: 10px 8px 24px; display: flex; flex-direction: column; gap: 2px; }
+.navbtn { display: flex; align-items: center; gap: 8px; width: 100%; text-align: left; padding: 5px 8px; border-radius: 6px; color: var(--ink); }
+.navbtn:hover { background: var(--hover); }
+.navbtn .k { margin-left: auto; font-size: 11px; color: var(--muted); font-family: var(--mono); }
+.navbtn .n { margin-left: auto; font-size: 12px; color: var(--muted); font-variant-numeric: tabular-nums; }
+.navbtn.on { background: var(--hover); font-weight: 600; }
+.sect { margin: 14px 8px 4px; font-size: 11px; letter-spacing: .06em; text-transform: uppercase; color: var(--muted); display: flex; align-items: center; justify-content: space-between; }
+.tree { display: flex; flex-direction: column; }
+.trow { display: flex; align-items: center; border-radius: 6px; position: relative; }
+.trow:hover { background: var(--hover); }
+.trow .tw { width: 16px; flex: none; color: var(--muted); font-size: 10px; text-align: center; }
+.trow .tl { flex: 1; min-width: 0; text-align: left; padding: 4px 4px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.trow .more { opacity: 0; padding: 2px 7px; color: var(--muted); border-radius: 5px; }
+.trow:hover .more, .trow .more:focus-visible { opacity: 1; }
+.trow .more:hover { background: var(--hover); }
+.dot { width: 7px; height: 7px; border-radius: 50%; display: inline-block; margin-right: 6px; flex: none; background: var(--c, transparent); box-shadow: inset 0 0 0 1px var(--line); }
+.empty-note { margin: 4px 8px; padding: 10px; border: 1px dashed var(--line); border-radius: 8px; color: var(--muted); font-size: 12.5px; line-height: 1.5; }
+
+main { flex: 1; min-width: 0; overflow-y: auto; }
+.page { max-width: 720px; margin: 0 auto; padding-block: 40px 80px; padding-left: max(16px, env(safe-area-inset-left, 0px)); padding-right: max(16px, env(safe-area-inset-right, 0px)); }
+.crumbs { color: var(--muted); font-size: 12.5px; margin-bottom: 10px; }
+h1.ptitle { font-size: 32px; font-weight: 700; margin: 0 0 10px; letter-spacing: -.01em; text-wrap: balance; }
+.tagrow { display: flex; flex-wrap: wrap; gap: 6px; align-items: center; margin-bottom: 26px; }
+.tag { display: inline-flex; align-items: center; gap: 0; padding: 1px 8px; border-radius: 999px; background: var(--chip); color: var(--ink); font-size: 12.5px; line-height: 20px; white-space: nowrap; max-width: 100%; overflow: hidden; text-overflow: ellipsis; }
+.tag[data-c] { background: color-mix(in srgb, var(--c) 17%, var(--bg)); }
+.tag .par { color: var(--muted); }
+button.tag:hover { filter: brightness(.96); }
+.addtag { color: var(--muted); font-size: 12.5px; padding: 1px 8px; border-radius: 999px; border: 1px dashed var(--line); }
+.addtag:hover { color: var(--ink); border-color: var(--muted); }
+.morechip { color: var(--accent); font-size: 12.5px; padding: 1px 6px; }
+
+.doc h2 { font-size: 20px; margin: 28px 0 8px; }
+.doc p { line-height: 1.65; margin: 6px 0; }
+.ilink { color: var(--accent); text-decoration: underline; text-decoration-color: color-mix(in srgb, var(--accent) 40%, transparent); text-underline-offset: 3px; cursor: pointer; }
+.ilink .anc { color: var(--muted); }
+.card { border: 1px solid var(--line); border-radius: 10px; padding: 10px 14px; margin: 12px 0; background: var(--bg); }
+.card .lbl { font-size: 11px; letter-spacing: .06em; text-transform: uppercase; color: var(--muted); display: flex; justify-content: space-between; align-items: center; gap: 8px; }
+.card .q { font-weight: 600; margin: 4px 0; }
+.card .a { color: var(--muted); padding-left: 12px; border-left: 2px solid var(--line); }
+.pill { font-size: 11px; padding: 1px 7px; border-radius: 999px; background: var(--chip); color: var(--muted); text-transform: none; letter-spacing: 0; white-space: nowrap; }
+.pill.due { color: var(--accent); background: var(--mark); }
+.pill.wrong { color: var(--danger); background: color-mix(in srgb, var(--danger) 13%, var(--bg)); }
+.blank { background: var(--mark); border-radius: 3px; padding: 0 2px; }
+.try { border: 1px dashed var(--line); border-radius: 8px; padding: 10px 12px; margin: 18px 0; line-height: 1.7; min-height: 46px; outline: none; }
+.try:focus { border-color: var(--accent); }
+.try:empty::before { content: attr(data-ph); color: var(--muted); }
+.hint { font-size: 12px; color: var(--muted); margin-top: -10px; }
+
+.backlinks { margin-top: 48px; border-top: 1px solid var(--line); padding-top: 16px; }
+.backlinks h3 { font-size: 13px; font-weight: 600; margin: 0 0 10px; display: flex; gap: 8px; align-items: baseline; }
+.backlinks h3 span { color: var(--muted); font-weight: 400; }
+.bl { display: block; width: 100%; text-align: left; padding: 8px 10px; border-radius: 8px; }
+.bl:hover { background: var(--hover); }
+.bl .t { font-weight: 600; font-size: 13.5px; }
+.bl .t small { font-weight: 400; color: var(--muted); }
+.bl .s { color: var(--muted); font-size: 13px; margin-top: 2px; line-height: 1.5; }
+.bl .s em { font-style: normal; color: var(--ink); background: var(--mark); border-radius: 3px; padding: 0 2px; }
+
+/* Search popup */
+.scrim { position: fixed; inset: 0; background: rgba(0,0,0,.28); z-index: 40; display: flex; justify-content: center; align-items: flex-start; padding: 10vh 16px 16px; }
+.pop { width: 100%; max-width: 620px; background: var(--bg); border: 1px solid var(--line); border-radius: 14px; box-shadow: var(--shadow); display: flex; flex-direction: column; max-height: 72vh; overflow: hidden; }
+.sbox { display: flex; align-items: center; gap: 10px; padding: 12px 14px; border-bottom: 1px solid var(--line); }
+.sbox input { flex: 1; min-width: 0; border: 0; outline: 0; background: transparent; font-size: 16px; }
+.sbox .ic { color: var(--muted); }
+.chips { display: flex; gap: 6px; flex-wrap: wrap; padding: 8px 14px; border-bottom: 1px solid var(--line); }
+.chipf { padding: 3px 10px; border-radius: 999px; border: 1px solid var(--line); font-size: 12.5px; color: var(--muted); white-space: nowrap; }
+.chipf .c { font-variant-numeric: tabular-nums; opacity: .8; margin-left: 4px; }
+.chipf[aria-pressed="true"] { background: var(--ink); color: var(--bg); border-color: var(--ink); }
+.pres { overflow-y: auto; padding: 6px; }
+.grp { font-size: 11px; letter-spacing: .06em; text-transform: uppercase; color: var(--muted); padding: 10px 10px 4px; }
+.res { display: flex; gap: 10px; width: 100%; text-align: left; padding: 7px 10px; border-radius: 8px; align-items: flex-start; }
+.res .ico { width: 18px; flex: none; color: var(--muted); text-align: center; }
+.res .body { min-width: 0; flex: 1; }
+.res .tt { white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.res .wh { font-size: 12px; color: var(--muted); }
+.res .sn { font-size: 13px; color: var(--muted); line-height: 1.45; overflow-wrap: anywhere; }
+.res mark { background: var(--mark); color: inherit; border-radius: 3px; padding: 0 1px; }
+.res.sel, .res:hover { background: var(--hover); }
+.res.sel { box-shadow: inset 2px 0 0 var(--accent); }
+.popfoot { display: flex; justify-content: space-between; gap: 8px; flex-wrap: wrap; padding: 8px 14px; border-top: 1px solid var(--line); font-size: 12px; color: var(--muted); }
+.popfoot button { color: var(--accent); font-weight: 600; }
+kbd { font-family: var(--mono); font-size: 11px; border: 1px solid var(--line); border-bottom-width: 2px; border-radius: 4px; padding: 0 4px; }
+.nores { padding: 28px 18px; text-align: center; color: var(--muted); line-height: 1.6; }
+.nores b { color: var(--ink); }
+.nores button { color: var(--accent); }
+
+/* Search screen */
+.sscreen { max-width: 920px; margin: 0 auto; padding-block: 28px 80px; padding-left: max(16px, env(safe-area-inset-left, 0px)); padding-right: max(16px, env(safe-area-inset-right, 0px)); }
+.sscreen .sbox { border: 1px solid var(--line); border-radius: 10px; }
+.sscreen .chips { border: 0; padding: 10px 0 0; }
+.toolbar { display: flex; flex-wrap: wrap; gap: 8px 12px; align-items: center; justify-content: space-between; margin: 14px 0 6px; }
+.facets { display: flex; flex-wrap: wrap; gap: 6px; align-items: center; }
+.facet { position: relative; }
+.fbtn { padding: 4px 10px; border-radius: 8px; border: 1px solid var(--line); font-size: 12.5px; display: inline-flex; gap: 6px; align-items: center; white-space: nowrap; }
+.fbtn.on { border-color: var(--accent); color: var(--accent); background: var(--mark); }
+.fbtn .x { opacity: .7; }
+.menu { position: absolute; top: calc(100% + 4px); left: 0; z-index: 30; min-width: 220px; max-width: min(320px, 86vw); background: var(--bg); border: 1px solid var(--line); border-radius: 10px; box-shadow: var(--shadow); padding: 6px; }
+.menu .mi { display: flex; justify-content: space-between; gap: 12px; width: 100%; text-align: left; padding: 6px 8px; border-radius: 6px; }
+.menu .mi:hover, .menu .mi.sel { background: var(--hover); }
+.menu .mi .n { color: var(--muted); font-variant-numeric: tabular-nums; }
+.menu .mh { font-size: 11px; color: var(--muted); padding: 6px 8px 2px; display: flex; gap: 4px; flex-wrap: wrap; align-items: center; }
+.menu .mh button { color: var(--accent); }
+.menu .sep { height: 1px; background: var(--line); margin: 4px 0; }
+.menu input[type=text] { width: 100%; box-sizing: border-box; padding: 6px 8px; border: 1px solid var(--line); border-radius: 6px; background: var(--bg); margin-bottom: 4px; }
+.menu .danger { color: var(--danger); }
+.views { display: inline-flex; border: 1px solid var(--line); border-radius: 8px; overflow: hidden; font-size: 12.5px; }
+.views button { padding: 4px 10px; }
+.views button[aria-pressed="true"] { background: var(--hover); font-weight: 600; }
+.morepanel { border: 1px solid var(--line); border-radius: 10px; padding: 12px 14px; margin: 8px 0; display: grid; grid-template-columns: repeat(auto-fit, minmax(190px, 1fr)); gap: 14px; }
+.morepanel h4 { margin: 0 0 6px; font-size: 12px; color: var(--muted); font-weight: 600; }
+.morepanel label { display: flex; gap: 7px; align-items: center; padding: 2px 0; cursor: pointer; }
+.sumline { display: flex; flex-wrap: wrap; gap: 8px 12px; align-items: center; justify-content: space-between; color: var(--muted); font-size: 12.5px; margin: 14px 0 4px; }
+.btn { padding: 5px 12px; border-radius: 8px; border: 1px solid var(--line); font-size: 13px; }
+.btn:hover { background: var(--hover); }
+.btn.primary { background: var(--accent); color: #fff; border-color: var(--accent); }
+.list .res { border-bottom: 1px solid var(--line); border-radius: 0; padding: 10px 6px; }
+.list.compact .res { padding: 5px 6px; align-items: center; }
+.list.compact .tt { flex: 0 1 auto; }
+.list.compact .wh { margin-left: auto; white-space: nowrap; padding-left: 10px; overflow: hidden; text-overflow: ellipsis; }
+.gh { margin: 18px 0 2px; font-size: 13px; font-weight: 600; display: flex; gap: 8px; }
+.gh span { color: var(--muted); font-weight: 400; }
+.stitle { font-size: 22px; font-weight: 700; margin: 0 0 12px; display: flex; align-items: center; gap: 8px; flex-wrap: wrap; }
+
+/* Pickers + dialogs */
+.picker { position: fixed; z-index: 50; width: 300px; max-width: calc(100vw - 24px); background: var(--bg); border: 1px solid var(--line); border-radius: 10px; box-shadow: var(--shadow); padding: 6px; }
+.picker input { width: 100%; box-sizing: border-box; padding: 6px 8px; border: 1px solid var(--line); border-radius: 6px; background: var(--bg); outline: none; margin-bottom: 4px; }
+.picker .list2 { max-height: 260px; overflow-y: auto; }
+.dlg { background: var(--bg); border: 1px solid var(--line); border-radius: 14px; box-shadow: var(--shadow); width: 100%; max-width: 420px; padding: 18px; }
+.dlg h3 { margin: 0 0 8px; font-size: 16px; }
+.dlg p { color: var(--muted); line-height: 1.5; margin: 0 0 14px; }
+.dlg .row { display: flex; justify-content: flex-end; gap: 8px; margin-top: 14px; flex-wrap: wrap; }
+.dlg .btn.danger { background: var(--danger); border-color: var(--danger); color: #fff; }
+.swatches { display: flex; gap: 8px; flex-wrap: wrap; }
+.sw { width: 28px; height: 28px; border-radius: 50%; background: var(--c); border: 2px solid var(--bg); box-shadow: 0 0 0 1px var(--line); }
+.sw[aria-pressed="true"] { box-shadow: 0 0 0 2px var(--ink); }
+.sw.none { background: var(--chip); display: grid; place-items: center; font-size: 11px; color: var(--muted); }
+.toast { position: fixed; left: 50%; bottom: calc(20px + env(safe-area-inset-bottom, 0px)); transform: translateX(-50%); background: var(--ink); color: var(--bg); padding: 9px 16px; border-radius: 10px; z-index: 60; font-size: 13px; max-width: calc(100vw - 32px); }
+.menubtn { display: none; }
+
+@media (max-width: 760px) {
+  aside { position: absolute; inset: 0 auto 0 0; z-index: 35; transform: translateX(-102%); transition: transform .2s; box-shadow: var(--shadow); }
+  .app.drawer aside { transform: none; }
+  .menubtn { display: inline-flex; position: sticky; top: 0; margin: 8px 0 0 max(12px, env(safe-area-inset-left, 0px)); padding: 6px 10px; border: 1px solid var(--line); border-radius: 8px; background: var(--bg); z-index: 5; }
+  .page { padding-top: 16px; }
+  h1.ptitle { font-size: 26px; }
+  .scrim { padding: 0; }
+  .pop { max-width: none; max-height: none; height: 100%; border-radius: 0; border: 0; }
+}
+@media (prefers-reduced-motion: reduce) { aside { transition: none; } }
+</style>
+
+<div class="mockbar" role="region" aria-label="Mockup controls">
+  <span><b>Phase 4 mockup</b> · fake data · nothing is saved</span>
+  <span class="seg" role="group" aria-label="Theme">
+    <button id="th-day" data-act="theme" data-v="day">Day</button><button id="th-night" data-act="theme" data-v="night">Night</button><button id="th-sepia" data-act="theme" data-v="sepia">Sepia</button>
+  </span>
+  <label><input type="checkbox" id="emptyTags" data-act="emptyTags"> Show "no tags yet"</label>
+  <span>Try: <kbd>Ctrl</kbd>+<kbd>K</kbd> · search "valve", "mitr", "café", "心臓" · type # or [[ in the dashed box</span>
+</div>
+
+<div class="app" id="app">
+  <aside id="side" aria-label="Sidebar"></aside>
+  <main id="main"></main>
+</div>
+<div id="layer"></div>
+
+<script>
+'use strict'
+// ---------- fake data ----------
+const NOTEBOOKS = ['Cardiology', 'Biology', 'Japanese', 'Journal', 'Templates']
+let tags = [
+  { id: 'med', name: 'medicine', parent: null },
+  { id: 'cardio', name: 'cardiology', parent: 'med' },
+  { id: 'hs', name: 'heart-sounds', parent: 'cardio' },
+  { id: 'mur', name: 'murmurs', parent: 'hs' },
+  { id: 'sys', name: 'systolic', parent: 'mur' },
+  { id: 'anat', name: 'anatomy', parent: 'med' },
+  { id: 'exam', name: 'exam-2027', parent: null },
+  { id: 'hy', name: 'high-yield', parent: null },
+  { id: 'bio', name: 'biology', parent: null },
+  { id: 'cell', name: 'cell', parent: 'bio' },
+  { id: 'lang', name: 'languages', parent: null },
+  { id: 'ja', name: 'japanese', parent: 'lang' },
+  { id: 'osce', name: 'osce', parent: null },
+  { id: 'rev', name: 'revision', parent: null },
+  { id: 'y2', name: 'year-2', parent: null },
+  { id: 'phys', name: 'physiology', parent: 'med' },
+  { id: 'aus', name: 'auscultation', parent: 'cardio' },
+  { id: 'cardiol', name: 'cardio', parent: null }, // a typo duplicate, to try Merge
+]
+const tagColor = { hy: '#d9822b', exam: '#2f6feb' }
+const PAGES = {
+  heart: { title: 'Heart sounds', nb: 'Cardiology', updated: 1, tags: ['hs', 'exam', 'hy', 'osce', 'rev', 'y2', 'phys', 'aus', 'anat'],
+    blocks: [
+      { h: 'S1' },
+      { p: ['S1 is made by the ', { b: 'mitral' }, ' and tricuspid valves closing at the start of systole. ', { tag: 'hy' }] },
+      { card: { q: 'Which valves close in S1?', a: 'Mitral and tricuspid', st: 'due', tags: ['hy'] } },
+      { h: 'S2' },
+      { p: ['S2 is the aortic and pulmonary valves closing. Compare with ', { link: 'valves', anc: 'Aortic valve' }, '.'] },
+      { card: { q: 'Which valves close in S2?', a: 'Aortic and pulmonary', st: 'wrong', tags: [] } },
+      { h: 'Murmurs' },
+      { p: ['Systolic murmurs are covered in ', { link: 'murmurs' }, '. ', { tag: 'sys' }] },
+    ] },
+  murmurs: { title: 'Murmurs', nb: 'Cardiology', updated: 3, tags: ['mur', 'exam'],
+    blocks: [
+      { p: ['A murmur heard between S1 and S2 is systolic; see ', { link: 'heart', anc: 'S2' }, ' for timing.'] },
+      { card: { q: 'Where is aortic stenosis heard best?', a: 'Right 2nd intercostal space', st: 'new', tags: ['sys'] } },
+    ] },
+  valves: { title: 'Valves', nb: 'Cardiology', updated: 9, tags: ['anat', 'cardio'],
+    blocks: [{ h: 'Aortic valve' }, { p: ['The aortic valve has three cusps. ', { tag: 'anat' }] }, { h: 'Mitral valve' }, { p: ['The mitral valve has two cusps.'] }] },
+  cell: { title: 'Cell structure', nb: 'Biology', updated: 20, tags: ['cell'],
+    blocks: [{ p: ['The nucleus holds the DNA. The café-au-lait spot is a skin finding, not a cell part.'] },
+      { card: { q: 'What does the nucleus hold?', a: 'DNA', st: 'learned', tags: [] } }] },
+  mito: { title: 'Mitochondria', nb: 'Biology', updated: 25, tags: ['cell', 'hy'],
+    blocks: [{ card: { q: 'Name the powerhouse of the cell', a: 'Mitochondria', st: 'suspended', tags: [] } }] },
+  shinzo: { title: '心臓の音', nb: 'Japanese', updated: 4, tags: ['ja'],
+    blocks: [{ p: ['心臓の音は二つあります。I音とII音。'] }, { card: { q: '心臓 means…', a: 'heart', st: 'due', tags: [] } }] },
+  day: { title: 'Monday 26 October 2026', nb: 'Journal', kind: 'journal', updated: 0, tags: [],
+    blocks: [{ p: ['Revised ', { link: 'heart' }, ' today; the S2 card keeps tripping me up.'] }] },
+  lesson: { title: 'Lesson', nb: 'Templates', kind: 'template', updated: 40, tags: [],
+    blocks: [{ h: 'Detailed notes' }, { h: 'Keyword summary' }, { h: 'Flashcards' }] },
+  old: { title: 'Old valve notes', nb: 'Cardiology', trash: true, updated: 60, tags: ['cardio'],
+    blocks: [{ p: ['Draft: valve areas and the mitral valve opening snap.'] }] },
+}
+const STATUS = { new: 'New', due: 'Due', wrong: 'Got wrong', learned: 'In 12 days', suspended: 'Suspended' }
+
+// ---------- state ----------
+const store = { get(k) { try { return localStorage.getItem(k) } catch { return null } }, set(k, v) { try { localStorage.setItem(k, v) } catch {} } }
+const S = {
+  theme: null, emptyTags: false, view: 'page', pageId: 'heart', showAllTags: false, drawer: false,
+  pop: null, // { q, chip, sel }
+  q: '', chip: 'all', f: { nb: null, tag: null, status: null, changed: 'any', journal: true, templates: true, trash: false, sort: 'best' },
+  more: false, open: null, layout: store.get('ln-view') || 'list', saved: [], openTag: null, tryHTML: '', savingName: null,
+}
+
+// ---------- helpers ----------
+const esc = (s) => String(s).replace(/[&<>"']/g, (c) => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]))
+const fold = (s) => s.normalize('NFD').replace(/\p{Diacritic}/gu, '').toLowerCase()
+const seg = typeof Intl !== 'undefined' && Intl.Segmenter ? new Intl.Segmenter(undefined, { granularity: 'word' }) : null
+function words(s) {
+  const f = fold(s)
+  if (seg) return [...seg.segment(f)].filter((x) => x.isWordLike).map((x) => x.segment)
+  return f.split(/[^\p{L}\p{N}]+/u).filter(Boolean)
+}
+const tag = (id) => tags.find((t) => t.id === id)
+const kids = (id) => tags.filter((t) => t.parent === id).sort((a, b) => a.name.localeCompare(b.name))
+function path(id) { const out = []; let t = tag(id); while (t) { out.unshift(t); t = tag(t.parent) } return out }
+const pathName = (id) => path(id).map((t) => t.name).join('/')
+function under(id, root) { let t = tag(id); while (t) { if (t.id === root) return true; t = tag(t.parent) } return false }
+function chip(id, extra = '') {
+  const p = path(id); if (!p.length) return ''
+  const c = tagColor[id]
+  const parents = p.slice(0, -1).map((t) => t.name).join('/')
+  return `<button class="tag" data-act="openTag" data-id="${id}" ${c ? `data-c style="--c:${c}"` : ''} title="#${esc(pathName(id))}" ${extra}>${c ? '<span class="dot"></span>' : ''}#${parents ? `<span class="par">${esc(parents)}/</span>` : ''}${esc(p[p.length - 1].name)}</button>`
+}
+function toast(msg) {
+  const t = document.createElement('div'); t.className = 'toast'; t.setAttribute('role', 'status'); t.textContent = msg
+  document.body.appendChild(t); setTimeout(() => t.remove(), 2600)
+}
+function inline(seg) {
+  if (typeof seg === 'string') return esc(seg)
+  if (seg.b) return `<span class="blank">${esc(seg.b)}</span>`
+  if (seg.tag) return S.emptyTags ? '' : chip(seg.tag)
+  if (seg.link) return `<a class="ilink" data-act="go" data-id="${seg.link}" data-anc="${esc(seg.anc || '')}">${esc(PAGES[seg.link].title)}${seg.anc ? `<span class="anc"> › ${esc(seg.anc)}</span>` : ''}</a>`
+  return ''
+}
+const plain = (segs) => segs.map((s) => typeof s === 'string' ? s : s.b || (s.tag ? '' : s.link ? PAGES[s.link].title : '')).join('')
+
+// ---------- search index (fake: built from PAGES) ----------
+function items() {
+  const out = []
+  for (const [pid, p] of Object.entries(PAGES)) {
+    const where = `${p.nb} · ${p.title}`
+    out.push({ id: pid + ':t', type: 'page', pid, title: p.title, text: '', nb: p.nb, where: p.nb, tags: S.emptyTags ? [] : p.tags, kind: p.kind, trash: !!p.trash, updated: p.updated })
+    p.blocks.forEach((b, i) => {
+      if (b.p) out.push({ id: `${pid}:${i}`, type: 'note', pid, title: p.title, text: plain(b.p), nb: p.nb, where, tags: S.emptyTags ? [] : [...p.tags, ...b.p.filter((s) => s.tag).map((s) => s.tag)], kind: p.kind, trash: !!p.trash, updated: p.updated, blank: b.p.some((s) => s.b) })
+      if (b.card) out.push({ id: `${pid}:${i}`, type: 'card', pid, title: b.card.q, text: b.card.a, nb: p.nb, where, tags: S.emptyTags ? [] : [...p.tags, ...b.card.tags], kind: p.kind, trash: !!p.trash, st: b.card.st, updated: p.updated, fails: b.card.st === 'wrong' ? 4 : b.card.st === 'due' ? 1 : 0 })
+    })
+  }
+  // One card per blank (filter first: pushing while looping over `out` never ends).
+  for (const it of out.filter((x) => x.blank)) out.push({ ...it, blank: false, id: it.id + ':b', type: 'card', title: it.text.replace('mitral', '…'), st: 'new', fails: 0 })
+  return out
+}
+function score(it, qw) {
+  if (!qw.length) return 1
+  const tw = words(it.title), xw = words(it.text), gw = it.tags.flatMap((t) => words(pathName(t)))
+  let s = 0
+  for (const q of qw) {
+    const hit = (ws) => ws.some((w) => w.startsWith(q))
+    if (hit(tw)) s += it.type === 'page' ? 3 : 2
+    else if (hit(xw)) s += 1
+    else if (hit(gw)) s += 0.5
+    else return 0
+  }
+  return s
+}
+const TYPES = { page: 'Pages', note: 'Notes', card: 'Cards' }
+function run(q, chipv, f, skip) {
+  const qw = words(q)
+  return items().map((it) => ({ it, s: score(it, qw) })).filter(({ it, s }) => {
+    if (!s) return false
+    if (it.trash && !(f && f.trash)) return false
+    if (!f) return chipv === 'all' || it.type === chipv
+    if (skip !== 'chip' && chipv !== 'all' && it.type !== chipv) return false
+    if (skip !== 'nb' && f.nb && it.nb !== f.nb) return false
+    if (skip !== 'tag' && f.tag && !it.tags.some((t) => under(t, f.tag))) return false
+    if (skip !== 'status' && f.status && it.st !== f.status) return false
+    if (!f.journal && it.kind === 'journal') return false
+    if (!f.templates && it.kind === 'template') return false
+    if (f.changed === 'week' && it.updated > 7) return false
+    if (f.changed === 'month' && it.updated > 31) return false
+    return true
+  }).sort((a, b) => f && f.sort === 'failed' ? (b.it.fails || 0) - (a.it.fails || 0) : f && f.sort === 'recent' ? a.it.updated - b.it.updated : b.s - a.s)
+}
+function hl(text, q) {
+  const qw = words(q); if (!qw.length) return esc(text)
+  // highlight word starts that match (accent-insensitive)
+  let out = '', i = 0
+  const parts = seg ? [...seg.segment(text)] : text.split(/(\s+)/).map((s) => ({ segment: s, isWordLike: /\S/.test(s) }))
+  for (const p of parts) {
+    const f = fold(p.segment); const m = p.isWordLike && qw.find((q) => f.startsWith(q))
+    out += m ? `<mark>${esc(p.segment.slice(0, m.length))}</mark>${esc(p.segment.slice(m.length))}` : esc(p.segment)
+    i++
+  }
+  return out
+}
+function snippet(text, q, n = 110) {
+  const qw = words(q); const f = fold(text)
+  let at = 0; for (const w of qw) { const k = f.indexOf(w); if (k >= 0) { at = k; break } }
+  const start = Math.max(0, at - 40); let s = text.slice(start, start + n)
+  return (start > 0 ? '…' : '') + hl(s, q) + (start + n < text.length ? '…' : '')
+}
+const ICON = { page: '▤', note: '¶', card: '◫' }
+function resRow(r, q, sel, compact) {
+  const it = r.it
+  const st = it.type === 'card' ? `<span class="pill ${it.st === 'due' ? 'due' : it.st === 'wrong' ? 'wrong' : ''}">${STATUS[it.st]}</span>` : ''
+  const extra = `${it.trash ? ' · <span style="color:var(--danger)">In Trash</span>' : ''}${it.kind === 'journal' ? ' · Journal' : ''}${it.kind === 'template' ? ' · Template' : ''}`
+  if (compact) return `<button class="res${sel ? ' sel' : ''}" data-act="openRes" data-pid="${it.pid}"><span class="ico">${ICON[it.type]}</span><span class="tt">${hl(it.type === 'note' ? it.text : it.title, q)}</span>${st}<span class="wh">${esc(it.where)}</span></button>`
+  return `<button class="res${sel ? ' sel' : ''}" data-act="openRes" data-pid="${it.pid}"><span class="ico">${ICON[it.type]}</span><span class="body">
+    <div class="tt">${it.type === 'note' ? `<span class="wh" style="font-size:13px">${esc(it.title)}</span>` : hl(it.title, q)} ${st}</div>
+    ${it.type === 'note' ? `<div class="sn">${snippet(it.text, q)}</div>` : it.type === 'card' ? `<div class="sn">${hl(it.text, q)}</div>` : ''}
+    <div class="wh">${esc(it.where)}${extra}${it.tags.length && !S.emptyTags ? ' · ' + it.tags.slice(0, 2).map((t) => '#' + esc(tag(t)?.name || '')).join(' ') : ''}</div></span></button>`
+}
+
+// ---------- sidebar ----------
+function tagTree(parent, depth) {
+  return kids(parent).map((t) => {
+    const k = kids(t.id); const open = S.openTags.has(t.id)
+    const n = items().filter((it) => !it.trash && it.type !== 'note' && it.tags.some((x) => under(x, t.id))).length
+    return `<div class="trow" style="padding-left:${depth * 14}px">
+      <button class="tw" data-act="twist" data-id="${t.id}" aria-label="${open ? 'Collapse' : 'Expand'} ${esc(t.name)}" ${k.length ? '' : 'disabled style="visibility:hidden"'}>${open ? '▾' : '▸'}</button>
+      <button class="tl" data-act="openTag" data-id="${t.id}"><span class="dot" style="--c:${tagColor[t.id] || 'transparent'}"></span>#${esc(t.name)}</button>
+      <span class="n" style="font-size:11.5px;color:var(--muted);padding-right:2px">${n}</span>
+      <button class="more" data-act="tagMenu" data-id="${t.id}" aria-label="Tag options for ${esc(t.name)}">⋯</button>
+    </div>${open ? tagTree(t.id, depth + 1) : ''}`
+  }).join('')
+}
+function renderSide() {
+  const due = items().filter((i) => i.type === 'card' && (i.st === 'due' || i.st === 'new' || i.st === 'wrong') && !i.trash).length
+  const nbs = NOTEBOOKS.map((nb) => {
+    const ps = Object.entries(PAGES).filter(([, p]) => p.nb === nb && !p.trash)
+    return `<div class="sect" style="margin-top:10px;text-transform:none;letter-spacing:0;font-size:12.5px;color:var(--ink);font-weight:600">${esc(nb)}</div>` +
+      ps.map(([id, p]) => `<button class="navbtn${S.view === 'page' && S.pageId === id ? ' on' : ''}" data-act="go" data-id="${id}" style="padding-left:18px">${esc(p.title)}</button>`).join('')
+  }).join('')
+  document.getElementById('side').innerHTML = `
+    <button class="navbtn" data-act="openPop">🔍 Search<span class="k">Ctrl K</span></button>
+    <button class="navbtn">◫ Review<span class="n">${due}</span></button>
+    ${S.saved.length ? `<div class="sect">Saved searches</div>` + S.saved.map((s, i) => `<button class="navbtn" data-act="openSaved" data-i="${i}">☆ ${esc(s.name)}<span class="n">${s.count}</span></button>`).join('') : ''}
+    <div class="sect">Tags ${S.emptyTags ? '' : '<button data-act="newTag" title="New tag" aria-label="New tag" style="font-size:15px;line-height:1">+</button>'}</div>
+    ${S.emptyTags ? `<div class="empty-note"><b style="color:var(--ink)">No tags yet.</b><br>Tag a page with <b style="color:var(--ink)">+ Add tag</b> under its title, or type <kbd>#</kbd> in a note. Use / for levels, like #medicine/cardiology.</div>` : `<div class="tree">${tagTree(null, 0)}</div>`}
+    <div class="sect">Notebooks</div>${nbs}`
+}
+S.openTags = new Set(['med', 'cardio', 'hs', 'mur'])
+
+// ---------- page ----------
+function renderPage() {
+  const p = PAGES[S.pageId]
+  const ptags = S.emptyTags ? [] : p.tags.filter(tag)
+  const MAX = 5
+  const shown = S.showAllTags ? ptags : ptags.slice(0, MAX)
+  const blocks = p.blocks.map((b, i) => {
+    if (b.h) return `<h2 id="h-${esc(b.h)}">${esc(b.h)}</h2>`
+    if (b.p) return `<p>${b.p.map(inline).join('')}</p>`
+    if (b.card) return `<div class="card"><div class="lbl"><span>Card</span><span style="display:flex;gap:6px;flex-wrap:wrap;justify-content:flex-end">${S.emptyTags ? '' : b.card.tags.map((t) => chip(t)).join('')}<span class="pill ${b.card.st === 'due' ? 'due' : b.card.st === 'wrong' ? 'wrong' : ''}">${STATUS[b.card.st]}</span></span></div><div class="q">${esc(b.card.q)}</div><div class="a">${esc(b.card.a)}</div></div>`
+    return ''
+  }).join('')
+  const back = []
+  for (const [id, q] of Object.entries(PAGES)) {
+    if (q.trash) continue
+    q.blocks.forEach((b) => { if (b.p && b.p.some((s) => s.link === S.pageId)) back.push({ id, q, b }) })
+  }
+  const blHTML = back.map(({ id, q, b }) => {
+    const l = b.p.find((s) => s.link === S.pageId)
+    const sentence = b.p.map((s) => s === l ? `<em>${esc(p.title)}${l.anc ? ' › ' + esc(l.anc) : ''}</em>` : typeof s === 'string' ? esc(s) : s.link ? esc(PAGES[s.link].title) : s.b ? esc(s.b) : '').join('')
+    return `<button class="bl" data-act="go" data-id="${id}"><div class="t">${esc(q.title)} <small>· ${esc(q.nb)}</small></div><div class="s">${sentence}</div></button>`
+  }).join('')
+  document.getElementById('main').innerHTML = `
+    <button class="menubtn" data-act="drawer">☰ Menu</button>
+    <div class="page">
+      <div class="crumbs">${esc(p.nb)}${p.kind === 'journal' ? ' · Journal' : ''}</div>
+      <h1 class="ptitle">${esc(p.title)}</h1>
+      <div class="tagrow">${shown.map((t) => chip(t)).join('')}
+        ${ptags.length > MAX ? `<button class="morechip" data-act="allTags">${S.showAllTags ? 'Show less' : `+${ptags.length - MAX} more`}</button>` : ''}
+        <button class="addtag" data-act="addTag">+ Add tag</button></div>
+      <div class="doc">${blocks}
+        <div class="try" contenteditable="true" id="try" data-ph="Try it: type # to tag this line, or [[ to link a page or heading…" role="textbox" aria-label="Try typing # or [[">${S.tryHTML}</div>
+        <div class="hint">"C#" or "#1" stay plain text: a tag is made only when you pick one. Esc closes the picker.</div>
+      </div>
+      <section class="backlinks" aria-label="Linked from">
+        <h3>Linked from <span>${back.length}</span></h3>
+        ${back.length ? blHTML : `<div class="empty-note" style="margin:0">No pages link here yet. Type <kbd>[[</kbd> in any page and pick <b style="color:var(--ink)">${esc(p.title)}</b>.</div>`}
+      </section>
+    </div>`
+  const tr = document.getElementById('try')
+  tr.addEventListener('input', onTryInput)
+  tr.addEventListener('blur', () => { S.tryHTML = tr.innerHTML })
+}
+
+// ---------- search screen ----------
+function facetCounts(key, values) {
+  return values.map((v) => ({ v, n: run(S.q, S.chip, { ...S.f, [key]: v }, null).length })).filter((x) => x.n > 0)
+}
+function renderSearch() {
+  const res = run(S.q, S.chip, S.f)
+  const active = S.q.trim() || S.f.tag || S.f.nb || S.f.status
+  const anyType = run(S.q, 'all', S.f, 'chip')
+  const chipCounts = Object.fromEntries(['all', 'page', 'note', 'card'].map((c) => [c, anyType.filter((r) => c === 'all' || r.it.type === c).length]))
+  const hasCards = res.some((r) => r.it.type === 'card') || S.chip === 'card'
+  // facets
+  const nbF = facetCounts('nb', NOTEBOOKS)
+  const tagLevel = S.f.tag ? kids(S.f.tag) : kids(null)
+  const tagF = S.emptyTags ? [] : tagLevel.map((t) => ({ t, n: run(S.q, S.chip, { ...S.f, tag: t.id }).length })).filter((x) => x.n)
+  const stF = facetCounts('status', Object.keys(STATUS))
+  const fb = (key, label, on, menu) => `<div class="facet"><button class="fbtn${on ? ' on' : ''}" data-act="facet" data-k="${key}" aria-expanded="${S.open === key}">${label}${on ? ` <span class="x" data-act="clearF" data-k="${key}" aria-label="Clear">✕</span>` : ' ▾'}</button>${S.open === key ? `<div class="menu">${menu}</div>` : ''}</div>`
+  const nbMenu = nbF.length ? nbF.map((x) => `<button class="mi" data-act="setF" data-k="nb" data-v="${esc(x.v)}"><span>${esc(x.v)}</span><span class="n">${x.n}</span></button>`).join('') : '<div class="mh">No other notebooks match</div>'
+  const crumbs = S.f.tag ? `<div class="mh"><button data-act="setF" data-k="tag" data-v="">All tags</button>${path(S.f.tag).map((t) => ` › <button data-act="setF" data-k="tag" data-v="${t.id}">${esc(t.name)}</button>`).join('')}</div><div class="sep"></div>` : ''
+  const tagMenu = crumbs + (tagF.length ? tagF.map((x) => `<button class="mi" data-act="setF" data-k="tag" data-v="${x.t.id}"><span>#${esc(x.t.name)}${kids(x.t.id).length ? ' ›' : ''}</span><span class="n">${x.n}</span></button>`).join('') : `<div class="mh">${S.emptyTags ? 'No tags yet' : 'No narrower tags'}</div>`)
+  const stMenu = stF.map((x) => `<button class="mi" data-act="setF" data-k="status" data-v="${x.v}"><span>${STATUS[x.v]}</span><span class="n">${x.n}</span></button>`).join('')
+  const tagLabel = S.f.tag ? '#' + esc(pathName(S.f.tag)) : 'Tag'
+  const facets = active ? `
+      ${fb('nb', S.f.nb ? esc(S.f.nb) : 'Notebook', !!S.f.nb, nbMenu)}
+      ${fb('tag', tagLabel, !!S.f.tag, tagMenu)}
+      ${hasCards ? fb('status', S.f.status ? STATUS[S.f.status] : 'Card status', !!S.f.status, stMenu) : ''}
+      <button class="fbtn${S.more ? ' on' : ''}" data-act="more">More filters</button>` : ''
+  const trashN = S.f.trash ? 0 : run(S.q, S.chip, { ...S.f, trash: true }).filter((r) => r.it.trash).length
+  const more = S.more && active ? `<div class="morepanel">
+      <div><h4>Changed</h4>${[['any', 'Any time'], ['week', 'Past week'], ['month', 'Past month']].map(([v, l]) => `<label><input type="radio" name="chg" id="chg-${v}" data-act="setChanged" data-v="${v}" ${S.f.changed === v ? 'checked' : ''}> ${l}</label>`).join('')}</div>
+      <div><h4>Include</h4>
+        <label><input type="checkbox" id="inc-j" data-act="toggleF" data-k="journal" ${S.f.journal ? 'checked' : ''}> Journal days</label>
+        <label><input type="checkbox" id="inc-t" data-act="toggleF" data-k="templates" ${S.f.templates ? 'checked' : ''}> Templates</label>
+        <label><input type="checkbox" id="inc-tr" data-act="toggleF" data-k="trash" ${S.f.trash ? 'checked' : ''}> Trash</label></div>
+      <div><h4>Sort</h4>${[['best', 'Best match'], ['recent', 'Recently changed'], ['failed', 'Most failed cards']].map(([v, l]) => `<label><input type="radio" name="srt" id="srt-${v}" data-act="setSort" data-v="${v}" ${S.f.sort === v ? 'checked' : ''}> ${l}</label>`).join('')}</div>
+    </div>` : ''
+  let body
+  if (!active) body = `<div class="nores">Search page titles, notes, cards and blanks, journal days, templates and tags.<br>Start typing, or pick a tag in the sidebar.</div>`
+  else if (!res.length) body = `<div class="nores"><b>No results for “${esc(S.q || tagLabel)}”.</b><br>Try fewer words or remove a filter${trashN ? `, or <button data-act="incTrash">show ${trashN} match${trashN > 1 ? 'es' : ''} in Trash</button>` : ''}.</div>`
+  else if (S.layout === 'grouped') {
+    const g = {}; res.forEach((r) => { (g[r.it.where.split(' · ')[0] + ' · ' + r.it.title] ||= []).push(r) })
+    const byPage = {}; res.forEach((r) => { const k = r.it.nb + ' › ' + PAGES[r.it.pid].title; (byPage[k] ||= []).push(r) })
+    body = Object.entries(byPage).map(([k, rs]) => `<div class="gh">${esc(k)} <span>${rs.length}</span></div><div class="list compact">${rs.map((r) => resRow(r, S.q, false, true)).join('')}</div>`).join('')
+  } else body = `<div class="list${S.layout === 'compact' ? ' compact' : ''}">${res.map((r) => resRow(r, S.q, false, S.layout === 'compact')).join('')}</div>`
+  const cards = res.filter((r) => r.it.type === 'card').length
+  document.getElementById('main').innerHTML = `
+    <button class="menubtn" data-act="drawer">☰ Menu</button>
+    <div class="sscreen">
+      <div class="stitle">Search${S.f.tag && !S.q ? ` <span style="font-weight:400;color:var(--muted);font-size:15px">· everything tagged</span> ${chip(S.f.tag)}` : ''}</div>
+      <div class="sbox"><span class="ic">🔍</span><input id="sq" type="search" aria-label="Search everything" placeholder="Search everything" value="${esc(S.q)}" autocomplete="off"></div>
+      <div class="chips" role="group" aria-label="Show">${['all', 'page', 'note', 'card'].map((c) => `<button class="chipf" data-act="chip" data-v="${c}" aria-pressed="${S.chip === c}">${c === 'all' ? 'All' : TYPES[c]}${active ? `<span class="c">${chipCounts[c]}</span>` : ''}</button>`).join('')}</div>
+      <div class="toolbar"><div class="facets">${facets}</div>
+        <div class="views" role="group" aria-label="View">${[['list', 'List'], ['compact', 'Compact'], ['grouped', 'Grouped']].map(([v, l]) => `<button data-act="layout" data-v="${v}" aria-pressed="${S.layout === v}">${l}</button>`).join('')}</div></div>
+      ${more}
+      ${active && res.length ? `<div class="sumline"><span>${res.length} result${res.length > 1 ? 's' : ''}${S.f.trash ? ' · including Trash' : ''}</span><span style="display:flex;gap:8px;flex-wrap:wrap">
+        ${S.savingName !== null ? `<input id="saveName" type="text" aria-label="Name this search" value="${esc(S.savingName)}" style="padding:4px 8px;border:1px solid var(--line);border-radius:8px;background:var(--bg)"><button class="btn primary" data-act="saveOk">Save</button>` : `<button class="btn" data-act="save">☆ Save search</button>`}
+        ${cards ? `<button class="btn primary" data-act="reviewThese">Review these ${cards} card${cards > 1 ? 's' : ''}</button>` : ''}</span></div>` : ''}
+      ${body}
+    </div>`
+  const sq = document.getElementById('sq')
+  sq.addEventListener('input', () => { S.q = sq.value; renderSearch(); const n = document.getElementById('sq'); n.focus(); n.setSelectionRange(n.value.length, n.value.length) })
+  const sn = document.getElementById('saveName'); if (sn) { sn.focus(); sn.select(); sn.addEventListener('keydown', (e) => { if (e.key === 'Enter') doSave(); if (e.key === 'Escape') { S.savingName = null; renderSearch() } }) }
+}
+function doSave() {
+  const el = document.getElementById('saveName'); const name = (el && el.value.trim()) || 'My search'
+  S.saved.push({ name, q: S.q, chip: S.chip, f: { ...S.f }, count: run(S.q, S.chip, S.f).length })
+  S.savingName = null; render(); toast(`Saved “${name}” in the sidebar`)
+}
+
+// ---------- popup ----------
+function renderPop() {
+  const L = document.getElementById('layer')
+  if (!S.pop) { L.innerHTML = ''; return }
+  const q = S.pop.q
+  let html, flat = []
+  if (!q.trim()) {
+    flat = ['heart', 'murmurs', 'day'].map((pid) => ({ it: { type: 'page', pid, title: PAGES[pid].title, text: '', where: PAGES[pid].nb, tags: [] } }))
+    html = `<div class="grp">Recent</div>` + flat.map((r, i) => resRow(r, '', i === S.pop.sel, true)).join('')
+  } else {
+    const res = run(q, S.pop.chip)
+    if (!res.length) {
+      const tr = run(q, S.pop.chip, { ...S.f, trash: true, nb: null, tag: null, status: null }).filter((r) => r.it.trash).length
+      html = `<div class="nores"><b>No results for “${esc(q)}”.</b><br>Check the spelling or try fewer words.${tr ? `<br><button data-act="popTrash">Search Trash (${tr})</button>` : ''}</div>`
+    } else {
+      html = ['page', 'note', 'card'].map((t) => {
+        const rs = res.filter((r) => r.it.type === t).slice(0, S.pop.chip === 'all' ? 3 : 8)
+        if (!rs.length) return ''
+        const start = flat.length; flat.push(...rs)
+        return `<div class="grp">${TYPES[t]}</div>` + rs.map((r, i) => resRow(r, q, start + i === S.pop.sel, false)).join('')
+      }).join('')
+    }
+    S.pop.total = res.length
+  }
+  S.pop.flat = flat
+  L.innerHTML = `<div class="scrim" data-act="closePop"><div class="pop" role="dialog" aria-label="Search" data-stop="1">
+    <div class="sbox"><span class="ic">🔍</span><input id="pq" type="search" placeholder="Search everything" aria-label="Search everything" value="${esc(q)}" autocomplete="off"><button data-act="closePop" aria-label="Close" style="color:var(--muted)">Esc</button></div>
+    <div class="chips" role="group" aria-label="Show">${['all', 'page', 'note', 'card'].map((c) => `<button class="chipf" data-act="popChip" data-v="${c}" aria-pressed="${S.pop.chip === c}">${c === 'all' ? 'All' : TYPES[c]}</button>`).join('')}</div>
+    <div class="pres">${html}</div>
+    <div class="popfoot"><span><kbd>↑</kbd><kbd>↓</kbd> move · <kbd>Enter</kbd> ${S.pop.sel >= 0 ? 'open' : 'see all'} · <kbd>Esc</kbd> close</span>${q.trim() ? `<button data-act="seeAll">See all ${S.pop.total || 0} result${S.pop.total === 1 ? '' : 's'} →</button>` : ''}</div>
+  </div></div>`
+  const pq = document.getElementById('pq'); pq.focus(); pq.setSelectionRange(pq.value.length, pq.value.length)
+  pq.addEventListener('input', () => { S.pop.q = pq.value; S.pop.sel = -1; renderPop() })
+  pq.addEventListener('keydown', (e) => {
+    if (e.key === 'ArrowDown') { e.preventDefault(); S.pop.sel = Math.min(S.pop.flat.length - 1, S.pop.sel + 1); renderPop() }
+    else if (e.key === 'ArrowUp') { e.preventDefault(); S.pop.sel = Math.max(-1, S.pop.sel - 1); renderPop() }
+    else if (e.key === 'Enter') { e.preventDefault(); if (S.pop.sel >= 0) openPid(S.pop.flat[S.pop.sel].it.pid); else if (S.pop.q.trim()) seeAll() }
+    else if (e.key === 'Escape') { S.pop = null; renderPop() }
+  })
+}
+function seeAll() { S.q = S.pop.q; S.chip = S.pop.chip; S.pop = null; S.view = 'search'; S.open = null; renderPop(); render() }
+function openPid(pid) { S.pop = null; renderPop(); S.view = 'page'; S.pageId = pid; S.showAllTags = false; S.drawer = false; render(); document.getElementById('main').scrollTop = 0 }
+
+// ---------- pickers (tags, links) ----------
+let picker = null // { kind, range, target, items, sel, stage, page }
+function caretRect() { const s = getSelection(); if (!s.rangeCount) return null; const r = s.getRangeAt(0).cloneRange(); const rects = r.getClientRects(); return rects[0] || r.startContainer.parentElement?.getBoundingClientRect() }
+function onTryInput() {
+  const s = getSelection(); if (!s.rangeCount) return
+  const r = s.getRangeAt(0); const node = r.startContainer
+  if (node.nodeType !== 3) return
+  const before = node.data.slice(0, r.startOffset)
+  if (before.endsWith('[[')) openPicker('link', r, 2)
+  else if (/(^|\s)#$/.test(before)) openPicker('tag', r, 1)
+}
+function openPicker(kind, range, trigger, target) {
+  const rect = target ? target.getBoundingClientRect() : caretRect()
+  picker = { kind, range: range && range.cloneRange(), trigger, target, sel: 0, stage: 'pages', page: null, q: '' }
+  const el = document.createElement('div'); el.className = 'picker'; el.id = 'picker'; el.setAttribute('role', 'dialog')
+  el.setAttribute('aria-label', kind === 'tag' ? 'Pick a tag' : 'Link to a page')
+  const top = Math.min((rect ? rect.bottom : 120) + 6, innerHeight - 330); const left = Math.max(12, Math.min(rect ? rect.left : 40, innerWidth - 312))
+  el.style.top = top + 'px'; el.style.left = left + 'px'
+  el.innerHTML = `<input id="pkq" type="text" aria-label="${kind === 'tag' ? 'Tag name' : 'Page name'}" placeholder="${kind === 'tag' ? 'Find or create a tag (use / for levels)' : 'Find a page'}" autocomplete="off"><div class="list2" id="pkl"></div>`
+  document.body.appendChild(el)
+  const inp = document.getElementById('pkq'); inp.focus()
+  inp.addEventListener('input', () => { picker.q = inp.value; picker.sel = 0; drawPicker() })
+  inp.addEventListener('keydown', (e) => {
+    if (e.key === 'ArrowDown') { e.preventDefault(); picker.sel = Math.min(picker.items.length - 1, picker.sel + 1); drawPicker() }
+    else if (e.key === 'ArrowUp') { e.preventDefault(); picker.sel = Math.max(0, picker.sel - 1); drawPicker() }
+    else if (e.key === 'Enter') { e.preventDefault(); pick(picker.sel) }
+    else if (e.key === 'Escape') { e.preventDefault(); closePicker(true) }
+    else if (e.key === 'ArrowRight' && picker.kind === 'link' && picker.stage === 'pages') { const it = picker.items[picker.sel]; if (it) { picker.stage = 'heads'; picker.page = it.id; inp.value = ''; picker.q = ''; picker.sel = 0; drawPicker() } }
+    else if (e.key === 'ArrowLeft' && picker.stage === 'heads' && !inp.value) { picker.stage = 'pages'; picker.sel = 0; drawPicker() }
+  })
+  drawPicker()
+}
+function drawPicker() {
+  const q = fold(picker.q.trim()); let html = ''
+  if (picker.kind === 'tag') {
+    const list = tags.filter((t) => !q || fold(pathName(t.id)).includes(q)).sort((a, b) => pathName(a.id).localeCompare(pathName(b.id))).slice(0, 30)
+    picker.items = list.map((t) => ({ id: t.id }))
+    const exact = tags.some((t) => fold(pathName(t.id)) === q)
+    if (q && !exact) picker.items.push({ create: picker.q.trim().replace(/^#/, '') })
+    html = picker.items.map((it, i) => it.create
+      ? `<button class="mi${i === picker.sel ? ' sel' : ''}" data-pick="${i}"><span>Create <b>#${esc(it.create)}</b></span></button>`
+      : `<button class="mi${i === picker.sel ? ' sel' : ''}" data-pick="${i}"><span><span class="dot" style="--c:${tagColor[it.id] || 'transparent'}"></span>#${path(it.id).slice(0, -1).map((t) => `<span style="color:var(--muted)">${esc(t.name)}/</span>`).join('')}${esc(tag(it.id).name)}</span></button>`).join('')
+    if (!picker.items.length) html = `<div class="mh">Type a name to create your first tag</div>`
+  } else if (picker.stage === 'pages') {
+    picker.items = Object.entries(PAGES).filter(([, p]) => !p.trash && (!q || fold(p.title).includes(q) || words(p.title).some((w) => w.startsWith(q)))).map(([id, p]) => ({ id, p }))
+    html = `<div class="mh">Pages · → for a heading</div>` + picker.items.map((it, i) => `<button class="mi${i === picker.sel ? ' sel' : ''}" data-pick="${i}"><span>${esc(it.p.title)} <span style="color:var(--muted)">· ${esc(it.p.nb)}</span></span><span class="n" data-heads="${i}" title="Link to a heading">›</span></button>`).join('')
+    if (!picker.items.length) html = `<div class="mh">No page called “${esc(picker.q)}”</div>`
+  } else {
+    const p = PAGES[picker.page]
+    const heads = [{ h: null }, ...p.blocks.filter((b) => b.h).map((b) => ({ h: b.h })), ...p.blocks.filter((b) => b.card).map((b) => ({ h: b.card.q, card: true }))]
+    picker.items = heads.filter((x) => !q || (x.h && fold(x.h).includes(q)))
+    html = `<div class="mh"><button data-back="1">‹ Pages</button> · ${esc(p.title)}</div>` + picker.items.map((x, i) => `<button class="mi${i === picker.sel ? ' sel' : ''}" data-pick="${i}"><span>${x.h ? (x.card ? '◫ ' : '# ') + esc(x.h) : 'Whole page'}</span></button>`).join('')
+  }
+  document.getElementById('pkl').innerHTML = html
+}
+function pick(i) {
+  const it = picker.items[i]; if (!it) return
+  if (picker.kind === 'tag') {
+    let id = it.id
+    if (it.create) id = createTagPath(it.create)
+    if (picker.target === 'page') { const p = PAGES[S.pageId]; if (!p.tags.includes(id)) p.tags.unshift(id); closePicker(false); render(); toast(`Tagged page #${pathName(id)}`); return }
+    insertNode(chipNode(id))
+  } else if (picker.stage === 'pages') {
+    insertNode(linkNode(it.id, null))
+  } else {
+    insertNode(linkNode(picker.page, it.h && !it.card ? it.h : it.card ? it.h.slice(0, 28) + (it.h.length > 28 ? '…' : '') : null))
+  }
+}
+function createTagPath(text) {
+  let parent = null
+  for (const name of text.split('/').map((s) => s.trim().toLowerCase().replace(/\s+/g, '-')).filter(Boolean)) {
+    let t = tags.find((x) => x.parent === parent && x.name === name)
+    if (!t) { t = { id: 't' + Math.random().toString(36).slice(2, 8), name, parent }; tags.push(t) }
+    parent = t.id
+  }
+  return parent
+}
+function chipNode(id) { const w = document.createElement('span'); w.contentEditable = 'false'; w.innerHTML = chip(id); return w.firstChild }
+function linkNode(pid, anc) { const a = document.createElement('a'); a.className = 'ilink'; a.contentEditable = 'false'; a.dataset.act = 'go'; a.dataset.id = pid; a.innerHTML = esc(PAGES[pid].title) + (anc ? `<span class="anc"> › ${esc(anc)}</span>` : ''); return a }
+function insertNode(node) {
+  const r = picker.range; const n = r.startContainer
+  const keepFrom = r.startOffset - picker.trigger
+  const after = n.splitText(r.startOffset); n.data = n.data.slice(0, keepFrom)
+  const space = document.createTextNode(' ')
+  after.parentNode.insertBefore(node, after); after.parentNode.insertBefore(space, after)
+  const tr = document.getElementById('try'); S.tryHTML = tr.innerHTML
+  closePicker(false)
+  tr.focus(); const s = getSelection(); const nr = document.createRange(); nr.setStart(space, 1); nr.collapse(true); s.removeAllRanges(); s.addRange(nr)
+  renderSide()
+}
+function closePicker(restore) {
+  const el = document.getElementById('picker'); if (el) el.remove()
+  if (restore && picker && picker.range) { const tr = document.getElementById('try'); tr.focus(); const s = getSelection(); s.removeAllRanges(); s.addRange(picker.range) }
+  picker = null
+}
+
+// ---------- tag menu + dialogs ----------
+function tagMenu(id, btn) {
+  closeMenus()
+  const r = btn.getBoundingClientRect()
+  const m = document.createElement('div'); m.className = 'menu'; m.id = 'tmenu'; m.style.position = 'fixed'
+  m.style.top = Math.min(r.bottom + 4, innerHeight - 260) + 'px'; m.style.left = Math.max(8, Math.min(r.left - 150, innerWidth - 240)) + 'px'
+  m.innerHTML = `<div class="mh">#${esc(pathName(id))}</div>
+    <button class="mi" data-tm="rename" data-id="${id}">Rename</button>
+    <button class="mi" data-tm="move" data-id="${id}">Move under…</button>
+    <button class="mi" data-tm="merge" data-id="${id}">Merge into…</button>
+    <button class="mi" data-tm="color" data-id="${id}">Colour</button>
+    <div class="sep"></div><button class="mi danger" data-tm="delete" data-id="${id}">Delete tag</button>`
+  document.body.appendChild(m)
+}
+function closeMenus() { document.getElementById('tmenu')?.remove() }
+function dialog(html) {
+  document.getElementById('layer').innerHTML = `<div class="scrim" style="align-items:center" data-act="closeDlg"><div class="dlg" role="dialog" data-stop="1">${html}</div></div>`
+  document.querySelector('.dlg input, .dlg button')?.focus()
+}
+function closeDlg() { document.getElementById('layer').innerHTML = '' }
+const usage = (id) => { const its = items().filter((i) => !i.trash && i.tags.some((t) => under(t, id))); return { pages: its.filter((i) => i.type === 'page').length, cards: its.filter((i) => i.type === 'card').length } }
+function tagAction(kind, id) {
+  closeMenus(); const t = tag(id); const u = usage(id)
+  if (kind === 'rename') {
+    dialog(`<h3>Rename #${esc(pathName(id))}</h3><p>Every page and card with this tag shows the new name.</p>
+      <input id="rn" type="text" value="${esc(t.name)}" style="width:100%;box-sizing:border-box;padding:7px 9px;border:1px solid var(--line);border-radius:8px;background:var(--bg)">
+      <div class="row"><button class="btn" data-act="closeDlg">Cancel</button><button class="btn primary" data-dlg="rename" data-id="${id}">Rename</button></div>`)
+    const rn = document.getElementById('rn'); rn.focus(); rn.select()
+  } else if (kind === 'move' || kind === 'merge') {
+    const opts = tags.filter((x) => x.id !== id && !under(x.id, id)).sort((a, b) => pathName(a.id).localeCompare(pathName(b.id)))
+    dialog(`<h3>${kind === 'move' ? 'Move' : 'Merge'} #${esc(pathName(id))}</h3>
+      <p>${kind === 'move' ? 'Pick its new parent. Its sub-tags move with it.' : `All ${u.pages} pages and ${u.cards} cards get the tag you pick, and #${esc(t.name)} goes away. Its sub-tags move under the kept tag.`}</p>
+      <div class="menu" style="position:static;box-shadow:none;max-height:240px;overflow:auto;max-width:none">
+        ${kind === 'move' ? `<button class="mi" data-dlg="move" data-id="${id}" data-to="">Top level</button>` : ''}
+        ${opts.map((o) => `<button class="mi" data-dlg="${kind}" data-id="${id}" data-to="${o.id}">#${esc(pathName(o.id))}</button>`).join('')}
+      </div><div class="row"><button class="btn" data-act="closeDlg">Cancel</button></div>`)
+  } else if (kind === 'color') {
+    const pal = ['#2f6feb', '#2e9e6b', '#d9822b', '#c8402f', '#8a5cf6', '#c2417f']
+    dialog(`<h3>Colour for #${esc(t.name)}</h3><p>Tags are grey unless you pick a colour.</p>
+      <div class="swatches"><button class="sw none" data-dlg="color" data-id="${id}" data-to="" aria-pressed="${!tagColor[id]}" aria-label="No colour">—</button>
+      ${pal.map((c) => `<button class="sw" style="--c:${c}" data-dlg="color" data-id="${id}" data-to="${c}" aria-pressed="${tagColor[id] === c}" aria-label="Colour ${c}"></button>`).join('')}</div>
+      <div class="row"><button class="btn" data-act="closeDlg">Done</button></div>`)
+  } else if (kind === 'delete') {
+    const k = kids(id).length
+    dialog(`<h3>Delete #${esc(pathName(id))}?</h3><p>The tag is removed from ${u.pages} page${u.pages === 1 ? '' : 's'} and ${u.cards} card${u.cards === 1 ? '' : 's'}. Your notes and cards stay.${k ? ` Its ${k} sub-tag${k > 1 ? 's move' : ' moves'} up one level.` : ''}</p>
+      <div class="row"><button class="btn" data-act="closeDlg">Cancel</button><button class="btn danger" data-dlg="delete" data-id="${id}">Delete tag</button></div>`)
+  }
+}
+function replaceTag(from, to) {
+  for (const p of Object.values(PAGES)) {
+    p.tags = [...new Set(p.tags.map((t) => t === from ? to : t))].filter(Boolean)
+    for (const b of p.blocks) {
+      if (b.p) b.p = b.p.filter((s) => !(s.tag === from && !to)).map((s) => s.tag === from ? { tag: to } : s)
+      if (b.card) b.card.tags = [...new Set(b.card.tags.map((t) => t === from ? to : t))].filter(Boolean)
+    }
+  }
+}
+function dlgDo(kind, id, to) {
+  const t = tag(id)
+  if (kind === 'rename') { const v = document.getElementById('rn').value.trim().toLowerCase().replace(/\s+/g, '-'); if (v) { t.name = v; toast(`Renamed to #${pathName(id)} everywhere`) } }
+  if (kind === 'move') { t.parent = to || null; S.openTags.add(to); toast(`Moved to #${pathName(id)}`) }
+  if (kind === 'merge') { kids(id).forEach((k) => (k.parent = to)); replaceTag(id, to); tags = tags.filter((x) => x.id !== id); if (S.f.tag === id) S.f.tag = to; toast(`Merged into #${pathName(to)}`) }
+  if (kind === 'color') { if (to) tagColor[id] = to; else delete tagColor[id]; render(); tagAction('color', id); return }
+  if (kind === 'delete') { kids(id).forEach((k) => (k.parent = t.parent)); replaceTag(id, null); tags = tags.filter((x) => x.id !== id); if (S.f.tag === id) S.f.tag = null; toast(`Deleted #${t.name}. Notes kept.`) }
+  closeDlg(); render()
+}
+
+// ---------- render + events ----------
+function applyTheme() {
+  document.body.classList.remove('t-day', 't-night', 't-sepia')
+  if (S.theme) document.body.classList.add('t-' + S.theme)
+  for (const v of ['day', 'night', 'sepia']) document.getElementById('th-' + v).setAttribute('aria-pressed', String(S.theme === v))
+}
+function render() {
+  document.getElementById('app').classList.toggle('drawer', S.drawer)
+  renderSide()
+  if (S.view === 'page') renderPage(); else renderSearch()
+}
+document.addEventListener('click', (e) => {
+  const pk = e.target.closest('#picker')
+  if (pk) {
+    const h = e.target.closest('[data-heads]'); const b = e.target.closest('[data-pick]'); const back = e.target.closest('[data-back]')
+    if (h) { picker.stage = 'heads'; picker.page = picker.items[+h.dataset.heads].id; picker.sel = 0; picker.q = ''; document.getElementById('pkq').value = ''; drawPicker(); document.getElementById('pkq').focus() }
+    else if (back) { picker.stage = 'pages'; picker.sel = 0; drawPicker(); document.getElementById('pkq').focus() }
+    else if (b) pick(+b.dataset.pick)
+    return
+  }
+  if (picker) closePicker(false)
+  const tm = e.target.closest('[data-tm]'); if (tm) { tagAction(tm.dataset.tm, tm.dataset.id); return }
+  if (!e.target.closest('#tmenu')) closeMenus()
+  const dl = e.target.closest('[data-dlg]'); if (dl) { dlgDo(dl.dataset.dlg, dl.dataset.id, dl.dataset.to); return }
+  const a = e.target.closest('[data-act]')
+  if (a && a.dataset.act === 'closePop' && e.target.closest('[data-stop]') && !e.target.closest('button')) return
+  if (a && a.dataset.act === 'closeDlg' && e.target.closest('[data-stop]') && !e.target.closest('button')) return
+  if (!a) { if (S.open && !e.target.closest('.facet')) { S.open = null; render() } return }
+  const act = a.dataset.act, id = a.dataset.id
+  switch (act) {
+    case 'theme': S.theme = a.dataset.v; applyTheme(); break
+    case 'emptyTags': S.emptyTags = a.checked; render(); break
+    case 'go': e.preventDefault(); if (a.closest('#try')) { openPid(id); break } openPid(id); if (a.dataset.anc) setTimeout(() => document.getElementById('h-' + a.dataset.anc)?.scrollIntoView({ block: 'center', behavior: 'smooth' }), 30); break
+    case 'drawer': S.drawer = !S.drawer; render(); break
+    case 'openPop': S.pop = { q: '', chip: 'all', sel: -1 }; S.drawer = false; render(); renderPop(); break
+    case 'closePop': S.pop = null; renderPop(); break
+    case 'popChip': S.pop.chip = a.dataset.v; S.pop.sel = -1; renderPop(); break
+    case 'popTrash': S.f = { ...S.f, trash: true }; S.more = true; seeAll(); break
+    case 'seeAll': seeAll(); break
+    case 'openRes': openPid(a.dataset.pid); break
+    case 'openTag': e.stopPropagation(); if (a.closest('#try')) break; S.view = 'search'; S.q = ''; S.chip = 'all'; S.f = { ...S.f, tag: id, nb: null, status: null }; S.open = null; S.drawer = false; render(); break
+    case 'twist': S.openTags.has(id) ? S.openTags.delete(id) : S.openTags.add(id); renderSide(); break
+    case 'tagMenu': tagMenu(id, a); break
+    case 'newTag': { const t = createTagPath('new-tag'); renderSide(); tagAction('rename', t); break }
+    case 'allTags': S.showAllTags = !S.showAllTags; render(); break
+    case 'addTag': openPicker('tag', null, 0, a); picker.target = 'page'; break
+    case 'chip': S.chip = a.dataset.v; render(); break
+    case 'facet': S.open = S.open === a.dataset.k ? null : a.dataset.k; render(); break
+    case 'clearF': e.stopPropagation(); S.f[a.dataset.k] = null; S.open = null; render(); break
+    case 'setF': S.f[a.dataset.k] = a.dataset.v || null; if (a.dataset.k !== 'tag' || !a.dataset.v || !kids(a.dataset.v).length) S.open = null; render(); break
+    case 'more': S.more = !S.more; render(); break
+    case 'toggleF': S.f[a.dataset.k] = a.checked; render(); break
+    case 'setChanged': S.f.changed = a.dataset.v; render(); break
+    case 'setSort': S.f.sort = a.dataset.v; render(); break
+    case 'incTrash': S.f.trash = true; S.more = true; render(); break
+    case 'layout': S.layout = a.dataset.v; store.set('ln-view', S.layout); render(); break
+    case 'save': S.savingName = S.f.tag && !S.q ? '#' + pathName(S.f.tag) : S.q || 'My search'; render(); break
+    case 'saveOk': doSave(); break
+    case 'openSaved': { const s = S.saved[+a.dataset.i]; S.q = s.q; S.chip = s.chip; S.f = { ...s.f }; S.view = 'search'; S.drawer = false; render(); break }
+    case 'reviewThese': toast('Review would start with these cards (saved searches work as decks)'); break
+    case 'closeDlg': closeDlg(); break
+  }
+})
+document.addEventListener('keydown', (e) => {
+  if ((e.ctrlKey || e.metaKey) && e.key.toLowerCase() === 'k') { e.preventDefault(); S.pop = { q: '', chip: 'all', sel: -1 }; renderPop() }
+  else if (e.key === 'Escape') { if (document.querySelector('.dlg')) closeDlg(); closeMenus(); if (S.open) { S.open = null; render() } }
+})
+applyTheme(); render()
+</script>
+
+</html>

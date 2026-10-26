@@ -313,3 +313,9 @@
 - **What:** Phase 3 closed (owner visual checks passed, incl. the Duplicate fix). Phase 4 planning started.
 - **Why:** `rules/phase-end.md` Definition of Done met.
 - **Files:** README.md, LEARNING.md, CHANGELOG.md
+
+## 2026-10-26
+
+- **What:** Phase 4 clickable mockup `prototype-phase4.html` (fake data): search popup + Search screen (chips with counts, filters, views, saved searches, Trash), tags (chips, # picker, nested tree, rename/move/merge/colour/delete, empty states), [[ links with headings, Linked from. Checked with a Playwright click-through (15 flows, no page errors); fixed an endless loop that froze the first version, wrong chip counts, and new page tags hidden behind "+N more".
+- **Why:** Phase 4 planning, mockup first (`rules/planning.md`).
+- **Files:** prototype-phase4.html, .prettierignore, CHANGELOG.md

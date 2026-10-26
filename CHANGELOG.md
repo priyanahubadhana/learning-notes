@@ -441,3 +441,9 @@
   - LEARNING.md: Phase 4 section.
 - **Why:** Phase 4 plan, Step 7 (Definition of Done).
 - **Files:** src/tags/{tagTools,tagStyle,tagTools.test}.ts, package-lock.json, LEARNING.md, README.md, CHANGELOG.md, IDEAS.md
+
+## 2026-10-27
+
+- **What:** Two visual tweaks (owner request). Tag chips on pages and in text show their colour as a soft tint only (a bit stronger: 22%); the colour dot stays in the sidebar and the tag picker (`TagLabel` `dot` prop). Linked from sentences use a new in-between text colour `ink-soft` (darker than muted; one value per theme). The Linked from screenshot test now has words around the link. Checked in Day, Night, Sepia; screenshots updated.
+- **Why:** Owner request: easier to read, calmer chips.
+- **Files:** src/index.css, src/tags/{TagChip,TagPicker}.tsx, src/links/LinkedFrom.tsx, e2e/links.spec.ts, CHANGELOG.md

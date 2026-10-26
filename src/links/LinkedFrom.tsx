@@ -65,7 +65,7 @@ export function LinkedFrom({
                     · {notebooks?.get(item.notebookId)?.title ?? ''}
                   </small>
                 </div>
-                <div className="mt-0.5 line-clamp-3 text-sm text-muted">
+                <div className="mt-0.5 line-clamp-3 text-sm text-ink-soft">
                   {item.before}
                   {item.link && (
                     <em className="font-medium text-ink not-italic">

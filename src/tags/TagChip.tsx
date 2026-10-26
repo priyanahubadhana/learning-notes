@@ -4,19 +4,23 @@ import { tagColorStyle } from './tagStyle'
 /**
  * How a tag looks everywhere (page chips, tags in text, menus): a small
  * rounded "#name", parents shown faintly ("#medicine/cardio"), grey unless
- * the tag has a colour. Styles in index.css (`.tag-chip`).
+ * the tag has a colour: chips get a soft tint of it, lists (menus) a dot.
+ * Styles in index.css (`.tag-chip`).
  */
 export function TagLabel({
   names,
   color,
+  dot = false,
 }: {
   /** The tag's levels, top first. */
   names: readonly string[]
   color?: string
+  /** Show the colour as a dot (lists; chips use a tint instead). */
+  dot?: boolean
 }) {
   return (
     <>
-      {color && <span aria-hidden className="tag-dot" />}#
+      {dot && color && <span aria-hidden className="tag-dot" />}#
       {names.length > 1 && (
         <span className="tag-parents">{names.slice(0, -1).join('/')}/</span>
       )}

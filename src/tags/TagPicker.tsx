@@ -189,7 +189,7 @@ export function TagPicker({
               {o.tagId === TOP_LEVEL ? (
                 t('tags.topLevel')
               ) : (
-                <TagLabel names={o.names} color={o.color} />
+                <TagLabel names={o.names} color={o.color} dot />
               )}
             </span>
           </button>

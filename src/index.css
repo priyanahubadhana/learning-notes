@@ -16,6 +16,8 @@
   --color-side: #f7f7f5;
   --color-ink: #1d1d1f;
   --color-muted: #8a8a8e;
+  /* Between ink and muted: secondary text that is still read (Linked from). */
+  --color-ink-soft: #55555a;
   --color-line: #ececec;
   --color-accent: #2f6feb;
   --color-hover: rgba(0, 0, 0, 0.04);
@@ -37,6 +39,7 @@
   --color-side: #1e1e21;
   --color-ink: #ececee;
   --color-muted: #8e8e93;
+  --color-ink-soft: #b9b9be;
   --color-line: #2c2c30;
   --color-accent: #5e9bff;
   --color-hover: rgba(255, 255, 255, 0.05);
@@ -50,6 +53,7 @@
   --color-side: #f1e8d6;
   --color-ink: #433422;
   --color-muted: #9a8a72;
+  --color-ink-soft: #6a5a44;
   --color-line: #e6dac3;
   --color-accent: #b5762a;
   --color-hover: rgba(90, 60, 20, 0.06);
@@ -199,7 +203,7 @@ body {
   vertical-align: baseline;
 }
 .tag-chip-colored {
-  background: color-mix(in srgb, var(--tag-color) 17%, var(--color-bg));
+  background: color-mix(in srgb, var(--tag-color) 22%, var(--color-bg));
 }
 button.tag-chip:hover {
   filter: brightness(0.96);

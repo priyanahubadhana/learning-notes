@@ -136,6 +136,8 @@ for (const [theme, width, height] of [
     await page.setViewportSize({ width, height })
     await page.locator('.bn-editor').click()
     await page.keyboard.press('Control+End')
+    // A sentence around the link, as Linked from shows it.
+    await page.keyboard.type('A soft murmur can follow ')
     await page.keyboard.type('[[')
     await expect(picker(page)).toBeVisible()
     await page.keyboard.type('heart')
@@ -150,6 +152,7 @@ for (const [theme, width, height] of [
       path: `test-results/screens/link-picker-${name}.png`,
     })
     await page.keyboard.press('Enter')
+    await page.keyboard.type(' in older patients.')
     await page.waitForTimeout(800) // autosave
     await openPage(page, 'Heart sounds')
     await expect(linkedFrom(page).getByRole('button')).toHaveCount(1)

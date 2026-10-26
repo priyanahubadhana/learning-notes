@@ -36,6 +36,26 @@ test('starter templates are listed; Daily journal cannot be deleted', async ({
   ).toHaveCount(1)
 })
 
+test('a template’s sub-pages fold out in the sidebar and open', async ({
+  page,
+}) => {
+  const template = row(page, 'Lesson (large topic)')
+  const subPage = row(page, 'Keyword summary')
+  await expect(subPage).toHaveCount(0) // folded at first
+  await template.getByRole('button', { name: 'Expand' }).click()
+  await expect(row(page, 'Detailed notes')).toBeVisible()
+  await expect(row(page, 'Flashcards')).toBeVisible()
+  await subPage.getByRole('button', { name: 'Keyword summary' }).click()
+  await expect(page.getByRole('textbox', { name: 'Page title' })).toHaveValue(
+    'Keyword summary',
+  )
+  await subPage.hover()
+  await expect(subPage.getByTitle('Move to top level')).toHaveCount(0)
+
+  await template.getByRole('button', { name: 'Collapse' }).click()
+  await expect(subPage).toHaveCount(0)
+})
+
 test('+ menu: new page from a template', async ({ page }) => {
   await createNotebook(page, 'Notes', 'First')
   await rowAction(page, 'Notes', 'Add page')

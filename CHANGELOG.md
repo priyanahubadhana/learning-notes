@@ -349,3 +349,9 @@
 - **What:** Phase 4, Step 0b (part 2). New setting "Practice anyway order" (Settings › Review: Soonest due first · Shuffle; default Soonest due first). Shuffle keeps the same round (the 50 soonest-due cards) in random order.
 - **Why:** Phase 4 plan, Step 0 polish (parked idea).
 - **Files:** src/settings/builtinSettings.ts, src/i18n/en.ts, src/recall/reviewService.ts, src/recall/reviewService.test.ts, CHANGELOG.md
+
+## 2026-10-26
+
+- **What:** Phase 4, Step 0b (part 3) and Step 0 close. Template sub-pages fold out under their template in the sidebar (`PageTree` gained `rootId` and an optional "+"); deleting a template while one of its sub-pages is open now closes it. README handoff, status, Decision Log; IDEAS: Step 0 ideas marked done, TypeScript 7 re-parked to Phase 5.
+- **Why:** Phase 4 plan, Step 0 polish; owner choices at step start.
+- **Files:** src/pages/PageTree.tsx, src/templates/TemplatesSection.tsx, src/notebooks/Sidebar.tsx, e2e/templates.spec.ts, e2e/helpers.ts, README.md, IDEAS.md, CHANGELOG.md

@@ -99,7 +99,7 @@ export async function templateNames(page: Page): Promise<string[]> {
     .locator('div.group')
     .filter({ has: page.locator('span', { hasText: /^(📋|☀)$/ }) })
   return (await rows.allInnerTexts()).map((t) =>
-    t.replace(/[📋☀×]/gu, '').trim(),
+    t.replace(/[📋☀×▸▾]/gu, '').trim(),
   )
 }
 

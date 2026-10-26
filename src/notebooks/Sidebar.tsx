@@ -9,7 +9,7 @@ import type { LearningNotesDB } from '../core/db'
 import type { Notebook, Page } from '../core/types'
 import { dateKey, shortDayLabel } from '../journal/dates'
 import { PageTree } from '../pages/PageTree'
-import { deletePage } from '../pages/pageService'
+import { deletePage, getPage } from '../pages/pageService'
 import { TemplatesSection } from '../templates/TemplatesSection'
 import { TrashSection } from '../trash/TrashSection'
 import { t } from '../i18n/t'
@@ -120,7 +120,10 @@ export function Sidebar({
       message: `Delete the template “${template.title || 'Untitled'}”? Pages made from it stay as they are.`,
       run: async () => {
         await deletePage(db, template.id)
-        if (currentPage?.id === template.id) onOpenPage(null)
+        // Also when the open page was one of the template's sub-pages.
+        if (currentPage && !(await getPage(db, currentPage.id))) {
+          onOpenPage(null)
+        }
       },
     })
   const [dragId, setDragId] = useState<string | null>(null)
@@ -346,9 +349,11 @@ export function Sidebar({
           db={db}
           workspaceId={workspaceId}
           currentPageId={currentPage?.id ?? null}
+          tree={tree}
           onOpen={onOpenPage}
           onCreate={onCreateTemplate}
           onRequestDelete={requestTemplateDelete}
+          onRequestPageDelete={requestPageDelete}
         />
         <TrashSection db={db} workspaceId={workspaceId} />
       </nav>

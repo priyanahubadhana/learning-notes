@@ -16,9 +16,11 @@ interface PageTreeProps {
   tree: TreeState
   /** Journal notebook: newest first, short date labels, no add/move. */
   journal?: boolean
+  /** Show only the sub-pages of this page (e.g. a template's), no moving. */
+  rootId?: string
   onOpen: (pageId: string) => void
   /** `anchor`: the + button's position, for the Blank/Template menu. */
-  onAddSubPage: (parentId: string, anchor: DOMRect) => void
+  onAddSubPage?: (parentId: string, anchor: DOMRect) => void
   /** `affectsCurrent`: the open page is this page or inside it. */
   onRequestDelete: (page: Page, affectsCurrent: boolean) => void
 }
@@ -30,6 +32,7 @@ export function PageTree({
   currentPageId,
   tree,
   journal = false,
+  rootId,
   onOpen,
   onAddSubPage,
   onRequestDelete,
@@ -98,7 +101,7 @@ export function PageTree({
               </button>
             )}
             <span className="flex opacity-0 group-focus-within:opacity-100 group-hover:opacity-100">
-              {!journal && page.parentId !== null && (
+              {!journal && !rootId && page.parentId !== null && (
                 <IconButton
                   title="Move to top level"
                   onClick={() => runTask(movePageToTopLevel(db, page.id))}
@@ -106,7 +109,7 @@ export function PageTree({
                   ↰
                 </IconButton>
               )}
-              {!journal && (
+              {!journal && onAddSubPage && (
                 <IconButton
                   title="Add sub-page"
                   onClick={(e) =>
@@ -132,5 +135,5 @@ export function PageTree({
       )
     })
 
-  return <>{renderLevel(null, 1)}</>
+  return <>{rootId ? renderLevel(rootId, 2) : renderLevel(null, 1)}</>
 }

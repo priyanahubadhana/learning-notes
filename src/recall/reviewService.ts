@@ -47,6 +47,8 @@ export type ReviewScope =
   /** includeSubpages: also the page's sub-pages (any depth). */
   | { kind: 'page'; pageId: string; includeSubpages?: boolean }
   | { kind: 'wrong' }
+  /** The cards of these blocks, e.g. a search's results; `name` is shown. */
+  | { kind: 'blocks'; blockIds: string[]; name: string }
 
 export interface ReviewQueue {
   /** Cards in the order to show them: due reviews first, then new cards. */
@@ -130,6 +132,12 @@ async function dueCardsInScope(
       return db.cards
         .where('pageId')
         .anyOf(await pageIdsInScope(db, scope))
+        .filter((c) => c.due <= now)
+        .toArray()
+    case 'blocks':
+      return db.cards
+        .where('blockId')
+        .anyOf(scope.blockIds)
         .filter((c) => c.due <= now)
         .toArray()
   }
@@ -241,16 +249,26 @@ async function wrongCards(
   now: number,
   hour: number,
 ): Promise<Card[]> {
-  const ids = await db.reviewLogs
-    .where('createdAt')
-    .aboveOrEqual(addStudyDays(now, -WRONG_DAYS, hour))
-    .filter((l) => l.rating === 'again')
-    .toArray()
-  const unique = [...new Set(ids.map((l) => l.cardId))]
-  const cards = (await db.cards.bulkGet(unique)).filter((c) => !!c)
+  const ids = await wrongCardIds(db, now, hour)
+  const cards = (await db.cards.bulkGet([...ids])).filter((c) => !!c)
   return (await reviewable(db, cards)).sort(
     (a, b) => a.due - b.due || a.createdAt - b.createdAt,
   )
+}
+
+/** Ids of the cards rated Again in the last 7 study days ("Got wrong"). */
+export async function wrongCardIds(
+  db: LearningNotesDB,
+  now: number = Date.now(),
+  hour?: number,
+): Promise<Set<string>> {
+  const dayStart = hour ?? (await getSetting(db, dayStartHour))
+  const logs = await db.reviewLogs
+    .where('createdAt')
+    .aboveOrEqual(addStudyDays(now, -WRONG_DAYS, dayStart))
+    .filter((l) => l.rating === 'again')
+    .toArray()
+  return new Set(logs.map((l) => l.cardId))
 }
 
 /**
@@ -330,11 +348,14 @@ async function soonestDue(
       return picked.slice(0, limit)
     }
     case 'notebook':
-    case 'page': {
+    case 'page':
+    case 'blocks': {
       const cards =
         scope.kind === 'page'
           ? db.cards.where('pageId').anyOf(await pageIdsInScope(db, scope))
-          : db.cards.where('notebookId').equals(scope.notebookId)
+          : scope.kind === 'blocks'
+            ? db.cards.where('blockId').anyOf(scope.blockIds)
+            : db.cards.where('notebookId').equals(scope.notebookId)
       const all = await reviewable(db, await cards.toArray())
       return all.sort(byDue).slice(0, limit)
     }

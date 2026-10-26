@@ -208,3 +208,25 @@ export const highlighted = (page: Page) =>
       .map((a) => (a.effect as KeyframeEffect | null)?.target?.textContent)
       .join(' | '),
   )
+
+/** Opens the search popup with Ctrl+K and returns it. */
+export async function openSearchPopup(page: Page): Promise<Locator> {
+  await page.keyboard.press('Control+K')
+  const popup = page.getByRole('dialog', { name: 'Search' })
+  await expect(popup).toBeVisible()
+  return popup
+}
+
+/** The result list of the Search screen. */
+export const searchResults = (page: Page) =>
+  page.getByRole('main').getByRole('list', { name: 'Results' })
+
+/** Writes a question and turns it into a card (`total` cards afterwards). */
+export async function makeCard(page: Page, question: string, total: number) {
+  await typeInEditor(page, question)
+  await page.locator('.bn-block-content', { hasText: question }).first().hover()
+  await page.locator('.bn-side-menu [draggable="true"]').click()
+  await page.getByRole('menuitem', { name: 'Make card' }).click()
+  await page.keyboard.type('An answer')
+  await expect.poll(() => cardRecordCount(page), { timeout: 3000 }).toBe(total)
+}

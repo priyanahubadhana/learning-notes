@@ -48,23 +48,38 @@ const WHOLE_WORD_SCORE = 10
  * Finds entries containing every search word, each as a word start
  * ("mito" finds "mitochondria"), ignoring case and accents. Text with no
  * letters or digits finds nothing.
- *
- * Reads only the entries matching the rarest search word (an index lookup),
- * then checks the other words on those.
  */
 export async function searchIndex(
   db: LearningNotesDB,
   text: string,
   { limit = 50, includeDeleted = false }: SearchOptions = {},
 ): Promise<SearchResult> {
-  const words = searchWords(text)
-  if (words.length === 0) return { matches: [], total: 0 }
+  const matches = (await findMatches(db, searchWords(text))).filter(
+    (m) => includeDeleted || !m.entry.deleted,
+  )
+  matches.sort(
+    (a, b) => b.score - a.score || b.entry.updatedAt - a.entry.updatedAt,
+  )
+  return { matches: matches.slice(0, limit), total: matches.length }
+}
+
+/**
+ * Every entry containing all `words` (already split and folded, see
+ * `searchWords`), each as a word start, with its score; unsorted, Trash
+ * included. Reads only the entries matching the rarest word (an index
+ * lookup), then checks the other words on those.
+ */
+export async function findMatches(
+  db: LearningNotesDB,
+  words: string[],
+): Promise<SearchMatch[]> {
+  if (words.length === 0) return []
 
   const counts = await Promise.all(
     words.map((w) => db.searchEntries.where('words').startsWith(w).count()),
   )
+  if (Math.min(...counts) === 0) return []
   const rarest = words[counts.indexOf(Math.min(...counts))]
-  if (Math.min(...counts) === 0) return { matches: [], total: 0 }
 
   // One read of the whole range. An entry with several words starting with
   // `rarest` comes back once per word; skipped here (Dexie's `distinct()`
@@ -79,7 +94,6 @@ export async function searchIndex(
   for (const entry of candidates) {
     if (seen.has(entry.id)) continue
     seen.add(entry.id)
-    if (entry.deleted && !includeDeleted) continue
     let score = KIND_SCORE[entry.kind]
     let all = true
     for (const word of words) {
@@ -91,10 +105,7 @@ export async function searchIndex(
     }
     if (all) matches.push({ entry, score })
   }
-  matches.sort(
-    (a, b) => b.score - a.score || b.entry.updatedAt - a.entry.updatedAt,
-  )
-  return { matches: matches.slice(0, limit), total: matches.length }
+  return matches
 }
 
 /** `meta` record holding the index state. */

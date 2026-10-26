@@ -6,6 +6,8 @@ import { getOrCreateDefaultWorkspace } from '../core/workspaceService'
 import { plainText } from '../editor/mapping'
 import { createNotebook } from '../notebooks/notebookService'
 import { createPage } from '../pages/pageService'
+import { CARD_BLOCK_TYPE, MAIN_PART, newCard } from '../recall/cardService'
+import { DEFAULT_FILTERS, runSearch } from './searchQuery'
 import { ensureSearchIndex, searchIndex } from './searchService'
 import { searchWords } from './searchText'
 
@@ -122,4 +124,47 @@ describe('search speed', () => {
     // Every entry matches: the worst case. Kept as a guard, not a goal.
     expect(commonTime).toBeLessThan(5000) // ~0.5 s measured
   }, 120_000)
+
+  it('10,000 cards: browsing, card search and filters stay quick', async () => {
+    const ws = (await getOrCreateDefaultWorkspace(db)).id
+    const nb = await createNotebook(db, ws, 'Big')
+    const page = await createPage(db, nb.id, null, 'Big page')
+    const now = Date.now()
+    const blocks: Block[] = Array.from({ length: 10_000 }, (_, i) => ({
+      id: `b${String(i).padStart(6, '0')}`,
+      pageId: page.id,
+      parentId: null,
+      type: CARD_BLOCK_TYPE,
+      content: { text: plainText(`Question ${noteText(i)}`) },
+      order: `a${i}`,
+      createdAt: now,
+      updatedAt: now,
+      deletedAt: null,
+    }))
+    await db.blocks.bulkAdd(blocks)
+    await db.cards.bulkAdd(
+      blocks.map((b, i) => ({
+        ...newCard(b, nb.id, MAIN_PART, now + i),
+        id: `c${i}`,
+      })),
+    )
+    const query = (text: string, more = {}) => ({
+      text,
+      type: 'card' as const,
+      filters: { ...DEFAULT_FILTERS, ...more },
+    })
+
+    const [all, browseTime] = await time(() => runSearch(db, query('')))
+    expect(all.hits).toHaveLength(10_000)
+    const [every, everyTime] = await time(() =>
+      runSearch(db, query('question', { status: 'new' })),
+    )
+    expect(every.hits).toHaveLength(10_000)
+    const [rare, rareTime] = await time(() => runSearch(db, query('zygo')))
+    expect(rare.hits).toHaveLength(10)
+
+    expect(browseTime).toBeLessThan(3000)
+    expect(everyTime).toBeLessThan(3000)
+    expect(rareTime).toBeLessThan(200)
+  }, 60_000)
 })

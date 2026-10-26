@@ -3,6 +3,7 @@ import { useContext, useEffect, useState, type DragEvent } from 'react'
 import { AppUiContext } from '../app/appUi'
 import { runTask } from '../app/errors'
 import { THEMES, THEME_LABELS, type Theme } from '../app/theme'
+import { shortcutLabel } from '../app/keys'
 import { ConfirmDialog, IconButton, MenuPopover, RenameInput } from '../app/ui'
 import type { TreeState } from '../app/useTreeState'
 import type { LearningNotesDB } from '../core/db'
@@ -34,9 +35,10 @@ interface SidebarProps {
   onOpenSettings: () => void
   /** True while the global Review screen is shown. */
   reviewOpen: boolean
-  /** The All cards hub is open (highlights its button). */
-  cardsOpen: boolean
-  onOpenCards: () => void
+  /** The Search screen is open (highlights its button). */
+  searchOpen: boolean
+  /** Opens the search popup. */
+  onOpenSearch: () => void
   onOpenReview: (scope: ReviewScope) => void
   onCreateNotebook: () => void
   /** `templateId`: copy that template's content into the new page. */
@@ -84,8 +86,8 @@ export function Sidebar({
   onOpenSettings,
   reviewOpen,
   onOpenReview,
-  cardsOpen,
-  onOpenCards,
+  searchOpen,
+  onOpenSearch,
   onCreateNotebook,
   onCreatePage,
   onCreateTemplate,
@@ -191,6 +193,23 @@ export function Sidebar({
       </button>
       <button
         type="button"
+        onClick={onOpenSearch}
+        aria-current={searchOpen ? 'page' : undefined}
+        title={t('search.sidebarHint', { key: shortcutLabel('K') })}
+        className={`flex min-h-9 w-full items-center gap-2 rounded-lg px-2.5 text-left text-sm transition-colors hover:bg-hover ${
+          searchOpen ? 'bg-hover font-semibold' : ''
+        }`}
+      >
+        <span aria-hidden className="text-muted">
+          🔍
+        </span>
+        <span className="flex-1">{t('search.sidebar')}</span>
+        <kbd className="rounded border border-line bg-side px-1 font-mono text-[11px] text-muted">
+          {shortcutLabel('K')}
+        </kbd>
+      </button>
+      <button
+        type="button"
         onClick={() => onOpenReview({ kind: 'all' })}
         aria-current={reviewOpen ? 'page' : undefined}
         title={t('review.sidebarHint')}
@@ -210,19 +229,6 @@ export function Sidebar({
             {dueCount}
           </span>
         )}
-      </button>
-      <button
-        type="button"
-        onClick={onOpenCards}
-        aria-current={cardsOpen ? 'page' : undefined}
-        className={`mb-2 -mt-1 flex min-h-9 w-full items-center gap-2 rounded-lg px-2.5 text-left text-sm transition-colors hover:bg-hover ${
-          cardsOpen ? 'bg-hover font-semibold' : ''
-        }`}
-      >
-        <span aria-hidden className="text-muted">
-          ▤
-        </span>
-        <span className="flex-1">{t('cards.sidebar')}</span>
       </button>
       <div className="flex items-center justify-between px-2.5 pt-2.5 pb-1 text-[11px] tracking-[0.06em] text-muted uppercase">
         Notebooks

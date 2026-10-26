@@ -2,12 +2,18 @@ import { expect, test, type Page } from '@playwright/test'
 import {
   cardRecordCount,
   createNotebook,
+  openSearchPopup,
   selectText,
   sidebar,
   typeInEditor,
 } from './helpers.ts'
 
-const hub = (page: Page) => page.getByRole('list', { name: 'All cards' })
+/** The cards listed by search (popup, Cards chip, nothing typed). */
+async function searchCards(page: Page) {
+  const popup = await openSearchPopup(page)
+  await popup.getByRole('button', { name: 'Cards', exact: true }).click()
+  return popup.getByRole('option')
+}
 
 /** Opens the ⋮⋮ block menu of the block containing `text`. */
 async function openBlockMenu(page: Page, text: string) {
@@ -23,7 +29,7 @@ async function duplicate(page: Page, text: string) {
   ).toHaveCount(2)
 }
 
-test('A duplicated Card is its own card in All cards and Review', async ({
+test('A duplicated Card is its own card in search and Review', async ({
   page,
 }) => {
   await page.goto('/')
@@ -38,8 +44,8 @@ test('A duplicated Card is its own card in All cards and Review', async ({
   await expect.poll(() => cardRecordCount(page), { timeout: 3000 }).toBe(2)
 
   await page.reload()
-  await sidebar(page).getByRole('button', { name: 'All cards' }).click()
-  await expect(hub(page).getByRole('button')).toHaveCount(2)
+  await expect(await searchCards(page)).toHaveCount(2)
+  await page.keyboard.press('Escape')
   await expect(
     sidebar(page)
       .getByRole('button', { name: /Review/ })
@@ -63,6 +69,5 @@ test('A duplicated fill-in-the-blank line is its own card', async ({
   await expect.poll(() => cardRecordCount(page), { timeout: 3000 }).toBe(2)
 
   await page.reload()
-  await sidebar(page).getByRole('button', { name: 'All cards' }).click()
-  await expect(hub(page).getByRole('button')).toHaveCount(2)
+  await expect(await searchCards(page)).toHaveCount(2)
 })

@@ -110,6 +110,7 @@ export function ReviewScreen({
     if (scope.kind === 'page') return (await db.pages.get(scope.pageId))?.title
     if (scope.kind === 'notebook')
       return (await db.notebooks.get(scope.notebookId))?.title
+    if (scope.kind === 'blocks') return scope.name
     return undefined
   }, [scopeKey])
   const hasCards = useLiveQuery(
@@ -202,7 +203,9 @@ export function ReviewScreen({
       : scope.kind === 'all'
         ? t('review.title')
         : t(
-            scope.kind === 'page' ? 'review.titlePage' : 'review.titleNotebook',
+            scope.kind === 'notebook'
+              ? 'review.titleNotebook'
+              : 'review.titlePage',
             {
               name: scopeName || t('review.untitled'),
             },

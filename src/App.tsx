@@ -13,6 +13,7 @@ import type { ToastAction } from './app/appUi'
 import { Toast, ChoiceDialog } from './app/ui'
 import { isStringOrNull } from './app/uiPrefs'
 import { usePref } from './app/usePref'
+import { t } from './i18n/t'
 import { useTreeState } from './app/useTreeState'
 import { db } from './core/db'
 import type { Page, Workspace } from './core/types'
@@ -30,7 +31,15 @@ import { SettingsScreen } from './settings/SettingsScreen'
 import { useDeviceSetting } from './settings/useSetting'
 import { TemplatePicker } from './templates/TemplatePicker'
 import { revealBlock } from './editor/revealBlock'
-import { AllCardsScreen } from './recall/AllCardsScreen'
+import { rememberPage } from './search/recentPages'
+import { SearchPopup } from './search/SearchPopup'
+import {
+  describeHits,
+  type SearchHit,
+  type SearchQuery,
+} from './search/searchQuery'
+import { SearchScreen } from './search/SearchScreen'
+import { restorePage } from './trash/trashService'
 import {
   createPageFromTemplate,
   createTemplate,
@@ -69,24 +78,56 @@ function App() {
   const [settingsFocus, setSettingsFocus] = useState<string | null>(null)
   const openSettings = (settingId?: string) => {
     setReviewScope(null)
-    setShowCards(false)
+    setSearch(null)
     setSettingsFocus(settingId ?? null)
     setShowSettings(true)
   }
   // Review replaces the open page the same way (null = not reviewing).
   const [reviewScope, setReviewScope] = useState<ReviewScope | null>(null)
-  // The All cards hub replaces the open page the same way.
-  const [showCards, setShowCards] = useState(false)
+  // The Search screen replaces the open page the same way. `key` starts
+  // it afresh each time a search is opened from outside it.
+  const [search, setSearch] = useState<{
+    query: SearchQuery
+    key: number
+  } | null>(null)
+  const [searchPopup, setSearchPopup] = useState(false)
   const openPage = (id: string | null) => {
     setShowSettings(false)
     setReviewScope(null)
-    setShowCards(false)
+    setSearch(null)
     setCurrentPageId(id)
+    if (id) rememberPage(id)
   }
   const openReview = (scope: ReviewScope) => {
     setShowSettings(false)
-    setShowCards(false)
+    setSearch(null)
     setReviewScope(scope)
+  }
+  const openSearch = (query: SearchQuery) => {
+    setShowSettings(false)
+    setReviewScope(null)
+    setSearchPopup(false)
+    setSearch({ query, key: Date.now() })
+  }
+  /** Opens a search result at its block; one in the Trash offers Restore. */
+  const openHit = async (hit: SearchHit) => {
+    if (hit.deleted) {
+      const name = (await describeHits(db, [hit])).get(hit.id)?.pageTitle
+      appUi.toast(t('search.trashed', { name: name || t('review.untitled') }), {
+        label: t('search.restore'),
+        onSelect: () =>
+          runTask(
+            (async () => {
+              await restorePage(db, hit.pageId)
+              openPage(hit.pageId)
+              if (hit.blockId) revealBlock(hit.blockId)
+            })(),
+          ),
+      })
+      return
+    }
+    openPage(hit.pageId)
+    if (hit.blockId) revealBlock(hit.blockId)
   }
   const [renamingNotebookId, setRenamingNotebookId] = useState<string | null>(
     null,
@@ -241,7 +282,19 @@ function App() {
   useEffect(() => {
     const listener = (e: KeyboardEvent) => onShortcut.current(e)
     window.addEventListener('keydown', listener)
-    return () => window.removeEventListener('keydown', listener)
+    // Ctrl+K / ⌘K: search, from anywhere. Caught before the editor sees it.
+    const searchKey = (e: KeyboardEvent) => {
+      if ((e.ctrlKey || e.metaKey) && !e.altKey && e.code === 'KeyK') {
+        e.preventDefault()
+        e.stopPropagation()
+        setSearchPopup(true)
+      }
+    }
+    window.addEventListener('keydown', searchKey, { capture: true })
+    return () => {
+      window.removeEventListener('keydown', listener)
+      window.removeEventListener('keydown', searchKey, { capture: true })
+    }
   }, [])
 
   if (!workspace || !notebooks) return null // loading (a split second)
@@ -273,12 +326,8 @@ function App() {
               reviewScope?.kind === 'all' || reviewScope?.kind === 'wrong'
             }
             onOpenReview={openReview}
-            cardsOpen={showCards && !showSettings && !reviewScope}
-            onOpenCards={() => {
-              setShowSettings(false)
-              setReviewScope(null)
-              setShowCards(true)
-            }}
+            searchOpen={!!search && !showSettings && !reviewScope}
+            onOpenSearch={() => setSearchPopup(true)}
           />
           <main className="flex-1 overflow-auto">
             {showSettings ? (
@@ -299,13 +348,16 @@ function App() {
                 }}
                 onClose={() => setReviewScope(null)}
               />
-            ) : showCards ? (
-              <AllCardsScreen
+            ) : search ? (
+              <SearchScreen
+                key={search.key}
                 db={db}
-                onOpenNote={(pageId, blockId) => {
-                  openPage(pageId)
-                  revealBlock(blockId)
-                }}
+                initial={search.query}
+                onOpenHit={(hit) => runTask(openHit(hit))}
+                onReview={(blockIds, name) =>
+                  openReview({ kind: 'blocks', blockIds, name })
+                }
+                onClose={() => setSearch(null)}
               />
             ) : currentPage ? (
               <PageView
@@ -354,6 +406,21 @@ function App() {
               setPicker(null)
               picker.resolve(result)
             }}
+          />
+        )}
+        {searchPopup && (
+          <SearchPopup
+            db={db}
+            onClose={() => setSearchPopup(false)}
+            onOpenHit={(hit) => {
+              setSearchPopup(false)
+              runTask(openHit(hit))
+            }}
+            onOpenPage={(id) => {
+              setSearchPopup(false)
+              openPage(id)
+            }}
+            onSeeAll={openSearch}
           />
         )}
         {choice && (

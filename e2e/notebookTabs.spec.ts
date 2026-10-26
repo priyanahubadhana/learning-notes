@@ -70,10 +70,10 @@ test('Database tab: the Study tracker lists each lesson', async ({ page }) => {
     tracker.getByRole('columnheader', { name: /Status/ }),
   ).toContainText('auto')
   await expect(tracker.getByRole('rowheader')).toHaveText([
-    'Heart sounds',
-    'ECG basics',
+    /^Heart sounds/,
+    /^ECG basics/,
   ])
-  await tracker.getByRole('button', { name: 'ECG basics' }).click()
+  await tracker.getByRole('button', { name: 'Open “ECG basics”' }).click()
   await expect(page.getByRole('textbox', { name: 'Page title' })).toHaveValue(
     'ECG basics',
   )

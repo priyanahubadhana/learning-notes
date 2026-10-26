@@ -1,3 +1,4 @@
+import { t, type MessageKey } from '../../i18n/t'
 import type { DbColumn } from '../../core/types'
 
 /**
@@ -41,3 +42,7 @@ export function columnIcon(column: DbColumn): string {
 export function isAutoColumn(column: DbColumn): boolean {
   return AUTO_TYPES.has(column.type)
 }
+
+/** A column type's name: "Number", "Web link" … */
+export const typeName = (type: string): string =>
+  t(`column.type.${type}` as MessageKey)

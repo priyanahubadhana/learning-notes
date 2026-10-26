@@ -15,6 +15,7 @@ import {
   dayStartHour,
   goodSteps,
   newCardsPerDay,
+  practiceOrder,
   reviewsPerDay,
   schedulerChoice,
   targetMemory,
@@ -277,7 +278,8 @@ const PRACTICE_CHUNK = 200
 
 /**
  * Cards for Practice anyway: every active card in the scope, soonest due
- * first, up to `limit`. Not-due cards keep their schedule when rated
+ * first, up to `limit`; with the "Shuffle" setting, those same cards in
+ * random order (`random` is for tests). Not-due cards keep their schedule when rated
  * (cram); due ones count normally, except new cards beyond today's limit
  * (see `countsAsReview`). 'wrong' has no practice round: it already is one.
  */
@@ -285,6 +287,29 @@ export async function getPracticeCards(
   db: LearningNotesDB,
   scope: ReviewScope,
   limit = PRACTICE_ROUND,
+  random: () => number = Math.random,
+): Promise<Card[]> {
+  const [cards, order] = await Promise.all([
+    soonestDue(db, scope, limit),
+    getSetting(db, practiceOrder),
+  ])
+  return order === 'shuffle' ? shuffled(cards, random) : cards
+}
+
+/** Fisher–Yates shuffle into a new array. */
+function shuffled<T>(items: readonly T[], random: () => number): T[] {
+  const out = [...items]
+  for (let i = out.length - 1; i > 0; i--) {
+    const j = Math.floor(random() * (i + 1))
+    ;[out[i], out[j]] = [out[j], out[i]]
+  }
+  return out
+}
+
+async function soonestDue(
+  db: LearningNotesDB,
+  scope: ReviewScope,
+  limit: number,
 ): Promise<Card[]> {
   const byDue = (a: Card, b: Card) => a.due - b.due || a.createdAt - b.createdAt
   switch (scope.kind) {

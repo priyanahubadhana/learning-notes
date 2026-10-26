@@ -192,6 +192,27 @@ export const nestedCardPlacement: SettingDefinition<NestedCardChoice> = {
   },
 }
 
+/** Order of a Practice anyway round. */
+export const PRACTICE_ORDERS = ['due', 'shuffle'] as const
+export type PracticeOrder = (typeof PRACTICE_ORDERS)[number]
+
+export const practiceOrder: SettingDefinition<PracticeOrder> = {
+  id: 'review.practiceOrder',
+  labelKey: 'settings.practiceOrder.label',
+  descriptionKey: 'settings.practiceOrder.description',
+  category: 'review',
+  scope: 'synced',
+  defaultValue: 'due',
+  isValid: isOneOf<PracticeOrder>(PRACTICE_ORDERS),
+  control: {
+    kind: 'segmented',
+    options: PRACTICE_ORDERS.map((value) => ({
+      value,
+      label: () => t(`settings.practiceOrder.${value}`),
+    })),
+  },
+}
+
 for (const definition of [
   theme,
   dayStartHour,
@@ -201,6 +222,7 @@ for (const definition of [
   targetMemory,
   againMinutes,
   goodSteps,
+  practiceOrder,
   nestedCardPlacement,
 ]) {
   settingsRegistry.register(definition as SettingDefinition)

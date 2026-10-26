@@ -343,3 +343,9 @@
 - **What:** Phase 4, Step 0b (part 1). Settings can now be shown only while another setting has certain values (`shownWhen` in the settings registry; checked when registering). "Steps for Good" shows only with Simple steps, "Target memory" only with FSRS. Values are kept while hidden. Category counts follow what is shown.
 - **Why:** Phase 4 plan, Step 0 polish: no settings that do nothing for the chosen scheduler.
 - **Files:** src/settings/registry.ts, src/settings/builtinSettings.ts, src/settings/SettingsScreen.tsx, src/settings/settings.test.ts, e2e/settings.spec.ts, e2e/review.spec.ts, CHANGELOG.md
+
+## 2026-10-26
+
+- **What:** Phase 4, Step 0b (part 2). New setting "Practice anyway order" (Settings › Review: Soonest due first · Shuffle; default Soonest due first). Shuffle keeps the same round (the 50 soonest-due cards) in random order.
+- **Why:** Phase 4 plan, Step 0 polish (parked idea).
+- **Files:** src/settings/builtinSettings.ts, src/i18n/en.ts, src/recall/reviewService.ts, src/recall/reviewService.test.ts, CHANGELOG.md

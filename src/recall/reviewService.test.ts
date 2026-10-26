@@ -10,6 +10,7 @@ import {
   againMinutes,
   goodSteps,
   newCardsPerDay,
+  practiceOrder,
   reviewsPerDay,
   schedulerChoice,
   targetMemory,
@@ -348,6 +349,15 @@ describe('practice anyway', () => {
     expect(ids(page)).toEqual(['c-near', 'c-far'])
     const all = await getPracticeCards(db, { kind: 'all' }, 2)
     expect(ids(all)).toEqual(['c-near', 'c-other'])
+  })
+
+  it('Shuffle setting: the same round in random order', async () => {
+    await addCard('far', learned(NOW + 9 * DAY))
+    await addCard('near', learned(NOW + DAY))
+    await setSetting(db, practiceOrder, 'shuffle')
+    const scope = { kind: 'page', pageId: 'p1' } as const
+    const cards = await getPracticeCards(db, scope, undefined, () => 0)
+    expect(ids(cards)).toEqual(['c-far', 'c-near'])
   })
 
   it('new cards past the daily limit are practice: they stay new', async () => {

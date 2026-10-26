@@ -16,6 +16,11 @@ export const en = {
     'Put the card inside this answer, or on the next line below the card?',
   'nestedCard.nextLine': 'Next line',
   'nestedCard.inside': 'Inside this answer',
+  'settings.practiceOrder.label': 'Practice anyway order',
+  'settings.practiceOrder.description':
+    'Order of the cards in “Practice anyway”: the ones due soonest first, or the same cards shuffled.',
+  'settings.practiceOrder.due': 'Soonest due first',
+  'settings.practiceOrder.shuffle': 'Shuffle',
   'settings.nestedCard.label': 'New card inside an answer',
   'settings.nestedCard.description':
     'When you type “/card” inside a card’s answer: ask each time, or always put the new card on the next line below the card, or inside the answer.',

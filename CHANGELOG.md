@@ -447,3 +447,9 @@
 - **What:** Two visual tweaks (owner request). Tag chips on pages and in text show their colour as a soft tint only (a bit stronger: 22%); the colour dot stays in the sidebar and the tag picker (`TagLabel` `dot` prop). Linked from sentences use a new in-between text colour `ink-soft` (darker than muted; one value per theme). The Linked from screenshot test now has words around the link. Checked in Day, Night, Sepia; screenshots updated.
 - **Why:** Owner request: easier to read, calmer chips.
 - **Files:** src/index.css, src/tags/{TagChip,TagPicker}.tsx, src/links/LinkedFrom.tsx, e2e/links.spec.ts, CHANGELOG.md
+
+## 2026-10-27
+
+- **What:** Sidebar Tags list shows each tag as a chip (soft colour tint, like on pages) instead of a coloured dot.
+- **Why:** Owner wanted the sidebar to match the new chip look.
+- **Files:** src/tags/TagsSection.tsx, src/tags/TagChip.tsx (comment), CHANGELOG.md

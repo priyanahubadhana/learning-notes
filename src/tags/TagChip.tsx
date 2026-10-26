@@ -4,7 +4,8 @@ import { tagColorStyle } from './tagStyle'
 /**
  * How a tag looks everywhere (page chips, tags in text, menus): a small
  * rounded "#name", parents shown faintly ("#medicine/cardio"), grey unless
- * the tag has a colour: chips get a soft tint of it, lists (menus) a dot.
+ * the tag has a colour: chips (and the sidebar list) get a soft tint of it,
+ * the tag picker menu a dot.
  * Styles in index.css (`.tag-chip`).
  */
 export function TagLabel({

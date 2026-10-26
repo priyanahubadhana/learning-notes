@@ -123,12 +123,15 @@ export function TagsSection({
               type="button"
               onClick={() => onOpenTag(tag.id)}
               title={t('tags.openHint')}
-              className="flex min-h-7 min-w-0 flex-1 items-center truncate text-start"
-              style={tagColorStyle(tag.color)}
+              className="flex min-h-7 min-w-0 flex-1 items-center text-start"
             >
-              {/* Always there (clear when no colour), so names line up. */}
-              <span aria-hidden className="tag-dot" />
-              <span className="truncate">#{tag.name}</span>
+              {/* Same look as the chips on pages: tinted when coloured. */}
+              <span
+                className={tag.color ? 'tag-chip tag-chip-colored' : 'tag-chip'}
+                style={tagColorStyle(tag.color)}
+              >
+                <span className="truncate">#{tag.name}</span>
+              </span>
             </button>
             {count > 0 && (
               <span

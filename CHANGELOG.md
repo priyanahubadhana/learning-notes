@@ -477,3 +477,9 @@
 - **What:** Phase 5 mockup updated after owner feedback, then approved: Status menu is a real menu that stays open until a pick (Table and Board "Move to…"); column headers open a sort/filter menu (filters per column, active ones as removable chips, "Clear all"); "How Auto decides" hint in the Status menus and row page; new sidebar "All cards" page (all notebooks, Sort menu, "Review N due"). Phase 5 plan and decision log updated.
 - **Why:** Owner mockup feedback; All cards reverses the 2026-10-26 decision (owner OK).
 - **Files:** prototype-phase5.html, README.md, CHANGELOG.md
+
+## 2026-10-27
+
+- **What:** Phase 5 Step 5A-0: @types/node 24 → 26 (matches the installed Node 26). TypeScript 7 re-parked: typescript-eslint supports only TypeScript below 6.1, and TypeScript 7 no longer ships the JavaScript API it needs. 304 unit + 88 e2e pass; lint, build clean; npm audit 0.
+- **Why:** Phase 5 plan Step 0; owner chose to park TypeScript 7 (small gain, would break lint).
+- **Files:** package.json, package-lock.json, README.md, IDEAS.md, CHANGELOG.md

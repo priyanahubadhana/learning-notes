@@ -386,3 +386,14 @@
   - Tests: searchQuery, suggest, savedSearchService, 10k-card search speed test (browse ~0.15 s); e2e `search.spec.ts` (popup, screen, Trash/Restore, saved searches, screenshots in 3 themes + phone portrait/landscape); `duplicateCards.spec.ts` uses search instead of All cards. 262 unit + 61 e2e pass.
 - **Why:** Phase 4 plan, Step 3.
 - **Files:** src/search/{searchQuery,highlight,suggest,savedSearchService}.ts (+ tests), src/search/{SearchPopup,SearchScreen,SearchResults,TypeChips,SavedSearchesSection,SaveSearchActions}.tsx, src/search/{useSearch,recentPages}.ts, src/search/searchService.ts, src/search/searchSpeed.test.ts, src/app/{useDebounced,keys}.ts, src/recall/reviewService.ts, src/recall/ReviewScreen.tsx, src/notebooks/Sidebar.tsx, src/App.tsx, src/i18n/en.ts, e2e/{search,duplicateCards}.spec.ts, e2e/helpers.ts; removed src/recall/{AllCardsScreen.tsx,cardQuery.ts,cardQuery.test.ts}, e2e/allCards.spec.ts; README.md, IDEAS.md, CHANGELOG.md
+
+## 2026-10-26
+
+- **What:** Phase 4 Step 4 (links).
+  - **[[ links:** typing "[[" (or "/ Link to page") opens a picker: find a page by its title (recent pages before typing), press → or tap › to link a heading or card on it. The link shows the page's current title (› heading), so renames and moves never break it; click or Ctrl+Enter (⌘+Enter) opens it at the heading/card. A deleted heading falls back to the page; a page in the Trash shows struck through and offers Restore. Esc leaves "[[" as plain text.
+  - **Linked from:** at the end of each page (not templates): every block on other pages linking here, with the sentence around the link, recently changed pages first, "Show more" 20 at a time. Page-link blocks count.
+  - **Links list:** rows kept up to date on every save by the index middleware, rebuilt by the backfill (search index version 2: link titles are also searchable words).
+  - Review shows links with current titles; card lists and search snippets use the title saved with the link. Template copies re-point links to the copied pages.
+  - Tests: `linkService.test.ts` (incl. 10,000 links), `linkActions.test.ts` (real editor), template link copy; e2e `links.spec.ts` (picker, heading link, rename, Esc, slash, keyboard, Trash/Restore, screenshots in 3 themes + phone). Review e2e locator narrowed (it matched the new section).
+- **Why:** Phase 4 plan, Step 4.
+- **Files:** src/links/{linkRows,linkService}.ts (+ test), src/links/{LinkPicker,LinkedFrom}.tsx, src/editor/{linkActions.ts (+ test), NoteLinkView.tsx, mapping.ts, schema.tsx, PageEditor.tsx, slashMenu.tsx}, src/search/{indexMiddleware,searchService,searchText}.ts, src/recall/{cardService,cardList,reviewService}.ts, src/recall/ReviewScreen.tsx, src/core/blockService.ts, src/templates/templateService.ts (+ test), src/pages/PageView.tsx, src/i18n/en.ts, src/index.css, e2e/links.spec.ts, e2e/review.spec.ts, tests updated (slashMenu, cardActions, searchService), README.md, CHANGELOG.md, IDEAS.md

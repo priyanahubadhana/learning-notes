@@ -1,6 +1,7 @@
 import type { LearningNotesDB } from '../core/db'
 import type { Block, Page, SearchEntry } from '../core/types'
 import { linkRowRange, linkRows } from '../links/linkRows'
+import { blockTagRowRange, blockTagRows } from '../tags/tagRows'
 import {
   blockEntry,
   pageEntry,
@@ -148,7 +149,7 @@ export async function ensureSearchIndex(
     const { table, after } = state.next
     state = await db.transaction(
       'rw',
-      [db.pages, db.blocks, db.searchEntries, db.links, db.meta],
+      [db.pages, db.blocks, db.searchEntries, db.links, db.blockTags, db.meta],
       async () => {
         const records = await db[table]
           .where(':id')
@@ -189,15 +190,28 @@ async function indexRecords(
       pageIds.map((id, i) => [id, pages[i]?.notebookId]),
     )
     entries = blocks.map((b) => blockEntry(b, notebookOf.get(b.pageId) ?? ''))
-    // The links list is rebuilt with the index. A chunk is a run of
-    // consecutive block ids, so one key range covers all its old rows
-    // (and stale rows of blocks no longer there).
+    // The links and block tags lists are rebuilt with the index. A chunk
+    // is a run of consecutive block ids, so one key range covers all its
+    // old rows (and stale rows of blocks no longer there).
     if (blocks.length > 0) {
-      const lower = linkRowRange(blocks[0].id)[0]
-      const upper = linkRowRange(blocks.at(-1)!.id)[1]
-      await db.links.where(':id').between(lower, upper, true, true).delete()
+      const first = blocks[0].id
+      const last = blocks.at(-1)!.id
+      await db.links
+        .where(':id')
+        .between(linkRowRange(first)[0], linkRowRange(last)[1], true, true)
+        .delete()
+      await db.blockTags
+        .where(':id')
+        .between(
+          blockTagRowRange(first)[0],
+          blockTagRowRange(last)[1],
+          true,
+          true,
+        )
+        .delete()
     }
     await db.links.bulkPut(blocks.flatMap(linkRows))
+    await db.blockTags.bulkPut(blocks.flatMap(blockTagRows))
   }
   const ids = records.map((r) =>
     table === 'pages' ? titleEntryId(r.id) : r.id,

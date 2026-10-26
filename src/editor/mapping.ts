@@ -117,11 +117,69 @@ export function noteLinkProps(
   }
 }
 
-/** A run's plain text: its text, or a note link's label. */
+/**
+ * A run's plain text: its text, or a note link's label. Tags are not part
+ * of the sentence, so they have none.
+ */
 export function runText(run: JsonValue | undefined): string {
   if (!isObject(run)) return ''
   if (typeof run.text === 'string') return run.text
   return noteLinkProps(run)?.label ?? ''
+}
+
+/** Inline type of a tag written in text ("#"). */
+export const TAG = 'tag'
+
+/** Props of an inline tag: the tag, and its path ("a/b") when it was added. */
+export interface TagRefProps {
+  tagId: string
+  /** For plain-text views only; chips always show the current name. */
+  label: string
+}
+
+/** The props of an inline tag run, or null for any other run. */
+export function tagRefProps(run: JsonValue | undefined): TagRefProps | null {
+  if (!isObject(run) || run.type !== TAG || !isObject(run.props)) return null
+  const { tagId, label } = run.props
+  if (typeof tagId !== 'string' || !tagId) return null
+  return { tagId, label: typeof label === 'string' ? label : '' }
+}
+
+/** Ids of the tags written in a block's rich text (any depth), each once. */
+export function inlineTagIds(block: Pick<Block, 'content'>): string[] {
+  const ids = new Set<string>()
+  const visit = (value: JsonValue | undefined) => {
+    if (Array.isArray(value)) value.forEach(visit)
+    else if (isObject(value)) {
+      const tag = tagRefProps(value)
+      if (tag) ids.add(tag.tagId)
+      else Object.values(value).forEach(visit)
+    }
+  }
+  visit(block.content.text)
+  return [...ids]
+}
+
+/**
+ * A copy of rich text with each inline tag changed by `map`: new props, or
+ * null to remove the tag (e.g. merging or deleting a tag).
+ */
+export function mapInlineTags(
+  value: JsonValue | undefined,
+  map: (tag: TagRefProps) => TagRefProps | null,
+): JsonValue | undefined {
+  if (Array.isArray(value)) {
+    return value.flatMap((v) => {
+      const tag = tagRefProps(v)
+      if (!tag) return [mapInlineTags(v, map)!]
+      const next = map(tag)
+      return next ? [{ ...(v as JsonObject), props: { ...next } }] : []
+    })
+  }
+  if (!isObject(value)) return value
+  return Object.fromEntries(
+    Object.entries(value).map(([k, v]) => [k, mapInlineTags(v, map)!]),
+  )
 }
 
 /** The plain text of a block's `content.text` (e.g. for previews). */

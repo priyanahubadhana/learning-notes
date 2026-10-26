@@ -27,7 +27,7 @@ import {
   startSession,
   type ReviewSession,
 } from './reviewSession'
-import { noteLinkProps } from '../editor/mapping'
+import { noteLinkProps, tagRefProps } from '../editor/mapping'
 import { RATINGS } from './scheduler'
 
 /**
@@ -468,6 +468,7 @@ function Runs({
       previousHidden = false
       return
     }
+    if (tagRefProps(run as JsonValue)) return // tags are not shown in review
     const link = noteLinkProps(run as JsonValue)
     if (link) {
       // Its label is the current title (see getCardFace).

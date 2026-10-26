@@ -12,9 +12,10 @@ import {
 } from '@blocknote/react'
 import { t } from '../i18n/t'
 import { CardListView } from '../recall/CardListView'
-import { NOTE_LINK } from './mapping'
+import { NOTE_LINK, TAG } from './mapping'
 import { NoteLinkView } from './NoteLinkView'
 import { PageLinkView } from './PageLinkView'
+import { TagView } from './TagView'
 
 /**
  * BlockNote editor schema: which block types the editor can show.
@@ -124,6 +125,21 @@ const noteLink = createReactInlineContentSpec(
   },
 )
 
+/**
+ * Tag: a tag inside text (typed with "#"); tags that block, or the Card it
+ * is in. Stores the tag id, so renames show everywhere; see tags/.
+ */
+const tag = createReactInlineContentSpec(
+  {
+    type: TAG,
+    propSchema: { tagId: { default: '' }, label: { default: '' } },
+    content: 'none',
+  },
+  {
+    render: ({ inlineContent }) => <TagView {...inlineContent.props} />,
+  },
+)
+
 const {
   paragraph,
   heading,
@@ -152,7 +168,7 @@ export const schema = BlockNoteSchema.create({
     card: createCard(),
     cardList: createCardList(),
   },
-  inlineContentSpecs: { ...defaultInlineContentSpecs, noteLink },
+  inlineContentSpecs: { ...defaultInlineContentSpecs, noteLink, tag },
   styleSpecs: { ...defaultStyleSpecs, blank },
 })
 

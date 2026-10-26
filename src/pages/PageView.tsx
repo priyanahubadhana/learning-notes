@@ -23,6 +23,7 @@ import { saveAsTemplate } from '../templates/templateService'
 import { getPagePath } from './pageService'
 import { pageSections } from './sections'
 import { LinkedFrom } from '../links/LinkedFrom'
+import { PageTags } from '../tags/PageTags'
 import { createTitleSaver } from './titleSaver'
 
 interface PageViewProps {
@@ -37,6 +38,8 @@ interface PageViewProps {
   onNewPageFromTemplate: (templateId: string) => void
   /** Opens the Review screen for this page's cards (and sub-pages'). */
   onReview: (includeSubpages?: boolean) => void
+  /** Shows everything with a tag (Search). */
+  onOpenTag?: (tagId: string) => void
 }
 
 /** An open page: breadcrumb, action bar, banner, title and block editor. */
@@ -48,6 +51,7 @@ export function PageView({
   onOpenNewPage,
   onNewPageFromTemplate,
   onReview,
+  onOpenTag,
 }: PageViewProps) {
   const { toast } = useContext(AppUiContext)
   const path = useLiveQuery(() => getPagePath(db, page.id), [db, page.id]) ?? []
@@ -161,6 +165,12 @@ export function PageView({
         autoFocus={autoFocusTitle}
         onEnter={() => editor.current?.focus()}
       />
+      <PageTags
+        db={db}
+        pageId={page.id}
+        tagIds={page.tagIds ?? []}
+        onOpenTag={onOpenTag}
+      />
       <SectionChips db={db} pageId={page.id} />
       <PageEditor
         db={db}
@@ -168,6 +178,7 @@ export function PageView({
         notebookId={page.notebookId}
         onOpenPage={onOpenPage}
         onOpenNewPage={onOpenNewPage}
+        onOpenTag={onOpenTag}
         onReviewCards={notebook && !isTemplate ? onReview : undefined}
         onSaveAsTemplate={notebook && !isTemplate ? saveTemplate : undefined}
         editorRef={editor}
@@ -341,7 +352,7 @@ function TitleInput({
         setFocused(false)
         void saver.flush()
       }}
-      className="mb-[18px] block w-full resize-none overflow-hidden bg-transparent text-[40px] leading-[1.2] font-bold tracking-[-0.025em] outline-none placeholder:text-muted"
+      className="mb-2 block w-full resize-none overflow-hidden bg-transparent text-[40px] leading-[1.2] font-bold tracking-[-0.025em] outline-none placeholder:text-muted"
     />
   )
 }

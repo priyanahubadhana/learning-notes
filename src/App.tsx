@@ -34,6 +34,7 @@ import { revealBlock } from './editor/revealBlock'
 import { rememberPage } from './search/recentPages'
 import { SearchPopup } from './search/SearchPopup'
 import {
+  DEFAULT_FILTERS,
   describeHits,
   runSearch,
   type SearchHit,
@@ -114,6 +115,13 @@ function App() {
     setSearchPopup(false)
     setSearch({ query, key: Date.now(), savedId })
   }
+  /** Search screen showing everything with a tag. */
+  const openTag = (tagId: string) =>
+    openSearch({
+      text: '',
+      type: 'all',
+      filters: { ...DEFAULT_FILTERS, tagId },
+    })
   const savedSearch = useLiveQuery(
     async () =>
       search?.savedId ? getSavedSearch(db, search.savedId) : undefined,
@@ -415,6 +423,7 @@ function App() {
                   })
                 }
                 onNewPageFromTemplate={(id) => runTask(newPageFromTemplate(id))}
+                onOpenTag={openTag}
               />
             ) : notebooks.length === 0 && currentPage === null ? (
               <div className="mt-[30vh] text-center">

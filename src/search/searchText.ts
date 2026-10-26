@@ -10,9 +10,10 @@ import { cardParts } from '../recall/cardService'
 
 /**
  * Bump when splitting/folding or entry contents change: rebuilds the index
- * (and the links list, see links/linkRows.ts). 2 = links (Phase 4 Step 4).
+ * (and the links and block tags lists, see links/linkRows.ts and
+ * tags/tagRows.ts). 2 = links (Phase 4 Step 4), 3 = block tags (Step 5).
  */
-export const SEARCH_INDEX_VERSION = 2
+export const SEARCH_INDEX_VERSION = 3
 
 /** Longer "words" (e.g. pasted hashes) are cut to this many characters. */
 const MAX_WORD_LENGTH = 40

@@ -3,6 +3,7 @@ import {
   filterSuggestionItems,
   insertOrUpdateBlockForSlashMenu,
 } from '@blocknote/core'
+import { SuggestionMenu } from '@blocknote/core/extensions'
 import { BlockNoteView } from '@blocknote/mantine'
 import {
   FormattingToolbarController,
@@ -52,6 +53,7 @@ import { createPageSync } from './pageSync'
 import { revealBlock } from './revealBlock'
 import { editorBlockTypes, schema } from './schema'
 import { buildSlashMenuItems } from './slashMenu'
+import { TAG_TRIGGER, tagMenuItems, tagMenuShouldOpen } from './tagActions'
 
 interface PageEditorProps {
   db: LearningNotesDB
@@ -63,6 +65,8 @@ interface PageEditorProps {
   onReviewCards?: (includeSubpages: boolean) => void
   /** Opens a page just created here (e.g. "New sub-page" in the / menu). */
   onOpenNewPage: (page: Page) => void
+  /** Shows everything with a tag (a tag in text is clicked). */
+  onOpenTag?: (tagId: string) => void
   /** "/ Save page as template" (left out of the menu when undefined). */
   onSaveAsTemplate?: () => void
   /** Filled with focus/flush controls for the page around the editor. */
@@ -103,6 +107,7 @@ function LoadedPageEditor({
   onOpenPage,
   onReviewCards,
   onOpenNewPage,
+  onOpenTag,
   onSaveAsTemplate,
   editorRef,
   records,
@@ -261,6 +266,7 @@ function LoadedPageEditor({
         openPage: onOpenPage,
         openBlock,
         reviewCards: onReviewCards,
+        openTag: onOpenTag,
       }}
     >
       <BlockNoteView
@@ -295,6 +301,15 @@ function LoadedPageEditor({
                 onPlaceNestedCard: placeNestedCard,
               }),
               query,
+            )
+          }
+        />
+        <SuggestionMenuController
+          triggerCharacter={TAG_TRIGGER}
+          shouldOpen={tagMenuShouldOpen}
+          getItems={(query) =>
+            tagMenuItems(db, editor, query, () =>
+              editor.getExtension(SuggestionMenu)?.closeMenu(),
             )
           }
         />

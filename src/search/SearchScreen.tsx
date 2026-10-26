@@ -1,8 +1,9 @@
 import { useLiveQuery } from 'dexie-react-hooks'
-import { useEffect, useId, useRef, useState } from 'react'
+import { useEffect, useId, useRef, useState, type ReactNode } from 'react'
 import { usePref } from '../app/usePref'
 import type { LearningNotesDB } from '../core/db'
 import { t, type MessageKey } from '../i18n/t'
+import { tagMap, tagPathIn, tagPathName } from '../tags/tagService'
 import {
   STATUS_FILTERS,
   type ChangedFilter,
@@ -90,6 +91,22 @@ export function SearchScreen({
   const notebooks = useLiveQuery(() => db.notebooks.toArray(), [db])
   const notebookName = (id: string) =>
     notebooks?.find((n) => n.id === id)?.title || t('review.untitled')
+  const tags = useLiveQuery(() => tagMap(db), [db])
+  const tagLabel = (id: string) => `#${tags ? tagPathName(tags, id) : ''}`
+  // The tag menu goes step by step: the chosen tag's sub-tags (or the top
+  // level), each with how many results it would give.
+  const tagLevel = tags
+    ? [...tags.values()]
+        .filter((tag) => tag.parentId === filters.tagId)
+        .map((tag) => ({
+          value: tag.id,
+          label: `#${tag.name}`,
+          count: outcome?.tagCounts.get(tag.id) ?? 0,
+        }))
+        .filter((item) => item.count > 0)
+        .sort((a, b) => b.count - a.count || a.label.localeCompare(b.label))
+    : []
+  const tagCrumbs = filters.tagId && tags ? tagPathIn(tags, filters.tagId) : []
 
   const hits = outcome?.hits ?? []
   const visible = hits.slice(0, shown)
@@ -189,6 +206,51 @@ export function SearchScreen({
                   empty={t('search.filter.noNotebooks')}
                   onPick={(id) => setFilter('notebookId', id)}
                 />
+                {(tagLevel.length > 0 || filters.tagId) && (
+                  <Facet
+                    label={
+                      filters.tagId
+                        ? tagLabel(filters.tagId)
+                        : t('search.filter.tag')
+                    }
+                    on={filters.tagId !== null}
+                    onClear={() => setFilter('tagId', null)}
+                    header={
+                      tagCrumbs.length > 0 && (
+                        <div className="flex flex-wrap items-center gap-0.5 border-b border-line px-1 pb-1.5 text-xs text-muted">
+                          <button
+                            type="button"
+                            role="menuitem"
+                            onClick={() => setFilter('tagId', null)}
+                            className="min-h-7 rounded px-1 hover:bg-hover hover:text-ink"
+                          >
+                            {t('search.filter.allTags')}
+                          </button>
+                          {tagCrumbs.map((tag) => (
+                            <span key={tag.id} className="flex items-center">
+                              ›
+                              <button
+                                type="button"
+                                role="menuitem"
+                                onClick={() => setFilter('tagId', tag.id)}
+                                className="min-h-7 rounded px-1 hover:bg-hover hover:text-ink"
+                              >
+                                {tag.name}
+                              </button>
+                            </span>
+                          ))}
+                        </div>
+                      )
+                    }
+                    items={tagLevel}
+                    empty={
+                      filters.tagId
+                        ? t('search.filter.noSubTags')
+                        : t('search.filter.noTags')
+                    }
+                    onPick={(id) => setFilter('tagId', id)}
+                  />
+                )}
                 {showStatus && (
                   <Facet
                     label={
@@ -279,7 +341,9 @@ export function SearchScreen({
             <p className="font-semibold text-ink">
               {text.trim()
                 ? t('search.noResults', { query: text.trim() })
-                : t('search.noCards')}
+                : filters.tagId
+                  ? t('search.noResults', { query: tagLabel(filters.tagId) })
+                  : t('search.noCards')}
             </p>
             {suggestion && (
               <p>
@@ -373,6 +437,7 @@ function Facet({
   empty,
   onPick,
   onClear,
+  header,
 }: {
   label: string
   on: boolean
@@ -380,6 +445,8 @@ function Facet({
   empty: string
   onPick: (value: string) => void
   onClear: () => void
+  /** Shown above the items (e.g. the tag menu's steps back). */
+  header?: ReactNode
 }) {
   const [open, setOpen] = useState(false)
   const ref = useRef<HTMLDivElement>(null)
@@ -427,6 +494,7 @@ function Facet({
           role="menu"
           className="absolute start-0 top-[calc(100%+4px)] z-30 max-h-[50vh] w-max max-w-[min(320px,86vw)] min-w-[220px] overflow-auto rounded-[10px] border border-line bg-bg p-1.5 shadow-[0_12px_32px_rgba(0,0,0,0.14)]"
         >
+          {header}
           {items.length === 0 ? (
             <p className="px-2 py-1.5 text-xs text-muted">{empty}</p>
           ) : (

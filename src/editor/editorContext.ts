@@ -11,6 +11,8 @@ export interface EditorAppContext {
   openBlock: (pageId: string, blockId: string) => void
   /** Reviews this page's cards (and its sub-pages'); unset on templates. */
   reviewCards?: (includeSubpages: boolean) => void
+  /** Shows everything with a tag (Search); unset = tags are not clickable. */
+  openTag?: (tagId: string) => void
 }
 
 export const EditorContext = createContext<EditorAppContext | null>(null)

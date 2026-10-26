@@ -105,6 +105,7 @@ export function readSavedQuery(stored: JsonObject): SearchQuery {
   ) => (values.includes(v as T) ? (v as T) : fallback)
   const filters: SearchFilters = {
     notebookId: typeof f.notebookId === 'string' ? f.notebookId : null,
+    tagId: typeof f.tagId === 'string' ? f.tagId : null,
     status: STATUS_FILTERS.includes(f.status as never)
       ? (f.status as SearchFilters['status'])
       : null,

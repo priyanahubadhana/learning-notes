@@ -84,8 +84,9 @@ export async function ensureTemplates(
 
 /**
  * Copies a page's blocks and its live sub-pages (any depth, keeping their
- * titles) under a new page. Links to pages inside the copied tree point
- * at the copies; other page links are left out. With `withCards`,
+ * titles and tags) under a new page; the new page gets the source's tags
+ * too. Links to pages inside the copied tree point at the copies; other
+ * page links are left out. With `withCards`,
  * copied cards get a schedule. Pages made by this copy are never copied
  * again (the target may sit inside the source's own sub-pages).
  */
@@ -98,6 +99,10 @@ async function copyPageTree(
 ): Promise<void> {
   const from = (await getPage(db, fromPageId))!
   const to = (await getPage(db, toPageId))!
+  if (from.tagIds?.length) {
+    const tagIds = [...new Set([...(to.tagIds ?? []), ...from.tagIds])]
+    await db.pages.update(to.id, { tagIds, updatedAt: Date.now() })
+  }
   const copies = new Map<string, string>() // sub-page id → its copy
   for (const child of await listChildPages(db, from.notebookId, from.id)) {
     if (made.has(child.id)) continue

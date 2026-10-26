@@ -2,6 +2,7 @@ import type { LearningNotesDB } from '../core/db'
 import type { Card, Notebook, SearchEntry } from '../core/types'
 import { cardStatus, type CardStatus } from '../recall/cardList'
 import { wrongCardIds } from '../recall/reviewService'
+import { taggedEntryIds, tagsOf } from '../tags/tagQuery'
 import { findMatches } from './searchService'
 import { blockText, searchWords } from './searchText'
 
@@ -11,8 +12,8 @@ import { blockText, searchWords } from './searchText'
  * menus. Built on the word index (`findMatches`); everything after the
  * index lookup happens in memory on the matches only.
  *
- * Filters live in one registry (`FILTERS`), so a new filter (e.g. tags) is
- * one more entry: it is applied to results and its menu counts come free.
+ * Filters live in one registry (`FILTERS`), so a new filter is one more
+ * entry: it is applied to results and its menu counts come free.
  */
 
 /** What a result is. A block that makes cards is a card, else a note. */
@@ -39,6 +40,8 @@ export type SortOrder = 'best' | 'recent'
 
 export interface SearchFilters {
   notebookId: string | null
+  /** A tag: results with it or one of its sub-tags (see tags/tagQuery.ts). */
+  tagId: string | null
   status: StatusFilter | null
   changed: ChangedFilter
   /** Include journal days / templates / Trash. */
@@ -50,6 +53,7 @@ export interface SearchFilters {
 
 export const DEFAULT_FILTERS: SearchFilters = {
   notebookId: null,
+  tagId: null,
   status: null,
   changed: 'any',
   journal: true,
@@ -82,6 +86,8 @@ export interface SearchHit {
   due?: number
   /** Card results: every status filter the block matches. */
   statuses?: Set<StatusFilter>
+  /** Its tags, own and inherited, with their parents; unset = none. */
+  tags?: Set<string>
 }
 
 export interface SearchOutcome {
@@ -95,6 +101,8 @@ export interface SearchOutcome {
   notebookCounts: Map<string, number>
   /** Card results per status, all other filters applied. */
   statusCounts: Map<StatusFilter, number>
+  /** Results per tag (a tag counts its sub-tags' results), others applied. */
+  tagCounts: Map<string, number>
   /** Matches found only in the Trash while it is not included. */
   trashCount: number
 }
@@ -123,6 +131,10 @@ const FILTERS: SearchFilter[] = [
     id: 'notebook',
     passes: (hit, q) =>
       !q.filters.notebookId || hit.notebookId === q.filters.notebookId,
+  },
+  {
+    id: 'tag',
+    passes: (hit, q) => !q.filters.tagId || !!hit.tags?.has(q.filters.tagId),
   },
   {
     id: 'status',
@@ -155,8 +167,9 @@ const passesAll = (
 const STATUS_RANK: CardStatus[] = ['due', 'new', 'later', 'suspended']
 
 /**
- * Runs a search. With no words, only the Cards type can be browsed (every
- * card, soonest due first); anything else is an empty search.
+ * Runs a search. With no words, a tag can be browsed (everything with it),
+ * and so can the Cards type (every card, soonest due first); anything else
+ * is an empty search.
  */
 export async function runSearch(
   db: LearningNotesDB,
@@ -164,22 +177,28 @@ export async function runSearch(
   now: number = Date.now(),
 ): Promise<SearchOutcome> {
   const words = searchWords(query.text)
-  const browsing = words.length === 0 && query.type === 'card'
+  const tagId = query.filters.tagId
+  const browsing =
+    words.length === 0 && (query.type === 'card' || tagId !== null)
   const empty: SearchOutcome = {
     active: false,
     hits: [],
     typeCounts: { all: 0, page: 0, note: 0, card: 0 },
     notebookCounts: new Map(),
     statusCounts: new Map(),
+    tagCounts: new Map(),
     trashCount: 0,
   }
   if (words.length === 0 && !browsing) return empty
 
   const notebooks = await db.notebooks.toArray()
   const placeOf = new Map(notebooks.map((n) => [n.id, placeFor(n)]))
-  const entries = browsing
-    ? await allCardEntries(db)
-    : await findMatches(db, words)
+  const entries =
+    words.length > 0
+      ? await findMatches(db, words)
+      : tagId !== null
+        ? await entriesByIds(db, await taggedEntryIds(db, tagId))
+        : await allCardEntries(db)
   const trashed = await trashedPageIds(db, entries)
   const hits: SearchHit[] = entries.flatMap(({ entry, score }) => {
     // A block deleted on a page that is not in the Trash is gone for good
@@ -200,6 +219,8 @@ export async function runSearch(
     ]
   })
   await addCardStatus(db, hits, now)
+  const tagSets = await tagsOf(db, hits)
+  for (const hit of hits) hit.tags = tagSets.get(hit.id)
 
   const result: SearchOutcome = { ...empty, active: true }
   for (const hit of hits) {
@@ -210,6 +231,11 @@ export async function runSearch(
     if (passesAll(hit, query, now, 'notebook')) {
       const n = result.notebookCounts.get(hit.notebookId) ?? 0
       result.notebookCounts.set(hit.notebookId, n + 1)
+    }
+    if (hit.tags && passesAll(hit, query, now, 'tag')) {
+      for (const id of hit.tags) {
+        result.tagCounts.set(id, (result.tagCounts.get(id) ?? 0) + 1)
+      }
     }
     if (hit.statuses && passesAll(hit, query, now, 'status')) {
       for (const s of hit.statuses) {
@@ -222,7 +248,10 @@ export async function runSearch(
     }
     if (passesAll(hit, query, now)) result.hits.push(hit)
   }
-  result.hits.sort(sorter(query.filters.sort, browsing))
+  // Browsing cards: soonest due first; browsing a tag: recently changed.
+  result.hits.sort(
+    sorter(query.filters.sort, browsing && query.type === 'card'),
+  )
   return result
 }
 
@@ -260,9 +289,16 @@ function sorter(sort: SortOrder, browsing: boolean) {
 /** Browsing all cards: the entries of every block that makes cards. */
 async function allCardEntries(db: LearningNotesDB) {
   const blockIds = (await db.cards.orderBy('blockId').uniqueKeys()) as string[]
-  const entries = await db.searchEntries.bulkGet(blockIds)
+  return (await entriesByIds(db, blockIds)).filter(
+    ({ entry }) => entry.kind === 'card',
+  )
+}
+
+/** Some entries (missing ones left out), unscored. */
+async function entriesByIds(db: LearningNotesDB, ids: string[]) {
+  const entries = await db.searchEntries.bulkGet(ids)
   return entries
-    .filter((e): e is SearchEntry => !!e && e.kind === 'card')
+    .filter((e): e is SearchEntry => !!e)
     .map((entry) => ({ entry, score: 0 }))
 }
 

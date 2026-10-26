@@ -421,3 +421,13 @@
   - Tests: `tagTools.test.ts` (rename/move rules, merge, delete, counts, tag words, 10,000-note count), `e2e/tagTools.spec.ts` (tree, tools, search rows, 10,000-note merge in real Chrome: 2.6 s), screenshots show the tree. 299 unit + 81 e2e pass.
 - **Why:** Phase 4 plan, Step 5b.
 - **Files:** src/tags/{tagTools,tagQuery}.ts, src/tags/{TagsSection,TagPicker}.tsx, src/tags/tagTools.test.ts, src/search/{searchQuery,SearchResults}.ts(x), src/search/searchQuery.test.ts, src/notebooks/Sidebar.tsx, src/App.tsx, src/i18n/en.ts, e2e/{tagTools,tags}.spec.ts, README.md, CHANGELOG.md, IDEAS.md
+
+## 2026-10-27
+
+- **What:** Phase 4 Step 6 — card tools in Search.
+  - **Most failed cards** (More filters › Sort): cards rated Again most often come first, with "Wrong N×" on the row.
+  - **Empty cards** (Card status › Empty (no question)): Cards with no question are listed (they were invisible to Search before) and can be removed with "Remove N empty cards"; their answer lines stay as normal notes; Undo.
+  - **Fix:** merging or deleting a tag now also updates tags typed in notes on pages in the Trash, so a restored page shows the right tags.
+  - Tests: `emptyCards.test.ts`, Trash test in `tagTools.test.ts`, Most failed speed test (10,000 cards, 50,000 reviews), `e2e/cardTools.spec.ts` with screenshots. 304 unit + 88 e2e pass.
+- **Why:** Phase 4 plan, Step 6; Trash-tags idea from IDEAS.md (owner OK).
+- **Files:** src/recall/{emptyCards,emptyCards.test,reviewService}.ts, src/search/{searchQuery,searchText,savedSearchService,searchSpeed.test}.ts, src/search/{SearchScreen,SearchResults}.tsx, src/tags/{tagTools,tagTools.test}.ts, src/core/{types,order}.ts, src/i18n/en.ts, e2e/cardTools.spec.ts, README.md, CHANGELOG.md, IDEAS.md

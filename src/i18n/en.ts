@@ -277,6 +277,25 @@ export const en = {
   'interval.days_other': '{count} days',
   'interval.countdown': '{m}:{s}',
 
+  // Links ([[ picker, Linked from)
+  'links.picker': 'Link to a page',
+  'links.findPage': 'Find a page',
+  'links.findHeading': 'Find a heading or card',
+  'links.pages': 'Pages',
+  'links.headings': 'Headings and cards',
+  'links.headingHint': '→ for a heading',
+  'links.toHeading': 'Link to a heading or card on “{page}”',
+  'links.wholePage': 'Whole page',
+  'links.noPage': 'No page called “{query}”',
+  'links.typeToFind': 'Type to find a page',
+  'links.inTrash': 'This page is in the Trash',
+  'links.gone': 'This page was deleted',
+  'links.slash.title': 'Link to page',
+  'links.slash.subtext': 'Link to a page, heading or card (or type [[)',
+  'links.linkedFrom': 'Linked from',
+  'links.none':
+    'No pages link here yet. Type [[ in any page and pick “{page}”.',
+  'links.showMore': 'Show more',
   // Units
   'unit.minutes': 'minutes',
   'unit.days': 'days',

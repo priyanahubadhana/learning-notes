@@ -1,7 +1,12 @@
 import { copyBlocks, createBlock, listBlocks } from '../core/blockService'
 import type { LearningNotesDB } from '../core/db'
 import type { Notebook, Page } from '../core/types'
-import { toPlainText } from '../editor/mapping'
+import {
+  linkTargets,
+  mapNoteLinks,
+  type NoteLinkProps,
+  toPlainText,
+} from '../editor/mapping'
 import {
   createNotebook,
   findNotebookOfKind,
@@ -101,11 +106,25 @@ async function copyPageTree(
     copies.set(child.id, copy.id)
   }
 
+  // Links in text to this page or its sub-pages point at the copies (at the
+  // page: the copied headings have new ids); other links are kept.
+  copies.set(fromPageId, toPageId)
+  const repoint = (link: NoteLinkProps): NoteLinkProps => {
+    const target = copies.get(link.pageId)
+    return target ? { ...link, pageId: target, blockId: '' } : link
+  }
   await copyBlocks(db, fromPageId, toPageId, [], (block) => {
-    if (block.type !== 'pageLink') return undefined
+    if (block.type !== 'pageLink') {
+      if (linkTargets(block).length === 0) return undefined
+      return {
+        ...block.content,
+        text: mapNoteLinks(block.content.text, repoint)!,
+      }
+    }
     const target = copies.get(String(block.content.pageId))
     return target ? { ...block.content, pageId: target } : null
   })
+  copies.delete(fromPageId)
   if (withCards) await syncCardRecords(db, toPageId)
   for (const [childId, copyId] of copies) {
     await copyPageTree(db, childId, copyId, withCards, made)

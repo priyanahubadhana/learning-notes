@@ -1,7 +1,7 @@
 import type { LearningNotesDB } from '../core/db'
 import { newRecordFields } from '../core/records'
 import type { Block, Card, JsonValue } from '../core/types'
-import { blankIds } from '../editor/mapping'
+import { blankIds, runText } from '../editor/mapping'
 
 /**
  * Recall cards: the scheduling records behind Card blocks and
@@ -104,7 +104,7 @@ export function maskedText(runs: JsonValue | undefined, blankId?: string) {
         continue
       }
       inBlank = false
-      if (typeof run.text === 'string') out += run.text
+      out += runText(run) // text, or a note link's label
       visit(run.content) // links hold their own runs
     }
   }

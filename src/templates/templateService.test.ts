@@ -3,7 +3,12 @@ import { createBlock, listBlocks } from '../core/blockService'
 import type { LearningNotesDB } from '../core/db'
 import { createTestDb } from '../core/testing'
 import { getOrCreateDefaultWorkspace } from '../core/workspaceService'
-import { plainText, toPlainText } from '../editor/mapping'
+import {
+  linkTargets,
+  NOTE_LINK,
+  plainText,
+  toPlainText,
+} from '../editor/mapping'
 import { createNotebook, listNotebooks } from '../notebooks/notebookService'
 import {
   createPage,
@@ -263,5 +268,33 @@ describe('template links', () => {
     })
     const template = await saveAsTemplate(db, ws, page.id)
     expect(await texts(template.id)).toEqual([])
+  })
+
+  it('links in text to copied pages point at the copies; others are kept', async () => {
+    const nb = await createNotebook(db, ws, 'Notes')
+    const other = await createPage(db, nb.id, null, 'Other')
+    const page = await createPage(db, nb.id, null, 'Course')
+    const week = await createPage(db, nb.id, page.id, 'Week 1')
+    const noteLink = (pageId: string, blockId = '') => ({
+      type: NOTE_LINK,
+      props: { pageId, blockId, label: 'x' },
+      content: [],
+    })
+    await createBlock(db, {
+      pageId: page.id,
+      type: 'paragraph',
+      content: {
+        text: [noteLink(week.id), noteLink(other.id), noteLink(page.id, 'h')],
+      },
+    })
+    const template = await saveAsTemplate(db, ws, page.id)
+    const tplNb = (await getPage(db, template.id))!.notebookId
+    const weekCopy = (await listChildPages(db, tplNb, template.id))[0]
+    const [block] = await listBlocks(db, template.id)
+    expect(linkTargets(block)).toEqual([
+      { pageId: weekCopy.id, blockId: '' },
+      { pageId: other.id, blockId: '' },
+      { pageId: template.id, blockId: '' }, // own heading: the copy's page
+    ])
   })
 })

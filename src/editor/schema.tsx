@@ -1,12 +1,19 @@
 import {
   BlockNoteSchema,
   defaultBlockSpecs,
+  defaultInlineContentSpecs,
   defaultProps,
   defaultStyleSpecs,
 } from '@blocknote/core'
-import { createReactBlockSpec, createReactStyleSpec } from '@blocknote/react'
+import {
+  createReactBlockSpec,
+  createReactInlineContentSpec,
+  createReactStyleSpec,
+} from '@blocknote/react'
 import { t } from '../i18n/t'
 import { CardListView } from '../recall/CardListView'
+import { NOTE_LINK } from './mapping'
+import { NoteLinkView } from './NoteLinkView'
 import { PageLinkView } from './PageLinkView'
 
 /**
@@ -97,6 +104,26 @@ const blank = createReactStyleSpec(
   },
 )
 
+/**
+ * Note link: a link inside text to a page, or a heading/card on it (typed
+ * with "[["). Stores ids, so renames and moves never break it; shows the
+ * current title. See editor/NoteLinkView.tsx and links/.
+ */
+const noteLink = createReactInlineContentSpec(
+  {
+    type: NOTE_LINK,
+    propSchema: {
+      pageId: { default: '' },
+      blockId: { default: '' },
+      label: { default: '' },
+    },
+    content: 'none',
+  },
+  {
+    render: ({ inlineContent }) => <NoteLinkView {...inlineContent.props} />,
+  },
+)
+
 const {
   paragraph,
   heading,
@@ -125,6 +152,7 @@ export const schema = BlockNoteSchema.create({
     card: createCard(),
     cardList: createCardList(),
   },
+  inlineContentSpecs: { ...defaultInlineContentSpecs, noteLink },
   styleSpecs: { ...defaultStyleSpecs, blank },
 })
 

@@ -73,6 +73,7 @@ describe('Make card', () => {
     editor.setTextCursorPosition('p', 'end')
     const items = buildSlashMenuItems(editor, {
       onNewSubPage: vi.fn(),
+      onLinkPage: vi.fn(),
       onInsertTemplate: vi.fn(),
     })
     filterSuggestionItems(items, 'flashcard')[0].onItemClick()

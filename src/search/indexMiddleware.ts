@@ -6,11 +6,13 @@ import type {
   DBCoreTransaction,
   Middleware,
 } from 'dexie'
-import type { Block, Page, SearchEntry } from '../core/types'
+import type { Block, LinkRef, Page, SearchEntry } from '../core/types'
+import { linkRowRange, linkRows } from '../links/linkRows'
 import { blockEntry, pageEntry, titleEntryId } from './searchText'
 
 /**
- * Keeps the search index (`searchEntries`) in step with pages and blocks.
+ * Keeps the search index (`searchEntries`) and the links list (`links`) in
+ * step with pages and blocks.
  *
  * A Dexie middleware sees every write to `pages` and `blocks`, from any
  * service, and updates the matching entries inside the same transaction:
@@ -37,17 +39,23 @@ export const searchIndexMiddleware: Middleware<DBCore> = {
         mutate: (req) =>
           name === 'pages'
             ? mutatePages(table, entries(), req)
-            : mutateBlocks(table, down.table('pages'), entries(), req),
+            : mutateBlocks(
+                table,
+                down.table('pages'),
+                entries(),
+                down.table('links'),
+                req,
+              ),
       }
     },
   }),
 }
 
-/** Write transactions on notes also need the index (and pages, for blocks). */
+/** Write transactions on notes also need the index (blocks: pages, links). */
 function withIndexStores(stores: string[], mode: string): string[] {
   if (mode !== 'readwrite') return stores
   const extra = [
-    ...(stores.includes('blocks') ? ['pages', 'searchEntries'] : []),
+    ...(stores.includes('blocks') ? ['pages', 'searchEntries', 'links'] : []),
     ...(stores.includes('pages') ? ['searchEntries'] : []),
   ]
   return extra.every((s) => stores.includes(s))
@@ -74,20 +82,46 @@ async function apply(
   }
 }
 
+/** Replaces the link rows of these blocks with `put`. */
+async function replaceLinks(
+  links: DBCoreTable,
+  trans: DBCoreTransaction,
+  blockIds: string[],
+  put: LinkRef[],
+): Promise<void> {
+  for (const id of blockIds) {
+    const [lower, upper] = linkRowRange(id)
+    await links.mutate({
+      type: 'deleteRange',
+      trans,
+      range: { type: 2 /* DBCoreRangeType.Range */, lower, upper },
+    })
+  }
+  if (put.length > 0) await links.mutate({ type: 'put', trans, values: put })
+}
+
 async function mutateBlocks(
   blocks: DBCoreTable,
   pages: DBCoreTable,
   entries: DBCoreTable,
+  links: DBCoreTable,
   req: DBCoreMutateRequest,
 ): Promise<DBCoreMutateResponse> {
   const res = await blocks.mutate(req)
   const { trans } = req
   if (req.type === 'delete') {
     await apply(entries, trans, [], req.keys as string[])
+    await replaceLinks(links, trans, req.keys as string[], [])
     return res
   }
   const saved = written<Block>(req, res)
   if (saved.length === 0) return res
+  await replaceLinks(
+    links,
+    trans,
+    saved.map((b) => b.id),
+    saved.flatMap(linkRows),
+  )
 
   // Blocks only know their page; the entry also stores the notebook. A page
   // not saved yet gets its notebook filled in when it is (mutatePages).

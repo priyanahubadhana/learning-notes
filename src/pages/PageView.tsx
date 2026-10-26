@@ -22,6 +22,7 @@ import { getNotebook } from '../notebooks/notebookService'
 import { saveAsTemplate } from '../templates/templateService'
 import { getPagePath } from './pageService'
 import { pageSections } from './sections'
+import { LinkedFrom } from '../links/LinkedFrom'
 import { createTitleSaver } from './titleSaver'
 
 interface PageViewProps {
@@ -171,6 +172,17 @@ export function PageView({
         onSaveAsTemplate={notebook && !isTemplate ? saveTemplate : undefined}
         editorRef={editor}
       />
+      {notebook && !isTemplate && (
+        <LinkedFrom
+          db={db}
+          pageId={page.id}
+          pageTitle={page.title}
+          onOpenBlock={(pageId, blockId) => {
+            onOpenPage(pageId)
+            revealBlock(blockId)
+          }}
+        />
+      )}
       {naming && (
         <NameDialog
           title={t('saveTemplate.title')}

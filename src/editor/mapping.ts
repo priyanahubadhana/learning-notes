@@ -79,20 +79,101 @@ export function plainText(text: string): JsonValue {
   return text ? [{ type: 'text', text, styles: {} }] : []
 }
 
+/** Inline type of a link to a page, or a heading/card on it ("[["). */
+export const NOTE_LINK = 'noteLink'
+
+/** Where a link points; `blockId` '' = the page itself. */
+export interface NoteLinkTarget {
+  pageId: string
+  blockId: string
+}
+
+/** Props of a note link: its target, and its text when it was made. */
+export interface NoteLinkProps extends NoteLinkTarget {
+  /**
+   * The title (› heading) when the link was made. The editor and "Linked
+   * from" always show the current title; plain-text views (search, card
+   * lists) use this copy, so it can be out of date after a rename.
+   */
+  label: string
+}
+
+const isObject = (v: JsonValue | undefined): v is JsonObject =>
+  !!v && typeof v === 'object' && !Array.isArray(v)
+
+/** The props of a note link run, or null for any other run. */
+export function noteLinkProps(
+  run: JsonValue | undefined,
+): NoteLinkProps | null {
+  if (!isObject(run) || run.type !== NOTE_LINK || !isObject(run.props)) {
+    return null
+  }
+  const { pageId, blockId, label } = run.props
+  if (typeof pageId !== 'string' || !pageId) return null
+  return {
+    pageId,
+    blockId: typeof blockId === 'string' ? blockId : '',
+    label: typeof label === 'string' ? label : '',
+  }
+}
+
+/** A run's plain text: its text, or a note link's label. */
+export function runText(run: JsonValue | undefined): string {
+  if (!isObject(run)) return ''
+  if (typeof run.text === 'string') return run.text
+  return noteLinkProps(run)?.label ?? ''
+}
+
 /** The plain text of a block's `content.text` (e.g. for previews). */
 export function toPlainText(content: JsonObject): string {
   const runs = content.text
   if (!Array.isArray(runs)) return ''
-  return runs
-    .map((run) =>
-      run &&
-      typeof run === 'object' &&
-      !Array.isArray(run) &&
-      typeof run.text === 'string'
-        ? run.text
-        : '',
-    )
-    .join('')
+  return runs.map(runText).join('')
+}
+
+/**
+ * Every link written in a block, in order: note links in its rich text (at
+ * any depth, e.g. inside table cells) and a page link block's page.
+ */
+export function linkTargets(
+  block: Pick<Block, 'type' | 'content'>,
+): NoteLinkTarget[] {
+  const out: NoteLinkTarget[] = []
+  if (block.type === 'pageLink' && typeof block.content.pageId === 'string') {
+    if (block.content.pageId) {
+      out.push({ pageId: block.content.pageId, blockId: '' })
+    }
+  }
+  const visit = (value: JsonValue | undefined) => {
+    if (Array.isArray(value)) value.forEach(visit)
+    else if (isObject(value)) {
+      const link = noteLinkProps(value)
+      if (link) out.push({ pageId: link.pageId, blockId: link.blockId })
+      else Object.values(value).forEach(visit)
+    }
+  }
+  visit(block.content.text)
+  return out
+}
+
+/**
+ * A copy of rich text with each note link's props changed by `map`
+ * (return them unchanged to keep them): new targets when pages are copied,
+ * current titles for read-only views.
+ */
+export function mapNoteLinks(
+  value: JsonValue | undefined,
+  map: (link: NoteLinkProps) => NoteLinkProps,
+): JsonValue | undefined {
+  if (Array.isArray(value)) return value.map((v) => mapNoteLinks(v, map)!)
+  if (!isObject(value)) return value
+  const link = noteLinkProps(value)
+  if (link) {
+    return { ...value, props: { ...map(link) } }
+  }
+  return Object.fromEntries(
+    Object.entries(value).map(([k, v]) => [k, mapNoteLinks(v, map)!]),
+  )
 }
 
 /**

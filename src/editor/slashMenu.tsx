@@ -17,6 +17,8 @@ const EXTRA_ALIASES: Record<string, string[]> = {
 /** App actions the "/" menu can trigger. */
 export interface SlashMenuActions {
   onNewSubPage: () => void
+  /** Opens the link picker (same as typing "[["). */
+  onLinkPage: () => void
   onInsertTemplate: () => void
   /** Left out of the menu when undefined (e.g. on template pages). */
   onSaveAsTemplate?: () => void
@@ -34,6 +36,7 @@ export function buildSlashMenuItems(
   editor: Editor,
   {
     onNewSubPage,
+    onLinkPage,
     onInsertTemplate,
     onSaveAsTemplate,
     onPlaceNestedCard,
@@ -90,10 +93,18 @@ export function buildSlashMenuItems(
   items.push({
     title: 'New sub-page',
     subtext: 'Create a page inside this one and link to it',
-    aliases: ['page', 'subpage', 'sub-page', 'link'],
+    aliases: ['page', 'subpage', 'sub-page'],
     group: 'Pages',
     icon: <span aria-hidden>📄</span>,
     onItemClick: onNewSubPage,
+  })
+  items.push({
+    title: t('links.slash.title'),
+    subtext: t('links.slash.subtext'),
+    aliases: ['link', 'page', 'heading', '[['],
+    group: 'Pages',
+    icon: <span aria-hidden>🔗</span>,
+    onItemClick: onLinkPage,
   })
   return items
 }

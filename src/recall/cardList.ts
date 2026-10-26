@@ -1,7 +1,7 @@
 import { dateLocale } from '../i18n/t'
-import { listBlocks } from '../core/blockService'
+import { inReadingOrder, listBlocks } from '../core/blockService'
 import type { LearningNotesDB } from '../core/db'
-import type { Block, Card, Page } from '../core/types'
+import type { Card, Page } from '../core/types'
 import { getPage, listPages } from '../pages/pageService'
 import {
   CARD_BLOCK_TYPE,
@@ -58,25 +58,6 @@ async function pagesInTree(
   return result
 }
 
-/** A page's blocks in reading order (each block before its children). */
-function readingOrder(blocks: Block[]): Block[] {
-  const childrenOf = new Map<string | null, Block[]>()
-  for (const block of blocks) {
-    const list = childrenOf.get(block.parentId) ?? []
-    list.push(block)
-    childrenOf.set(block.parentId, list)
-  }
-  const result: Block[] = []
-  const walk = (parentId: string | null) => {
-    for (const block of childrenOf.get(parentId) ?? []) {
-      result.push(block)
-      walk(block.id)
-    }
-  }
-  walk(null)
-  return result
-}
-
 /** The card rows for a Card list block on `pageId`. */
 export async function listCardRows(
   db: LearningNotesDB,
@@ -103,7 +84,7 @@ export async function listCardRows(
   const rows: CardRow[] = []
   for (const page of pages) {
     if (!pagesWithCards.has(page.id)) continue // skip reading empty pages
-    for (const block of readingOrder(await listBlocks(db, page.id))) {
+    for (const block of inReadingOrder(await listBlocks(db, page.id))) {
       const own = cardsOf.get(block.id)
       if (!own || !hasQuestion(block)) continue // empty Cards are left out
       const parts = cardParts(block) // blanks in the order they appear

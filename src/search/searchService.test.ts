@@ -19,7 +19,7 @@ import {
   isSearchIndexReady,
   searchIndex,
 } from './searchService'
-import { titleEntryId } from './searchText'
+import { SEARCH_INDEX_VERSION, titleEntryId } from './searchText'
 
 let db: LearningNotesDB
 let ws: string
@@ -250,7 +250,10 @@ describe('ensureSearchIndex (backfill)', () => {
     // Stopped after the first two blocks (by id).
     await db.meta.put({
       id: 'searchIndex',
-      value: { version: 1, next: { table: 'blocks', after: sorted[1] } },
+      value: {
+        version: SEARCH_INDEX_VERSION,
+        next: { table: 'blocks', after: sorted[1] },
+      },
     })
     await ensureSearchIndex(db)
     const ids = (await db.searchEntries.toArray()).map((e) => e.id).sort()

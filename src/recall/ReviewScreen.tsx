@@ -27,6 +27,7 @@ import {
   startSession,
   type ReviewSession,
 } from './reviewSession'
+import { noteLinkProps } from '../editor/mapping'
 import { RATINGS } from './scheduler'
 
 /**
@@ -462,6 +463,17 @@ function Runs({
             hiddenBlank={hiddenBlank}
             shownBlank={shownBlank}
           />
+        </span>,
+      )
+      previousHidden = false
+      return
+    }
+    const link = noteLinkProps(run as JsonValue)
+    if (link) {
+      // Its label is the current title (see getCardFace).
+      out.push(
+        <span key={i} className="note-link">
+          {link.label}
         </span>,
       )
       previousHidden = false

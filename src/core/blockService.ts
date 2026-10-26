@@ -39,6 +39,25 @@ export async function listBlocks(
   return all.filter(isLive).sort(byOrder)
 }
 
+/** A page's blocks in reading order (each block before its children). */
+export function inReadingOrder(blocks: Block[]): Block[] {
+  const childrenOf = new Map<string | null, Block[]>()
+  for (const block of blocks) {
+    const list = childrenOf.get(block.parentId) ?? []
+    list.push(block)
+    childrenOf.set(block.parentId, list)
+  }
+  const result: Block[] = []
+  const walk = (parentId: string | null) => {
+    for (const block of childrenOf.get(parentId) ?? []) {
+      result.push(block)
+      walk(block.id)
+    }
+  }
+  walk(null)
+  return result
+}
+
 /** Checks that a parent block exists on the same page (null = top level). */
 async function assertValidParent(
   db: LearningNotesDB,

@@ -18,6 +18,7 @@ function setup(withSave = true) {
   const onSaveAsTemplate = vi.fn()
   const items = buildSlashMenuItems(editor, {
     onNewSubPage,
+    onLinkPage: vi.fn(),
     onInsertTemplate,
     onSaveAsTemplate: withSave ? onSaveAsTemplate : undefined,
   })
@@ -53,11 +54,11 @@ describe('slash menu', () => {
     expect(setup().search('todo')[0]).toBe('Check List')
   })
 
-  it('offers Callout (after Quote) and New sub-page (last)', () => {
+  it('offers Callout (after Quote), then New sub-page and Link to page (last)', () => {
     const { items, search } = setup()
     const titles = items.map((i) => i.title)
     expect(titles.indexOf('Callout')).toBe(titles.indexOf('Quote') + 1)
-    expect(titles.at(-1)).toBe('New sub-page')
+    expect(titles.slice(-2)).toEqual(['New sub-page', 'Link to page'])
     expect(search('callout')).toEqual(['Callout'])
   })
 

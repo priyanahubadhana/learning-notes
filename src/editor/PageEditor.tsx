@@ -30,12 +30,24 @@ import type { LearningNotesDB } from '../core/db'
 import type { Block, Page } from '../core/types'
 import { createPage } from '../pages/pageService'
 import { t } from '../i18n/t'
+import { LinkPicker } from '../links/LinkPicker'
 import { AppDragHandleMenu } from './CardMenu'
 import { AppFormattingToolbar } from './SelectionToolbar'
 import { codeBlockKeys } from './codeBlockKeys'
 import type { NestedCardPlace } from './cardActions'
 import { EditorContext, type EditorApi } from './editorContext'
-import { editorToDrafts, recordsToEditor, withoutIds } from './mapping'
+import {
+  BRACKET_TYPED,
+  insertNoteLink,
+  linkTrigger,
+  linkTriggerAt,
+} from './linkActions'
+import {
+  editorToDrafts,
+  type NoteLinkProps,
+  recordsToEditor,
+  withoutIds,
+} from './mapping'
 import { createPageSync } from './pageSync'
 import { revealBlock } from './revealBlock'
 import { editorBlockTypes, schema } from './schema'
@@ -104,7 +116,7 @@ function LoadedPageEditor({
   const editor = useCreateBlockNote({
     schema,
     initialContent,
-    extensions: [codeBlockKeys],
+    extensions: [codeBlockKeys, linkTrigger],
   })
   const theme = useContext(ThemeContext)
   const [sync] = useState(() =>
@@ -151,6 +163,31 @@ function LoadedPageEditor({
         onOpenNewPage(page)
       })(),
     )
+
+  /** The open link picker: where it opens, and the "[[" it replaces. */
+  const [linking, setLinking] = useState<{
+    at: DOMRect | undefined
+    triggerPos: number | null
+  } | null>(null)
+  const openLinkPicker = (triggerPos: number | null) =>
+    setLinking({ at: editor.getSelectionBoundingBox(), triggerPos })
+  // "[" typed in this editor: open the picker if it made "[[".
+  useEffect(() => {
+    const onBracket = (e: Event) => {
+      if (!editor.domElement?.contains(e.target as Node)) return
+      const triggerPos = linkTriggerAt(editor)
+      if (triggerPos === null) return
+      setLinking({ at: editor.getSelectionBoundingBox(), triggerPos })
+    }
+    document.addEventListener(BRACKET_TYPED, onBracket)
+    return () => document.removeEventListener(BRACKET_TYPED, onBracket)
+  }, [editor])
+  const closeLinkPicker = (link?: NoteLinkProps) => {
+    const triggerPos = linking?.triggerPos ?? null
+    setLinking(null)
+    editor.focus()
+    if (link) insertNoteLink(editor, link, triggerPos)
+  }
 
   /** "/ Insert template…": copy a template's blocks in at the cursor. */
   const insertTemplate = () =>
@@ -252,6 +289,7 @@ function LoadedPageEditor({
             filterSuggestionItems(
               buildSlashMenuItems(editor, {
                 onNewSubPage: newSubPage,
+                onLinkPage: () => openLinkPicker(null),
                 onInsertTemplate: insertTemplate,
                 onSaveAsTemplate: saveAsTemplate,
                 onPlaceNestedCard: placeNestedCard,
@@ -261,6 +299,14 @@ function LoadedPageEditor({
           }
         />
       </BlockNoteView>
+      {linking && (
+        <LinkPicker
+          db={db}
+          at={linking.at}
+          onPick={closeLinkPicker}
+          onClose={() => closeLinkPicker()}
+        />
+      )}
     </EditorContext>
   )
 }

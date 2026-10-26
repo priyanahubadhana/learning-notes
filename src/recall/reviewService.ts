@@ -22,6 +22,7 @@ import {
 } from '../settings/builtinSettings'
 import { getSetting } from '../settings/settingsService'
 import { listPages } from '../pages/pageService'
+import { withCurrentLabels } from '../links/linkService'
 import { cardParts, hasQuestion, MAIN_PART } from './cardService'
 import { fsrsScheduler } from './fsrsScheduler'
 import {
@@ -386,7 +387,8 @@ export async function getCardFace(
   if (!block || block.deletedAt !== null) return null
   const base = { text: block.content.text ?? [], pageTitle: page?.title ?? '' }
   if (card.part !== MAIN_PART) {
-    return { ...base, kind: 'blank', blankId: card.part, answer: [] }
+    const [text] = await withCurrentLabels(db, [base.text])
+    return { ...base, text, kind: 'blank', blankId: card.part, answer: [] }
   }
 
   // The answer = the Card block's children (and theirs), in page order.
@@ -399,7 +401,17 @@ export async function getCardFace(
     }
   }
   addChildren(block.id, 0)
-  return { ...base, kind: 'card', answer }
+  // Links show their pages' current titles.
+  const [text, ...answerTexts] = await withCurrentLabels(db, [
+    base.text,
+    ...answer.map((a) => a.text),
+  ])
+  return {
+    ...base,
+    text,
+    kind: 'card',
+    answer: answer.map((a, i) => ({ ...a, text: answerTexts[i] })),
+  }
 }
 
 export interface RateOptions {

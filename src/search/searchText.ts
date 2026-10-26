@@ -1,4 +1,5 @@
 import type { Block, JsonValue, Page, SearchEntry } from '../core/types'
+import { noteLinkProps } from '../editor/mapping'
 import { cardParts } from '../recall/cardService'
 
 /**
@@ -7,8 +8,11 @@ import { cardParts } from '../recall/cardService'
  * and a search are always split and folded the same way.
  */
 
-/** Bump when splitting/folding or entry contents change: rebuilds the index. */
-export const SEARCH_INDEX_VERSION = 1
+/**
+ * Bump when splitting/folding or entry contents change: rebuilds the index
+ * (and the links list, see links/linkRows.ts). 2 = links (Phase 4 Step 4).
+ */
+export const SEARCH_INDEX_VERSION = 2
 
 /** Longer "words" (e.g. pasted hashes) are cut to this many characters. */
 const MAX_WORD_LENGTH = 40
@@ -53,6 +57,11 @@ export function blockText(content: Block['content']): string {
   const visit = (value: JsonValue | undefined) => {
     if (Array.isArray(value)) value.forEach(visit)
     else if (value && typeof value === 'object') {
+      const link = noteLinkProps(value)
+      if (link) {
+        out.push(link.label) // the linked title, as it was when linked
+        return
+      }
       for (const [key, inner] of Object.entries(value)) {
         if (key === 'text' && typeof inner === 'string') out.push(inner)
         else visit(inner)

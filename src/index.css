@@ -156,6 +156,28 @@ body {
   color: var(--color-muted);
 }
 
+/* Link to a page / heading / card inside text ("[["). */
+.note-link {
+  color: var(--color-accent);
+  text-decoration: underline;
+  text-decoration-color: color-mix(
+    in srgb,
+    var(--color-accent) 40%,
+    transparent
+  );
+  text-underline-offset: 3px;
+  cursor: pointer;
+}
+.note-link-anchor {
+  color: var(--color-muted);
+}
+/* Linked page in the Trash (click offers Restore) or erased. */
+.note-link-gone {
+  color: var(--color-muted);
+  text-decoration-line: line-through;
+  text-decoration-color: var(--color-muted);
+}
+
 /* Fill-in-the-blank: words that will be hidden in review. */
 .recall-blank {
   padding: 0 2px;

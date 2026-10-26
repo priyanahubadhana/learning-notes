@@ -2,7 +2,8 @@ import type { LearningNotesDB } from '../core/db'
 import type { Card, Notebook, SearchEntry } from '../core/types'
 import { cardStatus, type CardStatus } from '../recall/cardList'
 import { wrongCardIds } from '../recall/reviewService'
-import { taggedEntryIds, tagsOf } from '../tags/tagQuery'
+import { ownTagNames, taggedEntryIds, tagsOf } from '../tags/tagQuery'
+import { tagMap } from '../tags/tagService'
 import { findMatches } from './searchService'
 import { blockText, searchWords } from './searchText'
 
@@ -163,6 +164,16 @@ const passesAll = (
   skip?: string,
 ) => FILTERS.every((f) => f.id === skip || f.passes(hit, query, now))
 
+const noResults = (active: boolean): SearchOutcome => ({
+  active,
+  hits: [],
+  typeCounts: { all: 0, page: 0, note: 0, card: 0 },
+  notebookCounts: new Map(),
+  statusCounts: new Map(),
+  tagCounts: new Map(),
+  trashCount: 0,
+})
+
 /** Most urgent first: shown when a block makes several cards. */
 const STATUS_RANK: CardStatus[] = ['due', 'new', 'later', 'suspended']
 
@@ -180,25 +191,92 @@ export async function runSearch(
   const tagId = query.filters.tagId
   const browsing =
     words.length === 0 && (query.type === 'card' || tagId !== null)
-  const empty: SearchOutcome = {
-    active: false,
-    hits: [],
-    typeCounts: { all: 0, page: 0, note: 0, card: 0 },
-    notebookCounts: new Map(),
-    statusCounts: new Map(),
-    tagCounts: new Map(),
-    trashCount: 0,
-  }
-  if (words.length === 0 && !browsing) return empty
-
-  const notebooks = await db.notebooks.toArray()
-  const placeOf = new Map(notebooks.map((n) => [n.id, placeFor(n)]))
+  if (words.length === 0 && !browsing) return noResults(false)
   const entries =
     words.length > 0
-      ? await findMatches(db, words)
+      ? await findWithTags(db, words)
       : tagId !== null
         ? await entriesByIds(db, await taggedEntryIds(db, tagId))
         : await allCardEntries(db)
+  return collect(db, query, entries, browsing && query.type === 'card', now)
+}
+
+/** Score of a result found only through its tags (below text matches). */
+const TAG_MATCH_SCORE = 50
+
+/**
+ * Entries matching every word in their text or in their tags' names
+ * ("exam" finds what is tagged #exam; "valve exam" finds a note saying
+ * "valve" tagged #exam). A tag word covers the tag's sub-tags too.
+ */
+async function findWithTags(db: LearningNotesDB, words: string[]) {
+  const [textMatches, tags] = await Promise.all([
+    findMatches(db, words),
+    tagMap(db),
+  ])
+  const tagWords = [...tags.values()].map((t) => ({
+    id: t.id,
+    words: searchWords(t.name),
+  }))
+  // For each word, the tags whose name has a word starting with it.
+  const tagsFor = words.map((w) =>
+    tagWords
+      .filter((t) => t.words.some((x) => x.startsWith(w)))
+      .map((t) => t.id),
+  )
+  if (tagsFor.every((ids) => ids.length === 0)) return textMatches
+
+  const ids = new Set(
+    (
+      await Promise.all(
+        [...new Set(tagsFor.flat())].map((id) => taggedEntryIds(db, id)),
+      )
+    ).flat(),
+  )
+  for (const { entry } of textMatches) ids.delete(entry.id)
+  if (ids.size === 0) return textMatches
+  const more = await entriesByIds(db, [...ids])
+  const tagSets = await tagsOf(
+    db,
+    more.map(({ entry }) => ({ ...entry, type: TYPE_OF[entry.kind] })),
+  )
+  const found = more.filter(({ entry }) =>
+    words.every(
+      (w, i) =>
+        entry.words.some((x) => x.startsWith(w)) ||
+        tagsFor[i].some((id) => tagSets.get(entry.id)?.has(id)),
+    ),
+  )
+  return [
+    ...textMatches,
+    ...found.map(({ entry }) => ({ entry, score: TAG_MATCH_SCORE })),
+  ]
+}
+
+/**
+ * Results per tag with the usual filters (Trash left out), for the
+ * sidebar: each count is what browsing that tag in Search would list.
+ */
+export async function countTagged(
+  db: LearningNotesDB,
+  now: number = Date.now(),
+): Promise<Map<string, number>> {
+  const entries = await entriesByIds(db, await taggedEntryIds(db, null))
+  const query = { text: '', type: 'all' as const, filters: DEFAULT_FILTERS }
+  return (await collect(db, query, entries, false, now)).tagCounts
+}
+
+/** Index entries → results passing the filters, sorted, with counts. */
+async function collect(
+  db: LearningNotesDB,
+  query: SearchQuery,
+  entries: { entry: SearchEntry; score: number }[],
+  /** Browsing cards: soonest due first. */
+  byDue: boolean,
+  now: number,
+): Promise<SearchOutcome> {
+  const notebooks = await db.notebooks.toArray()
+  const placeOf = new Map(notebooks.map((n) => [n.id, placeFor(n)]))
   const trashed = await trashedPageIds(db, entries)
   const hits: SearchHit[] = entries.flatMap(({ entry, score }) => {
     // A block deleted on a page that is not in the Trash is gone for good
@@ -222,7 +300,7 @@ export async function runSearch(
   const tagSets = await tagsOf(db, hits)
   for (const hit of hits) hit.tags = tagSets.get(hit.id)
 
-  const result: SearchOutcome = { ...empty, active: true }
+  const result = noResults(true)
   for (const hit of hits) {
     if (passesAll(hit, query, now, 'type')) {
       result.typeCounts[hit.type]++
@@ -249,9 +327,7 @@ export async function runSearch(
     if (passesAll(hit, query, now)) result.hits.push(hit)
   }
   // Browsing cards: soonest due first; browsing a tag: recently changed.
-  result.hits.sort(
-    sorter(query.filters.sort, browsing && query.type === 'card'),
-  )
+  result.hits.sort(sorter(query.filters.sort, byDue))
   return result
 }
 
@@ -348,6 +424,8 @@ export interface HitDetails {
   notebookTitle: string
   /** The block's text (notes and cards); '' for pages. */
   text: string
+  /** Its most specific tags' names (see `ownTagNames`). */
+  tagNames: string[]
 }
 
 /** Titles and text for the results being shown (read only for those). */
@@ -357,10 +435,11 @@ export async function describeHits(
 ): Promise<Map<string, HitDetails>> {
   const unique = <T>(list: T[]) => [...new Set(list)]
   const blockIds = hits.flatMap((h) => (h.blockId ? [h.blockId] : []))
-  const [pages, notebooks, blocks] = await Promise.all([
+  const [pages, notebooks, blocks, tags] = await Promise.all([
     db.pages.bulkGet(unique(hits.map((h) => h.pageId))),
     db.notebooks.bulkGet(unique(hits.map((h) => h.notebookId))),
     db.blocks.bulkGet(blockIds),
+    hits.some((h) => h.tags) ? tagMap(db) : new Map(),
   ])
   const title = new Map(pages.flatMap((p) => (p ? [[p.id, p.title]] : [])))
   const nbTitle = new Map(
@@ -376,6 +455,7 @@ export async function describeHits(
         pageTitle: title.get(h.pageId) ?? '',
         notebookTitle: nbTitle.get(h.notebookId) ?? '',
         text: h.blockId ? (text.get(h.blockId) ?? '') : '',
+        tagNames: ownTagNames(tags, h.tags),
       },
     ]),
   )

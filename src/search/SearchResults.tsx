@@ -23,13 +23,25 @@ export function Highlighted({ text, query }: { text: string; query: string }) {
   )
 }
 
-/** "Notebook · Page", plus Journal / Template / In Trash. */
+/** Tags shown on a result row. */
+const ROW_TAGS = 2
+
+/** "Notebook · Page", plus Journal / Template, and its first tags. */
 function whereText(hit: SearchHit, details: HitDetails | undefined): string {
   const parts = [details?.notebookTitle || t('review.untitled')]
   if (hit.type !== 'page')
     parts.push(details?.pageTitle || t('review.untitled'))
   if (hit.place === 'journal') parts.push(t('search.place.journal'))
   if (hit.place === 'templates') parts.push(t('search.place.template'))
+  const tags = details?.tagNames ?? []
+  if (tags.length > 0) {
+    parts.push(
+      tags
+        .slice(0, ROW_TAGS)
+        .map((name) => `#${name}`)
+        .join(' ') + (tags.length > ROW_TAGS ? ' …' : ''),
+    )
+  }
   return parts.join(' · ')
 }
 

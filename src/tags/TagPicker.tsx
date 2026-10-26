@@ -5,20 +5,32 @@ import type { LearningNotesDB } from '../core/db'
 import { t } from '../i18n/t'
 import { TagLabel } from './TagChip'
 import { tagColorStyle } from './tagStyle'
-import { findOrCreateTagPath, findTagChoices } from './tagService'
+import {
+  findOrCreateTagPath,
+  findTagChoices,
+  type TagOption,
+} from './tagService'
 
 /** Width of the picker, and its gap from the screen edge. */
 const WIDTH = 300
 const EDGE = 12
 
+/** The "Top level" row's tag id (Move under… only). */
+export const TOP_LEVEL = ''
+
 /**
  * The "Add tag" picker: find a tag by name (any level; "/" for levels) or
  * create one. Keys: ↑ ↓ Enter, Esc closes. Full width on phones.
+ * Also picks a tag for the tag tools (Move under…, Merge into…).
  */
 export function TagPicker({
   db,
   at,
   exclude,
+  title = t('tags.picker'),
+  placeholder = t('tags.find'),
+  allowCreate = true,
+  topLevel = false,
   onPick,
   onClose,
 }: {
@@ -27,6 +39,12 @@ export function TagPicker({
   at: DOMRect | undefined
   /** Tags not to offer (already there). */
   exclude: readonly string[]
+  title?: string
+  placeholder?: string
+  /** Offer "Create #…" for a new name. */
+  allowCreate?: boolean
+  /** Offer "Top level" first (picked as `TOP_LEVEL`). */
+  topLevel?: boolean
   onPick: (tagId: string) => void
   onClose: () => void
 }) {
@@ -37,10 +55,17 @@ export function TagPicker({
 
   const load = async (typed: string) => {
     const found = await findTagChoices(db, typed, { limit: 50 })
+    const top =
+      topLevel && !typed.trim()
+        ? [{ tagId: TOP_LEVEL, path: '', names: [] } as TagOption]
+        : []
     return {
       text: typed,
-      options: found.options.filter((o) => !exclude.includes(o.tagId)),
-      create: found.create,
+      options: [
+        ...top,
+        ...found.options.filter((o) => !exclude.includes(o.tagId)),
+      ],
+      create: allowCreate ? found.create : null,
     }
   }
   const choices = useLiveQuery(() => load(text), [db, text])
@@ -113,7 +138,7 @@ export function TagPicker({
     <div
       ref={ref}
       role="dialog"
-      aria-label={t('tags.picker')}
+      aria-label={title}
       style={style}
       className="fixed z-50 w-[300px] rounded-[10px] border border-line bg-bg p-1.5 text-ink shadow-[0_12px_40px_rgba(0,0,0,0.16)] phone:!inset-x-3 phone:w-auto"
     >
@@ -125,8 +150,8 @@ export function TagPicker({
           setSelected(0)
         }}
         onKeyDown={onKeyDown}
-        placeholder={t('tags.find')}
-        aria-label={t('tags.find')}
+        placeholder={placeholder}
+        aria-label={placeholder}
         role="combobox"
         aria-expanded={rows > 0}
         aria-controls={listId}
@@ -142,7 +167,9 @@ export function TagPicker({
       >
         {rows === 0 && choices && (
           <p className="px-2 py-3 text-sm text-muted">
-            {text.trim() ? t('tags.noMatch') : t('tags.typeToCreate')}
+            {text.trim() || !allowCreate
+              ? t('tags.noMatch')
+              : t('tags.typeToCreate')}
           </p>
         )}
         {options.map((o, i) => (
@@ -159,7 +186,11 @@ export function TagPicker({
             style={tagColorStyle(o.color)}
           >
             <span className="truncate">
-              <TagLabel names={o.names} color={o.color} />
+              {o.tagId === TOP_LEVEL ? (
+                t('tags.topLevel')
+              ) : (
+                <TagLabel names={o.names} color={o.color} />
+              )}
             </span>
           </button>
         ))}

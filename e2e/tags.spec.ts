@@ -76,7 +76,7 @@ test('a tag opens Search with everything tagged, including inherited cards', asy
   await expect(results).toContainText('Which valves close in S1?')
   await expect(results).toContainText('Systolic')
   await expect(
-    page.getByRole('button', { name: '#exam', exact: true }),
+    page.locator('main').getByRole('button', { name: '#exam', exact: true }),
   ).toBeVisible()
 })
 
@@ -100,6 +100,13 @@ for (const [theme, width, height] of [
       ).toContainText(name)
       await page.keyboard.press('Enter')
     }
+    // The sidebar tree: one level open, one tag coloured.
+    const side = page.locator('aside')
+    await side.getByLabel('Expand #medicine').click()
+    await side.getByLabel('Tag options for #exam').click()
+    await page.getByRole('menuitem', { name: 'Colour' }).click()
+    await page.getByRole('button', { name: 'Blue' }).click()
+    await page.getByRole('button', { name: 'Done' }).click()
     await typeInEditor(
       page,
       'S1 is the mitral and tricuspid valves closing. #hi',

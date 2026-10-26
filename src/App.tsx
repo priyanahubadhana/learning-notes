@@ -222,6 +222,8 @@ function App() {
   }
 
   // A newly created page whose title should get the cursor.
+  // Bumped when a tag merge/delete rewrites the open page's notes.
+  const [notesVersion, setNotesVersion] = useState(0)
   const [focusTitlePageId, setFocusTitlePageId] = useState<string | null>(null)
 
   /** Shows a just-created page: reveal it in the sidebar and open it. */
@@ -365,6 +367,13 @@ function App() {
               openSearch(readSavedQuery(saved.query), saved.id)
             }
             onReviewSavedSearch={(saved) => runTask(reviewSavedSearch(saved))}
+            onOpenTag={openTag}
+            onNotesRewritten={(pageIds) => {
+              // The open page's editor still shows the old tags: reload it.
+              if (currentPage && pageIds.includes(currentPage.id)) {
+                setNotesVersion((v) => v + 1)
+              }
+            }}
           />
           <main className="flex-1 overflow-auto">
             {showSettings ? (
@@ -409,7 +418,7 @@ function App() {
               />
             ) : currentPage ? (
               <PageView
-                key={currentPage.id}
+                key={`${currentPage.id}:${notesVersion}`}
                 db={db}
                 page={currentPage}
                 autoFocusTitle={focusTitlePageId === currentPage.id}

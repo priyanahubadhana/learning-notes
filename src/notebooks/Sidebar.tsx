@@ -14,6 +14,7 @@ import { deletePage, getPage } from '../pages/pageService'
 import { TemplatesSection } from '../templates/TemplatesSection'
 import { TrashSection } from '../trash/TrashSection'
 import { SavedSearchesSection } from '../search/SavedSearchesSection'
+import { TagsSection } from '../tags/TagsSection'
 import { t } from '../i18n/t'
 import { countDue, type ReviewScope } from '../recall/reviewService'
 import { deleteNotebook, moveNotebook, renameNotebook } from './notebookService'
@@ -44,6 +45,9 @@ interface SidebarProps {
   savedSearchId: string | null
   onOpenSavedSearch: (saved: SavedSearch) => void
   onReviewSavedSearch: (saved: SavedSearch) => void
+  onOpenTag: (tagId: string) => void
+  /** A tag merge/delete rewrote these pages' notes. */
+  onNotesRewritten: (pageIds: string[]) => void
   onOpenReview: (scope: ReviewScope) => void
   onCreateNotebook: () => void
   /** `templateId`: copy that template's content into the new page. */
@@ -96,6 +100,8 @@ export function Sidebar({
   savedSearchId,
   onOpenSavedSearch,
   onReviewSavedSearch,
+  onOpenTag,
+  onNotesRewritten,
   onCreateNotebook,
   onCreatePage,
   onCreateTemplate,
@@ -244,14 +250,18 @@ export function Sidebar({
         onOpen={onOpenSavedSearch}
         onReview={onReviewSavedSearch}
       />
-      <div className="flex items-center justify-between px-2.5 pt-2.5 pb-1 text-[11px] tracking-[0.06em] text-muted uppercase">
-        Notebooks
-        <IconButton title="New notebook" onClick={onCreateNotebook}>
-          +
-        </IconButton>
-      </div>
-
       <nav className="flex-1 overflow-auto">
+        <TagsSection
+          db={db}
+          onOpenTag={onOpenTag}
+          onNotesRewritten={onNotesRewritten}
+        />
+        <div className="flex items-center justify-between px-2.5 pt-2.5 pb-1 text-[11px] tracking-[0.06em] text-muted uppercase">
+          Notebooks
+          <IconButton title="New notebook" onClick={onCreateNotebook}>
+            +
+          </IconButton>
+        </div>
         {notebooks.map((notebook) => {
           const open = tree.isNotebookOpen(notebook.id)
           const line =

@@ -200,6 +200,7 @@ describe('runSearch', () => {
       pageTitle: 'Cell',
       notebookTitle: 'Biology',
       text: 'The nucleus holds DNA',
+      tagNames: [],
     })
   })
 })

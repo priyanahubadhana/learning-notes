@@ -81,6 +81,24 @@ export async function tagsOf(
   return out
 }
 
+/**
+ * Names of the most specific tags in a set from `tagsOf` (parents that
+ * are only there through a sub-tag left out), A→Z.
+ */
+export function ownTagNames(
+  tags: ReadonlyMap<string, Tag>,
+  ids: ReadonlySet<string> | undefined,
+): string[] {
+  if (!ids) return []
+  const parents = new Set(
+    [...ids].flatMap((id) => tags.get(id)?.parentId ?? []),
+  )
+  return [...ids]
+    .filter((id) => !parents.has(id))
+    .flatMap((id) => tags.get(id)?.name ?? [])
+    .sort((a, b) => a.localeCompare(b, undefined, { sensitivity: 'base' }))
+}
+
 /** The tags, and all their parents (deleted tags left out). */
 function withParents(tags: ReadonlyMap<string, Tag>, ids: string[]) {
   const set = new Set<string>()
@@ -166,14 +184,18 @@ async function readMany<T extends Page | Block>(
  * Search entry ids of everything with a tag (or one of its sub-tags), for
  * browsing a tag without typing words: tagged pages' titles, tagged
  * blocks, the Cards those blocks sit in, and every card on tagged pages.
+ * `null`: everything with any tag.
  */
 export async function taggedEntryIds(
   db: LearningNotesDB,
-  tagId: string,
+  tagId: string | null,
 ): Promise<string[]> {
   const tags = await tagMap(db)
-  if (!tags.has(tagId)) return []
-  const ids = [tagId, ...subTagIds(tags.values(), tagId)]
+  if (tagId !== null && !tags.has(tagId)) return []
+  const ids =
+    tagId === null
+      ? [...tags.keys()]
+      : [tagId, ...subTagIds(tags.values(), tagId)]
   const [pages, rows] = await Promise.all([
     byKeys(ids, (id) => db.pages.where('tagIds').equals(id).toArray()),
     byKeys(ids, (id) => db.blockTags.where('tagId').equals(id).toArray()),

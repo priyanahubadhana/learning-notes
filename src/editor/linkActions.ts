@@ -23,18 +23,54 @@ export const BRACKET_TYPED = 'learning-notes:bracket-typed'
 export const linkTrigger = createExtension({
   key: 'learning-notes-link-trigger',
   mount: ({ dom, signal }) => {
+    const typed = () =>
+      setTimeout(() => {
+        dom.dispatchEvent(new CustomEvent(BRACKET_TYPED, { bubbles: true }))
+      }, 0)
+    // The key (keyboards), and the input (phone keyboards send no key
+    // name; on some lines desktop browsers send no input event).
+    dom.addEventListener(
+      'keydown',
+      (e) => {
+        if (e.key === '[' && !e.ctrlKey && !e.metaKey && !e.altKey) typed()
+      },
+      { signal },
+    )
     dom.addEventListener(
       'input',
       (e) => {
-        if (!(e as InputEvent).data?.endsWith('[')) return
-        setTimeout(() => {
-          dom.dispatchEvent(new CustomEvent(BRACKET_TYPED, { bubbles: true }))
-        }, 0)
+        if ((e as InputEvent).data?.endsWith('[')) typed()
       },
       { signal },
     )
   },
+  keyboardShortcuts: {
+    // Opens the link next to the cursor (keyboard use), like a click.
+    'Mod-Enter': ({ editor }) => {
+      const pos = noteLinkAtCursor(editor)
+      if (pos === null) return false
+      const el = editor.prosemirrorView?.nodeDOM(pos)
+      if (!(el instanceof HTMLElement)) return false
+      const link = el.matches('.note-link')
+        ? el
+        : el.querySelector('.note-link')
+      if (!(link instanceof HTMLElement)) return false
+      link.click()
+      return true
+    },
+  },
 })
+
+/** Position of a note link right before or after the cursor, or null. */
+export function noteLinkAtCursor(editor: Editor): number | null {
+  const { $from, empty } = editor.prosemirrorState.selection
+  if (!empty) return null
+  if ($from.nodeAfter?.type.name === NOTE_LINK) return $from.pos
+  if ($from.nodeBefore?.type.name === NOTE_LINK) {
+    return $from.pos - $from.nodeBefore.nodeSize
+  }
+  return null
+}
 
 /**
  * The cursor position when "[[" was just typed right before it (outside

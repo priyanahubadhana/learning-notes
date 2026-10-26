@@ -288,6 +288,7 @@ export const en = {
   'links.wholePage': 'Whole page',
   'links.noPage': 'No page called “{query}”',
   'links.typeToFind': 'Type to find a page',
+  'links.openHint': 'Open ({key} when the cursor is next to it)',
   'links.inTrash': 'This page is in the Trash',
   'links.gone': 'This page was deleted',
   'links.slash.title': 'Link to page',

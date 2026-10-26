@@ -3,7 +3,7 @@
  */
 import { BlockNoteEditor } from '@blocknote/core'
 import { describe, expect, it } from 'vitest'
-import { insertNoteLink, linkTriggerAt } from './linkActions'
+import { insertNoteLink, linkTriggerAt, noteLinkAtCursor } from './linkActions'
 import { editorToDrafts, linkTargets, toPlainText } from './mapping'
 import { schema } from './schema'
 
@@ -34,6 +34,28 @@ describe('[[ link trigger', () => {
     const [draft] = editorToDrafts(editor.document)
     expect(toPlainText(draft.content)).toBe('See Heart sounds ')
     expect(linkTargets(draft)).toEqual([{ pageId: 'p1', blockId: '' }])
+    // The cursor is after the space: no link right next to it.
+    expect(noteLinkAtCursor(editor)).toBeNull()
+  })
+
+  it('finds a link right before or after the cursor (Ctrl+Enter opens it)', () => {
+    const editor = BlockNoteEditor.create({
+      schema,
+      initialContent: [
+        {
+          id: 'b',
+          type: 'paragraph',
+          content: ['See ', { type: 'noteLink', props: link }],
+        },
+      ],
+    })
+    editor.mount(document.createElement('div'))
+    editor.setTextCursorPosition('b', 'end')
+    const after = noteLinkAtCursor(editor)
+    expect(after).not.toBeNull()
+    expect(editor.prosemirrorState.doc.nodeAt(after!)?.type.name).toBe(
+      'noteLink',
+    )
   })
 
   it('"/ Link to page" inserts at the cursor without removing text', () => {

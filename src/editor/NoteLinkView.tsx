@@ -2,6 +2,7 @@ import { useLiveQuery } from 'dexie-react-hooks'
 import { useContext } from 'react'
 import { AppUiContext } from '../app/appUi'
 import { runTask } from '../app/errors'
+import { shortcutLabel } from '../app/keys'
 import { t } from '../i18n/t'
 import { resolveLink } from '../links/linkService'
 import { restorePage } from '../trash/trashService'
@@ -62,7 +63,11 @@ export function NoteLinkView({ pageId, blockId, label }: NoteLinkProps) {
       className={
         link.state === 'trash' ? 'note-link note-link-gone' : 'note-link'
       }
-      title={link.state === 'trash' ? t('links.inTrash') : undefined}
+      title={
+        link.state === 'trash'
+          ? t('links.inTrash')
+          : t('links.openHint', { key: shortcutLabel('Enter') })
+      }
     >
       {title}
       {link.anchor !== null && (

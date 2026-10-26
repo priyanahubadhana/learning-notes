@@ -8,7 +8,9 @@ import {
   typeInEditor,
 } from './helpers.ts'
 
-const review = (page: Page) => page.locator('main section')
+// The Review screen (not the page's "Linked from" section).
+const review = (page: Page) =>
+  page.locator('main section:not([aria-labelledby^="linked-from"])')
 const reviewButton = (page: Page) =>
   sidebar(page).getByRole('button', { name: /^Review/ })
 

@@ -3,7 +3,8 @@ import { useEffect, useId, useRef, useState } from 'react'
 import { runTask } from '../app/errors'
 import type { LearningNotesDB } from '../core/db'
 import { t } from '../i18n/t'
-import { TagLabel, tagColorStyle } from './TagChip'
+import { TagLabel } from './TagChip'
+import { tagColorStyle } from './tagStyle'
 import { findOrCreateTagPath, findTagChoices } from './tagService'
 
 /** Width of the picker, and its gap from the screen edge. */
@@ -34,13 +35,16 @@ export function TagPicker({
   const [selected, setSelected] = useState(0)
   const listId = useId()
 
-  const choices = useLiveQuery(
-    () => findTagChoices(db, text, { limit: 50 }),
-    [db, text],
-  )
-  const options = (choices?.options ?? []).filter(
-    (o) => !exclude.includes(o.tagId),
-  )
+  const load = async (typed: string) => {
+    const found = await findTagChoices(db, typed, { limit: 50 })
+    return {
+      text: typed,
+      options: found.options.filter((o) => !exclude.includes(o.tagId)),
+      create: found.create,
+    }
+  }
+  const choices = useLiveQuery(() => load(text), [db, text])
+  const options = choices?.options ?? []
   const create = choices?.create ?? null
   const rows = options.length + (create ? 1 : 0)
 
@@ -58,12 +62,20 @@ export function TagPicker({
       ?.scrollIntoView({ block: 'nearest' })
   }, [selected, listId])
 
-  const pickRow = (i: number) => {
-    const option = options[i]
+  const pickFrom = (list: typeof options, made: string | null, i: number) => {
+    const option = list[i]
     if (option) return onPick(option.tagId)
-    if (create && i === options.length) {
-      runTask(findOrCreateTagPath(db, create).then((tag) => onPick(tag.id)))
+    if (made && i === list.length) {
+      runTask(findOrCreateTagPath(db, made).then((tag) => onPick(tag.id)))
     }
+  }
+  const pickRow = (i: number) => {
+    // Enter right after typing: the list may not show the latest text yet,
+    // so look it up first (the first row is picked).
+    if (choices?.text === text) return pickFrom(options, create, i)
+    runTask(
+      load(text).then((fresh) => pickFrom(fresh.options, fresh.create, 0)),
+    )
   }
 
   const onKeyDown = (e: React.KeyboardEvent<HTMLInputElement>) => {

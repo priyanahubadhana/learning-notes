@@ -397,3 +397,17 @@
   - Tests: `linkService.test.ts` (incl. 10,000 links), `linkActions.test.ts` (real editor), template link copy; e2e `links.spec.ts` (picker, heading link, rename, Esc, slash, keyboard, Trash/Restore, screenshots in 3 themes + phone). Review e2e locator narrowed (it matched the new section).
 - **Why:** Phase 4 plan, Step 4.
 - **Files:** src/links/{linkRows,linkService}.ts (+ test), src/links/{LinkPicker,LinkedFrom}.tsx, src/editor/{linkActions.ts (+ test), NoteLinkView.tsx, mapping.ts, schema.tsx, PageEditor.tsx, slashMenu.tsx}, src/search/{indexMiddleware,searchService,searchText}.ts, src/recall/{cardService,cardList,reviewService}.ts, src/recall/ReviewScreen.tsx, src/core/blockService.ts, src/templates/templateService.ts (+ test), src/pages/PageView.tsx, src/i18n/en.ts, src/index.css, e2e/links.spec.ts, e2e/review.spec.ts, tests updated (slashMenu, cardActions, searchService), README.md, CHANGELOG.md, IDEAS.md
+
+## 2026-10-27
+
+- **What:** Phase 4 Step 5a (tags).
+  - **Page tags:** chips under the title (current names, parents shown faintly), "+N more", "+ Add tag" picker (find any level, "/" for levels, Create), chip menu: Show everything tagged · Remove from this page.
+  - **"#" in text:** opens a tag menu (BlockNote suggestion menu) at a line start or after a space; picking puts a tag chip in the text, tagging that block or the Card it is in. "C#" never opens it; "#1" gets no Create; a space or Esc closes it; "# " still makes a heading. Tags are hidden in Review and in plain-text views.
+  - **Names:** case kept as first typed, spaces → "-", same tag regardless of case/accents; nested with "/".
+  - **Inheritance:** cards get their page's tags plus tags in their question and answer; a parent tag covers its sub-tags; sub-pages and plain notes do not inherit.
+  - **Search:** Tag filter (step by step, with counts), browsing a tag with no words, clicking a tag opens Search filtered to it; saved searches keep the tag.
+  - **Data:** `blockTags` list kept by the index middleware and backfill (index version 3, rebuilt once on launch). Template copies carry page tags.
+  - **Fix found by tests:** pressing Enter in "Add tag" right after typing (before the list loaded) did nothing.
+  - Tests: `tagService.test.ts` (names, dedupe, picker, page/block tags, backfill, inheritance, 10,000-card tag browse), `tagActions.test.ts` (real editor), `e2e/tags.spec.ts` (+ screenshots in 3 themes and phone). 291 unit + 76 e2e pass.
+- **Why:** Phase 4 plan, Step 5a.
+- **Files:** src/tags/{tagNames,tagService,tagRows,tagQuery,tagStyle}.ts, src/tags/{TagChip,TagPicker,PageTags}.tsx, src/tags/tagService.test.ts, src/editor/{mapping,tagActions,editorContext}.ts, src/editor/{TagView,schema,PageEditor}.tsx, src/editor/tagActions.test.ts, src/search/{indexMiddleware,searchService,searchText,searchQuery,savedSearchService}.ts, src/search/SearchScreen.tsx, src/pages/PageView.tsx, src/recall/ReviewScreen.tsx, src/templates/templateService.ts, src/App.tsx, src/i18n/en.ts, src/index.css, e2e/tags.spec.ts, README.md, IDEAS.md, CHANGELOG.md

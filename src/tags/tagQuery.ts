@@ -135,10 +135,23 @@ async function rowsOnPages(
   pageIds: string[],
 ): Promise<BlockTag[]> {
   if (pageIds.length <= MANY_KEYS) {
-    return db.blockTags.where('pageId').anyOf(pageIds).toArray()
+    return byKeys(pageIds, (id) =>
+      db.blockTags.where('pageId').equals(id).toArray(),
+    )
   }
   const wanted = new Set(pageIds)
   return db.blockTags.filter((r) => wanted.has(r.pageId)).toArray()
+}
+
+/**
+ * Rows matching any of some index keys: one lookup per key, run together.
+ * (Dexie's `anyOf` walks a cursor key by key, far slower on big ranges.)
+ */
+async function byKeys<T>(
+  keys: readonly string[],
+  lookup: (key: string) => Promise<T[]>,
+): Promise<T[]> {
+  return (await Promise.all(keys.map(lookup))).flat()
 }
 
 /** Records by id (missing ones left out). */
@@ -162,8 +175,8 @@ export async function taggedEntryIds(
   if (!tags.has(tagId)) return []
   const ids = [tagId, ...subTagIds(tags.values(), tagId)]
   const [pages, rows] = await Promise.all([
-    db.pages.where('tagIds').anyOf(ids).toArray(),
-    db.blockTags.where('tagId').anyOf(ids).toArray(),
+    byKeys(ids, (id) => db.pages.where('tagIds').equals(id).toArray()),
+    byKeys(ids, (id) => db.blockTags.where('tagId').equals(id).toArray()),
   ])
   const pageIds = [
     ...new Set(pages.filter((p) => p.purgedAt === undefined).map((p) => p.id)),
@@ -172,7 +185,7 @@ export async function taggedEntryIds(
   const [cardOf, cards] = await Promise.all([
     enclosingCards(db, blockIds),
     pageIds.length > 0
-      ? db.cards.where('pageId').anyOf(pageIds).toArray()
+      ? byKeys(pageIds, (id) => db.cards.where('pageId').equals(id).toArray())
       : Promise.resolve([]),
   ])
   return [

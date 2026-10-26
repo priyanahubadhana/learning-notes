@@ -1,4 +1,5 @@
-import type { CSSProperties, ReactNode } from 'react'
+import type { ReactNode } from 'react'
+import { tagColorStyle } from './tagStyle'
 
 /**
  * How a tag looks everywhere (page chips, tags in text, menus): a small
@@ -23,10 +24,6 @@ export function TagLabel({
     </>
   )
 }
-
-/** Inline style giving a chip its tag's colour (none = grey). */
-export const tagColorStyle = (color?: string): CSSProperties | undefined =>
-  color ? ({ '--tag-color': color } as CSSProperties) : undefined
 
 /** A tag chip; a button when `onClick` is set. */
 export function TagChip({

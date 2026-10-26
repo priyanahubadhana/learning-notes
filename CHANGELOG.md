@@ -319,3 +319,9 @@
 - **What:** Phase 4 clickable mockup `prototype-phase4.html` (fake data): search popup + Search screen (chips with counts, filters, views, saved searches, Trash), tags (chips, # picker, nested tree, rename/move/merge/colour/delete, empty states), [[ links with headings, Linked from. Checked with a Playwright click-through (15 flows, no page errors); fixed an endless loop that froze the first version, wrong chip counts, and new page tags hidden behind "+N more".
 - **Why:** Phase 4 planning, mockup first (`rules/planning.md`).
 - **Files:** prototype-phase4.html, .prettierignore, CHANGELOG.md
+
+## 2026-10-26
+
+- **What:** Mockup fixes from owner testing: "Phone view" switch and "Try # and [[" button in the top bar; tag ⋯ always faintly visible and right-click opens it; text without letters (e.g. "[") counts as an empty search; one toast at a time; Merge example tag in use and clearer wording.
+- **Why:** Owner couldn't find the dashed box, the ⋯ menu or the phone layout; "[" listed everything.
+- **Files:** prototype-phase4.html, CHANGELOG.md

@@ -56,7 +56,7 @@ aside { width: 260px; flex: none; background: var(--side); border-right: 1px sol
 .trow:hover { background: var(--hover); }
 .trow .tw { width: 16px; flex: none; color: var(--muted); font-size: 10px; text-align: center; }
 .trow .tl { flex: 1; min-width: 0; text-align: left; padding: 4px 4px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
-.trow .more { opacity: 0; padding: 2px 7px; color: var(--muted); border-radius: 5px; }
+.trow .more { opacity: .45; padding: 2px 7px; color: var(--muted); border-radius: 5px; }
 .trow:hover .more, .trow .more:focus-visible { opacity: 1; }
 .trow .more:hover { background: var(--hover); }
 .dot { width: 7px; height: 7px; border-radius: 50%; display: inline-block; margin-right: 6px; flex: none; background: var(--c, transparent); box-shadow: inset 0 0 0 1px var(--line); }
@@ -192,6 +192,15 @@ kbd { font-family: var(--mono); font-size: 11px; border: 1px solid var(--line); 
   .scrim { padding: 0; }
   .pop { max-width: none; max-height: none; height: 100%; border-radius: 0; border: 0; }
 }
+/* "Phone view" switch: the same phone layout inside a 390px frame on a wide screen. */
+body.phone .app { width: 100%; max-width: 390px; margin: 0 auto; border-inline: 1px solid var(--line); overflow: hidden; }
+body.phone aside { position: absolute; inset: 0 auto 0 0; z-index: 35; transform: translateX(-102%); transition: transform .2s; box-shadow: var(--shadow); }
+body.phone .app.drawer aside { transform: none; }
+body.phone .menubtn { display: inline-flex; position: sticky; top: 0; margin: 8px 0 0 12px; padding: 6px 10px; border: 1px solid var(--line); border-radius: 8px; background: var(--bg); z-index: 5; }
+body.phone .page { padding-top: 16px; }
+body.phone h1.ptitle { font-size: 26px; }
+body.phone .scrim { padding: 0; }
+body.phone .pop { max-width: 390px; max-height: none; height: 100%; border-radius: 0; border: 0; }
 @media (prefers-reduced-motion: reduce) { aside { transition: none; } }
 </style>
 
@@ -201,7 +210,9 @@ kbd { font-family: var(--mono); font-size: 11px; border: 1px solid var(--line); 
     <button id="th-day" data-act="theme" data-v="day">Day</button><button id="th-night" data-act="theme" data-v="night">Night</button><button id="th-sepia" data-act="theme" data-v="sepia">Sepia</button>
   </span>
   <label><input type="checkbox" id="emptyTags" data-act="emptyTags"> Show "no tags yet"</label>
-  <span>Try: <kbd>Ctrl</kbd>+<kbd>K</kbd> · search "valve", "mitr", "café", "心臓" · type # or [[ in the dashed box</span>
+  <label><input type="checkbox" id="phone" data-act="phone"> Phone view</label>
+  <button class="btn" id="tryIt" data-act="tryIt" style="padding:2px 9px;font-size:12px">Try # and [[</button>
+  <span>Try: <kbd>Ctrl</kbd>+<kbd>K</kbd> · search "valve", "mitr", "cafe", "心臓" · tag options: ⋯ or right-click a tag in the sidebar</span>
 </div>
 
 <div class="app" id="app">
@@ -247,7 +258,7 @@ const PAGES = {
       { h: 'Murmurs' },
       { p: ['Systolic murmurs are covered in ', { link: 'murmurs' }, '. ', { tag: 'sys' }] },
     ] },
-  murmurs: { title: 'Murmurs', nb: 'Cardiology', updated: 3, tags: ['mur', 'exam'],
+  murmurs: { title: 'Murmurs', nb: 'Cardiology', updated: 3, tags: ['mur', 'exam', 'cardiol'],
     blocks: [
       { p: ['A murmur heard between S1 and S2 is systolic; see ', { link: 'heart', anc: 'S2' }, ' for timing.'] },
       { card: { q: 'Where is aortic stenosis heard best?', a: 'Right 2nd intercostal space', st: 'new', tags: ['sys'] } },
@@ -300,6 +311,7 @@ function chip(id, extra = '') {
   return `<button class="tag" data-act="openTag" data-id="${id}" ${c ? `data-c style="--c:${c}"` : ''} title="#${esc(pathName(id))}" ${extra}>${c ? '<span class="dot"></span>' : ''}#${parents ? `<span class="par">${esc(parents)}/</span>` : ''}${esc(p[p.length - 1].name)}</button>`
 }
 function toast(msg) {
+  document.querySelectorAll('.toast').forEach((x) => x.remove()) // newest message replaces the old one
   const t = document.createElement('div'); t.className = 'toast'; t.setAttribute('role', 'status'); t.textContent = msg
   document.body.appendChild(t); setTimeout(() => t.remove(), 2600)
 }
@@ -468,7 +480,8 @@ function facetCounts(key, values) {
 }
 function renderSearch() {
   const res = run(S.q, S.chip, S.f)
-  const active = S.q.trim() || S.f.tag || S.f.nb || S.f.status
+  // Text without letters or digits (e.g. "[") is an empty search.
+  const active = words(S.q).length || S.f.tag || S.f.nb || S.f.status
   const anyType = run(S.q, 'all', S.f, 'chip')
   const chipCounts = Object.fromEntries(['all', 'page', 'note', 'card'].map((c) => [c, anyType.filter((r) => c === 'all' || r.it.type === c).length]))
   const hasCards = res.some((r) => r.it.type === 'card') || S.chip === 'card'
@@ -536,8 +549,8 @@ function renderPop() {
   if (!S.pop) { L.innerHTML = ''; return }
   const q = S.pop.q
   let html, flat = []
-  if (!q.trim()) {
-    flat = ['heart', 'murmurs', 'day'].map((pid) => ({ it: { type: 'page', pid, title: PAGES[pid].title, text: '', where: PAGES[pid].nb, tags: [] } }))
+  if (!words(q).length) {
+    flat =['heart', 'murmurs', 'day'].map((pid) => ({ it: { type: 'page', pid, title: PAGES[pid].title, text: '', where: PAGES[pid].nb, tags: [] } }))
     html = `<div class="grp">Recent</div>` + flat.map((r, i) => resRow(r, '', i === S.pop.sel, true)).join('')
   } else {
     const res = run(q, S.pop.chip)
@@ -559,14 +572,14 @@ function renderPop() {
     <div class="sbox"><span class="ic">🔍</span><input id="pq" type="search" placeholder="Search everything" aria-label="Search everything" value="${esc(q)}" autocomplete="off"><button data-act="closePop" aria-label="Close" style="color:var(--muted)">Esc</button></div>
     <div class="chips" role="group" aria-label="Show">${['all', 'page', 'note', 'card'].map((c) => `<button class="chipf" data-act="popChip" data-v="${c}" aria-pressed="${S.pop.chip === c}">${c === 'all' ? 'All' : TYPES[c]}</button>`).join('')}</div>
     <div class="pres">${html}</div>
-    <div class="popfoot"><span><kbd>↑</kbd><kbd>↓</kbd> move · <kbd>Enter</kbd> ${S.pop.sel >= 0 ? 'open' : 'see all'} · <kbd>Esc</kbd> close</span>${q.trim() ? `<button data-act="seeAll">See all ${S.pop.total || 0} result${S.pop.total === 1 ? '' : 's'} →</button>` : ''}</div>
+    <div class="popfoot"><span><kbd>↑</kbd><kbd>↓</kbd> move · <kbd>Enter</kbd> ${S.pop.sel >= 0 ? 'open' : 'see all'} · <kbd>Esc</kbd> close</span>${words(q).length ? `<button data-act="seeAll">See all ${S.pop.total || 0} result${S.pop.total === 1 ? '' : 's'} →</button>` : ''}</div>
   </div></div>`
   const pq = document.getElementById('pq'); pq.focus(); pq.setSelectionRange(pq.value.length, pq.value.length)
   pq.addEventListener('input', () => { S.pop.q = pq.value; S.pop.sel = -1; renderPop() })
   pq.addEventListener('keydown', (e) => {
     if (e.key === 'ArrowDown') { e.preventDefault(); S.pop.sel = Math.min(S.pop.flat.length - 1, S.pop.sel + 1); renderPop() }
     else if (e.key === 'ArrowUp') { e.preventDefault(); S.pop.sel = Math.max(-1, S.pop.sel - 1); renderPop() }
-    else if (e.key === 'Enter') { e.preventDefault(); if (S.pop.sel >= 0) openPid(S.pop.flat[S.pop.sel].it.pid); else if (S.pop.q.trim()) seeAll() }
+    else if (e.key === 'Enter') { e.preventDefault(); if (S.pop.sel >= 0) openPid(S.pop.flat[S.pop.sel].it.pid); else if (words(S.pop.q).length) seeAll() }
     else if (e.key === 'Escape') { S.pop = null; renderPop() }
   })
 }
@@ -700,7 +713,7 @@ function tagAction(kind, id) {
   } else if (kind === 'move' || kind === 'merge') {
     const opts = tags.filter((x) => x.id !== id && !under(x.id, id)).sort((a, b) => pathName(a.id).localeCompare(pathName(b.id)))
     dialog(`<h3>${kind === 'move' ? 'Move' : 'Merge'} #${esc(pathName(id))}</h3>
-      <p>${kind === 'move' ? 'Pick its new parent. Its sub-tags move with it.' : `All ${u.pages} pages and ${u.cards} cards get the tag you pick, and #${esc(t.name)} goes away. Its sub-tags move under the kept tag.`}</p>
+      <p>${kind === 'move' ? 'Pick its new parent. Its sub-tags move with it.' : `${u.pages} page${u.pages === 1 ? '' : 's'} and ${u.cards} card${u.cards === 1 ? '' : 's'} get the tag you pick instead, and #${esc(t.name)} goes away. Its sub-tags move under the kept tag.`}</p>
       <div class="menu" style="position:static;box-shadow:none;max-height:240px;overflow:auto;max-width:none">
         ${kind === 'move' ? `<button class="mi" data-dlg="move" data-id="${id}" data-to="">Top level</button>` : ''}
         ${opts.map((o) => `<button class="mi" data-dlg="${kind}" data-id="${id}" data-to="${o.id}">#${esc(pathName(o.id))}</button>`).join('')}
@@ -768,6 +781,8 @@ document.addEventListener('click', (e) => {
   switch (act) {
     case 'theme': S.theme = a.dataset.v; applyTheme(); break
     case 'emptyTags': S.emptyTags = a.checked; render(); break
+    case 'phone': document.body.classList.toggle('phone', a.checked); S.drawer = false; render(); break
+    case 'tryIt': { openPid('heart'); const t = document.getElementById('try'); t.scrollIntoView({ block: 'center' }); t.focus(); break }
     case 'go': e.preventDefault(); if (a.closest('#try')) { openPid(id); break } openPid(id); if (a.dataset.anc) setTimeout(() => document.getElementById('h-' + a.dataset.anc)?.scrollIntoView({ block: 'center', behavior: 'smooth' }), 30); break
     case 'drawer': S.drawer = !S.drawer; render(); break
     case 'openPop': S.pop = { q: '', chip: 'all', sel: -1 }; S.drawer = false; render(); renderPop(); break
@@ -798,6 +813,10 @@ document.addEventListener('click', (e) => {
     case 'reviewThese': toast('Review would start with these cards (saved searches work as decks)'); break
     case 'closeDlg': closeDlg(); break
   }
+})
+document.addEventListener('contextmenu', (e) => {
+  const more = e.target.closest('aside .trow')?.querySelector('.more')
+  if (more) { e.preventDefault(); tagMenu(more.dataset.id, more) }
 })
 document.addEventListener('keydown', (e) => {
   if ((e.ctrlKey || e.metaKey) && e.key.toLowerCase() === 'k') { e.preventDefault(); S.pop = { q: '', chip: 'all', sel: -1 }; renderPop() }

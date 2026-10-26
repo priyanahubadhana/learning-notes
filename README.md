@@ -53,7 +53,7 @@ For anyone in any field (writers, vloggers, learners, philosophers, technicians,
 - **Steps:** 1 Data + upgrade · 2 Settings · 3 Card block + Make card · 4 Blanks · 5a Scheduler + review log + speed test · 5b Review screen + cram · 6 Lesson templates + live list · 7 Polish (7a, 7b, 7c) · 8 FSRS.
 - **Definition of Done:** all above built (or FSRS formally moved), all unit + e2e tests pass (incl. upgrade and 10k-card tests), security/code review reported, docs updated, owner visual checks passed.
 
-## Phase 4 Plan — Organisation & Connection (approved 2026-10-26)
+## Phase 4 Plan — Organisation & Connection (approved 2026-10-26; complete 2026-10-27)
 
 - **Mockup:** `prototype-phase4.html` (double-click to open; fake data). Approved after owner testing.
 - **Search:** Ctrl+K / 🔍 opens a popup (box, chips All · Pages · Notes · Cards, top results grouped, keyboard); "See all" / Enter expands into the full Search screen: filters with counts after searching (notebook, tag step by step, card status), "More filters" (changed date, include Journal / Templates / Trash, sort Best match · Recently changed · Most failed), views List · Compact · Grouped (remembered), saved searches in the sidebar. Phone: full screen. Covers page titles, all text, cards and blanks, journal days, templates, tags; Trash only when ticked. One filter/result-type registry so future features plug in. Text with no letters or digits is an empty search.
@@ -70,7 +70,7 @@ For anyone in any field (writers, vloggers, learners, philosophers, technicians,
 
 2. Learning Daily Journal + Templates — done
 3. Recall & Spaced Repetition — done
-4. Organisation & Connection (search, links, tags) — plan approved 2026-10-26
+4. Organisation & Connection (search, links, tags) — done
 5. Databases & interactive blocks
 6. Data safety, export, encryption, sync, page version history (moved from Phase 4 on 2026-10-26)
 7. Future: AI, semantic search, website, iOS app, collaboration
@@ -131,7 +131,7 @@ Business logic (services) has no UI code, so it can be reused later (e.g. iOS). 
 
 ## Project Status
 
-**Current phase:** Phase 4 — Organisation & Connection, plan approved 2026-10-26; Steps 0–4 done 2026-10-26; Steps 5 (tags) and 6 (card tools) done 2026-10-27; next Step 7 (phase end checks). Phase 3 complete 2026-10-26 (all tests, security review, owner visual checks passed). Phase 2 complete. Phase 1 complete 2026-10-25.
+**Current phase:** Phase 5 — Databases & interactive blocks, planning next. Phase 4 complete 2026-10-27 (all tests, security + code review, owner visual checks passed). Phase 3 complete 2026-10-26 (all tests, security review, owner visual checks passed). Phase 2 complete. Phase 1 complete 2026-10-25.
 
 | Step                                                    | Status |
 | ------------------------------------------------------- | ------ |
@@ -162,7 +162,7 @@ Business logic (services) has no UI code, so it can be reused later (e.g. iOS). 
 | Phase 4, step 4: links + Linked from                    | Done   |
 | Phase 4, step 5: tags (5a, 5b)                          | Done   |
 | Phase 4, step 6: card tools in Search                   | Done   |
-| Phase 4, step 7: phase end checks                       | To do  |
+| Phase 4, step 7: phase end checks                       | Done   |
 
 ## Decision Log
 
@@ -302,7 +302,8 @@ Business logic (services) has no UI code, so it can be reused later (e.g. iOS). 
 - **Phase 4 Step 6 — done 2026-10-27:** card tools in Search. Sort "Most failed cards" (`SortOrder` 'failed'): cards by all-time Again count (`failCounts` in `reviewService.ts`, Practice anyway included), "Wrong N×" on rows, other results last. Card status "Empty (no question)": empty Cards now get a search entry (`SearchEntry.empty`, index version 4) and only that status; left out of "Review these cards". "Remove N empty cards" (`recall/emptyCards.ts`: `removeEmptyCards` lifts answer lines to the card's place, `restoreEmptyCards` = Undo toast). Merge/Delete tag now also rewrites tags in notes on Trash pages (`inTrash` in `tagTools.ts`). Tests: `emptyCards.test.ts`, Trash test in `tagTools.test.ts`, 10k cards + 50k reviews in `searchSpeed.test.ts`, `e2e/cardTools.spec.ts` (+ screenshots). 304 unit + 88 e2e pass.
 - **Phase 4 Step 7 — checks done 2026-10-27:** 304 unit + 88 e2e pass, lint/format/build clean, npm audit 0; security + code review (index middleware, tag merge/delete, empty-card removal, saved searches, highlighting) found no bugs; fix: tag colours limited to `TAG_COLORS` (`isTagColor`) when set and shown; typescript-eslint patch; LEARNING.md Phase 4 section.
 - **Sidebar tag chips — done 2026-10-27:** sidebar Tags list uses the same tinted chips as pages.
-- **Next:** owner visual checks for Phase 4 (search feel + highlights; [[ links incl. rename and Linked from; tags: #, + Add tag, sidebar ⋯ menu, colours in 3 themes; saved searches; Most failed + empty-card removal with Undo), then close Phase 4 (roadmap → done, decision log) and plan Phase 5 (start with the parked TypeScript 7 upgrade).
+- **Phase 4 closed 2026-10-27:** owner visual checks passed (search, links, tags, saved searches, card tools).
+- **Next:** plan Phase 5 (Databases & interactive blocks) in plan mode; start with the parked TypeScript 7 upgrade; pick the few IDEAS.md items that matter most rather than all.
 - See IDEAS.md for parked ideas.
 
 ## Known Limitations

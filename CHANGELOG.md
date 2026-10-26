@@ -453,3 +453,9 @@
 - **What:** Sidebar Tags list shows each tag as a chip (soft colour tint, like on pages) instead of a coloured dot.
 - **Why:** Owner wanted the sidebar to match the new chip look.
 - **Files:** src/tags/TagsSection.tsx, src/tags/TagChip.tsx (comment), CHANGELOG.md
+
+## 2026-10-27
+
+- **What:** Phase 4 closed: owner visual checks passed (search, links, tags, saved searches, card tools). Roadmap, status and handoff updated; Phase 5 planning next.
+- **Why:** Phase 4 Definition of Done met.
+- **Files:** README.md, LEARNING.md, CHANGELOG.md

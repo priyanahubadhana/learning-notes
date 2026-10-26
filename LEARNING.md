@@ -56,7 +56,7 @@ Settings has a search box and categories (General, Review, Journal, APIs). Each 
 
 A duplicated card sometimes didn't show in All cards or Review. Saving a card is two writes: the block (its text) and the card record (its schedule). They are now written together in one **transaction**, which means "both or neither", like a bank transfer that can't take money out without putting it in. Opening a page also re-creates any missing card records, which repaired the copies that were already broken.
 
-## Phase 4 — Organisation & Connection (built 2026-10-26 to 27)
+## Phase 4 — Organisation & Connection (completed 2026-10-27)
 
 **The big idea:** a second brain is only useful if you can find things again and see how they connect. Phase 4 adds three tools that work together: **search** (find anything), **links** (connect one note to another) and **tags** (group notes across notebooks).
 

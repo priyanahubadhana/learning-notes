@@ -4,11 +4,15 @@ import type {
   Block,
   BlockTag,
   Card,
+  Database,
+  DbColumn,
+  DbView,
   LinkRef,
   MetaValue,
   Notebook,
   Page,
   ReviewLog,
+  RowRef,
   SavedSearch,
   SearchEntry,
   SettingValue,
@@ -41,6 +45,10 @@ export class LearningNotesDB extends Dexie {
   links!: EntityTable<LinkRef, 'id'>
   blockTags!: EntityTable<BlockTag, 'id'>
   meta!: EntityTable<MetaValue, 'id'>
+  databases!: EntityTable<Database, 'id'>
+  dbColumns!: EntityTable<DbColumn, 'id'>
+  dbViews!: EntityTable<DbView, 'id'>
+  rowRefs!: EntityTable<RowRef, 'id'>
 
   /** @param name Database name; tests pass a unique name to stay isolated. */
   constructor(name: string = DEFAULT_DB_NAME) {
@@ -80,6 +88,40 @@ export class LearningNotesDB extends Dexie {
       blockTags: 'id, blockId, pageId, tagId',
       meta: 'id',
     })
+
+    // Version 4 (Phase 5): databases. Rows are pages (`databaseId`, cell
+    // `values`), so notes, cards, links and tags work inside rows. The
+    // Study tracker database itself is made when first needed (Step 2), at
+    // the id the Database tab already points to. rowRefs is a rebuildable
+    // helper list (Relation values, for "rows pointing here").
+    this.version(4)
+      .stores({
+        pages: 'id, notebookId, parentId, *tagIds, databaseId',
+        databases: 'id, workspaceId, notebookId',
+        dbColumns: 'id, databaseId',
+        dbViews: 'id, databaseId, blockId',
+        rowRefs: 'id, fromPageId, toPageId, columnId',
+      })
+      .upgrade(async (tx) => {
+        // Existing normal notebooks get the default tabs. Frozen copy of
+        // defaultNotebookTabs() as of version 4: later template changes
+        // must not change what this upgrade wrote.
+        await tx
+          .table<Notebook, string>('notebooks')
+          .toCollection()
+          .modify((notebook) => {
+            if (notebook.kind || notebook.tabs) return
+            notebook.tabs = [
+              { id: 'notes', kind: 'notes' },
+              {
+                id: 'database',
+                kind: 'database',
+                databaseId: `tracker:${notebook.id}`,
+              },
+              { id: 'cards', kind: 'cards' },
+            ]
+          })
+      })
 
     // Every save of a page or block also updates its search entry, in the
     // same transaction (see search/indexMiddleware.ts).

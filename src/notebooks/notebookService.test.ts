@@ -42,6 +42,19 @@ describe('notebookService', () => {
     expect(await titles()).toEqual(['A', 'B', 'C'])
   })
 
+  it('gives new normal notebooks the default tabs; special ones none', async () => {
+    const notebook = await createNotebook(db, ws, 'Biology')
+    expect(notebook.tabs?.map((t) => t.kind)).toEqual([
+      'notes',
+      'database',
+      'cards',
+    ])
+    expect(notebook.tabs?.[1].databaseId).toBe(`tracker:${notebook.id}`)
+    expect((await db.notebooks.get(notebook.id))?.tabs).toEqual(notebook.tabs)
+    const journal = await createNotebook(db, ws, 'Journal', 'journal')
+    expect(journal.tabs).toBeUndefined()
+  })
+
   it('getNotebook returns live notebooks only', async () => {
     const nb = await createNotebook(db, ws, 'A')
     expect((await getNotebook(db, nb.id))?.title).toBe('A')

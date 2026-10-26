@@ -7,6 +7,7 @@ import {
   softDeleteMany,
 } from '../core/records'
 import type { Notebook } from '../core/types'
+import { defaultNotebookTabs } from '../databases/notebookTabs'
 
 /**
  * Notebook operations. UI code should call these instead of touching the
@@ -60,12 +61,14 @@ export async function createNotebook(
   return db.transaction('rw', db.workspaces, db.notebooks, async () => {
     await getLive(db.workspaces, workspaceId)
     const last = (await listNotebooks(db, workspaceId)).at(-1)
+    const fields = newRecordFields()
     const notebook: Notebook = {
-      ...newRecordFields(),
+      ...fields,
       workspaceId,
       title,
       order: orderBetween(last?.order ?? null, null),
-      ...(kind && { kind }),
+      // Special notebooks (journal, templates, …) have no tabs.
+      ...(kind ? { kind } : { tabs: defaultNotebookTabs(fields.id) }),
     }
     await db.notebooks.add(notebook)
     return notebook

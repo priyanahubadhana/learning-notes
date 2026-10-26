@@ -1,16 +1,18 @@
 import Dexie from 'dexie'
 import { afterEach, describe, expect, it } from 'vitest'
 import { LearningNotesDB } from './db'
+import { defaultNotebookTabs, studyTrackerId } from '../databases/notebookTabs'
 import { createId } from './ids'
+import type { Notebook } from './types'
 
 /**
  * Upgrade tests: a database saved by an older version (Phase 1–2 = schema
- * version 1, Phase 3 = version 2) must open in the current version with
+ * version 1, Phase 3 = version 2, Phase 4 = version 3) must open in the current version with
  * every record intact.
  */
 const T = 1_700_000_000_000
 const base = { createdAt: T, updatedAt: T, deletedAt: null }
-const CURRENT_VERSION = 3
+const CURRENT_VERSION = 4
 let name = ''
 
 afterEach(async () => {
@@ -28,6 +30,15 @@ const V2 = {
   cards: 'id, blockId, pageId, notebookId, due',
   reviewLogs: 'id, cardId, createdAt',
   settings: 'id',
+}
+const V3 = {
+  pages: 'id, notebookId, parentId, *tagIds',
+  tags: 'id, parentId',
+  savedSearches: 'id',
+  searchEntries: 'id, pageId, notebookId, *words',
+  links: 'id, fromBlockId, fromPageId, toPageId, toBlockId',
+  blockTags: 'id, blockId, pageId, tagId',
+  meta: 'id',
 }
 
 const card = {
@@ -113,6 +124,141 @@ async function createVersion2Db(dbName: string) {
     .table('settings')
     .put({ id: 'review.newPerDay', value: 15, updatedAt: T })
   old.close()
+}
+
+/**
+ * Phase 4 database: version 1 data plus a tagged page, a tag, search and
+ * link rows, and the special Journal and Templates notebooks.
+ */
+async function createVersion3Db(dbName: string) {
+  const old = new Dexie(dbName)
+  old.version(1).stores(V1)
+  old.version(2).stores(V2)
+  old.version(3).stores(V3)
+  await addVersion1Data(old)
+  await old.table('notebooks').bulkAdd([
+    {
+      ...base,
+      id: 'nbJ',
+      workspaceId: 'w1',
+      title: 'Journal',
+      order: 'a1',
+      kind: 'journal',
+    },
+    {
+      ...base,
+      id: 'nbT',
+      workspaceId: 'w1',
+      title: 'Templates',
+      order: 'a2',
+      kind: 'templates',
+      starterVersion: 2,
+    },
+  ])
+  await old
+    .table('tags')
+    .add({ ...base, id: 't1', name: 'medicine', parentId: null })
+  await old.table('pages').update('p1', { tagIds: ['t1'] })
+  await old.table('searchEntries').add({
+    id: 'title:p1',
+    kind: 'title',
+    pageId: 'p1',
+    notebookId: 'nb1',
+    words: ['cells'],
+    updatedAt: T,
+  })
+  await old
+    .table('links')
+    .add({ id: 'b1|0', fromBlockId: 'b1', fromPageId: 'p1', toPageId: 'p9' })
+  await old.table('meta').put({ id: 'searchIndexVersion', value: 4 })
+  old.close()
+}
+
+/** The default tabs the upgrade gives an existing normal notebook. */
+function expectDefaultTabs(notebook: Notebook | undefined) {
+  expect(notebook?.tabs).toEqual(defaultNotebookTabs(notebook!.id))
+  expect(notebook?.tabs?.map((t) => t.kind)).toEqual([
+    'notes',
+    'database',
+    'cards',
+  ])
+}
+
+/** Checks the Phase 5 tables and indexes work straight away. */
+async function expectVersion4TablesWork(db: LearningNotesDB) {
+  const databaseId = studyTrackerId('nb1')
+  await db.databases.add({
+    ...base,
+    id: databaseId,
+    workspaceId: 'w1',
+    notebookId: 'nb1',
+    title: 'Study tracker',
+    order: 'a0',
+    kind: 'studyTracker',
+  })
+  await db.dbColumns.add({
+    ...base,
+    id: 'col1',
+    databaseId,
+    name: 'Confidence',
+    type: 'number',
+    config: { format: 'stars' },
+    order: 'a0',
+  })
+  await db.dbViews.bulkAdd([
+    {
+      ...base,
+      id: 'v1',
+      databaseId,
+      name: 'Table',
+      type: 'table',
+      config: {},
+      order: 'a0',
+    },
+    {
+      ...base,
+      id: 'v2',
+      databaseId,
+      name: 'Table',
+      type: 'table',
+      config: {},
+      order: 'a1',
+      blockId: 'b1',
+    },
+  ])
+  // A lesson keeps its own values; a row page is found by its database.
+  await db.pages.update('p1', { values: { col1: 4 } })
+  await db.pages.add({
+    ...base,
+    id: 'row1',
+    notebookId: 'nb1',
+    parentId: null,
+    title: 'Aspirin',
+    order: 'a1',
+    databaseId: 'db2',
+    values: { col9: 'NSAID' },
+  })
+  expect(await db.databases.where('notebookId').equals('nb1').count()).toBe(1)
+  expect(
+    await db.dbColumns.where('databaseId').equals(databaseId).count(),
+  ).toBe(1)
+  expect(await db.dbViews.where('blockId').equals('b1').primaryKeys()).toEqual([
+    'v2',
+  ])
+  expect(
+    await db.pages.where('databaseId').equals('db2').primaryKeys(),
+  ).toEqual(['row1'])
+  expect((await db.pages.get('p1'))?.values).toEqual({ col1: 4 })
+  // Old pages are not rows: no key in the new index.
+  expect(await db.pages.where('databaseId').equals('').count()).toBe(0)
+
+  await db.rowRefs.add({
+    id: 'row1|col2|p1',
+    fromPageId: 'row1',
+    columnId: 'col2',
+    toPageId: 'p1',
+  })
+  expect(await db.rowRefs.where('toPageId').equals('p1').count()).toBe(1)
 }
 
 /** Checks the Phase 1–2 sample data survived. */
@@ -201,6 +347,8 @@ describe('database upgrade', () => {
     expect(await db.reviewLogs.count()).toBe(0)
 
     await expectVersion3TablesWork(db)
+    expectDefaultTabs(await db.notebooks.get('nb1'))
+    await expectVersion4TablesWork(db)
     db.close()
   })
 
@@ -231,6 +379,38 @@ describe('database upgrade', () => {
     expect(await db.pages.where('tagIds').equals('t1').count()).toBe(0)
 
     await expectVersion3TablesWork(db)
+    expectDefaultTabs(await db.notebooks.get('nb1'))
+    await expectVersion4TablesWork(db)
+    db.close()
+  })
+
+  it('from version 3 keeps all Phase 4 data and gives normal notebooks tabs', async () => {
+    name = `migrate-${createId()}`
+    await createVersion3Db(name)
+
+    const db = new LearningNotesDB(name)
+    await db.open()
+    expect(db.verno).toBe(CURRENT_VERSION)
+    await expectVersion1Data(db)
+
+    // Phase 4 data intact; the new page index finds tagged pages as before.
+    expect(await db.pages.where('tagIds').equals('t1').primaryKeys()).toEqual([
+      'p1',
+    ])
+    expect(await db.tags.get('t1')).toMatchObject({ name: 'medicine' })
+    expect(await db.searchEntries.where('words').equals('cells').count()).toBe(
+      1,
+    )
+    expect(await db.links.where('toPageId').equals('p9').count()).toBe(1)
+    expect(await db.meta.get('searchIndexVersion')).toMatchObject({ value: 4 })
+
+    // Normal notebook: default tabs. Journal and Templates: none, unchanged.
+    expectDefaultTabs(await db.notebooks.get('nb1'))
+    expect((await db.notebooks.get('nbJ'))?.tabs).toBeUndefined()
+    expect(await db.notebooks.get('nbT')).toMatchObject({ starterVersion: 2 })
+    expect((await db.notebooks.get('nbT'))?.tabs).toBeUndefined()
+
+    await expectVersion4TablesWork(db)
     db.close()
   })
 })

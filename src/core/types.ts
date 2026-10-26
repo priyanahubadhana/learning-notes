@@ -54,14 +54,38 @@ export interface Notebook extends BaseRecord {
   /**
    * Special notebooks: 'journal' holds daily pages (by month); 'templates'
    * holds template pages and is shown in its own sidebar section.
-   * Unset = a normal notebook.
+   * 'databases' is the hidden home of row pages of databases that belong
+   * to no notebook. Unset = a normal notebook.
    */
-  kind?: 'journal' | 'templates'
+  kind?: 'journal' | 'templates' | 'databases'
   /**
    * Templates notebook only: the starter-template version already added
    * (unset = 1). Newer starters are added once when this is lower.
    */
   starterVersion?: number
+  /**
+   * The notebook's tabs (Notes · Database · Cards …), in display order.
+   * Copied from the default tab template when the notebook is made (or on
+   * the version 4 upgrade). Unset on special notebooks (journal, …).
+   */
+  tabs?: NotebookTab[]
+}
+
+/**
+ * One tab of a notebook. `kind` is an open string so new tab kinds (e.g.
+ * 'revise' in Phase 5B) need no core change.
+ */
+export interface NotebookTab {
+  /** Unique within the notebook (built-in tabs use their kind). */
+  id: string
+  /** 'notes' | 'database' | 'cards', later 'revise'. */
+  kind: string
+  /** Own name; unset = the translated default name of the kind. */
+  title?: string
+  /** Hidden tabs stay saved but are not shown. */
+  hidden?: boolean
+  /** 'database' tabs: the database shown. */
+  databaseId?: string
 }
 
 /** A page lives in a notebook and can nest under another page. */
@@ -80,6 +104,17 @@ export interface Page extends BaseRecord {
   templateRole?: 'daily'
   /** Tags on the whole page (chips under the title). Unset = none. */
   tagIds?: string[]
+  /**
+   * Set when this page is a row of a database. Row pages live in the
+   * database's notebook but are not listed in its Notes tree.
+   */
+  databaseId?: string
+  /**
+   * Cell values when this page is a database row (a row page, or a lesson
+   * in its notebook's Study tracker), by column id. The value shape is
+   * owned by the column type; computed columns store nothing. Unset = empty.
+   */
+  values?: JsonObject
 }
 
 /**
@@ -206,6 +241,61 @@ export interface SavedSearch extends BaseRecord {
   order: OrderKey
 }
 
+/**
+ * A database: columns + rows (pages) + views. Belongs to a notebook, or to
+ * none (its row pages then live in the hidden 'databases' notebook).
+ */
+export interface Database extends BaseRecord {
+  workspaceId: string
+  /** Notebook it belongs to; null = outside any notebook. */
+  notebookId: string | null
+  title: string
+  /** Position in the "All databases" list (lower comes first). */
+  order: OrderKey
+  /**
+   * 'studyTracker': the notebook's Study tracker; its rows are the
+   * notebook's top-level pages (lessons), not row pages. Unset = normal.
+   */
+  kind?: 'studyTracker'
+  /** View to open on; unset = Dashboard once it has rows, else Table. */
+  openViewId?: string
+}
+
+/** One column (property) of a database. */
+export interface DbColumn extends BaseRecord {
+  databaseId: string
+  name: string
+  /**
+   * Column type name, an open string so new types plug in: 'text',
+   * 'number', 'date', 'choice', 'choices', 'checkbox', 'url', 'tag',
+   * 'noteLink', 'formula', 'relation', 'rollup', Study tracker auto columns.
+   */
+  type: string
+  /** Type-specific settings (choice options, number format, formula, …). */
+  config: JsonObject
+  /** Position among the database's columns (lower comes first). */
+  order: OrderKey
+}
+
+/**
+ * One saved view of a database (Table, Dashboard, Board …). Sorts, filters,
+ * hidden columns and charts live in `config`, owned by the view type.
+ */
+export interface DbView extends BaseRecord {
+  databaseId: string
+  name: string
+  /** View type name, an open string: 'table', 'dashboard', 'board', … */
+  type: string
+  config: JsonObject
+  /** Position among the database's views (lower comes first). */
+  order: OrderKey
+  /**
+   * Set for the own view of a "/database" block inside a note; such views
+   * are not listed with the database's views.
+   */
+  blockId?: string
+}
+
 /*
  * Helper lists (indexes) built from the notes. They are copies, not user
  * data: they can always be rebuilt from pages and blocks, so rows are
@@ -251,6 +341,18 @@ export interface BlockTag {
   blockId: string
   pageId: string
   tagId: string
+}
+
+/**
+ * One Relation cell value (row → row), so a row can list the rows that
+ * point to it. Built from `Page.values`.
+ */
+export interface RowRef {
+  /** `<fromPageId>|<columnId>|<toPageId>`. */
+  id: string
+  fromPageId: string
+  columnId: string
+  toPageId: string
 }
 
 /** Small app bookkeeping values, e.g. which search index version is built. */

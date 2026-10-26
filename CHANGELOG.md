@@ -483,3 +483,9 @@
 - **What:** Phase 5 Step 5A-0: @types/node 24 → 26 (matches the installed Node 26). TypeScript 7 re-parked: typescript-eslint supports only TypeScript below 6.1, and TypeScript 7 no longer ships the JavaScript API it needs. 304 unit + 88 e2e pass; lint, build clean; npm audit 0.
 - **Why:** Phase 5 plan Step 0; owner chose to park TypeScript 7 (small gain, would break lint).
 - **Files:** package.json, package-lock.json, README.md, IDEAS.md, CHANGELOG.md
+
+## 2026-10-27
+
+- **What:** Phase 5 Step 5A-1: database version 4. New tables `databases`, `dbColumns`, `dbViews`, helper list `rowRefs`; pages can be database rows (`databaseId` index, cell `values`); notebooks get tabs (Notes · Database · Cards) on upgrade and when created; Study tracker id derived from the notebook id. Upgrade tests from versions 1, 2 and 3. 306 unit + 88 e2e pass; lint, format, build clean.
+- **Why:** Phase 5 plan Step 1: the storage every later database step builds on.
+- **Files:** src/core/types.ts, src/core/db.ts, src/core/migration.test.ts, src/databases/notebookTabs.ts, src/notebooks/notebookService.ts, src/notebooks/notebookService.test.ts, README.md, CHANGELOG.md

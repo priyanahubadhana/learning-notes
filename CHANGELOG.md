@@ -431,3 +431,13 @@
   - Tests: `emptyCards.test.ts`, Trash test in `tagTools.test.ts`, Most failed speed test (10,000 cards, 50,000 reviews), `e2e/cardTools.spec.ts` with screenshots. 304 unit + 88 e2e pass.
 - **Why:** Phase 4 plan, Step 6; Trash-tags idea from IDEAS.md (owner OK).
 - **Files:** src/recall/{emptyCards,emptyCards.test,reviewService}.ts, src/search/{searchQuery,searchText,savedSearchService,searchSpeed.test}.ts, src/search/{SearchScreen,SearchResults}.tsx, src/tags/{tagTools,tagTools.test}.ts, src/core/{types,order}.ts, src/i18n/en.ts, e2e/cardTools.spec.ts, README.md, CHANGELOG.md, IDEAS.md
+
+## 2026-10-27
+
+- **What:** Phase 4 Step 7 — phase end checks.
+  - All checks pass: 304 unit + 88 e2e tests (upgrade tests, 10k/100k speed tests, screenshots in 3 themes + phone), lint, format, build, `npm audit` 0 vulnerabilities.
+  - Security + code review of Phase 4 (index middleware, tag merge/delete, empty-card removal, saved searches, search highlighting): no bugs found. Fix: tag colours are checked against the six app colours when set (`isTagColor`, `setTagColor` refuses others) and when shown (`tagColorStyle`), so a damaged or imported value is ignored.
+  - Dependency patch: typescript-eslint 8.72.0 → 8.72.1.
+  - LEARNING.md: Phase 4 section.
+- **Why:** Phase 4 plan, Step 7 (Definition of Done).
+- **Files:** src/tags/{tagTools,tagStyle,tagTools.test}.ts, package-lock.json, LEARNING.md, README.md, CHANGELOG.md, IDEAS.md

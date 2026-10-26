@@ -28,6 +28,10 @@ export const TAG_COLORS = [
   '#c2417f',
 ] as const
 
+/** True for one of `TAG_COLORS` (stored colours are checked before use). */
+export const isTagColor = (color: unknown): color is string =>
+  TAG_COLORS.includes(color as (typeof TAG_COLORS)[number])
+
 export type RenameResult = 'done' | 'empty' | 'taken'
 export type MoveResult = 'done' | 'taken' | 'loop'
 
@@ -92,6 +96,9 @@ export async function setTagColor(
   id: string,
   color: string | null,
 ): Promise<void> {
+  if (color !== null && !isTagColor(color)) {
+    throw new Error(`tags: unknown colour (${color})`)
+  }
   await db.transaction('rw', db.tags, async () => {
     const tag = await getLive(db.tags, id)
     const { color: _old, ...rest } = tag

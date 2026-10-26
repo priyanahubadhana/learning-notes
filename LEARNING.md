@@ -55,3 +55,57 @@ Settings has a search box and categories (General, Review, Journal, APIs). Each 
 ### Last fix before closing
 
 A duplicated card sometimes didn't show in All cards or Review. Saving a card is two writes: the block (its text) and the card record (its schedule). They are now written together in one **transaction**, which means "both or neither", like a bank transfer that can't take money out without putting it in. Opening a page also re-creates any missing card records, which repaired the copies that were already broken.
+
+## Phase 4 — Organisation & Connection (built 2026-10-26 to 27)
+
+**The big idea:** a second brain is only useful if you can find things again and see how they connect. Phase 4 adds three tools that work together: **search** (find anything), **links** (connect one note to another) and **tags** (group notes across notebooks).
+
+### Search
+
+- **Ctrl+K** (⌘K on Mac) opens search from anywhere, even while typing. Enter or "See all" opens the full **Search** screen.
+- It finds page titles, note text, cards and blanks, journal days and templates. The Trash is only searched when you tick it.
+- **Word starts match, accents and capitals don't matter.**
+  _Example:_ "card valv" finds "Cardiac **valves**"; "resume" finds "résumé".
+- **Filters** (with counts): notebook, tag, card status (New, Due, Learned, Suspended, Got wrong, Empty), changed date. **Sort:** Best match, Recently changed, Most failed cards. **Views:** List, Compact, Grouped.
+- **"Did you mean…?"** appears only when nothing is found and suggests a real word from your notes that is 1–2 letters off.
+  _Example:_ "mitrel" → "Did you mean **mitral**?"
+- **Saved searches** sit in the sidebar. A saved search that finds cards is a **deck**: "Review these cards" reviews exactly those. The old "All cards" list is now simply Search with the **Cards** chip.
+
+**How it works:** the app keeps its own **word index**, like the index at the back of a book: a list of every word and where it appears. A search looks words up in the index instead of reading every note, so it stays fast with 100,000 entries (a rare word takes about 1 ms). The index is updated in the same save as your note (one **transaction**, "both or neither"), so it can never fall behind. If the index ever needs rebuilding, that happens in small chunks in the background.
+
+### Links
+
+- Type **[[** (or "/ Link to page") and pick a page, or press → to link straight to one of its headings or cards.
+  _Example:_ in "Heart sounds" type [[ → "Valves" → → "Mitral valve" heading.
+- A link stores the page's **id** (its permanent number), not its name. Renaming or moving the page never breaks the link, and the link always shows the current title.
+- **Linked from** at the end of every page lists the pages that link to it, with the sentence around each link.
+- A link to a page in the Trash is crossed out and offers **Restore**. **Ctrl+Enter** opens the link next to the cursor.
+
+### Tags
+
+- **Page tags:** "+ Add tag" under the title. **Tags in text:** type **#** and pick one. "C#" and "#1" stay normal text, and "# " still makes a heading.
+- **Levels with /:** #medicine/cardiology is "cardiology" inside "medicine". Clicking a parent tag also finds its children.
+- **Cards inherit** their page's tags, so a page tagged #exam makes all its cards #exam cards. Plain notes don't inherit, so a tag search doesn't list every paragraph.
+- **Tag tools** (sidebar ⋯): rename, move, merge (two tags become one), delete (removes only the tag, never the notes), colour. Tags are stored by id like links, so a rename shows everywhere at once.
+  _Example:_ merge #cardoi (a typo) into #cardio, and every page, note, card and saved search switches over.
+
+### Card tools
+
+- **Most failed cards:** a sort that puts the cards you got wrong most often first ("Wrong 3×").
+- **Empty cards:** the card status "Empty" lists cards with no question, and "Remove N empty cards" deletes them while keeping their answer lines as normal notes. Undo is offered.
+
+### Smaller fixes
+
+- "Delete forever" now also erases the deleted cards' schedules and review history, keeping only a tiny marker for future sync.
+- "Steps for Good" is hidden while FSRS is selected, and "Target memory" is hidden under Simple steps.
+- There is an optional **Shuffle** order for Practice anyway.
+- Template sub-pages now show in the sidebar.
+
+### Quality and safety
+
+- **Testing:** 304 unit tests and 88 browser tests, including:
+  - database upgrade tests (version 1 or 2 → 3)
+  - speed tests: search with 100,000 entries, "Linked from" with 10,000 links, tags on 10,000 cards, merging a tag typed in 10,000 notes in a real browser, and 10,000 cards with 50,000 reviews for "Most failed"
+  - screenshots in Day, Night and Sepia and at phone size
+- **Security review:** no way for note text to run as code, stored searches and settings are checked before use, no secrets in the project, and 0 known vulnerabilities in the libraries. One fix: tag colours are now limited to the app's six colours, so a damaged or imported value can't inject odd styling.
+- **No new libraries:** search, links and tags are all built on the existing database (₹0).

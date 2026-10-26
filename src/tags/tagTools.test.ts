@@ -9,6 +9,7 @@ import { createNotebook } from '../notebooks/notebookService'
 import { createPage, deletePage } from '../pages/pageService'
 import { syncCardRecords } from '../recall/cardService'
 import { restorePage } from '../trash/trashService'
+import { tagColorStyle } from './tagStyle'
 import {
   createSavedSearch,
   getSavedSearch,
@@ -90,6 +91,9 @@ describe('rename, move, colour', () => {
     expect((await db.tags.get(exam.id))!.color).toBe('#2f6feb')
     await setTagColor(db, exam.id, null)
     expect((await db.tags.get(exam.id))!.color).toBeUndefined()
+    await expect(setTagColor(db, exam.id, 'url(x)')).rejects.toThrow()
+    expect(tagColorStyle('url(x)')).toBeUndefined()
+    expect(tagColorStyle('#2f6feb')).toEqual({ '--tag-color': '#2f6feb' })
   })
 })
 

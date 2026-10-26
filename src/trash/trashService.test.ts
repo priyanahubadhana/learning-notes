@@ -154,6 +154,7 @@ describe('delete forever', () => {
 
   it('erases a page and its sub-pages only', async () => {
     const { a, a1, b, block } = await sample()
+    await db.pages.update(a1.id, { tagIds: ['t1'] })
     tick()
     await deletePage(db, a.id)
     tick()
@@ -161,7 +162,9 @@ describe('delete forever', () => {
 
     await purgePage(db, a.id)
     expect(await trashTitles()).toEqual(['page:B'])
-    expect((await db.pages.get(a1.id))?.purgedAt).toEqual(expect.any(Number))
+    const marker = await db.pages.get(a1.id)
+    expect(marker?.purgedAt).toEqual(expect.any(Number))
+    expect(marker?.tagIds).toBeUndefined()
     expect((await db.blocks.get(block.id))?.content).toEqual({})
     expect((await db.pages.get(b.id))?.title).toBe('B')
   })

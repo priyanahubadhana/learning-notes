@@ -4,26 +4,49 @@ import { LearningNotesDB } from './db'
 import { createId } from './ids'
 
 /**
- * Upgrade test: a database saved by Phase 1–2 (schema version 1) must open
- * in the current version with every record intact.
+ * Upgrade tests: a database saved by an older version (Phase 1–2 = schema
+ * version 1, Phase 3 = version 2) must open in the current version with
+ * every record intact.
  */
 const T = 1_700_000_000_000
 const base = { createdAt: T, updatedAt: T, deletedAt: null }
+const CURRENT_VERSION = 3
 let name = ''
 
 afterEach(async () => {
   await Dexie.delete(name)
 })
 
-async function createVersion1Db(dbName: string) {
-  const old = new Dexie(dbName)
-  // Exact copy of the version 1 schema, as shipped in Phase 1–2.
-  old.version(1).stores({
-    workspaces: 'id',
-    notebooks: 'id, workspaceId',
-    pages: 'id, notebookId, parentId',
-    blocks: 'id, pageId, parentId',
-  })
+// Exact copies of the old schemas, as shipped.
+const V1 = {
+  workspaces: 'id',
+  notebooks: 'id, workspaceId',
+  pages: 'id, notebookId, parentId',
+  blocks: 'id, pageId, parentId',
+}
+const V2 = {
+  cards: 'id, blockId, pageId, notebookId, due',
+  reviewLogs: 'id, cardId, createdAt',
+  settings: 'id',
+}
+
+const card = {
+  ...base,
+  id: 'c1',
+  blockId: 'b1',
+  part: 'main',
+  pageId: 'p1',
+  notebookId: 'nb1',
+  due: T,
+  intervalDays: 0,
+  step: 0,
+  reps: 0,
+  lapses: 0,
+  suspendedAt: null,
+}
+
+/** Adds the Phase 1–2 sample data (workspace, notebook, page, 2 blocks). */
+async function addVersion1Data(old: Dexie) {
   await old.table('workspaces').add({ ...base, id: 'w1', name: 'Me' })
   await old.table('notebooks').add({
     ...base,
@@ -51,44 +74,161 @@ async function createVersion1Db(dbName: string) {
       deletedAt: T,
     },
   ])
+}
+
+async function createVersion1Db(dbName: string) {
+  const old = new Dexie(dbName)
+  old.version(1).stores(V1)
+  await addVersion1Data(old)
   old.close()
 }
 
-describe('database upgrade from version 1', () => {
-  it('keeps all Phase 1–2 data and adds the new tables', async () => {
+async function createVersion2Db(dbName: string) {
+  const old = new Dexie(dbName)
+  old.version(1).stores(V1)
+  old.version(2).stores(V2)
+  await addVersion1Data(old)
+  await old.table('cards').add({
+    ...card,
+    intervalDays: 3,
+    reps: 2,
+    schedulerData: { scheduler: 'fsrs', stability: 4.2 },
+  })
+  await old.table('reviewLogs').add({
+    id: 'r1',
+    cardId: 'c1',
+    rating: 'good',
+    createdAt: T,
+    durationMs: 1200,
+    kind: 'review',
+    scheduler: 'fsrs',
+    dueBefore: T,
+    dueAfter: T + 3 * 86_400_000,
+    intervalBefore: 0,
+    intervalAfter: 3,
+    stepAfter: 1,
+    isNew: true,
+  })
+  await old
+    .table('settings')
+    .put({ id: 'review.newPerDay', value: 15, updatedAt: T })
+  old.close()
+}
+
+/** Checks the Phase 1–2 sample data survived. */
+async function expectVersion1Data(db: LearningNotesDB) {
+  expect(await db.workspaces.get('w1')).toMatchObject({ name: 'Me' })
+  expect(await db.notebooks.get('nb1')).toMatchObject({ title: 'Biology' })
+  expect(await db.pages.get('p1')).toMatchObject({ title: 'Cells' })
+  const blocks = await db.blocks.where('pageId').equals('p1').sortBy('id')
+  expect(blocks).toHaveLength(2)
+  expect(blocks[0].content).toEqual({ text: 'Mitochondria' })
+  expect(blocks[1]).toMatchObject({ parentId: 'b1', deletedAt: T })
+}
+
+/** Checks the Phase 4 tables and indexes work straight away. */
+async function expectVersion3TablesWork(db: LearningNotesDB) {
+  // Old pages (no tagIds) still list by notebook; tagged pages by tag.
+  await db.tags.bulkAdd([
+    { ...base, id: 't1', name: 'medicine', parentId: null },
+    { ...base, id: 't2', name: 'cardio', parentId: 't1', color: '#d9822b' },
+  ])
+  await db.pages.update('p1', { tagIds: ['t1', 't2'] })
+  expect(await db.pages.where('notebookId').equals('nb1').count()).toBe(1)
+  expect(await db.pages.where('tagIds').equals('t2').primaryKeys()).toEqual([
+    'p1',
+  ])
+  expect(await db.tags.where('parentId').equals('t1').count()).toBe(1)
+
+  // Word index: prefix lookups through the multi-entry index.
+  const entry = { pageId: 'p1', notebookId: 'nb1' }
+  await db.searchEntries.bulkAdd([
+    { ...entry, id: 'title:p1', kind: 'title', words: ['cells'] },
+    {
+      ...entry,
+      id: 'b1',
+      kind: 'text',
+      blockId: 'b1',
+      words: ['mitochondria', 'mitral'],
+    },
+  ])
+  const hits = await db.searchEntries.where('words').startsWith('mit').toArray()
+  // An entry matching two words can come back once per word; callers dedupe.
+  expect(new Set(hits.map((e) => e.id))).toEqual(new Set(['b1']))
+
+  await db.links.add({
+    id: 'b1|0',
+    fromBlockId: 'b1',
+    fromPageId: 'p1',
+    toPageId: 'p2',
+    toBlockId: 'b9',
+  })
+  expect(await db.links.where('toPageId').equals('p2').count()).toBe(1)
+  await db.blockTags.add({
+    id: 'b1|t1',
+    blockId: 'b1',
+    pageId: 'p1',
+    tagId: 't1',
+  })
+  expect(await db.blockTags.where('tagId').equals('t1').count()).toBe(1)
+  await db.savedSearches.add({
+    ...base,
+    id: 's1',
+    name: 'Due cardio',
+    query: { text: 'cardio' },
+    order: 'a0',
+  })
+  await db.meta.put({ id: 'searchIndexVersion', value: 1 })
+  expect(await db.meta.get('searchIndexVersion')).toMatchObject({ value: 1 })
+}
+
+describe('database upgrade', () => {
+  it('from version 1 keeps all Phase 1–2 data and adds the new tables', async () => {
     name = `migrate-${createId()}`
     await createVersion1Db(name)
 
     const db = new LearningNotesDB(name)
     await db.open()
-    expect(db.verno).toBe(2)
+    expect(db.verno).toBe(CURRENT_VERSION)
+    await expectVersion1Data(db)
 
-    expect(await db.workspaces.get('w1')).toMatchObject({ name: 'Me' })
-    expect(await db.notebooks.get('nb1')).toMatchObject({ title: 'Biology' })
-    expect(await db.pages.get('p1')).toMatchObject({ title: 'Cells' })
-    const blocks = await db.blocks.where('pageId').equals('p1').sortBy('id')
-    expect(blocks).toHaveLength(2)
-    expect(blocks[0].content).toEqual({ text: 'Mitochondria' })
-    expect(blocks[1]).toMatchObject({ parentId: 'b1', deletedAt: T })
-
-    // The new tables work straight away.
-    await db.cards.add({
-      ...base,
-      id: 'c1',
-      blockId: 'b1',
-      part: 'main',
-      pageId: 'p1',
-      notebookId: 'nb1',
-      due: T,
-      intervalDays: 0,
-      step: 0,
-      reps: 0,
-      lapses: 0,
-      suspendedAt: null,
-    })
+    // Phase 3 tables work straight away.
+    await db.cards.add(card)
     await db.settings.put({ id: 'review.newPerDay', value: 20, updatedAt: T })
     expect(await db.cards.where('due').belowOrEqual(T).count()).toBe(1)
     expect(await db.reviewLogs.count()).toBe(0)
+
+    await expectVersion3TablesWork(db)
+    db.close()
+  })
+
+  it('from version 2 keeps all Phase 3 data (cards, review log, settings)', async () => {
+    name = `migrate-${createId()}`
+    await createVersion2Db(name)
+
+    const db = new LearningNotesDB(name)
+    await db.open()
+    expect(db.verno).toBe(CURRENT_VERSION)
+    await expectVersion1Data(db)
+
+    expect(await db.cards.get('c1')).toMatchObject({
+      intervalDays: 3,
+      reps: 2,
+      schedulerData: { scheduler: 'fsrs', stability: 4.2 },
+    })
+    expect(await db.cards.where('due').belowOrEqual(T).count()).toBe(1)
+    expect(await db.reviewLogs.where('cardId').equals('c1').toArray()).toEqual([
+      expect.objectContaining({ id: 'r1', rating: 'good', isNew: true }),
+    ])
+    expect(await db.settings.get('review.newPerDay')).toMatchObject({
+      value: 15,
+    })
+
+    // Old pages have no tags; the new index simply has no keys for them.
+    expect((await db.pages.get('p1'))?.tagIds).toBeUndefined()
+    expect(await db.pages.where('tagIds').equals('t1').count()).toBe(0)
+
+    await expectVersion3TablesWork(db)
     db.close()
   })
 })

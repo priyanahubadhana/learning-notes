@@ -10,7 +10,7 @@
 
 - Data model: Workspace → Notebooks → Pages → Blocks. Pages can nest.
 - Every block is its own record: id, pageId, type, content (JSON), parentId, order, createdAt, updatedAt, deletedAt. Never store a page as one text blob.
-- IDs are UUIDs generated on the device (`core/ids.ts`). `order` uses fractional-index string keys (`core/order.ts`). Deletes are soft (set `deletedAt`, cascade to children with the same timestamp). Never remove records: "Delete forever" (Trash) erases the content and sets `purgedAt`, keeping an empty marker (id + times) for future sync.
+- IDs are UUIDs generated on the device (`core/ids.ts`). `order` uses fractional-index string keys (`core/order.ts`). Deletes are soft (set `deletedAt`, cascade to children with the same timestamp). Never remove records: "Delete forever" (Trash) erases the content and sets `purgedAt`, keeping an empty marker (id + times) for future sync. Exception: helper lists built from the notes (search index, links, block tags) are rebuildable copies; their rows are replaced or removed directly and never synced.
 - All reads/writes go through services (`core/*Service.ts`, `notebooks/`, `pages/`), not direct DB calls from UI.
 - Block data lives in our database (Dexie), not inside the editor, so the editor can be swapped.
 - Block types are pluggable: new types must not require core changes.

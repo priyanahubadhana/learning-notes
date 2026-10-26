@@ -1,4 +1,4 @@
-import type { LearningNotesDB } from '../core/db'
+﻿import type { LearningNotesDB } from '../core/db'
 import { byOrder, orderAtIndex } from '../core/order'
 import {
   descendantIds,
@@ -189,7 +189,7 @@ export async function restorePage(
 
     const notebook = await db.notebooks.get(page.notebookId)
     if (!notebook || notebook.purgedAt !== undefined) {
-      throw new Error('The page’s notebook no longer exists')
+      throw new Error('The pageâ€™s notebook no longer exists')
     }
     if (notebook.deletedAt !== null) {
       await restoreMany(db.notebooks, [notebook.id], now)
@@ -236,7 +236,7 @@ export async function purgeNotebook(
     const blockIds = await blocksOf(db, pageIds, null)
 
     await purgeMany(db.notebooks, [id], { title: '' }, now)
-    await purgeMany(db.pages, pageIds, { title: '' }, now)
+    await purgeMany(db.pages, pageIds, { title: '', tagIds: undefined }, now)
     await purgeMany(db.blocks, blockIds, { content: {} }, now)
     await purgeCardsOf(db, blockIds, now)
   })
@@ -258,7 +258,7 @@ export async function purgePage(
     const pageIds = deletedTogether(pages, page)
     const blockIds = await blocksOf(db, pageIds, null)
 
-    await purgeMany(db.pages, pageIds, { title: '' }, now)
+    await purgeMany(db.pages, pageIds, { title: '', tagIds: undefined }, now)
     await purgeMany(db.blocks, blockIds, { content: {} }, now)
     await purgeCardsOf(db, blockIds, now)
   })

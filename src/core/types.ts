@@ -78,6 +78,8 @@ export interface Page extends BaseRecord {
   journalMonth?: string
   /** 'daily': the protected template that fills new journal days. */
   templateRole?: 'daily'
+  /** Tags on the whole page (chips under the title). Unset = none. */
+  tagIds?: string[]
 }
 
 /**
@@ -181,4 +183,72 @@ export interface SettingValue {
   id: string
   value: JsonValue
   updatedAt: number
+}
+
+/**
+ * A tag. Tags are records (not text), so renaming or moving one updates it
+ * everywhere it is used. Nested tags ("medicine/cardio") use `parentId`.
+ */
+export interface Tag extends BaseRecord {
+  name: string
+  /** Parent tag id, or null for a top-level tag. */
+  parentId: string | null
+  /** Optional colour (CSS colour string). Unset = grey. */
+  color?: string
+}
+
+/** A search the user saved; shown in the sidebar. Card searches are decks. */
+export interface SavedSearch extends BaseRecord {
+  name: string
+  /** The search text and filters; shape owned by the search feature. */
+  query: JsonObject
+  /** Position among saved searches (lower comes first). */
+  order: OrderKey
+}
+
+/*
+ * Helper lists (indexes) built from the notes. They are copies, not user
+ * data: they can always be rebuilt from pages and blocks, so rows are
+ * replaced or removed directly (no soft delete) and are never synced —
+ * each device builds its own.
+ */
+
+/** The words of one page title or one block, for search. */
+export interface SearchEntry {
+  /** `title:<pageId>` for a page title, else the block id. */
+  id: string
+  /** What was indexed; used for ranking (title > card > text). */
+  kind: 'title' | 'card' | 'text'
+  pageId: string
+  notebookId: string
+  /** Set for block entries. */
+  blockId?: string
+  /** Normalised words (lower case, no accents), each once. */
+  words: string[]
+}
+
+/** One link written in a block, to a page, or a heading/card on it. */
+export interface LinkRef {
+  /** `<fromBlockId>|<index>` (a block can hold several links). */
+  id: string
+  fromBlockId: string
+  fromPageId: string
+  toPageId: string
+  /** Heading or card block linked to; unset = the page itself. */
+  toBlockId?: string
+}
+
+/** One tag written in a block (tags that block, or its card). */
+export interface BlockTag {
+  /** `<blockId>|<tagId>`. */
+  id: string
+  blockId: string
+  pageId: string
+  tagId: string
+}
+
+/** Small app bookkeeping values, e.g. which search index version is built. */
+export interface MetaValue {
+  id: string
+  value: JsonValue
 }

@@ -561,3 +561,9 @@
 - **What:** Session rule: Claude no longer asks the owner to type `/compact`; auto-compact (already on) handles long chats.
 - **Why:** Owner asked for work to carry on without their help.
 - **Files:** rules/sessions.md, CHANGELOG.md
+
+## 2026-10-27
+
+- **What:** New way of working (owner). Each phase starts with one planning talk where all its questions are asked; then the whole phase is built without stopping (tests, fixes, docs, commits per step). Mid-phase questions: Claude picks the safest option and logs it in the new README section "Decisions to review". Still stops for money, possible data loss, the "said no to" list, rule conflicts, or Sonnet getting stuck. Owner checks at the end of each phase (Phase 5: end of 5A and 5B). Models: owner uses `opusplan`; plans are written for Sonnet to follow. Phase 5 plan: Step 6 now includes the "Show help" system; new Step 6b brings tooltips to the rest of the app; the lesson Mastered rule now also needs 80%+ of cards at card level Mastered.
+- **Why:** Owner wants to check in less often; the project is already well planned.
+- **Files:** CLAUDE.md, rules/sessions.md, rules/building.md, rules/planning.md, rules/testing.md, rules/phase-end.md, README.md, CHANGELOG.md

@@ -71,13 +71,13 @@ For anyone in any field (writers, vloggers, learners, philosophers, technicians,
 - **Mockup:** `prototype-phase5.html` (double-click to open; fake data). Approved 2026-10-27 after owner feedback (menus stay open until a pick, column header menus, Auto status hint, All cards page).
 - **Split:** 5A then 5B, each with its own end checks. CSV and own-file import/export moved here from Phase 6 (owner, 2026-10-27).
 - **Notebook tabs:** every notebook gets Notes · Database · Cards (+ Revise in 5B) from a default tab template; tabs can be renamed or hidden (custom tab templates later). Existing notebooks get them on upgrade; Journal and Templates notebooks don't. Sidebar "All databases" hub lists every database, incl. ones outside any notebook. Sidebar "All cards" page: the Cards-tab view for every notebook (same engine as Search › Cards), with Sort (Due first · Most failed · Recently changed) and "Review N due".
-- **Study tracker:** each notebook's default database, one row per lesson (top-level page; sub-pages count towards it). Auto columns: Status, Last revised, Cards due, % correct; Status can be set by the user (📌) and handed back to Auto, and its menu explains the rule (Not started = no reviews · Learning = under 75% correct · Mastered = 90%+ and nothing due · Review = in between); Confidence ★ set by the user; own columns allowed. "+ New database" offers starter templates (Drug list, Vocabulary, Books, Habits, Blank).
+- **Study tracker:** each notebook's default database, one row per lesson (top-level page; sub-pages count towards it). Auto columns: Status, Last revised, Cards due, % correct; Status can be set by the user (📌) and handed back to Auto, and its menu explains the rule (Not started = no reviews · Learning = under 75% correct · Mastered = 90%+ correct, nothing due, no new cards and 80%+ of its cards at card level Mastered · Review = in between; card levels New · Learning · Familiar · Mastered, owner 2026-10-27); Confidence ★ set by the user; own columns allowed. "+ New database" offers starter templates (Drug list, Vocabulary, Books, Habits, Blank).
 - **One data, many views:** a database opens full screen; "/database" shows it inside any note with its own view and filters. Every row opens as a full page (notes, cards, links, tags inside).
 - **Column types:** Text, Number (%, ₹/$, ★), Date, Choice, Choices, Checkbox, Web link, Tag, Note link; under "More": Formula (own safe Excel-like engine, never runs code; helper with examples), Relation, Rollup.
 - **Views:** Table, Dashboard, Board (5A); Calendar, Gallery (5B). Views plug into one registry. Dashboard charts (own code, no chart library, theme-matched): number tile, bar, line, donut, progress, heatmap calendar. A database opens on Dashboard once it has data, on Table while empty; opening view can be chosen per database. Table column headers open a menu (like Notion/Excel): sort, filter (choices per column type), hide, edit; active sorts/filters show as removable chips. Menus stay open until something is picked.
 - **Revise tab (5B):** mark lines as Key point · Keyword · Must know · Formula (+ own labels); each lesson's revision sheet = its marked lines + own summary + practice sets.
 - **Sharing (5B):** export/import CSV (Excel, Google Sheets) and an own file that keeps views and charts.
-- **Steps 5A:** 0 tool upgrade (@types/node 26; TypeScript 7 re-parked) · 1 data model v4 + upgrade test · 2 database service (rows, columns, formulas, relations, rollups) + 10k-row speed tests · 3 notebook tabs + Table view · 4 Dashboard + charts · 5 Board · 6 Study tracker auto-fill · 7 row pages + "/database" + All databases + All cards · 8 end checks.
+- **Steps 5A:** 0 tool upgrade (@types/node 26; TypeScript 7 re-parked) · 1 data model v4 + upgrade test · 2 database service (rows, columns, formulas, relations, rollups) + 10k-row speed tests · 3 notebook tabs + Table view · 4 Dashboard + charts · 5 Board · 6 Study tracker auto-fill + "Show help" setting and tooltip system (Study tracker tooltips) · 6b tooltips and help lines across the rest of the app · 7 row pages + "/database" + All databases + All cards · 8 end checks.
 - **Steps 5B:** 1 Calendar + Gallery · 2 Revise tab · 3 CSV + own-file import/export · 4 phase end checks.
 - **Definition of Done (each half):** all above built; all unit + e2e tests pass (incl. upgrade test and 10k-row tests for tables, formulas, dashboards); security + code review reported; docs updated; owner visual checks passed.
 - **Stays parked:** publishing databases for others (needs hosting/accounts), AI that turns screen activity into notes/databases, Anki import/export.
@@ -180,6 +180,17 @@ Business logic (services) has no UI code, so it can be reused later (e.g. iOS). 
 | Phase 4, step 5: tags (5a, 5b)                          | Done   |
 | Phase 4, step 6: card tools in Search                   | Done   |
 | Phase 4, step 7: phase end checks                       | Done   |
+
+## Decisions to review
+
+Picked by Claude without asking (owner, 2026-10-27: pick the safest option and log it here). Go through them at the next phase-end check-in; anything can be changed.
+
+| Date | Step | Picked | Other options |
+| ---- | ---- | ------ | ------------- |
+| 2026-10-27 | 5A-6 | The backup keeps only the newest copy in the browser (one at a time). | Keep the last 2–3 copies (uses more browser space). |
+| 2026-10-27 | 5A-6 | If the browser copy fails (e.g. browser full), the upgrade screen still lets you update without a file, after a warning. | Block the update until a file is saved. |
+| 2026-10-27 | 5A-6 | A backup can only be restored with help until import arrives in 5B. | Build a small restore button now. |
+| 2026-10-27 | 5A-6 | Card levels and lesson statuses share two names (Learning, Mastered) with different meanings: a card is Mastered at 21+ days, a lesson at 90%+ correct plus the other rules. | Rename the card levels (e.g. New · Shaky · Good · Strong). |
 
 ## Decision Log
 
@@ -375,7 +386,10 @@ Business logic (services) has no UI code, so it can be reused later (e.g. iOS). 
 - **Step 5A-4 — done 2026-10-27:** Dashboard view in `src/databases/dashboard/`: `chartSpec.ts` (chart settings, `readCharts`/`withCharts`, `suggestCharts`, `newChart`, titles), `chartData.ts` (pure engine: number, groups, series, heatmap), `chartFormat.ts`, `chartColors.ts`, `ChartBody.tsx` (drawings + table twin), `ChartDialog.tsx` (add/edit with live preview), `DashboardView.tsx` (grid, ⋯ menu). Database upgrade v5 adds a Dashboard view to every database; `setOpenView`, `hasRows` in `databaseService.ts`; `views/openingView.ts` (+ "⋯ View options" in `DatabaseView.tsx`). Tests: `chartData.test.ts`, migration v4→5, opening view, 10k-row dashboard speed (~15 ms), `e2e/dashboard.spec.ts` (+ screenshots). 402 unit + 110 e2e pass.
   unit + 115 e2e pass.
 - **Step 5A-5 fixes (owner checks) — done 2026-10-27:** own pointer/touch drag in `BoardView.tsx` (lifted card, gap, target outline, hold-to-drag on touch, edge auto-scroll; the lifted card stays in the DOM so touch events keep arriving; a blocking `touchmove` listener on the board); `placeRow` in `databaseService.ts`; `cardPlace`/`withCardMoved`/`dropNeighbour` in `boardGroups.ts`; `.board-gap`/`.board-target` in `index.css`; "+ Add option" column; view tabs on one line (`DatabaseView.tsx`); database upgrade v7 (repairs raw-key view names). Phone scroll bug: screen-reader text in the board escaped its scroll box (no positioned parent) and widened the page panel; board is now `relative`. Tests: `placeRow`, card-move rules, migration v6→7, `e2e/board.spec.ts` (mouse reorder, gap, Add options, iPhone 16 touch: swipe scrolls, hold-drag with edge scroll). 411 unit + 117 e2e pass.
-- **Next:** Step 5A-6 (Study tracker auto-fill): fill Status, Last revised, Cards due, % correct from cards and review logs; Status override (📌) and hand back to Auto; make Status groupable on the Board (`groupableColumns` / `groupKeyOf` in `boardGroups.ts`) and chartable; review-history charts (% correct per week, study streak).
+- **Step 5A-6 part 1 — done 2026-10-27:** cards keep `lastReviewAt`/`lastRating` (`withLastAnswer` in `reviewService.ts`); database upgrade v8 fills them; backup before any database upgrade (`core/upgradeBackup.ts`, `app/UpgradeGate.tsx`: browser copy `learning-notes-backup` + optional JSON file). 415 unit pass + `e2e/upgradeBackup.spec.ts`.
+- **Way of working changed 2026-10-27 (owner):** build the rest of Phase 5A without stopping; owner checks at the end of 5A. Collect owner checks below and questions in "Decisions to review".
+- **Owner checks for the end of 5A:** (1) the backup screen after an upgrade (`test-results/screens/upgrade-backup.png`).
+- **Next:** Step 5A-6 part 2 (Study tracker auto-fill): fill Status, Last revised, Cards due, % correct from cards and review logs; Status override (📌) and hand back to Auto; make Status groupable on the Board (`groupableColumns` / `groupKeyOf` in `boardGroups.ts`) and chartable; review-history charts (% correct per week, study streak).
 - See IDEAS.md for parked ideas.
 
 ## Known Limitations

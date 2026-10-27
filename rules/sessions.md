@@ -1,12 +1,11 @@
 # Sessions (chats)
 
-- One full step per chat, not one sub-step per chat (e.g. all of Step 5 — 5a, 5b, and so on — in the same chat). Only suggest a new chat when a whole step is finished.
-- Build a whole step on your own, asking less. Ask first only if a step looks bigger than ~150k tokens (give an estimate and a split). Token counts are estimates.
+- **Way of working (owner, 2026-10-27):** plan a phase together, then build the whole phase without stopping; the owner checks in at the end of each phase (Phase 5: at the end of 5A and of 5B, as planned).
+- Keep going from step to step in the same chat; don't stop between steps or ask the owner to `/clear` + `/next`. `/next` is for when the owner opens a new chat.
+- Big steps: no need to ask over ~150k tokens; split the step into parts yourself and carry on.
 - Auto-compact stays on: when the chat gets long, Claude Code compacts it by itself and work carries on. Don't ask the owner to type `/compact`.
-- At the end of a full step: update the README handoff, CHANGELOG and IDEAS, commit, then tell the owner to start fresh (see below).
-- Start a new chat with `/next` (see `.claude/commands/next.md`).
-- Models: remind the owner to use **Opus** for planning and tricky problems and **Sonnet** for routine building and tests, to save usage (switch with `/model`). If Sonnet gets stuck on a bug, suggest switching back to Opus.
-- At the end of a full step, tell the owner to type `/clear` (or open a new chat), then `/next`.
+- At the end of every step: update the README handoff, CHANGELOG and IDEAS, commit, mirror, then start the next step.
+- **Models:** the owner uses `opusplan` (Opus plans, Sonnet builds). Write plans clear enough for Sonnet to follow: files to touch, data shapes, rules, tests. If Sonnet gets stuck or keeps failing at something, stop and tell the owner so they can switch to Opus for that part.
 
 ## Mirror copy (gdrive notes)
 

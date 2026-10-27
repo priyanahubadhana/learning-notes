@@ -9,9 +9,10 @@ Learning Notes App: a premium, minimal second brain (Notion + OneNote + Anki). W
 ## Working With the Owner
 
 - Owner is a beginner: explain simply — what it is, what it does, why it matters.
-- Tokens matter: build whole steps without stopping; ask first only if a step looks bigger than ~150k tokens. Keep replies short; show only changed code; don't re-read files unnecessarily; no unrequested extras.
+- Way of working: plan each phase together (all its questions at once), then build the whole phase without stopping; the owner checks in at the end of each phase. Details in rules/sessions.md and rules/building.md.
+- Tokens matter: keep replies short; show only changed code; don't re-read files unnecessarily; no unrequested extras.
 - Be honest, not agreeable: flag weak ideas and suggest better ones.
-- Routine updates to project files: just do them. Changes to the plan, rules or past decisions: tell the owner and wait for OK.
+- Routine updates to project files: just do them. Mid-phase questions the plan doesn't cover: pick the safest option and log it in README "Decisions to review". Changes to the rules: wait for the owner's OK.
 
 ## Things We Said No To (for now)
 

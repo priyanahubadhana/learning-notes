@@ -697,3 +697,10 @@
 - **Why:** Phase 6 plan and owner additions (Hindi + Spanish, 2026-10-28).
 - **Self-review:** Hindi editor menus stay English (BlockNote has no Hindi). Date wording follows the Date style setting (English months). Starter templates and sample content are created in English. The slash-menu alias lookups use English titles, so the Spanish editor menu loses a few extra search words.
 - **Files:** src/i18n/* (languages.ts, hi.ts, es.ts, hi1–7.ts, es1–7.ts, translations.test.ts, en.ts), src/settings/builtinSettings.ts, src/App.tsx, src/editor/PageEditor.tsx, slashMenu.tsx, src/notebooks/Sidebar.tsx, src/pages/_, src/trash/_, src/templates/_, src/share/_, src/anki/*, src/app/ui.tsx, e2e/language.spec.ts, README.md
+
+## 2026-10-28
+
+- **What:** Phase 6, step 6 (local picture upload). New `images` table (database v12); pictures from the device are shrunk and stored in the app, referenced as `lnimg:<id>`; the editor's Image block can upload; Web link cells get a 🖼 button; the Gallery shows them. Notebook files, workspace files and backups carry the pictures used (new copies on import). SVG and other types are refused.
+- **Why:** Phase 6 plan (owner, 2026-10-28).
+- **Self-review:** Unused pictures stay in storage until a clean-up exists. The upgrade backup _file_ (JSON) cannot hold picture bytes; the browser copy can.
+- **Files:** src/images/_, src/core/types.ts, db.ts, migration.test.ts, src/databases/columnTypes.ts, views/TableCells.tsx, TableView.tsx, GalleryView.tsx, galleryTiles.ts, src/editor/PageEditor.tsx, src/share/bundle.ts, importBundle.ts, src/i18n/_, e2e/pictures.spec.ts, e2e/upgradeBackup.spec.ts, README.md

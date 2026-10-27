@@ -2,7 +2,15 @@ import type { LearningNotesDB } from '../core/db'
 import { createId } from '../core/ids'
 import { orderBetween } from '../core/order'
 import { descendantIds, isLive } from '../core/records'
-import type { Block, JsonValue, Notebook, Page } from '../core/types'
+import type {
+  Block,
+  JsonValue,
+  Notebook,
+  Page,
+  StoredImage,
+} from '../core/types'
+import { fromBase64 } from '../images/base64'
+import { remapImageRefs } from '../images/imageRef'
 import { rebuildRowRefs, rowNotebookIdOf } from '../databases/databaseService'
 import { defaultNotebookTabs, studyTrackerId } from '../databases/notebookTabs'
 import {
@@ -138,7 +146,11 @@ export async function importBundle(
         : createId(),
     )
   }
-  const map = <T extends JsonValue>(value: T): T => remapJson(value, ids)
+  // Pictures come in as new records; notes and cells point at the new ids.
+  const imageIds = new Map<string, string>()
+  for (const image of bundle.images) imageIds.set(image.id, createId())
+  const map = <T extends JsonValue>(value: T): T =>
+    remapImageRefs(remapJson(value, ids), imageIds)
   const id = (old: string | null | undefined) =>
     old ? (ids.get(old) ?? old) : old
 
@@ -163,8 +175,22 @@ export async function importBundle(
       db.searchEntries,
       db.links,
       db.blockTags,
+      db.images,
     ],
     async () => {
+      await db.images.bulkAdd(
+        bundle.images.map((image): StoredImage => ({
+          id: imageIds.get(image.id)!,
+          createdAt: now,
+          updatedAt: now,
+          deletedAt: null,
+          name: image.name,
+          type: image.type,
+          width: image.width,
+          height: image.height,
+          data: fromBase64(image.data),
+        })),
+      )
       const last = (await listNotebooks(db, workspaceId)).at(-1)
       let order = last?.order ?? null
       const notebooks = bundle.notebooks

@@ -57,6 +57,9 @@ import {
   withoutIds,
 } from './mapping'
 import { getEditorDictionary } from '../i18n/languages'
+import { imageRef, parseImageRef } from '../images/imageRef'
+import { ImageError, imageObjectUrl, saveImage } from '../images/imageService'
+import { shrinkImage } from '../images/shrinkImage'
 import { recoverStash } from './pendingStash'
 import { createPageSync } from './pageSync'
 import { revealBlock } from './revealBlock'
@@ -138,6 +141,19 @@ function LoadedPageEditor({
     extensions: [codeBlockKeys, linkTrigger],
     // The editor's own menus in the chosen language (English if none).
     dictionary: getEditorDictionary() as undefined,
+    // Pictures chosen in the editor are kept in the app (images/).
+    uploadFile: async (file) => {
+      try {
+        return imageRef((await saveImage(db, file, shrinkImage)).id)
+      } catch (error) {
+        if (error instanceof ImageError) toast(error.message)
+        throw error
+      }
+    },
+    resolveFileUrl: async (url) => {
+      const id = parseImageRef(url)
+      return id ? ((await imageObjectUrl(db, id)) ?? '') : url
+    },
   })
   const theme = useContext(ThemeContext)
   const [sync] = useState(() =>

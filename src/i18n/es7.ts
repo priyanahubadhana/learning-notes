@@ -44,4 +44,13 @@ export const es7: Record<string, string> = {
   'anki.noCards': 'Este cuaderno no tiene tarjetas ni huecos que exportar.',
   'anki.placeholder':
     'Este paquete lo guardó un Anki antiguo como marcador de posición. Expórtalo de nuevo desde Anki con «Compatible con versiones antiguas de Anki» desmarcado.',
+  'err.imageDamaged': 'Una imagen del archivo está dañada.',
+  'image.badType': 'Las imágenes deben ser archivos PNG, JPEG, WebP o GIF.',
+  'image.tooBig':
+    'Esta imagen es demasiado grande (el límite es de unos 25 MB).',
+  'image.label': '🖼 Imagen',
+  'image.choose': 'Elegir una imagen de este dispositivo',
+  'image.added': 'Imagen añadida.',
+  'image.missing':
+    'Esta imagen no está en el almacenamiento de esta aplicación.',
 }

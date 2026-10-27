@@ -12,6 +12,8 @@ import type {
   ReviewLog,
   Tag,
 } from '../core/types'
+import { toBase64 } from '../images/base64'
+import { imageIdsIn, isImageType } from '../images/imageRef'
 import { tagMap, tagPathIn } from '../tags/tagService'
 import { joinTagPath } from '../tags/tagNames'
 import type { BackupSnapshot } from '../core/upgradeBackup'
@@ -35,6 +37,16 @@ export interface BundleTag {
   color?: string
 }
 
+/** A picture in a file: its bytes as base64 text. */
+export interface BundleImage {
+  id: string
+  name: string
+  type: string
+  width: number
+  height: number
+  data: string
+}
+
 export interface Bundle {
   app: 'learning-notes'
   kind: 'notebook' | 'backup'
@@ -49,6 +61,7 @@ export interface Bundle {
   dbColumns: DbColumn[]
   dbViews: DbView[]
   tags: BundleTag[]
+  images: BundleImage[]
 }
 
 const TABLES = [
@@ -61,6 +74,7 @@ const TABLES = [
   'dbColumns',
   'dbViews',
   'tags',
+  'images',
 ] as const
 
 const emptyBundle = (kind: Bundle['kind'], now: number): Bundle => ({
@@ -77,6 +91,7 @@ const emptyBundle = (kind: Bundle['kind'], now: number): Bundle => ({
   dbColumns: [],
   dbViews: [],
   tags: [],
+  images: [],
 })
 
 /**
@@ -98,6 +113,37 @@ function usedTags(bundle: Bundle, tags: ReadonlyMap<string, Tag>): BundleTag[] {
     })
     .filter((tag) => tag.path !== '')
     .sort((a, b) => a.path.split('/').length - b.path.split('/').length)
+}
+
+/** The pictures a bundle's notes and cells use, as base64 text. */
+function bundleImages(
+  bundle: Bundle,
+  stored: readonly {
+    id: string
+    name: string
+    type: string
+    width: number
+    height: number
+    data: unknown
+    deletedAt?: number | null
+  }[],
+): BundleImage[] {
+  const wanted = imageIdsIn([bundle.pages, bundle.blocks])
+  return stored
+    .filter(
+      (img) =>
+        wanted.has(img.id) &&
+        img.data instanceof ArrayBuffer &&
+        (img.deletedAt === null || img.deletedAt === undefined),
+    )
+    .map((img) => ({
+      id: img.id,
+      name: img.name,
+      type: img.type,
+      width: img.width,
+      height: img.height,
+      data: toBase64(img.data as ArrayBuffer),
+    }))
 }
 
 /** A database's relation columns that point outside `ids` are left out. */
@@ -190,6 +236,7 @@ export async function exportNotebookBundle(
       .toArray()
   ).filter((v) => isLive(v) && (!v.blockId || blockIds.has(v.blockId)))
   bundle.tags = usedTags(bundle, await tagMap(db))
+  bundle.images = bundleImages(bundle, await db.images.toArray())
   return bundle
 }
 
@@ -229,6 +276,7 @@ export function bundleFile(bundle: Bundle): Blob {
     dbColumns,
     dbViews,
     tags,
+    images,
     ...info
   } = bundle
   const tables = {
@@ -241,6 +289,7 @@ export function bundleFile(bundle: Bundle): Blob {
     dbColumns,
     dbViews,
     tags,
+    images,
   }
   const parts: string[] = [JSON.stringify(info).slice(0, -1)]
   for (const [name, rows] of Object.entries(tables)) {
@@ -304,6 +353,18 @@ export function checkBundle(data: unknown): Bundle {
       }
     }
     ;(bundle as unknown as Record<string, unknown[]>)[table] = rows
+  }
+  for (const image of bundle.images) {
+    need(
+      isImageType(String(image.type)) &&
+        typeof image.data === 'string' &&
+        image.data.length < 60_000_000 &&
+        /^[A-Za-z0-9+/]*={0,2}$/.test(image.data),
+      () => t('err.imageDamaged'),
+    )
+    image.name = String(image.name ?? 'picture').slice(0, 200)
+    image.width = Number(image.width) || 0
+    image.height = Number(image.height) || 0
   }
   for (const page of bundle.pages) {
     need(typeof page.notebookId === 'string', t('err.pageDamaged'))
@@ -411,5 +472,6 @@ export function bundleFromSnapshot(snapshot: BackupSnapshot): Bundle {
   )
   const tags = new Map(live(rows<Tag>('tags')).map((t) => [t.id, t]))
   bundle.tags = usedTags(bundle, tags)
+  bundle.images = bundleImages(bundle, rows('images'))
   return bundle
 }

@@ -1451,6 +1451,14 @@ export const en = {
   'unit.minutes': 'minutes',
   'unit.days': 'days',
   'unit.percent': '%',
+  // Pictures from this device
+  'err.imageDamaged': 'A picture in the file is damaged.',
+  'image.badType': 'Pictures must be PNG, JPEG, WebP or GIF files.',
+  'image.tooBig': 'This picture is too big (the limit is about 25 MB).',
+  'image.label': '🖼 Picture',
+  'image.choose': 'Choose a picture from this device',
+  'image.added': 'Picture added.',
+  'image.missing': 'This picture is not in this app’s storage.',
   // Added with the language step
   'ui.name': 'Name',
   'ui.cancel': 'Cancel',

@@ -1,5 +1,10 @@
+import { AppUiContext } from '../../app/appUi'
+import { runTask } from '../../app/errors'
+import { imageRef } from '../../images/imageRef'
+import { ImageError, saveImage } from '../../images/imageService'
+import { shrinkImage } from '../../images/shrinkImage'
 import { useLiveQuery } from 'dexie-react-hooks'
-import { useRef, useState } from 'react'
+import { useContext, useRef, useState } from 'react'
 import type { LearningNotesDB } from '../../core/db'
 import type { DbColumn, JsonValue } from '../../core/types'
 import { t } from '../../i18n/t'
@@ -328,5 +333,59 @@ export function OptionPicker({
         </>
       )}
     </Popover>
+  )
+}
+
+/**
+ * "Choose a picture from this device": stores the picture in the app and
+ * hands back its reference ("lnimg:…") to put in the cell.
+ */
+export function PictureButton({
+  db,
+  label,
+  onPicked,
+}: {
+  db: LearningNotesDB
+  label: string
+  onPicked: (ref: string) => void
+}) {
+  const ui = useContext(AppUiContext)
+  const input = useRef<HTMLInputElement>(null)
+  return (
+    <>
+      <button
+        type="button"
+        aria-label={label}
+        onClick={() => input.current?.click()}
+        className="shrink-0 px-1 text-muted hover:text-accent"
+      >
+        🖼
+      </button>
+      <input
+        ref={input}
+        type="file"
+        accept="image/png,image/jpeg,image/webp,image/gif"
+        hidden
+        aria-hidden
+        tabIndex={-1}
+        data-testid="picture-input"
+        onChange={(e) => {
+          const file = e.target.files?.[0]
+          e.target.value = ''
+          if (!file) return
+          runTask(
+            (async () => {
+              try {
+                const image = await saveImage(db, file, shrinkImage)
+                onPicked(imageRef(image.id))
+              } catch (error) {
+                if (error instanceof ImageError) ui.toast(error.message)
+                else throw error
+              }
+            })(),
+          )
+        }}
+      />
+    </>
   )
 }

@@ -16,6 +16,7 @@ import type {
   Page,
   ReviewLog,
   PageVersion,
+  StoredImage,
   RowRef,
   SavedSearch,
   SearchEntry,
@@ -54,6 +55,7 @@ export class LearningNotesDB extends Dexie {
   dbViews!: EntityTable<DbView, 'id'>
   rowRefs!: EntityTable<RowRef, 'id'>
   pageVersions!: EntityTable<PageVersion, 'id'>
+  images!: EntityTable<StoredImage, 'id'>
 
   /** @param name Database name; tests pass a unique name to stay isolated. */
   constructor(name: string = DEFAULT_DB_NAME) {
@@ -230,6 +232,9 @@ export class LearningNotesDB extends Dexie {
 
     // Version 11 (Phase 6): saved copies of pages (history). Only adds a table.
     this.version(11).stores({ pageVersions: 'id, pageId, createdAt' })
+
+    // Version 12 (Phase 6): pictures chosen from the device. Only adds a table.
+    this.version(12).stores({ images: 'id' })
 
     // Every save of a page or block also updates its search entry, in the
     // same transaction (see search/indexMiddleware.ts).

@@ -395,3 +395,13 @@ export interface PageVersion extends BaseRecord {
   title: string
   blocks: VersionBlock[]
 }
+
+/** A picture added from the device (Phase 6). Referenced as `lnimg:<id>`. */
+export interface StoredImage extends BaseRecord {
+  name: string
+  /** MIME type of `data` (png, jpeg, webp or gif). */
+  type: string
+  width: number
+  height: number
+  data: ArrayBuffer
+}

@@ -23,12 +23,14 @@ import { ColumnMenu } from './ColumnMenu'
 import { PopHeading, PopItem, PopSeparator, Popover } from './Popover'
 import { HelpLine, Tip } from '../../help/Help'
 import { LevelsCell, PinMark, StatusPicker, StatusPill } from './TrackerCells'
+import { parseImageRef } from '../../images/imageRef'
 import { headerTip, statusTip } from './trackerTips'
 import {
   CellPills,
   CheckCell,
   InlineEditor,
   OptionPicker,
+  PictureButton,
   StarCell,
 } from './TableCells'
 import {
@@ -304,9 +306,18 @@ export function TableView({ db, database, view, onOpenPage }: ViewProps) {
               }
               className={`${cellButton} ${column.type === 'url' ? 'truncate text-accent' : ''}`}
             >
-              {text}
+              {column.type === 'url' && parseImageRef(text)
+                ? t('image.label')
+                : text}
             </button>
-            {column.type === 'url' && text && (
+            {column.type === 'url' && (
+              <PictureButton
+                db={db}
+                label={t('image.choose')}
+                onPicked={(ref) => void write(row.page.id, column.id, ref)}
+              />
+            )}
+            {column.type === 'url' && text && !parseImageRef(text) && (
               <a
                 href={text}
                 target="_blank"

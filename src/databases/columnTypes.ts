@@ -1,4 +1,5 @@
 import type { DbColumn, JsonObject, JsonValue } from '../core/types'
+import { parseImageRef } from '../images/imageRef'
 import { normalizeDate, type FValue } from './formula/formulaValue'
 import { statusOptions } from './trackerStats'
 
@@ -249,6 +250,8 @@ const ALLOWED_PROTOCOLS = ['http:', 'https:', 'mailto:']
 export function normalizeUrl(input: string): string | null {
   const trimmed = input.trim()
   if (trimmed === '') return null
+  // A picture chosen from this device (see images/imageRef.ts).
+  if (parseImageRef(trimmed)) return trimmed
   const withScheme = /^[a-z][a-z0-9+.-]*:/i.test(trimmed)
     ? trimmed
     : `https://${trimmed}`

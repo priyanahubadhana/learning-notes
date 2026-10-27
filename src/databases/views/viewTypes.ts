@@ -2,6 +2,7 @@ import type { ComponentType } from 'react'
 import type { LearningNotesDB } from '../../core/db'
 import type { Database, DbView } from '../../core/types'
 import type { MessageKey } from '../../i18n/t'
+import { DashboardView } from '../dashboard/DashboardView'
 import { TableView } from './TableView'
 
 /**
@@ -42,4 +43,11 @@ registerViewType({
   icon: '▤',
   label: 'database.view.table',
   component: TableView,
+})
+
+registerViewType({
+  type: 'dashboard',
+  icon: '◔',
+  label: 'database.view.dashboard',
+  component: DashboardView,
 })

@@ -60,10 +60,11 @@ test('Database tab: the Study tracker lists each lesson', async ({ page }) => {
   await openNotebook(page, 'Cardiology')
   await tab(page, 'Database').click()
   const tracker = main(page).getByRole('region', { name: 'Study tracker' })
-  await expect(tracker.getByRole('button', { name: 'Table' })).toHaveAttribute(
-    'aria-pressed',
-    'true',
-  )
+  // With lessons in it, the tracker opens on its Dashboard.
+  await expect(
+    tracker.getByRole('button', { name: 'Dashboard' }),
+  ).toHaveAttribute('aria-pressed', 'true')
+  await tracker.getByRole('button', { name: 'Table' }).click()
   const headers = tracker.getByRole('columnheader')
   await expect(headers.first()).toContainText('Lesson')
   await expect(
@@ -147,6 +148,7 @@ for (const [theme, width, height] of [
     await page.setViewportSize({ width, height })
     await openNotebook(page, 'Cardiology')
     await tab(page, 'Database').click()
+    await main(page).getByRole('button', { name: 'Table', exact: true }).click()
     await expect(main(page).getByRole('rowheader')).toHaveCount(2)
     // The tabs fit on screen, also on a phone.
     const box = await tabs(page).boundingBox()

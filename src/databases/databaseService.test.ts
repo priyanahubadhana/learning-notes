@@ -32,6 +32,7 @@ import {
   deleteView,
   ensureStudyTracker,
   getDatabase,
+  hasRows,
   listColumns,
   listDatabases,
   listRows,
@@ -43,10 +44,12 @@ import {
   rowsPointingTo,
   setCell,
   setCells,
+  setOpenView,
   setRelationTwoWay,
 } from './databaseService'
 import { loadDatabaseData, resolveRows } from './databaseQuery'
 import { studyTrackerId } from './notebookTabs'
+import { openingView } from './views/openingView'
 
 let db: LearningNotesDB
 let ws: string
@@ -606,5 +609,31 @@ describe('deleting databases', () => {
     expect((await db.databases.get(d.id))?.title).toBe('')
     expect(await db.rowRefs.count()).toBe(0)
     expect(await listTrash(db, ws)).toEqual([])
+  })
+})
+
+describe('opening view', () => {
+  it('opens on Dashboard once there are rows, or on the picked view', async () => {
+    const d = await createDatabase(db, ws, nb, 'Drugs')
+    const views = await listViews(db, d.id)
+    const [tableView, dashboard] = views
+    expect(await hasRows(db, d.id)).toBe(false)
+    expect(openingView(views, d, false)?.id).toBe(tableView.id)
+    await addRow(db, d.id, { title: 'Aspirin' })
+    expect(await hasRows(db, d.id)).toBe(true)
+    expect(openingView(views, d, true)?.id).toBe(dashboard.id)
+
+    await setOpenView(db, d.id, tableView.id)
+    const picked = (await getDatabase(db, d.id))!
+    expect(openingView(views, picked, true)?.id).toBe(tableView.id)
+    await setOpenView(db, d.id, null)
+    expect((await getDatabase(db, d.id))!.openViewId).toBeUndefined()
+  })
+
+  it('counts lessons as Study tracker rows', async () => {
+    const tracker = await ensureStudyTracker(db, nb)
+    expect(await hasRows(db, tracker.id)).toBe(false)
+    await createPage(db, nb, null, 'Heart')
+    expect(await hasRows(db, tracker.id)).toBe(true)
   })
 })

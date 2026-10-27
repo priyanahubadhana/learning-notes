@@ -4,6 +4,8 @@ import { createTestDb } from '../core/testing'
 import type { JsonValue } from '../core/types'
 import { getOrCreateDefaultWorkspace } from '../core/workspaceService'
 import { createNotebook } from '../notebooks/notebookService'
+import { chartData } from './dashboard/chartData'
+import { newChart, suggestCharts } from './dashboard/chartSpec'
 import { loadDatabaseData, queryRows, resolveRows } from './databaseQuery'
 import {
   addChoiceOption,
@@ -123,13 +125,27 @@ describe('10,000-row database', () => {
     expect(topicRowsResolved).toHaveLength(100)
     expect(typeof topicRowsResolved[0].values[avg.id]).toBe('number')
 
+    // A dashboard: starter charts plus a bar per row, over all 10,000 rows.
+    start = performance.now()
+    const charts = [...suggestCharts(columns), newChart('bar', columns)]
+    for (const chart of charts) chartData(chart, rows, columns)
+    const dashboardMs = performance.now() - start
+    const donut = charts.find((c) => c.kind === 'donut')!
+    const parts = chartData(donut, rows, columns)
+    expect(parts.kind === 'groups' && parts.groups.map((g) => g.rows)).toEqual([
+      ROWS / 2,
+      ROWS / 2,
+    ])
+
     console.info(
       `10k rows: add ${addMs.toFixed(0)} ms, load ${loadMs.toFixed(0)} ms, ` +
-        `formulas+sort+filter ${queryMs.toFixed(0)} ms, rollups ${rollupMs.toFixed(0)} ms`,
+        `formulas+sort+filter ${queryMs.toFixed(0)} ms, rollups ${rollupMs.toFixed(0)} ms, ` +
+        `dashboard (${charts.length} charts) ${dashboardMs.toFixed(0)} ms`,
     )
     expect(addMs).toBeLessThan(10_000)
     expect(loadMs).toBeLessThan(3_000)
     expect(queryMs).toBeLessThan(1_000)
     expect(rollupMs).toBeLessThan(3_000)
+    expect(dashboardMs).toBeLessThan(500)
   }, 60_000)
 })

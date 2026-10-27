@@ -192,6 +192,24 @@ export async function renameDatabase(
 }
 
 /**
+ * Sets the view a database opens on (null = automatic: Dashboard once it
+ * has rows, Table while empty).
+ */
+export async function setOpenView(
+  db: LearningNotesDB,
+  id: string,
+  viewId: string | null,
+): Promise<void> {
+  await db.transaction('rw', db.databases, async () => {
+    await getLive(db.databases, id)
+    await db.databases.update(id, {
+      openViewId: viewId ?? undefined,
+      updatedAt: Date.now(),
+    })
+  })
+}
+
+/**
  * Soft-deletes a database with its columns, views and row pages (with
  * their sub-pages and blocks), all at one moment so Trash restores them
  * together. A Study tracker cannot be deleted (it belongs to its notebook).
@@ -805,6 +823,28 @@ async function rowsOf(
   }
   const rows = await db.pages.where('databaseId').equals(databaseId).toArray()
   return rows.filter(isLive).sort(byOrder)
+}
+
+/** True if the database has at least one live row (stops at the first). */
+export async function hasRows(
+  db: LearningNotesDB,
+  databaseId: string,
+): Promise<boolean> {
+  const database = await db.databases.get(databaseId)
+  if (!database) return false
+  const row =
+    database.kind === 'studyTracker'
+      ? await db.pages
+          .where('notebookId')
+          .equals(database.notebookId ?? '')
+          .filter((p) => isLive(p) && p.parentId === null && !p.databaseId)
+          .first()
+      : await db.pages
+          .where('databaseId')
+          .equals(databaseId)
+          .filter(isLive)
+          .first()
+  return row !== undefined
 }
 
 /** The database a page is a row of (undefined if none). */

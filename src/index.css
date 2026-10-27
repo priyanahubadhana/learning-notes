@@ -62,6 +62,33 @@
   --color-danger: #b23a2a;
 }
 
+/*
+ * Dashboard chart colours: a fixed order (never cycled past 6), checked
+ * with a colour-blind safety validator against each theme's background.
+ * Charts also label every part, so colour is never the only clue.
+ */
+:root {
+  --chart-1: #2f6feb;
+  --chart-2: #c8402f;
+  --chart-3: #2e9e6b;
+  --chart-4: #8a5cf6;
+  --chart-5: #d9822b;
+  --chart-6: #c2417f;
+  --chart-none: #b4b4b9;
+}
+:root[data-theme='night'] {
+  --chart-1: #3d7bf0;
+  --chart-2: #d4513f;
+  --chart-3: #2e9e6b;
+  --chart-4: #8f66f7;
+  --chart-5: #c97a26;
+  --chart-6: #c94a87;
+  --chart-none: #5c5c63;
+}
+:root[data-theme='sepia'] {
+  --chart-none: #c4b79e;
+}
+
 body {
   margin: 0;
   background: var(--color-bg);

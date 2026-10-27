@@ -1,15 +1,22 @@
 import { useLiveQuery } from 'dexie-react-hooks'
-import { createElement } from 'react'
-import { isStringOrNull } from '../../app/uiPrefs'
-import { usePref } from '../../app/usePref'
+import { createElement, useState } from 'react'
 import type { LearningNotesDB } from '../../core/db'
 import { t } from '../../i18n/t'
-import { getDatabase, listViews } from '../databaseService'
+import {
+  getDatabase,
+  hasRows,
+  listViews,
+  setOpenView,
+} from '../databaseService'
+import { lastViewShown, openingView } from './openingView'
+import { PopHeading, PopItem, Popover } from './Popover'
 import { getViewType } from './viewTypes'
 
 /**
  * A database with its views: name, view switcher and the chosen view.
- * The chosen view is remembered per database on this device.
+ * It opens on the view picked with "Always open on …", else on the
+ * Dashboard once there are rows (Table while empty); while the app is
+ * open it returns to the last view shown.
  */
 export function DatabaseView({
   db,
@@ -25,17 +32,20 @@ export function DatabaseView({
     [db, databaseId],
   )
   const views = useLiveQuery(() => listViews(db, databaseId), [db, databaseId])
-  const [viewId, setViewId] = usePref(
-    `dbView:${databaseId}`,
-    isStringOrNull,
-    null,
-  )
-  if (!database || !views) {
+  const filled = useLiveQuery(() => hasRows(db, databaseId), [db, databaseId])
+  const [viewId, setViewId] = useState(() => lastViewShown.get(databaseId))
+  const [menu, setMenu] = useState<HTMLElement | null>(null)
+  if (!database || !views || filled === undefined) {
     return <p className="text-sm text-muted">{t('notebook.loading')}</p>
   }
-  const view = views.find((v) => v.id === viewId) ?? views[0]
+  const view =
+    views.find((v) => v.id === viewId) ?? openingView(views, database, filled)
   // Views come from the registry (a stable component per view type).
   const viewType = view && getViewType(view.type)
+  const show = (id: string) => {
+    lastViewShown.set(databaseId, id)
+    setViewId(id)
+  }
 
   return (
     <section aria-label={database.title}>
@@ -51,7 +61,7 @@ export function DatabaseView({
               key={v.id}
               type="button"
               aria-pressed={v.id === view?.id}
-              onClick={() => setViewId(v.id)}
+              onClick={() => show(v.id)}
               className="min-h-8 rounded-[7px] px-2.5 text-[13px] whitespace-nowrap text-muted aria-pressed:bg-bg aria-pressed:text-ink aria-pressed:shadow-[0_1px_2px_rgba(0,0,0,0.08)]"
             >
               <span aria-hidden className="me-1">
@@ -60,8 +70,47 @@ export function DatabaseView({
               {v.name}
             </button>
           ))}
+          <button
+            type="button"
+            aria-label={t('database.viewOptions')}
+            aria-haspopup="dialog"
+            aria-expanded={menu !== null}
+            onClick={(e) => setMenu(menu ? null : e.currentTarget)}
+            className="min-h-8 rounded-[7px] px-2 text-[13px] text-muted hover:text-ink"
+          >
+            ⋯
+          </button>
         </div>
       </div>
+      {menu && (
+        <Popover
+          anchor={menu}
+          label={t('database.viewOptions')}
+          onClose={() => setMenu(null)}
+        >
+          <PopHeading>{t('database.openHint')}</PopHeading>
+          <PopItem
+            label={t('database.openAuto')}
+            on={!views.some((v) => v.id === database.openViewId)}
+            onClick={() => {
+              setMenu(null)
+              void setOpenView(db, databaseId, null)
+            }}
+          />
+          {views.map((v) => (
+            <PopItem
+              key={v.id}
+              icon={getViewType(v.type)?.icon}
+              label={t('database.openOn', { name: v.name })}
+              on={v.id === database.openViewId}
+              onClick={() => {
+                setMenu(null)
+                void setOpenView(db, databaseId, v.id)
+              }}
+            />
+          ))}
+        </Popover>
+      )}
       {view &&
         viewType &&
         createElement(viewType.component, {

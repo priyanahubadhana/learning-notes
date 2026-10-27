@@ -401,7 +401,7 @@ describe('chart settings', () => {
         valueColumnId: 'price',
         groupColumnId: TITLE_COLUMN_ID,
       }),
-    ).toBe('Sum of Price by Name')
+    ).toBe('Price by Name')
     expect(
       title({
         kind: 'line',

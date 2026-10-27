@@ -316,7 +316,12 @@ export function measureLabel(
   columns: readonly DbColumn[],
   database: Database,
 ): string {
-  if (spec.measure === 'count') return t('chart.measure.countShort')
+  if (spec.measure === 'count') {
+    // A Study tracker's rows are lessons.
+    return database.kind === 'studyTracker'
+      ? t('chart.measure.lessons')
+      : t('chart.measure.countShort')
+  }
   return t(`chart.measureOf.${spec.measure}` as MessageKey, {
     column: columnName(spec.valueColumnId, columns, database),
   })
@@ -329,7 +334,22 @@ export function chartTitle(
   database: Database,
 ): string {
   if (spec.title.trim()) return spec.title.trim()
-  const what = measureLabel(spec, columns, database)
+  // One bar per row: a sum is just that row's value ("Price by Name").
+  const perRow =
+    spec.groupColumnId === TITLE_COLUMN_ID && spec.measure === 'sum'
+  const what = perRow
+    ? columnName(spec.valueColumnId, columns, database)
+    : measureLabel(spec, columns, database)
+  // A progress bar of counts reads as progress ("Status progress").
+  if (
+    spec.kind === 'progress' &&
+    spec.measure === 'count' &&
+    spec.groupColumnId
+  ) {
+    return t('chart.title.progress', {
+      group: columnName(spec.groupColumnId, columns, database),
+    })
+  }
   if (usesGroups(spec.kind) && spec.groupColumnId) {
     return t('chart.title.by', {
       what,

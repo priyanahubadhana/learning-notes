@@ -19,6 +19,9 @@ async function openTracker(page: Page) {
     .getByRole('button', { name: 'Cardiology', exact: true })
     .click()
   await main(page).getByRole('tab', { name: 'Database' }).click()
+  await tracker(page)
+    .getByRole('button', { name: 'Table', exact: true })
+    .click()
   await expect(tracker(page).getByRole('table')).toBeVisible()
 }
 
@@ -144,6 +147,9 @@ test('tracker: new lesson, rename, stars, sort, filter, hide', async ({
   await page.getByRole('button', { name: 'Z → A' }).click()
   await expect(tracker(page)).toContainText('Sorted: Lesson Z → A')
   await page.reload()
+  await tracker(page)
+    .getByRole('button', { name: 'Table', exact: true })
+    .click()
   await expect(tracker(page).getByRole('rowheader').first()).toContainText(
     'Murmurs',
   )

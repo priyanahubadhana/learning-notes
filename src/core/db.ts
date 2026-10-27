@@ -1,4 +1,4 @@
-import Dexie, { type EntityTable } from 'dexie'
+import Dexie, { type EntityTable, type Transaction } from 'dexie'
 import { t } from '../i18n/t'
 import { searchIndexMiddleware } from '../search/indexMiddleware'
 import { orderBetween } from './order'
@@ -130,37 +130,49 @@ export class LearningNotesDB extends Dexie {
     // (after its other views), like new databases do. No schema change.
     this.version(5)
       .stores({})
-      .upgrade(async (tx) => {
-        const views = await tx.table<DbView, string>('dbViews').toArray()
-        const databases = await tx
-          .table<Database, string>('databases')
-          .toArray()
-        const added: DbView[] = []
-        for (const database of databases) {
-          const own = views.filter(
-            (v) => v.databaseId === database.id && v.blockId === undefined,
-          )
-          if (own.some((v) => v.type === 'dashboard')) continue
-          const last = own
-            .map((v) => v.order)
-            .sort()
-            .at(-1)
-          added.push({
-            ...newRecordFields(),
-            databaseId: database.id,
-            name: t('database.view.dashboard'),
-            type: 'dashboard',
-            config: {},
-            order: orderBetween(last ?? null, null),
-          })
-        }
-        await tx.table<DbView, string>('dbViews').bulkAdd(added)
-      })
+      .upgrade((tx) => addViewToEveryDatabase(tx, 'dashboard'))
+
+    // Version 6 (Phase 5 Step 5): the same for the Board view.
+    this.version(6)
+      .stores({})
+      .upgrade((tx) => addViewToEveryDatabase(tx, 'board'))
 
     // Every save of a page or block also updates its search entry, in the
     // same transaction (see search/indexMiddleware.ts).
     this.use(searchIndexMiddleware)
   }
+}
+
+/**
+ * Upgrade step: gives every database without a view of `type` one, after
+ * its other own views ("/database" block views don't count).
+ */
+async function addViewToEveryDatabase(
+  tx: Transaction,
+  type: 'dashboard' | 'board',
+): Promise<void> {
+  const views = await tx.table<DbView, string>('dbViews').toArray()
+  const databases = await tx.table<Database, string>('databases').toArray()
+  const added: DbView[] = []
+  for (const database of databases) {
+    const own = views.filter(
+      (v) => v.databaseId === database.id && v.blockId === undefined,
+    )
+    if (own.some((v) => v.type === type)) continue
+    const last = own
+      .map((v) => v.order)
+      .sort()
+      .at(-1)
+    added.push({
+      ...newRecordFields(),
+      databaseId: database.id,
+      name: t(`database.view.${type}`),
+      type,
+      config: {},
+      order: orderBetween(last ?? null, null),
+    })
+  }
+  await tx.table<DbView, string>('dbViews').bulkAdd(added)
 }
 
 /** Shared database instance for the app. */

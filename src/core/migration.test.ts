@@ -12,7 +12,7 @@ import type { Notebook } from './types'
  */
 const T = 1_700_000_000_000
 const base = { createdAt: T, updatedAt: T, deletedAt: null }
-const CURRENT_VERSION = 5
+const CURRENT_VERSION = 6
 let name = ''
 
 afterEach(async () => {
@@ -422,7 +422,7 @@ describe('database upgrade', () => {
     db.close()
   })
 
-  it('from version 4 gives every database a Dashboard view after its others', async () => {
+  it('from version 4 gives every database a Dashboard and a Board view after its others', async () => {
     name = `migrate-${createId()}`
     const old = new Dexie(name)
     old.version(1).stores(V1)
@@ -460,7 +460,7 @@ describe('database upgrade', () => {
     expect(db.verno).toBe(CURRENT_VERSION)
     await expectVersion1Data(db)
     const views = await db.dbViews.where('databaseId').equals('db1').toArray()
-    expect(views).toHaveLength(3)
+    expect(views).toHaveLength(4)
     const dashboard = views.find((v) => v.type === 'dashboard')!
     expect(dashboard).toMatchObject({
       name: 'Dashboard',
@@ -470,8 +470,12 @@ describe('database upgrade', () => {
     expect(dashboard.blockId).toBeUndefined()
     expect(dashboard.order > 'a0').toBe(true)
     expect(await db.dbViews.get('v1')).toMatchObject({ config: { sorts: [] } })
+    const board = views.find((v) => v.type === 'board')!
+    expect(board).toMatchObject({ name: 'Board', config: {} })
+    expect(board.order > dashboard.order).toBe(true)
     // A database that already has a dashboard gets no second one.
-    expect(await db.dbViews.where('databaseId').equals('db2').count()).toBe(1)
+    const db2 = await db.dbViews.where('databaseId').equals('db2').toArray()
+    expect(db2.map((v) => v.type).sort()).toEqual(['board', 'dashboard'])
     db.close()
   })
 })

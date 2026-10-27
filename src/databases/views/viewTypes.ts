@@ -3,10 +3,11 @@ import type { LearningNotesDB } from '../../core/db'
 import type { Database, DbView } from '../../core/types'
 import type { MessageKey } from '../../i18n/t'
 import { DashboardView } from '../dashboard/DashboardView'
+import { BoardView } from './BoardView'
 import { TableView } from './TableView'
 
 /**
- * View types (Table now; Dashboard, Board, Calendar, Gallery later) plug
+ * View types (Table, Dashboard, Board; Calendar, Gallery later) plug
  * into this registry, so a new view needs no change to the database screen.
  */
 
@@ -50,4 +51,11 @@ registerViewType({
   icon: '◔',
   label: 'database.view.dashboard',
   component: DashboardView,
+})
+
+registerViewType({
+  type: 'board',
+  icon: '▥',
+  label: 'database.view.board',
+  component: BoardView,
 })

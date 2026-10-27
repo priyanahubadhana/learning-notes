@@ -90,6 +90,7 @@ describe('databases', () => {
     expect((await listViews(db, drugs.id)).map((v) => v.type)).toEqual([
       'table',
       'dashboard',
+      'board',
     ])
     expect(drugs.titleName).toBe('Name')
     expect(loose.notebookId).toBeNull()
@@ -530,11 +531,12 @@ describe('relations', () => {
 describe('views', () => {
   it('adds, updates and deletes views; one always stays', async () => {
     const d = await createDatabase(db, ws, nb, 'Drugs')
-    const board = await addView(db, d.id, { name: 'By class', type: 'board' })
-    const [table1, dashboard] = await listViews(db, d.id)
+    const mine = await addView(db, d.id, { name: 'By class', type: 'board' })
+    const [table1, dashboard, board] = await listViews(db, d.id)
     await deleteView(db, table1.id)
     await deleteView(db, dashboard.id)
-    await expect(deleteView(db, board.id)).rejects.toThrow('one view')
+    await deleteView(db, board.id)
+    await expect(deleteView(db, mine.id)).rejects.toThrow('one view')
     expect((await listViews(db, d.id)).map((v) => v.name)).toEqual(['By class'])
   })
 })

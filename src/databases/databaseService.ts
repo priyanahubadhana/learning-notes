@@ -80,9 +80,9 @@ async function nextDatabaseOrder(db: LearningNotesDB, workspaceId: string) {
   return orderBetween(last?.order ?? null, null)
 }
 
-/** A new database's views: Table, then Dashboard (starter charts). */
+/** A new database's views: Table, Dashboard (starter charts), Board. */
 function newViews(databaseId: string): DbView[] {
-  const [first, second] = ordersBetween(null, null, 2)
+  const [first, second, third] = ordersBetween(null, null, 3)
   const view = (type: string, name: string, order: string): DbView => ({
     ...newRecordFields(),
     databaseId,
@@ -94,11 +94,12 @@ function newViews(databaseId: string): DbView[] {
   return [
     view('table', t('database.view.table'), first),
     view('dashboard', t('database.view.dashboard'), second),
+    view('board', t('database.view.board'), third),
   ]
 }
 
 /**
- * Creates a database with a Table and a Dashboard view. `notebookId` null = outside any
+ * Creates a database with its views (see newViews). `notebookId` null = outside any
  * notebook (its rows then live in the hidden "Databases" notebook).
  */
 export async function createDatabase(
@@ -129,8 +130,8 @@ export async function createDatabase(
 }
 
 /**
- * Returns a notebook's Study tracker, creating it (with its columns, a
- * Table and a Dashboard view) the first time. Its id comes from the notebook id, so the
+ * Returns a notebook's Study tracker, creating it (with its columns and
+ * views) the first time. Its id comes from the notebook id, so the
  * notebook's Database tab already points to it.
  */
 export async function ensureStudyTracker(

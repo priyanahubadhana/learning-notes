@@ -1,5 +1,5 @@
 import { expect, test, type Page } from '@playwright/test'
-import { addPage, createNotebook, makeCard, sidebar } from './helpers.ts'
+import { addPage, createNotebook, makeCard, openSidebar } from './helpers.ts'
 
 const main = (page: Page) => page.getByRole('main')
 const tabs = (page: Page) =>
@@ -9,7 +9,11 @@ const tab = (page: Page, name: string) =>
 
 /** Opens a notebook's tabs by clicking its name in the sidebar. */
 async function openNotebook(page: Page, name: string) {
-  await sidebar(page).getByRole('button', { name, exact: true }).click()
+  await (
+    await openSidebar(page)
+  )
+    .getByRole('button', { name, exact: true })
+    .click()
   await expect(main(page).getByRole('heading', { level: 1 })).toHaveText(name)
 }
 
@@ -146,7 +150,9 @@ for (const [theme, width, height] of [
 ] as const) {
   test(`screenshot: ${theme} ${width}×${height}`, async ({ page }) => {
     await addPage(page, 'Cardiology', 'ECG basics')
-    await sidebar(page)
+    await (
+      await openSidebar(page)
+    )
       .getByRole('group', { name: 'Theme' })
       .getByRole('button', { name: theme })
       .click()

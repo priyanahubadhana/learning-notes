@@ -6,9 +6,9 @@ import {
   openPage,
   rowAction,
   setTitle,
-  sidebar,
   slashCommand,
   typeInEditor,
+  openSidebar,
 } from './helpers.ts'
 
 const picker = (page: Page) =>
@@ -129,7 +129,9 @@ for (const [theme, width, height] of [
   ['Day', 844, 390],
 ] as const) {
   test(`screenshots: ${theme} ${width}×${height}`, async ({ page }) => {
-    await sidebar(page)
+    await (
+      await openSidebar(page)
+    )
       .getByRole('group', { name: 'Theme' })
       .getByRole('button', { name: theme })
       .click()

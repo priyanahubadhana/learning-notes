@@ -16,10 +16,19 @@ import {
   bundleFileName,
   bundleFromSnapshot,
   exportNotebookBundle,
-  MAX_BUNDLE_BYTES,
-  readAnyFile,
+  exportWorkspaceBundle,
+  workspaceFileName,
   type Bundle,
 } from './bundle'
+import {
+  fileToSave,
+  lockedFileName,
+  PasswordNeeded,
+  readImportFile,
+} from './fileIO'
+import { NO_LOCK, passwordProblem } from './lockState'
+import { PasswordFields } from './PasswordFields'
+import { recordBackupSaved } from './backupReminder'
 import { importBundle, type ImportSummary } from './importBundle'
 import {
   listSampleNotebooks,
@@ -58,7 +67,15 @@ export function DataScreen({
   )
   const [withJournal, setWithJournal] = useState(true)
   const [withTemplates, setWithTemplates] = useState(true)
+  const [lock, setLock] = useState(NO_LOCK)
+  /** A protected file waiting for its password. */
+  const [locked, setLocked] = useState<File | null>(null)
+  const [openPassword, setOpenPassword] = useState('')
   const [error, setError] = useState('')
+  const lockProblem = lock.protect
+    ? passwordProblem(lock.password, lock.again)
+    : ''
+  const savePassword = lock.protect ? lock.password : undefined
   const [busy, setBusy] = useState(false)
   const notebookId = picked || notebooks?.[0]?.id || ''
 
@@ -86,6 +103,25 @@ export function DataScreen({
     run(async () => {
       const notebook = await loadSampleNotebook(db, workspaceId)
       ui.toast(t('data.sample.done', { name: notebook.title }))
+    })
+  /** Writes the file (locked if the password box is ticked). */
+  const save = async (name: string, blob: Blob) => {
+    const file = await fileToSave(blob, savePassword)
+    const fileName = savePassword ? lockedFileName(name) : name
+    downloadFile(fileName, file)
+    ui.toast(t('csv.exported', { name: fileName }))
+  }
+  /** Reads a chosen file; a protected one waits for its password. */
+  const openFile = (file: File, password?: string) =>
+    run(async () => {
+      try {
+        await importBundleNow(await readImportFile(file, password))
+        setLocked(null)
+        setOpenPassword('')
+      } catch (e) {
+        if (e instanceof PasswordNeeded) setLocked(file)
+        else throw e
+      }
     })
   const importBundleNow = async (bundle: Bundle) => {
     if (bundle.notebooks.length === 0 && bundle.databases.length === 0) {
@@ -145,6 +181,7 @@ export function DataScreen({
               {t('data.export.templates')}
             </label>
           </div>
+          <PasswordFields lock={lock} onChange={setLock} />
           <div className="flex flex-wrap items-center gap-2">
             <select
               aria-label={t('data.export.which')}
@@ -161,16 +198,17 @@ export function DataScreen({
             <Tip id="data.export" touchInfo={false}>
               <button
                 type="button"
-                disabled={!notebookId || busy}
+                disabled={!notebookId || busy || !!lockProblem}
                 onClick={() =>
                   run(async () => {
                     const bundle = await exportNotebookBundle(db, notebookId, {
                       journal: withJournal,
                       templates: withTemplates,
                     })
-                    const name = bundleFileName(bundle.notebooks[0])
-                    downloadFile(name, bundleFile(bundle))
-                    ui.toast(t('csv.exported', { name }))
+                    await save(
+                      bundleFileName(bundle.notebooks[0]),
+                      bundleFile(bundle),
+                    )
                   })
                 }
                 className={button}
@@ -179,6 +217,32 @@ export function DataScreen({
               </button>
             </Tip>
           </div>
+        </section>
+
+        <section aria-label={t('data.all.title')} className={box}>
+          <h2 className="mb-1 text-[15px] font-semibold">
+            {t('data.all.title')}
+          </h2>
+          <p className="mb-3 text-sm text-muted">{t('data.all.text')}</p>
+          <p className="mb-3 text-xs text-muted">
+            {t('data.all.passwordHint')}
+          </p>
+          <Tip id="data.exportAll" touchInfo={false}>
+            <button
+              type="button"
+              disabled={busy || !!lockProblem}
+              onClick={() =>
+                run(async () => {
+                  const bundle = await exportWorkspaceBundle(db)
+                  await save(workspaceFileName(), bundleFile(bundle))
+                  await recordBackupSaved(db)
+                })
+              }
+              className={button}
+            >
+              {t('data.all.button')}
+            </button>
+          </Tip>
         </section>
 
         <section aria-label={t('data.sample.title')} className={box}>
@@ -222,22 +286,49 @@ export function DataScreen({
           <Tip id="data.import" touchInfo={false}>
             <input
               type="file"
-              accept=".json,application/json"
+              accept=".json,.locked,application/json"
               aria-label={t('data.import.file')}
               disabled={busy}
               onChange={(e) => {
                 const file = e.target.files?.[0]
                 e.target.value = ''
                 if (!file) return
-                run(async () => {
-                  if (file.size > MAX_BUNDLE_BYTES)
-                    throw new BundleError(t('data.tooBig'))
-                  await importBundleNow(readAnyFile(await file.text()))
-                })
+                setLocked(null)
+                openFile(file)
               }}
               className="block w-full text-sm"
             />
           </Tip>
+          {locked && (
+            <form
+              className="mt-3 grid gap-2"
+              onSubmit={(e) => {
+                e.preventDefault()
+                openFile(locked, openPassword)
+              }}
+            >
+              <p className="text-sm">
+                {t('data.locked.text', { name: locked.name })}
+              </p>
+              <div className="flex flex-wrap gap-2">
+                <input
+                  type="password"
+                  autoComplete="off"
+                  aria-label={t('data.locked.password')}
+                  value={openPassword}
+                  onChange={(e) => setOpenPassword(e.target.value)}
+                  className="min-h-9 min-w-0 flex-1 rounded-lg border border-line bg-bg px-2 text-[13px]"
+                />
+                <button
+                  type="submit"
+                  disabled={busy || openPassword === ''}
+                  className={button}
+                >
+                  {t('data.locked.open')}
+                </button>
+              </div>
+            </form>
+          )}
         </section>
 
         <section aria-label={t('data.restore.title')} className={box}>

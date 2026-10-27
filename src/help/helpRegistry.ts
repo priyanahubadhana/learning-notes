@@ -148,6 +148,7 @@ export const TIPS = {
   'notebook.tabRevise': { where: 'Notebook › Revise tab' },
   'sidebar.data': { where: 'Sidebar › Backup & files' },
   'data.export': { where: 'Backup & files › Save file' },
+  'data.exportAll': { where: 'Backup & files › Save everything' },
   'data.import': { where: 'Backup & files › Import a file' },
   'data.restore': { where: 'Backup & files › Restore as copies' },
   'data.sample': { where: 'Backup & files › Load sample notebook' },

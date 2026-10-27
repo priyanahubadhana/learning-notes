@@ -56,6 +56,7 @@ import {
   recordsToEditor,
   withoutIds,
 } from './mapping'
+import { recoverStash } from './pendingStash'
 import { createPageSync } from './pageSync'
 import { revealBlock } from './revealBlock'
 import { editorBlockTypes, schema } from './schema'
@@ -91,7 +92,9 @@ export function PageEditor(props: PageEditorProps) {
     let cancelled = false
     // Also adds any missing card records (e.g. older data saved before
     // blocks and cards were saved together); writes nothing otherwise.
-    syncCardRecords(db, pageId)
+    // Changes kept when the tab was last closed come back first.
+    recoverStash(db, pageId)
+      .then(() => syncCardRecords(db, pageId))
       .then(() => listBlocks(db, pageId))
       .then(
         (records) => {
@@ -148,18 +151,23 @@ function LoadedPageEditor({
 
   useEffect(() => {
     // Save right away when leaving the page or hiding the tab.
-    // LIMITATION: when a tab is closed, the browser may stop the page before
-    // the database write finishes, so edits from the last moment (under the
-    // ~0.5 s debounce) can be lost. Hiding/switching tabs is reliable.
-    const flush = () => void sync.flush()
+    // When a tab is closed, the browser may stop the page before the
+    // database write finishes; so the unsaved changes are also kept in
+    // localStorage (synchronous) and brought back at the next start.
+    const flush = () => {
+      sync.stash()
+      void sync.flush()
+    }
     const onVisibility = () => {
       if (document.visibilityState === 'hidden') flush()
     }
     document.addEventListener('visibilitychange', onVisibility)
     window.addEventListener('pagehide', flush)
+    window.addEventListener('beforeunload', flush)
     return () => {
       document.removeEventListener('visibilitychange', onVisibility)
       window.removeEventListener('pagehide', flush)
+      window.removeEventListener('beforeunload', flush)
       void sync.leave() // saves, then keeps a history copy
       sync.dispose()
     }

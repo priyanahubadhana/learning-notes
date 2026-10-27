@@ -42,3 +42,34 @@ test('move a sub-page to the top level, keeping its own sub-pages', async ({
     'Test NB/A1/A1x',
   )
 })
+
+test('changes kept when a tab was closed come back when the page opens', async ({
+  page,
+}) => {
+  await createNotebook(page, 'Stash NB', 'Stash page')
+  const id = new URL(page.url()).hash.split('/')[2]
+  await page.evaluate((pageId) => {
+    localStorage.setItem(
+      `learning-notes:pending:${pageId}`,
+      JSON.stringify({
+        savedAt: Date.now(),
+        changes: {
+          upserts: [
+            {
+              id: crypto.randomUUID(),
+              parentId: null,
+              type: 'paragraph',
+              content: {
+                text: [{ type: 'text', text: 'Last words', styles: {} }],
+              },
+              order: 'a0',
+            },
+          ],
+          deletes: [],
+        },
+      }),
+    )
+  }, id)
+  await page.reload()
+  await expect(page.locator('.bn-editor')).toContainText('Last words')
+})

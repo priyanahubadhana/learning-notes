@@ -3,8 +3,8 @@ import {
   addPage,
   createNotebook,
   selectText,
-  sidebar,
   typeInEditor,
+  openSidebar,
 } from './helpers.ts'
 
 const main = (page: Page) => page.getByRole('main')
@@ -31,7 +31,9 @@ test('mark words in a note; they collect on the lesson’s Revise sheet', async 
   await page.getByRole('button', { name: 'Keyword', exact: true }).click()
   await page.waitForTimeout(800)
 
-  await sidebar(page)
+  await (
+    await openSidebar(page)
+  )
     .getByRole('button', { name: 'Cardiology', exact: true })
     .click()
   await main(page).getByRole('tab', { name: 'Revise' }).click()
@@ -57,7 +59,9 @@ test('mark words in a note; they collect on the lesson’s Revise sheet', async 
   await page.keyboard.press('Tab') // leaving the box saves it
   await page.waitForTimeout(500)
   await page.reload()
-  await sidebar(page)
+  await (
+    await openSidebar(page)
+  )
     .getByRole('button', { name: 'Cardiology', exact: true })
     .click()
   await main(page).getByRole('tab', { name: 'Revise' }).click()
@@ -87,12 +91,16 @@ for (const [theme, width, height] of [
     await selectText(page, 'CO = HR x SV')
     await page.getByRole('button', { name: 'Formula', exact: true }).click()
     await page.waitForTimeout(800)
-    await sidebar(page)
+    await (
+      await openSidebar(page)
+    )
       .getByRole('group', { name: 'Theme' })
       .getByRole('button', { name: theme })
       .click()
     await page.setViewportSize({ width, height })
-    await sidebar(page)
+    await (
+      await openSidebar(page)
+    )
       .getByRole('button', { name: 'Cardiology', exact: true })
       .click()
     await main(page).getByRole('tab', { name: 'Revise' }).click()
@@ -114,7 +122,11 @@ for (const [theme, width, height] of [
     if (width < 500) {
       await page.getByRole('button', { name: 'Close notebook' }).click()
     }
-    await sidebar(page).getByRole('button', { name: 'Backup & files' }).click()
+    await (
+      await openSidebar(page)
+    )
+      .getByRole('button', { name: 'Backup & files' })
+      .click()
     await page.waitForTimeout(300)
     await page.screenshot({
       path: `test-results/screens/data-${theme}-${width}x${height}.png`,

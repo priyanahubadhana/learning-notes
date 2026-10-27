@@ -192,6 +192,30 @@ export async function exportNotebookBundle(
   return bundle
 }
 
+/**
+ * The whole workspace as one file: every notebook with its pages, notes,
+ * cards, review history, databases and tags, plus the journal days, the
+ * templates and databases that live outside notebooks.
+ */
+export async function exportWorkspaceBundle(
+  db: LearningNotesDB,
+  now: number = Date.now(),
+): Promise<Bundle> {
+  const tables: Record<string, unknown[]> = {}
+  for (const name of [...TABLES]) tables[name] = await db.table(name).toArray()
+  return bundleFromSnapshot({
+    app: 'learning-notes',
+    dbName: db.name,
+    version: db.verno,
+    createdAt: now,
+    tables,
+  })
+}
+
+/** "Learning Notes 2026-10-28.learningnotes.json" */
+export const workspaceFileName = (now: number = Date.now()): string =>
+  `Learning Notes ${new Date(now).toISOString().slice(0, 10)}.learningnotes.json`
+
 /** The bundle as a file, written row by row so a big notebook never becomes one giant string. */
 export function bundleFile(bundle: Bundle): Blob {
   const {

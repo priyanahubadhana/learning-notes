@@ -4,6 +4,7 @@ import type { Block } from '../core/types'
 import { syncCardRecords } from '../recall/cardService'
 import { recordVersion } from '../history/versionService'
 import { createAutosaver } from './autosave'
+import { clearStash, stashChanges } from './pendingStash'
 import { createSnapshot, diffBlocks, type BlockDraft } from './diff'
 
 /**
@@ -17,6 +18,11 @@ export interface PageSync {
   flush: () => Promise<void>
   /** Cancel a pending timer. */
   dispose: () => void
+  /**
+   * Keep unsaved changes in localStorage (synchronous), for when the tab is
+   * closing and the database write may not finish. See pendingStash.ts.
+   */
+  stash: () => void
   /** Save now, then keep a history copy of what was written (page closes). */
   leave: () => Promise<void>
 }
@@ -56,6 +62,7 @@ export function createPageSync(
       await syncCardRecords(db, pageId)
     })
     snapshot = next // only after a successful save
+    clearStash(pageId)
     if (changes.upserts.length > 0 || changes.deletes.length > 0) {
       unrecorded = true
       await record(false)
@@ -66,6 +73,8 @@ export function createPageSync(
     changed: autosaver.schedule,
     flush: autosaver.flush,
     dispose: autosaver.dispose,
+    stash: () =>
+      stashChanges(pageId, diffBlocks(snapshot, readDrafts()).changes),
     leave: async () => {
       await autosaver.flush()
       if (unrecorded) await record(true)

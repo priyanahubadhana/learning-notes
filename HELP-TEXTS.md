@@ -2,7 +2,7 @@
 
 Every hover tip and help line in the app (shown while Settings › Show help is On). Generated from `src/help/helpRegistry.ts` and `src/i18n/en.ts`; to change a text, edit it in `en.ts`, then run `UPDATE_HELP=1 npx vitest run src/help` to refresh this file.
 
-## Hover tips (101)
+## Hover tips (102)
 
 ### `tracker.lesson`
 
@@ -579,6 +579,12 @@ Every hover tip and help line in the app (shown while Settings › Show help is 
 - **Where:** Backup & files › Save file
 - **Meaning:** Saves the whole notebook (notes, cards with their schedules, databases) as one file.
 - **Example:** Send “Cardiology” to a friend or keep it safe.
+
+### `data.exportAll`
+
+- **Where:** Backup & files › Save everything
+- **Meaning:** Saves all your notebooks, the journal and the templates as one file. You can lock it with a password.
+- **Example:** Once a week, keep a copy on a USB stick.
 
 ### `data.import`
 

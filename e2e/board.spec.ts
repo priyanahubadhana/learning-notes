@@ -1,5 +1,5 @@
 import { expect, test, type Locator, type Page } from '@playwright/test'
-import { addPage, createNotebook, sidebar } from './helpers.ts'
+import { addPage, createNotebook, sidebar, openSidebar } from './helpers.ts'
 
 const main = (page: Page) => page.getByRole('main')
 const tracker = (page: Page) =>
@@ -16,7 +16,9 @@ const card = (page: Page, column: string, title: string) =>
 const scroller = (page: Page) => page.locator('[data-board-scroller]')
 
 async function openBoard(page: Page) {
-  await sidebar(page)
+  await (
+    await openSidebar(page)
+  )
     .getByRole('button', { name: 'Cardiology', exact: true })
     .click()
   await main(page).getByRole('tab', { name: 'Database' }).click()
@@ -294,7 +296,9 @@ for (const [theme, width, height] of [
     await page.getByRole('button', { name: 'Soon', exact: true }).click()
     await page.getByRole('button', { name: 'Options for “ECG basics”' }).click()
     await page.getByRole('button', { name: 'Done', exact: true }).click()
-    await sidebar(page)
+    await (
+      await openSidebar(page)
+    )
       .getByRole('group', { name: 'Theme' })
       .getByRole('button', { name: theme })
       .click()

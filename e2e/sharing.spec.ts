@@ -248,3 +248,55 @@ test('Load sample notebook adds a ready-made notebook and changes nothing else',
   await expect(main(page).getByText('5 tiles')).toBeVisible()
   await expect(main(page).locator('li img')).toHaveCount(5)
 })
+
+test('a password-protected file: two fields, a warning, and the password to open it', async ({
+  page,
+}) => {
+  await page.goto('/')
+  await createNotebook(page, 'Secrets', 'Page one')
+  await typeInEditor(page, 'private words')
+  await sidebar(page).getByRole('button', { name: 'Backup & files' }).click()
+
+  const all = main(page).getByRole('region', {
+    name: 'Save everything as one file',
+  })
+  const save = all.getByRole('button', { name: 'Save everything' })
+  await main(page).getByLabel('Protect this file with a password').check()
+  await expect(main(page).getByText(/can never be opened again/)).toBeVisible()
+  await main(page)
+    .getByLabel(/^Password \(at least 8/)
+    .fill('short')
+  await expect(save).toBeDisabled()
+  await main(page)
+    .getByLabel(/^Password \(at least 8/)
+    .fill('correct horse')
+  await main(page).getByLabel('Type the password again').fill('correct hors')
+  await expect(save).toBeDisabled()
+  await expect(
+    main(page).getByText('The two passwords are not the same.'),
+  ).toBeVisible()
+  await main(page).getByLabel('Type the password again').fill('correct horse')
+  await expect(save).toBeEnabled()
+
+  const downloading = page.waitForEvent('download')
+  await save.click()
+  const file = await downloading
+  expect(file.suggestedFilename()).toMatch(/\.learningnotes\.locked$/)
+  const bytes = await readFile(await file.path())
+  expect(bytes.toString('latin1')).not.toContain('private words')
+
+  const input = main(page).getByLabel('File to import')
+  await input.setInputFiles(await file.path())
+  await main(page).getByLabel('Password of this file').fill('wrong password')
+  await main(page).getByRole('button', { name: 'Open file' }).click()
+  await expect(main(page).getByRole('alert')).toContainText('Wrong password')
+  await main(page).getByLabel('Password of this file').fill('correct horse')
+  await main(page).getByRole('button', { name: 'Open file' }).click()
+  await expect(page.getByText(/Imported \d+ notebooks/)).toBeVisible()
+  await expect(
+    sidebar(page).getByRole('button', {
+      name: 'Secrets (imported)',
+      exact: true,
+    }),
+  ).toBeVisible()
+})

@@ -1,5 +1,5 @@
 import { expect, test, type Locator, type Page } from '@playwright/test'
-import { addPage, createNotebook, makeCard, sidebar } from './helpers.ts'
+import { addPage, createNotebook, makeCard, openSidebar } from './helpers.ts'
 
 const main = (page: Page) => page.getByRole('main')
 const tracker = (page: Page) =>
@@ -22,7 +22,9 @@ const statusButton = (page: Page, lesson: string) =>
   lessonRow(page, lesson).getByRole('button', { name: /^Edit Status of/ })
 
 async function openTracker(page: Page) {
-  await sidebar(page)
+  await (
+    await openSidebar(page)
+  )
     .getByRole('button', { name: 'Cardiology', exact: true })
     .click()
   await main(page).getByRole('tab', { name: 'Database' }).click()
@@ -30,7 +32,9 @@ async function openTracker(page: Page) {
 
 /** Reviews both cards: the first rated Good, the second Again. */
 async function review(page: Page) {
-  await sidebar(page)
+  await (
+    await openSidebar(page)
+  )
     .getByRole('button', { name: /^Review(?! this)/ })
     .click()
   const screen = page.locator(
@@ -187,7 +191,11 @@ test('Show help: tips on hover, help lines, and all gone when switched off', asy
   await expect(tip).toHaveCount(0)
 
   // Off: no tips and no help lines.
-  await sidebar(page).getByRole('button', { name: 'Settings' }).click()
+  await (
+    await openSidebar(page)
+  )
+    .getByRole('button', { name: 'Settings' })
+    .click()
   await main(page)
     .getByRole('group', { name: 'Show help' })
     .getByRole('button', { name: 'Off' })
@@ -230,7 +238,9 @@ for (const [theme, width, height] of [
     await seed(page)
     await review(page)
     await openTracker(page)
-    await sidebar(page)
+    await (
+      await openSidebar(page)
+    )
       .getByRole('group', { name: 'Theme' })
       .getByRole('button', { name: theme })
       .click()

@@ -27,6 +27,12 @@ import { createNotebook, listNotebooks } from './notebooks/notebookService'
 import { PageView } from './pages/PageView'
 import { createPage, getPage } from './pages/pageService'
 import { AllCardsScreen } from './recall/AllCardsScreen'
+import { BackupReminder } from './share/ReminderBar'
+import {
+  noteFirstUse,
+  reminderDue,
+  snoozeReminder,
+} from './share/backupReminder'
 import { DataScreen } from './share/DataScreen'
 import { DatabaseScreen, DatabasesScreen } from './databases/DatabasesHub'
 import { ReviewScreen } from './recall/ReviewScreen'
@@ -342,6 +348,7 @@ function App() {
     workspacePromise ??= (async () => {
       const ws = await getOrCreateDefaultWorkspace(db)
       await ensureTemplates(db, ws.id) // starter templates on first run
+      await noteFirstUse(db) // the backup reminder counts from here
       // Indexes notes saved before search existed; runs in the background.
       ensureSearchIndex(db).catch((error: unknown) =>
         console.error('Could not build the search index', error),
@@ -366,6 +373,22 @@ function App() {
       currentPageId ? ((await getPage(db, currentPageId)) ?? null) : null,
     [currentPageId],
   )
+
+  // No backup file for a week: a gentle reminder (not while reviewing).
+  const backupDue = useLiveQuery(() => reminderDue(db), [])
+
+  // On a phone the sidebar slides in over the page. It is open for the
+  // screen it was opened on, so any move to another screen closes it.
+  const [drawerAt, setDrawerAt] = useState<string | null>(null)
+  const drawerOpen = drawerAt === routeHash
+  useEffect(() => {
+    if (!drawerOpen) return
+    const onKey = (e: KeyboardEvent) => {
+      if (e.key === 'Escape') setDrawerAt(null)
+    }
+    window.addEventListener('keydown', onKey)
+    return () => window.removeEventListener('keydown', onKey)
+  }, [drawerOpen])
 
   // ---- App-wide UI: template picker and toasts ----
   const [picker, setPicker] = useState<PickerRequest | null>(null)
@@ -554,6 +577,7 @@ function App() {
             renamingNotebookId={renamingNotebookId}
             onRenamingChange={setRenamingNotebookId}
             onOpenPage={openPage}
+            drawerOpen={drawerOpen}
             openNotebookId={openNotebookRecord?.id ?? null}
             onOpenNotebook={openNotebook}
             onOpenToday={() => runTask(openToday())}
@@ -610,6 +634,24 @@ function App() {
               }
             }}
           />
+          {drawerOpen && (
+            <button
+              type="button"
+              aria-label={t('nav.closeMenu')}
+              onClick={() => setDrawerAt(null)}
+              className="fixed inset-0 z-30 hidden bg-black/30 phone:block"
+            />
+          )}
+          <button
+            type="button"
+            aria-label={t('nav.openMenu')}
+            aria-controls="sidebar"
+            aria-expanded={drawerOpen}
+            onClick={() => setDrawerAt(routeHash)}
+            className="fixed top-1.5 left-1.5 z-20 hidden size-11 items-center justify-center rounded-lg bg-bg/90 text-lg text-muted shadow-[0_1px_4px_rgba(0,0,0,0.12)] hover:text-ink phone:flex"
+          >
+            ☰
+          </button>
           <main className="flex-1 overflow-auto">
             {showSettings ? (
               <SettingsScreen
@@ -768,6 +810,15 @@ function App() {
               choice.resolve(value)
             }}
             onOpenSetting={openSettings}
+          />
+        )}
+        {backupDue && !reviewScope && hub?.kind !== 'data' && (
+          <BackupReminder
+            onSave={() => {
+              openPage(null)
+              setHub({ kind: 'data' })
+            }}
+            onLater={() => runTask(snoozeReminder(db))}
           />
         )}
         {toastMessage && (

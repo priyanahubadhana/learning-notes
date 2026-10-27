@@ -9,6 +9,34 @@ import { expect, type Locator, type Page } from '@playwright/test'
 
 export const sidebar = (page: Page) => page.locator('aside')
 
+/** On a phone the sidebar is a drawer: opens it (nothing to do on a computer). */
+export async function showSidebar(page: Page) {
+  const open = page.getByRole('button', { name: 'Open menu' })
+  await sidebar(page).waitFor({ state: 'attached' }) // the app has loaded
+  // The dim backdrop exists exactly while the drawer is meant to be open.
+  const meantOpen = await page
+    .getByRole('button', { name: 'Close menu' })
+    .isVisible()
+  if ((await open.isVisible()) && !meantOpen) {
+    await open.click()
+    await expect(sidebar(page)).toBeVisible()
+  }
+}
+
+/** The sidebar, opened first if it is a phone drawer. */
+export async function openSidebar(page: Page) {
+  await showSidebar(page)
+  return sidebar(page)
+}
+
+/** Closes the phone drawer again (Esc), if it is open. */
+export async function hideSidebar(page: Page) {
+  if (await page.getByRole('button', { name: 'Close menu' }).isVisible()) {
+    await page.keyboard.press('Escape')
+    await expect(sidebar(page)).toBeHidden()
+  }
+}
+
 /** The sidebar row (notebook or page) whose name button is `name`. */
 export function row(page: Page, name: string): Locator {
   return sidebar(page)
@@ -19,6 +47,7 @@ export function row(page: Page, name: string): Locator {
 
 /** Clicks a hover action (by its title) on a sidebar row. */
 export async function rowAction(page: Page, name: string, action: string) {
+  await showSidebar(page)
   const r = row(page, name)
   await r.hover()
   await r.getByLabel(action, { exact: true }).click()
@@ -26,12 +55,15 @@ export async function rowAction(page: Page, name: string, action: string) {
 
 /** Types a page title into the open page's title field. */
 export async function setTitle(page: Page, title: string) {
+  await hideSidebar(page)
   const field = page.getByRole('textbox', { name: 'Page title' })
   await field.click()
   await field.fill(title)
+  await showSidebar(page)
   await expect(
     sidebar(page).getByRole('button', { name: title, exact: true }),
   ).toBeVisible()
+  await hideSidebar(page)
 }
 
 /**
@@ -45,8 +77,12 @@ export async function createNotebook(
 ) {
   const empty = page.getByRole('button', { name: 'Create notebook' })
   if (await empty.isVisible()) await empty.click()
-  else await sidebar(page).getByLabel('New notebook').click()
+  else {
+    await showSidebar(page)
+    await sidebar(page).getByLabel('New notebook').click()
+  }
 
+  await showSidebar(page)
   const nameField = sidebar(page).getByRole('textbox', { name: 'Name' })
   await nameField.fill(name)
   await nameField.press('Enter')
@@ -63,23 +99,28 @@ export async function addPage(
   title: string,
   kind: 'page' | 'sub-page' = 'page',
 ) {
+  const before = page.url()
   await rowAction(
     page,
     parentName,
     kind === 'page' ? 'Add page' : 'Add sub-page',
   )
   await page.getByRole('menuitem', { name: 'Blank page' }).click()
+  await page.waitForURL((url) => url.toString() !== before) // the new page is open
   // New pages open with the cursor in the title.
   const field = page.getByRole('textbox', { name: 'Page title' })
   await expect(field).toBeFocused()
   await page.keyboard.type(title)
+  await showSidebar(page)
   await expect(
     sidebar(page).getByRole('button', { name: title, exact: true }),
   ).toBeVisible()
+  await hideSidebar(page)
 }
 
 /** Opens a page from the sidebar. */
 export async function openPage(page: Page, title: string) {
+  await showSidebar(page)
   await sidebar(page).getByRole('button', { name: title, exact: true }).click()
   await expect(page.getByRole('textbox', { name: 'Page title' })).toHaveValue(
     title,

@@ -572,6 +572,9 @@ export const en = {
     'Saves the whole notebook (notes, cards with their schedules, databases) as one file.',
   'help.tip.data.export.example':
     'Send “Cardiology” to a friend or keep it safe.',
+  'help.tip.data.exportAll.meaning':
+    'Saves all your notebooks, the journal and the templates as one file. You can lock it with a password.',
+  'help.tip.data.exportAll.example': 'Once a week, keep a copy on a USB stick.',
   'help.tip.data.import.meaning':
     'Adds the notebooks in a file as new copies. Nothing you already have is changed.',
   'help.tip.data.import.example': 'Open a notebook file a friend sent you.',
@@ -889,6 +892,29 @@ export const en = {
   'data.restore.button': 'Restore as copies',
   'data.notIncluded':
     'Tags are matched by name; their colours come along when the tag is new here. Journal days arrive as a notebook called “Journal (imported)”, templates as new templates.',
+  'nav.openMenu': 'Open menu',
+  'nav.closeMenu': 'Close menu',
+  'backup.reminder.label': 'Backup reminder',
+  'backup.reminder.text':
+    'You have not saved a backup file for a week. Your notes live only in this browser.',
+  'backup.reminder.save': 'Save backup now',
+  'backup.reminder.later': 'Remind me later',
+  'data.protect': 'Protect this file with a password',
+  'data.protect.warning':
+    'If you forget this password, the file can never be opened again. Nobody can get it back, not even the app. Keep the password somewhere safe.',
+  'data.protect.password': 'Password (at least {count} characters)',
+  'data.protect.again': 'Type the password again',
+  'data.protect.short': 'The password needs at least {count} characters.',
+  'data.protect.mismatch': 'The two passwords are not the same.',
+  'data.all.title': 'Save everything as one file',
+  'data.all.text':
+    'All notebooks with their notes, cards and review history, databases, the journal days and the templates. A good backup to keep on a USB stick or in your own cloud folder.',
+  'data.all.passwordHint':
+    'The password box in “Save a notebook as a file” above also locks this file.',
+  'data.all.button': 'Save everything',
+  'data.locked.text': '“{name}” is protected. Type its password to open it.',
+  'data.locked.password': 'Password of this file',
+  'data.locked.open': 'Open file',
   'data.export.journal': 'Include my journal days',
   'data.export.templates': 'Include my templates',
   'data.sample.title': 'For testing: sample notebook',

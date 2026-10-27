@@ -38,6 +38,8 @@ interface SidebarProps {
   renamingNotebookId: string | null
   onRenamingChange: (id: string | null) => void
   onOpenPage: (pageId: string | null) => void
+  /** On a phone the sidebar slides in over the page; true while it is shown. */
+  drawerOpen?: boolean
   /** The notebook whose tabs are open in the main area, if any. */
   openNotebookId: string | null
   onOpenNotebook: (notebookId: string) => void
@@ -106,6 +108,7 @@ export function Sidebar({
   renamingNotebookId,
   onRenamingChange,
   onOpenPage,
+  drawerOpen = false,
   openNotebookId,
   onOpenNotebook,
   onOpenToday,
@@ -210,7 +213,15 @@ export function Sidebar({
   }
 
   return (
-    <aside className="flex w-[260px] shrink-0 flex-col overflow-y-auto border-r border-line bg-side px-2 py-3.5 transition-colors duration-250">
+    <aside
+      id="sidebar"
+      aria-label="Sidebar"
+      className={`flex w-[260px] shrink-0 flex-col overflow-y-auto border-r border-line bg-side px-2 py-3.5 transition-colors duration-250 phone:fixed phone:inset-y-0 phone:left-0 phone:z-40 phone:w-[min(300px,85vw)] phone:shadow-[0_0_32px_rgba(0,0,0,0.25)] phone:transition-[transform,visibility] phone:duration-200 ${
+        drawerOpen
+          ? 'phone:translate-x-0'
+          : 'phone:invisible phone:-translate-x-full'
+      }`}
+    >
       <div className="px-2.5 pt-1 pb-3.5 font-semibold tracking-[-0.01em]">
         ◐ Learning Notes
       </div>

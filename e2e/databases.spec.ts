@@ -1,5 +1,5 @@
 import { expect, test, type Page } from '@playwright/test'
-import { createNotebook, makeCard, sidebar } from './helpers.ts'
+import { createNotebook, makeCard, openSidebar } from './helpers.ts'
 
 const main = (page: Page) => page.getByRole('main')
 
@@ -11,7 +11,11 @@ test.beforeEach(async ({ page }) => {
 test('All databases: new Drug list, rows open as pages with properties', async ({
   page,
 }) => {
-  await sidebar(page).getByRole('button', { name: 'Databases' }).click()
+  await (
+    await openSidebar(page)
+  )
+    .getByRole('button', { name: 'Databases' })
+    .click()
   await expect(
     main(page).getByRole('heading', { name: 'Databases' }),
   ).toBeVisible()
@@ -46,7 +50,11 @@ test('All databases: new Drug list, rows open as pages with properties', async (
   await expect(props).toContainText('Calcium blocker')
 
   // Back in the hub it is listed with its row.
-  await sidebar(page).getByRole('button', { name: 'Databases' }).click()
+  await (
+    await openSidebar(page)
+  )
+    .getByRole('button', { name: 'Databases' })
+    .click()
   await expect(main(page)).toContainText('Drug list')
   await expect(main(page)).toContainText('1 row')
 })
@@ -55,7 +63,11 @@ test('All cards lists every notebook’s cards and reviews them', async ({
   page,
 }) => {
   await makeCard(page, 'Which valves close in S1?', 1)
-  await sidebar(page).getByRole('button', { name: 'All cards' }).click()
+  await (
+    await openSidebar(page)
+  )
+    .getByRole('button', { name: 'All cards' })
+    .click()
   await expect(
     main(page).getByRole('heading', { name: 'All cards' }),
   ).toBeVisible()
@@ -74,11 +86,15 @@ test('a lesson page shows its tracker properties and Back to auto', async ({
   page,
 }) => {
   // The tracker exists once the Database tab has been opened.
-  await sidebar(page)
+  await (
+    await openSidebar(page)
+  )
     .getByRole('button', { name: 'Cardiology', exact: true })
     .click()
   await main(page).getByRole('tab', { name: 'Database' }).click()
-  await sidebar(page)
+  await (
+    await openSidebar(page)
+  )
     .getByRole('button', { name: 'Heart sounds', exact: true })
     .click()
 
@@ -145,7 +161,9 @@ for (const [theme, width, height] of [
       .getByRole('button', { name: 'New: Books' })
       .click()
     await expect(page.getByRole('region', { name: 'Books' })).toBeVisible()
-    await sidebar(page)
+    await (
+      await openSidebar(page)
+    )
       .getByRole('group', { name: 'Theme' })
       .getByRole('button', { name: theme })
       .click()
@@ -155,7 +173,9 @@ for (const [theme, width, height] of [
       path: `test-results/screens/db-block-${theme}-${width}x${height}.png`,
       fullPage: true,
     })
-    await sidebar(page)
+    await (
+      await openSidebar(page)
+    )
       .getByRole('button', { name: 'Databases' })
       .click()
       .catch(() => {})
@@ -165,7 +185,11 @@ for (const [theme, width, height] of [
 test('database screen: one name, delete in the ⋯ menu, view stays while adding rows, no loops', async ({
   page,
 }) => {
-  await sidebar(page).getByRole('button', { name: 'Databases' }).click()
+  await (
+    await openSidebar(page)
+  )
+    .getByRole('button', { name: 'Databases' })
+    .click()
   await main(page).getByRole('button', { name: '+ New database' }).click()
   await page.getByRole('menuitem', { name: /^Books/ }).click()
   // The name shows once (the editable title), not again beside the views.
@@ -204,7 +228,11 @@ test('database screen: one name, delete in the ⋯ menu, view stays while adding
   await expect(page.getByRole('button', { name: 'Blank' })).toHaveCount(0)
 
   // Delete from the ⋯ menu.
-  await sidebar(page).getByRole('button', { name: 'Databases' }).click()
+  await (
+    await openSidebar(page)
+  )
+    .getByRole('button', { name: 'Databases' })
+    .click()
   await main(page)
     .getByRole('button', { name: /^Books/ })
     .click()
@@ -216,7 +244,11 @@ test('database screen: one name, delete in the ⋯ menu, view stays while adding
 test('+ View adds a Calendar and a Gallery; views can be renamed and deleted', async ({
   page,
 }) => {
-  await sidebar(page).getByRole('button', { name: 'Databases' }).click()
+  await (
+    await openSidebar(page)
+  )
+    .getByRole('button', { name: 'Databases' })
+    .click()
   await main(page).getByRole('button', { name: '+ New database' }).click()
   await page.getByRole('menuitem', { name: /^Books/ }).click()
   const view = (name: string) =>
@@ -239,7 +271,11 @@ test('+ View adds a Calendar and a Gallery; views can be renamed and deleted', a
   await day.getByRole('button', { name: /^Add a row on/ }).click()
   await page.getByRole('textbox', { name: 'Title' }).fill('Dune')
   await page.getByRole('textbox', { name: 'Title' }).press('Enter')
-  await sidebar(page).getByRole('button', { name: 'Databases' }).click()
+  await (
+    await openSidebar(page)
+  )
+    .getByRole('button', { name: 'Databases' })
+    .click()
   await main(page)
     .getByRole('button', { name: /^Books/ })
     .click()
@@ -282,10 +318,16 @@ for (const [theme, width, height] of [
   test(`screenshot: calendar and gallery ${theme} ${width}×${height}`, async ({
     page,
   }) => {
-    await sidebar(page).getByRole('button', { name: 'Databases' }).click()
+    await (
+      await openSidebar(page)
+    )
+      .getByRole('button', { name: 'Databases' })
+      .click()
     await main(page).getByRole('button', { name: '+ New database' }).click()
     await page.getByRole('menuitem', { name: /^Books/ }).click()
-    await sidebar(page)
+    await (
+      await openSidebar(page)
+    )
       .getByRole('group', { name: 'Theme' })
       .getByRole('button', { name: theme })
       .click()

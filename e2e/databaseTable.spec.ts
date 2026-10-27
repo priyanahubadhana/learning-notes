@@ -1,5 +1,5 @@
 import { expect, test, type Page } from '@playwright/test'
-import { addPage, createNotebook, sidebar } from './helpers.ts'
+import { addPage, createNotebook, sidebar, openSidebar } from './helpers.ts'
 
 const main = (page: Page) => page.getByRole('main')
 const tracker = (page: Page) =>
@@ -15,7 +15,9 @@ const lessonRow = (page: Page, lesson: string) =>
 
 /** Opens the notebook's Study tracker (Database tab). */
 async function openTracker(page: Page) {
-  await sidebar(page)
+  await (
+    await openSidebar(page)
+  )
     .getByRole('button', { name: 'Cardiology', exact: true })
     .click()
   await main(page).getByRole('tab', { name: 'Database' }).click()
@@ -310,7 +312,9 @@ for (const [theme, width, height] of [
 ] as const) {
   test(`screenshot: ${theme} ${width}×${height}`, async ({ page }) => {
     await addPage(page, 'Cardiology', 'ECG basics')
-    await sidebar(page)
+    await (
+      await openSidebar(page)
+    )
       .getByRole('group', { name: 'Theme' })
       .getByRole('button', { name: theme })
       .click()

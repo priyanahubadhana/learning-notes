@@ -6,13 +6,14 @@ import {
   selectText,
   sidebar,
   typeInEditor,
+  openSidebar,
 } from './helpers.ts'
 
 // The Review screen (not the page's "Linked from" section).
 const review = (page: Page) =>
   page.locator('main section:not([aria-labelledby^="linked-from"])')
-const reviewButton = (page: Page) =>
-  sidebar(page).getByRole('button', { name: /^Review(?! this)/ })
+const reviewButton = async (page: Page) =>
+  (await openSidebar(page)).getByRole('button', { name: /^Review(?! this)/ })
 
 /** Writes a question, turns it into a card and types the answer. */
 async function makeCard(page: Page, question: string, answer: string) {
@@ -42,8 +43,8 @@ test('review a card: reveal, intervals, Again stays hidden until due', async ({
   await createNotebook(page, 'Cardiology', 'Heart sounds')
   await makeCard(page, 'Which valves close in S1?', 'Mitral and tricuspid')
 
-  await expect(reviewButton(page)).toContainText('1')
-  await reviewButton(page).click()
+  await expect(await reviewButton(page)).toContainText('1')
+  await (await reviewButton(page)).click()
   await expect(review(page)).toContainText('Which valves close in S1?')
   await expect(review(page)).not.toContainText('Mitral and tricuspid')
 
@@ -81,7 +82,7 @@ test('review a card: reveal, intervals, Again stays hidden until due', async ({
   await page.keyboard.press('3') // Good
   await expect(review(page)).toContainText('All caught up.')
   await expect(review(page)).toContainText('You reviewed 3 cards.')
-  await expect(reviewButton(page)).toHaveText(/^\S*\s*Review$/)
+  await expect(await reviewButton(page)).toHaveText(/^\S*\s*Review$/)
 
   // "Got wrong (7 days)": the card rated Again comes back as practice.
   await review(page).getByRole('button', { name: 'Got wrong (7 days)' }).click()
@@ -135,7 +136,11 @@ test('Settings: Simple steps scheduler changes the button gaps', async ({
   page,
 }) => {
   await page.goto('/')
-  await sidebar(page).getByRole('button', { name: 'Settings' }).click()
+  await (
+    await openSidebar(page)
+  )
+    .getByRole('button', { name: 'Settings' })
+    .click()
   const scheduler = page.getByRole('combobox', { name: 'Scheduler' })
   await expect(scheduler).toHaveValue('fsrs')
   const target = page.getByRole('textbox', { name: 'Target memory' })
@@ -148,7 +153,7 @@ test('Settings: Simple steps scheduler changes the button gaps', async ({
 
   await createNotebook(page, 'Cardiology', 'Heart sounds')
   await makeCard(page, 'Which valves close in S2?', 'Aortic and pulmonary')
-  await reviewButton(page).click()
+  await (await reviewButton(page)).click()
   await expect(review(page)).toContainText('Which valves close in S2?')
   await page.keyboard.press('Space')
   const ratings = review(page).getByRole('group', { name: /Rate how well/ })
@@ -189,12 +194,14 @@ for (const [theme, width, height] of [
       'Which valves close in S1, and what does the sound mark?',
       'Mitral and tricuspid; the start of systole.',
     )
-    await sidebar(page)
+    await (
+      await openSidebar(page)
+    )
       .getByRole('group', { name: 'Theme' })
       .getByRole('button', { name: theme })
       .click()
     await page.setViewportSize({ width, height })
-    await reviewButton(page).click()
+    await (await reviewButton(page)).click()
     await expect(review(page)).toContainText('Which valves close in S1')
     await page.keyboard.press('Space')
 

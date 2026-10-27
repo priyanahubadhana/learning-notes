@@ -592,7 +592,7 @@
 - **What:** Step 5A-6b, help across the whole app. 54 new tips and 4 help lines (81 tips and 8 lines in all) for the sidebar, notebook tabs, page actions, tags, Review screen, Search, Cards tab and the database views, all listed in `HELP-TEXTS.md`. `Tip` can leave out the ⓘ on touch (`touchInfo`); `IconButton` takes a `tip` (its `title` becomes its `aria-label`); tips open on Tab focus but not on a focus the app sets itself. Old native hover texts were replaced (so Show help Off hides every hover text); the Review "Practice anyway" explanation is now a help line. e2e tests use `getByLabel` for icon buttons; the Review button selectors skip "Review this notebook". New `e2e/help.spec.ts`; a unit test checks that every registered tip is used.
 - **Why:** Owner request 2026-10-27 (every feature and label gets a tip; tooltips list for review).
 - **Self-review:** Settings descriptions, dialogs, the editor's own menus and pickers have no tips yet (logged in Decisions to review). Tips are shown by a mouse after 450 ms, by Tab focus, and by ⓘ on touch.
-- **Files:** src/help/*, src/app/ui.tsx, src/notebooks/Sidebar.tsx, NotebookScreen.tsx, src/pages/PageTree.tsx, PageView.tsx, src/tags/*, src/templates/TemplatesSection.tsx, src/trash/TrashSection.tsx, src/search/*, src/recall/ReviewScreen.tsx, CardsTab.tsx, src/databases/views/*, dashboard/DashboardView.tsx, src/i18n/en.ts, e2e/*, HELP-TEXTS.md, README.md
+- **Files:** src/help/_, src/app/ui.tsx, src/notebooks/Sidebar.tsx, NotebookScreen.tsx, src/pages/PageTree.tsx, PageView.tsx, src/tags/_, src/templates/TemplatesSection.tsx, src/trash/TrashSection.tsx, src/search/_, src/recall/ReviewScreen.tsx, CardsTab.tsx, src/databases/views/_, dashboard/DashboardView.tsx, src/i18n/en.ts, e2e/*, HELP-TEXTS.md, README.md
 
 ## 2026-10-27
 
@@ -606,7 +606,7 @@
 - **What:** Owner check-in fixes for Phase 5A (19 items). Backup screen: "Your notes need a quick one-time update." and "Skip the file, just update". Charts: "from N lessons/rows" counts only rows with a value; titles "Avg. / Min / Max / Total X"; no "Total" for percentage columns; the weekly chart is "Answers right per week"; the three review-history charts can be added from + Add chart › Review history. Notebook tabs: hidden the empty vertical scrollbar (the dead ▲▼). Settings › Date style (default 27 Oct 2026) drives `dateLocale()` for Table, Board, sidebar and journal. Board cards show 📌. Card levels show "No cards". Database screen: name shown once, Delete database in a ⋯ menu. Tip examples are neutral. A database keeps the view it opened on while rows are added. "/database" in one of its own rows shows a message; the cursor moves below an inserted block (no stray text toolbar); help lines keep their size inside the editor. Cards on Templates pages are left out of All cards, Cards tabs, due counts and reviews (`reviewable` checks the page's notebook). README: Known Limitations rewritten, tip counts fixed (86 tips, 8 help lines). New tests: "from N", date style, Templates cards, check-in e2e.
 - **Why:** Owner check-in of 2026-10-27.
 - **Self-review:** The date default overrides the browser's region (was already day-first in the sidebar). Two or three screenshot e2e tests fail once under load and pass on rerun (logged in IDEAS).
-- **Files:** src/i18n/en.ts, t.ts, src/journal/dates.ts, src/settings/builtinSettings.ts, src/App.tsx, src/databases/* (DatabaseView, DatabasesHub, DatabaseBlockView, dashboard/*, views/*), src/recall/reviewService.ts, CardsTab.tsx, src/editor/PageEditor.tsx, src/index.css, src/notebooks/NotebookScreen.tsx, e2e/*, README.md, HELP-TEXTS.md, CHANGELOG.md
+- **Files:** src/i18n/en.ts, t.ts, src/journal/dates.ts, src/settings/builtinSettings.ts, src/App.tsx, src/databases/* (DatabaseView, DatabasesHub, DatabaseBlockView, dashboard/_, views/_), src/recall/reviewService.ts, CardsTab.tsx, src/editor/PageEditor.tsx, src/index.css, src/notebooks/NotebookScreen.tsx, e2e/*, README.md, HELP-TEXTS.md, CHANGELOG.md
 
 ## 2026-10-27
 
@@ -616,7 +616,7 @@
 
 ## 2026-10-27
 
-- **What:** Phase 5B, step 1 (views). New Calendar view (\`views/CalendarView.tsx\`, rules in \`calendarData.ts\`: month/week, Monday start, + on a day adds a row, date column choice) and Gallery view (\`GalleryView.tsx\`: tiles, picture from a Web link column, chosen values); "+ View" with any view type, "Rename this view…" and "Delete this view" (with Undo) in the view options; the "/database" block can switch to all five view types. 5 new tips. Tests: \`calendarData.test.ts\`, e2e in \`databases.spec.ts\` (+ screenshots calendar-*/gallery-*).
+- **What:** Phase 5B, step 1 (views). New Calendar view (\`views/CalendarView.tsx\`, rules in \`calendarData.ts\`: month/week, Monday start, + on a day adds a row, date column choice) and Gallery view (\`GalleryView.tsx\`: tiles, picture from a Web link column, chosen values); "+ View" with any view type, "Rename this view…" and "Delete this view" (with Undo) in the view options; the "/database" block can switch to all five view types. 5 new tips. Tests: \`calendarData.test.ts\`, e2e in \`databases.spec.ts\` (+ screenshots calendar-_/gallery-_).
 - **Why:** Phase 5B plan (owner, 2026-10-27).
 - **Files:** src/databases/views/CalendarView.tsx, calendarData.ts (+test), GalleryView.tsx, DatabaseView.tsx, viewTypes.ts, src/databases/databaseService.ts (restoreView), DatabaseBlockView.tsx, dashboard/chartData.ts, src/i18n/en.ts, src/help/helpRegistry.ts, HELP-TEXTS.md, e2e/databases.spec.ts
 
@@ -676,3 +676,10 @@
 - **Why:** Phase 6 plan (owner, 2026-10-28).
 - **Self-review:** Saving 10k blocks, deleting blocks and the card sync (`syncCardRecords`) are slow on huge pages in the fake test database (about 4 ms per deleted block, ~13 s card sync for 10,000 notes); real Chrome is faster but this is worth measuring later. Restore only writes blocks that differ.
 - **Files:** src/history/*, src/core/types.ts, db.ts, migration.test.ts, src/editor/pageSync.ts, PageEditor.tsx, src/pages/PageView.tsx, src/App.tsx, src/trash/trashService.ts, src/i18n/en.ts, src/help/helpRegistry.ts, HELP-TEXTS.md, e2e/history.spec.ts, e2e/upgradeBackup.spec.ts, README.md
+
+## 2026-10-28
+
+- **What:** Phase 6, step 3 and owner additions. Password-protected files (AES-GCM + PBKDF2, `.learningnotes.locked`, password typed twice, loss warning); “Save everything” whole-workspace file in Backup & files; gentle backup reminder after 7 days (Save backup now · Remind me later); unsaved changes are kept in localStorage when a tab closes and come back at the next start; on phones the sidebar is a sliding drawer opened by a ☰ button. e2e helpers got `showSidebar`/`openSidebar` for phone-size tests.
+- **Why:** Phase 6 plan and the owner's additions (2026-10-28).
+- **Self-review:** Locked files are processed fully in memory. The ☰ button is hidden behind full-screen phone screens (they have × buttons). The stash is applied once, on the next opening of that page; if the browser clears localStorage first, the last half second can still be lost.
+- **Files:** src/share/crypto.ts, fileIO.ts, lockState.ts, PasswordFields.tsx, backupReminder.ts, ReminderBar.tsx, bundle.ts, DataScreen.tsx (+ tests), src/editor/pendingStash.ts, pageSync.ts, PageEditor.tsx, src/notebooks/Sidebar.tsx, src/App.tsx, src/i18n/en.ts, src/help/helpRegistry.ts, HELP-TEXTS.md, e2e/*.spec.ts, e2e/helpers.ts, README.md

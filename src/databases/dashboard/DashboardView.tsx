@@ -1,3 +1,4 @@
+import { Tip } from '../../help/Help'
 import { useLiveQuery } from 'dexie-react-hooks'
 import { useContext, useMemo, useState } from 'react'
 import { AppUiContext } from '../../app/appUi'
@@ -102,7 +103,13 @@ export function DashboardView({ db, database, view }: ViewProps) {
             className={`${SPAN[spec.size]} relative min-w-0 rounded-xl border border-line p-3.5`}
           >
             <h3 className="mb-2.5 flex items-start justify-between gap-2 text-[13px] font-semibold">
-              <span className="min-w-0">{title}</span>
+              <span className="min-w-0">
+                {spec.history ? (
+                  <Tip id={`tracker.chart.${spec.history}`}>{title}</Tip>
+                ) : (
+                  title
+                )}
+              </span>
               <button
                 type="button"
                 aria-label={t('dashboard.chartMenu', { name: title })}

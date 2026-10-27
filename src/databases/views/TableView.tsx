@@ -1,3 +1,4 @@
+import type { ReactNode } from 'react'
 import { useContext, useMemo, useState } from 'react'
 import { AppUiContext } from '../../app/appUi'
 import type { DbColumn, JsonValue } from '../../core/types'
@@ -20,7 +21,9 @@ import { filterLabel, sortLabels } from './columnFilters'
 import { columnIcon, isAutoColumn, typeName } from './columnLook'
 import { ColumnMenu } from './ColumnMenu'
 import { PopHeading, PopItem, PopSeparator, Popover } from './Popover'
-import { LevelsCell, StatusPicker, StatusPill } from './TrackerCells'
+import { HelpLine, Tip } from '../../help/Help'
+import { LevelsCell, PinMark, StatusPicker, StatusPill } from './TrackerCells'
+import { headerTip, statusTip } from './trackerTips'
 import {
   CellPills,
   CheckCell,
@@ -161,33 +164,35 @@ export function TableView({ db, database, view, onOpenPage }: ViewProps) {
     const open = menu?.kind === 'column' && menu.columnId === columnId
     const filtered = filters.some((f) => f.columnId === columnId)
     return (
-      <button
-        type="button"
-        aria-haspopup="dialog"
-        aria-expanded={open}
-        onClick={(e) =>
-          toggleMenu({ kind: 'column', columnId, anchor: e.currentTarget })
-        }
-        className="flex min-h-8 items-center gap-1.5 rounded-md px-1 hover:bg-hover hover:text-ink"
-      >
-        <span aria-hidden>{column ? columnIcon(column) : '↗'}</span>
-        {nameOf(columnId)}
-        {column && isAutoColumn(column) && (
-          <span className="rounded bg-hover px-1 py-px text-[10.5px]">
-            {t('database.auto')}
-          </span>
-        )}
-        {sort?.columnId === columnId && (
-          <span aria-hidden className="text-accent">
-            {sort.direction === 'asc' ? '↑' : '↓'}
-          </span>
-        )}
-        {filtered && (
-          <span aria-hidden className="text-accent">
-            ⏷
-          </span>
-        )}
-      </button>
+      <HeaderTip column={column} tracker={tracker}>
+        <button
+          type="button"
+          aria-haspopup="dialog"
+          aria-expanded={open}
+          onClick={(e) =>
+            toggleMenu({ kind: 'column', columnId, anchor: e.currentTarget })
+          }
+          className="flex min-h-8 items-center gap-1.5 rounded-md px-1 hover:bg-hover hover:text-ink"
+        >
+          <span aria-hidden>{column ? columnIcon(column) : '↗'}</span>
+          {nameOf(columnId)}
+          {column && isAutoColumn(column) && (
+            <span className="rounded bg-hover px-1 py-px text-[10.5px]">
+              {t('database.auto')}
+            </span>
+          )}
+          {sort?.columnId === columnId && (
+            <span aria-hidden className="text-accent">
+              {sort.direction === 'asc' ? '↑' : '↓'}
+            </span>
+          )}
+          {filtered && (
+            <span aria-hidden className="text-accent">
+              ⏷
+            </span>
+          )}
+        </button>
+      </HeaderTip>
     )
   }
 
@@ -199,22 +204,27 @@ export function TableView({ db, database, view, onOpenPage }: ViewProps) {
     if (row.tracker) {
       if (column.type === 'trackerStatus') {
         return (
-          <button
-            type="button"
-            aria-haspopup="dialog"
-            aria-label={`${t('table.editCell', context)}: ${text}`}
-            onClick={(e) =>
-              toggleMenu({
-                kind: 'pick',
-                rowId: row.page.id,
-                columnId: column.id,
-                anchor: e.currentTarget,
-              })
-            }
-            className={cellButton}
-          >
-            <StatusPill row={row.tracker} />
-          </button>
+          <span className="flex items-center gap-1">
+            <Tip id={statusTip(row.tracker.status)} className="flex-1">
+              <button
+                type="button"
+                aria-haspopup="dialog"
+                aria-label={`${t('table.editCell', context)}: ${text}`}
+                onClick={(e) =>
+                  toggleMenu({
+                    kind: 'pick',
+                    rowId: row.page.id,
+                    columnId: column.id,
+                    anchor: e.currentTarget,
+                  })
+                }
+                className={cellButton}
+              >
+                <StatusPill row={row.tracker} />
+              </button>
+            </Tip>
+            {row.tracker.override && <PinMark />}
+          </span>
         )
       }
       if (column.type === 'trackerLevels') {
@@ -523,14 +533,22 @@ export function TableView({ db, database, view, onOpenPage }: ViewProps) {
             {all.length > 0 ? t('table.noMatch') : t('database.empty')}
           </p>
         )}
-        <button
-          type="button"
-          onClick={() => void newRow()}
-          className="min-h-10 w-full border-t border-line px-3 text-start text-[13px] text-muted hover:bg-hover hover:text-ink"
-        >
-          {tracker ? t('table.newLesson') : t('table.newRow')}
-        </button>
+        <NewRowTip tracker={tracker}>
+          <button
+            type="button"
+            onClick={() => void newRow()}
+            className="min-h-10 w-full border-t border-line px-3 text-start text-[13px] text-muted hover:bg-hover hover:text-ink"
+          >
+            {tracker ? t('table.newLesson') : t('table.newRow')}
+          </button>
+        </NewRowTip>
       </div>
+      {tracker && (
+        <>
+          <HelpLine id="tracker.table" />
+          <HelpLine id="tracker.levels" className="mt-1 text-xs text-muted" />
+        </>
+      )}
       {rows.length > shown && (
         <button
           type="button"
@@ -677,5 +695,36 @@ export function TableView({ db, database, view, onOpenPage }: ViewProps) {
         />
       )}
     </div>
+  )
+}
+
+/** A column header with the hover tip of a Study tracker column. */
+function HeaderTip({
+  column,
+  tracker,
+  children,
+}: {
+  column: DbColumn | null
+  tracker: boolean
+  children: ReactNode
+}) {
+  const id = tracker ? headerTip(column) : undefined
+  return id ? <Tip id={id}>{children}</Tip> : <>{children}</>
+}
+
+/** The "+ New lesson" button with its tip (Study tracker only). */
+function NewRowTip({
+  tracker,
+  children,
+}: {
+  tracker: boolean
+  children: ReactNode
+}) {
+  return tracker ? (
+    <Tip id="tracker.newLesson" className="block">
+      {children}
+    </Tip>
+  ) : (
+    <>{children}</>
   )
 }

@@ -197,6 +197,95 @@ export const en = {
   'settings.theme.day': 'Day',
   'settings.theme.night': 'Night',
   'settings.theme.sepia': 'Sepia',
+  'settings.showHelp.label': 'Show help',
+  'settings.showHelp.description':
+    'Shows a short explanation when you hover over a feature (or tap its ⓘ on a touch screen), and a help line under features that are harder to learn. Turn it off to hide them all.',
+  'settings.showHelp.on': 'On',
+  'settings.showHelp.off': 'Off',
+  'help.info': 'What is this?',
+  'help.example': 'Example: {text}',
+  'help.tip.tracker.lesson.meaning':
+    'Each row is one lesson: a top-level page of this notebook. Its sub-pages count towards it.',
+  'help.tip.tracker.lesson.example':
+    'Cards on the sub-page “Heart › Valves” count for the lesson “Heart”.',
+  'help.tip.tracker.status.meaning':
+    'Where this lesson stands. The app works it out from your card answers, or you can set it yourself.',
+  'help.tip.tracker.status.example':
+    'Not started, Learning, Review or Mastered.',
+  'help.tip.tracker.status.notStarted.meaning':
+    'You haven’t answered any card of this lesson yet.',
+  'help.tip.tracker.status.notStarted.example':
+    'A lesson whose cards are all new.',
+  'help.tip.tracker.status.learning.meaning':
+    'Fewer than 75% of the cards you answered were right.',
+  'help.tip.tracker.status.learning.example':
+    '6 of 10 answered cards right → 60% → Learning.',
+  'help.tip.tracker.status.review.meaning':
+    'Mostly right, but not finished: some cards are due, new or still short of Mastered.',
+  'help.tip.tracker.status.review.example':
+    '85% right, or 95% right with 2 cards due → Review.',
+  'help.tip.tracker.status.mastered.meaning':
+    '90% or more right, nothing due, no new cards, and at least 80% of the cards at level Mastered.',
+  'help.tip.tracker.status.mastered.example':
+    '10 cards, all right, 8 or more back only every 21+ days.',
+  'help.tip.tracker.pin.meaning':
+    'You set this status yourself, so the app leaves it alone. Choose Auto in the menu to hand it back.',
+  'help.tip.tracker.pin.example': 'Menu › Auto (now: Review).',
+  'help.tip.tracker.lastRevised.meaning':
+    'The last time you answered any card of this lesson (a review or Practice anyway).',
+  'help.tip.tracker.lastRevised.example':
+    'You reviewed one of its cards yesterday → yesterday’s date.',
+  'help.tip.tracker.cardsDue.meaning':
+    'Cards ready to review now, and new cards you haven’t started.',
+  'help.tip.tracker.cardsDue.example': '5 due · 20 new.',
+  'help.tip.tracker.correct.meaning':
+    'Of the cards you’ve answered, how many your latest answer got right (anything but Again).',
+  'help.tip.tracker.correct.example': '8 of 10 answered cards right → 80%.',
+  'help.tip.tracker.levels.meaning':
+    'How well you know this lesson’s cards, by how far apart their reviews are.',
+  'help.tip.tracker.levels.example':
+    '3 New · 2 Learning · 4 Familiar · 1 Mastered.',
+  'help.tip.tracker.level.new.meaning': 'You haven’t studied this card yet.',
+  'help.tip.tracker.level.new.example': 'A card you just made.',
+  'help.tip.tracker.level.learning.meaning':
+    'You’re still getting it, so it comes back again soon.',
+  'help.tip.tracker.level.learning.example':
+    'Its next review is less than a day away.',
+  'help.tip.tracker.level.familiar.meaning':
+    'You mostly know it, and the reviews are getting further apart.',
+  'help.tip.tracker.level.familiar.example':
+    'Its next review is 1 to 20 days away.',
+  'help.tip.tracker.level.mastered.meaning':
+    'You know it well, so you’ll only see it every few weeks.',
+  'help.tip.tracker.level.mastered.example':
+    'Its next review is 21 days or more away.',
+  'help.tip.tracker.confidence.meaning':
+    'Your own feeling about this lesson, from 1 to 5 stars. The app never changes it.',
+  'help.tip.tracker.confidence.example': '★★★☆☆ = fairly sure.',
+  'help.tip.tracker.newLesson.meaning':
+    'Adds a lesson: a new page at the top of this notebook.',
+  'help.tip.tracker.newLesson.example':
+    'Add “Kidney”, then write its notes and cards in it.',
+  'help.tip.tracker.chart.streak.meaning':
+    'How many days in a row you answered at least one card. A day that isn’t over yet doesn’t break it.',
+  'help.tip.tracker.chart.streak.example':
+    '🔥 5 days = you studied every day since Friday.',
+  'help.tip.tracker.chart.correct.meaning':
+    'The share of your answers each week that were not Again.',
+  'help.tip.tracker.chart.correct.example':
+    'A week with 40 answers, 30 of them right → 75%.',
+  'help.tip.tracker.chart.days.meaning':
+    'Each square is a day. The darker it is, the more cards you answered.',
+  'help.tip.tracker.chart.days.example':
+    'A dark square = a busy study day; a blank one = a day off.',
+  'help.line.tracker.table':
+    'Status, Last revised, Cards due, % correct and Card levels fill themselves in from your card reviews. Click a Status to set it yourself 📌.',
+  'help.line.tracker.levels':
+    'Card levels: New = not studied yet · Learning = comes back within a day · Familiar = back in 1–20 days · Mastered = back in 21+ days.',
+  'help.line.tracker.board':
+    'Drag a lesson to another column to set its status yourself 📌. Drop it back on its own automatic column to hand it back to Auto.',
+  'help.line.tracker.statusRule':
+    'Auto: Not started = no cards answered yet · Learning = under 75% correct · Mastered = 90% or more correct, nothing due, no new cards, and at least 80% of the cards at level Mastered · Review = in between.',
   'settings.dayStart.label': 'Day starts at',
   'settings.dayStart.description':
     'Late-night study before this time still counts as the same day, for reviews and the journal.',
@@ -397,8 +486,6 @@ export const en = {
   'tracker.status.backToAuto': 'Back to auto',
   'tracker.status.pinned': 'Set by you',
   'tracker.status.setByYou': 'Set it yourself',
-  'tracker.status.rule':
-    'Auto: Not started = no cards answered yet · Learning = under 75% correct · Mastered = 90% or more correct, nothing due, no new cards, and at least 80% of the cards at level Mastered · Review = in between.',
   'tracker.level.new': 'New',
   'tracker.level.learning': 'Learning',
   'tracker.level.familiar': 'Familiar',

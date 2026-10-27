@@ -307,3 +307,21 @@ button.tag-chip:hover {
     animation: none;
   }
 }
+
+/* Help tips: the ⓘ button opens a tip on touch screens (no hover there). */
+.tip-info {
+  display: none;
+  min-width: 24px;
+  min-height: 24px;
+  align-items: center;
+  justify-content: center;
+  border-radius: 9999px;
+  color: var(--color-muted);
+  font-size: 12px;
+  line-height: 1;
+}
+@media (hover: none) {
+  .tip-info {
+    display: inline-flex;
+  }
+}

@@ -1,9 +1,9 @@
+import { HelpLine, Tip } from '../../help/Help'
 import { t } from '../../i18n/t'
 import { tagColorStyle } from '../../tags/tagStyle'
 import {
   CARD_LEVELS,
   LESSON_STATUSES,
-  levelMeaning,
   levelName,
   statusName,
   statusOptions,
@@ -22,26 +22,26 @@ import { PopHeading, PopItem, PopSeparator, Popover } from './Popover'
 
 const COLORS = new Map(statusOptions().map((o) => [o.id, o.color]))
 
-/** Status as a coloured pill; 📌 marks a status the user set. */
+/** Status as a coloured pill. */
 export function StatusPill({ row }: { row: TrackerRow }) {
   return (
-    <span className="inline-flex items-center gap-1">
-      <span
-        className={`tag-chip ${COLORS.get(row.status) ? 'tag-chip-colored' : ''}`}
-        style={tagColorStyle(COLORS.get(row.status))}
-      >
-        {statusName(row.status)}
-      </span>
-      {row.override && (
-        <span
-          role="img"
-          aria-label={t('tracker.status.pinned')}
-          title={t('tracker.status.pinned')}
-        >
-          📌
-        </span>
-      )}
+    <span
+      className={`tag-chip ${COLORS.get(row.status) ? 'tag-chip-colored' : ''}`}
+      style={tagColorStyle(COLORS.get(row.status))}
+    >
+      {statusName(row.status)}
     </span>
+  )
+}
+
+/** 📌 beside a status the user set. */
+export function PinMark() {
+  return (
+    <Tip id="tracker.pin">
+      <span role="img" aria-label={t('tracker.status.pinned')}>
+        📌
+      </span>
+    </Tip>
   )
 }
 
@@ -98,9 +98,10 @@ export function StatusPicker({
         />
       ))}
       <PopSeparator />
-      <p className="px-2.5 py-1 text-xs text-muted">
-        {t('tracker.status.rule')}
-      </p>
+      <HelpLine
+        id="tracker.statusRule"
+        className="px-2.5 py-1 text-xs text-muted"
+      />
     </Popover>
   )
 }
@@ -129,17 +130,18 @@ export function LevelsCell({ stats }: { stats: LessonStats }) {
           stats.levels[level] > 0 ? (
             <span
               key={level}
-              title={`${levelName(level)}: ${levelMeaning(level)}`}
               className={LEVEL_FILL[level]}
               style={{ width: `${(stats.levels[level] / stats.cards) * 100}%` }}
             />
           ) : null,
         )}
       </div>
-      <div className="mt-1 text-xs text-muted">
-        {CARD_LEVELS.filter((l) => stats.levels[l] > 0)
-          .map((l) => `${stats.levels[l]} ${levelName(l)}`)
-          .join(' · ')}
+      <div className="mt-1 flex flex-wrap gap-x-2 text-xs text-muted">
+        {CARD_LEVELS.filter((l) => stats.levels[l] > 0).map((l) => (
+          <Tip key={l} id={`tracker.level.${l}`}>
+            {`${stats.levels[l]} ${levelName(l)}`}
+          </Tip>
+        ))}
       </div>
     </div>
   )

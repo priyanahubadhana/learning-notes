@@ -1,3 +1,4 @@
+import type { ReactNode } from 'react'
 import {
   useContext,
   useEffect,
@@ -14,7 +15,10 @@ import { t } from '../../i18n/t'
 import { createPage } from '../../pages/pageService'
 import { useMinuteClock } from '../../recall/useMinuteClock'
 import { tagColorStyle } from '../../tags/tagStyle'
+import { HelpLine, Tip } from '../../help/Help'
 import { rowCellText } from '../cellDisplay'
+import { isLessonStatus } from '../trackerStats'
+import { statusTip } from './trackerTips'
 import { TITLE_COLUMN_ID } from '../columnTypes'
 import { queryRows, resolveRows, type ResolvedRow } from '../databaseQuery'
 import { addRow, placeRow, setCell, updateView } from '../databaseService'
@@ -577,6 +581,9 @@ export function BoardView({ db, database, view, onOpenPage }: ViewProps) {
       </div>
 
       {/* `relative` keeps everything inside (incl. screen-reader text) in the scroll box. */}
+      {fixedOptions && (
+        <HelpLine id="tracker.board" className="mb-2.5 text-xs text-muted" />
+      )}
       <div
         ref={setBoardEl}
         data-board-scroller
@@ -602,12 +609,14 @@ export function BoardView({ db, database, view, onOpenPage }: ViewProps) {
             >
               <h3 className="mx-1 mb-2.5 flex items-center gap-2 text-[13px] font-semibold">
                 {group.option ? (
-                  <span
-                    className={`tag-chip ${group.option.color ? 'tag-chip-colored' : ''}`}
-                    style={tagColorStyle(group.option.color)}
-                  >
-                    {name}
-                  </span>
+                  <StatusTip column={groupColumn} group={group}>
+                    <span
+                      className={`tag-chip ${group.option.color ? 'tag-chip-colored' : ''}`}
+                      style={tagColorStyle(group.option.color)}
+                    >
+                      {name}
+                    </span>
+                  </StatusTip>
                 ) : (
                   <span className="text-muted">{name}</span>
                 )}
@@ -650,17 +659,19 @@ export function BoardView({ db, database, view, onOpenPage }: ViewProps) {
                   })}
                 </button>
               )}
-              <button
-                type="button"
-                onClick={() => void newCard(group.key)}
-                className="mt-2 min-h-8 rounded-md px-1 text-start text-[13px] text-muted hover:bg-hover hover:text-ink"
-              >
-                {tracker ? t('table.newLesson') : t('table.newRow')}
-                <span className="sr-only">
-                  {' '}
-                  {t('board.newIn', { group: name })}
-                </span>
-              </button>
+              <NewCardTip tracker={tracker}>
+                <button
+                  type="button"
+                  onClick={() => void newCard(group.key)}
+                  className="mt-2 min-h-8 rounded-md px-1 text-start text-[13px] text-muted hover:bg-hover hover:text-ink"
+                >
+                  {tracker ? t('table.newLesson') : t('table.newRow')}
+                  <span className="sr-only">
+                    {' '}
+                    {t('board.newIn', { group: name })}
+                  </span>
+                </button>
+              </NewCardTip>
             </section>
           )
         })}
@@ -850,4 +861,38 @@ function stopGesture(refs: {
   refs.scroll.current = null
   refs.listeners.current?.()
   refs.listeners.current = null
+}
+
+/** A status column's heading with the tip that explains the status. */
+function StatusTip({
+  column,
+  group,
+  children,
+}: {
+  column: DbColumn
+  group: BoardGroup
+  children: ReactNode
+}) {
+  return column.type === 'trackerStatus' && isLessonStatus(group.key) ? (
+    <Tip id={statusTip(group.key)}>{children}</Tip>
+  ) : (
+    <>{children}</>
+  )
+}
+
+/** The "+ New lesson" button of a board column, with its tip (Study tracker). */
+function NewCardTip({
+  tracker,
+  children,
+}: {
+  tracker: boolean
+  children: ReactNode
+}) {
+  return tracker ? (
+    <Tip id="tracker.newLesson" className="block">
+      {children}
+    </Tip>
+  ) : (
+    <>{children}</>
+  )
 }

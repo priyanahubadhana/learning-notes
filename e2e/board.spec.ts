@@ -23,9 +23,14 @@ async function openBoard(page: Page) {
   await viewButton(page, 'Board').click()
 }
 
-/** Adds the Choice column "Exam" with these options from the empty Board. */
+/**
+ * Adds the Choice column "Exam" with these options and groups the Board by
+ * it (a Study tracker's Board starts grouped by Status).
+ */
 async function addExamColumn(page: Page, options = ['Soon', 'Done']) {
-  await tracker(page).getByRole('button', { name: '+ Choice column' }).click()
+  const groupedBy = tracker(page).getByRole('button', { name: /^Grouped by/ })
+  await groupedBy.click()
+  await page.getByRole('button', { name: '+ Choice column' }).click()
   const dialog = page.getByRole('dialog', { name: 'New Choice column' })
   await dialog.getByRole('textbox', { name: 'Name' }).fill('Exam')
   for (const option of options) {
@@ -33,6 +38,8 @@ async function addExamColumn(page: Page, options = ['Soon', 'Done']) {
     await dialog.getByRole('textbox', { name: 'Add an option' }).press('Enter')
   }
   await dialog.getByRole('button', { name: 'Add column' }).click()
+  await groupedBy.click()
+  await page.getByRole('button', { name: 'Exam', exact: true }).click()
 }
 
 /**
@@ -69,7 +76,14 @@ test('board: group by a Choice column, drag, Move to, new card, Card shows', asy
   await openBoard(page)
   // The view tab has its real name (not a text key).
   await expect(viewButton(page, 'Board')).toHaveText(/Board/)
-  await expect(tracker(page)).toContainText('A board puts rows in columns')
+  // A Study tracker's Board starts grouped by its Status.
+  await expect(
+    tracker(page).getByRole('button', { name: 'Grouped by Status' }),
+  ).toBeVisible()
+  await expect(cards(page, 'Not started')).toHaveText([
+    /Heart sounds/,
+    /Murmurs/,
+  ])
   await addExamColumn(page)
 
   // Every lesson starts in "No Exam"; empty groups still show.

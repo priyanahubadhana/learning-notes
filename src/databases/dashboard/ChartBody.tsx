@@ -95,7 +95,8 @@ export function ChartBody({
   }
 
   if (data.kind === 'series') {
-    if (!spec.dateColumnId) return <Note>{t('dashboard.pickColumn')}</Note>
+    if (!spec.dateColumnId && !spec.history)
+      return <Note>{t('dashboard.pickColumn')}</Note>
     if (data.rows === 0) return <Note>{t('dashboard.noDates')}</Note>
     if (asTable) {
       return (
@@ -111,7 +112,8 @@ export function ChartBody({
     return <Line points={data.points} period={data.period} fmt={fmt} />
   }
 
-  if (!spec.dateColumnId) return <Note>{t('dashboard.pickColumn')}</Note>
+  if (!spec.dateColumnId && !spec.history)
+    return <Note>{t('dashboard.pickColumn')}</Note>
   if (asTable) {
     return (
       <DataTable

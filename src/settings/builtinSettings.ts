@@ -66,6 +66,27 @@ export const theme: SettingDefinition<Theme> = {
   },
 }
 
+/** Hover tips and help lines (this device). */
+export const HELP_CHOICES = ['on', 'off'] as const
+export type HelpChoice = (typeof HELP_CHOICES)[number]
+
+export const showHelp: SettingDefinition<HelpChoice> = {
+  id: 'general.showHelp',
+  labelKey: 'settings.showHelp.label',
+  descriptionKey: 'settings.showHelp.description',
+  category: 'general',
+  scope: 'device',
+  defaultValue: 'on',
+  isValid: isOneOf<HelpChoice>(HELP_CHOICES),
+  control: {
+    kind: 'segmented',
+    options: HELP_CHOICES.map((value) => ({
+      value,
+      label: () => t(`settings.showHelp.${value}`),
+    })),
+  },
+}
+
 export const dayStartHour: SettingDefinition<number> = {
   id: 'general.dayStartHour',
   labelKey: 'settings.dayStart.label',
@@ -215,6 +236,7 @@ export const practiceOrder: SettingDefinition<PracticeOrder> = {
 
 for (const definition of [
   theme,
+  showHelp,
   dayStartHour,
   newCardsPerDay,
   reviewsPerDay,

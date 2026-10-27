@@ -23,23 +23,24 @@ Learning Notes App: a premium, minimal second brain (Notion + OneNote + Anki). W
 
 ## Rule Files — read only what the current work needs
 
-| File                                           | Read when                                                  |
-| ---------------------------------------------- | ---------------------------------------------------------- |
-| [rules/planning.md](rules/planning.md)         | Planning a phase or feature                                |
-| [rules/building.md](rules/building.md)         | Building a step                                            |
+| File                                           | Read when                                                          |
+| ---------------------------------------------- | ------------------------------------------------------------------ |
+| [rules/planning.md](rules/planning.md)         | Planning a phase or feature                                        |
+| [rules/building.md](rules/building.md)         | Building a step                                                    |
 | [rules/sessions.md](rules/sessions.md)         | Starting/ending a chat or step; token limits; handoff; mirror copy |
-| [rules/testing.md](rules/testing.md)           | Testing and reporting                                      |
-| [rules/architecture.md](rules/architecture.md) | Writing code: data model, services, code style, design     |
-| [rules/global.md](rules/global.md)             | Any UI or stored data: text, UTC, accessibility, upgrades  |
-| [rules/scalability.md](rules/scalability.md)   | Queries, lists, storage, anything that grows with data     |
-| [rules/security.md](rules/security.md)         | Inputs, secrets, dependencies, deleting data, end of phase |
-| [rules/phase-end.md](rules/phase-end.md)       | Closing a phase                                            |
+| [rules/testing.md](rules/testing.md)           | Testing and reporting                                              |
+| [rules/architecture.md](rules/architecture.md) | Writing code: data model, services, code style, design             |
+| [rules/global.md](rules/global.md)             | Any UI or stored data: text, UTC, accessibility, upgrades          |
+| [rules/scalability.md](rules/scalability.md)   | Queries, lists, storage, anything that grows with data             |
+| [rules/security.md](rules/security.md)         | Inputs, secrets, dependencies, deleting data, end of phase         |
+| [rules/phase-end.md](rules/phase-end.md)       | Closing a phase                                                    |
 
 ## Project Files
 
 - **README.md** — includes "Next steps — handoff" and "Project Status & Decision Log".
 - **CHANGELOG.md** — after every change, a dated entry: what changed, why, files touched.
 - **IDEAS.md** — parked ideas (date, short description, likely phase).
+- **HELP-TEXTS.md** — every hover tip and help line, for the owner to review (generated; see `src/help/`).
 - **LEARNING.md** — plain-language explanation of each finished phase, with examples.
 - Keep README, CLAUDE.md, CHANGELOG, IDEAS, LEARNING and `rules/` up to date.
 - **Mirror rule:** after any change to CLAUDE.md, README, IDEAS, LEARNING, package.json, `rules/` or `src/`, run the robocopy line in [rules/sessions.md](rules/sessions.md) to update `C:\Users\pc\Downloads\gdrive notes`, then confirm in one line.

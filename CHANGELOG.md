@@ -607,3 +607,9 @@
 - **Why:** Owner check-in of 2026-10-27.
 - **Self-review:** The date default overrides the browser's region (was already day-first in the sidebar). Two or three screenshot e2e tests fail once under load and pass on rerun (logged in IDEAS).
 - **Files:** src/i18n/en.ts, t.ts, src/journal/dates.ts, src/settings/builtinSettings.ts, src/App.tsx, src/databases/* (DatabaseView, DatabasesHub, DatabaseBlockView, dashboard/*, views/*), src/recall/reviewService.ts, CardsTab.tsx, src/editor/PageEditor.tsx, src/index.css, src/notebooks/NotebookScreen.tsx, e2e/*, README.md, HELP-TEXTS.md, CHANGELOG.md
+
+## 2026-10-27
+
+- **What:** Phase 5B planning talk done; the plan (Views, Revise tab, Sharing, End checks) is written in the README Phase 5 Plan. Owner answers: select text + toolbar label for Revise; CSV per database + whole-notebook own file (also restores the backup); Calendar by a Date column and Gallery as tiles; imports always add new copies.
+- **Why:** Rule: plan each phase together, then build it without stopping.
+- **Files:** README.md, CHANGELOG.md

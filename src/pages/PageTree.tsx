@@ -107,6 +107,7 @@ export function PageTree({
               {!journal && !rootId && page.parentId !== null && (
                 <IconButton
                   title="Move to top level"
+                  tip="sidebar.moveTop"
                   onClick={() => runTask(movePageToTopLevel(db, page.id))}
                 >
                   ↰
@@ -115,6 +116,7 @@ export function PageTree({
               {!journal && onAddSubPage && (
                 <IconButton
                   title="Add sub-page"
+                  tip="sidebar.addSubPage"
                   onClick={(e) =>
                     onAddSubPage(
                       page.id,
@@ -127,6 +129,7 @@ export function PageTree({
               )}
               <IconButton
                 title="Delete page"
+                tip="sidebar.deletePage"
                 onClick={() => onRequestDelete(page, affectsCurrent)}
               >
                 ×

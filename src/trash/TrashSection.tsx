@@ -92,11 +92,16 @@ export function TrashSection({ db, workspaceId }: TrashSectionProps) {
               </span>
             </span>
             <span className="flex opacity-0 group-focus-within:opacity-100 group-hover:opacity-100">
-              <IconButton title="Restore" onClick={() => restore(item)}>
+              <IconButton
+                title="Restore"
+                tip="sidebar.restore"
+                onClick={() => restore(item)}
+              >
                 ↺
               </IconButton>
               <IconButton
                 title="Delete forever"
+                tip="sidebar.deleteForever"
                 onClick={() => setPurging(item)}
               >
                 ×

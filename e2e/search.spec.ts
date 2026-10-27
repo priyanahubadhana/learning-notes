@@ -155,7 +155,7 @@ test('saved searches: save, open, change, review the deck, rename, delete', asyn
   await page.screenshot({ path: 'test-results/screens/saved-search-Day.png' })
 
   // Review the deck from the sidebar.
-  await saved.getByTitle('Review this deck (1 card)').click()
+  await saved.getByLabel('Review this deck (1 card)').click()
   await expect(
     page.getByRole('heading', { name: 'Review · Nucleus deck' }),
   ).toBeVisible()
@@ -173,14 +173,17 @@ test('saved searches: save, open, change, review the deck, rename, delete', asyn
 
   // Rename, then delete (notes stay).
   await saved.hover()
-  await saved.getByTitle('Rename saved search').click()
+  await saved.getByLabel('Rename saved search').click()
   await page.getByRole('textbox', { name: 'Name' }).fill('Cell deck')
-  await page.getByRole('button', { name: 'Rename', exact: true }).click()
+  await page
+    .getByRole('dialog')
+    .getByRole('button', { name: 'Rename', exact: true })
+    .click()
   const renamed = sidebar(page).locator('div.group', { hasText: 'Cell deck' })
   await expect(renamed).toBeVisible()
   await expect(page.getByRole('heading', { name: 'Cell deck' })).toBeVisible()
   await renamed.hover()
-  await renamed.getByTitle('Delete saved search').click()
+  await renamed.getByLabel('Delete saved search').click()
   await confirmDialog(page, 'Delete')
   await expect(sidebar(page).getByText('Saved searches')).toHaveCount(0)
 })

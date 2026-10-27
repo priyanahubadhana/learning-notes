@@ -63,7 +63,11 @@ export function TemplatesSection({
           </span>
           Templates
         </button>
-        <IconButton title="New template" onClick={onCreate}>
+        <IconButton
+          title="New template"
+          tip="sidebar.newTemplate"
+          onClick={onCreate}
+        >
           +
         </IconButton>
       </div>
@@ -108,6 +112,7 @@ export function TemplatesSection({
                   <span className="flex opacity-0 group-focus-within:opacity-100 group-hover:opacity-100">
                     <IconButton
                       title="Delete template"
+                      tip="sidebar.deleteTemplate"
                       onClick={() => onRequestDelete(t)}
                     >
                       ×

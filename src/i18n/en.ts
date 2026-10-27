@@ -284,6 +284,201 @@ export const en = {
     'Card levels: New = not studied yet · Learning = comes back within a day · Familiar = back in 1–20 days · Mastered = back in 21+ days.',
   'help.line.tracker.board':
     'Drag a lesson to another column to set its status yourself 📌. Drop it back on its own automatic column to hand it back to Auto.',
+  'help.tip.sidebar.today.meaning':
+    'Opens today’s journal page. Every day gets its own page, made from the Daily journal template.',
+  'help.tip.sidebar.today.example':
+    'Write what you learned today; tomorrow you get a fresh page.',
+  'help.tip.sidebar.search.meaning':
+    'Finds words in all your notes, cards and tags.',
+  'help.tip.sidebar.search.example':
+    'Type “mitral” to see every note and card that mentions it.',
+  'help.tip.sidebar.review.meaning':
+    'Starts reviewing the cards that are due today. The badge shows how many are waiting.',
+  'help.tip.sidebar.review.example':
+    'A badge “12” means 12 cards are ready now.',
+  'help.tip.sidebar.newNotebook.meaning':
+    'Creates a notebook: one place for all the pages of a subject.',
+  'help.tip.sidebar.newNotebook.example':
+    'Make a notebook called “Cardiology”.',
+  'help.tip.sidebar.notebook.meaning':
+    'Opens the notebook (Notes, Database and Cards tabs). Double-click the name to rename it.',
+  'help.tip.sidebar.notebook.example':
+    'Click “Cardiology” to see its lessons in a table.',
+  'help.tip.sidebar.addPage.meaning':
+    'Adds a page to this notebook: blank, or from a template.',
+  'help.tip.sidebar.addPage.example': 'A new page called “Heart sounds”.',
+  'help.tip.sidebar.reviewNotebook.meaning':
+    'Reviews only the cards of this notebook that are due.',
+  'help.tip.sidebar.reviewNotebook.example':
+    'Revise Cardiology without seeing Chemistry cards.',
+  'help.tip.sidebar.rename.meaning': 'Changes this notebook’s name.',
+  'help.tip.sidebar.rename.example': '“Cardio” → “Cardiology”.',
+  'help.tip.sidebar.deleteNotebook.meaning':
+    'Moves the notebook and all its pages to the Trash. You can restore it from there.',
+  'help.tip.sidebar.deleteNotebook.example':
+    'Deleted by mistake? Open Trash and press ↺.',
+  'help.tip.sidebar.addSubPage.meaning':
+    'Adds a page inside this page, to split a big topic into parts.',
+  'help.tip.sidebar.addSubPage.example': '“Valves” inside “Heart sounds”.',
+  'help.tip.sidebar.moveTop.meaning':
+    'Takes this sub-page out of its parent and makes it a page on its own.',
+  'help.tip.sidebar.moveTop.example':
+    'The sub-page “Valves” becomes its own lesson.',
+  'help.tip.sidebar.deletePage.meaning':
+    'Moves this page and its sub-pages to the Trash. You can restore them.',
+  'help.tip.sidebar.deletePage.example': 'Restore it later from Trash.',
+  'help.tip.sidebar.newTemplate.meaning':
+    'Creates a template: a page layout you can reuse for new pages.',
+  'help.tip.sidebar.newTemplate.example':
+    'A “Study notes” layout with Summary and Questions.',
+  'help.tip.sidebar.deleteTemplate.meaning':
+    'Deletes this template. Pages already made from it stay as they are.',
+  'help.tip.sidebar.deleteTemplate.example':
+    'Remove a layout you no longer use.',
+  'help.tip.sidebar.restore.meaning':
+    'Brings this item back from the Trash, with its pages and cards.',
+  'help.tip.sidebar.restore.example': 'Restore the page “Heart sounds”.',
+  'help.tip.sidebar.deleteForever.meaning':
+    'Erases this item for good, with its cards and review history. This cannot be undone.',
+  'help.tip.sidebar.deleteForever.example':
+    'Clear out things you will never need again.',
+  'help.tip.sidebar.newTag.meaning':
+    'Creates a tag: a label you can put on pages and cards to find them together.',
+  'help.tip.sidebar.newTag.example':
+    'Type “medicine/cardiology” to make a tag inside a tag.',
+  'help.tip.sidebar.tagOptions.meaning':
+    'Rename, move, merge, recolour or delete this tag.',
+  'help.tip.sidebar.tagOptions.example': 'Merge “cardio” into “cardiology”.',
+  'help.tip.sidebar.savedReview.meaning':
+    'Reviews the due cards found by this saved search.',
+  'help.tip.sidebar.savedReview.example':
+    'A saved search for “Most failed cards” becomes a study deck.',
+  'help.tip.sidebar.savedRename.meaning':
+    'Changes the name of this saved search.',
+  'help.tip.sidebar.savedRename.example': '“Wrong cards” → “Hard ones”.',
+  'help.tip.sidebar.savedDelete.meaning':
+    'Deletes this saved search. Your notes and cards are not touched.',
+  'help.tip.sidebar.savedDelete.example': 'Remove a search you no longer use.',
+  'help.tip.sidebar.settings.meaning':
+    'Opens Settings: theme, when your day starts, review limits and more.',
+  'help.tip.sidebar.settings.example':
+    'Turn “Show help” off once you know the app.',
+  'help.tip.sidebar.theme.meaning':
+    'Changes how the app looks: light, dark, or warm paper.',
+  'help.tip.sidebar.theme.example':
+    'Night is easier on the eyes in the evening.',
+  'help.tip.notebook.tabNotes.meaning':
+    'The pages of this notebook, as a list you can open.',
+  'help.tip.notebook.tabNotes.example':
+    'Open “Heart sounds” to read or edit it.',
+  'help.tip.notebook.tabDatabase.meaning':
+    'Your Study tracker: one row per lesson, with its status and progress. You can add your own columns.',
+  'help.tip.notebook.tabDatabase.example': 'See which lessons still need work.',
+  'help.tip.notebook.tabCards.meaning':
+    'Every card of this notebook in one list, with when it is due.',
+  'help.tip.notebook.tabCards.example':
+    'Find a card quickly, or review them all.',
+  'help.tip.notebook.tabOptions.meaning':
+    'Rename or hide the tabs of this notebook.',
+  'help.tip.notebook.tabOptions.example':
+    'Hide the Cards tab if you never use it.',
+  'help.tip.notebook.close.meaning':
+    'Closes the notebook and goes back to your last page.',
+  'help.tip.notebook.close.example': 'Back to where you were writing.',
+  'help.tip.page.reviewPage.meaning':
+    'Reviews the cards of this page that are due, and its sub-pages’ cards.',
+  'help.tip.page.reviewPage.example':
+    'Revise one lesson right after reading it.',
+  'help.tip.page.saveTemplate.meaning':
+    'Saves this page’s layout as a template for new pages (its sub-pages too).',
+  'help.tip.page.saveTemplate.example':
+    'Turn a good lesson page into a reusable layout.',
+  'help.tip.page.import.meaning':
+    'Will bring a file into this page. It arrives in a later phase.',
+  'help.tip.page.import.example': 'Import notes from another app.',
+  'help.tip.page.export.meaning':
+    'Will save this page as a file you can keep or share. It arrives in a later phase.',
+  'help.tip.page.export.example': 'Export a lesson as a document.',
+  'help.tip.page.addTag.meaning':
+    'Puts a tag on this page so you can find it with others.',
+  'help.tip.page.addTag.example': 'Tag “Heart sounds” with “cardiology”.',
+  'help.tip.page.sections.meaning': 'Jumps to a heading on this page.',
+  'help.tip.page.sections.example': 'Click “Murmurs” to scroll straight to it.',
+  'help.tip.review.show.meaning':
+    'Reveals the answer. Try to remember it first, then check.',
+  'help.tip.review.show.example': 'Press Space to reveal.',
+  'help.tip.review.ratings.meaning':
+    'Tell the app how well you remembered. The time under each button is when the card comes back.',
+  'help.tip.review.ratings.example':
+    'Forgot → Again (soon). Knew it easily → Easy (much later).',
+  'help.tip.review.scope.meaning':
+    'Choose which cards to review: everything due, or only cards you got wrong lately.',
+  'help.tip.review.scope.example':
+    'Use “Got wrong” to drill the cards you keep missing.',
+  'help.tip.review.practice.meaning':
+    'Goes through cards that are not due yet, for extra practice. It does not change when they come back.',
+  'help.tip.review.practice.example': 'A quick run before an exam.',
+  'help.tip.review.close.meaning':
+    'Leaves the review. Cards you answered stay answered.',
+  'help.tip.review.close.example': 'Stop for today and come back later.',
+  'help.tip.search.types.meaning': 'Shows only one kind of result.',
+  'help.tip.search.types.example': 'Pick Cards to search only your flashcards.',
+  'help.tip.search.save.meaning':
+    'Keeps this search in the sidebar so you can open it again in one click.',
+  'help.tip.search.save.example':
+    'Save “cards tagged cardiology” as a study deck.',
+  'help.tip.search.reviewCards.meaning':
+    'Reviews the due cards among these results.',
+  'help.tip.search.reviewCards.example':
+    'Search “valves”, then revise just those cards.',
+  'help.tip.search.removeEmpty.meaning':
+    'Removes cards that have no question, so they stop cluttering your lists.',
+  'help.tip.search.removeEmpty.example':
+    'Clean up cards you started but never wrote.',
+  'help.tip.db.viewTable.meaning':
+    'Shows the rows in a table you can edit, sort and filter.',
+  'help.tip.db.viewTable.example':
+    'Edit a lesson’s Confidence right in the table.',
+  'help.tip.db.viewDashboard.meaning':
+    'Shows charts and numbers about your rows.',
+  'help.tip.db.viewDashboard.example': 'See lessons by status as a donut.',
+  'help.tip.db.viewBoard.meaning':
+    'Shows the rows as cards in columns. Drag a card to change its column.',
+  'help.tip.db.viewBoard.example': 'Drag a lesson from Learning to Review.',
+  'help.tip.db.viewOptions.meaning':
+    'Choose which view opens first and other view settings.',
+  'help.tip.db.viewOptions.example':
+    'Open on the Dashboard once there are rows.',
+  'help.tip.db.addColumn.meaning':
+    'Adds your own column: text, number, date, choice, checkbox and more.',
+  'help.tip.db.addColumn.example': 'Add “Exam date” as a Date column.',
+  'help.tip.db.auto.meaning':
+    'The app fills this column in by itself; you cannot type in it.',
+  'help.tip.db.auto.example': 'Status, Cards due and % correct are auto.',
+  'help.tip.db.column.meaning':
+    'Opens the column menu: sort, filter, hide or edit.',
+  'help.tip.db.column.example': 'Sort Confidence from high to low.',
+  'help.tip.db.newRow.meaning':
+    'Adds a row (a page you can open and write in).',
+  'help.tip.db.newRow.example': 'Add the drug “Amlodipine” to a Drug list.',
+  'help.tip.db.addChart.meaning':
+    'Adds a chart: a number, bars, a line, a donut, a progress bar or a calendar.',
+  'help.tip.db.addChart.example': 'Bars of Confidence per lesson.',
+  'help.tip.db.chartMenu.meaning':
+    'Edit, move, show as a table, or delete this chart.',
+  'help.tip.db.chartMenu.example': 'Show the numbers behind a chart.',
+  'help.tip.db.groupedBy.meaning':
+    'Chooses which column makes the board’s columns.',
+  'help.tip.db.groupedBy.example':
+    'Group a board by Status or by your own “Exam” column.',
+  'help.tip.db.cardShows.meaning': 'Chooses which values appear on each card.',
+  'help.tip.db.cardShows.example': 'Show Confidence stars on every card.',
+  'help.line.page.editor':
+    'Type / for blocks · [[ to link a page · # to add a tag · select words to hide them as a blank · the ⠿ handle beside a line › Make card.',
+  'help.line.review.ratings':
+    'Again = you forgot it · Hard = you barely remembered · Good = you remembered · Easy = no effort at all.',
+  'help.line.db.table':
+    'Click a cell to edit it. Click a column header to sort, filter or hide that column.',
   'help.line.tracker.statusRule':
     'Auto: Not started = no cards answered yet · Learning = under 75% correct · Mastered = 90% or more correct, nothing due, no new cards, and at least 80% of the cards at level Mastered · Review = in between.',
   'settings.dayStart.label': 'Day starts at',

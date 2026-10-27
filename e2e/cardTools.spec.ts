@@ -39,7 +39,7 @@ test('Most failed: cards rated Again come first, with their count', async ({
   page,
 }) => {
   // The empty card is never reviewed: only one card is due.
-  const review = sidebar(page).getByRole('button', { name: /^Review/ })
+  const review = sidebar(page).getByRole('button', { name: /^Review(?! this)/ })
   await expect(review).toContainText('1')
   await review.click()
   await page.getByRole('button', { name: 'Show answer' }).click()
@@ -98,7 +98,7 @@ for (const [theme, width, height] of [
       .getByRole('button', { name: theme })
       .click()
     await sidebar(page)
-      .getByRole('button', { name: /^Review/ })
+      .getByRole('button', { name: /^Review(?! this)/ })
       .click()
     await page.getByRole('button', { name: 'Show answer' }).click()
     await page.getByRole('button', { name: /^Again/ }).click()

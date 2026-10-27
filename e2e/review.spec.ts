@@ -12,7 +12,7 @@ import {
 const review = (page: Page) =>
   page.locator('main section:not([aria-labelledby^="linked-from"])')
 const reviewButton = (page: Page) =>
-  sidebar(page).getByRole('button', { name: /^Review/ })
+  sidebar(page).getByRole('button', { name: /^Review(?! this)/ })
 
 /** Writes a question, turns it into a card and types the answer. */
 async function makeCard(page: Page, question: string, answer: string) {
@@ -165,7 +165,7 @@ test('notebook review and empty states', async ({ page }) => {
   await createNotebook(page, 'Empty', 'Nothing here')
   const row = sidebar(page).locator('div.group').filter({ hasText: 'Empty' })
   await row.first().hover()
-  await row.first().getByTitle('Review this notebook').click()
+  await row.first().getByLabel('Review this notebook').click()
   await expect(review(page)).toContainText('No cards here yet.')
   await expect(
     review(page).getByRole('button', { name: 'Practice anyway' }),

@@ -1,20 +1,37 @@
+import { Tip } from '../help/Help'
+import type { TipId } from '../help/helpRegistry'
 import { useEffect, useRef, useState, type ComponentProps } from 'react'
 import { t } from '../i18n/t'
 import type { ChoiceRequest, ToastAction } from './appUi'
 
 /** Small UI building blocks shared across features. */
 
-/** Quiet icon button (sidebar row actions, labels). */
+/**
+ * Quiet icon button (sidebar row actions, labels). `title` names it; with
+ * `tip` it becomes the accessible name and the help tip explains it
+ * (hidden with Show help off); without, it is the browser's hover text.
+ */
 export function IconButton({
   className = '',
+  title,
+  tip,
   ...props
-}: ComponentProps<'button'>) {
-  return (
+}: ComponentProps<'button'> & { tip?: TipId }) {
+  const button = (
     <button
       type="button"
       className={`rounded-[5px] px-1.5 text-[15px] leading-6 text-muted hover:bg-hover hover:text-ink ${className}`}
+      title={tip ? undefined : title}
+      aria-label={tip ? title : props['aria-label']}
       {...props}
     />
+  )
+  return tip ? (
+    <Tip id={tip} touchInfo={false}>
+      {button}
+    </Tip>
+  ) : (
+    button
   )
 }
 

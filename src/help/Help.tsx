@@ -25,16 +25,22 @@ export function Tip({
   id,
   children,
   className = 'inline-flex items-center gap-0.5',
+  touchInfo = true,
 }: {
   id: TipId
   children: ReactNode
   /** Layout of the wrapper (it is a span). */
   className?: string
+  /**
+   * Show the ⓘ on touch screens. Off for small icon buttons in lists (an ⓘ
+   * beside every icon would crowd them): those keep the hover tip only.
+   */
+  touchInfo?: boolean
 }) {
   const on = useShowHelp()
   if (!on) return <>{children}</>
   return (
-    <TipBox id={id} className={className}>
+    <TipBox id={id} className={className} touchInfo={touchInfo}>
       {children}
     </TipBox>
   )
@@ -44,10 +50,12 @@ function TipBox({
   id,
   children,
   className,
+  touchInfo,
 }: {
   id: TipId
   children: ReactNode
   className: string
+  touchInfo: boolean
 }) {
   // Where the feature is while its tip is open (null = closed).
   const [anchor, setAnchor] = useState<DOMRect | null>(null)
@@ -99,19 +107,21 @@ function TipBox({
       aria-describedby={open ? bubbleId : undefined}
     >
       {children}
-      <button
-        type="button"
-        aria-label={t('help.info')}
-        aria-expanded={open}
-        onClick={() =>
-          setAnchor(
-            open ? null : (box.current?.getBoundingClientRect() ?? null),
-          )
-        }
-        className="tip-info"
-      >
-        ⓘ
-      </button>
+      {touchInfo && (
+        <button
+          type="button"
+          aria-label={t('help.info')}
+          aria-expanded={open}
+          onClick={() =>
+            setAnchor(
+              open ? null : (box.current?.getBoundingClientRect() ?? null),
+            )
+          }
+          className="tip-info"
+        >
+          ⓘ
+        </button>
+      )}
       {anchor && <Bubble id={id} bubbleId={bubbleId} box={anchor} />}
     </span>
   )

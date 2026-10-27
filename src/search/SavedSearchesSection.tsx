@@ -97,12 +97,14 @@ export function SavedSearchesSection({
             <span className="flex opacity-0 group-focus-within:opacity-100 group-hover:opacity-100">
               <IconButton
                 title={t('saved.rename')}
+                tip="sidebar.savedRename"
                 onClick={() => setRenaming(s)}
               >
                 ✎
               </IconButton>
               <IconButton
                 title={t('saved.delete')}
+                tip="sidebar.savedDelete"
                 onClick={() => setDeleting(s)}
               >
                 ×
@@ -111,6 +113,7 @@ export function SavedSearchesSection({
             {count && count.cards > 0 && (
               <IconButton
                 title={t('saved.review', { count: count.cards })}
+                tip="sidebar.savedReview"
                 onClick={() => onReview(s)}
               >
                 ⟳

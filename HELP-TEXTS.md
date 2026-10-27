@@ -2,7 +2,7 @@
 
 Every hover tip and help line in the app (shown while Settings › Show help is On). Generated from `src/help/helpRegistry.ts` and `src/i18n/en.ts`; to change a text, edit it in `en.ts`, then run `UPDATE_HELP=1 npx vitest run src/help` to refresh this file.
 
-## Hover tips (20)
+## Hover tips (75)
 
 ### `tracker.lesson`
 
@@ -124,7 +124,337 @@ Every hover tip and help line in the app (shown while Settings › Show help is 
 - **Meaning:** Each square is a day. The darker it is, the more cards you answered.
 - **Example:** A dark square = a busy study day; a blank one = a day off.
 
-## Help lines (4)
+### `sidebar.today`
+
+- **Where:** Sidebar › Today button
+- **Meaning:** Opens today’s journal page. Every day gets its own page, made from the Daily journal template.
+- **Example:** Write what you learned today; tomorrow you get a fresh page.
+
+### `sidebar.search`
+
+- **Where:** Sidebar › Search
+- **Meaning:** Finds words in all your notes, cards and tags.
+- **Example:** Type “mitral” to see every note and card that mentions it.
+
+### `sidebar.review`
+
+- **Where:** Sidebar › Review (the number is how many cards are due)
+- **Meaning:** Starts reviewing the cards that are due today. The badge shows how many are waiting.
+- **Example:** A badge “12” means 12 cards are ready now.
+
+### `sidebar.newNotebook`
+
+- **Where:** Sidebar › Notebooks › +
+- **Meaning:** Creates a notebook: one place for all the pages of a subject.
+- **Example:** Make a notebook called “Cardiology”.
+
+### `sidebar.notebook`
+
+- **Where:** Sidebar › a notebook’s name
+- **Meaning:** Opens the notebook (Notes, Database and Cards tabs). Double-click the name to rename it.
+- **Example:** Click “Cardiology” to see its lessons in a table.
+
+### `sidebar.addPage`
+
+- **Where:** Sidebar › a notebook’s + (on hover)
+- **Meaning:** Adds a page to this notebook: blank, or from a template.
+- **Example:** A new page called “Heart sounds”.
+
+### `sidebar.reviewNotebook`
+
+- **Where:** Sidebar › a notebook’s ⟳ (on hover)
+- **Meaning:** Reviews only the cards of this notebook that are due.
+- **Example:** Revise Cardiology without seeing Chemistry cards.
+
+### `sidebar.rename`
+
+- **Where:** Sidebar › a notebook’s ✎ (on hover)
+- **Meaning:** Changes this notebook’s name.
+- **Example:** “Cardio” → “Cardiology”.
+
+### `sidebar.deleteNotebook`
+
+- **Where:** Sidebar › a notebook’s × (on hover)
+- **Meaning:** Moves the notebook and all its pages to the Trash. You can restore it from there.
+- **Example:** Deleted by mistake? Open Trash and press ↺.
+
+### `sidebar.addSubPage`
+
+- **Where:** Sidebar › a page’s + (on hover)
+- **Meaning:** Adds a page inside this page, to split a big topic into parts.
+- **Example:** “Valves” inside “Heart sounds”.
+
+### `sidebar.moveTop`
+
+- **Where:** Sidebar › a sub-page’s ↰ (on hover)
+- **Meaning:** Takes this sub-page out of its parent and makes it a page on its own.
+- **Example:** The sub-page “Valves” becomes its own lesson.
+
+### `sidebar.deletePage`
+
+- **Where:** Sidebar › a page’s × (on hover)
+- **Meaning:** Moves this page and its sub-pages to the Trash. You can restore them.
+- **Example:** Restore it later from Trash.
+
+### `sidebar.newTemplate`
+
+- **Where:** Sidebar › Templates › +
+- **Meaning:** Creates a template: a page layout you can reuse for new pages.
+- **Example:** A “Study notes” layout with Summary and Questions.
+
+### `sidebar.deleteTemplate`
+
+- **Where:** Sidebar › a template’s × (on hover)
+- **Meaning:** Deletes this template. Pages already made from it stay as they are.
+- **Example:** Remove a layout you no longer use.
+
+### `sidebar.restore`
+
+- **Where:** Sidebar › Trash › ↺ (on hover)
+- **Meaning:** Brings this item back from the Trash, with its pages and cards.
+- **Example:** Restore the page “Heart sounds”.
+
+### `sidebar.deleteForever`
+
+- **Where:** Sidebar › Trash › × (on hover)
+- **Meaning:** Erases this item for good, with its cards and review history. This cannot be undone.
+- **Example:** Clear out things you will never need again.
+
+### `sidebar.newTag`
+
+- **Where:** Sidebar › Tags › +
+- **Meaning:** Creates a tag: a label you can put on pages and cards to find them together.
+- **Example:** Type “medicine/cardiology” to make a tag inside a tag.
+
+### `sidebar.tagOptions`
+
+- **Where:** Sidebar › a tag’s ⋯ (on hover)
+- **Meaning:** Rename, move, merge, recolour or delete this tag.
+- **Example:** Merge “cardio” into “cardiology”.
+
+### `sidebar.savedReview`
+
+- **Where:** Sidebar › Saved searches › ⟳ (on hover)
+- **Meaning:** Reviews the due cards found by this saved search.
+- **Example:** A saved search for “Most failed cards” becomes a study deck.
+
+### `sidebar.savedRename`
+
+- **Where:** Sidebar › Saved searches › ✎ (on hover)
+- **Meaning:** Changes the name of this saved search.
+- **Example:** “Wrong cards” → “Hard ones”.
+
+### `sidebar.savedDelete`
+
+- **Where:** Sidebar › Saved searches › × (on hover)
+- **Meaning:** Deletes this saved search. Your notes and cards are not touched.
+- **Example:** Remove a search you no longer use.
+
+### `sidebar.settings`
+
+- **Where:** Sidebar › Settings
+- **Meaning:** Opens Settings: theme, when your day starts, review limits and more.
+- **Example:** Turn “Show help” off once you know the app.
+
+### `sidebar.theme`
+
+- **Where:** Sidebar › Day / Night / Sepia buttons
+- **Meaning:** Changes how the app looks: light, dark, or warm paper.
+- **Example:** Night is easier on the eyes in the evening.
+
+### `notebook.tabNotes`
+
+- **Where:** Notebook › Notes tab
+- **Meaning:** The pages of this notebook, as a list you can open.
+- **Example:** Open “Heart sounds” to read or edit it.
+
+### `notebook.tabDatabase`
+
+- **Where:** Notebook › Database tab
+- **Meaning:** Your Study tracker: one row per lesson, with its status and progress. You can add your own columns.
+- **Example:** See which lessons still need work.
+
+### `notebook.tabCards`
+
+- **Where:** Notebook › Cards tab
+- **Meaning:** Every card of this notebook in one list, with when it is due.
+- **Example:** Find a card quickly, or review them all.
+
+### `notebook.tabOptions`
+
+- **Where:** Notebook › ⋯ beside the tabs
+- **Meaning:** Rename or hide the tabs of this notebook.
+- **Example:** Hide the Cards tab if you never use it.
+
+### `notebook.close`
+
+- **Where:** Notebook › × (top right)
+- **Meaning:** Closes the notebook and goes back to your last page.
+- **Example:** Back to where you were writing.
+
+### `page.reviewPage`
+
+- **Where:** Page › “Review this page” button
+- **Meaning:** Reviews the cards of this page that are due, and its sub-pages’ cards.
+- **Example:** Revise one lesson right after reading it.
+
+### `page.saveTemplate`
+
+- **Where:** Page › “Save as template” button
+- **Meaning:** Saves this page’s layout as a template for new pages (its sub-pages too).
+- **Example:** Turn a good lesson page into a reusable layout.
+
+### `page.import`
+
+- **Where:** Page › Import (coming soon)
+- **Meaning:** Will bring a file into this page. It arrives in a later phase.
+- **Example:** Import notes from another app.
+
+### `page.export`
+
+- **Where:** Page › Export (coming soon)
+- **Meaning:** Will save this page as a file you can keep or share. It arrives in a later phase.
+- **Example:** Export a lesson as a document.
+
+### `page.addTag`
+
+- **Where:** Page › + Add tag (under the title)
+- **Meaning:** Puts a tag on this page so you can find it with others.
+- **Example:** Tag “Heart sounds” with “cardiology”.
+
+### `page.sections`
+
+- **Where:** Page › the chips at the top of a long page
+- **Meaning:** Jumps to a heading on this page.
+- **Example:** Click “Murmurs” to scroll straight to it.
+
+### `review.show`
+
+- **Where:** Review › Show answer
+- **Meaning:** Reveals the answer. Try to remember it first, then check.
+- **Example:** Press Space to reveal.
+
+### `review.ratings`
+
+- **Where:** Review › Again / Hard / Good / Easy
+- **Meaning:** Tell the app how well you remembered. The time under each button is when the card comes back.
+- **Example:** Forgot → Again (soon). Knew it easily → Easy (much later).
+
+### `review.scope`
+
+- **Where:** Review › All / Got wrong switch
+- **Meaning:** Choose which cards to review: everything due, or only cards you got wrong lately.
+- **Example:** Use “Got wrong” to drill the cards you keep missing.
+
+### `review.practice`
+
+- **Where:** Review › Practice anyway
+- **Meaning:** Goes through cards that are not due yet, for extra practice. It does not change when they come back.
+- **Example:** A quick run before an exam.
+
+### `review.close`
+
+- **Where:** Review › × (top right)
+- **Meaning:** Leaves the review. Cards you answered stay answered.
+- **Example:** Stop for today and come back later.
+
+### `search.types`
+
+- **Where:** Search › All / Notes / Cards / … chips
+- **Meaning:** Shows only one kind of result.
+- **Example:** Pick Cards to search only your flashcards.
+
+### `search.save`
+
+- **Where:** Search › Save this search
+- **Meaning:** Keeps this search in the sidebar so you can open it again in one click.
+- **Example:** Save “cards tagged cardiology” as a study deck.
+
+### `search.reviewCards`
+
+- **Where:** Search › Review these cards
+- **Meaning:** Reviews the due cards among these results.
+- **Example:** Search “valves”, then revise just those cards.
+
+### `search.removeEmpty`
+
+- **Where:** Search › Remove empty cards
+- **Meaning:** Removes cards that have no question, so they stop cluttering your lists.
+- **Example:** Clean up cards you started but never wrote.
+
+### `db.viewTable`
+
+- **Where:** Database › Table view button
+- **Meaning:** Shows the rows in a table you can edit, sort and filter.
+- **Example:** Edit a lesson’s Confidence right in the table.
+
+### `db.viewDashboard`
+
+- **Where:** Database › Dashboard view button
+- **Meaning:** Shows charts and numbers about your rows.
+- **Example:** See lessons by status as a donut.
+
+### `db.viewBoard`
+
+- **Where:** Database › Board view button
+- **Meaning:** Shows the rows as cards in columns. Drag a card to change its column.
+- **Example:** Drag a lesson from Learning to Review.
+
+### `db.viewOptions`
+
+- **Where:** Database › ⋯ beside the views
+- **Meaning:** Choose which view opens first and other view settings.
+- **Example:** Open on the Dashboard once there are rows.
+
+### `db.addColumn`
+
+- **Where:** Database › + Column
+- **Meaning:** Adds your own column: text, number, date, choice, checkbox and more.
+- **Example:** Add “Exam date” as a Date column.
+
+### `db.auto`
+
+- **Where:** Database › the “auto” label on a column
+- **Meaning:** The app fills this column in by itself; you cannot type in it.
+- **Example:** Status, Cards due and % correct are auto.
+
+### `db.column`
+
+- **Where:** Database › a column header
+- **Meaning:** Opens the column menu: sort, filter, hide or edit.
+- **Example:** Sort Confidence from high to low.
+
+### `db.newRow`
+
+- **Where:** Database › + New row
+- **Meaning:** Adds a row (a page you can open and write in).
+- **Example:** Add the drug “Amlodipine” to a Drug list.
+
+### `db.addChart`
+
+- **Where:** Dashboard › + Add chart
+- **Meaning:** Adds a chart: a number, bars, a line, a donut, a progress bar or a calendar.
+- **Example:** Bars of Confidence per lesson.
+
+### `db.chartMenu`
+
+- **Where:** Dashboard › ⋯ on a chart
+- **Meaning:** Edit, move, show as a table, or delete this chart.
+- **Example:** Show the numbers behind a chart.
+
+### `db.groupedBy`
+
+- **Where:** Board › Grouped by …
+- **Meaning:** Chooses which column makes the board’s columns.
+- **Example:** Group a board by Status or by your own “Exam” column.
+
+### `db.cardShows`
+
+- **Where:** Board › Card shows
+- **Meaning:** Chooses which values appear on each card.
+- **Example:** Show Confidence stars on every card.
+
+## Help lines (7)
 
 Help lines are marked in the page with `data-help-line="<id>"`.
 
@@ -147,3 +477,18 @@ Help lines are marked in the page with `data-help-line="<id>"`.
 
 - **Where:** Study tracker › inside the Status menu (how Auto works)
 - **Text:** Auto: Not started = no cards answered yet · Learning = under 75% correct · Mastered = 90% or more correct, nothing due, no new cards, and at least 80% of the cards at level Mastered · Review = in between.
+
+### `page.editor`
+
+- **Where:** Page › under the title
+- **Text:** Type / for blocks · [[ to link a page · # to add a tag · select words to hide them as a blank · the ⠿ handle beside a line › Make card.
+
+### `review.ratings`
+
+- **Where:** Review › under the Again / Hard / Good / Easy buttons
+- **Text:** Again = you forgot it · Hard = you barely remembered · Good = you remembered · Easy = no effort at all.
+
+### `db.table`
+
+- **Where:** Database (not the Study tracker) › under the table
+- **Text:** Click a cell to edit it. Click a column header to sort, filter or hide that column.

@@ -21,7 +21,7 @@ export function row(page: Page, name: string): Locator {
 export async function rowAction(page: Page, name: string, action: string) {
   const r = row(page, name)
   await r.hover()
-  await r.getByTitle(action, { exact: true }).click()
+  await r.getByLabel(action, { exact: true }).click()
 }
 
 /** Types a page title into the open page's title field. */
@@ -45,7 +45,7 @@ export async function createNotebook(
 ) {
   const empty = page.getByRole('button', { name: 'Create notebook' })
   if (await empty.isVisible()) await empty.click()
-  else await sidebar(page).getByTitle('New notebook').click()
+  else await sidebar(page).getByLabel('New notebook').click()
 
   const nameField = sidebar(page).getByRole('textbox', { name: 'Name' })
   await nameField.fill(name)
@@ -134,7 +134,7 @@ export async function openTrash(page: Page): Promise<Locator> {
 export async function trashEntries(page: Page): Promise<string[]> {
   const entries = sidebar(page)
     .locator('div.group')
-    .filter({ has: page.getByTitle('Restore', { exact: true }) })
+    .filter({ has: page.getByLabel('Restore', { exact: true }) })
   const texts = await entries.allInnerTexts()
   return texts.map((t) =>
     t
@@ -153,11 +153,11 @@ export async function trashAction(
 ) {
   const entry = sidebar(page)
     .locator('div.group')
-    .filter({ has: page.getByTitle('Restore', { exact: true }) })
+    .filter({ has: page.getByLabel('Restore', { exact: true }) })
     .filter({ hasText: title })
     .first()
   await entry.hover()
-  await entry.getByTitle(action, { exact: true }).click()
+  await entry.getByLabel(action, { exact: true }).click()
 }
 
 /** Selects `text` (within one line) in the editor, like dragging the mouse. */

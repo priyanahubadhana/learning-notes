@@ -143,6 +143,7 @@ export function TagsSection({
             )}
             <IconButton
               title={t('tags.options', { name: pathOf(tag.id) })}
+              tip="sidebar.tagOptions"
               aria-label={t('tags.options', { name: pathOf(tag.id) })}
               onClick={(e) =>
                 openMenu(tag, e.currentTarget.getBoundingClientRect())
@@ -165,6 +166,7 @@ export function TagsSection({
         {t('tags.section')}
         <IconButton
           title={t('tags.new')}
+          tip="sidebar.newTag"
           aria-label={t('tags.new')}
           onClick={() => setTool({ kind: 'new' })}
         >

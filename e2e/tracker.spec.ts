@@ -31,7 +31,7 @@ async function openTracker(page: Page) {
 /** Reviews both cards: the first rated Good, the second Again. */
 async function review(page: Page) {
   await sidebar(page)
-    .getByRole('button', { name: /^Review/ })
+    .getByRole('button', { name: /^Review(?! this)/ })
     .click()
   const screen = page.locator(
     'main section:not([aria-labelledby^="linked-from"])',

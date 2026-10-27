@@ -1,5 +1,12 @@
 import { useLiveQuery } from 'dexie-react-hooks'
-import { useContext, useEffect, useState, type DragEvent } from 'react'
+import {
+  useContext,
+  useEffect,
+  useState,
+  type DragEvent,
+  type ReactNode,
+} from 'react'
+import { Tip } from '../help/Help'
 import { AppUiContext } from '../app/appUi'
 import { runTask } from '../app/errors'
 import { THEMES, THEME_LABELS, type Theme } from '../app/theme'
@@ -195,60 +202,63 @@ export function Sidebar({
       <div className="px-2.5 pt-1 pb-3.5 font-semibold tracking-[-0.01em]">
         ◐ Learning Notes
       </div>
-      <button
-        type="button"
-        onClick={onOpenToday}
-        aria-label="Open today’s journal"
-        title="Open today’s journal page (Alt+T)"
-        className="mb-2 flex w-full items-center gap-2 rounded-lg border border-line bg-bg px-2.5 py-1.5 text-left text-sm transition-colors hover:border-accent"
-      >
-        <span aria-hidden>☀</span>
-        <span className="flex-1">
-          Today · {shortDayLabel(dateKey(new Date()))}
-        </span>
-        <kbd className="rounded border border-line bg-side px-1 font-mono text-[11px] text-muted">
-          Alt+T
-        </kbd>
-      </button>
-      <button
-        type="button"
-        onClick={onOpenSearch}
-        aria-current={searchOpen ? 'page' : undefined}
-        title={t('search.sidebarHint', { key: shortcutLabel('K') })}
-        className={`flex min-h-9 w-full items-center gap-2 rounded-lg px-2.5 text-left text-sm transition-colors hover:bg-hover ${
-          searchOpen ? 'bg-hover font-semibold' : ''
-        }`}
-      >
-        <span aria-hidden className="text-muted">
-          🔍
-        </span>
-        <span className="flex-1">{t('search.sidebar')}</span>
-        <kbd className="rounded border border-line bg-side px-1 font-mono text-[11px] text-muted">
-          {shortcutLabel('K')}
-        </kbd>
-      </button>
-      <button
-        type="button"
-        onClick={() => onOpenReview({ kind: 'all' })}
-        aria-current={reviewOpen ? 'page' : undefined}
-        title={t('review.sidebarHint')}
-        className={`mb-2 flex min-h-9 w-full items-center gap-2 rounded-lg px-2.5 text-left text-sm transition-colors hover:bg-hover ${
-          reviewOpen ? 'bg-hover font-semibold' : ''
-        }`}
-      >
-        <span aria-hidden className="text-muted">
-          ⟳
-        </span>
-        <span className="flex-1">{t('review.sidebar')}</span>
-        {dueCount !== undefined && dueCount > 0 && (
-          <span
-            aria-label={t('review.dueCount', { count: dueCount })}
-            className="rounded-full bg-accent px-2 text-[12px] leading-5 font-medium text-white tabular-nums"
-          >
-            {dueCount}
+      <Tip id="sidebar.today" className="flex">
+        <button
+          type="button"
+          onClick={onOpenToday}
+          aria-label="Open today’s journal"
+          className="mb-2 flex w-full items-center gap-2 rounded-lg border border-line bg-bg px-2.5 py-1.5 text-left text-sm transition-colors hover:border-accent"
+        >
+          <span aria-hidden>☀</span>
+          <span className="flex-1">
+            Today · {shortDayLabel(dateKey(new Date()))}
           </span>
-        )}
-      </button>
+          <kbd className="rounded border border-line bg-side px-1 font-mono text-[11px] text-muted">
+            Alt+T
+          </kbd>
+        </button>
+      </Tip>
+      <Tip id="sidebar.search" className="flex">
+        <button
+          type="button"
+          onClick={onOpenSearch}
+          aria-current={searchOpen ? 'page' : undefined}
+          className={`flex min-h-9 w-full items-center gap-2 rounded-lg px-2.5 text-left text-sm transition-colors hover:bg-hover ${
+            searchOpen ? 'bg-hover font-semibold' : ''
+          }`}
+        >
+          <span aria-hidden className="text-muted">
+            🔍
+          </span>
+          <span className="flex-1">{t('search.sidebar')}</span>
+          <kbd className="rounded border border-line bg-side px-1 font-mono text-[11px] text-muted">
+            {shortcutLabel('K')}
+          </kbd>
+        </button>
+      </Tip>
+      <Tip id="sidebar.review" className="mb-2 flex">
+        <button
+          type="button"
+          onClick={() => onOpenReview({ kind: 'all' })}
+          aria-current={reviewOpen ? 'page' : undefined}
+          className={`flex min-h-9 w-full items-center gap-2 rounded-lg px-2.5 text-left text-sm transition-colors hover:bg-hover ${
+            reviewOpen ? 'bg-hover font-semibold' : ''
+          }`}
+        >
+          <span aria-hidden className="text-muted">
+            ⟳
+          </span>
+          <span className="flex-1">{t('review.sidebar')}</span>
+          {dueCount !== undefined && dueCount > 0 && (
+            <span
+              aria-label={t('review.dueCount', { count: dueCount })}
+              className="rounded-full bg-accent px-2 text-[12px] leading-5 font-medium text-white tabular-nums"
+            >
+              {dueCount}
+            </span>
+          )}
+        </button>
+      </Tip>
       <SavedSearchesSection
         db={db}
         activeId={savedSearchId}
@@ -263,7 +273,11 @@ export function Sidebar({
         />
         <div className="flex items-center justify-between px-2.5 pt-2.5 pb-1 text-[11px] tracking-[0.06em] text-muted uppercase">
           Notebooks
-          <IconButton title="New notebook" onClick={onCreateNotebook}>
+          <IconButton
+            title="New notebook"
+            tip="sidebar.newNotebook"
+            onClick={onCreateNotebook}
+          >
             +
           </IconButton>
         </div>
@@ -312,31 +326,33 @@ export function Sidebar({
                     }}
                   />
                 ) : (
-                  <button
-                    type="button"
-                    onClick={() => {
-                      // A normal notebook opens (its tabs); special ones fold.
-                      if (notebook.kind) {
-                        tree.toggleNotebook(notebook.id)
-                        return
+                  <NotebookTip special={!!notebook.kind}>
+                    <button
+                      type="button"
+                      onClick={() => {
+                        // A normal notebook opens (its tabs); special ones fold.
+                        if (notebook.kind) {
+                          tree.toggleNotebook(notebook.id)
+                          return
+                        }
+                        tree.expandNotebook(notebook.id)
+                        onOpenNotebook(notebook.id)
+                      }}
+                      aria-current={
+                        openNotebookId === notebook.id ? 'page' : undefined
                       }
-                      tree.expandNotebook(notebook.id)
-                      onOpenNotebook(notebook.id)
-                    }}
-                    aria-current={
-                      openNotebookId === notebook.id ? 'page' : undefined
-                    }
-                    title={notebook.kind ? undefined : t('notebook.open')}
-                    onDoubleClick={() => onRenamingChange(notebook.id)}
-                    className="flex-1 truncate text-left font-semibold"
-                  >
-                    {notebook.title || 'Untitled'}
-                  </button>
+                      onDoubleClick={() => onRenamingChange(notebook.id)}
+                      className="flex-1 truncate text-left font-semibold"
+                    >
+                      {notebook.title || 'Untitled'}
+                    </button>
+                  </NotebookTip>
                 )}
                 <span className="flex opacity-0 group-focus-within:opacity-100 group-hover:opacity-100">
                   {notebook.kind !== 'journal' && (
                     <IconButton
                       title="Add page"
+                      tip="sidebar.addPage"
                       onClick={(e) =>
                         openAddMenu(
                           e.currentTarget.getBoundingClientRect(),
@@ -351,6 +367,7 @@ export function Sidebar({
                   {notebook.kind !== 'templates' && (
                     <IconButton
                       title={t('review.thisNotebook')}
+                      tip="sidebar.reviewNotebook"
                       onClick={() =>
                         onOpenReview({
                           kind: 'notebook',
@@ -363,12 +380,14 @@ export function Sidebar({
                   )}
                   <IconButton
                     title="Rename"
+                    tip="sidebar.rename"
                     onClick={() => onRenamingChange(notebook.id)}
                   >
                     ✎
                   </IconButton>
                   <IconButton
                     title="Delete notebook"
+                    tip="sidebar.deleteNotebook"
                     onClick={() => requestNotebookDelete(notebook)}
                   >
                     ×
@@ -435,34 +454,44 @@ export function Sidebar({
         />
       )}
 
-      <button
-        type="button"
-        onClick={onOpenSettings}
-        aria-current={settingsOpen ? 'page' : undefined}
-        className={`mx-0.5 mt-1 flex min-h-9 items-center gap-2 rounded-lg px-2.5 text-left text-sm transition-colors hover:bg-hover ${
-          settingsOpen ? 'bg-hover font-semibold' : ''
-        }`}
-      >
-        <span aria-hidden className="text-muted">
-          ⚙
-        </span>
-        {t('settings.title')}
-      </button>
-      <div role="group" aria-label="Theme" className="flex gap-1.5 p-2.5">
-        {THEMES.map((t) => (
-          <button
-            key={t}
-            type="button"
-            aria-pressed={theme === t}
-            onClick={() => onThemeChange(t)}
-            className={`flex-1 rounded-lg border bg-bg p-1.5 text-xs transition-colors ${
-              theme === t ? 'border-accent text-accent' : 'border-line text-ink'
-            }`}
-          >
-            {THEME_LABELS[t]}
-          </button>
-        ))}
-      </div>
+      <Tip id="sidebar.settings" className="flex">
+        <button
+          type="button"
+          onClick={onOpenSettings}
+          aria-current={settingsOpen ? 'page' : undefined}
+          className={`mx-0.5 mt-1 flex min-h-9 items-center gap-2 rounded-lg px-2.5 text-left text-sm transition-colors hover:bg-hover ${
+            settingsOpen ? 'bg-hover font-semibold' : ''
+          }`}
+        >
+          <span aria-hidden className="text-muted">
+            ⚙
+          </span>
+          {t('settings.title')}
+        </button>
+      </Tip>
+      <Tip id="sidebar.theme" className="flex" touchInfo={false}>
+        <div
+          role="group"
+          aria-label="Theme"
+          className="flex flex-1 gap-1.5 p-2.5"
+        >
+          {THEMES.map((t) => (
+            <button
+              key={t}
+              type="button"
+              aria-pressed={theme === t}
+              onClick={() => onThemeChange(t)}
+              className={`flex-1 rounded-lg border bg-bg p-1.5 text-xs transition-colors ${
+                theme === t
+                  ? 'border-accent text-accent'
+                  : 'border-line text-ink'
+              }`}
+            >
+              {THEME_LABELS[t]}
+            </button>
+          ))}
+        </div>
+      </Tip>
 
       {pending && (
         <ConfirmDialog
@@ -476,5 +505,26 @@ export function Sidebar({
         />
       )}
     </aside>
+  )
+}
+
+/** A notebook's name with its tip (special notebooks only fold, no tip). */
+function NotebookTip({
+  special,
+  children,
+}: {
+  special: boolean
+  children: ReactNode
+}) {
+  return special ? (
+    <>{children}</>
+  ) : (
+    <Tip
+      id="sidebar.notebook"
+      className="flex min-w-0 flex-1"
+      touchInfo={false}
+    >
+      {children}
+    </Tip>
   )
 }

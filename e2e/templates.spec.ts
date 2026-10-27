@@ -29,10 +29,10 @@ test('starter templates are listed; Daily journal cannot be deleted', async ({
     ])
   await row(page, 'Daily journal').hover()
   await expect(
-    row(page, 'Daily journal').getByTitle('Delete template'),
+    row(page, 'Daily journal').getByLabel('Delete template'),
   ).toHaveCount(0)
   await expect(
-    row(page, 'Study notes').getByTitle('Delete template'),
+    row(page, 'Study notes').getByLabel('Delete template'),
   ).toHaveCount(1)
 })
 
@@ -50,7 +50,7 @@ test('a template’s sub-pages fold out in the sidebar and open', async ({
     'Keyword summary',
   )
   await subPage.hover()
-  await expect(subPage.getByTitle('Move to top level')).toHaveCount(0)
+  await expect(subPage.getByLabel('Move to top level')).toHaveCount(0)
 
   await template.getByRole('button', { name: 'Collapse' }).click()
   await expect(subPage).toHaveCount(0)

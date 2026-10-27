@@ -1,11 +1,11 @@
-import { useLiveQuery } from 'dexie-react-hooks'
 import { useContext, useMemo, useState } from 'react'
 import { AppUiContext } from '../../app/appUi'
 import { t } from '../../i18n/t'
 import { useMinuteClock } from '../../recall/useMinuteClock'
-import { loadDatabaseData, resolveRows } from '../databaseQuery'
+import { resolveRows } from '../databaseQuery'
 import { updateView } from '../databaseService'
 import { PopItem, PopSeparator, Popover } from '../views/Popover'
+import { useDatabaseData } from '../views/useDatabaseData'
 import type { ViewProps } from '../views/viewTypes'
 import { ChartBody } from './ChartBody'
 import { chartData } from './chartData'
@@ -34,11 +34,8 @@ const SPAN: Record<ChartSpec['size'], string> = {
  */
 export function DashboardView({ db, database, view }: ViewProps) {
   const ui = useContext(AppUiContext)
-  const data = useLiveQuery(
-    () => loadDatabaseData(db, database.id),
-    [db, database.id],
-  )
   const now = useMinuteClock()
+  const data = useDatabaseData(db, database, now)
   const [menu, setMenu] = useState<{ id: string; anchor: HTMLElement } | null>(
     null,
   )
@@ -119,6 +116,7 @@ export function DashboardView({ db, database, view }: ViewProps) {
               data={chartData(spec, rows, columns, now)}
               columns={columns}
               asTable={tables.has(spec.id)}
+              lessons={database.kind === 'studyTracker'}
             />
           </section>
         )

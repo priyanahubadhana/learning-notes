@@ -1,5 +1,7 @@
 import type { DbColumn } from '../core/types'
 import { dateLocale, t, type MessageKey } from '../i18n/t'
+import type { ResolvedRow } from './databaseQuery'
+import { cardsDueText } from './trackerStats'
 import {
   isBlank,
   isDate,
@@ -73,6 +75,14 @@ function dateDisplay(text: string): string {
     year: 'numeric',
     ...(day ? { timeZone: 'UTC' } : { hour: 'numeric', minute: '2-digit' }),
   }).format(ms)
+}
+
+/** A row's cell as text; a tracker lesson's Cards due reads "5 due · 20 new". */
+export function rowCellText(row: ResolvedRow, column: DbColumn): string {
+  if (row.tracker && column.type === 'trackerCardsDue') {
+    return cardsDueText(row.tracker.stats)
+  }
+  return cellText(row.values[column.id] ?? null, column)
 }
 
 /**

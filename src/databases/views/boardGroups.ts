@@ -18,7 +18,9 @@ export const NO_VALUE = ''
 
 /** Columns a board can group by: Choice columns (one value per row). */
 export function groupableColumns(columns: readonly DbColumn[]): DbColumn[] {
-  return columns.filter((c) => c.type === 'choice')
+  return columns.filter(
+    (c) => c.type === 'choice' || c.type === 'trackerStatus',
+  )
 }
 
 /** The column the board groups by: the saved one, else the first Choice. */
@@ -41,8 +43,12 @@ export interface BoardGroup {
   rows: ResolvedRow[]
 }
 
-/** The option id a row stores in `column` (NO_VALUE if none or unknown). */
+/**
+ * The option id a row stores in `column` (NO_VALUE if none or unknown). A
+ * Study tracker's Status is the one the lesson shows (set by hand or Auto).
+ */
 export function groupKeyOf(row: ResolvedRow, column: DbColumn): string {
+  if (column.type === 'trackerStatus') return row.tracker?.status ?? NO_VALUE
   const id = getColumnType('choice')!.read(row.page.values?.[column.id], column)
   return typeof id === 'string' ? id : NO_VALUE
 }
@@ -71,6 +77,23 @@ export function groupRows(
 /** The value to write when a card is moved to the group `key`. */
 export const groupValue = (key: string): JsonValue =>
   key === NO_VALUE ? null : key
+
+/**
+ * The value to write when `row` (none: a new lesson, which starts as Not
+ * started) goes to group `key`. A Study tracker lesson dropped on the
+ * column of its automatic Status goes back to Auto (nothing stored).
+ */
+export function moveValue(
+  column: DbColumn,
+  key: string,
+  row?: ResolvedRow,
+): JsonValue {
+  if (column.type === 'trackerStatus') {
+    const auto = row ? row.tracker?.auto : 'notStarted'
+    return key === auto ? null : key
+  }
+  return groupValue(key)
+}
 
 /**
  * Columns whose values a card shows (never the grouping column): the ones

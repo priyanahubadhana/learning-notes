@@ -31,6 +31,12 @@ const KIND_BY_TYPE: Record<string, Kind> = {
   checkbox: 'checkbox',
   choice: 'choice',
   choices: 'choice',
+  // Study tracker auto columns.
+  trackerStatus: 'choice',
+  trackerCardsDue: 'number',
+  trackerCorrect: 'number',
+  trackerLastRevised: 'date',
+  trackerLevels: 'text',
 }
 
 const empties: FilterChoice[] = [
@@ -84,6 +90,9 @@ const CHOICES: Record<Kind, FilterChoice[]> = {
 function kindOf(column: DbColumn | null): Kind {
   return column ? (KIND_BY_TYPE[column.type] ?? 'any') : 'text'
 }
+
+const isPercent = (column: DbColumn | null | undefined) =>
+  column?.config.format === 'percent' || column?.type === 'trackerCorrect'
 
 /** The filters a column offers, in menu order. */
 export function filterChoices(column: DbColumn | null): FilterChoice[] {
@@ -155,12 +164,10 @@ export function filterLabel(
 export function typedNumber(text: string, column: DbColumn | null) {
   const n = Number(text.trim().replace(/,/g, ''))
   if (text.trim() === '' || !Number.isFinite(n)) return null
-  return column?.config.format === 'percent' ? n / 100 : n
+  return isPercent(column) ? n / 100 : n
 }
 
 /** A stored number as typed (the reverse of `typedNumber`). */
 export function numberForInput(n: number, column: DbColumn | null): string {
-  return String(
-    column?.config.format === 'percent' ? Math.round(n * 1e10) / 1e8 : n,
-  )
+  return String(isPercent(column) ? Math.round(n * 1e10) / 1e8 : n)
 }

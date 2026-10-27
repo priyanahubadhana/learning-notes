@@ -1,4 +1,3 @@
-import { useLiveQuery } from 'dexie-react-hooks'
 import {
   useContext,
   useEffect,
@@ -15,14 +14,9 @@ import { t } from '../../i18n/t'
 import { createPage } from '../../pages/pageService'
 import { useMinuteClock } from '../../recall/useMinuteClock'
 import { tagColorStyle } from '../../tags/tagStyle'
-import { cellText } from '../cellDisplay'
+import { rowCellText } from '../cellDisplay'
 import { TITLE_COLUMN_ID } from '../columnTypes'
-import {
-  loadDatabaseData,
-  queryRows,
-  resolveRows,
-  type ResolvedRow,
-} from '../databaseQuery'
+import { queryRows, resolveRows, type ResolvedRow } from '../databaseQuery'
 import { addRow, placeRow, setCell, updateView } from '../databaseService'
 import {
   NO_VALUE,
@@ -32,7 +26,7 @@ import {
   dropNeighbour,
   groupKeyOf,
   groupRows,
-  groupValue,
+  moveValue,
   groupableColumns,
   withCardColumn,
   withCardMoved,
@@ -45,13 +39,21 @@ import { columnIcon } from './columnLook'
 import { PopHeading, PopItem, PopSeparator, Popover } from './Popover'
 import { CellPills, InlineEditor } from './TableCells'
 import { knownQuery, readRowQuery } from './viewConfig'
+import { useDatabaseData } from './useDatabaseData'
 import type { ViewProps } from './viewTypes'
 
 /** Cards drawn per group at first, and added per "Show more". */
 const PAGE_SIZE = 50
 
 /** Column types whose values show as pills on a card. */
-const PILL_TYPES = new Set(['choice', 'choices', 'tag', 'noteLink', 'relation'])
+const PILL_TYPES = new Set([
+  'choice',
+  'choices',
+  'tag',
+  'noteLink',
+  'relation',
+  'trackerStatus',
+])
 
 /** Mouse: pixels moved before a press becomes a drag. */
 const MOUSE_SLOP = 5
@@ -99,11 +101,8 @@ interface Drag {
  */
 export function BoardView({ db, database, view, onOpenPage }: ViewProps) {
   const ui = useContext(AppUiContext)
-  const data = useLiveQuery(
-    () => loadDatabaseData(db, database.id),
-    [db, database.id],
-  )
   const now = useMinuteClock()
+  const data = useDatabaseData(db, database, now)
   const [shown, setShown] = useState<Record<string, number>>({})
   const [menu, setMenu] = useState<Menu | null>(null)
   const [dialog, setDialog] = useState<ColumnTarget | null>(null)
@@ -187,7 +186,7 @@ export function BoardView({ db, database, view, onOpenPage }: ViewProps) {
   const moveTo = (rowId: string, key: string) => {
     const row = rows.find((r) => r.page.id === rowId)
     if (!row || !groupColumn || groupKeyOf(row, groupColumn) === key) return
-    void write(rowId, groupColumn.id, groupValue(key))
+    void write(rowId, groupColumn.id, moveValue(groupColumn, key, row))
   }
   const newCard = async (key: string) => {
     if (!groupColumn) return
@@ -195,7 +194,7 @@ export function BoardView({ db, database, view, onOpenPage }: ViewProps) {
       tracker && database.notebookId
         ? await createPage(db, database.notebookId, null, '')
         : await addRow(db, database.id)
-    await write(page.id, groupColumn.id, groupValue(key))
+    await write(page.id, groupColumn.id, moveValue(groupColumn, key))
     setEditing(page.id)
   }
 
@@ -265,7 +264,13 @@ export function BoardView({ db, database, view, onOpenPage }: ViewProps) {
     const changes: Record<string, JsonValue> =
       target.key === from.key
         ? {}
-        : { [groupColumn!.id]: groupValue(target.key) }
+        : {
+            [groupColumn!.id]: moveValue(
+              groupColumn!,
+              target.key,
+              rows.find((r) => r.page.id === d.rowId),
+            ),
+          }
     // A sorted view places cards by its sort, so only the group changes.
     const place = sorted ? null : dropNeighbour(groups, target)
     if (Object.keys(changes).length === 0 && !place) return
@@ -440,10 +445,12 @@ export function BoardView({ db, database, view, onOpenPage }: ViewProps) {
   const toolButton =
     'inline-flex min-h-8 items-center gap-1.5 rounded-full border border-line px-3 text-[12.5px] hover:bg-hover'
   const editOptions = () => setDialog({ kind: 'edit', column: groupColumn })
+  // A Study tracker's Status has a fixed list of options.
+  const fixedOptions = groupColumn.type === 'trackerStatus'
 
   const cardValue = (row: ResolvedRow, column: DbColumn) => {
     const value = row.values[column.id] ?? null
-    const text = cellText(value, column)
+    const text = rowCellText(row, column)
     if (!text) return null
     if (PILL_TYPES.has(column.type)) {
       return <CellPills key={column.id} column={column} value={value} />
@@ -658,28 +665,30 @@ export function BoardView({ db, database, view, onOpenPage }: ViewProps) {
           )
         })}
         {/* Last column: add options to the grouping column. */}
-        <div
-          className={`flex shrink-0 flex-col items-start gap-2 rounded-xl border border-dashed border-line p-3 ${
-            noOptions ? 'w-64 phone:w-[70vw]' : 'w-40'
-          }`}
-        >
-          {noOptions && (
-            <p className="text-[13px] text-muted">
-              {t('board.noOptions', { column: groupColumn.name })}
-            </p>
-          )}
-          <button
-            type="button"
-            onClick={editOptions}
-            className={
-              noOptions
-                ? 'min-h-9 rounded-lg bg-accent px-3 text-[13px] font-medium text-white hover:opacity-90'
-                : 'min-h-8 rounded-md px-1 text-[13px] text-muted hover:bg-hover hover:text-ink'
-            }
+        {!fixedOptions && (
+          <div
+            className={`flex shrink-0 flex-col items-start gap-2 rounded-xl border border-dashed border-line p-3 ${
+              noOptions ? 'w-64 phone:w-[70vw]' : 'w-40'
+            }`}
           >
-            {noOptions ? t('board.addOptions') : t('board.addOption')}
-          </button>
-        </div>
+            {noOptions && (
+              <p className="text-[13px] text-muted">
+                {t('board.noOptions', { column: groupColumn.name })}
+              </p>
+            )}
+            <button
+              type="button"
+              onClick={editOptions}
+              className={
+                noOptions
+                  ? 'min-h-9 rounded-lg bg-accent px-3 text-[13px] font-medium text-white hover:opacity-90'
+                  : 'min-h-8 rounded-md px-1 text-[13px] text-muted hover:bg-hover hover:text-ink'
+              }
+            >
+              {noOptions ? t('board.addOptions') : t('board.addOption')}
+            </button>
+          </div>
+        )}
       </div>
 
       {/* The card under the finger / mouse while dragging. */}
@@ -707,15 +716,19 @@ export function BoardView({ db, database, view, onOpenPage }: ViewProps) {
           label={t('board.groupBy')}
           onClose={() => setMenu(null)}
         >
-          <PopItem
-            icon="✎"
-            label={t('board.editOptionsOf', { column: groupColumn.name })}
-            onClick={() => {
-              setMenu(null)
-              editOptions()
-            }}
-          />
-          <PopSeparator />
+          {!fixedOptions && (
+            <>
+              <PopItem
+                icon="✎"
+                label={t('board.editOptionsOf', { column: groupColumn.name })}
+                onClick={() => {
+                  setMenu(null)
+                  editOptions()
+                }}
+              />
+              <PopSeparator />
+            </>
+          )}
           <PopHeading>{t('board.groupBy')}</PopHeading>
           {groupableColumns(columns).map((c) => (
             <PopItem

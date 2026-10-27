@@ -58,7 +58,11 @@ function without(spec: ChartSpec, key: 'valueColumnId' | 'filter'): ChartSpec {
 /** Conditions a column offers in "Only rows where". */
 function filterOps(column: DbColumn | undefined): FilterOp[] {
   if (column?.type === 'checkbox') return ['isChecked', 'isNotChecked']
-  if (column?.type === 'choice' || column?.type === 'choices') {
+  if (
+    column?.type === 'choice' ||
+    column?.type === 'choices' ||
+    column?.type === 'trackerStatus'
+  ) {
     return ['is', 'isNotEmpty', 'isEmpty']
   }
   return ['isNotEmpty', 'isEmpty']
@@ -404,6 +408,7 @@ export function ChartDialog({
             data={chartData(spec, rows, columns, now)}
             columns={columns}
             asTable={false}
+            lessons={database.kind === 'studyTracker'}
           />
         </section>
 

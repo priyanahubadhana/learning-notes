@@ -1,18 +1,13 @@
-import { useLiveQuery } from 'dexie-react-hooks'
 import { useContext, useMemo, useState } from 'react'
 import { AppUiContext } from '../../app/appUi'
 import type { DbColumn, JsonValue } from '../../core/types'
 import { t, type MessageKey } from '../../i18n/t'
 import { createPage } from '../../pages/pageService'
 import { useMinuteClock } from '../../recall/useMinuteClock'
-import { cellText } from '../cellDisplay'
+import { rowCellText } from '../cellDisplay'
+import { setLessonStatus } from '../trackerService'
 import { TITLE_COLUMN_ID } from '../columnTypes'
-import {
-  loadDatabaseData,
-  queryRows,
-  resolveRows,
-  type ResolvedRow,
-} from '../databaseQuery'
+import { queryRows, resolveRows, type ResolvedRow } from '../databaseQuery'
 import {
   addRow,
   setCell,
@@ -25,6 +20,7 @@ import { filterLabel, sortLabels } from './columnFilters'
 import { columnIcon, isAutoColumn, typeName } from './columnLook'
 import { ColumnMenu } from './ColumnMenu'
 import { PopHeading, PopItem, PopSeparator, Popover } from './Popover'
+import { LevelsCell, StatusPicker, StatusPill } from './TrackerCells'
 import {
   CellPills,
   CheckCell,
@@ -41,6 +37,7 @@ import {
   withoutQuery,
   withSort,
 } from './viewConfig'
+import { useDatabaseData } from './useDatabaseData'
 import type { ViewProps } from './viewTypes'
 
 /** Rows drawn at first, and added per "Show more" (keeps big tables fast). */
@@ -93,11 +90,8 @@ const typeLabel = (type: string) => ({
  */
 export function TableView({ db, database, view, onOpenPage }: ViewProps) {
   const ui = useContext(AppUiContext)
-  const data = useLiveQuery(
-    () => loadDatabaseData(db, database.id),
-    [db, database.id],
-  )
   const now = useMinuteClock()
+  const data = useDatabaseData(db, database, now)
   const [shown, setShown] = useState(PAGE_SIZE)
   const [editing, setEditing] = useState<{
     rowId: string
@@ -200,8 +194,34 @@ export function TableView({ db, database, view, onOpenPage }: ViewProps) {
   const renderCell = (row: ResolvedRow, column: DbColumn) => {
     const value = row.values[column.id] ?? null
     const context = { column: column.name, row: rowTitle(row) }
-    const text = cellText(value, column)
+    const text = rowCellText(row, column)
     const kind = editKind(column)
+    if (row.tracker) {
+      if (column.type === 'trackerStatus') {
+        return (
+          <button
+            type="button"
+            aria-haspopup="dialog"
+            aria-label={`${t('table.editCell', context)}: ${text}`}
+            onClick={(e) =>
+              toggleMenu({
+                kind: 'pick',
+                rowId: row.page.id,
+                columnId: column.id,
+                anchor: e.currentTarget,
+              })
+            }
+            className={cellButton}
+          >
+            <StatusPill row={row.tracker} />
+          </button>
+        )
+      }
+      if (column.type === 'trackerLevels') {
+        return <LevelsCell stats={row.tracker.stats} />
+      }
+      if (column.type === 'trackerCardsDue') return text
+    }
     if (
       editing?.rowId === row.page.id &&
       editing.columnId === column.id &&
@@ -614,20 +634,38 @@ export function TableView({ db, database, view, onOpenPage }: ViewProps) {
           ))}
         </Popover>
       )}
-      {menu?.kind === 'pick' && pickRow && pickColumn && (
-        <OptionPicker
-          key={`${menu.rowId}:${menu.columnId}`}
-          db={db}
-          data={data}
-          column={pickColumn}
-          row={pickRow}
-          anchor={menu.anchor}
-          onSet={async (value) => {
-            await write(menu.rowId, menu.columnId, value)
-          }}
-          onClose={() => setMenu(null)}
-        />
-      )}
+      {menu?.kind === 'pick' &&
+        pickRow?.tracker &&
+        pickColumn?.type === 'trackerStatus' && (
+          <StatusPicker
+            key={`${menu.rowId}:${menu.columnId}`}
+            row={pickRow.tracker}
+            anchor={menu.anchor}
+            onSet={(status) =>
+              void setLessonStatus(db, menu.rowId, status).catch((e) =>
+                ui.toast(t('table.badValue', { detail: String(e.message) })),
+              )
+            }
+            onClose={() => setMenu(null)}
+          />
+        )}
+      {menu?.kind === 'pick' &&
+        pickRow &&
+        pickColumn &&
+        pickColumn.type !== 'trackerStatus' && (
+          <OptionPicker
+            key={`${menu.rowId}:${menu.columnId}`}
+            db={db}
+            data={data}
+            column={pickColumn}
+            row={pickRow}
+            anchor={menu.anchor}
+            onSet={async (value) => {
+              await write(menu.rowId, menu.columnId, value)
+            }}
+            onClose={() => setMenu(null)}
+          />
+        )}
       {dialog && (
         <ColumnDialog
           db={db}

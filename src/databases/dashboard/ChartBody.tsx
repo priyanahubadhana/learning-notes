@@ -23,15 +23,20 @@ export function ChartBody({
   data,
   columns,
   asTable,
+  lessons = false,
 }: {
   spec: ChartSpec
   data: ChartData
   columns: readonly DbColumn[]
   asTable: boolean
+  /** The rows are Study tracker lessons (the text says "lessons"). */
+  lessons?: boolean
 }) {
   const fmt = (v: number | null) => valueText(v, spec, columns)
   const groupColumn = columns.find((c) => c.id === spec.groupColumnId)
-  const byOption = Array.isArray(groupColumn?.config.options)
+  const byOption =
+    Array.isArray(groupColumn?.config.options) ||
+    groupColumn?.type === 'trackerStatus'
 
   if (data.kind === 'number') {
     return (
@@ -41,7 +46,9 @@ export function ChartBody({
         </div>
         {spec.measure !== 'count' && (
           <div className="mt-0.5 text-[12.5px] text-muted">
-            {t('dashboard.fromRows', { count: data.rows })}
+            {t(lessons ? 'dashboard.fromLessons' : 'dashboard.fromRows', {
+              count: data.rows,
+            })}
           </div>
         )}
       </div>
@@ -68,7 +75,13 @@ export function ChartBody({
     }
     if (spec.kind === 'bar') {
       return (
-        <Bars groups={groups} more={data.more} fmt={fmt} byOption={byOption} />
+        <Bars
+          groups={groups}
+          more={data.more}
+          fmt={fmt}
+          byOption={byOption}
+          lessons={lessons}
+        />
       )
     }
     return spec.kind === 'donut' ? (
@@ -164,7 +177,9 @@ function Bars({
   more,
   fmt,
   byOption,
+  lessons,
 }: {
+  lessons: boolean
   groups: Part[]
   more: number
   fmt: (v: number | null) => string
@@ -201,7 +216,9 @@ function Bars({
       </ul>
       {more > 0 && (
         <p className="mt-2 text-xs text-muted">
-          {t('dashboard.more', { count: more })}
+          {t(lessons ? 'dashboard.moreLessons' : 'dashboard.more', {
+            count: more,
+          })}
         </p>
       )}
     </div>

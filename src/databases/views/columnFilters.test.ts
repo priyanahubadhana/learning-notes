@@ -44,7 +44,9 @@ describe('column menus', () => {
       'isEmpty',
       'isNotEmpty',
     ])
-    expect(ops(column('trackerStatus'))).toContain('gt')
+    expect(ops(column('formula'))).toContain('gt')
+    expect(ops(column('trackerStatus'))).toEqual(ops(column('choice')))
+    expect(ops(column('trackerCorrect'))).toEqual(ops(column('number')))
     expect(sortLabels(column('number'))).toEqual(['Low → high', 'High → low'])
     expect(sortLabels(null)).toEqual(['A → Z', 'Z → A'])
   })

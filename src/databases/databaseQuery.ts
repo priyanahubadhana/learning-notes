@@ -397,6 +397,12 @@ function summarize(fn: string, values: FValue[], rowCount: number): FValue {
 
 // ------------------------------------------------------- sorting & filters
 
+/** Columns whose cells are option names (a Study tracker's Status too). */
+const isChoiceColumn = (column: DbColumn) =>
+  column.type === 'choice' ||
+  column.type === 'choices' ||
+  column.type === 'trackerStatus'
+
 /** Filter operators. Which ones a column offers is up to the view UI. */
 export type FilterOp =
   | 'contains'
@@ -441,7 +447,7 @@ export interface RowQuery {
 /** Filter value as a cell value (Choice option ids → option names). */
 function filterValue(column: DbColumn | undefined, raw: JsonValue | undefined) {
   const one = (v: JsonValue): FValue => {
-    if (column && (column.type === 'choice' || column.type === 'choices')) {
+    if (column && isChoiceColumn(column)) {
       const option = choiceOptions(column).find((o) => o.id === v)
       return option ? option.name : typeof v === 'string' ? v : null
     }
@@ -550,7 +556,7 @@ export function queryRows(
   const keyOf = sorts.map((s) => {
     const column = columnById.get(s.columnId)
     // Choices sort by their option order, like the menu shows them.
-    if (column && (column.type === 'choice' || column.type === 'choices')) {
+    if (column && isChoiceColumn(column)) {
       const rank = new Map(choiceOptions(column).map((o, i) => [o.name, i]))
       return (v: FValue): FValue => {
         const first = Array.isArray(v) ? v[0] : v

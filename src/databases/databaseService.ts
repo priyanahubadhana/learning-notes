@@ -37,6 +37,7 @@ import {
 import { MAX_FORMULA_LENGTH, renameReference } from './formula/formulaParser'
 import { softDeleteDatabaseParts } from './databaseParts'
 import { studyTrackerId } from './notebookTabs'
+import { isLessonStatus } from './trackerStats'
 
 /**
  * Database operations: databases, columns, views, rows and cells.
@@ -949,8 +950,14 @@ export async function addRow(
 
 /** Checks a value for a column and returns what to store (null = empty). */
 function normalizeCell(column: DbColumn, value: JsonValue): JsonValue | null {
-  if (isComputedColumn(column)) {
+  if (column.type !== 'trackerStatus' && isComputedColumn(column)) {
     throw new Error(`${column.name}: worked out automatically`)
+  }
+  if (column.type === 'trackerStatus') {
+    // A status set by the user (📌); empty = back to Auto.
+    if (value === null || value === '') return null
+    if (!isLessonStatus(value)) throw new Error('Not a status')
+    return value
   }
   const definition = getColumnType(column.type)
   if (!definition) throw new Error(`Unknown column type: ${column.type}`)

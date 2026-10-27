@@ -62,14 +62,30 @@ async function collectionBytes(
   if (!name) throw new AnkiError(t('anki.noCollection'))
   let bytes = entries[name]
   if (name.endsWith('b')) {
-    const { decompress } = await import('fzstd')
+    // Unpacked in pieces, so a file that claims to be small but expands
+    // into gigabytes (a "bomb") is stopped at the limit.
+    const { Decompress } = await import('fzstd')
+    const pieces: Uint8Array[] = []
+    let total = 0
+    let tooBig = false
     try {
-      bytes = decompress(bytes)
+      const stream = new Decompress((chunk) => {
+        total += chunk.length
+        if (total > MAX_COLLECTION_BYTES) {
+          tooBig = true
+          throw new Error('too big')
+        }
+        pieces.push(chunk)
+      })
+      stream.push(bytes, true)
     } catch {
-      throw new AnkiError(t('anki.damaged'))
+      throw new AnkiError(t(tooBig ? 'anki.tooBig' : 'anki.damaged'))
     }
-    if (bytes.length > MAX_COLLECTION_BYTES) {
-      throw new AnkiError(t('anki.tooBig'))
+    bytes = new Uint8Array(total)
+    let at = 0
+    for (const piece of pieces) {
+      bytes.set(piece, at)
+      at += piece.length
     }
   }
   const media = (() => {

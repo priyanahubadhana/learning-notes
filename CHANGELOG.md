@@ -711,3 +711,9 @@
 - **Why:** Phase 6 plan (owner, 2026-10-28).
 - **Self-review:** Notebook files do not carry the label list. The Settings control keeps what you type while it saves.
 - **Files:** src/revise/reviseMarks.ts, ReviseTab.tsx, src/editor/markActions.ts, SelectionToolbar.tsx, CardMenu.tsx, src/settings/registry.ts, builtinSettings.ts, SettingsScreen.tsx, src/App.tsx, src/i18n/*, tests, e2e/reviseLabels.spec.ts, README.md
+
+## 2026-10-28
+
+- **What:** Phase 6 end checks. Hardening: the Anki (zstd) collection is unpacked in pieces and stopped at 400 MB. LEARNING.md gets the Phase 6 section. All tests, lint, build and `npm audit` pass.
+- **Why:** Phase 6 Definition of Done (security review reported, docs updated).
+- **Files:** src/anki/readApkg.ts, LEARNING.md, README.md

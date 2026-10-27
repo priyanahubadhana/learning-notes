@@ -26,6 +26,8 @@ import { getPagePath } from './pageService'
 import { pageSections } from './sections'
 import { LinkedFrom } from '../links/LinkedFrom'
 import { PageTags } from '../tags/PageTags'
+import { getDatabase } from '../databases/databaseService'
+import { RowProperties } from '../databases/RowProperties'
 import { createTitleSaver } from './titleSaver'
 
 interface PageViewProps {
@@ -60,6 +62,12 @@ export function PageView({
   const notebook = useLiveQuery(
     () => getNotebook(db, page.notebookId),
     [db, page.notebookId],
+  )
+  // A row of a database is named after its database, not the hidden notebook.
+  const rowDatabase = useLiveQuery(
+    async () =>
+      page.databaseId ? await getDatabase(db, page.databaseId) : undefined,
+    [db, page.databaseId],
   )
   const editor = useRef<EditorApi | null>(null)
 
@@ -96,7 +104,7 @@ export function PageView({
           aria-label="Breadcrumb"
           className="flex min-h-5 flex-1 flex-wrap items-center gap-1 text-xs leading-5 text-muted"
         >
-          <span>{notebook?.title}</span>
+          <span>{rowDatabase?.title ?? notebook?.title}</span>
           {path.map((p, i) => (
             <Fragment key={p.id}>
               <span>/</span>
@@ -175,6 +183,7 @@ export function PageView({
         autoFocus={autoFocusTitle}
         onEnter={() => editor.current?.focus()}
       />
+      <RowProperties db={db} page={page} />
       <PageTags
         db={db}
         pageId={page.id}

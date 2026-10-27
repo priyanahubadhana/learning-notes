@@ -40,7 +40,8 @@ export function CardsTab({
   onReview,
 }: {
   db: LearningNotesDB
-  notebookId: string
+  /** null = the cards of every notebook ("All cards"). */
+  notebookId: string | null
   onOpenHit: (hit: SearchHit) => void
   onReview: (scope: ReviewScope) => void
 }) {
@@ -56,7 +57,9 @@ export function CardsTab({
   const hits = outcome?.hits ?? []
   const visible = hits.slice(0, shown)
   const details = useHitDetails(db, visible)
-  const scope: ReviewScope = { kind: 'notebook', notebookId }
+  const scope: ReviewScope = notebookId
+    ? { kind: 'notebook', notebookId }
+    : { kind: 'all' }
   const due = useLiveQuery(
     async () => (await getReviewQueue(db, scope, now)).cards.length,
     [db, notebookId, now],
@@ -72,7 +75,7 @@ export function CardsTab({
         <h2 className="me-auto text-[15px] font-semibold">
           {t('cards.count', { count: hits.length })}{' '}
           <small className="text-xs font-normal text-muted">
-            {t('cards.fromNotebook')}
+            {t(notebookId ? 'cards.fromNotebook' : 'cards.fromAll')}
           </small>
         </h2>
         {hits.length > 0 && (

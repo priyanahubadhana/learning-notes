@@ -131,6 +131,9 @@ export const TIPS = {
   'sidebar.dailyTemplate': { where: 'Sidebar › Templates › Daily journal' },
   'sidebar.tag': { where: 'Sidebar › a tag’s name' },
   'page.tagChip': { where: 'Page › a tag under the title' },
+  'sidebar.allCards': { where: 'Sidebar › All cards' },
+  'sidebar.allDatabases': { where: 'Sidebar › Databases' },
+  'databases.new': { where: 'All databases › + New database' },
 } as const satisfies Record<string, TipDefinition>
 
 export const HELP_LINES = {

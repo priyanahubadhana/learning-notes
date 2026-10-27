@@ -59,6 +59,10 @@ interface SidebarProps {
   /** A tag merge/delete rewrote these pages' notes. */
   onNotesRewritten: (pageIds: string[]) => void
   onOpenReview: (scope: ReviewScope) => void
+  onOpenAllCards: () => void
+  allCardsOpen: boolean
+  onOpenAllDatabases: () => void
+  allDatabasesOpen: boolean
   onCreateNotebook: () => void
   /** `templateId`: copy that template's content into the new page. */
   onCreatePage: (
@@ -107,6 +111,10 @@ export function Sidebar({
   onOpenSettings,
   reviewOpen,
   onOpenReview,
+  onOpenAllCards,
+  allCardsOpen,
+  onOpenAllDatabases,
+  allDatabasesOpen,
   searchOpen,
   onOpenSearch,
   savedSearchId,
@@ -236,7 +244,7 @@ export function Sidebar({
           </kbd>
         </button>
       </Tip>
-      <Tip id="sidebar.review" className="mb-2 flex">
+      <Tip id="sidebar.review" className="flex">
         <button
           type="button"
           onClick={() => onOpenReview({ kind: 'all' })}
@@ -257,6 +265,36 @@ export function Sidebar({
               {dueCount}
             </span>
           )}
+        </button>
+      </Tip>
+      <Tip id="sidebar.allCards" className="flex">
+        <button
+          type="button"
+          onClick={onOpenAllCards}
+          aria-current={allCardsOpen ? 'page' : undefined}
+          className={`flex min-h-9 w-full items-center gap-2 rounded-lg px-2.5 text-left text-sm transition-colors hover:bg-hover ${
+            allCardsOpen ? 'bg-hover font-semibold' : ''
+          }`}
+        >
+          <span aria-hidden className="text-muted">
+            ▤
+          </span>
+          {t('sidebar.allCards')}
+        </button>
+      </Tip>
+      <Tip id="sidebar.allDatabases" className="mb-2 flex">
+        <button
+          type="button"
+          onClick={onOpenAllDatabases}
+          aria-current={allDatabasesOpen ? 'page' : undefined}
+          className={`flex min-h-9 w-full items-center gap-2 rounded-lg px-2.5 text-left text-sm transition-colors hover:bg-hover ${
+            allDatabasesOpen ? 'bg-hover font-semibold' : ''
+          }`}
+        >
+          <span aria-hidden className="text-muted">
+            ◫
+          </span>
+          {t('sidebar.allDatabases')}
         </button>
       </Tip>
       <SavedSearchesSection

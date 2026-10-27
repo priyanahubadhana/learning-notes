@@ -25,6 +25,8 @@ import { Sidebar } from './notebooks/Sidebar'
 import { createNotebook, listNotebooks } from './notebooks/notebookService'
 import { PageView } from './pages/PageView'
 import { createPage, getPage } from './pages/pageService'
+import { AllCardsScreen } from './recall/AllCardsScreen'
+import { DatabaseScreen, DatabasesScreen } from './databases/DatabasesHub'
 import { ReviewScreen } from './recall/ReviewScreen'
 import type { ReviewScope } from './recall/reviewService'
 import { theme as themeSetting } from './settings/builtinSettings'
@@ -88,12 +90,20 @@ function App() {
   // Setting to scroll to and highlight when Settings opens (e.g. from a dialog).
   const [settingsFocus, setSettingsFocus] = useState<string | null>(null)
   const openSettings = (settingId?: string) => {
+    setHub(null)
     setReviewScope(null)
     setSearch(null)
     setNotebookId(null)
     setSettingsFocus(settingId ?? null)
     setShowSettings(true)
   }
+  // "All cards", "All databases" and one open database replace the page too.
+  const [hub, setHub] = useState<
+    | { kind: 'cards' }
+    | { kind: 'databases' }
+    | { kind: 'database'; id: string }
+    | null
+  >(null)
   // Review replaces the open page the same way (null = not reviewing).
   const [reviewScope, setReviewScope] = useState<ReviewScope | null>(null)
   // The Search screen replaces the open page the same way. `key` starts
@@ -107,12 +117,14 @@ function App() {
   const [searchPopup, setSearchPopup] = useState(false)
   /** Opens a notebook's tabs (Notes · Database · Cards). */
   const openNotebook = (id: string) => {
+    setHub(null)
     setShowSettings(false)
     setReviewScope(null)
     setSearch(null)
     setNotebookId(id)
   }
   const openPage = (id: string | null) => {
+    setHub(null)
     setShowSettings(false)
     setReviewScope(null)
     setSearch(null)
@@ -121,12 +133,14 @@ function App() {
     if (id) rememberPage(id)
   }
   const openReview = (scope: ReviewScope) => {
+    setHub(null)
     setShowSettings(false)
     setSearch(null)
     setNotebookId(null)
     setReviewScope(scope)
   }
   const openSearch = (query: SearchQuery, savedId?: string) => {
+    setHub(null)
     setShowSettings(false)
     setReviewScope(null)
     setSearchPopup(false)
@@ -377,6 +391,22 @@ function App() {
               reviewScope?.kind === 'all' || reviewScope?.kind === 'wrong'
             }
             onOpenReview={openReview}
+            onOpenAllCards={() => {
+              openPage(null)
+              setHub({ kind: 'cards' })
+            }}
+            allCardsOpen={
+              hub?.kind === 'cards' && !showSettings && !reviewScope
+            }
+            onOpenAllDatabases={() => {
+              openPage(null)
+              setHub({ kind: 'databases' })
+            }}
+            allDatabasesOpen={
+              (hub?.kind === 'databases' || hub?.kind === 'database') &&
+              !showSettings &&
+              !reviewScope
+            }
             searchOpen={
               !!search && !search.savedId && !showSettings && !reviewScope
             }
@@ -416,6 +446,28 @@ function App() {
                   revealBlock(blockId)
                 }}
                 onClose={() => setReviewScope(null)}
+              />
+            ) : hub?.kind === 'cards' ? (
+              <AllCardsScreen
+                db={db}
+                onOpenHit={(hit) => runTask(openHit(hit))}
+                onReview={openReview}
+                onClose={() => setHub(null)}
+              />
+            ) : hub?.kind === 'databases' ? (
+              <DatabasesScreen
+                db={db}
+                workspaceId={workspace.id}
+                onOpenDatabase={(id) => setHub({ kind: 'database', id })}
+                onClose={() => setHub(null)}
+              />
+            ) : hub?.kind === 'database' ? (
+              <DatabaseScreen
+                key={hub.id}
+                db={db}
+                databaseId={hub.id}
+                onOpenPage={openPage}
+                onBack={() => setHub({ kind: 'databases' })}
               />
             ) : search ? (
               <SearchScreen

@@ -103,7 +103,9 @@ function binary(op: string, a: FValue, b: FValue): FValue {
     case '>':
     case '<=':
     case '>=': {
-      if (isBlank(a) || isBlank(b)) return false
+      // Comparing with an empty cell has no answer (blank), so an
+      // unrated row is not counted as "below 3" nor as "3 or more".
+      if (isBlank(a) || isBlank(b)) return null
       const c = compareMixed(a, b)
       if (op === '<') return c < 0
       if (op === '>') return c > 0
@@ -173,6 +175,7 @@ const LAZY: Record<string, { min: number; max: number; fn: LazyFn }> = {
     fn: ([test, yes, no], ctx) => {
       const t = evaluate(test, ctx)
       if (isError(t)) return t
+      if (isBlank(t)) return null // e.g. IF([Confidence] < 3, …) with no rating
       if (toBoolean(t)) return evaluate(yes, ctx)
       return no ? evaluate(no, ctx) : null
     },

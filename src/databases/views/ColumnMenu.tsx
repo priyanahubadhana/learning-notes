@@ -1,6 +1,7 @@
 import { useState, type FormEvent } from 'react'
 import type { DbColumn, JsonValue } from '../../core/types'
 import { t } from '../../i18n/t'
+import { starMax } from '../cellDisplay'
 import { choiceOptions, TITLE_COLUMN_ID } from '../columnTypes'
 import type { FilterOp, RowFilter, RowSort } from '../databaseQuery'
 import {
@@ -32,6 +33,7 @@ export function ColumnMenu({
   onHide,
   onEdit,
   onClose,
+  countWith,
 }: {
   anchor: HTMLElement
   column: DbColumn | null
@@ -43,10 +45,16 @@ export function ColumnMenu({
   onHide: () => void
   onEdit: () => void
   onClose: () => void
+  /** Rows shown with this filter in place of the column's current one. */
+  countWith: (filter: RowFilter | null) => { count: number; total: number }
 }) {
   const columnId = column?.id ?? TITLE_COLUMN_ID
   const choices = filterChoices(column)
-  const [op, setOp] = useState<FilterOp>(filter?.op ?? choices[0].op)
+  const stars = column?.config.format === 'stars' && column.type === 'number'
+  // Ratings start at "at least" (★★★ or more is the usual question).
+  const [op, setOp] = useState<FilterOp>(
+    filter?.op ?? (stars ? 'gte' : choices[0].op),
+  )
   const input = choices.find((c) => c.op === op)?.input ?? 'none'
   const [value, setValue] = useState<JsonValue | undefined>(filter?.value)
   // Typed text and numbers are kept as typed until Apply.
@@ -64,8 +72,8 @@ export function ColumnMenu({
     onSort(sort?.direction === direction ? null : { columnId, direction })
     onClose()
   }
-  const apply = (e: FormEvent) => {
-    e.preventDefault()
+  /** The filter as set so far; null while its value is still missing. */
+  const draftFilter = (): RowFilter | null => {
     const wanted =
       input === 'number'
         ? typedNumber(draft, column)
@@ -76,8 +84,15 @@ export function ColumnMenu({
             : (value ?? null)
     const blank =
       wanted === null || (Array.isArray(wanted) && wanted.length === 0)
-    if (input !== 'none' && blank) return
-    onFilter({ columnId, op, ...(wanted !== null && { value: wanted }) })
+    if (input !== 'none' && blank) return null
+    return { columnId, op, ...(wanted !== null && { value: wanted }) }
+  }
+  const ready = draftFilter()
+  const matches = ready ? countWith(ready) : null
+  const apply = (e: FormEvent) => {
+    e.preventDefault()
+    if (!ready) return
+    onFilter(ready)
     onClose()
   }
 
@@ -105,6 +120,9 @@ export function ColumnMenu({
       <PopSeparator />
       <PopHeading>{t('column.filter')}</PopHeading>
       <form onSubmit={apply} className="flex flex-col gap-1.5 px-2.5 pb-1">
+        <p className="text-[12.5px] text-muted">
+          {t('filter.where', { column: name })}
+        </p>
         <select
           aria-label={t('column.filter')}
           value={op}
@@ -121,11 +139,40 @@ export function ColumnMenu({
         >
           {choices.map((c) => (
             <option key={c.op} value={c.op}>
-              {opLabel(c.op)}
+              {opLabel(c.op, column)}
             </option>
           ))}
         </select>
-        {(input === 'text' || input === 'number') && (
+        {input === 'number' && stars && column && (
+          <div className="flex items-center gap-2">
+            <div role="group" aria-label={t('filter.value')} className="flex">
+              {Array.from({ length: starMax(column) }, (_, i) => i + 1).map(
+                (n) => (
+                  <button
+                    key={n}
+                    type="button"
+                    aria-label={t('table.stars', { count: n })}
+                    aria-pressed={String(n) === draft}
+                    onClick={() => setDraft(String(n))}
+                    className={`min-h-9 min-w-7 text-[17px] leading-none ${
+                      n <= Number(draft || 0)
+                        ? 'text-amber-500'
+                        : 'text-muted/35 hover:text-muted'
+                    }`}
+                  >
+                    ★
+                  </button>
+                ),
+              )}
+            </div>
+            {draft && (
+              <span className="text-[12.5px] text-muted">
+                {t('table.stars', { count: Number(draft) })}
+              </span>
+            )}
+          </div>
+        )}
+        {(input === 'text' || (input === 'number' && !stars)) && (
           <input
             aria-label={t('filter.value')}
             inputMode={input === 'number' ? 'decimal' : undefined}
@@ -166,23 +213,32 @@ export function ColumnMenu({
             ))}
           </div>
         )}
-        <button
-          type="submit"
-          className="min-h-9 rounded-md bg-accent px-3 text-[13px] font-medium text-white hover:opacity-90"
-        >
-          {t('column.apply')}
-        </button>
+        {matches && (
+          <p className="text-[12.5px] text-muted" aria-live="polite">
+            {t('filter.matches', matches)}
+          </p>
+        )}
+        <div className="flex gap-1.5">
+          <button
+            type="submit"
+            disabled={!ready}
+            className="min-h-9 flex-1 rounded-md bg-accent px-3 text-[13px] font-medium text-white hover:opacity-90 disabled:opacity-50"
+          >
+            {t('column.apply')}
+          </button>
+          <button
+            type="button"
+            disabled={!filter && !ready}
+            onClick={() => {
+              if (filter) onFilter(null)
+              onClose()
+            }}
+            className="min-h-9 flex-1 rounded-md border border-line px-3 text-[13px] hover:bg-hover disabled:opacity-50"
+          >
+            {t('column.clearFilter')}
+          </button>
+        </div>
       </form>
-      {filter && (
-        <PopItem
-          icon="×"
-          label={t('column.clearFilter')}
-          onClick={() => {
-            onFilter(null)
-            onClose()
-          }}
-        />
-      )}
       {(column !== null || !auto) && <PopSeparator />}
       {column !== null && (
         <PopItem

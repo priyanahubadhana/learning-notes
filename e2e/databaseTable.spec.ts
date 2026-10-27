@@ -75,6 +75,31 @@ test('tracker: new lesson, rename, stars, sort, filter, hide', async ({
     stars('Murmurs').getByRole('button', { name: '3 stars' }),
   ).toHaveAttribute('aria-pressed', 'true')
 
+  // Rating filter: pick stars, see how many rows match before Apply.
+  await header(page, 'Confidence').click()
+  const rating = page.getByRole('dialog', {
+    name: 'Confidence column options',
+  })
+  await expect(rating).toContainText('Show only rows where Confidence…')
+  await expect(rating.getByRole('combobox', { name: 'Filter' })).toHaveValue(
+    'gte',
+  )
+  await rating.getByRole('button', { name: '3 stars' }).click()
+  await expect(rating).toContainText('1 of 3 rows match')
+  await rating.getByRole('combobox', { name: 'Filter' }).selectOption('isEmpty')
+  await expect(rating.getByRole('option', { selected: true })).toHaveText(
+    'has no rating',
+  )
+  await expect(rating).toContainText('1 of 3 rows match')
+  await rating.getByRole('combobox', { name: 'Filter' }).selectOption('gte')
+  await rating.getByRole('button', { name: '3 stars' }).click()
+  await rating.getByRole('button', { name: 'Apply' }).click()
+  await expect(tracker(page)).toContainText('Confidence at least ★★★☆☆')
+  await expect(tracker(page).getByRole('rowheader')).toHaveText([/^Murmurs/])
+  await header(page, 'Confidence').click()
+  await page.getByRole('button', { name: 'Clear filter' }).click()
+  await expect(tracker(page).getByRole('rowheader')).toHaveCount(3)
+
   // Sort from the column menu; the chip shows it and removes it.
   await header(page, 'Confidence').click()
   await page.getByRole('button', { name: 'High → low' }).click()

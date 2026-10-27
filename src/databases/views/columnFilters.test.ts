@@ -48,7 +48,10 @@ describe('column menus', () => {
     const stars = column('number', { format: 'stars', max: 5 })
     expect(
       filterLabel({ columnId: 'c', op: 'gte', value: 3 }, stars, 'Confidence'),
-    ).toBe('Confidence is at least ★★★☆☆')
+    ).toBe('Confidence at least ★★★☆☆')
+    expect(
+      filterLabel({ columnId: 'c', op: 'isEmpty' }, stars, 'Confidence'),
+    ).toBe('Confidence has no rating')
     const pick = column('choice', {
       options: [
         { id: 'a', name: 'High' },

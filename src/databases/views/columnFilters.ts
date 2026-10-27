@@ -90,9 +90,15 @@ export function filterChoices(column: DbColumn | null): FilterChoice[] {
   return CHOICES[kindOf(column)]
 }
 
-/** "contains", "is before" … */
-export const opLabel = (op: FilterOp): string =>
-  t(`filter.op.${op}` as MessageKey)
+const isStars = (column: DbColumn | null) =>
+  column?.type === 'number' && column.config.format === 'stars'
+
+/** "contains", "at least", "has no rating" … */
+export function opLabel(op: FilterOp, column: DbColumn | null = null): string {
+  if (isStars(column) && op === 'isEmpty') return t('filter.op.noRating')
+  if (isStars(column) && op === 'isNotEmpty') return t('filter.op.hasRating')
+  return t(`filter.op.${op}` as MessageKey)
+}
 
 const SORT_LABELS: Record<Kind, [MessageKey, MessageKey]> = {
   text: ['sort.az', 'sort.za'],
@@ -137,7 +143,7 @@ export function filterLabel(
 ): string {
   return t('filter.chip', {
     column: columnName,
-    op: opLabel(filter.op),
+    op: opLabel(filter.op, column),
     value: valueText(column, filter.value),
   }).trim()
 }

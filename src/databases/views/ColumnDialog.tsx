@@ -244,11 +244,23 @@ export function ColumnDialog({
       ? previewFormula(data, String(config.formula ?? ''), now, editing?.id)
       : null
   const dateName = columns.find((c) => c.type === 'date')?.name
-  const numberName = columns.find((c) => c.type === 'number')?.name
+  // A number column with a limit that fits it: under 75 %, under 3 stars …
+  const numbers = columns.filter((c) => c.type === 'number')
+  const scored =
+    numbers.find((c) => c.config.format === 'percent') ??
+    numbers.find((c) => c.config.format === 'stars') ??
+    numbers[0]
+  const numberName = scored?.name
+  const limit =
+    scored?.config.format === 'percent'
+      ? '0.75'
+      : scored?.config.format === 'stars'
+        ? '3'
+        : '10'
   const examples: [string, MessageKey][] = [
     [`DAYS([${dateName ?? 'Exam date'}], TODAY())`, 'column.example.days'],
     [
-      `IF([${numberName ?? 'Score'}] < 75, "Redo", "OK")`,
+      `IF([${numberName ?? 'Score'}] < ${limit}, "Redo", "OK")`,
       'column.example.label',
     ],
     [`[${numberName ?? 'Score'}] * 1.5`, 'column.example.math'],

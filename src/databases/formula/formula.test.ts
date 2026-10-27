@@ -102,7 +102,17 @@ describe('formula values', () => {
     expect(run('"Apple" = "apple"')).toBe(true)
     expect(run('[A] = ""', { A: null })).toBe(true)
     expect(run('"10" > 9')).toBe(true)
-    expect(run('[A] > 1', { A: null })).toBe(false)
+  })
+
+  it('a comparison with an empty cell gives a blank answer', () => {
+    expect(run('[A] > 1', { A: null })).toBeNull()
+    expect(run('IF([A] < 3, "Redo", "OK")', { A: null })).toBeNull()
+    expect(run('IF([A] < 3, "Redo", "OK")', { A: 2 })).toBe('Redo')
+    expect(run('IF([A] < 3, "Redo", "OK")', { A: 4 })).toBe('OK')
+    // Testing for empty still works.
+    expect(run('IF([A] = "", "Not rated", "Rated")', { A: null })).toBe(
+      'Not rated',
+    )
   })
 
   it('shows numbers without float noise', () => {

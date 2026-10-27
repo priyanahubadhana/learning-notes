@@ -542,6 +542,15 @@ export function TableView({ db, database, view, onOpenPage }: ViewProps) {
             )
           }
           onClose={() => setMenu(null)}
+          countWith={(next) => {
+            const others = filters.filter((f) => f.columnId !== menuColumnId)
+            const tried = {
+              ...query,
+              filters: next ? [...others, next] : others,
+            }
+            const count = queryRows(all, allColumns, tried).length
+            return { count, total: all.length }
+          }}
         />
       )}
       {menu?.kind === 'add' && (

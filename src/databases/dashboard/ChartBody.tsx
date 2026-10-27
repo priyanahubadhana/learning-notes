@@ -44,6 +44,9 @@ export function ChartBody({
         <div className="text-[30px] leading-tight font-bold tracking-tight">
           {fmt(data.value)}
         </div>
+        {data.note && (
+          <div className="mt-0.5 text-[12.5px] text-muted">{data.note}</div>
+        )}
         {spec.measure !== 'count' && (
           <div className="mt-0.5 text-[12.5px] text-muted">
             {t(lessons ? 'dashboard.fromLessons' : 'dashboard.fromRows', {

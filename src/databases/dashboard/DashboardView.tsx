@@ -1,8 +1,10 @@
+import { useLiveQuery } from 'dexie-react-hooks'
 import { useContext, useMemo, useState } from 'react'
 import { AppUiContext } from '../../app/appUi'
 import { t } from '../../i18n/t'
 import { useMinuteClock } from '../../recall/useMinuteClock'
 import { resolveRows } from '../databaseQuery'
+import { loadReviewHistory } from '../trackerHistory'
 import { updateView } from '../databaseService'
 import { PopItem, PopSeparator, Popover } from '../views/Popover'
 import { useDatabaseData } from '../views/useDatabaseData'
@@ -36,6 +38,13 @@ export function DashboardView({ db, database, view }: ViewProps) {
   const ui = useContext(AppUiContext)
   const now = useMinuteClock()
   const data = useDatabaseData(db, database, now)
+  const history = useLiveQuery(
+    () =>
+      database.kind === 'studyTracker' && database.notebookId
+        ? loadReviewHistory(db, database.notebookId, now)
+        : undefined,
+    [db, database.kind, database.notebookId, now],
+  )
   const [menu, setMenu] = useState<{ id: string; anchor: HTMLElement } | null>(
     null,
   )
@@ -113,7 +122,7 @@ export function DashboardView({ db, database, view }: ViewProps) {
             </h3>
             <ChartBody
               spec={spec}
-              data={chartData(spec, rows, columns, now)}
+              data={chartData(spec, rows, columns, now, history)}
               columns={columns}
               asTable={tables.has(spec.id)}
               lessons={database.kind === 'studyTracker'}
@@ -138,14 +147,16 @@ export function DashboardView({ db, database, view }: ViewProps) {
           onClose={() => setMenu(null)}
           width={220}
         >
-          <PopItem
-            icon="✎"
-            label={t('dashboard.edit')}
-            onClick={() => {
-              setMenu(null)
-              setDialog({ kind: 'edit', spec: open })
-            }}
-          />
+          {!open.history && (
+            <PopItem
+              icon="✎"
+              label={t('dashboard.edit')}
+              onClick={() => {
+                setMenu(null)
+                setDialog({ kind: 'edit', spec: open })
+              }}
+            />
+          )}
           <PopItem
             icon="▤"
             label={

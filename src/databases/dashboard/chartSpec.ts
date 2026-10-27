@@ -64,7 +64,16 @@ export interface ChartSpec {
   period?: Period
   /** Only rows that pass this condition count. */
   filter?: RowFilter
+  /**
+   * Study tracker only: shows the notebook's review history instead of
+   * the rows ("correct" = % correct per week, "days" = answers per day,
+   * "streak" = days in a row).
+   */
+  history?: HistoryChart
 }
+
+export const HISTORY_CHARTS = ['correct', 'days', 'streak'] as const
+export type HistoryChart = (typeof HISTORY_CHARTS)[number]
 
 /** Charts that compare groups; donut and progress show parts of a whole. */
 export const usesGroups = (kind: ChartKind) =>
@@ -139,6 +148,9 @@ function readChart(v: JsonObject): ChartSpec | null {
   if (groupColumnId) spec.groupColumnId = groupColumnId
   if (dateColumnId) spec.dateColumnId = dateColumnId
   if (v.period !== undefined) spec.period = oneOf(PERIODS, v.period, 'week')
+  if (HISTORY_CHARTS.includes(v.history as HistoryChart)) {
+    spec.history = v.history as HistoryChart
+  }
   if (filter) spec.filter = filter
   return spec
 }
@@ -227,6 +239,7 @@ const isChoiceLike = (c: DbColumn) =>
  * Ids are fixed so a starter chart keeps its id once saved.
  */
 export function suggestCharts(columns: readonly DbColumn[]): ChartSpec[] {
+  const tracker = columns.some((c) => c.type === 'trackerStatus')
   const charts: ChartSpec[] = [
     {
       id: 'starter-count',
@@ -284,6 +297,37 @@ export function suggestCharts(columns: readonly DbColumn[]): ChartSpec[] {
       groupColumnId: group.id,
     })
   }
+  if (tracker) {
+    // The review history says more than "lessons by Last revised".
+    charts.push(
+      {
+        id: 'starter-streak',
+        kind: 'number',
+        title: '',
+        size: 'small',
+        measure: 'count',
+        history: 'streak',
+      },
+      {
+        id: 'starter-correct',
+        kind: 'line',
+        title: '',
+        size: 'medium',
+        measure: 'count',
+        period: 'week',
+        history: 'correct',
+      },
+      {
+        id: 'starter-days',
+        kind: 'heatmap',
+        title: '',
+        size: 'wide',
+        measure: 'count',
+        history: 'days',
+      },
+    )
+    return charts
+  }
   const date = dateColumns(columns).find((c) => c.type !== 'formula')
   if (date) {
     charts.push({
@@ -334,6 +378,7 @@ export function chartTitle(
   database: Database,
 ): string {
   if (spec.title.trim()) return spec.title.trim()
+  if (spec.history) return t(`chart.title.history.${spec.history}`)
   // One bar per row: a sum is just that row's value ("Price by Name").
   const perRow =
     spec.groupColumnId === TITLE_COLUMN_ID && spec.measure === 'sum'

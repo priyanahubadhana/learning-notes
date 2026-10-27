@@ -11,7 +11,9 @@ import {
   localDay,
   type FValue,
 } from '../formula/formulaValue'
+import type { ReviewHistory } from '../trackerHistory'
 import type { ChartSpec, Measure, Period } from './chartSpec'
+import { historyData } from './historyData'
 
 /**
  * Works out what a chart shows from a database's resolved rows: one
@@ -46,7 +48,7 @@ export interface HeatDay {
 }
 
 export type ChartData =
-  | { kind: 'number'; value: number | null; rows: number }
+  | { kind: 'number'; value: number | null; rows: number; note?: string }
   | {
       kind: 'groups'
       groups: ChartGroup[]
@@ -66,7 +68,11 @@ export type ChartData =
 /** Most groups shown before the rest fold into "Other". */
 export const MAX_GROUPS = { bar: 12, donut: 6, progress: 6 } as const
 /** Points on a line chart, per period. */
-const MAX_POINTS: Record<Period, number> = { day: 31, week: 12, month: 12 }
+export const MAX_POINTS: Record<Period, number> = {
+  day: 31,
+  week: 12,
+  month: 12,
+}
 /** Weeks shown by a heatmap. */
 export const HEAT_WEEKS = 18
 
@@ -255,8 +261,10 @@ function groupData(
 // ------------------------------------------------------------------- time
 
 const DAY = 86_400_000
+export const DAY_MS = DAY
 const utc = (day: string) => Date.parse(`${day}T00:00:00Z`)
-const dayAt = (ms: number) => new Date(ms).toISOString().slice(0, 10)
+export const utcDay = utc
+export const dayAt = (ms: number) => new Date(ms).toISOString().slice(0, 10)
 
 /** The first day of the period a day falls in (weeks start on Monday). */
 export function periodStart(day: string, period: Period): string {
@@ -319,7 +327,7 @@ function seriesData(
   return { kind: 'series', points, period, rows: dated }
 }
 
-function previousPeriod(day: string, period: Period): string {
+export function previousPeriod(day: string, period: Period): string {
   if (period === 'day') return dayAt(utc(day) - DAY)
   if (period === 'week') return dayAt(utc(day) - 7 * DAY)
   const [y, m] = day.split('-').map(Number)
@@ -379,7 +387,9 @@ export function chartData(
   rows: readonly ResolvedRow[],
   columns: readonly DbColumn[],
   now: number = Date.now(),
+  history?: ReviewHistory,
 ): ChartData {
+  if (spec.history) return historyData(spec, history ?? new Map(), now)
   const kept = spec.filter
     ? queryRows(rows, columns, { filters: [spec.filter] })
     : rows

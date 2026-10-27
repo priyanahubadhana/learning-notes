@@ -19,15 +19,20 @@ const numberFormat = (digits: number, compact = false) =>
 /** A chart value as text ("—" when there is nothing to show). */
 export function valueText(
   value: number | null,
-  spec: Pick<ChartSpec, 'measure' | 'valueColumnId'>,
+  spec: Pick<ChartSpec, 'measure' | 'valueColumnId' | 'history'>,
   columns: readonly DbColumn[],
 ): string {
   if (value === null || !Number.isFinite(value)) return '—'
+  if (spec.history === 'correct') return percentText(value, 1)
+  if (spec.history === 'streak') {
+    return t('tracker.streak.days', { count: value })
+  }
   if (spec.measure === 'count') {
     return numberFormat(0, Math.abs(value) >= 100_000).format(value)
   }
   const column = columns.find((c) => c.id === spec.valueColumnId)
-  const format = column?.config.format
+  const format =
+    column?.type === 'trackerCorrect' ? 'percent' : column?.config.format
   // Stars: an average reads "3.4 ★", not rounded stars.
   if (format === 'stars') return `${numberFormat(1).format(value)} ★`
   if (format === 'percent' || format === 'currency') {

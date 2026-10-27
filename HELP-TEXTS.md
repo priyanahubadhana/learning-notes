@@ -2,7 +2,7 @@
 
 Every hover tip and help line in the app (shown while Settings › Show help is On). Generated from `src/help/helpRegistry.ts` and `src/i18n/en.ts`; to change a text, edit it in `en.ts`, then run `UPDATE_HELP=1 npx vitest run src/help` to refresh this file.
 
-## Hover tips (86)
+## Hover tips (91)
 
 ### `tracker.lesson`
 
@@ -519,6 +519,36 @@ Every hover tip and help line in the app (shown while Settings › Show help is 
 - **Where:** A database inside a note › Open
 - **Meaning:** Opens the whole database on its own screen.
 - **Example:** Add columns or charts there.
+
+### `db.viewCalendar`
+
+- **Where:** Database › Calendar view button
+- **Meaning:** Shows the rows on a calendar, on the day of a Date column.
+- **Example:** See which day each exam or deadline falls on.
+
+### `db.viewGallery`
+
+- **Where:** Database › Gallery view button
+- **Meaning:** Shows the rows as tiles, with a picture if you pick a link column.
+- **Example:** Browse books by their cover.
+
+### `db.addView`
+
+- **Where:** Database › + View
+- **Meaning:** Adds another view of the same rows: Table, Dashboard, Board, Calendar or Gallery.
+- **Example:** A second Board grouped by another column.
+
+### `db.calendarNav`
+
+- **Where:** Calendar › ‹ Today ›
+- **Meaning:** Moves the calendar to the previous or next month or week, or back to today.
+- **Example:** Check next week’s deadlines.
+
+### `db.galleryOptions`
+
+- **Where:** Gallery › Gallery options
+- **Meaning:** Chooses the picture column and which values show on each tile.
+- **Example:** Show Author and Rating under each cover.
 
 ## Help lines (8)
 

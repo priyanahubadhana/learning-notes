@@ -521,6 +521,23 @@ export const en = {
   'help.tip.db.blockOpen.meaning':
     'Opens the whole database on its own screen.',
   'help.tip.db.blockOpen.example': 'Add columns or charts there.',
+  'help.tip.db.viewCalendar.meaning':
+    'Shows the rows on a calendar, on the day of a Date column.',
+  'help.tip.db.viewCalendar.example':
+    'See which day each exam or deadline falls on.',
+  'help.tip.db.viewGallery.meaning':
+    'Shows the rows as tiles, with a picture if you pick a link column.',
+  'help.tip.db.viewGallery.example': 'Browse books by their cover.',
+  'help.tip.db.addView.meaning':
+    'Adds another view of the same rows: Table, Dashboard, Board, Calendar or Gallery.',
+  'help.tip.db.addView.example': 'A second Board grouped by another column.',
+  'help.tip.db.calendarNav.meaning':
+    'Moves the calendar to the previous or next month or week, or back to today.',
+  'help.tip.db.calendarNav.example': 'Check next week’s deadlines.',
+  'help.tip.db.galleryOptions.meaning':
+    'Chooses the picture column and which values show on each tile.',
+  'help.tip.db.galleryOptions.example':
+    'Show Author and Rating under each cover.',
   'help.line.tracker.statusRule':
     'Auto: Not started = no cards answered yet · Learning = under 75% correct · Mastered = 90% or more correct, nothing due, no new cards, and at least 80% of the cards at level Mastered · Review = in between.',
   'settings.dayStart.label': 'Day starts at',
@@ -851,6 +868,37 @@ export const en = {
   'database.auto': 'auto',
   'database.view.dashboard': 'Dashboard',
   'database.view.board': 'Board',
+  'database.view.calendar': 'Calendar',
+  'database.view.gallery': 'Gallery',
+  'database.addView': '+ View',
+  'database.addViewLabel': 'Add a view',
+  'database.renameView': 'Rename this view…',
+  'database.renameViewTitle': 'Rename view',
+  'database.renameViewLabel': 'View name',
+  'database.deleteView': 'Delete this view',
+  'database.viewDeleted': 'View “{name}” deleted',
+  'database.lastView': 'A database keeps at least one view.',
+  'calendar.noDate':
+    'A calendar needs a Date column. Add one in the Table (+ Column › Date).',
+  'calendar.today': 'Today',
+  'calendar.previous': 'Previous',
+  'calendar.next': 'Next',
+  'calendar.mode': 'Calendar range',
+  'calendar.month': 'Month',
+  'calendar.week': 'Week',
+  'calendar.dateColumn': 'Date column',
+  'calendar.weekOf': 'Week of {day}',
+  'calendar.addOn': 'Add a row on {day}',
+  'calendar.more_one': '+ 1 more',
+  'calendar.more_other': '+ {count} more',
+  'calendar.undated_one': '1 row has no date and is not shown.',
+  'calendar.undated_other': '{count} rows have no date and are not shown.',
+  'gallery.options': 'Gallery options',
+  'gallery.image': 'Picture from',
+  'gallery.noImage': 'No picture',
+  'gallery.count_one': '1 tile',
+  'gallery.count_other': '{count} tiles',
+  'gallery.empty': 'Nothing to show yet.',
   'board.noValue': 'No {column}',
   'board.groupedBy': 'Grouped by {column}',
   'board.groupBy': 'Group by',

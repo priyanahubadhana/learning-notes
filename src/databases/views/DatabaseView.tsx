@@ -1,17 +1,23 @@
 import { Tip } from '../../help/Help'
 import { useLiveQuery } from 'dexie-react-hooks'
-import { createElement, useState, type ReactNode } from 'react'
+import { createElement, useContext, useState, type ReactNode } from 'react'
+import { AppUiContext } from '../../app/appUi'
+import { NameDialog } from '../../app/ui'
 import type { LearningNotesDB } from '../../core/db'
 import { t } from '../../i18n/t'
 import {
+  addView,
+  deleteView,
   getDatabase,
   hasRows,
   listViews,
+  restoreView,
   setOpenView,
+  updateView,
 } from '../databaseService'
 import { lastViewShown, openingView } from './openingView'
-import { PopHeading, PopItem, Popover } from './Popover'
-import { getViewType } from './viewTypes'
+import { PopHeading, PopItem, PopSeparator, Popover } from './Popover'
+import { getViewType, listViewTypes } from './viewTypes'
 
 /**
  * A database with its views: name, view switcher and the chosen view.
@@ -39,6 +45,9 @@ export function DatabaseView({
   const filled = useLiveQuery(() => hasRows(db, databaseId), [db, databaseId])
   const [viewId, setViewId] = useState(() => lastViewShown.get(databaseId))
   const [menu, setMenu] = useState<HTMLElement | null>(null)
+  const [adding, setAdding] = useState<HTMLElement | null>(null)
+  const [renaming, setRenaming] = useState(false)
+  const ui = useContext(AppUiContext)
   // The opening view is chosen once, when the database is opened: adding
   // the first row must not switch views under the user's hands.
   const [opened, setOpened] = useState<string | null>(null)
@@ -87,6 +96,17 @@ export function DatabaseView({
               </button>
             </ViewTip>
           ))}
+          <Tip id="db.addView" touchInfo={false}>
+            <button
+              type="button"
+              aria-haspopup="menu"
+              aria-expanded={adding !== null}
+              onClick={(e) => setAdding(adding ? null : e.currentTarget)}
+              className="min-h-8 rounded-[7px] px-2 text-[13px] whitespace-nowrap text-muted hover:text-ink"
+            >
+              {t('database.addView')}
+            </button>
+          </Tip>
           <Tip id="db.viewOptions" touchInfo={false}>
             <button
               type="button"
@@ -101,6 +121,42 @@ export function DatabaseView({
           </Tip>
         </div>
       </div>
+      {adding && (
+        <Popover
+          anchor={adding}
+          label={t('database.addViewLabel')}
+          onClose={() => setAdding(null)}
+          width={220}
+        >
+          {listViewTypes().map((type) => (
+            <PopItem
+              key={type.type}
+              icon={type.icon}
+              label={t(type.label)}
+              onClick={() => {
+                setAdding(null)
+                void addView(db, databaseId, {
+                  name: uniqueViewName(t(type.label), views),
+                  type: type.type,
+                }).then((created) => show(created.id))
+              }}
+            />
+          ))}
+        </Popover>
+      )}
+      {renaming && view && (
+        <NameDialog
+          title={t('database.renameViewTitle')}
+          label={t('database.renameViewLabel')}
+          initialValue={view.name}
+          confirmLabel={t('databases.rename')}
+          onCancel={() => setRenaming(false)}
+          onConfirm={(name) => {
+            setRenaming(false)
+            if (name.trim()) void updateView(db, view.id, { name })
+          }}
+        />
+      )}
       {menu && (
         <Popover
           anchor={menu}
@@ -116,6 +172,36 @@ export function DatabaseView({
               void setOpenView(db, databaseId, null)
             }}
           />
+          <PopSeparator />
+          <PopItem
+            icon="✎"
+            label={t('database.renameView')}
+            onClick={() => {
+              setMenu(null)
+              setRenaming(true)
+            }}
+          />
+          <PopItem
+            icon="🗑"
+            label={t('database.deleteView')}
+            onClick={() => {
+              setMenu(null)
+              if (!view) return
+              if (views.length <= 1) {
+                ui.toast(t('database.lastView'))
+                return
+              }
+              const gone = view
+              void deleteView(db, gone.id).then(() => {
+                setViewId(undefined)
+                ui.toast(t('database.viewDeleted', { name: gone.name }), {
+                  label: t('review.undo'),
+                  onSelect: () => void restoreView(db, gone.id),
+                })
+              })
+            }}
+          />
+          <PopSeparator />
           {views.map((v) => (
             <PopItem
               key={v.id}
@@ -147,6 +233,8 @@ const VIEW_TIPS = {
   table: 'db.viewTable',
   dashboard: 'db.viewDashboard',
   board: 'db.viewBoard',
+  calendar: 'db.viewCalendar',
+  gallery: 'db.viewGallery',
 } as const
 
 /** A view's button with the tip that explains the view. */
@@ -159,4 +247,13 @@ function ViewTip({ type, children }: { type: string; children: ReactNode }) {
   ) : (
     <>{children}</>
   )
+}
+
+/** "Board", or "Board 2" if a view of that name exists. */
+function uniqueViewName(base: string, views: readonly { name: string }[]) {
+  const taken = new Set(views.map((v) => v.name.toLocaleLowerCase()))
+  if (!taken.has(base.toLocaleLowerCase())) return base
+  for (let i = 2; ; i++) {
+    if (!taken.has(`${base} ${i}`.toLocaleLowerCase())) return `${base} ${i}`
+  }
 }

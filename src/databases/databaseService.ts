@@ -782,6 +782,14 @@ export async function updateView(
   })
 }
 
+/** Brings back a view deleted a moment ago (Undo). */
+export async function restoreView(
+  db: LearningNotesDB,
+  viewId: string,
+): Promise<void> {
+  await db.dbViews.update(viewId, { deletedAt: null, updatedAt: Date.now() })
+}
+
 /** Soft-deletes a view; the last view of a database cannot be deleted. */
 export async function deleteView(
   db: LearningNotesDB,

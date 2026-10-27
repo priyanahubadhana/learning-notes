@@ -613,3 +613,9 @@
 - **What:** Phase 5B planning talk done; the plan (Views, Revise tab, Sharing, End checks) is written in the README Phase 5 Plan. Owner answers: select text + toolbar label for Revise; CSV per database + whole-notebook own file (also restores the backup); Calendar by a Date column and Gallery as tiles; imports always add new copies.
 - **Why:** Rule: plan each phase together, then build it without stopping.
 - **Files:** README.md, CHANGELOG.md
+
+## 2026-10-27
+
+- **What:** Phase 5B, step 1 (views). New Calendar view (\`views/CalendarView.tsx\`, rules in \`calendarData.ts\`: month/week, Monday start, + on a day adds a row, date column choice) and Gallery view (\`GalleryView.tsx\`: tiles, picture from a Web link column, chosen values); "+ View" with any view type, "Rename this view…" and "Delete this view" (with Undo) in the view options; the "/database" block can switch to all five view types. 5 new tips. Tests: \`calendarData.test.ts\`, e2e in \`databases.spec.ts\` (+ screenshots calendar-*/gallery-*).
+- **Why:** Phase 5B plan (owner, 2026-10-27).
+- **Files:** src/databases/views/CalendarView.tsx, calendarData.ts (+test), GalleryView.tsx, DatabaseView.tsx, viewTypes.ts, src/databases/databaseService.ts (restoreView), DatabaseBlockView.tsx, dashboard/chartData.ts, src/i18n/en.ts, src/help/helpRegistry.ts, HELP-TEXTS.md, e2e/databases.spec.ts

@@ -7,7 +7,7 @@ import { ensureBlockView, getBlockView, setBlockViewType } from './blockViews'
 import { getDatabase } from './databaseService'
 import { getViewType } from './views/viewTypes'
 
-const TYPES = ['table', 'dashboard', 'board'] as const
+const TYPES = ['table', 'dashboard', 'board', 'calendar', 'gallery'] as const
 
 /**
  * Body of a "/database" block: a database shown inside a note, with the

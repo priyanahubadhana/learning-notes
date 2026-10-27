@@ -138,6 +138,11 @@ export const TIPS = {
     where: 'A database inside a note › Table / Dashboard / Board',
   },
   'db.blockOpen': { where: 'A database inside a note › Open' },
+  'db.viewCalendar': { where: 'Database › Calendar view button' },
+  'db.viewGallery': { where: 'Database › Gallery view button' },
+  'db.addView': { where: 'Database › + View' },
+  'db.calendarNav': { where: 'Calendar › ‹ Today ›' },
+  'db.galleryOptions': { where: 'Gallery › Gallery options' },
 } as const satisfies Record<string, TipDefinition>
 
 export const HELP_LINES = {

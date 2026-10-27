@@ -212,3 +212,101 @@ test('database screen: one name, delete in the ⋯ menu, view stays while adding
   await page.getByRole('menuitem', { name: 'Delete database' }).click()
   await expect(main(page)).toContainText('No databases yet')
 })
+
+test('+ View adds a Calendar and a Gallery; views can be renamed and deleted', async ({
+  page,
+}) => {
+  await sidebar(page).getByRole('button', { name: 'Databases' }).click()
+  await main(page).getByRole('button', { name: '+ New database' }).click()
+  await page.getByRole('menuitem', { name: /^Books/ }).click()
+  const view = (name: string) =>
+    main(page).getByRole('button', { name, exact: true })
+
+  // Calendar: the Finished date column places rows; "+" on a day adds one.
+  await main(page).getByRole('button', { name: '+ View' }).click()
+  await page
+    .getByRole('dialog', { name: 'Add a view' })
+    .getByRole('button', { name: 'Calendar' })
+    .click()
+  await expect(view('Calendar')).toHaveAttribute('aria-pressed', 'true')
+  const today = main(page)
+    .locator('[data-calendar-day]')
+    .filter({ hasText: /^\d/ })
+    .first()
+  await expect(today).toBeVisible()
+  const day = main(page).locator('[data-calendar-day]').nth(10)
+  await day.hover()
+  await day.getByRole('button', { name: /^Add a row on/ }).click()
+  await page.getByRole('textbox', { name: 'Title' }).fill('Dune')
+  await page.getByRole('textbox', { name: 'Title' }).press('Enter')
+  await sidebar(page).getByRole('button', { name: 'Databases' }).click()
+  await main(page)
+    .getByRole('button', { name: /^Books/ })
+    .click()
+  await view('Calendar').click()
+  await expect(
+    main(page)
+      .getByRole('button', { name: /Dune|Untitled/ })
+      .first(),
+  ).toBeVisible()
+  await main(page).getByRole('button', { name: 'Week', exact: true }).click()
+  await expect(main(page).locator('[data-calendar-day]')).toHaveCount(7)
+
+  // Gallery.
+  await main(page).getByRole('button', { name: '+ View' }).click()
+  await page
+    .getByRole('dialog', { name: 'Add a view' })
+    .getByRole('button', { name: 'Gallery' })
+    .click()
+  await expect(main(page).getByText('1 tile')).toBeVisible()
+
+  // Rename, then delete with Undo.
+  await main(page).getByRole('button', { name: 'View options' }).click()
+  await page.getByRole('button', { name: 'Rename this view…' }).click()
+  await page.getByRole('textbox', { name: 'View name' }).fill('Covers')
+  await page.getByRole('textbox', { name: 'View name' }).press('Enter')
+  await expect(view('Covers')).toBeVisible()
+  await main(page).getByRole('button', { name: 'View options' }).click()
+  await page.getByRole('button', { name: 'Delete this view' }).click()
+  await expect(view('Covers')).toHaveCount(0)
+  await page.getByRole('button', { name: 'Undo' }).click()
+  await expect(view('Covers')).toBeVisible()
+})
+
+for (const [theme, width, height] of [
+  ['Day', 1280, 800],
+  ['Night', 1280, 800],
+  ['Sepia', 1280, 800],
+  ['Day', 390, 844],
+] as const) {
+  test(`screenshot: calendar and gallery ${theme} ${width}×${height}`, async ({
+    page,
+  }) => {
+    await sidebar(page).getByRole('button', { name: 'Databases' }).click()
+    await main(page).getByRole('button', { name: '+ New database' }).click()
+    await page.getByRole('menuitem', { name: /^Books/ }).click()
+    await sidebar(page)
+      .getByRole('group', { name: 'Theme' })
+      .getByRole('button', { name: theme })
+      .click()
+    await page.setViewportSize({ width, height })
+    for (const type of ['Calendar', 'Gallery']) {
+      await main(page).getByRole('button', { name: '+ View' }).click()
+      await page
+        .getByRole('dialog', { name: 'Add a view' })
+        .getByRole('button', { name: type })
+        .click()
+      await page.waitForTimeout(400)
+      await page.screenshot({
+        path: `test-results/screens/${type.toLowerCase()}-${theme}-${width}x${height}.png`,
+        fullPage: true,
+      })
+    }
+    const overflow = await page.evaluate(
+      () =>
+        document.querySelector('main')!.scrollWidth -
+        document.querySelector('main')!.clientWidth,
+    )
+    expect(overflow).toBeLessThanOrEqual(0)
+  })
+}

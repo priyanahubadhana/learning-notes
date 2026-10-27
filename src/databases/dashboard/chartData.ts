@@ -276,7 +276,7 @@ export function periodStart(day: string, period: Period): string {
 }
 
 /** The day a row is placed on (the first date of its value), or null. */
-function rowDay(row: ResolvedRow, columnId: string): string | null {
+export function rowDay(row: ResolvedRow, columnId: string): string | null {
   const value = row.values[columnId] ?? null
   const items = Array.isArray(value) ? flatten(value) : [value]
   const date = items.find(isDate)

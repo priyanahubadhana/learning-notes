@@ -4,6 +4,8 @@ import type { Database, DbView } from '../../core/types'
 import type { MessageKey } from '../../i18n/t'
 import { DashboardView } from '../dashboard/DashboardView'
 import { BoardView } from './BoardView'
+import { CalendarView } from './CalendarView'
+import { GalleryView } from './GalleryView'
 import { TableView } from './TableView'
 
 /**
@@ -35,6 +37,9 @@ export function registerViewType(definition: ViewTypeDefinition): void {
   viewTypes.set(definition.type, definition)
 }
 
+/** All view types, in registration order. */
+export const listViewTypes = (): ViewTypeDefinition[] => [...viewTypes.values()]
+
 export function getViewType(type: string): ViewTypeDefinition | undefined {
   return viewTypes.get(type)
 }
@@ -51,6 +56,20 @@ registerViewType({
   icon: '◔',
   label: 'database.view.dashboard',
   component: DashboardView,
+})
+
+registerViewType({
+  type: 'calendar',
+  icon: '▦',
+  label: 'database.view.calendar',
+  component: CalendarView,
+})
+
+registerViewType({
+  type: 'gallery',
+  icon: '◫',
+  label: 'database.view.gallery',
+  component: GalleryView,
 })
 
 registerViewType({

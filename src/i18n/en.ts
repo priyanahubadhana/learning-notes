@@ -441,7 +441,7 @@ export const en = {
   'board.open': 'Open',
   'board.rename': 'Rename',
   'board.titleLabel': 'Title',
-  'board.newIn': 'New card in {group}',
+  'board.newIn': 'in {group}',
   'board.showMore_one': 'Show {count} more',
   'board.showMore_other': 'Show {count} more',
   'board.noChoice':

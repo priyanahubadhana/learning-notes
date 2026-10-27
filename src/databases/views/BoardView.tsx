@@ -344,11 +344,14 @@ export function BoardView({ db, database, view, onOpenPage }: ViewProps) {
               )}
               <button
                 type="button"
-                aria-label={t('board.newIn', { group: name })}
                 onClick={() => void newCard(group.key)}
                 className="mt-2 min-h-8 rounded-md px-1 text-start text-[13px] text-muted hover:bg-hover hover:text-ink"
               >
                 {tracker ? t('table.newLesson') : t('table.newRow')}
+                <span className="sr-only">
+                  {' '}
+                  {t('board.newIn', { group: name })}
+                </span>
               </button>
             </section>
           )

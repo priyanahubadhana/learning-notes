@@ -333,10 +333,59 @@ function DatabaseTab({
       live = false
     }
   }, [db, notebookId, isTracker])
-  if (!ready)
+  // Every database that belongs to this notebook, the Study tracker first.
+  const databases = useLiveQuery(async () => {
+    const own = (
+      await db.databases.where('notebookId').equals(notebookId).toArray()
+    )
+      .filter((d) => d.deletedAt === null)
+      .sort((a, b) => (a.order < b.order ? -1 : a.order > b.order ? 1 : 0))
+    return [
+      ...own.filter((d) => d.kind === 'studyTracker'),
+      ...own.filter((d) => d.kind !== 'studyTracker'),
+    ]
+  }, [db, notebookId])
+  const [pickedId, setPickedId] = useState<string | null>(null)
+  if (!ready || !databases) {
     return <p className="text-sm text-muted">{t('notebook.loading')}</p>
+  }
+  const shownId = databases.some((d) => d.id === pickedId)
+    ? pickedId!
+    : databaseId
   return (
-    <DatabaseView db={db} databaseId={databaseId} onOpenPage={onOpenPage} />
+    <div>
+      {databases.length > 1 && (
+        <Tip
+          id="notebook.databasePicker"
+          className="mb-3 block"
+          touchInfo={false}
+        >
+          <div
+            role="group"
+            aria-label={t('notebook.databases')}
+            className="flex flex-wrap gap-1.5"
+          >
+            {databases.map((d) => (
+              <button
+                key={d.id}
+                type="button"
+                aria-pressed={d.id === shownId}
+                onClick={() => setPickedId(d.id)}
+                className="min-h-8 rounded-full border border-line px-3 text-[13px] hover:bg-hover aria-pressed:border-accent aria-pressed:bg-soft"
+              >
+                {d.title}
+              </button>
+            ))}
+          </div>
+        </Tip>
+      )}
+      <DatabaseView
+        key={shownId}
+        db={db}
+        databaseId={shownId}
+        onOpenPage={onOpenPage}
+      />
+    </div>
   )
 }
 

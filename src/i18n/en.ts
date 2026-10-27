@@ -566,6 +566,13 @@ export const en = {
   'help.tip.data.sample.meaning':
     'Adds a ready-made notebook with marked notes, cards and a database, so you can try every feature.',
   'help.tip.data.sample.example': 'Open its Revise tab to see marked words.',
+  'help.tip.data.sampleRemove.meaning':
+    'Moves the sample notebook (and only what the sample added) to the Trash, after asking you.',
+  'help.tip.data.sampleRemove.example': 'Clean up after trying the app.',
+  'help.tip.notebook.databasePicker.meaning':
+    'Switches between the notebook’s Study tracker and its other databases.',
+  'help.tip.notebook.databasePicker.example':
+    'Open the “Reading list” kept in this notebook.',
   'help.line.tracker.statusRule':
     'Auto: Not started = no cards answered yet · Learning = under 75% correct · Mastered = 90% or more correct, nothing due, no new cards, and at least 80% of the cards at level Mastered · Review = in between.',
   'settings.dayStart.label': 'Day starts at',
@@ -873,6 +880,15 @@ export const en = {
     'Adds a new notebook with two lessons, marked notes, a few cards and a database with dates and picture links. Nothing you have is changed or deleted.',
   'data.sample.button': 'Load sample notebook',
   'data.sample.done': 'Added the sample notebook “{name}”.',
+  'data.sample.again': 'You already have a sample notebook. Add another?',
+  'data.sample.addAnother': 'Add another',
+  'data.sample.remove': 'Remove sample notebook',
+  'data.sample.removeMessage':
+    'Remove the sample notebook? Only what the sample added moves to the Trash (you can restore it from there). Your own notebooks are not touched.',
+  'data.sample.removeConfirm': 'Remove',
+  'data.sample.removed_one': 'Removed 1 sample notebook.',
+  'data.sample.removed_other': 'Removed {count} sample notebooks.',
+  'notebook.databases': 'Databases in this notebook',
   'databases.title': 'Databases',
   'sample.notebook': 'Sample notebook',
   'sample.heart': 'Heart sounds',

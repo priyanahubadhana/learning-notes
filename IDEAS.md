@@ -77,3 +77,4 @@ New ideas that come up mid-build are parked here, not added to the current phase
 | 2026-10-27 | Notebook files that also carry journal days, templates and tag colours; a whole-workspace file | Journal, templates, colours done (2026-10-28); whole-workspace file: Phase 6 |
 | 2026-10-27 | Import: ask for the date order (day-first / month-first) and merge into existing rows by a key column | Polish |
 | 2026-10-27 | Local image upload for Gallery tiles and notes | Phase 6 |
+| 2026-10-28 | Browser back/forward and a URL per screen (pages, tabs, Revise sheet, Backup & files, databases and views); refresh keeps the screen | Phase 6 (planned, README Roadmap 6b) |

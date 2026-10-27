@@ -7,7 +7,7 @@ import {
   createDatabase,
   listColumns,
 } from '../databases/databaseService'
-import { createNotebook } from '../notebooks/notebookService'
+import { createNotebook, deleteNotebook } from '../notebooks/notebookService'
 import { createPage } from '../pages/pageService'
 import { syncCardRecords } from '../recall/cardService'
 import { MARK_STYLE, type MarkLabel } from '../revise/reviseMarks'
@@ -45,12 +45,38 @@ const PICTURES = [
   'https://picsum.photos/seed/learning-notes-5/320/200',
 ]
 
+/** The live notebooks made by "Load sample notebook". */
+export async function listSampleNotebooks(
+  db: LearningNotesDB,
+  workspaceId: string,
+): Promise<Notebook[]> {
+  return (
+    await db.notebooks.where('workspaceId').equals(workspaceId).toArray()
+  ).filter((n) => n.deletedAt === null && n.sample === true)
+}
+
+/**
+ * Removes only what "Load sample notebook" added: the notebooks it made
+ * (marked as samples) with their pages, notes and databases, into the
+ * Trash (where they can be restored). Returns how many notebooks.
+ */
+export async function removeSampleNotebooks(
+  db: LearningNotesDB,
+  workspaceId: string,
+): Promise<number> {
+  const samples = await listSampleNotebooks(db, workspaceId)
+  for (const notebook of samples) await deleteNotebook(db, notebook.id)
+  return samples.length
+}
+
 export async function loadSampleNotebook(
   db: LearningNotesDB,
   workspaceId: string,
   now: number = Date.now(),
 ): Promise<Notebook> {
-  const notebook = await createNotebook(db, workspaceId, t('sample.notebook'))
+  const made = await createNotebook(db, workspaceId, t('sample.notebook'))
+  await db.notebooks.update(made.id, { sample: true })
+  const notebook: Notebook = { ...made, sample: true }
 
   const paragraph = (pageId: string, ...text: Run[]) =>
     createBlock(db, { pageId, type: 'paragraph', content: { text } })

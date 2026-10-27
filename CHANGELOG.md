@@ -644,3 +644,9 @@
 - **Why:** Owner request 2026-10-28.
 - **Self-review:** The sample's pictures come from picsum.photos (internet needed). Restoring a backup re-adds the starter templates as copies. A file with journal/templates should not be shared by accident, hence the ticks.
 - **Files:** src/share/sampleNotebook.ts (+test), bundle.ts, importBundle.ts, DataScreen.tsx, bundle.test.ts, src/i18n/en.ts, helpRegistry.ts, HELP-TEXTS.md, e2e/sample.spec.ts, e2e/sharing.spec.ts, README.md, LEARNING.md, IDEAS.md
+
+## 2026-10-28
+
+- **What:** Phase 5 check-in fixes. (1) Backup restore and notebook-file import skip templates the workspace already has (same id, or same name and content, page links compared without ids); sub-pages follow their template; links to a skipped template point at the existing one. (2) The notebook's Database tab shows every database of the notebook as buttons (`notebook.databasePicker` tip). (3) "Remove sample notebook" (`removeSampleNotebooks`): notebooks made by the sample carry `Notebook.sample`; removal asks first and moves them with their pages, notes and databases to the Trash; imported copies lose the flag. (4) Loading a second sample asks "You already have a sample notebook. Add another?". (5) Phase 6 plan: browser history and per-screen URLs (README Roadmap 6b), not built. Tests: template skip (same id, same content, changed and new templates), sample removal and flag handling, e2e for the picker, the warning, removal and no duplicate templates.
+- **Why:** Owner check-in 2026-10-28.
+- **Files:** src/share/importBundle.ts, sampleNotebook.ts, DataScreen.tsx, bundle.test.ts, sampleNotebook.test.ts, src/notebooks/NotebookScreen.tsx, src/core/types.ts, src/i18n/en.ts, helpRegistry.ts, HELP-TEXTS.md, e2e/sample.spec.ts, e2e/sharing.spec.ts, README.md

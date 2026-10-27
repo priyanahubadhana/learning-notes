@@ -2,7 +2,7 @@
 
 Every hover tip and help line in the app (shown while Settings › Show help is On). Generated from `src/help/helpRegistry.ts` and `src/i18n/en.ts`; to change a text, edit it in `en.ts`, then run `UPDATE_HELP=1 npx vitest run src/help` to refresh this file.
 
-## Hover tips (98)
+## Hover tips (100)
 
 ### `tracker.lesson`
 
@@ -591,6 +591,18 @@ Every hover tip and help line in the app (shown while Settings › Show help is 
 - **Where:** Backup & files › Load sample notebook
 - **Meaning:** Adds a ready-made notebook with marked notes, cards and a database, so you can try every feature.
 - **Example:** Open its Revise tab to see marked words.
+
+### `data.sampleRemove`
+
+- **Where:** Backup & files › Remove sample notebook
+- **Meaning:** Moves the sample notebook (and only what the sample added) to the Trash, after asking you.
+- **Example:** Clean up after trying the app.
+
+### `notebook.databasePicker`
+
+- **Where:** Notebook › Database tab › database buttons
+- **Meaning:** Switches between the notebook’s Study tracker and its other databases.
+- **Example:** Open the “Reading list” kept in this notebook.
 
 ## Help lines (9)
 

@@ -294,12 +294,89 @@ describe('notebook file', () => {
     const names = (
       await db.pages.where('notebookId').equals(templates!.id).toArray()
     ).map((p) => p.title)
-    expect(
-      names.filter((n) => n.endsWith('(imported)')).length,
-    ).toBeGreaterThan(3)
+    // The templates this workspace already has are not added a second time.
+    expect(names.filter((n) => n.endsWith('(imported)'))).toEqual([])
     expect(
       await db.notebooks.filter((n) => n.kind === 'templates').count(),
     ).toBe(1)
+  })
+  it('skips templates the workspace already has (same id, or same name and content)', async () => {
+    const { nb } = await build()
+    await ensureTemplates(db, ws)
+    const bundle = readBundle(
+      await bundleFile(
+        await exportNotebookBundle(db, nb, { templates: true }),
+      ).text(),
+    )
+    const templateCount = () =>
+      db.notebooks
+        .filter((n) => n.kind === 'templates')
+        .first()
+        .then((n) => db.pages.where('notebookId').equals(n!.id).count())
+    const before = await templateCount()
+
+    // Same ids (restoring into the app the file came from): nothing is added.
+    await importBundle(db, ws, bundle)
+    expect(await templateCount()).toBe(before)
+
+    // Another app with its own starter templates (same names and content,
+    // other ids): nothing is added either.
+    const other = createTestDb()
+    try {
+      const ws2 = (await getOrCreateDefaultWorkspace(other)).id
+      await ensureTemplates(other, ws2)
+      const home = (await other.notebooks
+        .filter((n) => n.kind === 'templates')
+        .first())!
+      const count = () =>
+        other.pages.where('notebookId').equals(home.id).count()
+      const had = await count()
+      await importBundle(other, ws2, bundle)
+      expect(await count()).toBe(had)
+      expect(
+        (
+          await other.pages.where('notebookId').equals(home.id).toArray()
+        ).filter((p) => p.title.endsWith('(imported)')),
+      ).toEqual([])
+
+      // A template that differs (edited content, or a new one) is added as a copy.
+      const study = bundle.pages.find(
+        (p) => p.title === 'Study notes' && p.parentId === null,
+      )!
+      const edited = {
+        ...bundle,
+        blocks: bundle.blocks.map((blk) =>
+          blk.pageId === study.id && blk.type === 'paragraph'
+            ? {
+                ...blk,
+                content: {
+                  text: [{ type: 'text', text: 'Changed', styles: {} }],
+                },
+              }
+            : blk,
+        ),
+        pages: [
+          ...bundle.pages,
+          {
+            ...study,
+            id: 'extra-template',
+            title: 'My own template',
+            parentId: null,
+          },
+        ],
+      }
+      const hasParagraph = edited.blocks.some(
+        (blk) => blk.pageId === study.id && blk.type === 'paragraph',
+      )
+      await importBundle(other, ws2, edited)
+      const titles = (
+        await other.pages.where('notebookId').equals(home.id).toArray()
+      ).map((p) => p.title)
+      expect(titles).toContain('My own template (imported)')
+      if (hasParagraph) expect(titles).toContain('Study notes (imported)')
+    } finally {
+      await other.delete()
+    }
   })
 
   it('refuses files that are not (or not safely) a Learning Notes file', () => {

@@ -150,6 +150,10 @@ export const TIPS = {
   'data.import': { where: 'Backup & files › Import a file' },
   'data.restore': { where: 'Backup & files › Restore as copies' },
   'data.sample': { where: 'Backup & files › Load sample notebook' },
+  'data.sampleRemove': { where: 'Backup & files › Remove sample notebook' },
+  'notebook.databasePicker': {
+    where: 'Notebook › Database tab › database buttons',
+  },
 } as const satisfies Record<string, TipDefinition>
 
 export const HELP_LINES = {

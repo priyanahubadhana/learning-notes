@@ -1,6 +1,6 @@
 import { readFile } from 'node:fs/promises'
 import { expect, test, type Page } from '@playwright/test'
-import { selectText, sidebar } from './helpers.ts'
+import { createNotebook, selectText, sidebar } from './helpers.ts'
 
 const main = (page: Page) => page.getByRole('main')
 const sheet = (page: Page) => main(page).getByRole('region', { name: 'Revise' })
@@ -184,3 +184,80 @@ for (const [theme, width, height] of [
     }
   })
 }
+
+test('sample notebook: its databases show in the Database tab; second copy warns; Remove asks and removes only the sample', async ({
+  page,
+}) => {
+  await page.goto('/')
+  await createNotebook(page, 'Mine', 'My page')
+  await sidebar(page).getByRole('button', { name: 'Backup & files' }).click()
+  const box = main(page).getByRole('region', {
+    name: 'For testing: sample notebook',
+  })
+  await expect(
+    box.getByRole('button', { name: 'Remove sample notebook' }),
+  ).toBeDisabled()
+  await box.getByRole('button', { name: 'Load sample notebook' }).click()
+  await expect(
+    page.getByText('Added the sample notebook “Sample notebook”.'),
+  ).toBeVisible()
+
+  // The notebook's Database tab lists the Study tracker and the Reading list.
+  await sidebar(page)
+    .getByRole('button', { name: 'Sample notebook', exact: true })
+    .click()
+  await main(page).getByRole('tab', { name: 'Database' }).click()
+  const picker = main(page).getByRole('group', {
+    name: 'Databases in this notebook',
+  })
+  await expect(picker.getByRole('button')).toHaveText([
+    'Study tracker',
+    'Reading list',
+  ])
+  await picker.getByRole('button', { name: 'Reading list' }).click()
+  await main(page).getByRole('button', { name: 'Table', exact: true }).click()
+  await expect(
+    main(page).getByRole('row').filter({ hasText: 'Respiratory Physiology' }),
+  ).toHaveCount(1)
+
+  // A second copy asks first.
+  await sidebar(page).getByRole('button', { name: 'Backup & files' }).click()
+  await box.getByRole('button', { name: 'Load sample notebook' }).click()
+  await expect(
+    page.getByText('You already have a sample notebook. Add another?'),
+  ).toBeVisible()
+  await page.getByRole('button', { name: 'Cancel' }).click()
+  await expect(
+    sidebar(page).getByRole('button', { name: 'Sample notebook', exact: true }),
+  ).toHaveCount(1)
+  await box.getByRole('button', { name: 'Load sample notebook' }).click()
+  await page.getByRole('button', { name: 'Add another' }).click()
+  await expect(
+    sidebar(page).getByRole('button', { name: 'Sample notebook', exact: true }),
+  ).toHaveCount(2)
+
+  // Remove asks, then removes the samples and nothing else.
+  await box.getByRole('button', { name: 'Remove sample notebook' }).click()
+  await expect(
+    page.getByText(/Only what the sample added moves to the Trash/),
+  ).toBeVisible()
+  await page.getByRole('button', { name: 'Cancel' }).click()
+  await expect(
+    sidebar(page).getByRole('button', { name: 'Sample notebook', exact: true }),
+  ).toHaveCount(2)
+  await box.getByRole('button', { name: 'Remove sample notebook' }).click()
+  await page.getByRole('button', { name: 'Remove', exact: true }).click()
+  await expect(page.getByText('Removed 2 sample notebooks.')).toBeVisible()
+  await expect(
+    sidebar(page).getByRole('button', { name: 'Sample notebook', exact: true }),
+  ).toHaveCount(0)
+  await expect(
+    sidebar(page).getByRole('button', { name: 'Mine', exact: true }),
+  ).toBeVisible()
+  await expect(
+    sidebar(page).getByRole('button', { name: 'My page', exact: true }),
+  ).toBeVisible()
+  await expect(
+    box.getByRole('button', { name: 'Remove sample notebook' }),
+  ).toBeDisabled()
+})

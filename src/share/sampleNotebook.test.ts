@@ -7,7 +7,13 @@ import { listColumns } from '../databases/databaseService'
 import { createNotebook } from '../notebooks/notebookService'
 import { createPage } from '../pages/pageService'
 import { listLessonMarks } from '../revise/reviseService'
-import { loadSampleNotebook } from './sampleNotebook'
+import { exportNotebookBundle, bundleFile, readBundle } from './bundle'
+import { importBundle } from './importBundle'
+import {
+  listSampleNotebooks,
+  loadSampleNotebook,
+  removeSampleNotebooks,
+} from './sampleNotebook'
 
 let db: LearningNotesDB
 let ws: string
@@ -70,5 +76,46 @@ describe('sample notebook', () => {
     expect(
       await db.pages.where('notebookId').equals(mine).toArray(),
     ).toHaveLength(1)
+  })
+
+  it('removes only the notebooks the sample added (to the Trash), nothing else', async () => {
+    const mine = (await createNotebook(db, ws, 'Mine')).id
+    const page = await createPage(db, mine, null, 'My page')
+    const sample = await loadSampleNotebook(db, ws)
+    expect((await listSampleNotebooks(db, ws)).map((n) => n.id)).toEqual([
+      sample.id,
+    ])
+
+    // A copy made by importing a sample file is the user's own notebook.
+    const bundle = readBundle(
+      await bundleFile(await exportNotebookBundle(db, sample.id)).text(),
+    )
+    await importBundle(db, ws, bundle)
+    expect((await listSampleNotebooks(db, ws)).map((n) => n.id)).toEqual([
+      sample.id,
+    ])
+
+    expect(await removeSampleNotebooks(db, ws)).toBe(1)
+    expect(await listSampleNotebooks(db, ws)).toEqual([])
+    // In the Trash, not gone: the notebook, its pages and its database.
+    expect((await db.notebooks.get(sample.id))?.deletedAt).not.toBeNull()
+    expect(
+      (await db.pages.where('notebookId').equals(sample.id).toArray()).every(
+        (p) => p.deletedAt !== null,
+      ),
+    ).toBe(true)
+    expect(
+      (
+        await db.databases.where('notebookId').equals(sample.id).toArray()
+      ).every((d) => d.deletedAt !== null),
+    ).toBe(true)
+    // Everything else is as it was, including the imported copy.
+    expect((await db.notebooks.get(mine))?.deletedAt).toBeNull()
+    expect((await db.pages.get(page.id))?.deletedAt).toBeNull()
+    const copy = (await db.notebooks.toArray()).find(
+      (n) => n.title === 'Sample notebook (imported)',
+    )!
+    expect(copy.deletedAt).toBeNull()
+    expect(await removeSampleNotebooks(db, ws)).toBe(0)
   })
 })

@@ -63,6 +63,8 @@ export interface Notebook extends BaseRecord {
    * (unset = 1). Newer starters are added once when this is lower.
    */
   starterVersion?: number
+  /** Made by "Load sample notebook" (testing); "Remove sample notebook" finds it by this. */
+  sample?: true
   /**
    * The notebook's tabs (Notes · Database · Cards …), in display order.
    * Copied from the default tab template when the notebook is made (or on

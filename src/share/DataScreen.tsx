@@ -3,6 +3,7 @@ import { useContext, useState } from 'react'
 import { AppUiContext } from '../app/appUi'
 import { downloadFile } from '../app/download'
 import { runTask } from '../app/errors'
+import { ConfirmDialog } from '../app/ui'
 import type { LearningNotesDB } from '../core/db'
 import { DEFAULT_DB_NAME } from '../core/db'
 import { readBrowserBackup } from '../core/upgradeBackup'
@@ -20,7 +21,11 @@ import {
   type Bundle,
 } from './bundle'
 import { importBundle, type ImportSummary } from './importBundle'
-import { loadSampleNotebook } from './sampleNotebook'
+import {
+  listSampleNotebooks,
+  loadSampleNotebook,
+  removeSampleNotebooks,
+} from './sampleNotebook'
 
 /**
  * "Backup & files": save a notebook as a file, bring a file (or a backup
@@ -46,6 +51,11 @@ export function DataScreen({
     [],
   )
   const [picked, setPicked] = useState('')
+  const [asking, setAsking] = useState<'again' | 'remove' | null>(null)
+  const samples = useLiveQuery(
+    () => listSampleNotebooks(db, workspaceId),
+    [db, workspaceId],
+  )
   const [withJournal, setWithJournal] = useState(true)
   const [withTemplates, setWithTemplates] = useState(true)
   const [error, setError] = useState('')
@@ -72,6 +82,11 @@ export function DataScreen({
         .finally(() => setBusy(false)),
     )
   }
+  const addSample = () =>
+    run(async () => {
+      const notebook = await loadSampleNotebook(db, workspaceId)
+      ui.toast(t('data.sample.done', { name: notebook.title }))
+    })
   const importBundleNow = async (bundle: Bundle) => {
     if (bundle.notebooks.length === 0 && bundle.databases.length === 0) {
       setError(t('data.nothing'))
@@ -171,21 +186,32 @@ export function DataScreen({
             {t('data.sample.title')}
           </h2>
           <p className="mb-3 text-sm text-muted">{t('data.sample.text')}</p>
-          <Tip id="data.sample" touchInfo={false}>
-            <button
-              type="button"
-              disabled={busy}
-              onClick={() =>
-                run(async () => {
-                  const notebook = await loadSampleNotebook(db, workspaceId)
-                  ui.toast(t('data.sample.done', { name: notebook.title }))
-                })
-              }
-              className={button}
-            >
-              {t('data.sample.button')}
-            </button>
-          </Tip>
+          <div className="flex flex-wrap gap-2">
+            <Tip id="data.sample" touchInfo={false}>
+              <button
+                type="button"
+                disabled={busy}
+                onClick={() =>
+                  samples && samples.length > 0
+                    ? setAsking('again')
+                    : addSample()
+                }
+                className={button}
+              >
+                {t('data.sample.button')}
+              </button>
+            </Tip>
+            <Tip id="data.sampleRemove" touchInfo={false}>
+              <button
+                type="button"
+                disabled={busy || !samples || samples.length === 0}
+                onClick={() => setAsking('remove')}
+                className={button}
+              >
+                {t('data.sample.remove')}
+              </button>
+            </Tip>
+          </div>
         </section>
 
         <section aria-label={t('data.import.title')} className={box}>
@@ -248,6 +274,31 @@ export function DataScreen({
           )}
         </section>
         <p className="text-xs text-muted">{t('data.notIncluded')}</p>
+        {asking === 'again' && (
+          <ConfirmDialog
+            message={t('data.sample.again')}
+            confirmLabel={t('data.sample.addAnother')}
+            onCancel={() => setAsking(null)}
+            onConfirm={() => {
+              setAsking(null)
+              addSample()
+            }}
+          />
+        )}
+        {asking === 'remove' && (
+          <ConfirmDialog
+            message={t('data.sample.removeMessage')}
+            confirmLabel={t('data.sample.removeConfirm')}
+            onCancel={() => setAsking(null)}
+            onConfirm={() => {
+              setAsking(null)
+              run(async () => {
+                const count = await removeSampleNotebooks(db, workspaceId)
+                ui.toast(t('data.sample.removed', { count }))
+              })
+            }}
+          />
+        )}
       </div>
     </div>
   )

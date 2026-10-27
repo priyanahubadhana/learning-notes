@@ -98,6 +98,11 @@ test('a notebook file round-trips as a new copy; nothing existing changes', asyn
     sidebar(page).getByRole('button', { name: 'Cardiology', exact: true }),
   ).toBeVisible()
 
+  // The templates in the file were already here: none is added twice.
+  await expect(
+    sidebar(page).getByRole('button', { name: /\(imported\)$/ }),
+  ).toHaveCount(1)
+
   // A file that is not ours is refused with a clear message.
   await main(page)
     .getByLabel('File to import')

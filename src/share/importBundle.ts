@@ -1,7 +1,8 @@
 import type { LearningNotesDB } from '../core/db'
 import { createId } from '../core/ids'
 import { orderBetween } from '../core/order'
-import type { JsonValue, Notebook } from '../core/types'
+import { descendantIds, isLive } from '../core/records'
+import type { Block, JsonValue, Notebook, Page } from '../core/types'
 import { rebuildRowRefs, rowNotebookIdOf } from '../databases/databaseService'
 import { defaultNotebookTabs, studyTrackerId } from '../databases/notebookTabs'
 import {
@@ -28,6 +29,31 @@ export interface ImportSummary {
   pages: number
   cards: number
   databases: number
+}
+
+/** A page's title, notes (type and content, in order) and sub-pages, as text for comparing. */
+function signature(
+  pageId: string,
+  pages: readonly Page[],
+  blocks: readonly Block[],
+): string {
+  const byOrder = <T extends { order: string }>(a: T, b: T) =>
+    a.order < b.order ? -1 : a.order > b.order ? 1 : 0
+  const page = pages.find((p) => p.id === pageId)
+  // Links between the pages hold their ids, which differ per app: ignore them.
+  const noIds = (text: string) =>
+    pages.reduce((out, p) => out.split(p.id).join('#'), text)
+  return JSON.stringify([
+    page?.title ?? '',
+    blocks
+      .filter((b) => b.pageId === pageId)
+      .sort(byOrder)
+      .map((b) => noIds(JSON.stringify([b.type, b.content]))),
+    pages
+      .filter((p) => p.parentId === pageId)
+      .sort(byOrder)
+      .map((p) => signature(p.id, pages, blocks)),
+  ])
 }
 
 export async function importBundle(
@@ -60,11 +86,44 @@ export async function importBundle(
       (await createNotebook(db, workspaceId, 'Templates', 'templates'))
     for (const oldId of templatesFrom) ids.set(oldId, home.id)
   }
+  // A template the workspace already has (same id, or same name and
+  // content) is not added again; links to it point at the one that exists.
+  const skipPages = new Set<string>()
+  if (templatesFrom.size > 0) {
+    const home = ids.get([...templatesFrom][0])!
+    const have = (
+      await db.pages.where('notebookId').equals(home).toArray()
+    ).filter(isLive)
+    const haveBlocks = (
+      await db.blocks
+        .where('pageId')
+        .anyOf(have.map((p) => p.id))
+        .toArray()
+    ).filter(isLive)
+    const ownTemplates = bundle.pages.filter((p) =>
+      templatesFrom.has(p.notebookId),
+    )
+    const ownBlocks = bundle.blocks.filter((b) =>
+      ownTemplates.some((p) => p.id === b.pageId),
+    )
+    for (const top of ownTemplates.filter((p) => p.parentId === null)) {
+      const mine = signature(top.id, ownTemplates, ownBlocks)
+      const same = have.find(
+        (e) =>
+          e.parentId === null &&
+          (e.id === top.id || signature(e.id, have, haveBlocks) === mine),
+      )
+      if (!same) continue
+      skipPages.add(top.id)
+      for (const d of descendantIds(ownTemplates, top.id)) skipPages.add(d)
+      ids.set(top.id, same.id)
+    }
+  }
   // Fresh ids for everything else.
   const fresh = (items: readonly { id: string }[]) =>
     items.forEach((item) => ids.set(item.id, createId()))
   fresh(bundle.notebooks.filter((n) => !templatesFrom.has(n.id)))
-  fresh(bundle.pages)
+  fresh(bundle.pages.filter((p) => !skipPages.has(p.id)))
   fresh(bundle.blocks)
   fresh(bundle.cards)
   fresh(bundle.reviewLogs)
@@ -114,9 +173,11 @@ export async function importBundle(
           order = orderBetween(order, null)
           // Journal days come in as an ordinary notebook (a second journal
           // would clash with yours); its days are plain pages there.
-          const { kind: _kind, tabs: _tabs, ...rest } = n
+          // (A copy of a sample notebook is the user's own, not "the sample".)
+          const { kind: _kind, tabs: _tabs, sample: _sample, ...rest } = n
           void _kind
           void _tabs
+          void _sample
           const newId = id(n.id)!
           return {
             ...rest,
@@ -153,6 +214,7 @@ export async function importBundle(
         homeFor.set(d.id, await rowNotebookIdOf(db, d))
       }
       const pages = bundle.pages.flatMap((p) => {
+        if (skipPages.has(p.id)) return []
         const databaseId =
           p.databaseId && databaseIds.has(p.databaseId)
             ? id(p.databaseId)!

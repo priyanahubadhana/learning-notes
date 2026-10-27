@@ -537,3 +537,9 @@
 - **What:** Phase 5 Step 5A-5: Board view. Rows show as cards in columns, one per option of a Choice column ("Grouped by" picks which). Drag a card to another column, or use its ⋯ menu (Move to, Open, Rename) on phones and with the keyboard. "+ New row/lesson" at the foot of a column adds a row already in that column. "Card shows" picks which values cards show. With no Choice column the Board offers "+ Choice column". Every database now has a Board (new ones at creation; existing ones through database upgrade v6).
 - **Why:** Phase 5 plan, Step 5 (Board).
 - **Files:** src/databases/views/boardGroups.ts, boardGroups.test.ts, BoardView.tsx, viewTypes.ts; src/core/db.ts, src/core/migration.test.ts; src/databases/databaseService.ts, databaseService.test.ts; src/i18n/en.ts; e2e/board.spec.ts; README.md, IDEAS.md, CHANGELOG.md
+
+## 2026-10-27
+
+- **What:** New rule (approved by owner): mirror CLAUDE.md, README.md, IDEAS.md, LEARNING.md, package.json, `rules/` and `src/` to `C:\Users\pc\Downloads\gdrive notes` with a robocopy line after each change, and confirm in one line. Never copies node_modules, dist or test-results.
+- **Why:** Owner keeps a copy of the key project files in a Google Drive folder, kept up to date automatically.
+- **Files:** rules/sessions.md, CLAUDE.md, CHANGELOG.md

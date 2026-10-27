@@ -509,7 +509,16 @@ export const en = {
   'column.removeOption': 'Remove “{name}”',
   'column.formula': 'Formula',
   'column.formulaHint': 'Column names go in [brackets].',
-  'column.preview': 'Preview ({row}):',
+  // Formula preview in words, for the first row
+  'column.preview.writes': 'For “{row}”, it writes {result}.',
+  'column.preview.nothing': 'For “{row}”, nothing is written.',
+  'column.preview.readWrites': 'For “{row}”, {inputs}, so it writes {result}.',
+  'column.preview.readNothing': 'For “{row}”, {inputs}, so nothing is written.',
+  'column.preview.missing':
+    '“{row}” has no {column} yet, so nothing is written.',
+  'column.preview.input': '{column} is {value}',
+  'column.preview.inputEmpty': '{column} is empty',
+  'column.preview.error': 'For “{row}”: {error}',
   'column.previewNoRows': 'Add a row to see a preview.',
   'column.examples': 'Examples',
   'column.advanced': 'Advanced: write a custom formula',

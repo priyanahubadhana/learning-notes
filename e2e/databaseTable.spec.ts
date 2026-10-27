@@ -202,9 +202,13 @@ test('columns: number, choice, checkbox, formula; edit and delete', async ({
   await expect(
     formula.getByRole('combobox', { name: 'Condition' }),
   ).toHaveValue('lt')
-  await expect(formula).toContainText('Preview (Heart sounds): OK') // 75% isn't below 75
+  await expect(formula).toContainText(
+    'For “Heart sounds”, Score is 75%, so it writes OK.',
+  )
   await formula.getByRole('textbox', { name: 'Value' }).fill('80')
-  await expect(formula).toContainText('Preview (Heart sounds): Redo')
+  await expect(formula).toContainText(
+    'For “Heart sounds”, Score is 75%, so it writes Redo.',
+  )
   await formula.getByRole('textbox', { name: 'Value' }).fill('')
   await expect(
     formula.getByRole('button', { name: 'Add column' }),
@@ -329,6 +333,9 @@ for (const [theme, width, height] of [
     await expect(
       formula.getByRole('combobox', { name: 'Column to check' }),
     ).toHaveValue('Confidence')
+    await expect(formula).toContainText(
+      '“Heart sounds” has no Confidence yet, so nothing is written.',
+    )
     const dialogBox = await formula.boundingBox()
     expect(dialogBox!.x + dialogBox!.width).toBeLessThanOrEqual(width)
     await page.screenshot({

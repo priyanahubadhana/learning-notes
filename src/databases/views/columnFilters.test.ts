@@ -5,7 +5,12 @@ import type { DbColumn } from '../../core/types'
 import { getOrCreateDefaultWorkspace } from '../../core/workspaceService'
 import { createNotebook } from '../../notebooks/notebookService'
 import { loadDatabaseData } from '../databaseQuery'
-import { addColumn, addRows, createDatabase } from '../databaseService'
+import {
+  addColumn,
+  addRows,
+  createDatabase,
+  setCells,
+} from '../databaseService'
 import {
   filterChoices,
   filterLabel,
@@ -13,7 +18,7 @@ import {
   sortLabels,
   typedNumber,
 } from './columnFilters'
-import { previewFormula } from './formulaPreview'
+import { previewFormula, previewSentence } from './formulaPreview'
 
 const column = (type: string, config = {}): DbColumn => ({
   id: 'c',
@@ -109,9 +114,10 @@ describe('formula preview', () => {
       { title: 'Aspirin', values: { [dose.id]: 75 } },
       { title: 'Heparin', values: { [dose.id]: 5000 } },
     ])
-    expect(previewFormula(await data(), '[Dose] * 2', 0)).toEqual({
+    expect(previewFormula(await data(), '[Dose] * 2', 0)).toMatchObject({
       title: 'Aspirin',
       value: 150,
+      inputs: [{ name: 'Dose', value: 75 }],
     })
     expect(previewFormula(await data(), '[Nope]', 0)?.value).toEqual({
       error: 'unknownColumn',
@@ -125,6 +131,49 @@ describe('formula preview', () => {
     })
     expect(previewFormula(await data(), '[Dose] + 1', 0, twice.id)?.value).toBe(
       76,
+    )
+  })
+
+  it('says the preview in words, with what the formula read', async () => {
+    const ws = (await getOrCreateDefaultWorkspace(db)).id
+    const nb = (await createNotebook(db, ws, 'Study')).id
+    const lessons = await createDatabase(db, ws, nb, 'Lessons')
+    const stars = await addColumn(db, lessons.id, {
+      name: 'Confidence',
+      type: 'number',
+      config: { format: 'stars', max: 5 },
+    })
+    const score = await addColumn(db, lessons.id, {
+      name: 'Score',
+      type: 'number',
+      config: { format: 'percent' },
+    })
+    await addRows(db, lessons.id, [{ title: 'keep me', values: {} }])
+    const say = async (formula: string) =>
+      previewSentence(
+        previewFormula(await loadDatabaseData(db, lessons.id), formula, 0)!,
+      )
+    const redo = 'IF([Confidence] < 3, "Redo", "OK")'
+
+    expect(await say(redo)).toBe(
+      '“keep me” has no Confidence yet, so nothing is written.',
+    )
+    expect(await say('IF([Confidence] = "", "Not rated", "Rated")')).toBe(
+      'For “keep me”, Confidence is empty, so it writes Not rated.',
+    )
+    expect(await say('"Hi"')).toBe('For “keep me”, it writes Hi.')
+    expect(await say('""')).toBe('For “keep me”, nothing is written.')
+    expect(await say('[Nope]')).toBe('For “keep me”: No column called [Nope]')
+
+    const [row] = (await loadDatabaseData(db, lessons.id)).databases.get(
+      lessons.id,
+    )!.rows
+    await setCells(db, row.id, { [stars.id]: 2, [score.id]: 0.8 })
+    expect(await say(redo)).toBe(
+      'For “keep me”, Confidence is 2 stars, so it writes Redo.',
+    )
+    expect(await say('IF([Score] > 0.5, [Name], "")')).toBe(
+      'For “keep me”, Score is 80% and Name is keep me, so it writes keep me.',
     )
   })
 })

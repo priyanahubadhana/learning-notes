@@ -7,7 +7,7 @@ import type { Database, DbColumn, JsonObject } from '../../core/types'
 import { t, type MessageKey } from '../../i18n/t'
 import { TAG_COLORS } from '../../tags/tagTools'
 import { tagColorStyle } from '../../tags/tagStyle'
-import { cellText, DEFAULT_STAR_MAX } from '../cellDisplay'
+import { DEFAULT_STAR_MAX } from '../cellDisplay'
 import {
   choiceOptions,
   getColumnType,
@@ -29,7 +29,7 @@ import {
   updateColumnConfig,
 } from '../databaseService'
 import { typeName } from './columnLook'
-import { previewFormula } from './formulaPreview'
+import { previewFormula, previewSentence } from './formulaPreview'
 import {
   firstOptionName,
   formulaMeaning,
@@ -682,12 +682,7 @@ export function ColumnDialog({
             )}
             <p className="mb-3 text-sm" aria-live="polite">
               {preview ? (
-                <>
-                  {t('column.preview', {
-                    row: preview.title || t('review.untitled'),
-                  })}{' '}
-                  <b>{cellText(preview.value) || '—'}</b>
-                </>
+                previewSentence(preview)
               ) : (
                 <span className="text-muted">{t('column.previewNoRows')}</span>
               )}

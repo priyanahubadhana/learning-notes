@@ -519,3 +519,9 @@
 - **What:** Step 5A-3 fixes, part 2. A new Formula column starts as a sentence: "If [column] [condition] [value], write [X], otherwise write [Y]" (column and condition are menus; ratings and percents work as shown, e.g. 75 for 75 %). "Advanced: write a custom formula" shows the formula as typed, with a plain "Means: …" line for common shapes, and "Back to the simple sentence" when it fits. Examples read as sentences. The column type list says Formula "writes an answer in each row".
 - **Why:** Owner checks of Step 5A-3: typed formulas were too hard for beginners.
 - **Files:** src/databases/views/formulaSentence.ts, src/databases/views/formulaSentence.test.ts, src/databases/views/ColumnDialog.tsx, src/i18n/en.ts, e2e/databaseTable.spec.ts, README.md, CHANGELOG.md
+
+## 2026-10-27
+
+- **What:** The formula preview is now a sentence that shows what the formula read: "For “Heart sounds”, Confidence is 2 stars, so it writes Redo." If an empty cell leaves the answer blank, it says "“Heart sounds” has no Confidence yet, so nothing is written." instead of a dash.
+- **Why:** Owner: "Preview (keep me): —" didn't explain anything.
+- **Files:** src/databases/views/formulaPreview.ts, src/databases/views/ColumnDialog.tsx, src/databases/views/columnFilters.test.ts, src/i18n/en.ts, e2e/databaseTable.spec.ts, README.md, CHANGELOG.md

@@ -575,6 +575,14 @@ export const en = {
   'help.tip.data.exportAll.meaning':
     'Saves all your notebooks, the journal and the templates as one file. You can lock it with a password.',
   'help.tip.data.exportAll.example': 'Once a week, keep a copy on a USB stick.',
+  'help.tip.data.ankiImport.meaning':
+    'Adds the cards of an Anki deck (.apkg) as a new notebook. They start as new cards.',
+  'help.tip.data.ankiImport.example':
+    'Bring your existing biology deck over from Anki.',
+  'help.tip.data.ankiExport.meaning':
+    'Saves the cards and blanks of a notebook as an Anki deck (.apkg).',
+  'help.tip.data.ankiExport.example':
+    'Study “Cardiology” on your phone in Anki.',
   'help.tip.data.import.meaning':
     'Adds the notebooks in a file as new copies. Nothing you already have is changed.',
   'help.tip.data.import.example': 'Open a notebook file a friend sent you.',
@@ -899,6 +907,22 @@ export const en = {
     'You have not saved a backup file for a week. Your notes live only in this browser.',
   'backup.reminder.save': 'Save backup now',
   'backup.reminder.later': 'Remind me later',
+  'data.anki.title': 'Anki',
+  'data.anki.text':
+    'Bring in a deck from Anki (a .apkg file), or save a notebook’s cards as one. Cards start as new: Anki’s schedules, pictures and sounds are not carried over.',
+  'data.anki.import': 'Anki package (.apkg) to open',
+  'data.anki.which': 'Notebook to save for Anki',
+  'data.anki.export': 'Save for Anki',
+  'data.anki.working': 'Reading the Anki file…',
+  'data.anki.progress': 'Importing… {done} of {total} notes',
+  'data.anki.done':
+    'Imported {cards} cards from Anki into the new notebook “{name}”.',
+  'data.anki.skipped':
+    '{count} notes had nothing on the front and were left out.',
+  'data.anki.media':
+    '{count} pictures or sounds in the file were not imported.',
+  'data.anki.exported': 'Saved {cards} cards as {name}.',
+  'data.anki.tooBig': 'This Anki file is too big to import.',
   'data.protect': 'Protect this file with a password',
   'data.protect.warning':
     'If you forget this password, the file can never be opened again. Nobody can get it back, not even the app. Keep the password somewhere safe.',

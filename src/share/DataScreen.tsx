@@ -123,6 +123,69 @@ export function DataScreen({
         else throw e
       }
     })
+  const [progress, setProgress] = useState('')
+  /** Anki's .apkg: read, then added as a new notebook. Loaded only now. */
+  const importAnkiFile = (file: File) =>
+    run(async () => {
+      try {
+        if (file.size > 400_000_000)
+          throw new BundleError(t('data.anki.tooBig'))
+        setProgress(t('data.anki.working'))
+        const [{ readApkg, AnkiError }, { importAnki }] = await Promise.all([
+          import('../anki/readApkg'),
+          import('../anki/importApkg'),
+        ])
+        let collection
+        try {
+          collection = await readApkg(new Uint8Array(await file.arrayBuffer()))
+        } catch (e) {
+          if (e instanceof AnkiError) throw new BundleError(e.message)
+          throw e
+        }
+        const summary = await importAnki(
+          db,
+          workspaceId,
+          collection,
+          file.name.replace(/\.apkg$/i, ''),
+          (done, total) =>
+            setProgress(t('data.anki.progress', { done, total })),
+        )
+        ui.toast(
+          [
+            t('data.anki.done', {
+              cards: summary.cards,
+              name: summary.notebookTitle,
+            }),
+            summary.skipped > 0 &&
+              t('data.anki.skipped', { count: summary.skipped }),
+            summary.media > 0 && t('data.anki.media', { count: summary.media }),
+          ]
+            .filter(Boolean)
+            .join(' '),
+        )
+      } finally {
+        setProgress('')
+      }
+    })
+  const exportAnkiFile = () =>
+    run(async () => {
+      const { exportApkg } = await import('../anki/exportApkg')
+      let result
+      try {
+        result = await exportApkg(db, notebookId)
+      } catch (e) {
+        throw new BundleError(e instanceof Error ? e.message : String(e))
+      }
+      downloadFile(
+        result.fileName,
+        new Blob([result.file as BlobPart], {
+          type: 'application/octet-stream',
+        }),
+      )
+      ui.toast(
+        t('data.anki.exported', { cards: result.cards, name: result.fileName }),
+      )
+    })
   const importBundleNow = async (bundle: Bundle) => {
     if (bundle.notebooks.length === 0 && bundle.databases.length === 0) {
       setError(t('data.nothing'))
@@ -243,6 +306,56 @@ export function DataScreen({
               {t('data.all.button')}
             </button>
           </Tip>
+        </section>
+
+        <section aria-label={t('data.anki.title')} className={box}>
+          <h2 className="mb-1 text-[15px] font-semibold">
+            {t('data.anki.title')}
+          </h2>
+          <p className="mb-3 text-sm text-muted">{t('data.anki.text')}</p>
+          <Tip id="data.ankiImport" touchInfo={false}>
+            <input
+              type="file"
+              accept=".apkg,application/octet-stream"
+              aria-label={t('data.anki.import')}
+              disabled={busy}
+              onChange={(e) => {
+                const file = e.target.files?.[0]
+                e.target.value = ''
+                if (file) importAnkiFile(file)
+              }}
+              className="mb-3 block w-full text-sm"
+            />
+          </Tip>
+          {progress && (
+            <p role="status" className="mb-3 text-sm text-muted">
+              {progress}
+            </p>
+          )}
+          <div className="flex flex-wrap items-center gap-2">
+            <select
+              aria-label={t('data.anki.which')}
+              value={notebookId}
+              onChange={(e) => setPicked(e.target.value)}
+              className="min-h-9 min-w-0 flex-1 rounded-lg border border-line bg-bg px-2 text-[13px]"
+            >
+              {notebooks?.map((n) => (
+                <option key={n.id} value={n.id}>
+                  {n.title || t('review.untitled')}
+                </option>
+              ))}
+            </select>
+            <Tip id="data.ankiExport" touchInfo={false}>
+              <button
+                type="button"
+                disabled={!notebookId || busy}
+                onClick={() => exportAnkiFile()}
+                className={button}
+              >
+                {t('data.anki.export')}
+              </button>
+            </Tip>
+          </div>
         </section>
 
         <section aria-label={t('data.sample.title')} className={box}>

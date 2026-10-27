@@ -2,7 +2,7 @@
 
 Every hover tip and help line in the app (shown while Settings › Show help is On). Generated from `src/help/helpRegistry.ts` and `src/i18n/en.ts`; to change a text, edit it in `en.ts`, then run `UPDATE_HELP=1 npx vitest run src/help` to refresh this file.
 
-## Hover tips (102)
+## Hover tips (104)
 
 ### `tracker.lesson`
 
@@ -585,6 +585,18 @@ Every hover tip and help line in the app (shown while Settings › Show help is 
 - **Where:** Backup & files › Save everything
 - **Meaning:** Saves all your notebooks, the journal and the templates as one file. You can lock it with a password.
 - **Example:** Once a week, keep a copy on a USB stick.
+
+### `data.ankiImport`
+
+- **Where:** Backup & files › Anki › Import
+- **Meaning:** Adds the cards of an Anki deck (.apkg) as a new notebook. They start as new cards.
+- **Example:** Bring your existing biology deck over from Anki.
+
+### `data.ankiExport`
+
+- **Where:** Backup & files › Anki › Save for Anki
+- **Meaning:** Saves the cards and blanks of a notebook as an Anki deck (.apkg).
+- **Example:** Study “Cardiology” on your phone in Anki.
 
 ### `data.import`
 

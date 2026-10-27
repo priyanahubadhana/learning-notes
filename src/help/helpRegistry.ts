@@ -149,6 +149,8 @@ export const TIPS = {
   'sidebar.data': { where: 'Sidebar › Backup & files' },
   'data.export': { where: 'Backup & files › Save file' },
   'data.exportAll': { where: 'Backup & files › Save everything' },
+  'data.ankiImport': { where: 'Backup & files › Anki › Import' },
+  'data.ankiExport': { where: 'Backup & files › Anki › Save for Anki' },
   'data.import': { where: 'Backup & files › Import a file' },
   'data.restore': { where: 'Backup & files › Restore as copies' },
   'data.sample': { where: 'Backup & files › Load sample notebook' },

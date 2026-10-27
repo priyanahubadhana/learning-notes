@@ -683,3 +683,10 @@
 - **Why:** Phase 6 plan and the owner's additions (2026-10-28).
 - **Self-review:** Locked files are processed fully in memory. The ☰ button is hidden behind full-screen phone screens (they have × buttons). The stash is applied once, on the next opening of that page; if the browser clears localStorage first, the last half second can still be lost.
 - **Files:** src/share/crypto.ts, fileIO.ts, lockState.ts, PasswordFields.tsx, backupReminder.ts, ReminderBar.tsx, bundle.ts, DataScreen.tsx (+ tests), src/editor/pendingStash.ts, pageSync.ts, PageEditor.tsx, src/notebooks/Sidebar.tsx, src/App.tsx, src/i18n/en.ts, src/help/helpRegistry.ts, HELP-TEXTS.md, e2e/*.spec.ts, e2e/helpers.ts, README.md
+
+## 2026-10-28
+
+- **What:** Phase 6, step 4 (Anki import/export). New packages fflate, sql.js, fzstd (owner approved; loaded only when an Anki file is used). Backup & files › Anki: import an `.apkg` (old and new compressed formats) as a new notebook (Basic → Card blocks, Cloze → blanks, cards start New); save a notebook's cards and blanks as an `.apkg`.
+- **Why:** Phase 6 plan (owner, 2026-10-28).
+- **Self-review:** Export not tried in real Anki. Pictures, sounds, tags and Anki schedules are not imported. Imported HTML is reduced to text + bold/italic/underline, so no markup or script can arrive.
+- **Files:** package.json, package-lock.json, src/anki/*, src/share/DataScreen.tsx, src/i18n/en.ts, src/help/helpRegistry.ts, HELP-TEXTS.md, e2e/anki.spec.ts, README.md

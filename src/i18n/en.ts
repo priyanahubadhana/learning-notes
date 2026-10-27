@@ -748,6 +748,18 @@ export const en = {
   'formula.error.divZero': 'Division by zero',
   'formula.error.cycle': 'This formula uses itself (through [{detail}])',
   'formula.error.tooBig': 'The result is too big',
+  // Backup before a database upgrade
+  'upgrade.title': 'Updating how your notes are stored',
+  'upgrade.message':
+    'This version of the app stores your notes in a slightly newer way. Your notes are updated once, right now.',
+  'upgrade.savedInBrowser':
+    'A backup copy of everything was saved in this browser first. You can also save a backup file to your computer.',
+  'upgrade.browserFailed':
+    'The backup copy in this browser could not be saved (the browser may be out of space). Please save a backup file before updating.',
+  'upgrade.checkFailed':
+    'The app could not check your saved notes ({message}). Updating will still try to open them.',
+  'upgrade.saveFile': 'Save backup file and update',
+  'upgrade.withoutFile': 'Update without a file',
   // Units
   'unit.minutes': 'minutes',
   'unit.days': 'days',

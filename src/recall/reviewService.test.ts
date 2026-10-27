@@ -270,14 +270,16 @@ describe('rating', () => {
     expect(await db.reviewLogs.count()).toBe(1)
   })
 
-  it('a card that is not due is logged as cram and left unchanged', async () => {
+  it('a card that is not due is logged as cram, schedule unchanged', async () => {
     const before = await addCard('a', learned(NOW + 2 * DAY))
     const { card, log } = await rateCard(db, 'c-a', 'again', {
       durationMs: 10,
       now: NOW,
     })
-    expect(card).toEqual(before)
-    expect(await db.cards.get('c-a')).toEqual(before)
+    // Only the latest answer is noted.
+    const answered = { ...before, lastReviewAt: NOW, lastRating: 'again' }
+    expect(card).toEqual(answered)
+    expect(await db.cards.get('c-a')).toEqual(answered)
     expect(log).toMatchObject({
       kind: 'cram',
       dueAfter: before.due,
@@ -305,6 +307,7 @@ describe('rating', () => {
     await rateCard(db, 'c-a', 'good', { durationMs: 1, now: t - DAY }) // cram
     const stored = (await db.cards.get('c-a'))!
     expect(stored.lapses).toBe(1)
+    expect(stored).toMatchObject({ lastReviewAt: t - DAY, lastRating: 'good' })
 
     const logs = await db.reviewLogs.where('cardId').equals('c-a').toArray()
     expect(rebuildCard(original, logs)).toEqual(stored)
@@ -375,7 +378,7 @@ describe('practice anyway', () => {
       now: NOW + 1,
     })
     expect(log.kind).toBe('cram')
-    expect(await db.cards.get('c-n2')).toEqual(n2)
+    expect(await db.cards.get('c-n2')).toMatchObject({ ...n2, reps: 0 })
     // Next study day it counts again.
     expect(await countsAsReview(db, n2, NOW + DAY)).toBe(true)
   })
@@ -383,7 +386,11 @@ describe('practice anyway', () => {
   it('a practised Again card keeps its schedule', async () => {
     const before = await addCard('a', learned(NOW + 5 * DAY))
     await rateCard(db, 'c-a', 'again', { durationMs: 1, now: NOW })
-    expect(await db.cards.get('c-a')).toEqual(before)
+    expect(await db.cards.get('c-a')).toEqual({
+      ...before,
+      lastReviewAt: NOW,
+      lastRating: 'again',
+    })
   })
 })
 

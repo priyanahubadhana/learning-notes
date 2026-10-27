@@ -177,6 +177,13 @@ export interface Card extends BaseRecord {
   suspendedAt: number | null
   /** Extra state a scheduler may keep (e.g. FSRS stability/difficulty). */
   schedulerData?: JsonObject
+  /**
+   * Last time the card was answered (review or practice) and that answer.
+   * Copies of the newest review log entry, kept so the Study tracker reads
+   * cards only, not the whole history. Unset = never answered.
+   */
+  lastReviewAt?: number
+  lastRating?: Rating
 }
 
 /**

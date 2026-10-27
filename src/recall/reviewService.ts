@@ -487,11 +487,18 @@ export async function rateCard(
         ...(next.schedulerData && { schedulerDataAfter: next.schedulerData }),
       }
       await db.reviewLogs.add(log)
-      if (!isDue) return { card, log }
+      // Practice leaves the schedule alone but still counts as the latest answer.
+      const answered = { lastReviewAt: now, lastRating: rating }
+      if (!isDue) {
+        const practised: Card = { ...card, ...answered }
+        await db.cards.put(practised)
+        return { card: practised, log }
+      }
 
       const updated: Card = withSchedulerData(
         {
           ...card,
+          ...answered,
           due: next.due,
           intervalDays: next.intervalDays,
           step: next.step,
@@ -517,9 +524,10 @@ export function rebuildCard(card: Card, logs: ReviewLog[]): Card {
     .filter((l) => l.kind === 'review')
     .sort((a, b) => a.createdAt - b.createdAt)
   const last = reviews.at(-1)
+  const answered = withLastAnswer(card, logs)
   if (!last) {
     return {
-      ...card,
+      ...answered,
       due: card.createdAt,
       intervalDays: 0,
       step: 0,
@@ -529,7 +537,7 @@ export function rebuildCard(card: Card, logs: ReviewLog[]): Card {
   }
   return withSchedulerData(
     {
-      ...card,
+      ...answered,
       due: last.dueAfter,
       intervalDays: last.intervalAfter,
       step: last.stepAfter,
@@ -541,6 +549,24 @@ export function rebuildCard(card: Card, logs: ReviewLog[]): Card {
     },
     last.schedulerDataAfter,
   )
+}
+
+/**
+ * `card` with `lastReviewAt`/`lastRating` taken from its newest log entry
+ * (review or practice; erased entries skipped), or without them if none.
+ */
+export function withLastAnswer(card: Card, logs: readonly ReviewLog[]): Card {
+  const rest = { ...card }
+  delete rest.lastReviewAt
+  delete rest.lastRating
+  let newest: ReviewLog | undefined
+  for (const log of logs) {
+    if (log.purgedAt !== undefined) continue
+    if (!newest || log.createdAt > newest.createdAt) newest = log
+  }
+  return newest
+    ? { ...rest, lastReviewAt: newest.createdAt, lastRating: newest.rating }
+    : rest
 }
 
 /** `card` with `schedulerData` set to `data`, or without it if none. */

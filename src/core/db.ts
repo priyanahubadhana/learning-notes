@@ -153,6 +153,31 @@ export class LearningNotesDB extends Dexie {
           }),
       )
 
+    // Version 8 (Phase 5 Step 6): every card gets `lastReviewAt` and
+    // `lastRating` from its newest review log entry, so the Study tracker
+    // reads cards only. No schema change (the fields are not indexed).
+    this.version(8)
+      .stores({})
+      .upgrade(async (tx) => {
+        const newest = new Map<string, ReviewLog>()
+        await tx.table<ReviewLog, string>('reviewLogs').each((log) => {
+          if (log.purgedAt !== undefined) return
+          const known = newest.get(log.cardId)
+          if (!known || log.createdAt > known.createdAt) {
+            newest.set(log.cardId, log)
+          }
+        })
+        await tx
+          .table<Card, string>('cards')
+          .toCollection()
+          .modify((card) => {
+            const log = newest.get(card.id)
+            if (!log) return
+            card.lastReviewAt = log.createdAt
+            card.lastRating = log.rating
+          })
+      })
+
     // Every save of a page or block also updates its search entry, in the
     // same transaction (see search/indexMiddleware.ts).
     this.use(searchIndexMiddleware)

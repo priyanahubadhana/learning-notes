@@ -12,7 +12,7 @@ import type { Notebook } from './types'
  */
 const T = 1_700_000_000_000
 const base = { createdAt: T, updatedAt: T, deletedAt: null }
-const CURRENT_VERSION = 7
+const CURRENT_VERSION = 8
 let name = ''
 
 afterEach(async () => {
@@ -502,6 +502,52 @@ describe('database upgrade', () => {
     await expectVersion1Data(db)
     expect((await db.dbViews.get('v1'))?.name).toBe('Board')
     expect((await db.dbViews.get('v2'))?.name).toBe('My board')
+    db.close()
+  })
+
+  it("from version 7 copies each card's newest answer onto it", async () => {
+    name = `migrate-${createId()}`
+    const old = new Dexie(name)
+    old.version(1).stores(V1)
+    old.version(2).stores(V2)
+    old.version(3).stores(V3)
+    old.version(4).stores(V4)
+    for (const v of [5, 6, 7]) old.version(v).stores({})
+    await addVersion1Data(old)
+    await old.table('cards').bulkAdd([card, { ...card, id: 'c2' }])
+    const log = {
+      cardId: 'c1',
+      durationMs: 1000,
+      kind: 'review',
+      scheduler: 'fixed',
+      dueBefore: T,
+      dueAfter: T,
+      intervalBefore: 0,
+      intervalAfter: 1,
+      stepAfter: 1,
+      isNew: false,
+    }
+    await old.table('reviewLogs').bulkAdd([
+      { ...log, id: 'l1', rating: 'good', createdAt: T + 1 },
+      { ...log, id: 'l2', rating: 'again', createdAt: T + 3, kind: 'cram' },
+      { ...log, id: 'l3', rating: 'easy', createdAt: T + 2 },
+      // Erased entries ("Delete forever") don't count.
+      { ...log, id: 'l4', rating: 'easy', createdAt: T + 9, purgedAt: T },
+    ])
+    old.close()
+
+    const db = new LearningNotesDB(name)
+    await db.open()
+    expect(db.verno).toBe(CURRENT_VERSION)
+    await expectVersion1Data(db)
+    expect(await db.cards.get('c1')).toMatchObject({
+      due: T,
+      lastReviewAt: T + 3,
+      lastRating: 'again',
+    })
+    const untouched = await db.cards.get('c2')
+    expect(untouched?.lastReviewAt).toBeUndefined()
+    expect(untouched?.lastRating).toBeUndefined()
     db.close()
   })
 })

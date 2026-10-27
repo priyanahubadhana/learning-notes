@@ -49,7 +49,7 @@ test('dashboard: starter charts, add, edit, move, table, delete + undo', async (
 
   // Charts follow the data live.
   await rate(page, { 'Heart sounds': 3, Murmurs: 5 })
-  await expect(chart(page, 'Average of Confidence')).toContainText('4 ★')
+  await expect(chart(page, 'Avg. Confidence')).toContainText('4 ★')
 
   // Add a bar chart: one bar per lesson, with a live preview.
   await tracker(page).getByRole('button', { name: '+ Add chart' }).click()

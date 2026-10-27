@@ -179,8 +179,19 @@ export async function reviewable(
     }
   })
   const skip = new Set(templateNotebooks)
+  // Judge by the page the card is on now (a card keeps the notebook it was
+  // made in, a page can move or be saved as a template).
+  const pages = await db.pages.bulkGet([
+    ...new Set(active.map((c) => c.pageId)),
+  ])
+  const inTemplates = new Set(
+    pages.flatMap((p) => (p && skip.has(p.notebookId) ? [p.id] : [])),
+  )
   return active.filter(
-    (c) => parts.get(c.blockId)?.has(c.part) && !skip.has(c.notebookId),
+    (c) =>
+      parts.get(c.blockId)?.has(c.part) &&
+      !skip.has(c.notebookId) &&
+      !inTemplates.has(c.pageId),
   )
 }
 

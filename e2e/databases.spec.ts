@@ -161,3 +161,54 @@ for (const [theme, width, height] of [
       .catch(() => {})
   })
 }
+
+test('database screen: one name, delete in the ⋯ menu, view stays while adding rows, no loops', async ({
+  page,
+}) => {
+  await sidebar(page).getByRole('button', { name: 'Databases' }).click()
+  await main(page).getByRole('button', { name: '+ New database' }).click()
+  await page.getByRole('menuitem', { name: /^Books/ }).click()
+  // The name shows once (the editable title), not again beside the views.
+  await expect(main(page).getByRole('heading', { name: 'Books' })).toHaveCount(
+    0,
+  )
+  // An empty database opens on Table and stays there while rows are added.
+  await expect(
+    main(page).getByRole('button', { name: 'Table', exact: true }),
+  ).toHaveAttribute('aria-pressed', 'true')
+  await main(page).getByRole('button', { name: '+ New row' }).click()
+  await page.getByRole('textbox', { name: /^Title/ }).fill('Dune')
+  await page.getByRole('textbox', { name: /^Title/ }).press('Enter')
+  await expect(
+    main(page).getByRole('button', { name: 'Table', exact: true }),
+  ).toHaveAttribute('aria-pressed', 'true')
+  await expect(
+    main(page).getByRole('button', { name: 'Delete database' }),
+  ).toHaveCount(0)
+
+  // A database block inside one of its own rows shows a message, not itself.
+  await main(page)
+    .getByRole('row')
+    .filter({ hasText: 'Dune' })
+    .getByRole('button', { name: /^Open/ })
+    .click()
+  await page.locator('.bn-editor').click()
+  await page.keyboard.type('/database')
+  await page.keyboard.press('Enter')
+  await page
+    .getByRole('dialog', { name: 'Add a database' })
+    .getByRole('button', { name: 'Books', exact: true })
+    .click()
+  await expect(main(page)).toContainText('shown inside one of its own rows')
+  // No stray text-toolbar ("Blank") pops up over the editor.
+  await expect(page.getByRole('button', { name: 'Blank' })).toHaveCount(0)
+
+  // Delete from the ⋯ menu.
+  await sidebar(page).getByRole('button', { name: 'Databases' }).click()
+  await main(page)
+    .getByRole('button', { name: /^Books/ })
+    .click()
+  await main(page).getByRole('button', { name: 'Database options' }).click()
+  await page.getByRole('menuitem', { name: 'Delete database' }).click()
+  await expect(main(page)).toContainText('No databases yet')
+})

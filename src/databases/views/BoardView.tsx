@@ -19,6 +19,7 @@ import { HelpLine, Tip } from '../../help/Help'
 import { rowCellText } from '../cellDisplay'
 import { isLessonStatus } from '../trackerStats'
 import { statusTip } from './trackerTips'
+import { PinMark } from './TrackerCells'
 import { TITLE_COLUMN_ID } from '../columnTypes'
 import { queryRows, resolveRows, type ResolvedRow } from '../databaseQuery'
 import { addRow, placeRow, setCell, updateView } from '../databaseService'
@@ -527,6 +528,7 @@ export function BoardView({ db, database, view, onOpenPage }: ViewProps) {
             {rowTitle(row)}
           </button>
         )}
+        {row.tracker?.override && <PinMark />}
         <button
           type="button"
           data-no-drag

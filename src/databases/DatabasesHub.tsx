@@ -139,6 +139,7 @@ export function DatabaseScreen({
   onBack: () => void
 }) {
   const ui = useContext(AppUiContext)
+  const [menu, setMenu] = useState<DOMRect | null>(null)
   const database = useLiveQuery(
     async () => (await getDatabase(db, databaseId)) ?? null,
     [db, databaseId],
@@ -191,21 +192,42 @@ export function DatabaseScreen({
           {!tracker && (
             <button
               type="button"
-              onClick={() =>
-                runTask(
-                  deleteDatabase(db, database.id).then(() => {
-                    ui.toast(t('databases.deleted', { name: database.title }))
-                    onBack()
-                  }),
-                )
-              }
-              className="min-h-9 rounded-lg border border-line px-3 text-[13px] text-danger hover:border-danger"
+              aria-label={t('databases.more')}
+              aria-haspopup="menu"
+              onClick={(e) => setMenu(e.currentTarget.getBoundingClientRect())}
+              className="min-h-9 min-w-9 rounded-lg text-lg text-muted hover:bg-hover hover:text-ink"
             >
-              {t('databases.delete')}
+              ⋯
             </button>
           )}
+          {menu && (
+            <MenuPopover
+              anchor={menu}
+              onClose={() => setMenu(null)}
+              items={[
+                {
+                  label: t('databases.delete'),
+                  icon: '🗑',
+                  onSelect: () =>
+                    runTask(
+                      deleteDatabase(db, database.id).then(() => {
+                        ui.toast(
+                          t('databases.deleted', { name: database.title }),
+                        )
+                        onBack()
+                      }),
+                    ),
+                },
+              ]}
+            />
+          )}
         </div>
-        <DatabaseView db={db} databaseId={databaseId} onOpenPage={onOpenPage} />
+        <DatabaseView
+          db={db}
+          databaseId={databaseId}
+          onOpenPage={onOpenPage}
+          showTitle={false}
+        />
       </div>
     </div>
   )

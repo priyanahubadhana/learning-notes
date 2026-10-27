@@ -40,7 +40,18 @@ export const currentLocale = (): string => locale
  * "en-US" → "Nov 12".
  */
 export const dateLocale = (): string =>
-  withRegion(locale, globalThis.navigator?.languages?.[0])
+  dateStyle === 'dayFirst'
+    ? 'en-GB'
+    : dateStyle === 'monthFirst'
+      ? 'en-US'
+      : withRegion(locale, globalThis.navigator?.languages?.[0])
+
+/** How dates are written (Settings › Date style); Auto follows the browser. */
+export type DateStyle = 'auto' | 'dayFirst' | 'monthFirst'
+let dateStyle: DateStyle = 'auto'
+export function setDateStyle(style: DateStyle): void {
+  dateStyle = style
+}
 
 /** `appLocale` with the region of `browserLocale`, if it has one. */
 export function withRegion(appLocale: string, browserLocale?: string): string {

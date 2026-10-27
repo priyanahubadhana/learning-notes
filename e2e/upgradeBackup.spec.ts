@@ -94,7 +94,7 @@ test('an upgrade first backs up the data, then opens the app', async ({
 test('the update can go ahead without a file', async ({ page }) => {
   await reloadWithOldDatabase(page)
   await dialog(page)
-    .getByRole('button', { name: 'Update without a file' })
+    .getByRole('button', { name: 'Skip the file, just update' })
     .click()
   await expect(sidebar(page)).toBeVisible()
 })

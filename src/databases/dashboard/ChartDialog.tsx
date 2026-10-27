@@ -1,3 +1,4 @@
+import { createId } from '../../core/ids'
 import { useEffect, useRef, useState, type ReactNode } from 'react'
 import type { Database, DbColumn } from '../../core/types'
 import { t, type MessageKey } from '../../i18n/t'
@@ -67,6 +68,16 @@ function filterOps(column: DbColumn | undefined): FilterOp[] {
   }
   return ['isNotEmpty', 'isEmpty']
 }
+
+/** Review-history charts a Study tracker can add (they take no settings). */
+const HISTORY_PRESETS = [
+  { history: 'streak', kind: 'number', size: 'small' },
+  { history: 'correct', kind: 'line', size: 'medium' },
+  { history: 'days', kind: 'heatmap', size: 'wide' },
+] as const
+
+const isPercent = (column: DbColumn) =>
+  column.type === 'trackerCorrect' || column.config.format === 'percent'
 
 /** Measures a chart kind offers (parts of a whole: counts and sums). */
 const measuresFor = (kind: ChartKind): readonly Measure[] =>
@@ -150,6 +161,39 @@ export function ChartDialog({
       >
         <h2 className="mb-3 text-[15px] font-semibold">{heading}</h2>
 
+        {target.kind === 'new' && database.kind === 'studyTracker' && (
+          <fieldset className="mb-3">
+            <legend className="mb-1 text-xs text-muted">
+              {t('chart.historyTitle')}
+            </legend>
+            <div className="grid grid-cols-1 gap-1.5 sm:grid-cols-3">
+              {HISTORY_PRESETS.map(({ history, kind, size }) => (
+                <button
+                  key={history}
+                  type="button"
+                  onClick={() =>
+                    onSave({
+                      id: createId(),
+                      kind,
+                      title: '',
+                      size,
+                      measure: 'count',
+                      history,
+                      ...(kind === 'line' && { period: 'week' as const }),
+                    })
+                  }
+                  className="min-h-11 rounded-lg border border-line px-2.5 py-1.5 text-start text-[13px] hover:bg-hover"
+                >
+                  {t(`chart.title.history.${history}`)}
+                </button>
+              ))}
+            </div>
+            <small className="mt-1 block text-[11px] text-muted">
+              {t('chart.historyHint')}
+            </small>
+          </fieldset>
+        )}
+
         <fieldset className="mb-3">
           <legend className="mb-1 text-xs text-muted">{t('chart.type')}</legend>
           <div className="grid grid-cols-2 gap-1.5 sm:grid-cols-3">
@@ -195,7 +239,8 @@ export function ChartDialog({
             <option value="count">{t('chart.measure.count')}</option>
             {values.flatMap((c) =>
               measuresFor(spec.kind)
-                .filter((m) => m !== 'count')
+                // A total of percentages means nothing.
+                .filter((m) => m !== 'count' && !(m === 'sum' && isPercent(c)))
                 .map((m) => (
                   <option key={`${m}:${c.id}`} value={`${m}:${c.id}`}>
                     {measureLabel(

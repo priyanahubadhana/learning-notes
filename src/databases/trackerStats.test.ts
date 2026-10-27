@@ -8,6 +8,7 @@ import { createPage, deletePage } from '../pages/pageService'
 import { CARD_BLOCK_TYPE, MAIN_PART, newCard } from '../recall/cardService'
 import { loadDatabaseData, resolveRows } from './databaseQuery'
 import { ensureStudyTracker, listColumns } from './databaseService'
+import { getReviewQueue } from '../recall/reviewService'
 import { loadTrackerStats } from './trackerLoad'
 import { setLessonStatus } from './trackerService'
 import {
@@ -230,6 +231,28 @@ describe('numbers from the data', () => {
       levels: { new: 1, learning: 0, familiar: 1, mastered: 1 },
     })
     expect(stats.get(other.id)).toMatchObject({ cards: 1, fresh: 1 })
+  })
+
+  it('leaves out cards on Templates pages, whatever notebook the card names', async () => {
+    const ws = (await getOrCreateDefaultWorkspace(db)).id
+    const templates = await db.notebooks.add({
+      ...{ createdAt: 0, updatedAt: 0, deletedAt: null },
+      id: 'tpl',
+      workspaceId: ws,
+      title: 'Templates',
+      order: 'a0',
+      kind: 'templates',
+    })
+    expect(templates).toBe('tpl')
+    const lesson = await createPage(db, nb, null, 'Heart')
+    const template = await createPage(db, 'tpl', null, 'Layout')
+    await addCard(lesson.id)
+    // A card made before its page became a template still names the old notebook.
+    await addCard(template.id, { notebookId: nb })
+    const stats = await loadTrackerStats(db, nb, NOW)
+    expect(stats.get(lesson.id)?.cards).toBe(1)
+    const due = await getReviewQueue(db, { kind: 'all' }, NOW)
+    expect(due.cards.map((c) => c.pageId)).toEqual([lesson.id])
   })
 
   it('a lesson moved to the Trash drops out with its cards', async () => {

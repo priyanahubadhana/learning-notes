@@ -115,7 +115,7 @@ Every hover tip and help line in the app (shown while Settings › Show help is 
 ### `tracker.chart.correct`
 
 - **Where:** Study tracker › Dashboard › % correct per week chart title
-- **Meaning:** The share of your answers each week that were not Again.
+- **Meaning:** Of all your answers each week, how many were not Again. Every answer counts, even for the same card.
 - **Example:** A week with 40 answers, 30 of them right → 75%.
 
 ### `tracker.chart.days`
@@ -386,19 +386,19 @@ Every hover tip and help line in the app (shown while Settings › Show help is 
 
 - **Where:** Database › Table view button
 - **Meaning:** Shows the rows in a table you can edit, sort and filter.
-- **Example:** Edit a lesson’s Confidence right in the table.
+- **Example:** Fix a value in its cell, or sort a column.
 
 ### `db.viewDashboard`
 
 - **Where:** Database › Dashboard view button
 - **Meaning:** Shows charts and numbers about your rows.
-- **Example:** See lessons by status as a donut.
+- **Example:** See how the rows split into groups, as a donut.
 
 ### `db.viewBoard`
 
 - **Where:** Database › Board view button
 - **Meaning:** Shows the rows as cards in columns. Drag a card to change its column.
-- **Example:** Drag a lesson from Learning to Review.
+- **Example:** Drag a card from “To do” to “Done”.
 
 ### `db.viewOptions`
 
@@ -416,7 +416,7 @@ Every hover tip and help line in the app (shown while Settings › Show help is 
 
 - **Where:** Database › a column header
 - **Meaning:** Opens the column menu: sort, filter, hide or edit.
-- **Example:** Sort Confidence from high to low.
+- **Example:** Sort a number column from high to low.
 
 ### `db.newRow`
 
@@ -428,7 +428,7 @@ Every hover tip and help line in the app (shown while Settings › Show help is 
 
 - **Where:** Dashboard › + Add chart
 - **Meaning:** Adds a chart: a number, bars, a line, a donut, a progress bar or a calendar.
-- **Example:** Bars of Confidence per lesson.
+- **Example:** A bar for each row’s number.
 
 ### `db.chartMenu`
 
@@ -440,13 +440,13 @@ Every hover tip and help line in the app (shown while Settings › Show help is 
 
 - **Where:** Board › Grouped by …
 - **Meaning:** Chooses which column makes the board’s columns.
-- **Example:** Group a board by Status or by your own “Exam” column.
+- **Example:** Group a board by a Choice column such as “Status”.
 
 ### `db.cardShows`
 
 - **Where:** Board › Card shows
 - **Meaning:** Chooses which values appear on each card.
-- **Example:** Show Confidence stars on every card.
+- **Example:** Show a rating on every card.
 
 ### `review.openNote`
 

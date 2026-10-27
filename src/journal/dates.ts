@@ -1,3 +1,4 @@
+import { dateLocale } from '../i18n/t'
 /**
  * Date helpers for the journal. Keys use the device's local date, so "today"
  * matches the user's calendar. Titles are English for now (app language).
@@ -17,7 +18,7 @@ export function monthKey(date: Date): string {
 
 /** Page title for a day, e.g. "Sunday 25 October 2026". */
 export function dayTitle(date: Date): string {
-  return date.toLocaleDateString('en-GB', {
+  return date.toLocaleDateString(dateLocale(), {
     weekday: 'long',
     day: 'numeric',
     month: 'long',
@@ -27,13 +28,16 @@ export function dayTitle(date: Date): string {
 
 /** Page title for a month, e.g. "October 2026". */
 export function monthTitle(date: Date): string {
-  return date.toLocaleDateString('en-GB', { month: 'long', year: 'numeric' })
+  return date.toLocaleDateString(dateLocale(), {
+    month: 'long',
+    year: 'numeric',
+  })
 }
 
 /** Short label for the sidebar, e.g. "Sun 25 Oct", from a "YYYY-MM-DD" key. */
 export function shortDayLabel(key: string): string {
   const [y, m, d] = key.split('-').map(Number)
-  return new Date(y, m - 1, d).toLocaleDateString('en-GB', {
+  return new Date(y, m - 1, d).toLocaleDateString(dateLocale(), {
     weekday: 'short',
     day: 'numeric',
     month: 'short',

@@ -70,3 +70,6 @@ New ideas that come up mid-build are parked here, not added to the current phase
 | 2026-10-27 | Cards due by Lesson bar chart is flat when nothing is due; suggest a better starter chart (e.g. lessons by Confidence) | Polish |
 | 2026-10-27 | Card levels cell: click a level to open that lesson's cards of that level | 5A-7 or later |
 | 2026-10-27 | Rename card levels so they differ from lesson statuses (e.g. New · Shaky · Good · Strong), if the shared names confuse | Owner decides |
+| 2026-10-27 | Flaky e2e (pass on rerun): Tags screenshots (a different one each run, tag picker finds 2 options), lesson Night screenshot (slow start) | Testing |
+| 2026-10-27 | Sidebar that slides away on phones, so pages are not squeezed | Phase 6–7 (phone) |
+| 2026-10-27 | Add the review-history charts to dashboards that were already changed (upgrade) | Polish |

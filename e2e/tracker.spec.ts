@@ -155,11 +155,11 @@ test('Dashboard: lessons by status and the review history; charts say lessons', 
   await viewButton(page, 'Dashboard').click()
   await expect(chart(page, 'Study streak')).toContainText('🔥 1 day')
   await expect(chart(page, 'Study streak')).toContainText('Best: 1 day')
-  await expect(chart(page, '% correct per week')).toContainText('50%')
+  await expect(chart(page, 'Answers right per week')).toContainText('50%')
   await expect(chart(page, 'Cards answered per day')).toBeVisible()
   await expect(chart(page, 'Lessons')).toContainText('2')
   // Charts that measure a column say where their numbers come from.
-  await expect(tracker(page)).toContainText('from 2 lessons')
+  await expect(tracker(page)).toContainText('from 1 lesson')
   await expect(tracker(page)).not.toContainText('rows')
   // History charts have no "Edit chart" (their settings are fixed).
   await page
@@ -252,3 +252,57 @@ for (const [theme, width, height] of [
     expect(overflow).toBeLessThanOrEqual(0)
   })
 }
+
+test('check-in fixes: addable history charts, short titles, pins, No cards', async ({
+  page,
+}) => {
+  await seed(page)
+  await review(page)
+  await openTracker(page)
+
+  // Table: a lesson without cards says so.
+  await viewButton(page, 'Table').click()
+  await expect(lessonRow(page, 'Murmurs')).toContainText('No cards')
+
+  // Rate one lesson: the average counts only lessons with a rating.
+  await lessonRow(page, 'Heart sounds')
+    .getByRole('group', { name: /^Confidence/ })
+    .getByRole('button', { name: '4 stars' })
+    .click()
+  await viewButton(page, 'Dashboard').click()
+  await expect(chart(page, 'Avg. Confidence')).toContainText('4 ★')
+  await expect(chart(page, 'Avg. Confidence')).toContainText('from 1 lesson')
+
+  // Review-history charts can be added again after they were removed.
+  await page
+    .getByRole('button', { name: '“Study streak” chart options' })
+    .click()
+  await page.getByRole('button', { name: 'Delete chart' }).click()
+  await expect(chart(page, 'Study streak')).toHaveCount(0)
+  await tracker(page).getByRole('button', { name: '+ Add chart' }).click()
+  await page
+    .getByRole('dialog', { name: 'New chart' })
+    .getByRole('button', { name: 'Study streak' })
+    .click()
+  await expect(chart(page, 'Study streak')).toContainText('🔥')
+  await expect(chart(page, 'Answers right per week')).toBeVisible()
+
+  // "Total" is not offered for a percentage column.
+  await tracker(page).getByRole('button', { name: '+ Add chart' }).click()
+  const options = page
+    .getByRole('dialog', { name: 'New chart' })
+    .getByRole('combobox', { name: 'Show' })
+    .locator('option')
+  await expect(options.filter({ hasText: 'Avg. % correct' })).toHaveCount(1)
+  await expect(options.filter({ hasText: 'Total % correct' })).toHaveCount(0)
+  await expect(options.filter({ hasText: 'Total Cards due' })).toHaveCount(1)
+  await page.keyboard.press('Escape')
+
+  // A status set by hand shows its 📌 on the Board card too.
+  await viewButton(page, 'Board').click()
+  await page.getByRole('button', { name: 'Options for “Heart sounds”' }).click()
+  await page.getByRole('button', { name: 'Mastered', exact: true }).click()
+  await expect(
+    group(page, 'Mastered').getByRole('img', { name: 'Set by you' }),
+  ).toBeVisible()
+})

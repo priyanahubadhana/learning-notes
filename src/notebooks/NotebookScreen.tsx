@@ -132,7 +132,7 @@ export function NotebookScreen({
             role="tablist"
             aria-label={t('notebook.tabs')}
             onKeyDown={onTabKey}
-            className="flex min-w-0 flex-1 gap-0.5 overflow-x-auto"
+            className="flex min-w-0 flex-1 gap-0.5 overflow-x-auto overflow-y-hidden"
           >
             {tabs.map((tab) => {
               const selected = tab.id === active?.id

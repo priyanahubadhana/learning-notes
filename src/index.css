@@ -325,3 +325,9 @@ button.tag-chip:hover {
     display: inline-flex;
   }
 }
+
+/* Help lines keep their size inside the editor (a database block). */
+.bn-editor [data-help-line] {
+  font-size: 0.75rem;
+  line-height: 1.1rem;
+}

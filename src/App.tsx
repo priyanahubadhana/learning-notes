@@ -13,7 +13,7 @@ import type { ToastAction } from './app/appUi'
 import { Toast, ChoiceDialog } from './app/ui'
 import { isStringOrNull } from './app/uiPrefs'
 import { usePref } from './app/usePref'
-import { t } from './i18n/t'
+import { setDateStyle, t } from './i18n/t'
 import { useTreeState } from './app/useTreeState'
 import { db } from './core/db'
 import type { Page, SavedSearch, Workspace } from './core/types'
@@ -29,7 +29,10 @@ import { AllCardsScreen } from './recall/AllCardsScreen'
 import { DatabaseScreen, DatabasesScreen } from './databases/DatabasesHub'
 import { ReviewScreen } from './recall/ReviewScreen'
 import type { ReviewScope } from './recall/reviewService'
-import { theme as themeSetting } from './settings/builtinSettings'
+import {
+  dateStyleSetting,
+  theme as themeSetting,
+} from './settings/builtinSettings'
 import { SettingsScreen } from './settings/SettingsScreen'
 import { useDeviceSetting } from './settings/useSetting'
 import { TemplatePicker } from './templates/TemplatePicker'
@@ -192,6 +195,9 @@ function App() {
   )
   const tree = useTreeState()
   const [theme, setTheme] = useDeviceSetting(themeSetting)
+  // Dates follow this setting everywhere; changing it re-draws the app.
+  const [dateStyle] = useDeviceSetting(dateStyleSetting)
+  setDateStyle(dateStyle)
   useEffect(() => applyTheme(theme), [theme])
 
   useEffect(() => {

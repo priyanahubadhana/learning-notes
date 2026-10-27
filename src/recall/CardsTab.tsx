@@ -51,7 +51,7 @@ export function CardsTab({
   const query: SearchQuery = {
     text: '',
     type: 'card',
-    filters: { ...DEFAULT_FILTERS, notebookId, sort },
+    filters: { ...DEFAULT_FILTERS, notebookId, sort, templates: false },
   }
   const { outcome, now } = useSearch(db, query)
   const hits = outcome?.hits ?? []

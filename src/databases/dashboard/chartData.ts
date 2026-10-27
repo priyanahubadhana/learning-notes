@@ -399,7 +399,14 @@ export function chartData(
       return {
         kind: 'number',
         value: measureRows(kept, spec.measure, spec.valueColumnId),
-        rows: kept.length,
+        rows:
+          spec.measure === 'count'
+            ? kept.length
+            : kept.filter(
+                (row) =>
+                  spec.valueColumnId !== undefined &&
+                  numbersIn(row.values[spec.valueColumnId] ?? null).length > 0,
+              ).length,
       }
     case 'bar':
     case 'donut':

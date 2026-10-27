@@ -269,7 +269,7 @@ export const en = {
   'help.tip.tracker.chart.streak.example':
     '🔥 5 days = you studied every day since Friday.',
   'help.tip.tracker.chart.correct.meaning':
-    'The share of your answers each week that were not Again.',
+    'Of all your answers each week, how many were not Again. Every answer counts, even for the same card.',
   'help.tip.tracker.chart.correct.example':
     'A week with 40 answers, 30 of them right → 75%.',
   'help.tip.tracker.chart.days.meaning':
@@ -435,14 +435,14 @@ export const en = {
     'Clean up cards you started but never wrote.',
   'help.tip.db.viewTable.meaning':
     'Shows the rows in a table you can edit, sort and filter.',
-  'help.tip.db.viewTable.example':
-    'Edit a lesson’s Confidence right in the table.',
+  'help.tip.db.viewTable.example': 'Fix a value in its cell, or sort a column.',
   'help.tip.db.viewDashboard.meaning':
     'Shows charts and numbers about your rows.',
-  'help.tip.db.viewDashboard.example': 'See lessons by status as a donut.',
+  'help.tip.db.viewDashboard.example':
+    'See how the rows split into groups, as a donut.',
   'help.tip.db.viewBoard.meaning':
     'Shows the rows as cards in columns. Drag a card to change its column.',
-  'help.tip.db.viewBoard.example': 'Drag a lesson from Learning to Review.',
+  'help.tip.db.viewBoard.example': 'Drag a card from “To do” to “Done”.',
   'help.tip.db.viewOptions.meaning':
     'Choose which view opens first and other view settings.',
   'help.tip.db.viewOptions.example':
@@ -452,22 +452,22 @@ export const en = {
   'help.tip.db.addColumn.example': 'Add “Exam date” as a Date column.',
   'help.tip.db.column.meaning':
     'Opens the column menu: sort, filter, hide or edit.',
-  'help.tip.db.column.example': 'Sort Confidence from high to low.',
+  'help.tip.db.column.example': 'Sort a number column from high to low.',
   'help.tip.db.newRow.meaning':
     'Adds a row (a page you can open and write in).',
   'help.tip.db.newRow.example': 'Add the drug “Amlodipine” to a Drug list.',
   'help.tip.db.addChart.meaning':
     'Adds a chart: a number, bars, a line, a donut, a progress bar or a calendar.',
-  'help.tip.db.addChart.example': 'Bars of Confidence per lesson.',
+  'help.tip.db.addChart.example': 'A bar for each row’s number.',
   'help.tip.db.chartMenu.meaning':
     'Edit, move, show as a table, or delete this chart.',
   'help.tip.db.chartMenu.example': 'Show the numbers behind a chart.',
   'help.tip.db.groupedBy.meaning':
     'Chooses which column makes the board’s columns.',
   'help.tip.db.groupedBy.example':
-    'Group a board by Status or by your own “Exam” column.',
+    'Group a board by a Choice column such as “Status”.',
   'help.tip.db.cardShows.meaning': 'Chooses which values appear on each card.',
-  'help.tip.db.cardShows.example': 'Show Confidence stars on every card.',
+  'help.tip.db.cardShows.example': 'Show a rating on every card.',
   'help.line.page.editor':
     'Type / for blocks · [[ to link a page · # to add a tag · select words to hide them as a blank · the ⠿ handle beside a line › Make card.',
   'help.line.review.ratings':
@@ -743,6 +743,18 @@ export const en = {
   'databaseBlock.choose.message':
     'Pick a database to show here, or start a new one.',
   'databaseBlock.new': 'New: {name}',
+  'databaseBlock.loop':
+    'This database is shown inside one of its own rows. Open it from the Databases list instead.',
+  'databases.more': 'Database options',
+  'tracker.levels.none': 'No cards',
+  'chart.historyTitle': 'Review history',
+  'chart.historyHint': 'From your card answers; added as they are.',
+  'settings.dateStyle.label': 'Date style',
+  'settings.dateStyle.description':
+    'How dates are written on this device: Auto follows your browser’s region; Day first is the default.',
+  'settings.dateStyle.auto': 'Auto',
+  'settings.dateStyle.dayFirst': '27 Oct 2026',
+  'settings.dateStyle.monthFirst': 'Oct 27, 2026',
   'databases.title': 'Databases',
   'databases.new': '+ New database',
   'databases.newTitle': 'New database',
@@ -886,7 +898,7 @@ export const en = {
   'dashboard.more_other': '+ {count} more rows',
   'dashboard.moreLessons_one': '+ 1 more lesson',
   'dashboard.moreLessons_other': '+ {count} more lessons',
-  'chart.title.history.correct': '% correct per week',
+  'chart.title.history.correct': 'Answers right per week',
   'chart.title.history.days': 'Cards answered per day',
   'chart.title.history.streak': 'Study streak',
   'tracker.streak.days_one': '🔥 1 day',
@@ -931,9 +943,9 @@ export const en = {
   'chart.measure.countShort': 'Rows',
   'chart.measure.lessons': 'Lessons',
   'chart.measureOf.sum': 'Total {column}',
-  'chart.measureOf.average': 'Average of {column}',
-  'chart.measureOf.min': 'Lowest {column}',
-  'chart.measureOf.max': 'Highest {column}',
+  'chart.measureOf.average': 'Avg. {column}',
+  'chart.measureOf.min': 'Min {column}',
+  'chart.measureOf.max': 'Max {column}',
   'chart.wholeOnly': 'Parts of a whole add up counts and sums only.',
   'chart.groupBy': 'Group by',
   'chart.perRow': '{column} (one bar per row)',
@@ -1170,8 +1182,7 @@ export const en = {
   'formula.error.tooBig': 'The result is too big',
   // Backup before a database upgrade
   'upgrade.title': 'Updating how your notes are stored',
-  'upgrade.message':
-    'This version of the app stores your notes in a slightly newer way. Your notes are updated once, right now.',
+  'upgrade.message': 'Your notes need a quick one-time update.',
   'upgrade.savedInBrowser':
     'A backup copy of everything was saved in this browser first. You can also save a backup file to your computer.',
   'upgrade.browserFailed':
@@ -1179,7 +1190,7 @@ export const en = {
   'upgrade.checkFailed':
     'The app could not check your saved notes ({message}). Updating will still try to open them.',
   'upgrade.saveFile': 'Save backup file and update',
-  'upgrade.withoutFile': 'Update without a file',
+  'upgrade.withoutFile': 'Skip the file, just update',
   // Units
   'unit.minutes': 'minutes',
   'unit.days': 'days',

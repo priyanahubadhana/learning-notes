@@ -103,6 +103,19 @@ describe('chart numbers', () => {
     expect(of('average', 'rating')).toMatchObject({ value: 3 })
   })
 
+  it('says "from N" for the rows that have a value, not all rows', () => {
+    const of = (measure: ChartSpec['measure']) =>
+      chartData(spec({ measure, valueColumnId: 'price' }), rows, columns, NOW)
+    const withPrice = rows.filter((r) => typeof r.values.price === 'number')
+    expect(withPrice.length).toBeLessThan(rows.length)
+    expect(of('average')).toMatchObject({ rows: withPrice.length })
+    expect(of('sum')).toMatchObject({ rows: withPrice.length })
+    // A count still counts every row.
+    expect(chartData(spec({}), rows, columns, NOW)).toMatchObject({
+      rows: rows.length,
+    })
+  })
+
   it('has nothing to average when no row has a number', () => {
     const none = [row({ price: null })]
     expect(
@@ -410,7 +423,7 @@ describe('chart settings', () => {
         measure: 'average',
         valueColumnId: 'rating',
       }),
-    ).toBe('Average of Rating per month (When)')
+    ).toBe('Avg. Rating per month (When)')
     expect(title({ kind: 'heatmap', dateColumnId: 'when' })).toBe(
       'Rows per day (When)',
     )

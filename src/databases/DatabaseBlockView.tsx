@@ -27,19 +27,37 @@ export function DatabaseBlockView({
       app ? ((await getDatabase(app.db, databaseId)) ?? null) : null,
     [app, databaseId],
   )
+  // A database inside one of its own rows would show itself forever.
+  const inOwnRow = useLiveQuery(
+    async () =>
+      app
+        ? (await app.db.pages.get(app.pageId))?.databaseId === databaseId
+        : false,
+    [app, databaseId],
+  )
   const view = useLiveQuery(
     async () =>
       app ? ((await getBlockView(app.db, databaseId, blockId)) ?? null) : null,
     [app, databaseId, blockId],
   )
   useEffect(() => {
-    if (app && database && view === null) {
+    if (app && database && view === null && !inOwnRow) {
       void ensureBlockView(app.db, databaseId, blockId)
     }
-  }, [app, database, view, databaseId, blockId])
+  }, [app, database, view, databaseId, blockId, inOwnRow])
 
   if (!app || database === undefined || view === undefined) {
     return <div className="h-16 w-full" />
+  }
+  if (inOwnRow) {
+    return (
+      <p
+        contentEditable={false}
+        className="w-full rounded-xl border border-dashed border-line px-3 py-3 text-sm text-muted select-none"
+      >
+        {t('databaseBlock.loop')}
+      </p>
+    )
   }
   if (database === null) {
     return (

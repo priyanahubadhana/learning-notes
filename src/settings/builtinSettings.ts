@@ -1,6 +1,6 @@
 import { isTheme, THEME_PREF_KEY, THEMES, type Theme } from '../app/theme'
 import { DEFAULT_DAY_START_HOUR } from '../core/time'
-import { dateLocale, t } from '../i18n/t'
+import { dateLocale, t, type DateStyle } from '../i18n/t'
 import {
   createSettingsRegistry,
   isIntInRange,
@@ -83,6 +83,26 @@ export const showHelp: SettingDefinition<HelpChoice> = {
     options: HELP_CHOICES.map((value) => ({
       value,
       label: () => t(`settings.showHelp.${value}`),
+    })),
+  },
+}
+
+/** How dates are written on this device. */
+export const DATE_STYLES = ['auto', 'dayFirst', 'monthFirst'] as const
+
+export const dateStyleSetting: SettingDefinition<DateStyle> = {
+  id: 'general.dateStyle',
+  labelKey: 'settings.dateStyle.label',
+  descriptionKey: 'settings.dateStyle.description',
+  category: 'general',
+  scope: 'device',
+  defaultValue: 'dayFirst',
+  isValid: isOneOf<DateStyle>(DATE_STYLES),
+  control: {
+    kind: 'segmented',
+    options: DATE_STYLES.map((value) => ({
+      value,
+      label: () => t(`settings.dateStyle.${value}`),
     })),
   },
 }
@@ -237,6 +257,7 @@ export const practiceOrder: SettingDefinition<PracticeOrder> = {
 for (const definition of [
   theme,
   showHelp,
+  dateStyleSetting,
   dayStartHour,
   newCardsPerDay,
   reviewsPerDay,

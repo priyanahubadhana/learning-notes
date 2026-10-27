@@ -116,7 +116,11 @@ const LEVEL_FILL: Record<CardLevel, string> = {
 
 /** A bar split by card level, with the numbers beneath (hover/tap for meanings). */
 export function LevelsCell({ stats }: { stats: LessonStats }) {
-  if (stats.cards === 0) return null
+  if (stats.cards === 0) {
+    return (
+      <span className="text-xs text-muted">{t('tracker.levels.none')}</span>
+    )
+  }
   return (
     <div className="min-w-36">
       <div

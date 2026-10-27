@@ -23,10 +23,13 @@ export function DatabaseView({
   db,
   databaseId,
   onOpenPage,
+  showTitle = true,
 }: {
   db: LearningNotesDB
   databaseId: string
   onOpenPage: (pageId: string) => void
+  /** Show the database's name beside the views (off when a screen shows it). */
+  showTitle?: boolean
 }) {
   const database = useLiveQuery(
     async () => (await getDatabase(db, databaseId)) ?? null,
@@ -36,11 +39,21 @@ export function DatabaseView({
   const filled = useLiveQuery(() => hasRows(db, databaseId), [db, databaseId])
   const [viewId, setViewId] = useState(() => lastViewShown.get(databaseId))
   const [menu, setMenu] = useState<HTMLElement | null>(null)
+  // The opening view is chosen once, when the database is opened: adding
+  // the first row must not switch views under the user's hands.
+  const [opened, setOpened] = useState<string | null>(null)
+  const first =
+    database && views && filled !== undefined
+      ? openingView(views, database, filled)?.id
+      : undefined
+  if (first && opened === null) setOpened(first)
   if (!database || !views || filled === undefined) {
     return <p className="text-sm text-muted">{t('notebook.loading')}</p>
   }
   const view =
-    views.find((v) => v.id === viewId) ?? openingView(views, database, filled)
+    views.find((v) => v.id === viewId) ??
+    views.find((v) => v.id === opened) ??
+    openingView(views, database, filled)
   // Views come from the registry (a stable component per view type).
   const viewType = view && getViewType(view.type)
   const show = (id: string) => {
@@ -51,11 +64,13 @@ export function DatabaseView({
   return (
     <section aria-label={database.title}>
       <div className="mb-3 flex flex-wrap items-center gap-x-3 gap-y-2">
-        <h2 className="text-[15px] font-semibold">{database.title}</h2>
+        {showTitle && (
+          <h2 className="text-[15px] font-semibold">{database.title}</h2>
+        )}
         <div
           role="group"
           aria-label={t('database.views')}
-          className="inline-flex max-w-full gap-0.5 overflow-x-auto rounded-[9px] bg-hover p-[3px]"
+          className="inline-flex max-w-full gap-0.5 overflow-x-auto overflow-y-hidden rounded-[9px] bg-hover p-[3px]"
         >
           {views.map((v) => (
             <ViewTip key={v.id} type={v.type}>

@@ -290,8 +290,17 @@ function LoadedPageEditor({
           Array.isArray(current.content) &&
           current.content.length === 0
         const block = { type: 'database' as const, props: { databaseId } }
-        if (emptyLine) editor.replaceBlocks([current], [block])
-        else editor.insertBlocks([block], current, 'after')
+        const inserted = emptyLine
+          ? editor.replaceBlocks([current], [block]).insertedBlocks
+          : editor.insertBlocks([block], current, 'after')
+        // The cursor goes to a fresh line below, so no text toolbar opens
+        // over the database.
+        const below = editor.insertBlocks(
+          [{ type: 'paragraph' }],
+          inserted[inserted.length - 1],
+          'after',
+        )
+        editor.setTextCursorPosition(below[0], 'start')
       })(),
     )
 

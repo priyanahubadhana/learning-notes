@@ -12,7 +12,7 @@ import type { Notebook } from './types'
  */
 const T = 1_700_000_000_000
 const base = { createdAt: T, updatedAt: T, deletedAt: null }
-const CURRENT_VERSION = 4
+const CURRENT_VERSION = 5
 let name = ''
 
 afterEach(async () => {
@@ -39,6 +39,14 @@ const V3 = {
   links: 'id, fromBlockId, fromPageId, toPageId, toBlockId',
   blockTags: 'id, blockId, pageId, tagId',
   meta: 'id',
+}
+
+const V4 = {
+  pages: 'id, notebookId, parentId, *tagIds, databaseId',
+  databases: 'id, workspaceId, notebookId',
+  dbColumns: 'id, databaseId',
+  dbViews: 'id, databaseId, blockId',
+  rowRefs: 'id, fromPageId, toPageId, columnId',
 }
 
 const card = {
@@ -411,6 +419,59 @@ describe('database upgrade', () => {
     expect((await db.notebooks.get('nbT'))?.tabs).toBeUndefined()
 
     await expectVersion4TablesWork(db)
+    db.close()
+  })
+
+  it('from version 4 gives every database a Dashboard view after its others', async () => {
+    name = `migrate-${createId()}`
+    const old = new Dexie(name)
+    old.version(1).stores(V1)
+    old.version(2).stores(V2)
+    old.version(3).stores(V3)
+    old.version(4).stores(V4)
+    await addVersion1Data(old)
+    const database = { ...base, workspaceId: 'w1', order: 'a0' }
+    await old.table('databases').bulkAdd([
+      { ...database, id: 'db1', notebookId: 'nb1', title: 'Drugs' },
+      { ...database, id: 'db2', notebookId: null, title: 'Has one' },
+    ])
+    const view = {
+      ...base,
+      config: { sorts: [] },
+      name: 'Table',
+      type: 'table',
+    }
+    await old.table('dbViews').bulkAdd([
+      { ...view, id: 'v1', databaseId: 'db1', order: 'a0' },
+      { ...view, id: 'v2', databaseId: 'db1', order: 'a1', blockId: 'b1' },
+      {
+        ...view,
+        id: 'v3',
+        databaseId: 'db2',
+        order: 'a0',
+        type: 'dashboard',
+        name: 'Mine',
+      },
+    ])
+    old.close()
+
+    const db = new LearningNotesDB(name)
+    await db.open()
+    expect(db.verno).toBe(CURRENT_VERSION)
+    await expectVersion1Data(db)
+    const views = await db.dbViews.where('databaseId').equals('db1').toArray()
+    expect(views).toHaveLength(3)
+    const dashboard = views.find((v) => v.type === 'dashboard')!
+    expect(dashboard).toMatchObject({
+      name: 'Dashboard',
+      config: {},
+      deletedAt: null,
+    })
+    expect(dashboard.blockId).toBeUndefined()
+    expect(dashboard.order > 'a0').toBe(true)
+    expect(await db.dbViews.get('v1')).toMatchObject({ config: { sorts: [] } })
+    // A database that already has a dashboard gets no second one.
+    expect(await db.dbViews.where('databaseId').equals('db2').count()).toBe(1)
     db.close()
   })
 })

@@ -1,5 +1,8 @@
 import Dexie, { type EntityTable } from 'dexie'
+import { t } from '../i18n/t'
 import { searchIndexMiddleware } from '../search/indexMiddleware'
+import { orderBetween } from './order'
+import { newRecordFields } from './records'
 import type {
   Block,
   BlockTag,
@@ -121,6 +124,37 @@ export class LearningNotesDB extends Dexie {
               { id: 'cards', kind: 'cards' },
             ]
           })
+      })
+
+    // Version 5 (Phase 5 Step 4): every database gets a Dashboard view
+    // (after its other views), like new databases do. No schema change.
+    this.version(5)
+      .stores({})
+      .upgrade(async (tx) => {
+        const views = await tx.table<DbView, string>('dbViews').toArray()
+        const databases = await tx
+          .table<Database, string>('databases')
+          .toArray()
+        const added: DbView[] = []
+        for (const database of databases) {
+          const own = views.filter(
+            (v) => v.databaseId === database.id && v.blockId === undefined,
+          )
+          if (own.some((v) => v.type === 'dashboard')) continue
+          const last = own
+            .map((v) => v.order)
+            .sort()
+            .at(-1)
+          added.push({
+            ...newRecordFields(),
+            databaseId: database.id,
+            name: t('database.view.dashboard'),
+            type: 'dashboard',
+            config: {},
+            order: orderBetween(last ?? null, null),
+          })
+        }
+        await tx.table<DbView, string>('dbViews').bulkAdd(added)
       })
 
     // Every save of a page or block also updates its search entry, in the

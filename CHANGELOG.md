@@ -704,3 +704,10 @@
 - **Why:** Phase 6 plan (owner, 2026-10-28).
 - **Self-review:** Unused pictures stay in storage until a clean-up exists. The upgrade backup _file_ (JSON) cannot hold picture bytes; the browser copy can.
 - **Files:** src/images/_, src/core/types.ts, db.ts, migration.test.ts, src/databases/columnTypes.ts, views/TableCells.tsx, TableView.tsx, GalleryView.tsx, galleryTiles.ts, src/editor/PageEditor.tsx, src/share/bundle.ts, importBundle.ts, src/i18n/_, e2e/pictures.spec.ts, e2e/upgradeBackup.spec.ts, README.md
+
+## 2026-10-28
+
+- **What:** Phase 6, step 7 (own Revise labels). Labels are now a synced setting (Settings › Review › Revise labels): rename or recolour any, add your own, remove your own; the toolbar, the Revise sheet and a new ⠿ menu entry “Mark line: …” use them. Marks of a removed label stay and show under “Other”.
+- **Why:** Phase 6 plan (owner, 2026-10-28).
+- **Self-review:** Notebook files do not carry the label list. The Settings control keeps what you type while it saves.
+- **Files:** src/revise/reviseMarks.ts, ReviseTab.tsx, src/editor/markActions.ts, SelectionToolbar.tsx, CardMenu.tsx, src/settings/registry.ts, builtinSettings.ts, SettingsScreen.tsx, src/App.tsx, src/i18n/*, tests, e2e/reviseLabels.spec.ts, README.md

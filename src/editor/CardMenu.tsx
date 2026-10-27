@@ -9,7 +9,9 @@ import {
   useExtensionState,
 } from '@blocknote/react'
 import { t } from '../i18n/t'
+import { markLabels, markName } from '../revise/reviseMarks'
 import { duplicateBlock } from './blockActions'
+import { markWholeBlock } from './markActions'
 import { canMakeCard, makeCard } from './cardActions'
 import type { EditorBlock } from './mapping'
 import type { AppSchema } from './schema'
@@ -54,13 +56,38 @@ function DuplicateItem() {
   )
 }
 
-/** The block menu: BlockNote's items plus "Make card" and "Duplicate". */
+/** Block menu entries: mark the whole line with a Revise label. */
+function MarkLineItems() {
+  const Components = useComponentsContext()!
+  const editor = useBlockNoteEditor() as unknown as Editor
+  const block = useExtensionState(SideMenuExtension, {
+    editor,
+    selector: (state) => state?.block,
+  }) as EditorBlock | undefined
+  if (!block || !Array.isArray(block.content)) return null
+  return (
+    <>
+      {markLabels().map((label) => (
+        <Components.Generic.Menu.Item
+          key={label.id}
+          className="bn-menu-item"
+          onClick={() => markWholeBlock(editor, block, label.id)}
+        >
+          {t('revise.markLine', { label: markName(label.id) })}
+        </Components.Generic.Menu.Item>
+      ))}
+    </>
+  )
+}
+
+/** The block menu: BlockNote's items plus "Make card", "Duplicate" and marks. */
 export function AppDragHandleMenu() {
   const dict = useDictionary()
   return (
     <DragHandleMenu>
       <MakeCardItem />
       <DuplicateItem />
+      <MarkLineItems />
       <RemoveBlockItem>{dict.drag_handle.delete_menuitem}</RemoveBlockItem>
       <BlockColorsItem>{dict.drag_handle.colors_menuitem}</BlockColorsItem>
     </DragHandleMenu>

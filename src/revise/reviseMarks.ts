@@ -10,14 +10,98 @@ import { t, type MessageKey } from '../i18n/t'
 
 export const MARK_STYLE = 'mark'
 
-export const MARK_LABELS = ['key', 'keyword', 'must', 'formula'] as const
-export type MarkLabel = (typeof MARK_LABELS)[number]
+/** The four labels every notebook starts with (they cannot be deleted). */
+export const BUILTIN_LABELS = ['key', 'keyword', 'must', 'formula'] as const
+
+/** A label id: a built-in one, or the id of a label the user added. */
+export type MarkLabel = string
+
+/** A label as set in Settings (the order is the order of the toolbar). */
+export type LabelDef = {
+  id: MarkLabel
+  /** Empty = the built-in label's own (translated) name. */
+  name: string
+  /** One of `LABEL_COLORS`. */
+  color: string
+}
+
+/** Colours a label can have (the same set as tags). */
+export const LABEL_COLORS = [
+  '#d9822b',
+  '#2f6feb',
+  '#c8402f',
+  '#2e9e6b',
+  '#8a5cf6',
+  '#c2417f',
+] as const
+
+export const DEFAULT_LABELS: readonly LabelDef[] = [
+  { id: 'key', name: '', color: '#d9822b' },
+  { id: 'keyword', name: '', color: '#2f6feb' },
+  { id: 'must', name: '', color: '#c8402f' },
+  { id: 'formula', name: '', color: '#2e9e6b' },
+]
+
+export const MAX_LABELS = 24
+const ID_PATTERN = /^[a-z0-9-]{1,40}$/
+
+/** True for a valid list of labels: the built-ins kept, ids unique, safe text. */
+export function isLabelList(value: unknown): value is LabelDef[] {
+  if (!Array.isArray(value) || value.length > MAX_LABELS) return false
+  const ids = new Set<string>()
+  for (const label of value) {
+    if (
+      !label ||
+      typeof label !== 'object' ||
+      typeof label.id !== 'string' ||
+      !ID_PATTERN.test(label.id) ||
+      ids.has(label.id) ||
+      typeof label.name !== 'string' ||
+      label.name.length > 40 ||
+      !(LABEL_COLORS as readonly string[]).includes(label.color)
+    ) {
+      return false
+    }
+    ids.add(label.id)
+  }
+  return BUILTIN_LABELS.every((id) => ids.has(id))
+}
+
+let labels: readonly LabelDef[] = DEFAULT_LABELS
+
+/** The labels in use (set from the Settings value by the app). */
+export const markLabels = (): readonly LabelDef[] => labels
+
+/**
+ * Switches to a list of labels and makes the page show their colours (one
+ * small style element; labels added by the user have no colour in the
+ * stylesheet).
+ */
+export function setMarkLabels(next: readonly LabelDef[]): void {
+  labels = next
+  if (typeof document === 'undefined') return
+  let style = document.getElementById('mark-label-colors')
+  if (!style) {
+    style = document.createElement('style')
+    style.id = 'mark-label-colors'
+    document.head.append(style)
+  }
+  style.textContent = next
+    .map((l) => `.recall-mark[data-mark="${l.id}"]{--mark:${l.color}}`)
+    .join('\n')
+}
 
 export const isMarkLabel = (v: unknown): v is MarkLabel =>
-  MARK_LABELS.includes(v as MarkLabel)
+  typeof v === 'string' && v !== ''
 
-export const markName = (label: MarkLabel): string =>
-  t(`revise.label.${label}` as MessageKey)
+/** A label's name: the one set in Settings, or the built-in name. */
+export function markName(label: MarkLabel): string {
+  const found = labels.find((l) => l.id === label)
+  if (found?.name) return found.name
+  return (BUILTIN_LABELS as readonly string[]).includes(label)
+    ? t(`revise.label.${label}` as MessageKey)
+    : t('revise.label.other')
+}
 
 /** One marked piece of text and where it is. */
 export interface Mark {
@@ -64,8 +148,15 @@ export function marksOfBlock(
 export function groupMarks(
   marks: readonly Mark[],
 ): { label: MarkLabel; marks: Mark[] }[] {
-  return MARK_LABELS.map((label) => ({
-    label,
-    marks: marks.filter((m) => m.label === label),
-  })).filter((g) => g.marks.length > 0)
+  // The labels in Settings order, then marks of labels that were deleted.
+  const known = labels.map((l) => l.id)
+  const extra = [...new Set(marks.map((m) => m.label))].filter(
+    (id) => !known.includes(id),
+  )
+  return [...known, ...extra]
+    .map((label) => ({
+      label,
+      marks: marks.filter((m) => m.label === label),
+    }))
+    .filter((g) => g.marks.length > 0)
 }

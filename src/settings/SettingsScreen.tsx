@@ -4,7 +4,17 @@ import { revealWhenReady } from '../editor/revealBlock'
 import { AppUiContext } from '../app/appUi'
 import type { LearningNotesDB } from '../core/db'
 import type { JsonValue } from '../core/types'
-import { t } from '../i18n/t'
+import { createId } from '../core/ids'
+import { t, type MessageKey } from '../i18n/t'
+import {
+  BUILTIN_LABELS,
+  DEFAULT_LABELS,
+  isLabelList,
+  LABEL_COLORS,
+  MAX_LABELS,
+  markName,
+  type LabelDef,
+} from '../revise/reviseMarks'
 import { settingsRegistry } from './builtinSettings'
 import type { SettingControl, SettingDefinition } from './registry'
 import { getSetting, setSetting } from './settingsService'
@@ -267,7 +277,11 @@ function RowLayout({
       <div className="mt-2.5">
         {/* key: re-create the control when the saved value changes elsewhere */}
         <Control
-          key={JSON.stringify(value)}
+          key={
+            definition.control.kind === 'labels'
+              ? 'labels'
+              : JSON.stringify(value)
+          }
           definition={definition}
           control={definition.control}
           value={value}
@@ -316,6 +330,7 @@ function Control(props: ControlProps) {
     return <NumberControl {...props} control={control} />
   if (control.kind === 'steps')
     return <StepsControl {...props} control={control} />
+  if (control.kind === 'labels') return <LabelsControl {...props} />
   return <ChoiceControl {...props} control={control} />
 }
 
@@ -509,6 +524,105 @@ function StepsControl({
         <p id={errorId} role="alert" className="mt-1 text-xs text-danger">
           {t('settings.error.steps', { min: control.min, max: control.max })}
         </p>
+      )}
+    </div>
+  )
+}
+
+/** The Revise labels: name and colour of each, add and remove your own. */
+function LabelsControl({ value, onSave, labelId, descId }: ControlProps) {
+  const saved = isLabelList(value)
+    ? value
+    : DEFAULT_LABELS.map((l) => ({ ...l }))
+  const [draft, setDraft] = useState<LabelDef[]>(saved)
+  // What this control last saved itself: that echo must not overwrite
+  // what is being typed. A change from elsewhere (Reset) does.
+  const lastSaved = useRef(JSON.stringify(saved))
+  const savedText = JSON.stringify(saved)
+  useEffect(() => {
+    if (savedText !== lastSaved.current) {
+      lastSaved.current = savedText
+      setDraft(JSON.parse(savedText) as LabelDef[])
+    }
+  }, [savedText])
+  const commit = (next: LabelDef[]) => {
+    setDraft(next)
+    if (isLabelList(next) && JSON.stringify(next) !== savedText) {
+      lastSaved.current = JSON.stringify(next)
+      onSave(next as unknown as JsonValue)
+    }
+  }
+  const change = (id: string, patch: Partial<LabelDef>) =>
+    draft.map((l) => (l.id === id ? { ...l, ...patch } : l))
+  const nameOf = (l: LabelDef) => l.name || markName(l.id)
+
+  return (
+    <div role="group" aria-labelledby={labelId} aria-describedby={descId}>
+      <ul className="grid gap-2">
+        {draft.map((l, i) => (
+          <li key={l.id} className="flex flex-wrap items-center gap-2">
+            <input
+              type="text"
+              value={l.name}
+              maxLength={40}
+              placeholder={markName(l.id)}
+              aria-label={t('settings.reviseLabels.name', { n: i + 1 })}
+              onChange={(e) => setDraft(change(l.id, { name: e.target.value }))}
+              onBlur={() => commit(draft)}
+              onKeyDown={(e) => e.key === 'Enter' && commit(draft)}
+              className={`${fieldClass} w-48 border-line`}
+            />
+            <span
+              role="group"
+              aria-label={t('settings.reviseLabels.color', { name: nameOf(l) })}
+              className="flex gap-1"
+            >
+              {LABEL_COLORS.map((color) => (
+                <button
+                  key={color}
+                  type="button"
+                  aria-pressed={l.color === color}
+                  aria-label={t(`tags.color.${color}` as MessageKey)}
+                  onClick={() => commit(change(l.id, { color }))}
+                  style={{ background: color }}
+                  className={`size-6 rounded-full border-2 ${
+                    l.color === color ? 'border-ink' : 'border-transparent'
+                  }`}
+                />
+              ))}
+            </span>
+            {!(BUILTIN_LABELS as readonly string[]).includes(l.id) && (
+              <button
+                type="button"
+                aria-label={t('settings.reviseLabels.remove', {
+                  name: nameOf(l),
+                })}
+                onClick={() => commit(draft.filter((x) => x.id !== l.id))}
+                className="size-8 rounded-lg text-muted hover:bg-hover hover:text-ink"
+              >
+                ×
+              </button>
+            )}
+          </li>
+        ))}
+      </ul>
+      {draft.length < MAX_LABELS && (
+        <button
+          type="button"
+          onClick={() =>
+            commit([
+              ...draft,
+              {
+                id: createId(),
+                name: t('settings.reviseLabels.newName'),
+                color: LABEL_COLORS[draft.length % LABEL_COLORS.length],
+              },
+            ])
+          }
+          className="mt-2 min-h-9 rounded-lg border border-line px-3 text-[13px] hover:bg-hover"
+        >
+          {t('settings.reviseLabels.add')}
+        </button>
       )}
     </div>
   )

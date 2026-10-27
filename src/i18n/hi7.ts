@@ -51,4 +51,14 @@ export const hi7: Record<string, string> = {
   'image.choose': 'इस उपकरण से चित्र चुनें',
   'image.added': 'चित्र जोड़ा गया।',
   'image.missing': 'यह चित्र इस ऐप के भंडार में नहीं है।',
+  'revise.label.other': 'अन्य',
+  'revise.markLine': 'पंक्ति चिह्नित करें: {label}',
+  'settings.reviseLabels.label': 'दोहराव के लेबल',
+  'settings.reviseLabels.description':
+    'वे लेबल जो आप नोट के शब्दों पर लगा सकते हैं (वे हर पाठ के दोहराव टैब में इकट्ठे होते हैं)। किसी भी लेबल का नाम या रंग बदलें, या अपना जोड़ें।',
+  'settings.reviseLabels.add': '+ लेबल जोड़ें',
+  'settings.reviseLabels.name': 'लेबल {n} का नाम',
+  'settings.reviseLabels.newName': 'नया लेबल',
+  'settings.reviseLabels.remove': 'लेबल {name} हटाएँ',
+  'settings.reviseLabels.color': '{name} का रंग',
 }

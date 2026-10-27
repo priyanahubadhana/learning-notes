@@ -6,7 +6,7 @@ import { revealBlock } from '../editor/revealBlock'
 import { HelpLine, Tip } from '../help/Help'
 import { t } from '../i18n/t'
 import type { ReviewScope } from '../recall/reviewService'
-import { groupMarks, markName, MARK_LABELS } from './reviseMarks'
+import { groupMarks, markLabels, markName } from './reviseMarks'
 import {
   listLessonMarks,
   MAX_SUMMARY_LENGTH,
@@ -149,7 +149,9 @@ export function ReviseTab({
             ))
           )}
           <p className="mt-4 text-xs text-muted">
-            {MARK_LABELS.map(markName).join(' · ')}
+            {markLabels()
+              .map((l) => markName(l.id))
+              .join(' · ')}
           </p>
         </div>
       </div>

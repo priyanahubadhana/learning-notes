@@ -53,4 +53,14 @@ export const es7: Record<string, string> = {
   'image.added': 'Imagen añadida.',
   'image.missing':
     'Esta imagen no está en el almacenamiento de esta aplicación.',
+  'revise.label.other': 'Otros',
+  'revise.markLine': 'Marcar línea: {label}',
+  'settings.reviseLabels.label': 'Etiquetas de repaso',
+  'settings.reviseLabels.description':
+    'Las etiquetas que puedes poner en palabras de una nota (se reúnen en la pestaña Repaso de cada lección). Renombra o cambia el color de cualquiera, o añade las tuyas.',
+  'settings.reviseLabels.add': '+ Añadir etiqueta',
+  'settings.reviseLabels.name': 'Nombre de la etiqueta {n}',
+  'settings.reviseLabels.newName': 'Etiqueta nueva',
+  'settings.reviseLabels.remove': 'Quitar la etiqueta {name}',
+  'settings.reviseLabels.color': 'Color de {name}',
 }

@@ -1451,6 +1451,17 @@ export const en = {
   'unit.minutes': 'minutes',
   'unit.days': 'days',
   'unit.percent': '%',
+  // Revise labels
+  'revise.label.other': 'Other',
+  'revise.markLine': 'Mark line: {label}',
+  'settings.reviseLabels.label': 'Revise labels',
+  'settings.reviseLabels.description':
+    'The labels you can put on words in a note (they collect in each lesson’s Revise tab). Rename or recolour any label, or add your own.',
+  'settings.reviseLabels.add': '+ Add label',
+  'settings.reviseLabels.name': 'Name of label {n}',
+  'settings.reviseLabels.newName': 'New label',
+  'settings.reviseLabels.remove': 'Remove label {name}',
+  'settings.reviseLabels.color': 'Colour of {name}',
   // Pictures from this device
   'err.imageDamaged': 'A picture in the file is damaged.',
   'image.badType': 'Pictures must be PNG, JPEG, WebP or GIF files.',

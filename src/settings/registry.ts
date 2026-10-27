@@ -39,6 +39,8 @@ export type SettingControl =
       emptyKey?: MessageKey
     }
   | { kind: 'segmented' | 'select'; options: readonly SettingOption[] }
+  /** The Revise labels list (name, colour; add and remove). */
+  | { kind: 'labels' }
   | {
       /** A rising list of whole numbers, e.g. review steps in days. */
       kind: 'steps'

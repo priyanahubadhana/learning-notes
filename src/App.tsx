@@ -41,10 +41,12 @@ import type { ReviewScope } from './recall/reviewService'
 import {
   dateStyleSetting,
   languageSetting,
+  reviseLabelsSetting,
   theme as themeSetting,
 } from './settings/builtinSettings'
 import { SettingsScreen } from './settings/SettingsScreen'
-import { useDeviceSetting } from './settings/useSetting'
+import { setMarkLabels } from './revise/reviseMarks'
+import { useDeviceSetting, useSyncedSetting } from './settings/useSetting'
 import { TemplatePicker } from './templates/TemplatePicker'
 import { revealBlock } from './editor/revealBlock'
 import { rememberPage } from './search/recentPages'
@@ -345,6 +347,11 @@ function App() {
   const [dateStyle] = useDeviceSetting(dateStyleSetting)
   setDateStyle(dateStyle)
   // The app's texts follow this setting; a language file loads when needed.
+  // The labels for marking words (Settings › Review); notes use them live.
+  const labelSetting = useSyncedSetting(db, reviseLabelsSetting)
+  useEffect(() => {
+    if (labelSetting) setMarkLabels(labelSetting)
+  }, [labelSetting])
   const [language] = useDeviceSetting(languageSetting)
   const [, setTextsVersion] = useState(0)
   useEffect(() => {

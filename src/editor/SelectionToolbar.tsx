@@ -7,7 +7,7 @@ import {
 } from '@blocknote/react'
 import { t } from '../i18n/t'
 import {
-  MARK_LABELS,
+  markLabels,
   MARK_STYLE,
   markName,
   type MarkLabel,
@@ -90,8 +90,8 @@ export function AppFormattingToolbar() {
   return (
     <FormattingToolbar>
       {getFormattingToolbarItems()}
-      {MARK_LABELS.map((label) => (
-        <MarkButton key={label} label={label} />
+      {markLabels().map((label) => (
+        <MarkButton key={label.id} label={label.id} />
       ))}
       <MakeBlankButton key="makeBlank" />
       <MakeCardButton key="makeCard" />

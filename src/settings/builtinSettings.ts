@@ -1,6 +1,11 @@
 import { isTheme, THEME_PREF_KEY, THEMES, type Theme } from '../app/theme'
 import { DEFAULT_DAY_START_HOUR } from '../core/time'
 import {
+  DEFAULT_LABELS,
+  isLabelList,
+  type LabelDef,
+} from '../revise/reviseMarks'
+import {
   isLanguage,
   LANGUAGE_NAMES,
   LANGUAGES,
@@ -70,6 +75,18 @@ export const theme: SettingDefinition<Theme> = {
       label: () => t(`settings.theme.${value}`),
     })),
   },
+}
+
+/** The labels for marking words in notes (Revise tab). Saved with the notes. */
+export const reviseLabelsSetting: SettingDefinition<LabelDef[]> = {
+  id: 'review.reviseLabels',
+  labelKey: 'settings.reviseLabels.label',
+  descriptionKey: 'settings.reviseLabels.description',
+  category: 'review',
+  scope: 'synced',
+  defaultValue: DEFAULT_LABELS.map((l) => ({ ...l })),
+  isValid: isLabelList as (value: unknown) => value is LabelDef[],
+  control: { kind: 'labels' },
 }
 
 /** The language of the app's texts on this device. */
@@ -280,6 +297,7 @@ export const practiceOrder: SettingDefinition<PracticeOrder> = {
 
 for (const definition of [
   theme,
+  reviseLabelsSetting,
   languageSetting,
   showHelp,
   dateStyleSetting,

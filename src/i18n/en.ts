@@ -55,7 +55,6 @@ export const en = {
   // Search (popup and screen)
   'search.title': 'Search',
   'search.sidebar': 'Search',
-  'search.sidebarHint': 'Search everything ({key})',
   'search.placeholder': 'Search everything',
   'search.close': 'Close search',
   'search.results': 'Results',
@@ -120,7 +119,6 @@ export const en = {
   'search.fails_other': 'Wrong {count}×',
   'search.removeEmpty_one': 'Remove {count} empty card',
   'search.removeEmpty_other': 'Remove {count} empty cards',
-  'search.removeEmptyHint': 'Their answer lines stay as normal notes.',
   'search.removedEmpty_one': 'Removed {count} empty card',
   'search.removedEmpty_other': 'Removed {count} empty cards',
   'search.changed': 'Changed',
@@ -432,7 +430,7 @@ export const en = {
   'help.tip.search.reviewCards.example':
     'Search “valves”, then revise just those cards.',
   'help.tip.search.removeEmpty.meaning':
-    'Removes cards that have no question, so they stop cluttering your lists.',
+    'Removes cards that have no question. Their answer lines stay in your notes as normal text.',
   'help.tip.search.removeEmpty.example':
     'Clean up cards you started but never wrote.',
   'help.tip.db.viewTable.meaning':
@@ -452,9 +450,6 @@ export const en = {
   'help.tip.db.addColumn.meaning':
     'Adds your own column: text, number, date, choice, checkbox and more.',
   'help.tip.db.addColumn.example': 'Add “Exam date” as a Date column.',
-  'help.tip.db.auto.meaning':
-    'The app fills this column in by itself; you cannot type in it.',
-  'help.tip.db.auto.example': 'Status, Cards due and % correct are auto.',
   'help.tip.db.column.meaning':
     'Opens the column menu: sort, filter, hide or edit.',
   'help.tip.db.column.example': 'Sort Confidence from high to low.',
@@ -477,8 +472,36 @@ export const en = {
     'Type / for blocks · [[ to link a page · # to add a tag · select words to hide them as a blank · the ⠿ handle beside a line › Make card.',
   'help.line.review.ratings':
     'Again = you forgot it · Hard = you barely remembered · Good = you remembered · Easy = no effort at all.',
+  'help.line.review.practice':
+    'Practising doesn’t change when cards come back. New cards beyond today’s limit stay new.',
   'help.line.db.table':
     'Click a cell to edit it. Click a column header to sort, filter or hide that column.',
+  'help.tip.review.openNote.meaning':
+    'Opens the note this card comes from, scrolled to the card.',
+  'help.tip.review.openNote.example':
+    'Check the full lesson when you are unsure of an answer.',
+  'help.tip.review.suspend.meaning':
+    'Hides this card from reviews until you un-suspend it. The card is not deleted.',
+  'help.tip.review.suspend.example': 'Pause a card you are tired of seeing.',
+  'help.tip.cards.sort.meaning':
+    'Chooses the order of the cards: due first, most failed, or recently changed.',
+  'help.tip.cards.sort.example':
+    'Sort by “Most failed” to find your weak spots.',
+  'help.tip.cards.review.meaning':
+    'Reviews the due cards of this notebook. With nothing due it offers Practice anyway.',
+  'help.tip.cards.review.example':
+    '“Review 12 due” starts a session of 12 cards.',
+  'help.tip.sidebar.dailyTemplate.meaning':
+    'The layout of every new journal day. Edit it to change what your daily pages start with.',
+  'help.tip.sidebar.dailyTemplate.example':
+    'Add a “What did I learn?” heading to every future day.',
+  'help.tip.sidebar.tag.meaning':
+    'Shows everything with this tag: pages, cards and notes.',
+  'help.tip.sidebar.tag.example':
+    'Click “cardiology” to see all of it in one list.',
+  'help.tip.page.tagChip.meaning':
+    'Opens the options of this tag on the page: open it in Search or take it off this page.',
+  'help.tip.page.tagChip.example': 'Remove “draft” once the page is finished.',
   'help.line.tracker.statusRule':
     'Auto: Not started = no cards answered yet · Learning = under 75% correct · Mastered = 90% or more correct, nothing due, no new cards, and at least 80% of the cards at level Mastered · Review = in between.',
   'settings.dayStart.label': 'Day starts at',
@@ -529,7 +552,6 @@ export const en = {
   'review.titlePage': 'Review · {name}',
   'review.titleWrong': 'Cards I got wrong',
   'review.sidebar': 'Review',
-  'review.sidebarHint': 'Review the cards due today',
   'review.dueCount_one': '{count} card due',
   'review.dueCount_other': '{count} cards due',
   'review.thisNotebook': 'Review this notebook',
@@ -566,8 +588,6 @@ export const en = {
     'No cards here yet. Type “/” and choose Card, or highlight words and choose Blank.',
   'review.practice': 'Practice anyway',
   'review.wrongEmpty': 'No cards marked Again in the last 7 days.',
-  'review.practiceHint':
-    'Practising doesn’t change when cards come back. New cards beyond today’s limit stay new.',
   'review.back': 'Back to notes',
 
   // Intervals (button labels)
@@ -601,13 +621,12 @@ export const en = {
   'tags.menu': 'Tags',
   'tags.create': 'Create #{name}',
   'tags.gone': 'This tag was deleted',
-  'tags.openHint': 'Show everything with this tag',
   'tags.picker': 'Add a tag',
   'tags.find': 'Find or create a tag (use / for levels)',
   'tags.noMatch': 'No tag matches',
   'tags.typeToCreate': 'Type a name to create your first tag',
+  'tags.openHint': 'Show everything with this tag',
   'tags.pageTags': 'Page tags',
-  'tags.chipHint': 'Tag options',
   'tags.add': '+ Add tag',
   'tags.more_one': '+{count} more',
   'tags.more_other': '+{count} more',
@@ -700,7 +719,6 @@ export const en = {
   'trash.databaseRowsToo': 'Its rows will be deleted too.',
   // Notebook screen and its tabs
   'notebook.crumb': 'Notebook',
-  'notebook.open': 'Open notebook',
   'notebook.close': 'Close notebook',
   'notebook.tabs': 'Notebook tabs',
   'notebook.tab.notes': 'Notes',

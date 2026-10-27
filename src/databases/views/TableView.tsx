@@ -450,20 +450,22 @@ export function TableView({ db, database, view, onOpenPage }: ViewProps) {
                   </th>
                 ))}
                 <th scope="col" className={`${head} w-full`}>
-                  <button
-                    type="button"
-                    aria-haspopup="dialog"
-                    onClick={(e) =>
-                      toggleMenu({
-                        kind: 'add',
-                        more: false,
-                        anchor: e.currentTarget,
-                      })
-                    }
-                    className="min-h-8 rounded-md px-2 text-muted hover:bg-hover hover:text-ink"
-                  >
-                    {t('table.addColumn')}
-                  </button>
+                  <Tip id="db.addColumn" touchInfo={false}>
+                    <button
+                      type="button"
+                      aria-haspopup="dialog"
+                      onClick={(e) =>
+                        toggleMenu({
+                          kind: 'add',
+                          more: false,
+                          anchor: e.currentTarget,
+                        })
+                      }
+                      className="min-h-8 rounded-md px-2 text-muted hover:bg-hover hover:text-ink"
+                    >
+                      {t('table.addColumn')}
+                    </button>
+                  </Tip>
                 </th>
               </tr>
             </thead>
@@ -543,6 +545,7 @@ export function TableView({ db, database, view, onOpenPage }: ViewProps) {
           </button>
         </NewRowTip>
       </div>
+      {!tracker && <HelpLine id="db.table" />}
       {tracker && (
         <>
           <HelpLine id="tracker.table" />
@@ -708,8 +711,12 @@ function HeaderTip({
   tracker: boolean
   children: ReactNode
 }) {
-  const id = tracker ? headerTip(column) : undefined
-  return id ? <Tip id={id}>{children}</Tip> : <>{children}</>
+  const id = tracker ? (headerTip(column) ?? 'db.column') : 'db.column'
+  return (
+    <Tip id={id} touchInfo={false}>
+      {children}
+    </Tip>
+  )
 }
 
 /** The "+ New lesson" button with its tip (Study tracker only). */
@@ -720,11 +727,9 @@ function NewRowTip({
   tracker: boolean
   children: ReactNode
 }) {
-  return tracker ? (
-    <Tip id="tracker.newLesson" className="block">
+  return (
+    <Tip id={tracker ? 'tracker.newLesson' : 'db.newRow'} className="block">
       {children}
     </Tip>
-  ) : (
-    <>{children}</>
   )
 }

@@ -1,3 +1,4 @@
+import { Tip } from '../help/Help'
 import { useContext, useState } from 'react'
 import { AppUiContext } from '../app/appUi'
 import { runTask } from '../app/errors'
@@ -53,9 +54,15 @@ export function SaveSearchActions({
           {t('saved.update')}
         </button>
       )}
-      <button type="button" className={button} onClick={() => setNaming(true)}>
-        ☆ {t('saved.save')}
-      </button>
+      <Tip id="search.save">
+        <button
+          type="button"
+          className={button}
+          onClick={() => setNaming(true)}
+        >
+          ☆ {t('saved.save')}
+        </button>
+      </Tip>
       {naming && (
         <NameDialog
           title={t('saved.save')}

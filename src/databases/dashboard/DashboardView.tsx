@@ -110,22 +110,24 @@ export function DashboardView({ db, database, view }: ViewProps) {
                   title
                 )}
               </span>
-              <button
-                type="button"
-                aria-label={t('dashboard.chartMenu', { name: title })}
-                aria-haspopup="dialog"
-                aria-expanded={menu?.id === spec.id}
-                onClick={(e) =>
-                  setMenu(
-                    menu?.id === spec.id
-                      ? null
-                      : { id: spec.id, anchor: e.currentTarget },
-                  )
-                }
-                className="-me-1.5 -mt-1 flex size-8 shrink-0 items-center justify-center rounded-md text-muted hover:bg-hover hover:text-ink"
-              >
-                ⋯
-              </button>
+              <Tip id="db.chartMenu" touchInfo={false}>
+                <button
+                  type="button"
+                  aria-label={t('dashboard.chartMenu', { name: title })}
+                  aria-haspopup="dialog"
+                  aria-expanded={menu?.id === spec.id}
+                  onClick={(e) =>
+                    setMenu(
+                      menu?.id === spec.id
+                        ? null
+                        : { id: spec.id, anchor: e.currentTarget },
+                    )
+                  }
+                  className="-me-1.5 -mt-1 flex size-8 shrink-0 items-center justify-center rounded-md text-muted hover:bg-hover hover:text-ink"
+                >
+                  ⋯
+                </button>
+              </Tip>
             </h3>
             <ChartBody
               spec={spec}
@@ -137,13 +139,15 @@ export function DashboardView({ db, database, view }: ViewProps) {
           </section>
         )
       })}
-      <button
-        type="button"
-        onClick={() => setDialog({ kind: 'new' })}
-        className="col-span-12 min-h-11 rounded-xl border border-dashed border-line text-[13px] text-muted hover:bg-hover hover:text-ink"
-      >
-        {t('dashboard.addChart')}
-      </button>
+      <Tip id="db.addChart" className="col-span-12 flex">
+        <button
+          type="button"
+          onClick={() => setDialog({ kind: 'new' })}
+          className="min-h-11 w-full rounded-xl border border-dashed border-line text-[13px] text-muted hover:bg-hover hover:text-ink"
+        >
+          {t('dashboard.addChart')}
+        </button>
+      </Tip>
 
       {menu && open && (
         <Popover

@@ -59,7 +59,7 @@ test('Tags in the sidebar: empty note, new tag, tree with counts', async ({
   await expect(tagButton(page, 'cardio')).toBeVisible()
 
   await addPageTag(page, 'medicine/cardio')
-  const row = tagButton(page, 'medicine').locator('..')
+  const row = tagButton(page, 'medicine').locator('xpath=ancestor::div[1]')
   await expect(row).toContainText('1')
   await sidebar(page).getByLabel('Collapse #medicine').click()
   await expect(tagButton(page, 'cardio')).toBeHidden()

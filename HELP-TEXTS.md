@@ -2,7 +2,7 @@
 
 Every hover tip and help line in the app (shown while Settings › Show help is On). Generated from `src/help/helpRegistry.ts` and `src/i18n/en.ts`; to change a text, edit it in `en.ts`, then run `UPDATE_HELP=1 npx vitest run src/help` to refresh this file.
 
-## Hover tips (75)
+## Hover tips (81)
 
 ### `tracker.lesson`
 
@@ -379,7 +379,7 @@ Every hover tip and help line in the app (shown while Settings › Show help is 
 ### `search.removeEmpty`
 
 - **Where:** Search › Remove empty cards
-- **Meaning:** Removes cards that have no question, so they stop cluttering your lists.
+- **Meaning:** Removes cards that have no question. Their answer lines stay in your notes as normal text.
 - **Example:** Clean up cards you started but never wrote.
 
 ### `db.viewTable`
@@ -411,12 +411,6 @@ Every hover tip and help line in the app (shown while Settings › Show help is 
 - **Where:** Database › + Column
 - **Meaning:** Adds your own column: text, number, date, choice, checkbox and more.
 - **Example:** Add “Exam date” as a Date column.
-
-### `db.auto`
-
-- **Where:** Database › the “auto” label on a column
-- **Meaning:** The app fills this column in by itself; you cannot type in it.
-- **Example:** Status, Cards due and % correct are auto.
 
 ### `db.column`
 
@@ -454,7 +448,49 @@ Every hover tip and help line in the app (shown while Settings › Show help is 
 - **Meaning:** Chooses which values appear on each card.
 - **Example:** Show Confidence stars on every card.
 
-## Help lines (7)
+### `review.openNote`
+
+- **Where:** Review › Open note (under the card)
+- **Meaning:** Opens the note this card comes from, scrolled to the card.
+- **Example:** Check the full lesson when you are unsure of an answer.
+
+### `review.suspend`
+
+- **Where:** Review › Suspend (under the card)
+- **Meaning:** Hides this card from reviews until you un-suspend it. The card is not deleted.
+- **Example:** Pause a card you are tired of seeing.
+
+### `cards.sort`
+
+- **Where:** Cards tab › Sort button
+- **Meaning:** Chooses the order of the cards: due first, most failed, or recently changed.
+- **Example:** Sort by “Most failed” to find your weak spots.
+
+### `cards.review`
+
+- **Where:** Cards tab › Review N due / Practice
+- **Meaning:** Reviews the due cards of this notebook. With nothing due it offers Practice anyway.
+- **Example:** “Review 12 due” starts a session of 12 cards.
+
+### `sidebar.dailyTemplate`
+
+- **Where:** Sidebar › Templates › Daily journal
+- **Meaning:** The layout of every new journal day. Edit it to change what your daily pages start with.
+- **Example:** Add a “What did I learn?” heading to every future day.
+
+### `sidebar.tag`
+
+- **Where:** Sidebar › a tag’s name
+- **Meaning:** Shows everything with this tag: pages, cards and notes.
+- **Example:** Click “cardiology” to see all of it in one list.
+
+### `page.tagChip`
+
+- **Where:** Page › a tag under the title
+- **Meaning:** Opens the options of this tag on the page: open it in Search or take it off this page.
+- **Example:** Remove “draft” once the page is finished.
+
+## Help lines (8)
 
 Help lines are marked in the page with `data-help-line="<id>"`.
 
@@ -487,6 +523,11 @@ Help lines are marked in the page with `data-help-line="<id>"`.
 
 - **Where:** Review › under the Again / Hard / Good / Easy buttons
 - **Text:** Again = you forgot it · Hard = you barely remembered · Good = you remembered · Easy = no effort at all.
+
+### `review.practice`
+
+- **Where:** Review › under Practice anyway
+- **Text:** Practising doesn’t change when cards come back. New cards beyond today’s limit stay new.
 
 ### `db.table`
 

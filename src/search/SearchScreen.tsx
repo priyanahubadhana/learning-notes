@@ -1,3 +1,4 @@
+import { Tip } from '../help/Help'
 import { useLiveQuery } from 'dexie-react-hooks'
 import {
   useContext,
@@ -198,12 +199,14 @@ export function SearchScreen({
             className="min-w-0 flex-1 bg-transparent text-base outline-none"
           />
         </div>
-        <TypeChips
-          value={type}
-          onChange={setType}
-          counts={active ? outcome.typeCounts : undefined}
-          className="pt-2.5"
-        />
+        <Tip id="search.types" className="flex items-center" touchInfo={false}>
+          <TypeChips
+            value={type}
+            onChange={setType}
+            counts={active ? outcome.typeCounts : undefined}
+            className="pt-2.5"
+          />
+        </Tip>
 
         <div className="mt-3.5 mb-1.5 flex flex-wrap items-center justify-between gap-x-3 gap-y-2">
           <div className="flex flex-wrap items-center gap-1.5">
@@ -334,28 +337,31 @@ export function SearchScreen({
             <span className="flex flex-wrap gap-2">
               {actions?.(query)}
               {filters.status === 'empty' && emptyIds.length > 0 && (
-                <button
-                  type="button"
-                  onClick={() => void removeEmpty()}
-                  title={t('search.removeEmptyHint')}
-                  className="min-h-8 rounded-lg border border-line px-3 text-[13px] text-danger hover:border-danger"
-                >
-                  {t('search.removeEmpty', { count: emptyIds.length })}
-                </button>
+                <Tip id="search.removeEmpty">
+                  <button
+                    type="button"
+                    onClick={() => void removeEmpty()}
+                    className="min-h-8 rounded-lg border border-line px-3 text-[13px] text-danger hover:border-danger"
+                  >
+                    {t('search.removeEmpty', { count: emptyIds.length })}
+                  </button>
+                </Tip>
               )}
               {cardIds.length > 0 && (
-                <button
-                  type="button"
-                  onClick={() =>
-                    onReview(
-                      cardIds,
-                      title ?? (text.trim() || t('search.type.card')),
-                    )
-                  }
-                  className="min-h-8 rounded-lg bg-accent px-3 text-[13px] font-medium text-white hover:opacity-90"
-                >
-                  {t('search.reviewThese', { count: cardIds.length })}
-                </button>
+                <Tip id="search.reviewCards">
+                  <button
+                    type="button"
+                    onClick={() =>
+                      onReview(
+                        cardIds,
+                        title ?? (text.trim() || t('search.type.card')),
+                      )
+                    }
+                    className="min-h-8 rounded-lg bg-accent px-3 text-[13px] font-medium text-white hover:opacity-90"
+                  >
+                    {t('search.reviewThese', { count: cardIds.length })}
+                  </button>
+                </Tip>
               )}
             </span>
           </div>

@@ -18,6 +18,17 @@ import {
  * both disappear.
  */
 
+/**
+ * True while the last key pressed was Tab. A tip opens on keyboard focus
+ * only then: a button focused by the app itself (like "Show answer") or
+ * after a shortcut key must not pop a tip open.
+ */
+let tabbing = false
+if (typeof document !== 'undefined') {
+  document.addEventListener('keydown', (e) => (tabbing = e.key === 'Tab'), true)
+  document.addEventListener('pointerdown', () => (tabbing = false), true)
+}
+
 /** Wait before a hover tip appears (like a desktop app's tooltips). */
 const HOVER_DELAY_MS = 450
 
@@ -102,7 +113,7 @@ function TipBox({
       // fire these, so only mouse and pen count).
       onPointerEnter={(e) => e.pointerType !== 'touch' && show()}
       onPointerLeave={(e) => e.pointerType !== 'touch' && hide()}
-      onFocus={show}
+      onFocus={() => tabbing && show()}
       onBlur={hide}
       aria-describedby={open ? bubbleId : undefined}
     >

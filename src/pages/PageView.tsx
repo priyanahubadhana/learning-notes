@@ -1,3 +1,5 @@
+import { HelpLine, Tip } from '../help/Help'
+import type { TipId } from '../help/helpRegistry'
 import { useLiveQuery } from 'dexie-react-hooks'
 import {
   Fragment,
@@ -114,19 +116,27 @@ export function PageView({
         </nav>
         <div role="toolbar" aria-label="Page actions" className="flex gap-1.5">
           {notebook && !isTemplate && (
-            <ActionButton icon="⟳" onClick={() => onReview()}>
+            <ActionButton
+              icon="⟳"
+              tip="page.reviewPage"
+              onClick={() => onReview()}
+            >
               {t('review.thisPage')}
             </ActionButton>
           )}
           {notebook && !isTemplate && (
-            <ActionButton icon="📋" onClick={saveTemplate}>
+            <ActionButton
+              icon="📋"
+              tip="page.saveTemplate"
+              onClick={saveTemplate}
+            >
               Save as template
             </ActionButton>
           )}
-          <ActionButton icon="⤓" soon>
+          <ActionButton icon="⤓" tip="page.import" soon>
             Import
           </ActionButton>
-          <ActionButton icon="⤒" soon>
+          <ActionButton icon="⤒" tip="page.export" soon>
             Export
           </ActionButton>
         </div>
@@ -171,6 +181,7 @@ export function PageView({
         tagIds={page.tagIds ?? []}
         onOpenTag={onOpenTag}
       />
+      <HelpLine id="page.editor" className="mb-3 text-xs text-muted" />
       <SectionChips db={db} pageId={page.id} />
       <PageEditor
         db={db}
@@ -219,52 +230,57 @@ function SectionChips({ db, pageId }: { db: LearningNotesDB; pageId: string }) {
   )
   if (!sections?.length) return null
   return (
-    <nav
-      aria-label={t('sections.label')}
-      className="sticky top-0 z-10 -mx-3 mb-3 flex gap-1.5 overflow-x-auto bg-bg px-3 py-2"
-    >
-      {sections.map((s) => (
-        <button
-          key={s.blockId}
-          type="button"
-          onClick={() => revealBlock(s.blockId)}
-          className="max-w-[220px] shrink-0 truncate rounded-full border border-line px-3 py-1.5 text-[13px] leading-none text-muted hover:border-accent hover:text-accent"
-        >
-          {s.title}
-        </button>
-      ))}
-    </nav>
+    <Tip id="page.sections" className="block" touchInfo={false}>
+      <nav
+        aria-label={t('sections.label')}
+        className="sticky top-0 z-10 -mx-3 mb-3 flex gap-1.5 overflow-x-auto bg-bg px-3 py-2"
+      >
+        {sections.map((s) => (
+          <button
+            key={s.blockId}
+            type="button"
+            onClick={() => revealBlock(s.blockId)}
+            className="max-w-[220px] shrink-0 truncate rounded-full border border-line px-3 py-1.5 text-[13px] leading-none text-muted hover:border-accent hover:text-accent"
+          >
+            {s.title}
+          </button>
+        ))}
+      </nav>
+    </Tip>
   )
 }
 
 /** Button in the page action bar; `soon` = shown but disabled. */
 function ActionButton({
   icon,
+  tip,
   soon = false,
   onClick,
   children,
 }: {
   icon: string
+  tip: TipId
   soon?: boolean
   onClick?: () => void
   children: string
 }) {
   return (
-    <button
-      type="button"
-      onClick={onClick}
-      disabled={soon}
-      title={soon ? 'Coming soon (Phase 6: data safety and export)' : undefined}
-      className="inline-flex items-center gap-1.5 rounded-lg border border-line bg-bg px-2.5 py-1.5 text-[13px] leading-none transition-colors enabled:hover:border-accent enabled:hover:text-accent disabled:cursor-not-allowed disabled:text-muted"
-    >
-      <span aria-hidden>{icon}</span>
-      {children}
-      {soon && (
-        <span className="rounded-full bg-soft px-1.5 py-0.5 text-[10px] tracking-[0.06em] uppercase">
-          Soon
-        </span>
-      )}
-    </button>
+    <Tip id={tip}>
+      <button
+        type="button"
+        onClick={onClick}
+        disabled={soon}
+        className="inline-flex items-center gap-1.5 rounded-lg border border-line bg-bg px-2.5 py-1.5 text-[13px] leading-none transition-colors enabled:hover:border-accent enabled:hover:text-accent disabled:cursor-not-allowed disabled:text-muted"
+      >
+        <span aria-hidden>{icon}</span>
+        {children}
+        {soon && (
+          <span className="rounded-full bg-soft px-1.5 py-0.5 text-[10px] tracking-[0.06em] uppercase">
+            Soon
+          </span>
+        )}
+      </button>
+    </Tip>
   )
 }
 

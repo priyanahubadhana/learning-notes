@@ -1,3 +1,4 @@
+import { HelpLine, Tip } from '../help/Help'
 import { useLiveQuery } from 'dexie-react-hooks'
 import { useContext, useEffect, useRef, useState, type ReactNode } from 'react'
 import { AppUiContext } from '../app/appUi'
@@ -223,40 +224,43 @@ export function ReviewScreen({
           {title}
         </h1>
         {(scope.kind === 'all' || scope.kind === 'wrong') && (
-          <div
-            role="group"
-            aria-label={t('review.scope')}
-            className="flex rounded-lg border border-line p-0.5 text-[13px]"
-          >
-            {(['all', 'wrong'] as const).map((kind) => (
-              <button
-                key={kind}
-                type="button"
-                aria-pressed={scope.kind === kind}
-                onClick={() => onScopeChange({ kind })}
-                className={`min-h-8 rounded-md px-2.5 ${
-                  scope.kind === kind ? 'bg-soft font-medium' : 'text-muted'
-                }`}
-              >
-                {t(`review.scope.${kind}`)}
-              </button>
-            ))}
-          </div>
+          <Tip id="review.scope">
+            <div
+              role="group"
+              aria-label={t('review.scope')}
+              className="flex rounded-lg border border-line p-0.5 text-[13px]"
+            >
+              {(['all', 'wrong'] as const).map((kind) => (
+                <button
+                  key={kind}
+                  type="button"
+                  aria-pressed={scope.kind === kind}
+                  onClick={() => onScopeChange({ kind })}
+                  className={`min-h-8 rounded-md px-2.5 ${
+                    scope.kind === kind ? 'bg-soft font-medium' : 'text-muted'
+                  }`}
+                >
+                  {t(`review.scope.${kind}`)}
+                </button>
+              ))}
+            </div>
+          </Tip>
         )}
         {left > 0 && (
           <span className="text-[13px] text-muted tabular-nums">
             {t('review.left', { count: left })}
           </span>
         )}
-        <button
-          type="button"
-          onClick={onClose}
-          aria-label={t('review.close')}
-          title={t('review.close')}
-          className="flex size-11 items-center justify-center rounded-lg text-lg text-muted hover:bg-hover hover:text-ink"
-        >
-          ×
-        </button>
+        <Tip id="review.close" touchInfo={false}>
+          <button
+            type="button"
+            onClick={onClose}
+            aria-label={t('review.close')}
+            className="flex size-11 items-center justify-center rounded-lg text-lg text-muted hover:bg-hover hover:text-ink"
+          >
+            ×
+          </button>
+        </Tip>
       </header>
 
       <div className="min-h-0 flex-1 overflow-auto px-4 py-6 phone:py-4">
@@ -270,14 +274,18 @@ export function ReviewScreen({
                 </p>
               )}
               <div className="mt-3 flex justify-center gap-2 text-[13px]">
-                <QuietButton
-                  onClick={() => onOpenNote(card.pageId, card.blockId)}
-                >
-                  {t('review.openNote')}
-                </QuietButton>
-                <QuietButton onClick={() => runTask(suspend())}>
-                  {t('review.suspend')}
-                </QuietButton>
+                <Tip id="review.openNote">
+                  <QuietButton
+                    onClick={() => onOpenNote(card.pageId, card.blockId)}
+                  >
+                    {t('review.openNote')}
+                  </QuietButton>
+                </Tip>
+                <Tip id="review.suspend">
+                  <QuietButton onClick={() => runTask(suspend())}>
+                    {t('review.suspend')}
+                  </QuietButton>
+                </Tip>
               </div>
             </>
           ) : card ? null : waitingAt !== null ? (
@@ -314,48 +322,58 @@ export function ReviewScreen({
         <footer className="border-t border-line px-4 pt-3 pb-[max(12px,env(safe-area-inset-bottom))]">
           <div className="mx-auto max-w-[640px]">
             {!revealed ? (
-              <button
-                type="button"
-                // Focused so Space/Enter shows the answer straight away.
-                autoFocus
-                onClick={reveal}
-                className="flex min-h-12 w-full items-center justify-center gap-2 rounded-xl bg-accent text-[15px] font-medium text-white hover:opacity-90"
-              >
-                {t('review.show')}
-                <kbd className="rounded bg-white/20 px-1.5 font-mono text-[11px]">
-                  Space
-                </kbd>
-              </button>
+              <Tip id="review.show" className="flex w-full items-center gap-1">
+                <button
+                  type="button"
+                  // Focused so Space/Enter shows the answer straight away.
+                  autoFocus
+                  onClick={reveal}
+                  className="flex min-h-12 w-full items-center justify-center gap-2 rounded-xl bg-accent text-[15px] font-medium text-white hover:opacity-90"
+                >
+                  {t('review.show')}
+                  <kbd className="rounded bg-white/20 px-1.5 font-mono text-[11px]">
+                    Space
+                  </kbd>
+                </button>
+              </Tip>
             ) : (
-              <div
-                role="group"
-                aria-label={t('review.rateHint')}
-                className="grid grid-cols-4 gap-2"
-              >
-                {RATINGS.map((rating, i) => (
-                  <button
-                    key={rating}
-                    type="button"
-                    onClick={() => runTask(rate(rating))}
-                    className={`flex min-h-14 flex-col items-center justify-center rounded-xl border bg-bg px-1 transition-colors hover:bg-hover ${
-                      rating === 'again'
-                        ? 'border-line text-danger'
-                        : rating === 'good'
-                          ? 'border-accent text-accent'
-                          : 'border-line'
-                    }`}
-                  >
-                    <span className="text-[15px] font-medium">
-                      {t(`review.rating.${rating}`)}
-                    </span>
-                    <span className="text-[12px] text-muted tabular-nums">
-                      {!practising && preview
-                        ? intervalLabel(preview.states[rating], preview.at)
-                        : i + 1}
-                    </span>
-                  </button>
-                ))}
-              </div>
+              <Tip id="review.ratings" className="block">
+                <div
+                  role="group"
+                  aria-label={t('review.rateHint')}
+                  className="grid grid-cols-4 gap-2"
+                >
+                  {RATINGS.map((rating, i) => (
+                    <button
+                      key={rating}
+                      type="button"
+                      onClick={() => runTask(rate(rating))}
+                      className={`flex min-h-14 flex-col items-center justify-center rounded-xl border bg-bg px-1 transition-colors hover:bg-hover ${
+                        rating === 'again'
+                          ? 'border-line text-danger'
+                          : rating === 'good'
+                            ? 'border-accent text-accent'
+                            : 'border-line'
+                      }`}
+                    >
+                      <span className="text-[15px] font-medium">
+                        {t(`review.rating.${rating}`)}
+                      </span>
+                      <span className="text-[12px] text-muted tabular-nums">
+                        {!practising && preview
+                          ? intervalLabel(preview.states[rating], preview.at)
+                          : i + 1}
+                      </span>
+                    </button>
+                  ))}
+                </div>
+              </Tip>
+            )}
+            {revealed && (
+              <HelpLine
+                id="review.ratings"
+                className="mt-2 text-center text-xs text-muted"
+              />
             )}
           </div>
         </footer>
@@ -534,14 +552,15 @@ function Finished({
       )}
       <div className="mt-3 flex flex-wrap justify-center gap-2">
         {canPractice && (
-          <button
-            type="button"
-            onClick={onPractice}
-            title={t('review.practiceHint')}
-            className="min-h-11 rounded-lg bg-accent px-4 text-sm font-medium text-white hover:opacity-90"
-          >
-            {t('review.practice')}
-          </button>
+          <Tip id="review.practice">
+            <button
+              type="button"
+              onClick={onPractice}
+              className="min-h-11 rounded-lg bg-accent px-4 text-sm font-medium text-white hover:opacity-90"
+            >
+              {t('review.practice')}
+            </button>
+          </Tip>
         )}
         <button
           type="button"
@@ -552,7 +571,7 @@ function Finished({
         </button>
       </div>
       {canPractice && (
-        <p className="text-[12px] text-muted">{t('review.practiceHint')}</p>
+        <HelpLine id="review.practice" className="text-[12px] text-muted" />
       )}
     </Message>
   )

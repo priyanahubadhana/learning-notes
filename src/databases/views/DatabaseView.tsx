@@ -1,5 +1,6 @@
+import { Tip } from '../../help/Help'
 import { useLiveQuery } from 'dexie-react-hooks'
-import { createElement, useState } from 'react'
+import { createElement, useState, type ReactNode } from 'react'
 import type { LearningNotesDB } from '../../core/db'
 import { t } from '../../i18n/t'
 import {
@@ -57,29 +58,32 @@ export function DatabaseView({
           className="inline-flex max-w-full gap-0.5 overflow-x-auto rounded-[9px] bg-hover p-[3px]"
         >
           {views.map((v) => (
-            <button
-              key={v.id}
-              type="button"
-              aria-pressed={v.id === view?.id}
-              onClick={() => show(v.id)}
-              className="min-h-8 rounded-[7px] px-2.5 text-[13px] whitespace-nowrap text-muted aria-pressed:bg-bg aria-pressed:text-ink aria-pressed:shadow-[0_1px_2px_rgba(0,0,0,0.08)]"
-            >
-              <span aria-hidden className="me-1">
-                {getViewType(v.type)?.icon}
-              </span>
-              {v.name}
-            </button>
+            <ViewTip key={v.id} type={v.type}>
+              <button
+                type="button"
+                aria-pressed={v.id === view?.id}
+                onClick={() => show(v.id)}
+                className="min-h-8 rounded-[7px] px-2.5 text-[13px] whitespace-nowrap text-muted aria-pressed:bg-bg aria-pressed:text-ink aria-pressed:shadow-[0_1px_2px_rgba(0,0,0,0.08)]"
+              >
+                <span aria-hidden className="me-1">
+                  {getViewType(v.type)?.icon}
+                </span>
+                {v.name}
+              </button>
+            </ViewTip>
           ))}
-          <button
-            type="button"
-            aria-label={t('database.viewOptions')}
-            aria-haspopup="dialog"
-            aria-expanded={menu !== null}
-            onClick={(e) => setMenu(menu ? null : e.currentTarget)}
-            className="min-h-8 rounded-[7px] px-2 text-[13px] text-muted hover:text-ink"
-          >
-            ⋯
-          </button>
+          <Tip id="db.viewOptions" touchInfo={false}>
+            <button
+              type="button"
+              aria-label={t('database.viewOptions')}
+              aria-haspopup="dialog"
+              aria-expanded={menu !== null}
+              onClick={(e) => setMenu(menu ? null : e.currentTarget)}
+              className="min-h-8 rounded-[7px] px-2 text-[13px] text-muted hover:text-ink"
+            >
+              ⋯
+            </button>
+          </Tip>
         </div>
       </div>
       {menu && (
@@ -121,5 +125,23 @@ export function DatabaseView({
           onOpenPage,
         })}
     </section>
+  )
+}
+
+const VIEW_TIPS = {
+  table: 'db.viewTable',
+  dashboard: 'db.viewDashboard',
+  board: 'db.viewBoard',
+} as const
+
+/** A view's button with the tip that explains the view. */
+function ViewTip({ type, children }: { type: string; children: ReactNode }) {
+  const id = VIEW_TIPS[type as keyof typeof VIEW_TIPS]
+  return id ? (
+    <Tip id={id} touchInfo={false}>
+      {children}
+    </Tip>
+  ) : (
+    <>{children}</>
   )
 }

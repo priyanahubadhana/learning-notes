@@ -118,13 +118,19 @@ export const TIPS = {
   'db.viewBoard': { where: 'Database › Board view button' },
   'db.viewOptions': { where: 'Database › ⋯ beside the views' },
   'db.addColumn': { where: 'Database › + Column' },
-  'db.auto': { where: 'Database › the “auto” label on a column' },
   'db.column': { where: 'Database › a column header' },
   'db.newRow': { where: 'Database › + New row' },
   'db.addChart': { where: 'Dashboard › + Add chart' },
   'db.chartMenu': { where: 'Dashboard › ⋯ on a chart' },
   'db.groupedBy': { where: 'Board › Grouped by …' },
   'db.cardShows': { where: 'Board › Card shows' },
+  'review.openNote': { where: 'Review › Open note (under the card)' },
+  'review.suspend': { where: 'Review › Suspend (under the card)' },
+  'cards.sort': { where: 'Cards tab › Sort button' },
+  'cards.review': { where: 'Cards tab › Review N due / Practice' },
+  'sidebar.dailyTemplate': { where: 'Sidebar › Templates › Daily journal' },
+  'sidebar.tag': { where: 'Sidebar › a tag’s name' },
+  'page.tagChip': { where: 'Page › a tag under the title' },
 } as const satisfies Record<string, TipDefinition>
 
 export const HELP_LINES = {
@@ -138,6 +144,7 @@ export const HELP_LINES = {
   'review.ratings': {
     where: 'Review › under the Again / Hard / Good / Easy buttons',
   },
+  'review.practice': { where: 'Review › under Practice anyway' },
   'db.table': { where: 'Database (not the Study tracker) › under the table' },
 } as const satisfies Record<string, HelpLineDefinition>
 

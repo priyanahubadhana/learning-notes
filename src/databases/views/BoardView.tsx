@@ -552,32 +552,38 @@ export function BoardView({ db, database, view, onOpenPage }: ViewProps) {
   return (
     <div>
       <div className="mb-2.5 flex flex-wrap items-center gap-1.5">
-        <button
-          type="button"
-          aria-haspopup="dialog"
-          aria-expanded={menu?.kind === 'group'}
-          onClick={(e) =>
-            toggleMenu({ kind: 'group', anchor: e.currentTarget })
-          }
-          className={toolButton}
-        >
-          {t('board.groupedBy', { column: groupColumn.name })}
-          <span aria-hidden className="text-[10px] text-muted">
-            ▾
-          </span>
-        </button>
-        <button
-          type="button"
-          aria-haspopup="dialog"
-          aria-expanded={menu?.kind === 'card'}
-          onClick={(e) => toggleMenu({ kind: 'card', anchor: e.currentTarget })}
-          className={toolButton}
-        >
-          {t('board.cardShows')}
-          <span aria-hidden className="text-[10px] text-muted">
-            ▾
-          </span>
-        </button>
+        <Tip id="db.groupedBy" touchInfo={false}>
+          <button
+            type="button"
+            aria-haspopup="dialog"
+            aria-expanded={menu?.kind === 'group'}
+            onClick={(e) =>
+              toggleMenu({ kind: 'group', anchor: e.currentTarget })
+            }
+            className={toolButton}
+          >
+            {t('board.groupedBy', { column: groupColumn.name })}
+            <span aria-hidden className="text-[10px] text-muted">
+              ▾
+            </span>
+          </button>
+        </Tip>
+        <Tip id="db.cardShows" touchInfo={false}>
+          <button
+            type="button"
+            aria-haspopup="dialog"
+            aria-expanded={menu?.kind === 'card'}
+            onClick={(e) =>
+              toggleMenu({ kind: 'card', anchor: e.currentTarget })
+            }
+            className={toolButton}
+          >
+            {t('board.cardShows')}
+            <span aria-hidden className="text-[10px] text-muted">
+              ▾
+            </span>
+          </button>
+        </Tip>
       </div>
 
       {/* `relative` keeps everything inside (incl. screen-reader text) in the scroll box. */}

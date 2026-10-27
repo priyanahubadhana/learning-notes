@@ -1,3 +1,5 @@
+import type { ReactNode } from 'react'
+import { Tip } from '../help/Help'
 import { useLiveQuery } from 'dexie-react-hooks'
 import { IconButton } from '../app/ui'
 import type { TreeState } from '../app/useTreeState'
@@ -100,14 +102,15 @@ export function TemplatesSection({
                 <span aria-hidden className="w-4 text-center text-xs">
                   {daily ? '☀' : '📋'}
                 </span>
-                <button
-                  type="button"
-                  onClick={() => onOpen(t.id)}
-                  title={daily ? 'Fills each new journal day' : undefined}
-                  className="flex-1 truncate text-left"
-                >
-                  {t.title || 'Untitled template'}
-                </button>
+                <DailyTip daily={daily}>
+                  <button
+                    type="button"
+                    onClick={() => onOpen(t.id)}
+                    className="flex-1 truncate text-left"
+                  >
+                    {t.title || 'Untitled template'}
+                  </button>
+                </DailyTip>
                 {!daily && (
                   <span className="flex opacity-0 group-focus-within:opacity-100 group-hover:opacity-100">
                     <IconButton
@@ -135,5 +138,26 @@ export function TemplatesSection({
           )
         })}
     </div>
+  )
+}
+
+/** The Daily journal template explains itself; other templates need no tip. */
+function DailyTip({
+  daily,
+  children,
+}: {
+  daily: boolean
+  children: ReactNode
+}) {
+  return daily ? (
+    <Tip
+      id="sidebar.dailyTemplate"
+      className="flex min-w-0 flex-1"
+      touchInfo={false}
+    >
+      {children}
+    </Tip>
+  ) : (
+    <>{children}</>
   )
 }

@@ -1,3 +1,4 @@
+import { Tip } from '../help/Help'
 import { useLiveQuery } from 'dexie-react-hooks'
 import { useState } from 'react'
 import { MenuPopover } from '../app/ui'
@@ -76,22 +77,28 @@ export function CardsTab({
         </h2>
         {hits.length > 0 && (
           <>
-            <button
-              type="button"
-              aria-haspopup="menu"
-              aria-expanded={!!menu}
-              onClick={(e) => setMenu(e.currentTarget.getBoundingClientRect())}
-              className="min-h-9 rounded-lg border border-line px-3 text-[13px] hover:border-accent"
-            >
-              {t('cards.sort', { name: sortLabel })} ▾
-            </button>
-            <button
-              type="button"
-              onClick={() => onReview(scope)}
-              className="min-h-9 rounded-lg bg-accent px-3 text-[13px] font-medium text-white hover:opacity-90"
-            >
-              {due ? t('cards.review', { count: due }) : t('cards.practice')}
-            </button>
+            <Tip id="cards.sort" touchInfo={false}>
+              <button
+                type="button"
+                aria-haspopup="menu"
+                aria-expanded={!!menu}
+                onClick={(e) =>
+                  setMenu(e.currentTarget.getBoundingClientRect())
+                }
+                className="min-h-9 rounded-lg border border-line px-3 text-[13px] hover:border-accent"
+              >
+                {t('cards.sort', { name: sortLabel })} ▾
+              </button>
+            </Tip>
+            <Tip id="cards.review" touchInfo={false}>
+              <button
+                type="button"
+                onClick={() => onReview(scope)}
+                className="min-h-9 rounded-lg bg-accent px-3 text-[13px] font-medium text-white hover:opacity-90"
+              >
+                {due ? t('cards.review', { count: due }) : t('cards.practice')}
+              </button>
+            </Tip>
           </>
         )}
       </div>

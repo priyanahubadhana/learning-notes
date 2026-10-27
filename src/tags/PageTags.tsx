@@ -1,3 +1,4 @@
+import { Tip } from '../help/Help'
 import { useLiveQuery } from 'dexie-react-hooks'
 import { useState } from 'react'
 import { runTask } from '../app/errors'
@@ -46,19 +47,19 @@ export function PageTags({
       {shown.map((id) => {
         const path = tagPathIn(tags, id)
         return (
-          <TagChip
-            key={id}
-            names={path.map((p) => p.name)}
-            color={path.at(-1)?.color}
-            title={t('tags.chipHint')}
-            className="min-h-7"
-            onClick={(e) =>
-              setMenu({
-                tagId: id,
-                at: e.currentTarget.getBoundingClientRect(),
-              })
-            }
-          />
+          <Tip key={id} id="page.tagChip" touchInfo={false}>
+            <TagChip
+              names={path.map((p) => p.name)}
+              color={path.at(-1)?.color}
+              className="min-h-7"
+              onClick={(e) =>
+                setMenu({
+                  tagId: id,
+                  at: e.currentTarget.getBoundingClientRect(),
+                })
+              }
+            />
+          </Tip>
         )
       })}
       {live.length > MAX_SHOWN && (
@@ -72,13 +73,15 @@ export function PageTags({
             : t('tags.more', { count: live.length - MAX_SHOWN })}
         </button>
       )}
-      <button
-        type="button"
-        onClick={(e) => setPicking(e.currentTarget.getBoundingClientRect())}
-        className="min-h-7 rounded-full border border-dashed border-line px-2.5 text-[12.5px] text-muted hover:border-muted hover:text-ink"
-      >
-        {t('tags.add')}
-      </button>
+      <Tip id="page.addTag">
+        <button
+          type="button"
+          onClick={(e) => setPicking(e.currentTarget.getBoundingClientRect())}
+          className="min-h-7 rounded-full border border-dashed border-line px-2.5 text-[12.5px] text-muted hover:border-muted hover:text-ink"
+        >
+          {t('tags.add')}
+        </button>
+      </Tip>
       {picking && (
         <TagPicker
           db={db}

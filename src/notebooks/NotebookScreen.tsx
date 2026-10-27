@@ -1,5 +1,13 @@
+import { Tip } from '../help/Help'
 import { useLiveQuery } from 'dexie-react-hooks'
-import { useEffect, useId, useRef, useState, type KeyboardEvent } from 'react'
+import {
+  useEffect,
+  useId,
+  useRef,
+  useState,
+  type KeyboardEvent,
+  type ReactNode,
+} from 'react'
 import { runTask } from '../app/errors'
 import { MenuPopover, NameDialog, type MenuItem } from '../app/ui'
 import { isStringOrNull } from '../app/uiPrefs'
@@ -129,41 +137,43 @@ export function NotebookScreen({
             {tabs.map((tab) => {
               const selected = tab.id === active?.id
               return (
-                <button
-                  key={tab.id}
-                  ref={(el) => {
-                    if (el) tabRefs.current.set(tab.id, el)
-                    else tabRefs.current.delete(tab.id)
-                  }}
-                  id={`${baseId}-tab-${tab.id}`}
-                  type="button"
-                  role="tab"
-                  aria-selected={selected}
-                  aria-controls={`${baseId}-panel`}
-                  tabIndex={selected ? 0 : -1}
-                  onClick={() => setTabId(tab.id)}
-                  className={`-mb-px min-h-10 border-b-2 px-3 text-sm whitespace-nowrap ${
-                    selected
-                      ? 'border-ink font-semibold text-ink'
-                      : 'border-transparent text-muted hover:text-ink'
-                  }`}
-                >
-                  {tabName(tab)}
-                </button>
+                <TabTip key={tab.id} kind={tab.kind}>
+                  <button
+                    ref={(el) => {
+                      if (el) tabRefs.current.set(tab.id, el)
+                      else tabRefs.current.delete(tab.id)
+                    }}
+                    id={`${baseId}-tab-${tab.id}`}
+                    type="button"
+                    role="tab"
+                    aria-selected={selected}
+                    aria-controls={`${baseId}-panel`}
+                    tabIndex={selected ? 0 : -1}
+                    onClick={() => setTabId(tab.id)}
+                    className={`-mb-px min-h-10 border-b-2 px-3 text-sm whitespace-nowrap ${
+                      selected
+                        ? 'border-ink font-semibold text-ink'
+                        : 'border-transparent text-muted hover:text-ink'
+                    }`}
+                  >
+                    {tabName(tab)}
+                  </button>
+                </TabTip>
               )
             })}
           </div>
-          <button
-            type="button"
-            aria-label={t('notebook.tabOptions')}
-            title={t('notebook.tabOptions')}
-            aria-haspopup="menu"
-            aria-expanded={!!menu}
-            onClick={(e) => setMenu(e.currentTarget.getBoundingClientRect())}
-            className="min-h-10 min-w-10 rounded-md text-muted hover:bg-hover hover:text-ink"
-          >
-            ⋯
-          </button>
+          <Tip id="notebook.tabOptions" touchInfo={false}>
+            <button
+              type="button"
+              aria-label={t('notebook.tabOptions')}
+              aria-haspopup="menu"
+              aria-expanded={!!menu}
+              onClick={(e) => setMenu(e.currentTarget.getBoundingClientRect())}
+              className="min-h-10 min-w-10 rounded-md text-muted hover:bg-hover hover:text-ink"
+            >
+              ⋯
+            </button>
+          </Tip>
         </div>
         <div
           id={`${baseId}-panel`}
@@ -318,5 +328,23 @@ function DatabaseTab({
     return <p className="text-sm text-muted">{t('notebook.loading')}</p>
   return (
     <DatabaseView db={db} databaseId={databaseId} onOpenPage={onOpenPage} />
+  )
+}
+
+const TAB_TIPS = {
+  notes: 'notebook.tabNotes',
+  database: 'notebook.tabDatabase',
+  cards: 'notebook.tabCards',
+} as const
+
+/** A tab with the tip that explains it (own kinds of tab have none). */
+function TabTip({ kind, children }: { kind: string; children: ReactNode }) {
+  const id = TAB_TIPS[kind as keyof typeof TAB_TIPS]
+  return id ? (
+    <Tip id={id} touchInfo={false}>
+      {children}
+    </Tip>
+  ) : (
+    <>{children}</>
   )
 }

@@ -12,7 +12,7 @@ import type { Notebook } from './types'
  */
 const T = 1_700_000_000_000
 const base = { createdAt: T, updatedAt: T, deletedAt: null }
-const CURRENT_VERSION = 6
+const CURRENT_VERSION = 7
 let name = ''
 
 afterEach(async () => {
@@ -476,6 +476,32 @@ describe('database upgrade', () => {
     // A database that already has a dashboard gets no second one.
     const db2 = await db.dbViews.where('databaseId').equals('db2').toArray()
     expect(db2.map((v) => v.type).sort()).toEqual(['board', 'dashboard'])
+    db.close()
+  })
+
+  it('from version 6 repairs view names saved as raw text keys', async () => {
+    name = `migrate-${createId()}`
+    const old = new Dexie(name)
+    old.version(1).stores(V1)
+    old.version(2).stores(V2)
+    old.version(3).stores(V3)
+    old.version(4).stores(V4)
+    old.version(5).stores({})
+    old.version(6).stores({})
+    await addVersion1Data(old)
+    const view = { ...base, databaseId: 'db1', config: {}, order: 'a0' }
+    await old.table('dbViews').bulkAdd([
+      { ...view, id: 'v1', type: 'board', name: 'database.view.board' },
+      { ...view, id: 'v2', type: 'board', name: 'My board' },
+    ])
+    old.close()
+
+    const db = new LearningNotesDB(name)
+    await db.open()
+    expect(db.verno).toBe(CURRENT_VERSION)
+    await expectVersion1Data(db)
+    expect((await db.dbViews.get('v1'))?.name).toBe('Board')
+    expect((await db.dbViews.get('v2'))?.name).toBe('My board')
     db.close()
   })
 })

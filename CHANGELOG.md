@@ -543,3 +543,9 @@
 - **What:** New rule (approved by owner): mirror CLAUDE.md, README.md, IDEAS.md, LEARNING.md, package.json, `rules/` and `src/` to `C:\Users\pc\Downloads\gdrive notes` with a robocopy line after each change, and confirm in one line. Never copies node_modules, dist or test-results.
 - **Why:** Owner keeps a copy of the key project files in a Google Drive folder, kept up to date automatically.
 - **Files:** rules/sessions.md, CLAUDE.md, CHANGELOG.md
+
+## 2026-10-27
+
+- **What:** Step 5A-5 fixes from the owner's checks. (1) Board tab showed "database.view.board": repair upgrade v7 renames views saved with a raw text key. (2) "Edit “X” options" first in "Grouped by"; a "+ Add option" column ends the board, with a clear "Add options" button when the column has none. (3) Trello-like drag: solid lifted card, a gap that opens where it lands, stronger target outline; drops land exactly at the gap (new `placeRow`). (4) Phone: the board scrolls sideways again (hidden screen-reader text widened the page panel); touch: swipe scrolls, hold a card to drag it, edge auto-scroll. (5) View tabs and ⋯ stay on one line. (6) Idea parked: databases and views as blocks.
+- **Why:** Owner testing feedback.
+- **Files:** src/databases/views/BoardView.tsx, boardGroups.ts, boardGroups.test.ts, DatabaseView.tsx; src/databases/databaseService.ts, databaseService.test.ts; src/core/db.ts, src/core/migration.test.ts; src/i18n/en.ts; src/index.css; e2e/board.spec.ts; README.md, IDEAS.md, CHANGELOG.md

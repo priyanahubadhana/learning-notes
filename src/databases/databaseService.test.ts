@@ -39,6 +39,7 @@ import {
   listViews,
   moveColumn,
   moveRow,
+  placeRow,
   renameColumn,
   restoreColumn,
   rowsPointingTo,
@@ -525,6 +526,50 @@ describe('relations', () => {
       Valves: { Parts: [], Topics: ['Heart'] },
       Heart: { Parts: ['Valves'], Topics: [] },
     })
+  })
+})
+
+describe('placing rows (Board drop)', () => {
+  it('sets the group and puts the row before or after another, in one go', async () => {
+    const d = await createDatabase(db, ws, nb, 'Tasks')
+    const status = await addColumn(db, d.id, { name: 'Status', type: 'choice' })
+    const done = await addChoiceOption(db, status.id, 'Done')
+    const [a, b, c] = await addRows(db, d.id, [
+      { title: 'A' },
+      { title: 'B' },
+      { title: 'C' },
+    ])
+    const titles = async () => (await listRows(db, d.id)).map((r) => r.title)
+    await placeRow(db, c.id, { [status.id]: done.id }, { before: a.id })
+    expect(await titles()).toEqual(['C', 'A', 'B'])
+    expect((await table(d.id)).C.Status).toBe('Done')
+    // Next to a row whose neighbour is not the moving row: no clash.
+    await placeRow(db, a.id, {}, { after: b.id })
+    expect(await titles()).toEqual(['C', 'B', 'A'])
+    await placeRow(db, c.id, {}, { after: a.id })
+    expect(await titles()).toEqual(['B', 'A', 'C'])
+    const orders = (await listRows(db, d.id)).map((r) => r.order)
+    expect(new Set(orders).size).toBe(3)
+    await placeRow(db, b.id, { [status.id]: null }, null)
+    expect((await table(d.id)).B.Status).toBeNull()
+    await expect(placeRow(db, b.id, {}, { before: 'nope' })).rejects.toThrow(
+      'Not a row',
+    )
+  })
+
+  it('reorders Study tracker lessons (their Notes order)', async () => {
+    const tracker = await ensureStudyTracker(db, nb)
+    const one = await createPage(db, nb, null, 'One')
+    const two = await createPage(db, nb, null, 'Two')
+    await placeRow(db, two.id, {}, { before: one.id })
+    expect((await listRows(db, tracker.id)).map((r) => r.title)).toEqual([
+      'Two',
+      'One',
+    ])
+    expect((await listNotePages(db, nb)).map((p) => p.title)).toEqual([
+      'Two',
+      'One',
+    ])
   })
 })
 

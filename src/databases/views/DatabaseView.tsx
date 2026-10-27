@@ -54,7 +54,7 @@ export function DatabaseView({
         <div
           role="group"
           aria-label={t('database.views')}
-          className="inline-flex flex-wrap gap-0.5 rounded-[9px] bg-hover p-[3px]"
+          className="inline-flex max-w-full gap-0.5 overflow-x-auto rounded-[9px] bg-hover p-[3px]"
         >
           {views.map((v) => (
             <button

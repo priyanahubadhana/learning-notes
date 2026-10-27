@@ -3,6 +3,9 @@ import type { DbColumn, JsonObject, Page } from '../../core/types'
 import type { ResolvedRow } from '../databaseQuery'
 import {
   NO_VALUE,
+  cardPlace,
+  dropNeighbour,
+  withCardMoved,
   boardGroupColumn,
   cardColumns,
   groupRows,
@@ -112,5 +115,58 @@ describe('board groups', () => {
     const ms = performance.now() - start
     expect(groups.map((g) => g.rows.length)).toEqual([3334, 3333, 3333])
     expect(ms).toBeLessThan(200)
+  })
+})
+
+describe('moving cards', () => {
+  const groups = () =>
+    groupRows(
+      [
+        row('a', { status: 'o1' }),
+        row('b', { status: 'o1' }),
+        row('c', { status: 'o2' }),
+      ],
+      status,
+    )
+  const ids = (gs: ReturnType<typeof groups>) =>
+    gs.map((g) => g.rows.map((r) => r.page.id))
+
+  it('moves a card into a group at an index, for the preview', () => {
+    expect(cardPlace(groups(), 'b')).toEqual({
+      rowId: 'b',
+      key: 'o1',
+      index: 1,
+    })
+    expect(cardPlace(groups(), 'zz')).toBeNull()
+    expect(
+      ids(withCardMoved(groups(), { rowId: 'b', key: 'o2', index: 0 })),
+    ).toEqual([[], ['a'], ['b', 'c']])
+    expect(
+      ids(withCardMoved(groups(), { rowId: 'a', key: 'o1', index: 9 })),
+    ).toEqual([[], ['b', 'a'], ['c']])
+    expect(
+      ids(withCardMoved(groups(), { rowId: 'c', key: NO_VALUE, index: 0 })),
+    ).toEqual([['c'], ['a', 'b'], []])
+  })
+
+  it('finds the row a dropped card goes next to', () => {
+    expect(
+      dropNeighbour(groups(), { rowId: 'c', key: 'o1', index: 0 }),
+    ).toEqual({
+      before: 'a',
+    })
+    expect(
+      dropNeighbour(groups(), { rowId: 'c', key: 'o1', index: 2 }),
+    ).toEqual({
+      after: 'b',
+    })
+    expect(
+      dropNeighbour(groups(), { rowId: 'a', key: 'o1', index: 1 }),
+    ).toEqual({
+      after: 'b',
+    })
+    expect(
+      dropNeighbour(groups(), { rowId: 'c', key: NO_VALUE, index: 0 }),
+    ).toBeNull()
   })
 })

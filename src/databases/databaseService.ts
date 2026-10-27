@@ -1152,6 +1152,39 @@ export async function moveRow(
   })
 }
 
+/** Where `placeRow` puts a row: just before or just after another row. */
+export type RowPlace = { before: string } | { after: string }
+
+/**
+ * Board drop: sets cells of a row (e.g. its new group) and puts it right
+ * before / after another row, in one go. Works for Study tracker lessons
+ * too (their order is the Notes tree order). The new order key lies
+ * between the neighbour and the row next to it, so it never clashes.
+ */
+export async function placeRow(
+  db: LearningNotesDB,
+  rowId: string,
+  changes: Record<string, JsonValue>,
+  place: RowPlace | null,
+): Promise<void> {
+  const tables = [db.databases, db.dbColumns, db.pages, db.tags, db.rowRefs]
+  await db.transaction('rw', tables, async () => {
+    if (Object.keys(changes).length > 0) await setCells(db, rowId, changes)
+    if (!place) return
+    const database = await databaseOfRow(db, await getLive(db.pages, rowId))
+    if (!database) throw new Error('Not a database row')
+    const rows = (await rowsOf(db, database.id)).filter((r) => r.id !== rowId)
+    const target = 'before' in place ? place.before : place.after
+    const at = rows.findIndex((r) => r.id === target)
+    if (at < 0) throw new Error('Not a row of this database')
+    const order =
+      'before' in place
+        ? orderBetween(rows[at - 1]?.order ?? null, rows[at].order)
+        : orderBetween(rows[at].order, rows[at + 1]?.order ?? null)
+    await db.pages.update(rowId, { order, updatedAt: Date.now() })
+  })
+}
+
 /** Rows that point to `rowId` through a Relation (from any database). */
 export async function rowsPointingTo(
   db: LearningNotesDB,

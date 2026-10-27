@@ -1,5 +1,5 @@
 import Dexie, { type EntityTable, type Transaction } from 'dexie'
-import { t } from '../i18n/t'
+import { t, type MessageKey } from '../i18n/t'
 import { searchIndexMiddleware } from '../search/indexMiddleware'
 import { orderBetween } from './order'
 import { newRecordFields } from './records'
@@ -136,6 +136,22 @@ export class LearningNotesDB extends Dexie {
     this.version(6)
       .stores({})
       .upgrade((tx) => addViewToEveryDatabase(tx, 'board'))
+
+    // Version 7: repair. A view named by an upgrade while the app's text
+    // file was not loaded yet kept the raw key ("database.view.board");
+    // give such views their real name. No schema change.
+    this.version(7)
+      .stores({})
+      .upgrade((tx) =>
+        tx
+          .table<DbView, string>('dbViews')
+          .toCollection()
+          .modify((view) => {
+            if (/^database\.view\.\w+$/.test(view.name)) {
+              view.name = t(view.name as MessageKey)
+            }
+          }),
+      )
 
     // Every save of a page or block also updates its search entry, in the
     // same transaction (see search/indexMiddleware.ts).

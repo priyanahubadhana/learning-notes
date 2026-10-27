@@ -161,6 +161,8 @@ _Example:_ mark "CO = HR × SV" as a Formula; before the exam, open Revise and r
 ### Sharing and backups
 - **CSV:** a database's ⋯ menu has **Export as CSV** (opens in Excel or Google Sheets) and **Import CSV…** (you say what each column becomes). Imports only add rows.
 - **Backup & files** (sidebar): **Save a notebook as a file** (notes, cards with their schedules and review history, databases, views), **Import a file**, and **Restore the automatic backup** the app makes before an upgrade.
+- **What a file carries:** the notebook, and (two ticks, on by default) your journal days and templates. Tag colours come along; a colour is only applied to a tag that is new on the receiving side. Journal days arrive as a notebook called "Journal (imported)", templates as new templates.
+- **Try it:** "Load sample notebook" adds a ready-made notebook for testing every feature.
 - **Safe by design:** everything that comes in is added as new copies, so nothing you have is ever changed or replaced; files are checked first, and a file from a newer version is refused with a clear message.
 
 ### Quality and safety

@@ -637,3 +637,10 @@
 
 - **What:** The sidebar scrolls as a whole on short screens (the new buttons pushed Settings and the themes out of reach on a landscape phone); upgrade e2e expects database version 100.
 - **Files:** src/notebooks/Sidebar.tsx, e2e/upgradeBackup.spec.ts
+
+## 2026-10-28
+
+- **What:** (1) "Load sample notebook" in Backup & files (for testing): one new notebook with two lessons and a sub-page, notes with Key point / Keyword / Must know / Formula marks, 4 cards, and a "Reading list" database with a Date and a Web link (picture) column; only adds. (2) Notebook files and backups now carry journal days, templates and tag colours: `exportNotebookBundle(db, id, { journal, templates })` (two ticks in the screen, on by default), the tag list includes parent levels and colours, backups include the journal and templates; import adds the journal as "Journal (imported)", templates as "(imported)" templates, and applies a colour only to tags created by the import. 1 new tip. Tests: `sampleNotebook.test.ts`, extended `bundle.test.ts`, `e2e/sample.spec.ts` (the five 5B checks on the sample + screenshots), updated `sharing.spec.ts`.
+- **Why:** Owner request 2026-10-28.
+- **Self-review:** The sample's pictures come from picsum.photos (internet needed). Restoring a backup re-adds the starter templates as copies. A file with journal/templates should not be shared by accident, hence the ticks.
+- **Files:** src/share/sampleNotebook.ts (+test), bundle.ts, importBundle.ts, DataScreen.tsx, bundle.test.ts, src/i18n/en.ts, helpRegistry.ts, HELP-TEXTS.md, e2e/sample.spec.ts, e2e/sharing.spec.ts, README.md, LEARNING.md, IDEAS.md

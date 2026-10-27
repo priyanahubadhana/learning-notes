@@ -3,9 +3,14 @@ import { createId } from '../core/ids'
 import { orderBetween } from '../core/order'
 import type { JsonValue, Notebook } from '../core/types'
 import { rebuildRowRefs, rowNotebookIdOf } from '../databases/databaseService'
-import { studyTrackerId } from '../databases/notebookTabs'
-import { listNotebooks } from '../notebooks/notebookService'
+import { defaultNotebookTabs, studyTrackerId } from '../databases/notebookTabs'
+import {
+  createNotebook,
+  findNotebookOfKind,
+  listNotebooks,
+} from '../notebooks/notebookService'
 import { findOrCreateTagPath } from '../tags/tagService'
+import { isTagColor, setTagColor } from '../tags/tagTools'
 import { t } from '../i18n/t'
 import type { Bundle } from './bundle'
 import { remapJson } from './remapJson'
@@ -32,14 +37,33 @@ export async function importBundle(
   now: number = Date.now(),
 ): Promise<ImportSummary> {
   // Tags first (their own transactions): old tag id → live tag id here.
+  // A tag made now gets the colour it had; one that already exists keeps its own.
   const ids = new Map<string, string>()
+  const known = new Set((await db.tags.toArray()).map((tag) => tag.id))
   for (const tag of bundle.tags) {
-    ids.set(tag.id, (await findOrCreateTagPath(db, tag.path)).id)
+    const live = await findOrCreateTagPath(db, tag.path)
+    ids.set(tag.id, live.id)
+    if (!known.has(live.id)) {
+      known.add(live.id)
+      if (tag.color && isTagColor(tag.color)) {
+        await setTagColor(db, live.id, tag.color)
+      }
+    }
+  }
+  // The templates of a file are added to this workspace's Templates notebook.
+  const templatesFrom = new Set(
+    bundle.notebooks.filter((n) => n.kind === 'templates').map((n) => n.id),
+  )
+  if (templatesFrom.size > 0) {
+    const home =
+      (await findNotebookOfKind(db, workspaceId, 'templates')) ??
+      (await createNotebook(db, workspaceId, 'Templates', 'templates'))
+    for (const oldId of templatesFrom) ids.set(oldId, home.id)
   }
   // Fresh ids for everything else.
   const fresh = (items: readonly { id: string }[]) =>
     items.forEach((item) => ids.set(item.id, createId()))
-  fresh(bundle.notebooks)
+  fresh(bundle.notebooks.filter((n) => !templatesFrom.has(n.id)))
   fresh(bundle.pages)
   fresh(bundle.blocks)
   fresh(bundle.cards)
@@ -84,21 +108,28 @@ export async function importBundle(
     async () => {
       const last = (await listNotebooks(db, workspaceId)).at(-1)
       let order = last?.order ?? null
-      const notebooks = bundle.notebooks.map((n): Notebook => {
-        order = orderBetween(order, null)
-        const copy = { ...n } as Notebook
-        return {
-          ...copy,
-          id: id(n.id)!,
-          workspaceId,
-          title: t('import.copyName', { name: n.title }),
-          order,
-          createdAt: now,
-          updatedAt: now,
-          deletedAt: null,
-          ...(n.tabs && { tabs: map(n.tabs as unknown as JsonValue) as never }),
-        }
-      })
+      const notebooks = bundle.notebooks
+        .filter((n) => !templatesFrom.has(n.id))
+        .map((n): Notebook => {
+          order = orderBetween(order, null)
+          // Journal days come in as an ordinary notebook (a second journal
+          // would clash with yours); its days are plain pages there.
+          const { kind: _kind, tabs: _tabs, ...rest } = n
+          void _kind
+          void _tabs
+          const newId = id(n.id)!
+          return {
+            ...rest,
+            id: newId,
+            workspaceId,
+            title: t('import.copyName', { name: n.title }),
+            order,
+            createdAt: now,
+            updatedAt: now,
+            deletedAt: null,
+            tabs: defaultNotebookTabs(newId),
+          }
+        })
       await db.notebooks.bulkAdd(notebooks)
 
       const databases = bundle.databases.map((d) => ({
@@ -147,6 +178,11 @@ export async function importBundle(
             id: id(p.id)!,
             notebookId,
             parentId: id(p.parentId) ?? null,
+            // A template of a file is a new template next to yours.
+            ...(templatesFrom.has(p.notebookId) &&
+              p.parentId === null && {
+                title: t('import.copyName', { name: p.title }),
+              }),
             ...(databaseId && { databaseId }),
             ...(p.tagIds && { tagIds: p.tagIds.map((x) => id(x)!) }),
             ...(p.values && { values: map(p.values) }),

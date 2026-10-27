@@ -2,7 +2,7 @@
 
 Every hover tip and help line in the app (shown while Settings › Show help is On). Generated from `src/help/helpRegistry.ts` and `src/i18n/en.ts`; to change a text, edit it in `en.ts`, then run `UPDATE_HELP=1 npx vitest run src/help` to refresh this file.
 
-## Hover tips (97)
+## Hover tips (98)
 
 ### `tracker.lesson`
 
@@ -585,6 +585,12 @@ Every hover tip and help line in the app (shown while Settings › Show help is 
 - **Where:** Backup & files › Restore as copies
 - **Meaning:** Brings back the notebooks of the backup the app saved before the last upgrade, as new copies.
 - **Example:** Get a notebook back if an upgrade went wrong.
+
+### `data.sample`
+
+- **Where:** Backup & files › Load sample notebook
+- **Meaning:** Adds a ready-made notebook with marked notes, cards and a database, so you can try every feature.
+- **Example:** Open its Revise tab to see marked words.
 
 ## Help lines (9)
 

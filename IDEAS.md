@@ -74,6 +74,6 @@ New ideas that come up mid-build are parked here, not added to the current phase
 | 2026-10-27 | Sidebar that slides away on phones, so pages are not squeezed | Phase 6–7 (phone) |
 | 2026-10-27 | Add the review-history charts to dashboards that were already changed (upgrade) | Polish |
 | 2026-10-27 | Own Revise labels (add, rename, colour) in Settings; mark whole lines from the ⠿ menu | Phase 6 |
-| 2026-10-27 | Notebook files that also carry journal days, templates and tag colours; a whole-workspace file | Phase 6 (data safety) |
+| 2026-10-27 | Notebook files that also carry journal days, templates and tag colours; a whole-workspace file | Journal, templates, colours done (2026-10-28); whole-workspace file: Phase 6 |
 | 2026-10-27 | Import: ask for the date order (day-first / month-first) and merge into existing rows by a key column | Polish |
 | 2026-10-27 | Local image upload for Gallery tiles and notes | Phase 6 |

@@ -149,6 +149,7 @@ export const TIPS = {
   'data.export': { where: 'Backup & files › Save file' },
   'data.import': { where: 'Backup & files › Import a file' },
   'data.restore': { where: 'Backup & files › Restore as copies' },
+  'data.sample': { where: 'Backup & files › Load sample notebook' },
 } as const satisfies Record<string, TipDefinition>
 
 export const HELP_LINES = {

@@ -30,6 +30,8 @@ export interface BundleTag {
   id: string
   /** Full name with levels, e.g. "medicine/cardiology". */
   path: string
+  /** The tag's colour (one of the app's tag colours), if it has one. */
+  color?: string
 }
 
 export interface Bundle {
@@ -76,18 +78,25 @@ const emptyBundle = (kind: Bundle['kind'], now: number): Bundle => ({
   tags: [],
 })
 
-/** Tags (with their levels) whose ids appear in the bundle's text. */
+/**
+ * Tags whose ids appear in the bundle's text, with the levels above them
+ * (so their colours travel too), parents first.
+ */
 function usedTags(bundle: Bundle, tags: ReadonlyMap<string, Tag>): BundleTag[] {
   const text = JSON.stringify([bundle.pages, bundle.blocks])
   const cells = JSON.stringify(bundle.pages.map((p) => p.values ?? null))
-  const out: BundleTag[] = []
+  const wanted = new Map<string, Tag>()
   for (const tag of tags.values()) {
-    if (text.includes(tag.id) || cells.includes(tag.id)) {
-      const path = joinTagPath(tagPathIn(tags, tag.id).map((t) => t.name))
-      if (path) out.push({ id: tag.id, path })
-    }
+    if (!text.includes(tag.id) && !cells.includes(tag.id)) continue
+    for (const level of tagPathIn(tags, tag.id)) wanted.set(level.id, level)
   }
-  return out
+  return [...wanted.values()]
+    .map((tag): BundleTag => {
+      const path = joinTagPath(tagPathIn(tags, tag.id).map((t) => t.name))
+      return { id: tag.id, path, ...(tag.color && { color: tag.color }) }
+    })
+    .filter((tag) => tag.path !== '')
+    .sort((a, b) => a.path.split('/').length - b.path.split('/').length)
 }
 
 /** A database's relation columns that point outside `ids` are left out. */
@@ -112,10 +121,22 @@ function withoutOutsideRelations(
   )
 }
 
-/** Everything of one notebook, ready to write to a file. */
+/** What a notebook file carries besides the notebook itself. */
+export interface ExportOptions {
+  /** The journal days (the Journal notebook). */
+  journal?: boolean
+  /** The templates (the Templates notebook). */
+  templates?: boolean
+}
+
+/**
+ * Everything of one notebook, ready to write to a file; with the options,
+ * also the workspace's journal days and templates.
+ */
 export async function exportNotebookBundle(
   db: LearningNotesDB,
   notebookId: string,
+  options: ExportOptions = {},
   now: number = Date.now(),
 ): Promise<Bundle> {
   const notebook = await db.notebooks.get(notebookId)
@@ -124,8 +145,19 @@ export async function exportNotebookBundle(
   }
   const bundle = emptyBundle('notebook', now)
   bundle.notebooks = [notebook]
+  for (const kind of ['journal', 'templates'] as const) {
+    if (!options[kind]) continue
+    const found = (
+      await db.notebooks
+        .where('workspaceId')
+        .equals(notebook.workspaceId)
+        .toArray()
+    ).find((n) => isLive(n) && n.kind === kind)
+    if (found) bundle.notebooks.push(found)
+  }
+  const bundleNotebookIds = bundle.notebooks.map((n) => n.id)
   bundle.pages = (
-    await db.pages.where('notebookId').equals(notebookId).toArray()
+    await db.pages.where('notebookId').anyOf(bundleNotebookIds).toArray()
   ).filter(isLive)
   const pageIds = bundle.pages.map((p) => p.id)
   bundle.blocks = (
@@ -308,9 +340,9 @@ export function readBundle(text: string): Bundle {
 // ------------------------------------------------------------------- backup
 
 /**
- * A backup (what the upgrade screen saves) as a bundle: its normal
- * notebooks with their pages, notes, cards and databases, and loose
- * databases with their rows. Journal days and templates are not restored.
+ * A backup (what the upgrade screen saves) as a bundle: its notebooks with
+ * their pages, notes, cards and databases, the journal days and templates,
+ * and loose databases with their rows.
  */
 export function bundleFromSnapshot(snapshot: BackupSnapshot): Bundle {
   const rows = <T>(name: string): T[] => (snapshot.tables[name] ?? []) as T[]
@@ -318,7 +350,10 @@ export function bundleFromSnapshot(snapshot: BackupSnapshot): Bundle {
     list.filter((r) => r.deletedAt === null || r.deletedAt === undefined)
   const bundle = emptyBundle('backup', snapshot.createdAt)
   const allNotebooks = live(rows<Notebook>('notebooks'))
-  bundle.notebooks = allNotebooks.filter((n) => !n.kind)
+  // Normal notebooks, plus the journal days and the templates.
+  bundle.notebooks = allNotebooks.filter(
+    (n) => !n.kind || n.kind === 'journal' || n.kind === 'templates',
+  )
   const notebookIds = new Set(bundle.notebooks.map((n) => n.id))
   const databases = live(rows<Database>('databases'))
   bundle.databases = databases.filter(

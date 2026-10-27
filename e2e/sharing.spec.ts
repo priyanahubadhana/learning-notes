@@ -71,15 +71,22 @@ test('a notebook file round-trips as a new copy; nothing existing changes', asyn
     kind: 'notebook',
     formatVersion: 1,
   })
-  expect(saved.pages.map((p: { title: string }) => p.title)).toEqual([
-    'Heart sounds',
-  ])
+  // The notebook's own page, plus the templates (journal days and templates are included by default).
+  const own = saved.pages.filter(
+    (p: { notebookId: string }) => p.notebookId === saved.notebooks[0].id,
+  )
+  expect(own.map((p: { title: string }) => p.title)).toEqual(['Heart sounds'])
+  expect(saved.notebooks.map((n: { kind?: string }) => n.kind)).toContain(
+    'templates',
+  )
 
   await main(page)
     .getByLabel('File to import')
     .setInputFiles(await file.path())
   await expect(
-    page.getByText('Imported 1 notebooks, 1 pages and 0 cards as new copies.'),
+    page.getByText(
+      /Imported 1 notebooks, \d+ pages and 0 cards as new copies\./,
+    ),
   ).toBeVisible()
   await expect(
     sidebar(page).getByRole('button', {
@@ -169,4 +176,70 @@ test('the browser backup can be restored as copies', async ({ page }) => {
   await expect(
     sidebar(page).getByRole('button', { name: 'Old notebook (imported)' }),
   ).toBeVisible()
+})
+
+test('Load sample notebook adds a ready-made notebook and changes nothing else', async ({
+  page,
+}) => {
+  await page.goto('/')
+  await createNotebook(page, 'Mine', 'My page')
+  await sidebar(page).getByRole('button', { name: 'Backup & files' }).click()
+  const box = main(page).getByRole('region', {
+    name: 'For testing: sample notebook',
+  })
+  await box.getByRole('button', { name: 'Load sample notebook' }).click()
+  await expect(
+    page.getByText('Added the sample notebook “Sample notebook”.'),
+  ).toBeVisible()
+  await expect(
+    sidebar(page).getByRole('button', { name: 'Mine', exact: true }),
+  ).toBeVisible()
+  await expect(
+    sidebar(page).getByRole('button', { name: 'My page', exact: true }),
+  ).toBeVisible()
+
+  // Check 1: Revise shows all four labels on the sample's two lessons.
+  await sidebar(page)
+    .getByRole('button', { name: 'Sample notebook', exact: true })
+    .click()
+  await main(page).getByRole('tab', { name: 'Revise' }).click()
+  const sheet = main(page).getByRole('region', { name: 'Revise' })
+  await expect(
+    sheet.getByRole('button', { name: /^Heart sounds\s*4$/ }),
+  ).toBeVisible()
+  for (const label of ['Key point', 'Keyword', 'Must know', 'Formula']) {
+    await expect(sheet.getByRole('region', { name: label })).toBeVisible()
+  }
+  await expect(sheet.getByRole('region', { name: 'Formula' })).toContainText(
+    'CO = HR × SV',
+  )
+  await sheet.getByRole('button', { name: /^Lung volumes/ }).click()
+  await expect(sheet.getByRole('region', { name: 'Must know' })).toContainText(
+    'FEV1/FVC',
+  )
+
+  // Cards tab: the sample has four cards.
+  await main(page).getByRole('tab', { name: 'Cards' }).click()
+  await expect(main(page)).toContainText('4 cards')
+
+  // Checks 2 and 4: its database has a Date and a Web link column; Calendar and Gallery work.
+  await sidebar(page).getByRole('button', { name: 'Databases' }).click()
+  await main(page)
+    .getByRole('button', { name: /^Reading list/ })
+    .click()
+  await main(page).getByRole('button', { name: '+ View' }).click()
+  await page
+    .getByRole('dialog', { name: 'Add a view' })
+    .getByRole('button', { name: 'Calendar' })
+    .click()
+  await expect(
+    main(page).locator('[data-calendar-day]').getByRole('button').first(),
+  ).toBeVisible()
+  await main(page).getByRole('button', { name: '+ View' }).click()
+  await page
+    .getByRole('dialog', { name: 'Add a view' })
+    .getByRole('button', { name: 'Gallery' })
+    .click()
+  await expect(main(page).getByText('5 tiles')).toBeVisible()
+  await expect(main(page).locator('li img')).toHaveCount(5)
 })

@@ -20,6 +20,7 @@ import {
   type Bundle,
 } from './bundle'
 import { importBundle, type ImportSummary } from './importBundle'
+import { loadSampleNotebook } from './sampleNotebook'
 
 /**
  * "Backup & files": save a notebook as a file, bring a file (or a backup
@@ -45,6 +46,8 @@ export function DataScreen({
     [],
   )
   const [picked, setPicked] = useState('')
+  const [withJournal, setWithJournal] = useState(true)
+  const [withTemplates, setWithTemplates] = useState(true)
   const [error, setError] = useState('')
   const [busy, setBusy] = useState(false)
   const notebookId = picked || notebooks?.[0]?.id || ''
@@ -109,6 +112,24 @@ export function DataScreen({
             {t('data.export.title')}
           </h2>
           <p className="mb-3 text-sm text-muted">{t('data.export.text')}</p>
+          <div className="mb-3 flex flex-wrap gap-x-4 gap-y-1 text-sm">
+            <label className="flex items-center gap-2">
+              <input
+                type="checkbox"
+                checked={withJournal}
+                onChange={(e) => setWithJournal(e.target.checked)}
+              />
+              {t('data.export.journal')}
+            </label>
+            <label className="flex items-center gap-2">
+              <input
+                type="checkbox"
+                checked={withTemplates}
+                onChange={(e) => setWithTemplates(e.target.checked)}
+              />
+              {t('data.export.templates')}
+            </label>
+          </div>
           <div className="flex flex-wrap items-center gap-2">
             <select
               aria-label={t('data.export.which')}
@@ -128,7 +149,10 @@ export function DataScreen({
                 disabled={!notebookId || busy}
                 onClick={() =>
                   run(async () => {
-                    const bundle = await exportNotebookBundle(db, notebookId)
+                    const bundle = await exportNotebookBundle(db, notebookId, {
+                      journal: withJournal,
+                      templates: withTemplates,
+                    })
                     const name = bundleFileName(bundle.notebooks[0])
                     downloadFile(name, bundleFile(bundle))
                     ui.toast(t('csv.exported', { name }))
@@ -140,6 +164,28 @@ export function DataScreen({
               </button>
             </Tip>
           </div>
+        </section>
+
+        <section aria-label={t('data.sample.title')} className={box}>
+          <h2 className="mb-1 text-[15px] font-semibold">
+            {t('data.sample.title')}
+          </h2>
+          <p className="mb-3 text-sm text-muted">{t('data.sample.text')}</p>
+          <Tip id="data.sample" touchInfo={false}>
+            <button
+              type="button"
+              disabled={busy}
+              onClick={() =>
+                run(async () => {
+                  const notebook = await loadSampleNotebook(db, workspaceId)
+                  ui.toast(t('data.sample.done', { name: notebook.title }))
+                })
+              }
+              className={button}
+            >
+              {t('data.sample.button')}
+            </button>
+          </Tip>
         </section>
 
         <section aria-label={t('data.import.title')} className={box}>

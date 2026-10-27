@@ -17,6 +17,10 @@ import { studyTrackerId } from '../databases/notebookTabs'
 import { setLessonStatus } from '../databases/trackerService'
 import { createNotebook } from '../notebooks/notebookService'
 import { createPage } from '../pages/pageService'
+import { openJournalDay } from '../journal/journalService'
+import { ensureTemplates } from '../templates/templateService'
+import { setTagColor } from '../tags/tagTools'
+import { findNotebookOfKind } from '../notebooks/notebookService'
 import { MAIN_PART, newCard } from '../recall/cardService'
 import { searchIndex } from '../search/searchService'
 import { addPageTag } from '../tags/tagService'
@@ -144,7 +148,11 @@ describe('notebook file', () => {
     const file = bundleFile(await exportNotebookBundle(db, nb))
     const bundle = readBundle(await file.text())
     expect(bundle.kind).toBe('notebook')
-    expect(bundle.tags.map((x) => x.path)).toEqual(['medicine/cardiology'])
+    // The levels above a tag come along (parents first), so colours can too.
+    expect(bundle.tags.map((x) => x.path)).toEqual([
+      'medicine',
+      'medicine/cardiology',
+    ])
 
     const summary = await importBundle(db, ws, bundle)
     expect(summary).toMatchObject({ notebooks: 1, cards: 1, databases: 3 })
@@ -224,6 +232,75 @@ describe('notebook file', () => {
     await importBundle(db, ws, bundle)
     expect(await db.pages.count()).toBe(before.pages * 3)
   })
+  it('carries tag colours, journal days and templates, as copies that clash with nothing', async () => {
+    const { nb, tag } = await build()
+    await setTagColor(db, tag.id, '#2e9e6b')
+    await ensureTemplates(db, ws)
+    await openJournalDay(db, ws, new Date(2026, 9, 25))
+    const journalBefore = await db.pages
+      .filter((p) => p.journalDate === '2026-10-25')
+      .toArray()
+    const templatesBefore = await db.pages
+      .filter((p) => p.templateRole === 'daily')
+      .count()
+
+    const file = bundleFile(
+      await exportNotebookBundle(db, nb, { journal: true, templates: true }),
+    )
+    const bundle = readBundle(await file.text())
+    expect(bundle.notebooks.map((n) => n.kind)).toEqual([
+      undefined,
+      'journal',
+      'templates',
+    ])
+    expect(
+      bundle.tags.find((x) => x.path === 'medicine/cardiology')?.color,
+    ).toBe('#2e9e6b')
+    // Without the options the file carries only the notebook.
+    expect((await exportNotebookBundle(db, nb)).notebooks).toHaveLength(1)
+
+    // Into a clean app: the tag is made with its colour.
+    const fresh = createTestDb()
+    try {
+      const ws2 = (await getOrCreateDefaultWorkspace(fresh)).id
+      await importBundle(fresh, ws2, bundle)
+      const colours = await fresh.tags.toArray()
+      expect(colours.find((x) => x.name === 'cardiology')?.color).toBe(
+        '#2e9e6b',
+      )
+    } finally {
+      await fresh.delete()
+    }
+
+    // Into this app: an existing tag keeps its colour; journal and templates are copies.
+    await setTagColor(db, tag.id, '#c8402f')
+    await importBundle(db, ws, bundle)
+    expect((await db.tags.get(tag.id))?.color).toBe('#c8402f')
+    expect(
+      await db.pages.filter((p) => p.journalDate === '2026-10-25').toArray(),
+    ).toEqual(journalBefore)
+    expect(
+      await db.pages.filter((p) => p.templateRole === 'daily').count(),
+    ).toBe(templatesBefore)
+    const journalCopy = (await db.notebooks.toArray()).find(
+      (n) => n.title === 'Journal (imported)',
+    )!
+    expect(journalCopy.kind).toBeUndefined()
+    expect(
+      (await db.pages.where('notebookId').equals(journalCopy.id).toArray())
+        .length,
+    ).toBeGreaterThanOrEqual(2)
+    const templates = await findNotebookOfKind(db, ws, 'templates')
+    const names = (
+      await db.pages.where('notebookId').equals(templates!.id).toArray()
+    ).map((p) => p.title)
+    expect(
+      names.filter((n) => n.endsWith('(imported)')).length,
+    ).toBeGreaterThan(3)
+    expect(
+      await db.notebooks.filter((n) => n.kind === 'templates').count(),
+    ).toBe(1)
+  })
 
   it('refuses files that are not (or not safely) a Learning Notes file', () => {
     expect(() => readBundle('not json')).toThrow(BundleError)
@@ -254,7 +331,7 @@ describe('notebook file', () => {
     await expect(exportNotebookBundle(db, journal.id)).rejects.toThrow()
   })
 
-  it('turns a backup into a bundle of its normal notebooks and loose databases', () => {
+  it('turns a backup into a bundle of its notebooks, journal, templates and loose databases', () => {
     const base = { createdAt: 1, updatedAt: 1, deletedAt: null }
     const bundle = bundleFromSnapshot({
       app: 'learning-notes',
@@ -323,9 +400,10 @@ describe('notebook file', () => {
       },
     })
     expect(bundle.kind).toBe('backup')
-    expect(bundle.notebooks.map((n) => n.id)).toEqual(['n1'])
-    expect(bundle.pages.map((p) => p.id)).toEqual(['p1'])
-    expect(bundle.blocks.map((b) => b.id)).toEqual(['b1'])
+    // The journal comes along too; only deleted pages are left out.
+    expect(bundle.notebooks.map((n) => n.id)).toEqual(['n1', 'n2'])
+    expect(bundle.pages.map((p) => p.id)).toEqual(['p1', 'p2'])
+    expect(bundle.blocks.map((b) => b.id)).toEqual(['b1', 'b2'])
   })
 
   it('exports and imports a big notebook (500 pages, 10,000 notes, 5,000 cards) quickly', async () => {

@@ -71,10 +71,12 @@ New ideas that come up mid-build are parked here, not added to the current phase
 | 2026-10-27 | Card levels cell: click a level to open that lesson's cards of that level | 5A-7 or later |
 | 2026-10-27 | Rename card levels so they differ from lesson statuses (e.g. New · Shaky · Good · Strong), if the shared names confuse | Owner decides |
 | 2026-10-27 | Flaky e2e (pass on rerun): Tags screenshots (a different one each run, tag picker finds 2 options), lesson Night screenshot (slow start) | Testing |
-| 2026-10-27 | Sidebar that slides away on phones, so pages are not squeezed | Phase 6–7 (phone) |
+| 2026-10-27 | Sidebar that slides away on phones, so pages are not squeezed | Phase 6 (approved 2026-10-28) |
 | 2026-10-27 | Add the review-history charts to dashboards that were already changed (upgrade) | Polish |
 | 2026-10-27 | Own Revise labels (add, rename, colour) in Settings; mark whole lines from the ⠿ menu | Phase 6 |
 | 2026-10-27 | Notebook files that also carry journal days, templates and tag colours; a whole-workspace file | Journal, templates, colours done (2026-10-28); whole-workspace file: Phase 6 |
 | 2026-10-27 | Import: ask for the date order (day-first / month-first) and merge into existing rows by a key column | Polish |
 | 2026-10-27 | Local image upload for Gallery tiles and notes | Phase 6 |
+| 2026-10-28 | Spanish texts are AI-translated: needs native review of key screens before real users rely on them (Hindi: owner checks it) | Phase 6 end, then owner / native speaker |
+| 2026-10-28 | Sync, accounts and hosting (moved out of Phase 6 by the owner; health-data privacy review and clock skew go with it) | 7 |
 | 2026-10-28 | Browser back/forward and a URL per screen (pages, tabs, Revise sheet, Backup & files, databases and views); refresh keeps the screen | Phase 6 (planned, README Roadmap 6b) |

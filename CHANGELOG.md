@@ -650,3 +650,15 @@
 - **What:** Phase 5 check-in fixes. (1) Backup restore and notebook-file import skip templates the workspace already has (same id, or same name and content, page links compared without ids); sub-pages follow their template; links to a skipped template point at the existing one. (2) The notebook's Database tab shows every database of the notebook as buttons (`notebook.databasePicker` tip). (3) "Remove sample notebook" (`removeSampleNotebooks`): notebooks made by the sample carry `Notebook.sample`; removal asks first and moves them with their pages, notes and databases to the Trash; imported copies lose the flag. (4) Loading a second sample asks "You already have a sample notebook. Add another?". (5) Phase 6 plan: browser history and per-screen URLs (README Roadmap 6b), not built. Tests: template skip (same id, same content, changed and new templates), sample removal and flag handling, e2e for the picker, the warning, removal and no duplicate templates.
 - **Why:** Owner check-in 2026-10-28.
 - **Files:** src/share/importBundle.ts, sampleNotebook.ts, DataScreen.tsx, bundle.test.ts, sampleNotebook.test.ts, src/notebooks/NotebookScreen.tsx, src/core/types.ts, src/i18n/en.ts, helpRegistry.ts, HELP-TEXTS.md, e2e/sample.spec.ts, e2e/sharing.spec.ts, README.md
+
+## 2026-10-28
+
+- **What:** Phase 6 planning talk. Draft "Phase 6 Plan" added to the README (local-only scope, hash URLs, version history, encrypted files, Anki, languages, image upload, own Revise labels). Sync/accounts moved to Phase 7.
+- **Why:** Owner answers 2026-10-28; Roadmap's sync item conflicted with CLAUDE.md "No" list.
+- **Files:** README.md, CHANGELOG.md
+
+## 2026-10-28
+
+- **What:** Phase 5 closed (owner check-in for 5A and 5B passed; re-check at the end of Phase 6). Phase 6 plan approved with additions: Hindi + Spanish, lazy Anki readers (old + zstd; ask before installing), 7-day backup reminder, save-on-close, phone sliding sidebar, double-entry password with loss warning, handoff update after every step, running owner-check list (max 5–7 at the end), real-user week after Phase 6.
+- **Why:** Owner decisions 2026-10-28.
+- **Files:** README.md, IDEAS.md, CHANGELOG.md

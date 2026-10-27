@@ -86,12 +86,35 @@ For anyone in any field (writers, vloggers, learners, philosophers, technicians,
 - **Definition of Done (each half):** all above built; all unit + e2e tests pass (incl. upgrade test and 10k-row tests for tables, formulas, dashboards); security + code review reported; docs updated; owner visual checks passed.
 - **Stays parked:** publishing databases for others (needs hosting/accounts), AI that turns screen activity into notes/databases, Anki import/export.
 
+## Phase 6 Plan — Data safety & reach (approved 2026-10-28)
+
+- **Scope (owner, 2026-10-28):** local-only. No sync, accounts or hosting (CLAUDE.md "No" list unchanged); sync moves to Phase 7 with hosting. Encryption = optional passphrase on backup/notebook files only.
+- **Owner additions (2026-10-28), all in Phase 6, one go (no 6A/6B split):**
+  - **Languages:** English + Hindi + Spanish. Spanish is AI-translated, marked "needs native review" in IDEAS.md (Hindi: the owner checks it personally). At the end, the owner gets a short list of key screens to check, not every line.
+  - **Anki:** both old and new (zstd) formats; zip + SQLite reader packages loaded only when importing (lazy). Ask the owner before installing.
+  - **Backup reminder:** no backup file saved in 7 days → gentle reminder with "Save backup now" and "Remind me later".
+  - **Lost-keystroke fix:** save immediately when the tab is closing.
+  - **Phone sidebar:** slides away on phones so pages are not squeezed.
+  - **Encryption warning:** a forgotten password means the data is lost forever (clear warning); the password is asked twice.
+  - **Way of working:** README handoff updated after every step; a running list of owner checks is kept, and the end report gives at most 5–7 checks, each under 2 minutes.
+- **Steps (built without stopping):**
+  1. **Browser history + URLs:** hash URLs (`#/page/<id>`, `#/notebook/<id>/<tab>`, `#/search?q=`, `#/review`, `#/settings`, `#/data`, `#/database/<id>/<view>`). One `app/router.ts` (parse/build, pure + tested); every screen switch pushes history; refresh and back/forward restore the screen; unknown/deleted ids fall back to Home with a toast.
+  2. **Page version history:** snapshot of a page's blocks (kept: last 30 per page, at most one per 5 min of editing, plus one on leaving); "History" in the page menu lists snapshots, preview, Restore (as a new snapshot, so restore can be undone). New `pageVersions` table (DB upgrade v11 + test). Mockup first (new screen).
+  3. **Encrypted files:** optional passphrase when saving a notebook file/backup (Web Crypto: PBKDF2 + AES-GCM, random salt/IV, version tag); import asks for it; wrong passphrase = clear message, nothing written. Whole-workspace file (all notebooks, journal, templates, tags, databases).
+  4. **Anki import/export (.apkg):** import decks as a notebook with Cards (basic + cloze; scheduling not imported, cards start New); export a notebook's cards as a deck. Needs a zip + SQLite reader (check small, safe packages; ask before adding).
+  5. **Languages:** every UI string through `t()` (convert Phase 1–2 hard-coded text), language setting, Intl dates; ship English + one more as proof (owner picks).
+  6. **Local image upload:** pictures stored on the device (size limit, resized), usable in Gallery tiles and notes; included in files/backups.
+  7. **Own Revise labels:** add, rename, colour in Settings; mark whole lines from the ⠿ menu.
+  8. **End checks:** tests, speed (version history on a 10k-note page, 1,000-card deck import), security + code review (crypto, zip/SQLite input, image input), LEARNING.md, owner check-in.
+- **Definition of Done:** all steps built; unit + e2e pass (incl. upgrade v10→11, back/forward e2e, encrypt/decrypt round trip, wrong passphrase); security review reported; docs updated; owner visual checks passed.
+- **Parked again:** sync/accounts/hosting, health-data privacy review, clock skew (need sync); phone layout + PWA ("before hosting"); AI features.
+
 ## Roadmap (likely, not final — may change)
 
 2. Learning Daily Journal + Templates — done
 3. Recall & Spaced Repetition — done
 4. Organisation & Connection (search, links, tags) — done
-5. Databases & Study kit (notebook tabs, databases, dashboards, Revise tab) — plan approved 2026-10-27
+5. Databases & Study kit (notebook tabs, databases, dashboards, Revise tab) — done (closed 2026-10-28)
 6. Data safety, export, encryption, sync, page version history (moved from Phase 4 on 2026-10-26; CSV/database import-export moved to Phase 5B on 2026-10-27)
 6b. **Phase 6 plan item (owner, 2026-10-28), not built yet — browser history and URLs:** Chrome's back arrow now leaves the app. In-app navigation (pages, notebook tabs, the Revise sheet, Backup & files, All cards, Databases and database views, Search, Review, Settings) should use the browser history, so back and forward move between screens inside the app, and every screen gets its own URL so a refresh keeps you on that screen. To decide in the planning talk: URL shapes (e.g. `#/page/<id>`, `#/notebook/<id>/revise`), what is saved per screen, and how this fits later iOS/Android apps.
 7. Future: AI, semantic search, website, iOS app, collaboration
@@ -440,7 +463,11 @@ Picked by Claude without asking (owner, 2026-10-27: pick the safest option and l
 - **Check-in fixes after testing the sample (2026-10-28):** templates are not duplicated on restore/import; the Database tab lists all of a notebook's databases; "Remove sample notebook" (with confirmation); a warning before a second sample. Browser back/forward and per-screen URLs are planned for Phase 6 (Roadmap 6b). 473 unit + 163 e2e pass.
 - **Sample for the checks (2026-10-28):** Backup & files › "Load sample notebook" gives a notebook to try all five checks on; `e2e/sample.spec.ts` already ran them (marks → Revise, CSV out and back in, notebook file out and back in, Calendar and Gallery, screenshots `sample-*.png`).
 - **Owner checks for 5B:** (1) mark words with Key point / Keyword / Must know / Formula, then open the notebook's Revise tab; (2) a database ⋯ → Export as CSV, open it in Excel/Google Sheets, then Import CSV…; (3) Backup & files: save a notebook, import it back (a copy appears); (4) + View → Calendar and Gallery; (5) screenshots `revise-*`, `calendar-*`, `gallery-*`, `data-*` in the three themes and on a phone.
-- **Next — waiting for the owner:** check-in for 5A and 5B (checks below, "Decisions to review"), then the Phase 5 end (LEARNING.md part is written), then the planning talk for Phase 6.
+- **Phase 5 closed 2026-10-28:** owner check-in for 5A and 5B passed. The owner will re-check the 5A/5B features at the end of Phase 6.
+- **Phase 6 plan approved 2026-10-28** (with the owner's additions, see "Phase 6 Plan"). Build all steps in one go, update this handoff after every step, and keep a running list of owner checks below.
+- **Owner task after Phase 6 (not code):** one real user (a friend or café staff) tries the app for a week and reports what confused or annoyed them.
+- **Owner checks for Phase 6 (running list; final report max 5–7, each under 2 min):** (none yet)
+- **Next:** Phase 6 step 1 (browser history + URLs). (Old, done:) check-in for 5A and 5B (checks below, "Decisions to review"), then the Phase 5 end (LEARNING.md part is written), then the planning talk for Phase 6.
 - **Owner checks for the end of 5A (so far):** (1) the backup screen after an upgrade (`test-results/screens/upgrade-backup.png`); (2) Study tracker Table, Board and Dashboard in the three themes and on a phone (`tracker-*.png`): does the Status menu, 📌, "5 due · 20 new", the Card levels bar and the review charts feel right? (3b) Databases: Sidebar › Databases › + New database › Drug list; add rows, open one as a page and edit its properties; type /database in a note; try All cards. (3) Hover tips and help lines: read `HELP-TEXTS.md` and rewrite any text in `en.ts` (then `UPDATE_HELP=1 npx vitest run src/help`); try Settings › Show help Off; on a phone tap the ⓘ.
 - See IDEAS.md for parked ideas.
 

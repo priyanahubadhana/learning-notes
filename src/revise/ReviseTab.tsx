@@ -1,5 +1,5 @@
 import { useLiveQuery } from 'dexie-react-hooks'
-import { useEffect, useState } from 'react'
+import { useState } from 'react'
 import type { LearningNotesDB } from '../core/db'
 import { revealBlock } from '../editor/revealBlock'
 import { HelpLine, Tip } from '../help/Help'
@@ -161,7 +161,6 @@ function Summary({
   saved: string
 }) {
   const [text, setText] = useState(saved)
-  useEffect(() => setText(saved), [saved])
   return (
     <label className="block">
       <span className="mb-1 block text-xs text-muted">

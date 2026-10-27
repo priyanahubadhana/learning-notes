@@ -63,6 +63,8 @@ interface SidebarProps {
   allCardsOpen: boolean
   onOpenAllDatabases: () => void
   allDatabasesOpen: boolean
+  onOpenData: () => void
+  dataOpen: boolean
   onCreateNotebook: () => void
   /** `templateId`: copy that template's content into the new page. */
   onCreatePage: (
@@ -115,6 +117,8 @@ export function Sidebar({
   allCardsOpen,
   onOpenAllDatabases,
   allDatabasesOpen,
+  onOpenData,
+  dataOpen,
   searchOpen,
   onOpenSearch,
   savedSearchId,
@@ -206,7 +210,7 @@ export function Sidebar({
   }
 
   return (
-    <aside className="flex w-[260px] shrink-0 flex-col border-r border-line bg-side px-2 py-3.5 transition-colors duration-250">
+    <aside className="flex w-[260px] shrink-0 flex-col overflow-y-auto border-r border-line bg-side px-2 py-3.5 transition-colors duration-250">
       <div className="px-2.5 pt-1 pb-3.5 font-semibold tracking-[-0.01em]">
         ◐ Learning Notes
       </div>
@@ -303,7 +307,7 @@ export function Sidebar({
         onOpen={onOpenSavedSearch}
         onReview={onReviewSavedSearch}
       />
-      <nav className="flex-1 overflow-auto">
+      <nav className="min-h-32 flex-1 overflow-auto">
         <TagsSection
           db={db}
           onOpenTag={onOpenTag}
@@ -492,6 +496,21 @@ export function Sidebar({
         />
       )}
 
+      <Tip id="sidebar.data" className="flex">
+        <button
+          type="button"
+          onClick={onOpenData}
+          aria-current={dataOpen ? 'page' : undefined}
+          className={`mx-0.5 flex min-h-9 w-full items-center gap-2 rounded-lg px-2.5 text-left text-sm transition-colors hover:bg-hover ${
+            dataOpen ? 'bg-hover font-semibold' : ''
+          }`}
+        >
+          <span aria-hidden className="text-muted">
+            ⤓
+          </span>
+          {t('sidebar.data')}
+        </button>
+      </Tip>
       <Tip id="sidebar.settings" className="flex">
         <button
           type="button"

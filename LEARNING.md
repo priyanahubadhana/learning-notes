@@ -146,3 +146,24 @@ When a new version changes how your notes are stored, the app first copies every
 - **Testing:** 440 unit tests and 141 browser tests, including database upgrade tests (versions 1–8 → 9), speed tests (10,000 rows, 10,000 cards in 100 lessons), and screenshots in Day, Night and Sepia and at phone size.
 - **Security review:** values written into cells and statuses are checked; formulas cannot run code; tips only show text from the app; 0 known vulnerabilities; no secrets. Fixes in this phase: a damaged page-parent loop can no longer hang the tracker, and a database block outside the editor no longer crashes.
 - **No new libraries:** charts, formulas and drag are our own code (₹0).
+
+## Phase 5 (second half, 5B) — More views, Revise and sharing (built 2026-10-27)
+
+### Calendar and Gallery
+- **Calendar** puts each row on the day of a Date column, as a month or a week (weeks start on Monday). The "+" on a day adds a row for that day.
+- **Gallery** shows rows as tiles: a picture (from a Web link column), the title and a few chosen values.
+- **+ View** adds another view of the same rows (a second Board grouped differently, say). Views can be renamed and deleted (with Undo).
+
+### Revise
+Select words in a note and press **Key point**, **Keyword**, **Must know** or **Formula** in the toolbar. The words get a colour, and the notebook's **Revise** tab gathers them per lesson, with your own summary and a button to practise the lesson's cards.
+_Example:_ mark "CO = HR × SV" as a Formula; before the exam, open Revise and read every Formula of the lesson in one place.
+
+### Sharing and backups
+- **CSV:** a database's ⋯ menu has **Export as CSV** (opens in Excel or Google Sheets) and **Import CSV…** (you say what each column becomes). Imports only add rows.
+- **Backup & files** (sidebar): **Save a notebook as a file** (notes, cards with their schedules and review history, databases, views), **Import a file**, and **Restore the automatic backup** the app makes before an upgrade.
+- **Safe by design:** everything that comes in is added as new copies, so nothing you have is ever changed or replaced; files are checked first, and a file from a newer version is refused with a clear message.
+
+### Quality and safety
+- **Testing:** 468 unit tests and 156 browser tests, including speed tests (10,000-row CSV import; a notebook of 500 pages, 10,000 notes and 5,000 cards through export and import) and screenshots in the three themes and at phone size.
+- **Security review:** imported files are validated (app, version, shapes, size), ids are re-made, hostile keys are dropped, picture links are limited to web addresses, CSV cells that a spreadsheet could run as formulas are protected. 0 known vulnerabilities.
+- **No new libraries** (₹0).

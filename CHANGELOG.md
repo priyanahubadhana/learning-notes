@@ -625,3 +625,15 @@
 - **What:** Phase 5B, step 2 (Revise tab). Select words in a note and press Key point · Keyword · Must know · Formula in the toolbar (an inline style "mark", coloured per label in all themes; same button again removes it). New notebook tab "Revise" (\`revise/ReviseTab.tsx\`, \`reviseService.ts\`, \`reviseMarks.ts\`): lessons with mark counts; per lesson an own summary (saved on \`Page.summary\`), its marks (sub-pages included) grouped by label, "Open lesson" and "Practise this lesson". Database upgrade v10 adds the tab to every notebook with tabs. 2 new tips and 1 help line. Own labels in Settings are not built (see Decisions to review).
 - **Why:** Phase 5B plan (owner).
 - **Files:** src/revise/*, src/editor/markActions.ts, schema.tsx, SelectionToolbar.tsx, src/core/db.ts, types.ts, src/databases/notebookTabs.ts, src/notebooks/NotebookScreen.tsx, src/index.css, src/i18n/en.ts, helpRegistry.ts, e2e/revise.spec.ts, notebookTabs.spec.ts, migration and notebook tests
+
+## 2026-10-27
+
+- **What:** Phase 5B, step 3 (sharing) and step 4 (end checks). CSV: `databases/csv.ts` (reader/writer, ; and tab separators, formula protection), `csvTransfer.ts` (export; import with column mapping, type guessing, choices and tags created), `CsvImportDialog.tsx`; database ⋯ menu has Export as CSV / Import CSV…. Notebook files: `share/bundle.ts` (export, checks, backup → bundle), `importBundle.ts` (new copies with fresh ids, links re-pointed, tags matched by name, relation index rebuilt), `remapJson.ts`, `DataScreen.tsx` (sidebar "Backup & files": save a notebook, import a file or backup file, restore the browser backup); `app/download.ts`. 4 new tips. Tests: csv, csvTransfer (incl. 10,000 rows), bundle round trip, a 500-page/10,000-note/5,000-card notebook, hostile files; e2e `sharing.spec.ts` + screenshots. Review fix: `__proto__` keys dropped from imported JSON. README, LEARNING.md and IDEAS updated.
+- **Why:** Phase 5B plan (owner, 2026-10-27).
+- **Self-review:** Own Revise labels, journal/template export and tag colours are left for later (Decisions to review). On a phone the notebook screen covers the sidebar until it is closed.
+- **Files:** src/share/*, src/databases/csv.ts, csvTransfer.ts, CsvImportDialog.tsx, DatabasesHub.tsx, databaseService.ts (rebuildRowRefs), src/app/download.ts, src/notebooks/Sidebar.tsx, src/App.tsx, src/i18n/en.ts, helpRegistry.ts, e2e/sharing.spec.ts, e2e/revise.spec.ts, README.md, LEARNING.md, IDEAS.md, HELP-TEXTS.md
+
+## 2026-10-27
+
+- **What:** The sidebar scrolls as a whole on short screens (the new buttons pushed Settings and the themes out of reach on a landscape phone); upgrade e2e expects database version 100.
+- **Files:** src/notebooks/Sidebar.tsx, e2e/upgradeBackup.spec.ts

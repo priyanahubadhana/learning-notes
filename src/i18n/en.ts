@@ -548,6 +548,21 @@ export const en = {
     'Read all Key points of a lesson before an exam.',
   'help.line.revise.how':
     'In a note, select words and press Key point, Keyword, Must know or Formula in the toolbar. Marked words collect here, per lesson.',
+  'help.tip.sidebar.data.meaning':
+    'Save a notebook as a file, bring a file in, or restore the backup the app made before an upgrade.',
+  'help.tip.sidebar.data.example':
+    'Keep a copy of “Cardiology” on a USB stick.',
+  'help.tip.data.export.meaning':
+    'Saves the whole notebook (notes, cards with their schedules, databases) as one file.',
+  'help.tip.data.export.example':
+    'Send “Cardiology” to a friend or keep it safe.',
+  'help.tip.data.import.meaning':
+    'Adds the notebooks in a file as new copies. Nothing you already have is changed.',
+  'help.tip.data.import.example': 'Open a notebook file a friend sent you.',
+  'help.tip.data.restore.meaning':
+    'Brings back the notebooks of the backup the app saved before the last upgrade, as new copies.',
+  'help.tip.data.restore.example':
+    'Get a notebook back if an upgrade went wrong.',
   'help.line.tracker.statusRule':
     'Auto: Not started = no cards answered yet · Learning = under 75% correct · Mastered = 90% or more correct, nothing due, no new cards, and at least 80% of the cards at level Mastered · Review = in between.',
   'settings.dayStart.label': 'Day starts at',
@@ -795,6 +810,59 @@ export const en = {
   'revise.summary': 'My summary',
   'revise.summaryPlaceholder': 'Write the lesson in your own words…',
   'revise.markRemove': 'Remove “{label}” mark',
+  'csv.export': 'Export as CSV',
+  'csv.importMenu': 'Import CSV…',
+  'csv.title': 'Import CSV',
+  'csv.intro':
+    'Adds the file’s rows to this database as new rows. Nothing that is already here is changed.',
+  'csv.file': 'CSV file',
+  'csv.tooBig': 'This file is too big to import (the limit is about 30 MB).',
+  'csv.empty': 'This file has no rows to import.',
+  'csv.rows_one': '1 row found.',
+  'csv.rows_other': '{count} rows found.',
+  'csv.truncated': 'It was cut to the first rows the app can import.',
+  'csv.column': 'CSV column',
+  'csv.example': 'First rows',
+  'csv.becomes': 'Becomes',
+  'csv.becomesOf': 'What “{name}” becomes',
+  'csv.map.title': 'Title ({name})',
+  'csv.map.column': 'Column “{name}”',
+  'csv.map.new': 'New {type} column',
+  'csv.map.skip': 'Leave out',
+  'csv.noTitle': 'No column is the title, so new rows start without a name.',
+  'csv.import_one': 'Import 1 row',
+  'csv.import_other': 'Import {count} rows',
+  'csv.importNone': 'Pick a file first',
+  'csv.done': 'Imported {added} rows{columns}.',
+  'csv.doneColumns': ' and made {count} new columns',
+  'csv.exported': 'Saved “{name}”',
+  'import.copyName': '{name} (imported)',
+  'sidebar.data': 'Backup & files',
+  'data.title': 'Backup & files',
+  'data.intro':
+    'Keep your notebooks safe in files, move them between devices, and bring back the backup the app made before an upgrade. Everything that comes in is added as new copies; nothing you have is changed.',
+  'data.export.title': 'Save a notebook as a file',
+  'data.export.text':
+    'Notes, cards with their schedules and review history, databases, views and charts.',
+  'data.export.which': 'Notebook to save',
+  'data.export.button': 'Save file',
+  'data.import.title': 'Import a file',
+  'data.import.text':
+    'A notebook file from this app, or a backup file from the upgrade screen.',
+  'data.import.file': 'File to import',
+  'data.tooBig': 'This file is too big to import (the limit is about 200 MB).',
+  'data.nothing': 'This file has no notebooks or databases to import.',
+  'data.imported':
+    'Imported {notebooks} notebooks, {pages} pages and {cards} cards as new copies.',
+  'data.restore.title': 'Restore the automatic backup',
+  'data.restore.text':
+    'Before an upgrade the app keeps a copy of your notes in this browser.',
+  'data.restore.none':
+    'There is no automatic backup in this browser yet. One is made when the app next upgrades how it stores notes.',
+  'data.restore.info': 'Saved {date}: {notebooks} notebooks.',
+  'data.restore.button': 'Restore as copies',
+  'data.notIncluded':
+    'Journal days and templates are not part of files. Tags are matched by name.',
   'databases.title': 'Databases',
   'databases.new': '+ New database',
   'databases.newTitle': 'New database',

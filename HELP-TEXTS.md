@@ -2,7 +2,7 @@
 
 Every hover tip and help line in the app (shown while Settings › Show help is On). Generated from `src/help/helpRegistry.ts` and `src/i18n/en.ts`; to change a text, edit it in `en.ts`, then run `UPDATE_HELP=1 npx vitest run src/help` to refresh this file.
 
-## Hover tips (93)
+## Hover tips (97)
 
 ### `tracker.lesson`
 
@@ -561,6 +561,30 @@ Every hover tip and help line in the app (shown while Settings › Show help is 
 - **Where:** Notebook › Revise tab
 - **Meaning:** One revision sheet per lesson: your summary plus everything you marked in its notes.
 - **Example:** Read all Key points of a lesson before an exam.
+
+### `sidebar.data`
+
+- **Where:** Sidebar › Backup & files
+- **Meaning:** Save a notebook as a file, bring a file in, or restore the backup the app made before an upgrade.
+- **Example:** Keep a copy of “Cardiology” on a USB stick.
+
+### `data.export`
+
+- **Where:** Backup & files › Save file
+- **Meaning:** Saves the whole notebook (notes, cards with their schedules, databases) as one file.
+- **Example:** Send “Cardiology” to a friend or keep it safe.
+
+### `data.import`
+
+- **Where:** Backup & files › Import a file
+- **Meaning:** Adds the notebooks in a file as new copies. Nothing you already have is changed.
+- **Example:** Open a notebook file a friend sent you.
+
+### `data.restore`
+
+- **Where:** Backup & files › Restore as copies
+- **Meaning:** Brings back the notebooks of the backup the app saved before the last upgrade, as new copies.
+- **Example:** Get a notebook back if an upgrade went wrong.
 
 ## Help lines (9)
 

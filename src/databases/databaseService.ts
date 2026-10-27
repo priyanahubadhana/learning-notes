@@ -885,6 +885,22 @@ async function rowNotebookId(
   return created.id
 }
 
+/** The notebook that holds a database's row pages (made if needed). */
+export const rowNotebookIdOf = rowNotebookId
+
+/** Rebuilds the relation index (rowRefs) of these databases' rows (after an import). */
+export async function rebuildRowRefs(
+  db: LearningNotesDB,
+  databaseIds: readonly string[],
+): Promise<void> {
+  for (const id of databaseIds) {
+    const columns = new Map((await listColumns(db, id)).map((c) => [c.id, c]))
+    if (![...columns.values()].some((c) => c.type === 'relation')) continue
+    const refs = (await rowsOf(db, id)).flatMap((page) => refsOf(page, columns))
+    await db.rowRefs.bulkPut(refs)
+  }
+}
+
 /** A new row: a title and cell values by column id. */
 export interface RowInput {
   title?: string

@@ -6,12 +6,17 @@ import { MenuPopover } from '../app/ui'
 import type { LearningNotesDB } from '../core/db'
 import { Tip } from '../help/Help'
 import { t } from '../i18n/t'
+import { downloadFile } from '../app/download'
+import { CsvImportDialog } from './CsvImportDialog'
+import { exportDatabaseCsv } from './csvTransfer'
 import {
   deleteDatabase,
   getDatabase,
+  listColumns,
   listDatabases,
   listRows,
   renameDatabase,
+  titleColumnName,
 } from './databaseService'
 import {
   createStarterDatabase,
@@ -140,6 +145,11 @@ export function DatabaseScreen({
 }) {
   const ui = useContext(AppUiContext)
   const [menu, setMenu] = useState<DOMRect | null>(null)
+  const [importing, setImporting] = useState(false)
+  const columns = useLiveQuery(
+    () => listColumns(db, databaseId),
+    [db, databaseId],
+  )
   const database = useLiveQuery(
     async () => (await getDatabase(db, databaseId)) ?? null,
     [db, databaseId],
@@ -189,35 +199,55 @@ export function DatabaseScreen({
               className="min-w-0 flex-1 bg-transparent text-[26px] leading-tight font-bold tracking-[-0.02em] outline-none"
             />
           )}
-          {!tracker && (
-            <button
-              type="button"
-              aria-label={t('databases.more')}
-              aria-haspopup="menu"
-              onClick={(e) => setMenu(e.currentTarget.getBoundingClientRect())}
-              className="min-h-9 min-w-9 rounded-lg text-lg text-muted hover:bg-hover hover:text-ink"
-            >
-              ⋯
-            </button>
-          )}
+          <button
+            type="button"
+            aria-label={t('databases.more')}
+            aria-haspopup="menu"
+            onClick={(e) => setMenu(e.currentTarget.getBoundingClientRect())}
+            className="min-h-9 min-w-9 rounded-lg text-lg text-muted hover:bg-hover hover:text-ink"
+          >
+            ⋯
+          </button>
           {menu && (
             <MenuPopover
               anchor={menu}
               onClose={() => setMenu(null)}
               items={[
                 {
-                  label: t('databases.delete'),
-                  icon: '🗑',
+                  label: t('csv.export'),
+                  icon: '⤓',
                   onSelect: () =>
                     runTask(
-                      deleteDatabase(db, database.id).then(() => {
-                        ui.toast(
-                          t('databases.deleted', { name: database.title }),
-                        )
-                        onBack()
+                      exportDatabaseCsv(db, database.id).then((file) => {
+                        downloadFile(file.fileName, file.text, 'text/csv')
+                        ui.toast(t('csv.exported', { name: file.fileName }))
                       }),
                     ),
                 },
+                ...(tracker
+                  ? []
+                  : [
+                      {
+                        label: t('csv.importMenu'),
+                        icon: '⤒',
+                        onSelect: () => setImporting(true),
+                      },
+                      {
+                        label: t('databases.delete'),
+                        icon: '🗑',
+                        onSelect: () =>
+                          runTask(
+                            deleteDatabase(db, database.id).then(() => {
+                              ui.toast(
+                                t('databases.deleted', {
+                                  name: database.title,
+                                }),
+                              )
+                              onBack()
+                            }),
+                          ),
+                      },
+                    ]),
               ]}
             />
           )}
@@ -228,6 +258,26 @@ export function DatabaseScreen({
           onOpenPage={onOpenPage}
           showTitle={false}
         />
+        {importing && columns && (
+          <CsvImportDialog
+            db={db}
+            databaseId={databaseId}
+            titleName={titleColumnName(database)}
+            columns={columns}
+            onClose={() => setImporting(false)}
+            onDone={({ added, newColumns }) => {
+              setImporting(false)
+              ui.toast(
+                t('csv.done', {
+                  added,
+                  columns: newColumns
+                    ? t('csv.doneColumns', { count: newColumns })
+                    : '',
+                }),
+              )
+            }}
+          />
+        )}
       </div>
     </div>
   )

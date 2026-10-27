@@ -145,6 +145,10 @@ export const TIPS = {
   'db.galleryOptions': { where: 'Gallery › Gallery options' },
   'revise.practice': { where: 'Revise tab › Practise this lesson' },
   'notebook.tabRevise': { where: 'Notebook › Revise tab' },
+  'sidebar.data': { where: 'Sidebar › Backup & files' },
+  'data.export': { where: 'Backup & files › Save file' },
+  'data.import': { where: 'Backup & files › Import a file' },
+  'data.restore': { where: 'Backup & files › Restore as copies' },
 } as const satisfies Record<string, TipDefinition>
 
 export const HELP_LINES = {

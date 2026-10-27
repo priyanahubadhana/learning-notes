@@ -26,6 +26,7 @@ import { createNotebook, listNotebooks } from './notebooks/notebookService'
 import { PageView } from './pages/PageView'
 import { createPage, getPage } from './pages/pageService'
 import { AllCardsScreen } from './recall/AllCardsScreen'
+import { DataScreen } from './share/DataScreen'
 import { DatabaseScreen, DatabasesScreen } from './databases/DatabasesHub'
 import { ReviewScreen } from './recall/ReviewScreen'
 import type { ReviewScope } from './recall/reviewService'
@@ -105,6 +106,7 @@ function App() {
     | { kind: 'cards' }
     | { kind: 'databases' }
     | { kind: 'database'; id: string }
+    | { kind: 'data' }
     | null
   >(null)
   // Review replaces the open page the same way (null = not reviewing).
@@ -408,6 +410,11 @@ function App() {
               openPage(null)
               setHub({ kind: 'databases' })
             }}
+            onOpenData={() => {
+              openPage(null)
+              setHub({ kind: 'data' })
+            }}
+            dataOpen={hub?.kind === 'data' && !showSettings && !reviewScope}
             allDatabasesOpen={
               (hub?.kind === 'databases' || hub?.kind === 'database') &&
               !showSettings &&
@@ -458,6 +465,12 @@ function App() {
                 db={db}
                 onOpenHit={(hit) => runTask(openHit(hit))}
                 onReview={openReview}
+                onClose={() => setHub(null)}
+              />
+            ) : hub?.kind === 'data' ? (
+              <DataScreen
+                db={db}
+                workspaceId={workspace.id}
                 onClose={() => setHub(null)}
               />
             ) : hub?.kind === 'databases' ? (

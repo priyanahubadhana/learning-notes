@@ -7,6 +7,7 @@ import {
   type PickerMode,
 } from './app/appUi'
 import { runTask } from './app/errors'
+import { baseHash, parseHash, routeToHash, type Route } from './app/router'
 import { applyTheme } from './app/theme'
 import { ThemeContext } from './app/themeContext'
 import type { ToastAction } from './app/appUi'
@@ -16,7 +17,7 @@ import { usePref } from './app/usePref'
 import { setDateStyle, t } from './i18n/t'
 import { useTreeState } from './app/useTreeState'
 import { db } from './core/db'
-import type { Page, SavedSearch, Workspace } from './core/types'
+import type { JsonObject, Page, SavedSearch, Workspace } from './core/types'
 import { getOrCreateDefaultWorkspace } from './core/workspaceService'
 import { ensureSearchIndex } from './search/searchService'
 import { openJournalDay } from './journal/journalService'
@@ -57,6 +58,19 @@ import {
   ensureTemplates,
 } from './templates/templateService'
 
+/** The Search screen state for a search address. */
+function searchOf(r: Extract<Route, { kind: 'search' }>) {
+  return {
+    query: r.query
+      ? readSavedQuery(r.query as JsonObject)
+      : { text: '', type: 'all' as const, filters: DEFAULT_FILTERS },
+    key: Date.now(),
+    savedId: r.savedId,
+    /** A saved search from an address: its query still has to be read. */
+    fromAddress: !!r.savedId,
+  }
+}
+
 // Cached so React StrictMode's double effect cannot create things twice.
 let workspacePromise: Promise<Workspace> | undefined
 
@@ -78,19 +92,30 @@ interface PickerRequest {
  */
 function App() {
   const [workspace, setWorkspace] = useState<Workspace>()
+  // An address in the browser wins over what was open last time.
+  const [boot] = useState<Route | null>(() =>
+    location.hash.length > 1 ? parseHash(location.hash) : null,
+  )
   const [currentPageId, setCurrentPageId] = usePref(
     'currentPage',
     isStringOrNull,
     null,
+    () =>
+      boot?.kind === 'page'
+        ? boot.id
+        : boot?.kind === 'home'
+          ? null
+          : undefined,
   )
   // An open notebook (its tabs) replaces the open page the same way.
   const [notebookId, setNotebookId] = usePref(
     'currentNotebook',
     isStringOrNull,
     null,
+    () => (boot ? (boot.kind === 'notebook' ? boot.id : null) : undefined),
   )
   // Settings replaces the open page in the main area until a page is opened.
-  const [showSettings, setShowSettings] = useState(false)
+  const [showSettings, setShowSettings] = useState(boot?.kind === 'settings')
   // Setting to scroll to and highlight when Settings opens (e.g. from a dialog).
   const [settingsFocus, setSettingsFocus] = useState<string | null>(null)
   const openSettings = (settingId?: string) => {
@@ -108,9 +133,19 @@ function App() {
     | { kind: 'database'; id: string }
     | { kind: 'data' }
     | null
-  >(null)
+  >(() =>
+    boot?.kind === 'database'
+      ? { kind: 'database', id: boot.id }
+      : boot?.kind === 'databases' ||
+          boot?.kind === 'cards' ||
+          boot?.kind === 'data'
+        ? { kind: boot.kind }
+        : null,
+  )
   // Review replaces the open page the same way (null = not reviewing).
-  const [reviewScope, setReviewScope] = useState<ReviewScope | null>(null)
+  const [reviewScope, setReviewScope] = useState<ReviewScope | null>(() =>
+    boot?.kind === 'review' && boot.scope.kind !== 'custom' ? boot.scope : null,
+  )
   // The Search screen replaces the open page the same way. `key` starts
   // it afresh each time a search is opened from outside it.
   const [search, setSearch] = useState<{
@@ -118,7 +153,8 @@ function App() {
     key: number
     /** Set when a saved search is open. */
     savedId?: string
-  } | null>(null)
+    fromAddress?: boolean
+  } | null>(() => (boot?.kind === 'search' ? searchOf(boot) : null))
   const [searchPopup, setSearchPopup] = useState(false)
   /** Opens a notebook's tabs (Notes · Database · Cards). */
   const openNotebook = (id: string) => {
@@ -192,6 +228,106 @@ function App() {
     openPage(hit.pageId)
     if (hit.blockId) revealBlock(hit.blockId)
   }
+  // ---- Browser history: every screen has an address (app/router.ts) ----
+  const route: Route = showSettings
+    ? { kind: 'settings' }
+    : reviewScope
+      ? {
+          kind: 'review',
+          scope:
+            reviewScope.kind === 'blocks'
+              ? { kind: 'custom' }
+              : reviewScope.kind === 'page'
+                ? {
+                    kind: 'page',
+                    pageId: reviewScope.pageId,
+                    includeSubpages: !!reviewScope.includeSubpages,
+                  }
+                : reviewScope,
+        }
+      : hub
+        ? hub.kind === 'database'
+          ? { kind: 'database', id: hub.id, parts: [] }
+          : { kind: hub.kind }
+        : search
+          ? search.savedId
+            ? { kind: 'search', savedId: search.savedId }
+            : { kind: 'search', query: { ...search.query } }
+          : notebookId
+            ? { kind: 'notebook', id: notebookId, parts: [] }
+            : currentPageId
+              ? { kind: 'page', id: currentPageId }
+              : { kind: 'home' }
+  const routeHash = routeToHash(route)
+  const routeHashRef = useRef(routeHash)
+  useEffect(() => {
+    routeHashRef.current = routeHash
+  })
+  const historyReady = useRef(false)
+  const replaceNext = useRef(false)
+  const checkAddress = useRef(true)
+
+  /** Shows the screen an address points to (no history entry is added). */
+  const applyRoute = (r: Route) => {
+    setShowSettings(false)
+    setSettingsFocus(null)
+    setReviewScope(null)
+    setSearch(null)
+    setHub(null)
+    setNotebookId(null)
+    switch (r.kind) {
+      case 'home':
+        setCurrentPageId(null)
+        break
+      case 'page':
+        setCurrentPageId(r.id)
+        rememberPage(r.id)
+        break
+      case 'notebook':
+        setNotebookId(r.id)
+        break
+      case 'database':
+        setHub({ kind: 'database', id: r.id })
+        break
+      case 'settings':
+        setShowSettings(true)
+        break
+      case 'search':
+        setSearch(searchOf(r))
+        break
+      case 'review':
+        setReviewScope(r.scope.kind === 'custom' ? null : r.scope)
+        break
+      default:
+        setHub({ kind: r.kind })
+    }
+  }
+
+  // Back / Forward: show the screen of the address (unless only the
+  // notebook's tab or the database's view changed; those listen themselves).
+  useEffect(() => {
+    const onPop = () => {
+      if (baseHash(location.hash) === routeHashRef.current) return
+      checkAddress.current = true
+      applyRoute(parseHash(location.hash))
+    }
+    window.addEventListener('popstate', onPop)
+    return () => window.removeEventListener('popstate', onPop)
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [])
+  // A new screen adds a history entry; the first write and the fix-up for a
+  // missing page only replace the entry they are on.
+  useEffect(() => {
+    if (baseHash(location.hash) === routeHash) {
+      historyReady.current = true
+      return
+    }
+    const replace = !historyReady.current || replaceNext.current
+    historyReady.current = true
+    replaceNext.current = false
+    if (replace) history.replaceState(null, '', routeHash)
+    else history.pushState(null, '', routeHash)
+  }, [routeHash])
   const [renamingNotebookId, setRenamingNotebookId] = useState<string | null>(
     null,
   )
@@ -263,6 +399,39 @@ function App() {
       )
     },
   }
+
+  // A saved search opened from an address: read its query.
+  useEffect(() => {
+    if (!search?.fromAddress || !search.savedId) return
+    const { key, savedId } = search
+    getSavedSearch(db, savedId).then((saved) => {
+      setSearch((s) =>
+        s?.key === key
+          ? {
+              query: saved ? readSavedQuery(saved.query) : s.query,
+              key: Date.now(),
+              savedId,
+            }
+          : s,
+      )
+    }, console.error)
+  }, [search])
+
+  // An address can point to a page or notebook that is gone: show Home.
+  useEffect(() => {
+    if (!notebooks || currentPage === undefined || !checkAddress.current) return
+    checkAddress.current = false
+    const missing =
+      (!!notebookId && !openNotebookRecord && !showSettings) ||
+      (!!currentPageId && currentPage === null)
+    if (!missing) return
+    queueMicrotask(() => {
+      replaceNext.current = true
+      openPage(null)
+      appUi.toast(t('nav.gone'))
+    })
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [notebooks, currentPage])
 
   // A newly created page whose title should get the cursor.
   // Bumped when a tag merge/delete rewrites the open page's notes.

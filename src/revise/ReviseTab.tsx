@@ -1,6 +1,7 @@
 import { useLiveQuery } from 'dexie-react-hooks'
 import { useState } from 'react'
 import type { LearningNotesDB } from '../core/db'
+import { pushRouteParts, useRouteParts } from '../app/router'
 import { revealBlock } from '../editor/revealBlock'
 import { HelpLine, Tip } from '../help/Help'
 import { t } from '../i18n/t'
@@ -21,11 +22,14 @@ import {
 export function ReviseTab({
   db,
   notebookId,
+  tabId,
   onOpenPage,
   onReview,
 }: {
   db: LearningNotesDB
   notebookId: string
+  /** This tab's id, the first level of the address. */
+  tabId: string
   onOpenPage: (pageId: string) => void
   onReview: (scope: ReviewScope) => void
 }) {
@@ -33,7 +37,8 @@ export function ReviseTab({
     () => listLessonMarks(db, notebookId),
     [db, notebookId],
   )
-  const [pickedId, setPickedId] = useState<string | null>(null)
+  // The open lesson is the second level of the address.
+  const pickedId = useRouteParts(1)
   if (!lessons)
     return <p className="text-sm text-muted">{t('notebook.loading')}</p>
   if (lessons.length === 0) {
@@ -55,7 +60,9 @@ export function ReviseTab({
               <button
                 type="button"
                 aria-pressed={lesson.id === current.lesson.id}
-                onClick={() => setPickedId(lesson.id)}
+                onClick={() =>
+                  pushRouteParts(1, lesson.id, [tabId, current.lesson.id])
+                }
                 className="flex min-h-9 w-full items-center gap-2 rounded-lg px-2.5 text-start text-sm whitespace-nowrap hover:bg-hover aria-pressed:bg-soft aria-pressed:font-semibold md:whitespace-normal"
               >
                 <span className="min-w-0 flex-1 truncate">

@@ -79,4 +79,5 @@ New ideas that come up mid-build are parked here, not added to the current phase
 | 2026-10-27 | Local image upload for Gallery tiles and notes | Phase 6 |
 | 2026-10-28 | Spanish texts are AI-translated: needs native review of key screens before real users rely on them (Hindi: owner checks it) | Phase 6 end, then owner / native speaker |
 | 2026-10-28 | Sync, accounts and hosting (moved out of Phase 6 by the owner; health-data privacy review and clock skew go with it) | 7 |
-| 2026-10-28 | Browser back/forward and a URL per screen (pages, tabs, Revise sheet, Backup & files, databases and views); refresh keeps the screen | Phase 6 (planned, README Roadmap 6b) |
+| 2026-10-28 | Browser back/forward and a URL per screen (pages, tabs, Revise sheet, Backup & files, databases and views); refresh keeps the screen | Done (Phase 6 step 1, 2026-10-28) |
+| 2026-10-28 | Flaky e2e: links "Esc leaves [[ as text" failed once in a full run (fixed 100 ms wait), passed on rerun | Testing |

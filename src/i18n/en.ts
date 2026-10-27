@@ -79,6 +79,7 @@ export const en = {
   'search.place.journal': 'Journal',
   'search.place.template': 'Template',
   'search.inTrash': 'In Trash',
+  'nav.gone': 'That page or notebook no longer exists.',
   'search.trashed': '“{name}” is in the Trash.',
   'search.restore': 'Restore',
   'search.count_one': '{count} result',

@@ -257,6 +257,7 @@ export function DatabaseScreen({
           databaseId={databaseId}
           onOpenPage={onOpenPage}
           showTitle={false}
+          routed
         />
         {importing && columns && (
           <CsvImportDialog

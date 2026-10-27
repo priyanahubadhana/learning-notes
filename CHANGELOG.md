@@ -662,3 +662,10 @@
 - **What:** Phase 5 closed (owner check-in for 5A and 5B passed; re-check at the end of Phase 6). Phase 6 plan approved with additions: Hindi + Spanish, lazy Anki readers (old + zstd; ask before installing), 7-day backup reminder, save-on-close, phone sliding sidebar, double-entry password with loss warning, handoff update after every step, running owner-check list (max 5–7 at the end), real-user week after Phase 6.
 - **Why:** Owner decisions 2026-10-28.
 - **Files:** README.md, IDEAS.md, CHANGELOG.md
+
+## 2026-10-28
+
+- **What:** Phase 6, step 1 (browser history + URLs). `app/router.ts` (hash addresses, pure + tested), App derives the address from its screen state, pushes history entries, restores the screen on Back/Forward and refresh; notebook tab, Revise lesson and full-screen database view are in the address. An address to a missing page/notebook shows Home with a message. `usePref` takes an optional start value.
+- **Why:** Phase 6 plan (owner, 2026-10-28).
+- **Self-review:** Search typing is not in the address; custom review lists are not reopenable. Flaky e2e seen once: links "Esc leaves [[ as text" (passed on rerun).
+- **Files:** src/app/router.ts, router.test.ts, usePref.ts, src/App.tsx, src/notebooks/NotebookScreen.tsx, src/revise/ReviseTab.tsx, src/databases/DatabasesHub.tsx, src/databases/views/DatabaseView.tsx, src/i18n/en.ts, e2e/navigation.spec.ts, README.md

@@ -11,6 +11,7 @@ import {
 import { runTask } from '../app/errors'
 import { MenuPopover, NameDialog, type MenuItem } from '../app/ui'
 import { isStringOrNull } from '../app/uiPrefs'
+import { pushRouteParts, useRouteParts } from '../app/router'
 import { usePref } from '../app/usePref'
 import type { LearningNotesDB } from '../core/db'
 import type { Notebook, NotebookTab } from '../core/types'
@@ -56,7 +57,13 @@ export function NotebookScreen({
     isStringOrNull,
     null,
   )
-  const active = tabs.find((tab) => tab.id === tabId) ?? tabs[0]
+  // The address holds the open tab, so Back/Forward and refresh keep it.
+  const routeTab = useRouteParts(0)
+  const active = tabs.find((tab) => tab.id === (routeTab ?? tabId)) ?? tabs[0]
+  const openTab = (id: string) => {
+    setTabId(id)
+    pushRouteParts(0, id, active ? [active.id] : [])
+  }
   const [menu, setMenu] = useState<DOMRect | null>(null)
   const [renaming, setRenaming] = useState<NotebookTab | null>(null)
   const tabRefs = useRef(new Map<string, HTMLButtonElement>())
@@ -73,7 +80,7 @@ export function NotebookScreen({
     else if (e.key === 'End') next = tabs.length - 1
     else return
     e.preventDefault()
-    setTabId(tabs[next].id)
+    openTab(tabs[next].id)
     tabRefs.current.get(tabs[next].id)?.focus()
   }
 
@@ -103,7 +110,7 @@ export function NotebookScreen({
       label: t('notebook.showTab', { name: tabName(tab) }),
       icon: '◉',
       onSelect: () => {
-        setTabId(tab.id)
+        openTab(tab.id)
         runTask(updateNotebookTab(db, notebook.id, tab.id, { hidden: false }))
       },
     })),
@@ -150,7 +157,7 @@ export function NotebookScreen({
                     aria-selected={selected}
                     aria-controls={`${baseId}-panel`}
                     tabIndex={selected ? 0 : -1}
-                    onClick={() => setTabId(tab.id)}
+                    onClick={() => openTab(tab.id)}
                     className={`-mb-px min-h-10 border-b-2 px-3 text-sm whitespace-nowrap ${
                       selected
                         ? 'border-ink font-semibold text-ink'
@@ -201,6 +208,7 @@ export function NotebookScreen({
             <ReviseTab
               db={db}
               notebookId={notebook.id}
+              tabId={active.id}
               onOpenPage={onOpenPage}
               onReview={onReview}
             />

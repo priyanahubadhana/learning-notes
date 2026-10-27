@@ -2,6 +2,7 @@ import { Tip } from '../../help/Help'
 import { useLiveQuery } from 'dexie-react-hooks'
 import { createElement, useContext, useState, type ReactNode } from 'react'
 import { AppUiContext } from '../../app/appUi'
+import { pushRouteParts, useRouteParts } from '../../app/router'
 import { NameDialog } from '../../app/ui'
 import type { LearningNotesDB } from '../../core/db'
 import { t } from '../../i18n/t'
@@ -30,12 +31,15 @@ export function DatabaseView({
   databaseId,
   onOpenPage,
   showTitle = true,
+  routed = false,
 }: {
   db: LearningNotesDB
   databaseId: string
   onOpenPage: (pageId: string) => void
   /** Show the database's name beside the views (off when a screen shows it). */
   showTitle?: boolean
+  /** The open view is kept in the address (a full-screen database). */
+  routed?: boolean
 }) {
   const database = useLiveQuery(
     async () => (await getDatabase(db, databaseId)) ?? null,
@@ -43,7 +47,9 @@ export function DatabaseView({
   )
   const views = useLiveQuery(() => listViews(db, databaseId), [db, databaseId])
   const filled = useLiveQuery(() => hasRows(db, databaseId), [db, databaseId])
-  const [viewId, setViewId] = useState(() => lastViewShown.get(databaseId))
+  const [ownViewId, setViewId] = useState(() => lastViewShown.get(databaseId))
+  const routeView = useRouteParts(0)
+  const viewId = (routed ? routeView : null) ?? ownViewId
   const [menu, setMenu] = useState<HTMLElement | null>(null)
   const [adding, setAdding] = useState<HTMLElement | null>(null)
   const [renaming, setRenaming] = useState(false)
@@ -68,6 +74,7 @@ export function DatabaseView({
   const show = (id: string) => {
     lastViewShown.set(databaseId, id)
     setViewId(id)
+    if (routed) pushRouteParts(0, id, view ? [view.id] : [])
   }
 
   return (

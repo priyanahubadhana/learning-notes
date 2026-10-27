@@ -8,6 +8,17 @@ import {
   type ColumnLookups,
 } from './columnTypes'
 import { listColumns, listRows, titleColumnName } from './databaseService'
+import { loadTrackerStats } from './trackerLoad'
+import {
+  correctShare,
+  lastRevisedDay,
+  levelsText,
+  noStats,
+  statusName,
+  trackerRow,
+  type LessonStats,
+  type TrackerRow,
+} from './trackerStats'
 import { evaluate } from './formula/formulaEval'
 import {
   isParseError,
@@ -53,6 +64,8 @@ export interface DatabaseData {
   tagNames: Map<string, string>
   /** Titles of live pages linked from Note link cells. */
   noteTitles: Map<string, string>
+  /** Study tracker: card numbers of each lesson (top-level page id). */
+  trackerStats?: Map<string, LessonStats>
 }
 
 /**
@@ -62,6 +75,7 @@ export interface DatabaseData {
 export async function loadDatabaseData(
   db: LearningNotesDB,
   databaseId: string,
+  now: number = Date.now(),
 ): Promise<DatabaseData> {
   const databases = new Map<string, LoadedDatabase>()
   const queue = [databaseId]
@@ -94,11 +108,17 @@ export async function loadDatabaseData(
         idsIn(row.values?.[c.id]).forEach((id) => pageIds.add(id))
     }
   }
+  const main = databases.get(databaseId)?.database
+  const trackerStats =
+    main?.kind === 'studyTracker' && main.notebookId
+      ? await loadTrackerStats(db, main.notebookId, now)
+      : undefined
   const tags = await db.tags.bulkGet([...tagIds])
   const pages = await db.pages.bulkGet([...pageIds])
   return {
     databaseId,
     databases,
+    trackerStats,
     tagNames: new Map(
       tags.flatMap((tag) => (tag && isLive(tag) ? [[tag.id, tag.name]] : [])),
     ),
@@ -121,6 +141,8 @@ export interface ResolvedRow {
   values: Record<string, FValue>
   /** Relation cells: the ids of the related rows (both sides). */
   links: Record<string, string[]>
+  /** Study tracker lessons: card numbers and status (auto / set by user). */
+  tracker?: TrackerRow
 }
 
 /**
@@ -139,14 +161,56 @@ export function resolveRows(
       [TITLE_COLUMN_ID]: page.title,
     }
     const links: Record<string, string[]> = {}
+    const tracker = trackerOf(data, main, page)
     for (const column of main.columns) {
-      values[column.id] = resolver.value(main, page, column)
+      values[column.id] = trackerValue(column, tracker, () =>
+        resolver.value(main, page, column),
+      )
       if (column.type === 'relation') {
         links[column.id] = resolver.related(page, column)
       }
     }
-    return { page, values, links }
+    return { page, values, links, ...(tracker && { tracker }) }
   })
+}
+
+/** Card numbers and status of a Study tracker lesson (undefined elsewhere). */
+function trackerOf(
+  data: DatabaseData,
+  main: LoadedDatabase,
+  page: Page,
+): TrackerRow | undefined {
+  if (!data.trackerStats) return undefined
+  const status = main.columns.find((c) => c.type === 'trackerStatus')
+  return trackerRow(
+    data.trackerStats.get(page.id) ?? noStats(),
+    status ? page.values?.[status.id] : undefined,
+  )
+}
+
+/** A Study tracker column's value for one lesson (others: the usual way). */
+function trackerValue(
+  column: DbColumn,
+  row: TrackerRow | undefined,
+  other: () => FValue,
+): FValue {
+  if (!row) return other()
+  const s = row.stats
+  switch (column.type) {
+    case 'trackerStatus':
+      return statusName(row.status)
+    case 'trackerLastRevised': {
+      const day = lastRevisedDay(s)
+      return day ? { date: day } : null
+    }
+    case 'trackerCardsDue':
+      return s.cards === 0 ? null : s.due
+    case 'trackerCorrect':
+      return correctShare(s)
+    case 'trackerLevels':
+      return levelsText(s) || null
+  }
+  return other()
 }
 
 interface Resolver {

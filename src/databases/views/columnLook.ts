@@ -27,6 +27,7 @@ const AUTO_TYPES = new Set([
   'trackerLastRevised',
   'trackerCardsDue',
   'trackerCorrect',
+  'trackerLevels',
 ])
 
 export function columnIcon(column: DbColumn): string {

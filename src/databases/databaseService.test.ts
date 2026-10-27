@@ -144,11 +144,12 @@ describe('Study tracker', () => {
       'Cards due',
       '% correct',
       'Confidence',
+      'Card levels',
     ])
     expect((await ensureStudyTracker(db, nb)).createdAt).toBe(tracker.createdAt)
     expect(
       await db.dbColumns.where('databaseId').equals(tracker.id).count(),
-    ).toBe(5)
+    ).toBe(6)
   })
 
   it('rows are the notebook’s top-level pages; cells work on them', async () => {
@@ -177,7 +178,7 @@ describe('Study tracker', () => {
     expect((await listTrash(db, ws)).map((i) => i.kind)).toEqual(['notebook'])
     await restoreNotebook(db, nb)
     expect(await getDatabase(db, tracker.id)).toBeDefined()
-    expect(await listColumns(db, tracker.id)).toHaveLength(5)
+    expect(await listColumns(db, tracker.id)).toHaveLength(6)
   })
 })
 

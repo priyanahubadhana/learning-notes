@@ -155,13 +155,14 @@ export async function ensureStudyTracker(
       titleName: t('tracker.column.lesson'),
       order: await nextDatabaseOrder(db, notebook.workspaceId),
     }
-    // Auto columns are filled from cards and reviews (Step 6).
+    // Auto columns are filled from cards and reviews (trackerStats.ts).
     const columns: [string, string, JsonObject][] = [
       ['trackerStatus', t('tracker.column.status'), {}],
       ['trackerLastRevised', t('tracker.column.lastRevised'), {}],
       ['trackerCardsDue', t('tracker.column.cardsDue'), {}],
       ['trackerCorrect', t('tracker.column.correct'), {}],
       ['number', t('tracker.column.confidence'), { format: 'stars', max: 5 }],
+      ['trackerLevels', t('tracker.column.levels'), {}],
     ]
     const orders = ordersBetween(null, null, columns.length)
     await db.databases.add(database)

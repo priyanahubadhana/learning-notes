@@ -1,5 +1,6 @@
 import type { DbColumn, JsonObject, JsonValue } from '../core/types'
 import { normalizeDate, type FValue } from './formula/formulaValue'
+import { statusOptions } from './trackerStats'
 
 /**
  * Column type registry: the plug-in point for database column types.
@@ -64,6 +65,8 @@ export const MAX_TEXT_LENGTH = 100_000
 export const MAX_LIST_LENGTH = 1_000
 
 export function choiceOptions(column: DbColumn): ChoiceOption[] {
+  // The Study tracker's Status is a fixed list the app keeps.
+  if (column.type === 'trackerStatus') return statusOptions()
   const options = column.config.options
   return Array.isArray(options) ? (options as unknown as ChoiceOption[]) : []
 }

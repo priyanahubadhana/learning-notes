@@ -161,7 +161,10 @@ async function pageIdsInScope(
  * live and still making that card, a Card with a question (empty ones
  * wait until one is typed), and not in the Templates notebook.
  */
-async function reviewable(db: LearningNotesDB, cards: Card[]): Promise<Card[]> {
+export async function reviewable(
+  db: LearningNotesDB,
+  cards: Card[],
+): Promise<Card[]> {
   const active = cards.filter((c) => c.suspendedAt === null)
   if (active.length === 0) return []
   const blockIds = [...new Set(active.map((c) => c.blockId))]

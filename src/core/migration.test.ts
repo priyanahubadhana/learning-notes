@@ -12,7 +12,7 @@ import type { Notebook } from './types'
  */
 const T = 1_700_000_000_000
 const base = { createdAt: T, updatedAt: T, deletedAt: null }
-const CURRENT_VERSION = 8
+const CURRENT_VERSION = 9
 let name = ''
 
 afterEach(async () => {
@@ -548,6 +548,61 @@ describe('database upgrade', () => {
     const untouched = await db.cards.get('c2')
     expect(untouched?.lastReviewAt).toBeUndefined()
     expect(untouched?.lastRating).toBeUndefined()
+    db.close()
+  })
+
+  it('from version 8 adds the Card levels column to every Study tracker, once', async () => {
+    name = `migrate-${createId()}`
+    const old = new Dexie(name)
+    old.version(1).stores(V1)
+    old.version(2).stores(V2)
+    old.version(3).stores(V3)
+    old.version(4).stores(V4)
+    for (const v of [5, 6, 7, 8]) old.version(v).stores({})
+    await addVersion1Data(old)
+    const tracker = (id: string, kind?: string) => ({
+      ...base,
+      id,
+      workspaceId: 'w1',
+      title: id,
+      order: 'a0',
+      ...(kind && { kind }),
+    })
+    await old
+      .table('databases')
+      .bulkAdd([tracker('t1', 'studyTracker'), tracker('plain')])
+    const column = (
+      id: string,
+      databaseId: string,
+      type: string,
+      order: string,
+    ) => ({
+      ...base,
+      id,
+      databaseId,
+      name: id,
+      type,
+      config: {},
+      order,
+    })
+    await old
+      .table('dbColumns')
+      .bulkAdd([
+        column('a', 't1', 'trackerStatus', 'a0'),
+        column('b', 't1', 'number', 'a1'),
+        column('p', 'plain', 'text', 'a0'),
+      ])
+    old.close()
+
+    const db = new LearningNotesDB(name)
+    await db.open()
+    expect(db.verno).toBe(CURRENT_VERSION)
+    const levels = await db.dbColumns
+      .filter((c) => c.type === 'trackerLevels')
+      .toArray()
+    expect(levels).toHaveLength(1)
+    expect(levels[0]).toMatchObject({ databaseId: 't1', name: 'Card levels' })
+    expect(levels[0].order > 'a1').toBe(true) // after the other columns
     db.close()
   })
 })

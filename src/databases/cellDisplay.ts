@@ -32,7 +32,8 @@ export function errorText(error: FormulaError): string {
 }
 
 function numberDisplay(n: number, column: DbColumn | undefined): string {
-  const format = column?.config.format
+  const format =
+    column?.type === 'trackerCorrect' ? 'percent' : column?.config.format
   if (format === 'percent') {
     return new Intl.NumberFormat(dateLocale(), {
       style: 'percent',

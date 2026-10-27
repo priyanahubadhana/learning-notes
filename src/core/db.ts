@@ -178,6 +178,36 @@ export class LearningNotesDB extends Dexie {
           })
       })
 
+    // Version 9 (Phase 5 Step 6): every Study tracker gets the auto column
+    // "Card levels" (the New · Learning · Familiar · Mastered breakdown).
+    this.version(9)
+      .stores({})
+      .upgrade(async (tx) => {
+        const trackers = await tx
+          .table<Database, string>('databases')
+          .filter((d) => d.kind === 'studyTracker')
+          .toArray()
+        const columns = await tx.table<DbColumn, string>('dbColumns').toArray()
+        const added: DbColumn[] = []
+        for (const tracker of trackers) {
+          const own = columns.filter((c) => c.databaseId === tracker.id)
+          if (own.some((c) => c.type === 'trackerLevels')) continue
+          const last = own
+            .map((c) => c.order)
+            .sort()
+            .at(-1)
+          added.push({
+            ...newRecordFields(),
+            databaseId: tracker.id,
+            name: t('tracker.column.levels'),
+            type: 'trackerLevels',
+            config: {},
+            order: orderBetween(last ?? null, null),
+          })
+        }
+        await tx.table<DbColumn, string>('dbColumns').bulkAdd(added)
+      })
+
     // Every save of a page or block also updates its search entry, in the
     // same transaction (see search/indexMiddleware.ts).
     this.use(searchIndexMiddleware)

@@ -2,6 +2,7 @@ import { saveBlockChanges } from '../core/blockService'
 import type { LearningNotesDB } from '../core/db'
 import type { Block } from '../core/types'
 import { syncCardRecords } from '../recall/cardService'
+import { recordVersion } from '../history/versionService'
 import { createAutosaver } from './autosave'
 import { createSnapshot, diffBlocks, type BlockDraft } from './diff'
 
@@ -16,6 +17,8 @@ export interface PageSync {
   flush: () => Promise<void>
   /** Cancel a pending timer. */
   dispose: () => void
+  /** Save now, then keep a history copy of what was written (page closes). */
+  leave: () => Promise<void>
 }
 
 /**
@@ -33,6 +36,17 @@ export function createPageSync(
   // a page never writes anything.
   let snapshot = createSnapshot(readDrafts(), records)
 
+  // History copies (history/versionService.ts): at most one per few minutes
+  // while editing, and one when the page is left.
+  let unrecorded = false
+  const record = async (force: boolean) => {
+    try {
+      if (await recordVersion(db, pageId, { force })) unrecorded = false
+    } catch (error) {
+      console.error('Could not keep a history copy', error)
+    }
+  }
+
   const autosaver = createAutosaver(async () => {
     const { changes, next } = diffBlocks(snapshot, readDrafts())
     // One transaction: a saved Card block (new, pasted or duplicated) never
@@ -42,11 +56,19 @@ export function createPageSync(
       await syncCardRecords(db, pageId)
     })
     snapshot = next // only after a successful save
+    if (changes.upserts.length > 0 || changes.deletes.length > 0) {
+      unrecorded = true
+      await record(false)
+    }
   }, delayMs)
 
   return {
     changed: autosaver.schedule,
     flush: autosaver.flush,
     dispose: autosaver.dispose,
+    leave: async () => {
+      await autosaver.flush()
+      if (unrecorded) await record(true)
+    },
   }
 }

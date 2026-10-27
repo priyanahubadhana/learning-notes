@@ -707,6 +707,7 @@ function App() {
                 }
                 onNewPageFromTemplate={(id) => runTask(newPageFromTemplate(id))}
                 onOpenTag={openTag}
+                onReload={() => setNotesVersion((v) => v + 1)}
                 onOpenDatabase={(id) => {
                   openPage(null)
                   setHub({ kind: 'database', id })

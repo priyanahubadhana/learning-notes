@@ -404,6 +404,7 @@ function purgeTables(db: LearningNotesDB) {
     db.dbColumns,
     db.dbViews,
     db.rowRefs,
+    db.pageVersions,
   ]
 }
 
@@ -420,6 +421,7 @@ async function purgePages(
   }
   await purgeMany(db.pages, pageIds, emptied, now)
   await db.rowRefs.where('fromPageId').anyOf(pageIds).delete()
+  await db.pageVersions.where('pageId').anyOf(pageIds).delete() // history copies
 }
 
 /** Erases databases in Trash with their columns, views and deleted rows. */

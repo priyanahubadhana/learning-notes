@@ -12,7 +12,7 @@ import type { Notebook } from './types'
  */
 const T = 1_700_000_000_000
 const base = { createdAt: T, updatedAt: T, deletedAt: null }
-const CURRENT_VERSION = 10
+const CURRENT_VERSION = 11
 let name = ''
 
 afterEach(async () => {
@@ -655,6 +655,25 @@ describe('database upgrade', () => {
     ])
     expect((await db.notebooks.get('b'))?.tabs).toHaveLength(2) // already had one
     expect((await db.notebooks.get('j'))?.tabs).toBeUndefined() // special notebook
+    db.close()
+  })
+
+  it('from version 10 adds the page history table (empty)', async () => {
+    name = `migrate-${createId()}`
+    const old = new Dexie(name)
+    old.version(1).stores(V1)
+    old.version(2).stores(V2)
+    old.version(3).stores(V3)
+    old.version(4).stores(V4)
+    for (const v of [5, 6, 7, 8, 9, 10]) old.version(v).stores({})
+    await addVersion1Data(old)
+    old.close()
+
+    const db = new LearningNotesDB(name)
+    await db.open()
+    expect(db.verno).toBe(CURRENT_VERSION)
+    expect(await db.pageVersions.count()).toBe(0)
+    expect((await db.pages.toArray()).length).toBeGreaterThan(0) // data intact
     db.close()
   })
 })

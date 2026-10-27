@@ -669,3 +669,10 @@
 - **Why:** Phase 6 plan (owner, 2026-10-28).
 - **Self-review:** Search typing is not in the address; custom review lists are not reopenable. Flaky e2e seen once: links "Esc leaves [[ as text" (passed on rerun).
 - **Files:** src/app/router.ts, router.test.ts, usePref.ts, src/App.tsx, src/notebooks/NotebookScreen.tsx, src/revise/ReviseTab.tsx, src/databases/DatabasesHub.tsx, src/databases/views/DatabaseView.tsx, src/i18n/en.ts, e2e/navigation.spec.ts, README.md
+
+## 2026-10-28
+
+- **What:** Phase 6, step 2 (page version history). New table `pageVersions` (database v11). Copies are kept while editing (at most one per 5 minutes), when leaving a page and when opening History; the last 30 per page stay. “History” button on a page: list of copies, text preview, “Restore this copy” (the page as it was is kept first, so a restore can be undone). “Delete forever” erases a page's copies.
+- **Why:** Phase 6 plan (owner, 2026-10-28).
+- **Self-review:** Saving 10k blocks, deleting blocks and the card sync (`syncCardRecords`) are slow on huge pages in the fake test database (about 4 ms per deleted block, ~13 s card sync for 10,000 notes); real Chrome is faster but this is worth measuring later. Restore only writes blocks that differ.
+- **Files:** src/history/*, src/core/types.ts, db.ts, migration.test.ts, src/editor/pageSync.ts, PageEditor.tsx, src/pages/PageView.tsx, src/App.tsx, src/trash/trashService.ts, src/i18n/en.ts, src/help/helpRegistry.ts, HELP-TEXTS.md, e2e/history.spec.ts, e2e/upgradeBackup.spec.ts, README.md

@@ -18,6 +18,8 @@ import type { Page } from '../core/types'
 import { PageEditor } from '../editor/PageEditor'
 import type { EditorApi } from '../editor/editorContext'
 import { revealBlock } from '../editor/revealBlock'
+import { HistoryDialog } from '../history/HistoryDialog'
+import { recordVersion } from '../history/versionService'
 import { dateKey } from '../journal/dates'
 import { t } from '../i18n/t'
 import { getNotebook } from '../notebooks/notebookService'
@@ -46,6 +48,8 @@ interface PageViewProps {
   onOpenTag?: (tagId: string) => void
   /** Opens a database on its own screen. */
   onOpenDatabase?: (databaseId: string) => void
+  /** Reloads the editor after the page was changed from outside it. */
+  onReload: () => void
 }
 
 /** An open page: breadcrumb, action bar, banner, title and block editor. */
@@ -59,6 +63,7 @@ export function PageView({
   onReview,
   onOpenTag,
   onOpenDatabase,
+  onReload,
 }: PageViewProps) {
   const { toast } = useContext(AppUiContext)
   const path = useLiveQuery(() => getPagePath(db, page.id), [db, page.id]) ?? []
@@ -76,6 +81,17 @@ export function PageView({
 
   const isTemplate = notebook?.kind === 'templates'
   const isToday = page.journalDate === dateKey(new Date())
+
+  // History: earlier copies of this page.
+  const [historyOpen, setHistoryOpen] = useState(false)
+  const openHistory = () =>
+    runTask(
+      (async () => {
+        await editor.current?.flush()
+        await recordVersion(db, page.id, { force: true }) // newest edits too
+        setHistoryOpen(true)
+      })(),
+    )
 
   // "Save as template" asks for a name first.
   const [naming, setNaming] = useState(false)
@@ -144,6 +160,9 @@ export function PageView({
               Save as template
             </ActionButton>
           )}
+          <ActionButton icon="🕘" tip="page.history" onClick={openHistory}>
+            {t('history.button')}
+          </ActionButton>
           <ActionButton icon="⤓" tip="page.import" soon>
             Import
           </ActionButton>
@@ -215,6 +234,22 @@ export function PageView({
           onOpenBlock={(pageId, blockId) => {
             onOpenPage(pageId)
             revealBlock(blockId)
+          }}
+        />
+      )}
+      {historyOpen && (
+        <HistoryDialog
+          db={db}
+          pageId={page.id}
+          onClose={() => setHistoryOpen(false)}
+          onRestored={(version) => {
+            setHistoryOpen(false)
+            toast(
+              t('history.restored', {
+                when: new Date(version.createdAt).toLocaleString(),
+              }),
+            )
+            onReload()
           }}
         />
       )}

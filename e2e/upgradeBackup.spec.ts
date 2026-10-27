@@ -80,7 +80,7 @@ test('an upgrade first backs up the data, then opens the app', async ({
     }
   })
   // Upgraded (v8 copied the newest answer onto the card; v9 added a column) …
-  expect(result.version).toBe(100)
+  expect(result.version).toBe(110)
   expect(result.card).toMatchObject({ lastReviewAt: 5, lastRating: 'good' })
   // … and the browser backup holds the data as it was before.
   expect(result.backedUp).toEqual([{ id: 'c1', due: 1, notebookId: 'nb' }])

@@ -100,6 +100,7 @@ export const TIPS = {
   'notebook.close': { where: 'Notebook › × (top right)' },
   'page.reviewPage': { where: 'Page › “Review this page” button' },
   'page.saveTemplate': { where: 'Page › “Save as template” button' },
+  'page.history': { where: 'Page › “History” button' },
   'page.import': { where: 'Page › Import (coming soon)' },
   'page.export': { where: 'Page › Export (coming soon)' },
   'page.addTag': { where: 'Page › + Add tag (under the title)' },

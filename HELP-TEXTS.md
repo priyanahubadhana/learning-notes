@@ -2,7 +2,7 @@
 
 Every hover tip and help line in the app (shown while Settings › Show help is On). Generated from `src/help/helpRegistry.ts` and `src/i18n/en.ts`; to change a text, edit it in `en.ts`, then run `UPDATE_HELP=1 npx vitest run src/help` to refresh this file.
 
-## Hover tips (100)
+## Hover tips (101)
 
 ### `tracker.lesson`
 
@@ -303,6 +303,12 @@ Every hover tip and help line in the app (shown while Settings › Show help is 
 - **Where:** Page › “Save as template” button
 - **Meaning:** Saves this page’s layout as a template for new pages (its sub-pages too).
 - **Example:** Turn a good lesson page into a reusable layout.
+
+### `page.history`
+
+- **Where:** Page › “History” button
+- **Meaning:** Shows earlier copies of this page. You can look at one and bring it back.
+- **Example:** Undo a paragraph you deleted by mistake last week.
 
 ### `page.import`
 

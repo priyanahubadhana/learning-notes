@@ -160,7 +160,7 @@ function LoadedPageEditor({
     return () => {
       document.removeEventListener('visibilitychange', onVisibility)
       window.removeEventListener('pagehide', flush)
-      flush()
+      void sync.leave() // saves, then keeps a history copy
       sync.dispose()
     }
   }, [sync])

@@ -79,6 +79,17 @@ export const en = {
   'search.place.journal': 'Journal',
   'search.place.template': 'Template',
   'search.inTrash': 'In Trash',
+  'history.button': 'History',
+  'history.title': 'Page history',
+  'history.empty':
+    'No earlier copies yet. Copies are kept while you write: about one every 5 minutes, and one when you leave the page.',
+  'history.list': 'Earlier copies',
+  'history.keep': 'The last {count} copies of this page are kept.',
+  'history.restore': 'Restore this copy',
+  'history.restored': 'Restored the copy from {when}. Undo is in History.',
+  'history.preview': 'Copy from {when}',
+  'history.blank': '(empty page)',
+  'history.close': 'Close',
   'nav.gone': 'That page or notebook no longer exists.',
   'search.trashed': '“{name}” is in the Trash.',
   'search.restore': 'Restore',
@@ -392,6 +403,10 @@ export const en = {
     'Saves this page’s layout as a template for new pages (its sub-pages too).',
   'help.tip.page.saveTemplate.example':
     'Turn a good lesson page into a reusable layout.',
+  'help.tip.page.history.meaning':
+    'Shows earlier copies of this page. You can look at one and bring it back.',
+  'help.tip.page.history.example':
+    'Undo a paragraph you deleted by mistake last week.',
   'help.tip.page.import.meaning':
     'Will bring a file into this page. It arrives in a later phase.',
   'help.tip.page.import.example': 'Import notes from another app.',

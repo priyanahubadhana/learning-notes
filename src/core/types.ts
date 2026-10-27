@@ -376,3 +376,22 @@ export interface MetaValue {
   id: string
   value: JsonValue
 }
+
+/** A block as kept inside a page version (no times; ids are the live ids). */
+export interface VersionBlock {
+  id: string
+  parentId: string | null
+  type: string
+  content: JsonObject
+  order: OrderKey
+}
+
+/**
+ * A saved copy of a page's title and blocks at one moment (Phase 6, page
+ * version history). Restoring one writes it back as the live blocks.
+ */
+export interface PageVersion extends BaseRecord {
+  pageId: string
+  title: string
+  blocks: VersionBlock[]
+}

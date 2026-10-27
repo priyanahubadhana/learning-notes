@@ -555,3 +555,9 @@
 - **What:** Step 5A-6, part 1 (database layer). Cards now keep `lastReviewAt` and `lastRating` (newest answer, review or Practice anyway), set by `rateCard` and `rebuildCard` (`withLastAnswer`). Database upgrade v8 fills them from the review history. New backup before any database upgrade (`core/upgradeBackup.ts`, `app/UpgradeGate.tsx`): the saved data is copied to the browser database `learning-notes-backup` (latest only), and a screen offers "Save backup file and update" (JSON download) or "Update without a file".
 - **Why:** The Study tracker can read cards only, not the whole history, so it stays fast for heavy users. The owner asked for a backup before the upgrade (both kinds).
 - **Files:** src/core/types.ts, src/core/db.ts, src/core/upgradeBackup.ts, src/core/upgradeBackup.test.ts, src/core/migration.test.ts, src/recall/reviewService.ts, src/recall/reviewService.test.ts, src/app/UpgradeGate.tsx, src/main.tsx, src/i18n/en.ts, e2e/upgradeBackup.spec.ts, CHANGELOG.md
+
+## 2026-10-27
+
+- **What:** Session rule: Claude no longer asks the owner to type `/compact`; auto-compact (already on) handles long chats.
+- **Why:** Owner asked for work to carry on without their help.
+- **Files:** rules/sessions.md, CHANGELOG.md

@@ -193,18 +193,44 @@ test('columns: number, choice, checkbox, formula; edit and delete', async ({
   await done.check()
   await expect(done).toBeChecked()
 
-  // A formula with a live preview.
+  // A formula, built as a sentence, with a live preview.
   const formula = await addColumn(page, 'Formula', true)
   await formula.getByRole('textbox', { name: 'Name' }).fill('Advice')
-  await formula
-    .getByRole('textbox', { name: 'Formula' })
-    .fill('IF([Score] < 0.8, "Redo", "OK")')
+  await expect(
+    formula.getByRole('combobox', { name: 'Column to check' }),
+  ).toHaveValue('Score')
+  await expect(
+    formula.getByRole('combobox', { name: 'Condition' }),
+  ).toHaveValue('lt')
+  await expect(formula).toContainText('Preview (Heart sounds): OK') // 75% isn't below 75
+  await formula.getByRole('textbox', { name: 'Value' }).fill('80')
   await expect(formula).toContainText('Preview (Heart sounds): Redo')
-  await formula.getByRole('textbox', { name: 'Formula' }).fill('[Nope]')
-  await expect(formula).toContainText('No column called [Nope]')
+  await formula.getByRole('textbox', { name: 'Value' }).fill('')
+  await expect(
+    formula.getByRole('button', { name: 'Add column' }),
+  ).toBeDisabled()
+  await formula.getByRole('textbox', { name: 'Value' }).fill('80')
+  // Advanced: the same formula, typed, with what it means.
   await formula
-    .getByRole('textbox', { name: 'Formula' })
-    .fill('IF([Score] < 0.8, "Redo", "OK")')
+    .getByRole('button', { name: 'Advanced: write a custom formula' })
+    .click()
+  const typed = formula.getByRole('textbox', { name: 'Formula' })
+  await expect(typed).toHaveValue('IF([Score] < 0.8, "Redo", "OK")')
+  await expect(formula).toContainText(
+    'Means: if Score is below 80%, write Redo, otherwise OK',
+  )
+  await typed.fill('[Nope]')
+  await expect(formula).toContainText('No column called [Nope]')
+  await formula.getByRole('button', { name: 'Score times 1.5' }).click()
+  await expect(typed).toHaveValue('[Score] * 1.5')
+  await expect(formula).toContainText('Means: Score times 1.5')
+  await typed.fill('IF([Score] < 0.8, "Redo", "OK")')
+  await formula
+    .getByRole('button', { name: 'Back to the simple sentence' })
+    .click()
+  await expect(formula.getByRole('textbox', { name: 'Value' })).toHaveValue(
+    '80',
+  )
   await formula.getByRole('button', { name: 'Add column' }).click()
   await expect(lessonRow(page, 'Heart sounds')).toContainText('Redo')
 
@@ -216,6 +242,13 @@ test('columns: number, choice, checkbox, formula; edit and delete', async ({
   await edit.getByRole('button', { name: 'Save' }).click()
   await expect(header(page, 'Mark')).toBeVisible()
   await expect(lessonRow(page, 'Heart sounds')).toContainText('Redo')
+  await header(page, 'Advice').click()
+  await page.getByRole('button', { name: 'Edit column' }).click()
+  const advice = page.getByRole('dialog', { name: 'Edit column' })
+  await expect(
+    advice.getByRole('combobox', { name: 'Column to check' }),
+  ).toHaveValue('Mark')
+  await page.keyboard.press('Escape')
 
   // Delete, then Undo.
   await header(page, 'Done').click()
@@ -290,6 +323,16 @@ for (const [theme, width, height] of [
     expect(box!.x + box!.width).toBeLessThanOrEqual(width)
     await page.screenshot({
       path: `test-results/screens/table-menu-${theme}-${width}x${height}.png`,
+    })
+    await page.keyboard.press('Escape')
+    const formula = await addColumn(page, 'Formula', true)
+    await expect(
+      formula.getByRole('combobox', { name: 'Column to check' }),
+    ).toHaveValue('Confidence')
+    const dialogBox = await formula.boundingBox()
+    expect(dialogBox!.x + dialogBox!.width).toBeLessThanOrEqual(width)
+    await page.screenshot({
+      path: `test-results/screens/table-formula-${theme}-${width}x${height}.png`,
     })
   })
 }

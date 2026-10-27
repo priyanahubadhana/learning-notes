@@ -513,3 +513,9 @@
 - **What:** Step 5A-3 fixes from the owner's checks, part 1. Filter menu: "Show only rows where [Column]…", simpler rule words ("more than", "at least", "has no rating", "has a rating"), a ★ picker for ratings, a live "N of M rows match" count before Apply, and Clear filter next to Apply. Formulas: a comparison with an empty cell now gives a blank answer (an unrated lesson no longer shows "OK"). Formula examples use a limit that fits the column (under 3 stars, under 75 %).
 - **Why:** Owner checks of Step 5A-3: filters were hard to read for ratings; the example and the empty-cell answer were wrong.
 - **Files:** src/databases/views/ColumnMenu.tsx, src/databases/views/columnFilters.ts, src/databases/views/columnFilters.test.ts, src/databases/views/TableView.tsx, src/databases/views/ColumnDialog.tsx, src/databases/formula/formulaEval.ts, src/databases/formula/formula.test.ts, src/i18n/en.ts, e2e/databaseTable.spec.ts, README.md
+
+## 2026-10-27
+
+- **What:** Step 5A-3 fixes, part 2. A new Formula column starts as a sentence: "If [column] [condition] [value], write [X], otherwise write [Y]" (column and condition are menus; ratings and percents work as shown, e.g. 75 for 75 %). "Advanced: write a custom formula" shows the formula as typed, with a plain "Means: …" line for common shapes, and "Back to the simple sentence" when it fits. Examples read as sentences. The column type list says Formula "writes an answer in each row".
+- **Why:** Owner checks of Step 5A-3: typed formulas were too hard for beginners.
+- **Files:** src/databases/views/formulaSentence.ts, src/databases/views/formulaSentence.test.ts, src/databases/views/ColumnDialog.tsx, src/i18n/en.ts, e2e/databaseTable.spec.ts, README.md, CHANGELOG.md

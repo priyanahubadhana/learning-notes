@@ -9,6 +9,7 @@ import { TAG_COLORS } from '../../tags/tagTools'
 import { tagColorStyle } from '../../tags/tagStyle'
 import { cellText, DEFAULT_STAR_MAX } from '../cellDisplay'
 import {
+  choiceOptions,
   getColumnType,
   TITLE_COLUMN_ID,
   type ChoiceOption,
@@ -29,6 +30,18 @@ import {
 } from '../databaseService'
 import { typeName } from './columnLook'
 import { previewFormula } from './formulaPreview'
+import {
+  firstOptionName,
+  formulaMeaning,
+  formulaRule,
+  needsValue,
+  ruleFormula,
+  ruleOpLabel,
+  ruleOps,
+  type FormulaRule,
+  type RuleColumn,
+  type RuleOp,
+} from './formulaSentence'
 
 /** What the dialog works on: a new column, a column, or the title column. */
 export type ColumnTarget =
@@ -73,6 +86,44 @@ function rollupStart(columns: readonly DbColumn[]): JsonObject {
         fn: 'count',
       }
     : { relationColumnId: '', targetColumnId: '', fn: 'count' }
+}
+
+/** A number column a formula can test, with a limit that fits it. */
+function scoredColumn(columns: readonly DbColumn[]) {
+  const numbers = columns.filter((c) => c.type === 'number')
+  const column =
+    numbers.find((c) => c.config.format === 'percent') ??
+    numbers.find((c) => c.config.format === 'stars') ??
+    numbers[0]
+  if (!column) return null
+  const format = column.config.format
+  // Under 75 %, under 3 stars, under 10.
+  const limit = format === 'percent' ? 0.75 : format === 'stars' ? 3 : 10
+  return { column, limit }
+}
+
+/** The sentence a new formula starts with ("If Confidence is below 3 …"). */
+function startRule(columns: readonly RuleColumn[]): FormulaRule {
+  const scored = scoredColumn(
+    columns.flatMap((c) => (c.column ? [c.column] : [])),
+  )
+  if (scored) {
+    const { column, limit } = scored
+    return {
+      columnName: column.name,
+      op: 'lt',
+      value: column.config.format === 'percent' ? '75' : String(limit),
+      then: t('formula.builder.defaultThen'),
+      otherwise: t('formula.builder.defaultOtherwise'),
+    }
+  }
+  return {
+    columnName: columns[0]?.name ?? '',
+    op: 'notEmpty',
+    value: '',
+    then: t('formula.builder.yes'),
+    otherwise: t('formula.builder.no'),
+  }
 }
 
 /**
@@ -121,6 +172,22 @@ export function ColumnDialog({
   )
   const [newOption, setNewOption] = useState('')
   const [error, setError] = useState<string | null>(null)
+  // Formulas: the sentence builder, or typed (Advanced) when it can't show one.
+  const ruleColumns: RuleColumn[] = [
+    { name: titleColumnName(database), column: null },
+    ...columns
+      .filter((c) => c.id !== editing?.id)
+      .map((c) => ({ name: c.name, column: c })),
+  ]
+  const startFormula = String(editing?.config.formula ?? '')
+  const [rule, setRule] = useState<FormulaRule>(
+    () => formulaRule(startFormula, ruleColumns) ?? startRule(ruleColumns),
+  )
+  const [advanced, setAdvanced] = useState(
+    () =>
+      startFormula.trim() !== '' &&
+      formulaRule(startFormula, ruleColumns) === null,
+  )
   const databases = useLiveQuery(
     () => listDatabases(db, database.workspaceId),
     [db, database.workspaceId],
@@ -166,7 +233,7 @@ export function ColumnDialog({
       // A changed type gets its options from the old values (see service).
       return typeChanged ? {} : { options: config.options ?? [] }
     }
-    if (type === 'formula') return { formula: String(config.formula ?? '') }
+    if (type === 'formula') return { formula: formulaText ?? '' }
     if (type === 'rollup') {
       return {
         relationColumnId: config.relationColumnId ?? '',
@@ -239,38 +306,64 @@ export function ColumnDialog({
   const setOptions = (next: ChoiceOption[]) =>
     patch({ options: next as unknown as JsonObject[] })
 
+  const ruleTarget =
+    ruleColumns.find((c) => c.name === rule.columnName) ?? ruleColumns[0]
+  const typed = String(config.formula ?? '')
+  const formulaText = advanced ? typed : ruleFormula(rule, ruleTarget.column)
   const preview =
     type === 'formula'
-      ? previewFormula(data, String(config.formula ?? ''), now, editing?.id)
+      ? previewFormula(data, formulaText ?? '', now, editing?.id)
       : null
+  const meaning = advanced ? formulaMeaning(typed, ruleColumns) : null
+  const setRuleColumn = (columnName: string) => {
+    const next = ruleColumns.find((c) => c.name === columnName)?.column ?? null
+    const ops = ruleOps(next)
+    setRule({
+      ...rule,
+      columnName,
+      op: ops.includes(rule.op) ? rule.op : ops[0],
+      value: next?.type === 'choice' ? firstOptionName(next) : '',
+    })
+  }
+  const toAdvanced = () => {
+    patch({ formula: formulaText ?? '' })
+    setAdvanced(true)
+  }
+  const typedRule = formulaRule(typed, ruleColumns)
+  const toSimple = () => {
+    if (typedRule) setRule(typedRule)
+    setAdvanced(false)
+  }
+  /** Picks an example: simple ones open in the builder, others as typed. */
+  const pickExample = (formula: string) => {
+    const picked = formulaRule(formula, ruleColumns)
+    if (picked) {
+      setRule(picked)
+      setAdvanced(false)
+    } else {
+      patch({ formula })
+      setAdvanced(true)
+    }
+  }
   const dateName = columns.find((c) => c.type === 'date')?.name
-  // A number column with a limit that fits it: under 75 %, under 3 stars …
-  const numbers = columns.filter((c) => c.type === 'number')
-  const scored =
-    numbers.find((c) => c.config.format === 'percent') ??
-    numbers.find((c) => c.config.format === 'stars') ??
-    numbers[0]
-  const numberName = scored?.name
-  const limit =
-    scored?.config.format === 'percent'
-      ? '0.75'
-      : scored?.config.format === 'stars'
-        ? '3'
-        : '10'
-  const examples: [string, MessageKey][] = [
-    [`DAYS([${dateName ?? 'Exam date'}], TODAY())`, 'column.example.days'],
-    [
-      `IF([${numberName ?? 'Score'}] < ${limit}, "Redo", "OK")`,
-      'column.example.label',
-    ],
-    [`[${numberName ?? 'Score'}] * 1.5`, 'column.example.math'],
-  ]
+  const scored = scoredColumn(columns.filter((c) => c.id !== editing?.id))
+  const examples = [
+    dateName && `DAYS([${dateName}], TODAY())`,
+    scored &&
+      `IF([${scored.column.name}] < ${scored.limit}, "${t('formula.builder.defaultThen')}", "${t('formula.builder.defaultOtherwise')}")`,
+    scored && `[${scored.column.name}] * 1.5`,
+  ].flatMap((formula) => {
+    const sentence = formula && formulaMeaning(formula, ruleColumns)
+    return formula && sentence ? [{ formula, sentence }] : []
+  })
 
   const title =
     target.kind === 'new'
       ? t('column.newTitle', { type: typeName(type) })
       : t('column.editTitle')
-  const cantSave = type === 'rollup' && !config.relationColumnId
+  const cantSave =
+    (type === 'rollup' && !config.relationColumnId) ||
+    (type === 'formula' && formulaText === null)
 
   return (
     <dialog
@@ -448,15 +541,145 @@ export function ColumnDialog({
 
         {type === 'formula' && (
           <>
-            <p className="mb-2 text-xs text-muted">{t('column.formulaHint')}</p>
-            <Field label={t('column.formula')}>
-              <input
-                value={String(config.formula ?? '')}
-                spellCheck={false}
-                onChange={(e) => patch({ formula: e.target.value })}
-                className={`${field} font-mono`}
-              />
-            </Field>
+            {advanced ? (
+              <>
+                <Field label={t('column.formula')}>
+                  <input
+                    value={typed}
+                    spellCheck={false}
+                    onChange={(e) => patch({ formula: e.target.value })}
+                    className={`${field} font-mono`}
+                  />
+                </Field>
+                <p className="-mt-2 mb-2 text-xs text-muted">
+                  {meaning
+                    ? t('formula.means', { text: meaning })
+                    : t('column.formulaHint')}
+                </p>
+                {(typedRule || typed.trim() === '') && (
+                  <button
+                    type="button"
+                    onClick={toSimple}
+                    className="mb-3 min-h-8 text-[13px] text-accent hover:underline"
+                  >
+                    {t('column.simple')}
+                  </button>
+                )}
+              </>
+            ) : (
+              <>
+                <div className="mb-3 grid grid-cols-[auto_minmax(0,1fr)] items-center gap-x-2.5 gap-y-2 text-sm">
+                  <span className="text-muted">{t('formula.builder.if')}</span>
+                  <select
+                    aria-label={t('formula.builder.column')}
+                    value={ruleTarget.name}
+                    onChange={(e) => setRuleColumn(e.target.value)}
+                    className={field}
+                  >
+                    {ruleColumns.map((c) => (
+                      <option
+                        key={c.column?.id ?? TITLE_COLUMN_ID}
+                        value={c.name}
+                      >
+                        {c.name}
+                      </option>
+                    ))}
+                  </select>
+                  <span aria-hidden />
+                  <div className="flex min-w-0 gap-2">
+                    <select
+                      aria-label={t('formula.builder.condition')}
+                      value={rule.op}
+                      onChange={(e) => {
+                        const op = e.target.value as RuleOp
+                        const column = ruleTarget.column
+                        const value =
+                          needsValue(op) &&
+                          column?.type === 'choice' &&
+                          !rule.value
+                            ? firstOptionName(column)
+                            : rule.value
+                        setRule({ ...rule, op, value })
+                      }}
+                      className={`${field} min-w-0 flex-1`}
+                    >
+                      {ruleOps(ruleTarget.column).map((op) => (
+                        <option key={op} value={op}>
+                          {ruleOpLabel(op)}
+                        </option>
+                      ))}
+                    </select>
+                    {needsValue(rule.op) &&
+                      (ruleTarget.column?.type === 'choice' ? (
+                        <select
+                          aria-label={t('formula.builder.value')}
+                          value={rule.value}
+                          onChange={(e) =>
+                            setRule({ ...rule, value: e.target.value })
+                          }
+                          className={`${field} min-w-0 flex-1`}
+                        >
+                          {choiceOptions(ruleTarget.column).map((o) => (
+                            <option key={o.id} value={o.name}>
+                              {o.name}
+                            </option>
+                          ))}
+                        </select>
+                      ) : (
+                        <span className="flex min-w-0 flex-1 items-center gap-1">
+                          <input
+                            aria-label={t('formula.builder.value')}
+                            inputMode={
+                              ruleTarget.column?.type === 'number'
+                                ? 'decimal'
+                                : undefined
+                            }
+                            value={rule.value}
+                            onChange={(e) =>
+                              setRule({ ...rule, value: e.target.value })
+                            }
+                            className={`${field} min-w-0`}
+                          />
+                          {ruleTarget.column?.config.format === 'percent' && (
+                            <span className="text-muted">%</span>
+                          )}
+                        </span>
+                      ))}
+                  </div>
+                  <label className="contents">
+                    <span className="text-muted">
+                      {t('formula.builder.then')}
+                    </span>
+                    <input
+                      value={rule.then}
+                      onChange={(e) =>
+                        setRule({ ...rule, then: e.target.value })
+                      }
+                      className={field}
+                    />
+                  </label>
+                  <label className="contents">
+                    <span className="text-muted">
+                      {t('formula.builder.otherwise')}
+                    </span>
+                    <input
+                      value={rule.otherwise}
+                      onChange={(e) =>
+                        setRule({ ...rule, otherwise: e.target.value })
+                      }
+                      className={field}
+                    />
+                  </label>
+                </div>
+                <button
+                  type="button"
+                  onClick={toAdvanced}
+                  className="mb-3 min-h-8 text-[13px] text-accent hover:underline"
+                >
+                  {t('column.advanced')}
+                </button>
+              </>
+            )}
             <p className="mb-3 text-sm" aria-live="polite">
               {preview ? (
                 <>
@@ -469,22 +692,23 @@ export function ColumnDialog({
                 <span className="text-muted">{t('column.previewNoRows')}</span>
               )}
             </p>
-            <div className="mb-3">
-              <div className="mb-1 text-xs text-muted">
-                {t('column.examples')}
+            {examples.length > 0 && (
+              <div className="mb-3">
+                <div className="mb-1 text-xs text-muted">
+                  {t('column.examples')}
+                </div>
+                {examples.map(({ formula, sentence }) => (
+                  <button
+                    key={formula}
+                    type="button"
+                    onClick={() => pickExample(formula)}
+                    className="block min-h-8 w-full rounded-md px-2 text-start text-[13px] hover:bg-hover"
+                  >
+                    {sentence.charAt(0).toLocaleUpperCase() + sentence.slice(1)}
+                  </button>
+                ))}
               </div>
-              {examples.map(([formula, hint]) => (
-                <button
-                  key={hint}
-                  type="button"
-                  onClick={() => patch({ formula })}
-                  className="block min-h-8 w-full rounded-md px-2 text-start text-[13px] hover:bg-hover"
-                >
-                  <code>{formula}</code>
-                  <span className="text-muted"> · {t(hint)}</span>
-                </button>
-              ))}
-            </div>
+            )}
           </>
         )}
 

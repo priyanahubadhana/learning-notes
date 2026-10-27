@@ -10,10 +10,10 @@
 ## Mirror copy (gdrive notes)
 
 - Whenever you create, edit or delete any of CLAUDE.md, README.md, IDEAS.md, LEARNING.md, package.json, `rules/` or `src/`, apply the same change to the copy in `C:\Users\pc\Downloads\gdrive notes`.
-- Run this after each change (PowerShell, one line). It copies the five files and mirrors `rules/` and `src/` (extra files there are deleted to match). Never node_modules, dist or test-results:
+- Run this after each change (PowerShell, one line). It copies the six files and mirrors `rules/` and `src/` (extra files there are deleted to match). Never node_modules, dist or test-results:
 
   ```powershell
-  $s='C:\Users\pc\Downloads\learning-notes'; $d='C:\Users\pc\Downloads\gdrive notes'; robocopy $s $d CLAUDE.md README.md IDEAS.md LEARNING.md package.json /NJH /NJS /NDL /NP; robocopy "$s\rules" "$d\rules" /MIR /NJH /NJS /NDL /NP; robocopy "$s\src" "$d\src" /MIR /XD node_modules dist test-results /NJH /NJS /NDL /NP
+  $s='C:\Users\pc\Downloads\learning-notes'; $d='C:\Users\pc\Downloads\gdrive notes'; robocopy $s $d CLAUDE.md README.md IDEAS.md LEARNING.md HELP-TEXTS.md package.json /NJH /NJS /NDL /NP; robocopy "$s\rules" "$d\rules" /MIR /NJH /NJS /NDL /NP; robocopy "$s\src" "$d\src" /MIR /XD node_modules dist test-results /NJH /NJS /NDL /NP
   ```
 
 - Robocopy exit codes 0–7 mean success; 8 or more means a failure — report it.

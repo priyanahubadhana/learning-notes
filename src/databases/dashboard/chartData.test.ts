@@ -319,7 +319,7 @@ describe('chart settings', () => {
       spec({ kind: 'bar', groupColumnId: 'status' }),
     ])
     expect(readCharts({})).toBeNull()
-    const damaged = {
+    const damaged: JsonObject = {
       charts: [
         { id: 'x', kind: 'pie' },
         'oops',

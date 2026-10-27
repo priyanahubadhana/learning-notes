@@ -417,7 +417,10 @@ export function TableView({ db, database, view, onOpenPage }: ViewProps) {
 
       <div className="overflow-hidden rounded-[10px] border border-line">
         <div className="overflow-x-auto">
-          <table className="w-full min-w-[640px] border-collapse text-[13.5px]">
+          <table
+            style={{ tableLayout: 'auto', overflow: 'visible' }}
+            className="w-full min-w-[640px] border-collapse text-[13.5px]"
+          >
             <thead>
               <tr>
                 <th

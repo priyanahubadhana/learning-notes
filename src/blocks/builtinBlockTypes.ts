@@ -56,6 +56,11 @@ export const builtinBlockTypes: readonly BlockTypeDefinition[] = [
     createContent: () => ({ includeSubpages: false }),
   },
   {
+    type: 'database',
+    label: 'Database',
+    createContent: () => ({ databaseId: '' }),
+  },
+  {
     type: 'pageLink',
     label: 'Page link',
     createContent: () => ({ pageId: '' }),

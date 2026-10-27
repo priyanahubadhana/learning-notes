@@ -100,6 +100,9 @@ const STARTERS: Record<StarterId, Starter> = {
   },
 }
 
+/** Just the name of what a starter makes ("Drug list"). */
+export const starterTitle = (id: StarterId): string => t(STARTERS[id].title)
+
 /** Name and one-line description of a starter, for the picker. */
 export const starterName = (id: StarterId): string =>
   t(`starter.${id}.pick` as MessageKey)

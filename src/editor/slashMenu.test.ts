@@ -20,6 +20,7 @@ function setup(withSave = true) {
     onNewSubPage,
     onLinkPage: vi.fn(),
     onInsertTemplate,
+    onInsertDatabase: vi.fn(),
     onSaveAsTemplate: withSave ? onSaveAsTemplate : undefined,
   })
   const search = (query: string) =>

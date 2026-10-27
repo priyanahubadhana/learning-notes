@@ -21,6 +21,7 @@ export async function loadTrackerStats(
   const find = (page: Page): string | null => {
     const known = lessonOf.get(page.id)
     if (known !== undefined) return known
+    lessonOf.set(page.id, null) // a damaged parent loop ends here, not in a crash
     let result: string | null = null
     if (isLive(page) && !page.databaseId) {
       if (page.parentId === null) result = page.id

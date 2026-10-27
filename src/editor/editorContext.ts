@@ -13,6 +13,8 @@ export interface EditorAppContext {
   reviewCards?: (includeSubpages: boolean) => void
   /** Shows everything with a tag (Search); unset = tags are not clickable. */
   openTag?: (tagId: string) => void
+  /** Opens a database on its own screen; unset = no "Open" button. */
+  openDatabase?: (databaseId: string) => void
 }
 
 export const EditorContext = createContext<EditorAppContext | null>(null)

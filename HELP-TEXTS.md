@@ -2,7 +2,7 @@
 
 Every hover tip and help line in the app (shown while Settings › Show help is On). Generated from `src/help/helpRegistry.ts` and `src/i18n/en.ts`; to change a text, edit it in `en.ts`, then run `UPDATE_HELP=1 npx vitest run src/help` to refresh this file.
 
-## Hover tips (81)
+## Hover tips (86)
 
 ### `tracker.lesson`
 
@@ -489,6 +489,36 @@ Every hover tip and help line in the app (shown while Settings › Show help is 
 - **Where:** Page › a tag under the title
 - **Meaning:** Opens the options of this tag on the page: open it in Search or take it off this page.
 - **Example:** Remove “draft” once the page is finished.
+
+### `sidebar.allCards`
+
+- **Where:** Sidebar › All cards
+- **Meaning:** Every card from every notebook in one list, with when it is due.
+- **Example:** Find a card, or review everything that is due.
+
+### `sidebar.allDatabases`
+
+- **Where:** Sidebar › Databases
+- **Meaning:** All your databases in one place: Study trackers and your own lists.
+- **Example:** Open your “Drug list” or make a new one.
+
+### `databases.new`
+
+- **Where:** All databases › + New database
+- **Meaning:** Makes a new database from a ready-made list (drugs, words, books, habits) or from nothing.
+- **Example:** Pick “Drug list” to start with Class and Dose columns.
+
+### `db.blockViews`
+
+- **Where:** A database inside a note › Table / Dashboard / Board
+- **Meaning:** Shows this database in the note as a table, charts or a board. Only this note’s copy changes.
+- **Example:** Sort the table here without changing the full database.
+
+### `db.blockOpen`
+
+- **Where:** A database inside a note › Open
+- **Meaning:** Opens the whole database on its own screen.
+- **Example:** Add columns or charts there.
 
 ## Help lines (8)
 

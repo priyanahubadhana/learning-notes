@@ -519,6 +519,10 @@ function App() {
                 }
                 onNewPageFromTemplate={(id) => runTask(newPageFromTemplate(id))}
                 onOpenTag={openTag}
+                onOpenDatabase={(id) => {
+                  openPage(null)
+                  setHub({ kind: 'database', id })
+                }}
               />
             ) : notebooks.length === 0 && currentPage === null ? (
               <div className="mt-[30vh] text-center">

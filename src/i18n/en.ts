@@ -514,6 +514,13 @@ export const en = {
     'Makes a new database from a ready-made list (drugs, words, books, habits) or from nothing.',
   'help.tip.databases.new.example':
     'Pick “Drug list” to start with Class and Dose columns.',
+  'help.tip.db.blockViews.meaning':
+    'Shows this database in the note as a table, charts or a board. Only this note’s copy changes.',
+  'help.tip.db.blockViews.example':
+    'Sort the table here without changing the full database.',
+  'help.tip.db.blockOpen.meaning':
+    'Opens the whole database on its own screen.',
+  'help.tip.db.blockOpen.example': 'Add columns or charts there.',
   'help.line.tracker.statusRule':
     'Auto: Not started = no cards answered yet · Learning = under 75% correct · Mastered = 90% or more correct, nothing due, no new cards, and at least 80% of the cards at level Mastered · Review = in between.',
   'settings.dayStart.label': 'Day starts at',
@@ -727,6 +734,15 @@ export const en = {
   'starter.habits.streak': 'Streak',
   'properties.title': 'Properties',
   'properties.empty': 'Empty',
+  'databaseBlock.gone':
+    'This database was deleted. You can restore it from the Trash.',
+  'databaseBlock.open': 'Open ↗',
+  'databaseBlock.slash.title': 'Database',
+  'databaseBlock.slash.subtext': 'Show a database in this note',
+  'databaseBlock.choose.title': 'Add a database',
+  'databaseBlock.choose.message':
+    'Pick a database to show here, or start a new one.',
+  'databaseBlock.new': 'New: {name}',
   'databases.title': 'Databases',
   'databases.new': '+ New database',
   'databases.newTitle': 'New database',

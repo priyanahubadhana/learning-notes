@@ -44,6 +44,8 @@ interface PageViewProps {
   onReview: (includeSubpages?: boolean) => void
   /** Shows everything with a tag (Search). */
   onOpenTag?: (tagId: string) => void
+  /** Opens a database on its own screen. */
+  onOpenDatabase?: (databaseId: string) => void
 }
 
 /** An open page: breadcrumb, action bar, banner, title and block editor. */
@@ -56,6 +58,7 @@ export function PageView({
   onNewPageFromTemplate,
   onReview,
   onOpenTag,
+  onOpenDatabase,
 }: PageViewProps) {
   const { toast } = useContext(AppUiContext)
   const path = useLiveQuery(() => getPagePath(db, page.id), [db, page.id]) ?? []
@@ -199,6 +202,7 @@ export function PageView({
         onOpenPage={onOpenPage}
         onOpenNewPage={onOpenNewPage}
         onOpenTag={onOpenTag}
+        onOpenDatabase={onOpenDatabase}
         onReviewCards={notebook && !isTemplate ? onReview : undefined}
         onSaveAsTemplate={notebook && !isTemplate ? saveTemplate : undefined}
         editorRef={editor}

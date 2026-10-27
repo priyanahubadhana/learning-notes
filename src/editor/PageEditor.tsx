@@ -1,3 +1,10 @@
+import { listDatabases } from '../databases/databaseService'
+import {
+  createStarterDatabase,
+  starterTitle,
+  STARTER_IDS,
+  type StarterId,
+} from '../databases/starterDatabases'
 import '@blocknote/mantine/style.css'
 import {
   filterSuggestionItems,
@@ -67,6 +74,8 @@ interface PageEditorProps {
   onOpenNewPage: (page: Page) => void
   /** Shows everything with a tag (a tag in text is clicked). */
   onOpenTag?: (tagId: string) => void
+  /** Opens a database on its own screen (a database block's "Open"). */
+  onOpenDatabase?: (databaseId: string) => void
   /** "/ Save page as template" (left out of the menu when undefined). */
   onSaveAsTemplate?: () => void
   /** Filled with focus/flush controls for the page around the editor. */
@@ -108,6 +117,7 @@ function LoadedPageEditor({
   onReviewCards,
   onOpenNewPage,
   onOpenTag,
+  onOpenDatabase,
   onSaveAsTemplate,
   editorRef,
   records,
@@ -241,6 +251,50 @@ function LoadedPageEditor({
     return answer === 'inside' || answer === 'nextLine' ? answer : null
   }
 
+  /** "/database": pick (or start) a database and put it in the note. */
+  const insertDatabase = () =>
+    runTask(
+      (async () => {
+        const [notebook, databases] = await Promise.all([
+          db.notebooks.get(notebookId),
+          listDatabases(db, (await db.notebooks.get(notebookId))!.workspaceId),
+        ])
+        if (!notebook) return
+        const picked = await choose({
+          title: t('databaseBlock.choose.title'),
+          message: t('databaseBlock.choose.message'),
+          options: [
+            ...databases
+              .slice(0, 6)
+              .map((d) => ({ value: `db:${d.id}`, label: d.title })),
+            ...STARTER_IDS.map((id) => ({
+              value: `new:${id}`,
+              label: t('databaseBlock.new', { name: starterTitle(id) }),
+            })),
+          ],
+        })
+        if (!picked) return
+        let databaseId = picked.slice(3)
+        if (picked.startsWith('new:')) {
+          const created = await createStarterDatabase(
+            db,
+            notebook.workspaceId,
+            notebook.kind ? null : notebook.id,
+            picked.slice(4) as StarterId,
+          )
+          databaseId = created.id
+        }
+        const current = editor.getTextCursorPosition().block
+        const emptyLine =
+          current.type === 'paragraph' &&
+          Array.isArray(current.content) &&
+          current.content.length === 0
+        const block = { type: 'database' as const, props: { databaseId } }
+        if (emptyLine) editor.replaceBlocks([current], [block])
+        else editor.insertBlocks([block], current, 'after')
+      })(),
+    )
+
   /** "/ Save page as template": save latest edits first. */
   const saveAsTemplate = onSaveAsTemplate
     ? () =>
@@ -267,6 +321,7 @@ function LoadedPageEditor({
         openBlock,
         reviewCards: onReviewCards,
         openTag: onOpenTag,
+        openDatabase: onOpenDatabase,
       }}
     >
       <BlockNoteView
@@ -297,6 +352,7 @@ function LoadedPageEditor({
                 onNewSubPage: newSubPage,
                 onLinkPage: () => openLinkPicker(null),
                 onInsertTemplate: insertTemplate,
+                onInsertDatabase: insertDatabase,
                 onSaveAsTemplate: saveAsTemplate,
                 onPlaceNestedCard: placeNestedCard,
               }),

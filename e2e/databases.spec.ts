@@ -93,3 +93,71 @@ test('a lesson page shows its tracker properties and Back to auto', async ({
     0,
   )
 })
+
+test('/database shows a database inside a note with its own view', async ({
+  page,
+}) => {
+  await page.locator('.bn-editor').click()
+  await page.keyboard.type('/database')
+  await page.keyboard.press('Enter')
+  await page
+    .getByRole('dialog', { name: 'Add a database' })
+    .getByRole('button', { name: 'New: Drug list' })
+    .click()
+
+  const block = page.getByRole('region', { name: 'Drug list' })
+  await expect(block).toBeVisible()
+  // Its own view: switch it to a Board without touching the database.
+  await block.getByRole('button', { name: /Board/ }).click()
+  await expect(
+    block.getByRole('button', { name: '+ Choice column' }),
+  ).toBeVisible()
+  await block.getByRole('button', { name: /Table/ }).click()
+  await block.getByRole('button', { name: '+ New row' }).click()
+  await page.getByRole('textbox', { name: /^Drug/ }).fill('Atenolol')
+  await page.getByRole('textbox', { name: /^Drug/ }).press('Enter')
+  await expect(
+    block.getByRole('row').filter({ hasText: 'Atenolol' }),
+  ).toHaveCount(1)
+
+  // Open on its own screen.
+  await block.getByRole('button', { name: 'Open ↗' }).first().click()
+  await expect(main(page).getByRole('textbox', { name: 'Rename' })).toHaveValue(
+    'Drug list',
+  )
+})
+
+for (const [theme, width, height] of [
+  ['Day', 1280, 800],
+  ['Night', 1280, 800],
+  ['Sepia', 1280, 800],
+  ['Day', 390, 844],
+] as const) {
+  test(`screenshot: databases ${theme} ${width}×${height}`, async ({
+    page,
+  }) => {
+    await makeCard(page, 'Which valves close in S1?', 1)
+    await page.keyboard.press('Enter')
+    await page.keyboard.type('/database')
+    await page.keyboard.press('Enter')
+    await page
+      .getByRole('dialog', { name: 'Add a database' })
+      .getByRole('button', { name: 'New: Books' })
+      .click()
+    await expect(page.getByRole('region', { name: 'Books' })).toBeVisible()
+    await sidebar(page)
+      .getByRole('group', { name: 'Theme' })
+      .getByRole('button', { name: theme })
+      .click()
+    await page.setViewportSize({ width, height })
+    await page.waitForTimeout(400)
+    await page.screenshot({
+      path: `test-results/screens/db-block-${theme}-${width}x${height}.png`,
+      fullPage: true,
+    })
+    await sidebar(page)
+      .getByRole('button', { name: 'Databases' })
+      .click()
+      .catch(() => {})
+  })
+}

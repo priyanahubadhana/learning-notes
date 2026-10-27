@@ -593,3 +593,10 @@
 - **Why:** Owner request 2026-10-27 (every feature and label gets a tip; tooltips list for review).
 - **Self-review:** Settings descriptions, dialogs, the editor's own menus and pickers have no tips yet (logged in Decisions to review). Tips are shown by a mouse after 450 ms, by Tab focus, and by ⓘ on touch.
 - **Files:** src/help/*, src/app/ui.tsx, src/notebooks/Sidebar.tsx, NotebookScreen.tsx, src/pages/PageTree.tsx, PageView.tsx, src/tags/*, src/templates/TemplatesSection.tsx, src/trash/TrashSection.tsx, src/search/*, src/recall/ReviewScreen.tsx, CardsTab.tsx, src/databases/views/*, dashboard/DashboardView.tsx, src/i18n/en.ts, e2e/*, HELP-TEXTS.md, README.md
+
+## 2026-10-27
+
+- **What:** Step 5A-7 and 5A-8. Sidebar: "All cards" and "Databases". New: `recall/AllCardsScreen.tsx` (CardsTab for all notebooks), `databases/DatabasesHub.tsx` (hub + full-screen database), `starterDatabases.ts` (+test), `RowProperties.tsx` (properties of a row page or lesson), `DatabaseBlockView.tsx` + `blockViews.ts` (the "/database" block; block type `database`), slash-menu item "Database", breadcrumb shows the database for rows, Table forces automatic column widths. 8 new tips (87 in all). Phase-half end checks: 440 unit + 141 e2e, lint, format, build, npm audit 0; review fixes: parent-loop guard in `trackerLoad.ts`, null guard in `DatabaseBlockView.tsx`. LEARNING.md: Phase 5 (5A) section.
+- **Why:** Plan of Phase 5 (rows as pages, "/database", All databases, All cards).
+- **Self-review:** "+ View" and Calendar/Gallery are not built (5B). Opening a hub closes the open page. A "/database" typed inside a card's answer puts the table inside the answer (works, looks heavy).
+- **Files:** src/recall/AllCardsScreen.tsx, CardsTab.tsx, src/databases/*, src/editor/schema.tsx, slashMenu.tsx, PageEditor.tsx, editorContext.ts, src/blocks/builtinBlockTypes.ts, src/pages/PageView.tsx, src/notebooks/Sidebar.tsx, src/App.tsx, src/i18n/en.ts, src/help/helpRegistry.ts, e2e/databases.spec.ts, HELP-TEXTS.md, LEARNING.md, README.md

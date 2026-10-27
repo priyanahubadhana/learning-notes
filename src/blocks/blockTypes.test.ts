@@ -50,6 +50,7 @@ describe('built-in block types', () => {
       'callout',
       'card',
       'cardList',
+      'database',
       'pageLink',
     ])
   })

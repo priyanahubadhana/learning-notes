@@ -11,6 +11,7 @@ import {
   createReactStyleSpec,
 } from '@blocknote/react'
 import { t } from '../i18n/t'
+import { DatabaseBlockView } from '../databases/DatabaseBlockView'
 import { CardListView } from '../recall/CardListView'
 import { NOTE_LINK, TAG } from './mapping'
 import { NoteLinkView } from './NoteLinkView'
@@ -53,6 +54,23 @@ const createPageLink = createReactBlockSpec(
   },
   {
     render: ({ block }) => <PageLinkView pageId={block.props.pageId} />,
+  },
+)
+
+/** Database: a database shown inside the note, with this block's own view. */
+const createDatabaseBlock = createReactBlockSpec(
+  {
+    type: 'database',
+    propSchema: { databaseId: { default: '' } },
+    content: 'none',
+  },
+  {
+    render: ({ block }) => (
+      <DatabaseBlockView
+        databaseId={block.props.databaseId}
+        blockId={block.id}
+      />
+    ),
   },
 )
 
@@ -167,6 +185,7 @@ export const schema = BlockNoteSchema.create({
     pageLink: createPageLink(),
     card: createCard(),
     cardList: createCardList(),
+    database: createDatabaseBlock(),
   },
   inlineContentSpecs: { ...defaultInlineContentSpecs, noteLink, tag },
   styleSpecs: { ...defaultStyleSpecs, blank },

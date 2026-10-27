@@ -75,6 +75,7 @@ describe('Make card', () => {
       onNewSubPage: vi.fn(),
       onLinkPage: vi.fn(),
       onInsertTemplate: vi.fn(),
+      onInsertDatabase: vi.fn(),
     })
     filterSuggestionItems(items, 'flashcard')[0].onItemClick()
     const card = editor.document.find((b) => b.type === 'card')!

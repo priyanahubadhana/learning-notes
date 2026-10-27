@@ -20,6 +20,8 @@ export interface SlashMenuActions {
   /** Opens the link picker (same as typing "[["). */
   onLinkPage: () => void
   onInsertTemplate: () => void
+  /** "/database": asks which database, then inserts it. */
+  onInsertDatabase: () => void
   /** Left out of the menu when undefined (e.g. on template pages). */
   onSaveAsTemplate?: () => void
   /** "/card" inside a card's answer: where the new card goes. */
@@ -38,6 +40,7 @@ export function buildSlashMenuItems(
     onNewSubPage,
     onLinkPage,
     onInsertTemplate,
+    onInsertDatabase,
     onSaveAsTemplate,
     onPlaceNestedCard,
   }: SlashMenuActions,
@@ -72,6 +75,14 @@ export function buildSlashMenuItems(
       insertOrUpdateBlockForSlashMenu(editor, { type: 'cardList' }),
   })
 
+  items.push({
+    title: t('databaseBlock.slash.title'),
+    subtext: t('databaseBlock.slash.subtext'),
+    aliases: ['database', 'table', 'board', 'list', 'tracker'],
+    group: 'Databases',
+    icon: <span aria-hidden>◫</span>,
+    onItemClick: onInsertDatabase,
+  })
   items.push({
     title: 'Insert template…',
     subtext: 'Add a template’s blocks here',

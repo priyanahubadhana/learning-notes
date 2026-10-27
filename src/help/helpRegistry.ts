@@ -134,6 +134,10 @@ export const TIPS = {
   'sidebar.allCards': { where: 'Sidebar › All cards' },
   'sidebar.allDatabases': { where: 'Sidebar › Databases' },
   'databases.new': { where: 'All databases › + New database' },
+  'db.blockViews': {
+    where: 'A database inside a note › Table / Dashboard / Board',
+  },
+  'db.blockOpen': { where: 'A database inside a note › Open' },
 } as const satisfies Record<string, TipDefinition>
 
 export const HELP_LINES = {

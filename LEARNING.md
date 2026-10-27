@@ -109,3 +109,40 @@ A duplicated card sometimes didn't show in All cards or Review. Saving a card is
   - screenshots in Day, Night and Sepia and at phone size
 - **Security review:** no way for note text to run as code, stored searches and settings are checked before use, no secrets in the project, and 0 known vulnerabilities in the libraries. One fix: tag colours are now limited to the app's six colours, so a damaged or imported value can't inject odd styling.
 - **No new libraries:** search, links and tags are all built on the existing database (₹0).
+
+## Phase 5 (first half, 5A) — Databases (completed 2026-10-27)
+
+### What a database is
+A database is a list where every item (a **row**) has the same boxes (**columns**): text, numbers, dates, choices, tick boxes, stars, links. Every row is also a full page, so you can write notes, make cards, add tags and links inside it.
+_Example:_ a **Drug list** where each drug is a row with Class, Dose and Side effects, and a page of notes behind each name.
+
+### Where you find them
+- **Each notebook's Database tab** is its **Study tracker**: one row per lesson (a top-level page; its sub-pages count towards it).
+- **Databases** in the sidebar lists all of them. **+ New database** offers ready-made lists: Drug list, Vocabulary, Books, Habits, or blank.
+- **/database** puts a database inside a note. Each note keeps its own view of it (its own sorting and filters).
+- **All cards** in the sidebar lists every card from every notebook.
+
+### Three views of the same rows
+**Table** (edit cells like a spreadsheet; click a column header to sort, filter or hide), **Dashboard** (number tiles, bars, lines, donuts, progress bars and a calendar heatmap, no chart library) and **Board** (columns of cards; drag a card to change its column).
+
+### The Study tracker fills itself in
+Each card remembers your latest answer, so the tracker only reads cards and stays fast.
+- **Status:** Not started (nothing answered) · Learning (under 75% of your latest answers right) · Review (in between) · Mastered (90%+ right, nothing due, no new cards, and 80%+ of the cards at level Mastered). You can set a status yourself (shown with 📌) and hand it back with "Auto".
+- **Card levels:** New (never reviewed) · Learning (comes back within a day) · Familiar (back in 1–20 days) · Mastered (21+ days). Each lesson shows how its cards are spread over the levels.
+- **Cards due:** shown as "5 due · 20 new". **% correct** and **Last revised** come from your answers.
+- **Review history charts:** % correct per week, cards answered per day, and your study streak.
+_Example:_ a lesson with 10 cards, 9 answered right, 8 of them at 21+ days, nothing due and no new cards is Mastered; add one new card and it drops back to Review.
+
+### Formulas, relations and rollups
+A **Formula** column works out a value from other columns with Excel-like words (never code), e.g. "Days until exam". A **Relation** links rows of two databases; a **Rollup** summarises the linked rows (e.g. the average Confidence of a unit's lessons).
+
+### Help while you learn the app
+**Settings › Show help** (on by default) shows a short explanation when you hover over a feature (or tap its ⓘ on a touch screen), and a help line under harder features. Every text is listed in `HELP-TEXTS.md` and can be reworded.
+
+### Backups before an upgrade
+When a new version changes how your notes are stored, the app first copies everything into a backup inside the browser and offers a backup **file** you can save.
+
+### Quality and safety
+- **Testing:** 440 unit tests and 141 browser tests, including database upgrade tests (versions 1–8 → 9), speed tests (10,000 rows, 10,000 cards in 100 lessons), and screenshots in Day, Night and Sepia and at phone size.
+- **Security review:** values written into cells and statuses are checked; formulas cannot run code; tips only show text from the app; 0 known vulnerabilities; no secrets. Fixes in this phase: a damaged page-parent loop can no longer hang the tracker, and a database block outside the editor no longer crashes.
+- **No new libraries:** charts, formulas and drag are our own code (₹0).

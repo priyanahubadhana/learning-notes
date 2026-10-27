@@ -1,3 +1,4 @@
+import { t } from '../i18n/t'
 /**
  * Password protection for saved files (Phase 6). The file's bytes are
  * encrypted with AES-GCM; the key comes from the password with PBKDF2
@@ -92,7 +93,7 @@ export async function decryptBytes(
   password: string,
 ): Promise<Uint8Array> {
   if (!isEncryptedFile(file)) {
-    throw new DecryptError('This is not a password-protected file.')
+    throw new DecryptError(t('err.notLocked'))
   }
   const header = file.subarray(0, HEADER_BYTES)
   const rounds = new DataView(file.buffer, file.byteOffset).getUint32(
@@ -100,7 +101,7 @@ export async function decryptBytes(
   )
   // A damaged number must not make opening take forever.
   if (rounds < MIN_ROUNDS || rounds > MAX_ROUNDS) {
-    throw new DecryptError('This file is damaged.')
+    throw new DecryptError(t('err.fileDamaged'))
   }
   const salt = header.subarray(MAGIC.length + 4, MAGIC.length + 20)
   const iv = header.subarray(MAGIC.length + 20)
@@ -118,9 +119,7 @@ export async function decryptBytes(
       ),
     )
   } catch {
-    throw new DecryptError(
-      'Wrong password, or the file is damaged. Nothing was imported.',
-    )
+    throw new DecryptError(t('err.wrongPassword'))
   }
 }
 

@@ -690,3 +690,10 @@
 - **Why:** Phase 6 plan (owner, 2026-10-28).
 - **Self-review:** Export not tried in real Anki. Pictures, sounds, tags and Anki schedules are not imported. Imported HTML is reduced to text + bold/italic/underline, so no markup or script can arrive.
 - **Files:** package.json, package-lock.json, src/anki/*, src/share/DataScreen.tsx, src/i18n/en.ts, src/help/helpRegistry.ts, HELP-TEXTS.md, e2e/anki.spec.ts, README.md
+
+## 2026-10-28
+
+- **What:** Phase 6, step 5 (languages). User-visible hard-coded text moved to `t()` keys; new device setting “Language” (English · हिन्दी · Español) that loads `hi.ts` / `es.ts` on demand, sets `<html lang>` and, for Spanish, the editor's own menus. Full Hindi and Spanish translations of every key (AI-translated; Spanish marked for native review), with a test that checks keys, placeholders and completeness.
+- **Why:** Phase 6 plan and owner additions (Hindi + Spanish, 2026-10-28).
+- **Self-review:** Hindi editor menus stay English (BlockNote has no Hindi). Date wording follows the Date style setting (English months). Starter templates and sample content are created in English. The slash-menu alias lookups use English titles, so the Spanish editor menu loses a few extra search words.
+- **Files:** src/i18n/* (languages.ts, hi.ts, es.ts, hi1–7.ts, es1–7.ts, translations.test.ts, en.ts), src/settings/builtinSettings.ts, src/App.tsx, src/editor/PageEditor.tsx, slashMenu.tsx, src/notebooks/Sidebar.tsx, src/pages/_, src/trash/_, src/templates/_, src/share/_, src/anki/*, src/app/ui.tsx, e2e/language.spec.ts, README.md

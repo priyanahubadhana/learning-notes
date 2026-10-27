@@ -1,3 +1,4 @@
+import { t } from '../i18n/t'
 import { listBlocks } from '../core/blockService'
 import type { LearningNotesDB } from '../core/db'
 import type { Block, JsonValue, Page } from '../core/types'
@@ -273,7 +274,7 @@ export async function exportApkg(
   now: number = Date.now(),
 ): Promise<AnkiExport> {
   const notebook = await getNotebook(db, notebookId)
-  if (!notebook) throw new Error('That notebook no longer exists.')
+  if (!notebook) throw new Error(t('anki.notebookGone'))
   const pages = await listNotePages(db, notebookId)
   const byId = new Map(pages.map((p) => [p.id, p]))
   const deckName = (page: Page): string => {
@@ -294,7 +295,7 @@ export async function exportApkg(
     notes.push(...notesOf(deckName(page), await listBlocks(db, page.id)))
   }
   if (notes.length === 0) {
-    throw new Error('This notebook has no cards or blanks to export.')
+    throw new Error(t('anki.noCards'))
   }
 
   const SQL = await loadSql()

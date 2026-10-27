@@ -54,7 +54,7 @@ export function RenameInput({
     <input
       autoFocus
       value={value}
-      aria-label="Name"
+      aria-label={t('ui.name')}
       onFocus={(e) => e.currentTarget.select()}
       onChange={(e) => setValue(e.target.value)}
       onBlur={() => {
@@ -214,7 +214,7 @@ export function ConfirmDialog({
           onClick={onCancel}
           className="rounded-lg px-3 py-1.5 text-muted hover:bg-hover hover:text-ink"
         >
-          Cancel
+          {t('ui.cancel')}
         </button>
         <button
           type="button"

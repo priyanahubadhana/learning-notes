@@ -1,3 +1,4 @@
+import { t as tr } from '../i18n/t'
 import { useLiveQuery } from 'dexie-react-hooks'
 import { useEffect, useRef } from 'react'
 import type { PickerMode } from '../app/appUi'
@@ -49,7 +50,7 @@ export function TemplatePicker({
   return (
     <dialog
       ref={ref}
-      aria-label={mode === 'insert' ? 'Insert a template' : 'New page'}
+      aria-label={mode === 'insert' ? tr('picker.insert') : tr('picker.new')}
       onCancel={(e) => {
         e.preventDefault()
         onDone(null)
@@ -60,21 +61,19 @@ export function TemplatePicker({
       className="m-auto max-h-[86vh] w-[min(640px,calc(100vw-32px))] overflow-auto rounded-[14px] border border-line bg-bg p-5 text-ink shadow-[0_18px_48px_rgba(0,0,0,0.18)] backdrop:bg-black/20"
     >
       <h2 className="mb-1 text-[17px] font-semibold">
-        {mode === 'insert' ? 'Insert a template' : 'New page'}
+        {mode === 'insert' ? tr('picker.insert') : tr('picker.new')}
       </h2>
       <p className="mb-4 text-[13px] text-muted">
-        {mode === 'insert'
-          ? 'Its blocks are added where your cursor is.'
-          : 'Start blank, or from one of your templates.'}
+        {mode === 'insert' ? tr('picker.insertHelp') : tr('picker.newHelp')}
       </p>
       <div className="grid grid-cols-[repeat(auto-fill,minmax(170px,1fr))] gap-2.5">
         {mode === 'new' &&
-          card('blank', 'Blank page', 'Start from nothing', '')}
+          card('blank', tr('sidebar.blankPage'), tr('picker.blankHelp'), '')}
         {templates?.map((t) =>
           card(
             t.id,
-            t.title || 'Untitled template',
-            t.preview || 'Empty template',
+            t.title || tr('templates.untitled'),
+            t.preview || tr('picker.emptyTemplate'),
             t.id,
           ),
         )}
@@ -85,7 +84,7 @@ export function TemplatePicker({
           onClick={() => onDone(null)}
           className="rounded-lg border border-line px-3 py-1.5 text-[13px] hover:border-accent"
         >
-          Cancel
+          {tr('ui.cancel')}
         </button>
       </div>
     </dialog>

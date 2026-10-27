@@ -1,5 +1,11 @@
 import { isTheme, THEME_PREF_KEY, THEMES, type Theme } from '../app/theme'
 import { DEFAULT_DAY_START_HOUR } from '../core/time'
+import {
+  isLanguage,
+  LANGUAGE_NAMES,
+  LANGUAGES,
+  type Language,
+} from '../i18n/languages'
 import { dateLocale, t, type DateStyle } from '../i18n/t'
 import {
   createSettingsRegistry,
@@ -62,6 +68,24 @@ export const theme: SettingDefinition<Theme> = {
     options: THEMES.map((value) => ({
       value,
       label: () => t(`settings.theme.${value}`),
+    })),
+  },
+}
+
+/** The language of the app's texts on this device. */
+export const languageSetting: SettingDefinition<Language> = {
+  id: 'general.language',
+  labelKey: 'settings.language.label',
+  descriptionKey: 'settings.language.description',
+  category: 'general',
+  scope: 'device',
+  defaultValue: 'en',
+  isValid: isLanguage,
+  control: {
+    kind: 'segmented',
+    options: LANGUAGES.map((value) => ({
+      value,
+      label: () => LANGUAGE_NAMES[value],
     })),
   },
 }
@@ -256,6 +280,7 @@ export const practiceOrder: SettingDefinition<PracticeOrder> = {
 
 for (const definition of [
   theme,
+  languageSetting,
   showHelp,
   dateStyleSetting,
   dayStartHour,

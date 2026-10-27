@@ -1,3 +1,4 @@
+import { t } from '../i18n/t'
 import {
   BundleError,
   MAX_BUNDLE_BYTES,
@@ -35,7 +36,7 @@ export async function readImportFile(
   password?: string,
 ): Promise<Bundle> {
   if (file.size > MAX_BUNDLE_BYTES) {
-    throw new BundleError('This file is too big to import.')
+    throw new BundleError(t('err.tooBig'))
   }
   const bytes = new Uint8Array(await file.arrayBuffer())
   if (!isEncryptedFile(bytes))

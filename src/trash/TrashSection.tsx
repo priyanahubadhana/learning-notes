@@ -60,11 +60,14 @@ export function TrashSection({ db, workspaceId }: TrashSectionProps) {
         <span aria-hidden className="w-3 text-[10px]">
           {open ? '▾' : '▸'}
         </span>
-        Trash{count > 0 && ` · ${count}`}
+        {t('trash.title')}
+        {count > 0 && ` · ${count}`}
       </button>
 
       {open && count === 0 && (
-        <p className="px-2.5 py-1 pl-7 text-xs text-muted">Trash is empty</p>
+        <p className="px-2.5 py-1 pl-7 text-xs text-muted">
+          {t('trash.empty')}
+        </p>
       )}
       {open &&
         items?.map((item) => (
@@ -81,26 +84,28 @@ export function TrashSection({ db, workspaceId }: TrashSectionProps) {
             </span>
             <span className="min-w-0 flex-1">
               <span className="block truncate text-muted">
-                {item.title || 'Untitled'}
+                {item.title || t('review.untitled')}
               </span>
               <span className="block truncate text-[11px] text-muted/80">
                 {item.kind === 'notebook'
-                  ? `${item.pageCount} page${item.pageCount === 1 ? '' : 's'}`
+                  ? t('trash.pages', { count: item.pageCount })
                   : item.kind === 'database'
                     ? t('trash.databaseRows', { count: item.rowCount })
-                    : `in ${item.notebookTitle || 'Untitled'}`}
+                    : t('trash.inNotebook', {
+                        name: item.notebookTitle || t('review.untitled'),
+                      })}
               </span>
             </span>
             <span className="flex opacity-0 group-focus-within:opacity-100 group-hover:opacity-100">
               <IconButton
-                title="Restore"
+                title={t('trash.restore')}
                 tip="sidebar.restore"
                 onClick={() => restore(item)}
               >
                 ↺
               </IconButton>
               <IconButton
-                title="Delete forever"
+                title={t('trash.deleteForever')}
                 tip="sidebar.deleteForever"
                 onClick={() => setPurging(item)}
               >
@@ -112,14 +117,20 @@ export function TrashSection({ db, workspaceId }: TrashSectionProps) {
 
       {purging && (
         <ConfirmDialog
-          message={`Delete “${purging.title || 'Untitled'}” forever? ${
+          message={[
+            t('trash.purgeConfirm', {
+              name: purging.title || t('review.untitled'),
+            }),
             purging.kind === 'notebook'
-              ? 'Its pages will be deleted too. '
+              ? t('trash.pagesToo')
               : purging.kind === 'database'
-                ? `${t('trash.databaseRowsToo')} `
-                : ''
-          }This can’t be undone.`}
-          confirmLabel="Delete forever"
+                ? t('trash.databaseRowsToo')
+                : '',
+            t('trash.cantUndo'),
+          ]
+            .filter(Boolean)
+            .join(' ')}
+          confirmLabel={t('trash.deleteForever')}
           onCancel={() => setPurging(null)}
           onConfirm={() => {
             setPurging(null)

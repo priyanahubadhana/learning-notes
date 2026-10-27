@@ -9,7 +9,7 @@ import {
 import { Tip } from '../help/Help'
 import { AppUiContext } from '../app/appUi'
 import { runTask } from '../app/errors'
-import { THEMES, THEME_LABELS, type Theme } from '../app/theme'
+import { THEMES, type Theme } from '../app/theme'
 import { shortcutLabel } from '../app/keys'
 import { ConfirmDialog, IconButton, MenuPopover, RenameInput } from '../app/ui'
 import type { TreeState } from '../app/useTreeState'
@@ -160,7 +160,9 @@ export function Sidebar({
 
   const requestTemplateDelete = (template: Page) =>
     setPending({
-      message: `Delete the template “${template.title || 'Untitled'}”? Pages made from it stay as they are.`,
+      message: t('sidebar.confirm.template', {
+        name: template.title || t('review.untitled'),
+      }),
       run: async () => {
         await deletePage(db, template.id)
         // Also when the open page was one of the template's sub-pages.
@@ -174,7 +176,9 @@ export function Sidebar({
 
   const requestNotebookDelete = (notebook: Notebook) =>
     setPending({
-      message: `Delete “${notebook.title}” and all its pages?`,
+      message: t('sidebar.confirm.notebook', {
+        name: notebook.title,
+      }),
       run: async () => {
         await deleteNotebook(db, notebook.id)
         if (currentPage?.notebookId === notebook.id) onOpenPage(null)
@@ -183,7 +187,9 @@ export function Sidebar({
 
   const requestPageDelete = (page: Page, affectsCurrent: boolean) =>
     setPending({
-      message: `Delete “${page.title || 'Untitled'}” and its sub-pages?`,
+      message: t('sidebar.confirm.page', {
+        name: page.title || t('review.untitled'),
+      }),
       run: async () => {
         await deletePage(db, page.id)
         if (affectsCurrent) onOpenPage(page.parentId)
@@ -215,7 +221,7 @@ export function Sidebar({
   return (
     <aside
       id="sidebar"
-      aria-label="Sidebar"
+      aria-label={t('sidebar.label')}
       className={`flex w-[260px] shrink-0 flex-col overflow-y-auto border-r border-line bg-side px-2 py-3.5 transition-colors duration-250 phone:fixed phone:inset-y-0 phone:left-0 phone:z-40 phone:w-[min(300px,85vw)] phone:shadow-[0_0_32px_rgba(0,0,0,0.25)] phone:transition-[transform,visibility] phone:duration-200 ${
         drawerOpen
           ? 'phone:translate-x-0'
@@ -229,12 +235,14 @@ export function Sidebar({
         <button
           type="button"
           onClick={onOpenToday}
-          aria-label="Open today’s journal"
+          aria-label={t('sidebar.openToday')}
           className="mb-2 flex w-full items-center gap-2 rounded-lg border border-line bg-bg px-2.5 py-1.5 text-left text-sm transition-colors hover:border-accent"
         >
           <span aria-hidden>☀</span>
           <span className="flex-1">
-            Today · {shortDayLabel(dateKey(new Date()))}
+            {t('sidebar.todayLabel', {
+              date: shortDayLabel(dateKey(new Date())),
+            })}
           </span>
           <kbd className="rounded border border-line bg-side px-1 font-mono text-[11px] text-muted">
             Alt+T
@@ -325,9 +333,9 @@ export function Sidebar({
           onNotesRewritten={onNotesRewritten}
         />
         <div className="flex items-center justify-between px-2.5 pt-2.5 pb-1 text-[11px] tracking-[0.06em] text-muted uppercase">
-          Notebooks
+          {t('sidebar.notebooks')}
           <IconButton
-            title="New notebook"
+            title={t('sidebar.newNotebook.title')}
             tip="sidebar.newNotebook"
             onClick={onCreateNotebook}
           >
@@ -397,14 +405,14 @@ export function Sidebar({
                       onDoubleClick={() => onRenamingChange(notebook.id)}
                       className="flex-1 truncate text-left font-semibold"
                     >
-                      {notebook.title || 'Untitled'}
+                      {notebook.title || t('review.untitled')}
                     </button>
                   </NotebookTip>
                 )}
                 <span className="flex opacity-0 group-focus-within:opacity-100 group-hover:opacity-100">
                   {notebook.kind !== 'journal' && (
                     <IconButton
-                      title="Add page"
+                      title={t('sidebar.addPage.title')}
                       tip="sidebar.addPage"
                       onClick={(e) =>
                         openAddMenu(
@@ -432,14 +440,14 @@ export function Sidebar({
                     </IconButton>
                   )}
                   <IconButton
-                    title="Rename"
+                    title={t('sidebar.rename.title')}
                     tip="sidebar.rename"
                     onClick={() => onRenamingChange(notebook.id)}
                   >
                     ✎
                   </IconButton>
                   <IconButton
-                    title="Delete notebook"
+                    title={t('sidebar.deleteNotebook.title')}
                     tip="sidebar.deleteNotebook"
                     onClick={() => requestNotebookDelete(notebook)}
                   >
@@ -483,13 +491,13 @@ export function Sidebar({
           onClose={() => setAddMenu(null)}
           items={[
             {
-              label: 'Blank page',
+              label: t('sidebar.blankPage'),
               icon: '📄',
               onSelect: () =>
                 onCreatePage(addMenu.notebookId, addMenu.parentId),
             },
             {
-              label: 'From template…',
+              label: t('sidebar.fromTemplate'),
               icon: '📋',
               onSelect: () =>
                 runTask(
@@ -540,22 +548,22 @@ export function Sidebar({
       <Tip id="sidebar.theme" className="flex" touchInfo={false}>
         <div
           role="group"
-          aria-label="Theme"
+          aria-label={t('sidebar.theme.label')}
           className="flex flex-1 gap-1.5 p-2.5"
         >
-          {THEMES.map((t) => (
+          {THEMES.map((name) => (
             <button
-              key={t}
+              key={name}
               type="button"
-              aria-pressed={theme === t}
-              onClick={() => onThemeChange(t)}
+              aria-pressed={theme === name}
+              onClick={() => onThemeChange(name)}
               className={`flex-1 rounded-lg border bg-bg p-1.5 text-xs transition-colors ${
-                theme === t
+                theme === name
                   ? 'border-accent text-accent'
                   : 'border-line text-ink'
               }`}
             >
-              {THEME_LABELS[t]}
+              {t(`theme.${name}`)}
             </button>
           ))}
         </div>
@@ -564,7 +572,7 @@ export function Sidebar({
       {pending && (
         <ConfirmDialog
           message={pending.message}
-          confirmLabel="Delete"
+          confirmLabel={t('ui.delete')}
           onCancel={() => setPending(null)}
           onConfirm={() => {
             setPending(null)

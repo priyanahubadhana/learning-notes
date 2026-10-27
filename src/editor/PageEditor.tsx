@@ -56,6 +56,7 @@ import {
   recordsToEditor,
   withoutIds,
 } from './mapping'
+import { getEditorDictionary } from '../i18n/languages'
 import { recoverStash } from './pendingStash'
 import { createPageSync } from './pageSync'
 import { revealBlock } from './revealBlock'
@@ -135,6 +136,8 @@ function LoadedPageEditor({
     schema,
     initialContent,
     extensions: [codeBlockKeys, linkTrigger],
+    // The editor's own menus in the chosen language (English if none).
+    dictionary: getEditorDictionary() as undefined,
   })
   const theme = useContext(ThemeContext)
   const [sync] = useState(() =>
@@ -231,7 +234,7 @@ function LoadedPageEditor({
           current.content.length === 0
         if (emptyLine) editor.replaceBlocks([current], blocks)
         else editor.insertBlocks(blocks, current, 'after')
-        toast('Template inserted')
+        toast(t('editor.templateInserted'))
       })(),
     )
 

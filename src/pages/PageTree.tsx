@@ -1,3 +1,4 @@
+import { t } from '../i18n/t'
 import { useLiveQuery } from 'dexie-react-hooks'
 import { useState, type ReactNode } from 'react'
 import { runTask } from '../app/errors'
@@ -100,13 +101,13 @@ export function PageTree({
               >
                 {page.journalDate
                   ? shortDayLabel(page.journalDate)
-                  : page.title || 'Untitled'}
+                  : page.title || t('review.untitled')}
               </button>
             )}
             <span className="flex opacity-0 group-focus-within:opacity-100 group-hover:opacity-100">
               {!journal && !rootId && page.parentId !== null && (
                 <IconButton
-                  title="Move to top level"
+                  title={t('tree.moveTop')}
                   tip="sidebar.moveTop"
                   onClick={() => runTask(movePageToTopLevel(db, page.id))}
                 >
@@ -115,7 +116,7 @@ export function PageTree({
               )}
               {!journal && onAddSubPage && (
                 <IconButton
-                  title="Add sub-page"
+                  title={t('tree.addSub')}
                   tip="sidebar.addSubPage"
                   onClick={(e) =>
                     onAddSubPage(
@@ -128,7 +129,7 @@ export function PageTree({
                 </IconButton>
               )}
               <IconButton
-                title="Delete page"
+                title={t('tree.deletePage')}
                 tip="sidebar.deletePage"
                 onClick={() => onRequestDelete(page, affectsCurrent)}
               >

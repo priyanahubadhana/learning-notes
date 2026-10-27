@@ -1,0 +1,18 @@
+import { es1 } from './es1'
+import { es2 } from './es2'
+import { es3 } from './es3'
+import { es4 } from './es4'
+import { es5 } from './es5'
+import { es6 } from './es6'
+import { es7 } from './es7'
+
+/** Spanish texts. A key missing here shows the English text. */
+export const es: Record<string, string> = {
+  ...es1,
+  ...es2,
+  ...es3,
+  ...es4,
+  ...es5,
+  ...es6,
+  ...es7,
+}

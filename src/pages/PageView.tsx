@@ -111,7 +111,9 @@ export function PageView({
           name,
         )
         toast(
-          `Saved “${template.title}” as a template. Find it under Templates.`,
+          t('page.savedTemplate', {
+            name: template.title,
+          }),
         )
       })(),
     )
@@ -120,7 +122,7 @@ export function PageView({
     <div className="mx-auto max-w-[720px] px-14 pt-[64px] pb-[200px]">
       <div className="mb-6 flex flex-wrap items-center gap-2">
         <nav
-          aria-label="Breadcrumb"
+          aria-label={t('page.breadcrumb')}
           className="flex min-h-5 flex-1 flex-wrap items-center gap-1 text-xs leading-5 text-muted"
         >
           <span>{rowDatabase?.title ?? notebook?.title}</span>
@@ -133,15 +135,19 @@ export function PageView({
                   onClick={() => onOpenPage(p.id)}
                   className="leading-5 hover:text-ink"
                 >
-                  {p.title || 'Untitled'}
+                  {p.title || t('review.untitled')}
                 </button>
               ) : (
-                <span>{p.title || 'Untitled'}</span>
+                <span>{p.title || t('review.untitled')}</span>
               )}
             </Fragment>
           ))}
         </nav>
-        <div role="toolbar" aria-label="Page actions" className="flex gap-1.5">
+        <div
+          role="toolbar"
+          aria-label={t('page.actions')}
+          className="flex gap-1.5"
+        >
           {notebook && !isTemplate && (
             <ActionButton
               icon="⟳"
@@ -157,17 +163,17 @@ export function PageView({
               tip="page.saveTemplate"
               onClick={saveTemplate}
             >
-              Save as template
+              {t('page.saveTemplate')}
             </ActionButton>
           )}
           <ActionButton icon="🕘" tip="page.history" onClick={openHistory}>
             {t('history.button')}
           </ActionButton>
           <ActionButton icon="⤓" tip="page.import" soon>
-            Import
+            {t('page.import')}
           </ActionButton>
           <ActionButton icon="⤒" tip="page.export" soon>
-            Export
+            {t('page.export')}
           </ActionButton>
         </div>
       </div>
@@ -175,24 +181,23 @@ export function PageView({
       {isTemplate && (
         <Banner icon="📋">
           <span className="min-w-[160px] flex-1">
-            <b className="font-semibold text-ink">Template.</b> New pages copy
-            this. Editing it doesn’t change pages you already made.
+            <b className="font-semibold text-ink">{t('page.template.title')}</b>{' '}
+            {t('page.template.text')}
           </span>
           <button
             type="button"
             onClick={() => onNewPageFromTemplate(page.id)}
             className="rounded-lg bg-accent px-3 py-1.5 text-[13px] text-white hover:opacity-90"
           >
-            New page from this template
+            {t('page.template.new')}
           </button>
         </Banner>
       )}
       {isToday && (
         <Banner icon="☀">
           <span className="flex-1">
-            <b className="font-semibold text-ink">Today’s journal</b>, made from
-            your “Daily journal” template. Edit that template to change future
-            days.
+            <b className="font-semibold text-ink">{t('page.today.title')}</b>
+            {t('page.today.text')}
           </span>
         </Banner>
       )}
@@ -324,7 +329,7 @@ function ActionButton({
         {children}
         {soon && (
           <span className="rounded-full bg-soft px-1.5 py-0.5 text-[10px] tracking-[0.06em] uppercase">
-            Soon
+            {t('page.soon')}
           </span>
         )}
       </button>
@@ -397,8 +402,8 @@ function TitleInput({
       ref={ref}
       rows={1}
       value={title}
-      placeholder="Untitled"
-      aria-label="Page title"
+      placeholder={t('review.untitled')}
+      aria-label={t('page.titleField')}
       autoFocus={autoFocus}
       onChange={(e) => {
         const value = e.target.value.replace(/\n/g, '')

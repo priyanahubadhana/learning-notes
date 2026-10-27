@@ -1,3 +1,4 @@
+import { t } from '../i18n/t'
 import type { LearningNotesDB } from '../core/db'
 import { isLive } from '../core/records'
 import type {
@@ -265,8 +266,10 @@ const isObject = (v: unknown): v is Record<string, unknown> =>
 /** What is wrong with a file that cannot be imported. */
 export class BundleError extends Error {}
 
-function need(ok: boolean, message: string): asserts ok {
-  if (!ok) throw new BundleError(message)
+function need(ok: boolean, message: string | (() => string)): asserts ok {
+  if (!ok) {
+    throw new BundleError(typeof message === 'string' ? message : message())
+  }
 }
 
 /**
@@ -275,44 +278,40 @@ function need(ok: boolean, message: string): asserts ok {
  * than a sane number of rows. Throws a `BundleError` otherwise.
  */
 export function checkBundle(data: unknown): Bundle {
-  need(isObject(data), 'This is not a Learning Notes file.')
-  need(data.app === 'learning-notes', 'This is not a Learning Notes file.')
+  need(isObject(data), t('err.notOurFile'))
+  need(data.app === 'learning-notes', t('err.notOurFile'))
   need(
     typeof data.formatVersion === 'number' &&
       data.formatVersion >= 1 &&
       data.formatVersion <= BUNDLE_VERSION,
-    'This file was made by a newer version of the app.',
+    t('err.newerFile'),
   )
-  need(
-    data.kind === 'notebook' || data.kind === 'backup',
-    'Unknown kind of file.',
-  )
+  need(data.kind === 'notebook' || data.kind === 'backup', t('err.unknownKind'))
   const bundle = emptyBundle(data.kind, Number(data.exportedAt) || 0)
   let total = 0
   for (const table of TABLES) {
     const rows = data[table]
     if (rows === undefined) continue
-    need(Array.isArray(rows), `The file’s “${table}” list is damaged.`)
+    need(Array.isArray(rows), () => t('err.listDamaged', { table }))
     total += rows.length
-    need(total <= 2_000_000, 'The file is too big to import.')
+    need(total <= 2_000_000, t('err.tooBigFile'))
     for (const row of rows) {
-      need(
-        isObject(row) && typeof row.id === 'string' && row.id !== '',
-        `The file’s “${table}” list is damaged.`,
+      need(isObject(row) && typeof row.id === 'string' && row.id !== '', () =>
+        t('err.listDamaged', { table }),
       )
       if (table === 'tags') {
-        need(typeof row.path === 'string', 'The file’s tag list is damaged.')
+        need(typeof row.path === 'string', t('err.tagsDamaged'))
       }
     }
     ;(bundle as unknown as Record<string, unknown[]>)[table] = rows
   }
   for (const page of bundle.pages) {
-    need(typeof page.notebookId === 'string', 'A page in the file is damaged.')
+    need(typeof page.notebookId === 'string', t('err.pageDamaged'))
   }
   for (const block of bundle.blocks) {
     need(
       typeof block.pageId === 'string' && isObject(block.content),
-      'A note in the file is damaged.',
+      t('err.noteDamaged'),
     )
   }
   return bundle
@@ -327,14 +326,14 @@ export function readAnyFile(text: string): Bundle {
   try {
     data = JSON.parse(text)
   } catch {
-    throw new BundleError('This file could not be read (it is not valid JSON).')
+    throw new BundleError(t('err.notJson'))
   }
   if (isObject(data) && isObject(data.tables) && data.kind === undefined) {
-    need(data.app === 'learning-notes', 'This is not a Learning Notes file.')
-    need(typeof data.version === 'number', 'This backup file is damaged.')
+    need(data.app === 'learning-notes', t('err.notOurFile'))
+    need(typeof data.version === 'number', t('err.backupDamaged'))
     const tables: Record<string, unknown[]> = {}
     for (const [name, rows] of Object.entries(data.tables)) {
-      need(Array.isArray(rows), 'This backup file is damaged.')
+      need(Array.isArray(rows), t('err.backupDamaged'))
       tables[name] = rows
     }
     const snapshot = {
@@ -356,7 +355,7 @@ export function readBundle(text: string): Bundle {
   try {
     data = JSON.parse(text)
   } catch {
-    throw new BundleError('This file could not be read (it is not valid JSON).')
+    throw new BundleError(t('err.notJson'))
   }
   return checkBundle(data)
 }

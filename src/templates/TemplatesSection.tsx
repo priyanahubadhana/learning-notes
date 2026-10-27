@@ -1,3 +1,4 @@
+import { t as tr } from '../i18n/t'
 import type { ReactNode } from 'react'
 import { Tip } from '../help/Help'
 import { useLiveQuery } from 'dexie-react-hooks'
@@ -63,10 +64,10 @@ export function TemplatesSection({
           <span aria-hidden className="w-3 text-[10px]">
             {open ? '▾' : '▸'}
           </span>
-          Templates
+          {tr('templates.heading')}
         </button>
         <IconButton
-          title="New template"
+          title={tr('templates.new')}
           tip="sidebar.newTemplate"
           onClick={onCreate}
         >
@@ -108,13 +109,13 @@ export function TemplatesSection({
                     onClick={() => onOpen(t.id)}
                     className="flex-1 truncate text-left"
                   >
-                    {t.title || 'Untitled template'}
+                    {t.title || tr('templates.untitled')}
                   </button>
                 </DailyTip>
                 {!daily && (
                   <span className="flex opacity-0 group-focus-within:opacity-100 group-hover:opacity-100">
                     <IconButton
-                      title="Delete template"
+                      title={tr('templates.delete')}
                       tip="sidebar.deleteTemplate"
                       onClick={() => onRequestDelete(t)}
                     >

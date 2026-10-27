@@ -14,6 +14,7 @@ import type { ToastAction } from './app/appUi'
 import { Toast, ChoiceDialog } from './app/ui'
 import { isStringOrNull } from './app/uiPrefs'
 import { usePref } from './app/usePref'
+import { applyLanguage } from './i18n/languages'
 import { setDateStyle, t } from './i18n/t'
 import { useTreeState } from './app/useTreeState'
 import { db } from './core/db'
@@ -39,6 +40,7 @@ import { ReviewScreen } from './recall/ReviewScreen'
 import type { ReviewScope } from './recall/reviewService'
 import {
   dateStyleSetting,
+  languageSetting,
   theme as themeSetting,
 } from './settings/builtinSettings'
 import { SettingsScreen } from './settings/SettingsScreen'
@@ -342,6 +344,19 @@ function App() {
   // Dates follow this setting everywhere; changing it re-draws the app.
   const [dateStyle] = useDeviceSetting(dateStyleSetting)
   setDateStyle(dateStyle)
+  // The app's texts follow this setting; a language file loads when needed.
+  const [language] = useDeviceSetting(languageSetting)
+  const [, setTextsVersion] = useState(0)
+  useEffect(() => {
+    let current = true
+    applyLanguage(language).then(
+      () => current && setTextsVersion((v) => v + 1),
+      (error: unknown) => console.error('Could not load the language', error),
+    )
+    return () => {
+      current = false
+    }
+  }, [language])
   useEffect(() => applyTheme(theme), [theme])
 
   useEffect(() => {
@@ -481,13 +496,21 @@ function App() {
     openNewPage(page, focusTitle)
     if (templateId) {
       const template = await getPage(db, templateId)
-      appUi.toast(`New page from “${template?.title || 'template'}”`)
+      appUi.toast(
+        t('app.newPageFromTemplate', {
+          name: template?.title || t('app.templateWord'),
+        }),
+      )
     }
   }
 
   const createNotebookAndOpen = async () => {
     if (!workspace) return
-    const notebook = await createNotebook(db, workspace.id, 'New notebook')
+    const notebook = await createNotebook(
+      db,
+      workspace.id,
+      t('notebook.newName'),
+    )
     setRenamingNotebookId(notebook.id)
     // The notebook name field keeps the cursor, not the page title.
     await createPageIn(notebook.id, null, false)
@@ -498,7 +521,7 @@ function App() {
     if (!workspace) return
     const target =
       notebooks?.find((n) => !n.kind) ??
-      (await createNotebook(db, workspace.id, 'My Notebook'))
+      (await createNotebook(db, workspace.id, t('notebook.firstName')))
     await createPageIn(target.id, null, true, templateId)
   }
 
@@ -507,7 +530,7 @@ function App() {
     const { page, created } = await openJournalDay(db, workspace.id)
     openNewPage(page, false)
     if (created) {
-      appUi.toast('Created today’s page from the “Daily journal” template')
+      appUi.toast(t('app.journalCreated'))
     }
   }
 
@@ -757,20 +780,18 @@ function App() {
               />
             ) : notebooks.length === 0 && currentPage === null ? (
               <div className="mt-[30vh] text-center">
-                <p className="mb-5 text-muted">
-                  Create a notebook to begin, or open today’s journal.
-                </p>
+                <p className="mb-5 text-muted">{t('app.empty.intro')}</p>
                 <button
                   type="button"
                   onClick={() => runTask(createNotebookAndOpen())}
                   className="rounded-lg bg-accent px-4 py-2 text-sm font-medium text-white transition-opacity hover:opacity-90"
                 >
-                  Create notebook
+                  {t('app.empty.create')}
                 </button>
               </div>
             ) : currentPage === null ? (
               <p className="mt-[30vh] text-center text-muted">
-                Select a page in the sidebar, or press Alt+N for a new one.
+                {t('app.empty.select')}
               </p>
             ) : null}
           </main>

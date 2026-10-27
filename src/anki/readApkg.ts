@@ -1,3 +1,4 @@
+import { t } from '../i18n/t'
 import { hasCloze } from './ankiHtml'
 import { loadSql } from './sqlite'
 
@@ -46,7 +47,7 @@ async function collectionBytes(
       filter: (info) => {
         if (WANTED.includes(info.name)) {
           if (info.originalSize > MAX_COLLECTION_BYTES) {
-            throw new AnkiError('This Anki file is too big to import.')
+            throw new AnkiError(t('anki.tooBig'))
           }
           return true
         }
@@ -55,20 +56,20 @@ async function collectionBytes(
     })
   } catch (error) {
     if (error instanceof AnkiError) throw error
-    throw new AnkiError('This is not an Anki package (.apkg).')
+    throw new AnkiError(t('anki.notPackage'))
   }
   const name = WANTED.find((n) => entries[n])
-  if (!name) throw new AnkiError('This Anki package has no collection in it.')
+  if (!name) throw new AnkiError(t('anki.noCollection'))
   let bytes = entries[name]
   if (name.endsWith('b')) {
     const { decompress } = await import('fzstd')
     try {
       bytes = decompress(bytes)
     } catch {
-      throw new AnkiError('The collection in this Anki package is damaged.')
+      throw new AnkiError(t('anki.damaged'))
     }
     if (bytes.length > MAX_COLLECTION_BYTES) {
-      throw new AnkiError('This Anki file is too big to import.')
+      throw new AnkiError(t('anki.tooBig'))
     }
   }
   const media = (() => {
@@ -93,14 +94,14 @@ export async function readApkg(file: Uint8Array): Promise<AnkiCollection> {
   try {
     db = new SQL.Database(bytes)
   } catch {
-    throw new AnkiError('The collection in this Anki package is damaged.')
+    throw new AnkiError(t('anki.damaged'))
   }
   try {
     // A file that is not a collection (no notes table) is refused.
     try {
       db.exec('select 1 from notes limit 1')
     } catch {
-      throw new AnkiError('The collection in this Anki package is damaged.')
+      throw new AnkiError(t('anki.damaged'))
     }
     const rows = (sql: string): Row[] => {
       try {
@@ -149,9 +150,7 @@ export async function readApkg(file: Uint8Array): Promise<AnkiCollection> {
       notes.length === 1 &&
       /please update to the latest anki/i.test(notes[0].fields.join(' '))
     ) {
-      throw new AnkiError(
-        'This package was saved by an old Anki as a placeholder. Export it again from Anki with “Support older Anki versions” ticked off.',
-      )
+      throw new AnkiError(t('anki.placeholder'))
     }
     return { notes, mediaCount: media }
   } finally {

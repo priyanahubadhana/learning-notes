@@ -55,8 +55,8 @@ export function buildSlashMenuItems(
   // Callout goes right after Quote, in the same group.
   const quoteIndex = items.findIndex((item) => item.title === 'Quote')
   const callout: DefaultReactSuggestionItem = {
-    title: 'Callout',
-    subtext: 'Highlighted note with an emoji',
+    title: t('slash.callout.title'),
+    subtext: t('slash.callout.subtext'),
     aliases: ['callout', 'note', 'tip', 'info', 'highlight'],
     group: items[quoteIndex]?.group ?? 'Basic blocks',
     icon: <span aria-hidden>💡</span>,
@@ -79,33 +79,33 @@ export function buildSlashMenuItems(
     title: t('databaseBlock.slash.title'),
     subtext: t('databaseBlock.slash.subtext'),
     aliases: ['database', 'table', 'board', 'list', 'tracker'],
-    group: 'Databases',
+    group: t('slash.group.databases'),
     icon: <span aria-hidden>◫</span>,
     onItemClick: onInsertDatabase,
   })
   items.push({
-    title: 'Insert template…',
-    subtext: 'Add a template’s blocks here',
+    title: t('slash.insertTemplate.title'),
+    subtext: t('slash.insertTemplate.subtext'),
     aliases: ['template', 'insert'],
-    group: 'Templates',
+    group: t('slash.group.templates'),
     icon: <span aria-hidden>📋</span>,
     onItemClick: onInsertTemplate,
   })
   if (onSaveAsTemplate) {
     items.push({
-      title: 'Save page as template',
-      subtext: 'Reuse this page’s layout for new pages',
+      title: t('slash.saveTemplate.title'),
+      subtext: t('slash.saveTemplate.subtext'),
       aliases: ['template', 'save'],
-      group: 'Templates',
+      group: t('slash.group.templates'),
       icon: <span aria-hidden>💾</span>,
       onItemClick: onSaveAsTemplate,
     })
   }
   items.push({
-    title: 'New sub-page',
-    subtext: 'Create a page inside this one and link to it',
+    title: t('slash.subpage.title'),
+    subtext: t('slash.subpage.subtext'),
     aliases: ['page', 'subpage', 'sub-page'],
-    group: 'Pages',
+    group: t('slash.group.pages'),
     icon: <span aria-hidden>📄</span>,
     onItemClick: onNewSubPage,
   })

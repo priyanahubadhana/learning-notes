@@ -208,6 +208,24 @@ export class LearningNotesDB extends Dexie {
         await tx.table<DbColumn, string>('dbColumns').bulkAdd(added)
       })
 
+    // Version 10 (Phase 5B): every normal notebook gets the Revise tab,
+    // after its other tabs (unless it already has one).
+    this.version(10)
+      .stores({})
+      .upgrade((tx) =>
+        tx
+          .table<Notebook, string>('notebooks')
+          .toCollection()
+          .modify((notebook) => {
+            if (
+              !notebook.tabs ||
+              notebook.tabs.some((t) => t.kind === 'revise')
+            )
+              return
+            notebook.tabs = [...notebook.tabs, { id: 'revise', kind: 'revise' }]
+          }),
+      )
+
     // Every save of a page or block also updates its search entry, in the
     // same transaction (see search/indexMiddleware.ts).
     this.use(searchIndexMiddleware)

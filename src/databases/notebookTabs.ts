@@ -25,6 +25,7 @@ export function defaultNotebookTabs(notebookId: string): NotebookTab[] {
       databaseId: studyTrackerId(notebookId),
     },
     { id: 'cards', kind: 'cards' },
+    { id: 'revise', kind: 'revise' },
   ]
 }
 
@@ -32,6 +33,7 @@ const DEFAULT_NAMES: Record<string, MessageKey> = {
   notes: 'notebook.tab.notes',
   database: 'notebook.tab.database',
   cards: 'notebook.tab.cards',
+  revise: 'notebook.tab.revise',
 }
 
 /** A tab's own name, or its kind's default name. */

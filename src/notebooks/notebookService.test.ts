@@ -49,6 +49,7 @@ describe('notebookService', () => {
       'notes',
       'database',
       'cards',
+      'revise',
     ])
     expect(notebook.tabs?.[1].databaseId).toBe(`tracker:${notebook.id}`)
     expect((await db.notebooks.get(notebook.id))?.tabs).toEqual(notebook.tabs)
@@ -147,6 +148,7 @@ describe('notebook tabs', () => {
     const nb = await createNotebook(db, ws, 'A')
     await updateNotebookTab(db, nb.id, 'notes', { hidden: true })
     await updateNotebookTab(db, nb.id, 'cards', { hidden: true })
+    await updateNotebookTab(db, nb.id, 'revise', { hidden: true })
     await expect(
       updateNotebookTab(db, nb.id, 'database', { hidden: true }),
     ).rejects.toThrow()

@@ -12,7 +12,7 @@ import type { Notebook } from './types'
  */
 const T = 1_700_000_000_000
 const base = { createdAt: T, updatedAt: T, deletedAt: null }
-const CURRENT_VERSION = 9
+const CURRENT_VERSION = 10
 let name = ''
 
 afterEach(async () => {
@@ -189,6 +189,7 @@ function expectDefaultTabs(notebook: Notebook | undefined) {
     'notes',
     'database',
     'cards',
+    'revise',
   ])
 }
 
@@ -603,6 +604,57 @@ describe('database upgrade', () => {
     expect(levels).toHaveLength(1)
     expect(levels[0]).toMatchObject({ databaseId: 't1', name: 'Card levels' })
     expect(levels[0].order > 'a1').toBe(true) // after the other columns
+    db.close()
+  })
+
+  it('from version 9 adds the Revise tab to notebooks that have tabs, once', async () => {
+    name = `migrate-${createId()}`
+    const old = new Dexie(name)
+    old.version(1).stores(V1)
+    old.version(2).stores(V2)
+    old.version(3).stores(V3)
+    old.version(4).stores(V4)
+    for (const v of [5, 6, 7, 8, 9]) old.version(v).stores({})
+    await addVersion1Data(old)
+    await old.table('notebooks').bulkAdd([
+      {
+        ...base,
+        id: 'a',
+        workspaceId: 'w1',
+        title: 'A',
+        order: 'a0',
+        tabs: [{ id: 'notes', kind: 'notes' }],
+      },
+      {
+        ...base,
+        id: 'b',
+        workspaceId: 'w1',
+        title: 'B',
+        order: 'a1',
+        tabs: [
+          { id: 'notes', kind: 'notes' },
+          { id: 'revise', kind: 'revise', title: 'Mine' },
+        ],
+      },
+      {
+        ...base,
+        id: 'j',
+        workspaceId: 'w1',
+        title: 'J',
+        order: 'a2',
+        kind: 'journal',
+      },
+    ])
+    old.close()
+
+    const db = new LearningNotesDB(name)
+    await db.open()
+    expect((await db.notebooks.get('a'))?.tabs?.map((t) => t.kind)).toEqual([
+      'notes',
+      'revise',
+    ])
+    expect((await db.notebooks.get('b'))?.tabs).toHaveLength(2) // already had one
+    expect((await db.notebooks.get('j'))?.tabs).toBeUndefined() // special notebook
     db.close()
   })
 })

@@ -6,7 +6,14 @@ import {
   useComponentsContext,
 } from '@blocknote/react'
 import { t } from '../i18n/t'
+import {
+  MARK_LABELS,
+  MARK_STYLE,
+  markName,
+  type MarkLabel,
+} from '../revise/reviseMarks'
 import { BLANK_STYLE, toggleBlank } from './blankActions'
+import { toggleMark } from './markActions'
 import { canMakeCard, makeCard } from './cardActions'
 import type { AppSchema } from './schema'
 
@@ -57,10 +64,35 @@ function MakeCardButton() {
   )
 }
 
+/** One toolbar button per Revise label; pressing it again removes the mark. */
+function MarkButton({ label }: { label: MarkLabel }) {
+  const Components = useComponentsContext()!
+  const editor = useBlockNoteEditor() as unknown as Editor
+  const styles = useActiveStyles(editor) as Record<string, unknown>
+  const on = styles[MARK_STYLE] === label
+  return (
+    <Components.FormattingToolbar.Button
+      className="bn-button"
+      label={markName(label)}
+      mainTooltip={markName(label)}
+      isSelected={on}
+      onClick={() => {
+        toggleMark(editor, label)
+        editor.focus()
+      }}
+    >
+      {markName(label)}
+    </Components.FormattingToolbar.Button>
+  )
+}
+
 export function AppFormattingToolbar() {
   return (
     <FormattingToolbar>
       {getFormattingToolbarItems()}
+      {MARK_LABELS.map((label) => (
+        <MarkButton key={label} label={label} />
+      ))}
       <MakeBlankButton key="makeBlank" />
       <MakeCardButton key="makeCard" />
     </FormattingToolbar>

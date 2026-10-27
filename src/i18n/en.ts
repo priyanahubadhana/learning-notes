@@ -538,6 +538,16 @@ export const en = {
     'Chooses the picture column and which values show on each tile.',
   'help.tip.db.galleryOptions.example':
     'Show Author and Rating under each cover.',
+  'help.tip.revise.practice.meaning':
+    'Reviews this lesson’s cards (its sub-pages’ too) that are due, or practises them.',
+  'help.tip.revise.practice.example':
+    'Run through “Heart sounds” right before the exam.',
+  'help.tip.notebook.tabRevise.meaning':
+    'One revision sheet per lesson: your summary plus everything you marked in its notes.',
+  'help.tip.notebook.tabRevise.example':
+    'Read all Key points of a lesson before an exam.',
+  'help.line.revise.how':
+    'In a note, select words and press Key point, Keyword, Must know or Formula in the toolbar. Marked words collect here, per lesson.',
   'help.line.tracker.statusRule':
     'Auto: Not started = no cards answered yet · Learning = under 75% correct · Mastered = 90% or more correct, nothing due, no new cards, and at least 80% of the cards at level Mastered · Review = in between.',
   'settings.dayStart.label': 'Day starts at',
@@ -772,6 +782,19 @@ export const en = {
   'settings.dateStyle.auto': 'Auto',
   'settings.dateStyle.dayFirst': '27 Oct 2026',
   'settings.dateStyle.monthFirst': 'Oct 27, 2026',
+  'notebook.tab.revise': 'Revise',
+  'revise.label.key': 'Key point',
+  'revise.label.keyword': 'Keyword',
+  'revise.label.must': 'Must know',
+  'revise.label.formula': 'Formula',
+  'revise.lessons': 'Lessons',
+  'revise.noLessons': 'No lessons yet. Add pages to this notebook first.',
+  'revise.noMarks': 'Nothing marked in this lesson yet.',
+  'revise.openLesson': 'Open lesson',
+  'revise.practice': 'Practise this lesson',
+  'revise.summary': 'My summary',
+  'revise.summaryPlaceholder': 'Write the lesson in your own words…',
+  'revise.markRemove': 'Remove “{label}” mark',
   'databases.title': 'Databases',
   'databases.new': '+ New database',
   'databases.newTitle': 'New database',

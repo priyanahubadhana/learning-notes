@@ -143,6 +143,8 @@ export const TIPS = {
   'db.addView': { where: 'Database › + View' },
   'db.calendarNav': { where: 'Calendar › ‹ Today ›' },
   'db.galleryOptions': { where: 'Gallery › Gallery options' },
+  'revise.practice': { where: 'Revise tab › Practise this lesson' },
+  'notebook.tabRevise': { where: 'Notebook › Revise tab' },
 } as const satisfies Record<string, TipDefinition>
 
 export const HELP_LINES = {
@@ -158,6 +160,7 @@ export const HELP_LINES = {
   },
   'review.practice': { where: 'Review › under Practice anyway' },
   'db.table': { where: 'Database (not the Study tracker) › under the table' },
+  'revise.how': { where: 'Notebook › Revise tab › top' },
 } as const satisfies Record<string, HelpLineDefinition>
 
 export type TipId = keyof typeof TIPS

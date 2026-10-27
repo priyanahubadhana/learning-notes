@@ -1,7 +1,7 @@
 import { useMemo, useState } from 'react'
 import { Tip } from '../../help/Help'
 import { t } from '../../i18n/t'
-import type { DbColumn, JsonObject } from '../../core/types'
+import type { JsonObject } from '../../core/types'
 import { rowCellText } from '../cellDisplay'
 import { TITLE_COLUMN_ID } from '../columnTypes'
 import { queryRows, resolveRows } from '../databaseQuery'
@@ -10,30 +10,11 @@ import { useMinuteClock } from '../../recall/useMinuteClock'
 import { PopHeading, PopItem, Popover } from './Popover'
 import { useDatabaseData } from './useDatabaseData'
 import { knownQuery, readRowQuery } from './viewConfig'
+import { imageUrl, tileColumns } from './galleryTiles'
 import type { ViewProps } from './viewTypes'
 
 /** Tiles drawn at first, and added per "Show more". */
 const PAGE_SIZE = 60
-/** Values shown on a tile unless the user picks others. */
-const DEFAULT_VALUES = 3
-
-/** Only web addresses are used as pictures (never script or file links). */
-export const imageUrl = (text: string): string | null =>
-  /^https?:\/\//i.test(text.trim()) ? text.trim() : null
-
-/** The columns whose values show on a tile: the saved ones, else the first few. */
-export function tileColumns(
-  config: JsonObject,
-  columns: readonly DbColumn[],
-  imageColumnId: string | undefined,
-): DbColumn[] {
-  const others = columns.filter((c) => c.id !== imageColumnId)
-  if (!Array.isArray(config.cardColumns)) {
-    return others.slice(0, DEFAULT_VALUES)
-  }
-  const picked = new Set(config.cardColumns)
-  return others.filter((c) => picked.has(c.id))
-}
 
 /**
  * Gallery view: rows as tiles with a picture (from a Web link column, if

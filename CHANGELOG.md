@@ -619,3 +619,9 @@
 - **What:** Phase 5B, step 1 (views). New Calendar view (\`views/CalendarView.tsx\`, rules in \`calendarData.ts\`: month/week, Monday start, + on a day adds a row, date column choice) and Gallery view (\`GalleryView.tsx\`: tiles, picture from a Web link column, chosen values); "+ View" with any view type, "Rename this view…" and "Delete this view" (with Undo) in the view options; the "/database" block can switch to all five view types. 5 new tips. Tests: \`calendarData.test.ts\`, e2e in \`databases.spec.ts\` (+ screenshots calendar-*/gallery-*).
 - **Why:** Phase 5B plan (owner, 2026-10-27).
 - **Files:** src/databases/views/CalendarView.tsx, calendarData.ts (+test), GalleryView.tsx, DatabaseView.tsx, viewTypes.ts, src/databases/databaseService.ts (restoreView), DatabaseBlockView.tsx, dashboard/chartData.ts, src/i18n/en.ts, src/help/helpRegistry.ts, HELP-TEXTS.md, e2e/databases.spec.ts
+
+## 2026-10-27
+
+- **What:** Phase 5B, step 2 (Revise tab). Select words in a note and press Key point · Keyword · Must know · Formula in the toolbar (an inline style "mark", coloured per label in all themes; same button again removes it). New notebook tab "Revise" (\`revise/ReviseTab.tsx\`, \`reviseService.ts\`, \`reviseMarks.ts\`): lessons with mark counts; per lesson an own summary (saved on \`Page.summary\`), its marks (sub-pages included) grouped by label, "Open lesson" and "Practise this lesson". Database upgrade v10 adds the tab to every notebook with tabs. 2 new tips and 1 help line. Own labels in Settings are not built (see Decisions to review).
+- **Why:** Phase 5B plan (owner).
+- **Files:** src/revise/*, src/editor/markActions.ts, schema.tsx, SelectionToolbar.tsx, src/core/db.ts, types.ts, src/databases/notebookTabs.ts, src/notebooks/NotebookScreen.tsx, src/index.css, src/i18n/en.ts, helpRegistry.ts, e2e/revise.spec.ts, notebookTabs.spec.ts, migration and notebook tests

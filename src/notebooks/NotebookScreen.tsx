@@ -20,6 +20,7 @@ import { DatabaseView } from '../databases/views/DatabaseView'
 import { t } from '../i18n/t'
 import { listNotePages } from '../pages/pageService'
 import { CardsTab } from '../recall/CardsTab'
+import { ReviseTab } from '../revise/ReviseTab'
 import type { ReviewScope } from '../recall/reviewService'
 import type { SearchHit } from '../search/searchQuery'
 import { updateNotebookTab } from './notebookService'
@@ -196,6 +197,14 @@ export function NotebookScreen({
               onOpenPage={onOpenPage}
             />
           )}
+          {active?.kind === 'revise' && (
+            <ReviseTab
+              db={db}
+              notebookId={notebook.id}
+              onOpenPage={onOpenPage}
+              onReview={onReview}
+            />
+          )}
           {active?.kind === 'cards' && (
             <CardsTab
               db={db}
@@ -335,6 +344,7 @@ const TAB_TIPS = {
   notes: 'notebook.tabNotes',
   database: 'notebook.tabDatabase',
   cards: 'notebook.tabCards',
+  revise: 'notebook.tabRevise',
 } as const
 
 /** A tab with the tip that explains it (own kinds of tab have none). */

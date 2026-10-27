@@ -100,6 +100,8 @@ export interface Page extends BaseRecord {
   journalDate?: string
   /** Journal month page: its month, "YYYY-MM". */
   journalMonth?: string
+  /** A lesson's own summary (Revise tab); top-level pages only. */
+  summary?: string
   /** 'daily': the protected template that fills new journal days. */
   templateRole?: 'daily'
   /** Tags on the whole page (chips under the title). Unset = none. */

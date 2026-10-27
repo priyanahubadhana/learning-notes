@@ -124,6 +124,19 @@ const blank = createReactStyleSpec(
 )
 
 /**
+ * Mark: words marked for revision (Key point, Keyword, Must know, Formula).
+ * The style value is the label id (see revise/reviseMarks.ts).
+ */
+const mark = createReactStyleSpec(
+  { type: 'mark', propSchema: 'string' },
+  {
+    render: ({ value, contentRef }) => (
+      <span className="recall-mark" data-mark={value} ref={contentRef} />
+    ),
+  },
+)
+
+/**
  * Note link: a link inside text to a page, or a heading/card on it (typed
  * with "[["). Stores ids, so renames and moves never break it; shows the
  * current title. See editor/NoteLinkView.tsx and links/.
@@ -188,7 +201,7 @@ export const schema = BlockNoteSchema.create({
     database: createDatabaseBlock(),
   },
   inlineContentSpecs: { ...defaultInlineContentSpecs, noteLink, tag },
-  styleSpecs: { ...defaultStyleSpecs, blank },
+  styleSpecs: { ...defaultStyleSpecs, blank, mark },
 })
 
 export type AppSchema = typeof schema

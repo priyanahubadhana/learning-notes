@@ -2,7 +2,7 @@
 
 Every hover tip and help line in the app (shown while Settings › Show help is On). Generated from `src/help/helpRegistry.ts` and `src/i18n/en.ts`; to change a text, edit it in `en.ts`, then run `UPDATE_HELP=1 npx vitest run src/help` to refresh this file.
 
-## Hover tips (91)
+## Hover tips (93)
 
 ### `tracker.lesson`
 
@@ -550,7 +550,19 @@ Every hover tip and help line in the app (shown while Settings › Show help is 
 - **Meaning:** Chooses the picture column and which values show on each tile.
 - **Example:** Show Author and Rating under each cover.
 
-## Help lines (8)
+### `revise.practice`
+
+- **Where:** Revise tab › Practise this lesson
+- **Meaning:** Reviews this lesson’s cards (its sub-pages’ too) that are due, or practises them.
+- **Example:** Run through “Heart sounds” right before the exam.
+
+### `notebook.tabRevise`
+
+- **Where:** Notebook › Revise tab
+- **Meaning:** One revision sheet per lesson: your summary plus everything you marked in its notes.
+- **Example:** Read all Key points of a lesson before an exam.
+
+## Help lines (9)
 
 Help lines are marked in the page with `data-help-line="<id>"`.
 
@@ -593,3 +605,8 @@ Help lines are marked in the page with `data-help-line="<id>"`.
 
 - **Where:** Database (not the Study tracker) › under the table
 - **Text:** Click a cell to edit it. Click a column header to sort, filter or hide that column.
+
+### `revise.how`
+
+- **Where:** Notebook › Revise tab › top
+- **Text:** In a note, select words and press Key point, Keyword, Must know or Formula in the toolbar. Marked words collect here, per lesson.

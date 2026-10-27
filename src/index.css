@@ -331,3 +331,27 @@ button.tag-chip:hover {
   font-size: 0.75rem;
   line-height: 1.1rem;
 }
+
+/* Revise marks: Key point (amber), Keyword (blue), Must know (red), Formula (green). */
+.recall-mark {
+  padding: 0 1px;
+  border-radius: 3px;
+  background: color-mix(in srgb, var(--mark, #d9822b) 24%, transparent);
+  box-shadow: inset 0 -1.5px 0
+    color-mix(in srgb, var(--mark, #d9822b) 70%, transparent);
+}
+.recall-mark[data-mark='key'] {
+  --mark: #d9822b;
+}
+.recall-mark[data-mark='keyword'] {
+  --mark: #2f6feb;
+}
+.recall-mark[data-mark='must'] {
+  --mark: #c8402f;
+}
+.recall-mark[data-mark='formula'] {
+  --mark: #2e9e6b;
+}
+:root[data-theme='night'] .recall-mark {
+  background: color-mix(in srgb, var(--mark, #d9822b) 38%, transparent);
+}

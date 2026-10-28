@@ -1,4 +1,5 @@
 import { createId } from '../../core/ids'
+import { useDiscardGuard } from '../../app/useDiscardGuard'
 import { useEffect, useRef, useState, type ReactNode } from 'react'
 import type { Database, DbColumn } from '../../core/types'
 import { t, type MessageKey } from '../../i18n/t'
@@ -126,6 +127,7 @@ export function ChartDialog({
   onClose: () => void
 }) {
   const ref = useRef<HTMLDialogElement>(null)
+  const { dirtyProps, requestClose, confirm } = useDiscardGuard(onClose)
   const [spec, setSpec] = useState<ChartSpec>(() =>
     target.kind === 'edit' ? target.spec : newChart('bar', columns),
   )
@@ -148,8 +150,9 @@ export function ChartDialog({
       ref={ref}
       aria-label={heading}
       onCancel={onClose}
+      {...dirtyProps}
       onClick={(e) => {
-        if (e.target === ref.current) onClose() // click on the backdrop
+        if (e.target === ref.current) requestClose() // click on the backdrop
       }}
       className="m-auto max-h-[calc(100vh-2rem)] w-[min(34rem,calc(100vw-2rem))] rounded-xl border border-line bg-bg p-5 text-ink shadow-[0_12px_32px_rgba(0,0,0,0.14)] backdrop:bg-black/20"
     >
@@ -473,6 +476,7 @@ export function ChartDialog({
           </button>
         </div>
       </form>
+      {confirm}
     </dialog>
   )
 }

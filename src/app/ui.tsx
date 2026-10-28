@@ -212,6 +212,8 @@ export function Toast({
 interface ConfirmDialogProps {
   message: string
   confirmLabel: string
+  /** Text of the button that backs out (default "Cancel"). */
+  cancelLabel?: string
   onConfirm: () => void
   onCancel: () => void
 }
@@ -223,6 +225,7 @@ interface ConfirmDialogProps {
 export function ConfirmDialog({
   message,
   confirmLabel,
+  cancelLabel,
   onConfirm,
   onCancel,
 }: ConfirmDialogProps) {
@@ -248,7 +251,7 @@ export function ConfirmDialog({
           onClick={onCancel}
           className="rounded-lg px-3 py-1.5 text-muted hover:bg-hover hover:text-ink"
         >
-          {t('ui.cancel')}
+          {cancelLabel ?? t('ui.cancel')}
         </button>
         <button
           type="button"
@@ -287,6 +290,9 @@ export function NameDialog({
   const ref = useRef<HTMLDialogElement>(null)
   const input = useRef<HTMLInputElement>(null)
   const [value, setValue] = useState(initialValue)
+  // A click outside closes only if nothing was typed; otherwise it asks.
+  const [touched, setTouched] = useState(false)
+  const [asking, setAsking] = useState(false)
 
   useEffect(() => {
     ref.current?.showModal()
@@ -298,8 +304,11 @@ export function NameDialog({
       ref={ref}
       aria-label={title}
       onCancel={onCancel}
+      onInput={() => setTouched(true)}
       onClick={(e) => {
-        if (e.target === ref.current) onCancel() // click on the backdrop
+        if (e.target !== ref.current) return // not the backdrop
+        if (touched) setAsking(true)
+        else onCancel()
       }}
       className="m-auto w-[min(22rem,calc(100vw-2rem))] rounded-xl border border-line bg-bg p-5 text-ink shadow-[0_12px_32px_rgba(0,0,0,0.14)] backdrop:bg-black/20"
     >
@@ -339,6 +348,18 @@ export function NameDialog({
           </button>
         </div>
       </form>
+      {asking && (
+        <ConfirmDialog
+          message={t('dialog.discard')}
+          confirmLabel={t('dialog.discardButton')}
+          cancelLabel={t('dialog.keepEditing')}
+          onCancel={() => setAsking(false)}
+          onConfirm={() => {
+            setAsking(false)
+            onCancel()
+          }}
+        />
+      )}
     </dialog>
   )
 }

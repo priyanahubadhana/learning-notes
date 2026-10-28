@@ -1,6 +1,7 @@
 import { useLiveQuery } from 'dexie-react-hooks'
 import { useContext, useEffect, useRef, useState, type ReactNode } from 'react'
 import { AppUiContext } from '../../app/appUi'
+import { useDiscardGuard } from '../../app/useDiscardGuard'
 import type { LearningNotesDB } from '../../core/db'
 import { createId } from '../../core/ids'
 import type { Database, DbColumn, JsonObject } from '../../core/types'
@@ -149,6 +150,7 @@ export function ColumnDialog({
 }) {
   const ui = useContext(AppUiContext)
   const ref = useRef<HTMLDialogElement>(null)
+  const { dirtyProps, requestClose, confirm } = useDiscardGuard(onClose)
   const columns = data.databases.get(database.id)?.columns ?? []
   const editing = target.kind === 'edit' ? target.column : undefined
   const startType =
@@ -371,8 +373,9 @@ export function ColumnDialog({
       ref={ref}
       aria-label={title}
       onCancel={onClose}
+      {...dirtyProps}
       onClick={(e) => {
-        if (e.target === ref.current) onClose() // click on the backdrop
+        if (e.target === ref.current) requestClose() // click on the backdrop
       }}
       className="m-auto max-h-[calc(100vh-2rem)] w-[min(28rem,calc(100vw-2rem))] rounded-xl border border-line bg-bg p-5 text-ink shadow-[0_12px_32px_rgba(0,0,0,0.14)] backdrop:bg-black/20"
     >
@@ -834,6 +837,7 @@ export function ColumnDialog({
           </button>
         </div>
       </form>
+      {confirm}
     </dialog>
   )
 }

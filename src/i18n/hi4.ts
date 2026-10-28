@@ -283,4 +283,7 @@ export const hi4: Record<string, string> = {
   'cards.search': 'कार्ड खोजें…',
   'cards.notebookFilter': 'नोटबुक',
   'cards.allNotebooks': 'सभी नोटबुक',
+  'dialog.discard': 'अपने बदलाव छोड़ दें?',
+  'dialog.discardButton': 'छोड़ दें',
+  'dialog.keepEditing': 'संपादन जारी रखें',
 }

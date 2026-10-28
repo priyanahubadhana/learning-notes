@@ -910,3 +910,9 @@
 - **What:** All cards got a search box, a Notebook filter next to Sort (the Review button follows it) and a small "Notebook › Page" label on each card; the sample notebook's names show translated in search results too. Hindi and Spanish texts (item 16).
 - **Why:** Owner feedback from the 5A/5B re-check.
 - **Files:** src/recall/CardsTab.tsx, src/search/SearchResults.tsx, src/search/searchQuery.ts, src/i18n/en.ts, es4.ts, hi4.ts, e2e/allCards.spec.ts, CHANGELOG.md
+
+## 2026-10-28
+
+- **What:** One shared rule (useDiscardGuard) for the name, column, chart and CSV dialogs: a click on the dim background closes the dialog only if nothing was typed or chosen; otherwise it asks "Discard your changes?" (Keep editing / Discard). Esc still closes. Hindi and Spanish texts (item 10).
+- **Why:** Owner feedback from the 5A/5B re-check.
+- **Files:** src/app/useDiscardGuard.tsx, src/app/ui.tsx, src/databases/CsvImportDialog.tsx, src/databases/views/ColumnDialog.tsx, src/databases/dashboard/ChartDialog.tsx, src/i18n/en.ts, es4.ts, hi4.ts, e2e/discard.spec.ts, CHANGELOG.md

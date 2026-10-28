@@ -1623,4 +1623,7 @@ export const en = {
   'cards.search': 'Search cards…',
   'cards.notebookFilter': 'Notebook',
   'cards.allNotebooks': 'All notebooks',
+  'dialog.discard': 'Discard your changes?',
+  'dialog.discardButton': 'Discard',
+  'dialog.keepEditing': 'Keep editing',
 } as const

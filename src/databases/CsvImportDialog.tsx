@@ -2,6 +2,7 @@ import { useLiveQuery } from 'dexie-react-hooks'
 import { useEffect, useMemo, useRef, useState } from 'react'
 import { runTask } from '../app/errors'
 import { ConfirmDialog } from '../app/ui'
+import { useDiscardGuard } from '../app/useDiscardGuard'
 import type { LearningNotesDB } from '../core/db'
 import type { DbColumn } from '../core/types'
 import { t, type MessageKey } from '../i18n/t'
@@ -53,6 +54,7 @@ export function CsvImportDialog({
   onClose: () => void
 }) {
   const ref = useRef<HTMLDialogElement>(null)
+  const { dirtyProps, requestClose, confirm } = useDiscardGuard(onClose)
   const [csv, setCsv] = useState<{
     headers: string[]
     body: string[][]
@@ -130,8 +132,9 @@ export function CsvImportDialog({
       ref={ref}
       aria-label={t('csv.title')}
       onCancel={onClose}
+      {...dirtyProps}
       onClick={(e) => {
-        if (e.target === ref.current) onClose()
+        if (e.target === ref.current) requestClose()
       }}
       className="m-auto max-h-[calc(100vh-2rem)] w-[min(40rem,calc(100vw-2rem))] rounded-xl border border-line bg-bg p-5 text-ink shadow-[0_12px_32px_rgba(0,0,0,0.14)] backdrop:bg-black/20"
     >
@@ -285,6 +288,7 @@ export function CsvImportDialog({
           }}
         />
       )}
+      {confirm}
     </dialog>
   )
 }

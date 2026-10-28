@@ -292,4 +292,7 @@ export const es4: Record<string, string> = {
   'cards.search': 'Buscar tarjetas…',
   'cards.notebookFilter': 'Cuaderno',
   'cards.allNotebooks': 'Todos los cuadernos',
+  'dialog.discard': '¿Descartar tus cambios?',
+  'dialog.discardButton': 'Descartar',
+  'dialog.keepEditing': 'Seguir editando',
 }

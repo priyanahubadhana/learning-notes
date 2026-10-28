@@ -3,6 +3,7 @@ import { runTask } from '../app/errors'
 import type { LearningNotesDB } from '../core/db'
 import type { DbColumn } from '../core/types'
 import { t, type MessageKey } from '../i18n/t'
+import { FileButton } from '../share/FileButton'
 import { MAX_CSV_CHARS, parseCsv, unprotectCell } from './csv'
 import {
   guessMapping,
@@ -101,15 +102,11 @@ export function CsvImportDialog({
     >
       <h2 className="mb-1 text-[15px] font-semibold">{t('csv.title')}</h2>
       <p className="mb-3 text-sm text-muted">{t('csv.intro')}</p>
-      <input
-        type="file"
+      <FileButton
+        label={t('csv.file')}
         accept=".csv,text/csv,text/plain"
-        aria-label={t('csv.file')}
-        onChange={(e) => {
-          const file = e.target.files?.[0]
-          if (file) runTask(read(file))
-        }}
-        className="mb-3 block w-full text-sm"
+        onFile={(file) => runTask(read(file))}
+        className="mb-3"
       />
       {error && (
         <p role="alert" className="mb-3 text-sm text-danger">

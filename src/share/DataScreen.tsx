@@ -27,6 +27,7 @@ import {
   readImportFile,
 } from './fileIO'
 import { NO_LOCK, passwordProblem } from './lockState'
+import { FileButton } from './FileButton'
 import { PasswordFields } from './PasswordFields'
 import { recordBackupSaved } from './backupReminder'
 import { importBundle, type ImportSummary } from './importBundle'
@@ -313,26 +314,21 @@ export function DataScreen({
             {t('data.anki.title')}
           </h2>
           <p className="mb-3 text-sm text-muted">{t('data.anki.text')}</p>
-          <Tip id="data.ankiImport" touchInfo={false}>
-            <input
-              type="file"
-              accept=".apkg,application/octet-stream"
-              aria-label={t('data.anki.import')}
-              disabled={busy}
-              onChange={(e) => {
-                const file = e.target.files?.[0]
-                e.target.value = ''
-                if (file) importAnkiFile(file)
-              }}
-              className="mb-3 block w-full text-sm"
-            />
-          </Tip>
           {progress && (
             <p role="status" className="mb-3 text-sm text-muted">
               {progress}
             </p>
           )}
-          <div className="flex flex-wrap items-center gap-2">
+          <div className="flex flex-wrap items-start gap-2">
+            <Tip id="data.ankiImport" touchInfo={false}>
+              <FileButton
+                label={t('data.anki.import')}
+                hint={t('data.anki.hint')}
+                accept=".apkg,application/octet-stream"
+                disabled={busy}
+                onFile={importAnkiFile}
+              />
+            </Tip>
             <select
               aria-label={t('data.anki.which')}
               value={notebookId}
@@ -397,18 +393,13 @@ export function DataScreen({
           </h2>
           <p className="mb-3 text-sm text-muted">{t('data.import.text')}</p>
           <Tip id="data.import" touchInfo={false}>
-            <input
-              type="file"
-              aria-label={t('data.import.file')}
+            <FileButton
+              label={t('data.import.file')}
               disabled={busy}
-              onChange={(e) => {
-                const file = e.target.files?.[0]
-                e.target.value = ''
-                if (!file) return
+              onFile={(file) => {
                 setLocked(null)
                 openFile(file)
               }}
-              className="block w-full text-sm"
             />
           </Tip>
           {locked && (

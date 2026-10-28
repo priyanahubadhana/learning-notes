@@ -802,3 +802,9 @@
 - **What:** Dates next to "Today" and in the journal follow the app language (Hindi, Spanish); the Date style setting (day first / month first) now only forces the order for English.
 - **Why:** Owner feedback from Phase 6 check 7 ("Wed 28 Oct" stayed English).
 - **Files:** src/i18n/t.ts, src/i18n/dateStyle.test.ts, CHANGELOG.md
+
+## 2026-10-28
+
+- **What:** Plain "Choose File" boxes replaced by labelled buttons (new `FileButton`): "Import from Anki" (with hint "Pick an .apkg file") beside "Save for Anki", "Choose a file to import", "Choose a CSV file"; Hindi and Spanish texts.
+- **Why:** Owner feedback from Phase 6 check 6.
+- **Files:** src/share/FileButton.tsx, src/share/DataScreen.tsx, src/databases/CsvImportDialog.tsx, src/i18n/en.ts, es4.ts, hi4.ts, e2e/anki.spec.ts, e2e/sample.spec.ts, e2e/sharing.spec.ts, CHANGELOG.md

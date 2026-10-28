@@ -855,7 +855,7 @@ export const en = {
   'csv.title': 'Import CSV',
   'csv.intro':
     'Adds the file’s rows to this database as new rows. Nothing that is already here is changed.',
-  'csv.file': 'CSV file',
+  'csv.file': 'Choose a CSV file',
   'csv.tooBig': 'This file is too big to import (the limit is about 30 MB).',
   'csv.empty': 'This file has no rows to import.',
   'csv.rows_one': '1 row found.',
@@ -889,7 +889,7 @@ export const en = {
   'data.import.title': 'Import a file',
   'data.import.text':
     'A notebook file from this app, or a backup file from the upgrade screen.',
-  'data.import.file': 'File to import',
+  'data.import.file': 'Choose a file to import',
   'data.tooBig': 'This file is too big to import (the limit is about 200 MB).',
   'data.nothing': 'This file has no notebooks or databases to import.',
   'data.imported':
@@ -913,7 +913,8 @@ export const en = {
   'data.anki.title': 'Anki',
   'data.anki.text':
     'Bring in a deck from Anki (a .apkg file), or save a notebook’s cards as one. Cards start as new: Anki’s schedules, pictures and sounds are not carried over.',
-  'data.anki.import': 'Anki package (.apkg) to open',
+  'data.anki.import': 'Import from Anki',
+  'data.anki.hint': 'Pick an .apkg file',
   'data.anki.which': 'Notebook to save for Anki',
   'data.anki.export': 'Save for Anki',
   'data.anki.working': 'Reading the Anki file…',

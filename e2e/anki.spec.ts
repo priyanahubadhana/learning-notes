@@ -24,13 +24,11 @@ test('Anki: save a notebook for Anki, then bring that file in as a new notebook'
   const bytes = await readFile(await file.path())
   expect(bytes.subarray(0, 2).toString('latin1')).toBe('PK') // a zip
 
-  await anki
-    .getByLabel('Anki package (.apkg) to open')
-    .setInputFiles(await file.path())
+  await anki.getByLabel('Import from Anki').setInputFiles(await file.path())
   await expect(page.getByText(/Imported 1 cards from Anki/)).toBeVisible()
 
   // A file that is not an Anki package is refused in plain words.
-  await anki.getByLabel('Anki package (.apkg) to open').setInputFiles({
+  await anki.getByLabel('Import from Anki').setInputFiles({
     name: 'notes.apkg',
     mimeType: 'application/octet-stream',
     buffer: Buffer.from('not a zip'),

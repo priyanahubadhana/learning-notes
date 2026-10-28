@@ -170,7 +170,7 @@ export const hi4: Record<string, string> = {
   'csv.title': 'CSV आयात करें',
   'csv.intro':
     'फ़ाइल की पंक्तियों को इस डेटाबेस में नई पंक्तियों के रूप में जोड़ता है। यहाँ जो पहले से है वह नहीं बदलता।',
-  'csv.file': 'CSV फ़ाइल',
+  'csv.file': 'CSV फ़ाइल चुनें',
   'csv.tooBig': 'यह फ़ाइल आयात के लिए बहुत बड़ी है (सीमा लगभग 30 MB है)।',
   'csv.empty': 'इस फ़ाइल में आयात करने के लिए कोई पंक्ति नहीं है।',
   'csv.rows_one': '1 पंक्ति मिली।',
@@ -206,7 +206,7 @@ export const hi4: Record<string, string> = {
   'data.import.title': 'फ़ाइल आयात करें',
   'data.import.text':
     'इस ऐप की नोटबुक फ़ाइल, या अपग्रेड स्क्रीन की बैकअप फ़ाइल।',
-  'data.import.file': 'आयात के लिए फ़ाइल',
+  'data.import.file': 'आयात करने के लिए फ़ाइल चुनें',
   'data.tooBig': 'यह फ़ाइल आयात के लिए बहुत बड़ी है (सीमा लगभग 200 MB है)।',
   'data.nothing':
     'इस फ़ाइल में आयात करने के लिए कोई नोटबुक या डेटाबेस नहीं है।',
@@ -231,7 +231,8 @@ export const hi4: Record<string, string> = {
   'data.anki.title': 'Anki',
   'data.anki.text':
     'Anki से कोई डेक लाएँ (.apkg फ़ाइल), या किसी नोटबुक के कार्ड उसी रूप में सहेजें। कार्ड नए के रूप में शुरू होते हैं: Anki की अनुसूचियाँ, चित्र और ध्वनियाँ साथ नहीं आतीं।',
-  'data.anki.import': 'खोलने के लिए Anki पैकेज (.apkg)',
+  'data.anki.import': 'Anki से आयात करें',
+  'data.anki.hint': '.apkg फ़ाइल चुनें',
   'data.anki.which': 'Anki के लिए सहेजने वाली नोटबुक',
   'data.anki.export': 'Anki के लिए सहेजें',
   'data.anki.working': 'Anki फ़ाइल पढ़ी जा रही है…',

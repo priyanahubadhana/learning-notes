@@ -15,7 +15,7 @@ test('CSV: import rows into a database (mapping), then export them', async ({
   await main(page).getByRole('button', { name: 'Database options' }).click()
   await page.getByRole('menuitem', { name: 'Import CSV…' }).click()
   const dialog = page.getByRole('dialog', { name: 'Import CSV' })
-  await dialog.getByLabel('CSV file').setInputFiles({
+  await dialog.getByLabel('Choose a CSV file').setInputFiles({
     name: 'books.csv',
     mimeType: 'text/csv',
     buffer: Buffer.from(
@@ -81,7 +81,7 @@ test('a notebook file round-trips as a new copy; nothing existing changes', asyn
   )
 
   await main(page)
-    .getByLabel('File to import')
+    .getByLabel('Choose a file to import')
     .setInputFiles(await file.path())
   await expect(
     page.getByText(
@@ -105,7 +105,7 @@ test('a notebook file round-trips as a new copy; nothing existing changes', asyn
 
   // A file that is not ours is refused with a clear message.
   await main(page)
-    .getByLabel('File to import')
+    .getByLabel('Choose a file to import')
     .setInputFiles({
       name: 'other.json',
       mimeType: 'application/json',
@@ -285,7 +285,7 @@ test('a password-protected file: two fields, a warning, and the password to open
   const bytes = await readFile(await file.path())
   expect(bytes.toString('latin1')).not.toContain('private words')
 
-  const input = main(page).getByLabel('File to import')
+  const input = main(page).getByLabel('Choose a file to import')
   // No file-type filter: iPadOS greys out types it does not know (.locked).
   await expect(input).not.toHaveAttribute('accept', /.+/)
   await input.setInputFiles(await file.path())

@@ -76,7 +76,7 @@ test('the five 5B checks, on the sample notebook', async ({ page }) => {
   await main(page).getByRole('button', { name: 'Database options' }).click()
   await page.getByRole('menuitem', { name: 'Import CSV…' }).click()
   const dialog = page.getByRole('dialog', { name: 'Import CSV' })
-  await dialog.getByLabel('CSV file').setInputFiles(csvPath)
+  await dialog.getByLabel('Choose a CSV file').setInputFiles(csvPath)
   await expect(dialog).toContainText('5 rows found.')
   await expect(dialog.getByLabel('What “Cover” becomes')).toHaveValue(
     /^column:/,
@@ -107,7 +107,7 @@ test('the five 5B checks, on the sample notebook', async ({ page }) => {
   const bundle = JSON.parse(await readFile(await file.path(), 'utf8'))
   expect(bundle.cards).toHaveLength(4)
   await main(page)
-    .getByLabel('File to import')
+    .getByLabel('Choose a file to import')
     .setInputFiles(await file.path())
   await expect(
     page.getByText(/Imported 1 notebooks, \d+ pages and 4 cards/),

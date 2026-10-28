@@ -173,7 +173,7 @@ export const es4: Record<string, string> = {
   'csv.title': 'Importar CSV',
   'csv.intro':
     'Añade las filas del archivo a esta base de datos como filas nuevas. No se cambia nada de lo que ya está aquí.',
-  'csv.file': 'Archivo CSV',
+  'csv.file': 'Elegir un archivo CSV',
   'csv.tooBig':
     'Este archivo es demasiado grande para importarlo (el límite es de unos 30 MB).',
   'csv.empty': 'Este archivo no tiene filas para importar.',
@@ -210,7 +210,7 @@ export const es4: Record<string, string> = {
   'data.import.title': 'Importar un archivo',
   'data.import.text':
     'Un archivo de cuaderno de esta aplicación, o un archivo de copia de seguridad de la pantalla de actualización.',
-  'data.import.file': 'Archivo que importar',
+  'data.import.file': 'Elegir un archivo para importar',
   'data.tooBig':
     'Este archivo es demasiado grande para importarlo (el límite es de unos 200 MB).',
   'data.nothing':
@@ -236,7 +236,8 @@ export const es4: Record<string, string> = {
   'data.anki.title': 'Anki',
   'data.anki.text':
     'Trae un mazo de Anki (un archivo .apkg), o guarda las tarjetas de un cuaderno como uno. Las tarjetas empiezan como nuevas: los calendarios, imágenes y sonidos de Anki no se traen.',
-  'data.anki.import': 'Paquete de Anki (.apkg) que abrir',
+  'data.anki.import': 'Importar desde Anki',
+  'data.anki.hint': 'Elige un archivo .apkg',
   'data.anki.which': 'Cuaderno que guardar para Anki',
   'data.anki.export': 'Guardar para Anki',
   'data.anki.working': 'Leyendo el archivo de Anki…',

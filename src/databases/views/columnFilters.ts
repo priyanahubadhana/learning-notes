@@ -167,6 +167,16 @@ export function typedNumber(text: string, column: DbColumn | null) {
   return isPercent(column) ? n / 100 : n
 }
 
+/**
+ * What a number box keeps while typing: digits, one "-" at the start, and
+ * the separators `typedNumber` understands. Letters and other signs are
+ * dropped as they are typed.
+ */
+export function numberTyping(text: string): string {
+  const cleaned = text.replace(/[^0-9.,-]/g, '')
+  return (cleaned.startsWith('-') ? '-' : '') + cleaned.replace(/-/g, '')
+}
+
 /** A stored number as typed (the reverse of `typedNumber`). */
 export function numberForInput(n: number, column: DbColumn | null): string {
   return String(isPercent(column) ? Math.round(n * 1e10) / 1e8 : n)

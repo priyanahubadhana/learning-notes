@@ -29,6 +29,7 @@ import {
   updateColumnConfig,
 } from '../databaseService'
 import { typeName } from './columnLook'
+import { numberTyping } from './columnFilters'
 import { previewFormula, previewSentence } from './formulaPreview'
 import {
   firstOptionName,
@@ -636,7 +637,13 @@ export function ColumnDialog({
                             }
                             value={rule.value}
                             onChange={(e) =>
-                              setRule({ ...rule, value: e.target.value })
+                              setRule({
+                                ...rule,
+                                value:
+                                  ruleTarget.column?.type === 'number'
+                                    ? numberTyping(e.target.value)
+                                    : e.target.value,
+                              })
                             }
                             className={`${field} min-w-0`}
                           />

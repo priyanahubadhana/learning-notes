@@ -862,3 +862,9 @@
 - **What:** With Show help Off the Tip wrapper stays (without the tip), so sidebar buttons keep their size and no sideways scrollbar appears (item 2).
 - **Why:** Owner feedback from the 5A/5B re-check.
 - **Files:** src/help/Help.tsx, e2e/help.spec.ts, CHANGELOG.md
+
+## 2026-10-28
+
+- **What:** Number cells (and the number boxes in the column filter and formula builder) drop letters and extra signs as you type; phones already get a number keypad (item 11).
+- **Why:** Owner feedback from the 5A/5B re-check.
+- **Files:** src/databases/views/columnFilters.ts, TableCells.tsx, ColumnMenu.tsx, ColumnDialog.tsx, numberTyping.test.ts, CHANGELOG.md

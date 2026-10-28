@@ -7,6 +7,7 @@ import type { FilterOp, RowFilter, RowSort } from '../databaseQuery'
 import {
   filterChoices,
   numberForInput,
+  numberTyping,
   opLabel,
   sortLabels,
   typedNumber,
@@ -177,7 +178,13 @@ export function ColumnMenu({
             aria-label={t('filter.value')}
             inputMode={input === 'number' ? 'decimal' : undefined}
             value={draft}
-            onChange={(e) => setDraft(e.target.value)}
+            onChange={(e) =>
+              setDraft(
+                input === 'number'
+                  ? numberTyping(e.target.value)
+                  : e.target.value,
+              )
+            }
             className={field}
           />
         )}

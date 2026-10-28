@@ -18,6 +18,7 @@ import type { DatabaseData, ResolvedRow } from '../databaseQuery'
 import { addChoiceOption } from '../databaseService'
 import type { FValue } from '../formula/formulaValue'
 import { PopItem, PopSeparator, Popover } from './Popover'
+import { numberTyping } from './columnFilters'
 import { currentIds } from './cellEditing'
 
 /**
@@ -63,7 +64,13 @@ export function InlineEditor({
       onFocus={(e) => {
         if (type === 'text' || type === 'url') e.currentTarget.select()
       }}
-      onChange={(e) => setValue(e.target.value)}
+      onChange={(e) =>
+        setValue(
+          column?.type === 'number'
+            ? numberTyping(e.target.value)
+            : e.target.value,
+        )
+      }
       onBlur={() => finish(true)}
       onKeyDown={(e) => {
         if (e.key === 'Enter') {

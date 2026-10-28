@@ -826,3 +826,9 @@
 - **What:** The sample notebook and its page names ("Sample notebook", "Heart sounds", "Lung volumes", "Volumes in detail") are stored in English, marked as sample (`Page.sample`), and shown in the chosen language (`sampleName` in `i18n/defaultNames.ts`) in the sidebar, notebook screen, breadcrumb and Revise tab. Only unchanged names of sample records are translated; a title the user typed or changed, or a user page with the same name, is never translated. The sample's cards, database name and note text are still written in the language chosen when it is loaded.
 - **Why:** Owner feedback from Phase 6 check 7.
 - **Files:** src/core/types.ts, src/i18n/defaultNames.ts (+test), src/share/sampleNotebook.ts (+test), Sidebar.tsx, PageTree.tsx, NotebookScreen.tsx, PageView.tsx, ReviseTab.tsx, DataScreen.tsx, e2e/sampleNames.spec.ts, CHANGELOG.md
+
+## 2026-10-28
+
+- **What:** README handoff: Phase 6 check-in fixes done; next is the Phase 7 planning talk.
+- **Why:** Keep the handoff current.
+- **Files:** README.md, CHANGELOG.md

@@ -717,3 +717,27 @@
 - **What:** Phase 6 end checks. Hardening: the Anki (zstd) collection is unpacked in pieces and stopped at 400 MB. LEARNING.md gets the Phase 6 section. All tests, lint, build and `npm audit` pass.
 - **Why:** Phase 6 Definition of Done (security review reported, docs updated).
 - **Files:** src/anki/readApkg.ts, LEARNING.md, README.md
+
+## 2026-10-28
+
+- **What:** `npm run dev` now runs `vite --host`, so the dev server can be opened from another device on the same Wi-Fi (e.g. the iPad).
+- **Why:** Owner request.
+- **Files:** package.json
+
+## 2026-10-28
+
+- **What:** The dev server now uses HTTPS with a self-signed certificate (`@vitejs/plugin-basic-ssl`, dev dependency, free), so the iPad gets a secure context (crypto.randomUUID, crypto.subtle). The end-to-end tests set `E2E=1` and keep plain http on localhost.
+- **Why:** Owner request: the app showed a blank page on the iPad over http.
+- **Files:** package.json, package-lock.json, vite.config.ts, playwright.config.ts
+
+## 2026-10-28
+
+- **What:** The "Import a file" picker no longer restricts file types, so a `.locked` file can be chosen on iPad (iPadOS greys out types it does not know). The file's content is still checked after picking, so a wrong file or wrong password is refused as before.
+- **Why:** Owner check on iPad.
+- **Files:** src/share/DataScreen.tsx, e2e/sharing.spec.ts
+
+## 2026-10-28
+
+- **What:** Narrow-screen fixes (iPad, ~500 px): the ☰ menu button is now a clear drawn icon with a border, sits above the full-screen phone screens, keeps clear of the browser bar and screen corners (safe-area insets) and is hidden only during Review (which has its own ×); full-screen phone screens and Settings leave room for it. The page action toolbar (Review, Save as template, History…) wraps instead of running off the right edge. New narrow-viewport test.
+- **Why:** Owner check 4 on iPad.
+- **Files:** src/App.tsx, src/pages/PageView.tsx, src/settings/SettingsScreen.tsx, src/databases/DatabasesHub.tsx, src/notebooks/NotebookScreen.tsx, src/recall/AllCardsScreen.tsx, src/search/SearchScreen.tsx, src/share/DataScreen.tsx, e2e/phoneSidebar.spec.ts

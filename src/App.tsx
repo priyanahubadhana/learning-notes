@@ -672,16 +672,34 @@ function App() {
               className="fixed inset-0 z-30 hidden bg-black/30 phone:block"
             />
           )}
-          <button
-            type="button"
-            aria-label={t('nav.openMenu')}
-            aria-controls="sidebar"
-            aria-expanded={drawerOpen}
-            onClick={() => setDrawerAt(routeHash)}
-            className="fixed top-1.5 left-1.5 z-20 hidden size-11 items-center justify-center rounded-lg bg-bg/90 text-lg text-muted shadow-[0_1px_4px_rgba(0,0,0,0.12)] hover:text-ink phone:flex"
-          >
-            ☰
-          </button>
+          {!reviewScope && (
+            <button
+              type="button"
+              aria-label={t('nav.openMenu')}
+              aria-controls="sidebar"
+              aria-expanded={drawerOpen}
+              onClick={() => setDrawerAt(routeHash)}
+              // Above the full-screen phone screens, below the open drawer;
+              // kept clear of the browser bar and the screen's rounded corners.
+              style={{
+                top: 'max(8px, env(safe-area-inset-top))',
+                left: 'max(8px, env(safe-area-inset-left))',
+              }}
+              className="fixed z-[35] hidden size-11 items-center justify-center rounded-lg border border-line bg-bg text-ink shadow-[0_1px_4px_rgba(0,0,0,0.18)] phone:flex"
+            >
+              <svg
+                aria-hidden
+                viewBox="0 0 24 24"
+                className="size-5"
+                fill="none"
+                stroke="currentColor"
+                strokeWidth="2"
+                strokeLinecap="round"
+              >
+                <path d="M4 7h16M4 12h16M4 17h16" />
+              </svg>
+            </button>
+          )}
           <main className="flex-1 overflow-auto">
             {showSettings ? (
               <SettingsScreen

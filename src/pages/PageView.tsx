@@ -146,7 +146,7 @@ export function PageView({
         <div
           role="toolbar"
           aria-label={t('page.actions')}
-          className="flex gap-1.5"
+          className="flex flex-wrap gap-1.5"
         >
           {notebook && !isTemplate && (
             <ActionButton

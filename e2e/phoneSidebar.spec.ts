@@ -36,6 +36,36 @@ test.describe('phone', () => {
     ).toBeVisible()
   })
 
+  test('on a narrow screen the menu button is in view and the page toolbar wraps', async ({
+    page,
+  }) => {
+    await page.setViewportSize({ width: 500, height: 800 })
+    await page.goto('/')
+    await page.getByRole('button', { name: 'Create notebook' }).click()
+    const menu = page.getByRole('button', { name: 'Open menu' })
+    await expect(menu).toBeVisible()
+    const b = (await menu.boundingBox())!
+    expect(b.x).toBeGreaterThanOrEqual(0)
+    expect(b.y).toBeGreaterThanOrEqual(0)
+    expect(b.width).toBeGreaterThanOrEqual(40)
+    // Nothing sticks out on the right: the page does not scroll sideways
+    // and every toolbar button is inside the screen.
+    const overflow = await page.evaluate(
+      () => document.documentElement.scrollWidth - window.innerWidth,
+    )
+    expect(overflow).toBeLessThanOrEqual(0)
+    const buttons = page
+      .getByRole('toolbar', { name: 'Page actions' })
+      .getByRole('button')
+    for (const box of await buttons.evaluateAll((els) =>
+      els.map((el) => el.getBoundingClientRect().right),
+    )) {
+      expect(box).toBeLessThanOrEqual(500)
+    }
+    await menu.click()
+    await expect(page.locator('aside')).toBeVisible()
+  })
+
   test('a page takes the whole width', async ({ page }) => {
     await page.goto('/')
     await page.getByRole('button', { name: 'Create notebook' }).click()

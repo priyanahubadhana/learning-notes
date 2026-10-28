@@ -200,7 +200,7 @@ export function DataScreen({
 
   return (
     <div className="phone:fixed phone:inset-0 phone:z-30 phone:overflow-auto phone:bg-bg">
-      <div className="mx-auto max-w-[760px] px-4 pt-8 pb-24 phone:pt-3 md:px-12 md:pt-12">
+      <div className="mx-auto max-w-[760px] px-4 pt-8 pb-24 phone:pt-16 md:px-12 md:pt-12">
         <div className="mb-4 flex items-center gap-2">
           <h1 className="flex-1 text-[26px] leading-tight font-bold tracking-[-0.02em]">
             {t('data.title')}
@@ -399,7 +399,6 @@ export function DataScreen({
           <Tip id="data.import" touchInfo={false}>
             <input
               type="file"
-              accept=".json,.locked,application/json"
               aria-label={t('data.import.file')}
               disabled={busy}
               onChange={(e) => {

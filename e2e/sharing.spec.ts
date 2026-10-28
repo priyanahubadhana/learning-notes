@@ -286,6 +286,8 @@ test('a password-protected file: two fields, a warning, and the password to open
   expect(bytes.toString('latin1')).not.toContain('private words')
 
   const input = main(page).getByLabel('File to import')
+  // No file-type filter: iPadOS greys out types it does not know (.locked).
+  await expect(input).not.toHaveAttribute('accept', /.+/)
   await input.setInputFiles(await file.path())
   await main(page).getByLabel('Password of this file').fill('wrong password')
   await main(page).getByRole('button', { name: 'Open file' }).click()

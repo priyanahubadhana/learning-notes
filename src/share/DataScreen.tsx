@@ -1,3 +1,4 @@
+import { sampleName } from '../i18n/defaultNames'
 import { useLiveQuery } from 'dexie-react-hooks'
 import { useContext, useRef, useState } from 'react'
 import { AppUiContext } from '../app/appUi'
@@ -108,7 +109,7 @@ export function DataScreen({
   const addSample = () =>
     run(async () => {
       const notebook = await loadSampleNotebook(db, workspaceId)
-      ui.toast(t('data.sample.done', { name: notebook.title }))
+      ui.toast(t('data.sample.done', { name: sampleName(notebook) }))
     })
   /** Writes the file (locked if the password box is ticked). */
   const save = async (name: string, blob: Blob) => {

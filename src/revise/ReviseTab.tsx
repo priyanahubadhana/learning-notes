@@ -1,5 +1,6 @@
 import { useLiveQuery } from 'dexie-react-hooks'
 import { useState } from 'react'
+import { sampleName } from '../i18n/defaultNames'
 import type { LearningNotesDB } from '../core/db'
 import { pushRouteParts, useRouteParts } from '../app/router'
 import { revealBlock } from '../editor/revealBlock'
@@ -66,7 +67,7 @@ export function ReviseTab({
                 className="flex min-h-9 w-full items-center gap-2 rounded-lg px-2.5 text-start text-sm whitespace-nowrap hover:bg-hover aria-pressed:bg-soft aria-pressed:font-semibold md:whitespace-normal"
               >
                 <span className="min-w-0 flex-1 truncate">
-                  {lesson.title || t('review.untitled')}
+                  {sampleName(lesson) || t('review.untitled')}
                 </span>
                 <span className="text-xs text-muted tabular-nums">
                   {marks.length}
@@ -79,7 +80,7 @@ export function ReviseTab({
         <div key={current.lesson.id} className="min-w-0">
           <div className="mb-3 flex flex-wrap items-center gap-2">
             <h2 className="me-auto min-w-0 text-[17px] font-semibold">
-              {current.lesson.title || t('review.untitled')}
+              {sampleName(current.lesson) || t('review.untitled')}
             </h2>
             <button
               type="button"

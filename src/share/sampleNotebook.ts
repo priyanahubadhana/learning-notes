@@ -11,6 +11,7 @@ import { createNotebook, deleteNotebook } from '../notebooks/notebookService'
 import { createPage } from '../pages/pageService'
 import { syncCardRecords } from '../recall/cardService'
 import { MARK_STYLE, type MarkLabel } from '../revise/reviseMarks'
+import { en } from '../i18n/en'
 import { t } from '../i18n/t'
 
 /**
@@ -74,10 +75,16 @@ export async function loadSampleNotebook(
   workspaceId: string,
   now: number = Date.now(),
 ): Promise<Notebook> {
-  const made = await createNotebook(db, workspaceId, t('sample.notebook'))
+  const made = await createNotebook(db, workspaceId, en['sample.notebook'])
   await db.notebooks.update(made.id, { sample: true })
   const notebook: Notebook = { ...made, sample: true }
 
+  /** A page of the sample: its title is kept in English and shown translated. */
+  const samplePage = async (parentId: string | null, title: string) => {
+    const page = await createPage(db, notebook.id, parentId, title)
+    await db.pages.update(page.id, { sample: true })
+    return page
+  }
   const paragraph = (pageId: string, ...text: Run[]) =>
     createBlock(db, { pageId, type: 'paragraph', content: { text } })
   /** A card: the question, with its answer inside it. */
@@ -96,7 +103,7 @@ export async function loadSampleNotebook(
   }
 
   // Lesson 1: heart sounds.
-  const heart = await createPage(db, notebook.id, null, t('sample.heart'))
+  const heart = await samplePage(null, en['sample.heart'])
   await paragraph(
     heart.id,
     plain('The '),
@@ -123,7 +130,7 @@ export async function loadSampleNotebook(
   await syncCardRecords(db, heart.id, now)
 
   // Lesson 2: lung volumes, with a sub-page.
-  const lungs = await createPage(db, notebook.id, null, t('sample.lungs'))
+  const lungs = await samplePage(null, en['sample.lungs'])
   await paragraph(
     lungs.id,
     marked('Tidal volume', 'keyword'),
@@ -136,7 +143,7 @@ export async function loadSampleNotebook(
     plain(' suggests an obstructive problem such as asthma or COPD.'),
   )
   await card(lungs.id, t('sample.q3'), t('sample.a3'))
-  const detail = await createPage(db, notebook.id, lungs.id, t('sample.detail'))
+  const detail = await samplePage(lungs.id, en['sample.detail'])
   await paragraph(
     detail.id,
     marked('Minute ventilation = tidal volume × breaths per minute', 'formula'),

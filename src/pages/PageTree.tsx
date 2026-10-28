@@ -1,4 +1,4 @@
-import { displayName } from '../i18n/defaultNames'
+import { displayName, sampleName } from '../i18n/defaultNames'
 import { t } from '../i18n/t'
 import { useLiveQuery } from 'dexie-react-hooks'
 import { useState, type ReactNode } from 'react'
@@ -102,7 +102,7 @@ export function PageTree({
               >
                 {page.journalDate
                   ? shortDayLabel(page.journalDate)
-                  : (rootId ? displayName(page.title) : page.title) ||
+                  : (rootId ? displayName(page.title) : sampleName(page)) ||
                     t('review.untitled')}
               </button>
             )}

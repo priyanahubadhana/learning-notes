@@ -96,6 +96,11 @@ export interface Page extends BaseRecord {
   /** Parent page id, or null for a top-level page in the notebook. */
   parentId: string | null
   title: string
+  /**
+   * A page of the sample notebook: its title is stored in English and shown
+   * in the chosen language (`sampleName`) while it is still unchanged.
+   */
+  sample?: true
   /** Position among sibling pages (lower comes first). */
   order: OrderKey
   /** Journal day page: its local date, "YYYY-MM-DD". */

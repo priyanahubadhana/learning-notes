@@ -36,6 +36,8 @@ describe('sample notebook', () => {
       'Heart sounds',
       'Lung volumes',
     ])
+    // Titles are kept in English and marked, so they can be shown translated.
+    expect(lessons.every((l) => l.lesson.sample === true)).toBe(true)
     const labels = new Set(lessons.flatMap((l) => l.marks.map((m) => m.label)))
     expect([...labels].sort()).toEqual(['formula', 'key', 'keyword', 'must'])
     expect(await db.cards.where('notebookId').equals(notebook.id).count()).toBe(

@@ -820,3 +820,9 @@
 - **What:** Backup & files: "Save everything" and "Restore backup" are two equal buttons in a new top "Backup" section (with the password option, the protected-file password box and the line "This file only opens in Learning Notes. Use Restore backup to open it."). The old "Import a file" section became "Restore backup"; the "Save everything as one file" section was merged into the top one. Hindi and Spanish texts; help texts updated; "Restore backup" added to the parked Phase 7 ⋯ menu in IDEAS.md.
 - **Why:** Owner feedback from Phase 6 check 3, so the backup button is not confused with the future "Import file".
 - **Files:** src/share/DataScreen.tsx, src/share/FileButton.tsx, src/help/helpRegistry.ts, src/i18n/en.ts, es3–es5.ts, hi3–hi5.ts, HELP-TEXTS.md, IDEAS.md, e2e/sharing.spec.ts, e2e/sample.spec.ts, CHANGELOG.md
+
+## 2026-10-28
+
+- **What:** The sample notebook and its page names ("Sample notebook", "Heart sounds", "Lung volumes", "Volumes in detail") are stored in English, marked as sample (`Page.sample`), and shown in the chosen language (`sampleName` in `i18n/defaultNames.ts`) in the sidebar, notebook screen, breadcrumb and Revise tab. Only unchanged names of sample records are translated; a title the user typed or changed, or a user page with the same name, is never translated. The sample's cards, database name and note text are still written in the language chosen when it is loaded.
+- **Why:** Owner feedback from Phase 6 check 7.
+- **Files:** src/core/types.ts, src/i18n/defaultNames.ts (+test), src/share/sampleNotebook.ts (+test), Sidebar.tsx, PageTree.tsx, NotebookScreen.tsx, PageView.tsx, ReviseTab.tsx, DataScreen.tsx, e2e/sampleNames.spec.ts, CHANGELOG.md

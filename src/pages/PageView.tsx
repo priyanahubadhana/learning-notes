@@ -1,3 +1,4 @@
+import { sampleName } from '../i18n/defaultNames'
 import { HelpLine, Tip } from '../help/Help'
 import type { TipId } from '../help/helpRegistry'
 import { useLiveQuery } from 'dexie-react-hooks'
@@ -135,10 +136,10 @@ export function PageView({
                   onClick={() => onOpenPage(p.id)}
                   className="leading-5 hover:text-ink"
                 >
-                  {p.title || t('review.untitled')}
+                  {sampleName(p) || t('review.untitled')}
                 </button>
               ) : (
-                <span>{p.title || t('review.untitled')}</span>
+                <span>{sampleName(p) || t('review.untitled')}</span>
               )}
             </Fragment>
           ))}

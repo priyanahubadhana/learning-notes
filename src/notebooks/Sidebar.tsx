@@ -1,4 +1,4 @@
-import { displayName } from '../i18n/defaultNames'
+import { displayName, sampleName } from '../i18n/defaultNames'
 import { useLiveQuery } from 'dexie-react-hooks'
 import {
   useContext,
@@ -178,7 +178,7 @@ export function Sidebar({
   const requestNotebookDelete = (notebook: Notebook) =>
     setPending({
       message: t('sidebar.confirm.notebook', {
-        name: notebook.title,
+        name: sampleName(notebook),
       }),
       run: async () => {
         await deleteNotebook(db, notebook.id)
@@ -189,7 +189,7 @@ export function Sidebar({
   const requestPageDelete = (page: Page, affectsCurrent: boolean) =>
     setPending({
       message: t('sidebar.confirm.page', {
-        name: page.title || t('review.untitled'),
+        name: sampleName(page) || t('review.untitled'),
       }),
       run: async () => {
         await deletePage(db, page.id)
@@ -406,7 +406,8 @@ export function Sidebar({
                       onDoubleClick={() => onRenamingChange(notebook.id)}
                       className="flex-1 truncate text-left font-semibold"
                     >
-                      {displayName(notebook.title) || t('review.untitled')}
+                      {displayName(sampleName(notebook)) ||
+                        t('review.untitled')}
                     </button>
                   </NotebookTip>
                 )}

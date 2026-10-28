@@ -1,4 +1,4 @@
-import { displayName } from '../i18n/defaultNames'
+import { displayName, sampleName } from '../i18n/defaultNames'
 import { Tip } from '../help/Help'
 import { useLiveQuery } from 'dexie-react-hooks'
 import {
@@ -124,7 +124,7 @@ export function NotebookScreen({
         <div className="mb-1 text-xs text-muted">{t('notebook.crumb')}</div>
         <div className="mb-4 flex items-start gap-2">
           <h1 className="flex-1 text-[26px] leading-tight font-bold tracking-[-0.02em]">
-            {displayName(notebook.title) || t('review.untitled')}
+            {displayName(sampleName(notebook)) || t('review.untitled')}
           </h1>
           <button
             type="button"
@@ -292,7 +292,7 @@ function NotesTab({
               >
                 <span aria-hidden>📄</span>
                 <span className="min-w-0 flex-1 truncate">
-                  {page.title || t('review.untitled')}
+                  {sampleName(page) || t('review.untitled')}
                 </span>
                 {!!subPages.get(page.id) && (
                   <span className="shrink-0 text-xs text-muted">

@@ -1087,8 +1087,7 @@ export const en = {
   'database.deleteView': 'Delete this view',
   'database.viewDeleted': 'View “{name}” deleted',
   'database.lastView': 'A database keeps at least one view.',
-  'calendar.noDate':
-    'A calendar needs a Date column. Add one in the Table (+ Column › Date).',
+  'calendar.noDate': 'A calendar needs a Date column.',
   'calendar.today': 'Today',
   'calendar.previous': 'Previous',
   'calendar.next': 'Next',
@@ -1585,4 +1584,6 @@ export const en = {
     'This file only opens in Learning Notes. Use Restore backup to open it.',
   'data.export.passwordHint':
     'The password box under “Backup” above also locks this file.',
+  'calendar.addDate': 'Add date column',
+  'calendar.dateName': 'Date',
 } as const

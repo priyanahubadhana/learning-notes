@@ -360,3 +360,24 @@ for (const [theme, width, height] of [
     expect(overflow).toBeLessThanOrEqual(0)
   })
 }
+
+test('a Calendar without a Date column offers "Add date column"', async ({
+  page,
+}) => {
+  await (
+    await openSidebar(page)
+  )
+    .getByRole('button', { name: 'Databases' })
+    .click()
+  await main(page).getByRole('button', { name: '+ New database' }).click()
+  await page.getByRole('menuitem', { name: /^Drug list/ }).click()
+  await main(page).getByRole('button', { name: '+ View' }).click()
+  await page
+    .getByRole('dialog', { name: 'Add a view' })
+    .getByRole('button', { name: 'Calendar' })
+    .click()
+  await expect(main(page)).toContainText('A calendar needs a Date column.')
+  await main(page).getByRole('button', { name: 'Add date column' }).click()
+  await expect(main(page).locator('[data-calendar-day]').first()).toBeVisible()
+  await expect(main(page)).not.toContainText('A calendar needs a Date column.')
+})

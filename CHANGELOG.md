@@ -868,3 +868,9 @@
 - **What:** Number cells (and the number boxes in the column filter and formula builder) drop letters and extra signs as you type; phones already get a number keypad (item 11).
 - **Why:** Owner feedback from the 5A/5B re-check.
 - **Files:** src/databases/views/columnFilters.ts, TableCells.tsx, ColumnMenu.tsx, ColumnDialog.tsx, numberTyping.test.ts, CHANGELOG.md
+
+## 2026-10-28
+
+- **What:** The Calendar message now has an "Add date column" button that adds a Date column and shows the calendar at once; Hindi and Spanish texts (item 14).
+- **Why:** Owner feedback from the 5A/5B re-check.
+- **Files:** src/databases/views/CalendarView.tsx, src/i18n/en.ts, es5.ts, hi5.ts, e2e/databases.spec.ts, CHANGELOG.md

@@ -154,8 +154,7 @@ export const es5: Record<string, string> = {
   'database.deleteView': 'Eliminar esta vista',
   'database.viewDeleted': 'Vista «{name}» eliminada',
   'database.lastView': 'Una base de datos conserva al menos una vista.',
-  'calendar.noDate':
-    'Un calendario necesita una columna de fecha. Añade una en la Tabla (+ Columna › Fecha).',
+  'calendar.noDate': 'Un calendario necesita una columna de fecha.',
   'calendar.today': 'Hoy',
   'calendar.previous': 'Anterior',
   'calendar.next': 'Siguiente',
@@ -280,4 +279,6 @@ export const es5: Record<string, string> = {
   'chart.size.small': 'Pequeño',
   'chart.size.medium': 'Mediano',
   'chart.size.wide': 'Ancho',
+  'calendar.addDate': 'Añadir columna de fecha',
+  'calendar.dateName': 'Fecha',
 }

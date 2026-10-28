@@ -152,8 +152,7 @@ export const hi5: Record<string, string> = {
   'database.deleteView': 'यह दृश्य हटाएँ',
   'database.viewDeleted': 'दृश्य “{name}” हटाया गया',
   'database.lastView': 'डेटाबेस में कम से कम एक दृश्य रहता है।',
-  'calendar.noDate':
-    'कैलेंडर के लिए तारीख़ का कॉलम चाहिए। तालिका में एक जोड़ें (+ कॉलम › तारीख़)।',
+  'calendar.noDate': 'कैलेंडर के लिए तारीख़ का कॉलम चाहिए।',
   'calendar.today': 'आज',
   'calendar.previous': 'पिछला',
   'calendar.next': 'अगला',
@@ -279,4 +278,6 @@ export const hi5: Record<string, string> = {
   'chart.size.small': 'छोटा',
   'chart.size.medium': 'मध्यम',
   'chart.size.wide': 'चौड़ा',
+  'calendar.addDate': 'तारीख़ का कॉलम जोड़ें',
+  'calendar.dateName': 'तारीख़',
 }

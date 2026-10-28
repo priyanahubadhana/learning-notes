@@ -5,7 +5,7 @@ import { dateLocale, t } from '../../i18n/t'
 import { dateColumns } from '../dashboard/chartSpec'
 import { localDay } from '../formula/formulaValue'
 import { queryRows, resolveRows } from '../databaseQuery'
-import { addRow, updateView } from '../databaseService'
+import { addColumn, addRow, updateView } from '../databaseService'
 import { TITLE_COLUMN_ID } from '../columnTypes'
 import { periodStart } from '../dashboard/chartData'
 import {
@@ -73,7 +73,25 @@ export function CalendarView({ db, database, view, onOpenPage }: ViewProps) {
     return <p className="text-sm text-muted">{t('notebook.loading')}</p>
   }
   if (!dateColumn) {
-    return <p className="text-sm text-muted">{t('calendar.noDate')}</p>
+    return (
+      <div className="flex flex-wrap items-center gap-3 text-sm text-muted">
+        <p>{t('calendar.noDate')}</p>
+        <button
+          type="button"
+          onClick={() =>
+            runTask(
+              addColumn(db, database.id, {
+                name: t('calendar.dateName'),
+                type: 'date',
+              }),
+            )
+          }
+          className="min-h-9 rounded-lg border border-line px-3 text-[13px] text-ink hover:bg-hover"
+        >
+          {t('calendar.addDate')}
+        </button>
+      </div>
+    )
   }
 
   const save = (changes: Record<string, string>) =>

@@ -790,3 +790,9 @@
 - **What:** Hindi wording made more everyday: उपकरण → डिवाइस, समीक्षा → रिवीज़न (plurals रिवीज़नों / रिवीज़नें), स्वतः → अपने-आप, प्रतिदिन → रोज़.
 - **Why:** Owner feedback from Phase 6 check 7.
 - **Files:** src/i18n/hi1.ts–hi7.ts, CHANGELOG.md
+
+## 2026-10-28
+
+- **What:** Anki import shows sub-decks as nesting in page titles ("Share::Tables" → "Share › Tables").
+- **Why:** Owner feedback from Phase 6 check 7.
+- **Files:** src/anki/importApkg.ts, src/anki/anki.test.ts, CHANGELOG.md

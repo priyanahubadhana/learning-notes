@@ -7,6 +7,14 @@ import { CARD_BLOCK_TYPE, syncCardRecords } from '../recall/cardService'
 import { clozeToLines, htmlToLines, type TextRun } from './ankiHtml'
 import type { AnkiCollection, AnkiNote } from './readApkg'
 
+/** Anki joins sub-deck levels with "::"; a page title shows them as nesting. */
+export const deckTitle = (deck: string) =>
+  deck
+    .split('::')
+    .map((part) => part.trim())
+    .filter(Boolean)
+    .join(' › ') || deck
+
 /** Notes per page: a deck is split so no page gets too heavy to edit. */
 export const NOTES_PER_PAGE = 300
 
@@ -101,7 +109,7 @@ export async function importAnki(
         ...newRecordFields(),
         notebookId: notebook.id,
         parentId: null,
-        title: parts > 1 ? `${deck} (${part})` : deck,
+        title: parts > 1 ? `${deckTitle(deck)} (${part})` : deckTitle(deck),
         order: pageOrder[pageIndex++],
       }
       const topOrders = ordersBetween(null, null, drafts.length)

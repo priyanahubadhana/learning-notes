@@ -244,6 +244,8 @@ describe('exportApkg + import (round trip)', () => {
 
     const summary = await importAnki(db, ws, back, 'Cardiology (from Anki)')
     expect(summary.cards).toBe(3)
+    const titles = (await db.pages.toArray()).map((p) => p.title)
+    expect(titles).toContain('Cardiology › Heart sounds')
   })
 
   it('refuses a notebook with no cards', async () => {

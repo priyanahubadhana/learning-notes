@@ -77,8 +77,8 @@ export const hi5: Record<string, string> = {
   'tracker.status.learning': 'सीख रहे हैं',
   'tracker.status.review': 'दोहराई',
   'tracker.status.mastered': 'महारत',
-  'tracker.status.auto': 'स्वतः (अभी: {status})',
-  'tracker.status.backToAuto': 'स्वतः पर लौटें',
+  'tracker.status.auto': 'अपने-आप (अभी: {status})',
+  'tracker.status.backToAuto': 'अपने-आप पर लौटें',
   'tracker.status.pinned': 'आपने तय की',
   'tracker.status.setByYou': 'खुद तय करें',
   'tracker.level.new': 'नया',
@@ -89,7 +89,7 @@ export const hi5: Record<string, string> = {
   'tracker.level.learning.meaning':
     'आप अभी इसे सीख रहे हैं, इसलिए यह जल्दी फिर आएगा।',
   'tracker.level.familiar.meaning':
-    'आप इसे ज़्यादातर जानते हैं, और समीक्षाओं के बीच अंतर बढ़ रहा है।',
+    'आप इसे ज़्यादातर जानते हैं, और रिवीज़नों के बीच अंतर बढ़ रहा है।',
   'tracker.level.mastered.meaning':
     'आप इसे अच्छी तरह जानते हैं, इसलिए यह कुछ हफ़्तों में ही दिखेगा।',
   'tracker.cardsDue.due': '{n} देय',
@@ -136,7 +136,7 @@ export const hi5: Record<string, string> = {
     'कार्ड आपके नोटों के अंदर ही रहते हैं; यह टैब उन्हें इकट्ठा करता है। खोज › कार्ड टैग और स्थिति से भी छाँट सकता है।',
   'database.views': 'दृश्य',
   'database.empty': 'अभी कोई पंक्ति नहीं।',
-  'database.auto': 'स्वतः',
+  'database.auto': 'अपने-आप',
   'database.view.dashboard': 'डैशबोर्ड',
   'database.view.board': 'बोर्ड',
   'database.view.calendar': 'कैलेंडर',
@@ -218,7 +218,7 @@ export const hi5: Record<string, string> = {
   'dashboard.moreLessons_one': '+ 1 और पाठ',
   'dashboard.moreLessons_other': '+ {count} और पाठ',
   'chart.title.history.correct': 'हर हफ़्ते सही उत्तर',
-  'chart.title.history.days': 'प्रतिदिन उत्तर दिए गए कार्ड',
+  'chart.title.history.days': 'रोज़ उत्तर दिए गए कार्ड',
   'chart.title.history.streak': 'अध्ययन की लगातार कड़ी',
   'tracker.streak.days_one': '🔥 1 दिन',
   'tracker.streak.days_other': '🔥 {count} दिन',

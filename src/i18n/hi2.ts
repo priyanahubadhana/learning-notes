@@ -1,10 +1,10 @@
 /** Hindi texts, part 2. */
 export const hi2: Record<string, string> = {
-  'settings.category.review': 'समीक्षा',
+  'settings.category.review': 'रिवीज़न',
   'settings.category.journal': 'डायरी',
   'settings.category.apis': 'API',
   'settings.theme.label': 'थीम',
-  'settings.theme.description': 'इस उपकरण पर ऐप कैसा दिखे।',
+  'settings.theme.description': 'इस डिवाइस पर ऐप कैसा दिखे।',
   'settings.theme.day': 'दिन',
   'settings.theme.night': 'रात',
   'settings.theme.sepia': 'सेपिया',
@@ -40,10 +40,10 @@ export const hi2: Record<string, string> = {
   'help.tip.tracker.status.mastered.example':
     '10 कार्ड, सब सही, 8 या अधिक सिर्फ़ हर 21+ दिन में लौटते हैं।',
   'help.tip.tracker.pin.meaning':
-    'यह स्थिति आपने खुद तय की है, इसलिए ऐप इसे नहीं छूता। वापस देने के लिए मेनू में स्वतः चुनें।',
-  'help.tip.tracker.pin.example': 'मेनू › स्वतः (अभी: दोहराई)।',
+    'यह स्थिति आपने खुद तय की है, इसलिए ऐप इसे नहीं छूता। वापस देने के लिए मेनू में अपने-आप चुनें।',
+  'help.tip.tracker.pin.example': 'मेनू › अपने-आप (अभी: दोहराई)।',
   'help.tip.tracker.lastRevised.meaning':
-    'आख़िरी बार जब आपने इस पाठ के किसी कार्ड का उत्तर दिया (समीक्षा या फिर भी अभ्यास)।',
+    'आख़िरी बार जब आपने इस पाठ के किसी कार्ड का उत्तर दिया (रिवीज़न या फिर भी अभ्यास)।',
   'help.tip.tracker.lastRevised.example':
     'कल आपने इसका एक कार्ड दोहराया → कल की तारीख।',
   'help.tip.tracker.cardsDue.meaning':
@@ -53,22 +53,22 @@ export const hi2: Record<string, string> = {
     'आपके दिए उत्तरों वाले कार्डों में से कितनों का ताज़ा उत्तर सही रहा (“फिर से” के अलावा कुछ भी)।',
   'help.tip.tracker.correct.example': '10 में से 8 उत्तर सही → 80%।',
   'help.tip.tracker.levels.meaning':
-    'आप इस पाठ के कार्ड कितना जानते हैं, उनकी समीक्षाओं के बीच के अंतर से।',
+    'आप इस पाठ के कार्ड कितना जानते हैं, उनकी रिवीज़नों के बीच के अंतर से।',
   'help.tip.tracker.levels.example': '3 नए · 2 सीख रहे · 4 परिचित · 1 महारत।',
   'help.tip.tracker.level.new.meaning': 'आपने यह कार्ड अभी पढ़ा नहीं है।',
   'help.tip.tracker.level.new.example': 'अभी बनाया गया कार्ड।',
   'help.tip.tracker.level.learning.meaning':
     'आप अभी इसे सीख रहे हैं, इसलिए यह जल्दी फिर आएगा।',
   'help.tip.tracker.level.learning.example':
-    'इसकी अगली समीक्षा एक दिन से कम दूर है।',
+    'इसकी अगली रिवीज़न एक दिन से कम दूर है।',
   'help.tip.tracker.level.familiar.meaning':
-    'आप इसे ज़्यादातर जानते हैं, और समीक्षाओं के बीच अंतर बढ़ रहा है।',
+    'आप इसे ज़्यादातर जानते हैं, और रिवीज़नों के बीच अंतर बढ़ रहा है।',
   'help.tip.tracker.level.familiar.example':
-    'इसकी अगली समीक्षा 1 से 20 दिन दूर है।',
+    'इसकी अगली रिवीज़न 1 से 20 दिन दूर है।',
   'help.tip.tracker.level.mastered.meaning':
     'आप इसे अच्छी तरह जानते हैं, इसलिए यह कुछ हफ़्तों में ही दिखेगा।',
   'help.tip.tracker.level.mastered.example':
-    'इसकी अगली समीक्षा 21 दिन या उससे ज़्यादा दूर है।',
+    'इसकी अगली रिवीज़न 21 दिन या उससे ज़्यादा दूर है।',
   'help.tip.tracker.confidence.meaning':
     'इस पाठ के बारे में आपका अपना एहसास, 1 से 5 सितारों में। ऐप इसे कभी नहीं बदलता।',
   'help.tip.tracker.confidence.example': '★★★☆☆ = काफ़ी भरोसा।',
@@ -89,11 +89,11 @@ export const hi2: Record<string, string> = {
   'help.tip.tracker.chart.days.example':
     'गहरा वर्ग = व्यस्त पढ़ाई का दिन; खाली = छुट्टी का दिन।',
   'help.line.tracker.table':
-    'स्थिति, आख़िरी दोहराई, देय कार्ड, % सही और कार्ड के स्तर आपकी कार्ड-समीक्षाओं से अपने-आप भर जाते हैं। खुद तय करने के लिए किसी स्थिति पर क्लिक करें 📌।',
+    'स्थिति, आख़िरी दोहराई, देय कार्ड, % सही और कार्ड के स्तर आपकी कार्ड-रिवीज़नों से अपने-आप भर जाते हैं। खुद तय करने के लिए किसी स्थिति पर क्लिक करें 📌।',
   'help.line.tracker.levels':
     'कार्ड के स्तर: नया = अभी पढ़ा नहीं · सीख रहे = एक दिन के भीतर लौटता है · परिचित = 1–20 दिन में लौटता है · महारत = 21+ दिन में लौटता है।',
   'help.line.tracker.board':
-    'किसी पाठ की स्थिति खुद तय करने के लिए उसे दूसरे कॉलम में खींचें 📌। उसे उसके अपने स्वचालित कॉलम पर वापस छोड़ दें तो वह फिर स्वतः हो जाता है।',
+    'किसी पाठ की स्थिति खुद तय करने के लिए उसे दूसरे कॉलम में खींचें 📌। उसे उसके अपने स्वचालित कॉलम पर वापस छोड़ दें तो वह फिर अपने-आप हो जाता है।',
   'help.tip.sidebar.today.meaning':
     'आज का डायरी पृष्ठ खोलता है। हर दिन का अपना पृष्ठ होता है, जो रोज़ की डायरी टेम्पलेट से बनता है।',
   'help.tip.sidebar.today.example':
@@ -147,7 +147,7 @@ export const hi2: Record<string, string> = {
     'इस चीज़ को ट्रैश से उसके पृष्ठों और कार्डों समेत वापस लाता है।',
   'help.tip.sidebar.restore.example': 'पृष्ठ “हृदय की ध्वनियाँ” वापस लाएँ।',
   'help.tip.sidebar.deleteForever.meaning':
-    'इस चीज़ को उसके कार्डों और समीक्षा-इतिहास समेत हमेशा के लिए मिटा देता है। इसे पलटा नहीं जा सकता।',
+    'इस चीज़ को उसके कार्डों और रिवीज़न-इतिहास समेत हमेशा के लिए मिटा देता है। इसे पलटा नहीं जा सकता।',
   'help.tip.sidebar.deleteForever.example':
     'वह सब साफ़ करें जिसकी आपको फिर कभी ज़रूरत नहीं होगी।',
   'help.tip.sidebar.newTag.meaning':
@@ -168,7 +168,7 @@ export const hi2: Record<string, string> = {
   'help.tip.sidebar.savedDelete.example':
     'ऐसी खोज हटाएँ जो अब काम में नहीं आती।',
   'help.tip.sidebar.settings.meaning':
-    'सेटिंग्स खोलता है: थीम, आपका दिन कब शुरू हो, समीक्षा की सीमाएँ और बहुत कुछ।',
+    'सेटिंग्स खोलता है: थीम, आपका दिन कब शुरू हो, रिवीज़न की सीमाएँ और बहुत कुछ।',
   'help.tip.sidebar.settings.example':
     'ऐप सीख लेने के बाद “सहायता दिखाएँ” बंद कर दें।',
   'help.tip.sidebar.theme.meaning':

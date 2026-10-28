@@ -784,3 +784,9 @@
 - **What:** README handoff: Phase 6 check-in passed; next steps updated.
 - **Why:** All 7 owner checks passed.
 - **Files:** README.md, CHANGELOG.md
+
+## 2026-10-28
+
+- **What:** Hindi wording made more everyday: उपकरण → डिवाइस, समीक्षा → रिवीज़न (plurals रिवीज़नों / रिवीज़नें), स्वतः → अपने-आप, प्रतिदिन → रोज़.
+- **Why:** Owner feedback from Phase 6 check 7.
+- **Files:** src/i18n/hi1.ts–hi7.ts, CHANGELOG.md

@@ -48,7 +48,7 @@ export const hi7: Record<string, string> = {
   'image.badType': 'चित्र PNG, JPEG, WebP या GIF फ़ाइलें होने चाहिए।',
   'image.tooBig': 'यह चित्र बहुत बड़ा है (सीमा लगभग 25 MB है)।',
   'image.label': '🖼 चित्र',
-  'image.choose': 'इस उपकरण से चित्र चुनें',
+  'image.choose': 'इस डिवाइस से चित्र चुनें',
   'image.added': 'चित्र जोड़ा गया।',
   'image.missing': 'यह चित्र इस ऐप के भंडार में नहीं है।',
   'revise.label.other': 'अन्य',

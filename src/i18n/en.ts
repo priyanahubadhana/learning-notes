@@ -1626,4 +1626,9 @@ export const en = {
   'dialog.discard': 'Discard your changes?',
   'dialog.discardButton': 'Discard',
   'dialog.keepEditing': 'Keep editing',
+  'table.resize': 'Resize column “{name}”',
+  'databaseBlock.fullWidth': 'Full width',
+  'help.tip.db.blockWide.meaning':
+    'Stretches this database to the full width of the page, so more columns fit. Click again to go back.',
+  'help.tip.db.blockWide.example': 'Use it for a table with many columns.',
 } as const

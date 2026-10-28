@@ -1,13 +1,16 @@
 import { useLiveQuery } from 'dexie-react-hooks'
-import { createElement, useContext, useEffect } from 'react'
+import { createElement, useContext, useEffect, useRef, useState } from 'react'
 import { EditorContext } from '../editor/editorContext'
 import { Tip } from '../help/Help'
 import { t } from '../i18n/t'
 import { ensureBlockView, getBlockView, setBlockViewType } from './blockViews'
-import { getDatabase } from './databaseService'
+import { getDatabase, updateView } from './databaseService'
 import { getViewType } from './views/viewTypes'
 
 const TYPES = ['table', 'dashboard', 'board', 'calendar', 'gallery'] as const
+
+/** Widest a "Full width" database grows (pixels). */
+const MAX_WIDE = 1400
 
 /**
  * Body of a "/database" block: a database shown inside a note, with the
@@ -40,6 +43,32 @@ export function DatabaseBlockView({
       app ? ((await getBlockView(app.db, databaseId, blockId)) ?? null) : null,
     [app, databaseId, blockId],
   )
+  // "Full width": the block grows past the text column to the page's width.
+  const box = useRef<HTMLElement>(null)
+  const fullWidth = view?.config.fullWidth === true
+  const [wide, setWide] = useState<{ width: number; shift: number } | null>(
+    null,
+  )
+  const shown = !!database && !!view
+  useEffect(() => {
+    const el = box.current
+    const parent = el?.parentElement
+    const area = el?.closest('main')
+    if (!fullWidth || !el || !parent || !area) {
+      setWide(null)
+      return
+    }
+    const measure = () => {
+      const width = Math.min(area.clientWidth - 32, MAX_WIDE)
+      const own = parent.clientWidth
+      setWide(width > own ? { width, shift: (own - width) / 2 } : null)
+    }
+    measure()
+    const observer = new ResizeObserver(measure)
+    observer.observe(area)
+    observer.observe(parent)
+    return () => observer.disconnect()
+  }, [fullWidth, shown])
   useEffect(() => {
     if (app && database && view === null && !inOwnRow) {
       void ensureBlockView(app.db, databaseId, blockId)
@@ -72,8 +101,18 @@ export function DatabaseBlockView({
   const viewType = view && getViewType(view.type)
   return (
     <section
+      ref={box}
       contentEditable={false}
       aria-label={database.title}
+      style={
+        wide
+          ? {
+              width: wide.width,
+              marginInlineStart: wide.shift,
+              marginInlineEnd: wide.shift,
+            }
+          : undefined
+      }
       className="w-full rounded-xl border border-line px-3 py-2.5 select-text"
     >
       <div className="mb-2 flex flex-wrap items-center gap-x-3 gap-y-1">
@@ -97,6 +136,23 @@ export function DatabaseBlockView({
                 </button>
               ))}
             </div>
+          </Tip>
+        )}
+        {view && (
+          <Tip id="db.blockWide" touchInfo={false}>
+            <button
+              type="button"
+              aria-pressed={fullWidth}
+              onClick={() => {
+                const config = { ...view.config }
+                if (fullWidth) delete config.fullWidth
+                else config.fullWidth = true
+                void updateView(app.db, view.id, { config })
+              }}
+              className="min-h-7 rounded-md border border-line px-2 text-[12.5px] text-muted hover:text-ink aria-pressed:border-accent aria-pressed:text-accent"
+            >
+              ⇔ {t('databaseBlock.fullWidth')}
+            </button>
           </Tip>
         )}
         {app.openDatabase && (

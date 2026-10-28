@@ -139,6 +139,7 @@ export const TIPS = {
     where: 'A database inside a note › Table / Dashboard / Board',
   },
   'db.blockOpen': { where: 'A database inside a note › Open' },
+  'db.blockWide': { where: 'A database inside a note › Full width' },
   'db.viewCalendar': { where: 'Database › Calendar view button' },
   'db.viewGallery': { where: 'Database › Gallery view button' },
   'db.addView': { where: 'Database › + View' },

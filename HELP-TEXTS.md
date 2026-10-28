@@ -2,7 +2,7 @@
 
 Every hover tip and help line in the app (shown while Settings › Show help is On). Generated from `src/help/helpRegistry.ts` and `src/i18n/en.ts`; to change a text, edit it in `en.ts`, then run `UPDATE_HELP=1 npx vitest run src/help` to refresh this file.
 
-## Hover tips (104)
+## Hover tips (105)
 
 ### `tracker.lesson`
 
@@ -525,6 +525,12 @@ Every hover tip and help line in the app (shown while Settings › Show help is 
 - **Where:** A database inside a note › Open
 - **Meaning:** Opens the whole database on its own screen.
 - **Example:** Add columns or charts there.
+
+### `db.blockWide`
+
+- **Where:** A database inside a note › Full width
+- **Meaning:** Stretches this database to the full width of the page, so more columns fit. Click again to go back.
+- **Example:** Use it for a table with many columns.
 
 ### `db.viewCalendar`
 

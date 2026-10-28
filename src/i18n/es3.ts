@@ -256,4 +256,7 @@ export const es3: Record<string, string> = {
   'review.waiting_one': 'Por ahora, listo — {count} tarjeta vuelve en {time}.',
   'review.waiting_other':
     'Por ahora, listo — {count} tarjetas vuelven en {time}.',
+  'help.tip.db.blockWide.meaning':
+    'Estira esta base de datos al ancho completo de la página, para que quepan más columnas. Vuelve a hacer clic para volver.',
+  'help.tip.db.blockWide.example': 'Úsalo para una tabla con muchas columnas.',
 }

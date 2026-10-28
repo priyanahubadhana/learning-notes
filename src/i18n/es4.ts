@@ -295,4 +295,6 @@ export const es4: Record<string, string> = {
   'dialog.discard': '¿Descartar tus cambios?',
   'dialog.discardButton': 'Descartar',
   'dialog.keepEditing': 'Seguir editando',
+  'table.resize': 'Cambiar el ancho de la columna «{name}»',
+  'databaseBlock.fullWidth': 'Ancho completo',
 }

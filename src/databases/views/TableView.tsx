@@ -1,5 +1,5 @@
 import type { ReactNode } from 'react'
-import { useContext, useMemo, useState } from 'react'
+import { useContext, useMemo, useRef, useState } from 'react'
 import { AppUiContext } from '../../app/appUi'
 import type { DbColumn, JsonValue } from '../../core/types'
 import { t, type MessageKey } from '../../i18n/t'
@@ -20,6 +20,7 @@ import { ColumnDialog, type ColumnTarget } from './ColumnDialog'
 import { filterLabel, sortLabels } from './columnFilters'
 import { columnIcon, isAutoColumn, typeName } from './columnLook'
 import { ColumnMenu } from './ColumnMenu'
+import { ColumnResizer } from './ColumnResizer'
 import { PopHeading, PopItem, PopSeparator, Popover } from './Popover'
 import { HelpLine, Tip } from '../../help/Help'
 import { LevelsCell, PinMark, StatusPicker, StatusPill } from './TrackerCells'
@@ -36,14 +37,22 @@ import {
 import {
   knownQuery,
   readHidden,
+  readWidths,
   readRowQuery,
   withFilter,
   withHidden,
+  withWidth,
   withoutQuery,
   withSort,
 } from './viewConfig'
 import { useDatabaseData } from './useDatabaseData'
 import type { ViewProps } from './viewTypes'
+
+/** Column widths until the user drags one (pixels). */
+const TITLE_WIDTH = 208
+const COLUMN_WIDTH = 128
+/** Least room kept for the "+ Column" cell at the end of the header. */
+const FILLER_WIDTH = 96
 
 /** Rows drawn at first, and added per "Show more" (keeps big tables fast). */
 const PAGE_SIZE = 100
@@ -103,6 +112,10 @@ export function TableView({ db, database, view, onOpenPage }: ViewProps) {
     columnId: string
   } | null>(null)
   const [menu, setMenu] = useState<Menu | null>(null)
+  const [dragWidth, setDragWidth] = useState<{ id: string; px: number } | null>(
+    null,
+  )
+  const headers = useRef(new Map<string, HTMLTableCellElement>())
   const [dialog, setDialog] = useState<ColumnTarget | null>(null)
 
   const allColumns = data?.databases.get(database.id)?.columns
@@ -131,6 +144,28 @@ export function TableView({ db, database, view, onOpenPage }: ViewProps) {
 
   const saveConfig = (config: typeof view.config) =>
     void updateView(db, view.id, { config })
+  // Column widths the user dragged to (live while dragging).
+  const widths = readWidths(view.config)
+  const widthOf = (id: string) =>
+    dragWidth?.id === id ? dragWidth.px : widths[id]
+  // The table is as wide as its columns (it scrolls sideways if that is more
+  // than the screen); the empty last column takes what is left.
+  const tableMinWidth =
+    (widthOf(TITLE_COLUMN_ID) ?? TITLE_WIDTH) +
+    columns.reduce((sum, c) => sum + (widthOf(c.id) ?? COLUMN_WIDTH), 0) +
+    FILLER_WIDTH
+  const resizer = (id: string, name: string) => (
+    <ColumnResizer
+      name={name}
+      width={widths[id]}
+      measure={() => headers.current.get(id)?.offsetWidth ?? 160}
+      onLive={(px) => setDragWidth({ id, px })}
+      onDone={(px) => {
+        setDragWidth(null)
+        saveConfig(withWidth(view.config, id, px))
+      }}
+    />
+  )
   const toggleMenu = (next: Menu) =>
     setMenu(
       menu && menu.anchor === next.anchor && menu.kind === next.kind
@@ -158,7 +193,8 @@ export function TableView({ db, database, view, onOpenPage }: ViewProps) {
 
   const head =
     'whitespace-nowrap border-b border-line px-2 py-1.5 text-start text-xs font-medium text-muted'
-  const cell = 'border-b border-line px-3 py-2 align-top'
+  const cell =
+    'border-b border-line px-3 py-2 align-top [overflow-wrap:anywhere]'
   const cellButton =
     '-mx-1.5 -my-1 block min-h-8 w-[calc(100%+0.75rem)] rounded-md px-1.5 py-1 text-start hover:bg-hover'
 
@@ -174,10 +210,10 @@ export function TableView({ db, database, view, onOpenPage }: ViewProps) {
           onClick={(e) =>
             toggleMenu({ kind: 'column', columnId, anchor: e.currentTarget })
           }
-          className="flex min-h-8 items-center gap-1.5 rounded-md px-1 hover:bg-hover hover:text-ink"
+          className="flex min-h-8 max-w-full items-center gap-1.5 rounded-md px-1 hover:bg-hover hover:text-ink"
         >
           <span aria-hidden>{column ? columnIcon(column) : '↗'}</span>
-          {nameOf(columnId)}
+          <span className="min-w-0 truncate">{nameOf(columnId)}</span>
           {column && isAutoColumn(column) && (
             <span className="rounded bg-hover px-1 py-px text-[10.5px]">
               {t('database.auto')}
@@ -429,9 +465,19 @@ export function TableView({ db, database, view, onOpenPage }: ViewProps) {
       <div className="overflow-hidden rounded-[10px] border border-line">
         <div className="overflow-x-auto">
           <table
-            style={{ tableLayout: 'auto', overflow: 'visible' }}
-            className="w-full min-w-[640px] border-collapse text-[13.5px]"
+            style={{ tableLayout: 'fixed', minWidth: tableMinWidth }}
+            className="w-full border-collapse text-[13.5px]"
           >
+            <colgroup>
+              <col style={{ width: widthOf(TITLE_COLUMN_ID) ?? TITLE_WIDTH }} />
+              {columns.map((column) => (
+                <col
+                  key={column.id}
+                  style={{ width: widthOf(column.id) ?? COLUMN_WIDTH }}
+                />
+              ))}
+              <col />
+            </colgroup>
             <thead>
               <tr>
                 <th
@@ -443,9 +489,13 @@ export function TableView({ db, database, view, onOpenPage }: ViewProps) {
                         : 'descending'
                       : undefined
                   }
-                  className={`${head} sticky start-0 z-[1] min-w-52 bg-bg phone:min-w-40`}
+                  ref={(el) => {
+                    if (el) headers.current.set(TITLE_COLUMN_ID, el)
+                  }}
+                  className={`${head} sticky start-0 z-[1] overflow-hidden bg-bg`}
                 >
                   {headerButton(TITLE_COLUMN_ID, null)}
+                  {resizer(TITLE_COLUMN_ID, titleName)}
                 </th>
                 {columns.map((column) => (
                   <th
@@ -458,12 +508,16 @@ export function TableView({ db, database, view, onOpenPage }: ViewProps) {
                           : 'descending'
                         : undefined
                     }
-                    className={`${head} min-w-32`}
+                    ref={(el) => {
+                      if (el) headers.current.set(column.id, el)
+                    }}
+                    className={`${head} relative overflow-hidden`}
                   >
                     {headerButton(column.id, column)}
+                    {resizer(column.id, column.name)}
                   </th>
                 ))}
-                <th scope="col" className={`${head} w-full`}>
+                <th scope="col" className={head}>
                   <Tip id="db.addColumn" touchInfo={false}>
                     <button
                       type="button"

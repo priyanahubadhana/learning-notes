@@ -916,3 +916,9 @@
 - **What:** One shared rule (useDiscardGuard) for the name, column, chart and CSV dialogs: a click on the dim background closes the dialog only if nothing was typed or chosen; otherwise it asks "Discard your changes?" (Keep editing / Discard). Esc still closes. Hindi and Spanish texts (item 10).
 - **Why:** Owner feedback from the 5A/5B re-check.
 - **Files:** src/app/useDiscardGuard.tsx, src/app/ui.tsx, src/databases/CsvImportDialog.tsx, src/databases/views/ColumnDialog.tsx, src/databases/dashboard/ChartDialog.tsx, src/i18n/en.ts, es4.ts, hi4.ts, e2e/discard.spec.ts, CHANGELOG.md
+
+## 2026-10-28
+
+- **What:** Table columns can be resized by dragging the edge of the header (or with ← → on the handle); widths are kept in the view (new ColumnResizer, readWidths/withWidth). The table now uses a fixed column layout (colgroup) so widths hold; long words wrap and long header names are shortened. A database inside a note has a "Full width" toggle that stretches it to the page width (kept per block). New tip db.blockWide; Hindi and Spanish texts (item 15).
+- **Why:** Owner feedback from the 5A/5B re-check.
+- **Files:** src/databases/views/ColumnResizer.tsx, TableView.tsx, viewConfig.ts, src/databases/DatabaseBlockView.tsx, src/help/helpRegistry.ts, HELP-TEXTS.md, src/i18n/en.ts, es3.ts, es4.ts, hi3.ts, hi4.ts, e2e/databases.spec.ts, CHANGELOG.md

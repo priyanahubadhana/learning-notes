@@ -135,3 +135,44 @@ export function knownQuery(query: RowQuery, columnIds: Set<string>): RowQuery {
     filters: query.filters?.filter((f) => columnIds.has(f.columnId)),
   }
 }
+
+/** Narrowest and widest a table column can be dragged (pixels). */
+export const MIN_COLUMN_WIDTH = 80
+export const MAX_COLUMN_WIDTH = 800
+
+/** The widths the user dragged columns to (by column id; the title is its own id). */
+export function readWidths(config: JsonObject): Record<string, number> {
+  const raw = config.widths
+  const out: Record<string, number> = {}
+  if (raw && typeof raw === 'object' && !Array.isArray(raw)) {
+    for (const [id, value] of Object.entries(raw)) {
+      if (typeof value === 'number' && Number.isFinite(value)) {
+        out[id] = Math.min(
+          MAX_COLUMN_WIDTH,
+          Math.max(MIN_COLUMN_WIDTH, Math.round(value)),
+        )
+      }
+    }
+  }
+  return out
+}
+
+/** Sets (or, with null, forgets) the width of one column. */
+export function withWidth(
+  config: JsonObject,
+  columnId: string,
+  width: number | null,
+): JsonObject {
+  const widths = readWidths(config)
+  if (width === null) delete widths[columnId]
+  else {
+    widths[columnId] = Math.min(
+      MAX_COLUMN_WIDTH,
+      Math.max(MIN_COLUMN_WIDTH, Math.round(width)),
+    )
+  }
+  const next = { ...config }
+  if (Object.keys(widths).length > 0) next.widths = widths
+  else delete next.widths
+  return next
+}

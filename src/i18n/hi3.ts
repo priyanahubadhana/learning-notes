@@ -248,4 +248,8 @@ export const hi3: Record<string, string> = {
   'review.practising': 'अभ्यास: इस कार्ड की अनुसूची वैसी ही रहती है।',
   'review.waiting_one': 'अभी के लिए पूरा — {count} कार्ड {time} में लौटेगा।',
   'review.waiting_other': 'अभी के लिए पूरा — {count} कार्ड {time} में लौटेंगे।',
+  'help.tip.db.blockWide.meaning':
+    'इस डेटाबेस को पन्ने की पूरी चौड़ाई तक फैलाता है, ताकि ज़्यादा कॉलम समा सकें। वापस जाने के लिए फिर क्लिक करें।',
+  'help.tip.db.blockWide.example':
+    'कई कॉलम वाली तालिका के लिए इसका इस्तेमाल करें।',
 }

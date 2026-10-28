@@ -416,3 +416,65 @@ test('/database lists all your databases, searchable, newest first, with the rea
   await page.keyboard.press('Enter')
   await expect(page.getByRole('region', { name: 'Drug list' })).toBeVisible()
 })
+
+test('an embedded database: drag a column edge to resize it, and Full width', async ({
+  page,
+}) => {
+  await page.locator('.bn-editor').click()
+  await page.keyboard.type('/database')
+  await page.keyboard.press('Enter')
+  await page
+    .getByRole('dialog', { name: 'Add a database' })
+    .getByRole('option', { name: /^Drug list — / })
+    .click()
+  const block = page.getByRole('region', { name: 'Drug list' })
+  await expect(block).toBeVisible()
+  await block.getByRole('button', { name: /Table/ }).click()
+
+  // Move away so the hover tip of the Table button is not in the way.
+  await page.mouse.move(700, 600)
+  await page.waitForTimeout(300)
+  // Drag the edge of the "Class" column header 90 px to the right.
+  const header = block.getByRole('columnheader', { name: /Class/ })
+  const before = (await header.boundingBox())!.width
+  const handle = header.locator('[data-column-resizer]')
+  const at = (await handle.boundingBox())!
+  await page.mouse.move(at.x + at.width / 2, at.y + at.height / 2)
+  await page.mouse.down()
+  await page.mouse.move(at.x + at.width / 2 + 90, at.y + at.height / 2, {
+    steps: 6,
+  })
+  await page.mouse.up()
+  await expect
+    .poll(async () => (await header.boundingBox())!.width)
+    .toBeGreaterThan(before + 60)
+  // Kept when the page is opened again.
+  const widened = (await header.boundingBox())!.width
+  await page.reload()
+  const again = page
+    .getByRole('region', { name: 'Drug list' })
+    .getByRole('columnheader', { name: /Class/ })
+  await expect
+    .poll(async () => Math.abs((await again.boundingBox())!.width - widened))
+    .toBeLessThan(4)
+
+  // The keyboard works too: ← makes it narrower.
+  await again.locator('[data-column-resizer]').focus()
+  await page.keyboard.press('ArrowLeft')
+  await expect
+    .poll(async () => (await again.boundingBox())!.width)
+    .toBeLessThan(widened - 10)
+
+  // Full width: the block grows past the text column; click again to undo.
+  const section = page.getByRole('region', { name: 'Drug list' })
+  const normal = (await section.boundingBox())!.width
+  await section.getByRole('button', { name: /Full width/ }).click()
+  await expect
+    .poll(async () => (await section.boundingBox())!.width)
+    .toBeGreaterThan(normal + 100)
+  await page.screenshot({ path: 'test-results/screens/db-block-fullwidth.png' })
+  await section.getByRole('button', { name: /Full width/ }).click()
+  await expect
+    .poll(async () => Math.abs((await section.boundingBox())!.width - normal))
+    .toBeLessThan(4)
+})

@@ -286,4 +286,6 @@ export const hi4: Record<string, string> = {
   'dialog.discard': 'अपने बदलाव छोड़ दें?',
   'dialog.discardButton': 'छोड़ दें',
   'dialog.keepEditing': 'संपादन जारी रखें',
+  'table.resize': 'कॉलम “{name}” की चौड़ाई बदलें',
+  'databaseBlock.fullWidth': 'पूरी चौड़ाई',
 }

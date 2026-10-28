@@ -12,6 +12,7 @@ import { applyTheme } from './app/theme'
 import { ThemeContext } from './app/themeContext'
 import type { ToastAction } from './app/appUi'
 import { Toast, ChoiceDialog } from './app/ui'
+import { TOAST_AFTER_HOLD_MS, toastDuration } from './app/toastTiming'
 import { isStringOrNull } from './app/uiPrefs'
 import { usePref } from './app/usePref'
 import { applyLanguage } from './i18n/languages'
@@ -421,6 +422,15 @@ function App() {
     action?: ToastAction
   } | null>(null)
   const toastTimer = useRef<ReturnType<typeof setTimeout>>(undefined)
+  // Hovering or tapping a toast keeps it open; leaving lets it close soon.
+  const holdToast = () => clearTimeout(toastTimer.current)
+  const releaseToast = () => {
+    clearTimeout(toastTimer.current)
+    toastTimer.current = setTimeout(
+      () => setToastMessage(null),
+      TOAST_AFTER_HOLD_MS,
+    )
+  }
   const appUi: AppUi = {
     chooseTemplate: (mode) =>
       new Promise((resolve) => setPicker({ mode, resolve })),
@@ -438,10 +448,10 @@ function App() {
       }
       setToastMessage({ message, action: closing })
       clearTimeout(toastTimer.current)
-      // Toasts with an action stay longer, so there is time to tap it.
+      // Longer messages and ones with an action stay longer.
       toastTimer.current = setTimeout(
         () => setToastMessage(null),
-        action ? 6000 : 3200,
+        toastDuration(message, !!action),
       )
     },
   }
@@ -880,7 +890,12 @@ function App() {
           />
         )}
         {toastMessage && (
-          <Toast message={toastMessage.message} action={toastMessage.action} />
+          <Toast
+            message={toastMessage.message}
+            action={toastMessage.action}
+            onHold={holdToast}
+            onRelease={releaseToast}
+          />
         )}
       </AppUiContext>
     </ThemeContext>

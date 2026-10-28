@@ -880,3 +880,9 @@
 - **What:** Each Settings category page (General, Review, Journal, APIs) starts with a one-line description; Hindi and Spanish texts (item 17).
 - **Why:** Owner feedback from the 5A/5B re-check.
 - **Files:** src/settings/registry.ts, builtinSettings.ts, SettingsScreen.tsx, src/i18n/en.ts, es5.ts, hi5.ts, e2e/settings.spec.ts, CHANGELOG.md
+
+## 2026-10-28
+
+- **What:** Toast messages stay about 2.5 s when short and up to 8 s when long (6 s at least with an Undo button); hovering or tapping a message keeps it open, and it closes 1.5 s after the pointer leaves or another tap. They are not cleared by changing page (item 12).
+- **Why:** Owner feedback from the 5A/5B re-check.
+- **Files:** src/app/toastTiming.ts (+test), src/app/ui.tsx, src/App.tsx, e2e/toast.spec.ts, CHANGELOG.md

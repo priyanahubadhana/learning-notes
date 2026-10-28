@@ -152,12 +152,46 @@ export function MenuPopover({
 export function Toast({
   message,
   action,
+  onHold,
+  onRelease,
 }: {
   message: string
   action?: ToastAction
+  /** The pointer is over the toast or it was tapped: keep it open. */
+  onHold?: () => void
+  /** The pointer left (or another tap elsewhere): let it close soon. */
+  onRelease?: () => void
 }) {
+  const box = useRef<HTMLDivElement>(null)
+  const held = useRef(false)
+  // A tap holds the toast; a tap anywhere else lets it go.
+  useEffect(() => {
+    if (!onRelease) return
+    const away = (e: PointerEvent) => {
+      if (held.current && !box.current?.contains(e.target as Node)) {
+        held.current = false
+        onRelease()
+      }
+    }
+    document.addEventListener('pointerdown', away)
+    return () => document.removeEventListener('pointerdown', away)
+  }, [onRelease])
   return (
     <div
+      ref={box}
+      onPointerEnter={() => {
+        held.current = true
+        onHold?.()
+      }}
+      onPointerDown={() => {
+        held.current = true
+        onHold?.()
+      }}
+      onPointerLeave={(e) => {
+        if (e.pointerType === 'touch') return
+        held.current = false
+        onRelease?.()
+      }}
       role="status"
       className="fixed bottom-5 left-1/2 z-40 flex max-w-[calc(100vw-32px)] -translate-x-1/2 items-center gap-3 rounded-[10px] bg-ink px-3.5 py-2 text-[13px] text-bg shadow-[0_8px_24px_rgba(0,0,0,0.14)]"
     >

@@ -49,7 +49,8 @@ export function Tip({
   touchInfo?: boolean
 }) {
   const on = useShowHelp()
-  if (!on) return <>{children}</>
+  // Off: keep the same wrapper, so the layout does not change.
+  if (!on) return <span className={className}>{children}</span>
   return (
     <TipBox id={id} className={className} touchInfo={touchInfo}>
       {children}

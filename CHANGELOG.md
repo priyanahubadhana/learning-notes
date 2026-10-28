@@ -856,3 +856,9 @@
 - **What:** Database row page: the breadcrumb stays on one line (long names shortened) and the database name is a link back to the database (item 3).
 - **Why:** Owner feedback from the 5A/5B re-check.
 - **Files:** src/pages/PageView.tsx, e2e/databases.spec.ts, CHANGELOG.md
+
+## 2026-10-28
+
+- **What:** With Show help Off the Tip wrapper stays (without the tip), so sidebar buttons keep their size and no sideways scrollbar appears (item 2).
+- **Why:** Owner feedback from the 5A/5B re-check.
+- **Files:** src/help/Help.tsx, e2e/help.spec.ts, CHANGELOG.md

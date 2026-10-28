@@ -67,6 +67,24 @@ test('Show help: tips across the app, help lines, and nothing when Off', async (
     .getByRole('button', { name: 'Off' })
     .click()
   await expect(page.locator('[data-tip]')).toHaveCount(0)
+  // The layout does not change: theme buttons stay small, no sideways scroll.
+  const day = (await openSidebar(page)).getByRole('button', {
+    name: 'Day',
+    exact: true,
+  })
+  expect((await day.boundingBox())!.height).toBeLessThan(50)
+  expect(
+    await page.evaluate(
+      () => document.documentElement.scrollWidth <= window.innerWidth,
+    ),
+  ).toBe(true)
+  const sideBox = (await openSidebar(page).then((s) => s.boundingBox()))!
+  expect(
+    await openSidebar(page).then((s) =>
+      s.evaluate((el) => el.scrollWidth <= el.clientWidth),
+    ),
+  ).toBe(true)
+  expect(sideBox.width).toBeGreaterThan(100)
   await (
     await openSidebar(page)
   )

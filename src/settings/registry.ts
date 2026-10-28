@@ -15,6 +15,8 @@ import type { MessageKey } from '../i18n/t'
 export interface SettingCategory {
   id: string
   labelKey: MessageKey
+  /** One line shown at the top of the category's page. */
+  descriptionKey?: MessageKey
   /** Position in the category list (lower comes first). */
   order: number
   /** Text shown when the category has no settings yet. */

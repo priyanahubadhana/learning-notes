@@ -874,3 +874,9 @@
 - **What:** The Calendar message now has an "Add date column" button that adds a Date column and shows the calendar at once; Hindi and Spanish texts (item 14).
 - **Why:** Owner feedback from the 5A/5B re-check.
 - **Files:** src/databases/views/CalendarView.tsx, src/i18n/en.ts, es5.ts, hi5.ts, e2e/databases.spec.ts, CHANGELOG.md
+
+## 2026-10-28
+
+- **What:** Each Settings category page (General, Review, Journal, APIs) starts with a one-line description; Hindi and Spanish texts (item 17).
+- **Why:** Owner feedback from the 5A/5B re-check.
+- **Files:** src/settings/registry.ts, builtinSettings.ts, SettingsScreen.tsx, src/i18n/en.ts, es5.ts, hi5.ts, e2e/settings.spec.ts, CHANGELOG.md

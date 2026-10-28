@@ -281,4 +281,12 @@ export const es5: Record<string, string> = {
   'chart.size.wide': 'Ancho',
   'calendar.addDate': 'Añadir columna de fecha',
   'calendar.dateName': 'Fecha',
+  'settings.category.general.hint':
+    'Cómo se ve y se comporta la aplicación en este dispositivo: tema, idioma, fechas, ayuda y cuándo empieza tu día.',
+  'settings.category.review.hint':
+    'Cómo vuelven las tarjetas: cuántas aparecen cada día, cuándo se repiten y cómo se calcula el calendario.',
+  'settings.category.journal.hint':
+    'Ajustes de tu diario. Todavía no hay ninguno; aparecerán aquí.',
+  'settings.category.apis.hint':
+    'Conexiones con otros servicios (como la IA). Todavía no hay nada conectado.',
 }

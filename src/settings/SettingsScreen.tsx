@@ -138,6 +138,11 @@ export function SettingsScreen({
               className="mb-2 min-h-10 w-full rounded-lg border border-line bg-bg px-3 text-sm outline-none focus:border-accent"
             />
           )}
+          {current?.descriptionKey && (
+            <p className="mb-2 text-sm text-muted">
+              {t(current.descriptionKey)}
+            </p>
+          )}
           {shown.map((s) => (
             <SettingRow key={s.id} db={db} definition={s} category={category} />
           ))}

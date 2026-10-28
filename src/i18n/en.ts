@@ -1586,4 +1586,12 @@ export const en = {
     'The password box under “Backup” above also locks this file.',
   'calendar.addDate': 'Add date column',
   'calendar.dateName': 'Date',
+  'settings.category.general.hint':
+    'How the app looks and behaves on this device: theme, language, dates, help and when your day starts.',
+  'settings.category.review.hint':
+    'How cards come back: how many appear each day, when they repeat and how the schedule is worked out.',
+  'settings.category.journal.hint':
+    'Settings for your daily journal. There are none yet; they will appear here.',
+  'settings.category.apis.hint':
+    'Connections to other services (such as AI). Nothing is connected yet.',
 } as const

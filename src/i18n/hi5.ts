@@ -280,4 +280,12 @@ export const hi5: Record<string, string> = {
   'chart.size.wide': 'चौड़ा',
   'calendar.addDate': 'तारीख़ का कॉलम जोड़ें',
   'calendar.dateName': 'तारीख़',
+  'settings.category.general.hint':
+    'इस डिवाइस पर ऐप कैसा दिखता और चलता है: थीम, भाषा, तारीख़ें, मदद और आपका दिन कब शुरू होता है।',
+  'settings.category.review.hint':
+    'कार्ड कैसे लौटते हैं: हर दिन कितने आते हैं, कब दोहराए जाते हैं और शेड्यूल कैसे बनता है।',
+  'settings.category.journal.hint':
+    'आपकी डायरी की सेटिंग्स। अभी कोई नहीं है; वे यहाँ दिखेंगी।',
+  'settings.category.apis.hint':
+    'दूसरी सेवाओं (जैसे AI) से कनेक्शन। अभी कुछ भी जुड़ा नहीं है।',
 }

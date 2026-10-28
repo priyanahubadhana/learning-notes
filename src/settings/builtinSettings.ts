@@ -31,21 +31,25 @@ export const settingsRegistry = createSettingsRegistry()
 settingsRegistry.registerCategory({
   id: 'general',
   labelKey: 'settings.category.general',
+  descriptionKey: 'settings.category.general.hint',
   order: 10,
 })
 settingsRegistry.registerCategory({
   id: 'review',
   labelKey: 'settings.category.review',
+  descriptionKey: 'settings.category.review.hint',
   order: 20,
 })
 settingsRegistry.registerCategory({
   id: 'journal',
   labelKey: 'settings.category.journal',
+  descriptionKey: 'settings.category.journal.hint',
   order: 30,
 })
 settingsRegistry.registerCategory({
   id: 'apis',
   labelKey: 'settings.category.apis',
+  descriptionKey: 'settings.category.apis.hint',
   order: 90,
   emptyKey: 'settings.apis.empty',
 })

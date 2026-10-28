@@ -156,3 +156,18 @@ test('settings fit a phone screen without sideways scrolling', async ({
   )
   expect(overflow).toBeLessThanOrEqual(0)
 })
+
+test('each category page starts with a one-line description', async ({
+  page,
+}) => {
+  await openSettings(page)
+  for (const [tab, text] of [
+    ['General', 'How the app looks and behaves'],
+    ['Review', 'How cards come back'],
+    ['Journal', 'Settings for your daily journal'],
+    ['APIs', 'Connections to other services'],
+  ]) {
+    await page.getByRole('button', { name: new RegExp(`^${tab}, `) }).click()
+    await expect(main(page)).toContainText(text)
+  }
+})

@@ -778,3 +778,9 @@
 - **What:** Parked the owner's check-7 notes (untranslated Today date, sample notebook names, Anki sub-deck "::" display, Hindi wording) in IDEAS.md. All 7 Phase 6 owner checks are done.
 - **Why:** Owner asked to record them, to build after the Phase 6 checks.
 - **Files:** IDEAS.md, CHANGELOG.md
+
+## 2026-10-28
+
+- **What:** README handoff: Phase 6 check-in passed; next steps updated.
+- **Why:** All 7 owner checks passed.
+- **Files:** README.md, CHANGELOG.md

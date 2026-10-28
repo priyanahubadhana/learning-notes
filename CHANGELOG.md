@@ -838,3 +838,9 @@
 - **What:** README records that the 5A/5B re-check is done (passed list, findings and planned fixes); IDEAS.md parks CSV "skip duplicates", menu customisation and the Calendar Day/Week/Month plan.
 - **Why:** Owner finished the re-check and asked to record it so it is not asked again.
 - **Files:** README.md, IDEAS.md, CHANGELOG.md
+
+## 2026-10-28
+
+- **What:** README: 5A/5B re-check result updated (Drug list, /database, All cards, Show help passed; upgrade backup and screenshots skipped on purpose) and the findings list recorded.
+- **Why:** Owner finished the re-check and asked that it is not asked again.
+- **Files:** README.md, CHANGELOG.md

@@ -844,3 +844,9 @@
 - **What:** README: 5A/5B re-check result updated (Drug list, /database, All cards, Show help passed; upgrade backup and screenshots skipped on purpose) and the findings list recorded.
 - **Why:** Owner finished the re-check and asked that it is not asked again.
 - **Files:** README.md, CHANGELOG.md
+
+## 2026-10-28
+
+- **What:** Tag columns show a 🏷 icon (Number keeps #).
+- **Why:** Owner feedback from the 5A/5B re-check (item 13).
+- **Files:** src/databases/views/columnLook.ts, CHANGELOG.md

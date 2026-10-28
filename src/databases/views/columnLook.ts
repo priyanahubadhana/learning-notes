@@ -14,7 +14,7 @@ const TYPE_ICONS: Record<string, string> = {
   choices: '◎',
   checkbox: '☑',
   url: '🔗',
-  tag: '#',
+  tag: '🏷',
   noteLink: '↗',
   formula: 'ƒ',
   relation: '⇄',

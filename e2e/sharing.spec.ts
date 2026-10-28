@@ -12,7 +12,7 @@ test('CSV: import rows into a database (mapping), then export them', async ({
   await main(page).getByRole('button', { name: '+ New database' }).click()
   await page.getByRole('menuitem', { name: /^Books/ }).click()
 
-  await main(page).getByRole('button', { name: 'Database options' }).click()
+  await main(page).getByRole('button', { name: 'Import / Export' }).click()
   await page.getByRole('menuitem', { name: 'Import CSV…' }).click()
   const dialog = page.getByRole('dialog', { name: 'Import CSV' })
   await dialog.getByLabel('Choose a CSV file').setInputFiles({
@@ -41,7 +41,7 @@ test('CSV: import rows into a database (mapping), then export them', async ({
   ).toContainText('320')
 
   const downloading = page.waitForEvent('download')
-  await main(page).getByRole('button', { name: 'Database options' }).click()
+  await main(page).getByRole('button', { name: 'Import / Export' }).click()
   await page.getByRole('menuitem', { name: 'Export as CSV' }).click()
   const file = await downloading
   expect(file.suggestedFilename()).toBe('Books.csv')

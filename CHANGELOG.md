@@ -886,3 +886,9 @@
 - **What:** Toast messages stay about 2.5 s when short and up to 8 s when long (6 s at least with an Undo button); hovering or tapping a message keeps it open, and it closes 1.5 s after the pointer leaves or another tap. They are not cleared by changing page (item 12).
 - **Why:** Owner feedback from the 5A/5B re-check.
 - **Files:** src/app/toastTiming.ts (+test), src/app/ui.tsx, src/App.tsx, e2e/toast.spec.ts, CHANGELOG.md
+
+## 2026-10-28
+
+- **What:** Each database screen has a visible "Import / Export" button beside the ⋯ menu (Export as CSV, Import CSV…); ⋯ now only holds Delete database (and is hidden on the Study tracker). Hindi and Spanish texts (item 8).
+- **Why:** Owner feedback from the 5A/5B re-check.
+- **Files:** src/databases/DatabasesHub.tsx, src/i18n/en.ts, es4.ts, hi4.ts, e2e/sample.spec.ts, e2e/sharing.spec.ts, CHANGELOG.md

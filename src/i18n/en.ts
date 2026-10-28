@@ -1594,4 +1594,5 @@ export const en = {
     'Settings for your daily journal. There are none yet; they will appear here.',
   'settings.category.apis.hint':
     'Connections to other services (such as AI). Nothing is connected yet.',
+  'databases.importExport': 'Import / Export',
 } as const

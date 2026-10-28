@@ -254,4 +254,5 @@ export const hi4: Record<string, string> = {
     'यह फ़ाइल सिर्फ़ Learning Notes में खुलती है। इसे खोलने के लिए “बैकअप वापस लाएँ” इस्तेमाल करें।',
   'data.export.passwordHint':
     'ऊपर “बैकअप” का पासवर्ड बॉक्स इस फ़ाइल को भी बंद कर देता है।',
+  'databases.importExport': 'आयात / निर्यात',
 }

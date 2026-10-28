@@ -145,6 +145,7 @@ export function DatabaseScreen({
 }) {
   const ui = useContext(AppUiContext)
   const [menu, setMenu] = useState<DOMRect | null>(null)
+  const [ioMenu, setIoMenu] = useState<DOMRect | null>(null)
   const [importing, setImporting] = useState(false)
   const columns = useLiveQuery(
     () => listColumns(db, databaseId),
@@ -201,17 +202,16 @@ export function DatabaseScreen({
           )}
           <button
             type="button"
-            aria-label={t('databases.more')}
             aria-haspopup="menu"
-            onClick={(e) => setMenu(e.currentTarget.getBoundingClientRect())}
-            className="min-h-9 min-w-9 rounded-lg text-lg text-muted hover:bg-hover hover:text-ink"
+            onClick={(e) => setIoMenu(e.currentTarget.getBoundingClientRect())}
+            className="min-h-9 shrink-0 rounded-lg border border-line px-3 text-[13px] hover:bg-hover"
           >
-            ⋯
+            ⇅ {t('databases.importExport')}
           </button>
-          {menu && (
+          {ioMenu && (
             <MenuPopover
-              anchor={menu}
-              onClose={() => setMenu(null)}
+              anchor={ioMenu}
+              onClose={() => setIoMenu(null)}
               items={[
                 {
                   label: t('csv.export'),
@@ -232,22 +232,39 @@ export function DatabaseScreen({
                         icon: '⤒',
                         onSelect: () => setImporting(true),
                       },
-                      {
-                        label: t('databases.delete'),
-                        icon: '🗑',
-                        onSelect: () =>
-                          runTask(
-                            deleteDatabase(db, database.id).then(() => {
-                              ui.toast(
-                                t('databases.deleted', {
-                                  name: database.title,
-                                }),
-                              )
-                              onBack()
-                            }),
-                          ),
-                      },
                     ]),
+              ]}
+            />
+          )}
+          {!tracker && (
+            <button
+              type="button"
+              aria-label={t('databases.more')}
+              aria-haspopup="menu"
+              onClick={(e) => setMenu(e.currentTarget.getBoundingClientRect())}
+              className="min-h-9 min-w-9 rounded-lg text-lg text-muted hover:bg-hover hover:text-ink"
+            >
+              ⋯
+            </button>
+          )}
+          {menu && (
+            <MenuPopover
+              anchor={menu}
+              onClose={() => setMenu(null)}
+              items={[
+                {
+                  label: t('databases.delete'),
+                  icon: '🗑',
+                  onSelect: () =>
+                    runTask(
+                      deleteDatabase(db, database.id).then(() => {
+                        ui.toast(
+                          t('databases.deleted', { name: database.title }),
+                        )
+                        onBack()
+                      }),
+                    ),
+                },
               ]}
             />
           )}

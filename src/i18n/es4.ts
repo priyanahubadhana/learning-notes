@@ -261,4 +261,5 @@ export const es4: Record<string, string> = {
     'Este archivo solo se abre en Learning Notes. Usa «Restaurar copia de seguridad» para abrirlo.',
   'data.export.passwordHint':
     'La casilla de contraseña de «Copia de seguridad», arriba, también protege este archivo.',
+  'databases.importExport': 'Importar / Exportar',
 }

@@ -40,9 +40,11 @@ export const currentLocale = (): string => locale
  * "en-US" → "Nov 12".
  */
 export const dateLocale = (): string =>
-  dateStyle === 'dayFirst'
+  // The forced day/month order only exists for English; Hindi and Spanish
+  // keep their own month and day names.
+  locale.startsWith('en') && dateStyle === 'dayFirst'
     ? 'en-GB'
-    : dateStyle === 'monthFirst'
+    : locale.startsWith('en') && dateStyle === 'monthFirst'
       ? 'en-US'
       : withRegion(locale, globalThis.navigator?.languages?.[0])
 

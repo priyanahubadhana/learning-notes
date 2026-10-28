@@ -796,3 +796,9 @@
 - **What:** Anki import shows sub-decks as nesting in page titles ("Share::Tables" → "Share › Tables").
 - **Why:** Owner feedback from Phase 6 check 7.
 - **Files:** src/anki/importApkg.ts, src/anki/anki.test.ts, CHANGELOG.md
+
+## 2026-10-28
+
+- **What:** Dates next to "Today" and in the journal follow the app language (Hindi, Spanish); the Date style setting (day first / month first) now only forces the order for English.
+- **Why:** Owner feedback from Phase 6 check 7 ("Wed 28 Oct" stayed English).
+- **Files:** src/i18n/t.ts, src/i18n/dateStyle.test.ts, CHANGELOG.md

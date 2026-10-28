@@ -19,6 +19,8 @@ export const MIN_PASSWORD_LENGTH = 8
 
 /** The password is wrong, or the file was changed or damaged. */
 export class DecryptError extends Error {}
+/** The password does not open the file (or the file was changed). */
+export class WrongPasswordError extends DecryptError {}
 
 const subtle = () => globalThis.crypto.subtle
 
@@ -119,7 +121,7 @@ export async function decryptBytes(
       ),
     )
   } catch {
-    throw new DecryptError(t('err.wrongPassword'))
+    throw new WrongPasswordError(t('err.wrongPassword'))
   }
 }
 

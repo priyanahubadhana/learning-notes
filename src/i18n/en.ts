@@ -943,6 +943,11 @@ export const en = {
   'data.locked.text': '“{name}” is protected. Type its password to open it.',
   'data.locked.password': 'Password of this file',
   'data.locked.open': 'Open file',
+  'data.locked.forgot': 'Forgot password?',
+  'data.locked.forgotText':
+    'A forgotten password cannot be recovered: it is not stored anywhere, so nobody, including us, can open this file without it. Try other passwords you use, or open another copy or backup of your notes. If you are sure the password is right, the file may be damaged.',
+  'password.show': 'Show password',
+  'password.hide': 'Hide password',
   'data.export.journal': 'Include my journal days',
   'data.export.templates': 'Include my templates',
   'data.sample.title': 'For testing: sample notebook',
@@ -1572,8 +1577,7 @@ export const en = {
   'err.tooBig': 'This file is too big to import.',
   'err.notLocked': 'This is not a password-protected file.',
   'err.fileDamaged': 'This file is damaged.',
-  'err.wrongPassword':
-    'Wrong password, or the file is damaged. Nothing was imported.',
+  'err.wrongPassword': 'Wrong password. Try again.',
   'anki.tooBig': 'This Anki file is too big to import.',
   'anki.notPackage': 'This is not an Anki package (.apkg).',
   'anki.noCollection': 'This Anki package has no collection in it.',

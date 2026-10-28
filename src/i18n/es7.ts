@@ -34,8 +34,7 @@ export const es7: Record<string, string> = {
   'err.tooBig': 'Este archivo es demasiado grande para importarlo.',
   'err.notLocked': 'Este no es un archivo protegido con contraseña.',
   'err.fileDamaged': 'Este archivo está dañado.',
-  'err.wrongPassword':
-    'Contraseña incorrecta, o el archivo está dañado. No se importó nada.',
+  'err.wrongPassword': 'Contraseña incorrecta. Inténtalo de nuevo.',
   'anki.tooBig': 'Este archivo de Anki es demasiado grande para importarlo.',
   'anki.notPackage': 'Este no es un paquete de Anki (.apkg).',
   'anki.noCollection': 'Este paquete de Anki no contiene ninguna colección.',

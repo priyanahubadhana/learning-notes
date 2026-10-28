@@ -7,6 +7,11 @@ export const es5: Record<string, string> = {
     '«{name}» está protegido. Escribe su contraseña para abrirlo.',
   'data.locked.password': 'Contraseña de este archivo',
   'data.locked.open': 'Abrir archivo',
+  'data.locked.forgot': '¿Olvidaste la contraseña?',
+  'data.locked.forgotText':
+    'Una contraseña olvidada no se puede recuperar: no se guarda en ningún sitio, así que nadie, ni nosotros, puede abrir este archivo sin ella. Prueba otras contraseñas que uses, o abre otra copia de seguridad de tus notas. Si estás seguro de que la contraseña es correcta, puede que el archivo esté dañado.',
+  'password.show': 'Mostrar contraseña',
+  'password.hide': 'Ocultar contraseña',
   'data.export.journal': 'Incluir mis días del diario',
   'data.export.templates': 'Incluir mis plantillas',
   'data.sample.title': 'Para pruebas: cuaderno de ejemplo',

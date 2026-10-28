@@ -289,9 +289,25 @@ test('a password-protected file: two fields, a warning, and the password to open
   // No file-type filter: iPadOS greys out types it does not know (.locked).
   await expect(input).not.toHaveAttribute('accept', /.+/)
   await input.setInputFiles(await file.path())
-  await main(page).getByLabel('Password of this file').fill('wrong password')
+  const box = main(page).getByLabel('Password of this file')
+  await box.fill('wrong password')
+  // The eye shows what was typed.
+  const eye = box.locator('xpath=..').getByRole('button')
+  await eye.click()
+  await expect(box).toHaveAttribute('type', 'text')
+  await expect(eye).toHaveAccessibleName('Hide password')
+  await eye.click()
   await main(page).getByRole('button', { name: 'Open file' }).click()
-  await expect(main(page).getByRole('alert')).toContainText('Wrong password')
+  // A wrong password: red box, a clear message, the box emptied with the cursor in it.
+  await expect(main(page).getByRole('alert')).toHaveText(
+    /Wrong password. Try again./,
+  )
+  await expect(box).toHaveValue('')
+  await expect(box).toBeFocused()
+  await expect(box).toHaveAttribute('aria-invalid', 'true')
+  await main(page).getByRole('button', { name: 'Forgot password?' }).click()
+  await expect(main(page).getByText(/cannot be recovered/)).toBeVisible()
+  await page.screenshot({ path: 'test-results/screens/password-wrong.png' })
   await main(page).getByLabel('Password of this file').fill('correct horse')
   await main(page).getByRole('button', { name: 'Open file' }).click()
   await expect(page.getByText(/Imported \d+ notebooks/)).toBeVisible()

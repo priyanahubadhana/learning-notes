@@ -7,6 +7,7 @@ import {
 } from './bundle'
 import {
   DecryptError,
+  WrongPasswordError,
   decryptBytes,
   encryptBlob,
   isEncryptedFile,
@@ -14,6 +15,9 @@ import {
 
 /** The file is password protected and no password was given. */
 export class PasswordNeeded extends Error {}
+
+/** The password given does not open the protected file. */
+export class WrongPassword extends BundleError {}
 
 /** Ending of a password-protected file. */
 export const LOCKED_EXTENSION = '.learningnotes.locked'
@@ -47,6 +51,8 @@ export async function readImportFile(
       new TextDecoder().decode(await decryptBytes(bytes, password)),
     )
   } catch (error) {
+    if (error instanceof WrongPasswordError)
+      throw new WrongPassword(error.message)
     if (error instanceof DecryptError) throw new BundleError(error.message)
     throw error
   }

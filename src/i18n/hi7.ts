@@ -33,8 +33,7 @@ export const hi7: Record<string, string> = {
   'err.tooBig': 'यह फ़ाइल आयात के लिए बहुत बड़ी है।',
   'err.notLocked': 'यह पासवर्ड से सुरक्षित फ़ाइल नहीं है।',
   'err.fileDamaged': 'यह फ़ाइल क्षतिग्रस्त है।',
-  'err.wrongPassword':
-    'गलत पासवर्ड, या फ़ाइल क्षतिग्रस्त है। कुछ भी आयात नहीं हुआ।',
+  'err.wrongPassword': 'गलत पासवर्ड। फिर से कोशिश करें।',
   'anki.tooBig': 'यह Anki फ़ाइल आयात के लिए बहुत बड़ी है।',
   'anki.notPackage': 'यह Anki पैकेज (.apkg) नहीं है।',
   'anki.noCollection': 'इस Anki पैकेज में कोई संग्रह नहीं है।',

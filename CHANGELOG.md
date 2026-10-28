@@ -808,3 +808,9 @@
 - **What:** Plain "Choose File" boxes replaced by labelled buttons (new `FileButton`): "Import from Anki" (with hint "Pick an .apkg file") beside "Save for Anki", "Choose a file to import", "Choose a CSV file"; Hindi and Spanish texts.
 - **Why:** Owner feedback from Phase 6 check 6.
 - **Files:** src/share/FileButton.tsx, src/share/DataScreen.tsx, src/databases/CsvImportDialog.tsx, src/i18n/en.ts, es4.ts, hi4.ts, e2e/anki.spec.ts, e2e/sample.spec.ts, e2e/sharing.spec.ts, CHANGELOG.md
+
+## 2026-10-28
+
+- **What:** Password boxes: a wrong password gives a red border, a bold red "⚠ Wrong password. Try again." under the box, empties the box and puts the cursor back; an eye button shows/hides the password (also in the two "protect this file" fields); "Forgot password?" explains that it cannot be recovered. Hindi and Spanish texts.
+- **Why:** Owner feedback from Phase 6 check 3 (the old error was at the top of the page and easy to miss).
+- **Files:** src/share/PasswordInput.tsx (new), PasswordFields.tsx, DataScreen.tsx, crypto.ts (`WrongPasswordError`), fileIO.ts (`WrongPassword`), src/i18n/en.ts, es5.ts, es7.ts, hi5.ts, hi7.ts, e2e/sharing.spec.ts, CHANGELOG.md

@@ -1,5 +1,5 @@
 import { useLiveQuery } from 'dexie-react-hooks'
-import { useContext, useState } from 'react'
+import { useContext, useRef, useState } from 'react'
 import { AppUiContext } from '../app/appUi'
 import { downloadFile } from '../app/download'
 import { runTask } from '../app/errors'
@@ -24,11 +24,13 @@ import {
   fileToSave,
   lockedFileName,
   PasswordNeeded,
+  WrongPassword,
   readImportFile,
 } from './fileIO'
 import { NO_LOCK, passwordProblem } from './lockState'
 import { FileButton } from './FileButton'
 import { PasswordFields } from './PasswordFields'
+import { PasswordInput } from './PasswordInput'
 import { recordBackupSaved } from './backupReminder'
 import { importBundle, type ImportSummary } from './importBundle'
 import {
@@ -72,6 +74,9 @@ export function DataScreen({
   /** A protected file waiting for its password. */
   const [locked, setLocked] = useState<File | null>(null)
   const [openPassword, setOpenPassword] = useState('')
+  const [passwordError, setPasswordError] = useState('')
+  const [forgot, setForgot] = useState(false)
+  const passwordBox = useRef<HTMLInputElement>(null)
   const [error, setError] = useState('')
   const lockProblem = lock.protect
     ? passwordProblem(lock.password, lock.again)
@@ -119,9 +124,15 @@ export function DataScreen({
         await importBundleNow(await readImportFile(file, password))
         setLocked(null)
         setOpenPassword('')
+        setPasswordError('')
+        setForgot(false)
       } catch (e) {
         if (e instanceof PasswordNeeded) setLocked(file)
-        else throw e
+        else if (e instanceof WrongPassword) {
+          setPasswordError(e.message)
+          setOpenPassword('')
+          passwordBox.current?.focus()
+        } else throw e
       }
     })
   const [progress, setProgress] = useState('')
@@ -398,6 +409,8 @@ export function DataScreen({
               disabled={busy}
               onFile={(file) => {
                 setLocked(null)
+                setPasswordError('')
+                setForgot(false)
                 openFile(file)
               }}
             />
@@ -413,14 +426,17 @@ export function DataScreen({
               <p className="text-sm">
                 {t('data.locked.text', { name: locked.name })}
               </p>
-              <div className="flex flex-wrap gap-2">
-                <input
-                  type="password"
-                  autoComplete="off"
-                  aria-label={t('data.locked.password')}
+              <div className="flex flex-wrap items-start gap-2">
+                <PasswordInput
+                  inputRef={passwordBox}
+                  label={t('data.locked.password')}
                   value={openPassword}
-                  onChange={(e) => setOpenPassword(e.target.value)}
-                  className="min-h-9 min-w-0 flex-1 rounded-lg border border-line bg-bg px-2 text-[13px]"
+                  error={passwordError}
+                  onChange={(value) => {
+                    setOpenPassword(value)
+                    setPasswordError('')
+                  }}
+                  className="min-w-48 flex-1"
                 />
                 <button
                   type="submit"
@@ -430,6 +446,22 @@ export function DataScreen({
                   {t('data.locked.open')}
                 </button>
               </div>
+              <button
+                type="button"
+                aria-expanded={forgot}
+                onClick={() => setForgot(!forgot)}
+                className="min-h-9 justify-self-start text-[13px] text-accent underline"
+              >
+                {t('data.locked.forgot')}
+              </button>
+              {forgot && (
+                <p
+                  role="note"
+                  className="rounded-lg bg-soft p-2.5 text-[13px] leading-relaxed"
+                >
+                  {t('data.locked.forgotText')}
+                </p>
+              )}
             </form>
           )}
         </section>

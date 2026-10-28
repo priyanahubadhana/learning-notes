@@ -44,6 +44,14 @@ test('All databases: new Drug list, rows open as pages with properties', async (
   await expect(
     main(page).getByRole('navigation', { name: 'Breadcrumb' }),
   ).toContainText('Drug list')
+  // The breadcrumb stays on one line and the database name goes back to it.
+  const crumb = main(page).getByRole('navigation', { name: 'Breadcrumb' })
+  expect((await crumb.boundingBox())!.height).toBeLessThan(30)
+  await crumb.getByRole('button', { name: 'Drug list' }).click()
+  await expect(main(page).getByRole('textbox', { name: 'Rename' })).toHaveValue(
+    'Drug list',
+  )
+  await page.goBack()
   await props.getByRole('button', { name: /^Class/ }).click()
   await props.getByRole('textbox').fill('Calcium blocker')
   await props.getByRole('textbox').press('Enter')

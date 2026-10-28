@@ -124,9 +124,21 @@ export function PageView({
       <div className="mb-6 flex flex-wrap items-center gap-2">
         <nav
           aria-label={t('page.breadcrumb')}
-          className="flex min-h-5 flex-1 flex-wrap items-center gap-1 text-xs leading-5 text-muted"
+          className="flex min-h-5 min-w-[16rem] flex-1 flex-wrap items-center gap-x-1 text-xs leading-5 text-muted"
         >
-          <span>{rowDatabase?.title ?? notebook?.title}</span>
+          {rowDatabase && onOpenDatabase ? (
+            <button
+              type="button"
+              onClick={() => onOpenDatabase(rowDatabase.id)}
+              className="max-w-[14rem] truncate leading-5 hover:text-ink"
+            >
+              {rowDatabase.title}
+            </button>
+          ) : (
+            <span className="max-w-[14rem] truncate">
+              {rowDatabase?.title ?? notebook?.title}
+            </span>
+          )}
           {path.map((p, i) => (
             <Fragment key={p.id}>
               <span>/</span>
@@ -134,12 +146,14 @@ export function PageView({
                 <button
                   type="button"
                   onClick={() => onOpenPage(p.id)}
-                  className="leading-5 hover:text-ink"
+                  className="max-w-[14rem] truncate leading-5 hover:text-ink"
                 >
                   {sampleName(p) || t('review.untitled')}
                 </button>
               ) : (
-                <span>{sampleName(p) || t('review.untitled')}</span>
+                <span className="max-w-[14rem] truncate">
+                  {sampleName(p) || t('review.untitled')}
+                </span>
               )}
             </Fragment>
           ))}

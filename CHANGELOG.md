@@ -850,3 +850,9 @@
 - **What:** Tag columns show a 🏷 icon (Number keeps #).
 - **Why:** Owner feedback from the 5A/5B re-check (item 13).
 - **Files:** src/databases/views/columnLook.ts, CHANGELOG.md
+
+## 2026-10-28
+
+- **What:** Database row page: the breadcrumb stays on one line (long names shortened) and the database name is a link back to the database (item 3).
+- **Why:** Owner feedback from the 5A/5B re-check.
+- **Files:** src/pages/PageView.tsx, e2e/databases.spec.ts, CHANGELOG.md

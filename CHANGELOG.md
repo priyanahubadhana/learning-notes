@@ -748,3 +748,33 @@
 - **Why:** Owner bug list from iPad.
 - **Self-review:** The 44 px targets make sidebar rows taller on touch screens. A user title exactly equal to an app name (e.g. a page called “Lesson” in a template list) shows translated. Template contents (headings inside) are still English. Calendar month and Search filters other than the words are not in the address. The missing-page and board-phone e2e tests failed once in the full run and passed alone (load).
 - **Files:** src/index.css, src/i18n/defaultNames.ts (+test), en.ts, hi7.ts, es7.ts, src/share/importBundle.ts, src/app/router.ts (+test), src/App.tsx, src/settings/SettingsScreen.tsx, src/notebooks/NotebookScreen.tsx, Sidebar.tsx, src/databases/views/DatabaseView.tsx, DatabasesHub.tsx, src/templates/*, src/pages/PageTree.tsx, e2e/touchIcons.spec.ts, navigation.spec.ts, language.spec.ts, src/share/bundle.test.ts
+
+## 2026-10-28
+
+- **What:** Parked the owner's Phase 7 plan (page ⋯ menu, Summary/Notes/Review tabs, connected levels, new-page start, math formulas) and "AI auto-organise" in IDEAS.md.
+- **Why:** Owner asked to record the plan before building.
+- **Files:** IDEAS.md, CHANGELOG.md
+
+## 2026-10-28
+
+- **What:** Parked the owner's check-3 fixes (password box errors, eye icon, "Forgot password?", "Restore backup" naming and buttons) in IDEAS.md.
+- **Why:** Owner asked to record them and build after the Phase 6 checks.
+- **Files:** IDEAS.md, CHANGELOG.md
+
+## 2026-10-28
+
+- **What:** Parked "easier way to test on a real iPhone (certificate warning has no visit-anyway link)" in IDEAS.md.
+- **Why:** Owner asked to record it for later.
+- **Files:** IDEAS.md, CHANGELOG.md
+
+## 2026-10-28
+
+- **What:** Parked "labelled file buttons; Anki 'Import from Anki' / 'Save for Anki' side by side" in IDEAS.md.
+- **Why:** Owner asked to record it, to build after the Phase 6 checks.
+- **Files:** IDEAS.md, CHANGELOG.md
+
+## 2026-10-28
+
+- **What:** Parked the owner's check-7 notes (untranslated Today date, sample notebook names, Anki sub-deck "::" display, Hindi wording) in IDEAS.md. All 7 Phase 6 owner checks are done.
+- **Why:** Owner asked to record them, to build after the Phase 6 checks.
+- **Files:** IDEAS.md, CHANGELOG.md

@@ -1,7 +1,5 @@
 /** Hindi texts, part 5. */
 export const hi5: Record<string, string> = {
-  'data.all.passwordHint':
-    'ऊपर “नोटबुक को फ़ाइल के रूप में सहेजें” का पासवर्ड बॉक्स इस फ़ाइल को भी बंद करता है।',
   'data.all.button': 'सब कुछ सहेजें',
   'data.locked.text': '“{name}” सुरक्षित है। खोलने के लिए इसका पासवर्ड लिखें।',
   'data.locked.password': 'इस फ़ाइल का पासवर्ड',

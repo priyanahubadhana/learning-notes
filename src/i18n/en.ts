@@ -584,8 +584,8 @@ export const en = {
   'help.tip.data.ankiExport.example':
     'Study “Cardiology” on your phone in Anki.',
   'help.tip.data.import.meaning':
-    'Adds the notebooks in a file as new copies. Nothing you already have is changed.',
-  'help.tip.data.import.example': 'Open a notebook file a friend sent you.',
+    'Opens a file saved by this app and adds its notebooks as new copies. Nothing you already have is changed.',
+  'help.tip.data.import.example': 'Open the backup file you saved last week.',
   'help.tip.data.restore.meaning':
     'Brings back the notebooks of the backup the app saved before the last upgrade, as new copies.',
   'help.tip.data.restore.example':
@@ -886,10 +886,7 @@ export const en = {
     'Notes, cards with their schedules and review history, databases, views and charts.',
   'data.export.which': 'Notebook to save',
   'data.export.button': 'Save file',
-  'data.import.title': 'Import a file',
-  'data.import.text':
-    'A notebook file from this app, or a backup file from the upgrade screen.',
-  'data.import.file': 'Choose a file to import',
+  'data.import.file': 'Restore backup',
   'data.tooBig': 'This file is too big to import (the limit is about 200 MB).',
   'data.nothing': 'This file has no notebooks or databases to import.',
   'data.imported':
@@ -934,11 +931,9 @@ export const en = {
   'data.protect.again': 'Type the password again',
   'data.protect.short': 'The password needs at least {count} characters.',
   'data.protect.mismatch': 'The two passwords are not the same.',
-  'data.all.title': 'Save everything as one file',
+  'data.all.title': 'Backup',
   'data.all.text':
-    'All notebooks with their notes, cards and review history, databases, the journal days and the templates. A good backup to keep on a USB stick or in your own cloud folder.',
-  'data.all.passwordHint':
-    'The password box in “Save a notebook as a file” above also locks this file.',
+    'Save all your notebooks in one file, or restore a file you saved this way. Restoring adds everything as new copies; nothing you have is changed.',
   'data.all.button': 'Save everything',
   'data.locked.text': '“{name}” is protected. Type its password to open it.',
   'data.locked.password': 'Password of this file',
@@ -1586,4 +1581,8 @@ export const en = {
   'anki.noCards': 'This notebook has no cards or blanks to export.',
   'anki.placeholder':
     'This package was saved by an old Anki as a placeholder. Export it again from Anki with “Support older Anki versions” ticked off.',
+  'data.all.note':
+    'This file only opens in Learning Notes. Use Restore backup to open it.',
+  'data.export.passwordHint':
+    'The password box under “Backup” above also locks this file.',
 } as const

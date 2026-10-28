@@ -81,7 +81,7 @@ test('a notebook file round-trips as a new copy; nothing existing changes', asyn
   )
 
   await main(page)
-    .getByLabel('Choose a file to import')
+    .getByLabel('Restore backup')
     .setInputFiles(await file.path())
   await expect(
     page.getByText(
@@ -105,7 +105,7 @@ test('a notebook file round-trips as a new copy; nothing existing changes', asyn
 
   // A file that is not ours is refused with a clear message.
   await main(page)
-    .getByLabel('Choose a file to import')
+    .getByLabel('Restore backup')
     .setInputFiles({
       name: 'other.json',
       mimeType: 'application/json',
@@ -258,7 +258,8 @@ test('a password-protected file: two fields, a warning, and the password to open
   await sidebar(page).getByRole('button', { name: 'Backup & files' }).click()
 
   const all = main(page).getByRole('region', {
-    name: 'Save everything as one file',
+    name: 'Backup',
+    exact: true,
   })
   const save = all.getByRole('button', { name: 'Save everything' })
   await main(page).getByLabel('Protect this file with a password').check()
@@ -285,7 +286,7 @@ test('a password-protected file: two fields, a warning, and the password to open
   const bytes = await readFile(await file.path())
   expect(bytes.toString('latin1')).not.toContain('private words')
 
-  const input = main(page).getByLabel('Choose a file to import')
+  const input = main(page).getByLabel('Restore backup')
   // No file-type filter: iPadOS greys out types it does not know (.locked).
   await expect(input).not.toHaveAttribute('accept', /.+/)
   await input.setInputFiles(await file.path())

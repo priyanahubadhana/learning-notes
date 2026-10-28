@@ -233,6 +233,95 @@ export function DataScreen({
           </p>
         )}
 
+        <section aria-label={t('data.all.title')} className={box}>
+          <h2 className="mb-1 text-[15px] font-semibold">
+            {t('data.all.title')}
+          </h2>
+          <p className="mb-3 text-sm text-muted">{t('data.all.text')}</p>
+          <PasswordFields lock={lock} onChange={setLock} />
+          <div className="mb-2 grid grid-cols-2 gap-2">
+            <Tip id="data.exportAll" touchInfo={false}>
+              <button
+                type="button"
+                disabled={busy || !!lockProblem}
+                onClick={() =>
+                  run(async () => {
+                    const bundle = await exportWorkspaceBundle(db)
+                    await save(workspaceFileName(), bundleFile(bundle))
+                    await recordBackupSaved(db)
+                  })
+                }
+                className={`${button} w-full`}
+              >
+                {t('data.all.button')}
+              </button>
+            </Tip>
+            <Tip id="data.import" touchInfo={false}>
+              <FileButton
+                label={t('data.import.file')}
+                disabled={busy}
+                className="w-full"
+                onFile={(file) => {
+                  setLocked(null)
+                  setPasswordError('')
+                  setForgot(false)
+                  openFile(file)
+                }}
+              />
+            </Tip>
+          </div>
+          <p className="text-xs text-muted">{t('data.all.note')}</p>
+          {locked && (
+            <form
+              className="mt-3 grid gap-2"
+              onSubmit={(e) => {
+                e.preventDefault()
+                openFile(locked, openPassword)
+              }}
+            >
+              <p className="text-sm">
+                {t('data.locked.text', { name: locked.name })}
+              </p>
+              <div className="flex flex-wrap items-start gap-2">
+                <PasswordInput
+                  inputRef={passwordBox}
+                  label={t('data.locked.password')}
+                  value={openPassword}
+                  error={passwordError}
+                  onChange={(value) => {
+                    setOpenPassword(value)
+                    setPasswordError('')
+                  }}
+                  className="min-w-48 flex-1"
+                />
+                <button
+                  type="submit"
+                  disabled={busy || openPassword === ''}
+                  className={button}
+                >
+                  {t('data.locked.open')}
+                </button>
+              </div>
+              <button
+                type="button"
+                aria-expanded={forgot}
+                onClick={() => setForgot(!forgot)}
+                className="min-h-9 justify-self-start text-[13px] text-accent underline"
+              >
+                {t('data.locked.forgot')}
+              </button>
+              {forgot && (
+                <p
+                  role="note"
+                  className="rounded-lg bg-soft p-2.5 text-[13px] leading-relaxed"
+                >
+                  {t('data.locked.forgotText')}
+                </p>
+              )}
+            </form>
+          )}
+        </section>
+
         <section aria-label={t('data.export.title')} className={box}>
           <h2 className="mb-1 text-[15px] font-semibold">
             {t('data.export.title')}
@@ -256,7 +345,9 @@ export function DataScreen({
               {t('data.export.templates')}
             </label>
           </div>
-          <PasswordFields lock={lock} onChange={setLock} />
+          <p className="mb-3 text-xs text-muted">
+            {t('data.export.passwordHint')}
+          </p>
           <div className="flex flex-wrap items-center gap-2">
             <select
               aria-label={t('data.export.which')}
@@ -292,32 +383,6 @@ export function DataScreen({
               </button>
             </Tip>
           </div>
-        </section>
-
-        <section aria-label={t('data.all.title')} className={box}>
-          <h2 className="mb-1 text-[15px] font-semibold">
-            {t('data.all.title')}
-          </h2>
-          <p className="mb-3 text-sm text-muted">{t('data.all.text')}</p>
-          <p className="mb-3 text-xs text-muted">
-            {t('data.all.passwordHint')}
-          </p>
-          <Tip id="data.exportAll" touchInfo={false}>
-            <button
-              type="button"
-              disabled={busy || !!lockProblem}
-              onClick={() =>
-                run(async () => {
-                  const bundle = await exportWorkspaceBundle(db)
-                  await save(workspaceFileName(), bundleFile(bundle))
-                  await recordBackupSaved(db)
-                })
-              }
-              className={button}
-            >
-              {t('data.all.button')}
-            </button>
-          </Tip>
         </section>
 
         <section aria-label={t('data.anki.title')} className={box}>
@@ -396,74 +461,6 @@ export function DataScreen({
               </button>
             </Tip>
           </div>
-        </section>
-
-        <section aria-label={t('data.import.title')} className={box}>
-          <h2 className="mb-1 text-[15px] font-semibold">
-            {t('data.import.title')}
-          </h2>
-          <p className="mb-3 text-sm text-muted">{t('data.import.text')}</p>
-          <Tip id="data.import" touchInfo={false}>
-            <FileButton
-              label={t('data.import.file')}
-              disabled={busy}
-              onFile={(file) => {
-                setLocked(null)
-                setPasswordError('')
-                setForgot(false)
-                openFile(file)
-              }}
-            />
-          </Tip>
-          {locked && (
-            <form
-              className="mt-3 grid gap-2"
-              onSubmit={(e) => {
-                e.preventDefault()
-                openFile(locked, openPassword)
-              }}
-            >
-              <p className="text-sm">
-                {t('data.locked.text', { name: locked.name })}
-              </p>
-              <div className="flex flex-wrap items-start gap-2">
-                <PasswordInput
-                  inputRef={passwordBox}
-                  label={t('data.locked.password')}
-                  value={openPassword}
-                  error={passwordError}
-                  onChange={(value) => {
-                    setOpenPassword(value)
-                    setPasswordError('')
-                  }}
-                  className="min-w-48 flex-1"
-                />
-                <button
-                  type="submit"
-                  disabled={busy || openPassword === ''}
-                  className={button}
-                >
-                  {t('data.locked.open')}
-                </button>
-              </div>
-              <button
-                type="button"
-                aria-expanded={forgot}
-                onClick={() => setForgot(!forgot)}
-                className="min-h-9 justify-self-start text-[13px] text-accent underline"
-              >
-                {t('data.locked.forgot')}
-              </button>
-              {forgot && (
-                <p
-                  role="note"
-                  className="rounded-lg bg-soft p-2.5 text-[13px] leading-relaxed"
-                >
-                  {t('data.locked.forgotText')}
-                </p>
-              )}
-            </form>
-          )}
         </section>
 
         <section aria-label={t('data.restore.title')} className={box}>

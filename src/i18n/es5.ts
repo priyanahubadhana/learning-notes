@@ -1,7 +1,5 @@
 /** Spanish texts, part 5 (AI-translated; needs native review). */
 export const es5: Record<string, string> = {
-  'data.all.passwordHint':
-    'La casilla de contraseña de «Guardar un cuaderno como archivo», arriba, también protege este archivo.',
   'data.all.button': 'Guardar todo',
   'data.locked.text':
     '«{name}» está protegido. Escribe su contraseña para abrirlo.',

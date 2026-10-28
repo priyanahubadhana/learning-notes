@@ -207,10 +207,7 @@ export const es4: Record<string, string> = {
     'Notas, tarjetas con sus calendarios e historial de repaso, bases de datos, vistas y gráficos.',
   'data.export.which': 'Cuaderno que guardar',
   'data.export.button': 'Guardar archivo',
-  'data.import.title': 'Importar un archivo',
-  'data.import.text':
-    'Un archivo de cuaderno de esta aplicación, o un archivo de copia de seguridad de la pantalla de actualización.',
-  'data.import.file': 'Elegir un archivo para importar',
+  'data.import.file': 'Restaurar copia de seguridad',
   'data.tooBig':
     'Este archivo es demasiado grande para importarlo (el límite es de unos 200 MB).',
   'data.nothing':
@@ -257,7 +254,11 @@ export const es4: Record<string, string> = {
   'data.protect.again': 'Escribe la contraseña otra vez',
   'data.protect.short': 'La contraseña necesita al menos {count} caracteres.',
   'data.protect.mismatch': 'Las dos contraseñas no son iguales.',
-  'data.all.title': 'Guardar todo en un solo archivo',
+  'data.all.title': 'Copia de seguridad',
   'data.all.text':
-    'Todos los cuadernos con sus notas, tarjetas e historial de repaso, bases de datos, los días del diario y las plantillas. Una buena copia para guardar en una memoria USB o en tu propia carpeta en la nube.',
+    'Guarda todos tus cuadernos en un solo archivo, o restaura un archivo guardado así. Al restaurar, todo se añade como copias nuevas; no se cambia nada de lo que tienes.',
+  'data.all.note':
+    'Este archivo solo se abre en Learning Notes. Usa «Restaurar copia de seguridad» para abrirlo.',
+  'data.export.passwordHint':
+    'La casilla de contraseña de «Copia de seguridad», arriba, también protege este archivo.',
 }

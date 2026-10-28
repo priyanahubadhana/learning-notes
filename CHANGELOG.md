@@ -814,3 +814,9 @@
 - **What:** Password boxes: a wrong password gives a red border, a bold red "⚠ Wrong password. Try again." under the box, empties the box and puts the cursor back; an eye button shows/hides the password (also in the two "protect this file" fields); "Forgot password?" explains that it cannot be recovered. Hindi and Spanish texts.
 - **Why:** Owner feedback from Phase 6 check 3 (the old error was at the top of the page and easy to miss).
 - **Files:** src/share/PasswordInput.tsx (new), PasswordFields.tsx, DataScreen.tsx, crypto.ts (`WrongPasswordError`), fileIO.ts (`WrongPassword`), src/i18n/en.ts, es5.ts, es7.ts, hi5.ts, hi7.ts, e2e/sharing.spec.ts, CHANGELOG.md
+
+## 2026-10-28
+
+- **What:** Backup & files: "Save everything" and "Restore backup" are two equal buttons in a new top "Backup" section (with the password option, the protected-file password box and the line "This file only opens in Learning Notes. Use Restore backup to open it."). The old "Import a file" section became "Restore backup"; the "Save everything as one file" section was merged into the top one. Hindi and Spanish texts; help texts updated; "Restore backup" added to the parked Phase 7 ⋯ menu in IDEAS.md.
+- **Why:** Owner feedback from Phase 6 check 3, so the backup button is not confused with the future "Import file".
+- **Files:** src/share/DataScreen.tsx, src/share/FileButton.tsx, src/help/helpRegistry.ts, src/i18n/en.ts, es3–es5.ts, hi3–hi5.ts, HELP-TEXTS.md, IDEAS.md, e2e/sharing.spec.ts, e2e/sample.spec.ts, CHANGELOG.md

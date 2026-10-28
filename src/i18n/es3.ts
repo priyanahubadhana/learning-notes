@@ -165,9 +165,9 @@ export const es3: Record<string, string> = {
   'help.tip.data.ankiExport.example':
     'Estudia «Cardiología» en tu móvil con Anki.',
   'help.tip.data.import.meaning':
-    'Añade los cuadernos de un archivo como copias nuevas. No se cambia nada de lo que ya tienes.',
+    'Abre un archivo guardado por esta aplicación y añade sus cuadernos como copias nuevas. No se cambia nada de lo que ya tienes.',
   'help.tip.data.import.example':
-    'Abre un archivo de cuaderno que te envió un amigo.',
+    'Abre el archivo de copia de seguridad que guardaste la semana pasada.',
   'help.tip.data.restore.meaning':
     'Recupera, como copias nuevas, los cuadernos de la copia de seguridad que la aplicación guardó antes de la última actualización.',
   'help.tip.data.restore.example':

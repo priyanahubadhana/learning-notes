@@ -107,7 +107,7 @@ test('the five 5B checks, on the sample notebook', async ({ page }) => {
   const bundle = JSON.parse(await readFile(await file.path(), 'utf8'))
   expect(bundle.cards).toHaveLength(4)
   await main(page)
-    .getByLabel('Choose a file to import')
+    .getByLabel('Restore backup')
     .setInputFiles(await file.path())
   await expect(
     page.getByText(/Imported 1 notebooks, \d+ pages and 4 cards/),

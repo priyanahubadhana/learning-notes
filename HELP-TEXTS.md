@@ -600,9 +600,9 @@ Every hover tip and help line in the app (shown while Settings › Show help is 
 
 ### `data.import`
 
-- **Where:** Backup & files › Import a file
-- **Meaning:** Adds the notebooks in a file as new copies. Nothing you already have is changed.
-- **Example:** Open a notebook file a friend sent you.
+- **Where:** Backup & files › Restore backup
+- **Meaning:** Opens a file saved by this app and adds its notebooks as new copies. Nothing you already have is changed.
+- **Example:** Open the backup file you saved last week.
 
 ### `data.restore`
 

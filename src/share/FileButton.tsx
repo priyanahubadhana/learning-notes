@@ -23,7 +23,7 @@ export function FileButton({
   return (
     <span className={`inline-flex flex-col gap-1 ${className ?? ''}`}>
       <label
-        className={`inline-flex min-h-9 cursor-pointer items-center justify-center rounded-lg border border-line px-3 text-[13px] hover:bg-hover focus-within:outline-2 focus-within:outline-accent ${
+        className={`inline-flex min-h-9 w-full cursor-pointer items-center justify-center rounded-lg border border-line px-3 text-[13px] hover:bg-hover focus-within:outline-2 focus-within:outline-accent ${
           disabled ? 'pointer-events-none opacity-50' : ''
         }`}
       >

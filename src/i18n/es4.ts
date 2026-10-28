@@ -297,4 +297,10 @@ export const es4: Record<string, string> = {
   'dialog.keepEditing': 'Seguir editando',
   'table.resize': 'Cambiar el ancho de la columna «{name}»',
   'databaseBlock.fullWidth': 'Ancho completo',
+  'gallery.dragHint': 'Arrastra una tarjeta para moverla (o Alt + flechas).',
+  'gallery.manual.title': '¿Colocar las tarjetas a mano?',
+  'gallery.manual.message':
+    'Esta vista está ordenada, así que las tarjetas no se pueden colocar a mano. ¿Quitar el orden y mover esta tarjeta?',
+  'gallery.manual.yes': 'Quitar el orden y mover',
+  'gallery.moved': 'Movida a la posición {count}',
 }

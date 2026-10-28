@@ -922,3 +922,9 @@
 - **What:** Table columns can be resized by dragging the edge of the header (or with ← → on the handle); widths are kept in the view (new ColumnResizer, readWidths/withWidth). The table now uses a fixed column layout (colgroup) so widths hold; long words wrap and long header names are shortened. A database inside a note has a "Full width" toggle that stretches it to the page width (kept per block). New tip db.blockWide; Hindi and Spanish texts (item 15).
 - **Why:** Owner feedback from the 5A/5B re-check.
 - **Files:** src/databases/views/ColumnResizer.tsx, TableView.tsx, viewConfig.ts, src/databases/DatabaseBlockView.tsx, src/help/helpRegistry.ts, HELP-TEXTS.md, src/i18n/en.ts, es3.ts, es4.ts, hi3.ts, hi4.ts, e2e/databases.spec.ts, CHANGELOG.md
+
+## 2026-10-28
+
+- **What:** Gallery tiles can be moved: drag with a mouse or pen, hold for 0.4 s with a finger, or press Alt + arrow keys on a tile; the new place is kept (placeRow). A sorted view first asks to remove the sort. Tiles ignore the click that ends a drag. Pure helpers dropPlace/stepPlace are unit-tested. Hindi and Spanish texts (item 5).
+- **Why:** Owner feedback from the 5A/5B re-check.
+- **Files:** src/databases/views/GalleryView.tsx, galleryTiles.ts (+test), src/i18n/en.ts, es4.ts, hi4.ts, e2e/databases.spec.ts, CHANGELOG.md

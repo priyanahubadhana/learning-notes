@@ -478,3 +478,53 @@ test('an embedded database: drag a column edge to resize it, and Full width', as
     .poll(async () => Math.abs((await section.boundingBox())!.width - normal))
     .toBeLessThan(4)
 })
+
+test('Gallery: drag a tile, or press Alt + arrow, to put it somewhere else', async ({
+  page,
+}) => {
+  await (
+    await openSidebar(page)
+  )
+    .getByRole('button', { name: 'Databases' })
+    .click()
+  await main(page).getByRole('button', { name: '+ New database' }).click()
+  await page.getByRole('menuitem', { name: /^Books/ }).click()
+  await main(page).getByRole('button', { name: 'Table', exact: true }).click()
+  for (const title of ['Alpha', 'Bravo', 'Charlie']) {
+    await main(page).getByRole('button', { name: '+ New row' }).click()
+    await page.getByRole('textbox', { name: /^Title/ }).fill(title)
+    await page.getByRole('textbox', { name: /^Title/ }).press('Enter')
+  }
+  await main(page).getByRole('button', { name: '+ View' }).click()
+  await page
+    .getByRole('dialog', { name: 'Add a view' })
+    .getByRole('button', { name: 'Gallery' })
+    .click()
+  const tiles = main(page).locator('[data-tile-id]')
+  const order = async () =>
+    main(page).locator('[data-tile-id] .font-medium').allInnerTexts()
+  await expect.poll(order).toEqual(['Alpha', 'Bravo', 'Charlie'])
+
+  // Drag Charlie onto the first half of Alpha: it goes first.
+  const from = (await tiles.nth(2).boundingBox())!
+  const to = (await tiles.nth(0).boundingBox())!
+  await page.mouse.move(from.x + from.width / 2, from.y + 20)
+  await page.mouse.down()
+  await page.mouse.move(to.x + 20, to.y + 20, { steps: 8 })
+  await page.mouse.up()
+  await expect.poll(order).toEqual(['Charlie', 'Alpha', 'Bravo'])
+  // The drag did not count as a click: no tile was opened.
+  await expect(
+    main(page).getByRole('textbox', { name: 'Rename' }),
+  ).toBeVisible()
+
+  // Keyboard: Alt + → moves the focused tile one step later.
+  await tiles.nth(0).getByRole('button').focus()
+  await page.keyboard.press('Alt+ArrowRight')
+  await expect.poll(order).toEqual(['Alpha', 'Charlie', 'Bravo'])
+
+  // It is kept after a reload.
+  await page.reload()
+  await main(page).getByRole('button', { name: 'Gallery', exact: true }).click()
+  await expect.poll(order).toEqual(['Alpha', 'Charlie', 'Bravo'])
+})

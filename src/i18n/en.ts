@@ -1631,4 +1631,10 @@ export const en = {
   'help.tip.db.blockWide.meaning':
     'Stretches this database to the full width of the page, so more columns fit. Click again to go back.',
   'help.tip.db.blockWide.example': 'Use it for a table with many columns.',
+  'gallery.dragHint': 'Drag a tile to move it (or Alt + arrow keys).',
+  'gallery.manual.title': 'Place tiles by hand?',
+  'gallery.manual.message':
+    'This view is sorted, so tiles cannot be placed by hand. Remove the sort and move this tile?',
+  'gallery.manual.yes': 'Remove the sort and move',
+  'gallery.moved': 'Moved to position {count}',
 } as const

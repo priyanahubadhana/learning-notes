@@ -288,4 +288,10 @@ export const hi4: Record<string, string> = {
   'dialog.keepEditing': 'संपादन जारी रखें',
   'table.resize': 'कॉलम “{name}” की चौड़ाई बदलें',
   'databaseBlock.fullWidth': 'पूरी चौड़ाई',
+  'gallery.dragHint': 'टाइल को खींचकर हिलाएँ (या Alt + तीर कुंजियाँ)।',
+  'gallery.manual.title': 'टाइलें हाथ से रखें?',
+  'gallery.manual.message':
+    'यह दृश्य क्रमबद्ध है, इसलिए टाइलें हाथ से नहीं रखी जा सकतीं। क्रम हटाकर इस टाइल को हिलाएँ?',
+  'gallery.manual.yes': 'क्रम हटाएँ और हिलाएँ',
+  'gallery.moved': 'स्थान {count} पर ले जाई गई',
 }

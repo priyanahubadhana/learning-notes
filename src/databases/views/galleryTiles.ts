@@ -21,3 +21,35 @@ export function tileColumns(
   const picked = new Set(config.cardColumns)
   return others.filter((c) => picked.has(c.id))
 }
+
+/** Where a tile goes: right before or right after another tile's row. */
+export type TilePlace = { before: string } | { after: string }
+
+/**
+ * A tile dropped on another tile: before it if it landed on its first half
+ * (the left, in a left-to-right language), else after it. Dropping a tile on
+ * itself changes nothing.
+ */
+export function dropPlace(
+  rowId: string,
+  targetId: string,
+  after: boolean,
+): TilePlace | null {
+  if (rowId === targetId) return null
+  return after ? { after: targetId } : { before: targetId }
+}
+
+/**
+ * The place for moving a tile one step (`delta` -1 = earlier, 1 = later) in
+ * the order the tiles are shown; null at either end.
+ */
+export function stepPlace(
+  ids: readonly string[],
+  rowId: string,
+  delta: -1 | 1,
+): TilePlace | null {
+  const at = ids.indexOf(rowId)
+  const next = ids[at + delta]
+  if (at < 0 || next === undefined) return null
+  return delta < 0 ? { before: next } : { after: next }
+}

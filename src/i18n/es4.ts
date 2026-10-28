@@ -289,4 +289,7 @@ export const es4: Record<string, string> = {
   'csv.doneUpdate':
     'Se actualizaron {updated} filas y se añadieron {added}{columns}.',
   'csv.undone': 'Las filas anteriores han vuelto.',
+  'cards.search': 'Buscar tarjetas…',
+  'cards.notebookFilter': 'Cuaderno',
+  'cards.allNotebooks': 'Todos los cuadernos',
 }

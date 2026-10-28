@@ -1620,4 +1620,7 @@ export const en = {
     'Imported {added} rows. The {trashed} old rows are in Trash.',
   'csv.doneUpdate': 'Updated {updated} rows and added {added}{columns}.',
   'csv.undone': 'The old rows are back.',
+  'cards.search': 'Search cards…',
+  'cards.notebookFilter': 'Notebook',
+  'cards.allNotebooks': 'All notebooks',
 } as const

@@ -280,4 +280,7 @@ export const hi4: Record<string, string> = {
   'csv.doneUpdate':
     '{updated} पंक्तियाँ अपडेट हुईं और {added} जुड़ीं{columns}।',
   'csv.undone': 'पुरानी पंक्तियाँ वापस आ गईं।',
+  'cards.search': 'कार्ड खोजें…',
+  'cards.notebookFilter': 'नोटबुक',
+  'cards.allNotebooks': 'सभी नोटबुक',
 }

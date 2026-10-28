@@ -1,3 +1,4 @@
+import { displayName, sampleName } from '../i18n/defaultNames'
 import type { LearningNotesDB } from '../core/db'
 import type { Card, Notebook, SearchEntry } from '../core/types'
 import { cardStatus, type CardStatus } from '../recall/cardList'
@@ -470,9 +471,11 @@ export async function describeHits(
     db.blocks.bulkGet(blockIds),
     hits.some((h) => h.tags) ? tagMap(db) : new Map(),
   ])
-  const title = new Map(pages.flatMap((p) => (p ? [[p.id, p.title]] : [])))
+  const title = new Map(
+    pages.flatMap((p) => (p ? [[p.id, sampleName(p)]] : [])),
+  )
   const nbTitle = new Map(
-    notebooks.flatMap((n) => (n ? [[n.id, n.title]] : [])),
+    notebooks.flatMap((n) => (n ? [[n.id, displayName(sampleName(n))]] : [])),
   )
   const text = new Map(
     blocks.flatMap((b) => (b ? [[b.id, blockText(b.content)]] : [])),

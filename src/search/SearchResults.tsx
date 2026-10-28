@@ -28,10 +28,17 @@ export function Highlighted({ text, query }: { text: string; query: string }) {
 const ROW_TAGS = 2
 
 /** "Notebook · Page", plus Journal / Template, and its first tags. */
-function whereText(hit: SearchHit, details: HitDetails | undefined): string {
-  const parts = [details?.notebookTitle || t('review.untitled')]
-  if (hit.type !== 'page')
-    parts.push(details?.pageTitle || t('review.untitled'))
+function whereText(
+  hit: SearchHit,
+  details: HitDetails | undefined,
+  chip: boolean,
+): string {
+  const parts: string[] = []
+  if (!chip) {
+    parts.push(details?.notebookTitle || t('review.untitled'))
+    if (hit.type !== 'page')
+      parts.push(details?.pageTitle || t('review.untitled'))
+  }
   if (hit.place === 'journal') parts.push(t('search.place.journal'))
   if (hit.place === 'templates') parts.push(t('search.place.template'))
   const tags = details?.tagNames ?? []
@@ -59,6 +66,7 @@ export function ResultRow({
   compact = false,
   selected = false,
   plain = false,
+  chip = false,
   onOpen,
 }: {
   id?: string
@@ -70,6 +78,8 @@ export function ResultRow({
   selected?: boolean
   /** A normal button (reachable with Tab), not an option of a listbox. */
   plain?: boolean
+  /** Shows "Notebook › Page" as a small label above the text. */
+  chip?: boolean
   onOpen: (hit: SearchHit) => void
 }) {
   const main =
@@ -111,10 +121,17 @@ export function ResultRow({
             <Highlighted text={main} query={query} />
           )}
         </span>
+        {chip && (
+          <span className="mt-1 mb-0.5 inline-block max-w-full truncate rounded-full border border-line bg-soft px-2 py-0.5 text-[11px] text-muted">
+            {details?.notebookTitle || t('review.untitled')}
+            {hit.type !== 'page' &&
+              ` › ${details?.pageTitle || t('review.untitled')}`}
+          </span>
+        )}
         <span
           className={`block truncate text-xs text-muted ${compact ? 'ms-auto shrink-0 max-w-[45%]' : 'mt-0.5'}`}
         >
-          {whereText(hit, details)}
+          {whereText(hit, details, chip)}
           {hit.deleted && (
             <span className="text-danger"> · {t('search.inTrash')}</span>
           )}

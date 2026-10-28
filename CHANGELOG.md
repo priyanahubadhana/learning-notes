@@ -904,3 +904,9 @@
 - **What:** Import CSV asks what to do with the rows already there: New database (default, nothing changes), Add rows, Replace rows (old rows to Trash after a question; Undo brings them back and removes the imported ones) or Update matching rows (same title, then add the rest). Importing the same file twice no longer duplicates by default. Hindi and Spanish texts (item 6; skip-duplicates stays parked).
 - **Why:** Owner feedback from the 5A/5B re-check.
 - **Files:** src/databases/csvTransfer.ts (+test), CsvImportDialog.tsx, databaseService.ts (trashRows, restoreTrashedRows), DatabasesHub.tsx, src/App.tsx, src/i18n/en.ts, es4.ts, hi4.ts, e2e/sharing.spec.ts, e2e/sample.spec.ts, CHANGELOG.md
+
+## 2026-10-28
+
+- **What:** All cards got a search box, a Notebook filter next to Sort (the Review button follows it) and a small "Notebook › Page" label on each card; the sample notebook's names show translated in search results too. Hindi and Spanish texts (item 16).
+- **Why:** Owner feedback from the 5A/5B re-check.
+- **Files:** src/recall/CardsTab.tsx, src/search/SearchResults.tsx, src/search/searchQuery.ts, src/i18n/en.ts, es4.ts, hi4.ts, e2e/allCards.spec.ts, CHANGELOG.md

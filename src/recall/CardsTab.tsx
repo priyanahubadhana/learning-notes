@@ -4,6 +4,9 @@ import { useState } from 'react'
 import { MenuPopover } from '../app/ui'
 import { usePref } from '../app/usePref'
 import type { LearningNotesDB } from '../core/db'
+import { byOrder } from '../core/order'
+import { isLive } from '../core/records'
+import { displayName, sampleName } from '../i18n/defaultNames'
 import { t, type MessageKey } from '../i18n/t'
 import {
   DEFAULT_FILTERS,
@@ -48,21 +51,43 @@ export function CardsTab({
   const [sort, setSort] = usePref('cardsTabSort', isSort, 'best')
   const [shown, setShown] = useState(PAGE_SIZE)
   const [menu, setMenu] = useState<DOMRect | null>(null)
+  const all = notebookId === null
+  // "All cards" can be searched and narrowed to one notebook.
+  const [text, setText] = useState('')
+  const [picked, setPicked] = useState<string | null>(null)
+  const notebooks = useLiveQuery(
+    async () =>
+      all
+        ? (await db.notebooks.toArray())
+            .filter((n) => isLive(n) && !n.kind)
+            .sort(byOrder)
+        : [],
+    [db, all],
+  )
+  // A notebook that was deleted meanwhile no longer narrows the list.
+  const narrowedTo =
+    all && picked && notebooks?.some((n) => n.id === picked) ? picked : null
+  const effectiveNotebook = notebookId ?? narrowedTo
   const query: SearchQuery = {
-    text: '',
+    text: all ? text : '',
     type: 'card',
-    filters: { ...DEFAULT_FILTERS, notebookId, sort, templates: false },
+    filters: {
+      ...DEFAULT_FILTERS,
+      notebookId: effectiveNotebook,
+      sort,
+      templates: false,
+    },
   }
   const { outcome, now } = useSearch(db, query)
   const hits = outcome?.hits ?? []
   const visible = hits.slice(0, shown)
   const details = useHitDetails(db, visible)
-  const scope: ReviewScope = notebookId
-    ? { kind: 'notebook', notebookId }
+  const scope: ReviewScope = effectiveNotebook
+    ? { kind: 'notebook', notebookId: effectiveNotebook }
     : { kind: 'all' }
   const due = useLiveQuery(
     async () => (await getReviewQueue(db, scope, now)).cards.length,
-    [db, notebookId, now],
+    [db, effectiveNotebook, now],
   )
   const sortLabel = t(SORTS.find(([s]) => s === sort)![1])
 
@@ -78,6 +103,37 @@ export function CardsTab({
             {t(notebookId ? 'cards.fromNotebook' : 'cards.fromAll')}
           </small>
         </h2>
+        {all && (
+          <>
+            <input
+              type="search"
+              value={text}
+              onChange={(e) => {
+                setText(e.target.value)
+                setShown(PAGE_SIZE)
+              }}
+              placeholder={t('cards.search')}
+              aria-label={t('cards.search')}
+              className="min-h-9 w-44 min-w-0 rounded-lg border border-line bg-bg px-3 text-[13px] outline-none focus:border-accent"
+            />
+            <select
+              aria-label={t('cards.notebookFilter')}
+              value={narrowedTo ?? ''}
+              onChange={(e) => {
+                setPicked(e.target.value || null)
+                setShown(PAGE_SIZE)
+              }}
+              className="min-h-9 max-w-44 rounded-lg border border-line bg-bg px-2 text-[13px]"
+            >
+              <option value="">{t('cards.allNotebooks')}</option>
+              {notebooks?.map((n) => (
+                <option key={n.id} value={n.id}>
+                  {displayName(sampleName(n)) || t('review.untitled')}
+                </option>
+              ))}
+            </select>
+          </>
+        )}
         {hits.length > 0 && (
           <>
             <Tip id="cards.sort" touchInfo={false}>
@@ -114,8 +170,9 @@ export function CardsTab({
               <ResultRow
                 hit={hit}
                 details={details?.get(hit.id)}
-                query=""
+                query={all ? text.trim() : ''}
                 now={now}
+                chip={all}
                 plain
                 onOpen={onOpenHit}
               />

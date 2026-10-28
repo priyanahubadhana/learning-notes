@@ -807,6 +807,68 @@ export async function deleteView(
 
 // --------------------------------------------------------------------- rows
 
+/** Rows moved to Trash together, so they can be brought back together. */
+export interface TrashedRows {
+  ids: string[]
+  deletedAt: number
+}
+
+/**
+ * Moves every row of a database (and the notes inside the rows) to Trash,
+ * all with one time stamp. Not for the Study tracker (its rows are the
+ * notebook's pages).
+ */
+export async function trashRows(
+  db: LearningNotesDB,
+  databaseId: string,
+): Promise<TrashedRows> {
+  return db.transaction('rw', db.databases, db.pages, db.blocks, async () => {
+    const database = await getLive(db.databases, databaseId)
+    if (database.kind === 'studyTracker') {
+      throw new Error('Study tracker rows are the notebook’s pages')
+    }
+    return trashRowIds(
+      db,
+      (await rowsOf(db, databaseId)).map((p) => p.id),
+    )
+  })
+}
+
+/** Moves these rows (and their notes) to Trash with one time stamp. */
+export async function trashRowIds(
+  db: LearningNotesDB,
+  ids: string[],
+): Promise<TrashedRows> {
+  return db.transaction('rw', db.pages, db.blocks, async () => {
+    const deletedAt = Date.now()
+    const blockIds = (await db.blocks.where('pageId').anyOf(ids).toArray())
+      .filter(isLive)
+      .map((b) => b.id)
+    await softDeleteMany(db.pages, ids, deletedAt)
+    await softDeleteMany(db.blocks, blockIds, deletedAt)
+    return { ids, deletedAt }
+  })
+}
+
+/** Brings back rows moved to Trash by `trashRows` (Undo). */
+export async function restoreTrashedRows(
+  db: LearningNotesDB,
+  trashed: TrashedRows,
+): Promise<void> {
+  await db.transaction('rw', db.pages, db.blocks, async () => {
+    const now = Date.now()
+    const pages = await db.pages.bulkGet(trashed.ids)
+    const ids = pages
+      .filter((p) => p && p.deletedAt === trashed.deletedAt && !p.purgedAt)
+      .map((p) => p!.id)
+    const blockIds = (await db.blocks.where('pageId').anyOf(ids).toArray())
+      .filter((b) => b.deletedAt === trashed.deletedAt && !b.purgedAt)
+      .map((b) => b.id)
+    await restoreMany(db.pages, ids, now)
+    await restoreMany(db.blocks, blockIds, now)
+  })
+}
+
 /** Live rows of a database, in order (works for the Study tracker too). */
 export async function listRows(
   db: LearningNotesDB,

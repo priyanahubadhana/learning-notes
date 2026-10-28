@@ -2,14 +2,20 @@ import type { LearningNotesDB } from '../core/db'
 import type { DbColumn, JsonValue } from '../core/types'
 import { findOrCreateTagPath } from '../tags/tagService'
 import { unprotectCell, protectCell, writeCsv } from './csv'
+import { t } from '../i18n/t'
 import { loadDatabaseData, resolveRows } from './databaseQuery'
 import {
   addChoiceOption,
   addColumn,
   addRows,
+  createDatabase,
   getDatabase,
+  listRows,
+  setCells,
   titleColumnName,
+  trashRows,
   type RowInput,
+  type TrashedRows,
 } from './databaseService'
 import {
   isDate,
@@ -167,10 +173,22 @@ export function guessMapping(
   })
 }
 
+/** What an import does with the rows that are already there. */
+export type ImportMode = 'add' | 'replace' | 'update'
+
 export interface ImportResult {
   added: number
   newColumns: number
+  /** `update` mode: rows with the same title that were changed. */
+  updated?: number
+  /** `replace` mode: the old rows, now in Trash (for Undo). */
+  trashed?: TrashedRows
+  /** `replace` mode: the rows the import made (Undo moves them to Trash). */
+  addedIds?: string[]
 }
+
+/** Titles match without caring about case or spaces around them. */
+const titleKey = (title: string) => title.trim().toLocaleLowerCase()
 
 /** Text of a CSV cell as the value a column stores (undefined = leave empty). */
 async function cellValue(
@@ -238,6 +256,10 @@ async function cellValue(
  * Adds the CSV's body rows as new rows. `mapping` has one entry per CSV
  * column. New columns are created first. Rows with no title and no value
  * are skipped. Returns how much was added.
+ *
+ * `mode`: 'add' (default) only adds; 'replace' first moves all current rows
+ * to Trash; 'update' changes the row with the same title (empty CSV cells
+ * leave its value alone) and adds the rest.
  */
 export async function importCsvRows(
   db: LearningNotesDB,
@@ -245,6 +267,7 @@ export async function importCsvRows(
   headers: readonly string[],
   body: readonly (readonly string[])[],
   mapping: readonly ColumnMapping[],
+  mode: ImportMode = 'add',
 ): Promise<ImportResult> {
   const database = await getDatabase(db, databaseId)
   if (!database) throw new Error('Database not found')
@@ -274,7 +297,19 @@ export async function importCsvRows(
     choices: new Map<string, string>(),
     tags: new Map<string, string>(),
   }
+  // Replace: the old rows go to Trash first; update: they wait to be matched.
+  const trashed =
+    mode === 'replace' ? await trashRows(db, databaseId) : undefined
+  const waiting = new Map<string, string[]>()
+  if (mode === 'update') {
+    for (const row of await listRows(db, databaseId)) {
+      const key = titleKey(row.title)
+      if (key) waiting.set(key, [...(waiting.get(key) ?? []), row.id])
+    }
+  }
   let added = 0
+  let updated = 0
+  const addedIds: string[] = []
   const CHUNK = 500
   for (let start = 0; start < body.length; start += CHUNK) {
     const inputs: RowInput[] = []
@@ -290,10 +325,61 @@ export async function importCsvRows(
         }
       }
       if (title === '' && Object.keys(values).length === 0) continue
+      const match = title ? waiting.get(titleKey(title))?.shift() : undefined
+      if (match) {
+        if (Object.keys(values).length > 0) await setCells(db, match, values)
+        updated++
+        continue
+      }
       inputs.push({ title, values })
     }
-    if (inputs.length > 0)
-      added += (await addRows(db, databaseId, inputs)).length
+    if (inputs.length > 0) {
+      const rows = await addRows(db, databaseId, inputs)
+      added += rows.length
+      if (trashed) addedIds.push(...rows.map((r) => r.id))
+    }
   }
-  return { added, newColumns }
+  return {
+    added,
+    newColumns,
+    ...(mode === 'update' && { updated }),
+    ...(trashed && { trashed, addedIds }),
+  }
+}
+
+/**
+ * Makes a new database next to `sourceId` (same notebook, same title column
+ * name) from the CSV: every CSV column that was mapped to a column of the
+ * source becomes a new column of the same type, named after the CSV header.
+ * The source is not touched.
+ */
+export async function importCsvAsNewDatabase(
+  db: LearningNotesDB,
+  sourceId: string,
+  headers: readonly string[],
+  body: readonly (readonly string[])[],
+  mapping: readonly ColumnMapping[],
+  name?: string,
+): Promise<ImportResult & { databaseId: string }> {
+  const source = await getDatabase(db, sourceId)
+  if (!source) throw new Error('Database not found')
+  const sourceColumns = new Map(
+    (await loadDatabaseData(db, sourceId)).databases
+      .get(sourceId)!
+      .columns.map((c) => [c.id, c]),
+  )
+  const created = await createDatabase(
+    db,
+    source.workspaceId,
+    source.notebookId,
+    name ?? t('import.copyName', { name: source.title }),
+  )
+  await db.databases.update(created.id, { titleName: source.titleName })
+  const own = mapping.map((m): ColumnMapping => {
+    if (m.kind !== 'column') return m
+    const type = sourceColumns.get(m.columnId)?.type
+    return type ? { kind: 'new', type } : { kind: 'skip' }
+  })
+  const result = await importCsvRows(db, created.id, headers, body, own)
+  return { ...result, databaseId: created.id }
 }

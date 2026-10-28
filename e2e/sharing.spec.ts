@@ -27,6 +27,11 @@ test('CSV: import rows into a database (mapping), then export them', async ({
   await expect(dialog.getByLabel('What “Pages” becomes')).toHaveValue(
     'new:number',
   )
+  // The default is "New database"; this one adds to the same database.
+  await expect(
+    dialog.getByRole('radio', { name: /^New database/ }),
+  ).toBeChecked()
+  await dialog.getByRole('radio', { name: /^Add rows/ }).check()
   await dialog.getByRole('button', { name: 'Import 2 rows' }).click()
   await expect(
     page.getByText('Imported 2 rows and made 1 new columns.'),
@@ -318,4 +323,91 @@ test('a password-protected file: two fields, a warning, and the password to open
       exact: true,
     }),
   ).toBeVisible()
+})
+
+test.describe('CSV import: what to do with the rows that are there', () => {
+  const csv = Buffer.from('Title,Author\r\nDune,Herbert\r\nEmma,Austen\r\n')
+  const rows = (page: Page, text: string) =>
+    main(page).getByRole('row').filter({ hasText: text })
+
+  async function startImport(page: Page) {
+    await page.goto('/')
+    await sidebar(page).getByRole('button', { name: 'Databases' }).click()
+    await main(page).getByRole('button', { name: '+ New database' }).click()
+    await page.getByRole('menuitem', { name: /^Books/ }).click()
+    await main(page).getByRole('button', { name: 'Table', exact: true }).click()
+    await main(page).getByRole('button', { name: '+ New row' }).click()
+    await page.getByRole('textbox', { name: /^Title/ }).fill('Old book')
+    await page.getByRole('textbox', { name: /^Title/ }).press('Enter')
+    await main(page).getByRole('button', { name: 'Import / Export' }).click()
+    await page.getByRole('menuitem', { name: 'Import CSV…' }).click()
+    const dialog = page.getByRole('dialog', { name: 'Import CSV' })
+    await dialog
+      .getByLabel('Choose a CSV file')
+      .setInputFiles({ name: 'books.csv', mimeType: 'text/csv', buffer: csv })
+    return dialog
+  }
+
+  test('New database (the default) leaves this one alone', async ({ page }) => {
+    const dialog = await startImport(page)
+    await dialog.getByRole('button', { name: 'Import 2 rows' }).click()
+    await expect(
+      page.getByText('Made a new database with 2 rows.'),
+    ).toBeVisible()
+    await expect(rows(page, 'Old book')).toHaveCount(1)
+    await expect(rows(page, 'Dune')).toHaveCount(0)
+    await page.getByRole('button', { name: 'Open', exact: true }).click()
+    await expect(
+      main(page).getByRole('textbox', { name: 'Rename' }),
+    ).toHaveValue('Books (imported)')
+    await main(page).getByRole('button', { name: 'Table', exact: true }).click()
+    await expect(rows(page, 'Dune')).toHaveCount(1)
+    await expect(rows(page, 'Old book')).toHaveCount(0)
+  })
+
+  test('Replace rows asks first, sends the old rows to Trash, and Undo brings them back', async ({
+    page,
+  }) => {
+    const dialog = await startImport(page)
+    await dialog.getByRole('radio', { name: /^Replace rows/ }).check()
+    await dialog.getByRole('button', { name: 'Import 2 rows' }).click()
+    await expect(
+      page.getByText(/Move the 1 rows in this database to Trash/),
+    ).toBeVisible()
+    await page
+      .getByRole('button', { name: 'Replace rows', exact: true })
+      .last()
+      .click()
+    await expect(page.getByText(/The 1 old rows are in Trash/)).toBeVisible()
+    await expect(rows(page, 'Dune')).toHaveCount(1)
+    await expect(rows(page, 'Old book')).toHaveCount(0)
+    await page.getByRole('status').getByRole('button', { name: 'Undo' }).click()
+    await expect(rows(page, 'Old book')).toHaveCount(1)
+    await expect(rows(page, 'Dune')).toHaveCount(0)
+  })
+
+  test('Update matching rows changes the row with the same title and adds the rest', async ({
+    page,
+  }) => {
+    await page.goto('/')
+    await sidebar(page).getByRole('button', { name: 'Databases' }).click()
+    await main(page).getByRole('button', { name: '+ New database' }).click()
+    await page.getByRole('menuitem', { name: /^Books/ }).click()
+    await main(page).getByRole('button', { name: 'Table', exact: true }).click()
+    await main(page).getByRole('button', { name: '+ New row' }).click()
+    await page.getByRole('textbox', { name: /^Title/ }).fill('Dune')
+    await page.getByRole('textbox', { name: /^Title/ }).press('Enter')
+    await main(page).getByRole('button', { name: 'Import / Export' }).click()
+    await page.getByRole('menuitem', { name: 'Import CSV…' }).click()
+    const dialog = page.getByRole('dialog', { name: 'Import CSV' })
+    await dialog
+      .getByLabel('Choose a CSV file')
+      .setInputFiles({ name: 'books.csv', mimeType: 'text/csv', buffer: csv })
+    await dialog.getByRole('radio', { name: /^Update matching rows/ }).check()
+    await dialog.getByRole('button', { name: 'Import 2 rows' }).click()
+    await expect(page.getByText('Updated 1 rows and added 1.')).toBeVisible()
+    await expect(rows(page, 'Dune')).toHaveCount(1)
+    await expect(rows(page, 'Dune')).toContainText('Herbert')
+    await expect(rows(page, 'Emma')).toHaveCount(1)
+  })
 })

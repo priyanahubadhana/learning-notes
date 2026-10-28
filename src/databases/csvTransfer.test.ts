@@ -7,6 +7,7 @@ import {
   exportDatabaseCsv,
   guessMapping,
   guessType,
+  importCsvAsNewDatabase,
   importCsvRows,
   parseDate,
 } from './csvTransfer'
@@ -16,6 +17,8 @@ import {
   addRow,
   createDatabase,
   listColumns,
+  listRows,
+  restoreTrashedRows,
 } from './databaseService'
 import { createStarterDatabase } from './starterDatabases'
 
@@ -149,4 +152,89 @@ describe('CSV transfer', () => {
     expect(result.added).toBe(10_000)
     expect(ms).toBeLessThan(15_000) // fake-indexeddb is far slower than a browser
   }, 60_000)
+
+  describe('what to do with the rows that are there', () => {
+    const csv = ['Name,Score', 'A,10', 'B,20', 'C,30', ''].join('\n')
+    const setup = async () => {
+      const list = await createDatabase(db, ws, null, 'List')
+      const score = await addColumn(db, list.id, {
+        name: 'Score',
+        type: 'number',
+      })
+      await addRow(db, list.id, { title: 'A', values: { [score.id]: 1 } })
+      await addRow(db, list.id, { title: 'B', values: { [score.id]: 2 } })
+      await addRow(db, list.id, { title: 'Old', values: { [score.id]: 3 } })
+      const [headers, ...body] = parseCsv(csv).rows
+      const mapping = guessMapping(headers, [score], 'Name', body)
+      return { list, score, headers, body, mapping }
+    }
+    const titles = async (id: string) =>
+      (await listRows(db, id)).map((p) => p.title)
+
+    it('add: keeps the old rows and adds the new ones', async () => {
+      const { list, headers, body, mapping } = await setup()
+      await importCsvRows(db, list.id, headers, body, mapping, 'add')
+      expect(await titles(list.id)).toEqual(['A', 'B', 'Old', 'A', 'B', 'C'])
+    })
+
+    it('replace: the old rows go to Trash and can be brought back', async () => {
+      const { list, headers, body, mapping } = await setup()
+      const result = await importCsvRows(
+        db,
+        list.id,
+        headers,
+        body,
+        mapping,
+        'replace',
+      )
+      expect(result.added).toBe(3)
+      expect(result.trashed?.ids).toHaveLength(3)
+      expect(await titles(list.id)).toEqual(['A', 'B', 'C'])
+      const trashedRow = await db.pages.get(result.trashed!.ids[2])
+      expect(trashedRow?.deletedAt).not.toBeNull()
+      await restoreTrashedRows(db, result.trashed!)
+      expect((await titles(list.id)).sort()).toEqual(
+        ['A', 'A', 'B', 'B', 'C', 'Old'].sort(),
+      )
+    })
+
+    it('update: same title changes the row, the rest is added', async () => {
+      const { list, score, headers, body, mapping } = await setup()
+      const result = await importCsvRows(
+        db,
+        list.id,
+        headers,
+        body,
+        mapping,
+        'update',
+      )
+      expect(result).toMatchObject({ added: 1, updated: 2, newColumns: 0 })
+      const rows = resolveRows(await loadDatabaseData(db, list.id))
+      const byTitle = Object.fromEntries(
+        rows.map((r) => [r.page.title, r.values[score.id]]),
+      )
+      expect(byTitle).toEqual({ A: 10, B: 20, Old: 3, C: 30 })
+    })
+
+    it('new database: a copy next to the old one; the old one is not touched', async () => {
+      const { list, headers, body, mapping } = await setup()
+      const result = await importCsvAsNewDatabase(
+        db,
+        list.id,
+        headers,
+        body,
+        mapping,
+      )
+      expect(result).toMatchObject({ added: 3, newColumns: 1 })
+      expect(result.databaseId).not.toBe(list.id)
+      expect(await titles(result.databaseId)).toEqual(['A', 'B', 'C'])
+      expect(await titles(list.id)).toEqual(['A', 'B', 'Old'])
+      const copy = await db.databases.get(result.databaseId)
+      expect(copy?.title).toBe('List (imported)')
+      expect((await listColumns(db, result.databaseId))[0]).toMatchObject({
+        name: 'Score',
+        type: 'number',
+      })
+    })
+  })
 })

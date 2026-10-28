@@ -757,6 +757,7 @@ function App() {
                 databaseId={hub.id}
                 onOpenPage={openPage}
                 onBack={() => setHub({ kind: 'databases' })}
+                onOpenDatabase={(id) => setHub({ kind: 'database', id })}
               />
             ) : search ? (
               <SearchScreen

@@ -898,3 +898,9 @@
 - **What:** "/database" opens a picker with a search box, ALL your databases (newest first, with their notebook) and the ready-made ones apart under "Create new"; keys ↑ ↓ Enter Esc. The old list showed only the first six, which is why the Drug list could be missing (items 4 and 9). Hindi and Spanish texts.
 - **Why:** Owner feedback from the 5A/5B re-check.
 - **Files:** src/databases/DatabasePicker.tsx, src/editor/PageEditor.tsx, src/i18n/en.ts, es4.ts, hi4.ts, e2e/databases.spec.ts, CHANGELOG.md
+
+## 2026-10-28
+
+- **What:** Import CSV asks what to do with the rows already there: New database (default, nothing changes), Add rows, Replace rows (old rows to Trash after a question; Undo brings them back and removes the imported ones) or Update matching rows (same title, then add the rest). Importing the same file twice no longer duplicates by default. Hindi and Spanish texts (item 6; skip-duplicates stays parked).
+- **Why:** Owner feedback from the 5A/5B re-check.
+- **Files:** src/databases/csvTransfer.ts (+test), CsvImportDialog.tsx, databaseService.ts (trashRows, restoreTrashedRows), DatabasesHub.tsx, src/App.tsx, src/i18n/en.ts, es4.ts, hi4.ts, e2e/sharing.spec.ts, e2e/sample.spec.ts, CHANGELOG.md

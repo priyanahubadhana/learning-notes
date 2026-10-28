@@ -1,5 +1,7 @@
+import { useLiveQuery } from 'dexie-react-hooks'
 import { useEffect, useMemo, useRef, useState } from 'react'
 import { runTask } from '../app/errors'
+import { ConfirmDialog } from '../app/ui'
 import type { LearningNotesDB } from '../core/db'
 import type { DbColumn } from '../core/types'
 import { t, type MessageKey } from '../i18n/t'
@@ -8,9 +10,22 @@ import { MAX_CSV_CHARS, parseCsv, unprotectCell } from './csv'
 import {
   guessMapping,
   IMPORTABLE_TYPES,
+  importCsvAsNewDatabase,
   importCsvRows,
   type ColumnMapping,
+  type ImportMode,
+  type ImportResult,
 } from './csvTransfer'
+import { listRows } from './databaseService'
+
+/** What the dialog did: a new database, or one of the modes on this one. */
+export type CsvOutcome = ImportResult & {
+  mode: 'new' | ImportMode
+  /** `new`: the database that was made. */
+  databaseId?: string
+}
+
+const MODES = ['new', 'add', 'replace', 'update'] as const
 
 /** Most rows shown in the preview. */
 const PREVIEW_ROWS = 3
@@ -18,7 +33,9 @@ const PREVIEW_ROWS = 3
 /**
  * "Import CSV": pick a file, say what each CSV column becomes (the title,
  * an existing column, a new column of a type, or nothing), then add the
- * rows. Nothing that exists is changed: rows are always added.
+ * rows. It asks what to do with the rows already there: make a new
+ * database (the default, nothing here changes), add rows, replace them (the
+ * old ones go to Trash) or update the ones with the same title.
  */
 export function CsvImportDialog({
   db,
@@ -32,7 +49,7 @@ export function CsvImportDialog({
   databaseId: string
   titleName: string
   columns: readonly DbColumn[]
-  onDone: (result: { added: number; newColumns: number }) => void
+  onDone: (outcome: CsvOutcome) => void
   onClose: () => void
 }) {
   const ref = useRef<HTMLDialogElement>(null)
@@ -44,6 +61,12 @@ export function CsvImportDialog({
   const [mapping, setMapping] = useState<ColumnMapping[]>([])
   const [error, setError] = useState('')
   const [busy, setBusy] = useState(false)
+  const [mode, setMode] = useState<(typeof MODES)[number]>('new')
+  const [confirming, setConfirming] = useState(false)
+  const rowCount = useLiveQuery(
+    async () => (await listRows(db, databaseId)).length,
+    [db, databaseId],
+  )
   useEffect(() => {
     ref.current?.showModal()
   }, [])
@@ -87,6 +110,18 @@ export function CsvImportDialog({
           ? { kind: 'column', columnId: v.slice(7) }
           : { kind: 'new', type: v.slice(4) }
   const hasTitle = mapping.some((m) => m.kind === 'title')
+  const go = () => {
+    if (!csv) return
+    setBusy(true)
+    runTask(
+      (mode === 'new'
+        ? importCsvAsNewDatabase(db, databaseId, csv.headers, csv.body, mapping)
+        : importCsvRows(db, databaseId, csv.headers, csv.body, mapping, mode)
+      )
+        .then((result) => onDone({ ...result, mode }))
+        .finally(() => setBusy(false)),
+    )
+  }
   const field =
     'min-h-9 w-full rounded-lg border border-line bg-bg px-2 text-[13px]'
 
@@ -184,6 +219,31 @@ export function CsvImportDialog({
               </tbody>
             </table>
           </div>
+          <fieldset className="mb-3">
+            <legend className="mb-1 text-sm font-medium">
+              {t('csv.mode.title')}
+            </legend>
+            {MODES.map((m) => (
+              <label
+                key={m}
+                className="flex min-h-11 cursor-pointer items-start gap-2 rounded-lg px-1 py-1.5 hover:bg-hover"
+              >
+                <input
+                  type="radio"
+                  name="csv-mode"
+                  checked={mode === m}
+                  onChange={() => setMode(m)}
+                  className="mt-1"
+                />
+                <span className="text-sm">
+                  {t(`csv.mode.${m}` as MessageKey)}
+                  <span className="block text-xs text-muted">
+                    {t(`csv.mode.${m}.hint` as MessageKey)}
+                  </span>
+                </span>
+              </label>
+            ))}
+          </fieldset>
           {!hasTitle && (
             <p className="mb-2 text-xs text-muted">{t('csv.noTitle')}</p>
           )}
@@ -201,13 +261,8 @@ export function CsvImportDialog({
           type="button"
           disabled={!csv || busy}
           onClick={() => {
-            if (!csv) return
-            setBusy(true)
-            runTask(
-              importCsvRows(db, databaseId, csv.headers, csv.body, mapping)
-                .then(onDone)
-                .finally(() => setBusy(false)),
-            )
+            if (mode === 'replace' && (rowCount ?? 0) > 0) setConfirming(true)
+            else go()
           }}
           className="min-h-9 rounded-lg bg-accent px-3 font-medium text-white hover:opacity-90 disabled:opacity-50"
         >
@@ -216,6 +271,20 @@ export function CsvImportDialog({
             : t('csv.importNone')}
         </button>
       </div>
+      {confirming && csv && (
+        <ConfirmDialog
+          message={t('csv.replace.confirm', {
+            count: rowCount ?? 0,
+            incoming: csv.body.length,
+          })}
+          confirmLabel={t('csv.replace.button')}
+          onCancel={() => setConfirming(false)}
+          onConfirm={() => {
+            setConfirming(false)
+            go()
+          }}
+        />
+      )}
     </dialog>
   )
 }

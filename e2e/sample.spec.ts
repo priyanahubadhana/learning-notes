@@ -81,6 +81,8 @@ test('the five 5B checks, on the sample notebook', async ({ page }) => {
   await expect(dialog.getByLabel('What “Cover” becomes')).toHaveValue(
     /^column:/,
   )
+  // The default is a new database; this check adds to the same one.
+  await dialog.getByRole('radio', { name: /^Add rows/ }).check()
   await dialog.getByRole('button', { name: 'Import 5 rows' }).click()
   await expect(page.getByText('Imported 5 rows.')).toBeVisible()
   await main(page).getByRole('button', { name: 'Table', exact: true }).click()

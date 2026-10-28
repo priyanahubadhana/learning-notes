@@ -16,7 +16,9 @@ import {
   listDatabases,
   listRows,
   renameDatabase,
+  restoreTrashedRows,
   titleColumnName,
+  trashRowIds,
 } from './databaseService'
 import {
   createStarterDatabase,
@@ -137,11 +139,14 @@ export function DatabaseScreen({
   databaseId,
   onOpenPage,
   onBack,
+  onOpenDatabase,
 }: {
   db: LearningNotesDB
   databaseId: string
   onOpenPage: (pageId: string) => void
   onBack: () => void
+  /** Opens another database (the one an import made). */
+  onOpenDatabase?: (databaseId: string) => void
 }) {
   const ui = useContext(AppUiContext)
   const [menu, setMenu] = useState<DOMRect | null>(null)
@@ -283,16 +288,49 @@ export function DatabaseScreen({
             titleName={titleColumnName(database)}
             columns={columns}
             onClose={() => setImporting(false)}
-            onDone={({ added, newColumns }) => {
+            onDone={(outcome) => {
               setImporting(false)
-              ui.toast(
-                t('csv.done', {
-                  added,
-                  columns: newColumns
-                    ? t('csv.doneColumns', { count: newColumns })
-                    : '',
-                }),
-              )
+              const { added, newColumns, updated, trashed, addedIds } = outcome
+              const columns = newColumns
+                ? t('csv.doneColumns', { count: newColumns })
+                : ''
+              if (outcome.mode === 'new') {
+                const id = outcome.databaseId
+                ui.toast(
+                  t('csv.doneNew', { added }),
+                  id && onOpenDatabase
+                    ? {
+                        label: t('csv.open'),
+                        onSelect: () => onOpenDatabase(id),
+                      }
+                    : undefined,
+                )
+              } else if (outcome.mode === 'replace' && trashed) {
+                ui.toast(
+                  t('csv.doneReplace', { added, trashed: trashed.ids.length }),
+                  {
+                    label: t('review.undo'),
+                    onSelect: () =>
+                      runTask(
+                        (async () => {
+                          await trashRowIds(db, addedIds ?? [])
+                          await restoreTrashedRows(db, trashed)
+                          ui.toast(t('csv.undone'))
+                        })(),
+                      ),
+                  },
+                )
+              } else if (outcome.mode === 'update') {
+                ui.toast(
+                  t('csv.doneUpdate', {
+                    updated: updated ?? 0,
+                    added,
+                    columns,
+                  }),
+                )
+              } else {
+                ui.toast(t('csv.done', { added, columns }))
+              }
             }}
           />
         )}

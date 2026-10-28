@@ -1598,4 +1598,26 @@ export const en = {
   'databasePicker.none': 'No database matches “{query}”.',
   'databasePicker.empty': 'You have no databases yet.',
   'databasePicker.loose': 'Not in a notebook',
+  'csv.mode.title': 'What should happen to the rows already in this database?',
+  'csv.mode.new': 'New database (recommended)',
+  'csv.mode.new.hint':
+    'Makes a separate database from the file. Nothing here changes.',
+  'csv.mode.add': 'Add rows',
+  'csv.mode.add.hint':
+    'Adds the file’s rows after the ones you have. Importing the same file twice duplicates rows.',
+  'csv.mode.replace': 'Replace rows',
+  'csv.mode.replace.hint':
+    'Moves all current rows to Trash (you can undo), then adds the file’s rows.',
+  'csv.mode.update': 'Update matching rows',
+  'csv.mode.update.hint':
+    'A row with the same title is updated from the file and the rest are added. Empty cells in the file keep what you have.',
+  'csv.replace.confirm':
+    'Move the {count} rows in this database to Trash and import {incoming} rows from the file?',
+  'csv.replace.button': 'Replace rows',
+  'csv.doneNew': 'Made a new database with {added} rows.',
+  'csv.open': 'Open',
+  'csv.doneReplace':
+    'Imported {added} rows. The {trashed} old rows are in Trash.',
+  'csv.doneUpdate': 'Updated {updated} rows and added {added}{columns}.',
+  'csv.undone': 'The old rows are back.',
 } as const

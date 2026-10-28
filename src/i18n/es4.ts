@@ -265,4 +265,28 @@ export const es4: Record<string, string> = {
   'databasePicker.none': 'Ninguna base de datos coincide con «{query}».',
   'databasePicker.empty': 'Todavía no tienes bases de datos.',
   'databasePicker.loose': 'Sin cuaderno',
+  'csv.mode.title':
+    '¿Qué hacer con las filas que ya hay en esta base de datos?',
+  'csv.mode.new': 'Base de datos nueva (recomendado)',
+  'csv.mode.new.hint':
+    'Crea una base de datos aparte con el archivo. Aquí no cambia nada.',
+  'csv.mode.add': 'Añadir filas',
+  'csv.mode.add.hint':
+    'Añade las filas del archivo después de las que tienes. Importar el mismo archivo dos veces duplica filas.',
+  'csv.mode.replace': 'Reemplazar filas',
+  'csv.mode.replace.hint':
+    'Mueve todas las filas actuales a la papelera (puedes deshacerlo) y añade las del archivo.',
+  'csv.mode.update': 'Actualizar filas que coinciden',
+  'csv.mode.update.hint':
+    'Una fila con el mismo título se actualiza con el archivo y las demás se añaden. Las celdas vacías del archivo conservan lo que tienes.',
+  'csv.replace.confirm':
+    '¿Mover las {count} filas de esta base de datos a la papelera e importar {incoming} filas del archivo?',
+  'csv.replace.button': 'Reemplazar filas',
+  'csv.doneNew': 'Se creó una base de datos nueva con {added} filas.',
+  'csv.open': 'Abrir',
+  'csv.doneReplace':
+    'Se importaron {added} filas. Las {trashed} filas anteriores están en la papelera.',
+  'csv.doneUpdate':
+    'Se actualizaron {updated} filas y se añadieron {added}{columns}.',
+  'csv.undone': 'Las filas anteriores han vuelto.',
 }

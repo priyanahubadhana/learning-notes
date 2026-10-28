@@ -1,8 +1,5 @@
-import { listDatabases } from '../databases/databaseService'
 import {
   createStarterDatabase,
-  starterTitle,
-  STARTER_IDS,
   type StarterId,
 } from '../databases/starterDatabases'
 import '@blocknote/mantine/style.css'
@@ -38,6 +35,7 @@ import type { LearningNotesDB } from '../core/db'
 import type { Block, Page } from '../core/types'
 import { createPage } from '../pages/pageService'
 import { t } from '../i18n/t'
+import { DatabasePicker } from '../databases/DatabasePicker'
 import { LinkPicker } from '../links/LinkPicker'
 import { AppDragHandleMenu } from './CardMenu'
 import { AppFormattingToolbar } from './SelectionToolbar'
@@ -278,28 +276,21 @@ function LoadedPageEditor({
     return answer === 'inside' || answer === 'nextLine' ? answer : null
   }
 
+  /** "/database": the open picker (resolves to the choice). */
+  const [databasePicker, setDatabasePicker] = useState<{
+    workspaceId: string
+    resolve: (value: string | null) => void
+  } | null>(null)
   /** "/database": pick (or start) a database and put it in the note. */
   const insertDatabase = () =>
     runTask(
       (async () => {
-        const [notebook, databases] = await Promise.all([
-          db.notebooks.get(notebookId),
-          listDatabases(db, (await db.notebooks.get(notebookId))!.workspaceId),
-        ])
+        const notebook = await db.notebooks.get(notebookId)
         if (!notebook) return
-        const picked = await choose({
-          title: t('databaseBlock.choose.title'),
-          message: t('databaseBlock.choose.message'),
-          options: [
-            ...databases
-              .slice(0, 6)
-              .map((d) => ({ value: `db:${d.id}`, label: d.title })),
-            ...STARTER_IDS.map((id) => ({
-              value: `new:${id}`,
-              label: t('databaseBlock.new', { name: starterTitle(id) }),
-            })),
-          ],
-        })
+        const picked = await new Promise<string | null>((resolve) =>
+          setDatabasePicker({ workspaceId: notebook.workspaceId, resolve }),
+        )
+        setDatabasePicker(null)
         if (!picked) return
         let databaseId = picked.slice(3)
         if (picked.startsWith('new:')) {
@@ -406,6 +397,13 @@ function LoadedPageEditor({
           }
         />
       </BlockNoteView>
+      {databasePicker && (
+        <DatabasePicker
+          db={db}
+          workspaceId={databasePicker.workspaceId}
+          onDone={databasePicker.resolve}
+        />
+      )}
       {linking && (
         <LinkPicker
           db={db}

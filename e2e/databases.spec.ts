@@ -126,7 +126,7 @@ test('/database shows a database inside a note with its own view', async ({
   await page.keyboard.press('Enter')
   await page
     .getByRole('dialog', { name: 'Add a database' })
-    .getByRole('button', { name: 'New: Drug list' })
+    .getByRole('option', { name: /^Drug list — / })
     .click()
 
   const block = page.getByRole('region', { name: 'Drug list' })
@@ -166,7 +166,7 @@ for (const [theme, width, height] of [
     await page.keyboard.press('Enter')
     await page
       .getByRole('dialog', { name: 'Add a database' })
-      .getByRole('button', { name: 'New: Books' })
+      .getByRole('option', { name: /^Books — / })
       .click()
     await expect(page.getByRole('region', { name: 'Books' })).toBeVisible()
     await (
@@ -229,7 +229,7 @@ test('database screen: one name, delete in the ⋯ menu, view stays while adding
   await page.keyboard.press('Enter')
   await page
     .getByRole('dialog', { name: 'Add a database' })
-    .getByRole('button', { name: 'Books', exact: true })
+    .getByRole('option', { name: /^Books(?! —)/ })
     .click()
   await expect(main(page)).toContainText('shown inside one of its own rows')
   // No stray text-toolbar ("Blank") pops up over the editor.
@@ -380,4 +380,39 @@ test('a Calendar without a Date column offers "Add date column"', async ({
   await main(page).getByRole('button', { name: 'Add date column' }).click()
   await expect(main(page).locator('[data-calendar-day]').first()).toBeVisible()
   await expect(main(page)).not.toContainText('A calendar needs a Date column.')
+})
+
+test('/database lists all your databases, searchable, newest first, with the ready-made ones apart', async ({
+  page,
+}) => {
+  const hub = async () =>
+    (await openSidebar(page)).getByRole('button', { name: 'Databases' }).click()
+  // More than six databases, the last one a Drug list.
+  for (let i = 0; i < 7; i++) {
+    await hub()
+    await main(page).getByRole('button', { name: '+ New database' }).click()
+    await page.getByRole('menuitem', { name: /^Blank/ }).click()
+  }
+  await hub()
+  await main(page).getByRole('button', { name: '+ New database' }).click()
+  await page.getByRole('menuitem', { name: /^Drug list/ }).click()
+
+  await (
+    await openSidebar(page)
+  )
+    .getByRole('button', { name: 'Heart sounds' })
+    .click()
+  await page.locator('.bn-editor').click()
+  await page.keyboard.type('/database')
+  await page.keyboard.press('Enter')
+  const dialog = page.getByRole('dialog', { name: 'Add a database' })
+  // The newest one comes first, and the ready-made ones are under "Create new".
+  await expect(dialog.getByRole('option').first()).toContainText('Drug list')
+  await expect(dialog.getByText('Create new')).toBeVisible()
+  await expect(dialog.getByRole('option')).toHaveCount(7 + 1 + 5)
+  // Search narrows the list; Enter picks the highlighted one.
+  await dialog.getByRole('combobox').fill('drug')
+  await expect(dialog.getByRole('option').first()).toContainText('Drug list')
+  await page.keyboard.press('Enter')
+  await expect(page.getByRole('region', { name: 'Drug list' })).toBeVisible()
 })

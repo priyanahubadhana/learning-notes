@@ -892,3 +892,9 @@
 - **What:** Each database screen has a visible "Import / Export" button beside the ⋯ menu (Export as CSV, Import CSV…); ⋯ now only holds Delete database (and is hidden on the Study tracker). Hindi and Spanish texts (item 8).
 - **Why:** Owner feedback from the 5A/5B re-check.
 - **Files:** src/databases/DatabasesHub.tsx, src/i18n/en.ts, es4.ts, hi4.ts, e2e/sample.spec.ts, e2e/sharing.spec.ts, CHANGELOG.md
+
+## 2026-10-28
+
+- **What:** "/database" opens a picker with a search box, ALL your databases (newest first, with their notebook) and the ready-made ones apart under "Create new"; keys ↑ ↓ Enter Esc. The old list showed only the first six, which is why the Drug list could be missing (items 4 and 9). Hindi and Spanish texts.
+- **Why:** Owner feedback from the 5A/5B re-check.
+- **Files:** src/databases/DatabasePicker.tsx, src/editor/PageEditor.tsx, src/i18n/en.ts, es4.ts, hi4.ts, e2e/databases.spec.ts, CHANGELOG.md

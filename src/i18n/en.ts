@@ -819,9 +819,6 @@ export const en = {
   'databaseBlock.slash.title': 'Database',
   'databaseBlock.slash.subtext': 'Show a database in this note',
   'databaseBlock.choose.title': 'Add a database',
-  'databaseBlock.choose.message':
-    'Pick a database to show here, or start a new one.',
-  'databaseBlock.new': 'New: {name}',
   'databaseBlock.loop':
     'This database is shown inside one of its own rows. Open it from the Databases list instead.',
   'databases.more': 'Database options',
@@ -1595,4 +1592,10 @@ export const en = {
   'settings.category.apis.hint':
     'Connections to other services (such as AI). Nothing is connected yet.',
   'databases.importExport': 'Import / Export',
+  'databasePicker.search': 'Search your databases…',
+  'databasePicker.yours': 'Your databases',
+  'databasePicker.create': 'Create new',
+  'databasePicker.none': 'No database matches “{query}”.',
+  'databasePicker.empty': 'You have no databases yet.',
+  'databasePicker.loose': 'Not in a notebook',
 } as const

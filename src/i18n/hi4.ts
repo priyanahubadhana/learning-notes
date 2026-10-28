@@ -135,9 +135,6 @@ export const hi4: Record<string, string> = {
   'databaseBlock.slash.title': 'डेटाबेस',
   'databaseBlock.slash.subtext': 'इस नोट में कोई डेटाबेस दिखाएँ',
   'databaseBlock.choose.title': 'डेटाबेस जोड़ें',
-  'databaseBlock.choose.message':
-    'यहाँ दिखाने के लिए कोई डेटाबेस चुनें, या नया शुरू करें।',
-  'databaseBlock.new': 'नया: {name}',
   'databaseBlock.loop':
     'यह डेटाबेस अपनी ही किसी पंक्ति के अंदर दिखाया जा रहा है। इसे इसके बजाय डेटाबेस सूची से खोलें।',
   'databases.more': 'डेटाबेस विकल्प',
@@ -255,4 +252,10 @@ export const hi4: Record<string, string> = {
   'data.export.passwordHint':
     'ऊपर “बैकअप” का पासवर्ड बॉक्स इस फ़ाइल को भी बंद कर देता है।',
   'databases.importExport': 'आयात / निर्यात',
+  'databasePicker.search': 'अपने डेटाबेस खोजें…',
+  'databasePicker.yours': 'आपके डेटाबेस',
+  'databasePicker.create': 'नया बनाएँ',
+  'databasePicker.none': '“{query}” से कोई डेटाबेस नहीं मिलता।',
+  'databasePicker.empty': 'अभी आपके पास कोई डेटाबेस नहीं है।',
+  'databasePicker.loose': 'किसी नोटबुक में नहीं',
 }

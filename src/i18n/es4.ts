@@ -138,9 +138,6 @@ export const es4: Record<string, string> = {
   'databaseBlock.slash.title': 'Base de datos',
   'databaseBlock.slash.subtext': 'Muestra una base de datos en esta nota',
   'databaseBlock.choose.title': 'Añadir una base de datos',
-  'databaseBlock.choose.message':
-    'Elige una base de datos para mostrar aquí, o crea una nueva.',
-  'databaseBlock.new': 'Nueva: {name}',
   'databaseBlock.loop':
     'Esta base de datos se muestra dentro de una de sus propias filas. Ábrela desde la lista de Bases de datos.',
   'databases.more': 'Opciones de la base de datos',
@@ -262,4 +259,10 @@ export const es4: Record<string, string> = {
   'data.export.passwordHint':
     'La casilla de contraseña de «Copia de seguridad», arriba, también protege este archivo.',
   'databases.importExport': 'Importar / Exportar',
+  'databasePicker.search': 'Buscar en tus bases de datos…',
+  'databasePicker.yours': 'Tus bases de datos',
+  'databasePicker.create': 'Crear nueva',
+  'databasePicker.none': 'Ninguna base de datos coincide con «{query}».',
+  'databasePicker.empty': 'Todavía no tienes bases de datos.',
+  'databasePicker.loose': 'Sin cuaderno',
 }

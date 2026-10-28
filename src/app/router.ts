@@ -14,7 +14,7 @@ export type Route =
   | { kind: 'databases' }
   | { kind: 'cards' }
   | { kind: 'data' }
-  | { kind: 'settings' }
+  | { kind: 'settings'; parts: string[] }
   | { kind: 'search'; savedId?: string; query?: Record<string, unknown> }
   | { kind: 'review'; scope: ReviewRoute }
 
@@ -27,7 +27,7 @@ export type ReviewRoute =
   /** A list of blocks (e.g. search results): cannot be reopened later. */
   | { kind: 'custom' }
 
-const MAX_PARTS = 2
+const MAX_PARTS = 3
 
 /** The hash for a route, e.g. `#/notebook/<id>/<tab>`. */
 export function routeToHash(route: Route): string {
@@ -43,10 +43,14 @@ export function routeToHash(route: Route): string {
         .slice(0, MAX_PARTS)
         .map((p) => `/${e(p)}`)
         .join('')}`
+    case 'settings':
+      return `#/settings${route.parts
+        .slice(0, MAX_PARTS)
+        .map((p) => `/${e(p)}`)
+        .join('')}`
     case 'databases':
     case 'cards':
     case 'data':
-    case 'settings':
       return `#/${route.kind}`
     case 'search':
       if (route.savedId) return `#/search/saved/${e(route.savedId)}`
@@ -93,10 +97,11 @@ export function parseHash(hash: string): Route {
             parts: args.slice(1, 1 + MAX_PARTS) as string[],
           }
         : home
+    case 'settings':
+      return { kind: 'settings', parts: args.slice(0, MAX_PARTS) as string[] }
     case 'databases':
     case 'cards':
     case 'data':
-    case 'settings':
       return { kind: head }
     case 'search': {
       if (first === 'saved' && args[1]) {
@@ -145,7 +150,9 @@ export function parseHash(hash: string): Route {
 export function baseHash(hash: string): string {
   const route = parseHash(hash)
   return routeToHash(
-    route.kind === 'notebook' || route.kind === 'database'
+    route.kind === 'notebook' ||
+      route.kind === 'database' ||
+      route.kind === 'settings'
       ? { ...route, parts: [] }
       : route,
   )
@@ -154,7 +161,9 @@ export function baseHash(hash: string): string {
 /** The screen's own levels in the current address. */
 export function currentParts(hash: string = location.hash): string[] {
   const route = parseHash(hash)
-  return route.kind === 'notebook' || route.kind === 'database'
+  return route.kind === 'notebook' ||
+    route.kind === 'database' ||
+    route.kind === 'settings'
     ? route.parts
     : []
 }
@@ -168,9 +177,17 @@ const SUB_EVENT = 'learning-notes:route-parts'
  */
 export function pushRouteParts(index: number, value: string, before: string[]) {
   const route = parseHash(location.hash)
-  if (route.kind !== 'notebook' && route.kind !== 'database') return
-  const keep = route.parts.length > 0 ? route.parts : before
-  if (route.parts.length === 0 && before.length > 0) {
+  if (
+    route.kind !== 'notebook' &&
+    route.kind !== 'database' &&
+    route.kind !== 'settings'
+  ) {
+    return
+  }
+  // The address may not say yet what is on screen (a level was never chosen):
+  // write it into the entry we are leaving, so Back returns to it.
+  const keep = route.parts.length >= before.length ? route.parts : before
+  if (route.parts.length < before.length) {
     history.replaceState(null, '', routeToHash({ ...route, parts: before }))
   }
   const parts = [...keep.slice(0, index), value]

@@ -15,6 +15,7 @@ import {
   markName,
   type LabelDef,
 } from '../revise/reviseMarks'
+import { pushRouteParts, useRouteParts } from '../app/router'
 import { settingsRegistry } from './builtinSettings'
 import type { SettingControl, SettingDefinition } from './registry'
 import { getSetting, setSetting } from './settingsService'
@@ -39,9 +40,21 @@ export function SettingsScreen({
   db: LearningNotesDB
   focusId?: string
 }) {
-  const [category, setCategory] = useState(
+  // The open category is kept in the address, so Back and refresh keep it.
+  const [ownCategory, setOwnCategory] = useState(
     () => (focusId && settingsRegistry.get(focusId)?.category) || ALL,
   )
+  const routeCategory = useRouteParts(0)
+  const category =
+    routeCategory &&
+    (routeCategory === ALL ||
+      settingsRegistry.categories().some((c) => c.id === routeCategory))
+      ? routeCategory
+      : ownCategory
+  const setCategory = (id: string) => {
+    setOwnCategory(id)
+    pushRouteParts(0, id, [category])
+  }
   const root = useRef<HTMLDivElement>(null)
   useEffect(() => {
     if (!focusId) return

@@ -1,3 +1,4 @@
+import { displayName } from '../i18n/defaultNames'
 import { Tip } from '../help/Help'
 import { useLiveQuery } from 'dexie-react-hooks'
 import {
@@ -123,7 +124,7 @@ export function NotebookScreen({
         <div className="mb-1 text-xs text-muted">{t('notebook.crumb')}</div>
         <div className="mb-4 flex items-start gap-2">
           <h1 className="flex-1 text-[26px] leading-tight font-bold tracking-[-0.02em]">
-            {notebook.title || t('review.untitled')}
+            {displayName(notebook.title) || t('review.untitled')}
           </h1>
           <button
             type="button"
@@ -201,6 +202,7 @@ export function NotebookScreen({
               db={db}
               notebookId={notebook.id}
               databaseId={active.databaseId}
+              tabId={active.id}
               onOpenPage={onOpenPage}
             />
           )}
@@ -321,11 +323,14 @@ function DatabaseTab({
   db,
   notebookId,
   databaseId,
+  tabId,
   onOpenPage,
 }: {
   db: LearningNotesDB
   notebookId: string
   databaseId: string
+  /** This tab's id, the first level of the address. */
+  tabId: string
   onOpenPage: (pageId: string) => void
 }) {
   const isTracker = databaseId === studyTrackerId(notebookId)
@@ -353,7 +358,8 @@ function DatabaseTab({
       ...own.filter((d) => d.kind !== 'studyTracker'),
     ]
   }, [db, notebookId])
-  const [pickedId, setPickedId] = useState<string | null>(null)
+  // The chosen database is the second level of the address (the view the third).
+  const pickedId = useRouteParts(1)
   if (!ready || !databases) {
     return <p className="text-sm text-muted">{t('notebook.loading')}</p>
   }
@@ -378,7 +384,7 @@ function DatabaseTab({
                 key={d.id}
                 type="button"
                 aria-pressed={d.id === shownId}
-                onClick={() => setPickedId(d.id)}
+                onClick={() => pushRouteParts(1, d.id, [tabId, shownId])}
                 className="min-h-8 rounded-full border border-line px-3 text-[13px] hover:bg-hover aria-pressed:border-accent aria-pressed:bg-soft"
               >
                 {d.title}
@@ -392,6 +398,8 @@ function DatabaseTab({
         db={db}
         databaseId={shownId}
         onOpenPage={onOpenPage}
+        routeIndex={2}
+        routePrefix={[tabId, shownId]}
       />
     </div>
   )

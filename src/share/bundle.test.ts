@@ -300,6 +300,48 @@ describe('notebook file', () => {
       await db.notebooks.filter((n) => n.kind === 'templates').count(),
     ).toBe(1)
   })
+  it('a template that was only opened in the editor (extra empty line) still counts as the same', async () => {
+    const { nb } = await build()
+    await ensureTemplates(db, ws)
+    const bundle = readBundle(
+      await bundleFile(
+        await exportNotebookBundle(db, nb, { templates: true }),
+      ).text(),
+    )
+    const study = bundle.pages.find(
+      (p) => p.title === 'Study notes' && p.parentId === null,
+    )!
+    const last = bundle.blocks.filter((b) => b.pageId === study.id).at(-1)!
+    const withEmptyLine = {
+      ...bundle,
+      blocks: [
+        ...bundle.blocks,
+        {
+          ...last,
+          id: 'extra-empty-line',
+          type: 'paragraph',
+          content: { text: [] },
+          order: 'zzzz',
+        },
+      ],
+    }
+    const other = createTestDb()
+    try {
+      const ws2 = (await getOrCreateDefaultWorkspace(other)).id
+      await ensureTemplates(other, ws2)
+      const home = (await other.notebooks
+        .filter((n) => n.kind === 'templates')
+        .first())!
+      const count = () =>
+        other.pages.where('notebookId').equals(home.id).count()
+      const had = await count()
+      await importBundle(other, ws2, withEmptyLine)
+      expect(await count()).toBe(had)
+    } finally {
+      await other.delete()
+    }
+  })
+
   it('skips templates the workspace already has (same id, or same name and content)', async () => {
     const { nb } = await build()
     await ensureTemplates(db, ws)

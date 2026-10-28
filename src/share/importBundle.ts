@@ -18,6 +18,7 @@ import {
   findNotebookOfKind,
   listNotebooks,
 } from '../notebooks/notebookService'
+import { blockText } from '../search/searchText'
 import { findOrCreateTagPath } from '../tags/tagService'
 import { isTagColor, setTagColor } from '../tags/tagTools'
 import { t } from '../i18n/t'
@@ -39,7 +40,12 @@ export interface ImportSummary {
   databases: number
 }
 
-/** A page's title, notes (type and content, in order) and sub-pages, as text for comparing. */
+/**
+ * A page's title, notes (type and words, in order) and sub-pages, as text
+ * for comparing. Only words count, not formatting details or ids, and empty
+ * text lines (the editor adds one at the end) are left out, so a template
+ * that was only opened in the editor still equals its copy in a file.
+ */
 function signature(
   pageId: string,
   pages: readonly Page[],
@@ -48,15 +54,15 @@ function signature(
   const byOrder = <T extends { order: string }>(a: T, b: T) =>
     a.order < b.order ? -1 : a.order > b.order ? 1 : 0
   const page = pages.find((p) => p.id === pageId)
-  // Links between the pages hold their ids, which differ per app: ignore them.
-  const noIds = (text: string) =>
-    pages.reduce((out, p) => out.split(p.id).join('#'), text)
   return JSON.stringify([
     page?.title ?? '',
     blocks
       .filter((b) => b.pageId === pageId)
       .sort(byOrder)
-      .map((b) => noIds(JSON.stringify([b.type, b.content]))),
+      .flatMap((b) => {
+        const text = blockText(b.content).replace(/s+/g, ' ').trim()
+        return b.type === 'paragraph' && text === '' ? [] : [[b.type, text]]
+      }),
     pages
       .filter((p) => p.parentId === pageId)
       .sort(byOrder)

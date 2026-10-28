@@ -240,7 +240,7 @@ function App() {
   }
   // ---- Browser history: every screen has an address (app/router.ts) ----
   const route: Route = showSettings
-    ? { kind: 'settings' }
+    ? { kind: 'settings', parts: [] }
     : reviewScope
       ? {
           kind: 'review',
@@ -330,6 +330,7 @@ function App() {
   useEffect(() => {
     if (baseHash(location.hash) === routeHash) {
       historyReady.current = true
+      replaceNext.current = false // nothing to replace: do not carry it over
       return
     }
     const replace = !historyReady.current || replaceNext.current
@@ -753,6 +754,17 @@ function App() {
                 db={db}
                 initial={search.query}
                 title={savedSearch?.name}
+                // Typing changes the address in place (no new Back step).
+                onChange={(query) =>
+                  setSearch((s) => {
+                    if (!s || s.savedId) return s
+                    if (JSON.stringify(s.query) === JSON.stringify(query)) {
+                      return s
+                    }
+                    replaceNext.current = true
+                    return { ...s, query }
+                  })
+                }
                 actions={(query) => (
                   <SaveSearchActions
                     db={db}

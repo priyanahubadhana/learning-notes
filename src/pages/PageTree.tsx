@@ -1,3 +1,4 @@
+import { displayName } from '../i18n/defaultNames'
 import { t } from '../i18n/t'
 import { useLiveQuery } from 'dexie-react-hooks'
 import { useState, type ReactNode } from 'react'
@@ -101,7 +102,8 @@ export function PageTree({
               >
                 {page.journalDate
                   ? shortDayLabel(page.journalDate)
-                  : page.title || t('review.untitled')}
+                  : (rootId ? displayName(page.title) : page.title) ||
+                    t('review.untitled')}
               </button>
             )}
             <span className="flex opacity-0 group-focus-within:opacity-100 group-hover:opacity-100">

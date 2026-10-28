@@ -1,3 +1,4 @@
+import { displayName } from '../i18n/defaultNames'
 import { t as tr } from '../i18n/t'
 import { useLiveQuery } from 'dexie-react-hooks'
 import { useEffect, useRef } from 'react'
@@ -72,7 +73,7 @@ export function TemplatePicker({
         {templates?.map((t) =>
           card(
             t.id,
-            t.title || tr('templates.untitled'),
+            displayName(t.title) || tr('templates.untitled'),
             t.preview || tr('picker.emptyTemplate'),
             t.id,
           ),

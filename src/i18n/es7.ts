@@ -63,4 +63,9 @@ export const es7: Record<string, string> = {
   'settings.reviseLabels.newName': 'Etiqueta nueva',
   'settings.reviseLabels.remove': 'Quitar la etiqueta {name}',
   'settings.reviseLabels.color': 'Color de {name}',
+  'template.daily': 'Diario',
+  'template.study': 'Apuntes de estudio',
+  'template.meeting': 'Notas de reunión',
+  'template.reading': 'Notas de lectura',
+  'template.project': 'Plan de proyecto',
 }

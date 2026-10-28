@@ -10,7 +10,9 @@ const routes: Route[] = [
   { kind: 'databases' },
   { kind: 'cards' },
   { kind: 'data' },
-  { kind: 'settings' },
+  { kind: 'settings', parts: [] },
+  { kind: 'settings', parts: ['review'] },
+  { kind: 'notebook', id: 'n1', parts: ['database', 'd2', 'v3'] },
   { kind: 'search' },
   { kind: 'search', savedId: 's1' },
   { kind: 'search', query: { text: 'a&b ?#', type: 'card', filters: {} } },
@@ -51,17 +53,18 @@ describe('router', () => {
     expect(parseHash('#/search?q=%5B1%5D')).toEqual({ kind: 'search' })
   })
 
-  it('keeps at most two own levels', () => {
-    expect(parseHash('#/notebook/n/a/b/c')).toEqual({
+  it('keeps at most three own levels', () => {
+    expect(parseHash('#/notebook/n/a/b/c/d')).toEqual({
       kind: 'notebook',
       id: 'n',
-      parts: ['a', 'b'],
+      parts: ['a', 'b', 'c'],
     })
   })
 
   it('baseHash drops the own levels only', () => {
     expect(baseHash('#/notebook/n/revise/x')).toBe('#/notebook/n')
     expect(baseHash('#/database/d/v')).toBe('#/database/d')
+    expect(baseHash('#/settings/review')).toBe('#/settings')
     expect(baseHash('#/page/p')).toBe('#/page/p')
   })
 })

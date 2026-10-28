@@ -61,4 +61,9 @@ export const hi7: Record<string, string> = {
   'settings.reviseLabels.newName': 'नया लेबल',
   'settings.reviseLabels.remove': 'लेबल {name} हटाएँ',
   'settings.reviseLabels.color': '{name} का रंग',
+  'template.daily': 'रोज़ की डायरी',
+  'template.study': 'अध्ययन नोट',
+  'template.meeting': 'बैठक के नोट',
+  'template.reading': 'पठन नोट',
+  'template.project': 'परियोजना योजना',
 }

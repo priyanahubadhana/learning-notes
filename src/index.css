@@ -324,6 +324,18 @@ button.tag-chip:hover {
   .tip-info {
     display: inline-flex;
   }
+  /* Touch screens cannot hover: icons that only show on hover (delete, +,
+     rename…) are always shown, with 44 px tap targets. */
+  [class*='group-hover:opacity-100'] {
+    opacity: 1;
+  }
+  [class*='group-hover:opacity-100'] button {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    min-width: 44px;
+    min-height: 44px;
+  }
 }
 
 /* Help lines keep their size inside the editor (a database block). */

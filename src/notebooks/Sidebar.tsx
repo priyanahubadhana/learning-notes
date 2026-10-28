@@ -1,3 +1,4 @@
+import { displayName } from '../i18n/defaultNames'
 import { useLiveQuery } from 'dexie-react-hooks'
 import {
   useContext,
@@ -405,7 +406,7 @@ export function Sidebar({
                       onDoubleClick={() => onRenamingChange(notebook.id)}
                       className="flex-1 truncate text-left font-semibold"
                     >
-                      {notebook.title || t('review.untitled')}
+                      {displayName(notebook.title) || t('review.untitled')}
                     </button>
                   </NotebookTip>
                 )}

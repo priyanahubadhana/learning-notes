@@ -66,3 +66,22 @@ for (const [code, name] of [
     })
   })
 }
+
+test('the app’s own template names are shown in the chosen language', async ({
+  page,
+}) => {
+  await page.goto('/')
+  await (
+    await openSidebar(page)
+  )
+    .getByRole('button', { name: 'Settings' })
+    .click()
+  await page.getByRole('button', { name: 'Español', exact: true }).click()
+  const side = await openSidebar(page)
+  await expect(
+    side.getByRole('button', { name: 'Apuntes de estudio' }),
+  ).toBeVisible()
+  await expect(side.getByRole('button', { name: 'Study notes' })).toHaveCount(0)
+  await page.getByRole('button', { name: 'हिन्दी', exact: true }).click()
+  await expect(side.getByRole('button', { name: 'अध्ययन नोट' })).toBeVisible()
+})

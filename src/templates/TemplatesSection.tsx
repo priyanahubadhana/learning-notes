@@ -1,3 +1,4 @@
+import { displayName } from '../i18n/defaultNames'
 import { t as tr } from '../i18n/t'
 import type { ReactNode } from 'react'
 import { Tip } from '../help/Help'
@@ -109,7 +110,7 @@ export function TemplatesSection({
                     onClick={() => onOpen(t.id)}
                     className="flex-1 truncate text-left"
                   >
-                    {t.title || tr('templates.untitled')}
+                    {displayName(t.title) || tr('templates.untitled')}
                   </button>
                 </DailyTip>
                 {!daily && (

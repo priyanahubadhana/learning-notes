@@ -31,15 +31,22 @@ export function DatabaseView({
   databaseId,
   onOpenPage,
   showTitle = true,
-  routed = false,
+  routeIndex,
+  routePrefix = [],
 }: {
   db: LearningNotesDB
   databaseId: string
   onOpenPage: (pageId: string) => void
   /** Show the database's name beside the views (off when a screen shows it). */
   showTitle?: boolean
-  /** The open view is kept in the address (a full-screen database). */
-  routed?: boolean
+  /**
+   * Where the open view sits in the address (0 = a full-screen database;
+   * 2 = in a notebook's Database tab, after the tab and the database).
+   * Unset = the view is not kept in the address.
+   */
+  routeIndex?: number
+  /** The address levels before this one. */
+  routePrefix?: string[]
 }) {
   const database = useLiveQuery(
     async () => (await getDatabase(db, databaseId)) ?? null,
@@ -48,8 +55,8 @@ export function DatabaseView({
   const views = useLiveQuery(() => listViews(db, databaseId), [db, databaseId])
   const filled = useLiveQuery(() => hasRows(db, databaseId), [db, databaseId])
   const [ownViewId, setViewId] = useState(() => lastViewShown.get(databaseId))
-  const routeView = useRouteParts(0)
-  const viewId = (routed ? routeView : null) ?? ownViewId
+  const routeView = useRouteParts(routeIndex ?? 0)
+  const viewId = (routeIndex !== undefined ? routeView : null) ?? ownViewId
   const [menu, setMenu] = useState<HTMLElement | null>(null)
   const [adding, setAdding] = useState<HTMLElement | null>(null)
   const [renaming, setRenaming] = useState(false)
@@ -74,7 +81,12 @@ export function DatabaseView({
   const show = (id: string) => {
     lastViewShown.set(databaseId, id)
     setViewId(id)
-    if (routed) pushRouteParts(0, id, view ? [view.id] : [])
+    if (routeIndex !== undefined) {
+      pushRouteParts(routeIndex, id, [
+        ...routePrefix,
+        ...(view ? [view.id] : []),
+      ])
+    }
   }
 
   return (

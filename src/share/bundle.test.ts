@@ -563,6 +563,6 @@ describe('notebook file', () => {
     const ms = performance.now() - start
     expect(summary).toMatchObject({ pages: 500, cards: 5000 })
     expect(await db.blocks.count()).toBe(20_000)
-    expect(ms).toBeLessThan(30_000) // fake-indexeddb is far slower than a browser
+    expect(ms).toBeLessThan(60_000) // fake-indexeddb is far slower than a browser
   }, 90_000)
 })

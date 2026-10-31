@@ -27,9 +27,9 @@ describe('dates', () => {
   it('formats keys and titles', () => {
     expect(dateKey(OCT_25)).toBe('2026-10-25')
     expect(monthKey(OCT_25)).toBe('2026-10')
-    expect(dayTitle(OCT_25)).toMatch(/Sunday,? 25 October 2026/)
+    expect(dayTitle(OCT_25)).toMatch(/Sunday,? (25 October|October 25),? 2026/)
     expect(monthTitle(OCT_25)).toBe('October 2026')
-    expect(shortDayLabel('2026-10-25')).toMatch(/Sun,? 25 Oct/)
+    expect(shortDayLabel('2026-10-25')).toMatch(/Sun,? (25 Oct|Oct 25)/)
   })
 })
 

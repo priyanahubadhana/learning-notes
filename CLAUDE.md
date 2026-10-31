@@ -4,22 +4,24 @@
 
 ## Project
 
-Learning Notes App: a premium, minimal second brain (Notion + OneNote + Anki). Web now; iPhone, iPad, Android and Mac later. Global, millions of users, any field. Budget ₹0 unless the owner says otherwise.
+Learning Notes App: a premium, minimal second brain (Notion + OneNote + Anki). Each notebook has detailed notes, a short summary and recall cards. Web now; iPhone, iPad, Android and Mac later. Global, millions of users, any field. Budget ₹0 unless the owner says otherwise.
 
 ## Working With the Owner
 
 - Owner is a beginner: explain simply — what it is, what it does, why it matters.
-- Way of working: plan each phase together (all its questions at once), then build the whole phase without stopping; the owner checks in at the end of each phase. Details in rules/sessions.md and rules/building.md.
+- Way of working: Plan each phase together (all its questions at once), then Execute the whole plan without stopping. Interrupt the owner only when truly needed. Details in rules/sessions.md and rules/building.md.
 - Tokens matter: keep replies short; show only changed code; don't re-read files unnecessarily; no unrequested extras.
 - Be honest, not agreeable: flag weak ideas and suggest better ones.
-- Routine updates to project files: just do them. Mid-phase questions the plan doesn't cover: pick the safest option and log it in README "Decisions to review". Changes to the rules: wait for the owner's OK.
+- Routine updates to project files: just do them. Mid-phase questions the plan doesn't cover: pick the safest option and log it in docs/DECISIONS.md "Decisions to review". Changes to the rules: wait for the owner's OK.
 
 ## Things We Said No To (for now)
 
-- No AI features, no accounts/cloud sync, no native apps, no collaboration, no hosting setup.
+- Hosting: allowed. Sync and accounts: only after the deep research. AI: only after the owner approves the cost.
+- No native apps, no collaboration.
 - No building beyond the current phase. No skipping phases.
 - No switching editor from BlockNote or stack choices without asking.
 - Ask before anything that costs money.
+- Never write secrets into code, docs or chat summaries.
 
 ## Rule Files — read only what the current work needs
 
@@ -37,10 +39,8 @@ Learning Notes App: a premium, minimal second brain (Notion + OneNote + Anki). W
 
 ## Project Files
 
-- **README.md** — includes "Next steps — handoff" and "Project Status & Decision Log".
-- **CHANGELOG.md** — after every change, a dated entry: what changed, why, files touched.
-- **IDEAS.md** — parked ideas (date, short description, likely phase).
-- **HELP-TEXTS.md** — every hover tip and help line, for the owner to review (generated; see `src/help/`).
-- **LEARNING.md** — plain-language explanation of each finished phase, with examples.
-- Keep README, CLAUDE.md, CHANGELOG, IDEAS, LEARNING and `rules/` up to date.
-- **Mirror rule:** after any change to CLAUDE.md, README, IDEAS, LEARNING, package.json, `rules/` or `src/`, run the robocopy line in [rules/sessions.md](rules/sessions.md) to update `C:\Users\pc\Downloads\gdrive notes`, then confirm in one line.
+- **Read [docs/INDEX.md](docs/INDEX.md) first**, then only what the task needs. Never read docs/ARCHIVE.md during work; search a heading only.
+- Active files (docs/CHANGELOG.md, docs/DECISIONS.md) hold the current phase only.
+- docs/CHANGELOG.md: after every change, a dated entry: what changed, why, files touched.
+- Keep README, CLAUDE.md, docs/ and `rules/` up to date.
+- **Mirror rule:** after any change to CLAUDE.md, README, package.json, `docs/`, `rules/` or `src/`, run the robocopy line in [rules/sessions.md](rules/sessions.md), then confirm in one line.

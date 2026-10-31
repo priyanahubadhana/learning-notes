@@ -147,7 +147,7 @@ test('theme in Settings and in the sidebar stay in step', async ({ page }) => {
 test('settings fit a phone screen without sideways scrolling', async ({
   page,
 }) => {
-  // The sidebar stays 260 px wide until the full phone layout (IDEAS.md);
+  // The sidebar stays 260 px wide until the full phone layout (docs/IDEAS.md);
   // this leaves the Settings area exactly a phone width (400 px).
   await page.setViewportSize({ width: 660, height: 844 })
   await openSettings(page)

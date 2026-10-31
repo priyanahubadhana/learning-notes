@@ -10,7 +10,7 @@ import {
   type TipId,
 } from './helpRegistry'
 
-const FILE = new URL('../../HELP-TEXTS.md', import.meta.url)
+const FILE = new URL('../../docs/HELP-TEXTS.md', import.meta.url)
 
 /** All source text of the app (not tests, not the registry itself). */
 function appSource(): string {

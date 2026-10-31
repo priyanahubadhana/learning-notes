@@ -12,11 +12,11 @@ React + TypeScript (strict), Vite, Tailwind, BlockNote, IndexedDB through Dexie.
 2. `npm install`
 3. `npm run dev`, then open the address shown.
 
-| Check               | Command                                                                   |
-| ------------------- | ------------------------------------------------------------------------- |
-| Unit tests          | `npm test`                                                                |
-| Browser tests       | `npm run test:e2e` (first time: `npx playwright install chromium webkit`) |
-| Lint, format, build | `npm run lint`, `npm run format:check`, `npm run build`                   |
+| Check               | Command                                                                                                     |
+| ------------------- | ----------------------------------------------------------------------------------------------------------- |
+| Unit tests          | `npm test`                                                                                                  |
+| Browser tests       | `npm run test:e2e` (first time: `npx playwright install chromium`); Safari-style: `npm run test:e2e:webkit` |
+| Lint, format, build | `npm run lint`, `npm run format:check`, `npm run build`                                                     |
 
 ## Status
 

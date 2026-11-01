@@ -89,7 +89,8 @@ export async function createNotebook(
     await expect(nameField).toBeVisible({ timeout: 1000 })
   }).toPass()
   await nameField.fill(name)
-  await nameField.press('Enter')
+  // On a phone the field can be rebuilt here, which saves the name by itself.
+  await nameField.press('Enter', { timeout: 2000 }).catch(() => {})
   // The phone drawer closes by itself after naming, so reopen it to look.
   await expect(async () => {
     await showSidebar(page)

@@ -16,6 +16,7 @@ Current phase only. Older decisions are in [ARCHIVE.md](ARCHIVE.md).
 | 2026-11-01 | Hosting may start fresh: current data is mostly test data (owner)                                                                                |
 
 | 2026-11-01 | CI: Chrome tests must pass on each push; WebKit runs weekly as a warning (about 30 minutes) until the Phase 9 iPad work |
+| 2026-11-01 | Each browser test may retry once and is then reported as flaky; failing twice blocks a push |
 
 ## Decisions to review
 

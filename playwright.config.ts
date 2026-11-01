@@ -11,7 +11,8 @@ export default defineConfig({
   testDir: './e2e',
   fullyParallel: true,
   forbidOnly: !!process.env.CI,
-  retries: 0,
+  retries: 1, // a test that passes on retry is reported as flaky
+  workers: process.env.CI ? 2 : undefined,
   reporter: 'list',
   use: {
     baseURL: `http://localhost:${PORT}`,

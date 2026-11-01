@@ -13,3 +13,9 @@ Current phase only. Older entries are in [ARCHIVE.md](ARCHIVE.md).
 - **What:** Browser tests now run on the built app, under the live security rules; removed the speed test that needed the dev server; help tips no longer block clicks.
 - **Why:** GitHub's small machine timed out compiling on demand.
 - **Files:** playwright.config.ts, vite.config.ts, e2e/offline.spec.ts, e2e/tagTools.spec.ts
+
+## 2026-11-01
+
+- **What:** Site published; moved to learning-notes-app because learning-notes was taken.
+- **Why:** A clean permanent address before anything is installed.
+- **Files:** .github/workflows/ci.yml, docs/

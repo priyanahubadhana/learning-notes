@@ -4,12 +4,12 @@ Current phase only. Older decisions are in [ARCHIVE.md](ARCHIVE.md).
 
 ## Phase 9 decisions
 
-| Date       | Decision                                                                                        |
-| ---------- | ----------------------------------------------------------------------------------------------- |
-| 2026-11-01 | Address: learning-notes.pages.dev (owner)                                                       |
-| 2026-11-01 | New versions go live after all tests pass; the app offers the update (owner)                    |
-| 2026-11-01 | Week trial: owner and one other tester; Hindi reviewer available; Spanish review parked (owner) |
-| 2026-11-01 | Owner creates the free accounts and stops if a card is asked (owner)                            |
+| Date       | Decision                                                                                             |
+| ---------- | ---------------------------------------------------------------------------------------------------- |
+| 2026-11-01 | Address: learning-notes-app.pages.dev, the agreed fallback, because learning-notes was taken (owner) |
+| 2026-11-01 | New versions go live after all tests pass; the app offers the update (owner)                         |
+| 2026-11-01 | Week trial: owner and one other tester; Hindi reviewer available; Spanish review parked (owner)      |
+| 2026-11-01 | Owner creates the free accounts and stops if a card is asked (owner)                                 |
 
 ## Decisions to review
 

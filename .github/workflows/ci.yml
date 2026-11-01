@@ -58,9 +58,9 @@ jobs:
         run: npm ci && npm run build
       # Creates the site the first time; afterwards it already exists.
       - if: env.CLOUDFLARE_API_TOKEN != ''
-        run: npx wrangler@4.156.0 pages project create learning-notes --production-branch=main || true
+        run: npx wrangler@4.156.0 pages project create learning-notes-app --production-branch=main || true
       - if: env.CLOUDFLARE_API_TOKEN != ''
-        run: npx wrangler@4.156.0 pages deploy dist --project-name=learning-notes --branch=main
+        run: npx wrangler@4.156.0 pages deploy dist --project-name=learning-notes-app --branch=main
 
   # Weekly and a warning only: it takes about 30 minutes, and the known
   # WebKit differences are on the Phase 9 iPad list.

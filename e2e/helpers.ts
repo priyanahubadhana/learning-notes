@@ -84,15 +84,19 @@ export async function createNotebook(
 
   const nameField = sidebar(page).getByRole('textbox', { name: 'Name' })
   const named = sidebar(page).getByRole('button', { name, exact: true })
-  // On a phone the drawer can close and the field be rebuilt while naming,
-  // so repeat the whole step until the notebook shows its name.
+  // On a phone the drawer can close while naming, which ends the name field,
+  // so repeat the whole step until the notebook shows its name, reopening
+  // the field with Rename like a user would.
   await expect(async () => {
     await showSidebar(page)
     if (await named.isVisible()) return
-    await nameField.fill(name, { timeout: 1000 })
-    await nameField.press('Enter', { timeout: 1000 }).catch(() => {})
+    if (!(await nameField.isVisible())) {
+      await rowAction(page, 'New notebook', 'Rename')
+    }
+    await nameField.fill(name, { timeout: 3000 })
+    await nameField.press('Enter', { timeout: 3000 }).catch(() => {})
     await showSidebar(page)
-    await expect(named).toBeVisible({ timeout: 1000 })
+    await expect(named).toBeVisible({ timeout: 3000 })
   }).toPass()
   await setTitle(page, firstPage)
 }

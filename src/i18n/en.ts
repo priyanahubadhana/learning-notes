@@ -899,6 +899,8 @@ export const en = {
     'Tags are matched by name; their colours come along when the tag is new here. Journal days arrive as a notebook called “Journal (imported)”, templates as new templates.',
   'nav.openMenu': 'Open menu',
   'nav.closeMenu': 'Close menu',
+  'update.ready': 'A new version is ready.',
+  'update.now': 'Update',
   'backup.reminder.label': 'Backup reminder',
   'backup.reminder.text':
     'You have not saved a backup file for a week. Your notes live only in this browser.',

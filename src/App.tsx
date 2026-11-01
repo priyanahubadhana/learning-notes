@@ -12,6 +12,7 @@ import { applyTheme } from './app/theme'
 import { ThemeContext } from './app/themeContext'
 import type { ToastAction } from './app/appUi'
 import { Toast, ChoiceDialog, MenuIcon } from './app/ui'
+import { onUpdateOffer } from './app/updates'
 import { TOAST_AFTER_HOLD_MS, toastDuration } from './app/toastTiming'
 import { isStringOrNull } from './app/uiPrefs'
 import { usePref } from './app/usePref'
@@ -460,6 +461,24 @@ function App() {
       )
     },
   }
+
+  // A new version is ready: it starts only when the user says so. Unsaved
+  // text is safe, because the editor keeps it when the page reloads.
+  const showToast = appUi.toast
+  const showToastRef = useRef(showToast)
+  useEffect(() => {
+    showToastRef.current = showToast
+  })
+  useEffect(
+    () =>
+      onUpdateOffer((apply) =>
+        showToastRef.current(t('update.ready'), {
+          label: t('update.now'),
+          onSelect: apply,
+        }),
+      ),
+    [],
+  )
 
   // A saved search opened from an address: read its query.
   useEffect(() => {

@@ -67,4 +67,6 @@ export const es7: Record<string, string> = {
   'template.meeting': 'Notas de reunión',
   'template.reading': 'Notas de lectura',
   'template.project': 'Plan de proyecto',
+  'update.ready': 'Hay una versión nueva lista.',
+  'update.now': 'Actualizar',
 }

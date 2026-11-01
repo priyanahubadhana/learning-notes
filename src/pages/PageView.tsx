@@ -396,13 +396,21 @@ function TitleInput({
     if (!focused) setTitle(savedTitle)
   }
 
-  // Save any pending change when the page closes.
-  useEffect(
-    () => () => {
-      void saver.flush()
-    },
-    [saver],
-  )
+  // Save any pending change when the page closes or the app leaves the
+  // screen (an iPad may stop a hidden app without warning).
+  useEffect(() => {
+    const flush = () => void saver.flush()
+    const onVisibility = () => {
+      if (document.visibilityState === 'hidden') flush()
+    }
+    document.addEventListener('visibilitychange', onVisibility)
+    window.addEventListener('pagehide', flush)
+    return () => {
+      document.removeEventListener('visibilitychange', onVisibility)
+      window.removeEventListener('pagehide', flush)
+      flush()
+    }
+  }, [saver])
 
   // Grow the textarea to fit long titles.
   useLayoutEffect(() => {

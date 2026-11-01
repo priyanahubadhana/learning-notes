@@ -65,4 +65,6 @@ export const hi7: Record<string, string> = {
   'template.meeting': 'बैठक के नोट',
   'template.reading': 'पठन नोट',
   'template.project': 'परियोजना योजना',
+  'update.ready': 'नया संस्करण तैयार है।',
+  'update.now': 'अपडेट करें',
 }

@@ -1444,3 +1444,72 @@ Picked by Claude without asking (owner, 2026-10-27: pick the safest option and l
 - **What:** Gallery tiles can be moved: drag with a mouse or pen, hold for 0.4 s with a finger, or press Alt + arrow keys on a tile; the new place is kept (placeRow). A sorted view first asks to remove the sort. Tiles ignore the click that ends a drag. Pure helpers dropPlace/stepPlace are unit-tested. Hindi and Spanish texts (item 5).
 - **Why:** Owner feedback from the 5A/5B re-check.
 - **Files:** src/databases/views/GalleryView.tsx, galleryTiles.ts (+test), src/i18n/en.ts, es4.ts, hi4.ts, e2e/databases.spec.ts, CHANGELOG.md
+
+# Phases 7–8
+
+## Phases 7–8 — Changelog
+
+### 2026-11-01
+
+- **What:** Phase 7: private GitHub backup; new docs system (INDEX, HANDOFF, active CHANGELOG and DECISIONS, ARCHIVE, ROADMAP, CODE-MAP, LIMITATIONS, feature specs); README shortened; IDEAS padding removed; rules updated.
+- **Why:** Save tokens, recover safely, keep rules current.
+- **Files:** docs/, rules/, CLAUDE.md, README.md, .claude/commands/next.md, .prettierignore, src/help/helpRegistry.test.ts
+
+### 2026-11-01
+
+- **What:** CI on GitHub (Chrome required, WebKit as a warning); safe-action permissions; `check:links` blocks new direct feature links; fixed phone-drawer timing in the e2e helper; automatic retry turned off.
+- **Why:** So a red CI is a real alarm.
+- **Files:** .github/workflows/ci.yml, .claude/settings.json, scripts/, e2e/helpers.ts, playwright.config.ts, package.json
+
+### 2026-11-01
+
+- **What:** Feature specs for every feature; fixed the template-duplicate check (a broken pattern treated runs of the letter s as spaces); CI given read-only access; phase closed.
+- **Why:** Finish Phase 7; the specs found the bug.
+- **Files:** docs/features/, src/share/importBundle.ts, src/core/upgradeBackup.ts, .github/workflows/ci.yml, docs/
+
+### 2026-11-01 (phone menu)
+
+- **What:** The phone menu now closes when you choose the screen already open, and has a three-line close button at its top. Removed the old Phase 5 words from rules/sessions.md (owner OK).
+- **Why:** Owner request before Phase 8; the menu only closed when the screen changed, so it stayed over the page.
+- **Files:** src/App.tsx, src/app/ui.tsx, src/notebooks/Sidebar.tsx, e2e/phoneSidebar.spec.ts, docs/features/navigation.md, rules/sessions.md
+
+### 2026-11-01 (Phase 8)
+
+- **What:** Deep research report written and its deciding facts checked twice. No app code changed.
+- **Why:** Sync must be chosen on evidence before it is built.
+- **Files:** docs/RESEARCH.md, docs/INDEX.md, docs/ROADMAP.md, docs/DECISIONS.md, docs/LIMITATIONS.md, docs/LEARNING.md, docs/HANDOFF.md
+
+### 2026-11-01 (Phase 8 closed)
+
+- **What:** Owner approved the sync choice and the iPad sign-in test; roadmap updated; Phases 7–8 archived.
+- **Why:** Close Phase 8.
+- **Files:** docs/ROADMAP.md, docs/ARCHIVE.md, docs/CHANGELOG.md, docs/DECISIONS.md, docs/HANDOFF.md
+
+## Phases 7–8 — Decisions
+
+### Phase 7 decisions
+
+| Date       | Decision                                                                                                                                         |
+| ---------- | ------------------------------------------------------------------------------------------------------------------------------------------------ |
+| 2026-11-01 | Roadmap order: Cleanup + CI, Research, Hosting, Sync, then the rest (owner)                                                                      |
+| 2026-11-01 | All questions at once per phase (owner); replaces the old "one at a time"                                                                        |
+| 2026-11-01 | Item 7 closed as is: "Save file" stays in its own box (owner)                                                                                    |
+| 2026-11-01 | Code move to `tools/` waits for tool 2 or cross-platform work, whichever comes first; new code adds no new direct links between features (owner) |
+| 2026-11-01 | Tests: that feature's tests each sub-step; full unit tests if data, security or shared code changed; full suite before every push (owner)        |
+| 2026-11-01 | Feature specs for all existing features now (owner)                                                                                              |
+| 2026-11-01 | Claude Code runs the deep research (owner)                                                                                                       |
+| 2026-11-01 | Hosting may start fresh: current data is mostly test data (owner)                                                                                |
+
+| 2026-11-01 | CI: Chrome tests must pass on each push; WebKit runs weekly as a warning (about 30 minutes) until the Phase 9 iPad work |
+| 2026-11-01 | Each browser test may retry once and is then reported as flaky; failing twice blocks a push |
+
+### Phase 8 decisions
+
+| Date       | Decision                                                                                    |
+| ---------- | ------------------------------------------------------------------------------------------- |
+| 2026-11-01 | Research compares 3–4 options, not only Supabase (owner)                                    |
+| 2026-11-01 | Plan for several GB, start small, keep moving to a paid plan or another vendor easy (owner) |
+| 2026-11-01 | Budget stays ₹0; accept limits rather than pay (owner)                                      |
+| 2026-11-01 | Thorough research (owner)                                                                   |
+| 2026-11-01 | Sync choice approved: notes on Supabase Free; pictures, backups and spare key in a visible Google Drive folder; PC keeps a third copy; two swappable connectors (owner) |
+| 2026-11-01 | Throwaway Google sign-in test on the real iPad at the end of Phase 9 (owner) |

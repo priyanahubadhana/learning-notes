@@ -2,30 +2,9 @@
 
 Current phase only. Older decisions are in [ARCHIVE.md](ARCHIVE.md).
 
-## Phase 7 decisions
+## Phase 9 decisions
 
-| Date       | Decision                                                                                                                                         |
-| ---------- | ------------------------------------------------------------------------------------------------------------------------------------------------ |
-| 2026-11-01 | Roadmap order: Cleanup + CI, Research, Hosting, Sync, then the rest (owner)                                                                      |
-| 2026-11-01 | All questions at once per phase (owner); replaces the old "one at a time"                                                                        |
-| 2026-11-01 | Item 7 closed as is: "Save file" stays in its own box (owner)                                                                                    |
-| 2026-11-01 | Code move to `tools/` waits for tool 2 or cross-platform work, whichever comes first; new code adds no new direct links between features (owner) |
-| 2026-11-01 | Tests: that feature's tests each sub-step; full unit tests if data, security or shared code changed; full suite before every push (owner)        |
-| 2026-11-01 | Feature specs for all existing features now (owner)                                                                                              |
-| 2026-11-01 | Claude Code runs the deep research (owner)                                                                                                       |
-| 2026-11-01 | Hosting may start fresh: current data is mostly test data (owner)                                                                                |
-
-| 2026-11-01 | CI: Chrome tests must pass on each push; WebKit runs weekly as a warning (about 30 minutes) until the Phase 9 iPad work |
-| 2026-11-01 | Each browser test may retry once and is then reported as flaky; failing twice blocks a push |
-
-## Phase 8 decisions
-
-| Date       | Decision                                                                                    |
-| ---------- | ------------------------------------------------------------------------------------------- |
-| 2026-11-01 | Research compares 3–4 options, not only Supabase (owner)                                    |
-| 2026-11-01 | Plan for several GB, start small, keep moving to a paid plan or another vendor easy (owner) |
-| 2026-11-01 | Budget stays ₹0; accept limits rather than pay (owner)                                      |
-| 2026-11-01 | Thorough research (owner)                                                                   |
+None yet.
 
 ## Decisions to review
 

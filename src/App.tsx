@@ -803,24 +803,22 @@ function App() {
               className="fixed inset-0 z-30 hidden bg-black/30 phone:block"
             />
           )}
-          {!reviewScope && (
-            <button
-              type="button"
-              aria-label={t('nav.openMenu')}
-              aria-controls="sidebar"
-              aria-expanded={drawerOpen}
-              onClick={() => setDrawerAt(routeHash)}
-              // Above the full-screen phone screens, below the open drawer;
-              // kept clear of the browser bar and the screen's rounded corners.
-              style={{
-                top: 'max(8px, env(safe-area-inset-top))',
-                left: 'max(8px, env(safe-area-inset-left))',
-              }}
-              className="fixed z-[35] hidden size-11 items-center justify-center rounded-lg border border-line bg-bg text-ink shadow-[0_1px_4px_rgba(0,0,0,0.18)] phone:flex"
-            >
-              <MenuIcon />
-            </button>
-          )}
+          <button
+            type="button"
+            aria-label={t('nav.openMenu')}
+            aria-controls="sidebar"
+            aria-expanded={drawerOpen}
+            onClick={() => setDrawerAt(routeHash)}
+            // Above the full-screen phone screens, below the open drawer;
+            // kept clear of the browser bar and the screen's rounded corners.
+            style={{
+              top: 'max(8px, env(safe-area-inset-top))',
+              left: 'max(8px, env(safe-area-inset-left))',
+            }}
+            className="fixed z-[35] hidden size-11 items-center justify-center rounded-lg border border-line bg-bg text-ink shadow-[0_1px_4px_rgba(0,0,0,0.18)] phone:flex"
+          >
+            <MenuIcon />
+          </button>
           <main className="flex-1 overflow-auto">
             <Suspense fallback={null}>
               {showSettings ? (
@@ -834,6 +832,7 @@ function App() {
                   key={JSON.stringify(reviewScope)}
                   db={db}
                   scope={reviewScope}
+                  keysPaused={drawerOpen}
                   onScopeChange={setReviewScope}
                   onOpenNote={(pageId, blockId) => {
                     openPage(pageId)
@@ -974,6 +973,10 @@ function App() {
           <SearchPopup
             db={db}
             onClose={() => setSearchPopup(false)}
+            onOpenMenu={() => {
+              setSearchPopup(false)
+              setDrawerAt(routeHash)
+            }}
             onOpenHit={(hit) => {
               setSearchPopup(false)
               runTask(openHit(hit))

@@ -40,6 +40,8 @@ import { RATINGS } from './scheduler'
 interface ReviewScreenProps {
   db: LearningNotesDB
   scope: ReviewScope
+  /** True while the phone menu covers this screen: keys are for the menu. */
+  keysPaused: boolean
   onScopeChange: (scope: ReviewScope) => void
   /** Opens the card's page and scrolls to the card. */
   onOpenNote: (pageId: string, blockId: string) => void
@@ -49,6 +51,7 @@ interface ReviewScreenProps {
 export function ReviewScreen({
   db,
   scope,
+  keysPaused,
   onScopeChange,
   onOpenNote,
   onClose,
@@ -172,7 +175,7 @@ export function ReviewScreen({
   const onKey = useRef<(e: KeyboardEvent) => void>(() => {})
   useEffect(() => {
     onKey.current = (e) => {
-      if (e.ctrlKey || e.metaKey || e.altKey) return
+      if (keysPaused || e.ctrlKey || e.metaKey || e.altKey) return
       const target = e.target as HTMLElement
       if (target.closest('input, textarea, [contenteditable="true"]')) return
       if (e.key === 'Escape') {
@@ -219,12 +222,15 @@ export function ReviewScreen({
       aria-label={title}
       className="flex h-full flex-col bg-bg text-ink phone:fixed phone:inset-0 phone:z-30"
     >
-      <header className="flex flex-wrap items-center gap-x-3 gap-y-2 border-b border-line px-4 py-2.5">
+      <header className="flex flex-wrap items-center gap-x-3 gap-y-2 border-b border-line px-4 py-2.5 phone:ps-16">
         <h1 className="min-w-0 flex-1 truncate text-base font-semibold">
           {title}
         </h1>
         {(scope.kind === 'all' || scope.kind === 'wrong') && (
-          <Tip id="review.scope">
+          <Tip
+            id="review.scope"
+            className="inline-flex items-center gap-0.5 phone:order-last"
+          >
             <div
               role="group"
               aria-label={t('review.scope')}

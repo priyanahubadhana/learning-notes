@@ -1,5 +1,10 @@
 import { expect, test } from '@playwright/test'
-import { sidebar } from './helpers.ts'
+import {
+  createNotebook,
+  makeCard,
+  openSearchPopup,
+  sidebar,
+} from './helpers.ts'
 
 test.describe('phone', () => {
   test.use({ viewport: { width: 390, height: 844 }, hasTouch: true })
@@ -87,6 +92,49 @@ test.describe('phone', () => {
     }
     await menu.click()
     await expect(page.locator('aside')).toBeVisible()
+  })
+
+  test('Review has the menu, and keys wait while it is open', async ({
+    page,
+  }) => {
+    await page.setViewportSize({ width: 1280, height: 800 }) // to make the card
+    await page.goto('/')
+    await createNotebook(page, 'Biology', 'Cells')
+    await makeCard(page, 'What is a cell?', 1)
+    await page.reload() // the card is due
+    await page.setViewportSize({ width: 390, height: 844 })
+
+    const menu = page.getByRole('button', { name: 'Open menu' })
+    await menu.click()
+    await sidebar(page)
+      .getByRole('button', { name: /^Review(?! this)/ })
+      .click()
+    const answer = page.getByRole('button', { name: 'Show answer' })
+    await expect(answer).toBeVisible()
+
+    // The button does not sit on the title.
+    const title = page.getByRole('heading', { name: 'Review', level: 1 })
+    const buttonBox = (await menu.boundingBox())!
+    const titleBox = (await title.boundingBox())!
+    expect(titleBox.x).toBeGreaterThanOrEqual(buttonBox.x + buttonBox.width)
+
+    await menu.click()
+    await expect(sidebar(page)).toBeVisible()
+    await page.keyboard.press('Space')
+    await page.keyboard.press('Escape')
+    await expect(sidebar(page)).toBeHidden()
+    await expect(title).toBeVisible()
+    await expect(answer).toBeVisible()
+  })
+
+  test('the full-screen search popup has the menu too', async ({ page }) => {
+    await page.goto('/')
+    await page.getByRole('button', { name: 'Create notebook' }).click()
+    const popup = await openSearchPopup(page)
+    await expect(popup.getByRole('combobox')).toBeFocused()
+    await popup.getByRole('button', { name: 'Open menu' }).click()
+    await expect(popup).toBeHidden()
+    await expect(sidebar(page)).toBeVisible()
   })
 
   test('a page takes the whole width', async ({ page }) => {

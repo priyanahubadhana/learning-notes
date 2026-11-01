@@ -11,7 +11,7 @@ Every screen has an address (the part after `#`), so refresh, Back, Forward and 
 - `src/app/router.ts`: `routeToHash` and `parseHash` convert between a `Route` and the hash. Routes: home, page, notebook, database, databases, cards, data, settings, search (saved id or a JSON query), review (all, wrong, notebook, page with optional `?sub=1`, custom).
 - A notebook, database or settings route can carry up to 3 own levels (`parts`: tab, view, Revise lesson, category). `pushRouteParts` adds a history entry for a level; if the address had no level yet, it first writes the current one into the entry being left so Back returns to it. `useRouteParts` follows the address.
 - `src/App.tsx`: the route is built from the screen state. A new screen calls `history.pushState`; the first write and the fix-up for a missing page use `replaceState`. On `popstate`, `applyRoute` shows the screen of the address, unless only the levels changed (`baseHash` equal), which those screens handle themselves.
-- Phone menu: it closes on any choice in it (also the screen already open), on another screen, Esc, a tap outside, or its three-line button, which sits where the opening button was.
+- Phone menu: it closes on any choice in it (also the screen already open), on another screen, Esc, a tap outside, or its three-line button, which sits where the opening button was. Review and the full-screen search popup have the opening button too; while the menu covers Review, keys don't reach the card.
 - `useDiscardGuard.tsx` is separate: a click outside a dialog closes it only if nothing was changed, otherwise asks "Discard your changes?".
 
 ## Edge cases

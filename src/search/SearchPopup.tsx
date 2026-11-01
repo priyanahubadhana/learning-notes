@@ -1,5 +1,6 @@
 import { useLiveQuery } from 'dexie-react-hooks'
 import { useEffect, useId, useRef, useState } from 'react'
+import { MenuIcon } from '../app/ui'
 import type { LearningNotesDB } from '../core/db'
 import { t } from '../i18n/t'
 import { readRecentPages } from './recentPages'
@@ -28,12 +29,15 @@ const PER_GROUP_ONE = 8
 export function SearchPopup({
   db,
   onClose,
+  onOpenMenu,
   onOpenHit,
   onOpenPage,
   onSeeAll,
 }: {
   db: LearningNotesDB
   onClose: () => void
+  /** Phones only: this popup fills the screen and covers the menu button. */
+  onOpenMenu: () => void
   onOpenHit: (hit: SearchHit) => void
   onOpenPage: (pageId: string) => void
   onSeeAll: (query: SearchQuery) => void
@@ -49,6 +53,7 @@ export function SearchPopup({
 
   useEffect(() => {
     ref.current?.showModal()
+    inputRef.current?.focus() // showModal picks the first button on phones
   }, [])
 
   const recent = useLiveQuery(async () => {
@@ -117,7 +122,15 @@ export function SearchPopup({
       }}
       className="mx-auto mt-[10vh] flex max-h-[72vh] w-[min(620px,calc(100vw-32px))] flex-col overflow-hidden rounded-[14px] border border-line bg-bg p-0 text-ink shadow-[0_12px_40px_rgba(0,0,0,0.16)] backdrop:bg-black/25 phone:m-0 phone:h-full phone:max-h-none phone:w-full phone:max-w-none phone:rounded-none phone:border-0"
     >
-      <div className="flex items-center gap-2.5 border-b border-line px-3.5 py-3">
+      <div className="flex items-center gap-2.5 border-b border-line px-3.5 py-3 phone:ps-2">
+        <button
+          type="button"
+          onClick={onOpenMenu}
+          aria-label={t('nav.openMenu')}
+          className="hidden size-11 shrink-0 items-center justify-center rounded-lg border border-line text-ink phone:flex"
+        >
+          <MenuIcon />
+        </button>
         <span aria-hidden className="text-muted">
           🔍
         </span>

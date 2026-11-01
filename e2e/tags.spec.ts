@@ -96,7 +96,10 @@ for (const [theme, width, height] of [
       await pageTags(page).getByRole('button', { name: '+ Add tag' }).click()
       await page.keyboard.type(name)
       await expect(
-        page.getByRole('dialog', { name: 'Add a tag' }).getByRole('option'),
+        page
+          .getByRole('dialog', { name: 'Add a tag' })
+          .getByRole('option')
+          .first(),
       ).toContainText(name)
       await page.keyboard.press('Enter')
     }

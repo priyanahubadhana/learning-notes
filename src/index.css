@@ -8,7 +8,7 @@
 }
 
 /*
- * Design tokens (from prototype.html). Tailwind turns these into classes
+ * Design tokens (from docs/prototypes/prototype.html). Tailwind turns these into classes
  * such as bg-side, text-muted, border-line. Themes (step 6b) override them.
  */
 @theme {

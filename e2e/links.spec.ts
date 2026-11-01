@@ -98,11 +98,14 @@ test('Esc leaves "[[" as text; "/ Link to page" opens the picker too', async ({
 
   // Keyboard: Ctrl+Enter next to a link opens it.
   await page.keyboard.press('ArrowLeft') // before the space after the link
-  await page.waitForTimeout(100) // the editor reads the moved cursor
-  await page.keyboard.press('ControlOrMeta+Enter')
-  await expect(page.getByRole('textbox', { name: 'Page title' })).toHaveValue(
-    'Heart sounds',
-  )
+  // The editor may still be reading the moved cursor, so try again.
+  await expect(async () => {
+    await page.keyboard.press('ControlOrMeta+Enter')
+    await expect(page.getByRole('textbox', { name: 'Page title' })).toHaveValue(
+      'Heart sounds',
+      { timeout: 1000 },
+    )
+  }).toPass()
 })
 
 test('a link to a page in the Trash offers Restore', async ({ page }) => {

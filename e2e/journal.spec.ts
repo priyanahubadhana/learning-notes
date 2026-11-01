@@ -21,9 +21,7 @@ test('Today creates the day page from the Daily journal template, under its mont
     page.getByRole('navigation', { name: 'Breadcrumb' }),
   ).toContainText('Journal/October 2026/')
   await expect(page.locator('.bn-editor')).toContainText('Today I learned')
-  await expect(
-    page.getByText('Today’s journal', { exact: false }),
-  ).toBeVisible()
+  await expect(page.getByText('Today’s journal', { exact: true })).toBeVisible()
 
   // Opening today again goes to the same page.
   await sidebar(page).getByRole('button', { name: 'Study notes' }).click()

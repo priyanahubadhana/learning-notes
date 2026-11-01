@@ -18,12 +18,15 @@
 - Service layer as extension points for sync, AI and semantic search.
 - Scalability is a core goal: design so the app could grow to many users like Notion.
 - Runs on localhost now; must be deployable to hosting later without rewrites.
+- BlockNote's data format is known only by `editor/mapping.ts`. While a page is open, data flows editor → database only.
+- Blocks the editor can't show are hidden, never deleted. `reviewLogs` are append-only. Links and tags store ids, never names.
+- New code adds no new direct links between features; shared things go through shared code (see docs/CODE-MAP.md). A change to shared code runs the full tests.
 
 ## Coding Conventions
 
 - TypeScript strict mode; no `any` unless justified.
 - Prettier formatting.
-- Folders grouped by feature (e.g. `core/`, `notebooks/`, `pages/`, `editor/`, `blocks/`, `trash/`, `journal/`, `templates/`, `app/`; see README "Project Structure").
+- Folders grouped by feature (e.g. `core/`, `notebooks/`, `pages/`, `editor/`, `blocks/`, `trash/`, `journal/`, `templates/`, `app/`; see docs/CODE-MAP.md).
 - Clear, commented, production-quality code.
-- No hard-coded user-facing text (from Phase 3): use `t("key")` backed by one English strings file; dates/numbers via `Intl`. Phase 1–2 text is converted later (see IDEAS.md).
+- No hard-coded user-facing text (from Phase 3): use `t("key")` backed by one English strings file; dates/numbers via `Intl`. Phase 1–2 text is converted later (see docs/IDEAS.md).
 - New screens are responsive and touch-friendly (large tap targets, no hover-only actions).

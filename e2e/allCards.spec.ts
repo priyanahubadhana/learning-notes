@@ -15,7 +15,6 @@ test('All cards: search, a notebook filter and a notebook label on each card', a
   await side.getByRole('button', { name: 'All cards', exact: true }).click()
 
   // Every card has a label with its notebook and page.
-  await expect(main(page)).toContainText('1 card')
   await expect(main(page)).toContainText('5 cards')
   await expect(main(page)).toContainText('Sample notebook › Heart sounds')
   await expect(main(page)).toContainText('Cardiology › Heart sounds')

@@ -5,7 +5,8 @@
 - For each decision: explain the options simply, with pros/cons and a recommendation, and invite the owner's own ideas. Challenge ideas when there is a better way.
 - Think ahead through every step of the phase: data, screens, rules and edge cases, so building rarely needs the owner.
 - Mockup first: before any new screen or major piece, offer a quick clickable prototype (e.g. a Claude artifact) so the owner can see and test the look and flow. Build the real version only after approval.
-- Check IDEAS.md before each phase.
+- Check docs/IDEAS.md before each phase.
+- Each new feature gets a spec in docs/features/, using `_TEMPLATE.md`.
 - Give each phase a Definition of Done.
 - Write each step clearly enough for Sonnet to build it: files to touch, data shapes, rules, tests.
 - End planning with ONE checklist of decisions for the owner to approve once.

@@ -14,8 +14,11 @@ test.describe('phone', () => {
 
     await page.getByRole('button', { name: 'Open menu' }).click()
     await expect(sidebar(page)).toBeVisible()
+    // The drawer slides in, so wait for it to arrive.
+    await expect
+      .poll(async () => (await sidebar(page).boundingBox())!.x)
+      .toBeGreaterThanOrEqual(0)
     const box = await sidebar(page).boundingBox()
-    expect(box!.x).toBeGreaterThanOrEqual(0)
     expect(box!.width).toBeLessThanOrEqual(300)
 
     // Esc and the backdrop close it.

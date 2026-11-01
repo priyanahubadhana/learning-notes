@@ -6,6 +6,23 @@ import type { ChoiceRequest, ToastAction } from './appUi'
 
 /** Small UI building blocks shared across features. */
 
+/** The three lines of the phone menu button. */
+export function MenuIcon() {
+  return (
+    <svg
+      aria-hidden
+      viewBox="0 0 24 24"
+      className="size-5"
+      fill="none"
+      stroke="currentColor"
+      strokeWidth="2"
+      strokeLinecap="round"
+    >
+      <path d="M4 7h16M4 12h16M4 17h16" />
+    </svg>
+  )
+}
+
 /**
  * Quiet icon button (sidebar row actions, labels). `title` names it; with
  * `tip` it becomes the accessible name and the help tip explains it

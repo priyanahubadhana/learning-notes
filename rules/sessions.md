@@ -1,6 +1,6 @@
 # Sessions (chats)
 
-- **Way of working (owner, 2026-10-27):** plan a phase together, then build the whole phase without stopping; the owner checks in at the end of each phase (Phase 5: at the end of 5A and of 5B, as planned).
+- **Way of working (owner, 2026-10-27):** plan a phase together, then build the whole phase without stopping; the owner checks in at the end of each phase.
 - Keep going from step to step in the same chat; don't stop between steps or ask the owner to `/clear` + `/next`. `/next` is for when the owner opens a new chat.
 - Big steps: no need to ask over ~150k tokens; split the step into parts yourself and carry on.
 - Auto-compact stays on: when the chat gets long, Claude Code compacts it by itself and work carries on. Don't ask the owner to type `/compact`.

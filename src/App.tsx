@@ -11,7 +11,7 @@ import { baseHash, parseHash, routeToHash, type Route } from './app/router'
 import { applyTheme } from './app/theme'
 import { ThemeContext } from './app/themeContext'
 import type { ToastAction } from './app/appUi'
-import { Toast, ChoiceDialog } from './app/ui'
+import { Toast, ChoiceDialog, MenuIcon } from './app/ui'
 import { TOAST_AFTER_HOLD_MS, toastDuration } from './app/toastTiming'
 import { isStringOrNull } from './app/uiPrefs'
 import { usePref } from './app/usePref'
@@ -405,6 +405,11 @@ function App() {
   // screen it was opened on, so any move to another screen closes it.
   const [drawerAt, setDrawerAt] = useState<string | null>(null)
   const drawerOpen = drawerAt === routeHash
+  // Choosing the screen already open moves nowhere, so choices close it too.
+  const choose = (run: () => void) => {
+    setDrawerAt(null)
+    run()
+  }
   useEffect(() => {
     if (!drawerOpen) return
     const onKey = (e: KeyboardEvent) => {
@@ -617,37 +622,44 @@ function App() {
             onThemeChange={setTheme}
             renamingNotebookId={renamingNotebookId}
             onRenamingChange={setRenamingNotebookId}
-            onOpenPage={openPage}
+            onOpenPage={(id) => choose(() => openPage(id))}
             drawerOpen={drawerOpen}
+            onCloseDrawer={() => setDrawerAt(null)}
             openNotebookId={openNotebookRecord?.id ?? null}
-            onOpenNotebook={openNotebook}
-            onOpenToday={() => runTask(openToday())}
+            onOpenNotebook={(id) => choose(() => openNotebook(id))}
+            onOpenToday={() => choose(() => runTask(openToday()))}
             onCreateNotebook={() => runTask(createNotebookAndOpen())}
             onCreatePage={(notebookId, parentId, templateId) =>
               runTask(createPageIn(notebookId, parentId, true, templateId))
             }
             onCreateTemplate={() => runTask(newTemplate())}
             settingsOpen={showSettings}
-            onOpenSettings={() => openSettings()}
+            onOpenSettings={() => choose(() => openSettings())}
             reviewOpen={
               reviewScope?.kind === 'all' || reviewScope?.kind === 'wrong'
             }
-            onOpenReview={openReview}
-            onOpenAllCards={() => {
-              openPage(null)
-              setHub({ kind: 'cards' })
-            }}
+            onOpenReview={(scope) => choose(() => openReview(scope))}
+            onOpenAllCards={() =>
+              choose(() => {
+                openPage(null)
+                setHub({ kind: 'cards' })
+              })
+            }
             allCardsOpen={
               hub?.kind === 'cards' && !showSettings && !reviewScope
             }
-            onOpenAllDatabases={() => {
-              openPage(null)
-              setHub({ kind: 'databases' })
-            }}
-            onOpenData={() => {
-              openPage(null)
-              setHub({ kind: 'data' })
-            }}
+            onOpenAllDatabases={() =>
+              choose(() => {
+                openPage(null)
+                setHub({ kind: 'databases' })
+              })
+            }
+            onOpenData={() =>
+              choose(() => {
+                openPage(null)
+                setHub({ kind: 'data' })
+              })
+            }
             dataOpen={hub?.kind === 'data' && !showSettings && !reviewScope}
             allDatabasesOpen={
               (hub?.kind === 'databases' || hub?.kind === 'database') &&
@@ -657,17 +669,19 @@ function App() {
             searchOpen={
               !!search && !search.savedId && !showSettings && !reviewScope
             }
-            onOpenSearch={() => setSearchPopup(true)}
+            onOpenSearch={() => choose(() => setSearchPopup(true))}
             savedSearchId={
               search && !showSettings && !reviewScope
                 ? (search.savedId ?? null)
                 : null
             }
             onOpenSavedSearch={(saved) =>
-              openSearch(readSavedQuery(saved.query), saved.id)
+              choose(() => openSearch(readSavedQuery(saved.query), saved.id))
             }
-            onReviewSavedSearch={(saved) => runTask(reviewSavedSearch(saved))}
-            onOpenTag={openTag}
+            onReviewSavedSearch={(saved) =>
+              choose(() => runTask(reviewSavedSearch(saved)))
+            }
+            onOpenTag={(tagId) => choose(() => openTag(tagId))}
             onNotesRewritten={(pageIds) => {
               // The open page's editor still shows the old tags: reload it.
               if (currentPage && pageIds.includes(currentPage.id)) {
@@ -676,9 +690,12 @@ function App() {
             }}
           />
           {drawerOpen && (
+            // A second way to close for fingers; the sidebar's button is the
+            // one for keyboards and screen readers.
             <button
               type="button"
-              aria-label={t('nav.closeMenu')}
+              aria-hidden
+              tabIndex={-1}
               onClick={() => setDrawerAt(null)}
               className="fixed inset-0 z-30 hidden bg-black/30 phone:block"
             />
@@ -698,17 +715,7 @@ function App() {
               }}
               className="fixed z-[35] hidden size-11 items-center justify-center rounded-lg border border-line bg-bg text-ink shadow-[0_1px_4px_rgba(0,0,0,0.18)] phone:flex"
             >
-              <svg
-                aria-hidden
-                viewBox="0 0 24 24"
-                className="size-5"
-                fill="none"
-                stroke="currentColor"
-                strokeWidth="2"
-                strokeLinecap="round"
-              >
-                <path d="M4 7h16M4 12h16M4 17h16" />
-              </svg>
+              <MenuIcon />
             </button>
           )}
           <main className="flex-1 overflow-auto">

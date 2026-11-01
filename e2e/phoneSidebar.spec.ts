@@ -25,9 +25,12 @@ test.describe('phone', () => {
     await page.keyboard.press('Escape')
     await expect(sidebar(page)).toBeHidden()
     await page.getByRole('button', { name: 'Open menu' }).click()
-    await page.getByRole('button', { name: 'Close menu' }).click({
-      position: { x: 370, y: 400 },
-    })
+    await page.mouse.click(370, 400)
+    await expect(sidebar(page)).toBeHidden()
+
+    // So does the three-line button at the top of the menu.
+    await page.getByRole('button', { name: 'Open menu' }).click()
+    await page.getByRole('button', { name: 'Close menu' }).click()
     await expect(sidebar(page)).toBeHidden()
 
     // Choosing something closes it.
@@ -37,6 +40,23 @@ test.describe('phone', () => {
     await expect(
       page.getByRole('heading', { name: 'Settings', level: 1 }),
     ).toBeVisible()
+
+    // Choosing the screen already open closes it too.
+    await page.getByRole('button', { name: 'Open menu' }).click()
+    await sidebar(page).getByRole('button', { name: 'Settings' }).click()
+    await expect(sidebar(page)).toBeHidden()
+  })
+
+  test('the open page, chosen again, closes the menu', async ({ page }) => {
+    await page.goto('/')
+    await page.getByRole('button', { name: 'Create notebook' }).click()
+    await page.getByRole('button', { name: 'Open menu' }).click()
+    await sidebar(page).getByRole('button', { name: 'Databases' }).click()
+    await expect(sidebar(page)).toBeHidden()
+
+    await page.getByRole('button', { name: 'Open menu' }).click()
+    await sidebar(page).getByRole('button', { name: 'Databases' }).click()
+    await expect(sidebar(page)).toBeHidden()
   })
 
   test('on a narrow screen the menu button is in view and the page toolbar wraps', async ({

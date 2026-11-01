@@ -19,3 +19,9 @@ Current phase only. Older entries are in [ARCHIVE.md](ARCHIVE.md).
 - **What:** Feature specs for every feature; fixed the template-duplicate check (a broken pattern treated runs of the letter s as spaces); CI given read-only access; phase closed.
 - **Why:** Finish Phase 7; the specs found the bug.
 - **Files:** docs/features/, src/share/importBundle.ts, src/core/upgradeBackup.ts, .github/workflows/ci.yml, docs/
+
+## 2026-11-01 (phone menu)
+
+- **What:** The phone menu now closes when you choose the screen already open, and has a three-line close button at its top. Removed the old Phase 5 words from rules/sessions.md (owner OK).
+- **Why:** Owner request before Phase 8; the menu only closed when the screen changed, so it stayed over the page.
+- **Files:** src/App.tsx, src/app/ui.tsx, src/notebooks/Sidebar.tsx, e2e/phoneSidebar.spec.ts, docs/features/navigation.md, rules/sessions.md

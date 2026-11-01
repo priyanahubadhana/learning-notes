@@ -12,7 +12,13 @@ import { AppUiContext } from '../app/appUi'
 import { runTask } from '../app/errors'
 import { THEMES, type Theme } from '../app/theme'
 import { shortcutLabel } from '../app/keys'
-import { ConfirmDialog, IconButton, MenuPopover, RenameInput } from '../app/ui'
+import {
+  ConfirmDialog,
+  IconButton,
+  MenuIcon,
+  MenuPopover,
+  RenameInput,
+} from '../app/ui'
 import type { TreeState } from '../app/useTreeState'
 import type { LearningNotesDB } from '../core/db'
 import type { Notebook, Page, SavedSearch } from '../core/types'
@@ -41,6 +47,7 @@ interface SidebarProps {
   onOpenPage: (pageId: string | null) => void
   /** On a phone the sidebar slides in over the page; true while it is shown. */
   drawerOpen?: boolean
+  onCloseDrawer?: () => void
   /** The notebook whose tabs are open in the main area, if any. */
   openNotebookId: string | null
   onOpenNotebook: (notebookId: string) => void
@@ -110,6 +117,7 @@ export function Sidebar({
   onRenamingChange,
   onOpenPage,
   drawerOpen = false,
+  onCloseDrawer,
   openNotebookId,
   onOpenNotebook,
   onOpenToday,
@@ -229,8 +237,23 @@ export function Sidebar({
           : 'phone:invisible phone:-translate-x-full'
       }`}
     >
-      <div className="px-2.5 pt-1 pb-3.5 font-semibold tracking-[-0.01em]">
-        ◐ Learning Notes
+      <div className="flex items-center gap-1 pb-3.5 font-semibold tracking-[-0.01em] phone:-mt-1.5 phone:pb-2">
+        {drawerOpen && (
+          // Sits exactly where the button that opened the menu was.
+          <button
+            type="button"
+            aria-label={t('nav.closeMenu')}
+            aria-controls="sidebar"
+            aria-expanded
+            onClick={onCloseDrawer}
+            className="hidden size-11 shrink-0 items-center justify-center rounded-lg text-ink hover:bg-hover phone:flex"
+          >
+            <MenuIcon />
+          </button>
+        )}
+        <span className="px-2.5 pt-1 phone:px-1 phone:pt-0">
+          ◐ Learning Notes
+        </span>
       </div>
       <Tip id="sidebar.today" className="flex">
         <button

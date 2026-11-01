@@ -23,7 +23,7 @@ The app is hosted, can be installed like a normal app, opens with no internet, a
 - A failed read is never shown as an empty app.
 - The installed iPad app is not cleared by Safari's 7-day rule, but storage pressure can still remove data unless the browser protects it.
 
-- iPadOS 26 blurs the top of installed web apps unless a solid strip is fixed along the top edge. `.top-edge-band` in `index.html` is that strip: it paints nothing and lets taps through. Apple does not document this check, so a later iPadOS may change it (found in developer reports: github.com/coder/coder/pull/31027).
+- iPadOS 26 blurs about the top 70px of installed web apps, and nothing turns this off. In the installed iPad app the top bar and sidebar start 36px lower (`--top-clear` in `src/index.css`). An invisible solid strip along the top edge was tried first and did not help on the real iPad. Apple does not document this blur, so a later iPadOS may change it.
 
 ## Security check
 

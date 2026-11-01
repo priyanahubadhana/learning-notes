@@ -148,37 +148,27 @@ test('at iPad width the menu can be hidden too', async ({ page }) => {
   await expect(sidebar(page)).toBeHidden()
 })
 
-test('the strip that stops the iPad blur stays invisible and lets taps through', async ({
+test('on the iPad app the bar and menu start below the blur', async ({
   page,
 }) => {
   await page.goto('/')
-  await expect(page.getByRole('button', { name: 'Hide menu' })).toBeVisible()
-  const band = await page.locator('.top-edge-band').evaluate((el) => {
-    const style = getComputedStyle(el)
-    const box = el.getBoundingClientRect()
-    return {
-      top: box.top,
-      wide: box.width / window.innerWidth,
-      height: box.height,
-      position: style.position,
-      clip: style.backgroundClip,
-      pointer: style.pointerEvents,
-      colour: style.backgroundColor,
-      alpha: style.backgroundColor.startsWith('rgba'),
-    }
-  })
-  expect(band).toMatchObject({
-    top: 0,
-    wide: 1,
-    height: 12,
-    position: 'fixed',
-    clip: 'text',
-    pointer: 'none',
-    alpha: false,
-  })
-  // A tap at the very top still reaches what is under the strip.
-  const below = await page.evaluate(
-    () => document.elementFromPoint(100, 4)?.className,
+  const menu = page.getByRole('button', { name: 'Hide menu' })
+  await expect(menu).toBeVisible()
+  const before = (await menu.boundingBox())!.y
+  const brandBefore = (await sidebar(page)
+    .getByText('Learning Notes')
+    .boundingBox())!.y
+
+  // Browser tests can't be an installed iPad app, so set what its CSS sets.
+  await page.addStyleTag({ content: ':root { --top-clear: 36px }' })
+  await expect
+    .poll(async () => (await menu.boundingBox())!.y)
+    .toBeGreaterThanOrEqual(before + 30)
+  const brand = (await sidebar(page).getByText('Learning Notes').boundingBox())!
+    .y
+  expect(brand).toBe(brandBefore + 36)
+  const overflow = await page.evaluate(
+    () => document.documentElement.scrollHeight - window.innerHeight,
   )
-  expect(below).not.toContain('top-edge-band')
+  expect(overflow).toBeLessThanOrEqual(0)
 })

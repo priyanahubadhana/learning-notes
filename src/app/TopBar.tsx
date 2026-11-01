@@ -29,6 +29,7 @@ export function TopBar({
   return (
     <header
       style={{
+        paddingTop: 'var(--top-clear)',
         paddingLeft: 'max(8px, env(safe-area-inset-left))',
         paddingRight: 'max(8px, env(safe-area-inset-right))',
       }}

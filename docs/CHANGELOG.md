@@ -4,9 +4,9 @@ Current phase only. Older entries are in [ARCHIVE.md](ARCHIVE.md).
 
 ## 2026-11-01
 
-- **What:** An invisible strip along the top edge, to stop iPadOS 26 blurring the top bar of the installed app.
+- **What:** In the installed iPad app the top bar and sidebar start 36px lower, below the blur iPadOS 26 adds to the top edge. Replaces an invisible strip, which did not work on the real iPad.
 - **Why:** Owner saw the top bar blurred on every screen.
-- **Files:** index.html, src/index.css, e2e/topBar.spec.ts, docs/features/offline-and-install.md
+- **Files:** index.html, src/index.css, src/app/TopBar.tsx, src/notebooks/Sidebar.tsx, e2e/topBar.spec.ts, docs/features/offline-and-install.md
 
 - **What:** One top bar above every screen: three-line button that hides the menu on any screen size, ← → that grey out when there is nowhere to go, the page path, and a ⋯ menu that replaces the row of page buttons. New shortcuts Alt+R and Ctrl+\. Phone screens now sit under the bar.
 - **Why:** Owner could not hide the menu on the iPad and asked for Notion-style navigation. Sample approved 2026-11-01.

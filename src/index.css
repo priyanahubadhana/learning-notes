@@ -376,21 +376,19 @@ button.tag-chip:hover {
 }
 
 /*
- * iPadOS 26 blurs the top of installed web apps unless a solid strip is fixed
- * along the top edge: at least 90% wide, taller than 10px. This strip gives it
- * the colour it reads but paints nothing (background-clip: text with no text).
- * It is in index.html so it exists from the first frame, and on top of
- * everything so menus never hide it from that check.
+ * iPadOS 26 blurs about the top 70px of an installed web app and no setting
+ * turns it off (a solid strip along the top edge did not help on a real
+ * iPad), so there the top bar and sidebar start below the blur. Phones are
+ * left out: their blur ends above the bar. device-width is the size of the
+ * device, so an iPad in a narrow window still counts.
  */
-.top-edge-band {
-  position: fixed;
-  top: 0;
-  left: 0;
-  right: 0;
-  z-index: 2147483647;
-  height: 12px;
-  pointer-events: none;
-  background-color: var(--color-bg);
-  -webkit-background-clip: text;
-  background-clip: text;
+:root {
+  --top-clear: 0px;
+}
+@supports (-webkit-touch-callout: none) {
+  @media (display-mode: standalone) and (min-device-width: 600px) {
+    :root {
+      --top-clear: 36px;
+    }
+  }
 }

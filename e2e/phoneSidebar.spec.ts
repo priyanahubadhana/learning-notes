@@ -123,6 +123,9 @@ test.describe('phone', () => {
     expect(titleBox.y).toBeGreaterThanOrEqual(buttonBox.y + buttonBox.height)
     expect(closeBox.y).toBeLessThan(buttonBox.y + buttonBox.height)
     expect(closeBox.x + closeBox.width).toBeLessThanOrEqual(320)
+    const choice = page.getByRole('group', { name: 'Which cards' })
+    const choiceBox = (await choice.boundingBox())!
+    expect(choiceBox.x + choiceBox.width).toBeLessThanOrEqual(closeBox.x + 12)
     expect(await title.evaluate((el) => el.scrollWidth <= el.clientWidth)).toBe(
       true,
     )

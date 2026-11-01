@@ -222,9 +222,10 @@ export function ReviewScreen({
       aria-label={title}
       className="flex h-full flex-col bg-bg text-ink phone:fixed phone:inset-0 phone:z-30"
     >
-      <header className="flex flex-wrap items-center gap-x-3 gap-y-2 border-b border-line px-4 py-2.5 phone:gap-x-1 phone:ps-14">
-        {/* On phones: below the menu button, across the whole screen. */}
-        <div className="flex min-w-0 flex-1 items-center gap-3 phone:order-last phone:-ms-10 phone:basis-full">
+      <header className="flex flex-wrap items-center gap-x-3 gap-y-2 border-b border-line px-4 py-2.5 phone:grid phone:grid-cols-[minmax(0,1fr)_auto] phone:gap-x-1 phone:ps-14">
+        {/* On phones a grid, so the top line can never wrap: the title goes
+            below the menu button, across the whole screen. */}
+        <div className="flex min-w-0 flex-1 items-center gap-3 phone:col-span-2 phone:row-start-2 phone:-ms-10">
           <h1 className="min-w-0 flex-1 truncate text-base font-semibold">
             {title}
           </h1>
@@ -235,11 +236,14 @@ export function ReviewScreen({
           )}
         </div>
         {(scope.kind === 'all' || scope.kind === 'wrong') && (
-          <Tip id="review.scope">
+          <Tip
+            id="review.scope"
+            className="inline-flex min-w-0 items-center gap-0.5 phone:row-start-1"
+          >
             <div
               role="group"
               aria-label={t('review.scope')}
-              className="flex rounded-lg border border-line p-0.5 text-[13px]"
+              className="flex min-w-0 rounded-lg border border-line p-0.5 text-[13px]"
             >
               {(['all', 'wrong'] as const).map((kind) => (
                 <button
@@ -247,7 +251,7 @@ export function ReviewScreen({
                   type="button"
                   aria-pressed={scope.kind === kind}
                   onClick={() => onScopeChange({ kind })}
-                  className={`min-h-8 rounded-md px-2.5 whitespace-nowrap phone:px-1.5 ${
+                  className={`min-h-8 min-w-0 truncate rounded-md px-2.5 phone:px-1.5 ${
                     scope.kind === kind ? 'bg-soft font-medium' : 'text-muted'
                   }`}
                 >
@@ -260,7 +264,7 @@ export function ReviewScreen({
         <Tip
           id="review.close"
           touchInfo={false}
-          className="inline-flex items-center gap-0.5 phone:ms-auto phone:-me-3"
+          className="inline-flex items-center gap-0.5 phone:col-start-2 phone:row-start-1 phone:-me-3"
         >
           <button
             type="button"

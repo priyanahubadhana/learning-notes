@@ -4,4 +4,4 @@
 - **Next:** Owner creates Cloudflare account and adds two GitHub secrets; then confirm the live address, then step 7 (iPad).
 - **Open issues:** WebKit failures parked for Phase 9; 12 moderate warnings in developer tools only; order-key tie must be fixed before sync.
 - **Files touched:** vite.config.ts, src/App.tsx, src/main.tsx, public/, .github/workflows/ci.yml, playwright.config.ts.
-- **Warnings:** CI takes about 13 minutes, so push once per step.
+- **Warnings:** Browser tests run on the built app (`npm run test:e2e` builds first). CI takes about 10 minutes, so push once per step.

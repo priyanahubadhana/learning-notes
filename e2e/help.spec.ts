@@ -110,7 +110,6 @@ test.describe('touch', () => {
   test('on a phone the ⓘ opens a tip; tapping elsewhere closes it', async ({
     page,
   }) => {
-    await page.getByRole('button', { name: 'Page actions' }).first().isVisible()
     await page.getByRole('button', { name: 'What is this?' }).first().tap()
     const tip = page.getByRole('tooltip')
     await expect(tip).toBeVisible()

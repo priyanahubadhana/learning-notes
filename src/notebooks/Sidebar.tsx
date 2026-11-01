@@ -47,6 +47,8 @@ interface SidebarProps {
   onOpenPage: (pageId: string | null) => void
   /** On a phone the sidebar slides in over the page; true while it is shown. */
   drawerOpen?: boolean
+  /** The user hid the sidebar (not on phones, where it is a drawer). */
+  hidden?: boolean
   onCloseDrawer?: () => void
   /** The notebook whose tabs are open in the main area, if any. */
   openNotebookId: string | null
@@ -117,6 +119,7 @@ export function Sidebar({
   onRenamingChange,
   onOpenPage,
   drawerOpen = false,
+  hidden = false,
   onCloseDrawer,
   openNotebookId,
   onOpenNotebook,
@@ -231,7 +234,7 @@ export function Sidebar({
     <aside
       id="sidebar"
       aria-label={t('sidebar.label')}
-      className={`flex w-[260px] shrink-0 flex-col overflow-y-auto border-r border-line bg-side px-2 py-3.5 transition-colors duration-250 phone:fixed phone:inset-y-0 phone:left-0 phone:z-40 phone:w-[min(300px,85vw)] phone:shadow-[0_0_32px_rgba(0,0,0,0.25)] phone:transition-[transform,visibility] phone:duration-200 ${
+      className={`${hidden ? 'wide:hidden' : ''} flex w-[260px] shrink-0 flex-col overflow-y-auto border-r border-line bg-side px-2 py-3.5 transition-colors duration-250 phone:fixed phone:inset-y-0 phone:left-0 phone:z-40 phone:w-[min(300px,85vw)] phone:shadow-[0_0_32px_rgba(0,0,0,0.25)] phone:transition-[transform,visibility] phone:duration-200 ${
         drawerOpen
           ? 'phone:translate-x-0'
           : 'phone:invisible phone:-translate-x-full'

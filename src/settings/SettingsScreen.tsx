@@ -97,7 +97,7 @@ export function SettingsScreen({
   return (
     <div
       ref={root}
-      className="mx-auto max-w-[760px] px-4 pt-8 pb-24 phone:pt-16 md:px-12 md:pt-12"
+      className="mx-auto max-w-[760px] px-4 pt-8 pb-24 md:px-12 md:pt-12"
     >
       <h1 className="text-[32px] leading-tight font-bold tracking-[-0.02em]">
         {t('settings.title')}

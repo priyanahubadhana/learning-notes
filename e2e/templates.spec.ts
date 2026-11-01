@@ -7,6 +7,7 @@ import {
   slashCommand,
   templateNames,
   typeInEditor,
+  pageAction,
 } from './helpers.ts'
 
 test.beforeEach(async ({ page }) => {
@@ -89,7 +90,7 @@ test('Save as template from the action bar and from the "/" menu', async ({
   await typeInEditor(page, 'Step one')
 
   // The name dialog starts with the page title; Enter saves.
-  await page.getByRole('button', { name: 'Save as template' }).click()
+  await pageAction(page, 'Save as template')
   const name = page.getByRole('dialog', { name: 'Save as template' })
   await expect(name.getByLabel('Template name')).toHaveValue('My method')
   await expect(name.getByLabel('Template name')).toBeFocused()
@@ -117,8 +118,9 @@ test('Save as template from the action bar and from the "/" menu', async ({
     .click()
   await expect(page.getByText('New pages copy this')).toBeVisible()
   await expect(page.locator('.bn-editor')).toContainText('Step one')
+  await page.getByRole('button', { name: 'More options' }).click()
   await expect(
-    page.getByRole('button', { name: 'Save as template' }),
+    page.getByRole('menuitem', { name: /Save as template/ }),
   ).toHaveCount(0)
 })
 
@@ -141,10 +143,11 @@ test('Import and Export are shown but disabled (coming soon)', async ({
   page,
 }) => {
   await createNotebook(page, 'Notes', 'First')
+  await page.getByRole('button', { name: 'More options' }).click()
   for (const name of [/Import/, /Export/]) {
-    const button = page.getByRole('button', { name })
-    await expect(button).toBeVisible()
-    await expect(button).toBeDisabled()
-    await expect(button).toContainText('Soon')
+    const item = page.getByRole('menuitem', { name })
+    await expect(item).toBeVisible()
+    await expect(item).toBeDisabled()
+    await expect(item).toContainText('Coming soon')
   }
 })

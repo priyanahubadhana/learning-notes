@@ -5,13 +5,15 @@ import {
   type AppUi,
   type ChoiceRequest,
   type PickerMode,
+  PHONE_SCREEN,
+  TopBarSlotContext,
 } from './app/appUi'
 import { onStorageFull, reportError, runTask } from './app/errors'
 import { baseHash, parseHash, routeToHash, type Route } from './app/router'
 import { applyTheme } from './app/theme'
 import { ThemeContext } from './app/themeContext'
 import type { ToastAction } from './app/appUi'
-import { Toast, ChoiceDialog, MenuIcon } from './app/ui'
+import { Toast, ChoiceDialog } from './app/ui'
 import { onUpdateOffer } from './app/updates'
 import { TOAST_AFTER_HOLD_MS, toastDuration } from './app/toastTiming'
 import { isStringOrNull } from './app/uiPrefs'
@@ -46,6 +48,9 @@ import { TemplatePicker } from './templates/TemplatePicker'
 import { revealBlock } from './editor/revealBlock'
 import { rememberPage } from './search/recentPages'
 import { SearchPopup } from './search/SearchPopup'
+import { pushEntry, replaceEntry } from './app/navHistory'
+import { TopBar } from './app/TopBar'
+import { isBoolean, readPref, writePref } from './app/uiPrefs'
 import {
   DEFAULT_FILTERS,
   describeHits,
@@ -370,8 +375,8 @@ function App() {
     const replace = !historyReady.current || replaceNext.current
     historyReady.current = true
     replaceNext.current = false
-    if (replace) history.replaceState(null, '', routeHash)
-    else history.pushState(null, '', routeHash)
+    if (replace) replaceEntry(routeHash)
+    else pushEntry(routeHash)
   }, [routeHash])
   const [renamingNotebookId, setRenamingNotebookId] = useState<string | null>(
     null,
@@ -452,6 +457,16 @@ function App() {
     window.addEventListener('keydown', onKey)
     return () => window.removeEventListener('keydown', onKey)
   }, [drawerOpen])
+
+  // Hiding the sidebar is remembered on this device.
+  const [sidebarHidden, setSidebarHidden] = useState(() =>
+    readPref('sidebarHidden', isBoolean, false),
+  )
+  const toggleSidebar = () => {
+    setSidebarHidden(!sidebarHidden)
+    writePref('sidebarHidden', !sidebarHidden)
+  }
+  const [barSlot, setBarSlot] = useState<HTMLElement | null>(null)
 
   // ---- App-wide UI: template picker and toasts ----
   const [picker, setPicker] = useState<PickerRequest | null>(null)
@@ -646,7 +661,23 @@ function App() {
   const onShortcut = useRef<(e: KeyboardEvent) => void>(() => {})
   useEffect(() => {
     onShortcut.current = (e) => {
+      if ((e.ctrlKey || e.metaKey) && e.code === 'Backslash') {
+        // Ctrl+\: hide or show the menu
+        e.preventDefault()
+        if (matchMedia(PHONE_SCREEN).matches) {
+          setDrawerAt(drawerOpen ? null : routeHash)
+        } else toggleSidebar()
+        return
+      }
       if (!e.altKey || e.ctrlKey || e.metaKey) return
+      if (e.code === 'KeyR' && !e.shiftKey) {
+        // Alt+R: review the open page
+        if (!currentPage) return
+        if (!notebooks?.some((n) => n.id === currentPage.notebookId)) return
+        e.preventDefault()
+        openReview({ kind: 'page', pageId: currentPage.id })
+        return
+      }
       if (e.code === 'KeyT' && !e.shiftKey) {
         // Alt+T: today's journal page
         e.preventDefault()
@@ -686,6 +717,21 @@ function App() {
     }
   }, [])
 
+  // The top bar's name for the open screen (pages put their own path there).
+  const barTitle = showSettings
+    ? t('settings.title')
+    : reviewScope
+      ? t('review.sidebar')
+      : hub?.kind === 'cards'
+        ? t('sidebar.allCards')
+        : hub?.kind === 'data'
+          ? t('sidebar.data')
+          : hub
+            ? t('sidebar.allDatabases')
+            : search
+              ? (savedSearch?.name ?? t('search.title'))
+              : (openNotebookRecord?.title ?? null)
+
   // Never shown as an empty app: the notes are most likely still there.
   if (openFailed) {
     return (
@@ -714,307 +760,310 @@ function App() {
   return (
     <ThemeContext value={theme}>
       <AppUiContext value={appUi}>
-        <div className="flex h-screen">
-          <Sidebar
-            db={db}
-            workspaceId={workspace.id}
-            notebooks={notebooks}
-            currentPage={currentPage ?? null}
-            tree={tree}
-            theme={theme}
-            onThemeChange={setTheme}
-            renamingNotebookId={renamingNotebookId}
-            onRenamingChange={setRenamingNotebookId}
-            onOpenPage={(id) => choose(() => openPage(id))}
-            drawerOpen={drawerOpen}
-            onCloseDrawer={() => setDrawerAt(null)}
-            openNotebookId={openNotebookRecord?.id ?? null}
-            onOpenNotebook={(id) => choose(() => openNotebook(id))}
-            onOpenToday={() => choose(() => runTask(openToday()))}
-            onCreateNotebook={() => runTask(createNotebookAndOpen())}
-            onCreatePage={(notebookId, parentId, templateId) =>
-              runTask(createPageIn(notebookId, parentId, true, templateId))
-            }
-            onCreateTemplate={() => runTask(newTemplate())}
-            settingsOpen={showSettings}
-            onOpenSettings={() => choose(() => openSettings())}
-            reviewOpen={
-              reviewScope?.kind === 'all' || reviewScope?.kind === 'wrong'
-            }
-            onOpenReview={(scope) => choose(() => openReview(scope))}
-            onOpenAllCards={() =>
-              choose(() => {
-                openPage(null)
-                setHub({ kind: 'cards' })
-              })
-            }
-            allCardsOpen={
-              hub?.kind === 'cards' && !showSettings && !reviewScope
-            }
-            onOpenAllDatabases={() =>
-              choose(() => {
-                openPage(null)
-                setHub({ kind: 'databases' })
-              })
-            }
-            onOpenData={() =>
-              choose(() => {
-                openPage(null)
-                setHub({ kind: 'data' })
-              })
-            }
-            dataOpen={hub?.kind === 'data' && !showSettings && !reviewScope}
-            allDatabasesOpen={
-              (hub?.kind === 'databases' || hub?.kind === 'database') &&
-              !showSettings &&
-              !reviewScope
-            }
-            searchOpen={
-              !!search && !search.savedId && !showSettings && !reviewScope
-            }
-            onOpenSearch={() => choose(() => setSearchPopup(true))}
-            savedSearchId={
-              search && !showSettings && !reviewScope
-                ? (search.savedId ?? null)
-                : null
-            }
-            onOpenSavedSearch={(saved) =>
-              choose(() => openSearch(readSavedQuery(saved.query), saved.id))
-            }
-            onReviewSavedSearch={(saved) =>
-              choose(() => runTask(reviewSavedSearch(saved)))
-            }
-            onOpenTag={(tagId) => choose(() => openTag(tagId))}
-            onNotesRewritten={(pageIds) => {
-              // The open page's editor still shows the old tags: reload it.
-              if (currentPage && pageIds.includes(currentPage.id)) {
-                setNotesVersion((v) => v + 1)
+        <TopBarSlotContext value={barSlot}>
+          <div className="flex h-screen">
+            <Sidebar
+              db={db}
+              workspaceId={workspace.id}
+              notebooks={notebooks}
+              currentPage={currentPage ?? null}
+              tree={tree}
+              theme={theme}
+              onThemeChange={setTheme}
+              renamingNotebookId={renamingNotebookId}
+              onRenamingChange={setRenamingNotebookId}
+              onOpenPage={(id) => choose(() => openPage(id))}
+              drawerOpen={drawerOpen}
+              hidden={sidebarHidden}
+              onCloseDrawer={() => setDrawerAt(null)}
+              openNotebookId={openNotebookRecord?.id ?? null}
+              onOpenNotebook={(id) => choose(() => openNotebook(id))}
+              onOpenToday={() => choose(() => runTask(openToday()))}
+              onCreateNotebook={() => runTask(createNotebookAndOpen())}
+              onCreatePage={(notebookId, parentId, templateId) =>
+                runTask(createPageIn(notebookId, parentId, true, templateId))
               }
-            }}
-          />
-          {drawerOpen && (
-            // A second way to close for fingers; the sidebar's button is the
-            // one for keyboards and screen readers.
-            <button
-              type="button"
-              aria-hidden
-              tabIndex={-1}
-              onClick={() => setDrawerAt(null)}
-              className="fixed inset-0 z-30 hidden bg-black/30 phone:block"
+              onCreateTemplate={() => runTask(newTemplate())}
+              settingsOpen={showSettings}
+              onOpenSettings={() => choose(() => openSettings())}
+              reviewOpen={
+                reviewScope?.kind === 'all' || reviewScope?.kind === 'wrong'
+              }
+              onOpenReview={(scope) => choose(() => openReview(scope))}
+              onOpenAllCards={() =>
+                choose(() => {
+                  openPage(null)
+                  setHub({ kind: 'cards' })
+                })
+              }
+              allCardsOpen={
+                hub?.kind === 'cards' && !showSettings && !reviewScope
+              }
+              onOpenAllDatabases={() =>
+                choose(() => {
+                  openPage(null)
+                  setHub({ kind: 'databases' })
+                })
+              }
+              onOpenData={() =>
+                choose(() => {
+                  openPage(null)
+                  setHub({ kind: 'data' })
+                })
+              }
+              dataOpen={hub?.kind === 'data' && !showSettings && !reviewScope}
+              allDatabasesOpen={
+                (hub?.kind === 'databases' || hub?.kind === 'database') &&
+                !showSettings &&
+                !reviewScope
+              }
+              searchOpen={
+                !!search && !search.savedId && !showSettings && !reviewScope
+              }
+              onOpenSearch={() => choose(() => setSearchPopup(true))}
+              savedSearchId={
+                search && !showSettings && !reviewScope
+                  ? (search.savedId ?? null)
+                  : null
+              }
+              onOpenSavedSearch={(saved) =>
+                choose(() => openSearch(readSavedQuery(saved.query), saved.id))
+              }
+              onReviewSavedSearch={(saved) =>
+                choose(() => runTask(reviewSavedSearch(saved)))
+              }
+              onOpenTag={(tagId) => choose(() => openTag(tagId))}
+              onNotesRewritten={(pageIds) => {
+                // The open page's editor still shows the old tags: reload it.
+                if (currentPage && pageIds.includes(currentPage.id)) {
+                  setNotesVersion((v) => v + 1)
+                }
+              }}
+            />
+            {drawerOpen && (
+              // A second way to close for fingers; the sidebar's button is the
+              // one for keyboards and screen readers.
+              <button
+                type="button"
+                aria-hidden
+                tabIndex={-1}
+                onClick={() => setDrawerAt(null)}
+                className="fixed inset-0 z-30 hidden bg-black/30 phone:block"
+              />
+            )}
+            <div className="flex min-w-0 flex-1 flex-col">
+              <TopBar
+                title={barTitle}
+                sidebarHidden={sidebarHidden}
+                drawerOpen={drawerOpen}
+                onOpenDrawer={() => setDrawerAt(routeHash)}
+                onToggleSidebar={toggleSidebar}
+                onSlot={setBarSlot}
+              />
+              <main className="min-h-0 flex-1 overflow-auto">
+                <Suspense fallback={null}>
+                  {showSettings ? (
+                    <SettingsScreen
+                      key={settingsFocus ?? ''}
+                      db={db}
+                      focusId={settingsFocus ?? undefined}
+                    />
+                  ) : reviewScope ? (
+                    <ReviewScreen
+                      key={JSON.stringify(reviewScope)}
+                      db={db}
+                      scope={reviewScope}
+                      keysPaused={drawerOpen}
+                      onScopeChange={setReviewScope}
+                      onOpenNote={(pageId, blockId) => {
+                        openPage(pageId)
+                        revealBlock(blockId)
+                      }}
+                      onClose={() => setReviewScope(null)}
+                    />
+                  ) : hub?.kind === 'cards' ? (
+                    <AllCardsScreen
+                      db={db}
+                      onOpenHit={(hit) => runTask(openHit(hit))}
+                      onReview={openReview}
+                      onClose={() => setHub(null)}
+                    />
+                  ) : hub?.kind === 'data' ? (
+                    <DataScreen
+                      db={db}
+                      workspaceId={workspace.id}
+                      onClose={() => setHub(null)}
+                    />
+                  ) : hub?.kind === 'databases' ? (
+                    <DatabasesScreen
+                      db={db}
+                      workspaceId={workspace.id}
+                      onOpenDatabase={(id) => setHub({ kind: 'database', id })}
+                      onClose={() => setHub(null)}
+                    />
+                  ) : hub?.kind === 'database' ? (
+                    <DatabaseScreen
+                      key={hub.id}
+                      db={db}
+                      databaseId={hub.id}
+                      onOpenPage={openPage}
+                      onBack={() => setHub({ kind: 'databases' })}
+                      onOpenDatabase={(id) => setHub({ kind: 'database', id })}
+                    />
+                  ) : search ? (
+                    <SearchScreen
+                      key={search.key}
+                      db={db}
+                      initial={search.query}
+                      title={savedSearch?.name}
+                      // Typing changes the address in place (no new Back step).
+                      onChange={(query) =>
+                        setSearch((s) => {
+                          if (!s || s.savedId) return s
+                          if (
+                            JSON.stringify(s.query) === JSON.stringify(query)
+                          ) {
+                            return s
+                          }
+                          replaceNext.current = true
+                          return { ...s, query }
+                        })
+                      }
+                      actions={(query) => (
+                        <SaveSearchActions
+                          db={db}
+                          query={query}
+                          saved={savedSearch}
+                          onSaved={(saved) =>
+                            setSearch((s) => s && { ...s, savedId: saved.id })
+                          }
+                        />
+                      )}
+                      onOpenHit={(hit) => runTask(openHit(hit))}
+                      onReview={(blockIds, name) =>
+                        openReview({ kind: 'blocks', blockIds, name })
+                      }
+                      onClose={() => setSearch(null)}
+                    />
+                  ) : openNotebookRecord ? (
+                    <NotebookScreen
+                      key={openNotebookRecord.id}
+                      db={db}
+                      notebook={openNotebookRecord}
+                      onOpenPage={openPage}
+                      onCreatePage={(id) => runTask(createPageIn(id, null))}
+                      onOpenHit={(hit) => runTask(openHit(hit))}
+                      onReview={openReview}
+                      onClose={() => setNotebookId(null)}
+                    />
+                  ) : currentPage ? (
+                    <PageView
+                      key={`${currentPage.id}:${notesVersion}`}
+                      db={db}
+                      page={currentPage}
+                      autoFocusTitle={focusTitlePageId === currentPage.id}
+                      onOpenPage={openPage}
+                      onOpenNewPage={openNewPage}
+                      onReview={(includeSubpages) =>
+                        openReview({
+                          kind: 'page',
+                          pageId: currentPage.id,
+                          includeSubpages,
+                        })
+                      }
+                      onNewPageFromTemplate={(id) =>
+                        runTask(newPageFromTemplate(id))
+                      }
+                      onOpenTag={openTag}
+                      onReload={() => setNotesVersion((v) => v + 1)}
+                      onOpenBackup={() => {
+                        openPage(null)
+                        setHub({ kind: 'data' })
+                      }}
+                      onOpenDatabase={(id) => {
+                        openPage(null)
+                        setHub({ kind: 'database', id })
+                      }}
+                    />
+                  ) : notebooks.length === 0 && currentPage === null ? (
+                    <div className="mt-[30vh] text-center">
+                      <p className="mb-5 text-muted">{t('app.empty.intro')}</p>
+                      <button
+                        type="button"
+                        onClick={() => runTask(createNotebookAndOpen())}
+                        className="rounded-lg bg-accent px-4 py-2 text-sm font-medium text-white transition-opacity hover:opacity-90"
+                      >
+                        {t('app.empty.create')}
+                      </button>
+                    </div>
+                  ) : currentPage === null ? (
+                    <p className="mt-[30vh] text-center text-muted">
+                      {t('app.empty.select')}
+                    </p>
+                  ) : null}
+                </Suspense>
+              </main>
+            </div>
+          </div>
+
+          {picker && (
+            <TemplatePicker
+              db={db}
+              workspaceId={workspace.id}
+              mode={picker.mode}
+              onDone={(result) => {
+                setPicker(null)
+                picker.resolve(result)
+              }}
             />
           )}
-          <button
-            type="button"
-            aria-label={t('nav.openMenu')}
-            aria-controls="sidebar"
-            aria-expanded={drawerOpen}
-            onClick={() => setDrawerAt(routeHash)}
-            // Above the full-screen phone screens, below the open drawer;
-            // kept clear of the browser bar and the screen's rounded corners.
-            style={{
-              top: 'max(8px, env(safe-area-inset-top))',
-              left: 'max(8px, env(safe-area-inset-left))',
-            }}
-            className="fixed z-[35] hidden size-11 items-center justify-center rounded-lg border border-line bg-bg text-ink shadow-[0_1px_4px_rgba(0,0,0,0.18)] phone:flex"
-          >
-            <MenuIcon />
-          </button>
-          <main className="flex-1 overflow-auto">
-            <Suspense fallback={null}>
-              {showSettings ? (
-                <SettingsScreen
-                  key={settingsFocus ?? ''}
-                  db={db}
-                  focusId={settingsFocus ?? undefined}
-                />
-              ) : reviewScope ? (
-                <ReviewScreen
-                  key={JSON.stringify(reviewScope)}
-                  db={db}
-                  scope={reviewScope}
-                  keysPaused={drawerOpen}
-                  onScopeChange={setReviewScope}
-                  onOpenNote={(pageId, blockId) => {
-                    openPage(pageId)
-                    revealBlock(blockId)
-                  }}
-                  onClose={() => setReviewScope(null)}
-                />
-              ) : hub?.kind === 'cards' ? (
-                <AllCardsScreen
-                  db={db}
-                  onOpenHit={(hit) => runTask(openHit(hit))}
-                  onReview={openReview}
-                  onClose={() => setHub(null)}
-                />
-              ) : hub?.kind === 'data' ? (
-                <DataScreen
-                  db={db}
-                  workspaceId={workspace.id}
-                  onClose={() => setHub(null)}
-                />
-              ) : hub?.kind === 'databases' ? (
-                <DatabasesScreen
-                  db={db}
-                  workspaceId={workspace.id}
-                  onOpenDatabase={(id) => setHub({ kind: 'database', id })}
-                  onClose={() => setHub(null)}
-                />
-              ) : hub?.kind === 'database' ? (
-                <DatabaseScreen
-                  key={hub.id}
-                  db={db}
-                  databaseId={hub.id}
-                  onOpenPage={openPage}
-                  onBack={() => setHub({ kind: 'databases' })}
-                  onOpenDatabase={(id) => setHub({ kind: 'database', id })}
-                />
-              ) : search ? (
-                <SearchScreen
-                  key={search.key}
-                  db={db}
-                  initial={search.query}
-                  title={savedSearch?.name}
-                  // Typing changes the address in place (no new Back step).
-                  onChange={(query) =>
-                    setSearch((s) => {
-                      if (!s || s.savedId) return s
-                      if (JSON.stringify(s.query) === JSON.stringify(query)) {
-                        return s
-                      }
-                      replaceNext.current = true
-                      return { ...s, query }
-                    })
-                  }
-                  actions={(query) => (
-                    <SaveSearchActions
-                      db={db}
-                      query={query}
-                      saved={savedSearch}
-                      onSaved={(saved) =>
-                        setSearch((s) => s && { ...s, savedId: saved.id })
-                      }
-                    />
-                  )}
-                  onOpenHit={(hit) => runTask(openHit(hit))}
-                  onReview={(blockIds, name) =>
-                    openReview({ kind: 'blocks', blockIds, name })
-                  }
-                  onClose={() => setSearch(null)}
-                />
-              ) : openNotebookRecord ? (
-                <NotebookScreen
-                  key={openNotebookRecord.id}
-                  db={db}
-                  notebook={openNotebookRecord}
-                  onOpenPage={openPage}
-                  onCreatePage={(id) => runTask(createPageIn(id, null))}
-                  onOpenHit={(hit) => runTask(openHit(hit))}
-                  onReview={openReview}
-                  onClose={() => setNotebookId(null)}
-                />
-              ) : currentPage ? (
-                <PageView
-                  key={`${currentPage.id}:${notesVersion}`}
-                  db={db}
-                  page={currentPage}
-                  autoFocusTitle={focusTitlePageId === currentPage.id}
-                  onOpenPage={openPage}
-                  onOpenNewPage={openNewPage}
-                  onReview={(includeSubpages) =>
-                    openReview({
-                      kind: 'page',
-                      pageId: currentPage.id,
-                      includeSubpages,
-                    })
-                  }
-                  onNewPageFromTemplate={(id) =>
-                    runTask(newPageFromTemplate(id))
-                  }
-                  onOpenTag={openTag}
-                  onReload={() => setNotesVersion((v) => v + 1)}
-                  onOpenDatabase={(id) => {
-                    openPage(null)
-                    setHub({ kind: 'database', id })
-                  }}
-                />
-              ) : notebooks.length === 0 && currentPage === null ? (
-                <div className="mt-[30vh] text-center">
-                  <p className="mb-5 text-muted">{t('app.empty.intro')}</p>
-                  <button
-                    type="button"
-                    onClick={() => runTask(createNotebookAndOpen())}
-                    className="rounded-lg bg-accent px-4 py-2 text-sm font-medium text-white transition-opacity hover:opacity-90"
-                  >
-                    {t('app.empty.create')}
-                  </button>
-                </div>
-              ) : currentPage === null ? (
-                <p className="mt-[30vh] text-center text-muted">
-                  {t('app.empty.select')}
-                </p>
-              ) : null}
-            </Suspense>
-          </main>
-        </div>
-
-        {picker && (
-          <TemplatePicker
-            db={db}
-            workspaceId={workspace.id}
-            mode={picker.mode}
-            onDone={(result) => {
-              setPicker(null)
-              picker.resolve(result)
-            }}
-          />
-        )}
-        {searchPopup && (
-          <SearchPopup
-            db={db}
-            onClose={() => setSearchPopup(false)}
-            onOpenMenu={() => {
-              setSearchPopup(false)
-              setDrawerAt(routeHash)
-            }}
-            onOpenHit={(hit) => {
-              setSearchPopup(false)
-              runTask(openHit(hit))
-            }}
-            onOpenPage={(id) => {
-              setSearchPopup(false)
-              openPage(id)
-            }}
-            onSeeAll={openSearch}
-          />
-        )}
-        {choice && (
-          <ChoiceDialog
-            request={choice.request}
-            onDone={(value) => {
-              setChoice(null)
-              choice.resolve(value)
-            }}
-            onOpenSetting={openSettings}
-          />
-        )}
-        {backupDue && !reviewScope && hub?.kind !== 'data' && (
-          <BackupReminder
-            onSave={() => {
-              openPage(null)
-              setHub({ kind: 'data' })
-            }}
-            onLater={() => runTask(snoozeReminder(db))}
-          />
-        )}
-        {toastMessage && (
-          <Toast
-            message={toastMessage.message}
-            action={toastMessage.action}
-            onHold={holdToast}
-            onRelease={releaseToast}
-          />
-        )}
+          {searchPopup && (
+            <SearchPopup
+              db={db}
+              onClose={() => setSearchPopup(false)}
+              onOpenMenu={() => {
+                setSearchPopup(false)
+                setDrawerAt(routeHash)
+              }}
+              onOpenHit={(hit) => {
+                setSearchPopup(false)
+                runTask(openHit(hit))
+              }}
+              onOpenPage={(id) => {
+                setSearchPopup(false)
+                openPage(id)
+              }}
+              onSeeAll={openSearch}
+            />
+          )}
+          {choice && (
+            <ChoiceDialog
+              request={choice.request}
+              onDone={(value) => {
+                setChoice(null)
+                choice.resolve(value)
+              }}
+              onOpenSetting={openSettings}
+            />
+          )}
+          {backupDue && !reviewScope && hub?.kind !== 'data' && (
+            <BackupReminder
+              onSave={() => {
+                openPage(null)
+                setHub({ kind: 'data' })
+              }}
+              onLater={() => runTask(snoozeReminder(db))}
+            />
+          )}
+          {toastMessage && (
+            <Toast
+              message={toastMessage.message}
+              action={toastMessage.action}
+              onHold={holdToast}
+              onRelease={releaseToast}
+            />
+          )}
+        </TopBarSlotContext>
       </AppUiContext>
     </ThemeContext>
   )

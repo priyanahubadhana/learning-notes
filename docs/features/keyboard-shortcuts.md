@@ -12,6 +12,8 @@ Fast, full keyboard use on PC, Mac and iPad keyboards.
 | --------------------------------------------- | ------------------------------------- |
 | `Alt+N` (`Option+N` on Mac)                   | New page in the current notebook      |
 | `Alt+Shift+N`                                 | New sub-page of the open page         |
+| `Alt+R` (`Option+R` on Mac)                   | Review the open page                  |
+| `Ctrl+\` (`⌘\` on Mac)                        | Hide or show the menu                 |
 | `Alt+T` (`Option+T` on Mac)                   | Open today's journal page             |
 | `Ctrl+K` (`⌘K` on Mac)                        | Search everything                     |
 | Search popup: `↑` `↓` / `Enter` / `Esc`       | Move / open / close                   |

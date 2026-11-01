@@ -212,8 +212,8 @@ export function DataScreen({
     'min-h-9 rounded-lg border border-line px-3 text-[13px] hover:bg-hover disabled:opacity-50'
 
   return (
-    <div className="phone:fixed phone:inset-0 phone:z-30 phone:overflow-auto phone:bg-bg">
-      <div className="mx-auto max-w-[760px] px-4 pt-8 pb-24 phone:pt-16 md:px-12 md:pt-12">
+    <div>
+      <div className="mx-auto max-w-[760px] px-4 pt-8 pb-24 md:px-12 md:pt-12">
         <div className="mb-4 flex items-center gap-2">
           <h1 className="flex-1 text-[26px] leading-tight font-bold tracking-[-0.02em]">
             {t('data.title')}

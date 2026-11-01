@@ -7,6 +7,13 @@
   }
 }
 
+/* Everything else: the sidebar sits beside the page. */
+@custom-variant wide {
+  @media (width >= 40rem) and (height >= 32rem) {
+    @slot;
+  }
+}
+
 /*
  * Design tokens (from docs/prototypes/prototype.html). Tailwind turns these into classes
  * such as bg-side, text-muted, border-line. Themes (step 6b) override them.

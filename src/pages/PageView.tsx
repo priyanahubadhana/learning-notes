@@ -1,6 +1,5 @@
 import { sampleName } from '../i18n/defaultNames'
 import { HelpLine, Tip } from '../help/Help'
-import type { TipId } from '../help/helpRegistry'
 import { useLiveQuery } from 'dexie-react-hooks'
 import {
   Fragment,
@@ -10,9 +9,10 @@ import {
   useRef,
   useState,
 } from 'react'
-import { AppUiContext } from '../app/appUi'
+import { createPortal } from 'react-dom'
+import { AppUiContext, TopBarSlotContext } from '../app/appUi'
 import { runTask } from '../app/errors'
-import { NameDialog } from '../app/ui'
+import { MenuPopover, NameDialog, type MenuItem } from '../app/ui'
 import { listBlocks } from '../core/blockService'
 import type { LearningNotesDB } from '../core/db'
 import type { Page } from '../core/types'
@@ -51,6 +51,8 @@ interface PageViewProps {
   onOpenDatabase?: (databaseId: string) => void
   /** Reloads the editor after the page was changed from outside it. */
   onReload: () => void
+  /** Opens Backup & files, to restore a backup. */
+  onOpenBackup: () => void
 }
 
 /** An open page: breadcrumb, action bar, banner, title and block editor. */
@@ -65,6 +67,7 @@ export function PageView({
   onOpenTag,
   onOpenDatabase,
   onReload,
+  onOpenBackup,
 }: PageViewProps) {
   const { toast } = useContext(AppUiContext)
   const path = useLiveQuery(() => getPagePath(db, page.id), [db, page.id]) ?? []
@@ -119,79 +122,118 @@ export function PageView({
       })(),
     )
 
+  // The page's ⋯ menu in the top bar.
+  const barSlot = useContext(TopBarSlotContext)
+  const [moreAt, setMoreAt] = useState<DOMRect | null>(null)
+  const moreItems: MenuItem[] = [
+    ...(notebook && !isTemplate
+      ? [
+          {
+            label: t('page.reviewThis'),
+            icon: '⟳',
+            hint: 'Alt+R',
+            onSelect: () => onReview(),
+          },
+        ]
+      : []),
+    { label: t('history.button'), icon: '🕘', onSelect: openHistory },
+    ...(notebook && !isTemplate
+      ? [
+          {
+            label: t('page.saveTemplate'),
+            icon: '📋',
+            onSelect: saveTemplate,
+          },
+        ]
+      : []),
+    {
+      label: t('page.restoreBackup'),
+      icon: '⤓',
+      onSelect: onOpenBackup,
+    },
+    {
+      label: t('page.import'),
+      icon: '⤓',
+      disabled: true,
+      hint: t('page.comingSoon'),
+      onSelect: () => {},
+    },
+    {
+      label: t('page.export'),
+      icon: '⤒',
+      disabled: true,
+      hint: t('page.comingSoon'),
+      onSelect: () => {},
+    },
+  ]
+
   return (
-    <div className="mx-auto max-w-[720px] px-14 pt-[64px] pb-[200px]">
-      <div className="mb-6 flex flex-wrap items-center gap-2">
-        <nav
-          aria-label={t('page.breadcrumb')}
-          className="flex min-h-5 min-w-[16rem] flex-1 flex-wrap items-center gap-x-1 text-xs leading-5 text-muted"
-        >
-          {rowDatabase && onOpenDatabase ? (
-            <button
-              type="button"
-              onClick={() => onOpenDatabase(rowDatabase.id)}
-              className="max-w-[14rem] truncate leading-5 hover:text-ink"
+    <div className="mx-auto max-w-[720px] px-14 pt-10 pb-[200px]">
+      {barSlot &&
+        createPortal(
+          <>
+            <nav
+              aria-label={t('page.breadcrumb')}
+              className="flex min-w-0 flex-1 items-center gap-x-1 overflow-hidden text-sm whitespace-nowrap text-muted"
             >
-              {rowDatabase.title}
-            </button>
-          ) : (
-            <span className="max-w-[14rem] truncate">
-              {rowDatabase?.title ?? notebook?.title}
-            </span>
-          )}
-          {path.map((p, i) => (
-            <Fragment key={p.id}>
-              <span>/</span>
-              {i < path.length - 1 ? (
+              {rowDatabase && onOpenDatabase ? (
                 <button
                   type="button"
-                  onClick={() => onOpenPage(p.id)}
-                  className="max-w-[14rem] truncate leading-5 hover:text-ink"
+                  onClick={() => onOpenDatabase(rowDatabase.id)}
+                  className="max-w-[14rem] min-w-0 truncate leading-5 hover:text-ink"
                 >
-                  {sampleName(p) || t('review.untitled')}
+                  {rowDatabase.title}
                 </button>
               ) : (
-                <span className="max-w-[14rem] truncate">
-                  {sampleName(p) || t('review.untitled')}
+                <span className="max-w-[14rem] min-w-0 truncate">
+                  {rowDatabase?.title ?? notebook?.title}
                 </span>
               )}
-            </Fragment>
-          ))}
-        </nav>
-        <div
-          role="toolbar"
-          aria-label={t('page.actions')}
-          className="flex flex-wrap gap-1.5"
-        >
-          {notebook && !isTemplate && (
-            <ActionButton
-              icon="⟳"
-              tip="page.reviewPage"
-              onClick={() => onReview()}
+              {path.map((p, i) => (
+                <Fragment key={p.id}>
+                  <span>/</span>
+                  {i < path.length - 1 ? (
+                    <button
+                      type="button"
+                      onClick={() => onOpenPage(p.id)}
+                      className="max-w-[14rem] min-w-0 truncate leading-5 hover:text-ink"
+                    >
+                      {sampleName(p) || t('review.untitled')}
+                    </button>
+                  ) : (
+                    <span className="max-w-[14rem] min-w-0 truncate">
+                      {sampleName(p) || t('review.untitled')}
+                    </span>
+                  )}
+                </Fragment>
+              ))}
+            </nav>
+            <button
+              type="button"
+              aria-label={t('page.more')}
+              title={t('page.more')}
+              aria-haspopup="menu"
+              aria-expanded={!!moreAt}
+              onMouseDown={(e) => e.stopPropagation()}
+              onClick={(e) =>
+                setMoreAt(
+                  moreAt ? null : e.currentTarget.getBoundingClientRect(),
+                )
+              }
+              className="flex size-11 shrink-0 items-center justify-center rounded-lg text-xl leading-none text-ink-soft hover:bg-hover hover:text-ink"
             >
-              {t('review.thisPage')}
-            </ActionButton>
-          )}
-          {notebook && !isTemplate && (
-            <ActionButton
-              icon="📋"
-              tip="page.saveTemplate"
-              onClick={saveTemplate}
-            >
-              {t('page.saveTemplate')}
-            </ActionButton>
-          )}
-          <ActionButton icon="🕘" tip="page.history" onClick={openHistory}>
-            {t('history.button')}
-          </ActionButton>
-          <ActionButton icon="⤓" tip="page.import" soon>
-            {t('page.import')}
-          </ActionButton>
-          <ActionButton icon="⤒" tip="page.export" soon>
-            {t('page.export')}
-          </ActionButton>
-        </div>
-      </div>
+              <span aria-hidden>⋯</span>
+            </button>
+            {moreAt && (
+              <MenuPopover
+                anchor={moreAt}
+                items={moreItems}
+                onClose={() => setMoreAt(null)}
+              />
+            )}
+          </>,
+          barSlot,
+        )}
 
       {isTemplate && (
         <Banner icon="📋">
@@ -319,39 +361,6 @@ function SectionChips({ db, pageId }: { db: LearningNotesDB; pageId: string }) {
 }
 
 /** Button in the page action bar; `soon` = shown but disabled. */
-function ActionButton({
-  icon,
-  tip,
-  soon = false,
-  onClick,
-  children,
-}: {
-  icon: string
-  tip: TipId
-  soon?: boolean
-  onClick?: () => void
-  children: string
-}) {
-  return (
-    <Tip id={tip}>
-      <button
-        type="button"
-        onClick={onClick}
-        disabled={soon}
-        className="inline-flex items-center gap-1.5 rounded-lg border border-line bg-bg px-2.5 py-1.5 text-[13px] leading-none transition-colors enabled:hover:border-accent enabled:hover:text-accent disabled:cursor-not-allowed disabled:text-muted"
-      >
-        <span aria-hidden>{icon}</span>
-        {children}
-        {soon && (
-          <span className="rounded-full bg-soft px-1.5 py-0.5 text-[10px] tracking-[0.06em] uppercase">
-            {t('page.soon')}
-          </span>
-        )}
-      </button>
-    </Tip>
-  )
-}
-
 function Banner({
   icon,
   children,

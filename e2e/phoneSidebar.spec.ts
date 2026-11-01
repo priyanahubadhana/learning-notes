@@ -82,9 +82,7 @@ test.describe('phone', () => {
       () => document.documentElement.scrollWidth - window.innerWidth,
     )
     expect(overflow).toBeLessThanOrEqual(0)
-    const buttons = page
-      .getByRole('toolbar', { name: 'Page actions' })
-      .getByRole('button')
+    const buttons = page.locator('header').first().getByRole('button')
     for (const box of await buttons.evaluateAll((els) =>
       els.map((el) => el.getBoundingClientRect().right),
     )) {
@@ -112,8 +110,8 @@ test.describe('phone', () => {
     const answer = page.getByRole('button', { name: 'Show answer' })
     await expect(answer).toBeVisible()
 
-    // The title has its own line below the button, even on the smallest
-    // phones, and the top line (menu, choice, close) stays one line.
+    // The title has its own line below the bar, even on the smallest phones,
+    // and the choice of cards and close stay on one line.
     const title = page.getByRole('heading', { name: 'Review', level: 1 })
     const close = page.getByRole('button', { name: 'Close review' })
     await page.setViewportSize({ width: 320, height: 700 })
@@ -121,7 +119,7 @@ test.describe('phone', () => {
     const titleBox = (await title.boundingBox())!
     const closeBox = (await close.boundingBox())!
     expect(titleBox.y).toBeGreaterThanOrEqual(buttonBox.y + buttonBox.height)
-    expect(closeBox.y).toBeLessThan(buttonBox.y + buttonBox.height)
+    expect(closeBox.y + closeBox.height).toBeLessThanOrEqual(titleBox.y + 1)
     expect(closeBox.x + closeBox.width).toBeLessThanOrEqual(320)
     const choice = page.getByRole('group', { name: 'Which cards' })
     const choiceBox = (await choice.boundingBox())!

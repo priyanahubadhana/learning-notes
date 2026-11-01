@@ -10,8 +10,11 @@ Every screen has an address (the part after `#`), so refresh, Back, Forward and 
 
 - `src/app/router.ts`: `routeToHash` and `parseHash` convert between a `Route` and the hash. Routes: home, page, notebook, database, databases, cards, data, settings, search (saved id or a JSON query), review (all, wrong, notebook, page with optional `?sub=1`, custom).
 - A notebook, database or settings route can carry up to 3 own levels (`parts`: tab, view, Revise lesson, category). `pushRouteParts` adds a history entry for a level; if the address had no level yet, it first writes the current one into the entry being left so Back returns to it. `useRouteParts` follows the address.
-- `src/App.tsx`: the route is built from the screen state. A new screen calls `history.pushState`; the first write and the fix-up for a missing page use `replaceState`. On `popstate`, `applyRoute` shows the screen of the address, unless only the levels changed (`baseHash` equal), which those screens handle themselves.
-- Phone menu: it closes on any choice in it (also the screen already open), on another screen, Esc, a tap outside, or its three-line button, which sits where the opening button was. Review and the full-screen search popup have the opening button too; while the menu covers Review, keys don't reach the card.
+- `src/App.tsx`: the route is built from the screen state. A new screen adds an entry (`pushEntry`); the first write and the fix-up for a missing page replace the current one (`replaceEntry`). On `popstate`, `applyRoute` shows the screen of the address, unless only the levels changed (`baseHash` equal), which those screens handle themselves.
+- Phone menu: it closes on any choice in it (also the screen already open), on another screen, Esc, a tap outside, or its three-line button, which sits where the opening button was. The full-screen search popup has the opening button too; while the menu covers Review, keys don't reach the card.
+- Top bar, above every screen: three-line menu button (hides or shows the sidebar on wider screens, remembered per device; `Ctrl+\` / `⌘\`), ← and → through the app's own history, the page's path or the screen's name, and on pages the ⋯ menu.
+- ← returns to the previous page and is grey on the first one. → is grey until ← is used, and grey again after opening something new. The app keeps its own count (`src/app/navHistory.ts`) because browsers don't say whether a next entry exists.
+- Page ⋯ menu: Review this page (`Alt+R`), History, Save as template, Restore backup (opens Backup & files), Import and Export (grey, Coming soon).
 - `useDiscardGuard.tsx` is separate: a click outside a dialog closes it only if nothing was changed, otherwise asks "Discard your changes?".
 
 ## Edge cases

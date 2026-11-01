@@ -218,14 +218,11 @@ export function ReviewScreen({
   const left = session ? session.queue.length + session.waiting.length : 0
 
   return (
-    <section
-      aria-label={title}
-      className="flex h-full flex-col bg-bg text-ink phone:fixed phone:inset-0 phone:z-30"
-    >
-      <header className="flex flex-wrap items-center gap-x-3 gap-y-2 border-b border-line px-4 py-2.5 phone:grid phone:grid-cols-[minmax(0,1fr)_auto] phone:gap-x-1 phone:ps-14">
+    <section aria-label={title} className="flex h-full flex-col bg-bg text-ink">
+      <header className="flex flex-wrap items-center gap-x-3 gap-y-2 border-b border-line px-4 py-2.5 phone:grid phone:grid-cols-[minmax(0,1fr)_auto] phone:gap-x-1">
         {/* On phones a grid, so the top line can never wrap: the title goes
             below the menu button, across the whole screen. */}
-        <div className="flex min-w-0 flex-1 items-center gap-3 phone:col-span-2 phone:row-start-2 phone:-ms-10">
+        <div className="flex min-w-0 flex-1 items-center gap-3 phone:col-span-2 phone:row-start-2">
           <h1 className="min-w-0 flex-1 truncate text-base font-semibold">
             {title}
           </h1>

@@ -40,3 +40,9 @@ export const AppUiContext = createContext<AppUi>({
   choose: async () => null,
   openSettings: () => {},
 })
+
+/** Where a screen can put its own items in the top bar (null until shown). */
+export const TopBarSlotContext = createContext<HTMLElement | null>(null)
+
+/** Same as the phone variant in index.css. */
+export const PHONE_SCREEN = '(width < 40rem), (height < 32rem)'

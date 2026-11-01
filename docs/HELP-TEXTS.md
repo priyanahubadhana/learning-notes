@@ -294,31 +294,31 @@ Every hover tip and help line in the app (shown while Settings › Show help is 
 
 ### `page.reviewPage`
 
-- **Where:** Page › “Review this page” button
+- **Where:** Page › ⋯ › Review this page
 - **Meaning:** Reviews the cards of this page that are due, and its sub-pages’ cards.
 - **Example:** Revise one lesson right after reading it.
 
 ### `page.saveTemplate`
 
-- **Where:** Page › “Save as template” button
+- **Where:** Page › ⋯ › Save as template
 - **Meaning:** Saves this page’s layout as a template for new pages (its sub-pages too).
 - **Example:** Turn a good lesson page into a reusable layout.
 
 ### `page.history`
 
-- **Where:** Page › “History” button
+- **Where:** Page › ⋯ › History
 - **Meaning:** Shows earlier copies of this page. You can look at one and bring it back.
 - **Example:** Undo a paragraph you deleted by mistake last week.
 
 ### `page.import`
 
-- **Where:** Page › Import (coming soon)
+- **Where:** Page › ⋯ › Import (coming soon)
 - **Meaning:** Will bring a file into this page. It arrives in a later phase.
 - **Example:** Import notes from another app.
 
 ### `page.export`
 
-- **Where:** Page › Export (coming soon)
+- **Where:** Page › ⋯ › Export (coming soon)
 - **Meaning:** Will save this page as a file you can keep or share. It arrives in a later phase.
 - **Example:** Export a lesson as a document.
 

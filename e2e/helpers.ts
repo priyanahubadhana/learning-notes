@@ -53,6 +53,12 @@ export async function rowAction(page: Page, name: string, action: string) {
   await r.getByLabel(action, { exact: true }).click()
 }
 
+/** Chooses an item in the open page's ⋯ menu. */
+export async function pageAction(page: Page, name: string) {
+  await page.getByRole('button', { name: 'More options' }).click()
+  await page.getByRole('menuitem', { name: new RegExp(name) }).click()
+}
+
 /** Types a page title into the open page's title field. */
 export async function setTitle(page: Page, title: string) {
   await hideSidebar(page)

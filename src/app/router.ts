@@ -1,4 +1,5 @@
 import { useSyncExternalStore } from 'react'
+import { pushEntry, replaceEntry } from './navHistory'
 
 /**
  * Screens and their addresses (the part after "#"). Pure parsing/building
@@ -188,11 +189,11 @@ export function pushRouteParts(index: number, value: string, before: string[]) {
   // write it into the entry we are leaving, so Back returns to it.
   const keep = route.parts.length >= before.length ? route.parts : before
   if (route.parts.length < before.length) {
-    history.replaceState(null, '', routeToHash({ ...route, parts: before }))
+    replaceEntry(routeToHash({ ...route, parts: before }))
   }
   const parts = [...keep.slice(0, index), value]
   if (parts.join('/') === route.parts.join('/')) return
-  history.pushState(null, '', routeToHash({ ...route, parts }))
+  pushEntry(routeToHash({ ...route, parts }))
   window.dispatchEvent(new Event(SUB_EVENT))
 }
 

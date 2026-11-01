@@ -1,20 +1,19 @@
 import { expect, test } from '@playwright/test'
-import { createNotebook, typeInEditor } from './helpers.ts'
+import { createNotebook, typeInEditor, pageAction } from './helpers.ts'
 
 test('History lists earlier copies and restores one', async ({ page }) => {
   await page.goto('/')
   await createNotebook(page, 'Hist NB', 'Hist page')
   await typeInEditor(page, 'First thought')
 
-  const actions = page.getByRole('toolbar', { name: 'Page actions' })
   const dialog = page.getByRole('dialog', { name: 'Page history' })
-  await actions.getByRole('button', { name: 'History' }).click()
+  await pageAction(page, 'History')
   await expect(dialog.getByRole('listitem')).toHaveCount(1)
   await expect(dialog.getByText('First thought')).toBeVisible()
   await dialog.getByRole('button', { name: 'Close' }).click()
 
   await typeInEditor(page, ' and a second one')
-  await actions.getByRole('button', { name: 'History' }).click()
+  await pageAction(page, 'History')
   await expect(dialog.getByRole('listitem')).toHaveCount(2)
   await expect(dialog.getByText('First thought and a second one')).toBeVisible()
 
@@ -32,16 +31,13 @@ test('History lists earlier copies and restores one', async ({ page }) => {
   await expect(page.getByText(/Restored the copy from/)).toBeVisible()
 
   // The restore can be undone: the later text is a copy too.
-  await actions.getByRole('button', { name: 'History' }).click()
+  await pageAction(page, 'History')
   await expect(dialog.getByRole('listitem')).toHaveCount(3)
 })
 
 test('a page nobody edited has an empty history', async ({ page }) => {
   await page.goto('/')
   await createNotebook(page, 'Hist NB', 'Quiet page')
-  await page
-    .getByRole('toolbar', { name: 'Page actions' })
-    .getByRole('button', { name: 'History' })
-    .click()
+  await pageAction(page, 'History')
   await expect(page.getByText(/No earlier copies yet/)).toBeVisible()
 })

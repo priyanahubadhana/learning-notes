@@ -1,0 +1,91 @@
+import { t } from '../i18n/t'
+import { useCanGoBack, useCanGoForward } from './navHistory'
+import { MenuIcon } from './ui'
+
+const ICON_BUTTON =
+  'size-11 shrink-0 items-center justify-center rounded-lg text-ink-soft enabled:hover:bg-hover enabled:hover:text-ink disabled:opacity-35'
+
+/** The bar above every screen: menu, ← →, then the screen's own items. */
+export function TopBar({
+  title,
+  sidebarHidden,
+  drawerOpen,
+  onOpenDrawer,
+  onToggleSidebar,
+  onSlot,
+}: {
+  /** The screen's name; pages put their own path here instead. */
+  title: string | null
+  sidebarHidden: boolean
+  drawerOpen: boolean
+  onOpenDrawer: () => void
+  onToggleSidebar: () => void
+  onSlot: (element: HTMLElement | null) => void
+}) {
+  const canGoBack = useCanGoBack()
+  const canGoForward = useCanGoForward()
+  const toggleName = t(sidebarHidden ? 'nav.showMenu' : 'nav.hideMenu')
+
+  return (
+    <header
+      style={{
+        paddingLeft: 'max(8px, env(safe-area-inset-left))',
+        paddingRight: 'max(8px, env(safe-area-inset-right))',
+      }}
+      className="flex min-h-13 shrink-0 items-center gap-0.5 border-b border-line bg-bg"
+    >
+      {/* Phones: a drawer over the page. Elsewhere: hide or show the sidebar. */}
+      <button
+        type="button"
+        aria-label={t('nav.openMenu')}
+        aria-controls="sidebar"
+        aria-expanded={drawerOpen}
+        onClick={onOpenDrawer}
+        className={`hidden phone:flex ${ICON_BUTTON}`}
+      >
+        <MenuIcon />
+      </button>
+      <button
+        type="button"
+        aria-label={toggleName}
+        title={toggleName}
+        aria-controls="sidebar"
+        aria-expanded={!sidebarHidden}
+        onClick={onToggleSidebar}
+        className={`flex phone:hidden ${ICON_BUTTON}`}
+      >
+        <MenuIcon />
+      </button>
+      <button
+        type="button"
+        aria-label={t('nav.back')}
+        title={t('nav.backHint')}
+        disabled={!canGoBack}
+        onClick={() => history.back()}
+        className={`flex ${ICON_BUTTON}`}
+      >
+        <span aria-hidden className="text-xl leading-none">
+          ←
+        </span>
+      </button>
+      <button
+        type="button"
+        aria-label={t('nav.forward')}
+        title={t('nav.forwardHint')}
+        disabled={!canGoForward}
+        onClick={() => history.forward()}
+        className={`flex ${ICON_BUTTON}`}
+      >
+        <span aria-hidden className="text-xl leading-none">
+          →
+        </span>
+      </button>
+      <div
+        ref={onSlot}
+        className="flex min-w-0 flex-1 items-center gap-1 ps-1.5"
+      >
+        {title && <span className="min-w-0 truncate text-sm">{title}</span>}
+      </div>
+    </header>
+  )
+}

@@ -7,6 +7,7 @@ import {
   sidebar,
   typeInEditor,
   openSidebar,
+  pageAction,
 } from './helpers.ts'
 
 // The Review screen (not the page's "Linked from" section).
@@ -97,11 +98,8 @@ test('blanks show "…" until revealed; Practice anyway; Suspend with Undo', asy
   await createNotebook(page, 'Cardiology', 'Heart sounds')
   await makeBlank(page, 'S2 closes the aortic valve', 'aortic')
 
-  // Review this page, from the page action bar.
-  await page
-    .getByRole('toolbar', { name: 'Page actions' })
-    .getByRole('button', { name: 'Review' })
-    .click()
+  // Review this page, from the ⋯ menu.
+  await pageAction(page, 'Review this page')
   await expect(review(page).locator('.review-blank')).toHaveText('…')
   await expect(review(page)).not.toContainText('aortic')
   await review(page).getByRole('button', { name: 'Show answer' }).click()

@@ -1,5 +1,5 @@
 import { expect, test } from '@playwright/test'
-import { createNotebook, openSidebar } from './helpers.ts'
+import { createNotebook, openSidebar, pageAction } from './helpers.ts'
 
 test('a click outside a dialog closes it only if nothing was typed', async ({
   page,
@@ -7,8 +7,7 @@ test('a click outside a dialog closes it only if nothing was typed', async ({
   await page.goto('/')
   await createNotebook(page, 'Cardiology', 'Heart sounds')
   const dialog = page.getByRole('dialog', { name: /template/i })
-  const open = () =>
-    page.getByRole('button', { name: 'Save as template' }).first().click()
+  const open = () => pageAction(page, 'Save as template')
 
   // Nothing typed: the click outside simply closes it.
   await open()

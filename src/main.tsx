@@ -3,9 +3,12 @@ import { createRoot } from 'react-dom/client'
 import { registerSW } from 'virtual:pwa-register'
 import './index.css'
 import App from './App.tsx'
+import { startNavHistory } from './app/navHistory'
 import { UpgradeGate } from './app/UpgradeGate'
 import { offerUpdate, repeatUpdateOffer } from './app/updates'
 import { requestPersistentStorage } from './core/storage'
+
+startNavHistory()
 
 // Ask the browser not to clear our notes database (fire and forget).
 void requestPersistentStorage()

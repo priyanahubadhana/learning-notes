@@ -119,8 +119,8 @@ export function NotebookScreen({
 
   return (
     // Full screen on phones, like Search (the sidebar takes the width).
-    <div className="phone:fixed phone:inset-0 phone:z-30 phone:overflow-auto phone:bg-bg">
-      <div className="mx-auto max-w-[1040px] px-4 pt-8 pb-24 phone:pt-16 md:px-12 md:pt-12">
+    <div>
+      <div className="mx-auto max-w-[1040px] px-4 pt-8 pb-24 md:px-12 md:pt-12">
         <div className="mb-1 text-xs text-muted">{t('notebook.crumb')}</div>
         <div className="mb-4 flex items-start gap-2">
           <h1 className="flex-1 text-[26px] leading-tight font-bold tracking-[-0.02em]">

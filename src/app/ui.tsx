@@ -94,11 +94,15 @@ export interface MenuItem {
   label: string
   icon: string
   onSelect: () => void
+  /** Greyed out, cannot be chosen. */
+  disabled?: boolean
+  /** Small text on the right, such as a shortcut. */
+  hint?: string
 }
 
 /**
  * Small menu that opens below a button (`anchor` is the button's position).
- * Closes on outside click, Esc, or choosing an item.
+ * Closes on outside click, Esc, or choosing an item; ↑ ↓ move between items.
  */
 export function MenuPopover({
   anchor,
@@ -116,12 +120,20 @@ export function MenuPopover({
   })
 
   useEffect(() => {
-    ref.current?.querySelector('button')?.focus()
+    ref.current?.querySelector<HTMLElement>('button:enabled')?.focus()
     const onDown = (e: MouseEvent) => {
       if (!ref.current?.contains(e.target as Node)) close.current()
     }
     const onKey = (e: KeyboardEvent) => {
       if (e.key === 'Escape') close.current()
+      if (e.key !== 'ArrowDown' && e.key !== 'ArrowUp') return
+      e.preventDefault()
+      const items = [
+        ...(ref.current?.querySelectorAll<HTMLElement>('button:enabled') ?? []),
+      ]
+      const at = items.indexOf(document.activeElement as HTMLElement)
+      const step = e.key === 'ArrowDown' ? 1 : -1
+      items[(at + step + items.length) % items.length]?.focus()
     }
     document.addEventListener('mousedown', onDown)
     document.addEventListener('keydown', onKey)
@@ -146,16 +158,18 @@ export function MenuPopover({
           key={item.label}
           type="button"
           role="menuitem"
+          disabled={item.disabled}
           onClick={() => {
             onClose()
             item.onSelect()
           }}
-          className="flex w-full items-center gap-2.5 rounded-md px-2.5 py-1.5 text-left text-sm outline-none hover:bg-hover focus:bg-hover"
+          className="flex w-full items-center gap-2.5 rounded-md px-2.5 py-1.5 text-left text-sm outline-none enabled:hover:bg-hover enabled:focus:bg-hover disabled:text-muted pointer-coarse:min-h-11"
         >
           <span aria-hidden className="w-5 text-center text-muted">
             {item.icon}
           </span>
-          {item.label}
+          <span className="flex-1">{item.label}</span>
+          {item.hint && <span className="text-xs text-muted">{item.hint}</span>}
         </button>
       ))}
     </div>

@@ -18,6 +18,15 @@ Current phase only. Older decisions are in [ARCHIVE.md](ARCHIVE.md).
 | 2026-11-01 | CI: Chrome tests must pass on each push; WebKit runs weekly as a warning (about 30 minutes) until the Phase 9 iPad work |
 | 2026-11-01 | Each browser test may retry once and is then reported as flaky; failing twice blocks a push |
 
+## Phase 8 decisions
+
+| Date       | Decision                                                                                    |
+| ---------- | ------------------------------------------------------------------------------------------- |
+| 2026-11-01 | Research compares 3–4 options, not only Supabase (owner)                                    |
+| 2026-11-01 | Plan for several GB, start small, keep moving to a paid plan or another vendor easy (owner) |
+| 2026-11-01 | Budget stays ₹0; accept limits rather than pay (owner)                                      |
+| 2026-11-01 | Thorough research (owner)                                                                   |
+
 ## Decisions to review
 
 Picked by Claude. Anything can be changed.

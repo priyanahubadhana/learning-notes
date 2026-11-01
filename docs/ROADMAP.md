@@ -14,6 +14,7 @@ Approved 2026-11-01. Each phase still gets a short planning talk, a Definition o
 
 ## Keep in mind
 
+- Phase 8 result: [RESEARCH.md](RESEARCH.md). Read it before planning Phases 9 and 10.
 - Smart merge is a must before any global launch.
 - Deep research comes before building sync.
 - A custom domain later is a new address, so browser data does not follow it.

@@ -236,3 +236,12 @@ Your project got a tidier filing system and an automatic checker.
 - **INDEX and HANDOFF** tell Claude where things are and what comes next, so a new chat reads a little instead of everything.
 - **Feature specs** are one short page per feature: what it does, its edge cases, its security and its tests.
 - **New thing learned:** a test can pass on one computer and fail on another, so a second machine finds problems you would never see on your own.
+
+## Phase 8 — Deep research (2026-11-01)
+
+Before building sync, we looked up how it can work at ₹0 and wrote the answers in RESEARCH.md.
+
+- **Sync** means your notes appear on all your devices.
+- **End-to-end encryption** means notes are locked on your device, so the storage company only holds unreadable data. Example: even if Supabase were hacked, the thief gets scrambled text.
+- **A connector** is a small piece of code that talks to one storage company. Example: to change company later, we swap that piece, not the whole app.
+- **New thing learned:** "free" can still mean a bill. A service that needs your card and has no spending stop can charge you, while one with no card simply stops when full.

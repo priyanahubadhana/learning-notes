@@ -11,6 +11,7 @@ Read this first, then open only what the task needs.
 | [CODE-MAP.md](CODE-MAP.md)       | Folders today and the future layout                              | Finding code or adding a folder          |
 | [LIMITATIONS.md](LIMITATIONS.md) | Known limitations of the app                                     | Before promising behaviour; planning     |
 | [IDEAS.md](IDEAS.md)             | Parked ideas                                                     | Planning a phase                         |
+| [RESEARCH.md](RESEARCH.md)       | Phase 8 research on sync, storage, encryption, iPad limits       | Planning or building Phases 9, 10, 15    |
 | [LEARNING.md](LEARNING.md)       | Plain-language story of each phase                               | Writing the phase explanation            |
 | [HELP-TEXTS.md](HELP-TEXTS.md)   | Every tip and help line (generated from `src/help/`)             | Reviewing help wording                   |
 | [features/](features/)           | One spec per feature, same template                              | Before changing that feature             |

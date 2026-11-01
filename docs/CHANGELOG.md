@@ -25,3 +25,9 @@ Current phase only. Older entries are in [ARCHIVE.md](ARCHIVE.md).
 - **What:** The phone menu now closes when you choose the screen already open, and has a three-line close button at its top. Removed the old Phase 5 words from rules/sessions.md (owner OK).
 - **Why:** Owner request before Phase 8; the menu only closed when the screen changed, so it stayed over the page.
 - **Files:** src/App.tsx, src/app/ui.tsx, src/notebooks/Sidebar.tsx, e2e/phoneSidebar.spec.ts, docs/features/navigation.md, rules/sessions.md
+
+## 2026-11-01 (Phase 8)
+
+- **What:** Deep research report written and its deciding facts checked twice. No app code changed.
+- **Why:** Sync must be chosen on evidence before it is built.
+- **Files:** docs/RESEARCH.md, docs/INDEX.md, docs/ROADMAP.md, docs/DECISIONS.md, docs/LIMITATIONS.md, docs/LEARNING.md, docs/HANDOFF.md

@@ -4,7 +4,7 @@ Current phase only. Older entries are in [ARCHIVE.md](ARCHIVE.md).
 
 ## 2026-11-01
 
-- **What:** The phone menu button now shows on Review and in the full-screen search popup; while the menu covers Review, keys no longer reach the card. On Review the choice of cards sits on its own line on narrow screens.
+- **What:** The phone menu button now shows on Review and in the full-screen search popup; while the menu covers Review, keys no longer reach the card. On phones Review shows the menu, the choice of cards and close on one line, with the title on its own line below.
 - **Why:** Owner found no way to reach the menu from these screens on a narrow window.
 - **Files:** src/App.tsx, src/recall/ReviewScreen.tsx, src/search/SearchPopup.tsx, e2e/phoneSidebar.spec.ts, docs/features/navigation.md
 

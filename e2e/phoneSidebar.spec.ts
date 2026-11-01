@@ -112,11 +112,20 @@ test.describe('phone', () => {
     const answer = page.getByRole('button', { name: 'Show answer' })
     await expect(answer).toBeVisible()
 
-    // The button does not sit on the title.
+    // The title has its own line below the button, even on the smallest
+    // phones, and the top line (menu, choice, close) stays one line.
     const title = page.getByRole('heading', { name: 'Review', level: 1 })
+    const close = page.getByRole('button', { name: 'Close review' })
+    await page.setViewportSize({ width: 320, height: 700 })
     const buttonBox = (await menu.boundingBox())!
     const titleBox = (await title.boundingBox())!
-    expect(titleBox.x).toBeGreaterThanOrEqual(buttonBox.x + buttonBox.width)
+    const closeBox = (await close.boundingBox())!
+    expect(titleBox.y).toBeGreaterThanOrEqual(buttonBox.y + buttonBox.height)
+    expect(closeBox.y).toBeLessThan(buttonBox.y + buttonBox.height)
+    expect(closeBox.x + closeBox.width).toBeLessThanOrEqual(320)
+    expect(await title.evaluate((el) => el.scrollWidth <= el.clientWidth)).toBe(
+      true,
+    )
 
     await menu.click()
     await expect(sidebar(page)).toBeVisible()

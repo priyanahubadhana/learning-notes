@@ -226,3 +226,13 @@ The sidebar slides in from a ☰ button instead of squeezing the page.
 - **Testing:** 560 unit tests and 184 browser tests, including upgrade tests (versions 10 → 11 → 12), speed tests (copying a 10,000-note page, a 600-note Anki deck), encryption tests (wrong password, changed file, 20 MB file) and screenshots on a phone.
 - **Security review:** passwords never stored; wrong or changed files are refused before anything is written; Anki text is reduced to plain text (no markup or script can arrive); the Anki file is unpacked with a size limit; pictures are limited to PNG/JPEG/WebP/GIF (never SVG) and checked in files; addresses and saved changes from the browser are validated; label colours come from a fixed list; 0 known vulnerabilities in 3 new libraries (fflate, sql.js, fzstd).
 - **Not done / known:** the export to Anki was only tested against this app's own reader, not the real Anki; deleting many notes at once is slow on huge pages; sync, accounts and hosting are Phase 7.
+
+## Phase 7 — Cleanup and safety net (built 2026-11-01)
+
+Your project got a tidier filing system and an automatic checker.
+
+- **GitHub** is an online copy of the whole project with its history, kept private. If this PC failed, the code would be safe.
+- **CI** is a robot on GitHub that tests every change. Example: it caught a date test that only passed with your PC's date style.
+- **INDEX and HANDOFF** tell Claude where things are and what comes next, so a new chat reads a little instead of everything.
+- **Feature specs** are one short page per feature: what it does, its edge cases, its security and its tests.
+- **New thing learned:** a test can pass on one computer and fail on another, so a second machine finds problems you would never see on your own.

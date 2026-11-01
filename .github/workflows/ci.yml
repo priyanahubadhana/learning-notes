@@ -8,6 +8,9 @@ on:
     - cron: '0 3 * * 1' # WebKit, every Monday
   workflow_dispatch:
 
+permissions:
+  contents: read
+
 jobs:
   checks:
     if: github.event_name == 'push' || github.event_name == 'pull_request'

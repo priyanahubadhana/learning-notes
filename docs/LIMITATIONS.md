@@ -6,3 +6,4 @@
 - **Hindi editor menus:** BlockNote has no Hindi menus yet.
 - **Spanish and Hindi** need native-speaker review.
 - **Data lives in one browser:** no sync yet; move it with Save everything and Restore backup.
+- **Delete forever keeps pictures:** page history is erased, but no code in Trash erases picture files. Fix before sync.

@@ -60,7 +60,7 @@ function signature(
       .filter((b) => b.pageId === pageId)
       .sort(byOrder)
       .flatMap((b) => {
-        const text = blockText(b.content).replace(/s+/g, ' ').trim()
+        const text = blockText(b.content).replace(/\s+/g, ' ').trim()
         return b.type === 'paragraph' && text === '' ? [] : [[b.type, text]]
       }),
     pages

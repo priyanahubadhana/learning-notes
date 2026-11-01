@@ -1,7 +1,7 @@
 # Handoff
 
-- **Done:** Phases 1–6. Phase 7: GitHub backup, docs system, permissions, CI, flaky tests.
-- **Next:** Phase 7 feature specs in batches, then rule check and phase close.
-- **Open issues:** WebKit failures parked for Phase 9.
-- **Files touched:** docs/, rules/, CLAUDE.md, README.md, .claude/commands/next.md.
-- **Warnings:** feature specs are a very large job; do them in batches.
+- **Done:** Phases 1–6 and Phase 7 (GitHub, docs system, permissions, CI, flaky tests, feature specs).
+- **Next:** Owner's Phase 7 check-in, then Phase 8: deep research.
+- **Open issues:** WebKit failures parked for Phase 9; 12 moderate warnings in developer tools only.
+- **Files touched:** docs/features/, docs/, src/share/importBundle.ts, .github/workflows/ci.yml.
+- **Warnings:** CI takes about 13 minutes, so push once per step.

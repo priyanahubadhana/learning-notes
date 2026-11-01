@@ -13,3 +13,9 @@ Current phase only. Older entries are in [ARCHIVE.md](ARCHIVE.md).
 - **What:** CI on GitHub (Chrome required, WebKit as a warning); safe-action permissions; `check:links` blocks new direct feature links; fixed phone-drawer timing in the e2e helper; automatic retry turned off.
 - **Why:** So a red CI is a real alarm.
 - **Files:** .github/workflows/ci.yml, .claude/settings.json, scripts/, e2e/helpers.ts, playwright.config.ts, package.json
+
+## 2026-11-01
+
+- **What:** Feature specs for every feature; fixed the template-duplicate check (a broken pattern treated runs of the letter s as spaces); CI given read-only access; phase closed.
+- **Why:** Finish Phase 7; the specs found the bug.
+- **Files:** docs/features/, src/share/importBundle.ts, src/core/upgradeBackup.ts, .github/workflows/ci.yml, docs/

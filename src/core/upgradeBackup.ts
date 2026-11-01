@@ -3,7 +3,7 @@
  * database version than the one saved in the browser, the saved data is
  * read as it is (plain IndexedDB, before Dexie upgrades it) and copied into
  * a separate backup database; the user can also download it as a file.
- * Restoring comes with import (Phase 5B); the file and the backup database
+ * Restoring is done from Backup & files; the file and the backup database
  * hold every table as plain rows, so nothing is lost meanwhile.
  */
 

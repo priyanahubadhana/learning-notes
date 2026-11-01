@@ -147,3 +147,38 @@ test('at iPad width the menu can be hidden too', async ({ page }) => {
   await page.getByRole('button', { name: 'Hide menu' }).click()
   await expect(sidebar(page)).toBeHidden()
 })
+
+test('the strip that stops the iPad blur stays invisible and lets taps through', async ({
+  page,
+}) => {
+  await page.goto('/')
+  await expect(page.getByRole('button', { name: 'Hide menu' })).toBeVisible()
+  const band = await page.locator('.top-edge-band').evaluate((el) => {
+    const style = getComputedStyle(el)
+    const box = el.getBoundingClientRect()
+    return {
+      top: box.top,
+      wide: box.width / window.innerWidth,
+      height: box.height,
+      position: style.position,
+      clip: style.backgroundClip,
+      pointer: style.pointerEvents,
+      colour: style.backgroundColor,
+      alpha: style.backgroundColor.startsWith('rgba'),
+    }
+  })
+  expect(band).toMatchObject({
+    top: 0,
+    wide: 1,
+    height: 12,
+    position: 'fixed',
+    clip: 'text',
+    pointer: 'none',
+    alpha: false,
+  })
+  // A tap at the very top still reaches what is under the strip.
+  const below = await page.evaluate(
+    () => document.elementFromPoint(100, 4)?.className,
+  )
+  expect(below).not.toContain('top-edge-band')
+})

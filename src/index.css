@@ -374,3 +374,23 @@ button.tag-chip:hover {
 :root[data-theme='night'] .recall-mark {
   background: color-mix(in srgb, var(--mark, #d9822b) 38%, transparent);
 }
+
+/*
+ * iPadOS 26 blurs the top of installed web apps unless a solid strip is fixed
+ * along the top edge: at least 90% wide, taller than 10px. This strip gives it
+ * the colour it reads but paints nothing (background-clip: text with no text).
+ * It is in index.html so it exists from the first frame, and on top of
+ * everything so menus never hide it from that check.
+ */
+.top-edge-band {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  z-index: 2147483647;
+  height: 12px;
+  pointer-events: none;
+  background-color: var(--color-bg);
+  -webkit-background-clip: text;
+  background-clip: text;
+}

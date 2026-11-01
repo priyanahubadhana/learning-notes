@@ -23,6 +23,8 @@ The app is hosted, can be installed like a normal app, opens with no internet, a
 - A failed read is never shown as an empty app.
 - The installed iPad app is not cleared by Safari's 7-day rule, but storage pressure can still remove data unless the browser protects it.
 
+- iPadOS 26 blurs the top of installed web apps unless a solid strip is fixed along the top edge. `.top-edge-band` in `index.html` is that strip: it paints nothing and lets taps through. Apple does not document this check, so a later iPadOS may change it (found in developer reports: github.com/coder/coder/pull/31027).
+
 ## Security check
 
 - `public/_headers` sets the content security policy, HSTS, no framing, no sniffing and no referrer. No inline scripts (`public/theme-boot.js`). The preview server uses the same headers, so tests run under them.

@@ -7,9 +7,13 @@ import { defineConfig, devices } from '@playwright/test'
  * site's security rules, so they check what users actually get.
  */
 const PORT = 5199
+/** GitHub's machine has 2 cores, so it gets longer limits. */
+const SLOW = process.env.CI ? 2 : 1
 
 export default defineConfig({
   testDir: './e2e',
+  timeout: 30_000 * SLOW,
+  expect: { timeout: 5_000 * SLOW },
   fullyParallel: true,
   forbidOnly: !!process.env.CI,
   retries: 1, // a test that passes on retry is reported as flaky
@@ -17,7 +21,7 @@ export default defineConfig({
   reporter: 'list',
   use: {
     baseURL: `http://localhost:${PORT}`,
-    actionTimeout: 10_000, // a stuck click names itself
+    actionTimeout: 10_000 * SLOW, // a stuck click names itself
     serviceWorkers: 'block', // offline.spec.ts turns it on
     trace: 'retain-on-failure',
   },

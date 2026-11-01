@@ -899,6 +899,26 @@ export const en = {
     'Tags are matched by name; their colours come along when the tag is new here. Journal days arrive as a notebook called “Journal (imported)”, templates as new templates.',
   'nav.openMenu': 'Open menu',
   'nav.closeMenu': 'Close menu',
+  'open.failed.title': 'Your notes could not be opened',
+  'open.failed.message':
+    'They are most likely still safe on this device. Close other tabs of this app, then try again. If this keeps happening, restart the device.',
+  'open.failed.retry': 'Try again',
+  'storage.full':
+    'This device is out of space, so recent changes may not be saved. Free up some space.',
+  'device.title': 'This device',
+  'device.protected':
+    'Storage: protected. The browser has promised to keep your notes.',
+  'device.notProtected':
+    'Storage: not protected. The browser may clear notes when space runs low, so keep a backup file.',
+  'device.lastBackup': 'Last backup file: {date}',
+  'device.noBackup': 'No backup file saved yet.',
+  'device.install.title': 'Install first, then start',
+  'device.install.ipad':
+    'iPad or iPhone: in Safari, tap Share, then Add to Home Screen.',
+  'device.install.computer':
+    'Computer: in Chrome or Edge, use the install button in the address bar.',
+  'device.install.separate':
+    'The installed app and the browser tab keep separate notes, so write in the installed app.',
   'update.ready': 'A new version is ready.',
   'update.now': 'Update',
   'backup.reminder.label': 'Backup reminder',

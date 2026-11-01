@@ -1,3 +1,14 @@
+/** Whether the browser has promised to keep this app's data. */
+export async function isStorageProtected(
+  storage: StorageManager | undefined = globalThis.navigator?.storage,
+): Promise<boolean> {
+  try {
+    return (await storage?.persisted?.()) ?? false
+  } catch {
+    return false
+  }
+}
+
 /**
  * Asks the browser to keep this app's data permanently. Without this, some
  * browsers (notably Safari on iPhone/iPad) may delete stored notes after a

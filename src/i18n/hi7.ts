@@ -65,6 +65,26 @@ export const hi7: Record<string, string> = {
   'template.meeting': 'बैठक के नोट',
   'template.reading': 'पठन नोट',
   'template.project': 'परियोजना योजना',
+  'open.failed.title': 'आपके नोट्स नहीं खुल सके',
+  'open.failed.message':
+    'वे शायद इस डिवाइस पर अब भी सुरक्षित हैं। इस ऐप के दूसरे टैब बंद करें, फिर दोबारा कोशिश करें। अगर ऐसा होता रहे, तो डिवाइस रीस्टार्ट करें।',
+  'open.failed.retry': 'दोबारा कोशिश करें',
+  'storage.full':
+    'इस डिवाइस में जगह नहीं बची है, इसलिए हाल के बदलाव शायद सहेजे न जाएँ। कुछ जगह खाली करें।',
+  'device.title': 'यह डिवाइस',
+  'device.protected':
+    'स्टोरेज: सुरक्षित। ब्राउज़र ने आपके नोट्स रखने का वादा किया है।',
+  'device.notProtected':
+    'स्टोरेज: सुरक्षित नहीं। जगह कम होने पर ब्राउज़र नोट्स मिटा सकता है, इसलिए बैकअप फ़ाइल रखें।',
+  'device.lastBackup': 'आख़िरी बैकअप फ़ाइल: {date}',
+  'device.noBackup': 'अभी तक कोई बैकअप फ़ाइल नहीं सहेजी गई।',
+  'device.install.title': 'पहले इंस्टॉल करें, फिर शुरू करें',
+  'device.install.ipad':
+    'iPad या iPhone: Safari में Share पर टैप करें, फिर Add to Home Screen चुनें।',
+  'device.install.computer':
+    'कंप्यूटर: Chrome या Edge में एड्रेस बार का इंस्टॉल बटन इस्तेमाल करें।',
+  'device.install.separate':
+    'इंस्टॉल किया गया ऐप और ब्राउज़र टैब अलग-अलग नोट्स रखते हैं, इसलिए इंस्टॉल किए गए ऐप में लिखें।',
   'update.ready': 'नया संस्करण तैयार है।',
   'update.now': 'अपडेट करें',
 }

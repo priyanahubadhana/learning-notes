@@ -20,6 +20,7 @@ import { settingsRegistry } from './builtinSettings'
 import type { SettingControl, SettingDefinition } from './registry'
 import { getSetting, setSetting } from './settingsService'
 import { useDeviceSetting, useSyncedSetting } from './useSetting'
+import { DeviceSection } from './DeviceSection'
 
 /**
  * Settings screen: categories on the left (a row of chips on small screens),
@@ -128,6 +129,7 @@ export function SettingsScreen({
         </nav>
 
         <div className="min-w-0">
+          {category === ALL && !q && <DeviceSection db={db} />}
           {category === ALL && (
             <input
               type="search"

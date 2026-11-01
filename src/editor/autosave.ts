@@ -1,3 +1,5 @@
+import { reportError } from '../app/errors'
+
 /**
  * Debounced, one-at-a-time autosave. Framework- and editor-independent.
  *
@@ -19,7 +21,7 @@ export function createAutosaver(
   save: () => Promise<void>,
   delayMs = 500,
   onError: (error: unknown) => void = (error) =>
-    console.error('Autosave failed', error),
+    reportError(error, 'Autosave failed'),
 ): Autosaver {
   let timer: ReturnType<typeof setTimeout> | undefined
   let dirty = false

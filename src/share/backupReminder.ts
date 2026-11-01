@@ -32,6 +32,13 @@ export async function noteFirstUse(
   if (!(await read(db))) await write(db, { firstSeenAt: now })
 }
 
+/** When a whole-workspace file was last saved, if ever. */
+export async function lastBackupAt(
+  db: LearningNotesDB,
+): Promise<number | undefined> {
+  return (await read(db))?.lastSavedAt
+}
+
 /** A whole-workspace file was saved: the week starts again. */
 export async function recordBackupSaved(
   db: LearningNotesDB,

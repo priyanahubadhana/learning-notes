@@ -16,18 +16,7 @@
       content="width=device-width, initial-scale=1.0, interactive-widget=resizes-content"
     />
     <title>Learning Notes</title>
-    <script>
-      // Apply the saved theme before the first paint, so there is no flash
-      // of the wrong theme. Must match src/app/theme.ts and uiPrefs.ts.
-      try {
-        var theme = JSON.parse(localStorage.getItem('learning-notes:theme'))
-        if (theme === 'night' || theme === 'sepia') {
-          document.documentElement.dataset.theme = theme
-        }
-      } catch (e) {
-        // Storage blocked: Day theme.
-      }
-    </script>
+    <script src="/theme-boot.js"></script>
   </head>
   <body>
     <div id="root"></div>

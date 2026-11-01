@@ -12,6 +12,7 @@ const title = (page: import('@playwright/test').Page) =>
 
 test.beforeEach(async ({ page }) => {
   await page.goto('/')
+  await sidebar(page).waitFor({ state: 'attached' }) // the app has started
 })
 
 test('Back and Forward move between pages and screens', async ({ page }) => {

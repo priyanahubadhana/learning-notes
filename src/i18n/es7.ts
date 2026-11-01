@@ -67,6 +67,26 @@ export const es7: Record<string, string> = {
   'template.meeting': 'Notas de reunión',
   'template.reading': 'Notas de lectura',
   'template.project': 'Plan de proyecto',
+  'open.failed.title': 'No se pudieron abrir tus notas',
+  'open.failed.message':
+    'Lo más probable es que sigan seguras en este dispositivo. Cierra otras pestañas de esta app e inténtalo de nuevo. Si sigue pasando, reinicia el dispositivo.',
+  'open.failed.retry': 'Intentar de nuevo',
+  'storage.full':
+    'Este dispositivo no tiene espacio, así que los cambios recientes pueden no guardarse. Libera algo de espacio.',
+  'device.title': 'Este dispositivo',
+  'device.protected':
+    'Almacenamiento: protegido. El navegador ha prometido conservar tus notas.',
+  'device.notProtected':
+    'Almacenamiento: sin proteger. El navegador puede borrar notas si falta espacio, así que guarda un archivo de copia.',
+  'device.lastBackup': 'Último archivo de copia: {date}',
+  'device.noBackup': 'Aún no hay ningún archivo de copia.',
+  'device.install.title': 'Primero instala, luego empieza',
+  'device.install.ipad':
+    'iPad o iPhone: en Safari, toca Compartir y luego Añadir a pantalla de inicio.',
+  'device.install.computer':
+    'Ordenador: en Chrome o Edge, usa el botón de instalar de la barra de direcciones.',
+  'device.install.separate':
+    'La app instalada y la pestaña del navegador guardan notas por separado, así que escribe en la app instalada.',
   'update.ready': 'Hay una versión nueva lista.',
   'update.now': 'Actualizar',
 }

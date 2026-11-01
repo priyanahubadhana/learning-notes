@@ -8,3 +8,4 @@
 - **Data lives in one browser:** no sync yet; move it with Save everything and Restore backup.
 - **Delete forever keeps pictures:** page history is erased, but no code in Trash erases picture files. Fix before sync.
 - **Same-spot inserts:** two devices adding a block at the same spot get the same order key, and a later insert between them fails. Harmless on one device; fix before sync (see RESEARCH.md).
+- **Update offer:** tested in parts and by unit tests; a real update is first checked on the live address.

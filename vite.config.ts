@@ -1,11 +1,34 @@
+import { readFileSync } from 'node:fs'
 import basicSsl from '@vitejs/plugin-basic-ssl'
 import tailwindcss from '@tailwindcss/vite'
 import react from '@vitejs/plugin-react'
 import { defineConfig } from 'vite'
 import { VitePWA } from 'vite-plugin-pwa'
 
+/** The live site's `/*` headers, so the preview runs under the same rules. */
+function siteHeaders(): Record<string, string> {
+  const block = readFileSync('public/_headers', 'utf8').split('\n\n')[0]
+  return Object.fromEntries(
+    block
+      .split('\n')
+      .slice(1)
+      .map((line) => {
+        const at = line.indexOf(':')
+        return [line.slice(0, at).trim(), line.slice(at + 1).trim()]
+      })
+      .filter(([name]) => name),
+  )
+}
+
 // https://vite.dev/config/
 export default defineConfig({
+  preview: { headers: siteHeaders() },
+  // Dev only: prepare the screens that load on demand at startup, so opening
+  // one is not slow and does not restart the page.
+  optimizeDeps: { entries: ['index.html', 'src/**/*.tsx'] },
+  server: {
+    warmup: { clientFiles: ['./src/main.tsx', './src/**/*Screen.tsx'] },
+  },
   // Dev only: a self-signed https certificate, so another device on the
   // Wi-Fi (the iPad) gets a secure context (crypto, IndexedDB features).
   // The end-to-end tests (E2E=1) use plain http on localhost.

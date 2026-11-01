@@ -1,12 +1,12 @@
 import { useLiveQuery } from 'dexie-react-hooks'
-import { useEffect, useRef, useState } from 'react'
+import { lazy, Suspense, useEffect, useRef, useState } from 'react'
 import {
   AppUiContext,
   type AppUi,
   type ChoiceRequest,
   type PickerMode,
 } from './app/appUi'
-import { runTask } from './app/errors'
+import { onStorageFull, reportError, runTask } from './app/errors'
 import { baseHash, parseHash, routeToHash, type Route } from './app/router'
 import { applyTheme } from './app/theme'
 import { ThemeContext } from './app/themeContext'
@@ -24,21 +24,15 @@ import type { JsonObject, Page, SavedSearch, Workspace } from './core/types'
 import { getOrCreateDefaultWorkspace } from './core/workspaceService'
 import { ensureSearchIndex } from './search/searchService'
 import { openJournalDay } from './journal/journalService'
-import { NotebookScreen } from './notebooks/NotebookScreen'
 import { Sidebar } from './notebooks/Sidebar'
 import { createNotebook, listNotebooks } from './notebooks/notebookService'
-import { PageView } from './pages/PageView'
 import { createPage, getPage } from './pages/pageService'
-import { AllCardsScreen } from './recall/AllCardsScreen'
 import { BackupReminder } from './share/ReminderBar'
 import {
   noteFirstUse,
   reminderDue,
   snoozeReminder,
 } from './share/backupReminder'
-import { DataScreen } from './share/DataScreen'
-import { DatabaseScreen, DatabasesScreen } from './databases/DatabasesHub'
-import { ReviewScreen } from './recall/ReviewScreen'
 import type { ReviewScope } from './recall/reviewService'
 import {
   dateStyleSetting,
@@ -46,7 +40,6 @@ import {
   reviseLabelsSetting,
   theme as themeSetting,
 } from './settings/builtinSettings'
-import { SettingsScreen } from './settings/SettingsScreen'
 import { setMarkLabels } from './revise/reviseMarks'
 import { useDeviceSetting, useSyncedSetting } from './settings/useSetting'
 import { TemplatePicker } from './templates/TemplatePicker'
@@ -62,13 +55,51 @@ import {
 } from './search/searchQuery'
 import { getSavedSearch, readSavedQuery } from './search/savedSearchService'
 import { SaveSearchActions } from './search/SaveSearchActions'
-import { SearchScreen } from './search/SearchScreen'
 import { restorePage } from './trash/trashService'
 import {
   createPageFromTemplate,
   createTemplate,
   ensureTemplates,
 } from './templates/templateService'
+
+// Screens load when first opened, so the app itself starts fast.
+const NotebookScreen = lazy(() =>
+  import('./notebooks/NotebookScreen').then((m) => ({
+    default: m.NotebookScreen,
+  })),
+)
+const PageView = lazy(() =>
+  import('./pages/PageView').then((m) => ({ default: m.PageView })),
+)
+const AllCardsScreen = lazy(() =>
+  import('./recall/AllCardsScreen').then((m) => ({
+    default: m.AllCardsScreen,
+  })),
+)
+const DataScreen = lazy(() =>
+  import('./share/DataScreen').then((m) => ({ default: m.DataScreen })),
+)
+const DatabaseScreen = lazy(() =>
+  import('./databases/DatabasesHub').then((m) => ({
+    default: m.DatabaseScreen,
+  })),
+)
+const DatabasesScreen = lazy(() =>
+  import('./databases/DatabasesHub').then((m) => ({
+    default: m.DatabasesScreen,
+  })),
+)
+const ReviewScreen = lazy(() =>
+  import('./recall/ReviewScreen').then((m) => ({ default: m.ReviewScreen })),
+)
+const SettingsScreen = lazy(() =>
+  import('./settings/SettingsScreen').then((m) => ({
+    default: m.SettingsScreen,
+  })),
+)
+const SearchScreen = lazy(() =>
+  import('./search/SearchScreen').then((m) => ({ default: m.SearchScreen })),
+)
 
 /** The Search screen state for a search address. */
 function searchOf(r: Extract<Route, { kind: 'search' }>) {
@@ -104,6 +135,7 @@ interface PickerRequest {
  */
 function App() {
   const [workspace, setWorkspace] = useState<Workspace>()
+  const [openFailed, setOpenFailed] = useState(false)
   // An address in the browser wins over what was open last time.
   const [boot] = useState<Route | null>(() =>
     location.hash.length > 1 ? parseHash(location.hash) : null,
@@ -380,9 +412,10 @@ function App() {
       )
       return ws
     })()
-    workspacePromise.then(setWorkspace, (error: unknown) =>
-      console.error('Could not open workspace', error),
-    )
+    workspacePromise.then(setWorkspace, (error: unknown) => {
+      console.error('Could not open workspace', error)
+      setOpenFailed(true)
+    })
   }, [])
 
   // Live data. undefined = still loading.
@@ -480,6 +513,24 @@ function App() {
     [],
   )
 
+  // No space left: say so, at most once a minute. Other background
+  // failures are logged too.
+  useEffect(() => {
+    let lastShown = 0
+    const stop = onStorageFull(() => {
+      if (Date.now() - lastShown < 60_000) return
+      lastShown = Date.now()
+      showToastRef.current(t('storage.full'))
+    })
+    const onRejection = (e: PromiseRejectionEvent) =>
+      reportError(e.reason as unknown)
+    window.addEventListener('unhandledrejection', onRejection)
+    return () => {
+      stop()
+      window.removeEventListener('unhandledrejection', onRejection)
+    }
+  }, [])
+
   // A saved search opened from an address: read its query.
   useEffect(() => {
     if (!search?.fromAddress || !search.savedId) return
@@ -498,12 +549,22 @@ function App() {
   }, [search])
 
   // An address can point to a page or notebook that is gone: show Home.
+  // The check says which page it looked at: after a move, `currentPage` can
+  // still hold the previous answer for a moment.
+  const pageCheck = useLiveQuery(
+    async () => ({
+      id: currentPageId,
+      found: !!currentPageId && !!(await getPage(db, currentPageId)),
+    }),
+    [currentPageId],
+  )
   useEffect(() => {
-    if (!notebooks || currentPage === undefined || !checkAddress.current) return
+    if (!notebooks || pageCheck?.id !== currentPageId) return
+    if (!checkAddress.current) return
     checkAddress.current = false
     const missing =
       (!!notebookId && !openNotebookRecord && !showSettings) ||
-      (!!currentPageId && currentPage === null)
+      (!!currentPageId && !pageCheck.found)
     if (!missing) return
     queueMicrotask(() => {
       replaceNext.current = true
@@ -511,7 +572,7 @@ function App() {
       appUi.toast(t('nav.gone'))
     })
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [notebooks, currentPage])
+  }, [notebooks, notebookId, currentPageId, pageCheck])
 
   // A newly created page whose title should get the cursor.
   // Bumped when a tag merge/delete rewrites the open page's notes.
@@ -624,6 +685,29 @@ function App() {
       window.removeEventListener('keydown', searchKey, { capture: true })
     }
   }, [])
+
+  // Never shown as an empty app: the notes are most likely still there.
+  if (openFailed) {
+    return (
+      <main className="flex min-h-screen items-center justify-center bg-bg p-4 text-ink">
+        <div role="alert" className="w-[min(30rem,100%)] text-center">
+          <h1 className="mb-2 text-lg font-semibold">
+            {t('open.failed.title')}
+          </h1>
+          <p className="mb-5 text-sm leading-relaxed text-muted">
+            {t('open.failed.message')}
+          </p>
+          <button
+            type="button"
+            onClick={() => window.location.reload()}
+            className="min-h-10 rounded-lg bg-accent px-4 py-2 text-sm font-medium text-white hover:opacity-90"
+          >
+            {t('open.failed.retry')}
+          </button>
+        </div>
+      </main>
+    )
+  }
 
   if (!workspace || !notebooks) return null // loading (a split second)
 
@@ -738,136 +822,140 @@ function App() {
             </button>
           )}
           <main className="flex-1 overflow-auto">
-            {showSettings ? (
-              <SettingsScreen
-                key={settingsFocus ?? ''}
-                db={db}
-                focusId={settingsFocus ?? undefined}
-              />
-            ) : reviewScope ? (
-              <ReviewScreen
-                key={JSON.stringify(reviewScope)}
-                db={db}
-                scope={reviewScope}
-                onScopeChange={setReviewScope}
-                onOpenNote={(pageId, blockId) => {
-                  openPage(pageId)
-                  revealBlock(blockId)
-                }}
-                onClose={() => setReviewScope(null)}
-              />
-            ) : hub?.kind === 'cards' ? (
-              <AllCardsScreen
-                db={db}
-                onOpenHit={(hit) => runTask(openHit(hit))}
-                onReview={openReview}
-                onClose={() => setHub(null)}
-              />
-            ) : hub?.kind === 'data' ? (
-              <DataScreen
-                db={db}
-                workspaceId={workspace.id}
-                onClose={() => setHub(null)}
-              />
-            ) : hub?.kind === 'databases' ? (
-              <DatabasesScreen
-                db={db}
-                workspaceId={workspace.id}
-                onOpenDatabase={(id) => setHub({ kind: 'database', id })}
-                onClose={() => setHub(null)}
-              />
-            ) : hub?.kind === 'database' ? (
-              <DatabaseScreen
-                key={hub.id}
-                db={db}
-                databaseId={hub.id}
-                onOpenPage={openPage}
-                onBack={() => setHub({ kind: 'databases' })}
-                onOpenDatabase={(id) => setHub({ kind: 'database', id })}
-              />
-            ) : search ? (
-              <SearchScreen
-                key={search.key}
-                db={db}
-                initial={search.query}
-                title={savedSearch?.name}
-                // Typing changes the address in place (no new Back step).
-                onChange={(query) =>
-                  setSearch((s) => {
-                    if (!s || s.savedId) return s
-                    if (JSON.stringify(s.query) === JSON.stringify(query)) {
-                      return s
-                    }
-                    replaceNext.current = true
-                    return { ...s, query }
-                  })
-                }
-                actions={(query) => (
-                  <SaveSearchActions
-                    db={db}
-                    query={query}
-                    saved={savedSearch}
-                    onSaved={(saved) =>
-                      setSearch((s) => s && { ...s, savedId: saved.id })
-                    }
-                  />
-                )}
-                onOpenHit={(hit) => runTask(openHit(hit))}
-                onReview={(blockIds, name) =>
-                  openReview({ kind: 'blocks', blockIds, name })
-                }
-                onClose={() => setSearch(null)}
-              />
-            ) : openNotebookRecord ? (
-              <NotebookScreen
-                key={openNotebookRecord.id}
-                db={db}
-                notebook={openNotebookRecord}
-                onOpenPage={openPage}
-                onCreatePage={(id) => runTask(createPageIn(id, null))}
-                onOpenHit={(hit) => runTask(openHit(hit))}
-                onReview={openReview}
-                onClose={() => setNotebookId(null)}
-              />
-            ) : currentPage ? (
-              <PageView
-                key={`${currentPage.id}:${notesVersion}`}
-                db={db}
-                page={currentPage}
-                autoFocusTitle={focusTitlePageId === currentPage.id}
-                onOpenPage={openPage}
-                onOpenNewPage={openNewPage}
-                onReview={(includeSubpages) =>
-                  openReview({
-                    kind: 'page',
-                    pageId: currentPage.id,
-                    includeSubpages,
-                  })
-                }
-                onNewPageFromTemplate={(id) => runTask(newPageFromTemplate(id))}
-                onOpenTag={openTag}
-                onReload={() => setNotesVersion((v) => v + 1)}
-                onOpenDatabase={(id) => {
-                  openPage(null)
-                  setHub({ kind: 'database', id })
-                }}
-              />
-            ) : notebooks.length === 0 && currentPage === null ? (
-              <div className="mt-[30vh] text-center">
-                <p className="mb-5 text-muted">{t('app.empty.intro')}</p>
-                <button
-                  type="button"
-                  onClick={() => runTask(createNotebookAndOpen())}
-                  className="rounded-lg bg-accent px-4 py-2 text-sm font-medium text-white transition-opacity hover:opacity-90"
-                >
-                  {t('app.empty.create')}
-                </button>
-              </div>
-            ) : currentPage === null ? (
-              <p className="mt-[30vh] text-center text-muted">
-                {t('app.empty.select')}
-              </p>
-            ) : null}
+            <Suspense fallback={null}>
+              {showSettings ? (
+                <SettingsScreen
+                  key={settingsFocus ?? ''}
+                  db={db}
+                  focusId={settingsFocus ?? undefined}
+                />
+              ) : reviewScope ? (
+                <ReviewScreen
+                  key={JSON.stringify(reviewScope)}
+                  db={db}
+                  scope={reviewScope}
+                  onScopeChange={setReviewScope}
+                  onOpenNote={(pageId, blockId) => {
+                    openPage(pageId)
+                    revealBlock(blockId)
+                  }}
+                  onClose={() => setReviewScope(null)}
+                />
+              ) : hub?.kind === 'cards' ? (
+                <AllCardsScreen
+                  db={db}
+                  onOpenHit={(hit) => runTask(openHit(hit))}
+                  onReview={openReview}
+                  onClose={() => setHub(null)}
+                />
+              ) : hub?.kind === 'data' ? (
+                <DataScreen
+                  db={db}
+                  workspaceId={workspace.id}
+                  onClose={() => setHub(null)}
+                />
+              ) : hub?.kind === 'databases' ? (
+                <DatabasesScreen
+                  db={db}
+                  workspaceId={workspace.id}
+                  onOpenDatabase={(id) => setHub({ kind: 'database', id })}
+                  onClose={() => setHub(null)}
+                />
+              ) : hub?.kind === 'database' ? (
+                <DatabaseScreen
+                  key={hub.id}
+                  db={db}
+                  databaseId={hub.id}
+                  onOpenPage={openPage}
+                  onBack={() => setHub({ kind: 'databases' })}
+                  onOpenDatabase={(id) => setHub({ kind: 'database', id })}
+                />
+              ) : search ? (
+                <SearchScreen
+                  key={search.key}
+                  db={db}
+                  initial={search.query}
+                  title={savedSearch?.name}
+                  // Typing changes the address in place (no new Back step).
+                  onChange={(query) =>
+                    setSearch((s) => {
+                      if (!s || s.savedId) return s
+                      if (JSON.stringify(s.query) === JSON.stringify(query)) {
+                        return s
+                      }
+                      replaceNext.current = true
+                      return { ...s, query }
+                    })
+                  }
+                  actions={(query) => (
+                    <SaveSearchActions
+                      db={db}
+                      query={query}
+                      saved={savedSearch}
+                      onSaved={(saved) =>
+                        setSearch((s) => s && { ...s, savedId: saved.id })
+                      }
+                    />
+                  )}
+                  onOpenHit={(hit) => runTask(openHit(hit))}
+                  onReview={(blockIds, name) =>
+                    openReview({ kind: 'blocks', blockIds, name })
+                  }
+                  onClose={() => setSearch(null)}
+                />
+              ) : openNotebookRecord ? (
+                <NotebookScreen
+                  key={openNotebookRecord.id}
+                  db={db}
+                  notebook={openNotebookRecord}
+                  onOpenPage={openPage}
+                  onCreatePage={(id) => runTask(createPageIn(id, null))}
+                  onOpenHit={(hit) => runTask(openHit(hit))}
+                  onReview={openReview}
+                  onClose={() => setNotebookId(null)}
+                />
+              ) : currentPage ? (
+                <PageView
+                  key={`${currentPage.id}:${notesVersion}`}
+                  db={db}
+                  page={currentPage}
+                  autoFocusTitle={focusTitlePageId === currentPage.id}
+                  onOpenPage={openPage}
+                  onOpenNewPage={openNewPage}
+                  onReview={(includeSubpages) =>
+                    openReview({
+                      kind: 'page',
+                      pageId: currentPage.id,
+                      includeSubpages,
+                    })
+                  }
+                  onNewPageFromTemplate={(id) =>
+                    runTask(newPageFromTemplate(id))
+                  }
+                  onOpenTag={openTag}
+                  onReload={() => setNotesVersion((v) => v + 1)}
+                  onOpenDatabase={(id) => {
+                    openPage(null)
+                    setHub({ kind: 'database', id })
+                  }}
+                />
+              ) : notebooks.length === 0 && currentPage === null ? (
+                <div className="mt-[30vh] text-center">
+                  <p className="mb-5 text-muted">{t('app.empty.intro')}</p>
+                  <button
+                    type="button"
+                    onClick={() => runTask(createNotebookAndOpen())}
+                    className="rounded-lg bg-accent px-4 py-2 text-sm font-medium text-white transition-opacity hover:opacity-90"
+                  >
+                    {t('app.empty.create')}
+                  </button>
+                </div>
+              ) : currentPage === null ? (
+                <p className="mt-[30vh] text-center text-muted">
+                  {t('app.empty.select')}
+                </p>
+              ) : null}
+            </Suspense>
           </main>
         </div>
 

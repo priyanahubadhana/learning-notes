@@ -3,12 +3,10 @@ import { defineConfig, devices } from '@playwright/test'
 /**
  * Playwright end-to-end tests: a real browser clicks through the app.
  * Each test gets a fresh browser context, so its IndexedDB starts empty.
- * Run with `npm run test:e2e` (starts the dev server automatically).
+ * Run with `npm run test:e2e`. The tests use the built app under the live
+ * site's security rules, so they check what users actually get.
  */
 const PORT = 5199
-const BUILT_PORT = 5198
-/** The built app, for tests of what only exists there (offline). */
-export const BUILT_APP_URL = `http://localhost:${BUILT_PORT}`
 
 export default defineConfig({
   testDir: './e2e',
@@ -19,6 +17,8 @@ export default defineConfig({
   reporter: 'list',
   use: {
     baseURL: `http://localhost:${PORT}`,
+    actionTimeout: 10_000, // a stuck click names itself
+    serviceWorkers: 'block', // offline.spec.ts turns it on
     trace: 'retain-on-failure',
   },
   projects: [
@@ -29,17 +29,9 @@ export default defineConfig({
       expect: { timeout: 15_000 }, // WebKit starts the app more slowly
     },
   ],
-  webServer: [
-    {
-      command: `npm run dev -- --port ${PORT} --strictPort`,
-      url: `http://localhost:${PORT}`,
-      reuseExistingServer: !process.env.CI,
-      env: { E2E: '1' },
-    },
-    {
-      command: `npm run build && npm run preview -- --port ${BUILT_PORT} --strictPort`,
-      url: BUILT_APP_URL,
-      env: { E2E: '1' },
-    },
-  ],
+  webServer: {
+    command: `npm run build && npm run preview -- --port ${PORT} --strictPort`,
+    url: `http://localhost:${PORT}`,
+    env: { E2E: '1' },
+  },
 })

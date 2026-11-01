@@ -17,6 +17,8 @@ Picked by Claude. Anything can be changed.
 
 | Date       | Step       | Picked                                                                                                                                                              | Other options                            |
 | ---------- | ---------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------- | ---------------------------------------- |
+| 2026-11-01 | 9 tests    | Browser tests now run on the built app. The 10,000-note tag speed test needed the dev server and was removed; it last measured about 4 s locally                    | Keep a separate dev-server run           |
+| 2026-11-01 | 9 tests    | Browser tests now run on the built app. The 10,000-note tag speed test needed the dev server and was removed; it last measured about 4 s locally                    | Keep a separate dev-server run           |
 | 2026-11-01 | 9 offline  | vite-plugin-pwa added (MIT, developer tool). It raises developer-tool audit warnings from 12 to 21; the app itself still has 0                                      | Hand-written service worker              |
 | 2026-11-01 | 9 security | Pictures linked by web address are still allowed, so old notes keep working; those sites can see when a picture loads                                               | Block all outside pictures               |
 | 2026-11-01 | 7 CI       | WebKit failures (16 on Windows, 7 on Linux) are not real Safari; they are parked for checking on a real iPad in Phase 9, not fixed now                              | Fix them all now                         |

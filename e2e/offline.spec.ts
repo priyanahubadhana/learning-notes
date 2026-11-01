@@ -1,9 +1,7 @@
 import { expect, test } from '@playwright/test'
-import { BUILT_APP_URL } from '../playwright.config.ts'
 import { setTitle } from './helpers.ts'
 
-// Offline needs the built app: the dev server has no service worker.
-test.use({ baseURL: BUILT_APP_URL })
+test.use({ serviceWorkers: 'allow' })
 
 test('the app and its notes open with no internet', async ({
   page,

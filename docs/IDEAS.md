@@ -95,5 +95,4 @@ New ideas that come up mid-build are parked here, not added to the current phase
 - 2026-10-28 — CSV import: "skip duplicates" option (match rows already in the database) — after the Add / Replace / New database choice exists
 - 2026-10-28 — Menus: let the user pin, reorder and hide menu items (not "customise everything"). Likely Phase 7
 - 2026-10-28 — Calendar (Phase 7 plan): Day / Week / Month switch; Day = a full-page card with swipe left/right for previous/next day; same features on every device; open on the view the user used last. Year view parked
-- 2026-11-01 — Check: an address to a missing page sometimes shows no "no longer exists" message (e2e navigation test, about 1 run in 8); may be a real timing issue in the address check in App.tsx _(Likely phase: Polish)_
 - 2026-11-01 — Small tidy-ups found while writing specs: CSV size check compares bytes with a character limit; a test title says "Table and Dashboard views" but three views are made _(Likely phase: Polish)_

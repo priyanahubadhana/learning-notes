@@ -23,12 +23,6 @@ function siteHeaders(): Record<string, string> {
 // https://vite.dev/config/
 export default defineConfig({
   preview: { headers: siteHeaders() },
-  // Dev only: prepare the screens that load on demand at startup, so opening
-  // one is not slow and does not restart the page.
-  optimizeDeps: { entries: ['index.html', 'src/**/*.tsx'] },
-  server: {
-    warmup: { clientFiles: ['./src/main.tsx', './src/**/*Screen.tsx'] },
-  },
   // Dev only: a self-signed https certificate, so another device on the
   // Wi-Fi (the iPad) gets a secure context (crypto, IndexedDB features).
   // The end-to-end tests (E2E=1) use plain http on localhost.

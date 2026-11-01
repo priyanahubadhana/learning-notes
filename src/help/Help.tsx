@@ -162,7 +162,7 @@ function Bubble({
       role="tooltip"
       id={bubbleId}
       style={style}
-      className="fixed z-40 block rounded-lg border border-line bg-bg p-2.5 text-start text-[12.5px] font-normal leading-snug whitespace-normal text-ink shadow-[0_8px_24px_rgba(0,0,0,0.16)]"
+      className="pointer-events-none fixed z-40 block rounded-lg border border-line bg-bg p-2.5 text-start text-[12.5px] font-normal leading-snug whitespace-normal text-ink shadow-[0_8px_24px_rgba(0,0,0,0.16)]"
     >
       {image && <img src={image} alt="" className="mb-2 w-full rounded-md" />}
       <span className="block font-medium">{tipMeaning(id)}</span>

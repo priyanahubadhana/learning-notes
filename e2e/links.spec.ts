@@ -116,7 +116,7 @@ test('a link to a page in the Trash offers Restore', async ({ page }) => {
   await expect(editorLink(page)).toHaveClass(/note-link-gone/)
 
   await editorLink(page).click()
-  await page.getByRole('button', { name: 'Restore' }).click()
+  await page.getByRole('button', { name: 'Restore', exact: true }).click()
   await expect(page.getByRole('textbox', { name: 'Page title' })).toHaveValue(
     'Heart sounds',
   )

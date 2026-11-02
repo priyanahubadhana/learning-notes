@@ -5,13 +5,13 @@ import { createNotebook, selectText, sidebar, openSidebar } from './helpers.ts'
 const main = (page: Page) => page.getByRole('main')
 const sheet = (page: Page) => main(page).getByRole('region', { name: 'Revise' })
 
-/** Opens Backup & files and loads the sample notebook. */
+/** Opens Save & restore and loads the sample notebook. */
 async function loadSample(page: Page) {
   await page.goto('/')
   await (
     await openSidebar(page)
   )
-    .getByRole('button', { name: 'Backup & files' })
+    .getByRole('button', { name: 'Save & restore' })
     .click()
   await main(page)
     .getByRole('region', { name: 'For testing: sample notebook' })
@@ -90,15 +90,15 @@ test('the five 5B checks, on the sample notebook', async ({ page }) => {
     main(page).getByRole('row').filter({ hasText: 'Respiratory Physiology' }),
   ).toHaveCount(2)
 
-  // 3. Backup & files: save the notebook, bring it back as a copy.
+  // 3. Save & restore: save the notebook, bring it back as a copy.
   await (
     await openSidebar(page)
   )
-    .getByRole('button', { name: 'Backup & files' })
+    .getByRole('button', { name: 'Save & restore' })
     .click()
   const saving = page.waitForEvent('download')
   const save = main(page).getByRole('region', {
-    name: 'Save a notebook as a file',
+    name: 'One notebook',
   })
   await save
     .getByLabel('Notebook to save')
@@ -109,7 +109,7 @@ test('the five 5B checks, on the sample notebook', async ({ page }) => {
   const bundle = JSON.parse(await readFile(await file.path(), 'utf8'))
   expect(bundle.cards).toHaveLength(4)
   await main(page)
-    .getByLabel('Restore backup')
+    .getByLabel('Open saved file')
     .setInputFiles(await file.path())
   await expect(
     page.getByText(/Imported 1 notebooks, \d+ pages and 4 cards/),
@@ -221,7 +221,7 @@ test('sample notebook: its databases show in the Database tab; second copy warns
   await (
     await openSidebar(page)
   )
-    .getByRole('button', { name: 'Backup & files' })
+    .getByRole('button', { name: 'Save & restore' })
     .click()
   const box = main(page).getByRole('region', {
     name: 'For testing: sample notebook',
@@ -258,7 +258,7 @@ test('sample notebook: its databases show in the Database tab; second copy warns
   await (
     await openSidebar(page)
   )
-    .getByRole('button', { name: 'Backup & files' })
+    .getByRole('button', { name: 'Save & restore' })
     .click()
   await box.getByRole('button', { name: 'Load sample notebook' }).click()
   await expect(

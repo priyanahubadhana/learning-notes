@@ -63,14 +63,12 @@ test('the bar stays above every screen', async ({ page }) => {
   for (const screen of [
     'Databases',
     'All cards',
-    'Backup & files',
+    'Save & restore',
     'Settings',
   ]) {
     await sidebar(page).getByRole('button', { name: screen }).click()
     await expect(back).toBeVisible()
-    await expect(page.locator('header').first()).toContainText(
-      screen === 'Backup & files' ? 'Backup' : screen,
-    )
+    await expect(page.locator('header').first()).toContainText(screen)
     await expect(
       page.getByRole('button', { name: 'More options' }),
     ).toHaveCount(0)
@@ -119,9 +117,9 @@ test.describe('phone and tablet', () => {
     expect(box.y + box.height).toBeLessThanOrEqual(844)
     await expect(page.getByRole('menuitem')).toHaveCount(6)
 
-    await page.getByRole('menuitem', { name: /Restore backup/ }).tap()
+    await page.getByRole('menuitem', { name: /Save & restore/ }).tap()
     await expect(
-      page.getByRole('heading', { name: /Backup/, level: 1 }),
+      page.getByRole('heading', { name: /Save & restore/, level: 1 }),
     ).toBeVisible()
   })
 

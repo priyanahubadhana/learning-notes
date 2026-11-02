@@ -78,7 +78,7 @@ test('a search address restores the search', async ({ page }) => {
   ).toHaveValue('zebra')
 })
 
-test('Back and Forward also follow Settings categories, database views, Backup & files and the Search text', async ({
+test('Back and Forward also follow Settings categories, database views, Save & restore and the Search text', async ({
   page,
 }) => {
   const side = async () => await openSidebar(page)
@@ -120,8 +120,8 @@ test('Back and Forward also follow Settings categories, database views, Backup &
   await expect(page).toHaveURL(/#\/notebook\/[^/]+\/database\/[^/]+\/[^/]+$/)
   expect(page.url()).not.toBe(boardUrl)
 
-  // Backup & files and back.
-  await (await side()).getByRole('button', { name: 'Backup & files' }).click()
+  // Save & restore and back.
+  await (await side()).getByRole('button', { name: 'Save & restore' }).click()
   await expect(page).toHaveURL(/#\/data$/)
   await page.goBack()
   await expect(page).toHaveURL(/#\/notebook\//)

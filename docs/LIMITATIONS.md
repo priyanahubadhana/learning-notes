@@ -5,7 +5,7 @@
 - **First load size:** about 320 KB after the split on 2026-11-01.
 - **Hindi editor menus:** BlockNote has no Hindi menus yet.
 - **Spanish and Hindi** need native-speaker review.
-- **Data lives in one browser:** no sync yet; move it with Save everything and Restore backup.
+- **Data lives in one browser:** no sync yet; move it with Save everything and Open saved file.
 - **Delete forever keeps pictures:** page history is erased, but no code in Trash erases picture files. Fix before sync.
 - **Same-spot inserts:** two devices adding a block at the same spot get the same order key, and a later insert between them fails. One window per page now prevents this on one device; fix before sync (see RESEARCH.md).
 - **Backup limits:** Save everything leaves out page history, settings, saved searches and the Trash, and journal days return as an ordinary notebook. A file over 200 MB saves but cannot be opened again.

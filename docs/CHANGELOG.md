@@ -2,6 +2,10 @@
 
 Current phase only. Older entries are in [ARCHIVE.md](ARCHIVE.md).
 
+## 2026-11-03
+
+- Renamed Backup & files to Save & restore and cut its text, because it was hard to scan. Applied the audit decisions to the roadmap and rules; set effort and helper-agent limits. Files: `src/i18n/`, `src/share/DataScreen.tsx`, `src/help/helpRegistry.ts`, `e2e/`, `docs/`, `rules/`.
+
 ## 2026-11-02
 
 - **What:** Logged the six owner decisions, the audit's strategy and roadmap proposals, and the choices made alone in Decisions to review. Updated Handoff (audit count is 2 low and 19 moderate), Limitations and Learning.

@@ -10,7 +10,7 @@ test('All cards: search, a notebook filter and a notebook label on each card', a
   await createNotebook(page, 'Cardiology', 'Heart sounds')
   await makeCard(page, 'Which valves close in S1?', 1)
   const side = await openSidebar(page)
-  await side.getByRole('button', { name: 'Backup & files' }).click()
+  await side.getByRole('button', { name: 'Save & restore' }).click()
   await main(page).getByRole('button', { name: 'Load sample notebook' }).click()
   await side.getByRole('button', { name: 'All cards', exact: true }).click()
 

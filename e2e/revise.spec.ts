@@ -80,7 +80,7 @@ for (const [theme, width, height] of [
   ['Sepia', 1280, 800],
   ['Day', 390, 844],
 ] as const) {
-  test(`screenshot: Revise and Backup & files ${theme} ${width}×${height}`, async ({
+  test(`screenshot: Revise and Save & restore ${theme} ${width}×${height}`, async ({
     page,
   }) => {
     await page.goto('/')
@@ -125,7 +125,7 @@ for (const [theme, width, height] of [
     await (
       await openSidebar(page)
     )
-      .getByRole('button', { name: 'Backup & files' })
+      .getByRole('button', { name: 'Save & restore' })
       .click()
     await page.waitForTimeout(300)
     await page.screenshot({

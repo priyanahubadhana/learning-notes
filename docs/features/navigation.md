@@ -14,7 +14,7 @@ Every screen has an address (the part after `#`), so refresh, Back, Forward and 
 - Phone menu: it closes on any choice in it (also the screen already open), on another screen, Esc, a tap outside, or its three-line button, which sits where the opening button was. The full-screen search popup has the opening button too; while the menu covers Review, keys don't reach the card.
 - Top bar, above every screen: three-line menu button (hides or shows the sidebar on wider screens, remembered per device; `Ctrl+\` / `⌘\`), ← and → through the app's own history, the page's path or the screen's name, and on pages the ⋯ menu.
 - ← returns to the previous page and is grey on the first one. → is grey until ← is used, and grey again after opening something new. The app keeps its own count (`src/app/navHistory.ts`) because browsers don't say whether a next entry exists.
-- Page ⋯ menu: Review this page (`Alt+R`), History, Save as template, Restore backup (opens Backup & files), Import and Export (grey, Coming soon).
+- Page ⋯ menu: Review this page (`Alt+R`), History, Save as template, Save & restore (opens that screen), Import and Export (grey, Coming soon).
 - `useDiscardGuard.tsx` is separate: a click outside a dialog closes it only if nothing was changed, otherwise asks "Discard your changes?".
 
 The handle between the menu and the page sets the menu width (`src/app/SidebarResizer.tsx`, limits in `sidebarWidth.ts`), remembered per device. Drag it, use the arrow keys, or double-click to reset. It is hidden on phones and when the menu is hidden.

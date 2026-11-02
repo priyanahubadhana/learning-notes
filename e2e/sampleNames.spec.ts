@@ -6,7 +6,7 @@ test('the sample notebook is shown in the chosen language', async ({
 }) => {
   await page.goto('/')
   const side = await openSidebar(page)
-  await side.getByRole('button', { name: 'Backup & files' }).click()
+  await side.getByRole('button', { name: 'Save & restore' }).click()
   await page.getByRole('button', { name: 'Load sample notebook' }).click()
   await expect(
     side.getByRole('button', { name: 'Heart sounds', exact: true }),

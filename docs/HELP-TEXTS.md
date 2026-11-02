@@ -576,55 +576,55 @@ Every hover tip and help line in the app (shown while Settings › Show help is 
 
 ### `sidebar.data`
 
-- **Where:** Sidebar › Backup & files
+- **Where:** Sidebar › Save & restore
 - **Meaning:** Save a notebook as a file, bring a file in, or restore the backup the app made before an upgrade.
 - **Example:** Keep a copy of “Cardiology” on a USB stick.
 
 ### `data.export`
 
-- **Where:** Backup & files › Save file
+- **Where:** Save & restore › Save file
 - **Meaning:** Saves the whole notebook (notes, cards with their schedules, databases) as one file.
 - **Example:** Send “Cardiology” to a friend or keep it safe.
 
 ### `data.exportAll`
 
-- **Where:** Backup & files › Save everything
+- **Where:** Save & restore › Save everything
 - **Meaning:** Saves all your notebooks, the journal and the templates as one file. You can lock it with a password.
 - **Example:** Once a week, keep a copy on a USB stick.
 
 ### `data.ankiImport`
 
-- **Where:** Backup & files › Anki › Import
+- **Where:** Save & restore › Anki › Import
 - **Meaning:** Adds the cards of an Anki deck (.apkg) as a new notebook. They start as new cards.
 - **Example:** Bring your existing biology deck over from Anki.
 
 ### `data.ankiExport`
 
-- **Where:** Backup & files › Anki › Save for Anki
+- **Where:** Save & restore › Anki › Save for Anki
 - **Meaning:** Saves the cards and blanks of a notebook as an Anki deck (.apkg).
 - **Example:** Study “Cardiology” on your phone in Anki.
 
 ### `data.import`
 
-- **Where:** Backup & files › Restore backup
+- **Where:** Save & restore › Open saved file
 - **Meaning:** Opens a file saved by this app and adds its notebooks as new copies. Nothing you already have is changed.
 - **Example:** Open the backup file you saved last week.
 
 ### `data.restore`
 
-- **Where:** Backup & files › Restore as copies
+- **Where:** Save & restore › Bring back
 - **Meaning:** Brings back the notebooks of the backup the app saved before the last upgrade, as new copies.
 - **Example:** Get a notebook back if an upgrade went wrong.
 
 ### `data.sample`
 
-- **Where:** Backup & files › Load sample notebook
+- **Where:** Save & restore › Load sample notebook
 - **Meaning:** Adds a ready-made notebook with marked notes, cards and a database, so you can try every feature.
 - **Example:** Open its Revise tab to see marked words.
 
 ### `data.sampleRemove`
 
-- **Where:** Backup & files › Remove sample notebook
+- **Where:** Save & restore › Remove sample notebook
 - **Meaning:** Moves the sample notebook (and only what the sample added) to the Trash, after asking you.
 - **Example:** Clean up after trying the app.
 

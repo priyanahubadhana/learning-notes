@@ -100,7 +100,7 @@ export const es7: Record<string, string> = {
     'Arrastra para cambiar el ancho; doble clic para restablecer',
   'page.more': 'Más opciones',
   'page.reviewThis': 'Repasar esta página',
-  'page.restoreBackup': 'Restaurar copia de seguridad',
+  'page.restoreBackup': 'Guardar y restaurar',
   'page.comingSoon': 'Próximamente',
   'error.title': 'No se pudo mostrar esta página',
   'error.text':
@@ -114,7 +114,7 @@ export const es7: Record<string, string> = {
     'Aún sin guardar. Tus últimos cambios se conservan en este dispositivo y la aplicación sigue intentándolo.',
   'save.retry': 'Reintentar',
   'data.all.limits':
-    'Incluye: cuadernos, páginas, tarjetas, bases de datos, imágenes, días del diario y plantillas. No incluye: historial de páginas, ajustes, búsquedas guardadas ni la papelera. Los días del diario vuelven como un cuaderno normal, no en Hoy.',
+    'No se guardan: historial de páginas, ajustes, búsquedas guardadas ni Papelera. Los días del diario vuelven como un cuaderno.',
   'data.tooBigToRestore':
     'El archivo se guardó, pero supera los 200 MB y la aplicación no podría abrirlo de nuevo. Consérvalo y guarda también archivos más pequeños por cuaderno.',
   'data.failed': 'No funcionó y no se cambió nada. Inténtalo de nuevo.',

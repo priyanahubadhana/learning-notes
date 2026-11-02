@@ -2,7 +2,7 @@ import { t } from '../i18n/t'
 
 /**
  * A gentle bar at the bottom: no backup file for a week. "Save backup now"
- * opens Backup & files; "Remind me later" asks again tomorrow.
+ * opens Save & restore; "Remind me later" asks again tomorrow.
  */
 export function BackupReminder({
   onSave,

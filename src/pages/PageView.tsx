@@ -52,7 +52,7 @@ interface PageViewProps {
   onOpenDatabase?: (databaseId: string) => void
   /** Reloads the editor after the page was changed from outside it. */
   onReload: () => void
-  /** Opens Backup & files, to restore a backup. */
+  /** Opens Save & restore, to restore a backup. */
   onOpenBackup: () => void
 }
 

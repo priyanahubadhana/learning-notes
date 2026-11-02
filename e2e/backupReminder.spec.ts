@@ -53,7 +53,7 @@ test('after a week: Remind me later hides it, saving a backup file ends it', asy
   await page.reload()
   await bar(page).getByRole('button', { name: 'Save backup now' }).click()
   await expect(
-    page.getByRole('heading', { name: 'Backup & files', level: 1 }),
+    page.getByRole('heading', { name: 'Save & restore', level: 1 }),
   ).toBeVisible()
   await expect(bar(page)).toHaveCount(0) // not shown on that screen
   const downloading = page.waitForEvent('download')

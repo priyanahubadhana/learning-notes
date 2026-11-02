@@ -874,29 +874,25 @@ export const en = {
   'csv.doneColumns': ' and made {count} new columns',
   'csv.exported': 'Saved “{name}”',
   'import.copyName': '{name} (imported)',
-  'sidebar.data': 'Backup & files',
-  'data.title': 'Backup & files',
+  'sidebar.data': 'Save & restore',
+  'data.title': 'Save & restore',
   'data.intro':
-    'Keep your notebooks safe in files, move them between devices, and bring back the backup the app made before an upgrade. Everything that comes in is added as new copies; nothing you have is changed.',
-  'data.export.title': 'Save a notebook as a file',
-  'data.export.text':
-    'Notes, cards with their schedules and review history, databases, views and charts.',
+    'Save your notes to a file. Opening a file adds copies; nothing is replaced.',
+  'data.export.title': 'One notebook',
+  'data.export.text': 'Notes, cards, databases and charts.',
   'data.export.which': 'Notebook to save',
   'data.export.button': 'Save file',
-  'data.import.file': 'Restore backup',
+  'data.import.file': 'Open saved file',
   'data.tooBig': 'This file is too big to import (the limit is about 200 MB).',
   'data.nothing': 'This file has no notebooks or databases to import.',
   'data.imported':
     'Imported {notebooks} notebooks, {pages} pages and {cards} cards as new copies.',
-  'data.restore.title': 'Restore the automatic backup',
-  'data.restore.text':
-    'Before an upgrade the app keeps a copy of your notes in this browser.',
-  'data.restore.none':
-    'There is no automatic backup in this browser yet. One is made when the app next upgrades how it stores notes.',
+  'data.restore.title': 'Before last update',
+  'data.restore.text': 'A copy the app keeps in this browser.',
+  'data.restore.none': 'No copy yet.',
   'data.restore.info': 'Saved {date}: {notebooks} notebooks.',
-  'data.restore.button': 'Restore as copies',
-  'data.notIncluded':
-    'Tags are matched by name; their colours come along when the tag is new here. Journal days arrive as a notebook called “Journal (imported)”, templates as new templates.',
+  'data.restore.button': 'Bring back',
+  'data.notIncluded': 'Tags are matched by name.',
   'nav.openMenu': 'Open menu',
   'nav.closeMenu': 'Close menu',
   'open.failed.title': 'Your notes could not be opened',
@@ -928,7 +924,7 @@ export const en = {
   'backup.reminder.later': 'Remind me later',
   'data.anki.title': 'Anki',
   'data.anki.text':
-    'Bring in a deck from Anki (a .apkg file), or save a notebook’s cards as one. Cards start as new: Anki’s schedules, pictures and sounds are not carried over.',
+    'Cards start as new. Schedules, pictures and sounds stay behind.',
   'data.anki.import': 'Import from Anki',
   'data.anki.hint': 'Pick an .apkg file',
   'data.anki.which': 'Notebook to save for Anki',
@@ -950,9 +946,8 @@ export const en = {
   'data.protect.again': 'Type the password again',
   'data.protect.short': 'The password needs at least {count} characters.',
   'data.protect.mismatch': 'The two passwords are not the same.',
-  'data.all.title': 'Backup',
-  'data.all.text':
-    'Save all your notebooks in one file, or restore a file you saved this way. Restoring adds everything as new copies; nothing you have is changed.',
+  'data.all.title': 'Everything',
+  'data.all.text': 'All your notes in one file.',
   'data.all.button': 'Save everything',
   'data.locked.text': '“{name}” is protected. Type its password to open it.',
   'data.locked.password': 'Password of this file',
@@ -965,8 +960,7 @@ export const en = {
   'data.export.journal': 'Include my journal days',
   'data.export.templates': 'Include my templates',
   'data.sample.title': 'For testing: sample notebook',
-  'data.sample.text':
-    'Adds a new notebook with two lessons, marked notes, a few cards and a database with dates and picture links. Nothing you have is changed or deleted.',
+  'data.sample.text': 'Adds a practice notebook. Nothing else changes.',
   'data.sample.button': 'Load sample notebook',
   'data.sample.done': 'Added the sample notebook “{name}”.',
   'data.sample.again': 'You already have a sample notebook. Add another?',
@@ -1599,10 +1593,8 @@ export const en = {
   'anki.noCards': 'This notebook has no cards or blanks to export.',
   'anki.placeholder':
     'This package was saved by an old Anki as a placeholder. Export it again from Anki with “Support older Anki versions” ticked off.',
-  'data.all.note':
-    'This file only opens in Learning Notes. Use Restore backup to open it.',
-  'data.export.passwordHint':
-    'The password box under “Backup” above also locks this file.',
+  'data.all.note': 'These files open only in Learning Notes.',
+  'data.export.passwordHint': 'The password above also locks this file.',
   'calendar.addDate': 'Add date column',
   'calendar.dateName': 'Date',
   'settings.category.general.hint':
@@ -1669,7 +1661,7 @@ export const en = {
   'nav.forwardHint': 'Forward: grey until you use Back',
   'page.more': 'More options',
   'page.reviewThis': 'Review this page',
-  'page.restoreBackup': 'Restore backup',
+  'page.restoreBackup': 'Save & restore',
   'page.comingSoon': 'Coming soon',
   'error.title': 'This page could not be shown',
   'error.text':
@@ -1683,7 +1675,7 @@ export const en = {
     'Not saved yet. Your latest changes are kept on this device and the app keeps trying.',
   'save.retry': 'Try again',
   'data.all.limits':
-    'Included: live notebooks, pages, cards, databases, pictures, journal days and templates. Not included: page history, settings, saved searches and the Trash. Journal days come back as an ordinary notebook, not in Today.',
+    'Not saved: page history, settings, saved searches and Trash. Journal days come back as a notebook.',
   'data.tooBigToRestore':
     'This file was saved, but it is over 200 MB, so the app could not open it again. Keep it, and also save smaller notebook files.',
   'data.failed':

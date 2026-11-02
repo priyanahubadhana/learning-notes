@@ -13,7 +13,7 @@ test('Anki: save a notebook for Anki, then bring that file in as a new notebook'
   await (
     await openSidebar(page)
   )
-    .getByRole('button', { name: 'Backup & files' })
+    .getByRole('button', { name: 'Save & restore' })
     .click()
 
   const anki = main(page).getByRole('region', { name: 'Anki' })
@@ -44,7 +44,7 @@ test('Anki: a notebook without cards cannot be saved', async ({ page }) => {
   await (
     await openSidebar(page)
   )
-    .getByRole('button', { name: 'Backup & files' })
+    .getByRole('button', { name: 'Save & restore' })
     .click()
   await main(page)
     .getByRole('region', { name: 'Anki' })

@@ -43,7 +43,7 @@ import {
 } from './sampleNotebook'
 
 /**
- * "Backup & files": save a notebook as a file, bring a file (or a backup
+ * "Save & restore": save a notebook as a file, bring a file (or a backup
  * file) in, and restore the automatic backup the app keeps in this browser
  * before an upgrade. Everything that comes in is added as new copies.
  */
@@ -395,6 +395,47 @@ export function DataScreen({
           </div>
         </section>
 
+        <section aria-label={t('data.restore.title')} className={box}>
+          <h2 className="mb-1 text-[15px] font-semibold">
+            {t('data.restore.title')}
+          </h2>
+          <p className="mb-3 text-sm text-muted">{t('data.restore.text')}</p>
+          {backup === undefined ? null : backup === null ? (
+            <p className="text-sm text-muted">{t('data.restore.none')}</p>
+          ) : (
+            <div className="flex flex-wrap items-center gap-2">
+              <span className="me-auto text-sm">
+                {t('data.restore.info', {
+                  date: new Intl.DateTimeFormat(undefined, {
+                    dateStyle: 'medium',
+                    timeStyle: 'short',
+                  }).format(backup.createdAt),
+                  notebooks: bundleFromSnapshot(backup).notebooks.length,
+                })}
+              </span>
+              <Tip id="data.restore" touchInfo={false}>
+                <button
+                  type="button"
+                  disabled={busy}
+                  onClick={() =>
+                    run(async () => {
+                      const full = await readBrowserBackup(DEFAULT_DB_NAME)
+                      if (full) {
+                        await importBundleNow(
+                          checkBundle(bundleFromSnapshot(full)),
+                        )
+                      }
+                    })
+                  }
+                  className={button}
+                >
+                  {t('data.restore.button')}
+                </button>
+              </Tip>
+            </div>
+          )}
+        </section>
+
         <section aria-label={t('data.anki.title')} className={box}>
           <h2 className="mb-1 text-[15px] font-semibold">
             {t('data.anki.title')}
@@ -473,46 +514,6 @@ export function DataScreen({
           </div>
         </section>
 
-        <section aria-label={t('data.restore.title')} className={box}>
-          <h2 className="mb-1 text-[15px] font-semibold">
-            {t('data.restore.title')}
-          </h2>
-          <p className="mb-3 text-sm text-muted">{t('data.restore.text')}</p>
-          {backup === undefined ? null : backup === null ? (
-            <p className="text-sm text-muted">{t('data.restore.none')}</p>
-          ) : (
-            <div className="flex flex-wrap items-center gap-2">
-              <span className="me-auto text-sm">
-                {t('data.restore.info', {
-                  date: new Intl.DateTimeFormat(undefined, {
-                    dateStyle: 'medium',
-                    timeStyle: 'short',
-                  }).format(backup.createdAt),
-                  notebooks: bundleFromSnapshot(backup).notebooks.length,
-                })}
-              </span>
-              <Tip id="data.restore" touchInfo={false}>
-                <button
-                  type="button"
-                  disabled={busy}
-                  onClick={() =>
-                    run(async () => {
-                      const full = await readBrowserBackup(DEFAULT_DB_NAME)
-                      if (full) {
-                        await importBundleNow(
-                          checkBundle(bundleFromSnapshot(full)),
-                        )
-                      }
-                    })
-                  }
-                  className={button}
-                >
-                  {t('data.restore.button')}
-                </button>
-              </Tip>
-            </div>
-          )}
-        </section>
         <p className="text-xs text-muted">{t('data.notIncluded')}</p>
         {asking === 'again' && (
           <ConfirmDialog

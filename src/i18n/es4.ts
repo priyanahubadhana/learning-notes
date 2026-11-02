@@ -195,31 +195,27 @@ export const es4: Record<string, string> = {
   'csv.doneColumns': ' y se crearon {count} columnas nuevas',
   'csv.exported': 'Guardado «{name}»',
   'import.copyName': '{name} (importado)',
-  'sidebar.data': 'Copias y archivos',
-  'data.title': 'Copias y archivos',
+  'sidebar.data': 'Guardar y restaurar',
+  'data.title': 'Guardar y restaurar',
   'data.intro':
-    'Mantén tus cuadernos a salvo en archivos, muévelos entre dispositivos y recupera la copia de seguridad que la aplicación hizo antes de una actualización. Todo lo que entra se añade como copias nuevas; no se cambia nada de lo que tienes.',
-  'data.export.title': 'Guardar un cuaderno como archivo',
-  'data.export.text':
-    'Notas, tarjetas con sus calendarios e historial de repaso, bases de datos, vistas y gráficos.',
+    'Guarda tus notas en un archivo. Al abrir un archivo se añaden copias; no se reemplaza nada.',
+  'data.export.title': 'Un cuaderno',
+  'data.export.text': 'Notas, tarjetas, bases de datos y gráficos.',
   'data.export.which': 'Cuaderno que guardar',
   'data.export.button': 'Guardar archivo',
-  'data.import.file': 'Restaurar copia de seguridad',
+  'data.import.file': 'Abrir archivo guardado',
   'data.tooBig':
     'Este archivo es demasiado grande para importarlo (el límite es de unos 200 MB).',
   'data.nothing':
     'Este archivo no tiene cuadernos ni bases de datos que importar.',
   'data.imported':
     'Se importaron {notebooks} cuadernos, {pages} páginas y {cards} tarjetas como copias nuevas.',
-  'data.restore.title': 'Restaurar la copia automática',
-  'data.restore.text':
-    'Antes de una actualización, la aplicación guarda una copia de tus notas en este navegador.',
-  'data.restore.none':
-    'Aún no hay copia automática en este navegador. Se hace una cuando la aplicación cambie la forma de guardar las notas.',
+  'data.restore.title': 'Antes de la última actualización',
+  'data.restore.text': 'Una copia que la app guarda en este navegador.',
+  'data.restore.none': 'Aún no hay copia.',
   'data.restore.info': 'Guardada el {date}: {notebooks} cuadernos.',
-  'data.restore.button': 'Restaurar como copias',
-  'data.notIncluded':
-    'Las etiquetas se emparejan por nombre; sus colores vienen si la etiqueta es nueva aquí. Los días del diario llegan como un cuaderno llamado «Diario (importado)», y las plantillas como plantillas nuevas.',
+  'data.restore.button': 'Recuperar',
+  'data.notIncluded': 'Las etiquetas se unen por nombre.',
   'nav.openMenu': 'Abrir menú',
   'nav.closeMenu': 'Cerrar menú',
   'backup.reminder.label': 'Recordatorio de copia de seguridad',
@@ -229,7 +225,7 @@ export const es4: Record<string, string> = {
   'backup.reminder.later': 'Recordármelo luego',
   'data.anki.title': 'Anki',
   'data.anki.text':
-    'Trae un mazo de Anki (un archivo .apkg), o guarda las tarjetas de un cuaderno como uno. Las tarjetas empiezan como nuevas: los calendarios, imágenes y sonidos de Anki no se traen.',
+    'Las tarjetas empiezan como nuevas. Fechas, imágenes y sonidos no se traen.',
   'data.anki.import': 'Importar desde Anki',
   'data.anki.hint': 'Elige un archivo .apkg',
   'data.anki.which': 'Cuaderno que guardar para Anki',
@@ -251,13 +247,11 @@ export const es4: Record<string, string> = {
   'data.protect.again': 'Escribe la contraseña otra vez',
   'data.protect.short': 'La contraseña necesita al menos {count} caracteres.',
   'data.protect.mismatch': 'Las dos contraseñas no son iguales.',
-  'data.all.title': 'Copia de seguridad',
-  'data.all.text':
-    'Guarda todos tus cuadernos en un solo archivo, o restaura un archivo guardado así. Al restaurar, todo se añade como copias nuevas; no se cambia nada de lo que tienes.',
-  'data.all.note':
-    'Este archivo solo se abre en Learning Notes. Usa «Restaurar copia de seguridad» para abrirlo.',
+  'data.all.title': 'Todo',
+  'data.all.text': 'Todas tus notas en un archivo.',
+  'data.all.note': 'Estos archivos solo se abren en Learning Notes.',
   'data.export.passwordHint':
-    'La casilla de contraseña de «Copia de seguridad», arriba, también protege este archivo.',
+    'La contraseña de arriba también bloquea este archivo.',
   'databases.importExport': 'Importar / Exportar',
   'databasePicker.search': 'Buscar en tus bases de datos…',
   'databasePicker.yours': 'Tus bases de datos',

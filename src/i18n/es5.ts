@@ -13,8 +13,7 @@ export const es5: Record<string, string> = {
   'data.export.journal': 'Incluir mis días del diario',
   'data.export.templates': 'Incluir mis plantillas',
   'data.sample.title': 'Para pruebas: cuaderno de ejemplo',
-  'data.sample.text':
-    'Añade un cuaderno nuevo con dos lecciones, notas marcadas, unas cuantas tarjetas y una base de datos con fechas y enlaces a imágenes. No se cambia ni se elimina nada de lo que tienes.',
+  'data.sample.text': 'Añade un cuaderno de práctica. Nada más cambia.',
   'data.sample.button': 'Cargar cuaderno de ejemplo',
   'data.sample.done': 'Se añadió el cuaderno de ejemplo «{name}».',
   'data.sample.again': 'Ya tienes un cuaderno de ejemplo. ¿Añadir otro?',

@@ -6,7 +6,7 @@
 - Auto-compact stays on: when the chat gets long, Claude Code compacts it by itself and work carries on. Don't ask the owner to type `/compact`.
 - After every sub-step: update docs/HANDOFF.md (5 lines) and commit. At the end of every step: update docs/CHANGELOG.md and docs/IDEAS.md, run the full suite, push to GitHub, mirror, then start the next step.
 - `/next` reads only docs/HANDOFF.md and docs/INDEX.md, after checking Git and `npm audit`.
-- **Models:** the owner uses `opusplan` (Opus plans, Sonnet builds). Write plans clear enough for Sonnet to follow: files to touch, data shapes, rules, tests. If Sonnet gets stuck or keeps failing at something, stop and tell the owner so they can switch to Opus for that part.
+- **Models:** the owner uses `opusplan` (Opus plans, Sonnet builds). Write plans clear enough for Sonnet to follow: files to touch, data shapes, rules, tests. If Sonnet gets stuck or keeps failing at something, stop and tell the owner so they can switch to Opus for that part. Effort: high for planning, medium for building. No helper agents unless the owner asks.
 
 ## Storage
 

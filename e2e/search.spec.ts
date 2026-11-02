@@ -125,7 +125,7 @@ test('Trash: found only when asked; Restore brings the page back', async ({
   await expect(result).toContainText('In Trash')
   await result.click()
   await expect(page.getByText('“Energy” is in the Trash.')).toBeVisible()
-  await page.getByRole('button', { name: 'Restore' }).click()
+  await page.getByRole('button', { name: 'Restore', exact: true }).click()
   await expect(title(page)).toHaveValue('Energy')
   await expect(
     sidebar(page).getByRole('button', { name: 'Energy', exact: true }),

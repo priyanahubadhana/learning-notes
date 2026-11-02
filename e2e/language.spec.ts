@@ -51,7 +51,11 @@ for (const [code, name] of [
     await page.screenshot({
       path: `test-results/screens/lang-${code}-settings.png`,
     })
-    await page.getByRole('button', { name: /^(Copias|बैकअप)/ }).click()
+    await page
+      .getByRole('button', {
+        name: /^(Guardar y restaurar|सहेजें और वापस लाएँ)/,
+      })
+      .click()
     await page.waitForTimeout(300)
     await page.screenshot({
       path: `test-results/screens/lang-${code}-backup.png`,

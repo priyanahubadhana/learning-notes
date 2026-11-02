@@ -61,11 +61,11 @@ test('a notebook file round-trips as a new copy; nothing existing changes', asyn
   await page.goto('/')
   await createNotebook(page, 'Cardiology', 'Heart sounds')
   await typeInEditor(page, 'S1 is the first sound')
-  await sidebar(page).getByRole('button', { name: 'Backup & files' }).click()
+  await sidebar(page).getByRole('button', { name: 'Save & restore' }).click()
 
   const downloading = page.waitForEvent('download')
   await main(page)
-    .getByRole('region', { name: 'Save a notebook as a file' })
+    .getByRole('region', { name: 'One notebook' })
     .getByRole('button', { name: 'Save file' })
     .click()
   const file = await downloading
@@ -86,7 +86,7 @@ test('a notebook file round-trips as a new copy; nothing existing changes', asyn
   )
 
   await main(page)
-    .getByLabel('Restore backup')
+    .getByLabel('Open saved file')
     .setInputFiles(await file.path())
   await expect(
     page.getByText(
@@ -110,7 +110,7 @@ test('a notebook file round-trips as a new copy; nothing existing changes', asyn
 
   // A file that is not ours is refused with a clear message.
   await main(page)
-    .getByLabel('Restore backup')
+    .getByLabel('Open saved file')
     .setInputFiles({
       name: 'other.json',
       mimeType: 'application/json',
@@ -177,12 +177,12 @@ test('the browser backup can be restored as copies', async ({ page }) => {
     backup.close()
   })
   await page.goto('/')
-  await sidebar(page).getByRole('button', { name: 'Backup & files' }).click()
+  await sidebar(page).getByRole('button', { name: 'Save & restore' }).click()
   const section = main(page).getByRole('region', {
-    name: 'Restore the automatic backup',
+    name: 'Before last update',
   })
   await expect(section).toContainText('1 notebooks')
-  await section.getByRole('button', { name: 'Restore as copies' }).click()
+  await section.getByRole('button', { name: 'Bring back' }).click()
   await expect(
     sidebar(page).getByRole('button', { name: 'Old notebook (imported)' }),
   ).toBeVisible()
@@ -193,7 +193,7 @@ test('Load sample notebook adds a ready-made notebook and changes nothing else',
 }) => {
   await page.goto('/')
   await createNotebook(page, 'Mine', 'My page')
-  await sidebar(page).getByRole('button', { name: 'Backup & files' }).click()
+  await sidebar(page).getByRole('button', { name: 'Save & restore' }).click()
   const box = main(page).getByRole('region', {
     name: 'For testing: sample notebook',
   })
@@ -260,10 +260,10 @@ test('a password-protected file: two fields, a warning, and the password to open
   await page.goto('/')
   await createNotebook(page, 'Secrets', 'Page one')
   await typeInEditor(page, 'private words')
-  await sidebar(page).getByRole('button', { name: 'Backup & files' }).click()
+  await sidebar(page).getByRole('button', { name: 'Save & restore' }).click()
 
   const all = main(page).getByRole('region', {
-    name: 'Backup',
+    name: 'Everything',
     exact: true,
   })
   const save = all.getByRole('button', { name: 'Save everything' })
@@ -291,7 +291,7 @@ test('a password-protected file: two fields, a warning, and the password to open
   const bytes = await readFile(await file.path())
   expect(bytes.toString('latin1')).not.toContain('private words')
 
-  const input = main(page).getByLabel('Restore backup')
+  const input = main(page).getByLabel('Open saved file')
   // No file-type filter: iPadOS greys out types it does not know (.locked).
   await expect(input).not.toHaveAttribute('accept', /.+/)
   await input.setInputFiles(await file.path())

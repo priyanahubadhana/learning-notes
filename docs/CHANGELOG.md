@@ -4,6 +4,10 @@ Current phase only. Older entries are in [ARCHIVE.md](ARCHIVE.md).
 
 ## 2026-11-02
 
+- **What:** Step 8 sign-in test run: Google sign-in and Drive work in the installed app, and the Drive pass renewed silently after its hour. Results in RESEARCH.md.
+- **Why:** Phase 10's design depended on it.
+- **Files:** docs/RESEARCH.md, docs/CHANGELOG.md, docs/HANDOFF.md
+
 - **What:** The app looks for a new version as soon as it opens, not only when it returns to the front, and the update message stays until tapped or closed with ×. A drag handle between the menu and the page sets the menu width (200 to 480px, page keeps 320px), remembered per device; double-click resets, arrow keys work.
 - **Why:** Owner's iPad showed the update message only after changing page, and the 6-second message could be missed. Owner asked to set the menu and page ratio per device.
 - **Files:** src/main.tsx, src/app/updates.ts, src/app/updates.test.ts, src/app/appUi.ts, src/app/ui.tsx, src/App.tsx, src/app/SidebarResizer.tsx, src/app/sidebarWidth.ts, src/app/sidebarWidth.test.ts, src/notebooks/Sidebar.tsx, src/i18n/en.ts, src/i18n/es7.ts, src/i18n/hi7.ts, e2e/topBar.spec.ts, docs/

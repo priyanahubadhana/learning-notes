@@ -124,6 +124,17 @@ Phase 9 (hosting and PWA, an installable web app) does not build sync, but sever
 
 If the Drive sign-in test fails, keep notes on Supabase and hold pictures in Supabase's 1 GB, tightly shrunk, with PC backups as the safety copy. When that fills, the owner chooses: approve a card for R2 or pay for a plan. If Supabase's own Google sign-in fails in the installed app, a typed one-time code is the fallback idea, though its availability on Free was not verified (UNPROVEN).
 
+## Sign-in test results (2026-11-02)
+
+Run in the installed app on the owner's Apple device, on a throwaway page. An earlier screenshot looked like an iPhone; **which device ran the final results is not confirmed**, so repeat on the iPad if it was not the iPad.
+
+- Supabase Google sign-in completes, returns to the installed app and survives closing and reopening.
+- One sign-in can serve both: it gave a Drive pass that wrote to Drive with `drive.file` in about 2 seconds.
+- That first Drive pass expired after its hour (401). Supabase renewed its own session but gave no new Drive pass, so Drive needs its own renewal.
+- Google popup renewal with `prompt: 'none'` worked 1 hour 36 minutes later with no visible window, and its pass wrote to Drive. Redirect renewal also returned a pass; that pass was not used for a write.
+- **Not proven:** renewal without a tap (the owner tapped a button each time), and renewal after days away. Phase 10 should renew when the owner acts, and fall back to one tap.
+- The Google Drive API must be enabled, or writes fail with 403.
+
 ## Sixteen open questions need a real device or account
 
 1. Does Google sign-in (Supabase Auth, and the Google popup for Drive) complete and return to the installed app on current iPadOS? Popup or redirect?

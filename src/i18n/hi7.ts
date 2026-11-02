@@ -93,6 +93,9 @@ export const hi7: Record<string, string> = {
   'nav.forward': 'आगे',
   'nav.backHint': 'पीछे: पिछले पृष्ठ पर लौटें',
   'nav.forwardHint': 'आगे: जब तक आप पीछे न जाएँ, यह धूसर रहता है',
+  'nav.resizeMenu': 'मेनू का आकार बदलें',
+  'nav.resizeMenuHint':
+    'चौड़ाई बदलने के लिए खींचें; पहले जैसा करने के लिए दो बार क्लिक करें',
   'page.more': 'और विकल्प',
   'page.reviewThis': 'इस पृष्ठ को दोहराएँ',
   'page.restoreBackup': 'बैकअप बहाल करें',

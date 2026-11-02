@@ -10,7 +10,7 @@ The app is hosted, can be installed like a normal app, opens with no internet, a
 
 - `public/manifest.webmanifest`, icons and `index.html` tags give the app its name and icon. The address, `id` and `start_url` must not change: installed iPads may never pick up changes, and notes do not follow a new address.
 - `vite-plugin-pwa` (`vite.config.ts`) builds a service worker that keeps the whole app on the device.
-- `src/main.tsx` registers it and looks for a new version whenever the app comes to the front. `src/app/updates.ts` holds the offer; `src/App.tsx` shows it as a toast, repeated when the app returns. Only the user's tap restarts the app, and the editor keeps unsaved text across that restart.
+- `src/main.tsx` registers it and looks for a new version when the app opens and whenever it comes to the front. `src/app/updates.ts` holds the offer; `src/App.tsx` shows it as a toast, repeated when the app returns. Only the user's tap restarts the app, and the editor keeps unsaved text across that restart.
 - `.github/workflows/ci.yml`: the `deploy` job publishes to Cloudflare Pages only after `checks` passes on `main`. It does nothing until the owner adds the two secrets.
 - Screens in `src/App.tsx` load on demand with `lazy()`.
 - Settings, "This device" (`src/settings/DeviceSection.tsx`): storage protection, last backup file, how to install.

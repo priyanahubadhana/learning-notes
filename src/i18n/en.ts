@@ -1661,6 +1661,8 @@ export const en = {
   'gallery.moved': 'Moved to position {count}',
   'nav.hideMenu': 'Hide menu',
   'nav.showMenu': 'Show menu',
+  'nav.resizeMenu': 'Resize menu',
+  'nav.resizeMenuHint': 'Drag to change the menu width; double-click to reset',
   'nav.back': 'Back',
   'nav.forward': 'Forward',
   'nav.backHint': 'Back: return to the previous page',

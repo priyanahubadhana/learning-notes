@@ -17,6 +17,8 @@ Every screen has an address (the part after `#`), so refresh, Back, Forward and 
 - Page ⋯ menu: Review this page (`Alt+R`), History, Save as template, Restore backup (opens Backup & files), Import and Export (grey, Coming soon).
 - `useDiscardGuard.tsx` is separate: a click outside a dialog closes it only if nothing was changed, otherwise asks "Discard your changes?".
 
+The handle between the menu and the page sets the menu width (`src/app/SidebarResizer.tsx`, limits in `sidebarWidth.ts`), remembered per device. Drag it, use the arrow keys, or double-click to reset. It is hidden on phones and when the menu is hidden.
+
 ## Edge cases
 
 - Empty, unknown or damaged addresses (including bad percent-encoding) become home.

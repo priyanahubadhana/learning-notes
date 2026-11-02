@@ -95,6 +95,9 @@ export const es7: Record<string, string> = {
   'nav.forward': 'Adelante',
   'nav.backHint': 'Atrás: vuelve a la página anterior',
   'nav.forwardHint': 'Adelante: gris hasta que uses Atrás',
+  'nav.resizeMenu': 'Cambiar tamaño del menú',
+  'nav.resizeMenuHint':
+    'Arrastra para cambiar el ancho; doble clic para restablecer',
   'page.more': 'Más opciones',
   'page.reviewThis': 'Repasar esta página',
   'page.restoreBackup': 'Restaurar copia de seguridad',

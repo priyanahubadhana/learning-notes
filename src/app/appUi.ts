@@ -27,7 +27,8 @@ export interface AppUi {
    */
   chooseTemplate: (mode: PickerMode) => Promise<string | null>
   /** Shows a short message at the bottom of the screen, with an optional action (e.g. Undo). */
-  toast: (message: string, action?: ToastAction) => void
+  /** `stay`: the message waits until it is answered or closed. */
+  toast: (message: string, action?: ToastAction, stay?: boolean) => void
   /** Asks a question; resolves to the chosen value, or null if cancelled. */
   choose: (request: ChoiceRequest) => Promise<string | null>
   /** Opens Settings, optionally at one setting (highlighted). */

@@ -4,7 +4,29 @@ import {
   onUpdateOffer,
   repeatUpdateOffer,
   resetUpdates,
+  watchForUpdates,
 } from './updates'
+
+describe('looking for updates', () => {
+  it('looks at the start and each time the app comes to the front', () => {
+    let changed = () => {}
+    const page = {
+      visibilityState: 'visible',
+      addEventListener: (_: 'visibilitychange', run: () => void) => {
+        changed = run
+      },
+    }
+    const check = vi.fn()
+    watchForUpdates(page, check)
+    expect(check).toHaveBeenCalledTimes(1)
+    page.visibilityState = 'hidden'
+    changed()
+    expect(check).toHaveBeenCalledTimes(1)
+    page.visibilityState = 'visible'
+    changed()
+    expect(check).toHaveBeenCalledTimes(2)
+  })
+})
 
 describe('update offer', () => {
   beforeEach(resetUpdates)

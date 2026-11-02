@@ -97,3 +97,6 @@ New ideas that come up mid-build are parked here, not added to the current phase
 - 2026-10-28 — Calendar (Phase 7 plan): Day / Week / Month switch; Day = a full-page card with swipe left/right for previous/next day; same features on every device; open on the view the user used last. Year view parked
 - 2026-11-01 — Small tidy-ups found while writing specs: CSV size check compares bytes with a character limit; a test title says "Table and Dashboard views" but three views are made _(Likely phase: Polish)_
 - 2026-11-01 — Star a page with a Favourites list in the sidebar, and a Share button (Share needs collaboration, which is a "no" for now). Owner saw both in Notion and chose to keep them for later _(Likely phase: After Phase 10)_
+- 2026-11-02 — Pictures in recall cards (question and answer), stored the same way as note pictures _(Likely phase: After Phase 10 sync; pictures go to Google Drive there)_
+- 2026-11-02 — Video in recall cards: links or embeds, not uploaded files, because video would fill free storage _(Likely phase: After pictures in cards)_
+- 2026-11-02 — Mind maps in cards or as their own block (owner wrote "mind app"; meaning to confirm when planned) _(Likely phase: To plan)_

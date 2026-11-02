@@ -28,6 +28,24 @@ export function repeatUpdateOffer() {
   if (pending) listener?.(pending)
 }
 
+/**
+ * Runs `check` now and each time the app comes to the front. Now matters: a
+ * fresh start sends no "came to the front" event, and an iPad may otherwise
+ * not look until the next page change.
+ */
+export function watchForUpdates(
+  page: {
+    visibilityState: string
+    addEventListener: (type: 'visibilitychange', run: () => void) => void
+  },
+  check: () => void,
+) {
+  check()
+  page.addEventListener('visibilitychange', () => {
+    if (page.visibilityState === 'visible') check()
+  })
+}
+
 /** Back to no offer and no listener (for tests). */
 export function resetUpdates() {
   pending = undefined

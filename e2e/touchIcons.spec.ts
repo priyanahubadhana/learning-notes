@@ -37,7 +37,7 @@ test('with a mouse the icons still wait for hover', async ({ page }) => {
   await page.goto('/')
   await createNotebook(page, 'Mouse NB', 'First')
   const side = await openSidebar(page)
-  await page.getByRole('main').click({ position: { x: 5, y: 5 } }) // focus and mouse away
+  await page.getByRole('main').click({ position: { x: 40, y: 5 } }) // focus and mouse away
   const button = side.getByLabel('Delete notebook', { exact: true }).first()
   expect(
     await button.evaluate(

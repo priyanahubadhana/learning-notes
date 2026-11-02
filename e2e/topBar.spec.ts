@@ -172,3 +172,30 @@ test('on the iPad app the bar and menu start below the blur', async ({
   )
   expect(overflow).toBeLessThanOrEqual(0)
 })
+
+test('dragging the handle shares the screen, and this device remembers', async ({
+  page,
+}) => {
+  await page.goto('/')
+  const handle = page.getByRole('separator', { name: 'Resize menu' })
+  const width = async () => (await sidebar(page).boundingBox())!.width
+  await expect.poll(width).toBe(260)
+
+  const box = (await handle.boundingBox())!
+  await page.mouse.move(box.x + box.width / 2, box.y + box.height / 2)
+  await page.mouse.down()
+  await page.mouse.move(box.x + box.width / 2 + 80, box.y + box.height / 2)
+  await page.mouse.up()
+  await expect.poll(width).toBe(340)
+  await page.reload()
+  await expect.poll(width).toBe(340)
+
+  await handle.focus()
+  await page.keyboard.press('ArrowLeft')
+  await expect.poll(width).toBe(324)
+  await handle.dblclick()
+  await expect.poll(width).toBe(260)
+
+  await page.getByRole('button', { name: 'Hide menu' }).click()
+  await expect(handle).toBeHidden()
+})

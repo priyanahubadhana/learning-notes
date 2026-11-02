@@ -1,5 +1,12 @@
 import { useLiveQuery } from 'dexie-react-hooks'
-import { lazy, Suspense, useEffect, useRef, useState } from 'react'
+import {
+  lazy,
+  Suspense,
+  useEffect,
+  useRef,
+  useState,
+  type CSSProperties,
+} from 'react'
 import {
   AppUiContext,
   type AppUi,
@@ -14,6 +21,8 @@ import { applyTheme } from './app/theme'
 import { ThemeContext } from './app/themeContext'
 import type { ToastAction } from './app/appUi'
 import { altShortcutLabel } from './app/keys'
+import { SidebarResizer } from './app/SidebarResizer'
+import { SIDEBAR_DEFAULT, isSidebarWidth } from './app/sidebarWidth'
 import { Toast, ChoiceDialog } from './app/ui'
 import { onUpdateOffer } from './app/updates'
 import { TOAST_AFTER_HOLD_MS, toastDuration } from './app/toastTiming'
@@ -460,6 +469,11 @@ function App() {
   }, [drawerOpen])
 
   // Hiding the sidebar is remembered on this device.
+  const [sidebarWidth, setSidebarWidth] = usePref(
+    'sidebarWidth',
+    isSidebarWidth,
+    SIDEBAR_DEFAULT,
+  )
   const [sidebarHidden, setSidebarHidden] = useState(() =>
     readPref('sidebarHidden', isBoolean, false),
   )
@@ -475,12 +489,14 @@ function App() {
   const [toastMessage, setToastMessage] = useState<{
     message: string
     action?: ToastAction
+    stay?: boolean
   } | null>(null)
   const toastTimer = useRef<ReturnType<typeof setTimeout>>(undefined)
   // Hovering or tapping a toast keeps it open; leaving lets it close soon.
   const holdToast = () => clearTimeout(toastTimer.current)
   const releaseToast = () => {
     clearTimeout(toastTimer.current)
+    if (toastMessage?.stay) return
     toastTimer.current = setTimeout(
       () => setToastMessage(null),
       TOAST_AFTER_HOLD_MS,
@@ -492,7 +508,7 @@ function App() {
     choose: (request) =>
       new Promise((resolve) => setChoice({ request, resolve })),
     openSettings,
-    toast: (message, action) => {
+    toast: (message, action, stay) => {
       // Choosing the action also closes the toast.
       const closing = action && {
         ...action,
@@ -501,8 +517,9 @@ function App() {
           action.onSelect()
         },
       }
-      setToastMessage({ message, action: closing })
+      setToastMessage({ message, action: closing, stay })
       clearTimeout(toastTimer.current)
+      if (stay) return
       // Longer messages and ones with an action stay longer.
       toastTimer.current = setTimeout(
         () => setToastMessage(null),
@@ -521,10 +538,11 @@ function App() {
   useEffect(
     () =>
       onUpdateOffer((apply) =>
-        showToastRef.current(t('update.ready'), {
-          label: t('update.now'),
-          onSelect: apply,
-        }),
+        showToastRef.current(
+          t('update.ready'),
+          { label: t('update.now'), onSelect: apply },
+          true,
+        ),
       ),
     [],
   )
@@ -762,7 +780,10 @@ function App() {
     <ThemeContext value={theme}>
       <AppUiContext value={appUi}>
         <TopBarSlotContext value={barSlot}>
-          <div className="flex h-screen">
+          <div
+            className="flex h-screen"
+            style={{ '--sidebar-width': `${sidebarWidth}px` } as CSSProperties}
+          >
             <Sidebar
               db={db}
               workspaceId={workspace.id}
@@ -841,6 +862,9 @@ function App() {
                 }
               }}
             />
+            {!sidebarHidden && (
+              <SidebarResizer width={sidebarWidth} onChange={setSidebarWidth} />
+            )}
             {drawerOpen && (
               // A second way to close for fingers; the sidebar's button is the
               // one for keyboards and screen readers.
@@ -1062,6 +1086,9 @@ function App() {
               action={toastMessage.action}
               onHold={holdToast}
               onRelease={releaseToast}
+              onClose={
+                toastMessage.stay ? () => setToastMessage(null) : undefined
+              }
             />
           )}
         </TopBarSlotContext>

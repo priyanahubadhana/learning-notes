@@ -1,5 +1,6 @@
 import type { Block, JsonValue, Page, SearchEntry } from '../core/types'
 import { noteLinkProps } from '../editor/mapping'
+export { isShowableText } from '../editor/mapping'
 import { cardParts, hasQuestion } from '../recall/cardService'
 
 /**

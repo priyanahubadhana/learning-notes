@@ -9,7 +9,7 @@ import type {
   Page,
   ReviewLog,
 } from '../core/types'
-import { isShowableText } from '../editor/mapping'
+import { isShowableText } from '../search/searchText'
 
 /**
  * Field by field checks of rows from a file. Only the fields listed here are

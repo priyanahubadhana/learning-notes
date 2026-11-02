@@ -26,7 +26,8 @@ import { altShortcutLabel } from './app/keys'
 import { SidebarResizer } from './app/SidebarResizer'
 import { SIDEBAR_DEFAULT, isSidebarWidth } from './app/sidebarWidth'
 import { Toast, ChoiceDialog } from './app/ui'
-import { onUpdateOffer } from './app/updates'
+import { dismissUpdateOffer, onUpdateOffer } from './app/updates'
+import { UpdateBar } from './app/UpdateBar'
 import { TOAST_AFTER_HOLD_MS, toastDuration } from './app/toastTiming'
 import { isStringOrNull } from './app/uiPrefs'
 import { usePref } from './app/usePref'
@@ -492,14 +493,15 @@ function App() {
   const [toastMessage, setToastMessage] = useState<{
     message: string
     action?: ToastAction
-    stay?: boolean
   } | null>(null)
+  // A new version waiting for the user's OK (its own bar, so messages and
+  // their Undo never replace it, or the other way round).
+  const [applyUpdate, setApplyUpdate] = useState<(() => void) | null>(null)
   const toastTimer = useRef<ReturnType<typeof setTimeout>>(undefined)
   // Hovering or tapping a toast keeps it open; leaving lets it close soon.
   const holdToast = () => clearTimeout(toastTimer.current)
   const releaseToast = () => {
     clearTimeout(toastTimer.current)
-    if (toastMessage?.stay) return
     toastTimer.current = setTimeout(
       () => setToastMessage(null),
       TOAST_AFTER_HOLD_MS,
@@ -511,7 +513,7 @@ function App() {
     choose: (request) =>
       new Promise((resolve) => setChoice({ request, resolve })),
     openSettings,
-    toast: (message, action, stay) => {
+    toast: (message, action) => {
       // Choosing the action also closes the toast.
       const closing = action && {
         ...action,
@@ -520,9 +522,8 @@ function App() {
           action.onSelect()
         },
       }
-      setToastMessage({ message, action: closing, stay })
+      setToastMessage({ message, action: closing })
       clearTimeout(toastTimer.current)
-      if (stay) return
       // Longer messages and ones with an action stay longer.
       toastTimer.current = setTimeout(
         () => setToastMessage(null),
@@ -531,24 +532,14 @@ function App() {
     },
   }
 
-  // A new version is ready: it starts only when the user says so. Unsaved
-  // text is safe, because the editor keeps it when the page reloads.
   const showToast = appUi.toast
   const showToastRef = useRef(showToast)
   useEffect(() => {
     showToastRef.current = showToast
   })
-  useEffect(
-    () =>
-      onUpdateOffer((apply) =>
-        showToastRef.current(
-          t('update.ready'),
-          { label: t('update.now'), onSelect: apply },
-          true,
-        ),
-      ),
-    [],
-  )
+  // A new version is ready: it starts only when the user says so. Unsaved
+  // text is safe, because the editor keeps it when the page reloads.
+  useEffect(() => onUpdateOffer((apply) => setApplyUpdate(() => apply)), [])
 
   // No space left: say so, at most once a minute. Other background
   // failures are logged too.
@@ -1097,6 +1088,15 @@ function App() {
           )}
           <div className="fixed bottom-16 left-1/2 z-40 flex w-max max-w-[calc(100vw-32px)] -translate-x-1/2 flex-col items-center gap-2">
             <SaveNotice />
+            {applyUpdate && (
+              <UpdateBar
+                onUpdate={applyUpdate}
+                onClose={() => {
+                  dismissUpdateOffer()
+                  setApplyUpdate(null)
+                }}
+              />
+            )}
           </div>
           {toastMessage && (
             <Toast
@@ -1104,9 +1104,6 @@ function App() {
               action={toastMessage.action}
               onHold={holdToast}
               onRelease={releaseToast}
-              onClose={
-                toastMessage.stay ? () => setToastMessage(null) : undefined
-              }
             />
           )}
         </TopBarSlotContext>

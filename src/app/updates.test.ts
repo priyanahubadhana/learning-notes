@@ -1,5 +1,6 @@
 import { beforeEach, describe, expect, it, vi } from 'vitest'
 import {
+  dismissUpdateOffer,
   offerUpdate,
   onUpdateOffer,
   repeatUpdateOffer,
@@ -63,5 +64,19 @@ describe('update offer', () => {
     onUpdateOffer(listen)()
     offerUpdate(vi.fn())
     expect(listen).not.toHaveBeenCalled()
+  })
+})
+
+describe('closing the update offer', () => {
+  beforeEach(resetUpdates)
+
+  it('keeps it closed when the app comes back to the front', () => {
+    const shown = vi.fn()
+    onUpdateOffer(shown)
+    offerUpdate(() => {})
+    expect(shown).toHaveBeenCalledTimes(1)
+    dismissUpdateOffer()
+    repeatUpdateOffer()
+    expect(shown).toHaveBeenCalledTimes(1)
   })
 })

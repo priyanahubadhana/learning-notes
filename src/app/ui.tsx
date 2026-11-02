@@ -185,7 +185,6 @@ export function Toast({
   action,
   onHold,
   onRelease,
-  onClose,
 }: {
   message: string
   action?: ToastAction
@@ -193,8 +192,6 @@ export function Toast({
   onHold?: () => void
   /** The pointer left (or another tap elsewhere): let it close soon. */
   onRelease?: () => void
-  /** Shows a × for a message that does not close by itself. */
-  onClose?: () => void
 }) {
   const box = useRef<HTMLDivElement>(null)
   const held = useRef(false)
@@ -237,16 +234,6 @@ export function Toast({
           className="-my-1 min-h-9 shrink-0 rounded-md px-2.5 font-semibold text-bg underline underline-offset-2 hover:bg-bg/15"
         >
           {action.label}
-        </button>
-      )}
-      {onClose && (
-        <button
-          type="button"
-          aria-label={t('history.close')}
-          onClick={onClose}
-          className="-my-1 min-h-9 shrink-0 rounded-md px-2 text-bg hover:bg-bg/15"
-        >
-          ×
         </button>
       )}
     </div>

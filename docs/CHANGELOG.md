@@ -4,6 +4,10 @@ Current phase only. Older entries are in [ARCHIVE.md](ARCHIVE.md).
 
 ## 2026-11-02
 
+- **What:** The update offer has its own small bar, apart from toasts. Messages no longer replace it, it no longer replaces an Undo, and × hides it until the next app start. The `stay` toast option is gone. Also: the file check now reaches the editor format through search/searchText.ts, so no new feature link was added.
+- **Why:** Audit B10: one toast slot made the offer and Undo overwrite each other.
+- **Files:** src/app/UpdateBar.tsx, src/app/updates.ts, src/app/appUi.ts, src/app/ui.tsx, src/App.tsx, src/search/searchText.ts, src/share/checkRows.ts, docs/features/offline-and-install.md
+
 - **What:** Importing checks every row field by field, refuses duplicate ids, bad order keys and text the editor cannot draw, and copies known fields only, so purgedAt from a file is never kept. The whole import runs in one transaction, so a failed import leaves nothing, not even tags. Every failure now shows a message. A link cell from a file only opens if it passes the same check as a typed link.
 - **Why:** Audit B6 and S4: a damaged file could break every save on a page, or fail with no message.
 - **Files:** src/share/checkRows.ts, src/share/bundle.ts, src/share/importBundle.ts, src/share/DataScreen.tsx, src/core/order.ts, src/databases/views/TableView.tsx, src/i18n/, e2e/sharing.spec.ts, docs/features/backup-and-files.md

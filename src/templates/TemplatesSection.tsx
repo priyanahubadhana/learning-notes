@@ -53,6 +53,9 @@ export function TemplatesSection({
   )
   const [open, setOpen] = usePref('templatesOpen', isBoolean, true)
 
+  const collapseLabel = tr('tree.collapse')
+  const expandLabel = tr('tree.expand')
+
   return (
     <div className="mt-4">
       <div className="flex items-center">
@@ -93,7 +96,7 @@ export function TemplatesSection({
                   <button
                     type="button"
                     onClick={() => tree.togglePage(t.id)}
-                    aria-label={expanded ? 'Collapse' : 'Expand'}
+                    aria-label={expanded ? collapseLabel : expandLabel}
                     className="w-3.5 text-center text-[10px] text-muted"
                   >
                     {expanded ? '▾' : '▸'}

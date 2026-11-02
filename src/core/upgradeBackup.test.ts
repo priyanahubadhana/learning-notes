@@ -133,3 +133,20 @@ describe('pictures in the backup file', () => {
     expect(bundle.images[0].data).toBe('AQID+g==')
   })
 })
+
+describe('reading part of the browser backup', () => {
+  it('reads only the tables asked for', async () => {
+    const dbName = `part-${createId()}`
+    await saveBrowserBackup({
+      app: 'learning-notes',
+      dbName,
+      version: 11,
+      createdAt: 5,
+      tables: { notebooks: [{ id: 'n' }], images: [{ id: 'i' }] },
+    })
+    const part = await readBrowserBackup(dbName, indexedDB, ['notebooks'])
+    expect(part?.createdAt).toBe(5)
+    expect(Object.keys(part?.tables ?? {})).toEqual(['notebooks'])
+    await Dexie.delete(backupDbName(dbName))
+  })
+})

@@ -48,7 +48,7 @@ export function startNavHistory() {
   window.addEventListener('popstate', () => {
     const number = entryNumber()
     if (number !== null) {
-      setPosition(number, last)
+      setPosition(number, Math.max(last, number))
       return
     }
     // A plain link added this entry: it is new, and nothing is ahead of it.

@@ -9,8 +9,12 @@ describe('sidebar width', () => {
   })
 
   it('leaves the page room in a narrow window', () => {
-    expect(clampSidebarWidth(480, 700)).toBe(380)
+    expect(clampSidebarWidth(480, 700)).toBe(350)
     expect(clampSidebarWidth(480, 400)).toBe(200)
+  })
+
+  it('stops at half the window, the same limit the screen uses', () => {
+    expect(clampSidebarWidth(480, 900)).toBe(450)
   })
 
   it('accepts only real numbers from storage', () => {

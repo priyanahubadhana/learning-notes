@@ -62,7 +62,9 @@ export function DataScreen({
     [db, workspaceId],
   )
   const backup = useLiveQuery(
-    async () => (await readBrowserBackup(DEFAULT_DB_NAME)) ?? null,
+    async () =>
+      (await readBrowserBackup(DEFAULT_DB_NAME, undefined, ['notebooks'])) ??
+      null,
     [],
   )
   const [picked, setPicked] = useState('')
@@ -494,9 +496,14 @@ export function DataScreen({
                   type="button"
                   disabled={busy}
                   onClick={() =>
-                    run(() =>
-                      importBundleNow(checkBundle(bundleFromSnapshot(backup))),
-                    )
+                    run(async () => {
+                      const full = await readBrowserBackup(DEFAULT_DB_NAME)
+                      if (full) {
+                        await importBundleNow(
+                          checkBundle(bundleFromSnapshot(full)),
+                        )
+                      }
+                    })
                   }
                   className={button}
                 >

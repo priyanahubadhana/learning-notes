@@ -25,6 +25,7 @@ Notes live only in this browser, so the app lets the user save them as files and
 - An import with no notebooks and no databases shows "nothing to import".
 - Cards and review logs are kept only if their note/card is also in the file.
 - Save everything and Restore do not carry page history, settings, saved searches or the Trash, and journal days arrive as an ordinary notebook; the screen says so. A file over `MAX_BUNDLE_BYTES` still saves, with a warning.
+- The Backup screen reads only the backup's notebook list; the whole backup is read when Restore is pressed.
 
 ## Security check
 

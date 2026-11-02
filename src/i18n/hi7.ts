@@ -120,4 +120,6 @@ export const hi7: Record<string, string> = {
     'यह पृष्ठ दूसरी विंडो में खुला है, इसलिए यहाँ केवल पढ़ा जा सकता है।',
   'editor.editHere': 'यहाँ संपादित करें',
   'device.version': 'ऐप संस्करण: {commit}',
+  'tree.expand': 'फैलाएँ',
+  'tree.collapse': 'समेटें',
 }

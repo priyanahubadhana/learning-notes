@@ -400,7 +400,7 @@ export function Sidebar({
                 <button
                   type="button"
                   onClick={() => tree.toggleNotebook(notebook.id)}
-                  aria-label={open ? 'Collapse' : 'Expand'}
+                  aria-label={t(open ? 'tree.collapse' : 'tree.expand')}
                   className="w-3.5 text-center text-[10px] text-muted"
                 >
                   {open ? '▾' : '▸'}

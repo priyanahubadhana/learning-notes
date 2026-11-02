@@ -13,5 +13,6 @@ export function downloadFile(
   document.body.append(link)
   link.click()
   link.remove()
-  setTimeout(() => URL.revokeObjectURL(url), 1000)
+  // Generous: a big file on an iPad can take a while to start saving.
+  setTimeout(() => URL.revokeObjectURL(url), 60_000)
 }

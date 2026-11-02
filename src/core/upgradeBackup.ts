@@ -147,10 +147,14 @@ export async function saveBrowserBackup(
   }
 }
 
-/** Reads the backup database back (undefined if there is none). */
+/**
+ * Reads the backup database back (undefined if there is none). With `only`,
+ * just those tables, so a screen need not load every picture to show a date.
+ */
 export async function readBrowserBackup(
   dbName: string,
   idb: IDBFactory = indexedDB,
+  only?: readonly string[],
 ): Promise<BackupSnapshot | undefined> {
   const database = await openExisting(backupDbName(dbName), idb)
   if (!database) return undefined
@@ -161,7 +165,7 @@ export async function readBrowserBackup(
     if (!info) return undefined
     const { tableNames, ...rest } = info
     const tables: Record<string, unknown[]> = {}
-    for (const table of tableNames) {
+    for (const table of only ?? tableNames) {
       tables[table] = (await done(tx.objectStore('tables').get(table))) ?? []
     }
     return { ...rest, tables }

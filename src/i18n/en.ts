@@ -1692,4 +1692,6 @@ export const en = {
     'This page is open in another window, so it is read-only here.',
   'editor.editHere': 'Edit here',
   'device.version': 'App version: {commit}',
+  'tree.expand': 'Expand',
+  'tree.collapse': 'Collapse',
 } as const

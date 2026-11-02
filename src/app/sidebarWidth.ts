@@ -10,7 +10,10 @@ export const isSidebarWidth = (value: unknown): value is number =>
 
 /** The widest the sidebar can be in a window this wide. */
 export const sidebarMax = (windowWidth: number): number =>
-  Math.max(SIDEBAR_MIN, Math.min(SIDEBAR_MAX, windowWidth - PAGE_MIN))
+  Math.max(
+    SIDEBAR_MIN,
+    Math.min(SIDEBAR_MAX, windowWidth - PAGE_MIN, Math.floor(windowWidth / 2)),
+  )
 
 /** A wanted width, kept inside the limits. */
 export const clampSidebarWidth = (width: number, windowWidth: number): number =>

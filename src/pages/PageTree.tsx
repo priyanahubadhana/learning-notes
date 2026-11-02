@@ -6,7 +6,6 @@ import { runTask } from '../app/errors'
 import { IconButton, RenameInput } from '../app/ui'
 import type { TreeState } from '../app/useTreeState'
 import type { LearningNotesDB } from '../core/db'
-import { descendantIds } from '../core/records'
 import type { Page } from '../core/types'
 import { monthLabel, shortDayLabel } from '../journal/dates'
 import { listNotePages, movePageToTopLevel, renamePage } from './pageService'
@@ -46,6 +45,14 @@ export function PageTree({
   const [renamingId, setRenamingId] = useState<string | null>(null)
   if (!pages) return null
 
+  // The open page and the pages above it, worked out once per draw.
+  const openPath = new Set<string>()
+  const parentOf = new Map(pages.map((p) => [p.id, p.parentId]))
+  for (let id = currentPageId; id && !openPath.has(id);) {
+    openPath.add(id)
+    id = parentOf.get(id) ?? null
+  }
+
   const childrenOf = new Map<string | null, Page[]>()
   for (const page of pages) {
     const list = childrenOf.get(page.parentId) ?? []
@@ -65,9 +72,7 @@ export function PageTree({
       const hasChildren = childrenOf.has(page.id)
       const open = tree.isPageOpen(page.id)
       const active = page.id === currentPageId
-      const affectsCurrent =
-        currentPageId !== null &&
-        (active || descendantIds(pages, page.id).includes(currentPageId))
+      const affectsCurrent = openPath.has(page.id)
 
       return (
         <div key={page.id}>
@@ -80,7 +85,7 @@ export function PageTree({
             <button
               type="button"
               onClick={() => hasChildren && tree.togglePage(page.id)}
-              aria-label={open ? 'Collapse' : 'Expand'}
+              aria-label={t(open ? 'tree.collapse' : 'tree.expand')}
               className="w-3.5 text-center text-[10px] text-muted"
             >
               {hasChildren ? (open ? '▾' : '▸') : '·'}

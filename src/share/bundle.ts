@@ -12,7 +12,7 @@ import type {
   ReviewLog,
   Tag,
 } from '../core/types'
-import { toBase64 } from '../images/base64'
+import { toBase64 } from '../core/base64'
 import { imageIdsIn, isImageType } from '../images/imageRef'
 import { tagMap, tagPathIn } from '../tags/tagService'
 import { joinTagPath } from '../tags/tagNames'
@@ -115,7 +115,10 @@ function usedTags(bundle: Bundle, tags: ReadonlyMap<string, Tag>): BundleTag[] {
     .sort((a, b) => a.path.split('/').length - b.path.split('/').length)
 }
 
-/** The pictures a bundle's notes and cells use, as base64 text. */
+/**
+ * The pictures a bundle's notes and cells use, as base64 text. In the
+ * database they are bytes; in an upgrade backup file already base64 text.
+ */
 function bundleImages(
   bundle: Bundle,
   stored: readonly {
@@ -133,7 +136,7 @@ function bundleImages(
     .filter(
       (img) =>
         wanted.has(img.id) &&
-        img.data instanceof ArrayBuffer &&
+        (img.data instanceof ArrayBuffer || typeof img.data === 'string') &&
         (img.deletedAt === null || img.deletedAt === undefined),
     )
     .map((img) => ({
@@ -142,7 +145,10 @@ function bundleImages(
       type: img.type,
       width: img.width,
       height: img.height,
-      data: toBase64(img.data as ArrayBuffer),
+      data:
+        typeof img.data === 'string'
+          ? img.data
+          : toBase64(img.data as ArrayBuffer),
     }))
 }
 

@@ -1,3 +1,4 @@
+import { readAnyFile } from '../share/bundle'
 import Dexie from 'dexie'
 import { afterEach, describe, expect, it } from 'vitest'
 import { createId } from './ids'
@@ -68,5 +69,67 @@ describe('backup before an upgrade', () => {
     expect(backupFileName(snapshot)).toBe(`${name}-backup-v7-2026-10-27.json`)
     const empty = { ...snapshot, tables: {} }
     expect(JSON.parse(await backupFile(empty).text())).toEqual(empty)
+  })
+})
+
+describe('pictures in the backup file', () => {
+  const bytes = new Uint8Array([1, 2, 3, 250]).buffer
+
+  it('are written as base64 text', async () => {
+    const file = backupFile({
+      app: 'learning-notes',
+      dbName: 'x',
+      version: 11,
+      createdAt: 0,
+      tables: { images: [{ id: 'i', data: bytes }] },
+    })
+    const saved = JSON.parse(await file.text())
+    expect(saved.tables.images[0].data).toBe('AQID+g==')
+  })
+
+  it('come back when the file is read and imported', async () => {
+    const page = {
+      id: 'p',
+      notebookId: 'n',
+      parentId: null,
+      title: 'P',
+      order: 'a0',
+    }
+    const id = '11111111-2222-4333-8444-555555555555'
+    const url = `lnimg:${id}`
+    const file = backupFile({
+      app: 'learning-notes',
+      dbName: 'x',
+      version: 11,
+      createdAt: 0,
+      tables: {
+        notebooks: [{ id: 'n', title: 'N', order: 'a0', deletedAt: null }],
+        pages: [{ ...page, deletedAt: null }],
+        blocks: [
+          {
+            id: 'b',
+            pageId: 'p',
+            parentId: null,
+            type: 'image',
+            order: 'a0',
+            content: { url },
+            deletedAt: null,
+          },
+        ],
+        images: [
+          {
+            id,
+            name: 'a',
+            type: 'image/png',
+            width: 1,
+            height: 1,
+            data: bytes,
+          },
+        ],
+      },
+    })
+    const bundle = readAnyFile(await file.text())
+    expect(bundle.images).toHaveLength(1)
+    expect(bundle.images[0].data).toBe('AQID+g==')
   })
 })

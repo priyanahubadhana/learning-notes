@@ -16,6 +16,7 @@ Notes live only in this browser, so the app lets the user save them as files and
 - Upgrade backup (`src/core/upgradeBackup.ts`, `app/UpgradeGate.tsx`): if the saved database is older than the code, every table is read raw, copied into a separate `learning-notes-backup` database (replacing the previous one) and offered as a download (`backupFileName`: name, version, UTC date). If the browser copy fails, the file is still offered.
 - Reminder (`backupReminder.ts`): after 7 days with no saved workspace file, and only if a page exists; "Remind me later" snoozes 24 hours. Kept in the `meta` table.
 - `sampleNotebook.ts` adds one sample notebook; it only adds.
+- The upgrade backup file writes picture bytes as base64 text (`withBytes` in `upgradeBackup.ts`); `bundleImages` accepts bytes and base64. Files saved before this fix hold no pictures, and the browser copy always kept them.
 
 ## Edge cases
 

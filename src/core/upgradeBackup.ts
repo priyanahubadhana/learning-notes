@@ -7,6 +7,8 @@
  * hold every table as plain rows, so nothing is lost meanwhile.
  */
 
+import { toBase64 } from './base64'
+
 /** Everything in a database at one moment, table by table. */
 export interface BackupSnapshot {
   app: 'learning-notes'
@@ -168,9 +170,13 @@ export async function readBrowserBackup(
   }
 }
 
+/** JSON has no bytes: a picture's `ArrayBuffer` is written as base64 text. */
+const withBytes = (_key: string, value: unknown): unknown =>
+  value instanceof ArrayBuffer ? toBase64(value) : value
+
 /**
  * The snapshot as a JSON file, built table by table (row by row) so a big
- * database never becomes one giant string.
+ * database never becomes one giant string. Pictures are base64 text.
  */
 export function backupFile(snapshot: BackupSnapshot): Blob {
   const { tables, ...info } = snapshot
@@ -178,7 +184,7 @@ export function backupFile(snapshot: BackupSnapshot): Blob {
   Object.entries(tables).forEach(([table, rows], i) => {
     parts.push(`${i > 0 ? ',' : ''}${JSON.stringify(table)}:[`)
     rows.forEach((row, j) =>
-      parts.push((j > 0 ? ',' : '') + JSON.stringify(row)),
+      parts.push((j > 0 ? ',' : '') + JSON.stringify(row, withBytes)),
     )
     parts.push(']')
   })

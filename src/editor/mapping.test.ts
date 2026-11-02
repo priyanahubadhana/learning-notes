@@ -141,7 +141,9 @@ describe('damaged text', () => {
     ]
     const [shown] = recordsToEditor(records, supported)
     expect(shown).toMatchObject({ id: 'a', type: 'paragraph' })
-    expect(JSON.stringify((shown as { content: unknown }).content)).toContain('could not be shown')
+    expect(JSON.stringify((shown as { content: unknown }).content)).toContain(
+      'could not be shown',
+    )
     expect(shown.children).toHaveLength(1)
     expect(records[0].content).toEqual({ text: 5 }) // the record is untouched
   })

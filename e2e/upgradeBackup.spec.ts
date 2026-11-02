@@ -22,9 +22,15 @@ async function reloadWithOldDatabase(page: Page) {
     open.onupgradeneeded = () => {
       open.result.createObjectStore('cards', { keyPath: 'id' })
       open.result.createObjectStore('reviewLogs', { keyPath: 'id' })
+      open.result.createObjectStore('images', { keyPath: 'id' })
     }
     const db = (await wait(open)) as IDBDatabase
-    const tx = db.transaction(['cards', 'reviewLogs'], 'readwrite')
+    const tx = db.transaction(['cards', 'reviewLogs', 'images'], 'readwrite')
+    tx.objectStore('images').put({
+      id: 'img1',
+      type: 'image/png',
+      data: new Uint8Array([104, 105]).buffer,
+    })
     tx.objectStore('cards').put({ id: 'c1', due: 1, notebookId: 'nb' })
     tx.objectStore('reviewLogs').put({
       id: 'l1',
@@ -57,7 +63,13 @@ test('an upgrade first backs up the data, then opens the app', async ({
     /^learning-notes-backup-v7-\d{4}-\d\d-\d\d\.json$/,
   )
   const saved = JSON.parse(await readFile(await file.path(), 'utf8'))
-  expect(saved).toMatchObject({ version: 7, tables: { cards: [{ id: 'c1' }] } })
+  expect(saved).toMatchObject({
+    version: 7,
+    tables: {
+      cards: [{ id: 'c1' }],
+      images: [{ id: 'img1', data: 'aGk=' }], // the bytes, not "{}"
+    },
+  })
 
   await expect(sidebar(page)).toBeVisible()
   const result = await page.evaluate(async () => {

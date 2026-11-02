@@ -14,7 +14,7 @@ import { createNotebook } from '../notebooks/notebookService'
 import { createPage } from '../pages/pageService'
 import { bundleFile, exportNotebookBundle, readBundle } from '../share/bundle'
 import { importBundle } from '../share/importBundle'
-import { fromBase64, toBase64 } from './base64'
+import { fromBase64, toBase64 } from '../core/base64'
 import {
   IMAGE_SCHEME,
   imageIdsIn,

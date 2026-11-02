@@ -4,6 +4,10 @@ Current phase only. Older entries are in [ARCHIVE.md](ARCHIVE.md).
 
 ## 2026-11-02
 
+- **What:** The upgrade backup file now holds pictures as base64 text, and reading such a file brings them back. Moved base64.ts to core/ so the backup code can use it.
+- **Why:** Audit B3: pictures were written as empty objects while the screen promised a copy of everything.
+- **Files:** src/core/upgradeBackup.ts, src/core/base64.ts, src/share/bundle.ts, src/share/importBundle.ts, src/images/, e2e/upgradeBackup.spec.ts, docs/features/backup-and-files.md
+
 - **What:** A failed save stays pending: it retries after 2 s, 4 s, 8 s up to a minute and on every flush. The changes are kept in localStorage, also when the page is left, and a lasting Not saved yet notice with Try again shows until they are in the database. Kept changes are no longer thrown away when bringing them back fails.
 - **Why:** Audit B2: a failed save was never retried on leaving, so typing vanished without a message.
 - **Files:** src/editor/autosave.ts, src/editor/pendingStash.ts, src/editor/pageSync.ts, src/app/saveStatus.ts, src/app/SaveNotice.tsx, src/App.tsx, src/i18n/, e2e/saveFailure.spec.ts, docs/features/

@@ -9,7 +9,7 @@ import type {
   Page,
   StoredImage,
 } from '../core/types'
-import { fromBase64 } from '../images/base64'
+import { fromBase64 } from '../core/base64'
 import { remapImageRefs } from '../images/imageRef'
 import { rebuildRowRefs, rowNotebookIdOf } from '../databases/databaseService'
 import { defaultNotebookTabs, studyTrackerId } from '../databases/notebookTabs'

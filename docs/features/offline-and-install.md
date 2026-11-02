@@ -11,7 +11,7 @@ The app is hosted, can be installed like a normal app, opens with no internet, a
 - `public/manifest.webmanifest`, icons and `index.html` tags give the app its name and icon. The address, `id` and `start_url` must not change: installed iPads may never pick up changes, and notes do not follow a new address.
 - `vite-plugin-pwa` (`vite.config.ts`) builds a service worker that keeps the whole app on the device.
 - `src/main.tsx` registers it and looks for a new version when the app opens and whenever it comes to the front. `src/app/updates.ts` holds the offer; `src/App.tsx` shows it, repeated when the app returns. Only the user's tap restarts the app, and the editor keeps unsaved text across that restart.
-- `.github/workflows/ci.yml`: the `deploy` job publishes to Cloudflare Pages only after `checks` passes on `main`. It does nothing until the owner adds the two secrets.
+- `.github/workflows/ci.yml`: the `deploy` job publishes to Cloudflare Pages only after `checks` passes on `main`. It fails clearly if the two secrets are missing.
 - Screens in `src/App.tsx` load on demand with `lazy()`.
 - Settings, "This device" (`src/settings/DeviceSection.tsx`): storage protection, last backup file, how to install.
 - `src/app/errors.ts`: a full device shows a message at most once a minute; a database that will not open shows a retry screen in `src/App.tsx`.
@@ -33,6 +33,7 @@ The app is hosted, can be installed like a normal app, opens with no internet, a
 - `img-src` and `media-src` allow `https:` so pictures linked by address still show; those pictures tell their host when they load.
 - The Cloudflare token lives only in GitHub Secrets.
 - Deletes: none here.
+- Publishing: `ci.yml` builds and tests in `checks`, and `deploy` publishes that same `dist`. Only the publish step holds the Cloudflare key, and `npm ci --ignore-scripts` runs before it. `scripts/check-live.mjs` runs after each publish and daily (`live-check.yml`): commit in `version.json`, CSP, `sw.js` no-cache, and 404 for a missing file. A failure emails the owner and most likely means a manual upload.
 
 ## Tests
 

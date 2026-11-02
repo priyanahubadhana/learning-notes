@@ -1691,4 +1691,5 @@ export const en = {
   'editor.elsewhere':
     'This page is open in another window, so it is read-only here.',
   'editor.editHere': 'Edit here',
+  'device.version': 'App version: {commit}',
 } as const

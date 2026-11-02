@@ -43,6 +43,9 @@ export function DeviceSection({ db }: { db: LearningNotesDB }) {
             : t('device.noBackup')}
         </p>
       )}
+      <p className="text-muted">
+        {t('device.version', { commit: __APP_COMMIT__.slice(0, 7) })}
+      </p>
       {!isInstalled() && (
         <div className="mt-3 border-t border-line pt-3">
           <h3 className="font-semibold">{t('device.install.title')}</h3>

@@ -1,3 +1,4 @@
+import { readFile } from 'node:fs/promises'
 import { expect, test } from '@playwright/test'
 import { setTitle } from './helpers.ts'
 
@@ -59,4 +60,21 @@ test('the built app works under the live security rules', async ({ page }) => {
     page.getByRole('heading', { name: 'Settings', level: 1 }),
   ).toBeVisible()
   expect(blocked).toEqual([])
+})
+
+test('the build says which commit it is, in version.json and This device', async ({
+  page,
+}) => {
+  const { commit } = JSON.parse(await readFile('dist/version.json', 'utf8'))
+  expect(commit).toMatch(/^[0-9a-f]{40}$/)
+  await page.goto('/#/settings')
+  await expect(page.getByRole('main')).toContainText(
+    `App version: ${commit.slice(0, 7)}`,
+  )
+})
+
+test('a missing page is not kept for offline use', async () => {
+  const worker = await readFile('dist/sw.js', 'utf8')
+  expect(worker).not.toContain('404.html')
+  await expect(readFile('dist/404.html', 'utf8')).resolves.toContain('href="/"')
 })

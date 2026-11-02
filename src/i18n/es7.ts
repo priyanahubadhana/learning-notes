@@ -121,4 +121,5 @@ export const es7: Record<string, string> = {
   'editor.elsewhere':
     'Esta página está abierta en otra ventana, así que aquí es de solo lectura.',
   'editor.editHere': 'Editar aquí',
+  'device.version': 'Versión de la aplicación: {commit}',
 }

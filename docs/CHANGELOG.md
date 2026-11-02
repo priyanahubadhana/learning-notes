@@ -4,6 +4,10 @@ Current phase only. Older entries are in [ARCHIVE.md](ARCHIVE.md).
 
 ## 2026-11-02
 
+- **What:** Added public/404.html, so a missing file answers 404 instead of a page cached for a year. CI now publishes the exact build it tested, gives the Cloudflare key only to the publish step, fails clearly if the secrets are missing, runs one publish at a time, pins actions to commits, keeps wrangler in the lock file, runs npm audit for the app, and checks the live site after each publish. version.json holds the commit, Settings shows it, and a daily job compares the live site with main.
+- **Why:** Audit B12, S1, S2, S3 and S8: a stolen key or a manual upload could change the live app and nothing would warn the owner.
+- **Files:** .github/workflows/, public/404.html, public/_headers, vite.config.ts, vitest.config.ts, package.json, package-lock.json, scripts/check-live.mjs, scripts/liveChecks.mjs, src/app/buildInfo.d.ts, src/settings/DeviceSection.tsx, src/i18n/, e2e/offline.spec.ts, docs/features/offline-and-install.md
+
 - **What:** Touch sizes now skip only controls inside lines of text, so a database in a note gets finger-sized buttons, and inputs and lists are 44 tall. The selection toolbar wraps instead of widening the page.
 - **Why:** Audit B11: the toolbar grew to 932px on an 834px iPad screen, and controls in a note were 28 tall.
 - **Files:** src/index.css, e2e/touchTargets.spec.ts, docs/features/navigation.md

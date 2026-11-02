@@ -1,8 +1,9 @@
+import { execSync } from 'node:child_process'
 import { readFileSync } from 'node:fs'
 import basicSsl from '@vitejs/plugin-basic-ssl'
 import tailwindcss from '@tailwindcss/vite'
 import react from '@vitejs/plugin-react'
-import { defineConfig } from 'vite'
+import { defineConfig, type Plugin } from 'vite'
 import { VitePWA } from 'vite-plugin-pwa'
 
 /** The live site's `/*` headers, so the preview runs under the same rules. */
@@ -20,8 +21,33 @@ function siteHeaders(): Record<string, string> {
   )
 }
 
+/** The commit being built: the app shows it, and version.json publishes it. */
+function currentCommit(): string {
+  if (process.env.GITHUB_SHA) return process.env.GITHUB_SHA
+  try {
+    return execSync('git rev-parse HEAD').toString().trim()
+  } catch {
+    return 'unknown'
+  }
+}
+const COMMIT = currentCommit()
+
+/** Writes version.json, which the live site checks read. */
+const versionStamp = (): Plugin => ({
+  name: 'version-stamp',
+  apply: 'build',
+  generateBundle() {
+    this.emitFile({
+      type: 'asset',
+      fileName: 'version.json',
+      source: JSON.stringify({ commit: COMMIT }),
+    })
+  },
+})
+
 // https://vite.dev/config/
 export default defineConfig({
+  define: { __APP_COMMIT__: JSON.stringify(COMMIT) },
   preview: { headers: siteHeaders() },
   // Dev only: a self-signed https certificate, so another device on the
   // Wi-Fi (the iPad) gets a secure context (crypto, IndexedDB features).
@@ -29,6 +55,7 @@ export default defineConfig({
   plugins: [
     react(),
     tailwindcss(),
+    versionStamp(),
     ...(process.env.E2E ? [] : [basicSsl()]),
     // Offline: the built app is kept on the device. A new version waits for
     // the user's OK (src/app/updates.ts); the manifest is in public/.
@@ -38,6 +65,7 @@ export default defineConfig({
       manifest: false,
       workbox: {
         globPatterns: ['**/*.{js,css,html,svg,png,wasm,woff2}'],
+        globIgnores: ['404.html'],
         maximumFileSizeToCacheInBytes: 4 * 1024 * 1024,
         navigateFallback: 'index.html',
         clientsClaim: true,

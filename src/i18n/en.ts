@@ -1671,4 +1671,12 @@ export const en = {
   'page.reviewThis': 'Review this page',
   'page.restoreBackup': 'Restore backup',
   'page.comingSoon': 'Coming soon',
+  'error.title': 'This page could not be shown',
+  'error.text':
+    'Your notes are still stored on this device. Go home to carry on, or save a backup file first.',
+  'error.home': 'Go home',
+  'error.saveAll': 'Save everything',
+  'error.saved': 'Backup file saved.',
+  'error.saveFailed': 'The backup file could not be saved.',
+  'editor.damagedBlock': 'This line could not be shown. It is kept safely.',
 } as const

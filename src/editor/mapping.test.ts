@@ -2,6 +2,7 @@ import { describe, expect, it } from 'vitest'
 import { assignOrders } from '../core/order'
 import type { Block, JsonObject } from '../core/types'
 import {
+  isShowableText,
   editorToDrafts,
   plainText,
   recordsToEditor,
@@ -105,6 +106,44 @@ describe('text helpers', () => {
     }[]
     expect(stripped[0].id).toBeUndefined()
     expect(stripped[0].children[0].id).toBeUndefined()
+  })
+})
+
+describe('damaged text', () => {
+  it('knows the shapes the editor can draw', () => {
+    const run = { type: 'text', text: 'a', styles: {} }
+    expect(isShowableText(undefined)).toBe(true)
+    expect(isShowableText('plain')).toBe(true)
+    expect(isShowableText([run])).toBe(true)
+    expect(
+      isShowableText([{ type: 'link', href: 'https://a.b', content: [run] }]),
+    ).toBe(true)
+    expect(
+      isShowableText({
+        type: 'tableContent',
+        rows: [{ cells: [[run], { type: 'tableCell', content: [run] }] }],
+      }),
+    ).toBe(true)
+  })
+
+  it('refuses shapes that would stop the page opening', () => {
+    expect(isShowableText(5)).toBe(false)
+    expect(isShowableText([{ type: 'madeUp' }])).toBe(false)
+    expect(isShowableText([{ type: 'text', text: 5 }])).toBe(false)
+    expect(isShowableText([{ type: 'link', href: 1, content: [] }])).toBe(false)
+    expect(isShowableText({ type: 'tableContent', rows: 3 })).toBe(false)
+  })
+
+  it('shows a damaged block as a safe line that keeps its id and children', () => {
+    const records = [
+      record('a', 'heading', { text: 5 }, null, 'a0'),
+      record('b', 'paragraph', { text: text('x') }, 'a', 'a0'),
+    ]
+    const [shown] = recordsToEditor(records, new Set(['paragraph']))
+    expect(shown).toMatchObject({ id: 'a', type: 'paragraph' })
+    expect(JSON.stringify(shown.content)).toContain('could not be shown')
+    expect(shown.children).toHaveLength(1)
+    expect(records[0].content).toEqual({ text: 5 }) // the record is untouched
   })
 })
 

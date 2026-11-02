@@ -25,6 +25,7 @@ The BlockNote editor shows a page as blocks and saves every edit to the local da
 - Saving a deleted block revives it (undo).
 - Stash: storage errors are ignored; a stash with a wrong shape is dropped; applying it twice is harmless; if the page was deleted meanwhile, nothing is restored.
 - A failed history copy does not fail the save.
+- A block whose `content.text` has a shape the editor cannot draw (`isShowableText` in `mapping.ts`) shows as a plain placeholder line. The stored record is not changed unless the user edits that line. Unknown style names are not checked; the error screen catches those.
 
 ## Security check
 

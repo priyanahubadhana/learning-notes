@@ -100,4 +100,12 @@ export const hi7: Record<string, string> = {
   'page.reviewThis': 'इस पृष्ठ को दोहराएँ',
   'page.restoreBackup': 'बैकअप बहाल करें',
   'page.comingSoon': 'जल्द आ रहा है',
+  'error.title': 'यह पृष्ठ नहीं दिखाया जा सका',
+  'error.text':
+    'आपके नोट्स इस डिवाइस पर सुरक्षित हैं। आगे बढ़ने के लिए होम पर जाएँ, या पहले एक बैकअप फ़ाइल सहेजें।',
+  'error.home': 'होम पर जाएँ',
+  'error.saveAll': 'सब कुछ सहेजें',
+  'error.saved': 'बैकअप फ़ाइल सहेज ली गई।',
+  'error.saveFailed': 'बैकअप फ़ाइल सहेजी नहीं जा सकी।',
+  'editor.damagedBlock': 'यह पंक्ति नहीं दिखाई जा सकी। यह सुरक्षित रखी गई है।',
 }

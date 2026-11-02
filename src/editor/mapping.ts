@@ -1,4 +1,5 @@
 import { byOrder } from '../core/order'
+import { t } from '../i18n/t'
 import type { Block, JsonObject, JsonValue } from '../core/types'
 import type { BlockDraft } from './diff'
 import type { AppSchema } from './schema'
@@ -278,11 +279,67 @@ export function withoutIds(blocks: EditorPartialBlock[]): EditorPartialBlock[] {
   })
 }
 
+/** One run of rich text the editor can show. */
+function isShowableRun(run: JsonValue): boolean {
+  if (!isObject(run)) return false
+  if (run.type === 'text') {
+    return (
+      typeof run.text === 'string' &&
+      (run.styles === undefined || isObject(run.styles))
+    )
+  }
+  if (run.type === 'link') {
+    return (
+      typeof run.href === 'string' &&
+      Array.isArray(run.content) &&
+      run.content.every(isShowableRun)
+    )
+  }
+  return (run.type === NOTE_LINK || run.type === TAG) && isObject(run.props)
+}
+
+/** A table's rows of cells; a cell is a list of runs or a cell object. */
+function isShowableTable(value: JsonObject): boolean {
+  if (value.type !== 'tableContent' || !Array.isArray(value.rows)) return false
+  return value.rows.every(
+    (row) =>
+      isObject(row) &&
+      Array.isArray(row.cells) &&
+      row.cells.every((cell) => {
+        const runs = isObject(cell) ? cell.content : cell
+        return (
+          runs === undefined ||
+          (Array.isArray(runs) && runs.every(isShowableRun))
+        )
+      }),
+  )
+}
+
+/**
+ * Whether a block's `content.text` has a shape the editor can draw. A
+ * damaged value would otherwise stop the whole page from opening.
+ */
+export function isShowableText(text: JsonValue | undefined): boolean {
+  if (text === undefined || typeof text === 'string') return true
+  if (Array.isArray(text)) return text.every(isShowableRun)
+  return isObject(text) && isShowableTable(text)
+}
+
 function toEditorBlock(
   record: Block,
   children: EditorPartialBlock[],
 ): EditorPartialBlock {
   const { text, ...props } = toJson<JsonObject>(record.content)
+  // Shown as a plain line; the stored record is not touched, because the
+  // comparison for saving starts from what the editor shows (diff.ts).
+  if (!isShowableText(text)) {
+    return {
+      id: record.id,
+      type: 'paragraph',
+      content: plainText(t('editor.damagedBlock')),
+      children,
+    } as unknown as EditorPartialBlock
+  }
   const block = {
     id: record.id,
     type: record.type,

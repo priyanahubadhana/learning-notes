@@ -89,6 +89,7 @@ interface PageEditorProps {
 export function PageEditor(props: PageEditorProps) {
   const { db, pageId } = props
   const [loaded, setLoaded] = useState<{ pageId: string; records: Block[] }>()
+  const [failed, setFailed] = useState<{ error: unknown }>()
 
   useEffect(() => {
     let cancelled = false
@@ -102,13 +103,16 @@ export function PageEditor(props: PageEditorProps) {
         (records) => {
           if (!cancelled) setLoaded({ pageId, records })
         },
-        (error: unknown) => console.error('Could not load page', error),
+        (error: unknown) => {
+          if (!cancelled) setFailed({ error })
+        },
       )
     return () => {
       cancelled = true
     }
   }, [db, pageId])
 
+  if (failed) throw failed.error // shows the error screen (ErrorBoundary)
   // Wait until this page's blocks are loaded (not a previous page's).
   if (loaded?.pageId !== pageId) return null
   return <LoadedPageEditor key={pageId} {...props} records={loaded.records} />

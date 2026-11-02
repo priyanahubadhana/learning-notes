@@ -15,6 +15,7 @@ The app is hosted, can be installed like a normal app, opens with no internet, a
 - Screens in `src/App.tsx` load on demand with `lazy()`.
 - Settings, "This device" (`src/settings/DeviceSection.tsx`): storage protection, last backup file, how to install.
 - `src/app/errors.ts`: a full device shows a message at most once a minute; a database that will not open shows a retry screen in `src/App.tsx`.
+- `src/app/ErrorBoundary.tsx` guards the page area and the whole app: a screen that fails shows Go home and Save everything (`share/saveEverything.ts`, loaded with the app so it works when a file cannot download). `src/app/chunkReload.ts` reloads once, at most every 30 seconds, when a screen's file fails to download.
 
 ## Edge cases
 

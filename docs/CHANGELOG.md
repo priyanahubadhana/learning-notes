@@ -4,6 +4,10 @@ Current phase only. Older entries are in [ARCHIVE.md](ARCHIVE.md).
 
 ## 2026-11-02
 
+- **What:** A screen that fails now shows "This page could not be shown" with Go home and Save everything, around the page area and around the whole app. A screen file that fails to download reloads once. Damaged text in a block shows as a safe line and the stored record is left alone.
+- **Why:** Audit B1: one damaged note or missed download left a white screen, even after reload, with no way out on the installed iPad app.
+- **Files:** src/app/ErrorBoundary.tsx, src/app/chunkReload.ts, src/share/saveEverything.ts, src/main.tsx, src/App.tsx, src/editor/mapping.ts, src/editor/PageEditor.tsx, src/i18n/, e2e/errorScreen.spec.ts, docs/features/
+
 - **What:** Journal month names in the sidebar follow the current language, like day names.
 - **Why:** Owner saw a Hindi month after switching language.
 - **Files:** src/journal/dates.ts, src/pages/PageTree.tsx, docs/HANDOFF.md

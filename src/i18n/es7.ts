@@ -102,4 +102,12 @@ export const es7: Record<string, string> = {
   'page.reviewThis': 'Repasar esta página',
   'page.restoreBackup': 'Restaurar copia de seguridad',
   'page.comingSoon': 'Próximamente',
+  'error.title': 'No se pudo mostrar esta página',
+  'error.text':
+    'Tus notas siguen guardadas en este dispositivo. Vuelve al inicio para continuar o guarda antes un archivo de copia de seguridad.',
+  'error.home': 'Ir al inicio',
+  'error.saveAll': 'Guardar todo',
+  'error.saved': 'Archivo de copia de seguridad guardado.',
+  'error.saveFailed': 'No se pudo guardar el archivo de copia de seguridad.',
+  'editor.damagedBlock': 'Esta línea no se pudo mostrar. Se conserva a salvo.',
 }

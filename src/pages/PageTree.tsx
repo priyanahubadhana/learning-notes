@@ -8,7 +8,7 @@ import type { TreeState } from '../app/useTreeState'
 import type { LearningNotesDB } from '../core/db'
 import { descendantIds } from '../core/records'
 import type { Page } from '../core/types'
-import { shortDayLabel } from '../journal/dates'
+import { monthLabel, shortDayLabel } from '../journal/dates'
 import { listNotePages, movePageToTopLevel, renamePage } from './pageService'
 
 interface PageTreeProps {
@@ -102,8 +102,10 @@ export function PageTree({
               >
                 {page.journalDate
                   ? shortDayLabel(page.journalDate)
-                  : (rootId ? displayName(page.title) : sampleName(page)) ||
-                    t('review.untitled')}
+                  : page.journalMonth
+                    ? monthLabel(page.journalMonth)
+                    : (rootId ? displayName(page.title) : sampleName(page)) ||
+                      t('review.untitled')}
               </button>
             )}
             <span className="flex opacity-0 group-focus-within:opacity-100 group-hover:opacity-100">

@@ -1,7 +1,8 @@
 import { dateLocale } from '../i18n/t'
 /**
  * Date helpers for the journal. Keys use the device's local date, so "today"
- * matches the user's calendar. Titles are English for now (app language).
+ * matches the user's calendar. Titles use the app language when created, and
+ * the sidebar's labels always use the current one.
  */
 
 const pad = (n: number) => String(n).padStart(2, '0')
@@ -42,4 +43,10 @@ export function shortDayLabel(key: string): string {
     day: 'numeric',
     month: 'short',
   })
+}
+
+/** Label for the sidebar, e.g. "October 2026", from a "YYYY-MM" key. */
+export function monthLabel(key: string): string {
+  const [y, m] = key.split('-').map(Number)
+  return monthTitle(new Date(y, m - 1, 1))
 }

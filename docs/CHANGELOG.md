@@ -4,6 +4,10 @@ Current phase only. Older entries are in [ARCHIVE.md](ARCHIVE.md).
 
 ## 2026-11-02
 
+- **What:** Journal month names in the sidebar follow the current language, like day names.
+- **Why:** Owner saw a Hindi month after switching language.
+- **Files:** src/journal/dates.ts, src/pages/PageTree.tsx, docs/HANDOFF.md
+
 - **What:** Step 8 sign-in test run: Google sign-in and Drive work in the installed app, and the Drive pass renewed silently after its hour. Results in RESEARCH.md.
 - **Why:** Phase 10's design depended on it.
 - **Files:** docs/RESEARCH.md, docs/CHANGELOG.md, docs/HANDOFF.md

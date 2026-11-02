@@ -5,7 +5,7 @@ import { createTestDb } from '../core/testing'
 import { getOrCreateDefaultWorkspace } from '../core/workspaceService'
 import { plainText, toPlainText } from '../editor/mapping'
 import { listNotebooks } from '../notebooks/notebookService'
-import { deletePage, getPage } from '../pages/pageService'
+import { deletePage, getPage, renamePage } from '../pages/pageService'
 import { getDailyTemplate } from '../templates/templateService'
 import { dateKey, dayTitle, monthKey, monthTitle, shortDayLabel } from './dates'
 import { openJournalDay } from './journalService'
@@ -95,5 +95,16 @@ describe('openJournalDay', () => {
     const again = await openJournalDay(db, ws, OCT_25)
     expect(again.created).toBe(true)
     expect(again.page.id).not.toBe(first.page.id)
+  })
+})
+
+describe('renaming journal pages', () => {
+  it('a day or month page remembers it has its own name; it is marked', async () => {
+    const { page: day } = await openJournalDay(db, ws, OCT_25)
+    const month = (await getPage(db, day.parentId!))!
+    await renamePage(db, month.id, 'My exam month')
+    await renamePage(db, day.id, 'Big day')
+    expect((await db.pages.get(month.id))?.customTitle).toBe(true)
+    expect((await db.pages.get(day.id))?.customTitle).toBe(true)
   })
 })

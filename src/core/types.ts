@@ -107,6 +107,11 @@ export interface Page extends BaseRecord {
   journalDate?: string
   /** Journal month page: its month, "YYYY-MM". */
   journalMonth?: string
+  /**
+   * Journal day or month page renamed by the user: `title` is shown instead
+   * of the automatic date in the current language. Unset = automatic.
+   */
+  customTitle?: true
   /** A lesson's own summary (Revise tab); top-level pages only. */
   summary?: string
   /** 'daily': the protected template that fills new journal days. */

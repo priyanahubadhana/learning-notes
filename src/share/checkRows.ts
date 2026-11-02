@@ -74,6 +74,7 @@ const page: Fields<Page> = {
   order,
   journalDate: text,
   journalMonth: text,
+  customTitle: yes,
   summary: text,
   templateRole: oneOf('daily'),
   tagIds: textList,

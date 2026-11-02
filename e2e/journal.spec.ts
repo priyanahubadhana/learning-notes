@@ -47,3 +47,24 @@ test('journal days are listed newest first', async ({ page }) => {
   const days = sidebar(page).getByRole('button', { name: /\d+ Oct$/ })
   await expect(days).toHaveText([/25 Oct/, /24 Oct/])
 })
+
+test('a renamed month keeps its new name in the sidebar', async ({ page }) => {
+  await page.goto('/')
+  await page.getByRole('button', { name: 'Open today’s journal' }).click()
+  const side = sidebar(page)
+  const month = new Intl.DateTimeFormat('en', {
+    month: 'long',
+    year: 'numeric',
+  }).format(new Date())
+  await side.getByRole('button', { name: month }).dblclick()
+  const field = side.getByRole('textbox').first()
+  await field.fill('My exam month')
+  await field.press('Enter')
+  await expect(
+    side.getByRole('button', { name: 'My exam month' }),
+  ).toBeVisible()
+  await page.reload()
+  await expect(
+    side.getByRole('button', { name: 'My exam month' }),
+  ).toBeVisible()
+})

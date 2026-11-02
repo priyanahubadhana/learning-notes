@@ -100,9 +100,9 @@ export function PageTree({
                 onDoubleClick={() => setRenamingId(page.id)}
                 className="flex-1 truncate text-left"
               >
-                {page.journalDate
+                {page.journalDate && !page.customTitle
                   ? shortDayLabel(page.journalDate)
-                  : page.journalMonth
+                  : page.journalMonth && !page.customTitle
                     ? monthLabel(page.journalMonth)
                     : (rootId ? displayName(page.title) : sampleName(page)) ||
                       t('review.untitled')}

@@ -269,11 +269,13 @@ async function importInTransaction(
     const {
       journalDate: _journalDate,
       journalMonth: _journalMonth,
+      customTitle: _customTitle,
       templateRole: _templateRole,
       ...rest
     } = p
     void _journalDate
     void _journalMonth
+    void _customTitle
     void _templateRole
     return [
       {

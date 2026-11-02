@@ -4,6 +4,10 @@ Current phase only. Older entries are in [ARCHIVE.md](ARCHIVE.md).
 
 ## 2026-11-02
 
+- **What:** Renaming a journal day or month sets an optional customTitle on that page, and the sidebar then shows the new name. No database upgrade is needed; pages without it keep the automatic date in the current language. A name changed before this fix needs renaming once more.
+- **Why:** Audit B9: the rename was saved but the sidebar kept showing the date.
+- **Files:** src/core/types.ts, src/pages/pageService.ts, src/pages/PageTree.tsx, src/history/versionService.ts, src/share/checkRows.ts, src/share/importBundle.ts, e2e/journal.spec.ts, docs/features/journal.md
+
 - **What:** The # menu reads tags from memory, so its list keeps up with typing, and Enter on a list that is behind makes the tag from what was actually typed. Text that cannot be a tag is put back. Both Chromium and WebKit now pass at full typing speed.
 - **Why:** Audit B8: fast typing made a wrong tag (exa instead of exam) without warning.
 - **Files:** src/editor/tagActions.ts, src/editor/PageEditor.tsx, src/tags/tagService.ts, e2e/tags.spec.ts, docs/features/tags.md

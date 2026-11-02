@@ -19,6 +19,7 @@ One page per day, grouped under month pages, in a Journal notebook.
 - If the day page was deleted, a fresh one is made.
 - Changes to the Daily template apply to days created afterwards, not to old days.
 - If the template is missing, the page is created empty.
+- A renamed day or month has `customTitle` (optional, no upgrade needed), and shows its stored title; without it the sidebar shows the date in the current language. Restoring a history copy with the same title does not count as a rename.
 
 ## Security check
 

@@ -115,7 +115,12 @@ export async function restoreVersion(
         upserts,
         deletes: live.filter((b) => !keep.has(b.id)).map((b) => b.id),
       })
-      await renamePage(db, version.pageId, version.title)
+      // Not a rename when the title is the same (a journal page keeps its
+      // automatic date name).
+      const current = await getPage(db, version.pageId)
+      if (current?.title !== version.title) {
+        await renamePage(db, version.pageId, version.title)
+      }
       await syncCardRecords(db, version.pageId)
     },
   )

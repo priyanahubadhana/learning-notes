@@ -140,8 +140,12 @@ export async function renamePage(
   title: string,
 ): Promise<void> {
   await db.transaction('rw', db.pages, async () => {
-    await getLive(db.pages, id)
-    await db.pages.update(id, { title, updatedAt: Date.now() })
+    const page = await getLive(db.pages, id)
+    await db.pages.update(id, {
+      title,
+      updatedAt: Date.now(),
+      ...((page.journalDate || page.journalMonth) && { customTitle: true }),
+    })
   })
 }
 

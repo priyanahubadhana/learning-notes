@@ -18,6 +18,7 @@ import {
   bundleFromSnapshot,
   exportNotebookBundle,
   exportWorkspaceBundle,
+  tooBigToRestore,
   workspaceFileName,
   type Bundle,
 } from './bundle'
@@ -117,6 +118,7 @@ export function DataScreen({
     const fileName = savePassword ? lockedFileName(name) : name
     downloadFile(fileName, file)
     ui.toast(t('csv.exported', { name: fileName }))
+    if (tooBigToRestore(file.size)) setError(t('data.tooBigToRestore'))
   }
   /** Reads a chosen file; a protected one waits for its password. */
   const openFile = (file: File, password?: string) =>
@@ -238,7 +240,8 @@ export function DataScreen({
           <h2 className="mb-1 text-[15px] font-semibold">
             {t('data.all.title')}
           </h2>
-          <p className="mb-3 text-sm text-muted">{t('data.all.text')}</p>
+          <p className="mb-1 text-sm text-muted">{t('data.all.text')}</p>
+          <p className="mb-3 text-sm text-muted">{t('data.all.limits')}</p>
           <PasswordFields lock={lock} onChange={setLock} />
           <div className="mb-2 grid grid-cols-2 gap-2">
             <Tip id="data.exportAll" touchInfo={false}>

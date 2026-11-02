@@ -29,6 +29,10 @@ export const BUNDLE_VERSION = 1
 /** Largest file read (bytes). */
 export const MAX_BUNDLE_BYTES = 200_000_000
 
+/** A saved file this big could not be opened again here. */
+export const tooBigToRestore = (bytes: number): boolean =>
+  bytes > MAX_BUNDLE_BYTES
+
 export interface BundleTag {
   id: string
   /** Full name with levels, e.g. "medicine/cardiology". */
@@ -242,7 +246,12 @@ export async function exportNotebookBundle(
       .toArray()
   ).filter((v) => isLive(v) && (!v.blockId || blockIds.has(v.blockId)))
   bundle.tags = usedTags(bundle, await tagMap(db))
-  bundle.images = bundleImages(bundle, await db.images.toArray())
+  // Only the pictures used, so one notebook never loads every picture.
+  const used = [...imageIdsIn([bundle.pages, bundle.blocks])]
+  bundle.images = bundleImages(
+    bundle,
+    (await db.images.bulkGet(used)).filter((image) => image !== undefined),
+  )
   return bundle
 }
 

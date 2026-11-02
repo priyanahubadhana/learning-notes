@@ -31,6 +31,8 @@ import {
   bundleFromSnapshot,
   exportNotebookBundle,
   readBundle,
+  MAX_BUNDLE_BYTES,
+  tooBigToRestore,
 } from './bundle'
 import { importBundle } from './importBundle'
 import { remapJson } from './remapJson'
@@ -565,4 +567,11 @@ describe('notebook file', () => {
     expect(await db.blocks.count()).toBe(20_000)
     expect(ms).toBeLessThan(60_000) // fake-indexeddb is far slower than a browser
   }, 90_000)
+})
+
+describe('files too big to open again', () => {
+  it('are told apart at the limit', () => {
+    expect(tooBigToRestore(MAX_BUNDLE_BYTES)).toBe(false)
+    expect(tooBigToRestore(MAX_BUNDLE_BYTES + 1)).toBe(true)
+  })
 })

@@ -4,6 +4,10 @@ Current phase only. Older entries are in [ARCHIVE.md](ARCHIVE.md).
 
 ## 2026-11-02
 
+- **What:** Backup now says what is and is not included. A saved file over 200 MB shows a warning that it could not be opened again. A notebook file reads only the pictures it uses.
+- **Why:** Audit B4 and B5. The full restore and a zip format belong with Phase 10 work (see Decisions to review).
+- **Files:** src/share/DataScreen.tsx, src/share/bundle.ts, src/i18n/, docs/features/backup-and-files.md
+
 - **What:** The upgrade backup file now holds pictures as base64 text, and reading such a file brings them back. Moved base64.ts to core/ so the backup code can use it.
 - **Why:** Audit B3: pictures were written as empty objects while the screen promised a copy of everything.
 - **Files:** src/core/upgradeBackup.ts, src/core/base64.ts, src/share/bundle.ts, src/share/importBundle.ts, src/images/, e2e/upgradeBackup.spec.ts, docs/features/backup-and-files.md

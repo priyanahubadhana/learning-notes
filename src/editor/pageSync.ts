@@ -4,7 +4,7 @@ import type { Block } from '../core/types'
 import { syncCardRecords } from '../recall/cardService'
 import { recordVersion } from '../history/versionService'
 import { createAutosaver } from './autosave'
-import { clearStash, stashChanges } from './pendingStash'
+import { clearStash, keepTryingStash, stashChanges } from './pendingStash'
 import { createSnapshot, diffBlocks, type BlockDraft } from './diff'
 
 /**
@@ -53,14 +53,22 @@ export function createPageSync(
     }
   }
 
+  // Whether a failed save's changes are in localStorage.
+  let kept = false
+
   const autosaver = createAutosaver(async () => {
     const { changes, next } = diffBlocks(snapshot, readDrafts())
-    // One transaction: a saved Card block (new, pasted or duplicated) never
-    // ends up without its review schedule.
-    await db.transaction('rw', db.pages, db.blocks, db.cards, async () => {
-      await saveBlockChanges(db, pageId, changes)
-      await syncCardRecords(db, pageId)
-    })
+    try {
+      // One transaction: a saved Card block (new, pasted or duplicated) never
+      // ends up without its review schedule.
+      await db.transaction('rw', db.pages, db.blocks, db.cards, async () => {
+        await saveBlockChanges(db, pageId, changes)
+        await syncCardRecords(db, pageId)
+      })
+    } catch (error) {
+      kept = stashChanges(pageId, changes) // safe if the page is left now
+      throw error
+    }
     snapshot = next // only after a successful save
     clearStash(pageId)
     if (changes.upserts.length > 0 || changes.deletes.length > 0) {
@@ -77,6 +85,15 @@ export function createPageSync(
       stashChanges(pageId, diffBlocks(snapshot, readDrafts()).changes),
     leave: async () => {
       await autosaver.flush()
+      // The editor is closing, so it cannot be read again: the kept changes
+      // carry on instead. If they could not be kept, the notice stays.
+      if (autosaver.failed()) {
+        if (kept) {
+          autosaver.handOver()
+          keepTryingStash(db, pageId)
+        }
+        return
+      }
       if (unrecorded) await record(true)
     },
   }

@@ -1,11 +1,17 @@
-import { afterEach, beforeEach, describe, expect, it } from 'vitest'
+import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
 import { listBlocks } from '../core/blockService'
 import type { LearningNotesDB } from '../core/db'
 import { createTestDb } from '../core/testing'
 import { getOrCreateDefaultWorkspace } from '../core/workspaceService'
 import { createNotebook } from '../notebooks/notebookService'
 import { createPage } from '../pages/pageService'
-import { clearStash, recoverStash, stashChanges } from './pendingStash'
+import { hasUnsaved, retryUnsaved } from '../app/saveStatus'
+import {
+  clearStash,
+  keepTryingStash,
+  recoverStash,
+  stashChanges,
+} from './pendingStash'
 
 let db: LearningNotesDB
 let pageId: string
@@ -78,6 +84,25 @@ describe('kept changes', () => {
       expect(store.size).toBe(0)
     }
     expect(await listBlocks(db, pageId)).toHaveLength(0)
+  })
+
+  it('stay kept while the database fails, and go in when it works', async () => {
+    const original = db.blocks.bulkPut.bind(db.blocks)
+    const put = vi
+      .spyOn(db.blocks, 'bulkPut')
+      .mockRejectedValue(new Error('database broke'))
+    stashChanges(pageId, { upserts: [upsert('b1', 'x')], deletes: [] })
+    expect(await recoverStash(db, pageId)).toBe(false)
+    expect(store.size).toBe(1)
+
+    keepTryingStash(db, pageId)
+    expect(hasUnsaved()).toBe(true)
+    put.mockImplementation(original)
+    retryUnsaved()
+    await vi.waitFor(() => expect(hasUnsaved()).toBe(false))
+    expect(store.size).toBe(0)
+    expect(await listBlocks(db, pageId)).toHaveLength(1)
+    put.mockRestore()
   })
 
   it('a page that is gone is skipped without an error', async () => {

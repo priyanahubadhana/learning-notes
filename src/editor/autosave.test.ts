@@ -1,5 +1,6 @@
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
-import { createAutosaver } from './autosave'
+import { hasUnsaved } from '../app/saveStatus'
+import { createAutosaver, retryDelay } from './autosave'
 
 beforeEach(() => {
   vi.useFakeTimers()
@@ -79,5 +80,62 @@ describe('createAutosaver', () => {
     autosaver.schedule()
     await autosaver.flush()
     expect(save).toHaveBeenCalledTimes(2)
+  })
+
+  it('a failed save is tried again by the next flush, with no new edit', async () => {
+    const save = vi
+      .fn<() => Promise<void>>()
+      .mockRejectedValueOnce(new Error('boom'))
+      .mockResolvedValue(undefined)
+    const autosaver = createAutosaver(save, 500, () => {})
+
+    autosaver.schedule()
+    await autosaver.flush()
+    expect(autosaver.failed()).toBe(true)
+    await autosaver.flush() // e.g. leaving the page
+    expect(save).toHaveBeenCalledTimes(2)
+    expect(autosaver.failed()).toBe(false)
+  })
+
+  it('retries by itself with a growing wait until it works', async () => {
+    const save = vi
+      .fn<() => Promise<void>>()
+      .mockRejectedValueOnce(new Error('one'))
+      .mockRejectedValueOnce(new Error('two'))
+      .mockResolvedValue(undefined)
+    const autosaver = createAutosaver(save, 500, () => {})
+
+    autosaver.schedule()
+    await vi.advanceTimersByTimeAsync(500)
+    expect(hasUnsaved()).toBe(true)
+    await vi.advanceTimersByTimeAsync(1999)
+    expect(save).toHaveBeenCalledTimes(1)
+    await vi.advanceTimersByTimeAsync(1)
+    expect(save).toHaveBeenCalledTimes(2)
+    await vi.advanceTimersByTimeAsync(3999)
+    expect(save).toHaveBeenCalledTimes(2)
+    await vi.advanceTimersByTimeAsync(1)
+    expect(save).toHaveBeenCalledTimes(3)
+    expect(hasUnsaved()).toBe(false)
+    await vi.advanceTimersByTimeAsync(120_000)
+    expect(save).toHaveBeenCalledTimes(3)
+  })
+
+  it('the wait grows to at most a minute', () => {
+    expect([1, 2, 3, 6, 7, 20].map(retryDelay)).toEqual([
+      2000, 4000, 8000, 60_000, 60_000, 60_000,
+    ])
+  })
+
+  it('does not retry after being disposed', async () => {
+    const save = vi.fn(() => Promise.reject(new Error('boom')))
+    const autosaver = createAutosaver(save, 500, () => {})
+    autosaver.schedule()
+    autosaver.dispose()
+    await autosaver.flush()
+    await vi.advanceTimersByTimeAsync(120_000)
+    expect(save).toHaveBeenCalledTimes(1)
+    autosaver.handOver()
+    expect(hasUnsaved()).toBe(false)
   })
 })

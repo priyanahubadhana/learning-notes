@@ -1679,4 +1679,7 @@ export const en = {
   'error.saved': 'Backup file saved.',
   'error.saveFailed': 'The backup file could not be saved.',
   'editor.damagedBlock': 'This line could not be shown. It is kept safely.',
+  'save.failed':
+    'Not saved yet. Your latest changes are kept on this device and the app keeps trying.',
+  'save.retry': 'Try again',
 } as const

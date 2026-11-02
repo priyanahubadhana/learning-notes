@@ -110,4 +110,7 @@ export const es7: Record<string, string> = {
   'error.saved': 'Archivo de copia de seguridad guardado.',
   'error.saveFailed': 'No se pudo guardar el archivo de copia de seguridad.',
   'editor.damagedBlock': 'Esta línea no se pudo mostrar. Se conserva a salvo.',
+  'save.failed':
+    'Aún sin guardar. Tus últimos cambios se conservan en este dispositivo y la aplicación sigue intentándolo.',
+  'save.retry': 'Reintentar',
 }

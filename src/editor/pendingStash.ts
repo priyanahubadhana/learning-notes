@@ -4,7 +4,9 @@ import {
   type BlockUpsert,
 } from '../core/blockService'
 import type { LearningNotesDB } from '../core/db'
+import { markSaved, markUnsaved } from '../app/saveStatus'
 import { syncCardRecords } from '../recall/cardService'
+import { retryDelay } from './autosave'
 
 /**
  * Closing a tab can stop the page before the database write of the last
@@ -12,6 +14,7 @@ import { syncCardRecords } from '../recall/cardService'
  * being left, the unsaved changes are also written to localStorage, which
  * is synchronous, and applied the next time that page is opened. Applying
  * is harmless if the database write did finish: it writes the same blocks.
+ * A failed save is kept the same way, until a save works.
  */
 const KEY = (pageId: string) => `learning-notes:pending:${pageId}`
 
@@ -20,14 +23,18 @@ interface Stash {
   changes: BlockChanges
 }
 
-/** Keeps `changes` for the next start. Fails quietly (storage may be full). */
-export function stashChanges(pageId: string, changes: BlockChanges): void {
-  if (changes.upserts.length === 0 && changes.deletes.length === 0) return
+/**
+ * Keeps `changes` for the next start. Returns false if they could not be
+ * kept (storage full or blocked); the normal save is still tried.
+ */
+export function stashChanges(pageId: string, changes: BlockChanges): boolean {
+  if (changes.upserts.length === 0 && changes.deletes.length === 0) return true
   try {
     const stash: Stash = { savedAt: Date.now(), changes }
     localStorage.setItem(KEY(pageId), JSON.stringify(stash))
+    return true
   } catch {
-    // storage full or blocked: the normal save is still tried
+    return false
   }
 }
 
@@ -68,6 +75,45 @@ function readStash(pageId: string): BlockChanges | null {
   }
 }
 
+/** False only when the page is known to be gone (a failed read is not). */
+async function pageStillThere(
+  db: LearningNotesDB,
+  pageId: string,
+): Promise<boolean> {
+  try {
+    const page = await db.pages.get(pageId)
+    return !!page && !page.deletedAt
+  } catch {
+    return true
+  }
+}
+
+/** Applies kept changes. They stay kept if the database still fails. */
+async function applyStash(
+  db: LearningNotesDB,
+  pageId: string,
+): Promise<'nothing' | 'applied' | 'failed'> {
+  const changes = readStash(pageId)
+  if (!changes) {
+    clearStash(pageId)
+    return 'nothing'
+  }
+  try {
+    await db.transaction('rw', db.pages, db.blocks, db.cards, async () => {
+      await saveBlockChanges(db, pageId, changes)
+      await syncCardRecords(db, pageId)
+    })
+    clearStash(pageId)
+    return 'applied'
+  } catch (error) {
+    console.error('Could not bring back unsaved changes', error)
+    // A deleted page has nowhere to bring them back to.
+    if (await pageStillThere(db, pageId)) return 'failed'
+    clearStash(pageId)
+    return 'nothing'
+  }
+}
+
 /**
  * Applies changes kept when the page was last left, before it is shown.
  * Returns true if something was applied.
@@ -76,22 +122,27 @@ export async function recoverStash(
   db: LearningNotesDB,
   pageId: string,
 ): Promise<boolean> {
-  const changes = readStash(pageId)
-  if (!changes) {
-    clearStash(pageId)
-    return false
+  return (await applyStash(db, pageId)) === 'applied'
+}
+
+/**
+ * The page closed with its changes unsaved: keeps trying to apply them, and
+ * the "Not saved yet" notice stays until that works. Opening the page again
+ * applies them too; this then finds nothing left and stops.
+ */
+export function keepTryingStash(db: LearningNotesDB, pageId: string): void {
+  const token = {}
+  let tries = 0
+  let timer: ReturnType<typeof setTimeout> | undefined
+  const attempt = async () => {
+    clearTimeout(timer)
+    if ((await applyStash(db, pageId)) === 'failed') {
+      tries += 1
+      timer = setTimeout(() => void attempt(), retryDelay(tries))
+    } else {
+      markSaved(token)
+    }
   }
-  try {
-    await db.transaction('rw', db.pages, db.blocks, db.cards, async () => {
-      await saveBlockChanges(db, pageId, changes)
-      await syncCardRecords(db, pageId)
-    })
-    return true
-  } catch (error) {
-    // e.g. the page was deleted meanwhile: nothing to bring back
-    console.error('Could not bring back unsaved changes', error)
-    return false
-  } finally {
-    clearStash(pageId)
-  }
+  markUnsaved(token, () => void attempt())
+  timer = setTimeout(() => void attempt(), retryDelay(1))
 }

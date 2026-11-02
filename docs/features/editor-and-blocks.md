@@ -26,6 +26,7 @@ The BlockNote editor shows a page as blocks and saves every edit to the local da
 - Stash: storage errors are ignored; a stash with a wrong shape is dropped; applying it twice is harmless; if the page was deleted meanwhile, nothing is restored.
 - A failed history copy does not fail the save.
 - A block whose `content.text` has a shape the editor cannot draw (`isShowableText` in `mapping.ts`) shows as a plain placeholder line. The stored record is not changed unless the user edits that line. Unknown style names are not checked; the error screen catches those.
+- A failed save stays pending (`autosave.ts`): retried after 2 s, 4 s, 8 s up to a minute, and on each flush, with the same safety for titles. Its changes go to the localStorage stash; a page closed while saves fail hands over to `keepTryingStash`. `SaveNotice.tsx` shows Not saved yet until every saver in `app/saveStatus.ts` has saved. If localStorage also fails, the notice stays until the app restarts.
 
 ## Security check
 

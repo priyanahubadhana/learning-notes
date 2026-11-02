@@ -16,6 +16,7 @@ import {
   TopBarSlotContext,
 } from './app/appUi'
 import { ErrorBoundary } from './app/ErrorBoundary'
+import { SaveNotice } from './app/SaveNotice'
 import { onStorageFull, reportError, runTask } from './app/errors'
 import { baseHash, parseHash, routeToHash, type Route } from './app/router'
 import { applyTheme } from './app/theme'
@@ -1094,6 +1095,9 @@ function App() {
               onLater={() => runTask(snoozeReminder(db))}
             />
           )}
+          <div className="fixed bottom-16 left-1/2 z-40 flex w-max max-w-[calc(100vw-32px)] -translate-x-1/2 flex-col items-center gap-2">
+            <SaveNotice />
+          </div>
           {toastMessage && (
             <Toast
               message={toastMessage.message}

@@ -4,6 +4,10 @@ Current phase only. Older entries are in [ARCHIVE.md](ARCHIVE.md).
 
 ## 2026-11-02
 
+- **What:** Touch sizes now skip only controls inside lines of text, so a database in a note gets finger-sized buttons, and inputs and lists are 44 tall. The selection toolbar wraps instead of widening the page.
+- **Why:** Audit B11: the toolbar grew to 932px on an 834px iPad screen, and controls in a note were 28 tall.
+- **Files:** src/index.css, e2e/touchTargets.spec.ts, docs/features/navigation.md
+
 - **What:** Renaming a journal day or month sets an optional customTitle on that page, and the sidebar then shows the new name. No database upgrade is needed; pages without it keep the automatic date in the current language. A name changed before this fix needs renaming once more.
 - **Why:** Audit B9: the rename was saved but the sidebar kept showing the date.
 - **Files:** src/core/types.ts, src/pages/pageService.ts, src/pages/PageTree.tsx, src/history/versionService.ts, src/share/checkRows.ts, src/share/importBundle.ts, e2e/journal.spec.ts, docs/features/journal.md

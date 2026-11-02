@@ -25,6 +25,7 @@ The handle between the menu and the page sets the menu width (`src/app/SidebarRe
 - `#/review/custom` and unknown review paths cannot be reopened; custom shows nothing, other unknown ones go home.
 - A damaged or non-object search query gives a plain search.
 - An address to a missing page shows Home with a message (e2e).
+- Touch sizes (`src/index.css`): buttons 32×44 and inputs and lists 44 tall, except inside lines of text (`.bn-inline-content`). The selection toolbar wraps at the screen width.
 
 ## Security check
 

@@ -1,5 +1,11 @@
 import { devices, expect, test, type Page } from '@playwright/test'
-import { createNotebook, showSidebar } from './helpers.ts'
+import {
+  createNotebook,
+  hideSidebar,
+  selectText,
+  showSidebar,
+  typeInEditor,
+} from './helpers.ts'
 
 const { viewport, hasTouch, isMobile, userAgent } = devices['iPad Pro 11']
 test.use({ viewport, hasTouch, isMobile, userAgent })
@@ -9,10 +15,17 @@ const SCREENS = ['#/settings', '#/search', '#/cards', '#/databases', '#/review']
 /** Visible buttons too small for a finger, as "name width×height". */
 const tooSmall = (page: Page) =>
   page.evaluate(() =>
-    [...document.querySelectorAll<HTMLElement>('button')]
-      .filter((el) => el.checkVisibility() && !el.closest('.bn-editor'))
+    [
+      ...document.querySelectorAll<HTMLElement>(
+        'button, select, input:not([type=checkbox], [type=radio], [type=file])',
+      ),
+    ]
+      .filter((el) => el.checkVisibility() && !el.closest('.bn-inline-content'))
       .map((el) => ({ el, box: el.getBoundingClientRect() }))
-      .filter(({ box }) => box.width < 32 || box.height < 44)
+      .filter(
+        ({ el, box }) =>
+          box.height < 44 || (el.tagName === 'BUTTON' && box.width < 32),
+      )
       .map(
         ({ el, box }) =>
           `${el.getAttribute('aria-label') ?? el.textContent?.trim()} ${Math.round(box.width)}×${Math.round(box.height)}`,
@@ -31,6 +44,41 @@ test('on a touch screen every button is big enough for a finger', async ({
     await page.waitForTimeout(300)
     expect(await tooSmall(page), hash).toEqual([])
   }
+})
+
+test('the selection toolbar stays inside the screen', async ({ page }) => {
+  await page.goto('/')
+  await createNotebook(page, 'Test NB', 'Heart sounds')
+  await typeInEditor(page, 'select these words')
+  await selectText(page, 'these')
+  const toolbar = page.locator('.bn-formatting-toolbar')
+  await expect(toolbar).toBeVisible()
+  const box = (await toolbar.boundingBox())!
+  const width = page.viewportSize()!.width
+  expect(box.x).toBeGreaterThanOrEqual(0)
+  expect(box.x + box.width).toBeLessThanOrEqual(width)
+  const pageWidth = await page.evaluate(
+    () => document.documentElement.scrollWidth,
+  )
+  expect(pageWidth).toBeLessThanOrEqual(width)
+})
+
+test('a database in a note has finger-sized controls', async ({ page }) => {
+  await page.goto('/')
+  await createNotebook(page, 'Test NB', 'Heart sounds')
+  await hideSidebar(page)
+  await page.locator('.bn-editor').click()
+  await page.keyboard.type('/database')
+  await page.keyboard.press('Enter')
+  await page
+    .getByRole('dialog', { name: 'Add a database' })
+    .getByRole('option', { name: /^Drug list — / })
+    .click()
+  const block = page.getByRole('region', { name: 'Drug list' })
+  await block.getByRole('button', { name: /Table/ }).click()
+  const fullWidth = block.getByRole('button', { name: /Full width/ })
+  await expect(fullWidth).toBeVisible()
+  expect((await fullWidth.boundingBox())!.height).toBeGreaterThanOrEqual(44)
 })
 
 for (const [width, height] of [

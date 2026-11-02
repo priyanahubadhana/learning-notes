@@ -331,16 +331,32 @@ button.tag-chip:hover {
   .tip-info {
     display: inline-flex;
   }
-  /* Fingers need bigger buttons. Not in the editor: buttons there sit inside
-     lines of text, which would spread apart. */
-  button:not(.bn-editor *),
+  /* Fingers need bigger controls. Not inside lines of text, which would spread
+     apart; controls of a block in a note (a database) do get them. */
+  button:not(.bn-inline-content *),
   .tip-info {
     min-width: 32px;
     min-height: 44px;
   }
+  input:not(
+    [type='checkbox'],
+    [type='radio'],
+    [type='file'],
+    [type='range'],
+    [type='color'],
+    .bn-inline-content *
+  ),
+  select:not(.bn-inline-content *) {
+    min-height: 44px;
+  }
   /* Round buttons stay round. */
-  button.rounded-full:not(.bn-editor *) {
+  button.rounded-full:not(.bn-inline-content *) {
     min-width: 44px;
+  }
+  /* The selection toolbar wraps instead of widening the page. */
+  .bn-formatting-toolbar {
+    flex-wrap: wrap;
+    max-width: calc(100vw - 16px);
   }
   /* Touch screens cannot hover, and an iPad with a trackpad is still touched:
      icons that only show on hover (delete, +, rename…) are always shown. */

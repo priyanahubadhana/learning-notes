@@ -1501,7 +1501,7 @@ export const en = {
   'app.empty.intro': 'Create a notebook to begin, or open today’s journal.',
   'app.empty.create': 'Create notebook',
   'app.empty.select':
-    'Select a page in the sidebar, or press Alt+N for a new one.',
+    'Select a page in the sidebar, or press {key} for a new one.',
   'sidebar.confirm.template':
     'Delete the template “{name}”? Pages made from it stay as they are.',
   'sidebar.confirm.notebook': 'Delete “{name}” and all its pages?',

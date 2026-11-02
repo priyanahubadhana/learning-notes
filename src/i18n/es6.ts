@@ -242,7 +242,7 @@ export const es6: Record<string, string> = {
   'app.empty.intro': 'Crea un cuaderno para empezar, o abre el diario de hoy.',
   'app.empty.create': 'Crear cuaderno',
   'app.empty.select':
-    'Elige una página en la barra lateral, o pulsa Alt+N para crear una nueva.',
+    'Elige una página en la barra lateral, o pulsa {key} para crear una nueva.',
   'sidebar.confirm.template':
     '¿Eliminar la plantilla «{name}»? Las páginas hechas con ella se quedan como están.',
   'sidebar.confirm.notebook': '¿Eliminar «{name}» y todas sus páginas?',

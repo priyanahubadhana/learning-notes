@@ -11,6 +11,7 @@ import {
 } from 'react'
 import { createPortal } from 'react-dom'
 import { AppUiContext, TopBarSlotContext } from '../app/appUi'
+import { altShortcutLabel } from '../app/keys'
 import { runTask } from '../app/errors'
 import { MenuPopover, NameDialog, type MenuItem } from '../app/ui'
 import { listBlocks } from '../core/blockService'
@@ -131,7 +132,7 @@ export function PageView({
           {
             label: t('page.reviewThis'),
             icon: '⟳',
-            hint: 'Alt+R',
+            hint: altShortcutLabel('R'),
             onSelect: () => onReview(),
           },
         ]

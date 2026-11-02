@@ -40,6 +40,7 @@ test('Show help: tips across the app, help lines, and nothing when Off', async (
     .getByRole('button', { name: /^Review(?! this)/ })
     .click()
   await expect(page.getByRole('button', { name: /Show answer/ })).toBeFocused()
+  await page.mouse.move(0, 0) // a resting mouse is a hover, not a focus tip
   await page.waitForTimeout(700)
   await expect(page.getByRole('tooltip')).toHaveCount(0)
   await page.keyboard.press('Space')

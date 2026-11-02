@@ -8,7 +8,9 @@ test.describe('touch screen', () => {
     isMobile: true,
   })
 
-  test('row icons are always visible and at least 44 px', async ({ page }) => {
+  test('row icons are always visible and big enough for a finger', async ({
+    page,
+  }) => {
     await page.goto('/')
     await createNotebook(page, 'Touch NB', 'First')
     const side = await openSidebar(page)
@@ -25,7 +27,7 @@ test.describe('touch screen', () => {
         ),
       ).toBe('1')
       const box = (await button.boundingBox())!
-      expect(box.width).toBeGreaterThanOrEqual(44)
+      expect(box.width).toBeGreaterThanOrEqual(32) // narrow, so names stay readable
       expect(box.height).toBeGreaterThanOrEqual(44)
     }
   })

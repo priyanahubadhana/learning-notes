@@ -27,6 +27,8 @@ Fast, full keyboard use on PC, Mac and iPad keyboards.
 | Code block: `Enter` on an empty last line     | Leave the block                       |
 | Code block: `Ctrl+Enter` (`Cmd+Enter` on Mac) | Leave the block from anywhere         |
 
+On Apple devices, including an iPad with a Magic Keyboard, the app shows ⌘ and ⌥ instead of Ctrl and Alt. Shortcuts read the physical key, so they work on any keyboard layout.
+
 ## Edge cases
 
 Shortcuts must not fire where the key is normal typing.

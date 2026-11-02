@@ -30,7 +30,7 @@ test('restore brings back a page with its sub-page and text', async ({
 
   await openTrash(page)
   // Only what was deleted directly is listed (not the sub-page).
-  expect(await trashEntries(page)).toEqual(['Parent — in Test NB'])
+  await expect.poll(() => trashEntries(page)).toEqual(['Parent — in Test NB'])
 
   await trashAction(page, 'Parent', 'Restore')
   await expect(sidebar(page).getByText('Trash is empty')).toBeVisible()
@@ -55,7 +55,9 @@ test('delete forever asks first, and the page never comes back', async ({
     'Delete “Test delete” forever?',
   )
   await confirmDialog(page, 'Cancel')
-  expect(await trashEntries(page)).toEqual(['Test delete — in Test NB'])
+  await expect
+    .poll(() => trashEntries(page))
+    .toEqual(['Test delete — in Test NB'])
 
   // Delete forever removes it, also after a reload.
   await trashAction(page, 'Test delete', 'Delete forever')
@@ -81,7 +83,7 @@ test('restoring a notebook brings back all its pages and text', async ({
   await confirmDialog(page, 'Delete')
 
   await openTrash(page)
-  expect(await trashEntries(page)).toEqual(['Test NB — 2 pages'])
+  await expect.poll(() => trashEntries(page)).toEqual(['Test NB — 2 pages'])
 
   await trashAction(page, 'Test NB', 'Restore')
   await expect(sidebar(page).getByText('Trash is empty')).toBeVisible()
@@ -104,10 +106,9 @@ test('restoring a page whose notebook is in Trash brings back only that notebook
   await confirmDialog(page, 'Delete')
 
   await openTrash(page)
-  expect(await trashEntries(page)).toEqual([
-    'Test NB2 — 1 page',
-    'Keep me — in Test NB2',
-  ])
+  await expect
+    .poll(() => trashEntries(page))
+    .toEqual(['Test NB2 — 1 page', 'Keep me — in Test NB2'])
 
   await trashAction(page, 'Keep me', 'Restore')
   await expect(
@@ -119,5 +120,7 @@ test('restoring a page whose notebook is in Trash brings back only that notebook
   await expect(
     sidebar(page).getByRole('button', { name: 'Leave me', exact: true }),
   ).toHaveCount(0)
-  expect(await trashEntries(page)).toEqual(['Leave me — in Test NB2'])
+  await expect
+    .poll(() => trashEntries(page))
+    .toEqual(['Leave me — in Test NB2'])
 })

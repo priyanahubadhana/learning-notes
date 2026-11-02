@@ -242,7 +242,7 @@ export const hi6: Record<string, string> = {
   'app.empty.intro': 'शुरू करने के लिए नोटबुक बनाएँ, या आज की डायरी खोलें।',
   'app.empty.create': 'नोटबुक बनाएँ',
   'app.empty.select':
-    'साइडबार में कोई पृष्ठ चुनें, या नया बनाने के लिए Alt+N दबाएँ।',
+    'साइडबार में कोई पृष्ठ चुनें, या नया बनाने के लिए {key} दबाएँ।',
   'sidebar.confirm.template':
     'टेम्पलेट “{name}” हटाएँ? उससे बने पृष्ठ जैसे हैं वैसे रहेंगे।',
   'sidebar.confirm.notebook': '“{name}” और उसके सारे पृष्ठ हटाएँ?',

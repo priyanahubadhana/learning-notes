@@ -13,6 +13,7 @@ import { baseHash, parseHash, routeToHash, type Route } from './app/router'
 import { applyTheme } from './app/theme'
 import { ThemeContext } from './app/themeContext'
 import type { ToastAction } from './app/appUi'
+import { altShortcutLabel } from './app/keys'
 import { Toast, ChoiceDialog } from './app/ui'
 import { onUpdateOffer } from './app/updates'
 import { TOAST_AFTER_HOLD_MS, toastDuration } from './app/toastTiming'
@@ -998,7 +999,7 @@ function App() {
                     </div>
                   ) : currentPage === null ? (
                     <p className="mt-[30vh] text-center text-muted">
-                      {t('app.empty.select')}
+                      {t('app.empty.select', { key: altShortcutLabel('N') })}
                     </p>
                   ) : null}
                 </Suspense>

@@ -163,7 +163,7 @@ export function MenuPopover({
             onClose()
             item.onSelect()
           }}
-          className="flex w-full items-center gap-2.5 rounded-md px-2.5 py-1.5 text-left text-sm outline-none enabled:hover:bg-hover enabled:focus:bg-hover disabled:text-muted pointer-coarse:min-h-11"
+          className="flex w-full items-center gap-2.5 rounded-md px-2.5 py-1.5 text-left text-sm outline-none enabled:hover:bg-hover enabled:focus:bg-hover disabled:text-muted any-pointer-coarse:min-h-11"
         >
           <span aria-hidden className="w-5 text-center text-muted">
             {item.icon}

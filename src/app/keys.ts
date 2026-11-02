@@ -8,3 +8,8 @@ export function isApple(): boolean {
 export function shortcutLabel(key: string): string {
   return isApple() ? `⌘${key}` : `Ctrl+${key}`
 }
+
+/** How to show Alt+`key` on this device: "Alt+R", or "⌥R" on Apple. */
+export function altShortcutLabel(key: string): string {
+  return isApple() ? `⌥${key}` : `Alt+${key}`
+}

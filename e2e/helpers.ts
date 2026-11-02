@@ -183,6 +183,12 @@ export async function openTrash(page: Page): Promise<Locator> {
   if ((await toggle.getAttribute('aria-expanded')) !== 'true') {
     await toggle.click()
   }
+  await expect(
+    sidebar(page)
+      .getByText('Trash is empty')
+      .or(sidebar(page).getByLabel('Restore', { exact: true }))
+      .first(),
+  ).toBeVisible()
   return sidebar(page)
 }
 
@@ -267,6 +273,7 @@ export const highlighted = (page: Page) =>
 
 /** Opens the search popup with Ctrl+K and returns it. */
 export async function openSearchPopup(page: Page): Promise<Locator> {
+  await sidebar(page).waitFor({ state: 'attached' }) // the app has loaded
   await page.keyboard.press('Control+K')
   const popup = page.getByRole('dialog', { name: 'Search' })
   await expect(popup).toBeVisible()

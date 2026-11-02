@@ -11,7 +11,7 @@ import { Tip } from '../help/Help'
 import { AppUiContext } from '../app/appUi'
 import { runTask } from '../app/errors'
 import { THEMES, type Theme } from '../app/theme'
-import { shortcutLabel } from '../app/keys'
+import { altShortcutLabel, shortcutLabel } from '../app/keys'
 import {
   ConfirmDialog,
   IconButton,
@@ -273,7 +273,7 @@ export function Sidebar({
             })}
           </span>
           <kbd className="rounded border border-line bg-side px-1 font-mono text-[11px] text-muted">
-            Alt+T
+            {altShortcutLabel('T')}
           </kbd>
         </button>
       </Tip>

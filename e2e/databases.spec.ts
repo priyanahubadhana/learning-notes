@@ -392,16 +392,23 @@ test('/database lists all your databases, searchable, newest first, with the rea
     await hub()
     await main(page).getByRole('button', { name: '+ New database' }).click()
     await page.getByRole('menuitem', { name: /^Blank/ }).click()
+    await expect(page).toHaveURL(/#\/database\//)
   }
   await hub()
   await main(page).getByRole('button', { name: '+ New database' }).click()
   await page.getByRole('menuitem', { name: /^Drug list/ }).click()
+  await expect(main(page).getByRole('textbox', { name: 'Rename' })).toHaveValue(
+    'Drug list',
+  )
 
   await (
     await openSidebar(page)
   )
     .getByRole('button', { name: 'Heart sounds' })
     .click()
+  await expect(page.getByRole('textbox', { name: 'Page title' })).toHaveValue(
+    'Heart sounds',
+  )
   await page.locator('.bn-editor').click()
   await page.keyboard.type('/database')
   await page.keyboard.press('Enter')

@@ -327,12 +327,23 @@ button.tag-chip:hover {
   font-size: 12px;
   line-height: 1;
 }
-@media (hover: none) {
+@media (hover: none), (any-pointer: coarse) {
   .tip-info {
     display: inline-flex;
   }
-  /* Touch screens cannot hover: icons that only show on hover (delete, +,
-     rename…) are always shown, with 44 px tap targets. */
+  /* Fingers need bigger buttons. Not in the editor: buttons there sit inside
+     lines of text, which would spread apart. */
+  button:not(.bn-editor *),
+  .tip-info {
+    min-width: 32px;
+    min-height: 44px;
+  }
+  /* Round buttons stay round. */
+  button.rounded-full:not(.bn-editor *) {
+    min-width: 44px;
+  }
+  /* Touch screens cannot hover, and an iPad with a trackpad is still touched:
+     icons that only show on hover (delete, +, rename…) are always shown. */
   [class*='group-hover:opacity-100'] {
     opacity: 1;
   }
@@ -340,8 +351,6 @@ button.tag-chip:hover {
     display: inline-flex;
     align-items: center;
     justify-content: center;
-    min-width: 44px;
-    min-height: 44px;
   }
 }
 

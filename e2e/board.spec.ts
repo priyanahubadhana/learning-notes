@@ -219,6 +219,7 @@ test.describe('phone (iPhone 16 size, touch)', () => {
 
   test('board: swipe scrolls sideways; hold a card to drag it', async ({
     page,
+    browserName,
   }) => {
     await openBoard(page)
     await addExamColumn(page, ['Soon', 'Later', 'Done'])
@@ -238,6 +239,8 @@ test.describe('phone (iPhone 16 size, touch)', () => {
     })
     expect(wider).toEqual([])
 
+    // Real finger events exist only through Chrome's own tools.
+    test.skip(browserName !== 'chromium', 'needs Chrome touch events')
     const cdp = await page.context().newCDPSession(page)
     const touch = async (
       type: 'touchStart' | 'touchMove' | 'touchEnd',

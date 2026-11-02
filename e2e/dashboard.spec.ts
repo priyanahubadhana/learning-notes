@@ -113,7 +113,7 @@ test('dashboard: starter charts, add, edit, move, table, delete + undo', async (
   // Saved: still there after a reload.
   await page.reload()
   await openTracker(page)
-  expect((await titles())[0]).toBe('Ratings')
+  await expect.poll(async () => (await titles())[0]).toBe('Ratings')
 })
 
 test('dashboard: choose the view a database opens on', async ({ page }) => {

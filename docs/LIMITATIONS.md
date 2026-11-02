@@ -8,4 +8,7 @@
 - **Data lives in one browser:** no sync yet; move it with Save everything and Restore backup.
 - **Delete forever keeps pictures:** page history is erased, but no code in Trash erases picture files. Fix before sync.
 - **Same-spot inserts:** two devices adding a block at the same spot get the same order key, and a later insert between them fails. One window per page now prevents this on one device; fix before sync (see RESEARCH.md).
-- **Update offer:** tested in parts and by unit tests; a real update is first checked on the live address.
+- **Backup limits:** Save everything leaves out page history, settings, saved searches and the Trash, and journal days return as an ordinary notebook. A file over 200 MB saves but cannot be opened again.
+- **Two windows:** a read-only window does not refresh by itself, and page titles are not locked.
+- **Update bar:** tested by unit tests only; a real update is the first full check.
+- **Manual upload:** Cloudflare cannot turn it off, so a daily check catches it instead.

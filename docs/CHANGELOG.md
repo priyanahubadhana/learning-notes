@@ -4,6 +4,10 @@ Current phase only. Older entries are in [ARCHIVE.md](ARCHIVE.md).
 
 ## 2026-11-02
 
+- **What:** Logged the six owner decisions, the audit's strategy and roadmap proposals, and the choices made alone in Decisions to review. Updated Handoff (audit count is 2 low and 19 moderate), Limitations and Learning.
+- **Why:** The owner decides these; nothing in the roadmap or rules was changed.
+- **Files:** docs/DECISIONS.md, docs/HANDOFF.md, docs/LIMITATIONS.md, docs/LEARNING.md
+
 - **What:** Sidebar handle now has the same half-window limit as the screen. Collapse and Expand labels are translated. The page tree works out the open path once per draw instead of per row. The Backup screen reads only the notebook list of the browser backup, not every picture. Download links stay valid for 60 seconds instead of 1. Forward no longer looks unavailable after a redirect.
 - **Why:** Audit B13, B14, B15 (part), and the safe parts of the suspected B16 and B18.
 - **Files:** src/app/sidebarWidth.ts, src/notebooks/Sidebar.tsx, src/pages/PageTree.tsx, src/templates/TemplatesSection.tsx, src/core/upgradeBackup.ts, src/share/DataScreen.tsx, src/app/download.ts, src/app/navHistory.ts, src/i18n/, docs/features/backup-and-files.md

@@ -245,3 +245,5 @@ Before building sync, we looked up how it can work at ₹0 and wrote the answers
 - **End-to-end encryption** means notes are locked on your device, so the storage company only holds unreadable data. Example: even if Supabase were hacked, the thief gets scrambled text.
 - **A connector** is a small piece of code that talks to one storage company. Example: to change company later, we swap that piece, not the whole app.
 - **New thing learned:** "free" can still mean a bill. A service that needs your card and has no spending stop can charge you, while one with no card simply stops when full.
+
+- **New thing learned (audit, 2026-11-02):** All 815 tests passed while 15 bugs sat in the app, because they tested normal use, not failure. A test that breaks the database on purpose found the lost typing straight away.

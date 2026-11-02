@@ -17,6 +17,7 @@ import { imageIdsIn, isImageType } from '../images/imageRef'
 import { tagMap, tagPathIn } from '../tags/tagService'
 import { joinTagPath } from '../tags/tagNames'
 import type { BackupSnapshot } from '../core/upgradeBackup'
+import { checkedRow } from './checkRows'
 
 /**
  * The file format for sharing notebooks (and restoring backups): plain
@@ -338,8 +339,11 @@ function need(ok: boolean, message: string | (() => string)): asserts ok {
 
 /**
  * Checks parsed JSON and returns it as a bundle: the right app and a
- * version we know, every table a list of objects with text ids, no more
- * than a sane number of rows. Throws a `BundleError` otherwise.
+ * version we know, every table a list of objects with unique text ids, every
+ * row's fields of the right kind (see checkRows.ts), no more than a sane
+ * number of rows. Rows are rebuilt from known fields only. Throws a
+ * `BundleError` otherwise. Nothing is written, so a refused file changes
+ * nothing.
  */
 export function checkBundle(data: unknown): Bundle {
   need(isObject(data), t('err.notOurFile'))
@@ -359,15 +363,28 @@ export function checkBundle(data: unknown): Bundle {
     need(Array.isArray(rows), () => t('err.listDamaged', { table }))
     total += rows.length
     need(total <= 2_000_000, t('err.tooBigFile'))
-    for (const row of rows) {
+    const damaged = () =>
+      table === 'tags'
+        ? t('err.tagsDamaged')
+        : table === 'pages'
+          ? t('err.pageDamaged')
+          : table === 'blocks'
+            ? t('err.noteDamaged')
+            : table === 'images'
+              ? t('err.imageDamaged')
+              : t('err.listDamaged', { table })
+    const seen = new Set<string>()
+    const clean = rows.map((row: unknown) => {
       need(isObject(row) && typeof row.id === 'string' && row.id !== '', () =>
         t('err.listDamaged', { table }),
       )
-      if (table === 'tags') {
-        need(typeof row.path === 'string', t('err.tagsDamaged'))
-      }
-    }
-    ;(bundle as unknown as Record<string, unknown[]>)[table] = rows
+      need(!seen.has(row.id), () => t('err.listDamaged', { table }))
+      seen.add(row.id)
+      const checked = checkedRow(table, row)
+      need(checked !== null, damaged)
+      return checked
+    })
+    ;(bundle as unknown as Record<string, unknown[]>)[table] = clean
   }
   for (const image of bundle.images) {
     need(
@@ -380,15 +397,6 @@ export function checkBundle(data: unknown): Bundle {
     image.name = String(image.name ?? 'picture').slice(0, 200)
     image.width = Number(image.width) || 0
     image.height = Number(image.height) || 0
-  }
-  for (const page of bundle.pages) {
-    need(typeof page.notebookId === 'string', t('err.pageDamaged'))
-  }
-  for (const block of bundle.blocks) {
-    need(
-      typeof block.pageId === 'string' && isObject(block.content),
-      t('err.noteDamaged'),
-    )
   }
   return bundle
 }

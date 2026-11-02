@@ -17,6 +17,16 @@ export function orderBetween(
   return generateKeyBetween(before, after)
 }
 
+/** True if `key` is a key the library can work with. */
+export function isOrderKey(key: string): boolean {
+  try {
+    generateKeyBetween(key, null)
+    return true
+  } catch {
+    return false
+  }
+}
+
 /** Returns `n` increasing keys between `before` and `after` (null = open end). */
 export function ordersBetween(
   before: OrderKey | null,

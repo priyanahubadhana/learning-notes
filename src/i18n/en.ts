@@ -1686,4 +1686,6 @@ export const en = {
     'Included: live notebooks, pages, cards, databases, pictures, journal days and templates. Not included: page history, settings, saved searches and the Trash. Journal days come back as an ordinary notebook, not in Today.',
   'data.tooBigToRestore':
     'This file was saved, but it is over 200 MB, so the app could not open it again. Keep it, and also save smaller notebook files.',
+  'data.failed':
+    'That did not work, and nothing was changed. Please try again.',
 } as const

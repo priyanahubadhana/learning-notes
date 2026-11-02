@@ -33,6 +33,7 @@ Notes live only in this browser, so the app lets the user save them as files and
 - `remapJson` skips `__proto__` keys.
 - Nothing leaves the device: files are only downloaded or read from a chosen file.
 - Deletes: import never deletes or overwrites. Replacing the browser backup deletes only the old backup database.
+- Every row is checked and rebuilt from known fields (`checkRows.ts`, typed so a new field cannot be forgotten): field kinds, valid order keys, showable text, unique ids; `purgedAt` is never kept. The browser backup goes through the same check. One bad row refuses the whole file, which is never changed, and the import runs in one transaction, so a failure leaves nothing.
 
 ## Tests
 

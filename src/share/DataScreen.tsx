@@ -16,6 +16,7 @@ import {
   bundleFile,
   bundleFileName,
   bundleFromSnapshot,
+  checkBundle,
   exportNotebookBundle,
   exportWorkspaceBundle,
   tooBigToRestore,
@@ -102,7 +103,10 @@ export function DataScreen({
       work()
         .catch((e: unknown) => {
           if (e instanceof BundleError) setError(e.message)
-          else throw e
+          else {
+            setError(t('data.failed'))
+            throw e // logged; a full device also says so
+          }
         })
         .finally(() => setBusy(false)),
     )
@@ -490,7 +494,9 @@ export function DataScreen({
                   type="button"
                   disabled={busy}
                   onClick={() =>
-                    run(() => importBundleNow(bundleFromSnapshot(backup)))
+                    run(() =>
+                      importBundleNow(checkBundle(bundleFromSnapshot(backup))),
+                    )
                   }
                   className={button}
                 >

@@ -4,6 +4,10 @@ Current phase only. Older entries are in [ARCHIVE.md](ARCHIVE.md).
 
 ## 2026-11-02
 
+- **What:** Importing checks every row field by field, refuses duplicate ids, bad order keys and text the editor cannot draw, and copies known fields only, so purgedAt from a file is never kept. The whole import runs in one transaction, so a failed import leaves nothing, not even tags. Every failure now shows a message. A link cell from a file only opens if it passes the same check as a typed link.
+- **Why:** Audit B6 and S4: a damaged file could break every save on a page, or fail with no message.
+- **Files:** src/share/checkRows.ts, src/share/bundle.ts, src/share/importBundle.ts, src/share/DataScreen.tsx, src/core/order.ts, src/databases/views/TableView.tsx, src/i18n/, e2e/sharing.spec.ts, docs/features/backup-and-files.md
+
 - **What:** Backup now says what is and is not included. A saved file over 200 MB shows a warning that it could not be opened again. A notebook file reads only the pictures it uses.
 - **Why:** Audit B4 and B5. The full restore and a zip format belong with Phase 10 work (see Decisions to review).
 - **Files:** src/share/DataScreen.tsx, src/share/bundle.ts, src/i18n/, docs/features/backup-and-files.md

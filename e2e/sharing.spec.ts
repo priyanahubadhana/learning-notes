@@ -411,3 +411,30 @@ test.describe('CSV import: what to do with the rows that are there', () => {
     await expect(rows(page, 'Emma')).toHaveCount(1)
   })
 })
+
+test('a damaged file shows a message and adds nothing', async ({ page }) => {
+  await page.goto('/#/data')
+  const main = page.getByRole('main')
+  const file = {
+    app: 'learning-notes',
+    kind: 'notebook',
+    formatVersion: 1,
+    notebooks: [{ id: 'n', title: 'Bad file', order: 'a0' }],
+    pages: [{ id: 'p', notebookId: 'n', title: 'P', order: 'a0' }],
+    blocks: [
+      { id: 'b', pageId: 'p', type: 'paragraph', content: {}, order: 'zzz' },
+    ],
+  }
+  await main
+    .locator('input[type=file]')
+    .first()
+    .setInputFiles({
+      name: 'bad.learningnotes.json',
+      mimeType: 'application/json',
+      buffer: Buffer.from(JSON.stringify(file)),
+    })
+  await expect(main.getByRole('alert')).toHaveText(
+    'A note in the file is damaged.',
+  )
+  await expect(sidebar(page).getByText('Bad file')).toHaveCount(0)
+})

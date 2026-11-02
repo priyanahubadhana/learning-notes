@@ -117,4 +117,5 @@ export const es7: Record<string, string> = {
     'Incluye: cuadernos, páginas, tarjetas, bases de datos, imágenes, días del diario y plantillas. No incluye: historial de páginas, ajustes, búsquedas guardadas ni la papelera. Los días del diario vuelven como un cuaderno normal, no en Hoy.',
   'data.tooBigToRestore':
     'El archivo se guardó, pero supera los 200 MB y la aplicación no podría abrirlo de nuevo. Consérvalo y guarda también archivos más pequeños por cuaderno.',
+  'data.failed': 'No funcionó y no se cambió nada. Inténtalo de nuevo.',
 }

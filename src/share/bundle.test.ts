@@ -1,4 +1,4 @@
-import { afterEach, beforeEach, describe, expect, it } from 'vitest'
+import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
 import type { LearningNotesDB } from '../core/db'
 import { createBlock } from '../core/blockService'
 import { createTestDb } from '../core/testing'
@@ -33,6 +33,7 @@ import {
   readBundle,
   MAX_BUNDLE_BYTES,
   tooBigToRestore,
+  checkBundle,
 } from './bundle'
 import { importBundle } from './importBundle'
 import { remapJson } from './remapJson'
@@ -536,7 +537,7 @@ describe('notebook file', () => {
       notebookId: nb,
       parentId: null,
       title: `Page ${i}`,
-      order: `a${String(i).padStart(4, '0')}`,
+      order: `a${String(i + 1).padStart(4, '0')}1`,
     }))
     await db.pages.bulkAdd(pages)
     const blocks = Array.from({ length: 10_000 }, (_, i) => ({
@@ -546,7 +547,7 @@ describe('notebook file', () => {
       parentId: null,
       type: i % 2 === 0 ? 'card' : 'paragraph',
       content: { text: [{ type: 'text', text: `Line ${i}`, styles: {} }] },
-      order: `a${String(i).padStart(5, '0')}`,
+      order: `a${String(i + 1).padStart(5, '0')}1`,
     }))
     await db.blocks.bulkAdd(blocks)
     await db.cards.bulkAdd(
@@ -575,3 +576,122 @@ describe('files too big to open again', () => {
     expect(tooBigToRestore(MAX_BUNDLE_BYTES + 1)).toBe(true)
   })
 })
+
+describe('checking a file row by row', () => {
+  const good = () => ({
+    app: 'learning-notes',
+    kind: 'notebook',
+    formatVersion: 1,
+    notebooks: [{ id: 'n', title: 'N', order: 'a0' }],
+    pages: [
+      { id: 'p', notebookId: 'n', parentId: null, title: 'P', order: 'a0' },
+    ],
+    blocks: [
+      {
+        id: 'b',
+        pageId: 'p',
+        parentId: null,
+        type: 'paragraph',
+        order: 'a0',
+        content: { text: [{ type: 'text', text: 'x', styles: {} }] },
+      },
+    ],
+  })
+
+  it('accepts a good file', () => {
+    expect(checkBundle(good()).blocks).toHaveLength(1)
+  })
+
+  it.each([
+    ['a bad order key', (f: Damaged) => (f.blocks[0].order = 'zzz')],
+    ['a missing order key', (f: Damaged) => delete f.blocks[0].order],
+    [
+      'text the editor cannot draw',
+      (f: Damaged) => (f.blocks[0].content = { text: 5 }),
+    ],
+    ['a numeric title', (f: Damaged) => (f.pages[0].title = 5)],
+    ['bad tagIds', (f: Damaged) => (f.pages[0].tagIds = 'x')],
+    ['duplicate ids', (f: Damaged) => f.blocks.push({ ...f.blocks[0] })],
+    ['a bad notebook order', (f: Damaged) => (f.notebooks[0].order = '')],
+  ])('refuses %s', (_name, damage) => {
+    const file = good() as Damaged
+    damage(file)
+    expect(() => checkBundle(file)).toThrow(BundleError)
+  })
+
+  it('copies known fields only and never keeps purgedAt', () => {
+    const file = good() as Damaged
+    file.pages[0].purgedAt = 5
+    file.pages[0].madeUp = 'x'
+    const [page] = checkBundle(file).pages
+    expect(page).not.toHaveProperty('purgedAt')
+    expect(page).not.toHaveProperty('madeUp')
+    expect(page.title).toBe('P')
+  })
+
+  it('a real export keeps every field through the check', async () => {
+    const ws = await getOrCreateDefaultWorkspace(db)
+    const notebook = await createNotebook(db, ws.id, 'Full')
+    const page = await createPage(db, notebook.id, null)
+    await db.pages.update(page.id, {
+      summary: 'S',
+      tagIds: [],
+      values: { a: 1 },
+    })
+    await createBlock(db, {
+      pageId: page.id,
+      type: 'paragraph',
+      content: { text: 'x' },
+    })
+    const bundle = await exportNotebookBundle(db, notebook.id)
+    const again = checkBundle(JSON.parse(JSON.stringify(bundle)))
+    expect(again.pages).toEqual(JSON.parse(JSON.stringify(bundle.pages)))
+    expect(again.blocks).toEqual(JSON.parse(JSON.stringify(bundle.blocks)))
+    expect(again.notebooks).toEqual(
+      JSON.parse(JSON.stringify(bundle.notebooks)),
+    )
+  })
+
+  it('a card pointing at an unknown page is left out, not a crash', async () => {
+    const ws = await getOrCreateDefaultWorkspace(db)
+    const file = checkBundle({
+      ...good(),
+      cards: [
+        {
+          id: 'c',
+          blockId: 'b',
+          pageId: 'gone',
+          notebookId: 'n',
+          part: 'main',
+        },
+      ],
+    })
+    await expect(importBundle(db, ws.id, file)).resolves.toMatchObject({
+      cards: 0,
+    })
+  })
+
+  it('a failed import leaves nothing behind, not even tags', async () => {
+    const ws = await getOrCreateDefaultWorkspace(db)
+    const tagsBefore = await db.tags.count()
+    const notebooksBefore = await db.notebooks.count()
+    const file = checkBundle({
+      ...good(),
+      tags: [{ id: 't', path: 'new/tag' }],
+    })
+    file.blocks.push({ ...file.blocks[0] }) // two rows, same new id: add fails
+    const copy = vi
+      .spyOn(db.blocks, 'bulkAdd')
+      .mockRejectedValue(new Error('boom'))
+    await expect(importBundle(db, ws.id, file)).rejects.toThrow('boom')
+    copy.mockRestore()
+    expect(await db.tags.count()).toBe(tagsBefore)
+    expect(await db.notebooks.count()).toBe(notebooksBefore)
+  })
+})
+
+interface Damaged {
+  notebooks: Record<string, unknown>[]
+  pages: Record<string, unknown>[]
+  blocks: Record<string, unknown>[]
+}

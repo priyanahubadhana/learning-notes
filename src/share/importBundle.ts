@@ -70,13 +70,45 @@ function signature(
   ])
 }
 
+/** Every table an import may touch. */
+const IMPORT_TABLES = (db: LearningNotesDB) => [
+  db.workspaces,
+  db.notebooks,
+  db.pages,
+  db.blocks,
+  db.cards,
+  db.reviewLogs,
+  db.databases,
+  db.dbColumns,
+  db.dbViews,
+  db.rowRefs,
+  db.tags,
+  db.meta,
+  db.searchEntries,
+  db.links,
+  db.blockTags,
+  db.images,
+]
+
 export async function importBundle(
   db: LearningNotesDB,
   workspaceId: string,
   bundle: Bundle,
   now: number = Date.now(),
 ): Promise<ImportSummary> {
-  // Tags first (their own transactions): old tag id → live tag id here.
+  // One transaction: a failed import leaves nothing behind, not even tags.
+  return db.transaction('rw', IMPORT_TABLES(db), () =>
+    importInTransaction(db, workspaceId, bundle, now),
+  )
+}
+
+async function importInTransaction(
+  db: LearningNotesDB,
+  workspaceId: string,
+  bundle: Bundle,
+  now: number,
+): Promise<ImportSummary> {
+  // Tags first: old tag id → live tag id here.
   // A tag made now gets the colour it had; one that already exists keeps its own.
   const ids = new Map<string, string>()
   const known = new Set((await db.tags.toArray()).map((tag) => tag.id))
@@ -163,205 +195,180 @@ export async function importBundle(
   const databaseIds = new Set(bundle.databases.map((d) => d.id))
   const notebookIds = new Set(bundle.notebooks.map((n) => n.id))
 
-  return db.transaction(
-    'rw',
-    [
-      db.workspaces,
-      db.notebooks,
-      db.pages,
-      db.blocks,
-      db.cards,
-      db.reviewLogs,
-      db.databases,
-      db.dbColumns,
-      db.dbViews,
-      db.rowRefs,
-      db.tags,
-      db.meta,
-      db.searchEntries,
-      db.links,
-      db.blockTags,
-      db.images,
-    ],
-    async () => {
-      await db.images.bulkAdd(
-        bundle.images.map((image): StoredImage => ({
-          id: imageIds.get(image.id)!,
-          createdAt: now,
-          updatedAt: now,
-          deletedAt: null,
-          name: image.name,
-          type: image.type,
-          width: image.width,
-          height: image.height,
-          data: fromBase64(image.data),
-        })),
-      )
-      const last = (await listNotebooks(db, workspaceId)).at(-1)
-      let order = last?.order ?? null
-      const notebooks = bundle.notebooks
-        .filter((n) => !templatesFrom.has(n.id))
-        .map((n): Notebook => {
-          order = orderBetween(order, null)
-          // Journal days come in as an ordinary notebook (a second journal
-          // would clash with yours); its days are plain pages there.
-          // (A copy of a sample notebook is the user's own, not "the sample".)
-          const { kind: _kind, tabs: _tabs, sample: _sample, ...rest } = n
-          void _kind
-          void _tabs
-          void _sample
-          const newId = id(n.id)!
-          return {
-            ...rest,
-            id: newId,
-            workspaceId,
-            title: t('import.copyName', { name: n.title }),
-            order,
-            createdAt: now,
-            updatedAt: now,
-            deletedAt: null,
-            tabs: defaultNotebookTabs(newId),
-          }
-        })
-      await db.notebooks.bulkAdd(notebooks)
-
-      const databases = bundle.databases.map((d) => ({
-        ...d,
-        id: id(d.id)!,
+  await db.images.bulkAdd(
+    bundle.images.map((image): StoredImage => ({
+      id: imageIds.get(image.id)!,
+      createdAt: now,
+      updatedAt: now,
+      deletedAt: null,
+      name: image.name,
+      type: image.type,
+      width: image.width,
+      height: image.height,
+      data: fromBase64(image.data),
+    })),
+  )
+  const last = (await listNotebooks(db, workspaceId)).at(-1)
+  let order = last?.order ?? null
+  const notebooks = bundle.notebooks
+    .filter((n) => !templatesFrom.has(n.id))
+    .map((n): Notebook => {
+      order = orderBetween(order, null)
+      // Journal days come in as an ordinary notebook (a second journal
+      // would clash with yours); its days are plain pages there.
+      // (A copy of a sample notebook is the user's own, not "the sample".)
+      const { kind: _kind, tabs: _tabs, sample: _sample, ...rest } = n
+      void _kind
+      void _tabs
+      void _sample
+      const newId = id(n.id)!
+      return {
+        ...rest,
+        id: newId,
         workspaceId,
-        notebookId:
-          d.notebookId && notebookIds.has(d.notebookId)
-            ? id(d.notebookId)!
-            : null,
-        ...(d.openViewId && { openViewId: id(d.openViewId)! }),
+        title: t('import.copyName', { name: n.title }),
+        order,
         createdAt: now,
         updatedAt: now,
         deletedAt: null,
-      }))
-      await db.databases.bulkAdd(databases)
-
-      // Rows of loose databases live in the hidden "Databases" notebook.
-      const homeFor = new Map<string, string>()
-      for (const d of databases.filter((x) => x.notebookId === null)) {
-        homeFor.set(d.id, await rowNotebookIdOf(db, d))
+        tabs: defaultNotebookTabs(newId),
       }
-      const pages = bundle.pages.flatMap((p) => {
-        if (skipPages.has(p.id)) return []
-        const databaseId =
-          p.databaseId && databaseIds.has(p.databaseId)
-            ? id(p.databaseId)!
-            : undefined
-        const notebookId = notebookIds.has(p.notebookId)
-          ? id(p.notebookId)!
-          : databaseId
-            ? homeFor.get(databaseId)
-            : undefined
-        if (!notebookId) return []
-        const {
-          journalDate: _journalDate,
-          journalMonth: _journalMonth,
-          templateRole: _templateRole,
-          ...rest
-        } = p
-        void _journalDate
-        void _journalMonth
-        void _templateRole
-        return [
-          {
-            ...rest,
-            id: id(p.id)!,
-            notebookId,
-            parentId: id(p.parentId) ?? null,
-            // A template of a file is a new template next to yours.
-            ...(templatesFrom.has(p.notebookId) &&
-              p.parentId === null && {
-                title: t('import.copyName', { name: p.title }),
-              }),
-            ...(databaseId && { databaseId }),
-            ...(p.tagIds && { tagIds: p.tagIds.map((x) => id(x)!) }),
-            ...(p.values && { values: map(p.values) }),
-            createdAt: now,
-            updatedAt: now,
-            deletedAt: null,
-          },
-        ]
-      })
-      await db.pages.bulkAdd(pages)
-      const pageIds = new Set(pages.map((p) => p.id))
+    })
+  await db.notebooks.bulkAdd(notebooks)
 
-      const blocks = bundle.blocks
-        .filter((b) => pageIds.has(id(b.pageId)!))
-        .map((b) => ({
-          ...b,
-          id: id(b.id)!,
-          pageId: id(b.pageId)!,
-          parentId: id(b.parentId) ?? null,
-          content: map(b.content),
-          createdAt: now,
-          updatedAt: now,
-          deletedAt: null,
-        }))
-      await db.blocks.bulkAdd(blocks)
-      const blockIds = new Set(blocks.map((b) => b.id))
+  const databases = bundle.databases.map((d) => ({
+    ...d,
+    id: id(d.id)!,
+    workspaceId,
+    notebookId:
+      d.notebookId && notebookIds.has(d.notebookId) ? id(d.notebookId)! : null,
+    ...(d.openViewId && { openViewId: id(d.openViewId)! }),
+    createdAt: now,
+    updatedAt: now,
+    deletedAt: null,
+  }))
+  await db.databases.bulkAdd(databases)
 
-      const cards = bundle.cards
-        .filter((c) => blockIds.has(id(c.blockId)!))
-        .map((c) => ({
-          ...c,
-          id: id(c.id)!,
-          blockId: id(c.blockId)!,
-          pageId: id(c.pageId)!,
-          notebookId: pages.find((p) => p.id === id(c.pageId))!.notebookId,
-          ...(c.schedulerData && { schedulerData: map(c.schedulerData) }),
-        }))
-      await db.cards.bulkAdd(cards)
-      const cardIds = new Set(cards.map((c) => c.id))
-      await db.reviewLogs.bulkAdd(
-        bundle.reviewLogs
-          .filter((l) => cardIds.has(id(l.cardId)!))
-          .map((l) => ({ ...l, id: id(l.id)!, cardId: id(l.cardId)! })),
-      )
+  // Rows of loose databases live in the hidden "Databases" notebook.
+  const homeFor = new Map<string, string>()
+  for (const d of databases.filter((x) => x.notebookId === null)) {
+    homeFor.set(d.id, await rowNotebookIdOf(db, d))
+  }
+  const pages = bundle.pages.flatMap((p) => {
+    if (skipPages.has(p.id)) return []
+    const databaseId =
+      p.databaseId && databaseIds.has(p.databaseId)
+        ? id(p.databaseId)!
+        : undefined
+    const notebookId = notebookIds.has(p.notebookId)
+      ? id(p.notebookId)!
+      : databaseId
+        ? homeFor.get(databaseId)
+        : undefined
+    if (!notebookId) return []
+    const {
+      journalDate: _journalDate,
+      journalMonth: _journalMonth,
+      templateRole: _templateRole,
+      ...rest
+    } = p
+    void _journalDate
+    void _journalMonth
+    void _templateRole
+    return [
+      {
+        ...rest,
+        id: id(p.id)!,
+        notebookId,
+        parentId: id(p.parentId) ?? null,
+        // A template of a file is a new template next to yours.
+        ...(templatesFrom.has(p.notebookId) &&
+          p.parentId === null && {
+            title: t('import.copyName', { name: p.title }),
+          }),
+        ...(databaseId && { databaseId }),
+        ...(p.tagIds && { tagIds: p.tagIds.map((x) => id(x)!) }),
+        ...(p.values && { values: map(p.values) }),
+        createdAt: now,
+        updatedAt: now,
+        deletedAt: null,
+      },
+    ]
+  })
+  await db.pages.bulkAdd(pages)
+  const pageIds = new Set(pages.map((p) => p.id))
 
-      const columns = bundle.dbColumns
-        .filter((c) => databaseIds.has(c.databaseId))
-        .map((c) => ({
-          ...c,
-          id: id(c.id)!,
-          databaseId: id(c.databaseId)!,
-          config: map(c.config),
-          createdAt: now,
-          updatedAt: now,
-          deletedAt: null,
-        }))
-      await db.dbColumns.bulkAdd(columns)
-      await db.dbViews.bulkAdd(
-        bundle.dbViews
-          .filter(
-            (v) =>
-              databaseIds.has(v.databaseId) &&
-              (!v.blockId || blockIds.has(id(v.blockId)!)),
-          )
-          .map((v) => ({
-            ...v,
-            id: id(v.id)!,
-            databaseId: id(v.databaseId)!,
-            ...(v.blockId && { blockId: id(v.blockId)! }),
-            config: map(v.config),
-            createdAt: now,
-            updatedAt: now,
-            deletedAt: null,
-          })),
-      )
-      await rebuildRowRefs(
-        db,
-        databases.map((d) => d.id),
-      )
-      return {
-        notebooks: notebooks.length,
-        pages: pages.length,
-        cards: cards.length,
-        databases: databases.length,
-      }
-    },
+  const blocks = bundle.blocks
+    .filter((b) => pageIds.has(id(b.pageId)!))
+    .map((b) => ({
+      ...b,
+      id: id(b.id)!,
+      pageId: id(b.pageId)!,
+      parentId: id(b.parentId) ?? null,
+      content: map(b.content),
+      createdAt: now,
+      updatedAt: now,
+      deletedAt: null,
+    }))
+  await db.blocks.bulkAdd(blocks)
+  const blockIds = new Set(blocks.map((b) => b.id))
+
+  const cards = bundle.cards
+    .filter((c) => blockIds.has(id(c.blockId)!) && pageIds.has(id(c.pageId)!))
+    .map((c) => ({
+      ...c,
+      id: id(c.id)!,
+      blockId: id(c.blockId)!,
+      pageId: id(c.pageId)!,
+      notebookId: pages.find((p) => p.id === id(c.pageId))!.notebookId,
+      ...(c.schedulerData && { schedulerData: map(c.schedulerData) }),
+    }))
+  await db.cards.bulkAdd(cards)
+  const cardIds = new Set(cards.map((c) => c.id))
+  await db.reviewLogs.bulkAdd(
+    bundle.reviewLogs
+      .filter((l) => cardIds.has(id(l.cardId)!))
+      .map((l) => ({ ...l, id: id(l.id)!, cardId: id(l.cardId)! })),
   )
+
+  const columns = bundle.dbColumns
+    .filter((c) => databaseIds.has(c.databaseId))
+    .map((c) => ({
+      ...c,
+      id: id(c.id)!,
+      databaseId: id(c.databaseId)!,
+      config: map(c.config),
+      createdAt: now,
+      updatedAt: now,
+      deletedAt: null,
+    }))
+  await db.dbColumns.bulkAdd(columns)
+  await db.dbViews.bulkAdd(
+    bundle.dbViews
+      .filter(
+        (v) =>
+          databaseIds.has(v.databaseId) &&
+          (!v.blockId || blockIds.has(id(v.blockId)!)),
+      )
+      .map((v) => ({
+        ...v,
+        id: id(v.id)!,
+        databaseId: id(v.databaseId)!,
+        ...(v.blockId && { blockId: id(v.blockId)! }),
+        config: map(v.config),
+        createdAt: now,
+        updatedAt: now,
+        deletedAt: null,
+      })),
+  )
+  await rebuildRowRefs(
+    db,
+    databases.map((d) => d.id),
+  )
+  return {
+    notebooks: notebooks.length,
+    pages: pages.length,
+    cards: cards.length,
+    databases: databases.length,
+  }
 }

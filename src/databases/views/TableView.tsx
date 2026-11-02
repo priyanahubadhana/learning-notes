@@ -7,7 +7,7 @@ import { createPage } from '../../pages/pageService'
 import { useMinuteClock } from '../../recall/useMinuteClock'
 import { rowCellText } from '../cellDisplay'
 import { setLessonStatus } from '../trackerService'
-import { TITLE_COLUMN_ID } from '../columnTypes'
+import { TITLE_COLUMN_ID, normalizeUrl } from '../columnTypes'
 import { queryRows, resolveRows, type ResolvedRow } from '../databaseQuery'
 import {
   addRow,
@@ -102,6 +102,10 @@ const typeLabel = (type: string) => ({
  * filter, hide, edit). Sorts, filters and hidden columns are saved in the
  * view, and shown as chips above the table.
  */
+/** Where a link cell leads; undefined for a picture or a value that is unsafe (from a file). */
+const linkTarget = (text: string): string | undefined =>
+  (text && !parseImageRef(text) && normalizeUrl(text)) || undefined
+
 export function TableView({ db, database, view, onOpenPage }: ViewProps) {
   const ui = useContext(AppUiContext)
   const now = useMinuteClock()
@@ -353,9 +357,9 @@ export function TableView({ db, database, view, onOpenPage }: ViewProps) {
                 onPicked={(ref) => void write(row.page.id, column.id, ref)}
               />
             )}
-            {column.type === 'url' && text && !parseImageRef(text) && (
+            {column.type === 'url' && linkTarget(text) && (
               <a
-                href={text}
+                href={linkTarget(text)}
                 target="_blank"
                 rel="noopener noreferrer"
                 aria-label={t('table.openLink')}

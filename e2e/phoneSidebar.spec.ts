@@ -16,6 +16,9 @@ test.describe('phone', () => {
     // Start: the page, not the sidebar, fills the screen.
     await page.getByRole('button', { name: 'Create notebook' }).click()
     await expect(sidebar(page)).toBeHidden()
+    await expect(
+      page.getByRole('textbox', { name: 'Page title' }),
+    ).toBeVisible()
 
     await page.getByRole('button', { name: 'Open menu' }).click()
     await expect(sidebar(page)).toBeVisible()

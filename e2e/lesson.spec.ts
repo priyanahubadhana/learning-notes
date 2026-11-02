@@ -82,8 +82,11 @@ test('Lesson: section chips and a live card list that jumps to the card', async 
 })
 
 test('"/" menu adds a card list block', async ({ page }) => {
+  const before = page.url()
   await rowAction(page, 'Biology', 'Add page')
   await page.getByRole('menuitem', { name: 'Blank page' }).click()
+  await expect(page).not.toHaveURL(before)
+  await page.waitForTimeout(500) // the new page's editor has settled
   await editor(page).click()
   await page.keyboard.type('/')
   await expect(page.getByRole('option').first()).toBeVisible()

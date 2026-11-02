@@ -1,7 +1,7 @@
 # Known Limitations
 
 - **Pages can't be dragged** in the sidebar tree (notebooks can).
-- **Safari on Windows is slow in tests:** run WebKit tests with `--workers=2 --timeout=120000`. One touch-drag test runs only in Chrome. Look and feel on real devices is checked by hand.
+- **Safari on Windows is slow in tests:** run WebKit tests with `--workers=2 --timeout=120000`. One touch-drag test runs only in Chrome. Two WebKit tests still fail (`#` tags and Revise label buttons, both in the editor) and are checked by hand on the iPad. Look and feel on real devices is checked by hand.
 - **First load size:** about 1.8 MB of JavaScript before compression; split it before hosting.
 - **Hindi editor menus:** BlockNote has no Hindi menus yet.
 - **Spanish and Hindi** need native-speaker review.

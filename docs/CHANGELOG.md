@@ -4,7 +4,7 @@ Current phase only. Older entries are in [ARCHIVE.md](ARCHIVE.md).
 
 ## 2026-11-02
 
-- **What:** Step 7 finished. Touch screens get bigger buttons (44px tall, 32 wide, outside the editor), including an iPad with a trackpad. Shortcut labels show ⌥ on Apple devices. Resized windows from 320px wide tested. WebKit failures all explained: slow engine on Windows or test timing, no app bug found, and the tests fixed. Owner confirmed the iPad top bar is sharp.
+- **What:** Step 7 finished. Touch screens get bigger buttons (44px tall, 32 wide, outside the editor), including an iPad with a trackpad. Shortcut labels show ⌥ on Apple devices. Resized windows from 320px wide tested. WebKit failures went from 30 to 2: most were a slow engine on Windows or test timing, now fixed. Two stay open: fast robot typing of `#exam` gives `#ex`, and the Revise label buttons do not appear after a robot text selection. Owner checks both on the real iPad. Owner confirmed the iPad top bar is sharp.
 - **Why:** Sidebar rows were 20px tall and arrows 14px on the iPad, too small for a finger. Plan step 7.
 - **Files:** src/index.css, src/app/ui.tsx, src/app/keys.ts, src/app/keys.test.ts, src/App.tsx, src/notebooks/Sidebar.tsx, src/pages/PageView.tsx, src/i18n/en.ts, src/i18n/es6.ts, src/i18n/hi6.ts, e2e/touchTargets.spec.ts, e2e/helpers.ts, e2e/board.spec.ts, e2e/dashboard.spec.ts, e2e/databases.spec.ts, e2e/help.spec.ts, e2e/lesson.spec.ts, e2e/trash.spec.ts, docs/
 

@@ -126,7 +126,7 @@ If the Drive sign-in test fails, keep notes on Supabase and hold pictures in Sup
 
 ## Sign-in test results (2026-11-02)
 
-Run in the installed app on the owner's Apple device, on a throwaway page. An earlier screenshot looked like an iPhone; **which device ran the final results is not confirmed**, so repeat on the iPad if it was not the iPad.
+Run in the installed app on a throwaway page: the first runs were on both iPhone and iPad; the owner confirmed the final results, including the renewal after the hour, were on the iPad.
 
 - Supabase Google sign-in completes, returns to the installed app and survives closing and reopening.
 - One sign-in can serve both: it gave a Drive pass that wrote to Drive with `drive.file` in about 2 seconds.

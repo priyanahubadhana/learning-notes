@@ -15,6 +15,7 @@ The BlockNote editor shows a page as blocks and saves every edit to the local da
 - `pageSync.ts`: `createPageSync` saves changes and syncs card records in one transaction, then records a history version. `leave` saves and keeps a final history copy.
 - `pendingStash.ts`: on tab close, unsaved changes are kept in localStorage and applied by `recoverStash` when the page next opens.
 - Other helpers: slash menu, card, blank (cloze), mark, tag and link actions, code block keys.
+- `pageLock.ts`: one window edits a page, through Web Locks. Others are read-only with Edit here, which steals the lock, waits 400 ms for the old window's last save, then reloads from the database. A read-only window does not refresh by itself. The page title is not locked: the last title saved wins.
 
 ## Edge cases
 

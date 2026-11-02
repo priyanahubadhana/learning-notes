@@ -19,6 +19,7 @@ import {
 import {
   useContext,
   useEffect,
+  useRef,
   useState,
   type CSSProperties,
   type RefObject,
@@ -58,6 +59,7 @@ import { getEditorDictionary } from '../i18n/languages'
 import { imageRef, parseImageRef } from '../images/imageRef'
 import { ImageError, imageObjectUrl, saveImage } from '../images/imageService'
 import { shrinkImage } from '../images/shrinkImage'
+import { holdPageLock, type LockState, type PageLock } from './pageLock'
 import { recoverStash } from './pendingStash'
 import { createPageSync } from './pageSync'
 import { revealBlock } from './revealBlock'
@@ -85,11 +87,37 @@ interface PageEditorProps {
   editorRef?: RefObject<EditorApi | null>
 }
 
+/** Time for the window that lost the page to finish its last save. */
+const TAKE_OVER_WAIT_MS = 400
+
 /** Loads a page's blocks, then shows the editor for that page. */
 export function PageEditor(props: PageEditorProps) {
   const { db, pageId } = props
-  const [loaded, setLoaded] = useState<{ pageId: string; records: Block[] }>()
+  const [loaded, setLoaded] = useState<{
+    pageId: string
+    records: Block[]
+    version: number
+  }>()
   const [failed, setFailed] = useState<{ error: unknown }>()
+  // Only one window edits a page (pageLock.ts).
+  const [lock, setLock] = useState<{ pageId: string; state: LockState }>()
+  const pageLock = useRef<PageLock>(null)
+  const [taking, setTaking] = useState(false)
+  // Raised after Edit here: reads what the other window saved.
+  const [version, setVersion] = useState(0)
+  useEffect(() => {
+    const held = holdPageLock(pageId, (state) => setLock({ pageId, state }))
+    pageLock.current = held
+    return () => held.release()
+  }, [pageId])
+  const editHere = () => {
+    pageLock.current?.takeOver()
+    setTaking(true)
+    setTimeout(() => {
+      setVersion((v) => v + 1)
+      setTaking(false)
+    }, TAKE_OVER_WAIT_MS)
+  }
 
   useEffect(() => {
     let cancelled = false
@@ -101,7 +129,7 @@ export function PageEditor(props: PageEditorProps) {
       .then(() => listBlocks(db, pageId))
       .then(
         (records) => {
-          if (!cancelled) setLoaded({ pageId, records })
+          if (!cancelled) setLoaded({ pageId, records, version })
         },
         (error: unknown) => {
           if (!cancelled) setFailed({ error })
@@ -110,12 +138,38 @@ export function PageEditor(props: PageEditorProps) {
     return () => {
       cancelled = true
     }
-  }, [db, pageId])
+  }, [db, pageId, version])
 
   if (failed) throw failed.error // shows the error screen (ErrorBoundary)
   // Wait until this page's blocks are loaded (not a previous page's).
-  if (loaded?.pageId !== pageId) return null
-  return <LoadedPageEditor key={pageId} {...props} records={loaded.records} />
+  if (loaded?.pageId !== pageId || lock?.pageId !== pageId) return null
+  const readOnly = lock.state === 'elsewhere' || taking
+  return (
+    <>
+      {readOnly && (
+        <div
+          role="status"
+          className="mb-3 flex flex-wrap items-center gap-x-3 gap-y-1 rounded-lg bg-soft px-3 py-2 text-sm"
+        >
+          <span>{t('editor.elsewhere')}</span>
+          <button
+            type="button"
+            disabled={taking}
+            onClick={editHere}
+            className="min-h-9 rounded-md px-2.5 font-medium text-accent underline underline-offset-2 hover:bg-hover disabled:opacity-50"
+          >
+            {t('editor.editHere')}
+          </button>
+        </div>
+      )}
+      <LoadedPageEditor
+        key={`${pageId}:${loaded.version}`}
+        {...props}
+        records={loaded.records}
+        readOnly={readOnly}
+      />
+    </>
+  )
 }
 
 function LoadedPageEditor({
@@ -130,7 +184,8 @@ function LoadedPageEditor({
   onSaveAsTemplate,
   editorRef,
   records,
-}: PageEditorProps & { records: Block[] }) {
+  readOnly,
+}: PageEditorProps & { records: Block[]; readOnly: boolean }) {
   const { chooseTemplate, toast, choose } = useContext(AppUiContext)
   // Blocks go in as the editor's starting content, so loading is not an edit.
   const [initialContent] = useState(() => {
@@ -169,6 +224,11 @@ function LoadedPageEditor({
       editorRef.current = null
     }
   }, [editor, editorRef, sync])
+
+  // The page moved to another window: finish saving what was typed here.
+  useEffect(() => {
+    if (readOnly) void sync.flush()
+  }, [readOnly, sync])
 
   useEffect(() => {
     // Save right away when leaving the page or hiding the tab.
@@ -357,6 +417,7 @@ function LoadedPageEditor({
     >
       <BlockNoteView
         editor={editor}
+        editable={!readOnly}
         onChange={sync.changed}
         theme={editorColorScheme(theme)}
         slashMenu={false}

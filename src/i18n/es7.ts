@@ -118,4 +118,7 @@ export const es7: Record<string, string> = {
   'data.tooBigToRestore':
     'El archivo se guardó, pero supera los 200 MB y la aplicación no podría abrirlo de nuevo. Consérvalo y guarda también archivos más pequeños por cuaderno.',
   'data.failed': 'No funcionó y no se cambió nada. Inténtalo de nuevo.',
+  'editor.elsewhere':
+    'Esta página está abierta en otra ventana, así que aquí es de solo lectura.',
+  'editor.editHere': 'Editar aquí',
 }

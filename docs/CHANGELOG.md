@@ -4,6 +4,10 @@ Current phase only. Older entries are in [ARCHIVE.md](ARCHIVE.md).
 
 ## 2026-11-02
 
+- **What:** A second window on the same page is read-only, with a notice and Edit here, which takes the page over and reloads what was saved. The first window saves its last changes and turns read-only. Uses the browser's free Web Locks; a browser without them edits as before.
+- **Why:** Audit B7: two windows silently overwrote each other, and could make the order-key tie on one device.
+- **Files:** src/editor/pageLock.ts, src/editor/PageEditor.tsx, src/i18n/, e2e/twoWindows.spec.ts, docs/LIMITATIONS.md, docs/features/editor-and-blocks.md
+
 - **What:** The update offer has its own small bar, apart from toasts. Messages no longer replace it, it no longer replaces an Undo, and × hides it until the next app start. The `stay` toast option is gone. Also: the file check now reaches the editor format through search/searchText.ts, so no new feature link was added.
 - **Why:** Audit B10: one toast slot made the offer and Undo overwrite each other.
 - **Files:** src/app/UpdateBar.tsx, src/app/updates.ts, src/app/appUi.ts, src/app/ui.tsx, src/App.tsx, src/search/searchText.ts, src/share/checkRows.ts, docs/features/offline-and-install.md

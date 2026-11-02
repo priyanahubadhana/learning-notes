@@ -1688,4 +1688,7 @@ export const en = {
     'This file was saved, but it is over 200 MB, so the app could not open it again. Keep it, and also save smaller notebook files.',
   'data.failed':
     'That did not work, and nothing was changed. Please try again.',
+  'editor.elsewhere':
+    'This page is open in another window, so it is read-only here.',
+  'editor.editHere': 'Edit here',
 } as const

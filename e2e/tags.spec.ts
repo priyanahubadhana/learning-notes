@@ -133,3 +133,10 @@ for (const [theme, width, height] of [
     })
   })
 }
+
+test('# typed at full speed still makes the whole tag', async ({ page }) => {
+  await typeInEditor(page, ' ')
+  await page.keyboard.type('#exam') // no pause between keys
+  await page.keyboard.press('Enter')
+  await expect(editorTags(page)).toHaveText('#exam')
+})

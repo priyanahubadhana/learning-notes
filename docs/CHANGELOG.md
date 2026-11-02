@@ -4,6 +4,10 @@ Current phase only. Older entries are in [ARCHIVE.md](ARCHIVE.md).
 
 ## 2026-11-02
 
+- **What:** The # menu reads tags from memory, so its list keeps up with typing, and Enter on a list that is behind makes the tag from what was actually typed. Text that cannot be a tag is put back. Both Chromium and WebKit now pass at full typing speed.
+- **Why:** Audit B8: fast typing made a wrong tag (exa instead of exam) without warning.
+- **Files:** src/editor/tagActions.ts, src/editor/PageEditor.tsx, src/tags/tagService.ts, e2e/tags.spec.ts, docs/features/tags.md
+
 - **What:** A second window on the same page is read-only, with a notice and Edit here, which takes the page over and reloads what was saved. The first window saves its last changes and turns read-only. Uses the browser's free Web Locks; a browser without them edits as before.
 - **Why:** Audit B7: two windows silently overwrote each other, and could make the order-key tie on one device.
 - **Files:** src/editor/pageLock.ts, src/editor/PageEditor.tsx, src/i18n/, e2e/twoWindows.spec.ts, docs/LIMITATIONS.md, docs/features/editor-and-blocks.md

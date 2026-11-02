@@ -109,12 +109,22 @@ export interface TagChoices {
 export async function findTagChoices(
   db: LearningNotesDB,
   text: string,
-  {
-    limit = 30,
-    allowNumbers = true,
-  }: { limit?: number; allowNumbers?: boolean } = {},
+  options: TagChoiceOptions = {},
 ): Promise<TagChoices> {
-  const tags = await tagMap(db)
+  return tagChoicesIn(await tagMap(db), text, options)
+}
+
+export interface TagChoiceOptions {
+  limit?: number
+  allowNumbers?: boolean
+}
+
+/** `findTagChoices` on tags already in memory, so with no wait. */
+export function tagChoicesIn(
+  tags: ReadonlyMap<string, Tag>,
+  text: string,
+  { limit = 30, allowNumbers = true }: TagChoiceOptions = {},
+): TagChoices {
   const parts = splitTagPath(text)
   const want = parts.map(fold)
   const options: (TagOption & { rank: number })[] = []

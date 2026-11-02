@@ -8,6 +8,7 @@ import {
   insertOrUpdateBlockForSlashMenu,
 } from '@blocknote/core'
 import { SuggestionMenu } from '@blocknote/core/extensions'
+import { useLiveQuery } from 'dexie-react-hooks'
 import { BlockNoteView } from '@blocknote/mantine'
 import {
   FormattingToolbarController,
@@ -35,6 +36,7 @@ import { syncCardRecords } from '../recall/cardService'
 import type { LearningNotesDB } from '../core/db'
 import type { Block, Page } from '../core/types'
 import { createPage } from '../pages/pageService'
+import { tagMap } from '../tags/tagService'
 import { t } from '../i18n/t'
 import { DatabasePicker } from '../databases/DatabasePicker'
 import { LinkPicker } from '../links/LinkPicker'
@@ -254,6 +256,9 @@ function LoadedPageEditor({
     }
   }, [sync])
 
+  // Tags in memory, so the # menu keeps up with fast typing.
+  const tags = useLiveQuery(() => tagMap(db), [db])
+
   /** "/ New sub-page": create it, link it here, save, then open it. */
   const newSubPage = () =>
     runTask(
@@ -456,8 +461,12 @@ function LoadedPageEditor({
           triggerCharacter={TAG_TRIGGER}
           shouldOpen={tagMenuShouldOpen}
           getItems={(query) =>
-            tagMenuItems(db, editor, query, () =>
-              editor.getExtension(SuggestionMenu)?.closeMenu(),
+            tagMenuItems(
+              db,
+              editor,
+              query,
+              () => editor.getExtension(SuggestionMenu)?.closeMenu(),
+              tags,
             )
           }
         />

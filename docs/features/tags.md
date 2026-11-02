@@ -21,6 +21,7 @@ Label pages and text with tags, including nested ones like medicine/cardio.
 - Delete keeps the notes, lifts sub-tags one level, and saved searches use the parent.
 - Pages in Trash are rewritten too, so tags come back on Restore.
 - Adding an existing tag to a page does nothing.
+- The # menu list can lag behind typing. It reads tags from memory (`tagChoicesIn`), and a pick from an older list follows the typed text (`tagFromTyped`), which is put back as text if it cannot be a tag.
 
 ## Security check
 

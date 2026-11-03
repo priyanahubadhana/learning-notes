@@ -29,6 +29,8 @@ Fast, full keyboard use on PC, Mac and iPad keyboards.
 
 On Apple devices, including an iPad with a Magic Keyboard, the app shows ⌘ and ⌥ instead of Ctrl and Alt. Shortcuts read the physical key, so they work on any keyboard layout.
 
+The docked formatting bar shows shortcut hints (BlockNote's own, e.g. Ctrl+B) when Settings › Advanced › Shortcut hints is On or after a real keyboard has been used, even in Touch mode.
+
 ## Edge cases
 
 Shortcuts must not fire where the key is normal typing.

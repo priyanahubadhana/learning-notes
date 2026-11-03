@@ -76,6 +76,8 @@ export interface SettingDefinition<T extends JsonValue = JsonValue> {
    * values, e.g. scheduler-specific settings. The value is kept either way.
    */
   shownWhen?: { settingId: string; values: readonly JsonValue[] }
+  /** Device settings: runs after the user changes it (e.g. a mode sets its presets). */
+  onChange?: (value: T) => void
 }
 
 export interface SettingsRegistry {

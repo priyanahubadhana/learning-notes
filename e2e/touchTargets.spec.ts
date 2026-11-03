@@ -1,9 +1,11 @@
 import { devices, expect, test, type Page } from '@playwright/test'
 import {
   createNotebook,
+  dockedBar,
   hideSidebar,
   selectText,
   showSidebar,
+  startInMode,
   typeInEditor,
 } from './helpers.ts'
 
@@ -47,6 +49,7 @@ test('on a touch screen every button is big enough for a finger', async ({
 })
 
 test('the selection toolbar stays inside the screen', async ({ page }) => {
+  await startInMode(page, 'computer') // the floating toolbar
   await page.goto('/')
   await createNotebook(page, 'Test NB', 'Heart sounds')
   await typeInEditor(page, 'select these words')
@@ -61,6 +64,27 @@ test('the selection toolbar stays inside the screen', async ({ page }) => {
     () => document.documentElement.scrollWidth,
   )
   expect(pageWidth).toBeLessThanOrEqual(width)
+})
+
+test('the docked bar stays inside the screen and its buttons fit a finger', async ({
+  page,
+}) => {
+  await page.goto('/') // a touch screen starts in Touch mode
+  await createNotebook(page, 'Test NB', 'Heart sounds')
+  await typeInEditor(page, 'select these words')
+  const bar = dockedBar(page)
+  await expect(bar).toBeVisible()
+  const box = (await bar.boundingBox())!
+  const width = page.viewportSize()!.width
+  expect(box.x).toBeGreaterThanOrEqual(0)
+  expect(box.x + box.width).toBeLessThanOrEqual(width)
+  expect(
+    await page.evaluate(() => document.documentElement.scrollWidth),
+  ).toBeLessThanOrEqual(width)
+  for (const name of ['Bold', 'More', 'Done']) {
+    const button = bar.getByRole('button', { name, exact: true })
+    expect((await button.boundingBox())!.height).toBeGreaterThanOrEqual(44)
+  }
 })
 
 test('a database in a note has finger-sized controls', async ({ page }) => {

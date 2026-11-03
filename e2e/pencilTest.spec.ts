@@ -139,3 +139,112 @@ test('highlighter, eraser, paper styles and Copy results', async ({
   expect(text).toContain('getCoalescedEvents:')
   expect(text).toContain('Frame rate:')
 })
+
+test('a tap with no movement draws a dot, with the pen and the highlighter', async ({
+  page,
+}) => {
+  await page.goto('/pencil-test.html')
+  await send(page, 'pen', 'pointerdown', 100, 100)
+  await send(page, 'pen', 'pointerup', 100, 100)
+  expect(await inked(page)).toBeGreaterThan(20)
+  await page.getByRole('button', { name: 'Clear' }).click()
+
+  await page.getByRole('button', { name: 'Highlighter' }).click()
+  await send(page, 'pen', 'pointerdown', 100, 100)
+  await send(page, 'pen', 'pointerup', 100, 100)
+  expect(await inked(page)).toBeGreaterThan(100)
+
+  // A pen that sends pressure 0 at the start still leaves a visible dot.
+  await page.getByRole('button', { name: 'Clear' }).click()
+  await page.getByRole('button', { name: 'Pen', exact: true }).click()
+  await send(page, 'pen', 'pointerdown', 100, 100, 0)
+  await send(page, 'pen', 'pointerup', 100, 100, 0)
+  expect(await inked(page)).toBeGreaterThan(20)
+})
+
+test('the prediction line is on at the start', async ({ page }) => {
+  await page.goto('/pencil-test.html')
+  await expect(page.getByLabel('Show my own prediction line')).toBeChecked()
+})
+
+test('pressure is rescaled to the range the pen really sends', async ({
+  page,
+}) => {
+  await page.goto('/pencil-test.html')
+  // A pen that never goes above 0.3 draws as wide as one that reaches 0.9.
+  const lineAt = async (pressure: number) => {
+    await send(page, 'pen', 'pointerdown', 40, 60, pressure)
+    for (let x = 60; x <= 240; x += 20)
+      await send(page, 'pen', 'pointermove', x, 60, pressure)
+    await send(page, 'pen', 'pointerup', 240, 60, pressure)
+    const n = await inked(page)
+    await page.getByRole('button', { name: 'Clear' }).click()
+    return n
+  }
+  const weak = await lineAt(0.3)
+  const strong = await lineAt(0.9)
+  expect(weak).toBeGreaterThan(100)
+  expect(Math.abs(weak - strong) / strong).toBeLessThan(0.15)
+})
+
+test('the Pencil touch is stopped before Safari scrolls or zooms', async ({
+  page,
+}) => {
+  await page.goto('/pencil-test.html')
+  const result = await page.evaluate(() => {
+    const canvas = document.getElementById('ink')!
+    // Chrome cannot make a stylus Touch, so the event carries the field.
+    const run = (type: string, touchType: string) => {
+      const event = new Event(type, { cancelable: true, bubbles: true })
+      Object.defineProperty(event, 'changedTouches', {
+        value: [{ touchType }],
+      })
+      canvas.dispatchEvent(event)
+      return event.defaultPrevented
+    }
+    const dbl = new MouseEvent('dblclick', { cancelable: true, bubbles: true })
+    canvas.dispatchEvent(dbl)
+    return {
+      stylusStart: run('touchstart', 'stylus'),
+      stylusMove: run('touchmove', 'stylus'),
+      stylusEnd: run('touchend', 'stylus'),
+      fingerStart: run('touchstart', 'direct'),
+      doubleTap: dbl.defaultPrevented,
+    }
+  })
+  expect(result).toEqual({
+    stylusStart: true,
+    stylusMove: true,
+    stylusEnd: true,
+    fingerStart: false,
+    doubleTap: true,
+  })
+  await expect(page.locator('#ink')).toHaveCSS('touch-action', 'none')
+})
+
+test('when the clipboard fails, the results are shown selected', async ({
+  page,
+}) => {
+  await page.addInitScript(() => {
+    Object.defineProperty(navigator, 'clipboard', {
+      value: { writeText: () => Promise.reject(new Error('blocked')) },
+    })
+  })
+  await page.goto('/pencil-test.html')
+  await line(page, 'pen', 120)
+  await page.getByRole('button', { name: 'Copy results' }).click()
+  const box = page.getByLabel('Results to copy')
+  await expect(box).toBeVisible()
+  await expect(box).toHaveValue(/Pencil test results/)
+  const selected = await box.evaluate((el: HTMLTextAreaElement) => ({
+    start: el.selectionStart,
+    end: el.selectionEnd,
+    length: el.value.length,
+  }))
+  expect(selected).toEqual({
+    start: 0,
+    end: selected.length,
+    length: selected.length,
+  })
+  expect(selected.length).toBeGreaterThan(100)
+})

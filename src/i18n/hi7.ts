@@ -168,4 +168,62 @@ export const hi7: Record<string, string> = {
   'help.tip.data.undoRestore.meaning':
     'आपके नोट्स ठीक वैसे लौटा देता है जैसे पिछली बहाली से पहले थे।',
   'help.tip.data.undoRestore.example': 'गलत फ़ाइल खोल दी? वापस ले लें।',
+  'settings.category.advanced': 'उन्नत',
+  'settings.category.advanced.hint':
+    'इस डिवाइस के काम करने के तरीके को बारीकी से बदलें। यहाँ हर विकल्प सिर्फ़ इसी डिवाइस के लिए है।',
+  'settings.deviceMode.label': 'डिवाइस मोड',
+  'settings.deviceMode.description':
+    'कंप्यूटर, टच या पेंसिल। एक चुनने पर उन्नत में फ़ॉर्मैटिंग बार के विकल्प तय हो जाते हैं; आप हर एक को अलग से बदल सकते हैं।',
+  'mode.computer': 'कंप्यूटर',
+  'mode.touch': 'टच',
+  'mode.pencil': 'पेंसिल',
+  'mode.switchTo': '{mode} मोड में जाएँ',
+  'mode.penOffer': 'Apple Pencil दिखा। पेंसिल मोड इस्तेमाल करें?',
+  'mode.switchToPencil': 'पेंसिल मोड चुनें',
+  'settings.barPlacement.label': 'फ़ॉर्मैटिंग बार की जगह',
+  'settings.barPlacement.description':
+    'बार कहाँ रहे: चुने हुए टेक्स्ट पर तैरता हुआ, ऊपर जुड़ा हुआ, या नीचे जुड़ा हुआ।',
+  'settings.barPlacement.floating': 'तैरता',
+  'settings.barPlacement.top': 'ऊपर',
+  'settings.barPlacement.bottom': 'नीचे',
+  'settings.barSize.label': 'फ़ॉर्मैटिंग बार का आकार',
+  'settings.barSize.description':
+    'बार के बटन कितने ऊँचे हों। टच और पेंसिल में ये उँगली के आकार से छोटे नहीं होते।',
+  'settings.barSize.compact': 'छोटा',
+  'settings.barSize.normal': 'सामान्य',
+  'settings.barSize.large': 'बड़ा',
+  'settings.hoverTips.label': 'बटन टिप',
+  'settings.hoverTips.description':
+    'पॉइंटर बटन पर रुकने पर बटन का नाम एक छोटी टिप में दिखाएँ।',
+  'settings.shortcutHints.label': 'शॉर्टकट संकेत',
+  'settings.shortcutHints.description':
+    'बटनों के पास कीबोर्ड शॉर्टकट दिखाएँ। कीबोर्ड इस्तेमाल होने पर ये अपने आप भी दिखते हैं।',
+  'settings.barAutoHide.label': 'खाली होने पर बार छिपाएँ',
+  'settings.barAutoHide.description':
+    'जब आप चुन या टाइप नहीं कर रहे हों, तब जुड़ा हुआ बार छिपा दें।',
+  'settings.onOff.on': 'चालू',
+  'settings.onOff.off': 'बंद',
+  'bar.label': 'फ़ॉर्मैटिंग',
+  'bar.newLine': 'नई पंक्ति',
+  'bar.more': 'और',
+  'bar.done': 'हो गया',
+  'bar.edit': 'बार बदलें…',
+  'bar.editTitle': 'बार बदलें',
+  'bar.editHint':
+    'चुनें कि बार पर कौन-से बटन हों और किस क्रम में। इसी डिवाइस पर सहेजा जाता है।',
+  'bar.drag': '{name} का क्रम बदलने के लिए खींचें',
+  'bar.moveEarlier': '{name} को पहले करें',
+  'bar.moveLater': '{name} को बाद में करें',
+  'bar.notOnBar': 'बार पर नहीं (ये “और” में हैं)',
+  'bar.size': 'आकार',
+  'bar.position': 'जगह',
+  'bar.autoHide': 'चुनते या टाइप करते समय ही दिखाएँ',
+  'bar.reset': 'रीसेट',
+  'bar.tapBelow': 'लिखते रहने के लिए यहाँ टैप करें',
+  'help.tip.bar.newLine.meaning':
+    'नीचे एक खाली पंक्ति जोड़ता है और कर्सर वहाँ रखता है, कीबोर्ड की ज़रूरत नहीं।',
+  'help.tip.bar.newLine.example': 'वाक्य पूरा हुआ? अगले के लिए इसे दबाएँ।',
+  'help.tip.bar.more.meaning':
+    'बाकी सारे फ़ॉर्मैटिंग बटन, और बार पर क्या रहे यह चुनने के लिए बार बदलें।',
+  'help.tip.bar.more.example': 'काटना, रंग, लिंक, कीवर्ड।',
 }

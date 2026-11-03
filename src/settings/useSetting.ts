@@ -25,5 +25,11 @@ export function useDeviceSetting<T extends JsonValue>(
   const value = useSyncExternalStore(subscribeDeviceSettings, () =>
     readDeviceSetting(definition),
   )
-  return [value, (next: T) => writeDeviceSetting(definition, next)] as const
+  return [
+    value,
+    (next: T) => {
+      writeDeviceSetting(definition, next)
+      definition.onChange?.(next)
+    },
+  ] as const
 }

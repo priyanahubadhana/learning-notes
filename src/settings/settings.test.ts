@@ -2,7 +2,14 @@ import { afterEach, beforeEach, describe, expect, it } from 'vitest'
 import type { LearningNotesDB } from '../core/db'
 import { createTestDb } from '../core/testing'
 import {
+  applyDeviceMode,
+  barAutoHideSetting,
+  barPlacementSetting,
+  barSizeSetting,
   dayStartHour,
+  deviceModeSetting,
+  hoverTipsSetting,
+  shortcutHintsSetting,
   goodSteps,
   newCardsPerDay,
   reviewsPerDay,
@@ -44,6 +51,7 @@ describe('settings registry', () => {
       'general',
       'review',
       'journal',
+      'advanced',
       'apis',
     ])
   })
@@ -149,5 +157,53 @@ describe('device settings', () => {
     stop()
     writeDeviceSetting(theme, 'sepia', storage)
     expect(calls).toBe(1)
+  })
+})
+
+describe('device modes', () => {
+  const fake = (initial: Record<string, string> = {}) => {
+    const data = new Map(Object.entries(initial))
+    return {
+      getItem: (k: string) => data.get(k) ?? null,
+      setItem: (k: string, v: string) => void data.set(k, v),
+    }
+  }
+
+  it('switching mode writes every preset setting', () => {
+    applyDeviceMode('pencil')
+    expect(readDeviceSetting(deviceModeSetting)).toBe('pencil')
+    expect(readDeviceSetting(barPlacementSetting)).toBe('bottom')
+    expect(readDeviceSetting(barSizeSetting)).toBe('large')
+    applyDeviceMode('computer')
+    expect(readDeviceSetting(barPlacementSetting)).toBe('floating')
+    expect(readDeviceSetting(hoverTipsSetting)).toBe('on')
+    expect(readDeviceSetting(shortcutHintsSetting)).toBe('on')
+    expect(readDeviceSetting(barAutoHideSetting)).toBe('off')
+  })
+
+  it('choosing a mode in Settings applies its preset', () => {
+    deviceModeSetting.onChange?.('touch')
+    expect(readDeviceSetting(barPlacementSetting)).toBe('top')
+    expect(readDeviceSetting(barSizeSetting)).toBe('normal')
+  })
+
+  it('each bar setting can be changed on its own', () => {
+    applyDeviceMode('touch')
+    writeDeviceSetting(barSizeSetting, 'large')
+    expect(readDeviceSetting(barSizeSetting)).toBe('large')
+    expect(readDeviceSetting(barPlacementSetting)).toBe('top')
+  })
+
+  it('a stored value that is not valid reads as the default', () => {
+    const storage = fake({
+      'learning-notes:advanced.barSize': JSON.stringify('huge'),
+      'learning-notes:general.deviceMode': JSON.stringify('tablet'),
+    })
+    expect(readDeviceSetting(barSizeSetting, storage)).toBe('compact')
+    expect(readDeviceSetting(deviceModeSetting, storage)).toBe('computer')
+  })
+
+  it('refuses to save an invalid value', () => {
+    expect(() => writeDeviceSetting(barSizeSetting, 'huge' as never)).toThrow()
   })
 })

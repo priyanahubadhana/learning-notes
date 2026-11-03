@@ -17,6 +17,8 @@ The BlockNote editor shows a page as blocks and saves every edit to the local da
 - Other helpers: slash menu, card, blank (cloze), mark, tag and link actions, code block keys.
 - `pageLock.ts`: one window edits a page, through Web Locks. Others are read-only with Edit here, which steals the lock, waits 400 ms for the old window's last save, then reloads from the database. A read-only window does not refresh by itself. The page title is not locked: the last title saved wins.
 
+- Formatting bar: Computer shows BlockNote's floating toolbar on a selection (`SelectionToolbar.tsx`). Touch and Pencil show a docked bar instead (`DockedBar.tsx`, `barActions.tsx`, `EditBarPanel.tsx`) with the same actions, plus ↵ New line and a tap area under the last block (`lineActions.ts`). See [device-modes.md](device-modes.md).
+
 ## Edge cases
 
 - Opening a page writes nothing (the snapshot is taken from the editor after load).
@@ -39,4 +41,5 @@ The BlockNote editor shows a page as blocks and saves every edit to the local da
 
 - `src/editor/`: `autosave.test.ts`, `diff.test.ts`, `mapping.test.ts`, `pageSync.test.ts`, `pendingStash.test.ts`
 - `src/editor/`: `blankActions.test.ts`, `cardActions.test.ts`, `codeBlockKeys.test.ts`, `linkActions.test.ts`, `markActions.test.ts`, `slashMenu.test.ts`, `tagActions.test.ts`
+- `src/editor/lineActions.test.ts` (New line, tap below); e2e `deviceModes.spec.ts`
 - `src/blocks/blockTypes.test.ts`

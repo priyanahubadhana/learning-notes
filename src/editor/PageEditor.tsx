@@ -42,6 +42,12 @@ import { DatabasePicker } from '../databases/DatabasePicker'
 import { LinkPicker } from '../links/LinkPicker'
 import { AppDragHandleMenu } from './CardMenu'
 import { AppFormattingToolbar } from './SelectionToolbar'
+import { DockedBar } from './DockedBar'
+import { focusEndLine } from './lineActions'
+import {
+  useBarSettings,
+  useKeyboardInset,
+} from '../settings/deviceModeSettings'
 import { codeBlockKeys } from './codeBlockKeys'
 import type { NestedCardPlace } from './cardActions'
 import { EditorContext, type EditorApi } from './editorContext'
@@ -215,6 +221,11 @@ function LoadedPageEditor({
     },
   })
   const theme = useContext(ThemeContext)
+  // Touch and Pencil: a docked bar instead of the floating toolbar.
+  const bar = useBarSettings()
+  const keyboardInset = useKeyboardInset()
+  const docked = bar.placement !== 'floating' && !readOnly
+  const [barSlot, setBarSlot] = useState<HTMLElement | null>(null)
   const [sync] = useState(() =>
     createPageSync(db, pageId, records, () => editorToDrafts(editor.document)),
   )
@@ -420,6 +431,12 @@ function LoadedPageEditor({
         openDatabase: onOpenDatabase,
       }}
     >
+      {docked && (
+        <div
+          ref={setBarSlot}
+          className={bar.placement === 'top' ? 'sticky top-0 z-10' : undefined}
+        />
+      )}
       <BlockNoteView
         editor={editor}
         editable={!readOnly}
@@ -435,7 +452,13 @@ function LoadedPageEditor({
           } as CSSProperties
         }
       >
-        <FormattingToolbarController formattingToolbar={AppFormattingToolbar} />
+        {docked ? (
+          <DockedBar slot={barSlot} />
+        ) : (
+          <FormattingToolbarController
+            formattingToolbar={AppFormattingToolbar}
+          />
+        )}
         <SideMenuController
           sideMenu={(props) => (
             <SideMenu {...props} dragHandleMenu={AppDragHandleMenu} />
@@ -471,6 +494,22 @@ function LoadedPageEditor({
           }
         />
       </BlockNoteView>
+      {(docked || bar.mode !== 'computer') && !readOnly && (
+        <button
+          type="button"
+          onClick={() => focusEndLine(editor)}
+          className="mt-2 flex min-h-24 w-full cursor-text items-start rounded-lg px-1 py-2 text-left text-sm text-muted/70"
+        >
+          {t('bar.tapBelow')}
+        </button>
+      )}
+      {docked && bar.placement === 'bottom' && (
+        // Room under the last line, so the fixed bar never covers text.
+        <div
+          aria-hidden
+          style={{ height: bar.buttonPx + 24 + keyboardInset }}
+        />
+      )}
       {databasePicker && (
         <DatabasePicker
           db={db}

@@ -173,4 +173,63 @@ export const es7: Record<string, string> = {
     'Devuelve tus notas exactamente como estaban antes de la última restauración.',
   'help.tip.data.undoRestore.example':
     '¿Abriste el archivo equivocado? Deshazlo.',
+  'settings.category.advanced': 'Avanzado',
+  'settings.category.advanced.hint':
+    'Ajusta cómo funciona este dispositivo. Cada ajuste de aquí es solo para este dispositivo.',
+  'settings.deviceMode.label': 'Modo del dispositivo',
+  'settings.deviceMode.description':
+    'Ordenador, Táctil o Lápiz. Al elegir uno se fijan las opciones de la barra de formato en Avanzado; aun así puedes cambiar cada una.',
+  'mode.computer': 'Ordenador',
+  'mode.touch': 'Táctil',
+  'mode.pencil': 'Lápiz',
+  'mode.switchTo': 'Cambiar al modo {mode}',
+  'mode.penOffer': 'Se detectó el Apple Pencil. ¿Usar el modo Lápiz?',
+  'mode.switchToPencil': 'Usar modo Lápiz',
+  'settings.barPlacement.label': 'Posición de la barra de formato',
+  'settings.barPlacement.description':
+    'Dónde está la barra de formato: flotando sobre el texto seleccionado, fija arriba o fija abajo.',
+  'settings.barPlacement.floating': 'Flotante',
+  'settings.barPlacement.top': 'Arriba',
+  'settings.barPlacement.bottom': 'Abajo',
+  'settings.barSize.label': 'Tamaño de la barra de formato',
+  'settings.barSize.description':
+    'Altura de los botones de la barra. En Táctil y Lápiz nunca son menores que un dedo.',
+  'settings.barSize.compact': 'Compacto',
+  'settings.barSize.normal': 'Normal',
+  'settings.barSize.large': 'Grande',
+  'settings.hoverTips.label': 'Consejos de botones',
+  'settings.hoverTips.description':
+    'Muestra un consejo con el nombre del botón de la barra cuando el puntero se detiene sobre él.',
+  'settings.shortcutHints.label': 'Atajos visibles',
+  'settings.shortcutHints.description':
+    'Muestra los atajos de teclado junto a los botones de la barra. También aparecen cuando usas un teclado.',
+  'settings.barAutoHide.label': 'Ocultar la barra en reposo',
+  'settings.barAutoHide.description':
+    'Oculta la barra fija mientras no seleccionas ni escribes.',
+  'settings.onOff.on': 'Sí',
+  'settings.onOff.off': 'No',
+  'bar.label': 'Formato',
+  'bar.newLine': 'Nueva línea',
+  'bar.more': 'Más',
+  'bar.done': 'Listo',
+  'bar.edit': 'Editar barra…',
+  'bar.editTitle': 'Editar barra',
+  'bar.editHint':
+    'Elige los botones de la barra y su orden. Se guarda en este dispositivo.',
+  'bar.drag': 'Arrastra {name} para reordenar',
+  'bar.moveEarlier': 'Mover {name} antes',
+  'bar.moveLater': 'Mover {name} después',
+  'bar.notOnBar': 'Fuera de la barra (están en Más)',
+  'bar.size': 'Tamaño',
+  'bar.position': 'Posición',
+  'bar.autoHide': 'Ocultar si no seleccionas ni escribes',
+  'bar.reset': 'Restablecer',
+  'bar.tapBelow': 'Toca aquí para seguir escribiendo',
+  'help.tip.bar.newLine.meaning':
+    'Añade una línea vacía debajo y pone el cursor allí, sin teclado.',
+  'help.tip.bar.newLine.example':
+    '¿Terminaste una frase? Tócalo para la siguiente.',
+  'help.tip.bar.more.meaning':
+    'Todos los demás botones de formato, y Editar barra para elegir qué hay en esta barra.',
+  'help.tip.bar.more.example': 'Tachado, color, enlace, Palabra clave.',
 }

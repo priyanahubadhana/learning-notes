@@ -1726,4 +1726,63 @@ export const en = {
   'help.tip.data.undoRestore.meaning':
     'Puts your notes back exactly as they were before the last restore.',
   'help.tip.data.undoRestore.example': 'You opened the wrong file? Undo it.',
+  'settings.category.advanced': 'Advanced',
+  'settings.category.advanced.hint':
+    'Fine-tune how this device works. Every setting here is only for this device.',
+  'settings.deviceMode.label': 'Device mode',
+  'settings.deviceMode.description':
+    'Computer, Touch or Pencil. Choosing one sets the formatting bar options in Advanced; you can still change each one.',
+  'mode.computer': 'Computer',
+  'mode.touch': 'Touch',
+  'mode.pencil': 'Pencil',
+  'mode.switchTo': 'Switch to {mode} mode',
+  'mode.penOffer': 'Apple Pencil noticed. Use Pencil mode?',
+  'mode.switchToPencil': 'Use Pencil mode',
+  'settings.barPlacement.label': 'Formatting bar position',
+  'settings.barPlacement.description':
+    'Where the formatting bar sits: floating over the selected text, docked at the top, or docked at the bottom.',
+  'settings.barPlacement.floating': 'Floating',
+  'settings.barPlacement.top': 'Top',
+  'settings.barPlacement.bottom': 'Bottom',
+  'settings.barSize.label': 'Formatting bar size',
+  'settings.barSize.description':
+    'How tall the bar buttons are. Touch and Pencil never go below finger size.',
+  'settings.barSize.compact': 'Compact',
+  'settings.barSize.normal': 'Normal',
+  'settings.barSize.large': 'Large',
+  'settings.hoverTips.label': 'Button tips',
+  'settings.hoverTips.description':
+    'Show a small tip with the name of a formatting bar button when the pointer rests on it.',
+  'settings.shortcutHints.label': 'Shortcut hints',
+  'settings.shortcutHints.description':
+    'Show keyboard shortcuts next to formatting bar buttons. They also show once a keyboard is used.',
+  'settings.barAutoHide.label': 'Hide the bar when idle',
+  'settings.barAutoHide.description':
+    'Hide the docked bar while you are not selecting or typing.',
+  'settings.onOff.on': 'On',
+  'settings.onOff.off': 'Off',
+  'bar.label': 'Formatting',
+  'bar.newLine': 'New line',
+  'bar.more': 'More',
+  'bar.done': 'Done',
+  'bar.edit': 'Edit bar…',
+  'bar.editTitle': 'Edit bar',
+  'bar.editHint':
+    'Choose the buttons on the bar and their order. Saved on this device.',
+  'bar.drag': 'Drag {name} to reorder',
+  'bar.moveEarlier': 'Move {name} earlier',
+  'bar.moveLater': 'Move {name} later',
+  'bar.notOnBar': 'Not on the bar (they are under More)',
+  'bar.size': 'Size',
+  'bar.position': 'Position',
+  'bar.autoHide': 'Hide while not selecting or typing',
+  'bar.reset': 'Reset',
+  'bar.tapBelow': 'Tap here to keep writing',
+  'help.tip.bar.newLine.meaning':
+    'Adds an empty line below and puts the cursor there, no keyboard needed.',
+  'help.tip.bar.newLine.example':
+    'Finished a sentence? Tap it for the next one.',
+  'help.tip.bar.more.meaning':
+    'Every other formatting button, and Edit bar to choose what sits on this bar.',
+  'help.tip.bar.more.example': 'Strikethrough, colour, link, Keyword.',
 } as const

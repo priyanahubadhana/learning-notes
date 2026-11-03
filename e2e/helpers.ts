@@ -310,3 +310,34 @@ export async function addAsCopies(page: Page) {
     .getByRole('button', { name: /^Add as copies/ })
     .click()
 }
+
+/**
+ * Starts the app in a device mode (before the first load), as if it had been
+ * picked already: the mode and the five bar settings of its preset. Does
+ * nothing once the app has saved a mode, so a reload keeps later changes.
+ */
+export async function startInMode(
+  page: Page,
+  mode: 'computer' | 'touch' | 'pencil',
+) {
+  await page.addInitScript((m) => {
+    const key = 'learning-notes:general.deviceMode'
+    if (localStorage.getItem(key)) return
+    const presets = {
+      computer: ['floating', 'compact', 'on', 'on'],
+      touch: ['top', 'normal', 'off', 'off'],
+      pencil: ['bottom', 'large', 'off', 'off'],
+    }[m]
+    const set = (k: string, v: string) =>
+      localStorage.setItem('learning-notes:' + k, JSON.stringify(v))
+    set('general.deviceMode', m)
+    set('advanced.barPlacement', presets[0])
+    set('advanced.barSize', presets[1])
+    set('advanced.hoverTips', presets[2])
+    set('advanced.shortcutHints', presets[3])
+    set('advanced.barAutoHide', 'off')
+  }, mode)
+}
+
+/** The docked formatting bar (Touch and Pencil). */
+export const dockedBar = (page: Page) => page.locator('[data-bar="docked"]')

@@ -57,6 +57,7 @@ import {
   theme as themeSetting,
 } from './settings/builtinSettings'
 import { setMarkLabels } from './revise/reviseMarks'
+import { useOfferPencilMode } from './settings/deviceModeSettings'
 import { useDeviceSetting, useSyncedSetting } from './settings/useSetting'
 import { TemplatePicker } from './templates/TemplatePicker'
 import { revealBlock } from './editor/revealBlock'
@@ -533,6 +534,7 @@ function App() {
   }
 
   const showToast = appUi.toast
+  useOfferPencilMode(showToast)
   const showToastRef = useRef(showToast)
   useEffect(() => {
     showToastRef.current = showToast

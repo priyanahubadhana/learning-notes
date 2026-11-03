@@ -33,6 +33,9 @@ import { PageTags } from '../tags/PageTags'
 import { getDatabase } from '../databases/databaseService'
 import { RowProperties } from '../databases/RowProperties'
 import { createTitleSaver } from './titleSaver'
+import { DEVICE_MODES } from '../app/deviceMode'
+import { applyDeviceMode, deviceModeSetting } from '../settings/builtinSettings'
+import { useDeviceSetting } from '../settings/useSetting'
 
 interface PageViewProps {
   db: LearningNotesDB
@@ -126,6 +129,7 @@ export function PageView({
   // The page's ⋯ menu in the top bar.
   const barSlot = useContext(TopBarSlotContext)
   const [moreAt, setMoreAt] = useState<DOMRect | null>(null)
+  const [deviceMode] = useDeviceSetting(deviceModeSetting)
   const moreItems: MenuItem[] = [
     ...(notebook && !isTemplate
       ? [
@@ -152,6 +156,11 @@ export function PageView({
       icon: '⤓',
       onSelect: onOpenBackup,
     },
+    ...DEVICE_MODES.filter((m) => m !== deviceMode).map((m) => ({
+      label: t('mode.switchTo', { mode: t(`mode.${m}`) }),
+      icon: m === 'computer' ? '🖥' : m === 'touch' ? '✋' : '✏️',
+      onSelect: () => applyDeviceMode(m),
+    })),
     {
       label: t('page.import'),
       icon: '⤓',

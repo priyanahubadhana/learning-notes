@@ -1,3 +1,17 @@
+import {
+  BAR_PLACEMENTS,
+  BAR_SIZES,
+  DEVICE_MODES,
+  MODE_PRESETS,
+  isBarPlacement,
+  isBarSize,
+  isDeviceMode,
+  isOnOff,
+  type BarPlacement,
+  type BarSize,
+  type DeviceMode,
+  type OnOff,
+} from '../app/deviceMode'
 import { isTheme, THEME_PREF_KEY, THEMES, type Theme } from '../app/theme'
 import { DEFAULT_DAY_START_HOUR } from '../core/time'
 import {
@@ -11,7 +25,8 @@ import {
   LANGUAGES,
   type Language,
 } from '../i18n/languages'
-import { dateLocale, t, type DateStyle } from '../i18n/t'
+import { dateLocale, t, type DateStyle, type MessageKey } from '../i18n/t'
+import { writeDeviceSetting } from './settingsService'
 import {
   createSettingsRegistry,
   isIntInRange,
@@ -45,6 +60,12 @@ settingsRegistry.registerCategory({
   labelKey: 'settings.category.journal',
   descriptionKey: 'settings.category.journal.hint',
   order: 30,
+})
+settingsRegistry.registerCategory({
+  id: 'advanced',
+  labelKey: 'settings.category.advanced',
+  descriptionKey: 'settings.category.advanced.hint',
+  order: 80,
 })
 settingsRegistry.registerCategory({
   id: 'apis',
@@ -299,8 +320,125 @@ export const practiceOrder: SettingDefinition<PracticeOrder> = {
   },
 }
 
+// ---- Device modes (Computer, Touch, Pencil) and the formatting bar ----
+
+/** The mode of this device; choosing one sets the five bar settings below. */
+export const deviceModeSetting: SettingDefinition<DeviceMode> = {
+  id: 'general.deviceMode',
+  labelKey: 'settings.deviceMode.label',
+  descriptionKey: 'settings.deviceMode.description',
+  category: 'general',
+  alsoIn: ['advanced'],
+  scope: 'device',
+  defaultValue: 'computer',
+  isValid: isDeviceMode,
+  control: {
+    kind: 'segmented',
+    options: DEVICE_MODES.map((value) => ({
+      value,
+      label: () => t(`mode.${value}`),
+    })),
+  },
+  onChange: (mode) => applyModePreset(mode),
+}
+
+const onOffOptions = () =>
+  (['on', 'off'] as const).map((value) => ({
+    value,
+    label: () => t(`settings.onOff.${value}` as MessageKey),
+  }))
+
+export const barPlacementSetting: SettingDefinition<BarPlacement> = {
+  id: 'advanced.barPlacement',
+  labelKey: 'settings.barPlacement.label',
+  descriptionKey: 'settings.barPlacement.description',
+  category: 'advanced',
+  scope: 'device',
+  defaultValue: MODE_PRESETS.computer.placement,
+  isValid: isBarPlacement,
+  control: {
+    kind: 'segmented',
+    options: BAR_PLACEMENTS.map((value) => ({
+      value,
+      label: () => t(`settings.barPlacement.${value}`),
+    })),
+  },
+}
+
+export const barSizeSetting: SettingDefinition<BarSize> = {
+  id: 'advanced.barSize',
+  labelKey: 'settings.barSize.label',
+  descriptionKey: 'settings.barSize.description',
+  category: 'advanced',
+  scope: 'device',
+  defaultValue: MODE_PRESETS.computer.size,
+  isValid: isBarSize,
+  control: {
+    kind: 'segmented',
+    options: BAR_SIZES.map((value) => ({
+      value,
+      label: () => t(`settings.barSize.${value}`),
+    })),
+  },
+}
+
+export const hoverTipsSetting: SettingDefinition<OnOff> = {
+  id: 'advanced.hoverTips',
+  labelKey: 'settings.hoverTips.label',
+  descriptionKey: 'settings.hoverTips.description',
+  category: 'advanced',
+  scope: 'device',
+  defaultValue: MODE_PRESETS.computer.hoverTips,
+  isValid: isOnOff,
+  control: { kind: 'segmented', options: onOffOptions() },
+}
+
+export const shortcutHintsSetting: SettingDefinition<OnOff> = {
+  id: 'advanced.shortcutHints',
+  labelKey: 'settings.shortcutHints.label',
+  descriptionKey: 'settings.shortcutHints.description',
+  category: 'advanced',
+  scope: 'device',
+  defaultValue: MODE_PRESETS.computer.shortcutHints,
+  isValid: isOnOff,
+  control: { kind: 'segmented', options: onOffOptions() },
+}
+
+export const barAutoHideSetting: SettingDefinition<OnOff> = {
+  id: 'advanced.barAutoHide',
+  labelKey: 'settings.barAutoHide.label',
+  descriptionKey: 'settings.barAutoHide.description',
+  category: 'advanced',
+  scope: 'device',
+  defaultValue: MODE_PRESETS.computer.autoHide,
+  isValid: isOnOff,
+  control: { kind: 'segmented', options: onOffOptions() },
+}
+
+/** Sets the five bar settings to a mode's preset. */
+export function applyModePreset(mode: DeviceMode): void {
+  const preset = MODE_PRESETS[mode]
+  writeDeviceSetting(barPlacementSetting, preset.placement)
+  writeDeviceSetting(barSizeSetting, preset.size)
+  writeDeviceSetting(hoverTipsSetting, preset.hoverTips)
+  writeDeviceSetting(shortcutHintsSetting, preset.shortcutHints)
+  writeDeviceSetting(barAutoHideSetting, preset.autoHide)
+}
+
+/** One-tap switch: remembers the mode and applies its preset. */
+export function applyDeviceMode(mode: DeviceMode): void {
+  writeDeviceSetting(deviceModeSetting, mode)
+  applyModePreset(mode)
+}
+
 for (const definition of [
   theme,
+  deviceModeSetting,
+  barPlacementSetting,
+  barSizeSetting,
+  hoverTipsSetting,
+  shortcutHintsSetting,
+  barAutoHideSetting,
   reviseLabelsSetting,
   languageSetting,
   showHelp,

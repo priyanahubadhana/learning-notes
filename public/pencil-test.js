@@ -67,35 +67,78 @@ function resize() {
 
 // ---------------------------------------------------------------- drawing
 
-/** Width of a pen segment from the pressure (a pen that sends 0 counts as 0.5). */
-const penWidth = (base, pressure) => base * (0.25 + 1.75 * (pressure || 0.5))
+/** Pressure used when a pen sends 0 before it has sent anything else. */
+const DEFAULT_PRESSURE = 0.4
 
-function drawSegment(stroke, a, b) {
+/**
+ * Pressure rescaled so the pressure this device really sends fills the whole
+ * range: p' = min(1, p / max(0.25, highest pressure seen so far)). A 0 (some
+ * pens send it for the first events of a stroke) takes the previous value of
+ * the stroke, or a middle value at the very start.
+ */
+function scalePressure(raw, previous) {
+  if (!(raw > 0)) return previous === undefined ? DEFAULT_PRESSURE : previous
+  const seen = state.pressureMax === -Infinity ? 0 : state.pressureMax
+  return Math.min(1, raw / Math.max(0.25, seen))
+}
+
+/** Width of a pen segment from the (already rescaled) pressure. */
+const penWidth = (base, pressure) => base * (0.25 + 1.75 * pressure)
+
+const mid = (a, b) => ({ x: (a.x + b.x) / 2, y: (a.y + b.y) / 2 })
+
+/**
+ * One piece of a smooth pen line: a curve from the middle of the previous
+ * two points to the middle of the next two, bending towards the point
+ * between (quadratic curves through midpoints). k = index of that point.
+ */
+function drawCurve(stroke, k, last) {
+  const pts = stroke.points
+  const from = k === 1 ? pts[0] : mid(pts[k - 1], pts[k])
   ctx.lineCap = 'round'
   ctx.lineJoin = 'round'
   ctx.strokeStyle = stroke.color
-  ctx.lineWidth = penWidth(stroke.width, (a.p + b.p) / 2)
+  ctx.lineWidth = penWidth(stroke.width, (pts[k - 1].p + pts[k].p) / 2)
   ctx.beginPath()
-  ctx.moveTo(a.x, a.y)
-  ctx.lineTo(b.x, b.y)
+  if (last) {
+    // The final piece runs on to the very last point.
+    const m = k === 1 ? pts[0] : mid(pts[k - 1], pts[k])
+    ctx.moveTo(m.x, m.y)
+    ctx.lineTo(pts[k].x, pts[k].y)
+  } else {
+    const to = mid(pts[k], pts[k + 1])
+    ctx.moveTo(from.x, from.y)
+    ctx.quadraticCurveTo(pts[k].x, pts[k].y, to.x, to.y)
+  }
   ctx.stroke()
 }
 
 /** A highlighter stroke is one see-through path, so overlaps do not darken. */
 function drawHighlighter(stroke) {
-  if (stroke.points.length === 0) return
+  const pts = stroke.points
+  if (pts.length === 0) return
   ctx.save()
   ctx.globalAlpha = 0.32
   ctx.lineCap = 'butt'
   ctx.lineJoin = 'round'
   ctx.strokeStyle = stroke.color
   ctx.lineWidth = stroke.width * 3
+  if (pts.length === 1) {
+    // A tap with no movement: a round dot.
+    ctx.fillStyle = stroke.color
+    ctx.beginPath()
+    ctx.arc(pts[0].x, pts[0].y, stroke.width * 1.5, 0, Math.PI * 2)
+    ctx.fill()
+    ctx.restore()
+    return
+  }
   ctx.beginPath()
-  stroke.points.forEach((p, i) =>
-    i ? ctx.lineTo(p.x, p.y) : ctx.moveTo(p.x, p.y),
-  )
-  if (stroke.points.length === 1)
-    ctx.lineTo(stroke.points[0].x + 0.1, stroke.points[0].y)
+  ctx.moveTo(pts[0].x, pts[0].y)
+  for (let i = 1; i < pts.length - 1; i++) {
+    const to = mid(pts[i], pts[i + 1])
+    ctx.quadraticCurveTo(pts[i].x, pts[i].y, to.x, to.y)
+  }
+  ctx.lineTo(pts[pts.length - 1].x, pts[pts.length - 1].y)
   ctx.stroke()
   ctx.restore()
 }
@@ -104,18 +147,21 @@ function drawStroke(stroke) {
   if (stroke.tool === 'highlighter') return drawHighlighter(stroke)
   const pts = stroke.points
   if (pts.length === 1) {
+    // A tap with no movement: a round dot.
     ctx.fillStyle = stroke.color
     ctx.beginPath()
     ctx.arc(
       pts[0].x,
       pts[0].y,
-      penWidth(stroke.width, pts[0].p) / 2,
+      Math.max(penWidth(stroke.width, pts[0].p), stroke.width * 1.5) / 2,
       0,
       Math.PI * 2,
     )
     ctx.fill()
+    return
   }
-  for (let i = 1; i < pts.length; i++) drawSegment(stroke, pts[i - 1], pts[i])
+  for (let k = 1; k < pts.length - 1; k++) drawCurve(stroke, k, false)
+  drawCurve(stroke, pts.length - 1, true)
 }
 
 function redraw() {
@@ -152,9 +198,13 @@ function eraseAt(x, y) {
 
 // ----------------------------------------------------------------- events
 
-const local = (e) => {
+const local = (e, previous) => {
   const r = ink.getBoundingClientRect()
-  return { x: e.clientX - r.left, y: e.clientY - r.top, p: e.pressure }
+  return {
+    x: e.clientX - r.left,
+    y: e.clientY - r.top,
+    p: scalePressure(e.pressure, previous),
+  }
 }
 
 function note(e) {
@@ -256,10 +306,12 @@ function onMove(e) {
   const stroke = state.current
   if (!stroke) return
   for (const ev of events) {
-    const p = local(ev)
     const last = stroke.points[stroke.points.length - 1]
+    const p = local(ev, last.p)
     stroke.points.push(p)
-    if (stroke.tool === 'pen') drawSegment(stroke, last, p)
+    // Draw the curve that is now complete (one point behind the pen).
+    const n = stroke.points.length
+    if (stroke.tool === 'pen' && n >= 3) drawCurve(stroke, n - 2, false)
     state.lastPoints.push(p)
   }
   if (state.lastPoints.length > 4)
@@ -270,9 +322,40 @@ function onMove(e) {
 function onUp(e) {
   note(e)
   if (e.pointerId !== state.drawingId) return
+  const stroke = state.current
+  if (stroke && stroke.tool === 'pen' && stroke.points.length >= 2) {
+    drawCurve(stroke, stroke.points.length - 1, true) // the last bit
+  }
   state.drawingId = null
   state.current = null
   state.lastPoints = []
+}
+
+/*
+  Safari decides what a touch does (scroll, zoom, selection) from the touch
+  events, before the pointer events. The Pencil is told apart by touchType, so
+  its touches are stopped here and a new stroke starts at once. Fingers are
+  left alone (palm resting, scrolling).
+*/
+const stopPen = (e) => {
+  for (const touch of e.changedTouches) {
+    if (touch.touchType === 'stylus') {
+      e.preventDefault()
+      return
+    }
+  }
+}
+for (const type of ['touchstart', 'touchmove', 'touchend']) {
+  ink.addEventListener(type, stopPen, { passive: false })
+}
+// No double-tap zoom and no pinch gestures on the drawing area.
+for (const type of [
+  'dblclick',
+  'gesturestart',
+  'gesturechange',
+  'gestureend',
+]) {
+  ink.addEventListener(type, (e) => e.preventDefault(), { passive: false })
 }
 
 ink.addEventListener('pointerdown', onDown)
@@ -367,6 +450,7 @@ function resultsText() {
     `Screen: ${screen.width}x${screen.height} at ${window.devicePixelRatio}x, touch points ${navigator.maxTouchPoints}`,
     `Pointer types seen: ${[...state.pointerTypes].join(', ') || 'none yet'}`,
     `Pen events: ${state.penEvents}`,
+    'Pressure drawn as: rescaled by the highest pressure seen (at least 0.25)',
     `Pressure seen: ${state.pressureMin === Infinity ? 'none yet' : `${state.pressureMin.toFixed(3)} to ${state.pressureMax.toFixed(3)}`}`,
     `Tilt X seen: ${range(state.tiltXMin, state.tiltXMax)}`,
     `Tilt Y seen: ${range(state.tiltYMin, state.tiltYMax)}`,
@@ -388,9 +472,12 @@ $('copy').addEventListener('click', () => {
   // The clipboard call must happen right here, inside the tap.
   const fallback = () => {
     box.hidden = false
+    box.readOnly = false // iPad selects an editable box more reliably
     box.value = text
     box.focus()
     box.select()
+    box.setSelectionRange(0, text.length)
+    box.scrollIntoView({ block: 'nearest' })
     let ok = false
     try {
       ok = document.execCommand('copy')
@@ -399,7 +486,7 @@ $('copy').addEventListener('click', () => {
     }
     status.textContent = ok
       ? 'Copied. Paste it into the chat.'
-      : 'Select the text below, copy it and paste it into the chat.'
+      : 'The text below is already selected: touch and hold it, tap Copy, then paste it into the chat.'
   }
   if (navigator.clipboard && navigator.clipboard.writeText) {
     navigator.clipboard.writeText(text).then(() => {

@@ -10,8 +10,10 @@ import { UpgradeGate } from './app/UpgradeGate'
 import { offerUpdate, repeatUpdateOffer, watchForUpdates } from './app/updates'
 import { requestPersistentStorage } from './core/storage'
 import { writePref } from './app/uiPrefs'
+import { initDeviceMode } from './settings/deviceModeSettings'
 import { saveEverything } from './share/saveEverything'
 
+initDeviceMode()
 startNavHistory()
 reloadOnFailedChunk()
 

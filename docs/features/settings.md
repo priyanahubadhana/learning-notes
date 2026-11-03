@@ -12,6 +12,8 @@ One place for the user's choices (theme, language, help, date style, day start, 
 - `builtinSettings.ts` registers the built-in ones in categories General, Review, Journal and an empty APIs category.
 - Scope: `synced` settings live in the database `settings` table; `device` settings live in the browser (`app/uiPrefs.ts`, keys prefixed `learning-notes:`).
 - `settingsService.ts`: `getSetting` / `setSetting` / `resetSetting` (synced; reset saves the default as a value) and `readDeviceSetting` / `writeDeviceSetting` (device, cached, with listeners). `useSetting.ts` gives the hooks.
+- A device setting can have `onChange`, run after the user changes it on the screen (the device mode uses it to write its presets).
+- Categories now also include Advanced (the formatting bar options, per device). Device mode lives in General and Advanced; see [device-modes.md](device-modes.md).
 - Validators: `isIntInRange`, `isOneOf`, `isRisingSteps` (strictly rising whole numbers, 1 to maxCount items).
 
 ## Edge cases

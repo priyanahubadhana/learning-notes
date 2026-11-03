@@ -143,14 +143,16 @@ export function autoSwitchTarget(
 /** Revise mark buttons are `mark:<label id>`. */
 export const markActionId = (label: string) => `mark:${label}`
 
-/** The buttons on the bar from the start. */
+/** The Write set's tools from the start (batch 2d). */
 export const DEFAULT_PINNED: readonly string[] = [
   'bold',
   'italic',
-  'underline',
-  markActionId('key'),
-  'card',
-  'newLine',
+  'color',
+  'highlight',
+  'bulletList',
+  'checklist',
+  'picture',
+  'more',
 ]
 
 const ACTION_ID = /^[a-zA-Z][a-zA-Z0-9:-]{0,60}$/

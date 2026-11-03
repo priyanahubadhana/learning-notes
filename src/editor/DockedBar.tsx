@@ -7,6 +7,7 @@ import {
   FilePreviewButton,
   FileRenameButton,
   FileReplaceButton,
+  useActiveStyles,
   useBlockNoteEditor,
   useEditorDOMElement,
   useEditorFocus,
@@ -28,10 +29,15 @@ import { t } from '../i18n/t'
 import {
   useBarSettings,
   useKeyboardInset,
-  usePinned,
-  writePinned,
 } from '../settings/deviceModeSettings'
 import { keepKnown } from '../app/deviceMode'
+import { Icon } from '../app/tools/icons'
+import { SetSwitch } from '../app/tools/SetSwitch'
+import { ToolButton } from '../app/tools/ToolButton'
+import { activeSet, useSetTools } from '../app/tools/toolbarState'
+import { allTools, findTool } from '../app/tools/toolRegistry'
+import { getAppActions, setBarUi } from '../app/tools/toolRuntime'
+import { useAutoBarSet } from '../app/tools/useAutoBarSet'
 import { EditBarPanel } from './EditBarPanel'
 import {
   allActionIds,
@@ -48,14 +54,21 @@ import {
 } from './clipboard'
 
 /**
- * The formatting bar for touch screens and the Pencil: docked under the top
- * bar (Touch) or at the bottom (Pencil), instead of the floating toolbar.
- * It shows the text style menu, the buttons the user pinned, then More and
- * Done. Everything else the floating toolbar can do is under More.
+ * The short bar for touch screens and the Pencil: docked under the top bar
+ * (or at the bottom). A Write · Draw · Read switch picks the tool set; each
+ * set shows the tools the user chose. "All tools" and the search icon sit at
+ * the end, then the ⋯ Toolbar menu and Done. Everything the floating toolbar
+ * can do is in the ⋯ menu and under More.
  */
 
 /** Keeps the editor's selection and keyboard when a bar button is pressed. */
 const keepFocus = (e: { preventDefault: () => void }) => e.preventDefault()
+
+/** Buttons that show their words instead of an icon. */
+const TEXT_FACES = new Set(['blank', 'card', 'newLine'])
+const hasTextFace = (id: string) => id.startsWith('mark:') || TEXT_FACES.has(id)
+
+type Panel = 'more' | 'menu' | 'color' | 'edit'
 
 export function DockedBar({ slot }: { slot: HTMLElement | null }) {
   const editor = useBlockNoteEditor() as unknown as Editor
@@ -64,25 +77,47 @@ export function DockedBar({ slot }: { slot: HTMLElement | null }) {
   return createPortal(<Bar editor={editor} />, slot)
 }
 
+/** Which tools are "on" now (bold, a list, the highlight …). */
+function useToolActive(editor: Editor): (id: string) => boolean {
+  const styles = useActiveStyles(editor) as Record<string, unknown>
+  const type = editor.getTextCursorPosition().block.type
+  return (id) => {
+    if (id === 'highlight') return styles.backgroundColor === 'yellow'
+    if (id === 'bulletList') return type === 'bulletListItem'
+    if (id === 'numberedList') return type === 'numberedListItem'
+    if (id === 'checklist') return type === 'checkListItem'
+    if (id === 'quote') return type === 'quote'
+    return false
+  }
+}
+
 function Bar({ editor }: { editor: Editor }) {
   const settings = useBarSettings()
   const { placement, buttonPx, hoverTips, shortcutHints, autoHide } = settings
   const bottom = placement === 'bottom'
   const actions = useBarActions(editor)
-  const pinned = keepKnown(usePinned(), allActionIds())
+  const set = activeSet.useValue()
+  const listed = useSetTools(set)
+  const known = [...allActionIds(), ...allTools().map((tool) => tool.id)]
+  const onSet = keepKnown(listed, known)
   const inset = useKeyboardInset()
-  const [panel, setPanel] = useState<'more' | 'menu' | 'color' | 'edit' | null>(
-    null,
-  )
+  const [panel, setPanel] = useState<Panel | null>(null)
   const { toast } = useContext(AppUiContext)
   const menuButton = useRef<HTMLButtonElement>(null)
   const [focusInBar, setFocusInBar] = useState(false)
   const editorFocused = useEditorFocus()
   const wrapper = useRef<HTMLDivElement>(null)
+  const isActive = useToolActive(editor)
+  useAutoBarSet()
+
+  // Tools run by the ribbon or the control panel can open a tray.
+  useEffect(() => {
+    setBarUi({ openPanel: (name) => setPanel(name) })
+    return () => setBarUi(null)
+  }, [])
 
   const byId = new Map(actions.map((a) => [a.id, a]))
-  const onBar = pinned.flatMap((id) => byId.get(id) ?? [])
-  const inMore = actions.filter((a) => !pinned.includes(a.id))
+  const inMore = actions.filter((a) => !listed.includes(a.id))
   const selecting = editor.getSelectedText().length > 0
   const shown =
     !autoHide || editorFocused || focusInBar || selecting || panel !== null
@@ -157,7 +192,7 @@ function Bar({ editor }: { editor: Editor }) {
     if (e.key !== 'ArrowLeft' && e.key !== 'ArrowRight') return
     const buttons = [
       ...e.currentTarget.querySelectorAll<HTMLElement>('[data-bar-btn]'),
-    ].filter((b) => !(b as HTMLButtonElement).disabled)
+    ].filter((b) => (b as HTMLButtonElement).disabled !== true)
     const at = buttons.indexOf(document.activeElement as HTMLElement)
     if (at < 0) return
     e.preventDefault()
@@ -173,6 +208,67 @@ function Bar({ editor }: { editor: Editor }) {
         paddingRight: 'env(safe-area-inset-right, 0px)',
       }
     : undefined
+
+  const buttonFor = (id: string): ReactNode => {
+    const action = byId.get(id)
+    if (action) {
+      return (
+        <BarSlot key={id} action={action}>
+          {action.special ? (
+            <SpecialButton
+              action={action}
+              editor={editor}
+              px={buttonPx}
+              colorOpen={panel === 'color'}
+              onColor={() => setPanel(panel === 'color' ? null : 'color')}
+            />
+          ) : (
+            <BarButton
+              action={action}
+              px={buttonPx}
+              tip={hoverTips}
+              hint={shortcutHints}
+            />
+          )}
+        </BarSlot>
+      )
+    }
+    const tool = findTool(id)
+    if (!tool) return null
+    if (id === 'more') {
+      return (
+        <Tip key={id} id="bar.more" touchInfo={false}>
+          <button
+            type="button"
+            data-bar-btn
+            data-action="more"
+            aria-expanded={panel === 'more'}
+            aria-haspopup="true"
+            onMouseDown={keepFocus}
+            onClick={() => setPanel(panel === 'more' ? null : 'more')}
+            style={{ minHeight: buttonPx, minWidth: buttonPx }}
+            className="inline-flex shrink-0 items-center gap-0.5 rounded-xl px-2.5 text-sm whitespace-nowrap text-ink-soft hover:bg-hover hover:text-ink"
+          >
+            {t('bar.more')} <Icon name="chevronDown" size={16} />
+          </button>
+        </Tip>
+      )
+    }
+    return (
+      <ToolButton
+        key={id}
+        tool={tool}
+        px={buttonPx}
+        variant="bar"
+        active={isActive(id) || undefined}
+        tip={hoverTips}
+        hint={shortcutHints}
+      />
+    )
+  }
+
+  const END_BUTTON =
+    'inline-flex shrink-0 items-center justify-center gap-1.5 rounded-xl text-ink-soft hover:bg-hover hover:text-ink motion-safe:transition-colors'
 
   return (
     <div
@@ -190,95 +286,109 @@ function Bar({ editor }: { editor: Editor }) {
         }
       }}
       className={`${
-        bottom ? 'fixed inset-x-0 z-10 border-t' : 'relative -mx-14 border-b'
-      } border-line bg-bg`}
+        bottom ? 'fixed inset-x-0 z-10' : 'relative -mx-14'
+      } bg-bg supports-[backdrop-filter]:bg-bg/60 supports-[backdrop-filter]:backdrop-blur-md`}
     >
       <div
         role="toolbar"
         aria-label={t('bar.label')}
         onKeyDown={arrowKeys}
-        className="flex items-center gap-1 px-3 py-1.5"
+        className="mx-3 my-1.5 grid grid-cols-[auto_minmax(0,1fr)_auto_auto] items-center gap-x-1.5 gap-y-0.5 rounded-2xl border border-line bg-bg px-1.5 py-1 shadow-[0_1px_2px_rgba(0,0,0,0.05),0_6px_18px_rgba(0,0,0,0.07)] supports-[backdrop-filter]:bg-bg/80 supports-[backdrop-filter]:backdrop-blur-xl phone:grid-cols-[auto_minmax(0,1fr)_auto]"
       >
+        <div className="col-start-1 row-start-1">
+          <SetSwitch px={buttonPx} />
+        </div>
         <div
-          // Scrolls sideways on a narrow screen; More and Done stay in view.
-          className="flex min-w-0 flex-1 items-center gap-1 overflow-x-auto"
+          data-slot="tools"
+          // Scrolls sideways on a narrow screen; the end buttons stay in view.
+          className="col-start-2 flex min-w-0 items-center gap-1 overflow-x-auto phone:col-span-2 phone:col-start-1 phone:row-start-2"
           style={{ scrollbarWidth: 'none' }}
         >
-          <div
-            // The text style menu (paragraph, heading, list…).
-            className="shrink-0"
-            style={{ minHeight: buttonPx }}
-          >
-            <BlockTypeSelect />
-          </div>
-          <Sep />
-          {onBar.map((action) => (
-            <BarSlot key={action.id} action={action}>
-              {action.special ? (
-                <SpecialButton
-                  action={action}
-                  editor={editor}
-                  px={buttonPx}
-                  colorOpen={panel === 'color'}
-                  onColor={() => setPanel(panel === 'color' ? null : 'color')}
-                />
-              ) : (
-                <BarButton
-                  action={action}
-                  px={buttonPx}
-                  tip={hoverTips}
-                  hint={shortcutHints}
-                />
-              )}
-            </BarSlot>
-          ))}
+          {onSet.map(buttonFor)}
         </div>
-        <Tip id="bar.menu" touchInfo={false}>
+        <div className="col-start-3 flex items-center gap-1 phone:row-start-1">
+          <Tip id="bar.allTools" touchInfo={false}>
+            <button
+              type="button"
+              data-bar-btn
+              data-action="allTools"
+              aria-expanded={panel === 'menu'}
+              aria-haspopup="true"
+              onMouseDown={keepFocus}
+              onClick={() => setPanel(panel === 'menu' ? null : 'menu')}
+              style={{ minHeight: Math.max(buttonPx, 44) }}
+              className={`${END_BUTTON} bg-hover px-3 text-sm font-medium !text-ink`}
+            >
+              <Icon name="layoutGrid" size={18} />
+              {t('bar.allTools')}
+            </button>
+          </Tip>
+          <Tip id="bar.search" touchInfo={false}>
+            <button
+              type="button"
+              data-bar-btn
+              data-action="controlPanel"
+              aria-label={t('bar.search')}
+              title={t('bar.search')}
+              onMouseDown={keepFocus}
+              onClick={() => getAppActions()?.openControlPanel()}
+              style={{
+                minHeight: Math.max(buttonPx, 44),
+                minWidth: Math.max(buttonPx, 44),
+              }}
+              className={END_BUTTON}
+            >
+              <Icon name="search" />
+            </button>
+          </Tip>
+        </div>
+        <div className="col-start-4 flex items-center gap-1 phone:col-start-3 phone:row-start-2">
+          <Tip id="bar.menu" touchInfo={false}>
+            <button
+              ref={menuButton}
+              type="button"
+              data-bar-btn
+              data-action="toolbarMenu"
+              aria-label={t('bar.menu')}
+              title={hoverTips ? t('bar.menu') : undefined}
+              aria-expanded={panel === 'menu'}
+              aria-haspopup="true"
+              onMouseDown={keepFocus}
+              onClick={() => setPanel(panel === 'menu' ? null : 'menu')}
+              style={{
+                minHeight: Math.max(buttonPx, 44),
+                minWidth: Math.max(buttonPx, 44),
+              }}
+              className={END_BUTTON}
+            >
+              <Icon name="more" />
+            </button>
+          </Tip>
           <button
-            ref={menuButton}
             type="button"
             data-bar-btn
-            data-action="toolbarMenu"
-            aria-label={t('bar.menu')}
-            title={hoverTips ? t('bar.menu') : undefined}
-            aria-expanded={panel === 'menu'}
-            aria-haspopup="true"
             onMouseDown={keepFocus}
-            onClick={() => setPanel(panel === 'menu' ? null : 'menu')}
-            style={{ minHeight: buttonPx, minWidth: buttonPx }}
-            className="shrink-0 rounded-lg px-2.5 text-lg leading-none hover:bg-hover"
+            onClick={done}
+            style={{
+              minHeight: Math.max(buttonPx, 44),
+              minWidth: Math.max(buttonPx, 44),
+            }}
+            className="shrink-0 rounded-xl px-2.5 text-sm font-semibold whitespace-nowrap text-ink hover:bg-hover"
           >
-            <span aria-hidden>⋯</span>
+            {t('bar.done')}
           </button>
-        </Tip>
-        <Tip id="bar.more" touchInfo={false}>
-          <button
-            type="button"
-            data-bar-btn
-            aria-expanded={panel === 'more'}
-            aria-haspopup="true"
-            onMouseDown={keepFocus}
-            onClick={() => setPanel(panel === 'more' ? null : 'more')}
-            style={{ minHeight: buttonPx, minWidth: buttonPx }}
-            className="shrink-0 rounded-lg px-2.5 text-sm whitespace-nowrap hover:bg-hover"
-          >
-            {t('bar.more')} <span aria-hidden>▾</span>
-          </button>
-        </Tip>
-        <button
-          type="button"
-          data-bar-btn
-          onMouseDown={keepFocus}
-          onClick={done}
-          style={{ minHeight: buttonPx, minWidth: buttonPx }}
-          className="shrink-0 rounded-lg px-2.5 text-sm font-semibold whitespace-nowrap text-accent hover:bg-hover"
-        >
-          {t('bar.done')}
-        </button>
+        </div>
       </div>
 
       {panel === 'more' && (
         <Tray bottom={bottom}>
+          <div
+            // The text style menu (paragraph, heading, list …).
+            className="px-1"
+            style={{ minHeight: Math.max(buttonPx, 44) }}
+          >
+            <BlockTypeSelect />
+          </div>
           {inMore.map((action) => (
             <MoreRow
               key={action.id}
@@ -375,9 +485,7 @@ function Bar({ editor }: { editor: Editor }) {
         <Tray bottom={bottom} wide>
           <EditBarPanel
             actions={actions}
-            pinned={pinned}
             mode={settings.mode}
-            onPinned={writePinned}
             onClose={() => setPanel(null)}
           />
         </Tray>
@@ -385,10 +493,6 @@ function Bar({ editor }: { editor: Editor }) {
     </div>
   )
 }
-
-const Sep = () => (
-  <span aria-hidden className="mx-0.5 h-6 w-px shrink-0 bg-line" />
-)
 
 /** The "↵ New line" button gets a tip; the others sit on the bar as they are. */
 function BarSlot({
@@ -421,6 +525,8 @@ function BarButton({
   const title = tip
     ? action.label + (hint && action.hint ? ` (${action.hint})` : '')
     : undefined
+  const tool = findTool(action.id)
+  const text = hasTextFace(action.id) || !tool
   return (
     <button
       type="button"
@@ -433,11 +539,19 @@ function BarButton({
       onMouseDown={keepFocus}
       onClick={() => !action.disabled && action.run?.()}
       style={{ minHeight: px, minWidth: px }}
-      className={`shrink-0 rounded-lg px-2.5 text-sm whitespace-nowrap hover:bg-hover aria-disabled:opacity-40 ${
-        action.active ? 'bg-hover text-accent' : ''
-      } ${action.id === 'newLine' ? 'text-accent' : ''}`}
+      className={`relative shrink-0 rounded-xl px-2.5 text-sm whitespace-nowrap text-ink-soft hover:bg-hover hover:text-ink motion-safe:transition-colors aria-disabled:opacity-40 ${
+        text ? '' : 'grid place-items-center'
+      } ${action.active ? 'bg-hover !text-accent' : ''} ${
+        action.id === 'newLine' ? '!text-accent' : ''
+      }`}
     >
-      {action.face}
+      {text || !tool ? action.face : <Icon name={tool.icon} />}
+      {action.active && !text && (
+        <span
+          aria-hidden
+          className="absolute bottom-1 left-1/2 h-0.5 w-3.5 -translate-x-1/2 rounded-full bg-current"
+        />
+      )}
     </button>
   )
 }
@@ -596,9 +710,9 @@ function Tray({
       aria-label={label}
       onKeyDown={label ? arrows : undefined}
       data-bar="tray"
-      className={`absolute right-3 z-40 grid max-h-[75vh] max-w-[calc(100vw-24px)] gap-0.5 overflow-y-auto rounded-xl border border-ink-soft bg-bg p-1.5 shadow-lg ${
+      className={`absolute right-3 z-40 grid max-h-[75vh] max-w-[calc(100vw-24px)] gap-0.5 overflow-y-auto rounded-2xl border border-ink-soft bg-bg p-1.5 shadow-lg ${
         wide ? 'w-[340px]' : 'min-w-[230px]'
-      } ${bottom ? 'bottom-full mb-1' : 'top-full mt-1'}`}
+      } ${bottom ? 'bottom-full mb-1' : 'top-full'}`}
     >
       {children}
     </div>

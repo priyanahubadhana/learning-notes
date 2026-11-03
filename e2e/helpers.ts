@@ -353,9 +353,17 @@ export function contrastOf(
 ): Promise<number> {
   return locator.evaluate((el, kind) => {
     type Rgba = [number, number, number, number]
+    // Any CSS colour (rgb, color-mix, oklab …) read through a canvas pixel.
+    const canvas = document.createElement('canvas')
+    canvas.width = canvas.height = 1
+    const paint = canvas.getContext('2d', { willReadFrequently: true })!
     const parse = (value: string): Rgba => {
-      const m = value.match(/[\d.]+/g)?.map(Number) ?? [0, 0, 0, 0]
-      return [m[0], m[1], m[2], m[3] ?? 1]
+      paint.clearRect(0, 0, 1, 1)
+      paint.fillStyle = '#000'
+      paint.fillStyle = value
+      paint.fillRect(0, 0, 1, 1)
+      const d = paint.getImageData(0, 0, 1, 1).data
+      return [d[0], d[1], d[2], d[3] / 255]
     }
     const over = (top: Rgba, base: Rgba): Rgba => {
       const a = top[3]

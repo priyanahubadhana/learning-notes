@@ -19,10 +19,15 @@ import { ErrorBoundary } from './app/ErrorBoundary'
 import { SaveNotice } from './app/SaveNotice'
 import { onStorageFull, reportError, runTask } from './app/errors'
 import { baseHash, parseHash, routeToHash, type Route } from './app/router'
-import { applyTheme } from './app/theme'
+import { THEMES, applyTheme } from './app/theme'
 import { ThemeContext } from './app/themeContext'
 import type { ToastAction } from './app/appUi'
 import { altShortcutLabel } from './app/keys'
+import { toggleFavourite } from './app/favourites'
+import { ControlPanel } from './app/tools/ControlPanel'
+import { DevicePicker } from './app/tools/DevicePicker'
+import { devicePickerDone } from './app/tools/deviceKind'
+import { setAppActions } from './app/tools/toolRuntime'
 import { SidebarResizer } from './app/SidebarResizer'
 import { SIDEBAR_DEFAULT, isSidebarWidth } from './app/sidebarWidth'
 import { Toast, ChoiceDialog } from './app/ui'
@@ -117,6 +122,11 @@ const SettingsScreen = lazy(() =>
     default: m.SettingsScreen,
   })),
 )
+const CalendarScreen = lazy(() =>
+  import('./databases/CalendarScreen').then((m) => ({
+    default: m.CalendarScreen,
+  })),
+)
 const SearchScreen = lazy(() =>
   import('./search/SearchScreen').then((m) => ({ default: m.SearchScreen })),
 )
@@ -196,13 +206,15 @@ function App() {
     | { kind: 'databases' }
     | { kind: 'database'; id: string }
     | { kind: 'data' }
+    | { kind: 'calendar' }
     | null
   >(() =>
     boot?.kind === 'database'
       ? { kind: 'database', id: boot.id }
       : boot?.kind === 'databases' ||
           boot?.kind === 'cards' ||
-          boot?.kind === 'data'
+          boot?.kind === 'data' ||
+          boot?.kind === 'calendar'
         ? { kind: boot.kind }
         : null,
   )
@@ -220,6 +232,11 @@ function App() {
     fromAddress?: boolean
   } | null>(() => (boot?.kind === 'search' ? searchOf(boot) : null))
   const [searchPopup, setSearchPopup] = useState(false)
+  // The control panel (search every feature) and the device picker.
+  const [controlPanel, setControlPanel] = useState(false)
+  const [devicePicker, setDevicePicker] = useState(
+    () => !devicePickerDone.get(),
+  )
   /** Opens a notebook's tabs (Notes · Database · Cards). */
   const openNotebook = (id: string) => {
     setHub(null)
@@ -259,6 +276,11 @@ function App() {
       type: 'all',
       filters: { ...DEFAULT_FILTERS, tagId },
     })
+  /** The Calendar screen (dated rows and journal days). */
+  const openCalendar = () => {
+    openPage(null)
+    setHub({ kind: 'calendar' })
+  }
   const savedSearch = useLiveQuery(
     async () =>
       search?.savedId ? getSavedSearch(db, search.savedId) : undefined,
@@ -667,6 +689,18 @@ function App() {
     }
   }
 
+  /** Opens (or starts) the journal page of a "YYYY-MM-DD" day. */
+  const openJournalOn = async (day: string) => {
+    if (!workspace) return
+    const [y, m, d] = day.split('-').map(Number)
+    const { page } = await openJournalDay(
+      db,
+      workspace.id,
+      new Date(y, m - 1, d),
+    )
+    openNewPage(page, false)
+  }
+
   const newTemplate = async () => {
     if (!workspace) return
     openNewPage(await createTemplate(db, workspace.id))
@@ -719,18 +753,98 @@ function App() {
     window.addEventListener('keydown', listener)
     // Ctrl+K / ⌘K: search, from anywhere. Caught before the editor sees it.
     const searchKey = (e: KeyboardEvent) => {
-      if ((e.ctrlKey || e.metaKey) && !e.altKey && e.code === 'KeyK') {
+      if (
+        (e.ctrlKey || e.metaKey) &&
+        !e.altKey &&
+        !e.shiftKey &&
+        e.code === 'KeyK'
+      ) {
         e.preventDefault()
         e.stopPropagation()
         setSearchPopup(true)
       }
     }
     window.addEventListener('keydown', searchKey, { capture: true })
+    // Ctrl/Cmd+Shift+K: the control panel (Ctrl/Cmd+K is the page search).
+    const panelKey = (e: KeyboardEvent) => {
+      if (
+        (e.ctrlKey || e.metaKey) &&
+        e.shiftKey &&
+        !e.altKey &&
+        e.code === 'KeyK'
+      ) {
+        e.preventDefault()
+        e.stopPropagation()
+        setControlPanel(true)
+      }
+    }
+    window.addEventListener('keydown', panelKey, { capture: true })
     return () => {
+      window.removeEventListener('keydown', panelKey, { capture: true })
       window.removeEventListener('keydown', listener)
       window.removeEventListener('keydown', searchKey, { capture: true })
     }
   }, [])
+
+  // What the control panel, ribbon and bar can ask the app to do. Registered
+  // on every draw, so the actions always see the current screen.
+  useEffect(() => {
+    setAppActions({
+      toast: appUi.toast,
+      openSettings: (id) => openSettings(id),
+      openData: () => {
+        openPage(null)
+        setHub({ kind: 'data' })
+      },
+      openAllCards: () => {
+        openPage(null)
+        setHub({ kind: 'cards' })
+      },
+      openDatabases: () => {
+        openPage(null)
+        setHub({ kind: 'databases' })
+      },
+      openCalendar,
+      openToday: () => runTask(openToday()),
+      openSearch: () => setSearchPopup(true),
+      openReview: (scope) =>
+        openReview(
+          scope === 'page' && currentPage
+            ? { kind: 'page', pageId: currentPage.id }
+            : { kind: 'all' },
+        ),
+      openControlPanel: () => setControlPanel(true),
+      openDevicePicker: () => setDevicePicker(true),
+      showSidebar: () => {
+        if (matchMedia(PHONE_SCREEN).matches) setDrawerAt(routeHash)
+        else if (sidebarHidden) toggleSidebar()
+      },
+      openNotebookTab: (tab) => {
+        if (!currentPage) {
+          appUi.toast(t('tool.needsPage'))
+          return
+        }
+        location.hash = routeToHash({
+          kind: 'notebook',
+          id: currentPage.notebookId,
+          parts: [tab],
+        })
+      },
+      cycleTheme: () =>
+        setTheme(THEMES[(THEMES.indexOf(theme) + 1) % THEMES.length]),
+      toggleFavourite: () => {
+        if (!currentPage) {
+          appUi.toast(t('tool.needsPage'))
+          return
+        }
+        appUi.toast(
+          t(toggleFavourite(currentPage.id) ? 'fav.added' : 'fav.removed'),
+        )
+      },
+      currentPageId: () => currentPage?.id ?? null,
+    })
+  })
+  useEffect(() => () => setAppActions(null), [])
 
   // The top bar's name for the open screen (pages put their own path there).
   const barTitle = showSettings
@@ -741,11 +855,13 @@ function App() {
         ? t('sidebar.allCards')
         : hub?.kind === 'data'
           ? t('sidebar.data')
-          : hub
-            ? t('sidebar.allDatabases')
-            : search
-              ? (savedSearch?.name ?? t('search.title'))
-              : (openNotebookRecord?.title ?? null)
+          : hub?.kind === 'calendar'
+            ? t('calendar.screen')
+            : hub
+              ? t('sidebar.allDatabases')
+              : search
+                ? (savedSearch?.name ?? t('search.title'))
+                : (openNotebookRecord?.title ?? null)
 
   // Never shown as an empty app: the notes are most likely still there.
   if (openFailed) {
@@ -839,6 +955,10 @@ function App() {
                 !!search && !search.savedId && !showSettings && !reviewScope
               }
               onOpenSearch={() => choose(() => setSearchPopup(true))}
+              onOpenCalendar={() => choose(openCalendar)}
+              calendarOpen={
+                hub?.kind === 'calendar' && !showSettings && !reviewScope
+              }
               savedSearchId={
                 search && !showSettings && !reviewScope
                   ? (search.savedId ?? null)
@@ -918,6 +1038,14 @@ function App() {
                       <DataScreen
                         db={db}
                         workspaceId={workspace.id}
+                        onClose={() => setHub(null)}
+                      />
+                    ) : hub?.kind === 'calendar' ? (
+                      <CalendarScreen
+                        db={db}
+                        workspaceId={workspace.id}
+                        onOpenPage={openPage}
+                        onOpenDay={(day) => runTask(openJournalOn(day))}
                         onClose={() => setHub(null)}
                       />
                     ) : hub?.kind === 'databases' ? (
@@ -1068,6 +1196,12 @@ function App() {
               }}
               onSeeAll={openSearch}
             />
+          )}
+          {controlPanel && (
+            <ControlPanel onClose={() => setControlPanel(false)} />
+          )}
+          {devicePicker && (
+            <DevicePicker onClose={() => setDevicePicker(false)} />
           )}
           {choice && (
             <ChoiceDialog

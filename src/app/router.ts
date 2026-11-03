@@ -15,6 +15,7 @@ export type Route =
   | { kind: 'databases' }
   | { kind: 'cards' }
   | { kind: 'data' }
+  | { kind: 'calendar' }
   | { kind: 'settings'; parts: string[] }
   | { kind: 'search'; savedId?: string; query?: Record<string, unknown> }
   | { kind: 'review'; scope: ReviewRoute }
@@ -52,6 +53,7 @@ export function routeToHash(route: Route): string {
     case 'databases':
     case 'cards':
     case 'data':
+    case 'calendar':
       return `#/${route.kind}`
     case 'search':
       if (route.savedId) return `#/search/saved/${e(route.savedId)}`
@@ -103,6 +105,7 @@ export function parseHash(hash: string): Route {
     case 'databases':
     case 'cards':
     case 'data':
+    case 'calendar':
       return { kind: head }
     case 'search': {
       if (first === 'saved' && args[1]) {

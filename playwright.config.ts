@@ -21,6 +21,19 @@ export default defineConfig({
   reporter: 'list',
   use: {
     baseURL: `http://localhost:${PORT}`,
+    // The device picker (first start) is answered already, so it does not
+    // cover every test; devicePicker.spec.ts starts without this.
+    storageState: {
+      cookies: [],
+      origins: [
+        {
+          origin: `http://localhost:${PORT}`,
+          localStorage: [
+            { name: 'learning-notes:devicePicker.done', value: 'true' },
+          ],
+        },
+      ],
+    },
     actionTimeout: 10_000 * SLOW, // a stuck click names itself
     serviceWorkers: 'block', // offline.spec.ts turns it on
     trace: 'retain-on-failure',

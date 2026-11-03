@@ -51,6 +51,7 @@ import {
   pastePlainFromClipboard,
 } from './clipboard'
 import { focusEndLine } from './lineActions'
+import { clearActiveEditor, setActiveEditor } from '../app/tools/toolRuntime'
 import {
   useBarSettings,
   useKeyboardInset,
@@ -435,6 +436,17 @@ function LoadedPageEditor({
           })(),
         )
     : undefined
+
+  // The control panel, ribbon and bar run editing tools on this editor.
+  useEffect(() => {
+    setActiveEditor(editor as never, {
+      insertDatabase,
+      insertTemplate,
+      saveAsTemplate,
+      linkPage: () => openLinkPicker(null),
+    })
+  })
+  useEffect(() => () => clearActiveEditor(editor as never), [editor])
 
   /** Card list rows: open the card's page if needed, then scroll to it. */
   const openBlock = (targetPageId: string, blockId: string) => {

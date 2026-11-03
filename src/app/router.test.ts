@@ -10,6 +10,7 @@ const routes: Route[] = [
   { kind: 'databases' },
   { kind: 'cards' },
   { kind: 'data' },
+  { kind: 'calendar' },
   { kind: 'settings', parts: [] },
   { kind: 'settings', parts: ['review'] },
   { kind: 'notebook', id: 'n1', parts: ['database', 'd2', 'v3'] },

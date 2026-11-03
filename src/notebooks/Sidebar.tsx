@@ -29,6 +29,7 @@ import { TemplatesSection } from '../templates/TemplatesSection'
 import { TrashSection } from '../trash/TrashSection'
 import { SavedSearchesSection } from '../search/SavedSearchesSection'
 import { TagsSection } from '../tags/TagsSection'
+import { FavouritesSection, RecentSection } from '../app/QuickPages'
 import { t } from '../i18n/t'
 import { countDue, type ReviewScope } from '../recall/reviewService'
 import { deleteNotebook, moveNotebook, renameNotebook } from './notebookService'
@@ -63,6 +64,9 @@ interface SidebarProps {
   searchOpen: boolean
   /** Opens the search popup. */
   onOpenSearch: () => void
+  /** Opens the Calendar screen. */
+  onOpenCalendar: () => void
+  calendarOpen: boolean
   /** The saved search open in the Search screen, if any. */
   savedSearchId: string | null
   onOpenSavedSearch: (saved: SavedSearch) => void
@@ -136,6 +140,8 @@ export function Sidebar({
   dataOpen,
   searchOpen,
   onOpenSearch,
+  onOpenCalendar,
+  calendarOpen,
   savedSearchId,
   onOpenSavedSearch,
   onReviewSavedSearch,
@@ -295,6 +301,31 @@ export function Sidebar({
           </kbd>
         </button>
       </Tip>
+      <Tip id="sidebar.calendar" className="flex">
+        <button
+          type="button"
+          onClick={onOpenCalendar}
+          aria-current={calendarOpen ? 'page' : undefined}
+          className={`flex min-h-9 w-full items-center gap-2 rounded-lg px-2.5 text-left text-sm transition-colors hover:bg-hover ${
+            calendarOpen ? 'bg-hover font-semibold' : ''
+          }`}
+        >
+          <span aria-hidden className="text-muted">
+            ▦
+          </span>
+          {t('sidebar.calendar')}
+        </button>
+      </Tip>
+      <FavouritesSection
+        db={db}
+        currentPageId={currentPage?.id ?? null}
+        onOpen={onOpenPage}
+      />
+      <RecentSection
+        db={db}
+        currentPageId={currentPage?.id ?? null}
+        onOpen={onOpenPage}
+      />
       <Tip id="sidebar.review" className="flex">
         <button
           type="button"

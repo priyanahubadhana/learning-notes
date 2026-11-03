@@ -15,7 +15,10 @@ Fast, full keyboard use on PC, Mac and iPad keyboards.
 | `Alt+R` (`Option+R` on Mac)                   | Review the open page                  |
 | `Ctrl+\` (`⌘\` on Mac)                        | Hide or show the menu                 |
 | `Alt+T` (`Option+T` on Mac)                   | Open today's journal page             |
-| `Ctrl+K` (`⌘K` on Mac)                        | Search everything                     |
+| `Ctrl+K` (`⌘K` on Mac)                        | Search pages and notes                |
+| `Ctrl+Shift+K` (`⌘⇧K` on Mac)                 | Search all features (control panel)   |
+| Control panel: `↑` `↓` / `Enter` / `Esc`      | Move / run / close                    |
+| Short bar: `←` `→`                            | Move between buttons (and the switch) |
 | Search popup: `↑` `↓` / `Enter` / `Esc`       | Move / open / close                   |
 | Review: `Space` or `Enter`                    | Show answer                           |
 | Review: `1` `2` `3` `4`                       | Again / Hard / Good / Easy            |

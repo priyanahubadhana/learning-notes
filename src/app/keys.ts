@@ -13,3 +13,8 @@ export function shortcutLabel(key: string): string {
 export function altShortcutLabel(key: string): string {
   return isApple() ? `⌥${key}` : `Alt+${key}`
 }
+
+/** How to show Ctrl+Shift+`key` on this device: "Ctrl+Shift+K", or "⌘⇧K" on Apple. */
+export function shortcutShiftLabel(key: string): string {
+  return isApple() ? `⌘⇧${key}` : `Ctrl+Shift+${key}`
+}

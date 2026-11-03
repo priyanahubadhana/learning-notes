@@ -35,7 +35,15 @@ import { RowProperties } from '../databases/RowProperties'
 import { createTitleSaver } from './titleSaver'
 import { isApple } from '../app/keys'
 import { DEVICE_MODES } from '../app/deviceMode'
-import { applyDeviceMode, deviceModeSetting } from '../settings/builtinSettings'
+import {
+  applyDeviceMode,
+  barPlacementSetting,
+  deviceModeSetting,
+} from '../settings/builtinSettings'
+import { writeDeviceSetting } from '../settings/settingsService'
+import { favourites, toggleFavourite } from '../app/favourites'
+import { getAppActions } from '../app/tools/toolRuntime'
+import { shortcutShiftLabel } from '../app/keys'
 import { useDeviceSetting } from '../settings/useSetting'
 
 interface PageViewProps {
@@ -131,6 +139,8 @@ export function PageView({
   const barSlot = useContext(TopBarSlotContext)
   const [moreAt, setMoreAt] = useState<DOMRect | null>(null)
   const [deviceMode] = useDeviceSetting(deviceModeSetting)
+  const [barPlacement] = useDeviceSetting(barPlacementSetting)
+  const starred = favourites.useValue().includes(page.id)
   const moreItems: MenuItem[] = [
     ...(notebook && !isTemplate
       ? [
@@ -143,6 +153,29 @@ export function PageView({
         ]
       : []),
     { label: t('history.button'), icon: '🕘', onSelect: openHistory },
+    {
+      label: t(starred ? 'fav.remove' : 'fav.add'),
+      icon: starred ? '★' : '☆',
+      onSelect: () => {
+        toggleFavourite(page.id)
+        toast(t(starred ? 'fav.removed' : 'fav.added'))
+      },
+    },
+    {
+      label: t('panel.open'),
+      icon: '🔍',
+      hint: shortcutShiftLabel('K'),
+      onSelect: () => getAppActions()?.openControlPanel(),
+    },
+    {
+      label: t(barPlacement === 'floating' ? 'bar.show' : 'bar.hide'),
+      icon: '☰',
+      onSelect: () =>
+        writeDeviceSetting(
+          barPlacementSetting,
+          barPlacement === 'floating' ? 'top' : 'floating',
+        ),
+    },
     ...(notebook && !isTemplate
       ? [
           {

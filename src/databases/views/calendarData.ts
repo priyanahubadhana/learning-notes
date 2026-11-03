@@ -1,3 +1,4 @@
+import { dateLocale } from '../../i18n/t'
 import type { ResolvedRow } from '../databaseQuery'
 import {
   dayAt,
@@ -15,11 +16,11 @@ import {
 
 export type CalendarMode = 'month' | 'week'
 
-export interface CalendarDay {
+export interface CalendarDay<T = ResolvedRow> {
   day: string
   /** In the shown month (always true in week mode). */
   inPeriod: boolean
-  rows: ResolvedRow[]
+  rows: T[]
 }
 
 /** The first day of the month a day is in. */
@@ -72,11 +73,11 @@ export function rowsByDay(
  * The days to draw for the period around `anchor`: whole weeks (Monday to
  * Sunday) covering the month, or the one week.
  */
-export function calendarDays(
-  byDay: ReadonlyMap<string, ResolvedRow[]>,
+export function calendarDays<T = ResolvedRow>(
+  byDay: ReadonlyMap<string, T[]>,
   anchor: string,
   mode: CalendarMode,
-): CalendarDay[] {
+): CalendarDay<T>[] {
   let first: string
   let count: number
   if (mode === 'week') {
@@ -98,3 +99,26 @@ export function calendarDays(
     }
   })
 }
+
+/** A day as "27 Oct" (or "Oct 27") in the user's date style. */
+export const dayText = (day: string, long = false): string =>
+  new Intl.DateTimeFormat(dateLocale(), {
+    day: 'numeric',
+    month: long ? 'long' : 'short',
+    ...(long && { year: 'numeric' }),
+    timeZone: 'UTC',
+  }).format(Date.parse(`${day}T00:00:00Z`))
+
+export const weekdayText = (day: string): string =>
+  new Intl.DateTimeFormat(dateLocale(), {
+    weekday: 'short',
+    timeZone: 'UTC',
+  }).format(Date.parse(`${day}T00:00:00Z`))
+
+/** "October 2026" for the month a day is in. */
+export const monthTitle = (day: string): string =>
+  new Intl.DateTimeFormat(dateLocale(), {
+    month: 'long',
+    year: 'numeric',
+    timeZone: 'UTC',
+  }).format(Date.parse(`${monthStart(day)}T00:00:00Z`))

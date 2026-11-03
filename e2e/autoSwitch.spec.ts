@@ -57,7 +57,7 @@ test('the default is "Pencil only": a pen switches, with Undo', async ({
     .poll(
       async () =>
         (await dockedBar(page)
-          .getByRole('button', { name: 'Bold', exact: true })
+          .getByRole('button', { name: 'Done', exact: true })
           .boundingBox())!.height,
     )
     .toBeGreaterThanOrEqual(53.5)

@@ -10,8 +10,10 @@ import { TITLE_COLUMN_ID } from '../columnTypes'
 import { periodStart } from '../dashboard/chartData'
 import {
   calendarDays,
+  dayText,
   rowsByDay,
   shift,
+  weekdayText,
   type CalendarMode,
 } from './calendarData'
 import { useMinuteClock } from '../../recall/useMinuteClock'
@@ -20,21 +22,6 @@ import { useDatabaseData } from './useDatabaseData'
 import type { ViewProps } from './viewTypes'
 
 const MAX_CHIPS = 3
-
-/** A day as "27 Oct" (or "Oct 27") in the user's date style. */
-const dayText = (day: string, long = false) =>
-  new Intl.DateTimeFormat(dateLocale(), {
-    day: 'numeric',
-    month: long ? 'long' : 'short',
-    ...(long && { year: 'numeric' }),
-    timeZone: 'UTC',
-  }).format(Date.parse(`${day}T00:00:00Z`))
-
-const weekdayText = (day: string) =>
-  new Intl.DateTimeFormat(dateLocale(), {
-    weekday: 'short',
-    timeZone: 'UTC',
-  }).format(Date.parse(`${day}T00:00:00Z`))
 
 /**
  * Calendar view: rows on the day of a Date column, as a month or a week.

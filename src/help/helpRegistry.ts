@@ -25,6 +25,13 @@ export const TIPS = {
   'bar.newLine': { where: 'Page › docked formatting bar › ↵ New line' },
   'bar.more': { where: 'Page › docked formatting bar › More' },
   'bar.menu': { where: 'Page › docked formatting bar › ⋯ Toolbar menu' },
+  'bar.set': { where: 'Page › short bar › Write · Draw · Read switch' },
+  'bar.keep': { where: 'Page › short bar › pin next to the switch' },
+  'bar.allTools': { where: 'Page › short bar › All tools' },
+  'bar.search': { where: 'Page › short bar › search icon' },
+  'sidebar.calendar': { where: 'Sidebar › Calendar' },
+  'sidebar.favourites': { where: 'Sidebar › Favourites heading' },
+  'sidebar.recent': { where: 'Sidebar › Recent heading' },
   'tracker.lesson': { where: 'Study tracker › Lesson column header' },
   'tracker.status': { where: 'Study tracker › Status column header' },
   'tracker.status.notStarted': {

@@ -3,6 +3,7 @@ import { t } from '../i18n/t'
 import { useLiveQuery } from 'dexie-react-hooks'
 import { useState, type ReactNode } from 'react'
 import { runTask } from '../app/errors'
+import { favourites, toggleFavourite } from '../app/favourites'
 import { IconButton, RenameInput } from '../app/ui'
 import type { TreeState } from '../app/useTreeState'
 import type { LearningNotesDB } from '../core/db'
@@ -43,6 +44,7 @@ export function PageTree({
     [db, notebookId],
   )
   const [renamingId, setRenamingId] = useState<string | null>(null)
+  const starred = favourites.useValue()
   if (!pages) return null
 
   // The open page and the pages above it, worked out once per draw.
@@ -135,6 +137,17 @@ export function PageTree({
                   }
                 >
                   +
+                </IconButton>
+              )}
+              {!rootId && (
+                <IconButton
+                  aria-label={t(
+                    starred.includes(page.id) ? 'fav.remove' : 'fav.add',
+                  )}
+                  aria-pressed={starred.includes(page.id)}
+                  onClick={() => toggleFavourite(page.id)}
+                >
+                  {starred.includes(page.id) ? '★' : '☆'}
                 </IconButton>
               )}
               <IconButton

@@ -2,7 +2,7 @@
 
 Every hover tip and help line in the app (shown while Settings › Show help is On). Generated from `src/help/helpRegistry.ts` and `src/i18n/en.ts`; to change a text, edit it in `en.ts`, then run `UPDATE_HELP=1 npx vitest run src/help` to refresh this file.
 
-## Hover tips (110)
+## Hover tips (117)
 
 ### `bar.newLine`
 
@@ -21,6 +21,48 @@ Every hover tip and help line in the app (shown while Settings › Show help is 
 - **Where:** Page › docked formatting bar › ⋯ Toolbar menu
 - **Meaning:** Every formatting tool and action, even unpinned ones, plus copy, paste and Edit bar.
 - **Example:** Copy as Markdown, Paste as plain text, Strikethrough.
+
+### `bar.set`
+
+- **Where:** Page › short bar › Write · Draw · Read switch
+- **Meaning:** Picks which tools the bar shows. It changes by itself when you use a pen or type.
+- **Example:** Touch the screen with the Pencil and Draw tools appear.
+
+### `bar.keep`
+
+- **Where:** Page › short bar › pin next to the switch
+- **Meaning:** Stops the bar from switching sets by itself. You can still switch with a tap.
+- **Example:** Keep Write on while you take notes with a stylus nearby.
+
+### `bar.allTools`
+
+- **Where:** Page › short bar › All tools
+- **Meaning:** Shows every tool and action in a menu.
+- **Example:** Copy as Markdown, Paste as plain text, Edit bar.
+
+### `bar.search`
+
+- **Where:** Page › short bar › search icon
+- **Meaning:** Search every feature and setting in the app, and run it.
+- **Example:** Type “lock” or “font” and press Enter.
+
+### `sidebar.calendar`
+
+- **Where:** Sidebar › Calendar
+- **Meaning:** Every dated row of your databases and every journal day, by month or week.
+- **Example:** See what is due this week next to your journal.
+
+### `sidebar.favourites`
+
+- **Where:** Sidebar › Favourites heading
+- **Meaning:** Pages you starred, always one tap away.
+- **Example:** Star the page you open every day.
+
+### `sidebar.recent`
+
+- **Where:** Sidebar › Recent heading
+- **Meaning:** The last pages you opened on this device.
+- **Example:** Jump back to what you were reading.
 
 ### `tracker.lesson`
 

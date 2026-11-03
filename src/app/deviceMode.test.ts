@@ -125,10 +125,12 @@ describe('pin, unpin, reorder, reset', () => {
     expect(DEFAULT_PINNED).toEqual([
       'bold',
       'italic',
-      'underline',
-      'mark:key',
-      'card',
-      'newLine',
+      'color',
+      'highlight',
+      'bulletList',
+      'checklist',
+      'picture',
+      'more',
     ])
   })
 })

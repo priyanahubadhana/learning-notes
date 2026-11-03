@@ -151,7 +151,7 @@ export function MenuPopover({
         left: Math.min(anchor.left, window.innerWidth - 230),
         top: Math.min(anchor.bottom + 6, window.innerHeight - 110),
       }}
-      className="fixed z-20 w-52 rounded-[10px] border border-line bg-bg p-1.5 text-ink shadow-[0_12px_32px_rgba(0,0,0,0.14)]"
+      className="fixed z-50 w-52 rounded-[10px] border border-line bg-bg p-1.5 text-ink shadow-[0_12px_32px_rgba(0,0,0,0.14)]"
     >
       {items.map((item) => (
         <button

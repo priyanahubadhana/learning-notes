@@ -41,11 +41,14 @@ const tray = (page: Page) => page.locator('[data-bar="tray"]')
 /** Names of the buttons on the bar, left to right. */
 const barNames = (page: Page) =>
   bar(page)
-    .locator('[data-bar-btn][data-action], [data-action]')
+    .locator('button[data-action]')
     .evaluateAll((els) =>
       els
         .map((el) => el.getAttribute('data-action'))
-        .filter((a): a is string => !!a && a !== 'toolbarMenu'),
+        .filter(
+          (a): a is string =>
+            !!a && !['toolbarMenu', 'allTools', 'controlPanel'].includes(a),
+        ),
     )
 
 async function openPage(page: Page, mode?: 'computer' | 'touch' | 'pencil') {
@@ -71,11 +74,12 @@ test.describe('Touch (a tablet-sized touch screen)', () => {
     for (const name of [
       'Bold',
       'Italic',
-      'Underline',
-      'Key point',
-      'Make card',
-      'New line',
+      'Highlight',
+      'Bulleted list',
+      'Checklist',
+      'Picture',
       'More',
+      'All tools',
       'Done',
     ]) {
       await expect(
@@ -101,7 +105,10 @@ test.describe('Touch (a tablet-sized touch screen)', () => {
     await dockedBar(page).getByRole('button', { name: 'Bold' }).click()
     await expect(page.locator('.bn-editor strong')).toHaveText('first')
     await selectText(page, 'heart')
-    await dockedBar(page).getByRole('button', { name: 'Key point' }).click()
+    await dockedBar(page).getByRole('button', { name: /^More/ }).click()
+    await tray(page)
+      .getByRole('button', { name: /^Key point/ })
+      .click()
     await expect(page.locator('.bn-editor [data-mark]')).toContainText('heart')
   })
 
@@ -141,17 +148,19 @@ test.describe('Touch (a tablet-sized touch screen)', () => {
     await edit()
     await panel().getByRole('checkbox', { name: 'Italic' }).uncheck()
     await panel().getByRole('checkbox', { name: 'Strike' }).check()
-    for (let i = 0; i < 4; i++) {
+    for (let i = 0; i < 6; i++) {
       await panel().getByRole('button', { name: 'Move Strike earlier' }).click()
     }
     await panel().getByRole('button', { name: 'Done' }).click()
     expect(await barNames(page)).toEqual([
       'bold',
       'strike',
-      'underline',
-      'mark:key',
-      'card',
-      'newLine',
+      'color',
+      'highlight',
+      'bulletList',
+      'checklist',
+      'picture',
+      'more',
     ])
 
     await page.reload()
@@ -159,15 +168,17 @@ test.describe('Touch (a tablet-sized touch screen)', () => {
     expect(await barNames(page)).toEqual([
       'bold',
       'strike',
-      'underline',
-      'mark:key',
-      'card',
-      'newLine',
+      'color',
+      'highlight',
+      'bulletList',
+      'checklist',
+      'picture',
+      'more',
     ])
 
     // Size, position and auto-hide are in the same panel.
     await edit()
-    await panel().getByLabel('Size').selectOption('large')
+    await panel().getByRole('combobox', { name: /^Size/ }).selectOption('large')
     await expect
       .poll(
         async () =>
@@ -182,20 +193,24 @@ test.describe('Touch (a tablet-sized touch screen)', () => {
     expect(await barNames(page)).toEqual([
       'bold',
       'italic',
-      'underline',
-      'mark:key',
-      'card',
-      'newLine',
+      'color',
+      'highlight',
+      'bulletList',
+      'checklist',
+      'picture',
+      'more',
     ])
     await page.reload()
     await expect(dockedBar(page)).toBeVisible()
     expect(await barNames(page)).toEqual([
       'bold',
       'italic',
-      'underline',
-      'mark:key',
-      'card',
-      'newLine',
+      'color',
+      'highlight',
+      'bulletList',
+      'checklist',
+      'picture',
+      'more',
     ])
     expect(
       (await bar(page)
@@ -211,7 +226,7 @@ test.describe('Touch (a tablet-sized touch screen)', () => {
       .getByRole('button', { name: /^Edit bar/ })
       .click()
     const handle = tray(page).getByRole('button', {
-      name: 'Drag Underline to reorder',
+      name: 'Drag Highlight to reorder',
     })
     const target = tray(page).locator('[data-edit-row="bold"]')
     const from = (await handle.boundingBox())!
@@ -222,7 +237,7 @@ test.describe('Touch (a tablet-sized touch screen)', () => {
     await page.mouse.up()
     await tray(page).getByRole('button', { name: 'Done' }).click()
     expect((await barNames(page)).slice(0, 3)).toEqual([
-      'underline',
+      'highlight',
       'bold',
       'italic',
     ])
@@ -247,6 +262,13 @@ test.describe('Touch (a tablet-sized touch screen)', () => {
   })
 
   test('New line and tapping below add a paragraph', async ({ page }) => {
+    // New line is not on the bar from the start: put it there first.
+    await page.addInitScript(() =>
+      localStorage.setItem(
+        'learning-notes:formatBar.pinned',
+        JSON.stringify(['bold', 'newLine']),
+      ),
+    )
     await openPage(page)
     const lines = page.locator(
       '.bn-block-content[data-content-type="paragraph"]',

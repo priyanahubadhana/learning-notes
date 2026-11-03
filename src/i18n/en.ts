@@ -2037,4 +2037,15 @@ export const en = {
   'help.tip.sidebar.recent.meaning':
     'The last pages you opened on this device.',
   'help.tip.sidebar.recent.example': 'Jump back to what you were reading.',
+  'ribbon.label': 'Tool tabs',
+  'ribbon.close': 'Tools close after use',
+  'ribbon.stay': 'Tools stay open',
+  'ribbon.shortBar': 'Short bar',
+  'ribbon.stayOn': 'Tools stay open',
+  'ribbon.stayOff': 'Tools close after use',
+  'bar.editTabs': 'Ribbon tabs to show',
+  'help.tip.ribbon.behaviour.meaning':
+    'Choose whether the tools close after you use one, or stay open.',
+  'help.tip.ribbon.behaviour.example':
+    'Keep them open while you format a whole page. Ctrl+F1 switches.',
 } as const

@@ -13,10 +13,13 @@ import {
   BAR_SETS,
   DEFAULT_SET_TOOLS,
   activeSet,
+  hiddenTabs,
+  visibleTabs,
   writeSetTools,
   useSetTools,
   type BarSet,
 } from '../app/tools/toolbarState'
+import { TABS } from '../app/tools/tabs'
 import {
   allTools,
   findTool,
@@ -66,6 +69,8 @@ export function EditBarPanel({
   const [placement, setPlacement] = useDeviceSetting(barPlacementSetting)
   const [autoHide, setAutoHide] = useDeviceSetting(barAutoHideSetting)
   const dragging = useRef<string | null>(null)
+  const hidden = hiddenTabs.useValue()
+  const shownTabs = visibleTabs(hidden)
 
   const known = [...allActionIds(), ...allTools().map((tool) => tool.id)]
   const pinned = keepKnown(listed, known)
@@ -210,6 +215,35 @@ export function EditBarPanel({
           ))}
         </>
       )}
+      <hr className="my-1 border-line" />
+      <fieldset className="px-2">
+        <legend className="pb-0.5 text-xs text-ink-soft">
+          {t('bar.editTabs')}
+        </legend>
+        <div className="flex flex-wrap gap-x-3">
+          {TABS.map((tab) => (
+            <label
+              key={tab}
+              className="flex min-h-11 items-center gap-2 text-sm"
+            >
+              <input
+                type="checkbox"
+                className="size-5"
+                checked={shownTabs.includes(tab)}
+                disabled={shownTabs.length === 1 && shownTabs.includes(tab)}
+                onChange={(e) =>
+                  hiddenTabs.set(
+                    e.target.checked
+                      ? hidden.filter((x) => x !== tab)
+                      : [...hidden, tab],
+                  )
+                }
+              />
+              {tabLabel(tab)}
+            </label>
+          ))}
+        </div>
+      </fieldset>
       <hr className="my-1 border-line" />
       <label className="flex min-h-11 items-center justify-between gap-3 px-2 text-sm">
         {t('bar.size')}

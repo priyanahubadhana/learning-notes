@@ -14,7 +14,7 @@ import {
 import { runEditorCommand } from './editorCommands'
 import type { IconName } from './icons'
 import { currentRunner, type Runner } from './toolRuntime'
-import { stayOpen } from './toolbarState'
+import { toggleRibbonBehaviour } from './toolbarState'
 import { TABS, type TabId } from './tabs'
 
 /**
@@ -420,7 +420,7 @@ export const TOOLS: readonly ToolDef[] = [
     section: 'view',
     group: 'bar',
     shortcut: () => (isApple() ? '⌘F1' : 'Ctrl+F1'),
-    run: () => stayOpen.set(!stayOpen.get()),
+    run: () => void toggleRibbonBehaviour(),
   },
 
   // ---- Review ----

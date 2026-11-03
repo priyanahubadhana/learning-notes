@@ -28,6 +28,9 @@ export const TIPS = {
   'bar.set': { where: 'Page › short bar › Write · Draw · Read switch' },
   'bar.keep': { where: 'Page › short bar › pin next to the switch' },
   'bar.allTools': { where: 'Page › short bar › All tools' },
+  'ribbon.behaviour': {
+    where: 'Page › ribbon › Tools close after use / stay open',
+  },
   'bar.search': { where: 'Page › short bar › search icon' },
   'sidebar.calendar': { where: 'Sidebar › Calendar' },
   'sidebar.favourites': { where: 'Sidebar › Favourites heading' },

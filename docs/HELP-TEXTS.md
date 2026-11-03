@@ -2,7 +2,7 @@
 
 Every hover tip and help line in the app (shown while Settings › Show help is On). Generated from `src/help/helpRegistry.ts` and `src/i18n/en.ts`; to change a text, edit it in `en.ts`, then run `UPDATE_HELP=1 npx vitest run src/help` to refresh this file.
 
-## Hover tips (117)
+## Hover tips (118)
 
 ### `bar.newLine`
 
@@ -39,6 +39,12 @@ Every hover tip and help line in the app (shown while Settings › Show help is 
 - **Where:** Page › short bar › All tools
 - **Meaning:** Shows every tool and action in a menu.
 - **Example:** Copy as Markdown, Paste as plain text, Edit bar.
+
+### `ribbon.behaviour`
+
+- **Where:** Page › ribbon › Tools close after use / stay open
+- **Meaning:** Choose whether the tools close after you use one, or stay open.
+- **Example:** Keep them open while you format a whole page. Ctrl+F1 switches.
 
 ### `bar.search`
 

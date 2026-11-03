@@ -34,7 +34,16 @@ import { keepKnown } from '../app/deviceMode'
 import { Icon } from '../app/tools/icons'
 import { SetSwitch } from '../app/tools/SetSwitch'
 import { ToolButton } from '../app/tools/ToolButton'
-import { activeSet, useSetTools } from '../app/tools/toolbarState'
+import { Ribbon } from '../app/tools/Ribbon'
+import {
+  activeSet,
+  ribbonExpanded,
+  ribbonOpen,
+  ribbonTab,
+  tabForSet,
+  toggleRibbonBehaviour,
+  useSetTools,
+} from '../app/tools/toolbarState'
 import { allTools, findTool } from '../app/tools/toolRegistry'
 import { getAppActions, setBarUi } from '../app/tools/toolRuntime'
 import { useAutoBarSet } from '../app/tools/useAutoBarSet'
@@ -97,6 +106,7 @@ function Bar({ editor }: { editor: Editor }) {
   const bottom = placement === 'bottom'
   const actions = useBarActions(editor)
   const set = activeSet.useValue()
+  const ribbon = ribbonOpen.useValue()
   const listed = useSetTools(set)
   const known = [...allActionIds(), ...allTools().map((tool) => tool.id)]
   const onSet = keepKnown(listed, known)
@@ -109,6 +119,26 @@ function Bar({ editor }: { editor: Editor }) {
   const wrapper = useRef<HTMLDivElement>(null)
   const isActive = useToolActive(editor)
   useAutoBarSet()
+
+  // Ctrl/Cmd+F1: "Tools close after use" or "Tools stay open".
+  useEffect(() => {
+    const onKey = (e: globalThis.KeyboardEvent) => {
+      if (e.key !== 'F1' || !(e.ctrlKey || e.metaKey)) return
+      e.preventDefault()
+      const stay = toggleRibbonBehaviour()
+      getAppActions()?.toast(t(stay ? 'ribbon.stayOn' : 'ribbon.stayOff'))
+    }
+    window.addEventListener('keydown', onKey)
+    return () => window.removeEventListener('keydown', onKey)
+  }, [])
+
+  // "All tools": the ribbon opens on the tab of the set showing.
+  const openRibbon = () => {
+    ribbonTab.set(tabForSet(set))
+    ribbonExpanded.set(true)
+    ribbonOpen.set(true)
+    setPanel(null)
+  }
 
   // Tools run by the ribbon or the control panel can open a tray.
   useEffect(() => {
@@ -293,91 +323,105 @@ function Bar({ editor }: { editor: Editor }) {
         role="toolbar"
         aria-label={t('bar.label')}
         onKeyDown={arrowKeys}
-        className="mx-3 my-1.5 grid grid-cols-[auto_minmax(0,1fr)_auto_auto] items-center gap-x-1.5 gap-y-0.5 rounded-2xl border border-line bg-bg px-1.5 py-1 shadow-[0_1px_2px_rgba(0,0,0,0.05),0_6px_18px_rgba(0,0,0,0.07)] supports-[backdrop-filter]:bg-bg/80 supports-[backdrop-filter]:backdrop-blur-xl phone:grid-cols-[auto_minmax(0,1fr)_auto]"
+        className={`mx-3 my-1.5 items-center rounded-2xl border border-line bg-bg px-1.5 py-1 shadow-[0_1px_2px_rgba(0,0,0,0.05),0_6px_18px_rgba(0,0,0,0.07)] supports-[backdrop-filter]:bg-bg/80 supports-[backdrop-filter]:backdrop-blur-xl ${
+          ribbon
+            ? ''
+            : 'grid grid-cols-[auto_minmax(0,1fr)_auto_auto] gap-x-1.5 gap-y-0.5 phone:grid-cols-[auto_minmax(0,1fr)_auto]'
+        }`}
       >
-        <div className="col-start-1 row-start-1">
-          <SetSwitch px={buttonPx} />
-        </div>
-        <div
-          data-slot="tools"
-          // Scrolls sideways on a narrow screen; the end buttons stay in view.
-          className="col-start-2 flex min-w-0 items-center gap-1 overflow-x-auto phone:col-span-2 phone:col-start-1 phone:row-start-2"
-          style={{ scrollbarWidth: 'none' }}
-        >
-          {onSet.map(buttonFor)}
-        </div>
-        <div className="col-start-3 flex items-center gap-1 phone:row-start-1">
-          <Tip id="bar.allTools" touchInfo={false}>
-            <button
-              type="button"
-              data-bar-btn
-              data-action="allTools"
-              aria-expanded={panel === 'menu'}
-              aria-haspopup="true"
-              onMouseDown={keepFocus}
-              onClick={() => setPanel(panel === 'menu' ? null : 'menu')}
-              style={{ minHeight: Math.max(buttonPx, 44) }}
-              className={`${END_BUTTON} bg-hover px-3 text-sm font-medium !text-ink`}
+        {ribbon ? (
+          <Ribbon
+            px={buttonPx}
+            activeOf={(id) => byId.get(id)?.active ?? isActive(id)}
+            tip={hoverTips}
+            hint={shortcutHints}
+          />
+        ) : (
+          <>
+            <div className="col-start-1 row-start-1">
+              <SetSwitch px={buttonPx} />
+            </div>
+            <div
+              data-slot="tools"
+              // Scrolls sideways on a narrow screen; the end buttons stay in view.
+              className="col-start-2 flex min-w-0 items-center gap-1 overflow-x-auto phone:col-span-2 phone:col-start-1 phone:row-start-2"
+              style={{ scrollbarWidth: 'none' }}
             >
-              <Icon name="layoutGrid" size={18} />
-              {t('bar.allTools')}
-            </button>
-          </Tip>
-          <Tip id="bar.search" touchInfo={false}>
-            <button
-              type="button"
-              data-bar-btn
-              data-action="controlPanel"
-              aria-label={t('bar.search')}
-              title={t('bar.search')}
-              onMouseDown={keepFocus}
-              onClick={() => getAppActions()?.openControlPanel()}
-              style={{
-                minHeight: Math.max(buttonPx, 44),
-                minWidth: Math.max(buttonPx, 44),
-              }}
-              className={END_BUTTON}
-            >
-              <Icon name="search" />
-            </button>
-          </Tip>
-        </div>
-        <div className="col-start-4 flex items-center gap-1 phone:col-start-3 phone:row-start-2">
-          <Tip id="bar.menu" touchInfo={false}>
-            <button
-              ref={menuButton}
-              type="button"
-              data-bar-btn
-              data-action="toolbarMenu"
-              aria-label={t('bar.menu')}
-              title={hoverTips ? t('bar.menu') : undefined}
-              aria-expanded={panel === 'menu'}
-              aria-haspopup="true"
-              onMouseDown={keepFocus}
-              onClick={() => setPanel(panel === 'menu' ? null : 'menu')}
-              style={{
-                minHeight: Math.max(buttonPx, 44),
-                minWidth: Math.max(buttonPx, 44),
-              }}
-              className={END_BUTTON}
-            >
-              <Icon name="more" />
-            </button>
-          </Tip>
-          <button
-            type="button"
-            data-bar-btn
-            onMouseDown={keepFocus}
-            onClick={done}
-            style={{
-              minHeight: Math.max(buttonPx, 44),
-              minWidth: Math.max(buttonPx, 44),
-            }}
-            className="shrink-0 rounded-xl px-2.5 text-sm font-semibold whitespace-nowrap text-ink hover:bg-hover"
-          >
-            {t('bar.done')}
-          </button>
-        </div>
+              {onSet.map(buttonFor)}
+            </div>
+            <div className="col-start-3 flex items-center gap-1 phone:row-start-1">
+              <Tip id="bar.allTools" touchInfo={false}>
+                <button
+                  type="button"
+                  data-bar-btn
+                  data-action="allTools"
+                  aria-expanded={ribbon}
+                  onMouseDown={keepFocus}
+                  onClick={openRibbon}
+                  style={{ minHeight: Math.max(buttonPx, 44) }}
+                  className={`${END_BUTTON} bg-hover px-3 text-sm font-medium !text-ink`}
+                >
+                  <Icon name="layoutGrid" size={18} />
+                  {t('bar.allTools')}
+                </button>
+              </Tip>
+              <Tip id="bar.search" touchInfo={false}>
+                <button
+                  type="button"
+                  data-bar-btn
+                  data-action="controlPanel"
+                  aria-label={t('bar.search')}
+                  title={t('bar.search')}
+                  onMouseDown={keepFocus}
+                  onClick={() => getAppActions()?.openControlPanel()}
+                  style={{
+                    minHeight: Math.max(buttonPx, 44),
+                    minWidth: Math.max(buttonPx, 44),
+                  }}
+                  className={END_BUTTON}
+                >
+                  <Icon name="search" />
+                </button>
+              </Tip>
+            </div>
+            <div className="col-start-4 flex items-center gap-1 phone:col-start-3 phone:row-start-2">
+              <Tip id="bar.menu" touchInfo={false}>
+                <button
+                  ref={menuButton}
+                  type="button"
+                  data-bar-btn
+                  data-action="toolbarMenu"
+                  aria-label={t('bar.menu')}
+                  title={hoverTips ? t('bar.menu') : undefined}
+                  aria-expanded={panel === 'menu'}
+                  aria-haspopup="true"
+                  onMouseDown={keepFocus}
+                  onClick={() => setPanel(panel === 'menu' ? null : 'menu')}
+                  style={{
+                    minHeight: Math.max(buttonPx, 44),
+                    minWidth: Math.max(buttonPx, 44),
+                  }}
+                  className={END_BUTTON}
+                >
+                  <Icon name="more" />
+                </button>
+              </Tip>
+              <button
+                type="button"
+                data-bar-btn
+                onMouseDown={keepFocus}
+                onClick={done}
+                style={{
+                  minHeight: Math.max(buttonPx, 44),
+                  minWidth: Math.max(buttonPx, 44),
+                }}
+                className="shrink-0 rounded-xl px-2.5 text-sm font-semibold whitespace-nowrap text-ink hover:bg-hover"
+              >
+                {t('bar.done')}
+              </button>
+            </div>
+          </>
+        )}
       </div>
 
       {panel === 'more' && (

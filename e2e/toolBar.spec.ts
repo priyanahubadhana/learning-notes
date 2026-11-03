@@ -293,12 +293,6 @@ test('More still holds the text style menu and Edit bar', async ({ page }) => {
   await expect(tray(page).getByText('Strike').first()).toBeVisible()
 })
 
-test('All tools opens the Toolbar menu in step 1', async ({ page }) => {
-  await openPage(page)
-  await tool(page, 'All tools').click()
-  await expect(page.getByRole('group', { name: 'Toolbar menu' })).toBeVisible()
-})
-
 for (const theme of ['day', 'night', 'sepia'] as const) {
   test(`${theme}: icons and the switch are readable, targets are 44 px`, async ({
     page,

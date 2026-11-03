@@ -8,7 +8,11 @@ import {
   keepSet,
   readSetTools,
   resetToolbarState,
+  ribbonExpanded,
+  ribbonOpen,
   ribbonTab,
+  stayOpen,
+  toggleRibbonBehaviour,
   tabForSet,
   visibleTabs,
   writeSetTools,
@@ -74,5 +78,16 @@ describe('tool sets', () => {
       'review',
     ])
     expect(visibleTabs([...TABS])).toEqual([...TABS])
+  })
+
+  it('Ctrl+F1 switches between "close after use" and "stay open"', () => {
+    expect(stayOpen.get()).toBe(false)
+    expect(toggleRibbonBehaviour()).toBe(true)
+    expect(ribbonOpen.get()).toBe(true)
+    expect(ribbonExpanded.get()).toBe(true)
+    stayOpen.clearCache()
+    expect(stayOpen.get()).toBe(true) // remembered on this device
+    expect(toggleRibbonBehaviour()).toBe(false)
+    expect(ribbonExpanded.get()).toBe(false)
   })
 })

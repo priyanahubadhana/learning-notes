@@ -476,4 +476,15 @@ export const hi7: Record<string, string> = {
     'जो पृष्ठ आप रोज़ खोलते हैं, उस पर तारा लगाएँ।',
   'help.tip.sidebar.recent.meaning': 'इस डिवाइस पर आपके खोले आख़िरी पृष्ठ।',
   'help.tip.sidebar.recent.example': 'जो पढ़ रहे थे, वहीं वापस पहुँचें।',
+  'ribbon.label': 'टूल के टैब',
+  'ribbon.close': 'उपयोग के बाद टूल बंद हों',
+  'ribbon.stay': 'टूल खुले रहें',
+  'ribbon.shortBar': 'छोटा बार',
+  'ribbon.stayOn': 'टूल खुले रहेंगे',
+  'ribbon.stayOff': 'उपयोग के बाद टूल बंद होंगे',
+  'bar.editTabs': 'दिखाने वाले रिबन टैब',
+  'help.tip.ribbon.behaviour.meaning':
+    'चुनें कि कोई टूल इस्तेमाल करने के बाद टूल बंद हों या खुले रहें।',
+  'help.tip.ribbon.behaviour.example':
+    'पूरा पृष्ठ फ़ॉर्मैट करते समय उन्हें खुला रखें। Ctrl+F1 से बदलें।',
 }

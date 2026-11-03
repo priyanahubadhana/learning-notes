@@ -133,3 +133,15 @@ export function changeSet(set: BarSet, how: 'auto' | 'user'): boolean {
   ribbonTab.set(tabForSet(set))
   return true
 }
+
+/**
+ * Switches between "Tools close after use" and "Tools stay open" (Ctrl/Cmd+F1,
+ * the ribbon button, View › Keep tools open). The ribbon opens if needed.
+ */
+export function toggleRibbonBehaviour(): boolean {
+  const next = !stayOpen.get()
+  stayOpen.set(next)
+  ribbonOpen.set(true)
+  ribbonExpanded.set(next)
+  return next
+}

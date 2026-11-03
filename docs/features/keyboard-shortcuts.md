@@ -18,6 +18,8 @@ Fast, full keyboard use on PC, Mac and iPad keyboards.
 | `Ctrl+K` (`⌘K` on Mac)                        | Search pages and notes                |
 | `Ctrl+Shift+K` (`⌘⇧K` on Mac)                 | Search all features (control panel)   |
 | Control panel: `↑` `↓` / `Enter` / `Esc`      | Move / run / close                    |
+| `Ctrl+F1` (`⌘F1` on Mac)                      | Ribbon: tools stay open / close       |
+| Ribbon tabs: `←` `→` `Home` `End` / `Enter`   | Move / open the tab’s tools           |
 | Short bar: `←` `→`                            | Move between buttons (and the switch) |
 | Search popup: `↑` `↓` / `Enter` / `Esc`       | Move / open / close                   |
 | Review: `Space` or `Enter`                    | Show answer                           |

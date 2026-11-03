@@ -493,4 +493,15 @@ export const es7: Record<string, string> = {
   'help.tip.sidebar.recent.meaning':
     'Las últimas páginas que abriste en este dispositivo.',
   'help.tip.sidebar.recent.example': 'Vuelve a lo que estabas leyendo.',
+  'ribbon.label': 'Pestañas de herramientas',
+  'ribbon.close': 'Las herramientas se cierran tras usarlas',
+  'ribbon.stay': 'Las herramientas siguen abiertas',
+  'ribbon.shortBar': 'Barra corta',
+  'ribbon.stayOn': 'Las herramientas seguirán abiertas',
+  'ribbon.stayOff': 'Las herramientas se cerrarán tras usarlas',
+  'bar.editTabs': 'Pestañas de la cinta que mostrar',
+  'help.tip.ribbon.behaviour.meaning':
+    'Elige si las herramientas se cierran al usar una o siguen abiertas.',
+  'help.tip.ribbon.behaviour.example':
+    'Déjalas abiertas mientras das formato a toda la página. Ctrl+F1 cambia.',
 }

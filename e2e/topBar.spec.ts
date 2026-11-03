@@ -115,8 +115,9 @@ test.describe('phone and tablet', () => {
     expect(box.x).toBeGreaterThanOrEqual(0)
     expect(box.x + box.width).toBeLessThanOrEqual(390)
     expect(box.y + box.height).toBeLessThanOrEqual(844)
-    // The six old items and the two "Switch to … mode" items.
-    await expect(page.getByRole('menuitem')).toHaveCount(8)
+    // The six old items, the two "Switch to … mode" items and the four
+    // copy and paste items.
+    await expect(page.getByRole('menuitem')).toHaveCount(12)
 
     await page.getByRole('menuitem', { name: /Save & restore/ }).tap()
     await expect(

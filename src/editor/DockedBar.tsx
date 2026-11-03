@@ -1,6 +1,5 @@
 import {
   BlockTypeSelect,
-  ColorStyleButton,
   CreateLinkButton,
   FileCaptionButton,
   FileDeleteButton,
@@ -13,13 +12,17 @@ import {
   useEditorFocus,
 } from '@blocknote/react'
 import {
+  useContext,
   useEffect,
+  useLayoutEffect,
   useRef,
   useState,
   type KeyboardEvent,
   type ReactNode,
 } from 'react'
 import { createPortal } from 'react-dom'
+import { AppUiContext } from '../app/appUi'
+import { isApple } from '../app/keys'
 import { Tip } from '../help/Help'
 import { t } from '../i18n/t'
 import {
@@ -37,6 +40,12 @@ import {
   type Editor,
 } from './barActions'
 import { clearSelection } from './lineActions'
+import { ColorButton, ColorPanel } from './ColorPicker'
+import {
+  copyAs,
+  copyPageWithPictures,
+  pastePlainFromClipboard,
+} from './clipboard'
 
 /**
  * The formatting bar for touch screens and the Pencil: docked under the top
@@ -62,7 +71,11 @@ function Bar({ editor }: { editor: Editor }) {
   const actions = useBarActions(editor)
   const pinned = keepKnown(usePinned(), allActionIds())
   const inset = useKeyboardInset()
-  const [panel, setPanel] = useState<'more' | 'edit' | null>(null)
+  const [panel, setPanel] = useState<'more' | 'menu' | 'color' | 'edit' | null>(
+    null,
+  )
+  const { toast } = useContext(AppUiContext)
+  const menuButton = useRef<HTMLButtonElement>(null)
   const [focusInBar, setFocusInBar] = useState(false)
   const editorFocused = useEditorFocus()
   const wrapper = useRef<HTMLDivElement>(null)
@@ -73,6 +86,23 @@ function Bar({ editor }: { editor: Editor }) {
   const selecting = editor.getSelectedText().length > 0
   const shown =
     !autoHide || editorFocused || focusInBar || selecting || panel !== null
+
+  // The sticky section chips of a long page sit just below a top bar: while
+  // the bar is there, its height is shared as --dock-top.
+  useLayoutEffect(() => {
+    const el = wrapper.current
+    const root = document.documentElement
+    if (!el || bottom) return
+    const apply = () =>
+      root.style.setProperty('--dock-top', el.offsetHeight + 'px')
+    apply()
+    const watch = new ResizeObserver(apply)
+    watch.observe(el)
+    return () => {
+      watch.disconnect()
+      root.style.removeProperty('--dock-top')
+    }
+  }, [bottom])
 
   // The open tray closes on Esc or a tap anywhere else.
   useEffect(() => {
@@ -87,7 +117,9 @@ function Bar({ editor }: { editor: Editor }) {
       setPanel(null)
     }
     const onKey = (e: globalThis.KeyboardEvent) => {
-      if (e.key === 'Escape') setPanel(null)
+      if (e.key !== 'Escape') return
+      setPanel(null)
+      if (panel === 'menu') menuButton.current?.focus()
     }
     document.addEventListener('pointerdown', close, true)
     document.addEventListener('keydown', onKey)
@@ -183,7 +215,13 @@ function Bar({ editor }: { editor: Editor }) {
           {onBar.map((action) => (
             <BarSlot key={action.id} action={action}>
               {action.special ? (
-                <SpecialButton action={action} />
+                <SpecialButton
+                  action={action}
+                  editor={editor}
+                  px={buttonPx}
+                  colorOpen={panel === 'color'}
+                  onColor={() => setPanel(panel === 'color' ? null : 'color')}
+                />
               ) : (
                 <BarButton
                   action={action}
@@ -195,6 +233,24 @@ function Bar({ editor }: { editor: Editor }) {
             </BarSlot>
           ))}
         </div>
+        <Tip id="bar.menu" touchInfo={false}>
+          <button
+            ref={menuButton}
+            type="button"
+            data-bar-btn
+            data-action="toolbarMenu"
+            aria-label={t('bar.menu')}
+            title={hoverTips ? t('bar.menu') : undefined}
+            aria-expanded={panel === 'menu'}
+            aria-haspopup="true"
+            onMouseDown={keepFocus}
+            onClick={() => setPanel(panel === 'menu' ? null : 'menu')}
+            style={{ minHeight: buttonPx, minWidth: buttonPx }}
+            className="shrink-0 rounded-lg px-2.5 text-lg leading-none hover:bg-hover"
+          >
+            <span aria-hidden>⋯</span>
+          </button>
+        </Tip>
         <Tip id="bar.more" touchInfo={false}>
           <button
             type="button"
@@ -229,6 +285,7 @@ function Bar({ editor }: { editor: Editor }) {
               action={action}
               px={buttonPx}
               hint={shortcutHints}
+              onColor={() => setPanel('color')}
             />
           ))}
           <div
@@ -252,6 +309,66 @@ function Bar({ editor }: { editor: Editor }) {
           >
             {t('bar.edit')}
           </button>
+        </Tray>
+      )}
+      {panel === 'color' && (
+        <Tray bottom={bottom} wide>
+          <ColorPanel editor={editor} px={buttonPx} />
+        </Tray>
+      )}
+      {panel === 'menu' && (
+        <Tray bottom={bottom} label={t('bar.menu')} focusFirst>
+          {actions.map((action) => (
+            <MoreRow
+              key={action.id}
+              action={action}
+              px={buttonPx}
+              hint={shortcutHints}
+              onColor={() => setPanel('color')}
+            />
+          ))}
+          <hr className="my-1 border-line" />
+          <MenuItem
+            px={buttonPx}
+            onClick={() => {
+              void copyAs(editor, 'plain', toast)
+              setPanel(null)
+            }}
+          >
+            {t('copy.plain')}
+          </MenuItem>
+          <MenuItem
+            px={buttonPx}
+            onClick={() => {
+              void copyAs(editor, 'markdown', toast)
+              setPanel(null)
+            }}
+          >
+            {t('copy.markdown')}
+          </MenuItem>
+          <MenuItem
+            px={buttonPx}
+            hint={isApple() ? '⌘⇧V' : 'Ctrl+Shift+V'}
+            onClick={() => {
+              void pastePlainFromClipboard(editor, toast)
+              setPanel(null)
+            }}
+          >
+            {t('paste.plain')}
+          </MenuItem>
+          <MenuItem
+            px={buttonPx}
+            onClick={() => {
+              void copyPageWithPictures(editor, toast)
+              setPanel(null)
+            }}
+          >
+            {t('copy.pictures')}
+          </MenuItem>
+          <hr className="my-1 border-line" />
+          <MenuItem px={buttonPx} accent onClick={() => setPanel('edit')}>
+            {t('bar.edit')}
+          </MenuItem>
         </Tray>
       )}
       {panel === 'edit' && (
@@ -325,12 +442,63 @@ function BarButton({
   )
 }
 
-/** BlockNote's own colour and link buttons (they open their own popups). */
-function SpecialButton({ action }: { action: BarAction }) {
+/** The colour button (ours, see ColorPicker.tsx) and BlockNote's link button. */
+function SpecialButton({
+  action,
+  editor,
+  px,
+  colorOpen,
+  onColor,
+}: {
+  action: BarAction
+  editor: Editor
+  px: number
+  colorOpen: boolean
+  onColor: () => void
+}) {
   return (
     <span data-action={action.id} className="shrink-0">
-      {action.special === 'color' ? <ColorStyleButton /> : <CreateLinkButton />}
+      {action.special === 'color' ? (
+        <ColorButton
+          editor={editor}
+          px={px}
+          open={colorOpen}
+          onClick={onColor}
+        />
+      ) : (
+        <CreateLinkButton />
+      )}
     </span>
+  )
+}
+
+/** A text row in the toolbar menu. */
+function MenuItem({
+  px,
+  hint,
+  accent,
+  onClick,
+  children,
+}: {
+  px: number
+  hint?: string
+  accent?: boolean
+  onClick: () => void
+  children: ReactNode
+}) {
+  return (
+    <button
+      type="button"
+      onMouseDown={keepFocus}
+      onClick={onClick}
+      style={{ minHeight: Math.max(px, 44) }}
+      className={`flex items-center justify-between gap-4 rounded-lg px-3 text-left text-sm hover:bg-hover ${
+        accent ? 'font-semibold text-accent' : ''
+      }`}
+    >
+      <span>{children}</span>
+      {hint && <span className="text-xs text-muted">{hint}</span>}
+    </button>
   )
 }
 
@@ -338,12 +506,29 @@ function MoreRow({
   action,
   px,
   hint,
+  onColor,
 }: {
   action: BarAction
   px: number
   hint: boolean
+  onColor?: () => void
 }) {
   const min = Math.max(px, 44)
+  if (action.special === 'color') {
+    return (
+      <button
+        type="button"
+        data-action={action.id}
+        onMouseDown={keepFocus}
+        onClick={onColor}
+        style={{ minHeight: min }}
+        className="flex items-center justify-between gap-4 rounded-lg px-3 text-left text-sm hover:bg-hover"
+      >
+        <span>{action.label}</span>
+        <span aria-hidden>▸</span>
+      </button>
+    )
+  }
   if (action.special) {
     return (
       <div
@@ -352,11 +537,7 @@ function MoreRow({
         style={{ minHeight: min }}
       >
         <span>{action.label}</span>
-        {action.special === 'color' ? (
-          <ColorStyleButton />
-        ) : (
-          <CreateLinkButton />
-        )}
+        <CreateLinkButton />
       </div>
     )
   }
@@ -385,16 +566,37 @@ function MoreRow({
 function Tray({
   bottom,
   wide,
+  label,
+  focusFirst,
   children,
 }: {
   bottom: boolean
   wide?: boolean
+  label?: string
+  /** Moves the keyboard focus into the tray (the toolbar menu). */
+  focusFirst?: boolean
   children: ReactNode
 }) {
+  const ref = useRef<HTMLDivElement>(null)
+  useEffect(() => {
+    if (focusFirst) ref.current?.querySelector<HTMLElement>('button')?.focus()
+  }, [focusFirst])
+  const arrows = (e: KeyboardEvent<HTMLDivElement>) => {
+    if (e.key !== 'ArrowDown' && e.key !== 'ArrowUp') return
+    const items = [...e.currentTarget.querySelectorAll<HTMLElement>('button')]
+    const at = items.indexOf(document.activeElement as HTMLElement)
+    e.preventDefault()
+    const next = at + (e.key === 'ArrowDown' ? 1 : -1)
+    items[(next + items.length) % items.length]?.focus()
+  }
   return (
     <div
+      ref={ref}
+      role={label ? 'group' : undefined}
+      aria-label={label}
+      onKeyDown={label ? arrows : undefined}
       data-bar="tray"
-      className={`absolute right-3 z-40 grid max-h-[75vh] max-w-[calc(100vw-24px)] gap-0.5 overflow-y-auto rounded-xl border border-line bg-bg p-1.5 shadow-lg ${
+      className={`absolute right-3 z-40 grid max-h-[75vh] max-w-[calc(100vw-24px)] gap-0.5 overflow-y-auto rounded-xl border border-ink-soft bg-bg p-1.5 shadow-lg ${
         wide ? 'w-[340px]' : 'min-w-[230px]'
       } ${bottom ? 'bottom-full mb-1' : 'top-full mt-1'}`}
     >

@@ -45,7 +45,7 @@ const barNames = (page: Page) =>
     .evaluateAll((els) =>
       els
         .map((el) => el.getAttribute('data-action'))
-        .filter((a): a is string => !!a),
+        .filter((a): a is string => !!a && a !== 'toolbarMenu'),
     )
 
 async function openPage(page: Page, mode?: 'computer' | 'touch' | 'pencil') {
@@ -279,30 +279,17 @@ test.describe('Touch (a tablet-sized touch screen)', () => {
     await expect(tray(page).getByText('Ctrl+Shift+S')).toBeVisible()
   })
 
-  test('a Pencil touch offers Pencil mode once, never switches alone', async ({
-    page,
-  }) => {
-    await openPage(page)
-    await page.evaluate(() =>
-      document.body.dispatchEvent(
-        new PointerEvent('pointerdown', {
-          pointerType: 'pen',
-          bubbles: true,
-        }),
-      ),
-    )
-    const toast = page
-      .getByRole('status')
-      .filter({ hasText: 'Apple Pencil noticed' })
-    await expect(toast).toBeVisible()
-    await expect(dockedBar(page)).toHaveAttribute('data-placement', 'top')
-    await toast.getByRole('button', { name: 'Use Pencil mode' }).click()
-    await expect(dockedBar(page)).toHaveAttribute('data-placement', 'bottom')
-  })
-
   test('switching mode from the page menu', async ({ page }) => {
     await openPage(page)
     await pageAction(page, 'Switch to Pencil mode')
+    // Pencil is docked on top too (always visible), but the position can change.
+    await expect(dockedBar(page)).toHaveAttribute('data-placement', 'top')
+    await dockedBar(page).getByRole('button', { name: 'Toolbar menu' }).click()
+    await tray(page)
+      .getByRole('button', { name: /^Edit bar/ })
+      .click()
+    await tray(page).getByLabel('Position').selectOption('bottom')
+    await tray(page).getByRole('button', { name: 'Done' }).click()
     await expect(dockedBar(page)).toHaveAttribute('data-placement', 'bottom')
     // Fixed to the bottom of the screen, and the text is not covered.
     const box = (await dockedBar(page).boundingBox())!
@@ -337,7 +324,7 @@ test.describe('Touch (a tablet-sized touch screen)', () => {
     await expect(
       page
         .locator('[data-setting-id="advanced.barPlacement"]')
-        .getByRole('button', { name: 'Bottom', pressed: true }),
+        .getByRole('button', { name: 'Top', pressed: true }),
     ).toBeVisible()
     await page
       .locator('[data-setting-id="advanced.barSize"]')

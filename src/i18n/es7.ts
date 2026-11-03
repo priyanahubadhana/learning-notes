@@ -183,8 +183,6 @@ export const es7: Record<string, string> = {
   'mode.touch': 'Táctil',
   'mode.pencil': 'Lápiz',
   'mode.switchTo': 'Cambiar al modo {mode}',
-  'mode.penOffer': 'Se detectó el Apple Pencil. ¿Usar el modo Lápiz?',
-  'mode.switchToPencil': 'Usar modo Lápiz',
   'settings.barPlacement.label': 'Posición de la barra de formato',
   'settings.barPlacement.description':
     'Dónde está la barra de formato: flotando sobre el texto seleccionado, fija arriba o fija abajo.',
@@ -232,4 +230,45 @@ export const es7: Record<string, string> = {
   'help.tip.bar.more.meaning':
     'Todos los demás botones de formato, y Editar barra para elegir qué hay en esta barra.',
   'help.tip.bar.more.example': 'Tachado, color, enlace, Palabra clave.',
+  'mode.autoSwitched': 'Cambiado al modo {mode}',
+  'mode.undo': 'Deshacer',
+  'settings.autoSwitch.label': 'Cambio automático',
+  'settings.autoSwitch.description':
+    'Cambia el modo del dispositivo al usar el Apple Pencil o un dedo. Solo Pencil: el lápiz activa el modo Lápiz. En ambos sentidos: un dedo vuelve al modo Táctil. Espera a que dejes de escribir.',
+  'settings.autoSwitch.pen': 'Solo Pencil',
+  'settings.autoSwitch.both': 'En ambos sentidos',
+  'settings.autoSwitch.off': 'Desactivado',
+  'bar.menu': 'Menú de la barra',
+  'help.tip.bar.menu.meaning':
+    'Lista todas las herramientas y acciones de formato, también las que no están fijadas en la barra, y las opciones de copiar y pegar y Editar barra.',
+  'help.tip.bar.menu.example':
+    'Copiar como Markdown, Pegar como texto sin formato, Tachado.',
+  'color.button': 'Colores. Texto: {text}. Resaltado: {highlight}.',
+  'color.title': 'Colores',
+  'color.text': 'Color del texto',
+  'color.highlight': 'Color de resaltado',
+  'copy.plain': 'Copiar como texto sin formato',
+  'copy.markdown': 'Copiar como Markdown',
+  'copy.pagePlain': 'Copiar página como texto sin formato',
+  'copy.pageMarkdown': 'Copiar página como Markdown',
+  'copy.pictures': 'Copiar página con imágenes',
+  'copy.done': 'Copiado',
+  'copy.doneTextOnly':
+    'Copiado (solo texto, el navegador bloqueó las imágenes)',
+  'copy.blocked':
+    'El navegador no permitió copiar. Selecciona el texto y pulsa Ctrl+C.',
+  'paste.plain': 'Pegar como texto sin formato',
+  'paste.done': 'Pegado',
+  'paste.blocked':
+    'El navegador no permitió leer el portapapeles. Pulsa Ctrl+Shift+V (Cmd+Shift+V en Mac).',
+  'color.default': 'Predeterminado',
+  'color.gray': 'Gris',
+  'color.brown': 'Marrón',
+  'color.red': 'Rojo',
+  'color.orange': 'Naranja',
+  'color.yellow': 'Amarillo',
+  'color.green': 'Verde',
+  'color.blue': 'Azul',
+  'color.purple': 'Morado',
+  'color.pink': 'Rosa',
 }

@@ -31,6 +31,8 @@ On Apple devices, including an iPad with a Magic Keyboard, the app shows ⌘ and
 
 The docked formatting bar shows shortcut hints (BlockNote's own, e.g. Ctrl+B) when Settings › Advanced › Shortcut hints is On or after a real keyboard has been used, even in Touch mode.
 
+Ctrl/Cmd+Shift+V pastes the clipboard as plain text (see [copy-paste.md](copy-paste.md)).
+
 ## Edge cases
 
 Shortcuts must not fire where the key is normal typing.

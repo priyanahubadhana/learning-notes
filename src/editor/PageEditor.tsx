@@ -43,6 +43,13 @@ import { LinkPicker } from '../links/LinkPicker'
 import { AppDragHandleMenu } from './CardMenu'
 import { AppFormattingToolbar } from './SelectionToolbar'
 import { DockedBar } from './DockedBar'
+import {
+  copyAs,
+  copyPageWithPictures,
+  noteKeyForPaste,
+  pasteHandler,
+  pastePlainFromClipboard,
+} from './clipboard'
 import { focusEndLine } from './lineActions'
 import {
   useBarSettings,
@@ -204,6 +211,8 @@ function LoadedPageEditor({
     schema,
     initialContent,
     extensions: [codeBlockKeys, linkTrigger],
+    // Pasted web pages are cleaned; Ctrl/Cmd+Shift+V pastes plain text.
+    pasteHandler: pasteHandler as never,
     // The editor's own menus in the chosen language (English if none).
     dictionary: getEditorDictionary() as undefined,
     // Pictures chosen in the editor are kept in the app (images/).
@@ -232,11 +241,25 @@ function LoadedPageEditor({
 
   useEffect(() => {
     if (!editorRef) return
-    editorRef.current = { focus: () => editor.focus(), flush: sync.flush }
+    editorRef.current = {
+      focus: () => editor.focus(),
+      flush: sync.flush,
+      copyPage: (kind) => {
+        if (kind === 'pictures') void copyPageWithPictures(editor, toast)
+        else void copyAs(editor, kind, toast, editor.document)
+      },
+      pastePlain: () => void pastePlainFromClipboard(editor, toast),
+    }
     return () => {
       editorRef.current = null
     }
-  }, [editor, editorRef, sync])
+  }, [editor, editorRef, sync, toast])
+
+  // Remember Ctrl/Cmd+Shift+V: the paste that follows is plain text.
+  useEffect(() => {
+    window.addEventListener('keydown', noteKeyForPaste, true)
+    return () => window.removeEventListener('keydown', noteKeyForPaste, true)
+  }, [])
 
   // The page moved to another window: finish saving what was typed here.
   useEffect(() => {

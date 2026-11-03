@@ -178,8 +178,6 @@ export const hi7: Record<string, string> = {
   'mode.touch': 'टच',
   'mode.pencil': 'पेंसिल',
   'mode.switchTo': '{mode} मोड में जाएँ',
-  'mode.penOffer': 'Apple Pencil दिखा। पेंसिल मोड इस्तेमाल करें?',
-  'mode.switchToPencil': 'पेंसिल मोड चुनें',
   'settings.barPlacement.label': 'फ़ॉर्मैटिंग बार की जगह',
   'settings.barPlacement.description':
     'बार कहाँ रहे: चुने हुए टेक्स्ट पर तैरता हुआ, ऊपर जुड़ा हुआ, या नीचे जुड़ा हुआ।',
@@ -226,4 +224,44 @@ export const hi7: Record<string, string> = {
   'help.tip.bar.more.meaning':
     'बाकी सारे फ़ॉर्मैटिंग बटन, और बार पर क्या रहे यह चुनने के लिए बार बदलें।',
   'help.tip.bar.more.example': 'काटना, रंग, लिंक, कीवर्ड।',
+  'mode.autoSwitched': '{mode} मोड में बदला गया',
+  'mode.undo': 'पूर्ववत करें',
+  'settings.autoSwitch.label': 'अपने आप बदलना',
+  'settings.autoSwitch.description':
+    'Apple Pencil या उँगली इस्तेमाल करने पर डिवाइस मोड अपने आप बदलें। केवल पेंसिल: पेन से पेंसिल मोड लगता है। दोनों तरफ़: उँगली से वापस टच मोड। यह तब बदलता है जब आप लिखना या टाइप करना रोकते हैं।',
+  'settings.autoSwitch.pen': 'केवल पेंसिल',
+  'settings.autoSwitch.both': 'दोनों तरफ़',
+  'settings.autoSwitch.off': 'बंद',
+  'bar.menu': 'टूलबार मेनू',
+  'help.tip.bar.menu.meaning':
+    'हर फ़ॉर्मैटिंग टूल और क्रिया की सूची, बार पर न लगे हुए भी, साथ में कॉपी-पेस्ट विकल्प और बार बदलें।',
+  'help.tip.bar.menu.example':
+    'Markdown के रूप में कॉपी, सादे टेक्स्ट में पेस्ट, काटना।',
+  'color.button': 'रंग। टेक्स्ट: {text}। हाइलाइट: {highlight}।',
+  'color.title': 'रंग',
+  'color.text': 'टेक्स्ट का रंग',
+  'color.highlight': 'हाइलाइट का रंग',
+  'copy.plain': 'सादे टेक्स्ट के रूप में कॉपी करें',
+  'copy.markdown': 'Markdown के रूप में कॉपी करें',
+  'copy.pagePlain': 'पृष्ठ सादे टेक्स्ट के रूप में कॉपी करें',
+  'copy.pageMarkdown': 'पृष्ठ Markdown के रूप में कॉपी करें',
+  'copy.pictures': 'पृष्ठ चित्रों सहित कॉपी करें',
+  'copy.done': 'कॉपी हो गया',
+  'copy.doneTextOnly': 'कॉपी हो गया (केवल टेक्स्ट, ब्राउज़र ने चित्र रोके)',
+  'copy.blocked':
+    'ब्राउज़र ने कॉपी की अनुमति नहीं दी। टेक्स्ट चुनकर Ctrl+C दबाएँ।',
+  'paste.plain': 'सादे टेक्स्ट के रूप में पेस्ट करें',
+  'paste.done': 'पेस्ट हो गया',
+  'paste.blocked':
+    'ब्राउज़र ने क्लिपबोर्ड पढ़ने की अनुमति नहीं दी। इसके बजाय Ctrl+Shift+V (Mac पर Cmd+Shift+V) दबाएँ।',
+  'color.default': 'सामान्य',
+  'color.gray': 'धूसर',
+  'color.brown': 'भूरा',
+  'color.red': 'लाल',
+  'color.orange': 'नारंगी',
+  'color.yellow': 'पीला',
+  'color.green': 'हरा',
+  'color.blue': 'नीला',
+  'color.purple': 'बैंगनी',
+  'color.pink': 'गुलाबी',
 }

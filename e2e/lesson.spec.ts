@@ -76,7 +76,7 @@ test('Lesson: section chips and a live card list that jumps to the card', async 
   await page.keyboard.press('Escape')
 
   // Chips stay pinned and jump to their heading.
-  await expect(chips(page)).toHaveCSS('position', 'sticky')
+  await expect(chips(page).locator('xpath=..')).toHaveCSS('position', 'sticky')
   await chips(page).getByRole('button', { name: 'Flashcards' }).click()
   await expect.poll(() => highlighted(page)).toContain('Flashcards')
 })

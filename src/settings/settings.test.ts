@@ -3,6 +3,7 @@ import type { LearningNotesDB } from '../core/db'
 import { createTestDb } from '../core/testing'
 import {
   applyDeviceMode,
+  autoSwitchSetting,
   barAutoHideSetting,
   barPlacementSetting,
   barSizeSetting,
@@ -172,7 +173,7 @@ describe('device modes', () => {
   it('switching mode writes every preset setting', () => {
     applyDeviceMode('pencil')
     expect(readDeviceSetting(deviceModeSetting)).toBe('pencil')
-    expect(readDeviceSetting(barPlacementSetting)).toBe('bottom')
+    expect(readDeviceSetting(barPlacementSetting)).toBe('top')
     expect(readDeviceSetting(barSizeSetting)).toBe('large')
     applyDeviceMode('computer')
     expect(readDeviceSetting(barPlacementSetting)).toBe('floating')
@@ -201,6 +202,19 @@ describe('device modes', () => {
     })
     expect(readDeviceSetting(barSizeSetting, storage)).toBe('compact')
     expect(readDeviceSetting(deviceModeSetting, storage)).toBe('computer')
+  })
+
+  it('Auto switch defaults to Pencil only, is per device and validated', () => {
+    expect(readDeviceSetting(autoSwitchSetting)).toBe('pen')
+    expect(autoSwitchSetting.scope).toBe('device')
+    writeDeviceSetting(autoSwitchSetting, 'both')
+    expect(readDeviceSetting(autoSwitchSetting)).toBe('both')
+    expect(() => writeDeviceSetting(autoSwitchSetting, 'x' as never)).toThrow()
+    const storage = fake({
+      'learning-notes:advanced.autoSwitch': JSON.stringify('sometimes'),
+    })
+    clearDeviceSettingsCache()
+    expect(readDeviceSetting(autoSwitchSetting, storage)).toBe('pen')
   })
 
   it('refuses to save an invalid value', () => {

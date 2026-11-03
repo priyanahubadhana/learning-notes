@@ -1,12 +1,15 @@
 import {
   BAR_PLACEMENTS,
   BAR_SIZES,
+  AUTO_SWITCHES,
   DEVICE_MODES,
   MODE_PRESETS,
   isBarPlacement,
   isBarSize,
+  isAutoSwitch,
   isDeviceMode,
   isOnOff,
+  type AutoSwitch,
   type BarPlacement,
   type BarSize,
   type DeviceMode,
@@ -415,6 +418,24 @@ export const barAutoHideSetting: SettingDefinition<OnOff> = {
   control: { kind: 'segmented', options: onOffOptions() },
 }
 
+/** Whether a Pencil (or a finger) switches the device mode by itself. */
+export const autoSwitchSetting: SettingDefinition<AutoSwitch> = {
+  id: 'advanced.autoSwitch',
+  labelKey: 'settings.autoSwitch.label',
+  descriptionKey: 'settings.autoSwitch.description',
+  category: 'advanced',
+  scope: 'device',
+  defaultValue: 'pen',
+  isValid: isAutoSwitch,
+  control: {
+    kind: 'segmented',
+    options: AUTO_SWITCHES.map((value) => ({
+      value,
+      label: () => t(`settings.autoSwitch.${value}`),
+    })),
+  },
+}
+
 /** Sets the five bar settings to a mode's preset. */
 export function applyModePreset(mode: DeviceMode): void {
   const preset = MODE_PRESETS[mode]
@@ -439,6 +460,7 @@ for (const definition of [
   hoverTipsSetting,
   shortcutHintsSetting,
   barAutoHideSetting,
+  autoSwitchSetting,
   reviseLabelsSetting,
   languageSetting,
   showHelp,

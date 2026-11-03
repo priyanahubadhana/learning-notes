@@ -2,7 +2,7 @@
 
 Every hover tip and help line in the app (shown while Settings › Show help is On). Generated from `src/help/helpRegistry.ts` and `src/i18n/en.ts`; to change a text, edit it in `en.ts`, then run `UPDATE_HELP=1 npx vitest run src/help` to refresh this file.
 
-## Hover tips (109)
+## Hover tips (110)
 
 ### `bar.newLine`
 
@@ -15,6 +15,12 @@ Every hover tip and help line in the app (shown while Settings › Show help is 
 - **Where:** Page › docked formatting bar › More
 - **Meaning:** Every other formatting button, and Edit bar to choose what sits on this bar.
 - **Example:** Strikethrough, colour, link, Keyword.
+
+### `bar.menu`
+
+- **Where:** Page › docked formatting bar › ⋯ Toolbar menu
+- **Meaning:** Every formatting tool and action, even unpinned ones, plus copy, paste and Edit bar.
+- **Example:** Copy as Markdown, Paste as plain text, Strikethrough.
 
 ### `tracker.lesson`
 

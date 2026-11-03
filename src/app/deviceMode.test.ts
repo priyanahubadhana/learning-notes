@@ -1,6 +1,9 @@
 import { describe, expect, it } from 'vitest'
 import {
+  autoSwitchTarget,
   barButtonPx,
+  isAutoSwitch,
+  isIpadAsMac,
   DEFAULT_PINNED,
   detectDeviceMode,
   isDeviceMode,
@@ -32,9 +35,9 @@ describe('mode presets', () => {
       hoverTips: 'off',
     })
   })
-  it('Pencil docks at the bottom, large', () => {
+  it('Pencil also docks on top (always visible), large', () => {
     expect(MODE_PRESETS.pencil).toMatchObject({
-      placement: 'bottom',
+      placement: 'top',
       size: 'large',
     })
   })
@@ -48,6 +51,19 @@ describe('first-run detection', () => {
   })
   it('a touch screen is Touch', () => {
     expect(detectDeviceMode(only('(pointer: coarse)'))).toBe('touch')
+  })
+  it('an iPad shown as a Mac with a touch screen is Touch', () => {
+    const fine = only('(pointer: fine) and (hover: hover)')
+    expect(
+      detectDeviceMode(fine, { platform: 'MacIntel', maxTouchPoints: 5 }),
+    ).toBe('touch')
+    // A real Mac or a Windows laptop stays Computer.
+    expect(
+      detectDeviceMode(fine, { platform: 'MacIntel', maxTouchPoints: 0 }),
+    ).toBe('computer')
+    expect(
+      detectDeviceMode(fine, { platform: 'Win32', maxTouchPoints: 10 }),
+    ).toBe('computer')
   })
   it('never picks Pencil, and falls back to Computer', () => {
     expect(detectDeviceMode(() => false)).toBe('computer')
@@ -131,5 +147,37 @@ describe('real keyboard detection', () => {
     expect(isHardwareKey(key('Tab'))).toBe(true)
     expect(isHardwareKey(key('a'))).toBe(false)
     expect(isHardwareKey(key('Enter'))).toBe(false)
+  })
+})
+
+describe('auto switch', () => {
+  it('validates the setting', () => {
+    expect(isAutoSwitch('pen')).toBe(true)
+    expect(isAutoSwitch('both')).toBe(true)
+    expect(isAutoSwitch('off')).toBe(true)
+    expect(isAutoSwitch('x')).toBe(false)
+  })
+  it('a pen switches to Pencil unless it is on already', () => {
+    expect(autoSwitchTarget('touch', 'pen', 'pen')).toBe('pencil')
+    expect(autoSwitchTarget('computer', 'pen', 'both')).toBe('pencil')
+    expect(autoSwitchTarget('pencil', 'pen', 'pen')).toBeNull()
+  })
+  it('a finger switches back only with "both ways", from Pencil', () => {
+    expect(autoSwitchTarget('pencil', 'touch', 'pen')).toBeNull()
+    expect(autoSwitchTarget('pencil', 'touch', 'both')).toBe('touch')
+    expect(autoSwitchTarget('touch', 'touch', 'both')).toBeNull()
+  })
+  it('a mouse never switches, and Off never switches', () => {
+    expect(autoSwitchTarget('touch', 'mouse', 'both')).toBeNull()
+    expect(autoSwitchTarget('touch', 'pen', 'off')).toBeNull()
+    expect(autoSwitchTarget('pencil', 'touch', 'off')).toBeNull()
+  })
+})
+
+describe('iPad shown as a Mac', () => {
+  it('is a Mac with more than one touch point', () => {
+    expect(isIpadAsMac({ platform: 'MacIntel', maxTouchPoints: 5 })).toBe(true)
+    expect(isIpadAsMac({ platform: 'MacIntel', maxTouchPoints: 0 })).toBe(false)
+    expect(isIpadAsMac({ platform: 'iPad', maxTouchPoints: 5 })).toBe(false)
   })
 })

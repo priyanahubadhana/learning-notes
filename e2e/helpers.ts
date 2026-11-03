@@ -326,7 +326,7 @@ export async function startInMode(
     const presets = {
       computer: ['floating', 'compact', 'on', 'on'],
       touch: ['top', 'normal', 'off', 'off'],
-      pencil: ['bottom', 'large', 'off', 'off'],
+      pencil: ['top', 'large', 'off', 'off'],
     }[m]
     const set = (k: string, v: string) =>
       localStorage.setItem('learning-notes:' + k, JSON.stringify(v))
@@ -341,3 +341,63 @@ export async function startInMode(
 
 /** The docked formatting bar (Touch and Pencil). */
 export const dockedBar = (page: Page) => page.locator('[data-bar="docked"]')
+
+/**
+ * WCAG contrast of an element: its text colour against what is behind it
+ * (the backgrounds behind it, mixed from the page down). With `border`, the
+ * border colour is measured against what is outside the element instead.
+ */
+export function contrastOf(
+  locator: Locator,
+  what: 'text' | 'border' = 'text',
+): Promise<number> {
+  return locator.evaluate((el, kind) => {
+    type Rgba = [number, number, number, number]
+    const parse = (value: string): Rgba => {
+      const m = value.match(/[\d.]+/g)?.map(Number) ?? [0, 0, 0, 0]
+      return [m[0], m[1], m[2], m[3] ?? 1]
+    }
+    const over = (top: Rgba, base: Rgba): Rgba => {
+      const a = top[3]
+      return [
+        top[0] * a + base[0] * (1 - a),
+        top[1] * a + base[1] * (1 - a),
+        top[2] * a + base[2] * (1 - a),
+        1,
+      ]
+    }
+    const chain: Element[] = []
+    for (let n: Element | null = el; n; n = n.parentElement) chain.push(n)
+    let bg: Rgba = [255, 255, 255, 1]
+    // A border sits against what is outside the element, not its own fill.
+    for (const n of chain.reverse()) {
+      if (kind === 'border' && n === el) continue
+      const c = parse(getComputedStyle(n).backgroundColor)
+      if (c[3] > 0) bg = over(c, bg)
+    }
+    const style = getComputedStyle(el)
+    const fg = over(
+      parse(kind === 'text' ? style.color : style.borderTopColor),
+      bg,
+    )
+    const lum = ([r, g, b]: Rgba) => {
+      const f = (v: number) => {
+        const s = v / 255
+        return s <= 0.03928 ? s / 12.92 : ((s + 0.055) / 1.055) ** 2.4
+      }
+      return 0.2126 * f(r) + 0.7152 * f(g) + 0.0722 * f(b)
+    }
+    const [hi, lo] = [lum(fg), lum(bg)].sort((a, b) => b - a)
+    return (hi + 0.05) / (lo + 0.05)
+  }, what)
+}
+
+/** Starts the app with a theme chosen (before the first load). */
+export async function startInTheme(
+  page: Page,
+  theme: 'day' | 'night' | 'sepia',
+) {
+  await page.addInitScript((th) => {
+    localStorage.setItem('learning-notes:theme', JSON.stringify(th))
+  }, theme)
+}

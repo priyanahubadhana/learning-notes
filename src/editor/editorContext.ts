@@ -24,4 +24,8 @@ export interface EditorApi {
   focus: () => void
   /** Saves pending edits now (e.g. before "Save as template"). */
   flush: () => Promise<void>
+  /** ⋯ menu: copy the whole page (with pictures, as text or Markdown). */
+  copyPage: (kind: 'pictures' | 'plain' | 'markdown') => void
+  /** ⋯ menu: paste the clipboard's words without formatting. */
+  pastePlain: () => void
 }

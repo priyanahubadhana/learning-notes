@@ -33,6 +33,7 @@ import { PageTags } from '../tags/PageTags'
 import { getDatabase } from '../databases/databaseService'
 import { RowProperties } from '../databases/RowProperties'
 import { createTitleSaver } from './titleSaver'
+import { isApple } from '../app/keys'
 import { DEVICE_MODES } from '../app/deviceMode'
 import { applyDeviceMode, deviceModeSetting } from '../settings/builtinSettings'
 import { useDeviceSetting } from '../settings/useSetting'
@@ -161,6 +162,27 @@ export function PageView({
       icon: m === 'computer' ? '🖥' : m === 'touch' ? '✋' : '✏️',
       onSelect: () => applyDeviceMode(m),
     })),
+    {
+      label: t('copy.pictures'),
+      icon: '⧉',
+      onSelect: () => editor.current?.copyPage('pictures'),
+    },
+    {
+      label: t('copy.pagePlain'),
+      icon: '⧉',
+      onSelect: () => editor.current?.copyPage('plain'),
+    },
+    {
+      label: t('copy.pageMarkdown'),
+      icon: '⧉',
+      onSelect: () => editor.current?.copyPage('markdown'),
+    },
+    {
+      label: t('paste.plain'),
+      icon: '⎘',
+      hint: isApple() ? '⌘⇧V' : 'Ctrl+Shift+V',
+      onSelect: () => editor.current?.pastePlain(),
+    },
     {
       label: t('page.import'),
       icon: '⤓',
@@ -350,10 +372,17 @@ function SectionChips({ db, pageId }: { db: LearningNotesDB; pageId: string }) {
   )
   if (!sections?.length) return null
   return (
-    <Tip id="page.sections" className="block" touchInfo={false}>
+    <Tip
+      id="page.sections"
+      // The wrapper is what sticks (a sticky child cannot leave its parent),
+      // just below the docked bar when there is one at the top.
+      className="sticky top-[var(--dock-top,0px)] z-10 -mx-3 mb-3 block bg-bg px-3"
+      touchInfo={false}
+    >
       <nav
         aria-label={t('sections.label')}
-        className="sticky top-0 z-10 -mx-3 mb-3 flex gap-1.5 overflow-x-auto bg-bg px-3 py-2"
+        style={{ top: 'var(--dock-top, 0px)' }}
+        className="sticky z-10 -mx-3 mb-3 flex gap-1.5 overflow-x-auto bg-bg px-3 py-2"
       >
         {sections.map((s) => (
           <button

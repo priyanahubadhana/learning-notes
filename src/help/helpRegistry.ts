@@ -24,6 +24,7 @@ export interface HelpLineDefinition {
 export const TIPS = {
   'bar.newLine': { where: 'Page › docked formatting bar › ↵ New line' },
   'bar.more': { where: 'Page › docked formatting bar › More' },
+  'bar.menu': { where: 'Page › docked formatting bar › ⋯ Toolbar menu' },
   'tracker.lesson': { where: 'Study tracker › Lesson column header' },
   'tracker.status': { where: 'Study tracker › Status column header' },
   'tracker.status.notStarted': {

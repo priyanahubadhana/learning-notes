@@ -8,7 +8,10 @@ import {
   useDictionary,
   useExtensionState,
 } from '@blocknote/react'
+import { useContext } from 'react'
+import { AppUiContext } from '../app/appUi'
 import { t } from '../i18n/t'
+import { copyAs } from './clipboard'
 import { markLabels, markName } from '../revise/reviseMarks'
 import { duplicateBlock } from './blockActions'
 import { markWholeBlock } from './markActions'
@@ -56,6 +59,31 @@ function DuplicateItem() {
   )
 }
 
+/** Block menu entries: copy this block as plain text or Markdown. */
+function CopyItems() {
+  const Components = useComponentsContext()!
+  const editor = useBlockNoteEditor() as unknown as Editor
+  const { toast } = useContext(AppUiContext)
+  const block = useExtensionState(SideMenuExtension, {
+    editor,
+    selector: (state) => state?.block,
+  }) as EditorBlock | undefined
+  if (!block) return null
+  return (
+    <>
+      {(['plain', 'markdown'] as const).map((kind) => (
+        <Components.Generic.Menu.Item
+          key={kind}
+          className="bn-menu-item"
+          onClick={() => void copyAs(editor, kind, toast, [block])}
+        >
+          {t(kind === 'plain' ? 'copy.plain' : 'copy.markdown')}
+        </Components.Generic.Menu.Item>
+      ))}
+    </>
+  )
+}
+
 /** Block menu entries: mark the whole line with a Revise label. */
 function MarkLineItems() {
   const Components = useComponentsContext()!
@@ -87,6 +115,7 @@ export function AppDragHandleMenu() {
     <DragHandleMenu>
       <MakeCardItem />
       <DuplicateItem />
+      <CopyItems />
       <MarkLineItems />
       <RemoveBlockItem>{dict.drag_handle.delete_menuitem}</RemoveBlockItem>
       <BlockColorsItem>{dict.drag_handle.colors_menuitem}</BlockColorsItem>

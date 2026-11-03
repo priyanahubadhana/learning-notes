@@ -1736,8 +1736,6 @@ export const en = {
   'mode.touch': 'Touch',
   'mode.pencil': 'Pencil',
   'mode.switchTo': 'Switch to {mode} mode',
-  'mode.penOffer': 'Apple Pencil noticed. Use Pencil mode?',
-  'mode.switchToPencil': 'Use Pencil mode',
   'settings.barPlacement.label': 'Formatting bar position',
   'settings.barPlacement.description':
     'Where the formatting bar sits: floating over the selected text, docked at the top, or docked at the bottom.',
@@ -1785,4 +1783,44 @@ export const en = {
   'help.tip.bar.more.meaning':
     'Every other formatting button, and Edit bar to choose what sits on this bar.',
   'help.tip.bar.more.example': 'Strikethrough, colour, link, Keyword.',
+  'mode.autoSwitched': 'Switched to {mode} mode',
+  'mode.undo': 'Undo',
+  'settings.autoSwitch.label': 'Auto switch',
+  'settings.autoSwitch.description':
+    'Switch the device mode by itself when an Apple Pencil or a finger is used. Pencil only: the pen switches to Pencil mode. Both ways: a finger switches back to Touch mode. It waits until you stop writing or typing.',
+  'settings.autoSwitch.pen': 'Pencil only',
+  'settings.autoSwitch.both': 'Both ways',
+  'settings.autoSwitch.off': 'Off',
+  'bar.menu': 'Toolbar menu',
+  'help.tip.bar.menu.meaning':
+    'Every formatting tool and action, even unpinned ones, plus copy, paste and Edit bar.',
+  'help.tip.bar.menu.example':
+    'Copy as Markdown, Paste as plain text, Strikethrough.',
+  'color.button': 'Colors. Text: {text}. Highlight: {highlight}.',
+  'color.title': 'Colors',
+  'color.text': 'Text color',
+  'color.highlight': 'Highlight color',
+  'copy.plain': 'Copy as plain text',
+  'copy.markdown': 'Copy as Markdown',
+  'copy.pagePlain': 'Copy page as plain text',
+  'copy.pageMarkdown': 'Copy page as Markdown',
+  'copy.pictures': 'Copy page with pictures',
+  'copy.done': 'Copied',
+  'copy.doneTextOnly': 'Copied (text only, your browser blocked pictures)',
+  'copy.blocked':
+    'Your browser did not allow copying. Select the text and press Ctrl+C.',
+  'paste.plain': 'Paste as plain text',
+  'paste.done': 'Pasted',
+  'paste.blocked':
+    'Your browser did not allow reading the clipboard. Press Ctrl+Shift+V (Cmd+Shift+V on a Mac) instead.',
+  'color.default': 'Default',
+  'color.gray': 'Gray',
+  'color.brown': 'Brown',
+  'color.red': 'Red',
+  'color.orange': 'Orange',
+  'color.yellow': 'Yellow',
+  'color.green': 'Green',
+  'color.blue': 'Blue',
+  'color.purple': 'Purple',
+  'color.pink': 'Pink',
 } as const

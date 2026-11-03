@@ -49,7 +49,7 @@ export const MODE_PRESETS: Record<DeviceMode, ModePreset> = {
     autoHide: 'off',
   },
   pencil: {
-    placement: 'bottom',
+    placement: 'top',
     size: 'large',
     hoverTips: 'off',
     shortcutHints: 'off',
@@ -76,14 +76,66 @@ export function barButtonPx(size: BarSize, mode: DeviceMode): number {
   return mode === 'computer' ? px : Math.max(px, MIN_TOUCH_PX)
 }
 
-/** What the device suggests on first run (never picks Pencil). */
+/** Touch facts the browser gives (injectable for tests). */
+export interface TouchHints {
+  maxTouchPoints: number
+  platform: string
+}
+
+const browserTouch = (): TouchHints => ({
+  maxTouchPoints:
+    typeof navigator === 'undefined' ? 0 : navigator.maxTouchPoints,
+  platform: typeof navigator === 'undefined' ? '' : navigator.platform,
+})
+
+/** An iPad that Safari presents as a Mac: a "Mac" with a touch screen. */
+export const isIpadAsMac = (touch: TouchHints = browserTouch()): boolean =>
+  touch.platform === 'MacIntel' && touch.maxTouchPoints > 1
+
+/**
+ * What the device suggests on first run (never picks Pencil). An iPad in
+ * "desktop website" mode (Safari's default) claims a fine pointer with hover
+ * and calls itself a Mac, so it is recognised as "a Mac with a touch screen"
+ * and gets Touch, not Computer.
+ */
 export function detectDeviceMode(
   matches: (query: string) => boolean = (q) =>
     typeof window !== 'undefined' && !!window.matchMedia?.(q).matches,
+  touch: TouchHints = browserTouch(),
 ): DeviceMode {
+  if (isIpadAsMac(touch)) return 'touch'
   if (matches('(pointer: fine) and (hover: hover)')) return 'computer'
   if (matches('(pointer: coarse)')) return 'touch'
   return 'computer'
+}
+
+// ---- Switching by itself when a Pencil or a finger is used ----
+
+export const AUTO_SWITCHES = ['pen', 'both', 'off'] as const
+/** pen = only a Pencil switches; both = a finger switches back; off. */
+export type AutoSwitch = (typeof AUTO_SWITCHES)[number]
+export const isAutoSwitch = (v: unknown): v is AutoSwitch =>
+  (AUTO_SWITCHES as readonly unknown[]).includes(v)
+
+/** After a switch, the other input must stay quiet this long (ms). */
+export const AUTO_SWITCH_QUIET_MS = 1500
+
+/**
+ * The mode a pointer asks for, or null for "stay". A pen asks for Pencil
+ * (unless already there); with "both ways" a finger asks for Touch, but only
+ * from Pencil mode. A mouse never switches anything.
+ */
+export function autoSwitchTarget(
+  mode: DeviceMode,
+  pointerType: string,
+  setting: AutoSwitch,
+): DeviceMode | null {
+  if (setting === 'off') return null
+  if (pointerType === 'pen') return mode === 'pencil' ? null : 'pencil'
+  if (pointerType === 'touch' && setting === 'both' && mode === 'pencil') {
+    return 'touch'
+  }
+  return null
 }
 
 // ---- Which buttons are on the bar ----

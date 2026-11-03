@@ -1,5 +1,8 @@
 # Decisions
 
+| 2026-11-03 | Pencil test | Fingers do nothing on the canvas (touch-action none), so the page never scrolls; the toolbar and numbers sit above it. Eraser removes whole strokes; highlighter is one see-through path | Let fingers scroll a taller page |
+| 2026-11-03 | Pencil test | The page is kept out of the offline cache and out of the single-page fallback, so the iPad always loads the newest copy | Cache it like the app |
+
 Current phase only. Older decisions are in [ARCHIVE.md](ARCHIVE.md).
 
 ## Phase 9 decisions

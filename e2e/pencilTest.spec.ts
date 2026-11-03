@@ -1,0 +1,141 @@
+// Browser types for code that runs inside the page.
+/// <reference lib="dom" />
+import { expect, test, type Page } from '@playwright/test'
+
+/**
+ * The Pencil test page (public/pencil-test.html) is a throwaway page for the
+ * iPad check. It must load under the site's security rules (no inline script)
+ * and draw only with a pen.
+ */
+
+type Kind = 'pen' | 'touch'
+
+/** Sends one made-up pointer event to the drawing canvas. */
+async function send(
+  page: Page,
+  kind: Kind,
+  type: 'pointerdown' | 'pointermove' | 'pointerup',
+  dx: number,
+  dy: number,
+  pressure = 0.7,
+) {
+  await page.evaluate(
+    ([kind, type, dx, dy, pressure]) => {
+      const canvas = document.getElementById('ink') as HTMLCanvasElement
+      const r = canvas.getBoundingClientRect()
+      canvas.dispatchEvent(
+        new PointerEvent(type, {
+          pointerId: kind === 'pen' ? 7 : 8,
+          pointerType: kind,
+          isPrimary: true,
+          clientX: r.left + dx,
+          clientY: r.top + dy,
+          pressure,
+          tiltX: 20,
+          tiltY: 10,
+          buttons: type === 'pointerup' ? 0 : 1,
+          bubbles: true,
+          cancelable: true,
+        }),
+      )
+    },
+    [kind, type, dx, dy, pressure] as const,
+  )
+}
+
+/** A line of moves from (x0, y0) to (x1, y1) with the given pointer kind. */
+async function line(page: Page, kind: Kind, y: number) {
+  await send(page, kind, 'pointerdown', 40, y)
+  for (let x = 60; x <= 240; x += 20)
+    await send(page, kind, 'pointermove', x, y)
+  await send(page, kind, 'pointerup', 240, y)
+}
+
+/** How many pixels of the drawing are not empty. */
+const inked = (page: Page) =>
+  page.evaluate(() => {
+    const canvas = document.getElementById('ink') as HTMLCanvasElement
+    const data = canvas
+      .getContext('2d')!
+      .getImageData(0, 0, canvas.width, canvas.height).data
+    let n = 0
+    for (let i = 3; i < data.length; i += 4) if (data[i] > 0) n++
+    return n
+  })
+
+test('the Pencil test page loads, a finger does not draw, a pen does', async ({
+  page,
+}) => {
+  const problems: string[] = []
+  page.on('console', (m) => {
+    if (m.type() === 'error') problems.push(m.text())
+  })
+  page.on('pageerror', (e) => problems.push(e.message))
+  const response = await page.goto('/pencil-test.html')
+  expect(response?.status()).toBe(200)
+  await expect(
+    page.getByText(/Write and draw with your Apple Pencil/),
+  ).toBeVisible()
+  await expect(page.locator('#ink')).toBeVisible()
+
+  await line(page, 'touch', 60)
+  expect(await inked(page)).toBe(0)
+  await expect(page.locator('#rType')).toHaveText('touch')
+
+  await line(page, 'pen', 60)
+  expect(await inked(page)).toBeGreaterThan(100)
+  await expect(page.locator('#rType')).toHaveText('pen')
+  await expect(page.locator('#rPressure')).toHaveText('0.700')
+  await expect(page.locator('#rTilt')).toHaveText('20 / 10')
+  await expect(page.locator('#rCoalesced')).not.toHaveText('–')
+
+  // Clear.
+  await page.getByRole('button', { name: 'Clear' }).click()
+  expect(await inked(page)).toBe(0)
+
+  expect(problems).toEqual([])
+})
+
+test('highlighter, eraser, paper styles and Copy results', async ({
+  page,
+  context,
+}) => {
+  await context.grantPermissions(['clipboard-read', 'clipboard-write'])
+  await page.goto('/pencil-test.html')
+
+  // Highlighter: a wide stroke that is see-through.
+  await page.getByRole('button', { name: 'Highlighter' }).click()
+  await line(page, 'pen', 80)
+  expect(await inked(page)).toBeGreaterThan(100)
+
+  // Eraser: rubbing across a stroke removes it.
+  await page.getByRole('button', { name: 'Eraser' }).click()
+  await line(page, 'pen', 80)
+  expect(await inked(page)).toBe(0)
+
+  // Paper styles are shown behind the ink.
+  for (const paper of ['lined', 'grid', 'dotted']) {
+    await page.getByLabel('Paper').selectOption(paper)
+    await expect(page.locator('#stage')).toHaveClass(paper)
+  }
+  await page.getByLabel('Paper').selectOption('blank')
+
+  // Copy results: plain text with the measured numbers.
+  await page.getByRole('button', { name: 'Pen', exact: true }).click()
+  await line(page, 'pen', 120)
+  await page.getByRole('button', { name: 'Copy results' }).click()
+  await expect(page.locator('#copyStatus')).toContainText(
+    /Copied|Select the text/,
+  )
+  const text = await page.evaluate(async () => {
+    try {
+      return await navigator.clipboard.readText()
+    } catch {
+      return (document.getElementById('copyBox') as HTMLTextAreaElement).value
+    }
+  })
+  expect(text).toContain('Pencil test results')
+  expect(text).toContain('Pointer types seen: pen')
+  expect(text).toContain('getCoalescedEvents:')
+  expect(text).toContain('Frame rate:')
+})

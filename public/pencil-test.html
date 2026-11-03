@@ -1,0 +1,114 @@
+<!doctype html>
+<!--
+  Throwaway test page for Apple Pencil. It is not part of the app: it uses no
+  app code, no storage and no network. The script and styles are separate
+  files because the site's security rules (public/_headers) do not allow
+  inline scripts.
+-->
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta
+      name="viewport"
+      content="width=device-width, initial-scale=1, maximum-scale=1, viewport-fit=cover"
+    />
+    <meta name="robots" content="noindex" />
+    <title>Pencil test</title>
+    <link rel="stylesheet" href="/pencil-test.css" />
+  </head>
+  <body>
+    <header>
+      <p class="intro" id="intro">
+        Write and draw with your Apple Pencil. Fingers do nothing here, so your
+        palm can rest on the screen. Write for 2 minutes, then tap “Copy
+        results” and paste the numbers into the chat.
+      </p>
+      <div class="bar" role="toolbar" aria-label="Tools">
+        <div class="group" role="radiogroup" aria-label="Tool">
+          <button type="button" data-tool="pen" aria-pressed="true">Pen</button>
+          <button type="button" data-tool="highlighter" aria-pressed="false">
+            Highlighter
+          </button>
+          <button type="button" data-tool="eraser" aria-pressed="false">
+            Eraser
+          </button>
+        </div>
+        <label>
+          Colour
+          <input type="color" id="color" value="#1a1a1a" />
+        </label>
+        <label>
+          Width
+          <input type="range" id="width" min="1" max="24" value="4" />
+          <output id="widthOut">4</output>
+        </label>
+        <label>
+          Paper
+          <select id="paper">
+            <option value="blank">Blank</option>
+            <option value="lined">Lined</option>
+            <option value="grid">Grid</option>
+            <option value="dotted">Dotted</option>
+          </select>
+        </label>
+        <label class="check">
+          <input type="checkbox" id="predict" />
+          Show my own prediction line
+        </label>
+        <button type="button" id="clear">Clear</button>
+        <button type="button" id="copy" class="primary">Copy results</button>
+      </div>
+      <p id="copyStatus" role="status" class="status"></p>
+      <textarea
+        id="copyBox"
+        readonly
+        rows="8"
+        aria-label="Results to copy"
+        hidden
+      ></textarea>
+      <dl class="readouts" aria-label="Live numbers">
+        <div>
+          <dt>Pointer type</dt>
+          <dd id="rType">–</dd>
+        </div>
+        <div>
+          <dt>Pressure</dt>
+          <dd id="rPressure">–</dd>
+        </div>
+        <div>
+          <dt>Tilt X / Y</dt>
+          <dd id="rTilt">–</dd>
+        </div>
+        <div>
+          <dt>Altitude / azimuth</dt>
+          <dd id="rAngle">–</dd>
+        </div>
+        <div>
+          <dt>Events per second</dt>
+          <dd id="rEps">–</dd>
+        </div>
+        <div>
+          <dt>Coalesced events</dt>
+          <dd id="rCoalesced">–</dd>
+        </div>
+        <div>
+          <dt>Predicted events</dt>
+          <dd id="rPredicted">–</dd>
+        </div>
+        <div>
+          <dt>Frame rate</dt>
+          <dd id="rFps">–</dd>
+        </div>
+        <div>
+          <dt>Low-latency canvas</dt>
+          <dd id="rDesync">–</dd>
+        </div>
+      </dl>
+    </header>
+    <main id="stage">
+      <canvas id="ink" aria-label="Drawing area"></canvas>
+      <canvas id="overlay" aria-hidden="true"></canvas>
+    </main>
+    <script src="/pencil-test.js"></script>
+  </body>
+</html>

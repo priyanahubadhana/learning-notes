@@ -65,9 +65,11 @@ export default defineConfig({
       manifest: false,
       workbox: {
         globPatterns: ['**/*.{js,css,html,svg,png,wasm,woff2}'],
-        globIgnores: ['404.html'],
+        // The Pencil test page is a throwaway: always fetched fresh, never kept offline.
+        globIgnores: ['404.html', 'pencil-test.*'],
         maximumFileSizeToCacheInBytes: 4 * 1024 * 1024,
         navigateFallback: 'index.html',
+        navigateFallbackDenylist: [/^\/pencil-test\.html$/],
         clientsClaim: true,
       },
     }),

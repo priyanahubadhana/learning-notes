@@ -1,6 +1,6 @@
 import { readFile } from 'node:fs/promises'
 import { expect, test, type Page } from '@playwright/test'
-import { createNotebook, makeCard, openSidebar } from './helpers.ts'
+import { createNotebook, makeCard, openMore, openSidebar } from './helpers.ts'
 
 const main = (page: Page) => page.getByRole('main')
 
@@ -15,6 +15,7 @@ test('Anki: save a notebook for Anki, then bring that file in as a new notebook'
   )
     .getByRole('button', { name: 'Save & restore' })
     .click()
+  await openMore(page)
 
   const anki = main(page).getByRole('region', { name: 'Anki' })
   const downloading = page.waitForEvent('download')
@@ -46,6 +47,7 @@ test('Anki: a notebook without cards cannot be saved', async ({ page }) => {
   )
     .getByRole('button', { name: 'Save & restore' })
     .click()
+  await openMore(page)
   await main(page)
     .getByRole('region', { name: 'Anki' })
     .getByRole('button', { name: 'Save for Anki' })

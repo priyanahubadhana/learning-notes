@@ -565,7 +565,7 @@ export const en = {
   'help.line.revise.how':
     'In a note, select words and press Key point, Keyword, Must know or Formula in the toolbar. Marked words collect here, per lesson.',
   'help.tip.sidebar.data.meaning':
-    'Save a notebook as a file, bring a file in, or restore the backup the app made before an upgrade.',
+    'Save your notes to a file, bring a file back, or share one notebook.',
   'help.tip.sidebar.data.example':
     'Keep a copy of “Cardiology” on a USB stick.',
   'help.tip.data.export.meaning':
@@ -573,7 +573,7 @@ export const en = {
   'help.tip.data.export.example':
     'Send “Cardiology” to a friend or keep it safe.',
   'help.tip.data.exportAll.meaning':
-    'Saves all your notebooks, the journal and the templates as one file. You can lock it with a password.',
+    'Saves everything (notes, pictures, history, Trash, settings) as one zip file. You can lock it with a password.',
   'help.tip.data.exportAll.example': 'Once a week, keep a copy on a USB stick.',
   'help.tip.data.ankiImport.meaning':
     'Adds the cards of an Anki deck (.apkg) as a new notebook. They start as new cards.',
@@ -584,7 +584,7 @@ export const en = {
   'help.tip.data.ankiExport.example':
     'Study “Cardiology” on your phone in Anki.',
   'help.tip.data.import.meaning':
-    'Opens a file saved by this app and adds its notebooks as new copies. Nothing you already have is changed.',
+    'Opens a saved file. Replace your notes with it (you can undo), or add its notebooks as copies.',
   'help.tip.data.import.example': 'Open the backup file you saved last week.',
   'help.tip.data.restore.meaning':
     'Brings back the notebooks of the backup the app saved before the last upgrade, as new copies.',
@@ -876,10 +876,9 @@ export const en = {
   'import.copyName': '{name} (imported)',
   'sidebar.data': 'Save & restore',
   'data.title': 'Save & restore',
-  'data.intro':
-    'Save your notes to a file. Opening a file adds copies; nothing is replaced.',
-  'data.export.title': 'One notebook',
-  'data.export.text': 'Notes, cards, databases and charts.',
+  'data.intro': 'Save your notes to a file, or bring a saved file back.',
+  'data.export.title': 'Share one notebook',
+  'data.export.text': 'Opening it on another device adds a copy.',
   'data.export.which': 'Notebook to save',
   'data.export.button': 'Save file',
   'data.import.file': 'Open saved file',
@@ -892,7 +891,6 @@ export const en = {
   'data.restore.none': 'No copy yet.',
   'data.restore.info': 'Saved {date}: {notebooks} notebooks.',
   'data.restore.button': 'Bring back',
-  'data.notIncluded': 'Tags are matched by name.',
   'nav.openMenu': 'Open menu',
   'nav.closeMenu': 'Close menu',
   'open.failed.title': 'Your notes could not be opened',
@@ -946,8 +944,6 @@ export const en = {
   'data.protect.again': 'Type the password again',
   'data.protect.short': 'The password needs at least {count} characters.',
   'data.protect.mismatch': 'The two passwords are not the same.',
-  'data.all.title': 'Everything',
-  'data.all.text': 'All your notes in one file.',
   'data.all.button': 'Save everything',
   'data.locked.text': '“{name}” is protected. Type its password to open it.',
   'data.locked.password': 'Password of this file',
@@ -1593,7 +1589,6 @@ export const en = {
   'anki.noCards': 'This notebook has no cards or blanks to export.',
   'anki.placeholder':
     'This package was saved by an old Anki as a placeholder. Export it again from Anki with “Support older Anki versions” ticked off.',
-  'data.all.note': 'These files open only in Learning Notes.',
   'data.export.passwordHint': 'The password above also locks this file.',
   'calendar.addDate': 'Add date column',
   'calendar.dateName': 'Date',
@@ -1674,10 +1669,8 @@ export const en = {
   'save.failed':
     'Not saved yet. Your latest changes are kept on this device and the app keeps trying.',
   'save.retry': 'Try again',
-  'data.all.limits':
-    'Not saved: page history, settings, saved searches and Trash. Journal days come back as a notebook.',
   'data.tooBigToRestore':
-    'This file was saved, but it is over 200 MB, so the app could not open it again. Keep it, and also save smaller notebook files.',
+    'This file was saved, but it is over 1 GB, so the app could not open it again. Save notes only instead.',
   'data.failed':
     'That did not work, and nothing was changed. Please try again.',
   'editor.elsewhere':
@@ -1686,4 +1679,51 @@ export const en = {
   'device.version': 'App version: {commit}',
   'tree.expand': 'Expand',
   'tree.collapse': 'Collapse',
+  'data.save.title': 'Save',
+  'data.save.notes': 'Save notes only',
+  'data.save.text':
+    'Everything includes pictures, history and Trash. Notes only is small and quick, and leaves out the pictures themselves.',
+  'data.saved.full': 'Saved “{name}” ({size}): everything.',
+  'data.saved.notes': 'Saved “{name}” ({size}): notes only, no pictures.',
+  'data.more.title': 'More',
+  'restore.title': 'Restore',
+  'restore.text': 'You choose: replace what is here, or add as copies.',
+  'restore.undoRow': 'Safety copy from before the last restore, {date}',
+  'restore.undo': 'Undo restore',
+  'restore.bar':
+    'Restored the file from {date}. Your earlier notes were kept as a safety copy.',
+  'restore.undone': 'Your notes from before the restore are back.',
+  'restore.dlg.saved': 'Saved',
+  'restore.dlg.contains': 'Contains',
+  'restore.dlg.contents': '{notebooks} notebooks, {pages} pages, {cards} cards',
+  'restore.dlg.also': 'Also',
+  'restore.dlg.alsoFull': 'History, Trash, settings, {count} pictures',
+  'restore.dlg.alsoNotes': 'History, Trash and settings, no pictures',
+  'restore.dlg.size': 'Size',
+  'restore.replace': 'Replace my notes',
+  'restore.replace.text':
+    'Your notes now become exactly the file. A safety copy is kept first, so you can undo.',
+  'restore.copies': 'Add as copies',
+  'restore.copies.text':
+    'Keeps everything you have and adds the file’s notebooks next to it.',
+  'restore.onlyCopies':
+    'This is an older kind of file, so it can only be added as copies.',
+  'restore.olderVersion':
+    'This file is from an older version of the app, so it can only be added as copies.',
+  'restore.busy': 'Restoring…',
+  'restore.busy.text': 'Writing the file’s notes. Keep the app open.',
+  'restore.err.safety':
+    'Could not keep a safety copy first (the device may be full). Nothing was changed.',
+  'restore.err.older':
+    'This file is from an older version of the app, so it cannot replace your notes. Add it as copies instead.',
+  'restore.err.noCopy':
+    'The safety copy is gone, so there is nothing to put back.',
+  'restore.err.undoOlder':
+    'The app was updated since, so the safety copy cannot be put back here. It is kept.',
+  'help.tip.data.exportNotes.meaning':
+    'Saves notes, cards, history and settings, but not the pictures themselves. Small and quick.',
+  'help.tip.data.exportNotes.example': 'Send a light copy to your own email.',
+  'help.tip.data.undoRestore.meaning':
+    'Puts your notes back exactly as they were before the last restore.',
+  'help.tip.data.undoRestore.example': 'You opened the wrong file? Undo it.',
 } as const

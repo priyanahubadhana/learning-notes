@@ -1,6 +1,12 @@
 import { readFile } from 'node:fs/promises'
 import { expect, test, type Page } from '@playwright/test'
-import { createNotebook, sidebar, typeInEditor } from './helpers.ts'
+import {
+  addAsCopies,
+  createNotebook,
+  openMore,
+  sidebar,
+  typeInEditor,
+} from './helpers.ts'
 
 const main = (page: Page) => page.getByRole('main')
 
@@ -65,7 +71,7 @@ test('a notebook file round-trips as a new copy; nothing existing changes', asyn
 
   const downloading = page.waitForEvent('download')
   await main(page)
-    .getByRole('region', { name: 'One notebook' })
+    .getByRole('region', { name: 'Share one notebook' })
     .getByRole('button', { name: 'Save file' })
     .click()
   const file = await downloading
@@ -88,6 +94,7 @@ test('a notebook file round-trips as a new copy; nothing existing changes', asyn
   await main(page)
     .getByLabel('Open saved file')
     .setInputFiles(await file.path())
+  await addAsCopies(page)
   await expect(
     page.getByText(
       /Imported 1 notebooks, \d+ pages and 0 cards as new copies\./,
@@ -194,6 +201,7 @@ test('Load sample notebook adds a ready-made notebook and changes nothing else',
   await page.goto('/')
   await createNotebook(page, 'Mine', 'My page')
   await sidebar(page).getByRole('button', { name: 'Save & restore' }).click()
+  await openMore(page)
   const box = main(page).getByRole('region', {
     name: 'For testing: sample notebook',
   })
@@ -263,7 +271,7 @@ test('a password-protected file: two fields, a warning, and the password to open
   await sidebar(page).getByRole('button', { name: 'Save & restore' }).click()
 
   const all = main(page).getByRole('region', {
-    name: 'Everything',
+    name: 'Save',
     exact: true,
   })
   const save = all.getByRole('button', { name: 'Save everything' })
@@ -316,6 +324,7 @@ test('a password-protected file: two fields, a warning, and the password to open
   await page.screenshot({ path: 'test-results/screens/password-wrong.png' })
   await main(page).getByLabel('Password of this file').fill('correct horse')
   await main(page).getByRole('button', { name: 'Open file' }).click()
+  await addAsCopies(page)
   await expect(page.getByText(/Imported \d+ notebooks/)).toBeVisible()
   await expect(
     sidebar(page).getByRole('button', {

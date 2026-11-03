@@ -293,3 +293,20 @@ export async function makeCard(page: Page, question: string, total: number) {
   await page.keyboard.type('An answer')
   await expect.poll(() => cardRecordCount(page), { timeout: 3000 }).toBe(total)
 }
+
+/** On Save & restore: opens the "More" part (Anki, sample notebook) if closed. */
+export async function openMore(page: Page) {
+  const more = page.locator('main details').filter({ hasText: 'More' }).first()
+  if ((await more.getAttribute('open')) === null) {
+    await more.locator('summary').click()
+  }
+  await expect(more).toHaveAttribute('open', '')
+}
+
+/** In the restore dialog: "Add as copies". */
+export async function addAsCopies(page: Page) {
+  await page
+    .getByRole('dialog')
+    .getByRole('button', { name: /^Add as copies/ })
+    .click()
+}

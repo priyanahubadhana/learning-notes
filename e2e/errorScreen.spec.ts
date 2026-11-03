@@ -85,7 +85,7 @@ test('a screen file that cannot download reloads once, then offers a way out', a
   await errorScreen(page)
     .getByRole('button', { name: 'Save everything' })
     .click()
-  expect((await saving).suggestedFilename()).toMatch(/\.learningnotes\.json$/)
+  expect((await saving).suggestedFilename()).toMatch(/\.learningnotes\.zip$/)
 
   await errorScreen(page).getByRole('button', { name: 'Go home' }).click()
   await expect(errorScreen(page)).toHaveCount(0)

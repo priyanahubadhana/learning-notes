@@ -152,8 +152,10 @@ export const TIPS = {
   'data.exportAll': { where: 'Save & restore › Save everything' },
   'data.ankiImport': { where: 'Save & restore › Anki › Import' },
   'data.ankiExport': { where: 'Save & restore › Anki › Save for Anki' },
-  'data.import': { where: 'Save & restore › Open saved file' },
+  'data.import': { where: 'Save & restore › Restore › Open saved file' },
   'data.restore': { where: 'Save & restore › Bring back' },
+  'data.exportNotes': { where: 'Save & restore › Save notes only' },
+  'data.undoRestore': { where: 'Save & restore › Undo restore' },
   'data.sample': { where: 'Save & restore › Load sample notebook' },
   'data.sampleRemove': { where: 'Save & restore › Remove sample notebook' },
   'notebook.databasePicker': {

@@ -146,7 +146,7 @@ export const es3: Record<string, string> = {
   'help.line.revise.how':
     'En una nota, selecciona palabras y pulsa Punto clave, Palabra clave, Imprescindible o Fórmula en la barra. Las palabras marcadas se reúnen aquí, por lección.',
   'help.tip.sidebar.data.meaning':
-    'Guarda un cuaderno como archivo, trae un archivo, o restaura la copia de seguridad que la aplicación hizo antes de una actualización.',
+    'Guarda tus notas en un archivo, recupera un archivo o comparte un cuaderno.',
   'help.tip.sidebar.data.example':
     'Guarda una copia de «Cardiología» en una memoria USB.',
   'help.tip.data.export.meaning':
@@ -154,7 +154,7 @@ export const es3: Record<string, string> = {
   'help.tip.data.export.example':
     'Envía «Cardiología» a un amigo o consérvalo a salvo.',
   'help.tip.data.exportAll.meaning':
-    'Guarda todos tus cuadernos, el diario y las plantillas en un solo archivo. Puedes protegerlo con una contraseña.',
+    'Guarda todo (notas, imágenes, historial, Papelera, ajustes) en un zip. Puedes protegerlo con contraseña.',
   'help.tip.data.exportAll.example':
     'Una vez por semana, guarda una copia en una memoria USB.',
   'help.tip.data.ankiImport.meaning':
@@ -165,7 +165,7 @@ export const es3: Record<string, string> = {
   'help.tip.data.ankiExport.example':
     'Estudia «Cardiología» en tu móvil con Anki.',
   'help.tip.data.import.meaning':
-    'Abre un archivo guardado por esta aplicación y añade sus cuadernos como copias nuevas. No se cambia nada de lo que ya tienes.',
+    'Abre un archivo guardado. Reemplaza tus notas con él (puedes deshacer) o añade sus cuadernos como copias.',
   'help.tip.data.import.example':
     'Abre el archivo de copia de seguridad que guardaste la semana pasada.',
   'help.tip.data.restore.meaning':

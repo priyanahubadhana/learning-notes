@@ -4,6 +4,10 @@ Current phase only. Older entries are in [ARCHIVE.md](ARCHIVE.md).
 
 ## 2026-11-03
 
+- **What:** Backup that restores in place. Save everything and Save notes only now make one zip (manifest, one JSON-lines file per table from `db.tables`, pictures as separate entries; Trash, history, settings, saved searches and the journal included; about 1 GB limit). Open saved file asks: Replace my notes (safety copy first in `learning-notes-before-restore`, one transaction, dark bar and Undo restore) or Add as copies; old JSON files still open as copies. Password lock works in chunks for the zip; old locked files still open. Screen reordered: Save, Restore, Share one notebook, Before last update, More. Help tips, docs and tests updated.
+- **Why:** The old file left out history, Trash and settings and could only add copies; big files could not be opened again (audit B4, B5).
+- **Files:** `src/share/fullFile.ts`, `readFull.ts`, `restore.ts`, `RestoreDialog.tsx`, `formatSize.ts`, `fileIO.ts`, `crypto.ts`, `DataScreen.tsx`, `saveEverything.ts`, `src/core/upgradeBackup.ts`, `src/help/helpRegistry.ts`, `src/i18n/`, `e2e/backupRestore.spec.ts`, `e2e/helpers.ts` and the Save and restore e2e tests, `docs/features/backup-and-files.md`, `encryption.md`, `docs/LIMITATIONS.md`, `docs/HELP-TEXTS.md`.
+- **Self-review:** Replace refuses older database versions until version 13 exists (DECISIONS). The reload after a restore is a blunt but safe way to get a clean app state.
 - Planned the pre-sync feature batches with the owner (backup, Pencil test, lock and Reading mode, fonts and voice, pictures and mind maps, ink, reader, trial) and the storage, voice and AI permission choices. Files: `docs/ROADMAP.md`, `docs/DECISIONS.md`, `docs/IDEAS.md`.
 - Renamed Backup & files to Save & restore and cut its text, because it was hard to scan. Applied the audit decisions to the roadmap and rules; set effort and helper-agent limits. Files: `src/i18n/`, `src/share/DataScreen.tsx`, `src/help/helpRegistry.ts`, `e2e/`, `docs/`, `rules/`.
 

@@ -106,3 +106,5 @@ New ideas that come up mid-build are parked here, not added to the current phase
 - 2026-11-03 — AI agents that write notes, mind maps and whole notebooks from speech or writing; handwritten-style output _(Likely phase: 14)_
 - 2026-11-03 — Reader extras: summarise, bullet points and diagrams from highlights _(Likely phase: 14)_
 - 2026-11-03 — Kindle, Apple Books, Google Play Books, Audible connections _(Likely phase: Parked)_
+- 2026-11-03 — Restore that streams straight into the database, so a very big file needs no full copy in memory _(Likely phase: before sync)_
+- 2026-11-03 — Replace from older zip files through the upgrade steps (temp database at the old version); build with database version 13 _(Likely phase: next database change)_

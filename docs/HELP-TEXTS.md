@@ -2,7 +2,7 @@
 
 Every hover tip and help line in the app (shown while Settings › Show help is On). Generated from `src/help/helpRegistry.ts` and `src/i18n/en.ts`; to change a text, edit it in `en.ts`, then run `UPDATE_HELP=1 npx vitest run src/help` to refresh this file.
 
-## Hover tips (105)
+## Hover tips (107)
 
 ### `tracker.lesson`
 
@@ -577,7 +577,7 @@ Every hover tip and help line in the app (shown while Settings › Show help is 
 ### `sidebar.data`
 
 - **Where:** Sidebar › Save & restore
-- **Meaning:** Save a notebook as a file, bring a file in, or restore the backup the app made before an upgrade.
+- **Meaning:** Save your notes to a file, bring a file back, or share one notebook.
 - **Example:** Keep a copy of “Cardiology” on a USB stick.
 
 ### `data.export`
@@ -589,7 +589,7 @@ Every hover tip and help line in the app (shown while Settings › Show help is 
 ### `data.exportAll`
 
 - **Where:** Save & restore › Save everything
-- **Meaning:** Saves all your notebooks, the journal and the templates as one file. You can lock it with a password.
+- **Meaning:** Saves everything (notes, pictures, history, Trash, settings) as one zip file. You can lock it with a password.
 - **Example:** Once a week, keep a copy on a USB stick.
 
 ### `data.ankiImport`
@@ -606,8 +606,8 @@ Every hover tip and help line in the app (shown while Settings › Show help is 
 
 ### `data.import`
 
-- **Where:** Save & restore › Open saved file
-- **Meaning:** Opens a file saved by this app and adds its notebooks as new copies. Nothing you already have is changed.
+- **Where:** Save & restore › Restore › Open saved file
+- **Meaning:** Opens a saved file. Replace your notes with it (you can undo), or add its notebooks as copies.
 - **Example:** Open the backup file you saved last week.
 
 ### `data.restore`
@@ -615,6 +615,18 @@ Every hover tip and help line in the app (shown while Settings › Show help is 
 - **Where:** Save & restore › Bring back
 - **Meaning:** Brings back the notebooks of the backup the app saved before the last upgrade, as new copies.
 - **Example:** Get a notebook back if an upgrade went wrong.
+
+### `data.exportNotes`
+
+- **Where:** Save & restore › Save notes only
+- **Meaning:** Saves notes, cards, history and settings, but not the pictures themselves. Small and quick.
+- **Example:** Send a light copy to your own email.
+
+### `data.undoRestore`
+
+- **Where:** Save & restore › Undo restore
+- **Meaning:** Puts your notes back exactly as they were before the last restore.
+- **Example:** You opened the wrong file? Undo it.
 
 ### `data.sample`
 

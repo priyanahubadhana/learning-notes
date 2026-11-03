@@ -23,6 +23,10 @@ export interface BackupSnapshot {
 /** Name of the backup database kept next to `dbName`. */
 export const backupDbName = (dbName: string): string => `${dbName}-backup`
 
+/** Name of the safety copy made before a restore (separate from the upgrade backup). */
+export const safetyDbName = (dbName: string): string =>
+  `${dbName}-before-restore`
+
 // Dexie stores version n as IndexedDB version n × 10.
 const DEXIE_FACTOR = 10
 
@@ -118,8 +122,9 @@ export async function readSnapshot(
 export async function saveBrowserBackup(
   snapshot: BackupSnapshot,
   idb: IDBFactory = indexedDB,
+  nameOf: (dbName: string) => string = backupDbName,
 ): Promise<void> {
-  const name = backupDbName(snapshot.dbName)
+  const name = nameOf(snapshot.dbName)
   await done(idb.deleteDatabase(name))
   const open = idb.open(name, 1)
   open.onupgradeneeded = () => {
@@ -155,8 +160,9 @@ export async function readBrowserBackup(
   dbName: string,
   idb: IDBFactory = indexedDB,
   only?: readonly string[],
+  nameOf: (dbName: string) => string = backupDbName,
 ): Promise<BackupSnapshot | undefined> {
-  const database = await openExisting(backupDbName(dbName), idb)
+  const database = await openExisting(nameOf(dbName), idb)
   if (!database) return undefined
   try {
     const tx = database.transaction(['tables', 'info'], 'readonly')
@@ -200,4 +206,13 @@ export function backupFile(snapshot: BackupSnapshot): Blob {
 export function backupFileName(snapshot: BackupSnapshot): string {
   const day = new Date(snapshot.createdAt).toISOString().slice(0, 10)
   return `${snapshot.dbName}-backup-v${snapshot.version}-${day}.json`
+}
+
+/** Deletes a whole backup database (a copy only; the notes are untouched). */
+export async function deleteBrowserBackup(
+  dbName: string,
+  idb: IDBFactory = indexedDB,
+  nameOf: (dbName: string) => string = backupDbName,
+): Promise<void> {
+  await done(idb.deleteDatabase(nameOf(dbName)))
 }

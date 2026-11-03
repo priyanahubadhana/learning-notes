@@ -113,10 +113,8 @@ export const es7: Record<string, string> = {
   'save.failed':
     'Aún sin guardar. Tus últimos cambios se conservan en este dispositivo y la aplicación sigue intentándolo.',
   'save.retry': 'Reintentar',
-  'data.all.limits':
-    'No se guardan: historial de páginas, ajustes, búsquedas guardadas ni Papelera. Los días del diario vuelven como un cuaderno.',
   'data.tooBigToRestore':
-    'El archivo se guardó, pero supera los 200 MB y la aplicación no podría abrirlo de nuevo. Consérvalo y guarda también archivos más pequeños por cuaderno.',
+    'El archivo se guardó, pero supera 1 GB y la aplicación no podría abrirlo de nuevo. Guarda solo las notas.',
   'data.failed': 'No funcionó y no se cambió nada. Inténtalo de nuevo.',
   'editor.elsewhere':
     'Esta página está abierta en otra ventana, así que aquí es de solo lectura.',
@@ -124,4 +122,55 @@ export const es7: Record<string, string> = {
   'device.version': 'Versión de la aplicación: {commit}',
   'tree.expand': 'Expandir',
   'tree.collapse': 'Contraer',
+  'data.save.title': 'Guardar',
+  'data.save.notes': 'Guardar solo notas',
+  'data.save.text':
+    '«Todo» incluye imágenes, historial y Papelera. «Solo notas» es pequeño y rápido, y no incluye las imágenes.',
+  'data.saved.full': 'Guardado «{name}» ({size}): todo.',
+  'data.saved.notes': 'Guardado «{name}» ({size}): solo notas, sin imágenes.',
+  'data.more.title': 'Más',
+  'restore.title': 'Restaurar',
+  'restore.text': 'Tú eliges: reemplazar lo que hay o añadir como copias.',
+  'restore.undoRow':
+    'Copia de seguridad previa a la última restauración, {date}',
+  'restore.undo': 'Deshacer restauración',
+  'restore.bar':
+    'Se restauró el archivo del {date}. Tus notas anteriores se guardaron como copia de seguridad.',
+  'restore.undone': 'Tus notas de antes de la restauración han vuelto.',
+  'restore.dlg.saved': 'Guardado',
+  'restore.dlg.contains': 'Contiene',
+  'restore.dlg.contents':
+    '{notebooks} cuadernos, {pages} páginas, {cards} tarjetas',
+  'restore.dlg.also': 'Además',
+  'restore.dlg.alsoFull': 'Historial, Papelera, ajustes, {count} imágenes',
+  'restore.dlg.alsoNotes': 'Historial, Papelera y ajustes, sin imágenes',
+  'restore.dlg.size': 'Tamaño',
+  'restore.replace': 'Reemplazar mis notas',
+  'restore.replace.text':
+    'Tus notas pasan a ser exactamente el archivo. Antes se guarda una copia de seguridad, para que puedas deshacer.',
+  'restore.copies': 'Añadir como copias',
+  'restore.copies.text':
+    'Conserva todo lo que tienes y añade los cuadernos del archivo al lado.',
+  'restore.onlyCopies':
+    'Es un tipo de archivo antiguo, así que solo se puede añadir como copias.',
+  'restore.olderVersion':
+    'Este archivo es de una versión anterior de la aplicación, así que solo se puede añadir como copias.',
+  'restore.busy': 'Restaurando…',
+  'restore.busy.text':
+    'Escribiendo las notas del archivo. Mantén la aplicación abierta.',
+  'restore.err.safety':
+    'No se pudo guardar antes una copia de seguridad (el dispositivo puede estar lleno). No se cambió nada.',
+  'restore.err.older':
+    'Este archivo es de una versión anterior de la aplicación y no puede reemplazar tus notas. Añádelo como copias.',
+  'restore.err.noCopy':
+    'La copia de seguridad ya no existe, así que no hay nada que devolver.',
+  'restore.err.undoOlder':
+    'La aplicación se actualizó desde entonces, así que aquí no se puede devolver la copia de seguridad. Se conserva.',
+  'help.tip.data.exportNotes.meaning':
+    'Guarda notas, tarjetas, historial y ajustes, pero no las imágenes. Pequeño y rápido.',
+  'help.tip.data.exportNotes.example': 'Envíate una copia ligera por correo.',
+  'help.tip.data.undoRestore.meaning':
+    'Devuelve tus notas exactamente como estaban antes de la última restauración.',
+  'help.tip.data.undoRestore.example':
+    '¿Abriste el archivo equivocado? Deshazlo.',
 }

@@ -136,7 +136,148 @@ export async function encryptBlob(blob: Blob, password: string): Promise<Blob> {
 
 /** The first bytes of a file (to tell whether it is locked). */
 export async function peekIsEncrypted(file: Blob): Promise<boolean> {
+  if (isChunkedEncrypted(new Uint8Array(await file.slice(0, 64).arrayBuffer())))
+    return true
   return isEncryptedFile(
     new Uint8Array(await file.slice(0, HEADER_BYTES).arrayBuffer()),
   )
+}
+
+// ---------------------------------------------------------------- big files
+
+/**
+ * Big files (the zip format, up to about 1 GB) are locked in chunks so no
+ * single giant buffer is needed. Same key, same parameters as above.
+ *
+ * Layout: "LNOTESE2" (8) · rounds (4) · salt (16) · base IV (12) · chunk
+ * size (4) · then chunks, each the encrypted bytes of `chunk size` plain
+ * bytes plus a 16-byte check (the last chunk may be shorter). A chunk's IV is
+ * the base IV with its number mixed into the last 4 bytes, and its check
+ * also covers the header, the chunk number and whether it is the last one,
+ * so chunks cannot be reordered, dropped or cut off unnoticed.
+ */
+const MAGIC2 = new TextEncoder().encode('LNOTESE2')
+const HEADER2_BYTES = MAGIC2.length + 4 + 16 + 12 + 4
+const TAG_BYTES = 16
+export const CHUNK_BYTES = 1024 * 1024
+const MIN_CHUNK = 16
+const MAX_CHUNK = 16 * 1024 * 1024
+
+/** True if the bytes start like a chunked locked file. */
+export function isChunkedEncrypted(bytes: Uint8Array): boolean {
+  return (
+    bytes.length >= HEADER2_BYTES &&
+    MAGIC2.every((value, i) => bytes[i] === value)
+  )
+}
+
+function chunkIv(base: Uint8Array, index: number): Uint8Array {
+  const iv = base.slice()
+  const view = new DataView(iv.buffer)
+  view.setUint32(8, (view.getUint32(8) ^ index) >>> 0)
+  return iv
+}
+
+function chunkAad(
+  header: Uint8Array,
+  index: number,
+  final: boolean,
+): Uint8Array {
+  const aad = new Uint8Array(header.length + 5)
+  aad.set(header)
+  new DataView(aad.buffer).setUint32(header.length, index)
+  aad[header.length + 4] = final ? 1 : 0
+  return aad
+}
+
+/** Locks a big file's Blob in chunks. */
+export async function encryptBlobChunked(
+  blob: Blob,
+  password: string,
+  rounds: number = PBKDF2_ROUNDS,
+  chunk: number = CHUNK_BYTES,
+): Promise<Blob> {
+  const header = new Uint8Array(HEADER2_BYTES)
+  header.set(MAGIC2)
+  const view = new DataView(header.buffer)
+  view.setUint32(MAGIC2.length, rounds)
+  globalThis.crypto.getRandomValues(
+    header.subarray(MAGIC2.length + 4, MAGIC2.length + 32),
+  )
+  view.setUint32(MAGIC2.length + 32, chunk)
+  const salt = header.subarray(MAGIC2.length + 4, MAGIC2.length + 20)
+  const baseIv = header.subarray(MAGIC2.length + 20, MAGIC2.length + 32)
+  const key = await keyFor(password, salt, rounds, 'encrypt')
+  const parts: BlobPart[] = [header as BlobPart]
+  for (let index = 0, offset = 0; ; index++, offset += chunk) {
+    const final = offset + chunk >= blob.size
+    const plain = new Uint8Array(
+      await blob.slice(offset, offset + chunk).arrayBuffer(),
+    )
+    const locked = await subtle().encrypt(
+      {
+        name: 'AES-GCM',
+        iv: chunkIv(baseIv, index) as BufferSource,
+        additionalData: chunkAad(header, index, final) as BufferSource,
+      },
+      key,
+      plain as BufferSource,
+    )
+    parts.push(locked)
+    if (final) break
+  }
+  return new Blob(parts, { type: 'application/octet-stream' })
+}
+
+/** The Blob that was locked by `encryptBlobChunked`. Throws `DecryptError`. */
+export async function decryptBlobChunked(
+  file: Blob,
+  password: string,
+): Promise<Blob> {
+  const header = new Uint8Array(
+    await file.slice(0, HEADER2_BYTES).arrayBuffer(),
+  )
+  if (!isChunkedEncrypted(header)) throw new DecryptError(t('err.notLocked'))
+  const view = new DataView(header.buffer)
+  const rounds = view.getUint32(MAGIC2.length)
+  const chunk = view.getUint32(MAGIC2.length + 32)
+  if (
+    rounds < MIN_ROUNDS ||
+    rounds > MAX_ROUNDS ||
+    chunk < MIN_CHUNK ||
+    chunk > MAX_CHUNK ||
+    file.size < HEADER2_BYTES + TAG_BYTES
+  ) {
+    throw new DecryptError(t('err.fileDamaged'))
+  }
+  const salt = header.subarray(MAGIC2.length + 4, MAGIC2.length + 20)
+  const baseIv = header.subarray(MAGIC2.length + 20, MAGIC2.length + 32)
+  const key = await keyFor(password, salt, rounds, 'decrypt')
+  const parts: BlobPart[] = []
+  let offset = HEADER2_BYTES
+  for (let index = 0; offset < file.size; index++) {
+    const length = Math.min(chunk + TAG_BYTES, file.size - offset)
+    const final = offset + length >= file.size
+    if (length < TAG_BYTES) throw new DecryptError(t('err.fileDamaged'))
+    const locked = new Uint8Array(
+      await file.slice(offset, offset + length).arrayBuffer(),
+    )
+    try {
+      parts.push(
+        await subtle().decrypt(
+          {
+            name: 'AES-GCM',
+            iv: chunkIv(baseIv, index) as BufferSource,
+            additionalData: chunkAad(header, index, final) as BufferSource,
+          },
+          key,
+          locked as BufferSource,
+        ),
+      )
+    } catch {
+      throw new WrongPasswordError(t('err.wrongPassword'))
+    }
+    offset += length
+  }
+  return new Blob(parts, { type: 'application/zip' })
 }

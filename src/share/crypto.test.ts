@@ -1,6 +1,10 @@
 import { describe, expect, it } from 'vitest'
 import {
   DecryptError,
+  WrongPasswordError,
+  decryptBlobChunked,
+  encryptBlobChunked,
+  isChunkedEncrypted,
   decryptBytes,
   encryptBytes,
   isEncryptedFile,
@@ -80,4 +84,69 @@ describe('password protection', () => {
     const file = await encryptBytes(big, 'password1', FAST)
     expect((await decryptBytes(file, 'password1')).length).toBe(big.length)
   }, 30_000)
+})
+
+describe('chunked password protection (big files)', () => {
+  const data = () => new Uint8Array(1000).map((_, i) => i % 251)
+  const read = async (b: Blob) => new Uint8Array(await b.arrayBuffer())
+
+  it('round trips over several chunks, including exact multiples and empty', async () => {
+    for (const size of [0, 1, 63, 64, 65, 128, 1000]) {
+      const plain = data().slice(0, size)
+      const locked = await encryptBlobChunked(
+        new Blob([plain]),
+        'password1',
+        FAST,
+        64,
+      )
+      expect(await peekIsEncrypted(locked)).toBe(true)
+      expect(isChunkedEncrypted(await read(locked.slice(0, 64)))).toBe(true)
+      expect(await read(await decryptBlobChunked(locked, 'password1'))).toEqual(
+        plain,
+      )
+    }
+  })
+
+  it('wrong password, changed byte, dropped last chunk, swapped chunks all fail', async () => {
+    const locked = await encryptBlobChunked(
+      new Blob([data()]),
+      'password1',
+      FAST,
+      64,
+    )
+    await expect(
+      decryptBlobChunked(locked, 'password2'),
+    ).rejects.toBeInstanceOf(WrongPasswordError)
+    const raw = await read(locked)
+    const flipped = raw.slice()
+    flipped[100] ^= 1
+    await expect(
+      decryptBlobChunked(new Blob([flipped]), 'password1'),
+    ).rejects.toBeInstanceOf(DecryptError)
+    // Cut off the last chunk (80 = 64 + 16 bytes each).
+    const cut = raw.slice(0, 44 + 80 * 3)
+    await expect(
+      decryptBlobChunked(new Blob([cut]), 'password1'),
+    ).rejects.toBeInstanceOf(DecryptError)
+    const swapped = raw.slice()
+    swapped.set(raw.slice(44 + 80, 44 + 160), 44)
+    swapped.set(raw.slice(44, 44 + 80), 44 + 80)
+    await expect(
+      decryptBlobChunked(new Blob([swapped]), 'password1'),
+    ).rejects.toBeInstanceOf(DecryptError)
+  })
+
+  it('refuses silly headers', async () => {
+    const locked = await read(
+      await encryptBlobChunked(new Blob([data()]), 'password1', FAST, 64),
+    )
+    const bad = locked.slice()
+    new DataView(bad.buffer).setUint32(8, 10) // rounds far too low
+    await expect(
+      decryptBlobChunked(new Blob([bad]), 'password1'),
+    ).rejects.toThrow()
+    await expect(
+      decryptBlobChunked(new Blob(['not locked at all, really not']), 'x'),
+    ).rejects.toBeInstanceOf(DecryptError)
+  })
 })

@@ -1,6 +1,13 @@
 import { readFile } from 'node:fs/promises'
 import { expect, test, type Page } from '@playwright/test'
-import { createNotebook, selectText, sidebar, openSidebar } from './helpers.ts'
+import {
+  createNotebook,
+  addAsCopies,
+  openMore,
+  selectText,
+  sidebar,
+  openSidebar,
+} from './helpers.ts'
 
 const main = (page: Page) => page.getByRole('main')
 const sheet = (page: Page) => main(page).getByRole('region', { name: 'Revise' })
@@ -13,6 +20,7 @@ async function loadSample(page: Page) {
   )
     .getByRole('button', { name: 'Save & restore' })
     .click()
+  await openMore(page)
   await main(page)
     .getByRole('region', { name: 'For testing: sample notebook' })
     .getByRole('button', { name: 'Load sample notebook' })
@@ -96,9 +104,10 @@ test('the five 5B checks, on the sample notebook', async ({ page }) => {
   )
     .getByRole('button', { name: 'Save & restore' })
     .click()
+  await openMore(page)
   const saving = page.waitForEvent('download')
   const save = main(page).getByRole('region', {
-    name: 'One notebook',
+    name: 'Share one notebook',
   })
   await save
     .getByLabel('Notebook to save')
@@ -111,6 +120,7 @@ test('the five 5B checks, on the sample notebook', async ({ page }) => {
   await main(page)
     .getByLabel('Open saved file')
     .setInputFiles(await file.path())
+  await addAsCopies(page)
   await expect(
     page.getByText(/Imported 1 notebooks, \d+ pages and 4 cards/),
   ).toBeVisible()
@@ -223,6 +233,7 @@ test('sample notebook: its databases show in the Database tab; second copy warns
   )
     .getByRole('button', { name: 'Save & restore' })
     .click()
+  await openMore(page)
   const box = main(page).getByRole('region', {
     name: 'For testing: sample notebook',
   })
@@ -260,6 +271,7 @@ test('sample notebook: its databases show in the Database tab; second copy warns
   )
     .getByRole('button', { name: 'Save & restore' })
     .click()
+  await openMore(page)
   await box.getByRole('button', { name: 'Load sample notebook' }).click()
   await expect(
     page.getByText('You already have a sample notebook. Add another?'),

@@ -4,6 +4,7 @@ Current phase only. Older entries are in [ARCHIVE.md](ARCHIVE.md).
 
 ## 2026-11-03
 
+- Planned the pre-sync feature batches with the owner (backup, Pencil test, lock and Reading mode, fonts and voice, pictures and mind maps, ink, reader, trial) and the storage, voice and AI permission choices. Files: `docs/ROADMAP.md`, `docs/DECISIONS.md`, `docs/IDEAS.md`.
 - Renamed Backup & files to Save & restore and cut its text, because it was hard to scan. Applied the audit decisions to the roadmap and rules; set effort and helper-agent limits. Files: `src/i18n/`, `src/share/DataScreen.tsx`, `src/help/helpRegistry.ts`, `e2e/`, `docs/`, `rules/`.
 
 ## 2026-11-02

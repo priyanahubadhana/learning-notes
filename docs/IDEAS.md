@@ -100,3 +100,9 @@ New ideas that come up mid-build are parked here, not added to the current phase
 - 2026-11-02 — Pictures in recall cards (question and answer), stored the same way as note pictures _(Likely phase: After Phase 10 sync; pictures go to Google Drive there)_
 - 2026-11-02 — Video in recall cards: links or embeds, not uploaded files, because video would fill free storage _(Likely phase: After pictures in cards)_
 - 2026-11-02 — Mind maps in cards or as their own block (owner wrote "mind app"; meaning to confirm when planned) _(Likely phase: To plan)_
+- 2026-11-03 — Owner brainstorm, guiding principles: everything is a block; Pencil-first comfort; handwriting is a block type; one shared core with switchable feature modules in one familiar frame _(Likely phase: Shapes every batch; see ROADMAP Phase 9 batches)_
+- 2026-11-03 — Full hands-free voice use of the whole app, including voice navigation offline _(Likely phase: Later; offline control relies on the iPad's Voice Control for now)_
+- 2026-11-03 — Premium AI voice plugged into the voice interface _(Likely phase: After AI cost approval)_
+- 2026-11-03 — AI agents that write notes, mind maps and whole notebooks from speech or writing; handwritten-style output _(Likely phase: 14)_
+- 2026-11-03 — Reader extras: summarise, bullet points and diagrams from highlights _(Likely phase: 14)_
+- 2026-11-03 — Kindle, Apple Books, Google Play Books, Audible connections _(Likely phase: Parked)_

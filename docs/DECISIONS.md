@@ -4,14 +4,20 @@ Current phase only. Older decisions are in [ARCHIVE.md](ARCHIVE.md).
 
 ## Phase 9 decisions
 
-| Date       | Decision                                                                                                   |
-| ---------- | ---------------------------------------------------------------------------------------------------------- |
-| 2026-11-01 | Address: learning-notes-app.pages.dev, the agreed fallback, because learning-notes was taken (owner)       |
-| 2026-11-01 | New versions go live after all tests pass; the app offers the update (owner)                               |
-| 2026-11-01 | Week trial: owner and one other tester; Hindi reviewer available; Spanish review parked (owner)            |
-| 2026-11-01 | Owner creates the free accounts and stops if a card is asked (owner)                                       |
-| 2026-11-03 | All six audit decisions and the roadmap proposals accepted as advised; now in ROADMAP.md and rules (owner) |
-| 2026-11-03 | Backup & files renamed Save & restore, with shorter text (owner)                                           |
+| Date       | Decision                                                                                                                                                    |
+| ---------- | ----------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| 2026-11-01 | Address: learning-notes-app.pages.dev, the agreed fallback, because learning-notes was taken (owner)                                                        |
+| 2026-11-01 | New versions go live after all tests pass; the app offers the update (owner)                                                                                |
+| 2026-11-01 | Week trial: owner and one other tester; Hindi reviewer available; Spanish review parked (owner)                                                             |
+| 2026-11-01 | Owner creates the free accounts and stops if a card is asked (owner)                                                                                        |
+| 2026-11-03 | All six audit decisions and the roadmap proposals accepted as advised; now in ROADMAP.md and rules (owner)                                                  |
+| 2026-11-03 | Backup & files renamed Save & restore, with shorter text (owner)                                                                                            |
+| 2026-11-03 | Pre-sync feature batches 1–8 before Phase 10, replacing the one-week trial with a three-day trial at the end; phase order changed (owner)                   |
+| 2026-11-03 | Restore in place makes a safety copy first and offers Undo restore; backup in two kinds, "Everything" zip and "Notes only" (owner)                          |
+| 2026-11-03 | Big data (ink, audio, books, pictures, History copies) stays on Drive and the device, not Supabase; History 10 copies for text, 5 for ink and media (owner) |
+| 2026-11-03 | Pencil test first; "match GoodNotes" may need native PencilKit (Mac and $99/yr): owner decides after the test (owner)                                       |
+| 2026-11-03 | Voice: free device voice; online speech with a one-time privacy notice; offline control through the iPad's Voice Control and VoiceOver (owner)              |
+| 2026-11-03 | AI permission per notebook, off by default, listed in Settings › Permissions (Phase 14) (owner)                                                             |
 
 ## Decisions to review
 

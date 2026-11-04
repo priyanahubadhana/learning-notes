@@ -154,26 +154,28 @@ test.describe('Touch (a tablet-sized touch screen)', () => {
     await panel().getByRole('button', { name: 'Done' }).click()
     expect(await barNames(page)).toEqual([
       'bold',
-      'strike',
       'color',
+      'strike',
       'highlight',
       'bulletList',
       'checklist',
       'picture',
       'more',
+      'newLine',
     ])
 
     await page.reload()
     await expect(dockedBar(page)).toBeVisible()
     expect(await barNames(page)).toEqual([
       'bold',
-      'strike',
       'color',
+      'strike',
       'highlight',
       'bulletList',
       'checklist',
       'picture',
       'more',
+      'newLine',
     ])
 
     // Size, position and auto-hide are in the same panel.
@@ -199,6 +201,7 @@ test.describe('Touch (a tablet-sized touch screen)', () => {
       'checklist',
       'picture',
       'more',
+      'newLine',
     ])
     await page.reload()
     await expect(dockedBar(page)).toBeVisible()
@@ -211,6 +214,7 @@ test.describe('Touch (a tablet-sized touch screen)', () => {
       'checklist',
       'picture',
       'more',
+      'newLine',
     ])
     expect(
       (await bar(page)

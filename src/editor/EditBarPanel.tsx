@@ -270,7 +270,9 @@ export function EditBarPanel({
           }
           className="min-h-11 rounded-lg border border-line bg-bg px-2"
         >
-          {BAR_PLACEMENTS.map((p) => (
+          {BAR_PLACEMENTS.filter(
+            (p) => p !== 'floating' || placement === p,
+          ).map((p) => (
             <option key={p} value={p}>
               {t(`settings.barPlacement.${p}`)}
             </option>

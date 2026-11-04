@@ -1738,8 +1738,8 @@ export const en = {
   'mode.switchTo': 'Switch to {mode} mode',
   'settings.barPlacement.label': 'Formatting bar position',
   'settings.barPlacement.description':
-    'Where the formatting bar sits: floating over the selected text, docked at the top, or docked at the bottom.',
-  'settings.barPlacement.floating': 'Floating',
+    'Where the formatting bar sits: docked at the top, docked at the bottom, or floating over the page (drag it by ⠿). Use Show tool bar to turn it off.',
+  'settings.barPlacement.floating': 'Off',
   'settings.barPlacement.top': 'Top',
   'settings.barPlacement.bottom': 'Bottom',
   'settings.barSize.label': 'Formatting bar size',
@@ -1830,12 +1830,11 @@ export const en = {
   'set.keep': 'Keep this set',
   'bar.allTools': 'All tools',
   'bar.search': 'Search all features',
-  'bar.show': 'Show the tool bar',
-  'bar.hide': 'Use the floating toolbar instead',
+  'bar.show': 'Show tool bar',
+  'bar.hide': 'Hide tool bar',
   'bar.editSet': 'Tool set to edit',
   'tool.needsPage': 'Open a page first.',
-  'tool.needsBar':
-    'Turn on the tool bar first (page ⋯ menu › Show the tool bar).',
+  'tool.needsBar': 'Turn on the tool bar first (page ⋯ menu › Show tool bar).',
   'tool.coming.ink': 'Drawing with the Pencil is coming in a later update.',
   'tool.coming.reading': 'Reading mode is coming in a later update.',
   'tool.coming.lock':
@@ -2048,4 +2047,105 @@ export const en = {
     'Choose whether the tools close after you use one, or stay open.',
   'help.tip.ribbon.behaviour.example':
     'Keep them open while you format a whole page. Ctrl+F1 switches.',
+  'bar.floatTip': 'This bar now floats. Drag ⠿ to move it.',
+  'bar.move': 'Move the bar (drag, or use the arrow keys)',
+  'bar.resetPos': 'Reset bar position',
+  'popup.close': 'Close',
+  'ribbon.hide': 'Hide ribbon',
+  'ribbon.pill': 'Ribbon',
+  'ribbon.options': 'Ribbon options',
+  'ribbon.opt.show': 'How it shows',
+  'ribbon.opt.size': 'Size',
+  'ribbon.opt.position': 'Position',
+  'ribbon.opt.reset': 'Reset ribbon',
+  'ribbon.mode.replace': 'Ribbon replaces short bar',
+  'ribbon.mode.both': 'Ribbon + short bar',
+  'ribbon.size.full': 'Full (icons and names)',
+  'ribbon.size.slim': 'Slim (one row of icons)',
+  'ribbon.place.same': 'Same as short bar',
+  'ribbon.place.top': 'Top',
+  'ribbon.place.bottom': 'Bottom',
+  'ribbon.place.free': 'Floating (drag ⠿)',
+  'ribbon.group.textStyle': 'Text style',
+  'ribbon.group.fontSize': 'Font & size',
+  'ribbon.group.marks': 'Format',
+  'ribbon.group.lists': 'Lists & alignment',
+  'ribbon.group.moreFormat': 'More formatting',
+  'ribbon.group.copyPaste': 'Copy & paste',
+  'settings.barPlacement.free': 'Floating',
+  'settings.category.toolbar': 'Tool bar',
+  'settings.category.toolbar.hint':
+    'The short bar and the ribbon: show or hide them, layout, position, tool sets and Reset.',
+  'settings.toolbarShow.label': 'Show tool bar',
+  'settings.toolbarShow.description':
+    'Turn the tool bar on or off. Turning it off asks first. Turn it back on here, in the page ⋯ menu (Show tool bar) or with the Show tool bar button in the top bar.',
+  'settings.toolbarLayout.label': 'Tool bar layout',
+  'settings.toolbarLayout.description':
+    'Start with the short bar, or with the full ribbon.',
+  'settings.toolbarLayout.short': 'Short bar',
+  'settings.toolbarLayout.ribbon': 'Ribbon',
+  'settings.ribbonBehaviour.label': 'Ribbon tools',
+  'settings.ribbonBehaviour.description':
+    'Tools close after you use one, or stay open.',
+  'settings.ribbonMode.label': 'Ribbon display',
+  'settings.ribbonMode.description':
+    'The ribbon can replace the short bar, or show together with it.',
+  'settings.ribbonSize.label': 'Ribbon size',
+  'settings.ribbonSize.description':
+    'Full shows icons with names. Slim is one row of icons only; names are in the tooltip.',
+  'settings.ribbonPlacement.label': 'Ribbon position',
+  'settings.ribbonPlacement.description':
+    'Top or Bottom (docked), Floating (drag it), or the same place as the short bar. Bars on the same edge stack and never overlap.',
+  'settings.toolbarSets.label': 'Tool sets (Write, Draw, Read)',
+  'settings.toolbarSets.description':
+    'Choose which tools each set shows, their order and the ribbon tabs. Opens Edit bar on the open page.',
+  'settings.toolbarSets.button': 'Edit bar…',
+  'settings.toolbarSets.needsPage': 'Open a page first, then use ⋯ › Edit bar.',
+  'settings.toolbarReset.label': 'Reset tool bar',
+  'settings.toolbarReset.description':
+    'Back to the standard tools, tabs and positions for this device. Your notes are not touched.',
+  'settings.toolbarReset.button': 'Reset tool bar',
+  'settings.toolbarReset.done': 'Tool bar reset',
+  'theme.pick': 'Choose a theme',
+  'tool.copyPaste': 'Copy & paste',
+  'toolbar.off.title': 'Turn off the tool bar?',
+  'toolbar.off.message':
+    'The tool bar will be hidden. To turn it back on: page ⋯ menu › Show tool bar, or Settings › Tool bar. A Show tool bar button also stays in the top bar.',
+  'toolbar.off.confirm': 'Turn off',
+  'toolbar.off.done': 'Tool bar turned off',
+  'help.tip.bar.handle.meaning':
+    'Drag this handle to move the floating bar anywhere.',
+  'help.tip.bar.handle.example':
+    'It snaps to the edges. Double-tap it to reset the place.',
+  'help.tip.ribbon.options.meaning':
+    'Choose how the ribbon shows: with or instead of the short bar, size, position.',
+  'help.tip.ribbon.options.example': 'Pick Slim for one row of icons.',
+  'help.tip.theme.list.meaning':
+    'Opens the list of themes with a preview of each.',
+  'help.tip.theme.list.example':
+    'The Theme button next to it still cycles in one tap.',
+  'help.tip.tool.copyPaste.meaning':
+    'Extra ways to copy and paste: plain text, Markdown, page with pictures.',
+  'help.tip.tool.copyPaste.example':
+    'Normal copy and paste stay on the keyboard and long-press.',
+  'sidebar.groups': 'Sidebar groups',
+  'sidebar.group.study': 'Study',
+  'sidebar.group.quick': 'Quick access',
+  'path.style.simple': 'Simple (Notebook / Page)',
+  'path.style.full': 'Full path (like folders)',
+  'path.style.page': 'Page only',
+  'path.siblings': 'Pages at this level',
+  'path.noPages': 'No pages here.',
+  'path.hidden': 'Hidden parts of the path',
+  'path.full': 'Full path',
+  'path.showFull': 'Page path: {name}. Show the full path',
+  'path.menu.set': 'Path style: {style}',
+  'path.menu.default': 'Path style: use default',
+  'settings.pathStyle.label': 'Page path style',
+  'settings.pathStyle.description':
+    'How the path of the open page shows in the top bar. A notebook or a page can have its own choice (page first, then notebook, then this).',
+  'help.tip.path.sep.meaning':
+    'Lists the other pages at this level so you can jump to one.',
+  'help.tip.path.sep.example':
+    'Tap the arrow after a notebook to see its top pages.',
 } as const

@@ -13,6 +13,10 @@ Lets the user add pictures from the device into notes and database cells, stored
 - In notes and cells a picture is the text `lnimg:<uuid>` (`imageRef.ts`); `parseImageRef` accepts only that exact form. `imageObjectUrl` makes a browser object URL to show it, cached for the page's life.
 - Files: `bundle.ts` exports the pictures a notebook uses as base64; `importBundle` stores them as new images and `remapImageRefs` updates the references.
 
+## Selecting across pictures (batch 2e)
+
+A drag with the Apple Pencil or a mouse that starts on a picture, ends on one or passes over one selects whole blocks, pictures included, so Copy, Delete and Move act on the whole range; the pictures inside any selection get a visible mark. BlockNote's own selection is a text selection, which cannot start or end in a block without text, so `src/editor/dragSelect.ts` watches pen and mouse drags and, when a picture is involved, sets its own `BlockRangeSelection` (whole blocks from the first to the last at the level they share, children included; no cursor drawn). A text-only drag is left to the browser; a finger keeps scrolling (long-press selection and handles are the browser's). A picture is not dragged away by the pointer (the ⠿ side handle moves blocks). Tests: `dragSelect.test.ts` (range maths, delete, copy, marks) and `e2e/penSelect.spec.ts` (simulated pen from text over a picture, from a picture, to a picture, upwards, mouse, Copy, Delete, Move, text-only, finger).
+
 ## Edge cases
 
 - A missing or deleted picture gives `null` and nothing is shown.

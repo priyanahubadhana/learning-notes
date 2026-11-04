@@ -43,6 +43,8 @@ export type SettingControl =
   | { kind: 'segmented' | 'select'; options: readonly SettingOption[] }
   /** The Revise labels list (name, colour; add and remove). */
   | { kind: 'labels' }
+  /** A button that does something (no value is kept), e.g. Reset tool bar. */
+  | { kind: 'action'; buttonKey: MessageKey; run: () => void }
   | {
       /** A rising list of whole numbers, e.g. review steps in days. */
       kind: 'steps'
@@ -78,6 +80,13 @@ export interface SettingDefinition<T extends JsonValue = JsonValue> {
   shownWhen?: { settingId: string; values: readonly JsonValue[] }
   /** Device settings: runs after the user changes it (e.g. a mode sets its presets). */
   onChange?: (value: T) => void
+  /**
+   * Device settings: the value is worked out from other things instead of
+   * being stored itself (e.g. "Show tool bar" from the bar position).
+   */
+  derived?: { read: () => T; write: (value: T) => void }
+  /** English words that also find this setting in a search (e.g. "ribbon"). */
+  keywords?: string
 }
 
 export interface SettingsRegistry {

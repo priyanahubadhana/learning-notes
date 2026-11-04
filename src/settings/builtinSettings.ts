@@ -29,6 +29,8 @@ import {
   type Language,
 } from '../i18n/languages'
 import { dateLocale, t, type DateStyle, type MessageKey } from '../i18n/t'
+import { freeTip } from '../app/tools/freeBar'
+import { isPathStyle, PATH_STYLES, type PathStyle } from '../pages/pathStyle'
 import { writeDeviceSetting } from './settingsService'
 import {
   createSettingsRegistry,
@@ -63,6 +65,12 @@ settingsRegistry.registerCategory({
   labelKey: 'settings.category.journal',
   descriptionKey: 'settings.category.journal.hint',
   order: 30,
+})
+settingsRegistry.registerCategory({
+  id: 'toolbar',
+  labelKey: 'settings.category.toolbar',
+  descriptionKey: 'settings.category.toolbar.hint',
+  order: 70,
 })
 settingsRegistry.registerCategory({
   id: 'advanced',
@@ -331,7 +339,8 @@ export const deviceModeSetting: SettingDefinition<DeviceMode> = {
   labelKey: 'settings.deviceMode.label',
   descriptionKey: 'settings.deviceMode.description',
   category: 'general',
-  alsoIn: ['advanced'],
+  alsoIn: ['advanced', 'toolbar'],
+  keywords: 'tool bar toolbar ribbon bar device',
   scope: 'device',
   defaultValue: 'computer',
   isValid: isDeviceMode,
@@ -356,15 +365,24 @@ export const barPlacementSetting: SettingDefinition<BarPlacement> = {
   labelKey: 'settings.barPlacement.label',
   descriptionKey: 'settings.barPlacement.description',
   category: 'advanced',
+  alsoIn: ['toolbar'],
+  keywords: 'tool bar toolbar ribbon bar position floating top bottom',
   scope: 'device',
   defaultValue: MODE_PRESETS.computer.placement,
   isValid: isBarPlacement,
   control: {
     kind: 'segmented',
-    options: BAR_PLACEMENTS.map((value) => ({
-      value,
-      label: () => t(`settings.barPlacement.${value}`),
-    })),
+    // "Off" (the older `floating`) is the Show tool bar setting's job.
+    options: BAR_PLACEMENTS.filter((value) => value !== 'floating').map(
+      (value) => ({
+        value,
+        label: () => t(`settings.barPlacement.${value}`),
+      }),
+    ),
+  },
+  onChange: (value) => {
+    // A short tip points at the bar that now floats.
+    if (value === 'free') freeTip.set(true)
   },
 }
 
@@ -373,6 +391,8 @@ export const barSizeSetting: SettingDefinition<BarSize> = {
   labelKey: 'settings.barSize.label',
   descriptionKey: 'settings.barSize.description',
   category: 'advanced',
+  alsoIn: ['toolbar'],
+  keywords: 'tool bar toolbar ribbon bar size',
   scope: 'device',
   defaultValue: MODE_PRESETS.computer.size,
   isValid: isBarSize,
@@ -424,6 +444,8 @@ export const autoSwitchSetting: SettingDefinition<AutoSwitch> = {
   labelKey: 'settings.autoSwitch.label',
   descriptionKey: 'settings.autoSwitch.description',
   category: 'advanced',
+  alsoIn: ['toolbar'],
+  keywords: 'tool bar toolbar ribbon bar auto switch pencil',
   scope: 'device',
   defaultValue: 'pen',
   isValid: isAutoSwitch,
@@ -432,6 +454,28 @@ export const autoSwitchSetting: SettingDefinition<AutoSwitch> = {
     options: AUTO_SWITCHES.map((value) => ({
       value,
       label: () => t(`settings.autoSwitch.${value}`),
+    })),
+  },
+}
+
+/**
+ * How the page path in the top bar shows, unless the notebook or the page has
+ * its own choice (page, then notebook, then this).
+ */
+export const pathStyleSetting: SettingDefinition<PathStyle> = {
+  id: 'general.pathStyle',
+  labelKey: 'settings.pathStyle.label',
+  descriptionKey: 'settings.pathStyle.description',
+  category: 'general',
+  keywords: 'path breadcrumb folders location top bar',
+  scope: 'device',
+  defaultValue: 'simple',
+  isValid: isPathStyle,
+  control: {
+    kind: 'segmented',
+    options: PATH_STYLES.map((value) => ({
+      value,
+      label: () => t(`path.style.${value}` as MessageKey),
     })),
   },
 }
@@ -461,6 +505,7 @@ for (const definition of [
   shortcutHintsSetting,
   barAutoHideSetting,
   autoSwitchSetting,
+  pathStyleSetting,
   reviseLabelsSetting,
   languageSetting,
   showHelp,

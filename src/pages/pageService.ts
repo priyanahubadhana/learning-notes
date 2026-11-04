@@ -8,6 +8,7 @@ import {
   softDeleteMany,
 } from '../core/records'
 import type { Page } from '../core/types'
+import type { PathStyle } from './pathStyle'
 
 /**
  * Page operations. Pages live in a notebook and can nest under other pages
@@ -130,6 +131,18 @@ export async function createPage(
     }
     await db.pages.add(page)
     return page
+  })
+}
+
+/** Sets (or, with undefined, clears) a page's own path style. */
+export async function setPagePathStyle(
+  db: LearningNotesDB,
+  id: string,
+  pathStyle: PathStyle | undefined,
+): Promise<void> {
+  await db.transaction('rw', db.pages, async () => {
+    await getLive(db.pages, id)
+    await db.pages.update(id, { pathStyle, updatedAt: Date.now() })
   })
 }
 

@@ -21,6 +21,7 @@ import type { SettingControl, SettingDefinition } from './registry'
 import { getSetting, setSetting } from './settingsService'
 import { useDeviceSetting, useSyncedSetting } from './useSetting'
 import { DeviceSection } from './DeviceSection'
+import './toolbarSettings'
 
 /**
  * Settings screen: categories on the left (a row of chips on small screens),
@@ -77,7 +78,9 @@ export function SettingsScreen({
       ? visible.filter(
           (s) =>
             !q ||
-            `${t(s.labelKey)} ${t(s.descriptionKey)}`.toLowerCase().includes(q),
+            `${t(s.labelKey)} ${t(s.descriptionKey)} ${s.keywords ?? ''}`
+              .toLowerCase()
+              .includes(q),
         )
       : inCategory(visible, category)
 
@@ -351,6 +354,18 @@ function Control(props: ControlProps) {
   if (control.kind === 'steps')
     return <StepsControl {...props} control={control} />
   if (control.kind === 'labels') return <LabelsControl {...props} />
+  if (control.kind === 'action') {
+    return (
+      <button
+        type="button"
+        onClick={control.run}
+        aria-describedby={props.descId}
+        className="min-h-11 rounded-lg border border-line px-4 text-sm hover:bg-hover"
+      >
+        {t(control.buttonKey)}
+      </button>
+    )
+  }
   return <ChoiceControl {...props} control={control} />
 }
 

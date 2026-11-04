@@ -1,10 +1,5 @@
 import { t, type MessageKey } from '../../i18n/t'
 import { markLabels, markName } from '../../revise/reviseMarks'
-import { barPlacementSetting } from '../../settings/builtinSettings'
-import {
-  readDeviceSetting,
-  writeDeviceSetting,
-} from '../../settings/settingsService'
 import {
   altShortcutLabel,
   isApple,
@@ -15,6 +10,7 @@ import { runEditorCommand } from './editorCommands'
 import type { IconName } from './icons'
 import { currentRunner, type Runner } from './toolRuntime'
 import { toggleRibbonBehaviour } from './toolbarState'
+import { toggleToolBar } from './toolbarVisibility'
 import { TABS, type TabId } from './tabs'
 
 /**
@@ -50,6 +46,8 @@ export interface ToolDef {
   inRibbon?: boolean
   shortcut?: () => string | undefined
   coming?: ComingReason
+  /** Used again and again (New line, Undo): the ribbon keeps its tools open. */
+  repeat?: boolean
   /** Runs it. Without `run`, the editor command with the same id runs. */
   run?: (r: Runner) => void
 }
@@ -58,7 +56,7 @@ const mod = (key: string) => shortcutLabel(key)
 const modShift = shortcutShiftLabel
 
 /** Tools that open one of the short bar's trays need the bar. */
-const needsBar = (r: Runner, panel: 'more' | 'color'): void => {
+const needsBar = (r: Runner, panel: 'more' | 'color' | 'menu'): void => {
   if (r.bar) r.bar.openPanel(panel)
   else r.app?.toast(t('tool.needsBar'))
 }
@@ -123,50 +121,79 @@ export const TOOLS: readonly ToolDef[] = [
   },
 
   // ---- Home ----
-  { id: 'copyPlain', icon: 'copy', section: 'home', group: 'clipboard' },
-  { id: 'copyMarkdown', icon: 'copy', section: 'home', group: 'clipboard' },
+  // One Copy & paste button at the end of Home holds the four copy and paste
+  // extras (they stay in the control panel); normal copy and paste are the
+  // keyboard and a long press.
+  {
+    id: 'copyPaste',
+    icon: 'copy',
+    section: 'home',
+    group: 'copyPaste',
+    run: (r) => needsBar(r, 'menu'),
+  },
+  {
+    id: 'copyPlain',
+    icon: 'copy',
+    section: 'home',
+    group: 'clipboard',
+    inRibbon: false,
+  },
+  {
+    id: 'copyMarkdown',
+    icon: 'copy',
+    section: 'home',
+    group: 'clipboard',
+    inRibbon: false,
+  },
   {
     id: 'pastePlain',
     icon: 'paste',
     section: 'home',
     group: 'clipboard',
+    inRibbon: false,
     shortcut: () => modShift('V'),
   },
-  { id: 'copyPictures', icon: 'copy', section: 'home', group: 'clipboard' },
+  {
+    id: 'copyPictures',
+    icon: 'copy',
+    section: 'home',
+    group: 'clipboard',
+    inRibbon: false,
+  },
   {
     id: 'bold',
     icon: 'bold',
     section: 'home',
-    group: 'text',
+    group: 'marks',
     shortcut: () => mod('B'),
   },
   {
     id: 'italic',
     icon: 'italic',
     section: 'home',
-    group: 'text',
+    group: 'marks',
     shortcut: () => mod('I'),
   },
   {
     id: 'underline',
     icon: 'underline',
     section: 'home',
-    group: 'text',
+    group: 'marks',
     shortcut: () => mod('U'),
   },
-  { id: 'strike', icon: 'strike', section: 'home', group: 'text' },
+  { id: 'strike', icon: 'strike', section: 'home', group: 'marks' },
   {
     id: 'code',
     icon: 'code',
     section: 'home',
-    group: 'text',
+    group: 'marks',
     shortcut: () => mod('E'),
   },
   {
     id: 'font',
     icon: 'font',
     section: 'home',
-    group: 'text',
+    group: 'fontSize',
     also: [{ tab: 'view', group: 'text' }],
     coming: 'reading',
   },
@@ -174,7 +201,7 @@ export const TOOLS: readonly ToolDef[] = [
     id: 'textSize',
     icon: 'textSize',
     section: 'home',
-    group: 'text',
+    group: 'fontSize',
     also: [{ tab: 'view', group: 'text' }],
     coming: 'reading',
   },
@@ -182,7 +209,7 @@ export const TOOLS: readonly ToolDef[] = [
     id: 'more',
     icon: 'more',
     section: 'home',
-    group: 'text',
+    group: 'moreFormat',
     run: (r) => needsBar(r, 'more'),
   },
   {
@@ -193,40 +220,47 @@ export const TOOLS: readonly ToolDef[] = [
     run: (r) => needsBar(r, 'color'),
   },
   { id: 'highlight', icon: 'highlighter', section: 'home', group: 'colours' },
-  { id: 'heading1', icon: 'heading1', section: 'home', group: 'paragraph' },
-  { id: 'heading2', icon: 'heading2', section: 'home', group: 'paragraph' },
-  { id: 'heading3', icon: 'heading3', section: 'home', group: 'paragraph' },
-  { id: 'bulletList', icon: 'list', section: 'home', group: 'paragraph' },
-  { id: 'numberedList', icon: 'numbered', section: 'home', group: 'paragraph' },
-  { id: 'checklist', icon: 'checklist', section: 'home', group: 'paragraph' },
-  { id: 'quote', icon: 'quote', section: 'home', group: 'paragraph' },
-  { id: 'alignLeft', icon: 'alignLeft', section: 'home', group: 'paragraph' },
+  { id: 'heading1', icon: 'heading1', section: 'home', group: 'textStyle' },
+  { id: 'heading2', icon: 'heading2', section: 'home', group: 'textStyle' },
+  { id: 'heading3', icon: 'heading3', section: 'home', group: 'textStyle' },
+  { id: 'bulletList', icon: 'list', section: 'home', group: 'lists' },
+  { id: 'numberedList', icon: 'numbered', section: 'home', group: 'lists' },
+  { id: 'checklist', icon: 'checklist', section: 'home', group: 'lists' },
+  { id: 'quote', icon: 'quote', section: 'home', group: 'textStyle' },
+  { id: 'alignLeft', icon: 'alignLeft', section: 'home', group: 'lists' },
   {
     id: 'alignCenter',
     icon: 'alignCenter',
     section: 'home',
-    group: 'paragraph',
+    group: 'lists',
   },
-  { id: 'alignRight', icon: 'alignRight', section: 'home', group: 'paragraph' },
+  { id: 'alignRight', icon: 'alignRight', section: 'home', group: 'lists' },
   {
     id: 'indent',
     icon: 'indent',
     section: 'home',
-    group: 'paragraph',
+    group: 'lists',
     shortcut: () => 'Tab',
   },
   {
     id: 'outdent',
     icon: 'outdent',
     section: 'home',
-    group: 'paragraph',
+    group: 'lists',
     shortcut: () => 'Shift+Tab',
   },
-  { id: 'newLine', icon: 'newLine', section: 'home', group: 'paragraph' },
-  { id: 'blank', icon: 'input', section: 'home', group: 'study' },
+  {
+    id: 'newLine',
+    icon: 'newLine',
+    section: 'home',
+    group: 'lists',
+    repeat: true,
+  },
+  { id: 'blank', icon: 'input', section: 'home', group: 'moreFormat' },
   {
     id: 'undo',
     icon: 'undo',
+    repeat: true,
     section: 'home',
     group: 'undoRedo',
     shortcut: () => mod('Z'),
@@ -234,6 +268,7 @@ export const TOOLS: readonly ToolDef[] = [
   {
     id: 'redo',
     icon: 'redo',
+    repeat: true,
     section: 'home',
     group: 'undoRedo',
     shortcut: () => modShift('Z'),
@@ -406,13 +441,8 @@ export const TOOLS: readonly ToolDef[] = [
     icon: 'panel',
     section: 'view',
     group: 'bar',
-    run: () =>
-      writeDeviceSetting(
-        barPlacementSetting,
-        readDeviceSetting(barPlacementSetting) === 'floating'
-          ? 'top'
-          : 'floating',
-      ),
+    // Turning it off asks first (and offers Undo).
+    run: () => toggleToolBar(),
   },
   {
     id: 'keepToolsOpen',
@@ -559,7 +589,16 @@ export const whereText = (tool: ToolDef): string =>
 /** The order of the groups on each ribbon tab. */
 export const TAB_GROUPS: Record<TabId, readonly string[]> = {
   file: ['saveRestore', 'share', 'import', 'protect', 'app'],
-  home: ['clipboard', 'text', 'colours', 'paragraph', 'study', 'undoRedo'],
+  home: [
+    'undoRedo',
+    'textStyle',
+    'fontSize',
+    'marks',
+    'colours',
+    'lists',
+    'moreFormat',
+    'copyPaste',
+  ],
   insert: ['media', 'blocks', 'templates', 'visual', 'study'],
   draw: ['pens', 'tools', 'style', 'paper', 'pencilOnly'],
   view: ['read', 'views', 'text', 'look', 'bar'],

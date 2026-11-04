@@ -1,5 +1,5 @@
 import { expect, test } from '@playwright/test'
-import { sidebar } from './helpers.ts'
+import { openGroup, sidebar } from './helpers.ts'
 
 // "Today" is fixed so titles and grouping are predictable.
 const at = (day: number) => new Date(2026, 9, day, 10, 0)
@@ -24,6 +24,7 @@ test('Today creates the day page from the Daily journal template, under its mont
   await expect(page.getByText('Today’s journal', { exact: true })).toBeVisible()
 
   // Opening today again goes to the same page.
+  await openGroup(page, 'Templates')
   await sidebar(page).getByRole('button', { name: 'Study notes' }).click()
   await page.keyboard.press('Alt+t')
   await expect(page.getByRole('textbox', { name: 'Page title' })).toHaveValue(

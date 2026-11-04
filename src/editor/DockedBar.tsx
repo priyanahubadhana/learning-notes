@@ -15,27 +15,30 @@ import {
 import {
   useContext,
   useEffect,
-  useLayoutEffect,
   useRef,
   useState,
   type KeyboardEvent,
   type ReactNode,
 } from 'react'
 import { createPortal } from 'react-dom'
+import type { Place } from '../app/tools/toolbarState'
 import { AppUiContext } from '../app/appUi'
 import { isApple } from '../app/keys'
 import { Tip } from '../help/Help'
 import { t } from '../i18n/t'
-import {
-  useBarSettings,
-  useKeyboardInset,
-} from '../settings/deviceModeSettings'
+import { useBarSettings } from '../settings/deviceModeSettings'
 import { keepKnown } from '../app/deviceMode'
 import { Icon } from '../app/tools/icons'
 import { SetSwitch } from '../app/tools/SetSwitch'
 import { ToolButton } from '../app/tools/ToolButton'
 import { Ribbon } from '../app/tools/Ribbon'
+import { barGroups } from '../app/tools/barLayout'
+import { resetFreePos } from '../app/tools/freeBar'
+import { isEditorPopup, usePopup } from '../app/popups'
+import { BarStack } from './BarStack'
+import { useBarLayout } from './useBarLayout'
 import {
+  PLACES,
   activeSet,
   ribbonExpanded,
   ribbonOpen,
@@ -56,6 +59,7 @@ import {
 } from './barActions'
 import { clearSelection } from './lineActions'
 import { ColorButton, ColorPanel } from './ColorPicker'
+import { PopupHeader } from '../app/tools/PopupClose'
 import {
   copyAs,
   copyPageWithPictures,
@@ -83,7 +87,7 @@ export function DockedBar({ slot }: { slot: HTMLElement | null }) {
   const editor = useBlockNoteEditor() as unknown as Editor
   const mounted = useEditorDOMElement(editor as never)
   if (!slot || !mounted) return null
-  return createPortal(<Bar editor={editor} />, slot)
+  return <Bar editor={editor} slot={slot} />
 }
 
 /** Which tools are "on" now (bold, a list, the highlight …). */
@@ -100,23 +104,24 @@ function useToolActive(editor: Editor): (id: string) => boolean {
   }
 }
 
-function Bar({ editor }: { editor: Editor }) {
+function Bar({ editor, slot }: { editor: Editor; slot: HTMLElement }) {
   const settings = useBarSettings()
-  const { placement, buttonPx, hoverTips, shortcutHints, autoHide } = settings
-  const bottom = placement === 'bottom'
+  const { buttonPx, hoverTips, shortcutHints, autoHide } = settings
+  const layout = useBarLayout()
+  const groups = barGroups(layout)
   const actions = useBarActions(editor)
   const set = activeSet.useValue()
-  const ribbon = ribbonOpen.useValue()
+  const ribbon = layout.ribbon !== null
+  const both = layout.ribbon !== null && layout.short !== null
   const listed = useSetTools(set)
   const known = [...allActionIds(), ...allTools().map((tool) => tool.id)]
   const onSet = keepKnown(listed, known)
-  const inset = useKeyboardInset()
   const [panel, setPanel] = useState<Panel | null>(null)
   const { toast } = useContext(AppUiContext)
   const menuButton = useRef<HTMLButtonElement>(null)
   const [focusInBar, setFocusInBar] = useState(false)
+  const [freeFraction, setFreeFraction] = useState(1)
   const editorFocused = useEditorFocus()
-  const wrapper = useRef<HTMLDivElement>(null)
   const isActive = useToolActive(editor)
   useAutoBarSet()
 
@@ -152,47 +157,19 @@ function Bar({ editor }: { editor: Editor }) {
   const shown =
     !autoHide || editorFocused || focusInBar || selecting || panel !== null
 
-  // The sticky section chips of a long page sit just below a top bar: while
-  // the bar is there, its height is shared as --dock-top.
-  useLayoutEffect(() => {
-    const el = wrapper.current
-    const root = document.documentElement
-    if (!el || bottom) return
-    const apply = () =>
-      root.style.setProperty('--dock-top', el.offsetHeight + 'px')
-    apply()
-    const watch = new ResizeObserver(apply)
-    watch.observe(el)
-    return () => {
-      watch.disconnect()
-      root.style.removeProperty('--dock-top')
-    }
-  }, [bottom])
-
-  // The open tray closes on Esc or a tap anywhere else.
-  useEffect(() => {
-    if (panel === null) return
-    const close = (e: Event) => {
-      const target = e.target as HTMLElement | null
-      if (!target || wrapper.current?.contains(target)) return
-      // Popups opened by BlockNote's own buttons live next to the editor.
-      if (target.closest('.bn-container') && !target.closest('.bn-editor')) {
-        return
-      }
-      setPanel(null)
-    }
-    const onKey = (e: globalThis.KeyboardEvent) => {
-      if (e.key !== 'Escape') return
-      setPanel(null)
-      if (panel === 'menu') menuButton.current?.focus()
-    }
-    document.addEventListener('pointerdown', close, true)
-    document.addEventListener('keydown', onKey)
-    return () => {
-      document.removeEventListener('pointerdown', close, true)
-      document.removeEventListener('keydown', onKey)
-    }
-  }, [panel])
+  // The open tray follows the shared pop-up rule (src/app/popups.ts): it
+  // closes on a choice, a tap outside, another pop-up, Esc, or a page scroll.
+  usePopup(
+    panel !== null,
+    () => setPanel(null),
+    // BlockNote's own pop-ups (opened by its buttons) live next to the editor.
+    (el) => el.closest('[data-bar="tray"]') !== null || isEditorPopup(el),
+    {
+      onEscape: () => {
+        if (panel === 'menu') menuButton.current?.focus()
+      },
+    },
+  )
 
   // Tapping empty page space clears the selection (and the keyboard).
   useEffect(() => {
@@ -230,15 +207,6 @@ function Bar({ editor }: { editor: Editor }) {
     buttons[(next + buttons.length) % buttons.length]?.focus()
   }
 
-  const barStyle = bottom
-    ? {
-        bottom: inset,
-        paddingBottom: inset > 0 ? 0 : 'env(safe-area-inset-bottom, 0px)',
-        paddingLeft: 'env(safe-area-inset-left, 0px)',
-        paddingRight: 'env(safe-area-inset-right, 0px)',
-      }
-    : undefined
-
   const buttonFor = (id: string): ReactNode => {
     const action = byId.get(id)
     if (action) {
@@ -272,6 +240,7 @@ function Bar({ editor }: { editor: Editor }) {
             type="button"
             data-bar-btn
             data-action="more"
+            data-popup-trigger
             aria-expanded={panel === 'more'}
             aria-haspopup="true"
             onMouseDown={keepFocus}
@@ -300,241 +269,302 @@ function Bar({ editor }: { editor: Editor }) {
   const END_BUTTON =
     'inline-flex shrink-0 items-center justify-center gap-1.5 rounded-xl text-ink-soft hover:bg-hover hover:text-ink motion-safe:transition-colors'
 
-  return (
-    <div
-      ref={wrapper}
-      data-bar="docked"
-      data-placement={placement}
-      style={{
-        ...barStyle,
-        visibility: shown ? 'visible' : 'hidden',
-      }}
-      onFocus={() => setFocusInBar(true)}
-      onBlur={(e) => {
-        if (!e.currentTarget.contains(e.relatedTarget as Node | null)) {
-          setFocusInBar(false)
-        }
-      }}
-      className={`${
-        bottom ? 'fixed inset-x-0 z-10' : 'relative -mx-14'
-      } bg-bg supports-[backdrop-filter]:bg-bg/60 supports-[backdrop-filter]:backdrop-blur-md`}
-    >
-      <div
-        role="toolbar"
-        aria-label={t('bar.label')}
-        onKeyDown={arrowKeys}
-        className={`mx-3 my-1.5 items-center rounded-2xl border border-line bg-bg px-1.5 py-1 shadow-[0_1px_2px_rgba(0,0,0,0.05),0_6px_18px_rgba(0,0,0,0.07)] supports-[backdrop-filter]:bg-bg/80 supports-[backdrop-filter]:backdrop-blur-xl ${
-          ribbon
-            ? ''
-            : 'grid grid-cols-[auto_minmax(0,1fr)_auto_auto] gap-x-1.5 gap-y-0.5 phone:grid-cols-[auto_minmax(0,1fr)_auto]'
-        }`}
-      >
-        {ribbon ? (
-          <Ribbon
-            px={buttonPx}
-            activeOf={(id) => byId.get(id)?.active ?? isActive(id)}
-            tip={hoverTips}
-            hint={shortcutHints}
-          />
-        ) : (
-          <>
-            <div className="col-start-1 row-start-1">
-              <SetSwitch px={buttonPx} />
-            </div>
-            <div
-              data-slot="tools"
-              // Scrolls sideways on a narrow screen; the end buttons stay in view.
-              className="col-start-2 flex min-w-0 items-center gap-1 overflow-x-auto phone:col-span-2 phone:col-start-1 phone:row-start-2"
-              style={{ scrollbarWidth: 'none' }}
-            >
-              {onSet.map(buttonFor)}
-            </div>
-            <div className="col-start-3 flex items-center gap-1 phone:row-start-1">
-              <Tip id="bar.allTools" touchInfo={false}>
-                <button
-                  type="button"
-                  data-bar-btn
-                  data-action="allTools"
-                  aria-expanded={ribbon}
-                  onMouseDown={keepFocus}
-                  onClick={openRibbon}
-                  style={{ minHeight: Math.max(buttonPx, 44) }}
-                  className={`${END_BUTTON} bg-hover px-3 text-sm font-medium !text-ink`}
-                >
-                  <Icon name="layoutGrid" size={18} />
-                  {t('bar.allTools')}
-                </button>
-              </Tip>
-              <Tip id="bar.search" touchInfo={false}>
-                <button
-                  type="button"
-                  data-bar-btn
-                  data-action="controlPanel"
-                  aria-label={t('bar.search')}
-                  title={t('bar.search')}
-                  onMouseDown={keepFocus}
-                  onClick={() => getAppActions()?.openControlPanel()}
-                  style={{
-                    minHeight: Math.max(buttonPx, 44),
-                    minWidth: Math.max(buttonPx, 44),
-                  }}
-                  className={END_BUTTON}
-                >
-                  <Icon name="search" />
-                </button>
-              </Tip>
-            </div>
-            <div className="col-start-4 flex items-center gap-1 phone:col-start-3 phone:row-start-2">
-              <Tip id="bar.menu" touchInfo={false}>
-                <button
-                  ref={menuButton}
-                  type="button"
-                  data-bar-btn
-                  data-action="toolbarMenu"
-                  aria-label={t('bar.menu')}
-                  title={hoverTips ? t('bar.menu') : undefined}
-                  aria-expanded={panel === 'menu'}
-                  aria-haspopup="true"
-                  onMouseDown={keepFocus}
-                  onClick={() => setPanel(panel === 'menu' ? null : 'menu')}
-                  style={{
-                    minHeight: Math.max(buttonPx, 44),
-                    minWidth: Math.max(buttonPx, 44),
-                  }}
-                  className={END_BUTTON}
-                >
-                  <Icon name="more" />
-                </button>
-              </Tip>
-              <button
-                type="button"
-                data-bar-btn
-                onMouseDown={keepFocus}
-                onClick={done}
-                style={{
-                  minHeight: Math.max(buttonPx, 44),
-                  minWidth: Math.max(buttonPx, 44),
-                }}
-                className="shrink-0 rounded-xl px-2.5 text-sm font-semibold whitespace-nowrap text-ink hover:bg-hover"
-              >
-                {t('bar.done')}
-              </button>
-            </div>
-          </>
-        )}
-      </div>
+  const pillClass = (place: Place) =>
+    `${place === 'free' ? 'mx-0' : 'mx-3'} my-1 items-center rounded-2xl border border-line bg-bg px-1.5 py-0.5 shadow-[0_1px_2px_rgba(0,0,0,0.05),0_6px_18px_rgba(0,0,0,0.07)] supports-[backdrop-filter]:bg-bg/80 supports-[backdrop-filter]:backdrop-blur-xl`
 
-      {panel === 'more' && (
-        <Tray bottom={bottom}>
-          <div
-            // The text style menu (paragraph, heading, list …).
-            className="px-1"
-            style={{ minHeight: Math.max(buttonPx, 44) }}
-          >
-            <BlockTypeSelect />
-          </div>
-          {inMore.map((action) => (
-            <MoreRow
-              key={action.id}
-              action={action}
-              px={buttonPx}
-              hint={shortcutHints}
-              onColor={() => setPanel('color')}
-            />
-          ))}
-          <div
-            // File buttons (caption, replace, …) show only on a picture.
-            className="flex flex-wrap gap-1 empty:hidden"
-          >
-            <FileCaptionButton />
-            <FileReplaceButton />
-            <FileRenameButton />
-            <FileDownloadButton />
-            <FilePreviewButton />
-            <FileDeleteButton />
-          </div>
-          <hr className="my-1 border-line" />
+  const focusHandlers = {
+    onFocus: () => setFocusInBar(true),
+    onBlur: (e: React.FocusEvent<HTMLDivElement>) => {
+      if (!e.currentTarget.contains(e.relatedTarget as Node | null)) {
+        setFocusInBar(false)
+      }
+    },
+  }
+
+  const ribbonPill = (place: Place) => (
+    <div
+      key="ribbon"
+      role="toolbar"
+      data-pill="ribbon"
+      aria-label={t(both ? 'ribbon.pill' : 'bar.label')}
+      onKeyDown={arrowKeys}
+      {...focusHandlers}
+      className={pillClass(place)}
+    >
+      <Ribbon
+        px={buttonPx}
+        both={both}
+        activeOf={(id) => byId.get(id)?.active ?? isActive(id)}
+        tip={hoverTips}
+        hint={shortcutHints}
+      />
+    </div>
+  )
+
+  const shortPill = (place: Place) => (
+    <div
+      key="short"
+      role="toolbar"
+      data-pill="short"
+      aria-label={t('bar.label')}
+      onKeyDown={arrowKeys}
+      {...focusHandlers}
+      className={`${pillClass(place)} grid grid-cols-[auto_minmax(0,1fr)_auto_auto] gap-x-1.5 gap-y-0.5 phone:grid-cols-[auto_minmax(0,1fr)_auto]`}
+    >
+      <div className="col-start-1 row-start-1">
+        <SetSwitch px={buttonPx} />
+      </div>
+      <div
+        data-slot="tools"
+        // Scrolls sideways on a narrow screen; the end buttons stay in view.
+        className="col-start-2 flex min-w-0 items-center gap-1 overflow-x-auto phone:col-span-2 phone:col-start-1 phone:row-start-2"
+        style={{ scrollbarWidth: 'none' }}
+      >
+        {onSet.map(buttonFor)}
+      </div>
+      <div className="col-start-3 flex items-center gap-1 phone:row-start-1">
+        {!ribbon && (
+          <Tip id="bar.allTools" touchInfo={false}>
+            <button
+              type="button"
+              data-bar-btn
+              data-action="allTools"
+              aria-expanded={ribbon}
+              onMouseDown={keepFocus}
+              onClick={openRibbon}
+              style={{ minHeight: Math.max(buttonPx, 44) }}
+              className={`${END_BUTTON} bg-hover px-3 text-sm font-medium !text-ink`}
+            >
+              <Icon name="layoutGrid" size={18} />
+              {t('bar.allTools')}
+            </button>
+          </Tip>
+        )}
+        <Tip id="bar.search" touchInfo={false}>
           <button
             type="button"
+            data-bar-btn
+            data-action="controlPanel"
+            aria-label={t('bar.search')}
+            title={t('bar.search')}
             onMouseDown={keepFocus}
-            onClick={() => setPanel('edit')}
-            style={{ minHeight: Math.max(buttonPx, 44) }}
-            className="rounded-lg px-3 text-left text-sm font-semibold text-accent hover:bg-hover"
+            onClick={() => getAppActions()?.openControlPanel()}
+            style={{
+              minHeight: Math.max(buttonPx, 44),
+              minWidth: Math.max(buttonPx, 44),
+            }}
+            className={END_BUTTON}
           >
-            {t('bar.edit')}
+            <Icon name="search" />
           </button>
-        </Tray>
-      )}
-      {panel === 'color' && (
-        <Tray bottom={bottom} wide>
-          <ColorPanel editor={editor} px={buttonPx} />
-        </Tray>
-      )}
-      {panel === 'menu' && (
-        <Tray bottom={bottom} label={t('bar.menu')} focusFirst>
-          {actions.map((action) => (
-            <MoreRow
-              key={action.id}
-              action={action}
-              px={buttonPx}
-              hint={shortcutHints}
-              onColor={() => setPanel('color')}
-            />
-          ))}
-          <hr className="my-1 border-line" />
-          <MenuItem
-            px={buttonPx}
-            onClick={() => {
-              void copyAs(editor, 'plain', toast)
-              setPanel(null)
+        </Tip>
+      </div>
+      <div className="col-start-4 flex items-center gap-1 phone:col-start-3 phone:row-start-2">
+        <Tip id="bar.menu" touchInfo={false}>
+          <button
+            ref={menuButton}
+            type="button"
+            data-bar-btn
+            data-action="toolbarMenu"
+            data-popup-trigger
+            aria-label={t('bar.menu')}
+            title={hoverTips ? t('bar.menu') : undefined}
+            aria-expanded={panel === 'menu'}
+            aria-haspopup="true"
+            onMouseDown={keepFocus}
+            onClick={() => setPanel(panel === 'menu' ? null : 'menu')}
+            style={{
+              minHeight: Math.max(buttonPx, 44),
+              minWidth: Math.max(buttonPx, 44),
             }}
+            className={END_BUTTON}
           >
-            {t('copy.plain')}
-          </MenuItem>
-          <MenuItem
-            px={buttonPx}
-            onClick={() => {
-              void copyAs(editor, 'markdown', toast)
-              setPanel(null)
-            }}
-          >
-            {t('copy.markdown')}
-          </MenuItem>
-          <MenuItem
-            px={buttonPx}
-            hint={isApple() ? '⌘⇧V' : 'Ctrl+Shift+V'}
-            onClick={() => {
-              void pastePlainFromClipboard(editor, toast)
-              setPanel(null)
-            }}
-          >
-            {t('paste.plain')}
-          </MenuItem>
-          <MenuItem
-            px={buttonPx}
-            onClick={() => {
-              void copyPageWithPictures(editor, toast)
-              setPanel(null)
-            }}
-          >
-            {t('copy.pictures')}
-          </MenuItem>
-          <hr className="my-1 border-line" />
-          <MenuItem px={buttonPx} accent onClick={() => setPanel('edit')}>
-            {t('bar.edit')}
-          </MenuItem>
-        </Tray>
-      )}
-      {panel === 'edit' && (
-        <Tray bottom={bottom} wide>
-          <EditBarPanel
-            actions={actions}
-            mode={settings.mode}
-            onClose={() => setPanel(null)}
-          />
-        </Tray>
-      )}
+            <Icon name="more" />
+          </button>
+        </Tip>
+        <button
+          type="button"
+          data-bar-btn
+          onMouseDown={keepFocus}
+          onClick={done}
+          style={{
+            minHeight: Math.max(buttonPx, 44),
+            minWidth: Math.max(buttonPx, 44),
+          }}
+          className="shrink-0 rounded-xl px-2.5 text-sm font-semibold whitespace-nowrap text-ink hover:bg-hover"
+        >
+          {t('bar.done')}
+        </button>
+      </div>
     </div>
+  )
+
+  // Trays open from the short bar (or the ribbon, when it is the only bar).
+  const trayPlace: Place | null = layout.short ?? layout.ribbon
+  const up = (place: Place) =>
+    place === 'bottom' || (place === 'free' && freeFraction > 0.5)
+
+  const tray = (place: Place) => {
+    const bottom = up(place)
+    return (
+      <>
+        {panel === 'more' && (
+          <Tray bottom={bottom} onClose={() => setPanel(null)}>
+            <div
+              // The text style menu (paragraph, heading, list …).
+              className="px-1"
+              style={{ minHeight: Math.max(buttonPx, 44) }}
+            >
+              <BlockTypeSelect />
+            </div>
+            {inMore.map((action) => (
+              <MoreRow
+                key={action.id}
+                action={action}
+                px={buttonPx}
+                hint={shortcutHints}
+                onColor={() => setPanel('color')}
+              />
+            ))}
+            <div
+              // File buttons (caption, replace, …) show only on a picture.
+              className="flex flex-wrap gap-1 empty:hidden"
+            >
+              <FileCaptionButton />
+              <FileReplaceButton />
+              <FileRenameButton />
+              <FileDownloadButton />
+              <FilePreviewButton />
+              <FileDeleteButton />
+            </div>
+            <hr className="my-1 border-line" />
+            <button
+              type="button"
+              onMouseDown={keepFocus}
+              onClick={() => setPanel('edit')}
+              style={{ minHeight: Math.max(buttonPx, 44) }}
+              className="rounded-lg px-3 text-left text-sm font-semibold text-accent hover:bg-hover"
+            >
+              {t('bar.edit')}
+            </button>
+          </Tray>
+        )}
+        {panel === 'color' && (
+          <Tray bottom={bottom} wide onClose={() => setPanel(null)}>
+            <ColorPanel
+              editor={editor}
+              px={buttonPx}
+              onDone={() => setPanel(null)}
+            />
+          </Tray>
+        )}
+        {panel === 'menu' && (
+          <Tray
+            bottom={bottom}
+            label={t('bar.menu')}
+            focusFirst
+            onClose={() => setPanel(null)}
+          >
+            {actions.map((action) => (
+              <MoreRow
+                key={action.id}
+                action={action}
+                px={buttonPx}
+                hint={shortcutHints}
+                onColor={() => setPanel('color')}
+              />
+            ))}
+            <hr className="my-1 border-line" />
+            <MenuItem
+              px={buttonPx}
+              onClick={() => {
+                void copyAs(editor, 'plain', toast)
+                setPanel(null)
+              }}
+            >
+              {t('copy.plain')}
+            </MenuItem>
+            <MenuItem
+              px={buttonPx}
+              onClick={() => {
+                void copyAs(editor, 'markdown', toast)
+                setPanel(null)
+              }}
+            >
+              {t('copy.markdown')}
+            </MenuItem>
+            <MenuItem
+              px={buttonPx}
+              hint={isApple() ? '⌘⇧V' : 'Ctrl+Shift+V'}
+              onClick={() => {
+                void pastePlainFromClipboard(editor, toast)
+                setPanel(null)
+              }}
+            >
+              {t('paste.plain')}
+            </MenuItem>
+            <MenuItem
+              px={buttonPx}
+              onClick={() => {
+                void copyPageWithPictures(editor, toast)
+                setPanel(null)
+              }}
+            >
+              {t('copy.pictures')}
+            </MenuItem>
+            <hr className="my-1 border-line" />
+            {(layout.short === 'free' || layout.ribbon === 'free') && (
+              <MenuItem
+                px={buttonPx}
+                onClick={() => {
+                  resetFreePos()
+                  setPanel(null)
+                }}
+              >
+                {t('bar.resetPos')}
+              </MenuItem>
+            )}
+            <MenuItem px={buttonPx} accent onClick={() => setPanel('edit')}>
+              {t('bar.edit')}
+            </MenuItem>
+          </Tray>
+        )}
+        {panel === 'edit' && (
+          <Tray bottom={bottom} wide onClose={() => setPanel(null)}>
+            <EditBarPanel
+              actions={actions}
+              mode={settings.mode}
+              onClose={() => setPanel(null)}
+            />
+          </Tray>
+        )}
+      </>
+    )
+  }
+
+  return (
+    <>
+      {PLACES.map((place) => {
+        const kinds = groups[place]
+        if (kinds.length === 0) return null
+        return createPortal(
+          <BarStack
+            key={place}
+            place={place}
+            kind={kinds.includes('short') ? 'short' : 'ribbon'}
+            hidden={place !== 'free' && !shown}
+            onFraction={setFreeFraction}
+          >
+            {kinds.map((kind) =>
+              kind === 'ribbon' ? ribbonPill(place) : shortPill(place),
+            )}
+            {trayPlace === place && tray(place)}
+          </BarStack>,
+          slot,
+          place,
+        )
+      })}
+    </>
   )
 }
 
@@ -615,7 +645,11 @@ function SpecialButton({
   onColor: () => void
 }) {
   return (
-    <span data-action={action.id} className="shrink-0">
+    <span
+      data-action={action.id}
+      data-popup-trigger={action.special === 'color' || undefined}
+      className="shrink-0"
+    >
       {action.special === 'color' ? (
         <ColorButton
           editor={editor}
@@ -726,9 +760,12 @@ function Tray({
   wide,
   label,
   focusFirst,
+  onClose,
   children,
 }: {
   bottom: boolean
+  /** The ✕ in the top corner (and every other way out) calls this. */
+  onClose: () => void
   wide?: boolean
   label?: string
   /** Moves the keyboard focus into the tray (the toolbar menu). */
@@ -737,11 +774,19 @@ function Tray({
 }) {
   const ref = useRef<HTMLDivElement>(null)
   useEffect(() => {
-    if (focusFirst) ref.current?.querySelector<HTMLElement>('button')?.focus()
+    if (focusFirst) {
+      ref.current
+        ?.querySelector<HTMLElement>('button:not([data-popup-close])')
+        ?.focus({ preventScroll: true })
+    }
   }, [focusFirst])
   const arrows = (e: KeyboardEvent<HTMLDivElement>) => {
     if (e.key !== 'ArrowDown' && e.key !== 'ArrowUp') return
-    const items = [...e.currentTarget.querySelectorAll<HTMLElement>('button')]
+    const items = [
+      ...e.currentTarget.querySelectorAll<HTMLElement>(
+        'button:not([data-popup-close])',
+      ),
+    ]
     const at = items.indexOf(document.activeElement as HTMLElement)
     e.preventDefault()
     const next = at + (e.key === 'ArrowDown' ? 1 : -1)
@@ -758,6 +803,7 @@ function Tray({
         wide ? 'w-[340px]' : 'min-w-[230px]'
       } ${bottom ? 'bottom-full mb-1' : 'top-full'}`}
     >
+      <PopupHeader title={label} onClose={onClose} />
       {children}
     </div>
   )

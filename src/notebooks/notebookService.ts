@@ -9,6 +9,7 @@ import {
 import type { Notebook, NotebookTab } from '../core/types'
 import { softDeleteDatabaseParts } from '../databases/databaseParts'
 import { defaultNotebookTabs } from '../databases/notebookTabs'
+import type { PathStyle } from '../pages/pathStyle'
 
 /**
  * Notebook operations. UI code should call these instead of touching the
@@ -78,6 +79,18 @@ export async function createNotebook(
     }
     await db.notebooks.add(notebook)
     return notebook
+  })
+}
+
+/** Sets (or, with undefined, clears) a notebook's path style. */
+export async function setNotebookPathStyle(
+  db: LearningNotesDB,
+  id: string,
+  pathStyle: PathStyle | undefined,
+): Promise<void> {
+  await db.transaction('rw', db.notebooks, async () => {
+    await getLive(db.notebooks, id)
+    await db.notebooks.update(id, { pathStyle, updatedAt: Date.now() })
   })
 }
 

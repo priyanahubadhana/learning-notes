@@ -185,8 +185,8 @@ export const es7: Record<string, string> = {
   'mode.switchTo': 'Cambiar al modo {mode}',
   'settings.barPlacement.label': 'Posición de la barra de formato',
   'settings.barPlacement.description':
-    'Dónde está la barra de formato: flotando sobre el texto seleccionado, fija arriba o fija abajo.',
-  'settings.barPlacement.floating': 'Flotante',
+    'Dónde va la barra de formato: acoplada arriba, acoplada abajo o flotando sobre la página (arrástrala por ⠿). Usa Mostrar la barra de herramientas para desactivarla.',
+  'settings.barPlacement.floating': 'Desactivada',
   'settings.barPlacement.top': 'Arriba',
   'settings.barPlacement.bottom': 'Abajo',
   'settings.barSize.label': 'Tamaño de la barra de formato',
@@ -279,7 +279,7 @@ export const es7: Record<string, string> = {
   'bar.allTools': 'Todas las herramientas',
   'bar.search': 'Buscar todas las funciones',
   'bar.show': 'Mostrar la barra de herramientas',
-  'bar.hide': 'Usar la barra flotante en su lugar',
+  'bar.hide': 'Ocultar la barra de herramientas',
   'bar.editSet': 'Conjunto de herramientas que editar',
   'tool.needsPage': 'Abre una página primero.',
   'tool.needsBar':
@@ -504,4 +504,108 @@ export const es7: Record<string, string> = {
     'Elige si las herramientas se cierran al usar una o siguen abiertas.',
   'help.tip.ribbon.behaviour.example':
     'Déjalas abiertas mientras das formato a toda la página. Ctrl+F1 cambia.',
+  'bar.floatTip': 'Esta barra ahora flota. Arrastra ⠿ para moverla.',
+  'bar.move': 'Mover la barra (arrastra o usa las flechas)',
+  'bar.resetPos': 'Restablecer la posición de la barra',
+  'popup.close': 'Cerrar',
+  'ribbon.hide': 'Ocultar la cinta',
+  'ribbon.pill': 'Cinta de opciones',
+  'ribbon.options': 'Opciones de la cinta',
+  'ribbon.opt.show': 'Cómo se muestra',
+  'ribbon.opt.size': 'Tamaño',
+  'ribbon.opt.position': 'Posición',
+  'ribbon.opt.reset': 'Restablecer la cinta',
+  'ribbon.mode.replace': 'La cinta reemplaza la barra corta',
+  'ribbon.mode.both': 'Cinta + barra corta',
+  'ribbon.size.full': 'Completa (iconos y nombres)',
+  'ribbon.size.slim': 'Delgada (una fila de iconos)',
+  'ribbon.place.same': 'Igual que la barra corta',
+  'ribbon.place.top': 'Arriba',
+  'ribbon.place.bottom': 'Abajo',
+  'ribbon.place.free': 'Flotante (arrastra ⠿)',
+  'ribbon.group.textStyle': 'Estilo de texto',
+  'ribbon.group.fontSize': 'Fuente y tamaño',
+  'ribbon.group.marks': 'Formato',
+  'ribbon.group.lists': 'Listas y alineación',
+  'ribbon.group.moreFormat': 'Más formato',
+  'ribbon.group.copyPaste': 'Copiar y pegar',
+  'settings.barPlacement.free': 'Flotante',
+  'settings.category.toolbar': 'Barra de herramientas',
+  'settings.category.toolbar.hint':
+    'La barra corta y la cinta: mostrar u ocultar, diseño, posición, conjuntos de herramientas y restablecer.',
+  'settings.toolbarShow.label': 'Mostrar la barra de herramientas',
+  'settings.toolbarShow.description':
+    'Activa o desactiva la barra de herramientas. Antes de desactivarla se pregunta. Vuelve a activarla aquí, en el menú ⋯ de la página (Mostrar la barra de herramientas) o con el botón de la barra superior.',
+  'settings.toolbarLayout.label': 'Diseño de la barra de herramientas',
+  'settings.toolbarLayout.description':
+    'Empezar con la barra corta o con la cinta completa.',
+  'settings.toolbarLayout.short': 'Barra corta',
+  'settings.toolbarLayout.ribbon': 'Cinta',
+  'settings.ribbonBehaviour.label': 'Herramientas de la cinta',
+  'settings.ribbonBehaviour.description':
+    'Las herramientas se cierran tras usar una, o se quedan abiertas.',
+  'settings.ribbonMode.label': 'Cómo se muestra la cinta',
+  'settings.ribbonMode.description':
+    'La cinta puede reemplazar la barra corta o mostrarse junto a ella.',
+  'settings.ribbonSize.label': 'Tamaño de la cinta',
+  'settings.ribbonSize.description':
+    'Completa muestra iconos con nombres. Delgada es una fila de iconos; los nombres están en la ayuda emergente.',
+  'settings.ribbonPlacement.label': 'Posición de la cinta',
+  'settings.ribbonPlacement.description':
+    'Arriba o abajo (acoplada), flotante (arrástrala) o en el mismo sitio que la barra corta. Las barras del mismo borde se apilan sin solaparse.',
+  'settings.toolbarSets.label':
+    'Conjuntos de herramientas (Escribir, Dibujar, Leer)',
+  'settings.toolbarSets.description':
+    'Elige qué herramientas muestra cada conjunto, su orden y las pestañas de la cinta. Abre Editar barra en la página abierta.',
+  'settings.toolbarSets.button': 'Editar barra…',
+  'settings.toolbarSets.needsPage':
+    'Abre primero una página y usa ⋯ › Editar barra.',
+  'settings.toolbarReset.label': 'Restablecer la barra de herramientas',
+  'settings.toolbarReset.description':
+    'Vuelve a las herramientas, pestañas y posiciones estándar de este dispositivo. Tus notas no se tocan.',
+  'settings.toolbarReset.button': 'Restablecer la barra',
+  'settings.toolbarReset.done': 'Barra de herramientas restablecida',
+  'theme.pick': 'Elegir un tema',
+  'tool.copyPaste': 'Copiar y pegar',
+  'toolbar.off.title': '¿Desactivar la barra de herramientas?',
+  'toolbar.off.message':
+    'La barra de herramientas se ocultará. Para volver a activarla: menú ⋯ de la página › Mostrar la barra de herramientas, o Ajustes › Barra de herramientas. Un botón también queda en la barra superior.',
+  'toolbar.off.confirm': 'Desactivar',
+  'toolbar.off.done': 'Barra de herramientas desactivada',
+  'help.tip.bar.handle.meaning':
+    'Arrastra este tirador para mover la barra flotante a cualquier sitio.',
+  'help.tip.bar.handle.example':
+    'Se ajusta a los bordes. Toca dos veces para restablecer su sitio.',
+  'help.tip.ribbon.options.meaning':
+    'Elige cómo se muestra la cinta: con la barra corta o en su lugar, tamaño y posición.',
+  'help.tip.ribbon.options.example':
+    'Elige Delgada para una sola fila de iconos.',
+  'help.tip.theme.list.meaning':
+    'Abre la lista de temas con una vista previa de cada uno.',
+  'help.tip.theme.list.example':
+    'El botón Tema de al lado sigue cambiando con un toque.',
+  'help.tip.tool.copyPaste.meaning':
+    'Otras formas de copiar y pegar: texto sin formato, Markdown, página con imágenes.',
+  'help.tip.tool.copyPaste.example':
+    'Copiar y pegar normales siguen en el teclado y con pulsación larga.',
+  'sidebar.groups': 'Grupos de la barra lateral',
+  'sidebar.group.study': 'Estudio',
+  'sidebar.group.quick': 'Acceso rápido',
+  'path.style.simple': 'Simple (Cuaderno / Página)',
+  'path.style.full': 'Ruta completa (como carpetas)',
+  'path.style.page': 'Solo la página',
+  'path.siblings': 'Páginas de este nivel',
+  'path.noPages': 'No hay páginas aquí.',
+  'path.hidden': 'Partes ocultas de la ruta',
+  'path.full': 'Ruta completa',
+  'path.showFull': 'Ruta de la página: {name}. Mostrar la ruta completa',
+  'path.menu.set': 'Estilo de ruta: {style}',
+  'path.menu.default': 'Estilo de ruta: usar el predeterminado',
+  'settings.pathStyle.label': 'Estilo de la ruta de la página',
+  'settings.pathStyle.description':
+    'Cómo se muestra la ruta de la página abierta en la barra superior. Un cuaderno o una página puede tener su propia elección (primero la página, luego el cuaderno, luego esta).',
+  'help.tip.path.sep.meaning':
+    'Muestra las demás páginas de este nivel para saltar a una.',
+  'help.tip.path.sep.example':
+    'Toca la flecha tras un cuaderno para ver sus páginas principales.',
 }

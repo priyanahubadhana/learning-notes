@@ -7,7 +7,7 @@ Business logic has no UI code, so it can be reused later. Tests sit next to the 
 | Folder           | What's inside                                                                                                   |
 | ---------------- | --------------------------------------------------------------------------------------------------------------- |
 | `src/core/`      | Data model, database, ids, order, records, workspace and block services, block type registry, upgrades, storage |
-| `src/app/`       | Preferences, themes, small UI parts, upgrade screen                                                             |
+| `src/app/`       | Preferences, themes, small UI parts, upgrade screen, the shared pop-up rule (`popups.ts`), sidebar groups       |
 | `src/i18n/`      | `t()` and the text files (English, Hindi, Spanish)                                                              |
 | `src/help/`      | Hover tips, help lines and their registry                                                                       |
 | `src/settings/`  | Settings registry, service and screen                                                                           |

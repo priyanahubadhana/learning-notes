@@ -5,8 +5,7 @@ import { Tip } from '../help/Help'
 import { useLiveQuery } from 'dexie-react-hooks'
 import { IconButton } from '../app/ui'
 import type { TreeState } from '../app/useTreeState'
-import { isBoolean } from '../app/uiPrefs'
-import { usePref } from '../app/usePref'
+import { SidebarGroup } from '../app/SidebarGroup'
 import type { LearningNotesDB } from '../core/db'
 import type { Page } from '../core/types'
 import { PageTree } from '../pages/PageTree'
@@ -51,25 +50,17 @@ export function TemplatesSection({
         : new Set<string | null>(),
     [db, notebookId],
   )
-  const [open, setOpen] = usePref('templatesOpen', isBoolean, true)
 
   const collapseLabel = tr('tree.collapse')
   const expandLabel = tr('tree.expand')
 
   return (
-    <div className="mt-4">
-      <div className="flex items-center">
-        <button
-          type="button"
-          onClick={() => setOpen(!open)}
-          aria-expanded={open}
-          className="flex flex-1 items-center gap-1.5 rounded-md px-2.5 py-1 text-[11px] tracking-[0.06em] text-muted uppercase hover:bg-hover"
-        >
-          <span aria-hidden className="w-3 text-[10px]">
-            {open ? '▾' : '▸'}
-          </span>
-          {tr('templates.heading')}
-        </button>
+    <SidebarGroup
+      id="templates"
+      prefKey="templatesOpen"
+      title={tr('templates.heading')}
+      defaultOpen={false}
+      action={
         <IconButton
           title={tr('templates.new')}
           tip="sidebar.newTemplate"
@@ -77,72 +68,72 @@ export function TemplatesSection({
         >
           +
         </IconButton>
-      </div>
-      {open &&
-        templates?.map((t) => {
-          const daily = t.templateRole === 'daily'
-          const hasSubPages = parents?.has(t.id) ?? false
-          const expanded = hasSubPages && tree.isPageOpen(t.id)
-          return (
-            <div key={t.id}>
-              <div
-                className={`group flex items-center gap-1.5 rounded-md py-1 pr-2 pl-[22px] text-sm ${
-                  t.id === currentPageId
-                    ? 'bg-hover font-medium'
-                    : 'hover:bg-hover'
-                }`}
-              >
-                {hasSubPages ? (
-                  <button
-                    type="button"
-                    onClick={() => tree.togglePage(t.id)}
-                    aria-label={expanded ? collapseLabel : expandLabel}
-                    className="w-3.5 text-center text-[10px] text-muted"
+      }
+    >
+      {templates?.map((t) => {
+        const daily = t.templateRole === 'daily'
+        const hasSubPages = parents?.has(t.id) ?? false
+        const expanded = hasSubPages && tree.isPageOpen(t.id)
+        return (
+          <div key={t.id}>
+            <div
+              className={`group flex items-center gap-1.5 rounded-md py-1 pr-2 pl-[22px] text-sm ${
+                t.id === currentPageId
+                  ? 'bg-hover font-medium'
+                  : 'hover:bg-hover'
+              }`}
+            >
+              {hasSubPages ? (
+                <button
+                  type="button"
+                  onClick={() => tree.togglePage(t.id)}
+                  aria-label={expanded ? collapseLabel : expandLabel}
+                  className="w-3.5 text-center text-[10px] text-muted"
+                >
+                  {expanded ? '▾' : '▸'}
+                </button>
+              ) : (
+                <span aria-hidden className="w-3.5" />
+              )}
+              <span aria-hidden className="w-4 text-center text-xs">
+                {daily ? '☀' : '📋'}
+              </span>
+              <DailyTip daily={daily}>
+                <button
+                  type="button"
+                  onClick={() => onOpen(t.id)}
+                  className="flex-1 truncate text-left"
+                >
+                  {displayName(t.title) || tr('templates.untitled')}
+                </button>
+              </DailyTip>
+              {!daily && (
+                <span className="flex opacity-0 group-focus-within:opacity-100 group-hover:opacity-100">
+                  <IconButton
+                    title={tr('templates.delete')}
+                    tip="sidebar.deleteTemplate"
+                    onClick={() => onRequestDelete(t)}
                   >
-                    {expanded ? '▾' : '▸'}
-                  </button>
-                ) : (
-                  <span aria-hidden className="w-3.5" />
-                )}
-                <span aria-hidden className="w-4 text-center text-xs">
-                  {daily ? '☀' : '📋'}
+                    ×
+                  </IconButton>
                 </span>
-                <DailyTip daily={daily}>
-                  <button
-                    type="button"
-                    onClick={() => onOpen(t.id)}
-                    className="flex-1 truncate text-left"
-                  >
-                    {displayName(t.title) || tr('templates.untitled')}
-                  </button>
-                </DailyTip>
-                {!daily && (
-                  <span className="flex opacity-0 group-focus-within:opacity-100 group-hover:opacity-100">
-                    <IconButton
-                      title={tr('templates.delete')}
-                      tip="sidebar.deleteTemplate"
-                      onClick={() => onRequestDelete(t)}
-                    >
-                      ×
-                    </IconButton>
-                  </span>
-                )}
-              </div>
-              {expanded && (
-                <PageTree
-                  db={db}
-                  notebookId={t.notebookId}
-                  currentPageId={currentPageId}
-                  tree={tree}
-                  rootId={t.id}
-                  onOpen={onOpen}
-                  onRequestDelete={onRequestPageDelete}
-                />
               )}
             </div>
-          )
-        })}
-    </div>
+            {expanded && (
+              <PageTree
+                db={db}
+                notebookId={t.notebookId}
+                currentPageId={currentPageId}
+                tree={tree}
+                rootId={t.id}
+                onOpen={onOpen}
+                onRequestDelete={onRequestPageDelete}
+              />
+            )}
+          </div>
+        )
+      })}
+    </SidebarGroup>
   )
 }
 

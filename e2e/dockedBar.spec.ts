@@ -154,12 +154,14 @@ test.describe('toolbar menu', () => {
     await page.keyboard.press('Enter')
     const menu = page.getByRole('group', { name: 'Toolbar menu' })
     await expect(menu).toBeVisible()
-    // Focus moves into the menu; arrows move between rows.
-    await expect(menu.getByRole('button').first()).toBeFocused()
+    // Focus moves into the menu (past the ✕ in its corner); arrows move between rows.
+    const rows = menu.locator('button:not([data-popup-close])')
+    await expect(menu.getByRole('button', { name: 'Close' })).toBeVisible()
+    await expect(rows.first()).toBeFocused()
     await page.keyboard.press('ArrowDown')
-    await expect(menu.getByRole('button').nth(1)).toBeFocused()
+    await expect(rows.nth(1)).toBeFocused()
     await page.keyboard.press('ArrowUp')
-    await expect(menu.getByRole('button').first()).toBeFocused()
+    await expect(rows.first()).toBeFocused()
     // Esc closes it and gives the focus back to the button.
     await page.keyboard.press('Escape')
     await expect(menu).toHaveCount(0)

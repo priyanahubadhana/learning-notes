@@ -1,4 +1,6 @@
+import { CopyPasteButton } from './CopyPasteMenu'
 import { Icon } from './icons'
+import { ThemeArrow } from './ThemePicker'
 import { comingText, toolLabel, runTool, type ToolDef } from './toolRegistry'
 
 /** Keeps the editor's selection and keyboard when a button is pressed. */
@@ -10,7 +12,41 @@ const keepFocus = (e: { preventDefault: () => void }) => e.preventDefault()
  * icon. A tool that is not built yet looks dimmed, says why in its tooltip
  * and, when pressed, in a message.
  */
-export function ToolButton({
+export function ToolButton(props: ToolButtonProps) {
+  const { tool, px, variant } = props
+  if (tool.id === 'copyPaste') {
+    return <CopyPasteButton px={px} variant={variant} onRun={props.onRun} />
+  }
+  // The Theme button keeps its one-tap cycle; a small arrow beside it opens the list.
+  if (tool.id === 'theme') {
+    return (
+      <span className="inline-flex shrink-0 items-stretch">
+        <PlainToolButton {...props} />
+        <ThemeArrow
+          px={px}
+          vertical={variant === 'ribbon'}
+          onRun={props.onRun}
+        />
+      </span>
+    )
+  }
+  return <PlainToolButton {...props} />
+}
+
+interface ToolButtonProps {
+  tool: ToolDef
+  px: number
+  variant: 'bar' | 'ribbon'
+  active?: boolean
+  /** Show the name as a hover tooltip (the short bar with tips on). */
+  tip?: boolean
+  /** Add the shortcut to the tooltip. */
+  hint?: boolean
+  /** Called after the tool ran (the ribbon closes its tools). */
+  onRun?: () => void
+}
+
+function PlainToolButton({
   tool,
   px,
   variant,
@@ -51,7 +87,7 @@ export function ToolButton({
       onMouseDown={keepFocus}
       onClick={() => {
         runTool(tool.id)
-        if (!tool.coming) onRun?.()
+        if (!tool.coming && !tool.repeat) onRun?.()
       }}
       style={{ minHeight: min, minWidth: min }}
       className={`relative shrink-0 rounded-xl text-ink-soft hover:bg-hover hover:text-ink motion-safe:transition-colors aria-disabled:opacity-60 ${

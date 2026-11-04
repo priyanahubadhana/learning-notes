@@ -23,6 +23,19 @@ export function addLineAfterCursor(editor: Editor): void {
   const [line] = editor.insertBlocks([{ type: 'paragraph' }], current, 'after')
   editor.setTextCursorPosition(line, 'start')
   editor.focus()
+  keepInView(editor, line.id)
+}
+
+/**
+ * Scrolls the new line into view without moving the bar: a bar button that
+ * is tapped again and again must stay where it is, and the cursor stays in
+ * the new line.
+ */
+function keepInView(editor: Editor, blockId: string): void {
+  requestAnimationFrame(() => {
+    const el = editor.domElement?.querySelector(`[data-id="${blockId}"]`)
+    el?.scrollIntoView?.({ block: 'nearest' })
+  })
 }
 
 /**

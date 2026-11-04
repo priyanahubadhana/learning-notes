@@ -9,7 +9,12 @@
 export const DEVICE_MODES = ['computer', 'touch', 'pencil'] as const
 export type DeviceMode = (typeof DEVICE_MODES)[number]
 
-export const BAR_PLACEMENTS = ['floating', 'top', 'bottom'] as const
+/**
+ * top and bottom dock the bar; free is a bar that floats over the page (drag
+ * it by its handle); floating (the older name) means no bar: the toolbar over
+ * the selected text only, which Computer mode uses.
+ */
+export const BAR_PLACEMENTS = ['top', 'bottom', 'free', 'floating'] as const
 export type BarPlacement = (typeof BAR_PLACEMENTS)[number]
 
 export const BAR_SIZES = ['compact', 'normal', 'large'] as const
@@ -153,6 +158,7 @@ export const DEFAULT_PINNED: readonly string[] = [
   'checklist',
   'picture',
   'more',
+  'newLine',
 ]
 
 const ACTION_ID = /^[a-zA-Z][a-zA-Z0-9:-]{0,60}$/

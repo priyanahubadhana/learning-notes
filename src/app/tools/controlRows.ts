@@ -1,6 +1,7 @@
 import { en } from '../../i18n/en'
 import { t } from '../../i18n/t'
 import { settingsRegistry } from '../../settings/builtinSettings'
+import '../../settings/toolbarSettings'
 import { getAppActions } from './toolRuntime'
 import type { IconName } from './icons'
 import { TABS } from './tabs'
@@ -70,7 +71,7 @@ export function buildRows(): Row[] {
       where,
       icon: 'settings',
       haystack:
-        `${label} ${t(setting.descriptionKey)} ${where} ${englishName(setting.labelKey)}`.toLowerCase(),
+        `${label} ${t(setting.descriptionKey)} ${where} ${englishName(setting.labelKey)} ${setting.keywords ?? ''}`.toLowerCase(),
       run: () => getAppActions()?.openSettings(setting.id),
     })
   }

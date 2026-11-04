@@ -49,8 +49,11 @@ export const activeSet = memStore<BarSet>('write')
 /** "Keep this set": the bar stops switching sets by itself. */
 export const keepSet = prefStore('toolbar.keepSet', isBoolean, false)
 
-/** The ribbon replaces the short bar while this is true. */
-export const ribbonOpen = memStore(false)
+/**
+ * The ribbon replaces the short bar while this is true. Saved per device
+ * (Settings › Tool bar › Layout), so the app starts the way it was left.
+ */
+export const ribbonOpen = prefStore('toolbar.ribbon', isBoolean, false)
 /** The ribbon's tab. */
 export const ribbonTab = memStore<TabId>('home')
 /** True while the tab's tools are showing under the tab names. */
@@ -110,7 +113,14 @@ export function useSetTools(set: BarSet): readonly string[] {
 
 /** Tests only. */
 export function resetToolbarState(): void {
-  for (const store of [keepSet, stayOpen, hiddenTabs, drawTools, readTools]) {
+  for (const store of [
+    keepSet,
+    stayOpen,
+    ribbonOpen,
+    hiddenTabs,
+    drawTools,
+    readTools,
+  ]) {
     store.clearCache()
   }
   clearPinnedCache()
@@ -145,3 +155,37 @@ export function toggleRibbonBehaviour(): boolean {
   ribbonExpanded.set(next)
   return next
 }
+
+// ---- The ribbon's display (batch 2e) ----
+
+/** Where a bar sits: docked at an edge, or floating over the page. */
+export const PLACES = ['top', 'bottom', 'free'] as const
+export type Place = (typeof PLACES)[number]
+export const isPlace = (v: unknown): v is Place =>
+  (PLACES as readonly unknown[]).includes(v)
+
+/** "Ribbon replaces short bar" or "Ribbon + short bar" (both at once). */
+export const RIBBON_MODES = ['replace', 'both'] as const
+export type RibbonMode = (typeof RIBBON_MODES)[number]
+export const ribbonMode = prefStore<RibbonMode>(
+  'toolbar.ribbonMode',
+  (v): v is RibbonMode => (RIBBON_MODES as readonly unknown[]).includes(v),
+  'replace',
+)
+
+/** Where the ribbon sits; "same" follows the short bar's position. */
+export type RibbonPlace = Place | 'same'
+export const ribbonPlace = prefStore<RibbonPlace>(
+  'toolbar.ribbonPlacement',
+  (v): v is RibbonPlace => v === 'same' || isPlace(v),
+  'same',
+)
+
+/** Full (icon and name) or Slim (one row of icons only). */
+export const RIBBON_SIZES = ['full', 'slim'] as const
+export type RibbonSize = (typeof RIBBON_SIZES)[number]
+export const ribbonSize = prefStore<RibbonSize>(
+  'toolbar.ribbonSize',
+  (v): v is RibbonSize => (RIBBON_SIZES as readonly unknown[]).includes(v),
+  'full',
+)

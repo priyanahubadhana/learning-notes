@@ -52,6 +52,7 @@ describe('settings registry', () => {
       'general',
       'review',
       'journal',
+      'toolbar',
       'advanced',
       'apis',
     ])

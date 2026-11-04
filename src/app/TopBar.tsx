@@ -1,6 +1,7 @@
 import { t } from '../i18n/t'
 import { useCanGoBack, useCanGoForward } from './navHistory'
 import { MenuIcon } from './ui'
+import { showToolBar, useShowBarButton } from './tools/toolbarVisibility'
 
 const ICON_BUTTON =
   'size-11 shrink-0 items-center justify-center rounded-lg text-ink-soft enabled:hover:bg-hover enabled:hover:text-ink disabled:opacity-35'
@@ -25,6 +26,8 @@ export function TopBar({
   const canGoBack = useCanGoBack()
   const canGoForward = useCanGoForward()
   const toggleName = t(sidebarHidden ? 'nav.showMenu' : 'nav.hideMenu')
+  // While the tool bar is off, the way back stays in sight.
+  const barOff = useShowBarButton()
 
   return (
     <header
@@ -87,6 +90,16 @@ export function TopBar({
       >
         {title && <span className="min-w-0 truncate text-sm">{title}</span>}
       </div>
+      {barOff && (
+        <button
+          type="button"
+          data-testid="show-tool-bar"
+          onClick={showToolBar}
+          className="min-h-11 shrink-0 rounded-lg border border-line px-3 text-xs text-ink-soft hover:bg-hover hover:text-ink"
+        >
+          {t('bar.show')}
+        </button>
+      )}
     </header>
   )
 }

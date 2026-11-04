@@ -151,6 +151,7 @@ export async function typeInEditor(page: Page, text: string) {
 
 /** The Templates section's template names, in order. */
 export async function templateNames(page: Page): Promise<string[]> {
+  await openGroup(page, 'Templates')
   const rows = sidebar(page)
     .locator('div.group')
     .filter({ has: page.locator('span', { hasText: /^(📋|☀)$/ }) })
@@ -408,4 +409,51 @@ export async function startInTheme(
   await page.addInitScript((th) => {
     localStorage.setItem('learning-notes:theme', JSON.stringify(th))
   }, theme)
+}
+
+/** A plain red PNG of the given size (a picture big enough to point at). */
+export async function solidPng(width: number, height: number): Promise<Buffer> {
+  const { deflateSync } = await import('node:zlib')
+  const crc = (buf: Buffer) => {
+    let c = ~0
+    for (const byte of buf) {
+      c ^= byte
+      for (let k = 0; k < 8; k++) c = c & 1 ? (c >>> 1) ^ 0xedb88320 : c >>> 1
+    }
+    return ~c >>> 0
+  }
+  const chunk = (type: string, data: Buffer) => {
+    const head = Buffer.alloc(4)
+    head.writeUInt32BE(data.length)
+    const body = Buffer.concat([Buffer.from(type), data])
+    const tail = Buffer.alloc(4)
+    tail.writeUInt32BE(crc(body))
+    return Buffer.concat([head, body, tail])
+  }
+  const header = Buffer.alloc(13)
+  header.writeUInt32BE(width, 0)
+  header.writeUInt32BE(height, 4)
+  header[8] = 8 // bit depth
+  header[9] = 2 // RGB
+  const row = Buffer.concat([
+    Buffer.from([0]),
+    Buffer.from(Array.from({ length: width }, () => [200, 30, 30]).flat()),
+  ])
+  const raw = Buffer.concat(Array.from({ length: height }, () => row))
+  return Buffer.concat([
+    Buffer.from([137, 80, 78, 71, 13, 10, 26, 10]),
+    chunk('IHDR', header),
+    chunk('IDAT', deflateSync(raw)),
+    chunk('IEND', Buffer.alloc(0)),
+  ])
+}
+
+/** Opens a sidebar group (Tags, Templates …) if it is folded. */
+export async function openGroup(page: Page, name: string) {
+  const heading = sidebar(page).getByRole('button', { name, exact: true })
+  await showSidebar(page)
+  if ((await heading.getAttribute('aria-expanded')) !== 'true') {
+    await heading.click()
+  }
+  await expect(heading).toHaveAttribute('aria-expanded', 'true')
 }

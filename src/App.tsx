@@ -814,6 +814,7 @@ function App() {
             : { kind: 'all' },
         ),
       openControlPanel: () => setControlPanel(true),
+      choose: appUi.choose,
       openDevicePicker: () => setDevicePicker(true),
       showSidebar: () => {
         if (matchMedia(PHONE_SCREEN).matches) setDrawerAt(routeHash)
@@ -830,6 +831,7 @@ function App() {
           parts: [tab],
         })
       },
+      setTheme,
       cycleTheme: () =>
         setTheme(THEMES[(THEMES.indexOf(theme) + 1) % THEMES.length]),
       toggleFavourite: () => {

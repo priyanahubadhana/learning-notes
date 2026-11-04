@@ -131,6 +131,7 @@ describe('pin, unpin, reorder, reset', () => {
       'checklist',
       'picture',
       'more',
+      'newLine',
     ])
   })
 })

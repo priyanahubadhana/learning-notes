@@ -1,5 +1,5 @@
 import { expect, test, type Page } from '@playwright/test'
-import { addPage, createNotebook, typeInEditor } from './helpers.ts'
+import { addPage, createNotebook, typeInEditor, openGroup } from './helpers.ts'
 
 const pageTags = (page: Page) => page.getByRole('group', { name: 'Page tags' })
 const tagMenu = (page: Page) => page.locator('.bn-suggestion-menu')
@@ -8,6 +8,7 @@ const editorTags = (page: Page) => page.locator('.bn-editor .tag-chip')
 test.beforeEach(async ({ page }) => {
   await page.goto('/')
   await createNotebook(page, 'Cardiology', 'Heart sounds')
+  await openGroup(page, 'Tags') // the Tags group starts folded
 })
 
 test('Add tag puts a nested tag on the page; the chip menu removes it', async ({

@@ -1,14 +1,6 @@
-import { sampleName } from '../i18n/defaultNames'
 import { HelpLine, Tip } from '../help/Help'
 import { useLiveQuery } from 'dexie-react-hooks'
-import {
-  Fragment,
-  useContext,
-  useEffect,
-  useLayoutEffect,
-  useRef,
-  useState,
-} from 'react'
+import { useContext, useEffect, useLayoutEffect, useRef, useState } from 'react'
 import { createPortal } from 'react-dom'
 import { AppUiContext, TopBarSlotContext } from '../app/appUi'
 import { altShortcutLabel } from '../app/keys'
@@ -23,10 +15,12 @@ import { revealBlock } from '../editor/revealBlock'
 import { HistoryDialog } from '../history/HistoryDialog'
 import { recordVersion } from '../history/versionService'
 import { dateKey } from '../journal/dates'
-import { t } from '../i18n/t'
+import { t, type MessageKey } from '../i18n/t'
 import { getNotebook } from '../notebooks/notebookService'
 import { saveAsTemplate } from '../templates/templateService'
-import { getPagePath } from './pageService'
+import { getPagePath, setPagePathStyle } from './pageService'
+import { PagePath } from './PagePath'
+import { PATH_STYLES, resolvePathStyle } from './pathStyle'
 import { pageSections } from './sections'
 import { LinkedFrom } from '../links/LinkedFrom'
 import { PageTags } from '../tags/PageTags'
@@ -40,11 +34,12 @@ import {
   barPlacementSetting,
   deviceModeSetting,
 } from '../settings/builtinSettings'
-import { writeDeviceSetting } from '../settings/settingsService'
+import { toggleToolBar } from '../app/tools/toolbarVisibility'
 import { favourites, toggleFavourite } from '../app/favourites'
 import { getAppActions } from '../app/tools/toolRuntime'
 import { shortcutShiftLabel } from '../app/keys'
 import { useDeviceSetting } from '../settings/useSetting'
+import { pathStyleSetting } from '../settings/builtinSettings'
 
 interface PageViewProps {
   db: LearningNotesDB
@@ -140,6 +135,12 @@ export function PageView({
   const [moreAt, setMoreAt] = useState<DOMRect | null>(null)
   const [deviceMode] = useDeviceSetting(deviceModeSetting)
   const [barPlacement] = useDeviceSetting(barPlacementSetting)
+  const [globalPathStyle] = useDeviceSetting(pathStyleSetting)
+  const pathStyle = resolvePathStyle(
+    page.pathStyle,
+    notebook?.pathStyle,
+    globalPathStyle,
+  )
   const starred = favourites.useValue().includes(page.id)
   const moreItems: MenuItem[] = [
     ...(notebook && !isTemplate
@@ -153,6 +154,19 @@ export function PageView({
         ]
       : []),
     { label: t('history.button'), icon: '🕘', onSelect: openHistory },
+    // Path style for this page (wins over its notebook and Settings).
+    ...PATH_STYLES.map((style) => ({
+      label: t('path.menu.set', {
+        style: t(`path.style.${style}` as MessageKey),
+      }),
+      icon: page.pathStyle === style ? '✓' : '',
+      onSelect: () => runTask(setPagePathStyle(db, page.id, style)),
+    })),
+    {
+      label: t('path.menu.default'),
+      icon: page.pathStyle === undefined ? '✓' : '',
+      onSelect: () => runTask(setPagePathStyle(db, page.id, undefined)),
+    },
     {
       label: t(starred ? 'fav.remove' : 'fav.add'),
       icon: starred ? '★' : '☆',
@@ -170,11 +184,7 @@ export function PageView({
     {
       label: t(barPlacement === 'floating' ? 'bar.show' : 'bar.hide'),
       icon: '☰',
-      onSelect: () =>
-        writeDeviceSetting(
-          barPlacementSetting,
-          barPlacement === 'floating' ? 'top' : 'floating',
-        ),
+      onSelect: () => toggleToolBar(),
     },
     ...(notebook && !isTemplate
       ? [
@@ -237,42 +247,15 @@ export function PageView({
       {barSlot &&
         createPortal(
           <>
-            <nav
-              aria-label={t('page.breadcrumb')}
-              className="flex min-w-0 flex-1 items-center gap-x-1 overflow-hidden text-sm whitespace-nowrap text-muted"
-            >
-              {rowDatabase && onOpenDatabase ? (
-                <button
-                  type="button"
-                  onClick={() => onOpenDatabase(rowDatabase.id)}
-                  className="max-w-[14rem] min-w-0 truncate leading-5 hover:text-ink"
-                >
-                  {rowDatabase.title}
-                </button>
-              ) : (
-                <span className="max-w-[14rem] min-w-0 truncate">
-                  {rowDatabase?.title ?? notebook?.title}
-                </span>
-              )}
-              {path.map((p, i) => (
-                <Fragment key={p.id}>
-                  <span>/</span>
-                  {i < path.length - 1 ? (
-                    <button
-                      type="button"
-                      onClick={() => onOpenPage(p.id)}
-                      className="max-w-[14rem] min-w-0 truncate leading-5 hover:text-ink"
-                    >
-                      {sampleName(p) || t('review.untitled')}
-                    </button>
-                  ) : (
-                    <span className="max-w-[14rem] min-w-0 truncate">
-                      {sampleName(p) || t('review.untitled')}
-                    </span>
-                  )}
-                </Fragment>
-              ))}
-            </nav>
+            <PagePath
+              db={db}
+              style={pathStyle}
+              notebook={notebook}
+              rowDatabase={rowDatabase}
+              path={path}
+              onOpenPage={onOpenPage}
+              onOpenDatabase={onOpenDatabase}
+            />
             <button
               type="button"
               aria-label={t('page.more')}

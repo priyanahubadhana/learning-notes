@@ -7,6 +7,7 @@
 - After every sub-step: update docs/HANDOFF.md (5 lines) and commit. At the end of every step: update docs/CHANGELOG.md and docs/IDEAS.md, run the full suite, push to GitHub, mirror, then start the next step.
 - `/next` reads only docs/HANDOFF.md and docs/INDEX.md, after checking Git and `npm audit`.
 - **Models:** the owner uses `opusplan` (Opus plans, Sonnet builds). Write plans clear enough for Sonnet to follow: files to touch, data shapes, rules, tests. If Sonnet gets stuck or keeps failing at something, stop and tell the owner so they can switch to Opus for that part. Effort: high for planning, medium for building. No helper agents unless the owner asks.
+- **Usage limit:** if a helper or the session stops because the usage limit was hit, schedule a one-time restart for just after the stated reset time. When it fires, resume the same helper (so its saved work continues) and tell the owner in one line. Never start a fresh helper over half-done work without checking git status first.
 
 ## Storage
 

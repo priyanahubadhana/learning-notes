@@ -5,8 +5,11 @@ import { createBlock } from '../core/blockService'
 import { createTestDb } from '../core/testing'
 import { readBrowserBackup, safetyDbName } from '../core/upgradeBackup'
 import { getOrCreateDefaultWorkspace } from '../core/workspaceService'
-import { createNotebook } from '../notebooks/notebookService'
-import { createPage } from '../pages/pageService'
+import {
+  createNotebook,
+  setNotebookPathStyle,
+} from '../notebooks/notebookService'
+import { createPage, setPagePathStyle } from '../pages/pageService'
 import { ensureTemplates } from '../templates/templateService'
 import { BundleError, bundleFile, exportWorkspaceBundle } from './bundle'
 import {
@@ -192,6 +195,38 @@ describe('full file', () => {
     expect(await allRows(target)).toEqual(before)
     expect(mark.fileSavedAt).toBe(parsed.manifest.createdAt)
     expect(await readRestoreMark(target)).toEqual(mark)
+  })
+
+  it('page path styles (notebook and page) survive a backup and a restore', async () => {
+    const nb = (await db.notebooks.toArray()).find((n) => n.title === 'Mine')!
+    const page = (
+      await db.pages.where('notebookId').equals(nb.id).toArray()
+    ).find((p) => p.deletedAt === null)!
+    await setNotebookPathStyle(db, nb.id, 'full')
+    await setPagePathStyle(db, page.id, 'page')
+    const parsed = await readFullFile(await writeFullFile(db, 'full'), target)
+    await replaceWithFile(target, parsed)
+    expect((await target.notebooks.get(nb.id))?.pathStyle).toBe('full')
+    expect((await target.pages.get(page.id))?.pathStyle).toBe('page')
+    // Clearing is saved too (the field is removed, not left behind).
+    await setPagePathStyle(db, page.id, undefined)
+    expect('pathStyle' in ((await db.pages.get(page.id)) ?? {})).toBe(false)
+  })
+
+  it('an older backup without path styles still restores', async () => {
+    const parsed = await readFullFile(await writeFullFile(db, 'full'), target)
+    await replaceWithFile(target, parsed)
+    const nb = (await target.notebooks.toArray()).find(
+      (n) => n.title === 'Mine',
+    )
+    expect(nb?.pathStyle).toBeUndefined()
+  })
+
+  it('a bad path style in a file is refused', async () => {
+    const nb = (await db.notebooks.toArray()).find((n) => n.title === 'Mine')!
+    await db.notebooks.update(nb.id, { pathStyle: 'sideways' as never })
+    const blob = await writeFullFile(db, 'full')
+    await expect(readFullFile(blob, target)).rejects.toBeInstanceOf(BundleError)
   })
 
   it('notes only: same rows, no picture entries, pictures are empty', async () => {

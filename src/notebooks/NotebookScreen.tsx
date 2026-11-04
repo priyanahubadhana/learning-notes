@@ -19,13 +19,14 @@ import type { Notebook, NotebookTab } from '../core/types'
 import { ensureStudyTracker } from '../databases/databaseService'
 import { studyTrackerId, tabName } from '../databases/notebookTabs'
 import { DatabaseView } from '../databases/views/DatabaseView'
-import { t } from '../i18n/t'
+import { t, type MessageKey } from '../i18n/t'
+import { PATH_STYLES } from '../pages/pathStyle'
 import { listNotePages } from '../pages/pageService'
 import { CardsTab } from '../recall/CardsTab'
 import { ReviseTab } from '../revise/ReviseTab'
 import type { ReviewScope } from '../recall/reviewService'
 import type { SearchHit } from '../search/searchQuery'
-import { updateNotebookTab } from './notebookService'
+import { setNotebookPathStyle, updateNotebookTab } from './notebookService'
 
 interface NotebookScreenProps {
   db: LearningNotesDB
@@ -107,6 +108,19 @@ export function NotebookScreen({
           },
         ]
       : []),
+    // Path style for every page of this notebook (a page can still override it).
+    ...PATH_STYLES.map((style) => ({
+      label: t('path.menu.set', {
+        style: t(`path.style.${style}` as MessageKey),
+      }),
+      icon: notebook.pathStyle === style ? '✓' : '',
+      onSelect: () => runTask(setNotebookPathStyle(db, notebook.id, style)),
+    })),
+    {
+      label: t('path.menu.default'),
+      icon: notebook.pathStyle === undefined ? '✓' : '',
+      onSelect: () => runTask(setNotebookPathStyle(db, notebook.id, undefined)),
+    },
     ...hiddenTabs.map((tab) => ({
       label: t('notebook.showTab', { name: tabName(tab) }),
       icon: '◉',

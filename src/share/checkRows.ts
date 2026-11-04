@@ -62,6 +62,7 @@ const notebook: Fields<Notebook> = {
   kind: oneOf('journal', 'templates', 'databases'),
   starterVersion: number,
   sample: yes,
+  pathStyle: oneOf('simple', 'full', 'page'),
   tabs: objectList,
 }
 
@@ -75,6 +76,7 @@ const page: Fields<Page> = {
   journalDate: text,
   journalMonth: text,
   customTitle: yes,
+  pathStyle: oneOf('simple', 'full', 'page'),
   summary: text,
   templateRole: oneOf('daily'),
   tagIds: textList,

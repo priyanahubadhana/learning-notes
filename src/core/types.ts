@@ -63,6 +63,11 @@ export interface Notebook extends BaseRecord {
    * (unset = 1). Newer starters are added once when this is lower.
    */
   starterVersion?: number
+  /**
+   * How the page path shows for this notebook's pages (an override of the
+   * Settings default). Unset = use the default.
+   */
+  pathStyle?: 'simple' | 'full' | 'page'
   /** Made by "Load sample notebook" (testing); "Remove sample notebook" finds it by this. */
   sample?: true
   /**
@@ -112,6 +117,8 @@ export interface Page extends BaseRecord {
    * of the automatic date in the current language. Unset = automatic.
    */
   customTitle?: true
+  /** This page's own path style (wins over the notebook's). Unset = inherit. */
+  pathStyle?: 'simple' | 'full' | 'page'
   /** A lesson's own summary (Revise tab); top-level pages only. */
   summary?: string
   /** 'daily': the protected template that fills new journal days. */

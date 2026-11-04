@@ -1,5 +1,5 @@
 import { expect, test } from '@playwright/test'
-import { openSidebar } from './helpers.ts'
+import { openGroup, openSidebar } from './helpers.ts'
 
 test('the language setting switches the app texts and comes back', async ({
   page,
@@ -82,6 +82,7 @@ test('the app’s own template names are shown in the chosen language', async ({
     .click()
   await page.getByRole('button', { name: 'Español', exact: true }).click()
   const side = await openSidebar(page)
+  await openGroup(page, 'Plantillas')
   await expect(
     side.getByRole('button', { name: 'Apuntes de estudio' }),
   ).toBeVisible()

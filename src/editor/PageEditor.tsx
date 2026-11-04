@@ -43,6 +43,8 @@ import { LinkPicker } from '../links/LinkPicker'
 import { AppDragHandleMenu } from './CardMenu'
 import { AppFormattingToolbar } from './SelectionToolbar'
 import { DockedBar } from './DockedBar'
+import { watchDragSelect } from './dragSelect'
+import { useBarLayout } from './useBarLayout'
 import {
   copyAs,
   copyPageWithPictures,
@@ -234,6 +236,7 @@ function LoadedPageEditor({
   // Touch and Pencil: a docked bar instead of the floating toolbar.
   const bar = useBarSettings()
   const keyboardInset = useKeyboardInset()
+  const layout = useBarLayout()
   const docked = bar.placement !== 'floating' && !readOnly
   const [barSlot, setBarSlot] = useState<HTMLElement | null>(null)
   const [sync] = useState(() =>
@@ -437,6 +440,23 @@ function LoadedPageEditor({
         )
     : undefined
 
+  // A pen or mouse drag across pictures selects whole blocks, pictures included.
+  useEffect(() => {
+    let stop = () => {}
+    const begin = () => {
+      stop = watchDragSelect(editor)
+    }
+    if (editor.domElement) {
+      begin()
+      return () => stop()
+    }
+    const off = editor.onMount(begin)
+    return () => {
+      off?.()
+      stop()
+    }
+  }, [editor])
+
   // The control panel, ribbon and bar run editing tools on this editor.
   useEffect(() => {
     setActiveEditor(editor as never, {
@@ -466,12 +486,7 @@ function LoadedPageEditor({
         openDatabase: onOpenDatabase,
       }}
     >
-      {docked && (
-        <div
-          ref={setBarSlot}
-          className={bar.placement === 'top' ? 'sticky top-0 z-10' : undefined}
-        />
-      )}
+      {docked && <div ref={setBarSlot} className="sticky top-0 z-10" />}
       <BlockNoteView
         editor={editor}
         editable={!readOnly}
@@ -538,11 +553,13 @@ function LoadedPageEditor({
           {t('bar.tapBelow')}
         </button>
       )}
-      {docked && bar.placement === 'bottom' && (
-        // Room under the last line, so the fixed bar never covers text.
+      {docked && (layout.short === 'bottom' || layout.ribbon === 'bottom') && (
+        // Room under the last line, so the fixed bars never cover text.
         <div
           aria-hidden
-          style={{ height: bar.buttonPx + 24 + keyboardInset }}
+          style={{
+            height: `calc(var(--dock-bottom, ${bar.buttonPx + 24}px) + ${keyboardInset}px)`,
+          }}
         />
       )}
       {databasePicker && (

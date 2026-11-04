@@ -32,6 +32,13 @@ export const TIPS = {
     where: 'Page › ribbon › Tools close after use / stay open',
   },
   'bar.search': { where: 'Page › short bar › search icon' },
+  'bar.handle': { where: 'Page › floating bar › ⠿ handle' },
+  'ribbon.options': { where: 'Page › ribbon › ⋯ Ribbon options' },
+  'theme.list': {
+    where: 'Page › ribbon View › Theme › arrow; short bar Read set',
+  },
+  'tool.copyPaste': { where: 'Page › ribbon Home › Copy & paste' },
+  'path.sep': { where: 'Top bar › full page path › the arrow between parts' },
   'sidebar.calendar': { where: 'Sidebar › Calendar' },
   'sidebar.favourites': { where: 'Sidebar › Favourites heading' },
   'sidebar.recent': { where: 'Sidebar › Recent heading' },

@@ -1,5 +1,6 @@
-import type { ToastAction } from '../appUi'
+import type { ChoiceRequest, ToastAction } from '../appUi'
 import type { Editor } from '../../editor/barActions'
+import type { Theme } from '../theme'
 
 /**
  * What a tool needs to run. The app (App.tsx) registers `AppActions` once;
@@ -19,12 +20,16 @@ export interface AppActions {
   openSearch: () => void
   openReview: (scope: 'all' | 'page') => void
   openControlPanel: () => void
+  /** Asks a question with a few answers (see AppUi.choose). */
+  choose: (request: ChoiceRequest) => Promise<string | null>
   openDevicePicker: () => void
   /** Shows the sidebar (a drawer on a phone). */
   showSidebar: () => void
   /** The open page's notebook tab: its Revise or Database tab. */
   openNotebookTab: (tab: 'revise' | 'database') => void
   cycleTheme: () => void
+  /** Chooses a theme by name (the theme list's ▾). */
+  setTheme: (theme: Theme) => void
   toggleFavourite: () => void
   /** The id of the open page (null on other screens). */
   currentPageId: () => string | null

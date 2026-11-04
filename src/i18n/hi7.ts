@@ -180,8 +180,8 @@ export const hi7: Record<string, string> = {
   'mode.switchTo': '{mode} मोड में जाएँ',
   'settings.barPlacement.label': 'फ़ॉर्मैटिंग बार की जगह',
   'settings.barPlacement.description':
-    'बार कहाँ रहे: चुने हुए टेक्स्ट पर तैरता हुआ, ऊपर जुड़ा हुआ, या नीचे जुड़ा हुआ।',
-  'settings.barPlacement.floating': 'तैरता',
+    'फ़ॉर्मैटिंग बार कहाँ रहे: ऊपर जुड़ा, नीचे जुड़ा, या पृष्ठ पर तैरता (⠿ से खींचें)। बंद करने के लिए “टूल बार दिखाएँ” इस्तेमाल करें।',
+  'settings.barPlacement.floating': 'बंद',
   'settings.barPlacement.top': 'ऊपर',
   'settings.barPlacement.bottom': 'नीचे',
   'settings.barSize.label': 'फ़ॉर्मैटिंग बार का आकार',
@@ -272,10 +272,10 @@ export const hi7: Record<string, string> = {
   'bar.allTools': 'सभी टूल',
   'bar.search': 'सभी सुविधाएँ खोजें',
   'bar.show': 'टूल बार दिखाएँ',
-  'bar.hide': 'इसके बजाय तैरता टूलबार इस्तेमाल करें',
+  'bar.hide': 'टूल बार छिपाएँ',
   'bar.editSet': 'बदलने के लिए टूल का सेट',
   'tool.needsPage': 'पहले कोई पृष्ठ खोलें।',
-  'tool.needsBar': 'पहले टूल बार चालू करें (पृष्ठ का ⋯ मेनू › टूल बार दिखाएँ)।',
+  'tool.needsBar': 'पहले टूल बार चालू करें (पृष्ठ ⋯ मेनू › टूल बार दिखाएँ)।',
   'tool.coming.ink': 'पेंसिल से ड्रॉइंग बाद के अपडेट में आएगी।',
   'tool.coming.reading': 'पठन मोड बाद के अपडेट में आएगा।',
   'tool.coming.lock': 'पृष्ठ और नोटबुक लॉक करना बाद के अपडेट में आएगा।',
@@ -487,4 +487,106 @@ export const hi7: Record<string, string> = {
     'चुनें कि कोई टूल इस्तेमाल करने के बाद टूल बंद हों या खुले रहें।',
   'help.tip.ribbon.behaviour.example':
     'पूरा पृष्ठ फ़ॉर्मैट करते समय उन्हें खुला रखें। Ctrl+F1 से बदलें।',
+  'bar.floatTip': 'यह बार अब तैरता है। इसे हिलाने के लिए ⠿ को खींचें।',
+  'bar.move': 'बार को हिलाएँ (खींचें, या तीर कुंजियाँ इस्तेमाल करें)',
+  'bar.resetPos': 'बार की जगह रीसेट करें',
+  'popup.close': 'बंद करें',
+  'ribbon.hide': 'रिबन छिपाएँ',
+  'ribbon.pill': 'रिबन',
+  'ribbon.options': 'रिबन के विकल्प',
+  'ribbon.opt.show': 'कैसे दिखे',
+  'ribbon.opt.size': 'आकार',
+  'ribbon.opt.position': 'जगह',
+  'ribbon.opt.reset': 'रिबन रीसेट करें',
+  'ribbon.mode.replace': 'रिबन छोटे बार की जगह लेता है',
+  'ribbon.mode.both': 'रिबन + छोटा बार',
+  'ribbon.size.full': 'पूरा (आइकन और नाम)',
+  'ribbon.size.slim': 'पतला (आइकनों की एक पंक्ति)',
+  'ribbon.place.same': 'छोटे बार जैसी ही',
+  'ribbon.place.top': 'ऊपर',
+  'ribbon.place.bottom': 'नीचे',
+  'ribbon.place.free': 'तैरता (⠿ खींचें)',
+  'ribbon.group.textStyle': 'पाठ शैली',
+  'ribbon.group.fontSize': 'फ़ॉन्ट और आकार',
+  'ribbon.group.marks': 'फ़ॉर्मैट',
+  'ribbon.group.lists': 'सूचियाँ और संरेखण',
+  'ribbon.group.moreFormat': 'और फ़ॉर्मैटिंग',
+  'ribbon.group.copyPaste': 'कॉपी और पेस्ट',
+  'settings.barPlacement.free': 'तैरता',
+  'settings.category.toolbar': 'टूल बार',
+  'settings.category.toolbar.hint':
+    'छोटा बार और रिबन: दिखाना या छिपाना, ढाँचा, जगह, टूल सेट और रीसेट।',
+  'settings.toolbarShow.label': 'टूल बार दिखाएँ',
+  'settings.toolbarShow.description':
+    'टूल बार चालू या बंद करें। बंद करने से पहले पूछा जाता है। इसे यहाँ, पृष्ठ के ⋯ मेनू (टूल बार दिखाएँ) या ऊपरी बार के “टूल बार दिखाएँ” बटन से वापस चालू करें।',
+  'settings.toolbarLayout.label': 'टूल बार का ढाँचा',
+  'settings.toolbarLayout.description':
+    'छोटे बार से शुरू करें, या पूरे रिबन से।',
+  'settings.toolbarLayout.short': 'छोटा बार',
+  'settings.toolbarLayout.ribbon': 'रिबन',
+  'settings.ribbonBehaviour.label': 'रिबन के टूल',
+  'settings.ribbonBehaviour.description':
+    'कोई टूल इस्तेमाल करने के बाद टूल बंद हों, या खुले रहें।',
+  'settings.ribbonMode.label': 'रिबन कैसे दिखे',
+  'settings.ribbonMode.description':
+    'रिबन छोटे बार की जगह ले सकता है, या उसके साथ दिख सकता है।',
+  'settings.ribbonSize.label': 'रिबन का आकार',
+  'settings.ribbonSize.description':
+    'पूरा: आइकन नामों के साथ। पतला: सिर्फ़ आइकनों की एक पंक्ति; नाम टूलटिप में।',
+  'settings.ribbonPlacement.label': 'रिबन की जगह',
+  'settings.ribbonPlacement.description':
+    'ऊपर या नीचे (जुड़ा हुआ), तैरता (खींचें), या छोटे बार वाली जगह। एक ही किनारे के बार ऊपर-नीचे लगते हैं, टकराते नहीं।',
+  'settings.toolbarSets.label': 'टूल सेट (लिखें, ड्रॉ, पढ़ें)',
+  'settings.toolbarSets.description':
+    'चुनें कि हर सेट में कौन-से टूल दिखें, उनका क्रम और रिबन के टैब। खुले पृष्ठ पर बार संपादित करें खुलता है।',
+  'settings.toolbarSets.button': 'बार संपादित करें…',
+  'settings.toolbarSets.needsPage':
+    'पहले कोई पृष्ठ खोलें, फिर ⋯ › बार संपादित करें इस्तेमाल करें।',
+  'settings.toolbarReset.label': 'टूल बार रीसेट करें',
+  'settings.toolbarReset.description':
+    'इस डिवाइस के मानक टूल, टैब और जगहों पर वापस। आपके नोट्स को कुछ नहीं होता।',
+  'settings.toolbarReset.button': 'टूल बार रीसेट करें',
+  'settings.toolbarReset.done': 'टूल बार रीसेट हो गया',
+  'theme.pick': 'थीम चुनें',
+  'tool.copyPaste': 'कॉपी और पेस्ट',
+  'toolbar.off.title': 'टूल बार बंद करें?',
+  'toolbar.off.message':
+    'टूल बार छिप जाएगा। वापस चालू करने के लिए: पृष्ठ ⋯ मेनू › टूल बार दिखाएँ, या सेटिंग › टूल बार। ऊपरी बार में “टूल बार दिखाएँ” बटन भी बना रहता है।',
+  'toolbar.off.confirm': 'बंद करें',
+  'toolbar.off.done': 'टूल बार बंद हो गया',
+  'help.tip.bar.handle.meaning':
+    'तैरते बार को कहीं भी ले जाने के लिए इस हैंडल को खींचें।',
+  'help.tip.bar.handle.example':
+    'यह किनारों पर चिपक जाता है। जगह रीसेट करने के लिए दो बार टैप करें।',
+  'help.tip.ribbon.options.meaning':
+    'चुनें कि रिबन कैसे दिखे: छोटे बार के साथ या उसकी जगह, आकार, जगह।',
+  'help.tip.ribbon.options.example': 'आइकनों की एक पंक्ति के लिए पतला चुनें।',
+  'help.tip.theme.list.meaning':
+    'हर थीम के पूर्वावलोकन के साथ थीमों की सूची खोलता है।',
+  'help.tip.theme.list.example':
+    'इसके पास का थीम बटन अब भी एक टैप में बदलता है।',
+  'help.tip.tool.copyPaste.meaning':
+    'कॉपी-पेस्ट के अतिरिक्त तरीके: सादा पाठ, Markdown, चित्रों वाला पृष्ठ।',
+  'help.tip.tool.copyPaste.example':
+    'सामान्य कॉपी-पेस्ट कीबोर्ड और देर तक दबाने पर रहते हैं।',
+  'sidebar.groups': 'साइडबार के समूह',
+  'sidebar.group.study': 'अध्ययन',
+  'sidebar.group.quick': 'त्वरित पहुँच',
+  'path.style.simple': 'सरल (नोटबुक / पृष्ठ)',
+  'path.style.full': 'पूरा रास्ता (फ़ोल्डर जैसा)',
+  'path.style.page': 'सिर्फ़ पृष्ठ',
+  'path.siblings': 'इस स्तर के पृष्ठ',
+  'path.noPages': 'यहाँ कोई पृष्ठ नहीं।',
+  'path.hidden': 'रास्ते के छिपे हिस्से',
+  'path.full': 'पूरा रास्ता',
+  'path.showFull': 'पृष्ठ का रास्ता: {name}। पूरा रास्ता दिखाएँ',
+  'path.menu.set': 'रास्ते की शैली: {style}',
+  'path.menu.default': 'रास्ते की शैली: डिफ़ॉल्ट इस्तेमाल करें',
+  'settings.pathStyle.label': 'पृष्ठ के रास्ते की शैली',
+  'settings.pathStyle.description':
+    'ऊपरी बार में खुले पृष्ठ का रास्ता कैसे दिखे। नोटबुक या पृष्ठ की अपनी पसंद हो सकती है (पहले पृष्ठ, फिर नोटबुक, फिर यह)।',
+  'help.tip.path.sep.meaning':
+    'इस स्तर के बाकी पृष्ठों की सूची दिखाता है ताकि आप किसी पर जा सकें।',
+  'help.tip.path.sep.example':
+    'नोटबुक के बाद का तीर टैप करें, उसके ऊपरी पृष्ठ दिखेंगे।',
 }

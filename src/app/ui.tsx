@@ -1,6 +1,8 @@
 import { Tip } from '../help/Help'
 import type { TipId } from '../help/helpRegistry'
 import { useEffect, useRef, useState, type ComponentProps } from 'react'
+import { usePopup } from './popups'
+import { PopupHeader } from './tools/PopupClose'
 import { t } from '../i18n/t'
 import type { ChoiceRequest, ToastAction } from './appUi'
 
@@ -114,33 +116,28 @@ export function MenuPopover({
   onClose: () => void
 }) {
   const ref = useRef<HTMLDivElement>(null)
-  const close = useRef(onClose)
-  useEffect(() => {
-    close.current = onClose
-  })
+  const top = Math.max(8, Math.min(anchor.bottom + 6, window.innerHeight - 110))
+  // The shared pop-up rule (outside tap, Esc, scroll, one at a time).
+  usePopup(true, onClose, (target) => ref.current?.contains(target) ?? false)
 
   useEffect(() => {
-    ref.current?.querySelector<HTMLElement>('button:enabled')?.focus()
-    const onDown = (e: MouseEvent) => {
-      if (!ref.current?.contains(e.target as Node)) close.current()
-    }
+    ref.current
+      ?.querySelector<HTMLElement>('button:enabled:not([data-popup-close])')
+      ?.focus({ preventScroll: true })
     const onKey = (e: KeyboardEvent) => {
-      if (e.key === 'Escape') close.current()
       if (e.key !== 'ArrowDown' && e.key !== 'ArrowUp') return
       e.preventDefault()
       const items = [
-        ...(ref.current?.querySelectorAll<HTMLElement>('button:enabled') ?? []),
+        ...(ref.current?.querySelectorAll<HTMLElement>(
+          'button:enabled:not([data-popup-close])',
+        ) ?? []),
       ]
       const at = items.indexOf(document.activeElement as HTMLElement)
       const step = e.key === 'ArrowDown' ? 1 : -1
       items[(at + step + items.length) % items.length]?.focus()
     }
-    document.addEventListener('mousedown', onDown)
     document.addEventListener('keydown', onKey)
-    return () => {
-      document.removeEventListener('mousedown', onDown)
-      document.removeEventListener('keydown', onKey)
-    }
+    return () => document.removeEventListener('keydown', onKey)
   }, [])
 
   return (
@@ -148,11 +145,14 @@ export function MenuPopover({
       ref={ref}
       role="menu"
       style={{
-        left: Math.min(anchor.left, window.innerWidth - 230),
-        top: Math.min(anchor.bottom + 6, window.innerHeight - 110),
+        left: Math.max(8, Math.min(anchor.left, window.innerWidth - 230)),
+        top,
+        // A long menu scrolls inside the screen instead of running off it.
+        maxHeight: window.innerHeight - top - 8,
       }}
-      className="fixed z-50 w-52 rounded-[10px] border border-line bg-bg p-1.5 text-ink shadow-[0_12px_32px_rgba(0,0,0,0.14)]"
+      className="fixed z-50 w-52 overflow-y-auto rounded-[10px] border border-line bg-bg p-1.5 text-ink shadow-[0_12px_32px_rgba(0,0,0,0.14)]"
     >
+      <PopupHeader onClose={onClose} />
       {items.map((item) => (
         <button
           key={item.label}

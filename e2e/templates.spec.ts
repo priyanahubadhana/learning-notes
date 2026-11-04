@@ -6,6 +6,7 @@ import {
   sidebar,
   slashCommand,
   templateNames,
+  openGroup,
   typeInEditor,
   pageAction,
 } from './helpers.ts'
@@ -41,6 +42,7 @@ test('a template’s sub-pages fold out in the sidebar and open', async ({
   page,
 }) => {
   const template = row(page, 'Lesson (large topic)')
+  await openGroup(page, 'Templates')
   const subPage = row(page, 'Keyword summary')
   await expect(subPage).toHaveCount(0) // folded at first
   await template.getByRole('button', { name: 'Expand' }).click()
@@ -128,6 +130,7 @@ test('"New page from this template" makes a page in the first notebook', async (
   page,
 }) => {
   await createNotebook(page, 'Notes', 'First')
+  await openGroup(page, 'Templates')
   await sidebar(page).getByRole('button', { name: 'Reading notes' }).click()
   await page
     .getByRole('button', { name: 'New page from this template' })

@@ -4,6 +4,7 @@ import { useContext, useEffect, useMemo, useRef, useState } from 'react'
 import { AppUiContext } from '../app/appUi'
 import { runTask } from '../app/errors'
 import { ConfirmDialog, IconButton, MenuPopover, NameDialog } from '../app/ui'
+import { SidebarGroup } from '../app/SidebarGroup'
 import { isStringArray } from '../app/uiPrefs'
 import { usePref } from '../app/usePref'
 import type { LearningNotesDB } from '../core/db'
@@ -169,27 +170,32 @@ export function TagsSection({
   const selfAndBelow = (tag: Tag) => [tag.id, ...subTagIds(tags, tag.id)]
 
   return (
-    <div className="mb-2">
-      <div className="flex items-center justify-between px-2.5 pt-2.5 pb-1 text-[11px] tracking-[0.06em] text-muted uppercase">
-        {t('tags.section')}
-        <IconButton
-          title={t('tags.new')}
-          tip="sidebar.newTag"
-          aria-label={t('tags.new')}
-          onClick={() => setTool({ kind: 'new' })}
-        >
-          +
-        </IconButton>
-      </div>
-      {tags.length === 0 ? (
-        <p className="mx-2 rounded-lg border border-dashed border-line p-2.5 text-[12.5px] leading-normal text-muted">
-          {t('tags.empty')}
-        </p>
-      ) : (
-        <div role="group" aria-label={t('tags.section')}>
-          {renderRows(null, 0)}
-        </div>
-      )}
+    <div>
+      <SidebarGroup
+        id="tags"
+        title={t('tags.section')}
+        defaultOpen={false}
+        action={
+          <IconButton
+            title={t('tags.new')}
+            tip="sidebar.newTag"
+            aria-label={t('tags.new')}
+            onClick={() => setTool({ kind: 'new' })}
+          >
+            +
+          </IconButton>
+        }
+      >
+        {tags.length === 0 ? (
+          <p className="mx-2 rounded-lg border border-dashed border-line p-2.5 text-[12.5px] leading-normal text-muted">
+            {t('tags.empty')}
+          </p>
+        ) : (
+          <div role="group" aria-label={t('tags.section')}>
+            {renderRows(null, 0)}
+          </div>
+        )}
+      </SidebarGroup>
 
       {tool?.kind === 'new' && (
         <NameDialog

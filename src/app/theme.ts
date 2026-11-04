@@ -30,3 +30,13 @@ export function editorColorScheme(theme: Theme): 'light' | 'dark' {
 export function applyTheme(theme: Theme): void {
   document.documentElement.dataset.theme = theme
 }
+
+/** Colours of the preview swatch in the theme list (page, text, accent). */
+export const THEME_SWATCH: Record<
+  Theme,
+  { page: string; ink: string; accent: string }
+> = {
+  day: { page: '#ffffff', ink: '#1d1d1f', accent: '#2f6feb' },
+  night: { page: '#161618', ink: '#ececee', accent: '#5e9bff' },
+  sepia: { page: '#f8f1e3', ink: '#433422', accent: '#b5762a' },
+}

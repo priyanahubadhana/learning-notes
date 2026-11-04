@@ -116,8 +116,9 @@ test.describe('phone and tablet', () => {
     expect(box.x + box.width).toBeLessThanOrEqual(390)
     expect(box.y + box.height).toBeLessThanOrEqual(844)
     // The six old items, the two "Switch to … mode" items, the four copy and
-    // paste items and the three batch 2d items (favourite, search, tool bar).
-    await expect(page.getByRole('menuitem')).toHaveCount(15)
+    // paste items, the three batch 2d items (favourite, search, tool bar) and
+    // the four batch 2e path style items (three styles and "use default").
+    await expect(page.getByRole('menuitem')).toHaveCount(19)
 
     await page.getByRole('menuitem', { name: /Save & restore/ }).tap()
     await expect(

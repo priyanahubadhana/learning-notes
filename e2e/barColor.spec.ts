@@ -114,6 +114,9 @@ test('the button shows what was chosen, and the text really changes', async ({
   expect(await bar.evaluate((el) => getComputedStyle(el).color)).toBe(
     'rgb(224, 62, 62)',
   )
+  // A choice closes the picker (the pop-up rule); open it again.
+  await expect(picker(page)).toHaveCount(0)
+  await button.click()
   await expect(
     picker(page)
       .getByRole('group', { name: 'Text color' })
@@ -131,6 +134,7 @@ test('the button shows what was chosen, and the text really changes', async ({
     button.locator('[data-swatch][data-background-color="yellow"]'),
   ).toBeVisible()
   // Back to the default removes the colour.
+  await button.click()
   await picker(page)
     .getByRole('group', { name: 'Text color' })
     .getByRole('button', { name: 'Default' })

@@ -72,6 +72,7 @@ export function readDeviceSetting<T extends JsonValue>(
   storage?: PrefStorage | null,
 ): T {
   assertScope(definition, 'device')
+  if (definition.derived) return definition.derived.read()
   if (!deviceCache.has(definition.id)) {
     deviceCache.set(
       definition.id,
@@ -93,8 +94,12 @@ export function writeDeviceSetting<T extends JsonValue>(
 ): void {
   assertScope(definition, 'device')
   assertValid(definition, value)
-  deviceCache.set(definition.id, value)
-  writePref(storageKeyOf(definition), value, storage)
+  if (definition.derived) {
+    definition.derived.write(value)
+  } else {
+    deviceCache.set(definition.id, value)
+    writePref(storageKeyOf(definition), value, storage)
+  }
   for (const listener of listeners) listener()
 }
 

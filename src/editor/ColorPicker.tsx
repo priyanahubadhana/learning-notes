@@ -145,7 +145,16 @@ export function ColorButton({
 }
 
 /** The picker: text colours, then highlight colours. */
-export function ColorPanel({ editor, px }: { editor: Editor; px: number }) {
+export function ColorPanel({
+  editor,
+  px,
+  onDone,
+}: {
+  editor: Editor
+  px: number
+  /** Called after a colour was chosen (the picker closes). */
+  onDone?: () => void
+}) {
   const current = useCurrentColors(editor)
   const min = Math.max(px, 44)
   const group = (
@@ -163,7 +172,10 @@ export function ColorPanel({ editor, px }: { editor: Editor; px: number }) {
             data-color={`${kind}:${name}`}
             aria-pressed={active === name}
             onMouseDown={(e) => e.preventDefault()}
-            onClick={() => setColor(editor, kind, name)}
+            onClick={() => {
+              setColor(editor, kind, name)
+              onDone?.()
+            }}
             style={{ minHeight: min }}
             className={`flex items-center gap-2 rounded-lg border px-2 text-left text-sm text-ink hover:bg-hover ${
               active === name ? 'border-accent bg-hover' : 'border-transparent'

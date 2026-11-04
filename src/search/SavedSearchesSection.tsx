@@ -2,6 +2,7 @@ import { useLiveQuery } from 'dexie-react-hooks'
 import { useEffect, useState } from 'react'
 import { runTask } from '../app/errors'
 import { ConfirmDialog, IconButton, NameDialog } from '../app/ui'
+import { SidebarGroup } from '../app/SidebarGroup'
 import type { LearningNotesDB } from '../core/db'
 import type { SavedSearch } from '../core/types'
 import { t } from '../i18n/t'
@@ -67,14 +68,15 @@ export function SavedSearchesSection({
     }
   }, [db, key, now])
 
-  if (!saved || saved.length === 0) return null
-
   return (
-    <div className="mb-2">
-      <div className="px-2.5 pt-2.5 pb-1 text-[11px] tracking-[0.06em] text-muted uppercase">
-        {t('saved.title')}
-      </div>
-      {saved.map((s) => {
+    <SidebarGroup
+      id="saved"
+      title={t('saved.title')}
+      defaultOpen={false}
+      openSignal={saved?.length}
+      hidden={!saved || saved.length === 0}
+    >
+      {(saved ?? []).map((s) => {
         const count = counts.get(s.id)
         return (
           <div
@@ -152,6 +154,6 @@ export function SavedSearchesSection({
           onCancel={() => setDeleting(null)}
         />
       )}
-    </div>
+    </SidebarGroup>
   )
 }

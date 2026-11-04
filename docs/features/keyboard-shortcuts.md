@@ -11,6 +11,8 @@ Fast, full keyboard use on PC, Mac and iPad keyboards.
 | Shortcut                                      | Action                                |
 | --------------------------------------------- | ------------------------------------- |
 | `Alt+N` (`Option+N` on Mac)                   | New page in the current notebook      |
+| Arrow keys on the floating bar's ⠿ handle     | Move the bar (Shift = bigger steps)   |
+| `Esc`                                         | Closes the open pop-up, menu or tray  |
 | `Alt+Shift+N`                                 | New sub-page of the open page         |
 | `Alt+R` (`Option+R` on Mac)                   | Review the open page                  |
 | `Ctrl+\` (`⌘\` on Mac)                        | Hide or show the menu                 |

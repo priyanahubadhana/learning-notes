@@ -2,7 +2,7 @@
 
 Every hover tip and help line in the app (shown while Settings › Show help is On). Generated from `src/help/helpRegistry.ts` and `src/i18n/en.ts`; to change a text, edit it in `en.ts`, then run `UPDATE_HELP=1 npx vitest run src/help` to refresh this file.
 
-## Hover tips (118)
+## Hover tips (123)
 
 ### `bar.newLine`
 
@@ -51,6 +51,36 @@ Every hover tip and help line in the app (shown while Settings › Show help is 
 - **Where:** Page › short bar › search icon
 - **Meaning:** Search every feature and setting in the app, and run it.
 - **Example:** Type “lock” or “font” and press Enter.
+
+### `bar.handle`
+
+- **Where:** Page › floating bar › ⠿ handle
+- **Meaning:** Drag this handle to move the floating bar anywhere.
+- **Example:** It snaps to the edges. Double-tap it to reset the place.
+
+### `ribbon.options`
+
+- **Where:** Page › ribbon › ⋯ Ribbon options
+- **Meaning:** Choose how the ribbon shows: with or instead of the short bar, size, position.
+- **Example:** Pick Slim for one row of icons.
+
+### `theme.list`
+
+- **Where:** Page › ribbon View › Theme › arrow; short bar Read set
+- **Meaning:** Opens the list of themes with a preview of each.
+- **Example:** The Theme button next to it still cycles in one tap.
+
+### `tool.copyPaste`
+
+- **Where:** Page › ribbon Home › Copy & paste
+- **Meaning:** Extra ways to copy and paste: plain text, Markdown, page with pictures.
+- **Example:** Normal copy and paste stay on the keyboard and long-press.
+
+### `path.sep`
+
+- **Where:** Top bar › full page path › the arrow between parts
+- **Meaning:** Lists the other pages at this level so you can jump to one.
+- **Example:** Tap the arrow after a notebook to see its top pages.
 
 ### `sidebar.calendar`
 

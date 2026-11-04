@@ -61,7 +61,7 @@ test('All tools replaces the short bar with the six tabs, opened on Home', async
     'ribbon-tab-home',
   )
   // The default behaviour is named in plain words.
-  await expect(behaviour(page)).toHaveText('Tools close after use')
+  await expect(behaviour(page)).toHaveAccessibleName('Tools close after use')
   await expect(behaviour(page)).toHaveAttribute('aria-pressed', 'false')
 })
 
@@ -89,9 +89,6 @@ const CONTENT: Record<string, string[]> = {
     'Settings',
   ],
   Home: [
-    'Copy as plain text',
-    'Copy as Markdown',
-    'Paste as plain text',
     'Bold',
     'Italic',
     'Underline',
@@ -104,6 +101,7 @@ const CONTENT: Record<string, string[]> = {
     'Align left',
     'Undo',
     'Redo',
+    'Copy & paste',
   ],
   Insert: [
     'Picture',
@@ -216,7 +214,7 @@ test('"Tools stay open": nothing closes them; Ctrl+F1 switches; remembered', asy
   await openPage(page)
   await allTools(page).click()
   await behaviour(page).click()
-  await expect(behaviour(page)).toHaveText('Tools stay open')
+  await expect(behaviour(page)).toHaveAccessibleName('Tools stay open')
   await expect(behaviour(page)).toHaveAttribute('aria-pressed', 'true')
   await ribbonTool(page, 'Italic').click()
   await expect(panel(page)).toBeVisible()
@@ -226,16 +224,17 @@ test('"Tools stay open": nothing closes them; Ctrl+F1 switches; remembered', asy
   await expect(panel(page)).toBeVisible()
   // Ctrl+F1 goes back to "close after use" and says so.
   await page.keyboard.press('Control+F1')
-  await expect(behaviour(page)).toHaveText('Tools close after use')
+  await expect(behaviour(page)).toHaveAccessibleName('Tools close after use')
   await expect(page.getByRole('status')).toContainText('Tools close after use')
   await expect(panel(page)).toHaveCount(0)
   // And on again; the choice survives a reload.
   await page.keyboard.press('Control+F1')
-  await expect(behaviour(page)).toHaveText('Tools stay open')
+  await expect(behaviour(page)).toHaveAccessibleName('Tools stay open')
   await expect(panel(page)).toBeVisible()
   await page.reload()
-  await allTools(page).click()
-  await expect(behaviour(page)).toHaveText('Tools stay open')
+  // The ribbon stays open after a reload (the layout is saved per device).
+  await expect(tablist(page)).toBeVisible()
+  await expect(behaviour(page)).toHaveAccessibleName('Tools stay open')
 })
 
 test('Ctrl+F1 also works from the short bar (it opens the ribbon)', async ({
@@ -344,7 +343,8 @@ test('Edit bar can hide tabs (one always stays) and the choice is kept', async (
     'Review',
   ])
   await page.reload()
-  await allTools(page).click()
+  // The ribbon stays open after a reload (the layout is saved per device).
+  await expect(tablist(page)).toBeVisible()
   await expect(tablist(page).getByRole('tab')).toHaveText([
     'Home',
     'Insert',
@@ -409,7 +409,7 @@ for (const theme of ['day', 'night', 'sepia'] as const) {
       ).toBeGreaterThanOrEqual(43.5)
     }
     expect(await contrastOf(tab(page, 'Home'))).toBeGreaterThanOrEqual(4.5)
-    for (const tool of ['Bold', 'Undo', 'Copy as Markdown']) {
+    for (const tool of ['Bold', 'Undo', 'Copy & paste']) {
       const button = ribbonTool(page, tool)
       expect(
         await contrastOf(button),

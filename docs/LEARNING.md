@@ -247,3 +247,5 @@ Before building sync, we looked up how it can work at ₹0 and wrote the answers
 - **New thing learned:** "free" can still mean a bill. A service that needs your card and has no spending stop can charge you, while one with no card simply stops when full.
 
 - **New thing learned (audit, 2026-11-02):** All 815 tests passed while 15 bugs sat in the app, because they tested normal use, not failure. A test that breaks the database on purpose found the lost typing straight away.
+
+- **New thing learned (batch 2e, 2026-11-04):** One rule in one place beats ten copies. Every menu in the app had its own "close when I tap outside" code, and the More menu forgot a case, so it stayed open. Now a single shared hook decides when any pop-up closes, so a new menu cannot forget. Also: a menu inside a menu (the theme list inside the ribbon) must be told who its parent is, or opening it closes the parent and the menu vanishes.

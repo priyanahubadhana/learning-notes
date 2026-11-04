@@ -13,3 +13,6 @@
 - **Two windows:** a read-only window does not refresh by itself, and page titles are not locked.
 - **Update bar:** tested by unit tests only; a real update is the first full check.
 - **Manual upload:** Cloudflare cannot turn it off, so a daily check catches it instead.
+- **Selecting across pictures:** a Pencil or mouse drag selects whole blocks including pictures; a finger drag still scrolls (the browser's long-press selection and handles are unchanged and may skip a picture). Tested with simulated pen events, not the real Pencil.
+- **Slim ribbon and long names:** Slim shows icons only, with names in the tooltip and as accessible labels; a finger has no hover, so the control panel search is the way to see every name.
+- **Floating bar:** it follows the visible screen when the keyboard opens (visual viewport), tested here with window resizes; the real iPad keyboard, rotation and Pencil drag are checked by hand.

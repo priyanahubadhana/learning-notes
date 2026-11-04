@@ -12,12 +12,12 @@ import {
 
 /**
  * Batch 2d, step 1: Recent, Favourites and the Calendar in the sidebar.
- * The old items keep their order.
+ * The old items are all still there (batch 2e groups them: Study, Quick access, Notebooks …).
  */
 
 const main = (page: Page) => page.getByRole('main')
 
-test('every old sidebar item is still there, in the old order, with Calendar near the top', async ({
+test('every old sidebar item is still there, in the grouped order of batch 2e', async ({
   page,
 }) => {
   await page.goto('/')
@@ -26,9 +26,9 @@ test('every old sidebar item is still there, in the old order, with Calendar nea
   const names = [
     /^Open today/,
     'Search',
-    'Calendar',
     /^Review/,
     'All cards',
+    'Calendar',
     'Databases',
     'Biology',
     'Save & restore',

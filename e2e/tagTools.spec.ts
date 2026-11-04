@@ -6,6 +6,7 @@ import {
   searchResults,
   sidebar,
   typeInEditor,
+  openGroup,
 } from './helpers.ts'
 
 const tree = (page: Page) =>
@@ -45,6 +46,7 @@ async function typeTag(page: Page, name: string) {
 test.beforeEach(async ({ page }) => {
   await page.goto('/')
   await createNotebook(page, 'Cardiology', 'Heart sounds')
+  await openGroup(page, 'Tags') // the Tags group starts folded
 })
 
 test('Tags in the sidebar: empty note, new tag, tree with counts', async ({

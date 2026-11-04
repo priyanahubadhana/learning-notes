@@ -29,6 +29,7 @@ import {
   hoverTipsSetting,
   shortcutHintsSetting,
 } from './builtinSettings'
+import { migrateBarOff } from '../app/tools/toolbarVisibility'
 import { readDeviceSetting } from './settingsService'
 import { useDeviceSetting } from './useSetting'
 
@@ -41,6 +42,7 @@ import { useDeviceSetting } from './useSetting'
 /** Runs once at start: picks a mode from the device on first run. */
 export function initDeviceMode(): void {
   watchHardwareKeyboard()
+  migrateBarOff()
   const stored = readPref<DeviceMode | null>(
     deviceModeSetting.id,
     (v): v is DeviceMode | null => v === null || isDeviceMode(v),

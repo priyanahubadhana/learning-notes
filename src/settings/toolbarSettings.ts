@@ -1,4 +1,4 @@
-import { isOnOff, MODE_PRESETS, type OnOff } from '../app/deviceMode'
+import { isOnOff, type OnOff } from '../app/deviceMode'
 import { DEFAULT_PINNED } from '../app/deviceMode'
 import { freeTip, resetFreePos } from '../app/tools/freeBar'
 import { resetRibbonOptions } from '../app/tools/ribbonDefaults'
@@ -228,12 +228,8 @@ export function resetToolBar(): void {
   ribbonExpanded.set(false)
   resetFreePos()
   resetRibbonOptions()
-  // Touch and Pencil always get the bar back; Computer's preset has none.
-  if (
-    MODE_PRESETS[readDeviceSetting(deviceModeSetting)].placement !== 'floating'
-  ) {
-    showToolBar()
-  }
+  // Every mode's preset has a bar, so the bar always comes back.
+  showToolBar()
 }
 
 export const resetToolBarSetting: SettingDefinition<'idle'> = {

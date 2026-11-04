@@ -11,8 +11,8 @@ export type DeviceMode = (typeof DEVICE_MODES)[number]
 
 /**
  * top and bottom dock the bar; free is a bar that floats over the page (drag
- * it by its handle); floating (the older name) means no bar: the toolbar over
- * the selected text only, which Computer mode uses.
+ * it by its handle); floating (the older name) means the bar is turned off
+ * (only the toolbar over selected text); no mode's preset uses it.
  */
 export const BAR_PLACEMENTS = ['top', 'bottom', 'free', 'floating'] as const
 export type BarPlacement = (typeof BAR_PLACEMENTS)[number]
@@ -40,7 +40,7 @@ export interface ModePreset {
 
 export const MODE_PRESETS: Record<DeviceMode, ModePreset> = {
   computer: {
-    placement: 'floating',
+    placement: 'top',
     size: 'compact',
     hoverTips: 'on',
     shortcutHints: 'on',

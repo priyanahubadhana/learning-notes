@@ -502,9 +502,9 @@ function LoadedPageEditor({
           } as CSSProperties
         }
       >
-        {docked ? (
-          <DockedBar slot={barSlot} />
-        ) : (
+        {docked && <DockedBar slot={barSlot} />}
+        {/* Computer keeps the toolbar over selected text as an extra. */}
+        {(!docked || bar.mode === 'computer') && (
           <FormattingToolbarController
             formattingToolbar={AppFormattingToolbar}
           />
@@ -544,7 +544,7 @@ function LoadedPageEditor({
           }
         />
       </BlockNoteView>
-      {(docked || bar.mode !== 'computer') && !readOnly && (
+      {bar.mode !== 'computer' && !readOnly && (
         <button
           type="button"
           onClick={() => focusEndLine(editor)}

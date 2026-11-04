@@ -50,8 +50,10 @@ A pop-up stays open only until the user **chooses something**, OR **taps or clic
 ### Tool bar off is never silent and never a dead end
 
 - Turning it off (page ⋯ menu › Hide tool bar, the View › "Tool bar on or off" tool, or Settings) first asks, says "To turn it back on: page ⋯ menu › Show tool bar, or Settings › Tool bar" and offers **Cancel** (the default) and **Turn off**; afterwards a message offers **Undo**. "Off" is still the placement value `floating` (no bar, only the toolbar over selected text); the bar comes back where it was (`toolbar.lastPlacement`).
-- While it is off a small **Show tool bar** button stays in the top bar (always on Touch and Pencil; on Computer once the user turned it off). Code: `src/app/tools/toolbarVisibility.ts`.
+- While it is off a small **Show tool bar** button stays in the top bar (in every mode, whenever no bar is drawn; batch 2f). Code: `src/app/tools/toolbarVisibility.ts`.
 - **Settings › Tool bar** (category order 70) has: Show tool bar, Tool bar layout (short bar or ribbon), Ribbon tools (close after use or stay open), Ribbon display, Ribbon size, Ribbon position, Tool sets (opens Edit bar on the open page), Device mode, Formatting bar position, Bar size, Auto switch, and **Reset tool bar** (standard tools, tabs, positions; notes untouched). The Settings and control-panel search find them by "tool bar", "toolbar", "ribbon", "bar" (a setting can carry English `keywords`). The values live in the bar's own state; these settings are `derived` device settings (read and written through the bar's functions) in `src/settings/toolbarSettings.ts`.
+
+Batch 2f: the invariant "a bar or the Show tool bar button is always visible" is tested over every mode, placement, ribbon state and ribbon place (`barLayout.test.ts`); `e2e/toolBarAlways.spec.ts` covers the three modes and an iPad that calls itself a Mac.
 
 ### Positions
 

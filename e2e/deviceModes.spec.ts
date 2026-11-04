@@ -329,7 +329,7 @@ test.describe('Touch (a tablet-sized touch screen)', () => {
         .boundingBox())!.height,
     ).toBeGreaterThanOrEqual(53.5)
     await pageAction(page, 'Switch to Computer mode')
-    await expect(dockedBar(page)).toHaveCount(0)
+    await expect(dockedBar(page)).toBeVisible()
     await selectText(page, 'first')
     await expect(page.locator('.bn-formatting-toolbar')).toBeVisible()
     await page.reload()
@@ -365,9 +365,11 @@ test.describe('Touch (a tablet-sized touch screen)', () => {
 })
 
 test.describe('Computer', () => {
-  test('keeps the floating toolbar and no docked bar', async ({ page }) => {
+  test('has the short bar and keeps the selection toolbar', async ({
+    page,
+  }) => {
     await openPage(page)
-    await expect(dockedBar(page)).toHaveCount(0)
+    await expect(dockedBar(page)).toBeVisible()
     await selectText(page, 'first')
     await expect(page.locator('.bn-formatting-toolbar')).toBeVisible()
     await expect(

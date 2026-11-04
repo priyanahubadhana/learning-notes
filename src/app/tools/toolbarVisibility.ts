@@ -1,4 +1,4 @@
-import { isBoolean } from '../uiPrefs'
+import { isBoolean, readPref, writePref } from '../uiPrefs'
 import { t } from '../../i18n/t'
 import { barPlacementSetting } from '../../settings/builtinSettings'
 import {
@@ -6,7 +6,6 @@ import {
   writeDeviceSetting,
 } from '../../settings/settingsService'
 import { useDeviceSetting } from '../../settings/useSetting'
-import { deviceModeSetting } from '../../settings/builtinSettings'
 import { isBarPlacement, type BarPlacement } from '../deviceMode'
 import { prefStore } from './store'
 import { getAppActions } from './toolRuntime'
@@ -79,13 +78,33 @@ export function toggleToolBar(): void {
   else showToolBar()
 }
 
-/** True while the "Show tool bar" button must be reachable. */
+/**
+ * The "Show tool bar" button shows whenever no bar is drawn (placement
+ * `floating`), in every mode, so the bar can never be lost.
+ */
+export const showBarButtonFor = (placement: BarPlacement): boolean =>
+  placement === 'floating'
+
 export function useShowBarButton(): boolean {
   const [placement] = useDeviceSetting(barPlacementSetting)
-  const [mode] = useDeviceSetting(deviceModeSetting)
-  const off = turnedOff.useValue()
-  // Touch and Pencil have a bar by default: no bar there is never normal.
-  return placement === 'floating' && (off || mode !== 'computer')
+  return showBarButtonFor(placement)
+}
+
+/**
+ * One-time repair (batch 2f): Computer mode used to mean "no bar". A device
+ * saved with placement `floating` that the user never turned off gets the
+ * short bar at the top. Only an explicit "turn off" leaves the bar off.
+ */
+const MIGRATED_KEY = 'toolbar.offMigrated'
+export function migrateBarOff(): void {
+  if (readPref(MIGRATED_KEY, isBoolean, false)) return
+  writePref(MIGRATED_KEY, true)
+  if (
+    readDeviceSetting(barPlacementSetting) === 'floating' &&
+    !turnedOff.get()
+  ) {
+    writeDeviceSetting(barPlacementSetting, 'top')
+  }
 }
 
 /** Tests only. */

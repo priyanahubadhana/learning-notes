@@ -178,7 +178,7 @@ export const es7: Record<string, string> = {
     'Ajusta cómo funciona este dispositivo. Cada ajuste de aquí es solo para este dispositivo.',
   'settings.deviceMode.label': 'Modo del dispositivo',
   'settings.deviceMode.description':
-    'Ordenador, Táctil o Lápiz. Al elegir uno se fijan las opciones de la barra de formato en Avanzado; aun así puedes cambiar cada una.',
+    'Este dispositivo está en modo Ordenador, Táctil o Lápiz. Los tres muestran la misma barra de herramientas; el modo fija tamaños, consejos y el Lápiz. Aun así puedes cambiar cada opción.',
   'mode.computer': 'Ordenador',
   'mode.touch': 'Táctil',
   'mode.pencil': 'Lápiz',

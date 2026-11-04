@@ -1731,7 +1731,7 @@ export const en = {
     'Fine-tune how this device works. Every setting here is only for this device.',
   'settings.deviceMode.label': 'Device mode',
   'settings.deviceMode.description':
-    'Computer, Touch or Pencil. Choosing one sets the formatting bar options in Advanced; you can still change each one.',
+    'This device is set to Computer, Touch or Pencil. All three show the same tool bar; the mode sets sizes, tips and the Pencil. You can still change each option.',
   'mode.computer': 'Computer',
   'mode.touch': 'Touch',
   'mode.pencil': 'Pencil',

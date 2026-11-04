@@ -177,7 +177,7 @@ describe('device modes', () => {
     expect(readDeviceSetting(barPlacementSetting)).toBe('top')
     expect(readDeviceSetting(barSizeSetting)).toBe('large')
     applyDeviceMode('computer')
-    expect(readDeviceSetting(barPlacementSetting)).toBe('floating')
+    expect(readDeviceSetting(barPlacementSetting)).toBe('top')
     expect(readDeviceSetting(hoverTipsSetting)).toBe('on')
     expect(readDeviceSetting(shortcutHintsSetting)).toBe('on')
     expect(readDeviceSetting(barAutoHideSetting)).toBe('off')

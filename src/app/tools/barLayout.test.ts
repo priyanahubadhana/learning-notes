@@ -1,7 +1,14 @@
 import { describe, expect, it } from 'vitest'
-import { BAR_PLACEMENTS } from '../deviceMode'
+import { BAR_PLACEMENTS, DEVICE_MODES, MODE_PRESETS } from '../deviceMode'
+import { showBarButtonFor } from './toolbarVisibility'
+import { TABS } from './tabs'
 import { barGroups, barLayout } from './barLayout'
-import { PLACES, RIBBON_MODES, type RibbonPlace } from './toolbarState'
+import {
+  PLACES,
+  RIBBON_MODES,
+  visibleTabs,
+  type RibbonPlace,
+} from './toolbarState'
 
 const RIBBON_PLACES: RibbonPlace[] = ['same', ...PLACES]
 
@@ -81,5 +88,41 @@ describe('which bars show and where', () => {
       bottom: ['ribbon'],
       free: [],
     })
+  })
+})
+
+describe('a bar or the Show tool bar button is always there (batch 2f)', () => {
+  it('holds for every mode, placement, ribbon state and ribbon place', () => {
+    for (const mode of DEVICE_MODES) {
+      for (const placement of [
+        MODE_PRESETS[mode].placement,
+        ...BAR_PLACEMENTS,
+      ]) {
+        for (const open of [false, true]) {
+          for (const ribbonMode of RIBBON_MODES) {
+            for (const place of RIBBON_PLACES) {
+              const layout = barLayout(placement, open, ribbonMode, place)
+              const shown = layout.short !== null || layout.ribbon !== null
+              expect(
+                shown || showBarButtonFor(placement),
+                `${mode} ${placement} ribbon=${open}/${ribbonMode}/${place}`,
+              ).toBe(true)
+              // Never both: the button only stands in for a missing bar.
+              expect(shown && showBarButtonFor(placement)).toBe(false)
+            }
+          }
+        }
+      }
+    }
+  })
+  it('no mode preset starts with the bar off', () => {
+    for (const mode of DEVICE_MODES) {
+      expect(MODE_PRESETS[mode].placement).not.toBe('floating')
+    }
+  })
+  it('hiding tabs always leaves a tab, so an open ribbon is never empty', () => {
+    expect(visibleTabs([...TABS])).toEqual([...TABS])
+    expect(visibleTabs([]).length).toBe(TABS.length)
+    expect(visibleTabs(TABS.slice(1)).length).toBe(1)
   })
 })

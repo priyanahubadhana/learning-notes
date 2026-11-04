@@ -1,9 +1,12 @@
 import { beforeEach, describe, expect, it } from 'vitest'
+import { writePref } from '../app/uiPrefs'
 import { buildRows, rowMatches } from '../app/tools/controlRows'
 import {
   isToolBarOn,
   requestHideToolBar,
   resetToolbarVisibility,
+  migrateBarOff,
+  showBarButtonFor,
   showToolBar,
 } from '../app/tools/toolbarVisibility'
 import { resetToolbarState, ribbonOpen } from '../app/tools/toolbarState'
@@ -171,5 +174,22 @@ describe('Settings › Tool bar', () => {
     expect(rows).toHaveLength(1)
     expect(rowMatches(rows[0].haystack, 'path')).toBe(true)
     expect(rowMatches(rows[0].haystack, 'breadcrumb')).toBe(true)
+  })
+})
+
+describe('one-time repair of a bar left off by the old Computer preset', () => {
+  it('a floating bar nobody turned off becomes Top; an explicit off stays', async () => {
+    writePref('toolbar.offMigrated', false)
+    writeDeviceSetting(barPlacementSetting, 'floating')
+    migrateBarOff()
+    expect(readDeviceSetting(barPlacementSetting)).toBe('top')
+
+    // Explicitly turned off: stays off, and the button is there.
+    fakeApp('off')
+    await requestHideToolBar()
+    writePref('toolbar.offMigrated', false)
+    migrateBarOff()
+    expect(readDeviceSetting(barPlacementSetting)).toBe('floating')
+    expect(showBarButtonFor(readDeviceSetting(barPlacementSetting))).toBe(true)
   })
 })

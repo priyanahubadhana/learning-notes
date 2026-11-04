@@ -19,9 +19,9 @@ import {
 const only = (query: string) => (q: string) => q === query
 
 describe('mode presets', () => {
-  it('Computer floats, compact, with tips and shortcut hints', () => {
+  it('Computer docks on top like the others, compact, with tips and shortcut hints', () => {
     expect(MODE_PRESETS.computer).toEqual({
-      placement: 'floating',
+      placement: 'top',
       size: 'compact',
       hoverTips: 'on',
       shortcutHints: 'on',

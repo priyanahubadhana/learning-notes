@@ -325,7 +325,7 @@ export async function startInMode(
     const key = 'learning-notes:general.deviceMode'
     if (localStorage.getItem(key)) return
     const presets = {
-      computer: ['floating', 'compact', 'on', 'on'],
+      computer: ['top', 'compact', 'on', 'on'],
       touch: ['top', 'normal', 'off', 'off'],
       pencil: ['top', 'large', 'off', 'off'],
     }[m]

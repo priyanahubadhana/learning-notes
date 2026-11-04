@@ -44,6 +44,23 @@ function isAncestor(a: Entry, b: Entry | null): boolean {
   return false
 }
 
+/**
+ * When the user last did something that scrolls (wheel, finger move, a scroll
+ * key). A scroll the page makes by itself (a bar changing size, the keyboard
+ * opening) is not the user scrolling and does not close a pop-up.
+ */
+let userScrollAt = 0
+export const USER_SCROLL_MS = 1200
+const SCROLL_KEYS = new Set([
+  'ArrowUp',
+  'ArrowDown',
+  'PageUp',
+  'PageDown',
+  'Home',
+  'End',
+  ' ',
+])
+
 /** When a pop-up last opened (a scroll just after it is the page settling). */
 let lastOpened = 0
 
@@ -112,18 +129,31 @@ export function usePopup(
       // Right after any pop-up opened (it can move the focus and the page).
       if (Date.now() - lastOpened < SCROLL_GRACE_MS) return
       if (isInside(e.target)) return
+      if (Date.now() - userScrollAt > USER_SCROLL_MS) return
       entry.close()
+    }
+    const onUserScroll = () => {
+      userScrollAt = Date.now()
+    }
+    const onScrollKey = (e: KeyboardEvent) => {
+      if (SCROLL_KEYS.has(e.key)) userScrollAt = Date.now()
     }
     const onNavigate = () => entry.close()
     document.addEventListener('pointerdown', onDown, true)
     document.addEventListener('keydown', onKey)
     document.addEventListener('scroll', onScroll, true)
+    document.addEventListener('wheel', onUserScroll, true)
+    document.addEventListener('touchmove', onUserScroll, true)
+    document.addEventListener('keydown', onScrollKey, true)
     window.addEventListener('hashchange', onNavigate)
     window.addEventListener('popstate', onNavigate)
     return () => {
       document.removeEventListener('pointerdown', onDown, true)
       document.removeEventListener('keydown', onKey)
       document.removeEventListener('scroll', onScroll, true)
+      document.removeEventListener('wheel', onUserScroll, true)
+      document.removeEventListener('touchmove', onUserScroll, true)
+      document.removeEventListener('keydown', onScrollKey, true)
       window.removeEventListener('hashchange', onNavigate)
       window.removeEventListener('popstate', onNavigate)
       const at = open.indexOf(entry)

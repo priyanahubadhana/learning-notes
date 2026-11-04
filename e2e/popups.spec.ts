@@ -113,12 +113,9 @@ test('scrolling the page closes it', async ({ page }) => {
   await more(page).click()
   await expect(tray(page)).toBeVisible()
   await page.waitForTimeout(600) // the page settling is not a scroll
-  await page.evaluate(() => {
-    const scroller = [...document.querySelectorAll('main, div')].find(
-      (el) => el.scrollHeight > el.clientHeight + 200 && el.clientHeight > 300,
-    )
-    ;(scroller ?? document.scrollingElement)!.scrollTop = 400
-  })
+  // A real scroll by the user (the mouse wheel) over the page.
+  await page.mouse.move(500, 700)
+  await page.mouse.wheel(0, 600)
   await expect(tray(page)).toHaveCount(0)
 })
 
@@ -192,12 +189,9 @@ test('the ribbon "Tools close after use" panel closes on a tap outside, Esc and 
   await tab(page, 'Home').click()
   await expect(panel).toBeVisible()
   await page.waitForTimeout(600)
-  await page.evaluate(() => {
-    const scroller = [...document.querySelectorAll('main, div')].find(
-      (el) => el.scrollHeight > el.clientHeight + 200 && el.clientHeight > 300,
-    )
-    ;(scroller ?? document.scrollingElement)!.scrollTop = 400
-  })
+  // A real scroll by the user (the mouse wheel) over the page.
+  await page.mouse.move(500, 700)
+  await page.mouse.wheel(0, 600)
   await expect(panel).toHaveCount(0)
 })
 

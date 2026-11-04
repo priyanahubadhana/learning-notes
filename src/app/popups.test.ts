@@ -208,7 +208,13 @@ describe('the one pop-up rule', () => {
       q('#a-item')!.dispatchEvent(new Event('scroll', { bubbles: false }))
     })
     expect(open('a')).toBe(true)
+    // A scroll the page makes by itself (no wheel, touch or key) is not the user.
     act(() => {
+      document.dispatchEvent(new Event('scroll'))
+    })
+    expect(open('a')).toBe(true)
+    act(() => {
+      document.dispatchEvent(new Event('wheel'))
       document.dispatchEvent(new Event('scroll'))
     })
     expect(open('a')).toBe(false)

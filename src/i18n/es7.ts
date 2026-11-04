@@ -182,7 +182,6 @@ export const es7: Record<string, string> = {
   'mode.computer': 'Ordenador',
   'mode.touch': 'Táctil',
   'mode.pencil': 'Lápiz',
-  'mode.switchTo': 'Cambiar al modo {mode}',
   'settings.barPlacement.label': 'Posición de la barra de formato',
   'settings.barPlacement.description':
     'Dónde va la barra de formato: acoplada arriba, acoplada abajo o flotando sobre la página (arrástrala por ⠿). Usa Mostrar la barra de herramientas para desactivarla.',
@@ -593,21 +592,30 @@ export const es7: Record<string, string> = {
   'sidebar.groups': 'Grupos de la barra lateral',
   'sidebar.group.study': 'Estudio',
   'sidebar.group.quick': 'Acceso rápido',
-  'path.style.simple': 'Simple (Cuaderno / Página)',
-  'path.style.full': 'Ruta completa (como carpetas)',
-  'path.style.page': 'Solo la página',
+  'path.style.simple': 'Corta (Cuaderno / Página)',
+  'path.style.full': 'Completa (como carpetas)',
+  'path.style.page': 'Solo el nombre',
   'path.siblings': 'Páginas de este nivel',
   'path.noPages': 'No hay páginas aquí.',
   'path.hidden': 'Partes ocultas de la ruta',
   'path.full': 'Ruta completa',
   'path.showFull': 'Ruta de la página: {name}. Mostrar la ruta completa',
-  'path.menu.set': 'Estilo de ruta: {style}',
-  'path.menu.default': 'Estilo de ruta: usar el predeterminado',
-  'settings.pathStyle.label': 'Estilo de la ruta de la página',
+  'path.menu.default': 'Predeterminado de la app',
+  'settings.pathStyle.label': 'Dirección de la página',
   'settings.pathStyle.description':
-    'Cómo se muestra la ruta de la página abierta en la barra superior. Un cuaderno o una página puede tener su propia elección (primero la página, luego el cuaderno, luego esta).',
+    'Cómo se muestra la dirección (ruta) de la página abierta en la barra superior: corta, completa o solo el nombre. Un cuaderno o una página puede tener su propia elección (primero la página, luego el cuaderno, luego esta).',
   'help.tip.path.sep.meaning':
     'Muestra las demás páginas de este nivel para saltar a una.',
   'help.tip.path.sep.example':
     'Toca la flecha tras un cuaderno para ver sus páginas principales.',
+  'path.menu': 'Dirección de la página',
+  'mode.menu': 'Modo del dispositivo',
+  'mode.desc.computer': 'Ratón y teclado',
+  'mode.desc.touch': 'Dedo',
+  'mode.desc.pencil': 'Apple Pencil',
+  'copy.menu': 'Copiar y pegar',
+  'help.tip.topBar.deviceMode.meaning':
+    'Muestra cómo usas este dispositivo: Ordenador, Táctil o Lápiz. Toca para cambiarlo.',
+  'help.tip.topBar.deviceMode.example':
+    'En un iPad con Pencil, elige Lápiz para botones más grandes.',
 }

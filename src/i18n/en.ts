@@ -1735,7 +1735,11 @@ export const en = {
   'mode.computer': 'Computer',
   'mode.touch': 'Touch',
   'mode.pencil': 'Pencil',
-  'mode.switchTo': 'Switch to {mode} mode',
+  'mode.menu': 'Device mode',
+  'mode.desc.computer': 'Mouse and keyboard',
+  'mode.desc.touch': 'Finger',
+  'mode.desc.pencil': 'Apple Pencil',
+  'copy.menu': 'Copy & paste',
   'settings.barPlacement.label': 'Formatting bar position',
   'settings.barPlacement.description':
     'Where the formatting bar sits: docked at the top, docked at the bottom, or floating over the page (drag it by ⠿). Use Show tool bar to turn it off.',
@@ -2129,22 +2133,26 @@ export const en = {
     'Extra ways to copy and paste: plain text, Markdown, page with pictures.',
   'help.tip.tool.copyPaste.example':
     'Normal copy and paste stay on the keyboard and long-press.',
+  'help.tip.topBar.deviceMode.meaning':
+    'Shows how you use this device: Computer, Touch or Pencil. Tap to change.',
+  'help.tip.topBar.deviceMode.example':
+    'On an iPad with a Pencil, choose Pencil for bigger buttons.',
   'sidebar.groups': 'Sidebar groups',
   'sidebar.group.study': 'Study',
   'sidebar.group.quick': 'Quick access',
-  'path.style.simple': 'Simple (Notebook / Page)',
-  'path.style.full': 'Full path (like folders)',
-  'path.style.page': 'Page only',
+  'path.style.simple': 'Short (Notebook / Page)',
+  'path.style.full': 'Full (like folders)',
+  'path.style.page': 'Name only',
   'path.siblings': 'Pages at this level',
   'path.noPages': 'No pages here.',
   'path.hidden': 'Hidden parts of the path',
   'path.full': 'Full path',
   'path.showFull': 'Page path: {name}. Show the full path',
-  'path.menu.set': 'Path style: {style}',
-  'path.menu.default': 'Path style: use default',
-  'settings.pathStyle.label': 'Page path style',
+  'path.menu': 'Page address',
+  'path.menu.default': 'App default',
+  'settings.pathStyle.label': 'Page address',
   'settings.pathStyle.description':
-    'How the path of the open page shows in the top bar. A notebook or a page can have its own choice (page first, then notebook, then this).',
+    'How the address (path) of the open page shows in the top bar: Short, Full or Name only. A notebook or a page can have its own choice (page first, then notebook, then this).',
   'help.tip.path.sep.meaning':
     'Lists the other pages at this level so you can jump to one.',
   'help.tip.path.sep.example':

@@ -467,7 +467,8 @@ export const pathStyleSetting: SettingDefinition<PathStyle> = {
   labelKey: 'settings.pathStyle.label',
   descriptionKey: 'settings.pathStyle.description',
   category: 'general',
-  keywords: 'path breadcrumb folders location top bar',
+  keywords:
+    'page address path breadcrumb folders location top bar short full name only',
   scope: 'device',
   defaultValue: 'simple',
   isValid: isPathStyle,

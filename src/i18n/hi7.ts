@@ -177,7 +177,6 @@ export const hi7: Record<string, string> = {
   'mode.computer': 'कंप्यूटर',
   'mode.touch': 'टच',
   'mode.pencil': 'पेंसिल',
-  'mode.switchTo': '{mode} मोड में जाएँ',
   'settings.barPlacement.label': 'फ़ॉर्मैटिंग बार की जगह',
   'settings.barPlacement.description':
     'फ़ॉर्मैटिंग बार कहाँ रहे: ऊपर जुड़ा, नीचे जुड़ा, या पृष्ठ पर तैरता (⠿ से खींचें)। बंद करने के लिए “टूल बार दिखाएँ” इस्तेमाल करें।',
@@ -574,21 +573,30 @@ export const hi7: Record<string, string> = {
   'sidebar.groups': 'साइडबार के समूह',
   'sidebar.group.study': 'अध्ययन',
   'sidebar.group.quick': 'त्वरित पहुँच',
-  'path.style.simple': 'सरल (नोटबुक / पृष्ठ)',
-  'path.style.full': 'पूरा रास्ता (फ़ोल्डर जैसा)',
-  'path.style.page': 'सिर्फ़ पृष्ठ',
+  'path.style.simple': 'छोटा (नोटबुक / पृष्ठ)',
+  'path.style.full': 'पूरा (फ़ोल्डर जैसा)',
+  'path.style.page': 'सिर्फ़ नाम',
   'path.siblings': 'इस स्तर के पृष्ठ',
   'path.noPages': 'यहाँ कोई पृष्ठ नहीं।',
   'path.hidden': 'रास्ते के छिपे हिस्से',
   'path.full': 'पूरा रास्ता',
   'path.showFull': 'पृष्ठ का रास्ता: {name}। पूरा रास्ता दिखाएँ',
-  'path.menu.set': 'रास्ते की शैली: {style}',
-  'path.menu.default': 'रास्ते की शैली: डिफ़ॉल्ट इस्तेमाल करें',
-  'settings.pathStyle.label': 'पृष्ठ के रास्ते की शैली',
+  'path.menu.default': 'ऐप का डिफ़ॉल्ट',
+  'settings.pathStyle.label': 'पृष्ठ का पता',
   'settings.pathStyle.description':
-    'ऊपरी बार में खुले पृष्ठ का रास्ता कैसे दिखे। नोटबुक या पृष्ठ की अपनी पसंद हो सकती है (पहले पृष्ठ, फिर नोटबुक, फिर यह)।',
+    'ऊपरी पट्टी में खुले पृष्ठ का पता (रास्ता) कैसे दिखे: छोटा, पूरा या सिर्फ़ नाम। नोटबुक या पृष्ठ की अपनी पसंद हो सकती है (पहले पृष्ठ, फिर नोटबुक, फिर यह)।',
   'help.tip.path.sep.meaning':
     'इस स्तर के बाकी पृष्ठों की सूची दिखाता है ताकि आप किसी पर जा सकें।',
   'help.tip.path.sep.example':
     'नोटबुक के बाद का तीर टैप करें, उसके ऊपरी पृष्ठ दिखेंगे।',
+  'path.menu': 'पृष्ठ का पता',
+  'mode.menu': 'डिवाइस मोड',
+  'mode.desc.computer': 'माउस और कीबोर्ड',
+  'mode.desc.touch': 'उँगली',
+  'mode.desc.pencil': 'Apple Pencil',
+  'copy.menu': 'कॉपी और पेस्ट',
+  'help.tip.topBar.deviceMode.meaning':
+    'दिखाता है कि आप यह डिवाइस कैसे चलाते हैं: कंप्यूटर, टच या पेंसिल। बदलने के लिए छुएँ।',
+  'help.tip.topBar.deviceMode.example':
+    'Apple Pencil वाले iPad पर बड़े बटनों के लिए पेंसिल चुनें।',
 }

@@ -457,3 +457,18 @@ export async function openGroup(page: Page, name: string) {
   }
   await expect(heading).toHaveAttribute('aria-expanded', 'true')
 }
+
+/** Chooses `child` in the submenu `parent` of the open page's ⋯ menu. */
+export async function pageSubAction(
+  page: Page,
+  parent: string,
+  child: string | RegExp,
+) {
+  await page.getByRole('button', { name: 'More options' }).click()
+  await page.getByRole('menuitem', { name: new RegExp(parent) }).click()
+  await page
+    .getByRole('menu', { name: parent })
+    .locator('[role=menuitem],[role=menuitemradio]')
+    .filter({ hasText: child })
+    .click()
+}

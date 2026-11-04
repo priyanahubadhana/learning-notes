@@ -15,12 +15,14 @@ import { revealBlock } from '../editor/revealBlock'
 import { HistoryDialog } from '../history/HistoryDialog'
 import { recordVersion } from '../history/versionService'
 import { dateKey } from '../journal/dates'
-import { t, type MessageKey } from '../i18n/t'
+import { t } from '../i18n/t'
 import { getNotebook } from '../notebooks/notebookService'
 import { saveAsTemplate } from '../templates/templateService'
 import { getPagePath, setPagePathStyle } from './pageService'
 import { PagePath } from './PagePath'
-import { PATH_STYLES, resolvePathStyle } from './pathStyle'
+import { resolvePathStyle } from './pathStyle'
+import { pageAddressItem } from './pageAddressMenu'
+import { deviceModeItem } from '../app/deviceModeItems'
 import { pageSections } from './sections'
 import { LinkedFrom } from '../links/LinkedFrom'
 import { PageTags } from '../tags/PageTags'
@@ -28,9 +30,7 @@ import { getDatabase } from '../databases/databaseService'
 import { RowProperties } from '../databases/RowProperties'
 import { createTitleSaver } from './titleSaver'
 import { isApple } from '../app/keys'
-import { DEVICE_MODES } from '../app/deviceMode'
 import {
-  applyDeviceMode,
   barPlacementSetting,
   deviceModeSetting,
 } from '../settings/builtinSettings'
@@ -143,6 +143,7 @@ export function PageView({
   )
   const starred = favourites.useValue().includes(page.id)
   const moreItems: MenuItem[] = [
+    // Page actions first.
     ...(notebook && !isTemplate
       ? [
           {
@@ -154,19 +155,6 @@ export function PageView({
         ]
       : []),
     { label: t('history.button'), icon: '🕘', onSelect: openHistory },
-    // Path style for this page (wins over its notebook and Settings).
-    ...PATH_STYLES.map((style) => ({
-      label: t('path.menu.set', {
-        style: t(`path.style.${style}` as MessageKey),
-      }),
-      icon: page.pathStyle === style ? '✓' : '',
-      onSelect: () => runTask(setPagePathStyle(db, page.id, style)),
-    })),
-    {
-      label: t('path.menu.default'),
-      icon: page.pathStyle === undefined ? '✓' : '',
-      onSelect: () => runTask(setPagePathStyle(db, page.id, undefined)),
-    },
     {
       label: t(starred ? 'fav.remove' : 'fav.add'),
       icon: starred ? '★' : '☆',
@@ -174,17 +162,6 @@ export function PageView({
         toggleFavourite(page.id)
         toast(t(starred ? 'fav.removed' : 'fav.added'))
       },
-    },
-    {
-      label: t('panel.open'),
-      icon: '🔍',
-      hint: shortcutShiftLabel('K'),
-      onSelect: () => getAppActions()?.openControlPanel(),
-    },
-    {
-      label: t(barPlacement === 'floating' ? 'bar.show' : 'bar.hide'),
-      icon: '☰',
-      onSelect: () => toggleToolBar(),
     },
     ...(notebook && !isTemplate
       ? [
@@ -195,37 +172,6 @@ export function PageView({
           },
         ]
       : []),
-    {
-      label: t('page.restoreBackup'),
-      icon: '⤓',
-      onSelect: onOpenBackup,
-    },
-    ...DEVICE_MODES.filter((m) => m !== deviceMode).map((m) => ({
-      label: t('mode.switchTo', { mode: t(`mode.${m}`) }),
-      icon: m === 'computer' ? '🖥' : m === 'touch' ? '✋' : '✏️',
-      onSelect: () => applyDeviceMode(m),
-    })),
-    {
-      label: t('copy.pictures'),
-      icon: '⧉',
-      onSelect: () => editor.current?.copyPage('pictures'),
-    },
-    {
-      label: t('copy.pagePlain'),
-      icon: '⧉',
-      onSelect: () => editor.current?.copyPage('plain'),
-    },
-    {
-      label: t('copy.pageMarkdown'),
-      icon: '⧉',
-      onSelect: () => editor.current?.copyPage('markdown'),
-    },
-    {
-      label: t('paste.plain'),
-      icon: '⎘',
-      hint: isApple() ? '⌘⇧V' : 'Ctrl+Shift+V',
-      onSelect: () => editor.current?.pastePlain(),
-    },
     {
       label: t('page.import'),
       icon: '⤓',
@@ -239,6 +185,56 @@ export function PageView({
       disabled: true,
       hint: t('page.comingSoon'),
       onSelect: () => {},
+    },
+    {
+      label: t('panel.open'),
+      icon: '🔍',
+      hint: shortcutShiftLabel('K'),
+      onSelect: () => getAppActions()?.openControlPanel(),
+    },
+    // Copy and paste, grouped.
+    {
+      label: t('copy.menu'),
+      icon: '⧉',
+      onSelect: () => {},
+      submenu: [
+        {
+          label: t('copy.pictures'),
+          icon: '⧉',
+          onSelect: () => editor.current?.copyPage('pictures'),
+        },
+        {
+          label: t('copy.pagePlain'),
+          icon: '⧉',
+          onSelect: () => editor.current?.copyPage('plain'),
+        },
+        {
+          label: t('copy.pageMarkdown'),
+          icon: '⧉',
+          onSelect: () => editor.current?.copyPage('markdown'),
+        },
+        {
+          label: t('paste.plain'),
+          icon: '⎘',
+          hint: isApple() ? '⌘⇧V' : 'Ctrl+Shift+V',
+          onSelect: () => editor.current?.pastePlain(),
+        },
+      ],
+    },
+    // Page address for this page (wins over its notebook and Settings).
+    pageAddressItem(page.pathStyle, (style) =>
+      runTask(setPagePathStyle(db, page.id, style)),
+    ),
+    deviceModeItem(deviceMode),
+    {
+      label: t(barPlacement === 'floating' ? 'bar.show' : 'bar.hide'),
+      icon: '☰',
+      onSelect: () => toggleToolBar(),
+    },
+    {
+      label: t('page.restoreBackup'),
+      icon: '⤓',
+      onSelect: onOpenBackup,
     },
   ]
 

@@ -39,6 +39,7 @@ export const TIPS = {
   },
   'tool.copyPaste': { where: 'Page › ribbon Home › Copy & paste' },
   'path.sep': { where: 'Top bar › full page path › the arrow between parts' },
+  'topBar.deviceMode': { where: 'Top bar › Device mode button (right side)' },
   'sidebar.calendar': { where: 'Sidebar › Calendar' },
   'sidebar.favourites': { where: 'Sidebar › Favourites heading' },
   'sidebar.recent': { where: 'Sidebar › Recent heading' },

@@ -2,7 +2,7 @@
 
 Every hover tip and help line in the app (shown while Settings › Show help is On). Generated from `src/help/helpRegistry.ts` and `src/i18n/en.ts`; to change a text, edit it in `en.ts`, then run `UPDATE_HELP=1 npx vitest run src/help` to refresh this file.
 
-## Hover tips (123)
+## Hover tips (124)
 
 ### `bar.newLine`
 
@@ -81,6 +81,12 @@ Every hover tip and help line in the app (shown while Settings › Show help is 
 - **Where:** Top bar › full page path › the arrow between parts
 - **Meaning:** Lists the other pages at this level so you can jump to one.
 - **Example:** Tap the arrow after a notebook to see its top pages.
+
+### `topBar.deviceMode`
+
+- **Where:** Top bar › Device mode button (right side)
+- **Meaning:** Shows how you use this device: Computer, Touch or Pencil. Tap to change.
+- **Example:** On an iPad with a Pencil, choose Pencil for bigger buttons.
 
 ### `sidebar.calendar`
 

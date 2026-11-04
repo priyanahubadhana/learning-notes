@@ -1,6 +1,7 @@
 import { t } from '../i18n/t'
 import { useCanGoBack, useCanGoForward } from './navHistory'
 import { MenuIcon } from './ui'
+import { DeviceModeButton } from './DeviceModeMenu'
 import { showToolBar, useShowBarButton } from './tools/toolbarVisibility'
 
 const ICON_BUTTON =
@@ -90,6 +91,7 @@ export function TopBar({
       >
         {title && <span className="min-w-0 truncate text-sm">{title}</span>}
       </div>
+      <DeviceModeButton />
       {barOff && (
         <button
           type="button"

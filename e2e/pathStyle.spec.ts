@@ -5,7 +5,7 @@ import {
   addPage,
   createNotebook,
   openPage as openSidebarPage,
-  pageAction,
+  pageSubAction,
   showSidebar,
   sidebar,
 } from './helpers.ts'
@@ -184,11 +184,11 @@ test('the default is a Settings choice found by searching "path" or "breadcrumb"
   for (const word of ['path', 'breadcrumb']) {
     await search.fill(word)
     await expect(
-      page.getByRole('heading', { name: 'Page path style' }),
+      page.getByRole('heading', { name: 'Page address' }),
     ).toBeVisible()
   }
   const row = page.locator('[data-setting-id="general.pathStyle"]')
-  await row.getByRole('button', { name: 'Full path (like folders)' }).click()
+  await row.getByRole('button', { name: 'Full (like folders)' }).click()
   await openSidebarPage(page, 'Nucleus')
   await expect(path(page).locator('[data-path-sep]')).toHaveCount(2)
 })
@@ -206,14 +206,16 @@ test('precedence: the page wins over the notebook, which wins over the default',
     .first()
     .click()
   await page.getByRole('button', { name: 'Tab options' }).click()
+  await page.getByRole('menuitem', { name: 'Page address' }).click()
   await page
-    .getByRole('menuitem', { name: 'Path style: Full path (like folders)' })
+    .getByRole('menu', { name: 'Page address' })
+    .getByRole('menuitemradio', { name: 'Full (like folders)' })
     .click()
   await openSidebarPage(page, 'Nucleus')
   await expect(path(page).locator('[data-path-sep]')).toHaveCount(2)
 
   // The page's own choice wins over the notebook's.
-  await pageAction(page, 'Path style: Page only')
+  await pageSubAction(page, 'Page address', 'Name only')
   await expect(path(page)).toHaveText('Nucleus')
   // Another page of the notebook still follows the notebook.
   await openSidebarPage(page, 'Genetics')
@@ -222,14 +224,18 @@ test('precedence: the page wins over the notebook, which wins over the default',
   // "Use default" on the page goes back to the notebook's style, and the
   // notebook's "Use default" goes back to the Settings default.
   await openSidebarPage(page, 'Nucleus')
-  await pageAction(page, 'Path style: use default')
+  await pageSubAction(page, 'Page address', 'App default')
   await expect(path(page).locator('[data-path-sep]')).toHaveCount(2)
   await page
     .getByRole('button', { name: 'Biology', exact: true })
     .first()
     .click()
   await page.getByRole('button', { name: 'Tab options' }).click()
-  await page.getByRole('menuitem', { name: 'Path style: use default' }).click()
+  await page.getByRole('menuitem', { name: 'Page address' }).click()
+  await page
+    .getByRole('menu', { name: 'Page address' })
+    .getByRole('menuitemradio', { name: 'App default' })
+    .click()
   await openSidebarPage(page, 'Nucleus')
   await expect(path(page).locator('[data-path-sep]')).toHaveCount(0)
   await expect(path(page)).toHaveText('Biology/Cells/Nucleus')
@@ -239,14 +245,25 @@ test('a page choice survives a reload (and the page menu ticks it)', async ({
   page,
 }) => {
   await start(page)
-  await pageAction(page, 'Path style: Full path')
+  await pageSubAction(page, 'Page address', 'Full (like')
   await expect(path(page).locator('[data-path-sep]')).toHaveCount(2)
   await page.reload()
   await expect(path(page).locator('[data-path-sep]')).toHaveCount(2)
   await page.getByRole('button', { name: 'More options' }).click()
+  await page.getByRole('menuitem', { name: 'Page address' }).click()
   await expect(
-    page.getByRole('menuitem', { name: /Path style: Full path/ }),
-  ).toContainText('✓')
+    page
+      .getByRole('menu', { name: 'Page address' })
+      .getByRole('menuitemradio', { name: 'Full (like folders)' }),
+  ).toHaveAttribute('aria-checked', 'true')
+  // The list is a pop-up: it has a ✕ and Esc closes it.
+  await expect(
+    page
+      .getByRole('menu', { name: 'Page address' })
+      .getByRole('button', { name: 'Close', exact: true }),
+  ).toBeVisible()
+  await page.keyboard.press('Escape')
+  await expect(page.getByRole('menu', { name: 'Page address' })).toHaveCount(0)
   await page.keyboard.press('Escape')
   // Also in the sidebar tree nothing else changed.
   await expect(
@@ -261,5 +278,5 @@ test('the control panel finds it by "path"', async ({ page }) => {
   await panel
     .getByRole('searchbox', { name: 'Search features and settings' })
     .fill('breadcrumb')
-  await expect(panel.getByText('Page path style').first()).toBeVisible()
+  await expect(panel.getByText('Page address').first()).toBeVisible()
 })

@@ -4,7 +4,7 @@ import { expect, test, type Page } from '@playwright/test'
 import {
   createNotebook,
   dockedBar,
-  pageAction,
+  pageSubAction,
   selectText,
   startInMode,
   typeInEditor,
@@ -314,7 +314,7 @@ test.describe('Touch (a tablet-sized touch screen)', () => {
 
   test('switching mode from the page menu', async ({ page }) => {
     await openPage(page)
-    await pageAction(page, 'Switch to Pencil mode')
+    await pageSubAction(page, 'Device mode', 'Pencil')
     // Pencil is docked on top too (always visible), but the position can change.
     await expect(dockedBar(page)).toHaveAttribute('data-placement', 'top')
     await dockedBar(page).getByRole('button', { name: 'Toolbar menu' }).click()
@@ -335,7 +335,7 @@ test.describe('Touch (a tablet-sized touch screen)', () => {
         .getByRole('button', { name: 'Bold', exact: true })
         .boundingBox())!.height,
     ).toBeGreaterThanOrEqual(53.5)
-    await pageAction(page, 'Switch to Computer mode')
+    await pageSubAction(page, 'Device mode', 'Computer')
     await expect(dockedBar(page)).toBeVisible()
     await selectText(page, 'first')
     await expect(page.locator('.bn-formatting-toolbar')).toBeVisible()
@@ -386,7 +386,7 @@ test.describe('Computer', () => {
 
   test('the page menu switches to Touch mode', async ({ page }) => {
     await openPage(page)
-    await pageAction(page, 'Switch to Touch mode')
+    await pageSubAction(page, 'Device mode', 'Touch')
     await expect(dockedBar(page)).toBeVisible()
     await expect(dockedBar(page)).toHaveAttribute('data-placement', 'top')
   })

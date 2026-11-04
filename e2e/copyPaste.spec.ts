@@ -6,7 +6,7 @@ import {
   createNotebook,
   dockedBar,
   openPage,
-  pageAction,
+  pageSubAction,
   selectText,
   startInMode,
   typeInEditor,
@@ -161,15 +161,15 @@ test('page menu: plain text, Markdown and page with pictures', async ({
   await startPage(page)
   await writeRichPage(page)
 
-  await pageAction(page, 'Copy page as plain text')
+  await pageSubAction(page, 'Copy & paste', 'Copy page as plain text')
   await expect(toast(page, 'Copied')).toBeVisible()
   expect(await clipboardText(page)).toContain('alpha beta https://example.com')
 
-  await pageAction(page, 'Copy page as Markdown')
+  await pageSubAction(page, 'Copy & paste', 'Copy page as Markdown')
   expect(await clipboardText(page)).toContain('alpha **beta**')
   expect(await clipboardText(page)).toContain('(https://example.com')
 
-  await pageAction(page, 'Copy page with pictures')
+  await pageSubAction(page, 'Copy & paste', 'Copy page with pictures')
   const readItems = () =>
     page.evaluate(async () => {
       const [item] = await navigator.clipboard.read()
@@ -204,7 +204,7 @@ test('Copy page with pictures falls back to text when the browser blocks it', as
   await page.evaluate(() => {
     navigator.clipboard.write = () => Promise.reject(new Error('blocked'))
   })
-  await pageAction(page, 'Copy page with pictures')
+  await pageSubAction(page, 'Copy & paste', 'Copy page with pictures')
   await expect(toast(page, /text only/)).toBeVisible()
   expect(await clipboardText(page)).toBe('only words here')
 })
@@ -219,7 +219,7 @@ test('Paste as plain text from the page menu drops the formatting', async ({
     'Bold and slanted text',
   )
   await editor(page).click()
-  await pageAction(page, 'Paste as plain text')
+  await pageSubAction(page, 'Copy & paste', 'Paste as plain text')
   await expect(editor(page)).toContainText('Bold and slanted text')
   await expect(editor(page).locator('strong, em')).toHaveCount(0)
   await expect(toast(page, 'Pasted')).toBeVisible()
@@ -252,7 +252,7 @@ test('Paste as plain text says what to do when the browser blocks reading', asyn
     navigator.clipboard.readText = () => Promise.reject(new Error('denied'))
   })
   await editor(page).click()
-  await pageAction(page, 'Paste as plain text')
+  await pageSubAction(page, 'Copy & paste', 'Paste as plain text')
   await expect(toast(page, /Ctrl\+Shift\+V/)).toBeVisible()
 })
 

@@ -1,6 +1,7 @@
 import { Tip } from '../help/Help'
 import type { TipId } from '../help/helpRegistry'
 import { useEffect, useRef, useState, type ComponentProps } from 'react'
+import { createPortal } from 'react-dom'
 import { usePopup } from './popups'
 import { PopupHeader } from './tools/PopupClose'
 import { t } from '../i18n/t'
@@ -100,6 +101,12 @@ export interface MenuItem {
   disabled?: boolean
   /** Small text on the right, such as a shortcut. */
   hint?: string
+  /** A second line under the label (one short sentence). */
+  description?: string
+  /** A choice in a list: true shows a tick (the current choice). */
+  checked?: boolean
+  /** Opens a small list of its own (shown with ▸) instead of doing something. */
+  submenu?: MenuItem[]
 }
 
 /**
@@ -110,15 +117,34 @@ export function MenuPopover({
   anchor,
   items,
   onClose,
+  label,
+  opener,
+  onDone,
 }: {
   anchor: DOMRect
   items: MenuItem[]
   onClose: () => void
+  /** Accessible name of the list (a submenu is named after its item). */
+  label?: string
+  /** The item that opened this list (a submenu), so its parent stays open. */
+  opener?: Element | null
+  /** A submenu: closes the whole chain after a choice. */
+  onDone?: () => void
 }) {
   const ref = useRef<HTMLDivElement>(null)
-  const top = Math.max(8, Math.min(anchor.bottom + 6, window.innerHeight - 110))
+  const nested = !!opener
+  const top = nested
+    ? Math.max(8, Math.min(anchor.top, window.innerHeight - 260))
+    : Math.max(8, Math.min(anchor.bottom + 6, window.innerHeight - 110))
+  const [sub, setSub] = useState<{
+    item: MenuItem
+    at: DOMRect
+    el: Element
+  } | null>(null)
   // The shared pop-up rule (outside tap, Esc, scroll, one at a time).
-  usePopup(true, onClose, (target) => ref.current?.contains(target) ?? false)
+  usePopup(true, onClose, (target) => ref.current?.contains(target) ?? false, {
+    opener,
+  })
 
   useEffect(() => {
     ref.current
@@ -126,6 +152,8 @@ export function MenuPopover({
       ?.focus({ preventScroll: true })
     const onKey = (e: KeyboardEvent) => {
       if (e.key !== 'ArrowDown' && e.key !== 'ArrowUp') return
+      // A submenu opened from here has its own arrows.
+      if (!ref.current?.contains(document.activeElement)) return
       e.preventDefault()
       const items = [
         ...(ref.current?.querySelectorAll<HTMLElement>(
@@ -144,34 +172,82 @@ export function MenuPopover({
     <div
       ref={ref}
       role="menu"
+      aria-label={label}
       style={{
-        left: Math.max(8, Math.min(anchor.left, window.innerWidth - 230)),
+        left: Math.max(
+          8,
+          Math.min(
+            anchor.left + (nested ? 12 : 0),
+            window.innerWidth - (nested ? 270 : 230),
+          ),
+        ),
         top,
         // A long menu scrolls inside the screen instead of running off it.
         maxHeight: window.innerHeight - top - 8,
       }}
-      className="fixed z-50 w-52 overflow-y-auto rounded-[10px] border border-line bg-bg p-1.5 text-ink shadow-[0_12px_32px_rgba(0,0,0,0.14)]"
+      className={`fixed z-50 ${nested ? 'w-64' : 'w-52'} overflow-y-auto rounded-[10px] border border-line bg-bg p-1.5 text-ink shadow-[0_12px_32px_rgba(0,0,0,0.14)]`}
     >
-      <PopupHeader onClose={onClose} />
+      <PopupHeader onClose={onDone ?? onClose} />
       {items.map((item) => (
         <button
           key={item.label}
           type="button"
-          role="menuitem"
+          role={item.checked !== undefined ? 'menuitemradio' : 'menuitem'}
+          aria-checked={item.checked}
+          aria-haspopup={item.submenu ? 'menu' : undefined}
+          aria-expanded={item.submenu ? sub?.item === item : undefined}
           disabled={item.disabled}
-          onClick={() => {
+          onClick={(e) => {
+            if (item.submenu) {
+              const el = e.currentTarget
+              setSub(
+                sub?.item === item
+                  ? null
+                  : { item, at: el.getBoundingClientRect(), el },
+              )
+              return
+            }
             onClose()
+            onDone?.()
             item.onSelect()
           }}
           className="flex w-full items-center gap-2.5 rounded-md px-2.5 py-1.5 text-left text-sm outline-none enabled:hover:bg-hover enabled:focus:bg-hover disabled:text-muted any-pointer-coarse:min-h-11"
         >
           <span aria-hidden className="w-5 text-center text-muted">
-            {item.icon}
+            {item.checked !== undefined ? (item.checked ? '✓' : '') : item.icon}
           </span>
-          <span className="flex-1">{item.label}</span>
+          <span className="flex-1">
+            {item.label}
+            {item.description && (
+              <span className="block text-xs text-muted">
+                {item.description}
+              </span>
+            )}
+          </span>
           {item.hint && <span className="text-xs text-muted">{item.hint}</span>}
+          {item.submenu && (
+            <span aria-hidden className="text-muted">
+              ▸
+            </span>
+          )}
         </button>
       ))}
+      {sub?.item.submenu &&
+        createPortal(
+          <MenuPopover
+            anchor={sub.at}
+            items={sub.item.submenu}
+            label={sub.item.label}
+            opener={sub.el}
+            onClose={() => setSub(null)}
+            onDone={() => {
+              setSub(null)
+              onClose()
+              onDone?.()
+            }}
+          />,
+          document.body,
+        )}
     </div>
   )
 }

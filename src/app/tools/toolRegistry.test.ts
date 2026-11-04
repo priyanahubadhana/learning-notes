@@ -61,11 +61,13 @@ describe('tool registry', () => {
     ])
   })
 
-  it('draw tools wait for the drawing update, except Undo', () => {
+  it('draw tools wait for the drawing update, except Undo, Redo and New line', () => {
     for (const id of DEFAULT_SET_TOOLS.draw) {
       const tool = findTool(id)!
       expect(tool, id).toBeDefined()
-      expect(Boolean(tool.coming), id).toBe(id !== 'undo')
+      expect(Boolean(tool.coming), id).toBe(
+        !['undo', 'redo', 'newLine'].includes(id),
+      )
     }
   })
 

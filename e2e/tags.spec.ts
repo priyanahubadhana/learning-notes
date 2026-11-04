@@ -110,7 +110,7 @@ for (const [theme, width, height] of [
     await side.getByLabel('Tag options for #exam').click()
     await page.getByRole('menuitem', { name: 'Colour' }).click()
     await page.getByRole('button', { name: 'Blue' }).click()
-    await page.getByRole('button', { name: 'Done' }).click()
+    await page.getByRole('dialog').getByRole('button', { name: 'Done' }).click()
     await typeInEditor(
       page,
       'S1 is the mitral and tricuspid valves closing. #hi',

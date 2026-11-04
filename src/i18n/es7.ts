@@ -232,6 +232,8 @@ export const es7: Record<string, string> = {
   'help.tip.bar.more.example': 'Tachado, color, enlace, Palabra clave.',
   'mode.autoSwitched': 'Cambiado al modo {mode}',
   'mode.undo': 'Deshacer',
+  'pen.guard.removed':
+    'Se quitó texto justo después de tocar con el Lápiz. ¿Deshacer?',
   'settings.autoSwitch.label': 'Cambio automático',
   'settings.autoSwitch.description':
     'Cambia el modo del dispositivo al usar el Apple Pencil o un dedo. Solo Pencil: el lápiz activa el modo Lápiz. En ambos sentidos: un dedo vuelve al modo Táctil. Espera a que dejes de escribir.',

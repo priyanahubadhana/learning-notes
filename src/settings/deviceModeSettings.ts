@@ -29,6 +29,7 @@ import {
   hoverTipsSetting,
   shortcutHintsSetting,
 } from './builtinSettings'
+import { addUndoRedoOnce } from '../app/tools/toolbarState'
 import { migrateBarOff } from '../app/tools/toolbarVisibility'
 import { readDeviceSetting } from './settingsService'
 import { useDeviceSetting } from './useSetting'
@@ -43,6 +44,7 @@ import { useDeviceSetting } from './useSetting'
 export function initDeviceMode(): void {
   watchHardwareKeyboard()
   migrateBarOff()
+  addUndoRedoOnce()
   const stored = readPref<DeviceMode | null>(
     deviceModeSetting.id,
     (v): v is DeviceMode | null => v === null || isDeviceMode(v),

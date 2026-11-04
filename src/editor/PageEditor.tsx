@@ -44,6 +44,7 @@ import { AppDragHandleMenu } from './CardMenu'
 import { AppFormattingToolbar } from './SelectionToolbar'
 import { DockedBar } from './DockedBar'
 import { watchDragSelect } from './dragSelect'
+import { watchPenGuard } from './penGuard'
 import { useBarLayout } from './useBarLayout'
 import {
   copyAs,
@@ -440,11 +441,28 @@ function LoadedPageEditor({
         )
     : undefined
 
+  // The newest toast function, without restarting the pen watchers.
+  const toastRef = useRef(toast)
+  useEffect(() => {
+    toastRef.current = toast
+  })
+
   // A pen or mouse drag across pictures selects whole blocks, pictures included.
   useEffect(() => {
     let stop = () => {}
     const begin = () => {
-      stop = watchDragSelect(editor)
+      const stopDrag = watchDragSelect(editor)
+      // The Pencil must never delete text by itself (iPadOS Scribble).
+      const stopGuard = watchPenGuard(editor, () =>
+        toastRef.current(t('pen.guard.removed'), {
+          label: t('mode.undo'),
+          onSelect: () => editor.undo(),
+        }),
+      )
+      stop = () => {
+        stopDrag()
+        stopGuard()
+      }
     }
     if (editor.domElement) {
       begin()

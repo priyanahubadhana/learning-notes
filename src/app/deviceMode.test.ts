@@ -123,6 +123,8 @@ describe('pin, unpin, reorder, reset', () => {
   })
   it('the default bar has the planned buttons', () => {
     expect(DEFAULT_PINNED).toEqual([
+      'undo',
+      'redo',
       'bold',
       'italic',
       'color',

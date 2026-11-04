@@ -47,7 +47,14 @@ const barNames = (page: Page) =>
         .map((el) => el.getAttribute('data-action'))
         .filter(
           (a): a is string =>
-            !!a && !['toolbarMenu', 'allTools', 'controlPanel'].includes(a),
+            !!a &&
+            ![
+              'toolbarMenu',
+              'allTools',
+              'controlPanel',
+              'undo',
+              'redo',
+            ].includes(a),
         ),
     )
 

@@ -25,6 +25,9 @@ export function useAutoBarSet(): void {
     let penAt = 0
     const onPointer = (e: PointerEvent) => {
       if (e.pointerType !== 'pen') return
+      // A pen tap on the bar's own buttons (e.g. ↵ New line) must not swap
+      // the tools under it.
+      if (e.target instanceof Element && e.target.closest('[data-bar]')) return
       penAt = Date.now()
       changeSet('draw', 'auto')
     }

@@ -55,6 +55,8 @@ A pop-up stays open only until the user **chooses something**, OR **taps or clic
 
 Batch 2f: the invariant "a bar or the Show tool bar button is always visible" is tested over every mode, placement, ribbon state and ribbon place (`barLayout.test.ts`); `e2e/toolBarAlways.spec.ts` covers the three modes and an iPad that calls itself a Mac.
 
+Batch 2f also: **Undo and Redo** lead every set (greyed when nothing to undo or redo); **New line** is on every set; a Pencil tap on the bar does not change the set; `src/editor/penGuard.ts` refuses a delete that arrives from the Pencil (see CHANGELOG 2026-11-05). Tests: `e2e/newLine.spec.ts`, `e2e/penSelect.spec.ts`, `penGuard.test.ts`, `toolbarState.test.ts`.
+
 ### Positions
 
 - **Short bar position** (Settings › Formatting bar position, Edit bar › Position): Top, Bottom or Floating. The older value `floating` now only means Off (relabelled "Off", not offered in the lists; Show tool bar turns the bar off).

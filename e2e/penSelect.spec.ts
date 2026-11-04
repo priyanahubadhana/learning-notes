@@ -237,3 +237,93 @@ test('a finger still scrolls: a touch drag does not start a block selection', as
   )
   await expect(marked(page)).toHaveCount(0)
 })
+
+/** A beforeinput of `inputType` fired at the editor; true if it was refused. */
+const fireInput = (page: Page, inputType: string) =>
+  page.evaluate((inputType) => {
+    const el = document.querySelector('.bn-editor [contenteditable]')!
+    const e = new InputEvent('beforeinput', {
+      inputType,
+      bubbles: true,
+      cancelable: true,
+    })
+    el.dispatchEvent(e)
+    return e.defaultPrevented
+  }, inputType)
+
+test('a pen drag across text only selects it: nothing is deleted, even if a delete arrives', async ({
+  page,
+}) => {
+  const p = await setup(page)
+  const before = await text(page)
+  const blocksBefore = await blockCount(page)
+  await page.evaluate(() => {
+    const down = (name: string, x: number, y: number) =>
+      new PointerEvent(name, {
+        pointerType: 'pen',
+        pointerId: 9,
+        clientX: x,
+        clientY: y,
+        bubbles: true,
+        cancelable: true,
+        buttons: name === 'pointerup' ? 0 : 1,
+      })
+    ;(window as unknown as { penDown: () => void }).penDown = () =>
+      document.dispatchEvent(down('pointerdown', 10, 10))
+    ;(window as unknown as { penUp: () => void }).penUp = () =>
+      document.dispatchEvent(down('pointerup', 10, 10))
+  })
+  await page.evaluate(() =>
+    (window as never as { penDown: () => void }).penDown(),
+  )
+  // iPadOS Scribble "scratch out" arrives as a delete while the Pencil is down.
+  expect(await fireInput(page, 'deleteContentBackward')).toBe(true)
+  expect(await fireInput(page, 'deleteByDrag')).toBe(true)
+  // Lifting the pen and a delete right after (inside 300 ms) is refused too.
+  expect(
+    await page.evaluate(() => {
+      ;(window as never as { penUp: () => void }).penUp()
+      const el = document.querySelector('.bn-editor [contenteditable]')!
+      const e = new InputEvent('beforeinput', {
+        inputType: 'deleteContentForward',
+        bubbles: true,
+        cancelable: true,
+      })
+      el.dispatchEvent(e)
+      return e.defaultPrevented
+    }),
+  ).toBe(true)
+  // Typing is not refused.
+  expect(await fireInput(page, 'insertText')).toBe(false)
+  expect(await text(page)).toBe(before)
+  expect(await blockCount(page)).toBe(blocksBefore)
+  // The real pen drag across text and a picture selects, deletes nothing.
+  await penDrag(
+    page,
+    { x: p.first.x + 5, y: p.first.y + 10 },
+    { x: p.middle.x + 30, y: p.middle.y + p.middle.height / 2 },
+  )
+  await expect(marked(page)).toHaveCount(1)
+  expect(await text(page)).toBe(before)
+  expect(await blockCount(page)).toBe(blocksBefore)
+  expect(
+    await page.evaluate(() => window.getSelection()?.toString() ?? ''),
+  ).not.toBe(undefined)
+  // After the quiet time a real Backspace key deletes the selection.
+  await page.waitForTimeout(400)
+  await page.keyboard.press('Backspace')
+  expect(await text(page)).not.toContain('Middle line')
+})
+
+test('a pen drag across plain text selects it and changes nothing', async ({
+  page,
+}) => {
+  const p = await setup(page)
+  const before = await text(page)
+  await penDrag(
+    page,
+    { x: p.first.x + 2, y: p.first.y + p.first.height / 2 },
+    { x: p.first.x + p.first.width - 2, y: p.first.y + p.first.height / 2 },
+  )
+  expect(await text(page)).toBe(before)
+})

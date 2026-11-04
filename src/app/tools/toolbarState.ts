@@ -5,7 +5,7 @@ import {
   usePinned,
   writePinned,
 } from '../../settings/deviceModeSettings'
-import { isPinnedList } from '../deviceMode'
+import { isPinnedList, MAX_PINNED } from '../deviceMode'
 import { memStore, prefStore } from './store'
 import { TABS, type TabId } from './tabs'
 
@@ -23,6 +23,8 @@ export const isBarSet = (v: unknown): v is BarSet =>
 /** The tools each set shows from the start. Write is DEFAULT_PINNED. */
 export const DEFAULT_SET_TOOLS: Record<Exclude<BarSet, 'write'>, string[]> = {
   draw: [
+    'undo',
+    'redo',
     'pen',
     'highlighter',
     'eraser',
@@ -30,9 +32,11 @@ export const DEFAULT_SET_TOOLS: Record<Exclude<BarSet, 'write'>, string[]> = {
     'shapes',
     'drawColor',
     'thickness',
-    'undo',
+    'newLine',
   ],
   read: [
+    'undo',
+    'redo',
     'textSize',
     'font',
     'theme',
@@ -40,6 +44,7 @@ export const DEFAULT_SET_TOOLS: Record<Exclude<BarSet, 'write'>, string[]> = {
     'readAloud',
     'lockReading',
     'exitReading',
+    'newLine',
   ],
 }
 
@@ -111,6 +116,32 @@ export function useSetTools(set: BarSet): readonly string[] {
   return set === 'write' ? write : set === 'draw' ? draw : read
 }
 
+/**
+ * One-time (batch 2f): Undo and Redo are on every set from the start. Sets
+ * a person saved before get them added at the front once; they can remove
+ * them again in Edit bar.
+ */
+const undoRedoAdded = prefStore('toolbar.undoRedoAdded', isBoolean, false)
+export function addUndoRedoOnce(): void {
+  if (undoRedoAdded.get()) return
+  undoRedoAdded.set(true)
+  for (const set of BAR_SETS) {
+    const list = readSetTools(set)
+    const missing = ['undo', 'redo'].filter((id) => !list.includes(id))
+    if (missing.length === 0 || list.length + missing.length > MAX_PINNED) {
+      continue
+    }
+    const at = list.indexOf('undo')
+    // Redo goes right after an Undo that is there; otherwise both go first.
+    writeSetTools(
+      set,
+      at >= 0
+        ? [...list.slice(0, at + 1), 'redo', ...list.slice(at + 1)]
+        : [...missing, ...list],
+    )
+  }
+}
+
 /** Tests only. */
 export function resetToolbarState(): void {
   for (const store of [
@@ -120,6 +151,7 @@ export function resetToolbarState(): void {
     hiddenTabs,
     drawTools,
     readTools,
+    undoRedoAdded,
   ]) {
     store.clearCache()
   }

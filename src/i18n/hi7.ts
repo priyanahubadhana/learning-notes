@@ -226,6 +226,8 @@ export const hi7: Record<string, string> = {
   'help.tip.bar.more.example': 'काटना, रंग, लिंक, कीवर्ड।',
   'mode.autoSwitched': '{mode} मोड में बदला गया',
   'mode.undo': 'पूर्ववत करें',
+  'pen.guard.removed':
+    'पेंसिल के स्पर्श के ठीक बाद टेक्स्ट हट गया। पूर्ववत करें?',
   'settings.autoSwitch.label': 'अपने आप बदलना',
   'settings.autoSwitch.description':
     'Apple Pencil या उँगली इस्तेमाल करने पर डिवाइस मोड अपने आप बदलें। केवल पेंसिल: पेन से पेंसिल मोड लगता है। दोनों तरफ़: उँगली से वापस टच मोड। यह तब बदलता है जब आप लिखना या टाइप करना रोकते हैं।',

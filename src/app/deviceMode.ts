@@ -150,6 +150,8 @@ export const markActionId = (label: string) => `mark:${label}`
 
 /** The Write set's tools from the start (batch 2d). */
 export const DEFAULT_PINNED: readonly string[] = [
+  'undo',
+  'redo',
   'bold',
   'italic',
   'color',

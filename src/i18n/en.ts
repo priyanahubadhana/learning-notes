@@ -1785,6 +1785,7 @@ export const en = {
   'help.tip.bar.more.example': 'Strikethrough, colour, link, Keyword.',
   'mode.autoSwitched': 'Switched to {mode} mode',
   'mode.undo': 'Undo',
+  'pen.guard.removed': 'Text was removed right after a Pencil touch. Undo?',
   'settings.autoSwitch.label': 'Auto switch',
   'settings.autoSwitch.description':
     'Switch the device mode by itself when an Apple Pencil or a finger is used. Pencil only: the pen switches to Pencil mode. Both ways: a finger switches back to Touch mode. It waits until you stop writing or typing.',

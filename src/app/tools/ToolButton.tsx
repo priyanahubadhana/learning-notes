@@ -38,6 +38,8 @@ interface ToolButtonProps {
   px: number
   variant: 'bar' | 'ribbon'
   active?: boolean
+  /** Greyed and not pressable (Undo with nothing to undo). */
+  disabled?: boolean
   /** Show the name as a hover tooltip (the short bar with tips on). */
   tip?: boolean
   /** Add the shortcut to the tooltip. */
@@ -51,6 +53,7 @@ function PlainToolButton({
   px,
   variant,
   active,
+  disabled,
   tip,
   hint,
   onRun,
@@ -59,6 +62,8 @@ function PlainToolButton({
   px: number
   variant: 'bar' | 'ribbon'
   active?: boolean
+  /** Greyed and not pressable (Undo with nothing to undo). */
+  disabled?: boolean
   /** Show the name as a hover tooltip (the short bar with tips on). */
   tip?: boolean
   /** Add the shortcut to the tooltip. */
@@ -82,6 +87,7 @@ function PlainToolButton({
       data-coming={tool.coming ? '' : undefined}
       aria-label={label}
       aria-pressed={active ?? undefined}
+      disabled={disabled || undefined}
       aria-disabled={tool.coming ? true : undefined}
       title={title}
       onMouseDown={keepFocus}
@@ -90,7 +96,7 @@ function PlainToolButton({
         if (!tool.coming && !tool.repeat) onRun?.()
       }}
       style={{ minHeight: min, minWidth: min }}
-      className={`relative shrink-0 rounded-xl text-ink-soft hover:bg-hover hover:text-ink motion-safe:transition-colors aria-disabled:opacity-60 ${
+      className={`relative shrink-0 rounded-xl text-ink-soft hover:bg-hover hover:text-ink motion-safe:transition-colors aria-disabled:opacity-60 disabled:opacity-40 ${
         variant === 'ribbon'
           ? 'flex flex-col items-center justify-center gap-0.5 px-1.5 py-1 text-[11px] leading-tight'
           : 'grid place-items-center px-2'

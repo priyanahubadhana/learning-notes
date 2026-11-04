@@ -28,6 +28,7 @@ import { Tip } from '../help/Help'
 import { t } from '../i18n/t'
 import { useBarSettings } from '../settings/deviceModeSettings'
 import { keepKnown } from '../app/deviceMode'
+import { redoDepth, undoDepth } from 'prosemirror-history'
 import { Icon } from '../app/tools/icons'
 import { SetSwitch } from '../app/tools/SetSwitch'
 import { ToolButton } from '../app/tools/ToolButton'
@@ -104,6 +105,36 @@ function useToolActive(editor: Editor): (id: string) => boolean {
   }
 }
 
+/** Is there anything to undo or redo? Re-read whenever the page changes. */
+function useHistoryState(editor: Editor) {
+  const read = () => {
+    const state = editor.prosemirrorView?.state
+    return state
+      ? { canUndo: undoDepth(state) > 0, canRedo: redoDepth(state) > 0 }
+      : { canUndo: false, canRedo: false }
+  }
+  const [value, setValue] = useState(read)
+  useEffect(() => {
+    const update = () => {
+      const next = read()
+      setValue((old) =>
+        old.canUndo === next.canUndo && old.canRedo === next.canRedo
+          ? old
+          : next,
+      )
+    }
+    update()
+    const offChange = editor.onChange(update)
+    const offSelect = editor.onSelectionChange(update)
+    return () => {
+      offChange?.()
+      offSelect?.()
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [editor])
+  return value
+}
+
 function Bar({ editor, slot }: { editor: Editor; slot: HTMLElement }) {
   const settings = useBarSettings()
   const { buttonPx, hoverTips, shortcutHints, autoHide } = settings
@@ -123,6 +154,7 @@ function Bar({ editor, slot }: { editor: Editor; slot: HTMLElement }) {
   const [freeFraction, setFreeFraction] = useState(1)
   const editorFocused = useEditorFocus()
   const isActive = useToolActive(editor)
+  const history = useHistoryState(editor)
   useAutoBarSet()
 
   // Ctrl/Cmd+F1: "Tools close after use" or "Tools stay open".
@@ -260,6 +292,12 @@ function Bar({ editor, slot }: { editor: Editor; slot: HTMLElement }) {
         px={buttonPx}
         variant="bar"
         active={isActive(id) || undefined}
+        disabled={
+          (id === 'undo' && !history.canUndo) ||
+          (id === 'redo' && !history.canRedo)
+            ? true
+            : undefined
+        }
         tip={hoverTips}
         hint={shortcutHints}
       />

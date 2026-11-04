@@ -4,6 +4,7 @@ import { TABS } from './tabs'
 import {
   DEFAULT_SET_TOOLS,
   activeSet,
+  addUndoRedoOnce,
   changeSet,
   keepSet,
   readSetTools,
@@ -89,5 +90,25 @@ describe('tool sets', () => {
     expect(stayOpen.get()).toBe(true) // remembered on this device
     expect(toggleRibbonBehaviour()).toBe(false)
     expect(ribbonExpanded.get()).toBe(false)
+  })
+})
+
+describe('Undo and Redo on every set (batch 2f)', () => {
+  it('are first in every default set', () => {
+    for (const set of ['write', 'draw', 'read'] as const) {
+      expect(readSetTools(set).slice(0, 2), set).toEqual(['undo', 'redo'])
+    }
+  })
+  it('are added once to sets saved before, and can be removed again', () => {
+    writeSetTools('write', ['bold', 'more'])
+    writeSetTools('draw', ['pen', 'undo'])
+    writeSetTools('read', ['theme', 'redo'])
+    addUndoRedoOnce()
+    expect(readSetTools('write')).toEqual(['undo', 'redo', 'bold', 'more'])
+    expect(readSetTools('draw')).toEqual(['pen', 'undo', 'redo'])
+    expect(readSetTools('read')).toEqual(['undo', 'theme', 'redo'])
+    writeSetTools('write', ['bold'])
+    addUndoRedoOnce()
+    expect(readSetTools('write')).toEqual(['bold'])
   })
 })

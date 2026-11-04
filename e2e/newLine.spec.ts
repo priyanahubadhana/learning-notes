@@ -116,3 +116,89 @@ test('with "Ribbon + short bar" both New line buttons keep working', async ({
       .getByRole('button', { name: 'New line', exact: true }),
   )
 })
+
+/** A Pencil tap on a button, simulated with a pen pointerdown. */
+async function penTap(button: Locator) {
+  await button.evaluate((el) => {
+    const r = el.getBoundingClientRect()
+    const init = {
+      pointerType: 'pen',
+      pointerId: 7,
+      clientX: r.x + r.width / 2,
+      clientY: r.y + r.height / 2,
+      bubbles: true,
+      cancelable: true,
+      isPrimary: true,
+    }
+    el.dispatchEvent(new PointerEvent('pointerdown', { ...init, buttons: 1 }))
+    el.dispatchEvent(new PointerEvent('pointerup', { ...init, buttons: 0 }))
+    el.dispatchEvent(new MouseEvent('click', { bubbles: true }))
+  })
+}
+
+for (const mode of ['touch', 'pencil'] as const) {
+  test(`${mode} mode: three Pencil taps on New line keep the button`, async ({
+    page,
+  }) => {
+    await openPage(page, mode)
+    const button = dockedBar(page).getByRole('button', {
+      name: 'New line',
+      exact: true,
+    })
+    const start = await blocks(page).count()
+    for (let i = 1; i <= 3; i++) {
+      await penTap(button)
+      await expect(blocks(page)).toHaveCount(start + i)
+      await expect(button).toBeVisible()
+      await expect(button).toBeEnabled()
+    }
+  })
+}
+
+test('New line is also on the Draw set, so a Pencil touch cannot lose it', async ({
+  page,
+}) => {
+  await openPage(page)
+  await page.evaluate(() => {
+    const el = document.querySelector('.bn-editor p')!
+    el.dispatchEvent(
+      new PointerEvent('pointerdown', {
+        pointerType: 'pen',
+        bubbles: true,
+        pointerId: 3,
+      }),
+    )
+  })
+  await expect(
+    dockedBar(page).getByRole('button', { name: 'New line', exact: true }),
+  ).toBeVisible()
+})
+
+test('Undo and Redo sit first on the bar in every set, grey out, and reverse typing', async ({
+  page,
+}) => {
+  await startInMode(page, 'touch')
+  await page.goto('/')
+  await createNotebook(page, 'Biology', 'First')
+  const bar = dockedBar(page)
+  const undo = bar.getByRole('button', { name: 'Undo', exact: true })
+  const redo = bar.getByRole('button', { name: 'Redo', exact: true })
+  await expect(undo).toBeVisible()
+  await expect(redo).toBeDisabled()
+  const names = await bar
+    .locator('[data-slot="tools"] [data-bar-btn]')
+    .evaluateAll((els) => els.map((el) => el.getAttribute('data-action')))
+  expect(names.slice(0, 2)).toEqual(['undo', 'redo'])
+  await typeInEditor(page, 'The nucleus holds the DNA')
+  await expect(undo).toBeEnabled()
+  await undo.click()
+  await expect(page.locator('.bn-editor')).not.toContainText('nucleus')
+  await expect(redo).toBeEnabled()
+  await redo.click()
+  await expect(page.locator('.bn-editor')).toContainText('nucleus')
+  for (const set of ['Draw', 'Read']) {
+    await bar.getByRole('radio', { name: set, exact: true }).click()
+    await expect(undo).toBeVisible()
+    await expect(redo).toBeVisible()
+  }
+})

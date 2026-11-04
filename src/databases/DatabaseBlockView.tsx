@@ -1,3 +1,4 @@
+import { DatabaseGate } from '../app/lock/LockScreen'
 import { useLiveQuery } from 'dexie-react-hooks'
 import { createElement, useContext, useEffect, useRef, useState } from 'react'
 import { EditorContext } from '../editor/editorContext'
@@ -17,7 +18,21 @@ const MAX_WIDE = 1400
  * block's own view (its own sorts, filters and chart settings), a switch
  * between Table / Dashboard / Board, and "Open" for the full screen.
  */
-export function DatabaseBlockView({
+/** A database inside a note; a locked database shows a lock instead. */
+export function DatabaseBlockView(props: {
+  databaseId: string
+  blockId: string
+}) {
+  const app = useContext(EditorContext)
+  if (!app) return <div className="h-16 w-full" />
+  return (
+    <DatabaseGate db={app.db} databaseId={props.databaseId} compact>
+      <DatabaseBlock {...props} />
+    </DatabaseGate>
+  )
+}
+
+function DatabaseBlock({
   databaseId,
   blockId,
 }: {

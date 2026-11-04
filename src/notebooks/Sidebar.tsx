@@ -467,6 +467,7 @@ export function Sidebar({
                         onDoubleClick={() => onRenamingChange(notebook.id)}
                         className="flex-1 truncate text-left font-semibold"
                       >
+                        {notebook.locked ? '🔒 ' : ''}
                         {displayName(sampleName(notebook)) ||
                           t('review.untitled')}
                       </button>

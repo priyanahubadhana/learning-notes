@@ -23,6 +23,8 @@ export interface CalendarEntry {
   source: 'row' | 'journal'
   databaseId?: string
   databaseName?: string
+  /** Its row, page, notebook or database is locked: show a 🔒. */
+  locked?: true
 }
 
 /** The day a stored Date cell falls on, or null if it is not a date. */
@@ -68,6 +70,7 @@ export async function calendarEntries(
           source: 'row',
           databaseId: database.id,
           databaseName: database.title,
+          ...(row.locked || database.locked ? { locked: true as const } : {}),
         })
       }
     }
@@ -89,6 +92,7 @@ export async function calendarEntries(
         title: page.title,
         day,
         source: 'journal',
+        ...(page.locked || journal.locked ? { locked: true as const } : {}),
       })
     }
   }

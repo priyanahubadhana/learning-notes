@@ -25,6 +25,10 @@ import type { ToastAction } from './app/appUi'
 import { altShortcutLabel } from './app/keys'
 import { toggleFavourite } from './app/favourites'
 import { ControlPanel } from './app/tools/ControlPanel'
+import { DatabaseGate, LockGate, PageGate } from './app/lock/LockScreen'
+import { toggleLock } from './app/lock/lockMenu'
+import { useAutoRelock } from './app/lock/useLock'
+import { useReadingSync } from './app/reading/useReadingSync'
 import { DevicePicker } from './app/tools/DevicePicker'
 import { devicePickerDone } from './app/tools/deviceKind'
 import { setAppActions } from './app/tools/toolRuntime'
@@ -786,6 +790,18 @@ function App() {
     }
   }, [])
 
+  // Locked things lock again when you leave them, hide the app or stop using it.
+  const placeIsPage =
+    !showSettings && !reviewScope && !hub && !search && !openNotebookRecord
+  useAutoRelock(db, {
+    pageId: placeIsPage ? (currentPage?.id ?? undefined) : undefined,
+    notebookId:
+      !showSettings && !reviewScope && !hub && !search
+        ? (openNotebookRecord?.id ?? undefined)
+        : undefined,
+    databaseId: !showSettings && hub?.kind === 'database' ? hub.id : undefined,
+  })
+
   // What the control panel, ribbon and bar can ask the app to do. Registered
   // on every draw, so the actions always see the current screen.
   useEffect(() => {
@@ -834,6 +850,20 @@ function App() {
       setTheme,
       cycleTheme: () =>
         setTheme(THEMES[(THEMES.indexOf(theme) + 1) % THEMES.length]),
+      lockCurrent: (kind) => {
+        if (!currentPage) {
+          appUi.toast(t('tool.needsPage'))
+          return
+        }
+        runTask(
+          toggleLock(
+            db,
+            kind,
+            kind === 'page' ? currentPage.id : currentPage.notebookId,
+            appUi.toast,
+          ),
+        )
+      },
       toggleFavourite: () => {
         if (!currentPage) {
           appUi.toast(t('tool.needsPage'))
@@ -1060,16 +1090,18 @@ function App() {
                         onClose={() => setHub(null)}
                       />
                     ) : hub?.kind === 'database' ? (
-                      <DatabaseScreen
-                        key={hub.id}
-                        db={db}
-                        databaseId={hub.id}
-                        onOpenPage={openPage}
-                        onBack={() => setHub({ kind: 'databases' })}
-                        onOpenDatabase={(id) =>
-                          setHub({ kind: 'database', id })
-                        }
-                      />
+                      <DatabaseGate db={db} databaseId={hub.id}>
+                        <DatabaseScreen
+                          key={hub.id}
+                          db={db}
+                          databaseId={hub.id}
+                          onOpenPage={openPage}
+                          onBack={() => setHub({ kind: 'databases' })}
+                          onOpenDatabase={(id) =>
+                            setHub({ kind: 'database', id })
+                          }
+                        />
+                      </DatabaseGate>
                     ) : search ? (
                       <SearchScreen
                         key={search.key}
@@ -1106,45 +1138,58 @@ function App() {
                         onClose={() => setSearch(null)}
                       />
                     ) : openNotebookRecord ? (
-                      <NotebookScreen
-                        key={openNotebookRecord.id}
+                      <LockGate
                         db={db}
-                        notebook={openNotebookRecord}
-                        onOpenPage={openPage}
-                        onCreatePage={(id) => runTask(createPageIn(id, null))}
-                        onOpenHit={(hit) => runTask(openHit(hit))}
-                        onReview={openReview}
-                        onClose={() => setNotebookId(null)}
-                      />
+                        rootId={
+                          openNotebookRecord.locked
+                            ? openNotebookRecord.id
+                            : null
+                        }
+                        title={openNotebookRecord.title}
+                        kind="notebook"
+                      >
+                        <NotebookScreen
+                          key={openNotebookRecord.id}
+                          db={db}
+                          notebook={openNotebookRecord}
+                          onOpenPage={openPage}
+                          onCreatePage={(id) => runTask(createPageIn(id, null))}
+                          onOpenHit={(hit) => runTask(openHit(hit))}
+                          onReview={openReview}
+                          onClose={() => setNotebookId(null)}
+                        />
+                      </LockGate>
                     ) : currentPage ? (
-                      <PageView
-                        key={`${currentPage.id}:${notesVersion}`}
-                        db={db}
-                        page={currentPage}
-                        autoFocusTitle={focusTitlePageId === currentPage.id}
-                        onOpenPage={openPage}
-                        onOpenNewPage={openNewPage}
-                        onReview={(includeSubpages) =>
-                          openReview({
-                            kind: 'page',
-                            pageId: currentPage.id,
-                            includeSubpages,
-                          })
-                        }
-                        onNewPageFromTemplate={(id) =>
-                          runTask(newPageFromTemplate(id))
-                        }
-                        onOpenTag={openTag}
-                        onReload={() => setNotesVersion((v) => v + 1)}
-                        onOpenBackup={() => {
-                          openPage(null)
-                          setHub({ kind: 'data' })
-                        }}
-                        onOpenDatabase={(id) => {
-                          openPage(null)
-                          setHub({ kind: 'database', id })
-                        }}
-                      />
+                      <PageGate db={db} page={currentPage}>
+                        <PageView
+                          key={`${currentPage.id}:${notesVersion}`}
+                          db={db}
+                          page={currentPage}
+                          autoFocusTitle={focusTitlePageId === currentPage.id}
+                          onOpenPage={openPage}
+                          onOpenNewPage={openNewPage}
+                          onReview={(includeSubpages) =>
+                            openReview({
+                              kind: 'page',
+                              pageId: currentPage.id,
+                              includeSubpages,
+                            })
+                          }
+                          onNewPageFromTemplate={(id) =>
+                            runTask(newPageFromTemplate(id))
+                          }
+                          onOpenTag={openTag}
+                          onReload={() => setNotesVersion((v) => v + 1)}
+                          onOpenBackup={() => {
+                            openPage(null)
+                            setHub({ kind: 'data' })
+                          }}
+                          onOpenDatabase={(id) => {
+                            openPage(null)
+                            setHub({ kind: 'database', id })
+                          }}
+                        />
+                      </PageGate>
                     ) : notebooks.length === 0 && currentPage === null ? (
                       <div className="mt-[30vh] text-center">
                         <p className="mb-5 text-muted">
@@ -1224,6 +1269,7 @@ function App() {
               onLater={() => runTask(snoozeReminder(db))}
             />
           )}
+          <ReadingSync />
           <div className="fixed bottom-16 left-1/2 z-40 flex w-max max-w-[calc(100vw-32px)] -translate-x-1/2 flex-col items-center gap-2">
             <SaveNotice />
             {applyUpdate && (
@@ -1248,6 +1294,12 @@ function App() {
       </AppUiContext>
     </ThemeContext>
   )
+}
+
+/** Keeps the Write · Draw · Read switch and Reading mode in step. */
+function ReadingSync() {
+  useReadingSync()
+  return null
 }
 
 export default App

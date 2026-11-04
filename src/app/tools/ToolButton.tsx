@@ -1,3 +1,9 @@
+import { useDeviceSetting } from '../../settings/useSetting'
+import {
+  readingBlanksSetting,
+  readingRulerSetting,
+} from '../../settings/readingSettings'
+import { readingLocked, readingView } from '../reading/readingState'
 import { CopyPasteButton } from './CopyPasteMenu'
 import { Icon } from './icons'
 import { ThemeArrow } from './ThemePicker'
@@ -48,11 +54,33 @@ interface ToolButtonProps {
   onRun?: () => void
 }
 
+/** Is this Reading tool "on"? (Reading mode, line focus, self-test, lock.) */
+function useReadingToolOn(id: string): boolean | undefined {
+  const view = readingView.useValue()
+  const locked = readingLocked.useValue()
+  const [ruler] = useDeviceSetting(readingRulerSetting)
+  const [blanks] = useDeviceSetting(readingBlanksSetting)
+  switch (id) {
+    case 'readingMode':
+      return view === 'inPlace'
+    case 'readerFull':
+      return view === 'reader'
+    case 'lineFocus':
+      return ruler !== 'off'
+    case 'hideBlanks':
+      return blanks === 'hide'
+    case 'lockReading':
+      return locked
+    default:
+      return undefined
+  }
+}
+
 function PlainToolButton({
   tool,
   px,
   variant,
-  active,
+  active: activeProp,
   disabled,
   tip,
   hint,
@@ -71,6 +99,8 @@ function PlainToolButton({
   /** Called after the tool ran (the ribbon closes its tools). */
   onRun?: () => void
 }) {
+  const readingOn = useReadingToolOn(tool.id)
+  const active = activeProp ?? readingOn
   const label = toolLabel(tool)
   const shortcut = hint ? tool.shortcut?.() : undefined
   const title = tool.coming

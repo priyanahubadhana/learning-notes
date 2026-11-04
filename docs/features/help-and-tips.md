@@ -27,3 +27,5 @@ Hover tips and short help lines that explain features in plain words, which the 
 ## Tests
 
 `src/help/helpRegistry.test.ts` (every id is used, has both texts, no stray texts, meaning at most 130 characters, `HELP-TEXTS.md` matches); e2e: `help.spec.ts`.
+
+Batch 3 added the tip `topBar.deviceMode` (2g) and the help lines `lock.privacy` (lock screen, Settings › Lock) and `reading.aloud` (Read aloud panel).

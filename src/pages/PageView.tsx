@@ -40,6 +40,22 @@ import { getAppActions } from '../app/tools/toolRuntime'
 import { shortcutShiftLabel } from '../app/keys'
 import { useDeviceSetting } from '../settings/useSetting'
 import { pathStyleSetting } from '../settings/builtinSettings'
+import { useLockItem } from '../app/lock/lockMenu'
+import { ReadingFrame } from '../app/reading/ReadingFrame'
+import { MARGIN_PX, WIDTH_PX } from '../app/reading/readingPrefs'
+import { setReadFirst } from '../app/reading/readFirst'
+import {
+  readingAuto,
+  readingView,
+  startReading,
+  stopReading,
+} from '../app/reading/readingState'
+import {
+  surfaceStyle,
+  useReadingSettings,
+} from '../app/reading/useReadingSettings'
+import { readingEntrySetting } from '../settings/readingSettings'
+import { openReader } from '../app/reading/readingTools'
 
 interface PageViewProps {
   db: LearningNotesDB
@@ -142,6 +158,22 @@ export function PageView({
     globalPathStyle,
   )
   const starred = favourites.useValue().includes(page.id)
+  const lockItem = useLockItem(db, 'page', page.id, !!page.locked)
+  const view = readingView.useValue()
+  const reader = view === 'reader'
+  const reading = useReadingSettings()
+  const [entry] = useDeviceSetting(readingEntrySetting)
+  const notebookLoaded = notebook !== undefined
+  const readFirst = !!page.readFirst || !!notebook?.readFirst
+  // A page or notebook set to always open in Reading mode turns it on; a page
+  // that is not turns off what was turned on that way.
+  useEffect(() => {
+    if (!notebookLoaded) return
+    if (readFirst) startReading(entry === 'reader' ? 'reader' : 'inPlace', true)
+    else if (readingAuto.get()) stopReading()
+    // Only when another page opens.
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [page.id, notebookLoaded])
   const moreItems: MenuItem[] = [
     // Page actions first.
     ...(notebook && !isTemplate
@@ -155,6 +187,8 @@ export function PageView({
         ]
       : []),
     { label: t('history.button'), icon: '🕘', onSelect: openHistory },
+    { label: t('tool.readerFull'), icon: '📖', onSelect: openReader },
+    ...lockItem,
     {
       label: t(starred ? 'fav.remove' : 'fav.add'),
       icon: starred ? '★' : '☆',
@@ -239,7 +273,19 @@ export function PageView({
   ]
 
   return (
-    <div className="mx-auto max-w-[720px] px-14 pt-10 pb-[200px]">
+    <div
+      className="mx-auto max-w-[720px] px-14 pt-10 pb-[200px]"
+      data-reading={view === 'inPlace' ? 'inPlace' : undefined}
+      style={
+        view === 'inPlace'
+          ? {
+              ...surfaceStyle(reading),
+              maxWidth: WIDTH_PX[reading.width],
+              paddingInline: MARGIN_PX[reading.margin],
+            }
+          : undefined
+      }
+    >
       {barSlot &&
         createPortal(
           <>
@@ -279,70 +325,98 @@ export function PageView({
           barSlot,
         )}
 
-      {isTemplate && (
-        <Banner icon="📋">
-          <span className="min-w-[160px] flex-1">
-            <b className="font-semibold text-ink">{t('page.template.title')}</b>{' '}
-            {t('page.template.text')}
-          </span>
-          <button
-            type="button"
-            onClick={() => onNewPageFromTemplate(page.id)}
-            className="rounded-lg bg-accent px-3 py-1.5 text-[13px] text-white hover:opacity-90"
-          >
-            {t('page.template.new')}
-          </button>
-        </Banner>
-      )}
-      {isToday && (
-        <Banner icon="☀">
-          <span className="flex-1">
-            <b className="font-semibold text-ink">{t('page.today.title')}</b>
-            {t('page.today.text')}
-          </span>
-        </Banner>
-      )}
-
-      <TitleInput
-        key={page.id}
+      <div style={{ display: reader ? 'none' : 'contents' }}>
+        {isTemplate && (
+          <Banner icon="📋">
+            <span className="min-w-[160px] flex-1">
+              <b className="font-semibold text-ink">
+                {t('page.template.title')}
+              </b>{' '}
+              {t('page.template.text')}
+            </span>
+            <button
+              type="button"
+              onClick={() => onNewPageFromTemplate(page.id)}
+              className="rounded-lg bg-accent px-3 py-1.5 text-[13px] text-white hover:opacity-90"
+            >
+              {t('page.template.new')}
+            </button>
+          </Banner>
+        )}
+        {isToday && (
+          <Banner icon="☀">
+            <span className="flex-1">
+              <b className="font-semibold text-ink">{t('page.today.title')}</b>
+              {t('page.today.text')}
+            </span>
+          </Banner>
+        )}
+      </div>
+      <ReadingFrame
         db={db}
         pageId={page.id}
-        savedTitle={page.title}
-        autoFocus={autoFocusTitle}
-        onEnter={() => editor.current?.focus()}
-      />
-      <RowProperties db={db} page={page} />
-      <PageTags
-        db={db}
-        pageId={page.id}
-        tagIds={page.tagIds ?? []}
-        onOpenTag={onOpenTag}
-      />
-      <HelpLine id="page.editor" className="mb-3 text-xs text-muted" />
-      <SectionChips db={db} pageId={page.id} />
-      <PageEditor
-        db={db}
-        pageId={page.id}
-        notebookId={page.notebookId}
+        pageTitle={page.title}
+        view={view}
+        flags={{ page: !!page.readFirst, notebook: !!notebook?.readFirst }}
+        onReadFirst={(kind, on) =>
+          runTask(
+            setReadFirst(
+              db,
+              kind,
+              kind === 'page' ? page.id : page.notebookId,
+              on,
+            ),
+          )
+        }
         onOpenPage={onOpenPage}
-        onOpenNewPage={onOpenNewPage}
-        onOpenTag={onOpenTag}
-        onOpenDatabase={onOpenDatabase}
-        onReviewCards={notebook && !isTemplate ? onReview : undefined}
-        onSaveAsTemplate={notebook && !isTemplate ? saveTemplate : undefined}
-        editorRef={editor}
-      />
-      {notebook && !isTemplate && (
-        <LinkedFrom
+      >
+        <TitleInput
+          key={page.id}
           db={db}
           pageId={page.id}
-          pageTitle={page.title}
-          onOpenBlock={(pageId, blockId) => {
-            onOpenPage(pageId)
-            revealBlock(blockId)
-          }}
+          savedTitle={page.title}
+          autoFocus={autoFocusTitle}
+          readOnly={reader}
+          onEnter={() => editor.current?.focus()}
         />
-      )}
+        <div style={{ display: reader ? 'none' : 'contents' }}>
+          <RowProperties db={db} page={page} />
+          <PageTags
+            db={db}
+            pageId={page.id}
+            tagIds={page.tagIds ?? []}
+            onOpenTag={onOpenTag}
+          />
+          <HelpLine id="page.editor" className="mb-3 text-xs text-muted" />
+          <SectionChips db={db} pageId={page.id} />
+        </div>
+        <PageEditor
+          db={db}
+          pageId={page.id}
+          notebookId={page.notebookId}
+          onOpenPage={onOpenPage}
+          onOpenNewPage={onOpenNewPage}
+          onOpenTag={onOpenTag}
+          onOpenDatabase={onOpenDatabase}
+          onReviewCards={notebook && !isTemplate ? onReview : undefined}
+          onSaveAsTemplate={notebook && !isTemplate ? saveTemplate : undefined}
+          editorRef={editor}
+          reading={view === 'off' ? undefined : { view }}
+        />
+      </ReadingFrame>
+      <div style={{ display: reader ? 'none' : 'contents' }}>
+        {notebook && !isTemplate && (
+          <LinkedFrom
+            db={db}
+            pageId={page.id}
+            pageTitle={page.title}
+            onOpenBlock={(pageId, blockId) => {
+              onOpenPage(pageId)
+              revealBlock(blockId)
+            }}
+          />
+        )}
+      </div>
       {historyOpen && (
         <HistoryDialog
           db={db}
@@ -433,6 +507,7 @@ interface TitleInputProps {
   /** The title as currently stored (updates live, e.g. sidebar rename). */
   savedTitle: string
   autoFocus: boolean
+  readOnly?: boolean
   onEnter: () => void
 }
 
@@ -442,6 +517,7 @@ function TitleInput({
   pageId,
   savedTitle,
   autoFocus,
+  readOnly,
   onEnter,
 }: TitleInputProps) {
   const [title, setTitle] = useState(savedTitle)
@@ -488,6 +564,7 @@ function TitleInput({
       placeholder={t('review.untitled')}
       aria-label={t('page.titleField')}
       autoFocus={autoFocus}
+      readOnly={readOnly}
       onChange={(e) => {
         const value = e.target.value.replace(/\n/g, '')
         setTitle(value)

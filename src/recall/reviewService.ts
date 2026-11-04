@@ -1,3 +1,4 @@
+import { hiddenPageIds } from '../core/lock/lockService'
 import type { LearningNotesDB } from '../core/db'
 import { createId } from '../core/ids'
 import { descendantIds } from '../core/records'
@@ -187,11 +188,16 @@ export async function reviewable(
   const inTemplates = new Set(
     pages.flatMap((p) => (p && skip.has(p.notebookId) ? [p.id] : [])),
   )
+  // Cards of locked pages stay out of Review until the page is unlocked.
+  const locked = await hiddenPageIds(db, [
+    ...new Set(active.map((c) => c.pageId)),
+  ])
   return active.filter(
     (c) =>
       parts.get(c.blockId)?.has(c.part) &&
       !skip.has(c.notebookId) &&
-      !inTemplates.has(c.pageId),
+      !inTemplates.has(c.pageId) &&
+      !locked.has(c.pageId),
   )
 }
 

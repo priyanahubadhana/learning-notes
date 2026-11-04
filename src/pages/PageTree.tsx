@@ -107,6 +107,7 @@ export function PageTree({
                 onDoubleClick={() => setRenamingId(page.id)}
                 className="flex-1 truncate text-left"
               >
+                {page.locked ? '🔒 ' : ''}
                 {page.journalDate && !page.customTitle
                   ? shortDayLabel(page.journalDate)
                   : page.journalMonth && !page.customTitle

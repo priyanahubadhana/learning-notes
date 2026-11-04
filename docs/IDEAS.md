@@ -108,3 +108,8 @@ New ideas that come up mid-build are parked here, not added to the current phase
 - 2026-11-03 — Kindle, Apple Books, Google Play Books, Audible connections _(Likely phase: Parked)_
 - 2026-11-03 — Restore that streams straight into the database, so a very big file needs no full copy in memory _(Likely phase: before sync)_
 - 2026-11-03 — Replace from older zip files through the upgrade steps (temp database at the old version); build with database version 13 _(Likely phase: next database change)_
+- 2026-11-05 — Reading: "Story so far" and "Ask this book" (Kindle-style recaps and questions about a page or notebook) _(Likely phase: 14, AI, after the owner approves the cost)_
+- 2026-11-05 — Reading: daily highlight resurfacing and a highlights review (Readwise-style): show a few old highlights each day, link back to the page _(Likely phase: 13)_
+- 2026-11-05 — Reading: nicer voices (HD or offline neural voices), voice from a photo of a page (Speechify-style OCR), reading goals and a streak that syncs between devices _(Likely phase: 13–14)_
+- 2026-11-05 — Reading: an offline dictionary and translation of a tapped word (today Look up opens Wiktionary for that word) _(Likely phase: 13)_
+- 2026-11-05 — Lock: real encryption of locked items (needs the Phase 10 key design: spare key, passphrase, new-device flow) and a recovery code for the privacy lock _(Likely phase: 10)_

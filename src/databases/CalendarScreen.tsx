@@ -27,8 +27,9 @@ const isMode = (v: unknown): v is CalendarMode => v === 'month' || v === 'week'
 
 /** A chip's words: a journal day by its date, a row by its title. */
 function chipText(entry: CalendarEntry): string {
-  if (entry.source === 'journal') return dayText(entry.day)
-  return sampleName({ title: entry.title }) || t('review.untitled')
+  const lock = entry.locked ? '🔒 ' : ''
+  if (entry.source === 'journal') return lock + dayText(entry.day)
+  return lock + (sampleName({ title: entry.title }) || t('review.untitled'))
 }
 
 /**

@@ -31,6 +31,8 @@ export interface AppActions {
   /** Chooses a theme by name (the theme list's ▾). */
   setTheme: (theme: Theme) => void
   toggleFavourite: () => void
+  /** Locks the open page or its notebook (or removes the lock). */
+  lockCurrent: (kind: 'page' | 'notebook') => void
   /** The id of the open page (null on other screens). */
   currentPageId: () => string | null
 }

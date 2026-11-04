@@ -6,6 +6,7 @@ import {
   writePinned,
 } from '../../settings/deviceModeSettings'
 import { isPinnedList, MAX_PINNED } from '../deviceMode'
+import { isReading } from '../reading/readingState'
 import { memStore, prefStore } from './store'
 import { TABS, type TabId } from './tabs'
 
@@ -42,6 +43,9 @@ export const DEFAULT_SET_TOOLS: Record<Exclude<BarSet, 'write'>, string[]> = {
     'theme',
     'find',
     'readAloud',
+    'outline',
+    'lineFocus',
+    'hideBlanks',
     'lockReading',
     'exitReading',
     'newLine',
@@ -168,7 +172,7 @@ export const tabForSet = (set: BarSet): TabId =>
 
 /** Shows another set. `auto` changes are ignored while the set is kept. */
 export function changeSet(set: BarSet, how: 'auto' | 'user'): boolean {
-  if (how === 'auto' && keepSet.get()) return false
+  if (how === 'auto' && (keepSet.get() || isReading())) return false
   if (activeSet.get() === set) return false
   activeSet.set(set)
   // The ribbon follows the set: it opens on the matching tab.

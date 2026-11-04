@@ -35,3 +35,7 @@ Find pages, notes and cards by words, with filters, counts and saved searches. E
 
 - `src/search/searchService.test.ts`, `searchText.test.ts`, `searchQuery.test.ts` (also covers highlighting), `suggest.test.ts`, `savedSearchService.test.ts`, `searchSpeed.test.ts`
 - `e2e/search.spec.ts`
+
+## Locked pages (batch 3)
+
+Notes and cards of a locked page (or a page in a locked notebook or database) never match a search while locked. A page-title result may still show, with a 🔒 and no text. The results re-run when something is unlocked or locked again. See [lock.md](lock.md).

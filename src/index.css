@@ -431,3 +431,95 @@ button.tag-chip:hover {
   user-select: none;
   -webkit-user-select: none;
 }
+
+/* ---------- Batch 3: Reading mode ---------- */
+
+/* The look of Reading mode. The variables are set by the page around the
+   text (ReadingFrame / PageView) from Settings › Reading. */
+.reading-surface,
+.reading-surface .bn-container,
+.reading-surface .bn-editor {
+  --bn-colors-editor-background: var(--rd-bg);
+  --bn-colors-editor-text: var(--rd-fg);
+  background: var(--rd-bg);
+  color: var(--rd-fg);
+}
+.reading-surface .bn-container {
+  --bn-font-family: var(--rd-font, inherit);
+}
+.reading-surface .bn-default-styles {
+  font-size: calc(16px * var(--rd-size, 1));
+}
+.reading-surface .bn-block-content {
+  font-family: var(--rd-font, inherit);
+  line-height: var(--rd-line, 1.55);
+}
+.reading-surface textarea {
+  color: var(--rd-fg);
+  font-family: var(--rd-font, inherit);
+}
+/* In place: the whole page column takes the reading look. */
+[data-reading='inPlace'] {
+  background: var(--rd-bg);
+  color: var(--rd-fg);
+  font-family: var(--rd-font, inherit);
+}
+[data-reading='inPlace'] .bn-container,
+[data-reading='inPlace'] .bn-editor {
+  --bn-colors-editor-background: var(--rd-bg);
+  --bn-colors-editor-text: var(--rd-fg);
+  --bn-font-family: var(--rd-font, inherit);
+  background: var(--rd-bg);
+  color: var(--rd-fg);
+}
+[data-reading='inPlace'] .bn-default-styles {
+  font-size: calc(16px * var(--rd-size, 1));
+}
+[data-reading='inPlace'] .bn-block-content {
+  font-family: var(--rd-font, inherit);
+  line-height: var(--rd-line, 1.55);
+}
+[data-reading='inPlace'] textarea {
+  color: var(--rd-fg);
+  font-family: var(--rd-font, inherit);
+}
+/* The page chips and tags stay readable on the reading colours. */
+[data-reading='inPlace'] .sticky {
+  background: var(--rd-bg);
+}
+
+/* Self-test: blanks hidden until tapped. */
+.reading-hide-blanks .recall-blank:not([data-revealed]) {
+  color: transparent;
+  background: var(--rd-soft, #777);
+  border-bottom-color: transparent;
+  border-radius: 4px;
+  cursor: pointer;
+  user-select: none;
+}
+.reading-hide-blanks .recall-blank:not([data-revealed]) * {
+  color: transparent;
+}
+
+/* Read aloud: the word being spoken (and the sentence, where the voice
+   gives no word marks). */
+::highlight(reading-word) {
+  background-color: var(--rd-mark, #ffe58a);
+  color: var(--rd-mark-text, #1c1c1e);
+}
+::highlight(reading-sentence) {
+  background-color: color-mix(
+    in srgb,
+    var(--rd-mark, #ffe58a) 55%,
+    transparent
+  );
+  color: inherit;
+}
+
+/* A page locked or blanked while the app is hidden (the app switcher). */
+:root[data-app-hidden] body > * {
+  visibility: hidden;
+}
+:root[data-app-hidden] body {
+  background: var(--color-bg, #fff);
+}

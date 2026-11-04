@@ -3,6 +3,7 @@ import { useContext, useState } from 'react'
 import { AppUiContext } from '../app/appUi'
 import { runTask } from '../app/errors'
 import { MenuPopover } from '../app/ui'
+import { useLockItem } from '../app/lock/lockMenu'
 import type { LearningNotesDB } from '../core/db'
 import { Tip } from '../help/Help'
 import { t } from '../i18n/t'
@@ -160,6 +161,7 @@ export function DatabaseScreen({
     async () => (await getDatabase(db, databaseId)) ?? null,
     [db, databaseId],
   )
+  const lockItem = useLockItem(db, 'database', databaseId, !!database?.locked)
   if (database === undefined) return null
   if (database === null) {
     return (
@@ -257,6 +259,7 @@ export function DatabaseScreen({
               anchor={menu}
               onClose={() => setMenu(null)}
               items={[
+                ...lockItem,
                 {
                   label: t('databases.delete'),
                   icon: '🗑',

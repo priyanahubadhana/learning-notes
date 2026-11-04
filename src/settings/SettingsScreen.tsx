@@ -22,6 +22,9 @@ import { getSetting, setSetting } from './settingsService'
 import { useDeviceSetting, useSyncedSetting } from './useSetting'
 import { DeviceSection } from './DeviceSection'
 import './toolbarSettings'
+import './readingSettings'
+import './lockSettings'
+import { LockSection } from '../app/lock/LockSection'
 
 /**
  * Settings screen: categories on the left (a row of chips on small screens),
@@ -133,6 +136,7 @@ export function SettingsScreen({
 
         <div className="min-w-0">
           {category === ALL && !q && <DeviceSection db={db} />}
+          {category === 'lock' && <LockSection db={db} />}
           {category === ALL && (
             <input
               type="search"

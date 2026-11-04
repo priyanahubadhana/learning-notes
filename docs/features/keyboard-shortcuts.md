@@ -51,3 +51,8 @@ No data leaves the device; shortcuts only call existing actions.
 ## Tests
 
 Covered by the e2e specs for these flows.
+
+## Reading mode (batch 3)
+
+- Alt+↑ / Alt+↓: move the line focus or ruler by a line.
+- Full-screen reader: ← → or PageUp PageDown turn pages in paged mode; Esc leaves (not while Lock to reading is on).

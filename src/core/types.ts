@@ -68,6 +68,13 @@ export interface Notebook extends BaseRecord {
    * Settings default). Unset = use the default.
    */
   pathStyle?: 'simple' | 'full' | 'page'
+  /**
+   * Privacy lock (batch 3): hidden behind the lock screen, with all its
+   * pages. A flag only; the notes are not changed (not encryption).
+   */
+  locked?: true
+  /** Always opens in Reading mode (batch 3). */
+  readFirst?: true
   /** Made by "Load sample notebook" (testing); "Remove sample notebook" finds it by this. */
   sample?: true
   /**
@@ -119,6 +126,10 @@ export interface Page extends BaseRecord {
   customTitle?: true
   /** This page's own path style (wins over the notebook's). Unset = inherit. */
   pathStyle?: 'simple' | 'full' | 'page'
+  /** Privacy lock on this page (batch 3); see Notebook.locked. */
+  locked?: true
+  /** Always opens in Reading mode (batch 3). */
+  readFirst?: true
   /** A lesson's own summary (Revise tab); top-level pages only. */
   summary?: string
   /** 'daily': the protected template that fills new journal days. */
@@ -292,6 +303,8 @@ export interface Database extends BaseRecord {
   titleName?: string
   /** View to open on; unset = Dashboard once it has rows, else Table. */
   openViewId?: string
+  /** Privacy lock on this database and its rows (batch 3). */
+  locked?: true
 }
 
 /** One column (property) of a database. */

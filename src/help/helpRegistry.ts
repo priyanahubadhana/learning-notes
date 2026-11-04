@@ -198,6 +198,8 @@ export const HELP_LINES = {
   'review.practice': { where: 'Review › under Practice anyway' },
   'db.table': { where: 'Database (not the Study tracker) › under the table' },
   'revise.how': { where: 'Notebook › Revise tab › top' },
+  'lock.privacy': { where: 'Lock screen and Settings › Lock › top' },
+  'reading.aloud': { where: 'Reading mode › Read aloud panel › top' },
 } as const satisfies Record<string, HelpLineDefinition>
 
 export type TipId = keyof typeof TIPS

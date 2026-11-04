@@ -1,4 +1,5 @@
 import { displayName, sampleName } from '../i18n/defaultNames'
+import { hiddenPageIds } from '../core/lock/lockService'
 import type { LearningNotesDB } from '../core/db'
 import type { Card, Notebook, SearchEntry } from '../core/types'
 import { cardStatus, type CardStatus } from '../recall/cardList'
@@ -99,6 +100,8 @@ export interface SearchHit {
   fails?: number
   /** Its tags, own and inherited, with their parents; unset = none. */
   tags?: Set<string>
+  /** The page is locked and not unlocked: only its title shows (with a 🔒). */
+  locked?: true
 }
 
 export interface SearchOutcome {
@@ -307,6 +310,17 @@ async function collect(
       },
     ]
   })
+  // Locked pages: their notes and cards never show; their title may.
+  const hidden = await hiddenPageIds(db, [
+    ...new Set(hits.map((h) => h.pageId)),
+  ])
+  if (hidden.size > 0) {
+    for (let i = hits.length - 1; i >= 0; i--) {
+      if (!hidden.has(hits[i].pageId)) continue
+      if (hits[i].type === 'page') hits[i].locked = true
+      else hits.splice(i, 1)
+    }
+  }
   await addCardStatus(db, hits, now, query.filters.sort === 'failed')
   const tagSets = await tagsOf(db, hits)
   for (const hit of hits) hit.tags = tagSets.get(hit.id)

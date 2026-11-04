@@ -114,7 +114,7 @@ test('running a tool acts on the page; a missing page gets a message', async ({
   ).toContainText('nucleus')
   // A tool that is not built yet says so.
   await page.keyboard.press('Control+Shift+K')
-  await box(page).fill('lock page')
+  await box(page).fill('fountain pen')
   await page.keyboard.press('Enter')
   await expect(page.getByRole('status')).toContainText('later update')
 })

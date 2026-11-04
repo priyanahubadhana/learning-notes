@@ -2,6 +2,7 @@ import { useLiveQuery } from 'dexie-react-hooks'
 import { useDebounced } from '../app/useDebounced'
 import type { LearningNotesDB } from '../core/db'
 import { useMinuteClock } from '../recall/useMinuteClock'
+import { unlockedIds } from '../core/lock/lockState'
 import {
   describeHits,
   runSearch,
@@ -23,9 +24,11 @@ export function useSearch(
 ): { outcome: SearchOutcome | undefined; now: number } {
   const settled = useDebounced(query, 120)
   const now = useMinuteClock()
+  // Unlocking or locking again changes what may show.
+  const open = unlockedIds.useValue().join(',')
   const outcome = useLiveQuery(
     () => runSearch(db, settled, now),
-    [db, JSON.stringify(settled), now],
+    [db, JSON.stringify(settled), now, open],
   )
   return { outcome, now }
 }

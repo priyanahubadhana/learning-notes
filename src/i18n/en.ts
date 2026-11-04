@@ -1,3 +1,4 @@
+import { en8 } from './en8'
 /**
  * English text for the app. Every new piece of on-screen text gets a key
  * here and is shown with `t('key')`, so translations can be added later as
@@ -7,6 +8,7 @@
  * language needs), then call `t('key', { count })`.
  */
 export const en = {
+  ...en8,
   // Shared dialogs
   'dialog.cancel': 'Cancel',
   'dialog.save': 'Save',

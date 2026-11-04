@@ -84,7 +84,7 @@ export function ResultRow({
 }) {
   const main =
     hit.type === 'page'
-      ? details?.pageTitle || t('review.untitled')
+      ? (hit.locked ? '🔒 ' : '') + (details?.pageTitle || t('review.untitled'))
       : snippet(details?.text ?? '', query, compact ? 90 : 160)
   return (
     <button

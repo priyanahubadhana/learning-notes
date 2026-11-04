@@ -63,6 +63,8 @@ const notebook: Fields<Notebook> = {
   starterVersion: number,
   sample: yes,
   pathStyle: oneOf('simple', 'full', 'page'),
+  locked: yes,
+  readFirst: yes,
   tabs: objectList,
 }
 
@@ -77,6 +79,8 @@ const page: Fields<Page> = {
   journalMonth: text,
   customTitle: yes,
   pathStyle: oneOf('simple', 'full', 'page'),
+  locked: yes,
+  readFirst: yes,
   summary: text,
   templateRole: oneOf('daily'),
   tagIds: textList,
@@ -141,6 +145,7 @@ const database: Fields<Database> = {
   kind: oneOf('studyTracker'),
   titleName: text,
   openViewId: text,
+  locked: yes,
 }
 
 const dbColumn: Fields<DbColumn> = {

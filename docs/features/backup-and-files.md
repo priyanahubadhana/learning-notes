@@ -38,3 +38,7 @@ Notes live only in this browser, so the app lets the user save them as files and
 ## Tests
 
 `src/share/fullFile.test.ts` (round trip of every table, notes only, safety copy and undo, device full, damaged and cut-off zips, size and entry caps, newer versions, bad rows, old JSON, locked files), `crypto.test.ts`, `bundle.test.ts`, `workspaceFile.test.ts`, `fileIO.test.ts`, `backupReminder.test.ts`, `sampleNotebook.test.ts`, `src/core/upgradeBackup.test.ts`; e2e: `backupRestore.spec.ts` (save, replace, undo, copies, notes only, old JSON, damaged zip, screenshots), `sharing.spec.ts`, `upgradeBackup.spec.ts`, `backupReminder.spec.ts`, `sample.spec.ts`.
+
+## Lock settings in backups (batch 3)
+
+The `settings` table is saved like every table, so the lock's PIN and password **hashes** (row `lock.config`, never the codes) and the `locked` and `readFirst` marks on pages, notebooks and databases are in Save everything, Notes only and shared files and come back on restore. `share/checkRows.ts` checks the new fields. The device lock (passkey) is not in a backup: it is tied to one device. Reading positions, bookmarks and the streak are device-only and not in backups.

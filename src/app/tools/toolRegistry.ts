@@ -11,6 +11,15 @@ import type { IconName } from './icons'
 import { currentRunner, type Runner } from './toolRuntime'
 import { toggleRibbonBehaviour } from './toolbarState'
 import { toggleToolBar } from './toolbarVisibility'
+import {
+  exitReading,
+  openReader,
+  openReadingPanel,
+  toggleHideBlanks,
+  toggleLineFocus,
+  toggleLockToReading,
+  toggleReadingMode,
+} from '../reading/readingTools'
 import { TABS, type TabId } from './tabs'
 
 /**
@@ -103,14 +112,21 @@ export const TOOLS: readonly ToolDef[] = [
     icon: 'lock',
     section: 'file',
     group: 'protect',
-    coming: 'lock',
+    run: (r) => r.app?.lockCurrent('page'),
   },
   {
     id: 'lockNotebook',
     icon: 'lock',
     section: 'file',
     group: 'protect',
-    coming: 'lock',
+    run: (r) => r.app?.lockCurrent('notebook'),
+  },
+  {
+    id: 'lockSettings',
+    icon: 'settings',
+    section: 'file',
+    group: 'protect',
+    run: (r) => r.app?.openSettings('lock.idleMinutes'),
   },
   {
     id: 'settings',
@@ -195,7 +211,7 @@ export const TOOLS: readonly ToolDef[] = [
     section: 'home',
     group: 'fontSize',
     also: [{ tab: 'view', group: 'text' }],
-    coming: 'reading',
+    run: () => openReadingPanel('settings'),
   },
   {
     id: 'textSize',
@@ -203,7 +219,7 @@ export const TOOLS: readonly ToolDef[] = [
     section: 'home',
     group: 'fontSize',
     also: [{ tab: 'view', group: 'text' }],
-    coming: 'reading',
+    run: () => openReadingPanel('settings'),
   },
   {
     id: 'more',
@@ -378,21 +394,42 @@ export const TOOLS: readonly ToolDef[] = [
     icon: 'bookOpen',
     section: 'view',
     group: 'read',
-    coming: 'reading',
+    run: () => toggleReadingMode(),
+  },
+  {
+    id: 'readerFull',
+    icon: 'maximize',
+    section: 'view',
+    group: 'read',
+    run: () => openReader(),
   },
   {
     id: 'lineFocus',
     icon: 'focus',
     section: 'view',
     group: 'read',
-    coming: 'reading',
+    run: () => toggleLineFocus(),
   },
   {
     id: 'readAloud',
     icon: 'volume',
     section: 'view',
     group: 'read',
-    coming: 'reading',
+    run: () => openReadingPanel('aloud'),
+  },
+  {
+    id: 'outline',
+    icon: 'list',
+    section: 'view',
+    group: 'read',
+    run: () => openReadingPanel('outline'),
+  },
+  {
+    id: 'hideBlanks',
+    icon: 'eyeOff',
+    section: 'view',
+    group: 'read',
+    run: () => toggleHideBlanks(),
   },
   {
     id: 'find',
@@ -406,14 +443,14 @@ export const TOOLS: readonly ToolDef[] = [
     icon: 'lock',
     section: 'view',
     group: 'read',
-    coming: 'lock',
+    run: () => toggleLockToReading(),
   },
   {
     id: 'exitReading',
     icon: 'close',
     section: 'view',
     group: 'read',
-    coming: 'reading',
+    run: () => exitReading(),
   },
   {
     id: 'databaseView',
@@ -434,7 +471,7 @@ export const TOOLS: readonly ToolDef[] = [
     icon: 'zoom',
     section: 'view',
     group: 'look',
-    coming: 'reading',
+    run: () => openReadingPanel('settings'),
   },
   {
     id: 'shortBar',

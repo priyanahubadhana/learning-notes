@@ -78,6 +78,7 @@ import { getEditorDictionary } from '../i18n/languages'
 import { imageRef, parseImageRef } from '../images/imageRef'
 import { ImageError, imageObjectUrl, saveImage } from '../images/imageService'
 import { shrinkImage } from '../images/shrinkImage'
+import { readingLocked } from '../app/reading/readingState'
 import { holdPageLock, type LockState, type PageLock } from './pageLock'
 import { recoverStash } from './pendingStash'
 import { createPageSync } from './pageSync'
@@ -104,6 +105,8 @@ interface PageEditorProps {
   onSaveAsTemplate?: () => void
   /** Filled with focus/flush controls for the page around the editor. */
   editorRef?: RefObject<EditorApi | null>
+  /** Reading mode is on: the full-screen reader hides the bar and freezes the text. */
+  reading?: { view: 'inPlace' | 'reader' }
 }
 
 /** Time for the window that lost the page to finish its last save. */
@@ -202,6 +205,7 @@ function LoadedPageEditor({
   onOpenDatabase,
   onSaveAsTemplate,
   editorRef,
+  reading,
   records,
   readOnly,
 }: PageEditorProps & { records: Block[]; readOnly: boolean }) {
@@ -238,7 +242,12 @@ function LoadedPageEditor({
   const bar = useBarSettings()
   const keyboardInset = useKeyboardInset()
   const layout = useBarLayout()
-  const docked = bar.placement !== 'floating' && !readOnly
+  // Reading: the reader (and "Lock to reading") stop editing; the reader
+  // also hides the bar. In place the bar stays, with the Read tools.
+  const lockedToReading = readingLocked.useValue()
+  const inReader = reading?.view === 'reader'
+  const frozen = readOnly || inReader || (!!reading && lockedToReading)
+  const docked = bar.placement !== 'floating' && !readOnly && !inReader
   const [barSlot, setBarSlot] = useState<HTMLElement | null>(null)
   const [sync] = useState(() =>
     createPageSync(db, pageId, records, () => editorToDrafts(editor.document)),
@@ -507,7 +516,7 @@ function LoadedPageEditor({
       {docked && <div ref={setBarSlot} className="sticky top-0 z-10" />}
       <BlockNoteView
         editor={editor}
-        editable={!readOnly}
+        editable={!frozen}
         onChange={sync.changed}
         theme={editorColorScheme(theme)}
         slashMenu={false}
@@ -562,7 +571,7 @@ function LoadedPageEditor({
           }
         />
       </BlockNoteView>
-      {bar.mode !== 'computer' && !readOnly && (
+      {bar.mode !== 'computer' && !frozen && (
         <button
           type="button"
           onClick={() => focusEndLine(editor)}

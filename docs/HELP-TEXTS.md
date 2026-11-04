@@ -748,7 +748,7 @@ Every hover tip and help line in the app (shown while Settings › Show help is 
 - **Meaning:** Switches between the notebook’s Study tracker and its other databases.
 - **Example:** Open the “Reading list” kept in this notebook.
 
-## Help lines (9)
+## Help lines (11)
 
 Help lines are marked in the page with `data-help-line="<id>"`.
 
@@ -796,3 +796,13 @@ Help lines are marked in the page with `data-help-line="<id>"`.
 
 - **Where:** Notebook › Revise tab › top
 - **Text:** In a note, select words and press Key point, Keyword, Must know or Formula in the toolbar. Marked words collect here, per lesson.
+
+### `lock.privacy`
+
+- **Where:** Lock screen and Settings › Lock › top
+- **Text:** A privacy lock hides the page behind this screen. It is not encryption: it keeps casual eyes out, not experts.
+
+### `reading.aloud`
+
+- **Where:** Reading mode › Read aloud panel › top
+- **Text:** Uses your device voice, free and offline where the voice allows. Words are marked as they are spoken.

@@ -21,6 +21,7 @@ import { studyTrackerId, tabName } from '../databases/notebookTabs'
 import { DatabaseView } from '../databases/views/DatabaseView'
 import { t } from '../i18n/t'
 import { pageAddressItem } from '../pages/pageAddressMenu'
+import { useLockItem } from '../app/lock/lockMenu'
 import { listNotePages } from '../pages/pageService'
 import { CardsTab } from '../recall/CardsTab'
 import { ReviseTab } from '../revise/ReviseTab'
@@ -66,6 +67,7 @@ export function NotebookScreen({
     setTabId(id)
     pushRouteParts(0, id, active ? [active.id] : [])
   }
+  const lockItem = useLockItem(db, 'notebook', notebook.id, !!notebook.locked)
   const [menu, setMenu] = useState<DOMRect | null>(null)
   const [renaming, setRenaming] = useState<NotebookTab | null>(null)
   const tabRefs = useRef(new Map<string, HTMLButtonElement>())
@@ -108,6 +110,7 @@ export function NotebookScreen({
           },
         ]
       : []),
+    ...lockItem,
     // Page address for every page of this notebook (a page can still override it).
     pageAddressItem(notebook.pathStyle, (style) =>
       runTask(setNotebookPathStyle(db, notebook.id, style)),

@@ -129,7 +129,7 @@ test('Draw set: ink tools are "coming" with a reason, Undo works', async ({
   )
 })
 
-test('Read set lists its tools; Theme works, the rest wait', async ({
+test('Read set lists its tools; Font opens the look panel and Theme works', async ({
   page,
 }) => {
   await openPage(page)
@@ -145,7 +145,12 @@ test('Read set lists its tools; Theme works, the rest wait', async ({
   ]) {
     await expect(tool(page, name), name).toBeVisible()
   }
-  await expect(tool(page, 'Font')).toHaveAttribute('aria-disabled', 'true')
+  await expect(tool(page, 'Font')).not.toHaveAttribute('aria-disabled', 'true')
+  await tool(page, 'Font').click()
+  await expect(
+    page.getByRole('dialog', { name: 'Look and reading' }),
+  ).toBeVisible()
+  await page.keyboard.press('Escape')
   const before = await page.locator('html').getAttribute('data-theme')
   await tool(page, 'Theme').click()
   await expect

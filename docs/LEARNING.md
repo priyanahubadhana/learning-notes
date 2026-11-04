@@ -249,3 +249,10 @@ Before building sync, we looked up how it can work at ₹0 and wrote the answers
 - **New thing learned (audit, 2026-11-02):** All 815 tests passed while 15 bugs sat in the app, because they tested normal use, not failure. A test that breaks the database on purpose found the lost typing straight away.
 
 - **New thing learned (batch 2e, 2026-11-04):** One rule in one place beats ten copies. Every menu in the app had its own "close when I tap outside" code, and the More menu forgot a case, so it stayed open. Now a single shared hook decides when any pop-up closes, so a new menu cannot forget. Also: a menu inside a menu (the theme list inside the ribbon) must be told who its parent is, or opening it closes the parent and the menu vanishes.
+
+## Batch 3 — Lock and Reading mode (2026-11-05)
+
+- **A privacy lock** hides notes behind a screen. **Encryption** scrambles them so they cannot be read at all without the key. Example: a lock on a diary stops a sibling who picks up your iPad, but not a locksmith. The app says this out loud in Settings.
+- **A hash** is a one-way scramble of your PIN. The app keeps only the scramble, so even the app cannot tell you the PIN back, and "Forgot" can only clear the lock.
+- **Reading mode** turns a page into something you read, not edit: calm colours, big text, the voice reading along with each word marked.
+- **New thing learned (batch 3):** A test that "types fast" can lie. The wrong-code wait test only counted two tries, because the screen ignores a new try while the first one is still being checked, which takes a moment on purpose. Waiting for the field to empty between tries showed the real behaviour.

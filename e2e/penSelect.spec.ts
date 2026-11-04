@@ -31,10 +31,7 @@ async function setup(page: Page) {
     await expect(
       page.locator(`.bn-editor img`).nth(name === 'one.png' ? 0 : 1),
     ).toBeVisible()
-    // Back to the end of the page by a known spot, not the middle of the editor.
-    await page.getByText('First line').click()
-    await page.keyboard.press('Control+End')
-    await page.keyboard.press('Enter')
+    // The editor leaves an empty line under the picture with the caret in it.
     await page.keyboard.type(name === 'one.png' ? 'Middle line' : 'Last line')
   }
   // Pictures finished loading (WebKit lays them out late), then positions.

@@ -38,21 +38,21 @@ Customisation: cards can be hidden, reordered by drag, and resized between S/M. 
 
 ### (2) Task fields
 
-| Field | Type | Note |
-|---|---|---|
-| title | text | required, the only required field |
-| project | relation | optional; default "No project" |
-| importance | high / normal | one toggle (star) |
-| urgency | derived | urgent = due within 2 days or overdue; editable threshold; manual override allowed |
-| quadrant | derived | from importance + urgency; never stored as truth |
-| due | date | |
-| scheduled_start, scheduled_end | UTC datetime | the time block |
-| estimate_min | number | |
-| status | todo / doing / done / dropped | |
-| carry_count | number | +1 each time rolled over |
-| page_id | relation | link to the page; checklist lines convert with a back-link |
-| top3_date | date | which day it is a "Top 3" for |
-| created_at, done_at | UTC datetime | |
+| Field                          | Type                          | Note                                                                               |
+| ------------------------------ | ----------------------------- | ---------------------------------------------------------------------------------- |
+| title                          | text                          | required, the only required field                                                  |
+| project                        | relation                      | optional; default "No project"                                                     |
+| importance                     | high / normal                 | one toggle (star)                                                                  |
+| urgency                        | derived                       | urgent = due within 2 days or overdue; editable threshold; manual override allowed |
+| quadrant                       | derived                       | from importance + urgency; never stored as truth                                   |
+| due                            | date                          |                                                                                    |
+| scheduled_start, scheduled_end | UTC datetime                  | the time block                                                                     |
+| estimate_min                   | number                        |                                                                                    |
+| status                         | todo / doing / done / dropped |                                                                                    |
+| carry_count                    | number                        | +1 each time rolled over                                                           |
+| page_id                        | relation                      | link to the page; checklist lines convert with a back-link                         |
+| top3_date                      | date                          | which day it is a "Top 3" for                                                      |
+| created_at, done_at            | UTC datetime                  |                                                                                    |
 
 "Dropped" is a first-class status so drop is guilt-free (Eisenhower "delete").
 
@@ -72,17 +72,17 @@ One timer, two modes: **Free** (Toggl-like, counts up) and **Focus** (Pomodoro, 
 
 `time_entries` table:
 
-| Field | Note |
-|---|---|
-| id | |
-| task_id (nullable) | |
+| Field                 | Note                                                             |
+| --------------------- | ---------------------------------------------------------------- |
+| id                    |                                                                  |
+| task_id (nullable)    |                                                                  |
 | project_id (nullable) | copied from the task at start; stays correct if the task changes |
-| kind | focus / break / free |
-| started_at, ended_at | UTC; null `ended_at` = running |
-| planned_sec | target for focus mode |
-| cycle_no | 1-4 in a Pomodoro set |
-| interrupted | bool |
-| note | optional |
+| kind                  | focus / break / free                                             |
+| started_at, ended_at  | UTC; null `ended_at` = running                                   |
+| planned_sec           | target for focus mode                                            |
+| cycle_no              | 1-4 in a Pomodoro set                                            |
+| interrupted           | bool                                                             |
+| note                  | optional                                                         |
 
 Rules: only one running entry. The clock is `now - started_at` computed from stored timestamps, never from counting ticks (this survives sleep and background throttling). On open, if an entry has run far too long, ask "still working?" and offer to set the end time. Breaks are not counted as work in reports. Entries can be edited and added manually.
 
@@ -112,6 +112,7 @@ Skip: auto-scheduling, team features, clients and invoicing.
 - **Rule of thumb:** build the timer so it is correct without background code, and treat native notifications and widgets as a later, optional upgrade.
 
 ## Sources
+
 - Sunsama help, evening planning: https://help.sunsama.com/docs/evening-daily-planning
 - Sunsama shutdown changelog: https://roadmap.sunsama.com/changelog/daily-shutdown
 - Toggl Track App Store listing: https://apps.apple.com/app/toggl/id1291898086

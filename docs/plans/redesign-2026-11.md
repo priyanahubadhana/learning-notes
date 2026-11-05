@@ -1,6 +1,7 @@
 # Owner iPad test notes (5 Nov 2026), collect, don't build yet
 
 ## Round 1
+
 1. Sidebar looks messy when open (screenshot 1). Truncated notebook names ("Claud…", "New n…", "Un…"), lots of row icons, uneven spacing. Clean it up.
 2. Full-screen reader / reading mode: the top bar is blurry (frosted line across the top). Make it crisp.
 3. Orientation lock option (screen keeps rotating).
@@ -10,10 +11,12 @@
    - Share as a link that another user can paste into the app to open or import.
    - Universal system share sheet (like WhatsApp: the contacts circle row, Mail and so on) through the Web Share API, while keeping our own share-as-link.
 6. Short (compact) bar: "New line" should be there by default (it's missing in the Read set screenshot).
-8. (Round 2) The Apple Pencil can't press-and-drag on the bar's tools to try and see options (as GoodNotes allows: tap and hold to open the tool's options, drag to choose).
-9. The short bar is too full, its icons aren't clear, and the owner doesn't know what they do. It needs a full rework, so we'll walk through each item together (teach and redesign). Draw set screenshot: T / pencil / book switch, pin, an odd pen-and-eraser picture (an iPadOS Scribble overlay or our "coming" items?), lasso, All tools, search, ⋯, Done.
-11. Editing the short bar is hard to find. The short bar's ⋯ menu should have "Edit bar" as its FIRST item, opening an easy list where you show or hide tools and move them up and down (drag, or ↑↓).
+7. (Round 2) The Apple Pencil can't press-and-drag on the bar's tools to try and see options (as GoodNotes allows: tap and hold to open the tool's options, drag to choose).
+8. The short bar is too full, its icons aren't clear, and the owner doesn't know what they do. It needs a full rework, so we'll walk through each item together (teach and redesign). Draw set screenshot: T / pencil / book switch, pin, an odd pen-and-eraser picture (an iPadOS Scribble overlay or our "coming" items?), lasso, All tools, search, ⋯, Done.
+9. Editing the short bar is hard to find. The short bar's ⋯ menu should have "Edit bar" as its FIRST item, opening an easy list where you show or hide tools and move them up and down (drag, or ↑↓).
+
 ## Round 3
+
 12. CRITICAL: selecting with the Apple Pencil still DELETES content, even with the 2f guard. GoodNotes selects fine. It must work reliably.
 13. CRITICAL: Undo and Redo are sometimes unavailable. After deleting blocks that contain pictures, neither could bring them back, and History had no version to recover either. We need fully reliable undo and redo, plus History snapshots before any big deletion.
 14. The "3-line" item (Contents / outline?) works only from the big ribbon. Add it to the short bar too (confirm with the owner which one is meant).
@@ -26,7 +29,7 @@
     - a small minimised ✕ (or pill) that always stays;
     - the bar appearing on a scroll up or tap near the top;
     - the full bar only at the top of the page.
-    Make it a choice in Settings, with the minimised ✕ plus show-on-scroll-up as the default.
+      Make it a choice in Settings, with the minimised ✕ plus show-on-scroll-up as the default.
 20. "Contents and bookmarks" should be a Word-style Navigation pane: a right-side panel that can be docked and kept open, with a collapsible heading tree (H1 › H2 › H3, ▸/▾), the current heading highlighted as you scroll, and a calmer look (the current pop-up feels confusing).
 21. Reading workflow (books and notes). Overlaps batch 7 (Reader), so decide whether to pull it forward.
     - While reading: highlight in colours, then "Add note" on a highlight, and "Save to notebook" with a choice of destination (any notebook or page, a new "Highlights" page, or the page's summary or subnotes). The user chooses the path.
@@ -40,7 +43,9 @@
 23. Screenshot glitch: the ribbon in Sepia sits on a grey or dark band wider than itself (the docked bar background doesn't match the theme).
 24. While read aloud plays, an always-VISIBLE "now playing" control (a mini player in the top bar or a floating pill) on every screen, so it can be stopped from anywhere. Today it kept reading after the owner navigated away, and there was no way to stop it.
 25. A big rework: Reading mode as a dedicated, professional reader (Kindle-like app within the app). The "Look and reading" panel options (theme, font, size, spacing, margin, width, scroll or pages, line focus, blanks) are liked, but they should live inside the reader as its own clean controls, not mixed into the editing ribbon or text tools, which is confusing. Plan in depth with the owner: objectives first, then research.
+
 ## Owner's vision (answers, 5 Nov)
+
 - Main use: reading BOOKS and PDFs on iPad and phone (PC last), not web articles. Own notes come second.
 - Flow is like Kindle:
   - A library with books and % progress, and a book opens where you left it.
@@ -63,7 +68,9 @@
   - a list of every current feature, with visuals, so the owner can reorganise it;
   - research on organisation methods and on what's missing;
   - questions ONE AT A TIME.
+
 ## Agreed structure (5 Nov)
+
 - 4 spaces plus Search: Home (Today), Library, Notebooks, Review. Settings and the rest go to a quiet corner.
 - Home is a productivity cockpit:
   - Top 3 priorities.
@@ -168,10 +175,12 @@
   - Research the exact picks (licence OFL) before building.
 - Share/export approved: PDF, Word, Markdown, text, the iPad share sheet now; share links with Sync. Build it LAST in the order.
 - Audience is friends and online communities, so shareable templates and pages matter (ties to the Layer gallery).
+
 10. Note for the owner: the bottom bar (↶ keyboard, B I U, ^ v, mic, ↵) is iPadOS's own shortcut bar, NOT our app's.
-7. Layering bug: with the short bar plus the ribbon showing, the ⋯ (More) menu opens BEHIND or under the ribbon. Pop-ups must sit above both bars.
+11. Layering bug: with the short bar plus the ribbon showing, the ⋯ (More) menu opens BEHIND or under the ribbon. Pop-ups must sit above both bars.
 
 ## Approved build order (owner, 5 Nov 2026) — run autonomously, step by step
+
 1. Urgent fixes 3a (resume uncommitted work): Pencil delete, undo with pictures, History snapshot, Pencil taps.
 2. New toolbar (tool → options pill that snaps to 4 edges → detail card), 5 pens, highlighter, eraser, lasso, Insert, New line hold, 📖 Read. Our own original look (no copying of GoodNotes art/icons).
 3. Shared ink engine (notes, books, PDFs) with layers.
@@ -182,9 +191,10 @@
 8. Fonts (small set + import), then read aloud (Audible-style player).
 9. Notebook views (Shelf, Tabs, per-tab views) + Layer gallery (finance etc.).
 10. Share and export.
-Each step: research its inspirations → build → full tests → push → live check → owner tests anytime. Stop only for money, rules, or owner-only choices; log the rest in DECISIONS "Decisions to review".
+    Each step: research its inspirations → build → full tests → push → live check → owner tests anytime. Stop only for money, rules, or owner-only choices; log the rest in DECISIONS "Decisions to review".
 
 ## Added 5 Nov: scheduler + memory techniques
+
 - Scheduler: keep FSRS (already the default) with target memory 90% (FSRS docs' recommended start; range 70–97%), user-adjustable in simple words. Validated against FSRS4Anki docs.
 - Memory techniques layer in Review (owner request; inspired by memory-championship methods, e.g. as described in "Moonwalking with Einstein" — implement the techniques, not book content):
   - Memory palace (method of loci): a page/template where you place cards at "rooms/spots" of a familiar place; review walks the route.

@@ -44,7 +44,9 @@ import { AppDragHandleMenu } from './CardMenu'
 import { AppFormattingToolbar } from './SelectionToolbar'
 import { DockedBar } from './DockedBar'
 import { watchDragSelect } from './dragSelect'
-import { watchPenGuard } from './penGuard'
+import { penTransactionGuard, watchPenGuard } from './penGuard'
+import { watchPenSelect } from './penSelect'
+import { runHistory } from './historyActions'
 import { useBarLayout } from './useBarLayout'
 import {
   copyAs,
@@ -218,7 +220,7 @@ function LoadedPageEditor({
   const editor = useCreateBlockNote({
     schema,
     initialContent,
-    extensions: [codeBlockKeys, linkTrigger],
+    extensions: [codeBlockKeys, linkTrigger, penTransactionGuard],
     // Pasted web pages are cleaned; Ctrl/Cmd+Shift+V pastes plain text.
     pasteHandler: pasteHandler as never,
     // The editor's own menus in the chosen language (English if none).
@@ -461,15 +463,17 @@ function LoadedPageEditor({
     let stop = () => {}
     const begin = () => {
       const stopDrag = watchDragSelect(editor)
+      const stopPen = watchPenSelect(editor)
       // The Pencil must never delete text by itself (iPadOS Scribble).
       const stopGuard = watchPenGuard(editor, () =>
         toastRef.current(t('pen.guard.removed'), {
           label: t('mode.undo'),
-          onSelect: () => editor.undo(),
+          onSelect: () => runHistory(editor, 'undo'),
         }),
       )
       stop = () => {
         stopDrag()
+        stopPen()
         stopGuard()
       }
     }

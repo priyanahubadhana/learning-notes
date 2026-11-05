@@ -7,6 +7,21 @@ import { createAutosaver } from './autosave'
 import { clearStash, keepTryingStash, stashChanges } from './pendingStash'
 import { createSnapshot, diffBlocks, type BlockDraft } from './diff'
 
+/** A delete of this many blocks (or any picture-like block) is a big delete. */
+export const BIG_DELETE_BLOCKS = 3
+const MEDIA_BLOCK_TYPES = new Set(['image', 'video', 'audio', 'file'])
+
+/** Is this a deletion History must be able to take back? */
+export function isBigDelete(
+  deletes: readonly string[],
+  typeOf: (id: string) => string | undefined,
+): boolean {
+  return (
+    deletes.length >= BIG_DELETE_BLOCKS ||
+    deletes.some((id) => MEDIA_BLOCK_TYPES.has(typeOf(id) ?? ''))
+  )
+}
+
 /**
  * Keeps one open page in sync: editor → database only (one-way while
  * editing, so saves can never trigger reloads and loop).
@@ -58,6 +73,11 @@ export function createPageSync(
 
   const autosaver = createAutosaver(async () => {
     const { changes, next } = diffBlocks(snapshot, readDrafts())
+    // Before a big delete (3+ blocks, or any picture) History keeps a copy of
+    // the page as it still is in the database, whatever the 5-minute gap says.
+    if (isBigDelete(changes.deletes, (id) => snapshot.get(id)?.type)) {
+      await record(true)
+    }
     try {
       // One transaction: a saved Card block (new, pasted or duplicated) never
       // ends up without its review schedule.

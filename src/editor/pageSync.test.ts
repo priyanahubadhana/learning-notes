@@ -6,7 +6,7 @@ import { getOrCreateDefaultWorkspace } from '../core/workspaceService'
 import { createNotebook } from '../notebooks/notebookService'
 import { createPage } from '../pages/pageService'
 import type { BlockDraft } from './diff'
-import { createPageSync } from './pageSync'
+import { createPageSync, isBigDelete } from './pageSync'
 
 let db: LearningNotesDB
 let pageId: string
@@ -154,5 +154,14 @@ describe('createPageSync', () => {
     )
     expect((await db.blocks.get(mystery.id))?.deletedAt).toBeNull()
     expect((await db.blocks.get(inside.id))?.deletedAt).toBeNull()
+  })
+})
+
+describe('isBigDelete', () => {
+  it('is true for 3 or more blocks or any picture', () => {
+    expect(isBigDelete(['a', 'b'], () => 'paragraph')).toBe(false)
+    expect(isBigDelete(['a', 'b', 'c'], () => 'paragraph')).toBe(true)
+    expect(isBigDelete(['a'], () => 'image')).toBe(true)
+    expect(isBigDelete([], () => undefined)).toBe(false)
   })
 })

@@ -126,9 +126,13 @@ function useHistoryState(editor: Editor) {
     update()
     const offChange = editor.onChange(update)
     const offSelect = editor.onSelectionChange(update)
+    // Also on a timer: some transactions (a restore, an undo from a menu) do
+    // not raise either event, and a stale grey button would do nothing.
+    const timer = window.setInterval(update, 400)
     return () => {
       offChange?.()
       offSelect?.()
+      window.clearInterval(timer)
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [editor])

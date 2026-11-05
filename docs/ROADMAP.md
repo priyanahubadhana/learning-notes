@@ -12,6 +12,10 @@ Approved 2026-11-01. Each phase still gets a short planning talk, a Definition o
 - **Phase 14 — AI:** learning companion and handwriting to text (English first; Hindi needs a paid model). AI permissions: an "Allow AI" switch per notebook, off by default, all listed in Settings › Permissions; pages show their notebook's setting with a link. Notes stay encrypted when stored; only chosen text is sent. MCP through a local server on the PC reading its own copy; AI changes shown for approval with one-tap undo. Spoken quizzes, "what is missing" suggestions. Ask about cost first. iPad browsers can't capture the screen. Sending notes to AI leaves the encryption, so the owner must decide.
 - **Phase 15 — Before global launch:** smart merge, passkeys, sign-up, App Store app (wrap this app with a free tool such as Capacitor, after sync; needs a Mac, $99/yr; thin wrappers can be rejected). Cost-model decision: users pay, or each brings their own storage. Own domain just before public launch (ask first: it costs money). Privacy policy, account deletion, and a GDPR, DPDP and app-store check. About 20 Safari smoke tests on every push if free GitHub minutes allow; otherwise weekly.
 
+## Build order now (owner-approved 5 Nov 2026)
+
+Follows [plans/redesign-2026-11.md](plans/redesign-2026-11.md); it comes before the phases above where they overlap (sync, AI and App Store stay after it). Steps: 1 urgent fixes 3a; 2 new toolbar and pens; 3 shared ink engine; 4 four spaces and one Search; 5 Library and reader; 6 Review decks; 7 Home; 8 fonts and read aloud; 9 notebook views and layer gallery; 10 share and export.
+
 ## Keep in mind
 
 - Online first, offline as a fallback: notes, cards and reading always work offline; features that need the internet show "Needs internet" (owner, 2026-11-03).

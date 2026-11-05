@@ -203,6 +203,9 @@ export const es7: Record<string, string> = {
   'settings.barAutoHide.label': 'Ocultar la barra en reposo',
   'settings.barAutoHide.description':
     'Oculta la barra fija mientras no seleccionas ni escribes.',
+  'settings.pencilWrites.label': 'El lápiz escribe texto (Scribble)',
+  'settings.pencilWrites.description':
+    'No (recomendado): arrastrar el Apple Pencil sobre el texto solo lo selecciona y la escritura a mano nunca cambia tu texto. Sí: el lápiz puede escribir y tachar palabras con Scribble de iPadOS, que puede borrar texto por error. Scribble también está en Ajustes de iPadOS › Apple Pencil.',
   'settings.onOff.on': 'Sí',
   'settings.onOff.off': 'No',
   'bar.label': 'Formato',

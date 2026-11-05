@@ -198,6 +198,9 @@ export const hi7: Record<string, string> = {
   'settings.barAutoHide.label': 'खाली होने पर बार छिपाएँ',
   'settings.barAutoHide.description':
     'जब आप चुन या टाइप नहीं कर रहे हों, तब जुड़ा हुआ बार छिपा दें।',
+  'settings.pencilWrites.label': 'पेंसिल टेक्स्ट लिखे (Scribble)',
+  'settings.pencilWrites.description':
+    'बंद (सुझाया गया): Apple Pencil को टेक्स्ट पर खींचने से वह सिर्फ़ चुना जाता है और हाथ की लिखावट आपका टेक्स्ट कभी नहीं बदलती। चालू: पेंसिल iPadOS Scribble से लिख और काट सकती है, जिससे टेक्स्ट गलती से मिट सकता है। Scribble iPadOS की सेटिंग › Apple Pencil में भी है।',
   'settings.onOff.on': 'चालू',
   'settings.onOff.off': 'बंद',
   'bar.label': 'फ़ॉर्मैटिंग',

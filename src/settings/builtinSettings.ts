@@ -438,6 +438,22 @@ export const barAutoHideSetting: SettingDefinition<OnOff> = {
   control: { kind: 'segmented', options: onOffOptions() },
 }
 
+/**
+ * Scribble (iPadOS handwriting to text). Off: a Pencil drag in the page only
+ * selects, and handwriting never edits the text. On: the Pencil can write.
+ */
+export const pencilWritesSetting: SettingDefinition<OnOff> = {
+  id: 'advanced.pencilWrites',
+  labelKey: 'settings.pencilWrites.label',
+  descriptionKey: 'settings.pencilWrites.description',
+  category: 'advanced',
+  keywords: 'scribble handwriting pencil write text ipad apple',
+  scope: 'device',
+  defaultValue: 'off',
+  isValid: isOnOff,
+  control: { kind: 'segmented', options: onOffOptions() },
+}
+
 /** Whether a Pencil (or a finger) switches the device mode by itself. */
 export const autoSwitchSetting: SettingDefinition<AutoSwitch> = {
   id: 'advanced.autoSwitch',
@@ -506,6 +522,7 @@ for (const definition of [
   shortcutHintsSetting,
   barAutoHideSetting,
   autoSwitchSetting,
+  pencilWritesSetting,
   pathStyleSetting,
   reviseLabelsSetting,
   languageSetting,

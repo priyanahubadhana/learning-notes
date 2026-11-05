@@ -1,24 +1,64 @@
+import { createExtension } from '@blocknote/core'
+import { Plugin } from 'prosemirror-state'
+import type { Transaction } from 'prosemirror-state'
+import { readDeviceSetting } from '../settings/settingsService'
+import { pencilWritesSetting } from '../settings/builtinSettings'
 import type { AppSchema } from './schema'
 
 /**
- * Data-loss guard for the Apple Pencil (batch 2f). On an iPad, a Pencil drag
- * across text must only SELECT it. iPadOS Scribble can read a back-and-forth
- * drag as "scratch out" and delete the text, so:
- *  1. a `beforeinput` that deletes (delete*) while the Pencil is touching the
- *     screen, or in the 300 ms after it lifts, is refused, unless a key was
- *     pressed in the last 500 ms (a real Backspace or Delete);
- *  2. if a big deletion still happens right after pen input, a message offers
- *     Undo.
- * Choosing Delete from a menu or bar is not a `beforeinput`, so it still works.
+ * Data-loss guard for the Apple Pencil (batches 2f and 3a). On an iPad, a
+ * Pencil drag across text must only SELECT it. iPadOS Scribble can read a
+ * back-and-forth drag as "scratch out" and delete text, or write over the
+ * selection. Four layers (the Pencil gesture itself is handled in penSelect.ts):
+ *  1. `beforeinput` events that delete, replace or write text while a Pencil
+ *     gesture that began in the page is active (or ended less than 500 ms ago)
+ *     are refused, unless a key was pressed in the last 500 ms;
+ *  2. a ProseMirror `filterTransaction` rejects any change that removes or
+ *     replaces content in that same window, however it arrived (a beforeinput
+ *     we did not see, a composition, a direct DOM change). Undo and Redo and
+ *     real key presses are exempt, and so is anything started from a bar or
+ *     menu, because those taps begin outside the page text;
+ *  3. if a big deletion still happens right after pen input, a message offers
+ *     Undo;
+ *  4. every deletion goes through the editor history, and History keeps a copy
+ *     first (pageSync.ts).
+ * "Pencil writes text (Scribble)" in Settings turns the Scribble layers off.
  */
 
 type Editor = AppSchema['BlockNoteEditor']
 
-export const PEN_AFTER_MS = 300
+export const PEN_AFTER_MS = 500
 export const KEY_RECENT_MS = 500
 /** A drop of this many characters right after pen input offers Undo. */
 export const BIG_DELETION = 20
 const TOAST_AFTER_PEN_MS = 1000
+
+/** The Pencil and keyboard, as last seen in the page. */
+export interface PenState {
+  /** A Pencil gesture that began in the page text is going on. */
+  down: boolean
+  /** When the last such gesture ended (ms). */
+  upAt: number
+  /** When a key was last pressed (ms). */
+  lastKeyAt: number
+}
+
+export const penState: PenState = { down: false, upAt: -1e9, lastKeyAt: -1e9 }
+let clock: () => number = () => Date.now()
+
+/** Tests set a fake clock; returns a function that puts the real one back. */
+export function useClock(fake: () => number): () => void {
+  clock = fake
+  return () => {
+    clock = () => Date.now()
+  }
+}
+
+/** Is a Pencil gesture going on, or did one just end? */
+export const penBusy = (
+  pen: { down: boolean; upAt: number },
+  now: number,
+): boolean => pen.down || now - pen.upAt < PEN_AFTER_MS
 
 /** Pure rule: should this input be refused? */
 export function refuseDelete(
@@ -28,36 +68,125 @@ export function refuseDelete(
   lastKeyAt: number,
 ): boolean {
   if (!inputType.startsWith('delete')) return false
-  const penBusy = pen.down || now - pen.upAt < PEN_AFTER_MS
-  return penBusy && now - lastKeyAt > KEY_RECENT_MS
+  return penBusy(pen, now) && now - lastKeyAt > KEY_RECENT_MS
 }
+
+/** What Scribble sends when it writes: text in, or text swapped. */
+const WRITING = new Set([
+  'insertText',
+  'insertReplacementText',
+  'insertCompositionText',
+  'insertFromComposition',
+  'insertTranspose',
+])
+
+/** Pure rule: refuse deleting, and (with Scribble off) writing too. */
+export function refuseInput(
+  inputType: string,
+  now: number,
+  pen: { down: boolean; upAt: number },
+  lastKeyAt: number,
+  scribbleOn: boolean,
+): boolean {
+  if (refuseDelete(inputType, now, pen, lastKeyAt)) return true
+  return (
+    !scribbleOn &&
+    WRITING.has(inputType) &&
+    penBusy(pen, now) &&
+    now - lastKeyAt > KEY_RECENT_MS
+  )
+}
+
+/** Does this transaction remove or replace content? */
+export function removesContent(tr: Transaction): boolean {
+  return tr.steps.some((step) => {
+    const json = step.toJSON() as {
+      stepType?: string
+      from?: number
+      to?: number
+    }
+    return (
+      (json.stepType === 'replace' || json.stepType === 'replaceAround') &&
+      json.from !== json.to
+    )
+  })
+}
+
+/** Pure rule: should the editor refuse this transaction? */
+export function refuseTransaction(
+  tr: Transaction,
+  now: number,
+  pen: PenState,
+  scribbleOn: boolean,
+): boolean {
+  if (scribbleOn && !pen.down) return false
+  if (!tr.docChanged || !removesContent(tr)) return false
+  // Undo and Redo, and a real key press, are the user's own doing.
+  if (tr.getMeta('history$') !== undefined) return false
+  if (now - pen.lastKeyAt <= KEY_RECENT_MS) return false
+  return penBusy(pen, now)
+}
+
+/** The editor extension that holds the filterTransaction safety net. */
+export const penTransactionGuard = createExtension({
+  key: 'learning-notes-pen-guard',
+  prosemirrorPlugins: [
+    new Plugin({
+      filterTransaction: (tr) =>
+        !refuseTransaction(
+          tr,
+          clock(),
+          penState,
+          readDeviceSetting(pencilWritesSetting) === 'on',
+        ),
+    }),
+  ],
+})
 
 export function watchPenGuard(
   editor: Editor,
   offerUndo: () => void,
-  clock: () => number = () => Date.now(),
 ): () => void {
   const dom = editor.domElement
   if (!dom) return () => {}
   const doc = dom.ownerDocument
-  const pen = { down: false, upAt: -1e9 }
-  let lastKeyAt = -1e9
   let size = editor.prosemirrorView?.state.doc.textContent.length ?? 0
+  // Only a Pencil gesture that began in the page text counts: a tap on the
+  // bar or a menu (Delete, Undo) is the user asking, so it is never held back.
+  let gesturePointer: number | null = null
 
   const onPointer = (e: PointerEvent) => {
     if (e.pointerType !== 'pen') return
-    if (e.type === 'pointerdown') pen.down = true
-    else if (e.type === 'pointerup' || e.type === 'pointercancel') {
-      pen.down = false
-      pen.upAt = clock()
+    if (e.type === 'pointerdown') {
+      if (e.target instanceof Node && dom.contains(e.target)) {
+        penState.down = true
+        gesturePointer = e.pointerId
+      }
+    } else if (
+      (e.type === 'pointerup' || e.type === 'pointercancel') &&
+      penState.down &&
+      e.pointerId === gesturePointer
+    ) {
+      penState.down = false
+      penState.upAt = clock()
+      gesturePointer = null
     }
   }
   const onKey = () => {
-    lastKeyAt = clock()
+    penState.lastKeyAt = clock()
   }
   const onBeforeInput = (e: Event) => {
     const input = e as InputEvent
-    if (refuseDelete(input.inputType, clock(), pen, lastKeyAt)) {
+    const scribbleOn = readDeviceSetting(pencilWritesSetting) === 'on'
+    if (
+      refuseInput(
+        input.inputType,
+        clock(),
+        penState,
+        penState.lastKeyAt,
+        scribbleOn,
+      )
+    ) {
       e.preventDefault()
       e.stopImmediatePropagation()
     }
@@ -65,10 +194,10 @@ export function watchPenGuard(
   const unchange = editor.onChange(() => {
     const now = clock()
     const next = editor.prosemirrorView?.state.doc.textContent.length ?? size
-    const penRecent = pen.down || now - pen.upAt < TOAST_AFTER_PEN_MS
+    const penRecent = penState.down || now - penState.upAt < TOAST_AFTER_PEN_MS
     if (
       penRecent &&
-      now - lastKeyAt > KEY_RECENT_MS &&
+      now - penState.lastKeyAt > KEY_RECENT_MS &&
       size - next >= BIG_DELETION
     ) {
       offerUndo()
@@ -88,5 +217,6 @@ export function watchPenGuard(
     doc.removeEventListener('keydown', onKey, true)
     dom.removeEventListener('beforeinput', onBeforeInput, true)
     unchange?.()
+    penState.down = false
   }
 }

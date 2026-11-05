@@ -269,9 +269,13 @@ test('a pen drag across text only selects it: nothing is deleted, even if a dele
         buttons: name === 'pointerup' ? 0 : 1,
       })
     ;(window as unknown as { penDown: () => void }).penDown = () =>
-      document.dispatchEvent(down('pointerdown', 10, 10))
+      document
+        .querySelector('.bn-editor')!
+        .dispatchEvent(down('pointerdown', 10, 10))
     ;(window as unknown as { penUp: () => void }).penUp = () =>
-      document.dispatchEvent(down('pointerup', 10, 10))
+      document
+        .querySelector('.bn-editor')!
+        .dispatchEvent(down('pointerup', 10, 10))
   })
   await page.evaluate(() =>
     (window as never as { penDown: () => void }).penDown(),
@@ -293,8 +297,8 @@ test('a pen drag across text only selects it: nothing is deleted, even if a dele
       return e.defaultPrevented
     }),
   ).toBe(true)
-  // Typing is not refused.
-  expect(await fireInput(page, 'insertText')).toBe(false)
+  // Writing (Scribble) is refused in the same window; a key press is not (below).
+  expect(await fireInput(page, 'insertText')).toBe(true) // Scribble writing too
   expect(await text(page)).toBe(before)
   expect(await blockCount(page)).toBe(blocksBefore)
   // The real pen drag across text and a picture selects, deletes nothing.
@@ -326,4 +330,222 @@ test('a pen drag across plain text selects it and changes nothing', async ({
     { x: p.first.x + p.first.width - 2, y: p.first.y + p.first.height / 2 },
   )
   expect(await text(page)).toBe(before)
+})
+
+// ---- Batch 3a: the Pencil only selects; Scribble can't delete or overwrite ----
+
+/** Pen events fired in steps, so a "Scribble" can strike in the middle. */
+async function installPen(page: Page) {
+  await page.evaluate(() => {
+    const w = window as unknown as Record<string, unknown>
+    const make = (name: string, x: number, y: number) =>
+      new PointerEvent(name, {
+        pointerType: 'pen',
+        pointerId: 7,
+        clientX: x,
+        clientY: y,
+        bubbles: true,
+        cancelable: true,
+        buttons: name === 'pointerup' ? 0 : 1,
+        isPrimary: true,
+      })
+    const at = (x: number, y: number) => document.elementFromPoint(x, y)!
+    w.pen = (name: string, x: number, y: number) =>
+      at(x, y).dispatchEvent(make(name, x, y))
+    // What Scribble does: handwriting that replaces or scratches out text.
+    w.scribble = (kind: string) => {
+      const root = document.querySelector('.bn-editor')!
+      const fire = (inputType: string) => {
+        const e = new InputEvent('beforeinput', {
+          inputType,
+          data: 'x',
+          bubbles: true,
+          cancelable: true,
+        })
+        root.dispatchEvent(e)
+        return e.defaultPrevented
+      }
+      if (kind === 'events') {
+        return [
+          'deleteContentBackward',
+          'deleteByCut',
+          'deleteWordBackward',
+          'insertReplacementText',
+          'insertCompositionText',
+          'insertText',
+        ].map(fire)
+      }
+      // A change to the page with no beforeinput at all.
+      const walker = document.createTreeWalker(root, NodeFilter.SHOW_TEXT)
+      for (let n = walker.nextNode(); n; n = walker.nextNode()) {
+        if (n.textContent?.includes('First line')) {
+          n.textContent = ''
+          break
+        }
+      }
+      return []
+    }
+  })
+}
+
+const pen = (page: Page, name: string, x: number, y: number) =>
+  page.evaluate(
+    ([n, px, py]) =>
+      (window as never as { pen: (...a: unknown[]) => void }).pen(n, px, py),
+    [name, x, y] as const,
+  )
+
+for (const how of ['events', 'dom'] as const) {
+  test(`Scribble ${how} during a pen drag over text: content unchanged, text selected`, async ({
+    page,
+  }) => {
+    const p = await setup(page)
+    await installPen(page)
+    const before = await text(page)
+    const y = p.first.y + p.first.height / 2
+    await pen(page, 'pointerdown', p.first.x + 2, y)
+    // The page is not editable for the stroke, so Scribble has nothing to write in.
+    expect(
+      await page.evaluate(() =>
+        document.querySelector('.bn-editor')!.getAttribute('contenteditable'),
+      ),
+    ).toBe('false')
+    for (let i = 1; i <= 8; i++) {
+      await pen(
+        page,
+        'pointermove',
+        p.first.x + 2 + ((p.first.width - 4) * i) / 8,
+        y,
+      )
+    }
+    const refused = await page.evaluate(
+      (kind) =>
+        (window as never as { scribble: (k: string) => boolean[] }).scribble(
+          kind,
+        ),
+      how,
+    )
+    if (how === 'events') expect(refused.every(Boolean)).toBe(true)
+    await pen(page, 'pointerup', p.first.x + p.first.width - 2, y)
+    await page.waitForTimeout(150)
+    expect(await text(page)).toBe(before)
+    // Editable again, and what the pen dragged over is selected.
+    await expect(page.locator('.bn-editor')).toHaveAttribute(
+      'contenteditable',
+      'true',
+    )
+    expect(
+      await page.evaluate(() => window.getSelection()?.toString() ?? ''),
+    ).toContain('First')
+    // The scratch-out arriving just after the pen lifts changes nothing either.
+    if (how === 'events') {
+      const late = await page.evaluate(() =>
+        (window as never as { scribble: (k: string) => boolean[] }).scribble(
+          'events',
+        ),
+      )
+      expect(late.every(Boolean)).toBe(true)
+    } else {
+      await page.evaluate(() =>
+        (window as never as { scribble: (k: string) => void }).scribble('dom'),
+      )
+      await page.waitForTimeout(150)
+    }
+    expect(await text(page)).toBe(before)
+  })
+}
+
+test('with "Pencil writes text (Scribble)" on, the Pencil is left to the browser', async ({
+  page,
+}) => {
+  await page.addInitScript(() =>
+    localStorage.setItem(
+      'learning-notes:advanced.pencilWrites',
+      JSON.stringify('on'),
+    ),
+  )
+  const p = await setup(page)
+  await installPen(page)
+  const y = p.first.y + p.first.height / 2
+  await pen(page, 'pointerdown', p.first.x + 2, y)
+  expect(
+    await page.evaluate(() =>
+      document.querySelector('.bn-editor')!.getAttribute('contenteditable'),
+    ),
+  ).toBe('true')
+  await pen(page, 'pointerup', p.first.x + 2, y)
+})
+
+test('a key press right after the pen still deletes (the guard only blocks the Pencil)', async ({
+  page,
+}) => {
+  const p = await setup(page)
+  await installPen(page)
+  const y = p.last.y + p.last.height / 2
+  await pen(page, 'pointerdown', p.last.x + 2, y)
+  await pen(page, 'pointermove', p.last.x + p.last.width - 2, y)
+  await pen(page, 'pointerup', p.last.x + p.last.width - 2, y)
+  await page.keyboard.press('Backspace')
+  expect(await text(page)).not.toContain('Last line')
+})
+
+// ---- Batch 3a: a Pencil TAP is never swallowed ----
+
+test('a pen tap on the bar and on text works 10/10, also right after a drag', async ({
+  page,
+}) => {
+  const p = await setup(page)
+  await installPen(page)
+  const bold = page
+    .locator('[aria-label]')
+    .getByRole('button', { name: 'Bold', exact: true })
+    .first()
+  const bb = (await bold.boundingBox())!
+  const tap = async (x: number, y: number) =>
+    page.evaluate(
+      ([px, py]) => {
+        const w = window as never as {
+          pen: (...a: unknown[]) => boolean
+        }
+        const el = document.elementFromPoint(px, py)!
+        const seen: boolean[] = []
+        const spy = (e: Event) => seen.push(e.defaultPrevented)
+        el.addEventListener('pointerdown', spy)
+        w.pen('pointerdown', px, py)
+        w.pen('pointerup', px, py)
+        el.removeEventListener('pointerdown', spy)
+        return seen
+      },
+      [x, y] as const,
+    )
+  for (let i = 0; i < 10; i++) {
+    // Right after a drag over text.
+    await penDrag(
+      page,
+      { x: p.first.x + 2, y: p.first.y + p.first.height / 2 },
+      { x: p.first.x + 40, y: p.first.y + p.first.height / 2 },
+    )
+    // A tap on a bar button: nothing of ours cancels it, so the click follows.
+    const onBar = await tap(bb.x + bb.width / 2, bb.y + bb.height / 2)
+    expect(onBar.every((prevented) => !prevented)).toBe(true)
+    // A tap on text puts the caret there and gives the page the focus.
+    await tap(p.middle.x + 20, p.middle.y + p.middle.height / 2)
+    await expect
+      .poll(() =>
+        page.evaluate(() => {
+          const s = window.getSelection()
+          return (
+            !!s &&
+            s.isCollapsed &&
+            !!document.activeElement?.closest('.bn-editor') &&
+            (s.anchorNode?.textContent ?? '').includes('Middle line')
+          )
+        }),
+      )
+      .toBe(true)
+    // The page is editable again after each stroke.
+    await expect(
+      page.locator('.bn-editor[contenteditable="true"]'),
+    ).toBeVisible()
+  }
 })

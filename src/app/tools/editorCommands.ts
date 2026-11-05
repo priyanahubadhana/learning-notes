@@ -2,6 +2,7 @@ import { insertOrUpdateBlockForSlashMenu } from '@blocknote/core'
 import type { Editor } from '../../editor/barActions'
 import { toggleBlank } from '../../editor/blankActions'
 import { canMakeCard, makeCard } from '../../editor/cardActions'
+import { runHistory } from '../../editor/historyActions'
 import { addLineAfterCursor } from '../../editor/lineActions'
 import { toggleMark } from '../../editor/markActions'
 import {
@@ -111,12 +112,10 @@ const COMMANDS: Record<string, Command> = {
     editor.focus()
   },
   undo: ({ editor }) => {
-    editor.undo()
-    editor.focus()
+    runHistory(editor, 'undo')
   },
   redo: ({ editor }) => {
-    editor.redo()
-    editor.focus()
+    runHistory(editor, 'redo')
   },
   newLine: ({ editor }) => addLineAfterCursor(editor),
   blank: ({ editor }) => {

@@ -19,6 +19,8 @@ The BlockNote editor shows a page as blocks and saves every edit to the local da
 
 - Formatting bar: Computer shows BlockNote's floating toolbar on a selection (`SelectionToolbar.tsx`). Touch and Pencil show a docked bar instead (`DockedBar.tsx`, `barActions.tsx`, `EditBarPanel.tsx`) with the same actions, plus ↵ New line and a tap area under the last block (`lineActions.ts`). See [device-modes.md](device-modes.md). Copy and paste options and cleaning of pasted HTML: [copy-paste.md](copy-paste.md).
 
+- Pencil and data safety (batch 3a): `penSelect.ts` makes a Pencil stroke on text a selection gesture only (page not editable during the stroke, selection from coordinates, Safari stylus touch cancelled); `penGuard.ts` refuses deleting, replacing or writing right after a Pencil gesture in the page (`beforeinput` and a ProseMirror `filterTransaction`; Undo/Redo and key presses exempt); Settings › Advanced › Pencil writes text (Scribble) turns this off. Undo and Redo from the bar use `historyActions.ts` (works without editor focus). `pageSync.ts` takes a History copy before saving a delete of 3 or more blocks or any picture (`isBigDelete`). Picture files are never deleted.
+
 ## Edge cases
 
 - Opening a page writes nothing (the snapshot is taken from the editor after load).
@@ -42,4 +44,5 @@ The BlockNote editor shows a page as blocks and saves every edit to the local da
 - `src/editor/`: `autosave.test.ts`, `diff.test.ts`, `mapping.test.ts`, `pageSync.test.ts`, `pendingStash.test.ts`
 - `src/editor/`: `blankActions.test.ts`, `cardActions.test.ts`, `codeBlockKeys.test.ts`, `linkActions.test.ts`, `markActions.test.ts`, `slashMenu.test.ts`, `tagActions.test.ts`
 - `src/editor/lineActions.test.ts` (New line, tap below); e2e `deviceModes.spec.ts`
+- `src/editor/penGuard.test.ts`, `pageSync.test.ts` (isBigDelete); e2e `penSelect.spec.ts`, `undoPictures.spec.ts`
 - `src/blocks/blockTypes.test.ts`

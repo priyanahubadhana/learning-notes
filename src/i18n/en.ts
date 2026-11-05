@@ -1763,6 +1763,9 @@ export const en = {
   'settings.barAutoHide.label': 'Hide the bar when idle',
   'settings.barAutoHide.description':
     'Hide the docked bar while you are not selecting or typing.',
+  'settings.pencilWrites.label': 'Pencil writes text (Scribble)',
+  'settings.pencilWrites.description':
+    'Off (recommended): dragging the Apple Pencil over text only selects it, and handwriting never changes your text. On: the Pencil can write and scratch out words using iPadOS Scribble, which can delete text by mistake. Scribble is also in iPadOS Settings › Apple Pencil.',
   'settings.onOff.on': 'On',
   'settings.onOff.off': 'Off',
   'bar.label': 'Formatting',

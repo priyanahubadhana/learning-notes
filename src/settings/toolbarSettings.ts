@@ -1,10 +1,7 @@
 import { isOnOff, type OnOff } from '../app/deviceMode'
-import { DEFAULT_PINNED } from '../app/deviceMode'
 import { freeTip, resetFreePos } from '../app/tools/freeBar'
 import { resetRibbonOptions } from '../app/tools/ribbonDefaults'
 import {
-  DEFAULT_SET_TOOLS,
-  keepSet,
   hiddenTabs,
   ribbonExpanded,
   ribbonMode,
@@ -14,7 +11,6 @@ import {
   RIBBON_MODES,
   RIBBON_SIZES,
   stayOpen,
-  writeSetTools,
   type RibbonPlace,
 } from '../app/tools/toolbarState'
 import {
@@ -23,6 +19,17 @@ import {
   showToolBar,
 } from '../app/tools/toolbarVisibility'
 import { currentRunner } from '../app/tools/toolRuntime'
+import {
+  HOLD_CHOICES,
+  NEW_LINE_EXTRAS,
+  newLineExtras,
+  newLineHoldMs,
+  penPicksPen,
+  resetMainBar,
+  type NewLineExtras,
+} from '../app/tools/main/mainTools'
+import { pillPlaceStore } from '../app/tools/main/pillPlace'
+import { resetNoteStyle } from '../app/tools/main/textStyle'
 import { t, type MessageKey } from '../i18n/t'
 import {
   applyModePreset,
@@ -215,14 +222,99 @@ export const toolSetsSetting: SettingDefinition<'idle'> = {
   derived: { read: () => 'idle', write: () => {} },
 }
 
+export const newLineExtrasSetting: SettingDefinition<NewLineExtras> = {
+  id: 'toolbar.newLineExtras',
+  labelKey: 'settings.newLineExtras.label',
+  descriptionKey: 'settings.newLineExtras.description',
+  category: 'toolbar',
+  keywords:
+    KEYWORDS +
+    ' new line hold press double tap extras heading checklist divider',
+  scope: 'device',
+  defaultValue: 'hold',
+  isValid: isOneOf(NEW_LINE_EXTRAS),
+  control: {
+    kind: 'segmented',
+    options: NEW_LINE_EXTRAS.map((value) => ({
+      value,
+      label: () => t(`settings.newLineExtras.${value}` as MessageKey),
+    })),
+  },
+  derived: {
+    read: () => newLineExtras.get(),
+    write: (value) => newLineExtras.set(value),
+  },
+}
+
+export const newLineHoldSetting: SettingDefinition<number> = {
+  id: 'toolbar.newLineHold',
+  labelKey: 'settings.newLineHold.label',
+  descriptionKey: 'settings.newLineHold.description',
+  category: 'toolbar',
+  keywords: KEYWORDS + ' new line hold duration how long press',
+  scope: 'device',
+  defaultValue: 600,
+  isValid: (v): v is number =>
+    typeof v === 'number' && (HOLD_CHOICES as readonly number[]).includes(v),
+  control: {
+    kind: 'select',
+    options: HOLD_CHOICES.map((value) => ({
+      value,
+      label: () => t('settings.newLineHold.seconds', { seconds: value / 1000 }),
+    })),
+  },
+  derived: {
+    read: () => newLineHoldMs.get(),
+    write: (value) => newLineHoldMs.set(value),
+  },
+}
+
+export const penPicksPenSetting: SettingDefinition<OnOff> = {
+  id: 'toolbar.penPicksPen',
+  labelKey: 'settings.penPicksPen.label',
+  descriptionKey: 'settings.penPicksPen.description',
+  category: 'toolbar',
+  keywords: KEYWORDS + ' pencil pen picks selects tool automatic',
+  scope: 'device',
+  defaultValue: 'off',
+  isValid: isOnOff,
+  control: { kind: 'segmented', options: onOff() },
+  derived: {
+    read: () => (penPicksPen.get() ? 'on' : 'off'),
+    write: (value) => penPicksPen.set(value === 'on'),
+  },
+}
+
+export const pillPlaceSetting: SettingDefinition<'idle'> = {
+  id: 'toolbar.pillReset',
+  labelKey: 'settings.pillReset.label',
+  descriptionKey: 'settings.pillReset.description',
+  category: 'toolbar',
+  keywords: KEYWORDS + ' options pill position snap edge reset',
+  scope: 'device',
+  defaultValue: 'idle',
+  isValid: isOneOf(['idle'] as const),
+  control: {
+    kind: 'action',
+    buttonKey: 'settings.pillReset.button',
+    run: () => {
+      pillPlaceStore.set(null)
+      currentRunner().app?.toast(t('settings.pillReset.done'))
+    },
+  },
+  derived: { read: () => 'idle', write: () => {} },
+}
+
 /** Back to the defaults of this device's mode: tools, tabs, position. */
 export function resetToolBar(): void {
   applyModePreset(readDeviceSetting(deviceModeSetting))
-  writeSetTools('write', DEFAULT_PINNED)
-  writeSetTools('draw', DEFAULT_SET_TOOLS.draw)
-  writeSetTools('read', DEFAULT_SET_TOOLS.read)
+  resetMainBar()
+  pillPlaceStore.set(null)
+  newLineExtras.set('hold')
+  newLineHoldMs.set(600)
+  penPicksPen.set(false)
+  resetNoteStyle()
   hiddenTabs.set([])
-  keepSet.set(false)
   stayOpen.set(false)
   ribbonOpen.set(false)
   ribbonExpanded.set(false)
@@ -260,6 +352,10 @@ for (const definition of [
   ribbonSizeSetting,
   ribbonPlaceSetting,
   toolSetsSetting,
+  newLineExtrasSetting,
+  newLineHoldSetting,
+  penPicksPenSetting,
+  pillPlaceSetting,
   resetToolBarSetting,
 ]) {
   settingsRegistry.register(definition as SettingDefinition)

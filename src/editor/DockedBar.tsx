@@ -24,14 +24,14 @@ import { createPortal } from 'react-dom'
 import type { Place } from '../app/tools/toolbarState'
 import { AppUiContext } from '../app/appUi'
 import { isApple } from '../app/keys'
-import { Tip } from '../help/Help'
 import { t } from '../i18n/t'
 import { useBarSettings } from '../settings/deviceModeSettings'
-import { keepKnown } from '../app/deviceMode'
 import { redoDepth, undoDepth } from 'prosemirror-history'
-import { Icon } from '../app/tools/icons'
-import { SetSwitch } from '../app/tools/SetSwitch'
-import { ToolButton } from '../app/tools/ToolButton'
+import { MainBarRow } from '../app/tools/main/MainBar'
+import { MiniToolbar } from '../app/tools/main/MiniToolbar'
+import { OptionsPill } from '../app/tools/main/OptionsPill'
+import { closePill, pillReserve } from '../app/tools/main/mainTools'
+import { usePenPicksPen } from '../app/tools/main/penPicks'
 import { Ribbon } from '../app/tools/Ribbon'
 import { barGroups } from '../app/tools/barLayout'
 import { resetFreePos } from '../app/tools/freeBar'
@@ -46,20 +46,12 @@ import {
   ribbonTab,
   tabForSet,
   toggleRibbonBehaviour,
-  useSetTools,
 } from '../app/tools/toolbarState'
-import { allTools, findTool } from '../app/tools/toolRegistry'
 import { getAppActions, setBarUi } from '../app/tools/toolRuntime'
-import { useAutoBarSet } from '../app/tools/useAutoBarSet'
 import { EditBarPanel } from './EditBarPanel'
-import {
-  allActionIds,
-  useBarActions,
-  type BarAction,
-  type Editor,
-} from './barActions'
+import { useBarActions, type BarAction, type Editor } from './barActions'
 import { clearSelection } from './lineActions'
-import { ColorButton, ColorPanel } from './ColorPicker'
+import { ColorPanel } from './ColorPicker'
 import { PopupHeader } from '../app/tools/PopupClose'
 import {
   copyAs,
@@ -77,10 +69,6 @@ import {
 
 /** Keeps the editor's selection and keyboard when a bar button is pressed. */
 const keepFocus = (e: { preventDefault: () => void }) => e.preventDefault()
-
-/** Buttons that show their words instead of an icon. */
-const TEXT_FACES = new Set(['blank', 'card', 'newLine'])
-const hasTextFace = (id: string) => id.startsWith('mark:') || TEXT_FACES.has(id)
 
 type Panel = 'more' | 'menu' | 'color' | 'edit'
 
@@ -145,12 +133,8 @@ function Bar({ editor, slot }: { editor: Editor; slot: HTMLElement }) {
   const layout = useBarLayout()
   const groups = barGroups(layout)
   const actions = useBarActions(editor)
-  const set = activeSet.useValue()
   const ribbon = layout.ribbon !== null
   const both = layout.ribbon !== null && layout.short !== null
-  const listed = useSetTools(set)
-  const known = [...allActionIds(), ...allTools().map((tool) => tool.id)]
-  const onSet = keepKnown(listed, known)
   const [panel, setPanel] = useState<Panel | null>(null)
   const { toast } = useContext(AppUiContext)
   const menuButton = useRef<HTMLButtonElement>(null)
@@ -159,7 +143,7 @@ function Bar({ editor, slot }: { editor: Editor; slot: HTMLElement }) {
   const editorFocused = useEditorFocus()
   const isActive = useToolActive(editor)
   const history = useHistoryState(editor)
-  useAutoBarSet()
+  usePenPicksPen()
 
   // Ctrl/Cmd+F1: "Tools close after use" or "Tools stay open".
   useEffect(() => {
@@ -175,11 +159,16 @@ function Bar({ editor, slot }: { editor: Editor; slot: HTMLElement }) {
 
   // "All tools": the ribbon opens on the tab of the set showing.
   const openRibbon = () => {
-    ribbonTab.set(tabForSet(set))
+    ribbonTab.set(tabForSet(activeSet.get()))
     ribbonExpanded.set(true)
     ribbonOpen.set(true)
     setPanel(null)
   }
+
+  // The options pill belongs to the main bar: it goes when the bar goes.
+  useEffect(() => {
+    if (layout.short === null) closePill()
+  }, [layout.short])
 
   // Tools run by the ribbon or the control panel can open a tray.
   useEffect(() => {
@@ -188,7 +177,7 @@ function Bar({ editor, slot }: { editor: Editor; slot: HTMLElement }) {
   }, [])
 
   const byId = new Map(actions.map((a) => [a.id, a]))
-  const inMore = actions.filter((a) => !listed.includes(a.id))
+  const inMore = actions
   const selecting = editor.getSelectedText().length > 0
   const shown =
     !autoHide || editorFocused || focusInBar || selecting || panel !== null
@@ -243,74 +232,6 @@ function Bar({ editor, slot }: { editor: Editor; slot: HTMLElement }) {
     buttons[(next + buttons.length) % buttons.length]?.focus()
   }
 
-  const buttonFor = (id: string): ReactNode => {
-    const action = byId.get(id)
-    if (action) {
-      return (
-        <BarSlot key={id} action={action}>
-          {action.special ? (
-            <SpecialButton
-              action={action}
-              editor={editor}
-              px={buttonPx}
-              colorOpen={panel === 'color'}
-              onColor={() => setPanel(panel === 'color' ? null : 'color')}
-            />
-          ) : (
-            <BarButton
-              action={action}
-              px={buttonPx}
-              tip={hoverTips}
-              hint={shortcutHints}
-            />
-          )}
-        </BarSlot>
-      )
-    }
-    const tool = findTool(id)
-    if (!tool) return null
-    if (id === 'more') {
-      return (
-        <Tip key={id} id="bar.more" touchInfo={false}>
-          <button
-            type="button"
-            data-bar-btn
-            data-action="more"
-            data-popup-trigger
-            aria-expanded={panel === 'more'}
-            aria-haspopup="true"
-            onMouseDown={keepFocus}
-            onClick={() => setPanel(panel === 'more' ? null : 'more')}
-            style={{ minHeight: buttonPx, minWidth: buttonPx }}
-            className="inline-flex shrink-0 items-center gap-0.5 rounded-xl px-2.5 text-sm whitespace-nowrap text-ink-soft hover:bg-hover hover:text-ink"
-          >
-            {t('bar.more')} <Icon name="chevronDown" size={16} />
-          </button>
-        </Tip>
-      )
-    }
-    return (
-      <ToolButton
-        key={id}
-        tool={tool}
-        px={buttonPx}
-        variant="bar"
-        active={isActive(id) || undefined}
-        disabled={
-          (id === 'undo' && !history.canUndo) ||
-          (id === 'redo' && !history.canRedo)
-            ? true
-            : undefined
-        }
-        tip={hoverTips}
-        hint={shortcutHints}
-      />
-    )
-  }
-
-  const END_BUTTON =
-    'inline-flex shrink-0 items-center justify-center gap-1.5 rounded-xl text-ink-soft hover:bg-hover hover:text-ink motion-safe:transition-colors'
-
   const pillClass = (place: Place) =>
     `${place === 'free' ? 'mx-0' : 'mx-3'} my-1 items-center rounded-2xl border border-line bg-bg px-1.5 py-0.5 shadow-[0_1px_2px_rgba(0,0,0,0.05),0_6px_18px_rgba(0,0,0,0.07)] supports-[backdrop-filter]:bg-bg/80 supports-[backdrop-filter]:backdrop-blur-xl`
 
@@ -343,6 +264,7 @@ function Bar({ editor, slot }: { editor: Editor; slot: HTMLElement }) {
     </div>
   )
 
+  // The main bar: one solid row (redesign step 2), the same on every device.
   const shortPill = (place: Place) => (
     <div
       key="short"
@@ -351,93 +273,23 @@ function Bar({ editor, slot }: { editor: Editor; slot: HTMLElement }) {
       aria-label={t('bar.label')}
       onKeyDown={arrowKeys}
       {...focusHandlers}
-      className={`${pillClass(place)} grid grid-cols-[auto_minmax(0,1fr)_auto_auto] gap-x-1.5 gap-y-0.5 phone:grid-cols-[auto_minmax(0,1fr)_auto]`}
+      className={
+        place === 'free'
+          ? 'rounded-2xl border border-ink-soft bg-bg px-1.5 py-1 shadow-[0_2px_4px_rgba(0,0,0,0.08),0_10px_28px_rgba(0,0,0,0.16)]'
+          : 'border-y border-line bg-bg px-2 py-1 phone:px-1'
+      }
     >
-      <div className="col-start-1 row-start-1">
-        <SetSwitch px={buttonPx} />
-      </div>
-      <div
-        data-slot="tools"
-        // Scrolls sideways on a narrow screen; the end buttons stay in view.
-        className="col-start-2 flex min-w-0 items-center gap-1 overflow-x-auto phone:col-span-2 phone:col-start-1 phone:row-start-2"
-        style={{ scrollbarWidth: 'none' }}
-      >
-        {onSet.map(buttonFor)}
-      </div>
-      <div className="col-start-3 flex items-center gap-1 phone:row-start-1">
-        {!ribbon && (
-          <Tip id="bar.allTools" touchInfo={false}>
-            <button
-              type="button"
-              data-bar-btn
-              data-action="allTools"
-              aria-expanded={ribbon}
-              onMouseDown={keepFocus}
-              onClick={openRibbon}
-              style={{ minHeight: Math.max(buttonPx, 44) }}
-              className={`${END_BUTTON} bg-hover px-3 text-sm font-medium !text-ink`}
-            >
-              <Icon name="layoutGrid" size={18} />
-              {t('bar.allTools')}
-            </button>
-          </Tip>
-        )}
-        <Tip id="bar.search" touchInfo={false}>
-          <button
-            type="button"
-            data-bar-btn
-            data-action="controlPanel"
-            aria-label={t('bar.search')}
-            title={t('bar.search')}
-            onMouseDown={keepFocus}
-            onClick={() => getAppActions()?.openControlPanel()}
-            style={{
-              minHeight: Math.max(buttonPx, 44),
-              minWidth: Math.max(buttonPx, 44),
-            }}
-            className={END_BUTTON}
-          >
-            <Icon name="search" />
-          </button>
-        </Tip>
-      </div>
-      <div className="col-start-4 flex items-center gap-1 phone:col-start-3 phone:row-start-2">
-        <Tip id="bar.menu" touchInfo={false}>
-          <button
-            ref={menuButton}
-            type="button"
-            data-bar-btn
-            data-action="toolbarMenu"
-            data-popup-trigger
-            aria-label={t('bar.menu')}
-            title={hoverTips ? t('bar.menu') : undefined}
-            aria-expanded={panel === 'menu'}
-            aria-haspopup="true"
-            onMouseDown={keepFocus}
-            onClick={() => setPanel(panel === 'menu' ? null : 'menu')}
-            style={{
-              minHeight: Math.max(buttonPx, 44),
-              minWidth: Math.max(buttonPx, 44),
-            }}
-            className={END_BUTTON}
-          >
-            <Icon name="more" />
-          </button>
-        </Tip>
-        <button
-          type="button"
-          data-bar-btn
-          onMouseDown={keepFocus}
-          onClick={done}
-          style={{
-            minHeight: Math.max(buttonPx, 44),
-            minWidth: Math.max(buttonPx, 44),
-          }}
-          className="shrink-0 rounded-xl px-2.5 text-sm font-semibold whitespace-nowrap text-ink hover:bg-hover"
-        >
-          {t('bar.done')}
-        </button>
-      </div>
+      {place === 'bottom' && <PillRoom />}
+      <MainBarRow
+        editor={editor}
+        px={buttonPx}
+        tips={hoverTips}
+        history={history}
+        menuOpen={panel === 'menu'}
+        menuRef={menuButton}
+        onMenu={() => setPanel(panel === 'menu' ? null : 'menu')}
+      />
+      {place !== 'bottom' && place !== 'free' && <PillRoom />}
     </div>
   )
 
@@ -507,15 +359,26 @@ function Bar({ editor, slot }: { editor: Editor; slot: HTMLElement }) {
             focusFirst
             onClose={() => setPanel(null)}
           >
-            {actions.map((action) => (
-              <MoreRow
-                key={action.id}
-                action={action}
-                px={buttonPx}
-                hint={shortcutHints}
-                onColor={() => setPanel('color')}
-              />
-            ))}
+            <MenuItem px={buttonPx} accent onClick={() => setPanel('edit')}>
+              {t('bar.edit')}
+            </MenuItem>
+            {!ribbon && (
+              <MenuItem px={buttonPx} onClick={openRibbon}>
+                {t('bar.allTools')}
+              </MenuItem>
+            )}
+            <MenuItem
+              px={buttonPx}
+              onClick={() => {
+                setPanel(null)
+                getAppActions()?.openControlPanel()
+              }}
+            >
+              {t('bar.search')}
+            </MenuItem>
+            <MenuItem px={buttonPx} onClick={done}>
+              {t('bar.done')}
+            </MenuItem>
             <hr className="my-1 border-line" />
             <MenuItem
               px={buttonPx}
@@ -554,7 +417,6 @@ function Bar({ editor, slot }: { editor: Editor; slot: HTMLElement }) {
             >
               {t('copy.pictures')}
             </MenuItem>
-            <hr className="my-1 border-line" />
             {(layout.short === 'free' || layout.ribbon === 'free') && (
               <MenuItem
                 px={buttonPx}
@@ -566,18 +428,21 @@ function Bar({ editor, slot }: { editor: Editor; slot: HTMLElement }) {
                 {t('bar.resetPos')}
               </MenuItem>
             )}
-            <MenuItem px={buttonPx} accent onClick={() => setPanel('edit')}>
-              {t('bar.edit')}
-            </MenuItem>
+            <hr className="my-1 border-line" />
+            {actions.map((action) => (
+              <MoreRow
+                key={action.id}
+                action={action}
+                px={buttonPx}
+                hint={shortcutHints}
+                onColor={() => setPanel('color')}
+              />
+            ))}
           </Tray>
         )}
         {panel === 'edit' && (
           <Tray bottom={bottom} wide onClose={() => setPanel(null)}>
-            <EditBarPanel
-              actions={actions}
-              mode={settings.mode}
-              onClose={() => setPanel(null)}
-            />
+            <EditBarPanel mode={settings.mode} onClose={() => setPanel(null)} />
           </Tray>
         )}
       </>
@@ -606,103 +471,11 @@ function Bar({ editor, slot }: { editor: Editor; slot: HTMLElement }) {
           place,
         )
       })}
+      <MiniToolbar editor={editor} />
+      {layout.short !== null && (
+        <OptionsPill editor={editor} barPlace={layout.short} />
+      )}
     </>
-  )
-}
-
-/** The "↵ New line" button gets a tip; the others sit on the bar as they are. */
-function BarSlot({
-  action,
-  children,
-}: {
-  action: BarAction
-  children: ReactNode
-}) {
-  return action.id === 'newLine' ? (
-    <Tip id="bar.newLine" touchInfo={false} className="inline-flex shrink-0">
-      {children}
-    </Tip>
-  ) : (
-    <>{children}</>
-  )
-}
-
-function BarButton({
-  action,
-  px,
-  tip,
-  hint,
-}: {
-  action: BarAction
-  px: number
-  tip: boolean
-  hint: boolean
-}) {
-  const title = tip
-    ? action.label + (hint && action.hint ? ` (${action.hint})` : '')
-    : undefined
-  const tool = findTool(action.id)
-  const text = hasTextFace(action.id) || !tool
-  return (
-    <button
-      type="button"
-      data-bar-btn
-      data-action={action.id}
-      aria-label={action.label}
-      aria-pressed={action.active ?? undefined}
-      aria-disabled={action.disabled || undefined}
-      title={title}
-      onMouseDown={keepFocus}
-      onClick={() => !action.disabled && action.run?.()}
-      style={{ minHeight: px, minWidth: px }}
-      className={`relative shrink-0 rounded-xl px-2.5 text-sm whitespace-nowrap text-ink-soft hover:bg-hover hover:text-ink motion-safe:transition-colors aria-disabled:opacity-40 ${
-        text ? '' : 'grid place-items-center'
-      } ${action.active ? 'bg-hover !text-accent' : ''} ${
-        action.id === 'newLine' ? '!text-accent' : ''
-      }`}
-    >
-      {text || !tool ? action.face : <Icon name={tool.icon} />}
-      {action.active && !text && (
-        <span
-          aria-hidden
-          className="absolute bottom-1 left-1/2 h-0.5 w-3.5 -translate-x-1/2 rounded-full bg-current"
-        />
-      )}
-    </button>
-  )
-}
-
-/** The colour button (ours, see ColorPicker.tsx) and BlockNote's link button. */
-function SpecialButton({
-  action,
-  editor,
-  px,
-  colorOpen,
-  onColor,
-}: {
-  action: BarAction
-  editor: Editor
-  px: number
-  colorOpen: boolean
-  onColor: () => void
-}) {
-  return (
-    <span
-      data-action={action.id}
-      data-popup-trigger={action.special === 'color' || undefined}
-      className="shrink-0"
-    >
-      {action.special === 'color' ? (
-        <ColorButton
-          editor={editor}
-          px={px}
-          open={colorOpen}
-          onClick={onColor}
-        />
-      ) : (
-        <CreateLinkButton />
-      )}
-    </span>
   )
 }
 
@@ -849,4 +622,12 @@ function Tray({
       {children}
     </div>
   )
+}
+
+/** Empty room under (or over) the main bar for the options pill that sits against it. */
+function PillRoom() {
+  const height = pillReserve.useValue()
+  return height > 0 ? (
+    <div aria-hidden data-pill-room style={{ height }} />
+  ) : null
 }

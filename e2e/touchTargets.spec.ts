@@ -81,7 +81,7 @@ test('the docked bar stays inside the screen and its buttons fit a finger', asyn
   expect(
     await page.evaluate(() => document.documentElement.scrollWidth),
   ).toBeLessThanOrEqual(width)
-  for (const name of ['Bold', 'More', 'Done']) {
+  for (const name of ['Text', 'Pen', 'Toolbar menu']) {
     const button = bar.getByRole('button', { name, exact: true })
     expect((await button.boundingBox())!.height).toBeGreaterThanOrEqual(44)
   }

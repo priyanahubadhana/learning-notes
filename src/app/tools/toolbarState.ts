@@ -6,7 +6,7 @@ import {
   writePinned,
 } from '../../settings/deviceModeSettings'
 import { isPinnedList, MAX_PINNED } from '../deviceMode'
-import { isReading } from '../reading/readingState'
+import { activeTool, isInkTool, openPillTool } from './main/mainTools'
 import { memStore, prefStore } from './store'
 import { TABS, type TabId } from './tabs'
 
@@ -54,9 +54,6 @@ export const DEFAULT_SET_TOOLS: Record<Exclude<BarSet, 'write'>, string[]> = {
 
 /** The set shown now. It changes by itself unless the set is kept. */
 export const activeSet = memStore<BarSet>('write')
-
-/** "Keep this set": the bar stops switching sets by itself. */
-export const keepSet = prefStore('toolbar.keepSet', isBoolean, false)
 
 /**
  * The ribbon replaces the short bar while this is true. Saved per device
@@ -149,7 +146,6 @@ export function addUndoRedoOnce(): void {
 /** Tests only. */
 export function resetToolbarState(): void {
   for (const store of [
-    keepSet,
     stayOpen,
     ribbonOpen,
     hiddenTabs,
@@ -171,8 +167,31 @@ export const tabForSet = (set: BarSet): TabId =>
   set === 'draw' ? 'draw' : set === 'read' ? 'view' : 'home'
 
 /** Shows another set. `auto` changes are ignored while the set is kept. */
-export function changeSet(set: BarSet, how: 'auto' | 'user'): boolean {
-  if (how === 'auto' && (keepSet.get() || isReading())) return false
+/** Keeps the selected tool (the mode) in step with the set. */
+function syncTool(set: BarSet): void {
+  const tool = activeTool.get()
+  if (set === 'read') {
+    activeTool.set('read')
+    // A pill of another tool would be left behind (Lock to reading keeps Read).
+    const open = openPillTool.get()
+    if (open && open !== 'read' && open !== 'insert') openPillTool.set('read')
+  } else if (set === 'write') {
+    if (tool === 'read' || isInkTool(tool)) activeTool.set('text')
+  } else if (!isInkTool(tool)) activeTool.set('pen')
+}
+
+/**
+ * Shows another set (Write = Text, Draw = an ink tool, Read = Reading mode).
+ * Since redesign step 2 the selected tool is the mode: a tool change calls
+ * this; the set only tells the ribbon which tab to open and Reading mode
+ * whether to start. Nothing changes sets by itself any more.
+ */
+export function changeSet(
+  set: BarSet,
+  _how: 'auto' | 'user' = 'user',
+): boolean {
+  void _how
+  syncTool(set)
   if (activeSet.get() === set) return false
   activeSet.set(set)
   // The ribbon follows the set: it opens on the matching tab.

@@ -4,6 +4,7 @@
 import { BlockNoteEditor } from '@blocknote/core'
 import { describe, expect, it } from 'vitest'
 import {
+  addExtraLine,
   addLineAfterCursor,
   focusEndLine,
   isEmptyParagraph,
@@ -66,5 +67,39 @@ describe('Tap below the last block', () => {
     const editor = setup([{ id: 'h', type: 'heading', content: 'Title' }])
     focusEndLine(editor)
     expect(editor.document.map((b) => b.type)).toEqual(['heading', 'paragraph'])
+  })
+})
+
+describe('New line extras (press and hold)', () => {
+  it('a heading on a line that has text is added after it', () => {
+    const editor = setup([{ id: 'a', type: 'paragraph', content: 'first' }])
+    editor.setTextCursorPosition('a', 'end')
+    addExtraLine(editor, 'heading')
+    expect(editor.document).toHaveLength(2)
+    expect(editor.document[1].type).toBe('heading')
+    expect(editor.getTextCursorPosition().block.id).toBe(editor.document[1].id)
+  })
+
+  it('an empty line becomes the checklist item itself', () => {
+    const editor = setup([
+      { id: 'a', type: 'paragraph', content: 'first' },
+      { id: 'b', type: 'paragraph', content: '' },
+    ])
+    editor.setTextCursorPosition('b', 'start')
+    addExtraLine(editor, 'checklist')
+    expect(editor.document).toHaveLength(2)
+    expect(editor.document[1].type).toBe('checkListItem')
+  })
+
+  it('a divider is followed by a fresh line for the cursor', () => {
+    const editor = setup([{ id: 'a', type: 'paragraph', content: 'first' }])
+    editor.setTextCursorPosition('a', 'end')
+    addExtraLine(editor, 'divider')
+    expect(editor.document.map((b) => b.type)).toEqual([
+      'paragraph',
+      'divider',
+      'paragraph',
+    ])
+    expect(editor.getTextCursorPosition().block.id).toBe(editor.document[2].id)
   })
 })

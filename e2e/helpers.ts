@@ -472,3 +472,9 @@ export async function pageSubAction(
     .filter({ hasText: child })
     .click()
 }
+
+/** Opens the full ribbon: the main bar's ⋯ menu, then All tools. */
+export async function openRibbon(page: Page) {
+  await page.getByRole('button', { name: 'Toolbar menu' }).click()
+  await page.getByRole('button', { name: 'All tools', exact: true }).click()
+}

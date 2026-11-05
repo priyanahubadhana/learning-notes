@@ -38,7 +38,7 @@ for (const mode of ['touch', 'pencil'] as const) {
     await expect(dockedBar(page)).toBeVisible()
     await expect(dockedBar(page)).toHaveAttribute('data-placement', 'top')
     await expect(
-      dockedBar(page).getByRole('button', { name: 'Bold' }),
+      dockedBar(page).getByRole('button', { name: 'Text', exact: true }),
     ).toBeVisible()
     await expect(page.locator('.bn-formatting-toolbar')).toHaveCount(0)
     // The Edit bar is reachable.

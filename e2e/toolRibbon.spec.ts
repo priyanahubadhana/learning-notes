@@ -8,6 +8,7 @@ import {
   startInMode,
   startInTheme,
   typeInEditor,
+  openRibbon,
 } from './helpers.ts'
 
 /**
@@ -35,8 +36,6 @@ async function openPage(page: Page) {
   await createNotebook(page, 'Biology', 'First')
   await typeInEditor(page, 'The nucleus holds the DNA')
 }
-const allTools = (page: Page) =>
-  dockedBar(page).getByRole('button', { name: 'All tools', exact: true })
 const shortBar = (page: Page) =>
   dockedBar(page).getByRole('button', { name: 'Short bar', exact: true })
 
@@ -44,7 +43,7 @@ test('All tools replaces the short bar with the six tabs, opened on Home', async
   page,
 }) => {
   await openPage(page)
-  await allTools(page).click()
+  await openRibbon(page)
   await expect(dockedBar(page).getByRole('radiogroup')).toHaveCount(0)
   await expect(tablist(page).getByRole('tab')).toHaveText([
     'File',
@@ -65,16 +64,22 @@ test('All tools replaces the short bar with the six tabs, opened on Home', async
   await expect(behaviour(page)).toHaveAttribute('aria-pressed', 'false')
 })
 
-test('it opens on the tab of the set: Draw set → Draw tab, Read set → View tab', async ({
+test('it opens on the tab of the tool: Pen → Draw tab, Read → View tab', async ({
   page,
 }) => {
   await openPage(page)
-  await dockedBar(page).getByRole('radio', { name: 'Draw' }).click()
-  await allTools(page).click()
+  await dockedBar(page)
+    .getByRole('button', { name: 'Pen', exact: true })
+    .click()
+  await page.keyboard.press('Escape')
+  await openRibbon(page)
   await expect(tab(page, 'Draw')).toHaveAttribute('aria-selected', 'true')
   await shortBar(page).click()
-  await dockedBar(page).getByRole('radio', { name: 'Read' }).click()
-  await allTools(page).click()
+  await dockedBar(page)
+    .getByRole('button', { name: 'Read', exact: true })
+    .click()
+  await page.keyboard.press('Escape')
+  await openRibbon(page)
   await expect(tab(page, 'View')).toHaveAttribute('aria-selected', 'true')
 })
 
@@ -156,7 +161,7 @@ const CONTENT: Record<string, string[]> = {
 
 test('each tab holds the planned tools in named groups', async ({ page }) => {
   await openPage(page)
-  await allTools(page).click()
+  await openRibbon(page)
   await behaviour(page).click() // stay open, so the tools do not close
   for (const [name, tools] of Object.entries(CONTENT)) {
     await tab(page, name).click()
@@ -184,7 +189,7 @@ test('"Tools close after use": a tab shows its tools; using one, a tap outside, 
   page,
 }) => {
   await openPage(page)
-  await allTools(page).click()
+  await openRibbon(page)
   await expect(panel(page)).toBeVisible()
   // Using a tool closes the tools (the tabs stay).
   await ribbonTool(page, 'Bold').click()
@@ -212,7 +217,7 @@ test('"Tools stay open": nothing closes them; Ctrl+F1 switches; remembered', asy
   page,
 }) => {
   await openPage(page)
-  await allTools(page).click()
+  await openRibbon(page)
   await behaviour(page).click()
   await expect(behaviour(page)).toHaveAccessibleName('Tools stay open')
   await expect(behaviour(page)).toHaveAttribute('aria-pressed', 'true')
@@ -246,18 +251,13 @@ test('Ctrl+F1 also works from the short bar (it opens the ribbon)', async ({
   await expect(panel(page)).toBeVisible()
 })
 
-test('Short bar returns to the short bar with the set showing', async ({
-  page,
-}) => {
+test('Short bar returns to the main bar', async ({ page }) => {
   await openPage(page)
-  await allTools(page).click()
+  await openRibbon(page)
   await shortBar(page).click()
   await expect(tablist(page)).toHaveCount(0)
   await expect(
-    dockedBar(page).getByRole('radio', { name: 'Write' }),
-  ).toHaveAttribute('aria-checked', 'true')
-  await expect(
-    dockedBar(page).getByRole('button', { name: 'Bold', exact: true }),
+    dockedBar(page).getByRole('button', { name: 'Text', exact: true }),
   ).toBeVisible()
 })
 
@@ -265,7 +265,7 @@ test('tabs are a proper tablist: arrows, Home and End move, Enter opens', async 
   page,
 }) => {
   await openPage(page)
-  await allTools(page).click()
+  await openRibbon(page)
   await page.keyboard.press('Escape')
   await tab(page, 'Home').focus()
   await page.keyboard.press('ArrowRight')
@@ -291,7 +291,7 @@ test('ribbon tools run: Settings and Calendar open their screens', async ({
   page,
 }) => {
   await openPage(page)
-  await allTools(page).click()
+  await openRibbon(page)
   await tab(page, 'File').click()
   await ribbonTool(page, 'Settings').click()
   await expect(page).toHaveURL(/#\/settings/)
@@ -315,7 +315,7 @@ test('a ribbon tool changes the text, and Home › Undo takes it back', async ({
     sel.removeAllRanges()
     sel.addRange(range)
   })
-  await allTools(page).click()
+  await openRibbon(page)
   await ribbonTool(page, 'Bold').click()
   await expect(page.locator('.bn-editor strong')).toHaveText('nucleus')
 })
@@ -332,10 +332,11 @@ test('Edit bar can hide tabs (one always stays) and the choice is kept', async (
   const edit = page
     .locator('[data-bar="tray"]')
     .getByRole('group', { name: 'Edit bar' })
-  await edit.getByRole('checkbox', { name: 'Draw', exact: true }).uncheck()
-  await edit.getByRole('checkbox', { name: 'File', exact: true }).uncheck()
+  const tabs = edit.getByRole('group', { name: 'Ribbon tabs to show' })
+  await tabs.getByRole('checkbox', { name: 'Draw', exact: true }).uncheck()
+  await tabs.getByRole('checkbox', { name: 'File', exact: true }).uncheck()
   await edit.getByRole('button', { name: 'Done' }).click()
-  await allTools(page).click()
+  await openRibbon(page)
   await expect(tablist(page).getByRole('tab')).toHaveText([
     'Home',
     'Insert',
@@ -361,34 +362,13 @@ test('Edit bar can hide tabs (one always stays) and the choice is kept', async (
   const again = page
     .locator('[data-bar="tray"]')
     .getByRole('group', { name: 'Edit bar' })
+  const tabsAgain = again.getByRole('group', { name: 'Ribbon tabs to show' })
   for (const name of ['Insert', 'View', 'Review']) {
-    await again.getByRole('checkbox', { name, exact: true }).uncheck()
+    await tabsAgain.getByRole('checkbox', { name, exact: true }).uncheck()
   }
   await expect(
-    again.getByRole('checkbox', { name: 'Home', exact: true }),
+    tabsAgain.getByRole('checkbox', { name: 'Home', exact: true }),
   ).toBeDisabled()
-})
-
-test('any ribbon tool can be pinned to the short bar from Edit bar', async ({
-  page,
-}) => {
-  await openPage(page)
-  await dockedBar(page).getByRole('button', { name: 'Toolbar menu' }).click()
-  await page
-    .locator('[data-bar="tray"]')
-    .getByRole('button', { name: /^Edit bar/ })
-    .click()
-  const edit = page
-    .locator('[data-bar="tray"]')
-    .getByRole('group', { name: 'Edit bar' })
-  await edit.locator('summary', { hasText: 'File' }).click()
-  await edit.getByRole('checkbox', { name: 'Settings', exact: true }).check()
-  await edit.getByRole('button', { name: 'Done' }).click()
-  await dockedBar(page)
-    .getByRole('toolbar')
-    .getByRole('button', { name: 'Settings', exact: true })
-    .click()
-  await expect(page).toHaveURL(/#\/settings/)
 })
 
 for (const theme of ['day', 'night', 'sepia'] as const) {
@@ -397,7 +377,7 @@ for (const theme of ['day', 'night', 'sepia'] as const) {
   }) => {
     await startInTheme(page, theme)
     await openPage(page)
-    await allTools(page).click()
+    await openRibbon(page)
     await behaviour(page).click()
     for (const name of ['File', 'Insert', 'View']) {
       expect(
@@ -435,7 +415,7 @@ test.describe('phone: the same layout, tabs and groups scroll sideways', () => {
     page,
   }) => {
     await openPage(page)
-    await allTools(page).click()
+    await openRibbon(page)
     await behaviour(page).click()
     await expect(tablist(page).getByRole('tab')).toHaveCount(6)
     await expect(panel(page)).toBeVisible()

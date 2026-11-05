@@ -46,6 +46,11 @@ import { DockedBar } from './DockedBar'
 import { watchDragSelect } from './dragSelect'
 import { penTransactionGuard, watchPenGuard } from './penGuard'
 import { watchPenSelect } from './penSelect'
+import { watchKeyboardPolicy } from './keyboardPolicy'
+import { watchTapSelect } from './tapSelect'
+import { watchHoldSelect } from './holdSelect'
+import { activeTool, miniToolbarOpen } from '../app/tools/main/mainTools'
+import { changeSet } from '../app/tools/toolbarState'
 import { runHistory } from './historyActions'
 import { useBarLayout } from './useBarLayout'
 import {
@@ -464,6 +469,17 @@ function LoadedPageEditor({
     const begin = () => {
       const stopDrag = watchDragSelect(editor)
       const stopPen = watchPenSelect(editor)
+      const stopKeys = watchKeyboardPolicy(editor)
+      // After a tap or hold selection the Lasso context takes over, with a mini toolbar.
+      const afterSelect = () => {
+        if (activeTool.get() !== 'read') {
+          activeTool.set('lasso')
+          changeSet('draw', 'user')
+        }
+        miniToolbarOpen.set(true)
+      }
+      const stopTap = watchTapSelect(editor, afterSelect)
+      const stopHold = watchHoldSelect(editor, afterSelect)
       // The Pencil must never delete text by itself (iPadOS Scribble).
       const stopGuard = watchPenGuard(editor, () =>
         toastRef.current(t('pen.guard.removed'), {
@@ -474,6 +490,9 @@ function LoadedPageEditor({
       stop = () => {
         stopDrag()
         stopPen()
+        stopKeys()
+        stopTap()
+        stopHold()
         stopGuard()
       }
     }

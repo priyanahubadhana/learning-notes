@@ -1,6 +1,7 @@
 import { Selection, SelectionRange } from 'prosemirror-state'
 import type { Mappable } from 'prosemirror-transform'
 import type { Node as PMNode, ResolvedPos } from 'prosemirror-model'
+import { beginSelectGesture, endSelectGesture, selectGesture } from './gesture'
 import type { AppSchema } from './schema'
 
 /**
@@ -187,6 +188,32 @@ export function markSelectedMedia(editor: Editor): void {
  * selects whole blocks (see the top of this file). A finger keeps scrolling.
  * Returns a function that stops watching.
  */
+/** Autoscroll only near the edge of the visible page, at a capped speed. */
+export const EDGE_PX = 40
+export const MAX_SCROLL_PX = 14
+export function edgeScroll(y: number, top: number, bottom: number): number {
+  if (y < top + EDGE_PX) {
+    return -Math.min(
+      MAX_SCROLL_PX,
+      Math.ceil(((top + EDGE_PX - y) / EDGE_PX) * MAX_SCROLL_PX),
+    )
+  }
+  if (y > bottom - EDGE_PX) {
+    return Math.min(
+      MAX_SCROLL_PX,
+      Math.ceil(((y - (bottom - EDGE_PX)) / EDGE_PX) * MAX_SCROLL_PX),
+    )
+  }
+  return 0
+}
+
+export function autoScrollWhileSelecting(dom: HTMLElement, y: number): void {
+  const box = dom.closest('main')
+  if (!box) return
+  const r = box.getBoundingClientRect()
+  box.scrollTop += edgeScroll(y, r.top, r.bottom)
+}
+
 export function watchDragSelect(editor: Editor): () => void {
   const dom = editor.domElement
   if (!dom) return () => {}
@@ -195,8 +222,10 @@ export function watchDragSelect(editor: Editor): () => void {
   let start: { id: string; x: number; y: number; pointerId: number } | null =
     null
   let active = false
+  const scroller = () => dom.closest('main') as HTMLElement | null
 
   const stop = () => {
+    endSelectGesture(dom)
     start = null
     if (active) dom.classList.remove('ln-selecting')
     active = false
@@ -204,8 +233,25 @@ export function watchDragSelect(editor: Editor): () => void {
 
   const onDown = (e: PointerEvent) => {
     stop()
-    if (e.pointerType === 'touch' || e.button > 0) return
-    if (!(e.target instanceof Node) || !dom.contains(e.target)) return
+    if (
+      e.button > 0 ||
+      !(e.target instanceof Node) ||
+      !dom.contains(e.target)
+    ) {
+      return
+    }
+    // A press that starts on text is a selection gesture (finger, Pencil or
+    // mouse): pictures let the pointer pass for its length. A press that
+    // starts on a picture is not (its long press keeps its menu and drag).
+    const el = e.target instanceof Element ? e.target : null
+    if (
+      el &&
+      !el.closest('img, iframe, video, [contenteditable="false"]') &&
+      el.closest('.bn-inline-content')
+    ) {
+      beginSelectGesture(dom)
+    }
+    if (e.pointerType === 'touch') return // a finger keeps scrolling
     const id = blockIdAt(dom, e.clientX, e.clientY)
     if (id) start = { id, x: e.clientX, y: e.clientY, pointerId: e.pointerId }
   }
@@ -227,21 +273,37 @@ export function watchDragSelect(editor: Editor): () => void {
       if (!media) return // text only: the browser selects, as always
       active = true
       dom.classList.add('ln-selecting')
-      view.focus()
+      view.dom.focus({ preventScroll: true })
     }
     e.preventDefault()
+    // Near the edge of the visible page only, and slowly: never a jump.
+    const box = scroller()
+    if (box) {
+      const r = box.getBoundingClientRect()
+      box.scrollTop += edgeScroll(e.clientY, r.top, r.bottom)
+    }
     selectBlocks(editor, start.id, here)
     markSelectedMedia(editor)
   }
 
   const onUp = () => {
-    if (active) editor.prosemirrorView?.focus()
+    if (active) editor.prosemirrorView?.dom.focus({ preventScroll: true })
     stop()
   }
 
   // A picture is not dragged away by the pointer (the ⠿ handle moves blocks).
+  // Once a selection gesture has started on text, crossing a picture never
+  // starts a drag or a drop. A long press that starts on a picture keeps its
+  // menu and drag as before.
   const onDragStart = (e: DragEvent) => {
-    if (start && e.target instanceof HTMLImageElement) e.preventDefault()
+    if (active || selectGesture.active) e.preventDefault()
+  }
+  // A drop is never produced by a selection gesture.
+  const onDrop = (e: DragEvent) => {
+    if (active || selectGesture.active) {
+      e.preventDefault()
+      e.stopPropagation()
+    }
   }
   const onSelectStart = (e: Event) => {
     if (active) e.preventDefault()
@@ -251,7 +313,8 @@ export function watchDragSelect(editor: Editor): () => void {
   doc.addEventListener('pointermove', onMove, true)
   doc.addEventListener('pointerup', onUp, true)
   doc.addEventListener('pointercancel', onUp, true)
-  dom.addEventListener('dragstart', onDragStart)
+  dom.addEventListener('dragstart', onDragStart, true)
+  dom.addEventListener('drop', onDrop, true)
   doc.addEventListener('selectstart', onSelectStart)
   const unselect = editor.onSelectionChange(() => markSelectedMedia(editor))
   return () => {
@@ -259,7 +322,8 @@ export function watchDragSelect(editor: Editor): () => void {
     doc.removeEventListener('pointermove', onMove, true)
     doc.removeEventListener('pointerup', onUp, true)
     doc.removeEventListener('pointercancel', onUp, true)
-    dom.removeEventListener('dragstart', onDragStart)
+    dom.removeEventListener('dragstart', onDragStart, true)
+    dom.removeEventListener('drop', onDrop, true)
     doc.removeEventListener('selectstart', onSelectStart)
     unselect?.()
     stop()

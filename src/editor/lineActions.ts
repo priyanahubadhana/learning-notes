@@ -64,3 +64,42 @@ export function clearSelection(editor: Editor): void {
     active.blur()
   }
 }
+
+/**
+ * The extras of ↵ New line (press and hold): a heading, a checklist line or a
+ * divider. An empty line becomes it; otherwise a new one is added after the
+ * cursor's block. After a divider the cursor waits on a fresh line.
+ */
+export function addExtraLine(
+  editor: Editor,
+  kind: 'heading' | 'checklist' | 'divider',
+): void {
+  const current = editor.getTextCursorPosition().block
+  const empty = isEmptyParagraph(current)
+  const spec =
+    kind === 'heading'
+      ? { type: 'heading', props: { level: 2 } }
+      : kind === 'checklist'
+        ? { type: 'checkListItem' }
+        : { type: 'divider' }
+  let made: { id: string }
+  if (empty) {
+    editor.updateBlock(current, spec as never)
+    made = current
+  } else {
+    ;[made] = editor.insertBlocks([spec as never], current, 'after')
+  }
+  if (kind === 'divider') {
+    const [line] = editor.insertBlocks(
+      [{ type: 'paragraph' }],
+      made as never,
+      'after',
+    )
+    editor.setTextCursorPosition(line, 'start')
+    keepInView(editor, line.id)
+  } else {
+    editor.setTextCursorPosition(made as never, 'start')
+    keepInView(editor, made.id)
+  }
+  editor.focus()
+}

@@ -2,6 +2,8 @@
 
 Security rules: [rules/security.md](../../rules/security.md). Check them before building.
 
+> **Redesign step 2 (2026-11-05):** device modes (Computer, Touch, Pencil), Auto switch, the device picker and the bar positions are unchanged. The docked bar's content is now the main bar and options pill ([toolbar.md](toolbar.md)): the Write · Draw · Read switch and the "Tools per set" lists below are replaced by the selected tool and Edit bar. What the Pencil does on the page depends on the active tool ([toolbar.md](toolbar.md), "The Pencil follows the tool"); Settings › Advanced › Pencil writes text (Scribble) is now an override that keeps Scribble free in every tool. New Advanced settings: Pencil hold-to-select time, Pencil can scroll.
+
 ## Purpose
 
 One app for a computer, a finger on an iPad and an Apple Pencil. A device mode (Computer, Touch or Pencil) picks where the formatting bar sits, how big its buttons are and which hints show. It is saved per device, never with the notes.

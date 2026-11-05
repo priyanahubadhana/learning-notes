@@ -4,13 +4,14 @@ import { expect, test, type Page } from '@playwright/test'
 import {
   addPage,
   createNotebook,
-  dockedBar,
   openPage,
   pageAction,
   selectText,
+  openRibbon,
 } from './helpers.ts'
 import {
   barTool,
+  showReadTools,
   frame,
   markedWord,
   mockSpeech,
@@ -35,6 +36,7 @@ const LOOK = 'Look and reading'
 const editor = (page: Page) => page.locator('.bn-editor')
 
 async function startBook(page: Page, chapters = 3) {
+  await showReadTools(page)
   await page.goto('/')
   await createNotebook(page, 'Heart', 'Cardiology book')
   await writeBook(page, chapters)
@@ -52,12 +54,11 @@ test('📖 Read turns the page into Reading mode in place, with the Read tools',
   // The same page, the bar now shows the Read tools.
   await expect(editor(page)).toContainText('Chapter 1')
   for (const name of [
-    'Text size',
-    'Font',
-    'Theme',
+    'Reading look (Aa)',
+    'Contents',
+    'Bookmarks and notes',
+    'Listen',
     'Find',
-    'Read aloud',
-    'Contents and bookmarks',
     'Line focus',
     'Lock',
     'Exit reading',
@@ -68,7 +69,7 @@ test('📖 Read turns the page into Reading mode in place, with the Read tools',
   // Exit reading goes back to Write.
   await barTool(page, 'Exit reading').click()
   await expect(frame(page)).toHaveAttribute('data-view', 'off')
-  await expect(writeSwitch(page)).toHaveAttribute('aria-checked', 'true')
+  await expect(writeSwitch(page)).toHaveAttribute('aria-pressed', 'true')
 })
 
 test('Settings › Reading › "The Read button opens" picks the full-screen reader', async ({
@@ -377,7 +378,7 @@ test('Lock to reading stops editing and keeps the Read set', async ({
   await expect(
     page.getByRole('status').filter({ hasText: 'Reading is locked' }),
   ).toBeVisible()
-  await expect(readSwitch(page)).toHaveAttribute('aria-checked', 'true')
+  await expect(readSwitch(page)).toHaveAttribute('aria-pressed', 'true')
   await expect(frame(page)).toHaveAttribute('data-view', 'inPlace')
   await barTool(page, 'Exit reading').click()
   await expect(frame(page)).toHaveAttribute('data-view', 'inPlace')
@@ -659,13 +660,16 @@ test('blanks are softly marked by default; Self-test hides them until tapped', a
   // Selecting words in the editor by robot is unreliable in WebKit (a known
   // limit, see LIMITATIONS.md); Chromium runs this.
   test.skip(browserName === 'webkit', 'robot selection in the editor')
+  await showReadTools(page)
   await page.goto('/')
   await createNotebook(page, 'Heart', 'Valves')
   await page.locator('.bn-editor').click()
   await page.keyboard.type('S2 closes the aortic and pulmonary valves')
   await page.waitForTimeout(800)
   await selectText(page, 'aortic and pulmonary')
+  await page.getByRole('button', { name: 'Toolbar menu' }).click()
   await page
+    .locator('[data-bar="tray"]')
     .getByRole('button', { name: 'Make blank (hide these words in review)' })
     .click()
   const blank = editor(page).locator('.recall-blank')
@@ -703,9 +707,7 @@ test('the ribbon View tab tools are real, and the control panel lists them', asy
   page,
 }) => {
   await startBook(page)
-  await dockedBar(page)
-    .getByRole('button', { name: /All tools/ })
-    .click()
+  await openRibbon(page)
   await page.getByRole('tab', { name: 'View', exact: true }).click()
   const panel = page.getByRole('tabpanel')
   await panel.getByRole('button', { name: 'Reading mode', exact: true }).click()

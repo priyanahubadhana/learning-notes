@@ -81,6 +81,23 @@ test('normal copy and paste keep formatting and pictures, on the same page', asy
   await editor(page).click()
   await page.keyboard.press('Control+a')
   await page.keyboard.press('Control+c')
+  // The copy writes the clipboard asynchronously: wait until it holds the
+  // page (the old test pasted too soon about one run in three).
+  await expect
+    .poll(() =>
+      page.evaluate(async () => {
+        const items = await navigator.clipboard.read()
+        for (const item of items) {
+          if (item.types.includes('text/html')) {
+            return (await (await item.getType('text/html')).text()).includes(
+              'beta',
+            )
+          }
+        }
+        return false
+      }),
+    )
+    .toBe(true)
   // Put the cursor in the first line, then at the end of the page.
   await page.getByRole('textbox', { name: 'Page title' }).click()
   await editor(page).locator('p').last().click()

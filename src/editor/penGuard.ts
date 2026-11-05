@@ -1,8 +1,7 @@
 import { createExtension } from '@blocknote/core'
 import { Plugin } from 'prosemirror-state'
 import type { Transaction } from 'prosemirror-state'
-import { readDeviceSetting } from '../settings/settingsService'
-import { pencilWritesSetting } from '../settings/builtinSettings'
+import { scribbleFree } from './penMode'
 import type { AppSchema } from './schema'
 
 /**
@@ -88,6 +87,9 @@ export function refuseInput(
   lastKeyAt: number,
   scribbleOn: boolean,
 ): boolean {
+  // Scribble free (Text tool): handwriting and small deletes are the user's
+  // own; only a big scratch-out is held back (see refuseTransaction).
+  if (scribbleOn) return false
   if (refuseDelete(inputType, now, pen, lastKeyAt)) return true
   return (
     !scribbleOn &&
@@ -119,12 +121,18 @@ export function refuseTransaction(
   pen: PenState,
   scribbleOn: boolean,
 ): boolean {
-  if (scribbleOn && !pen.down) return false
   if (!tr.docChanged || !removesContent(tr)) return false
   // Undo and Redo, and a real key press, are the user's own doing.
   if (tr.getMeta('history$') !== undefined) return false
   if (now - pen.lastKeyAt <= KEY_RECENT_MS) return false
-  return penBusy(pen, now)
+  if (!penBusy(pen, now)) return false
+  // Scribble free: small edits are fine, a big scratch-out is refused.
+  if (scribbleOn) {
+    return (
+      tr.before.textContent.length - tr.doc.textContent.length >= BIG_DELETION
+    )
+  }
+  return true
 }
 
 /** The editor extension that holds the filterTransaction safety net. */
@@ -133,12 +141,7 @@ export const penTransactionGuard = createExtension({
   prosemirrorPlugins: [
     new Plugin({
       filterTransaction: (tr) =>
-        !refuseTransaction(
-          tr,
-          clock(),
-          penState,
-          readDeviceSetting(pencilWritesSetting) === 'on',
-        ),
+        !refuseTransaction(tr, clock(), penState, scribbleFree()),
     }),
   ],
 })
@@ -177,7 +180,7 @@ export function watchPenGuard(
   }
   const onBeforeInput = (e: Event) => {
     const input = e as InputEvent
-    const scribbleOn = readDeviceSetting(pencilWritesSetting) === 'on'
+    const scribbleOn = scribbleFree()
     if (
       refuseInput(
         input.inputType,

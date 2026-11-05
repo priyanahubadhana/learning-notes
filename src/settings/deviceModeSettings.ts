@@ -29,7 +29,10 @@ import {
   hoverTipsSetting,
   shortcutHintsSetting,
 } from './builtinSettings'
-import { addUndoRedoOnce } from '../app/tools/toolbarState'
+import { addUndoRedoOnce, changeSet } from '../app/tools/toolbarState'
+import { migrateToMainBarOnce } from '../app/tools/main/migrateApply'
+import { applyNoteStyle } from '../app/tools/main/textStyle'
+import { activeTool } from '../app/tools/main/mainTools'
 import { migrateBarOff } from '../app/tools/toolbarVisibility'
 import { readDeviceSetting } from './settingsService'
 import { useDeviceSetting } from './useSetting'
@@ -45,6 +48,14 @@ export function initDeviceMode(): void {
   watchHardwareKeyboard()
   migrateBarOff()
   addUndoRedoOnce()
+  migrateToMainBarOnce()
+  applyNoteStyle()
+  // Pencil mode starts with the Lasso tool (GoodNotes style): a stray Pencil touch
+  // selects or marks, it never writes. The finger still pans and zooms.
+  if (readDeviceSetting(deviceModeSetting) === 'pencil') {
+    activeTool.set('lasso')
+    changeSet('draw', 'user')
+  }
   const stored = readPref<DeviceMode | null>(
     deviceModeSetting.id,
     (v): v is DeviceMode | null => v === null || isDeviceMode(v),

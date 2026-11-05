@@ -3,12 +3,7 @@ import { createPortal } from 'react-dom'
 import { t, type MessageKey } from '../../i18n/t'
 import { pinAction, unpinAction } from '../deviceMode'
 import { Icon } from './icons'
-import {
-  activeSet,
-  readSetTools,
-  writeSetTools,
-  useSetTools,
-} from './toolbarState'
+import { extraTools } from './main/mainTools'
 import { tabLabel } from './toolRegistry'
 import {
   GROUP_ORDER,
@@ -39,8 +34,7 @@ export function ControlPanel({ onClose }: { onClose: () => void }) {
   const input = useRef<HTMLInputElement>(null)
   const dialog = useRef<HTMLDivElement>(null)
   const opener = useRef<Element | null>(document.activeElement)
-  const set = activeSet.useValue()
-  const onBar = useSetTools(set)
+  const onBar = extraTools.useValue()
   const rows = useMemo(() => buildRows(), [])
 
   const found = rows.filter((row) => rowMatches(row.haystack, query))
@@ -65,10 +59,11 @@ export function ControlPanel({ onClose }: { onClose: () => void }) {
   }
 
   const togglePin = (id: string) => {
-    const list = readSetTools(set)
-    writeSetTools(
-      set,
-      list.includes(id) ? unpinAction(list, id) : pinAction(list, id),
+    const list = extraTools.get()
+    extraTools.set(
+      list.includes(id)
+        ? unpinAction(list, id)
+        : pinAction(list, id).slice(0, 8),
     )
   }
 

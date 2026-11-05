@@ -7,6 +7,7 @@ import {
   pageAction,
   startInMode,
   typeInEditor,
+  openRibbon,
 } from './helpers.ts'
 
 /**
@@ -95,9 +96,7 @@ test('the page ⋯ menu "Show tool bar" turns it on', async ({ page }) => {
 
 test('the ribbon tool "Tool bar on or off" asks too', async ({ page }) => {
   await openPage(page)
-  await bar(page)
-    .getByRole('button', { name: 'All tools', exact: true })
-    .click()
+  await openRibbon(page)
   await bar(page).getByRole('tab', { name: 'View', exact: true }).click()
   await bar(page)
     .getByRole('tabpanel')
@@ -132,7 +131,7 @@ test('Settings has a Tool bar section: searching "tool bar", "toolbar", "ribbon"
     'Ribbon display',
     'Ribbon size',
     'Ribbon position',
-    'Tool sets (Write, Draw, Read)',
+    'Edit bar (tools and options)',
     'Device mode',
     'Formatting bar position',
     'Auto switch',
@@ -171,9 +170,7 @@ test('Reset tool bar in Settings puts the standard tools and positions back', as
   page,
 }) => {
   await openPage(page)
-  await bar(page)
-    .getByRole('button', { name: 'All tools', exact: true })
-    .click()
+  await openRibbon(page)
   await page.getByRole('button', { name: 'Settings', exact: true }).click()
   await page.getByRole('button', { name: /^Tool bar, / }).click()
   await page

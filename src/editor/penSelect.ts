@@ -1,6 +1,7 @@
 import { TextSelection } from 'prosemirror-state'
-import { readDeviceSetting } from '../settings/settingsService'
-import { pencilWritesSetting } from '../settings/builtinSettings'
+import { penSelectsText } from './penMode'
+import { autoScrollWhileSelecting } from './dragSelect'
+import { activeBlock } from './keyboardPolicy'
 import { blockIdAt, rangeHasMedia } from './dragSelect'
 import type { AppSchema } from './schema'
 
@@ -57,7 +58,7 @@ export function watchPenSelect(editor: Editor): () => void {
   } | null = null
   let lastTap = { at: -1e9, x: 0, y: 0 }
 
-  const scribbleOn = () => readDeviceSetting(pencilWritesSetting) === 'on'
+  const scribbleOn = () => !penSelectsText()
 
   /** Where in the text a Pencil touch lands (null: a picture, a link, a button). */
   const textPos = (target: EventTarget | null, x: number, y: number) => {
@@ -103,6 +104,11 @@ export function watchPenSelect(editor: Editor): () => void {
     if (e.pointerType !== 'pen' || e.button > 0 || scribbleOn()) return
     const pos = textPos(e.target, e.clientX, e.clientY)
     if (pos === null) return
+    // The second tap in an already marked block places the caret (keyboardPolicy).
+    const tapped = (e.target as Element).closest<HTMLElement>(
+      '.bn-block[data-id]',
+    )
+    if (tapped && tapped.dataset.id === activeBlock()) return
     const view = editor.prosemirrorView!
     e.preventDefault()
     const now = Date.now()
@@ -148,6 +154,8 @@ export function watchPenSelect(editor: Editor): () => void {
       restore() // a picture is involved: dragSelect.ts selects whole blocks
       return
     }
+    // Only while extending a selection: moderate edge autoscroll.
+    autoScrollWhileSelecting(dom, e.clientY)
     const found = view.posAtCoords({ left: e.clientX, top: e.clientY })
     if (!found) return
     if (!view.state.doc.resolve(found.pos).parent.inlineContent) return
@@ -156,8 +164,9 @@ export function watchPenSelect(editor: Editor): () => void {
 
   const onUp = (e: PointerEvent) => {
     if (!drag || e.pointerId !== drag.pointerId) return
-    restore() // editable again; the selection stays
-    editor.prosemirrorView?.focus()
+    // Editable again; the selection stays. The page is not focused: under
+    // Lasso a Pencil never opens the keyboard (keyboardPolicy.ts).
+    restore()
   }
 
   // Safari reports the Pencil as a touch of type "stylus": stop its scrolling.

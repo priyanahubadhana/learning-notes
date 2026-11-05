@@ -1,12 +1,12 @@
 // @vitest-environment jsdom
 import { beforeEach, describe, expect, it } from 'vitest'
 import { TABS } from './tabs'
+import { activeTool, resetMainState } from './main/mainTools'
 import {
   DEFAULT_SET_TOOLS,
   activeSet,
   addUndoRedoOnce,
   changeSet,
-  keepSet,
   readSetTools,
   resetToolbarState,
   ribbonExpanded,
@@ -22,30 +22,26 @@ import {
 beforeEach(() => {
   localStorage.clear()
   resetToolbarState()
+  resetMainState()
 })
 
 describe('tool sets', () => {
-  it('changes by itself, and the user can always change it', () => {
-    expect(changeSet('draw', 'auto')).toBe(true)
-    expect(activeSet.get()).toBe('draw')
-    expect(changeSet('draw', 'auto')).toBe(false)
-    expect(changeSet('read', 'user')).toBe(true)
-    expect(activeSet.get()).toBe('read')
-  })
-
-  it('stays put while the set is kept (only a tap changes it)', () => {
-    keepSet.set(true)
-    expect(changeSet('draw', 'auto')).toBe(false)
-    expect(activeSet.get()).toBe('write')
+  it('a tool change moves the set; nothing changes it by itself', () => {
     expect(changeSet('draw', 'user')).toBe(true)
     expect(activeSet.get()).toBe('draw')
-    expect(keepSet.get()).toBe(true)
+    expect(activeTool.get()).toBe('pen')
+    expect(changeSet('draw', 'user')).toBe(false)
+    expect(changeSet('read', 'user')).toBe(true)
+    expect(activeSet.get()).toBe('read')
+    expect(activeTool.get()).toBe('read')
+    changeSet('write', 'user')
+    expect(activeTool.get()).toBe('text')
   })
 
-  it('the keep choice is remembered on this device', () => {
-    keepSet.set(true)
-    keepSet.clearCache()
-    expect(keepSet.get()).toBe(true)
+  it('keeps an ink tool that was picked while Draw stays', () => {
+    activeTool.set('eraser')
+    changeSet('draw', 'user')
+    expect(activeTool.get()).toBe('eraser')
   })
 
   it('the ribbon opens on the tab of the set', () => {

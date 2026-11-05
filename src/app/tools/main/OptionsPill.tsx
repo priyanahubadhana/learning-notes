@@ -1,0 +1,403 @@
+import {
+  useCallback,
+  useEffect,
+  useLayoutEffect,
+  useMemo,
+  useRef,
+  useState,
+  type KeyboardEvent,
+  type PointerEvent,
+} from 'react'
+import { createPortal } from 'react-dom'
+import type { Editor } from '../../../editor/barActions'
+import type { Place } from '../toolbarState'
+import { t, type MessageKey } from '../../../i18n/t'
+import { Tip } from '../../../help/Help'
+import { insideAny, usePopup } from '../../popups'
+import { Icon } from '../icons'
+import { DetailCard } from './DetailCard'
+import {
+  activeTool,
+  closePill,
+  openCard,
+  openPillTool,
+  pillPinned,
+  pillReserve,
+  shownPill,
+} from './mainTools'
+import {
+  cardAnchor,
+  clampInside,
+  defaultPlace,
+  dropZones,
+  nearestEdge,
+  nudgePlace,
+  pillPlaceStore,
+  positionOf,
+  snapPlace,
+  vertical,
+  type Box,
+  type Edge,
+} from './pillPlace'
+import { PillContent } from './PillContent'
+import { SelectionMenu } from './SelectionMenu'
+import { keepFocus } from './pillKit'
+import { BAR_GAP, measureRoom, reducedMotion } from './pillRoom'
+
+/**
+ * The options pill: the second, smaller pill with the options of the tool
+ * you tapped. Drag its grip and it snaps to the top, left, right or bottom
+ * edge (drop zones show while dragging). It moves with CSS transforms
+ * (will-change, requestAnimationFrame, pointer capture) and never changes
+ * the page layout. Its place is saved per device.
+ */
+
+/** The room, kept up to date as bars, the keyboard and the window change. */
+function useRoom(): Box {
+  const [room, setRoom] = useState<Box>(measureRoom)
+  useEffect(() => {
+    let frame = 0
+    const update = () => {
+      cancelAnimationFrame(frame)
+      frame = requestAnimationFrame(() => {
+        const next = measureRoom()
+        setRoom((old) =>
+          old.left === next.left &&
+          old.top === next.top &&
+          old.width === next.width &&
+          old.height === next.height
+            ? old
+            : next,
+        )
+      })
+    }
+    update()
+    const vv = window.visualViewport
+    vv?.addEventListener('resize', update)
+    vv?.addEventListener('scroll', update)
+    window.addEventListener('resize', update)
+    window.addEventListener('orientationchange', update)
+    // The page scrolling moves a bar that is not stuck yet.
+    document.addEventListener('scroll', update, true)
+    const watch = new ResizeObserver(update)
+    document
+      .querySelectorAll('main, [data-bar="docked"]')
+      .forEach((el) => watch.observe(el))
+    const styles = new MutationObserver(update)
+    styles.observe(document.documentElement, {
+      attributes: true,
+      attributeFilter: ['style'],
+    })
+    return () => {
+      cancelAnimationFrame(frame)
+      vv?.removeEventListener('resize', update)
+      vv?.removeEventListener('scroll', update)
+      window.removeEventListener('resize', update)
+      window.removeEventListener('orientationchange', update)
+      document.removeEventListener('scroll', update, true)
+      watch.disconnect()
+      styles.disconnect()
+    }
+  }, [])
+  return room
+}
+
+export function OptionsPill({
+  editor,
+  barPlace,
+}: {
+  editor: Editor | null
+  barPlace: Place
+}) {
+  const opened = openPillTool.useValue()
+  const pinned = pillPinned.useValue()
+  const active = activeTool.useValue()
+  const tool = shownPill(opened, pinned, active)
+  if (!tool) return null
+  return (
+    <Pill tool={tool} editor={editor} barPlace={barPlace} pinned={pinned} />
+  )
+}
+
+function Pill({
+  tool,
+  editor,
+  barPlace,
+  pinned,
+}: {
+  tool: NonNullable<ReturnType<typeof shownPill>>
+  editor: Editor | null
+  barPlace: Place
+  pinned: boolean
+}) {
+  const room = useRoom()
+  const saved = pillPlaceStore.useValue()
+  const place = saved ?? defaultPlace(barPlace === 'bottom')
+  const card = openCard.useValue()
+  const ref = useRef<HTMLDivElement>(null)
+  const [size, setSize] = useState({ width: 0, height: 0 })
+  const [dragging, setDragging] = useState(false)
+  const [hot, setHot] = useState<Edge | null>(null)
+  const grab = useRef({ dx: 0, dy: 0 })
+  const frame = useRef(0)
+  const isVertical = vertical(place.edge)
+
+  // The pill's own size (it changes with the options and the orientation).
+  useLayoutEffect(() => {
+    const el = ref.current
+    if (!el) return
+    const measure = () => {
+      const r = el.getBoundingClientRect()
+      setSize((old) =>
+        Math.abs(old.width - r.width) < 0.5 &&
+        Math.abs(old.height - r.height) < 0.5
+          ? old
+          : { width: r.width, height: r.height },
+      )
+    }
+    measure()
+    const watch = new ResizeObserver(measure)
+    watch.observe(el)
+    return () => watch.disconnect()
+  }, [tool, isVertical])
+
+  // A pill that sits against the bar keeps its own room, so it never covers
+  // the first lines of the page (the bar's stack makes the space).
+  const docks =
+    (place.edge === 'top' && barPlace === 'top') ||
+    (place.edge === 'bottom' && barPlace === 'bottom')
+  useLayoutEffect(() => {
+    pillReserve.set(docks && size.height > 0 ? size.height + 2 * BAR_GAP : 0)
+    return () => pillReserve.set(0)
+  }, [docks, size.height])
+
+  const pos = useMemo(() => positionOf(place, size, room), [place, size, room])
+
+  // Follows the rule for every pop-up (closes on a tap outside, Esc, another
+  // pop-up or a page scroll) unless it is pinned.
+  usePopup(
+    !pinned,
+    closePill,
+    insideAny('[data-pill-root]', '[data-bar-tool]', '[data-bar="tray"]'),
+  )
+
+  // ---- Dragging by the grip ----
+  const moveTo = useCallback(
+    (x: number, y: number) => {
+      cancelAnimationFrame(frame.current)
+      frame.current = requestAnimationFrame(() => {
+        const el = ref.current
+        if (!el) return
+        const at = clampInside(x, y, size, room)
+        el.style.transform = `translate3d(${at.x}px, ${at.y}px, 0)`
+        const edge = nearestEdge(at.x, at.y, size, room)
+        setHot((old) => (old === edge ? old : edge))
+      })
+    },
+    [room, size],
+  )
+  const onGripDown = (e: PointerEvent<HTMLButtonElement>) => {
+    const el = ref.current
+    if (!el) return
+    e.preventDefault()
+    try {
+      e.currentTarget.setPointerCapture(e.pointerId)
+    } catch {
+      // A pointer the browser does not know (a simulated pen): carry on.
+    }
+    const r = el.getBoundingClientRect()
+    grab.current = { dx: e.clientX - r.left, dy: e.clientY - r.top }
+    el.style.transition = 'none'
+    setDragging(true)
+    setHot(place.edge)
+  }
+  const onGripMove = (e: PointerEvent<HTMLButtonElement>) => {
+    if (!dragging) return
+    moveTo(e.clientX - grab.current.dx, e.clientY - grab.current.dy)
+  }
+  const onGripUp = (e: PointerEvent<HTMLButtonElement>) => {
+    if (!dragging) return
+    cancelAnimationFrame(frame.current)
+    const el = ref.current
+    const x = e.clientX - grab.current.dx
+    const y = e.clientY - grab.current.dy
+    const at = clampInside(x, y, size, room)
+    const next = snapPlace(at.x, at.y, size, room)
+    // The same place may be dropped again: put the pill there ourselves.
+    if (el) {
+      const target = positionOf(next, size, room)
+      el.style.transition = reducedMotion()
+        ? 'none'
+        : 'transform 220ms cubic-bezier(0.22, 1, 0.36, 1)'
+      el.style.transform = `translate3d(${target.x}px, ${target.y}px, 0)`
+      window.setTimeout(() => {
+        if (ref.current) ref.current.style.transition = ''
+      }, 260)
+    }
+    pillPlaceStore.set(next)
+    setDragging(false)
+    setHot(null)
+  }
+  const onGripKey = (e: KeyboardEvent<HTMLButtonElement>) => {
+    if (
+      e.key === 'ArrowLeft' ||
+      e.key === 'ArrowRight' ||
+      e.key === 'ArrowUp' ||
+      e.key === 'ArrowDown'
+    ) {
+      e.preventDefault()
+      pillPlaceStore.set(nudgePlace(place, e.key))
+    } else if (e.key === 'Home') {
+      e.preventDefault()
+      pillPlaceStore.set(null)
+    }
+  }
+
+  // The card sits next to the pill.
+  const screen = { width: window.innerWidth, height: window.innerHeight }
+  const anchor = cardAnchor(pos, size, place.edge, screen)
+  const zones = dropZones(room)
+  const label = t(`main.pill.${tool}` as MessageKey)
+
+  return (
+    <>
+      {createPortal(
+        <>
+          <div
+            ref={ref}
+            role="toolbar"
+            aria-label={label}
+            aria-orientation={isVertical ? 'vertical' : 'horizontal'}
+            data-pill-root
+            data-options-pill={tool}
+            data-edge={place.edge}
+            data-dragging={dragging || undefined}
+            style={{
+              transform: `translate3d(${pos.x}px, ${pos.y}px, 0)`,
+              willChange: 'transform',
+              // Measured first, then shown: never a flash in the wrong place.
+              visibility: size.width > 0 ? 'visible' : 'hidden',
+              touchAction: 'none',
+              maxWidth: isVertical ? undefined : room.width,
+              maxHeight: isVertical ? room.height : undefined,
+            }}
+            className={`fixed top-0 left-0 z-40 flex items-center gap-0.5 rounded-2xl border border-ink-soft bg-bg p-1 text-ink shadow-[0_2px_4px_rgba(0,0,0,0.08),0_10px_28px_rgba(0,0,0,0.16)] ${
+              isVertical ? 'flex-col overflow-y-auto' : 'overflow-x-auto'
+            } ${dragging ? 'cursor-grabbing' : ''}`}
+          >
+            <Tip
+              id="pill.grip"
+              touchInfo={false}
+              className="inline-flex shrink-0"
+            >
+              <button
+                type="button"
+                data-pill-grip
+                aria-label={t('main.pill.move')}
+                title={t('main.pill.move')}
+                onPointerDown={onGripDown}
+                onPointerMove={onGripMove}
+                onPointerUp={onGripUp}
+                onPointerCancel={onGripUp}
+                onKeyDown={onGripKey}
+                onMouseDown={keepFocus}
+                style={{ touchAction: 'none' }}
+                className="grid min-h-11 min-w-8 shrink-0 cursor-grab place-items-center rounded-xl text-ink-soft hover:bg-hover hover:text-ink active:cursor-grabbing"
+              >
+                <Icon
+                  name="grip"
+                  size={18}
+                  className={isVertical ? 'rotate-90' : ''}
+                />
+              </button>
+            </Tip>
+            <PillContent tool={tool} editor={editor} />
+            <Tip
+              id="pill.pin"
+              touchInfo={false}
+              className="inline-flex shrink-0"
+            >
+              <button
+                type="button"
+                data-pill-pin
+                aria-pressed={pinned}
+                aria-label={t('main.pill.pin')}
+                title={t('main.pill.pin')}
+                onMouseDown={keepFocus}
+                onClick={() => pillPinned.set(!pinned)}
+                className={`grid min-h-11 min-w-11 shrink-0 place-items-center rounded-xl hover:bg-hover ${
+                  pinned ? 'bg-hover text-accent' : 'text-ink-soft'
+                }`}
+              >
+                <Icon name={pinned ? 'pin' : 'pinOff'} size={18} />
+              </button>
+            </Tip>
+            <button
+              type="button"
+              data-pill-close
+              aria-label={t('popup.close')}
+              title={t('popup.close')}
+              onMouseDown={keepFocus}
+              onClick={() => {
+                pillPinned.set(false)
+                closePill()
+              }}
+              className="grid min-h-11 min-w-11 shrink-0 place-items-center rounded-xl text-ink-soft hover:bg-hover hover:text-ink"
+            >
+              <span aria-hidden>✕</span>
+            </button>
+          </div>
+          {dragging && (
+            <div
+              aria-hidden
+              data-drop-zones
+              className="pointer-events-none fixed inset-0 z-30"
+            >
+              {(Object.keys(zones) as Edge[]).map((edge) => (
+                <div
+                  key={edge}
+                  data-drop-zone={edge}
+                  data-hot={hot === edge || undefined}
+                  style={{
+                    left: zones[edge].left,
+                    top: zones[edge].top,
+                    width: zones[edge].width,
+                    height: zones[edge].height,
+                  }}
+                  className={`absolute rounded-2xl border-2 border-dashed border-accent motion-safe:transition-colors ${
+                    hot === edge ? 'bg-accent/25' : 'bg-accent/8'
+                  }`}
+                />
+              ))}
+            </div>
+          )}
+          {card && card.tool === tool && (
+            <div
+              data-pill-root
+              data-pill-card
+              style={{
+                left: anchor.left,
+                top: anchor.top,
+                bottom: anchor.bottom,
+                maxHeight: anchor.maxHeight,
+                width: Math.min(340, screen.width - 16),
+              }}
+              className="fixed z-[45] overflow-y-auto rounded-2xl border border-ink-soft bg-bg p-1.5 text-ink shadow-[0_2px_4px_rgba(0,0,0,0.08),0_10px_28px_rgba(0,0,0,0.2)]"
+            >
+              <DetailCard
+                card={card}
+                editor={editor}
+                onPage={(page) => openCard.set({ tool, page })}
+                onClose={() => openCard.set(null)}
+              />
+            </div>
+          )}
+          {tool === 'lasso' && editor && !card && (
+            <SelectionMenu editor={editor} anchor={anchor} />
+          )}
+        </>,
+        document.body,
+      )}
+    </>
+  )
+}

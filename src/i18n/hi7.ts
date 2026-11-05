@@ -223,9 +223,6 @@ export const hi7: Record<string, string> = {
   'help.tip.bar.newLine.meaning':
     'नीचे एक खाली पंक्ति जोड़ता है और कर्सर वहाँ रखता है, कीबोर्ड की ज़रूरत नहीं।',
   'help.tip.bar.newLine.example': 'वाक्य पूरा हुआ? अगले के लिए इसे दबाएँ।',
-  'help.tip.bar.more.meaning':
-    'बाकी सारे फ़ॉर्मैटिंग बटन, और बार पर क्या रहे यह चुनने के लिए बार बदलें।',
-  'help.tip.bar.more.example': 'काटना, रंग, लिंक, कीवर्ड।',
   'mode.autoSwitched': '{mode} मोड में बदला गया',
   'mode.undo': 'पूर्ववत करें',
   'pen.guard.removed':
@@ -268,16 +265,10 @@ export const hi7: Record<string, string> = {
   'color.blue': 'नीला',
   'color.purple': 'बैंगनी',
   'color.pink': 'गुलाबी',
-  'set.label': 'टूल का सेट',
-  'set.write': 'लिखें',
-  'set.draw': 'ड्रॉ करें',
-  'set.read': 'पढ़ें',
-  'set.keep': 'यह सेट बनाए रखें',
   'bar.allTools': 'सभी टूल',
   'bar.search': 'सभी सुविधाएँ खोजें',
   'bar.show': 'टूल बार दिखाएँ',
   'bar.hide': 'टूल बार छिपाएँ',
-  'bar.editSet': 'बदलने के लिए टूल का सेट',
   'tool.needsPage': 'पहले कोई पृष्ठ खोलें।',
   'tool.needsBar': 'पहले टूल बार चालू करें (पृष्ठ ⋯ मेनू › टूल बार दिखाएँ)।',
   'tool.coming.ink': 'पेंसिल से ड्रॉइंग बाद के अपडेट में आएगी।',
@@ -456,20 +447,6 @@ export const hi7: Record<string, string> = {
   'calendar.openDay': '{day} का जर्नल खोलें',
   'calendar.close': 'बंद करें',
   'calendar.empty': 'इस अवधि में कुछ भी तारीख वाला नहीं है।',
-  'help.tip.bar.set.meaning':
-    'बार में कौन-से टूल दिखें, यह चुनता है। पेन चलाने या टाइप करने पर यह अपने-आप बदलता है।',
-  'help.tip.bar.set.example':
-    'पेंसिल से स्क्रीन छुएँ और ड्रॉ के टूल दिखने लगते हैं।',
-  'help.tip.bar.keep.meaning':
-    'बार को अपने-आप सेट बदलने से रोकता है। फिर भी आप छूकर सेट बदल सकते हैं।',
-  'help.tip.bar.keep.example':
-    'स्टाइलस पास रखकर नोट लेते समय लिखें सेट चालू रखें।',
-  'help.tip.bar.allTools.meaning': 'हर टूल और क्रिया एक मेनू में दिखाता है।',
-  'help.tip.bar.allTools.example':
-    'Markdown के रूप में कॉपी, सादे टेक्स्ट में चिपकाना, बार बदलें।',
-  'help.tip.bar.search.meaning':
-    'ऐप की हर सुविधा और सेटिंग खोजें और उसे चलाएँ।',
-  'help.tip.bar.search.example': '“लॉक” या “फ़ॉन्ट” लिखें और Enter दबाएँ।',
   'help.tip.sidebar.calendar.meaning':
     'आपके डेटाबेस की तारीख वाली हर पंक्ति और जर्नल का हर दिन, महीने या सप्ताह के हिसाब से।',
   'help.tip.sidebar.calendar.example':

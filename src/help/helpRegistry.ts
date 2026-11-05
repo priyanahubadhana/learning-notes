@@ -22,16 +22,16 @@ export interface HelpLineDefinition {
 }
 
 export const TIPS = {
-  'bar.newLine': { where: 'Page › docked formatting bar › ↵ New line' },
-  'bar.more': { where: 'Page › docked formatting bar › More' },
-  'bar.menu': { where: 'Page › docked formatting bar › ⋯ Toolbar menu' },
-  'bar.set': { where: 'Page › short bar › Write · Draw · Read switch' },
-  'bar.keep': { where: 'Page › short bar › pin next to the switch' },
-  'bar.allTools': { where: 'Page › short bar › All tools' },
+  'bar.newLine': { where: 'Page › main bar › ↵ New line' },
+  'bar.menu': { where: 'Page › main bar › ⋯ menu' },
+  'bar.tools': {
+    where: 'Page › main bar › the tools (Text, Pen, Highlighter …)',
+  },
+  'pill.grip': { where: 'Page › options pill › ⠿ grip at its start' },
+  'pill.pin': { where: 'Page › options pill › 📌 pin' },
   'ribbon.behaviour': {
     where: 'Page › ribbon › Tools close after use / stay open',
   },
-  'bar.search': { where: 'Page › short bar › search icon' },
   'bar.handle': { where: 'Page › floating bar › ⠿ handle' },
   'ribbon.options': { where: 'Page › ribbon › ⋯ Ribbon options' },
   'theme.list': {

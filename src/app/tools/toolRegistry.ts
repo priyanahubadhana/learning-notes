@@ -307,6 +307,13 @@ export const TOOLS: readonly ToolDef[] = [
     coming: 'file',
   },
   {
+    id: 'camera',
+    icon: 'camera',
+    section: 'insert',
+    group: 'media',
+    coming: 'file',
+  },
+  {
     id: 'table',
     icon: 'table',
     section: 'insert',
@@ -376,6 +383,9 @@ export const TOOLS: readonly ToolDef[] = [
   ink('eraser', 'eraser', 'tools'),
   ink('lasso', 'lasso', 'tools'),
   ink('shapes', 'shapes', 'tools'),
+  ink('tape', 'tape', 'tools'),
+  ink('magnifier', 'zoom', 'tools'),
+  ink('ruler', 'ruler', 'tools'),
   ink('drawColor', 'palette', 'style'),
   ink('thickness', 'minus', 'style'),
   ink('opacity', 'droplet', 'style'),

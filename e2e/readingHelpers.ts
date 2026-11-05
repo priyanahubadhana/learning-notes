@@ -1,20 +1,48 @@
 // Browser types for code that runs inside the page.
 /// <reference lib="dom" />
 import { expect, type Locator, type Page } from '@playwright/test'
-import { dockedBar } from './helpers.ts'
 
 /** The Read switch of the short bar. */
 export const readSwitch = (page: Page) =>
-  dockedBar(page).getByRole('radio', { name: 'Read' })
+  page
+    .locator('[data-main-bar]')
+    .getByRole('button', { name: 'Read', exact: true })
 export const writeSwitch = (page: Page) =>
-  dockedBar(page).getByRole('radio', { name: 'Write' })
+  page
+    .locator('[data-main-bar]')
+    .getByRole('button', { name: 'Text', exact: true })
 
 /** The Reading frame (always there; `data-view` says how it is on). */
 export const frame = (page: Page) => page.getByTestId('reading-frame')
 
 /** A tool on the short bar by its name. */
+/** A tool of the Read pill (pinned open, with every Read option shown, by `showReadTools`). */
 export const barTool = (page: Page, name: string): Locator =>
-  dockedBar(page).getByRole('button', { name, exact: true })
+  page
+    .locator('[data-options-pill="read"]')
+    .getByRole('button', { name, exact: true })
+
+/** Before the first load: the Read pill stays open and shows all its options. */
+export async function showReadTools(page: Page) {
+  await page.addInitScript(() => {
+    const set = (k: string, v: unknown) =>
+      localStorage.setItem('learning-notes:' + k, JSON.stringify(v))
+    set('toolbar.pillPinned', true)
+    set('toolbar.pills', {
+      read: [
+        'aa',
+        'contents',
+        'bookmarks',
+        'listen',
+        'find',
+        'lineFocus',
+        'lock',
+        'selfTest',
+        'exit',
+      ],
+    })
+  })
+}
 
 const PARAGRAPH =
   'The heart pumps blood through the body. It has four chambers and four valves. The valves keep blood moving one way. Each beat is a squeeze and a rest.'
@@ -142,7 +170,24 @@ export async function presetSetting(page: Page, key: string, value: unknown) {
 }
 
 export async function openPanel(page: Page, tool: string, dialog: string) {
-  await barTool(page, tool).click()
+  if (tool === 'Text size' || tool === 'Font') {
+    // The Look panel is reached from Aa › More › All reading settings.
+    await barTool(page, 'Reading look (Aa)').click()
+    await page
+      .locator('[data-pill-card]')
+      .getByRole('tab', { name: 'More' })
+      .click()
+    await page
+      .locator('[data-pill-card]')
+      .getByRole('button', { name: 'All reading settings' })
+      .click()
+  } else {
+    const names: Record<string, string> = {
+      'Read aloud': 'Listen',
+      'Contents and bookmarks': 'Contents',
+    }
+    await barTool(page, names[tool] ?? tool).click()
+  }
   const panel = page.getByRole('dialog', { name: dialog })
   await expect(panel).toBeVisible()
   return panel

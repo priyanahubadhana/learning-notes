@@ -42,11 +42,13 @@ describe('refuseInput (Scribble writing)', () => {
       expect(refuseInput(type, 1000, down, 0, false)).toBe(true)
     }
   })
-  it('lets handwriting through when Scribble is on, still guards deletes', () => {
+  it('lets handwriting and small deletes through when Scribble is free', () => {
     expect(refuseInput('insertReplacementText', 1000, down, 0, true)).toBe(
       false,
     )
-    expect(refuseInput('deleteContentBackward', 1000, down, 0, true)).toBe(true)
+    expect(refuseInput('deleteContentBackward', 1000, down, 0, true)).toBe(
+      false,
+    )
   })
   it('lets typed keys through', () => {
     expect(refuseInput('insertText', 1000, down, 900, false)).toBe(false)
@@ -87,6 +89,17 @@ describe('refuseTransaction', () => {
     expect(
       refuseTransaction(remove(), 1000, { ...pen, lastKeyAt: 800 }, false),
     ).toBe(false)
+  })
+  it('Scribble free: a small scratch-out is allowed, a big one is refused', () => {
+    expect(refuseTransaction(remove(), 1000, pen, true)).toBe(false)
+    const big = schema.node('doc', null, [
+      schema.node('paragraph', null, schema.text('x'.repeat(40))),
+    ])
+    const tr = EditorState.create({ doc: big }).tr.delete(1, 31)
+    expect(refuseTransaction(tr, 1000, pen, true)).toBe(true)
+    expect(refuseTransaction(tr, 1000, { ...pen, lastKeyAt: 800 }, true)).toBe(
+      false,
+    )
   })
   it('allows deletes with no pen', () => {
     expect(

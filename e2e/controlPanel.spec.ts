@@ -158,7 +158,7 @@ test('dialog semantics: modal, labelled, focus stays inside', async ({
   await expect(panel(page).getByRole('button', { name: 'Close' })).toBeVisible()
 })
 
-test('Pin to bar adds the tool to the set showing; again removes it', async ({
+test('Pin to bar adds the tool to the bar; again removes it', async ({
   page,
 }) => {
   await start(page, 'touch')
@@ -181,22 +181,24 @@ test('Pin to bar adds the tool to the set showing; again removes it', async ({
   await expect(
     page.locator('.bn-editor [data-content-type="heading"]'),
   ).toContainText('nucleus')
-  // Pin to the Draw set instead.
-  await dockedBar(page).getByRole('radio', { name: 'Draw' }).click()
+  // Pinning again removes it.
   await page.keyboard.press('Control+Shift+K')
   await box(page).fill('heading 1')
+  await panel(page)
+    .getByRole('button', { name: /^Remove Heading 1 from the bar/ })
+    .click()
+  await page.keyboard.press('Escape')
   await expect(
-    panel(page).getByRole('button', { name: /^Pin Heading 1 to the bar/ }),
-  ).toHaveAttribute('aria-pressed', 'false')
+    dockedBar(page).getByRole('button', { name: 'Heading 1' }),
+  ).toHaveCount(0)
 })
 
 test('opens from the bar search icon, the page menu and Settings', async ({
   page,
 }) => {
   await start(page, 'touch')
-  await dockedBar(page)
-    .getByRole('button', { name: 'Search all features' })
-    .click()
+  await dockedBar(page).getByRole('button', { name: 'Toolbar menu' }).click()
+  await page.getByRole('button', { name: 'Search all features' }).click()
   await expect(panel(page)).toBeVisible()
   await page.keyboard.press('Escape')
   await pageAction(page, 'Search all features')

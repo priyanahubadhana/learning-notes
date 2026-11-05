@@ -1,0 +1,19 @@
+/**
+ * A selection gesture that STARTED ON TEXT (finger, Pencil or mouse). While it
+ * lasts, pictures, embeds and other non-text blocks let the pointer pass over
+ * them (CSS `ln-selgesture`, see index.css), so the browser's own selection
+ * crosses them instead of the embed capturing the pointer, starting a drag
+ * or scrolling. A press that STARTS on a picture is not a selection gesture
+ * (its long press keeps its menu and drag).
+ */
+export const selectGesture = { active: false }
+
+export function beginSelectGesture(dom: HTMLElement): void {
+  selectGesture.active = true
+  dom.classList.add('ln-selgesture')
+}
+
+export function endSelectGesture(dom: HTMLElement): void {
+  selectGesture.active = false
+  dom.classList.remove('ln-selgesture')
+}

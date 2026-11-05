@@ -233,7 +233,7 @@ test('"Ribbon replaces short bar" (the default) shows one bar; "Ribbon + short b
   expect(r.y + r.height).toBeLessThanOrEqual(s.y + 1)
   // The short bar keeps its tools, even those the ribbon also has.
   const short = page.locator('[data-pill="short"]')
-  for (const name of ['Bold', 'Italic', 'Highlight', 'Picture']) {
+  for (const name of ['Text', 'Pen', 'Insert', 'Read']) {
     await expect(short.getByRole('button', { name, exact: true })).toBeVisible()
   }
   // "Ribbon + short bar" is a choice in Settings › Tool bar, too.

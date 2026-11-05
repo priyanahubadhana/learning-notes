@@ -2,55 +2,43 @@
 
 Every hover tip and help line in the app (shown while Settings › Show help is On). Generated from `src/help/helpRegistry.ts` and `src/i18n/en.ts`; to change a text, edit it in `en.ts`, then run `UPDATE_HELP=1 npx vitest run src/help` to refresh this file.
 
-## Hover tips (124)
+## Hover tips (122)
 
 ### `bar.newLine`
 
-- **Where:** Page › docked formatting bar › ↵ New line
-- **Meaning:** Adds an empty line below and puts the cursor there, no keyboard needed.
+- **Where:** Page › main bar › ↵ New line
+- **Meaning:** Tap to add an empty line, as often as you like. Hold for a heading, checklist or divider.
 - **Example:** Finished a sentence? Tap it for the next one.
-
-### `bar.more`
-
-- **Where:** Page › docked formatting bar › More
-- **Meaning:** Every other formatting button, and Edit bar to choose what sits on this bar.
-- **Example:** Strikethrough, colour, link, Keyword.
 
 ### `bar.menu`
 
-- **Where:** Page › docked formatting bar › ⋯ Toolbar menu
-- **Meaning:** Every formatting tool and action, even unpinned ones, plus copy, paste and Edit bar.
+- **Where:** Page › main bar › ⋯ menu
+- **Meaning:** Edit bar, All tools (the ribbon), search, Done, copy and paste, and every formatting action.
 - **Example:** Copy as Markdown, Paste as plain text, Strikethrough.
 
-### `bar.set`
+### `bar.tools`
 
-- **Where:** Page › short bar › Write · Draw · Read switch
-- **Meaning:** Picks which tools the bar shows. It changes by itself when you use a pen or type.
-- **Example:** Touch the screen with the Pencil and Draw tools appear.
+- **Where:** Page › main bar › the tools (Text, Pen, Highlighter …)
+- **Meaning:** Tap a tool to use it and see its options. Hold it and slide onto an option.
+- **Example:** Hold Pen, slide to a colour, let go.
 
-### `bar.keep`
+### `pill.grip`
 
-- **Where:** Page › short bar › pin next to the switch
-- **Meaning:** Stops the bar from switching sets by itself. You can still switch with a tap.
-- **Example:** Keep Write on while you take notes with a stylus nearby.
+- **Where:** Page › options pill › ⠿ grip at its start
+- **Meaning:** Drag to move the options; they snap to the nearest edge.
+- **Example:** Drag them to the right edge for a vertical strip.
 
-### `bar.allTools`
+### `pill.pin`
 
-- **Where:** Page › short bar › All tools
-- **Meaning:** Shows every tool and action in a menu.
-- **Example:** Copy as Markdown, Paste as plain text, Edit bar.
+- **Where:** Page › options pill › 📌 pin
+- **Meaning:** Keeps these options open until you close them.
+- **Example:** Pin the Text options while you format a page.
 
 ### `ribbon.behaviour`
 
 - **Where:** Page › ribbon › Tools close after use / stay open
 - **Meaning:** Choose whether the tools close after you use one, or stay open.
 - **Example:** Keep them open while you format a whole page. Ctrl+F1 switches.
-
-### `bar.search`
-
-- **Where:** Page › short bar › search icon
-- **Meaning:** Search every feature and setting in the app, and run it.
-- **Example:** Type “lock” or “font” and press Enter.
 
 ### `bar.handle`
 

@@ -1,4 +1,5 @@
 import { en8 } from './en8'
+import { en9 } from './en9'
 /**
  * English text for the app. Every new piece of on-screen text gets a key
  * here and is shown with `t('key')`, so translations can be added later as
@@ -9,6 +10,7 @@ import { en8 } from './en8'
  */
 export const en = {
   ...en8,
+  ...en9,
   // Shared dialogs
   'dialog.cancel': 'Cancel',
   'dialog.save': 'Save',
@@ -1775,7 +1777,7 @@ export const en = {
   'bar.edit': 'Edit bar…',
   'bar.editTitle': 'Edit bar',
   'bar.editHint':
-    'Choose the buttons on the bar and their order. Saved on this device.',
+    'Choose the tools on the main bar, the options of each tool and their order. Saved on this device.',
   'bar.drag': 'Drag {name} to reorder',
   'bar.moveEarlier': 'Move {name} earlier',
   'bar.moveLater': 'Move {name} later',
@@ -1786,12 +1788,9 @@ export const en = {
   'bar.reset': 'Reset',
   'bar.tapBelow': 'Tap here to keep writing',
   'help.tip.bar.newLine.meaning':
-    'Adds an empty line below and puts the cursor there, no keyboard needed.',
+    'Tap to add an empty line, as often as you like. Hold for a heading, checklist or divider.',
   'help.tip.bar.newLine.example':
     'Finished a sentence? Tap it for the next one.',
-  'help.tip.bar.more.meaning':
-    'Every other formatting button, and Edit bar to choose what sits on this bar.',
-  'help.tip.bar.more.example': 'Strikethrough, colour, link, Keyword.',
   'mode.autoSwitched': 'Switched to {mode} mode',
   'mode.undo': 'Undo',
   'pen.guard.removed': 'Text was removed right after a Pencil touch. Undo?',
@@ -1803,7 +1802,7 @@ export const en = {
   'settings.autoSwitch.off': 'Off',
   'bar.menu': 'Toolbar menu',
   'help.tip.bar.menu.meaning':
-    'Every formatting tool and action, even unpinned ones, plus copy, paste and Edit bar.',
+    'Edit bar, All tools (the ribbon), search, Done, copy and paste, and every formatting action.',
   'help.tip.bar.menu.example':
     'Copy as Markdown, Paste as plain text, Strikethrough.',
   'color.button': 'Colors. Text: {text}. Highlight: {highlight}.',
@@ -1833,16 +1832,10 @@ export const en = {
   'color.blue': 'Blue',
   'color.purple': 'Purple',
   'color.pink': 'Pink',
-  'set.label': 'Tool set',
-  'set.write': 'Write',
-  'set.draw': 'Draw',
-  'set.read': 'Read',
-  'set.keep': 'Keep this set',
   'bar.allTools': 'All tools',
   'bar.search': 'Search all features',
   'bar.show': 'Show tool bar',
   'bar.hide': 'Hide tool bar',
-  'bar.editSet': 'Tool set to edit',
   'tool.needsPage': 'Open a page first.',
   'tool.needsBar': 'Turn on the tool bar first (page ⋯ menu › Show tool bar).',
   'tool.coming.ink': 'Drawing with the Pencil is coming in a later update.',
@@ -2022,20 +2015,6 @@ export const en = {
   'calendar.openDay': 'Open the journal for {day}',
   'calendar.close': 'Close',
   'calendar.empty': 'Nothing is dated in this period.',
-  'help.tip.bar.set.meaning':
-    'Picks which tools the bar shows. It changes by itself when you use a pen or type.',
-  'help.tip.bar.set.example':
-    'Touch the screen with the Pencil and Draw tools appear.',
-  'help.tip.bar.keep.meaning':
-    'Stops the bar from switching sets by itself. You can still switch with a tap.',
-  'help.tip.bar.keep.example':
-    'Keep Write on while you take notes with a stylus nearby.',
-  'help.tip.bar.allTools.meaning': 'Shows every tool and action in a menu.',
-  'help.tip.bar.allTools.example':
-    'Copy as Markdown, Paste as plain text, Edit bar.',
-  'help.tip.bar.search.meaning':
-    'Search every feature and setting in the app, and run it.',
-  'help.tip.bar.search.example': 'Type “lock” or “font” and press Enter.',
   'help.tip.sidebar.calendar.meaning':
     'Every dated row of your databases and every journal day, by month or week.',
   'help.tip.sidebar.calendar.example':
@@ -2085,7 +2064,7 @@ export const en = {
   'settings.barPlacement.free': 'Floating',
   'settings.category.toolbar': 'Tool bar',
   'settings.category.toolbar.hint':
-    'The short bar and the ribbon: show or hide them, layout, position, tool sets and Reset.',
+    'The main bar and the ribbon: show or hide them, layout, position, New line extras, Edit bar and Reset.',
   'settings.toolbarShow.label': 'Show tool bar',
   'settings.toolbarShow.description':
     'Turn the tool bar on or off. Turning it off asks first. Turn it back on here, in the page ⋯ menu (Show tool bar) or with the Show tool bar button in the top bar.',
@@ -2106,9 +2085,9 @@ export const en = {
   'settings.ribbonPlacement.label': 'Ribbon position',
   'settings.ribbonPlacement.description':
     'Top or Bottom (docked), Floating (drag it), or the same place as the short bar. Bars on the same edge stack and never overlap.',
-  'settings.toolbarSets.label': 'Tool sets (Write, Draw, Read)',
+  'settings.toolbarSets.label': 'Edit bar (tools and options)',
   'settings.toolbarSets.description':
-    'Choose which tools each set shows, their order and the ribbon tabs. Opens Edit bar on the open page.',
+    'Choose which tools the main bar shows, the options of each tool, their order and the ribbon tabs. Opens Edit bar on the open page.',
   'settings.toolbarSets.button': 'Edit bar…',
   'settings.toolbarSets.needsPage': 'Open a page first, then use ⋯ › Edit bar.',
   'settings.toolbarReset.label': 'Reset tool bar',

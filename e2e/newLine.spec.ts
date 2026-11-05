@@ -6,6 +6,7 @@ import {
   dockedBar,
   startInMode,
   typeInEditor,
+  openRibbon,
 } from './helpers.ts'
 
 /**
@@ -69,22 +70,11 @@ for (const mode of ['touch', 'pencil'] as const) {
   })
 }
 
-test('New line is in the default Write set, at the end', async ({ page }) => {
-  await openPage(page)
-  const names = await dockedBar(page)
-    .locator('[data-slot="tools"] [data-bar-btn]')
-    .evaluateAll((els) => els.map((el) => el.getAttribute('data-action')))
-  expect(names.at(-1)).toBe('newLine')
-  expect(names).toContain('more')
-})
-
 test('the ribbon: New line stays put and the tools stay open when it is used again and again', async ({
   page,
 }) => {
   await openPage(page)
-  await dockedBar(page)
-    .getByRole('button', { name: 'All tools', exact: true })
-    .click()
+  await openRibbon(page)
   await expect(dockedBar(page).getByRole('tabpanel')).toBeVisible()
   const newLine = dockedBar(page)
     .getByRole('tabpanel')
@@ -172,33 +162,4 @@ test('New line is also on the Draw set, so a Pencil touch cannot lose it', async
   await expect(
     dockedBar(page).getByRole('button', { name: 'New line', exact: true }),
   ).toBeVisible()
-})
-
-test('Undo and Redo sit first on the bar in every set, grey out, and reverse typing', async ({
-  page,
-}) => {
-  await startInMode(page, 'touch')
-  await page.goto('/')
-  await createNotebook(page, 'Biology', 'First')
-  const bar = dockedBar(page)
-  const undo = bar.getByRole('button', { name: 'Undo', exact: true })
-  const redo = bar.getByRole('button', { name: 'Redo', exact: true })
-  await expect(undo).toBeVisible()
-  await expect(redo).toBeDisabled()
-  const names = await bar
-    .locator('[data-slot="tools"] [data-bar-btn]')
-    .evaluateAll((els) => els.map((el) => el.getAttribute('data-action')))
-  expect(names.slice(0, 2)).toEqual(['undo', 'redo'])
-  await typeInEditor(page, 'The nucleus holds the DNA')
-  await expect(undo).toBeEnabled()
-  await undo.click()
-  await expect(page.locator('.bn-editor')).not.toContainText('nucleus')
-  await expect(redo).toBeEnabled()
-  await redo.click()
-  await expect(page.locator('.bn-editor')).toContainText('nucleus')
-  for (const set of ['Draw', 'Read']) {
-    await bar.getByRole('radio', { name: set, exact: true }).click()
-    await expect(undo).toBeVisible()
-    await expect(redo).toBeVisible()
-  }
 })

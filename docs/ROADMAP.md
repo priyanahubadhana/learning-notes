@@ -14,7 +14,7 @@ Approved 2026-11-01. Each phase still gets a short planning talk, a Definition o
 
 ## Build order now (owner-approved 5 Nov 2026)
 
-Follows [plans/redesign-2026-11.md](plans/redesign-2026-11.md); it comes before the phases above where they overlap (sync, AI and App Store stay after it). Steps: 1 urgent fixes 3a; 2 new toolbar and pens; 3 shared ink engine; 4 four spaces and one Search; 5 Library and reader; 6 Review decks; 7 Home; 8 fonts and read aloud; 9 notebook views and layer gallery; 10 share and export.
+Follows [plans/redesign-2026-11.md](plans/redesign-2026-11.md); it comes before the phases above where they overlap (sync, AI and App Store stay after it). Steps: 1 urgent fixes 3a (done); 2 new toolbar and pens (built 2026-11-05: UI and settings, ink engine in step 3); 3 shared ink engine; 4 four spaces and one Search; 5 Library and reader; 6 Review decks; 7 Home; 8 fonts and read aloud; 9 notebook views and layer gallery; 10 share and export.
 
 ## Keep in mind
 

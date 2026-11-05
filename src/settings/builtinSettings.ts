@@ -454,6 +454,73 @@ export const pencilWritesSetting: SettingDefinition<OnOff> = {
   control: { kind: 'segmented', options: onOffOptions() },
 }
 
+/**
+ * How long the Pencil rests on text before hold-to-select starts (ms).
+ * Under the Text tool a quick stroke is handwriting; a still hold selects.
+ */
+export const HOLD_SELECT_CHOICES = [
+  300, 400, 500, 600, 800, 1000, 1500,
+] as const
+export const holdSelectSetting: SettingDefinition<number> = {
+  id: 'advanced.holdSelect',
+  labelKey: 'settings.holdSelect.label',
+  descriptionKey: 'settings.holdSelect.description',
+  category: 'advanced',
+  keywords: 'pencil hold select long press text scribble',
+  scope: 'device',
+  defaultValue: 500,
+  isValid: (v): v is number =>
+    typeof v === 'number' &&
+    (HOLD_SELECT_CHOICES as readonly number[]).includes(v),
+  control: {
+    kind: 'select',
+    options: HOLD_SELECT_CHOICES.map((value) => ({
+      value,
+      label: () => t('settings.holdSelect.ms', { ms: value }),
+    })),
+  },
+}
+
+export const TAP_TWICE_CHOICES = ['auto', 'on', 'off'] as const
+export type TapTwice = (typeof TAP_TWICE_CHOICES)[number]
+/**
+ * Pencil: tap twice to start typing. The first Pencil tap on a block that has
+ * words only marks it (an outline, no caret, no keyboard); the second tap in
+ * it places the caret. Auto = on in Pencil mode. A finger always places the
+ * caret with one tap; an empty block or blank space takes the caret at once.
+ */
+export const pencilTapTwiceSetting: SettingDefinition<TapTwice> = {
+  id: 'advanced.pencilTapTwice',
+  labelKey: 'settings.pencilTapTwice.label',
+  descriptionKey: 'settings.pencilTapTwice.description',
+  category: 'advanced',
+  keywords: 'pencil tap twice double start typing caret block outline keyboard',
+  scope: 'device',
+  defaultValue: 'auto',
+  isValid: (v): v is TapTwice =>
+    (TAP_TWICE_CHOICES as readonly unknown[]).includes(v),
+  control: {
+    kind: 'segmented',
+    options: TAP_TWICE_CHOICES.map((value) => ({
+      value,
+      label: () => t(`settings.pencilTapTwice.${value}`),
+    })),
+  },
+}
+
+/** The Pencil can scroll the page (a flick, or a drag from the margins). */
+export const pencilScrollsSetting: SettingDefinition<OnOff> = {
+  id: 'advanced.pencilScrolls',
+  labelKey: 'settings.pencilScrolls.label',
+  descriptionKey: 'settings.pencilScrolls.description',
+  category: 'advanced',
+  keywords: 'pencil scroll flick drag margin ipad apple',
+  scope: 'device',
+  defaultValue: 'on',
+  isValid: isOnOff,
+  control: { kind: 'segmented', options: onOffOptions() },
+}
+
 /** Whether a Pencil (or a finger) switches the device mode by itself. */
 export const autoSwitchSetting: SettingDefinition<AutoSwitch> = {
   id: 'advanced.autoSwitch',
@@ -523,6 +590,9 @@ for (const definition of [
   barAutoHideSetting,
   autoSwitchSetting,
   pencilWritesSetting,
+  holdSelectSetting,
+  pencilScrollsSetting,
+  pencilTapTwiceSetting,
   pathStyleSetting,
   reviseLabelsSetting,
   languageSetting,

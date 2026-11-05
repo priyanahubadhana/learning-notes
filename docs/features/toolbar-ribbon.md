@@ -2,6 +2,8 @@
 
 Security rules: [rules/security.md](../../rules/security.md). Check them before building. Research: [docs/research/toolbar-ribbon.md](../research/toolbar-ribbon.md).
 
+> **Redesign step 2 (2026-11-05):** the short bar is now the **main bar** (one icon-only row: Undo and Redo, Text, Pen, Highlighter, Eraser, New line, Lasso, Insert, Read, then keyboard and ⋯), with an options pill and detail cards. The Write · Draw · Read switch, its pin and the automatic set switching are gone; the selected tool is the mode. This file still describes the ribbon, positions, pop-ups, floating bar and Show tool bar safety, which are unchanged. New spec: [toolbar.md](toolbar.md). Where the text below says "short bar", "set", "Write set" or "Edit bar per set", read: the main bar, the selected tool and Edit bar (main tools and pill options). "All tools" is now in the ⋯ menu, after Edit bar.
+
 ## Purpose
 
 One calm bar for the tools you use most, a place for every other tool, and a search over everything. Built in batch 2d: step 1 (short bar, tool sets, control panel, device picker, sidebar), step 2 (the full ribbon). Control panel: [control-panel.md](control-panel.md). Device modes and the picker: [device-modes.md](device-modes.md).

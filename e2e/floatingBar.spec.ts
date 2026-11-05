@@ -259,16 +259,3 @@ test('a floating bar never auto-hides and survives a tap away from the page text
   await expect(dockedBar(page)).toBeVisible()
   await expectOnScreen(page)
 })
-
-test('floating bar trays (More) open inside the screen too', async ({
-  page,
-}) => {
-  await page.setViewportSize({ width: 820, height: 1180 })
-  await openPage(page, floating)
-  await dockedBar(page).locator('[data-action="more"]').first().click()
-  const tray = page.locator('[data-bar="tray"]')
-  await expect(tray).toBeVisible()
-  const t = await box(tray)
-  expect(t.y).toBeGreaterThanOrEqual(0)
-  expect(t.y + t.height).toBeLessThanOrEqual(1180 + 1)
-})

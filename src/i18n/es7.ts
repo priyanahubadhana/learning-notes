@@ -229,9 +229,6 @@ export const es7: Record<string, string> = {
     'Añade una línea vacía debajo y pone el cursor allí, sin teclado.',
   'help.tip.bar.newLine.example':
     '¿Terminaste una frase? Tócalo para la siguiente.',
-  'help.tip.bar.more.meaning':
-    'Todos los demás botones de formato, y Editar barra para elegir qué hay en esta barra.',
-  'help.tip.bar.more.example': 'Tachado, color, enlace, Palabra clave.',
   'mode.autoSwitched': 'Cambiado al modo {mode}',
   'mode.undo': 'Deshacer',
   'pen.guard.removed':
@@ -275,16 +272,10 @@ export const es7: Record<string, string> = {
   'color.blue': 'Azul',
   'color.purple': 'Morado',
   'color.pink': 'Rosa',
-  'set.label': 'Conjunto de herramientas',
-  'set.write': 'Escribir',
-  'set.draw': 'Dibujar',
-  'set.read': 'Leer',
-  'set.keep': 'Mantener este conjunto',
   'bar.allTools': 'Todas las herramientas',
   'bar.search': 'Buscar todas las funciones',
   'bar.show': 'Mostrar la barra de herramientas',
   'bar.hide': 'Ocultar la barra de herramientas',
-  'bar.editSet': 'Conjunto de herramientas que editar',
   'tool.needsPage': 'Abre una página primero.',
   'tool.needsBar':
     'Activa primero la barra de herramientas (menú ⋯ de la página › Mostrar la barra de herramientas).',
@@ -471,21 +462,6 @@ export const es7: Record<string, string> = {
   'calendar.openDay': 'Abrir el diario del {day}',
   'calendar.close': 'Cerrar',
   'calendar.empty': 'No hay nada con fecha en este periodo.',
-  'help.tip.bar.set.meaning':
-    'Elige qué herramientas muestra la barra. Cambia sola cuando usas un lápiz o escribes.',
-  'help.tip.bar.set.example':
-    'Toca la pantalla con el Pencil y aparecen las herramientas de dibujo.',
-  'help.tip.bar.keep.meaning':
-    'Evita que la barra cambie de conjunto sola. Aún puedes cambiarlo con un toque.',
-  'help.tip.bar.keep.example':
-    'Mantén Escribir mientras tomas notas con un lápiz cerca.',
-  'help.tip.bar.allTools.meaning':
-    'Muestra todas las herramientas y acciones en un menú.',
-  'help.tip.bar.allTools.example':
-    'Copiar como Markdown, Pegar como texto sin formato, Editar barra.',
-  'help.tip.bar.search.meaning':
-    'Busca cada función y ajuste de la aplicación y ejecútalo.',
-  'help.tip.bar.search.example': 'Escribe «bloquear» o «fuente» y pulsa Intro.',
   'help.tip.sidebar.calendar.meaning':
     'Cada fila con fecha de tus bases de datos y cada día del diario, por mes o semana.',
   'help.tip.sidebar.calendar.example':

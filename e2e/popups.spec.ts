@@ -6,6 +6,7 @@ import {
   dockedBar,
   startInMode,
   typeInEditor,
+  openRibbon,
 } from './helpers.ts'
 
 /**
@@ -18,12 +19,8 @@ import {
 test.use({ viewport: { width: 1000, height: 1180 }, hasTouch: true })
 
 const tray = (page: Page) => page.locator('[data-bar="tray"]')
-const more = (page: Page) =>
-  dockedBar(page).locator('[data-action="more"]').first()
 const menuButton = (page: Page) =>
   dockedBar(page).locator('[data-action="toolbarMenu"]')
-const allTools = (page: Page) =>
-  dockedBar(page).getByRole('button', { name: 'All tools', exact: true })
 const tab = (page: Page, name: string) =>
   dockedBar(page).getByRole('tab', { name, exact: true })
 
@@ -39,43 +36,11 @@ async function openPage(page: Page, lines = 1) {
   await page.waitForTimeout(500)
 }
 
-test('More closes on a tap outside, on Esc, and with its ✕', async ({
-  page,
-}) => {
-  await openPage(page)
-  await more(page).click()
-  await expect(tray(page)).toBeVisible()
-  await page.locator('.bn-editor').click()
-  await expect(tray(page)).toHaveCount(0)
-
-  await more(page).click()
-  await expect(tray(page)).toBeVisible()
-  await page.keyboard.press('Escape')
-  await expect(tray(page)).toHaveCount(0)
-
-  await more(page).click()
-  const close = tray(page).getByRole('button', { name: 'Close', exact: true })
-  await expect(close).toBeVisible()
-  const size = (await close.boundingBox())!
-  expect(size.width).toBeGreaterThanOrEqual(43.5)
-  expect(size.height).toBeGreaterThanOrEqual(43.5)
-  await close.click()
-  await expect(tray(page)).toHaveCount(0)
-})
-
-test('its own button toggles it', async ({ page }) => {
-  await openPage(page)
-  await more(page).click()
-  await expect(tray(page)).toBeVisible()
-  await more(page).click()
-  await expect(tray(page)).toHaveCount(0)
-})
-
 test('More closes when a ribbon tab is tapped (the old bug: it stayed open)', async ({
   page,
 }) => {
   await openPage(page)
-  await allTools(page).click()
+  await openRibbon(page)
   // Home › More formatting opens the long list.
   await dockedBar(page)
     .getByRole('tabpanel')
@@ -92,53 +57,6 @@ test('More closes when a ribbon tab is tapped (the old bug: it stayed open)', as
     .click()
   await expect(tray(page)).toBeVisible()
   await page.getByRole('button', { name: 'Settings', exact: true }).click()
-  await expect(tray(page)).toHaveCount(0)
-})
-
-test('only one pop-up is open at a time', async ({ page }) => {
-  await openPage(page)
-  await more(page).click()
-  await expect(tray(page)).toHaveCount(1)
-  await menuButton(page).click()
-  await expect(tray(page)).toHaveCount(1)
-  await expect(tray(page)).toHaveAttribute('aria-label', 'Toolbar menu')
-  // The page ⋯ menu is another pop-up: it closes the tray.
-  await page.getByRole('button', { name: 'More options' }).click()
-  await expect(page.getByRole('menu')).toBeVisible()
-  await expect(tray(page)).toHaveCount(0)
-})
-
-test('scrolling the page closes it', async ({ page }) => {
-  await openPage(page, 60)
-  await more(page).click()
-  await expect(tray(page)).toBeVisible()
-  await page.waitForTimeout(600) // the page settling is not a scroll
-  // A real scroll by the user (the mouse wheel) over the page.
-  await page.mouse.move(500, 700)
-  await page.mouse.wheel(0, 600)
-  await expect(tray(page)).toHaveCount(0)
-})
-
-test('the colour picker closes with ✕, outside, Esc, and after a colour is chosen', async ({
-  page,
-}) => {
-  await openPage(page)
-  const colors = dockedBar(page).locator('button[data-action="color"]')
-  await colors.click()
-  await expect(tray(page).getByText('Text color')).toBeVisible()
-  await tray(page).getByRole('button', { name: 'Close', exact: true }).click()
-  await expect(tray(page)).toHaveCount(0)
-
-  await colors.click()
-  await page.locator('.bn-editor').click()
-  await expect(tray(page)).toHaveCount(0)
-
-  await colors.click()
-  await page.keyboard.press('Escape')
-  await expect(tray(page)).toHaveCount(0)
-
-  await colors.click()
-  await tray(page).locator('[data-color="textColor:red"]').click()
   await expect(tray(page)).toHaveCount(0)
 })
 
@@ -175,7 +93,7 @@ test('the ribbon "Tools close after use" panel closes on a tap outside, Esc and 
   page,
 }) => {
   await openPage(page, 60)
-  await allTools(page).click()
+  await openRibbon(page)
   const panel = dockedBar(page).getByRole('tabpanel')
   await expect(panel).toBeVisible()
   await page.locator('.bn-editor').click({ position: { x: 5, y: 40 } })
@@ -197,7 +115,7 @@ test('the ribbon "Tools close after use" panel closes on a tap outside, Esc and 
 
 test('"Tools stay open" never closes by itself', async ({ page }) => {
   await openPage(page)
-  await allTools(page).click()
+  await openRibbon(page)
   await dockedBar(page).locator('[data-action="ribbonBehaviour"]').click()
   await page.locator('.bn-editor').click()
   await expect(dockedBar(page).getByRole('tabpanel')).toBeVisible()
@@ -207,7 +125,7 @@ test('Copy & paste is ONE button at the end of Home with a small menu', async ({
   page,
 }) => {
   await openPage(page)
-  await allTools(page).click()
+  await openRibbon(page)
   const panel = dockedBar(page).getByRole('tabpanel')
   const groups = panel.getByRole('group')
   const last = groups.last()
@@ -235,7 +153,7 @@ test('Home follows the Google Docs order, with the old Clipboard group gone', as
   page,
 }) => {
   await openPage(page)
-  await allTools(page).click()
+  await openRibbon(page)
   const labels = await dockedBar(page)
     .getByRole('tabpanel')
     .getByRole('group')
@@ -256,7 +174,7 @@ test('the theme list: a ▾ beside Theme, with swatches and a tick; the Theme bu
   page,
 }) => {
   await openPage(page)
-  await allTools(page).click()
+  await openRibbon(page)
   await tab(page, 'View').click()
   const panel = dockedBar(page).getByRole('tabpanel')
   const html = page.locator('html')
@@ -292,15 +210,4 @@ test('the theme list: a ▾ beside Theme, with swatches and a tick; the Theme bu
   await panel.getByRole('button', { name: 'Choose a theme' }).click()
   await page.locator('.bn-editor').click({ position: { x: 5, y: 5 } })
   await expect(list).toHaveCount(0)
-})
-
-test('the theme ▾ is on the short bar Read set too', async ({ page }) => {
-  await openPage(page)
-  await dockedBar(page).getByRole('radio', { name: 'Read' }).click()
-  await dockedBar(page).getByRole('button', { name: 'Choose a theme' }).click()
-  await page
-    .getByRole('menu', { name: 'Choose a theme' })
-    .getByRole('menuitemradio', { name: /Night/ })
-    .click()
-  await expect(page.locator('html')).toHaveAttribute('data-theme', 'night')
 })

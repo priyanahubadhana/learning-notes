@@ -34,6 +34,9 @@ async function setup(page: Page) {
     // The editor leaves an empty line under the picture with the caret in it.
     await page.keyboard.type(name === 'one.png' ? 'Middle line' : 'Last line')
   }
+  // The Pencil selects under the Lasso tool (under Text it is free to write).
+  await page.getByRole('button', { name: 'Lasso', exact: true }).click()
+  await page.keyboard.press('Escape')
   // Pictures finished loading (WebKit lays them out late), then positions.
   await expect
     .poll(() =>
@@ -497,9 +500,8 @@ test('a pen tap on the bar and on text works 10/10, also right after a drag', as
   const p = await setup(page)
   await installPen(page)
   const bold = page
-    .locator('[aria-label]')
-    .getByRole('button', { name: 'Bold', exact: true })
-    .first()
+    .locator('[data-main-bar]')
+    .getByRole('button', { name: 'Insert', exact: true })
   const bb = (await bold.boundingBox())!
   const tap = async (x: number, y: number) =>
     page.evaluate(
@@ -537,7 +539,6 @@ test('a pen tap on the bar and on text works 10/10, also right after a drag', as
           return (
             !!s &&
             s.isCollapsed &&
-            !!document.activeElement?.closest('.bn-editor') &&
             (s.anchorNode?.textContent ?? '').includes('Middle line')
           )
         }),

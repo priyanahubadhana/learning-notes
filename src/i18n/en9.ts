@@ -18,11 +18,7 @@ export const en9 = {
   'main.newLine.heading': 'Heading',
   'main.newLine.checklist': 'Checklist',
   'main.newLine.divider': 'Divider',
-  'main.coming.ink':
-    'This needs the drawing update, which is coming in the next update.',
   'main.coming.later': 'Coming in a later update.',
-  'main.ink.preview':
-    'This is a preview. Drawing on the page comes in the next update; your choices are saved for it.',
 
   // ---- Options pill ----
   'main.pill.text': 'Text options',

@@ -105,7 +105,7 @@ test('the pill follows the pop-up rule: a tap outside, Esc, the ✕; the pin kee
   await page.locator('[data-pill-close]').click()
   await expect(pill(page)).toHaveCount(0)
   await openPill(page, 'Pen', 'pen')
-  await page.locator('.bn-editor').click()
+  await page.getByRole('textbox', { name: 'Page title' }).click()
   await expect(pill(page)).toHaveCount(0)
   // Pinned: it stays through a tap in the page, until it is unpinned.
   await openPill(page, 'Pen', 'pen')
@@ -114,7 +114,7 @@ test('the pill follows the pop-up rule: a tap outside, Esc, the ✕; the pin kee
     'aria-pressed',
     'true',
   )
-  await page.locator('.bn-editor').click()
+  await page.getByRole('textbox', { name: 'Page title' }).click()
   await expect(pill(page, 'pen')).toBeVisible()
   await page.keyboard.press('Escape')
   await expect(pill(page, 'pen')).toBeVisible()

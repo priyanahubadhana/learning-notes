@@ -1,3 +1,5 @@
+import type { InkSnapshot } from './inkTypes'
+
 /**
  * Core data model: Workspace → Notebooks → Pages → Blocks.
  *
@@ -130,6 +132,8 @@ export interface Page extends BaseRecord {
   locked?: true
   /** Always opens in Reading mode (batch 3). */
   readFirst?: true
+  /** Paper behind the ink: lined, grid or dots (step 3). Unset = plain. */
+  inkBg?: 'lined' | 'grid' | 'dots'
   /** A lesson's own summary (Revise tab); top-level pages only. */
   summary?: string
   /** 'daily': the protected template that fills new journal days. */
@@ -424,6 +428,8 @@ export interface PageVersion extends BaseRecord {
   pageId: string
   title: string
   blocks: VersionBlock[]
+  /** The page's ink at that moment (step 3). Unset = no ink. */
+  ink?: InkSnapshot
 }
 
 /** A picture added from the device (Phase 6). Referenced as `lnimg:<id>`. */

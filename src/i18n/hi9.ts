@@ -17,11 +17,7 @@ export const hi9: Record<string, string> = {
   'main.newLine.heading': 'शीर्षक',
   'main.newLine.checklist': 'चेकलिस्ट',
   'main.newLine.divider': 'विभाजक',
-  'main.coming.ink':
-    'इसके लिए ड्रॉइंग अपडेट चाहिए, जो अगले अपडेट में आ रहा है।',
   'main.coming.later': 'बाद के अपडेट में आ रहा है।',
-  'main.ink.preview':
-    'यह एक पूर्वावलोकन है। पेज पर ड्रॉइंग अगले अपडेट में आएगी; आपकी पसंद उसके लिए सहेजी जाती है।',
 
   // ---- Options pill ----
   'main.pill.text': 'टेक्स्ट विकल्प',

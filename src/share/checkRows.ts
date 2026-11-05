@@ -9,6 +9,8 @@ import type {
   Page,
   ReviewLog,
 } from '../core/types'
+import type { InkChunk, InkLayer } from '../core/inkTypes'
+import { STRIDE } from '../core/inkTypes'
 import { isShowableText } from '../search/searchText'
 
 /**
@@ -81,6 +83,7 @@ const page: Fields<Page> = {
   pathStyle: oneOf('simple', 'full', 'page'),
   locked: yes,
   readFirst: yes,
+  inkBg: oneOf('lined', 'grid', 'dots'),
   summary: text,
   templateRole: oneOf('daily'),
   tagIds: textList,
@@ -178,6 +181,43 @@ const image = {
   data: text,
 }
 
+/** A stroke of a chunk: id, points in whole groups of STRIDE numbers, a style. */
+const stroke = (v: unknown): boolean => {
+  if (!object(v)) return false
+  const s = v as Record<string, unknown>
+  return (
+    text(s.id) &&
+    number(s.at) &&
+    (s.kind === 'ink' || s.kind === 'highlight') &&
+    object(s.style) &&
+    number(s.bw) &&
+    Array.isArray(s.pts) &&
+    s.pts.length % STRIDE === 0 &&
+    s.pts.length <= 400_000 &&
+    s.pts.every(number)
+  )
+}
+const strokeList: Check = (v) =>
+  Array.isArray(v) && v.length <= 1000 && v.every(stroke)
+
+const inkLayer: Fields<InkLayer> = {
+  ...times,
+  pageId: text,
+  name: text,
+  order,
+  hidden: yes,
+  locked: yes,
+}
+
+const inkChunk: Fields<InkChunk> = {
+  ...times,
+  pageId: text,
+  layerId: text,
+  blockId: orNull(text),
+  strokes: strokeList,
+  fb: object,
+}
+
 const FIELDS = {
   notebooks: notebook,
   pages: page,
@@ -189,12 +229,16 @@ const FIELDS = {
   dbViews: dbView,
   tags: tag,
   images: image,
+  inkLayers: inkLayer,
+  inkChunks: inkChunk,
 } as const
 
 /** Fields a row must have, on top of its id. */
 const REQUIRED: Partial<Record<keyof typeof FIELDS, readonly string[]>> = {
   pages: ['notebookId', 'order'],
   blocks: ['pageId', 'type', 'content', 'order'],
+  inkLayers: ['pageId', 'order'],
+  inkChunks: ['pageId', 'layerId', 'strokes'],
   tags: ['path'],
 }
 

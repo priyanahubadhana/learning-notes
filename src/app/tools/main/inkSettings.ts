@@ -66,6 +66,7 @@ export interface ModelStore<T> {
   update: (patch: Partial<T>) => void
   reset: () => void
   useValue: () => T
+  subscribe: (listener: () => void) => () => void
   clearCache: () => void
 }
 
@@ -103,6 +104,7 @@ function modelStore<T extends object>(
     },
     reset: () => raw.set({}),
     useValue: () => normalise(raw.useValue()),
+    subscribe: raw.subscribe,
     clearCache: () => {
       raw.clearCache()
       cache = undefined
@@ -141,6 +143,9 @@ export const PEN_TYPES = [
 export type PenType = (typeof PEN_TYPES)[number]
 export const LINE_STYLES = ['solid', 'dashed', 'dotted'] as const
 export type LineStyle = (typeof LINE_STYLES)[number]
+/** Can a finger draw? Auto: yes, unless in Pencil mode or a Pencil was used. */
+export const FINGER_MODES = ['auto', 'on', 'off'] as const
+export type FingerMode = (typeof FINGER_MODES)[number]
 
 /** The three thicknesses of each pen type, in pixels. */
 export const PEN_WIDTHS: Record<PenType, readonly [number, number, number]> = {
@@ -170,6 +175,11 @@ export interface PenSettings {
   scribbleErase: boolean
   circleLasso: boolean
   line: LineStyle
+  /** Draw and hold: snap lines to angles, squares and circles. */
+  shapeSnap: boolean
+  /** Draw and hold: fill closed shapes. */
+  shapeFill: boolean
+  finger: FingerMode
 }
 
 export const PEN_DEFAULTS: PenSettings = {
@@ -188,6 +198,9 @@ export const PEN_DEFAULTS: PenSettings = {
   scribbleErase: false,
   circleLasso: false,
   line: 'solid',
+  shapeSnap: true,
+  shapeFill: false,
+  finger: 'auto',
 }
 
 const size3 = (v: unknown): 0 | 1 | 2 => (v === 0 || v === 1 || v === 2 ? v : 1)
@@ -210,6 +223,9 @@ export const penSettings = modelStore<PenSettings>('ink.pen', PEN_DEFAULTS, {
   scribbleErase: flag(false),
   circleLasso: flag(false),
   line: pick(LINE_STYLES, 'solid'),
+  shapeSnap: flag(true),
+  shapeFill: flag(false),
+  finger: pick(FINGER_MODES, 'auto'),
 })
 
 /** The width of the pen's line in px (the exact width wins). */

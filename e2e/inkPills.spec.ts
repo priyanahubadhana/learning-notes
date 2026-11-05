@@ -71,7 +71,6 @@ test('Pen card: 5 types, a live preview and the sliders', async ({ page }) => {
     c.getByRole('radiogroup', { name: 'Pen type' }).getByRole('radio'),
   ).toHaveText(['Fountain', 'Ball', 'Brush', 'Pencil', 'Marker'])
   await expect(c.locator('[data-ink-preview="pen"]')).toBeVisible()
-  await expect(c.getByText(/preview/i).first()).toBeVisible()
   // Sliders: sharpness, pressure, stabilisation and (Fountain) flatness.
   for (const label of [
     'Tip sharpness',
@@ -97,8 +96,6 @@ test('Pen card: 5 types, a live preview and the sliders', async ({ page }) => {
   await expect(option(page, 'Pen type: Brush')).toBeVisible()
   await c.getByRole('radio', { name: 'Marker' }).click()
   await expect(option(page, 'Pen type: Marker')).toBeVisible()
-  // The honest note: drawing on the page is the next update.
-  await expect(c.locator('[data-ink-note]')).toContainText('next update')
 })
 
 test('Pen card sub-pages: Pen settings, Pen gestures, Stroke (each with ‹ back)', async ({
@@ -333,10 +330,10 @@ test('Lasso menu on a selection: Copy, Duplicate, Delete, Key point, Make card; 
   await expect(
     page.locator('.bn-editor .recall-mark[data-mark="key"]'),
   ).toHaveText('nucleus')
-  // Move, scale, rotate, screenshot, save and convert need the drawing update.
+  // Move, scale, rotate and screenshot work on drawings; convert is later.
   await menu.getByRole('button', { name: 'Move' }).click()
   await expect(
-    page.getByRole('status').filter({ hasText: /next update/ }),
+    page.getByRole('status').filter({ hasText: /works on drawings/ }),
   ).toBeVisible()
   await expect(menu.getByRole('button', { name: 'Move' })).toHaveAttribute(
     'data-coming',

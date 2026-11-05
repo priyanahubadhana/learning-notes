@@ -1,5 +1,6 @@
 import { en8 } from './en8'
 import { en9 } from './en9'
+import { en10 } from './en10'
 /**
  * English text for the app. Every new piece of on-screen text gets a key
  * here and is shown with `t('key')`, so translations can be added later as
@@ -11,6 +12,7 @@ import { en9 } from './en9'
 export const en = {
   ...en8,
   ...en9,
+  ...en10,
   // Shared dialogs
   'dialog.cancel': 'Cancel',
   'dialog.save': 'Save',
@@ -1838,7 +1840,8 @@ export const en = {
   'bar.hide': 'Hide tool bar',
   'tool.needsPage': 'Open a page first.',
   'tool.needsBar': 'Turn on the tool bar first (page ⋯ menu › Show tool bar).',
-  'tool.coming.ink': 'Drawing with the Pencil is coming in a later update.',
+  'tool.coming.ink':
+    'Shapes, Tape, Magnifier and Ruler are coming in a later update.',
   'tool.coming.reading': 'Reading mode is coming in a later update.',
   'tool.coming.lock':
     'Locking pages and notebooks is coming in a later update.',

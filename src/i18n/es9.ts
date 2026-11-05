@@ -17,11 +17,7 @@ export const es9: Record<string, string> = {
   'main.newLine.heading': 'Título',
   'main.newLine.checklist': 'Lista de tareas',
   'main.newLine.divider': 'Separador',
-  'main.coming.ink':
-    'Esto necesita la actualización de dibujo, que llega en la próxima actualización.',
   'main.coming.later': 'Llegará en una actualización posterior.',
-  'main.ink.preview':
-    'Es una vista previa. Dibujar en la página llega en la próxima actualización; tus elecciones se guardan para ella.',
 
   // ---- Options pill ----
   'main.pill.text': 'Opciones de texto',

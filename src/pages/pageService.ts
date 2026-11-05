@@ -105,6 +105,16 @@ async function assertValidParent(
   }
 }
 
+/** Sets the paper behind a page's ink (lined, grid, dots; undefined = plain). */
+export async function setPageInkBg(
+  db: LearningNotesDB,
+  id: string,
+  inkBg: Page['inkBg'],
+): Promise<void> {
+  await getLive(db.pages, id)
+  await db.pages.update(id, { inkBg, updatedAt: Date.now() })
+}
+
 /** Creates a page at the end of its siblings (top level if parentId is null). */
 export async function createPage(
   db: LearningNotesDB,

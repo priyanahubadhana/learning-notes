@@ -172,13 +172,13 @@ test('each tab holds the planned tools in named groups', async ({ page }) => {
     const groups = panel(page).getByRole('group')
     expect(await groups.count(), name).toBeGreaterThan(1)
   }
-  // Draw: pens wait for the drawing update and say why.
+  // Draw: the pens work now; Shapes, Tape, Magnifier and Ruler say they are coming.
   await tab(page, 'Draw').click()
-  await expect(ribbonTool(page, 'Fountain pen')).toHaveAttribute(
+  await expect(ribbonTool(page, 'Fountain pen')).not.toHaveAttribute(
     'aria-disabled',
     'true',
   )
-  await expect(ribbonTool(page, 'Fountain pen')).toHaveAttribute(
+  await expect(ribbonTool(page, 'Ruler')).toHaveAttribute(
     'title',
     /coming in a later/,
   )

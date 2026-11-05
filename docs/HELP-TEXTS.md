@@ -2,7 +2,7 @@
 
 Every hover tip and help line in the app (shown while Settings › Show help is On). Generated from `src/help/helpRegistry.ts` and `src/i18n/en.ts`; to change a text, edit it in `en.ts`, then run `UPDATE_HELP=1 npx vitest run src/help` to refresh this file.
 
-## Hover tips (122)
+## Hover tips (124)
 
 ### `bar.newLine`
 
@@ -33,6 +33,18 @@ Every hover tip and help line in the app (shown while Settings › Show help is 
 - **Where:** Page › options pill › 📌 pin
 - **Meaning:** Keeps these options open until you close them.
 - **Example:** Pin the Text options while you format a page.
+
+### `ink.layers`
+
+- **Where:** Page › Pen, Highlighter or Lasso card › Layers
+- **Meaning:** Layers are clear sheets of ink over the page. Hide, lock or reorder them.
+- **Example:** Keep your corrections on their own layer and hide them to see the clean page.
+
+### `ink.finger`
+
+- **Where:** Page › Pen card › Pen settings › Finger can draw
+- **Meaning:** Chooses whether a finger draws or only scrolls and zooms.
+- **Example:** With an Apple Pencil, leave it on Automatic so a resting hand never draws.
 
 ### `ribbon.behaviour`
 

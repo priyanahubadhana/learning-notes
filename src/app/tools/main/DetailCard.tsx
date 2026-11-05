@@ -22,6 +22,7 @@ import {
 } from '../../../settings/readingSettings'
 import type { SettingDefinition } from '../../../settings/registry'
 import { useDeviceSetting } from '../../../settings/useSetting'
+import { Tip } from '../../../help/Help'
 import { Icon } from '../icons'
 import { currentRunner } from '../toolRuntime'
 import { runEditorCommand } from '../editorCommands'
@@ -40,6 +41,7 @@ import { highlightChoice, PEN_ICON, textColourChoice } from './pillChoices'
 import { parentPage } from './cardPages'
 import {
   ERASER_MODES,
+  FINGER_MODES,
   HIGHLIGHT_COLOURS,
   LINE_STYLES,
   PEN_COLOURS,
@@ -53,6 +55,8 @@ import {
   penWidth,
 } from './inkSettings'
 import { InkPreview } from './InkPreview'
+import { LayersCard } from '../../../ink/LayersCard'
+import { useInk } from '../../../ink/inkRuntime'
 import type { CardState } from './mainTools'
 import { selectTool } from './selectTool'
 import { useEditorRedraw } from './useEditorRedraw'
@@ -149,6 +153,10 @@ function CardBody({
       return <PenGesturesPage />
     case 'pen.stroke':
       return <StrokePage />
+    case 'pen.layers':
+    case 'highlighter.layers':
+    case 'lasso.layers':
+      return <LayersCard />
     case 'highlighter.main':
       return <HighlighterCard onPage={onPage} />
     case 'highlighter.colour':
@@ -156,7 +164,7 @@ function CardBody({
     case 'eraser.main':
       return <EraserCard />
     case 'lasso.main':
-      return <LassoCard />
+      return <LassoCard onPage={onPage} />
     case 'read.aa':
       return <AaCard />
     default:
@@ -434,15 +442,6 @@ function ColourNames({
 
 // ---- Pen ----
 
-/** The honest note: the engine for drawing on the page is the next update. */
-function PreviewNote() {
-  return (
-    <p className="px-2 text-xs text-ink-soft" data-ink-note>
-      {t('main.ink.preview')}
-    </p>
-  )
-}
-
 function PenCard({ onPage }: { onPage: (page: string) => void }) {
   const pen = penSettings.useValue()
   return (
@@ -510,7 +509,7 @@ function PenCard({ onPage }: { onPage: (page: string) => void }) {
         hint={`${Math.round(penWidth(pen) * 10) / 10} px`}
         onClick={() => onPage('stroke')}
       />
-      <PreviewNote />
+      <LayersRow onPage={onPage} />
     </>
   )
 }
@@ -544,6 +543,33 @@ function PenSettingsPage() {
         on={pen.holdShape}
         onChange={(holdShape) => penSettings.update({ holdShape })}
       />
+      <SwitchRow
+        id="shapeSnap"
+        label={t('ink.pen.shapeSnap')}
+        note={t('ink.pen.shapeSnap.note')}
+        on={pen.shapeSnap}
+        onChange={(shapeSnap) => penSettings.update({ shapeSnap })}
+      />
+      <SwitchRow
+        id="shapeFill"
+        label={t('ink.pen.shapeFill')}
+        note={t('ink.pen.shapeFill.note')}
+        on={pen.shapeFill}
+        onChange={(shapeFill) => penSettings.update({ shapeFill })}
+      />
+      <Tip id="ink.finger" touchInfo={false}>
+        <ChipRow
+          id="finger"
+          label={t('ink.finger')}
+          value={pen.finger}
+          options={FINGER_MODES.map((m) => ({
+            value: m,
+            label: msg(`ink.finger.${m}`),
+          }))}
+          onChange={(finger) => penSettings.update({ finger })}
+        />
+      </Tip>
+      <p className="px-2 text-xs text-ink-soft">{t('ink.finger.note')}</p>
     </>
   )
 }
@@ -603,6 +629,21 @@ function StrokePage() {
         disabled={pen.exact === null}
       />
     </>
+  )
+}
+
+/** "Layers (2) ›" on the cards of the tools that draw or select ink. */
+function LayersRow({ onPage }: { onPage: (page: string) => void }) {
+  const ink = useInk()
+  return (
+    <Tip id="ink.layers" touchInfo={false}>
+      <NavRow
+        id="layers"
+        label={t('ink.layers')}
+        hint={ink ? String(ink.doc.layers.length) : undefined}
+        onClick={() => onPage('layers')}
+      />
+    </Tip>
   )
 }
 
@@ -719,7 +760,7 @@ function HighlighterCard({ onPage }: { onPage: (page: string) => void }) {
         on={h.saveToNotes}
         onChange={(saveToNotes) => highlighterSettings.update({ saveToNotes })}
       />
-      <PreviewNote />
+      <LayersRow onPage={onPage} />
     </>
   )
 }
@@ -759,14 +800,13 @@ function EraserCard() {
         on={e.highlightsOnly}
         onChange={(highlightsOnly) => eraserSettings.update({ highlightsOnly })}
       />
-      <PreviewNote />
     </>
   )
 }
 
 // ---- Lasso ----
 
-function LassoCard() {
+function LassoCard({ onPage }: { onPage: (page: string) => void }) {
   const l = lassoSettings.useValue()
   return (
     <>
@@ -792,6 +832,7 @@ function LassoCard() {
         />
       ))}
       <p className="px-2 text-xs text-ink-soft">{t('main.lasso.note')}</p>
+      <LayersRow onPage={onPage} />
     </>
   )
 }

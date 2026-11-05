@@ -52,6 +52,7 @@ import { watchHoldSelect } from './holdSelect'
 import { activeTool, miniToolbarOpen } from '../app/tools/main/mainTools'
 import { changeSet } from '../app/tools/toolbarState'
 import { runHistory } from './historyActions'
+import { InkSurface } from '../ink/InkSurface'
 import { useBarLayout } from './useBarLayout'
 import {
   copyAs,
@@ -256,6 +257,8 @@ function LoadedPageEditor({
   const frozen = readOnly || inReader || (!!reading && lockedToReading)
   const docked = bar.placement !== 'floating' && !readOnly && !inReader
   const [barSlot, setBarSlot] = useState<HTMLElement | null>(null)
+  // The element ink is laid over (the editor sits in it).
+  const [inkWrap, setInkWrap] = useState<HTMLElement | null>(null)
   const [sync] = useState(() =>
     createPageSync(db, pageId, records, () => editorToDrafts(editor.document)),
   )
@@ -537,63 +540,74 @@ function LoadedPageEditor({
       }}
     >
       {docked && <div ref={setBarSlot} className="sticky top-0 z-10" />}
-      <BlockNoteView
-        editor={editor}
-        editable={!frozen}
-        onChange={sync.changed}
-        theme={editorColorScheme(theme)}
-        slashMenu={false}
-        sideMenu={false}
-        formattingToolbar={false}
-        // The Card answer label is drawn by CSS (index.css) from this text.
-        style={
-          {
-            '--card-answer-label': JSON.stringify(t('card.answer')),
-          } as CSSProperties
-        }
-      >
-        {docked && <DockedBar slot={barSlot} />}
-        {/* Computer keeps the toolbar over selected text as an extra. */}
-        {(!docked || bar.mode === 'computer') && (
-          <FormattingToolbarController
-            formattingToolbar={AppFormattingToolbar}
-          />
-        )}
-        <SideMenuController
-          sideMenu={(props) => (
-            <SideMenu {...props} dragHandleMenu={AppDragHandleMenu} />
+      <div ref={setInkWrap} data-ink-wrap className="contents">
+        <BlockNoteView
+          editor={editor}
+          editable={!frozen}
+          onChange={sync.changed}
+          theme={editorColorScheme(theme)}
+          slashMenu={false}
+          sideMenu={false}
+          formattingToolbar={false}
+          // The Card answer label is drawn by CSS (index.css) from this text.
+          style={
+            {
+              '--card-answer-label': JSON.stringify(t('card.answer')),
+            } as CSSProperties
+          }
+        >
+          {docked && <DockedBar slot={barSlot} />}
+          {/* Computer keeps the toolbar over selected text as an extra. */}
+          {(!docked || bar.mode === 'computer') && (
+            <FormattingToolbarController
+              formattingToolbar={AppFormattingToolbar}
+            />
           )}
+          <SideMenuController
+            sideMenu={(props) => (
+              <SideMenu {...props} dragHandleMenu={AppDragHandleMenu} />
+            )}
+          />
+          <SuggestionMenuController
+            triggerCharacter="/"
+            getItems={async (query) =>
+              filterSuggestionItems(
+                buildSlashMenuItems(editor, {
+                  onNewSubPage: newSubPage,
+                  onLinkPage: () => openLinkPicker(null),
+                  onInsertTemplate: insertTemplate,
+                  onInsertDatabase: insertDatabase,
+                  onSaveAsTemplate: saveAsTemplate,
+                  onPlaceNestedCard: placeNestedCard,
+                }),
+                query,
+              )
+            }
+          />
+          <SuggestionMenuController
+            triggerCharacter={TAG_TRIGGER}
+            shouldOpen={tagMenuShouldOpen}
+            getItems={(query) =>
+              tagMenuItems(
+                db,
+                editor,
+                query,
+                () => editor.getExtension(SuggestionMenu)?.closeMenu(),
+                tags,
+              )
+            }
+          />
+        </BlockNoteView>
+        <InkSurface
+          db={db}
+          pageId={pageId}
+          notebookId={notebookId}
+          host={inkWrap}
+          editor={editor as never}
+          frozen={frozen}
+          mode={bar.mode}
         />
-        <SuggestionMenuController
-          triggerCharacter="/"
-          getItems={async (query) =>
-            filterSuggestionItems(
-              buildSlashMenuItems(editor, {
-                onNewSubPage: newSubPage,
-                onLinkPage: () => openLinkPicker(null),
-                onInsertTemplate: insertTemplate,
-                onInsertDatabase: insertDatabase,
-                onSaveAsTemplate: saveAsTemplate,
-                onPlaceNestedCard: placeNestedCard,
-              }),
-              query,
-            )
-          }
-        />
-        <SuggestionMenuController
-          triggerCharacter={TAG_TRIGGER}
-          shouldOpen={tagMenuShouldOpen}
-          getItems={(query) =>
-            tagMenuItems(
-              db,
-              editor,
-              query,
-              () => editor.getExtension(SuggestionMenu)?.closeMenu(),
-              tags,
-            )
-          }
-        />
-      </BlockNoteView>
+      </div>
       {bar.mode !== 'computer' && !frozen && (
         <button
           type="button"

@@ -27,6 +27,7 @@ import { isApple } from '../app/keys'
 import { t } from '../i18n/t'
 import { useBarSettings } from '../settings/deviceModeSettings'
 import { redoDepth, undoDepth } from 'prosemirror-history'
+import { inkFor } from '../ink/inkRuntime'
 import { MainBarRow } from '../app/tools/main/MainBar'
 import { MiniToolbar } from '../app/tools/main/MiniToolbar'
 import { OptionsPill } from '../app/tools/main/OptionsPill'
@@ -97,8 +98,13 @@ function useToolActive(editor: Editor): (id: string) => boolean {
 function useHistoryState(editor: Editor) {
   const read = () => {
     const state = editor.prosemirrorView?.state
+    // Drawings are part of the same history (ink/inkHistory.ts).
+    const ink = inkFor(editor)?.history
     return state
-      ? { canUndo: undoDepth(state) > 0, canRedo: redoDepth(state) > 0 }
+      ? {
+          canUndo: undoDepth(state) > 0 || !!ink?.canUndo,
+          canRedo: redoDepth(state) > 0 || !!ink?.canRedo,
+        }
       : { canUndo: false, canRedo: false }
   }
   const [value, setValue] = useState(read)

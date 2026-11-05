@@ -1,6 +1,7 @@
 import Dexie, { type EntityTable, type Transaction } from 'dexie'
 import { t, type MessageKey } from '../i18n/t'
 import { searchIndexMiddleware } from '../search/indexMiddleware'
+import type { InkChunk, InkLayer } from './inkTypes'
 import { orderBetween } from './order'
 import { newRecordFields } from './records'
 import type {
@@ -56,6 +57,8 @@ export class LearningNotesDB extends Dexie {
   rowRefs!: EntityTable<RowRef, 'id'>
   pageVersions!: EntityTable<PageVersion, 'id'>
   images!: EntityTable<StoredImage, 'id'>
+  inkLayers!: EntityTable<InkLayer, 'id'>
+  inkChunks!: EntityTable<InkChunk, 'id'>
 
   /** @param name Database name; tests pass a unique name to stay isolated. */
   constructor(name: string = DEFAULT_DB_NAME) {
@@ -235,6 +238,14 @@ export class LearningNotesDB extends Dexie {
 
     // Version 12 (Phase 6): pictures chosen from the device. Only adds a table.
     this.version(12).stores({ images: 'id' })
+
+    // Version 13 (redesign step 3): ink. Only adds two tables, so older data
+    // needs no change and older backup files stay valid. Chunks are indexed
+    // by page (and layer), so a page reads only its own ink.
+    this.version(13).stores({
+      inkLayers: 'id, pageId',
+      inkChunks: 'id, pageId, layerId',
+    })
 
     // Every save of a page or block also updates its search entry, in the
     // same transaction (see search/indexMiddleware.ts).

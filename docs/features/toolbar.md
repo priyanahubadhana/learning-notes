@@ -34,13 +34,13 @@ Opens when the active option is tapped again, or its ▾. Rows with › open sub
 - **Eraser and Lasso:** modes with a one-line explanation, sizes, switches, and the filter.
 - **Read › Aa:** tabs Font, Layout, Themes, More, backed by the existing Reading settings.
 
-## Ink: UI now, engine in step 3
+## Ink: the engine (step 3)
 
-The drawing engine is step 3. Here the full settings model (`inkSettings.ts`: every value clamped when read, saved per device) and the UI exist, with the live preview and a plain note that drawing on the page comes in the next update. Nothing is drawn on the page yet.
+The settings model (`inkSettings.ts`: every value clamped when read, saved per device) drives the engine in [ink.md](ink.md). New in step 3: Pen settings › Snap shapes, Fill shapes and Finger can draw (Automatic, Always, Never); a Layers row (with the layer count) on the Pen, Highlighter and Lasso cards, opening the Layers card (names, show or hide, lock, order, delete, which layer draws, paper behind the ink). The preview note is gone. Drawing a stroke does not close an open pill. The ribbon's Draw tools now work (pen types, Pen, Highlighter, Eraser, Lasso, colour, thickness, opacity, pressure, smoothing, tapered ends, the four papers, Only the Pencil draws, Ink layers); Shapes, Tape, Magnifier and Ruler are still "coming".
 
 ## Lasso selection menu
 
-With the Lasso open and words or a picture selected: Copy, Cut, Duplicate, Delete, Colour, ★ Key point, Make card work now. Move, Scale, Rotate, Screenshot of the selection, Save to notes and Convert handwriting (beta) are dimmed and say they need the drawing update.
+With the Lasso open: words or a picture selected give Copy, Cut, Duplicate, Delete, Colour, ★ Key point, Make card and Save to notes (keeps the words in the notebook's "Highlights" page). Selected drawings have their own box and menu (Duplicate, Colour, Copy as picture, Save as picture, Delete; move, resize and turn by the box and its handles), see [ink.md](ink.md). Move, Scale, Rotate and Screenshot are dimmed on words and say they work on drawings. Convert handwriting (beta) is still to come.
 
 ## New line
 

@@ -1,5 +1,7 @@
 import { listBlocks, saveBlockChanges } from '../core/blockService'
 import type { LearningNotesDB } from '../core/db'
+import { inkSnapshot, restoreInk } from '../core/inkService'
+import type { InkSnapshot } from '../core/inkTypes'
 import { newRecordFields } from '../core/records'
 import type { PageVersion, VersionBlock } from '../core/types'
 import { getPage, renamePage } from '../pages/pageService'
@@ -21,14 +23,20 @@ async function currentState(db: LearningNotesDB, pageId: string) {
     content: b.content,
     order: b.order,
   }))
-  return { title: page.title, blocks }
+  const ink = await inkSnapshot(db, pageId)
+  return ink
+    ? { title: page.title, blocks, ink }
+    : { title: page.title, blocks }
 }
 
-const same = (
-  a: { title: string; blocks: VersionBlock[] },
-  b: { title: string; blocks: VersionBlock[] },
-) =>
-  a.title === b.title && JSON.stringify(a.blocks) === JSON.stringify(b.blocks)
+type State = { title: string; blocks: VersionBlock[]; ink?: InkSnapshot }
+const same = (a: State, b: State) =>
+  a.title === b.title &&
+  JSON.stringify(a.blocks) === JSON.stringify(b.blocks) &&
+  JSON.stringify(a.ink?.chunks ?? null) ===
+    JSON.stringify(b.ink?.chunks ?? null) &&
+  JSON.stringify(a.ink?.layers ?? null) ===
+    JSON.stringify(b.ink?.layers ?? null)
 
 /** A page's copies, newest first. */
 export async function listVersions(
@@ -54,13 +62,15 @@ export async function recordVersion(
     db.pages,
     db.blocks,
     db.pageVersions,
+    db.inkLayers,
+    db.inkChunks,
     async () => {
       const state = await currentState(db, pageId)
       if (!state) return null
       const versions = await listVersions(db, pageId)
       const newest = versions[0]
       // A first copy of an empty page would hold nothing worth bringing back.
-      if (!newest && state.blocks.length === 0) return null
+      if (!newest && state.blocks.length === 0 && !state.ink) return null
       if (newest) {
         if (!force && now - newest.createdAt < VERSION_GAP_MS) return null
         if (same(newest, state)) return null
@@ -92,7 +102,14 @@ export async function restoreVersion(
 ): Promise<void> {
   await db.transaction(
     'rw',
-    [db.pages, db.blocks, db.cards, db.pageVersions],
+    [
+      db.pages,
+      db.blocks,
+      db.cards,
+      db.pageVersions,
+      db.inkLayers,
+      db.inkChunks,
+    ],
     async () => {
       const version = await db.pageVersions.get(versionId)
       if (!version) throw new Error('That copy no longer exists')
@@ -121,6 +138,7 @@ export async function restoreVersion(
       if (current?.title !== version.title) {
         await renamePage(db, version.pageId, version.title)
       }
+      await restoreInk(db, version.pageId, version.ink)
       await syncCardRecords(db, version.pageId)
     },
   )

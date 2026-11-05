@@ -230,6 +230,8 @@ const CHECKED = new Set<string>([
   'databases',
   'dbColumns',
   'dbViews',
+  'inkLayers',
+  'inkChunks',
 ])
 
 /** Reads and fully checks a full file. Nothing is written. */

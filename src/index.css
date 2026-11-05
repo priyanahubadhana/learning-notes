@@ -575,3 +575,41 @@ html[data-note-line] .bn-editor {
   background: color-mix(in srgb, var(--color-accent) 18%, transparent);
   border-radius: 6px;
 }
+
+/* Ink (redesign step 3): paper behind the drawings, and touch rules. */
+[data-ink-paper='lined'] {
+  background-image: repeating-linear-gradient(
+    to bottom,
+    transparent 0,
+    transparent 31px,
+    color-mix(in srgb, var(--color-ink) 16%, transparent) 31px,
+    color-mix(in srgb, var(--color-ink) 16%, transparent) 32px
+  );
+}
+[data-ink-paper='grid'] {
+  background-image:
+    linear-gradient(
+      to right,
+      color-mix(in srgb, var(--color-ink) 12%, transparent) 1px,
+      transparent 1px
+    ),
+    linear-gradient(
+      to bottom,
+      color-mix(in srgb, var(--color-ink) 12%, transparent) 1px,
+      transparent 1px
+    );
+  background-size: 32px 32px;
+}
+[data-ink-paper='dots'] {
+  background-image: radial-gradient(
+    circle,
+    color-mix(in srgb, var(--color-ink) 30%, transparent) 1.3px,
+    transparent 1.8px
+  );
+  background-size: 32px 32px;
+}
+@media print {
+  [data-ink-canvases] {
+    display: none;
+  }
+}

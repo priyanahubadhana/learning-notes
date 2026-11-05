@@ -141,10 +141,15 @@ test('under Lasso (and the ink tools) the Pencil is held back from writing and d
   const at = await wordPoint(page, 'nucleus')
   expect(await refused(page, 'insertReplacementText', at)).toBe(true)
   expect(await refused(page, 'deleteContentBackward', at)).toBe(true)
+  // Under the ink tools a drawing pad covers the words: the Pencil draws, and
+  // can never reach the text.
   await tool(page, 'Pen').click()
-  await page.keyboard.press('Escape')
-  await page.waitForTimeout(650)
-  expect(await refused(page, 'deleteContentBackward', at)).toBe(true)
+  const under = await wordPoint(page, 'nucleus')
+  const top = await page.evaluate(
+    ({ x, y }) => document.elementFromPoint(x, y)?.hasAttribute('data-ink-pad'),
+    under,
+  )
+  expect(top).toBe(true)
 })
 
 test('Lasso: a Pencil drag selects text', async ({ page }) => {

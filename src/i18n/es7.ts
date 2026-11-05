@@ -280,7 +280,7 @@ export const es7: Record<string, string> = {
   'tool.needsBar':
     'Activa primero la barra de herramientas (menú ⋯ de la página › Mostrar la barra de herramientas).',
   'tool.coming.ink':
-    'Dibujar con el Pencil llegará en una actualización posterior.',
+    'Formas, Cinta, Lupa y Regla llegarán en una actualización posterior.',
   'tool.coming.reading':
     'El modo lectura llegará en una actualización posterior.',
   'tool.coming.lock':

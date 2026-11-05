@@ -1,0 +1,46 @@
+# Ink: drawing on pages (shared ink engine)
+
+Security rules: [rules/security.md](../../rules/security.md). Check them before building. Plan: [redesign-2026-11.md](../plans/redesign-2026-11.md) (step 3). Research: [inspiration-apps.md](../research/inspiration-apps.md) (ink section). The tools, pills and cards are in [toolbar.md](toolbar.md).
+
+## Purpose
+
+Write and draw by hand on any note page, with the Apple Pencil, a finger (when allowed) or a mouse, in the same page as typed text. One engine for notebooks now; the reader (books and PDFs, step 5) uses the same engine, tools and layers.
+
+## How it works
+
+- **Where the code is:** `src/ink/` (engine), `src/core/inkTypes.ts` and `inkService.ts` (data). The page mounts `InkSurface` (`ink/InkSurface.tsx`) over the editor. The controller (`ink/controller.ts`) owns pointer handling and canvases; pure parts (geometry, anchoring, eraser, shapes, layers, document, history) have no DOM and are unit-tested.
+- **Tools:** the main bar's Pen, Highlighter, Eraser and Lasso. While one of the first three is selected a transparent "pad" over the page catches the pointer (the text is not touched). The pad does not close an open options pill (the page would jump). The Lasso only watches the page, so text selection keeps working.
+- **Input:** pointer events, `getCoalescedEvents` for every sample, `getPredictedEvents` for the line's tip (drawn for the moment, never saved), a `desynchronized` low-latency canvas for the stroke being drawn (Settings: Pen settings › Reduce latency). Pressure of 0 at the start is replaced; pressure is rescaled to what the device really sends (as in the pencil test).
+- **Palm rejection:** a finger is ignored while the Pencil is down and for 0.7 s after. "Finger can draw" (Pen settings): Automatic (a finger draws, unless in Pencil mode or a Pencil has been used, then it scrolls and zooms), Always, Never. A Pencil never scrolls the page (a stylus `touchstart` is cancelled); a finger scrolls natively.
+- **Pens (perfect-freehand, MIT):** Fountain (pressure, flat nib), Ball (even), Brush (strong pressure, long taper), Pencil (tilt widens, 85 % opacity), Marker (even, flat ends, 75 %). Thickness, colour, sharpness (taper), pressure, tilt, stabilisation (streamline), flatness, thickness by speed, dashed or dotted (`ink/outline.ts`). All style values are saved with each stroke, so a pen's look never changes later.
+- **Stroke model (`core/inkTypes.ts`):** raw points as flat numbers, six per point: x, y (in page widths from the anchor block's corner), pressure, tiltX, tiltY, t (ms since the stroke began); plus `at` (UTC ms start, the hook for replaying ink with audio), style, `bw` (page width in px when drawn), `shape`, `fill`, `drawn` (page width and text size when drawn, for "View as drawn" in the reader).
+- **Anchoring:** the stroke belongs to the block under its first point (else the block just above, else the page). On every layout change the blocks are measured again (`ink/layout.ts`), so ink moves down when text is added above and scales with the page width. If the block is deleted, the place it was last seen is used (`fb` on the chunk).
+- **Highlighter:** drawn behind the ink on its own canvas (`mix-blend-mode: multiply`; plain see-through in Night). With "Snap to text lines" and words under the stroke, no ink is made: the words get the highlight mark (`ink/textSnap.ts`; the nearest of six named colours), which moves and copies with the text. "Save to notes" then also keeps the passage in a top-level page "Highlights" of the same notebook (made when first needed). The **Highlight eraser** (Eraser with "Erase highlights only") only takes away highlight strokes and highlight marks it rubs.
+- **Eraser:** Precise (splits strokes at the touched part), Standard (reaches 35 % further, drops specks), Whole stroke; a size of 8, 18 or 32 px (a ring shows it). One erase gesture is one Undo step.
+- **Pen gestures (settings):** scribble over ink erases it (at least 4 sharp turns, a long path for its size; if nothing is under it the scribble stays as ink). A quick closed circle around ink selects it and switches to the Lasso (if nothing is inside it stays as ink).
+- **Draw and hold:** keep the pen still for 0.6 s at the end of a stroke and it becomes a line, rectangle, circle or ellipse, triangle, or arrow (`ink/shapes.ts`). Snap shapes: lines to 0, 45 and 90 degrees (within 8), nearly square rectangles to squares, nearly round ellipses to circles. Fill shapes: closed shapes get a 20 % tint. Shapes are drawn as clean lines in the pen's colour and width.
+- **Lasso on ink:** free-hand or rectangle (Lasso options), filter "Ink". A tap on a stroke selects it; a drag from empty paper selects strokes with half their points inside. A box with four corner handles (resize), a separate round handle (turn) and dragging the box (move). Strokes are moved to the block they now lie over. Menu: Duplicate, Colour, Copy as picture, Save as picture (PNG of the strokes on the page colour, two times the screen size), Delete. Words and pictures keep their own menu.
+- **Layers:** a page has up to 12 ink layers over the text (made when the first stroke is drawn, "Layer 1"). Card: Pen, Highlighter or Lasso › Layers, or the ribbon's "Ink layers". Each layer: name, show or hide, lock, move up or down, select all, delete (Undo brings it back), which layer new ink goes to. New ink skips a hidden or locked layer. "Paper behind the ink": blank, lined, grid, dots (saved with the page). "View as drawn" is shown dimmed (the reader, step 5).
+- **Speed:** three canvases cover only the screen's part of the page (never a huge canvas). Each visible layer has a cached bitmap a little taller than the screen, redrawn only when its strokes or the layout change; scrolling only moves it. Only the stroke in progress is redrawn while drawing. Paths are cached per stroke.
+- **Undo and Redo:** one history with the text. Ink steps (a stroke, an erase gesture, a lasso change, a layer change) are kept with the text editor's undo depth; Undo takes the newest of the two (`ink/inkHistory.ts`, `editor/historyActions.ts`). Ctrl or Cmd+Z, the bar and the Undo toast all go through it.
+- **Storage:** Dexie version 13 adds `inkLayers` and `inkChunks` (indexed by page, and layer). A chunk holds up to 60 strokes of one layer over one block; a save rewrites only changed chunks, 0.4 s after the last change and on hiding the page. Pages without ink have no rows. Empty chunks are soft-deleted.
+- **History, backups, Trash:** a History copy of a page also holds its ink (restoring brings it back; ink changes alone make a copy). "Everything" and "Notes only" files both contain ink (it is note content, not media). "Add as copies" and notebook or page sharing do not carry ink yet (step 10). Delete forever erases the strokes and leaves empty markers. Replace accepts files from database version 12 (only tables were added in 13).
+- **Accessibility:** the ink region is a group "Drawing on this page. Strokes: N". A keyboard door (first Tab stop inside the page area when strokes exist): arrow keys choose a stroke, Delete removes, Escape lets go; a status line names the stroke. Layers and the menu use 44 px buttons with names.
+
+## Edge cases
+
+- Read-only pages (open in another window) and Reading mode show ink but do not draw.
+- A stroke started near the bottom makes more room: the page is kept 240 px taller than its lowest stroke, and at least 60 % of the screen tall while an ink tool is selected.
+- Very long pages: only layers' visible parts are painted; all strokes of the page are loaded (not chunk by chunk yet).
+- A damaged saved style or stroke in a backup is refused with the rest of the file (`share/checkRows.ts`).
+- Two windows on one page: only one edits (existing page lock).
+
+## Security check
+
+Ink is device-local data. Every row from a file is checked field by field (stroke points must be whole groups of six numbers, at most 400,000 numbers per stroke, 1,000 strokes per chunk). No network. The only new dependency is perfect-freehand 1.2.3: MIT licence, no dependencies, 4.5 KB source, no production audit findings, used by one import (tree-shaken).
+
+## Tests
+
+- Unit: `ink/ink.test.ts` (stroke model, five pens differ, anchoring and reflow maths, eraser split and modes, shape recognition, scribble and circle gestures, layer rules, document edits, chunking and saving, one history), `core/inkService.test.ts` (storage, version 12 upgrade, History copies, Delete forever, backup round trip, v12 file accepted, damaged rows refused), `toolRegistry.test.ts`.
+- Browser (Chromium and WebKit, simulated pen events): `ink`, `inkTools`, `inkLayers` (draw and what is saved, palm rejection, pens, highlighter snap, eraser modes, scribble, shapes, lasso move, resize, turn, duplicate, delete, colour, keyboard, paper, layers, reflow, one history, reload, a 500-stroke page).
+- Only a real iPad can confirm Pencil feel and latency, finger scrolling next to the Pencil, and Scribble: see HANDOFF owner checks.

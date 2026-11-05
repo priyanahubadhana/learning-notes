@@ -29,6 +29,8 @@ export const TIPS = {
   },
   'pill.grip': { where: 'Page › options pill › ⠿ grip at its start' },
   'pill.pin': { where: 'Page › options pill › 📌 pin' },
+  'ink.layers': { where: 'Page › Pen, Highlighter or Lasso card › Layers' },
+  'ink.finger': { where: 'Page › Pen card › Pen settings › Finger can draw' },
   'ribbon.behaviour': {
     where: 'Page › ribbon › Tools close after use / stay open',
   },

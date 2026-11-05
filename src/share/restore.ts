@@ -32,6 +32,16 @@ import type { ParsedFull } from './readFull'
 /** Row in `meta` that remembers the last restore (for the Undo row). */
 export const RESTORE_MARK = 'restoreUndo'
 
+/**
+ * Oldest file version "Replace" accepts. Versions 12 and 13 differ only by
+ * added tables (13: ink), so a version 12 file's rows are valid as they are.
+ */
+export const REPLACE_MIN_VERSION = 12
+
+/** Can a file saved at `fileVersion` replace the notes of a database at `current`? */
+export const canReplaceFrom = (fileVersion: number, current: number): boolean =>
+  fileVersion >= Math.min(current, REPLACE_MIN_VERSION)
+
 export interface RestoreMark {
   /** When the restore was done. */
   restoredAt: number
@@ -91,7 +101,7 @@ export async function replaceWithFile(
   parsed: ParsedFull,
   options: ReplaceOptions = {},
 ): Promise<RestoreMark> {
-  if (parsed.manifest.dbVersion < db.verno) {
+  if (!canReplaceFrom(parsed.manifest.dbVersion, db.verno)) {
     throw new RestoreError(t('restore.err.older'))
   }
   const now = options.now ?? Date.now()

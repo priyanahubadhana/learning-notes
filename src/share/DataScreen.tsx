@@ -44,6 +44,7 @@ import { formatSize } from './formatSize'
 import { readFullFile } from './readFull'
 import { RestoreDialog } from './RestoreDialog'
 import {
+  canReplaceFrom,
   fullToBundle,
   readRestoreMark,
   replaceWithFile,
@@ -659,7 +660,8 @@ export function DataScreen({
           <RestoreDialog
             file={opened}
             canReplace={
-              opened.type === 'zip' && opened.manifest.dbVersion >= db.verno
+              opened.type === 'zip' &&
+              canReplaceFrom(opened.manifest.dbVersion, db.verno)
             }
             disabled={busy}
             onReplace={() => replace(opened)}

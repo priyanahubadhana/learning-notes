@@ -6,10 +6,13 @@ export function parentPage(tool: PillTool, page: string): string | undefined {
     return 'style'
   if (
     tool === 'pen' &&
-    ['settings', 'gestures', 'stroke', 'colour'].includes(page)
+    ['settings', 'gestures', 'stroke', 'colour', 'layers'].includes(page)
   ) {
     return 'main'
   }
-  if (tool === 'highlighter' && page === 'colour') return 'main'
+  if (tool === 'highlighter' && (page === 'colour' || page === 'layers')) {
+    return 'main'
+  }
+  if (tool === 'lasso' && page === 'layers') return 'main'
   return undefined
 }

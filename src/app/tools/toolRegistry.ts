@@ -21,6 +21,7 @@ import {
   toggleReadingMode,
 } from '../reading/readingTools'
 import { TABS, type TabId } from './tabs'
+import { runInkTool } from '../../ink/inkTools'
 
 /**
  * THE list of every feature the control panel, the ribbon and the short bar
@@ -70,12 +71,28 @@ const needsBar = (r: Runner, panel: 'more' | 'color' | 'menu'): void => {
   else r.app?.toast(t('tool.needsBar'))
 }
 
+/** A Draw tool that is not built yet (shapes, tape, magnifier, ruler). */
 const ink = (
   id: string,
   icon: IconName,
   group: string,
   extra: Partial<ToolDef> = {},
 ): ToolDef => ({ id, icon, section: 'draw', group, coming: 'ink', ...extra })
+
+/** A Draw tool of the ink engine (ink/inkTools.ts). */
+const draw = (
+  id: string,
+  icon: IconName,
+  group: string,
+  extra: Partial<ToolDef> = {},
+): ToolDef => ({
+  id,
+  icon,
+  section: 'draw',
+  group,
+  run: () => runInkTool(id),
+  ...extra,
+})
 
 export const TOOLS: readonly ToolDef[] = [
   // ---- File ----
@@ -372,31 +389,32 @@ export const TOOLS: readonly ToolDef[] = [
     run: (r) => r.app?.openNotebookTab('revise'),
   },
 
-  // ---- Draw (all wait for the drawing update) ----
-  ink('ballPen', 'pen', 'pens'),
-  ink('fountainPen', 'penTool', 'pens'),
-  ink('marker', 'penLine', 'pens'),
-  ink('brush', 'brush', 'pens'),
-  ink('pencil', 'pencil', 'pens'),
-  ink('pen', 'pen', 'pens', { inRibbon: false }),
-  ink('highlighter', 'highlighter', 'tools'),
-  ink('eraser', 'eraser', 'tools'),
-  ink('lasso', 'lasso', 'tools'),
+  // ---- Draw ----
+  draw('ballPen', 'pen', 'pens'),
+  draw('fountainPen', 'penTool', 'pens'),
+  draw('marker', 'penLine', 'pens'),
+  draw('brush', 'brush', 'pens'),
+  draw('pencil', 'pencil', 'pens'),
+  draw('pen', 'pen', 'pens', { inRibbon: false }),
+  draw('highlighter', 'highlighter', 'tools'),
+  draw('eraser', 'eraser', 'tools'),
+  draw('lasso', 'lasso', 'tools'),
   ink('shapes', 'shapes', 'tools'),
   ink('tape', 'tape', 'tools'),
   ink('magnifier', 'zoom', 'tools'),
   ink('ruler', 'ruler', 'tools'),
-  ink('drawColor', 'palette', 'style'),
-  ink('thickness', 'minus', 'style'),
-  ink('opacity', 'droplet', 'style'),
-  ink('pressure', 'gauge', 'style'),
-  ink('smoothing', 'waves', 'style'),
-  ink('taperedEnds', 'penLine', 'style'),
-  ink('paperBlank', 'square', 'paper'),
-  ink('paperLined', 'list', 'paper'),
-  ink('paperGrid', 'grid', 'paper'),
-  ink('paperDots', 'grid', 'paper'),
-  ink('onlyPencil', 'hand', 'pencilOnly'),
+  draw('drawColor', 'palette', 'style'),
+  draw('thickness', 'minus', 'style'),
+  draw('opacity', 'droplet', 'style'),
+  draw('pressure', 'gauge', 'style'),
+  draw('smoothing', 'waves', 'style'),
+  draw('taperedEnds', 'penLine', 'style'),
+  draw('paperBlank', 'square', 'paper'),
+  draw('paperLined', 'list', 'paper'),
+  draw('paperGrid', 'grid', 'paper'),
+  draw('paperDots', 'grid', 'paper'),
+  draw('onlyPencil', 'hand', 'pencilOnly'),
+  draw('inkLayers', 'layers', 'tools'),
 
   // ---- View ----
   {

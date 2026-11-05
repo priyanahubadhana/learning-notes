@@ -9,19 +9,23 @@ import { runTool } from '../toolRegistry'
 import type { CardAnchor } from './pillPlace'
 import { keepFocus } from './pillKit'
 import { miniToolbarOpen } from './mainTools'
+import { inkFor, useInk } from '../../../ink/inkRuntime'
 
 /**
  * What the Lasso offers once something is selected. On text and pictures it
  * works now (Copy, Cut, Duplicate, Delete, Colour, Key point, Make card).
- * Move, scale, rotate, Screenshot, Save to notes and Convert handwriting need
- * the drawing engine and the shared ink layers (step 3): they show dimmed and
- * say so.
+ * Move, scale, rotate and Screenshot work on selected drawings (the ink
+ * menu, ink/InkSurface.tsx) and show dimmed here, saying so. Save to notes
+ * keeps the selected words in the Highlights page. Convert handwriting is
+ * still to come (beta).
  */
 
 interface Item {
   id: string
   icon: IconName
   run?: () => void
+  /** Not built yet (a later update), not just for drawings. */
+  soon?: true
 }
 
 type Block = ReturnType<Editor['getTextCursorPosition']>['block']
@@ -72,11 +76,20 @@ export function SelectionMenu({
       off2?.()
     }
   }, [editor])
+  const ink = useInk()
   const sel = selected(editor)
   // The mini toolbar covers a tap selection of words.
+  // Selected drawings have their own menu.
+  if (ink && ink.controller.selectionCount() > 0) return null
   if (!sel || (sel.text && miniToolbarOpen.get())) return null
   const toast = (m: string) => currentRunner().app?.toast(m)
-  const coming = () => toast(t('main.coming.ink'))
+  const coming = () => toast(t('ink.sel.textOnly'))
+  const later = () => toast(t('main.coming.later'))
+  const saveText = () => {
+    const text = editor.getSelectedText()
+    if (text.trim() === '') return coming()
+    inkFor(editor)?.saveText(text)
+  }
 
   const cut = async () => {
     await copyAs(editor, 'plain', toast)
@@ -122,8 +135,8 @@ export function SelectionMenu({
       },
     },
     { id: 'makeCard', icon: 'cards', run: () => runTool('card') },
-    { id: 'saveToNotes', icon: 'notebook' },
-    { id: 'convert', icon: 'type' },
+    { id: 'saveToNotes', icon: 'notebook', run: saveText },
+    { id: 'convert', icon: 'type', soon: true },
   ]
   return (
     <div
@@ -141,17 +154,23 @@ export function SelectionMenu({
     >
       {items.map((item) => {
         const label = t(`main.sel.${item.id}` as MessageKey)
-        const later = !item.run
+        const dim = !item.run || item.soon
         return (
           <button
             key={item.id}
             type="button"
             data-sel={item.id}
-            data-coming={later ? '' : undefined}
+            data-coming={dim ? '' : undefined}
             aria-label={label}
-            title={later ? `${label}. ${t('main.coming.ink')}` : label}
+            title={
+              item.soon
+                ? `${label}. ${t('main.coming.later')}`
+                : dim
+                  ? `${label}. ${t('ink.sel.textOnly')}`
+                  : label
+            }
             onMouseDown={keepFocus}
-            onClick={later ? coming : item.run}
+            onClick={item.soon ? later : dim ? coming : item.run}
             className="grid min-h-11 min-w-11 place-items-center rounded-xl text-ink-soft hover:bg-hover hover:text-ink data-[coming]:opacity-55"
           >
             <Icon name={item.icon} />

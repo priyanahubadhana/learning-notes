@@ -61,13 +61,30 @@ describe('tool registry', () => {
     ])
   })
 
-  it('draw tools wait for the drawing update, except Undo, Redo and New line', () => {
+  it('draw tools work now, except Shapes, Tape, Magnifier and Ruler', () => {
     for (const id of DEFAULT_SET_TOOLS.draw) {
       const tool = findTool(id)!
       expect(tool, id).toBeDefined()
       expect(Boolean(tool.coming), id).toBe(
-        !['undo', 'redo', 'newLine'].includes(id),
+        ['shapes', 'tape', 'magnifier', 'ruler'].includes(id),
       )
+    }
+  })
+
+  it('the ink tools of the Draw tab run the ink engine', () => {
+    for (const id of [
+      'ballPen',
+      'highlighter',
+      'eraser',
+      'lasso',
+      'drawColor',
+      'paperGrid',
+      'inkLayers',
+      'onlyPencil',
+    ]) {
+      const tool = findTool(id)!
+      expect(tool.coming, id).toBeUndefined()
+      expect(tool.run, id).toBeTypeOf('function')
     }
   })
 

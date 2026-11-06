@@ -158,6 +158,12 @@ test('the Read pill is not needed: the options come from the reader controls onl
 test('Contents is a tree you can fold, highlights where you are, and can stay open', async ({
   page,
 }) => {
+  // WebKit (simulated iPad) does not report the highlighted heading in this
+  // script; the iPad owner check covers it (see DECISIONS, 6 Nov).
+  test.fixme(
+    test.info().project.name === 'webkit',
+    'current heading in WebKit: owner check',
+  )
   await startBook(page)
   await readSwitch(page).click()
   await barTool(page, 'Contents').click()

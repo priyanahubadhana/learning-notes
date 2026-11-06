@@ -54,7 +54,6 @@ export function ContentsPane({
 
   // The heading being read follows the scroll.
   useEffect(() => {
-    const pane = scroller ?? window
     let raf = 0
     const measure = () => {
       raf = 0
@@ -73,9 +72,13 @@ export function ContentsPane({
       if (!raf) raf = requestAnimationFrame(measure)
     }
     measure()
-    pane.addEventListener('scroll', onScroll, { passive: true })
+    // Any scroller counts (a capture listener sees them all).
+    document.addEventListener('scroll', onScroll, {
+      capture: true,
+      passive: true,
+    })
     return () => {
-      pane.removeEventListener('scroll', onScroll)
+      document.removeEventListener('scroll', onScroll, true)
       if (raf) cancelAnimationFrame(raf)
     }
   }, [headings, scroller])

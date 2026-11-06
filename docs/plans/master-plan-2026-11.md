@@ -932,3 +932,7 @@ Yardstick added by the owner during the audit: a practical learning experience, 
 6. **Moves:** C5 after CR (its Look up → vocabulary part into CR3); H2 to Phase O; F one wave later; G3 keeps picture resize and ink labels.
 7. **Waves:** 1 = A · 2 = B + E1 + H1 · 3 = C + CR + G0 + G0b + G1 + G2a + E2 · 4 = D + F + rest of G2 + G3 · 5 = C5 + I + J + K. Then L (stop for the owner's free-account checklist).
 8. **Quality steps:** brief B1 (first load ≤ 350 KB, CI size gate) right after Phase A; B5 (WebKit gate for Pencil specs) any time; B6 (split App.tsx) after A; B7 (axe) and B8 (dead code) any time; owner checks in `owner-checks-pending.md`.
+- Owner answers to the audit (6 Nov):
+  - (1) YES to CR4: AI with the owner's own key / $100 credit (still spend caps, key device-only).
+  - (2) YES to a free-tier Cloudflare Worker CORS proxy for automatic YouTube/article fetching (₹0). The owner PREFERS connected AI apps like Gemini (deep YouTube integration), so the primary path is the Gemini/connected-AI route (copy prompt → Gemini → paste into ln-notes/1, later an API/connector). The Worker is a fallback.
+  - (3) YES to the re-cut waves (Home one wave later).

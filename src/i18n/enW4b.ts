@@ -19,4 +19,6 @@ export const enW4b = {
   // ---- Camera (G2) ----
   'camera.slash.title': 'Camera',
   'camera.slash.subtext': 'Take a photo and add it as a picture',
+  // ---- Ink replay with audio (G2) ----
+  'ink.sel.replay': 'Play the recording from here',
 } as const

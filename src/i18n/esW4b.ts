@@ -13,4 +13,5 @@ export const esW4b: Record<string, string> = {
     'Este archivo no está en este dispositivo (una copia solo de notas no incluye archivos).',
   'camera.slash.title': 'Cámara',
   'camera.slash.subtext': 'Haz una foto y añádela como imagen',
+  'ink.sel.replay': 'Reproducir la grabación desde aquí',
 }

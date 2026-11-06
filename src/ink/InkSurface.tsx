@@ -17,6 +17,13 @@ import { PEN_COLOURS } from '../app/tools/main/inkSettings'
 import { useLiveQuery } from 'dexie-react-hooks'
 import type { LearningNotesDB } from '../core/db'
 import { loadInk, saveInk } from '../core/inkService'
+import {
+  earliestAt,
+  recordingTimes,
+  replayTarget,
+  requestReplay,
+  type ReplayTarget,
+} from '../core/replay'
 import { t } from '../i18n/t'
 import { getPage, setPageInkBg } from '../pages/pageService'
 import { InkController, type TextEditor } from './controller'
@@ -224,6 +231,8 @@ export function InkSurface({
   // Inside the overlay, so it is laid exactly over the editor.
   return createPortal(
     <InkUi
+      db={db}
+      pageId={pageId}
       controller={live.controller}
       paper={paper}
       editor={editor as unknown as Editor}
@@ -236,11 +245,15 @@ export function InkSurface({
 // ---- The region, the keyboard door and the selection ----
 
 function InkUi({
+  db,
+  pageId,
   controller,
   paper,
   editor,
   wrap,
 }: {
+  db: LearningNotesDB
+  pageId: string
   controller: InkController
   paper: string | undefined
   editor: Editor
@@ -258,6 +271,28 @@ function InkUi({
   const box = controller.selectionRect()
   const [status, setStatus] = useState('')
   const tool = activeTool.useValue()
+
+  // Strokes written while a recording ran can play it from that moment.
+  const [found, setFound] = useState<{
+    at: number
+    target: ReplayTarget | null
+  } | null>(null)
+  const pickedAt =
+    tool === 'lasso'
+      ? earliestAt(controller.selected().map((p) => p.stroke.at))
+      : 0
+  useEffect(() => {
+    if (pickedAt === 0) return
+    let stale = false
+    void recordingTimes(db, pageId).then((rows) => {
+      if (!stale)
+        setFound({ at: pickedAt, target: replayTarget(rows, pickedAt) })
+    })
+    return () => {
+      stale = true
+    }
+  }, [db, pageId, pickedAt])
+  const replay = found && found.at === pickedAt ? found.target : null
 
   const onKey = (e: React.KeyboardEvent) => {
     if (e.key === 'ArrowRight' || e.key === 'ArrowDown') {
@@ -330,6 +365,7 @@ function InkUi({
           box={box}
           count={count}
           onPng={png}
+          onReplay={replay ? () => requestReplay(replay) : undefined}
         />
       )}
     </div>
@@ -343,6 +379,7 @@ function SelectionBox({
   box,
   count,
   onPng,
+  onReplay,
 }: {
   controller: InkController
   editor: Editor
@@ -350,6 +387,8 @@ function SelectionBox({
   box: { x: number; y: number; w: number; h: number }
   count: number
   onPng: (how: 'copy' | 'save') => void
+  /** Set when the drawing was written during a recording. */
+  onReplay?: () => void
 }) {
   const [colours, setColours] = useState(false)
   const grab =
@@ -451,6 +490,14 @@ function SelectionBox({
         <span className="px-2 text-xs text-ink-soft">
           {t('ink.sel.count', { count })}
         </span>
+        {onReplay && (
+          <MenuButton
+            id="replay"
+            icon="music"
+            label={t('ink.sel.replay')}
+            onClick={onReplay}
+          />
+        )}
         <MenuButton
           id="duplicate"
           icon="duplicate"

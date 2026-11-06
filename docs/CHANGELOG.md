@@ -2,6 +2,11 @@
 
 Current phase only. Older entries are in [ARCHIVE.md](ARCHIVE.md).
 
+## 2026-11-07 (Wave 4 part B · G2: ink replay from audio)
+
+- **What:** a drawing written while recording shows **Play the recording from here** in the Lasso menu; the Audio list opens and starts the sound at that second. **Why:** master plan G2 (stroke `at` hook). **No new table.**
+- **Files:** `src/core/replay.ts` (+test), `src/ink/InkSurface.tsx`, `src/audio/{AudioDock.tsx,recordingService.ts}`, `src/i18n/*W4b.ts`, `e2e/inkReplay.spec.ts`, `docs/features/audio.md`. `InkController` is untouched (paint key and the 500-stroke test unaffected).
+
 ## 2026-11-07 (Wave 4 part B · G2: Table, Toggle list, File, Camera)
 
 - **What:** Insert › Table and "/table", "/toggle" (BlockNote's own blocks), a File block (attach any file up to 50 MB; Save a copy; a PDF/EPUB/DOCX opens in the reader through the Library), and Insert › Camera / "/camera" (photo into the page). The three tools no longer say "coming".

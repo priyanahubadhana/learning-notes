@@ -5,6 +5,7 @@ import {
   restoreMany,
   softDeleteMany,
 } from '../core/records'
+import { forgetRecordingTimes } from '../core/replay'
 import type { Recording } from '../core/types'
 
 /**
@@ -48,6 +49,7 @@ export async function saveRecording(
     data: input.data,
   }
   await db.recordings.add(row)
+  forgetRecordingTimes(input.pageId)
   return row
 }
 
@@ -74,6 +76,7 @@ export async function deleteRecording(
   now: number = Date.now(),
 ): Promise<void> {
   await softDeleteMany(db.recordings, [id], now)
+  forgetRecordingTimes()
 }
 
 /** Brings a deleted recording back. */
@@ -85,6 +88,7 @@ export async function restoreRecording(
   const row = await db.recordings.get(id)
   if (!row || row.purgedAt !== undefined) return
   await restoreMany(db.recordings, [id], now)
+  forgetRecordingTimes()
 }
 
 const EMPTY: Partial<Recording> = { data: new ArrayBuffer(0), name: '' }

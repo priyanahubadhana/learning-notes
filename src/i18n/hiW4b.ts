@@ -13,4 +13,5 @@ export const hiW4b: Record<string, string> = {
     'यह फ़ाइल इस डिवाइस पर नहीं है (केवल-नोट्स बैकअप में फ़ाइलें नहीं होतीं)।',
   'camera.slash.title': 'कैमरा',
   'camera.slash.subtext': 'फ़ोटो लें और चित्र की तरह जोड़ें',
+  'ink.sel.replay': 'यहाँ से रिकॉर्डिंग चलाएँ',
 }

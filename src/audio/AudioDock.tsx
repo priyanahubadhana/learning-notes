@@ -1,7 +1,8 @@
 import { useLiveQuery } from 'dexie-react-hooks'
-import { useContext, useEffect, useState } from 'react'
+import { useContext, useEffect, useRef, useState } from 'react'
 import { AppUiContext } from '../app/appUi'
 import type { LearningNotesDB } from '../core/db'
+import { isFreshReplay, useReplayRequest } from '../core/replay'
 import type { Recording } from '../core/types'
 import { t } from '../i18n/t'
 import {
@@ -32,6 +33,25 @@ function useElapsed(startedAt: number | null): number {
   return startedAt === null ? 0 : Math.max(0, now - startedAt)
 }
 
+/**
+ * Plays from a moment. A recording made by the browser often has no length
+ * written in it, and then a seek does nothing until the end is found: jump to
+ * a huge time first, and seek for real when the player has moved.
+ */
+function seekAndPlay(audio: HTMLAudioElement, seconds: number) {
+  const go = () => {
+    audio.currentTime = seconds
+    void audio.play().catch(() => {})
+  }
+  if (Number.isFinite(audio.duration)) return go()
+  const fix = () => {
+    audio.removeEventListener('timeupdate', fix)
+    go()
+  }
+  audio.addEventListener('timeupdate', fix)
+  audio.currentTime = 1e101
+}
+
 /** One recording: name, length, Play (the sound is loaded only then) and Delete. */
 function RecordingRow({
   recording,
@@ -42,6 +62,11 @@ function RecordingRow({
 }) {
   const [url, setUrl] = useState<string | null>(null)
   const [failed, setFailed] = useState(false)
+  const audioRef = useRef<HTMLAudioElement>(null)
+  // Where a tapped drawing asks this recording to start (core/replay.ts).
+  const replay = useReplayRequest()
+  const seek = useRef<number | null>(null)
+  const handled = useRef(0)
   useEffect(
     () => () => {
       if (url) URL.revokeObjectURL(url)
@@ -54,6 +79,31 @@ function RecordingRow({
       URL.createObjectURL(new Blob([recording.data], { type: recording.type })),
     )
   }
+  const applySeek = () => {
+    const audio = audioRef.current
+    if (!audio || seek.current === null) return
+    const seconds = seek.current
+    seek.current = null
+    seekAndPlay(audio, seconds)
+  }
+  useEffect(() => {
+    if (
+      !replay ||
+      replay.recordingId !== recording.id ||
+      !isFreshReplay(replay) ||
+      handled.current === replay.nonce
+    ) {
+      return
+    }
+    handled.current = replay.nonce
+    seek.current = replay.seconds
+    // After this render: the sound is made and the player mounts first.
+    queueMicrotask(() => {
+      if (url) applySeek()
+      else play()
+    })
+    // eslint-disable-next-line react-hooks/exhaustive-deps -- once per request
+  }, [replay?.nonce])
   return (
     <li
       data-testid="recording-row"
@@ -87,6 +137,8 @@ function RecordingRow({
           className="mt-2 w-full"
           controls
           autoPlay
+          ref={audioRef}
+          onLoadedMetadata={applySeek}
           src={url}
           aria-label={t('audio.playing', { name: recording.name })}
           onError={() => setFailed(true)}
@@ -259,6 +311,11 @@ export function AudioDock({
   const elapsed = useElapsed(
     recorder.status === 'recording' ? recorder.startedAt : null,
   )
+  // A drawing was tapped to hear what was said while it was written.
+  const replay = useReplayRequest()
+  useEffect(() => {
+    if (replay && isFreshReplay(replay)) setAudioPanel(true)
+  }, [replay])
   useEffect(() => {
     setRecorderNotice((message) => app.toast(message))
     return () => setRecorderNotice(null)

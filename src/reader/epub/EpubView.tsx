@@ -23,6 +23,7 @@ interface FoliateView extends HTMLElement {
   goLeft: () => Promise<void>
   goRight: () => Promise<void>
   getCFI: (index: number, range?: Range) => string
+  goToFraction: (fraction: number) => Promise<void>
   addAnnotation: (a: AnnotationDraft, remove?: boolean) => Promise<unknown>
   deleteAnnotation: (a: AnnotationDraft) => Promise<unknown>
 }
@@ -35,6 +36,8 @@ interface RelocateDetail {
   fraction: number
   cfi: string
   tocItem?: { label?: string }
+  /** What is left, in foliate size units (1,600 characters each). */
+  time?: { section: number; total: number }
 }
 
 export interface EpubViewProps {
@@ -45,12 +48,19 @@ export interface EpubViewProps {
   /** Text size in percent. */
   size: number
   flow: 'paginated' | 'scrolled'
-  command?: { type: 'prev' | 'next'; nonce: number } | null
+  command?: {
+    type: 'prev' | 'next' | 'fraction'
+    nonce: number
+    /** For 'fraction': where in the book, 0 to 1. */
+    value?: number
+  } | null
   onOutline: (items: (OutlineItem & { at?: string })[]) => void
   onPosition: (pos: {
     progress: number
     locator: string
     label: string
+    /** Size units left in the chapter and the book, when the book says. */
+    unitsLeft?: { chapter: number; book: number }
   }) => void
   onSelection: (sel: ReaderSelection | null) => void
   onFailed: () => void
@@ -128,6 +138,9 @@ export function EpubView(props: EpubViewProps) {
             progress: d.fraction,
             locator: `epub:${d.cfi}`,
             label: lastTocLabel.current,
+            ...(d.time && {
+              unitsLeft: { chapter: d.time.section, book: d.time.total },
+            }),
           })
         })
         view.addEventListener('draw-annotation', (e) => {
@@ -264,7 +277,8 @@ export function EpubView(props: EpubViewProps) {
     const v = viewRef.current
     const c = props.command
     if (!v || !c) return
-    void (c.type === 'next' ? v.goRight() : v.goLeft())
+    if (c.type === 'fraction') void v.goToFraction(c.value ?? 0)
+    else void (c.type === 'next' ? v.goRight() : v.goLeft())
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [props.command?.nonce])
 

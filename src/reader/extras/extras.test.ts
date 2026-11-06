@@ -127,20 +127,35 @@ describe('Find in a PDF', () => {
 
   it('searches the pages in order and stops when a newer search takes over', async () => {
     let seen: number[] = []
-    await searchPdf(doc, 'heart', () => false, (hits) => {
-      seen = hits.map((h) => h.page)
-    })
+    await searchPdf(
+      doc,
+      'heart',
+      () => false,
+      (hits) => {
+        seen = hits.map((h) => h.page)
+      },
+    )
     expect(seen).toEqual([1, 3, 3, 3])
     let result = 'untouched'
-    await searchPdf(doc, 'heart', () => true, () => {
-      result = 'called'
-    })
+    await searchPdf(
+      doc,
+      'heart',
+      () => true,
+      () => {
+        result = 'called'
+      },
+    )
     expect(result).toBe('untouched')
     // One letter is too short to search for.
     let few = -1
-    await searchPdf(doc, 'h', () => false, (hits) => {
-      few = hits.length
-    })
+    await searchPdf(
+      doc,
+      'h',
+      () => false,
+      (hits) => {
+        few = hits.length
+      },
+    )
     expect(few).toBe(0)
   })
 })

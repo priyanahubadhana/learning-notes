@@ -42,9 +42,15 @@ function toLines(items: readonly TextPiece[]): Line[] {
       y: i.transform[5],
       size: Math.abs(i.height) || Math.abs(i.transform[3]) || 10,
     }))
-  const lines: { y: number; size: number; parts: { x: number; str: string }[] }[] = []
+  const lines: {
+    y: number
+    size: number
+    parts: { x: number; str: string }[]
+  }[] = []
   for (const p of pieces) {
-    const line = lines.find((l) => Math.abs(l.y - p.y) < Math.max(l.size, p.size) * 0.5)
+    const line = lines.find(
+      (l) => Math.abs(l.y - p.y) < Math.max(l.size, p.size) * 0.5,
+    )
     if (line) {
       line.parts.push({ x: p.x, str: p.str })
       line.size = Math.max(line.size, p.size)

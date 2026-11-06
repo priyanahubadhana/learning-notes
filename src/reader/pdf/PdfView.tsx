@@ -16,6 +16,8 @@ import { t } from '../../i18n/t'
 import { COLOUR_FILL, type PopupRect } from '../annotations/colours'
 import {
   capScale,
+  pinchRatio,
+  roundZoom,
   fitWidthScale,
   flattenRects,
   groupRects,
@@ -61,6 +63,10 @@ export interface PdfViewProps {
   /** Jump to a locator; a new `nonce` repeats the jump. `glow` flashes an annotation. */
   target?: { at: string; nonce: number; glow?: string } | null
   onReady: (info: { pageCount: number }) => void
+  /** The opened document (for Find, Liquid mode and Page Flip previews). */
+  onDoc?: (doc: PDFDocumentProxy) => void
+  /** Pinch zoom: the new zoom (1 = fit width). */
+  onZoom?: (zoom: number) => void
   onOutline: (items: OutlineItem[]) => void
   onPosition: (pos: PdfPosition) => void
   onSelection: (sel: PdfSelection | null) => void
@@ -109,6 +115,7 @@ export function PdfView(props: PdfViewProps) {
         const firstSize = { w: v.width, h: v.height }
         setSizes(Array.from({ length: pdf.numPages }, () => firstSize))
         setDoc(pdf)
+        propsRef.current.onDoc?.(pdf)
         propsRef.current.onReady({ pageCount: pdf.numPages })
         // The other pages' real sizes, in the background.
         const real: PageSize[] = Array.from(
@@ -294,6 +301,69 @@ export function PdfView(props: PdfViewProps) {
     }
   }, [])
 
+  // Pinch zoom: two fingers scale the pages while they move (a CSS preview);
+  // the real zoom is set when they lift, so pages are drawn only once.
+  const content = useRef<HTMLDivElement>(null)
+  useEffect(() => {
+    const el = scroller.current
+    if (!el) return
+    let start: { d: number; zoom: number; cx: number; cy: number } | null = null
+    let ratio = 1
+    const dist = (e: TouchEvent) =>
+      Math.hypot(
+        e.touches[0].clientX - e.touches[1].clientX,
+        e.touches[0].clientY - e.touches[1].clientY,
+      )
+    const onStart = (e: TouchEvent) => {
+      if (e.touches.length !== 2) return
+      const box = el.getBoundingClientRect()
+      start = {
+        d: dist(e) || 1,
+        zoom: propsRef.current.zoom,
+        cx:
+          (e.touches[0].clientX + e.touches[1].clientX) / 2 -
+          box.left +
+          el.scrollLeft,
+        cy:
+          (e.touches[0].clientY + e.touches[1].clientY) / 2 -
+          box.top +
+          el.scrollTop,
+      }
+      ratio = 1
+    }
+    const onMove = (e: TouchEvent) => {
+      if (!start || e.touches.length !== 2) return
+      e.preventDefault()
+      ratio = pinchRatio(start.zoom, dist(e) / start.d)
+      if (content.current) {
+        content.current.style.transformOrigin = `${start.cx}px ${start.cy}px`
+        content.current.style.transform = `scale(${ratio})`
+      }
+    }
+    const onEnd = (e: TouchEvent) => {
+      if (!start || e.touches.length >= 2) return
+      const next = roundZoom(start.zoom * ratio)
+      start = null
+      if (content.current) {
+        content.current.style.transform = ''
+        content.current.style.transformOrigin = ''
+      }
+      if (Math.abs(next - propsRef.current.zoom) > 0.01) {
+        propsRef.current.onZoom?.(next)
+      }
+    }
+    el.addEventListener('touchstart', onStart, { passive: true })
+    el.addEventListener('touchmove', onMove, { passive: false })
+    el.addEventListener('touchend', onEnd)
+    el.addEventListener('touchcancel', onEnd)
+    return () => {
+      el.removeEventListener('touchstart', onStart)
+      el.removeEventListener('touchmove', onMove)
+      el.removeEventListener('touchend', onEnd)
+      el.removeEventListener('touchcancel', onEnd)
+    }
+  }, [])
+
   const byPage = useMemo(() => {
     const map = new Map<number, Annotation[]>()
     for (const a of annotations) {
@@ -315,6 +385,7 @@ export function PdfView(props: PdfViewProps) {
       className="relative min-h-0 flex-1 overflow-auto bg-soft"
     >
       <div
+        ref={content}
         style={{
           blockSize: layout.total,
           inlineSize: '100%',

@@ -178,3 +178,17 @@ export function groupRects(flat: readonly number[]): Rect4[] {
   }
   return out
 }
+
+export const ZOOM_MIN = 0.5
+export const ZOOM_MAX = 3
+
+const clampZoom = (z: number): number =>
+  Math.min(ZOOM_MAX, Math.max(ZOOM_MIN, z))
+
+/** How much to scale the pages while two fingers spread by `spread` (1 = no change), kept inside 50 to 300 %. */
+export const pinchRatio = (zoom: number, spread: number): number =>
+  clampZoom(zoom * spread) / zoom
+
+/** The zoom to keep when the fingers lift: within limits, in steps of 5 %. */
+export const roundZoom = (z: number): number =>
+  Math.round(clampZoom(z) * 20) / 20

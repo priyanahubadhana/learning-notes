@@ -8,6 +8,7 @@ import {
   useRef,
   useState,
 } from 'react'
+import type { PDFDocumentProxy } from 'pdfjs-dist'
 import { AppUiContext } from '../app/appUi'
 import { runTask } from '../app/errors'
 import type { LearningNotesDB } from '../core/db'
@@ -36,6 +37,21 @@ import { SaveToSheet, type SaveTarget } from './annotations/SaveToSheet'
 import { saveAnnotationTo } from './annotations/saveToNotes'
 import { SelectionPopup } from './annotations/SelectionPopup'
 import type { OutlineItem, PdfSelection } from './pdf/PdfView'
+import { FindPanel } from './pdf/FindPanel'
+import { pageText } from './pdf/pdfSearch'
+import { LiquidView } from './extras/LiquidView'
+import { applyOrientation } from './extras/orientation'
+import { PageFlip } from './extras/PageFlip'
+import {
+  SpeedTracker,
+  WORDS_PER_UNIT,
+  formatMinutes,
+  minutesFor,
+  readingWpm,
+  recordSpeed,
+} from './extras/timeLeft'
+import { useDeviceSetting } from '../settings/useSetting'
+import { readingOrientSetting } from '../settings/readingSettings'
 
 const PdfView = lazy(() =>
   import('./pdf/PdfView').then((m) => ({ default: m.PdfView })),
@@ -86,15 +102,30 @@ export function BookReader({
     page: number
     label: string
     locator: string
+    progress: number
+    /** EPUB: what is left, in foliate size units. */
+    unitsLeft?: { chapter: number; book: number }
   } | null>(null)
   const [epubSize, setEpubSize] = usePref('epubSize', isSize, 100)
   const [epubFlow, setEpubFlow] = usePref('epubFlow', isFlow, 'scrolled')
   const [command, setCommand] = useState<{
-    type: 'prev' | 'next'
+    type: 'prev' | 'next' | 'fraction'
     nonce: number
+    value?: number
   } | null>(null)
   const [zoom, setZoom] = useState(1)
-  const [panel, setPanel] = useState<'contents' | 'annotations' | null>(null)
+  const [panel, setPanel] = useState<
+    'contents' | 'annotations' | 'find' | null
+  >(null)
+  const [pdfDoc, setPdfDoc] = useState<PDFDocumentProxy | null>(null)
+  const [flipOpen, setFlipOpen] = useState(false)
+  const [flipFrom, setFlipFrom] = useState<{
+    locator: string
+    where: string
+  } | null>(null)
+  const [liquid, setLiquid] = useState(false)
+  const [wordsPerPage, setWordsPerPage] = useState(300)
+  const [orient] = useDeviceSetting(readingOrientSetting)
   const [outline, setOutline] = useState<OutlineItem[]>([])
   const [selection, setSelection] = useState<ReaderSelection | null>(null)
   const [noting, setNoting] = useState<ReaderSelection | null>(null)
@@ -134,6 +165,8 @@ export function BookReader({
   const latest = useRef<{ progress: number; at: string } | null>(null)
   const dirty = useRef(false)
   const stillTimer = useRef(0)
+  // Measures how fast this reader reads (for the time left).
+  const speed = useRef(new SpeedTracker(0))
   const flush = useCallback(() => {
     if (!dirty.current || !latest.current) return
     dirty.current = false
@@ -147,10 +180,18 @@ export function BookReader({
     )
   }, [db, pageId, pageCount])
   const report = useCallback(
-    (progress: number, locator: string, label: string, pageNo: number) => {
+    (
+      progress: number,
+      locator: string,
+      label: string,
+      pageNo: number,
+      unitsLeft?: { chapter: number; book: number },
+    ) => {
       latest.current = { progress, at: locator }
       dirty.current = true
-      setPosition({ page: pageNo, label, locator })
+      setPosition({ page: pageNo, label, locator, progress, unitsLeft })
+      const sample = speed.current.update(progress, Date.now())
+      if (sample) recordSpeed(sample)
       window.clearTimeout(stillTimer.current)
       stillTimer.current = window.setTimeout(flush, 2000)
     },
@@ -188,6 +229,74 @@ export function BookReader({
     },
     [outline],
   )
+
+  // ---- Reader extras (C5) ----
+  // Words on a PDF page: the middle of a few sampled pages.
+  useEffect(() => {
+    if (!pdfDoc) return
+    let cancelled = false
+    void (async () => {
+      const n = pdfDoc.numPages
+      const picks = [
+        ...new Set([
+          1,
+          Math.ceil(n / 4),
+          Math.ceil(n / 2),
+          Math.ceil((3 * n) / 4),
+          n,
+        ]),
+      ].filter((p) => p >= 1 && p <= n)
+      const counts: number[] = []
+      for (const p of picks) {
+        const text = await pageText(pdfDoc, p).catch(() => '')
+        if (text) counts.push(text.split(' ').length)
+      }
+      if (cancelled || counts.length === 0) return
+      counts.sort((a, b) => a - b)
+      setWordsPerPage(Math.max(20, counts[Math.floor(counts.length / 2)]))
+    })()
+    return () => {
+      cancelled = true
+    }
+  }, [pdfDoc])
+
+  const bookWords =
+    format === 'pdf'
+      ? pageCount * wordsPerPage
+      : position?.unitsLeft && position.progress < 0.97
+        ? (position.unitsLeft.book * WORDS_PER_UNIT) / (1 - position.progress)
+        : 0
+  useEffect(() => {
+    speed.current.setTotal(bookWords)
+  }, [bookWords])
+  // A jump or a pause is not reading.
+  useEffect(() => {
+    speed.current.reset()
+  }, [target?.nonce, command?.nonce, liquid])
+  useEffect(() => {
+    const onHide = () =>
+      document.visibilityState === 'hidden' && speed.current.reset()
+    document.addEventListener('visibilitychange', onHide)
+    return () => document.removeEventListener('visibilitychange', onHide)
+  }, [])
+
+  // Lock the screen direction while reading, if asked.
+  const toastRef = useRef(toast)
+  useEffect(() => {
+    toastRef.current = toast
+  })
+  useEffect(() => {
+    let current = true
+    void applyOrientation(orient).then((result) => {
+      if (current && orient !== 'off' && result !== 'locked') {
+        toastRef.current(t('reader.orient.help'))
+      }
+    })
+    return () => {
+      current = false
+      if (orient !== 'off') void applyOrientation('off')
+    }
+  }, [orient])
 
   // ---- Selection actions ----
   const whereOf = (sel: ReaderSelection) =>
@@ -315,6 +424,51 @@ export function BookReader({
   )
   const bookmarked = !!bookmarkHere
 
+  // Time left (C5): from this reader's measured speed, 220 words a minute until then.
+  const wpm = readingWpm()
+  const bookLeft =
+    format === 'pdf'
+      ? bookWords * (1 - (position?.progress ?? 0))
+      : (position?.unitsLeft?.book ?? 0) * WORDS_PER_UNIT
+  const chapterLeft = (() => {
+    if (format !== 'pdf')
+      return (position?.unitsLeft?.chapter ?? 0) * WORDS_PER_UNIT
+    const started = outline.filter((o) => o.page > 0 && o.page <= pageNo)
+    if (started.length === 0) return 0
+    const next = outline.find((o) => o.page > pageNo)
+    return Math.max(0, (next?.page ?? pageCount + 1) - pageNo) * wordsPerPage
+  })()
+  const timeLeftText =
+    bookLeft > 0 && position
+      ? chapterLeft > 0
+        ? t('reader.timeLeft.both', {
+            chapter: formatMinutes(minutesFor(chapterLeft, wpm)),
+            book: formatMinutes(minutesFor(bookLeft, wpm)),
+          })
+        : t('reader.timeLeft.bookOnly', {
+            book: formatMinutes(minutesFor(bookLeft, wpm)),
+          })
+      : ''
+
+  const goPage = (p: number) =>
+    setTarget((prev) => ({ at: `pdf:${p}:0`, nonce: (prev?.nonce ?? 0) + 1 }))
+  const startScrub = () =>
+    setFlipFrom(
+      (prev) =>
+        prev ??
+        (position
+          ? {
+              locator: position.locator,
+              where:
+                format === 'pdf'
+                  ? t('reader.flip.wherePage', { page: pageNo })
+                  : t('reader.flip.wherePercent', {
+                      percent: Math.round(position.progress * 100),
+                    }),
+            }
+          : null),
+    )
+
   return (
     <div
       className="flex h-full min-h-0 flex-col"
@@ -441,6 +595,42 @@ export function BookReader({
             </button>
           </>
         )}
+        {format === 'pdf' && (
+          <>
+            <button
+              type="button"
+              data-testid="reader-find"
+              aria-pressed={panel === 'find'}
+              className={panelBtn(panel === 'find')}
+              onClick={() => setPanel((p) => (p === 'find' ? null : 'find'))}
+            >
+              {t('reader.find')}
+            </button>
+            <button
+              type="button"
+              data-testid="reader-liquid"
+              aria-pressed={liquid}
+              disabled={noText}
+              className={`${panelBtn(liquid)} disabled:opacity-40`}
+              onClick={() => {
+                setFlipOpen(false)
+                setLiquid((v) => !v)
+              }}
+            >
+              {t('reader.liquid')}
+            </button>
+          </>
+        )}
+        <button
+          type="button"
+          data-testid="reader-flip"
+          aria-pressed={flipOpen}
+          disabled={liquid}
+          className={`${panelBtn(flipOpen)} disabled:opacity-40`}
+          onClick={() => setFlipOpen((v) => !v)}
+        >
+          {t('reader.flip')}
+        </button>
         <button
           type="button"
           aria-label={
@@ -502,6 +692,15 @@ export function BookReader({
           {t('bookreader.noText')}
         </p>
       )}
+      {timeLeftText && (
+        <p
+          className="truncate px-3 py-0.5 text-xs text-muted"
+          data-testid="reader-timeleft"
+          aria-label={t('reader.timeLeft.label')}
+        >
+          {timeLeftText}
+        </p>
+      )}
       <div className="relative flex min-h-0 flex-1">
         <Suspense
           fallback={<p className="p-6 text-muted">{t('bookreader.loading')}</p>}
@@ -514,6 +713,8 @@ export function BookReader({
               startAt={at ?? page.source.at}
               annotations={annotations ?? []}
               zoom={zoom}
+              onZoom={setZoom}
+              onDoc={setPdfDoc}
               target={target}
               chapterAt={chapterAt}
               onReady={(info) => setPageCount(info.pageCount)}
@@ -541,13 +742,96 @@ export function BookReader({
               command={command}
               onOutline={setOutline}
               onPosition={(pos) =>
-                report(pos.progress, pos.locator, pos.label, 0)
+                report(pos.progress, pos.locator, pos.label, 0, pos.unitsLeft)
               }
               onSelection={setSelection}
               onFailed={() => setFailed(true)}
             />
           )}
         </Suspense>
+        {liquid && pdfDoc && format === 'pdf' && (
+          <div
+            data-chrome
+            className="absolute inset-0 z-10 flex flex-col bg-bg"
+            data-testid="liquid-layer"
+          >
+            <div className="flex items-center justify-between gap-2 border-b border-line px-3 py-1 text-xs text-muted">
+              <span className="flex-1">{t('reader.liquid.beta')}</span>
+              <button
+                type="button"
+                aria-label={t('bookreader.epubSmaller')}
+                className={panelBtn(false)}
+                onClick={() => setEpubSize((n) => stepSize(n, -1))}
+              >
+                A−
+              </button>
+              <button
+                type="button"
+                aria-label={t('bookreader.epubLarger')}
+                className={panelBtn(false)}
+                onClick={() => setEpubSize((n) => stepSize(n, 1))}
+              >
+                A+
+              </button>
+              <button
+                type="button"
+                data-testid="liquid-original"
+                className="min-h-11 rounded-lg border border-line px-3 text-sm text-ink hover:bg-hover"
+                onClick={() => {
+                  setLiquid(false)
+                  goPage(pageNo)
+                }}
+              >
+                {t('reader.liquid.original')}
+              </button>
+            </div>
+            <LiquidView
+              doc={pdfDoc}
+              startPage={pageNo}
+              size={epubSize}
+              onPage={(p) =>
+                report(
+                  pageCount ? (p - 1) / pageCount : 0,
+                  `pdf:${p}:0`,
+                  t('bookreader.pageShort', { page: p }),
+                  p,
+                )
+              }
+            />
+          </div>
+        )}
+        {flipOpen && !liquid && (
+          <PageFlip
+            doc={format === 'pdf' ? pdfDoc : null}
+            pageCount={format === 'pdf' ? pageCount : 0}
+            page={pageNo}
+            progress={position?.progress ?? 0}
+            onGoPage={goPage}
+            onGoFraction={(value) =>
+              setCommand((c) => ({
+                type: 'fraction',
+                value,
+                nonce: (c?.nonce ?? 0) + 1,
+              }))
+            }
+            backTo={flipFrom?.where ?? null}
+            onScrubStart={startScrub}
+            onBack={() => {
+              const from = flipFrom
+              setFlipFrom(null)
+              if (from) {
+                setTarget((prev) => ({
+                  at: from.locator,
+                  nonce: (prev?.nonce ?? 0) + 1,
+                }))
+              }
+            }}
+            onClose={() => {
+              setFlipOpen(false)
+              setFlipFrom(null)
+            }}
+          />
+        )}
         {panel && (
           <aside
             data-chrome
@@ -562,6 +846,16 @@ export function BookReader({
                     at: (item as { at?: string }).at ?? `pdf:${item.page}:0`,
                     nonce: (prev?.nonce ?? 0) + 1,
                   }))
+                }}
+              />
+            ) : panel === 'find' ? (
+              <FindPanel
+                doc={pdfDoc}
+                noText={noText}
+                onJump={(p) => {
+                  setPanel(null)
+                  setLiquid(false)
+                  goPage(p)
                 }}
               />
             ) : (

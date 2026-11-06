@@ -8,7 +8,7 @@
 export interface SearchableDoc {
   numPages: number
   getPage: (n: number) => Promise<{
-    getTextContent: () => Promise<{ items: readonly { str?: string }[] }>
+    getTextContent: () => Promise<{ items: readonly object[] }>
     cleanup?: () => void
   }>
 }
@@ -26,10 +26,7 @@ export const MAX_HITS = 300
 const cache = new WeakMap<object, Map<number, string>>()
 
 /** One page's words as one line of text. */
-export async function pageText(
-  doc: SearchableDoc,
-  n: number,
-): Promise<string> {
+export async function pageText(doc: SearchableDoc, n: number): Promise<string> {
   let pages = cache.get(doc)
   if (!pages) cache.set(doc, (pages = new Map()))
   const known = pages.get(n)
@@ -38,7 +35,7 @@ export async function pageText(
   const content = await page.getTextContent()
   page.cleanup?.()
   const text = content.items
-    .map((i) => i.str ?? '')
+    .map((i) => ('str' in i && typeof i.str === 'string' ? i.str : ''))
     .join(' ')
     .replace(/\s+/g, ' ')
     .trim()

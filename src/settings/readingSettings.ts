@@ -43,6 +43,11 @@ import {
   type Ruler,
   type Width,
 } from '../app/reading/readingPrefs'
+import {
+  isOrient,
+  ORIENT_CHOICES,
+  type OrientChoice,
+} from '../reader/extras/orientation'
 import { t, type MessageKey } from '../i18n/t'
 import { settingsRegistry } from './builtinSettings'
 import type { SettingDefinition } from './registry'
@@ -195,6 +200,15 @@ export const readingAwakeSetting: SettingDefinition<OnOffValue> = choice(
   { keywords: 'screen awake sleep wake lock' },
 )
 
+/** Lock the screen direction while reading a book (C5). */
+export const readingOrientSetting: SettingDefinition<OrientChoice> = choice(
+  'orient',
+  ORIENT_CHOICES,
+  'off',
+  isOrient,
+  { keywords: 'orientation rotate rotation lock portrait landscape sideways' },
+)
+
 for (const definition of [
   readingEntrySetting,
   readingThemeSetting,
@@ -212,6 +226,7 @@ for (const definition of [
   readingGlideSetting,
   readingSpeedSetting,
   readingAwakeSetting,
+  readingOrientSetting,
 ]) {
   settingsRegistry.register(definition as unknown as SettingDefinition)
 }

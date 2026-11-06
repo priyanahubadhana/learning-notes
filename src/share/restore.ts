@@ -155,7 +155,7 @@ export async function undoRestore(db: LearningNotesDB): Promise<void> {
 /** A full file as a bundle, for "Add as copies". */
 export function fullToBundle(parsed: ParsedFull): Bundle {
   const tables = { ...parsed.tables }
-  // Pictures left out of a "notes only" file have no bytes: nothing to copy.
+  // Pictures with no bytes (older "notes only" files) have nothing to copy.
   tables.images = (tables.images ?? []).filter(
     (r) => r.data instanceof ArrayBuffer && r.data.byteLength > 0,
   )

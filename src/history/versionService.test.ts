@@ -69,6 +69,7 @@ describe('recordVersion', () => {
   })
 
   it('keeps only the newest copies', async () => {
+    expect(KEEP_VERSIONS).toBe(30) // owner decision: 30 full copies
     for (let i = 0; i < KEEP_VERSIONS + 5; i++) {
       await createBlock(db, {
         pageId,

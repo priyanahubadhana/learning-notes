@@ -125,9 +125,9 @@ export const es7: Record<string, string> = {
   'data.save.title': 'Guardar',
   'data.save.notes': 'Guardar solo notas',
   'data.save.text':
-    '«Todo» incluye imágenes, historial y Papelera. «Solo notas» es pequeño y rápido, y no incluye las imágenes.',
+    '«Todo» y «Solo notas» guardan tu texto, dibujos, imágenes, historial y Papelera. «Solo notas» deja fuera el sonido de las grabaciones de audio, así que es más pequeño.',
   'data.saved.full': 'Guardado «{name}» ({size}): todo.',
-  'data.saved.notes': 'Guardado «{name}» ({size}): solo notas, sin imágenes.',
+  'data.saved.notes': 'Guardado «{name}» ({size}): solo notas (sin el sonido de las grabaciones).',
   'data.more.title': 'Más',
   'restore.title': 'Restaurar',
   'restore.text': 'Tú eliges: reemplazar lo que hay o añadir como copias.',

@@ -229,23 +229,20 @@ describe('full file', () => {
     await expect(readFullFile(blob, target)).rejects.toBeInstanceOf(BundleError)
   })
 
-  it('notes only: same rows, no picture entries, pictures are empty', async () => {
+  it('notes only: same rows, pictures kept in full', async () => {
     const blob = await writeFullFile(db, 'notes')
-    expect((await entryNames(blob)).some((n) => n.startsWith('media/'))).toBe(
-      false,
-    )
+    expect(
+      (await entryNames(blob)).some((n) => n.startsWith('media/images/')),
+    ).toBe(true)
     const parsed = await readFullFile(blob, target)
     expect(parsed.manifest.kind).toBe('notes')
     await replaceWithFile(target, parsed)
     const before = await allRows(db)
     const after = await allRows(target)
-    expect(after.images).toHaveLength(1)
-    expect((after.images[0] as { data: ArrayBuffer }).data.byteLength).toBe(0)
     for (const name of Object.keys(before)) {
-      if (name !== 'images') expect(after[name], name).toEqual(before[name])
+      expect(after[name], name).toEqual(before[name])
     }
-    // Copies skip the empty picture.
-    expect(fullToBundle(parsed).images).toHaveLength(0)
+    expect(parsed.tables.images).toHaveLength(1)
   })
 
   it('keeps a safety copy first, and Undo puts it back', async () => {

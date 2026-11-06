@@ -1692,9 +1692,9 @@ export const en = {
   'data.save.title': 'Save',
   'data.save.notes': 'Save notes only',
   'data.save.text':
-    'Everything includes pictures, history and Trash. Notes only is small and quick, and leaves out the pictures themselves.',
+    'Everything and Notes only both keep your text, drawings, pictures, history and Trash. Notes only leaves out the sound of audio recordings, so it is smaller.',
   'data.saved.full': 'Saved “{name}” ({size}): everything.',
-  'data.saved.notes': 'Saved “{name}” ({size}): notes only, no pictures.',
+  'data.saved.notes': 'Saved “{name}” ({size}): notes only (no audio sound).',
   'data.more.title': 'More',
   'restore.title': 'Restore',
   'restore.text': 'You choose: replace what is here, or add as copies.',

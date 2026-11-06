@@ -7,9 +7,14 @@ import type { LearningNotesDB } from '../core/db'
  *   tables/<table>.jsonl     one JSON row per line, exactly as stored
  *   media/<table>/<n>        raw bytes of pictures (any binary field)
  * Tables come from `db.tables`, so a table added later is saved with no
- * change here. "Save notes only" is the same file without the media entries:
- * the rows are still listed, so links in the notes stay valid.
+ * change here. "Save notes only" holds all note content in full (text, ink,
+ * pictures, History copies, Trash); it leaves out only the sound of audio
+ * recordings (`NOTES_SKIP_MEDIA`), which are large. Their rows are still
+ * listed, so the Audio list stays valid.
  */
+
+/** Tables whose bytes "notes only" leaves out. */
+export const NOTES_SKIP_MEDIA: ReadonlySet<string> = new Set(['recordings'])
 
 export const FULL_FORMAT_VERSION = 2
 /** Largest zip file read or promised (bytes): about 1 GB. */
@@ -35,7 +40,7 @@ export interface Manifest {
   tables: Record<string, number>
   /** Counts of live things, for the restore dialog. */
   counts: { notebooks: number; pages: number; cards: number; pictures: number }
-  /** True if the binary media are in the file. */
+  /** True if every binary medium is in the file (false = sound left out). */
   media: boolean
 }
 
@@ -85,6 +90,8 @@ export async function writeFullFile(
   now: number = Date.now(),
 ): Promise<Blob> {
   const withMedia = kind === 'full'
+  const skipsMedia = (table: string) =>
+    !withMedia && NOTES_SKIP_MEDIA.has(table)
   const lines = new Map<string, string[]>()
   const refs: MediaRef[] = []
   const counts = { notebooks: 0, pages: 0, cards: 0, pictures: 0 }
@@ -100,7 +107,7 @@ export async function writeFullFile(
         const out: Record<string, unknown> = { ...row }
         for (const [field, value] of Object.entries(row)) {
           if (!isBinary(value)) continue
-          const entry = withMedia ? `media/${table.name}/${refs.length}` : null
+          const entry = !skipsMedia(table.name) ? `media/${table.name}/${refs.length}` : null
           const marker: BinMarker = {
             $bin: entry,
             kind: value instanceof ArrayBuffer ? 'buffer' : 'bytes',

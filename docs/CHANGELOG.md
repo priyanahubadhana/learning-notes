@@ -2,6 +2,12 @@
 
 Current phase only. Older entries are in [ARCHIVE.md](ARCHIVE.md).
 
+## 2026-11-06 (plan)
+
+- **What:** Committed the owner-approved final master plan (Phases A–Q), the deep research, the inventory and the owner test notes; linked the plan and research from docs/INDEX.md. Owner decisions D1–D4, D6, D7 accepted as recommended; D5 (opt-in on-device voice) yes, later phase.
+- **Why:** Phase A builds from these files.
+- **Files:** `docs/plans/master-plan-2026-11.md`, `inventory-2026-11.md`, `owner-test-notes-2026-11.md`, `docs/research/deep-research-2026-11.md`, `ink-layers-pencil-ux.md`, `docs/INDEX.md`.
+
 ## 2026-11-06 (step 4a)
 
 - **What:** Redesign step 4a, the four spaces and one Search. A slim strip of icons at the left edge (bottom tab bar with labels on a phone): Home, Library, Notebooks, Review; the sidebar lists only the current space (Notebooks as before, Review = Study and Saved searches, Library and Home = placeholders with an Import stub and a link to today's journal). A quiet corner (⚙) holds Settings, Save & restore, Trash, Theme, Device mode and Help. The control panel is merged into the one Search (Ctrl/Cmd+K and Ctrl/Cmd+Shift+K): chips All · Pages · Notes · Books · Highlights · Cards · Tasks · Features, a Features group with the old panel rows and Pin to bar. Settings › General can hide Home, Library or Review per device. The last space is remembered per device and addresses (#/review, #/page/…) pick their space.

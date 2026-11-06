@@ -2,6 +2,7 @@ import { penSettings, type PenType } from '../app/tools/main/inkSettings'
 import { openCard, type PillTool } from '../app/tools/main/mainTools'
 import { selectTool } from '../app/tools/main/selectTool'
 import { inkApi } from './inkRuntime'
+import { toggleMagnifier, toggleRuler } from './toolState'
 
 /**
  * What the ribbon's Draw tab (and Search all features) does with the ink
@@ -45,12 +46,32 @@ export const INK_TOOL_IDS: readonly string[] = [
   'eraser',
   'lasso',
   'onlyPencil',
+  'shapes',
+  'tape',
+  'ruler',
+  'magnifier',
 ]
 
 export function runInkTool(id: string): void {
   if (id in PEN_TOOLS) {
-    penSettings.update({ type: PEN_TOOLS[id] })
+    // Choosing a pen means writing again, not drawing shapes or tape.
+    penSettings.update({ type: PEN_TOOLS[id], drawAs: 'free' })
     selectTool('pen')
+  } else if (id === 'shapes') {
+    // The Pen draws a clean shape by dragging; the card shows which one.
+    const now = penSettings.get().drawAs
+    penSettings.update({
+      drawAs: now === 'free' || now === 'tape' ? 'rect' : now,
+    })
+    selectTool('pen')
+    openCard.set({ tool: 'pen', page: 'main' })
+  } else if (id === 'tape') {
+    penSettings.update({ drawAs: 'tape' })
+    selectTool('pen')
+  } else if (id === 'ruler') {
+    toggleRuler()
+  } else if (id === 'magnifier') {
+    toggleMagnifier()
   } else if (
     id === 'pen' ||
     id === 'highlighter' ||

@@ -47,6 +47,7 @@ import {
   LINE_STYLES,
   PEN_COLOURS,
   PEN_TYPES,
+  DRAW_AS,
   addCustomColour,
   eraserSettings,
   highlighterSettings,
@@ -453,6 +454,17 @@ function PenCard({ onPage }: { onPage: (page: string) => void }) {
           icon: PEN_ICON[type],
         }))}
         onChange={(type) => penSettings.update({ type })}
+      />
+      <ChipRow
+        id="drawAs"
+        label={t('ink.drawAs')}
+        value={pen.drawAs}
+        columns={4}
+        options={DRAW_AS.map((drawAs) => ({
+          value: drawAs,
+          label: msg(`ink.drawAs.${drawAs}`),
+        }))}
+        onChange={(drawAs) => penSettings.update({ drawAs })}
       />
       <SliderRow
         id="sharpness"

@@ -61,13 +61,11 @@ describe('tool registry', () => {
     ])
   })
 
-  it('draw tools work now, except Shapes, Tape, Magnifier and Ruler', () => {
+  it('every draw tool works now (Shapes, Tape, Magnifier and Ruler too)', () => {
     for (const id of DEFAULT_SET_TOOLS.draw) {
       const tool = findTool(id)!
       expect(tool, id).toBeDefined()
-      expect(Boolean(tool.coming), id).toBe(
-        ['shapes', 'tape', 'magnifier', 'ruler'].includes(id),
-      )
+      expect(tool.coming, id).toBeUndefined()
     }
   })
 

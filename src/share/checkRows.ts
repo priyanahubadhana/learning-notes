@@ -284,7 +284,7 @@ const stroke = (v: unknown): boolean => {
   return (
     text(s.id) &&
     number(s.at) &&
-    (s.kind === 'ink' || s.kind === 'highlight') &&
+    (s.kind === 'ink' || s.kind === 'highlight' || s.kind === 'tape') &&
     object(s.style) &&
     number(s.bw) &&
     Array.isArray(s.pts) &&

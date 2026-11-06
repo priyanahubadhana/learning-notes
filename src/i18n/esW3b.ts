@@ -69,4 +69,23 @@ export const esW3b: Record<string, string> = {
   'embed.noPicture': 'No hay ninguna imagen en el portapapeles.',
   'embed.pasteBlocked':
     'No se pudo leer el portapapeles. Pega la imagen con Ctrl+V o Cmd+V.',
+
+  'ink.drawAs': 'Dibujar como',
+  'ink.drawAs.free': 'A mano',
+  'ink.drawAs.line': 'Línea',
+  'ink.drawAs.arrow': 'Flecha',
+  'ink.drawAs.rect': 'Caja',
+  'ink.drawAs.ellipse': 'Óvalo',
+  'ink.drawAs.triangle': 'Triángulo',
+  'ink.drawAs.tape': 'Cinta',
+  'ink.ruler.move': 'Mover la regla',
+  'ink.ruler.turn': 'Girar o estirar la regla',
+  'ink.ruler.close': 'Guardar la regla',
+  'ink.magnifier': 'Lupa',
+  'ink.magnifier.pad':
+    'Pizarra: lo que escribas aquí cae pequeño en la caja de trazos de la página',
+  'ink.magnifier.moveBox': 'Mover la caja de destino',
+  'ink.magnifier.space': 'Espacio',
+  'ink.magnifier.nextLine': 'Línea siguiente',
+  'ink.magnifier.close': 'Cerrar la lupa',
 }

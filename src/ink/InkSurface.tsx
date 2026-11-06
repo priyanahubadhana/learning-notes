@@ -27,6 +27,8 @@ import { bumpInk, registerInk } from './inkRuntime'
 import { saveToHighlightsPage } from './saveToNotes'
 import { copyPng, selectionPng } from './screenshot'
 import { MixedMenu } from './MixedMenu'
+import { MagnifierView } from './MagnifierView'
+import { RulerView } from './RulerView'
 import type { Editor } from '../editor/barActions'
 import { watchPaperStep } from './paperGrid'
 
@@ -318,6 +320,8 @@ function InkUi({
         {status}
       </span>
       <HiddenLayerChip controller={controller} />
+      <RulerView controller={controller} wrap={wrap} />
+      <MagnifierView controller={controller} wrap={wrap} />
       {count > 0 && box && tool === 'lasso' && (
         <SelectionBox
           controller={controller}

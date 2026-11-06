@@ -119,9 +119,9 @@ test('running a tool acts on the page; a missing page gets a message', async ({
   await expect(
     page.locator('.bn-editor strong, .bn-editor b').first(),
   ).toContainText('nucleus')
-  // A tool that is not built yet says so.
+  // A tool that is not built yet says so (Print and PDF come in a later phase).
   await features(page)
-  await box(page).fill('magnifier')
+  await box(page).fill('print')
   await page.keyboard.press('Enter')
   await expect(page.getByRole('status')).toContainText('later update')
 })

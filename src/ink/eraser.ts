@@ -63,6 +63,31 @@ export function touches(
   return false
 }
 
+/** Does the path come within `radius` of the box a stroke's points fill? */
+function touchesBox(
+  stroke: Stroke,
+  path: readonly Pt[],
+  radius: number,
+): boolean {
+  let x0 = Infinity
+  let y0 = Infinity
+  let x1 = -Infinity
+  let y1 = -Infinity
+  for (let i = 0; i < stroke.pts.length; i += STRIDE) {
+    x0 = Math.min(x0, stroke.pts[i])
+    x1 = Math.max(x1, stroke.pts[i])
+    y0 = Math.min(y0, stroke.pts[i + 1])
+    y1 = Math.max(y1, stroke.pts[i + 1])
+  }
+  return path.some(
+    (p) =>
+      p.x >= x0 - radius &&
+      p.x <= x1 + radius &&
+      p.y >= y0 - radius &&
+      p.y <= y1 + radius,
+  )
+}
+
 /**
  * Erases with a round eraser of `radius` along `path`.
  * Returns the stroke unchanged (same object) when nothing was touched,
@@ -76,6 +101,10 @@ export function eraseStroke(
 ): Stroke[] {
   if (mode === 'stroke') {
     return touches(stroke, path, radius) ? [] : [stroke]
+  }
+  // Tape is one piece: any touch inside or on it takes the whole tape off.
+  if (stroke.kind === 'tape') {
+    return touchesBox(stroke, path, radius) ? [] : [stroke]
   }
   const reach = mode === 'standard' ? radius * STANDARD_REACH : radius
   const pts = densify(stroke.pts, Math.max(reach / 2, 1e-6))

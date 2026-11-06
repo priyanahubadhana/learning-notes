@@ -76,14 +76,6 @@ const needsBar = (r: Runner, panel: 'more' | 'color' | 'menu'): void => {
   else r.app?.toast(t('tool.needsBar'))
 }
 
-/** A Draw tool that is not built yet (shapes, tape, magnifier, ruler). */
-const ink = (
-  id: string,
-  icon: IconName,
-  group: string,
-  extra: Partial<ToolDef> = {},
-): ToolDef => ({ id, icon, section: 'draw', group, coming: 'ink', ...extra })
-
 /** A Draw tool of the ink engine (ink/inkTools.ts). */
 const draw = (
   id: string,
@@ -379,7 +371,6 @@ export const TOOLS: readonly ToolDef[] = [
     icon: 'network',
     section: 'insert',
     group: 'visual',
-    coming: 'mindmap',
   },
   {
     id: 'card',
@@ -407,10 +398,10 @@ export const TOOLS: readonly ToolDef[] = [
   draw('highlighter', 'highlighter', 'tools'),
   draw('eraser', 'eraser', 'tools'),
   draw('lasso', 'lasso', 'tools'),
-  ink('shapes', 'shapes', 'tools'),
-  ink('tape', 'tape', 'tools'),
-  ink('magnifier', 'zoom', 'tools'),
-  ink('ruler', 'ruler', 'tools'),
+  draw('shapes', 'shapes', 'tools'),
+  draw('tape', 'tape', 'tools'),
+  draw('magnifier', 'zoom', 'tools'),
+  draw('ruler', 'ruler', 'tools'),
   draw('drawColor', 'palette', 'style'),
   draw('thickness', 'minus', 'style'),
   draw('opacity', 'droplet', 'style'),

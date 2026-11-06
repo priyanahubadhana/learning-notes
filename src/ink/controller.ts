@@ -8,6 +8,7 @@ import {
   highlighterSettings,
   lassoSettings,
   penSettings,
+  type DrawAs,
 } from '../app/tools/main/inkSettings'
 import type { ModeTool } from '../app/tools/main/mainTools'
 import { pickAnchor, toLocal, toWorld } from './anchor'
@@ -46,15 +47,26 @@ import {
   setLocked,
 } from './layers'
 import { PageLayout } from './layout'
+import { nearestEdge, projectOnEdge, type Edge } from './ruler'
+import { rulerTool } from './toolState'
 import { InkRenderer, paintStroke, strokeRect } from './render'
 import {
   isLoop,
   isScribble,
   recogniseShape,
+  shapeFromDrag,
   insideLoop,
   type Recognised,
 } from './shapes'
-import { highlightStyle, inkStyle, makeStroke, type RawPoint } from './style'
+import {
+  highlightStyle,
+  inkStyle,
+  makeStroke,
+  scaledStyle,
+  tapeStyle,
+  TAPE_COLOUR,
+  type RawPoint,
+} from './style'
 import {
   clearHighlightRuns,
   eraseHighlightsLive,
@@ -124,6 +136,12 @@ type Gesture =
       holdTimer: ReturnType<typeof setTimeout> | undefined
       shape: Recognised | null
       highlight: boolean
+      /** Dragging out a shape (or Tape) instead of writing freehand. */
+      dragAs: DrawAs
+      /** Where the gesture began (page px), for the shape's first corner. */
+      origin: Pt
+      /** The ruler edge this stroke slides along, if it began at one. */
+      edge: Edge | null
       frame: { blockId: string | null }
     }
   | {
@@ -182,6 +200,8 @@ export class InkController {
   private lastPenAt = -1e9
   private scroller: HTMLElement | Window = window
   private hover: Pt | null = null
+  /** Tapes peeled off for now (ids; never saved). */
+  private peeled = new Set<string>()
   /** Raised when the selection or what the overlay shows changed. */
   version = 0
   private lastDepth = 0
@@ -456,7 +476,9 @@ export class InkController {
     const dpr = clampDpr(window.devicePixelRatio || 1)
     this.renderer.setView(v.top, v.width, v.height, dpr)
     this.renderer.draw(doc, this.layout, {
-      hidden: this.hidden,
+      hidden: this.peeled.size
+        ? new Set([...this.hidden, ...this.peeled])
+        : this.hidden,
       night: this.env.night(),
     })
     this.drawLive()
@@ -488,6 +510,20 @@ export class InkController {
     if (tool === 'eraser' && (this.hover || g?.kind === 'erase')) {
       const at = g?.kind === 'erase' && g.last ? g.last : this.hover
       if (at) this.circle(at, ERASER_SIZES[eraserSettings.get().size] / 2)
+    }
+    if (this.peeled.size > 0) {
+      // A peeled tape leaves a dashed outline, so it can be stuck back.
+      ctx.save()
+      ctx.setTransform(r.dpr, 0, 0, r.dpr, 0, -r.dpr * r.top)
+      ctx.setLineDash([6, 4])
+      ctx.lineWidth = 1.5
+      ctx.strokeStyle = TAPE_COLOUR
+      for (const p of this.selectable()) {
+        if (!this.peeled.has(p.stroke.id)) continue
+        const box = strokeRect(p.stroke, this.layout.frame(p.blockId))
+        if (box) ctx.strokeRect(box.x, box.y, box.w, box.h)
+      }
+      ctx.restore()
     }
     if (g?.kind === 'lasso' && g.path.length > 1) {
       ctx.save()
@@ -524,7 +560,12 @@ export class InkController {
 
   private liveStroke(g: Extract<Gesture, { kind: 'draw' }>): Stroke | null {
     const frame = this.layout.frame(g.frame.blockId)
-    const style = g.highlight ? highlightStyle() : inkStyle()
+    const tape = g.dragAs === 'tape' && !g.highlight
+    const style = g.highlight
+      ? highlightStyle()
+      : tape
+        ? tapeStyle()
+        : inkStyle()
     let points: RawPoint[] = [...g.pts, ...g.predicted]
     if (g.shape) {
       points = g.shape.pts.map((p, i) => ({
@@ -535,19 +576,18 @@ export class InkController {
     }
     if (points.length === 0) return null
     const s = makeStroke(
-      g.highlight ? 'highlight' : 'ink',
+      g.highlight ? 'highlight' : tape ? 'tape' : 'ink',
       style,
       points,
       this.layout.width,
       g.at,
     )
-    return g.shape
-      ? {
-          ...s,
-          shape: g.shape.kind,
-          ...(this.shapeFill(g.shape) ? { fill: true as const } : {}),
-        }
-      : s
+    if (!g.shape) return s
+    return {
+      ...s,
+      shape: g.shape.kind,
+      ...(tape || this.shapeFill(g.shape) ? { fill: true as const } : {}),
+    }
   }
 
   private shapeFill(s: Recognised): boolean {
@@ -629,6 +669,12 @@ export class InkController {
       holdTimer: undefined,
       shape: null,
       highlight: tool === 'highlighter',
+      dragAs: tool === 'pen' ? penSettings.get().drawAs : 'free',
+      origin: w,
+      edge: this.rulerEdgeAt(
+        w,
+        tool === 'pen' ? penSettings.get().drawAs : 'free',
+      ),
       frame: { blockId },
     }
     this.gesture = g
@@ -675,7 +721,9 @@ export class InkController {
     e: PointerEvent,
     frame: { x: number; y: number; w: number },
   ): void {
-    const w = this.world(e)
+    // A pen that began at a ruler edge slides along it.
+    const raw = this.world(e)
+    const w = g.edge ? projectOnEdge(raw, g.edge) : raw
     const last = g.world[g.world.length - 1]
     if (last && dist(last, w) < MIN_MOVE) return
     g.world.push(w)
@@ -692,7 +740,10 @@ export class InkController {
 
   private armHold(g: Extract<Gesture, { kind: 'draw' }>): void {
     clearTimeout(g.holdTimer)
-    if (g.highlight || !penSettings.get().holdShape) return
+    // Dragging out a shape or tape needs no "draw and hold" snapping.
+    if (g.highlight || g.dragAs !== 'free' || !penSettings.get().holdShape) {
+      return
+    }
     g.holdTimer = setTimeout(() => {
       if (this.gesture !== g || g.world.length < 4) return
       const found = recogniseShape(g.world, {
@@ -716,6 +767,20 @@ export class InkController {
     }
     if (g.id !== e.pointerId) return
     if (g.kind === 'draw') {
+      if (g.dragAs !== 'free') {
+        // A chosen shape (or tape): the two corners are where the drag began
+        // and where it is now; the shape follows the pen.
+        const now = this.world(e)
+        g.shape = shapeFromDrag(
+          g.dragAs === 'tape' ? 'rect' : g.dragAs,
+          g.origin,
+          now,
+          penSettings.get().shapeSnap && g.dragAs !== 'tape',
+        )
+        g.world = [g.origin, now]
+        this.requestDraw()
+        return
+      }
       if (g.shape) return // the shape is snapped: further movement is ignored
       const frame = this.layout.frame(g.frame.blockId)
       const events = e.getCoalescedEvents?.() ?? []
@@ -753,12 +818,89 @@ export class InkController {
     this.gesture = null
     if (g.kind === 'draw') {
       clearTimeout(g.holdTimer)
-      this.finishDraw(g)
+      if (!this.peelTape(g)) this.finishDraw(g)
     } else if (g.kind === 'erase') {
       this.finishErase(g)
     }
     this.requestDraw()
     this.notify()
+  }
+
+  /** The ruler edge a stroke starting at `w` sticks to (freehand only). */
+  private rulerEdgeAt(w: Pt, dragAs: DrawAs): Edge | null {
+    const { on, ruler } = rulerTool.get()
+    return on && ruler && dragAs === 'free' ? nearestEdge(w, ruler) : null
+  }
+
+  /** The top of the part of the page on screen, and the page's width (page px). */
+  view(): { top: number; width: number } {
+    const v = this.visible()
+    return { top: v.top, width: v.width }
+  }
+
+  /**
+   * Adds a stroke written somewhere else (the Magnifier's pad), already in
+   * page px: it is kept like any stroke drawn with the pen, one Undo.
+   */
+  addWriting(
+    points: readonly { x: number; y: number; p: number; t: number }[],
+    /** Scales the pen width (writing made big lands small). */
+    widthScale = 1,
+  ): void {
+    if (this.env.frozen() || points.length === 0) return
+    const layer = this.layerForDrawing()
+    if (!layer) return
+    this.layout.measure()
+    const blockId = pickAnchor(points[0], this.layout.blocks())
+    const frame = this.layout.frame(blockId)
+    const raw: RawPoint[] = points.map((q) => ({
+      ...toLocal(q, frame),
+      p: q.p,
+      t: q.t,
+    }))
+    const stroke: Stroke = {
+      ...makeStroke(
+        'ink',
+        scaledStyle(inkStyle(), widthScale),
+        raw,
+        this.layout.width,
+      ),
+      drawn: { w: this.layout.width, fs: this.env.textSize() },
+    }
+    const { id, edit } = this.ensureLayer(layer.id)
+    edit.add.push({ layerId: id, blockId, stroke })
+    this.commit(edit)
+    this.requestDraw()
+  }
+
+  /**
+   * A tap (not a drag) on tape peels it off to show what is under it; tap
+   * again to stick it back. Peeled tapes are only remembered while the page
+   * is open (nothing is saved or put in Undo). Returns true when it was one.
+   */
+  private peelTape(g: Extract<Gesture, { kind: 'draw' }>): boolean {
+    if (g.highlight) return false
+    const first = g.world[0]
+    if (!first) return false
+    for (const p of g.world) if (dist(p, first) > 6) return false
+    const tape = this.tapeAt(first)
+    if (!tape) return false
+    const id = tape.stroke.id
+    if (!this.peeled.delete(id)) this.peeled.add(id)
+    this.requestDraw()
+    return true
+  }
+
+  /** The tape under a point (topmost first), peeled or not. */
+  private tapeAt(w: Pt): Placed | null {
+    const all = this.selectable()
+    for (let i = all.length - 1; i >= 0; i--) {
+      const p = all[i]
+      if (p.stroke.kind !== 'tape') continue
+      const r = strokeRect(p.stroke, this.layout.frame(p.blockId))
+      if (r && containsPt(r, w)) return p
+    }
+    return null
   }
 
   /** Counted for the Pencil lab: strokes kept or dropped on pointercancel. */
@@ -826,6 +968,8 @@ export class InkController {
     const pen = penSettings.get()
     const hl = highlighterSettings.get()
     if (g.pts.length === 0) return
+    // A shape or tape needs a real drag; a tap leaves nothing.
+    if (g.dragAs !== 'free' && !g.shape) return
 
     if (g.highlight) {
       if (hl.snapToText && this.snapHighlight(g, hl)) return

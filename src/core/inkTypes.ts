@@ -19,7 +19,8 @@ export const CHUNK_MAX = 60
 export const STRIDE = 6
 
 export type PenKind = 'fountain' | 'ball' | 'brush' | 'pencil' | 'marker'
-export type StrokeKind = 'ink' | 'highlight'
+/** 'tape' is a filled box that hides what is under it (G1). */
+export type StrokeKind = 'ink' | 'highlight' | 'tape'
 export type ShapeKind = 'line' | 'rect' | 'ellipse' | 'triangle' | 'arrow'
 
 /** How a stroke looks. Saved with the stroke, so the pen can change later. */

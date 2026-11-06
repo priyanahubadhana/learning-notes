@@ -4,6 +4,7 @@ import { toggleBlank } from '../../editor/blankActions'
 import { canMakeCard, makeCard } from '../../editor/cardActions'
 import { runHistory } from '../../editor/historyActions'
 import { addLineAfterCursor } from '../../editor/lineActions'
+import { newMindMap, serializeMindMap } from '../../editor/mindMap/model'
 import { toggleMark } from '../../editor/markActions'
 import {
   copyAs,
@@ -77,7 +78,10 @@ function toggleHighlight(editor: Editor) {
 }
 
 /** Puts a new block under the cursor's line (on it, if the line is empty). */
-function insertBlock(editor: Editor, block: { type: string }) {
+function insertBlock(
+  editor: Editor,
+  block: { type: string; props?: Record<string, unknown> },
+) {
   insertOrUpdateBlockForSlashMenu(editor, block as never)
   editor.focus()
 }
@@ -129,6 +133,11 @@ const COMMANDS: Record<string, Command> = {
   },
   picture: ({ editor }) => insertBlock(editor, { type: 'image' }),
   callout: ({ editor }) => insertBlock(editor, { type: 'callout' }),
+  mindMap: ({ editor }) =>
+    insertBlock(editor, {
+      type: 'mindMap',
+      props: { data: serializeMindMap(newMindMap()) },
+    }),
   divider: ({ editor }) => insertBlock(editor, { type: 'divider' }),
   pageLink: ({ extras }) => extras?.linkPage(),
   database: ({ extras }) => extras?.insertDatabase(),

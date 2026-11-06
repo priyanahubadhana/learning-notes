@@ -67,4 +67,23 @@ export const hiW3b: Record<string, string> = {
   'embed.noPicture': 'क्लिपबोर्ड में कोई चित्र नहीं है।',
   'embed.pasteBlocked':
     'क्लिपबोर्ड नहीं पढ़ा जा सका। चित्र को Ctrl+V या Cmd+V से चिपकाएँ।',
+
+  'ink.drawAs': 'ऐसे बनाएँ',
+  'ink.drawAs.free': 'हाथ से',
+  'ink.drawAs.line': 'रेखा',
+  'ink.drawAs.arrow': 'तीर',
+  'ink.drawAs.rect': 'डिब्बा',
+  'ink.drawAs.ellipse': 'अंडाकार',
+  'ink.drawAs.triangle': 'त्रिभुज',
+  'ink.drawAs.tape': 'टेप',
+  'ink.ruler.move': 'पैमाना हिलाएँ',
+  'ink.ruler.turn': 'पैमाना घुमाएँ या खींचें',
+  'ink.ruler.close': 'पैमाना हटाएँ',
+  'ink.magnifier': 'आवर्धक',
+  'ink.magnifier.pad':
+    'लिखने की पट्टी: यहाँ लिखा हुआ पन्ने पर बिंदीदार डिब्बे में छोटा होकर आता है',
+  'ink.magnifier.moveBox': 'लक्ष्य डिब्बा हिलाएँ',
+  'ink.magnifier.space': 'स्पेस',
+  'ink.magnifier.nextLine': 'अगली पंक्ति',
+  'ink.magnifier.close': 'आवर्धक बंद करें',
 }

@@ -116,7 +116,8 @@ export function paintStroke(
     ctx.fill(c.path)
   } else {
     if (stroke.fill && o.closed) {
-      ctx.globalAlpha = s.opacity * 0.2
+      // Tape hides what is under it; other filled shapes only tint it.
+      ctx.globalAlpha = stroke.kind === 'tape' ? s.opacity : s.opacity * 0.2
       ctx.fillStyle = s.colour
       ctx.fill(c.path)
     }

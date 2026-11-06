@@ -15,6 +15,7 @@ Current phase only. Older entries are in [ARCHIVE.md](ARCHIVE.md).
 - **Feature links:** `scripts/feature-links.json` updated for four deliberate links (memory to editor and recall, templates to memory, recall to images for picture answers).
 - **Not done:** a sketch (ink) as a card answer (pictures only; ink in answers comes with G0); Major system for other languages.
 - **G2a embed block:** `embed` block (YouTube via youtube-nocookie after a tap, link cards, Needs internet offline, Insert timestamp, Paste screenshot, pictures added while playing get the video time as a caption); `editor/embed/{embedUrl,embedClock,EmbedView,embedBlock,StampWatcher}`, `PageEditor` upload stamp, slash menu, `builtinBlockTypes`, `public/_headers` (`frame-src https://www.youtube-nocookie.com`), strings `embed.*`. Tests: `embed.test.ts`, `e2e/embed.spec.ts`. Spec: `features/embeds.md`.
+- **G1 Shapes, Tape, Ruler, Magnifier:** `PenSettings.drawAs` and the "Draw as" row; shape from a drag (`ink/shapes.ts` `shapeFromDrag`); Tape as `Stroke.kind = 'tape'` with tap-to-peel; Ruler (`ink/ruler.ts`, `RulerView.tsx`); Magnifier (`ink/magnifier.ts`, `MagnifierView.tsx`, `controller.addWriting`); tool state in `ink/toolState.ts`; registry tools no longer "coming"; backup check accepts `tape`; strings `ink.drawAs*`, `ink.ruler.*`, `ink.magnifier*`. Tests: `ink/tools.test.ts`, `e2e/inkG1.spec.ts`. Spec: `features/ink.md`. Lazy chunk loading not built (see DECISIONS).
 
 ## 2026-11-06 (Wave 3 part A, push 1: Library, PDF reader, highlights, Capture)
 

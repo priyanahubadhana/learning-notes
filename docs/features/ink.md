@@ -27,6 +27,17 @@ Write and draw by hand on any note page, with the Apple Pencil, a finger (when a
 - **History, backups, Trash:** a History copy of a page also holds its ink (restoring brings it back; ink changes alone make a copy). "Everything" and "Notes only" files both contain ink (it is note content, not media). "Add as copies" and notebook or page sharing do not carry ink yet (step 10). Delete forever erases the strokes and leaves empty markers. Replace accepts files from database version 12 (only tables were added in 13).
 - **Accessibility:** the ink region is a group "Drawing on this page. Strokes: N". A keyboard door (first Tab stop inside the page area when strokes exist): arrow keys choose a stroke, Delete removes, Escape lets go; a status line names the stroke. Layers and the menu use 44 px buttons with names.
 
+## Shapes, Tape, Ruler, Magnifier (G1, wave 3)
+
+All four work on the ink layer, like the Pen; Lasso can select, move, scale and turn what they make (they are ordinary strokes).
+
+- **Shapes:** the Pen has a "Draw as" row in its card (`PenSettings.drawAs`: Freehand, Line, Arrow, Box, Oval, Triangle, Tape). With a shape chosen, a drag from corner to corner draws the clean shape live (`ink/shapes.ts` `shapeFromDrag`; "Snap shapes" in Pen settings snaps lines to 45 degrees and near-square boxes and near-round ovals; "Fill closed shapes" applies). The ribbon's Shapes tool and Insert › Shape select the Pen and open that card. Choosing a pen type from the ribbon puts it back to Freehand. Draw-and-hold snapping still works in Freehand.
+- **Tape:** a solid box (`Stroke.kind = 'tape'`, shape `rect`, fill, colour `TAPE_COLOUR`) that hides what is under it, ink and text. A **tap** on a tape (Pen or Tape, not a drag) peels it off to show what is under it, leaving a dashed outline; a second tap sticks it back. Peeled state is kept only while the page is open (not saved, no Undo). The Eraser takes a whole tape away with one touch inside it. Backup checks accept the new kind.
+- **Ruler:** Insert › Ruler (or the ribbon) shows a bar over the page with three handles: the middle moves it (shows the angle), both ends turn and stretch it (it clicks to 0, 45, 90 and 135 degrees). A pen or highlighter that starts within 24 px of a long edge slides along that edge, so the line is straight (`ink/ruler.ts`, `controller.ts`). The bar lets everything else through. Not saved.
+- **Magnifier:** Insert › Magnifier shows a pad at the bottom (2×, 3×, 4×, Space, Next line, close) and a dashed target box on the page (drag its ⠿ handle to move it). Writing in the pad (finger, Pencil or mouse) lands, small, in the box as ordinary ink, one Undo per stroke; the pen's width is scaled down with it; the box moves on by itself when the writing nears the pad's right edge (`ink/magnifier.ts`, `MagnifierView.tsx`).
+- **Lazy loading:** the renderer already paints only the part of the page on screen. Loading the strokes of a page chunk by chunk is not built (see DECISIONS: the plan's own rule was to add it only if a test shows a need; none did).
+- **Not built here:** shape handles to adjust a drawn shape (Lasso resizes and turns it), Make card from a tape (the hidden area as a picture answer; E2's picture answers are the base), labels and Tape on pictures (G0 notes).
+
 ## Edge cases
 
 - Read-only pages (open in another window) and Reading mode show ink but do not draw.

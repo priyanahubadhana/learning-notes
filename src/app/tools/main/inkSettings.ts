@@ -146,6 +146,17 @@ export type LineStyle = (typeof LINE_STYLES)[number]
 /** Can a finger draw? Auto: yes, unless in Pencil mode or a Pencil was used. */
 export const FINGER_MODES = ['auto', 'on', 'off'] as const
 export type FingerMode = (typeof FINGER_MODES)[number]
+/** What a drag draws: freehand, or a clean shape, or Tape (a box that hides). */
+export const DRAW_AS = [
+  'free',
+  'line',
+  'arrow',
+  'rect',
+  'ellipse',
+  'triangle',
+  'tape',
+] as const
+export type DrawAs = (typeof DRAW_AS)[number]
 
 /** The three thicknesses of each pen type, in pixels. */
 export const PEN_WIDTHS: Record<PenType, readonly [number, number, number]> = {
@@ -180,6 +191,8 @@ export interface PenSettings {
   /** Draw and hold: fill closed shapes. */
   shapeFill: boolean
   finger: FingerMode
+  /** What a drag draws (the Shapes and Tape tools set this). */
+  drawAs: DrawAs
 }
 
 export const PEN_DEFAULTS: PenSettings = {
@@ -201,6 +214,7 @@ export const PEN_DEFAULTS: PenSettings = {
   shapeSnap: true,
   shapeFill: false,
   finger: 'auto',
+  drawAs: 'free',
 }
 
 const size3 = (v: unknown): 0 | 1 | 2 => (v === 0 || v === 1 || v === 2 ? v : 1)
@@ -226,6 +240,7 @@ export const penSettings = modelStore<PenSettings>('ink.pen', PEN_DEFAULTS, {
   shapeSnap: flag(true),
   shapeFill: flag(false),
   finger: pick(FINGER_MODES, 'auto'),
+  drawAs: pick(DRAW_AS, 'free'),
 })
 
 /** The width of the pen's line in px (the exact width wins). */

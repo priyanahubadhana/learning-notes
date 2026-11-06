@@ -49,6 +49,33 @@ export function highlightStyle(
   }
 }
 
+/** The colour of Tape: solid, so it hides what is under it. */
+export const TAPE_COLOUR = '#f2b84b'
+
+export function tapeStyle(): StrokeStyle {
+  return {
+    pen: 'marker',
+    width: 1.5,
+    colour: TAPE_COLOUR,
+    opacity: 1,
+    sharpness: 0,
+    pressure: 0,
+    flatness: 0,
+    stabilisation: 0,
+    tilt: false,
+    speedWidth: false,
+    line: 'solid',
+    behind: false,
+  }
+}
+
+/** A style with its line width scaled (never thinner than a hair). */
+export function scaledStyle(style: StrokeStyle, scale: number): StrokeStyle {
+  return scale === 1
+    ? style
+    : { ...style, width: Math.max(0.6, style.width * scale) }
+}
+
 export interface RawPoint {
   x: number
   y: number

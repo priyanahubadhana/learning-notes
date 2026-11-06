@@ -181,6 +181,84 @@ export function recogniseShape(
   return asLine(pts, options.snap) ?? asArrow(pts, options.snap)
 }
 
+// ---- The Shapes tool: a shape from a drag ----
+
+/** A shape picked in advance and drawn by dragging from corner to corner. */
+export type DragShape = ShapeKind
+
+/**
+ * The clean shape for a drag from `a` to `b` (page px), or null while the
+ * drag is still tiny. A line and an arrow run from `a` to `b`; the others
+ * fill the box the two points make. With `snap`: lines and arrows snap to
+ * 45 degrees, boxes near square become squares, ellipses near round become
+ * circles.
+ */
+export function shapeFromDrag(
+  kind: DragShape,
+  a: Pt,
+  b: Pt,
+  snap: boolean,
+): Recognised | null {
+  if (dist(a, b) < 6) return null
+  if (kind === 'line') {
+    return { kind, pts: [a, snap ? snapLine(a, b) : b], closed: false }
+  }
+  if (kind === 'arrow') {
+    const tip = snap ? snapLine(a, b) : b
+    const len = dist(a, tip)
+    const dir = Math.atan2(tip.y - a.y, tip.x - a.x)
+    const size = Math.min(len * 0.3, 26)
+    const barb = (sign: number): Pt => ({
+      x: tip.x - Math.cos(dir + sign * 0.5) * size,
+      y: tip.y - Math.sin(dir + sign * 0.5) * size,
+    })
+    return {
+      kind,
+      pts: [a, tip, barb(1), tip, barb(-1)],
+      closed: false,
+    }
+  }
+  // Boxes: the two points are opposite corners.
+  let dx = b.x - a.x
+  let dy = b.y - a.y
+  if (
+    snap &&
+    Math.abs(Math.abs(dx) - Math.abs(dy)) <
+      Math.max(Math.abs(dx), Math.abs(dy)) * 0.12
+  ) {
+    const s = (Math.abs(dx) + Math.abs(dy)) / 2
+    dx = Math.sign(dx || 1) * s
+    dy = Math.sign(dy || 1) * s
+  }
+  const x0 = Math.min(a.x, a.x + dx)
+  const y0 = Math.min(a.y, a.y + dy)
+  const w = Math.abs(dx)
+  const h = Math.abs(dy)
+  if (w < 6 || h < 6) return null
+  if (kind === 'ellipse') {
+    return {
+      kind,
+      pts: ellipsePoints({ x: x0 + w / 2, y: y0 + h / 2 }, w / 2, h / 2),
+      closed: true,
+    }
+  }
+  if (kind === 'triangle') {
+    const t = [
+      { x: x0 + w / 2, y: y0 },
+      { x: x0 + w, y: y0 + h },
+      { x: x0, y: y0 + h },
+    ]
+    return { kind, pts: [...t, t[0]], closed: true }
+  }
+  const r = [
+    { x: x0, y: y0 },
+    { x: x0 + w, y: y0 },
+    { x: x0 + w, y: y0 + h },
+    { x: x0, y: y0 + h },
+  ]
+  return { kind: 'rect', pts: [...r, r[0]], closed: true }
+}
+
 // ---- Quick gestures ----
 
 /**

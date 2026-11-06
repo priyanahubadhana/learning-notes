@@ -73,4 +73,24 @@ export const enW3b = {
   'embed.noPicture': 'There is no picture on the clipboard.',
   'embed.pasteBlocked':
     'The clipboard could not be read. Paste the picture with Ctrl+V or Cmd+V instead.',
+
+  // ---- Shapes, Tape, Ruler, Magnifier (G1) ----
+  'ink.drawAs': 'Draw as',
+  'ink.drawAs.free': 'Freehand',
+  'ink.drawAs.line': 'Line',
+  'ink.drawAs.arrow': 'Arrow',
+  'ink.drawAs.rect': 'Box',
+  'ink.drawAs.ellipse': 'Oval',
+  'ink.drawAs.triangle': 'Triangle',
+  'ink.drawAs.tape': 'Tape',
+  'ink.ruler.move': 'Move the ruler',
+  'ink.ruler.turn': 'Turn or stretch the ruler',
+  'ink.ruler.close': 'Put the ruler away',
+  'ink.magnifier': 'Magnifier',
+  'ink.magnifier.pad':
+    'Writing pad: what you write here lands small in the dashed box on the page',
+  'ink.magnifier.moveBox': 'Move the target box',
+  'ink.magnifier.space': 'Space',
+  'ink.magnifier.nextLine': 'Next line',
+  'ink.magnifier.close': 'Close the magnifier',
 } as const

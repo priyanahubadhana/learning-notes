@@ -6,8 +6,20 @@
 - Auto-compact stays on: when the chat gets long, Claude Code compacts it by itself and work carries on. Don't ask the owner to type `/compact`.
 - After every sub-step: update docs/HANDOFF.md (5 lines) and commit. At the end of every step: update docs/CHANGELOG.md and docs/IDEAS.md, run the full suite, push to GitHub, mirror, then start the next step.
 - `/next` reads only docs/HANDOFF.md and docs/INDEX.md, after checking Git and `npm audit`.
-- **Models:** the owner uses `opusplan` (Opus plans, Sonnet builds). Write plans clear enough for Sonnet to follow: files to touch, data shapes, rules, tests. If Sonnet gets stuck or keeps failing at something, stop and tell the owner so they can switch to Opus for that part. Effort: high for planning, medium for building. No helper agents unless the owner asks.
-- **Usage limit:** if a helper or the session stops because the usage limit was hit, schedule a one-time restart for just after the stated reset time. When it fires, resume the same helper (so its saved work continues) and tell the owner in one line. Never start a fresh helper over half-done work without checking git status first.
+- **Models (owner-approved 6 Nov 2026):**
+  - **Opus** plans.
+  - **Fable** handles hard reasoning, audits, and anything Opus couldn't solve.
+  - **Sonnet** builds, at medium effort (raise it only when a task truly needs it).
+  - Write plans clear enough for Sonnet to follow: the files to touch, data shapes, rules and tests.
+  - If Sonnet keeps failing at something, hand that part to Opus, then Fable.
+  - Helper agents are allowed. Run several in parallel (separate git worktrees for independent work); pushes happen one at a time, each rebased on the latest main.
+- **Workflow:**
+  - Keep the work continuous and well tested.
+  - Builders run their related tests locally; GitHub CI runs the full suite on every push.
+  - Never push failing code.
+  - Small commits, so every change can be undone.
+- **Context:** long sessions rely on auto-compact. Keep coordinator messages short, and keep the state in docs (the plan, HANDOFF, notes), never only in chat.
+- **Usage limit:** if a helper or the session stops because the usage limit was hit, schedule a one-time restart for just after the stated reset time. When it fires, resume the same helper (so its saved work continues) and tell the owner in one line. Never start a fresh helper over half-done work without checking git status first. An hourly watchdog also checks helpers and resumes them after each reset. This covers both the 5-hour and the weekly limits: wait and continue, again and again, until the plan is done.
 
 ## Storage
 

@@ -942,3 +942,4 @@ Yardstick added by the owner during the audit: a practical learning experience, 
   - pill/card motion and timing, tool-switch speed, palm rejection quality;
   - a side-by-side comparison checklist against GoodNotes that the owner runs on the iPad.
     Honest limit: PencilKit-level latency needs the native wrapper (Phase Q).
+- Owner (6 Nov night): CONTINUOUS POLISH. After each wave, run a short research + polish pass (Opus decides, Sonnet builds) on what was just built (e.g. mic/dictation, audio recording, Pencil feel): web research on best practice, then small improvements, tested and pushed. Keep going until Sync, then the non-Sync phases.

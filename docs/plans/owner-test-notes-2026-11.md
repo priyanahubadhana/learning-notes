@@ -267,3 +267,5 @@ MIC (owner): build it like GoodNotes:
  (1) AUDIO RECORDING saved into notes (record while writing, playback, timeline linked to ink/text, listed in the left panel's Audio tab);
  (2) a draggable MINI KEYBOARD strip (🎤 speech-to-text into the caret, ↵, ⌫) that the owner moves around like in GoodNotes. Speech-to-text: try Safari SpeechRecognition, falling back to the keyboard mic.
 Then waves 2–5 continue automatically.
+R5-13 Sidebar scroll affordance: (1) a soft fade at the top/bottom edge when more content is hidden; (2) a slim scroll indicator that appears while scrolling or on touch and fades after ~1 s (theme colours, 44 px-friendly); (3) optionally, the first time only, a gentle 'peek' bounce. Apply the same pattern to other long lists (pills, menus, Settings). Approved direction; owner to confirm the peek.
+R5-13 DECIDED: edge fade + slim auto-hiding scroll indicator on all scrollable lists, with a Settings switch 'Scroll hints' (on by default, can turn off). No peek bounce.

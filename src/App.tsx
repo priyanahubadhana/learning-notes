@@ -22,6 +22,7 @@ import { onStorageFull, reportError, runTask } from './app/errors'
 import { labPageId } from './app/lab/labPage'
 import { baseHash, parseHash, routeToHash, type Route } from './app/router'
 import { installDeepLinks } from './reader/annotations/deepLink'
+import { locatorOf } from './reader/annotations/annotationService'
 import { THEMES, applyTheme } from './app/theme'
 import { ThemeContext } from './app/themeContext'
 import type { ToastAction } from './app/appUi'
@@ -59,7 +60,13 @@ import { applyLanguage } from './i18n/languages'
 import { setDateStyle, t } from './i18n/t'
 import { useTreeState } from './app/useTreeState'
 import { db } from './core/db'
-import type { JsonObject, Page, SavedSearch, Workspace } from './core/types'
+import type {
+  Annotation,
+  JsonObject,
+  Page,
+  SavedSearch,
+  Workspace,
+} from './core/types'
 import { getOrCreateDefaultWorkspace } from './core/workspaceService'
 import { ensureSearchIndex } from './search/searchService'
 import { openJournalDay } from './journal/journalService'
@@ -136,6 +143,11 @@ const LibrarySidebar = lazy(() =>
 const PageAiActions = lazy(() =>
   import('./capture/PageAiActions').then((m) => ({
     default: m.PageAiActions,
+  })),
+)
+const DailyHighlights = lazy(() =>
+  import('./reader/annotations/DailyHighlights').then((m) => ({
+    default: m.DailyHighlights,
   })),
 )
 const BookHeader = lazy(() =>
@@ -325,6 +337,16 @@ function App() {
     setNotebookId(null)
     setCurrentPageId(id)
     if (id) rememberPage(id)
+  }
+  /** Opens the reader at a highlight (daily review, a card's source line). */
+  const openAnnotation = (a: Pick<Annotation, 'pageId' | 'anchor'>) => {
+    const at = locatorOf(a.anchor)
+    if (!at) return openPage(a.pageId)
+    setReviewScope(null)
+    setShowSettings(false)
+    setSearch(null)
+    setNotebookId(null)
+    setHub({ kind: 'read', pageId: a.pageId, at })
   }
   const openReview = (scope: ReviewScope) => {
     setHub(null)
@@ -1211,6 +1233,13 @@ function App() {
                             openPage(pageId)
                             revealBlock(blockId)
                           }}
+                          onOpenAnnotation={(id) =>
+                            runTask(
+                              db.annotations
+                                .get(id)
+                                .then((a) => a && openAnnotation(a)),
+                            )
+                          }
                           onClose={() => setReviewScope(null)}
                         />
                       ) : hub?.kind === 'read' ? (
@@ -1245,6 +1274,9 @@ function App() {
                           onOpenHit={(hit) => runTask(openHit(hit))}
                           onReview={openReview}
                           onClose={() => setHub(null)}
+                          highlights={
+                            <DailyHighlights db={db} onOpen={openAnnotation} />
+                          }
                         />
                       ) : hub?.kind === 'data' ? (
                         <DataScreen

@@ -25,6 +25,12 @@ import {
   locatorOf,
 } from './annotations/annotationService'
 import { AnnotationsPanel } from './annotations/AnnotationsPanel'
+import { BulkCardsDialog } from './annotations/BulkCardsDialog'
+import {
+  makeCardsFromAnnotations,
+  undoMakeCards,
+} from '../recall/cardFromAnnotation'
+import { addVocabulary, vocabContext, vocabWord } from '../recall/vocabulary'
 import { NoteSheet } from './annotations/NoteSheet'
 import { SaveToSheet, type SaveTarget } from './annotations/SaveToSheet'
 import { saveAnnotationTo } from './annotations/saveToNotes'
@@ -65,23 +71,11 @@ export function BookReader({
   pageId,
   at,
   onOpenPage,
-  extraPopupActions,
-  extraPanel,
 }: {
   db: LearningNotesDB
   pageId: string
   at?: string
   onOpenPage: (pageId: string) => void
-  /** Make card from the selection (CR3). */
-  extraPopupActions?: (
-    sel: ReaderSelection,
-    saved: () => Promise<Annotation>,
-  ) => { onMakeCard?: () => void }
-  /** More controls in the annotations panel (CR3). */
-  extraPanel?: (annotations: Annotation[]) => {
-    onMakeCard?: (a: Annotation) => void
-    onMakeCards?: (list: Annotation[]) => void
-  }
 }) {
   const { toast } = useContext(AppUiContext)
   const page = useLiveQuery(() => db.pages.get(pageId), [db, pageId])
@@ -106,6 +100,7 @@ export function BookReader({
   const [noting, setNoting] = useState<ReaderSelection | null>(null)
   const [saving, setSaving] = useState<Annotation | null>(null)
   const [noText, setNoText] = useState(false)
+  const [bulk, setBulk] = useState<Annotation[] | null>(null)
   const [target, setTarget] = useState<{
     at: string
     nonce: number
@@ -262,6 +257,20 @@ export function BookReader({
     }
   }
 
+  /** Cards from highlights, with one Undo for the whole batch. */
+  const makeCards = (list: Annotation[]) =>
+    runTask(
+      (async () => {
+        const made = await makeCardsFromAnnotations(db, pageId, list)
+        if (made.annotationIds.length === 0) return toast(t('recall.bulkNone'))
+        setBulk(null)
+        toast(t('recall.bulkDone', { count: made.annotationIds.length }), {
+          label: t('annot.undo'),
+          onSelect: () => void runTask(undoMakeCards(db, made)),
+        })
+      })(),
+    )
+
   const jump = (a: Annotation) => {
     const loc = locatorOf(a.anchor)
     if (!loc) return
@@ -305,7 +314,6 @@ export function BookReader({
         (a.anchor.type === 'epub' && a.anchor.cfi === hereCfi)),
   )
   const bookmarked = !!bookmarkHere
-  const panelProps = extraPanel?.(annotations ?? []) ?? {}
 
   return (
     <div
@@ -562,7 +570,8 @@ export function BookReader({
                 pageId={pageId}
                 title={page.title}
                 onJump={jump}
-                {...panelProps}
+                onMakeCard={(a) => makeCards([a])}
+                onMakeCards={(list) => setBulk(list)}
               />
             )}
           </aside>
@@ -609,18 +618,29 @@ export function BookReader({
               }).then(setSaving),
             )
           }}
-          onMakeCard={
-            extraPopupActions?.(selection, () =>
-              createAnnotation(db, {
-                pageId,
-                kind: 'highlight',
-                anchor: selection.anchor,
-                colour: 'yellow',
-                quote: selection.quote,
-                chapter: selection.chapter,
-              }),
-            ).onMakeCard
-          }
+          onMakeCard={() => {
+            const sel = selection
+            clearSelection()
+            runTask(
+              makeAnnotation(sel, 'highlight', 'yellow').then((a) =>
+                makeCards([a]),
+              ),
+            )
+          }}
+          onVocab={() => {
+            const sel = selection
+            clearSelection()
+            runTask(
+              addVocabulary(
+                db,
+                page.notebookId,
+                sel.text,
+                sel.quote ? vocabContext(sel.quote) : sel.text,
+              ).then(() =>
+                toast(t('recall.vocabAdded', { word: vocabWord(sel.text) })),
+              ),
+            )
+          }}
         />
       )}
       {noting && (
@@ -636,6 +656,13 @@ export function BookReader({
               ),
             )
           }}
+        />
+      )}
+      {bulk && (
+        <BulkCardsDialog
+          annotations={bulk}
+          onCancel={() => setBulk(null)}
+          onMake={(chosen) => makeCards(chosen)}
         />
       )}
       {saving && (

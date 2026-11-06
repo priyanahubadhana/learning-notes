@@ -26,6 +26,7 @@ import {
   progressOf,
   toFractions,
   visibleRange,
+  type Layout,
   type PageSize,
   type Rect4,
 } from './pdfLayout'
@@ -153,14 +154,11 @@ export function PdfView(props: PdfViewProps) {
 
   // Which pages to draw and where the reader is.
   const lastReported = useRef('')
-  // Where the reader is, so a change of zoom or page sizes keeps the place.
-  const held = useRef<{ page: number; y: number } | null>(null)
   const onScroll = useCallback(() => {
     const el = scroller.current
     if (!el || sizes.length === 0) return
     setRange(visibleRange(layout, el.scrollTop, el.clientHeight))
     const { page, y } = locatorAt(layout, el.scrollTop)
-    held.current = { page, y }
     const key = `${page}:${y.toFixed(3)}`
     if (key !== lastReported.current) {
       lastReported.current = key
@@ -172,13 +170,19 @@ export function PdfView(props: PdfViewProps) {
     }
   }, [layout, sizes.length])
 
+  const prevLayout = useRef<Layout | null>(null)
   // Keep the reading position when the layout changes (zoom, resize, real
   // page sizes arriving).
   useLayoutEffect(() => {
     const el = scroller.current
     if (!el || sizes.length === 0 || width === 0) return
-    if (held.current) {
-      el.scrollTop = offsetForLocator(layout, held.current.page, held.current.y)
+    // The place under the old layout (read from the real scroll offset, so
+    // a jump made a moment ago is not lost), put back under the new one.
+    const before = prevLayout.current
+    prevLayout.current = layout
+    if (before && before !== layout) {
+      const here = locatorAt(before, el.scrollTop)
+      el.scrollTop = offsetForLocator(layout, here.page, here.y)
     }
     onScroll()
   }, [layout, sizes.length, width, onScroll])

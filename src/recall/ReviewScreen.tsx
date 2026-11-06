@@ -31,6 +31,7 @@ import {
 import { noteLinkProps, tagRefProps } from '../editor/mapping'
 import { useImageUrl } from '../images/useImageUrl'
 import { RATINGS } from './scheduler'
+import { SourceLine } from './SourceLine'
 
 /**
  * The Review screen: shows due cards one at a time. Space/Enter shows the
@@ -46,6 +47,8 @@ interface ReviewScreenProps {
   onScopeChange: (scope: ReviewScope) => void
   /** Opens the card's page and scrolls to the card. */
   onOpenNote: (pageId: string, blockId: string) => void
+  /** Opens the highlight a card was made from (CR3). */
+  onOpenAnnotation?: (annotationId: string) => void
   onClose: () => void
 }
 
@@ -55,6 +58,7 @@ export function ReviewScreen({
   keysPaused,
   onScopeChange,
   onOpenNote,
+  onOpenAnnotation,
   onClose,
 }: ReviewScreenProps) {
   const ui = useContext(AppUiContext)
@@ -287,6 +291,13 @@ export function ReviewScreen({
                 <p className="mt-3 text-center text-[13px] text-muted">
                   {t('review.practising')}
                 </p>
+              )}
+              {card.sourceAnnotationId && onOpenAnnotation && (
+                <SourceLine
+                  db={db}
+                  annotationId={card.sourceAnnotationId}
+                  onOpen={onOpenAnnotation}
+                />
               )}
               <div className="mt-3 flex justify-center gap-2 text-[13px]">
                 <Tip id="review.openNote">

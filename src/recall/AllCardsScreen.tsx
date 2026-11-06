@@ -11,11 +11,14 @@ export function AllCardsScreen({
   onOpenHit,
   onReview,
   onClose,
+  highlights,
 }: {
   db: LearningNotesDB
   onOpenHit: (hit: SearchHit) => void
   onReview: (scope: ReviewScope) => void
   onClose: () => void
+  /** The daily highlight review tile (CR3), made by the reader feature. */
+  highlights?: React.ReactNode
 }) {
   return (
     <div>
@@ -33,6 +36,7 @@ export function AllCardsScreen({
             ×
           </button>
         </div>
+        {highlights}
         <ReviewHome db={db} onReview={onReview} />
         <CardsTab
           db={db}

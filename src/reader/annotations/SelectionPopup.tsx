@@ -17,6 +17,7 @@ export function SelectionPopup({
   onPin,
   onSaveTo,
   onMakeCard,
+  onVocab,
 }: {
   rect: PopupRect
   selected: string
@@ -26,6 +27,7 @@ export function SelectionPopup({
   onPin: () => void
   onSaveTo: () => void
   onMakeCard?: () => void
+  onVocab?: () => void
 }) {
   const [lookup, setLookup] = useState(false)
   // A selection scrolled out of view offers nothing.
@@ -116,6 +118,16 @@ export function SelectionPopup({
               {t(`annot.lookup.${k}`)}
             </a>
           ))}
+          {onVocab && (
+            <button
+              type="button"
+              data-testid="popup-vocab"
+              onClick={onVocab}
+              className={`${btn} inline-flex items-center`}
+            >
+              {t('recall.vocabAdd')}
+            </button>
+          )}
           <span className="px-1 text-xs text-muted">
             {t('annot.lookup.note')}
           </span>

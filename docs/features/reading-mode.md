@@ -30,7 +30,7 @@ The owner reads books and notebooks mostly. Reading mode turns a page (or a whol
 
 - One small font set for reading (Aa › Font) and notes (Aa › Style › Font), shown as tiles that preview your own sentence: Literata, Source Serif 4, Atkinson Hyperlegible Next, Lexend, OpenDyslexic, Caveat, Kalam (also Hindi), Patrick Hand, Shantell Sans. The old system Serif and Sans stay valid saved values but have no tile.
 - `@fontsource/*` 5.3.0 (all OFL 1.1, exact versions), Latin plus Devanagari where the font has it; each is a lazy chunk (`app/reading/fonts.ts`) loaded only when picked or previewed and precached for offline. Licence text: `public/licenses/fonts-OFL.txt`.
-- **Import font** (.ttf, .otf, .woff2, up to 10 MB): kept in the new `fonts` table (Dexie 14), in Everything backups, registered with the FontFace API when in use. Checked by its first bytes (`OTTO`, 00 01 00 00 or `true`, `wOF2`), never by its name. The picker says the user is responsible for the licence. Remove = soft delete. The saved font setting is `custom:<id>`.
+- **Import font** (.ttf, .otf, .woff2, up to 10 MB): kept in the new `fonts` table (Dexie 15), in Everything backups, registered with the FontFace API when in use. Checked by its first bytes (`OTTO`, 00 01 00 00 or `true`, `wOF2`), never by its name. The picker says the user is responsible for the licence. Remove = soft delete. The saved font setting is `custom:<id>`.
 - Tests: `src/core/fonts.test.ts`, `e2e/fonts.spec.ts`.
 
 ## Edge cases

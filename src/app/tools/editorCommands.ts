@@ -86,6 +86,16 @@ function insertBlock(
   editor.focus()
 }
 
+/** A 3 by 3 table (the first row is the header) under the cursor's line. */
+function insertTable(editor: Editor) {
+  const cells = () => ({ cells: [[], [], []] })
+  insertOrUpdateBlockForSlashMenu(editor, {
+    type: 'table',
+    content: { type: 'tableContent', rows: [cells(), cells(), cells()] },
+  } as never)
+  editor.focus()
+}
+
 const COMMANDS: Record<string, Command> = {
   ...Object.fromEntries(
     TEXT_STYLES.map((id) => [
@@ -133,6 +143,9 @@ const COMMANDS: Record<string, Command> = {
   },
   picture: ({ editor }) => insertBlock(editor, { type: 'image' }),
   callout: ({ editor }) => insertBlock(editor, { type: 'callout' }),
+  table: ({ editor }) => insertTable(editor),
+  file: ({ editor }) => insertBlock(editor, { type: 'file' }),
+  camera: ({ extras }) => extras?.takePhoto(),
   mindMap: ({ editor }) =>
     insertBlock(editor, {
       type: 'mindMap',

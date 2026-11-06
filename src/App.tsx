@@ -1408,6 +1408,9 @@ function App() {
                               openPage(null)
                               setHub({ kind: 'database', id })
                             }}
+                            onOpenReader={(pageId) =>
+                              setHub({ kind: 'read', pageId })
+                            }
                             header={
                               currentPage.source ? (
                                 <BookHeader

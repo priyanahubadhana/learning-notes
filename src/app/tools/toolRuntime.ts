@@ -43,6 +43,8 @@ export interface EditorExtras {
   insertTemplate: () => void
   saveAsTemplate?: () => void
   linkPage: () => void
+  /** Camera: takes a photo (or picks one) and adds it as a picture. */
+  takePhoto: () => void
 }
 
 /** The short bar's own trays, for tools that open one. */

@@ -239,12 +239,13 @@ const recording: Fields<Recording> = {
   data: object,
 }
 
-/** Book formats the Library keeps (checked again by their first bytes). */
+/**
+ * Book files hold the Library's books (PDF, EPUB, DOCX: checked again by
+ * their first bytes) and files attached to a page (G2: any type, never
+ * opened by the browser, only saved out as a download).
+ */
 const bookMime: Check = (v) =>
-  v === 'application/pdf' ||
-  v === 'application/epub+zip' ||
-  v ===
-    'application/vnd.openxmlformats-officedocument.wordprocessingml.document'
+  typeof v === 'string' && /^[\w.+-]{1,60}\/[\w.+-]{1,100}$/.test(v)
 
 /** `data` is a bin marker in a file; its bytes are checked in readFull. */
 const bookFile: Fields<BookFile> = {
@@ -254,6 +255,8 @@ const bookFile: Fields<BookFile> = {
   mime: bookMime,
   size: number,
   data: object,
+  /** An attached file that was opened in the reader: its Library page. */
+  readerPageId: text,
 }
 
 const annotation: Fields<Annotation> = {

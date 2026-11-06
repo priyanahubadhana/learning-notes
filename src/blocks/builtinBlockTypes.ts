@@ -45,6 +45,21 @@ export const builtinBlockTypes: readonly BlockTypeDefinition[] = [
     createContent: () => ({ url: '', caption: '' }),
   },
   {
+    type: 'table',
+    label: 'Table',
+    createContent: () => ({ text: { type: 'tableContent', rows: [] } }),
+  },
+  {
+    type: 'toggleListItem',
+    label: 'Toggle list',
+    createContent: () => ({ text: [] }),
+  },
+  {
+    type: 'file',
+    label: 'File',
+    createContent: () => ({ url: '', name: '', caption: '' }),
+  },
+  {
     type: 'callout',
     label: 'Callout',
     createContent: () => ({ text: [], emoji: '💡' }),

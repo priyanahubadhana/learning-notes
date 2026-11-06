@@ -13,6 +13,7 @@ import {
 import { t } from '../i18n/t'
 import { DatabaseBlockView } from '../databases/DatabaseBlockView'
 import { createEmbedBlock } from './embed/embedBlock'
+import { createFileBlock } from './fileBlock/fileBlock'
 import { createMindMapBlock } from './mindMap/mindMapBlock'
 import { CardListView } from '../recall/CardListView'
 import { NOTE_LINK, TAG } from './mapping'
@@ -183,6 +184,8 @@ const {
   divider,
   codeBlock,
   image,
+  table,
+  toggleListItem,
 } = defaultBlockSpecs
 
 export const schema = BlockNoteSchema.create({
@@ -196,6 +199,9 @@ export const schema = BlockNoteSchema.create({
     divider,
     codeBlock,
     image,
+    table,
+    toggleListItem,
+    file: createFileBlock(),
     callout: createCallout(),
     pageLink: createPageLink(),
     card: createCard(),

@@ -23,6 +23,8 @@ export interface SlashMenuActions {
   onInsertTemplate: () => void
   /** "/database": asks which database, then inserts it. */
   onInsertDatabase: () => void
+  /** "/camera": opens the camera (or the photo picker) and adds the picture. */
+  onTakePhoto?: () => void
   /** Left out of the menu when undefined (e.g. on template pages). */
   onSaveAsTemplate?: () => void
   /** "/card" inside a card's answer: where the new card goes. */
@@ -42,16 +44,20 @@ export function buildSlashMenuItems(
     onLinkPage,
     onInsertTemplate,
     onInsertDatabase,
+    onTakePhoto,
     onSaveAsTemplate,
     onPlaceNestedCard,
   }: SlashMenuActions,
 ): DefaultReactSuggestionItem[] {
-  const items = getDefaultReactSlashMenuItems(editor).map((item) => {
-    const extra = EXTRA_ALIASES[item.title]
-    return extra
-      ? { ...item, aliases: [...(item.aliases ?? []), ...extra] }
-      : item
-  })
+  // BlockNote's own File item opens its upload panel; ours has its own card.
+  const items = getDefaultReactSlashMenuItems(editor)
+    .filter((item) => (item as { key?: string }).key !== 'file')
+    .map((item) => {
+      const extra = EXTRA_ALIASES[item.title]
+      return extra
+        ? { ...item, aliases: [...(item.aliases ?? []), ...extra] }
+        : item
+    })
 
   // Callout goes right after Quote, in the same group.
   const quoteIndex = items.findIndex((item) => item.title === 'Quote')
@@ -98,9 +104,28 @@ export function buildSlashMenuItems(
       insertOrUpdateBlockForSlashMenu(editor, { type: 'embed' }),
   })
   items.push({
+    title: t('file.slash.title'),
+    subtext: t('file.slash.subtext'),
+    aliases: ['file', 'pdf', 'attach', 'attachment', 'document', 'upload'],
+    group: items[quoteIndex]?.group ?? 'Basic blocks',
+    icon: <span aria-hidden>📎</span>,
+    onItemClick: () =>
+      insertOrUpdateBlockForSlashMenu(editor, { type: 'file' }),
+  })
+  if (onTakePhoto) {
+    items.push({
+      title: t('camera.slash.title'),
+      subtext: t('camera.slash.subtext'),
+      aliases: ['camera', 'photo', 'picture', 'scan'],
+      group: items[quoteIndex]?.group ?? 'Basic blocks',
+      icon: <span aria-hidden>📷</span>,
+      onItemClick: onTakePhoto,
+    })
+  }
+  items.push({
     title: t('databaseBlock.slash.title'),
     subtext: t('databaseBlock.slash.subtext'),
-    aliases: ['database', 'table', 'board', 'list', 'tracker'],
+    aliases: ['database', 'board', 'tracker'],
     group: t('slash.group.databases'),
     icon: <span aria-hidden>◫</span>,
     onItemClick: onInsertDatabase,

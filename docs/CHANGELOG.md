@@ -2,6 +2,12 @@
 
 Current phase only. Older entries are in [ARCHIVE.md](ARCHIVE.md).
 
+## 2026-11-07 (Wave 4 part B · G2: Table, Toggle list, File, Camera)
+
+- **What:** Insert › Table and "/table", "/toggle" (BlockNote's own blocks), a File block (attach any file up to 50 MB; Save a copy; a PDF/EPUB/DOCX opens in the reader through the Library), and Insert › Camera / "/camera" (photo into the page). The three tools no longer say "coming".
+- **Why:** master plan G2. **Data:** no new table or Dexie version: files use `bookFiles` (checkRows now accepts any safe MIME type; new optional `readerPageId`), so backup, Trash and sync already cover them.
+- **Files:** `src/editor/schema.tsx`, `src/editor/fileBlock/*`, `src/files/*`, `src/editor/slashMenu.tsx`, `src/editor/PageEditor.tsx`, `src/editor/editorContext.ts`, `src/pages/PageView.tsx`, `src/App.tsx`, `src/app/tools/*`, `src/blocks/builtinBlockTypes.ts`, `src/share/{checkRows,readFull}.ts`, `src/core/types.ts`, `src/i18n/*W4b.ts`, tests, `docs/features/files-table-camera.md`.
+
 ## 2026-11-06 (Ink redraw: leave the canvases alone when nothing moved)
 
 - **Problem:** `pencil-webkit` (ipad-webkit) failed `inkLayers.spec.ts` "500 strokes draws within the budget" on about half of the runs since a29ff83 (81 to 163 ms a frame against 80), even with the median of five rounds. The deploy of all of Wave 3 waited on it.

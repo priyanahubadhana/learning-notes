@@ -121,6 +121,7 @@ interface PageEditorProps {
   onOpenTag?: (tagId: string) => void
   /** Opens a database on its own screen (a database block's "Open"). */
   onOpenDatabase?: (databaseId: string) => void
+  onOpenReader?: (pageId: string) => void
   /** "/ Save page as template" (left out of the menu when undefined). */
   onSaveAsTemplate?: () => void
   /** Filled with focus/flush controls for the page around the editor. */
@@ -223,6 +224,7 @@ function LoadedPageEditor({
   onOpenNewPage,
   onOpenTag,
   onOpenDatabase,
+  onOpenReader,
   onSaveAsTemplate,
   editorRef,
   reading,
@@ -427,6 +429,43 @@ function LoadedPageEditor({
     return answer === 'inside' || answer === 'nextLine' ? answer : null
   }
 
+  /**
+   * Camera: asks the device for a photo (the back camera on a phone or iPad;
+   * a file picker on a computer) and puts it in the page as a picture.
+   */
+  const takePhoto = () => {
+    const input = document.createElement('input')
+    input.type = 'file'
+    input.accept = 'image/*'
+    input.setAttribute('capture', 'environment')
+    input.onchange = () => {
+      const file = input.files?.[0]
+      if (!file) return
+      runTask(
+        (async () => {
+          try {
+            const saved = await saveImage(db, file, shrinkImage)
+            const current = editor.getTextCursorPosition().block
+            const block = {
+              type: 'image' as const,
+              props: { url: imageRef(saved.id) },
+            }
+            const emptyLine =
+              current.type === 'paragraph' &&
+              Array.isArray(current.content) &&
+              current.content.length === 0
+            if (emptyLine) editor.replaceBlocks([current], [block])
+            else editor.insertBlocks([block], current, 'after')
+          } catch (error) {
+            if (error instanceof ImageError) toast(error.message)
+            else throw error
+          }
+        })(),
+      )
+    }
+    input.click()
+  }
+
   /** "/database": the open picker (resolves to the choice). */
   const [databasePicker, setDatabasePicker] = useState<{
     workspaceId: string
@@ -541,6 +580,7 @@ function LoadedPageEditor({
       insertTemplate,
       saveAsTemplate,
       linkPage: () => openLinkPicker(null),
+      takePhoto,
     })
   })
   useEffect(() => () => clearActiveEditor(editor as never), [editor])
@@ -574,6 +614,7 @@ function LoadedPageEditor({
         reviewCards: onReviewCards,
         openTag: onOpenTag,
         openDatabase: onOpenDatabase,
+        openReader: onOpenReader,
       }}
     >
       <div ref={setInkWrap} data-ink-wrap className="contents">
@@ -613,6 +654,7 @@ function LoadedPageEditor({
                   onLinkPage: () => openLinkPicker(null),
                   onInsertTemplate: insertTemplate,
                   onInsertDatabase: insertDatabase,
+                  onTakePhoto: takePhoto,
                   onSaveAsTemplate: saveAsTemplate,
                   onPlaceNestedCard: placeNestedCard,
                 }),

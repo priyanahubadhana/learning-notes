@@ -373,10 +373,10 @@ function putBack(
   if (table === 'bookFiles') {
     // The bytes must fit the stated type; "notes only" keeps the row empty.
     const format = formatOfMime(out.mime)
+    // Attached files (any other type) only need to be bytes.
     const ok =
       out.data instanceof ArrayBuffer &&
-      format !== null &&
-      bytesFitFormat(new Uint8Array(out.data), format)
+      (format === null || bytesFitFormat(new Uint8Array(out.data), format))
     if (!ok) throw damaged()
   }
   if (table === 'fonts') {

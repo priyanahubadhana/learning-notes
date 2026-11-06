@@ -63,11 +63,21 @@ describe('slash menu', () => {
     expect(search('callout')).toEqual(['Callout'])
   })
 
-  it('only offers Phase 1 block types', () => {
+  it('offers only block types the schema has', () => {
     const { search } = setup()
-    for (const missing of ['Table', 'Video', 'Audio', 'File']) {
+    for (const missing of ['Video', 'Audio']) {
       expect(search(missing.toLowerCase())).not.toContain(missing)
     }
+    // G2: Table, Toggle List and our own File item.
+    expect(search('table')).toContain('Table')
+    expect(search('toggle')).toContain('Toggle List')
+    expect(search('pdf')).toEqual(['File'])
+  })
+
+  it('File inserts a file block', () => {
+    const { editor, items } = setup()
+    items.find((i) => i.title === 'File')!.onItemClick()
+    expect(editor.document.some((b) => b.type === 'file')).toBe(true)
   })
 
   it('Callout inserts a callout block; New sub-page calls back', () => {

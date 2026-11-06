@@ -555,6 +555,8 @@ export interface BookFile extends BaseRecord {
   mime: string
   size: number
   data: ArrayBuffer
+  /** An attached file (G2) opened in the reader: its Library page. */
+  readerPageId?: string
 }
 
 /** Colours of a highlight. */

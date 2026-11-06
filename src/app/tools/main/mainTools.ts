@@ -134,6 +134,9 @@ export interface CardState {
 }
 export const openCard = memStore<CardState | null>(null)
 
+/** Names under the bar icons, always (the hover name needs no setting). */
+export const showNames = prefStore('toolbar.showNames', isBoolean, false)
+
 /** The pill showing now: the opened one, or (when pinned) the tool's own. */
 export function shownPill(
   opened: PillTool | null,
@@ -278,6 +281,7 @@ export function resetMainState(): void {
     newLineExtras,
     newLineHoldMs,
     penPicksPen,
+    showNames,
   ]) {
     store.clearCache()
   }

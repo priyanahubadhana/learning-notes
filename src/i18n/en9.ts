@@ -235,6 +235,9 @@ export const en9 = {
   'settings.penPicksPen.label': 'Pencil picks the Pen tool',
   'settings.penPicksPen.description':
     'When the Apple Pencil touches the page, select the Pen tool by itself. Off by default: a Pencil drag on text only selects it either way.',
+  'settings.showNames.label': 'Show names under icons',
+  'settings.showNames.description':
+    'Tiny names under the bar icons, for learning them. Off by default. Hovering with a mouse (or a hovering Pencil) always shows the name.',
   'settings.pillReset.label': 'Options pill position',
   'settings.pillReset.description':
     'The pill snaps to an edge when you drag it. Put it back next to the bar.',

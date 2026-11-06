@@ -1,0 +1,67 @@
+// Browser types for code that runs inside the page.
+/// <reference lib="dom" />
+import { expect, test, type Page } from '@playwright/test'
+import {
+  createNotebook,
+  dockedBar,
+  startInMode,
+  typeInEditor,
+} from './helpers.ts'
+
+/**
+ * Toggle sweep (Phase A4, R4-18): every toggle button on the ribbon turns
+ * off with a second tap and the ribbon stays on the same tab.
+ */
+
+test.use({ hasTouch: true })
+
+async function openPage(page: Page) {
+  await startInMode(page, 'touch')
+  await page.addInitScript(() => {
+    localStorage.setItem('learning-notes:toolbar.ribbon', 'true')
+  })
+  await page.goto('/')
+  await createNotebook(page, 'Biology', 'First')
+  await typeInEditor(page, 'The nucleus holds the DNA')
+  await page.keyboard.press('Control+A')
+}
+
+for (const tab of ['Home', 'Insert', 'Review']) {
+  test(`ribbon toggles on the ${tab} tab turn off on a second tap`, async ({
+    page,
+  }) => {
+    await openPage(page)
+    const bar = dockedBar(page)
+    const tabButton = bar.getByRole('tab', { name: tab, exact: true })
+    if ((await tabButton.count()) === 0) test.skip()
+    await tabButton.click()
+    const panel = bar.locator('[role="tabpanel"]')
+    const reopen = async () => {
+      // The ribbon closes after a tool unless it is pinned; the tab stays.
+      if ((await panel.count()) === 0) await tabButton.click()
+    }
+    const names = await panel
+      .locator('button[aria-pressed]')
+      .evaluateAll((els) => els.map((el) => el.getAttribute('aria-label')!))
+    for (const name of names) {
+      const button = () =>
+        panel
+          .locator('button[aria-pressed]')
+          .and(page.getByLabel(name, { exact: true }))
+      await reopen()
+      const start = await button().getAttribute('aria-pressed')
+      await button().click()
+      await reopen()
+      await button().click()
+      await reopen()
+      await expect(button(), `${name} back to ${start}`).toHaveAttribute(
+        'aria-pressed',
+        start!,
+      )
+      await expect(tabButton, `${name} stays on ${tab}`).toHaveAttribute(
+        'aria-selected',
+        'true',
+      )
+    }
+  })
+}

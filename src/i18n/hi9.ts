@@ -235,6 +235,9 @@ export const hi9: Record<string, string> = {
   'settings.penPicksPen.label': 'पेंसिल पेन टूल चुने',
   'settings.penPicksPen.description':
     'Apple Pencil पेज को छुए तो पेन टूल अपने-आप चुन लिया जाता है। डिफ़ॉल्ट रूप से बंद: टेक्स्ट पर पेंसिल खींचने से दोनों हालत में केवल चयन होता है।',
+  'settings.showNames.label': 'आइकन के नीचे नाम दिखाएँ',
+  'settings.showNames.description':
+    'आइकन सीखने के लिए बार के आइकन के नीचे छोटे नाम। डिफ़ॉल्ट रूप से बंद। माउस (या हवा में पेंसिल) रखने पर नाम हमेशा दिखता है।',
   'settings.pillReset.label': 'विकल्प-पिल की जगह',
   'settings.pillReset.description':
     'खींचने पर पिल किसी किनारे से चिपक जाती है। उसे वापस बार के पास रखें।',

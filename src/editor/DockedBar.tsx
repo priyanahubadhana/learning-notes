@@ -29,6 +29,7 @@ import { useBarSettings } from '../settings/deviceModeSettings'
 import { redoDepth, undoDepth } from 'prosemirror-history'
 import { inkFor } from '../ink/inkRuntime'
 import { MainBarRow } from '../app/tools/main/MainBar'
+import { HoverName } from '../app/tools/HoverName'
 import { MiniToolbar } from '../app/tools/main/MiniToolbar'
 import { OptionsPill } from '../app/tools/main/OptionsPill'
 import { closePill, pillReserve } from '../app/tools/main/mainTools'
@@ -478,6 +479,7 @@ function Bar({ editor, slot }: { editor: Editor; slot: HTMLElement }) {
         )
       })}
       <MiniToolbar editor={editor} />
+      <HoverName />
       {layout.short !== null && (
         <OptionsPill editor={editor} barPlace={layout.short} />
       )}

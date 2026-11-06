@@ -236,6 +236,9 @@ export const es9: Record<string, string> = {
   'settings.penPicksPen.label': 'El Pencil elige el bolígrafo',
   'settings.penPicksPen.description':
     'Cuando el Apple Pencil toca la página, se elige solo la herramienta Bolígrafo. Desactivado por defecto: arrastrar el Pencil sobre el texto solo lo selecciona en ambos casos.',
+  'settings.showNames.label': 'Mostrar nombres bajo los iconos',
+  'settings.showNames.description':
+    'Nombres pequeños bajo los iconos de la barra, para aprenderlos. Desactivado por defecto. Al pasar el ratón (o el Pencil en el aire) el nombre siempre aparece.',
   'settings.pillReset.label': 'Posición de las opciones',
   'settings.pillReset.description':
     'La píldora se pega a un borde al arrastrarla. Vuelve a ponerla junto a la barra.',

@@ -667,3 +667,32 @@ html[data-note-line] .bn-editor {
       outline-color 120ms ease;
   }
 }
+
+/* Show names under icons (Settings > Tool bar): tiny labels on the main bar. */
+[data-show-names] [data-main-bar] [data-bar-btn],
+[data-show-names] [data-main-bar] [data-bar-tool] {
+  padding-bottom: 12px;
+}
+[data-show-names] [data-main-bar] [data-bar-btn]::after,
+[data-show-names] [data-main-bar] [data-bar-tool]::after {
+  content: attr(aria-label);
+  position: absolute;
+  inset-inline: 0;
+  bottom: 1px;
+  overflow: hidden;
+  font-size: 9px;
+  line-height: 11px;
+  text-align: center;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+/* A pill docked left or right is one thin column (R4-1). */
+[data-options-pill][data-edge='left'],
+[data-options-pill][data-edge='right'] {
+  max-width: 64px;
+}
+[data-options-pill][data-edge='left'] span.inline-flex,
+[data-options-pill][data-edge='right'] span.inline-flex {
+  flex-direction: column;
+}

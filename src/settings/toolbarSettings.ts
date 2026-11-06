@@ -26,6 +26,7 @@ import {
   newLineHoldMs,
   penPicksPen,
   resetMainBar,
+  showNames,
   type NewLineExtras,
 } from '../app/tools/main/mainTools'
 import { pillPlaceStore } from '../app/tools/main/pillPlace'
@@ -285,6 +286,22 @@ export const penPicksPenSetting: SettingDefinition<OnOff> = {
   },
 }
 
+export const showNamesSetting: SettingDefinition<OnOff> = {
+  id: 'toolbar.showNames',
+  labelKey: 'settings.showNames.label',
+  descriptionKey: 'settings.showNames.description',
+  category: 'toolbar',
+  keywords: KEYWORDS + ' names labels icons text under tooltip hover',
+  scope: 'device',
+  defaultValue: 'off',
+  isValid: isOnOff,
+  control: { kind: 'segmented', options: onOff() },
+  derived: {
+    read: () => (showNames.get() ? 'on' : 'off'),
+    write: (value) => showNames.set(value === 'on'),
+  },
+}
+
 export const pillPlaceSetting: SettingDefinition<'idle'> = {
   id: 'toolbar.pillReset',
   labelKey: 'settings.pillReset.label',
@@ -355,6 +372,7 @@ for (const definition of [
   newLineExtrasSetting,
   newLineHoldSetting,
   penPicksPenSetting,
+  showNamesSetting,
   pillPlaceSetting,
   resetToolBarSetting,
 ]) {

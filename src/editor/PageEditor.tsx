@@ -45,6 +45,7 @@ import { AppFormattingToolbar } from './SelectionToolbar'
 import { DockedBar } from './DockedBar'
 import { watchDragSelect } from './dragSelect'
 import { ownSelection } from './ownSelection'
+import { handleScrollToSelection } from './scrollPolicy'
 import { penTransactionGuard, watchPenGuard } from './penGuard'
 import {
   applyPageMode,
@@ -235,6 +236,8 @@ function LoadedPageEditor({
     schema,
     initialContent,
     extensions: [codeBlockKeys, linkTrigger, penTransactionGuard, ownSelection],
+    // The page scrolls only when the caret would be hidden (no jumps).
+    _tiptapOptions: { editorProps: { handleScrollToSelection } },
     // Pasted web pages are cleaned; Ctrl/Cmd+Shift+V pastes plain text.
     pasteHandler: pasteHandler as never,
     // The editor's own menus in the chosen language (English if none).

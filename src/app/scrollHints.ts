@@ -58,6 +58,9 @@ function scrolls(el: Element): boolean {
   if (overflow !== 'auto' && overflow !== 'scroll') return false
   // Never on the page itself (text, drawings): only on lists and panels.
   if (el.hasAttribute('data-no-scroll-hint')) return false
+  // The page's own scroller holds pop-up menus and the editor: a mask there
+  // changes how they stack and receive taps (the dashboard e2e test caught it).
+  if (el.hasAttribute('data-page-scroller')) return false
   if (el.querySelector('.bn-editor, canvas, [data-app-shell]')) return false
   return true
 }

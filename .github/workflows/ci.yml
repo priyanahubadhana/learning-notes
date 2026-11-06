@@ -45,6 +45,30 @@ jobs:
           path: dist
           retention-days: 1
 
+  # The Pencil and keyboard specs again in WebKit with an iPad profile (the
+  # nearest stand-in for the owner's iPad). It runs beside `checks`, so it adds
+  # no waiting time, and the deploy needs it. The list is in
+  # playwright.config.ts (project ipad-webkit).
+  pencil-webkit:
+    if: github.event_name == 'push' || github.event_name == 'pull_request'
+    runs-on: ubuntu-latest
+    timeout-minutes: 25
+    steps:
+      - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262 # v4
+      - uses: actions/setup-node@49933ea5288caeca8642d1e84afbd3f7d6820020 # v4
+        with:
+          node-version: lts/*
+          cache: npm
+      - run: npm ci
+      - run: npx playwright install --with-deps webkit
+      - run: npx playwright test --project=ipad-webkit
+      - uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4
+        if: failure()
+        with:
+          name: playwright-results-ipad
+          path: test-results
+          retention-days: 7
+
   # Publishes the tested build only after every check above has passed on
   # main, then checks the live site. The Cloudflare key is given to the one
   # step that needs it, and nothing runs package install scripts here. The
@@ -52,7 +76,7 @@ jobs:
   # at a time, so an older push can never finish last.
   deploy:
     if: github.event_name == 'push' && github.ref == 'refs/heads/main'
-    needs: checks
+    needs: [checks, pencil-webkit]
     runs-on: ubuntu-latest
     timeout-minutes: 15
     concurrency:

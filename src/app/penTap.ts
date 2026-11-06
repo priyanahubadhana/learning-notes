@@ -48,6 +48,9 @@ export function installPenTap(doc: Document = document): () => void {
   } | null = null
   let marked: { el: HTMLElement; at: number } | null = null
   let clicking = false
+  // True only while a PEN pointer is down. Any other pointer (a finger)
+  // resets it, so a finger can never be treated as the stylus.
+  let penDown = false
 
   const inChrome = (t: EventTarget | null): t is Element =>
     t instanceof Element && !!t.closest(CHROME_SELECTOR) && !t.closest(NATIVE)
@@ -56,7 +59,7 @@ export function installPenTap(doc: Document = document): () => void {
     if (!penTapOptions.enabled) return
     for (const t of Array.from(e.changedTouches)) {
       const type = (t as Touch & { touchType?: string }).touchType
-      if (type === 'stylus' && inChrome(t.target) && e.cancelable) {
+      if (type === 'stylus' && penDown && inChrome(t.target) && e.cancelable) {
         e.preventDefault()
         penTapStats.cancelledTouches++
         return
@@ -65,6 +68,9 @@ export function installPenTap(doc: Document = document): () => void {
   }
   const onDown = (e: PointerEvent) => {
     down = null
+    penDown = e.pointerType === 'pen'
+    // A finger or mouse touch ends any pending Pencil click or swallow.
+    if (e.pointerType === 'touch') marked = null
     if (!penTapOptions.enabled || e.pointerType !== 'pen') return
     if (!inChrome(e.target)) return
     const el = (e.target as Element).closest<HTMLElement>(ACTION)
@@ -74,6 +80,7 @@ export function installPenTap(doc: Document = document): () => void {
   const onUp = (e: PointerEvent) => {
     const d = down
     down = null
+    if (e.pointerType === 'pen') penDown = false
     if (!d || e.pointerType !== 'pen' || e.pointerId !== d.id) return
     if (!penTapOptions.enabled) return
     const target = e.target instanceof Element ? e.target : null
@@ -113,11 +120,16 @@ export function installPenTap(doc: Document = document): () => void {
   doc.addEventListener('touchstart', onTouch, { capture: true, passive: false })
   doc.addEventListener('pointerdown', onDown, true)
   doc.addEventListener('pointerup', onUp, true)
+  const onCancel = (e: PointerEvent) => {
+    if (e.pointerType === 'pen') penDown = false
+  }
+  doc.addEventListener('pointercancel', onCancel, true)
   doc.addEventListener('click', onClick, true)
   return () => {
     doc.removeEventListener('touchstart', onTouch, true)
     doc.removeEventListener('pointerdown', onDown, true)
     doc.removeEventListener('pointerup', onUp, true)
+    doc.removeEventListener('pointercancel', onCancel, true)
     doc.removeEventListener('click', onClick, true)
   }
 }

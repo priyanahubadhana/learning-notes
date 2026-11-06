@@ -75,6 +75,7 @@ for (const name of ['Pen', 'Highlighter', 'Eraser', 'Lasso', 'Read']) {
     await setup(page)
     await tool(page, name).click()
     await page.keyboard.press('Escape')
+    await page.waitForTimeout(500) // the closed pill gives the page its room back
     const before = await text(page)
     for (const index of [0, 1, 2]) {
       const cancelled = await tap(page, await blockPoint(page, index))

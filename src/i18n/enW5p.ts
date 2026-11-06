@@ -56,4 +56,10 @@ export const enW5p = {
     'Closes the audio panel. Recording keeps going.',
   'help.tip.audio.panelClose.example':
     'Hide the panel while a lecture records.',
+  // ---- Row actions by touch (item 2) ----
+  'library.cardMenu': 'More actions',
+  'library.openNotes': 'Open notes page',
+  'help.tip.library.cardMenu.meaning':
+    'Opens more actions for this book or source.',
+  'help.tip.library.cardMenu.example': 'Open its notes page or delete it.',
 } as const

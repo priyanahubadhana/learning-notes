@@ -24,6 +24,9 @@ export function useAnchoredMenu() {
       const rect = el.getBoundingClientRect()
       setAnchor((old) => (old ? null : { el, rect }))
     },
+    /** Open it for this element (a long-press on a row opens the row's menu). */
+    openAt: (el: HTMLElement) =>
+      setAnchor({ el, rect: el.getBoundingClientRect() }),
     /** Props for the button that opens it. */
     trigger: {
       'data-popup-trigger': true as const,

@@ -1,6 +1,9 @@
 import { useLiveQuery } from 'dexie-react-hooks'
 import { useContext, useRef, useState } from 'react'
 import { AppUiContext } from '../app/appUi'
+import { ConfirmDialog, IconButton, MenuPopover } from '../app/ui'
+import { useLongPress } from '../app/useLongPress'
+import { deletePage } from '../pages/pageService'
 import { runTask } from '../app/errors'
 import type { LearningNotesDB } from '../core/db'
 import type { Page } from '../core/types'
@@ -43,6 +46,7 @@ export function LibraryScreen({
   const [busy, setBusy] = useState<string | null>(null)
   const [dragging, setDragging] = useState(false)
   const fileInput = useRef<HTMLInputElement>(null)
+  const [pendingDelete, setPendingDelete] = useState<Page | null>(null)
   const sources = useLiveQuery(
     () => listSources(db, workspaceId, filter),
     [db, workspaceId, filter],
@@ -172,10 +176,25 @@ export function LibraryScreen({
                 page={page}
                 onOpenPage={() => onOpenPage(page.id)}
                 onStart={() => void start(page)}
+                onDelete={() => setPendingDelete(page)}
               />
             </li>
           ))}
         </ul>
+      )}
+      {pendingDelete && (
+        <ConfirmDialog
+          message={t('sidebar.confirm.page', {
+            name: pendingDelete.title || t('review.untitled'),
+          })}
+          confirmLabel={t('ui.delete')}
+          onCancel={() => setPendingDelete(null)}
+          onConfirm={() => {
+            const page = pendingDelete
+            setPendingDelete(null)
+            runTask(deletePage(db, page.id))
+          }}
+        />
       )}
     </div>
   )
@@ -185,11 +204,19 @@ function SourceCard({
   page,
   onOpenPage,
   onStart,
+  onDelete,
 }: {
   page: Page
   onOpenPage: () => void
   onStart: () => void
+  onDelete: () => void
 }) {
+  // The ⋯ button or a press-and-hold (finger or Pencil) opens the actions.
+  const [menuAt, setMenuAt] = useState<DOMRect | null>(null)
+  const hold = useLongPress((x, y) => {
+    const card = document.elementFromPoint(x, y)?.closest('article')
+    if (card) setMenuAt(card.getBoundingClientRect())
+  }, true)
   const source = page.source
   const cover = useImageUrl(
     source?.coverImageId ? imageRef(source.coverImageId) : null,
@@ -201,7 +228,8 @@ function SourceCard({
     <article
       data-chrome
       data-testid="source-card"
-      className="flex h-full flex-col overflow-hidden rounded-xl border border-line bg-bg"
+      {...hold}
+      className="relative flex h-full flex-col overflow-hidden rounded-xl border border-line bg-bg"
     >
       <button
         type="button"
@@ -221,6 +249,28 @@ function SourceCard({
           </span>
         )}
       </button>
+      <IconButton
+        tip="library.cardMenu"
+        bare
+        tipClassName="absolute top-1 right-1 inline-flex"
+        data-testid="source-menu-button"
+        aria-label={t('library.cardMenu')}
+        aria-haspopup="menu"
+        onClick={(e) => setMenuAt(e.currentTarget.getBoundingClientRect())}
+        className="grid size-11 place-items-center rounded-full bg-bg/80 text-ink-soft hover:bg-hover"
+      >
+        ⋯
+      </IconButton>
+      {menuAt && (
+        <MenuPopover
+          anchor={menuAt}
+          onClose={() => setMenuAt(null)}
+          items={[
+            { label: t('library.openNotes'), icon: '📄', onSelect: onOpenPage },
+            { label: t('ui.delete'), icon: '🗑', onSelect: onDelete },
+          ]}
+        />
+      )}
       <div className="flex flex-1 flex-col gap-1 p-3">
         <h2 className="line-clamp-2 text-sm font-semibold">{title}</h2>
         <p className="line-clamp-1 text-xs text-muted">

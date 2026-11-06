@@ -214,6 +214,9 @@ export const TIPS = {
   'reader.bookmark': { where: 'Book reader › top bar › ☆ bookmark' },
   'pic.zoomOut': { where: 'Picture editor › crop sheet › −' },
   'pic.zoomIn': { where: 'Picture editor › crop sheet › +' },
+  'library.cardMenu': {
+    where: 'Library › a book card › ⋯ (also press and hold the card)',
+  },
   'audio.panelClose': { where: 'Audio panel › ✕ close' },
 } as const satisfies Record<string, TipDefinition>
 

@@ -51,4 +51,9 @@ export const hiW5p = {
     'ऑडियो पैनल बंद करता है। रिकॉर्डिंग चलती रहती है।',
   'help.tip.audio.panelClose.example':
     'व्याख्यान रिकॉर्ड होते समय पैनल छिपाएँ।',
+  'library.cardMenu': 'और क्रियाएँ',
+  'library.openNotes': 'नोट्स पृष्ठ खोलें',
+  'help.tip.library.cardMenu.meaning':
+    'इस किताब या स्रोत के लिए और क्रियाएँ खोलता है।',
+  'help.tip.library.cardMenu.example': 'इसका नोट्स पृष्ठ खोलें या इसे हटाएँ।',
 } as const

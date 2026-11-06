@@ -5,7 +5,8 @@ import { useContext, useState, type ReactNode } from 'react'
 import { AppUiContext } from '../app/appUi'
 import { runTask } from '../app/errors'
 import { favourites, toggleFavourite } from '../app/favourites'
-import { IconButton, RenameInput } from '../app/ui'
+import { IconButton, RenameInput, MenuPopover, type MenuItem } from '../app/ui'
+import { useLongPress } from '../app/useLongPress'
 import type { TreeState } from '../app/useTreeState'
 import type { LearningNotesDB } from '../core/db'
 import type { Page } from '../core/types'
@@ -64,6 +65,22 @@ export function PageTree({
   const [over, setOver] = useState<{ id: string; intent: DropIntent } | null>(
     null,
   )
+  // Touch: press and hold a page row for the same actions as its icons.
+  const [rowMenu, setRowMenu] = useState<{
+    id: string
+    anchor: DOMRect
+  } | null>(null)
+  const hold = useLongPress((x, y) => {
+    const row = document
+      .elementFromPoint(x, y)
+      ?.closest<HTMLElement>('[data-page-id]')
+    if (row) {
+      setRowMenu({
+        id: row.dataset.pageId!,
+        anchor: row.getBoundingClientRect(),
+      })
+    }
+  }, true)
   if (!pages) return null
 
   // A move with one Undo that puts the page back where it was.
@@ -265,5 +282,62 @@ export function PageTree({
       )
     })
 
-  return <>{rootId ? renderLevel(rootId, 2) : renderLevel(null, 1)}</>
+  const menuPage = rowMenu ? pages.find((p) => p.id === rowMenu.id) : undefined
+  const menuItems: MenuItem[] = []
+  if (menuPage) {
+    menuItems.push({
+      label: t('sidebar.rename.title'),
+      icon: '✎',
+      onSelect: () => setRenamingId(menuPage.id),
+    })
+    if (!journal && onAddSubPage && rowMenu) {
+      menuItems.push({
+        label: t('tree.addSub'),
+        icon: '+',
+        onSelect: () => onAddSubPage(menuPage.id, rowMenu.anchor),
+      })
+    }
+    if (!rootId) {
+      const fav = starred.includes(menuPage.id)
+      menuItems.push({
+        label: t(fav ? 'fav.remove' : 'fav.add'),
+        icon: fav ? '★' : '☆',
+        onSelect: () => toggleFavourite(menuPage.id),
+      })
+    }
+    if (canMove) {
+      menuItems.push(
+        {
+          label: t('tree.moveUp'),
+          icon: '↑',
+          onSelect: () =>
+            moveWithUndo(menuPage.id, planStep(pages, menuPage.id, -1)),
+        },
+        {
+          label: t('tree.moveDown'),
+          icon: '↓',
+          onSelect: () =>
+            moveWithUndo(menuPage.id, planStep(pages, menuPage.id, 1)),
+        },
+      )
+    }
+    menuItems.push({
+      label: t('tree.deletePage'),
+      icon: '×',
+      onSelect: () => onRequestDelete(menuPage, openPath.has(menuPage.id)),
+    })
+  }
+
+  return (
+    <div {...hold}>
+      {rootId ? renderLevel(rootId, 2) : renderLevel(null, 1)}
+      {rowMenu && menuPage && (
+        <MenuPopover
+          anchor={rowMenu.anchor}
+          items={menuItems}
+          onClose={() => setRowMenu(null)}
+        />
+      )}
+    </div>
+  )
 }

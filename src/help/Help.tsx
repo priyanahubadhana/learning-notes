@@ -38,6 +38,7 @@ export function Tip({
   children,
   className = 'inline-flex items-center gap-0.5',
   touchInfo = true,
+  hold: holdTip = true,
 }: {
   id: TipId
   children: ReactNode
@@ -48,12 +49,19 @@ export function Tip({
    * beside every icon would crowd them): those keep the hover tip only.
    */
   touchInfo?: boolean
+  /** Touch: press and hold shows the tip (off where the press has another job). */
+  hold?: boolean
 }) {
   const on = useShowHelp()
   // Off: keep the same wrapper, so the layout does not change.
   if (!on) return <span className={className}>{children}</span>
   return (
-    <TipBox id={id} className={className} touchInfo={touchInfo}>
+    <TipBox
+      id={id}
+      className={className}
+      touchInfo={touchInfo}
+      holdTip={holdTip}
+    >
       {children}
     </TipBox>
   )
@@ -64,11 +72,13 @@ function TipBox({
   children,
   className,
   touchInfo,
+  holdTip,
 }: {
   id: TipId
   children: ReactNode
   className: string
   touchInfo: boolean
+  holdTip: boolean
 }) {
   // Where the feature is while its tip is open (null = closed).
   const [anchor, setAnchor] = useState<DOMRect | null>(null)
@@ -136,7 +146,8 @@ function TipBox({
       onFocus={() => tabbing && show()}
       onBlur={hide}
       aria-describedby={open ? bubbleId : undefined}
-      {...(touchInfo ? {} : hold)}
+      data-tip-hold={!touchInfo && holdTip ? true : undefined}
+      {...(!touchInfo && holdTip ? hold : {})}
     >
       {children}
       {touchInfo && (

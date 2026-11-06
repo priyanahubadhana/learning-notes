@@ -68,31 +68,49 @@ export function createLongPress(
  * Spread the result on the element. A move of more than 8 px cancels it, and
  * the click after a long-press is swallowed so the row does not also open.
  */
-export function useLongPress(onLong: (x: number, y: number) => void) {
+export function useLongPress(
+  onLong: (x: number, y: number) => void,
+  /** Rows: a press that starts on a tipped icon is the icon's own (its tip). */
+  ignoreTips = false,
+) {
   const [machine] = useState(() => createLongPress(onLong))
   useEffect(() => {
     machine.setHandler(onLong)
   })
   useEffect(() => () => machine.up(), [machine])
 
-  const onPointerDown = useCallback((e: PointerEvent) => {
-    if (e.pointerType === 'mouse' || !e.isPrimary) return
-    machine.down(e.clientX, e.clientY)
-  }, [machine])
-  const onPointerMove = useCallback((e: PointerEvent) => {
-    machine.move(e.clientX, e.clientY)
-  }, [machine])
+  const onPointerDown = useCallback(
+    (e: PointerEvent) => {
+      if (e.pointerType === 'mouse' || !e.isPrimary) return
+      if (ignoreTips && (e.target as Element).closest?.('[data-tip-hold]'))
+        return
+      machine.down(e.clientX, e.clientY)
+    },
+    [machine, ignoreTips],
+  )
+  const onPointerMove = useCallback(
+    (e: PointerEvent) => {
+      machine.move(e.clientX, e.clientY)
+    },
+    [machine],
+  )
   const end = useCallback(() => machine.up(), [machine])
-  const onClickCapture = useCallback((e: MouseEvent) => {
-    if (machine.consumeClick()) {
-      e.preventDefault()
-      e.stopPropagation()
-    }
-  }, [machine])
-  const onContextMenu = useCallback((e: MouseEvent) => {
-    // iOS and Android may show their own menu on a long press.
-    if (machine.fired) e.preventDefault()
-  }, [machine])
+  const onClickCapture = useCallback(
+    (e: MouseEvent) => {
+      if (machine.consumeClick()) {
+        e.preventDefault()
+        e.stopPropagation()
+      }
+    },
+    [machine],
+  )
+  const onContextMenu = useCallback(
+    (e: MouseEvent) => {
+      // iOS and Android may show their own menu on a long press.
+      if (machine.fired) e.preventDefault()
+    },
+    [machine],
+  )
   return {
     onPointerDown,
     onPointerMove,

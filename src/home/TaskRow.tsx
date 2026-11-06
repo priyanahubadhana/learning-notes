@@ -1,4 +1,5 @@
 import { IconButton } from '../app/ui'
+import { useLongPress } from '../app/useLongPress'
 import type { HTMLAttributes } from 'react'
 import { useAnchoredMenu } from '../app/tools/useAnchoredMenu'
 import { showsCarried } from '../core/taskService'
@@ -31,12 +32,21 @@ export function TaskRow({
   extra?: React.ReactNode
 }) {
   const menu = useAnchoredMenu()
+  // Press and hold the row (finger or Pencil) = the same as its ⋯ button.
+  const hold = useLongPress((x, y) => {
+    const row = document.elementFromPoint(x, y)?.closest('[data-task-id]')
+    const button = row?.querySelector<HTMLElement>(
+      '[data-testid="task-menu-button"]',
+    )
+    if (button) menu.openAt(button)
+  }, true)
   const done = task.status === 'done'
   const project = projects.find((p) => p.id === task.projectId)
   return (
     <li
       data-testid="task-row"
       data-task-id={task.id}
+      {...hold}
       className="flex min-h-11 items-center gap-1 rounded-lg border border-line bg-bg ps-1 pe-0.5"
     >
       <IconButton

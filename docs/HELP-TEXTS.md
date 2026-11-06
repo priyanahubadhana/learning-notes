@@ -904,6 +904,12 @@ Every hover tip and help line in the app (shown while Settings › Show help is 
 - **Meaning:** Zooms the picture in.
 - **Example:** Place the crop edge exactly.
 
+### `library.cardMenu`
+
+- **Where:** Library › a book card › ⋯ (also press and hold the card)
+- **Meaning:** Opens more actions for this book or source.
+- **Example:** Open its notes page or delete it.
+
 ### `audio.panelClose`
 
 - **Where:** Audio panel › ✕ close

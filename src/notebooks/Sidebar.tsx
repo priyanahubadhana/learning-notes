@@ -18,6 +18,7 @@ import {
   MenuIcon,
   MenuPopover,
   RenameInput,
+  type MenuItem,
 } from '../app/ui'
 import type { TreeState } from '../app/useTreeState'
 import type { LearningNotesDB } from '../core/db'
@@ -32,6 +33,7 @@ import { SavedSearchesSection } from '../search/SavedSearchesSection'
 import { TagsSection } from '../tags/TagsSection'
 import { FavouritesSection, RecentSection } from '../app/QuickPages'
 import { t } from '../i18n/t'
+import { useLongPress } from '../app/useLongPress'
 import { countDue, type ReviewScope } from '../recall/reviewService'
 import { deleteNotebook, moveNotebook, renameNotebook } from './notebookService'
 
@@ -148,6 +150,22 @@ export function Sidebar({
   const { chooseTemplate } = useContext(AppUiContext)
   const [pending, setPending] = useState<PendingDelete | null>(null)
   const [addMenu, setAddMenu] = useState<AddMenu | null>(null)
+  // Touch: press and hold a notebook row for the same actions as its icons.
+  const [rowMenu, setRowMenu] = useState<{
+    id: string
+    anchor: DOMRect
+  } | null>(null)
+  const hold = useLongPress((x, y) => {
+    const row = document
+      .elementFromPoint(x, y)
+      ?.closest<HTMLElement>('[data-notebook-row]')
+    if (row) {
+      setRowMenu({
+        id: row.dataset.notebookRow!,
+        anchor: row.getBoundingClientRect(),
+      })
+    }
+  }, true)
 
   // Due count for the Review button; re-checked every minute so cards
   // that come due (e.g. after Again) show up without other changes.
@@ -344,6 +362,7 @@ export function Sidebar({
       <nav
         aria-label={t('sidebar.groups')}
         className="min-h-32 flex-1 overflow-auto pt-2"
+        {...hold}
       >
         {(space === 'notebooks' || space === 'review') && studyGroup}
         {space === 'notebooks' && (
@@ -420,6 +439,7 @@ export function Sidebar({
                 return (
                   <div key={notebook.id}>
                     <div
+                      data-notebook-row={notebook.id}
                       draggable={renamingNotebookId !== notebook.id}
                       onDragStart={(e) => {
                         e.dataTransfer.effectAllowed = 'move'
@@ -606,6 +626,47 @@ export function Sidebar({
         />
       )}
 
+      {rowMenu &&
+        (() => {
+          const notebook = notebooks.find((n) => n.id === rowMenu.id)
+          if (!notebook) return null
+          const items: MenuItem[] = []
+          if (notebook.kind !== 'journal') {
+            items.push({
+              label: t('sidebar.addPage.title'),
+              icon: '+',
+              onSelect: () => openAddMenu(rowMenu.anchor, notebook.id, null),
+            })
+          }
+          if (notebook.kind !== 'templates') {
+            items.push({
+              label: t('review.thisNotebook'),
+              icon: '⟳',
+              onSelect: () =>
+                onOpenReview({ kind: 'notebook', notebookId: notebook.id }),
+            })
+          }
+          items.push(
+            {
+              label: t('sidebar.rename.title'),
+              icon: '✎',
+              onSelect: () => onRenamingChange(notebook.id),
+            },
+            {
+              label: t('sidebar.deleteNotebook.title'),
+              icon: '×',
+              onSelect: () => requestNotebookDelete(notebook),
+            },
+          )
+          return (
+            <MenuPopover
+              anchor={rowMenu.anchor}
+              items={items}
+              onClose={() => setRowMenu(null)}
+            />
+          )
+        })()}
+
       {pending && (
         <ConfirmDialog
           message={pending.message}
@@ -636,6 +697,7 @@ function NotebookTip({
       id="sidebar.notebook"
       className="flex min-w-0 flex-1"
       touchInfo={false}
+      hold={false}
     >
       {children}
     </Tip>

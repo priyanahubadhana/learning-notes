@@ -54,4 +54,9 @@ export const esW5p = {
     'Cierra el panel de audio. La grabación sigue.',
   'help.tip.audio.panelClose.example':
     'Oculta el panel mientras se graba una clase.',
+  'library.cardMenu': 'Más acciones',
+  'library.openNotes': 'Abrir la página de notas',
+  'help.tip.library.cardMenu.meaning':
+    'Abre más acciones para este libro o fuente.',
+  'help.tip.library.cardMenu.example': 'Abre su página de notas o elimínala.',
 } as const

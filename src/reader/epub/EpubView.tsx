@@ -1,13 +1,51 @@
+import { useEffect, useRef } from 'react'
+import { parseLocator } from '../../core/sourceCheck'
 import type { Annotation } from '../../core/types'
-import { t } from '../../i18n/t'
+import { makeQuote } from '../annotations/annotationService'
+import { COLOUR_FILL } from '../annotations/colours'
 import type { ReaderSelection } from '../BookReader'
 import type { OutlineItem } from '../pdf/PdfView'
+import { epubCss, flattenToc, makeEpubLoader, type TocNode } from './epubLoader'
+
+/** The parts of foliate-js's view that we use (the library is plain JS). */
+interface FoliateView extends HTMLElement {
+  book: { toc?: TocNode[] }
+  renderer: HTMLElement & {
+    setStyles?: (css: string) => void
+    next: () => Promise<void>
+    prev: () => Promise<void>
+    getContents: () => { doc: Document; index: number }[]
+  }
+  open: (book: unknown) => Promise<void>
+  init: (o: { lastLocation?: string; showTextStart?: boolean }) => Promise<void>
+  close: () => void
+  goTo: (target: string) => Promise<unknown>
+  goLeft: () => Promise<void>
+  goRight: () => Promise<void>
+  getCFI: (index: number, range?: Range) => string
+  addAnnotation: (a: AnnotationDraft, remove?: boolean) => Promise<unknown>
+  deleteAnnotation: (a: AnnotationDraft) => Promise<unknown>
+}
+interface AnnotationDraft {
+  value: string
+  color: string
+  glow?: boolean
+}
+interface RelocateDetail {
+  fraction: number
+  cfi: string
+  tocItem?: { label?: string }
+}
 
 export interface EpubViewProps {
   data: ArrayBuffer
   startAt?: string
   annotations: readonly Annotation[]
   target?: { at: string; nonce: number; glow?: string } | null
+  /** Text size in percent. */
+  size: number
+  flow: 'paginated' | 'scrolled'
+  command?: { type: 'prev' | 'next'; nonce: number } | null
   onOutline: (items: (OutlineItem & { at?: string })[]) => void
   onPosition: (pos: {
     progress: number
@@ -18,8 +56,237 @@ export interface EpubViewProps {
   onFailed: () => void
 }
 
-/** The EPUB reader (C3). */
+const ACCENT = 'rgba(37, 99, 235, 0.9)'
+
+/** The highlights wanted on screen, by position. */
+function wantedHighlights(list: readonly Annotation[]) {
+  const wanted = new Map<string, AnnotationDraft>()
+  for (const a of list) {
+    if (a.anchor.type !== 'epub' || a.kind === 'bookmark') continue
+    wanted.set(a.anchor.cfi, {
+      value: a.anchor.cfi,
+      color: COLOUR_FILL[a.colour ?? 'yellow'],
+    })
+  }
+  return wanted
+}
+
+/**
+ * The EPUB reader (C3): foliate-js (vendored in `src/vendor/foliate-js`)
+ * lays the book out in scroll or page mode inside frames that run no scripts.
+ * This wrapper is the only importer of the library, so it can be swapped.
+ */
 export function EpubView(props: EpubViewProps) {
-  void props
-  return <p className="p-6 text-muted">{t('bookreader.failed')}</p>
+  const host = useRef<HTMLDivElement>(null)
+  const viewRef = useRef<FoliateView | null>(null)
+  const propsRef = useRef(props)
+  useEffect(() => {
+    propsRef.current = props
+  })
+  const lastTocLabel = useRef('')
+  const drawn = useRef(new Map<string, AnnotationDraft>())
+
+  /** Our annotations → the frame's overlay. */
+  const sync = (v: FoliateView) => {
+    const wanted = wantedHighlights(propsRef.current.annotations)
+    for (const [cfi, d] of drawn.current) {
+      if (!wanted.has(cfi)) void v.deleteAnnotation(d)
+    }
+    drawn.current = wanted
+    for (const d of wanted.values()) void v.addAnnotation(d)
+  }
+
+  // Open the book.
+  useEffect(() => {
+    const el = host.current
+    if (!el) return
+    let cancelled = false
+    let view: FoliateView | null = null
+    void (async () => {
+      try {
+        const [, { EPUB }, { Overlayer }] = await Promise.all([
+          import('../../vendor/foliate-js/view.js'),
+          import('../../vendor/foliate-js/epub.js'),
+          import('../../vendor/foliate-js/overlayer.js'),
+        ])
+        const loader = makeEpubLoader(new Uint8Array(propsRef.current.data))
+        const book = await new EPUB(loader).init()
+        if (cancelled) return
+        view = document.createElement('foliate-view') as FoliateView
+        view.style.cssText = 'display:block;width:100%;height:100%'
+        el.append(view)
+        viewRef.current = view
+        await view.open(book)
+        if (cancelled) return
+        view.renderer.setAttribute('flow', propsRef.current.flow)
+        applyStyle(view, propsRef.current.size)
+
+        view.addEventListener('relocate', (e) => {
+          const d = (e as CustomEvent<RelocateDetail>).detail
+          lastTocLabel.current = d.tocItem?.label ?? ''
+          propsRef.current.onPosition({
+            progress: d.fraction,
+            locator: `epub:${d.cfi}`,
+            label: lastTocLabel.current,
+          })
+        })
+        view.addEventListener('draw-annotation', (e) => {
+          const { draw, annotation } = (
+            e as CustomEvent<{
+              draw: (f: unknown, o: unknown) => void
+              annotation: AnnotationDraft
+            }>
+          ).detail
+          if (annotation.glow) {
+            draw(Overlayer.outline, { color: ACCENT, width: 3 })
+          } else draw(Overlayer.highlight, { color: annotation.color })
+        })
+        view.addEventListener('create-overlay', () => sync(view!))
+        view.addEventListener('load', (e) => {
+          const { doc, index } = (
+            e as CustomEvent<{ doc: Document; index: number }>
+          ).detail
+          watchSelection(view!, doc, index)
+          doc.addEventListener('keydown', (k) => {
+            if (k.key === 'ArrowLeft') void view?.goLeft()
+            else if (k.key === 'ArrowRight') void view?.goRight()
+          })
+        })
+        propsRef.current.onOutline(
+          flattenToc(book.toc as TocNode[] | undefined).map((t) => ({
+            title: t.title,
+            page: 0,
+            depth: t.depth,
+            at: `href:${t.href}`,
+          })),
+        )
+        const loc = propsRef.current.startAt
+          ? parseLocator(propsRef.current.startAt)
+          : null
+        await view.init({
+          lastLocation: loc?.type === 'epub' ? loc.cfi : undefined,
+          showTextStart: true,
+        })
+      } catch (e) {
+        console.error('EPUB failed', e)
+        if (!cancelled) propsRef.current.onFailed()
+      }
+    })()
+
+    function watchSelection(v: FoliateView, doc: Document, index: number) {
+      let timer = 0
+      doc.addEventListener('selectionchange', () => {
+        window.clearTimeout(timer)
+        timer = window.setTimeout(() => {
+          const sel = doc.getSelection()
+          if (!sel || sel.rangeCount === 0 || sel.isCollapsed) {
+            propsRef.current.onSelection(null)
+            return
+          }
+          const range = sel.getRangeAt(0)
+          const text = sel.toString().replace(/\s+/g, ' ').trim()
+          if (!text) return propsRef.current.onSelection(null)
+          const frame = doc.defaultView?.frameElement?.getBoundingClientRect()
+          const r = range.getBoundingClientRect()
+          const full = (doc.body.textContent ?? '').replace(/\s+/g, ' ')
+          const at = Math.max(0, full.indexOf(text.slice(0, 200)))
+          propsRef.current.onSelection({
+            text: text.slice(0, 5000),
+            rect: {
+              x: r.left + (frame?.left ?? 0),
+              y: r.top + (frame?.top ?? 0),
+              w: r.width,
+              h: r.height,
+            },
+            anchor: { type: 'epub', cfi: v.getCFI(index, range) },
+            quote: makeQuote(full, at, at + text.length),
+            chapter: lastTocLabel.current || undefined,
+          })
+        }, 200)
+      })
+    }
+
+    return () => {
+      cancelled = true
+      view?.close()
+      view?.remove()
+      viewRef.current = null
+      drawn.current = new Map()
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [props.data])
+
+  // Highlights follow the list.
+  useEffect(() => {
+    if (viewRef.current) sync(viewRef.current)
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [props.annotations])
+
+  // Text size, theme and layout.
+  useEffect(() => {
+    const v = viewRef.current
+    if (!v) return
+    v.renderer.setAttribute('flow', props.flow)
+    applyStyle(v, props.size)
+    const mo = new MutationObserver(() => applyStyle(v, props.size))
+    mo.observe(document.documentElement, {
+      attributes: true,
+      attributeFilter: ['data-theme', 'class', 'style'],
+    })
+    return () => mo.disconnect()
+  }, [props.flow, props.size])
+
+  // Jumps: contents (`href:`), annotations and deep links (`epub:`).
+  useEffect(() => {
+    const v = viewRef.current
+    const t = props.target
+    if (!v || !t) return
+    const where = t.at.startsWith('href:')
+      ? t.at.slice(5)
+      : parseLocator(t.at)?.type === 'epub'
+        ? t.at.slice(5)
+        : null
+    if (!where) return
+    void v.goTo(where).then(() => {
+      if (!t.glow || !t.at.startsWith('epub:')) return
+      const glow = { value: where, color: ACCENT, glow: true }
+      void v.addAnnotation(glow)
+      window.setTimeout(() => {
+        // Back to the normal colour (or nothing, if it was not a highlight).
+        void v.deleteAnnotation(glow)
+        const normal = drawn.current.get(where)
+        if (normal) void v.addAnnotation(normal)
+      }, 1700)
+    })
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [props.target?.nonce])
+
+  // Previous / next page.
+  useEffect(() => {
+    const v = viewRef.current
+    const c = props.command
+    if (!v || !c) return
+    void (c.type === 'next' ? v.goRight() : v.goLeft())
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [props.command?.nonce])
+
+  return (
+    <div
+      ref={host}
+      data-testid="epub-host"
+      className="min-h-0 flex-1 overflow-hidden"
+    />
+  )
+}
+
+/** Puts the app's colours and the chosen text size into the book's pages. */
+function applyStyle(view: FoliateView, size: number) {
+  const css = getComputedStyle(document.documentElement)
+  view.renderer.setStyles?.(
+    epubCss({
+      size,
+      bg: css.getPropertyValue('--color-bg').trim() || '#fff',
+      ink: css.getPropertyValue('--color-ink').trim() || '#111',
+    }),
+  )
 }

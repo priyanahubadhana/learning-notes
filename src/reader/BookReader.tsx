@@ -14,6 +14,8 @@ import type { LearningNotesDB } from '../core/db'
 import type { Annotation, HighlightColour } from '../core/types'
 import { t } from '../i18n/t'
 import { createPage } from '../pages/pageService'
+import { usePref } from '../app/usePref'
+import { stepSize } from './epub/epubLoader'
 import { getBookFile, saveProgress } from '../library/libraryService'
 import { addBlocks } from '../core/blockBulk'
 import {
@@ -46,6 +48,11 @@ export interface ReaderSelection {
 }
 
 const ZOOMS = [0.5, 0.75, 1, 1.25, 1.5, 2, 3]
+
+const isFlow = (v: unknown): v is 'paginated' | 'scrolled' =>
+  v === 'paginated' || v === 'scrolled'
+const isSize = (v: unknown): v is number =>
+  typeof v === 'number' && v >= 50 && v <= 300
 
 /**
  * The book reader screen (C2/C3/C4): a PDF or EPUB with the selection pop-up,
@@ -84,6 +91,13 @@ export function BookReader({
   const [position, setPosition] = useState<{
     page: number
     label: string
+    locator: string
+  } | null>(null)
+  const [epubSize, setEpubSize] = usePref('epubSize', isSize, 100)
+  const [epubFlow, setEpubFlow] = usePref('epubFlow', isFlow, 'scrolled')
+  const [command, setCommand] = useState<{
+    type: 'prev' | 'next'
+    nonce: number
   } | null>(null)
   const [zoom, setZoom] = useState(1)
   const [panel, setPanel] = useState<'contents' | 'annotations' | null>(null)
@@ -141,7 +155,7 @@ export function BookReader({
     (progress: number, locator: string, label: string, pageNo: number) => {
       latest.current = { progress, at: locator }
       dirty.current = true
-      setPosition({ page: pageNo, label })
+      setPosition({ page: pageNo, label, locator })
       window.clearTimeout(stillTimer.current)
       stillTimer.current = window.setTimeout(flush, 2000)
     },
@@ -280,12 +294,17 @@ export function BookReader({
   const panelBtn = (active: boolean) =>
     `min-h-11 min-w-11 rounded-lg px-3 text-sm hover:bg-hover ${active ? 'bg-hover' : ''}`
   const pageNo = position?.page ?? 1
-  const bookmarked = (annotations ?? []).some(
+  const hereCfi = position?.locator.startsWith('epub:')
+    ? position.locator.slice(5)
+    : null
+  /** The bookmark at the open page (PDF) or spot (EPUB), if any. */
+  const bookmarkHere = (annotations ?? []).find(
     (a) =>
       a.kind === 'bookmark' &&
-      a.anchor.type === 'pdf' &&
-      a.anchor.page === pageNo,
+      ((a.anchor.type === 'pdf' && a.anchor.page === pageNo) ||
+        (a.anchor.type === 'epub' && a.anchor.cfi === hereCfi)),
   )
+  const bookmarked = !!bookmarkHere
   const panelProps = extraPanel?.(annotations ?? []) ?? {}
 
   return (
@@ -350,6 +369,70 @@ export function BookReader({
             </button>
           </>
         )}
+        {format === 'epub' && (
+          <>
+            <button
+              type="button"
+              aria-label={t('bookreader.prev')}
+              data-testid="epub-prev"
+              className={panelBtn(false)}
+              onClick={() =>
+                setCommand((c) => ({
+                  type: 'prev',
+                  nonce: (c?.nonce ?? 0) + 1,
+                }))
+              }
+            >
+              ‹
+            </button>
+            <button
+              type="button"
+              aria-label={t('bookreader.next')}
+              data-testid="epub-next"
+              className={panelBtn(false)}
+              onClick={() =>
+                setCommand((c) => ({
+                  type: 'next',
+                  nonce: (c?.nonce ?? 0) + 1,
+                }))
+              }
+            >
+              ›
+            </button>
+            <button
+              type="button"
+              aria-label={t('bookreader.epubSmaller')}
+              className={panelBtn(false)}
+              onClick={() => setEpubSize((n) => stepSize(n, -1))}
+            >
+              A−
+            </button>
+            <button
+              type="button"
+              aria-label={t('bookreader.epubLarger')}
+              data-testid="epub-larger"
+              className={panelBtn(false)}
+              onClick={() => setEpubSize((n) => stepSize(n, 1))}
+            >
+              A+
+            </button>
+            <button
+              type="button"
+              aria-pressed={epubFlow === 'paginated'}
+              data-testid="epub-flow"
+              className={panelBtn(false)}
+              onClick={() =>
+                setEpubFlow((f) =>
+                  f === 'paginated' ? 'scrolled' : 'paginated',
+                )
+              }
+            >
+              {epubFlow === 'paginated'
+                ? t('bookreader.pages')
+                : t('bookreader.scroll')}
+            </button>
+          </>
+        )}
         <button
           type="button"
           aria-label={
@@ -361,21 +444,19 @@ export function BookReader({
           onClick={() =>
             runTask(
               (async () => {
-                const existing = (annotations ?? []).find(
-                  (a) =>
-                    a.kind === 'bookmark' &&
-                    a.anchor.type === 'pdf' &&
-                    a.anchor.page === pageNo,
-                )
-                if (existing) {
-                  await deleteAnnotation(db, existing.id)
+                if (bookmarkHere) {
+                  await deleteAnnotation(db, bookmarkHere.id)
                   toast(t('bookreader.bookmarkRemoved'))
                 } else {
                   await createAnnotation(db, {
                     pageId,
                     kind: 'bookmark',
-                    anchor: { type: 'pdf', page: pageNo, rects: [] },
-                    chapter: chapterAt(pageNo),
+                    anchor:
+                      format === 'epub' && hereCfi
+                        ? { type: 'epub', cfi: hereCfi }
+                        : { type: 'pdf', page: pageNo, rects: [] },
+                    chapter:
+                      format === 'epub' ? position?.label : chapterAt(pageNo),
                   })
                   toast(t('bookreader.bookmarked'))
                 }
@@ -447,6 +528,9 @@ export function BookReader({
               startAt={at ?? page.source.at}
               annotations={annotations ?? []}
               target={target}
+              size={epubSize}
+              flow={epubFlow}
+              command={command}
               onOutline={setOutline}
               onPosition={(pos) =>
                 report(pos.progress, pos.locator, pos.label, 0)
@@ -467,7 +551,7 @@ export function BookReader({
                 onPick={(item) => {
                   setPanel(null)
                   setTarget((prev) => ({
-                    at: item.at ?? `pdf:${item.page}:0`,
+                    at: (item as { at?: string }).at ?? `pdf:${item.page}:0`,
                     nonce: (prev?.nonce ?? 0) + 1,
                   }))
                 }}

@@ -52,16 +52,23 @@ async function selectText(page: Page, text: string, pageNo = 1) {
   await expect(
     page.locator('.textLayer span', { hasText: text }).first(),
   ).toBeVisible()
-  await page.evaluate((needle) => {
-    const spans = Array.from(document.querySelectorAll('.textLayer span'))
-    const span = spans.find((s) => s.textContent?.includes(needle))
-    if (!span?.firstChild) throw new Error('text not found: ' + needle)
-    const range = document.createRange()
-    range.selectNodeContents(span)
-    const sel = window.getSelection()!
-    sel.removeAllRanges()
-    sel.addRange(range)
-  }, text)
+  // A page can draw again while it loads (which drops a selection): try
+  // until the pop-up shows.
+  await expect(async () => {
+    await page.evaluate((needle) => {
+      const spans = Array.from(document.querySelectorAll('.textLayer span'))
+      const span = spans.find((s) => s.textContent?.includes(needle))
+      if (!span?.firstChild) throw new Error('text not found: ' + needle)
+      const range = document.createRange()
+      range.selectNodeContents(span)
+      const sel = window.getSelection()!
+      sel.removeAllRanges()
+      sel.addRange(range)
+    }, text)
+    await expect(page.getByTestId('selection-popup')).toBeVisible({
+      timeout: 1500,
+    })
+  }).toPass({ timeout: 15_000 })
 }
 
 test('import a PDF: a card with a cover, a book page with sections, Continue opens the reader', async ({

@@ -154,7 +154,7 @@ test('the ribbon stays docked at the top while a long page scrolls', async ({
 })
 
 test('the ribbon is compact', async ({ page }) => {
-  await page.setViewportSize({ width: 1024, height: 900 })
+  await page.setViewportSize({ width: 1080, height: 900 })
   await openPage(page, ribbonOn)
   await sidebarOpen(page, true)
   await dockedBar(page).getByRole('tab', { name: 'Home' }).click()

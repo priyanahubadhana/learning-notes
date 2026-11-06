@@ -39,10 +39,20 @@ export default defineConfig({
     trace: 'retain-on-failure',
   },
   projects: [
-    { name: 'chromium', use: { ...devices['Desktop Chrome'] } },
+    {
+      name: 'chromium',
+      use: {
+        ...devices['Desktop Chrome'],
+        // 56 px wider than before: the strip of spaces takes that much.
+        viewport: { width: 1336, height: 720 },
+      },
+    },
     {
       name: 'webkit',
-      use: { ...devices['Desktop Safari'] },
+      use: {
+        ...devices['Desktop Safari'],
+        viewport: { width: 1336, height: 720 },
+      },
       expect: { timeout: 15_000 }, // WebKit starts the app more slowly
     },
   ],

@@ -24,22 +24,24 @@ export const PROVIDERS: Record<ProviderId, ProviderInfo> = {
   anthropic: {
     id: 'anthropic',
     host: 'api.anthropic.com',
-    defaultModel: 'claude-haiku-4-5',
-    price: { in: 1, out: 5 },
+    defaultModel: 'claude-haiku-5-5',
+    // Prices checked 2026-11-06 (up to 100K tokens per prompt). Another model
+    // can be typed in Settings, e.g. claude-sonnet-5-5 ($2 / $10).
+    price: { in: 0.1, out: 0.5 },
   },
   openai: {
     id: 'openai',
     host: 'api.openai.com',
     base: 'https://api.openai.com/v1',
-    defaultModel: 'gpt-4o-mini',
-    price: { in: 0.15, out: 0.6 },
+    defaultModel: 'gpt-4o-mini', // still listed; takes max_tokens, unlike the gpt-5 family
+    price: { in: 0.15, out: 0.6 }, // checked 2026-11-06
   },
   gemini: {
     id: 'gemini',
     host: 'generativelanguage.googleapis.com',
     base: 'https://generativelanguage.googleapis.com/v1beta/openai',
-    defaultModel: 'gemini-2.0-flash',
-    price: { in: 0.1, out: 0.4 },
+    defaultModel: 'gemini-3.5-flash-lite',
+    price: { in: 0.3, out: 2.5 }, // checked 2026-11-06
   },
 }
 

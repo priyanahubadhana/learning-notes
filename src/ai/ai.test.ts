@@ -49,7 +49,7 @@ describe('providers', () => {
     const r = await complete({
       provider: 'anthropic',
       key: 'sk-ant-secretsecret',
-      model: 'claude-haiku-4-5',
+      model: 'claude-haiku-5-5',
       prompt: 'hi',
       maxTokens: 100,
       fetchImpl: fn,
@@ -144,15 +144,15 @@ describe('key store', () => {
 describe('usage and the monthly cap', () => {
   it('adds up this month, starts over next month, and stops at the cap', () => {
     const nov = new Date(2026, 10, 6)
-    recordUsage('anthropic', 1_000_000, 100_000, nov)
+    recordUsage('anthropic', 10_000_000, 1_000_000, nov)
     expect(readUsage(nov).costUsd).toBeCloseTo(
-      costOf('anthropic', 1_000_000, 100_000),
+      costOf('anthropic', 10_000_000, 1_000_000),
     )
     expect(readUsage(nov).month).toBe(monthKey(nov))
     expect(readUsage(new Date(2026, 11, 1)).costUsd).toBe(0)
-    // $1.50 used; a call that could cost about $0.05 fits under $2, not under $1.51.
+    // $1.50 used; a call that could cost about $0.005 fits under $2, not under $1.502.
     expect(withinCap('anthropic', 'x'.repeat(400), 10_000, 2, nov)).toBe(true)
-    expect(withinCap('anthropic', 'x'.repeat(400), 10_000, 1.51, nov)).toBe(
+    expect(withinCap('anthropic', 'x'.repeat(400), 10_000, 1.502, nov)).toBe(
       false,
     )
   })

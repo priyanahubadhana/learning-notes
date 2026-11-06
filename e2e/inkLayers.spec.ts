@@ -228,14 +228,22 @@ test('a page with 500 strokes draws within the budget', async ({ page }) => {
     .poll(() => painted(page, 'ink'), { timeout: 15000 })
     .toBeGreaterThan(1000)
   const loadMs = Date.now() - t0
-  // Scrolling and drawing again stay quick: 30 redraws of the whole layer.
+  // Scrolling and drawing again stay quick: redraws of the whole layer. One
+  // warm-up round (JIT, first paint), then the median of five rounds, so one
+  // busy moment on a shared CI machine cannot fail it (the budget is kept).
   const frameMs = await page.evaluate(async () => {
-    const start = performance.now()
-    for (let i = 0; i < 30; i++) {
-      window.dispatchEvent(new Event('resize'))
-      await new Promise((r) => requestAnimationFrame(r))
+    const round = async (n: number) => {
+      const start = performance.now()
+      for (let i = 0; i < n; i++) {
+        window.dispatchEvent(new Event('resize'))
+        await new Promise((r) => requestAnimationFrame(r))
+      }
+      return (performance.now() - start) / n
     }
-    return (performance.now() - start) / 30
+    await round(10)
+    const times: number[] = []
+    for (let k = 0; k < 5; k++) times.push(await round(10))
+    return times.sort((x, y) => x - y)[2]
   })
   expect(loadMs).toBeLessThan(8000)
   expect(frameMs).toBeLessThan(80)

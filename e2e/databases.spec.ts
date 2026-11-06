@@ -406,7 +406,7 @@ test('/database lists all your databases, searchable, newest first, with the rea
   // The newest one comes first, and the ready-made ones are under "Create new".
   await expect(dialog.getByRole('option').first()).toContainText('Drug list')
   await expect(dialog.getByText('Create new')).toBeVisible()
-  await expect(dialog.getByRole('option')).toHaveCount(7 + 1 + 5)
+  await expect(dialog.getByRole('option')).toHaveCount(7 + 1 + 6)
   // Search narrows the list; Enter picks the highlighted one.
   await dialog.getByRole('combobox').fill('drug')
   await expect(dialog.getByRole('option').first()).toContainText('Drug list')

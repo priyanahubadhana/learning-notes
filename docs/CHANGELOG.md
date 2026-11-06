@@ -2,6 +2,15 @@
 
 Current phase only. Older entries are in [ARCHIVE.md](ARCHIVE.md).
 
+## 2026-11-06 (Stabiliser: CI green again)
+
+- **databases.spec:** the /database picker now lists 14 ready-made starters (E2 added the PAO table); the count is 7 + 1 + 6.
+- **inkLayers 500 strokes (webkit):** no Wave 3 change touches the redraw path (G1 only adds work when a tape is peeled; Ruler and Magnifier add no resize or per-frame work). The test timed 30 vsync-paced redraws once, so one busy CI moment failed it. Now one warm-up round and the median of five rounds; the 80 ms budget is unchanged.
+- **library.spec (Bravo page):** the reader can re-measure page sizes after the test scrolled, dropping page 2's text; the helper now scrolls again on every retry.
+- **reading.spec paged mode:** the page count is read only after it stops changing (it is recounted while fonts settle on a slow runner).
+- **AI:** default models and prices updated in `src/ai/provider.ts` (see DECISIONS); the usage test uses the new prices.
+- **Files:** `e2e/{databases,inkLayers,library,reading}.spec.ts`, `src/ai/{provider.ts,ai.test.ts}`, docs.
+
 ## 2026-11-06 (Wave 3 part A, push 2: EPUB, notes from your own AI, one-tap recall, bring your own AI)
 
 - **What:** C3 EPUB reader (vendored foliate-js, scroll or pages, A-/A+, Contents, highlights, bookmarks, resume). CR2: `ln-notes/1` format and parser, Copy prompt with up to 20 presets, Paste notes or a zip with `notes.md` and `images/`, blocks marked `source: 'ai'` with a `batchId`, mind map into the mind map block, cards into Card blocks and blanks, "Made with your AI · edited by you", Remove this AI result with Undo, recipe for transcripts and key frames on the PC. CR3: Make card from a selection or a highlight (cloze or Q/A), cards from all highlights with preview and one Undo, cards linked to their highlight (`sourceAnnotationId`, "From: Book › Chapter" on the review screen jumps to the spot), Highlights for today on the Review home (five, oldest-unseen first), Look up › Add to vocabulary. CR4: Settings › AI (off by default; provider, device-only key, monthly cap, usage, per-notebook allow), Summarise, Key points, Cards from this page or highlights with an approval list; CSP `connect-src` lists the three provider hosts.

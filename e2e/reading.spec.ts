@@ -515,7 +515,18 @@ test('paged mode: tap the edges or swipe to turn pages, with a page count', asyn
   await expect(frame(page)).toHaveAttribute('data-flow', 'paged')
   const status = page.getByTestId('reader-progress')
   await expect(status).toContainText(/Page 1 of \d+/)
-  const total = Number(/of (\d+)/.exec(await status.innerText())![1])
+  // The pages are counted again while fonts and pictures settle (slow on
+  // CI): wait until the count has stopped changing before using it.
+  const pageCount = async () =>
+    Number(/of (\d+)/.exec(await status.innerText())![1])
+  let total = await pageCount()
+  await expect(async () => {
+    await page.waitForTimeout(400)
+    const now = await pageCount()
+    const same = now === total
+    total = now
+    expect(same).toBe(true)
+  }).toPass({ timeout: 20_000 })
   expect(total).toBeGreaterThan(2)
 
   await page.mouse.click(880, 300) // right edge

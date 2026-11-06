@@ -46,15 +46,22 @@ async function importFile(
 
 /** Scrolls to a page of the 3-page fixture, waits for its text, selects `text`. */
 async function selectText(page: Page, text: string, pageNo = 1) {
-  await page.getByTestId('pdf-scroller').evaluate((el, n) => {
-    el.scrollTop = (el.scrollHeight * (n - 1)) / 3
-  }, pageNo)
-  await expect(
-    page.locator('.textLayer span', { hasText: text }).first(),
-  ).toBeVisible()
+  const scroll = () =>
+    page.getByTestId('pdf-scroller').evaluate((el, n) => {
+      el.scrollTop = (el.scrollHeight * (n - 1)) / 3
+    }, pageNo)
+  // The scroller can grow or jump while the pages measure themselves (slow on
+  // CI), which drops the page's text again: scroll again on every try.
+  await expect(async () => {
+    await scroll()
+    await expect(
+      page.locator('.textLayer span', { hasText: text }).first(),
+    ).toBeVisible({ timeout: 1500 })
+  }).toPass({ timeout: 15_000 })
   // A page can draw again while it loads (which drops a selection): try
   // until the pop-up shows.
   await expect(async () => {
+    await scroll()
     await page.evaluate((needle) => {
       const spans = Array.from(document.querySelectorAll('.textLayer span'))
       const span = spans.find((s) => s.textContent?.includes(needle))

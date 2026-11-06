@@ -3,6 +3,7 @@ import { Tip } from '../../../help/Help'
 import { t, type MessageKey } from '../../../i18n/t'
 import type { Editor } from '../../../editor/barActions'
 import { addExtraLine, addLineAfterCursor } from '../../../editor/lineActions'
+import { applyPageMode } from '../../../editor/editPolicy'
 import { setKeyboard } from '../../../editor/keyboardPolicy'
 import { AnchoredMenu } from '../AnchoredMenu'
 import { Icon, type IconName } from '../icons'
@@ -347,8 +348,23 @@ function KeyboardButton({ editor, min }: { editor: Editor; min: number }) {
       aria-pressed={on}
       onMouseDown={keepFocus}
       onClick={() => {
-        setKeyboard(editor, !on)
-        setOn(!on)
+        // Typing needs the Text tool: an ink tool leaves the page locked.
+        const switching = !on && activeTool.get() !== 'text'
+        if (switching) {
+          activeTool.set('text')
+          applyPageMode('edit', {
+            editor,
+            content: editor.domElement ?? null,
+            title: null,
+          })
+        }
+        if (switching) {
+          // Let the page become editable first, then ask for the keyboard.
+          setTimeout(() => setKeyboard(editor, true), 60)
+        } else {
+          setKeyboard(editor, !on)
+          setOn(!on)
+        }
       }}
       style={{ minHeight: min, minWidth: min }}
       className={`${BUTTON} ${on ? 'bg-hover !text-accent' : ''}`}

@@ -31,6 +31,8 @@ async function chooseChip(page: Page, toolName: string, radio: string) {
       .click()
   }
   await card(page).getByRole('radio', { name: radio }).click()
+  // The card floats over the page: close it so it does not cover the drawing.
+  await page.keyboard.press('Escape')
 }
 
 const xs = (pts: number[]) => pts.filter((_, i) => i % 6 === 0)

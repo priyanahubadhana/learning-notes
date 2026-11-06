@@ -36,8 +36,6 @@ export const penTapStats: PenTapStats = {
 /** Switched off by the Pencil lab to show what the measure does. */
 export const penTapOptions = {
   enabled: true,
-  /** Is this click the browser's own? (Tests replace it.) */
-  trusted: (e: Event) => e.isTrusted,
 }
 
 export function installPenTap(doc: Document = document): () => void {
@@ -49,6 +47,7 @@ export function installPenTap(doc: Document = document): () => void {
     id: number
   } | null = null
   let marked: { el: HTMLElement; at: number } | null = null
+  let clicking = false
 
   const inChrome = (t: EventTarget | null): t is Element =>
     t instanceof Element && !!t.closest(CHROME_SELECTOR) && !t.closest(NATIVE)
@@ -90,11 +89,16 @@ export function installPenTap(doc: Document = document): () => void {
       return
     marked = { el, at: performance.now() }
     penTapStats.clicks++
-    el.click()
+    clicking = true
+    try {
+      el.click()
+    } finally {
+      clicking = false
+    }
   }
   const onClick = (e: MouseEvent) => {
     const m = marked
-    if (!m || !penTapOptions.trusted(e)) return
+    if (!m || clicking) return // ours goes through
     if (performance.now() - m.at > SWALLOW_MS) {
       marked = null
       return

@@ -530,6 +530,8 @@ test('a pen tap on the bar and on text works 10/10, also right after a drag', as
     // A tap on a bar button: nothing of ours cancels it, so the click follows.
     const onBar = await tap(bb.x + bb.width / 2, bb.y + bb.height / 2)
     expect(onBar.every((prevented) => !prevented)).toBe(true)
+    // The app now clicks the button itself on pen up: close what it opened.
+    await page.keyboard.press('Escape')
     // A tap on text puts the caret there and gives the page the focus.
     await tap(p.middle.x + 20, p.middle.y + p.middle.height / 2)
     await expect

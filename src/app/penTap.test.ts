@@ -28,7 +28,6 @@ beforeEach(() => {
   document.addEventListener('click', () => clicks++)
   off = installPenTap(document)
   penTapOptions.enabled = true
-  penTapOptions.trusted = (e) => e.isTrusted
 })
 afterEach(() => off())
 
@@ -45,7 +44,6 @@ describe('penTap', () => {
     pen('pointerup', $('b'))
     // jsdom clicks are not trusted; fake a trusted one
     const late = new MouseEvent('click', { bubbles: true, cancelable: true })
-    penTapOptions.trusted = () => true
     let reached = false
     $('b').addEventListener('click', () => (reached = true))
     $('b').dispatchEvent(late)

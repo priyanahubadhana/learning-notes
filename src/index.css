@@ -122,6 +122,13 @@
   --chart-none: #c4b79e;
 }
 
+/* The app shell scrolls inside its own page scroller, never the document. */
+html:has([data-app-shell]),
+html:has([data-app-shell]) body {
+  height: 100%;
+  overflow: hidden;
+}
+
 body {
   margin: 0;
   background: var(--color-bg);

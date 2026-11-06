@@ -981,7 +981,8 @@ function App() {
         <TopBarSlotContext value={barSlot}>
           <TopStackSlotContext value={stackSlot}>
             <div
-              className="flex h-screen phone:pb-[calc(56px+env(safe-area-inset-bottom))]"
+              data-app-shell
+              className="flex h-screen h-dvh phone:pb-[calc(56px+env(safe-area-inset-bottom))]"
               style={
                 { '--sidebar-width': `${sidebarWidth}px` } as CSSProperties
               }

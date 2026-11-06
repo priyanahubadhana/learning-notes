@@ -25,6 +25,20 @@ startNavHistory()
 reloadOnFailedChunk()
 installPenTap()
 
+// The app scrolls inside its page scroller, never the document: if something
+// (a focus, the keyboard's pan) moves the document, put it back.
+window.addEventListener(
+  'scroll',
+  () => {
+    if (document.querySelector('[data-app-shell]') && window.scrollY !== 0)
+      window.scrollTo(0, 0)
+  },
+  { passive: true },
+)
+window.visualViewport?.addEventListener('resize', () => {
+  if (window.scrollY !== 0) window.scrollTo(0, 0)
+})
+
 // Ask the browser not to clear our notes database (fire and forget).
 void requestPersistentStorage()
 

@@ -23,7 +23,9 @@ const names = (page: Page) =>
     .getByRole('button')
     .evaluateAll((els) => els.map((el) => el.getAttribute('aria-label')))
 const withoutFixed = (list: (string | null)[]) =>
-  list.filter((n) => !/^(Move the options|Keep these|Close)/.test(n ?? ''))
+  list.filter(
+    (n) => !/^(Move the options|Keep these|Close|Layer [0-9])/.test(n ?? ''),
+  )
 const previewPath = (page: Page) =>
   page.locator('[data-ink-preview] path').getAttribute('d')
 

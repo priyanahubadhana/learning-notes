@@ -8,6 +8,7 @@ import { enW2 } from './enW2'
 import { enW3b } from './enW3b'
 import { enW4b } from './enW4b'
 import { enI } from './enI'
+import { enW5 } from './enW5'
 import { enE2 } from './enE2'
 import { enLib } from './enLib'
 import { enSync } from './enSync'
@@ -32,6 +33,7 @@ export const en = {
   ...enW3b,
   ...enW4b,
   ...enI,
+  ...enW5,
   ...enE2,
   ...enLib,
   ...enSync,
@@ -447,7 +449,7 @@ export const en = {
     'Will bring a file into this page. It arrives in a later phase.',
   'help.tip.page.import.example': 'Import notes from another app.',
   'help.tip.page.export.meaning':
-    'Will save this page as a file you can keep or share. It arrives in a later phase.',
+    'Saves or shares this page as a PDF, Word, Markdown or text file.',
   'help.tip.page.export.example': 'Export a lesson as a document.',
   'help.tip.page.addTag.meaning':
     'Puts a tag on this page so you can find it with others.',

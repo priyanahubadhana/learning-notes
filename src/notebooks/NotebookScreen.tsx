@@ -2,6 +2,8 @@ import { displayName, sampleName } from '../i18n/defaultNames'
 import { Tip } from '../help/Help'
 import { useLiveQuery } from 'dexie-react-hooks'
 import {
+  lazy,
+  Suspense,
   useEffect,
   useContext,
   useId,
@@ -49,6 +51,12 @@ interface NotebookScreenProps {
   onClose: () => void
 }
 
+const ExportDialog = lazy(() =>
+  import('../share/export/ExportDialog').then((m) => ({
+    default: m.ExportDialog,
+  })),
+)
+
 /**
  * A notebook opened from the sidebar: its name and tabs (Notes · Database ·
  * Cards). The open tab is remembered per notebook on this device.
@@ -80,6 +88,7 @@ export function NotebookScreen({
   const lockItem = useLockItem(db, 'notebook', notebook.id, !!notebook.locked)
   const [menu, setMenu] = useState<DOMRect | null>(null)
   const [renaming, setRenaming] = useState<NotebookTab | null>(null)
+  const [exporting, setExporting] = useState(false)
   const tabRefs = useRef(new Map<string, HTMLButtonElement>())
   const baseId = useId()
 
@@ -120,6 +129,11 @@ export function NotebookScreen({
           },
         ]
       : []),
+    {
+      label: t('export.notebook'),
+      icon: '⤒',
+      onSelect: () => setExporting(true),
+    },
     pauseMenuItem(
       db,
       'notebook',
@@ -274,6 +288,16 @@ export function NotebookScreen({
             onClose={() => setMenu(null)}
             items={menuItems}
           />
+        )}
+        {exporting && (
+          <Suspense fallback={null}>
+            <ExportDialog
+              db={db}
+              target={{ kind: 'notebook', notebookId: notebook.id }}
+              title={displayName(sampleName(notebook)) || t('review.untitled')}
+              onClose={() => setExporting(false)}
+            />
+          </Suspense>
         )}
         {renaming && (
           <NameDialog

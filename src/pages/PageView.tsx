@@ -1,6 +1,14 @@
 import { HelpLine, Tip } from '../help/Help'
 import { useLiveQuery } from 'dexie-react-hooks'
-import { useContext, useEffect, useLayoutEffect, useRef, useState } from 'react'
+import {
+  lazy,
+  Suspense,
+  useContext,
+  useEffect,
+  useLayoutEffect,
+  useRef,
+  useState,
+} from 'react'
 import { createPortal } from 'react-dom'
 import { AppUiContext, TopBarSlotContext } from '../app/appUi'
 import { altShortcutLabel } from '../app/keys'
@@ -21,6 +29,7 @@ import { getNotebook } from '../notebooks/notebookService'
 import { saveAsTemplate } from '../templates/templateService'
 import { getPagePath, setPagePathStyle } from './pageService'
 import { PagePath } from './PagePath'
+
 import { resolvePathStyle } from './pathStyle'
 import { pageAddressItem } from './pageAddressMenu'
 import { pauseMenuItem } from '../app/pauseMenu'
@@ -58,6 +67,12 @@ import {
 } from '../app/reading/useReadingSettings'
 import { readingEntrySetting } from '../settings/readingSettings'
 import { openReader } from '../app/reading/readingTools'
+
+const ExportDialog = lazy(() =>
+  import('../share/export/ExportDialog').then((m) => ({
+    default: m.ExportDialog,
+  })),
+)
 
 interface PageViewProps {
   db: LearningNotesDB
@@ -126,6 +141,23 @@ export function PageView({
         await editor.current?.flush()
         await recordVersion(db, page.id, { force: true }) // newest edits too
         setHistoryOpen(true)
+      })(),
+    )
+
+  // Export (J1): a dialog with PDF, Word, Markdown and Text.
+  const [exporting, setExporting] = useState(false)
+  const hasSubpages = useLiveQuery(
+    async () =>
+      (await db.pages.where('parentId').equals(page.id).toArray()).some(
+        (p) => p.deletedAt === null,
+      ),
+    [db, page.id],
+  )
+  const openExport = () =>
+    runTask(
+      (async () => {
+        await editor.current?.flush()
+        setExporting(true)
       })(),
     )
 
@@ -227,9 +259,7 @@ export function PageView({
     {
       label: t('page.export'),
       icon: '⤒',
-      disabled: true,
-      hint: t('page.comingSoon'),
-      onSelect: () => {},
+      onSelect: openExport,
     },
     {
       label: t('panel.open'),
@@ -445,6 +475,24 @@ export function PageView({
             onReload()
           }}
         />
+      )}
+      {exporting && (
+        <Suspense fallback={null}>
+          <ExportDialog
+            db={db}
+            target={{ kind: 'page', pageId: page.id }}
+            title={page.title || t('review.untitled')}
+            hasSubpages={!!hasSubpages}
+            getInk={async () => {
+              const { inkApi } = await import('../ink/inkRuntime')
+              const api = inkApi()
+              if (!api) return null
+              const { pagePicture } = await import('../ink/pagePicture')
+              return pagePicture(api)
+            }}
+            onClose={() => setExporting(false)}
+          />
+        </Suspense>
       )}
       {naming && (
         <NameDialog

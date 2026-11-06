@@ -224,7 +224,7 @@ export const es2: Record<string, string> = {
     'Traerá un archivo a esta página. Llegará en una fase posterior.',
   'help.tip.page.import.example': 'Importa notas de otra aplicación.',
   'help.tip.page.export.meaning':
-    'Guardará esta página como un archivo que puedes conservar o compartir. Llegará en una fase posterior.',
+    'Guarda o comparte esta página como PDF, Word, Markdown o texto.',
   'help.tip.page.export.example': 'Exporta una lección como documento.',
   'help.tip.page.addTag.meaning':
     'Pone una etiqueta en esta página para encontrarla junto con otras.',

@@ -1323,6 +1323,11 @@ export class InkController {
     return this.env.doc.strokeCount
   }
 
+  /** The page element the ink sits on (for pictures of the whole page, J1). */
+  pageElement(): HTMLElement {
+    return this.env.wrap
+  }
+
   /** The selection's box in page px (null when nothing is selected). */
   selectionRect(): Rect | null {
     let box: Rect | null = null

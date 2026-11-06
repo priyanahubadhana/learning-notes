@@ -210,11 +210,10 @@ export const hi2: Record<string, string> = {
     'इस पृष्ठ की पुरानी प्रतियाँ दिखाता है। आप एक को देख सकते हैं और वापस ला सकते हैं।',
   'help.tip.page.history.example':
     'पिछले हफ़्ते गलती से हट गया अनुच्छेद वापस पाएँ।',
-  'help.tip.page.import.meaning':
-    'इस पृष्ठ में फ़ाइल लाएगा। यह बाद के चरण में आएगा।',
+  'help.tip.page.import.meaning': 'इस पृष्ठ में फ़ाइल लाएगा।',
   'help.tip.page.import.example': 'किसी दूसरे ऐप से नोट लाएँ।',
   'help.tip.page.export.meaning':
-    'इस पृष्ठ को ऐसी फ़ाइल के रूप में सहेजेगा जिसे आप रख या साझा कर सकें। यह बाद के चरण में आएगा।',
+    'इस पृष्ठ को PDF, Word, Markdown या टेक्स्ट फ़ाइल के रूप में सहेजता या साझा करता है।',
   'help.tip.page.export.example':
     'किसी पाठ को दस्तावेज़ के रूप में निर्यात करें।',
   'help.tip.page.addTag.meaning':

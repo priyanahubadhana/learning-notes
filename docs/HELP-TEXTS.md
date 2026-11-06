@@ -456,8 +456,8 @@ Every hover tip and help line in the app (shown while Settings › Show help is 
 
 ### `page.export`
 
-- **Where:** Page › ⋯ › Export (coming soon)
-- **Meaning:** Will save this page as a file you can keep or share. It arrives in a later phase.
+- **Where:** Page › ⋯ › Export
+- **Meaning:** Saves or shares this page as a PDF, Word, Markdown or text file.
 - **Example:** Export a lesson as a document.
 
 ### `page.addTag`

@@ -15,6 +15,7 @@ import { esW2 } from './esW2'
 import { esW3b } from './esW3b'
 import { esW4b } from './esW4b'
 import { esI } from './esI'
+import { esW5 } from './esW5'
 import { esE2 } from './esE2'
 import { esLib } from './esLib'
 import { esSync } from './esSync'
@@ -40,6 +41,7 @@ export const es: Record<string, string> = {
   ...esW3b,
   ...esW4b,
   ...esI,
+  ...esW5,
   ...esE2,
   ...esLib,
   ...esSync,

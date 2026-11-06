@@ -133,7 +133,7 @@ export const TIPS = {
   'page.saveTemplate': { where: 'Page › ⋯ › Save as template' },
   'page.history': { where: 'Page › ⋯ › History' },
   'page.import': { where: 'Page › ⋯ › Import (coming soon)' },
-  'page.export': { where: 'Page › ⋯ › Export (coming soon)' },
+  'page.export': { where: 'Page › ⋯ › Export' },
   'page.addTag': { where: 'Page › + Add tag (under the title)' },
   'page.sections': { where: 'Page › the chips at the top of a long page' },
   'review.show': { where: 'Review › Show answer' },

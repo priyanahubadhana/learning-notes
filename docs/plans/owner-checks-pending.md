@@ -6,6 +6,7 @@ Moved out of HANDOFF on 2026-11-06 (audit) so HANDOFF stays five lines. Newest f
 
 - **Notebook views** (I1): open a notebook with a few pages, tap View ▾ › Shelf: do the cover and page tiles look like a shelf and are they easy to tap with a finger? View ▾ › Tabs: tap each coloured tab and the six colour dots (44 px targets?); does the tab row scroll sideways with a swipe when there are many pages? Default › Layout ▾: Gallery, Table and Board; swipe the Board sideways. Close and reopen the app: are the choices remembered? Why human: touch size, swipe feel and the look in Night and Sepia.
 - **Layer gallery** (I2): Quiet corner (gear) › Layer gallery: add the Study kit and the Finance tracker; open the Finance Transactions table, add a row, then Remove the layer: is your row's notebook kept with a message naming it, and does everything you never touched go to the Trash? Notebook ⋯ › Share as layer file on the iPad: does the share or download sheet appear, and does the file add on the PC with Add a layer file…? Why human: the file hand-off between iPad and PC, and the wording in Hindi and Spanish (machine drafts).
+
 ## WAVE 5 PART A CHECKS (J1, C5, C2b, iPad, installed app, tap Update until the new version shows)
 
 - **Export PDF** (J1): open a page with a heading, a list and a picture. Page ⋯ › Export › PDF › Print or save as PDF. Does the print window open from the installed app? Can you choose Save as PDF (Share › Save to Files) and open the file with readable text and the picture? Why human: the iPad print window cannot be driven by a test. If it does not open, tell the builder: the fallback is a built-in PDF writer (jspdf).
@@ -16,6 +17,7 @@ Moved out of HANDOFF on 2026-11-06 (audit) so HANDOFF stays five lines. Newest f
 - **Pinch zoom** (C2b): in a PDF spread two fingers on a page, then pinch back. Does it follow your fingers, stay where you pinched and not fight scrolling or text selection? Why human: only real fingers on glass.
 - **Liquid mode and Find** (C5, C2b): in a text PDF tap Liquid. Is the text readable as plain paragraphs, and does Show original take you back to the same page? Tap Find, type a word, tap a result. Why human: judging whether the reflowed text is good enough.
 - **Lock screen direction** (C5): Settings › Reading › Lock screen direction › Sideways, then open a book. The iPad is expected to refuse; do you see the message about the Control Centre rotation lock? Why human: depends on iPadOS.
+
 ## POLISH 1 CHECKS (item 4)
 
 - **Toggles stay put** (item 4): tap Ruler, Magnifier and Reading mode twice each from the ribbon. You stay on the same tab every time. Why human: iPad feel.

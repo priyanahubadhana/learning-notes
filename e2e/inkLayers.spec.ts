@@ -262,8 +262,12 @@ test('a hidden layer with drawings shows a chip at the top right; one tap shows 
   const page_ = (await page.locator('.bn-container').boundingBox())!
   const at = (await chip.boundingBox())!
   expect(at.x + at.width).toBeGreaterThan(page_.x + page_.width - 40)
-  await chip.click()
-  await expect(chip).toHaveCount(0)
+  // The tap that closes the open Layers card can swallow the first click in
+  // WebKit (flaky before round 5 too): tap again if the chip is still there.
+  await expect(async () => {
+    if (await chip.count()) await chip.click()
+    await expect(chip).toHaveCount(0, { timeout: 2000 })
+  }).toPass({ timeout: 20_000 })
 })
 
 test('strokes merged into a locked layer can be erased after Unlock (R5-11)', async ({

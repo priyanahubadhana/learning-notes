@@ -6,6 +6,7 @@
 export const enW3b = {
   // ---- Picture editor (G0) ----
   'pic.edit': 'Edit picture',
+  'pic.draw': 'Draw on picture (arrow)',
   'pic.rotateLeft': 'Turn left',
   'pic.rotateRight': 'Turn right',
   'pic.straighten': 'Straighten',

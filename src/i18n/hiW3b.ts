@@ -1,6 +1,7 @@
 /** Hindi text of Wave 3 part B (draft: needs native review). English is enW3b.ts. */
 export const hiW3b: Record<string, string> = {
   'pic.edit': 'चित्र संपादित करें',
+  'pic.draw': 'चित्र पर बनाएँ (तीर)',
   'pic.rotateLeft': 'बाएँ घुमाएँ',
   'pic.rotateRight': 'दाएँ घुमाएँ',
   'pic.straighten': 'सीधा करें',

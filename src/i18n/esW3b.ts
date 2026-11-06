@@ -1,6 +1,7 @@
 /** Spanish text of Wave 3 part B (draft: needs native review). English is enW3b.ts. */
 export const esW3b: Record<string, string> = {
   'pic.edit': 'Editar imagen',
+  'pic.draw': 'Dibujar sobre la imagen (flecha)',
   'pic.rotateLeft': 'Girar a la izquierda',
   'pic.rotateRight': 'Girar a la derecha',
   'pic.straighten': 'Enderezar',

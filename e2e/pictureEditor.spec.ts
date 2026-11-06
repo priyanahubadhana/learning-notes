@@ -140,3 +140,24 @@ test('a corner can be dragged and Cancel changes nothing', async ({ page }) => {
   await expect(sheet).toBeHidden()
   expect((await natural(page, 0)).join('x')).toBe('400x200')
 })
+
+test('Draw on picture picks the Pen with the arrow shape ready', async ({
+  page,
+}) => {
+  await addPicture(page)
+  await page
+    .locator('.bn-block-content[data-content-type="image"]')
+    .first()
+    .hover()
+  await page.waitForTimeout(500)
+  await page.locator('.bn-side-menu [draggable="true"]').first().click()
+  await page.getByRole('menuitem', { name: 'Draw on picture (arrow)' }).click()
+  await expect
+    .poll(() =>
+      page.evaluate(() => {
+        const raw = localStorage.getItem('learning-notes:ink.pen')
+        return raw ? (JSON.parse(raw) as { drawAs?: string }).drawAs : null
+      }),
+    )
+    .toBe('arrow')
+})

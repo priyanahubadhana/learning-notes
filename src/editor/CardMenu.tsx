@@ -12,6 +12,8 @@ import { useContext } from 'react'
 import { AppUiContext } from '../app/appUi'
 import { t } from '../i18n/t'
 import { openPictureEditor } from '../images/pictureEditorStore'
+import { penSettings } from '../app/tools/main/inkSettings'
+import { selectTool } from '../app/tools/main/selectTool'
 import { copyAs } from './clipboard'
 import { markLabels, markName } from '../revise/reviseMarks'
 import { duplicateBlock } from './blockActions'
@@ -119,13 +121,30 @@ function EditPictureItem() {
   }) as EditorBlock | undefined
   if (!block || block.type !== 'image') return null
   return (
-    <Components.Generic.Menu.Item
-      className="bn-menu-item"
-      onClick={() => openPictureEditor(editor as never, block.id)}
-    >
-      {t('pic.edit')}
-    </Components.Generic.Menu.Item>
+    <>
+      <Components.Generic.Menu.Item
+        className="bn-menu-item"
+        onClick={() => openPictureEditor(editor as never, block.id)}
+      >
+        {t('pic.edit')}
+      </Components.Generic.Menu.Item>
+      <Components.Generic.Menu.Item
+        className="bn-menu-item"
+        onClick={drawOnPicture}
+      >
+        {t('pic.draw')}
+      </Components.Generic.Menu.Item>
+    </>
   )
+}
+
+/**
+ * "Draw on picture": the Pen with the arrow shape ready. Ink anchors to the
+ * block it is drawn over, so the marks stay with the picture.
+ */
+function drawOnPicture() {
+  penSettings.update({ drawAs: 'arrow' })
+  selectTool('pen')
 }
 
 /** The block menu: BlockNote's items plus "Make card", "Duplicate" and marks. */

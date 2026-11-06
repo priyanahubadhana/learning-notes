@@ -192,6 +192,8 @@ export class InkController {
   private gesture: Gesture | null = null
   private raf = 0
   private layoutDirty = true
+  /** What the canvases show now (see `redraw`); '' after anything live. */
+  private painted = ''
   private hidden = new Set<string>()
   private listeners = new Set<() => void>()
   private cleanups: (() => void)[] = []
@@ -474,14 +476,32 @@ export class InkController {
     this.ensureRoom()
     const v = this.visible()
     const dpr = clampDpr(window.devicePixelRatio || 1)
-    this.renderer.setView(v.top, v.width, v.height, dpr)
-    this.renderer.draw(doc, this.layout, {
-      hidden: this.peeled.size
-        ? new Set([...this.hidden, ...this.peeled])
-        : this.hidden,
-      night: this.env.night(),
-    })
-    this.drawLive()
+    const r = this.renderer
+    r.setView(v.top, v.width, v.height, dpr)
+    const tool = this.env.tool()
+    const night = this.env.night()
+    // Nothing on the canvases would change: leave them alone. Clearing three
+    // screen-sized canvases and putting the layer bitmap back costs a whole
+    // frame in WebKit (every keystroke, resize and layout check comes here).
+    // Anything live (a stroke, the eraser ring, a lasso, peeled tape) paints
+    // every frame.
+    const live =
+      this.gesture !== null ||
+      (tool === 'eraser' && this.hover !== null) ||
+      this.peeled.size > 0
+    const key = live
+      ? ''
+      : `${doc.version}|${this.layout.version}|${r.top}|${r.width}|${r.height}|${r.dpr}|${[...this.hidden].join(',')}|${night}|${tool}`
+    if (key === '' || key !== this.painted) {
+      this.painted = key
+      r.draw(doc, this.layout, {
+        hidden: this.peeled.size
+          ? new Set([...this.hidden, ...this.peeled])
+          : this.hidden,
+        night,
+      })
+      this.drawLive()
+    }
     if (this.layout.version !== this.noted) {
       this.noted = this.layout.version
       this.notify()

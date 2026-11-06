@@ -2,6 +2,15 @@
 
 Current phase only. Older entries are in [ARCHIVE.md](ARCHIVE.md).
 
+## 2026-11-06 (Ink redraw: leave the canvases alone when nothing moved)
+
+- **Problem:** `pencil-webkit` (ipad-webkit) failed `inkLayers.spec.ts` "500 strokes draws within the budget" on about half of the runs since a29ff83 (81 to 163 ms a frame against 80), even with the median of five rounds. The deploy of all of Wave 3 waited on it.
+- **Cause:** every layout check (`dirty()`: a resize, any editor DOM mutation such as a keystroke, a ResizeObserver tick) ran a full `redraw`: three screen-sized canvases cleared, the layer bitmap put back, the three canvas layers (one with `mix-blend-mode: multiply`) composited again. The strokes themselves were already cached in a bitmap (no per-stroke work). In Chromium that frame is 1 to 3 ms; in CI's software-rendered WebKit, at the iPad's 2x canvases on a shared 2-core runner, it is about 80 to 130 ms, so the test always sat at the edge of its budget. A probe (branches `diag/ink-budget-head` and `diag/ink-budget-live`, Chromium) shows the per-frame work is identical at a29ff83 and at HEAD: 6 `getBoundingClientRect`, 3 `clearRect`, 1 `drawImage`, 0 stroke fills. So no Wave 3 code slowed the redraw; the budget was never safe in WebKit.
+- **Fix:** `InkController.redraw` now keeps a key of what the canvases show (doc version, layout version, view top and size, dpr, hidden strokes, night, tool) and skips `draw` and `drawLive` when it is unchanged and nothing is live (no gesture, no eraser ring, no peeled tape). A resize or keystroke with nothing moved no longer touches the canvases; a real change paints as before. On the iPad this also removes a full canvas repaint per keystroke while ink is on the page.
+- **Test:** the budget test keeps its 80 ms limit and now also checks that the measured resize rounds made no `clearRect` call (the canvases were left alone).
+- **CI:** GitHub Actions jobs are refused: "recent account payments have failed or your spending limit needs to be increased" (the repo is private; the free minutes are used up). Until the owner fixes Billing & plans, no CI runs and no deploy, whatever the code. The two diagnostic PRs (#2, #3) were closed unrun; their branches stay for a WebKit probe later.
+- **Files:** `src/ink/controller.ts`, `e2e/inkLayers.spec.ts`, docs.
+
 ## 2026-11-06 (Stabiliser: CI green again)
 
 - **databases.spec:** the /database picker now lists 14 ready-made starters (E2 added the PAO table); the count is 7 + 1 + 6.

@@ -228,10 +228,19 @@ test('a page with 500 strokes draws within the budget', async ({ page }) => {
     .poll(() => painted(page, 'ink'), { timeout: 15000 })
     .toBeGreaterThan(1000)
   const loadMs = Date.now() - t0
-  // Scrolling and drawing again stay quick: redraws of the whole layer. One
-  // warm-up round (JIT, first paint), then the median of five rounds, so one
-  // busy moment on a shared CI machine cannot fail it (the budget is kept).
-  const frameMs = await page.evaluate(async () => {
+  // A layout check (resize, a keystroke) with 500 strokes stays quick: the
+  // blocks are measured again, and the canvases are left alone when nothing
+  // moved (clearing three screen-sized canvases costs a whole frame in
+  // WebKit). One warm-up round (JIT, first paint), then the median of five
+  // rounds, so one busy moment on a shared CI machine cannot fail it.
+  const { frameMs, clears } = await page.evaluate(async () => {
+    let clears = 0
+    const proto = CanvasRenderingContext2D.prototype
+    const clearRect = proto.clearRect
+    proto.clearRect = function (this: CanvasRenderingContext2D, ...a) {
+      clears++
+      return clearRect.apply(this, a)
+    }
     const round = async (n: number) => {
       const start = performance.now()
       for (let i = 0; i < n; i++) {
@@ -241,12 +250,15 @@ test('a page with 500 strokes draws within the budget', async ({ page }) => {
       return (performance.now() - start) / n
     }
     await round(10)
+    clears = 0
     const times: number[] = []
     for (let k = 0; k < 5; k++) times.push(await round(10))
-    return times.sort((x, y) => x - y)[2]
+    proto.clearRect = clearRect
+    return { frameMs: times.sort((x, y) => x - y)[2], clears }
   })
   expect(loadMs).toBeLessThan(8000)
   expect(frameMs).toBeLessThan(80)
+  expect(clears).toBe(0) // nothing moved, so the canvases were not touched
   expect((await savedInk(page)).strokes.length).toBe(496)
 })
 

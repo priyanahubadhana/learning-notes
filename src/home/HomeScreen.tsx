@@ -49,7 +49,8 @@ export function HomeScreen({
 }) {
   const [tab, setTab] = usePref<Tab>('home.tab', isTab, 'today')
   const today = useToday(db)
-  const { tasks, projects } = useTasks(db)
+  const [allDone, setAllDone] = useState(false)
+  const { tasks, projects } = useTasks(db, today, allDone)
   const habits = useLiveQuery(() => listHabits(db), [db])
   const dayStart = useLiveQuery(() => readDayStart(db), [db])
   const checks = useLiveQuery(
@@ -167,6 +168,7 @@ export function HomeScreen({
           tasks={tasks}
           projects={projects}
           onOpenPage={deps.openPage}
+          onShowOlder={allDone ? undefined : () => setAllDone(true)}
         />
       )}
       {tab === 'plan' && (

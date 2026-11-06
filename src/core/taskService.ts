@@ -31,9 +31,32 @@ export interface NewTask {
   estimateMin?: number
 }
 
-/** Live tasks (done ones too), oldest first by box order. */
-export async function listTasks(db: LearningNotesDB): Promise<Task[]> {
-  return (await db.tasks.toArray()).filter(isLive).sort(byOrder)
+/** Done tasks older than this many days load only on "Show older". */
+export const RECENT_DONE_DAYS = 60
+
+/**
+ * Live tasks, by box order. Without `doneSince` that is every task. With it,
+ * open and dropped tasks plus the tasks done on or after that day, read by
+ * the `status` and `doneDay` indexes, so years of finished tasks are not
+ * loaded with the Home screen.
+ */
+export async function listTasks(
+  db: LearningNotesDB,
+  opts: { doneSince?: string } = {},
+): Promise<Task[]> {
+  if (opts.doneSince === undefined) {
+    return (await db.tasks.toArray()).filter(isLive).sort(byOrder)
+  }
+  const since = opts.doneSince
+  const [active, recentDone] = await Promise.all([
+    db.tasks.where('status').anyOf('open', 'dropped').toArray(),
+    db.tasks
+      .where('doneDay')
+      .aboveOrEqual(since)
+      .filter((t) => t.status === 'done')
+      .toArray(),
+  ])
+  return [...active, ...recentDone].filter(isLive).sort(byOrder)
 }
 
 /** Adds a task to the inbox (or straight into a box when told). */
@@ -207,6 +230,7 @@ export async function restoreTask(
 
 // ---- Projects ----
 
+// Projects stay whole: a person has a handful, never thousands.
 export async function listProjects(db: LearningNotesDB): Promise<Project[]> {
   return (await db.projects.toArray()).filter(isLive).sort(byOrder)
 }

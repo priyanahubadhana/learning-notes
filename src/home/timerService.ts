@@ -21,6 +21,24 @@ export async function runningEntry(
     .first()
 }
 
+/**
+ * The live entries whose day is from `fromDay` to `toDay` (both included),
+ * read by the `day` index: a report of one week reads that week's rows only,
+ * however many years of entries there are.
+ */
+export async function entriesInRange(
+  db: LearningNotesDB,
+  fromDay: string,
+  toDay: string,
+): Promise<TimeEntry[]> {
+  return (
+    await db.timeEntries
+      .where('day')
+      .between(fromDay, toDay, true, true)
+      .toArray()
+  ).filter(isLive)
+}
+
 /** Stops every running entry at `at` (normally one). */
 export async function stopTimer(
   db: LearningNotesDB,

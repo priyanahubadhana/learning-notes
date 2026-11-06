@@ -62,4 +62,6 @@ export const enW5p = {
   'help.tip.library.cardMenu.meaning':
     'Opens more actions for this book or source.',
   'help.tip.library.cardMenu.example': 'Open its notes page or delete it.',
+  // ---- Large data (item 5) ----
+  'home.completed.older': 'Show older',
 } as const

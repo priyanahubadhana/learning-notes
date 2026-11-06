@@ -8,6 +8,7 @@ import type { LearningNotesDB } from '../core/db'
 import { addDays } from '../core/homeDays'
 import type { Habit } from '../core/homeTypes'
 import { isLive } from '../core/records'
+import { recentPages } from '../pages/pageService'
 import { t } from '../i18n/t'
 import {
   canRecord,
@@ -140,11 +141,7 @@ function PlayButton({ db, habit }: { db: LearningNotesDB; habit: Habit }) {
 function AffirmationForm({ db }: { db: LearningNotesDB }) {
   const { toast } = useContext(AppUiContext)
   const pages = useLiveQuery(
-    async () =>
-      (await db.pages.toArray())
-        .filter((p) => isLive(p) && !p.databaseId && !p.locked)
-        .sort((a, b) => b.updatedAt - a.updatedAt)
-        .slice(0, 300),
+    () => recentPages(db, (p) => isLive(p) && !p.databaseId && !p.locked, 300),
     [db],
   )
   const [name, setName] = useState('')

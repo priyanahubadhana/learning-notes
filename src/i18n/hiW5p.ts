@@ -56,4 +56,5 @@ export const hiW5p = {
   'help.tip.library.cardMenu.meaning':
     'इस किताब या स्रोत के लिए और क्रियाएँ खोलता है।',
   'help.tip.library.cardMenu.example': 'इसका नोट्स पृष्ठ खोलें या इसे हटाएँ।',
+  'home.completed.older': 'पुराने दिखाएँ',
 } as const

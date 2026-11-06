@@ -13,6 +13,7 @@ import { getSetting } from '../settings/settingsService'
  * the same day make the same record (fixed id), so sync merges them.
  */
 
+// Habits stay whole: a person has a few dozen at most, never thousands.
 export async function listHabits(db: LearningNotesDB): Promise<Habit[]> {
   return (await db.habits.toArray()).filter(isLive).sort(byOrder)
 }

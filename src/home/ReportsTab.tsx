@@ -2,7 +2,7 @@ import { useLiveQuery } from 'dexie-react-hooks'
 import { useMemo, useState } from 'react'
 import type { LearningNotesDB } from '../core/db'
 import type { PlanBlock, Project } from '../core/homeTypes'
-import { isLive } from '../core/records'
+import { entriesInRange } from './timerService'
 import { t } from '../i18n/t'
 import { timeLabel } from './timeLabel'
 import { getPlan } from './planService'
@@ -73,12 +73,13 @@ export function ReportsTab({
 }) {
   const [range, setRange] = useState<'today' | 'week'>('today')
   const now = useNow(false)
+  const days = rangeDays(range, today)
+  // Only the days on screen are read (the `day` index), not every entry.
   const entries = useLiveQuery(
-    async () => (await db.timeEntries.toArray()).filter(isLive),
-    [db],
+    () => entriesInRange(db, days.from, days.to),
+    [db, days.from, days.to],
   )
   const plan = useLiveQuery(() => getPlan(db, today), [db, today])
-  const days = rangeDays(range, today)
   const rows = useMemo(
     () => (entries ? hoursPerProject(entries, days.from, days.to, now) : []),
     [entries, days.from, days.to, now],

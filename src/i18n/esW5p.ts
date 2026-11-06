@@ -59,4 +59,5 @@ export const esW5p = {
   'help.tip.library.cardMenu.meaning':
     'Abre más acciones para este libro o fuente.',
   'help.tip.library.cardMenu.example': 'Abre su página de notas o elimínala.',
+  'home.completed.older': 'Mostrar anteriores',
 } as const

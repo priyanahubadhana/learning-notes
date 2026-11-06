@@ -47,12 +47,15 @@ export function TasksTab({
   tasks,
   projects,
   onOpenPage,
+  onShowOlder,
 }: {
   db: LearningNotesDB
   today: string
   tasks: readonly Task[]
   projects: readonly Project[]
   onOpenPage: (pageId: string) => void
+  /** Loads done tasks older than 60 days (absent once they are all loaded). */
+  onShowOlder?: () => void
 }) {
   const { toast } = useContext(AppUiContext)
   const [text, setText] = useState('')
@@ -266,6 +269,16 @@ export function TasksTab({
               </ul>
             </div>
           ))
+        )}
+        {onShowOlder && (
+          <button
+            type="button"
+            data-testid="completed-older"
+            onClick={onShowOlder}
+            className="min-h-11 rounded-lg border border-line px-4 text-sm hover:bg-hover"
+          >
+            {t('home.completed.older')}
+          </button>
         )}
       </section>
 

@@ -43,4 +43,30 @@ export const esW3b: Record<string, string> = {
   'mm.editBranch': 'Texto de la rama',
   'mm.hint':
     'Toca una rama y vuelve a tocar para escribir. Tab añade una rama, Enter una al lado, Supr la elimina. Arrastra una rama sobre otra para moverla. Alt+flechas reordenan.',
+
+  'embed.slash.title': 'Vídeo o enlace',
+  'embed.slash.subtext':
+    'Un vídeo de YouTube (se reproduce al tocar) o un enlace web',
+  'embed.placeholder': 'Pega un enlace de YouTube o una dirección web',
+  'embed.address': 'Dirección web',
+  'embed.add': 'Añadir',
+  'embed.bad':
+    'Esa no es una dirección web que la app pueda usar. Usa http o https.',
+  'embed.empty': 'Un elemento incrustado vacío.',
+  'embed.name': 'Nombre (opcional)',
+  'embed.youtube': 'YouTube',
+  'embed.play': 'Reproducir',
+  'embed.needsInternet': 'Necesita internet',
+  'embed.timestamp': 'Insertar marca de tiempo',
+  'embed.screenshot': 'Pegar captura',
+  'embed.time': 'Tiempo en el vídeo',
+  'embed.timePlaceholder': 'p. ej. 12:34',
+  'embed.insert': 'Insertar',
+  'embed.close': 'Cerrar reproductor',
+  'embed.badTime': 'Escribe un tiempo como 12:34 o 1:02:03.',
+  'embed.noTime':
+    'Imagen añadida sin tiempo, porque el reproductor no lo ha indicado.',
+  'embed.noPicture': 'No hay ninguna imagen en el portapapeles.',
+  'embed.pasteBlocked':
+    'No se pudo leer el portapapeles. Pega la imagen con Ctrl+V o Cmd+V.',
 }

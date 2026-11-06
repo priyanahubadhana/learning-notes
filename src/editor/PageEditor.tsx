@@ -94,6 +94,8 @@ import {
 import { getEditorDictionary } from '../i18n/languages'
 import { imageRef, parseImageRef } from '../images/imageRef'
 import { PictureEditorHost } from '../images/pictureEditor'
+import { stampLabel, stampPicture } from './embed/embedClock'
+import { StampWatcher } from './embed/StampWatcher'
 import { ImageError, imageObjectUrl, saveImage } from '../images/imageService'
 import { shrinkImage } from '../images/shrinkImage'
 import { readingLocked } from '../app/reading/readingState'
@@ -246,7 +248,11 @@ function LoadedPageEditor({
     // Pictures chosen in the editor are kept in the app (images/).
     uploadFile: async (file) => {
       try {
-        return imageRef((await saveImage(db, file, shrinkImage)).id)
+        const ref = imageRef((await saveImage(db, file, shrinkImage)).id)
+        // A picture added while a video plays gets its time as a caption.
+        const stamp = stampLabel()
+        if (stamp) stampPicture(ref, stamp)
+        return ref
       } catch (error) {
         if (error instanceof ImageError) toast(error.message)
         throw error
@@ -629,6 +635,7 @@ function LoadedPageEditor({
           />
         </BlockNoteView>
         <PictureEditorHost />
+        <StampWatcher editor={editor} />
         <InkSurface
           db={db}
           pageId={pageId}

@@ -14,6 +14,7 @@ Current phase only. Older entries are in [ARCHIVE.md](ARCHIVE.md).
 - **Files:** `src/memory/*`, `src/templates/{starterTemplates,templateService,TemplatesSection}`, `src/databases/starterDatabases.ts`, `src/recall/{reviewService,ReviewScreen,DeckEditor}`, `src/share/importBundle.ts`, i18n `enE2/esE2/hiE2`; tests `src/memory/memory.test.ts`, `templateService`, `decks`, `reviewService`, `starterDatabases` tests, `e2e/memoryTechniques.spec.ts`, `e2e/templates.spec.ts`.
 - **Feature links:** `scripts/feature-links.json` updated for four deliberate links (memory to editor and recall, templates to memory, recall to images for picture answers).
 - **Not done:** a sketch (ink) as a card answer (pictures only; ink in answers comes with G0); Major system for other languages.
+- **G2a embed block:** `embed` block (YouTube via youtube-nocookie after a tap, link cards, Needs internet offline, Insert timestamp, Paste screenshot, pictures added while playing get the video time as a caption); `editor/embed/{embedUrl,embedClock,EmbedView,embedBlock,StampWatcher}`, `PageEditor` upload stamp, slash menu, `builtinBlockTypes`, `public/_headers` (`frame-src https://www.youtube-nocookie.com`), strings `embed.*`. Tests: `embed.test.ts`, `e2e/embed.spec.ts`. Spec: `features/embeds.md`.
 
 ## 2026-11-06 (scroll hints, backup scope, audio recording)
 

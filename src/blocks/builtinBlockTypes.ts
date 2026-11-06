@@ -66,6 +66,17 @@ export const builtinBlockTypes: readonly BlockTypeDefinition[] = [
     createContent: () => ({ data: '', theme: 'calm' }),
   },
   {
+    type: 'embed',
+    label: 'Embed',
+    createContent: () => ({
+      url: '',
+      provider: 'link',
+      videoId: '',
+      start: 0,
+      caption: '',
+    }),
+  },
+  {
     type: 'pageLink',
     label: 'Page link',
     createContent: () => ({ pageId: '' }),

@@ -12,6 +12,7 @@ import {
 } from '@blocknote/react'
 import { t } from '../i18n/t'
 import { DatabaseBlockView } from '../databases/DatabaseBlockView'
+import { createEmbedBlock } from './embed/embedBlock'
 import { createMindMapBlock } from './mindMap/mindMapBlock'
 import { CardListView } from '../recall/CardListView'
 import { NOTE_LINK, TAG } from './mapping'
@@ -201,6 +202,7 @@ export const schema = BlockNoteSchema.create({
     cardList: createCardList(),
     database: createDatabaseBlock(),
     mindMap: createMindMapBlock(),
+    embed: createEmbedBlock(),
   },
   inlineContentSpecs: { ...defaultInlineContentSpecs, noteLink, tag },
   styleSpecs: { ...defaultStyleSpecs, blank, mark },

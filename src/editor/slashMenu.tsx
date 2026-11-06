@@ -89,6 +89,15 @@ export function buildSlashMenuItems(
       }),
   })
   items.push({
+    title: t('embed.slash.title'),
+    subtext: t('embed.slash.subtext'),
+    aliases: ['youtube', 'video', 'embed', 'link', 'web', 'bookmark'],
+    group: items[quoteIndex]?.group ?? 'Basic blocks',
+    icon: <span aria-hidden>▶</span>,
+    onItemClick: () =>
+      insertOrUpdateBlockForSlashMenu(editor, { type: 'embed' }),
+  })
+  items.push({
     title: t('databaseBlock.slash.title'),
     subtext: t('databaseBlock.slash.subtext'),
     aliases: ['database', 'table', 'board', 'list', 'tracker'],

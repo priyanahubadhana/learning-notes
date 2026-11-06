@@ -42,4 +42,29 @@ export const hiW3b: Record<string, string> = {
   'mm.editBranch': 'शाखा का पाठ',
   'mm.hint':
     'शाखा पर टैप करें, लिखने के लिए फिर टैप करें। Tab नई शाखा जोड़ता है, Enter बगल में एक, Delete हटाता है। शाखा को दूसरी पर खींचकर ले जाएँ। Alt+तीर क्रम बदलते हैं।',
+
+  'embed.slash.title': 'वीडियो या लिंक',
+  'embed.slash.subtext': 'YouTube वीडियो (टैप करने पर चलता है) या वेब लिंक',
+  'embed.placeholder': 'YouTube लिंक या वेब पता चिपकाएँ',
+  'embed.address': 'वेब पता',
+  'embed.add': 'जोड़ें',
+  'embed.bad':
+    'यह ऐसा वेब पता नहीं है जिसे ऐप इस्तेमाल कर सके। http या https चुनें।',
+  'embed.empty': 'खाली एम्बेड।',
+  'embed.name': 'नाम (वैकल्पिक)',
+  'embed.youtube': 'YouTube',
+  'embed.play': 'चलाएँ',
+  'embed.needsInternet': 'इंटरनेट चाहिए',
+  'embed.timestamp': 'समय-चिह्न जोड़ें',
+  'embed.screenshot': 'स्क्रीनशॉट चिपकाएँ',
+  'embed.time': 'वीडियो में समय',
+  'embed.timePlaceholder': 'जैसे 12:34',
+  'embed.insert': 'जोड़ें',
+  'embed.close': 'प्लेयर बंद करें',
+  'embed.badTime': '12:34 या 1:02:03 जैसा समय लिखें।',
+  'embed.noTime':
+    'चित्र बिना समय के जोड़ा गया, क्योंकि प्लेयर ने समय नहीं बताया।',
+  'embed.noPicture': 'क्लिपबोर्ड में कोई चित्र नहीं है।',
+  'embed.pasteBlocked':
+    'क्लिपबोर्ड नहीं पढ़ा जा सका। चित्र को Ctrl+V या Cmd+V से चिपकाएँ।',
 }

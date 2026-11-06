@@ -48,4 +48,29 @@ export const enW3b = {
   'mm.editBranch': 'Branch text',
   'mm.hint':
     'Tap a branch, tap again to type. Tab adds a branch, Enter adds one beside it, Delete removes it. Drag a branch onto another to move it. Alt+arrows reorder.',
+
+  // ---- Embeds (G2a) ----
+  'embed.slash.title': 'Video or link',
+  'embed.slash.subtext': 'A YouTube video (plays after a tap) or a web link',
+  'embed.placeholder': 'Paste a YouTube link or a web address',
+  'embed.address': 'Web address',
+  'embed.add': 'Add',
+  'embed.bad': 'That is not a web address this app can use. Use http or https.',
+  'embed.empty': 'An empty embed.',
+  'embed.name': 'Name (optional)',
+  'embed.youtube': 'YouTube',
+  'embed.play': 'Play',
+  'embed.needsInternet': 'Needs internet',
+  'embed.timestamp': 'Insert timestamp',
+  'embed.screenshot': 'Paste screenshot',
+  'embed.time': 'Time in the video',
+  'embed.timePlaceholder': 'e.g. 12:34',
+  'embed.insert': 'Insert',
+  'embed.close': 'Close player',
+  'embed.badTime': 'Type a time like 12:34 or 1:02:03.',
+  'embed.noTime':
+    'Picture added without a time, because the player has not reported one.',
+  'embed.noPicture': 'There is no picture on the clipboard.',
+  'embed.pasteBlocked':
+    'The clipboard could not be read. Paste the picture with Ctrl+V or Cmd+V instead.',
 } as const

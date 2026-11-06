@@ -47,4 +47,18 @@ export const es12: Record<string, string> = {
   'ink.layers.hiddenBadge': '{name} oculta',
   'ink.mixed.label': 'Dibujos y texto',
   'ink.sel.drawingsOnly': 'Solo funciona con dibujos.',
+  'main.mini.move': 'Mover las herramientas de selección',
+  'main.mini.pin': 'Mantener las herramientas de selección aquí',
+  'keys.label': 'Miniteclado',
+  'keys.toggle': 'Miniteclado',
+  'keys.move': 'Mover el miniteclado',
+  'keys.mic': 'Hablar para escribir',
+  'keys.micStop': 'Dejar de escuchar',
+  'keys.enter': 'Nueva línea',
+  'keys.backspace': 'Borrar',
+  'keys.listening': 'Escuchando...',
+  'keys.useKeyboardMic':
+    'El dictado no está disponible aquí. Toca el micrófono del teclado.',
+  'keys.denied':
+    'El micrófono no está permitido. Permítelo en los ajustes del navegador o usa el micrófono del teclado.',
 }

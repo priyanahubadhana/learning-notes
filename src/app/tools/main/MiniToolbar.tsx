@@ -21,6 +21,13 @@ import { currentRunner } from '../toolRuntime'
 import { highlightChoice, textColourChoice } from './pillChoices'
 import { miniToolbarOpen, openCard, openPillTool } from './mainTools'
 import { keepFocus } from './pillKit'
+import {
+  clampPos,
+  isNewSelection,
+  miniPinned,
+  miniPos,
+  type FreePos,
+} from './miniBarPrefs'
 import { NOTE_SIZES, applyNoteStyle, noteSize } from './textStyle'
 import { ALIGNS, alignOf, setAlign, setList } from './textOps'
 import { useEditorRedraw } from './useEditorRedraw'
@@ -50,12 +57,15 @@ function spotOf(editor: Editor): Spot | null {
     const a = view.coordsAtPos(from)
     const b = view.coordsAtPos(to)
     const above = a.top - 56
+    // A target scrolled off screen: the bar waits at the nearest edge.
+    const edge = (y: number) =>
+      Math.max(8, Math.min(window.innerHeight - 120, y))
     return {
       left: Math.max(
         8,
         Math.min(window.innerWidth - 8, (a.left + b.right) / 2),
       ),
-      top: above < 8 ? b.bottom + 28 : above,
+      top: edge(above < 8 ? b.bottom + 28 : above),
       below: above < 8,
       start: { x: a.left, y: a.bottom },
       end: { x: b.right, y: b.bottom },
@@ -73,7 +83,40 @@ export function MiniToolbar({ editor }: { editor: Editor }) {
   const view = editor.prosemirrorView
   const hasSelection = !!view && !view.state.selection.empty
 
-  const measure = useCallback(() => setSpot(spotOf(editor)), [editor])
+  const pinned = miniPinned.useValue()
+  const savedPos = miniPos.useValue()
+  const [dragPos, setDragPos] = useState<FreePos | null>(null)
+  const barRef = useRef<HTMLDivElement>(null)
+  const dragging = useRef(false)
+  const placed = useRef<{
+    from: number
+    to: number
+    doc: unknown
+    text: string
+  } | null>(null)
+  const anchor = useRef<{ left: number; top: number } | null>(null)
+  // The handles always follow the words; the bar moves only for a new
+  // selection, or when its target has scrolled off the screen (R5-7).
+  const measure = useCallback(() => {
+    const s = spotOf(editor)
+    const v = editor.prosemirrorView
+    if (!s || !v) return setSpot(null)
+    const sel = v.state.selection
+    const now = {
+      from: sel.from,
+      to: sel.to,
+      doc: v.state.doc as unknown,
+      text: v.state.doc.textBetween(sel.from, sel.to, ' '),
+    }
+    const fresh = isNewSelection(placed.current, now)
+    placed.current = now
+    const off = s.start.y < 0 || s.start.y > window.innerHeight
+    if (fresh || off || !anchor.current) {
+      anchor.current = { left: s.left, top: s.top }
+      if (fresh) setDragPos(null)
+    }
+    setSpot({ ...s, ...anchor.current })
+  }, [editor])
   useLayoutEffect(() => {
     if (open && hasSelection) measure()
   }, [open, hasSelection, measure, view?.state.selection])
@@ -127,6 +170,14 @@ export function MiniToolbar({ editor }: { editor: Editor }) {
   useEffect(() => {
     if (open && !hasSelection) miniToolbarOpen.set(false)
   }, [open, hasSelection])
+  // A closed bar forgets where it was, so the next one is placed fresh.
+  useEffect(() => {
+    if (!open) {
+      placed.current = null
+      anchor.current = null
+      setDragPos(null)
+    }
+  }, [open])
 
   if (!open || !hasSelection || !spot || !view) return null
   const toast = (m: string) => currentRunner().app?.toast(m)
@@ -157,12 +208,11 @@ export function MiniToolbar({ editor }: { editor: Editor }) {
       icon: 'palette',
       label: t('main.opt.text.textColor'),
       on: styles.textColor === text,
-      run: () =>
-        setColor(
-          editor,
-          'textColor',
-          styles.textColor === text ? 'default' : text,
-        ),
+      // Opens the colour panel (R5-4); the swatch under the icon shows the pick.
+      run: () => {
+        openPillTool.set('text')
+        openCard.set({ tool: 'text', page: 'textColor' })
+      },
     },
     {
       id: 'size',
@@ -329,22 +379,93 @@ export function MiniToolbar({ editor }: { editor: Editor }) {
     </button>
   )
 
+  const screen = { width: window.innerWidth, height: window.innerHeight }
+  const size = {
+    width: barRef.current?.offsetWidth ?? 320,
+    height: barRef.current?.offsetHeight ?? 52,
+  }
+  const at: FreePos = clampPos(
+    (pinned && savedPos) || dragPos || { left: spot.left, top: spot.top },
+    size,
+    screen,
+  )
+  // Drag by the grip: the bar goes anywhere (R5-5); pinned, the place is kept.
+  const moveBar = (e: React.PointerEvent) => {
+    if (!dragging.current) return
+    const next = clampPos(
+      { left: e.clientX, top: e.clientY - 22 },
+      size,
+      screen,
+    )
+    setDragPos(next)
+    if (pinned) miniPos.set(next)
+  }
+  const togglePin = () => {
+    if (pinned) {
+      miniPinned.set(false)
+    } else {
+      miniPos.set(at)
+      miniPinned.set(true)
+    }
+  }
   return createPortal(
     <>
       <div
+        ref={barRef}
         role="toolbar"
         aria-label={t('main.mini.label')}
         data-mini-toolbar
         data-pill-root
+        data-pinned={pinned || undefined}
         style={{
-          left: spot.left,
-          top: spot.top,
+          left: at.left,
+          top: at.top,
           transform: 'translateX(-50%)',
+          width: 'max-content',
           maxWidth: 'calc(100vw - 16px)',
         }}
-        className="fixed z-[46] flex flex-wrap justify-center gap-0.5 rounded-2xl border border-ink-soft bg-bg p-1 shadow-[0_2px_4px_rgba(0,0,0,0.08),0_10px_28px_rgba(0,0,0,0.2)]"
+        className="fixed z-[var(--z-mini)] flex flex-wrap justify-center gap-0.5 rounded-2xl border border-ink-soft bg-bg p-1 shadow-[0_2px_4px_rgba(0,0,0,0.08),0_10px_28px_rgba(0,0,0,0.2)]"
       >
+        <button
+          type="button"
+          data-mini="grip"
+          aria-label={t('main.mini.move')}
+          title={t('main.mini.move')}
+          onMouseDown={keepFocus}
+          onPointerDown={(e) => {
+            e.preventDefault()
+            e.stopPropagation()
+            dragging.current = true
+            try {
+              e.currentTarget.setPointerCapture(e.pointerId)
+            } catch {
+              // A pointer the browser does not know: carry on.
+            }
+          }}
+          onPointerMove={moveBar}
+          onPointerUp={() => (dragging.current = false)}
+          onPointerCancel={() => (dragging.current = false)}
+          style={{ touchAction: 'none' }}
+          className="grid min-h-11 min-w-8 cursor-grab place-items-center rounded-xl text-ink-soft hover:bg-hover"
+        >
+          <Icon name="grip" />
+        </button>
         {buttons.map(button)}
+        <button
+          type="button"
+          data-mini="pin"
+          aria-label={t('main.mini.pin')}
+          title={t('main.mini.pin')}
+          aria-pressed={pinned}
+          onMouseDown={keepFocus}
+          onPointerDown={(e) => e.stopPropagation()}
+          onClick={togglePin}
+          className={`grid min-h-11 min-w-11 place-items-center rounded-xl hover:bg-hover ${
+            pinned ? 'bg-hover text-accent' : 'text-ink-soft'
+          }`}
+        >
+          <Icon name="pin" />
+        </button>
         <button
           type="button"
           data-mini="close"
@@ -429,7 +550,7 @@ function Handle({
       onPointerUp={() => (dragging.current = false)}
       onPointerCancel={() => (dragging.current = false)}
       style={{ left: at.x - 11, top: at.y + 3, touchAction: 'none' }}
-      className="fixed z-[46] size-[22px] rounded-full border-2 border-accent bg-bg shadow after:absolute after:-inset-2 after:content-['']"
+      className="fixed z-[var(--z-mini)] size-[22px] rounded-full border-2 border-accent bg-bg shadow after:absolute after:-inset-2 after:content-['']"
     />
   )
 }

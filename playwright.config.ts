@@ -70,6 +70,8 @@ export default defineConfig({
         /ownSelection/,
         /fingerAfterPen/,
         /lassoUniversal/,
+        /miniBar/,
+        /miniKeys/,
       ],
       use: { ...devices['iPad Pro 11'], hasTouch: true },
       expect: { timeout: 15_000 },

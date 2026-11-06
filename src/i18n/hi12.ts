@@ -46,4 +46,18 @@ export const hi12: Record<string, string> = {
   'ink.layers.hiddenBadge': '{name} छिपी',
   'ink.mixed.label': 'चित्र और टेक्स्ट',
   'ink.sel.drawingsOnly': 'यह केवल चित्रों पर काम करता है।',
+  'main.mini.move': 'चयन के टूल हटाएँ',
+  'main.mini.pin': 'चयन के टूल यहीं रखें',
+  'keys.label': 'मिनी कीबोर्ड',
+  'keys.toggle': 'मिनी कीबोर्ड',
+  'keys.move': 'मिनी कीबोर्ड हटाएँ',
+  'keys.mic': 'बोलकर लिखें',
+  'keys.micStop': 'सुनना बंद करें',
+  'keys.enter': 'नई पंक्ति',
+  'keys.backspace': 'बैकस्पेस',
+  'keys.listening': 'सुन रहा है...',
+  'keys.useKeyboardMic':
+    'यहाँ बोलकर लिखना उपलब्ध नहीं है। कीबोर्ड का माइक्रोफ़ोन दबाएँ।',
+  'keys.denied':
+    'माइक्रोफ़ोन की अनुमति नहीं है। ब्राउज़र सेटिंग में अनुमति दें, या कीबोर्ड के माइक का उपयोग करें।',
 }

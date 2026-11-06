@@ -53,4 +53,18 @@ export const en12 = {
   'ink.layers.hiddenBadge': '{name} hidden',
   'ink.mixed.label': 'Drawings and text',
   'ink.sel.drawingsOnly': 'Works on drawings only.',
+  'main.mini.move': 'Move the selection tools',
+  'main.mini.pin': 'Keep the selection tools here',
+  'keys.label': 'Mini keyboard',
+  'keys.toggle': 'Mini keyboard',
+  'keys.move': 'Move the mini keyboard',
+  'keys.mic': 'Speak to type',
+  'keys.micStop': 'Stop listening',
+  'keys.enter': 'New line',
+  'keys.backspace': 'Backspace',
+  'keys.listening': 'Listening...',
+  'keys.useKeyboardMic':
+    'Dictation is not available here. Tap the microphone on the keyboard.',
+  'keys.denied':
+    'The microphone is not allowed. Allow it in the browser settings, or use the keyboard microphone.',
 } as const

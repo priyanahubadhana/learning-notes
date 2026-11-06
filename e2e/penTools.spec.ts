@@ -203,6 +203,7 @@ test('under Lasso a Pencil double-tap selects the word, a triple-tap the line, w
     .getByRole('button')
     .evaluateAll((els) => els.map((el) => el.getAttribute('aria-label')))
   expect(names).toEqual([
+    'Move the selection tools',
     'Text colour',
     'Text size',
     'Text style',
@@ -216,6 +217,7 @@ test('under Lasso a Pencil double-tap selects the word, a triple-tap the line, w
     'Copy',
     'Delete',
     'More',
+    'Keep the selection tools here',
     'Deselect',
   ])
   await expect(page.locator('[data-sel-handle]')).toHaveCount(2)

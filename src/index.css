@@ -44,6 +44,8 @@
   --z-popup: 40;
   --z-toast: 50;
   --z-modal: 60;
+  /* Selection mini bar and mini keyboard: under every pill, menu and card. */
+  --z-mini: 35;
 }
 
 /*

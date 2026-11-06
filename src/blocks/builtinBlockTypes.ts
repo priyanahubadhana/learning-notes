@@ -61,6 +61,11 @@ export const builtinBlockTypes: readonly BlockTypeDefinition[] = [
     createContent: () => ({ databaseId: '' }),
   },
   {
+    type: 'mindMap',
+    label: 'Mind map',
+    createContent: () => ({ data: '', theme: 'calm' }),
+  },
+  {
     type: 'pageLink',
     label: 'Page link',
     createContent: () => ({ pageId: '' }),

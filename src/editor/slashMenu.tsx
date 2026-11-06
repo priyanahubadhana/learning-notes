@@ -3,6 +3,7 @@ import {
   getDefaultReactSlashMenuItems,
   type DefaultReactSuggestionItem,
 } from '@blocknote/react'
+import { newMindMap, serializeMindMap } from './mindMap/model'
 import { cardSlashItem, type NestedCardPlace } from './cardActions'
 import { t } from '../i18n/t'
 import type { AppSchema } from './schema'
@@ -75,6 +76,18 @@ export function buildSlashMenuItems(
       insertOrUpdateBlockForSlashMenu(editor, { type: 'cardList' }),
   })
 
+  items.push({
+    title: t('mm.slash.title'),
+    subtext: t('mm.slash.subtext'),
+    aliases: ['mind map', 'mindmap', 'map', 'tree', 'brainstorm', 'diagram'],
+    group: items[quoteIndex]?.group ?? 'Basic blocks',
+    icon: <span aria-hidden>🧠</span>,
+    onItemClick: () =>
+      insertOrUpdateBlockForSlashMenu(editor, {
+        type: 'mindMap',
+        props: { data: serializeMindMap(newMindMap()) },
+      }),
+  })
   items.push({
     title: t('databaseBlock.slash.title'),
     subtext: t('databaseBlock.slash.subtext'),

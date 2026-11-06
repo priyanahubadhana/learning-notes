@@ -1,5 +1,6 @@
 import type { Block, JsonValue, Page, SearchEntry } from '../core/types'
 import { noteLinkProps } from '../editor/mapping'
+import { mindMapText } from '../editor/mindMap/model'
 export { isShowableText } from '../editor/mapping'
 import { cardParts, hasQuestion } from '../recall/cardService'
 
@@ -73,6 +74,10 @@ export function blockText(content: Block['content']): string {
   }
   visit(content.text)
   if (typeof content.caption === 'string') out.push(content.caption)
+  // A mind map keeps its words in `data` (blocks/mindMap/model.ts).
+  if (typeof content.data === 'string' && content.data) {
+    out.push(mindMapText(content.data))
+  }
   return out.join(' ')
 }
 

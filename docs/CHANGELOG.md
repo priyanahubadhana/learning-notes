@@ -5,6 +5,7 @@ Current phase only. Older entries are in [ARCHIVE.md](ARCHIVE.md).
 ## 2026-11-06 (Wave 3 part B: G0 picture editor, G0b mind map, G2a embeds, G1 tools)
 
 - **G0 picture editor:** Edit picture sheet (turn, straighten, zoom, corner handles, shape chips, Save, Cut out as new picture, Restore original). New `images/{editImage,CropSheet,pictureEditor}`; `StoredImage.originalId` (optional, no Dexie version); menu entries in `editor/{CardMenu,SelectionToolbar}`; strings `pic.*` in `i18n/{en,hi,es}W3b.ts`. Tests: `editImage.test.ts`, `e2e/pictureEditor.spec.ts`. Why: master plan G0 (owner's order: crop, corners, zoom, cut-out, rotate; no blur).
+- **G0b mind map block:** block `mindMap` (editable JSON tree, three themes, Tab/Enter/Delete/Alt+arrows, drag a branch onto another, Save as picture, searchable); `editor/mindMap/{model,palette,toPicture,MindMapView,MindMapHost,mindMapBlock}`, slash menu entry, `searchText.blockText`, `builtinBlockTypes`, `index.css` (a faded "/" menu no longer catches taps), strings `mm.*`. `fromOutline` is ready for the CR2 importer. Tests: `model.test.ts`, `e2e/mindMap.spec.ts`. Spec: `features/mind-map.md`.
 
 ## 2026-11-06 (Wave 3, E2 memory techniques)
 

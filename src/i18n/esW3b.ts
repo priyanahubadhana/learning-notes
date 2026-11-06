@@ -23,4 +23,24 @@ export const esW3b: Record<string, string> = {
   'pic.failed': 'No se pudo editar esta imagen.',
   'pic.notEditable':
     'Solo se pueden editar las imágenes guardadas en esta app.',
+
+  'mm.title': 'Mapa mental',
+  'mm.slash.title': 'Mapa mental',
+  'mm.slash.subtext': 'Un árbol de ideas que puedes reorganizar',
+  'mm.addChild': '+ Rama',
+  'mm.addSibling': '+ Al lado',
+  'mm.delete': 'Eliminar rama',
+  'mm.theme': 'Estilo',
+  'mm.theme.calm': 'Sereno',
+  'mm.theme.bold': 'Intenso',
+  'mm.theme.paper': 'Papel',
+  'mm.asPicture': 'Guardar como imagen',
+  'mm.pictureAdded': 'El mapa mental se añadió debajo como imagen.',
+  'mm.pictureFailed': 'No se pudo crear la imagen.',
+  'mm.topic': 'Tema central',
+  'mm.branch': 'Rama',
+  'mm.empty': 'Rama vacía',
+  'mm.editBranch': 'Texto de la rama',
+  'mm.hint':
+    'Toca una rama y vuelve a tocar para escribir. Tab añade una rama, Enter una al lado, Supr la elimina. Arrastra una rama sobre otra para moverla. Alt+flechas reordenan.',
 }

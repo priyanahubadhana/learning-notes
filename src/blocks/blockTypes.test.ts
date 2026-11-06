@@ -51,6 +51,7 @@ describe('built-in block types', () => {
       'card',
       'cardList',
       'database',
+      'mindMap',
       'pageLink',
     ])
   })

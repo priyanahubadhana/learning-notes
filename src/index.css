@@ -777,3 +777,12 @@ html[data-note-line] .bn-editor {
     transition: none;
   }
 }
+
+/*
+ * A closed editor menu (the "/" menu) fades out but stays in the page, and
+ * its invisible box catches taps meant for a block under it (a mind map just
+ * inserted). Once it is fully faded it lets taps through.
+ */
+[data-floating-ui-focusable][style*='opacity: 0;'] {
+  pointer-events: none;
+}

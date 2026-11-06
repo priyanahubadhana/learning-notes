@@ -320,13 +320,6 @@ function BackspaceButton({ editor, min }: { editor: Editor; min: number }) {
     run.current.active = false
   }
   useEffect(() => stop, [])
-  const step = () => {
-    const r = run.current
-    if (!r.active) return
-    const { unit, next } = backspaceStep(Date.now() - r.start)
-    if (!deleteBackward(editor, unit)) return stop()
-    r.timer = window.setTimeout(step, next)
-  }
   return (
     <button
       type="button"
@@ -349,9 +342,16 @@ function BackspaceButton({ editor, min }: { editor: Editor; min: number }) {
         stop()
         // The first press deletes at once; a hold starts repeating later.
         deleteBackward(editor, 'char')
-        run.current.start = Date.now()
-        run.current.active = true
-        run.current.timer = window.setTimeout(step, REPEAT_AFTER_MS)
+        const r = run.current
+        r.start = Date.now()
+        r.active = true
+        const step = () => {
+          if (!r.active) return
+          const { unit, next } = backspaceStep(Date.now() - r.start)
+          if (!deleteBackward(editor, unit)) return stop()
+          r.timer = window.setTimeout(step, next)
+        }
+        r.timer = window.setTimeout(step, REPEAT_AFTER_MS)
       }}
       onPointerUp={stop}
       onPointerCancel={stop}

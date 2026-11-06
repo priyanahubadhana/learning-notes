@@ -12,7 +12,7 @@ import type { Notebook } from './types'
  */
 const T = 1_700_000_000_000
 const base = { createdAt: T, updatedAt: T, deletedAt: null }
-const CURRENT_VERSION = 17
+const CURRENT_VERSION = 18
 let name = ''
 
 afterEach(async () => {
@@ -722,6 +722,9 @@ describe('database upgrade', () => {
     expect(db.verno).toBe(CURRENT_VERSION)
     expect(await db.bookFiles.count()).toBe(0)
     expect(await db.annotations.count()).toBe(0)
+    // Version 18 (sync): an empty sync state table, nothing marked.
+    expect(await db.syncState.count()).toBe(0)
+    expect(await db.syncState.where('dirty').equals(1).count()).toBe(0)
     expect((await db.pages.toArray()).length).toBeGreaterThan(0)
     // The new indexes work.
     await db.annotations.add({

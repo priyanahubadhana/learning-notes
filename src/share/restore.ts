@@ -39,9 +39,10 @@ export const REPLACE_MIN_VERSION = 12
  * Database versions whose upgrade only added tables. A file from an older
  * version can replace the notes when every version after it is listed here:
  * the missing tables simply start empty. Add each new table-only version.
- * (13 ink, 14 recordings, 15 fonts, 16 decks, 17 book files + annotations.)
+ * (13 ink, 14 recordings, 15 fonts, 16 decks, 17 book files + annotations,
+ * 18 sync state.)
  */
-export const TABLE_ONLY_VERSIONS: readonly number[] = [13, 14, 15, 16, 17]
+export const TABLE_ONLY_VERSIONS: readonly number[] = [13, 14, 15, 16, 17, 18]
 
 /** Can a file saved at `fileVersion` replace the notes of a database at `current`? */
 export function canReplaceFrom(fileVersion: number, current: number): boolean {
@@ -80,10 +81,13 @@ async function writeTables(
   tables: Record<string, readonly unknown[]>,
   mark: RestoreMark | null,
 ): Promise<void> {
+  // Sync fields are this device's own and stay as they are (sync L6): the
+  // restored notes count as changes made here and are sent on the next sync.
+  const tablesHere = db.tables.filter((tb) => tb.name !== 'syncState')
   await db.transaction('rw', db.tables, async () => {
-    for (const table of db.tables) await table.clear()
+    for (const table of tablesHere) await table.clear()
     for (const phase of ['notes', 'derived'] as const) {
-      for (const table of db.tables) {
+      for (const table of tablesHere) {
         if (DERIVED.has(table.name) !== (phase === 'derived')) continue
         // Writing notes also makes search/link rows; the file's own win.
         if (phase === 'derived') await table.clear()

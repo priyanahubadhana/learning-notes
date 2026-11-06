@@ -1,0 +1,100 @@
+/**
+ * Sync connectors (L3): the only place that knows a vendor. The rest of the
+ * app talks to these three small interfaces, so Supabase or Drive can be
+ * swapped by writing a new connector. A lint rule keeps vendor code (and
+ * vendor addresses) inside `src/sync/connectors/`.
+ *
+ * Everything that crosses these interfaces is already encrypted, except the
+ * account details of the sign-in.
+ */
+
+/** One encrypted record as the record store keeps it. */
+export interface RemoteRecord {
+  /** Record id (a UUID made on a device). */
+  id: string
+  /** Revision: 1 on first save, +1 on each accepted save. */
+  rev: number
+  /** Id of the master key that locked `data`. */
+  keyId: string
+  /** Encrypted content (base64), see `sync/crypto.ts`. */
+  data: string
+  /** Server order of the last change, rising; used as the pull cursor. */
+  seq: number
+}
+
+/** A save to push: accepted only if the server still has `baseRev`. */
+export interface PushItem {
+  id: string
+  /** The revision this device last saw (0 = new). */
+  baseRev: number
+  keyId: string
+  data: string
+}
+
+export interface PushResult {
+  /** Ids the server accepted, with their new revision and seq. */
+  accepted: { id: string; rev: number; seq: number }[]
+  /** Ids refused because someone else saved first (pull, merge, retry). */
+  conflicts: string[]
+}
+
+/** Record store with compare-and-swap (Supabase). */
+export interface RecordStore {
+  /** Changes after `sinceSeq`, oldest first, at most `limit`. */
+  pull(sinceSeq: number, limit: number): Promise<RemoteRecord[]>
+  push(items: PushItem[]): Promise<PushResult>
+  /** The server's copies of these ids (after a refused save). */
+  get(ids: string[]): Promise<RemoteRecord[]>
+  /** Locked copies of the master key (see `KeyBundle`), as JSON text. */
+  listKeyBundles(): Promise<string[]>
+  putKeyBundle(id: string, json: string): Promise<void>
+  /** Server time in ms (clock-skew check, L8). */
+  serverTime(): Promise<number>
+}
+
+/** Write-once file store (Drive): each name is written once, read by id. */
+export interface FileStore {
+  /** Saves new bytes; returns the store's own file id. */
+  put(name: string, bytes: Uint8Array): Promise<string>
+  get(fileId: string): Promise<Uint8Array>
+  /** Files whose name starts with `prefix`, newest first. */
+  list(prefix: string): Promise<{ id: string; name: string }[]>
+  remove(fileId: string): Promise<void>
+}
+
+export interface Account {
+  /** Our own account id (the record store's user id). */
+  accountId: string
+  email: string
+  /** Google's never-reused subject id. */
+  sub: string
+}
+
+/** Sign-in provider (Google through Supabase). */
+export interface AuthProvider {
+  /** The signed-in account, or null. Never touches local notes. */
+  current(): Account | null
+  /** Starts sign-in (may leave the page and come back). */
+  signIn(): Promise<void>
+  /** Finishes a sign-in after the redirect; returns true if it did. */
+  finishSignIn(url: URL): Promise<boolean>
+  /** Forgets the session on this device; local notes stay. */
+  signOut(): Promise<void>
+  /** A fresh access token for the record store (renews when needed). */
+  accessToken(): Promise<string>
+  /** A Drive pass; may need a tap (`interactive`) after its hour runs out. */
+  driveToken(interactive: boolean): Promise<string | null>
+}
+
+export interface Connectors {
+  auth: AuthProvider
+  records: RecordStore
+  files: FileStore
+}
+
+/** The sign-in was refused (e.g. not the allowed Gmail account). */
+export class NotAllowedError extends Error {}
+/** The store said "try later" (offline, paused project, rate limit). */
+export class TryLaterError extends Error {}
+/** The Drive pass has run out; a tap is needed to renew it. */
+export class NeedsTapError extends Error {}

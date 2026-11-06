@@ -594,3 +594,28 @@ export interface Annotation extends BaseRecord {
   cardIds?: string[]
   origin: 'user' | 'ai'
 }
+
+/**
+ * Sync fields of one synced record (L6, Dexie 18), kept beside the record so
+ * no other table changes. Never sent as is: the clock travels inside the
+ * encrypted copy. See docs/features/sync.md.
+ */
+export interface SyncState {
+  /** `${table}/${recordId}`. */
+  id: string
+  table: string
+  recordId: string
+  /** Server revision this device last saw (0 = never saved there). */
+  rev: number
+  /** Hybrid clock of the last change (see sync/hlc.ts). */
+  hlc: string
+  /** 1 = changed here, not yet accepted by the server (indexed; 0/1, not boolean). */
+  dirty: 0 | 1
+  /**
+   * File tables only: 'up' = bytes wait for upload, 'down' = waiting for
+   * download, 'ok' = in step. Unset = not a file.
+   */
+  fileState?: 'up' | 'down' | 'ok'
+  /** Drive file id of the encrypted bytes. */
+  fileRef?: string
+}

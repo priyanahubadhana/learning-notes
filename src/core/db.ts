@@ -1,6 +1,7 @@
 import Dexie, { type EntityTable, type Transaction } from 'dexie'
 import { t, type MessageKey } from '../i18n/t'
 import { searchIndexMiddleware } from '../search/indexMiddleware'
+import { syncOutboxMiddleware } from '../sync/outbox'
 import type { InkChunk, InkLayer } from './inkTypes'
 import { orderBetween } from './order'
 import { newRecordFields } from './records'
@@ -27,6 +28,7 @@ import type {
   SavedSearch,
   SearchEntry,
   SettingValue,
+  SyncState,
   Tag,
   Workspace,
 } from './types'
@@ -69,6 +71,7 @@ export class LearningNotesDB extends Dexie {
   recordings!: EntityTable<Recording, 'id'>
   bookFiles!: EntityTable<BookFile, 'id'>
   annotations!: EntityTable<Annotation, 'id'>
+  syncState!: EntityTable<SyncState, 'id'>
 
   /** @param name Database name; tests pass a unique name to stay isolated. */
   constructor(name: string = DEFAULT_DB_NAME) {
@@ -274,9 +277,16 @@ export class LearningNotesDB extends Dexie {
       annotations: 'id, pageId, [pageId+kind], updatedAt',
     })
 
+    // Version 18 (Sync L6): the sync fields of every synced record (clock,
+    // server revision, "changed here" flag, Drive pointer), one row per
+    // record, so no existing table changes. Only adds a table.
+    this.version(18).stores({ syncState: 'id, dirty, fileState' })
+
     // Every save of a page or block also updates its search entry, in the
     // same transaction (see search/indexMiddleware.ts).
     this.use(searchIndexMiddleware)
+    // Every save of a synced table marks it for sync (sync/outbox.ts).
+    this.use(syncOutboxMiddleware)
   }
 }
 

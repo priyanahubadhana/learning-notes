@@ -86,6 +86,7 @@
   "share -> revise",
   "share -> search",
   "share -> tags",
+  "sync -> history",
   "tags -> editor",
   "tags -> recall",
   "tags -> search",

@@ -406,6 +406,13 @@ async function uploadFiles(
       | { data?: ArrayBuffer; deletedAt?: number | null; purgedAt?: number }
       | undefined
     const bytes = row?.data ? new Uint8Array(row.data) : null
+    if (row?.purgedAt && s.fileRef) {
+      // Delete forever also clears the cloud copy (Drive may keep its own
+      // revisions for a while: see docs/features/sync.md).
+      await conn.files.remove(s.fileRef).catch(() => undefined)
+      await db.syncState.update(s.id, { fileState: 'ok', fileRef: undefined })
+      continue
+    }
     if (!bytes || bytes.length === 0 || row?.purgedAt) {
       await db.syncState.update(s.id, { fileState: 'ok' })
       continue

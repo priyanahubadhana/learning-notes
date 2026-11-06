@@ -1,5 +1,5 @@
 import { useLiveQuery } from 'dexie-react-hooks'
-import { use, useEffect, useId, useRef, useState } from 'react'
+import { Suspense, lazy, use, useEffect, useId, useRef, useState } from 'react'
 import { revealWhenReady } from '../editor/revealBlock'
 import { AppUiContext } from '../app/appUi'
 import type { LearningNotesDB } from '../core/db'
@@ -30,6 +30,12 @@ import './lockSettings'
 import '../ai/aiSettings'
 import { AiSection } from '../ai/AiSection'
 import { LockSection } from '../app/lock/LockSection'
+import '../sync/syncSettings'
+
+// Sync's screen (and its encryption code) loads only when opened.
+const SyncSection = lazy(() =>
+  import('../sync/SyncSection').then((m) => ({ default: m.SyncSection })),
+)
 
 /**
  * Settings screen: categories on the left (a row of chips on small screens),
@@ -144,6 +150,11 @@ export function SettingsScreen({
           {category === ALL && !q && <AboutSection />}
           {category === 'lock' && <LockSection db={db} />}
           {category === 'ai' && <AiSection db={db} />}
+          {category === 'sync' && (
+            <Suspense fallback={null}>
+              <SyncSection db={db} />
+            </Suspense>
+          )}
           {category === ALL && (
             <input
               type="search"

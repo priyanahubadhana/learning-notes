@@ -16,6 +16,8 @@ import {
   watchForUpdates,
 } from './app/updates'
 import { requestPersistentStorage } from './core/storage'
+import { db } from './core/db'
+import { isTracking } from './sync/device'
 import { writePref } from './app/uiPrefs'
 import { initDeviceMode } from './settings/deviceModeSettings'
 import { installScrollHints } from './app/scrollHints'
@@ -53,6 +55,12 @@ window.visualViewport?.addEventListener('resize', () => {
 
 // Ask the browser not to clear our notes database (fire and forget).
 void requestPersistentStorage()
+
+// Sync (Phase L): loaded only when it is set up or a Google sign-in is
+// coming back, so people who never sync download none of it.
+if (isTracking() || new URLSearchParams(location.search).has('sync')) {
+  void import('./sync/syncService').then((m) => m.startSync(db))
+}
 
 // Keep the app on the device for offline use, and look for new versions at
 // the start and whenever it comes to the front (an iPad rarely restarts it).

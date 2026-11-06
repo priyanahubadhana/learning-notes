@@ -11,6 +11,19 @@ Current phase only. Older entries are in [ARCHIVE.md](ARCHIVE.md).
 - **CI:** GitHub Actions jobs are refused: "recent account payments have failed or your spending limit needs to be increased" (the repo is private; the free minutes are used up). Until the owner fixes Billing & plans, no CI runs and no deploy, whatever the code. The two diagnostic PRs (#2, #3) were closed unrun; their branches stay for a WebKit probe later.
 - **Files:** `src/ink/controller.ts`, `e2e/inkLayers.spec.ts`, docs.
 
+## 2026-11-06 (Phase L: Sync, L1–L8, owner exception)
+
+- **L1:** order keys get an id tie-break (`byOrder`), a guard for equal neighbours and a random two-digit suffix (bug 1); fixed ids for the workspace, special notebooks, journal day/month pages, template roles and cards (`stableId`, `stableRecordFields`).
+- **L2:** Settings › Sync › Check this device (Argon2id time, Web Crypto, storage kept).
+- **L3:** connectors `src/sync/connectors/` (Supabase records + sign-in, Drive files, in-memory for tests); ESLint keeps vendor imports and addresses inside them.
+- **L4:** Google sign-in through Supabase (PKCE), only the owner's Gmail (client check, RLS, sign-up hook); sign-in/out never touches notes. SQL in `supabase/migrations/`.
+- **L5:** end-to-end encryption: master key, passphrase (Argon2id) and printed recovery code copies, Drive spare key, records bound to table/id/revision.
+- **L6:** Dexie 18 `syncState` (add-only), outbox middleware, device id and hybrid clock.
+- **L7:** engine (pull, merge, compare-and-swap push, conflict refetch) and merge rules per table; block losers go to History with a notice; workspace/special-notebook merge after sync.
+- **L8:** pictures, books, audio and fonts as encrypted Drive files (queued up/down, Reconnect Drive), Delete forever removes the Drive copy, clock-skew warning, privacy line. CSP adds the Supabase host, `www.googleapis.com`, `accounts.google.com`.
+- **Why:** owner decision of 6 Nov (DECISIONS). **Files:** `src/sync/**`, `src/core/{order,ids,records,db,types,workspaceService}.ts`, `src/{notebooks/notebookService,pages/pageService,recall/cardService,share/restore,settings/SettingsScreen,main}.ts(x)`, `src/i18n/{en,enSync}.ts`, `eslint.config.js`, `public/_headers`, `supabase/`, `e2e/sync.spec.ts`, tests, docs.
+- **Self-review:** not tried against the real Supabase project or an iPad (no service key; owner steps in owner-checks-pending.md "SYNC SETUP"). Weak spots logged in DECISIONS (one clock per block, no key rotation, no passphrase change).
+
 ## 2026-11-06 (Stabiliser: CI green again)
 
 - **databases.spec:** the /database picker now lists 14 ready-made starters (E2 added the PAO table); the count is 7 + 1 + 6.

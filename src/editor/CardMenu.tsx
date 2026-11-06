@@ -11,6 +11,7 @@ import {
 import { useContext } from 'react'
 import { AppUiContext } from '../app/appUi'
 import { t } from '../i18n/t'
+import { openPictureEditor } from '../images/pictureEditorStore'
 import { copyAs } from './clipboard'
 import { markLabels, markName } from '../revise/reviseMarks'
 import { duplicateBlock } from './blockActions'
@@ -108,11 +109,31 @@ function MarkLineItems() {
   )
 }
 
+/** Block menu entry for a picture: "Edit picture" (crop, turn, cut out). */
+function EditPictureItem() {
+  const Components = useComponentsContext()!
+  const editor = useBlockNoteEditor() as unknown as Editor
+  const block = useExtensionState(SideMenuExtension, {
+    editor,
+    selector: (state) => state?.block,
+  }) as EditorBlock | undefined
+  if (!block || block.type !== 'image') return null
+  return (
+    <Components.Generic.Menu.Item
+      className="bn-menu-item"
+      onClick={() => openPictureEditor(editor as never, block.id)}
+    >
+      {t('pic.edit')}
+    </Components.Generic.Menu.Item>
+  )
+}
+
 /** The block menu: BlockNote's items plus "Make card", "Duplicate" and marks. */
 export function AppDragHandleMenu() {
   const dict = useDictionary()
   return (
     <DragHandleMenu>
+      <EditPictureItem />
       <MakeCardItem />
       <DuplicateItem />
       <CopyItems />

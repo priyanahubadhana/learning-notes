@@ -1,0 +1,26 @@
+/** Spanish text of Wave 3 part B (draft: needs native review). English is enW3b.ts. */
+export const esW3b: Record<string, string> = {
+  'pic.edit': 'Editar imagen',
+  'pic.rotateLeft': 'Girar a la izquierda',
+  'pic.rotateRight': 'Girar a la derecha',
+  'pic.straighten': 'Enderezar',
+  'pic.zoomIn': 'Acercar',
+  'pic.zoomOut': 'Alejar',
+  'pic.shape': 'Forma del recorte',
+  'pic.ratio.free': 'Libre',
+  'pic.ratio.original': 'Original',
+  'pic.reset': 'Restablecer',
+  'pic.save': 'Guardar',
+  'pic.cutOut': 'Recortar como imagen nueva',
+  'pic.restore': 'Restaurar original',
+  'pic.corner.nw': 'Esquina del recorte, arriba a la izquierda',
+  'pic.corner.ne': 'Esquina del recorte, arriba a la derecha',
+  'pic.corner.sw': 'Esquina del recorte, abajo a la izquierda',
+  'pic.corner.se': 'Esquina del recorte, abajo a la derecha',
+  'pic.saved': 'Imagen cambiada. Deshacer recupera la anterior.',
+  'pic.cutOutDone': 'Recorte añadido debajo de la imagen.',
+  'pic.restored': 'Imagen original restaurada.',
+  'pic.failed': 'No se pudo editar esta imagen.',
+  'pic.notEditable':
+    'Solo se pueden editar las imágenes guardadas en esta app.',
+}

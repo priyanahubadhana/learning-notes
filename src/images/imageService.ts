@@ -56,3 +56,35 @@ export async function imageObjectUrl(
   urls.set(id, url)
   return url
 }
+
+/**
+ * Stores the result of the picture editor as a NEW picture; the one it
+ * came from is never changed or deleted. `originalId` points at the first
+ * picture of the chain, so "Restore original" always goes back to the start.
+ */
+export async function saveEditedImage(
+  db: LearningNotesDB,
+  fromId: string,
+  edited: { data: ArrayBuffer; type: string; width: number; height: number },
+): Promise<StoredImage> {
+  const from = await db.images.get(fromId)
+  const image: StoredImage = {
+    ...newRecordFields(),
+    name: from?.name ?? 'picture',
+    ...edited,
+    originalId: from?.originalId ?? fromId,
+  }
+  await db.images.add(image)
+  return image
+}
+
+/** The first picture an edited one came from, if it is still stored. */
+export async function originalOf(
+  db: LearningNotesDB,
+  id: string,
+): Promise<string | null> {
+  const from = await db.images.get(id)
+  if (!from?.originalId) return null
+  const original = await db.images.get(from.originalId)
+  return original && original.deletedAt === null ? original.id : null
+}

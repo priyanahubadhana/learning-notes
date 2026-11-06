@@ -2,6 +2,10 @@
 
 Current phase only. Older entries are in [ARCHIVE.md](ARCHIVE.md).
 
+## 2026-11-06 (Wave 3 part B: G0 picture editor, G0b mind map, G2a embeds, G1 tools)
+
+- **G0 picture editor:** Edit picture sheet (turn, straighten, zoom, corner handles, shape chips, Save, Cut out as new picture, Restore original). New `images/{editImage,CropSheet,pictureEditor}`; `StoredImage.originalId` (optional, no Dexie version); menu entries in `editor/{CardMenu,SelectionToolbar}`; strings `pic.*` in `i18n/{en,hi,es}W3b.ts`. Tests: `editImage.test.ts`, `e2e/pictureEditor.spec.ts`. Why: master plan G0 (owner's order: crop, corners, zoom, cut-out, rotate; no blur).
+
 ## 2026-11-06 (scroll hints, backup scope, audio recording)
 
 - **What:** (1) R5-13 scroll hints: `app/scrollHints.ts` (edge fade through `data-scroll-more`, one slim auto-hiding indicator, 1 s) and Settings › General › Scroll hints (On/Off; en, es, hi). (2) Owner decisions: "Notes only" now keeps pictures too (it leaves out only the sound of audio recordings); History pinned at 30 full copies (test); restore dialog and save texts reworded in en/es/hi. (3) Audio recording: Dexie 14 table `recordings`; `src/audio/` (recorder, recordingService, AudioDock with the left panel's Audio tab and a recording chip); Insert › Audio records the open page, View › Audio list opens the panel; play, soft delete with Undo, Deleted recordings, Delete forever, erase with the page from Trash; rows validated in `checkRows.ts`/`readFull.ts`; both backup kinds carry the rows; `public/_headers` microphone=(self).

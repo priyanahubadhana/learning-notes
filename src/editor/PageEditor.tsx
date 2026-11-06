@@ -93,6 +93,7 @@ import {
 } from './mapping'
 import { getEditorDictionary } from '../i18n/languages'
 import { imageRef, parseImageRef } from '../images/imageRef'
+import { PictureEditorHost } from '../images/pictureEditor'
 import { ImageError, imageObjectUrl, saveImage } from '../images/imageService'
 import { shrinkImage } from '../images/shrinkImage'
 import { readingLocked } from '../app/reading/readingState'
@@ -627,6 +628,7 @@ function LoadedPageEditor({
             }
           />
         </BlockNoteView>
+        <PictureEditorHost />
         <InkSurface
           db={db}
           pageId={pageId}

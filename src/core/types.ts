@@ -477,6 +477,11 @@ export interface StoredImage extends BaseRecord {
   width: number
   height: number
   data: ArrayBuffer
+  /**
+   * Set on an edited copy (picture editor): the picture it came from. The
+   * original is never changed or deleted, so "Restore original" works.
+   */
+  originalId?: string
 }
 
 /**

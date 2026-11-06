@@ -6,6 +6,7 @@ import {
   useComponentsContext,
 } from '@blocknote/react'
 import { t } from '../i18n/t'
+import { openPictureEditor } from '../images/pictureEditorStore'
 import {
   markLabels,
   MARK_STYLE,
@@ -64,6 +65,27 @@ function MakeCardButton() {
   )
 }
 
+/** "Edit picture" over a selected picture (crop, turn, cut out). */
+function EditPictureButton() {
+  const Components = useComponentsContext()!
+  const editor = useBlockNoteEditor() as unknown as Editor
+  const selected = editor.getSelection()?.blocks ?? [
+    editor.getTextCursorPosition().block,
+  ]
+  const block = selected.length === 1 ? selected[0] : undefined
+  if (!block || block.type !== 'image') return null
+  return (
+    <Components.FormattingToolbar.Button
+      className="bn-button"
+      label={t('pic.edit')}
+      mainTooltip={t('pic.edit')}
+      onClick={() => openPictureEditor(editor as never, block.id)}
+    >
+      {t('pic.edit')}
+    </Components.FormattingToolbar.Button>
+  )
+}
+
 /** One toolbar button per Revise label; pressing it again removes the mark. */
 function MarkButton({ label }: { label: MarkLabel }) {
   const Components = useComponentsContext()!
@@ -90,6 +112,7 @@ export function AppFormattingToolbar() {
   return (
     <FormattingToolbar>
       {getFormattingToolbarItems()}
+      <EditPictureButton key="editPicture" />
       {markLabels().map((label) => (
         <MarkButton key={label.id} label={label.id} />
       ))}

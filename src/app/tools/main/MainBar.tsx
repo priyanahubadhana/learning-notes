@@ -35,6 +35,7 @@ import {
   type NewLineExtra,
 } from './newLineGesture'
 import { openToolPill, selectTool } from './selectTool'
+import { miniKeysOn } from './miniKeys'
 import { REPEAT_AFTER_MS, backspaceStep } from './backspaceHold'
 
 /**
@@ -199,6 +200,7 @@ export function MainBarRow({
         })}
       </div>
       <KeyboardButton editor={editor} min={min} />
+      <MiniKeysButton min={min} />
       <Tip
         id="bar.menu"
         touchInfo={false}
@@ -322,7 +324,13 @@ function NewLineButton({ editor, min }: { editor: Editor; min: number }) {
 
 // ---- ⌫: a tap deletes a character, a hold repeats (and then deletes words) ----
 
-function BackspaceButton({ editor, min }: { editor: Editor; min: number }) {
+export function BackspaceButton({
+  editor,
+  min,
+}: {
+  editor: Editor
+  min: number
+}) {
   const run = useRef({ timer: 0, start: 0, active: false })
   const label = t('main.tool.backspace')
   const stop = () => {
@@ -454,6 +462,28 @@ function KeyboardButton({ editor, min }: { editor: Editor; min: number }) {
       className={`${BUTTON} ${on ? 'bg-hover !text-accent' : ''}`}
     >
       <Icon name="keyboard" />
+    </button>
+  )
+}
+
+/** Shows or hides the mini keyboard strip (mic, Enter, Backspace). */
+function MiniKeysButton({ min }: { min: number }) {
+  const on = miniKeysOn.useValue()
+  const label = t('keys.toggle')
+  return (
+    <button
+      type="button"
+      data-bar-btn
+      data-action="miniKeys"
+      aria-label={label}
+      title={label}
+      aria-pressed={on}
+      onMouseDown={keepFocus}
+      onClick={() => miniKeysOn.set(!on)}
+      style={{ minHeight: min, minWidth: min }}
+      className={`${BUTTON} ${on ? 'bg-hover !text-accent' : ''}`}
+    >
+      <Icon name="mic" />
     </button>
   )
 }

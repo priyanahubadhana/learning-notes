@@ -253,7 +253,9 @@ R5-4 Selection mini bar: tapping its colour (palette) button doesn't open the co
 R5-5 The selection mini bar needs a 📌 pin, and must be DRAGGABLE out of the way.
 R5-6 Layering: with a selection, the Aa pill's Text style card opened UNDER the selection mini bar, so the owner couldn't use either. Fix: menus/cards from the main bar always open ABOVE the mini bar (correct z-order), AND the mini bar can be moved (R5-5). Discuss later.
 R5-7 BUG: the mini bar's Align (≡) and List (•≡) buttons change the format but ALSO move the mini toolbar itself (it re-positions to follow the reflowed selection). The bar should stay put; only the text changes. (Pairs with R5-5: draggable or pinned position.)
+
 ## Phase A part 1 gate results (6 Nov, owner iPad)
+
 PASS: T-A1 ink only over text/pictures/title/blank/new page; T-A2 20 Pencil taps on bar/✕ write nothing; T-A3 keyboard open/close ×10, no jump; Undo/Redo keep the keyboard closed; Layers: chip, add, hide, lock, Merge + Undo all work.
 R5-8 KEEP the iPadOS keyboard shortcut bar at the bottom (mic, B/I/U etc.); it's useful, so don't suppress it. Our ⌨ toggle (show/hide keyboard) works great; keep it.
 R5-9 A mini bar for the Pencil (like GoodNotes / other apps): a small floating, draggable "input strip" with 🎤 Mic (dictation into the caret), ↵ Enter and ⌫ Backspace, so no Apple keyboard is needed. Owner says these three cover most of the work. Note: the web can't trigger iOS dictation directly; options are the Web Speech API (SpeechRecognition, Safari support to verify) or focusing a field with the keyboard's mic. Research.
@@ -264,8 +266,8 @@ R5-12 Eraser on highlights: the erase isn't shown live. The highlight disappears
 PENCIL LAB (6 Nov 07:18Z, iPad, Safari 27.0.1): Scribble text events 0 ✅; pen down 70 / up 67 / cancel 3 / lostcapture 35 (investigate lostcapture); touch cancel 5; bar taps handled 402, late clicks swallowed 0; ink pointercancel kept 0 / dropped 0; viewport stable (offsetTop 0); canvas 6.6 MB. Owner: all Pencil tests passed apart from the noted items.
 R5 decisions (6 Nov): all round-5 fixes approved as noted.
 MIC (owner): build it like GoodNotes:
- (1) AUDIO RECORDING saved into notes (record while writing, playback, timeline linked to ink/text, listed in the left panel's Audio tab);
- (2) a draggable MINI KEYBOARD strip (🎤 speech-to-text into the caret, ↵, ⌫) that the owner moves around like in GoodNotes. Speech-to-text: try Safari SpeechRecognition, falling back to the keyboard mic.
+(1) AUDIO RECORDING saved into notes (record while writing, playback, timeline linked to ink/text, listed in the left panel's Audio tab);
+(2) a draggable MINI KEYBOARD strip (🎤 speech-to-text into the caret, ↵, ⌫) that the owner moves around like in GoodNotes. Speech-to-text: try Safari SpeechRecognition, falling back to the keyboard mic.
 Then waves 2–5 continue automatically.
 R5-13 Sidebar scroll affordance: (1) a soft fade at the top/bottom edge when more content is hidden; (2) a slim scroll indicator that appears while scrolling or on touch and fades after ~1 s (theme colours, 44 px-friendly); (3) optionally, the first time only, a gentle 'peek' bounce. Apply the same pattern to other long lists (pills, menus, Settings). Approved direction; owner to confirm the peek.
 R5-13 DECIDED: edge fade + slim auto-hiding scroll indicator on all scrollable lists, with a Settings switch 'Scroll hints' (on by default, can turn off). No peek bounce.

@@ -40,7 +40,14 @@ test('the bar has Undo, Redo, the nine tools in order and ⋯; no switch', async
   const names = await bar
     .getByRole('button')
     .evaluateAll((els) => els.map((el) => el.getAttribute('aria-label')))
-  expect(names).toEqual(['Undo', 'Redo', ...TOOLS, 'Keyboard', 'Toolbar menu'])
+  expect(names).toEqual([
+    'Undo',
+    'Redo',
+    ...TOOLS,
+    'Keyboard',
+    'Mini keyboard',
+    'Toolbar menu',
+  ])
   // The Write · Draw · Read switch and its pin are gone.
   await expect(dockedBar(page).getByRole('radiogroup')).toHaveCount(0)
   await expect(

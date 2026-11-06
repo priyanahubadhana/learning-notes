@@ -1,6 +1,5 @@
 import {
   useCallback,
-  useEffect,
   useLayoutEffect,
   useMemo,
   useRef,
@@ -36,13 +35,13 @@ import {
   positionOf,
   snapPlace,
   vertical,
-  type Box,
   type Edge,
 } from './pillPlace'
 import { PillContent } from './PillContent'
 import { SelectionMenu } from './SelectionMenu'
 import { keepFocus } from './pillKit'
-import { BAR_GAP, measureRoom, reducedMotion } from './pillRoom'
+import { BAR_GAP, reducedMotion } from './pillRoom'
+import { useRoom } from './useRoom'
 
 /**
  * The options pill: the second, smaller pill with the options of the tool
@@ -51,56 +50,6 @@ import { BAR_GAP, measureRoom, reducedMotion } from './pillRoom'
  * (will-change, requestAnimationFrame, pointer capture) and never changes
  * the page layout. Its place is saved per device.
  */
-
-/** The room, kept up to date as bars, the keyboard and the window change. */
-function useRoom(): Box {
-  const [room, setRoom] = useState<Box>(measureRoom)
-  useEffect(() => {
-    let frame = 0
-    const update = () => {
-      cancelAnimationFrame(frame)
-      frame = requestAnimationFrame(() => {
-        const next = measureRoom()
-        setRoom((old) =>
-          old.left === next.left &&
-          old.top === next.top &&
-          old.width === next.width &&
-          old.height === next.height
-            ? old
-            : next,
-        )
-      })
-    }
-    update()
-    const vv = window.visualViewport
-    vv?.addEventListener('resize', update)
-    vv?.addEventListener('scroll', update)
-    window.addEventListener('resize', update)
-    window.addEventListener('orientationchange', update)
-    // The page scrolling moves a bar that is not stuck yet.
-    document.addEventListener('scroll', update, true)
-    const watch = new ResizeObserver(update)
-    document
-      .querySelectorAll('main, [data-bar="docked"]')
-      .forEach((el) => watch.observe(el))
-    const styles = new MutationObserver(update)
-    styles.observe(document.documentElement, {
-      attributes: true,
-      attributeFilter: ['style'],
-    })
-    return () => {
-      cancelAnimationFrame(frame)
-      vv?.removeEventListener('resize', update)
-      vv?.removeEventListener('scroll', update)
-      window.removeEventListener('resize', update)
-      window.removeEventListener('orientationchange', update)
-      document.removeEventListener('scroll', update, true)
-      watch.disconnect()
-      styles.disconnect()
-    }
-  }, [])
-  return room
-}
 
 export function OptionsPill({
   editor,

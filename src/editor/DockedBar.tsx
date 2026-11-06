@@ -31,6 +31,7 @@ import { inkFor } from '../ink/inkRuntime'
 import { MainBarRow } from '../app/tools/main/MainBar'
 import { HoverName } from '../app/tools/HoverName'
 import { MiniToolbar } from '../app/tools/main/MiniToolbar'
+import { MiniKeys } from '../app/tools/main/MiniKeysStrip'
 import { OptionsPill } from '../app/tools/main/OptionsPill'
 import { closePill, pillReserve } from '../app/tools/main/mainTools'
 import { usePenPicksPen } from '../app/tools/main/penPicks'
@@ -479,6 +480,7 @@ function Bar({ editor, slot }: { editor: Editor; slot: HTMLElement }) {
         )
       })}
       <MiniToolbar editor={editor} />
+      <MiniKeys editor={editor} />
       <HoverName />
       {layout.short !== null && (
         <OptionsPill editor={editor} barPlace={layout.short} />

@@ -1079,7 +1079,7 @@ function App() {
                 aria-hidden
                 tabIndex={-1}
                 onClick={() => setDrawerAt(null)}
-                className="fixed inset-0 z-30 hidden bg-black/30 phone:block"
+                className="fixed inset-0 z-30 hidden bg-black/30 phone:bottom-14 phone:block"
               />
             )}
             <div className="flex min-w-0 flex-1 flex-col">

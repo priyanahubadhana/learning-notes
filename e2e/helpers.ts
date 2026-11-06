@@ -18,6 +18,7 @@ export async function showSidebar(page: Page) {
   const notebooks = page.locator('[data-space="notebooks"]')
   if ((await notebooks.getAttribute('aria-current')) !== 'page') {
     await notebooks.click()
+    await page.waitForTimeout(250) // on a phone this opens the drawer
   }
   // The dim backdrop exists exactly while the drawer is meant to be open.
   const meantOpen = await page

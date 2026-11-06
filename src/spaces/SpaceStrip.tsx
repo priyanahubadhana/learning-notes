@@ -23,7 +23,7 @@ export function SpaceStrip({
     <nav
       aria-label={t('spaces.label')}
       style={{ paddingTop: 'calc(10px + var(--top-clear))' }}
-      className="flex w-14 shrink-0 flex-col items-center gap-1 border-r border-line bg-side px-1 pb-2 phone:fixed phone:inset-x-0 phone:bottom-0 phone:z-[35] phone:h-14 phone:w-auto phone:flex-row phone:justify-around phone:gap-0 phone:border-t phone:border-r-0 phone:px-1 phone:pt-0! phone:pb-[env(safe-area-inset-bottom)]"
+      className="flex w-14 shrink-0 flex-col items-center gap-1 border-r border-line bg-side px-1 pb-2 phone:fixed phone:inset-x-0 phone:bottom-0 phone:z-20 phone:h-14 phone:w-auto phone:flex-row phone:justify-around phone:gap-0 phone:border-t phone:border-r-0 phone:px-1 phone:pt-0! phone:pb-[env(safe-area-inset-bottom)]"
     >
       <Tip
         id="sidebar.spaces"

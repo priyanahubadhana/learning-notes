@@ -401,10 +401,10 @@ export interface DbView extends BaseRecord {
 
 /** The words of one page title or one block, for search. */
 export interface SearchEntry {
-  /** `title:<pageId>` for a page title, else the block id. */
+  /** `title:<pageId>` for a page title, `ink:<pageId>` for the labels of a page's drawings, else the block id. */
   id: string
   /** What was indexed; used for ranking (title > card > text). */
-  kind: 'title' | 'card' | 'text'
+  kind: 'title' | 'card' | 'text' | 'ink'
   pageId: string
   notebookId: string
   /** Set for block entries. */

@@ -7,12 +7,10 @@ import {
   FileError,
   downloadAttachment,
   looksReadable,
-  openAttachmentInReader,
   saveAttachment,
-} from '../../files/fileService'
-import { fileRef, parseFileRef, sizeText } from '../../files/fileRef'
+} from '../../core/attachments'
+import { fileRef, parseFileRef, sizeText } from '../../core/fileRef'
 import { t } from '../../i18n/t'
-import { inspectBook } from '../../library/inspect'
 import { EditorContext } from '../editorContext'
 
 /** Props of the `file` block. */
@@ -109,26 +107,6 @@ export function FileView({
     )
   }
 
-  const openReader = () =>
-    runTask(
-      (async () => {
-        try {
-          const page = await db.pages.get(ctx?.pageId ?? '')
-          const notebook = page && (await db.notebooks.get(page.notebookId))
-          if (!notebook || !ctx?.openReader) return
-          const book = await openAttachmentInReader(
-            db,
-            notebook.workspaceId,
-            id,
-            inspectBook,
-          )
-          ctx.openReader(book.id)
-        } catch (e) {
-          if (e instanceof FileError) toast(e.message)
-          else throw e
-        }
-      })(),
-    )
   const save = () =>
     runTask(
       downloadAttachment(db, id).then((ok) => {
@@ -150,8 +128,12 @@ export function FileView({
         </p>
         <p className="text-xs text-muted">{sizeText(p.size)}</p>
       </div>
-      {looksReadable(p.name) && ctx?.openReader && (
-        <button type="button" className={btn} onClick={openReader}>
+      {looksReadable(p.name) && ctx?.openAttachment && (
+        <button
+          type="button"
+          className={btn}
+          onClick={() => ctx.openAttachment?.(id)}
+        >
           <Icon name="bookOpen" size={18} />
           {t('file.openReader')}
         </button>

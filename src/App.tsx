@@ -19,6 +19,7 @@ import {
 import { ErrorBoundary } from './app/ErrorBoundary'
 import { SaveNotice } from './app/SaveNotice'
 import { onStorageFull, reportError, runTask } from './app/errors'
+import { FileError } from './core/attachments'
 import { labPageId } from './app/lab/labPage'
 import { baseHash, parseHash, routeToHash, type Route } from './app/router'
 import { installDeepLinks } from './reader/annotations/deepLink'
@@ -196,6 +197,15 @@ const CalendarScreen = lazy(() =>
 const SearchScreen = lazy(() =>
   import('./search/SearchScreen').then((m) => ({ default: m.SearchScreen })),
 )
+
+/** A file block's "Open in reader": the Library code loads only when used. */
+async function openAttachment(workspaceId: string, fileId: string) {
+  const [{ openAttachmentInReader }, { inspectBook }] = await Promise.all([
+    import('./library/attachmentReader'),
+    import('./library/inspect'),
+  ])
+  return openAttachmentInReader(db, workspaceId, fileId, inspectBook)
+}
 
 /** The Search screen state for a search address. */
 function searchOf(r: Extract<Route, { kind: 'search' }>) {
@@ -1408,8 +1418,18 @@ function App() {
                               openPage(null)
                               setHub({ kind: 'database', id })
                             }}
-                            onOpenReader={(pageId) =>
-                              setHub({ kind: 'read', pageId })
+                            onOpenAttachment={(fileId) =>
+                              runTask(
+                                openAttachment(workspace.id, fileId).then(
+                                  (book) =>
+                                    setHub({ kind: 'read', pageId: book.id }),
+                                  (e: unknown) => {
+                                    if (e instanceof FileError) {
+                                      appUi.toast(e.message)
+                                    } else throw e
+                                  },
+                                ),
+                              )
                             }
                             header={
                               currentPage.source ? (

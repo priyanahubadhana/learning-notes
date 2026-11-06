@@ -14,4 +14,12 @@ export const hiW4b: Record<string, string> = {
   'camera.slash.title': 'कैमरा',
   'camera.slash.subtext': 'फ़ोटो लें और चित्र की तरह जोड़ें',
   'ink.sel.replay': 'यहाँ से रिकॉर्डिंग चलाएँ',
+  'pic.resize.nw': 'चित्र का आकार बदलें, ऊपर बायाँ कोना',
+  'pic.resize.ne': 'चित्र का आकार बदलें, ऊपर दायाँ कोना',
+  'pic.resize.sw': 'चित्र का आकार बदलें, नीचे बायाँ कोना',
+  'pic.resize.se': 'चित्र का आकार बदलें, नीचे दायाँ कोना',
+  'ink.sel.label': 'इस चित्र को नाम दें',
+  'ink.label.name': 'चित्र का नाम',
+  'ink.label.placeholder': 'नाम दें, ताकि खोज में मिले',
+  'ink.label.save': 'नाम सहेजें',
 }

@@ -38,6 +38,11 @@ All four work on the ink layer, like the Pen; Lasso can select, move, scale and 
 - **Lazy loading:** the renderer already paints only the part of the page on screen. Loading the strokes of a page chunk by chunk is not built (see DECISIONS: the plan's own rule was to add it only if a test shows a need; none did).
 - **Not built here:** shape handles to adjust a drawn shape (Lasso resizes and turns it), Make card from a tape (the hidden area as a picture answer; E2's picture answers are the base), labels and Tape on pictures (G0 notes).
 
+## Drawing labels (G3, wave 4)
+
+- **Name this drawing** (Lasso menu, the T button) types a name (80 characters at most) onto every selected stroke (`Stroke.label`, an optional field: no Dexie version; validated in `checkRows.ts`; kept by move, scale, colour, duplicate and erase pieces because strokes are copied whole). Saving is one Undo step (`InkController.labelSelection`); an empty name takes it away. The box is prefilled when the selection shares one name.
+- **Search:** `search/indexMiddleware.ts` also watches `inkChunks`: after any write (from ink, History restore, sync or import) the page's single entry `ink:<pageId>` (kind `ink`, score 150, listed as a note) is made again from all live chunks of the page, or removed when no label is left. Trashing or restoring the page flags/unflags the entry. A result row shows the labels as its text and opens the page. Not rebuilt by `ensureSearchIndex` (no labels exist before this feature; labels that arrive by sync pass the middleware).
+
 ## Edge cases
 
 - Read-only pages (open in another window) and Reading mode show ink but do not draw.

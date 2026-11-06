@@ -94,6 +94,7 @@ import {
 import { getEditorDictionary } from '../i18n/languages'
 import { imageRef, parseImageRef } from '../images/imageRef'
 import { PictureEditorHost } from '../images/pictureEditor'
+import { PictureHandles } from './PictureHandles'
 import { stampLabel, stampPicture } from './embed/embedClock'
 import { StampWatcher } from './embed/StampWatcher'
 import { ImageError, imageObjectUrl, saveImage } from '../images/imageService'
@@ -121,7 +122,7 @@ interface PageEditorProps {
   onOpenTag?: (tagId: string) => void
   /** Opens a database on its own screen (a database block's "Open"). */
   onOpenDatabase?: (databaseId: string) => void
-  onOpenReader?: (pageId: string) => void
+  onOpenAttachment?: (fileId: string) => void
   /** "/ Save page as template" (left out of the menu when undefined). */
   onSaveAsTemplate?: () => void
   /** Filled with focus/flush controls for the page around the editor. */
@@ -224,7 +225,7 @@ function LoadedPageEditor({
   onOpenNewPage,
   onOpenTag,
   onOpenDatabase,
-  onOpenReader,
+  onOpenAttachment,
   onSaveAsTemplate,
   editorRef,
   reading,
@@ -614,7 +615,7 @@ function LoadedPageEditor({
         reviewCards: onReviewCards,
         openTag: onOpenTag,
         openDatabase: onOpenDatabase,
-        openReader: onOpenReader,
+        openAttachment: onOpenAttachment,
       }}
     >
       <div ref={setInkWrap} data-ink-wrap className="contents">
@@ -677,6 +678,9 @@ function LoadedPageEditor({
           />
         </BlockNoteView>
         <PictureEditorHost />
+        {editableIn(mode) && !readOnly && (
+          <PictureHandles editor={editor as never} />
+        )}
         <StampWatcher editor={editor} />
         <InkSurface
           db={db}

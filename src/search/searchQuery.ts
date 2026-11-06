@@ -7,7 +7,7 @@ import { failCounts, wrongCardIds } from '../recall/reviewService'
 import { ownTagNames, taggedEntryIds, tagsOf } from '../tags/tagQuery'
 import { tagMap } from '../tags/tagService'
 import { findMatches } from './searchService'
-import { blockText, searchWords } from './searchText'
+import { blockText, inkLabels, searchWords } from './searchText'
 
 /**
  * The search the user sees (popup and Search screen): words + result type
@@ -25,6 +25,7 @@ export const RESULT_TYPES: readonly ResultType[] = ['page', 'note', 'card']
 const TYPE_OF: Record<SearchEntry['kind'], ResultType> = {
   title: 'page',
   text: 'note',
+  ink: 'note', // a labelled drawing is listed with the notes
   card: 'card',
 }
 
@@ -494,13 +495,19 @@ export async function describeHits(
   const text = new Map(
     blocks.flatMap((b) => (b ? [[b.id, blockText(b.content)]] : [])),
   )
+  // A labelled drawing shows its label(s) as its text.
+  for (const h of hits) {
+    if (!h.id.startsWith('ink:')) continue
+    const chunks = await db.inkChunks.where('pageId').equals(h.pageId).toArray()
+    text.set(h.id, inkLabels(chunks).join(' · '))
+  }
   return new Map(
     hits.map((h) => [
       h.id,
       {
         pageTitle: title.get(h.pageId) ?? '',
         notebookTitle: nbTitle.get(h.notebookId) ?? '',
-        text: h.blockId ? (text.get(h.blockId) ?? '') : '',
+        text: h.blockId ? (text.get(h.blockId) ?? '') : (text.get(h.id) ?? ''),
         tagNames: ownTagNames(tags, h.tags),
       },
     ]),

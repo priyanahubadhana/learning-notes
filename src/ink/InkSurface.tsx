@@ -17,6 +17,7 @@ import { PEN_COLOURS } from '../app/tools/main/inkSettings'
 import { useLiveQuery } from 'dexie-react-hooks'
 import type { LearningNotesDB } from '../core/db'
 import { loadInk, saveInk } from '../core/inkService'
+import { MAX_LABEL } from '../core/inkTypes'
 import {
   earliestAt,
   recordingTimes,
@@ -391,6 +392,7 @@ function SelectionBox({
   onReplay?: () => void
 }) {
   const [colours, setColours] = useState(false)
+  const [labelling, setLabelling] = useState(false)
   const grab =
     (how: 'scale' | 'rotate', corner?: { x: number; y: number }) =>
     (e: ReactPointerEvent) => {
@@ -505,6 +507,12 @@ function SelectionBox({
           onClick={() => controller.duplicateSelection()}
         />
         <MenuButton
+          id="label"
+          icon="type"
+          label={t('ink.sel.label')}
+          onClick={() => setLabelling((v) => !v)}
+        />
+        <MenuButton
           id="colour"
           icon="palette"
           label={t('ink.sel.colour')}
@@ -528,6 +536,16 @@ function SelectionBox({
           label={t('ink.sel.delete')}
           onClick={() => controller.deleteSelection()}
         />
+        {labelling && (
+          <LabelForm
+            key={controller.selection.join(',')}
+            initial={controller.selectionLabel()}
+            onSave={(text) => {
+              controller.labelSelection(text)
+              setLabelling(false)
+            }}
+          />
+        )}
         {colours && (
           <div className="flex w-full flex-wrap gap-1 p-1">
             {PEN_COLOURS.map((c) => (
@@ -579,6 +597,43 @@ function HiddenLayerChip({ controller }: { controller: InkController }) {
         </button>
       ))}
     </div>
+  )
+}
+
+/** The box that names the selected drawing (so Search can find it). */
+function LabelForm({
+  initial,
+  onSave,
+}: {
+  initial: string
+  onSave: (text: string) => void
+}) {
+  const [text, setText] = useState(initial)
+  return (
+    <form
+      className="flex w-full items-center gap-1 p-1"
+      onSubmit={(e) => {
+        e.preventDefault()
+        onSave(text)
+      }}
+    >
+      <input
+        value={text}
+        maxLength={MAX_LABEL}
+        onChange={(e) => setText(e.target.value)}
+        onKeyDown={(e) => e.stopPropagation()}
+        placeholder={t('ink.label.placeholder')}
+        aria-label={t('ink.label.name')}
+        data-ink-label-input
+        className="min-h-11 min-w-0 flex-1 rounded-lg border border-line bg-bg px-3 text-sm text-ink"
+      />
+      <button
+        type="submit"
+        className="min-h-11 rounded-lg px-3 text-sm text-ink hover:bg-hover"
+      >
+        {t('ink.label.save')}
+      </button>
+    </form>
   )
 }
 

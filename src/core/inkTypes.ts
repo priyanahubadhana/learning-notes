@@ -15,6 +15,8 @@ import type { BaseRecord, OrderKey } from './types'
 
 /** Strokes in one row. */
 export const CHUNK_MAX = 60
+/** Longest drawing label (characters). */
+export const MAX_LABEL = 80
 /** Numbers per point: x, y, pressure, tiltX, tiltY, t. */
 export const STRIDE = 6
 
@@ -61,6 +63,11 @@ export interface Stroke {
   shape?: ShapeKind
   /** Closed shapes: fill the inside with the colour. */
   fill?: true
+  /**
+   * A typed name for the drawing this stroke belongs to ("heart diagram"), so
+   * Search finds it (G3). Several strokes can share one label.
+   */
+  label?: string
   /**
    * Settings snapshot when drawn ("View as drawn", for the reader in
    * step 5): page width in px and text size per cent.

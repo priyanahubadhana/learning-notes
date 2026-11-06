@@ -21,4 +21,14 @@ export const enW4b = {
   'camera.slash.subtext': 'Take a photo and add it as a picture',
   // ---- Ink replay with audio (G2) ----
   'ink.sel.replay': 'Play the recording from here',
+  // ---- Picture resize (G3) ----
+  'pic.resize.nw': 'Resize picture, top left corner',
+  'pic.resize.ne': 'Resize picture, top right corner',
+  'pic.resize.sw': 'Resize picture, bottom left corner',
+  'pic.resize.se': 'Resize picture, bottom right corner',
+  // ---- Drawing labels (G3) ----
+  'ink.sel.label': 'Name this drawing',
+  'ink.label.name': 'Drawing name',
+  'ink.label.placeholder': 'Name it, so Search finds it',
+  'ink.label.save': 'Save name',
 } as const

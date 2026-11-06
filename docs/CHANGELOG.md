@@ -2,6 +2,11 @@
 
 Current phase only. Older entries are in [ARCHIVE.md](ARCHIVE.md).
 
+## 2026-11-07 (Wave 4 part B · G3: picture resize, drawing labels)
+
+- **What:** corner handles on a tapped picture resize it with a finger, the Pencil or a mouse (saved as `previewWidth`); **Name this drawing** in the Lasso menu gives strokes a typed label that Search finds (new search kind `ink`, one entry per page). **Why:** master plan G3 (the mind map block was done in G0b; handwriting-to-text stays in Phase P). **Data:** optional `Stroke.label`, no Dexie version; sync carries it inside the chunk.
+- **Files:** `src/editor/{PictureHandles.tsx,pictureResize.ts}`, `src/ink/{controller.ts,InkSurface.tsx}`, `src/core/{inkTypes,types}.ts`, `src/search/{indexMiddleware,searchText,searchQuery,searchService}.ts`, `src/share/checkRows.ts`, `src/i18n/*W4b.ts`, tests (`pictureResize.test.ts`, `inkLabels.test.ts`, `e2e/g3.spec.ts`), specs ink.md, pictures.md, search.md. The 500-stroke budget test stays green (the controller's paint key is untouched).
+
 ## 2026-11-07 (Wave 4 part B · G2: ink replay from audio)
 
 - **What:** a drawing written while recording shows **Play the recording from here** in the Lasso menu; the Audio list opens and starts the sound at that second. **Why:** master plan G2 (stroke `at` hook). **No new table.**
@@ -11,7 +16,7 @@ Current phase only. Older entries are in [ARCHIVE.md](ARCHIVE.md).
 
 - **What:** Insert › Table and "/table", "/toggle" (BlockNote's own blocks), a File block (attach any file up to 50 MB; Save a copy; a PDF/EPUB/DOCX opens in the reader through the Library), and Insert › Camera / "/camera" (photo into the page). The three tools no longer say "coming".
 - **Why:** master plan G2. **Data:** no new table or Dexie version: files use `bookFiles` (checkRows now accepts any safe MIME type; new optional `readerPageId`), so backup, Trash and sync already cover them.
-- **Files:** `src/editor/schema.tsx`, `src/editor/fileBlock/*`, `src/files/*`, `src/editor/slashMenu.tsx`, `src/editor/PageEditor.tsx`, `src/editor/editorContext.ts`, `src/pages/PageView.tsx`, `src/App.tsx`, `src/app/tools/*`, `src/blocks/builtinBlockTypes.ts`, `src/share/{checkRows,readFull}.ts`, `src/core/types.ts`, `src/i18n/*W4b.ts`, tests, `docs/features/files-table-camera.md`.
+- **Files:** `src/editor/schema.tsx`, `src/editor/fileBlock/*`, `src/core/{attachments,fileRef}.ts`, `src/library/attachmentReader.ts`, `src/editor/slashMenu.tsx`, `src/editor/PageEditor.tsx`, `src/editor/editorContext.ts`, `src/pages/PageView.tsx`, `src/App.tsx`, `src/app/tools/*`, `src/blocks/builtinBlockTypes.ts`, `src/share/{checkRows,readFull}.ts`, `src/core/types.ts`, `src/i18n/*W4b.ts`, tests, `docs/features/files-table-camera.md`.
 
 ## 2026-11-06 (Ink redraw: leave the canvases alone when nothing moved)
 

@@ -41,6 +41,7 @@ export interface SearchResult {
 const KIND_SCORE: Record<SearchKind, number> = {
   title: 300,
   card: 200,
+  ink: 150, // a labelled drawing: between a card and plain text
   text: 100,
 }
 /** Extra for each search word that is a whole word (not just a prefix). */

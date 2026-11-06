@@ -9,7 +9,14 @@ import type {
 import type { Block, Page, SearchEntry } from '../core/types'
 import { linkRowRange, linkRows } from '../links/linkRows'
 import { blockTagRowRange, blockTagRows } from '../tags/tagRows'
-import { blockEntry, pageEntry, titleEntryId } from './searchText'
+import type { InkChunk } from '../core/inkTypes'
+import {
+  blockEntry,
+  inkEntry,
+  inkEntryId,
+  pageEntry,
+  titleEntryId,
+} from './searchText'
 
 /**
  * Keeps the search index (`searchEntries`), the links list (`links`) and
@@ -33,21 +40,25 @@ export const searchIndexMiddleware: Middleware<DBCore> = {
       down.transaction(withIndexStores(stores, mode), mode, options),
     table: (name) => {
       const table = down.table(name)
-      if (name !== 'pages' && name !== 'blocks') return table
+      if (name !== 'pages' && name !== 'blocks' && name !== 'inkChunks') {
+        return table
+      }
       const entries = () => down.table('searchEntries')
       return {
         ...table,
         mutate: (req) =>
           name === 'pages'
             ? mutatePages(table, entries(), req)
-            : mutateBlocks(
-                table,
-                down.table('pages'),
-                entries(),
-                down.table('links'),
-                down.table('blockTags'),
-                req,
-              ),
+            : name === 'inkChunks'
+              ? mutateInk(table, down.table('pages'), entries(), req)
+              : mutateBlocks(
+                  table,
+                  down.table('pages'),
+                  entries(),
+                  down.table('links'),
+                  down.table('blockTags'),
+                  req,
+                ),
       }
     },
   }),
@@ -61,6 +72,7 @@ function withIndexStores(stores: string[], mode: string): string[] {
       ? ['pages', 'searchEntries', 'links', 'blockTags']
       : []),
     ...(stores.includes('pages') ? ['searchEntries'] : []),
+    ...(stores.includes('inkChunks') ? ['pages', 'searchEntries'] : []),
   ]
   return extra.every((s) => stores.includes(s))
     ? stores
@@ -153,6 +165,58 @@ async function mutateBlocks(
   return res
 }
 
+/**
+ * Drawing labels (G3): after chunks are written, the page's one `ink:` entry
+ * is made again from all the page's chunks (or removed when none has a
+ * label). Hard deletes of chunks are not used (they are soft-deleted).
+ */
+async function mutateInk(
+  chunks: DBCoreTable,
+  pages: DBCoreTable,
+  entries: DBCoreTable,
+  req: DBCoreMutateRequest,
+): Promise<DBCoreMutateResponse> {
+  const res = await chunks.mutate(req)
+  const saved = written<InkChunk>(req, res)
+  if (saved.length === 0) return res
+  const { trans } = req
+  const pageIds = [...new Set(saved.map((c) => c.pageId))]
+  const found = (await pages.getMany({ trans, keys: pageIds })) as (
+    Page | undefined
+  )[]
+  const put: SearchEntry[] = []
+  const empty: string[] = []
+  for (const [i, pageId] of pageIds.entries()) {
+    const all = (
+      await chunks.query({
+        trans,
+        values: true,
+        query: {
+          index: chunks.schema.getIndexByKeyPath('pageId')!,
+          range: {
+            type: 1 /* DBCoreRangeType.Equal */,
+            lower: pageId,
+            upper: pageId,
+          },
+        },
+      })
+    ).result as InkChunk[]
+    const page = found[i]
+    const entry = inkEntry(
+      {
+        id: pageId,
+        notebookId: page?.notebookId ?? '',
+        deletedAt: page?.deletedAt ?? null,
+      },
+      all,
+    )
+    if (entry) put.push(entry)
+    else empty.push(inkEntryId(pageId))
+  }
+  await apply(entries, trans, put, empty)
+  return res
+}
+
 async function mutatePages(
   pages: DBCoreTable,
   entries: DBCoreTable,
@@ -182,6 +246,21 @@ async function mutatePages(
     if (entry) put.push(entry)
     else empty.push(titleEntryId(page.id))
   }
+
+  // Trashing or restoring a page does not touch its drawings, so the page's
+  // drawing-label entry follows the page's Trash state here.
+  const inkRows = (await entries.getMany({
+    trans,
+    keys: saved.map((p) => inkEntryId(p.id)),
+  })) as (SearchEntry | undefined)[]
+  inkRows.forEach((row, i) => {
+    if (!row) return
+    const trashed = saved[i].deletedAt !== null
+    if (!!row.deleted === trashed) return
+    const { deleted: _old, ...rest } = row
+    void _old
+    put.push(trashed ? { ...rest, deleted: true } : rest)
+  })
 
   // New pages, and pages moved to another notebook: their block entries
   // carry the notebook too.

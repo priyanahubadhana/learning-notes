@@ -1,18 +1,21 @@
-import { BOOK_MIME, detectBookFormat } from '../core/bookFormat'
-import type { LearningNotesDB } from '../core/db'
-import { isLive, newRecordFields } from '../core/records'
-import type { BookFile, Page } from '../core/types'
-import { t } from '../i18n/t'
-import { importBook, type BookInspector } from '../library/libraryService'
+import { BOOK_MIME, detectBookFormat } from './bookFormat'
+import type { LearningNotesDB } from './db'
 import { MAX_ATTACHMENT_BYTES, attachmentMime } from './fileRef'
+import { newRecordFields } from './records'
+import type { BookFile } from './types'
+import { t } from '../i18n/t'
+
+/**
+ * Files attached to a page (G2). Stored in `bookFiles`, so backup, sync,
+ * Trash and "Delete forever" already cover them. Lives in core so the editor
+ * block and the Library's reader hand-off share it without importing each
+ * other.
+ */
 
 /** What is wrong with a file that cannot be attached. */
 export class FileError extends Error {}
 
-/**
- * Keeps a file chosen on this device, attached to a page. Stored in
- * `bookFiles` (so backup, sync, Trash and "Delete forever" already cover it).
- */
+/** Keeps a file chosen on this device, attached to a page. */
 export async function saveAttachment(
   db: LearningNotesDB,
   pageId: string,
@@ -43,37 +46,6 @@ export const looksReadable = (name: string): boolean =>
 /** Whether a stored file can be read as a book (PDF, EPUB, DOCX). */
 export const isReadable = (file: Pick<BookFile, 'mime' | 'size'>): boolean =>
   file.size > 0 && Object.values(BOOK_MIME).includes(file.mime)
-
-/**
- * Opens an attached PDF (or other book) in the reader: the first time it is
- * added to the Library as a book; after that the same Library page is used.
- */
-export async function openAttachmentInReader(
-  db: LearningNotesDB,
-  workspaceId: string,
-  fileId: string,
-  inspect: BookInspector,
-): Promise<Page> {
-  const file = await db.bookFiles.get(fileId)
-  if (!file || !isLive(file) || !isReadable(file)) {
-    throw new FileError(t('file.missing'))
-  }
-  if (file.readerPageId) {
-    const page = await db.pages.get(file.readerPageId)
-    if (page && isLive(page)) return page
-  }
-  const page = await importBook(
-    db,
-    workspaceId,
-    new File([file.data], file.name, { type: file.mime }),
-    inspect,
-  )
-  await db.bookFiles.update(fileId, {
-    readerPageId: page.id,
-    updatedAt: Date.now(),
-  })
-  return page
-}
 
 /**
  * Saves the stored bytes out as a download. The type is always the generic

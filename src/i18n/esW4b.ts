@@ -14,4 +14,12 @@ export const esW4b: Record<string, string> = {
   'camera.slash.title': 'Cámara',
   'camera.slash.subtext': 'Haz una foto y añádela como imagen',
   'ink.sel.replay': 'Reproducir la grabación desde aquí',
+  'pic.resize.nw': 'Cambiar el tamaño de la imagen, esquina superior izquierda',
+  'pic.resize.ne': 'Cambiar el tamaño de la imagen, esquina superior derecha',
+  'pic.resize.sw': 'Cambiar el tamaño de la imagen, esquina inferior izquierda',
+  'pic.resize.se': 'Cambiar el tamaño de la imagen, esquina inferior derecha',
+  'ink.sel.label': 'Poner nombre a este dibujo',
+  'ink.label.name': 'Nombre del dibujo',
+  'ink.label.placeholder': 'Ponle nombre para encontrarlo al buscar',
+  'ink.label.save': 'Guardar nombre',
 }

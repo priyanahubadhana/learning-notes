@@ -9,14 +9,10 @@ import { getOrCreateDefaultWorkspace } from '../core/workspaceService'
 import { checkedRow } from '../share/checkRows'
 import { createNotebook } from '../notebooks/notebookService'
 import { createPage } from '../pages/pageService'
-import { fileRef, parseFileRef, sizeText } from './fileRef'
-import {
-  FileError,
-  looksReadable,
-  openAttachmentInReader,
-  saveAttachment,
-} from './fileService'
-import type { BookInspector } from '../library/libraryService'
+import { fileRef, parseFileRef, sizeText } from '../core/fileRef'
+import { FileError, looksReadable, saveAttachment } from '../core/attachments'
+import { openAttachmentInReader } from './attachmentReader'
+import type { BookInspector } from './libraryService'
 
 let db: LearningNotesDB
 let ws: string

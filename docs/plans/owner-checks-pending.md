@@ -2,6 +2,14 @@
 
 Moved out of HANDOFF on 2026-11-06 (audit) so HANDOFF stays five lines. Newest first; each paragraph names its step. The run decision (master plan) is one owner iPad pass before Sync; the Phase A builder adds its checks at the top. Tick a paragraph by deleting it.
 
+## WAVE 4 PART B CHECKS (G2 and G3, iPad, installed app, tap Update until the new version shows)
+
+- **Camera and file** (G2): Insert › Camera: does the iPad camera open, and does the photo land in the page as a picture? Insert › File: choose a real PDF from Files, then Open in reader. Does it open and does Back return to the page? Why human: the camera, the Files picker and the reader hand-off are iPad/Safari behaviour.
+- **Table and Toggle list** (G2): Insert › Table, type in two cells with the keyboard and with Scribble; "/toggle" and tap the arrow to fold a line with a nested line under it. Is it comfortable with a finger? Why human: feel of cells and the fold arrow.
+- **Replay** (G2): Insert › Audio, write three words with the Pencil while saying something different for each, Stop. Lasso the second word: Play the recording from here. Does the sound start about where you wrote it? Why human: needs a real microphone and Pencil timing.
+- **Picture resize** (G3): tap a picture, drag each corner with the Pencil and then a finger. Does it follow smoothly, with no page scrolling or text selecting? Why human: touch and Pencil feel; handles must not fight Scribble or the page scroll.
+- **Name a drawing** (G3): draw, Lasso it, the T button, name it, then Search (the magnifier) for a word of the name. Does the page appear? Why human: the typing and the Lasso menu on the iPad keyboard.
+
 ## SYNC SETUP (Phase L, do once, on the PC, about 10 minutes)
 
 Sync is built but stays off until these steps are done. Nothing here costs money. Never paste a secret into a chat.

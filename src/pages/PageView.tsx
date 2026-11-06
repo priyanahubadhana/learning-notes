@@ -75,8 +75,8 @@ interface PageViewProps {
   onOpenTag?: (tagId: string) => void
   /** Opens a database on its own screen. */
   onOpenDatabase?: (databaseId: string) => void
-  /** Opens a Library page in the reader (an attached PDF's "Open"). */
-  onOpenReader?: (pageId: string) => void
+  /** Opens an attached file in the reader (a file block's "Open"). */
+  onOpenAttachment?: (fileId: string) => void
   /** Reloads the editor after the page was changed from outside it. */
   onReload: () => void
   /** Opens Save & restore, to restore a backup. */
@@ -96,7 +96,7 @@ export function PageView({
   onReview,
   onOpenTag,
   onOpenDatabase,
-  onOpenReader,
+  onOpenAttachment,
   onReload,
   onOpenBackup,
   header,
@@ -410,7 +410,7 @@ export function PageView({
           onOpenNewPage={onOpenNewPage}
           onOpenTag={onOpenTag}
           onOpenDatabase={onOpenDatabase}
-          onOpenReader={onOpenReader}
+          onOpenAttachment={onOpenAttachment}
           onReviewCards={notebook && !isTemplate ? onReview : undefined}
           onSaveAsTemplate={notebook && !isTemplate ? saveTemplate : undefined}
           editorRef={editor}

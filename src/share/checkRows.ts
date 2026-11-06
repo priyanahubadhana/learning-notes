@@ -14,7 +14,7 @@ import type {
   ReviewLog,
 } from '../core/types'
 import type { InkChunk, InkLayer } from '../core/inkTypes'
-import { STRIDE } from '../core/inkTypes'
+import { MAX_LABEL, STRIDE } from '../core/inkTypes'
 import { isShowableText } from '../search/searchText'
 import {
   isAnchor,
@@ -294,7 +294,9 @@ const stroke = (v: unknown): boolean => {
     Array.isArray(s.pts) &&
     s.pts.length % STRIDE === 0 &&
     s.pts.length <= 400_000 &&
-    s.pts.every(number)
+    s.pts.every(number) &&
+    (s.label === undefined ||
+      (typeof s.label === 'string' && s.label.length <= MAX_LABEL))
   )
 }
 const strokeList: Check = (v) =>

@@ -1,3 +1,4 @@
+import type { InkChunk } from '../core/inkTypes'
 import type { Block, JsonValue, Page, SearchEntry } from '../core/types'
 import { noteLinkProps } from '../editor/mapping'
 import { mindMapText } from '../editor/mindMap/model'
@@ -79,6 +80,45 @@ export function blockText(content: Block['content']): string {
     out.push(mindMapText(content.data))
   }
   return out.join(' ')
+}
+
+/** Search entry id of the labels of a page's drawings (G3). */
+export const inkEntryId = (pageId: string) => `ink:${pageId}`
+
+/** The typed labels of drawings in some ink chunks, each once, in order. */
+export function inkLabels(
+  chunks: readonly Pick<InkChunk, 'strokes' | 'deletedAt' | 'purgedAt'>[],
+): string[] {
+  const labels = new Set<string>()
+  for (const chunk of chunks) {
+    if (chunk.deletedAt !== null || chunk.purgedAt !== undefined) continue
+    for (const stroke of chunk.strokes) {
+      if (stroke.label) labels.add(stroke.label)
+    }
+  }
+  return [...labels]
+}
+
+/**
+ * The entry for a page's labelled drawings, or null when none has a label.
+ * One entry per page: a hit opens the page.
+ */
+export function inkEntry(
+  page: Pick<Page, 'id' | 'notebookId' | 'deletedAt'>,
+  chunks: readonly InkChunk[],
+): SearchEntry | null {
+  const labels = inkLabels(chunks)
+  const words = searchWords(labels.join(' '))
+  if (words.length === 0) return null
+  return {
+    id: inkEntryId(page.id),
+    kind: 'ink',
+    pageId: page.id,
+    notebookId: page.notebookId,
+    words,
+    updatedAt: Math.max(0, ...chunks.map((c) => c.updatedAt)),
+    ...(page.deletedAt !== null && { deleted: true }),
+  }
 }
 
 /** Search entry id of a page's title. */

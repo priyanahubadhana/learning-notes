@@ -15,8 +15,8 @@ export interface EditorAppContext {
   openTag?: (tagId: string) => void
   /** Opens a database on its own screen; unset = no "Open" button. */
   openDatabase?: (databaseId: string) => void
-  /** Opens a Library page (a book) in the reader; unset = no "Open" button. */
-  openReader?: (pageId: string) => void
+  /** Opens an attached file in the reader; unset = no "Open" button. */
+  openAttachment?: (fileId: string) => void
 }
 
 export const EditorContext = createContext<EditorAppContext | null>(null)

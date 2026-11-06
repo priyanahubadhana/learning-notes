@@ -77,7 +77,7 @@ import {
   runsText,
   textRunsUnder,
 } from './textSnap'
-import { STRIDE } from '../core/inkTypes'
+import { MAX_LABEL, STRIDE } from '../core/inkTypes'
 
 /**
  * The ink engine for one open page: pointer handling for the Pen,
@@ -1430,6 +1430,29 @@ export class InkController {
         style: { ...p.stroke.style, colour: hex },
       },
     }))
+    this.commit({ del: items, add, layers: [] })
+    this.select(add.map((p) => p.stroke.id))
+  }
+
+  /** The label the selected drawings share ('' when none or they differ). */
+  selectionLabel(): string {
+    const labels = new Set(this.selected().map((p) => p.stroke.label ?? ''))
+    return labels.size === 1 ? [...labels][0] : ''
+  }
+
+  /** Names the selected drawings (empty text takes the name away). One Undo. */
+  labelSelection(text: string): void {
+    const items = this.selected()
+    if (items.length === 0) return
+    const label = text.trim().slice(0, MAX_LABEL)
+    const add = items.map((p) => {
+      const { label: _old, ...rest } = p.stroke
+      void _old
+      return {
+        ...p,
+        stroke: { ...rest, id: createId(), ...(label && { label }) },
+      }
+    })
     this.commit({ del: items, add, layers: [] })
     this.select(add.map((p) => p.stroke.id))
   }

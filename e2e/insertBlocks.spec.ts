@@ -53,13 +53,11 @@ test('a file is attached, saved out, and a PDF opens in the reader', async ({
   const pdf = makePdf(['Alpha page words here', 'Bravo words', 'Charlie'], {
     title: 'Attached Book',
   })
-  await page
-    .getByTestId('file-input')
-    .setInputFiles({
-      name: 'attached.pdf',
-      mimeType: 'application/pdf',
-      buffer: pdf,
-    })
+  await page.getByTestId('file-input').setInputFiles({
+    name: 'attached.pdf',
+    mimeType: 'application/pdf',
+    buffer: pdf,
+  })
   await expect(card.locator('[data-file-name]')).toHaveText('attached.pdf')
 
   // Save a copy downloads the bytes.

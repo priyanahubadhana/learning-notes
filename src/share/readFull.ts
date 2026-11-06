@@ -236,6 +236,7 @@ const CHECKED = new Set<string>([
   'inkChunks',
   'recordings',
   'decks',
+  'layerInstalls',
   'bookFiles',
   'annotations',
   'tasks',

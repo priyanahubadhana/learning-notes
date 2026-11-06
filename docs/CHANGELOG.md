@@ -2,6 +2,11 @@
 
 Current phase only. Older entries are in [ARCHIVE.md](ARCHIVE.md).
 
+## 2026-11-07 (Wave 5 part B · Phase I: notebook views and Layer gallery, Dexie 20)
+
+- **What:** I1: Notes tab has View (Default, Shelf, Tabs) and Layout (List, Gallery, Table, Board), remembered per notebook and tab; section tabs can be coloured. I2: Quiet corner › Layer gallery with Finance tracker, Memory techniques kit and Study kit (Add, Remove that keeps what you changed and asks first), Add a layer file, and Share as layer file in the notebook menu. **Why:** master plan Phase I. **Data:** optional `Notebook.view`, `Notebook.tabViews`, `Page.tabColour` (checked in `checkRows.ts`); Dexie **20** adds `layerInstalls` (sync rule `record`).
+- **Files:** `src/notebooks/{NotesViews.tsx,notebookViews.ts}`, `src/layers/*`, `src/share/{importBundle,checkRows,readFull,restore}.ts`, `src/core/{db,types}.ts`, `src/sync/tables.ts`, `src/app/spaces/QuietCorner.tsx`, `src/notebooks/NotebookScreen.tsx`, `src/i18n/{en,es,hi}I.ts`, `src/help/helpRegistry.ts`, tests (`layers.test.ts`, `notebookViews.test.ts`, `migration.test.ts`, `fullFile.test.ts`, `e2e/views.spec.ts`), `docs/features/views-and-layers.md`.
+
 ## 2026-11-07 (CI stabiliser: Wave 4 red e2e)
 
 - **What:** (1) Move up/Move down page buttons (D1) used a native `title` and broke the help rule; they now use the help tip system (`sidebar.moveUp`, `sidebar.moveDown`, three languages); the left panel ✕ lost its `title` (it has an aria-label). (2) `MenuPopover` now renders in `document.body`: when the sidebar scrolled (D1 made page rows taller, so tags sit lower), the menu was hidden behind the page and could not be clicked (tags screenshots; also a real bug on short screens). (3) The page row action buttons (now six with Move up/down) kept their width while hidden and squeezed a deep sub-page name to zero width (CI pathStyle "Full path", Linux fonts); the name now keeps a 5rem minimum and the hidden buttons may clip. Revise 390x844 did not fail again (flaky, no change). Full chromium run: 755 passed.

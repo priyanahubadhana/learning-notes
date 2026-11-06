@@ -5,6 +5,7 @@ import { THEMES, type Theme } from '../theme'
 import type { LearningNotesDB } from '../../core/db'
 import { Tip } from '../../help/Help'
 import { t } from '../../i18n/t'
+import { LayerGallery } from '../../layers/LayerGallery'
 import { TrashSection } from '../../trash/TrashSection'
 
 /**
@@ -35,6 +36,7 @@ export function QuietCorner({
   onOpenHelp: () => void
 }) {
   const [open, setOpen] = useState(false)
+  const [layers, setLayers] = useState(false)
   const button = useRef<HTMLButtonElement>(null)
   const panel = useRef<HTMLDivElement>(null)
 
@@ -133,6 +135,17 @@ export function QuietCorner({
               <TrashSection db={db} workspaceId={workspaceId} />
             </div>
             <DeviceModeMenuRow className={row} />
+            <button
+              type="button"
+              data-testid="layer-gallery-open"
+              onClick={choose(() => setLayers(true))}
+              className={row}
+            >
+              <span aria-hidden className="text-muted">
+                ◫
+              </span>
+              {t('layers.open')}
+            </button>
             <button type="button" onClick={choose(onOpenHelp)} className={row}>
               <span aria-hidden className="text-muted">
                 ?
@@ -163,6 +176,15 @@ export function QuietCorner({
               </div>
             </Tip>
           </div>,
+          document.body,
+        )}
+      {layers &&
+        createPortal(
+          <LayerGallery
+            db={db}
+            workspaceId={workspaceId}
+            onClose={() => setLayers(false)}
+          />,
           document.body,
         )}
     </>

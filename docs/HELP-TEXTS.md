@@ -2,7 +2,7 @@
 
 Every hover tip and help line in the app (shown while Settings › Show help is On). Generated from `src/help/helpRegistry.ts` and `src/i18n/en.ts`; to change a text, edit it in `en.ts`, then run `UPDATE_HELP=1 npx vitest run src/help` to refresh this file.
 
-## Hover tips (128)
+## Hover tips (130)
 
 ### `bar.newLine`
 
@@ -411,6 +411,18 @@ Every hover tip and help line in the app (shown while Settings › Show help is 
 - **Where:** Notebook › ⋯ beside the tabs
 - **Meaning:** Rename or hide the tabs of this notebook.
 - **Example:** Hide the Cards tab if you never use it.
+
+### `notebook.viewMenu`
+
+- **Where:** Notebook › Notes tab › View
+- **Meaning:** Choose how this notebook shows its pages: the usual way, a shelf of covers, or coloured section tabs.
+- **Example:** Pick Shelf to see your pages like a row of notebooks.
+
+### `notebook.layoutMenu`
+
+- **Where:** Notebook › Notes tab › Layout
+- **Meaning:** Choose how this tab lists the pages: list, gallery, table or board. It is remembered.
+- **Example:** Pick Gallery to see a preview of each page.
 
 ### `notebook.close`
 

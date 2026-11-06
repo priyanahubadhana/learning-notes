@@ -89,7 +89,14 @@ export interface Notebook extends BaseRecord {
    * the version 4 upgrade). Unset on special notebooks (journal, …).
    */
   tabs?: NotebookTab[]
+  /** I1: how the notebook shows its pages: covers and thumbnails, or coloured section tabs. Unset = default. */
+  view?: 'shelf' | 'tabs'
+  /** I1: the view each tab uses (tab id → view), remembered per notebook. */
+  tabViews?: Record<string, TabView>
 }
+
+/** Views a notebook tab can show its pages in (I1). */
+export type TabView = 'list' | 'gallery' | 'table' | 'board'
 
 /**
  * One tab of a notebook. `kind` is an open string so new tab kinds (e.g.
@@ -138,6 +145,8 @@ export interface Page extends BaseRecord {
   readFirst?: true
   /** Paused (E1): this page and its sub-pages stay out of reviews. */
   paused?: true
+  /** I1: colour of this page's section tab (one of the tag colours). Unset = none. */
+  tabColour?: string
   /** Paper behind the ink: lined, grid or dots (step 3). Unset = plain. */
   inkBg?: 'lined' | 'grid' | 'dots'
   /** A lesson's own summary (Revise tab); top-level pages only. */
@@ -488,6 +497,23 @@ export interface StoredFont extends BaseRecord {
 
 /** Which cards of a deck count as "new", "learning" or "due" (E1). */
 export type DeckState = 'new' | 'learning' | 'due' | 'all'
+
+/**
+ * A layer that was added (I2): which items it made, and a hash of each as
+ * it was added, so Remove can tell what you changed since.
+ */
+export interface LayerInstall extends BaseRecord {
+  packId: string
+  version: number
+  /** Layer name when added (shown even if the layer is not available now). */
+  name: string
+  installedAt: number
+  createdIds: {
+    table: 'notebooks' | 'pages' | 'databases'
+    id: string
+    hash: string
+  }[]
+}
 
 /**
  * A deck (E1): a live filter over cards. It is refilled by itself as notes

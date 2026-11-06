@@ -2,6 +2,11 @@
 
 Moved out of HANDOFF on 2026-11-06 (audit) so HANDOFF stays five lines. Newest first; each paragraph names its step. The run decision (master plan) is one owner iPad pass before Sync; the Phase A builder adds its checks at the top. Tick a paragraph by deleting it.
 
+## WAVE 5 PART B CHECKS (Phase I, iPad, installed app, tap Update until the new version shows)
+
+- **Notebook views** (I1): open a notebook with a few pages, tap View ▾ › Shelf: do the cover and page tiles look like a shelf and are they easy to tap with a finger? View ▾ › Tabs: tap each coloured tab and the six colour dots (44 px targets?); does the tab row scroll sideways with a swipe when there are many pages? Default › Layout ▾: Gallery, Table and Board; swipe the Board sideways. Close and reopen the app: are the choices remembered? Why human: touch size, swipe feel and the look in Night and Sepia.
+- **Layer gallery** (I2): Quiet corner (gear) › Layer gallery: add the Study kit and the Finance tracker; open the Finance Transactions table, add a row, then Remove the layer: is your row's notebook kept with a message naming it, and does everything you never touched go to the Trash? Notebook ⋯ › Share as layer file on the iPad: does the share or download sheet appear, and does the file add on the PC with Add a layer file…? Why human: the file hand-off between iPad and PC, and the wording in Hindi and Spanish (machine drafts).
+
 ## WAVE 4 PART B CHECKS (G2 and G3, iPad, installed app, tap Update until the new version shows)
 
 - **Camera and file** (G2): Insert › Camera: does the iPad camera open, and does the photo land in the page as a picture? Insert › File: choose a real PDF from Files, then Open in reader. Does it open and does Back return to the page? Why human: the camera, the Files picker and the reader hand-off are iPad/Safari behaviour.

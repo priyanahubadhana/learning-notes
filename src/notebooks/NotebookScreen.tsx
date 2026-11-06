@@ -25,12 +25,18 @@ import { DatabaseView } from '../databases/views/DatabaseView'
 import { t } from '../i18n/t'
 import { pageAddressItem } from '../pages/pageAddressMenu'
 import { useLockItem } from '../app/lock/lockMenu'
-import { listNotePages } from '../pages/pageService'
 import { CardsTab } from '../recall/CardsTab'
 import { ReviseTab } from '../revise/ReviseTab'
 import type { ReviewScope } from '../recall/reviewService'
 import type { SearchHit } from '../search/searchQuery'
 import { setNotebookPathStyle, updateNotebookTab } from './notebookService'
+import { NotesTab } from './NotesViews'
+import { downloadFile } from '../app/download'
+import {
+  exportLayerFile,
+  layerFileName,
+  shareManifest,
+} from '../layers/layerService'
 
 interface NotebookScreenProps {
   db: LearningNotesDB
@@ -123,6 +129,22 @@ export function NotebookScreen({
       toast,
     ),
     ...lockItem,
+    // I2: this notebook as a file a friend opens with Layer gallery › Add.
+    {
+      label: t('layers.share'),
+      icon: '◫',
+      onSelect: () =>
+        runTask(
+          (async () => {
+            const manifest = shareManifest(notebook)
+            downloadFile(
+              layerFileName(manifest),
+              await exportLayerFile(db, notebook.id, manifest),
+            )
+            toast(t('layers.shared'))
+          })(),
+        ),
+    },
     // Page address for every page of this notebook (a page can still override it).
     pageAddressItem(notebook.pathStyle, (style) =>
       runTask(setNotebookPathStyle(db, notebook.id, style)),
@@ -212,7 +234,8 @@ export function NotebookScreen({
           {active?.kind === 'notes' && (
             <NotesTab
               db={db}
-              notebookId={notebook.id}
+              notebook={notebook}
+              tabId={active.id}
               onOpenPage={onOpenPage}
               onCreatePage={() => onCreatePage(notebook.id)}
             />
@@ -269,69 +292,6 @@ export function NotebookScreen({
         )}
       </div>
     </div>
-  )
-}
-
-/** Notes tab: the notebook's top-level pages (sub-pages in the sidebar). */
-function NotesTab({
-  db,
-  notebookId,
-  onOpenPage,
-  onCreatePage,
-}: {
-  db: LearningNotesDB
-  notebookId: string
-  onOpenPage: (pageId: string) => void
-  onCreatePage: () => void
-}) {
-  const pages = useLiveQuery(
-    () => listNotePages(db, notebookId),
-    [db, notebookId],
-  )
-  if (!pages)
-    return <p className="text-sm text-muted">{t('notebook.loading')}</p>
-  const subPages = new Map<string, number>()
-  for (const page of pages) {
-    if (page.parentId) {
-      subPages.set(page.parentId, (subPages.get(page.parentId) ?? 0) + 1)
-    }
-  }
-  const top = pages.filter((p) => p.parentId === null)
-  return (
-    <section aria-label={t('notebook.tab.notes')}>
-      {top.length === 0 ? (
-        <p className="mb-3 text-sm text-muted">{t('notebook.noPages')}</p>
-      ) : (
-        <ul className="mb-3 rounded-[10px] border border-line p-1">
-          {top.map((page) => (
-            <li key={page.id} className="border-b border-line last:border-0">
-              <button
-                type="button"
-                onClick={() => onOpenPage(page.id)}
-                className="flex min-h-11 w-full items-center gap-2.5 rounded-lg px-2.5 text-start text-sm hover:bg-hover"
-              >
-                <span aria-hidden>📄</span>
-                <span className="min-w-0 flex-1 truncate">
-                  {sampleName(page) || t('review.untitled')}
-                </span>
-                {!!subPages.get(page.id) && (
-                  <span className="shrink-0 text-xs text-muted">
-                    {t('notebook.subPages', { count: subPages.get(page.id)! })}
-                  </span>
-                )}
-              </button>
-            </li>
-          ))}
-        </ul>
-      )}
-      <button
-        type="button"
-        onClick={onCreatePage}
-        className="min-h-9 rounded-lg border border-line px-3 text-[13px] hover:border-accent hover:text-accent"
-      >
-        {t('notebook.newPage')}
-      </button>
-    </section>
   )
 }
 

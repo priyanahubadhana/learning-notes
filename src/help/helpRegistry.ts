@@ -126,6 +126,8 @@ export const TIPS = {
   'notebook.tabDatabase': { where: 'Notebook › Database tab' },
   'notebook.tabCards': { where: 'Notebook › Cards tab' },
   'notebook.tabOptions': { where: 'Notebook › ⋯ beside the tabs' },
+  'notebook.viewMenu': { where: 'Notebook › Notes tab › View' },
+  'notebook.layoutMenu': { where: 'Notebook › Notes tab › Layout' },
   'notebook.close': { where: 'Notebook › × (top right)' },
   'page.reviewPage': { where: 'Page › ⋯ › Review this page' },
   'page.saveTemplate': { where: 'Page › ⋯ › Save as template' },

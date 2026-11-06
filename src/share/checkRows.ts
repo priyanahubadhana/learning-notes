@@ -8,6 +8,7 @@ import type {
   Deck,
   DbColumn,
   DbView,
+  LayerInstall,
   Notebook,
   Page,
   Recording,
@@ -90,6 +91,12 @@ const notebook: Fields<Notebook> = {
   paused: yes,
   allowAi: yes,
   tabs: objectList,
+  view: oneOf('shelf', 'tabs'),
+  tabViews: (v) =>
+    object(v) &&
+    Object.values(v as Record<string, unknown>).every((x) =>
+      ['list', 'gallery', 'table', 'board'].includes(x as string),
+    ),
 }
 
 const page: Fields<Page> = {
@@ -106,6 +113,7 @@ const page: Fields<Page> = {
   locked: yes,
   readFirst: yes,
   paused: yes,
+  tabColour: (v) => typeof v === 'string' && /^#[0-9a-f]{6}$/i.test(v),
   inkBg: oneOf('lined', 'grid', 'dots'),
   summary: text,
   templateRole: oneOf('daily'),
@@ -205,6 +213,24 @@ const deckScope: Check = (v) => {
     typeof d.withSubpages === 'boolean' &&
     (d.notebookKinds === undefined || textList(d.notebookKinds))
   )
+}
+
+const layerInstall: Fields<LayerInstall> = {
+  ...times,
+  packId: text,
+  version: number,
+  name: text,
+  installedAt: number,
+  createdIds: (v) =>
+    Array.isArray(v) &&
+    v.length <= 100_000 &&
+    v.every(
+      (x) =>
+        object(x) &&
+        ['notebooks', 'pages', 'databases'].includes(x.table as string) &&
+        text(x.id) &&
+        text(x.hash),
+    ),
 }
 
 const deck: Fields<Deck> = {
@@ -432,6 +458,7 @@ const FIELDS = {
   tags: tag,
   images: image,
   decks: deck,
+  layerInstalls: layerInstall,
   inkLayers: inkLayer,
   inkChunks: inkChunk,
   recordings: recording,
@@ -451,6 +478,7 @@ const REQUIRED: Partial<Record<keyof typeof FIELDS, readonly string[]>> = {
   pages: ['notebookId', 'order'],
   blocks: ['pageId', 'type', 'content', 'order'],
   decks: ['name', 'scope'],
+  layerInstalls: ['packId', 'createdIds'],
   inkLayers: ['pageId', 'order'],
   inkChunks: ['pageId', 'layerId', 'strokes'],
   recordings: ['pageId', 'data'],

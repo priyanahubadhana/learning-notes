@@ -90,15 +90,23 @@ const IMPORT_TABLES = (db: LearningNotesDB) => [
   db.images,
 ]
 
+export interface ImportOptions {
+  /** Keep the notebooks' and templates' own names (a layer), instead of "Copy of …". */
+  keepNames?: boolean
+  /** Filled with the ids of the notebooks, pages and databases made. */
+  created?: { notebooks: string[]; pages: string[]; databases: string[] }
+}
+
 export async function importBundle(
   db: LearningNotesDB,
   workspaceId: string,
   bundle: Bundle,
   now: number = Date.now(),
+  options: ImportOptions = {},
 ): Promise<ImportSummary> {
   // One transaction: a failed import leaves nothing behind, not even tags.
   return db.transaction('rw', IMPORT_TABLES(db), () =>
-    importInTransaction(db, workspaceId, bundle, now),
+    importInTransaction(db, workspaceId, bundle, now, options),
   )
 }
 
@@ -107,6 +115,7 @@ async function importInTransaction(
   workspaceId: string,
   bundle: Bundle,
   now: number,
+  options: ImportOptions,
 ): Promise<ImportSummary> {
   // Tags first: old tag id → live tag id here.
   // A tag made now gets the colour it had; one that already exists keeps its own.
@@ -226,7 +235,9 @@ async function importInTransaction(
         ...rest,
         id: newId,
         workspaceId,
-        title: t('import.copyName', { name: n.title }),
+        title: options.keepNames
+          ? n.title
+          : t('import.copyName', { name: n.title }),
         order,
         createdAt: now,
         updatedAt: now,
@@ -286,7 +297,9 @@ async function importInTransaction(
         // A template of a file is a new template next to yours.
         ...(templatesFrom.has(p.notebookId) &&
           p.parentId === null && {
-            title: t('import.copyName', { name: p.title }),
+            title: options.keepNames
+              ? p.title
+              : t('import.copyName', { name: p.title }),
           }),
         ...(databaseId && { databaseId }),
         ...(p.tagIds && { tagIds: p.tagIds.map((x) => id(x)!) }),
@@ -367,6 +380,11 @@ async function importInTransaction(
     db,
     databases.map((d) => d.id),
   )
+  if (options.created) {
+    options.created.notebooks.push(...notebooks.map((n) => n.id))
+    options.created.pages.push(...pages.map((p) => p.id))
+    options.created.databases.push(...databases.map((d) => d.id))
+  }
   return {
     notebooks: notebooks.length,
     pages: pages.length,

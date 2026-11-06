@@ -3,6 +3,7 @@ import type {
   Block,
   Card,
   Database,
+  Deck,
   DbColumn,
   DbView,
   Notebook,
@@ -68,6 +69,7 @@ const notebook: Fields<Notebook> = {
   pathStyle: oneOf('simple', 'full', 'page'),
   locked: yes,
   readFirst: yes,
+  paused: yes,
   tabs: objectList,
 }
 
@@ -84,6 +86,7 @@ const page: Fields<Page> = {
   pathStyle: oneOf('simple', 'full', 'page'),
   locked: yes,
   readFirst: yes,
+  paused: yes,
   inkBg: oneOf('lined', 'grid', 'dots'),
   summary: text,
   templateRole: oneOf('daily'),
@@ -171,6 +174,32 @@ const dbView: Fields<DbView> = {
   blockId: text,
 }
 
+const deckScope: Check = (v) => {
+  if (!object(v)) return false
+  const d = v as Record<string, unknown>
+  return (
+    textList(d.notebookIds) &&
+    textList(d.pageIds) &&
+    typeof d.withSubpages === 'boolean' &&
+    (d.notebookKinds === undefined || textList(d.notebookKinds))
+  )
+}
+
+const deck: Fields<Deck> = {
+  ...times,
+  name: text,
+  order,
+  colour: text,
+  scope: deckScope,
+  tagIds: textList,
+  tagMode: oneOf('any', 'all'),
+  states: (v) =>
+    Array.isArray(v) &&
+    v.length <= 4 &&
+    v.every((x) => ['new', 'learning', 'due', 'all'].includes(x as string)),
+  routeOrder: bool,
+}
+
 const tag = { id: text, path: text, color: text }
 
 const image = {
@@ -245,6 +274,7 @@ const FIELDS = {
   dbViews: dbView,
   tags: tag,
   images: image,
+  decks: deck,
   inkLayers: inkLayer,
   inkChunks: inkChunk,
   recordings: recording,
@@ -254,6 +284,7 @@ const FIELDS = {
 const REQUIRED: Partial<Record<keyof typeof FIELDS, readonly string[]>> = {
   pages: ['notebookId', 'order'],
   blocks: ['pageId', 'type', 'content', 'order'],
+  decks: ['name', 'scope'],
   inkLayers: ['pageId', 'order'],
   inkChunks: ['pageId', 'layerId', 'strokes'],
   recordings: ['pageId', 'data'],

@@ -1,5 +1,11 @@
 import { isOneOf } from '../../../settings/registry'
-import { FONT_STACKS, type ReadingFont } from '../../reading/readingPrefs'
+import { ensureFont } from '../../reading/fonts'
+import {
+  BUILT_IN_FONTS,
+  fontStack,
+  isReadingFont,
+  type ReadingFont,
+} from '../../reading/readingPrefs'
 import { prefStore } from '../store'
 
 /**
@@ -8,8 +14,11 @@ import { prefStore } from '../store'
  * variables on the page (see index.css) only when they are not the default.
  */
 
-export const NOTE_FONTS = ['default', 'serif', 'sans', 'dyslexia'] as const
-export type NoteFont = (typeof NOTE_FONTS)[number]
+export const NOTE_FONTS = ['default', ...BUILT_IN_FONTS] as const
+/** "default", a built-in font, or an imported one (`custom:<id>`). */
+export type NoteFont = Exclude<ReadingFont, 'app'> | 'default'
+const isNoteFont = (v: unknown): v is NoteFont =>
+  v === 'default' || (v !== 'app' && isReadingFont(v))
 export const NOTE_SIZES = [90, 100, 115, 130, 150] as const
 export const NOTE_LINES = ['default', 'tight', 'loose'] as const
 export type NoteLine = (typeof NOTE_LINES)[number]
@@ -18,11 +27,7 @@ export const LINE_VALUE: Record<Exclude<NoteLine, 'default'>, string> = {
   loose: '1.95',
 }
 
-export const noteFont = prefStore<NoteFont>(
-  'text.font',
-  isOneOf(NOTE_FONTS),
-  'default',
-)
+export const noteFont = prefStore<NoteFont>('text.font', isNoteFont, 'default')
 /** Percent of the normal size; 100 = unchanged. */
 export const noteSize = prefStore<number>(
   'text.size',
@@ -45,6 +50,7 @@ export function applyNoteStyle(
   const font = noteFont.get()
   const size = noteSize.get()
   const line = noteLine.get()
+  void ensureFont(font)
   const set = (name: string, flag: string, value: string | null) => {
     if (value === null) {
       root.style.removeProperty(name)
@@ -57,9 +63,7 @@ export function applyNoteStyle(
   set(
     '--note-font',
     'data-note-font',
-    font === 'default'
-      ? null
-      : FONT_STACKS[font as Exclude<ReadingFont, 'app'>],
+    font === 'default' ? null : fontStack(font),
   )
   set('--note-size', 'data-note-size', size === 100 ? null : `${size / 100}em`)
   set(

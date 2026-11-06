@@ -77,6 +77,8 @@ export interface Notebook extends BaseRecord {
   locked?: true
   /** Always opens in Reading mode (batch 3). */
   readFirst?: true
+  /** Paused (E1): this notebook's cards stay out of reviews until resumed. */
+  paused?: true
   /** Made by "Load sample notebook" (testing); "Remove sample notebook" finds it by this. */
   sample?: true
   /**
@@ -132,6 +134,8 @@ export interface Page extends BaseRecord {
   locked?: true
   /** Always opens in Reading mode (batch 3). */
   readFirst?: true
+  /** Paused (E1): this page and its sub-pages stay out of reviews. */
+  paused?: true
   /** Paper behind the ink: lined, grid or dots (step 3). Unset = plain. */
   inkBg?: 'lined' | 'grid' | 'dots'
   /** A lesson's own summary (Revise tab); top-level pages only. */
@@ -430,6 +434,39 @@ export interface PageVersion extends BaseRecord {
   blocks: VersionBlock[]
   /** The page's ink at that moment (step 3). Unset = no ink. */
   ink?: InkSnapshot
+}
+
+/** A font file the user imported (H1). Used as `custom:<id>`. */
+export interface StoredFont extends BaseRecord {
+  /** Shown name (the file name without its ending). */
+  name: string
+  format: 'ttf' | 'otf' | 'woff2'
+  data: ArrayBuffer
+}
+
+/** Which cards of a deck count as "new", "learning" or "due" (E1). */
+export type DeckState = 'new' | 'learning' | 'due' | 'all'
+
+/**
+ * A deck (E1): a live filter over cards. It is refilled by itself as notes
+ * and cards change; it never holds cards. Empty scope lists = everything.
+ */
+export interface Deck extends BaseRecord {
+  name: string
+  order: OrderKey
+  colour?: string
+  scope: {
+    notebookIds: string[]
+    pageIds: string[]
+    /** Also the sub-pages of the listed pages. */
+    withSubpages: boolean
+    /** Notebook kinds to include (e.g. a Books collection later). */
+    notebookKinds?: string[]
+  }
+  tagIds: string[]
+  tagMode: 'any' | 'all'
+  states: DeckState[]
+  routeOrder?: boolean
 }
 
 /** A picture added from the device (Phase 6). Referenced as `lnimg:<id>`. */

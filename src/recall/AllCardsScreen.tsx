@@ -2,6 +2,7 @@ import type { LearningNotesDB } from '../core/db'
 import { t } from '../i18n/t'
 import type { SearchHit } from '../search/searchQuery'
 import { CardsTab } from './CardsTab'
+import { ReviewHome } from './ReviewHome'
 import type { ReviewScope } from './reviewService'
 
 /** "All cards": the Cards tab for every notebook together. */
@@ -32,6 +33,7 @@ export function AllCardsScreen({
             ×
           </button>
         </div>
+        <ReviewHome db={db} onReview={onReview} />
         <CardsTab
           db={db}
           notebookId={null}

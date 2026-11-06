@@ -82,15 +82,53 @@ export const colorsFor = (
   return THEME_COLORS[name]
 }
 
-export const READING_FONTS = ['app', 'serif', 'sans', 'dyslexia'] as const
-export type ReadingFont = (typeof READING_FONTS)[number]
-export const isReadingFont = isOneOf(READING_FONTS)
+/** Fonts that ship with the app. The first three need no download. */
+export const BUILT_IN_FONTS = [
+  'serif',
+  'sans',
+  'dyslexia',
+  'literata',
+  'sourceSerif',
+  'atkinson',
+  'lexend',
+  'caveat',
+  'kalam',
+  'patrick',
+  'shantell',
+] as const
+export type BuiltInFont = (typeof BUILT_IN_FONTS)[number]
+export const READING_FONTS = ['app', ...BUILT_IN_FONTS] as const
 
-export const FONT_STACKS: Record<Exclude<ReadingFont, 'app'>, string> = {
+/** A font the user imported: `custom:<id of the stored file>`. */
+export type CustomFont = `custom:${string}`
+export type ReadingFont = (typeof READING_FONTS)[number] | CustomFont
+export const isCustomFont = (v: unknown): v is CustomFont =>
+  typeof v === 'string' && /^custom:[A-Za-z0-9-]{8,64}$/.test(v)
+export const isReadingFont = (v: unknown): v is ReadingFont =>
+  (READING_FONTS as readonly unknown[]).includes(v) || isCustomFont(v)
+
+export const FONT_STACKS: Record<BuiltInFont, string> = {
   serif: 'Georgia, "Iowan Old Style", "Times New Roman", serif',
   sans: 'system-ui, -apple-system, "Segoe UI", Roboto, sans-serif',
   dyslexia: '"OpenDyslexic", "Comic Sans MS", system-ui, sans-serif',
+  literata: '"Literata", Georgia, serif',
+  sourceSerif: '"Source Serif 4", Georgia, serif',
+  atkinson: '"Atkinson Hyperlegible Next", system-ui, sans-serif',
+  lexend: '"Lexend", system-ui, sans-serif',
+  caveat: '"Caveat", "Comic Sans MS", cursive',
+  kalam: '"Kalam", "Comic Sans MS", cursive',
+  patrick: '"Patrick Hand", "Comic Sans MS", cursive',
+  shantell: '"Shantell Sans", "Comic Sans MS", cursive',
 }
+
+/** The CSS font stack of a font (not "app"/"default"). */
+export const fontStack = (font: Exclude<ReadingFont, 'app'>): string =>
+  isCustomFont(font)
+    ? `"${customFamily(font)}", system-ui, sans-serif`
+    : FONT_STACKS[font]
+
+/** The CSS family name an imported font is registered under. */
+export const customFamily = (font: CustomFont): string => `LN ${font.slice(7)}`
 
 /** Text size in percent of the normal size. */
 export const TEXT_SIZES = [80, 90, 100, 115, 130, 150, 175, 200, 250] as const

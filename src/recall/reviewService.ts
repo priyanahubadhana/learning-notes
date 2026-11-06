@@ -25,6 +25,8 @@ import { getSetting } from '../settings/settingsService'
 import { listPages } from '../pages/pageService'
 import { withCurrentLabels } from '../links/linkService'
 import { cardParts, hasQuestion, MAIN_PART } from './cardService'
+import { cardState, deckCards, getDeck } from './deckService'
+import { pausedIds, pausedPageIds } from './pauseService'
 import { fsrsScheduler } from './fsrsScheduler'
 import {
   previewRatings,
@@ -49,6 +51,8 @@ export type ReviewScope =
   /** includeSubpages: also the page's sub-pages (any depth). */
   | { kind: 'page'; pageId: string; includeSubpages?: boolean }
   | { kind: 'wrong' }
+  /** A deck (E1): a live filter over cards, see deckService.ts. */
+  | { kind: 'deck'; deckId: string }
   /** The cards of these blocks, e.g. a search's results; `name` is shown. */
   | { kind: 'blocks'; blockIds: string[]; name: string }
 
@@ -142,6 +146,11 @@ async function dueCardsInScope(
         .anyOf(scope.blockIds)
         .filter((c) => c.due <= now)
         .toArray()
+    case 'deck': {
+      const deck = await getDeck(db, scope.deckId)
+      if (!deck) return []
+      return (await deckCards(db, deck, now)).filter((c) => c.due <= now)
+    }
   }
 }
 
@@ -180,6 +189,8 @@ export async function reviewable(
     }
   })
   const skip = new Set(templateNotebooks)
+  // Paused notebooks, pages (with their sub-pages) stay out of reviews.
+  const paused = await pausedIds(db)
   // Judge by the page the card is on now (a card keeps the notebook it was
   // made in, a page can move or be saved as a template).
   const pages = await db.pages.bulkGet([
@@ -192,9 +203,16 @@ export async function reviewable(
   const locked = await hiddenPageIds(db, [
     ...new Set(active.map((c) => c.pageId)),
   ])
+  const pausedPages = await pausedPageIds(
+    db,
+    [...new Set(active.map((c) => c.pageId))],
+    paused,
+  )
   return active.filter(
     (c) =>
       parts.get(c.blockId)?.has(c.part) &&
+      !paused.has(c.notebookId) &&
+      !pausedPages.has(c.pageId) &&
       !skip.has(c.notebookId) &&
       !inTemplates.has(c.pageId) &&
       !locked.has(c.pageId),
@@ -391,6 +409,12 @@ async function soonestDue(
         picked.push(...(await reviewable(db, chunk)))
       }
       return picked.slice(0, limit)
+    }
+    case 'deck': {
+      const deck = await getDeck(db, scope.deckId)
+      if (!deck) return []
+      const all = await reviewable(db, await deckCards(db, deck, Date.now()))
+      return all.sort(byDue).slice(0, limit)
     }
     case 'notebook':
     case 'page':
@@ -634,4 +658,27 @@ export async function countDue(
   now: number = Date.now(),
 ): Promise<number> {
   return (await getReviewQueue(db, { kind: 'all' }, now)).cards.length
+}
+
+/** The three numbers on a deck tile. */
+export interface DeckCounts {
+  new: number
+  learning: number
+  due: number
+}
+
+/**
+ * New · Learning · Due for a scope (a deck, or all cards), counted from the
+ * same queue Study uses, so the tile and the session always agree (daily
+ * limits and pauses included).
+ */
+export async function scopeCounts(
+  db: LearningNotesDB,
+  scope: ReviewScope,
+  now: number = Date.now(),
+): Promise<DeckCounts> {
+  const { cards } = await getReviewQueue(db, scope, now)
+  const counts: DeckCounts = { new: 0, learning: 0, due: 0 }
+  for (const card of cards) counts[cardState(card)]++
+  return counts
 }

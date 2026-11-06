@@ -3,13 +3,16 @@ import { Tip } from '../help/Help'
 import { useLiveQuery } from 'dexie-react-hooks'
 import {
   useEffect,
+  useContext,
   useId,
   useRef,
   useState,
   type KeyboardEvent,
   type ReactNode,
 } from 'react'
+import { AppUiContext } from '../app/appUi'
 import { runTask } from '../app/errors'
+import { pauseMenuItem } from '../app/pauseMenu'
 import { MenuPopover, NameDialog, type MenuItem } from '../app/ui'
 import { isStringOrNull } from '../app/uiPrefs'
 import { pushRouteParts, useRouteParts } from '../app/router'
@@ -67,6 +70,7 @@ export function NotebookScreen({
     setTabId(id)
     pushRouteParts(0, id, active ? [active.id] : [])
   }
+  const { toast } = useContext(AppUiContext)
   const lockItem = useLockItem(db, 'notebook', notebook.id, !!notebook.locked)
   const [menu, setMenu] = useState<DOMRect | null>(null)
   const [renaming, setRenaming] = useState<NotebookTab | null>(null)
@@ -110,6 +114,14 @@ export function NotebookScreen({
           },
         ]
       : []),
+    pauseMenuItem(
+      db,
+      'notebook',
+      notebook.id,
+      notebook.title,
+      !!notebook.paused,
+      toast,
+    ),
     ...lockItem,
     // Page address for every page of this notebook (a page can still override it).
     pageAddressItem(notebook.pathStyle, (style) =>

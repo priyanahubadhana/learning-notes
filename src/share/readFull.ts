@@ -1,6 +1,7 @@
 import { Unzip, UnzipInflate, UnzipPassThrough } from 'fflate'
 import type { LearningNotesDB } from '../core/db'
 import { t } from '../i18n/t'
+import { fontFormat } from '../core/fontFile'
 import { isImageType } from '../images/imageRef'
 import { BundleError } from './bundle'
 import { checkedRow, isAudioType, type RowTable } from './checkRows'
@@ -233,6 +234,7 @@ const CHECKED = new Set<string>([
   'inkLayers',
   'inkChunks',
   'recordings',
+  'decks',
 ])
 
 /** Reads and fully checks a full file. Nothing is written. */
@@ -364,6 +366,15 @@ function putBack(
     if (!(out.data instanceof ArrayBuffer) || !isAudioType(out.type)) {
       throw damaged()
     }
+  }
+  if (table === 'fonts') {
+    // An imported font must be a real font file (checked by its first bytes);
+    // a "notes only" file keeps the row with no bytes.
+    const ok =
+      out.data instanceof ArrayBuffer &&
+      (out.data.byteLength === 0 ||
+        fontFormat(new Uint8Array(out.data)) === out.format)
+    if (!ok) throw damaged()
   }
   return out
 }

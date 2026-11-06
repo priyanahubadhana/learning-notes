@@ -215,7 +215,7 @@ test('Aa › Style card: Title, Heading, Body, font, size, line height; sub-page
   // Sub-page: Font, and back.
   await c.getByRole('button', { name: /^Font/ }).click()
   await expect(c.getByRole('group', { name: 'Font' })).toBeVisible()
-  await c.getByRole('radio', { name: 'Serif' }).click()
+  await c.getByRole('radio', { name: 'Literata' }).click()
   await expect(page.locator('html')).toHaveAttribute('data-note-font', '')
   await c.getByRole('button', { name: 'Back' }).click()
   await expect(c.getByRole('group', { name: 'Text style' })).toBeVisible()

@@ -37,7 +37,7 @@ import {
 } from './useReadingSettings'
 import { MARGIN_PX, WIDTH_PX } from './readingPrefs'
 import { lockIdle } from './wakeLock'
-import { loadDyslexiaFont } from './fonts'
+import { ensureFont } from './fonts'
 import { useDeviceSetting } from '../../settings/useSetting'
 import { readingSpeedSetting } from '../../settings/readingSettings'
 
@@ -105,7 +105,7 @@ export function ReadingFrame({
   })
 
   useEffect(() => {
-    if (active && settings.font === 'dyslexia') void loadDyslexiaFont()
+    if (active) void ensureFont(settings.font)
   }, [active, settings.font])
 
   // Panels belong to Reading mode: closing it closes them.

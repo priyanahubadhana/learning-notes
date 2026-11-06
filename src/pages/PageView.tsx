@@ -23,6 +23,7 @@ import { getPagePath, setPagePathStyle } from './pageService'
 import { PagePath } from './PagePath'
 import { resolvePathStyle } from './pathStyle'
 import { pageAddressItem } from './pageAddressMenu'
+import { pauseMenuItem } from '../app/pauseMenu'
 import { deviceModeItem } from '../app/deviceModeItems'
 import { pageSections } from './sections'
 import { LinkedFrom } from '../links/LinkedFrom'
@@ -186,6 +187,9 @@ export function PageView({
             onSelect: () => onReview(),
           },
         ]
+      : []),
+    ...(notebook && !isTemplate
+      ? [pauseMenuItem(db, 'page', page.id, page.title, !!page.paused, toast)]
       : []),
     { label: t('history.button'), icon: '🕘', onSelect: openHistory },
     { label: t('tool.readerFull'), icon: '📖', onSelect: openReader },

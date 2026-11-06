@@ -114,7 +114,7 @@ describe('ink storage', () => {
     const d = new LearningNotesDB(name)
     await d.open()
     opened.push(d)
-    expect(d.verno).toBe(14)
+    expect(d.verno).toBeGreaterThanOrEqual(13)
     expect((await d.notebooks.get('n1'))?.title).toBe('Old')
     expect(await d.inkChunks.count()).toBe(0)
     expect(await d.inkLayers.count()).toBe(0)

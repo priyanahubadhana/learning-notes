@@ -24,6 +24,7 @@ import type { SettingDefinition } from '../../../settings/registry'
 import { useDeviceSetting } from '../../../settings/useSetting'
 import { Tip } from '../../../help/Help'
 import { Icon } from '../icons'
+import { FontTiles } from '../../reading/FontTiles'
 import { currentRunner } from '../toolRuntime'
 import { runEditorCommand } from '../editorCommands'
 import { runTool } from '../toolRegistry'
@@ -72,7 +73,6 @@ import {
   type ListKind,
 } from './textOps'
 import {
-  NOTE_FONTS,
   NOTE_LINES,
   NOTE_SIZES,
   applyNoteStyle,
@@ -272,16 +272,10 @@ function StyleCard({
 function FontPage() {
   const font = noteFont.useValue()
   return (
-    <ChipRow
-      id="font"
-      label={t('main.card.text.font')}
+    <FontTiles
       value={font}
-      columns={2}
-      options={NOTE_FONTS.map((f) => ({
-        value: f,
-        label: msg(`main.font.${f}`),
-      }))}
-      onChange={(f) => {
+      none="default"
+      onPick={(f) => {
         noteFont.set(f)
         applyNoteStyle()
       }}
@@ -871,6 +865,11 @@ function SettingChips<T extends string | number>({
   )
 }
 
+function ReadingFontTiles() {
+  const [font, setFont] = useDeviceSetting(readingFontSetting)
+  return <FontTiles value={font} none="app" onPick={setFont} />
+}
+
 function AaCard() {
   const [tab, setTab] = useState<AaTab>('font')
   return (
@@ -900,7 +899,7 @@ function AaCard() {
       <div role="tabpanel" className="grid gap-0.5">
         {tab === 'font' && (
           <>
-            <SettingChips definition={readingFontSetting} columns={2} />
+            <ReadingFontTiles />
             <SettingChips
               definition={readingSizeSetting as SettingDefinition<number>}
               columns={5}

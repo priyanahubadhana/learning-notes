@@ -16,7 +16,7 @@ import { ThemeContext } from '../themeContext'
 import { memStore } from '../tools/store'
 import {
   colorsFor,
-  FONT_STACKS,
+  fontStack,
   MARGIN_PX,
   WIDTH_PX,
   type BlankMode,
@@ -101,7 +101,7 @@ export function useReadingSettings(): ReadingSettings {
 
 /** CSS variables of the reading surface (read by the rules in index.css). */
 export function surfaceStyle(s: ReadingSettings): CSSProperties {
-  const family = s.font === 'app' ? undefined : FONT_STACKS[s.font]
+  const family = s.font === 'app' ? undefined : fontStack(s.font)
   return {
     '--rd-bg': s.colors.bg,
     '--rd-fg': s.colors.fg,

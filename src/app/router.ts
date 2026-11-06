@@ -25,6 +25,7 @@ export type Route =
 export type ReviewRoute =
   | { kind: 'all' }
   | { kind: 'wrong' }
+  | { kind: 'deck'; deckId: string }
   | { kind: 'notebook'; notebookId: string }
   | { kind: 'page'; pageId: string; includeSubpages: boolean }
   /** A list of blocks (e.g. search results): cannot be reopened later. */
@@ -69,6 +70,7 @@ export function routeToHash(route: Route): string {
       if (s.kind === 'page') {
         return `#/review/page/${e(s.pageId)}${s.includeSubpages ? '?sub=1' : ''}`
       }
+      if (s.kind === 'deck') return `#/review/deck/${e(s.deckId)}`
       if (s.kind === 'custom') return '#/review/custom'
       return s.kind === 'wrong' ? '#/review/wrong' : '#/review'
     }
@@ -130,6 +132,9 @@ export function parseHash(hash: string): Route {
     case 'review': {
       if (first === 'wrong') {
         return { kind: 'review', scope: { kind: 'wrong' } }
+      }
+      if (first === 'deck' && args[1]) {
+        return { kind: 'review', scope: { kind: 'deck', deckId: args[1] } }
       }
       if (first === 'notebook' && args[1]) {
         return {

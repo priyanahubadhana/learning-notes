@@ -4,6 +4,7 @@ import { en10 } from './en10'
 import { en11 } from './en11'
 import { en12 } from './en12'
 import { en13 } from './en13'
+import { enW2 } from './enW2'
 /**
  * English text for the app. Every new piece of on-screen text gets a key
  * here and is shown with `t('key')`, so translations can be added later as
@@ -19,6 +20,7 @@ export const en = {
   ...en11,
   ...en12,
   ...en13,
+  ...enW2,
   // Shared dialogs
   'dialog.cancel': 'Cancel',
   'dialog.save': 'Save',
@@ -630,7 +632,7 @@ export const en = {
   'settings.scheduler.fixed': 'Simple steps',
   'settings.targetMemory.label': 'Target memory',
   'settings.targetMemory.description':
-    'FSRS: how sure you want to be of remembering a card when it comes back. Higher means more reviews.',
+    'FSRS: how sure you want to be of remembering a card when it comes back. 90% is recommended; higher means more reviews.',
   'settings.againMinutes.label': '“Again” brings the card back after',
   'settings.againMinutes.description':
     'The card also comes back later in the same session. With FSRS, a new card repeats after this time before its first day gap.',

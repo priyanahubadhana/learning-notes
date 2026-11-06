@@ -11,6 +11,7 @@ import { es10 } from './es10'
 import { es11 } from './es11'
 import { es12 } from './es12'
 import { es13 } from './es13'
+import { esW2 } from './esW2'
 
 /** Spanish texts. A key missing here shows the English text. */
 export const es: Record<string, string> = {
@@ -27,4 +28,5 @@ export const es: Record<string, string> = {
   ...es11,
   ...es12,
   ...es13,
+  ...esW2,
 }

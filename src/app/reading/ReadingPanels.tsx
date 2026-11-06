@@ -28,7 +28,7 @@ import {
 import {
   BLANK_MODES,
   FLOWS,
-  FONT_STACKS,
+  fontStack,
   LINE_SPACINGS,
   MARGINS,
   READING_FONTS,
@@ -176,7 +176,7 @@ export function SettingsPanel({
       {s.font !== 'app' && (
         <p
           className="-mt-1 mb-3 text-sm text-muted"
-          style={{ fontFamily: FONT_STACKS[s.font] }}
+          style={{ fontFamily: fontStack(s.font) }}
         >
           {t('reading.fontSample')}
         </p>

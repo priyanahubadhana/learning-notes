@@ -82,7 +82,7 @@ test('snaps to the left, right, bottom and top edge, and remembers each', async 
   const bar = (await mainBar(page).boundingBox())!
 
   // Left: a vertical strip against the left edge.
-  await dropAt(page, r.left + 24, 480)
+  await dropAt(page, r.left + 24, 300)
   await expect(pill(page)).toHaveAttribute('data-edge', 'left')
   await expect(pill(page)).toHaveAttribute('aria-orientation', 'vertical')
   let p = (await pill(page).boundingBox())!
@@ -93,7 +93,7 @@ test('snaps to the left, right, bottom and top edge, and remembers each', async 
   await expect(page.locator('[data-pill-room]')).toHaveCount(0)
 
   // Right.
-  await dropAt(page, r.right - 20, 480)
+  await dropAt(page, r.right - 20, 300)
   await expect(pill(page)).toHaveAttribute('data-edge', 'right')
   p = (await pill(page).boundingBox())!
   expect(p.x + p.width).toBeGreaterThan(r.right - 14)
@@ -120,7 +120,7 @@ test('the place survives a reload and is kept per device (not per tool)', async 
   await openNote(page)
   await openPill(page, 'Pen', 'pen')
   const r = await room(page)
-  await dropAt(page, r.right - 20, 500)
+  await dropAt(page, r.right - 20, 300)
   const saved = await savedPlace(page)
   expect(saved?.edge).toBe('right')
   await page.reload()
@@ -140,7 +140,7 @@ test('a card opens beside a side pill, inside the screen', async ({ page }) => {
   await openNote(page)
   await openPill(page, 'Pen', 'pen')
   const r = await room(page)
-  await dropAt(page, r.left + 24, 480)
+  await dropAt(page, r.left + 24, 300)
   await option(page, 'Pen type').first().click()
   const p = (await pill(page).boundingBox())!
   const c = (await card(page).boundingBox())!
@@ -149,7 +149,7 @@ test('a card opens beside a side pill, inside the screen', async ({ page }) => {
   expect(c.y + c.height).toBeLessThanOrEqual(900)
   // On the right edge the card opens on the other side.
   await card(page).getByRole('button', { name: 'Close' }).click()
-  await dropAt(page, r.right - 20, 480)
+  await dropAt(page, r.right - 20, 300)
   await option(page, 'Pen type').first().click()
   const p2 = (await pill(page).boundingBox())!
   const c2 = (await card(page).boundingBox())!

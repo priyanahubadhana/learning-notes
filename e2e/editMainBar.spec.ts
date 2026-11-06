@@ -64,8 +64,8 @@ test('hide, show and reorder tools of the main bar; saved after a reload', async
   expect(await pref<string[]>(page, 'toolbar.main')).toEqual([
     'text',
     'pen',
-    'lasso',
     'eraser',
+    'lasso',
     'newLine',
     'backspace',
     'insert',

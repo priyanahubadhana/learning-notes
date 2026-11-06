@@ -2,7 +2,7 @@
 
 - **Pages can't be dragged** in the sidebar tree (notebooks can).
 - **Safari on Windows is slow in tests:** run WebKit tests with `--workers=2 --timeout=120000`. One touch-drag test runs only in Chrome. Two WebKit tests still fail on robot typing and selecting in the editor; the owner confirmed both features work on the real iPad. Look and feel on real devices is checked by hand.
-- **First load size:** about 320 KB after the split on 2026-11-01.
+- **First load size:** about 370 KB gzipped on 2026-11-06 (target ≤ 350 KB): the entry chunk carries the editor core because the main bar imports it; see the audit brief B1 in plans/audit-2026-11.md.
 - **Hindi editor menus:** BlockNote has no Hindi menus yet.
 - **Spanish and Hindi** need native-speaker review.
 - **Data lives in one browser:** no sync yet; move it with Save everything and Open saved file.
@@ -25,4 +25,4 @@
 - **Reading mode:** paged reading is in the full-screen reader only (in place a page scrolls). Read aloud uses the device's voices: word marks need a voice that sends word events and Safari 17.2 or later (otherwise the sentence is marked); a locked screen can stop speech, and the app starts the sentence again when it comes back. Resume and bookmarks stay on one device.
 
 - **What a web app cannot match from native PencilKit apps (GoodNotes, Notability):** very low-latency ink (a browser adds a frame or two, even with pointer prediction), palm rejection by the system, and system Scribble integration (handwriting into any field, scratch-out, the Scribble palette). Instead: the Pencil follows the active tool (free for Scribble under Text, hold-to-select, double and triple tap selection, a mini toolbar instead of the iOS callout), a guard against big scratch-out deletes with Undo, and the ink engine (step 3) draws with pointer events and prediction. If that is not smooth enough on the owner's iPad, a native shell (PencilKit) is the later option. Not provable without a real iPad.
-- **Toolbar step 2:** the ink tools have their full options, cards and live preview, but nothing is drawn on the page yet (step 3). Insert items Table, Shape, Camera, File, Audio, Tape, Magnifier and Ruler, Toggle list, and the Lasso moves for ink (Move, Scale, Rotate, Screenshot, Save to notes, Convert handwriting) say they are coming.
+- **Still "coming" in the bars:** Insert items Table, Shape, Camera, File, Audio, Tape, Magnifier and Ruler, Toggle list (master plan G1–G2), and the Lasso extras Save to notes and Convert handwriting (A2, P). The ink engine itself is built (step 3) and Phase A is making the Pencil trustworthy on the real iPad.

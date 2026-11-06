@@ -20,7 +20,7 @@ React + TypeScript (strict), Vite, Tailwind, BlockNote, IndexedDB through Dexie.
 
 ## Status
 
-**Current phase:** 7, Cleanup + CI. Phases 1–6 are complete.
+**Current phase:** the master plan ([docs/plans/master-plan-2026-11.md](docs/plans/master-plan-2026-11.md)), Phase A (Trustworthy Pencil). Phases 1–8 and most of Phase 9 are complete; the live app is at https://learning-notes-app.pages.dev.
 
 **Next step:** see [docs/HANDOFF.md](docs/HANDOFF.md).
 

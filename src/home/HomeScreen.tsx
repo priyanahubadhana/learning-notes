@@ -4,10 +4,14 @@ import type { LearningNotesDB } from '../core/db'
 import { dayRecord } from '../core/taskService'
 import { t, type MessageKey } from '../i18n/t'
 import { dayMonthLabel } from './dayLabel'
+import { PlanTab } from './PlanTab'
+import { ReportsTab } from './ReportsTab'
 import { TasksTab } from './TasksTab'
+import { TimerCard } from './TimerCard'
+import { Top3 } from './Top3'
 import { useTasks, useToday } from './useHomeData'
 
-const TABS = ['today', 'tasks'] as const
+const TABS = ['today', 'tasks', 'plan', 'reports'] as const
 type Tab = (typeof TABS)[number]
 const isTab = (v: unknown): v is Tab => TABS.includes(v as Tab)
 
@@ -75,6 +79,8 @@ export function HomeScreen({
           >
             ☀ {t('space.home.today', { date: dayMonthLabel(today) })}
           </button>
+          <Top3 db={db} tasks={tasks} today={today} />
+          <TimerCard db={db} projects={projects} />
           <div className="grid grid-cols-3 gap-2 text-center">
             {(
               [
@@ -100,6 +106,12 @@ export function HomeScreen({
             ))}
           </ul>
         </div>
+      )}
+      {tab === 'plan' && (
+        <PlanTab db={db} today={today} tasks={tasks} projects={projects} />
+      )}
+      {tab === 'reports' && (
+        <ReportsTab db={db} today={today} projects={projects} />
       )}
       {tab === 'tasks' && (
         <TasksTab

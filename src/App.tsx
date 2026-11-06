@@ -73,6 +73,7 @@ import { openJournalDay } from './journal/journalService'
 import { Sidebar } from './notebooks/Sidebar'
 import { LeftPanel } from './app/panel/LeftPanel'
 import { HomeScreen } from './home/HomeScreen'
+import { TimerChip } from './home/TimerChip'
 import { createNotebook, listNotebooks } from './notebooks/notebookService'
 import { createPage, getPage } from './pages/pageService'
 import { BackupReminder } from './share/ReminderBar'
@@ -1585,6 +1586,7 @@ function App() {
             )}
             <ReadingSync />
             <NowPlayingPill onOpenPage={(id) => openPage(id)} />
+            <TimerChip db={db} onOpenHome={() => chooseSpace('home')} />
             <AudioDock db={db} pageId={currentPage?.id ?? null} />
             <div className="fixed bottom-16 left-1/2 z-40 flex w-max max-w-[calc(100vw-32px)] -translate-x-1/2 flex-col items-center gap-2">
               <SaveNotice />

@@ -57,3 +57,7 @@ export const isBoolean = (value: unknown): value is boolean =>
 
 export const isStringOrNull = (value: unknown): value is string | null =>
   value === null || typeof value === 'string'
+
+export const isNumberList = (value: unknown): value is number[] =>
+  Array.isArray(value) &&
+  value.every((v) => typeof v === 'number' && Number.isFinite(v))

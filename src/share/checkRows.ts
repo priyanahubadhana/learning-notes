@@ -295,8 +295,8 @@ const timeEntry: Fields<TimeEntry> = {
   day: dayText,
   projectId: text,
   mode: oneOf('free', 'focus'),
-  plannedMin: number,
-  round: number,
+  cycle: (v) => Array.isArray(v) && v.length === 4 && v.every((x) => number(x)),
+  ackedAt: number,
 }
 
 const dayPlan: Fields<DayPlan> = {

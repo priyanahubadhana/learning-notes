@@ -381,3 +381,54 @@ export const carriedTimes = (task: Task): number => task.carried.length
 
 /** The quiet "carried 3×" label shows from the third carry on. */
 export const showsCarried = (task: Task): boolean => carriedTimes(task) >= 3
+
+// ---- Top 3 (F2) ----
+
+export const TOP3_MAX = 3
+
+/** The Top 3 of a day, in their box order (steady while you tick). */
+export function top3Of(tasks: readonly Task[], day: string): Task[] {
+  return tasks.filter((t) => t.top3Day === day).sort(byOrder)
+}
+
+/**
+ * Makes a task one of the day's Top 3 (or takes it out). Returns false when
+ * three are already chosen: the app never swaps one for you.
+ */
+export async function setTop3(
+  db: LearningNotesDB,
+  id: string,
+  day: string,
+  on: boolean,
+): Promise<boolean> {
+  return db.transaction('rw', db.tasks, async () => {
+    const task = await getLive(db.tasks, id)
+    if (!on) {
+      if (task.top3Day === day) {
+        await db.tasks.update(id, { top3Day: undefined, updatedAt: Date.now() })
+      }
+      return true
+    }
+    const chosen = (
+      await db.tasks.where('top3Day').equals(day).toArray()
+    ).filter((t) => isLive(t) && t.id !== id)
+    if (chosen.length >= TOP3_MAX) return false
+    await db.tasks.update(id, { top3Day: day, updatedAt: Date.now() })
+    return true
+  })
+}
+
+/**
+ * How each Top 3 task stands on `day`: done (a tick), still to do today, or
+ * missed once the day is over (a red cross).
+ */
+export function top3Marks(
+  tasks: readonly Task[],
+  day: string,
+  today: string,
+): { task: Task; mark: 'done' | 'todo' | 'missed' }[] {
+  return top3Of(tasks, day).map((task) => ({
+    task,
+    mark: task.status === 'done' ? 'done' : day < today ? 'missed' : 'todo',
+  }))
+}

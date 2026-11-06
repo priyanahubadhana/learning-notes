@@ -53,10 +53,10 @@ export interface TimeEntry extends BaseRecord {
   day: string
   projectId?: string
   mode: 'free' | 'focus'
-  /** Focus mode: planned length of this stretch in minutes. */
-  plannedMin?: number
-  /** Focus mode: how many focus stretches ran in this run (1-based). */
-  round?: number
+  /** Focus mode: [focus, short break, long break, rounds] in minutes, as the run started. */
+  cycle?: number[]
+  /** When "Still working?" was last answered with Keep. */
+  ackedAt?: number
 }
 
 /** A planned block on the day's timeline (F2). */

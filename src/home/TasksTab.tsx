@@ -18,6 +18,7 @@ import {
   reopenTask,
   restoreTask,
   setTaskProject,
+  setTop3,
   upcomingByDay,
 } from '../core/taskService'
 import { t, type MessageKey } from '../i18n/t'
@@ -80,6 +81,12 @@ export function TasksTab({
       })
     },
     openSource: (task) => task.sourcePageId && onOpenPage(task.sourcePageId),
+    top3: (task) =>
+      runTask(
+        setTop3(db, task.id, today, task.top3Day !== today).then((ok) => {
+          if (!ok) toast(t('home.top3.full'))
+        }),
+      ),
   }
   const tick = (task: Task) => {
     const finish = task.status !== 'done'

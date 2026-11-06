@@ -12,6 +12,8 @@ export interface TaskActions {
   setProject: (task: Task, projectId: string | undefined) => void
   remove: (task: Task) => void
   openSource?: (task: Task) => void
+  /** Make (or stop being) one of today's Top 3. */
+  top3?: (task: Task) => void
 }
 
 const BOXES: { q: Quadrant; key: MessageKey }[] = [
@@ -70,6 +72,16 @@ export function TaskMenu({
                 {t('home.moveTo', { box: t(b.key) })}
               </button>
             ))}
+          {open && actions.top3 && (
+            <button
+              type="button"
+              role="menuitem"
+              className={ITEM}
+              onClick={done(() => actions.top3?.(task))}
+            >
+              {t(task.top3Day === today ? 'home.top3.leave' : 'home.top3.make')}
+            </button>
+          )}
           {open && (
             <>
               <button

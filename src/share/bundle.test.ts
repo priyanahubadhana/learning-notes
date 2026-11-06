@@ -695,3 +695,78 @@ interface Damaged {
   pages: Record<string, unknown>[]
   blocks: Record<string, unknown>[]
 }
+
+describe('ink in notebook files (J1)', () => {
+  it('carries layers and strokes into the copy, pointing at the new page and note', async () => {
+    const nb = (await createNotebook(db, ws, 'Draw')).id
+    const page = await createPage(db, nb, null, 'Sketch')
+    const block = await createBlock(db, {
+      pageId: page.id,
+      type: 'paragraph',
+      content: {},
+    })
+    const T = 1_700_000_000_000
+    const base = { createdAt: T, updatedAt: T, deletedAt: null }
+    await db.inkLayers.add({
+      ...base,
+      id: 'layer-1',
+      pageId: page.id,
+      name: 'Layer 1',
+      order: 'a0',
+    })
+    await db.inkChunks.add({
+      ...base,
+      id: 'chunk-1',
+      pageId: page.id,
+      layerId: 'layer-1',
+      blockId: block.id,
+      strokes: [
+        {
+          id: 's1',
+          at: T,
+          kind: 'ink',
+          bw: 800,
+          style: {
+            pen: 'ball',
+            width: 3,
+            colour: '#000000',
+            opacity: 1,
+            sharpness: 50,
+            pressure: 60,
+            flatness: 20,
+            stabilisation: 30,
+            tilt: true,
+            speedWidth: false,
+            line: 'solid',
+            behind: false,
+          },
+          pts: [0.1, 0.2, 0.5, 0, 0, 0, 0.2, 0.25, 0.6, 1, 2, 8],
+        },
+      ],
+    })
+    const file = bundleFile(await exportNotebookBundle(db, nb))
+    const bundle = readBundle(await file.text())
+    expect(bundle.inkLayers).toHaveLength(1)
+    expect(bundle.inkChunks[0].strokes).toHaveLength(1)
+
+    await importBundle(db, ws, bundle)
+    const copyPage = (await db.pages.toArray()).find(
+      (p) => p.title === 'Sketch' && p.id !== page.id,
+    )!
+    const layers = await db.inkLayers
+      .where('pageId')
+      .equals(copyPage.id)
+      .toArray()
+    const chunks = await db.inkChunks
+      .where('pageId')
+      .equals(copyPage.id)
+      .toArray()
+    expect(layers).toHaveLength(1)
+    expect(layers[0].id).not.toBe('layer-1')
+    expect(chunks[0].layerId).toBe(layers[0].id)
+    expect(chunks[0].blockId).not.toBe(block.id)
+    expect(chunks[0].strokes[0].pts).toHaveLength(12)
+    // The original is untouched.
+    expect(await db.inkLayers.get('layer-1')).toBeTruthy()
+  })
+})

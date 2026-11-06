@@ -88,6 +88,8 @@ const IMPORT_TABLES = (db: LearningNotesDB) => [
   db.links,
   db.blockTags,
   db.images,
+  db.inkLayers,
+  db.inkChunks,
 ]
 
 export interface ImportOptions {
@@ -184,6 +186,8 @@ async function importInTransaction(
   fresh(bundle.reviewLogs)
   fresh(bundle.dbColumns)
   fresh(bundle.dbViews)
+  fresh(bundle.inkLayers)
+  fresh(bundle.inkChunks)
   for (const database of bundle.databases) {
     // A Study tracker's id comes from its notebook's id.
     ids.set(
@@ -339,6 +343,35 @@ async function importInTransaction(
       ...(c.schedulerData && { schedulerData: map(c.schedulerData) }),
     }))
   await db.cards.bulkAdd(cards)
+  // Ink comes with its pages (J1): layers and chunks get new ids and point at
+  // the new page and note ids; strokes keep theirs (unique within a page).
+  const layerRows = bundle.inkLayers
+    .filter((l) => pageIds.has(id(l.pageId)!))
+    .map((l) => ({
+      ...l,
+      id: id(l.id)!,
+      pageId: id(l.pageId)!,
+      createdAt: now,
+      updatedAt: now,
+      deletedAt: null,
+    }))
+  await db.inkLayers.bulkAdd(layerRows)
+  const layerIds = new Set(layerRows.map((l) => l.id))
+  await db.inkChunks.bulkAdd(
+    bundle.inkChunks
+      .filter((c) => pageIds.has(id(c.pageId)!) && layerIds.has(id(c.layerId)!))
+      .map((c) => ({
+        ...c,
+        id: id(c.id)!,
+        pageId: id(c.pageId)!,
+        layerId: id(c.layerId)!,
+        // A gone block keeps its old id: the chunk then uses its fallback spot.
+        blockId: id(c.blockId) ?? null,
+        createdAt: now,
+        updatedAt: now,
+        deletedAt: null,
+      })),
+  )
   const cardIds = new Set(cards.map((c) => c.id))
   await db.reviewLogs.bulkAdd(
     bundle.reviewLogs

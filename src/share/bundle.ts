@@ -12,6 +12,7 @@ import type {
   ReviewLog,
   Tag,
 } from '../core/types'
+import type { InkChunk, InkLayer } from '../core/inkTypes'
 import { toBase64 } from '../core/base64'
 import { imageIdsIn, isImageType } from '../images/imageRef'
 import { tagMap, tagPathIn } from '../tags/tagService'
@@ -67,6 +68,9 @@ export interface Bundle {
   dbViews: DbView[]
   tags: BundleTag[]
   images: BundleImage[]
+  /** Ink of the pages (J1); older files have none. */
+  inkLayers: InkLayer[]
+  inkChunks: InkChunk[]
 }
 
 const TABLES = [
@@ -80,6 +84,8 @@ const TABLES = [
   'dbViews',
   'tags',
   'images',
+  'inkLayers',
+  'inkChunks',
 ] as const
 
 const emptyBundle = (kind: Bundle['kind'], now: number): Bundle => ({
@@ -97,6 +103,8 @@ const emptyBundle = (kind: Bundle['kind'], now: number): Bundle => ({
   dbViews: [],
   tags: [],
   images: [],
+  inkLayers: [],
+  inkChunks: [],
 })
 
 /**
@@ -253,6 +261,13 @@ export async function exportNotebookBundle(
     bundle,
     (await db.images.bulkGet(used)).filter((image) => image !== undefined),
   )
+  // Ink travels with its pages (J1).
+  bundle.inkLayers = (
+    await db.inkLayers.where('pageId').anyOf(pageIds).toArray()
+  ).filter(isLive)
+  bundle.inkChunks = (
+    await db.inkChunks.where('pageId').anyOf(pageIds).toArray()
+  ).filter(isLive)
   return bundle
 }
 
@@ -293,6 +308,8 @@ export function bundleFile(bundle: Bundle): Blob {
     dbViews,
     tags,
     images,
+    inkLayers,
+    inkChunks,
     ...info
   } = bundle
   const tables = {
@@ -306,6 +323,8 @@ export function bundleFile(bundle: Bundle): Blob {
     dbViews,
     tags,
     images,
+    inkLayers,
+    inkChunks,
   }
   const parts: string[] = [JSON.stringify(info).slice(0, -1)]
   for (const [name, rows] of Object.entries(tables)) {
@@ -496,5 +515,11 @@ export function bundleFromSnapshot(snapshot: BackupSnapshot): Bundle {
   const tags = new Map(live(rows<Tag>('tags')).map((t) => [t.id, t]))
   bundle.tags = usedTags(bundle, tags)
   bundle.images = bundleImages(bundle, rows('images'))
+  bundle.inkLayers = live(rows<InkLayer>('inkLayers')).filter((l) =>
+    pageIds.has(l.pageId),
+  )
+  bundle.inkChunks = live(rows<InkChunk>('inkChunks')).filter((c) =>
+    pageIds.has(c.pageId),
+  )
   return bundle
 }

@@ -163,6 +163,8 @@ export class InkController {
   readonly pad: HTMLDivElement
   readonly overlay: HTMLDivElement
   selection: string[] = []
+  /** Page blocks inside the same Lasso loop as the drawings (a mixed selection). */
+  blockSel: string[] = []
   private env: InkEnv
   private gesture: Gesture | null = null
   private raf = 0
@@ -282,7 +284,12 @@ export class InkController {
       attributeFilter: ['style', 'class', 'data-level', 'data-text-alignment'],
     })
     this.cleanups.push(() => mo.disconnect())
-    this.cleanups.push(doc.subscribe(() => this.requestDraw()))
+    this.cleanups.push(
+      doc.subscribe(() => {
+        this.requestDraw()
+        this.notify() // the hidden-layer chip follows the layers
+      }),
+    )
     this.cleanups.push(penSettings.subscribe(() => this.syncPad()))
     this.syncPad()
     this.dirty()
@@ -998,7 +1005,8 @@ export class InkController {
       return
     }
     const box = this.selectionRect()
-    if (box && containsPt(inflate(box, 8), w)) {
+    // A mixed selection cannot be moved here (the menu says so).
+    if (box && this.blockSel.length === 0 && containsPt(inflate(box, 8), w)) {
       e.preventDefault()
       e.stopPropagation()
       this.startTransform('move', e)
@@ -1036,8 +1044,12 @@ export class InkController {
         this.select([g.hitId])
       } else if (moved || !g.owns) {
         const found = this.inRegion(g.path)
-        if (found.length > 0) this.select(found.map((p) => p.stroke.id))
-        else if (!g.owns && moved) this.clearSelection()
+        if (found.length > 0) {
+          this.select(found.map((p) => p.stroke.id))
+          // Universal Lasso: text and pictures inside the same loop join in.
+          this.blockSel = this.blocksIn(g.path)
+          this.notify()
+        } else if (!g.owns && moved) this.clearSelection()
       }
       this.requestDraw()
     } else if (g.kind === 'transform') {
@@ -1056,20 +1068,36 @@ export class InkController {
     }
   }
 
+  /** The loop (or rectangle) the Lasso drew, as a polygon. */
+  private polygonOf(path: Pt[]): Pt[] {
+    if (lassoSettings.get().shape !== 'rect') return path
+    const b = boundsOf([path[0], path[path.length - 1]])
+    return [
+      { x: b.x, y: b.y },
+      { x: b.x + b.w, y: b.y },
+      { x: b.x + b.w, y: b.y + b.h },
+      { x: b.x, y: b.y + b.h },
+    ]
+  }
+
+  /** Page blocks whose centre is inside the loop (only blocks near its box are tested). */
+  blocksIn(path: Pt[]): string[] {
+    if (path.length < 3) return []
+    const poly = this.polygonOf(path)
+    const area = boundsOf(poly)
+    return this.layout
+      .blocks()
+      .filter(
+        (b) =>
+          intersects(b, area) &&
+          inPolygon({ x: b.x + b.w / 2, y: b.y + b.h / 2 }, poly),
+      )
+      .map((b) => b.id)
+  }
+
   private inRegion(path: Pt[]): Placed[] {
     if (path.length < 3) return []
-    const rect = lassoSettings.get().shape === 'rect'
-    const poly = rect
-      ? (() => {
-          const b = boundsOf([path[0], path[path.length - 1]])
-          return [
-            { x: b.x, y: b.y },
-            { x: b.x + b.w, y: b.y },
-            { x: b.x + b.w, y: b.y + b.h },
-            { x: b.x, y: b.y + b.h },
-          ]
-        })()
-      : path
+    const poly = this.polygonOf(path)
     const area = boundsOf(poly)
     return this.selectable().filter((p) => {
       const r = strokeRect(p.stroke, this.layout.frame(p.blockId))
@@ -1084,6 +1112,7 @@ export class InkController {
 
   select(ids: string[]): void {
     this.selection = ids.filter((id) => this.env.doc.find(id))
+    this.blockSel = []
     this.notify()
     this.requestDraw()
   }
@@ -1091,6 +1120,7 @@ export class InkController {
   clearSelection(): void {
     if (this.selection.length === 0) return
     this.selection = []
+    this.blockSel = []
     this.notify()
     this.requestDraw()
   }
@@ -1115,6 +1145,12 @@ export class InkController {
     for (const p of this.selected()) {
       const r = strokeRect(p.stroke, this.layout.frame(p.blockId))
       if (r) box = box ? unionRect(box, r) : r
+    }
+    if (box) {
+      for (const id of this.blockSel) {
+        const r = this.layout.rectOf(id)
+        if (r) box = unionRect(box, r)
+      }
     }
     return box
   }
@@ -1162,7 +1198,22 @@ export class InkController {
   deleteSelection(): void {
     const del = this.selected()
     this.selection = []
+    this.blockSel = []
     this.commit({ del, add: [], layers: [] })
+  }
+
+  /**
+   * Delete the drawings and run `removeText` (which removes the blocks) as one
+   * Undo step: the ink edit is marked so Undo takes the text step with it.
+   */
+  deleteMixed(removeText: () => void): void {
+    const del = this.selected()
+    this.selection = []
+    this.blockSel = []
+    this.commit({ del, add: [], layers: [] })
+    removeText()
+    this.env.history.chainTop()
+    this.notify()
   }
 
   duplicateSelection(): void {
@@ -1299,6 +1350,28 @@ export class InkController {
     return true
   }
 
+  /** Hidden layers that have drawings (the chip at the page's top right). */
+  hiddenLayersWithInk(): InkLayer[] {
+    const { doc } = this.env
+    return liveLayers(doc.layers).filter(
+      (l) => l.hidden && doc.strokesOf(l.id).length > 0,
+    )
+  }
+
+  showLayer(layer: InkLayer): void {
+    this.env.doc.patchLayer(setHidden(layer, false))
+    this.notify()
+  }
+
+  /** Is the newest step a drawings-and-text delete (one Undo for both)? */
+  undoIsChained(): boolean {
+    return this.env.history.undoIsChained(this.env.textDepth())
+  }
+
+  redoIsChained(): boolean {
+    return this.env.history.redoIsChained()
+  }
+
   redo(): boolean {
     const { history, doc } = this.env
     if (history.redoTarget(this.env.textDepth()) !== 'ink') return false
@@ -1312,6 +1385,7 @@ export class InkController {
 
   private dropMissingSelection(): void {
     this.selection = this.selection.filter((id) => this.env.doc.find(id))
+    if (this.selection.length === 0) this.blockSel = []
   }
 
   /** Called when the text changed: ink Redo steps no longer fit after new typing. */

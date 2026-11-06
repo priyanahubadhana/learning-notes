@@ -1,4 +1,5 @@
 import type { InkController } from './controller'
+import { paintBlocks } from './paintBlocks'
 import { paintStroke, type Target } from './render'
 
 /**
@@ -11,6 +12,7 @@ const SCALE = 2
 export async function selectionPng(
   controller: InkController,
   paper: string,
+  wrap?: HTMLElement,
 ): Promise<Blob | null> {
   const box = controller.selectionRect()
   const items = controller.selected()
@@ -24,6 +26,10 @@ export async function selectionPng(
   if (!ctx) return null
   ctx.fillStyle = paper
   ctx.fillRect(0, 0, canvas.width, canvas.height)
+  // Words and pictures of a mixed selection go under the drawings.
+  if (wrap && controller.blockSel.length > 0) {
+    paintBlocks(ctx, wrap, controller.blockSel, box.x - PAD, box.y - PAD, SCALE)
+  }
   const target: Target = { ctx, top: box.y - PAD, dpr: SCALE }
   const shift = { a: 1, b: 0, c: 0, d: 1, e: PAD - box.x, f: 0 }
   for (const p of items) {

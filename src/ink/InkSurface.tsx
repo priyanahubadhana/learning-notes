@@ -26,6 +26,8 @@ import { InkHistory } from './inkHistory'
 import { bumpInk, registerInk } from './inkRuntime'
 import { saveToHighlightsPage } from './saveToNotes'
 import { copyPng, selectionPng } from './screenshot'
+import { MixedMenu } from './MixedMenu'
+import type { Editor } from '../editor/barActions'
 
 /**
  * The ink of one open page: loads it, runs the engine over the editor
@@ -213,7 +215,12 @@ export function InkSurface({
   if (!live || !wrap) return null
   // Inside the overlay, so it is laid exactly over the editor.
   return createPortal(
-    <InkUi controller={live.controller} paper={paper} />,
+    <InkUi
+      controller={live.controller}
+      paper={paper}
+      editor={editor as unknown as Editor}
+      wrap={wrap}
+    />,
     live.controller.overlay,
   )
 }
@@ -223,9 +230,13 @@ export function InkSurface({
 function InkUi({
   controller,
   paper,
+  editor,
+  wrap,
 }: {
   controller: InkController
   paper: string | undefined
+  editor: Editor
+  wrap: HTMLElement
 }) {
   const version = useSyncExternalStore(
     (fn) => controller.subscribe(fn),
@@ -300,9 +311,12 @@ function InkUi({
       <span aria-live="polite" className="sr-only">
         {status}
       </span>
+      <HiddenLayerChip controller={controller} />
       {count > 0 && box && tool === 'lasso' && (
         <SelectionBox
           controller={controller}
+          editor={editor}
+          wrap={wrap}
           box={box}
           count={count}
           onPng={png}
@@ -314,11 +328,15 @@ function InkUi({
 
 function SelectionBox({
   controller,
+  editor,
+  wrap,
   box,
   count,
   onPng,
 }: {
   controller: InkController
+  editor: Editor
+  wrap: HTMLElement
   box: { x: number; y: number; w: number; h: number }
   count: number
   onPng: (how: 'copy' | 'save') => void
@@ -343,6 +361,25 @@ function SelectionBox({
     { x: box.x + box.w, y: box.y + box.h },
   ]
   const menuAbove = box.y > 70
+  // Drawings and page content in one loop: the mixed menu, no handles.
+  if (controller.blockSel.length > 0) {
+    return (
+      <>
+        <div
+          data-ink-box
+          aria-hidden
+          className="absolute rounded-sm border border-dashed border-accent"
+          style={{ left: box.x, top: box.y, width: box.w, height: box.h }}
+        />
+        <MixedMenu
+          controller={controller}
+          editor={editor}
+          wrap={wrap}
+          box={box}
+        />
+      </>
+    )
+  }
   const handle =
     'pointer-events-auto absolute grid size-11 -translate-x-1/2 -translate-y-1/2 touch-none place-items-center'
   return (
@@ -454,6 +491,37 @@ function SelectionBox({
         )}
       </div>
     </>
+  )
+}
+
+/**
+ * A layer that is hidden but has drawings shows a small chip at the page's top
+ * right: "Layer 2 hidden · Show" (one tap shows it).
+ */
+function HiddenLayerChip({ controller }: { controller: InkController }) {
+  const hidden = controller.hiddenLayersWithInk()
+  if (hidden.length === 0) return null
+  return (
+    <div
+      className="pointer-events-none absolute end-2 top-2 flex flex-col items-end gap-1"
+      data-hidden-layers
+    >
+      {hidden.map((layer) => (
+        <button
+          key={layer.id}
+          type="button"
+          data-hidden-layer={layer.id}
+          onMouseDown={(e) => e.preventDefault()}
+          onClick={() => controller.showLayer(layer)}
+          className="pointer-events-auto min-h-11 rounded-full border border-ink-soft bg-bg px-3 text-xs text-ink-soft shadow hover:bg-hover hover:text-ink"
+        >
+          {t('ink.layers.hiddenBadge', { name: layer.name })} ·{' '}
+          <span className="font-semibold text-accent">
+            {t('ink.layers.showAction')}
+          </span>
+        </button>
+      ))}
+    </div>
   )
 }
 

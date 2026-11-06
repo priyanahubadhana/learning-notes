@@ -243,3 +243,7 @@ R4-20 DETAIL (after Update):
 - Picture editing priority: crop and resize with corner handles, zoom in/out, adjust the shape; then draw arrows and ink over it; rotate; cut out a part (e.g. just one icon). Blur not needed.
 - Note-making stays first priority; automation second; both together ideal.
 - Human intervention principle (owner): AI-made output (notes, summary, database rows, mind maps, recall cards) must land as NORMAL, fully editable content, identical to hand-made content (no locked "AI blocks"). Users edit freely: add or remove lines, add pictures, edit the AI's mind map, add more. If the AI did a bad job, the user can delete it in one go and build the same quality by hand. Editing AI output must be as easy as editing your own notes in GoodNotes/Notion.
+## Round 5 (6 Nov, after Phase A part 1)
+R5-1 Side-docked pill still shows a 2-column grid; it must be ONE thin vertical strip (= R4-1).
+R5-2 BUG (critical): FINGER taps mostly don't register on the toolbar, pills, Settings and sidebar page rows (a sub-page doesn't open), in Touch mode with the Pencil paired, intermittently. The ⋯ menus and text taps work. Suspect penTap.ts treating finger touches as stylus.
+R5-3 Owner found no other issues in part 1.

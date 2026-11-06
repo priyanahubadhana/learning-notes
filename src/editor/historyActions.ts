@@ -14,10 +14,20 @@ type Editor = AppSchema['BlockNoteEditor']
 export function runHistory(editor: Editor, kind: 'undo' | 'redo'): boolean {
   // Drawings and text share one history: the newest of the two goes first.
   const ink = inkFor(editor)?.controller
-  if (ink && (kind === 'undo' ? ink.undo() : ink.redo())) return true
   const view = editor.prosemirrorView
+  const text = kind === 'undo' ? undo : redo
+  // A delete of drawings and text together (the Lasso) is one step.
+  if (ink && view && kind === 'undo' && ink.undoIsChained()) {
+    text(view.state, view.dispatch, view)
+    return ink.undo()
+  }
+  const chainedRedo = !!ink && kind === 'redo' && ink.redoIsChained()
+  if (ink && (kind === 'undo' ? ink.undo() : ink.redo())) {
+    if (chainedRedo && view) text(view.state, view.dispatch, view)
+    return true
+  }
   if (!view) return kind === 'undo' ? editor.undo() : editor.redo()
-  const done = (kind === 'undo' ? undo : redo)(view.state, view.dispatch, view)
+  const done = text(view.state, view.dispatch, view)
   // Never focus here: Undo must not open the keyboard.
   return done
 }

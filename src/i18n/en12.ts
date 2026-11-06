@@ -51,4 +51,6 @@ export const en12 = {
   'ink.layers.page': 'Page (the text)',
   'ink.layers.addTwo': 'Add Layer 2',
   'ink.layers.hiddenBadge': '{name} hidden',
+  'ink.mixed.label': 'Drawings and text',
+  'ink.sel.drawingsOnly': 'Works on drawings only.',
 } as const

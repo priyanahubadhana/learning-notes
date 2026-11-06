@@ -238,3 +238,27 @@ test('a page with 500 strokes draws within the budget', async ({ page }) => {
   expect(frameMs).toBeLessThan(80)
   expect((await savedInk(page)).strokes.length).toBe(496)
 })
+
+test('a hidden layer with drawings shows a chip at the top right; one tap shows it', async ({
+  page,
+}) => {
+  await inkNote(page, 'Pen')
+  const box = await textBox(page)
+  await stroke(
+    page,
+    line([box.x + 20, box.y + 150], [box.x + 300, box.y + 150]),
+  )
+  await expectStrokes(page, 1)
+  await openLayers(page)
+  await layerRows(page)
+    .first()
+    .getByRole('button', { name: 'Hide Layer 1' })
+    .click()
+  const chip = page.locator('[data-hidden-layer]')
+  await expect(chip).toContainText('Layer 1 hidden')
+  const page_ = (await page.locator('.bn-container').boundingBox())!
+  const at = (await chip.boundingBox())!
+  expect(at.x + at.width).toBeGreaterThan(page_.x + page_.width - 40)
+  await chip.click()
+  await expect(chip).toHaveCount(0)
+})

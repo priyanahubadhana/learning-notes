@@ -14,6 +14,8 @@ import type { Edit } from './inkDoc'
 interface Entry {
   edit: Edit
   depth: number
+  /** The text step made right after this ink edit belongs to it (one Undo). */
+  chain?: boolean
 }
 
 export class InkHistory {
@@ -26,6 +28,23 @@ export class InkHistory {
     this.undoStack.push({ edit, depth: textDepth })
     if (this.undoStack.length > InkHistory.LIMIT) this.undoStack.shift()
     this.redoStack = []
+  }
+
+  /** Marks the newest ink edit as having a text step right after it. */
+  chainTop(): void {
+    const top = this.undoStack[this.undoStack.length - 1]
+    if (top) top.chain = true
+  }
+
+  /** Is the newest step an ink edit plus the one text step made after it? */
+  undoIsChained(textDepth: number): boolean {
+    const top = this.undoStack[this.undoStack.length - 1]
+    return !!top?.chain && textDepth === top.depth + 1
+  }
+
+  /** Is the next Redo an ink edit that has a text step to redo after it? */
+  redoIsChained(): boolean {
+    return !!this.redoStack[this.redoStack.length - 1]?.chain
   }
 
   /** Which history does Undo use now? */

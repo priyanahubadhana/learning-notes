@@ -45,4 +45,6 @@ export const es12: Record<string, string> = {
   'ink.layers.page': 'Página (el texto)',
   'ink.layers.addTwo': 'Añadir Capa 2',
   'ink.layers.hiddenBadge': '{name} oculta',
+  'ink.mixed.label': 'Dibujos y texto',
+  'ink.sel.drawingsOnly': 'Solo funciona con dibujos.',
 }

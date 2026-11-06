@@ -69,6 +69,7 @@ export default defineConfig({
         /penTapRules/,
         /ownSelection/,
         /fingerAfterPen/,
+        /lassoUniversal/,
       ],
       use: { ...devices['iPad Pro 11'], hasTouch: true },
       expect: { timeout: 15_000 },

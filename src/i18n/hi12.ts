@@ -44,4 +44,6 @@ export const hi12: Record<string, string> = {
   'ink.layers.page': 'पेज (टेक्स्ट)',
   'ink.layers.addTwo': 'परत 2 जोड़ें',
   'ink.layers.hiddenBadge': '{name} छिपी',
+  'ink.mixed.label': 'चित्र और टेक्स्ट',
+  'ink.sel.drawingsOnly': 'यह केवल चित्रों पर काम करता है।',
 }

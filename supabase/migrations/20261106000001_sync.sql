@@ -139,5 +139,6 @@ begin
   );
 end;
 $$;
+grant usage on schema public to supabase_auth_admin;
 grant execute on function public.hook_only_owner(jsonb) to supabase_auth_admin;
 revoke execute on function public.hook_only_owner(jsonb) from authenticated, anon, public;

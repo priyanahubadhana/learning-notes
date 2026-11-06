@@ -1,4 +1,4 @@
-/** English text of Sync (Phase L). Spanish and Hindi come with the K2 review. */
+/** English text of Sync (Phase L). Spanish and Hindi drafts: esSync.ts, hiSync.ts. */
 export const enSync = {
   'settings.category.sync': 'Sync',
   'settings.category.sync.hint':

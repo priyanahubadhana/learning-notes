@@ -8,6 +8,7 @@ import {
 } from 'prosemirror-state'
 import { Decoration, DecorationSet } from 'prosemirror-view'
 import { BlockRangeSelection } from './dragSelect'
+import { penState } from './penGuard'
 import type { AppSchema } from './schema'
 
 /**
@@ -159,5 +160,8 @@ export function deselect(editor: Editor): void {
 export function deleteSelected(editor: Editor): void {
   const view = editor.prosemirrorView
   if (!view || view.state.selection.empty) return
+  // The person pressed Delete: the Pencil guard must not hold it back.
+  penState.down = false
+  penState.upAt = -1e9
   view.dispatch(view.state.tr.deleteSelection().scrollIntoView())
 }

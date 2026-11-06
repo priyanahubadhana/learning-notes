@@ -6,6 +6,7 @@ import { Icon, type IconName } from '../app/tools/icons'
 import { runTool } from '../app/tools/toolRegistry'
 import type { Editor } from '../editor/barActions'
 import { selectBlocks } from '../editor/dragSelect'
+import { penState } from '../editor/penGuard'
 import { t } from '../i18n/t'
 import type { InkController } from './controller'
 import { blocksText } from './blocksText'
@@ -58,6 +59,9 @@ export function MixedMenu({
     }
   }
   const remove = () => {
+    // The person pressed Delete: the Pencil guard must not hold it back.
+    penState.down = false
+    penState.upAt = -1e9
     const view = editor.prosemirrorView
     // Its own history step, so the Undo that follows takes both parts.
     if (view) view.dispatch(closeHistory(view.state.tr))

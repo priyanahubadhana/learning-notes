@@ -279,6 +279,8 @@ describe('speed', () => {
     await db.blocks.bulkAdd(blocks)
     await db.cards.bulkAdd(cards)
     await setSetting(db, newCardsPerDay, 1000)
+    // Warm-up run so CI's first-call JIT cost is not counted.
+    await scopeCounts(db, { kind: 'all' }, NOW)
     const started = performance.now()
     await scopeCounts(db, { kind: 'all' }, NOW)
     expect(performance.now() - started).toBeLessThan(300)

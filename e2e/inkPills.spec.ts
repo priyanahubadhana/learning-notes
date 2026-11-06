@@ -327,6 +327,7 @@ test('Lasso menu on a selection: Copy, Duplicate, Delete, Key point, Make card; 
     'Make card',
     'Save to notes',
     'Convert handwriting to text (beta)',
+    'Deselect',
   ])
   await menu.getByRole('button', { name: 'Key point' }).click()
   await expect(

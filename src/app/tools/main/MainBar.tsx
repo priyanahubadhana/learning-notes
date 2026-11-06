@@ -118,7 +118,12 @@ export function MainBarRow({
           if (hold.consumeHeld()) return
           selectTool(tool)
         }}
-        style={{ minHeight: min, minWidth: min, touchAction: 'pan-x' }}
+        style={{
+          minHeight: min,
+          minWidth: 44,
+          flexBasis: min,
+          touchAction: 'pan-x',
+        }}
         className={`${BUTTON} ${on ? 'bg-hover !text-accent' : ''}`}
       >
         <Icon name={TOOL_ICON[tool]} />
@@ -148,7 +153,7 @@ export function MainBarRow({
   const undo = findTool('undo')
   const redo = findTool('redo')
   return (
-    <div className="flex items-center gap-1.5 phone:flex-wrap" data-main-bar>
+    <div className="flex items-center gap-1 phone:flex-wrap" data-main-bar>
       <div
         role="group"
         aria-label={t('main.history')}
@@ -176,7 +181,7 @@ export function MainBarRow({
       </div>
       <div
         data-slot="tools"
-        className="flex min-w-0 flex-1 items-center gap-0.5 overflow-x-auto phone:order-last phone:basis-full"
+        className="flex min-w-0 flex-1 items-center gap-px overflow-x-auto phone:order-last phone:basis-full"
         style={{ scrollbarWidth: 'none' }}
       >
         {list.map(toolButton)}
@@ -281,7 +286,12 @@ function NewLineButton({ editor, min }: { editor: Editor; min: number }) {
             }
             addLineAfterCursor(editor)
           }}
-          style={{ minHeight: min, minWidth: min, touchAction: 'pan-x' }}
+          style={{
+            minHeight: min,
+            minWidth: 44,
+            flexBasis: min,
+            touchAction: 'pan-x',
+          }}
           className={`${BUTTON} !text-accent`}
         >
           <Icon name="newLine" />
@@ -362,7 +372,12 @@ function BackspaceButton({ editor, min }: { editor: Editor; min: number }) {
           deleteBackward(editor, 'char')
         }
       }}
-      style={{ minHeight: min, minWidth: min, touchAction: 'pan-x' }}
+      style={{
+        minHeight: min,
+        minWidth: 44,
+        flexBasis: min,
+        touchAction: 'pan-x',
+      }}
       className={BUTTON}
     >
       <Icon name="backspace" />

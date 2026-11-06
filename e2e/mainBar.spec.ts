@@ -25,12 +25,13 @@ const TOOLS = [
   'Highlighter',
   'Eraser',
   'New line',
+  'Backspace',
   'Lasso',
   'Insert',
   'Read',
 ]
 
-test('the bar has Undo, Redo, the eight tools in order and ⋯; no switch', async ({
+test('the bar has Undo, Redo, the nine tools in order and ⋯; no switch', async ({
   page,
 }) => {
   await openNote(page)

@@ -292,7 +292,9 @@ function Pill({
               visibility: size.width > 0 ? 'visible' : 'hidden',
               touchAction: 'none',
               maxWidth: isVertical ? undefined : room.width,
-              maxHeight: isVertical ? room.height : undefined,
+              // A side strip scrolls inside 60% of the room, so it never ties
+              // with the top and bottom edges when it is dragged.
+              maxHeight: isVertical ? Math.round(room.height * 0.6) : undefined,
             }}
             className={`fixed top-0 left-0 z-40 flex items-center gap-0.5 rounded-2xl border border-ink-soft bg-bg p-1 text-ink shadow-[0_2px_4px_rgba(0,0,0,0.08),0_10px_28px_rgba(0,0,0,0.16)] ${
               isVertical ? 'flex-col overflow-y-auto' : 'overflow-x-auto'

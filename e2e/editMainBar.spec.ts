@@ -30,7 +30,7 @@ async function openEdit(page: Page) {
   await expect(panel(page)).toBeVisible()
 }
 
-test('Edit bar is the first item of the ⋯ menu and lists the 8 tools', async ({
+test('Edit bar is the first item of the ⋯ menu and lists the 9 tools', async ({
   page,
 }) => {
   await openNote(page)
@@ -42,6 +42,7 @@ test('Edit bar is the first item of the ⋯ menu and lists the 8 tools', async (
     'Highlighter',
     'Eraser',
     'New line',
+    'Backspace',
     'Lasso',
     'Insert',
     'Read',
@@ -66,6 +67,7 @@ test('hide, show and reorder tools of the main bar; saved after a reload', async
     'lasso',
     'eraser',
     'newLine',
+    'backspace',
     'insert',
     'read',
   ])
@@ -93,6 +95,7 @@ test('at least one tool always stays on the bar', async ({ page }) => {
     'Highlighter',
     'Eraser',
     'New line',
+    'Backspace',
     'Lasso',
     'Insert',
     'Read',

@@ -696,3 +696,8 @@ html[data-note-line] .bn-editor {
 [data-options-pill][data-edge='right'] span.inline-flex {
   flex-direction: column;
 }
+
+/* Tools on the main bar share a tight row: they shrink to 44 px, never less. */
+[data-main-bar] [data-slot='tools'] > button {
+  flex-shrink: 1;
+}

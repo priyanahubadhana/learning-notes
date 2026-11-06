@@ -43,6 +43,11 @@ export function selectTool(
     openPillTool.set(pinned ? tool : null)
     return pinned ? 'opened' : 'closed'
   }
+  // Reading mode has no pill (its tools are in the ribbon View tab and the ⋯ menu).
+  if (tool === 'read') {
+    openPillTool.set(null)
+    return 'closed'
+  }
   openPillTool.set(tool)
   return 'opened'
 }

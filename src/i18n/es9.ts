@@ -27,7 +27,6 @@ export const es9: Record<string, string> = {
   'main.pill.eraser': 'Opciones del borrador',
   'main.pill.lasso': 'Opciones del lazo',
   'main.pill.insert': 'Opciones de inserción',
-  'main.pill.read': 'Opciones de lectura',
   'main.pill.move': 'Mover las opciones (arrastra o usa las flechas)',
   'main.pill.pin': 'Mantener estas opciones abiertas',
 
@@ -64,15 +63,6 @@ export const es9: Record<string, string> = {
   'main.opt.insert.tape': 'Cinta',
   'main.opt.insert.magnifier': 'Lupa',
   'main.opt.insert.ruler': 'Regla',
-  'main.opt.read.aa': 'Aspecto de lectura (Aa)',
-  'main.opt.read.contents': 'Contenido',
-  'main.opt.read.bookmarks': 'Marcadores y notas',
-  'main.opt.read.listen': 'Escuchar',
-  'main.opt.read.find': 'Buscar',
-  'main.opt.read.lineFocus': 'Enfoque de línea',
-  'main.opt.read.lock': 'Bloquear',
-  'main.opt.read.selfTest': 'Autoevaluación (ocultar huecos)',
-  'main.opt.read.exit': 'Salir de la lectura',
 
   // ---- Detail cards ----
   'main.card.back': 'Atrás',

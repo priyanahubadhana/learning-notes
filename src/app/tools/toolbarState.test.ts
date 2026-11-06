@@ -1,7 +1,13 @@
 // @vitest-environment jsdom
 import { beforeEach, describe, expect, it } from 'vitest'
 import { TABS } from './tabs'
-import { activeTool, resetMainState } from './main/mainTools'
+import {
+  activeTool,
+  openPillTool,
+  resetMainState,
+  shownPill,
+} from './main/mainTools'
+import { selectTool } from './main/selectTool'
 import {
   DEFAULT_SET_TOOLS,
   activeSet,
@@ -36,6 +42,16 @@ describe('tool sets', () => {
     expect(activeTool.get()).toBe('read')
     changeSet('write', 'user')
     expect(activeTool.get()).toBe('text')
+  })
+
+  it('the Read set opens no pill, and closes one left by another tool', () => {
+    selectTool('pen')
+    expect(openPillTool.get()).toBe('pen')
+    changeSet('read', 'user')
+    expect(openPillTool.get()).toBeNull()
+    expect(selectTool('read')).toBe('closed')
+    expect(openPillTool.get()).toBeNull()
+    expect(shownPill(null, true, 'read')).toBeNull()
   })
 
   it('keeps an ink tool that was picked while Draw stays', () => {

@@ -28,7 +28,6 @@ export const en9 = {
   'main.pill.eraser': 'Eraser options',
   'main.pill.lasso': 'Lasso options',
   'main.pill.insert': 'Insert options',
-  'main.pill.read': 'Read options',
   'main.pill.move': 'Move the options (drag, or use the arrow keys)',
   'main.pill.pin': 'Keep these options open',
 
@@ -65,15 +64,6 @@ export const en9 = {
   'main.opt.insert.tape': 'Tape',
   'main.opt.insert.magnifier': 'Magnifier',
   'main.opt.insert.ruler': 'Ruler',
-  'main.opt.read.aa': 'Reading look (Aa)',
-  'main.opt.read.contents': 'Contents',
-  'main.opt.read.bookmarks': 'Bookmarks and notes',
-  'main.opt.read.listen': 'Listen',
-  'main.opt.read.find': 'Find',
-  'main.opt.read.lineFocus': 'Line focus',
-  'main.opt.read.lock': 'Lock',
-  'main.opt.read.selfTest': 'Self-test (hide blanks)',
-  'main.opt.read.exit': 'Exit reading',
 
   // ---- Detail cards ----
   'main.card.back': 'Back',

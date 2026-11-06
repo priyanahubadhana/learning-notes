@@ -7,13 +7,6 @@ import {
   colorLabel,
   setColor,
 } from '../../../editor/colorData'
-import { openReadingPanel } from '../../reading/readingTools'
-import { readingLocked } from '../../reading/readingState'
-import { useDeviceSetting } from '../../../settings/useSetting'
-import {
-  readingBlanksSetting,
-  readingRulerSetting,
-} from '../../../settings/readingSettings'
 import { runEditorCommand } from '../editorCommands'
 import { Icon, type IconName } from '../icons'
 import { currentRunner } from '../toolRuntime'
@@ -80,8 +73,6 @@ export function PillContent({
       return <LassoOptions ids={ids} {...api} />
     case 'insert':
       return <InsertOptions ids={ids} />
-    case 'read':
-      return <ReadOptions ids={ids} {...api} />
   }
 }
 
@@ -619,57 +610,6 @@ function InsertOptions({ ids }: { ids: string[] }) {
           />
         )
       })}
-    </>
-  )
-}
-
-// ---- Read ----
-
-const READ_ICON: Record<string, IconName> = {
-  aa: 'textSize',
-  contents: 'list',
-  bookmarks: 'bookmark',
-  listen: 'headphones',
-  find: 'search',
-  exit: 'close',
-  lineFocus: 'focus',
-  lock: 'lock',
-  selfTest: 'eyeOff',
-}
-
-function ReadOptions({ ids, open, cardIs }: { ids: string[] } & CardApi) {
-  const [ruler] = useDeviceSetting(readingRulerSetting)
-  const [blanks] = useDeviceSetting(readingBlanksSetting)
-  const locked = readingLocked.useValue()
-  const on: Record<string, boolean | undefined> = {
-    lineFocus: ruler !== 'off',
-    lock: locked,
-    selfTest: blanks === 'hide',
-  }
-  const act: Record<string, () => void> = {
-    aa: () => open('aa'),
-    contents: () => openReadingPanel('contents'),
-    bookmarks: () => openReadingPanel('bookmarks'),
-    listen: () => runTool('readAloud'),
-    find: () => runTool('find'),
-    exit: () => runTool('exitReading'),
-    lineFocus: () => runTool('lineFocus'),
-    lock: () => runTool('lockReading'),
-    selfTest: () => runTool('hideBlanks'),
-  }
-  return (
-    <>
-      {ids.map((id) => (
-        <PillButton
-          key={id}
-          id={id}
-          label={opt('read', id)}
-          icon={READ_ICON[id]}
-          expanded={id === 'aa' ? cardIs('aa') : undefined}
-          pressed={on[id]}
-          onClick={act[id]}
-        />
-      ))}
     </>
   )
 }

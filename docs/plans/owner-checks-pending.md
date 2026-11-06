@@ -16,6 +16,10 @@ Moved out of HANDOFF on 2026-11-06 (audit) so HANDOFF stays five lines. Newest f
 - **Pinch zoom** (C2b): in a PDF spread two fingers on a page, then pinch back. Does it follow your fingers, stay where you pinched and not fight scrolling or text selection? Why human: only real fingers on glass.
 - **Liquid mode and Find** (C5, C2b): in a text PDF tap Liquid. Is the text readable as plain paragraphs, and does Show original take you back to the same page? Tap Find, type a word, tap a result. Why human: judging whether the reflowed text is good enough.
 - **Lock screen direction** (C5): Settings › Reading › Lock screen direction › Sideways, then open a book. The iPad is expected to refuse; do you see the message about the Control Centre rotation lock? Why human: depends on iPadOS.
+## POLISH 1 CHECKS (item 3)
+
+- **Reading mode toggle** (item 3): turn Reading mode on and off from the ribbon and from the short bar. No empty pill appears and the tab stays put (owner note 18). Why human: feel on the iPad.
+
 ## POLISH 1 CHECKS (item 2)
 
 - **Row actions by touch** (item 2): rename a notebook and a task, and open the actions of a book card, with only a finger and the Pencil, no keyboard: press and hold the row, or tap the ⋯ on the card. Why human: the 500 ms hold and the Pencil feel.

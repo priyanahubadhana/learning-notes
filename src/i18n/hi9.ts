@@ -27,7 +27,6 @@ export const hi9: Record<string, string> = {
   'main.pill.eraser': 'रबर विकल्प',
   'main.pill.lasso': 'लैसो विकल्प',
   'main.pill.insert': 'जोड़ने के विकल्प',
-  'main.pill.read': 'पढ़ने के विकल्प',
   'main.pill.move': 'विकल्प हिलाएँ (खींचें, या तीर कुंजियाँ दबाएँ)',
   'main.pill.pin': 'ये विकल्प खुले रखें',
 
@@ -64,15 +63,6 @@ export const hi9: Record<string, string> = {
   'main.opt.insert.tape': 'टेप',
   'main.opt.insert.magnifier': 'आवर्धक',
   'main.opt.insert.ruler': 'फुटा',
-  'main.opt.read.aa': 'पढ़ने का रूप (Aa)',
-  'main.opt.read.contents': 'विषय-सूची',
-  'main.opt.read.bookmarks': 'बुकमार्क और नोट्स',
-  'main.opt.read.listen': 'सुनें',
-  'main.opt.read.find': 'खोजें',
-  'main.opt.read.lineFocus': 'पंक्ति पर ध्यान',
-  'main.opt.read.lock': 'लॉक',
-  'main.opt.read.selfTest': 'स्व-परीक्षा (रिक्त छिपाएँ)',
-  'main.opt.read.exit': 'पढ़ना बंद करें',
 
   // ---- Detail cards ----
   'main.card.back': 'वापस',

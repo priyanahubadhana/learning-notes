@@ -8,7 +8,12 @@ import {
 } from '../toolbarState'
 import { clearPinnedCache } from '../../../settings/deviceModeSettings'
 import { extraTools, mainList, pillLists, resetMainState } from './mainTools'
-import { migrateToMainBarOnce, resetMigration } from './migrateApply'
+import {
+  migrateToMainBarOnce,
+  resetMigration,
+  resetTidy,
+  tidyBarOnce,
+} from './migrateApply'
 import { migrateLists } from './migrate'
 
 const defaults = {
@@ -115,5 +120,15 @@ describe('tidying a saved bar', () => {
       'read',
     ])
     expect(addBackspace(['text', 'backspace'])).toEqual(['text', 'backspace'])
+  })
+})
+
+describe('the removed Read pill', () => {
+  it('an old saved bar with a Read pill loads, loses only that pill, keeps the others', () => {
+    resetTidy()
+    pillLists.set({ read: ['aa', 'find'], pen: ['type'] } as never)
+    expect(pillLists.get()).toEqual({ read: ['aa', 'find'], pen: ['type'] })
+    tidyBarOnce()
+    expect(pillLists.get()).toEqual({ pen: ['type'] })
   })
 })

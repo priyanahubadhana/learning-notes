@@ -3,7 +3,7 @@ import { DEFAULT_PINNED } from '../../deviceMode'
 import { readPinned } from '../../../settings/deviceModeSettings'
 import { prefStore } from '../store'
 import { DEFAULT_SET_TOOLS, readSetTools } from '../toolbarState'
-import { extraTools, mainList, pillLists } from './mainTools'
+import { extraTools, mainList, pillLists, withoutReadPill } from './mainTools'
 import { addBackspace, dedupeMain, migrateLists } from './migrate'
 
 const done = prefStore('toolbar.mainMigrated', isBoolean, false)
@@ -44,6 +44,9 @@ const tidied = prefStore('toolbar.dedupe1', isBoolean, false)
 export function tidyBarOnce(): void {
   if (tidied.get()) return
   tidied.set(true)
+  // The Read pill is gone (polish 1): drop it from a saved bar, keep the rest.
+  const pills = pillLists.get()
+  if ('read' in pills) pillLists.set(withoutReadPill(pills))
   const tidy = dedupeMain(mainList.get(), extraTools.get())
   const main = addBackspace(tidy.main)
   // Only a list the person saved is rewritten; the standard bar already has ⌫.

@@ -54,7 +54,6 @@ export const PILL_TOOLS = [
   'eraser',
   'lasso',
   'insert',
-  'read',
 ] as const
 export type PillTool = (typeof PILL_TOOLS)[number]
 export const isPillTool = (v: unknown): v is PillTool =>
@@ -97,17 +96,6 @@ export const PILL_OPTIONS: Record<PillTool, readonly string[]> = {
     'magnifier',
     'ruler',
   ],
-  read: [
-    'aa',
-    'contents',
-    'bookmarks',
-    'listen',
-    'find',
-    'exit',
-    'lineFocus',
-    'lock',
-    'selfTest',
-  ],
 }
 
 // ---- Which tool is selected, which pill shows ----
@@ -144,7 +132,7 @@ export function shownPill(
   active: ModeTool,
 ): PillTool | null {
   if (opened) return opened
-  return pinned ? active : null
+  return pinned && active !== 'read' ? active : null
 }
 
 /** Closes the pill and its card (the ✕, Esc, a tap outside). */
@@ -170,15 +158,27 @@ export const mainList = prefStore<MainTool[]>('toolbar.main', isMainList, [
 export const shownMainTools = (list: readonly MainTool[]): MainTool[] =>
   list.length > 0 ? [...list] : [...MAIN_TOOLS]
 
+/** The removed Read pill (polish 1): only old saved bars still have it. */
+export const LEGACY_READ_PILL = 'read'
 type PillMap = Partial<Record<PillTool, string[]>>
+
+/** A saved pill map without the removed Read pill. */
+export function withoutReadPill(map: PillMap): PillMap {
+  const { [LEGACY_READ_PILL as PillTool]: _gone, ...rest } = map
+  void _gone
+  return rest
+}
 const isPillMap = (v: unknown): v is PillMap => {
   if (typeof v !== 'object' || v === null || Array.isArray(v)) return false
   return Object.entries(v).every(
     ([tool, list]) =>
-      isPillTool(tool) &&
+      // `read` was a pill before the Read pill was removed: still accepted
+      // (and dropped by tidyBarOnce) so an old saved bar keeps its other pills.
+      (tool === LEGACY_READ_PILL || isPillTool(tool)) &&
       isStringArray(list) &&
       new Set(list).size === list.length &&
-      list.every((id) => PILL_OPTIONS[tool].includes(id)),
+      (tool === LEGACY_READ_PILL ||
+        list.every((id) => PILL_OPTIONS[tool as PillTool].includes(id))),
   )
 }
 

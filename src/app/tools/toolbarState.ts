@@ -172,9 +172,9 @@ function syncTool(set: BarSet): void {
   const tool = activeTool.get()
   if (set === 'read') {
     activeTool.set('read')
-    // A pill of another tool would be left behind (Lock to reading keeps Read).
+    // Reading mode has no pill: a pill of another tool would be left behind.
     const open = openPillTool.get()
-    if (open && open !== 'read' && open !== 'insert') openPillTool.set('read')
+    if (open && open !== 'insert') openPillTool.set(null)
   } else if (set === 'write') {
     if (tool === 'read' || isInkTool(tool)) activeTool.set('text')
   } else if (!isInkTool(tool)) activeTool.set('pen')

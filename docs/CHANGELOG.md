@@ -4,8 +4,8 @@ Current phase only. Older entries are in [ARCHIVE.md](ARCHIVE.md).
 
 ## 2026-11-07 (CI stabiliser: Wave 4 red e2e)
 
-- **What:** (1) Move up/Move down page buttons (D1) used a native `title` and broke the help rule; they now use the help tip system (`sidebar.moveUp`, `sidebar.moveDown`, three languages); the left panel ✕ lost its `title` (it has an aria-label). (2) `MenuPopover` now renders in `document.body`: when the sidebar scrolled (D1 made page rows taller, so tags sit lower), the menu was hidden behind the page and could not be clicked (tags screenshots; also a real bug on short screens). pathStyle and revise passed locally in the full chromium run (755 passed), no change needed.
-- **Files:** `src/app/ui.tsx`, `src/app/panel/LeftPanel.tsx`, `src/pages/PageTree.tsx`, `src/help/helpRegistry.ts`, `src/i18n/{en,es2,hi2}.ts`, `docs/HELP-TEXTS.md`
+- **What:** (1) Move up/Move down page buttons (D1) used a native `title` and broke the help rule; they now use the help tip system (`sidebar.moveUp`, `sidebar.moveDown`, three languages); the left panel ✕ lost its `title` (it has an aria-label). (2) `MenuPopover` now renders in `document.body`: when the sidebar scrolled (D1 made page rows taller, so tags sit lower), the menu was hidden behind the page and could not be clicked (tags screenshots; also a real bug on short screens). (3) The page row action buttons (now six with Move up/down) kept their width while hidden and squeezed a deep sub-page name to zero width (CI pathStyle "Full path", Linux fonts); the name now keeps a 5rem minimum and the hidden buttons may clip. Revise 390x844 did not fail again (flaky, no change). Full chromium run: 755 passed.
+- **Files:** `src/app/ui.tsx`, `src/app/panel/LeftPanel.tsx`, `src/pages/PageTree.tsx` (row layout), `src/help/helpRegistry.ts`, `src/i18n/{en,es2,hi2}.ts`, `docs/HELP-TEXTS.md`
 
 ## 2026-11-07 (Wave 4 part B · G3: picture resize, drawing labels)
 

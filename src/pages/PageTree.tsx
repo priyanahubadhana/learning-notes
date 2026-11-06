@@ -182,7 +182,7 @@ export function PageTree({
                 type="button"
                 onClick={() => onOpen(page.id)}
                 onDoubleClick={() => setRenamingId(page.id)}
-                className="line-clamp-2 flex-1 text-left break-words"
+                className="line-clamp-2 min-w-[5rem] flex-1 text-left break-words"
               >
                 {page.locked ? '🔒 ' : ''}
                 {page.journalDate && !page.customTitle
@@ -193,7 +193,8 @@ export function PageTree({
                       t('review.untitled')}
               </button>
             )}
-            <span className="flex opacity-0 group-focus-within:opacity-100 group-hover:opacity-100">
+            {/* May be clipped on a deep row, so the page name keeps its room. */}
+            <span className="flex min-w-0 shrink overflow-hidden opacity-0 group-focus-within:opacity-100 group-hover:opacity-100">
               {canMove && (
                 <>
                   <IconButton

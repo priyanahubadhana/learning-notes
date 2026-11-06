@@ -38,7 +38,7 @@ import {
 } from './inkDoc'
 import { InkHistory } from './inkHistory'
 import {
-  activeLayerOf,
+  eraserLayer,
   layerForDrawing,
   liveLayers,
   newLayer,
@@ -57,6 +57,9 @@ import {
 import { highlightStyle, inkStyle, makeStroke, type RawPoint } from './style'
 import {
   clearHighlightRuns,
+  eraseHighlightsLive,
+  restoreHighlights,
+  type LiveRemoved,
   highlightRuns,
   nearestHighlightName,
   runsText,
@@ -130,6 +133,8 @@ type Gesture =
       path: Pt[]
       del: Map<string, Placed>
       add: Map<string, Placed>
+      /** Text highlights taken off live (put back before the real edit). */
+      live: LiveRemoved[]
     }
   | {
       kind: 'lasso'
@@ -600,6 +605,7 @@ export class InkController {
         path: [],
         del: new Map(),
         add: new Map(),
+        live: [],
       }
       this.eraseTo(w)
       return
@@ -897,7 +903,20 @@ export class InkController {
     const hit = boundsOf([from, w])
     const area = inflate(hit, radius + 4)
     // The eraser only touches the active layer.
-    const active = activeLayerOf(this.env.doc.layers, this.env.doc.chosenLayer)
+    // Highlights on the words go as the Pencil rubs them (put back at the end).
+    if (settings.highlightsOnly) {
+      const root = this.env.editorEl()
+      if (root) {
+        const box = this.env.wrap.getBoundingClientRect()
+        g.live.push(
+          ...eraseHighlightsLive(
+            this.env.editor,
+            textRunsUnder(root, box, [from, w], radius, true),
+          ),
+        )
+      }
+    }
+    const active = eraserLayer(this.env.doc.layers, this.env.doc.chosenLayer)
     for (const p of this.selectable()) {
       if (active && p.layerId !== active.id) continue
       if (settings.highlightsOnly && p.stroke.kind !== 'highlight') continue
@@ -916,6 +935,7 @@ export class InkController {
   }
 
   private finishErase(g: Extract<Gesture, { kind: 'erase' }>): void {
+    restoreHighlights(this.env.editor, g.live)
     const edit: Edit = {
       del: [...g.del.values()],
       add: [...g.add.values()],
@@ -929,7 +949,7 @@ export class InkController {
         const radius = ERASER_SIZES[eraserSettings.get().size] / 2
         clearHighlightRuns(
           this.env.editor,
-          textRunsUnder(root, box, g.path, radius),
+          textRunsUnder(root, box, g.path, radius, true),
         )
       }
     }

@@ -26,6 +26,9 @@ async function openLayers(page: Page) {
   }
   await page.locator('[data-card-nav="layers"]').click()
 }
+async function ensureLayers(page: Page) {
+  if (!(await page.locator('[data-layers]').isVisible())) await openLayers(page)
+}
 const layerRows = (page: Page) => page.locator('[data-layer]')
 
 test('layers: two at most, chip, hide, lock toast, merge and undo', async ({
@@ -261,4 +264,68 @@ test('a hidden layer with drawings shows a chip at the top right; one tap shows 
   expect(at.x + at.width).toBeGreaterThan(page_.x + page_.width - 40)
   await chip.click()
   await expect(chip).toHaveCount(0)
+})
+
+test('strokes merged into a locked layer can be erased after Unlock (R5-11)', async ({
+  page,
+}) => {
+  await inkNote(page, 'Pen')
+  const box = await textBox(page)
+  const y = box.y + 150
+  await stroke(page, line([box.x + 20, y], [box.x + 420, y], 60))
+  await expectStrokes(page, 1)
+  await openLayers(page)
+  await page.locator('[data-layer-add]').click()
+  // Lock Layer 1 (it holds the stroke), draw on Layer 2, then merge down.
+  await layerRows(page)
+    .nth(1)
+    .getByRole('button', { name: 'Lock Layer 1' })
+    .click()
+  await stroke(page, line([box.x + 20, y + 80], [box.x + 420, y + 80], 60))
+  await expectStrokes(page, 2)
+  await ensureLayers(page)
+  await page.locator('[data-layer-merge]').click()
+  await page.getByRole('button', { name: 'Merge', exact: true }).click()
+  await ensureLayers(page)
+  // Merging opened the locked target up, so its ink is not stuck.
+  await expect(
+    layerRows(page).first().getByRole('button', { name: 'Lock Layer 1' }),
+  ).toBeVisible()
+  await page.keyboard.press('Escape')
+  await tool(page, 'Eraser').click({ force: true })
+  await option(page, 'Whole stroke').click()
+  await stroke(page, line([box.x + 220, y - 30], [box.x + 220, y + 120], 20))
+  await expectStrokes(page, 0)
+})
+
+test('strokes drawn on Layer 2, locked, then merged down can be erased (R5-11)', async ({
+  page,
+}) => {
+  await inkNote(page, 'Pen')
+  const box = await textBox(page)
+  const y = box.y + 150
+  await stroke(page, line([box.x + 20, y], [box.x + 420, y], 60))
+  await expectStrokes(page, 1)
+  await openLayers(page)
+  await page.locator('[data-layer-add]').click()
+  await stroke(page, line([box.x + 20, y + 80], [box.x + 420, y + 80], 60))
+  await expectStrokes(page, 2)
+  await ensureLayers(page)
+  await layerRows(page)
+    .first()
+    .getByRole('button', { name: 'Lock Layer 2' })
+    .click()
+  // Switch to the unlocked Layer 1, then merge Layer 2 into it.
+  await layerRows(page).nth(1).locator('[data-layer-draw]').click()
+  await page.locator('[data-layer-merge]').click()
+  await page.getByRole('button', { name: 'Merge', exact: true }).click()
+  await expectStrokes(page, 2)
+  await page.waitForTimeout(800)
+  await page.reload()
+  await expect(page.locator('[data-ink-pad]')).toBeAttached()
+  await page.keyboard.press('Escape')
+  await tool(page, 'Eraser').click({ force: true })
+  await option(page, 'Whole stroke').click()
+  await stroke(page, line([box.x + 220, y - 30], [box.x + 220, y + 120], 20))
+  await expectStrokes(page, 0)
 })

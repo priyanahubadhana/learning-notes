@@ -611,13 +611,13 @@ html[data-note-line] .bn-editor {
 
 /* Ink (redesign step 3): paper behind the drawings, and touch rules. */
 [data-ink-paper='lined'] {
-  background-image: repeating-linear-gradient(
+  background-image: linear-gradient(
     to bottom,
-    transparent 0,
-    transparent 31px,
-    color-mix(in srgb, var(--color-ink) 16%, transparent) 31px,
-    color-mix(in srgb, var(--color-ink) 16%, transparent) 32px
+    transparent calc(var(--paper-step, 32px) - 1px),
+    color-mix(in srgb, var(--color-ink) 16%, transparent) 0
   );
+  background-size: 100% var(--paper-step, 32px);
+  background-position: 0 var(--paper-offset, 0px);
 }
 [data-ink-paper='grid'] {
   background-image:
@@ -631,7 +631,8 @@ html[data-note-line] .bn-editor {
       color-mix(in srgb, var(--color-ink) 12%, transparent) 1px,
       transparent 1px
     );
-  background-size: 32px 32px;
+  background-size: var(--paper-step, 32px) var(--paper-step, 32px);
+  background-position: 0 var(--paper-offset, 0px);
 }
 [data-ink-paper='dots'] {
   background-image: radial-gradient(
@@ -639,7 +640,8 @@ html[data-note-line] .bn-editor {
     color-mix(in srgb, var(--color-ink) 30%, transparent) 1.3px,
     transparent 1.8px
   );
-  background-size: 32px 32px;
+  background-size: var(--paper-step, 32px) var(--paper-step, 32px);
+  background-position: 0 var(--paper-offset, 0px);
 }
 @media print {
   [data-ink-canvases] {

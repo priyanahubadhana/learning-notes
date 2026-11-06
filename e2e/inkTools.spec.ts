@@ -321,3 +321,36 @@ test('paper behind the ink', async ({ page }) => {
   await card(page).getByRole('radio', { name: 'Grid' }).click()
   await expect(page.locator('[data-ink-paper="grid"]')).toHaveCount(1)
 })
+
+test('the highlight eraser shows the erase live and Undo brings it back (R5-12)', async ({
+  page,
+}) => {
+  await inkNote(page, 'Highlighter')
+  const box = await textBox(page)
+  const y = box.y + box.height / 2
+  await stroke(page, line([box.x + 2, y], [box.x + 160, y]))
+  const marks = page.locator('.bn-editor [data-style-type="backgroundColor"]')
+  await expect(marks).toHaveCount(1)
+  await pickTool(page, 'Eraser')
+  await option(page, 'Erase highlights only').click()
+  // The Pencil is still down: the highlight is already gone.
+  await stroke(page, line([box.x + 2, y], [box.x + 200, y], 12), {
+    keepDown: true,
+  })
+  await expect(marks).toHaveCount(0)
+  await page.evaluate(() => {
+    const pad = document.querySelector('[data-ink-pad]')!
+    pad.dispatchEvent(
+      new PointerEvent('pointerup', {
+        pointerType: 'pen',
+        pointerId: 7,
+        clientX: 200,
+        clientY: 0,
+        bubbles: true,
+      }),
+    )
+  })
+  await expect(marks).toHaveCount(0)
+  await tool(page, 'Undo').click()
+  await expect(marks).toHaveCount(1)
+})

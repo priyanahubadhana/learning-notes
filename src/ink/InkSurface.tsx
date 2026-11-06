@@ -28,6 +28,7 @@ import { saveToHighlightsPage } from './saveToNotes'
 import { copyPng, selectionPng } from './screenshot'
 import { MixedMenu } from './MixedMenu'
 import type { Editor } from '../editor/barActions'
+import { watchPaperStep } from './paperGrid'
 
 /**
  * The ink of one open page: loads it, runs the engine over the editor
@@ -95,6 +96,11 @@ export function InkSurface({
     if (paper) wrap.setAttribute('data-ink-paper', paper)
     else wrap.removeAttribute('data-ink-paper')
     return () => wrap.removeAttribute('data-ink-paper')
+  }, [wrap, paper])
+  // The paper's spacing follows the text's line height.
+  useEffect(() => {
+    if (!wrap || !paper) return
+    return watchPaperStep(wrap)
   }, [wrap, paper])
   const paperRef = useRef(paper)
   useEffect(() => {

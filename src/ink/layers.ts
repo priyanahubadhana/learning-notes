@@ -126,10 +126,19 @@ export function mergeLayers(
   const into = doc.layers.find((l) => l.id === intoId)
   if (!from || !into || from.id === into.id) return null
   const moving = doc.strokesOf(from.id)
+  const layers: Edit['layers'] = [{ before: from, after: removed(from, now) }]
+  // The merged ink must stay editable: a locked or hidden target is opened up
+  // in the same edit (Undo puts it back), so no stroke is left stuck.
+  if (into.locked || into.hidden) {
+    layers.push({
+      before: into,
+      after: setHidden(setLocked(into, false, now), false, now),
+    })
+  }
   return {
     del: moving,
     add: moving.map((p) => ({ ...p, layerId: into.id })),
-    layers: [{ before: from, after: removed(from, now) }],
+    layers,
   }
 }
 
@@ -175,6 +184,19 @@ export function layerForDrawing(
   if (pick.locked) return { layer: null, reason: 'locked', named: pick }
   if (pick.hidden) return { layer: null, reason: 'hidden', named: pick }
   return { layer: pick }
+}
+
+/**
+ * The layer the eraser works on: the active one, unless it is locked or hidden
+ * (then it cannot hold anything to erase, and the eraser works on every layer
+ * that is shown and unlocked, so ink is never left stuck). Null = every layer.
+ */
+export function eraserLayer(
+  layers: readonly InkLayer[],
+  chosen: string | null,
+): InkLayer | null {
+  const active = activeLayerOf(layers, chosen)
+  return active && !active.locked && !active.hidden ? active : null
 }
 
 /** The active layer for display: the chosen one, else the top one. */

@@ -17,6 +17,7 @@ import {
 import { InkDoc, emptyEdit, type Edit, type Placed } from './inkDoc'
 import { InkHistory } from './inkHistory'
 import {
+  eraserLayer,
   canAddLayer,
   activeLayerOf,
   extraLayers,
@@ -634,5 +635,40 @@ describe('ink document and one history', () => {
     h.forgetRedo()
     expect(h.canRedo).toBe(false)
     expect(h.size).toBe(0)
+  })
+})
+
+describe('merged ink stays editable (R5-11)', () => {
+  const stroke = (id: string): Stroke => ({
+    ...line(3, (i) => ({ x: i, y: i })),
+    id,
+  })
+  it('merging into a locked layer opens it up, and Undo puts the lock back', () => {
+    const a0 = newLayer('p', [], 'Layer 1')
+    const b = newLayer('p', [a0], 'Layer 2')
+    const a = setLocked(a0, true)
+    const doc = new InkDoc({
+      pageId: 'p',
+      data: { layers: [a, b], chunks: [] },
+      save: () => {},
+    })
+    doc.apply({
+      ...emptyEdit(),
+      add: [{ layerId: b.id, blockId: null, stroke: stroke('s2') }],
+    })
+    const edit = mergeLayers(doc, b.id, a.id)!
+    doc.apply(edit)
+    expect(doc.layer(a.id)?.locked).toBeUndefined()
+    expect(doc.strokesOf(a.id)).toHaveLength(1)
+    doc.revert(edit)
+    expect(doc.layer(a.id)?.locked).toBe(true)
+  })
+
+  it('the eraser works on every open layer when the active one is locked', () => {
+    const a0 = newLayer('p', [], 'Layer 1')
+    const b = newLayer('p', [a0], 'Layer 2')
+    const a = setLocked(a0, true)
+    expect(eraserLayer([a, b], a.id)).toBeNull()
+    expect(eraserLayer([a0, b], b.id)?.id).toBe(b.id)
   })
 })

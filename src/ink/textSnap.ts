@@ -61,6 +61,8 @@ export function textRunsUnder(
   box: { left: number; top: number },
   path: readonly Pt[],
   reach: number,
+  /** Also take the spaces that stand alone between words (the eraser). */
+  gaps = false,
 ): TextRun[] {
   if (path.length === 0) return []
   let x0 = Infinity
@@ -109,6 +111,8 @@ export function textRunsUnder(
         while (s < e && /\s/.test(text[s])) s++
         while (e > s && /\s/.test(text[e - 1])) e--
         if (e > s) runs.push({ node, start: s, end: e })
+        else if (gaps && start === 0 && i === text.length && text.length > 0)
+          runs.push({ node, start: 0, end: text.length })
         start = -1
       }
     }
@@ -174,4 +178,89 @@ export function clearHighlightRuns(
     for (const [from, to] of spans) t.removeMark(from, to, mark)
   })
   return true
+}
+
+/** A highlight taken off the words for the live preview (put back at the end). */
+export interface LiveRemoved {
+  from: number
+  to: number
+  mark: unknown
+}
+
+interface LiveView {
+  posAtDOM: (node: Node, offset: number) => number
+  state: {
+    doc: {
+      nodesBetween: (
+        from: number,
+        to: number,
+        f: (
+          node: {
+            isText: boolean
+            nodeSize: number
+            marks: { type: unknown }[]
+          },
+          pos: number,
+        ) => void,
+      ) => void
+    }
+    schema: { marks: Record<string, unknown> }
+  }
+}
+
+/**
+ * The Highlight eraser, live: takes the highlight off the runs at once, with
+ * no Undo step, and returns what it took so the end of the stroke can put it
+ * back and make the one real (undoable) edit. The text does not change, so
+ * the positions stay true.
+ */
+export function eraseHighlightsLive(
+  editor: EditorLike,
+  runs: readonly TextRun[],
+): LiveRemoved[] {
+  const view = editor.prosemirrorView as unknown as LiveView | undefined
+  const markType = view?.state.schema.marks.backgroundColor
+  if (!view || !markType || runs.length === 0) return []
+  const removed: LiveRemoved[] = []
+  for (const r of runs) {
+    const from = view.posAtDOM(r.node, r.start)
+    const to = view.posAtDOM(r.node, r.end)
+    if (from >= to) continue
+    view.state.doc.nodesBetween(from, to, (node, pos) => {
+      if (!node.isText) return
+      const mark = node.marks.find((m) => m.type === markType)
+      if (mark)
+        removed.push({
+          from: Math.max(pos, from),
+          to: Math.min(pos + node.nodeSize, to),
+          mark,
+        })
+    })
+  }
+  if (removed.length === 0) return []
+  editor.transact((tr: never) => {
+    const t = tr as unknown as {
+      removeMark: (from: number, to: number, mark: unknown) => void
+      setMeta: (key: string, value: unknown) => void
+    }
+    for (const r of removed) t.removeMark(r.from, r.to, markType)
+    t.setMeta('addToHistory', false)
+  })
+  return removed
+}
+
+/** Puts back what `eraseHighlightsLive` took (no Undo step). */
+export function restoreHighlights(
+  editor: EditorLike,
+  removed: readonly LiveRemoved[],
+): void {
+  if (removed.length === 0) return
+  editor.transact((tr: never) => {
+    const t = tr as unknown as {
+      addMark: (from: number, to: number, mark: unknown) => void
+      setMeta: (key: string, value: unknown) => void
+    }
+    for (const r of removed) t.addMark(r.from, r.to, r.mark)
+    t.setMeta('addToHistory', false)
+  })
 }

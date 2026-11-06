@@ -7,6 +7,7 @@ Date: 2026-11-06. Method: web searches only (search snippets, not full page read
 ## Part A. How other apps do it
 
 ### GoodNotes 6
+
 - Text Box tool snaps back to Lasso after one box. Top user complaint; users want tap-to-place repeatedly without re-picking the tool. [verified: [GoodNotes feedback: allow multiple text boxes without switching to lasso](https://feedback.goodnotes.com/forums/191274-customer-suggestions-for-goodnotes-apple/suggestions/50597972--lasso-stop-lasso-default-tool?page=4)]
 - Pencil-to-text (Scribble) gets in the way of simply placing or moving a text box. [verified: same thread family, [Text Box Issues](https://feedback.goodnotes.com/forums/191274-customer-suggestions-for-goodnotes-apple/suggestions/50676059-text-box-issues)]
 - Lasso over a text box moves the whole box even if only part was circled. [verified: [GoodNotes feedback](https://feedback.goodnotes.com/forums/191274-customer-suggestions-for-goodnotes-apple/suggestions/50597972--lasso-stop-making-lasso-the-default?page=6)]
@@ -17,6 +18,7 @@ Date: 2026-11-06. Method: web searches only (search snippets, not full page read
 Lessons: (1) a tool the user picked must stay picked until they change it ("sticky tools"); (2) never let Scribble/pencil conversion fight with placing or moving objects; (3) lasso must pick a whole object, or the exact thing circled, and say which; (4) keep the toolbar thin and out of the writing area.
 
 ### Notability
+
 - Combines handwriting, typed text, images on one page; reviewers say switching between modes feels more natural than in GoodNotes. [verified: [App Store listing](https://apps.apple.com/us/app/id360593530), [MacStories](https://www.macstories.net/ios/ipad-diaries-apple-pencil-notability-and-the-joy-of-note-taking/)]
 - Typed text on the page does not align well; text boxes can change length and shift surrounding ink. [verified, but old: [tech.mountdesales.net overview](https://tech.mountdesales.net/?p=1540)]
 - Whether ink stays anchored when typed text reflows: not found. [unverified]
@@ -24,10 +26,12 @@ Lessons: (1) a tool the user picked must stay picked until they change it ("stic
 Lesson: the biggest design risk for us is exactly this: ink over reflowing text. Decide the rule up front (see R12).
 
 ### Notion
+
 - Block editor; selection model is block-first (Esc selects a block, drag selects many). iPad keyboard behaviour: no sourced detail found. [unverified]
 - Lesson from ProseMirror world: mobile Safari selection menu is hard to remove (Part B).
 
 ### OneNote on iPad
+
 - Draw tab; lasso selects ink strokes, then cut/copy/delete/move. [verified: [Microsoft: lasso select ink on iPad](https://support.microsoft.com/en-us/onenote/onenote-for-ipad-or-iphone-help-and-learning/lasso-select-ink-strokes-in-onenote-for-ipad-or-iphone)]
 - "Ink to Text" does not work on iPad (button does nothing); Microsoft states it is unsupported. [verified: [Microsoft Q&A](https://learn.microsoft.com/en-us/answers/questions/5840398/onenote-ios-ipados-ink-to-text-not-working-on-ipad)]
 - Ink vs typed-text anchoring: not found. [unverified]
@@ -35,16 +39,19 @@ Lesson: the biggest design risk for us is exactly this: ink over reflowing text.
 Lesson: do not show a button that does nothing on this platform. Hide or label "not available on iPad".
 
 ### Apple Notes / Freeform
+
 - Scribble converts handwriting to typed text only when the Handwriting tool is selected (or inside a text field). A normal pen keeps the ink. [verified: [Apple: Enter text with Scribble on iPad](https://support.apple.com/guide/ipad/aside/ipad355ab2a7/ipados), [Switching to Mac](https://www.switchingtomac.com/how-to-use-scribble-on-ipad-with-apple-pencil/)]
 - Apple's HIG-style advice for drawing apps: give the user a UI toggle between pencil modes (draw vs Scribble). [verified via secondary quote: [Nutrient blog](https://www.nutrient.io/blog/extending-the-scribble-user-experience/)]
 
 Lesson: explicit modes win. Pen tool = ink always. Pointer/text tool = text, Scribble allowed. Never guess from context.
 
 ### Photoshop Layers (for our 2-layer UI)
+
 - Beginners stumble on: eye (hidden is not deleted), several kinds of lock, Opacity vs Fill, and merge being permanent. Advice: duplicate before merging, name layers. [verified: [Photoshop tutorials roundup, e.g. psdvault](https://www.psdvault.com/basics/photoshop-layers-for-beginners/), [Adobe: understand layers](https://www.adobe.com/sg/learn/photoshop/web/understand-layers)]
 - Alt-click eye isolates a layer. [verified: same sources]
 
 Simple 2-layer version (our design, [unverified] until tested with the owner):
+
 - Two rows only: "Ink 1", "Ink 2" (text page shown as a fixed, non-editable "Page" row at the bottom, so the stack is visible: Ink 2 / Ink 1 / Page).
 - Per row: ONE eye (show/hide), ONE lock (one meaning: can't draw or select), no opacity slider in v1 (or a 3-step: 100/60/30 %).
 - "Active layer" = highlighted row; new strokes go there. Show the active layer's name in the toolbar pill.
@@ -56,6 +63,7 @@ Simple 2-layer version (our design, [unverified] until tested with the owner):
 ## Part B. Technical: ink overlay on iPad Safari
 
 ### B1. What is known about Scribble and web pointer events
+
 - iPadOS 14 report: with Scribble on, a page lost pointer events (3 of 4 pointerdowns) even with `touch-action: none`; reported workaround is a `touchmove` listener on the target that calls `preventDefault()`. Tracked as WebKit bug 217430. [verified: [Apple Developer Forums thread 662874](https://developer.apple.com/forums/thread/662874), [WebKit bug 217430](https://bugs.webkit.org/show_bug.cgi?id=217430)]. Community fix, not Apple-documented; may be fixed or changed in 2025-26. Test it.
 - Turning Scribble off in iPad Settings fixes it, but we cannot ask every user to do that. [verified: [DEV: Scribble interfering with Pencil canvas](https://dev.to/skyjinxx/ipados-scribble-interfering-with-apple-pencil-canvas-drawing-in-web-browsers-3ba7)]
 - An annotation-overlay developer found Scribble still stole events despite `touch-action` and `user-select`, and `pointer-events: none` was not an option. [verified: [yomotherboard Q&A](https://yomotherboard.com/question/how-can-i-disable-apples-scribble-feature-for-a-web-annotation-tool/)]
@@ -66,6 +74,7 @@ Simple 2-layer version (our design, [unverified] until tested with the owner):
 - Excalidraw / tldraw / Rnote / Xournal++ web specifics: I did NOT find their iPad Pencil source handling. tldraw's blog is the only partial hit. [unverified; read their repos' `touch-action` and `pointer` code directly]
 
 ### B2. Recommended overlay recipe (all [unverified] until tested on a real iPad)
+
 1. Overlay canvas: `position:absolute; inset:0; touch-action:none; user-select:none; -webkit-user-select:none; -webkit-touch-callout:none; -webkit-tap-highlight-color:transparent;`
 2. Only enable the overlay (`pointer-events:auto`) while an ink tool is active. In text mode set `pointer-events:none` so typing/scroll work normally. This is the cleanest "mode" switch and is what Apple's mode-toggle advice implies.
 3. Handle `pointerdown/move/up/cancel` and call `setPointerCapture(e.pointerId)`. Only start a stroke for `pointerType==="pen"` (finger = scroll/pan, optional "draw with finger" setting).
@@ -79,6 +88,7 @@ Simple 2-layer version (our design, [unverified] until tested with the owner):
 Known unsolved: Pencil hover (M2+ iPads) in Safari does not fire pointer events reliably for hover labels. Don't depend on hover for any control; hover labels are a bonus only. [unverified]
 
 ### B3. Selection callout (Cut/Copy/Paste) in a contenteditable
+
 - `-webkit-touch-callout:none` only stops the link/image long-press menu, not the text-selection menu. [verified: [ProseMirror forum](https://discuss.prosemirror.net/t/how-to-disable-the-mobile-safari-selection-menu/2581), [MDN](https://developer.mozilla.org/docs/Web/CSS/-webkit-touch-callout)]
 - `user-select:none` removes it but also blocks editing; `contenteditable=false` removes it but breaks links and is wrong semantically. [verified: [Wikimedia T281771](https://phabricator.wikimedia.org/T281771)]
 - Reports of the property failing on iOS 15+. [verified: [Apple forums 691021](https://developer.apple.com/forums/thread/691021)]
@@ -87,27 +97,32 @@ Known unsolved: Pencil hover (M2+ iPads) in Safari does not fire pointer events 
 - Custom copy payloads fail on iOS paste (WebKit bug 184271). Do not rely on custom clipboard formats on iPad. [verified: [WebKit bug](https://bugs.webkit.org/show_bug.cgi?id=184271)]
 
 ### B4. Keyboard and page jumping
+
 - iOS Safari resizes the visual viewport but not the layout viewport; `position:fixed` bars stay put and the keyboard covers them; the page may also scroll the whole viewport up. [verified: [Apple forums 824765](https://developer.apple.com/forums/thread/824765), [Quirksmode](https://www.quirksmode.org/blog/archives/2017/06/toolbars_keyboa.html)]
 - `interactive-widget` meta: Chrome Android yes; Safari status unclear (was behind a Tech Preview flag), and ignored in standalone PWA mode in one report. [verified partly: [Modern Web Weekly #61](https://modernwebweekly.substack.com/p/modern-web-weekly-61?open=false), [DEV: standalone PWA keyboard bug](https://dev.to/cederhook/fixing-the-ios-standalone-pwa-keyboard-bug-that-shrinks-your-viewport-for-good-63d)]. Check caniuse before use. Do not rely on it.
 - `visualViewport` resize/scroll listeners are the common approach but lag (updates after scrolling stops). [verified: DEV article above]
 - Recommendation: (a) track `visualViewport.height/offsetTop` and set a CSS var `--vvh`; position the bottom toolbar from it with `transform`, not `bottom`; (b) keep the document non-scrollable (body `overflow:hidden`) and make our own scroll container, so Safari has nothing to scroll when focus happens; (c) after focus, don't use `scrollIntoView` (jumps); compute the caret rect and scroll only our container by the needed delta; (d) in ink mode the keyboard is closed anyway (B2 #5), which removes most jumping. Standalone PWA keyboard viewport can stay shrunk after close; test and listen for `visualViewport.resize` to reset. [reasoning, unverified]
 
 ### B5. Caret from pen coordinates
+
 - ProseMirror `posAtCoords` calls `elementFromPoint`; had a Safari crash fix when it returns null; ambiguity at wrap points (end of line vs start of next); unpredictable near element edges. [verified: [prosemirror-view CHANGELOG](https://github.com/ProseMirror/prosemirror-view/blob/d01c420d9c087f7ba56fc4db2081823ff491dc9d/CHANGELOG.md), [PR #47](https://github.com/ProseMirror/prosemirror-view/pull/47), [forum](https://discuss.prosemirror.net/t/round-trip-posatcoords-and-coordsatpos/932)]
 - CodeMirror fixed a Safari bug where extra empty client rects confused `posAtCoords` at wrap points, and added `posAndSideAtCoords`. [verified: [CodeMirror 6.39.17](https://github.com/codemirror/view/releases/tag/6.39.17)]
 - `caretPositionFromPoint` vs `caretRangeFromPoint` on iPad: no source found. [unverified]
 - Recommendation: always call `view.posAtCoords({left,top})`; if null, clamp the point inside the editor rect and retry; then verify with `view.coordsAtPos(pos)`: if the distance to the tap > ~line height, snap to the nearest block via `view.dom` children's rects. Offset the pen point by a few px up/right of the nib (the visible tip vs touch point) [unverified]. When the editor is inert, `elementFromPoint` still works, so compute the caret on tap, make editable, then set the selection with `TextSelection.near`.
 
 ### B6. Hit targets without overlap
+
 - Apple HIG default 44x44 pt. WCAG 2.5.8 (AA) min 24x24 CSS px or a 24 px circle with no overlap; 2.5.5 (AAA) 44x44 CSS px. [verified via secondary: [frontendchecklist](https://frontendchecklist.io/rules/accessibility/touch-targets), [testparty WCAG guide](https://testparty.ai/blog/wcag-target-size-guide), [Deque](https://docs.deque.com/devtools-mobile/2024.9.18/en/ios-touch-target-spacing)]
 - Recipe: keep the icon 20 px, make the button 44x44 via padding, space centres >= 44 px (so hit areas touch but never overlap). If space is short, use a pseudo-element `::after{inset:-8px}` but only where neighbours are >= 16 px away; otherwise group icons in a pill/overflow menu. Pencil is precise, finger is not: the 44 px rule is for finger; Pencil-only controls can be 32 px. [partly unverified]
 
 ### B7. Smooth, distance-independent scroll-to-anchor + highlight
+
 - Native `scrollIntoView({behavior:"smooth"})` has no duration control; browsers choose. [verified: [StackOverflow via mirror](https://backiee.wasmer.app/https_stackoverflow_com/questions/64942035/how-to-set-a-timed-transition-to-the-scrollintoview-behavior-smooth)]
 - Custom `requestAnimationFrame` tween with fixed duration and easing is the standard answer. [verified: [javascriptsource tutorial](https://javascriptsource.com/scroll-to-an-element-smoothly-smooth-scroll), [scroll-element-into-view](https://www.npmjs.com/package/scroll-element-into-view)]
 - Recommendation: duration = clamp(250, 250 + 120*log2(1 + distance/viewportHeight)*..., 700) ms (so a 50-screen jump is ~600 ms, not 5 s); ease-in-out cubic; cancel on any `pointerdown`/`wheel`/`touchstart`; end offset = target top minus ~25 % of viewport (not flush to top); then add class `.anchor-flash` (background fade over 1200 ms). With `prefers-reduced-motion`: jump instantly, keep a static highlight for 1.5 s. For very long jumps, "teleport then short glide": jump to within 1.5 viewports, then animate the rest. [reasoning; unverified]
 
 ### B8. Bookmark UX in readers
+
 - Kindle: blue ribbon top-right; critique: no cue when inactive, accidental page turns when tapping it. Apple Books (old critique): bookmark hard to discover; notes list items look identical so hard to scan. [verified: [Pratt design critique, Kindle Android](https://ixd.prattsi.org/2017/09/design-critique-amazon-kindle-android-app/), [Apple Books critique](https://ixd.prattsi.org/2019/02/design-critique-apple-books-iphone-app/)]
 - Kindle bookmark usability complaints after an update. [verified: [pupuweb](https://pupuweb.com/why-are-my-kindle-bookmarks-so-hard-to-use-after-the-latest-update)]
 - Recommendation: a bookmark shows a faint outline ribbon when inactive (discoverable) and filled when set; target 44 px but placed away from the page-turn/scroll edge; list shows a 1-line snippet + position + date, with different icon colours per type (bookmark / highlight / note). Always give an undo toast on removal. [unverified]
@@ -134,4 +149,5 @@ Known unsolved: Pencil hover (M2+ iPads) in Safari does not fire pointer events 
 16. **Testing**: create a hidden "Pencil diagnostics" page logging pointer/touch event counts per stroke (down/move/up/cancel, pointerType) and run on the owner's iPad with Scribble on/off, Pencil 1 and 2/Pro, Safari tab and installed PWA. [unverified; recommended]
 
 ## Gaps (not found)
+
 GoodNotes pills/hover labels/selection bar details; Notability ink-over-text anchoring; OneNote ink-vs-text anchoring; Notion iPad keyboard specifics; Excalidraw/tldraw/Xournal++/Rnote iPad Pencil source; `caretPositionFromPoint` on iPad Safari; whether `interactive-widget` shipped in stable Safari; Apple Books current bookmark UI. These need hands-on testing or reading repos directly.

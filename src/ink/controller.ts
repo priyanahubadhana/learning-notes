@@ -1,3 +1,5 @@
+import { clampDpr } from '../app/canvasBudget'
+import { inkSwitches } from './inkRuntime'
 import { createId } from '../core/ids'
 import type { InkLayer, Stroke } from '../core/inkTypes'
 import {
@@ -35,7 +37,14 @@ import {
   type Placed,
 } from './inkDoc'
 import { InkHistory } from './inkHistory'
-import { newLayer, drawingLayer, liveLayers } from './layers'
+import {
+  activeLayerOf,
+  layerForDrawing,
+  liveLayers,
+  newLayer,
+  setHidden,
+  setLocked,
+} from './layers'
 import { PageLayout } from './layout'
 import { InkRenderer, paintStroke, strokeRect } from './render'
 import {
@@ -82,7 +91,10 @@ export interface InkEnv {
   /** Reading or read-only: no drawing. */
   frozen: () => boolean
   night: () => boolean
-  toast: (message: string) => void
+  toast: (
+    message: string,
+    action?: { label: string; onSelect: () => void },
+  ) => void
   /** The text editor's undo depth (for the one history). */
   textDepth: () => number
   /** Default name of a new layer ("Layer 2"). */
@@ -221,19 +233,17 @@ export class InkController {
     })
     on(this.pad, 'contextmenu', (e: Event) => e.preventDefault())
     // A Pencil must not scroll the page while a finger still can.
-    on(
-      this.pad,
-      'touchstart',
-      (e: TouchEvent) => {
-        for (const t of Array.from(e.changedTouches)) {
-          if ((t as Touch & { touchType?: string }).touchType === 'stylus') {
-            e.preventDefault()
-            return
-          }
+    const stylusOnly = (e: TouchEvent) => {
+      if (!inkSwitches.touchCancel) return
+      for (const t of Array.from(e.changedTouches)) {
+        if ((t as Touch & { touchType?: string }).touchType === 'stylus') {
+          e.preventDefault()
+          return
         }
-      },
-      { passive: false },
-    )
+      }
+    }
+    on(this.pad, 'touchstart', stylusOnly, { passive: false })
+    on(this.pad, 'touchmove', stylusOnly, { passive: false })
     // The lasso watches the page without taking it over.
     on(
       wrap,
@@ -283,6 +293,7 @@ export class InkController {
     for (const c of this.cleanups) c()
     this.cleanups = []
     this.overlay.remove()
+    this.renderer.dispose()
     this.listeners.clear()
   }
 
@@ -344,7 +355,7 @@ export class InkController {
 
   /**
    * Room to draw: while an ink tool is chosen, or there is ink, the page is
-   * at least 60% of the screen tall and always 240 px taller than its lowest
+   * at least as tall as the visible scroller and always 240 px taller than its lowest
    * stroke, so there is blank page under the last line to write on.
    */
   private roomKey = ''
@@ -368,10 +379,11 @@ export class InkController {
       const r = strokeRect(p.stroke, this.layout.frame(p.blockId))
       if (r) bottom = Math.max(bottom, r.y + r.h)
     }
-    const want = Math.max(
-      window.innerHeight * 0.6,
-      bottom > 0 ? bottom + 240 : 0,
-    )
+    const scrollerH =
+      this.scroller === window
+        ? window.innerHeight
+        : (this.scroller as HTMLElement).clientHeight
+    const want = Math.max(scrollerH, bottom > 0 ? bottom + 240 : 0)
     const have = parseFloat(wrap.style.minHeight) || 0
     if (Math.abs(want - have) > 8)
       wrap.style.minHeight = `${Math.round(want)}px`
@@ -429,7 +441,7 @@ export class InkController {
     }
     this.ensureRoom()
     const v = this.visible()
-    const dpr = Math.min(3, window.devicePixelRatio || 1)
+    const dpr = clampDpr(window.devicePixelRatio || 1)
     this.renderer.setView(v.top, v.width, v.height, dpr)
     this.renderer.draw(doc, this.layout, {
       hidden: this.hidden,
@@ -587,10 +599,7 @@ export class InkController {
     }
     if (tool !== 'pen' && tool !== 'highlighter') return
     const layer = this.layerForDrawing()
-    if (!layer) {
-      this.env.toast(this.lockedMessage)
-      return
-    }
+    if (!layer) return
     const blockId = pickAnchor(w, this.layout.blocks())
     const frame = this.layout.frame(blockId)
     const g: Extract<Gesture, { kind: 'draw' }> = {
@@ -617,12 +626,36 @@ export class InkController {
 
   lockedMessage = 'Unlock a layer to draw'
 
+  /**
+   * The active layer, or null after telling the user why nothing is drawn
+   * (locked or hidden), with a button that fixes it.
+   */
   private layerForDrawing(): InkLayer | null {
     const { doc } = this.env
     if (doc.layers.length === 0)
       return { id: '', pageId: doc.pageId } as InkLayer
-    return drawingLayer(doc.layers, doc.chosenLayer)
+    const r = layerForDrawing(doc.layers, doc.chosenLayer)
+    if (r.layer) return r.layer
+    const named = r.named
+    if (!named) {
+      this.env.toast(this.lockedMessage)
+      return null
+    }
+    const fix = r.reason === 'locked' ? setLocked : setHidden
+    this.env.toast(this.layerMessage(r.reason, named.name), {
+      label: this.layerActionLabel(r.reason),
+      onSelect: () => doc.patchLayer(fix(named, false)),
+    })
+    return null
   }
+
+  /** Texts for the locked/hidden toast (set by the surface in the user's language). */
+  layerMessage: (reason: 'locked' | 'hidden', name: string) => string = (
+    reason,
+    name,
+  ) => `${name} is ${reason}`
+  layerActionLabel: (reason: 'locked' | 'hidden') => string = (reason) =>
+    reason === 'locked' ? 'Unlock' : 'Show'
 
   private addPoint(
     g: Extract<Gesture, { kind: 'draw' }>,
@@ -715,10 +748,29 @@ export class InkController {
     this.notify()
   }
 
+  /** Counted for the Pencil lab: strokes kept or dropped on pointercancel. */
+  readonly cancels = { kept: 0, dropped: 0 }
+
+  /**
+   * iPadOS cancels the pointer when it takes the touch over. A stroke with
+   * enough points over enough time is real writing: keep it. Anything
+   * shorter is a stray touch: drop it.
+   */
   private cancel(e: PointerEvent): void {
     if (e.pointerType === 'pen') this.penDown = false
     const g = this.gesture
-    if (g && g.id === e.pointerId) this.cancelGesture()
+    if (!g || g.id !== e.pointerId) return
+    if (g.kind === 'draw') {
+      const last = g.pts[g.pts.length - 1]
+      const lasted = last?.t ?? 0
+      if (g.pts.length >= 3 && lasted >= 50) {
+        this.cancels.kept++
+        this.up(e)
+        return
+      }
+      this.cancels.dropped++
+    }
+    this.cancelGesture()
   }
 
   private cancelGesture(): void {
@@ -837,7 +889,10 @@ export class InkController {
     const settings = eraserSettings.get()
     const hit = boundsOf([from, w])
     const area = inflate(hit, radius + 4)
+    // The eraser only touches the active layer.
+    const active = activeLayerOf(this.env.doc.layers, this.env.doc.chosenLayer)
     for (const p of this.selectable()) {
+      if (active && p.layerId !== active.id) continue
       if (settings.highlightsOnly && p.stroke.kind !== 'highlight') continue
       const frame = this.layout.frame(p.blockId)
       const r = strokeRect(p.stroke, frame)

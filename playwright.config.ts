@@ -55,6 +55,21 @@ export default defineConfig({
       },
       expect: { timeout: 15_000 }, // WebKit starts the app more slowly
     },
+    {
+      // Stand-in for the owner's iPad: WebKit, touch, iPad size. Only the
+      // Pencil/Scribble/keyboard specs of Phase A run here (CI time).
+      name: 'ipad-webkit',
+      testMatch: [
+        /pencilIsolation/,
+        /chromeIsolation/,
+        /penTapChrome/,
+        /ipadKeyboard/,
+        /inkLayers/,
+      ],
+      use: { ...devices['iPad Pro 11'], hasTouch: true },
+      expect: { timeout: 15_000 },
+      timeout: 60_000,
+    },
   ],
   webServer: {
     command: `npm run build && npm run preview -- --port ${PORT} --strictPort`,

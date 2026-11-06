@@ -21,6 +21,9 @@ export interface InkApi {
   paper: () => Page['inkBg']
 }
 
+/** Pencil lab: switch single measures off to see what each one does. */
+export const inkSwitches = { touchCancel: true }
+
 let current: InkApi | null = null
 let tick = 0
 const listeners = new Set<() => void>()

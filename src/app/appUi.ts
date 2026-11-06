@@ -44,5 +44,11 @@ export const AppUiContext = createContext<AppUi>({
 /** Where a screen can put its own items in the top bar (null until shown). */
 export const TopBarSlotContext = createContext<HTMLElement | null>(null)
 
+/**
+ * Where the page's bars go: a normal-flow row between the top bar and the
+ * page scroller, so scrolled text never passes under a bar.
+ */
+export const TopStackSlotContext = createContext<HTMLElement | null>(null)
+
 /** Same as the phone variant in index.css. */
 export const PHONE_SCREEN = '(width < 40rem), (height < 32rem)'

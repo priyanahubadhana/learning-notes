@@ -25,7 +25,7 @@ import {
   type CSSProperties,
   type RefObject,
 } from 'react'
-import { AppUiContext } from '../app/appUi'
+import { AppUiContext, TopStackSlotContext } from '../app/appUi'
 import { nestedCardPlacement } from '../settings/builtinSettings'
 import { useSyncedSetting } from '../settings/useSetting'
 import { runTask } from '../app/errors'
@@ -45,6 +45,13 @@ import { AppFormattingToolbar } from './SelectionToolbar'
 import { DockedBar } from './DockedBar'
 import { watchDragSelect } from './dragSelect'
 import { penTransactionGuard, watchPenGuard } from './penGuard'
+import {
+  applyPageMode,
+  editableIn,
+  pageMode,
+  pageModeFor,
+  policyEnabled,
+} from './editPolicy'
 import { watchPenSelect } from './penSelect'
 import { watchKeyboardPolicy } from './keyboardPolicy'
 import { watchTapSelect } from './tapSelect'
@@ -255,8 +262,12 @@ function LoadedPageEditor({
   const lockedToReading = readingLocked.useValue()
   const inReader = reading?.view === 'reader'
   const frozen = readOnly || inReader || (!!reading && lockedToReading)
+  const tool = activeTool.useValue()
+  const policyOn = policyEnabled.useValue()
+  const wanted = pageModeFor({ tool, frozen, reading: false })
+  const mode = !policyOn && wanted === 'ink' ? 'edit' : wanted
   const docked = bar.placement !== 'floating' && !readOnly && !inReader
-  const [barSlot, setBarSlot] = useState<HTMLElement | null>(null)
+  const barSlot = useContext(TopStackSlotContext)
   // The element ink is laid over (the editor sits in it).
   const [inkWrap, setInkWrap] = useState<HTMLElement | null>(null)
   const [sync] = useState(() =>
@@ -521,6 +532,19 @@ function LoadedPageEditor({
   })
   useEffect(() => () => clearActiveEditor(editor as never), [editor])
 
+  // One place decides what the page may do (see editPolicy.ts): ink tools make
+  // it non-editable and inert so Scribble has nothing to write in.
+  useEffect(() => {
+    const content = (editor.domElement as HTMLElement | undefined) ?? null
+    content?.setAttribute('data-page-content', '')
+    applyPageMode(mode, {
+      editor,
+      content,
+      title: null,
+    })
+  }, [editor, mode])
+  useEffect(() => () => pageMode.set('edit'), [])
+
   /** Card list rows: open the card's page if needed, then scroll to it. */
   const openBlock = (targetPageId: string, blockId: string) => {
     if (targetPageId !== pageId) onOpenPage(targetPageId)
@@ -539,11 +563,10 @@ function LoadedPageEditor({
         openDatabase: onOpenDatabase,
       }}
     >
-      {docked && <div ref={setBarSlot} className="sticky top-0 z-10" />}
       <div ref={setInkWrap} data-ink-wrap className="contents">
         <BlockNoteView
           editor={editor}
-          editable={!frozen}
+          editable={editableIn(mode)}
           onChange={sync.changed}
           theme={editorColorScheme(theme)}
           slashMenu={false}

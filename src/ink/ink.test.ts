@@ -18,7 +18,11 @@ import { InkDoc, emptyEdit, type Edit, type Placed } from './inkDoc'
 import { InkHistory } from './inkHistory'
 import {
   canAddLayer,
-  drawingLayer,
+  activeLayerOf,
+  extraLayers,
+  layerForDrawing,
+  mergeExtras,
+  mergeLayers,
   liveLayers,
   MAX_LAYERS,
   moved,
@@ -372,6 +376,10 @@ describe('pen gestures', () => {
 })
 
 describe('layers', () => {
+  const stroke = (id: string): Stroke => ({
+    ...line(3, (i) => ({ x: i, y: i })),
+    id,
+  })
   const layers = (): InkLayer[] => {
     const a = newLayer('p', [], 'Layer 1', 1)
     const b = newLayer('p', [a], 'Layer 2', 2)
@@ -430,13 +438,75 @@ describe('layers', () => {
     expect(canAddLayer([a])).toBe(true)
   })
 
-  it('new ink goes to the chosen layer, else the top one that is not locked or hidden', () => {
+  it('new ink goes to the chosen layer; a locked or hidden one says why', () => {
     const [a, b, c] = layers()
-    const locked = setLocked(c, true)
-    expect(drawingLayer([a, b, locked], null)?.id).toBe(b.id)
-    expect(drawingLayer([a, b, c], a.id)?.id).toBe(a.id)
-    expect(drawingLayer([a, b, setHidden(c, true)], c.id)?.id).toBe(b.id)
-    expect(drawingLayer([setLocked(a, true)], null)).toBeNull()
+    expect(layerForDrawing([a, b, c], a.id).layer?.id).toBe(a.id)
+    // Nothing chosen: the top layer that is free.
+    expect(layerForDrawing([a, b, setLocked(c, true)], null).layer?.id).toBe(
+      b.id,
+    )
+    // The chosen layer is locked or hidden: nothing is drawn, with the reason.
+    const locked = layerForDrawing([a, setLocked(b, true)], b.id)
+    expect(locked.layer).toBeNull()
+    expect(locked.reason).toBe('locked')
+    const hidden = layerForDrawing([a, setHidden(b, true)], b.id)
+    expect(hidden.reason).toBe('hidden')
+    expect(activeLayerOf([a, b], null)?.id).toBe(b.id)
+  })
+
+  it('merging moves every stroke and puts the layer away (one edit, undoable)', () => {
+    const [a, b] = layers()
+    const doc = new InkDoc({
+      pageId: 'p',
+      data: { layers: [a, b], chunks: [] },
+      save: () => {},
+    })
+    const s1 = stroke('s1')
+    const s2 = stroke('s2')
+    doc.apply({
+      ...emptyEdit(),
+      add: [
+        { layerId: a.id, blockId: null, stroke: s1 },
+        { layerId: b.id, blockId: null, stroke: s2 },
+      ],
+    })
+    const edit = mergeLayers(doc, b.id, a.id)!
+    doc.apply(edit)
+    expect(doc.layers.map((l) => l.id)).toEqual([a.id])
+    expect(
+      doc
+        .strokesOf(a.id)
+        .map((p) => p.stroke.id)
+        .sort(),
+    ).toEqual(['s1', 's2'])
+    doc.revert(edit)
+    expect(doc.layers).toHaveLength(2)
+    expect(doc.strokesOf(b.id).map((p) => p.stroke.id)).toEqual(['s2'])
+    expect(mergeLayers(doc, a.id, a.id)).toBeNull()
+  })
+
+  it('mergeExtras folds old extra layers into Layer 2', () => {
+    const chain: InkLayer[] = []
+    for (const n of [1, 2, 3, 4]) chain.push(newLayer('p', chain, `Layer ${n}`))
+    const doc = new InkDoc({
+      pageId: 'p',
+      data: { layers: chain, chunks: [] },
+      save: () => {},
+    })
+    doc.apply({
+      ...emptyEdit(),
+      add: chain.map((layer, i) => ({
+        layerId: layer.id,
+        blockId: null,
+        stroke: stroke(`x${i}`),
+      })),
+    })
+    expect(extraLayers(doc.layers)).toHaveLength(2)
+    const edit = mergeExtras(doc)!
+    doc.apply(edit)
+    expect(doc.layers).toHaveLength(2)
+    expect(doc.strokesOf(chain[1].id)).toHaveLength(3)
+    expect(mergeExtras(doc)).toBeNull()
   })
 })
 

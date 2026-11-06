@@ -1,10 +1,11 @@
 import { createId } from '../core/ids'
 import type { InkLayer } from '../core/inkTypes'
 import { orderBetween } from '../core/order'
+import type { Edit, Placed } from './inkDoc'
 
 /** Layer rules, as pure functions on a page's layer list. */
 
-export const MAX_LAYERS = 12
+export const MAX_LAYERS = 2
 export const MAX_NAME = 40
 
 export const liveLayers = (layers: readonly InkLayer[]): InkLayer[] =>
@@ -105,14 +106,87 @@ export const removed = (layer: InkLayer, now = Date.now()): InkLayer => ({
   updatedAt: now,
 })
 
-/** The layer new ink goes to: the chosen one if usable, else the topmost unlocked. */
-export function drawingLayer(
+/** What the doc must offer for layer merges (InkDoc does). */
+export interface LayerSource {
+  layers: readonly InkLayer[]
+  strokesOf: (layerId: string) => Placed[]
+}
+
+/**
+ * Moves every stroke of `fromId` into `intoId` and puts `fromId` away. One
+ * edit, so one Undo step. Null when either layer is missing or they are the same.
+ */
+export function mergeLayers(
+  doc: LayerSource,
+  fromId: string,
+  intoId: string,
+  now = Date.now(),
+): Edit | null {
+  const from = doc.layers.find((l) => l.id === fromId)
+  const into = doc.layers.find((l) => l.id === intoId)
+  if (!from || !into || from.id === into.id) return null
+  const moving = doc.strokesOf(from.id)
+  return {
+    del: moving,
+    add: moving.map((p) => ({ ...p, layerId: into.id })),
+    layers: [{ before: from, after: removed(from, now) }],
+  }
+}
+
+/** Layers beyond the two that new pages have (old pages could have more). */
+export const extraLayers = (layers: readonly InkLayer[]): InkLayer[] =>
+  liveLayers(layers).slice(MAX_LAYERS)
+
+/** Merges every extra layer into "Layer 2" (the second from the bottom) in one edit. */
+export function mergeExtras(doc: LayerSource, now = Date.now()): Edit | null {
+  const live = liveLayers(doc.layers)
+  if (live.length <= MAX_LAYERS) return null
+  const into = live[MAX_LAYERS - 1]
+  const edit: Edit = { del: [], add: [], layers: [] }
+  for (const extra of live.slice(MAX_LAYERS)) {
+    const part = mergeLayers(doc, extra.id, into.id, now)
+    if (!part) continue
+    edit.del.push(...part.del)
+    edit.add.push(...part.add)
+    edit.layers.push(...part.layers)
+  }
+  return edit
+}
+
+export type NoLayer = 'locked' | 'hidden'
+
+/**
+ * The layer a stroke goes to: the active one (the chosen layer, else the top
+ * visible, unlocked one). A locked or hidden active layer draws nothing and
+ * says why. No layers yet is fine: one is made on the first stroke.
+ */
+export function layerForDrawing(
+  layers: readonly InkLayer[],
+  chosen: string | null,
+):
+  | { layer: InkLayer; reason?: undefined }
+  | { layer: null; reason: NoLayer; named: InkLayer | null } {
+  const live = liveLayers(layers)
+  const pick =
+    live.find((l) => l.id === chosen) ??
+    [...live].reverse().find((l) => !l.locked && !l.hidden) ??
+    live[live.length - 1]
+  if (!pick) return { layer: null, reason: 'locked', named: null }
+  if (pick.locked) return { layer: null, reason: 'locked', named: pick }
+  if (pick.hidden) return { layer: null, reason: 'hidden', named: pick }
+  return { layer: pick }
+}
+
+/** The active layer for display: the chosen one, else the top one. */
+export function activeLayerOf(
   layers: readonly InkLayer[],
   chosen: string | null,
 ): InkLayer | null {
   const live = liveLayers(layers)
-  const pick = live.find((l) => l.id === chosen)
-  if (pick && !pick.locked && !pick.hidden) return pick
-  const open = [...live].reverse().find((l) => !l.locked && !l.hidden)
-  return open ?? null
+  return (
+    live.find((l) => l.id === chosen) ??
+    [...live].reverse().find((l) => !l.locked && !l.hidden) ??
+    live[live.length - 1] ??
+    null
+  )
 }

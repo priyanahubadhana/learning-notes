@@ -18,6 +18,6 @@ export function runHistory(editor: Editor, kind: 'undo' | 'redo'): boolean {
   const view = editor.prosemirrorView
   if (!view) return kind === 'undo' ? editor.undo() : editor.redo()
   const done = (kind === 'undo' ? undo : redo)(view.state, view.dispatch, view)
-  view.focus()
+  // Never focus here: Undo must not open the keyboard.
   return done
 }

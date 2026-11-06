@@ -32,6 +32,7 @@ export function TopBar({
 
   return (
     <header
+      data-chrome
       style={{
         paddingTop: 'var(--top-clear)',
         paddingLeft: 'max(8px, env(safe-area-inset-left))',

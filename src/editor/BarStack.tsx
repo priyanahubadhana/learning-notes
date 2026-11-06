@@ -5,7 +5,6 @@ import {
   useLayoutEffect,
   useRef,
   useState,
-  useSyncExternalStore,
   type CSSProperties,
   type KeyboardEvent,
   type PointerEvent,
@@ -56,18 +55,6 @@ function readInsets(): Insets {
   return insets
 }
 
-/** How far the visible screen is panned down (the keyboard can do it). */
-function subscribeViewport(listener: () => void) {
-  const vv = window.visualViewport
-  vv?.addEventListener('resize', listener)
-  vv?.addEventListener('scroll', listener)
-  return () => {
-    vv?.removeEventListener('resize', listener)
-    vv?.removeEventListener('scroll', listener)
-  }
-}
-const viewportTop = () => Math.round(window.visualViewport?.offsetTop ?? 0)
-
 export function BarStack({
   place,
   kind,
@@ -86,7 +73,6 @@ export function BarStack({
 }) {
   const ref = useRef<HTMLDivElement>(null)
   const inset = useKeyboardInset()
-  const panned = useSyncExternalStore(subscribeViewport, viewportTop)
   const store = kind === 'ribbon' ? ribbonFreePos : freePos
   const saved = store.useValue()
   const [drag, setDrag] = useState<{ x: number; y: number } | null>(null)
@@ -264,8 +250,6 @@ export function BarStack({
           visibility: hidden ? 'hidden' : 'visible',
         }
       : {
-          // The keyboard can pan the screen under a sticky bar: follow it.
-          transform: panned > 0 ? `translateY(${panned}px)` : undefined,
           visibility: hidden ? 'hidden' : 'visible',
         }
   const up = bottom || (free && saved.fy > 0.5)
@@ -274,6 +258,7 @@ export function BarStack({
     <div
       ref={ref}
       data-bar="docked"
+      data-chrome
       data-placement={place}
       data-kind={kind}
       style={style}
@@ -281,8 +266,8 @@ export function BarStack({
         free
           ? 'fixed z-30'
           : bottom
-            ? 'fixed inset-x-0 z-10 bg-bg supports-[backdrop-filter]:bg-bg/60 supports-[backdrop-filter]:backdrop-blur-md'
-            : 'relative -mx-14 bg-bg supports-[backdrop-filter]:bg-bg/60 supports-[backdrop-filter]:backdrop-blur-md'
+            ? 'fixed inset-x-0 z-10 bg-bg pt-2'
+            : 'relative bg-bg'
       }
     >
       {free ? (
@@ -291,6 +276,7 @@ export function BarStack({
             <button
               type="button"
               data-bar-handle
+              data-pen-own
               aria-label={t('bar.move')}
               title={t('bar.move')}
               onPointerDown={onDown}

@@ -307,7 +307,11 @@ export class InkDoc {
   /** Chooses the layer new ink goes to. */
   chooseLayer(id: string | null): void {
     this.chosenLayer = id
+    this.onChoose?.(id)
   }
+
+  /** Told when the user chooses a layer (the surface remembers it). */
+  onChoose: ((id: string | null) => void) | undefined
 
   /** Changes a layer's look (hide, lock, name) without an undo step. */
   patchLayer(l: InkLayer): void {

@@ -37,6 +37,32 @@
     sans-serif;
 }
 
+/* One stacking scale for chrome (bars under pills under pop-ups under toasts). */
+:root {
+  --z-bar: 20;
+  --z-pill: 30;
+  --z-popup: 40;
+  --z-toast: 50;
+  --z-modal: 60;
+}
+
+/*
+ * Hit area (touch and Pencil): at least 44 x 44 px. A small control that
+ * has neighbours 12 px away may grow an invisible 6 px margin (`hit-grow`).
+ */
+@utility hit {
+  min-width: 44px;
+  min-height: 44px;
+}
+@utility hit-grow {
+  position: relative;
+  &::after {
+    content: '';
+    position: absolute;
+    inset: -6px;
+  }
+}
+
 /* Themes: Day is the default above; Night and Sepia override the tokens. */
 :root {
   color-scheme: light;

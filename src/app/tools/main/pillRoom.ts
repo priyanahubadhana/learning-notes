@@ -22,7 +22,7 @@ export function measureRoom(): Box {
   const dock = row?.closest<HTMLElement>('[data-bar="docked"]')
   const rect = row?.getBoundingClientRect()
   if (rect && dock?.dataset.placement === 'top') {
-    top = Math.max(top - MARGIN, rect.bottom) + BAR_GAP
+    top = rect.bottom + BAR_GAP
   } else if (rect && dock?.dataset.placement === 'bottom') {
     bottom = Math.min(bottom + MARGIN, rect.top) - BAR_GAP
   } else {

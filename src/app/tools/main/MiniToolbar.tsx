@@ -362,6 +362,7 @@ function Handle({
     <button
       type="button"
       data-sel-handle={which}
+      data-pen-own
       aria-label={label}
       title={label}
       onMouseDown={(e) => e.preventDefault()}

@@ -1,3 +1,4 @@
+import { canvasBytes, clampDpr, release, reserve } from '../app/canvasBudget'
 import type { Stroke } from '../core/inkTypes'
 import type { Frame } from './anchor'
 import { IDENTITY, type Affine, type Rect } from './geometry'
@@ -147,7 +148,10 @@ export interface RenderOptions {
   night: boolean
 }
 
+let rendererCount = 0
+
 export class InkRenderer {
+  private readonly budgetId = `ink-${++rendererCount}`
   readonly root: HTMLDivElement
   readonly hl: HTMLCanvasElement
   readonly ink: HTMLCanvasElement
@@ -195,6 +199,17 @@ export class InkRenderer {
 
   /** Sets which part of the page is on screen. Returns true if anything moved. */
   setView(top: number, width: number, height: number, dpr: number): boolean {
+    dpr = clampDpr(dpr)
+    // Over the memory budget: draw at 1x rather than turn blank.
+    if (
+      !reserve(
+        this.budgetId,
+        3 * canvasBytes(width * dpr, height * dpr) + this.bitmapBytes(),
+      )
+    ) {
+      dpr = 1
+      reserve(this.budgetId, 3 * canvasBytes(width, height))
+    }
     const w = Math.max(1, Math.round(width))
     const h = Math.max(1, Math.round(height))
     const sizeChanged =
@@ -214,6 +229,21 @@ export class InkRenderer {
       this.bitmaps.clear()
     }
     return sizeChanged
+  }
+
+  private bitmapBytes(): number {
+    let n = 0
+    for (const b of this.bitmaps.values())
+      n += canvasBytes(b.canvas.width, b.canvas.height)
+    return n
+  }
+
+  /** Gives the canvases' memory back (the page closed). */
+  dispose(): void {
+    for (const c of [this.hl, this.ink, this.live]) c.width = c.height = 0
+    for (const b of this.bitmaps.values()) b.canvas.width = b.canvas.height = 0
+    this.bitmaps.clear()
+    release(this.budgetId)
   }
 
   /** Forgets cached bitmaps (when layers are removed). */
@@ -306,6 +336,10 @@ export class InkRenderer {
     bmp.height = height
     bmp.canvas.width = Math.round(this.width * dpr)
     bmp.canvas.height = Math.round(height * dpr)
+    reserve(
+      this.budgetId,
+      3 * canvasBytes(this.width * dpr, this.height * dpr) + this.bitmapBytes(),
+    )
     const ctx = bmp.canvas.getContext('2d')
     if (!ctx) return null
     const target: Target = { ctx, top, dpr }

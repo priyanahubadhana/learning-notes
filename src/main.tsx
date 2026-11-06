@@ -6,8 +6,15 @@ import App from './App.tsx'
 import { reloadOnFailedChunk } from './app/chunkReload'
 import { ErrorBoundary } from './app/ErrorBoundary'
 import { startNavHistory } from './app/navHistory'
+import { installPenTap } from './app/penTap'
 import { UpgradeGate } from './app/UpgradeGate'
-import { offerUpdate, repeatUpdateOffer, watchForUpdates } from './app/updates'
+import {
+  noteChecked,
+  offerUpdate,
+  repeatUpdateOffer,
+  setUpdateChecker,
+  watchForUpdates,
+} from './app/updates'
 import { requestPersistentStorage } from './core/storage'
 import { writePref } from './app/uiPrefs'
 import { initDeviceMode } from './settings/deviceModeSettings'
@@ -16,6 +23,7 @@ import { saveEverything } from './share/saveEverything'
 initDeviceMode()
 startNavHistory()
 reloadOnFailedChunk()
+installPenTap()
 
 // Ask the browser not to clear our notes database (fire and forget).
 void requestPersistentStorage()
@@ -25,8 +33,12 @@ void requestPersistentStorage()
 const update = registerSW({
   onNeedRefresh: () => offerUpdate(() => void update(true)),
   onRegisteredSW: (_url, registration) => {
+    setUpdateChecker(async () => {
+      await registration?.update()
+    })
     watchForUpdates(document, () => {
       repeatUpdateOffer()
+      noteChecked()
       void registration?.update().catch(() => {}) // offline: try next time
     })
   },

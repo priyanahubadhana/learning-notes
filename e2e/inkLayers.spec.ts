@@ -28,7 +28,7 @@ async function openLayers(page: Page) {
 }
 const layerRows = (page: Page) => page.locator('[data-layer]')
 
-test('layers: add, rename, hide and show, lock, reorder, delete and undo', async ({
+test('layers: two at most, chip, hide, lock toast, merge and undo', async ({
   page,
 }) => {
   await inkNote(page, 'Pen')
@@ -36,70 +36,51 @@ test('layers: add, rename, hide and show, lock, reorder, delete and undo', async
   const y = box.y + 150
   await stroke(page, line([box.x + 20, y], [box.x + 300, y]))
   await expectStrokes(page, 1)
+  await expect(page.locator('[data-layer-chip]')).toHaveText('Layer 1 ▾')
   await openLayers(page)
   await expect(layerRows(page)).toHaveCount(1)
-  // A second layer; new ink goes to it.
   await page.locator('[data-layer-add]').click()
   await expect(layerRows(page)).toHaveCount(2)
-  await expect(
-    layerRows(page).first().locator('[data-layer-name]'),
-  ).toHaveValue('Layer 2')
+  // The most a page can have is two: Add goes away.
+  await expect(page.locator('[data-layer-add]')).toHaveCount(0)
+  await expect(layerRows(page).first()).toContainText('Layer 2')
+  await expect(page.locator('[data-layer-page]')).toBeVisible()
   await stroke(page, line([box.x + 20, y + 60], [box.x + 300, y + 60]))
   await expectStrokes(page, 2)
   const ink = await savedInk(page)
   expect(new Set(ink.chunks.map((c) => c.layerId)).size).toBe(2)
-  // Rename.
-  const name = layerRows(page).first().locator('[data-layer-name]')
-  await name.fill('Notes')
-  await name.press('Enter')
-  await expect
-    .poll(async () => (await savedInk(page)).layers.map((l) => l.name))
-    .toContain('Notes')
   // Hide: nothing of that layer is painted; show: it is back.
   const before = await painted(page, 'ink')
   await layerRows(page)
     .first()
-    .getByRole('button', { name: 'Hide Notes' })
+    .getByRole('button', { name: 'Hide Layer 2' })
     .click()
   await expect.poll(() => painted(page, 'ink')).toBeLessThan(before)
   await layerRows(page)
     .first()
-    .getByRole('button', { name: 'Show Notes' })
+    .getByRole('button', { name: 'Show Layer 2' })
     .click()
   await expect.poll(() => painted(page, 'ink')).toBe(before)
-  // Lock: drawing there is refused.
+  // Lock: drawing there is refused, with a toast that can unlock.
   await layerRows(page)
     .first()
-    .getByRole('button', { name: 'Lock Notes' })
+    .getByRole('button', { name: 'Lock Layer 2' })
     .click()
   await stroke(page, line([box.x + 20, y + 120], [box.x + 300, y + 120]))
+  await expect(page.getByText('Layer 2 is locked')).toBeVisible()
+  expect((await savedInk(page)).strokes).toHaveLength(2)
+  await page.getByRole('button', { name: 'Unlock', exact: true }).click()
+  await stroke(page, line([box.x + 20, y + 120], [box.x + 300, y + 120]))
   await expectStrokes(page, 3)
-  // It went to the other layer, never into the locked one.
-  const locked = layerRows(page).first()
-  const lockedId = await locked.getAttribute('data-layer')
-  const strokesIn = (await savedInk(page)).chunks
-    .filter((c) => c.layerId === lockedId)
-    .reduce((n, c) => n + c.strokes.length, 0)
-  expect(strokesIn).toBe(1)
-  await layerRows(page)
-    .first()
-    .getByRole('button', { name: 'Unlock Notes' })
-    .click()
-  // Reorder: Notes goes up to the top.
-  await layerRows(page)
-    .first()
-    .getByRole('button', { name: 'Move Notes down' })
-    .click()
-  await expect(
-    layerRows(page).first().locator('[data-layer-name]'),
-  ).toHaveValue('Layer 1')
-  // Delete, then Undo brings it back.
-  await layerRows(page)
-    .first()
-    .getByRole('button', { name: /^Delete / })
-    .click()
+  // Merge Layer 2 into Layer 1: warning first, then one layer, then Undo.
+  await openLayers(page)
+  await page.locator('[data-layer-merge]').click()
+  await expect(page.getByText(/cannot be separated later/)).toBeVisible()
+  await page.getByRole('button', { name: 'Merge', exact: true }).click()
+  await openLayers(page)
   await expect(layerRows(page)).toHaveCount(1)
-  await tool(page, 'Undo').click()
+  expect((await savedInk(page)).strokes).toHaveLength(3)
+  await page.getByRole('button', { name: 'Undo', exact: true }).last().click()
   await openLayers(page)
   await expect(layerRows(page)).toHaveCount(2)
 })

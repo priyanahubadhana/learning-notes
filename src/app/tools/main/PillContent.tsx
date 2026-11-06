@@ -33,6 +33,8 @@ import {
 import { openCard, pillOptionsOf, pillLists, type PillTool } from './mainTools'
 import { Caret, PillButton, Swatch, ThicknessChip } from './pillParts'
 import { paletteFor, useCustomColours } from './pillKit'
+import { activeLayerOf } from '../../../ink/layers'
+import { useInk } from '../../../ink/inkRuntime'
 import { alignOf, listOf, styleOf } from './textOps'
 
 /** The options of each tool's pill. Each option is a button with a name. */
@@ -286,11 +288,30 @@ function TextOptions({
 
 // ---- Pen ----
 
+/** "Layer 1 ▾": the layer the ink tools draw on; opens the Layers card. */
+function LayerChip({ open, cardIs }: Pick<CardApi, 'open' | 'cardIs'>) {
+  const ink = useInk()
+  const active = ink ? activeLayerOf(ink.doc.layers, ink.doc.chosenLayer) : null
+  const name = active?.name ?? t('ink.layer.default', { n: 1 })
+  return (
+    <PillButton
+      id="layer"
+      label={name}
+      expanded={cardIs('layers')}
+      onClick={() => open('layers')}
+      className="!w-auto gap-1 px-3 text-sm"
+    >
+      <span data-layer-chip>{name} ▾</span>
+    </PillButton>
+  )
+}
+
 function PenOptions({ ids, open, cardIs }: { ids: string[] } & CardApi) {
   const pen = penSettings.useValue()
   const custom = useCustomColours()
   return (
     <>
+      <LayerChip open={open} cardIs={cardIs} />
       {ids.map((id) => {
         if (id === 'type') {
           return (
@@ -373,6 +394,7 @@ function HighlighterOptions({
   const custom = useCustomColours()
   return (
     <>
+      <LayerChip open={open} cardIs={cardIs} />
       {ids.map((id) => {
         if (id === 'thickness') {
           return (
@@ -439,10 +461,11 @@ const ERASER_ICON: Record<string, IconName> = {
   stroke: 'penLine',
 }
 
-function EraserOptions({ ids, open }: { ids: string[] } & CardApi) {
+function EraserOptions({ ids, open, cardIs }: { ids: string[] } & CardApi) {
   const e = eraserSettings.useValue()
   return (
     <>
+      <LayerChip open={open} cardIs={cardIs} />
       {ids.map((id) => {
         if (id === 'mode') {
           return (

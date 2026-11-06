@@ -300,6 +300,7 @@ export function Toast({
         onRelease?.()
       }}
       role="status"
+      data-chrome
       className="fixed bottom-5 left-1/2 z-40 flex max-w-[calc(100vw-32px)] -translate-x-1/2 items-center gap-3 rounded-[10px] bg-ink px-3.5 py-2 text-[13px] text-bg shadow-[0_8px_24px_rgba(0,0,0,0.14)]"
     >
       <span>{message}</span>

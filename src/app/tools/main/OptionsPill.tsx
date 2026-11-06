@@ -171,6 +171,19 @@ function Pill({
     return () => pillReserve.set(0)
   }, [docks, size.height])
 
+  // A pill on any other edge reserves its width (or height) as padding of the
+  // page scroller, so text never sits under it.
+  useLayoutEffect(() => {
+    const root = document.documentElement.style
+    const name = `--pill-pad-${place.edge}`
+    const extent = isVertical ? size.width : size.height
+    if (!docks && extent > 0)
+      root.setProperty(name, `${extent + 2 * BAR_GAP}px`)
+    return () => {
+      root.removeProperty(name)
+    }
+  }, [docks, place.edge, isVertical, size.width, size.height])
+
   const pos = useMemo(() => positionOf(place, size, room), [place, size, room])
 
   // Follows the rule for every pop-up (closes on a tap outside, Esc, another
@@ -293,6 +306,7 @@ function Pill({
               <button
                 type="button"
                 data-pill-grip
+                data-pen-own
                 aria-label={t('main.pill.move')}
                 title={t('main.pill.move')}
                 onPointerDown={onGripDown}

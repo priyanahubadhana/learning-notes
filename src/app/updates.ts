@@ -59,3 +59,48 @@ export function resetUpdates() {
   listener = undefined
   dismissed = false
 }
+
+// ---- "Check for updates now" (Settings › About this app) ----
+
+type Check = () => Promise<void>
+let checker: Check | undefined
+let lastChecked: number | null = null
+const checkedListeners = new Set<() => void>()
+
+/** Remembers how to ask the browser for a new version (main.tsx). */
+export function setUpdateChecker(check: Check) {
+  checker = check
+}
+/** A check ran (by the app or by the user). */
+export function noteChecked(at = Date.now()) {
+  lastChecked = at
+  for (const fn of checkedListeners) fn()
+}
+export const lastCheckedAt = (): number | null => lastChecked
+export function onChecked(fn: () => void): () => void {
+  checkedListeners.add(fn)
+  return () => {
+    checkedListeners.delete(fn)
+  }
+}
+export const updateWaiting = (): boolean => pending !== undefined
+
+/** Asks for a new version now. 'ready' = one waits, 'current' = up to date. */
+export async function checkForUpdateNow(
+  wait = 2500,
+): Promise<'ready' | 'current' | 'failed'> {
+  if (!checker) return 'failed'
+  try {
+    await checker()
+    // A new version needs a moment to download before it is "waiting".
+    await new Promise((r) => setTimeout(r, wait))
+    noteChecked()
+    if (pending) {
+      dismissed = false
+      listener?.(pending)
+    }
+    return pending ? 'ready' : 'current'
+  } catch {
+    return 'failed'
+  }
+}

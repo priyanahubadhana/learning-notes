@@ -20,6 +20,7 @@ import { loadInk, saveInk } from '../core/inkService'
 import { t } from '../i18n/t'
 import { getPage, setPageInkBg } from '../pages/pageService'
 import { InkController, type TextEditor } from './controller'
+import { readActiveLayer, writeActiveLayer } from './activeLayer'
 import { InkDoc } from './inkDoc'
 import { InkHistory } from './inkHistory'
 import { bumpInk, registerInk } from './inkRuntime'
@@ -110,6 +111,13 @@ export function InkSurface({
         save: (layers, chunks) => saveInk(db, layers, chunks),
       })
       const history = new InkHistory()
+      doc.chooseLayer(
+        readActiveLayer(
+          pageId,
+          doc.layers.map((l) => l.id),
+        ),
+      )
+      doc.onChoose = (id) => writeActiveLayer(pageId, id)
       const controller = new InkController({
         wrap,
         editorEl: () => editor.domElement ?? wrap.querySelector('.bn-editor'),
@@ -120,7 +128,7 @@ export function InkSurface({
         deviceMode: () => latest.current.mode,
         frozen: () => latest.current.frozen,
         night: () => latest.current.theme === 'night',
-        toast: (m) => latest.current.toast(m),
+        toast: (m, action) => latest.current.toast(m, action),
         textDepth: () => {
           const state = editor.prosemirrorView?.state as never
           return state ? undoDepth(state) : 0
@@ -139,6 +147,16 @@ export function InkSurface({
         textSize: () => 100,
       })
       controller.lockedMessage = t('ink.locked')
+      controller.layerMessage = (reason, name) =>
+        t(reason === 'locked' ? 'ink.layer.isLocked' : 'ink.layer.isHidden', {
+          name,
+        })
+      controller.layerActionLabel = (reason) =>
+        t(
+          reason === 'locked'
+            ? 'ink.layers.unlockAction'
+            : 'ink.layers.showAction',
+        )
       controller.mount()
       const offDoc = doc.subscribe(bumpInk)
       const offCtl = controller.subscribe(bumpInk)

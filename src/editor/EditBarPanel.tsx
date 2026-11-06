@@ -87,6 +87,7 @@ function ReorderList({
         >
           <button
             type="button"
+            data-pen-own
             aria-label={t('bar.drag', { name: nameOf(id) })}
             onPointerDown={(e) => {
               dragging.current = id

@@ -16,6 +16,7 @@ export type Route =
   | { kind: 'cards' }
   | { kind: 'data' }
   | { kind: 'calendar' }
+  | { kind: 'lab' }
   | { kind: 'settings'; parts: string[] }
   | { kind: 'search'; savedId?: string; query?: Record<string, unknown> }
   | { kind: 'review'; scope: ReviewRoute }
@@ -50,6 +51,8 @@ export function routeToHash(route: Route): string {
         .slice(0, MAX_PARTS)
         .map((p) => `/${e(p)}`)
         .join('')}`
+    case 'lab':
+      return '#/lab/pencil'
     case 'databases':
     case 'cards':
     case 'data':
@@ -102,6 +105,8 @@ export function parseHash(hash: string): Route {
         : home
     case 'settings':
       return { kind: 'settings', parts: args.slice(0, MAX_PARTS) as string[] }
+    case 'lab':
+      return first === 'pencil' ? { kind: 'lab' } : home
     case 'databases':
     case 'cards':
     case 'data':

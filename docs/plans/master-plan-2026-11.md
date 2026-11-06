@@ -897,3 +897,25 @@ Everything else follows the standing decisions; mid-build questions go to DECISI
 **Stopping cleanly on limits:** if the session or usage limit is near, finish the current sub-step or revert it to the last green commit; commit only passing work; write HANDOFF ("stopped at A3.2; next: …; restart: `npm run dev`"); never leave a half-migrated database version uncommitted. If a limit stops you mid-way, a one-time restart is scheduled for just after the reset (rules/sessions.md) and resumes the same work after checking `git status`. If a part keeps failing after two honest tries, stop and tell the owner so they can switch that part to Opus.
 
 **Step checklist template (copy into HANDOFF while working):** spec read · plan step read · tests listed · code · related tests green · strings en/hi/es · a11y names · themes + phone · DECISIONS rows · full run · push · CI · live check · CHANGELOG · spec · HANDOFF · mirror.
+
+## Run decisions (owner, 6 Nov, after Max upgrade)
+
+- Build A → K automatically, then STOP at L (Sync) for the owner's free-account checklist.
+- Sonnet, medium effort, for all builders.
+- Speed: parallel builders in separate git worktrees for independent phases (waves); builders run only related tests locally and rely on GitHub CI for the full suite. Before pushing, a builder rebases on the latest main, resolves conflicts, and re-runs its related tests. Pushes happen one at a time.
+- Owner iPad testing happens once at the end, before Sync (no per-phase gate); the fixes then go in one batch.
+- AI stays at Phase P after Sync, designed to fit a $100 API credit (usage caps, cheapest suitable model, owner's own key never in code).
+- Waves: 1 = A. 2 = B + E + H. 3 = C + F. 4 = D + G + I. 5 = J + K. A Dexie version is assigned at merge time in merge order (each schema change is an upgrade with a backup).
+- Self-testing (owner, 6 Nov): builders test as much as possible themselves, including Playwright WebKit with an iPad device profile (touch, pen pointer events, iPad viewport, simulated Scribble and keyboard via visualViewport) as a stand-in for the real iPad. The owner's real-iPad pass comes at the end.
+- Keep building through limits: wait for each reset and continue, wave after wave, until Phase L. Owner may later delete and rebuild parts he dislikes.
+- Mode: execution only. Planning is done; no new planning rounds unless something blocks.
+- Owner (6 Nov): while Sync waits for accounts, keep building any later phase that doesn't need accounts or money (e.g. M Summary tabs, N Maths/Calendar, O Polish). Skip only Sync-dependent parts and AI (P, needs the API key and cost approval).
+- Owner (6 Nov), add to Phase P (AI):
+  - (1) An MCP server for the app, so Claude (and other AI tools) can read, search and write notes, cards and tasks with the owner's permission (respecting the per-notebook "Allow AI" switch).
+  - (2) A "universal AI" connector layer: a swappable provider/plugin interface, so new Claude features and other AI tools can be added as plugins without a rebuild.
+  - A web PWA can't host an MCP server itself; options are a small local bridge on the PC, or a server reading the synced copy after Phase L. Research and decide in P. Costs only with owner approval.
+- Owner (6 Nov), add to Phase P: "Bring your own AI". Each user connects THEIR OWN AI (Claude, ChatGPT, Gemini, Codex and others) through:
+  - (a) a shareable connector package (an MCP server/config, a Claude skill file, an OpenAPI action for custom GPTs), so the user's AI tool can read and write their notes with permission;
+  - (b) the user's own API keys (stored on their device only).
+    Example: Gemini summarises a YouTube video and saves it into a chosen notebook automatically.
+    The user's own accounts pay the AI costs (keeps the app ₹0). Verify each vendor's current MCP/action support during P.

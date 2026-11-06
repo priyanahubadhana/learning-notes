@@ -156,6 +156,7 @@ function CardBody({
     case 'pen.layers':
     case 'highlighter.layers':
     case 'lasso.layers':
+    case 'eraser.layers':
       return <LayersCard />
     case 'highlighter.main':
       return <HighlighterCard onPage={onPage} />

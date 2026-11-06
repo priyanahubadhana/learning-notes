@@ -272,6 +272,7 @@ export function Sidebar({
 
   return (
     <aside
+      data-chrome
       id="sidebar"
       aria-label={t('sidebar.label')}
       style={{ paddingTop: 'calc(14px + var(--top-clear))' }}

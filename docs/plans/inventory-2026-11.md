@@ -19,18 +19,21 @@ Sources: redesign-2026-11.md, owner-test-notes-2026-11.md (rounds 1-4, R4-1..R4-
 Nothing below has a fix commit. All R4 items are "collect, fix later in one go".
 
 **Critical ink/selection (R4-20, R4-22/17, R4-23 root requirement)**
+
 - **R4-20** Pen/Brush over text lines does not draw: acts as selection/Scribble (wrote "@", selected text, once removed text). Empty space below content draws; a new empty page often draws nothing. Root requirement: ink tools live on a transparent layer above everything and must never touch content below.
 - **R4-17 / R4-22** Pencil taps on toolbar (Lasso button, selection bar) acted as Scribble and wrote a comma. All non-page UI must capture Pencil taps fully.
 - **R1 12 (3a)** Pencil selection still deleting: unverified after 3a/2; R4-20 reports text removed once, so not closed.
 - **R1 13** Undo/Redo with pictures: fix built, not re-confirmed by owner. **R4-16** Undo/Redo re-open the keyboard (they focus the editor).
 
 **Selection (text)**
+
 - **R4-11 / R4-19a** word/line selection disappears after about 1 s. **R4-19b-d** handles hard to drag, animation not smooth, sometimes selected but not drawn.
 - **R4-12** no ✕ to deselect. **R4-13** iOS Cut/Copy/Paste bar still shows (our selection bar wanted). **R4-18** lasso selection bar good, but not available in all lasso cases; outline/handles missing on one lasso drag.
 - **T3 hold 0.5 s** caret placement about 80% right; Scribble claims the held stroke when the hand moves.
 - **R4-15 (clarified)** page jumps when the keyboard opens/closes; the bar moves above the keyboard and back. Wants fixed bar and a still page (visualViewport, interactive-widget, scroll anchoring).
 
 **Toolbar / pills**
+
 - **R4-1** pill docked left/right turns into a square grid; must stay a long thin bar.
 - **R4-2** duplicate highlighter icons, indent/outdent icons after migration; check defaults.
 - **R4-9a-d** dragging the reading pill scrolls the page, opens the keyboard, leaves a blank grey area, pill floats mid-screen.
@@ -38,6 +41,7 @@ Nothing below has a fix commit. All R4 items are "collect, fix later in one go".
 - **R1 7/11 (layering)** more menu behind bars: fixed in 2e, not re-reported.
 
 **Reading / contents / bookmarks**
+
 - **R4-3** normal top toolbar must hide in reading mode. **R4-4 (corrected)** reader search icon shows the current menu with a new "this page" filter first. **R4-5** Contents and Bookmarks must be separate. **R4-6** no bookmark feedback, new bookmark barely visible, no marker in the page. **R4-7** opened bookmark does not show which spot. **R4-8** jumps too fast, no landing cue (fixed 1-1.5 s smooth scroll plus glow).
 - **R1 2** reader top bar blur (unconfirmed). **R1 16** Face ID failed ("device lock did not confirm"), PIN field contrast: not re-reported. **R1 18** toggle jumps to Home tab: not re-reported. **R1 19** reader bar unreachable when scrolled: not re-reported. **R1 22** read-aloud repeating words, robotic voice: no fix.
 - Unverified checklist in HANDOFF: step 2, 3, 4a owner checks (Pencil latency, finger scroll beside Pencil, snapping, Scribble, tab bar on iPhone, Face ID, app-switcher snapshot).
@@ -79,6 +83,7 @@ Nothing below has a fix commit. All R4 items are "collect, fix later in one go".
 ## 4. Owner decisions made, and helper-only decisions to review
 
 **Owner decisions (quotes)**
+
 - Four spaces plus Search: "Home (Today), Library, Notebooks, Review"; settings in a quiet corner.
 - "ONE reading view, no switching"; text layer 1, Pencil ink layers 2+; reader ink tools "the SAME tools" as Draw (uniformity rule).
 - Home: no continue reading, no favourites; matrix quadrant "manual and never auto-derived"; "No notifications".
@@ -91,6 +96,7 @@ Nothing below has a fix commit. All R4 items are "collect, fix later in one go".
 - Reader bar default: "minimised ✕ plus show-on-scroll-up". Pause/suspend YES. Share built last. Questions one at a time. Short-bar picture an image, not an artifact, after questions settle.
 
 **Helper decisions to review (DECISIONS "Decisions to review", all unreviewed)**
+
 - 4a: Review/All cards/Saved searches stay in Notebooks list as well as Review; Notebooks cannot be hidden; hidden remembered space falls back.
 - Step 3: Dexie v13 tables; Notes-only backups include ink; Replace accepts v12; History copies hold ink (30 max); ink anchored to first-point block; Undo history for open page only; Finger can draw = Automatic; options pill stays open while drawing; snap-to-text maps to six BlockNote colours, no stroke made; snapped shapes use pen colour; 12 layers, created at first stroke; whole-page stroke load; 60% page room; perfect-freehand dependency.
 - Step 2: pill stays open after a choice; Title/H1 sizes; Toggle list "coming"; display-only font settings; old bars migrated; per-tool ink settings; pen-over-picture CSS passthrough; "Not verified against GoodNotes/Notability help pages".

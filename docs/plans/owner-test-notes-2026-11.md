@@ -1,6 +1,7 @@
 # Owner iPad test notes (5 Nov 2026), collect, don't build yet
 
 ## Round 1
+
 1. Sidebar looks messy when open (screenshot 1). Truncated notebook names ("Claud…", "New n…", "Un…"), lots of row icons, uneven spacing. Clean it up.
 2. Full-screen reader / reading mode: the top bar is blurry (frosted line across the top). Make it crisp.
 3. Orientation lock option (screen keeps rotating).
@@ -10,10 +11,12 @@
    - Share as a link that another user can paste into the app to open or import.
    - Universal system share sheet (like WhatsApp: the contacts circle row, Mail and so on) through the Web Share API, while keeping our own share-as-link.
 6. Short (compact) bar: "New line" should be there by default (it's missing in the Read set screenshot).
-8. (Round 2) The Apple Pencil can't press-and-drag on the bar's tools to try and see options (as GoodNotes allows: tap and hold to open the tool's options, drag to choose).
-9. The short bar is too full, its icons aren't clear, and the owner doesn't know what they do. It needs a full rework, so we'll walk through each item together (teach and redesign). Draw set screenshot: T / pencil / book switch, pin, an odd pen-and-eraser picture (an iPadOS Scribble overlay or our "coming" items?), lasso, All tools, search, ⋯, Done.
-11. Editing the short bar is hard to find. The short bar's ⋯ menu should have "Edit bar" as its FIRST item, opening an easy list where you show or hide tools and move them up and down (drag, or ↑↓).
+7. (Round 2) The Apple Pencil can't press-and-drag on the bar's tools to try and see options (as GoodNotes allows: tap and hold to open the tool's options, drag to choose).
+8. The short bar is too full, its icons aren't clear, and the owner doesn't know what they do. It needs a full rework, so we'll walk through each item together (teach and redesign). Draw set screenshot: T / pencil / book switch, pin, an odd pen-and-eraser picture (an iPadOS Scribble overlay or our "coming" items?), lasso, All tools, search, ⋯, Done.
+9. Editing the short bar is hard to find. The short bar's ⋯ menu should have "Edit bar" as its FIRST item, opening an easy list where you show or hide tools and move them up and down (drag, or ↑↓).
+
 ## Round 3
+
 12. CRITICAL: selecting with the Apple Pencil still DELETES content, even with the 2f guard. GoodNotes selects fine. It must work reliably.
 13. CRITICAL: Undo and Redo are sometimes unavailable. After deleting blocks that contain pictures, neither could bring them back, and History had no version to recover either. We need fully reliable undo and redo, plus History snapshots before any big deletion.
 14. The "3-line" item (Contents / outline?) works only from the big ribbon. Add it to the short bar too (confirm with the owner which one is meant).
@@ -26,7 +29,7 @@
     - a small minimised ✕ (or pill) that always stays;
     - the bar appearing on a scroll up or tap near the top;
     - the full bar only at the top of the page.
-    Make it a choice in Settings, with the minimised ✕ plus show-on-scroll-up as the default.
+      Make it a choice in Settings, with the minimised ✕ plus show-on-scroll-up as the default.
 20. "Contents and bookmarks" should be a Word-style Navigation pane: a right-side panel that can be docked and kept open, with a collapsible heading tree (H1 › H2 › H3, ▸/▾), the current heading highlighted as you scroll, and a calmer look (the current pop-up feels confusing).
 21. Reading workflow (books and notes). Overlaps batch 7 (Reader), so decide whether to pull it forward.
     - While reading: highlight in colours, then "Add note" on a highlight, and "Save to notebook" with a choice of destination (any notebook or page, a new "Highlights" page, or the page's summary or subnotes). The user chooses the path.
@@ -40,7 +43,9 @@
 23. Screenshot glitch: the ribbon in Sepia sits on a grey or dark band wider than itself (the docked bar background doesn't match the theme).
 24. While read aloud plays, an always-VISIBLE "now playing" control (a mini player in the top bar or a floating pill) on every screen, so it can be stopped from anywhere. Today it kept reading after the owner navigated away, and there was no way to stop it.
 25. A big rework: Reading mode as a dedicated, professional reader (Kindle-like app within the app). The "Look and reading" panel options (theme, font, size, spacing, margin, width, scroll or pages, line focus, blanks) are liked, but they should live inside the reader as its own clean controls, not mixed into the editing ribbon or text tools, which is confusing. Plan in depth with the owner: objectives first, then research.
+
 ## Owner's vision (answers, 5 Nov)
+
 - Main use: reading BOOKS and PDFs on iPad and phone (PC last), not web articles. Own notes come second.
 - Flow is like Kindle:
   - A library with books and % progress, and a book opens where you left it.
@@ -63,7 +68,9 @@
   - a list of every current feature, with visuals, so the owner can reorganise it;
   - research on organisation methods and on what's missing;
   - questions ONE AT A TIME.
+
 ## Agreed structure (5 Nov)
+
 - 4 spaces plus Search: Home (Today), Library, Notebooks, Review. Settings and the rest go to a quiet corner.
 - Home is a productivity cockpit:
   - Top 3 priorities.
@@ -168,10 +175,12 @@
   - Research the exact picks (licence OFL) before building.
 - Share/export approved: PDF, Word, Markdown, text, the iPad share sheet now; share links with Sync. Build it LAST in the order.
 - Audience is friends and online communities, so shareable templates and pages matter (ties to the Layer gallery).
+
 10. Note for the owner: the bottom bar (↶ keyboard, B I U, ^ v, mic, ↵) is iPadOS's own shortcut bar, NOT our app's.
-7. Layering bug: with the short bar plus the ribbon showing, the ⋯ (More) menu opens BEHIND or under the ribbon. Pop-ups must sit above both bars.
+11. Layering bug: with the short bar plus the ribbon showing, the ⋯ (More) menu opens BEHIND or under the ribbon. Pop-ups must sit above both bars.
 
 ## Round 4 notes (6 Nov, owner iPad) — collect, fix later in one go
+
 R4-1 Options pill docked LEFT/RIGHT becomes a square box (thicknesses + colours in a grid). It must stay a LONG THIN BAR: vertical strip when on left/right, same as the horizontal strip top/bottom (one column, scrollable if long).
 R4-2 (spotted in screenshot) Main bar shows two similar highlighter icons and indent/outdent icons; check main-bar defaults for duplicates and stray items after the migration.
 R4-3 Reading mode: the normal top toolbar must be hidden while reading (only the Read pill/reader controls).
@@ -182,11 +191,11 @@ R4-6 Bookmarks (owner's words, summarised): adding a bookmark gave no animation 
 R4-7 Opening a bookmark: it jumps to the page but doesn't show WHICH spot was bookmarked. When opened, highlight or flash that spot for a few seconds (a visual signal).
 R4-8 Jumping from Contents (and bookmarks): the move is too fast and gives no sense of where it landed. Use a smooth scroll animation of the SAME duration whatever the distance (about 1–1.5 s, not 3 s), then a visual signal on the target (like the glow the side-bar button gets when tapped, as in the owner's screenshot of the Read aloud icon) so the user knows "this is the section you picked."
 R4-9 Dragging the reading pill (to the left, right, top or bottom):
- (a) the PAGE scrolls while dragging the pill, so the drag must not scroll the page (pointer capture plus touch-action none on the grip);
- (b) the keyboard pops up during the drag, so no keyboard while dragging the pill or in reading mode;
- (c) after a while a blank/grey area appeared over the lower page (a render bug) that fixed itself after scrolling or restarting;
- (d) the drop-zone outlines show while dragging (OK) but the pill also floated mid-screen.
- Investigate and fix all; discuss later.
+(a) the PAGE scrolls while dragging the pill, so the drag must not scroll the page (pointer capture plus touch-action none on the grip);
+(b) the keyboard pops up during the drag, so no keyboard while dragging the pill or in reading mode;
+(c) after a while a blank/grey area appeared over the lower page (a render bug) that fixed itself after scrolling or restarting;
+(d) the drop-zone outlines show while dragging (OK) but the pill also floated mid-screen.
+Investigate and fix all; discuss later.
 R4-10 Tool names on hover or Pencil hover (as in GoodNotes): hovering (Apple Pencil hover or mouse) or long-pressing a bar icon shows a one-word label ("Pen", "Text", "Lasso"…), using the labels we already have.
 R4-11 Double-tap selects a word and triple-tap selects a line, but the selection DISAPPEARS after about 1 second, before the user can act (a bug; observed in text mode). The selection must stay until the user acts or dismisses it.
 R4-12 The selection needs a ✕ to deselect (on screen or in the mini toolbar); tapping elsewhere also deselects.
@@ -203,13 +212,14 @@ R4-15 CLARIFIED: the jump happens when the KEYBOARD opens: the bar moves to sit 
 R4-19 CLARIFIED: (a) the selection disappears after ~1 s; (b) the selection handles are hard to drag; (c) the selection animation isn't smooth; (d) sometimes the text IS selected but the highlight isn't drawn (invisible selection).
 R4-20 BUG (critical): with the Pen tool selected (pen pill open, colour chosen), drawing with the Pencil on the page draws NOTHING on the real iPad. Possible causes: an old app version (no Update); the ink overlay not covering the area (blank space below the content / empty lines); Pencil events taken by Scribble or the editor; the canvas sitting behind the content. Investigate with priority.
 R4-20 DETAIL (after Update):
+
 - Pen/Brush over TEXT lines doesn't draw. It acts as selection/Scribble (wrote "@" into the text, selected the text behind it), and in one case removed text.
 - In EMPTY space below the content it draws fine.
 - On a NEW page (nothing on it), pen strokes didn't draw at all (once it worked); the finger didn't draw either (expected, palm rejection).
-ROOT REQUIREMENT (owner restating the original plan): Pen, Highlighter and Eraser (plus Shapes, Lasso-on-ink and similar) work on a transparent INK LAYER ON TOP of the whole page (text, images, everything, and empty space). They must NEVER select, edit or Scribble the content below. The Notion-style content stays below; the GoodNotes-style layer sits on top. Selecting a different tool (Text) returns to the content.
-R4-21 Bigger hit area for small ✕/close icons (and other small bar icons): a generous radius so near-miss taps count, without overlapping neighbours, and never letting a near-miss fall through to the page as Scribble.
-R4-22 All non-page UI (bars, pills, ✕, menus, panels) must capture Pencil taps fully, so they never reach the page or Scribble (relates to R4-17).
-R4-23 Layer tools: Pen, Highlighter, Eraser, Shapes, Ruler and Tape work only on the top ink layer. LASSO is UNIVERSAL: it selects both ink and page content in one gesture.
-Study Photoshop's Layers panel (👁 visibility, lock, opacity, order, active-layer highlight) as the model for our layers UI.
-R4-24 Layers (decided): max 2 per page ("Layer 1", "Layer 2"); 👁 eye, lock, Merge into one; Photoshop-like: the top layer is drawn over the lower one and tools act only on the active layer; the pen pill shows "Layer 1 ▾" (the word Layer, not "label"), last used by default.
-NEXT (owner-approved process): 1) full understanding of everything (plan, decisions, notes R1–R4, what's done, what's pending) → 2) deep research (GoodNotes, Notability, Notion, Photoshop, OneNote + every good online source) → 3) ONE reorganised master plan, step by step → 4) owner approval → 5) autonomous build.
+  ROOT REQUIREMENT (owner restating the original plan): Pen, Highlighter and Eraser (plus Shapes, Lasso-on-ink and similar) work on a transparent INK LAYER ON TOP of the whole page (text, images, everything, and empty space). They must NEVER select, edit or Scribble the content below. The Notion-style content stays below; the GoodNotes-style layer sits on top. Selecting a different tool (Text) returns to the content.
+  R4-21 Bigger hit area for small ✕/close icons (and other small bar icons): a generous radius so near-miss taps count, without overlapping neighbours, and never letting a near-miss fall through to the page as Scribble.
+  R4-22 All non-page UI (bars, pills, ✕, menus, panels) must capture Pencil taps fully, so they never reach the page or Scribble (relates to R4-17).
+  R4-23 Layer tools: Pen, Highlighter, Eraser, Shapes, Ruler and Tape work only on the top ink layer. LASSO is UNIVERSAL: it selects both ink and page content in one gesture.
+  Study Photoshop's Layers panel (👁 visibility, lock, opacity, order, active-layer highlight) as the model for our layers UI.
+  R4-24 Layers (decided): max 2 per page ("Layer 1", "Layer 2"); 👁 eye, lock, Merge into one; Photoshop-like: the top layer is drawn over the lower one and tools act only on the active layer; the pen pill shows "Layer 1 ▾" (the word Layer, not "label"), last used by default.
+  NEXT (owner-approved process): 1) full understanding of everything (plan, decisions, notes R1–R4, what's done, what's pending) → 2) deep research (GoodNotes, Notability, Notion, Photoshop, OneNote + every good online source) → 3) ONE reorganised master plan, step by step → 4) owner approval → 5) autonomous build.

@@ -47,7 +47,10 @@ const versionStamp = (): Plugin => ({
 
 // https://vite.dev/config/
 export default defineConfig({
-  define: { __APP_COMMIT__: JSON.stringify(COMMIT) },
+  define: {
+    __APP_COMMIT__: JSON.stringify(COMMIT),
+    __APP_BUILT__: JSON.stringify(new Date().toISOString()),
+  },
   preview: { headers: siteHeaders() },
   // Dev only: a self-signed https certificate, so another device on the
   // Wi-Fi (the iPad) gets a secure context (crypto, IndexedDB features).

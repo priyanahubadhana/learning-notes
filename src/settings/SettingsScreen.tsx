@@ -20,9 +20,11 @@ import { settingsRegistry } from './builtinSettings'
 import type { SettingControl, SettingDefinition } from './registry'
 import { getSetting, setSetting } from './settingsService'
 import { useDeviceSetting, useSyncedSetting } from './useSetting'
+import { AboutSection } from './AboutSection'
 import { DeviceSection } from './DeviceSection'
 import './toolbarSettings'
 import './spaceSettings'
+import './labSettings'
 import './readingSettings'
 import './lockSettings'
 import { LockSection } from '../app/lock/LockSection'
@@ -137,6 +139,7 @@ export function SettingsScreen({
 
         <div className="min-w-0">
           {category === ALL && !q && <DeviceSection db={db} />}
+          {category === ALL && !q && <AboutSection />}
           {category === 'lock' && <LockSection db={db} />}
           {category === ALL && (
             <input

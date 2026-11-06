@@ -9,6 +9,7 @@ import { MenuPopover, NameDialog, type MenuItem } from '../app/ui'
 import { listBlocks } from '../core/blockService'
 import type { LearningNotesDB } from '../core/db'
 import type { Page } from '../core/types'
+import { pageMode } from '../editor/editPolicy'
 import { PageEditor } from '../editor/PageEditor'
 import type { EditorApi } from '../editor/editorContext'
 import { revealBlock } from '../editor/revealBlock'
@@ -462,12 +463,12 @@ function SectionChips({ db, pageId }: { db: LearningNotesDB; pageId: string }) {
       id="page.sections"
       // The wrapper is what sticks (a sticky child cannot leave its parent),
       // just below the docked bar when there is one at the top.
-      className="sticky top-[var(--dock-top,0px)] z-10 -mx-3 mb-3 block bg-bg px-3"
+      className="sticky top-0 z-10 -mx-3 mb-3 block bg-bg px-3"
       touchInfo={false}
     >
       <nav
         aria-label={t('sections.label')}
-        style={{ top: 'var(--dock-top, 0px)' }}
+        style={{ top: 0 }}
         className="sticky z-10 -mx-3 mb-3 flex gap-1.5 overflow-x-auto bg-bg px-3 py-2"
       >
         {sections.map((s) => (
@@ -521,6 +522,7 @@ function TitleInput({
   onEnter,
 }: TitleInputProps) {
   const [title, setTitle] = useState(savedTitle)
+  const mode = pageMode.useValue()
   const [focused, setFocused] = useState(false)
   const [lastSaved, setLastSaved] = useState(savedTitle)
   const ref = useRef<HTMLTextAreaElement>(null)
@@ -548,6 +550,11 @@ function TitleInput({
     }
   }, [saver])
 
+  // While drawing, the title is inert too (nothing for Scribble to write in).
+  useEffect(() => {
+    ref.current?.toggleAttribute('inert', mode === 'ink')
+  }, [mode])
+
   // Grow the textarea to fit long titles.
   useLayoutEffect(() => {
     const el = ref.current
@@ -564,7 +571,8 @@ function TitleInput({
       placeholder={t('review.untitled')}
       aria-label={t('page.titleField')}
       autoFocus={autoFocus}
-      readOnly={readOnly}
+      readOnly={readOnly || mode === 'ink'}
+      data-page-title
       onChange={(e) => {
         const value = e.target.value.replace(/\n/g, '')
         setTitle(value)

@@ -2,6 +2,13 @@
 
 Current phase only. Older entries are in [ARCHIVE.md](ARCHIVE.md).
 
+## 2026-11-06 (Phase A, part 1)
+
+- **What:** A1 trustworthy Pencil: edit policy (ink tools make the page non-editable and inert), bars moved out of the page scroller, Pencil tap module for chrome (`penTap.ts`), stylus touchmove cancel, pointercancel rule, canvas budget, Pencil lab (`#/lab/pencil`, Settings › Advanced), About this app with Check for updates. A2: two layers, "Layer 1 ▾" chip, Layers card rewrite, Merge with Undo, old-page merge, active layer per page, eraser on the active layer, locked/hidden toast with Unlock/Show. A4 parts: Undo no longer focuses the page, no keyboard-follow of the top bar. New Playwright project `ipad-webkit`.
+- **Why:** master plan Phase A (research root causes of Pencil bugs).
+- **Not yet:** A2 universal Lasso and hidden badge; A3 own selection and ⌫; rest of A4 (see DECISIONS).
+- **Files:** `src/editor/editPolicy.ts`, `src/app/penTap.ts`, `canvasBudget.ts`, `src/app/lab/*`, `src/settings/AboutSection.tsx`, `labSettings.ts`, `src/ink/layers.ts`, `LayersCard.tsx`, `activeLayer.ts`, `controller.ts`, `render.ts`, `App.tsx`, `BarStack.tsx`, `PageEditor.tsx`, i18n en12/hi12/es12, e2e pencilIsolation, chromeIsolation, penTapChrome, ipadKeyboard, scribbleProbe.
+
 ## 2026-11-06 (plan)
 
 - **What:** Committed the owner-approved final master plan (Phases A–Q), the deep research, the inventory and the owner test notes; linked the plan and research from docs/INDEX.md. Owner decisions D1–D4, D6, D7 accepted as recommended; D5 (opt-in on-device voice) yes, later phase.

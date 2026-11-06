@@ -13,6 +13,7 @@ export function parentPage(tool: PillTool, page: string): string | undefined {
   if (tool === 'highlighter' && (page === 'colour' || page === 'layers')) {
     return 'main'
   }
-  if (tool === 'lasso' && page === 'layers') return 'main'
+  if ((tool === 'lasso' || tool === 'eraser') && page === 'layers')
+    return 'main'
   return undefined
 }

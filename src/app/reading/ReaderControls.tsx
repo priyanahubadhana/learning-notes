@@ -51,7 +51,6 @@ function Button({
       data-chrome
       data-testid={testId}
       aria-label={label}
-      title={label}
       aria-pressed={pressed}
       onClick={onClick}
       className={BUTTON}
@@ -122,7 +121,6 @@ export function ReaderControls({
           type="button"
           data-chrome
           aria-label={t('reading.ctl.exit')}
-          title={t('reading.ctl.exit')}
           onClick={exit}
           className="grid size-11 place-items-center rounded-full opacity-70 hover:opacity-100"
           style={{

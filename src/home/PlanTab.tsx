@@ -1,3 +1,4 @@
+import { IconButton } from '../app/ui'
 import { useLiveQuery } from 'dexie-react-hooks'
 import { useMemo, useState, type FormEvent } from 'react'
 import { runTask } from '../app/errors'
@@ -90,25 +91,31 @@ export function PlanTab({
   return (
     <div className="flex flex-col gap-4" data-testid="plan-tab">
       <div className="flex items-center justify-between gap-2">
-        <button
+        <IconButton
+          tip="home.planPrev"
+          bare
+          tipClassName="inline-flex shrink-0"
           type="button"
           aria-label={t('home.plan.prev')}
           onClick={() => setDay(addDays(day, -1))}
           className="grid size-11 place-items-center rounded-lg border border-line"
         >
           ‹
-        </button>
+        </IconButton>
         <h3 className="text-sm font-semibold" data-testid="plan-day">
           {day === today ? t('home.today') : shortDayLabel(day)}
         </h3>
-        <button
+        <IconButton
+          tip="home.planNext"
+          bare
+          tipClassName="inline-flex shrink-0"
           type="button"
           aria-label={t('home.plan.next')}
           onClick={() => setDay(addDays(day, 1))}
           className="grid size-11 place-items-center rounded-lg border border-line"
         >
           ›
-        </button>
+        </IconButton>
       </div>
 
       <section aria-label={t('home.plan.tasks')}>

@@ -1,3 +1,4 @@
+import { IconButton } from '../app/ui'
 import { useLiveQuery } from 'dexie-react-hooks'
 import {
   lazy,
@@ -479,7 +480,10 @@ export function BookReader({
         data-chrome
         className="flex flex-wrap items-center gap-1 border-b border-line bg-bg px-2 py-1"
       >
-        <button
+        <IconButton
+          tip="reader.close"
+          bare
+          tipClassName="inline-flex shrink-0"
           type="button"
           onClick={() => onOpenPage(pageId)}
           aria-label={t('bookreader.close')}
@@ -487,7 +491,7 @@ export function BookReader({
           className={panelBtn(false)}
         >
           ✕
-        </button>
+        </IconButton>
         <h1 className="min-w-0 flex-1 truncate text-sm font-medium">
           {page.title}
         </h1>
@@ -498,7 +502,10 @@ export function BookReader({
                 ? t('bookreader.page', { page: pageNo, total: pageCount })
                 : ''}
             </span>
-            <button
+            <IconButton
+              tip="reader.zoomOut"
+              bare
+              tipClassName="inline-flex shrink-0"
               type="button"
               aria-label={t('bookreader.zoomOut')}
               className={panelBtn(false)}
@@ -510,16 +517,22 @@ export function BookReader({
               }
             >
               −
-            </button>
-            <button
+            </IconButton>
+            <IconButton
+              tip="reader.fitWidth"
+              bare
+              tipClassName="inline-flex shrink-0"
               type="button"
               aria-label={t('bookreader.fitWidth')}
               className={panelBtn(false)}
               onClick={() => setZoom(1)}
             >
               {Math.round(zoom * 100)}%
-            </button>
-            <button
+            </IconButton>
+            <IconButton
+              tip="reader.zoomIn"
+              bare
+              tipClassName="inline-flex shrink-0"
               type="button"
               aria-label={t('bookreader.zoomIn')}
               className={panelBtn(false)}
@@ -528,12 +541,15 @@ export function BookReader({
               }
             >
               +
-            </button>
+            </IconButton>
           </>
         )}
         {format === 'epub' && (
           <>
-            <button
+            <IconButton
+              tip="reader.prev"
+              bare
+              tipClassName="inline-flex shrink-0"
               type="button"
               aria-label={t('bookreader.prev')}
               data-testid="epub-prev"
@@ -546,8 +562,11 @@ export function BookReader({
               }
             >
               ‹
-            </button>
-            <button
+            </IconButton>
+            <IconButton
+              tip="reader.next"
+              bare
+              tipClassName="inline-flex shrink-0"
               type="button"
               aria-label={t('bookreader.next')}
               data-testid="epub-next"
@@ -560,16 +579,22 @@ export function BookReader({
               }
             >
               ›
-            </button>
-            <button
+            </IconButton>
+            <IconButton
+              tip="reader.smaller"
+              bare
+              tipClassName="inline-flex shrink-0"
               type="button"
               aria-label={t('bookreader.epubSmaller')}
               className={panelBtn(false)}
               onClick={() => setEpubSize((n) => stepSize(n, -1))}
             >
               A−
-            </button>
-            <button
+            </IconButton>
+            <IconButton
+              tip="reader.larger"
+              bare
+              tipClassName="inline-flex shrink-0"
               type="button"
               aria-label={t('bookreader.epubLarger')}
               data-testid="epub-larger"
@@ -577,7 +602,7 @@ export function BookReader({
               onClick={() => setEpubSize((n) => stepSize(n, 1))}
             >
               A+
-            </button>
+            </IconButton>
             <button
               type="button"
               aria-pressed={epubFlow === 'paginated'}
@@ -631,7 +656,10 @@ export function BookReader({
         >
           {t('reader.flip')}
         </button>
-        <button
+        <IconButton
+          tip="reader.bookmark"
+          bare
+          tipClassName="inline-flex shrink-0"
           type="button"
           aria-label={
             bookmarked ? t('bookreader.bookmarked') : t('bookreader.bookmark')
@@ -663,7 +691,7 @@ export function BookReader({
           }
         >
           {bookmarked ? '★' : '☆'}
-        </button>
+        </IconButton>
         <button
           type="button"
           data-testid="reader-contents"

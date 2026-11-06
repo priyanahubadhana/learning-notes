@@ -1,3 +1,4 @@
+import { IconButton } from '../app/ui'
 import { useLiveQuery } from 'dexie-react-hooks'
 import { useState } from 'react'
 import { runTask } from '../app/errors'
@@ -83,16 +84,18 @@ export function TimerChip({
               : (project?.name ?? t('home.project.none'))}
           </span>
         </button>
-        <button
+        <IconButton
+          tip="home.timerStop"
+          bare
+          tipClassName="inline-flex shrink-0"
           type="button"
           data-chrome
           aria-label={t('home.timer.stop')}
-          title={t('home.timer.stop')}
           onClick={() => runTask(stopTimer(db))}
           className="grid size-11 place-items-center rounded-full hover:bg-hover"
         >
           ⏹
-        </button>
+        </IconButton>
       </div>
       {stillWorking && (
         <div

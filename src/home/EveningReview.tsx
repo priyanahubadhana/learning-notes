@@ -1,3 +1,4 @@
+import { IconButton } from '../app/ui'
 import { useContext, useState, type FormEvent } from 'react'
 import { AppUiContext } from '../app/appUi'
 import { runTask } from '../app/errors'
@@ -128,7 +129,10 @@ export function EveningReview({
                   data-testid="evening-task"
                   className="flex flex-wrap items-center gap-1 rounded-lg border border-line ps-1"
                 >
-                  <button
+                  <IconButton
+                    tip="home.tick"
+                    bare
+                    tipClassName="inline-flex shrink-0"
                     type="button"
                     role="checkbox"
                     aria-checked={false}
@@ -140,7 +144,7 @@ export function EveningReview({
                       aria-hidden
                       className="size-5 rounded-md border-2 border-ink-soft"
                     />
-                  </button>
+                  </IconButton>
                   <span className="min-w-0 flex-1 py-2 text-sm break-words">
                     {task.title}
                   </span>

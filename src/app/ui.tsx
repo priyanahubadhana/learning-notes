@@ -35,19 +35,27 @@ export function IconButton({
   className = '',
   title,
   tip,
+  bare = false,
+  tipClassName,
   ...props
-}: ComponentProps<'button'> & { tip?: TipId }) {
+}: ComponentProps<'button'> & {
+  tip?: TipId
+  /** No quiet default look: the caller styles the whole button. */
+  bare?: boolean
+  /** Layout of the help-tip wrapper (default: inline). */
+  tipClassName?: string
+}) {
   const button = (
     <button
       type="button"
-      className={`rounded-[5px] px-1.5 text-[15px] leading-6 text-muted hover:bg-hover hover:text-ink ${className}`}
+      className={`${bare ? '' : 'rounded-[5px] px-1.5 text-[15px] leading-6 text-muted hover:bg-hover hover:text-ink'} ${className}`}
       title={tip ? undefined : title}
       aria-label={tip ? title : props['aria-label']}
       {...props}
     />
   )
   return tip ? (
-    <Tip id={tip} touchInfo={false}>
+    <Tip id={tip} touchInfo={false} className={tipClassName}>
       {button}
     </Tip>
   ) : (

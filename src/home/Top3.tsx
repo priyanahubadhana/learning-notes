@@ -1,3 +1,4 @@
+import { IconButton } from '../app/ui'
 import { useContext, useState } from 'react'
 import { AppUiContext } from '../app/appUi'
 import { runTask } from '../app/errors'
@@ -74,7 +75,10 @@ export function Top3({
             data-testid="top3-row"
             className="flex min-h-11 items-center gap-1 rounded-lg border border-line ps-1"
           >
-            <button
+            <IconButton
+              tip="home.tick"
+              bare
+              tipClassName="inline-flex shrink-0"
               type="button"
               role="checkbox"
               aria-checked={task.status === 'done'}
@@ -95,7 +99,7 @@ export function Top3({
               >
                 {task.status === 'done' ? '✓' : ''}
               </span>
-            </button>
+            </IconButton>
             <span
               className={`min-w-0 flex-1 text-sm break-words ${
                 task.status === 'done' ? 'text-muted line-through' : ''
@@ -103,14 +107,17 @@ export function Top3({
             >
               {task.title}
             </span>
-            <button
+            <IconButton
+              tip="home.remove"
+              bare
+              tipClassName="inline-flex shrink-0"
               type="button"
               aria-label={t('home.top3.remove', { title: task.title })}
               onClick={() => runTask(setTop3(db, task.id, today, false))}
               className="grid size-11 place-items-center rounded-lg text-ink-soft hover:bg-hover"
             >
               ×
-            </button>
+            </IconButton>
           </li>
         ))}
       </ul>

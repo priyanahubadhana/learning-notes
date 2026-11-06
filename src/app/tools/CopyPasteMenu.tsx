@@ -32,7 +32,6 @@ export function CopyPasteButton({
           data-action="copyPaste"
           {...menu.trigger}
           aria-label={label}
-          title={label}
           onMouseDown={(e) => e.preventDefault()}
           onClick={menu.toggle}
           style={{ minHeight: min, minWidth: min }}

@@ -784,6 +784,132 @@ Every hover tip and help line in the app (shown while Settings › Show help is 
 - **Meaning:** Switches between the notebook’s Study tracker and its other databases.
 - **Example:** Open the “Reading list” kept in this notebook.
 
+### `home.tick`
+
+- **Where:** Home › task, habit and Top 3 rows › the round tick box
+- **Meaning:** Marks this item done, or open again.
+- **Example:** Tick “Call the bank” when it is finished.
+
+### `home.planPrev`
+
+- **Where:** Home › Plan tab › ‹ previous day
+- **Meaning:** Shows the day before.
+- **Example:** Look at what you planned yesterday.
+
+### `home.planNext`
+
+- **Where:** Home › Plan tab › › next day
+- **Meaning:** Shows the next day.
+- **Example:** Plan tomorrow’s tasks ahead.
+
+### `home.affirmPlay`
+
+- **Where:** Home › Routines › ▶ play an affirmation
+- **Meaning:** Reads this affirmation aloud, or stops it.
+- **Example:** Play your morning lines while you dress.
+
+### `home.remove`
+
+- **Where:** Home › Top 3, projects and habits › × remove
+- **Meaning:** Removes this from the list. Undo is offered.
+- **Example:** Take a finished habit off your routine.
+
+### `home.taskMenu`
+
+- **Where:** Home › task row › ⋯ menu
+- **Meaning:** Opens more actions for this task.
+- **Example:** Move it to a project or set a day.
+
+### `home.timerStop`
+
+- **Where:** Home › timer chip › ⏹ stop
+- **Meaning:** Stops the timer and saves the time.
+- **Example:** Stop when your study block ends.
+
+### `annot.colourFilter`
+
+- **Where:** Reader › Highlights panel › colour dots
+- **Meaning:** Shows only highlights of this colour.
+- **Example:** Tap yellow to see only key ideas.
+
+### `annot.highlightColour`
+
+- **Where:** Reader › selection pop-up › colour dots
+- **Meaning:** Highlights the selected text in this colour.
+- **Example:** Use green for facts you must remember.
+
+### `reader.close`
+
+- **Where:** Book reader › top bar › ✕ close
+- **Meaning:** Closes the book and goes back to its page.
+- **Example:** Return to your notes on the book.
+
+### `reader.zoomOut`
+
+- **Where:** Book reader (PDF) › top bar › −
+- **Meaning:** Makes the pages smaller.
+- **Example:** See a whole page at once.
+
+### `reader.fitWidth`
+
+- **Where:** Book reader (PDF) › top bar › zoom percent
+- **Meaning:** Resets the zoom to fit the page width.
+- **Example:** Tap after zooming in too far.
+
+### `reader.zoomIn`
+
+- **Where:** Book reader (PDF) › top bar › +
+- **Meaning:** Makes the pages larger.
+- **Example:** Read small print in a scanned book.
+
+### `reader.prev`
+
+- **Where:** Book reader (EPUB) › top bar › ‹
+- **Meaning:** Goes to the previous page.
+- **Example:** Go back to the line you just read.
+
+### `reader.next`
+
+- **Where:** Book reader (EPUB) › top bar › ›
+- **Meaning:** Goes to the next page.
+- **Example:** Turn the page when you finish reading it.
+
+### `reader.smaller`
+
+- **Where:** Book reader (EPUB) › top bar › A−
+- **Meaning:** Makes the book text smaller.
+- **Example:** Fit more words on a small screen.
+
+### `reader.larger`
+
+- **Where:** Book reader (EPUB) › top bar › A+
+- **Meaning:** Makes the book text larger.
+- **Example:** Read comfortably from a distance.
+
+### `reader.bookmark`
+
+- **Where:** Book reader › top bar › ☆ bookmark
+- **Meaning:** Saves this place, or removes the saved place.
+- **Example:** Mark where you stopped for tonight.
+
+### `pic.zoomOut`
+
+- **Where:** Picture editor › crop sheet › −
+- **Meaning:** Zooms the picture out.
+- **Example:** See the whole picture while you crop.
+
+### `pic.zoomIn`
+
+- **Where:** Picture editor › crop sheet › +
+- **Meaning:** Zooms the picture in.
+- **Example:** Place the crop edge exactly.
+
+### `audio.panelClose`
+
+- **Where:** Audio panel › ✕ close
+- **Meaning:** Closes the audio panel. Recording keeps going.
+- **Example:** Hide the panel while a lecture records.
+
 ## Help lines (11)
 
 Help lines are marked in the page with `data-help-line="<id>"`.

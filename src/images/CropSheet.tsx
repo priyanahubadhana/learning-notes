@@ -1,3 +1,4 @@
+import { IconButton } from '../app/ui'
 import {
   useCallback,
   useEffect,
@@ -275,28 +276,34 @@ export function CropSheet({ bitmap, canRestore, onDone }: CropSheetProps) {
           />
         </label>
         <span className="mx-1 hidden h-6 w-px bg-line sm:block" aria-hidden />
-        <button
+        <IconButton
+          tip="pic.zoomOut"
+          bare
+          tipClassName="inline-flex shrink-0"
           type="button"
           className={btn}
           aria-label={t('pic.zoomOut')}
           onClick={() => setZoomKeepCentre(zoom / 1.25)}
         >
           −
-        </button>
+        </IconButton>
         <span
           className="min-w-12 text-center text-sm tabular-nums"
           aria-live="polite"
         >
           {Math.round(zoom * 100)}%
         </span>
-        <button
+        <IconButton
+          tip="pic.zoomIn"
+          bare
+          tipClassName="inline-flex shrink-0"
           type="button"
           className={btn}
           aria-label={t('pic.zoomIn')}
           onClick={() => setZoomKeepCentre(zoom * 1.25)}
         >
           +
-        </button>
+        </IconButton>
       </div>
 
       <div

@@ -1,3 +1,4 @@
+import { IconButton } from '../app/ui'
 import { useLiveQuery } from 'dexie-react-hooks'
 import { useContext, useEffect, useRef, useState } from 'react'
 import { AppUiContext } from '../app/appUi'
@@ -215,14 +216,17 @@ function AudioPanel({
             {t('audio.panel.title')}
           </button>
         </div>
-        <button
+        <IconButton
+          tip="audio.panelClose"
+          bare
+          tipClassName="inline-flex shrink-0"
           type="button"
           className={button}
           onClick={() => setAudioPanel(false)}
           aria-label={t('audio.panel.close')}
         >
           ✕
-        </button>
+        </IconButton>
       </div>
       <div className="overflow-y-auto p-3">
         <button

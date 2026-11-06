@@ -39,7 +39,6 @@ export function SpaceStrip({
               key={space}
               type="button"
               aria-label={t('space.button', { name })}
-              title={name}
               aria-current={active ? 'page' : undefined}
               data-space={space}
               onClick={() => onSelect(space)}

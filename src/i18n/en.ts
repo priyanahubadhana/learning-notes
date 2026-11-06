@@ -9,6 +9,7 @@ import { enW3b } from './enW3b'
 import { enW4b } from './enW4b'
 import { enI } from './enI'
 import { enW5 } from './enW5'
+import { enW5p } from './enW5p'
 import { enE2 } from './enE2'
 import { enLib } from './enLib'
 import { enSync } from './enSync'
@@ -34,6 +35,7 @@ export const en = {
   ...enW4b,
   ...enI,
   ...enW5,
+  ...enW5p,
   ...enE2,
   ...enLib,
   ...enSync,

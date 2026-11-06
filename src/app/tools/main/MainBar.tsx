@@ -105,7 +105,6 @@ export function MainBarRow({
         data-action={tool}
         data-popup-trigger
         aria-label={label}
-        title={label}
         aria-pressed={isModeTool(tool) ? on : undefined}
         aria-expanded={showing === tool}
         aria-haspopup="true"
@@ -213,7 +212,6 @@ export function MainBarRow({
           data-action="toolbarMenu"
           data-popup-trigger
           aria-label={t('bar.menu')}
-          title={t('bar.menu')}
           aria-expanded={menuOpen}
           aria-haspopup="true"
           onMouseDown={keepFocus}
@@ -258,7 +256,6 @@ function NewLineButton({ editor, min }: { editor: Editor; min: number }) {
           data-bar-tool="newLine"
           data-action="newLine"
           aria-label={label}
-          title={label}
           aria-haspopup={mode === 'off' ? undefined : 'menu'}
           onMouseDown={keepFocus}
           onContextMenu={(e) => e.preventDefault()}
@@ -346,7 +343,6 @@ export function BackspaceButton({
       data-action="backspace"
       data-pen-own
       aria-label={label}
-      title={label}
       onMouseDown={keepFocus}
       onContextMenu={(e) => e.preventDefault()}
       onPointerDown={(e) => {
@@ -436,7 +432,6 @@ function KeyboardButton({ editor, min }: { editor: Editor; min: number }) {
       data-bar-btn
       data-action="keyboard"
       aria-label={label}
-      title={label}
       aria-pressed={on}
       onMouseDown={keepFocus}
       onClick={() => {
@@ -476,7 +471,6 @@ function MiniKeysButton({ min }: { min: number }) {
       data-bar-btn
       data-action="miniKeys"
       aria-label={label}
-      title={label}
       aria-pressed={on}
       onMouseDown={keepFocus}
       onClick={() => miniKeysOn.set(!on)}

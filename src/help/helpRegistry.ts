@@ -192,6 +192,29 @@ export const TIPS = {
   'notebook.databasePicker': {
     where: 'Notebook › Database tab › database buttons',
   },
+  'home.tick': {
+    where: 'Home › task, habit and Top 3 rows › the round tick box',
+  },
+  'home.planPrev': { where: 'Home › Plan tab › ‹ previous day' },
+  'home.planNext': { where: 'Home › Plan tab › › next day' },
+  'home.affirmPlay': { where: 'Home › Routines › ▶ play an affirmation' },
+  'home.remove': { where: 'Home › Top 3, projects and habits › × remove' },
+  'home.taskMenu': { where: 'Home › task row › ⋯ menu' },
+  'home.timerStop': { where: 'Home › timer chip › ⏹ stop' },
+  'annot.colourFilter': { where: 'Reader › Highlights panel › colour dots' },
+  'annot.highlightColour': { where: 'Reader › selection pop-up › colour dots' },
+  'reader.close': { where: 'Book reader › top bar › ✕ close' },
+  'reader.zoomOut': { where: 'Book reader (PDF) › top bar › −' },
+  'reader.fitWidth': { where: 'Book reader (PDF) › top bar › zoom percent' },
+  'reader.zoomIn': { where: 'Book reader (PDF) › top bar › +' },
+  'reader.prev': { where: 'Book reader (EPUB) › top bar › ‹' },
+  'reader.next': { where: 'Book reader (EPUB) › top bar › ›' },
+  'reader.smaller': { where: 'Book reader (EPUB) › top bar › A−' },
+  'reader.larger': { where: 'Book reader (EPUB) › top bar › A+' },
+  'reader.bookmark': { where: 'Book reader › top bar › ☆ bookmark' },
+  'pic.zoomOut': { where: 'Picture editor › crop sheet › −' },
+  'pic.zoomIn': { where: 'Picture editor › crop sheet › +' },
+  'audio.panelClose': { where: 'Audio panel › ✕ close' },
 } as const satisfies Record<string, TipDefinition>
 
 export const HELP_LINES = {

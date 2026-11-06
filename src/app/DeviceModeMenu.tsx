@@ -27,7 +27,6 @@ export function DeviceModeButton() {
           data-testid="device-mode-button"
           data-popup-trigger
           aria-label={title}
-          title={title}
           aria-haspopup="menu"
           aria-expanded={!!at}
           onClick={(e) =>

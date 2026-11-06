@@ -1,3 +1,4 @@
+import { IconButton } from '../app/ui'
 import { useContext, useMemo, useState, type FormEvent } from 'react'
 import { AppUiContext } from '../app/appUi'
 import { runTask } from '../app/errors'
@@ -285,14 +286,17 @@ export function TasksTab({
                     ).length,
                   })}
                 </span>
-                <button
+                <IconButton
+                  tip="home.remove"
+                  bare
+                  tipClassName="inline-flex shrink-0"
                   type="button"
                   aria-label={t('home.project.delete', { name: p.name })}
                   onClick={() => runTask(deleteProject(db, p.id))}
                   className="grid size-11 place-items-center rounded-lg text-ink-soft hover:bg-hover"
                 >
                   ×
-                </button>
+                </IconButton>
               </span>
             </li>
           ))}

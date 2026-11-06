@@ -16,6 +16,7 @@ import { hiW3b } from './hiW3b'
 import { hiW4b } from './hiW4b'
 import { hiI } from './hiI'
 import { hiW5 } from './hiW5'
+import { hiW5p } from './hiW5p'
 import { hiE2 } from './hiE2'
 import { hiLib } from './hiLib'
 import { hiSync } from './hiSync'
@@ -42,6 +43,7 @@ export const hi: Record<string, string> = {
   ...hiW4b,
   ...hiI,
   ...hiW5,
+  ...hiW5p,
   ...hiE2,
   ...hiLib,
   ...hiSync,

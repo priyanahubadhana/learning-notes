@@ -1,3 +1,4 @@
+import { IconButton } from '../../app/ui'
 import { useLiveQuery } from 'dexie-react-hooks'
 import { useContext, useMemo, useState } from 'react'
 import { AppUiContext } from '../../app/appUi'
@@ -132,7 +133,10 @@ export function AnnotationsPanel({
         aria-label={t('annot.filter.colour')}
       >
         {HIGHLIGHT_COLOURS.map((c: HighlightColour) => (
-          <button
+          <IconButton
+            tip="annot.colourFilter"
+            bare
+            tipClassName="inline-flex shrink-0"
             key={c}
             type="button"
             aria-pressed={filter.colour === c}
@@ -150,7 +154,7 @@ export function AnnotationsPanel({
               className={`size-5 rounded-full border ${filter.colour === c ? 'border-ink' : 'border-line'}`}
               style={{ background: COLOUR_FILL[c] }}
             />
-          </button>
+          </IconButton>
         ))}
         {chapters.length > 0 && (
           <select

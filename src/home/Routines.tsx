@@ -1,3 +1,4 @@
+import { IconButton } from '../app/ui'
 import { useLiveQuery } from 'dexie-react-hooks'
 import { useContext, useEffect, useRef, useState, type FormEvent } from 'react'
 import { AppUiContext } from '../app/appUi'
@@ -117,7 +118,10 @@ function PlayButton({ db, habit }: { db: LearningNotesDB; habit: Habit }) {
     if (!ok) toast(t('home.affirm.noVoice'))
   }
   return (
-    <button
+    <IconButton
+      tip="home.affirmPlay"
+      bare
+      tipClassName="inline-flex shrink-0"
       type="button"
       data-testid="affirm-play"
       aria-label={t(playing ? 'home.affirm.stop' : 'home.affirm.play', {
@@ -128,7 +132,7 @@ function PlayButton({ db, habit }: { db: LearningNotesDB; habit: Habit }) {
       className="grid size-11 shrink-0 place-items-center rounded-lg border border-line"
     >
       {playing ? '⏹' : '▶'}
-    </button>
+    </IconButton>
   )
 }
 
@@ -320,7 +324,10 @@ export function Routines({
                     data-testid="habit-row"
                     className="flex flex-wrap items-center gap-1 rounded-lg border border-line ps-1 pe-1"
                   >
-                    <button
+                    <IconButton
+                      tip="home.tick"
+                      bare
+                      tipClassName="inline-flex shrink-0"
                       type="button"
                       role="checkbox"
                       aria-checked={done}
@@ -341,7 +348,7 @@ export function Routines({
                       >
                         {done ? '✓' : ''}
                       </span>
-                    </button>
+                    </IconButton>
                     <span className="min-w-0 flex-1 py-2 text-sm break-words">
                       {habit.name}
                     </span>
@@ -352,7 +359,10 @@ export function Routines({
                       dayStart={dayStart}
                     />
                     <PlayButton db={db} habit={habit} />
-                    <button
+                    <IconButton
+                      tip="home.remove"
+                      bare
+                      tipClassName="inline-flex shrink-0"
                       type="button"
                       aria-label={t('home.habit.delete', { name: habit.name })}
                       onClick={() => {
@@ -365,7 +375,7 @@ export function Routines({
                       className="grid size-11 place-items-center rounded-lg text-ink-soft hover:bg-hover"
                     >
                       ×
-                    </button>
+                    </IconButton>
                   </li>
                 )
               })}

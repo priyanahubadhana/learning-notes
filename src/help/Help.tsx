@@ -1,6 +1,7 @@
 import { useEffect, useId, useRef, useState, type ReactNode } from 'react'
 import { useShowHelp } from './useShowHelp'
 import { t } from '../i18n/t'
+import { useLongPress } from '../app/useLongPress'
 import {
   lineText,
   tipExample,
@@ -75,8 +76,23 @@ function TipBox({
   const box = useRef<HTMLSpanElement>(null)
   const timer = useRef<number | undefined>(undefined)
   const bubbleId = useId()
+  const hideTimer = useRef<number | undefined>(undefined)
 
-  useEffect(() => () => window.clearTimeout(timer.current), [])
+  // Touch: press and hold an icon to read its tip. The tap that follows the
+  // hold is swallowed (so the action does not run) and the tip fades alone.
+  const { onPointerLeave: endHold, ...hold } = useLongPress(() => {
+    setAnchor(box.current?.getBoundingClientRect() ?? null)
+    window.clearTimeout(hideTimer.current)
+    hideTimer.current = window.setTimeout(() => setAnchor(null), 3000)
+  })
+
+  useEffect(
+    () => () => {
+      window.clearTimeout(timer.current)
+      window.clearTimeout(hideTimer.current)
+    },
+    [],
+  )
   useEffect(() => {
     if (!open) return
     const onDown = (e: PointerEvent) => {
@@ -113,10 +129,14 @@ function TipBox({
       // A mouse hovers; touch uses the ⓘ button (a long press would also
       // fire these, so only mouse and pen count).
       onPointerEnter={(e) => e.pointerType !== 'touch' && show()}
-      onPointerLeave={(e) => e.pointerType !== 'touch' && hide()}
+      onPointerLeave={(e) => {
+        endHold()
+        if (e.pointerType !== 'touch') hide()
+      }}
       onFocus={() => tabbing && show()}
       onBlur={hide}
       aria-describedby={open ? bubbleId : undefined}
+      {...(touchInfo ? {} : hold)}
     >
       {children}
       {touchInfo && (

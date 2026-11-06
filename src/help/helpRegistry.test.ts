@@ -2,6 +2,8 @@
 import { readdirSync, readFileSync, writeFileSync } from 'node:fs'
 import { describe, expect, it } from 'vitest'
 import { en } from '../i18n/en'
+import { es } from '../i18n/es'
+import { hi } from '../i18n/hi'
 import {
   HELP_LINES,
   TIPS,
@@ -51,6 +53,17 @@ describe('help texts', () => {
     }
     for (const id of Object.keys(HELP_LINES) as HelpLineId[]) {
       expect(en, id).toHaveProperty(`help.line.${id}`)
+    }
+  })
+
+  it('every tip and help line has Hindi and Spanish text too', () => {
+    const keys = Object.keys(en).filter((k) => /^help.(tip|line)./.test(k))
+    for (const [name, texts] of [
+      ['hi', hi],
+      ['es', es],
+    ] as const) {
+      const missing = keys.filter((k) => !(k in texts))
+      expect(missing, name).toEqual([])
     }
   })
 

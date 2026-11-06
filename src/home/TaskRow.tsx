@@ -1,3 +1,4 @@
+import { IconButton } from '../app/ui'
 import type { HTMLAttributes } from 'react'
 import { useAnchoredMenu } from '../app/tools/useAnchoredMenu'
 import { showsCarried } from '../core/taskService'
@@ -38,7 +39,10 @@ export function TaskRow({
       data-task-id={task.id}
       className="flex min-h-11 items-center gap-1 rounded-lg border border-line bg-bg ps-1 pe-0.5"
     >
-      <button
+      <IconButton
+        tip="home.tick"
+        bare
+        tipClassName="inline-flex shrink-0"
         type="button"
         role="checkbox"
         aria-checked={done}
@@ -56,7 +60,7 @@ export function TaskRow({
         >
           {done ? '✓' : ''}
         </span>
-      </button>
+      </IconButton>
       <div
         {...dragProps}
         className="min-w-0 flex-1 cursor-grab py-1.5 select-none"
@@ -83,7 +87,10 @@ export function TaskRow({
         </span>
       </div>
       {extra}
-      <button
+      <IconButton
+        tip="home.taskMenu"
+        bare
+        tipClassName="inline-flex shrink-0"
         type="button"
         data-testid="task-menu-button"
         aria-label={t('home.task.menuFor', { title: task.title })}
@@ -92,7 +99,7 @@ export function TaskRow({
         className="grid size-11 shrink-0 place-items-center rounded-lg text-ink-soft hover:bg-hover"
       >
         ⋯
-      </button>
+      </IconButton>
       {menu.open && (
         <TaskMenu
           menu={menu}

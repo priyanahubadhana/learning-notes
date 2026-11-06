@@ -1,3 +1,4 @@
+import { IconButton } from '../../app/ui'
 import { useState } from 'react'
 import { HIGHLIGHT_COLOURS, type HighlightColour } from '../../core/types'
 import { COLOUR_FILL, lookupUrl, type PopupRect } from './colours'
@@ -60,7 +61,10 @@ export function SelectionPopup({
       onMouseDown={(e) => e.preventDefault()}
     >
       {HIGHLIGHT_COLOURS.map((c) => (
-        <button
+        <IconButton
+          tip="annot.highlightColour"
+          bare
+          tipClassName="inline-flex shrink-0"
           key={c}
           type="button"
           data-testid={`hl-${c}`}
@@ -73,7 +77,7 @@ export function SelectionPopup({
             className="size-6 rounded-full border border-line"
             style={{ background: COLOUR_FILL[c] }}
           />
-        </button>
+        </IconButton>
       ))}
       <button type="button" onClick={onNote} className={btn}>
         {t('annot.note')}

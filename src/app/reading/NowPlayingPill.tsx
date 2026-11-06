@@ -37,7 +37,6 @@ export function NowPlayingPill({
         data-chrome
         onClick={() => onOpenPage(playing.pageId)}
         className="min-h-11 min-w-0 flex-1 truncate text-start text-sm"
-        title={playing.title}
       >
         {playing.title || t('review.untitled')}
       </button>

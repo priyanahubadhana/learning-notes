@@ -427,6 +427,19 @@ export const shortcutHintsSetting: SettingDefinition<OnOff> = {
   control: { kind: 'segmented', options: onOffOptions() },
 }
 
+/** Scroll hints (R5-13): edge fade and a slim indicator on scrolling lists. */
+export const scrollHintsSetting: SettingDefinition<OnOff> = {
+  id: 'general.scrollHints',
+  labelKey: 'settings.scrollHints.label',
+  descriptionKey: 'settings.scrollHints.description',
+  category: 'general',
+  keywords: 'scroll fade indicator scrollbar list hint',
+  scope: 'device',
+  defaultValue: 'on',
+  isValid: isOnOff,
+  control: { kind: 'segmented', options: onOffOptions() },
+}
+
 export const barAutoHideSetting: SettingDefinition<OnOff> = {
   id: 'advanced.barAutoHide',
   labelKey: 'settings.barAutoHide.label',
@@ -588,6 +601,7 @@ for (const definition of [
   hoverTipsSetting,
   shortcutHintsSetting,
   barAutoHideSetting,
+  scrollHintsSetting,
   autoSwitchSetting,
   pencilWritesSetting,
   holdSelectSetting,

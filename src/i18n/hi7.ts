@@ -195,6 +195,9 @@ export const hi7: Record<string, string> = {
   'settings.shortcutHints.label': 'शॉर्टकट संकेत',
   'settings.shortcutHints.description':
     'बटनों के पास कीबोर्ड शॉर्टकट दिखाएँ। कीबोर्ड इस्तेमाल होने पर ये अपने आप भी दिखते हैं।',
+  'settings.scrollHints.label': 'स्क्रॉल संकेत',
+  'settings.scrollHints.description':
+    'लंबी सूचियों में, जहाँ और सामग्री छिपी है वहाँ किनारा धुँधला दिखे और स्क्रॉल करते समय एक पतली पट्टी दिखे।',
   'settings.barAutoHide.label': 'खाली होने पर बार छिपाएँ',
   'settings.barAutoHide.description':
     'जब आप चुन या टाइप नहीं कर रहे हों, तब जुड़ा हुआ बार छिपा दें।',

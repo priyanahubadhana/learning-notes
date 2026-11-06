@@ -705,3 +705,42 @@ html[data-note-line] .bn-editor {
 [data-main-bar] [data-slot='tools'] > button {
   flex-shrink: 1;
 }
+
+/*
+ * Scroll hints (R5-13): a soft fade where more content is hidden, and one
+ * slim indicator while scrolling. Marks are set by app/scrollHints.ts and
+ * removed when Settings › Scroll hints is off.
+ */
+[data-scroll-more='top'] {
+  mask-image: linear-gradient(to bottom, transparent 0, #000 28px);
+}
+[data-scroll-more='bottom'] {
+  mask-image: linear-gradient(to top, transparent 0, #000 28px);
+}
+[data-scroll-more='both'] {
+  mask-image: linear-gradient(
+    to bottom,
+    transparent 0,
+    #000 28px,
+    #000 calc(100% - 28px),
+    transparent 100%
+  );
+}
+.scroll-hint-thumb {
+  position: fixed;
+  width: 4px;
+  border-radius: 2px;
+  background: var(--color-muted);
+  opacity: 0;
+  pointer-events: none;
+  z-index: var(--z-toast);
+  transition: opacity 0.25s ease;
+}
+.scroll-hint-thumb.is-on {
+  opacity: 0.75;
+}
+@media (prefers-reduced-motion: reduce) {
+  .scroll-hint-thumb {
+    transition: none;
+  }
+}

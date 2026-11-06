@@ -18,12 +18,24 @@ import {
 import { requestPersistentStorage } from './core/storage'
 import { writePref } from './app/uiPrefs'
 import { initDeviceMode } from './settings/deviceModeSettings'
+import { installScrollHints } from './app/scrollHints'
+import { scrollHintsSetting } from './settings/builtinSettings'
+import {
+  readDeviceSetting,
+  subscribeDeviceSettings,
+} from './settings/settingsService'
 import { saveEverything } from './share/saveEverything'
 
 initDeviceMode()
 startNavHistory()
 reloadOnFailedChunk()
 installPenTap()
+{
+  const hints = installScrollHints(
+    () => readDeviceSetting(scrollHintsSetting) === 'on',
+  )
+  subscribeDeviceSettings(hints.refresh)
+}
 
 // The app scrolls inside its page scroller, never the document: if something
 // (a focus, the keyboard's pan) moves the document, put it back.

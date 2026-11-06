@@ -1768,6 +1768,9 @@ export const en = {
   'settings.shortcutHints.label': 'Shortcut hints',
   'settings.shortcutHints.description':
     'Show keyboard shortcuts next to formatting bar buttons. They also show once a keyboard is used.',
+  'settings.scrollHints.label': 'Scroll hints',
+  'settings.scrollHints.description':
+    'On long lists, fade the edge where more is hidden and show a slim bar while you scroll.',
   'settings.barAutoHide.label': 'Hide the bar when idle',
   'settings.barAutoHide.description':
     'Hide the docked bar while you are not selecting or typing.',

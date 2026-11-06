@@ -200,6 +200,9 @@ export const es7: Record<string, string> = {
   'settings.shortcutHints.label': 'Atajos visibles',
   'settings.shortcutHints.description':
     'Muestra los atajos de teclado junto a los botones de la barra. También aparecen cuando usas un teclado.',
+  'settings.scrollHints.label': 'Pistas de desplazamiento',
+  'settings.scrollHints.description':
+    'En listas largas, difumina el borde donde hay más contenido y muestra una barra fina al desplazarte.',
   'settings.barAutoHide.label': 'Ocultar la barra en reposo',
   'settings.barAutoHide.description':
     'Oculta la barra fija mientras no seleccionas ni escribes.',

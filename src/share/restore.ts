@@ -32,15 +32,26 @@ import type { ParsedFull } from './readFull'
 /** Row in `meta` that remembers the last restore (for the Undo row). */
 export const RESTORE_MARK = 'restoreUndo'
 
-/**
- * Oldest file version "Replace" accepts. Versions 12 and 13 differ only by
- * added tables (13: ink), so a version 12 file's rows are valid as they are.
- */
+/** Oldest file version "Replace" accepts (12: pictures). */
 export const REPLACE_MIN_VERSION = 12
 
+/**
+ * Database versions whose upgrade only added tables. A file from an older
+ * version can replace the notes when every version after it is listed here:
+ * the missing tables simply start empty. Add each new table-only version.
+ * (13 ink, 14 recordings, 15 fonts, 16 decks, 17 book files + annotations.)
+ */
+export const TABLE_ONLY_VERSIONS: readonly number[] = [13, 14, 15, 16, 17]
+
 /** Can a file saved at `fileVersion` replace the notes of a database at `current`? */
-export const canReplaceFrom = (fileVersion: number, current: number): boolean =>
-  fileVersion >= Math.min(current, REPLACE_MIN_VERSION)
+export function canReplaceFrom(fileVersion: number, current: number): boolean {
+  if (fileVersion >= current) return true
+  if (fileVersion < REPLACE_MIN_VERSION) return false
+  for (let v = fileVersion + 1; v <= current; v++) {
+    if (!TABLE_ONLY_VERSIONS.includes(v)) return false
+  }
+  return true
+}
 
 export interface RestoreMark {
   /** When the restore was done. */

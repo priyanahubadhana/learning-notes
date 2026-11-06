@@ -79,6 +79,8 @@ interface PageViewProps {
   onReload: () => void
   /** Opens Save & restore, to restore a backup. */
   onOpenBackup: () => void
+  /** Shown under the title (the Library's header of a book or source page). */
+  header?: React.ReactNode
 }
 
 /** An open page: breadcrumb, action bar, banner, title and block editor. */
@@ -94,6 +96,7 @@ export function PageView({
   onOpenDatabase,
   onReload,
   onOpenBackup,
+  header,
 }: PageViewProps) {
   const { toast } = useContext(AppUiContext)
   const path = useLiveQuery(() => getPagePath(db, page.id), [db, page.id]) ?? []
@@ -384,6 +387,7 @@ export function PageView({
           readOnly={reader}
           onEnter={() => editor.current?.focus()}
         />
+        {header}
         <div style={{ display: reader ? 'none' : 'contents' }}>
           <RowProperties db={db} page={page} />
           <PageTags

@@ -59,7 +59,7 @@ export interface Notebook extends BaseRecord {
    * 'databases' is the hidden home of row pages of databases that belong
    * to no notebook. Unset = a normal notebook.
    */
-  kind?: 'journal' | 'templates' | 'databases'
+  kind?: 'journal' | 'templates' | 'databases' | 'books' | 'sources'
   /**
    * Templates notebook only: the starter-template version already added
    * (unset = 1). Newer starters are added once when this is lower.
@@ -155,6 +155,42 @@ export interface Page extends BaseRecord {
    * owned by the column type; computed columns store nothing. Unset = empty.
    */
   values?: JsonObject
+  /** Where this page's material came from (C1/CR1). Unset = a normal page. */
+  source?: PageSource
+}
+
+/** What a source page is: a book, an article, a video, … */
+export type SourceKind =
+  'book' | 'article' | 'video' | 'audio' | 'file' | 'paste'
+
+/**
+ * The origin of a source page (Library). Books have a stored file
+ * (`fileId`); captured sources keep the `url` and what was pasted as
+ * ordinary blocks. Optional on `Page`, so no Dexie version was needed.
+ */
+export interface PageSource {
+  kind: SourceKind
+  /** https address of the source, if it came from the web. */
+  url?: string
+  durationSec?: number
+  /** UTC ms the source was captured or imported. */
+  capturedAt?: number
+  /** YouTube: video id and start time in seconds. */
+  videoId?: string
+  startSec?: number
+  /** Books (kind 'book'): the stored file and its format. */
+  fileId?: string
+  format?: 'pdf' | 'epub' | 'docx'
+  author?: string
+  /** Cover picture (`images` row). */
+  coverImageId?: string
+  pageCount?: number
+  /** 0 to 1. */
+  progress?: number
+  /** Where reading stopped: `pdf:<page>:<yFraction>` or `epub:<cfi>`. */
+  at?: string
+  /** UTC ms the book was last opened. */
+  openedAt?: number
 }
 
 /**
@@ -185,6 +221,8 @@ export interface Block extends BaseRecord {
    * handwriting). Unset = not derived. Kept even if that block is deleted.
    */
   derivedFrom?: string
+  /** One AI result (CR2/CR4): every block made together shares it. */
+  batchId?: string
 }
 
 /** How well a card was remembered (the four review buttons). */
@@ -224,6 +262,8 @@ export interface Card extends BaseRecord {
    */
   lastReviewAt?: number
   lastRating?: Rating
+  /** The highlight or note this card was made from (CR3). */
+  sourceAnnotationId?: string
 }
 
 /**
@@ -500,4 +540,55 @@ export interface Recording extends BaseRecord {
   startedAt: number
   durationMs: number
   data: ArrayBuffer
+}
+
+/**
+ * A book file kept on this device (C1, Dexie 17). Large; "Notes only" backups
+ * keep the row with empty bytes (like pictures). Deleting the book page
+ * soft-deletes the row; "Delete forever" blanks `data`.
+ */
+export interface BookFile extends BaseRecord {
+  pageId: string
+  name: string
+  mime: string
+  size: number
+  data: ArrayBuffer
+}
+
+/** Colours of a highlight. */
+export const HIGHLIGHT_COLOURS = [
+  'yellow',
+  'green',
+  'blue',
+  'pink',
+  'purple',
+] as const
+export type HighlightColour = (typeof HIGHLIGHT_COLOURS)[number]
+
+/** Where an annotation sits. */
+export type AnnotationAnchor =
+  | { type: 'block'; blockId: string; from?: number; to?: number }
+  /** `rects`: groups of x, y, w, h, each 0 to 1 of the page. */
+  | { type: 'pdf'; page: number; rects: number[] }
+  | { type: 'epub'; cfi: string }
+  | { type: 'time'; seconds: number; endSeconds?: number }
+
+/** A highlight, note or bookmark on a book or a note page (C1/C4). */
+export interface Annotation extends BaseRecord {
+  /** The book page or note page. */
+  pageId: string
+  kind: 'highlight' | 'note' | 'bookmark'
+  colour?: HighlightColour
+  anchor: AnnotationAnchor
+  /** W3C text-quote selector, to find the spot again if it moved. */
+  quote?: { exact: string; prefix: string; suffix: string }
+  /** The user's note (at most 20,000 characters). */
+  note?: string
+  /** Chapter label at creation, for filters. */
+  chapter?: string
+  /** Pages and blocks this was saved to. */
+  savedTo?: { pageId: string; blockId: string }[]
+  /** Cards made from it (CR3). */
+  cardIds?: string[]
+  origin: 'user' | 'ai'
 }

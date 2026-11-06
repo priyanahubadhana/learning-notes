@@ -5,8 +5,10 @@ import type { InkChunk, InkLayer } from './inkTypes'
 import { orderBetween } from './order'
 import { newRecordFields } from './records'
 import type {
+  Annotation,
   Block,
   BlockTag,
+  BookFile,
   Card,
   Database,
   DbColumn,
@@ -65,6 +67,8 @@ export class LearningNotesDB extends Dexie {
   inkLayers!: EntityTable<InkLayer, 'id'>
   inkChunks!: EntityTable<InkChunk, 'id'>
   recordings!: EntityTable<Recording, 'id'>
+  bookFiles!: EntityTable<BookFile, 'id'>
+  annotations!: EntityTable<Annotation, 'id'>
 
   /** @param name Database name; tests pass a unique name to stay isolated. */
   constructor(name: string = DEFAULT_DB_NAME) {
@@ -262,6 +266,13 @@ export class LearningNotesDB extends Dexie {
 
     // Version 16 (E1): decks (live filters over cards). Only adds a table.
     this.version(16).stores({ decks: 'id' })
+
+    // Version 17 (C1): book files and annotations (highlights, notes,
+    // bookmarks). Only adds two tables, so older data needs no change.
+    this.version(17).stores({
+      bookFiles: 'id, pageId',
+      annotations: 'id, pageId, [pageId+kind], updatedAt',
+    })
 
     // Every save of a page or block also updates its search entry, in the
     // same transaction (see search/indexMiddleware.ts).

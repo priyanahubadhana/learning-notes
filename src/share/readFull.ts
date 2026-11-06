@@ -3,6 +3,7 @@ import type { LearningNotesDB } from '../core/db'
 import { t } from '../i18n/t'
 import { fontFormat } from '../core/fontFile'
 import { isImageType } from '../images/imageRef'
+import { bytesFitFormat, formatOfMime } from '../core/bookFormat'
 import { BundleError } from './bundle'
 import { checkedRow, isAudioType, type RowTable } from './checkRows'
 import {
@@ -235,6 +236,8 @@ const CHECKED = new Set<string>([
   'inkChunks',
   'recordings',
   'decks',
+  'bookFiles',
+  'annotations',
 ])
 
 /** Reads and fully checks a full file. Nothing is written. */
@@ -366,6 +369,15 @@ function putBack(
     if (!(out.data instanceof ArrayBuffer) || !isAudioType(out.type)) {
       throw damaged()
     }
+  }
+  if (table === 'bookFiles') {
+    // The bytes must fit the stated type; "notes only" keeps the row empty.
+    const format = formatOfMime(out.mime)
+    const ok =
+      out.data instanceof ArrayBuffer &&
+      format !== null &&
+      bytesFitFormat(new Uint8Array(out.data), format)
+    if (!ok) throw damaged()
   }
   if (table === 'fonts') {
     // An imported font must be a real font file (checked by its first bytes);

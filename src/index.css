@@ -785,4 +785,23 @@ html[data-note-line] .bn-editor {
  */
 [data-floating-ui-focusable][style*='opacity: 0;'] {
   pointer-events: none;
+/* A highlight the reader just jumped to (C4): a soft ring that fades. */
+@keyframes pdf-glow {
+  0%,
+  60% {
+    outline: 3px solid var(--color-accent);
+    outline-offset: 2px;
+  }
+  100% {
+    outline: 3px solid transparent;
+    outline-offset: 2px;
+  }
+}
+.pdf-glow {
+  animation: pdf-glow 1.6s ease-out;
+}
+@media (prefers-reduced-motion: reduce) {
+  .pdf-glow {
+    animation-duration: 0.8s;
+  }
 }

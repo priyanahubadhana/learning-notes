@@ -32,6 +32,8 @@ export function spaceForRoute(route: Route): Space | null {
       return 'review'
     case 'search':
       return route.savedId ? 'review' : null
+    case 'capture':
+      return 'library'
     case 'page':
     case 'notebook':
     case 'database':

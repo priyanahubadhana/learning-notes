@@ -21,6 +21,7 @@ import { SaveNotice } from './app/SaveNotice'
 import { onStorageFull, reportError, runTask } from './app/errors'
 import { labPageId } from './app/lab/labPage'
 import { baseHash, parseHash, routeToHash, type Route } from './app/router'
+import { installDeepLinks } from './reader/annotations/deepLink'
 import { THEMES, applyTheme } from './app/theme'
 import { ThemeContext } from './app/themeContext'
 import type { ToastAction } from './app/appUi'
@@ -113,6 +114,27 @@ const NotebookScreen = lazy(() =>
 )
 const PageView = lazy(() =>
   import('./pages/PageView').then((m) => ({ default: m.PageView })),
+)
+const LibraryScreen = lazy(() =>
+  import('./library/LibraryScreen').then((m) => ({
+    default: m.LibraryScreen,
+  })),
+)
+const BookReader = lazy(() =>
+  import('./reader/BookReader').then((m) => ({ default: m.BookReader })),
+)
+const CaptureScreen = lazy(() =>
+  import('./capture/CaptureScreen').then((m) => ({
+    default: m.CaptureScreen,
+  })),
+)
+const LibrarySidebar = lazy(() =>
+  import('./library/LibrarySidebar').then((m) => ({
+    default: m.LibrarySidebar,
+  })),
+)
+const BookHeader = lazy(() =>
+  import('./library/BookHeader').then((m) => ({ default: m.BookHeader })),
 )
 const PencilLabEntry = lazy(() =>
   import('./app/lab/PencilLab').then((m) => ({ default: m.PencilLabEntry })),
@@ -232,17 +254,21 @@ function App() {
     | { kind: 'data' }
     | { kind: 'calendar' }
     | { kind: 'lab' }
+    | { kind: 'read'; pageId: string; at?: string }
+    | { kind: 'capture'; url?: string; title?: string; text?: string }
     | null
   >(() =>
     boot?.kind === 'database'
       ? { kind: 'database', id: boot.id }
-      : boot?.kind === 'databases' ||
-          boot?.kind === 'cards' ||
-          boot?.kind === 'data' ||
-          boot?.kind === 'calendar' ||
-          boot?.kind === 'lab'
-        ? { kind: boot.kind }
-        : null,
+      : boot?.kind === 'read' || boot?.kind === 'capture'
+        ? boot
+        : boot?.kind === 'databases' ||
+            boot?.kind === 'cards' ||
+            boot?.kind === 'data' ||
+            boot?.kind === 'calendar' ||
+            boot?.kind === 'lab'
+          ? { kind: boot.kind }
+          : null,
   )
   // Review replaces the open page the same way (null = not reviewing).
   const [reviewScope, setReviewScope] = useState<ReviewScope | null>(() =>
@@ -375,7 +401,9 @@ function App() {
       : hub
         ? hub.kind === 'database'
           ? { kind: 'database', id: hub.id, parts: [] }
-          : { kind: hub.kind }
+          : hub.kind === 'read' || hub.kind === 'capture'
+            ? hub
+            : { kind: hub.kind }
         : search
           ? search.savedId
             ? { kind: 'search', savedId: search.savedId }
@@ -424,6 +452,10 @@ function App() {
         break
       case 'review':
         setReviewScope(r.scope.kind === 'custom' ? null : r.scope)
+        break
+      case 'read':
+      case 'capture':
+        setHub(r)
         break
       default:
         setHub({ kind: r.kind })
@@ -934,6 +966,8 @@ function App() {
     })
   })
   useEffect(() => () => setAppActions(null), [])
+  // Links to the app's own addresses (saved highlights) open inside the app.
+  useEffect(() => installDeepLinks(), [])
 
   // The top bar's name for the open screen (pages put their own path there).
   const barTitle = showSettings
@@ -946,11 +980,15 @@ function App() {
           ? t('sidebar.data')
           : hub?.kind === 'calendar'
             ? t('calendar.screen')
-            : hub
-              ? t('sidebar.allDatabases')
-              : search
-                ? (savedSearch?.name ?? t('search.title'))
-                : (openNotebookRecord?.title ?? null)
+            : hub?.kind === 'capture'
+              ? t('capture.title')
+              : hub?.kind === 'read'
+                ? null
+                : hub
+                  ? t('sidebar.allDatabases')
+                  : search
+                    ? (savedSearch?.name ?? t('search.title'))
+                    : (openNotebookRecord?.title ?? null)
 
   // Never shown as an empty app: the notes are most likely still there.
   if (openFailed) {
@@ -1030,6 +1068,22 @@ function App() {
                 openNotebookId={openNotebookRecord?.id ?? null}
                 onOpenNotebook={(id) => choose(() => openNotebook(id))}
                 onOpenToday={() => choose(() => runTask(openToday()))}
+                libraryPanel={
+                  <Suspense fallback={null}>
+                    <LibrarySidebar
+                      db={db}
+                      workspaceId={workspace.id}
+                      currentPageId={currentPage?.id ?? null}
+                      onOpenPage={(id) => choose(() => openPage(id))}
+                      onCapture={() =>
+                        choose(() => {
+                          openPage(null)
+                          setHub({ kind: 'capture' })
+                        })
+                      }
+                    />
+                  </Suspense>
+                }
                 onCreateNotebook={() => runTask(createNotebookAndOpen())}
                 onCreatePage={(notebookId, parentId, templateId) =>
                   runTask(createPageIn(notebookId, parentId, true, templateId))
@@ -1153,6 +1207,26 @@ function App() {
                             revealBlock(blockId)
                           }}
                           onClose={() => setReviewScope(null)}
+                        />
+                      ) : hub?.kind === 'read' ? (
+                        <BookReader
+                          key={hub.pageId}
+                          db={db}
+                          pageId={hub.pageId}
+                          at={hub.at}
+                          onOpenPage={openPage}
+                        />
+                      ) : hub?.kind === 'capture' ? (
+                        <CaptureScreen
+                          key={routeHash}
+                          db={db}
+                          workspaceId={workspace.id}
+                          draft={hub}
+                          onOpenPage={openPage}
+                          onClose={() => {
+                            setHub(null)
+                            setLastSpace('library')
+                          }}
                         />
                       ) : hub?.kind === 'lab' ? (
                         <PencilLabEntry
@@ -1294,9 +1368,33 @@ function App() {
                               openPage(null)
                               setHub({ kind: 'database', id })
                             }}
+                            header={
+                              currentPage.source ? (
+                                <BookHeader
+                                  db={db}
+                                  page={currentPage}
+                                  onRead={(pageId, at) =>
+                                    setHub({ kind: 'read', pageId, at })
+                                  }
+                                  onOpenPage={openPage}
+                                />
+                              ) : undefined
+                            }
                           />
                         </PageGate>
-                      ) : space === 'home' || space === 'library' ? (
+                      ) : space === 'library' ? (
+                        <LibraryScreen
+                          db={db}
+                          workspaceId={workspace.id}
+                          onOpenPage={openPage}
+                          onRead={(pageId, at) =>
+                            setHub({ kind: 'read', pageId, at })
+                          }
+                          onCapture={(draft) =>
+                            setHub({ kind: 'capture', ...draft })
+                          }
+                        />
+                      ) : space === 'home' ? (
                         <SpacePlaceholder
                           space={space}
                           onOpenToday={() => runTask(openToday())}

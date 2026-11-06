@@ -20,6 +20,10 @@ export type Route =
   | { kind: 'settings'; parts: string[] }
   | { kind: 'search'; savedId?: string; query?: Record<string, unknown> }
   | { kind: 'review'; scope: ReviewRoute }
+  /** The book reader (C2/C3) or a note page in the reader, at a spot. */
+  | { kind: 'read'; pageId: string; at?: string }
+  /** The Capture inbox (CR1), optionally prefilled from a share or bookmarklet. */
+  | { kind: 'capture'; url?: string; title?: string; text?: string }
 
 /** The review scopes an address can hold (a list of blocks cannot). */
 export type ReviewRoute =
@@ -54,6 +58,18 @@ export function routeToHash(route: Route): string {
         .join('')}`
     case 'lab':
       return '#/lab/pencil'
+    case 'read':
+      return `#/read/${e(route.pageId)}${
+        route.at ? `?at=${encodeURIComponent(route.at)}` : ''
+      }`
+    case 'capture': {
+      const q = new URLSearchParams()
+      if (route.url) q.set('url', route.url)
+      if (route.title) q.set('title', route.title)
+      if (route.text) q.set('text', route.text)
+      const qs = q.toString()
+      return qs ? `#/capture?${qs}` : '#/capture'
+    }
     case 'databases':
     case 'cards':
     case 'data':
@@ -109,6 +125,23 @@ export function parseHash(hash: string): Route {
       return { kind: 'settings', parts: args.slice(0, MAX_PARTS) as string[] }
     case 'lab':
       return first === 'pencil' ? { kind: 'lab' } : home
+    case 'read': {
+      if (!first) return home
+      const at = new URLSearchParams(query).get('at')
+      return at
+        ? { kind: 'read', pageId: first, at }
+        : { kind: 'read', pageId: first }
+    }
+    case 'capture': {
+      const q = new URLSearchParams(query)
+      const route: Extract<Route, { kind: 'capture' }> = { kind: 'capture' }
+      for (const key of ['url', 'title', 'text'] as const) {
+        const v = q.get(key)
+        // Long text is cut: an address bar is no place for a whole article.
+        if (v) route[key] = v.slice(0, 20_000)
+      }
+      return route
+    }
     case 'databases':
     case 'cards':
     case 'data':

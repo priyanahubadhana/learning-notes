@@ -14,7 +14,10 @@ import type { LearningNotesDB } from '../core/db'
  */
 
 /** Tables whose bytes "notes only" leaves out. */
-export const NOTES_SKIP_MEDIA: ReadonlySet<string> = new Set(['recordings'])
+export const NOTES_SKIP_MEDIA: ReadonlySet<string> = new Set([
+  'recordings',
+  'bookFiles',
+])
 
 export const FULL_FORMAT_VERSION = 2
 /** Largest zip file read or promised (bytes): about 1 GB. */

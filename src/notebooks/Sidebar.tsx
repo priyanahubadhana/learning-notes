@@ -56,6 +56,8 @@ interface SidebarProps {
   openNotebookId: string | null
   onOpenNotebook: (notebookId: string) => void
   onOpenToday: () => void
+  /** The Library space's list (made by the Library feature, passed in by App). */
+  libraryPanel?: React.ReactNode
   /** True while the global Review screen is shown. */
   reviewOpen: boolean
   /** The Search screen is open (highlights its button). */
@@ -123,6 +125,7 @@ export function Sidebar({
   openNotebookId,
   onOpenNotebook,
   onOpenToday,
+  libraryPanel,
   reviewOpen,
   onOpenReview,
   onOpenAllCards,
@@ -570,7 +573,8 @@ export function Sidebar({
         {space === 'home' && (
           <SpacePlaceholder space="home" onOpenToday={onOpenToday} compact />
         )}
-        {space === 'library' && <SpacePlaceholder space="library" compact />}
+        {space === 'library' &&
+          (libraryPanel ?? <SpacePlaceholder space="library" compact />)}
       </nav>
       {addMenu && (
         <MenuPopover

@@ -12,7 +12,7 @@ import type { Notebook } from './types'
  */
 const T = 1_700_000_000_000
 const base = { createdAt: T, updatedAt: T, deletedAt: null }
-const CURRENT_VERSION = 16
+const CURRENT_VERSION = 17
 let name = ''
 
 afterEach(async () => {
@@ -694,6 +694,52 @@ describe('database upgrade', () => {
     expect(db.verno).toBe(CURRENT_VERSION)
     expect(await db.images.count()).toBe(0)
     expect((await db.pages.toArray()).length).toBeGreaterThan(0)
+    db.close()
+  })
+
+  it('from version 16 adds book files and annotations (empty), keeping the data', async () => {
+    name = `migrate-${createId()}`
+    const old = new Dexie(name)
+    old.version(1).stores(V1)
+    old.version(2).stores(V2)
+    old.version(3).stores(V3)
+    old.version(4).stores(V4)
+    for (const v of [5, 6, 7, 8, 9, 10]) old.version(v).stores({})
+    old.version(11).stores({ pageVersions: 'id, pageId, createdAt' })
+    old.version(12).stores({ images: 'id' })
+    old.version(13).stores({
+      inkLayers: 'id, pageId',
+      inkChunks: 'id, pageId, layerId',
+    })
+    old.version(14).stores({ recordings: 'id, pageId' })
+    old.version(15).stores({ fonts: 'id' })
+    old.version(16).stores({ decks: 'id' })
+    await addVersion1Data(old)
+    old.close()
+
+    const db = new LearningNotesDB(name)
+    await db.open()
+    expect(db.verno).toBe(CURRENT_VERSION)
+    expect(await db.bookFiles.count()).toBe(0)
+    expect(await db.annotations.count()).toBe(0)
+    expect((await db.pages.toArray()).length).toBeGreaterThan(0)
+    // The new indexes work.
+    await db.annotations.add({
+      id: 'a1',
+      createdAt: 1,
+      updatedAt: 1,
+      deletedAt: null,
+      pageId: 'p1',
+      kind: 'highlight',
+      anchor: { type: 'epub', cfi: 'x' },
+      origin: 'user',
+    })
+    expect(
+      await db.annotations
+        .where('[pageId+kind]')
+        .equals(['p1', 'highlight'])
+        .count(),
+    ).toBe(1)
     db.close()
   })
 })

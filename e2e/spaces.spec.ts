@@ -46,11 +46,13 @@ test('the strip has four spaces; each shows only its own list', async ({
   await expect(side.getByRole('button', { name: 'Calendar' })).toHaveCount(0)
 
   await space(page, 'Library').click()
-  await expect(side.getByText('Coming next: your books')).toBeVisible()
+  await expect(side.getByRole('button', { name: '+ Capture' })).toBeVisible()
   await expect(
-    page.getByRole('main').getByText('Coming next: your books'),
+    page.getByRole('main').getByRole('heading', { name: 'Library' }),
   ).toBeVisible()
-  await expect(side.getByRole('button', { name: 'Import' })).toBeDisabled()
+  await expect(
+    page.getByRole('main').getByRole('button', { name: 'Import a book' }),
+  ).toBeEnabled()
   await expect(side.getByRole('button', { name: 'All cards' })).toHaveCount(0)
 
   await space(page, 'Home').click()
@@ -69,7 +71,9 @@ test('the last space is remembered on this device', async ({ page }) => {
   await space(page, 'Library').click()
   await page.reload()
   await expect(space(page, 'Library')).toHaveAttribute('aria-current', 'page')
-  await expect(sidebar(page).getByText('Coming next: your books')).toBeVisible()
+  await expect(
+    sidebar(page).getByRole('button', { name: '+ Capture' }),
+  ).toBeVisible()
 })
 
 test('every old sidebar item is still reachable', async ({ page }) => {
@@ -253,7 +257,7 @@ test.describe('phone', () => {
     await start(page)
     await space(page, 'Library').tap()
     await expect(
-      page.getByRole('main').getByText('Coming next: your books'),
+      page.getByRole('main').getByRole('heading', { name: 'Library' }),
     ).toBeVisible()
   })
 })

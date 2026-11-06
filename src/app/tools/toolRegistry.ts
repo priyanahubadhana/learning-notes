@@ -22,6 +22,11 @@ import {
 } from '../reading/readingTools'
 import { TABS, type TabId } from './tabs'
 import { runInkTool } from '../../ink/inkTools'
+import {
+  isAudioPanelOpen,
+  setAudioPanel,
+  toggleRecording,
+} from '../../audio/audioActions'
 
 /**
  * THE list of every feature the control panel, the ribbon and the short bar
@@ -314,7 +319,10 @@ export const TOOLS: readonly ToolDef[] = [
     icon: 'music',
     section: 'insert',
     group: 'media',
-    coming: 'audio',
+    run: (r) =>
+      void toggleRecording(r.app?.currentPageId() ?? null, (message) =>
+        r.app?.toast(message),
+      ),
   },
   {
     id: 'file',
@@ -479,6 +487,13 @@ export const TOOLS: readonly ToolDef[] = [
     section: 'view',
     group: 'read',
     run: () => exitReading(),
+  },
+  {
+    id: 'audioPanel',
+    icon: 'music',
+    section: 'view',
+    group: 'views',
+    run: () => setAudioPanel(!isAudioPanelOpen()),
   },
   {
     id: 'databaseView',

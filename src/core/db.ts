@@ -18,6 +18,7 @@ import type {
   ReviewLog,
   PageVersion,
   StoredImage,
+  Recording,
   RowRef,
   SavedSearch,
   SearchEntry,
@@ -59,6 +60,7 @@ export class LearningNotesDB extends Dexie {
   images!: EntityTable<StoredImage, 'id'>
   inkLayers!: EntityTable<InkLayer, 'id'>
   inkChunks!: EntityTable<InkChunk, 'id'>
+  recordings!: EntityTable<Recording, 'id'>
 
   /** @param name Database name; tests pass a unique name to stay isolated. */
   constructor(name: string = DEFAULT_DB_NAME) {
@@ -246,6 +248,10 @@ export class LearningNotesDB extends Dexie {
       inkLayers: 'id, pageId',
       inkChunks: 'id, pageId, layerId',
     })
+
+    // Version 14 (audio): voice recordings made while taking notes. Only adds
+    // a table, so older data needs no change and older backup files stay valid.
+    this.version(14).stores({ recordings: 'id, pageId' })
 
     // Every save of a page or block also updates its search entry, in the
     // same transaction (see search/indexMiddleware.ts).

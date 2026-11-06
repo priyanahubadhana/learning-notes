@@ -441,3 +441,21 @@ export interface StoredImage extends BaseRecord {
   height: number
   data: ArrayBuffer
 }
+
+/**
+ * A voice recording made while taking notes (audio step, Dexie 14). The sound
+ * stays on this device, in `data`. `startedAt` is the UTC time the sound
+ * began, so strokes (`at`) can be matched to the recording later. Deleting is
+ * soft (`deletedAt`); "Delete forever" blanks `data` and sets `purgedAt`.
+ */
+export interface Recording extends BaseRecord {
+  pageId: string
+  /** Shown name, e.g. "Recording 6 Nov, 14:32". */
+  name: string
+  /** MIME type of `data` (audio/mp4, audio/webm, audio/ogg). */
+  type: string
+  /** UTC ms the sound began. */
+  startedAt: number
+  durationMs: number
+  data: ArrayBuffer
+}

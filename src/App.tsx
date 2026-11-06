@@ -41,6 +41,7 @@ import { DatabaseGate, LockGate, PageGate } from './app/lock/LockScreen'
 import { toggleLock } from './app/lock/lockMenu'
 import { useAutoRelock } from './app/lock/useLock'
 import { useReadingSync } from './app/reading/useReadingSync'
+import { AudioDock } from './audio/AudioDock'
 import { DevicePicker } from './app/tools/DevicePicker'
 import { devicePickerDone } from './app/tools/deviceKind'
 import { setAppActions } from './app/tools/toolRuntime'
@@ -1379,6 +1380,7 @@ function App() {
               />
             )}
             <ReadingSync />
+            <AudioDock db={db} pageId={currentPage?.id ?? null} />
             <div className="fixed bottom-16 left-1/2 z-40 flex w-max max-w-[calc(100vw-32px)] -translate-x-1/2 flex-col items-center gap-2">
               <SaveNotice />
               {applyUpdate && (

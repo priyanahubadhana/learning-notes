@@ -173,7 +173,7 @@ describe('full file', () => {
       app: 'learning-notes',
       kind: 'full',
       formatVersion: 2,
-      dbVersion: 13,
+      dbVersion: 14,
       createdAt: 1000,
     })
     expect(manifest.counts.notebooks).toBeGreaterThan(0)
@@ -371,7 +371,7 @@ describe('refusing bad files', () => {
       { app: 'other' },
       { kind: 'weird' },
       { formatVersion: 3 },
-      { dbVersion: 14 },
+      { dbVersion: 15 },
       { formatVersion: 'x' },
     ]) {
       await expect(

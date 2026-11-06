@@ -7,6 +7,7 @@ import type {
   DbView,
   Notebook,
   Page,
+  Recording,
   ReviewLog,
 } from '../core/types'
 import type { InkChunk, InkLayer } from '../core/inkTypes'
@@ -181,6 +182,21 @@ const image = {
   data: text,
 }
 
+/** Sound types the recorder can produce (and the app will play back). */
+export const isAudioType = (v: unknown): v is string =>
+  typeof v === 'string' && /^audio\/[\w.+-]{1,30}(;[ \w=.,+-]{0,60})?$/.test(v)
+
+/** `data` is a bin marker in a file; its bytes are checked in readFull. */
+const recording: Fields<Recording> = {
+  ...times,
+  pageId: text,
+  name: (v) => typeof v === 'string' && v.length <= 300,
+  type: isAudioType,
+  startedAt: number,
+  durationMs: number,
+  data: object,
+}
+
 /** A stroke of a chunk: id, points in whole groups of STRIDE numbers, a style. */
 const stroke = (v: unknown): boolean => {
   if (!object(v)) return false
@@ -231,6 +247,7 @@ const FIELDS = {
   images: image,
   inkLayers: inkLayer,
   inkChunks: inkChunk,
+  recordings: recording,
 } as const
 
 /** Fields a row must have, on top of its id. */
@@ -239,6 +256,7 @@ const REQUIRED: Partial<Record<keyof typeof FIELDS, readonly string[]>> = {
   blocks: ['pageId', 'type', 'content', 'order'],
   inkLayers: ['pageId', 'order'],
   inkChunks: ['pageId', 'layerId', 'strokes'],
+  recordings: ['pageId', 'data'],
   tags: ['path'],
 }
 

@@ -107,7 +107,9 @@ export async function writeFullFile(
         const out: Record<string, unknown> = { ...row }
         for (const [field, value] of Object.entries(row)) {
           if (!isBinary(value)) continue
-          const entry = !skipsMedia(table.name) ? `media/${table.name}/${refs.length}` : null
+          const entry = !skipsMedia(table.name)
+            ? `media/${table.name}/${refs.length}`
+            : null
           const marker: BinMarker = {
             $bin: entry,
             kind: value instanceof ArrayBuffer ? 'buffer' : 'bytes',

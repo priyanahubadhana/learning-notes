@@ -3,7 +3,7 @@ import type { LearningNotesDB } from '../core/db'
 import { t } from '../i18n/t'
 import { isImageType } from '../images/imageRef'
 import { BundleError } from './bundle'
-import { checkedRow, type RowTable } from './checkRows'
+import { checkedRow, isAudioType, type RowTable } from './checkRows'
 import {
   FULL_FORMAT_VERSION,
   LIMITS,
@@ -232,6 +232,7 @@ const CHECKED = new Set<string>([
   'dbViews',
   'inkLayers',
   'inkChunks',
+  'recordings',
 ])
 
 /** Reads and fully checks a full file. Nothing is written. */
@@ -357,6 +358,12 @@ function putBack(
       isImageType(out.type) &&
       out.data instanceof ArrayBuffer
     if (!ok) throw damaged()
+  }
+  if (table === 'recordings') {
+    // Its type is checked field by field (checkRows); the bytes must be bytes.
+    if (!(out.data instanceof ArrayBuffer) || !isAudioType(out.type)) {
+      throw damaged()
+    }
   }
   return out
 }

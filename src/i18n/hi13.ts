@@ -1,0 +1,43 @@
+/** Hindi text of audio recording (draft: needs native review). English is en13.ts. */
+export const hi13: Record<string, string> = {
+  'tool.audioPanel': 'ऑडियो सूची',
+  'audio.defaultName': 'रिकॉर्डिंग',
+  'audio.panel.title': 'ऑडियो',
+  'audio.panel.close': 'ऑडियो सूची बंद करें',
+  'audio.panel.open': 'ऑडियो सूची खोलें',
+  'audio.record': 'रिकॉर्ड करें',
+  'audio.stop': 'रोकें',
+  'audio.stopLabel': 'रिकॉर्डिंग रोकें',
+  'audio.recording': 'रिकॉर्डिंग हो रही है',
+  'audio.recordHint':
+    'आवाज़ सिर्फ़ इसी डिवाइस पर, इसी पेज के भीतर सहेजी जाती है।',
+  'audio.list.empty':
+    'इस पेज पर अभी कोई रिकॉर्डिंग नहीं है। लिखते समय “रिकॉर्ड करें” दबाएँ।',
+  'audio.needsPage': 'पहले कोई पेज खोलें, फिर रिकॉर्ड करें।',
+  'audio.otherPage': 'दूसरे पेज की रिकॉर्डिंग हो रही है',
+  'audio.play': 'चलाएँ',
+  'audio.playing': '“{name}” चल रही है',
+  'audio.delete': 'हटाएँ',
+  'audio.deleted': 'रिकॉर्डिंग हटाई गई।',
+  'audio.undo': 'पूर्ववत करें',
+  'audio.deletedTitle': 'हटाई गई रिकॉर्डिंग ({count})',
+  'audio.restore': 'वापस लाएँ',
+  'audio.deleteForever': 'हमेशा के लिए हटाएँ',
+  'audio.forever.title': 'यह रिकॉर्डिंग हमेशा के लिए हटाएँ?',
+  'audio.forever.message': 'आवाज़ इस डिवाइस से मिट जाएगी और वापस नहीं आ सकेगी।',
+  'audio.forever.confirm': 'हमेशा के लिए हटाएँ',
+  'audio.saved': 'रिकॉर्डिंग इस पेज में सहेजी गई।',
+  'audio.saveFailed': 'रिकॉर्डिंग सहेजी नहीं जा सकी (डिवाइस भरा हो सकता है)।',
+  'audio.empty': 'कुछ भी रिकॉर्ड नहीं हुआ।',
+  'audio.error': 'किसी त्रुटि के कारण रिकॉर्डिंग रुक गई।',
+  'audio.limit': 'रिकॉर्डिंग 3 घंटे की हो गई; उसे रोककर सहेज लिया गया।',
+  'audio.unsupported': 'यह ब्राउज़र आवाज़ रिकॉर्ड नहीं कर सकता।',
+  'audio.denied':
+    'माइक्रोफ़ोन की अनुमति नहीं है। ब्राउज़र या डिवाइस की सेटिंग में इस ऐप के लिए अनुमति दें और फिर कोशिश करें।',
+  'audio.noMic': 'कोई माइक्रोफ़ोन नहीं मिला।',
+  'audio.busy': 'एक रिकॉर्डिंग पहले से चल रही है।',
+  'audio.failed': 'रिकॉर्डिंग शुरू नहीं हो सकी।',
+  'audio.cantPlay': 'यह रिकॉर्डिंग यहाँ चलाई नहीं जा सकी।',
+  'audio.elsewhere':
+    'दूसरे पेज की रिकॉर्डिंग हो रही है। सहेजने के लिए “रोकें” दबाएँ।',
+}

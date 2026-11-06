@@ -4,7 +4,7 @@ import { readPinned } from '../../../settings/deviceModeSettings'
 import { prefStore } from '../store'
 import { DEFAULT_SET_TOOLS, readSetTools } from '../toolbarState'
 import { extraTools, mainList, pillLists } from './mainTools'
-import { migrateLists } from './migrate'
+import { addBackspace, dedupeMain, migrateLists } from './migrate'
 
 const done = prefStore('toolbar.mainMigrated', isBoolean, false)
 
@@ -37,3 +37,20 @@ export function migrateToMainBarOnce(): boolean {
 
 /** Tests only. */
 export const resetMigration = () => done.clearCache()
+
+const tidied = prefStore('toolbar.dedupe1', isBoolean, false)
+
+/** Once per device: removes duplicates from a saved bar and adds ⌫ (A3, A4). */
+export function tidyBarOnce(): void {
+  if (tidied.get()) return
+  tidied.set(true)
+  const tidy = dedupeMain(mainList.get(), extraTools.get())
+  const main = addBackspace(tidy.main)
+  // Only a list the person saved is rewritten; the standard bar already has ⌫.
+  if (main.join() !== mainList.get().join()) mainList.set(main)
+  if (tidy.extras.join() !== extraTools.get().join())
+    extraTools.set(tidy.extras)
+}
+
+/** Tests only. */
+export const resetTidy = () => tidied.clearCache()

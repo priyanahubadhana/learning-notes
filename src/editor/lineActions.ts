@@ -103,3 +103,57 @@ export function addExtraLine(
   }
   editor.focus()
 }
+
+/**
+ * ⌫ without a keyboard (Pencil users): deletes the selection, else the
+ * character or word before the caret, else (at the start of a block) does
+ * what the Backspace key does there (join with the block above). The caret
+ * is the editor's own selection, so it works while the page is not focused.
+ * Returns false when there was nothing to delete.
+ */
+export function deleteBackward(
+  editor: Editor,
+  unit: 'char' | 'word' = 'char',
+): boolean {
+  const view = editor.prosemirrorView
+  if (!view) return false
+  const { state } = view
+  const sel = state.selection
+  if (!sel.empty) {
+    view.dispatch(state.tr.deleteSelection().scrollIntoView())
+    return true
+  }
+  const $pos = sel.$from
+  if ($pos.parent.inlineContent && $pos.parentOffset > 0) {
+    const before = $pos.parent.textBetween(0, $pos.parentOffset, undefined, '￼')
+    const keep = keepLength(before, unit)
+    const from = $pos.pos - (before.length - keep)
+    if (from < $pos.pos) {
+      view.dispatch(state.tr.delete(from, $pos.pos))
+      return true
+    }
+  }
+  // Start of a block: the key's own behaviour (join, lift, remove a picture).
+  const event = new KeyboardEvent('keydown', {
+    key: 'Backspace',
+    code: 'Backspace',
+    keyCode: 8,
+    bubbles: true,
+    cancelable: true,
+  })
+  return !!view.someProp('handleKeyDown', (f) => f(view, event))
+}
+
+/** How much of `before` stays after deleting its last character or word. */
+export function keepLength(before: string, unit: 'char' | 'word'): number {
+  if (before.length === 0) return 0
+  if (unit === 'char') {
+    const chars = Array.from(before)
+    chars.pop()
+    return chars.join('').length
+  }
+  let end = before.length
+  while (end > 0 && /\s/.test(before[end - 1])) end--
+  while (end > 0 && !/\s/.test(before[end - 1])) end--
+  return end
+}

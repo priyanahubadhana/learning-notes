@@ -10,6 +10,7 @@ export const hi9: Record<string, string> = {
   'main.tool.highlighter': 'हाइलाइटर',
   'main.tool.eraser': 'रबर',
   'main.tool.newLine': 'नई पंक्ति',
+  'main.tool.backspace': 'बैकस्पेस',
   'main.tool.lasso': 'लैसो',
   'main.tool.insert': 'जोड़ें',
   'main.tool.read': 'पढ़ें',

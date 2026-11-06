@@ -64,6 +64,7 @@ describe('moving an old custom bar to the new one', () => {
       'pen',
       'eraser',
       'newLine',
+      'backspace',
       'insert',
       'read',
     ])
@@ -95,5 +96,24 @@ describe('moving an old custom bar to the new one', () => {
     expect(
       JSON.parse(localStorage.getItem('learning-notes:formatBar.pinned')!),
     ).toEqual(['bold', 'strike'])
+  })
+})
+
+describe('tidying a saved bar', () => {
+  it('removes repeated tools and tools the bar already has', async () => {
+    const { dedupeMain, addBackspace } = await import('./migrate')
+    const out = dedupeMain(
+      ['text', 'pen', 'pen'],
+      ['highlight', 'indent', 'outdent', 'strike', 'strike'],
+    )
+    expect(out.main).toEqual(['text', 'pen'])
+    expect(out.extras).toEqual(['strike'])
+    expect(addBackspace(['text', 'newLine', 'read'])).toEqual([
+      'text',
+      'newLine',
+      'backspace',
+      'read',
+    ])
+    expect(addBackspace(['text', 'backspace'])).toEqual(['text', 'backspace'])
   })
 })

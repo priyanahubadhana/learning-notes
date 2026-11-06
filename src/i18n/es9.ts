@@ -10,6 +10,7 @@ export const es9: Record<string, string> = {
   'main.tool.highlighter': 'Resaltador',
   'main.tool.eraser': 'Borrador',
   'main.tool.newLine': 'Nueva línea',
+  'main.tool.backspace': 'Borrar atrás',
   'main.tool.lasso': 'Lazo',
   'main.tool.insert': 'Insertar',
   'main.tool.read': 'Leer',

@@ -21,7 +21,9 @@ export const setOfTool = (tool: ModeTool): BarSet =>
  */
 export type SelectResult = 'opened' | 'closed'
 
-export function selectTool(tool: Exclude<MainTool, 'newLine'>): SelectResult {
+export function selectTool(
+  tool: Exclude<MainTool, 'newLine' | 'backspace'>,
+): SelectResult {
   const pinned = pillPinned.get()
   const showing = shownPill(openPillTool.get(), pinned, activeTool.get())
   openCard.set(null)
@@ -46,7 +48,9 @@ export function selectTool(tool: Exclude<MainTool, 'newLine'>): SelectResult {
 }
 
 /** Opens a tool's pill without closing it when it is open already (hold). */
-export function openToolPill(tool: Exclude<MainTool, 'newLine'>): void {
+export function openToolPill(
+  tool: Exclude<MainTool, 'newLine' | 'backspace'>,
+): void {
   const showing = shownPill(
     openPillTool.get(),
     pillPinned.get(),

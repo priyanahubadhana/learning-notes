@@ -30,7 +30,10 @@ import {
   shortcutHintsSetting,
 } from './builtinSettings'
 import { addUndoRedoOnce, changeSet } from '../app/tools/toolbarState'
-import { migrateToMainBarOnce } from '../app/tools/main/migrateApply'
+import {
+  migrateToMainBarOnce,
+  tidyBarOnce,
+} from '../app/tools/main/migrateApply'
 import { applyNoteStyle } from '../app/tools/main/textStyle'
 import { activeTool } from '../app/tools/main/mainTools'
 import { migrateBarOff } from '../app/tools/toolbarVisibility'
@@ -49,6 +52,7 @@ export function initDeviceMode(): void {
   migrateBarOff()
   addUndoRedoOnce()
   migrateToMainBarOnce()
+  tidyBarOnce()
   applyNoteStyle()
   // Pencil mode starts with the Lasso tool (GoodNotes style): a stray Pencil touch
   // selects or marks, it never writes. The finger still pans and zooms.

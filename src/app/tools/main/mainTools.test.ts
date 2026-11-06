@@ -37,6 +37,7 @@ describe('the main bar', () => {
       'highlighter',
       'eraser',
       'newLine',
+      'backspace',
       'lasso',
       'insert',
       'read',

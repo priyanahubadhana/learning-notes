@@ -18,6 +18,7 @@ export const MAIN_TOOLS = [
   'highlighter',
   'eraser',
   'newLine',
+  'backspace',
   'lasso',
   'insert',
   'read',

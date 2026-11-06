@@ -2,7 +2,11 @@ import { useEffect, useRef, useState, type RefObject } from 'react'
 import { Tip } from '../../../help/Help'
 import { t, type MessageKey } from '../../../i18n/t'
 import type { Editor } from '../../../editor/barActions'
-import { addExtraLine, addLineAfterCursor } from '../../../editor/lineActions'
+import {
+  addExtraLine,
+  addLineAfterCursor,
+  deleteBackward,
+} from '../../../editor/lineActions'
 import { applyPageMode } from '../../../editor/editPolicy'
 import { setKeyboard } from '../../../editor/keyboardPolicy'
 import { AnchoredMenu } from '../AnchoredMenu'
@@ -31,6 +35,7 @@ import {
   type NewLineExtra,
 } from './newLineGesture'
 import { openToolPill, selectTool } from './selectTool'
+import { REPEAT_AFTER_MS, backspaceStep } from './backspaceHold'
 
 /**
  * The main bar: one solid, icon-only row. Undo and Redo in their own small
@@ -44,6 +49,7 @@ const TOOL_ICON: Record<MainTool, IconName> = {
   highlighter: 'highlighter',
   eraser: 'eraser',
   newLine: 'newLine',
+  backspace: 'backspace',
   lasso: 'lasso',
   insert: 'layoutGrid',
   read: 'bookOpen',
@@ -83,6 +89,9 @@ export function MainBarRow({
   const toolButton = (tool: MainTool) => {
     if (tool === 'newLine') {
       return <NewLineButton key={tool} editor={editor} min={min} />
+    }
+    if (tool === 'backspace') {
+      return <BackspaceButton key={tool} editor={editor} min={min} />
     }
     const on = isModeTool(tool) && active === tool
     const label = t(`main.tool.${tool}` as MessageKey)
@@ -298,6 +307,66 @@ function NewLineButton({ editor, min }: { editor: Editor; min: number }) {
         ))}
       </AnchoredMenu>
     </>
+  )
+}
+
+// ---- ⌫: a tap deletes a character, a hold repeats (and then deletes words) ----
+
+function BackspaceButton({ editor, min }: { editor: Editor; min: number }) {
+  const run = useRef({ timer: 0, start: 0, active: false })
+  const label = t('main.tool.backspace')
+  const stop = () => {
+    window.clearTimeout(run.current.timer)
+    run.current.active = false
+  }
+  useEffect(() => stop, [])
+  const step = () => {
+    const r = run.current
+    if (!r.active) return
+    const { unit, next } = backspaceStep(Date.now() - r.start)
+    if (!deleteBackward(editor, unit)) return stop()
+    r.timer = window.setTimeout(step, next)
+  }
+  return (
+    <button
+      type="button"
+      data-bar-btn
+      data-bar-tool="backspace"
+      data-action="backspace"
+      data-pen-own
+      aria-label={label}
+      title={label}
+      onMouseDown={keepFocus}
+      onContextMenu={(e) => e.preventDefault()}
+      onPointerDown={(e) => {
+        if (e.button !== 0) return
+        e.preventDefault()
+        try {
+          e.currentTarget.setPointerCapture(e.pointerId)
+        } catch {
+          // Not a real pointer (a test): the up event still arrives.
+        }
+        stop()
+        // The first press deletes at once; a hold starts repeating later.
+        deleteBackward(editor, 'char')
+        run.current.start = Date.now()
+        run.current.active = true
+        run.current.timer = window.setTimeout(step, REPEAT_AFTER_MS)
+      }}
+      onPointerUp={stop}
+      onPointerCancel={stop}
+      onKeyDown={(e) => {
+        // Keyboard users: Enter or Space deletes once (a held key repeats).
+        if (e.key === 'Enter' || e.key === ' ') {
+          e.preventDefault()
+          deleteBackward(editor, 'char')
+        }
+      }}
+      style={{ minHeight: min, minWidth: min, touchAction: 'pan-x' }}
+      className={BUTTON}
+    >
+      <Icon name="backspace" />
+    </button>
   )
 }
 

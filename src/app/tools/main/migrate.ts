@@ -111,3 +111,41 @@ export function migrateLists(
   }
   return { main, pills: { text }, extras }
 }
+
+/** Ids that are already on the main bar (or have no place there). */
+const NOT_ON_MAIN_BAR = new Set([
+  'highlight',
+  'highlighter',
+  'indent',
+  'outdent',
+  'newLine',
+  'backspace',
+  'undo',
+  'redo',
+])
+
+/**
+ * Run once: a saved main bar loses repeated tools, and the pinned extra
+ * buttons lose the ones the main bar already has (a second Highlighter, stray
+ * indent and outdent). They stay in the ribbon and in Features.
+ */
+export function dedupeMain(
+  main: readonly MainTool[],
+  extras: readonly string[],
+): { main: MainTool[]; extras: string[] } {
+  return {
+    main: main.filter((id, i) => main.indexOf(id) === i),
+    extras: extras.filter(
+      (id, i) => extras.indexOf(id) === i && !NOT_ON_MAIN_BAR.has(id),
+    ),
+  }
+}
+
+/** Run once: a saved main bar gets the ⌫ key right after New line. */
+export function addBackspace(main: readonly MainTool[]): MainTool[] {
+  if (main.includes('backspace')) return [...main]
+  const at = main.indexOf('newLine')
+  const next = [...main]
+  next.splice(at < 0 ? next.length : at + 1, 0, 'backspace')
+  return next
+}

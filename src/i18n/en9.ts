@@ -11,6 +11,7 @@ export const en9 = {
   'main.tool.highlighter': 'Highlighter',
   'main.tool.eraser': 'Eraser',
   'main.tool.newLine': 'New line',
+  'main.tool.backspace': 'Backspace',
   'main.tool.lasso': 'Lasso',
   'main.tool.insert': 'Insert',
   'main.tool.read': 'Read',

@@ -15,12 +15,14 @@ Books and other sources live in the app as ordinary pages. The Library space sho
 - **Highlights and notes (C4):** selecting text shows a bar with five colours, Note, Copy, Look up (dictionary, Wikipedia, translate: opens a web page for that word only), Pin (bookmark) and Save to… Every highlight is also copied to the book page's Highlights & notes section with a link back (`#/read/...` as a full app address, caught by `deepLink.ts` so it opens inside the app, no new tab). The annotations panel filters by type, colour and chapter, jumps to a spot (with a glow), edits notes, deletes with Undo, and exports Markdown (copy or file). `annotationService.reanchor` finds a quote again by its surroundings.
 - **Backups:** both tables travel in "Everything"; "Notes only" keeps the book rows with empty bytes (like pictures) and all annotations. A file from an older version can Replace when every version after it only added tables (`TABLE_ONLY_VERSIONS` in `share/restore.ts`). Delete forever blanks the file bytes and the highlight text.
 
+- **Reader extras (C5, wave 5):** Page Flip (bottom slider; PDF shows a small picture of the page, EPUB the percentage; the first move remembers the start and offers "Back to p. 42"); a **time left** line (about N min left in chapter, M in book) from this device's measured speed (rolling average kept in this browser, 220 words a minute until measured; a PDF counts words on five sampled pages, an EPUB uses the book's own size units); **Liquid mode (beta)** for PDFs with text (`reader/extras/liquid.ts` groups pdf.js text into headings and paragraphs, hyphens mended; "Show original" always on its bar; A−/A+ change its size); **Find** in a PDF (`pdf/pdfSearch.ts`, page texts cached per document, up to 300 matches, tap to jump); two-finger **pinch zoom** on PDF pages (a CSS preview while the fingers move, the real zoom set when they lift; 50 to 300 %); **Settings › Reading › Lock screen direction** tries `screen.orientation.lock` and, when the browser refuses (the iPad always does), says to use the Control Centre rotation lock. Look up and Add to vocabulary were built in wave 3 (CR3); Settings › Reading now says what Look up sends.
+
 ## Edge cases
 
 - A book file missing on this device (notes-only backup): the reader says so; importing again restores reading.
 - A PDF that the reader cannot show: "The book could not be shown."
 - DOCX progress is not tracked (chapters are ordinary pages).
-- Pinch zoom, ink on book pages, EPUB page curl and the Liquid mode are not built (see DECISIONS).
+- Ink on book pages and EPUB page curl are not built (see DECISIONS). Matches found in a PDF are listed and jump to the page; they are not marked on it.
 
 ## Security check
 
@@ -33,4 +35,5 @@ Books and other sources live in the app as ordinary pages. The Library space sho
 ## Tests
 
 - Unit: `src/library/library.test.ts`, `src/reader/reader.test.ts`, `src/capture/capture.test.ts`, `src/share/bookBackup.test.ts`, `src/core/migration.test.ts` (16 to 17), `src/app/router.test.ts`.
+- Unit (wave 5): `src/reader/extras/extras.test.ts` (time left, speed tracker, orientation answers, Liquid grouping, PDF search). E2E: `e2e/readerExtras.spec.ts` (Page Flip and Back, time left, Find, Liquid, EPUB flip, pinch).
 - E2E: `e2e/library.spec.ts` (import PDF/EPUB/DOCX, refusal, progress and resume, Contents, zoom, bookmark, highlight survives reload and lands on the book page, note, Undo, Markdown copy, link back to the spot).

@@ -37,9 +37,10 @@ export function useReadingSync(): void {
 
   // Reading mode turned on or off by itself.
   useEffect(() => {
-    if (view !== 'off' && activeSet.get() !== 'read') changeSet('read', 'user')
+    // 'auto': the ribbon stays on the tab the person was using (owner note 18).
+    if (view !== 'off' && activeSet.get() !== 'read') changeSet('read', 'auto')
     else if (view === 'off' && activeSet.get() === 'read') {
-      changeSet('write', 'user')
+      changeSet('write', 'auto')
     }
   }, [view])
 }

@@ -186,16 +186,13 @@ function syncTool(set: BarSet): void {
  * this; the set only tells the ribbon which tab to open and Reading mode
  * whether to start. Nothing changes sets by itself any more.
  */
-export function changeSet(
-  set: BarSet,
-  _how: 'auto' | 'user' = 'user',
-): boolean {
-  void _how
+export function changeSet(set: BarSet, how: 'auto' | 'user' = 'user'): boolean {
   syncTool(set)
   if (activeSet.get() === set) return false
   activeSet.set(set)
-  // The ribbon follows the set: it opens on the matching tab.
-  ribbonTab.set(tabForSet(set))
+  // A tool pick moves the ribbon to the matching tab. A toggle (Reading mode
+  // on or off) is 'auto': the ribbon stays on the tab the person is using.
+  if (how === 'user') ribbonTab.set(tabForSet(set))
   return true
 }
 

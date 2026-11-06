@@ -26,7 +26,7 @@ async function openPage(page: Page) {
   await page.keyboard.press('Control+A')
 }
 
-for (const tab of ['Home', 'Insert', 'Review']) {
+for (const tab of ['Home', 'Insert', 'Draw', 'View', 'Review']) {
   test(`ribbon toggles on the ${tab} tab turn off on a second tap`, async ({
     page,
   }) => {
@@ -43,7 +43,8 @@ for (const tab of ['Home', 'Insert', 'Review']) {
     const names = await panel
       .locator('button[aria-pressed]')
       .evaluateAll((els) => els.map((el) => el.getAttribute('aria-label')!))
-    for (const name of names) {
+    // Lock to reading cannot be left with Exit (that is its point).
+    for (const name of names.filter((n) => !/^Lock/.test(n))) {
       const button = () =>
         panel
           .locator('button[aria-pressed]')
@@ -51,6 +52,16 @@ for (const tab of ['Home', 'Insert', 'Review']) {
       await reopen()
       const start = await button().getAttribute('aria-pressed')
       await button().click()
+      if ((await tabButton.count()) === 0) {
+        // Reading mode (and what starts it) covers the bar by design: leave it
+        // and check the ribbon is still on the tab it was on (owner note 18).
+        await page.getByRole('button', { name: 'Exit reading' }).first().click()
+        await expect(tabButton, `${name} stays on ${tab}`).toHaveAttribute(
+          'aria-selected',
+          'true',
+        )
+        continue
+      }
       await reopen()
       await button().click()
       await reopen()

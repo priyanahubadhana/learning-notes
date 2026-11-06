@@ -1,6 +1,7 @@
 import type { JsonObject } from '../core/types'
 import { plainText } from '../editor/mapping'
-import { t } from '../i18n/t'
+import { t, type MessageKey } from '../i18n/t'
+import { DIGIT_SOUNDS } from '../memory/majorSystem'
 
 /**
  * Starter templates, created once per workspace. General building blocks
@@ -11,6 +12,8 @@ import { t } from '../i18n/t'
 export interface StarterBlock {
   type: string
   content: JsonObject
+  /** Nested blocks (a card's answer). */
+  children?: StarterBlock[]
 }
 export interface StarterPage {
   title: string
@@ -29,7 +32,7 @@ export interface StarterTemplate extends StarterPage {
  * Bump when adding starter templates (and set their `since`). Existing
  * workspaces get the new ones once; deleted ones never come back.
  */
-export const STARTER_VERSION = 2
+export const STARTER_VERSION = 3
 
 const heading = (text: string): StarterBlock => ({
   type: 'heading',
@@ -163,4 +166,110 @@ export const starterTemplates = (): StarterTemplate[] => [
       { title: t('templates.lesson.cards'), blocks: [cardList()] },
     ],
   },
+  ...memoryTemplates(),
 ]
+
+const text = (s: string): StarterBlock => ({
+  type: 'paragraph',
+  content: { text: plainText(s) },
+})
+const bulletText = (s: string): StarterBlock => ({
+  type: 'bulletListItem',
+  content: { text: plainText(s) },
+})
+/** A Card block with an empty question, optionally with answer blocks. */
+const card = (children: StarterBlock[] = []): StarterBlock => ({
+  type: 'card',
+  content: { text: plainText('') },
+  children,
+})
+/** An empty picture block (pick a picture or paste one). */
+const picture = (): StarterBlock => ({
+  type: 'image',
+  content: { url: '', caption: '' },
+})
+
+/** "How to use" and the honest evidence line every technique page starts with. */
+const howTo = (
+  how: MessageKey,
+  evidence: MessageKey,
+  extra: StarterBlock[] = [],
+): StarterBlock[] => [
+  heading(t('templates.mem.how')),
+  text(t(how)),
+  ...extra,
+  callout(t(evidence)),
+]
+
+/** Memory techniques (E2): templates only, each with How to use and evidence. */
+function memoryTemplates(): StarterTemplate[] {
+  return [
+    {
+      title: t('templates.mem.palace'),
+      since: 3,
+      blocks: [
+        ...howTo('templates.mem.palace.how', 'templates.mem.palace.evidence'),
+        ...[1, 2, 3].flatMap((n) => [
+          heading(t('templates.mem.room', { n })),
+          card(),
+        ]),
+      ],
+    },
+    {
+      title: t('templates.mem.vivid'),
+      since: 3,
+      blocks: [
+        ...howTo('templates.mem.vivid.how', 'templates.mem.vivid.evidence'),
+        heading(t('templates.mem.vivid.card')),
+        card([picture(), text(t('templates.mem.vivid.note'))]),
+      ],
+    },
+    {
+      title: t('templates.mem.major'),
+      since: 3,
+      blocks: [
+        ...howTo(
+          'templates.mem.major.how',
+          'templates.mem.major.evidence',
+          DIGIT_SOUNDS.map((sounds, digit) =>
+            bulletText(`${digit} · ${sounds}`),
+          ),
+        ),
+        heading(t('templates.mem.major.mine')),
+        bullet(),
+      ],
+    },
+    {
+      title: t('templates.mem.pao'),
+      since: 3,
+      blocks: [
+        ...howTo('templates.mem.pao.how', 'templates.mem.pao.evidence'),
+        heading(t('templates.mem.pao.table')),
+        paragraph(),
+      ],
+    },
+    {
+      title: t('templates.mem.acronym'),
+      since: 3,
+      blocks: [
+        ...howTo('templates.mem.acronym.how', 'templates.mem.acronym.evidence'),
+        heading(t('templates.mem.acronym.list')),
+        bullet(),
+        heading(t('templates.mem.acronym.word')),
+        card(),
+      ],
+    },
+    {
+      title: t('templates.mem.story'),
+      since: 3,
+      blocks: [
+        ...howTo('templates.mem.story.how', 'templates.mem.story.evidence'),
+        heading(t('templates.mem.story.words')),
+        bullet(),
+        heading(t('templates.mem.story.story')),
+        paragraph(),
+        card(),
+      ],
+    },
+  ]
+}

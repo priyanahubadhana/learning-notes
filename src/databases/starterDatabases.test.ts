@@ -33,6 +33,18 @@ describe('starter databases', () => {
     }
   })
 
+  it('the PAO table starts with the rows 00 to 99', async () => {
+    const pao = await createStarterDatabase(db, ws, null, 'pao')
+    expect((await listColumns(db, pao.id)).map((c) => c.name)).toEqual([
+      'Person',
+      'Action',
+      'Object',
+    ])
+    const rows = await db.pages.where('databaseId').equals(pao.id).toArray()
+    expect(rows).toHaveLength(100)
+    expect(rows.map((r) => r.title).sort()[99]).toBe('99')
+  })
+
   it('the Drug list has its columns and the Books status has options', async () => {
     const drugs = await createStarterDatabase(db, ws, null, 'drugs')
     expect(drugs.title).toBe('Drug list')

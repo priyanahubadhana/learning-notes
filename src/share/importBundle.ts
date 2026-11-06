@@ -1,3 +1,4 @@
+import { inReadingOrder } from '../core/blockService'
 import type { LearningNotesDB } from '../core/db'
 import { createId } from '../core/ids'
 import { orderBetween } from '../core/order'
@@ -56,13 +57,12 @@ function signature(
   const page = pages.find((p) => p.id === pageId)
   return JSON.stringify([
     page?.title ?? '',
-    blocks
-      .filter((b) => b.pageId === pageId)
-      .sort(byOrder)
-      .flatMap((b) => {
-        const text = blockText(b.content).replace(/\s+/g, ' ').trim()
-        return b.type === 'paragraph' && text === '' ? [] : [[b.type, text]]
-      }),
+    inReadingOrder(
+      blocks.filter((b) => b.pageId === pageId).sort(byOrder),
+    ).flatMap((b) => {
+      const text = blockText(b.content).replace(/s+/g, ' ').trim()
+      return b.type === 'paragraph' && text === '' ? [] : [[b.type, text]]
+    }),
     pages
       .filter((p) => p.parentId === pageId)
       .sort(byOrder)

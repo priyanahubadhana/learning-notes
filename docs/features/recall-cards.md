@@ -36,3 +36,7 @@ Turn notes into flashcards. A Card block is a question with its answer nested in
 - `src/recall/cardService.test.ts`, `cardList.test.ts`, `emptyCards.test.ts`
 - `src/editor/cardActions.test.ts`, `blankActions.test.ts`, `pageSync.test.ts`
 - `e2e/cards.spec.ts`, `blanks.spec.ts`, `cardTools.spec.ts`
+
+## Pictures in answers (E2)
+
+A picture block inside a Card block shows in Review after Show answer (`CardFace.answer[].image`, an `lnimg:` reference). Ink sketches in answers: not yet (G0).

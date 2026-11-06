@@ -6,6 +6,7 @@ import { en12 } from './en12'
 import { en13 } from './en13'
 import { enW2 } from './enW2'
 import { enW3b } from './enW3b'
+import { enE2 } from './enE2'
 /**
  * English text for the app. Every new piece of on-screen text gets a key
  * here and is shown with `t('key')`, so translations can be added later as
@@ -23,6 +24,7 @@ export const en = {
   ...en13,
   ...enW2,
   ...enW3b,
+  ...enE2,
   // Shared dialogs
   'dialog.cancel': 'Cancel',
   'dialog.save': 'Save',

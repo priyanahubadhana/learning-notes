@@ -410,6 +410,21 @@ describe('card face', () => {
     ])
   })
 
+  it('a picture block in the answer comes with its picture reference', async () => {
+    const card = await addCard('q')
+    const ref = 'lnimg:11111111-2222-3333-4444-555555555555'
+    await db.blocks.add(
+      block('pic', 'p1', {
+        parentId: 'q',
+        order: 'a0',
+        type: 'image',
+        content: { url: ref, caption: '' },
+      }),
+    )
+    const face = await getCardFace(db, card)
+    expect(face?.answer).toMatchObject([{ id: 'pic', image: ref }])
+  })
+
   it('a blank shows its block text with the blank id', async () => {
     await db.blocks.add(
       block('bl', 'p1', { type: 'paragraph', content: blankContent('k1') }),

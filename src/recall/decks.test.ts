@@ -284,3 +284,41 @@ describe('speed', () => {
     expect(performance.now() - started).toBeLessThan(300)
   })
 })
+
+describe('Walk the route (E2)', () => {
+  it('a deck with routeOrder reviews cards in page and block order', async () => {
+    await db.pages.bulkAdd([
+      { ...page('r1', 'nb1'), order: 'b1' },
+      { ...page('r2', 'nb1'), order: 'b2' },
+    ])
+    const add = async (
+      id: string,
+      pageId: string,
+      order: string,
+      due: number,
+    ) => {
+      await addCard(id, pageId, 'nb1', { ...learned, due })
+      await db.blocks.update(id, { order })
+    }
+    await add('r2a', 'r2', 'a0', NOW - 5 * DAY)
+    await add('r1b', 'r1', 'a1', NOW - 4 * DAY)
+    await add('r1a', 'r1', 'a0', NOW - 3 * DAY)
+    const scope = {
+      notebookIds: [],
+      pageIds: ['r1', 'r2'],
+      withSubpages: false,
+    }
+    const plain = await createDeck(db, { name: 'Plain', scope })
+    const route = await createDeck(db, {
+      name: 'Route',
+      scope,
+      routeOrder: true,
+    })
+    const order = async (deckId: string) =>
+      (await getReviewQueue(db, { kind: 'deck', deckId }, NOW)).cards.map(
+        (c) => c.id,
+      )
+    expect(await order(plain.id)).toEqual(['c-r2a', 'c-r1b', 'c-r1a'])
+    expect(await order(route.id)).toEqual(['c-r1a', 'c-r1b', 'c-r2a'])
+  })
+})

@@ -52,6 +52,7 @@ export function DeckEditor({
   const [states, setStates] = useState<DeckState[]>(seed?.states ?? ['all'])
   const [name, setName] = useState(seed?.name ?? '')
   const [colour, setColour] = useState<string>(seed?.colour ?? DECK_COLOURS[0])
+  const [route, setRoute] = useState(seed?.routeOrder ?? false)
   const [open, setOpen] = useState<Set<string>>(new Set())
 
   useEffect(() => {
@@ -98,6 +99,7 @@ export function DeckEditor({
     tagIds,
     tagMode,
     states,
+    ...(route && { routeOrder: true }),
   }
   const matchKey = JSON.stringify([
     notebookIds,
@@ -106,6 +108,7 @@ export function DeckEditor({
     tagIds,
     tagMode,
     states,
+    route,
   ])
   const count = useLiveQuery(
     async () => (await deckCards(db, draft, Date.now())).length,
@@ -130,6 +133,7 @@ export function DeckEditor({
       tagIds,
       tagMode,
       states,
+      routeOrder: route ? true : undefined,
     }
     if (deck) await updateDeck(db, deck.id, fields)
     else await createDeck(db, fields)
@@ -278,6 +282,20 @@ export function DeckEditor({
                 })}
               </div>
             </fieldset>
+            <label className="flex min-h-11 items-center gap-2 text-sm">
+              <input
+                type="checkbox"
+                checked={route}
+                onChange={(e) => setRoute(e.target.checked)}
+                className="size-5"
+              />
+              <span>
+                {t('decks.route')}
+                <span className="block text-xs text-muted">
+                  {t('decks.route.hint')}
+                </span>
+              </span>
+            </label>
           </div>
         )}
 

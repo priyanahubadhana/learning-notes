@@ -43,7 +43,7 @@ const texts = async (pageId: string) =>
   )
 
 describe('templates', () => {
-  it('creates the seven starter templates once, hidden from Notebooks', async () => {
+  it('creates the thirteen starter templates once, hidden from Notebooks', async () => {
     await ensureTemplates(db, ws)
     await ensureTemplates(db, ws)
     expect((await listTemplates(db, ws)).map((t) => t.title)).toEqual([
@@ -54,6 +54,12 @@ describe('templates', () => {
       'Project plan',
       'Lesson',
       'Lesson (large topic)',
+      'Memory palace',
+      'Vivid image',
+      'Major system',
+      'PAO table',
+      'Acronym and chunking',
+      'Story method',
     ])
     expect(await listNotebooks(db, ws)).toEqual([])
   })
@@ -67,7 +73,7 @@ describe('templates', () => {
     // Other templates can be deleted.
     const study = (await listTemplates(db, ws))[1]
     await deletePage(db, study.id)
-    expect(await listTemplates(db, ws)).toHaveLength(6)
+    expect(await listTemplates(db, ws)).toHaveLength(12)
   })
 
   it('summaries preview the first headings', async () => {
@@ -190,12 +196,39 @@ describe('lesson templates', () => {
       'My own template',
       'Lesson',
       'Lesson (large topic)',
+      'Memory palace',
+      'Vivid image',
+      'Major system',
+      'PAO table',
+      'Acronym and chunking',
+      'Story method',
     ])
 
     // A deleted starter does not come back.
     await deletePage(db, (await listTemplates(db, ws))[1].id)
     await ensureTemplates(db, ws)
-    expect(await listTemplates(db, ws)).toHaveLength(2)
+    expect(await listTemplates(db, ws)).toHaveLength(8)
+  })
+
+  it('a version 2 workspace gets only the memory templates, with How to use and a picture answer', async () => {
+    const nb = await createNotebook(db, ws, 'Templates', 'templates')
+    await db.notebooks.update(nb.id, { starterVersion: 2 })
+    await ensureTemplates(db, ws)
+    const list = await listTemplates(db, ws)
+    expect(list).toHaveLength(6)
+    const vivid = list.find((t) => t.title === 'Vivid image')!
+    const blocks = await listBlocks(db, vivid.id)
+    expect(
+      blocks.some(
+        (b) =>
+          b.type === 'heading' &&
+          JSON.stringify(b.content).includes('How to use'),
+      ),
+    ).toBe(true)
+    const card = blocks.find((b) => b.type === 'card')!
+    expect(
+      blocks.filter((b) => b.parentId === card.id).map((b) => b.type),
+    ).toEqual(['image', 'paragraph'])
   })
 
   it('new page from template copies sub-pages with their titles', async () => {

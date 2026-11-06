@@ -46,3 +46,7 @@ Show the cards that are due, take a rating (Again, Hard, Good, Easy) and decide 
 
 - `src/recall/reviewService.test.ts`, `scheduler.test.ts`, `reviewSession.test.ts`
 - `e2e/review.spec.ts`
+
+## Walk the route (E2)
+
+A deck with `routeOrder` (checkbox "Walk the route" in New deck step 2) reviews its cards in page order, then block reading order, instead of due date (`inRouteOrder` in `reviewService.ts`). Limits still apply. Test: `decks.test.ts`.

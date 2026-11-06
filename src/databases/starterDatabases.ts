@@ -2,7 +2,7 @@ import type { LearningNotesDB } from '../core/db'
 import { createId } from '../core/ids'
 import type { Database, JsonObject, JsonValue } from '../core/types'
 import { t, type MessageKey } from '../i18n/t'
-import { addColumn, createDatabase } from './databaseService'
+import { addColumn, addRows, createDatabase } from './databaseService'
 
 /**
  * Starter databases offered by "+ New database": a name for the title
@@ -15,6 +15,7 @@ export const STARTER_IDS = [
   'vocabulary',
   'books',
   'habits',
+  'pao',
 ] as const
 export type StarterId = (typeof STARTER_IDS)[number]
 
@@ -30,6 +31,8 @@ interface Starter {
   title: MessageKey
   titleName: MessageKey
   columns: readonly ColumnSpec[]
+  /** Rows made at once: titles "00", "01", ... (PAO table). */
+  numberedRows?: number
 }
 
 const COLORS = ['#2f6feb', '#2e9e6b', '#d9822b', '#8a5cf6'] as const
@@ -98,6 +101,16 @@ const STARTERS: Record<StarterId, Starter> = {
       { name: 'starter.habits.streak', type: 'number' },
     ],
   },
+  pao: {
+    title: 'starter.pao.title',
+    titleName: 'starter.pao.name',
+    columns: [
+      { name: 'starter.pao.person', type: 'text' },
+      { name: 'starter.pao.action', type: 'text' },
+      { name: 'starter.pao.object', type: 'text' },
+    ],
+    numberedRows: 100,
+  },
 }
 
 /** Just the name of what a starter makes ("Drug list"). */
@@ -139,6 +152,15 @@ export async function createStarterDatabase(
         ...(options && { options: options as unknown as JsonValue }),
       },
     })
+  }
+  if (spec.numberedRows) {
+    await addRows(
+      db,
+      database.id,
+      Array.from({ length: spec.numberedRows }, (_, i) => ({
+        title: String(i).padStart(2, '0'),
+      })),
+    )
   }
   return { ...database, titleName: t(spec.titleName) }
 }

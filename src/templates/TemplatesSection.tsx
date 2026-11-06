@@ -1,6 +1,7 @@
 import { displayName } from '../i18n/defaultNames'
 import { t as tr } from '../i18n/t'
-import type { ReactNode } from 'react'
+import { useState, type ReactNode } from 'react'
+import { MemoryHelpers } from '../memory/MemoryHelpers'
 import { Tip } from '../help/Help'
 import { useLiveQuery } from 'dexie-react-hooks'
 import { IconButton } from '../app/ui'
@@ -51,6 +52,7 @@ export function TemplatesSection({
     [db, notebookId],
   )
 
+  const [helpers, setHelpers] = useState(false)
   const collapseLabel = tr('tree.collapse')
   const expandLabel = tr('tree.expand')
 
@@ -133,6 +135,25 @@ export function TemplatesSection({
           </div>
         )
       })}
+      <button
+        type="button"
+        data-memory-helpers
+        onClick={() => setHelpers(true)}
+        className="mt-1 flex min-h-11 w-full items-center gap-1.5 rounded-md py-1 pr-2 pl-[22px] text-left text-sm text-muted hover:bg-hover hover:text-ink"
+      >
+        <span aria-hidden className="w-3.5" />
+        <span aria-hidden className="w-4 text-center text-xs">
+          🧠
+        </span>
+        {tr('memory.open')}
+      </button>
+      {helpers && (
+        <MemoryHelpers
+          db={db}
+          pageId={currentPageId}
+          onClose={() => setHelpers(false)}
+        />
+      )}
     </SidebarGroup>
   )
 }

@@ -29,6 +29,7 @@ import {
   type ReviewSession,
 } from './reviewSession'
 import { noteLinkProps, tagRefProps } from '../editor/mapping'
+import { useImageUrl } from '../images/useImageUrl'
 import { RATINGS } from './scheduler'
 
 /**
@@ -437,15 +438,19 @@ function CardView({ face, revealed }: { face: CardFace; revealed: boolean }) {
           {face.answer.length === 0 ? (
             <p className="text-muted">{t('review.noAnswer')}</p>
           ) : (
-            face.answer.map((b) => (
-              <p
-                key={b.id}
-                style={{ paddingInlineStart: b.depth * 18 }}
-                className="mb-1.5 min-h-[1lh]"
-              >
-                <Runs runs={b.text} />
-              </p>
-            ))
+            face.answer.map((b) =>
+              b.image ? (
+                <AnswerPicture key={b.id} source={b.image} depth={b.depth} />
+              ) : (
+                <p
+                  key={b.id}
+                  style={{ paddingInlineStart: b.depth * 18 }}
+                  className="mb-1.5 min-h-[1lh]"
+                >
+                  <Runs runs={b.text} />
+                </p>
+              ),
+            )
           )}
         </div>
       )}
@@ -475,6 +480,21 @@ const asRuns = (value: JsonValue | undefined): Run[] =>
  * Read-only text of a block. The blank being asked is shown as "…" (all
  * its words collapse into one gap) or highlighted once revealed.
  */
+/** A picture in a card's answer (E2: a vivid image to recall). */
+function AnswerPicture({ source, depth }: { source: string; depth: number }) {
+  const url = useImageUrl(source)
+  if (!url) return null
+  return (
+    <img
+      src={url}
+      alt=""
+      data-answer-picture
+      style={{ marginInlineStart: depth * 18 }}
+      className="mb-1.5 max-h-72 max-w-full rounded-lg object-contain"
+    />
+  )
+}
+
 function Runs({
   runs,
   hiddenBlank,

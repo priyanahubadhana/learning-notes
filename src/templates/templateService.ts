@@ -45,7 +45,20 @@ async function addStarterPage(
       typeof childIndex === 'number'
         ? { pageId: childIds[childIndex] }
         : block.content
-    await createBlock(db, { pageId: page.id, type: block.type, content })
+    const made = await createBlock(db, {
+      pageId: page.id,
+      type: block.type,
+      content,
+    })
+    // Nested blocks (e.g. a card's answer).
+    for (const child of block.children ?? []) {
+      await createBlock(db, {
+        pageId: page.id,
+        type: child.type,
+        content: child.content,
+        parentId: made.id,
+      })
+    }
   }
   return page.id
 }

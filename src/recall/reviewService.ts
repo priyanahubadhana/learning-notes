@@ -3,7 +3,7 @@ import type { LearningNotesDB } from '../core/db'
 import { createId } from '../core/ids'
 import { descendantIds } from '../core/records'
 import { addStudyDays, studyDayStart } from '../core/time'
-import { listBlocks } from '../core/blockService'
+import { inReadingOrder, listBlocks } from '../core/blockService'
 import type {
   Card,
   JsonObject,
@@ -272,11 +272,54 @@ export async function getReviewQueue(
     .sort(byDue)
     .slice(0, Math.max(0, newLimit - done.newDone))
 
+  if (scope.kind === 'deck') {
+    const deck = await getDeck(db, scope.deckId)
+    if (deck?.routeOrder) {
+      // "Walk the route": the chosen cards in page order, not by due date.
+      const cards = await inRouteOrder(db, [...reviews, ...fresh])
+      return { cards, reviewCount: reviews.length, newCount: fresh.length }
+    }
+  }
+
   return {
     cards: [...reviews, ...fresh],
     reviewCount: reviews.length,
     newCount: fresh.length,
   }
+}
+
+/**
+ * Cards in the order they stand in the notes (E2 "Walk the route"): pages in
+ * their order, then blocks in reading order; a blank's cards keep the order
+ * of their blank. Cards whose block is missing go last.
+ */
+export async function inRouteOrder(
+  db: LearningNotesDB,
+  cards: Card[],
+): Promise<Card[]> {
+  const pageIds = [...new Set(cards.map((c) => c.pageId))]
+  const pages = await db.pages.bulkGet(pageIds)
+  const rank = new Map<string, number>()
+  const byPage = pageIds
+    .map((id, i) => ({ id, page: pages[i] }))
+    .sort((a, b) => {
+      const ka = a.page?.order ?? '￿'
+      const kb = b.page?.order ?? '￿'
+      return ka < kb ? -1 : ka > kb ? 1 : 0
+    })
+  let n = 0
+  for (const { id } of byPage) {
+    for (const block of inReadingOrder(await listBlocks(db, id))) {
+      rank.set(block.id, n++)
+    }
+  }
+  const pageRank = new Map(byPage.map((p, i) => [p.id, i]))
+  return [...cards].sort(
+    (a, b) =>
+      (pageRank.get(a.pageId) ?? 0) - (pageRank.get(b.pageId) ?? 0) ||
+      (rank.get(a.blockId) ?? Infinity) - (rank.get(b.blockId) ?? Infinity) ||
+      a.createdAt - b.createdAt,
+  )
 }
 
 /**
@@ -439,7 +482,7 @@ export interface CardFace {
   /** For a blank: the blank id to hide until revealed. */
   blankId?: string
   /** For a Card block: the answer blocks (all nested blocks, in order). */
-  answer: { id: string; text: JsonValue; depth: number }[]
+  answer: { id: string; text: JsonValue; depth: number; image?: string }[]
   pageTitle: string
 }
 
@@ -464,7 +507,13 @@ export async function getCardFace(
   const answer: CardFace['answer'] = []
   const addChildren = (parentId: string, depth: number) => {
     for (const child of blocks.filter((b) => b.parentId === parentId)) {
-      answer.push({ id: child.id, text: child.content.text ?? [], depth })
+      const url = child.type === 'image' ? child.content.url : undefined
+      answer.push({
+        id: child.id,
+        text: child.content.text ?? [],
+        depth,
+        ...(typeof url === 'string' && url !== '' && { image: url }),
+      })
       addChildren(child.id, depth + 1)
     }
   }

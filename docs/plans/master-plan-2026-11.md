@@ -936,3 +936,8 @@ Yardstick added by the owner during the audit: a practical learning experience, 
   - (1) YES to CR4: AI with the owner's own key / $100 credit (still spend caps, key device-only).
   - (2) YES to a free-tier Cloudflare Worker CORS proxy for automatic YouTube/article fetching (₹0). The owner PREFERS connected AI apps like Gemini (deep YouTube integration), so the primary path is the Gemini/connected-AI route (copy prompt → Gemini → paste into ln-notes/1, later an API/connector). The Worker is a fallback.
   - (3) YES to the re-cut waves (Home one wave later).
+- Owner (6 Nov): the Pencil FEEL and UI are not yet at GoodNotes/Notability level (smooth, but the overall UI isn't optimised). ADD a step "G-Feel" right after Phase A's iPad gate (wave 2), a dedicated Pencil-experience polish pass. It uses all owner inputs (the GoodNotes screenshots and interaction model: tool → pill → card with sub-pages, snapping pills, hover labels, icon-only bar, sticky tools, two-tap/hold rules, 44 px targets) and research (inspiration-apps, ink-layers-pencil-ux, deep-research). It covers:
+  - ink latency tuning (prediction, desynchronized canvas, frame budget), stroke smoothing per pen type, pressure curves calibrated on the owner's light pressure (max 0.157);
+  - pill/card motion and timing, tool-switch speed, palm rejection quality;
+  - a side-by-side comparison checklist against GoodNotes that the owner runs on the iPad.
+  Honest limit: PencilKit-level latency needs the native wrapper (Phase Q).

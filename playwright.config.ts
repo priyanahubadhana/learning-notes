@@ -6,7 +6,7 @@ import { defineConfig, devices } from '@playwright/test'
  * Run with `npm run test:e2e`. The tests use the built app under the live
  * site's security rules, so they check what users actually get.
  */
-const PORT = 5199
+const PORT = Number(process.env.PW_PORT ?? 5199)
 /** GitHub's machine has 2 cores, so it gets longer limits. */
 const SLOW = process.env.CI ? 2 : 1
 

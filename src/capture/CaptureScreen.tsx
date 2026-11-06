@@ -11,6 +11,7 @@ import {
   captureSource,
   type CaptureInput,
 } from './captureService'
+import { NotesPanel } from './NotesPanel'
 import { formatTime, parseYoutube } from './youtube'
 
 /**
@@ -24,15 +25,12 @@ export function CaptureScreen({
   draft,
   onOpenPage,
   onClose,
-  extra,
 }: {
   db: LearningNotesDB
   workspaceId: string
   draft?: CaptureInput
   onOpenPage: (pageId: string) => void
   onClose: () => void
-  /** More sections from the notes feature (Copy prompt, Paste notes). */
-  extra?: (input: CaptureInput) => React.ReactNode
 }) {
   const { toast } = useContext(AppUiContext)
   const [url, setUrl] = useState(draft?.url ?? '')
@@ -145,7 +143,12 @@ export function CaptureScreen({
           {t('capture.save')}
         </button>
       </form>
-      {extra?.(input)}
+      <NotesPanel
+        db={db}
+        workspaceId={workspaceId}
+        input={input}
+        onDone={onOpenPage}
+      />
       <WaysIn />
     </div>
   )

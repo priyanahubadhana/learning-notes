@@ -213,13 +213,11 @@ export function EpubView(props: EpubViewProps) {
       viewRef.current = null
       drawn.current = new Map()
     }
-     
   }, [props.data])
 
   // Highlights follow the list.
   useEffect(() => {
     if (viewRef.current) sync(viewRef.current)
-     
   }, [props.annotations])
 
   // Text size, theme and layout.

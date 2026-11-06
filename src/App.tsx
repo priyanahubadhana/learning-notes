@@ -133,6 +133,11 @@ const LibrarySidebar = lazy(() =>
     default: m.LibrarySidebar,
   })),
 )
+const PageAiActions = lazy(() =>
+  import('./capture/PageAiActions').then((m) => ({
+    default: m.PageAiActions,
+  })),
+)
 const BookHeader = lazy(() =>
   import('./library/BookHeader').then((m) => ({ default: m.BookHeader })),
 )
@@ -1377,6 +1382,16 @@ function App() {
                                     setHub({ kind: 'read', pageId, at })
                                   }
                                   onOpenPage={openPage}
+                                  actions={
+                                    <PageAiActions
+                                      db={db}
+                                      workspaceId={workspace.id}
+                                      page={currentPage}
+                                      onChanged={() =>
+                                        setNotesVersion((v) => v + 1)
+                                      }
+                                    />
+                                  }
                                 />
                               ) : undefined
                             }

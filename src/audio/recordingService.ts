@@ -106,27 +106,6 @@ export async function eraseRecordings(
   await purgeMany(db.recordings, doomed, EMPTY, now)
 }
 
-/**
- * Erases every recording of pages that are being deleted forever (Trash).
- * The page is gone, so its sound goes with it.
- */
-export async function purgeRecordingsOf(
-  db: LearningNotesDB,
-  pageIds: readonly string[],
-  now: number,
-): Promise<void> {
-  const rows = await db.recordings
-    .where('pageId')
-    .anyOf([...pageIds])
-    .toArray()
-  await purgeMany(
-    db.recordings,
-    rows.filter((r) => r.purgedAt === undefined).map((r) => r.id),
-    { ...EMPTY, deletedAt: now },
-    now,
-  )
-}
-
 /** Default name: "Recording 6 Nov, 14:32" in the user's regional style. */
 export function recordingName(
   label: string,

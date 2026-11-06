@@ -111,12 +111,12 @@ test('Save notes only makes a smaller, named file', async ({ page }) => {
   expect(file.suggestedFilename()).toMatch(
     /^Learning Notes \(notes only\) .*\.learningnotes\.zip$/,
   )
-  await expect(page.getByText(/notes only, no pictures\.$/)).toBeVisible()
-  // Its restore dialog says that no pictures are inside.
+  await expect(page.getByText(/notes only \(no audio sound\)\.$/)).toBeVisible()
+  // Its restore dialog says that the audio sound is not inside.
   await main(page)
     .getByLabel('Open saved file')
     .setInputFiles(await file.path())
-  await expect(page.getByRole('dialog')).toContainText('no pictures')
+  await expect(page.getByRole('dialog')).toContainText('no audio sound')
 })
 
 test('an old JSON file only offers Add as copies', async ({ page }) => {

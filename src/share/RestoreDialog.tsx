@@ -21,7 +21,7 @@ function facts(file: SavedFile) {
       also:
         kind === 'full'
           ? t('restore.dlg.alsoFull', { count: counts.pictures })
-          : t('restore.dlg.alsoNotes'),
+          : t('restore.dlg.alsoNotes', { count: counts.pictures }),
     }
   }
   const { bundle } = file

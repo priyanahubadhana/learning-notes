@@ -10,7 +10,7 @@ Keeps earlier copies of each page so the user can look back and bring one back, 
 
 - `src/history/versionService.ts`. A copy (`PageVersion`) stores the page title and its blocks (id, parent, type, content, order).
 - `recordVersion` is skipped when nothing changed since the newest copy, and (unless `force`) when that copy is under 5 minutes old (`VERSION_GAP_MS`). A first copy of an empty page is not made.
-- At most 30 copies per page (`KEEP_VERSIONS`); older ones are deleted in the same transaction.
+- At most 30 full copies per page (`KEEP_VERSIONS`, owner decision 6 Nov 2026; each holds the blocks and the page's ink); older ones are deleted in the same transaction.
 - `restoreVersion` first saves the current page as a copy (forced), writes back only blocks that differ, deletes blocks not in the copy, renames the page, then re-syncs card records. So a restore can itself be undone.
 - Copies are taken by the editor (`editor/pageSync.ts`) and when a page is left (`pages/PageView.tsx`). `listVersions` returns newest first; `HistoryDialog.tsx` is the screen.
 - The table `pageVersions` was added in database version 11.

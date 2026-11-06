@@ -125,7 +125,8 @@ export const hi7: Record<string, string> = {
   'data.save.text':
     '“सब कुछ” और “सिर्फ़ नोट्स” दोनों में आपका टेक्स्ट, ड्रॉइंग, चित्र, इतिहास और Trash रहते हैं। “सिर्फ़ नोट्स” में ऑडियो रिकॉर्डिंग की आवाज़ नहीं होती, इसलिए वह छोटा है।',
   'data.saved.full': '“{name}” सहेजी गई ({size}): सब कुछ।',
-  'data.saved.notes': '“{name}” सहेजी गई ({size}): सिर्फ़ नोट्स (रिकॉर्डिंग की आवाज़ के बिना)।',
+  'data.saved.notes':
+    '“{name}” सहेजी गई ({size}): सिर्फ़ नोट्स (रिकॉर्डिंग की आवाज़ के बिना)।',
   'data.more.title': 'और',
   'restore.title': 'वापस लाएँ',
   'restore.text':
@@ -140,7 +141,8 @@ export const hi7: Record<string, string> = {
   'restore.dlg.contents': '{notebooks} नोटबुक, {pages} पेज, {cards} कार्ड',
   'restore.dlg.also': 'साथ में',
   'restore.dlg.alsoFull': 'इतिहास, Trash, सेटिंग्स, {count} चित्र',
-  'restore.dlg.alsoNotes': 'इतिहास, Trash और सेटिंग्स, चित्र नहीं',
+  'restore.dlg.alsoNotes':
+    'इतिहास, Trash, सेटिंग्स, {count} चित्र, रिकॉर्डिंग की आवाज़ नहीं',
   'restore.dlg.size': 'आकार',
   'restore.replace': 'मेरे नोट्स बदलें',
   'restore.replace.text':

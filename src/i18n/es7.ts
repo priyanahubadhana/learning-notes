@@ -127,7 +127,8 @@ export const es7: Record<string, string> = {
   'data.save.text':
     '«Todo» y «Solo notas» guardan tu texto, dibujos, imágenes, historial y Papelera. «Solo notas» deja fuera el sonido de las grabaciones de audio, así que es más pequeño.',
   'data.saved.full': 'Guardado «{name}» ({size}): todo.',
-  'data.saved.notes': 'Guardado «{name}» ({size}): solo notas (sin el sonido de las grabaciones).',
+  'data.saved.notes':
+    'Guardado «{name}» ({size}): solo notas (sin el sonido de las grabaciones).',
   'data.more.title': 'Más',
   'restore.title': 'Restaurar',
   'restore.text': 'Tú eliges: reemplazar lo que hay o añadir como copias.',
@@ -143,7 +144,8 @@ export const es7: Record<string, string> = {
     '{notebooks} cuadernos, {pages} páginas, {cards} tarjetas',
   'restore.dlg.also': 'Además',
   'restore.dlg.alsoFull': 'Historial, Papelera, ajustes, {count} imágenes',
-  'restore.dlg.alsoNotes': 'Historial, Papelera y ajustes, sin imágenes',
+  'restore.dlg.alsoNotes':
+    'Historial, Papelera, ajustes, {count} imágenes, sin el sonido de las grabaciones',
   'restore.dlg.size': 'Tamaño',
   'restore.replace': 'Reemplazar mis notas',
   'restore.replace.text':

@@ -1,5 +1,5 @@
 ﻿import type { LearningNotesDB } from '../core/db'
-import { purgeRecordingsOf } from '../audio/recordingService'
+import { purgeRecordingsOf } from '../core/recordingPurge'
 import { purgeInkOf } from '../core/inkService'
 import { byOrder, orderAtIndex } from '../core/order'
 import {

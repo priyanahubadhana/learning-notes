@@ -1710,7 +1710,8 @@ export const en = {
   'restore.dlg.contents': '{notebooks} notebooks, {pages} pages, {cards} cards',
   'restore.dlg.also': 'Also',
   'restore.dlg.alsoFull': 'History, Trash, settings, {count} pictures',
-  'restore.dlg.alsoNotes': 'History, Trash and settings, no pictures',
+  'restore.dlg.alsoNotes':
+    'History, Trash, settings, {count} pictures, no audio sound',
   'restore.dlg.size': 'Size',
   'restore.replace': 'Replace my notes',
   'restore.replace.text':

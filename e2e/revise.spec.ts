@@ -5,6 +5,8 @@ import {
   selectText,
   typeInEditor,
   openSidebar,
+  cornerAction,
+  setTheme,
 } from './helpers.ts'
 
 const main = (page: Page) => page.getByRole('main')
@@ -91,12 +93,7 @@ for (const [theme, width, height] of [
     await selectText(page, 'CO = HR x SV')
     await page.getByRole('button', { name: 'Formula', exact: true }).click()
     await page.waitForTimeout(800)
-    await (
-      await openSidebar(page)
-    )
-      .getByRole('group', { name: 'Theme' })
-      .getByRole('button', { name: theme })
-      .click()
+    await setTheme(page, theme)
     await page.setViewportSize({ width, height })
     await (
       await openSidebar(page)
@@ -122,11 +119,7 @@ for (const [theme, width, height] of [
     if (width < 500) {
       await page.getByRole('button', { name: 'Close notebook' }).click()
     }
-    await (
-      await openSidebar(page)
-    )
-      .getByRole('button', { name: 'Save & restore' })
-      .click()
+    await cornerAction(page, 'Save & restore')
     await page.waitForTimeout(300)
     await page.screenshot({
       path: `test-results/screens/data-${theme}-${width}x${height}.png`,

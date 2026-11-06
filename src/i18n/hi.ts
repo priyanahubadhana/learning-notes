@@ -8,6 +8,7 @@ import { hi7 } from './hi7'
 import { hi8 } from './hi8'
 import { hi9 } from './hi9'
 import { hi10 } from './hi10'
+import { hi11 } from './hi11'
 
 /** Hindi texts. A key missing here shows the English text. */
 export const hi: Record<string, string> = {
@@ -21,4 +22,5 @@ export const hi: Record<string, string> = {
   ...hi8,
   ...hi9,
   ...hi10,
+  ...hi11,
 }

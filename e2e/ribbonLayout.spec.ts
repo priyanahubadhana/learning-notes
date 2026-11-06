@@ -6,6 +6,7 @@ import {
   dockedBar,
   startInMode,
   typeInEditor,
+  cornerAction,
 } from './helpers.ts'
 
 /**
@@ -237,7 +238,7 @@ test('"Ribbon replaces short bar" (the default) shows one bar; "Ribbon + short b
     await expect(short.getByRole('button', { name, exact: true })).toBeVisible()
   }
   // "Ribbon + short bar" is a choice in Settings › Tool bar, too.
-  await page.getByRole('button', { name: 'Settings', exact: true }).click()
+  await cornerAction(page, 'Settings')
   await page.getByRole('button', { name: /^Tool bar, / }).click()
   await expect(
     page.locator('[data-setting-id="toolbar.ribbonMode"]'),

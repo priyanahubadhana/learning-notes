@@ -1,5 +1,11 @@
 import { expect, test, type Page } from '@playwright/test'
-import { addPage, createNotebook, makeCard, openSidebar } from './helpers.ts'
+import {
+  addPage,
+  createNotebook,
+  makeCard,
+  openSidebar,
+  setTheme,
+} from './helpers.ts'
 
 const main = (page: Page) => page.getByRole('main')
 const tabs = (page: Page) =>
@@ -150,12 +156,7 @@ for (const [theme, width, height] of [
 ] as const) {
   test(`screenshot: ${theme} ${width}×${height}`, async ({ page }) => {
     await addPage(page, 'Cardiology', 'ECG basics')
-    await (
-      await openSidebar(page)
-    )
-      .getByRole('group', { name: 'Theme' })
-      .getByRole('button', { name: theme })
-      .click()
+    await setTheme(page, theme)
     await page.setViewportSize({ width, height })
     await openNotebook(page, 'Cardiology')
     await tab(page, 'Database').click()

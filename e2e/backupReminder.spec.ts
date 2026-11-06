@@ -1,5 +1,5 @@
 import { expect, test, type Page } from '@playwright/test'
-import { createNotebook, sidebar } from './helpers.ts'
+import { createNotebook, sidebar, cornerAction } from './helpers.ts'
 
 /** Pretends the app was first used 8 days ago. */
 async function makeOld(page: Page) {
@@ -59,6 +59,6 @@ test('after a week: Remind me later hides it, saving a backup file ends it', asy
   const downloading = page.waitForEvent('download')
   await page.getByRole('button', { name: 'Save everything' }).click()
   await downloading
-  await sidebar(page).getByRole('button', { name: 'Settings' }).click()
+  await cornerAction(page, 'Settings')
   await expect(bar(page)).toHaveCount(0)
 })

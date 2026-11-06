@@ -24,7 +24,17 @@ import { ThemeContext } from './app/themeContext'
 import type { ToastAction } from './app/appUi'
 import { altShortcutLabel } from './app/keys'
 import { toggleFavourite } from './app/favourites'
-import { ControlPanel } from './app/tools/ControlPanel'
+import { SpaceStrip } from './spaces/SpaceStrip'
+import { QuietCorner } from './spaces/QuietCorner'
+import { SpacePlaceholder } from './spaces/SpacePlaceholder'
+import {
+  isSpace,
+  spaceForRoute,
+  usableSpace,
+  visibleSpaces,
+  type Space,
+} from './spaces/spaces'
+import { useHiddenSpaces } from './settings/spaceSettings'
 import { DatabaseGate, LockGate, PageGate } from './app/lock/LockScreen'
 import { toggleLock } from './app/lock/lockMenu'
 import { useAutoRelock } from './app/lock/useLock'
@@ -236,8 +246,23 @@ function App() {
     fromAddress?: boolean
   } | null>(() => (boot?.kind === 'search' ? searchOf(boot) : null))
   const [searchPopup, setSearchPopup] = useState(false)
-  // The control panel (search every feature) and the device picker.
-  const [controlPanel, setControlPanel] = useState(false)
+  // "Search all features" opens the one Search on its Features chip.
+  const [searchChip, setSearchChip] = useState<'all' | 'feature'>('all')
+  const openSearchPopup = (chip: 'all' | 'feature' = 'all') => {
+    setSearchChip(chip)
+    setSearchPopup(true)
+  }
+  // The spaces: which one the sidebar shows (remembered per device). An
+  // address that belongs to a space wins over the remembered one.
+  const hiddenSpaces = useHiddenSpaces()
+  const [lastSpace, setLastSpace] = usePref<Space>(
+    'space',
+    isSpace,
+    'notebooks',
+    () => (boot ? (spaceForRoute(boot) ?? undefined) : undefined),
+  )
+  const space = usableSpace(lastSpace, hiddenSpaces)
+  // The device picker.
   const [devicePicker, setDevicePicker] = useState(
     () => !devicePickerDone.get(),
   )
@@ -490,6 +515,22 @@ function App() {
     setDrawerAt(null)
     run()
   }
+  // The strip: Home and Library show their own page; Notebooks and Review
+  // show their list (on a phone the list is the drawer).
+  const chooseSpace = (next: Space) => {
+    setLastSpace(next)
+    if (next === 'home' || next === 'library') {
+      setDrawerAt(null)
+      openPage(null)
+    } else if (matchMedia(PHONE_SCREEN).matches) setDrawerAt(routeHash)
+  }
+  // Opening something that belongs to a space (a page, Review …) by any
+  // way, a link, Back or a search, moves the sidebar to that space.
+  useEffect(() => {
+    const next = spaceForRoute(route)
+    if (next) setLastSpace(next)
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [routeHash])
   useEffect(() => {
     if (!drawerOpen) return
     const onKey = (e: KeyboardEvent) => {
@@ -765,11 +806,12 @@ function App() {
       ) {
         e.preventDefault()
         e.stopPropagation()
+        setSearchChip('all')
         setSearchPopup(true)
       }
     }
     window.addEventListener('keydown', searchKey, { capture: true })
-    // Ctrl/Cmd+Shift+K: the control panel (Ctrl/Cmd+K is the page search).
+    // Ctrl/Cmd+Shift+K opens the same Search (the control panel is part of it).
     const panelKey = (e: KeyboardEvent) => {
       if (
         (e.ctrlKey || e.metaKey) &&
@@ -779,7 +821,8 @@ function App() {
       ) {
         e.preventDefault()
         e.stopPropagation()
-        setControlPanel(true)
+        setSearchChip('all')
+        setSearchPopup(true)
       }
     }
     window.addEventListener('keydown', panelKey, { capture: true })
@@ -829,7 +872,7 @@ function App() {
             ? { kind: 'page', pageId: currentPage.id }
             : { kind: 'all' },
         ),
-      openControlPanel: () => setControlPanel(true),
+      openControlPanel: () => openSearchPopup('feature'),
       choose: appUi.choose,
       openDevicePicker: () => setDevicePicker(true),
       showSidebar: () => {
@@ -925,17 +968,41 @@ function App() {
       <AppUiContext value={appUi}>
         <TopBarSlotContext value={barSlot}>
           <div
-            className="flex h-screen"
+            className="flex h-screen phone:pb-[calc(56px+env(safe-area-inset-bottom))]"
             style={{ '--sidebar-width': `${sidebarWidth}px` } as CSSProperties}
           >
+            <SpaceStrip
+              spaces={visibleSpaces(hiddenSpaces)}
+              current={space}
+              onSelect={chooseSpace}
+              corner={
+                <QuietCorner
+                  db={db}
+                  workspaceId={workspace.id}
+                  theme={theme}
+                  onThemeChange={setTheme}
+                  settingsOpen={showSettings}
+                  dataOpen={hub?.kind === 'data' && !showSettings}
+                  onOpenSettings={() => choose(() => openSettings())}
+                  onOpenData={() =>
+                    choose(() => {
+                      openPage(null)
+                      setHub({ kind: 'data' })
+                    })
+                  }
+                  onOpenHelp={() =>
+                    choose(() => openSettings('general.showHelp'))
+                  }
+                />
+              }
+            />
             <Sidebar
               db={db}
               workspaceId={workspace.id}
               notebooks={notebooks}
               currentPage={currentPage ?? null}
               tree={tree}
-              theme={theme}
-              onThemeChange={setTheme}
+              space={space}
               renamingNotebookId={renamingNotebookId}
               onRenamingChange={setRenamingNotebookId}
               onOpenPage={(id) => choose(() => openPage(id))}
@@ -950,8 +1017,6 @@ function App() {
                 runTask(createPageIn(notebookId, parentId, true, templateId))
               }
               onCreateTemplate={() => runTask(newTemplate())}
-              settingsOpen={showSettings}
-              onOpenSettings={() => choose(() => openSettings())}
               reviewOpen={
                 reviewScope?.kind === 'all' || reviewScope?.kind === 'wrong'
               }
@@ -971,13 +1036,6 @@ function App() {
                   setHub({ kind: 'databases' })
                 })
               }
-              onOpenData={() =>
-                choose(() => {
-                  openPage(null)
-                  setHub({ kind: 'data' })
-                })
-              }
-              dataOpen={hub?.kind === 'data' && !showSettings && !reviewScope}
               allDatabasesOpen={
                 (hub?.kind === 'databases' || hub?.kind === 'database') &&
                 !showSettings &&
@@ -1190,6 +1248,11 @@ function App() {
                           }}
                         />
                       </PageGate>
+                    ) : space === 'home' || space === 'library' ? (
+                      <SpacePlaceholder
+                        space={space}
+                        onOpenToday={() => runTask(openToday())}
+                      />
                     ) : notebooks.length === 0 && currentPage === null ? (
                       <div className="mt-[30vh] text-center">
                         <p className="mb-5 text-muted">
@@ -1242,10 +1305,8 @@ function App() {
                 openPage(id)
               }}
               onSeeAll={openSearch}
+              initialChip={searchChip}
             />
-          )}
-          {controlPanel && (
-            <ControlPanel onClose={() => setControlPanel(false)} />
           )}
           {devicePicker && (
             <DevicePicker onClose={() => setDevicePicker(false)} />

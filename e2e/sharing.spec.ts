@@ -6,6 +6,7 @@ import {
   openMore,
   sidebar,
   typeInEditor,
+  cornerAction,
 } from './helpers.ts'
 
 const main = (page: Page) => page.getByRole('main')
@@ -67,7 +68,7 @@ test('a notebook file round-trips as a new copy; nothing existing changes', asyn
   await page.goto('/')
   await createNotebook(page, 'Cardiology', 'Heart sounds')
   await typeInEditor(page, 'S1 is the first sound')
-  await sidebar(page).getByRole('button', { name: 'Save & restore' }).click()
+  await cornerAction(page, 'Save & restore')
 
   const downloading = page.waitForEvent('download')
   await main(page)
@@ -184,7 +185,7 @@ test('the browser backup can be restored as copies', async ({ page }) => {
     backup.close()
   })
   await page.goto('/')
-  await sidebar(page).getByRole('button', { name: 'Save & restore' }).click()
+  await cornerAction(page, 'Save & restore')
   const section = main(page).getByRole('region', {
     name: 'Before last update',
   })
@@ -200,7 +201,7 @@ test('Load sample notebook adds a ready-made notebook and changes nothing else',
 }) => {
   await page.goto('/')
   await createNotebook(page, 'Mine', 'My page')
-  await sidebar(page).getByRole('button', { name: 'Save & restore' }).click()
+  await cornerAction(page, 'Save & restore')
   await openMore(page)
   const box = main(page).getByRole('region', {
     name: 'For testing: sample notebook',
@@ -268,7 +269,7 @@ test('a password-protected file: two fields, a warning, and the password to open
   await page.goto('/')
   await createNotebook(page, 'Secrets', 'Page one')
   await typeInEditor(page, 'private words')
-  await sidebar(page).getByRole('button', { name: 'Save & restore' }).click()
+  await cornerAction(page, 'Save & restore')
 
   const all = main(page).getByRole('region', {
     name: 'Save',

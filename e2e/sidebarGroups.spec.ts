@@ -1,7 +1,14 @@
 // Browser types for code that runs inside the page.
 /// <reference lib="dom" />
 import { expect, test, type Page } from '@playwright/test'
-import { createNotebook, sidebar } from './helpers.ts'
+import {
+  createNotebook,
+  sidebar,
+  cornerAction,
+  corner,
+  openCorner,
+  openTrash,
+} from './helpers.ts'
 
 /**
  * The sidebar is folding groups: Study, Quick access, Notebooks, Tags,
@@ -48,20 +55,15 @@ test('the groups, in order, with Today and Search on top and the rest below a di
   expect(search!.y).toBeLessThan(ys[0])
   // Not folding: they are not group headings.
   await expect(group(page, 'Study')).toHaveCount(1)
-  const bottom = ['Save & restore', 'Settings']
-  for (const name of bottom) {
-    const b = await sidebar(page)
-      .getByRole('button', { name })
-      .first()
-      .boundingBox()
-    expect(b!.y, name).toBeGreaterThan(ys[ys.length - 1])
+  // Save & restore, Trash, Settings and the themes live in the quiet corner.
+  const panel = await openCorner(page)
+  for (const name of ['Save & restore', 'Settings']) {
+    await expect(panel.getByRole('button', { name })).toBeVisible()
   }
-  await expect(
-    sidebar(page).getByRole('button', { name: /^Trash/ }),
-  ).toBeVisible()
+  await expect(panel.getByRole('button', { name: /^Trash/ })).toBeVisible()
   for (const theme of ['Day', 'Night', 'Sepia']) {
     await expect(
-      sidebar(page).getByRole('button', { name: theme, exact: true }),
+      panel.getByRole('button', { name: theme, exact: true }),
     ).toBeVisible()
   }
 })
@@ -119,14 +121,14 @@ test('every old item is still reachable', async ({ page }) => {
   ).toBeVisible()
   await expect(side.getByLabel('New template')).toBeVisible()
   // Save & restore, Trash and Settings open their screens.
-  await side.getByRole('button', { name: 'Save & restore' }).click()
+  await cornerAction(page, 'Save & restore')
   await expect(
     page.getByRole('heading', { name: /Save/ }).first(),
   ).toBeVisible()
-  await side.getByRole('button', { name: 'Settings', exact: true }).click()
+  await cornerAction(page, 'Settings')
   await expect(page.getByRole('heading', { name: 'Settings' })).toBeVisible()
-  await side.getByRole('button', { name: /^Trash/ }).click()
-  await expect(side.getByText('Trash is empty')).toBeVisible()
+  await openTrash(page)
+  await expect(corner(page).getByText('Trash is empty')).toBeVisible()
 })
 
 test('each group folds and unfolds with its heading button', async ({

@@ -8,6 +8,8 @@ import {
   typeInEditor,
   openSidebar,
   pageAction,
+  cornerAction,
+  setTheme,
 } from './helpers.ts'
 
 // The Review screen (not the page's "Linked from" section).
@@ -134,11 +136,7 @@ test('Settings: Simple steps scheduler changes the button gaps', async ({
   page,
 }) => {
   await page.goto('/')
-  await (
-    await openSidebar(page)
-  )
-    .getByRole('button', { name: 'Settings' })
-    .click()
+  await cornerAction(page, 'Settings')
   const scheduler = page.getByRole('combobox', { name: 'Scheduler' })
   await expect(scheduler).toHaveValue('fsrs')
   const target = page.getByRole('textbox', { name: 'Target memory' })
@@ -192,12 +190,7 @@ for (const [theme, width, height] of [
       'Which valves close in S1, and what does the sound mark?',
       'Mitral and tricuspid; the start of systole.',
     )
-    await (
-      await openSidebar(page)
-    )
-      .getByRole('group', { name: 'Theme' })
-      .getByRole('button', { name: theme })
-      .click()
+    await setTheme(page, theme)
     await page.setViewportSize({ width, height })
     await (await reviewButton(page)).click()
     await expect(review(page)).toContainText('Which valves close in S1')

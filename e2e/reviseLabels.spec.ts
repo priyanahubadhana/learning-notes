@@ -2,9 +2,9 @@ import { expect, test, type Page } from '@playwright/test'
 import {
   createNotebook,
   openPage,
-  openSidebar,
   selectText,
   typeInEditor,
+  cornerAction,
 } from './helpers.ts'
 
 const main = (page: Page) => page.getByRole('main')
@@ -16,11 +16,7 @@ test('own Revise labels: add and rename in Settings, use in notes, mark a whole 
   await createNotebook(page, 'Cardiology', 'Heart sounds')
   await typeInEditor(page, 'The first heart sound is S1')
 
-  await (
-    await openSidebar(page)
-  )
-    .getByRole('button', { name: 'Settings' })
-    .click()
+  await cornerAction(page, 'Settings')
   await main(page).getByLabel('Search all settings').fill('Revise labels')
   await main(page).getByRole('button', { name: '+ Add label' }).click()
   const name = main(page).getByLabel('Name of label 5')

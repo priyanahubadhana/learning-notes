@@ -1,5 +1,11 @@
 import { expect, test, type Locator, type Page } from '@playwright/test'
-import { addPage, createNotebook, sidebar, openSidebar } from './helpers.ts'
+import {
+  addPage,
+  createNotebook,
+  sidebar,
+  openSidebar,
+  setTheme,
+} from './helpers.ts'
 
 const main = (page: Page) => page.getByRole('main')
 const tracker = (page: Page) =>
@@ -299,12 +305,7 @@ for (const [theme, width, height] of [
     await page.getByRole('button', { name: 'Soon', exact: true }).click()
     await page.getByRole('button', { name: 'Options for “ECG basics”' }).click()
     await page.getByRole('button', { name: 'Done', exact: true }).click()
-    await (
-      await openSidebar(page)
-    )
-      .getByRole('group', { name: 'Theme' })
-      .getByRole('button', { name: theme })
-      .click()
+    await setTheme(page, theme)
     await page.setViewportSize({ width, height })
     await expect(cards(page, 'Soon')).toHaveCount(1)
     // The page itself never scrolls sideways (the board scrolls inside).

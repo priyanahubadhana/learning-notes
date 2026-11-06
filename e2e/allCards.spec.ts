@@ -1,5 +1,11 @@
 import { expect, test, type Page } from '@playwright/test'
-import { createNotebook, makeCard, openMore, openSidebar } from './helpers.ts'
+import {
+  createNotebook,
+  makeCard,
+  openMore,
+  openSidebar,
+  cornerAction,
+} from './helpers.ts'
 
 const main = (page: Page) => page.getByRole('main')
 
@@ -10,7 +16,7 @@ test('All cards: search, a notebook filter and a notebook label on each card', a
   await createNotebook(page, 'Cardiology', 'Heart sounds')
   await makeCard(page, 'Which valves close in S1?', 1)
   const side = await openSidebar(page)
-  await side.getByRole('button', { name: 'Save & restore' }).click()
+  await cornerAction(page, 'Save & restore')
   await openMore(page)
   await main(page).getByRole('button', { name: 'Load sample notebook' }).click()
   await side.getByRole('button', { name: 'All cards', exact: true }).click()

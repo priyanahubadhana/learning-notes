@@ -23,6 +23,9 @@ Every screen has an address (the part after `#`), so refresh, Back, Forward and 
 
 The handle between the menu and the page sets the menu width (`src/app/SidebarResizer.tsx`, limits in `sidebarWidth.ts`), remembered per device. Drag it, use the arrow keys, or double-click to reset. It is hidden on phones and when the menu is hidden.
 
+- **Spaces (step 4a):** a strip of four spaces (Home, Library, Notebooks, Review) sits at the left edge (a bottom tab bar on a phone) and the sidebar lists only the current space; the last space is remembered per device and an address that belongs to a space (review, cards, saved search, a page, a notebook, databases, calendar) moves the sidebar to it. No address changed. Save & restore, Trash, Settings, the theme, Device mode and Help moved from the sidebar bottom to the quiet corner (⚙). Details: [spaces.md](spaces.md).
+- **Sidebar today:** the Notebooks space is the sidebar described above without its bottom block; Review lists Study and Saved searches; Home and Library are placeholders.
+
 ## Edge cases
 
 - Empty, unknown or damaged addresses (including bad percent-encoding) become home.
@@ -39,6 +42,6 @@ The handle between the menu and the page sets the menu width (`src/app/SidebarRe
 
 ## Tests
 
-`src/app/router.test.ts` (round trips, damaged input, 3-level limit, `baseHash`), `src/pages/pathStyle.test.ts`, `src/share/fullFile.test.ts` (path styles in a backup); e2e: `sidebarGroups.spec.ts`, `pathStyle.spec.ts`, `navigation.spec.ts`, `discard.spec.ts`, `phoneSidebar.spec.ts`.
+`src/app/router.test.ts` (round trips, damaged input, 3-level limit, `baseHash`), `src/pages/pathStyle.test.ts`, `src/share/fullFile.test.ts` (path styles in a backup); e2e: `spaces.spec.ts`, `sidebarGroups.spec.ts`, `pathStyle.spec.ts`, `navigation.spec.ts`, `discard.spec.ts`, `phoneSidebar.spec.ts`.
 
 - **Page ⋯ menu (2g):** page actions first (Review this page, History, favourite, Save as template, Import and Export (grey), Search all features), then **Copy & paste ▸**, **Page address ▸**, **Device mode ▸**, Hide/Show tool bar and Save & restore. A row with ▸ opens a small list (a pop-up with a ✕, ticks on the current choice). The top bar also has the **Device mode** button on every screen.

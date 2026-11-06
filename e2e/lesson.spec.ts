@@ -4,7 +4,7 @@ import {
   highlighted,
   createNotebook,
   rowAction,
-  sidebar,
+  setTheme,
 } from './helpers.ts'
 
 const editor = (page: Page) => page.locator('.bn-editor')
@@ -143,10 +143,7 @@ for (const [theme, width, height] of [
     await newFromTemplate(page, LESSON)
     await page.keyboard.type('Cell biology')
     await makeCardUnder(page, 'Detailed notes', 'What does the nucleus hold?')
-    await sidebar(page)
-      .getByRole('group', { name: 'Theme' })
-      .getByRole('button', { name: theme })
-      .click()
+    await setTheme(page, theme)
     await page.setViewportSize({ width, height })
     await expect(cardList(page)).toContainText('1 card')
     await page.waitForTimeout(400) // let the theme fade finish

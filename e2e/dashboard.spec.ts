@@ -1,5 +1,5 @@
 import { expect, test, type Page } from '@playwright/test'
-import { addPage, createNotebook, sidebar } from './helpers.ts'
+import { addPage, createNotebook, sidebar, setTheme } from './helpers.ts'
 
 const main = (page: Page) => page.getByRole('main')
 const tracker = (page: Page) =>
@@ -170,10 +170,7 @@ for (const [theme, width, height] of [
       .getByRole('button', { name: 'Add column' })
       .click()
     await viewButton(page, 'Dashboard').click()
-    await sidebar(page)
-      .getByRole('group', { name: 'Theme' })
-      .getByRole('button', { name: theme })
-      .click()
+    await setTheme(page, theme)
     await page.setViewportSize({ width, height })
     await expect(chart(page, 'Lessons')).toBeVisible()
     // Nothing is wider than the screen.

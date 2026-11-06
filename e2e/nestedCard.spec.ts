@@ -4,6 +4,7 @@ import {
   cardRecordCount,
   createNotebook,
   typeInEditor,
+  setTheme,
 } from './helpers.ts'
 
 const dialog = (page: Page) =>
@@ -92,11 +93,7 @@ for (const [theme, width, height] of [
   ['Day', 390, 844],
 ] as const) {
   test(`screenshot: ${theme} ${width}×${height}`, async ({ page }) => {
-    await page
-      .locator('aside')
-      .getByRole('group', { name: 'Theme' })
-      .getByRole('button', { name: theme })
-      .click()
+    await setTheme(page, theme)
     await cardWithAnswerLine(page)
     await page.setViewportSize({ width, height })
     await slashHere(page, 'card')

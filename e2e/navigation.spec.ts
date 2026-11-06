@@ -5,6 +5,7 @@ import {
   openPage,
   openSidebar,
   sidebar,
+  cornerAction,
 } from './helpers.ts'
 
 const title = (page: import('@playwright/test').Page) =>
@@ -18,7 +19,7 @@ test.beforeEach(async ({ page }) => {
 test('Back and Forward move between pages and screens', async ({ page }) => {
   await createNotebook(page, 'Nav NB', 'First')
   await addPage(page, 'Nav NB', 'Second')
-  await sidebar(page).getByRole('button', { name: 'Settings' }).click()
+  await cornerAction(page, 'Settings')
   await expect(page).toHaveURL(/#\/settings$/)
 
   await page.goBack()
@@ -85,7 +86,7 @@ test('Back and Forward also follow Settings categories, database views, Save & r
   await createNotebook(page, 'Nav NB', 'First')
 
   // Settings: a category is its own step.
-  await (await side()).getByRole('button', { name: 'Settings' }).click()
+  await cornerAction(page, 'Settings')
   const nav = page.getByRole('navigation', { name: 'Settings categories' })
   await nav.getByRole('button', { name: /^Review/ }).click()
   await expect(page).toHaveURL(/#\/settings\/review$/)
@@ -121,7 +122,7 @@ test('Back and Forward also follow Settings categories, database views, Save & r
   expect(page.url()).not.toBe(boardUrl)
 
   // Save & restore and back.
-  await (await side()).getByRole('button', { name: 'Save & restore' }).click()
+  await cornerAction(page, 'Save & restore')
   await expect(page).toHaveURL(/#\/data$/)
   await page.goBack()
   await expect(page).toHaveURL(/#\/notebook\//)

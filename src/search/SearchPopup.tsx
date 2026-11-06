@@ -1,8 +1,12 @@
 import { useLiveQuery } from 'dexie-react-hooks'
-import { useEffect, useId, useRef, useState } from 'react'
+import { useEffect, useId, useMemo, useRef, useState } from 'react'
+import { pinAction, unpinAction } from '../app/deviceMode'
+import { buildRows, rowMatches, type Row } from '../app/tools/controlRows'
+import { Icon } from '../app/tools/icons'
+import { extraTools } from '../app/tools/main/mainTools'
 import { MenuIcon } from '../app/ui'
 import type { LearningNotesDB } from '../core/db'
-import { t } from '../i18n/t'
+import { t, type MessageKey } from '../i18n/t'
 import { readRecentPages } from './recentPages'
 import { searchWords } from './searchText'
 import {
@@ -13,18 +17,37 @@ import {
 } from './searchQuery'
 import { ResultRow } from './SearchResults'
 import { TYPE_ICON, useHitDetails, useSearch } from './useSearch'
-import { TypeChips } from './TypeChips'
 
 /** Recent pages shown before typing. */
 const RECENT = 6
 /** Results per group: with "All", a few of each type; else more of one. */
 const PER_GROUP_ALL = 3
 const PER_GROUP_ONE = 8
+/** Features shown with "All", and with the Features chip. */
+const FEATURES_ALL = 3
+const FEATURES_ONE = 80
+
+/** The filter chips: the note types, the coming ones, and the features. */
+type Chip = SearchQuery['type'] | 'book' | 'highlight' | 'task' | 'feature'
+const CHIPS: Chip[] = [
+  'all',
+  'page',
+  'note',
+  'book',
+  'highlight',
+  'card',
+  'task',
+  'feature',
+]
+/** Chips for things that are not built yet (Library, reader, Home). */
+const COMING: Chip[] = ['book', 'highlight', 'task']
 
 /**
- * The quick search (Ctrl+K / 🔍): a box, type chips, the best few results
- * per type, and keyboard use (↑ ↓ Enter Esc). "See all" / Enter opens the
- * full Search screen with the same search. Full screen on phones.
+ * The one Search (Ctrl/Cmd+K, Ctrl/Cmd+Shift+K, the 🔍 buttons): a box, filter
+ * chips, and result groups: Pages · Notes · Books · Highlights · Cards · Tasks ·
+ * Features. Features are every tool and setting of the app (the former control
+ * panel), which can also be pinned to the tool bar. Keyboard: ↑ ↓ Enter Esc.
+ * "See all" / Enter opens the full Search screen. Full screen on phones.
  */
 export function SearchPopup({
   db,
@@ -33,6 +56,7 @@ export function SearchPopup({
   onOpenHit,
   onOpenPage,
   onSeeAll,
+  initialChip = 'all',
 }: {
   db: LearningNotesDB
   onClose: () => void
@@ -41,15 +65,25 @@ export function SearchPopup({
   onOpenHit: (hit: SearchHit) => void
   onOpenPage: (pageId: string) => void
   onSeeAll: (query: SearchQuery) => void
+  /** "Search all features" opens with the Features chip. */
+  initialChip?: 'all' | 'feature'
 }) {
   const ref = useRef<HTMLDialogElement>(null)
   const inputRef = useRef<HTMLInputElement>(null)
   const [text, setText] = useState('')
-  const [type, setType] = useState<SearchQuery['type']>('all')
+  const [chip, setChip] = useState<Chip>(initialChip)
+  const type: SearchQuery['type'] =
+    chip === 'all' || chip === 'page' || chip === 'note' || chip === 'card'
+      ? chip
+      : 'all'
+  /** False on the coming chips and on Features: no note results there. */
+  const showNotes = type === chip
   const [selected, setSelected] = useState(-1)
   const query: SearchQuery = { text, type, filters: DEFAULT_FILTERS }
   const { outcome, now } = useSearch(db, query)
   const listId = useId()
+  const onBar = extraTools.useValue()
+  const featureRows = useMemo(() => buildRows(), [])
 
   useEffect(() => {
     ref.current?.showModal()
@@ -66,7 +100,7 @@ export function SearchPopup({
 
   // Results in groups (pages, notes, cards), and the same rows in one list
   // for the arrow keys.
-  const active = !!outcome?.active
+  const active = !!outcome?.active && showNotes
   const groups = active
     ? RESULT_TYPES.map((kind) => ({
         kind,
@@ -77,25 +111,76 @@ export function SearchPopup({
     : []
   const flat = groups.flatMap((g) => g.hits)
   const details = useHitDetails(db, flat)
-  const rows = active ? flat.length : (recent?.length ?? 0)
+
+  // Features: every tool and setting (the former control panel).
+  const typed = text.trim().length > 0
+  const featureMatches =
+    chip === 'feature' || (chip === 'all' && typed)
+      ? featureRows.filter((row) => !typed || rowMatches(row.haystack, text))
+      : []
+  const features = featureMatches.slice(
+    0,
+    chip === 'feature' ? FEATURES_ONE : FEATURES_ALL,
+  )
+  const offset = flat.length
+  const rows = flat.length + features.length
+  const browsing = !active && features.length === 0 && showNotes
+  const total = (active ? outcome.typeCounts[type] : 0) + featureMatches.length
 
   const seeAll = () => onSeeAll(query)
+  const runFeature = (row: Row) => {
+    onClose()
+    // After the search is gone, so the page has its focus back first.
+    setTimeout(row.run, 0)
+  }
+  const togglePin = (id: string) => {
+    const list = extraTools.get()
+    extraTools.set(
+      list.includes(id)
+        ? unpinAction(list, id)
+        : pinAction(list, id).slice(0, 8),
+    )
+  }
   const openRow = (index: number) => {
-    if (active) onOpenHit(flat[index])
-    else if (recent?.[index]) onOpenPage(recent[index].id)
+    if (index >= offset) {
+      const row = features[index - offset]
+      if (row) runFeature(row)
+    } else if (active) onOpenHit(flat[index])
+  }
+  const openRecent = (index: number) => {
+    if (recent?.[index]) onOpenPage(recent[index].id)
   }
 
   const onKeyDown = (e: React.KeyboardEvent) => {
-    if (e.key === 'ArrowDown' && rows > 0) {
+    if (e.key === 'Escape') {
+      // A search box would clear its text first; Esc should just close.
       e.preventDefault()
-      setSelected((s) => Math.min(rows - 1, s + 1))
+      onClose()
+      return
+    }
+    const count = browsing ? (recent?.length ?? 0) : rows
+    if (e.key === 'ArrowDown' && count > 0) {
+      e.preventDefault()
+      setSelected((s) => Math.min(count - 1, s + 1))
     } else if (e.key === 'ArrowUp') {
       e.preventDefault()
       setSelected((s) => Math.max(-1, s - 1))
     } else if (e.key === 'Enter' && !e.nativeEvent.isComposing) {
       e.preventDefault()
-      if (selected >= 0) openRow(selected)
-      else if (searchWords(text).length > 0 || type === 'card') seeAll()
+      if (selected >= 0) {
+        if (browsing) openRecent(selected)
+        else openRow(selected)
+      } else if (
+        features.length > 0 &&
+        (chip === 'feature' || flat.length === 0)
+      ) {
+        runFeature(features[0])
+      } else if (
+        showNotes &&
+        (searchWords(text).length > 0 || type === 'card')
+      ) {
+        seeAll()
+      }
     }
   }
 
@@ -162,15 +247,38 @@ export function SearchPopup({
           Esc
         </button>
       </div>
-      <TypeChips
-        value={type}
-        onChange={(next) => {
-          setType(next)
-          setSelected(-1)
-          inputRef.current?.focus() // keep typing and arrow keys working
-        }}
-        className="border-b border-line px-3.5 py-2"
-      />
+      <div
+        role="group"
+        aria-label={t('search.show')}
+        className="flex flex-wrap gap-1.5 border-b border-line px-3.5 py-2"
+      >
+        {CHIPS.map((v) => (
+          <button
+            key={v}
+            type="button"
+            aria-pressed={chip === v}
+            onClick={() => {
+              setChip(v)
+              setSelected(-1)
+              inputRef.current?.focus() // keep typing and arrow keys working
+            }}
+            className={`min-h-7 rounded-full border px-2.5 text-[12.5px] whitespace-nowrap ${
+              chip === v
+                ? 'border-ink bg-ink text-bg'
+                : 'border-line text-muted hover:text-ink'
+            }`}
+          >
+            {t(`search.type.${v}` as MessageKey)}
+          </button>
+        ))}
+      </div>
+      <p role="status" aria-live="polite" className="sr-only">
+        {!typed && chip !== 'feature'
+          ? ''
+          : total === 0
+            ? t('panel.none')
+            : t('panel.count', { count: total })}
+      </p>
 
       <div
         id={listId}
@@ -178,7 +286,11 @@ export function SearchPopup({
         aria-label={t('search.results')}
         className="flex-1 overflow-y-auto p-1.5"
       >
-        {!active ? (
+        {COMING.includes(chip) ? (
+          <p className="px-4 py-7 text-center text-sm text-muted">
+            {t(`search.coming.${chip}` as MessageKey)}
+          </p>
+        ) : browsing ? (
           recent && recent.length > 0 ? (
             <>
               <GroupLabel>{t('search.recent')}</GroupLabel>
@@ -212,13 +324,13 @@ export function SearchPopup({
               {t('search.hint')}
             </p>
           )
-        ) : flat.length === 0 ? (
+        ) : rows === 0 ? (
           <div className="px-4 py-7 text-center text-sm leading-relaxed text-muted">
             <p className="font-semibold text-ink">
               {t('search.noResults', { query: text.trim() })}
             </p>
             <p>{t('search.noResultsHint')}</p>
-            {outcome.trashCount > 0 && (
+            {outcome && outcome.trashCount > 0 && showNotes && (
               <button
                 type="button"
                 onClick={() =>
@@ -234,30 +346,93 @@ export function SearchPopup({
             )}
           </div>
         ) : (
-          groups.map((group) => (
-            <div
-              key={group.kind}
-              role="group"
-              aria-label={t(`search.type.${group.kind}`)}
-            >
-              <GroupLabel>{t(`search.type.${group.kind}`)}</GroupLabel>
-              {group.hits.map((hit) => {
-                const i = index++
-                return (
-                  <ResultRow
-                    key={hit.id}
-                    id={optionId(i)}
-                    hit={hit}
-                    details={details?.get(hit.id)}
-                    query={text}
-                    now={now}
-                    selected={selected === i}
-                    onOpen={onOpenHit}
-                  />
-                )
-              })}
-            </div>
-          ))
+          <>
+            {groups.map((group) => (
+              <div
+                key={group.kind}
+                role="group"
+                aria-label={t(`search.type.${group.kind}`)}
+              >
+                <GroupLabel>{t(`search.type.${group.kind}`)}</GroupLabel>
+                {group.hits.map((hit) => {
+                  const i = index++
+                  return (
+                    <ResultRow
+                      key={hit.id}
+                      id={optionId(i)}
+                      hit={hit}
+                      details={details?.get(hit.id)}
+                      query={text}
+                      now={now}
+                      selected={selected === i}
+                      onOpen={onOpenHit}
+                    />
+                  )
+                })}
+              </div>
+            ))}
+            {features.length > 0 && (
+              <div role="group" aria-label={t('search.type.feature')}>
+                <GroupLabel>{t('search.type.feature')}</GroupLabel>
+                {features.map((row, n) => {
+                  const i = offset + n
+                  const pinned = row.pinId ? onBar.includes(row.pinId) : false
+                  return (
+                    <div
+                      key={row.key}
+                      data-panel-row={row.key}
+                      className="flex items-center gap-1"
+                    >
+                      <button
+                        id={optionId(i)}
+                        type="button"
+                        role="option"
+                        aria-selected={selected === i}
+                        tabIndex={-1}
+                        data-panel-run
+                        onMouseDown={(e) => e.preventDefault()}
+                        onClick={() => runFeature(row)}
+                        className={`flex min-h-11 min-w-0 flex-1 items-center gap-2.5 rounded-lg px-2.5 text-start text-sm hover:bg-hover ${
+                          selected === i
+                            ? 'bg-hover shadow-[inset_2px_0_0_var(--color-accent)]'
+                            : ''
+                        }`}
+                      >
+                        <span aria-hidden className="w-[18px] text-muted">
+                          <Icon name={row.icon} size={16} />
+                        </span>
+                        <span className="min-w-0 flex-1">
+                          <span className="block truncate">{row.label}</span>
+                          <span className="block truncate text-xs text-muted">
+                            {row.coming ?? row.where}
+                          </span>
+                        </span>
+                        {row.shortcut && (
+                          <kbd className="shrink-0 rounded border border-line px-1.5 font-mono text-[11px] text-muted">
+                            {row.shortcut}
+                          </kbd>
+                        )}
+                      </button>
+                      {row.pinId && chip === 'feature' && (
+                        <button
+                          type="button"
+                          aria-pressed={pinned}
+                          aria-label={t(
+                            pinned ? 'panel.unpinNamed' : 'panel.pinNamed',
+                            { name: row.label },
+                          )}
+                          onClick={() => togglePin(row.pinId!)}
+                          className="min-h-11 shrink-0 rounded-xl border border-line px-3 text-xs hover:bg-hover aria-pressed:bg-hover aria-pressed:font-semibold"
+                        >
+                          {t(pinned ? 'panel.pinned' : 'panel.pin')}
+                        </button>
+                      )}
+                    </div>
+                  )
+                })}
+              </div>
+            )}
+          </>
         )}
       </div>
 
@@ -265,12 +440,12 @@ export function SearchPopup({
         <span className="phone:hidden">
           <Kbd>↑</Kbd>
           <Kbd>↓</Kbd> {t('search.keys.move')} · <Kbd>Enter</Kbd>{' '}
-          {selected >= 0 || !active
+          {selected >= 0 || browsing || !active
             ? t('search.keys.open')
             : t('search.keys.seeAll')}{' '}
           · <Kbd>Esc</Kbd> {t('search.keys.close')}
         </span>
-        {active && (
+        {active && outcome && (
           <button
             type="button"
             onClick={seeAll}

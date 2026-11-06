@@ -49,3 +49,39 @@ export function DeviceModeButton() {
     </>
   )
 }
+
+/** A full-width row ("Device mode") that opens the same list; for menus. */
+export function DeviceModeMenuRow({ className }: { className: string }) {
+  const [mode] = useDeviceSetting(deviceModeSetting)
+  const [at, setAt] = useState<DOMRect | null>(null)
+  const name = t('mode.menu')
+  return (
+    <>
+      <button
+        type="button"
+        aria-haspopup="menu"
+        aria-expanded={!!at}
+        onClick={(e) =>
+          setAt(at ? null : e.currentTarget.getBoundingClientRect())
+        }
+        className={className}
+      >
+        <span aria-hidden className="text-muted">
+          <Icon name={MODE_ICON[mode]} size={16} />
+        </span>
+        <span className="flex-1">{name}</span>
+        <span className="text-xs text-muted">
+          {t(`mode.${mode}` as MessageKey)}
+        </span>
+      </button>
+      {at && (
+        <MenuPopover
+          anchor={at}
+          items={deviceModeChoices(mode)}
+          label={name}
+          onClose={() => setAt(null)}
+        />
+      )}
+    </>
+  )
+}

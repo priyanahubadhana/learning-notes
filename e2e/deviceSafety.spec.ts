@@ -1,15 +1,11 @@
 import { expect, test } from '@playwright/test'
-import { openSidebar } from './helpers.ts'
+import { cornerAction } from './helpers.ts'
 
 test('Settings shows how safe this device is and how to install', async ({
   page,
 }) => {
   await page.goto('/')
-  await (
-    await openSidebar(page)
-  )
-    .getByRole('button', { name: 'Settings' })
-    .click()
+  await cornerAction(page, 'Settings')
   const section = page.getByRole('region', { name: 'This device' })
   await expect(section).toContainText('Storage:')
   await expect(section).toContainText('No backup file saved yet.')

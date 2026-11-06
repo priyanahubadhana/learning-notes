@@ -13,6 +13,12 @@ export const sidebar = (page: Page) => page.locator('aside')
 export async function showSidebar(page: Page) {
   const open = page.getByRole('button', { name: 'Open menu' })
   await sidebar(page).waitFor({ state: 'attached' }) // the app has loaded
+  await closeCorner(page)
+  // Most steps look for notebooks and pages: go to the Notebooks space.
+  const notebooks = page.locator('[data-space="notebooks"]')
+  if ((await notebooks.getAttribute('aria-current')) !== 'page') {
+    await notebooks.click()
+  }
   // The dim backdrop exists exactly while the drawer is meant to be open.
   const meantOpen = await page
     .getByRole('button', { name: 'Close menu' })
@@ -135,6 +141,7 @@ export async function addPage(
 
 /** Opens a page from the sidebar. */
 export async function openPage(page: Page, title: string) {
+  await closeCorner(page)
   await showSidebar(page)
   await sidebar(page).getByRole('button', { name: title, exact: true }).click()
   await expect(page.getByRole('textbox', { name: 'Page title' })).toHaveValue(
@@ -178,24 +185,63 @@ export async function confirmDialog(page: Page, button: string) {
   await expect(page.getByRole('dialog')).toBeHidden()
 }
 
-/** Opens the Trash section (if closed) and returns it. */
+/** The quiet corner (⚙ at the bottom of the strip of spaces). */
+export const corner = (page: Page) => page.getByTestId('corner-panel')
+
+/** Opens the quiet corner (if closed) and returns it. */
+export async function openCorner(page: Page): Promise<Locator> {
+  const panel = corner(page)
+  if (!(await panel.isVisible())) {
+    await page.getByTestId('corner-button').click()
+    await expect(panel).toBeVisible()
+  }
+  return panel
+}
+
+/** Closes the quiet corner if it is open (it sits over the sidebar). */
+export async function closeCorner(page: Page) {
+  if (await corner(page).isVisible()) {
+    await page.keyboard.press('Escape')
+    await expect(corner(page)).toBeHidden()
+  }
+}
+
+/** Chooses an item of the quiet corner (Settings, Save & restore, Help). */
+export async function cornerAction(page: Page, name: string) {
+  const panel = await openCorner(page)
+  await panel.getByRole('button', { name, exact: true }).click()
+}
+
+/** Chooses Day, Night or Sepia in the quiet corner, then closes it. */
+export async function setTheme(page: Page, theme: string) {
+  const panel = await openCorner(page)
+  await panel
+    .getByRole('group', { name: 'Theme' })
+    .getByRole('button', { name: theme, exact: true })
+    .click()
+  await page.keyboard.press('Escape')
+  await expect(panel).toBeHidden()
+}
+
+/** Opens the Trash list in the quiet corner (if closed) and returns it. */
 export async function openTrash(page: Page): Promise<Locator> {
-  const toggle = sidebar(page).getByRole('button', { name: /^Trash/ })
+  const panel = await openCorner(page)
+  const toggle = panel.getByRole('button', { name: /^Trash/ })
   if ((await toggle.getAttribute('aria-expanded')) !== 'true') {
     await toggle.click()
   }
   await expect(
-    sidebar(page)
+    panel
       .getByText('Trash is empty')
-      .or(sidebar(page).getByLabel('Restore', { exact: true }))
+      .or(panel.getByLabel('Restore', { exact: true }))
       .first(),
   ).toBeVisible()
-  return sidebar(page)
+  return panel
 }
 
 /** Trash entries, as "title — detail" strings. */
 export async function trashEntries(page: Page): Promise<string[]> {
-  const entries = sidebar(page)
+  const entries = corner(page)
     .locator('div.group')
     .filter({ has: page.getByLabel('Restore', { exact: true }) })
   const texts = await entries.allInnerTexts()
@@ -214,7 +260,7 @@ export async function trashAction(
   title: string,
   action: 'Restore' | 'Delete forever',
 ) {
-  const entry = sidebar(page)
+  const entry = corner(page)
     .locator('div.group')
     .filter({ has: page.getByLabel('Restore', { exact: true }) })
     .filter({ hasText: title })

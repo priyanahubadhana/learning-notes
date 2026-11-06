@@ -1,5 +1,11 @@
 import { expect, test, type Page } from '@playwright/test'
-import { addPage, createNotebook, typeInEditor, openGroup } from './helpers.ts'
+import {
+  addPage,
+  createNotebook,
+  typeInEditor,
+  openGroup,
+  setTheme,
+} from './helpers.ts'
 
 const pageTags = (page: Page) => page.getByRole('group', { name: 'Page tags' })
 const tagMenu = (page: Page) => page.locator('.bn-suggestion-menu')
@@ -88,11 +94,7 @@ for (const [theme, width, height] of [
   ['Day', 390, 844],
 ] as const) {
   test(`screenshot: ${theme} ${width}×${height}`, async ({ page }) => {
-    await page
-      .locator('aside')
-      .getByRole('group', { name: 'Theme' })
-      .getByRole('button', { name: theme })
-      .click()
+    await setTheme(page, theme)
     for (const name of ['medicine/cardiology', 'exam', 'high-yield']) {
       await pageTags(page).getByRole('button', { name: '+ Add tag' }).click()
       await page.keyboard.type(name)

@@ -3,18 +3,15 @@ import { expect, test, type Page } from '@playwright/test'
 import {
   addAsCopies,
   createNotebook,
-  openSidebar,
   typeInEditor,
+  cornerAction,
+  setTheme,
 } from './helpers.ts'
 
 const main = (page: Page) => page.getByRole('main')
 
 async function openData(page: Page) {
-  await (
-    await openSidebar(page)
-  )
-    .getByRole('button', { name: 'Save & restore' })
-    .click()
+  await cornerAction(page, 'Save & restore')
   await expect(
     page.getByRole('heading', { name: 'Save & restore', level: 1 }),
   ).toBeVisible()
@@ -169,12 +166,7 @@ for (const [theme, width, height] of [
   }) => {
     await page.goto('/')
     await createNotebook(page, 'Cardiology', 'Heart sounds')
-    await (
-      await openSidebar(page)
-    )
-      .getByRole('group', { name: 'Theme' })
-      .getByRole('button', { name: theme })
-      .click()
+    await setTheme(page, theme)
     await page.setViewportSize({ width, height })
     const close = page.getByRole('button', { name: 'Close notebook' })
     if (await close.isVisible()) await close.click()

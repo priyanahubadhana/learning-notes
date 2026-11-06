@@ -1,6 +1,6 @@
 import { readFile } from 'node:fs/promises'
 import { expect, test } from '@playwright/test'
-import { setTitle } from './helpers.ts'
+import { setTitle, cornerAction } from './helpers.ts'
 
 test.use({ serviceWorkers: 'allow' })
 
@@ -55,7 +55,7 @@ test('the built app works under the live security rules', async ({ page }) => {
   await expect(page.getByText('A line of notes')).toBeVisible()
   // The theme file ran before the app started.
   await expect(page.locator('html')).toHaveAttribute('data-theme', 'night')
-  await page.locator('aside').getByRole('button', { name: 'Settings' }).click()
+  await cornerAction(page, 'Settings')
   await expect(
     page.getByRole('heading', { name: 'Settings', level: 1 }),
   ).toBeVisible()

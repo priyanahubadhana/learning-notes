@@ -7,6 +7,7 @@ import {
   startInMode,
   typeInEditor,
   openRibbon,
+  cornerAction,
 } from './helpers.ts'
 
 /**
@@ -56,7 +57,7 @@ test('More closes when a ribbon tab is tapped (the old bug: it stayed open)', as
     .getByRole('button', { name: 'More formatting', exact: true })
     .click()
   await expect(tray(page)).toBeVisible()
-  await page.getByRole('button', { name: 'Settings', exact: true }).click()
+  await cornerAction(page, 'Settings')
   await expect(tray(page)).toHaveCount(0)
 })
 

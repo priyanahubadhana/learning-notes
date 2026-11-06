@@ -1,5 +1,11 @@
 import { expect, test } from '@playwright/test'
-import { addPage, createNotebook, openPage, sidebar } from './helpers.ts'
+import {
+  addPage,
+  createNotebook,
+  openPage,
+  sidebar,
+  cornerAction,
+} from './helpers.ts'
 
 const pageTitle = (page: import('@playwright/test').Page) =>
   page.getByRole('textbox', { name: 'Page title' })
@@ -45,7 +51,7 @@ test('Back and Forward move through the pages, and grey out at the ends', async 
   // A new page after going back ends what was ahead, as in a browser.
   await back.click()
   await expect(pageTitle(page)).toHaveValue('Heart')
-  await sidebar(page).getByRole('button', { name: 'Settings' }).click()
+  await cornerAction(page, 'Settings')
   await expect(forward).toBeDisabled()
 
   // It survives a reload, and the first screen has nowhere to go back to.
@@ -66,7 +72,9 @@ test('the bar stays above every screen', async ({ page }) => {
     'Save & restore',
     'Settings',
   ]) {
-    await sidebar(page).getByRole('button', { name: screen }).click()
+    if (screen === 'Save & restore' || screen === 'Settings')
+      await cornerAction(page, screen)
+    else await sidebar(page).getByRole('button', { name: screen }).click()
     await expect(back).toBeVisible()
     await expect(page.locator('header').first()).toContainText(screen)
     await expect(

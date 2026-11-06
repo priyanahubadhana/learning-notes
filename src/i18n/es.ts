@@ -8,6 +8,7 @@ import { es7 } from './es7'
 import { es8 } from './es8'
 import { es9 } from './es9'
 import { es10 } from './es10'
+import { es11 } from './es11'
 
 /** Spanish texts. A key missing here shows the English text. */
 export const es: Record<string, string> = {
@@ -21,4 +22,5 @@ export const es: Record<string, string> = {
   ...es8,
   ...es9,
   ...es10,
+  ...es11,
 }

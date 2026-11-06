@@ -7,6 +7,7 @@ import {
   openSearchPopup,
   searchResults,
   sidebar,
+  setTheme,
 } from './helpers.ts'
 
 /** Card tools in Search (Phase 4 Step 6): Most failed, empty-card cleanup. */
@@ -93,10 +94,7 @@ for (const [theme, width, height] of [
   ['Day', 844, 390],
 ] as const) {
   test(`screenshots: ${theme} ${width}×${height}`, async ({ page }) => {
-    await sidebar(page)
-      .getByRole('group', { name: 'Theme' })
-      .getByRole('button', { name: theme })
-      .click()
+    await setTheme(page, theme)
     await sidebar(page)
       .getByRole('button', { name: /^Review(?! this)/ })
       .click()

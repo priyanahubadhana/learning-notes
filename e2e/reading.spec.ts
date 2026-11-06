@@ -8,6 +8,8 @@ import {
   pageAction,
   selectText,
   openRibbon,
+  cornerAction,
+  setTheme,
 } from './helpers.ts'
 import {
   barTool,
@@ -112,7 +114,7 @@ test('the Settings screen has a Reading section with every choice', async ({
 }) => {
   await page.goto('/')
   await createNotebook(page, 'Heart', 'Page')
-  await page.getByRole('button', { name: 'Settings', exact: true }).click()
+  await cornerAction(page, 'Settings')
   await page.getByRole('button', { name: /^Reading, / }).click()
   for (const id of [
     'entry',
@@ -228,13 +230,7 @@ test('themes follow the app by default, and Night makes the reading area dark', 
   page,
 }) => {
   await startBook(page)
-  await page
-    .getByRole('button', { name: 'Night', exact: true })
-    .click()
-    .catch(() => {})
-  await page.evaluate(() => {
-    document.documentElement.dataset.theme = 'night'
-  })
+  await setTheme(page, 'Night')
   await readSwitch(page).click()
   await expect(page.locator('[data-reading="inPlace"]')).toHaveCSS(
     'background-color',
@@ -713,15 +709,16 @@ test('the ribbon View tab tools are real, and the control panel lists them', asy
   await panel.getByRole('button', { name: 'Reading mode', exact: true }).click()
   await expect(frame(page)).toHaveAttribute('data-view', 'inPlace')
   await page.keyboard.press('Control+Shift+K')
-  const dialog = page.getByRole('dialog', { name: 'Search all features' })
-  await dialog.getByRole('searchbox').fill('read aloud')
+  const dialog = page.getByRole('dialog', { name: 'Search' })
+  await dialog.getByRole('button', { name: 'Features', exact: true }).click()
+  await dialog.getByRole('combobox').fill('read aloud')
   await expect(
     dialog.locator('[data-panel-row="tool:readAloud"]'),
   ).toBeVisible()
   await expect(
     dialog.locator('[data-panel-row="tool:readAloud"]'),
   ).not.toContainText('later update')
-  await dialog.getByRole('searchbox').fill('reading')
+  await dialog.getByRole('combobox').fill('reading')
   await expect(
     dialog.locator('[data-panel-row^="setting:reading"]').first(),
   ).toBeVisible()

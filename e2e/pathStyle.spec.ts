@@ -8,6 +8,7 @@ import {
   pageSubAction,
   showSidebar,
   sidebar,
+  cornerAction,
 } from './helpers.ts'
 
 /**
@@ -179,7 +180,7 @@ test('the default is a Settings choice found by searching "path" or "breadcrumb"
   page,
 }) => {
   await start(page)
-  await page.getByRole('button', { name: 'Settings', exact: true }).click()
+  await cornerAction(page, 'Settings')
   const search = page.getByRole('searchbox', { name: /Search/ })
   for (const word of ['path', 'breadcrumb']) {
     await search.fill(word)
@@ -274,9 +275,10 @@ test('a page choice survives a reload (and the page menu ticks it)', async ({
 test('the control panel finds it by "path"', async ({ page }) => {
   await start(page)
   await page.keyboard.press('Control+Shift+K')
-  const panel = page.getByRole('dialog', { name: 'Search all features' })
+  const panel = page.getByRole('dialog', { name: 'Search' })
+  await panel.getByRole('button', { name: 'Features' }).click()
   await panel
-    .getByRole('searchbox', { name: 'Search features and settings' })
+    .getByRole('combobox', { name: 'Search everything' })
     .fill('breadcrumb')
   await expect(panel.getByText('Page address').first()).toBeVisible()
 })

@@ -6,6 +6,7 @@ import {
   dockedBar,
   startInMode,
   typeInEditor,
+  cornerAction,
 } from './helpers.ts'
 
 /**
@@ -111,7 +112,7 @@ test('choosing Floating in Settings shows the bar at once, with a tip pointing a
 }) => {
   await page.setViewportSize({ width: 820, height: 1180 })
   await openPage(page)
-  await page.getByRole('button', { name: 'Settings', exact: true }).click()
+  await cornerAction(page, 'Settings')
   await page.getByRole('button', { name: /^Tool bar, / }).click()
   const row = page.locator('[data-setting-id="advanced.barPlacement"]')
   await row.getByRole('button', { name: 'Floating', exact: true }).click()

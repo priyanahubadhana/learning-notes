@@ -8,7 +8,7 @@ import {
   setTitle,
   slashCommand,
   typeInEditor,
-  openSidebar,
+  setTheme,
 } from './helpers.ts'
 
 const picker = (page: Page) =>
@@ -132,12 +132,7 @@ for (const [theme, width, height] of [
   ['Day', 844, 390],
 ] as const) {
   test(`screenshots: ${theme} ${width}×${height}`, async ({ page }) => {
-    await (
-      await openSidebar(page)
-    )
-      .getByRole('group', { name: 'Theme' })
-      .getByRole('button', { name: theme })
-      .click()
+    await setTheme(page, theme)
     await page.setViewportSize({ width, height })
     await page.locator('.bn-editor').click()
     await page.keyboard.press('Control+End')

@@ -11,15 +11,20 @@ import {
 } from './helpers.ts'
 
 /**
- * Batch 2d, step 1: the control panel, a search over every feature and
- * setting. Opened with Ctrl/Cmd+Shift+K (Ctrl/Cmd+K stays the page search),
- * the bar's search icon, the page ⋯ menu and Settings.
+ * Step 4a: the control panel is now the Features group (and chip) of the one
+ * Search. Ctrl/Cmd+K and Ctrl/Cmd+Shift+K both open it, and so do the bar's
+ * search icon, the page ⋯ menu and Settings.
  */
 
-const panel = (page: Page) =>
-  page.getByRole('dialog', { name: 'Search all features' })
+const panel = (page: Page) => page.getByRole('dialog', { name: 'Search' })
 const box = (page: Page) =>
-  panel(page).getByRole('searchbox', { name: 'Search features and settings' })
+  panel(page).getByRole('combobox', { name: 'Search everything' })
+
+/** Opens the one Search and picks the Features chip. */
+async function features(page: Page) {
+  await page.keyboard.press('Control+Shift+K')
+  await panel(page).getByRole('button', { name: 'Features' }).click()
+}
 
 async function start(page: Page, mode: 'computer' | 'touch' = 'computer') {
   await startInMode(page, mode)
@@ -28,9 +33,7 @@ async function start(page: Page, mode: 'computer' | 'touch' = 'computer') {
   await typeInEditor(page, 'The nucleus holds the DNA')
 }
 
-test('Ctrl+Shift+K opens it, Ctrl+K still opens the page search', async ({
-  page,
-}) => {
+test('Ctrl+K and Ctrl+Shift+K both open the one Search', async ({ page }) => {
   await start(page)
   await page.keyboard.press('Control+Shift+K')
   await expect(panel(page)).toBeVisible()
@@ -38,30 +41,16 @@ test('Ctrl+Shift+K opens it, Ctrl+K still opens the page search', async ({
   await page.keyboard.press('Escape')
   await expect(panel(page)).toHaveCount(0)
   await openSearchPopup(page)
-  await expect(panel(page)).toHaveCount(0)
+  await expect(panel(page)).toBeVisible()
 })
 
-test('lists every tab and setting, searches by name, place and English', async ({
+test('Features: searches tools and settings by name, place and English', async ({
   page,
 }) => {
   await start(page)
-  await page.keyboard.press('Control+Shift+K')
-  const dialog = panel(page)
-  for (const heading of [
-    'File',
-    'Home',
-    'Insert',
-    'Draw',
-    'View',
-    'Review',
-    'Settings',
-  ]) {
-    await expect(
-      dialog.getByRole('heading', { name: heading, level: 3, exact: true }),
-      heading,
-    ).toBeVisible()
-  }
+  await features(page)
   await box(page).fill('paste')
+  const dialog = panel(page)
   const row = dialog.locator('[data-panel-row="tool:pastePlain"]')
   await expect(row).toBeVisible()
   await expect(row).toContainText('Paste as plain text')
@@ -78,11 +67,29 @@ test('lists every tab and setting, searches by name, place and English', async (
   await expect(dialog.getByRole('status')).toHaveText('Nothing found.')
 })
 
+test('All shows a few features beside the notes that match', async ({
+  page,
+}) => {
+  await start(page)
+  await page.keyboard.press('Control+K')
+  await box(page).fill('First')
+  await expect(
+    panel(page).getByRole('group', { name: 'Pages', exact: true }),
+  ).toBeVisible()
+  await box(page).fill('paste')
+  await expect(
+    panel(page).getByRole('group', { name: 'Features' }),
+  ).toBeVisible()
+  await expect(
+    panel(page).locator('[data-panel-row="tool:pastePlain"]'),
+  ).toBeVisible()
+})
+
 test('running a row does the action: a setting opens in Settings', async ({
   page,
 }) => {
   await start(page)
-  await page.keyboard.press('Control+Shift+K')
+  await features(page)
   await box(page).fill('auto switch')
   await page.keyboard.press('Enter')
   await expect(panel(page)).toHaveCount(0)
@@ -104,7 +111,7 @@ test('running a tool acts on the page; a missing page gets a message', async ({
     sel.removeAllRanges()
     sel.addRange(range)
   })
-  await page.keyboard.press('Control+Shift+K')
+  await features(page)
   await box(page).fill('bold')
   await panel(page)
     .locator('[data-panel-row="tool:bold"] [data-panel-run]')
@@ -113,56 +120,33 @@ test('running a tool acts on the page; a missing page gets a message', async ({
     page.locator('.bn-editor strong, .bn-editor b').first(),
   ).toContainText('nucleus')
   // A tool that is not built yet says so.
-  await page.keyboard.press('Control+Shift+K')
+  await features(page)
   await box(page).fill('magnifier')
   await page.keyboard.press('Enter')
   await expect(page.getByRole('status')).toContainText('later update')
 })
 
-test('keyboard: arrows move through rows, Tab reaches Pin, Esc closes and returns focus', async ({
-  page,
-}) => {
+test('keyboard: arrows move through rows, Esc closes', async ({ page }) => {
   await start(page)
-  await page.locator('.bn-editor').click()
-  await page.keyboard.press('Control+Shift+K')
+  await features(page)
   await box(page).fill('heading')
-  const runs = panel(page).locator('[data-panel-run]')
+  const options = panel(page).getByRole('option')
   await page.keyboard.press('ArrowDown')
-  await expect(runs.first()).toBeFocused()
+  await expect(options.first()).toHaveAttribute('aria-selected', 'true')
   await page.keyboard.press('ArrowDown')
-  await expect(runs.nth(1)).toBeFocused()
+  await expect(options.nth(1)).toHaveAttribute('aria-selected', 'true')
   await page.keyboard.press('ArrowUp')
   await page.keyboard.press('ArrowUp')
-  await expect(box(page)).toBeFocused()
-  await page.keyboard.press('ArrowDown')
-  await page.keyboard.press('Tab')
-  await expect(
-    panel(page).getByRole('button', { name: /^Pin Heading 1 to the bar/ }),
-  ).toBeFocused()
+  await expect(options.first()).toHaveAttribute('aria-selected', 'false')
   await page.keyboard.press('Escape')
   await expect(panel(page)).toHaveCount(0)
-  await expect(page.locator('.bn-editor')).toBeFocused()
-})
-
-test('dialog semantics: modal, labelled, focus stays inside', async ({
-  page,
-}) => {
-  await start(page)
-  await page.keyboard.press('Control+Shift+K')
-  await expect(panel(page)).toHaveAttribute('aria-modal', 'true')
-  for (let i = 0; i < 8; i++) await page.keyboard.press('Tab')
-  const inside = await page.evaluate(
-    () => !!document.activeElement?.closest('[role="dialog"]'),
-  )
-  expect(inside).toBe(true)
-  await expect(panel(page).getByRole('button', { name: 'Close' })).toBeVisible()
 })
 
 test('Pin to bar adds the tool to the bar; again removes it', async ({
   page,
 }) => {
   await start(page, 'touch')
-  await page.keyboard.press('Control+Shift+K')
+  await features(page)
   await box(page).fill('heading 1')
   const pin = panel(page).getByRole('button', {
     name: /^Pin Heading 1 to the bar/,
@@ -182,7 +166,7 @@ test('Pin to bar adds the tool to the bar; again removes it', async ({
     page.locator('.bn-editor [data-content-type="heading"]'),
   ).toContainText('nucleus')
   // Pinning again removes it.
-  await page.keyboard.press('Control+Shift+K')
+  await features(page)
   await box(page).fill('heading 1')
   await panel(page)
     .getByRole('button', { name: /^Remove Heading 1 from the bar/ })
@@ -193,13 +177,16 @@ test('Pin to bar adds the tool to the bar; again removes it', async ({
   ).toHaveCount(0)
 })
 
-test('opens from the bar search icon, the page menu and Settings', async ({
+test('opens from the bar search icon, the page menu and Settings (on Features)', async ({
   page,
 }) => {
   await start(page, 'touch')
   await dockedBar(page).getByRole('button', { name: 'Toolbar menu' }).click()
   await page.getByRole('button', { name: 'Search all features' }).click()
   await expect(panel(page)).toBeVisible()
+  await expect(
+    panel(page).getByRole('button', { name: 'Features' }),
+  ).toHaveAttribute('aria-pressed', 'true')
   await page.keyboard.press('Escape')
   await pageAction(page, 'Search all features')
   await expect(panel(page)).toBeVisible()
@@ -213,9 +200,8 @@ test('a new tool needs only one line: every registry tool is searchable', async 
   page,
 }) => {
   await start(page)
-  await page.keyboard.press('Control+Shift+K')
+  await features(page)
   const rows = await panel(page).locator('[data-panel-row^="tool:"]').count()
-  // 80 are shown at most; narrowing shows the rest.
   expect(rows).toBeGreaterThan(40)
   await box(page).fill('mind map')
   await expect(

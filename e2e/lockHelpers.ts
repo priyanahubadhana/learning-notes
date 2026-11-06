@@ -1,14 +1,12 @@
 // Browser types for code that runs inside the page.
 /// <reference lib="dom" />
 import { expect, type Page } from '@playwright/test'
-import { pageAction, showSidebar, sidebar } from './helpers.ts'
+import { pageAction, showSidebar, sidebar, cornerAction } from './helpers.ts'
 
 /** Opens Settings › Lock. */
 export async function openLockSettings(page: Page) {
   await showSidebar(page)
-  await sidebar(page)
-    .getByRole('button', { name: 'Settings', exact: true })
-    .click()
+  await cornerAction(page, 'Settings')
   await page.getByRole('button', { name: /^Lock, / }).click()
   await expect(page.getByTestId('lock-section')).toBeVisible()
 }

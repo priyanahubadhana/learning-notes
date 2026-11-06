@@ -1,5 +1,12 @@
 import { expect, test, type Page } from '@playwright/test'
-import { createNotebook, makeCard, openSidebar } from './helpers.ts'
+import {
+  createNotebook,
+  makeCard,
+  openSidebar,
+  cornerAction,
+  openCorner,
+  setTheme,
+} from './helpers.ts'
 
 const main = (page: Page) => page.getByRole('main')
 
@@ -58,18 +65,14 @@ test('Show help: tips across the app, help lines, and nothing when Off', async (
   await expect(page.getByRole('tooltip')).toBeVisible()
 
   // Off: no tips, no help lines, no native hover text left behind.
-  await (
-    await openSidebar(page)
-  )
-    .getByRole('button', { name: 'Settings' })
-    .click()
+  await cornerAction(page, 'Settings')
   await main(page)
     .getByRole('group', { name: 'Show help' })
     .getByRole('button', { name: 'Off' })
     .click()
   await expect(page.locator('[data-tip]')).toHaveCount(0)
   // The layout does not change: theme buttons stay small, no sideways scroll.
-  const day = (await openSidebar(page)).getByRole('button', {
+  const day = (await openCorner(page)).getByRole('button', {
     name: 'Day',
     exact: true,
   })
@@ -122,12 +125,7 @@ test.describe('touch', () => {
 
 for (const theme of ['Day', 'Night', 'Sepia'] as const) {
   test(`screenshot: a hover tip in ${theme}`, async ({ page }) => {
-    await (
-      await openSidebar(page)
-    )
-      .getByRole('group', { name: 'Theme' })
-      .getByRole('button', { name: theme })
-      .click()
+    await setTheme(page, theme)
     await (
       await openSidebar(page)
     )

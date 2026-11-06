@@ -1,5 +1,5 @@
 import { expect, test, type Page } from '@playwright/test'
-import { sidebar } from './helpers.ts'
+import { cornerAction, openCorner } from './helpers.ts'
 
 const main = (page: Page) => page.locator('main')
 const settingRow = (page: Page, label: string) =>
@@ -7,7 +7,7 @@ const settingRow = (page: Page, label: string) =>
 
 async function openSettings(page: Page) {
   await page.goto('/')
-  await sidebar(page).getByRole('button', { name: 'Settings' }).click()
+  await cornerAction(page, 'Settings')
   await expect(
     main(page).getByRole('heading', { name: 'Settings', level: 1 }),
   ).toBeVisible()
@@ -34,7 +34,7 @@ test('a changed setting is saved and survives a reload; Reset restores it', asyn
   ).toBeVisible()
 
   await page.reload()
-  await sidebar(page).getByRole('button', { name: 'Settings' }).click()
+  await cornerAction(page, 'Settings')
   await expect(
     settingRow(page, 'New cards per day').getByRole('textbox'),
   ).toHaveValue('35')
@@ -66,7 +66,7 @@ test('invalid input shows a clear message and is not saved', async ({
   await expect(steps.getByRole('alert')).toBeVisible()
 
   await page.reload()
-  await sidebar(page).getByRole('button', { name: 'Settings' }).click()
+  await cornerAction(page, 'Settings')
   await expect(
     settingRow(page, 'New cards per day').getByRole('textbox'),
   ).toHaveValue('20')
@@ -129,16 +129,12 @@ test('theme in Settings and in the sidebar stay in step', async ({ page }) => {
   await openSettings(page)
   await settingRow(page, 'Theme').getByRole('button', { name: 'Night' }).click()
   await expect(page.locator('html')).toHaveAttribute('data-theme', 'night')
-  await expect(
-    sidebar(page)
-      .getByRole('group', { name: 'Theme' })
-      .getByRole('button', { name: 'Night' }),
-  ).toHaveAttribute('aria-pressed', 'true')
-
-  await sidebar(page)
-    .getByRole('group', { name: 'Theme' })
-    .getByRole('button', { name: 'Sepia' })
-    .click()
+  const themes = (await openCorner(page)).getByRole('group', { name: 'Theme' })
+  await expect(themes.getByRole('button', { name: 'Night' })).toHaveAttribute(
+    'aria-pressed',
+    'true',
+  )
+  await themes.getByRole('button', { name: 'Sepia' }).click()
   await expect(
     settingRow(page, 'Theme').getByRole('button', { name: 'Sepia' }),
   ).toHaveAttribute('aria-pressed', 'true')

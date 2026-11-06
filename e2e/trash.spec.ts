@@ -1,5 +1,6 @@
 import { expect, test } from '@playwright/test'
 import {
+  corner,
   addPage,
   confirmDialog,
   createNotebook,
@@ -33,7 +34,7 @@ test('restore brings back a page with its sub-page and text', async ({
   await expect.poll(() => trashEntries(page)).toEqual(['Parent — in Test NB'])
 
   await trashAction(page, 'Parent', 'Restore')
-  await expect(sidebar(page).getByText('Trash is empty')).toBeVisible()
+  await expect(corner(page).getByText('Trash is empty')).toBeVisible()
   await openPage(page, 'Child')
   await expect(page.locator('.bn-editor')).toContainText('child text')
 })
@@ -62,11 +63,11 @@ test('delete forever asks first, and the page never comes back', async ({
   // Delete forever removes it, also after a reload.
   await trashAction(page, 'Test delete', 'Delete forever')
   await confirmDialog(page, 'Delete forever')
-  await expect(sidebar(page).getByText('Trash is empty')).toBeVisible()
+  await expect(corner(page).getByText('Trash is empty')).toBeVisible()
 
   await page.reload()
   await openTrash(page)
-  await expect(sidebar(page).getByText('Trash is empty')).toBeVisible()
+  await expect(corner(page).getByText('Trash is empty')).toBeVisible()
   await expect(
     sidebar(page).getByRole('button', { name: 'Test delete', exact: true }),
   ).toHaveCount(0)
@@ -86,7 +87,7 @@ test('restoring a notebook brings back all its pages and text', async ({
   await expect.poll(() => trashEntries(page)).toEqual(['Test NB — 2 pages'])
 
   await trashAction(page, 'Test NB', 'Restore')
-  await expect(sidebar(page).getByText('Trash is empty')).toBeVisible()
+  await expect(corner(page).getByText('Trash is empty')).toBeVisible()
   await expect(
     sidebar(page).getByRole('button', { name: 'Page 2', exact: true }),
   ).toBeVisible()

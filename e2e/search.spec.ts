@@ -10,6 +10,7 @@ import {
   searchResults,
   sidebar,
   typeInEditor,
+  setTheme,
 } from './helpers.ts'
 
 const title = (page: Page) => page.getByRole('textbox', { name: 'Page title' })
@@ -196,10 +197,7 @@ for (const [theme, width, height] of [
   ['Day', 844, 390],
 ] as const) {
   test(`screenshots: ${theme} ${width}×${height}`, async ({ page }) => {
-    await sidebar(page)
-      .getByRole('group', { name: 'Theme' })
-      .getByRole('button', { name: theme })
-      .click()
+    await setTheme(page, theme)
     await page.setViewportSize({ width, height })
     await openSearchPopup(page)
     await page.keyboard.type('nucleus')

@@ -7,6 +7,8 @@ import {
   selectText,
   sidebar,
   openSidebar,
+  cornerAction,
+  setTheme,
 } from './helpers.ts'
 
 const main = (page: Page) => page.getByRole('main')
@@ -15,11 +17,7 @@ const sheet = (page: Page) => main(page).getByRole('region', { name: 'Revise' })
 /** Opens Save & restore and loads the sample notebook. */
 async function loadSample(page: Page) {
   await page.goto('/')
-  await (
-    await openSidebar(page)
-  )
-    .getByRole('button', { name: 'Save & restore' })
-    .click()
+  await cornerAction(page, 'Save & restore')
   await openMore(page)
   await main(page)
     .getByRole('region', { name: 'For testing: sample notebook' })
@@ -99,11 +97,7 @@ test('the five 5B checks, on the sample notebook', async ({ page }) => {
   ).toHaveCount(2)
 
   // 3. Save & restore: save the notebook, bring it back as a copy.
-  await (
-    await openSidebar(page)
-  )
-    .getByRole('button', { name: 'Save & restore' })
-    .click()
+  await cornerAction(page, 'Save & restore')
   await openMore(page)
   const saving = page.waitForEvent('download')
   const save = main(page).getByRole('region', {
@@ -170,12 +164,7 @@ for (const [theme, width, height] of [
     page,
   }) => {
     await loadSample(page)
-    await (
-      await openSidebar(page)
-    )
-      .getByRole('group', { name: 'Theme' })
-      .getByRole('button', { name: theme })
-      .click()
+    await setTheme(page, theme)
     await page.setViewportSize({ width, height })
     const shot = async (name: string) => {
       await page.waitForTimeout(500)
@@ -228,11 +217,7 @@ test('sample notebook: its databases show in the Database tab; second copy warns
 }) => {
   await page.goto('/')
   await createNotebook(page, 'Mine', 'My page')
-  await (
-    await openSidebar(page)
-  )
-    .getByRole('button', { name: 'Save & restore' })
-    .click()
+  await cornerAction(page, 'Save & restore')
   await openMore(page)
   const box = main(page).getByRole('region', {
     name: 'For testing: sample notebook',
@@ -266,11 +251,7 @@ test('sample notebook: its databases show in the Database tab; second copy warns
   ).toHaveCount(1)
 
   // A second copy asks first.
-  await (
-    await openSidebar(page)
-  )
-    .getByRole('button', { name: 'Save & restore' })
-    .click()
+  await cornerAction(page, 'Save & restore')
   await openMore(page)
   await box.getByRole('button', { name: 'Load sample notebook' }).click()
   await expect(

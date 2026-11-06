@@ -8,6 +8,7 @@ import {
   startInMode,
   typeInEditor,
   openRibbon,
+  cornerAction,
 } from './helpers.ts'
 
 /**
@@ -77,7 +78,7 @@ test('the Show tool bar button in the top bar turns it back on (also on other sc
   await openPage(page)
   await pageAction(page, 'Hide tool bar')
   await dialog(page).getByRole('button', { name: 'Turn off' }).click()
-  await page.getByRole('button', { name: 'Settings', exact: true }).click()
+  await cornerAction(page, 'Settings')
   await expect(showButton(page)).toBeVisible()
   await showButton(page).click()
   await expect(showButton(page)).toHaveCount(0)
@@ -111,7 +112,7 @@ test('Settings has a Tool bar section: searching "tool bar", "toolbar", "ribbon"
   page,
 }) => {
   await openPage(page)
-  await page.getByRole('button', { name: 'Settings', exact: true }).click()
+  await cornerAction(page, 'Settings')
   const search = page.getByRole('searchbox', { name: /Search/ })
   for (const word of ['Tool bar', 'toolbar', 'ribbon', 'bar']) {
     await search.fill(word)
@@ -150,7 +151,7 @@ test('Settings › Tool bar › Show tool bar: Off asks first, On brings it back
   page,
 }) => {
   await openPage(page)
-  await page.getByRole('button', { name: 'Settings', exact: true }).click()
+  await cornerAction(page, 'Settings')
   await page.getByRole('button', { name: /^Tool bar, / }).click()
   const row = page.locator('[data-setting-id="toolbar.show"]')
   await row.getByRole('button', { name: 'Off', exact: true }).click()
@@ -171,7 +172,7 @@ test('Reset tool bar in Settings puts the standard tools and positions back', as
 }) => {
   await openPage(page)
   await openRibbon(page)
-  await page.getByRole('button', { name: 'Settings', exact: true }).click()
+  await cornerAction(page, 'Settings')
   await page.getByRole('button', { name: /^Tool bar, / }).click()
   await page
     .locator('[data-setting-id="toolbar.reset"]')
@@ -189,9 +190,10 @@ test('Reset tool bar in Settings puts the standard tools and positions back', as
 test('the control panel finds the new settings', async ({ page }) => {
   await openPage(page)
   await page.keyboard.press('Control+Shift+K')
-  const panel = page.getByRole('dialog', { name: 'Search all features' })
+  const panel = page.getByRole('dialog', { name: 'Search' })
+  await panel.getByRole('button', { name: 'Features' }).click()
   await panel
-    .getByRole('searchbox', { name: 'Search features and settings' })
+    .getByRole('combobox', { name: 'Search everything' })
     .fill('ribbon')
   for (const name of ['Ribbon display', 'Ribbon size', 'Ribbon position']) {
     await expect(panel.getByText(name, { exact: true }).first()).toBeVisible()

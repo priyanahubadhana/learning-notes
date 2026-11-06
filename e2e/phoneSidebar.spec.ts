@@ -4,6 +4,7 @@ import {
   makeCard,
   openSearchPopup,
   sidebar,
+  cornerAction,
 } from './helpers.ts'
 
 test.describe('phone', () => {
@@ -43,7 +44,7 @@ test.describe('phone', () => {
 
     // Choosing something closes it.
     await page.getByRole('button', { name: 'Open menu' }).click()
-    await sidebar(page).getByRole('button', { name: 'Settings' }).click()
+    await cornerAction(page, 'Settings')
     await expect(sidebar(page)).toBeHidden()
     await expect(
       page.getByRole('heading', { name: 'Settings', level: 1 }),
@@ -51,7 +52,7 @@ test.describe('phone', () => {
 
     // Choosing the screen already open closes it too.
     await page.getByRole('button', { name: 'Open menu' }).click()
-    await sidebar(page).getByRole('button', { name: 'Settings' }).click()
+    await cornerAction(page, 'Settings')
     await expect(sidebar(page)).toBeHidden()
   })
 

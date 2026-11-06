@@ -1,5 +1,12 @@
 import { expect, test, type Locator, type Page } from '@playwright/test'
-import { addPage, createNotebook, makeCard, openSidebar } from './helpers.ts'
+import {
+  addPage,
+  createNotebook,
+  makeCard,
+  openSidebar,
+  cornerAction,
+  setTheme,
+} from './helpers.ts'
 
 const main = (page: Page) => page.getByRole('main')
 const tracker = (page: Page) =>
@@ -191,11 +198,7 @@ test('Show help: tips on hover, help lines, and all gone when switched off', asy
   await expect(tip).toHaveCount(0)
 
   // Off: no tips and no help lines.
-  await (
-    await openSidebar(page)
-  )
-    .getByRole('button', { name: 'Settings' })
-    .click()
+  await cornerAction(page, 'Settings')
   await main(page)
     .getByRole('group', { name: 'Show help' })
     .getByRole('button', { name: 'Off' })
@@ -238,12 +241,7 @@ for (const [theme, width, height] of [
     await seed(page)
     await review(page)
     await openTracker(page)
-    await (
-      await openSidebar(page)
-    )
-      .getByRole('group', { name: 'Theme' })
-      .getByRole('button', { name: theme })
-      .click()
+    await setTheme(page, theme)
     await page.setViewportSize({ width, height })
     for (const view of ['Table', 'Board', 'Dashboard']) {
       await viewButton(page, view).click()

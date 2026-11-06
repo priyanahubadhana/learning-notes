@@ -1,5 +1,5 @@
 import { expect, test, type Page } from '@playwright/test'
-import { createNotebook, makeCard, openSidebar } from './helpers.ts'
+import { createNotebook, makeCard, openSidebar, setTheme } from './helpers.ts'
 
 const main = (page: Page) => page.getByRole('main')
 
@@ -169,12 +169,7 @@ for (const [theme, width, height] of [
       .getByRole('option', { name: /^Books — / })
       .click()
     await expect(page.getByRole('region', { name: 'Books' })).toBeVisible()
-    await (
-      await openSidebar(page)
-    )
-      .getByRole('group', { name: 'Theme' })
-      .getByRole('button', { name: theme })
-      .click()
+    await setTheme(page, theme)
     await page.setViewportSize({ width, height })
     await page.waitForTimeout(400)
     await page.screenshot({
@@ -333,12 +328,7 @@ for (const [theme, width, height] of [
       .click()
     await main(page).getByRole('button', { name: '+ New database' }).click()
     await page.getByRole('menuitem', { name: /^Books/ }).click()
-    await (
-      await openSidebar(page)
-    )
-      .getByRole('group', { name: 'Theme' })
-      .getByRole('button', { name: theme })
-      .click()
+    await setTheme(page, theme)
     await page.setViewportSize({ width, height })
     for (const type of ['Calendar', 'Gallery']) {
       await main(page).getByRole('button', { name: '+ View' }).click()

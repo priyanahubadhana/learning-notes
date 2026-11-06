@@ -8,6 +8,7 @@ import {
   openSidebar,
   pageAction,
   row,
+  openCorner,
 } from './helpers.ts'
 
 /**
@@ -17,7 +18,7 @@ import {
 
 const main = (page: Page) => page.getByRole('main')
 
-test('every old sidebar item is still there, in the grouped order of batch 2e', async ({
+test('every old sidebar item is still there, in the grouped order (Save & restore and Settings moved to the quiet corner, see spaces.spec.ts)', async ({
   page,
 }) => {
   await page.goto('/')
@@ -31,8 +32,6 @@ test('every old sidebar item is still there, in the grouped order of batch 2e', 
     'Calendar',
     'Databases',
     'Biology',
-    'Save & restore',
-    'Settings',
   ]
   let last = -1
   for (const name of names) {
@@ -45,7 +44,10 @@ test('every old sidebar item is still there, in the grouped order of batch 2e', 
   // Theme buttons and the sidebar controls are still there.
   for (const theme of ['Day', 'Night', 'Sepia']) {
     await expect(
-      side.getByRole('button', { name: theme, exact: true }),
+      (await openCorner(page)).getByRole('button', {
+        name: theme,
+        exact: true,
+      }),
     ).toBeVisible()
   }
 })

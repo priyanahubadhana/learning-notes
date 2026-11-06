@@ -1,15 +1,11 @@
 import { expect, test } from '@playwright/test'
-import { openGroup, openSidebar } from './helpers.ts'
+import { openGroup, openSidebar, cornerAction, openCorner } from './helpers.ts'
 
 test('the language setting switches the app texts and comes back', async ({
   page,
 }) => {
   await page.goto('/')
-  await (
-    await openSidebar(page)
-  )
-    .getByRole('button', { name: 'Settings' })
-    .click()
+  await cornerAction(page, 'Settings')
   await page.getByRole('button', { name: 'Español', exact: true }).click()
   await expect(
     page.getByRole('heading', { name: 'Ajustes', level: 1 }),
@@ -41,17 +37,15 @@ for (const [code, name] of [
 ] as const) {
   test(`screenshots of key screens in ${code}`, async ({ page }) => {
     await page.goto('/')
-    await (
-      await openSidebar(page)
-    )
-      .getByRole('button', { name: 'Settings' })
-      .click()
+    await cornerAction(page, 'Settings')
     await page.getByRole('button', { name, exact: true }).click()
     await page.waitForTimeout(500)
     await page.screenshot({
       path: `test-results/screens/lang-${code}-settings.png`,
     })
-    await page
+    await (
+      await openCorner(page)
+    )
       .getByRole('button', {
         name: /^(Guardar y restaurar|सहेजें और वापस लाएँ)/,
       })
@@ -75,11 +69,7 @@ test('the app’s own template names are shown in the chosen language', async ({
   page,
 }) => {
   await page.goto('/')
-  await (
-    await openSidebar(page)
-  )
-    .getByRole('button', { name: 'Settings' })
-    .click()
+  await cornerAction(page, 'Settings')
   await page.getByRole('button', { name: 'Español', exact: true }).click()
   const side = await openSidebar(page)
   await openGroup(page, 'Plantillas')

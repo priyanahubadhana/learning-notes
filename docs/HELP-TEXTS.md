@@ -2,7 +2,7 @@
 
 Every hover tip and help line in the app (shown while Settings › Show help is On). Generated from `src/help/helpRegistry.ts` and `src/i18n/en.ts`; to change a text, edit it in `en.ts`, then run `UPDATE_HELP=1 npx vitest run src/help` to refresh this file.
 
-## Hover tips (124)
+## Hover tips (126)
 
 ### `bar.newLine`
 
@@ -354,13 +354,25 @@ Every hover tip and help line in the app (shown while Settings › Show help is 
 
 ### `sidebar.settings`
 
-- **Where:** Sidebar › Settings
+- **Where:** Quiet corner › Settings
 - **Meaning:** Opens Settings: theme, when your day starts, review limits and more.
 - **Example:** Turn “Show help” off once you know the app.
 
+### `sidebar.spaces`
+
+- **Where:** The strip of spaces (left edge, bottom on a phone)
+- **Meaning:** The four spaces: Home, Library, Notebooks and Review. Each shows its own list.
+- **Example:** Tap Review to see your cards and saved searches.
+
+### `sidebar.corner`
+
+- **Where:** Strip › ⚙ quiet corner
+- **Meaning:** The quiet corner: Settings, Save & restore, Trash, Device mode, Help and the theme.
+- **Example:** Switch to Night here in the evening.
+
 ### `sidebar.theme`
 
-- **Where:** Sidebar › Day / Night / Sepia buttons
+- **Where:** Quiet corner › Day / Night / Sepia buttons
 - **Meaning:** Changes how the app looks: light, dark, or warm paper.
 - **Example:** Night is easier on the eyes in the evening.
 
@@ -678,7 +690,7 @@ Every hover tip and help line in the app (shown while Settings › Show help is 
 
 ### `sidebar.data`
 
-- **Where:** Sidebar › Save & restore
+- **Where:** Quiet corner › Save & restore
 - **Meaning:** Save your notes to a file, bring a file back, or share one notebook.
 - **Example:** Keep a copy of “Cardiology” on a USB stick.
 

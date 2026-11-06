@@ -270,7 +270,9 @@ function LoadedPageEditor({
   const policyOn = policyEnabled.useValue()
   const wanted = pageModeFor({ tool, frozen, reading: false })
   const mode = !policyOn && wanted === 'ink' ? 'edit' : wanted
-  const docked = bar.placement !== 'floating' && !readOnly && !inReader
+  // The main bar and ribbon are hidden while reading (the reader has its own controls).
+  const inReading = !!reading
+  const docked = bar.placement !== 'floating' && !readOnly && !inReading
   const barSlot = useContext(TopStackSlotContext)
   // The element ink is laid over (the editor sits in it).
   const [inkWrap, setInkWrap] = useState<HTMLElement | null>(null)
@@ -585,7 +587,7 @@ function LoadedPageEditor({
         >
           {docked && <DockedBar slot={barSlot} />}
           {/* Computer keeps the toolbar over selected text as an extra. */}
-          {(!docked || bar.mode === 'computer') && (
+          {!inReading && (!docked || bar.mode === 'computer') && (
             <FormattingToolbarController
               formattingToolbar={AppFormattingToolbar}
             />

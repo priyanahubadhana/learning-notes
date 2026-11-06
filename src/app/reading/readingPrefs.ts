@@ -180,6 +180,27 @@ export const isSpeed = isOneOf(SPEEDS)
 
 export const SLEEP_MINUTES = [10, 20, 30, 60] as const
 
+/** Text alignment of the reading column. */
+export const ALIGNS = ['left', 'justify'] as const
+export type Align = (typeof ALIGNS)[number]
+export const isAlign = isOneOf(ALIGNS)
+
+/**
+ * How the reader's top bar behaves (B1): a small ✕ that comes back when you
+ * scroll up (default), always showing, or only at the top of the page.
+ */
+export const BAR_MODES = ['mini', 'always', 'top'] as const
+export type BarMode = (typeof BAR_MODES)[number]
+export const isBarMode = isOneOf(BAR_MODES)
+
+/** Dim overlay in percent (the web cannot set the screen brightness). */
+export const DIM_LEVELS = [0, 10, 20, 30, 40, 50, 60] as const
+export const isDimLevel = isOneOf(DIM_LEVELS)
+
+/** How long a jump to a heading, bookmark or result glides, in ms (B2). */
+export const GLIDE_MS = [600, 900, 1200, 1500] as const
+export const isGlideMs = isOneOf(GLIDE_MS)
+
 export const ON_OFF = ['on', 'off'] as const
 export type OnOffValue = (typeof ON_OFF)[number]
 export const isOnOffValue = isOneOf(ON_OFF)

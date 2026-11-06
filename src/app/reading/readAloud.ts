@@ -1,4 +1,4 @@
-import { makeChunks, wordAt, type Chunk } from './speechChunks'
+import { chunkIndexAt, makeChunks, wordAt, type Chunk } from './speechChunks'
 
 /**
  * Read aloud with the free Web Speech API (`speechSynthesis`), built for
@@ -30,7 +30,13 @@ export interface AloudOptions {
   rate: number
   voiceURI: string
   lang?: string
+  /** Natural pauses between pieces: 0.25 s after a sentence, 0.6 s after a paragraph. */
+  pauses?: boolean
 }
+
+/** Pause after a sentence and after a paragraph, in ms. */
+export const SENTENCE_GAP_MS = 250
+export const PARAGRAPH_GAP_MS = 600
 
 /** Wait for a first word boundary before falling back to sentences. */
 export const BOUNDARY_WAIT_MS = 1200
@@ -165,12 +171,59 @@ export class ReadAloud {
 
   private next(): void {
     if (this.state === 'idle') return
+    const spoken = this.chunks[this.index]
     this.index += 1
     if (this.index >= this.chunks.length) {
       this.finish()
       return
     }
-    this.speakCurrent()
+    if (!this.opts.pauses) {
+      this.speakCurrent()
+      return
+    }
+    const upcoming = this.chunks[this.index]
+    const paragraph = this.source.text
+      .slice(spoken.end, upcoming.start)
+      .includes('\n')
+    this.clearTimers()
+    this.later(
+      () => {
+        if (this.state === 'playing') this.speakCurrent()
+      },
+      paragraph ? PARAGRAPH_GAP_MS : SENTENCE_GAP_MS,
+    )
+  }
+
+  /** The piece being spoken (0-based) and how many there are. */
+  get progress(): { index: number; total: number } {
+    return { index: this.index, total: this.chunks.length }
+  }
+
+  /** The start offset of the piece being spoken (undefined when idle). */
+  get offset(): number | undefined {
+    return this.chunks[this.index]?.start
+  }
+
+  /**
+   * Jumps to the piece `delta` away (-1 = back one sentence, 1 = forward);
+   * past the end it finishes. Works while playing; while paused it moves the
+   * place and stays paused.
+   */
+  skip(delta: number): void {
+    if (this.state === 'idle' || this.chunks.length === 0) return
+    const target = Math.max(0, this.index + delta)
+    if (target >= this.chunks.length) {
+      this.finish()
+      return
+    }
+    this.index = target
+    if (this.state === 'playing') this.speakCurrent()
+  }
+
+  /** Jumps to the piece that holds this text offset. */
+  seek(offset: number): void {
+    if (this.state === 'idle' || this.chunks.length === 0) return
+    this.skip(chunkIndexAt(this.chunks, offset) - this.index)
   }
 
   private finish(): void {

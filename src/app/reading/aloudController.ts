@@ -8,6 +8,7 @@ import {
 } from '../../settings/readingSettings'
 import { memStore, prefStore } from '../tools/store'
 import { buildTextMap, type TextMap } from './domSpeech'
+import { rankVoices } from './voices'
 import { ReadAloud, speechAvailable, type AloudState } from './readAloud'
 
 /**
@@ -26,6 +27,30 @@ export const voiceChoice = prefStore<string>(
   'reading.voice',
   (v): v is string => typeof v === 'string' && v.length < 300,
   '',
+)
+
+/** What is being read, for the Now playing pill. */
+export const nowPlaying = memStore<{ title: string; pageId: string } | null>(
+  null,
+)
+/** Stop when this page ends instead of going on (sleep timer: end of page). */
+export const sleepAtEnd = memStore(false)
+/** What the forward and back buttons skip: one sentence or about 15 seconds. */
+export const SKIP_MODES = ['sentence', 'seconds'] as const
+export const skipMode = prefStore<(typeof SKIP_MODES)[number]>(
+  'reading.skipMode',
+  (v): v is (typeof SKIP_MODES)[number] => v === 'sentence' || v === 'seconds',
+  'sentence',
+)
+/** The voice chosen for each language (a voiceURI per language code). */
+export const voiceByLang = prefStore<Record<string, string>>(
+  'reading.voices',
+  (v): v is Record<string, string> =>
+    typeof v === 'object' &&
+    v !== null &&
+    !Array.isArray(v) &&
+    Object.values(v).every((x) => typeof x === 'string'),
+  {},
 )
 
 let engine: ReadAloud | null = null
@@ -55,9 +80,14 @@ function setState(state: AloudState) {
 }
 
 /** Reads the page shown in `root`, from a text offset (default: the start). */
-export function startAloud(root: HTMLElement, from = 0): TextMap | null {
+export function startAloud(
+  root: HTMLElement,
+  from = 0,
+  meta?: { title: string; pageId: string },
+): TextMap | null {
   if (!speechAvailable()) return null
   engine?.dispose()
+  if (meta) nowPlaying.set(meta)
   map = buildTextMap(root, {
     hideBlanks: readDeviceSetting(readingBlanksSetting) === 'hide',
   })
@@ -65,12 +95,19 @@ export function startAloud(root: HTMLElement, from = 0): TextMap | null {
     map,
     {
       rate: rate(),
-      voiceURI: voiceChoice.get(),
+      voiceURI: currentVoice(),
       lang: document.documentElement.lang || undefined,
+      pauses: true,
     },
     {
       state: setState,
       finished: () => {
+        if (sleepAtEnd.get()) {
+          sleepAtEnd.set(false)
+          stopAloud()
+          notifier?.('sleep')
+          return
+        }
         if (!nextPageHandler) return
         void nextPageHandler().then((opened) => {
           if (opened) aloudContinues.set(opened)
@@ -84,9 +121,40 @@ export function startAloud(root: HTMLElement, from = 0): TextMap | null {
 }
 
 /** The new page has loaded: carry on reading it from its start. */
-export function continueAloud(root: HTMLElement): void {
+export function continueAloud(
+  root: HTMLElement,
+  meta?: { title: string; pageId: string },
+): void {
   aloudContinues.set(null)
-  startAloud(root, 0)
+  startAloud(root, 0, meta)
+}
+
+/** Goes on to the next page of the notebook now (the Next button). */
+export function nextPageAloud(): void {
+  if (!nextPageHandler) return
+  void nextPageHandler().then((opened) => {
+    if (opened) aloudContinues.set(opened)
+    else notifier?.('end')
+  })
+}
+
+/** Characters spoken per second at normal speed (a rough, steady guess). */
+export const CHARS_PER_SECOND = 15
+export const SKIP_SECONDS = 15
+
+/**
+ * Back or forward: one sentence, or about 15 seconds of speech at the
+ * current speed (estimated from characters).
+ */
+export function skipAloud(direction: 1 | -1): void {
+  if (!engine) return
+  if (skipMode.get() === 'sentence') {
+    engine.skip(direction)
+    return
+  }
+  const at = engine.offset ?? 0
+  const chars = SKIP_SECONDS * CHARS_PER_SECOND * rate()
+  engine.seek(Math.max(0, at + direction * chars))
 }
 
 export const pauseAloud = () => engine?.pause()
@@ -94,6 +162,7 @@ export const resumeAloud = () => engine?.resume()
 
 export function stopAloud(): void {
   aloudContinues.set(null)
+  nowPlaying.set(null)
   engine?.dispose()
   engine = null
   map = null
@@ -112,14 +181,27 @@ export function setAloudSpeed(percent: number): void {
   engine?.configure({ rate: percent / 100 })
 }
 
+/** The voice for this page's language: the one chosen for it, else the general choice. */
+function currentVoice(): string {
+  const lang = (document.documentElement.lang || '').slice(0, 2)
+  return (lang && voiceByLang.get()[lang]) || voiceChoice.get()
+}
+
 export function setAloudVoice(voiceURI: string): void {
   voiceChoice.set(voiceURI)
+  const lang = (document.documentElement.lang || '').slice(0, 2)
+  if (lang) {
+    const all = { ...voiceByLang.get() }
+    if (voiceURI) all[lang] = voiceURI
+    else delete all[lang]
+    voiceByLang.set(all)
+  }
   engine?.configure({ voiceURI })
 }
 
 /** The device's voices (they can arrive late; see `onVoicesChanged`). */
 export function listVoices(): SpeechSynthesisVoice[] {
-  return speechAvailable() ? window.speechSynthesis.getVoices() : []
+  return speechAvailable() ? rankVoices(window.speechSynthesis.getVoices()) : []
 }
 
 // ---- Sleep timer ----
@@ -150,6 +232,7 @@ export function setSleepTimer(minutes: number | null): void {
 export function resetAloud(): void {
   stopAloud()
   setSleepTimer(null)
+  sleepAtEnd.set(false)
   nextPageHandler = null
   notifier = null
 }

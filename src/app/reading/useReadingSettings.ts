@@ -11,6 +11,7 @@ import {
   readingThemeSetting,
   readingWidthSetting,
   readingAwakeSetting,
+  readingAlignSetting,
 } from '../../settings/readingSettings'
 import { ThemeContext } from '../themeContext'
 import { memStore } from '../tools/store'
@@ -19,6 +20,7 @@ import {
   fontStack,
   MARGIN_PX,
   WIDTH_PX,
+  type Align,
   type BlankMode,
   type Flow,
   type Margin,
@@ -30,7 +32,8 @@ import {
 } from './readingPrefs'
 
 /** Which panel of Reading mode is open (the tools open these). */
-export type ReadingPanelName = 'settings' | 'aloud' | 'outline' | null
+export type ReadingPanelName =
+  'settings' | 'aloud' | 'contents' | 'bookmarks' | 'find' | null
 export const readingPanel = memStore<ReadingPanelName>(null)
 /** The full-screen reader's controls are showing (a tap in the middle toggles). */
 export const readerControls = memStore(true)
@@ -45,6 +48,7 @@ export interface ReadingSettings {
   flow: Flow
   ruler: Ruler
   blanks: BlankMode
+  align: Align
   awake: boolean
   colors: ReadingColors
   set: {
@@ -73,6 +77,7 @@ export function useReadingSettings(): ReadingSettings {
   const [ruler, setRuler] = useDeviceSetting(readingRulerSetting)
   const [blanks, setBlanks] = useDeviceSetting(readingBlanksSetting)
   const [awake] = useDeviceSetting(readingAwakeSetting)
+  const [align] = useDeviceSetting(readingAlignSetting)
   return {
     theme,
     font,
@@ -84,6 +89,7 @@ export function useReadingSettings(): ReadingSettings {
     ruler,
     blanks,
     awake: awake === 'on',
+    align,
     colors: colorsFor(theme, appTheme),
     set: {
       theme: setTheme,
@@ -112,6 +118,7 @@ export function surfaceStyle(s: ReadingSettings): CSSProperties {
     '--rd-line': `${s.spacing / 100}`,
     '--rd-margin': `${MARGIN_PX[s.margin]}px`,
     '--rd-width': `${WIDTH_PX[s.width]}px`,
+    ...(s.align === 'justify' ? { '--rd-align': 'justify' } : {}),
     ...(family ? { '--rd-font': family } : {}),
   } as CSSProperties
 }

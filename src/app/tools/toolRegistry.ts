@@ -458,7 +458,7 @@ export const TOOLS: readonly ToolDef[] = [
     icon: 'list',
     section: 'view',
     group: 'read',
-    run: () => openReadingPanel('outline'),
+    run: () => openReadingPanel('contents'),
   },
   {
     id: 'hideBlanks',

@@ -50,6 +50,7 @@ import { SIDEBAR_DEFAULT, isSidebarWidth } from './app/sidebarWidth'
 import { Toast, ChoiceDialog } from './app/ui'
 import { dismissUpdateOffer, onUpdateOffer } from './app/updates'
 import { UpdateBar } from './app/UpdateBar'
+import { NowPlayingPill } from './app/reading/NowPlayingPill'
 import { TOAST_AFTER_HOLD_MS, toastDuration } from './app/toastTiming'
 import { isStringOrNull } from './app/uiPrefs'
 import { usePref } from './app/usePref'
@@ -1380,6 +1381,7 @@ function App() {
               />
             )}
             <ReadingSync />
+            <NowPlayingPill onOpenPage={(id) => openPage(id)} />
             <AudioDock db={db} pageId={currentPage?.id ?? null} />
             <div className="fixed bottom-16 left-1/2 z-40 flex w-max max-w-[calc(100vw-32px)] -translate-x-1/2 flex-col items-center gap-2">
               <SaveNotice />

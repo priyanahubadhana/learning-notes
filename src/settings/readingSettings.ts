@@ -1,5 +1,9 @@
 import {
+  ALIGNS,
+  BAR_MODES,
   BLANK_MODES,
+  DIM_LEVELS,
+  GLIDE_MS,
   ENTRIES,
   FLOWS,
   LINE_SPACINGS,
@@ -11,7 +15,11 @@ import {
   SPEEDS,
   TEXT_SIZES,
   WIDTHS,
+  isAlign,
+  isBarMode,
   isBlankMode,
+  isDimLevel,
+  isGlideMs,
   isEntry,
   isFlow,
   isLineSpacing,
@@ -23,6 +31,8 @@ import {
   isSpeed,
   isTextSize,
   isWidth,
+  type Align,
+  type BarMode,
   type BlankMode,
   type Entry,
   type Flow,
@@ -151,6 +161,28 @@ export const readingBlanksSetting: SettingDefinition<BlankMode> = choice(
   isBlankMode,
   { keywords: 'blanks hidden recall self test hide' },
 )
+export const readingAlignSetting: SettingDefinition<Align> = choice(
+  'align',
+  ALIGNS,
+  'left',
+  isAlign,
+  { keywords: 'align justify left text' },
+)
+export const readingBarSetting: SettingDefinition<BarMode> = choice(
+  'bar',
+  BAR_MODES,
+  'mini',
+  isBarMode,
+  { keywords: 'reader bar top close exit controls scroll' },
+)
+export const readingDimSetting = choice('dim', DIM_LEVELS, 0, isDimLevel, {
+  keywords: 'dim brightness dark screen',
+  select: true,
+}) as unknown as SettingDefinition<number>
+export const readingGlideSetting = choice('glide', GLIDE_MS, 1200, isGlideMs, {
+  keywords: 'jump glide scroll speed animation heading bookmark',
+  select: true,
+}) as unknown as SettingDefinition<number>
 export const readingSpeedSetting = choice('speed', SPEEDS, 100, isSpeed, {
   keywords: 'read aloud speech voice speed',
   select: true,
@@ -174,6 +206,10 @@ for (const definition of [
   readingFlowSetting,
   readingRulerSetting,
   readingBlanksSetting,
+  readingAlignSetting,
+  readingBarSetting,
+  readingDimSetting,
+  readingGlideSetting,
   readingSpeedSetting,
   readingAwakeSetting,
 ]) {

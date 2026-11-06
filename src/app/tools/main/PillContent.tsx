@@ -648,8 +648,8 @@ function ReadOptions({ ids, open, cardIs }: { ids: string[] } & CardApi) {
   }
   const act: Record<string, () => void> = {
     aa: () => open('aa'),
-    contents: () => openReadingPanel('outline'),
-    bookmarks: () => openReadingPanel('outline'),
+    contents: () => openReadingPanel('contents'),
+    bookmarks: () => openReadingPanel('bookmarks'),
     listen: () => runTool('readAloud'),
     find: () => runTool('find'),
     exit: () => runTool('exitReading'),

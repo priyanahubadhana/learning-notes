@@ -188,9 +188,6 @@ export function PageView({
           },
         ]
       : []),
-    ...(notebook && !isTemplate
-      ? [pauseMenuItem(db, 'page', page.id, page.title, !!page.paused, toast)]
-      : []),
     { label: t('history.button'), icon: '🕘', onSelect: openHistory },
     { label: t('tool.readerFull'), icon: '📖', onSelect: openReader },
     ...lockItem,
@@ -210,6 +207,9 @@ export function PageView({
             onSelect: saveTemplate,
           },
         ]
+      : []),
+    ...(notebook && !isTemplate
+      ? [pauseMenuItem(db, 'page', page.id, page.title, !!page.paused, toast)]
       : []),
     {
       label: t('page.import'),

@@ -7,11 +7,9 @@ import {
   type PointerEvent as ReactPointerEvent,
   type ReactNode,
 } from 'react'
-import { useLiveQuery } from 'dexie-react-hooks'
 import type { LearningNotesDB } from '../../core/db'
 import { t } from '../../i18n/t'
 import { AppUiContext } from '../appUi'
-import { Icon } from '../tools/icons'
 import {
   aloudContinues,
   aloudState,
@@ -24,8 +22,16 @@ import {
 import { nextPageInNotebook } from './nextPage'
 import { PAGE_GAP, useReadingPosition } from './useReadingPosition'
 import { minutesLeft, swipeDirection, tapZone } from './readingMath'
-import { addReadingSeconds, streakDays } from './readingMarks'
-import { AloudPanel, OutlinePanel, SettingsPanel } from './ReadingPanels'
+import { addReadingSeconds } from './readingMarks'
+import { AloudPanel } from './ReadingPanels'
+import { AaSheet } from './AaSheet'
+import { BookmarksPanel } from './BookmarksPanel'
+import { ContentsPane } from './ContentsPane'
+import { ReaderFind } from './ReaderFind'
+import { ReaderControls } from './ReaderControls'
+import { useReaderBarVisible } from './useReaderBar'
+import { clearBookmarkRibbons, syncBookmarkRibbons } from './bookmarkRibbons'
+import { revealBlock } from '../../editor/revealBlock'
 import { ReadingRuler } from './ReadingRuler'
 import { ReadingSelection } from './ReadingSelection'
 import { stopReading, type ReadingView } from './readingState'
@@ -39,7 +45,10 @@ import { MARGIN_PX, WIDTH_PX } from './readingPrefs'
 import { lockIdle } from './wakeLock'
 import { ensureFont } from './fonts'
 import { useDeviceSetting } from '../../settings/useSetting'
-import { readingSpeedSetting } from '../../settings/readingSettings'
+import {
+  readingDimSetting,
+  readingSpeedSetting,
+} from '../../settings/readingSettings'
 
 /**
  * Wraps the page's title and text and turns them into Reading mode:
@@ -78,6 +87,7 @@ export function ReadingFrame({
 }: FrameProps) {
   const settings = useReadingSettings()
   const [speed] = useDeviceSetting(readingSpeedSetting)
+  const [dim] = useDeviceSetting(readingDimSetting)
   const { toast } = useContext(AppUiContext)
   const active = view !== 'off'
   const reader = view === 'reader'
@@ -107,6 +117,22 @@ export function ReadingFrame({
   useEffect(() => {
     if (active) void ensureFont(settings.font)
   }, [active, settings.font])
+
+  // The margin ribbons of this page's bookmarks (reading and editing).
+  useEffect(() => {
+    syncBookmarkRibbons(pageId)
+    return clearBookmarkRibbons
+  }, [pageId])
+
+  // What scrolls: the reader itself, or the page area when reading in place.
+  const barScroller = reader
+    ? paged
+      ? null
+      : outer
+    : active
+      ? (outer?.closest('main') ?? null)
+      : null
+  const barVisible = useReaderBarVisible(barScroller, active)
 
   // Panels belong to Reading mode: closing it closes them.
   useEffect(() => {
@@ -153,7 +179,7 @@ export function ReadingFrame({
     if (!active || continues !== pageId || !inner) return
     const start = () => {
       if (!inner.querySelector('.bn-block-outer[data-id]')) return false
-      continueAloud(inner)
+      continueAloud(inner, { title: pageTitle, pageId })
       return true
     }
     if (start()) return
@@ -162,7 +188,7 @@ export function ReadingFrame({
     })
     observer.observe(inner, { childList: true, subtree: true })
     return () => observer.disconnect()
-  }, [active, continues, inner, pageId])
+  }, [active, continues, inner, pageId, pageTitle])
 
   // Leaving Reading mode stops the voice.
   useEffect(() => {
@@ -340,13 +366,34 @@ export function ReadingFrame({
           : `contents ${active && settings.blanks === 'hide' ? 'reading-hide-blanks' : ''}`
       }
     >
+      {active && (!reader || controls) && (
+        <ReaderControls
+          view={view === 'reader' ? 'reader' : 'inPlace'}
+          title={pageTitle}
+          visible={barVisible}
+          showTitle={reader}
+        />
+      )}
       {reader && (
         <ReaderChrome
           visible={controls}
-          title={pageTitle}
           progressText={progressText}
           progress={position.progress}
           onSeek={position.goToProgress}
+        />
+      )}
+      {active && dim > 0 && (
+        <div
+          aria-hidden
+          data-testid="reading-dim"
+          className="pointer-events-none fixed inset-0 z-[37]"
+          style={{ background: 'rgba(0,0,0,' + dim / 100 + ')' }}
+        />
+      )}
+      {view === 'inPlace' && (
+        <div
+          aria-hidden
+          style={{ height: 'calc(44px + env(safe-area-inset-top))' }}
         />
       )}
       <div style={pagedFrame}>
@@ -362,7 +409,7 @@ export function ReadingFrame({
         <div
           data-testid="reading-progress"
           role="status"
-          className="pointer-events-none fixed bottom-2 left-3 z-30 rounded-full border border-line bg-bg/90 px-3 py-1 text-xs text-ink-soft backdrop-blur"
+          className="pointer-events-none fixed bottom-2 left-3 z-30 rounded-full border border-line bg-bg px-3 py-1 text-xs text-ink-soft"
         >
           {progressText}
         </div>
@@ -372,7 +419,7 @@ export function ReadingFrame({
       )}
       {active && <ReadingSelection root={inner} />}
       {active && panel === 'settings' && (
-        <SettingsPanel
+        <AaSheet
           s={settings}
           flags={flags}
           onReadFirst={onReadFirst}
@@ -383,13 +430,36 @@ export function ReadingFrame({
         <AloudPanel
           root={inner}
           speed={speed}
+          title={pageTitle}
+          pageId={pageId}
           onClose={() => readingPanel.set(null)}
         />
       )}
-      {active && panel === 'outline' && (
-        <OutlinePanel
+      {active && panel === 'contents' && (
+        <ContentsPane
+          scroller={barScroller}
+          position={position}
+          onClose={() => readingPanel.set(null)}
+        />
+      )}
+      {active && panel === 'bookmarks' && (
+        <BookmarksPanel
           pageId={pageId}
           position={position}
+          onClose={() => readingPanel.set(null)}
+        />
+      )}
+      {active && panel === 'find' && (
+        <ReaderFind
+          db={db}
+          pageId={pageId}
+          inner={inner}
+          scroller={barScroller}
+          position={position}
+          onOpenPage={(id, blockId) => {
+            onOpenPage(id)
+            if (blockId) revealBlock(blockId)
+          }}
           onClose={() => readingPanel.set(null)}
         />
       )}
@@ -397,106 +467,44 @@ export function ReadingFrame({
   )
 }
 
-/** The full-screen reader's top and bottom controls. */
+/** The full-screen reader's bottom bar: the seek slider and progress text. */
 function ReaderChrome({
   visible,
-  title,
   progressText,
   progress,
   onSeek,
 }: {
   visible: boolean
-  title: string
   progressText: string
   progress: number
   onSeek: (p: number) => void
 }) {
-  const { toast } = useContext(AppUiContext)
-  const streak = useLiveQuery(async () => streakDays(), []) ?? 0
-  const btn =
-    'grid size-11 shrink-0 place-items-center rounded-xl hover:bg-black/10'
-  const cls = `absolute inset-x-0 z-10 flex items-center gap-1 px-2 transition-opacity motion-reduce:transition-none ${
-    visible ? 'opacity-100' : 'pointer-events-none opacity-0'
-  }`
+  const cls =
+    'absolute inset-x-0 z-10 flex items-center gap-1 px-2 transition-opacity motion-reduce:transition-none ' +
+    (visible ? 'opacity-100' : 'pointer-events-none opacity-0')
   const style = { background: 'var(--rd-bg)', color: 'var(--rd-fg)' }
   return (
-    <>
-      <div
-        data-reader-chrome
-        data-testid="reader-top"
-        aria-hidden={!visible}
-        className={`${cls} top-0 h-14 border-b`}
-        style={{ ...style, borderColor: 'var(--rd-soft)' }}
-        {...(visible ? {} : { inert: true })}
-      >
-        <button
-          type="button"
-          className={btn}
-          aria-label={t('reading.close')}
-          title={t('reading.close')}
-          onClick={() => {
-            if (!stopReading()) toast(t('reading.lockedExit'))
-          }}
-        >
-          <Icon name="close" />
-        </button>
-        <span className="min-w-0 flex-1 truncate text-sm font-medium">
-          {title || t('review.untitled')}
-        </span>
-        {streak > 0 && (
-          <span className="hidden text-xs sm:inline" aria-hidden>
-            🔥 {streak}
-          </span>
-        )}
-        <button
-          type="button"
-          className={btn}
-          aria-label={t('reading.panel.outline')}
-          title={t('reading.panel.outline')}
-          onClick={() => readingPanel.set('outline')}
-        >
-          <Icon name="list" />
-        </button>
-        <button
-          type="button"
-          className={btn}
-          aria-label={t('reading.panel.aloud')}
-          title={t('reading.panel.aloud')}
-          onClick={() => readingPanel.set('aloud')}
-        >
-          <Icon name="volume" />
-        </button>
-        <button
-          type="button"
-          className={btn}
-          aria-label={t('reading.panel.look')}
-          title={t('reading.panel.look')}
-          onClick={() => readingPanel.set('settings')}
-        >
-          <Icon name="textSize" />
-        </button>
-      </div>
-      <div
-        data-reader-chrome
-        data-testid="reader-bottom"
-        aria-hidden={!visible}
-        className={`${cls} bottom-0 h-[52px] flex-col justify-center border-t`}
-        style={{ ...style, borderColor: 'var(--rd-soft)' }}
-        {...(visible ? {} : { inert: true })}
-      >
-        <input
-          type="range"
-          min={0}
-          max={100}
-          value={Math.round(progress * 100)}
-          aria-label={t('reading.seek')}
-          onChange={(e) => onSeek(Number(e.target.value) / 100)}
-          className="h-6 w-full max-w-[600px] accent-[var(--rd-fg)]"
-        />
-        <span role="status" className="text-xs" data-testid="reader-progress">
-          {progressText}
-        </span>
-      </div>
-    </>
+    <div
+      data-reader-chrome
+      data-chrome
+      data-testid="reader-bottom"
+      aria-hidden={!visible}
+      className={cls + ' bottom-0 h-[52px] flex-col justify-center border-t'}
+      style={{ ...style, borderColor: 'var(--rd-soft)' }}
+      {...(visible ? {} : { inert: true })}
+    >
+      <input
+        type="range"
+        min={0}
+        max={100}
+        value={Math.round(progress * 100)}
+        aria-label={t('reading.seek')}
+        onChange={(e) => onSeek(Number(e.target.value) / 100)}
+        className="h-6 w-full max-w-[600px] accent-[var(--rd-fg)]"
+      />
+      <span role="status" className="text-xs" data-testid="reader-progress">
+        {progressText}
+      </span>
+    </div>
   )
 }

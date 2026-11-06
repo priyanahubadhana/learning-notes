@@ -3,7 +3,6 @@ import { HelpLine } from '../../help/Help'
 import { t, type MessageKey } from '../../i18n/t'
 import { usePopup } from '../popups'
 import { PopupClose } from '../tools/PopupClose'
-import { pageHeadings } from './readingOutline'
 import {
   aloudState,
   listVoices,
@@ -17,39 +16,21 @@ import {
   stopAloud,
   voiceChoice,
   aloudSupported,
+  nextPageAloud,
+  skipAloud,
+  skipMode,
+  sleepAtEnd,
+  SKIP_MODES,
 } from './aloudController'
-import {
-  addBookmark,
-  getBookmarks,
-  removeBookmark,
-  streakDays,
-  type Bookmark,
-} from './readingMarks'
-import {
-  BLANK_MODES,
-  FLOWS,
-  fontStack,
-  LINE_SPACINGS,
-  MARGINS,
-  READING_FONTS,
-  READING_THEMES,
-  RULERS,
-  SLEEP_MINUTES,
-  SPEEDS,
-  TEXT_SIZES,
-  THEME_COLORS,
-  WIDTHS,
-} from './readingPrefs'
-import type { ReadingSettings } from './useReadingSettings'
-import type { ReadingPosition } from './useReadingPosition'
-import { readingLocked } from './readingState'
+import { rankVoices } from './voices'
+import { SLEEP_MINUTES, SPEEDS } from './readingPrefs'
 import { speechAvailable } from './readAloud'
 
 /** The Reading mode panels: look, read aloud, and outline with bookmarks. */
 
 const msg = (key: string) => t(key as MessageKey)
 
-function Shell({
+export function Shell({
   name,
   title,
   onClose,
@@ -88,7 +69,7 @@ function Shell({
 }
 
 /** A row of choices where one is on (radio buttons). */
-function Choices<T extends string | number>({
+export function Choices<T extends string | number>({
   label,
   value,
   options,
@@ -137,152 +118,7 @@ function Choices<T extends string | number>({
   )
 }
 
-export function SettingsPanel({
-  s,
-  flags,
-  onReadFirst,
-  onClose,
-}: {
-  s: ReadingSettings
-  flags: { page: boolean; notebook: boolean }
-  onReadFirst: (kind: 'page' | 'notebook', on: boolean) => void
-  onClose: () => void
-}) {
-  const opt = <T extends string | number>(id: string, values: readonly T[]) =>
-    values.map((value) => ({ value, label: msg(`reading.opt.${id}.${value}`) }))
-  const locked = readingLocked.useValue()
-  const streak = streakDays()
-  return (
-    <Shell name="settings" title={t('reading.panel.look')} onClose={onClose}>
-      <Choices
-        label={t('settings.reading.theme.label')}
-        value={s.theme}
-        options={READING_THEMES.map((value) => ({
-          value,
-          label: msg(`reading.opt.theme.${value}`),
-          swatch: value === 'app' ? undefined : THEME_COLORS[value].bg,
-        }))}
-        onPick={s.set.theme}
-      />
-      <Choices
-        label={t('settings.reading.font.label')}
-        value={s.font}
-        options={READING_FONTS.map((value) => ({
-          value,
-          label: msg(`reading.opt.font.${value}`),
-        }))}
-        onPick={s.set.font}
-      />
-      {s.font !== 'app' && (
-        <p
-          className="-mt-1 mb-3 text-sm text-muted"
-          style={{ fontFamily: fontStack(s.font) }}
-        >
-          {t('reading.fontSample')}
-        </p>
-      )}
-      <div className="mb-3">
-        <div className="mb-1 text-xs font-medium text-muted">
-          {t('settings.reading.size.label')}
-        </div>
-        <div className="flex items-center gap-2">
-          <button
-            type="button"
-            aria-label={t('reading.smaller')}
-            disabled={s.size <= TEXT_SIZES[0]}
-            onClick={() => {
-              const i = TEXT_SIZES.indexOf(
-                s.size as (typeof TEXT_SIZES)[number],
-              )
-              s.set.size(TEXT_SIZES[Math.max(0, i - 1)])
-            }}
-            className="min-h-11 min-w-11 rounded-lg border border-line text-lg hover:bg-hover disabled:opacity-40"
-          >
-            A−
-          </button>
-          <span
-            className="min-w-14 text-center tabular-nums"
-            data-testid="reading-size"
-          >
-            {s.size}%
-          </span>
-          <button
-            type="button"
-            aria-label={t('reading.bigger')}
-            disabled={s.size >= TEXT_SIZES[TEXT_SIZES.length - 1]}
-            onClick={() => {
-              const i = TEXT_SIZES.indexOf(
-                s.size as (typeof TEXT_SIZES)[number],
-              )
-              s.set.size(TEXT_SIZES[Math.min(TEXT_SIZES.length - 1, i + 1)])
-            }}
-            className="min-h-11 min-w-11 rounded-lg border border-line text-lg hover:bg-hover disabled:opacity-40"
-          >
-            A+
-          </button>
-        </div>
-      </div>
-      <Choices
-        label={t('settings.reading.spacing.label')}
-        value={s.spacing}
-        options={opt('spacing', LINE_SPACINGS)}
-        onPick={s.set.spacing}
-      />
-      <Choices
-        label={t('settings.reading.margin.label')}
-        value={s.margin}
-        options={opt('margin', MARGINS)}
-        onPick={s.set.margin}
-      />
-      <Choices
-        label={t('settings.reading.width.label')}
-        value={s.width}
-        options={opt('width', WIDTHS)}
-        onPick={s.set.width}
-      />
-      <Choices
-        label={t('settings.reading.flow.label')}
-        value={s.flow}
-        options={opt('flow', FLOWS)}
-        onPick={s.set.flow}
-      />
-      <Choices
-        label={t('settings.reading.ruler.label')}
-        value={s.ruler}
-        options={opt('ruler', RULERS)}
-        onPick={s.set.ruler}
-      />
-      <Choices
-        label={t('settings.reading.blanks.label')}
-        value={s.blanks}
-        options={opt('blanks', BLANK_MODES)}
-        onPick={s.set.blanks}
-      />
-      <div className="mb-1 flex flex-col gap-1 border-t border-line pt-3">
-        <Toggle
-          label={t('reading.alwaysPage')}
-          on={flags.page}
-          onChange={(on) => onReadFirst('page', on)}
-        />
-        <Toggle
-          label={t('reading.alwaysNotebook')}
-          on={flags.notebook}
-          onChange={(on) => onReadFirst('notebook', on)}
-        />
-        <Toggle
-          label={t('reading.lockToReading')}
-          on={locked}
-          onChange={(on) => readingLocked.set(on)}
-        />
-      </div>
-      <p className="mt-2 text-xs text-muted" data-testid="reading-streak">
-        {t('reading.streak', { count: streak })}
-      </p>
-    </Shell>
-  )
-}
-
-function Toggle({
+export function Toggle({
   label,
   on,
   onChange,
@@ -315,20 +151,26 @@ function Toggle({
 export function AloudPanel({
   root,
   speed,
+  title,
+  pageId,
   onClose,
 }: {
   root: HTMLElement | null
   speed: number
+  title: string
+  pageId: string
   onClose: () => void
 }) {
   const state = aloudState.useValue()
   const left = sleepLeft.useValue()
   const voice = voiceChoice.useValue()
+  const skip = skipMode.useValue()
+  const atEnd = sleepAtEnd.useValue()
   const [voices, setVoices] = useState(listVoices)
   useEffect(() => {
     if (!speechAvailable()) return
     const synth = window.speechSynthesis
-    const update = () => setVoices(synth.getVoices())
+    const update = () => setVoices(rankVoices(synth.getVoices()))
     update()
     synth.addEventListener?.('voiceschanged', update)
     return () => synth.removeEventListener?.('voiceschanged', update)
@@ -360,7 +202,7 @@ export function AloudPanel({
         ) : (
           <button
             type="button"
-            onClick={() => root && startAloud(root, 0)}
+            onClick={() => root && startAloud(root, 0, { title, pageId })}
             className={primary}
           >
             {t('reading.aloud.start')}
@@ -375,6 +217,47 @@ export function AloudPanel({
           {t('reading.aloud.stop')}
         </button>
       </div>
+      <div
+        className="mb-3 flex flex-wrap gap-1.5"
+        role="group"
+        aria-label={t('reading.aloud.skip')}
+      >
+        <button
+          type="button"
+          disabled={state === 'idle'}
+          aria-label={t('reading.aloud.back')}
+          onClick={() => skipAloud(-1)}
+          className={`${secondary} disabled:opacity-40`}
+        >
+          ⏪
+        </button>
+        <button
+          type="button"
+          disabled={state === 'idle'}
+          aria-label={t('reading.aloud.forward')}
+          onClick={() => skipAloud(1)}
+          className={`${secondary} disabled:opacity-40`}
+        >
+          ⏩
+        </button>
+        <button
+          type="button"
+          disabled={state === 'idle'}
+          onClick={nextPageAloud}
+          className={`${secondary} disabled:opacity-40`}
+        >
+          {t('reading.aloud.nextPage')}
+        </button>
+      </div>
+      <Choices
+        label={t('reading.aloud.skip')}
+        value={skip}
+        options={SKIP_MODES.map((value) => ({
+          value,
+          label: msg(`reading.aloud.skip.${value}`),
+        }))}
+        onPick={(v) => skipMode.set(v)}
+      />
       <p
         role="status"
         className="mb-3 text-sm text-muted"
@@ -412,18 +295,25 @@ export function AloudPanel({
             </option>
           ))}
         </select>
+        <p className="mt-1 text-xs text-muted">
+          {t('reading.aloud.betterVoices')}
+        </p>
       </div>
       <Choices
         label={t('reading.aloud.sleep')}
-        value={left === null ? 0 : -1}
+        value={left === null ? (atEnd ? -2 : 0) : -1}
         options={[
           { value: 0, label: t('reading.aloud.sleepOff') },
+          { value: -2, label: t('reading.aloud.sleepEndOfPage') },
           ...SLEEP_MINUTES.map((m) => ({
             value: m as number,
             label: t('reading.aloud.sleepMinutes', { count: m }),
           })),
         ]}
-        onPick={(v) => setSleepTimer(v === 0 ? null : v)}
+        onPick={(v) => {
+          sleepAtEnd.set(v === -2)
+          setSleepTimer(v <= 0 ? null : v)
+        }}
       />
       {left !== null && (
         <p className="text-sm" data-testid="sleep-left">
@@ -439,89 +329,3 @@ const primary =
   'min-h-11 rounded-lg bg-accent px-4 text-sm font-medium text-white hover:opacity-90'
 const secondary =
   'min-h-11 rounded-lg border border-line px-4 text-sm hover:bg-hover'
-
-export function OutlinePanel({
-  pageId,
-  position,
-  onClose,
-}: {
-  pageId: string
-  position: ReadingPosition
-  onClose: () => void
-}) {
-  const [marks, setMarks] = useState<Bookmark[]>(() => getBookmarks(pageId))
-  const headings = pageHeadings()
-  const jump = (id: string) => {
-    position.goToBlock(id)
-    onClose()
-  }
-  const add = () => {
-    const blockId = position.topBlockId()
-    if (!blockId) return
-    const el = document.querySelector(
-      `.bn-block-outer[data-id="${CSS.escape(blockId)}"]`,
-    )
-    const label =
-      (el?.textContent ?? '').trim().slice(0, 60) ||
-      t('reading.bookmarkUntitled')
-    setMarks(
-      addBookmark(pageId, { blockId, label, progress: position.progress }),
-    )
-  }
-  return (
-    <Shell name="outline" title={t('reading.panel.outline')} onClose={onClose}>
-      <h3 className="mb-1 text-xs font-medium text-muted">
-        {t('reading.outline.headings')}
-      </h3>
-      {headings.length === 0 ? (
-        <p className="mb-3 text-sm text-muted">{t('reading.outline.none')}</p>
-      ) : (
-        <ul className="mb-3">
-          {headings.map((h) => (
-            <li key={h.id}>
-              <button
-                type="button"
-                onClick={() => jump(h.id)}
-                style={{ paddingInlineStart: 8 + (h.level - 1) * 14 }}
-                className="min-h-11 w-full rounded-lg pe-2 text-left text-sm hover:bg-hover"
-              >
-                {h.text}
-              </button>
-            </li>
-          ))}
-        </ul>
-      )}
-      <h3 className="mb-1 text-xs font-medium text-muted">
-        {t('reading.bookmarks')}
-      </h3>
-      <button type="button" onClick={add} className={`${secondary} mb-2`}>
-        {t('reading.bookmarkAdd')}
-      </button>
-      {marks.length === 0 ? (
-        <p className="text-sm text-muted">{t('reading.bookmarksNone')}</p>
-      ) : (
-        <ul>
-          {marks.map((m) => (
-            <li key={m.id} className="flex items-center">
-              <button
-                type="button"
-                onClick={() => jump(m.blockId)}
-                className="min-h-11 flex-1 rounded-lg px-2 text-left text-sm hover:bg-hover"
-              >
-                🔖 {m.label}
-              </button>
-              <button
-                type="button"
-                aria-label={t('reading.bookmarkRemove', { name: m.label })}
-                onClick={() => setMarks(removeBookmark(pageId, m.id))}
-                className="grid min-h-11 min-w-11 place-items-center rounded-lg text-muted hover:bg-hover"
-              >
-                <span aria-hidden>✕</span>
-              </button>
-            </li>
-          ))}
-        </ul>
-      )}
-    </Shell>
-  )
-}

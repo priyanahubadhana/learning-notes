@@ -11,6 +11,9 @@ export const writeSwitch = (page: Page) =>
   page
     .locator('[data-main-bar]')
     .getByRole('button', { name: 'Text', exact: true })
+    .or(
+      controls(page).getByRole('button', { name: 'Exit reading', exact: true }),
+    )
 
 /** The Reading frame (always there; `data-view` says how it is on). */
 export const frame = (page: Page) => page.getByTestId('reading-frame')
@@ -18,9 +21,24 @@ export const frame = (page: Page) => page.getByTestId('reading-frame')
 /** A tool on the short bar by its name. */
 /** A tool of the Read pill (pinned open, with every Read option shown, by `showReadTools`). */
 export const barTool = (page: Page, name: string): Locator =>
-  page
-    .locator('[data-options-pill="read"]')
-    .getByRole('button', { name, exact: true })
+  controls(page).getByRole('button', { name, exact: true })
+
+/** The reader's controls bar (the same in place and in the full-screen reader). */
+export const controls = (page: Page) => page.getByTestId('reader-controls')
+
+/** An item of the reader's ⋯ menu (Lock to reading, Line focus, Self-test, Full screen). */
+export async function moreItem(page: Page, name: string): Promise<Locator> {
+  await barTool(page, 'More reading options').click()
+  const re = new RegExp(name)
+  return page
+    .getByRole('menuitemradio', { name: re })
+    .or(page.getByRole('menuitem', { name: re }))
+}
+
+/** Opens the ⋯ menu, picks an item and lets the menu close. */
+export async function pickMore(page: Page, name: string) {
+  await (await moreItem(page, name)).click()
+}
 
 /** Before the first load: the Read pill stays open and shows all its options. */
 export async function showReadTools(page: Page) {
@@ -170,25 +188,20 @@ export async function presetSetting(page: Page, key: string, value: unknown) {
 }
 
 export async function openPanel(page: Page, tool: string, dialog: string) {
-  if (tool === 'Text size' || tool === 'Font') {
-    // The Look panel is reached from Aa › More › All reading settings.
-    await barTool(page, 'Reading look (Aa)').click()
-    await page
-      .locator('[data-pill-card]')
-      .getByRole('tab', { name: 'More' })
-      .click()
-    await page
-      .locator('[data-pill-card]')
-      .getByRole('button', { name: 'All reading settings' })
-      .click()
-  } else {
-    const names: Record<string, string> = {
-      'Read aloud': 'Listen',
-      'Contents and bookmarks': 'Contents',
-    }
-    await barTool(page, names[tool] ?? tool).click()
+  const names: Record<string, string> = {
+    'Text size': 'Reading look (Aa)',
+    Font: 'Reading look (Aa)',
+    'Read aloud': 'Listen',
+    'Contents and bookmarks': 'Bookmarks',
   }
+  await barTool(page, names[tool] ?? tool).click()
   const panel = page.getByRole('dialog', { name: dialog })
   await expect(panel).toBeVisible()
   return panel
 }
+
+/** How many arrival glows (the Web Animation landOn starts) are running. */
+export const landings = (page: Page) =>
+  page.evaluate(
+    () => document.getAnimations().filter((a) => a.id === 'ln-landing').length,
+  )

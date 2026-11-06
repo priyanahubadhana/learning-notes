@@ -14,6 +14,9 @@ import {
 } from './readingMath'
 import { getResume, saveResume } from './readingMarks'
 import { scrollParent } from './domSpeech'
+import { glideTo, landOn, prefersReducedMotion, targetTopFor } from './glide'
+import { readDeviceSetting } from '../../settings/settingsService'
+import { readingGlideSetting } from '../../settings/readingSettings'
 
 /**
  * Where you are in the page while reading: progress (a percentage), the
@@ -29,7 +32,8 @@ export interface ReadingPosition {
   /** Scroll mode: by a screen. Paged mode: by a page. */
   turn: (direction: 1 | -1) => void
   goToProgress: (progress: number) => void
-  goToBlock: (blockId: string) => boolean
+  /** instant: put the block at the top at once, no glide or glow (resuming). */
+  goToBlock: (blockId: string, instant?: boolean) => boolean
   /** The block at the top of the screen/page. */
   topBlockId: () => string | null
 }
@@ -175,7 +179,7 @@ export function useReadingPosition(o: Options): ReadingPosition {
   }, [])
 
   const goToBlock = useCallback(
-    (blockId: string): boolean => {
+    (blockId: string, instant = false): boolean => {
       if (!inner) return false
       const el = inner.querySelector<HTMLElement>(
         `.bn-block-outer[data-id="${CSS.escape(blockId)}"]`,
@@ -189,12 +193,30 @@ export function useReadingPosition(o: Options): ReadingPosition {
         )
         indexRef.current = at
         setPageIndex(at)
+        // The page slides (300 ms), then the arrival point glows.
+        if (!instant) window.setTimeout(() => landOn(el), 300)
       } else {
-        el.scrollIntoView({ block: 'start' })
+        const s = scroller()
+        if (s && instant) {
+          s.scrollTop +=
+            el.getBoundingClientRect().top - s.getBoundingClientRect().top
+          return true
+        }
+        if (s) {
+          glideTo(
+            s,
+            targetTopFor(s, el),
+            readDeviceSetting(readingGlideSetting),
+            {
+              instant: prefersReducedMotion(),
+            },
+          )
+        }
+        landOn(el)
       }
       return true
     },
-    [inner, paged],
+    [inner, paged, scroller],
   )
 
   const goToProgress = useCallback(
@@ -238,7 +260,7 @@ export function useReadingPosition(o: Options): ReadingPosition {
       // Paged: by share of the pages, once they are counted (a block that
       // runs across a page break has no single page).
       if (paged) pendingRef.current = point.progress
-      else if (!goToBlock(point.blockId)) goToProgress(point.progress)
+      else if (!goToBlock(point.blockId, true)) goToProgress(point.progress)
     }
     restore()
     if (done) return

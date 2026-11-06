@@ -13,6 +13,10 @@ import {
 } from './helpers.ts'
 import {
   barTool,
+  landings,
+  controls,
+  moreItem,
+  pickMore,
   showReadTools,
   frame,
   markedWord,
@@ -36,6 +40,16 @@ test.use({ viewport: { width: 900, height: 600 } })
 
 const LOOK = 'Look and reading'
 const editor = (page: Page) => page.locator('.bn-editor')
+const main = (page: Page) => page.getByRole('main')
+/** Waits until a gliding jump has come to rest. */
+const settled = (page: Page) =>
+  expect
+    .poll(async () => {
+      const a = await main(page).evaluate((m) => m.scrollTop)
+      await page.waitForTimeout(250)
+      return a === (await main(page).evaluate((m) => m.scrollTop))
+    })
+    .toBe(true)
 
 async function startBook(page: Page, chapters = 3) {
   await showReadTools(page)
@@ -58,11 +72,11 @@ test('📖 Read turns the page into Reading mode in place, with the Read tools',
   for (const name of [
     'Reading look (Aa)',
     'Contents',
-    'Bookmarks and notes',
+    'Bookmarks',
     'Listen',
     'Find',
-    'Line focus',
-    'Lock',
+    'Edit',
+    'More reading options',
     'Exit reading',
   ]) {
     await expect(barTool(page, name), name).toBeVisible()
@@ -85,9 +99,9 @@ test('Settings › Reading › "The Read button opens" picks the full-screen rea
   const box = (await frame(page).boundingBox())!
   expect(box.width).toBeGreaterThanOrEqual(899)
   expect(box.height).toBeGreaterThanOrEqual(599)
-  await expect(page.getByTestId('reader-top')).toBeVisible()
+  await expect(page.getByTestId('reader-controls')).toBeVisible()
   // The other way is still one tap away: the page menu has the reader too.
-  await page.getByRole('button', { name: 'Close the reader' }).click()
+  await page.getByRole('button', { name: 'Exit reading' }).click()
   await expect(frame(page)).toHaveAttribute('data-view', 'off')
   await pageAction(page, 'Full-screen reader')
   await expect(frame(page)).toHaveAttribute('data-view', 'reader')
@@ -98,12 +112,12 @@ test('the full-screen reader: a tap in the middle shows or hides the controls', 
 }) => {
   await startBook(page)
   await pageAction(page, 'Full-screen reader')
-  const top = page.getByTestId('reader-top')
+  const top = page.getByTestId('reader-controls')
   await expect(top).toBeVisible()
   await page.mouse.click(450, 300)
-  await expect(top).toHaveCSS('opacity', '0')
+  await expect(top).toHaveCount(0)
   await page.mouse.click(450, 300)
-  await expect(top).toHaveCSS('opacity', '1')
+  await expect(top).toBeVisible()
   // Esc leaves.
   await page.keyboard.press('Escape')
   await expect(frame(page)).toHaveAttribute('data-view', 'off')
@@ -164,6 +178,7 @@ test('theme, font, size, spacing, margin and width change the page and are remem
     )
     .toBeGreaterThan(sizeBefore * 1.25)
 
+  await panel.getByRole('tab', { name: 'Themes' }).click()
   await panel.getByRole('radio', { name: 'Sepia' }).click()
   await expect(page.locator('[data-reading="inPlace"]')).toHaveCSS(
     'background-color',
@@ -177,9 +192,11 @@ test('theme, font, size, spacing, margin and width change the page and are remem
   await panel.getByRole('radio', { name: 'Night' }).click()
   await panel.getByRole('radio', { name: 'Paper' }).click()
 
-  await panel.getByRole('radio', { name: 'Serif', exact: true }).click()
-  await expect(block).toHaveCSS('font-family', /Georgia/)
+  await panel.getByRole('tab', { name: 'Font' }).click()
+  await panel.getByRole('radio', { name: 'Literata' }).click()
+  await expect(block).toHaveCSS('font-family', /Literata/)
 
+  await panel.getByRole('tab', { name: 'Layout' }).click()
   const lineBefore = await block.evaluate((e) => getComputedStyle(e).lineHeight)
   await panel.getByRole('radio', { name: 'Loose' }).click()
   const lineAfter = await block.evaluate((e) => getComputedStyle(e).lineHeight)
@@ -195,15 +212,22 @@ test('theme, font, size, spacing, margin and width change the page and are remem
   // Everything is remembered on this device.
   await page.reload()
   await readSwitch(page).click()
+  // Reading resumes deep in the page, so only the small ✕ shows: a little
+  // scroll up brings the bar back.
+  await page.waitForTimeout(500)
+  await page.getByRole('main').evaluate((m) => m.scrollBy(0, -60))
   const again = await openPanel(page, 'Text size', LOOK)
   await expect(again.getByTestId('reading-size')).toHaveText('130%')
+  await expect(again.getByRole('radio', { name: 'Literata' })).toHaveAttribute(
+    'aria-checked',
+    'true',
+  )
+  await again.getByRole('tab', { name: 'Themes' }).click()
   await expect(again.getByRole('radio', { name: 'Paper' })).toHaveAttribute(
     'aria-checked',
     'true',
   )
-  await expect(
-    again.getByRole('radio', { name: 'Serif', exact: true }),
-  ).toHaveAttribute('aria-checked', 'true')
+  await again.getByRole('tab', { name: 'Layout' }).click()
   await expect(again.getByRole('radio', { name: 'Wide' })).toHaveAttribute(
     'aria-checked',
     'true',
@@ -256,23 +280,23 @@ test('scrolling shows progress and about how many minutes are left', async ({
   expect(await progress.innerText()).not.toBe(before)
 })
 
-test('the outline lists the headings and jumps to one; a bookmark can be added and used', async ({
+test('Contents lists the headings and jumps to one; a bookmark can be added, used and removed', async ({
   page,
 }) => {
   await startBook(page)
   await readSwitch(page).click()
-  const panel = await openPanel(
-    page,
-    'Contents and bookmarks',
-    'Contents and bookmarks',
-  )
-  await expect(panel.getByRole('button', { name: /^Chapter \d$/ })).toHaveText([
+  // Contents is its own pane on the right, Bookmarks its own panel.
+  await barTool(page, 'Contents').click()
+  const pane = page.getByTestId('reading-panel-contents')
+  await expect(pane.getByRole('button', { name: /^Chapter \d$/ })).toHaveText([
     'Chapter 1',
     'Chapter 2',
     'Chapter 3',
   ])
-  await panel.getByRole('button', { name: 'Chapter 3' }).click()
-  await expect(panel).toHaveCount(0)
+  await pane.getByRole('button', { name: 'Chapter 3' }).click()
+  await expect(pane).toHaveCount(0)
+  // The arrival point glows.
+  await expect.poll(() => landings(page)).toBeGreaterThan(0)
   await expect
     .poll(() => page.getByRole('main').evaluate((m) => m.scrollTop))
     .toBeGreaterThan(200)
@@ -280,32 +304,27 @@ test('the outline lists the headings and jumps to one; a bookmark can be added a
   await expect(heading).toBeInViewport()
 
   // Bookmark here, scroll back to the top, then use the bookmark.
-  const panel2 = await openPanel(
-    page,
-    'Contents and bookmarks',
-    'Contents and bookmarks',
-  )
+  await settled(page)
+  await main(page).evaluate((m) => m.scrollBy(0, -40)) // the bar returns
+  const panel2 = await openPanel(page, 'Bookmarks', 'Bookmarks')
   await panel2.getByRole('button', { name: 'Add a bookmark here' }).click()
-  await expect(panel2.getByRole('button', { name: /^🔖/ })).toHaveCount(1)
+  await expect(panel2.locator('[data-bookmark]')).toHaveCount(1)
+  // A ribbon sits in the margin beside the bookmarked paragraph.
+  await expect(page.locator('style#ln-bookmark-ribbons')).toHaveCount(1)
   await page.keyboard.press('Escape')
   await page.getByRole('main').evaluate((m) => m.scrollTo({ top: 0 }))
-  const panel3 = await openPanel(
-    page,
-    'Contents and bookmarks',
-    'Contents and bookmarks',
-  )
-  await panel3.getByRole('button', { name: /^🔖/ }).click()
+  const panel3 = await openPanel(page, 'Bookmarks', 'Bookmarks')
+  await panel3.locator('[data-bookmark]').click()
   await expect
     .poll(() => page.getByRole('main').evaluate((m) => m.scrollTop))
     .toBeGreaterThan(200)
-  // And a bookmark can be removed.
-  const panel4 = await openPanel(
-    page,
-    'Contents and bookmarks',
-    'Contents and bookmarks',
-  )
+  // And a bookmark can be removed (with Undo).
+  await settled(page)
+  await main(page).evaluate((m) => m.scrollBy(0, -40))
+  const panel4 = await openPanel(page, 'Bookmarks', 'Bookmarks')
   await panel4.getByRole('button', { name: /^Remove bookmark/ }).click()
   await expect(panel4.getByText('No bookmarks yet.')).toBeVisible()
+  await expect(page.locator('style#ln-bookmark-ribbons')).toHaveCount(0)
 })
 
 test('it resumes where you stopped, per page, after leaving and after a reload', async ({
@@ -339,13 +358,14 @@ test('line focus dims all but a band that follows the pointer; the ruler marks o
 }) => {
   await startBook(page)
   await readSwitch(page).click()
-  await barTool(page, 'Line focus').click()
+  await pickMore(page, 'Line focus')
   const ruler = page.getByTestId('reading-ruler')
   await expect(ruler).toHaveAttribute('data-mode', 'focus')
-  await expect(barTool(page, 'Line focus')).toHaveAttribute(
-    'aria-pressed',
+  await expect(await moreItem(page, 'Line focus')).toHaveAttribute(
+    'aria-checked',
     'true',
   )
+  await page.keyboard.press('Escape')
   const before = await ruler.locator('div').first().boundingBox()
   await page.mouse.move(450, 450)
   await expect
@@ -355,6 +375,7 @@ test('line focus dims all but a band that follows the pointer; the ruler marks o
     .toBeGreaterThan(before!.height + 100)
   // Pick the ruler in the look panel.
   const panel = await openPanel(page, 'Text size', LOOK)
+  await panel.getByRole('tab', { name: 'More' }).click()
   await panel.getByRole('radio', { name: 'Ruler' }).click()
   await expect(ruler).toHaveAttribute('data-mode', 'ruler')
   await panel.getByRole('radio', { name: 'Off' }).first().click()
@@ -367,19 +388,19 @@ test('Lock to reading stops editing and keeps the Read set', async ({
   await startBook(page)
   await readSwitch(page).click()
   await expect(editor(page)).toHaveAttribute('contenteditable', 'true')
-  await barTool(page, 'Lock').click()
+  await pickMore(page, 'Lock to reading')
   await expect(editor(page)).toHaveAttribute('contenteditable', 'false')
   // Tapping Write explains, and Reading stays.
   await writeSwitch(page).click()
   await expect(
     page.getByRole('status').filter({ hasText: 'Reading is locked' }),
   ).toBeVisible()
-  await expect(readSwitch(page)).toHaveAttribute('aria-pressed', 'true')
+  await expect(controls(page)).toBeVisible()
   await expect(frame(page)).toHaveAttribute('data-view', 'inPlace')
   await barTool(page, 'Exit reading').click()
   await expect(frame(page)).toHaveAttribute('data-view', 'inPlace')
   // Turn it off, and editing and exit work again.
-  await barTool(page, 'Lock').click()
+  await pickMore(page, 'Lock to reading')
   await expect(editor(page)).toHaveAttribute('contenteditable', 'true')
   await barTool(page, 'Exit reading').click()
   await expect(frame(page)).toHaveAttribute('data-view', 'off')
@@ -391,6 +412,7 @@ test('a page can be set to always open in Reading mode', async ({ page }) => {
   await openPage(page, 'Cardiology book')
   await readSwitch(page).click()
   const panel = await openPanel(page, 'Text size', LOOK)
+  await panel.getByRole('tab', { name: 'More' }).click()
   await panel
     .getByRole('switch', { name: 'Always open this page in Reading mode' })
     .click()
@@ -412,7 +434,7 @@ test('selecting while reading offers Highlight (saved as a normal mark, with Und
 }) => {
   await startBook(page)
   await readSwitch(page).click()
-  await barTool(page, 'Lock').click() // not editing: the text is frozen
+  await pickMore(page, 'Lock to reading') // not editing: the text is frozen
   await selectText(page, 'four chambers')
   const bar = page.getByTestId('reading-selection-bar')
   await expect(bar).toBeVisible()
@@ -518,7 +540,7 @@ test('paged mode: tap the edges or swipe to turn pages, with a page count', asyn
   await page.keyboard.press('ArrowRight')
   await expect(status).toContainText(`Page 3 of ${total}`)
   await page.waitForTimeout(900)
-  await page.getByRole('button', { name: 'Close the reader' }).click()
+  await page.getByRole('button', { name: 'Exit reading' }).click()
   await pageAction(page, 'Full-screen reader')
   // Resumes at the block that was at the top, to within a page when a block
   // runs across a page break.
@@ -677,11 +699,12 @@ test('blanks are softly marked by default; Self-test hides them until tapped', a
     'rgba(0, 0, 0, 0)',
   )
   // Self-test (a tool of the Read set) hides them.
-  await barTool(page, 'Self-test (hide blanks)').click()
-  await expect(barTool(page, 'Self-test (hide blanks)')).toHaveAttribute(
-    'aria-pressed',
+  await pickMore(page, 'Self-test')
+  await expect(await moreItem(page, 'Self-test')).toHaveAttribute(
+    'aria-checked',
     'true',
   )
+  await page.keyboard.press('Escape')
   await expect(blank).toHaveCSS('color', 'rgba(0, 0, 0, 0)')
   // Tap to show one, tap again to hide it.
   await blank.click()
@@ -690,6 +713,7 @@ test('blanks are softly marked by default; Self-test hides them until tapped', a
   await expect(blank).toHaveCSS('color', 'rgba(0, 0, 0, 0)')
   // The Look panel has the same switch.
   const panel = await openPanel(page, 'Text size', LOOK)
+  await panel.getByRole('tab', { name: 'More' }).click()
   await expect(
     panel.getByRole('radio', { name: 'Hidden (self-test)' }),
   ).toHaveAttribute('aria-checked', 'true')
@@ -742,10 +766,11 @@ test('Reading mode fits a phone: no sideways scroll, 44 px controls, three theme
       theme,
     ).toBe(false)
     for (const name of [
-      'Close the reader',
-      'Contents and bookmarks',
-      'Read aloud',
-      'Look and reading',
+      'Exit reading',
+      'Contents',
+      'Bookmarks',
+      'Listen',
+      'Reading look (Aa)',
     ]) {
       const box = (await page
         .getByRole('button', { name, exact: true })

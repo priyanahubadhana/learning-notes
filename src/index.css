@@ -551,6 +551,39 @@ button.tag-chip:hover {
   color: inherit;
 }
 
+/* Reader (B1 to B3): alignment, the docked Contents pane, find matches,
+   the glow where a jump lands, and a bookmark ribbon dropping in. */
+.reading-surface .bn-block-content,
+[data-reading='inPlace'] .bn-block-content {
+  text-align: var(--rd-align, start);
+}
+.reading-reader {
+  right: var(--rd-dock, 0px);
+}
+main[data-page-scroller] {
+  margin-right: var(--rd-dock, 0px);
+}
+::highlight(reading-find) {
+  background-color: color-mix(
+    in srgb,
+    var(--rd-mark, #ffe58a) 60%,
+    transparent
+  );
+  color: inherit;
+}
+::highlight(reading-find-current) {
+  background-color: var(--rd-mark, #ffe58a);
+  color: var(--rd-mark-text, #1c1c1e);
+}
+@keyframes ln-ribbon-drop {
+  from {
+    transform: translateY(-120%);
+  }
+  to {
+    transform: translateY(0);
+  }
+}
+
 /* A page locked or blanked while the app is hidden (the app switcher). */
 :root[data-app-hidden] body > * {
   visibility: hidden;

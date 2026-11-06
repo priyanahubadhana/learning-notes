@@ -310,43 +310,46 @@ test('Insert: Table and Shape first, then the rest; Callout and Recall card work
   ).toHaveCount(1)
 })
 
-test('Read: one tap enters Reading mode; its pill has Aa, Contents, Bookmarks, Listen, Find, Exit', async ({
+test('Read: one tap enters Reading mode; the reader controls replace the bar', async ({
   page,
 }) => {
   await openNote(page)
   await tool(page, 'Read').click()
-  await expect(pill(page, 'read')).toBeVisible()
-  await expect(tool(page, 'Read')).toHaveAttribute('aria-pressed', 'true')
   await expect(page.getByTestId('reading-frame')).toHaveAttribute(
     'data-view',
     'inPlace',
   )
-  const names = await pill(page)
+  // The main bar and ribbon are hidden while reading (B1).
+  await expect(mainBar(page)).toHaveCount(0)
+  const controls = page.getByTestId('reader-controls')
+  const names = await controls
     .getByRole('button')
     .evaluateAll((els) => els.map((el) => el.getAttribute('aria-label')))
-  expect(names.slice(1, 7)).toEqual([
-    'Reading look (Aa)',
-    'Contents',
-    'Bookmarks and notes',
-    'Listen',
-    'Find',
+  expect(names).toEqual([
     'Exit reading',
+    'Contents',
+    'Bookmarks',
+    'Reading look (Aa)',
+    'Find',
+    'Listen',
+    'Edit',
+    'More reading options',
   ])
-  // Aa: a card with Font, Layout, Themes and More.
-  await option(page, 'Reading look (Aa)').click()
-  const c = card(page)
-  await expect(c.getByRole('tab')).toHaveText([
+  // Aa: a sheet with Font, Layout, Themes and More.
+  await controls.getByRole('button', { name: 'Reading look (Aa)' }).click()
+  const sheet = page.getByRole('dialog', { name: 'Look and reading' })
+  await expect(sheet.getByRole('tab')).toHaveText([
     'Font',
     'Layout',
     'Themes',
     'More',
   ])
-  await c.getByRole('tab', { name: 'Themes' }).click()
-  await c.getByRole('radio', { name: 'Sepia' }).click()
-  await c.getByRole('tab', { name: 'Layout' }).click()
-  await expect(c.getByRole('radiogroup').first()).toBeVisible()
-  // Exit goes back to writing.
-  await option(page, 'Exit reading').click()
+  await sheet.getByRole('tab', { name: 'Themes' }).click()
+  await sheet.getByRole('radio', { name: 'Sepia' }).click()
+  await sheet.getByRole('tab', { name: 'Layout' }).click()
+  await expect(sheet.getByRole('radiogroup').first()).toBeVisible()
+  // Exit goes back to writing, with the main bar.
+  await controls.getByRole('button', { name: 'Exit reading' }).click()
   await expect(tool(page, 'Text')).toHaveAttribute('aria-pressed', 'true')
   await expect(tool(page, 'Read')).toHaveAttribute('aria-pressed', 'false')
 })

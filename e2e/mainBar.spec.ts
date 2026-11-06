@@ -277,7 +277,7 @@ test('Aa › colour cards apply a named colour', async ({ page }) => {
   ).toHaveCount(1)
 })
 
-test('Insert: Table and Shape first, then the rest; Callout and Recall card work, Table says coming', async ({
+test('Insert: Table and Shape first, then the rest; Table, Callout and Recall card work', async ({
   page,
 }) => {
   await openNote(page)
@@ -301,9 +301,7 @@ test('Insert: Table and Shape first, then the rest; Callout and Recall card work
     'Ruler',
   ])
   await option(page, 'Table').click()
-  await expect(
-    page.getByRole('status').filter({ hasText: /coming/i }),
-  ).toBeVisible()
+  await expect(page.locator('.bn-editor table')).toHaveCount(1)
   await option(page, 'Callout').click()
   await expect(
     page.locator('.bn-editor [data-content-type="callout"]'),

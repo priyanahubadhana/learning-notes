@@ -177,7 +177,17 @@ export async function importNotes(
   markdown: string,
   options: { pageId?: string; images?: ReadonlyMap<string, string> } = {},
 ): Promise<ImportResult> {
-  const parsed = parseNotes(markdown) // may throw before anything is written
+  // May throw before anything is written.
+  return importParsed(db, workspaceId, parseNotes(markdown), options)
+}
+
+/** The same, for notes that are already parsed (the AI approval list). */
+export async function importParsed(
+  db: LearningNotesDB,
+  workspaceId: string,
+  parsed: ParsedNotes,
+  options: { pageId?: string; images?: ReadonlyMap<string, string> } = {},
+): Promise<ImportResult> {
   const inputs = notesToBlocks(parsed, options.images)
   let page: Page | undefined = options.pageId
     ? await db.pages.get(options.pageId)

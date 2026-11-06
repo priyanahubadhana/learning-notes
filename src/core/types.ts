@@ -79,6 +79,8 @@ export interface Notebook extends BaseRecord {
   readFirst?: true
   /** Paused (E1): this notebook's cards stay out of reviews until resumed. */
   paused?: true
+  /** The user allows their own AI to read text from this notebook (CR4). Off when unset. */
+  allowAi?: true
   /** Made by "Load sample notebook" (testing); "Remove sample notebook" finds it by this. */
   sample?: true
   /**

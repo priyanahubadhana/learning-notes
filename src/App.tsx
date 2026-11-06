@@ -150,6 +150,9 @@ const DailyHighlights = lazy(() =>
     default: m.DailyHighlights,
   })),
 )
+const AiActions = lazy(() =>
+  import('./ai/AiActions').then((m) => ({ default: m.AiActions })),
+)
 const BookHeader = lazy(() =>
   import('./library/BookHeader').then((m) => ({ default: m.BookHeader })),
 )
@@ -1415,14 +1418,24 @@ function App() {
                                   }
                                   onOpenPage={openPage}
                                   actions={
-                                    <PageAiActions
-                                      db={db}
-                                      workspaceId={workspace.id}
-                                      page={currentPage}
-                                      onChanged={() =>
-                                        setNotesVersion((v) => v + 1)
-                                      }
-                                    />
+                                    <>
+                                      <AiActions
+                                        db={db}
+                                        workspaceId={workspace.id}
+                                        page={currentPage}
+                                        onChanged={() =>
+                                          setNotesVersion((v) => v + 1)
+                                        }
+                                      />
+                                      <PageAiActions
+                                        db={db}
+                                        workspaceId={workspace.id}
+                                        page={currentPage}
+                                        onChanged={() =>
+                                          setNotesVersion((v) => v + 1)
+                                        }
+                                      />
+                                    </>
                                   }
                                 />
                               ) : undefined

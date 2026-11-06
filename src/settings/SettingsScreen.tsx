@@ -27,6 +27,8 @@ import './spaceSettings'
 import './labSettings'
 import './readingSettings'
 import './lockSettings'
+import '../ai/aiSettings'
+import { AiSection } from '../ai/AiSection'
 import { LockSection } from '../app/lock/LockSection'
 
 /**
@@ -141,6 +143,7 @@ export function SettingsScreen({
           {category === ALL && !q && <DeviceSection db={db} />}
           {category === ALL && !q && <AboutSection />}
           {category === 'lock' && <LockSection db={db} />}
+          {category === 'ai' && <AiSection db={db} />}
           {category === ALL && (
             <input
               type="search"

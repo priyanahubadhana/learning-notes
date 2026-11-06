@@ -79,6 +79,7 @@ const notebook: Fields<Notebook> = {
   locked: yes,
   readFirst: yes,
   paused: yes,
+  allowAi: yes,
   tabs: objectList,
 }
 

@@ -1,4 +1,8 @@
 [
+  "ai -> capture",
+  "ai -> editor",
+  "ai -> reader",
+  "ai -> recall",
   "anki -> editor",
   "anki -> notebooks",
   "anki -> pages",

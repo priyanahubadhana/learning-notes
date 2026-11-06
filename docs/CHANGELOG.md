@@ -2,6 +2,13 @@
 
 Current phase only. Older entries are in [ARCHIVE.md](ARCHIVE.md).
 
+## 2026-11-06 (Wave 3 part A, push 2: EPUB, notes from your own AI, one-tap recall, bring your own AI)
+
+- **What:** C3 EPUB reader (vendored foliate-js, scroll or pages, A-/A+, Contents, highlights, bookmarks, resume). CR2: `ln-notes/1` format and parser, Copy prompt with up to 20 presets, Paste notes or a zip with `notes.md` and `images/`, blocks marked `source: 'ai'` with a `batchId`, mind map into the mind map block, cards into Card blocks and blanks, "Made with your AI · edited by you", Remove this AI result with Undo, recipe for transcripts and key frames on the PC. CR3: Make card from a selection or a highlight (cloze or Q/A), cards from all highlights with preview and one Undo, cards linked to their highlight (`sourceAnnotationId`, "From: Book › Chapter" on the review screen jumps to the spot), Highlights for today on the Review home (five, oldest-unseen first), Look up › Add to vocabulary. CR4: Settings › AI (off by default; provider, device-only key, monthly cap, usage, per-notebook allow), Summarise, Key points, Cards from this page or highlights with an approval list; CSP `connect-src` lists the three provider hosts.
+- **Why:** master plan C3, CR2 to CR4 and audit changes 4 and the owner answers of 6 Nov.
+- **Files:** `src/vendor/foliate-js/*`, `src/reader/epub/*`, `src/capture/{notesFormat,importNotes,promptBuilder,zipNotes,NotesPanel,PageAiActions,pageSource}`, `src/recall/{cardFromAnnotation,highlightReview,vocabulary,SourceLine}`, `src/reader/annotations/{DailyHighlights,BulkCardsDialog}`, `src/ai/*`, `src/settings/SettingsScreen.tsx`, `src/App.tsx`, `public/_headers`, i18n `*Lib.ts`; tests `notes.test`, `highlightCards.test`, `ai.test`, e2e `epub`, `capture`, `highlightRecall`, `ai`; docs `features/ai-notes-format.md`, `recipes/notes-from-video.md`.
+- **Self-review:** not built: ink on book pages, the rest of C5, automatic fetching of transcripts (needs a Worker, ask first).
+
 ## 2026-11-06 (Wave 3 part B: G0 picture editor, G0b mind map, G2a embeds, G1 tools)
 
 - **G0 picture editor:** Edit picture sheet (turn, straighten, zoom, corner handles, shape chips, Save, Cut out as new picture, Restore original). New `images/{editImage,CropSheet,pictureEditor}`; `StoredImage.originalId` (optional, no Dexie version); menu entries in `editor/{CardMenu,SelectionToolbar}`; strings `pic.*` in `i18n/{en,hi,es}W3b.ts`. Tests: `editImage.test.ts`, `e2e/pictureEditor.spec.ts`. Why: master plan G0 (owner's order: crop, corners, zoom, cut-out, rotate; no blur).

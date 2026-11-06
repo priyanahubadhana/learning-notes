@@ -113,3 +113,6 @@ New ideas that come up mid-build are parked here, not added to the current phase
 - 2026-11-05 — Reading: nicer voices (HD or offline neural voices), voice from a photo of a page (Speechify-style OCR), reading goals and a streak that syncs between devices _(Likely phase: 13–14)_
 - 2026-11-05 — Reading: an offline dictionary and translation of a tapped word (today Look up opens Wiktionary for that word) _(Likely phase: 13)_
 - 2026-11-05 — Lock: real encryption of locked items (needs the Phase 10 key design: spare key, passphrase, new-device flow) and a recovery code for the privacy lock _(Likely phase: 10)_
+- 2026-11-06 — Decks: keep the search words of a saved search as a fifth deck filter, and a Books collection row in the deck Where step _(Likely phase: C1/E2)_
+- 2026-11-06 — Fonts: variable fonts and more weights (500/600) if the nine-font set needs them; a font picker for ink labels _(Likely phase: G3/O)_
+- 2026-11-06 — Reader: swap the margin ribbon CSS for a ProseMirror decoration when bookmarks move to annotations; show suspended single cards in the Paused list _(Likely phase: C1)_

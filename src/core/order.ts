@@ -14,7 +14,28 @@ export function orderBetween(
   before: OrderKey | null,
   after: OrderKey | null,
 ): OrderKey {
-  return generateKeyBetween(before, after)
+  // Sync (L1): two devices can give two items the same key. Equal (or
+  // crossed) neighbours would make the library throw, so place the new item
+  // just after `before` instead; the id tie-break in `byOrder` keeps the
+  // display the same on every device.
+  if (before !== null && after !== null && before >= after) after = null
+  return withSuffix(generateKeyBetween(before, after), after)
+}
+
+/** Base-62 digits, as the fractional-indexing library uses them. */
+const DIGITS = '0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz'
+
+/**
+ * Adds two random digits to a fresh key, so two devices inserting at the
+ * same spot almost never make the same key (1 in 3,782). The suffix never
+ * ends in '0' (the library refuses such keys) and the result still sorts
+ * below `after`; if not, the plain key is kept.
+ */
+export function withSuffix(key: OrderKey, after: OrderKey | null): OrderKey {
+  const pick = new Uint8Array(2)
+  globalThis.crypto.getRandomValues(pick)
+  const candidate = key + DIGITS[pick[0] % 62] + DIGITS[1 + (pick[1] % 61)]
+  return after === null || candidate < after ? candidate : key
 }
 
 /** True if `key` is a key the library can work with. */
@@ -114,10 +135,13 @@ function longestIncreasing(keys: readonly (OrderKey | null)[]): Set<number> {
  * localeCompare), which is what fractional-index keys are designed for.
  */
 export function byOrder(
-  a: { order: OrderKey },
-  b: { order: OrderKey },
+  a: { order: OrderKey; id?: string },
+  b: { order: OrderKey; id?: string },
 ): number {
   if (a.order < b.order) return -1
   if (a.order > b.order) return 1
-  return 0
+  // Equal keys (made on two devices): the id decides, the same everywhere.
+  const ai = a.id ?? ''
+  const bi = b.id ?? ''
+  return ai < bi ? -1 : ai > bi ? 1 : 0
 }

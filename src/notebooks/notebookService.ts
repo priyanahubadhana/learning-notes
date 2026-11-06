@@ -5,6 +5,7 @@ import {
   isLive,
   newRecordFields,
   softDeleteMany,
+  stableRecordFields,
 } from '../core/records'
 import type { Notebook, NotebookTab } from '../core/types'
 import { softDeleteDatabaseParts } from '../databases/databaseParts'
@@ -68,7 +69,10 @@ export async function createNotebook(
   return db.transaction('rw', db.workspaces, db.notebooks, async () => {
     await getLive(db.workspaces, workspaceId)
     const last = (await listNotebooks(db, workspaceId)).at(-1)
-    const fields = newRecordFields()
+    // Special notebooks get a fixed id per workspace (sync L1).
+    const fields = kind
+      ? await stableRecordFields(db.notebooks, `${workspaceId}:${kind}`)
+      : newRecordFields()
     const notebook: Notebook = {
       ...fields,
       workspaceId,

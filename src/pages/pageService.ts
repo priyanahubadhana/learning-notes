@@ -6,6 +6,7 @@ import {
   isLive,
   newRecordFields,
   softDeleteMany,
+  stableRecordFields,
 } from '../core/records'
 import type { Page } from '../core/types'
 import type { PathStyle } from './pathStyle'
@@ -128,8 +129,18 @@ export async function createPage(
     await getLive(db.notebooks, notebookId)
     await assertValidParent(db, notebookId, parentId)
     const siblings = await listChildPages(db, notebookId, parentId)
+    // Journal day/month pages and template roles get a fixed id (sync L1).
+    const role = extra.journalDate
+      ? `day:${extra.journalDate}`
+      : extra.journalMonth
+        ? `month:${extra.journalMonth}`
+        : extra.templateRole
+          ? `template:${extra.templateRole}`
+          : undefined
     const page: Page = {
-      ...newRecordFields(),
+      ...(role
+        ? await stableRecordFields(db.pages, `${notebookId}:${role}`)
+        : newRecordFields()),
       notebookId,
       parentId,
       title,

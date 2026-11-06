@@ -1,5 +1,5 @@
 import type { InsertType, Table, UpdateSpec } from 'dexie'
-import { createId } from './ids'
+import { createId, stableId } from './ids'
 import type { BaseRecord } from './types'
 
 /** Shared helpers used by all services for reading and writing records. */
@@ -11,6 +11,19 @@ type RecordTable<T extends BaseRecord> = Table<T, string, InsertType<T, 'id'>>
 export function newRecordFields(): BaseRecord {
   const now = Date.now()
   return { id: createId(), createdAt: now, updatedAt: now, deletedAt: null }
+}
+
+/**
+ * Base fields with a fixed id made from `name` (sync L1, see `stableId`),
+ * or a random id if that one is already taken (e.g. by a deleted copy).
+ */
+export async function stableRecordFields<T extends BaseRecord>(
+  table: RecordTable<T>,
+  name: string,
+): Promise<BaseRecord> {
+  const id = stableId(name)
+  const fields = newRecordFields()
+  return (await table.get(id)) ? fields : { ...fields, id }
 }
 
 /** True if the record has not been soft-deleted. */

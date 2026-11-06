@@ -1,4 +1,5 @@
 import type { LearningNotesDB } from '../core/db'
+import { stableId } from '../core/ids'
 import { newRecordFields } from '../core/records'
 import type { Block, Card, JsonValue } from '../core/types'
 import { blankIds, runText } from '../editor/mapping'
@@ -28,6 +29,9 @@ export function newCard(
 ): Card {
   return {
     ...newRecordFields(),
+    // Fixed id from its block and part (sync L1): two devices that make the
+    // card of the same block make the same card.
+    id: stableId(`card:${block.id}/${part}`),
     createdAt: now,
     updatedAt: now,
     blockId: block.id,

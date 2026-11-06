@@ -1,5 +1,5 @@
-import { t } from '../i18n/t'
-import { dateKey, shortDayLabel } from '../journal/dates'
+import { t } from '../../i18n/t'
+import { dateKey, shortDayLabel } from '../../journal/dates'
 
 /**
  * The Home and Library spaces until their steps are built (Library: step 5,

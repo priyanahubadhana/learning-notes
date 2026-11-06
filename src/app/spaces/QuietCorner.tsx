@@ -1,11 +1,11 @@
 import { useEffect, useRef, useState } from 'react'
 import { createPortal } from 'react-dom'
-import { DeviceModeMenuRow } from '../app/DeviceModeMenu'
-import { THEMES, type Theme } from '../app/theme'
-import type { LearningNotesDB } from '../core/db'
-import { Tip } from '../help/Help'
-import { t } from '../i18n/t'
-import { TrashSection } from '../trash/TrashSection'
+import { DeviceModeMenuRow } from '../DeviceModeMenu'
+import { THEMES, type Theme } from '../theme'
+import type { LearningNotesDB } from '../../core/db'
+import { Tip } from '../../help/Help'
+import { t } from '../../i18n/t'
+import { TrashSection } from '../../trash/TrashSection'
 
 /**
  * The quiet corner (⚙ at the bottom of the strip): the things you use now

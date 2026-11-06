@@ -1,6 +1,6 @@
 import type { ReactNode } from 'react'
-import { Tip } from '../help/Help'
-import { t, type MessageKey } from '../i18n/t'
+import { Tip } from '../../help/Help'
+import { t, type MessageKey } from '../../i18n/t'
 import { SPACE_ICON, type Space } from './spaces'
 
 /**

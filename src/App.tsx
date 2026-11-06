@@ -24,16 +24,16 @@ import { ThemeContext } from './app/themeContext'
 import type { ToastAction } from './app/appUi'
 import { altShortcutLabel } from './app/keys'
 import { toggleFavourite } from './app/favourites'
-import { SpaceStrip } from './spaces/SpaceStrip'
-import { QuietCorner } from './spaces/QuietCorner'
-import { SpacePlaceholder } from './spaces/SpacePlaceholder'
+import { SpaceStrip } from './app/spaces/SpaceStrip'
+import { QuietCorner } from './app/spaces/QuietCorner'
+import { SpacePlaceholder } from './app/spaces/SpacePlaceholder'
 import {
   isSpace,
   spaceForRoute,
   usableSpace,
   visibleSpaces,
   type Space,
-} from './spaces/spaces'
+} from './app/spaces/spaces'
 import { useHiddenSpaces } from './settings/spaceSettings'
 import { DatabaseGate, LockGate, PageGate } from './app/lock/LockScreen'
 import { toggleLock } from './app/lock/lockMenu'

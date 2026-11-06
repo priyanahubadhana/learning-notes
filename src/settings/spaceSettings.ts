@@ -1,4 +1,4 @@
-import { HIDEABLE_SPACES, type Space } from '../spaces/spaces'
+import { HIDEABLE_SPACES, type Space } from '../app/spaces/spaces'
 import { t, type MessageKey } from '../i18n/t'
 import { settingsRegistry } from './builtinSettings'
 import { isOneOf, type SettingDefinition } from './registry'

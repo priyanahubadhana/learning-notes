@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest'
-import { parseHash } from '../app/router'
+import { parseHash } from '../router'
 import {
   SPACES,
   isSpace,

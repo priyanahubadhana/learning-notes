@@ -1,4 +1,4 @@
-import type { Route } from '../app/router'
+import type { Route } from '../router'
 
 /**
  * The four spaces of the app (redesign step 4a). A space decides what the

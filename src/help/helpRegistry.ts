@@ -103,6 +103,8 @@ export const TIPS = {
   'sidebar.rename': { where: 'Sidebar › a notebook’s ✎ (on hover)' },
   'sidebar.deleteNotebook': { where: 'Sidebar › a notebook’s × (on hover)' },
   'sidebar.addSubPage': { where: 'Sidebar › a page’s + (on hover)' },
+  'sidebar.moveUp': { where: 'Sidebar › a page’s ↑ (on hover)' },
+  'sidebar.moveDown': { where: 'Sidebar › a page’s ↓ (on hover)' },
   'sidebar.moveTop': { where: 'Sidebar › a sub-page’s ↰ (on hover)' },
   'sidebar.deletePage': { where: 'Sidebar › a page’s × (on hover)' },
   'sidebar.newTemplate': { where: 'Sidebar › Templates › +' },

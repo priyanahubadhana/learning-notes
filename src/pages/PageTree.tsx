@@ -198,7 +198,7 @@ export function PageTree({
                 <>
                   <IconButton
                     title={t('tree.moveUp')}
-                    aria-label={t('tree.moveUp')}
+                    tip="sidebar.moveUp"
                     onClick={() =>
                       moveWithUndo(page.id, planStep(pages, page.id, -1))
                     }
@@ -207,7 +207,7 @@ export function PageTree({
                   </IconButton>
                   <IconButton
                     title={t('tree.moveDown')}
-                    aria-label={t('tree.moveDown')}
+                    tip="sidebar.moveDown"
                     onClick={() =>
                       moveWithUndo(page.id, planStep(pages, page.id, 1))
                     }

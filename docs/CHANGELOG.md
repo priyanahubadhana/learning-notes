@@ -2,6 +2,11 @@
 
 Current phase only. Older entries are in [ARCHIVE.md](ARCHIVE.md).
 
+## 2026-11-07 (CI stabiliser: Wave 4 red e2e)
+
+- **What:** (1) Move up/Move down page buttons (D1) used a native `title` and broke the help rule; they now use the help tip system (`sidebar.moveUp`, `sidebar.moveDown`, three languages); the left panel ✕ lost its `title` (it has an aria-label). (2) `MenuPopover` now renders in `document.body`: when the sidebar scrolled (D1 made page rows taller, so tags sit lower), the menu was hidden behind the page and could not be clicked (tags screenshots; also a real bug on short screens). pathStyle and revise passed locally in the full chromium run (755 passed), no change needed.
+- **Files:** `src/app/ui.tsx`, `src/app/panel/LeftPanel.tsx`, `src/pages/PageTree.tsx`, `src/help/helpRegistry.ts`, `src/i18n/{en,es2,hi2}.ts`, `docs/HELP-TEXTS.md`
+
 ## 2026-11-07 (Wave 4 part B · G3: picture resize, drawing labels)
 
 - **What:** corner handles on a tapped picture resize it with a finger, the Pencil or a mouse (saved as `previewWidth`); **Name this drawing** in the Lasso menu gives strokes a typed label that Search finds (new search kind `ink`, one entry per page). **Why:** master plan G3 (the mind map block was done in G0b; handwriting-to-text stays in Phase P). **Data:** optional `Stroke.label`, no Dexie version; sync carries it inside the chunk.

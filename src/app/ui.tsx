@@ -168,7 +168,8 @@ export function MenuPopover({
     return () => document.removeEventListener('keydown', onKey)
   }, [])
 
-  return (
+  // In the body, not in the sidebar: a scrolling sidebar would hide it behind the page.
+  return createPortal(
     <div
       ref={ref}
       role="menu"
@@ -248,7 +249,8 @@ export function MenuPopover({
           />,
           document.body,
         )}
-    </div>
+    </div>,
+    document.body,
   )
 }
 

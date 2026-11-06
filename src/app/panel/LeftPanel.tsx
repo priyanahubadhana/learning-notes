@@ -282,7 +282,6 @@ export function LeftPanel({
           type="button"
           data-chrome
           aria-label={t('lp.close')}
-          title={t('lp.close')}
           onClick={onClose}
           className="grid size-11 shrink-0 place-items-center rounded-lg hover:bg-hover"
         >

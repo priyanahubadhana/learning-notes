@@ -128,6 +128,12 @@ export const hi2: Record<string, string> = {
   'help.tip.sidebar.addSubPage.meaning':
     'इस पृष्ठ के अंदर एक पृष्ठ जोड़ता है, ताकि बड़े विषय को हिस्सों में बाँटा जा सके।',
   'help.tip.sidebar.addSubPage.example': '“हृदय की ध्वनियाँ” के अंदर “वाल्व”।',
+  'help.tip.sidebar.moveUp.meaning':
+    'इस पृष्ठ को अपने पड़ोसियों में एक जगह ऊपर ले जाता है।',
+  'help.tip.sidebar.moveUp.example': '“वाल्व” “मर्मर” के ऊपर आ जाता है।',
+  'help.tip.sidebar.moveDown.meaning':
+    'इस पृष्ठ को अपने पड़ोसियों में एक जगह नीचे ले जाता है।',
+  'help.tip.sidebar.moveDown.example': '“मर्मर” “वाल्व” के नीचे आ जाता है।',
   'help.tip.sidebar.moveTop.meaning':
     'इस उप-पृष्ठ को उसके मूल पृष्ठ से निकालकर अलग पृष्ठ बना देता है।',
   'help.tip.sidebar.moveTop.example':

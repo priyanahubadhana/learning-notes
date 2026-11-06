@@ -134,6 +134,13 @@ export const es2: Record<string, string> = {
     'Añade una página dentro de esta, para dividir un tema grande en partes.',
   'help.tip.sidebar.addSubPage.example':
     '«Válvulas» dentro de «Sonidos cardíacos».',
+  'help.tip.sidebar.moveUp.meaning':
+    'Sube esta página un lugar entre sus vecinas.',
+  'help.tip.sidebar.moveUp.example': '«Válvulas» pasa por encima de «Soplos».',
+  'help.tip.sidebar.moveDown.meaning':
+    'Baja esta página un lugar entre sus vecinas.',
+  'help.tip.sidebar.moveDown.example':
+    '«Soplos» pasa por debajo de «Válvulas».',
   'help.tip.sidebar.moveTop.meaning':
     'Saca esta subpágina de su página madre y la convierte en una página independiente.',
   'help.tip.sidebar.moveTop.example':

@@ -358,6 +358,12 @@ export const en = {
   'help.tip.sidebar.addSubPage.meaning':
     'Adds a page inside this page, to split a big topic into parts.',
   'help.tip.sidebar.addSubPage.example': '“Valves” inside “Heart sounds”.',
+  'help.tip.sidebar.moveUp.meaning':
+    'Moves this page one place up among its neighbours.',
+  'help.tip.sidebar.moveUp.example': '“Valves” goes above “Murmurs”.',
+  'help.tip.sidebar.moveDown.meaning':
+    'Moves this page one place down among its neighbours.',
+  'help.tip.sidebar.moveDown.example': '“Murmurs” goes below “Valves”.',
   'help.tip.sidebar.moveTop.meaning':
     'Takes this sub-page out of its parent and makes it a page on its own.',
   'help.tip.sidebar.moveTop.example':

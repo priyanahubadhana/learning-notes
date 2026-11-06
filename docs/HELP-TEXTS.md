@@ -2,7 +2,7 @@
 
 Every hover tip and help line in the app (shown while Settings › Show help is On). Generated from `src/help/helpRegistry.ts` and `src/i18n/en.ts`; to change a text, edit it in `en.ts`, then run `UPDATE_HELP=1 npx vitest run src/help` to refresh this file.
 
-## Hover tips (126)
+## Hover tips (128)
 
 ### `bar.newLine`
 
@@ -285,6 +285,18 @@ Every hover tip and help line in the app (shown while Settings › Show help is 
 - **Where:** Sidebar › a page’s + (on hover)
 - **Meaning:** Adds a page inside this page, to split a big topic into parts.
 - **Example:** “Valves” inside “Heart sounds”.
+
+### `sidebar.moveUp`
+
+- **Where:** Sidebar › a page’s ↑ (on hover)
+- **Meaning:** Moves this page one place up among its neighbours.
+- **Example:** “Valves” goes above “Murmurs”.
+
+### `sidebar.moveDown`
+
+- **Where:** Sidebar › a page’s ↓ (on hover)
+- **Meaning:** Moves this page one place down among its neighbours.
+- **Example:** “Murmurs” goes below “Valves”.
 
 ### `sidebar.moveTop`
 

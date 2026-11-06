@@ -64,7 +64,7 @@ test('All tools replaces the short bar with the six tabs, opened on Home', async
   await expect(behaviour(page)).toHaveAttribute('aria-pressed', 'false')
 })
 
-test('it opens on the tab of the tool: Pen → Draw tab, Read → View tab', async ({
+test('it opens on the tab of the tool: Pen → Draw tab; Read hides the bar', async ({
   page,
 }) => {
   await openPage(page)
@@ -75,12 +75,12 @@ test('it opens on the tab of the tool: Pen → Draw tab, Read → View tab', asy
   await openRibbon(page)
   await expect(tab(page, 'Draw')).toHaveAttribute('aria-selected', 'true')
   await shortBar(page).click()
+  // Reading hides the bar and the ribbon: the reader has its own controls.
   await dockedBar(page)
     .getByRole('button', { name: 'Read', exact: true })
     .click()
-  await page.keyboard.press('Escape')
-  await openRibbon(page)
-  await expect(tab(page, 'View')).toHaveAttribute('aria-selected', 'true')
+  await expect(page.getByTestId('reader-controls')).toBeVisible()
+  await expect(dockedBar(page)).toHaveCount(0)
 })
 
 const CONTENT: Record<string, string[]> = {

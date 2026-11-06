@@ -432,7 +432,7 @@ export function Sidebar({
                         setDragId(null)
                         setDropTarget(null)
                       }}
-                      className={`group flex items-center gap-1.5 rounded-md px-2 py-1 text-sm hover:bg-hover ${line} ${
+                      className={`group flex min-h-9 items-center gap-1.5 rounded-md px-2 py-1 text-sm hover:bg-hover ${line} ${
                         openNotebookId === notebook.id ? 'bg-hover' : ''
                       } ${dragId === notebook.id ? 'opacity-40' : ''}`}
                     >
@@ -473,7 +473,7 @@ export function Sidebar({
                                 : undefined
                             }
                             onDoubleClick={() => onRenamingChange(notebook.id)}
-                            className="flex-1 truncate text-left font-semibold"
+                            className="line-clamp-2 flex-1 text-left font-semibold break-words"
                           >
                             {notebook.locked ? '🔒 ' : ''}
                             {displayName(sampleName(notebook)) ||

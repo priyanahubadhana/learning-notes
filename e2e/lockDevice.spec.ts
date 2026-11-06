@@ -107,7 +107,7 @@ test('if the device check fails, an error shows and the PIN still works', async 
   await device.verify(false)
   await page.getByTestId('unlock-device').click()
   await expect(lockScreen(page).getByRole('alert')).toContainText(
-    'did not confirm',
+    'refused at once',
   )
   await expect(page.locator('.bn-editor')).toHaveCount(0)
   await enterCode(page, '4821')
@@ -130,7 +130,7 @@ test('Forgot with a device lock: the device check opens the page, and removing t
   await device.verify(false)
   await dialog.getByRole('checkbox').check()
   await dialog.getByRole('button', { name: 'Remove the lock' }).click()
-  await expect(dialog.getByRole('alert')).toContainText('did not confirm')
+  await expect(dialog.getByRole('alert')).toContainText('refused at once')
   // A good check opens the page.
   await device.verify(true)
   await dialog.getByRole('button', { name: 'Unlock with this device' }).click()

@@ -7,7 +7,11 @@ import {
   noteSuccess,
   waitSeconds,
 } from '../../core/lock/lockState'
-import { verifyWithPasskey } from '../../core/lock/webauthn'
+import {
+  passkeyMessageKey,
+  verifyWithPasskey,
+  type PasskeyResult,
+} from '../../core/lock/webauthn'
 import { t } from '../../i18n/t'
 
 /**
@@ -35,6 +39,7 @@ export function UnlockForm({
   const [value, setValue] = useState('')
   const [error, setError] = useState<'wrong' | 'device' | null>(null)
   const [busy, setBusy] = useState(false)
+  const [deviceResult, setDeviceResult] = useState<PasskeyResult | null>(null)
   const [wait, setWait] = useState(waitSeconds())
   const input = useRef<HTMLInputElement>(null)
 
@@ -81,7 +86,10 @@ export function UnlockForm({
     try {
       const result = await verifyWithPasskey()
       if (result === 'ok') succeed()
-      else setError('device')
+      else {
+        setDeviceResult(result)
+        setError('device')
+      }
     } finally {
       setBusy(false)
     }
@@ -137,6 +145,11 @@ export function UnlockForm({
           <input
             id="unlock-code"
             ref={input}
+            placeholder={t(
+              mode === 'pin'
+                ? 'lock.pinPlaceholder'
+                : 'lock.passwordPlaceholder',
+            )}
             type="password"
             value={value}
             onChange={(e) => {
@@ -153,12 +166,12 @@ export function UnlockForm({
             autoComplete="off"
             aria-invalid={error === 'wrong'}
             aria-describedby={error || wait > 0 ? 'unlock-error' : undefined}
-            className="min-h-12 rounded-xl border border-line bg-bg px-3 text-center text-lg tracking-widest outline-none focus:border-accent"
+            className="min-h-12 rounded-xl border-2 border-ink-soft bg-bg px-3 text-center text-lg tracking-widest outline-none placeholder:text-sm placeholder:tracking-normal placeholder:text-ink-soft focus:border-accent"
           />
           <button
             type="submit"
             disabled={busy || wait > 0 || value === ''}
-            className="min-h-12 rounded-xl border border-line px-4 text-sm font-medium hover:bg-hover disabled:opacity-50"
+            className="min-h-12 rounded-xl border-2 border-ink-soft px-4 text-sm font-medium hover:bg-hover disabled:opacity-50"
           >
             {t('lock.unlock')}
           </button>
@@ -174,7 +187,7 @@ export function UnlockForm({
           : error === 'wrong'
             ? t('lock.wrong')
             : error === 'device'
-              ? t('lock.deviceFailed')
+              ? t(passkeyMessageKey(deviceResult))
               : ''}
       </div>
       {onForgot && (

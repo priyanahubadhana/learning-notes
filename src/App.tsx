@@ -72,6 +72,7 @@ import { getOrCreateDefaultWorkspace } from './core/workspaceService'
 import { ensureSearchIndex } from './search/searchService'
 import { openJournalDay } from './journal/journalService'
 import { Sidebar } from './notebooks/Sidebar'
+import { LeftPanel } from './app/panel/LeftPanel'
 import { createNotebook, listNotebooks } from './notebooks/notebookService'
 import { createPage, getPage } from './pages/pageService'
 import { BackupReminder } from './share/ReminderBar'
@@ -633,6 +634,7 @@ function App() {
   const [sidebarHidden, setSidebarHidden] = useState(() =>
     readPref('sidebarHidden', isBoolean, false),
   )
+  const [panelOpen, setPanelOpen] = usePref('leftPanel.open', isBoolean, false)
   const toggleSidebar = () => {
     setSidebarHidden(!sidebarHidden)
     writePref('sidebarHidden', !sidebarHidden)
@@ -1188,6 +1190,15 @@ function App() {
                   onChange={setSidebarWidth}
                 />
               )}
+              {panelOpen && currentPage && (
+                <LeftPanel
+                  db={db}
+                  notebookId={currentPage.notebookId}
+                  pageId={currentPage.id}
+                  onOpenPage={(id) => openPage(id)}
+                  onClose={() => setPanelOpen(false)}
+                />
+              )}
               {drawerOpen && (
                 // A second way to close for fingers; the sidebar's button is the
                 // one for keyboards and screen readers.
@@ -1206,6 +1217,14 @@ function App() {
                   drawerOpen={drawerOpen}
                   onOpenDrawer={() => setDrawerAt(routeHash)}
                   onToggleSidebar={toggleSidebar}
+                  panel={
+                    currentPage
+                      ? {
+                          open: panelOpen,
+                          onToggle: () => setPanelOpen(!panelOpen),
+                        }
+                      : undefined
+                  }
                   onSlot={setBarSlot}
                 />
                 <div

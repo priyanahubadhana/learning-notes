@@ -44,3 +44,8 @@ Hide a page, a notebook or a database behind a lock screen, so a casual look ove
 
 - Unit: `src/core/lock/lock.test.ts` (hashing, salts, validation, config, hidden pages by page and notebook lock, unlock and relock state, removing every lock without touching notes, wrong-code wait), `src/recall/reviewLock.test.ts` (Review leaves out locked cards), `src/app/reading/readingKeys.test.ts` (texts).
 - Browser: `e2e/lock.spec.ts` (plain explanation, PIN and password rules and hash-only storage, locked page shows only the lock screen, wrong code, wait after five, relock on leaving, on hiding with a blank screen and after idle time, hidden from search and Recent, Calendar lock mark, locked notebook, Settings list and remove with confirmation, Forgot flow, backup contents, phone fit in three themes), `e2e/lockDevice.spec.ts` (Chromium virtual authenticator: setup keeps only a credential id, unlock with the device, failed check then PIN, Forgot with a device lock). WebKit has no virtual authenticator: the real Face ID check on the iPad is an owner check.
+
+## Lock screen and device-lock messages (D1)
+
+- The PIN and password fields show a placeholder ("Type your PIN here"), have a 2 px border in the soft ink colour and the Unlock button an outline, for contrast. The field keeps its label "Enter your PIN" as its accessible name.
+- Device-lock failures are told apart (`core/lock/webauthn.ts` `passkeyFailure`): cancelled, not set up on this device, refused at once (under 100 ms, no sheet showed), not supported here. The error name and time are logged with `console.debug`. The Face ID call is the first thing the tap does (no `await` before it).

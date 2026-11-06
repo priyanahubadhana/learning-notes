@@ -35,3 +35,9 @@ Notebooks hold pages; pages nest under other pages. This is the main structure o
 
 - `src/notebooks/notebookService.test.ts`
 - `src/pages/pageService.test.ts`, `sections.test.ts`, `titleSaver.test.ts`
+
+## Left panel and page order (D1)
+
+- The Panel button (top bar) opens `app/panel/LeftPanel.tsx`: tabs Pages, Outline, Audio, remembered per device. Pages shows each page of the open notebook (title, first three text lines, loaded when the row scrolls into view, 200 at most; locked pages show the title only). Outline lists the headings from the page's blocks (`panelModel.ts`) and glides to the one tapped. Audio lists the page's recordings and opens the recorder panel.
+- Page tree: names wrap to two lines; rows 36 px high; pages drag before, after or inside another (`pages/pageDrag.ts`, pure and tested; `movePage` does the write), with one Undo toast; Move up and Move down buttons are the keyboard way. Journal and template trees do not move.
+- Tests: `pageDrag.test.ts`, `panelModel.test.ts`, `e2e/leftPanel.spec.ts`.

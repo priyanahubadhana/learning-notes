@@ -31,15 +31,69 @@ export async function passkeyAvailable(): Promise<boolean> {
 
 const random = (n: number) => crypto.getRandomValues(new Uint8Array(n))
 
-export type PasskeyResult = 'ok' | 'cancelled' | 'unavailable' | 'failed'
+export type PasskeyResult =
+  | 'ok'
+  | 'cancelled'
+  | 'unavailable'
+  | 'failed'
+  /** Refused at once, before any sheet showed (e.g. iCloud Keychain is off). */
+  | 'refused'
+  /** No passkey for this app on this device (removed, or never made here). */
+  | 'notSetUp'
+  /** This browser or address cannot use the device lock. */
+  | 'unsupported'
 
-const failure = (error: unknown): PasskeyResult =>
-  error instanceof DOMException && error.name === 'NotAllowedError'
-    ? 'cancelled'
-    : 'failed'
+/** Under this many ms, a refusal came before a sheet could have shown. */
+export const REFUSED_BEFORE_SHEET_MS = 100
+
+/** Maps a WebAuthn error name and the time it took to a plain cause (tested). */
+export function passkeyFailure(name: string, ms: number): PasskeyResult {
+  if (name === 'NotAllowedError') {
+    return ms < REFUSED_BEFORE_SHEET_MS ? 'refused' : 'cancelled'
+  }
+  if (name === 'InvalidStateError' || name === 'NotFoundError')
+    return 'notSetUp'
+  if (name === 'NotSupportedError' || name === 'SecurityError') {
+    return 'unsupported'
+  }
+  return 'failed'
+}
+
+/** The text key for why the device lock did not confirm. */
+export function passkeyMessageKey(
+  result: PasskeyResult | null,
+):
+  | 'lock.deviceFailed'
+  | 'lock.device.cancelled'
+  | 'lock.device.notSetUp'
+  | 'lock.device.refused'
+  | 'lock.device.unsupported' {
+  switch (result) {
+    case 'cancelled':
+      return 'lock.device.cancelled'
+    case 'notSetUp':
+      return 'lock.device.notSetUp'
+    case 'refused':
+      return 'lock.device.refused'
+    case 'unsupported':
+    case 'unavailable':
+      return 'lock.device.unsupported'
+    default:
+      return 'lock.deviceFailed'
+  }
+}
+
+const failure = (error: unknown, startedAt: number): PasskeyResult => {
+  const name = error instanceof DOMException ? error.name : 'Error'
+  const ms = Math.round(performance.now() - startedAt)
+  // Kept for finding out why a real iPad refuses (no secrets in it).
+  console.debug('[lock] device lock failed', name, ms, 'ms')
+  return passkeyFailure(name, ms)
+}
 
 /** Makes the device passkey (asks Face ID / Touch ID / Windows Hello). */
 export async function createPasskey(): Promise<PasskeyResult> {
+  const startedAt = performance.now()
   try {
     if (!(await passkeyAvailable())) return 'unavailable'
     const credential = (await navigator.credentials.create({
@@ -68,14 +122,17 @@ export async function createPasskey(): Promise<PasskeyResult> {
     writePref(KEY, toBase64(credential.rawId))
     return 'ok'
   } catch (error) {
-    return failure(error)
+    return failure(error, startedAt)
   }
 }
 
 /** Asks the device to verify you with the saved passkey. */
 export async function verifyWithPasskey(): Promise<PasskeyResult> {
   const id = getCredentialId()
-  if (!id) return 'unavailable'
+  if (!id) return 'notSetUp'
+  // No `await` before the call below: Safari only shows Face ID while the
+  // call still belongs to the tap.
+  const startedAt = performance.now()
   try {
     const result = await navigator.credentials.get({
       publicKey: {
@@ -89,6 +146,6 @@ export async function verifyWithPasskey(): Promise<PasskeyResult> {
     })
     return result ? 'ok' : 'failed'
   } catch (error) {
-    return failure(error)
+    return failure(error, startedAt)
   }
 }

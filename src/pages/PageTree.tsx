@@ -1,7 +1,8 @@
 import { displayName, sampleName } from '../i18n/defaultNames'
 import { t } from '../i18n/t'
 import { useLiveQuery } from 'dexie-react-hooks'
-import { useState, type ReactNode } from 'react'
+import { useContext, useState, type ReactNode } from 'react'
+import { AppUiContext } from '../app/appUi'
 import { runTask } from '../app/errors'
 import { favourites, toggleFavourite } from '../app/favourites'
 import { IconButton, RenameInput } from '../app/ui'
@@ -9,7 +10,20 @@ import type { TreeState } from '../app/useTreeState'
 import type { LearningNotesDB } from '../core/db'
 import type { Page } from '../core/types'
 import { monthLabel, shortDayLabel } from '../journal/dates'
-import { listNotePages, movePageToTopLevel, renamePage } from './pageService'
+import {
+  currentPlace,
+  dropIntent,
+  planPageMove,
+  planStep,
+  type DropIntent,
+  type PageMovePlan,
+} from './pageDrag'
+import {
+  listNotePages,
+  movePage,
+  movePageToTopLevel,
+  renamePage,
+} from './pageService'
 
 interface PageTreeProps {
   db: LearningNotesDB
@@ -45,7 +59,29 @@ export function PageTree({
   )
   const [renamingId, setRenamingId] = useState<string | null>(null)
   const starred = favourites.useValue()
+  const { toast } = useContext(AppUiContext)
+  const [dragId, setDragId] = useState<string | null>(null)
+  const [over, setOver] = useState<{ id: string; intent: DropIntent } | null>(
+    null,
+  )
   if (!pages) return null
+
+  // A move with one Undo that puts the page back where it was.
+  const moveWithUndo = (id: string, plan: PageMovePlan | null) => {
+    if (!plan) return
+    const before = currentPlace(pages, id)
+    runTask(
+      movePage(db, id, plan.parentId, plan.index).then(() => {
+        if (!before) return
+        toast(t('tree.moved'), {
+          label: t('reading.undo'),
+          onSelect: () =>
+            runTask(movePage(db, id, before.parentId, before.index)),
+        })
+      }),
+    )
+  }
+  const canMove = !journal && !rootId
 
   // The open page and the pages above it, worked out once per draw.
   const openPath = new Set<string>()
@@ -79,8 +115,49 @@ export function PageTree({
       return (
         <div key={page.id}>
           <div
-            className={`group flex items-center gap-1.5 rounded-md py-1 pr-2 text-sm ${
+            data-testid="page-row"
+            data-page-id={page.id}
+            draggable={canMove && renamingId !== page.id}
+            onDragStart={(e) => {
+              e.dataTransfer.effectAllowed = 'move'
+              e.dataTransfer.setData('text/plain', page.id) // Firefox
+              setDragId(page.id)
+            }}
+            onDragOver={(e) => {
+              if (!dragId || dragId === page.id) return
+              if (!planPageMove(pages, dragId, page.id, 'inside')) return
+              e.preventDefault()
+              const rect = e.currentTarget.getBoundingClientRect()
+              const intent = dropIntent(e.clientY - rect.top, rect.height)
+              if (over?.id !== page.id || over.intent !== intent) {
+                setOver({ id: page.id, intent })
+              }
+            }}
+            onDrop={(e) => {
+              e.preventDefault()
+              if (dragId && over) {
+                moveWithUndo(
+                  dragId,
+                  planPageMove(pages, dragId, over.id, over.intent),
+                )
+              }
+              setDragId(null)
+              setOver(null)
+            }}
+            onDragEnd={() => {
+              setDragId(null)
+              setOver(null)
+            }}
+            className={`group flex min-h-9 items-center gap-1.5 rounded-md py-1 pr-2 text-sm ${
               active ? 'bg-hover font-medium' : 'hover:bg-hover'
+            } ${dragId === page.id ? 'opacity-40' : ''} ${
+              over?.id === page.id
+                ? over.intent === 'before'
+                  ? 'shadow-[inset_0_2px_0_var(--color-accent)]'
+                  : over.intent === 'after'
+                    ? 'shadow-[inset_0_-2px_0_var(--color-accent)]'
+                    : 'outline-2 -outline-offset-2 outline-accent'
+                : ''
             }`}
             style={{ paddingLeft: 8 + depth * 14 }}
           >
@@ -105,7 +182,7 @@ export function PageTree({
                 type="button"
                 onClick={() => onOpen(page.id)}
                 onDoubleClick={() => setRenamingId(page.id)}
-                className="flex-1 truncate text-left"
+                className="line-clamp-2 flex-1 text-left break-words"
               >
                 {page.locked ? '🔒 ' : ''}
                 {page.journalDate && !page.customTitle
@@ -117,6 +194,28 @@ export function PageTree({
               </button>
             )}
             <span className="flex opacity-0 group-focus-within:opacity-100 group-hover:opacity-100">
+              {canMove && (
+                <>
+                  <IconButton
+                    title={t('tree.moveUp')}
+                    aria-label={t('tree.moveUp')}
+                    onClick={() =>
+                      moveWithUndo(page.id, planStep(pages, page.id, -1))
+                    }
+                  >
+                    ↑
+                  </IconButton>
+                  <IconButton
+                    title={t('tree.moveDown')}
+                    aria-label={t('tree.moveDown')}
+                    onClick={() =>
+                      moveWithUndo(page.id, planStep(pages, page.id, 1))
+                    }
+                  >
+                    ↓
+                  </IconButton>
+                </>
+              )}
               {!journal && !rootId && page.parentId !== null && (
                 <IconButton
                   title={t('tree.moveTop')}

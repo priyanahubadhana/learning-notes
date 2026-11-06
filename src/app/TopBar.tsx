@@ -1,5 +1,6 @@
 import { t } from '../i18n/t'
 import { useCanGoBack, useCanGoForward } from './navHistory'
+import { PanelLeft } from 'lucide-react'
 import { MenuIcon } from './ui'
 import { DeviceModeButton } from './DeviceModeMenu'
 import { showToolBar, useShowBarButton } from './tools/toolbarVisibility'
@@ -14,6 +15,7 @@ export function TopBar({
   drawerOpen,
   onOpenDrawer,
   onToggleSidebar,
+  panel,
   onSlot,
 }: {
   /** The screen's name; pages put their own path here instead. */
@@ -22,6 +24,8 @@ export function TopBar({
   drawerOpen: boolean
   onOpenDrawer: () => void
   onToggleSidebar: () => void
+  /** The left panel button (D1): shown while a page is open. */
+  panel?: { open: boolean; onToggle: () => void }
   onSlot: (element: HTMLElement | null) => void
 }) {
   const canGoBack = useCanGoBack()
@@ -40,6 +44,19 @@ export function TopBar({
       }}
       className="flex min-h-13 shrink-0 items-center gap-0.5 border-b border-line bg-bg"
     >
+      {panel && (
+        <button
+          type="button"
+          data-testid="panel-toggle"
+          aria-label={t('lp.open')}
+          title={t('lp.open')}
+          aria-pressed={panel.open}
+          onClick={panel.onToggle}
+          className={`flex aria-pressed:text-accent ${ICON_BUTTON}`}
+        >
+          <PanelLeft aria-hidden size={20} strokeWidth={1.6} />
+        </button>
+      )}
       {/* Phones: a drawer over the page. Elsewhere: hide or show the sidebar. */}
       <button
         type="button"

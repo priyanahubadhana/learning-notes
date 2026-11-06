@@ -17,6 +17,11 @@ Current phase only. Older entries are in [ARCHIVE.md](ARCHIVE.md).
 - **What:** Insert › Table and "/table", "/toggle" (BlockNote's own blocks), a File block (attach any file up to 50 MB; Save a copy; a PDF/EPUB/DOCX opens in the reader through the Library), and Insert › Camera / "/camera" (photo into the page). The three tools no longer say "coming".
 - **Why:** master plan G2. **Data:** no new table or Dexie version: files use `bookFiles` (checkRows now accepts any safe MIME type; new optional `readerPageId`), so backup, Trash and sync already cover them.
 - **Files:** `src/editor/schema.tsx`, `src/editor/fileBlock/*`, `src/core/{attachments,fileRef}.ts`, `src/library/attachmentReader.ts`, `src/editor/slashMenu.tsx`, `src/editor/PageEditor.tsx`, `src/editor/editorContext.ts`, `src/pages/PageView.tsx`, `src/App.tsx`, `src/app/tools/*`, `src/blocks/builtinBlockTypes.ts`, `src/share/{checkRows,readFull}.ts`, `src/core/types.ts`, `src/i18n/*W4b.ts`, tests, `docs/features/files-table-camera.md`.
+## 2026-11-07 (Wave 4A · D1: left panel, sidebar clean-up, lock screen)
+
+- **What:** a Panel button (top bar, first item) opens a left panel with **Pages** (a card per page of the notebook: title and first lines), **Outline** (the page's headings; a tap glides to the heading) and **Audio** (this page's recordings, button to open the recorder). Docked on screens 1024 px or wider, an overlay on narrower ones. Sidebar: names wrap to two lines instead of being cut, rows are at least 36 px, pages can be dragged (before, after, inside) with one Undo, and **Move up / Move down** buttons do the same from the keyboard. Lock screen: the PIN field says "Type your PIN here", has a 2 px border, the Unlock button an outlined border; device-lock failures say why (cancelled, not set up, refused at once, not supported).
+- **Why:** master plan D1 (N1, N14, N16, LIMITATION "pages can't be dragged").
+- **Files:** `src/app/panel/` (LeftPanel, panelModel), `src/pages/pageDrag.ts`, `PageTree.tsx`, `Sidebar.tsx`, `TopBar.tsx`, `App.tsx`, `src/core/lock/webauthn.ts`, `UnlockForm.tsx`, `LockDialogs.tsx`, `src/i18n/*D.ts`, tests `pageDrag.test.ts`, `panelModel.test.ts`, `webauthn.test.ts`, `e2e/leftPanel.spec.ts`, `e2e/lockDevice.spec.ts` (new message).
 
 ## 2026-11-06 (Ink redraw: leave the canvases alone when nothing moved)
 

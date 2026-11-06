@@ -17,6 +17,7 @@ import { esW4b } from './esW4b'
 import { esE2 } from './esE2'
 import { esLib } from './esLib'
 import { esSync } from './esSync'
+import { esD } from './esD'
 
 /** Spanish texts. A key missing here shows the English text. */
 export const es: Record<string, string> = {
@@ -39,4 +40,5 @@ export const es: Record<string, string> = {
   ...esE2,
   ...esLib,
   ...esSync,
+  ...esD,
 }

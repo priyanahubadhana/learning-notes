@@ -3,7 +3,11 @@ import type { LearningNotesDB } from '../../core/db'
 import type { LockMethods } from '../../core/lock/lockConfig'
 import { listLocked, removeAllLocks } from '../../core/lock/lockService'
 import { relockAll, unlock } from '../../core/lock/lockState'
-import { verifyWithPasskey } from '../../core/lock/webauthn'
+import {
+  passkeyMessageKey,
+  verifyWithPasskey,
+  type PasskeyResult,
+} from '../../core/lock/webauthn'
 import { t } from '../../i18n/t'
 import { PopupClose } from '../tools/PopupClose'
 import { UnlockForm } from './UnlockForm'
@@ -69,6 +73,7 @@ export function ForgotDialog({
 }) {
   const [ack, setAck] = useState(false)
   const [error, setError] = useState(false)
+  const [failure, setFailure] = useState<PasskeyResult | null>(null)
   const [count, setCount] = useState<number | null>(null)
   const [busy, setBusy] = useState(false)
   useEffect(() => {
@@ -83,6 +88,7 @@ export function ForgotDialog({
     const result = await verifyWithPasskey()
     setBusy(false)
     if (result !== 'ok') {
+      setFailure(result)
       setError(true)
       return
     }
@@ -95,6 +101,7 @@ export function ForgotDialog({
       const result = await verifyWithPasskey()
       setBusy(false)
       if (result !== 'ok') {
+        setFailure(result)
         setError(true)
         return
       }
@@ -153,7 +160,7 @@ export function ForgotDialog({
       </div>
       {error && (
         <p role="alert" className="mt-2 text-sm text-danger">
-          {t('lock.deviceFailed')}
+          {t(passkeyMessageKey(failure))}
         </p>
       )}
     </LockDialog>

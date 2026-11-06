@@ -8,7 +8,7 @@ import type { LearningNotesDB } from '../core/db'
 import { addDays } from '../core/homeDays'
 import type { Habit } from '../core/homeTypes'
 import { isLive } from '../core/records'
-import { recentPages } from '../pages/pageService'
+import { recentPages } from '../core/recentPages'
 import { t } from '../i18n/t'
 import {
   canRecord,

@@ -5,7 +5,7 @@ import type { Task, TimeEntry } from '../core/homeTypes'
 import { newRecordFields } from '../core/records'
 import { createTestDb } from '../core/testing'
 import { listTasks } from '../core/taskService'
-import { recentPages } from '../pages/pageService'
+import { recentPages } from '../core/recentPages'
 import { hoursPerProject } from './reports'
 import { entriesInRange } from './timerService'
 

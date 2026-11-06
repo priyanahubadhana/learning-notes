@@ -213,13 +213,13 @@ export function EpubView(props: EpubViewProps) {
       viewRef.current = null
       drawn.current = new Map()
     }
-    // eslint-disable-next-line react-hooks/exhaustive-deps
+     
   }, [props.data])
 
   // Highlights follow the list.
   useEffect(() => {
     if (viewRef.current) sync(viewRef.current)
-    // eslint-disable-next-line react-hooks/exhaustive-deps
+     
   }, [props.annotations])
 
   // Text size, theme and layout.

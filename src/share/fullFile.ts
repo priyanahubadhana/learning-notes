@@ -17,6 +17,7 @@ import type { LearningNotesDB } from '../core/db'
 export const NOTES_SKIP_MEDIA: ReadonlySet<string> = new Set([
   'recordings',
   'bookFiles',
+  'files',
 ])
 
 export const FULL_FORMAT_VERSION = 2

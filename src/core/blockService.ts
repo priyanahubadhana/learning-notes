@@ -1,3 +1,4 @@
+import Dexie from 'dexie'
 import type { LearningNotesDB } from './db'
 import { createId } from './ids'
 import { byOrder, orderAtIndex } from './order'
@@ -8,6 +9,7 @@ import {
   newRecordFields,
   softDeleteMany,
 } from './records'
+import { syncTasksFromBlocks } from './taskService'
 import type { Block, JsonObject, OrderKey } from './types'
 
 /**
@@ -177,9 +179,9 @@ export async function saveBlockChanges(
 ): Promise<void> {
   if (changes.upserts.length === 0 && changes.deletes.length === 0) return
 
-  await db.transaction('rw', db.pages, db.blocks, async () => {
+  const now = Date.now()
+  const saved = await db.transaction('rw', db.pages, db.blocks, async () => {
     await getLive(db.pages, pageId)
-    const now = Date.now()
 
     const existing = await db.blocks.bulkGet(changes.upserts.map((u) => u.id))
     const records = changes.upserts.map((upsert, i): Block => {
@@ -196,7 +198,19 @@ export async function saveBlockChanges(
       .filter((b): b is Block => !!b && isLive(b) && b.pageId === pageId)
       .map((b) => b.id)
     await softDeleteMany(db.blocks, toDelete, now)
+    return records
   })
+
+  // A ticked checklist line also ticks the Home task linked to it (F1). A
+  // separate step (its own transaction, outside any the caller holds): a
+  // failure here never loses the note.
+  if (saved.some((b) => b.type === 'checkListItem')) {
+    try {
+      await Dexie.ignoreTransaction(() => syncTasksFromBlocks(db, saved, now))
+    } catch (error) {
+      console.error('Could not update the linked Home task', error)
+    }
+  }
 }
 
 /**

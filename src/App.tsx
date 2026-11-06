@@ -31,7 +31,6 @@ import { altShortcutLabel } from './app/keys'
 import { toggleFavourite } from './app/favourites'
 import { SpaceStrip } from './app/spaces/SpaceStrip'
 import { QuietCorner } from './app/spaces/QuietCorner'
-import { SpacePlaceholder } from './app/spaces/SpacePlaceholder'
 import {
   isSpace,
   spaceForRoute,
@@ -73,6 +72,7 @@ import { ensureSearchIndex } from './search/searchService'
 import { openJournalDay } from './journal/journalService'
 import { Sidebar } from './notebooks/Sidebar'
 import { LeftPanel } from './app/panel/LeftPanel'
+import { HomeScreen } from './home/HomeScreen'
 import { createNotebook, listNotebooks } from './notebooks/notebookService'
 import { createPage, getPage } from './pages/pageService'
 import { BackupReminder } from './share/ReminderBar'
@@ -1497,9 +1497,12 @@ function App() {
                           }
                         />
                       ) : space === 'home' ? (
-                        <SpacePlaceholder
-                          space={space}
-                          onOpenToday={() => runTask(openToday())}
+                        <HomeScreen
+                          db={db}
+                          deps={{
+                            openToday: () => runTask(openToday()),
+                            openPage: (id) => openPage(id),
+                          }}
                         />
                       ) : notebooks.length === 0 && currentPage === null ? (
                         <div className="mt-[30vh] text-center">

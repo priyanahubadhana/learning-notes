@@ -13,6 +13,15 @@ import type {
   Recording,
   ReviewLog,
 } from '../core/types'
+import type {
+  DayPlan,
+  Habit,
+  HabitCheck,
+  HomeFile,
+  Project,
+  Task,
+  TimeEntry,
+} from '../core/homeTypes'
 import type { InkChunk, InkLayer } from '../core/inkTypes'
 import { MAX_LABEL, STRIDE } from '../core/inkTypes'
 import { isShowableText } from '../search/searchText'
@@ -239,6 +248,97 @@ const recording: Fields<Recording> = {
   data: object,
 }
 
+/** A day, "YYYY-MM-DD". */
+const dayText: Check = (v) =>
+  typeof v === 'string' && /^\d{4}-\d{2}-\d{2}$/.test(v)
+const shortText: Check = (v) => typeof v === 'string' && v.length <= 2000
+
+const task: Fields<Task> = {
+  ...times,
+  title: shortText,
+  status: oneOf('open', 'done', 'dropped'),
+  quadrant: oneOf(0, 1, 2, 3, 4),
+  order,
+  plannedDay: dayText,
+  doneAt: number,
+  doneDay: dayText,
+  top3Day: dayText,
+  projectId: text,
+  listName: shortText,
+  sourceBlockId: text,
+  sourcePageId: text,
+  carried: (v) =>
+    Array.isArray(v) &&
+    v.length <= 1000 &&
+    v.every(
+      (x) =>
+        object(x) &&
+        dayText((x as Record<string, unknown>).from) &&
+        dayText((x as Record<string, unknown>).to) &&
+        number((x as Record<string, unknown>).at),
+    ),
+  estimateMin: number,
+  note: (v) => typeof v === 'string' && v.length <= 20000,
+}
+
+const project: Fields<Project> = {
+  ...times,
+  name: shortText,
+  order,
+  colour: text,
+}
+
+const timeEntry: Fields<TimeEntry> = {
+  ...times,
+  startedAt: number,
+  endedAt: number,
+  day: dayText,
+  projectId: text,
+  mode: oneOf('free', 'focus'),
+  plannedMin: number,
+  round: number,
+}
+
+const dayPlan: Fields<DayPlan> = {
+  ...times,
+  day: dayText,
+  blocks: (v) =>
+    Array.isArray(v) &&
+    v.length <= 500 &&
+    v.every(
+      (x) =>
+        object(x) &&
+        text((x as Record<string, unknown>).id) &&
+        number((x as Record<string, unknown>).startMin) &&
+        number((x as Record<string, unknown>).durationMin),
+    ),
+}
+
+const habit: Fields<Habit> = {
+  ...times,
+  name: shortText,
+  routine: oneOf('morning', 'night', 'daily'),
+  order,
+  affirmationPageId: text,
+  fileId: text,
+}
+
+const habitCheck: Fields<HabitCheck> = {
+  ...times,
+  habitId: text,
+  day: dayText,
+  done: bool,
+}
+
+const homeFile: Fields<HomeFile> = {
+  ...times,
+  kind: oneOf('audio'),
+  type: isAudioType,
+  name: (v) => typeof v === 'string' && v.length <= 300,
+  durationMs: number,
+  data: object,
+}
+
 /**
  * Book files hold the Library's books (PDF, EPUB, DOCX: checked again by
  * their first bytes) and files attached to a page (G2: any type, never
@@ -337,6 +437,13 @@ const FIELDS = {
   recordings: recording,
   bookFiles: bookFile,
   annotations: annotation,
+  tasks: task,
+  projects: project,
+  timeEntries: timeEntry,
+  dayPlans: dayPlan,
+  habits: habit,
+  habitChecks: habitCheck,
+  files: homeFile,
 } as const
 
 /** Fields a row must have, on top of its id. */
@@ -350,6 +457,13 @@ const REQUIRED: Partial<Record<keyof typeof FIELDS, readonly string[]>> = {
   bookFiles: ['pageId', 'data'],
   annotations: ['pageId', 'kind', 'anchor'],
   tags: ['path'],
+  tasks: ['title', 'status', 'quadrant', 'order'],
+  projects: ['name', 'order'],
+  timeEntries: ['startedAt', 'day'],
+  dayPlans: ['day', 'blocks'],
+  habits: ['name', 'routine', 'order'],
+  habitChecks: ['habitId', 'day', 'done'],
+  files: ['kind', 'data'],
 }
 
 export type RowTable = keyof typeof FIELDS

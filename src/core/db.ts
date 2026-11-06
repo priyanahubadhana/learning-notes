@@ -2,6 +2,15 @@ import Dexie, { type EntityTable, type Transaction } from 'dexie'
 import { t, type MessageKey } from '../i18n/t'
 import { searchIndexMiddleware } from '../search/indexMiddleware'
 import { syncOutboxMiddleware } from '../sync/outbox'
+import type {
+  DayPlan,
+  Habit,
+  HabitCheck,
+  HomeFile,
+  Project,
+  Task,
+  TimeEntry,
+} from './homeTypes'
 import type { InkChunk, InkLayer } from './inkTypes'
 import { orderBetween } from './order'
 import { newRecordFields } from './records'
@@ -72,6 +81,13 @@ export class LearningNotesDB extends Dexie {
   bookFiles!: EntityTable<BookFile, 'id'>
   annotations!: EntityTable<Annotation, 'id'>
   syncState!: EntityTable<SyncState, 'id'>
+  tasks!: EntityTable<Task, 'id'>
+  projects!: EntityTable<Project, 'id'>
+  timeEntries!: EntityTable<TimeEntry, 'id'>
+  dayPlans!: EntityTable<DayPlan, 'id'>
+  habits!: EntityTable<Habit, 'id'>
+  habitChecks!: EntityTable<HabitCheck, 'id'>
+  files!: EntityTable<HomeFile, 'id'>
 
   /** @param name Database name; tests pass a unique name to stay isolated. */
   constructor(name: string = DEFAULT_DB_NAME) {
@@ -281,6 +297,19 @@ export class LearningNotesDB extends Dexie {
     // server revision, "changed here" flag, Drive pointer), one row per
     // record, so no existing table changes. Only adds a table.
     this.version(18).stores({ syncState: 'id, dirty, fileState' })
+
+    // Version 19 (Phase F, Home cockpit): tasks, projects, time entries,
+    // day plans, habits, habit checks and Home recordings. Only adds tables.
+    this.version(19).stores({
+      tasks:
+        'id, status, quadrant, plannedDay, doneDay, top3Day, projectId, sourceBlockId',
+      projects: 'id',
+      timeEntries: 'id, startedAt, day, projectId',
+      dayPlans: 'id, day',
+      habits: 'id',
+      habitChecks: 'id, habitId, day, [habitId+day]',
+      files: 'id, kind',
+    })
 
     // Every save of a page or block also updates its search entry, in the
     // same transaction (see search/indexMiddleware.ts).

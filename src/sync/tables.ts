@@ -35,6 +35,13 @@ export const SYNC_TABLES: Record<string, MergeMode> = {
   fonts: 'file',
   recordings: 'file',
   bookFiles: 'file',
+  tasks: 'record',
+  projects: 'record',
+  timeEntries: 'record',
+  dayPlans: 'record',
+  habits: 'record',
+  habitChecks: 'record',
+  files: 'file',
   // Device-only.
   settings: 'local',
   meta: 'local',

@@ -238,6 +238,13 @@ const CHECKED = new Set<string>([
   'decks',
   'bookFiles',
   'annotations',
+  'tasks',
+  'projects',
+  'timeEntries',
+  'dayPlans',
+  'habits',
+  'habitChecks',
+  'files',
 ])
 
 /** Reads and fully checks a full file. Nothing is written. */
@@ -369,6 +376,10 @@ function putBack(
     if (!(out.data instanceof ArrayBuffer) || !isAudioType(out.type)) {
       throw damaged()
     }
+  }
+  if (table === 'files') {
+    // Home recordings: the bytes must be bytes; the type is checked per field.
+    if (!(out.data instanceof ArrayBuffer)) throw damaged()
   }
   if (table === 'bookFiles') {
     // The bytes must fit the stated type; "notes only" keeps the row empty.

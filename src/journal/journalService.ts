@@ -1,4 +1,4 @@
-import { copyBlocks } from '../core/blockService'
+import { copyBlocks, createBlock } from '../core/blockService'
 import type { LearningNotesDB } from '../core/db'
 import type { Notebook, Page } from '../core/types'
 import { syncCardRecords } from '../recall/cardService'
@@ -64,6 +64,12 @@ export async function openJournalDay(
         await copyBlocks(db, daily.id, page.id, ['pageLink'])
         await syncCardRecords(db, page.id) // copied cards get a schedule
       }
+      // The day's task record (F1): read live from the tasks, never edited.
+      await createBlock(db, {
+        pageId: page.id,
+        type: 'dayRecord',
+        content: { day: dateKey(date) },
+      })
       return { page, created: true }
     },
   )

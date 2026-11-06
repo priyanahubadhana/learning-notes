@@ -370,6 +370,12 @@ export const TOOLS: readonly ToolDef[] = [
     group: 'visual',
   },
   {
+    id: 'toHome',
+    icon: 'checklist',
+    section: 'insert',
+    group: 'study',
+  },
+  {
     id: 'card',
     icon: 'cards',
     section: 'insert',

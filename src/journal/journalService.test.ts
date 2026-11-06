@@ -85,8 +85,17 @@ describe('openJournalDay', () => {
       content: { text: plainText('Mood:') },
     })
     const { page } = await openJournalDay(db, ws, OCT_25)
+    const own = (await listBlocks(db, page.id)).filter(
+      (b) => b.type !== 'dayRecord',
+    )
+    expect(toPlainText(own.at(-1)!.content)).toBe('Mood:')
+  })
+
+  it('ends a new day with its read-only task record', async () => {
+    const { page } = await openJournalDay(db, ws, OCT_25)
     const last = (await listBlocks(db, page.id)).at(-1)!
-    expect(toPlainText(last.content)).toBe('Mood:')
+    expect(last.type).toBe('dayRecord')
+    expect(last.content.day).toBe('2026-10-25')
   })
 
   it('makes a fresh page if today’s page was deleted', async () => {

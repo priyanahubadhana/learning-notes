@@ -81,6 +81,11 @@ export const builtinBlockTypes: readonly BlockTypeDefinition[] = [
     createContent: () => ({ data: '', theme: 'calm' }),
   },
   {
+    type: 'dayRecord',
+    label: 'Day record',
+    createContent: () => ({ day: '' }),
+  },
+  {
     type: 'embed',
     label: 'Embed',
     createContent: () => ({

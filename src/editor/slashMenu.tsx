@@ -3,6 +3,7 @@ import {
   getDefaultReactSlashMenuItems,
   type DefaultReactSuggestionItem,
 } from '@blocknote/react'
+import { dayKeyOf } from '../core/homeDays'
 import { newMindMap, serializeMindMap } from './mindMap/model'
 import { cardSlashItem, type NestedCardPlace } from './cardActions'
 import { t } from '../i18n/t'
@@ -92,6 +93,18 @@ export function buildSlashMenuItems(
       insertOrUpdateBlockForSlashMenu(editor, {
         type: 'mindMap',
         props: { data: serializeMindMap(newMindMap()) },
+      }),
+  })
+  items.push({
+    title: t('dayRecord.slash.title'),
+    subtext: t('dayRecord.slash.subtext'),
+    aliases: ['day record', 'tasks', 'done', 'today', 'record'],
+    group: items[quoteIndex]?.group ?? 'Basic blocks',
+    icon: <span aria-hidden>✓</span>,
+    onItemClick: () =>
+      insertOrUpdateBlockForSlashMenu(editor, {
+        type: 'dayRecord',
+        props: { day: dayKeyOf(Date.now()) },
       }),
   })
   items.push({

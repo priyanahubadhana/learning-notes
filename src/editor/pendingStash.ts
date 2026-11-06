@@ -38,6 +38,33 @@ export function stashChanges(pageId: string, changes: BlockChanges): boolean {
   }
 }
 
+/**
+ * Changes one field of a block inside the kept changes of a page, if that
+ * block is in them. Used when something else (Home ticking a linked task)
+ * changes a block that the page left unsaved copies of, so opening the page
+ * does not bring the old value back.
+ */
+export function patchStashedBlock(
+  pageId: string,
+  blockId: string,
+  patch: Record<string, unknown>,
+): void {
+  try {
+    const raw = localStorage.getItem(KEY(pageId))
+    if (!raw) return
+    const stash = JSON.parse(raw) as Stash
+    let touched = false
+    for (const upsert of stash.changes?.upserts ?? []) {
+      if (upsert.id !== blockId) continue
+      Object.assign(upsert.content, patch)
+      touched = true
+    }
+    if (touched) localStorage.setItem(KEY(pageId), JSON.stringify(stash))
+  } catch {
+    // nothing kept, nothing to patch
+  }
+}
+
 /** Forgets the kept changes (they are saved in the database). */
 export function clearStash(pageId: string): void {
   try {

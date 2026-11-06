@@ -12,7 +12,7 @@ import type { Notebook } from './types'
  */
 const T = 1_700_000_000_000
 const base = { createdAt: T, updatedAt: T, deletedAt: null }
-const CURRENT_VERSION = 18
+const CURRENT_VERSION = 19
 let name = ''
 
 afterEach(async () => {
@@ -741,6 +741,65 @@ describe('database upgrade', () => {
       await db.annotations
         .where('[pageId+kind]')
         .equals(['p1', 'highlight'])
+        .count(),
+    ).toBe(1)
+    db.close()
+  })
+
+  it('from version 18 adds the Home tables (empty), keeping the data', async () => {
+    name = `migrate-${createId()}`
+    const old = new Dexie(name)
+    old.version(1).stores(V1)
+    old.version(2).stores(V2)
+    old.version(3).stores(V3)
+    old.version(4).stores(V4)
+    for (const v of [5, 6, 7, 8, 9, 10]) old.version(v).stores({})
+    old.version(11).stores({ pageVersions: 'id, pageId, createdAt' })
+    old.version(12).stores({ images: 'id' })
+    old.version(13).stores({
+      inkLayers: 'id, pageId',
+      inkChunks: 'id, pageId, layerId',
+    })
+    old.version(14).stores({ recordings: 'id, pageId' })
+    old.version(15).stores({ fonts: 'id' })
+    old.version(16).stores({ decks: 'id' })
+    old.version(17).stores({
+      bookFiles: 'id, pageId',
+      annotations: 'id, pageId, [pageId+kind], updatedAt',
+    })
+    old.version(18).stores({ syncState: 'id, dirty, fileState' })
+    await addVersion1Data(old)
+    old.close()
+
+    const db = new LearningNotesDB(name)
+    await db.open()
+    expect(db.verno).toBe(CURRENT_VERSION)
+    for (const table of [
+      db.tasks,
+      db.projects,
+      db.timeEntries,
+      db.dayPlans,
+      db.habits,
+      db.habitChecks,
+      db.files,
+    ]) {
+      expect(await table.count()).toBe(0)
+    }
+    expect((await db.pages.toArray()).length).toBeGreaterThan(0)
+    // The new indexes work.
+    await db.habitChecks.add({
+      id: 'h1',
+      createdAt: 1,
+      updatedAt: 1,
+      deletedAt: null,
+      habitId: 'a',
+      day: '2026-11-07',
+      done: true,
+    })
+    expect(
+      await db.habitChecks
+        .where('[habitId+day]')
+        .equals(['a', '2026-11-07'])
         .count(),
     ).toBe(1)
     db.close()

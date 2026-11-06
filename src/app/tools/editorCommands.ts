@@ -11,6 +11,9 @@ import {
   copyPageWithPictures,
   pastePlainFromClipboard,
 } from '../../editor/clipboard'
+import { db } from '../../core/db'
+import { runTask } from '../errors'
+import { sendCursorLineToHome } from '../taskLink'
 import type { AppActions, EditorExtras } from './toolRuntime'
 
 /**
@@ -136,6 +139,7 @@ const COMMANDS: Record<string, Command> = {
     toggleBlank(editor)
     editor.focus()
   },
+  toHome: () => runTask(sendCursorLineToHome(db)),
   card: ({ editor }) => {
     const block = editor.getTextCursorPosition().block
     if (!canMakeCard(block)) return

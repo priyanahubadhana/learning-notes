@@ -15,6 +15,7 @@ import { DatabaseBlockView } from '../databases/DatabaseBlockView'
 import { createEmbedBlock } from './embed/embedBlock'
 import { createFileBlock } from './fileBlock/fileBlock'
 import { createMindMapBlock } from './mindMap/mindMapBlock'
+import { createDayRecordBlock } from './dayRecord/dayRecordBlock'
 import { CardListView } from '../recall/CardListView'
 import { NOTE_LINK, TAG } from './mapping'
 import { NoteLinkView } from './NoteLinkView'
@@ -209,6 +210,7 @@ export const schema = BlockNoteSchema.create({
     database: createDatabaseBlock(),
     mindMap: createMindMapBlock(),
     embed: createEmbedBlock(),
+    dayRecord: createDayRecordBlock(),
   },
   inlineContentSpecs: { ...defaultInlineContentSpecs, noteLink, tag },
   styleSpecs: { ...defaultStyleSpecs, blank, mark },

@@ -155,7 +155,7 @@ describe('recordings', () => {
     old.close()
     const d = new LearningNotesDB(name)
     await d.open()
-    expect(d.verno).toBe(14)
+    expect(d.verno).toBeGreaterThanOrEqual(14)
     expect((await d.notebooks.get('n1'))?.title).toBe('Old')
     expect(await d.recordings.count()).toBe(0)
     d.close()

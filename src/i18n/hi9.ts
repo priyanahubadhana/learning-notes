@@ -137,6 +137,7 @@ export const hi9: Record<string, string> = {
   'main.sel.cut': 'कट',
   'main.sel.duplicate': 'डुप्लिकेट',
   'main.sel.delete': 'हटाएँ',
+  'main.sel.deselect': 'चयन हटाएँ',
   'main.sel.colour': 'रंग',
   'main.sel.move': 'हिलाएँ',
   'main.sel.scale': 'आकार बदलें',

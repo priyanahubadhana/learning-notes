@@ -214,8 +214,9 @@ test('under Lasso a Pencil double-tap selects the word, a triple-tap the line, w
     'Link…',
     'Cut',
     'Copy',
+    'Delete',
     'More',
-    'Close',
+    'Deselect',
   ])
   await expect(page.locator('[data-sel-handle]')).toHaveCount(2)
   // Copy puts the words on the clipboard.
@@ -235,7 +236,7 @@ test('under Lasso a Pencil double-tap selects the word, a triple-tap the line, w
   ).toHaveCount(4)
   // The triple-tap selects the whole line.
   await mini.getByRole('button', { name: 'More' }).click()
-  await mini.getByRole('button', { name: 'Close' }).click()
+  await mini.getByRole('button', { name: 'Deselect' }).click()
   await page.waitForTimeout(400)
   const word = await wordPoint(page, 'holds')
   await tap(page, word)

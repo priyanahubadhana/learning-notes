@@ -44,6 +44,7 @@ import { AppDragHandleMenu } from './CardMenu'
 import { AppFormattingToolbar } from './SelectionToolbar'
 import { DockedBar } from './DockedBar'
 import { watchDragSelect } from './dragSelect'
+import { ownSelection } from './ownSelection'
 import { penTransactionGuard, watchPenGuard } from './penGuard'
 import {
   applyPageMode,
@@ -233,7 +234,7 @@ function LoadedPageEditor({
   const editor = useCreateBlockNote({
     schema,
     initialContent,
-    extensions: [codeBlockKeys, linkTrigger, penTransactionGuard],
+    extensions: [codeBlockKeys, linkTrigger, penTransactionGuard, ownSelection],
     // Pasted web pages are cleaned; Ctrl/Cmd+Shift+V pastes plain text.
     pasteHandler: pasteHandler as never,
     // The editor's own menus in the chosen language (English if none).

@@ -12,9 +12,11 @@ import type { Editor } from '../../../editor/barActions'
 import { copyAs, pastePlainFromClipboard } from '../../../editor/clipboard'
 import { BACKGROUND_HEX, TEXT_HEX, setColor } from '../../../editor/colorData'
 import { posNear } from '../../../editor/tapSelect'
+import { deleteSelected, deselect } from '../../../editor/ownSelection'
 import { runEditorCommand } from '../editorCommands'
 import { Icon, type IconName } from '../icons'
 import { runTool } from '../toolRegistry'
+import { CHROME_SELECTOR } from '../../penTap'
 import { currentRunner } from '../toolRuntime'
 import { highlightChoice, textColourChoice } from './pillChoices'
 import { miniToolbarOpen, openCard, openPillTool } from './mainTools'
@@ -84,6 +86,43 @@ export function MiniToolbar({ editor }: { editor: Editor }) {
       window.removeEventListener('resize', measure)
     }
   }, [open, measure])
+  // A tap on the page away from the selection, or Esc, dismisses it (the
+  // selection otherwise stays until the person acts). A tap that is part of
+  // making the selection (a triple-tap) comes sooner than the guard below.
+  useEffect(() => {
+    if (!open) return
+    const born = Date.now()
+    let down: { x: number; y: number } | null = null
+    const onDown = (e: PointerEvent) => {
+      down = { x: e.clientX, y: e.clientY }
+    }
+    const onUp = (e: PointerEvent) => {
+      const start = down
+      down = null
+      if (!start || Date.now() - born < 450) return
+      if (Math.hypot(e.clientX - start.x, e.clientY - start.y) > 10) return
+      const target = e.target instanceof Element ? e.target : null
+      if (!target || target.closest(CHROME_SELECTOR)) return
+      if (target.closest('[data-sel-handle]')) return
+      const dom = editor.domElement
+      if (!dom || !dom.contains(target)) return
+      deselect(editor)
+      miniToolbarOpen.set(false)
+    }
+    const onKey = (e: KeyboardEvent) => {
+      if (e.key !== 'Escape') return
+      deselect(editor)
+      miniToolbarOpen.set(false)
+    }
+    document.addEventListener('pointerdown', onDown, true)
+    document.addEventListener('pointerup', onUp, true)
+    document.addEventListener('keydown', onKey, true)
+    return () => {
+      document.removeEventListener('pointerdown', onDown, true)
+      document.removeEventListener('pointerup', onUp, true)
+      document.removeEventListener('keydown', onKey, true)
+    }
+  }, [open, editor])
   // The toolbar goes when the selection does.
   useEffect(() => {
     if (open && !hasSelection) miniToolbarOpen.set(false)
@@ -204,6 +243,15 @@ export function MiniToolbar({ editor }: { editor: Editor }) {
       run: () => void copyAs(editor, 'plain', toast),
     },
     {
+      id: 'delete',
+      icon: 'trash',
+      label: t('main.sel.delete'),
+      run: () => {
+        deleteSelected(editor)
+        miniToolbarOpen.set(false)
+      },
+    },
+    {
       id: 'more',
       icon: 'more',
       label: t('main.mini.more'),
@@ -300,10 +348,11 @@ export function MiniToolbar({ editor }: { editor: Editor }) {
         <button
           type="button"
           data-mini="close"
-          aria-label={t('popup.close')}
-          title={t('popup.close')}
+          aria-label={t('main.sel.deselect')}
+          title={t('main.sel.deselect')}
           onMouseDown={keepFocus}
           onClick={() => {
+            deselect(editor)
             miniToolbarOpen.set(false)
             setMore(false)
           }}

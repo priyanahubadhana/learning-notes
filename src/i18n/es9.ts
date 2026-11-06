@@ -137,6 +137,7 @@ export const es9: Record<string, string> = {
   'main.sel.cut': 'Cortar',
   'main.sel.duplicate': 'Duplicar',
   'main.sel.delete': 'Eliminar',
+  'main.sel.deselect': 'Quitar selección',
   'main.sel.colour': 'Color',
   'main.sel.move': 'Mover',
   'main.sel.scale': 'Escalar',

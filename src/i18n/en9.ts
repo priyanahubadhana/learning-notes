@@ -138,6 +138,7 @@ export const en9 = {
   'main.sel.cut': 'Cut',
   'main.sel.duplicate': 'Duplicate',
   'main.sel.delete': 'Delete',
+  'main.sel.deselect': 'Deselect',
   'main.sel.colour': 'Colour',
   'main.sel.move': 'Move',
   'main.sel.scale': 'Scale',

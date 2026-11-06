@@ -8,6 +8,7 @@ import { currentRunner } from '../toolRuntime'
 import { runTool } from '../toolRegistry'
 import type { CardAnchor } from './pillPlace'
 import { keepFocus } from './pillKit'
+import { deselect } from '../../../editor/ownSelection'
 import { miniToolbarOpen } from './mainTools'
 import { inkFor, useInk } from '../../../ink/inkRuntime'
 
@@ -137,6 +138,11 @@ export function SelectionMenu({
     { id: 'makeCard', icon: 'cards', run: () => runTool('card') },
     { id: 'saveToNotes', icon: 'notebook', run: saveText },
     { id: 'convert', icon: 'type', soon: true },
+    {
+      id: 'deselect',
+      icon: 'close',
+      run: () => deselect(editor),
+    },
   ]
   return (
     <div

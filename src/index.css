@@ -646,3 +646,24 @@ html[data-note-line] .bn-editor {
     display: none;
   }
 }
+
+/* Our own selection (Phase A3): drawn whether or not the page has focus. */
+.bn-editor .ln-sel {
+  background: color-mix(in srgb, var(--color-accent) 30%, transparent);
+  border-radius: 3px;
+  box-shadow: 0 0 0 1px color-mix(in srgb, var(--color-accent) 45%, transparent);
+}
+.bn-editor .ln-sel-node > .bn-block > .bn-block-content {
+  background: color-mix(in srgb, var(--color-accent) 18%, transparent);
+  outline: 2px solid var(--color-accent);
+  outline-offset: 2px;
+  border-radius: 6px;
+}
+@media (prefers-reduced-motion: no-preference) {
+  .bn-editor .ln-sel,
+  .bn-editor .ln-sel-node > .bn-block > .bn-block-content {
+    transition:
+      background-color 120ms ease,
+      outline-color 120ms ease;
+  }
+}

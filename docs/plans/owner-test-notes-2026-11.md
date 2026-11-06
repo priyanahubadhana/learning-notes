@@ -223,3 +223,23 @@ R4-20 DETAIL (after Update):
   Study Photoshop's Layers panel (👁 visibility, lock, opacity, order, active-layer highlight) as the model for our layers UI.
   R4-24 Layers (decided): max 2 per page ("Layer 1", "Layer 2"); 👁 eye, lock, Merge into one; Photoshop-like: the top layer is drawn over the lower one and tools act only on the active layer; the pen pill shows "Layer 1 ▾" (the word Layer, not "label"), last used by default.
   NEXT (owner-approved process): 1) full understanding of everything (plan, decisions, notes R1–R4, what's done, what's pending) → 2) deep research (GoodNotes, Notability, Notion, Photoshop, OneNote + every good online source) → 3) ONE reorganised master plan, step by step → 4) owner approval → 5) autonomous build.
+
+## Owner workflow and capture vision (6 Nov, for the audit)
+
+- Today's YouTube flow:
+  1. Watch the video.
+  2. Paste the link into Gemini with a custom prompt to get notes.
+  3. Paste the notes into Notion or GoodNotes (or rewrite them by hand).
+  4. Rewatch and add screenshots manually.
+  5. Draw small mind maps with the Pencil.
+- Pain: forgets visual details (e.g. a Photoshop tool ICON and the workflow), keyword notes are incomplete without the icon, and must rewatch.
+- Wanted: ONE TAP → automatic visual notes from a YouTube video or a website, via the user's own AI (Gemini, Claude, Claude Code), including:
+  - key frames and screenshots at the right moments;
+  - small CROPPED icons with their names (icon + word for recall);
+  - the workflow steps;
+  - a mind map;
+  - recall cards.
+    Then the owner edits by hand.
+- Picture editing priority: crop and resize with corner handles, zoom in/out, adjust the shape; then draw arrows and ink over it; rotate; cut out a part (e.g. just one icon). Blur not needed.
+- Note-making stays first priority; automation second; both together ideal.
+- Human intervention principle (owner): AI-made output (notes, summary, database rows, mind maps, recall cards) must land as NORMAL, fully editable content, identical to hand-made content (no locked "AI blocks"). Users edit freely: add or remove lines, add pictures, edit the AI's mind map, add more. If the AI did a bad job, the user can delete it in one go and build the same quality by hand. Editing AI output must be as easy as editing your own notes in GoodNotes/Notion.

@@ -2,6 +2,12 @@
 
 Current phase only. Older entries are in [ARCHIVE.md](ARCHIVE.md).
 
+## 2026-11-06 (audit)
+
+- **What:** Overnight audit of direction and quality, read-only on code: [plans/audit-2026-11.md](plans/audit-2026-11.md). Verdict: foundation and Phase A are on the right path; the plan lacked a capture → notes → recall pipeline and the visual-notes tools, so the master plan gains an "Audit changes" section (Phase CR with one notes format any AI can fill, a picture editor, mind map and embed blocks, re-cut waves, C5 and H2 later; AI output stays ordinary editable content with one-step removal). Docs made accurate: README status, LIMITATIONS (first load about 370 KB, "coming" items), `features/ink.md` (two layers), CODE-MAP folders, ROADMAP pointer to the master plan, INDEX rows. HANDOFF cut to five lines; the owner checks moved to [plans/owner-checks-pending.md](plans/owner-checks-pending.md). DECISIONS rows for every audit decision.
+- **Why:** owner request (6 Nov): confirm the right path against "the app makes the notes, the user experiences and recalls", then quality.
+- **Files:** `docs/plans/audit-2026-11.md`, `owner-checks-pending.md`, `master-plan-2026-11.md`, `docs/HANDOFF.md`, `INDEX.md`, `ROADMAP.md`, `LIMITATIONS.md`, `CODE-MAP.md`, `DECISIONS.md`, `features/ink.md`, `README.md`. No `src/` change.
+
 ## 2026-11-06 (Phase A, part 1)
 
 - **What:** A1 trustworthy Pencil: edit policy (ink tools make the page non-editable and inert), bars moved out of the page scroller, Pencil tap module for chrome (`penTap.ts`), stylus touchmove cancel, pointercancel rule, canvas budget, Pencil lab (`#/lab/pencil`, Settings › Advanced), About this app with Check for updates. A2: two layers, "Layer 1 ▾" chip, Layers card rewrite, Merge with Undo, old-page merge, active layer per page, eraser on the active layer, locked/hidden toast with Unlock/Show. A4 parts: Undo no longer focuses the page, no keyboard-follow of the top bar. New Playwright project `ipad-webkit`.

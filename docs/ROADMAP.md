@@ -1,5 +1,7 @@
 # Roadmap
 
+> **Order of work since 6 Nov 2026:** [plans/master-plan-2026-11.md](plans/master-plan-2026-11.md) (Phases A–Q, plus its "Audit changes" section) replaces the batch and step numbering below. This file stays as the long-range list of what each later phase holds.
+
 Approved 2026-11-01. Each phase still gets a short planning talk, a Definition of Done, and mockups for new screens. Only the owner uses the app for now, mainly on iPad and Windows PC; the phone just needs to work. Budget ₹0 or close.
 
 - **Phase 7 — Cleanup + CI:** docs system, private GitHub, CI (lint, unit, e2e, Chrome + WebKit), flaky tests, feature specs.

@@ -1,4 +1,4 @@
-import { copyBlocks, createBlock } from '../core/blockService'
+import { copyBlocks, createBlock, listBlocks } from '../core/blockService'
 import type { LearningNotesDB } from '../core/db'
 import type { Notebook, Page } from '../core/types'
 import { syncCardRecords } from '../recall/cardService'
@@ -73,4 +73,40 @@ export async function openJournalDay(
       return { page, created: true }
     },
   )
+}
+
+/**
+ * Writes notes into a day's journal page (the evening review's prompts):
+ * each entry is a small heading with the answer under it. They go before
+ * the page's task record, which stays last. The day's page is made if it
+ * does not exist yet.
+ */
+export async function appendJournalNotes(
+  db: LearningNotesDB,
+  workspaceId: string,
+  entries: readonly { heading: string; text: string }[],
+  date: Date = new Date(),
+): Promise<Page> {
+  const { page } = await openJournalDay(db, workspaceId, date)
+  const run = (text: string) => [{ type: 'text', text, styles: {} }]
+  const existing = await listBlocks(db, page.id)
+  const top = existing.filter((b) => b.parentId === null)
+  let index = top.at(-1)?.type === 'dayRecord' ? top.length - 1 : top.length
+  for (const entry of entries) {
+    const text = entry.text.trim()
+    if (!text) continue
+    await createBlock(db, {
+      pageId: page.id,
+      type: 'heading',
+      content: { level: 3, text: run(entry.heading) },
+      index: index++,
+    })
+    await createBlock(db, {
+      pageId: page.id,
+      type: 'paragraph',
+      content: { text: run(text) },
+      index: index++,
+    })
+  }
+  return page
 }

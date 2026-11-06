@@ -1,17 +1,25 @@
-import { useMemo } from 'react'
+import { useLiveQuery } from 'dexie-react-hooks'
+import { useEffect, useMemo, useRef, useState } from 'react'
 import { usePref } from '../app/usePref'
 import type { LearningNotesDB } from '../core/db'
+import { addDays } from '../core/homeDays'
+import { isLive } from '../core/records'
 import { dayRecord } from '../core/taskService'
 import { t, type MessageKey } from '../i18n/t'
+import { buildBriefing } from './briefing'
+import { BriefingCard } from './BriefingCard'
 import { dayMonthLabel } from './dayLabel'
+import { EveningReview } from './EveningReview'
+import { listChecks, listHabits, readDayStart } from './habitService'
 import { PlanTab } from './PlanTab'
 import { ReportsTab } from './ReportsTab'
+import { Routines } from './Routines'
 import { TasksTab } from './TasksTab'
 import { TimerCard } from './TimerCard'
 import { Top3 } from './Top3'
 import { useTasks, useToday } from './useHomeData'
 
-const TABS = ['today', 'tasks', 'plan', 'reports'] as const
+const TABS = ['today', 'tasks', 'plan', 'routines', 'reports'] as const
 type Tab = (typeof TABS)[number]
 const isTab = (v: unknown): v is Tab => TABS.includes(v as Tab)
 
@@ -19,12 +27,18 @@ const isTab = (v: unknown): v is Tab => TABS.includes(v as Tab)
 export interface HomeDeps {
   openToday: () => void
   openPage: (pageId: string) => void
+  /** How many recall cards are due now (for the Briefing). */
+  countCardsDue: () => Promise<number>
+  /** Opens the review of all cards. */
+  openReview: () => void
+  /** Writes notes into today's journal page (the evening review). */
+  appendJournal: (entries: { heading: string; text: string }[]) => Promise<void>
 }
 
 /**
- * Home (Phase F): the day cockpit. Tabs: Today (the day at a glance) and
- * Tasks (inbox, matrix, upcoming, completed, projects). More tabs arrive
- * with the timer, plan, routines and reports.
+ * Home (Phase F): the day cockpit. Tabs: Today (Briefing, evening review,
+ * Top 3, timer), Tasks (inbox, matrix, upcoming, completed, projects), Plan
+ * (the day's timeline), Routines (habits and affirmations) and Reports.
  */
 export function HomeScreen({
   db,
@@ -36,11 +50,48 @@ export function HomeScreen({
   const [tab, setTab] = usePref<Tab>('home.tab', isTab, 'today')
   const today = useToday(db)
   const { tasks, projects } = useTasks(db)
+  const habits = useLiveQuery(() => listHabits(db), [db])
+  const dayStart = useLiveQuery(() => readDayStart(db), [db])
+  const checks = useLiveQuery(
+    async () => (today ? listChecks(db, addDays(today, -7), today) : []),
+    [db, today],
+  )
+  const [cardsDue, setCardsDue] = useState(0)
+  const countRef = useRef(deps.countCardsDue)
+  useEffect(() => {
+    countRef.current = deps.countCardsDue
+  })
+  useEffect(() => {
+    let cancelled = false
+    void countRef.current().then((n) => {
+      if (!cancelled) setCardsDue(n)
+    })
+    return () => {
+      cancelled = true
+    }
+  }, [tab, today])
+
   const record = useMemo(
     () => (tasks && today ? dayRecord(tasks, today) : null),
     [tasks, today],
   )
-  if (!today || !tasks || !projects) return null
+  const briefing = useMemo(
+    () =>
+      tasks && habits && checks && today && dayStart !== undefined
+        ? buildBriefing({
+            today,
+            tasks,
+            habits: habits.filter(isLive),
+            checks,
+            cardsDue,
+            dayStart,
+          })
+        : null,
+    [tasks, habits, checks, today, dayStart, cardsDue],
+  )
+  if (!today || !tasks || !projects || !habits || dayStart === undefined) {
+    return null
+  }
 
   return (
     <section
@@ -52,7 +103,7 @@ export function HomeScreen({
         <h2 className="text-xl font-semibold">{t('space.home')}</h2>
         <p className="text-sm text-muted">{dayMonthLabel(today)}</p>
       </header>
-      <div role="tablist" className="mb-4 flex gap-1.5">
+      <div role="tablist" className="mb-4 flex flex-wrap gap-1.5">
         {TABS.map((id) => (
           <button
             key={id}
@@ -72,6 +123,9 @@ export function HomeScreen({
       </div>
       {tab === 'today' && record && (
         <div className="flex flex-col gap-4" data-testid="home-today">
+          {briefing && (
+            <BriefingCard briefing={briefing} onOpenCards={deps.openReview} />
+          )}
           <button
             type="button"
             onClick={deps.openToday}
@@ -81,6 +135,12 @@ export function HomeScreen({
           </button>
           <Top3 db={db} tasks={tasks} today={today} />
           <TimerCard db={db} projects={projects} />
+          <EveningReview
+            db={db}
+            tasks={tasks}
+            today={today}
+            appendJournal={deps.appendJournal}
+          />
           <div className="grid grid-cols-3 gap-2 text-center">
             {(
               [
@@ -98,20 +158,7 @@ export function HomeScreen({
           {record.open.length === 0 && record.done.length === 0 && (
             <p className="text-sm text-muted">{t('home.today.empty')}</p>
           )}
-          <ul className="flex flex-col gap-1">
-            {record.open.map((task) => (
-              <li key={task.id} className="px-1 text-sm">
-                {task.title}
-              </li>
-            ))}
-          </ul>
         </div>
-      )}
-      {tab === 'plan' && (
-        <PlanTab db={db} today={today} tasks={tasks} projects={projects} />
-      )}
-      {tab === 'reports' && (
-        <ReportsTab db={db} today={today} projects={projects} />
       )}
       {tab === 'tasks' && (
         <TasksTab
@@ -121,6 +168,15 @@ export function HomeScreen({
           projects={projects}
           onOpenPage={deps.openPage}
         />
+      )}
+      {tab === 'plan' && (
+        <PlanTab db={db} today={today} tasks={tasks} projects={projects} />
+      )}
+      {tab === 'routines' && (
+        <Routines db={db} today={today} dayStart={dayStart} habits={habits} />
+      )}
+      {tab === 'reports' && (
+        <ReportsTab db={db} today={today} projects={projects} />
       )}
     </section>
   )

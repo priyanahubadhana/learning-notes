@@ -69,7 +69,7 @@ import type {
 } from './core/types'
 import { getOrCreateDefaultWorkspace } from './core/workspaceService'
 import { ensureSearchIndex } from './search/searchService'
-import { openJournalDay } from './journal/journalService'
+import { appendJournalNotes, openJournalDay } from './journal/journalService'
 import { Sidebar } from './notebooks/Sidebar'
 import { LeftPanel } from './app/panel/LeftPanel'
 import { HomeScreen } from './home/HomeScreen'
@@ -83,7 +83,7 @@ import {
   reminderDue,
   snoozeReminder,
 } from './share/backupReminder'
-import type { ReviewScope } from './recall/reviewService'
+import { countDue, type ReviewScope } from './recall/reviewService'
 import {
   dateStyleSetting,
   languageSetting,
@@ -1503,6 +1503,15 @@ function App() {
                           deps={{
                             openToday: () => runTask(openToday()),
                             openPage: (id) => openPage(id),
+                            countCardsDue: () => countDue(db, Date.now()),
+                            openReview: () => openReview({ kind: 'all' }),
+                            appendJournal: async (entries) => {
+                              await appendJournalNotes(
+                                db,
+                                workspace.id,
+                                entries,
+                              )
+                            },
                           }}
                         />
                       ) : notebooks.length === 0 && currentPage === null ? (
@@ -1557,6 +1566,10 @@ function App() {
                 onOpenPage={(id) => {
                   setSearchPopup(false)
                   openPage(id)
+                }}
+                onOpenTask={() => {
+                  writePref('home.tab', 'tasks')
+                  chooseSpace('home')
                 }}
                 onSeeAll={openSearch}
                 initialChip={searchChip}

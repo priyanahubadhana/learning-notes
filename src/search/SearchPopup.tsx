@@ -16,6 +16,7 @@ import {
   type SearchQuery,
 } from './searchQuery'
 import { ResultRow } from './SearchResults'
+import { TaskResults } from './TaskResults'
 import { TYPE_ICON, useHitDetails, useSearch } from './useSearch'
 
 /** Recent pages shown before typing. */
@@ -40,7 +41,7 @@ const CHIPS: Chip[] = [
   'feature',
 ]
 /** Chips for things that are not built yet (Library, reader, Home). */
-const COMING: Chip[] = ['book', 'highlight', 'task']
+const COMING: Chip[] = ['book', 'highlight']
 
 /**
  * The one Search (Ctrl/Cmd+K, Ctrl/Cmd+Shift+K, the 🔍 buttons): a box, filter
@@ -57,6 +58,7 @@ export function SearchPopup({
   onOpenPage,
   onSeeAll,
   initialChip = 'all',
+  onOpenTask,
 }: {
   db: LearningNotesDB
   onClose: () => void
@@ -67,6 +69,8 @@ export function SearchPopup({
   onSeeAll: (query: SearchQuery) => void
   /** "Search all features" opens with the Features chip. */
   initialChip?: 'all' | 'feature'
+  /** A task was picked: Home's Tasks. */
+  onOpenTask?: () => void
 }) {
   const ref = useRef<HTMLDialogElement>(null)
   const inputRef = useRef<HTMLInputElement>(null)
@@ -286,7 +290,16 @@ export function SearchPopup({
         aria-label={t('search.results')}
         className="flex-1 overflow-y-auto p-1.5"
       >
-        {COMING.includes(chip) ? (
+        {chip === 'task' ? (
+          <TaskResults
+            db={db}
+            text={text}
+            onOpen={() => {
+              onClose()
+              onOpenTask?.()
+            }}
+          />
+        ) : COMING.includes(chip) ? (
           <p className="px-4 py-7 text-center text-sm text-muted">
             {t(`search.coming.${chip}` as MessageKey)}
           </p>

@@ -15,7 +15,7 @@ Redesign step 4a. The app has four **spaces** (Home, Library, Notebooks, Review)
   - **Notebooks:** as before: Today, Search, Study (Review, All cards), Quick access (Favourites, Recent, Calendar, Databases), the notebook tree, Tags, Templates, Saved searches.
   - **Review:** Search, Study (Review with its due count, All cards) and Saved searches. Decks come in step 6.
   - **Library:** placeholder "Coming next: your books" and a disabled Import button (also in the main area). The real Library is step 5.
-  - **Home:** placeholder "Today" with a button to today's journal (also in the main area). The real Home is step 7.
+  - **Home:** the Home cockpit (Phase F, see home.md); the sidebar still shows the small "Today" link.
     Tapping Home or Library opens their page in the main area (it closes any open page); tapping Notebooks or Review only switches the list (on a phone it opens the drawer).
 - **Quiet corner** (`src/app/spaces/QuietCorner.tsx`): a ⚙ button (named "Quiet corner") that opens a panel with Settings, Save & restore, Trash (the old Trash list, folded), Device mode (opens the Computer/Touch/Pencil list), Help (opens Settings at "Show help") and the Day/Night/Sepia buttons. It stays open while you use Trash, the theme and Device mode; Settings, Save & restore and Help close it. Esc or a click outside closes it.
 - **Hide a space** (`src/settings/spaceSettings.ts`): Settings › General has Show/Hide for Home, Library and Review (device setting). Notebooks cannot be hidden. If the remembered space is hidden the sidebar uses Notebooks. Hidden spaces still show up in Search (Features). A Layer gallery comes later (step 9).
@@ -37,3 +37,7 @@ Redesign step 4a. The app has four **spaces** (Home, Library, Notebooks, Review)
 
 - Unit: `src/app/spaces/spaces.test.ts`, `src/settings/spaceSettings.test.ts`, translations and help tests.
 - Browser: `e2e/spaces.spec.ts` (space switching, remembered space, every old sidebar item reachable, quiet corner, one Search groups and chips, hiding a space, deep links, phone tab bar), `e2e/controlPanel.spec.ts` (Features), plus the older sidebar specs updated for the corner.
+
+## Home (Phase F)
+
+The Home space now shows the real cockpit (tabs Today, Tasks, Plan, Routines, Reports) instead of the placeholder: see [home.md](home.md). The running timer chip on every screen opens it.

@@ -6,6 +6,17 @@ const PNG = Buffer.from(
   'base64',
 )
 
+// Never load the real player: CI has internet and the real page is slow and
+// can change. An empty page stands in for it.
+test.beforeEach(async ({ page }) => {
+  await page.route('https://www.youtube-nocookie.com/**', (route) =>
+    route.fulfill({
+      contentType: 'text/html',
+      body: '<!doctype html><title>player</title>',
+    }),
+  )
+})
+
 async function insertEmbed(page: Page, address: string) {
   await page.goto('/')
   await page.getByRole('button', { name: 'Create notebook' }).click()

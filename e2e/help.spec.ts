@@ -62,7 +62,10 @@ test('Show help: tips across the app, help lines, and nothing when Off', async (
     .focus()
   await page.keyboard.press('Shift+Tab')
   await page.keyboard.press('Tab')
-  await expect(page.getByRole('tooltip')).toBeVisible()
+  // A hover tip from the mouse's last spot may still be fading, so look for this one by name.
+  await expect(
+    page.getByRole('tooltip', { name: /Finds words in all your notes/ }),
+  ).toBeVisible()
 
   // Off: no tips, no help lines, no native hover text left behind.
   await cornerAction(page, 'Settings')

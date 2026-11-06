@@ -13,7 +13,6 @@ export const esLib: Record<string, string> = {
     'No se pudo leer el libro. Puede estar dañado o protegido (DRM).',
   'library.title': 'Biblioteca',
   'library.import': 'Importar un libro',
-  'library.importing': 'Importando {name}…',
   'library.importHint': 'PDF, EPUB o DOCX. Solo archivos sin DRM.',
   'library.imported': 'Se añadió «{title}» a tu biblioteca.',
   'library.capture': 'Capturar',

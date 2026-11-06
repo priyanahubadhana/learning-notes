@@ -4,7 +4,12 @@
 import { strToU8, zipSync } from 'fflate'
 import { afterEach, beforeEach, describe, expect, it } from 'vitest'
 import { listBlocks } from '../core/blockService'
-import { detectBookFormat, MAX_BOOK_BYTES } from '../core/bookFormat'
+import {
+  detectBookFormat,
+  isBigBook,
+  MAX_BOOK_BYTES,
+  megabytes,
+} from '../core/bookFormat'
 import type { LearningNotesDB } from '../core/db'
 import { isHttpsUrl, isPageSource, parseLocator } from '../core/sourceCheck'
 import { createTestDb } from '../core/testing'
@@ -211,5 +216,18 @@ describe('the Library list and progress', () => {
     expect(progressPercent(page?.source)).toBe(100)
     expect(readStatus({ kind: 'book' })).toBe('new')
     expect(readStatus({ kind: 'book', progress: 0.3 })).toBe('reading')
+  })
+})
+
+describe('big files', () => {
+  it('warns above 200 MB, not at 200 MB, and still imports up to the limit', () => {
+    expect(isBigBook(200 * 1024 * 1024)).toBe(false)
+    expect(isBigBook(200 * 1024 * 1024 + 1)).toBe(true)
+    expect(isBigBook(MAX_BOOK_BYTES)).toBe(true)
+  })
+
+  it('shows the size in whole megabytes', () => {
+    expect(megabytes(42 * 1024 * 1024)).toBe(42)
+    expect(megabytes(10)).toBe(1)
   })
 })

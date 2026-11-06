@@ -16,6 +16,14 @@ export const BOOK_MIME: Record<BookFormat, string> = {
 /** Largest book file accepted (bytes): 300 MB. */
 export const MAX_BOOK_BYTES = 300 * 1024 * 1024
 
+/** Above this size the app warns once that an iPad may not open the file. */
+export const BIG_BOOK_BYTES = 200 * 1024 * 1024
+export const isBigBook = (bytes: number): boolean => bytes > BIG_BOOK_BYTES
+
+/** A size for the "Saving …" line, in whole megabytes (at least 1). */
+export const megabytes = (bytes: number): number =>
+  Math.max(1, Math.round(bytes / (1024 * 1024)))
+
 export const formatOfMime = (mime: unknown): BookFormat | null =>
   (Object.keys(BOOK_MIME) as BookFormat[]).find((f) => BOOK_MIME[f] === mime) ??
   null

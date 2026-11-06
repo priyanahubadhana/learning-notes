@@ -42,6 +42,18 @@ export interface PdfSelection {
   chapter?: string
 }
 
+/**
+ * Tests only: `window.__pdfOutlineDelayMs` makes the Contents slow, so a test
+ * can prove that page 1 does not wait for them.
+ */
+const outlineDelay = (): Promise<void> => {
+  const ms = (window as unknown as { __pdfOutlineDelayMs?: number })
+    .__pdfOutlineDelayMs
+  return ms
+    ? new Promise((resolve) => setTimeout(resolve, ms))
+    : Promise.resolve()
+}
+
 export interface OutlineItem {
   title: string
   page: number
@@ -117,6 +129,13 @@ export function PdfView(props: PdfViewProps) {
         setDoc(pdf)
         propsRef.current.onDoc?.(pdf)
         propsRef.current.onReady({ pageCount: pdf.numPages })
+        // Page 1 is on its way to the screen now; the Contents are read next,
+        // beside the page sizes, and never hold the first page back.
+        void (async () => {
+          await outlineDelay()
+          const items = await readOutline(pdf)
+          if (!cancelled) propsRef.current.onOutline(items)
+        })()
         // The other pages' real sizes, in the background.
         const real: PageSize[] = Array.from(
           { length: pdf.numPages },
@@ -129,9 +148,6 @@ export function PdfView(props: PdfViewProps) {
           p.cleanup()
           if (i % 25 === 0 || i === pdf.numPages) setSizes([...real])
         }
-        void readOutline(pdf).then(
-          (items) => !cancelled && propsRef.current.onOutline(items),
-        )
       } catch (e) {
         console.error('PDF failed', e)
         if (!cancelled) propsRef.current.onFailed()

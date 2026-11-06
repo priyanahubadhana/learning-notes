@@ -5,6 +5,7 @@ import { ConfirmDialog, IconButton, MenuPopover } from '../app/ui'
 import { useLongPress } from '../app/useLongPress'
 import { deletePage } from '../pages/pageService'
 import { runTask } from '../app/errors'
+import { isBigBook, megabytes } from '../core/bookFormat'
 import type { LearningNotesDB } from '../core/db'
 import type { Page } from '../core/types'
 import { t } from '../i18n/t'
@@ -54,7 +55,8 @@ export function LibraryScreen({
 
   const importFiles = async (files: File[]) => {
     for (const file of files) {
-      setBusy(file.name)
+      setBusy(`${file.name} (${megabytes(file.size)} MB)`)
+      if (isBigBook(file.size)) toast(t('library.bigFile'))
       try {
         const page = await importBook(db, workspaceId, file, inspectBook)
         toast(t('library.imported', { title: page.title || file.name }))
@@ -135,7 +137,7 @@ export function LibraryScreen({
       <p className="mb-4 text-xs text-muted">{t('library.importHint')}</p>
       {busy && (
         <p role="status" className="mb-3 text-sm text-muted">
-          {t('library.importing', { name: busy })}
+          {t('library.saving', { name: busy })}
         </p>
       )}
       <div

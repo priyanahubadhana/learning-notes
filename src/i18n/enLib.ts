@@ -15,7 +15,6 @@ export const enLib = {
     'The book could not be read. It may be damaged or protected (DRM).',
   'library.title': 'Library',
   'library.import': 'Import a book',
-  'library.importing': 'Importing {name}…',
   'library.importHint': 'PDF, EPUB or DOCX. DRM-free files only.',
   'library.imported': 'Added “{title}” to your library.',
   'library.capture': 'Capture',

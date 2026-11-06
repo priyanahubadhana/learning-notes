@@ -12,7 +12,6 @@ export const hiLib: Record<string, string> = {
     'किताब पढ़ी नहीं जा सकी। वह ख़राब या सुरक्षित (DRM) हो सकती है।',
   'library.title': 'लाइब्रेरी',
   'library.import': 'किताब जोड़ें',
-  'library.importing': '{name} जोड़ी जा रही है…',
   'library.importHint': 'PDF, EPUB या DOCX। केवल DRM-मुक्त फ़ाइलें।',
   'library.imported': '“{title}” आपकी लाइब्रेरी में जुड़ गई।',
   'library.capture': 'कैप्चर',

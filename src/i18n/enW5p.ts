@@ -64,4 +64,7 @@ export const enW5p = {
   'help.tip.library.cardMenu.example': 'Open its notes page or delete it.',
   // ---- Large data (item 5) ----
   'home.completed.older': 'Show older',
+  // ---- Big files (item 6) ----
+  'library.saving': 'Saving {name}…',
+  'library.bigFile': 'Big files may not open on iPad. Importing it anyway.',
 } as const

@@ -60,4 +60,7 @@ export const esW5p = {
     'Abre más acciones para este libro o fuente.',
   'help.tip.library.cardMenu.example': 'Abre su página de notas o elimínala.',
   'home.completed.older': 'Mostrar anteriores',
+  'library.saving': 'Guardando {name}…',
+  'library.bigFile':
+    'Los archivos grandes quizá no abran en el iPad. Se importa de todos modos.',
 } as const

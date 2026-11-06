@@ -303,3 +303,19 @@ test('#/capture?url= opens prefilled and a non-https link is refused', async ({
   await page.getByTestId('capture-save').click()
   await expect(page.getByRole('alert')).toContainText('https://')
 })
+
+test('page 1 is on screen before the Contents are read', async ({ page }) => {
+  // The Contents take 6 s in this test; page 1 must not wait for them.
+  await page.addInitScript(() => {
+    ;(
+      window as unknown as { __pdfOutlineDelayMs: number }
+    ).__pdfOutlineDelayMs = 6000
+  })
+  await openLibrary(page)
+  await importFile(page, 'fixture.pdf', 'application/pdf', pdf())
+  await page.getByRole('button', { name: '▶ Start reading' }).click()
+  await expect(page.getByTestId('reader-page')).toHaveText('Page 1 of 3')
+  await expect(
+    page.locator('.textLayer span', { hasText: 'Alpha' }).first(),
+  ).toBeVisible({ timeout: 4000 })
+})

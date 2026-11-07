@@ -15,4 +15,17 @@ export const enN = {
     'Moves the calendar back or forward by a day, a week or a month, or jumps to today.',
   'help.tip.calendar.nav.example':
     'In Day, this also works by swiping the card sideways.',
+
+  // ---- New-page start (N2) ----
+  'newPage.title': 'Start with a template, or just begin typing',
+  'newPage.study': 'Study (Recommended)',
+  'newPage.always': 'Always start new pages as Study',
+  'newPage.notBlank': 'The page already has writing, so nothing was added.',
+  'settings.newPageStudy.label': 'Start new pages as Study',
+  'settings.newPageStudy.description':
+    'On: every new page opens with the Study notes template already in it. Off: a new page is blank, with a list of templates under the cursor.',
+  'help.tip.newPage.always.meaning':
+    'Every new page will open with the Study notes template filled in. You can turn it off again in Settings › General.',
+  'help.tip.newPage.always.example':
+    'Handy when almost every page you make is lesson notes.',
 }

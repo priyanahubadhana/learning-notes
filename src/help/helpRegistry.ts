@@ -43,6 +43,9 @@ export const TIPS = {
   'path.sep': { where: 'Top bar › full page path › the arrow between parts' },
   'topBar.deviceMode': { where: 'Top bar › Device mode button (right side)' },
   'sidebar.calendar': { where: 'Sidebar › Calendar' },
+  'newPage.always': {
+    where: 'New blank page › template list › Always start new pages as Study',
+  },
   'calendar.nav': { where: 'Calendar › ‹ Today › (previous, today, next)' },
   'sidebar.favourites': { where: 'Sidebar › Favourites heading' },
   'sidebar.recent': { where: 'Sidebar › Recent heading' },

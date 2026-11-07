@@ -593,6 +593,23 @@ export function applyDeviceMode(mode: DeviceMode): void {
   applyModePreset(mode)
 }
 
+/**
+ * N2: "Always start new pages as Study". On: a new page opens with the Study
+ * notes template already filled in; off: it opens blank with the template
+ * list below the cursor. Saved with the notes (synced).
+ */
+export const newPageStudySetting: SettingDefinition<OnOff> = {
+  id: 'general.newPageStudy',
+  labelKey: 'settings.newPageStudy.label',
+  descriptionKey: 'settings.newPageStudy.description',
+  category: 'general',
+  keywords: 'new page start template study default always blank',
+  scope: 'synced',
+  defaultValue: 'off',
+  isValid: isOnOff,
+  control: { kind: 'segmented', options: onOffOptions() },
+}
+
 for (const definition of [
   theme,
   deviceModeSetting,
@@ -621,6 +638,7 @@ for (const definition of [
   goodSteps,
   practiceOrder,
   nestedCardPlacement,
+  newPageStudySetting,
 ]) {
   settingsRegistry.register(definition as SettingDefinition)
 }

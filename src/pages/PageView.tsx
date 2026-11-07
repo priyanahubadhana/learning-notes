@@ -27,6 +27,7 @@ import { dateKey } from '../journal/dates'
 import { t } from '../i18n/t'
 import { getNotebook } from '../notebooks/notebookService'
 import { saveAsTemplate } from '../templates/templateService'
+import { NewPageStart } from '../templates/NewPageStart'
 import { getPagePath, setPagePathStyle } from './pageService'
 import { PagePath } from './PagePath'
 
@@ -446,6 +447,18 @@ export function PageView({
           editorRef={editor}
           reading={view === 'off' ? undefined : { view }}
         />
+        {autoFocusTitle &&
+          !reader &&
+          !isTemplate &&
+          !page.databaseId &&
+          notebook && (
+            <NewPageStart
+              db={db}
+              pageId={page.id}
+              workspaceId={notebook.workspaceId}
+              onApplied={onReload}
+            />
+          )}
       </ReadingFrame>
       <div style={{ display: reader ? 'none' : 'contents' }}>
         {notebook && !isTemplate && (

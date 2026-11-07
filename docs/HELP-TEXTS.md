@@ -2,7 +2,7 @@
 
 Every hover tip and help line in the app (shown while Settings › Show help is On). Generated from `src/help/helpRegistry.ts` and `src/i18n/en.ts`; to change a text, edit it in `en.ts`, then run `UPDATE_HELP=1 npx vitest run src/help` to refresh this file.
 
-## Hover tips (153)
+## Hover tips (154)
 
 ### `bar.newLine`
 
@@ -93,6 +93,12 @@ Every hover tip and help line in the app (shown while Settings › Show help is 
 - **Where:** Sidebar › Calendar
 - **Meaning:** Every dated row of your databases and every journal day, by month or week.
 - **Example:** See what is due this week next to your journal.
+
+### `newPage.always`
+
+- **Where:** New blank page › template list › Always start new pages as Study
+- **Meaning:** Every new page will open with the Study notes template filled in. You can turn it off again in Settings › General.
+- **Example:** Handy when almost every page you make is lesson notes.
 
 ### `calendar.nav`
 

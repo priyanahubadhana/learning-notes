@@ -1,4 +1,9 @@
-import { copyBlocks, createBlock, listBlocks } from '../core/blockService'
+import {
+  copyBlocks,
+  createBlock,
+  deleteBlock,
+  listBlocks,
+} from '../core/blockService'
 import type { LearningNotesDB } from '../core/db'
 import type { Notebook, Page } from '../core/types'
 import {
@@ -214,6 +219,63 @@ export async function createPageFromTemplate(
       const page = await createPage(db, notebookId, parentId)
       await copyPageTree(db, templateId, page.id, true) // cards get a schedule
       return page
+    },
+  )
+}
+
+/** The stored (English) title of the starter "Study" template (N2). */
+export const STUDY_TEMPLATE_TITLE = 'Study notes'
+
+/**
+ * The Study template of the new-page start: the starter "Study notes" page.
+ * Undefined if the owner renamed or deleted it (then the Study row and
+ * "Always start new pages as Study" simply do not show).
+ */
+export async function getStudyTemplate(
+  db: LearningNotesDB,
+  workspaceId: string,
+): Promise<Page | undefined> {
+  return (await listTemplates(db, workspaceId)).find(
+    (p) => p.title === STUDY_TEMPLATE_TITLE,
+  )
+}
+
+/** True when a page has nothing written yet (no blocks, or only empty lines). */
+export async function isPageBlank(
+  db: LearningNotesDB,
+  pageId: string,
+): Promise<boolean> {
+  return (await listBlocks(db, pageId)).every(
+    (b) => b.type === 'paragraph' && toPlainText(b.content).trim() === '',
+  )
+}
+
+/**
+ * Fills a still-blank page from a template (N2). Returns false and changes
+ * nothing if the page already has writing. Empty lines are soft-deleted
+ * first; the template's blocks, cards and sub-pages are then copied in.
+ */
+export async function applyTemplateToPage(
+  db: LearningNotesDB,
+  pageId: string,
+  templateId: string,
+): Promise<boolean> {
+  return db.transaction(
+    'rw',
+    [db.notebooks, db.pages, db.blocks, db.cards],
+    async () => {
+      if (!(await getPage(db, templateId))) {
+        throw new Error('Template not found')
+      }
+      if (!(await isPageBlank(db, pageId))) return false
+      const top = (await listBlocks(db, pageId)).filter(
+        (b) => b.parentId === null,
+      )
+      for (const block of top) {
+        await deleteBlock(db, block.id)
+      }
+      await copyPageTree(db, templateId, pageId, true)
+      return true
     },
   )
 }

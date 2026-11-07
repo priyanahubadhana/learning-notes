@@ -87,9 +87,11 @@ import { countDue, type ReviewScope } from './recall/reviewService'
 import {
   dateStyleSetting,
   languageSetting,
+  newPageStudySetting,
   reviseLabelsSetting,
   theme as themeSetting,
 } from './settings/builtinSettings'
+import { getSetting } from './settings/settingsService'
 import { setMarkLabels } from './revise/reviseMarks'
 import { useAutoDeviceMode } from './settings/deviceModeSettings'
 import { useDeviceSetting, useSyncedSetting } from './settings/useSetting'
@@ -114,6 +116,7 @@ import {
   createPageFromTemplate,
   createTemplate,
   ensureTemplates,
+  getStudyTemplate,
 } from './templates/templateService'
 
 // Screens load when first opened, so the app itself starts fast.
@@ -779,8 +782,17 @@ function App() {
     focusTitle = true,
     templateId?: string,
   ) => {
-    const page = templateId
-      ? await createPageFromTemplate(db, notebookId, parentId, templateId)
+    // N2: with "Always start new pages as Study" on, a plain new page is filled
+    // from the Study template (quietly: no toast).
+    const studyId =
+      !templateId &&
+      workspace &&
+      (await getSetting(db, newPageStudySetting)) === 'on'
+        ? (await getStudyTemplate(db, workspace.id))?.id
+        : undefined
+    const fillId = templateId ?? studyId
+    const page = fillId
+      ? await createPageFromTemplate(db, notebookId, parentId, fillId)
       : await createPage(db, notebookId, parentId)
     openNewPage(page, focusTitle)
     if (templateId) {

@@ -1,4 +1,12 @@
-import { useEffect, useId, useRef, useState, type ReactNode } from 'react'
+import {
+  useEffect,
+  useId,
+  useLayoutEffect,
+  useRef,
+  useState,
+  type ReactNode,
+} from 'react'
+import { createPortal } from 'react-dom'
 import { useShowHelp } from './useShowHelp'
 import { t } from '../i18n/t'
 import { useLongPress } from '../app/useLongPress'
@@ -170,7 +178,11 @@ function TipBox({
   )
 }
 
-/** The tip itself, fixed next to the feature (so scroll boxes never cut it). */
+/**
+ * The tip itself, in the page body (a portal) and fixed next to the feature,
+ * so no scroll box, sidebar edge or transform can cut it. After drawing it is
+ * moved back inside the window if any side would be cut off.
+ */
 function Bubble({
   id,
   bubbleId,
@@ -180,6 +192,7 @@ function Bubble({
   bubbleId: string
   box: DOMRect
 }) {
+  const el = useRef<HTMLSpanElement>(null)
   const width = Math.min(280, window.innerWidth - 16)
   const left = Math.max(8, Math.min(box.left, window.innerWidth - width - 8))
   const below = window.innerHeight - box.bottom
@@ -187,20 +200,48 @@ function Bubble({
   const style = up
     ? { left, width, bottom: window.innerHeight - box.top + 6 }
     : { left, width, top: box.bottom + 6 }
+  // Keep the whole bubble on screen (flip/shift after it has a size).
+  useLayoutEffect(() => {
+    const node = el.current
+    if (!node) return
+    const r = node.getBoundingClientRect()
+    const vh = window.innerHeight
+    const vw = window.innerWidth
+    if (r.bottom > vh - 8 && box.top - 6 - r.height >= 8) {
+      node.style.top = `${box.top - 6 - r.height}px`
+      node.style.bottom = 'auto'
+    } else if (r.top < 8 && box.bottom + 6 + r.height <= vh - 8) {
+      node.style.top = `${box.bottom + 6}px`
+      node.style.bottom = 'auto'
+    }
+    const r2 = node.getBoundingClientRect()
+    if (r2.bottom > vh - 8) {
+      node.style.top = `${Math.max(8, vh - 8 - r2.height)}px`
+      node.style.bottom = 'auto'
+    } else if (r2.top < 8) {
+      node.style.top = '8px'
+      node.style.bottom = 'auto'
+    }
+    if (r2.right > vw - 8)
+      node.style.left = `${Math.max(8, vw - 8 - r2.width)}px`
+    else if (r2.left < 8) node.style.left = '8px'
+  }, [box, up])
   const image = tipImage(id)
-  return (
+  return createPortal(
     <span
+      ref={el}
       role="tooltip"
       id={bubbleId}
       style={style}
-      className="pointer-events-none fixed z-40 block rounded-lg border border-line bg-bg p-2.5 text-start text-[12.5px] font-normal leading-snug whitespace-normal text-ink shadow-[0_8px_24px_rgba(0,0,0,0.16)]"
+      className="pointer-events-none fixed z-[70] block rounded-lg border border-line bg-bg p-2.5 text-start text-[12.5px] font-normal leading-snug whitespace-normal text-ink shadow-[0_8px_24px_rgba(0,0,0,0.16)]"
     >
       {image && <img src={image} alt="" className="mb-2 w-full rounded-md" />}
       <span className="block font-medium">{tipMeaning(id)}</span>
       <span className="mt-1 block text-muted">
         {t('help.example', { text: tipExample(id) })}
       </span>
-    </span>
+    </span>,
+    document.body,
   )
 }
 

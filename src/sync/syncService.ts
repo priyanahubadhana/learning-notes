@@ -17,6 +17,8 @@ import { setTracking } from './device'
 import { enqueueChanged, syncOnce, type SyncReport } from './engine'
 import { forgetMasterKey, loadMasterKey, saveMasterKey } from './keyVault'
 import { createKey, findBundles, unlockKey } from './setup'
+import { debounceMax } from './debounce'
+import { onLocalWrite } from './outbox'
 import { mapSyncError } from './syncProblem'
 
 /**
@@ -26,6 +28,9 @@ import { mapSyncError } from './syncProblem'
  * cannot sync in the background). Signing in or out never deletes a note.
  */
 
+export const POLL_MS = 10_000
+export const SEND_AFTER_MS = 2_000
+export const SEND_MAX_MS = 10_000
 const LAST = 'learning-notes:sync.lastSyncedAt'
 let master: MasterKey | null = null
 let running: Promise<void> | null = null
@@ -92,7 +97,12 @@ export async function startSync(db: LearningNotesDB): Promise<void> {
   }
   document.addEventListener('visibilitychange', kick)
   window.addEventListener('online', kick)
-  setInterval(kick, 30_000)
+  // A poll every 10 s while the app is in front (kick does nothing hidden).
+  setInterval(kick, POLL_MS)
+  // Local edits go out about 2 s after typing stops, at the latest 10 s
+  // after the first edit of a burst.
+  const soon = debounceMax(kick, SEND_AFTER_MS, SEND_MAX_MS)
+  onLocalWrite(soon.call)
 }
 
 export async function signIn(): Promise<void> {

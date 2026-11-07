@@ -126,6 +126,25 @@ test.describe('touch', () => {
   })
 })
 
+test('a tip near the sidebar edge is fully inside the window', async ({
+  page,
+}) => {
+  const side = await openSidebar(page)
+  await side.locator('[data-tip="sidebar.newTemplate"] button').hover()
+  const tip = page.getByRole('tooltip')
+  await expect(tip).toBeVisible()
+  const box = (await tip.boundingBox())!
+  const view = page.viewportSize()!
+  expect(box.x).toBeGreaterThanOrEqual(0)
+  expect(box.y).toBeGreaterThanOrEqual(0)
+  expect(box.x + box.width).toBeLessThanOrEqual(view.width)
+  expect(box.y + box.height).toBeLessThanOrEqual(view.height)
+  // It lives in the page body, not inside the (clipping) sidebar.
+  expect(await tip.evaluate((el) => el.parentElement === document.body)).toBe(
+    true,
+  )
+})
+
 for (const theme of ['Day', 'Night', 'Sepia'] as const) {
   test(`screenshot: a hover tip in ${theme}`, async ({ page }) => {
     await setTheme(page, theme)

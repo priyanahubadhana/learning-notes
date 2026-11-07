@@ -27,6 +27,14 @@ export function markRemote(idbtrans: object): void {
   remote.add(idbtrans)
 }
 
+const writeListeners = new Set<() => void>()
+
+/** Calls `fn` after every tracked local save (sync sends them soon after). */
+export function onLocalWrite(fn: () => void): () => void {
+  writeListeners.add(fn)
+  return () => writeListeners.delete(fn)
+}
+
 export const syncStateId = (table: string, id: string) => `${table}/${id}`
 
 export const syncOutboxMiddleware: Middleware<DBCore> = {
@@ -71,7 +79,10 @@ export const syncOutboxMiddleware: Middleware<DBCore> = {
               P.resolve(table.mutate(req)).then((res) =>
                 P.resolve(
                   writeStates(states, req, name, ids, keys, old, res),
-                ).then(() => res),
+                ).then(() => {
+                  for (const l of writeListeners) l()
+                  return res
+                }),
               ),
           )
         },

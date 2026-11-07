@@ -19,6 +19,7 @@ import { markLabels, markName } from '../revise/reviseMarks'
 import { duplicateBlock } from './blockActions'
 import { markWholeBlock } from './markActions'
 import { canMakeCard, makeCard } from './cardActions'
+import { AddToSummaryItem } from './summaryActions'
 import type { EditorBlock } from './mapping'
 import type { AppSchema } from './schema'
 
@@ -154,6 +155,7 @@ export function AppDragHandleMenu() {
     <DragHandleMenu>
       <EditPictureItem />
       <MakeCardItem />
+      <AddToSummaryItem />
       <DuplicateItem />
       <CopyItems />
       <MarkLineItems />

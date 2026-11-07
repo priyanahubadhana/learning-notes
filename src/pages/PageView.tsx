@@ -13,6 +13,8 @@ import { createPortal } from 'react-dom'
 import { AppUiContext, TopBarSlotContext } from '../app/appUi'
 import { altShortcutLabel } from '../app/keys'
 import { runTask } from '../app/errors'
+import { PageReview, Segments, type PageTab } from '../app/summary/PageTabs'
+import { SummaryView } from '../app/summary/SummaryView'
 import { MenuPopover, NameDialog, type MenuItem } from '../app/ui'
 import { listBlocks } from '../core/blockService'
 import type { LearningNotesDB } from '../core/db'
@@ -132,6 +134,8 @@ export function PageView({
   const editor = useRef<EditorApi | null>(null)
 
   const isTemplate = notebook?.kind === 'templates'
+  // Summary and Review views: normal pages only (not templates, not rows).
+  const withTabs = !!notebook && !isTemplate && !page.databaseId
   const isToday = page.journalDate === dateKey(new Date())
 
   // History: earlier copies of this page.
@@ -164,6 +168,13 @@ export function PageView({
 
   // "Save as template" asks for a name first.
   const [naming, setNaming] = useState(false)
+  // Notes · Summary · Review (Phase M); every page opens on its notes.
+  const [pageTabState, setPageTabState] = useState<{
+    pageId: string
+    tab: PageTab
+  }>({ pageId: page.id, tab: 'notes' })
+  const pageTab = pageTabState.pageId === page.id ? pageTabState.tab : 'notes'
+  const setPageTab = (tab: PageTab) => setPageTabState({ pageId: page.id, tab })
   const saveTemplate = () => setNaming(true)
 
   /** Saves a copy of this page (latest edits included) as a template. */
@@ -430,24 +441,60 @@ export function PageView({
             tagIds={page.tagIds ?? []}
             onOpenTag={onOpenTag}
           />
-          <HelpLine id="page.editor" className="mb-3 text-xs text-muted" />
-          <SectionChips db={db} pageId={page.id} />
+          {withTabs && (
+            <Segments tab={pageTab} onTab={setPageTab} className="mb-3" />
+          )}
+          {pageTab === 'notes' && (
+            <>
+              <HelpLine id="page.editor" className="mb-3 text-xs text-muted" />
+              <SectionChips db={db} pageId={page.id} />
+            </>
+          )}
+          {withTabs && pageTab === 'summary' && (
+            <SummaryView
+              db={db}
+              scope={{ kind: 'page', pageId: page.id }}
+              onOpenPage={onOpenPage}
+              onOpenBlock={(pageId, blockId) => {
+                if (pageId === page.id) setPageTab('notes')
+                else onOpenPage(pageId)
+                revealBlock(blockId)
+              }}
+            />
+          )}
+          {withTabs && pageTab === 'review' && (
+            <PageReview
+              db={db}
+              pageId={page.id}
+              onReview={() => onReview(true)}
+            />
+          )}
         </div>
-        <PageEditor
-          db={db}
-          pageId={page.id}
-          notebookId={page.notebookId}
-          onOpenPage={onOpenPage}
-          onOpenNewPage={onOpenNewPage}
-          onOpenTag={onOpenTag}
-          onOpenDatabase={onOpenDatabase}
-          onOpenAttachment={onOpenAttachment}
-          onReviewCards={notebook && !isTemplate ? onReview : undefined}
-          onSaveAsTemplate={notebook && !isTemplate ? saveTemplate : undefined}
-          editorRef={editor}
-          reading={view === 'off' ? undefined : { view }}
-        />
+        {/* The editor stays open (only hidden) on the other views, so no typing is lost. */}
+        <div
+          style={{
+            display: reader || pageTab === 'notes' ? 'contents' : 'none',
+          }}
+        >
+          <PageEditor
+            db={db}
+            pageId={page.id}
+            notebookId={page.notebookId}
+            onOpenPage={onOpenPage}
+            onOpenNewPage={onOpenNewPage}
+            onOpenTag={onOpenTag}
+            onOpenDatabase={onOpenDatabase}
+            onOpenAttachment={onOpenAttachment}
+            onReviewCards={notebook && !isTemplate ? onReview : undefined}
+            onSaveAsTemplate={
+              notebook && !isTemplate ? saveTemplate : undefined
+            }
+            editorRef={editor}
+            reading={view === 'off' ? undefined : { view }}
+          />
+        </div>
         {autoFocusTitle &&
+          pageTab === 'notes' &&
           !reader &&
           !isTemplate &&
           !page.databaseId &&
@@ -460,7 +507,11 @@ export function PageView({
             />
           )}
       </ReadingFrame>
-      <div style={{ display: reader ? 'none' : 'contents' }}>
+      <div
+        style={{
+          display: reader || pageTab !== 'notes' ? 'none' : 'contents',
+        }}
+      >
         {notebook && !isTemplate && (
           <LinkedFrom
             db={db}

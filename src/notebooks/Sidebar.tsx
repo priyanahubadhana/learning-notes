@@ -79,6 +79,9 @@ interface SidebarProps {
   onOpenReview: (scope: ReviewScope) => void
   onOpenAllCards: () => void
   allCardsOpen: boolean
+  /** Opens the whole-app Summary (Phase M). */
+  onOpenSummaries: () => void
+  summariesOpen: boolean
   onOpenAllDatabases: () => void
   allDatabasesOpen: boolean
   onCreateNotebook: () => void
@@ -132,6 +135,8 @@ export function Sidebar({
   onOpenReview,
   onOpenAllCards,
   allCardsOpen,
+  onOpenSummaries,
+  summariesOpen,
   onOpenAllDatabases,
   allDatabasesOpen,
   searchOpen,
@@ -286,6 +291,21 @@ export function Sidebar({
             ▤
           </span>
           {t('sidebar.allCards')}
+        </button>
+      </Tip>
+      <Tip id="sidebar.allSummaries" className="flex">
+        <button
+          type="button"
+          onClick={onOpenSummaries}
+          aria-current={summariesOpen ? 'page' : undefined}
+          className={`flex min-h-9 any-pointer-coarse:min-h-11 w-full items-center gap-2 rounded-lg px-2.5 text-left text-sm transition-colors hover:bg-hover ${
+            summariesOpen ? 'bg-hover font-semibold' : ''
+          }`}
+        >
+          <span aria-hidden className="text-muted">
+            ≡
+          </span>
+          {t('summary.sidebar')}
         </button>
       </Tip>
     </SidebarGroup>

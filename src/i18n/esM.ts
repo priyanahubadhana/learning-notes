@@ -7,6 +7,7 @@ export const esM: Record<string, string> = {
   'summary.seg.review': 'Repaso',
   'summary.addButton': 'Resumen',
   'summary.addMenu': 'Añadir al resumen',
+  'main.sel.summary': 'Añadir al resumen',
   'summary.added': 'Añadido al resumen',
   'summary.exists': 'Esta línea ya está en el resumen',
   'summary.full': 'Este resumen tiene 500 líneas. Quita algunas primero.',
@@ -27,15 +28,19 @@ export const esM: Record<string, string> = {
   'summary.lines': 'Líneas del resumen',
   'summary.filterAll': 'Todos los cuadernos',
   'summary.filter': 'Mostrar el resumen de',
-  'summary.review.counts': '{due} pendientes · {new} nuevas · {all} tarjetas',
+  'summary.review.counts': '{due} pendientes · {new} nuevas',
   'summary.review.practice': 'Practicar',
   'summary.review.none':
-    'Aún no hay tarjetas en esta página. Selecciona una línea en tus notas y pulsa Tarjeta.',
+    'Ahora no hay nada pendiente en esta página. Aún puedes practicarla, o seleccionar una línea en tus notas y pulsar Tarjeta.',
   'summary.sidebar': 'Todos los resúmenes',
   'summary.notes.books': 'Cuadernos',
   'summary.notes.recent': 'Páginas editadas recientemente',
   'summary.notes.none': 'Aún no hay páginas.',
   'annot.saveToSummary': 'Resumen de esta página',
+  'help.tip.sidebar.allSummaries.meaning':
+    'Todos los puntos clave que añadiste desde tus notas, de todos los cuadernos, en una lista.',
+  'help.tip.sidebar.allSummaries.example':
+    'Repasa todos tus resúmenes la tarde antes de un examen.',
   'help.tip.summary.remove.meaning':
     'Quita esta línea del resumen. La nota se queda.',
   'help.tip.summary.remove.example':

@@ -328,6 +328,12 @@ export function MiniToolbar({ editor }: { editor: Editor }) {
       run: () => runTool('card'),
     },
     {
+      id: 'summary',
+      icon: 'fileText',
+      label: t('main.sel.summary'),
+      run: () => runTool('summary'),
+    },
+    {
       id: 'keyPoint',
       icon: 'star',
       label: t('main.sel.keyPoint'),

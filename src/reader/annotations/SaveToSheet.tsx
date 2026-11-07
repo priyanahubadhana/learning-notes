@@ -6,7 +6,10 @@ import { t } from '../../i18n/t'
 
 /** Where "Save to…" can put a highlight. */
 export type SaveTarget =
-  { kind: 'book' } | { kind: 'new' } | { kind: 'page'; pageId: string }
+  | { kind: 'book' }
+  | { kind: 'new' }
+  | { kind: 'summary' }
+  | { kind: 'page'; pageId: string }
 
 /**
  * A sheet with the places a highlight can be saved to: the book's own page,
@@ -65,6 +68,14 @@ export function SaveToSheet({
             onClick={() => onPick({ kind: 'book' })}
           >
             {t('annot.saveToThisBook')}
+          </button>
+          <button
+            type="button"
+            className={row}
+            data-save-summary
+            onClick={() => onPick({ kind: 'summary' })}
+          >
+            {t('annot.saveToSummary')}
           </button>
           <button
             type="button"

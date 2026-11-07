@@ -10,6 +10,7 @@ export const enM = {
   'summary.seg.review': 'Review',
   'summary.addButton': 'Summary',
   'summary.addMenu': 'Add to Summary',
+  'main.sel.summary': 'Add to Summary',
   'summary.added': 'Added to the Summary',
   'summary.exists': 'This line is already in the Summary',
   'summary.full': 'This Summary has 500 lines. Remove some first.',
@@ -30,15 +31,19 @@ export const enM = {
   'summary.lines': 'Summary lines',
   'summary.filterAll': 'All notebooks',
   'summary.filter': 'Show the Summary of',
-  'summary.review.counts': '{due} due · {new} new · {all} cards',
+  'summary.review.counts': '{due} due · {new} new',
   'summary.review.practice': 'Practise',
   'summary.review.none':
-    'No cards on this page yet. Select a line in your notes and press Card.',
+    'Nothing is due on this page right now. You can still practise it, or select a line in your notes and press Card.',
   'summary.sidebar': 'All summaries',
   'summary.notes.books': 'Notebooks',
   'summary.notes.recent': 'Recently edited pages',
   'summary.notes.none': 'No pages yet.',
   'annot.saveToSummary': 'Summary of this page',
+  'help.tip.sidebar.allSummaries.meaning':
+    'Every key point you added from your notes, from all notebooks, in one list.',
+  'help.tip.sidebar.allSummaries.example':
+    'Skim all your summaries the evening before a test.',
   'help.tip.summary.remove.meaning':
     'Takes this line out of the Summary. The note itself stays.',
   'help.tip.summary.remove.example':

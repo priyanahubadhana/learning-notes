@@ -16,6 +16,7 @@ import {
 import { BLANK_STYLE, toggleBlank } from './blankActions'
 import { toggleMark } from './markActions'
 import { canMakeCard, makeCard } from './cardActions'
+import { AddToSummaryButton } from './summaryActions'
 import type { AppSchema } from './schema'
 
 /**
@@ -118,6 +119,7 @@ export function AppFormattingToolbar() {
       ))}
       <MakeBlankButton key="makeBlank" />
       <MakeCardButton key="makeCard" />
+      <AddToSummaryButton key="addToSummary" />
     </FormattingToolbar>
   )
 }

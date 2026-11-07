@@ -1,6 +1,7 @@
 import { addBlocks } from '../../core/blockBulk'
 import { listBlocks } from '../../core/blockService'
 import type { LearningNotesDB } from '../../core/db'
+import { addOwnLine } from '../../core/summaryService'
 import type { Annotation, Block } from '../../core/types'
 import { updateAnnotation } from './annotationService'
 import { deepLinkFor } from './deepLink'
@@ -78,4 +79,27 @@ export async function saveAnnotationTo(
     ],
   })
   return first.id
+}
+
+/**
+ * "Save to… › Summary" (C4 + Phase M): the highlight's words become a line of
+ * the page's Summary, with an in-app link back to the exact spot. Returns
+ * false when there was nothing to save or the Summary is full.
+ */
+export async function saveAnnotationToSummary(
+  db: LearningNotesDB,
+  a: Annotation,
+  targetPageId: string,
+  where: string,
+): Promise<boolean> {
+  const quote = (a.quote?.exact ?? '').replace(/\s+/g, ' ').trim()
+  const text = [quote, a.note?.trim()].filter(Boolean).join(' — ')
+  const href = deepLinkFor(a, '')
+  const result = await addOwnLine(
+    db,
+    targetPageId,
+    text,
+    href ? { href, where } : undefined,
+  )
+  return result.status === 'added'
 }

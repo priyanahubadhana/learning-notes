@@ -26,7 +26,7 @@ export interface AppActions {
   /** Shows the sidebar (a drawer on a phone). */
   showSidebar: () => void
   /** The open page's notebook tab: its Revise or Database tab. */
-  openNotebookTab: (tab: 'revise' | 'database') => void
+  openNotebookTab: (tab: 'revise' | 'database' | 'summary') => void
   cycleTheme: () => void
   /** Chooses a theme by name (the theme list's ▾). */
   setTheme: (theme: Theme) => void

@@ -136,6 +136,7 @@ export function SelectionMenu({
       },
     },
     { id: 'makeCard', icon: 'cards', run: () => runTool('card') },
+    { id: 'summary', icon: 'fileText', run: () => runTool('summary') },
     { id: 'saveToNotes', icon: 'notebook', run: saveText },
     { id: 'convert', icon: 'type', soon: true },
     {

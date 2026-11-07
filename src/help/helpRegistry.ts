@@ -171,6 +171,7 @@ export const TIPS = {
   'sidebar.tag': { where: 'Sidebar › a tag’s name' },
   'page.tagChip': { where: 'Page › a tag under the title' },
   'sidebar.allCards': { where: 'Sidebar › All cards' },
+  'sidebar.allSummaries': { where: 'Sidebar › All summaries' },
   'sidebar.allDatabases': { where: 'Sidebar › Databases' },
   'databases.new': { where: 'All databases › + New database' },
   'db.blockViews': {

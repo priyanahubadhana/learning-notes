@@ -2,7 +2,7 @@
 
 Every hover tip and help line in the app (shown while Settings › Show help is On). Generated from `src/help/helpRegistry.ts` and `src/i18n/en.ts`; to change a text, edit it in `en.ts`, then run `UPDATE_HELP=1 npx vitest run src/help` to refresh this file.
 
-## Hover tips (155)
+## Hover tips (156)
 
 ### `bar.newLine`
 
@@ -657,6 +657,12 @@ Every hover tip and help line in the app (shown while Settings › Show help is 
 - **Where:** Sidebar › All cards
 - **Meaning:** Every card from every notebook in one list, with when it is due.
 - **Example:** Find a card, or review everything that is due.
+
+### `sidebar.allSummaries`
+
+- **Where:** Sidebar › All summaries
+- **Meaning:** Every key point you added from your notes, from all notebooks, in one list.
+- **Example:** Skim all your summaries the evening before a test.
 
 ### `sidebar.allDatabases`
 

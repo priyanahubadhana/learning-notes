@@ -262,7 +262,12 @@ export async function listSummary(
       ownText: page.summary ?? '',
       lines: lines.get(page.id) ?? [],
     }))
-    .filter((g) => g.ownText.trim() !== '' || g.lines.length > 0)
+    .filter(
+      (g) =>
+        g.ownText.trim() !== '' ||
+        g.lines.length > 0 ||
+        (scope.kind === 'page' && g.page.id === scope.pageId),
+    )
 }
 
 /** Delete forever: erases the Summary lines of these pages, and lines elsewhere linked to their notes. */

@@ -35,7 +35,10 @@ import {
 import { addVocabulary, vocabContext, vocabWord } from '../recall/vocabulary'
 import { NoteSheet } from './annotations/NoteSheet'
 import { SaveToSheet, type SaveTarget } from './annotations/SaveToSheet'
-import { saveAnnotationTo } from './annotations/saveToNotes'
+import {
+  saveAnnotationTo,
+  saveAnnotationToSummary,
+} from './annotations/saveToNotes'
 import { SelectionPopup } from './annotations/SelectionPopup'
 import type { OutlineItem, PdfSelection } from './pdf/PdfView'
 import { FindPanel } from './pdf/FindPanel'
@@ -344,7 +347,10 @@ export function BookReader({
       a.anchor.type === 'pdf'
         ? t('annot.page', { page: a.anchor.page })
         : (a.chapter ?? '')
-    if (target.kind === 'book') {
+    if (target.kind === 'summary') {
+      const ok = await saveAnnotationToSummary(db, a, pageId, where)
+      toast(t(ok ? 'summary.saved' : 'summary.full'))
+    } else if (target.kind === 'book') {
       await saveAnnotationTo(db, a, pageId, where, 'highlights')
       toast(t('annot.savedTo', { page: page?.title || t('review.untitled') }))
     } else if (target.kind === 'page') {

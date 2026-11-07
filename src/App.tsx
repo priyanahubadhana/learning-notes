@@ -168,6 +168,14 @@ const PencilLabEntry = lazy(() =>
 const PencilLabPanel = lazy(() =>
   import('./app/lab/PencilLab').then((m) => ({ default: m.PencilLabPanel })),
 )
+const AppSummary = lazy(() =>
+  import('./app/summary/AppSummary').then((m) => ({ default: m.AppSummary })),
+)
+const NotesOverview = lazy(() =>
+  import('./app/summary/NotesOverview').then((m) => ({
+    default: m.NotesOverview,
+  })),
+)
 const AllCardsScreen = lazy(() =>
   import('./recall/AllCardsScreen').then((m) => ({
     default: m.AllCardsScreen,
@@ -304,6 +312,10 @@ function App() {
             boot?.kind === 'lab'
           ? { kind: boot.kind }
           : null,
+  )
+  // The whole-app Notes · Summary · Review views share the "All cards" screen.
+  const [studyTab, setStudyTab] = useState<'notes' | 'summary' | 'review'>(
+    'review',
   )
   // Review replaces the open page the same way (null = not reviewing).
   const [reviewScope, setReviewScope] = useState<ReviewScope | null>(() =>
@@ -958,6 +970,7 @@ function App() {
       },
       openAllCards: () => {
         openPage(null)
+        setStudyTab('review')
         setHub({ kind: 'cards' })
       },
       openDatabases: () => {
@@ -1151,11 +1164,28 @@ function App() {
                 onOpenAllCards={() =>
                   choose(() => {
                     openPage(null)
+                    setStudyTab('review')
                     setHub({ kind: 'cards' })
                   })
                 }
                 allCardsOpen={
-                  hub?.kind === 'cards' && !showSettings && !reviewScope
+                  hub?.kind === 'cards' &&
+                  studyTab !== 'summary' &&
+                  !showSettings &&
+                  !reviewScope
+                }
+                onOpenSummaries={() =>
+                  choose(() => {
+                    openPage(null)
+                    setStudyTab('summary')
+                    setHub({ kind: 'cards' })
+                  })
+                }
+                summariesOpen={
+                  hub?.kind === 'cards' &&
+                  studyTab === 'summary' &&
+                  !showSettings &&
+                  !reviewScope
                 }
                 onOpenAllDatabases={() =>
                   choose(() => {
@@ -1319,6 +1349,27 @@ function App() {
                           onOpenHit={(hit) => runTask(openHit(hit))}
                           onReview={openReview}
                           onClose={() => setHub(null)}
+                          tab={studyTab}
+                          onTab={setStudyTab}
+                          summary={
+                            <Suspense fallback={null}>
+                              <AppSummary
+                                db={db}
+                                workspaceId={workspace.id}
+                                onOpenPage={openPage}
+                              />
+                            </Suspense>
+                          }
+                          notes={
+                            <Suspense fallback={null}>
+                              <NotesOverview
+                                db={db}
+                                workspaceId={workspace.id}
+                                onOpenNotebook={openNotebook}
+                                onOpenPage={openPage}
+                              />
+                            </Suspense>
+                          }
                           highlights={
                             <DailyHighlights db={db} onOpen={openAnnotation} />
                           }

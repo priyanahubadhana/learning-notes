@@ -14,6 +14,8 @@ import {
 } from 'react'
 import { AppUiContext } from '../app/appUi'
 import { runTask } from '../app/errors'
+import { SummaryView } from '../app/summary/SummaryView'
+import { ensureSummaryTab } from '../core/summaryService'
 import { pauseMenuItem } from '../app/pauseMenu'
 import { MenuPopover, NameDialog, type MenuItem } from '../app/ui'
 import { isStringOrNull } from '../app/uiPrefs'
@@ -91,6 +93,12 @@ export function NotebookScreen({
   const [exporting, setExporting] = useState(false)
   const tabRefs = useRef(new Map<string, HTMLButtonElement>())
   const baseId = useId()
+  // Notebooks made before the Summary tab (Phase M) get it once, when opened.
+  useEffect(() => {
+    if (notebook.tabs && !notebook.tabs.some((tab) => tab.kind === 'summary')) {
+      runTask(ensureSummaryTab(db, notebook))
+    }
+  }, [db, notebook])
 
   // Arrow keys move between tabs (ARIA tabs pattern), mirrored in RTL.
   const onTabKey = (e: KeyboardEvent<HTMLDivElement>) => {
@@ -252,6 +260,13 @@ export function NotebookScreen({
               tabId={active.id}
               onOpenPage={onOpenPage}
               onCreatePage={() => onCreatePage(notebook.id)}
+            />
+          )}
+          {active?.kind === 'summary' && (
+            <SummaryView
+              db={db}
+              scope={{ kind: 'notebook', notebookId: notebook.id }}
+              onOpenPage={onOpenPage}
             />
           )}
           {active?.kind === 'database' && active.databaseId && (

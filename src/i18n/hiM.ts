@@ -7,6 +7,7 @@ export const hiM: Record<string, string> = {
   'summary.seg.review': 'दोहराना',
   'summary.addButton': 'सारांश',
   'summary.addMenu': 'सारांश में जोड़ें',
+  'main.sel.summary': 'सारांश में जोड़ें',
   'summary.added': 'सारांश में जोड़ा गया',
   'summary.exists': 'यह पंक्ति पहले से सारांश में है',
   'summary.full': 'इस सारांश में 500 पंक्तियाँ हैं। पहले कुछ हटाएँ।',
@@ -27,15 +28,19 @@ export const hiM: Record<string, string> = {
   'summary.lines': 'सारांश की पंक्तियाँ',
   'summary.filterAll': 'सभी नोटबुक',
   'summary.filter': 'इसका सारांश दिखाएँ',
-  'summary.review.counts': '{due} बाकी · {new} नए · {all} कार्ड',
+  'summary.review.counts': '{due} बाकी · {new} नए',
   'summary.review.practice': 'अभ्यास करें',
   'summary.review.none':
-    'इस पेज पर अभी कोई कार्ड नहीं है। अपने नोट्स में पंक्ति चुनें और कार्ड दबाएँ।',
+    'इस पेज पर अभी कुछ बाकी नहीं है। फिर भी अभ्यास कर सकते हैं, या नोट्स में पंक्ति चुनकर कार्ड दबाएँ।',
   'summary.sidebar': 'सभी सारांश',
   'summary.notes.books': 'नोटबुक',
   'summary.notes.recent': 'हाल में बदले गए पेज',
   'summary.notes.none': 'अभी कोई पेज नहीं है।',
   'annot.saveToSummary': 'इस पेज का सारांश',
+  'help.tip.sidebar.allSummaries.meaning':
+    'आपके नोट्स से जोड़े गए सभी मुख्य बिंदु, सभी नोटबुक से, एक सूची में।',
+  'help.tip.sidebar.allSummaries.example':
+    'परीक्षा से एक शाम पहले अपने सभी सारांश देख लें।',
   'help.tip.summary.remove.meaning':
     'इस पंक्ति को सारांश से हटाता है। नोट वैसा ही रहता है।',
   'help.tip.summary.remove.example':

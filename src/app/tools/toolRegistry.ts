@@ -1,3 +1,6 @@
+import { db } from '../../core/db'
+import { addToSummary } from '../../editor/addToSummary'
+import { runTask } from '../errors'
 import { t, type MessageKey } from '../../i18n/t'
 import { markLabels, markName } from '../../revise/reviseMarks'
 import {
@@ -388,7 +391,15 @@ export const TOOLS: readonly ToolDef[] = [
     section: 'insert',
     group: 'study',
     also: [{ tab: 'review', group: 'summary' }],
-    run: (r) => r.app?.openNotebookTab('revise'),
+    run: (r) => {
+      // With a page open: puts the selected lines (or the cursor's) into its
+      // Summary; elsewhere it opens the notebook's Summary tab.
+      const pageId = r.app?.currentPageId()
+      if (r.editor && pageId && r.app) {
+        const toast = r.app.toast
+        runTask(addToSummary(r.editor, { db, pageId }).then((m) => toast(m)))
+      } else r.app?.openNotebookTab('summary')
+    },
   },
 
   // ---- Draw ----

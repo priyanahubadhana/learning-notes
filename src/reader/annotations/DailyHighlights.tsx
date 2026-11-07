@@ -18,7 +18,7 @@ import {
 import { listAllHighlights, placeLabel } from './annotationService'
 import { COLOUR_FILL } from './colours'
 import { SaveToSheet, type SaveTarget } from './SaveToSheet'
-import { saveAnnotationTo } from './saveToNotes'
+import { saveAnnotationTo, saveAnnotationToSummary } from './saveToNotes'
 import { createPage } from '../../pages/pageService'
 
 /** Today's date as the user's own calendar day. */
@@ -87,7 +87,11 @@ export function DailyHighlights({
 
   const saveTo = async (a: Annotation, target: SaveTarget) => {
     const where = placeLabel(a)
-    if (target.kind === 'page') {
+    if (target.kind === 'summary') {
+      const ok = await saveAnnotationToSummary(db, a, a.pageId, where)
+      toast(t(ok ? 'summary.saved' : 'summary.full'))
+      return
+    } else if (target.kind === 'page') {
       await saveAnnotationTo(db, a, target.pageId, where)
     } else if (target.kind === 'new') {
       const book = await db.pages.get(a.pageId)

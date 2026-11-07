@@ -45,6 +45,8 @@ let started = false
 /** The newest server order this device has seen (pull cursor or accepted save). */
 let knownSeq = 0
 let lastRun = 0
+/** The start-up scan for edits made while tracking was off ran. */
+let scanned = false
 let feedOpen = false
 let stopFeed: (() => void) | null = null
 const set = setSyncStatus
@@ -103,6 +105,15 @@ export async function startSync(db: LearningNotesDB): Promise<void> {
     set({ problem: 'offline' })
   }
   if (getSyncStatus().phase === 'ready') void syncNow(db)
+  // AI keys on all devices (R6-2): mirrored while the switch is on.
+  subscribeSync(() => {
+    if (getSyncStatus().phase !== 'signedOut') {
+      void import('../ai/keySync').then((m) => m.startKeySync(db))
+    }
+  })
+  if (getSyncStatus().phase !== 'signedOut') {
+    void import('../ai/keySync').then((m) => m.startKeySync(db))
+  }
 
   const kick = () => {
     if (document.visibilityState === 'visible') void syncNow(db)
@@ -232,7 +243,14 @@ export function syncNow(db: LearningNotesDB): Promise<void> {
     set({ phase: 'syncing' })
     lastRun = Date.now()
     try {
-      await enqueueChanged(db)
+      // Edits made while tracking was off are found once per app start: the
+      // scan reads every synced row (file bytes included), so running it on
+      // every sync froze big libraries every 10 s (R6-11). While the app
+      // runs, the outbox marks each save as it happens.
+      if (!scanned) {
+        scanned = true
+        await enqueueChanged(db)
+      }
       const report: SyncReport = await syncOnce(db, getConnectors(), key)
       knownSeq = Math.max(knownSeq, report.seq)
       await dedupeWorkspaces(db)

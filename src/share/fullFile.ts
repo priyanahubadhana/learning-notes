@@ -19,6 +19,8 @@ const NOTES_SKIP_MEDIA: ReadonlySet<string> = new Set([
   'bookFiles',
   'files',
 ])
+/** Tables never written to a file: device secrets (AI keys, R6-2). */
+export const NEVER_SAVED: ReadonlySet<string> = new Set(['secrets'])
 
 export const FULL_FORMAT_VERSION = 2
 /** Largest zip file read or promised (bytes): about 1 GB. */
@@ -103,6 +105,7 @@ export async function writeFullFile(
 
   await db.transaction('r', db.tables, async () => {
     for (const table of db.tables) {
+      if (NEVER_SAVED.has(table.name)) continue
       const keyPath = table.schema.primKey.keyPath
       const chunks: string[] = []
       let batch = ''

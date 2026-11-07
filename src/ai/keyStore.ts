@@ -48,14 +48,35 @@ const isKey = (v: unknown): v is AiKey => {
   )
 }
 
-function save(list: AiKey[]): boolean {
+const savedListeners = new Set<(list: AiKey[]) => void>()
+
+/**
+ * Called after every change of the key list on this device (keySync.ts
+ * mirrors it to the other devices when the person turned that on).
+ */
+export function onKeysSaved(fn: (list: AiKey[]) => void): () => void {
+  savedListeners.add(fn)
+  return () => savedListeners.delete(fn)
+}
+
+function save(list: AiKey[], quiet = false): boolean {
   try {
     store()?.setItem(LIST, JSON.stringify(list))
-    return true
   } catch {
     return false
   }
+  if (!quiet) for (const l of savedListeners) l(list)
+  return true
 }
+
+/** Puts a list that came from another device in place (no echo back). */
+export function replaceKeys(list: unknown[]): AiKey[] {
+  const clean = list.filter(isKey)
+  save(clean, true)
+  return clean
+}
+
+export const isAiKey = (v: unknown): v is AiKey => isKey(v)
 
 const newId = (): string =>
   `k${Date.now().toString(36)}${Math.random().toString(36).slice(2, 7)}`
@@ -97,7 +118,7 @@ export function listKeys(): AiKey[] {
       // leave it
     }
   }
-  if (moved) save(list)
+  if (moved) save(list, true)
   return list
 }
 

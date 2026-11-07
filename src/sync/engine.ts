@@ -284,9 +284,7 @@ async function applyRemote(
         ...(mode === 'blocks'
           ? {
               pageIds: [
-                ...new Set(
-                  taken.map((d) => String(d.item.env.r.pageId ?? '')),
-                ),
+                ...new Set(taken.map((d) => String(d.item.env.r.pageId ?? ''))),
               ],
             }
           : {}),

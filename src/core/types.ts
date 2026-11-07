@@ -645,6 +645,18 @@ export interface Annotation extends BaseRecord {
 }
 
 /**
+ * A device secret that the person chose to keep on all their devices (R6-2,
+ * Dexie 22): today the AI keys. One record per kind, with a fixed id, so
+ * every device writes the same one. It syncs encrypted like any record and
+ * is never written to a backup file (share/fullFile.ts).
+ */
+export interface SecretRecord extends BaseRecord {
+  kind: 'aiKeys'
+  /** The secret itself, as the owner feature defines it. */
+  value: JsonObject
+}
+
+/**
  * Sync fields of one synced record (L6, Dexie 18), kept beside the record so
  * no other table changes. Never sent as is: the clock travels inside the
  * encrypted copy. See docs/features/sync.md.

@@ -134,7 +134,7 @@ const goodManifest = (over: Record<string, unknown> = {}) => ({
   app: 'learning-notes',
   kind: 'full',
   formatVersion: FULL_FORMAT_VERSION,
-  dbVersion: 21,
+  dbVersion: 22,
   createdAt: 1,
   tables: {},
   counts: { notebooks: 0, pages: 0, cards: 0, pictures: 0 },
@@ -161,8 +161,10 @@ describe('full file', () => {
     const names = await entryNames(blob)
     expect(names).toContain('manifest.json')
     for (const table of db.tables) {
+      if (table.name === 'secrets') continue // AI keys never go into a file
       expect(names).toContain(`tables/${table.name}.jsonl`)
     }
+    expect(names).not.toContain('tables/secrets.jsonl')
     expect(names.some((n) => n.startsWith('media/images/'))).toBe(true)
     const manifest = JSON.parse(
       new TextDecoder().decode(
@@ -173,7 +175,7 @@ describe('full file', () => {
       app: 'learning-notes',
       kind: 'full',
       formatVersion: 2,
-      dbVersion: 21,
+      dbVersion: 22,
       createdAt: 1000,
     })
     expect(manifest.counts.notebooks).toBeGreaterThan(0)
@@ -371,7 +373,7 @@ describe('refusing bad files', () => {
       { app: 'other' },
       { kind: 'weird' },
       { formatVersion: 3 },
-      { dbVersion: 22 },
+      { dbVersion: 23 },
       { formatVersion: 'x' },
     ]) {
       await expect(

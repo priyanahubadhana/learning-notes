@@ -44,6 +44,7 @@ export const SYNC_TABLES: Record<string, MergeMode> = {
   habits: 'record',
   habitChecks: 'record',
   files: 'file',
+  secrets: 'record',
   // Device-only.
   settings: 'local',
   meta: 'local',

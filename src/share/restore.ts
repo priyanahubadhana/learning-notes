@@ -40,10 +40,11 @@ const REPLACE_MIN_VERSION = 12
  * version can replace the notes when every version after it is listed here:
  * the missing tables simply start empty. Add each new table-only version.
  * (13 ink, 14 recordings, 15 fonts, 16 decks, 17 book files + annotations,
- * 18 sync state, 19 Home cockpit, 20 layer installs, 21 summary lines.)
+ * 18 sync state, 19 Home cockpit, 20 layer installs, 21 summary lines,
+ * 22 device secrets.)
  */
 const TABLE_ONLY_VERSIONS: readonly number[] = [
-  13, 14, 15, 16, 17, 18, 19, 20, 21,
+  13, 14, 15, 16, 17, 18, 19, 20, 21, 22,
 ]
 
 /** Can a file saved at `fileVersion` replace the notes of a database at `current`? */
@@ -85,7 +86,10 @@ async function writeTables(
 ): Promise<void> {
   // Sync fields are this device's own and stay as they are (sync L6): the
   // restored notes count as changes made here and are sent on the next sync.
-  const tablesHere = db.tables.filter((tb) => tb.name !== 'syncState')
+  // Device secrets (AI keys) are never in a file and stay too (R6-2).
+  const tablesHere = db.tables.filter(
+    (tb) => tb.name !== 'syncState' && tb.name !== 'secrets',
+  )
   await db.transaction('rw', db.tables, async () => {
     for (const table of tablesHere) await table.clear()
     for (const phase of ['notes', 'derived'] as const) {

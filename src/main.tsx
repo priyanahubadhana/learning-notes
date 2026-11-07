@@ -28,6 +28,7 @@ import {
   subscribeDeviceSettings,
 } from './settings/settingsService'
 import { saveEverything } from './share/saveEverything'
+import { setSlowMomentsOn, slowMomentsWanted } from './perf/slowMomentsSwitch'
 
 initDeviceMode()
 startNavHistory()
@@ -56,6 +57,9 @@ window.visualViewport?.addEventListener('resize', () => {
 
 // Ask the browser not to clear our notes database (fire and forget).
 void requestPersistentStorage()
+
+// Settings › Advanced › Record slow moments (R6-11): on only when chosen.
+if (slowMomentsWanted()) setSlowMomentsOn(true)
 
 // Sync (Phase L): loaded only when it is set up or a Google sign-in is
 // coming back, so people who never sync download none of it.

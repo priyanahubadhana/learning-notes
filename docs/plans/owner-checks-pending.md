@@ -2,6 +2,29 @@
 
 Moved out of HANDOFF on 2026-11-06 (audit) so HANDOFF stays five lines. Newest first; each paragraph names its step. The run decision (master plan) is one owner iPad pass before Sync; the Phase A builder adds its checks at the top. Tick a paragraph by deleting it.
 
+## SYNC REALTIME SETUP (one-time, Supabase dashboard; about 2 minutes)
+
+Real-time sync needs one small table and a publication on the server. Until this is done the app still syncs by polling every 10 s (Settings › Sync says "Live updates are off right now").
+
+1. Open **supabase.com › your project › SQL Editor › New query**.
+2. Paste the whole file `supabase/migrations/20261107000001_sync_realtime.sql` and press **Run**. It is safe to run twice. It makes the `sync_pings` table, teaches `sync_push` to touch it, and adds it to the `supabase_realtime` publication.
+3. Check: **Database › Publications › supabase_realtime** lists `sync_pings`. If it does not, run only: `alter publication supabase_realtime add table public.sync_pings;`
+4. On the iPad and the PC, open the app, tap **Update** if offered, then **Settings › Sync**: the line under "Last synced" should read **"Live: changes from your other devices arrive within a second."**
+5. **Try it:** open the same page on both, type on the PC: the text should appear on the iPad within about 2 seconds without touching anything, and the iPad's caret should stay where it was. Then the other way round. Why human: the real websocket, the real iPad and Safari.
+6. **Typing at the same time:** both type in the _same_ line for a few seconds. Each keeps what it typed; the other text is in that page's History and Settings › Sync shows "changed on two devices". Why human: two real devices.
+7. **Background:** put the iPad app in the background, type on the PC, bring the iPad back: the text arrives within a few seconds (the socket reconnects). Why human: iPadOS suspends the app.
+
+## SLOW MOMENTS (iPad, when it lags or freezes again)
+
+- Settings › Advanced › **Record slow moments: On**. Use the app as usual for a day. When it has stalled a few times, Settings › Advanced › **Copy report**, paste it into a note or a message to the builder. The report has only times, how long, which screen and tool, and memory; no text of yours. Why human: real freezes happen only on the real iPad.
+- Tell the builder what you were doing at the times listed (writing with the Pencil, scrolling a long page, syncing, opening a PDF).
+
+## AI KEYS ON ALL DEVICES (PC and iPad, after Sync is set up)
+
+- Settings › AI › turn on **Keep my AI keys on all my devices**. On the other device, after a sync, are the same named keys listed (masked)? Run Summarise there: does it work without pasting the key again? Why human: real keys and real devices.
+- Turn the switch **off** on the iPad: does the PC's switch go off by itself after a sync, and do both devices still keep their keys? Why human: real two-device timing.
+- **Backup:** Save everything on a device that has the switch on, open the zip on the PC and search for your key: it must not be there (there is no `secrets` file in the zip). Why human: your real key.
+
 ## ROUND 6 FIXES CHECKS (iPad, installed app; tap Update until the new version shows)
 
 - **Write pad above the iPadOS bar:** open the pad with the keyboard up and the Writing Tools bar showing. Are ␣ ↵ ⌫ Replace Insert at the top of the pad and fully reachable? Why human: only a real iPad draws that bar.

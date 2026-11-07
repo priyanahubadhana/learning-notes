@@ -38,6 +38,7 @@ import type {
   RowRef,
   SavedSearch,
   SearchEntry,
+  SecretRecord,
   SettingValue,
   SyncState,
   Tag,
@@ -92,6 +93,7 @@ export class LearningNotesDB extends Dexie {
   habits!: EntityTable<Habit, 'id'>
   habitChecks!: EntityTable<HabitCheck, 'id'>
   files!: EntityTable<HomeFile, 'id'>
+  secrets!: EntityTable<SecretRecord, 'id'>
 
   /** @param name Database name; tests pass a unique name to stay isolated. */
   constructor(name: string = DEFAULT_DB_NAME) {
@@ -324,6 +326,11 @@ export class LearningNotesDB extends Dexie {
     this.version(21).stores({
       summaryItems: 'id, pageId, notebookId, sourceBlockId',
     })
+
+    // Version 22 (R6-2, AI keys on all devices): device secrets the person
+    // chose to sync, encrypted like any record; never in a backup file.
+    // Only adds a table.
+    this.version(22).stores({ secrets: 'id' })
 
     // Every save of a page or block also updates its search entry, in the
     // same transaction (see search/indexMiddleware.ts).

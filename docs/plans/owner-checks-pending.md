@@ -16,6 +16,10 @@ Moved out of HANDOFF on 2026-11-06 (audit) so HANDOFF stays five lines. Newest f
 - **The three views** (M2): under the page title tap Notes, Summary, Review. Is the switch quick, does the keyboard go away sensibly, and is nothing lost when you come back to Notes? Edit the note, then look at the Summary: does the line change too? Why human: feel, and the on-screen keyboard.
 - **Notebook and app level** (M2): open a notebook, tap the Summary tab (it sits after Notes; older notebooks get it the first time they open). Then sidebar › All summaries: filter by notebook, tap a page name and the ↗ button on a line (does it open the page and flash the line?). Why human: layout on the iPad at both orientations, and Night and Sepia themes.
 - **Save to Summary from a book** (C4 + M2): in a PDF select a passage, Save to… › Summary of this page. Open the book's page Summary: is the line there, and does its page link open the reader at the spot? Why human: real book and reader.
+## POLISH 1 CHECKS (item 13)
+
+- **VoiceOver on Home** (item 13, optional): turn VoiceOver on, open Home, tap one task and start the timer. Names are read, and "Timer started" is spoken. Why human: only a real screen reader proves it.
+
 ## POLISH 1 CHECKS (item 12)
 
 - **Sync status** (item 12): after SYNC SETUP, switch Wi-Fi off and on on the iPad. The dot in Settings › Sync and in the quiet corner follows: Synced, Offline, Synced. Why human: needs the real accounts and Wi-Fi.

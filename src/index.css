@@ -69,6 +69,16 @@
 :root {
   color-scheme: light;
 }
+/* A visible focus ring for keyboard users in every theme. A component that
+   sets its own outline (outline-none plus a border) keeps it: utilities win
+   over this base rule. */
+@layer base {
+  :focus-visible {
+    outline: 2px solid var(--color-accent);
+    outline-offset: 2px;
+  }
+}
+
 :root[data-theme='night'] {
   --color-bg: #161618;
   --color-side: #1e1e21;

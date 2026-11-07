@@ -46,7 +46,21 @@ export function TimerChip({
   const projects = useLiveQuery(() => listProjects(db), [db])
   const [choosing, setChoosing] = useState(false)
   const [stopTime, setStopTime] = useState('')
-  if (!running) return null
+  // A screen reader hears "Timer started" and "Timer stopped" (a polite live
+  // region that stays on the page while the chip comes and goes).
+  const [wasRunning, setWasRunning] = useState(false)
+  const [announce, setAnnounce] = useState('')
+  if (!!running !== wasRunning) {
+    setWasRunning(!!running)
+    setAnnounce(t(running ? 'home.timer.started' : 'home.timer.stopped'))
+  }
+  if (!running) {
+    return (
+      <span aria-live="polite" className="sr-only" data-testid="timer-announce">
+        {announce}
+      </span>
+    )
+  }
 
   const elapsed = elapsedMs(running.startedAt, now)
   const phase =
@@ -67,6 +81,9 @@ export function TimerChip({
       aria-label={t('home.timer.chip')}
       className="fixed end-3 bottom-[calc(env(safe-area-inset-bottom)+0.75rem)] z-[44] flex max-w-[min(24rem,calc(100vw-1.5rem))] flex-col gap-1 rounded-2xl border border-line bg-bg py-0.5 ps-3 pe-1 text-ink shadow-[0_6px_20px_rgba(0,0,0,0.16)] phone:bottom-[calc(env(safe-area-inset-bottom)+4.25rem)]"
     >
+      <span aria-live="polite" className="sr-only" data-testid="timer-announce">
+        {announce}
+      </span>
       <div className="flex items-center gap-1">
         <button
           type="button"

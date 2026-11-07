@@ -108,4 +108,6 @@ export const hiW5p = {
   'sync.busy': 'सर्वर व्यस्त है। सिंक अपने आप फिर कोशिश करेगा।',
   'sync.needCode':
     'इस डिवाइस पर सिंक किया डेटा खोलने के लिए आपका रिकवरी कोड चाहिए।',
+  'home.timer.started': 'टाइमर शुरू हुआ',
+  'home.timer.stopped': 'टाइमर रुक गया',
 } as const

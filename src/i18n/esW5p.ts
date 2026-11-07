@@ -113,4 +113,6 @@ export const esW5p = {
     'El servidor está ocupado. La sincronización lo intenta de nuevo sola.',
   'sync.needCode':
     'Se necesita tu código de recuperación para abrir los datos sincronizados en este dispositivo.',
+  'home.timer.started': 'Temporizador iniciado',
+  'home.timer.stopped': 'Temporizador detenido',
 } as const

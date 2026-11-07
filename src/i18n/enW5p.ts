@@ -119,4 +119,7 @@ export const enW5p = {
   'sync.busy': 'The server is busy. Sync tries again by itself.',
   'sync.needCode':
     'Your recovery code is needed to open the synced data on this device.',
+  // ---- Screen reader (item 13) ----
+  'home.timer.started': 'Timer started',
+  'home.timer.stopped': 'Timer stopped',
 } as const

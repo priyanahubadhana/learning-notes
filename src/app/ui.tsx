@@ -192,9 +192,14 @@ export function MenuPopover({
     at: DOMRect
     el: Element
   } | null>(null)
+  // Esc gives the focus back to the button that opened the menu.
+  const [returnTo] = useState(
+    () => document.activeElement as HTMLElement | null,
+  )
   // The shared pop-up rule (outside tap, Esc, scroll, one at a time).
   usePopup(true, onClose, (target) => ref.current?.contains(target) ?? false, {
     opener,
+    onEscape: () => returnTo?.focus({ preventScroll: true }),
   })
 
   useEffect(() => {

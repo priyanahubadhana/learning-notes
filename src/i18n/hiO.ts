@@ -106,7 +106,6 @@ export const hiO: Record<string, string> = {
   'writePad.ai.hint':
     'लिखें, फिर पढ़ें दबाएँ। पेन का दबाव हर शब्द की मोटाई तय करता है।',
   'writePad.ai.read': 'पढ़ें',
-  'writePad.ai.clear': 'मिटाएँ',
   'help.tip.writePad.engine.meaning':
     'Scribble iPad पर मुफ़्त में पढ़ता है; AI आपकी लिखावट की तस्वीर आपकी अपनी कुंजी से भेजता है।',
   'help.tip.writePad.engine.example':
@@ -114,17 +113,36 @@ export const hiO: Record<string, string> = {
   'help.tip.writePad.ai.read.meaning':
     'आपकी लिखावट की तस्वीर AI को भेजता है और शब्द ऊपर दिखाता है।',
   'help.tip.writePad.ai.read.example': 'ज़ोर से लिखे शब्द मोटे आते हैं।',
-  'help.tip.writePad.ai.clear.meaning': 'लिखने की जगह साफ़ करता है।',
-  'help.tip.writePad.ai.clear.example': 'कुछ नहीं भेजा जाता।',
-  'writePad.auto': 'रुकने पर अपने-आप डालें (2 सेकंड)',
   'writePad.discard.ask':
     'लिखने की जगह की लिखावट अभी पढ़ी नहीं गई। बदलने पर वह मिट जाएगी।',
   'writePad.discard.keep': 'लिखते रहें',
   'writePad.discard.discard': 'हटाएँ',
-  'help.tip.writePad.auto.meaning':
-    '2 सेकंड न लिखने पर आपका पाठ अपने-आप पन्ने पर डाल देता है।',
-  'help.tip.writePad.auto.example':
-    'शुरू में बंद है। तब तक पाठ कर्सर पर हल्का, बिंदीदार दिखता है।',
+  'writePad.clear': 'सब साफ़ करें',
+  'help.tip.writePad.clear.meaning':
+    'पैड साफ़ करता है: पाठ, लिखने की जगह और पन्ने का मसौदा।',
+  'help.tip.writePad.clear.example': 'पूर्ववत करने पर सब वापस आ जाता है।',
+  'writePad.done': 'पूरा',
+  'help.tip.writePad.done.meaning':
+    'मसौदे को पन्ने पर पक्का करता है और पैड बंद करता है।',
+  'help.tip.writePad.done.example':
+    'एक पूर्ववत उसे पन्ने से हटाकर पैड में लौटा देता है।',
+  'writePad.eraser': 'रबर',
+  'help.tip.writePad.eraser.meaning':
+    'मुख्य पट्टी वाली ही रबर, वही आकार और मोड। लिखने की जगह की रेखाएँ मिटाती है।',
+  'help.tip.writePad.eraser.example':
+    'शुरू में छोटी और सटीक, अकेले शब्दों के लिए।',
+  'writePad.live': 'लिखते समय मेरा लिखा पन्ने पर दिखाएँ',
+  'help.tip.writePad.live.meaning':
+    'लिखते समय पन्ने पर कर्सर पर आपका पाठ बिंदीदार मसौदे की तरह दिखता है। पैड पाठ रखता है; डालें, पूरा या पैड बंद करने से वह पक्का होता है।',
+  'help.tip.writePad.live.example':
+    'सब साफ़ करें पैड का पाठ और मसौदा दोनों हटाता है।',
+  'writePad.ai.ignored': 'यह औज़ार पैड में कुछ नहीं करता। पेन या रबर चुनें।',
+  'writePad.explain.title': 'आपके पाठ का क्या होगा',
+  'writePad.explain.body':
+    'आपका पाठ पैड में ही रहता है। AI मोड में आप पेन से लिखकर पढ़ें दबाते हैं: आपकी लिखावट की तस्वीर आपकी अपनी AI कुंजी को जाती है और पढ़े गए शब्द आपके पाठ के अंत में जुड़ते हैं। कुछ खोता नहीं, और पूर्ववत वापस ले जाता है।',
+  'writePad.explain.ok': 'AI पर जाएँ',
+  'writePad.explain.never': 'फिर न दिखाएँ',
+  'writePad.explain.cancel': 'रद्द करें',
   // ---- Model picker and several keys ----
   'ai.keys.title': 'आपकी कुंजियाँ',
   'ai.keys.none': 'अभी कोई कुंजी नहीं। नीचे एक जोड़ें।',

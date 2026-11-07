@@ -106,7 +106,6 @@ export const esO: Record<string, string> = {
   'writePad.ai.hint':
     'Escribe y toca Leer. La presión del lápiz da el grosor de cada palabra.',
   'writePad.ai.read': 'Leer',
-  'writePad.ai.clear': 'Borrar',
   'help.tip.writePad.engine.meaning':
     'Scribble lee la escritura en el iPad gratis; IA envía una imagen de tu escritura con tu propia clave.',
   'help.tip.writePad.engine.example':
@@ -114,17 +113,37 @@ export const esO: Record<string, string> = {
   'help.tip.writePad.ai.read.meaning':
     'Envía una imagen de lo escrito a tu IA y muestra las palabras arriba.',
   'help.tip.writePad.ai.read.example': 'Las palabras firmes salen más gruesas.',
-  'help.tip.writePad.ai.clear.meaning': 'Limpia la zona de escritura.',
-  'help.tip.writePad.ai.clear.example': 'No se envía nada.',
-  'writePad.auto': 'Insertar automáticamente cuando hago una pausa (2 s)',
   'writePad.discard.ask':
     'Tu escritura en la zona aún no se ha leído. Cambiar la descartaría.',
   'writePad.discard.keep': 'Seguir escribiendo',
   'writePad.discard.discard': 'Descartar',
-  'help.tip.writePad.auto.meaning':
-    'Pone tu texto en la página solo, tras 2 segundos sin escribir.',
-  'help.tip.writePad.auto.example':
-    'Desactivado por defecto. Mientras, el texto se ve tenue y punteado en el cursor.',
+  'writePad.clear': 'Borrar todo',
+  'help.tip.writePad.clear.meaning':
+    'Vacía el panel: el texto, la zona de escritura y el borrador de la página.',
+  'help.tip.writePad.clear.example': 'Deshacer lo devuelve todo.',
+  'writePad.done': 'Listo',
+  'help.tip.writePad.done.meaning':
+    'Hace definitivo el borrador en la página y cierra el panel.',
+  'help.tip.writePad.done.example':
+    'Un solo paso de Deshacer lo quita de la página y lo devuelve al panel.',
+  'writePad.eraser': 'Borrador',
+  'help.tip.writePad.eraser.meaning':
+    'El mismo borrador de la barra principal, con el mismo tamaño y modo. Borra trazos en la zona de escritura.',
+  'help.tip.writePad.eraser.example':
+    'Al principio, pequeño y preciso, para palabras sueltas.',
+  'writePad.live': 'Mostrar lo que escribo en la página mientras escribo',
+  'help.tip.writePad.live.meaning':
+    'La página muestra tu texto en el cursor como borrador punteado mientras escribes. El panel conserva el texto; Insertar, Listo o cerrar el panel lo hacen definitivo.',
+  'help.tip.writePad.live.example':
+    'Borrar todo quita el texto del panel y el borrador.',
+  'writePad.ai.ignored':
+    'Esta herramienta no hace nada en el panel. Elige el lápiz o el borrador.',
+  'writePad.explain.title': 'Qué pasa con tu texto',
+  'writePad.explain.body':
+    'Tu texto se queda en el panel. En modo IA escribes con el lápiz y pulsas Leer: una imagen de tu escritura va a tu propia clave de IA y las palabras que lee se añaden al final de tu texto. No se pierde nada y Deshacer vuelve atrás.',
+  'writePad.explain.ok': 'Cambiar a IA',
+  'writePad.explain.never': 'No mostrar más',
+  'writePad.explain.cancel': 'Cancelar',
   // ---- Model picker and several keys ----
   'ai.keys.title': 'Tus claves',
   'ai.keys.none': 'Aún no hay claves. Añade una abajo.',

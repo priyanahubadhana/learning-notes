@@ -110,7 +110,6 @@ export const enO = {
   'writePad.ai.hint':
     'Write, then tap Read. Pen pressure sets each word’s weight.',
   'writePad.ai.read': 'Read',
-  'writePad.ai.clear': 'Clear',
   'help.tip.writePad.engine.meaning':
     'Scribble reads writing on the iPad for free; AI sends a picture of your writing to your own AI key.',
   'help.tip.writePad.engine.example':
@@ -118,17 +117,37 @@ export const enO = {
   'help.tip.writePad.ai.read.meaning':
     'Sends a picture of what you wrote to your AI and shows the words above.',
   'help.tip.writePad.ai.read.example': 'Firm words come out bolder.',
-  'help.tip.writePad.ai.clear.meaning': 'Wipes the writing area.',
-  'help.tip.writePad.ai.clear.example': 'Nothing is sent.',
-  'writePad.auto': 'Insert automatically when I pause (2 s)',
   'writePad.discard.ask':
     'Your writing on the canvas is not read yet. Switching would throw it away.',
   'writePad.discard.keep': 'Keep writing',
   'writePad.discard.discard': 'Discard',
-  'help.tip.writePad.auto.meaning':
-    'Puts your text on the page by itself after 2 seconds without writing.',
-  'help.tip.writePad.auto.example':
-    'Off by default. Until then the text shows faintly, dashed, at the page cursor.',
+  'writePad.clear': 'Clear',
+  'help.tip.writePad.clear.meaning':
+    'Clears the pad: the text, the writing area and the draft on the page.',
+  'help.tip.writePad.clear.example': 'Undo brings it all back.',
+  'writePad.done': 'Done',
+  'help.tip.writePad.done.meaning':
+    'Makes the draft final on the page and closes the pad.',
+  'help.tip.writePad.done.example':
+    'One Undo step takes it off the page and back into the pad.',
+  'writePad.eraser': 'Eraser',
+  'help.tip.writePad.eraser.meaning':
+    'The same Eraser as the main bar, with the same size and mode. Rubs out strokes in the writing area.',
+  'help.tip.writePad.eraser.example':
+    'Small and precise to start with, for single words.',
+  'writePad.live': 'Show my writing on the page as I write',
+  'help.tip.writePad.live.meaning':
+    'Shows your text on the page as a dashed draft while you write. Insert, Done or closing the pad make it final.',
+  'help.tip.writePad.live.example':
+    'Clear removes both the pad text and the draft.',
+  'writePad.ai.ignored':
+    'This tool does nothing in the pad. Choose the Pen or the Eraser.',
+  'writePad.explain.title': 'What happens to your text',
+  'writePad.explain.body':
+    'Your text stays in the pad. In AI mode you write with the pen and tap Read: a picture of your writing goes to your own AI key and the words it reads are added to the end of your text. Nothing is lost, and Undo goes back.',
+  'writePad.explain.ok': 'Switch to AI',
+  'writePad.explain.never': 'Don’t show again',
+  'writePad.explain.cancel': 'Cancel',
   // ---- Model picker and several keys ----
   'ai.keys.title': 'Your keys',
   'ai.keys.none': 'No keys yet. Add one below.',

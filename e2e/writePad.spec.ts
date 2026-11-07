@@ -1,6 +1,7 @@
 // Browser types for code that runs inside the page.
 /// <reference lib="dom" />
 import { expect, test, type Page } from '@playwright/test'
+import { savedInk } from './inkHelpers.ts'
 import { openNote, option, tool } from './mainBarHelpers.ts'
 
 /**
@@ -14,6 +15,13 @@ test.use({ viewport: { width: 1024, height: 768 } })
 
 const pad = (page: Page) => page.locator('[data-write-pad]')
 const input = (page: Page) => page.locator('[data-write-pad-input]')
+
+/** Switches to AI; the first time an explainer asks first (R7-23). */
+async function switchToAi(page: Page) {
+  await pad(page).getByRole('button', { name: 'AI', exact: true }).click()
+  const ok = page.getByTestId('write-pad-explain-ok')
+  if (await ok.isVisible()) await ok.click()
+}
 
 async function openPad(page: Page) {
   await tool(page, 'Insert').click()
@@ -144,11 +152,16 @@ test('the main bar Undo and Redo work inside the pad, then on the page (R6-7)', 
   await expect(input(page)).toHaveValue('')
   await tool(page, 'Redo').click()
   await expect(input(page)).toHaveValue('ab')
-  // After Insert the pad history is gone: Undo takes the text off the page.
+  // Undo of Insert takes the text off the page and back into the pad
+  // (R7-20); Redo inserts it again.
   await page.getByTestId('write-pad-insert').click()
   await expect(page.locator('.bn-editor')).toContainText('ab')
   await tool(page, 'Undo').click()
   await expect(page.locator('.bn-editor [data-hand]')).toHaveCount(0)
+  await expect(input(page)).toHaveValue('ab')
+  await tool(page, 'Redo').click()
+  await expect(page.locator('.bn-editor [data-hand]')).toHaveText('ab')
+  await expect(input(page)).toHaveValue('')
 })
 
 test('the action keys sit at the top of the pad, above the writing box (R6-5)', async ({
@@ -169,7 +182,7 @@ test('switching Read with keeps the text, both ways (R6-15)', async ({
   await openNote(page, 'touch')
   await openPad(page)
   await input(page).fill('keep me')
-  await pad(page).getByRole('button', { name: 'AI', exact: true }).click()
+  await switchToAi(page)
   await expect(pad(page).locator('[data-write-pad-canvas]')).toBeVisible()
   await expect(pad(page).locator('[data-write-pad-kept]')).toHaveText('keep me')
   await expect(page.locator('[data-write-pad-preview]')).toContainText(
@@ -184,8 +197,9 @@ test('unread canvas writing asks before it is thrown away (R6-15)', async ({
 }) => {
   await openNote(page, 'touch')
   await openPad(page)
+  await page.getByTestId('write-pad-live').uncheck()
   await input(page).fill('typed')
-  await pad(page).getByRole('button', { name: 'AI', exact: true }).click()
+  await switchToAi(page)
   const canvas = pad(page).locator('[data-write-pad-canvas]')
   const b = (await canvas.boundingBox())!
   await canvas.evaluate((el, r) => {
@@ -225,6 +239,7 @@ test('close, reload, resize, zoom and font never lose the text (R6-15)', async (
 }) => {
   await openNote(page, 'touch')
   await openPad(page)
+  await page.getByTestId('write-pad-live').uncheck()
   await input(page).fill('still here')
   // Resize, zoom and a font change keep it.
   await page.locator('[data-write-pad-grip]').focus()
@@ -274,28 +289,264 @@ test('live writing: the text shows as a ghost at the cursor, not in the page, th
   await expect(page.locator('.bn-editor [data-hand]')).toHaveText(' live words')
   await tool(page, 'Undo').click()
   await expect(page.locator('.bn-editor [data-hand]')).toHaveCount(0)
-  // Closing the pad removes a ghost.
-  await input(page).fill('gone soon')
-  await expect(ghost).toHaveCount(1)
-  await page.getByTestId('write-pad-close').click()
-  await expect(ghost).toHaveCount(0)
+  // Undo put the words back in the pad (R7-20), the draft shows again.
+  await expect(input(page)).toHaveValue(' live words')
+  await expect(ghost).toHaveText(' live words')
 })
 
-test('Insert automatically when I pause (2 s) is off by default and works when on (R6-16)', async ({
+test('live copy keeps the pad text; Done and closing make the draft final as one step (R7-25)', async ({
   page,
 }) => {
   await openNote(page, 'touch')
   await openPad(page)
-  const auto = page.getByTestId('write-pad-auto')
-  await expect(auto).not.toBeChecked()
-  await input(page).fill(' idle')
-  await page.waitForTimeout(2600)
-  await expect(page.locator('.bn-editor [data-hand]')).toHaveCount(0)
-  await auto.check()
-  await input(page).fill(' idle auto')
-  await expect(page.locator('.bn-editor [data-hand]')).toHaveText(
-    ' idle auto',
-    { timeout: 6000 },
-  )
+  const ghost = page.locator('.bn-editor [data-write-pad-ghost]')
+  const hand = page.locator('.bn-editor [data-hand]')
+  await input(page).fill(' one')
+  await expect(ghost).toHaveText(' one')
+  // Edits in the pad update the draft; the pad keeps the text.
+  await input(page).fill(' one two')
+  await expect(ghost).toHaveText(' one two')
+  await expect(input(page)).toHaveValue(' one two')
+  // Done: final on the page, pad closed.
+  await page.getByTestId('write-pad-done').click()
+  await expect(pad(page)).toHaveCount(0)
+  await expect(hand).toHaveText(' one two')
+  await expect(ghost).toHaveCount(0)
+  await tool(page, 'Undo').click()
+  await expect(hand).toHaveCount(0)
+
+  // Closing the pad also makes a draft final.
+  await openPad(page)
+  await input(page).fill(' closed')
+  await page.getByTestId('write-pad-close').click()
+  await expect(pad(page)).toHaveCount(0)
+  await expect(hand).toHaveText(' closed')
+
+  // Clear removes both the pad text and the draft.
+  await openPad(page)
+  await input(page).fill(' scrap')
+  await expect(ghost).toHaveCount(1)
+  await page.getByTestId('write-pad-clear').click()
   await expect(input(page)).toHaveValue('')
+  await expect(ghost).toHaveCount(0)
+  // Clear is one Undo step.
+  await tool(page, 'Undo').click()
+  await expect(input(page)).toHaveValue(' scrap')
+  await expect(ghost).toHaveText(' scrap')
+  await tool(page, 'Redo').click()
+  await expect(input(page)).toHaveValue('')
+
+  // With the option off nothing shows on the page.
+  await page.getByTestId('write-pad-live').uncheck()
+  await input(page).fill(' hidden')
+  await expect(ghost).toHaveCount(0)
+})
+
+test('the draft shows at the end of the page when no cursor was set, above the pad (R7-24)', async ({
+  page,
+}) => {
+  await openNote(page, 'touch')
+  // Many lines so the end of the page is far below the first screen.
+  await page.locator('.bn-editor').click()
+  for (let i = 0; i < 30; i++) await page.keyboard.press('Enter')
+  await page.keyboard.type('Last line')
+  // Take the cursor away from the page, as when opened from the bar.
+  await page.evaluate(() => (document.activeElement as HTMLElement)?.blur())
+  await openPad(page)
+  await input(page).fill('draft here')
+  const ghost = page.locator('.bn-editor [data-write-pad-ghost]')
+  await expect(ghost).toHaveText('draft here')
+  await expect
+    .poll(async () => {
+      const g = (await ghost.boundingBox())!
+      const p = (await pad(page).boundingBox())!
+      return g.y >= 0 && g.y + g.height <= p.y
+    })
+    .toBe(true)
+})
+
+test('Undo and Redo reverse mode switches, Read-less clears and keys in order (R7-21, R7-22)', async ({
+  page,
+}) => {
+  await openNote(page, 'touch')
+  await openPad(page)
+  await page.getByTestId('write-pad-live').uncheck()
+  await input(page).fill('abc')
+  // Clear in Scribble mode, undoable.
+  await page.getByTestId('write-pad-clear').click()
+  await expect(input(page)).toHaveValue('')
+  await tool(page, 'Undo').click()
+  await expect(input(page)).toHaveValue('abc')
+  // The mode switch is a step too.
+  await switchToAi(page)
+  await expect(pad(page).locator('[data-write-pad-canvas]')).toBeVisible()
+  await tool(page, 'Undo').click()
+  await expect(input(page)).toHaveValue('abc')
+  await tool(page, 'Redo').click()
+  await expect(pad(page).locator('[data-write-pad-canvas]')).toBeVisible()
+})
+
+test('the first Scribble to AI switch explains, with Don’t show again (R7-23)', async ({
+  page,
+}) => {
+  await openNote(page, 'touch')
+  await openPad(page)
+  const aiButton = pad(page).getByRole('button', { name: 'AI', exact: true })
+  await aiButton.click()
+  await expect(pad(page).locator('[data-write-pad-explain]')).toBeVisible()
+  // Cancel stays in Scribble.
+  await pad(page).getByRole('button', { name: 'Cancel' }).click()
+  await expect(input(page)).toBeVisible()
+  await aiButton.click()
+  await page.getByTestId('write-pad-explain-never').click()
+  await expect(pad(page).locator('[data-write-pad-canvas]')).toBeVisible()
+  // Back to Scribble and again: no explainer any more.
+  await pad(page).getByRole('button', { name: 'Scribble', exact: true }).click()
+  await aiButton.click()
+  await expect(pad(page).locator('[data-write-pad-explain]')).toHaveCount(0)
+  await expect(pad(page).locator('[data-write-pad-canvas]')).toBeVisible()
+})
+
+/** Draws one pen stroke on the AI canvas. */
+async function penStroke(page: Page, y: number) {
+  const canvas = pad(page).locator('[data-write-pad-canvas]')
+  const b = (await canvas.boundingBox())!
+  await canvas.evaluate(
+    (el, r) => {
+      const fire = (type: string, x: number, yy: number) =>
+        el.dispatchEvent(
+          new PointerEvent(type, {
+            bubbles: true,
+            pointerId: 3,
+            pointerType: 'pen',
+            buttons: type === 'pointerup' ? 0 : 1,
+            clientX: r.x + x,
+            clientY: r.y + yy,
+            pressure: 0.5,
+          }),
+        )
+      fire('pointerdown', 20, r.y0)
+      for (let i = 1; i <= 12; i++) fire('pointermove', 20 + i * 10, r.y0)
+      fire('pointerup', 140, r.y0)
+    },
+    { x: b.x, y: b.y, y0: y },
+  )
+}
+
+const canvasInk = (page: Page) =>
+  pad(page)
+    .locator('[data-write-pad-canvas]')
+    .evaluate((c: HTMLCanvasElement) => {
+      const d = c.getContext('2d')!.getImageData(0, 0, c.width, c.height).data
+      let n = 0
+      for (let i = 3; i < d.length; i += 4) if (d[i] > 8) n++
+      return n
+    })
+
+test('the pad Eraser is the main Eraser: it erases the pad writing, Undo brings it back (R7-15, R7-18)', async ({
+  page,
+}) => {
+  await openNote(page, 'pencil')
+  await openPad(page)
+  await switchToAi(page)
+  await penStroke(page, 40)
+  await expect.poll(() => canvasInk(page)).toBeGreaterThan(100)
+  const before = await canvasInk(page)
+
+  // The pad's Eraser button selects the main Eraser (one shared tool).
+  await page.getByTestId('write-pad-eraser').click()
+  await expect(tool(page, 'Eraser')).toHaveAttribute('aria-pressed', 'true')
+  await expect(
+    pad(page).locator('[data-write-pad-eraser-options]'),
+  ).toBeVisible()
+  // Rub across the stroke's middle with the eraser (precise, small).
+  const canvas = pad(page).locator('[data-write-pad-canvas]')
+  const b = (await canvas.boundingBox())!
+  await page.mouse.move(b.x + 70, b.y + 20)
+  await page.mouse.down()
+  await page.mouse.move(b.x + 70, b.y + 60, { steps: 8 })
+  await page.mouse.up()
+  await expect.poll(() => canvasInk(page)).toBeLessThan(before)
+  expect(await canvasInk(page)).toBeGreaterThan(0)
+  // The stray-mark check: nothing was drawn on the page.
+  expect(
+    await page.locator('[data-ink-canvas="ink"]').count(),
+  ).toBeLessThanOrEqual(1)
+
+  // The main bar Undo brings the erased part back.
+  await tool(page, 'Undo').click()
+  await expect.poll(() => canvasInk(page)).toBe(before)
+  await tool(page, 'Redo').click()
+  await expect.poll(() => canvasInk(page)).toBeLessThan(before)
+
+  // Choosing the main bar Eraser works the same: the button follows it.
+  await page.getByTestId('write-pad-eraser').click()
+  await expect(tool(page, 'Eraser')).toHaveAttribute('aria-pressed', 'false')
+})
+
+test('the Lasso is ignored in the pad and leaves no mark in the pad or on the page (R7-19)', async ({
+  page,
+}) => {
+  await openNote(page, 'pencil')
+  await openPad(page)
+  await switchToAi(page)
+  await tool(page, 'Lasso').click()
+  await penStroke(page, 40)
+  await expect(pad(page).locator('[data-write-pad-canvas]')).toHaveAttribute(
+    'data-pad-tool',
+    'ignore',
+  )
+  expect(await canvasInk(page)).toBe(0)
+  // No ink reached the page either.
+  await page.getByTestId('write-pad-close').click()
+  expect((await savedInk(page)).strokes).toHaveLength(0)
+})
+
+test('the pad rows wrap and never overlap or clip at a narrow width (R7-16, R7-26)', async ({
+  page,
+}) => {
+  await page.setViewportSize({ width: 320, height: 700 })
+  await openNote(page, 'touch')
+  await openPad(page)
+  await switchToAi(page)
+  // Every control sits inside the pad's width, none is cut off.
+  const clipped = await pad(page).evaluate((section) => {
+    const s = section.getBoundingClientRect()
+    const bad: string[] = []
+    section.querySelectorAll('button, label, input').forEach((el) => {
+      const r = el.getBoundingClientRect()
+      if (r.width === 0) return
+      if (r.left < s.left - 1 || r.right > s.right + 1)
+        bad.push(el.getAttribute('aria-label') ?? el.textContent ?? '')
+    })
+    return { bad, wide: section.scrollWidth > section.clientWidth + 1 }
+  })
+  expect(clipped.bad).toEqual([])
+  expect(clipped.wide).toBe(false)
+  // No two controls overlap.
+  const overlaps = await pad(page).evaluate((section) => {
+    const boxes = [...section.querySelectorAll('button, label')]
+      .map((el) => ({ el, r: el.getBoundingClientRect() }))
+      .filter(({ r }) => r.width > 0 && r.height > 0)
+    const hits: string[] = []
+    for (let i = 0; i < boxes.length; i++)
+      for (let j = i + 1; j < boxes.length; j++) {
+        const a = boxes[i].r
+        const b = boxes[j].r
+        if (
+          boxes[i].el.contains(boxes[j].el) ||
+          boxes[j].el.contains(boxes[i].el)
+        )
+          continue
+        const w = Math.min(a.right, b.right) - Math.max(a.left, b.left)
+        const h = Math.min(a.bottom, b.bottom) - Math.max(a.top, b.top)
+        if (w > 2 && h > 2)
+          hits.push(`${boxes[i].el.textContent}|${boxes[j].el.textContent}`)
+      }
+    return hits
+  })
+  expect(overlaps).toEqual([])
+  // The last row (the live-copy option) can be reached by scrolling the pad.
+  await pad(page).getByTestId('write-pad-live').scrollIntoViewIfNeeded()
+  await expect(pad(page).getByTestId('write-pad-live')).toBeVisible()
 })

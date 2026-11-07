@@ -1,3 +1,4 @@
+import { Selection } from 'prosemirror-state'
 import { memStore } from '../../app/tools/store'
 import type { Editor } from '../barActions'
 
@@ -25,11 +26,39 @@ export function currentRange(editor: Editor): { from: number; to: number } {
   }))
 }
 
+/**
+ * Where the pad writes when it opens. With no cursor yet (the page was never
+ * tapped, so the selection is still the very start) it is the end of the page,
+ * so the live copy and Insert go somewhere sensible (R7-24).
+ */
+export function startRange(editor: Editor): { from: number; to: number } {
+  const r = currentRange(editor)
+  const view = editor.prosemirrorView
+  if (!view || view.hasFocus() || r.from !== r.to) return r
+  const doc = view.state.doc
+  if (r.from !== Selection.atStart(doc).from) return r
+  const end = Selection.atEnd(doc).to
+  return { from: end, to: end }
+}
+
 /** Opens the pad (or closes it when it is already open for this editor). */
 export function toggleWritePad(editor: Editor, pageId?: string): void {
   const open = writePad.get()
-  if (open && open.editor === editor) writePad.set(null)
-  else writePad.set({ editor, pageId, ...currentRange(editor) })
+  if (open && open.editor === editor) closeWritePad()
+  else writePad.set({ editor, pageId, ...startRange(editor) })
+}
+
+/**
+ * Closes the pad. The pad itself first makes its text final on the page
+ * (one Undo step), if it can (R7-25); see WritePad.tsx.
+ */
+let beforeClose: (() => void) | null = null
+export function onWritePadClose(fn: (() => void) | null): void {
+  beforeClose = fn
+}
+export function closeWritePad(): void {
+  beforeClose?.()
+  writePad.set(null)
 }
 
 /** Closes the pad when its editor goes away (the page was left). */

@@ -1,4 +1,5 @@
-import { Plugin, PluginKey } from 'prosemirror-state'
+import type { Node } from 'prosemirror-model'
+import { Plugin, PluginKey, Selection } from 'prosemirror-state'
 import { Decoration, DecorationSet } from 'prosemirror-view'
 import type { Editor } from '../barActions'
 import { BACKGROUND_HEX, TEXT_HEX } from '../colorData'
@@ -35,13 +36,20 @@ const plugin = new Plugin<Ghost | null>({
     decorations(state) {
       const g = key.getState(state)
       if (!g) return null
-      const at = Math.max(0, Math.min(state.doc.content.size, g.pos))
+      const at = inlinePos(state.doc, g.pos)
       return DecorationSet.create(state.doc, [
         Decoration.widget(at, () => draw(g), { side: 1 }),
       ])
     },
   },
 })
+
+/** A position inside a text line: the nearest one when pos is between blocks. */
+export function inlinePos(doc: Node, pos: number): number {
+  const at = Math.max(0, Math.min(doc.content.size, pos))
+  const $at = doc.resolve(at)
+  return $at.parent.inlineContent ? at : Selection.near($at, 1).from
+}
 
 function draw(g: Ghost): HTMLElement {
   const root = document.createElement('span')
@@ -65,17 +73,55 @@ function draw(g: Ghost): HTMLElement {
   return root
 }
 
+/**
+ * Keeps the ghost visible: the pad covers the lower page, so when the ghost
+ * is under it (or above the top) the page scrolls it into the free part.
+ */
+function keepVisible(editor: Editor): void {
+  const el = editor.prosemirrorView?.dom.querySelector(
+    '[data-write-pad-ghost]',
+  ) as HTMLElement | null
+  const padEl = document.querySelector('[data-write-pad]')
+  if (!el || !padEl) return
+  const r = el.getBoundingClientRect()
+  const limit = padEl.getBoundingClientRect().top - 24
+  if (r.bottom <= limit && r.top >= 0) return
+  let sp: HTMLElement | null = el.parentElement
+  while (
+    sp &&
+    !(
+      sp.scrollHeight > sp.clientHeight + 1 &&
+      /(auto|scroll)/.test(getComputedStyle(sp).overflowY)
+    )
+  )
+    sp = sp.parentElement
+  const delta = r.bottom > limit ? r.bottom - limit : r.top
+  if (sp) sp.scrollTop += delta
+  else window.scrollBy(0, delta)
+}
+
 /** Shows (or, with null, hides) the ghost. Changes no document content. */
 export function setGhost(editor: Editor, ghost: Ghost | null): void {
   const view = editor.prosemirrorView
   if (!view) return
   if (!view.state.plugins.includes(plugin)) {
     if (!ghost) return
-    view.updateState(
-      view.state.reconfigure({ plugins: [...view.state.plugins, plugin] }),
-    )
+    // Registered with the editor, so a later plugin change cannot drop it.
+    try {
+      editor.registerExtension({
+        key: 'writePadGhost',
+        prosemirrorPlugins: [plugin],
+      })
+    } catch {
+      // Already registered, or not supported: fall back below.
+    }
+    if (!view.state.plugins.includes(plugin))
+      view.updateState(
+        view.state.reconfigure({ plugins: [...view.state.plugins, plugin] }),
+      )
   }
   view.dispatch(
     view.state.tr.setMeta(key, { ghost }).setMeta('addToHistory', false),
   )
+  if (ghost) requestAnimationFrame(() => keepVisible(editor))
 }

@@ -7,23 +7,32 @@ import {
   type ReactNode,
 } from 'react'
 import { createPortal } from 'react-dom'
+import { undoDepth } from 'prosemirror-history'
 import { ensureFont } from '../../app/reading/fonts'
+import { ERASER_SIZES, eraserSettings } from '../../app/tools/main/inkSettings'
+import { activeTool } from '../../app/tools/main/mainTools'
 import { Tip } from '../../help/Help'
 import type { TipId } from '../../help/helpRegistry'
 import { t, type MessageKey } from '../../i18n/t'
 import { BACKGROUND_HEX, COLOR_NAMES, colorLabel, TEXT_HEX } from '../colorData'
+import { runPageHistory } from '../historyActions'
 import { applyPad, type PadLook } from './apply'
-import { AiCanvas } from './AiCanvas'
-import { discardStrokes, hasUnreadStrokes } from './strokeKeep'
+import { AiCanvas, type PadTool } from './AiCanvas'
+import { kept, keptKey } from './strokeKeep'
 import { loadDraft, saveDraft } from './draft'
 import { setGhost } from './ghost'
 import { pickEngine } from './engine'
 import {
   bindPadHistory,
-  recordPadText,
+  isQuiet,
+  quietly,
+  recordApply,
+  recordPad,
+  recordPage,
   redoPad,
   resetPadHistory,
   undoPad,
+  type PadSnap,
 } from './padHistory'
 import {
   handCss,
@@ -34,7 +43,13 @@ import {
   type PadWeight,
 } from './handStyle'
 import { MIN_HEIGHT, PAD_ZOOMS, padPrefs, type PadPrefs } from './padPrefs'
-import { currentRange, writePad } from './padState'
+import {
+  closeWritePad,
+  currentRange,
+  onWritePadClose,
+  writePad,
+} from './padState'
+import type { PadStroke } from './pressure'
 
 /**
  * The Write pad: a docked pad at the bottom of the page. It holds one large
@@ -43,6 +58,10 @@ import { currentRange, writePad } from './padState'
  * above shows what will be inserted; Insert puts it at the cursor, Replace
  * swaps it for the selected words (one Undo step each, see apply.ts). The
  * pad stays open after Insert. On a PC it is a normal text box.
+ *
+ * Live copy (R7-25): while you write, the page shows the text at the cursor
+ * as a dashed draft (ghost.ts). The pad keeps the text; Insert, Done or
+ * closing the pad make the draft final as one Undo step.
  */
 
 const MAX_FRACTION = 0.7
@@ -73,7 +92,7 @@ function Seg<T extends string | number>({
     <div
       role="group"
       aria-label={label}
-      className="flex shrink-0 items-center gap-1"
+      className="flex max-w-full flex-wrap items-center gap-1"
     >
       <span className="text-xs text-muted">{label}</span>
       {options.map((o) => (
@@ -111,7 +130,7 @@ function Swatches({
     <div
       role="group"
       aria-label={label}
-      className="flex shrink-0 items-center gap-1"
+      className="flex max-w-full flex-wrap items-center gap-1"
     >
       <span className="text-xs text-muted">{label}</span>
       {COLOR_NAMES.map((name) => (
@@ -143,6 +162,7 @@ function TipButton({
   children: ReactNode
   onClick: () => void
   disabled?: boolean
+  pressed?: boolean
   label?: string
   className?: string
   testId?: string
@@ -153,12 +173,15 @@ function TipButton({
         type="button"
         data-testid={props.testId}
         aria-label={props.label}
+        aria-pressed={props.pressed}
         disabled={props.disabled}
         onPointerDown={(e) => e.preventDefault()}
         onClick={props.onClick}
         className={
           props.className ??
-          'min-h-11 min-w-11 rounded-lg border border-line px-3 text-sm hover:bg-hover disabled:opacity-40'
+          `min-h-11 min-w-11 rounded-lg border px-3 text-sm hover:bg-hover disabled:opacity-40 ${
+            props.pressed ? 'border-accent bg-hover font-medium' : 'border-line'
+          }`
         }
       >
         {children}
@@ -170,8 +193,8 @@ function TipButton({
 /**
  * How far the on-screen keyboard (or anything else) covers the bottom of the
  * window, so the pad can sit above it. The floating iPadOS shortcut bar is
- * not always reported here, so the action keys also live at the top of the
- * pad where nothing floats over them.
+ * not always reported here, so the pad also keeps its own clear space at the
+ * bottom (see `bottomGap`) and the action keys live at the top.
  */
 function useKeyboardLift(): number {
   const [lift, setLift] = useState(0)
@@ -193,10 +216,19 @@ function useKeyboardLift(): number {
   return lift
 }
 
+/** Clear space under the last row: the safe inset, plus the iPadOS dock bar. */
+const coarse = () =>
+  typeof matchMedia === 'function' && matchMedia('(pointer: coarse)').matches
+const bottomGap = (lift: number) =>
+  `calc(env(safe-area-inset-bottom, 0px) + ${coarse() ? (lift > 0 ? 64 : 48) : 12}px)`
+
 export default function WritePad() {
   const session = writePad.useValue()
   const prefs = padPrefs.useValue()
+  const tool = activeTool.useValue()
+  const eraser = eraserSettings.useValue()
   const [text, setText] = useState('')
+  const [strokes, setStrokes] = useState<readonly PadStroke[]>([])
   const box = useRef<HTMLTextAreaElement>(null)
   const engine = pickEngine(prefs.engine)
   const ai = engine.id === 'ai'
@@ -207,6 +239,8 @@ export default function WritePad() {
   const [aiError, setAiError] = useState('')
   /** The mode the user asked for while unread canvas writing would be lost. */
   const [asking, setAsking] = useState<'scribble' | 'ai' | null>(null)
+  /** The first Scribble → AI switch explains what happens to the text. */
+  const [explain, setExplain] = useState(false)
   /** The draft is loaded for this page: only then is it saved (R6-15). */
   const loadedFor = useRef<string | null>(null)
   const drag = useRef<{ y: number; h: number } | null>(null)
@@ -223,20 +257,65 @@ export default function WritePad() {
   const lift = useKeyboardLift()
   const look = lookOf(prefs)
   const open = !!session
-  // The pad's own Undo history, used by the main bar's ↶ ↷ (padHistory.ts).
+  const liveCopy = prefs.liveCopy !== false
+
+  /** The pad as it is now, for the Undo list (padHistory.ts). */
+  const latest = useRef<PadSnap>({ text: '', mode: 'scribble', strokes: [] })
+  useLayoutEffect(() => {
+    latest.current = { text, mode: ai ? 'ai' : 'scribble', strokes }
+  })
+  /** Writes one step into the list, then the state follows. */
+  const rec = (patch: Partial<PadSnap>, typing = false) => {
+    const next = { ...latest.current, ...patch }
+    recordPad(next, { typing })
+    latest.current = next
+  }
+
+  const editorForHistory = session?.editor
+  // One Undo list for the pad and the page (R7-20, R7-21).
   useEffect(() => {
-    if (!open) return
-    bindPadHistory(setText)
-    return () => bindPadHistory(null)
-  }, [open])
+    if (!open || !editorForHistory) return
+    bindPadHistory(
+      (snap) => {
+        latest.current = snap
+        setText(snap.text)
+        setStrokes(snap.strokes as PadStroke[])
+        setPieces(null)
+        setAiError('')
+        setAsking(null)
+        padPrefs.set({ ...padPrefs.get(), engine: snap.mode })
+      },
+      (kind) => runPageHistory(editorForHistory, kind),
+    )
+    // Page edits made while the pad is open take their place in the order.
+    const view = editorForHistory.prosemirrorView
+    let depth = view ? undoDepth(view.state) : 0
+    const off = editorForHistory.onChange(() => {
+      const now = view ? undoDepth(view.state) : 0
+      const grew = now > depth
+      depth = now
+      if (grew && !isQuiet()) recordPage()
+    })
+    return () => {
+      off()
+      bindPadHistory(null)
+    }
+  }, [open, editorForHistory])
   /** A change made by the user: typing, Scribble, a key. */
   const change = (next: string, ownStep = false) => {
-    recordPadText(next, Date.now(), ownStep)
+    rec({ text: next }, !ownStep)
     setText(next)
   }
   useEffect(() => {
     if (prefs.font !== 'app') void ensureFont(prefs.font)
   }, [prefs.font])
+
+  // The pad's pen is the writing tool: opening the AI canvas with the Lasso
+  // chosen (the Pencil mode starts there) picks the Pen so writing works.
+  // Choosing the Lasso afterwards is respected (the pad ignores it).
+  useEffect(() => {
+    if (open && ai && activeTool.get() === 'lasso') activeTool.set('pen')
+  }, [open, ai])
 
   const pageKey = session?.pageId ?? 'none'
   // Pieces only count while they still spell the text (Undo can change it).
@@ -249,6 +328,13 @@ export default function WritePad() {
   useEffect(() => {
     if (open && loadedFor.current === pageKey) saveDraft(session?.pageId, text)
   }, [open, text, pageKey, session?.pageId])
+  // Unread canvas strokes survive closing and page changes (strokeKeep.ts).
+  useEffect(() => {
+    if (!open || loadedFor.current !== pageKey) return
+    const k = keptKey(session?.pageId)
+    if (strokes.length) kept.set(k, strokes as PadStroke[])
+    else kept.delete(k)
+  }, [open, strokes, pageKey, session?.pageId])
   useEffect(() => {
     if (!open) {
       loadedFor.current = null
@@ -256,11 +342,19 @@ export default function WritePad() {
     }
     if (loadedFor.current === pageKey) return
     const draft = loadDraft(session?.pageId)
+    const old = kept.get(keptKey(session?.pageId)) ?? []
     loadedFor.current = pageKey
     setPieces(null)
     setAsking(null)
     setText(draft)
-    resetPadHistory(draft)
+    setStrokes(old)
+    const snap: PadSnap = {
+      text: draft,
+      mode: padPrefs.get().engine === 'ai' ? 'ai' : 'scribble',
+      strokes: old,
+    }
+    latest.current = snap
+    resetPadHistory(snap)
   }, [open, pageKey, session?.pageId])
 
   /** The editor selection to use: live if the page has focus, else the saved one. */
@@ -272,30 +366,48 @@ export default function WritePad() {
       : { from: session.from, to: session.to }
   }
 
-  const apply = (mode: 'insert' | 'replace') => {
-    if (!session || !session.editor.isEditable || text.trim() === '') return
-    const end = applyPad(session.editor, live ?? text, look, mode, target())
+  /**
+   * Makes the pad's text final on the page: one transaction = one Undo step
+   * (Undo also puts the text back in the pad). Returns whether it was done.
+   */
+  const apply = (mode: 'insert' | 'replace', closing = false): boolean => {
+    if (!session || !session.editor.isEditable || text.trim() === '')
+      return false
+    const end = quietly(() =>
+      applyPad(session.editor, live ?? text, look, mode, target()),
+    )
     setPieces(null)
-    if (end === null) return
-    writePad.set({ ...session, from: end, to: end })
+    if (end === null) return false
+    if (!closing) writePad.set({ ...session, from: end, to: end })
+    recordApply({ ...latest.current, text: '' })
+    latest.current = { ...latest.current, text: '' }
     setText('')
-    resetPadHistory('')
     saveDraft(session.pageId, '')
-    box.current?.focus()
+    if (!closing) box.current?.focus()
+    return true
   }
   const applyNow = useRef(apply)
   useEffect(() => {
     applyNow.current = apply
   })
+  // Closing the pad (the X, or the Insert > Write pad tool) makes a live
+  // draft final first (R7-25). A read-only page keeps it as a saved draft.
+  useEffect(() => {
+    if (!open) return
+    onWritePadClose(() => {
+      if (liveCopy) applyNow.current('insert', true)
+    })
+    return () => onWritePadClose(null)
+  }, [open, liveCopy])
 
-  // Live writing: the text shows at the page cursor as a ghost (not a
-  // document change). Gone when the pad closes (R6-16).
+  // Live copy: the text shows at the page cursor as a dashed draft (not a
+  // document change). Gone when the pad closes or the text is empty.
   const ghostEditor = session?.editor
   const ghostFrom = session?.from
   const ghostTo = session?.to
   useEffect(() => {
     if (!ghostEditor) return
-    if (text.trim() === '') {
+    if (text.trim() === '' || !liveCopy) {
       setGhost(ghostEditor, null)
       return
     }
@@ -314,30 +426,66 @@ export default function WritePad() {
     [ghostEditor],
   )
 
-  // "Insert automatically when I pause (2 s)", off by default.
-  const auto = !!prefs.autoInsert
-  useEffect(() => {
-    if (!open || !auto || text.trim() === '') return
-    const id = window.setTimeout(() => applyNow.current('insert'), 2000)
-    return () => window.clearTimeout(id)
-  }, [open, auto, text])
-
   // Leaving the page (or turning the pad off) ends the session.
   if (!session) return null
   const editor = session.editor
   const set = (patch: Partial<typeof prefs>) =>
     padPrefs.set({ ...prefs, ...patch })
 
-  /** Switching mode keeps the text; only unread canvas writing needs asking. */
-  const pickMode = (mode: 'scribble' | 'ai') => {
-    if (mode === (ai ? 'ai' : 'scribble')) return
-    if (ai && hasUnreadStrokes(session.pageId)) {
-      setAsking(mode)
-      return
-    }
+  /** Switches the mode as one Undo step; the text and writing stay. */
+  const switchMode = (mode: 'scribble' | 'ai') => {
+    rec({ mode })
     setPieces(null)
     setAiError('')
     set({ engine: mode })
+  }
+  /** Switching mode keeps the text; unread canvas writing needs asking. */
+  const pickMode = (mode: 'scribble' | 'ai') => {
+    if (mode === (ai ? 'ai' : 'scribble')) return
+    if (ai && strokes.length > 0) {
+      setAsking(mode)
+      return
+    }
+    if (mode === 'ai' && !prefs.explainerOff) {
+      setExplain(true)
+      return
+    }
+    switchMode(mode)
+  }
+
+  /** Clears the pad text, the writing area and the draft: one Undo step. */
+  const clearAll = () => {
+    rec({ text: '', strokes: [] })
+    setText('')
+    setStrokes([])
+    setPieces(null)
+    setAiError('')
+  }
+
+  // The main bar's tool decides what a pen on the AI canvas does (R7-15/19).
+  const padTool: PadTool =
+    tool === 'eraser'
+      ? {
+          kind: 'eraser',
+          mode: eraser.mode,
+          radius: ERASER_SIZES[eraser.size] / 2,
+        }
+      : tool === 'lasso'
+        ? { kind: 'ignore' }
+        : { kind: 'pen' }
+  const erasing = padTool.kind === 'eraser'
+  /** The pad's Eraser button is the main Eraser: one tool, one setting. */
+  const toggleEraser = () => {
+    if (erasing) {
+      activeTool.set('pen')
+      return
+    }
+    if (!prefs.eraserSeeded) {
+      // First use: small and precise, for single words.
+      eraserSettings.update({ mode: 'precise', size: 0 })
+      set({ eraserSeeded: true })
+    }
+    activeTool.set('eraser')
   }
 
   // Keys: act on the text box without taking its focus away.
@@ -393,6 +541,11 @@ export default function WritePad() {
       look.highlight === 'default' ? undefined : BACKGROUND_HEX[look.highlight],
   }
   const previewText = text.replace(/\n/g, ' ↵ ')
+  const canApply = text.trim() !== '' && editor.isEditable
+  const chip = (on: boolean) =>
+    `min-h-9 rounded-lg border px-2 text-sm ${
+      on ? 'border-accent bg-hover font-medium' : 'border-line hover:bg-hover'
+    }`
 
   return createPortal(
     <section
@@ -419,14 +572,14 @@ export default function WritePad() {
             if (e.key === 'ArrowUp') set({ height: clamp(height + 24) })
             if (e.key === 'ArrowDown') set({ height: clamp(height - 24) })
           }}
-          className="flex h-6 w-full cursor-ns-resize touch-none items-center justify-center"
+          className="flex h-6 w-full shrink-0 cursor-ns-resize touch-none items-center justify-center"
         >
           <span className="h-1 w-12 rounded-full bg-line" />
         </div>
       </Tip>
 
-      <div className="flex items-center gap-2 px-3">
-        <p className="min-w-0 flex-1 truncate text-xs text-muted">
+      <div className="flex shrink-0 flex-wrap items-center gap-x-2 gap-y-1 px-3">
+        <p className="min-w-0 flex-1 basis-24 truncate text-xs text-muted">
           {ai || engine.supported()
             ? t('writePad.title')
             : t(engine.missingHint)}
@@ -463,7 +616,7 @@ export default function WritePad() {
           tip="writePad.close"
           label={t('writePad.close')}
           testId="write-pad-close"
-          onClick={() => writePad.set(null)}
+          onClick={closeWritePad}
         >
           ✕
         </TipButton>
@@ -471,7 +624,7 @@ export default function WritePad() {
 
       <div
         data-write-pad-actions
-        className="flex items-center gap-2 px-3 pb-1 pt-1"
+        className="flex shrink-0 flex-wrap items-center gap-2 px-3 pb-1 pt-1"
       >
         <TipButton
           tip="writePad.keys"
@@ -494,19 +647,48 @@ export default function WritePad() {
         >
           ⌫
         </TipButton>
+        {ai && (
+          <TipButton
+            tip="writePad.eraser"
+            testId="write-pad-eraser"
+            pressed={erasing}
+            onClick={toggleEraser}
+          >
+            {t('writePad.eraser')}
+          </TipButton>
+        )}
+        <TipButton
+          tip="writePad.clear"
+          testId="write-pad-clear"
+          disabled={text === '' && strokes.length === 0}
+          onClick={clearAll}
+        >
+          {t('writePad.clear')}
+        </TipButton>
         <span className="flex-1" />
         <TipButton
           tip="writePad.replace"
           testId="write-pad-replace"
-          disabled={text.trim() === '' || !editor.isEditable}
+          disabled={!canApply}
           onClick={() => apply('replace')}
         >
           {t('writePad.replace')}
         </TipButton>
         <TipButton
+          tip="writePad.done"
+          testId="write-pad-done"
+          disabled={!canApply}
+          onClick={() => {
+            apply('insert', true)
+            writePad.set(null)
+          }}
+        >
+          {t('writePad.done')}
+        </TipButton>
+        <TipButton
           tip="writePad.insert"
           testId="write-pad-insert"
-          disabled={text.trim() === '' || !editor.isEditable}
+          disabled={!canApply}
           className="min-h-11 rounded-lg bg-accent px-4 text-sm font-medium text-white disabled:opacity-40"
           onClick={() => apply('insert')}
         >
@@ -516,7 +698,7 @@ export default function WritePad() {
       <div
         data-write-pad-preview
         aria-live="polite"
-        className="mx-3 mt-1 min-h-9 truncate rounded-lg bg-soft px-3 py-1 text-ink"
+        className="mx-3 mt-1 min-h-9 shrink-0 truncate rounded-lg bg-soft px-3 py-1 text-ink"
       >
         {aiError ? (
           <span role="alert" className="text-sm text-muted">
@@ -550,9 +732,11 @@ export default function WritePad() {
         <div
           role="alert"
           data-write-pad-ask
-          className="mx-3 mt-1 flex flex-wrap items-center gap-2 rounded-lg border border-line bg-soft px-3 py-2 text-sm"
+          className="mx-3 mt-1 flex shrink-0 flex-wrap items-center gap-2 rounded-lg border border-line bg-soft px-3 py-2 text-sm"
         >
-          <span className="min-w-0 flex-1">{t('writePad.discard.ask')}</span>
+          <span className="min-w-0 flex-1 basis-48">
+            {t('writePad.discard.ask')}
+          </span>
           <button
             type="button"
             className="min-h-11 rounded-lg border border-line px-3 hover:bg-hover"
@@ -565,15 +749,62 @@ export default function WritePad() {
             data-testid="write-pad-discard"
             className="min-h-11 rounded-lg border border-line px-3 hover:bg-hover"
             onClick={() => {
-              discardStrokes(session.pageId)
               const mode = asking
               setAsking(null)
+              setStrokes([])
+              rec({ strokes: [], mode })
               setPieces(null)
               setAiError('')
               set({ engine: mode })
             }}
           >
             {t('writePad.discard.discard')}
+          </button>
+        </div>
+      )}
+
+      {explain && (
+        <div
+          role="dialog"
+          aria-label={t('writePad.explain.title')}
+          data-write-pad-explain
+          className="mx-3 mt-1 flex shrink-0 flex-wrap items-center gap-2 rounded-lg border border-line bg-soft px-3 py-2 text-sm"
+        >
+          <span className="min-w-0 flex-1 basis-56">
+            <strong className="block">{t('writePad.explain.title')}</strong>
+            {t('writePad.explain.body')}
+          </span>
+          <button
+            type="button"
+            data-testid="write-pad-explain-ok"
+            className="min-h-11 rounded-lg bg-accent px-3 font-medium text-white"
+            onClick={() => {
+              setExplain(false)
+              switchMode('ai')
+            }}
+          >
+            {t('writePad.explain.ok')}
+          </button>
+          <button
+            type="button"
+            data-testid="write-pad-explain-never"
+            className="min-h-11 rounded-lg border border-line px-3 hover:bg-hover"
+            onClick={() => {
+              setExplain(false)
+              padPrefs.set({ ...prefs, explainerOff: true, engine: 'ai' })
+              rec({ mode: 'ai' })
+              setPieces(null)
+              setAiError('')
+            }}
+          >
+            {t('writePad.explain.never')}
+          </button>
+          <button
+            type="button"
+            className="min-h-11 rounded-lg border border-line px-3 hover:bg-hover"
+            onClick={() => setExplain(false)}
+          >
+            {t('writePad.explain.cancel')}
           </button>
         </div>
       )}
@@ -589,10 +820,45 @@ export default function WritePad() {
               {text}
             </div>
           )}
+          {erasing && (
+            <div
+              data-write-pad-eraser-options
+              className="mx-3 mt-1 flex shrink-0 flex-wrap items-center gap-1"
+            >
+              {(['precise', 'standard', 'stroke'] as const).map((m) => (
+                <button
+                  key={m}
+                  type="button"
+                  aria-pressed={eraser.mode === m}
+                  onClick={() => eraserSettings.update({ mode: m })}
+                  className={chip(eraser.mode === m)}
+                >
+                  {t(`ink.eraser.${m}` as MessageKey)}
+                </button>
+              ))}
+              {([0, 1, 2] as const).map((i) => (
+                <button
+                  key={i}
+                  type="button"
+                  aria-pressed={eraser.size === i}
+                  onClick={() => eraserSettings.update({ size: i })}
+                  className={chip(eraser.size === i)}
+                >
+                  {t(`ink.thickness.${i + 1}` as MessageKey)}
+                </button>
+              ))}
+            </div>
+          )}
           <AiCanvas
             pageId={session.pageId}
             font={prefs.font}
             weight={prefs.weight}
+            strokes={strokes}
+            tool={padTool}
+            onStrokes={(next) => {
+              rec({ strokes: next })
+              setStrokes(next)
+            }}
             onRead={(read) => {
               setAiError('')
               // Add to the text already in the pad; never replace it.
@@ -604,14 +870,18 @@ export default function WritePad() {
                 ...(gap ? [{ text: ' ', weight: prefs.weight }] : []),
                 ...read,
               ]
+              const joined = next.map((p) => p.text).join('')
+              // One step: the words come in and the writing area empties.
+              rec({ text: joined, strokes: [] })
+              setStrokes([])
+              setText(joined)
               setPieces(next)
-              change(next.map((p) => p.text).join(''), true)
             }}
             onError={(m) => setAiError(t('ai.failed', { reason: m }))}
           />
         </>
       ) : (
-        <div className="relative mx-3 my-2 min-h-0 flex-1 rounded-lg bg-bg">
+        <div className="relative mx-3 my-2 min-h-28 flex-1 rounded-lg bg-bg">
           {/* Shows each Enter as a mark; the box on top stays a plain textarea. */}
           <div
             ref={marks}
@@ -680,7 +950,12 @@ export default function WritePad() {
         </div>
       )}
 
-      <div className="flex items-center gap-3 overflow-x-auto px-3 pb-1">
+      {/* The look rows wrap, never overlap, and keep clear of the iPadOS dock. */}
+      <div
+        data-write-pad-look
+        style={{ paddingBottom: bottomGap(lift) }}
+        className="flex shrink-0 flex-wrap items-center gap-x-3 gap-y-1 px-3"
+      >
         <Swatches
           label={t('writePad.color')}
           value={prefs.color}
@@ -693,20 +968,6 @@ export default function WritePad() {
           hex={BACKGROUND_HEX}
           onPick={(highlight) => set({ highlight })}
         />
-      </div>
-      <div className="flex items-center gap-3 overflow-x-auto px-3 pb-3">
-        <Tip id="writePad.auto" touchInfo={false}>
-          <label className="flex min-h-11 shrink-0 items-center gap-2 text-sm">
-            <input
-              type="checkbox"
-              data-testid="write-pad-auto"
-              checked={auto}
-              onChange={(e) => set({ autoInsert: e.target.checked })}
-              className="size-5"
-            />
-            {t('writePad.auto')}
-          </label>
-        </Tip>
         <Seg
           label={t('writePad.size')}
           value={prefs.size}
@@ -728,6 +989,18 @@ export default function WritePad() {
           show={(w) => t(`writePad.weight.${w}` as MessageKey)}
           onPick={(weight) => set({ weight })}
         />
+        <Tip id="writePad.live" touchInfo={false}>
+          <label className="flex min-h-11 items-center gap-2 text-sm">
+            <input
+              type="checkbox"
+              data-testid="write-pad-live"
+              checked={liveCopy}
+              onChange={(e) => set({ liveCopy: e.target.checked })}
+              className="size-5"
+            />
+            {t('writePad.live')}
+          </label>
+        </Tip>
       </div>
     </section>,
     document.body,

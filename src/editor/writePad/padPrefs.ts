@@ -20,8 +20,12 @@ export interface PadPrefs {
   zoom: number
   /** How handwriting is read: Scribble (the textarea) or the user's AI. */
   engine?: 'scribble' | 'ai'
-  /** Insert by itself after 2 s without writing (off by default). */
-  autoInsert?: boolean
+  /** Show the writing on the page as a dashed draft while writing (on). */
+  liveCopy?: boolean
+  /** The Scribble to AI explainer was dismissed with "Don't show again". */
+  explainerOff?: boolean
+  /** The pad Eraser set the shared Eraser to small and precise once. */
+  eraserSeeded?: boolean
 }
 
 export const PAD_ZOOMS = [1, 1.5, 2, 3] as const
@@ -32,7 +36,7 @@ export const DEFAULT_PREFS: PadPrefs = {
   size: 125,
   color: 'default',
   highlight: 'default',
-  height: 300,
+  height: 340,
   zoom: 1.5,
 }
 
@@ -51,7 +55,9 @@ const isPrefs = (v: unknown): v is PadPrefs => {
     p.height <= 4000 &&
     (PAD_ZOOMS as readonly unknown[]).includes(p.zoom) &&
     (p.engine === undefined || p.engine === 'scribble' || p.engine === 'ai') &&
-    (p.autoInsert === undefined || typeof p.autoInsert === 'boolean')
+    (p.liveCopy === undefined || typeof p.liveCopy === 'boolean') &&
+    (p.explainerOff === undefined || typeof p.explainerOff === 'boolean') &&
+    (p.eraserSeeded === undefined || typeof p.eraserSeeded === 'boolean')
   )
 }
 

@@ -2,7 +2,7 @@
 
 Every hover tip and help line in the app (shown while Settings › Show help is On). Generated from `src/help/helpRegistry.ts` and `src/i18n/en.ts`; to change a text, edit it in `en.ts`, then run `UPDATE_HELP=1 npx vitest run src/help` to refresh this file.
 
-## Hover tips (172)
+## Hover tips (174)
 
 ### `bar.newLine`
 
@@ -76,11 +76,23 @@ Every hover tip and help line in the app (shown while Settings › Show help is 
 - **Meaning:** Sends a picture of what you wrote to your AI and shows the words above.
 - **Example:** Firm words come out bolder.
 
-### `writePad.ai.clear`
+### `writePad.clear`
 
-- **Where:** Page › Write pad › AI › Clear
-- **Meaning:** Wipes the writing area.
-- **Example:** Nothing is sent.
+- **Where:** Page › Write pad › Clear
+- **Meaning:** Clears the pad: the text, the writing area and the draft on the page.
+- **Example:** Undo brings it all back.
+
+### `writePad.done`
+
+- **Where:** Page › Write pad › Done
+- **Meaning:** Makes the draft final on the page and closes the pad.
+- **Example:** One Undo step takes it off the page and back into the pad.
+
+### `writePad.eraser`
+
+- **Where:** Page › Write pad › AI › Eraser
+- **Meaning:** The same Eraser as the main bar, with the same size and mode. Rubs out strokes in the writing area.
+- **Example:** Small and precise to start with, for single words.
 
 ### `writePad.close`
 
@@ -88,11 +100,11 @@ Every hover tip and help line in the app (shown while Settings › Show help is 
 - **Meaning:** Closes the Write pad.
 - **Example:** Your page keeps everything you inserted.
 
-### `writePad.auto`
+### `writePad.live`
 
-- **Where:** Page › Write pad › Insert automatically
-- **Meaning:** Puts your text on the page by itself after 2 seconds without writing.
-- **Example:** Off by default. Until then the text shows faintly, dashed, at the page cursor.
+- **Where:** Page › Write pad › Show my writing on the page
+- **Meaning:** Shows your text on the page as a dashed draft while you write. Insert, Done or closing the pad make it final.
+- **Example:** Clear removes both the pad text and the draft.
 
 ### `ai.modelOrder`
 

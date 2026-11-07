@@ -176,6 +176,7 @@ test('Write pad AI engine: write on the canvas, Read, words come back with press
   const pad = page.locator('[data-write-pad]')
   await expect(pad).toBeVisible()
   await pad.getByRole('button', { name: 'AI', exact: true }).click()
+  await page.getByTestId('write-pad-explain-ok').click()
   const canvas = pad.locator('[data-write-pad-canvas]')
   await expect(canvas).toBeVisible()
   const b = (await canvas.boundingBox())!
@@ -266,6 +267,7 @@ test('Write pad: AI Read adds to the text already in the pad, never replaces it 
   const pad = page.locator('[data-write-pad]')
   await pad.locator('[data-write-pad-input]').fill('first')
   await pad.getByRole('button', { name: 'AI', exact: true }).click()
+  await page.getByTestId('write-pad-explain-ok').click()
   const canvas = pad.locator('[data-write-pad-canvas]')
   const b = (await canvas.boundingBox())!
   await canvas.evaluate((el, r) => {

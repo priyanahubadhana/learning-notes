@@ -10,6 +10,13 @@ Moved out of HANDOFF on 2026-11-06 (audit) so HANDOFF stays five lines. Newest f
 - **New page start** (N2): add a page to a notebook. Under the cursor is a short list with Study (Recommended) first. Tap it: are the Study headings filled in at once? Make another page and just type: does the list vanish by itself? Tick Always start new pages as Study, add a page: is it filled? Untick it in Settings › General. Why human: judging whether the list is helpful and not in the way.
 - **Calendar Day** (N3): Calendar › Day. Swipe the card left and right with a finger: does it change day only on a deliberate swipe, and does scrolling up and down still work? Are Day, Week and Month easy to tap? Why human: real swipe feel.
 
+## PHASE M CHECKS (Summary · Notes · Review, iPad, installed app, tap Update until the new version shows)
+
+- **Add to Summary with a finger** (M2): open a page with a few lines of notes, long-press to select a line, and use the short bar's pop-up (the Summary icon, tooltip "Add to Summary") or Insert › Summary in the ribbon. Does the toast appear, and is the icon easy to find and tap (44 px)? Why human: the iPad selection pop-up and touch size.
+- **The three views** (M2): under the page title tap Notes, Summary, Review. Is the switch quick, does the keyboard go away sensibly, and is nothing lost when you come back to Notes? Edit the note, then look at the Summary: does the line change too? Why human: feel, and the on-screen keyboard.
+- **Notebook and app level** (M2): open a notebook, tap the Summary tab (it sits after Notes; older notebooks get it the first time they open). Then sidebar › All summaries: filter by notebook, tap a page name and the ↗ button on a line (does it open the page and flash the line?). Why human: layout on the iPad at both orientations, and Night and Sepia themes.
+- **Save to Summary from a book** (C4 + M2): in a PDF select a passage, Save to… › Summary of this page. Open the book's page Summary: is the line there, and does its page link open the reader at the spot? Why human: real book and reader.
+
 ## WAVE 5 PART B CHECKS (Phase I, iPad, installed app, tap Update until the new version shows)
 
 - **Notebook views** (I1): open a notebook with a few pages, tap View ▾ › Shelf: do the cover and page tiles look like a shelf and are they easy to tap with a finger? View ▾ › Tabs: tap each coloured tab and the six colour dots (44 px targets?); does the tab row scroll sideways with a swipe when there are many pages? Default › Layout ▾: Gallery, Table and Board; swipe the Board sideways. Close and reopen the app: are the choices remembered? Why human: touch size, swipe feel and the look in Night and Sepia.

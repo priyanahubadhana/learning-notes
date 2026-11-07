@@ -35,6 +35,7 @@ test('notebook opens on Notes; tabs switch by click and arrow keys', async ({
   await openNotebook(page, 'Cardiology')
   await expect(tabs(page).getByRole('tab')).toHaveText([
     'Notes',
+    'Summary',
     'Database',
     'Cards',
     'Revise',
@@ -45,8 +46,10 @@ test('notebook opens on Notes; tabs switch by click and arrow keys', async ({
     notes.getByRole('button', { name: /Heart sounds/ }),
   ).toContainText('1 sub-page')
 
-  // Keyboard: → moves to Database, End to Revise, Home back to Notes.
+  // Keyboard: → moves to Summary, then Database; End to Revise, Home back to Notes.
   await tab(page, 'Notes').focus()
+  await page.keyboard.press('ArrowRight')
+  await expect(tab(page, 'Summary')).toBeFocused()
   await page.keyboard.press('ArrowRight')
   await expect(tab(page, 'Database')).toBeFocused()
   await expect(tab(page, 'Database')).toHaveAttribute('aria-selected', 'true')
@@ -131,6 +134,7 @@ test('tabs can be renamed, hidden and shown again', async ({ page }) => {
   await page.getByRole('menuitem', { name: 'Hide “Flashcards”' }).click()
   await expect(tabs(page).getByRole('tab')).toHaveText([
     'Notes',
+    'Summary',
     'Database',
     'Revise',
   ])

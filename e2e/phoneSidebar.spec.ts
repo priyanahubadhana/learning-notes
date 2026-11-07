@@ -1,6 +1,7 @@
 import { expect, test } from '@playwright/test'
 import {
   createNotebook,
+  skipNameSheet,
   makeCard,
   openSearchPopup,
   sidebar,
@@ -16,6 +17,7 @@ test.describe('phone', () => {
     await page.goto('/')
     // Start: the page, not the sidebar, fills the screen.
     await page.getByRole('button', { name: 'Create notebook' }).click()
+    await skipNameSheet(page)
     await expect(sidebar(page)).toBeHidden()
     await expect(
       page.getByRole('textbox', { name: 'Page title' }),
@@ -59,6 +61,7 @@ test.describe('phone', () => {
   test('the open page, chosen again, closes the menu', async ({ page }) => {
     await page.goto('/')
     await page.getByRole('button', { name: 'Create notebook' }).click()
+    await skipNameSheet(page)
     await page.getByRole('button', { name: 'Open menu' }).click()
     await sidebar(page).getByRole('button', { name: 'Databases' }).click()
     await expect(sidebar(page)).toBeHidden()
@@ -74,6 +77,7 @@ test.describe('phone', () => {
     await page.setViewportSize({ width: 500, height: 800 })
     await page.goto('/')
     await page.getByRole('button', { name: 'Create notebook' }).click()
+    await skipNameSheet(page)
     const menu = page.getByRole('button', { name: 'Open menu' })
     await expect(menu).toBeVisible()
     const b = (await menu.boundingBox())!
@@ -144,6 +148,7 @@ test.describe('phone', () => {
   test('the full-screen search popup has the menu too', async ({ page }) => {
     await page.goto('/')
     await page.getByRole('button', { name: 'Create notebook' }).click()
+    await skipNameSheet(page)
     const popup = await openSearchPopup(page)
     await expect(popup.getByRole('combobox')).toBeFocused()
     await popup.getByRole('button', { name: 'Open menu' }).click()
@@ -154,6 +159,7 @@ test.describe('phone', () => {
   test('a page takes the whole width', async ({ page }) => {
     await page.goto('/')
     await page.getByRole('button', { name: 'Create notebook' }).click()
+    await skipNameSheet(page)
     const title = page.getByRole('textbox', { name: 'Page title' })
     const box = await title.boundingBox()
     expect(box!.x + box!.width).toBeGreaterThan(300) // not squeezed beside a sidebar

@@ -1,6 +1,7 @@
 // Browser types for code that runs inside the page.
 /// <reference lib="dom" />
 import { expect, test, type Locator, type Page } from '@playwright/test'
+import { skipNameSheet } from './helpers.ts'
 
 /**
  * Polish 1 · item 9: the mind map follows the Pencil rules. A Pencil tap
@@ -15,6 +16,7 @@ test.use({ hasTouch: true })
 async function insertMap(page: Page) {
   await page.goto('/')
   await page.getByRole('button', { name: 'Create notebook' }).click()
+  await skipNameSheet(page)
   await page.locator('.bn-editor').click()
   await page.keyboard.type('/mind map')
   await page.keyboard.press('Enter')

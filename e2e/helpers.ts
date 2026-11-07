@@ -564,3 +564,15 @@ export async function openRibbon(page: Page) {
   await page.getByRole('button', { name: 'Toolbar menu' }).click()
   await page.getByRole('button', { name: 'All tools', exact: true }).click()
 }
+
+/** Touch devices: closes the "Name it" sheet of a new notebook (keeps the default name). */
+export async function skipNameSheet(page: Page) {
+  const sheet = page.getByTestId('name-sheet')
+  try {
+    await sheet.waitFor({ state: 'visible', timeout: 2000 })
+  } catch {
+    return
+  }
+  await sheet.getByRole('button', { name: 'Cancel' }).click()
+  await expect(sheet).toBeHidden()
+}

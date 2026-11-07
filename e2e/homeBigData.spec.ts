@@ -48,6 +48,7 @@ test('Home opens fast with 5,000 tasks (4,950 of them done long ago)', async ({
   await closeCorner(page)
 
   await page.locator('[data-space="home"]').waitFor()
+  await page.waitForTimeout(1500) // Home loads quietly after start
   const ms = await page.evaluate(async () => {
     const t0 = performance.now()
     document.querySelector<HTMLElement>('[data-space="home"]')!.click()

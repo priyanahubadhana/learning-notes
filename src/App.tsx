@@ -5,6 +5,7 @@ import {
   useEffect,
   useRef,
   useState,
+  type ComponentProps,
   type CSSProperties,
 } from 'react'
 import {
@@ -125,9 +126,12 @@ import {
 } from './templates/templateService'
 
 // Screens load when first opened, so the app itself starts fast.
-const HomeScreen = lazy(() =>
-  import('./home/HomeScreen').then((m) => ({ default: m.HomeScreen })),
-)
+// Home is a lazy screen. Once it has loaded it is used directly (no extra
+// Suspense step), so opening it stays instant.
+let HomeLoaded: typeof import('./home/HomeScreen').HomeScreen | null = null
+const loadHome = () =>
+  import('./home/HomeScreen').then((m) => (HomeLoaded = m.HomeScreen))
+const HomeLazy = lazy(() => loadHome().then((c) => ({ default: c })))
 const NotebookScreen = lazy(() =>
   import('./notebooks/NotebookScreen').then((m) => ({
     default: m.NotebookScreen,
@@ -716,6 +720,11 @@ function App() {
 
   const showToast = appUi.toast
   useAutoDeviceMode(showToast)
+  // Home is a lazy screen; fetch it quietly once the app is up.
+  useEffect(() => {
+    const id = setTimeout(() => void loadHome(), 1000)
+    return () => clearTimeout(id)
+  }, [])
   const showToastRef = useRef(showToast)
   useEffect(() => {
     showToastRef.current = showToast
@@ -1587,7 +1596,7 @@ function App() {
                           }
                         />
                       ) : space === 'home' ? (
-                        <HomeScreen
+                        <HomeScreenSwitch
                           db={db}
                           deps={{
                             openToday: () => runTask(openToday()),
@@ -1729,6 +1738,11 @@ function App() {
       </AppUiContext>
     </ThemeContext>
   )
+}
+
+function HomeScreenSwitch(props: ComponentProps<typeof HomeLazy>) {
+  const Screen = HomeLoaded ?? HomeLazy
+  return <Screen {...props} />
 }
 
 /** Keeps the Write · Draw · Read switch and Reading mode in step. */

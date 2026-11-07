@@ -5,7 +5,8 @@ Current phase only. Older entries are in [ARCHIVE.md](ARCHIVE.md).
 ## 2026-11-07 (CI stabiliser: red main fixed)
 
 - **What:** `e2e/nestedCard.spec.ts:67` (Change in Settings) failed on every CI run since Settings sections went lazy (bundle diet): the setting was found and scrolled to, then a lazy section above it loaded and pushed it out of view, and nothing scrolled again. App fix: `revealWhenReady` now re-scrolls (no animation) when the element moves within its 3 s window. Flaky specs made deterministic with real conditions, no sleeps: `openPill`, the Edit bar menu and the Eraser pill (inkPills, editMainBar, inkLayers) tap again only while the thing is not showing.
-- **Files:** `src/editor/revealBlock.ts`, `e2e/{mainBarHelpers,editMainBar,inkLayers}.spec/ts`.
+- **Also:** inkLayers lock-toast test measures the page again (it moves 62 px; strokes missed the pad); a11yWave34 counts labels on textarea/select (red after the evening-review time); blanks selects again until the toolbar shows; the 20,000-block import unit test budget is 100 s (65 s seen on a busy runner).
+- **Files:** `src/share/bundle.test.ts`, `src/editor/revealBlock.ts`, `e2e/{mainBarHelpers,editMainBar,inkLayers}.spec/ts`.
 
 ## 2026-11-07 (Pencil taps and Lasso words: R6-17..R6-20; no Dexie version)
 

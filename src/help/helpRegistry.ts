@@ -107,6 +107,7 @@ export const TIPS = {
   'sidebar.notebook': { where: 'Sidebar › a notebook’s name' },
   'sidebar.addPage': { where: 'Sidebar › a notebook’s + (on hover)' },
   'sidebar.reviewNotebook': { where: 'Sidebar › a notebook’s ⟳ (on hover)' },
+  'sidebar.rowMenu': { where: 'Sidebar › a row’s ⋯ (touch and Pencil)' },
   'sidebar.rename': { where: 'Sidebar › a notebook’s ✎ (on hover)' },
   'sidebar.deleteNotebook': { where: 'Sidebar › a notebook’s × (on hover)' },
   'sidebar.addSubPage': { where: 'Sidebar › a page’s + (on hover)' },

@@ -5,6 +5,7 @@ import { createPortal } from 'react-dom'
 import { usePopup } from './popups'
 import { PopupHeader } from './tools/PopupClose'
 import { t } from '../i18n/t'
+import { touchUi } from './NameSheet'
 import type { ChoiceRequest, ToastAction } from './appUi'
 
 /** Small UI building blocks shared across features. */
@@ -415,6 +416,7 @@ export function ConfirmDialog({
   return (
     <dialog
       ref={ref}
+      data-palm-guard
       onCancel={onCancel}
       onClick={(e) => {
         if (e.target === ref.current) onCancel() // click on the backdrop
@@ -425,16 +427,18 @@ export function ConfirmDialog({
       <div className="flex justify-end gap-2 text-sm">
         <button
           type="button"
+          // On touch, Cancel has the focus, so a stray Enter or tap cannot delete.
+          autoFocus={touchUi()}
           onClick={onCancel}
-          className="rounded-lg px-3 py-1.5 text-muted hover:bg-hover hover:text-ink"
+          className="rounded-lg px-3 py-1.5 text-muted hover:bg-hover hover:text-ink any-pointer-coarse:min-h-11 any-pointer-coarse:px-4"
         >
           {cancelLabel ?? t('ui.cancel')}
         </button>
         <button
           type="button"
-          autoFocus
+          autoFocus={!touchUi()}
           onClick={onConfirm}
-          className="rounded-lg bg-red-600 px-3 py-1.5 font-medium text-white hover:bg-red-700"
+          className="rounded-lg bg-red-600 px-3 py-1.5 font-medium text-white hover:bg-red-700 any-pointer-coarse:min-h-11 any-pointer-coarse:px-4"
         >
           {confirmLabel}
         </button>

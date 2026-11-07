@@ -1,14 +1,19 @@
 import {
+  useCallback,
   useEffect,
   useLayoutEffect,
   useRef,
   useState,
+  type CSSProperties,
+  type PointerEvent as ReactPointerEvent,
   type ReactNode,
 } from 'react'
 import { Tip } from '../help/Help'
 import { t } from '../i18n/t'
-import type { Page } from '../core/types'
-import { mainBox, MARGIN, sheetOf } from './boxes'
+import type { Page, PaperBox } from '../core/types'
+import { boxesOf, MAIN_BOX, mainBox, MARGIN, sheetOf } from './boxes'
+import { clampBox } from './boxService'
+import { BOX_COLOURS } from './usePaperBoxes'
 import { clampZoom, paperStepMm, sheetCount, SHEET_GAP_PX } from './sheets'
 
 /**
@@ -21,9 +26,19 @@ import { clampZoom, paperStepMm, sheetCount, SHEET_GAP_PX } from './sheets'
 export function PaperFrame({
   page,
   flat = false,
+  renderBox,
+  onAddBox,
+  onBoxChange,
+  onBoxMenu,
   children,
 }: {
   page: Pick<Page, 'sheet' | 'inkBg' | 'boxes'>
+  /** The block editor of a box other than the default one. */
+  renderBox?: (boxId: string) => ReactNode
+  /** A tap on empty paper (mm); unset = no new boxes (read-only). */
+  onAddBox?: (at: { x: number; y: number }) => void
+  onBoxChange?: (boxId: string, patch: Partial<PaperBox>) => void
+  onBoxMenu?: (box: PaperBox, at: DOMRect) => void
   /** The full-screen reader: plain flowing text, same tree (nothing remounts). */
   flat?: boolean
   children: ReactNode
@@ -34,7 +49,13 @@ export function PaperFrame({
   const [zoom, setZoom] = useState(1)
   const [boxBottom, setBoxBottom] = useState(0)
   const sheet = sheetOf(page)
-  const box = (page.boxes ?? []).find((b) => b.id === 'main') ?? mainBox(page)
+  const box = boxesOf(page)[0]
+  const paperEl = useRef<HTMLDivElement>(null)
+  // Where the other boxes end (px from the paper's top), for the sheet count.
+  const [bottoms, setBottoms] = useState<Record<string, number>>({})
+  const reportBottom = useCallback((id: string, px: number) => {
+    setBottoms((b) => (b[id] === px ? b : { ...b, [id]: px }))
+  }, [])
 
   // Fit width = the column the page sits in.
   useLayoutEffect(() => {
@@ -54,7 +75,7 @@ export function PaperFrame({
 
   // At 100 % the default box is exactly the page column (so the text sits
   // where it always did); the sheet's margins reach out beside the column.
-  const width = Math.max(1, ((fit * sheet.w) / box.w) * zoom)
+  const width = Math.max(1, ((fit * sheet.w) / mainBox(page).w) * zoom)
   const k = width / sheet.w // px per mm
   const sheetPx = sheet.h * k
 
@@ -72,7 +93,13 @@ export function PaperFrame({
     ro.observe(el)
     return () => ro.disconnect()
   }, [k])
-  const sheets = sheetCount(boxBottom + MARGIN * k, sheetPx)
+  const lowest = Math.max(
+    boxBottom,
+    ...boxesOf(page)
+      .filter((b) => b.id !== MAIN_BOX)
+      .map((b) => bottoms[b.id] ?? b.y * k),
+  )
+  const sheets = sheetCount(lowest + MARGIN * k, sheetPx)
 
   // Pinch (two fingers) and Ctrl + wheel zoom around the point between them.
   const zoomRef = useRef(zoom)
@@ -145,9 +172,28 @@ export function PaperFrame({
 
   const step = paperStepMm(page.inkBg) * k
   const total = sheets * (sheetPx + SHEET_GAP_PX) - SHEET_GAP_PX
-  // Nothing here is positioned (no relative or absolute), so the editor's
-  // menus and the ink overlay keep the same containing blocks as before:
-  // the sheets are normal blocks, pulled up behind the box.
+  const extra = boxesOf(page).filter((b) => b.id !== MAIN_BOX)
+
+  /** A tap on empty paper with the Text tool: a new box there (step 3). */
+  const tapPaper = (e: ReactPointerEvent<HTMLDivElement>) => {
+    if (!onAddBox || flat || e.button !== 0) return
+    if (
+      e.target !== e.currentTarget &&
+      !(e.target as Element).closest('[data-paper-sheet]')
+    )
+      return
+    const r = paperEl.current?.getBoundingClientRect()
+    if (!r) return
+    const x = (e.clientX - r.left) / k
+    const y = (e.clientY - r.top) / k
+    // Inside the default box's column the tap belongs to the page's text.
+    onAddBox({ x: Math.max(0, x - 4), y: Math.max(0, snap(y, step / k)) })
+  }
+
+  // Nothing around the default box is positioned (no relative or absolute),
+  // so its editor's menus and the ink overlay keep the same containing blocks
+  // as before: the sheets are normal blocks and the box is pulled up over
+  // them. Other boxes sit in a zero-height positioned layer of their own.
   return (
     <div>
       <div
@@ -162,46 +208,47 @@ export function PaperFrame({
         }}
       >
         <div
+          ref={paperEl}
           data-paper
           data-sheet={page.sheet ?? 'A4'}
           style={
             flat
               ? undefined
-              : {
+              : ({
                   width,
                   minHeight: total,
+                  visibility: fit > 0 ? 'visible' : 'hidden',
                   // The text starts exactly where it always did: the sheet's
                   // top margin reaches up behind the line above the paper.
                   marginTop: -box.y * k,
-                  visibility: fit > 0 ? 'visible' : 'hidden',
-                }
+                } as CSSProperties)
           }
         >
-          <div
-            ref={boxEl}
-            data-paper-box="main"
-            style={
-              flat
-                ? undefined
-                : {
-                    marginLeft: box.x * k,
-                    width: box.w * k,
-                    marginTop: box.y * k,
-                    paddingBottom: MARGIN * k,
-                  }
-            }
-          >
-            <div style={zoom === 1 || flat ? undefined : { zoom }}>
-              {children}
-            </div>
-          </div>
-          {!flat && (
+          {!flat && extra.length > 0 && (
             <div
-              data-paper-sheets
-              // After the box in the page, pulled up behind it: the text is
-              // above every sheet for painting and for taps.
-              style={{ marginTop: -(boxBottom + MARGIN * k) }}
+              data-paper-boxes
+              style={{ position: 'relative', height: 0, zIndex: 6 }}
             >
+              {extra.map((b) => (
+                <BoxFrame
+                  key={b.id}
+                  box={b}
+                  k={k}
+                  zoom={zoom}
+                  sheetW={sheet.w}
+                  stepMm={step / k}
+                  lineH={step / zoom}
+                  onBottom={(px) => reportBottom(b.id, px)}
+                  onChange={(patch) => onBoxChange?.(b.id, patch)}
+                  onMenu={(at) => onBoxMenu?.(b, at)}
+                >
+                  {renderBox?.(b.id)}
+                </BoxFrame>
+              ))}
+            </div>
+          )}
+          {!flat && (
+            <div data-paper-sheets onPointerUp={tapPaper}>
               {Array.from({ length: sheets }, (_, i) => (
                 <div
                   key={i}
@@ -214,12 +261,30 @@ export function PaperFrame({
                       marginBottom: i < sheets - 1 ? SHEET_GAP_PX : 0,
                       '--paper-step': step + 'px',
                       '--paper-offset': ((box.y * k) % step) + 'px',
-                    } as React.CSSProperties
+                    } as CSSProperties
                   }
-                ></div>
+                />
               ))}
             </div>
           )}
+          <div
+            ref={boxEl}
+            data-paper-box="main"
+            style={
+              flat
+                ? undefined
+                : {
+                    marginLeft: box.x * k,
+                    width: box.w * k,
+                    marginTop: box.y * k - total,
+                    paddingBottom: MARGIN * k,
+                  }
+            }
+          >
+            <div style={zoom === 1 || flat ? undefined : { zoom }}>
+              {children}
+            </div>
+          </div>
         </div>
       </div>
       {!flat && (
@@ -259,6 +324,166 @@ export function PaperFrame({
           </Tip>
         </div>
       )}
+    </div>
+  )
+}
+
+/** Rounds a length in mm to the paper's line spacing. */
+const snap = (mm: number, stepMm: number) =>
+  stepMm > 0 ? Math.round(mm / stepMm) * stepMm : mm
+
+type Drag = {
+  how: 'move' | 'left' | 'right'
+  x0: number
+  y0: number
+  box: PaperBox
+}
+
+/**
+ * One box other than the default one: placed at its x, y (mm), its own block
+ * editor inside. A grip on top moves it; the left and right edges (and the
+ * bottom corners) change its width; the height follows the text, so Enter
+ * grows the box, never the page. A locked box shows no grip or edges.
+ */
+function BoxFrame({
+  box,
+  k,
+  zoom,
+  sheetW,
+  stepMm,
+  lineH,
+  onBottom,
+  onChange,
+  onMenu,
+  children,
+}: {
+  box: PaperBox
+  k: number
+  zoom: number
+  sheetW: number
+  stepMm: number
+  /** Text line height in the box's own px: the paper's line spacing. */
+  lineH: number
+  onBottom: (px: number) => void
+  onChange: (patch: Partial<PaperBox>) => void
+  onMenu: (at: DOMRect) => void
+  children: ReactNode
+}) {
+  const el = useRef<HTMLDivElement>(null)
+  const [live, setLive] = useState<PaperBox | null>(null)
+  const [drag, setDrag] = useState<Drag | null>(null)
+  const shown = live ?? box
+  useEffect(() => {
+    const node = el.current
+    if (!node) return
+    const ro = new ResizeObserver(() =>
+      onBottom(node.offsetTop + node.offsetHeight),
+    )
+    ro.observe(node)
+    return () => ro.disconnect()
+  }, [onBottom])
+
+  const start = (how: Drag['how'], e: ReactPointerEvent) => {
+    if (box.locked || e.button !== 0) return
+    e.preventDefault()
+    e.stopPropagation()
+    ;(e.currentTarget as Element).setPointerCapture(e.pointerId)
+    setDrag({ how, x0: e.clientX, y0: e.clientY, box })
+  }
+  const move = (e: ReactPointerEvent) => {
+    const d = drag
+    if (!d) return
+    const dx = (e.clientX - d.x0) / k
+    const dy = (e.clientY - d.y0) / k
+    const b = d.box
+    const next =
+      d.how === 'move'
+        ? { ...b, x: b.x + dx, y: snap(b.y + dy, stepMm) }
+        : d.how === 'right'
+          ? { ...b, w: b.w + dx }
+          : { ...b, x: b.x + dx, w: b.w - dx }
+    setLive(clampBox(next, sheetW))
+  }
+  const end = () => {
+    const d = drag
+    setDrag(null)
+    if (!d || !live) return setLive(null)
+    onChange({ x: live.x, y: live.y, w: live.w })
+    setLive(null)
+  }
+  return (
+    <div
+      ref={el}
+      data-paper-box={box.id}
+      data-locked={box.locked ? '' : undefined}
+      className="group absolute rounded-md outline-1 outline-dashed outline-transparent hover:outline-line focus-within:outline-line"
+      style={{
+        left: shown.x * k,
+        top: shown.y * k,
+        width: shown.w * k,
+        background: box.colour
+          ? `color-mix(in srgb, ${BOX_COLOURS[box.colour] ?? box.colour} 14%, transparent)`
+          : undefined,
+      }}
+    >
+      <div
+        data-chrome
+        className="absolute -top-6 left-0 right-0 flex h-6 items-center justify-between opacity-0 transition-opacity group-hover:opacity-100 group-focus-within:opacity-100 pointer-coarse:opacity-100"
+      >
+        {box.locked ? (
+          <span aria-hidden className="px-1 text-xs text-muted">
+            🔒
+          </span>
+        ) : (
+          <button
+            type="button"
+            data-box-grip
+            aria-label={t('paper.box.move')}
+            onPointerDown={(e) => start('move', e)}
+            onPointerMove={move}
+            onPointerUp={end}
+            onPointerCancel={end}
+            className="h-6 min-w-10 cursor-grab touch-none rounded px-2 text-xs leading-none text-muted hover:bg-hover"
+          >
+            ⠿
+          </button>
+        )}
+        <button
+          type="button"
+          data-box-menu
+          aria-label={t('paper.box.menu')}
+          aria-haspopup="menu"
+          onClick={(e) => onMenu(e.currentTarget.getBoundingClientRect())}
+          className="h-6 min-w-8 rounded px-1 text-sm leading-none text-muted hover:bg-hover"
+        >
+          ⋯
+        </button>
+      </div>
+      {!box.locked &&
+        (['left', 'right'] as const).map((how) => (
+          <div
+            key={how}
+            data-box-edge={how}
+            role="separator"
+            aria-orientation="vertical"
+            aria-label={t('paper.box.resize')}
+            onPointerDown={(e) => start(how, e)}
+            onPointerMove={move}
+            onPointerUp={end}
+            onPointerCancel={end}
+            className="absolute inset-y-0 w-3 cursor-ew-resize touch-none"
+            style={{ [how]: -6 }}
+          />
+        ))}
+      <div
+        className="px-1"
+        style={{
+          ...(zoom === 1 ? {} : { zoom }),
+          ['--box-line' as string]: lineH + 'px',
+        }}
+      >
+        {children}
+      </div>
     </div>
   )
 }

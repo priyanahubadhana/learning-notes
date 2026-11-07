@@ -20,9 +20,10 @@ Every page is paper. It shows as fixed sheets (A4, or Letter) with a border and 
   - Zoomed in, the paper pans sideways inside its frame; at 100 % the page scrolls exactly as before.
   - The full-screen reader keeps flowing text (`flat`, with the same tree, so the editor never remounts).
 
+- **Step 3: boxes.** A Text-tool tap on empty paper makes a box (caret in it). Grip = move (y snaps to the spacing), left/right edges = width, height follows the text. ⋯ menu: Lock in place, Duplicate box, Colour, Delete box (History copy + Undo). One toolbar follows the box with the caret. Each box is a block editor with every block feature.
+
 ## Not yet
 
-- Tapping to make new boxes, and moving, resizing and locking them (step 3).
 - Ink at a zoom other than 100 % (step 4, on hold for the owner).
 - The Lasso over boxes, reading order, export and print (step 5).
 - Fit width on phones (step 6).

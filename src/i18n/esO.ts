@@ -352,4 +352,15 @@ export const esO: Record<string, string> = {
   'help.tip.paper.zoomFit.meaning':
     'Muestra el papel tan ancho como la ventana.',
   'help.tip.paper.zoomFit.example': 'Vuelve al 100 % después de acercar.',
+  'paper.box.move': 'Mover el cuadro (arrastrar)',
+  'paper.box.menu': 'Acciones del cuadro',
+  'paper.box.resize': 'Cambiar el ancho del cuadro (arrastrar)',
+  'paper.box.lock': 'Fijar en su sitio',
+  'paper.box.unlock': 'Desbloquear',
+  'paper.box.duplicate': 'Duplicar el cuadro',
+  'paper.box.colour': 'Color',
+  'paper.box.noColour': 'Sin color',
+  'paper.box.delete': 'Eliminar el cuadro',
+  'paper.box.deleted': 'Cuadro eliminado.',
+  'paper.box.undo': 'Deshacer',
 }

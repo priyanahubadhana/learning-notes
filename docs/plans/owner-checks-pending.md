@@ -2,6 +2,14 @@
 
 Moved out of HANDOFF on 2026-11-06 (audit) so HANDOFF stays five lines. Newest first; each paragraph names its step. The run decision (master plan) is one owner iPad pass before Sync; the Phase A builder adds its checks at the top. Tick a paragraph by deleting it.
 
+## Phase Q paper page, steps 1–3 (8 Nov)
+
+1. Open an old page. It shows on an A4 sheet, with the text exactly where it was before and nothing missing. Turn on lined, grid or dots in the Pen pill: the sheet shows the lines.
+2. Pinch with two fingers: the paper zooms (50–400 %) and pans sideways. The Pencil must never zoom, and the page must not zoom as a whole (Safari's own zoom). The % button goes back to fit width.
+3. With the Text tool, tap empty paper below the text: a box appears with the keyboard ready. Type, then press Enter a few times: the box grows. Drag its ⠿ grip to move it and its side edge to make it wider. Use ⋯ › Lock in place, Duplicate box, Colour and Delete box (then Undo).
+4. Type in a box with Scribble (Pencil handwriting): the text lands in that box. The toolbar's bold and lists act on the box that has the cursor.
+5. Zoomed to 200 %, type in a box: the caret and the selection handles sit on the text.
+
 ## Round 7 gesture watchdog: R7-1, R7-3, R7-4, R7-5, R7-6, R7-8 (8 Nov)
 
 1. Pen on: draw a line, then switch to another app (or a Safari tab) and come back. Draw again, erase it with the Eraser, loop it with the Lasso (freeform and rectangle). All three must work without restarting the app. Why human: the real background switch (iPadOS drops the pen's lift) cannot be simulated.

@@ -858,3 +858,7 @@ html[data-note-line] .bn-editor {
 [data-paper-box] [data-ink-paper] {
   background-image: none;
 }
+/* Phase Q: the text of a box sits on the paper lines. */
+[data-paper-box]:not([data-paper-box='main']) .bn-inline-content {
+  line-height: var(--box-line, inherit);
+}

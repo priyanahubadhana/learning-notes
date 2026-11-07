@@ -22,6 +22,7 @@ import type { Page } from '../core/types'
 import { pageMode } from '../editor/editPolicy'
 import { PageEditor } from '../editor/PageEditor'
 import { PaperFrame } from '../paper/PaperFrame'
+import { usePaperBoxes } from '../paper/usePaperBoxes'
 import type { EditorApi } from '../editor/editorContext'
 import { revealBlock } from '../editor/revealBlock'
 import { HistoryDialog } from '../history/HistoryDialog'
@@ -326,6 +327,28 @@ export function PageView({
     },
   ]
 
+  const boxes = usePaperBoxes(db, page.id, !reader && !isTemplate)
+  /** The page editor of one box (unset = the default box, as before). */
+  const editorOf = (boxId?: string) => (
+    <PageEditor
+      db={db}
+      pageId={page.id}
+      notebookId={page.notebookId}
+      onOpenPage={onOpenPage}
+      onOpenNewPage={onOpenNewPage}
+      onOpenTag={onOpenTag}
+      onOpenDatabase={onOpenDatabase}
+      onOpenAttachment={onOpenAttachment}
+      onReviewCards={notebook && !isTemplate ? onReview : undefined}
+      onSaveAsTemplate={notebook && !isTemplate ? saveTemplate : undefined}
+      editorRef={boxId ? undefined : editor}
+      reading={view === 'off' ? undefined : { view }}
+      boxId={boxId}
+      autoFocus={!!boxId && boxId === boxes.fresh}
+      key={boxId ?? 'main'}
+    />
+  )
+
   return (
     <div
       className="mx-auto max-w-[720px] px-14 pt-10 pb-[200px]"
@@ -476,24 +499,17 @@ export function PageView({
             display: reader || pageTab === 'notes' ? 'contents' : 'none',
           }}
         >
-          <PaperFrame page={page} flat={reader}>
-            <PageEditor
-              db={db}
-              pageId={page.id}
-              notebookId={page.notebookId}
-              onOpenPage={onOpenPage}
-              onOpenNewPage={onOpenNewPage}
-              onOpenTag={onOpenTag}
-              onOpenDatabase={onOpenDatabase}
-              onOpenAttachment={onOpenAttachment}
-              onReviewCards={notebook && !isTemplate ? onReview : undefined}
-              onSaveAsTemplate={
-                notebook && !isTemplate ? saveTemplate : undefined
-              }
-              editorRef={editor}
-              reading={view === 'off' ? undefined : { view }}
-            />
+          <PaperFrame
+            page={page}
+            flat={reader}
+            renderBox={editorOf}
+            onAddBox={boxes.onAddBox}
+            onBoxChange={boxes.onBoxChange}
+            onBoxMenu={boxes.onBoxMenu}
+          >
+            {editorOf()}
           </PaperFrame>
+          {boxes.menu}
         </div>
         {autoFocusTitle &&
           pageTab === 'notes' &&

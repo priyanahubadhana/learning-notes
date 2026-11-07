@@ -1,7 +1,7 @@
 // Browser types for code that runs inside the page.
 /// <reference lib="dom" />
 import { expect, test } from '@playwright/test'
-import { createNotebook, typeInEditor } from './helpers.ts'
+import { createNotebook, startInMode, typeInEditor } from './helpers.ts'
 
 /**
  * Phase Q steps 1–2: every page is paper. The page's text is one default
@@ -47,4 +47,76 @@ test('a page shows on an A4 sheet with its text in one box; zoom and fit', async
   await page.keyboard.press('End')
   for (let i = 0; i < 90; i++) await page.keyboard.press('Enter')
   await expect(page.locator('[data-paper-sheet="2"]')).toBeVisible()
+})
+
+test('a tap on empty paper makes a box; it moves, resizes, locks, duplicates and deletes with Undo', async ({
+  page,
+}) => {
+  await startInMode(page, 'computer')
+  await page.goto('/')
+  await createNotebook(page, 'Paper', 'Boxes')
+  await typeInEditor(page, 'Main text')
+  const sheet = (await page.locator('[data-paper-sheet="1"]').boundingBox())!
+  const main = (await page.locator('[data-paper-box="main"]').boundingBox())!
+  // Below the page's text, on the paper: a new box with the caret in it.
+  await page.mouse.click(sheet.x + sheet.width * 0.5, main.y + main.height + 60)
+  const extra = page.locator('[data-paper-box]:not([data-paper-box="main"])')
+  await expect(extra).toHaveCount(1)
+  await expect(extra.locator('.bn-editor')).toBeFocused()
+  await page.keyboard.type('Box text')
+  await page.keyboard.press('Enter')
+  await page.keyboard.type('Second line')
+  await expect(extra).toContainText('Box text')
+  await expect(page.locator('[data-paper-box="main"]')).not.toContainText(
+    'Box text',
+  )
+  // Enter grew the box, not the page.
+  const b1 = (await extra.boundingBox())!
+  expect(b1.height).toBeGreaterThan(40)
+
+  // Drag the grip: the box moves.
+  await extra.hover()
+  const g = (await extra.locator('[data-box-grip]').boundingBox())!
+  await page.mouse.move(g.x + g.width / 2, g.y + g.height / 2)
+  await page.mouse.down()
+  await page.mouse.move(g.x - 60, g.y + 80, { steps: 5 })
+  await page.mouse.up()
+  await expect
+    .poll(async () => (await extra.boundingBox())!.y)
+    .toBeGreaterThan(b1.y + 50)
+  // Drag the right edge: it is wider.
+  const before = (await extra.boundingBox())!
+  const e = (await extra.locator('[data-box-edge="right"]').boundingBox())!
+  await page.mouse.move(e.x + e.width / 2, e.y + 10)
+  await page.mouse.down()
+  await page.mouse.move(e.x + 80, e.y + 10, { steps: 5 })
+  await page.mouse.up()
+  await expect
+    .poll(async () => (await extra.boundingBox())!.width)
+    .toBeGreaterThan(before.width + 40)
+
+  // Lock: no grip; a reload keeps everything.
+  await extra.hover()
+  await extra.locator('[data-box-menu]').click()
+  await page.getByRole('menuitem', { name: 'Lock in place' }).click()
+  await expect(extra.locator('[data-box-grip]')).toHaveCount(0)
+  await page.waitForTimeout(800) // autosave
+  await page.reload()
+  await expect(extra).toHaveCount(1)
+  await expect(extra).toHaveAttribute('data-locked', '')
+  await expect(extra).toContainText('Second line')
+
+  // Duplicate, then delete the copy and bring it back with Undo.
+  await extra.hover()
+  await extra.locator('[data-box-menu]').click()
+  await page.getByRole('menuitem', { name: 'Duplicate box' }).click()
+  await expect(extra).toHaveCount(2)
+  await expect(extra.nth(1)).toContainText('Box text')
+  await extra.nth(1).hover()
+  await extra.nth(1).locator('[data-box-menu]').click()
+  await page.getByRole('menuitem', { name: 'Delete box' }).click()
+  await expect(extra).toHaveCount(1)
+  await page.getByRole('button', { name: 'Undo' }).last().click()
+  await expect(extra).toHaveCount(2)
+  await expect(extra.nth(1)).toContainText('Second line')
 })

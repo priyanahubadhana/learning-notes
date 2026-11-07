@@ -33,6 +33,8 @@ import { editorColorScheme } from '../app/theme'
 import { ThemeContext } from '../app/themeContext'
 import { listBlocks } from '../core/blockService'
 import { blocksOfBox, tagDrafts } from './boxScope'
+import { activeBox, useOwnsBar } from '../paper/activeBox'
+import { MAIN_BOX } from '../paper/boxes'
 import { syncCardRecords } from '../recall/cardService'
 import type { LearningNotesDB } from '../core/db'
 import type { Block, Page } from '../core/types'
@@ -138,6 +140,8 @@ interface PageEditorProps {
    * with no boxes shows every block, exactly as before.
    */
   boxId?: string
+  /** Phase Q: a box just made on the paper; the caret goes into it. */
+  autoFocus?: boolean
 }
 
 /** Time for the window that lost the page to finish its last save. */
@@ -161,10 +165,15 @@ export function PageEditor(props: PageEditorProps) {
   // Raised after Edit here: reads what the other window saved.
   const [version, setVersion] = useState(0)
   useEffect(() => {
-    const held = holdPageLock(pageId, (state) => setLock({ pageId, state }))
+    // One lock per box (Phase Q): boxes of a page are edited side by side.
+    const key =
+      props.boxId && props.boxId !== 'main'
+        ? pageId + '#' + props.boxId
+        : pageId
+    const held = holdPageLock(key, (state) => setLock({ pageId, state }))
     pageLock.current = held
     return () => held.release()
-  }, [pageId])
+  }, [pageId, props.boxId])
   const editHere = () => {
     pageLock.current?.takeOver()
     setTaking(true)
@@ -261,6 +270,7 @@ function LoadedPageEditor({
   records,
   readOnly,
   boxId,
+  autoFocus,
 }: PageEditorProps & { records: Block[]; readOnly: boolean }) {
   const { chooseTemplate, toast, choose } = useContext(AppUiContext)
   // Blocks go in as the editor's starting content, so loading is not an edit.
@@ -322,8 +332,19 @@ function LoadedPageEditor({
     ),
   )
 
+  // Phase Q: a box other than the default one (no ink, no page controls yet).
+  const extraBox = !!boxId && boxId !== MAIN_BOX
+  const ownsBar = useOwnsBar(pageId, boxId)
   useEffect(() => {
-    if (!editorRef) return
+    if (!autoFocus) return
+    activeBox.set(pageId, boxId ?? MAIN_BOX)
+    editor.focus()
+    // Only when the box is first shown.
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [])
+
+  useEffect(() => {
+    if (!editorRef || extraBox) return
     editorRef.current = {
       focus: () => editor.focus(),
       flush: sync.flush,
@@ -336,7 +357,7 @@ function LoadedPageEditor({
     return () => {
       editorRef.current = null
     }
-  }, [editor, editorRef, sync, toast])
+  }, [editor, editorRef, sync, toast, extraBox])
 
   // The Write pad belongs to this page's editor; leaving the page closes it.
   const padSession = writePad.useValue()
@@ -721,7 +742,12 @@ function LoadedPageEditor({
         openAttachment: onOpenAttachment,
       }}
     >
-      <div ref={setInkWrap} data-ink-wrap className="contents">
+      <div
+        ref={setInkWrap}
+        data-ink-wrap
+        className="contents"
+        onFocus={() => activeBox.set(pageId, boxId ?? MAIN_BOX)}
+      >
         <BlockNoteView
           editor={editor}
           editable={editableIn(mode)}
@@ -737,7 +763,7 @@ function LoadedPageEditor({
             } as CSSProperties
           }
         >
-          {docked && <DockedBar slot={barSlot} />}
+          {docked && ownsBar && <DockedBar slot={barSlot} />}
           {/* Computer keeps the toolbar over selected text as an extra. */}
           {!inReading && (!docked || bar.mode === 'computer') && (
             <FormattingToolbarController
@@ -786,17 +812,19 @@ function LoadedPageEditor({
         )}
         <StampWatcher editor={editor} />
         {padSession?.editor === (editor as never) && <WritePadLazy />}
-        <InkSurface
-          db={db}
-          pageId={pageId}
-          notebookId={notebookId}
-          host={inkWrap}
-          editor={editor as never}
-          frozen={frozen}
-          mode={bar.mode}
-        />
+        {!extraBox && (
+          <InkSurface
+            db={db}
+            pageId={pageId}
+            notebookId={notebookId}
+            host={inkWrap}
+            editor={editor as never}
+            frozen={frozen}
+            mode={bar.mode}
+          />
+        )}
       </div>
-      {bar.mode !== 'computer' && !frozen && (
+      {bar.mode !== 'computer' && !frozen && !extraBox && (
         <button
           type="button"
           onClick={() => focusEndLine(editor)}

@@ -44,6 +44,8 @@ const LOADERS: Record<
     import('@fontsource/caveat/latin-700.css'),
   ],
   kalam: () => [
+    import('@fontsource/kalam/latin-300.css'),
+    import('@fontsource/kalam/devanagari-300.css'),
     import('@fontsource/kalam/latin-400.css'),
     import('@fontsource/kalam/latin-700.css'),
     import('@fontsource/kalam/devanagari-400.css'),

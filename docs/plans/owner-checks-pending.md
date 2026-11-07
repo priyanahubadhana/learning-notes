@@ -2,6 +2,17 @@
 
 Moved out of HANDOFF on 2026-11-06 (audit) so HANDOFF stays five lines. Newest first; each paragraph names its step. The run decision (master plan) is one owner iPad pass before Sync; the Phase A builder adds its checks at the top. Tick a paragraph by deleting it.
 
+## WRITE PAD CHECKS (real iPad with Pencil, Safari and the installed app, tap Update until the new version shows)
+
+- **Scribble in the pad** (Insert › Write pad): write a few words with the Pencil in the big box. Does Scribble convert them? Try pad heights from small to tall and every zoom (A+). Does writing still work after zooming? Why human: Scribble cannot be tested by a computer; a zoom may break its hit-testing.
+- **Palm and page gestures:** rest your palm and use the Pencil in the pad. Does the page behind react (cursor moves, selection changes, ink)? Does the on-screen keyboard pop up when you start writing? Why human: real palm and keyboard behaviour.
+- **Selection kept:** select two words on the page, open the pad, write one word, tap Replace. Is it swapped for the selected words, and does one Undo bring them back? Do the same with only a cursor and Insert. Why human: focus moving to the box may lose the page selection on a real iPad.
+- **Scribble switched off** (Settings › Apple Pencil): does the box still take typing, and is the hint line shown? Why human: iPad setting.
+- **Hindi:** switch the iPad keyboard to Hindi: does Scribble refuse or guess Latin? Does Kalam show Hindi letters and joined letters (conjuncts) correctly in the page? Why human: Scribble has no known Hindi; real fonts on Safari.
+- **Look:** pick colour, highlight, size, Kalam, Light and Bold, then Insert. Does the page text match the preview line, and does it look like handwriting? Is Light too thin to read? Why human: judging looks.
+- **Offline and speed:** in aeroplane mode, open the pad and insert Caveat and Kalam text. Do the fonts still show? How fast does the pad open on slow data the first time? Why human: real offline cache.
+- **Pad size:** drag the top edge with the Pencil and a finger. Is the grip easy to grab? Is too much of the page hidden? Why human: feel and layout.
+
 ## PHASE O CHECKS (iPad or PC, installed app, tap Update until the new version shows)
 
 - **Two windows** (O1): open the same page in two browser windows. In the one that says it is open elsewhere, watch while you type in the other: does the text appear within a second or two without pressing anything? Why human: real two-window timing.

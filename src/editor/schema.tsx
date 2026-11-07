@@ -22,6 +22,8 @@ import { NOTE_LINK, TAG } from './mapping'
 import { NoteLinkView } from './NoteLinkView'
 import { PageLinkView } from './PageLinkView'
 import { TagView } from './TagView'
+import { HandSpan } from './writePad/HandSpan'
+import { HAND_STYLE } from './writePad/handStyle'
 
 /**
  * BlockNote editor schema: which block types the editor can show.
@@ -142,6 +144,19 @@ const mark = createReactStyleSpec(
 )
 
 /**
+ * Hand: text that came from the Write pad. The value is "font.weight.size"
+ * (see editor/writePad/handStyle.ts); colours use the normal text styles.
+ */
+const hand = createReactStyleSpec(
+  { type: HAND_STYLE, propSchema: 'string' },
+  {
+    render: ({ value, contentRef }) => (
+      <HandSpan value={value} contentRef={contentRef} />
+    ),
+  },
+)
+
+/**
  * Note link: a link inside text to a page, or a heading/card on it (typed
  * with "[["). Stores ids, so renames and moves never break it; shows the
  * current title. See editor/NoteLinkView.tsx and links/.
@@ -215,7 +230,7 @@ export const schema = BlockNoteSchema.create({
     dayRecord: createDayRecordBlock(),
   },
   inlineContentSpecs: { ...defaultInlineContentSpecs, noteLink, tag },
-  styleSpecs: { ...defaultStyleSpecs, blank, mark },
+  styleSpecs: { ...defaultStyleSpecs, blank, mark, hand },
 })
 
 export type AppSchema = typeof schema

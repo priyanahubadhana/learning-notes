@@ -25,6 +25,7 @@ import {
 } from '../reading/readingTools'
 import type { TabId } from './tabs'
 import { runInkTool } from '../../ink/inkTools'
+import { toggleWritePad } from '../../editor/writePad/padState'
 import {
   isAudioPanelOpen,
   setAudioPanel,
@@ -309,6 +310,16 @@ export const TOOLS: readonly ToolDef[] = [
 
   // ---- Insert ----
   { id: 'picture', icon: 'image', section: 'insert', group: 'media' },
+  {
+    id: 'writePad',
+    icon: 'pencil',
+    section: 'insert',
+    group: 'media',
+    run: (r) => {
+      if (r.editor) toggleWritePad(r.editor)
+      else r.app?.toast(t('tool.needsPage'))
+    },
+  },
   {
     id: 'audio',
     icon: 'music',

@@ -2,7 +2,7 @@
 
 Every hover tip and help line in the app (shown while Settings › Show help is On). Generated from `src/help/helpRegistry.ts` and `src/i18n/en.ts`; to change a text, edit it in `en.ts`, then run `UPDATE_HELP=1 npx vitest run src/help` to refresh this file.
 
-## Hover tips (160)
+## Hover tips (166)
 
 ### `bar.newLine`
 
@@ -33,6 +33,42 @@ Every hover tip and help line in the app (shown while Settings › Show help is 
 - **Where:** Page › options pill › 📌 pin
 - **Meaning:** Keeps these options open until you close them.
 - **Example:** Pin the Text options while you format a page.
+
+### `writePad.insert`
+
+- **Where:** Page › Write pad › Insert
+- **Meaning:** Puts the written words into the page at the cursor.
+- **Example:** One Undo takes them out again.
+
+### `writePad.replace`
+
+- **Where:** Page › Write pad › Replace
+- **Meaning:** Swaps the words you selected on the page for the written words.
+- **Example:** Select a word, write a better one, tap Replace.
+
+### `writePad.zoom`
+
+- **Where:** Page › Write pad › A− A+ (writing zoom)
+- **Meaning:** Makes the writing in the pad bigger or smaller.
+- **Example:** It does not change the text on the page.
+
+### `writePad.resize`
+
+- **Where:** Page › Write pad › its top edge (drag)
+- **Meaning:** Drag this edge up or down to change the pad height.
+- **Example:** Make it tall for long writing.
+
+### `writePad.keys`
+
+- **Where:** Page › Write pad › ␣ ↵ ⌫
+- **Meaning:** Adds a space or a new line, or deletes, in the pad.
+- **Example:** Handy when your pencil cannot reach the keyboard.
+
+### `writePad.close`
+
+- **Where:** Page › Write pad › ✕
+- **Meaning:** Closes the Write pad.
+- **Example:** Your page keeps everything you inserted.
 
 ### `ink.layers`
 

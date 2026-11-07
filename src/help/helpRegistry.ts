@@ -29,6 +29,12 @@ export const TIPS = {
   },
   'pill.grip': { where: 'Page › options pill › ⠿ grip at its start' },
   'pill.pin': { where: 'Page › options pill › 📌 pin' },
+  'writePad.insert': { where: 'Page › Write pad › Insert' },
+  'writePad.replace': { where: 'Page › Write pad › Replace' },
+  'writePad.zoom': { where: 'Page › Write pad › A− A+ (writing zoom)' },
+  'writePad.resize': { where: 'Page › Write pad › its top edge (drag)' },
+  'writePad.keys': { where: 'Page › Write pad › ␣ ↵ ⌫' },
+  'writePad.close': { where: 'Page › Write pad › ✕' },
   'ink.layers': { where: 'Page › Pen, Highlighter or Lasso card › Layers' },
   'ink.finger': { where: 'Page › Pen card › Pen settings › Finger can draw' },
   'ribbon.behaviour': {

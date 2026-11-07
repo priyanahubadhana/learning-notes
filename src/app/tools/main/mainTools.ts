@@ -85,6 +85,7 @@ export const PILL_OPTIONS: Record<PillTool, readonly string[]> = {
     'picture',
     'camera',
     'file',
+    'writePad',
     'callout',
     'audio',
     'card',

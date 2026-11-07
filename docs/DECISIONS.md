@@ -47,6 +47,7 @@ Current phase only. Older decisions are in [ARCHIVE.md](ARCHIVE.md).
 
 ## Decisions to review
 
+- **2026-11-07 · Write pad.** Chosen: Scribble in a plain textarea (no custom pointer handlers); Replace with nothing selected acts as Insert; the live page selection wins when the page has focus, else the one saved on open or when the box is tapped; line breaks become hard breaks in the same block; one `hand` style `font.weight.size` instead of three styles; Caveat has no Light so Light shows as Normal there; the pad covers the bottom of the page (no spacer); zoom is font size, not a transform. Other: a transform zoom, Replace disabled without a selection, one style per property.
 - **2026-11-07 · Name it sheet (touch/Pencil).** Chosen: the sheet is used where `(any-pointer: coarse)` matches; a mouse keeps inline rename and hover icons (fewer changes for desktop users). Other: sheet for everyone. An unchanged or empty name counts as Cancel. Section tabs keep their existing Rename dialog (field made taller on touch).
 - **2026-11-07 · Safe delete.** Kept the app's existing confirm dialog for ✕ and Delete (Trash with Undo is not used for notebooks/pages here); on touch Cancel has the focus. Palm guard blocks touches for 500 ms after the Pencil lifts, only on buttons inside the sidebar, the sheet and confirm dialogs (not the editor, not Home or Library lists).
 - **2026-11-07 · First load budget.** The feature needed ~1 KB over the 350 KB limit; paid for by making the Home screen lazy (Home appears after a short load on first open).

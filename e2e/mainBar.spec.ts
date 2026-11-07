@@ -293,6 +293,7 @@ test('Insert: Table and Shape first, then the rest; Table, Callout and Recall ca
     'Picture',
     'Camera',
     'File or PDF',
+    'Write pad',
     'Callout',
     'Audio',
     'Recall card',

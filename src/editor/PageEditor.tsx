@@ -94,6 +94,8 @@ import {
 import { getEditorDictionary } from '../i18n/languages'
 import { imageRef, parseImageRef } from '../images/imageRef'
 import { PictureEditorHost } from '../images/pictureEditor'
+import { closeWritePadFor, writePad } from './writePad/padState'
+import { WritePadLazy } from './writePad/WritePadLazy'
 import { PictureHandles } from './PictureHandles'
 import { stampLabel, stampPicture } from './embed/embedClock'
 import { StampWatcher } from './embed/StampWatcher'
@@ -322,6 +324,10 @@ function LoadedPageEditor({
       editorRef.current = null
     }
   }, [editor, editorRef, sync, toast])
+
+  // The Write pad belongs to this page's editor; leaving the page closes it.
+  const padSession = writePad.useValue()
+  useEffect(() => () => closeWritePadFor(editor), [editor])
 
   // Remember Ctrl/Cmd+Shift+V: the paste that follows is plain text.
   useEffect(() => {
@@ -707,6 +713,7 @@ function LoadedPageEditor({
           <PictureHandles editor={editor as never} />
         )}
         <StampWatcher editor={editor} />
+        {padSession?.editor === (editor as never) && <WritePadLazy />}
         <InkSurface
           db={db}
           pageId={pageId}

@@ -2,6 +2,12 @@
 
 Current phase only. Older entries are in [ARCHIVE.md](ARCHIVE.md).
 
+## 2026-11-07 (Write pad MVP, iPad Scribble; no new Dexie version)
+
+- **What:** Insert › Write pad (also a registry tool) opens a lazy docked pad: a big textarea for iPad Scribble, a preview line, a top-edge resize grip, writing zoom, Insert and Replace (one Undo step each; the page selection is saved on open and restored on apply), colour, highlight, size, font (Caveat default, Kalam for Hindi), weight (Light, Normal, Bold) and the keys ␣ ↵ ⌫. New text style `hand`. PC hint line. `WritePadEngine` interface for later engines; no AI built. First load 338,312 bytes (the pad is a separate chunk). Kalam Light (300) files added to the Kalam font loader.
+- **Why:** owner-approved MVP from [research/write-pad-2026-11.md](research/write-pad-2026-11.md). **Files:** `src/editor/writePad/*`, `src/editor/{PageEditor,schema}.tsx`, `src/app/tools/{toolRegistry.ts,toolRegistry.test.ts,main/mainTools.ts,main/PillContent.tsx}`, `src/app/reading/fonts.ts`, `src/help/helpRegistry.ts`, `docs/HELP-TEXTS.md`, `src/i18n/*O.ts`, `docs/features/write-pad.md`, `e2e/{writePad,mainBar}.spec.ts`, `playwright.config.ts`.
+- **Tests:** unit `apply.test.ts` (6); e2e `writePad.spec.ts` (chromium and ipad-webkit).
+
 ## 2026-11-07 (Phase O, part 1: live refresh and reading goal; no new Dexie version)
 
 - **What:** O1 a window that only watches a page (the other window holds it) now reloads the page when the other window or sync saves it (`editor/pageChanges.ts`, loaded on demand). O2 Daily reading goal (Off, 5, 10, 20, 30, 60 min) in the Aa sheet's More tab with today's progress and goal days this week (`readingMarks.ts`). O0 English texts of new features load on demand (`i18n/enO.ts`, `languages.ts`, `t.ts`, `vitest.setup.ts`). First load 349,941 bytes.

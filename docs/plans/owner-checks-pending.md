@@ -32,6 +32,7 @@ Real-time sync needs one small table and a publication on the server. Until this
 - **Enter marks:** press ↵ in the pad and write on: do you see a faint ↵ at the end of each line, and does ⌫ remove it? Does pressing ↵ pop the keyboard up (we focus the box)?
 - **Notebook reopen:** open a deep page in a notebook, go to another notebook, tap the first one: does it return to the same page with the sidebar unfolded to it? Settings › General › Open notebooks at: try First page and Notebook tabs.
 - **Updates:** after a new version is published, keep the app open and type or move between pages: does "Update available" show within about 5 to 10 minutes without a restart, and never reload while you write?
+
 ## ROUND 6 BAR FIXES CHECKS (iPad with Pencil, installed app, tap Update until the new version shows)
 
 - **Drag a bar with the Pencil** (mini keyboard strip, mini bar, a pill, the floating bar): hold the grip and move across the page. Is there no ink line, no caret and no keyboard during the drag, and does typing work again after? Why human: real Pencil.

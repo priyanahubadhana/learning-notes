@@ -271,3 +271,20 @@ MIC (owner): build it like GoodNotes:
 Then waves 2–5 continue automatically.
 R5-13 Sidebar scroll affordance: (1) a soft fade at the top/bottom edge when more content is hidden; (2) a slim scroll indicator that appears while scrolling or on touch and fades after ~1 s (theme colours, 44 px-friendly); (3) optionally, the first time only, a gentle 'peek' bounce. Apply the same pattern to other long lists (pills, menus, Settings). Approved direction; owner to confirm the peek.
 R5-13 DECIDED: edge fade + slim auto-hiding scroll indicator on all scrollable lists, with a Settings switch 'Scroll hints' (on by default, can turn off). No peek bounce.
+
+## Round 6 (owner iPad, 7 Nov 2026) — collecting, discuss when owner says "now"
+
+- R6-1 Mini keyboard strip (⠿ 🎤 ↵ ⌫) drag with Apple Pencil: while dragging the strip by its grip, the Pencil still acts on the page underneath (a pen line is drawn across the page, and text input/caret stays active). Dragging any floating bar/strip must be drag-only: no ink, no text input, and the page should leave the text layer for the length of the drag. Holding still is fine.
+- R6-2 AI keys don't sync: a key pasted on the PC is not on the iPad. Owner wants keys entered once and available on all their signed-in devices. (Today keys are device-only by design; candidate: sync keys end-to-end encrypted with the sync key, opt-in.)
+- R6-3 Rectangle lasso doesn't work: choosing the rectangle shape still draws a freeform loop; no rectangle appears while selecting.
+- R6-4 iOS edit callout (Cut / Copy / Paste / AutoFill / Look Up …) keeps popping up on selections and gets in the way; owner wants it gone in our app where possible, using our own menu instead (it also appears over our own selections).
+- R6-5 (seen in the same screenshot) In the Write pad, the iPadOS bottom shortcut bar (Writing Tools: Proofread / Rewrite, keyboard, mic, ↵) floats over the pad's bottom row and hides Space/⌫/Replace/Insert. Pad buttons must stay reachable above it.
+- R6-6 In the Write pad (and generally), deselecting needs a finger; owner wants a Pencil-friendly way: e.g. a visible ⓧ Deselect button on our own bar/side bar, so selections can be cleared without touching with a finger, and the iOS selection/callout stops getting in the way.
+- R6-7 Undo/Redo (the main bar buttons) do not work inside the Write pad; they should undo/redo the pad's own writing too, like a notepad.
+- R6-OK Name it sheet: works, writing names with the Pencil is comfortable. ⋯ rows feel great. Write pad overall: great experience. Insert/Replace + Undo after inserting work.
+- R6-7 (clarified) It is the main bar ↶ ↷ Undo/Redo arrows that do nothing while working inside the Write pad (before inserting). They should undo/redo inside the pad too.
+- R6-8 Choosing a tool jumps the page: e.g. in the Text tool, tapping Lasso scrolls the page up, causing a stutter mid-selection. Picking a tool must never move the page.
+- R6-9 Write pad ↵ (Enter) presses don't appear in the pad's text area, only in the preview line as ↵ marks; owner can't see or remove accidental Enters. The pad should show them where you write and let you edit/delete them.
+- R6-10 Owner's idea: use the toolbar with a finger (left hand) and write/draw with the Pencil (right hand); may fix many issues (finger = UI, Pencil = content). Discuss.
+- R6-11 App lags and gets stuck fairly often; sometimes needs a restart. Some features lag. Needs a performance/freeze investigation on the iPad.
+- R6-12 Tapping a notebook should reopen the last page you were on in it (default), with the sidebar tree opened to that page; changeable via ⋯ / a setting.

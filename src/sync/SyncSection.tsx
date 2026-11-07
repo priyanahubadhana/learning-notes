@@ -3,6 +3,7 @@ import type { LearningNotesDB } from '../core/db'
 import { t } from '../i18n/t'
 import { passphraseProblem } from './crypto'
 import { checkDevice } from './deviceCheck'
+import { SyncDot } from './SyncDot'
 import {
   dismissMerged,
   getSyncStatus,
@@ -260,6 +261,7 @@ function Running({ db }: { db: LearningNotesDB }) {
   const status = useSyncExternalStore(subscribeSync, getSyncStatus)
   return (
     <div className="flex flex-col gap-3">
+      <SyncDot className="text-sm" />
       <p className="text-sm" data-testid="sync-status" aria-live="polite">
         {status.phase === 'syncing'
           ? t('sync.syncing')

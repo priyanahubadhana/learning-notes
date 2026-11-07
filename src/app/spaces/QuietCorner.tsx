@@ -7,6 +7,7 @@ import { Tip } from '../../help/Help'
 import { t } from '../../i18n/t'
 import { LayerGallery } from '../../layers/LayerGallery'
 import { TrashSection } from '../../trash/TrashSection'
+import { SyncDot } from '../../sync/SyncDot'
 
 /**
  * The quiet corner (⚙ at the bottom of the strip): the things you use now
@@ -116,6 +117,7 @@ export function QuietCorner({
                   ⚙
                 </span>
                 {t('settings.title')}
+                <SyncDot className="ms-auto" />
               </button>
             </Tip>
             <Tip id="sidebar.data" className="flex" touchInfo={false}>

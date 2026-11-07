@@ -96,4 +96,16 @@ export const hiW5p = {
   'file.notHereSync': 'सिंक चालू हो तो अगले सिंक के बाद आ सकती है।',
   'camera.refused':
     'इस साइट के लिए कैमरा बंद है। iPad पर: सेटिंग्स › Safari › कैमरा, फिर पूछें या अनुमति चुनें।',
+  'sync.state.synced': 'सिंक हो गया',
+  'sync.state.syncedAt': 'सिंक हुआ {time}',
+  'sync.state.syncing': 'सिंक हो रहा है',
+  'sync.state.offline': 'ऑफ़लाइन',
+  'sync.state.attention': 'ध्यान चाहिए',
+  'sync.signInAgain':
+    'कृपया फिर से साइन इन करें। आपके नोट्स यहाँ सुरक्षित हैं।',
+  'sync.driveFull':
+    'Google Drive भरा है, इसलिए चित्र और फ़ाइलें रुकी हैं। Drive में जगह खाली करें।',
+  'sync.busy': 'सर्वर व्यस्त है। सिंक अपने आप फिर कोशिश करेगा।',
+  'sync.needCode':
+    'इस डिवाइस पर सिंक किया डेटा खोलने के लिए आपका रिकवरी कोड चाहिए।',
 } as const

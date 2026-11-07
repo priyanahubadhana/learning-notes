@@ -101,4 +101,16 @@ export const esW5p = {
     'Si la sincronización está activa, puede llegar tras la próxima sincronización.',
   'camera.refused':
     'La cámara está desactivada para este sitio. En iPad: Ajustes › Safari › Cámara, y elige Preguntar o Permitir.',
+  'sync.state.synced': 'Sincronizado',
+  'sync.state.syncedAt': 'Sincronizado {time}',
+  'sync.state.syncing': 'Sincronizando',
+  'sync.state.offline': 'Sin conexión',
+  'sync.state.attention': 'Necesita atención',
+  'sync.signInAgain': 'Vuelve a iniciar sesión. Tus notas están a salvo aquí.',
+  'sync.driveFull':
+    'Google Drive está lleno, así que las imágenes y los archivos esperan. Libera espacio en Drive.',
+  'sync.busy':
+    'El servidor está ocupado. La sincronización lo intenta de nuevo sola.',
+  'sync.needCode':
+    'Se necesita tu código de recuperación para abrir los datos sincronizados en este dispositivo.',
 } as const

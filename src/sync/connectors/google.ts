@@ -107,7 +107,13 @@ export function driveFiles(auth: AuthProvider): FileStore {
       throw new TryLaterError('offline')
     }
     if (res.status === 401) throw new NeedsTapError('drive 401')
-    if (!res.ok) throw new TryLaterError(`drive ${res.status}`)
+    if (!res.ok) {
+      // Drive answers 403 for "no room left" and for other refusals.
+      if (res.status === 403 && /uotaExceeded/.test(await res.clone().text())) {
+        throw new TryLaterError('drive full')
+      }
+      throw new TryLaterError(`drive ${res.status}`)
+    }
     return res
   }
 

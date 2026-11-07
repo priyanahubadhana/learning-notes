@@ -107,4 +107,16 @@ export const enW5p = {
   'file.notHereSync': 'If Sync is on, it can arrive after the next sync.',
   'camera.refused':
     'The camera is off for this site. On iPad: Settings › Safari › Camera, then choose Ask or Allow.',
+  // ---- Sync status (item 12) ----
+  'sync.state.synced': 'Synced',
+  'sync.state.syncedAt': 'Synced {time}',
+  'sync.state.syncing': 'Syncing',
+  'sync.state.offline': 'Offline',
+  'sync.state.attention': 'Needs attention',
+  'sync.signInAgain': 'Please sign in again. Your notes are safe here.',
+  'sync.driveFull':
+    'Google Drive is full, so pictures and files wait. Free some space in Drive.',
+  'sync.busy': 'The server is busy. Sync tries again by itself.',
+  'sync.needCode':
+    'Your recovery code is needed to open the synced data on this device.',
 } as const

@@ -2,18 +2,13 @@ import type { LearningNotesDB } from '../core/db'
 import { stableId } from '../core/ids'
 import { isLive } from '../core/records'
 import type { Workspace } from '../core/types'
-import {
-  NeedsTapError,
-  NotAllowedError,
-  TryLaterError,
-  getConnectors,
-  type Connectors,
-} from './connectors'
+import { NeedsTapError, getConnectors, type Connectors } from './connectors'
 import { SyncCryptoError, type MasterKey } from './crypto'
 import { setTracking } from './device'
 import { enqueueChanged, syncOnce, type SyncReport } from './engine'
 import { forgetMasterKey, loadMasterKey, saveMasterKey } from './keyVault'
 import { createKey, findBundles, unlockKey } from './setup'
+import { mapSyncError, type SyncProblem } from './syncProblem'
 
 /**
  * Sync service (L4–L8): the one place the app talks to for sync. It signs
@@ -34,7 +29,7 @@ export interface SyncStatus {
   email?: string
   lastSyncedAt?: number
   /** Short reason of the last failure (not shown as is: mapped to text). */
-  problem?: 'offline' | 'notAllowed' | 'unreadable' | 'clock' | 'failed'
+  problem?: SyncProblem
   needsDriveTap?: boolean
   mergedPages?: number
 }
@@ -102,7 +97,7 @@ export async function startSync(db: LearningNotesDB): Promise<void> {
       )
     }
   } catch (e) {
-    set({ problem: e instanceof NotAllowedError ? 'notAllowed' : 'failed' })
+    set({ problem: mapSyncError(e) })
     await conn.auth.signOut()
   }
   try {
@@ -204,12 +199,8 @@ export function syncNow(db: LearningNotesDB): Promise<void> {
       })
     } catch (e) {
       set({
-        problem:
-          e instanceof TryLaterError
-            ? 'offline'
-            : e instanceof NotAllowedError
-              ? 'notAllowed'
-              : 'failed',
+        // Always one of the plain problems, never the raw error text.
+        problem: mapSyncError(e),
         needsDriveTap: e instanceof NeedsTapError || status.needsDriveTap,
       })
     } finally {

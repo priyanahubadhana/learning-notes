@@ -97,6 +97,44 @@ test('set up on one device, unlock on another; notes merge, server holds only lo
   ).toBeVisible()
 })
 
+test('the status dot follows the connection: Synced, Offline, Synced again', async ({
+  browser,
+}) => {
+  test.setTimeout(60_000)
+  const a = await device(browser)
+  await a.goto('/#/settings/sync')
+  const section = a.getByTestId('sync-section')
+  // Nothing is set up yet: no dot at all.
+  await expect(a.getByTestId('sync-dot')).toHaveCount(0)
+  await section.getByRole('button', { name: 'Sign in with Google' }).click()
+  await section.getByLabel('Passphrase', { exact: true }).fill(PASS)
+  await section.getByLabel('Type it again').fill(PASS)
+  await section.getByRole('button', { name: 'Lock my notes and start' }).click()
+  const code = (
+    await a.getByTestId('recovery-code').locator('.font-mono').innerText()
+  ).trim()
+  await section
+    .getByLabel(/last four letters/)
+    .fill(code.replace(/-/g, '').slice(-4))
+  await section.getByRole('button', { name: 'I saved it' }).click()
+  await expect(a.getByTestId('sync-status')).toContainText('Last synced')
+
+  const dot = section.getByTestId('sync-dot')
+  await expect(dot).toHaveAttribute('data-state', 'synced')
+  await expect(dot).toContainText('Synced')
+  await a.context().setOffline(true)
+  await expect(dot).toHaveAttribute('data-state', 'offline')
+  await expect(dot).toContainText('Offline')
+  await a.context().setOffline(false)
+  await expect(dot).toHaveAttribute('data-state', 'synced')
+
+  // The same dot sits next to Settings in the quiet corner menu.
+  await a.getByTestId('corner-button').click()
+  await expect(
+    a.getByTestId('corner-panel').getByTestId('sync-dot'),
+  ).toBeVisible()
+})
+
 test('the device check reports the lock time', async ({ browser }) => {
   const a = await device(browser)
   await a.goto('/#/settings/sync')

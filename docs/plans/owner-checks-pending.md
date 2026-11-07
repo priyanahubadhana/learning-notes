@@ -12,6 +12,7 @@ Moved out of HANDOFF on 2026-11-06 (audit) so HANDOFF stays five lines. Newest f
 - **Look:** pick colour, highlight, size, Kalam, Light and Bold, then Insert. Does the page text match the preview line, and does it look like handwriting? Is Light too thin to read? Why human: judging looks.
 - **Offline and speed:** in aeroplane mode, open the pad and insert Caveat and Kalam text. Do the fonts still show? How fast does the pad open on slow data the first time? Why human: real offline cache.
 - **Pad size:** drag the top edge with the Pencil and a finger. Is the grip easy to grab? Is too much of the page hidden? Why human: feel and layout.
+
 ## PENCIL FIXES (7 Nov: Lasso, taps, ruler, magnifier; iPad, installed app, tap Update until the new version shows)
 
 - **Lasso over words:** Pen, write over a typed line, then Lasso: draw a loop around the ink, slowly. While the loop is drawn, does the text underneath stay quiet (no blue highlight, no outline, no scroll)? After lifting, is the ink selected with its box and menu? Why human: iPadOS Scribble and the stylus touch only exist on the real iPad.

@@ -2,6 +2,14 @@
 
 Moved out of HANDOFF on 2026-11-06 (audit) so HANDOFF stays five lines. Newest first; each paragraph names its step. The run decision (master plan) is one owner iPad pass before Sync; the Phase A builder adds its checks at the top. Tick a paragraph by deleting it.
 
+## PHASE N CHECKS (maths, new-page start, Calendar Day; iPad, installed app, tap Update until the new version shows)
+
+- **Formula with the on-screen keyboard** (N1): in a page type / then Formula. Tap the empty formula; the editor opens with the keyboard up. Tap the fraction button, type the top part, then try Greek, Symbols and Statistics buttons: does the keyboard stay up, and does the cursor land where you expect? Done: is the formula crisp and the right size? Why human: iPad keyboard focus and touch feel.
+- **Formula with Pencil and finger** (N1): tap the formula with a finger and with the Pencil (also while the Pen tool is on). Does the editor open, and does Esc/Cancel via the Cancel button leave the old formula? Does a long formula scroll sideways instead of spilling out? Why human: pen and touch rules.
+- **Formula offline** (N1): add a formula, turn on aeroplane mode, reload the installed app, open the page: is the formula still drawn (fonts kept offline)? Why human: needs the real offline cache.
+- **New page start** (N2): add a page to a notebook. Under the cursor is a short list with Study (Recommended) first. Tap it: are the Study headings filled in at once? Make another page and just type: does the list vanish by itself? Tick Always start new pages as Study, add a page: is it filled? Untick it in Settings › General. Why human: judging whether the list is helpful and not in the way.
+- **Calendar Day** (N3): Calendar › Day. Swipe the card left and right with a finger: does it change day only on a deliberate swipe, and does scrolling up and down still work? Are Day, Week and Month easy to tap? Why human: real swipe feel.
+
 ## WAVE 5 PART B CHECKS (Phase I, iPad, installed app, tap Update until the new version shows)
 
 - **Notebook views** (I1): open a notebook with a few pages, tap View ▾ › Shelf: do the cover and page tiles look like a shelf and are they easy to tap with a finger? View ▾ › Tabs: tap each coloured tab and the six colour dots (44 px targets?); does the tab row scroll sideways with a swipe when there are many pages? Default › Layout ▾: Gallery, Table and Board; swipe the Board sideways. Close and reopen the app: are the choices remembered? Why human: touch size, swipe feel and the look in Night and Sepia.

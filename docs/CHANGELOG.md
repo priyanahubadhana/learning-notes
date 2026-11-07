@@ -2,6 +2,13 @@
 
 Current phase only. Older entries are in [ARCHIVE.md](ARCHIVE.md).
 
+## 2026-11-07 (Phase N: maths, new-page start, Calendar Day; no new Dexie version)
+
+- **What:** **N1** a Formula block (slash menu "Formula"): tap it to open the maths editor with a live preview, a LaTeX box and tabbed buttons (Basics, Greek, Symbols, Statistics); drawn by KaTeX, which loads only when a page has a formula. **N2** a new, empty page shows a template list under the cursor with "Study (Recommended)" first and "Always start new pages as Study" (also Settings › General); the list goes away when you type. **N3** Calendar › Day: a full-page card for one day, swipe or arrow keys or ‹ › to change day.
+- **Why:** master plan Phase N (roadmap Phase 12), IDEAS Phase 7 plan items 5 and 6 and the Calendar line.
+- **Files:** `src/editor/math/*`, `src/editor/{schema.tsx,slashMenu.tsx}`, `src/blocks/builtinBlockTypes.ts`, `src/search/searchText.ts`, `src/share/export/model.ts`, `src/templates/{NewPageStart.tsx,templateService.ts}`, `src/pages/PageView.tsx`, `src/App.tsx`, `src/settings/builtinSettings.ts`, `src/databases/{CalendarScreen.tsx,CalendarDayCard.tsx,swipe.ts}`, `src/i18n/{en,hi,es}N.ts`, `src/help/helpRegistry.ts`, `package.json` (katex 0.19.1, exact), `public/licenses/katex-MIT.txt`, specs `docs/features/{maths,new-page-start,calendar-day}.md`, tests `e2e/{math,newPageStart,calendarDay}.spec.ts` and unit tests.
+- **Self-review:** KaTeX `trust` is off; the old 0.16.x line has an advisory, so 0.19.1 was chosen. The first-load bundle is unchanged (KaTeX is in its own chunk). Known gap: the existing e2e test "Import and Export are shown but disabled (coming soon)" in `e2e/templates.spec.ts` fails on main since Export was built (not from this work).
+
 ## 2026-11-07 (Wave 5 part B · Phase I: notebook views and Layer gallery, Dexie 20)
 
 - **What:** I1: Notes tab has View (Default, Shelf, Tabs) and Layout (List, Gallery, Table, Board), remembered per notebook and tab; section tabs can be coloured. I2: Quiet corner › Layer gallery with Finance tracker, Memory techniques kit and Study kit (Add, Remove that keeps what you changed and asks first), Add a layer file, and Share as layer file in the notebook menu. **Why:** master plan Phase I. **Data:** optional `Notebook.view`, `Notebook.tabViews`, `Page.tabColour` (checked in `checkRows.ts`); Dexie **20** adds `layerInstalls` (sync rule `record`).

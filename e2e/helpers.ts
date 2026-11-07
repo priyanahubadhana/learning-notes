@@ -191,7 +191,9 @@ export async function openPage(page: Page, title: string) {
 
 /** Types text into the open page's editor and waits for autosave. */
 export async function typeInEditor(page: Page, text: string) {
-  await page.locator('.bn-editor').click()
+  // In Pencil mode the Lasso's pad lies over the page; the app places the
+  // caret on the click, but Playwright would wait for the pad to move.
+  await page.locator('.bn-editor').click({ force: true })
   await page.keyboard.type(text)
   await page.waitForTimeout(800) // autosave runs ~0.5 s after typing stops
 }

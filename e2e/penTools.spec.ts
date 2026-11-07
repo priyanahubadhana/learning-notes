@@ -131,16 +131,47 @@ test('Text tool: Scribble handwriting and small deletes are not blocked', async 
   expect(await refused(page, 'deleteContentBackward', at)).toBe(false)
 })
 
-test('under Lasso (and the ink tools) the Pencil is held back from writing and deleting', async ({
+test('under Lasso (and the ink tools) the Pencil never reaches the words', async ({
   page,
 }) => {
   await openNote(page)
   await tool(page, 'Lasso').click()
   await page.keyboard.press('Escape')
-  await page.waitForTimeout(650) // a key press just now would count as typing
+  await page.waitForTimeout(650)
   const at = await wordPoint(page, 'nucleus')
-  expect(await refused(page, 'insertReplacementText', at)).toBe(true)
-  expect(await refused(page, 'deleteContentBackward', at)).toBe(true)
+  // Under the Lasso the pad owns the Pencil and the page is not editable
+  // while it is down: iPadOS Scribble has nothing to write in.
+  const ev = (type: string) =>
+    page.evaluate(
+      ({ type, at }) => {
+        const el = document.elementFromPoint(at.x, at.y)!
+        el.dispatchEvent(
+          new PointerEvent(type, {
+            pointerType: 'pen',
+            pointerId: 17,
+            clientX: at.x,
+            clientY: at.y,
+            bubbles: true,
+            cancelable: true,
+            button: 0,
+            buttons: type === 'pointerup' ? 0 : 1,
+            isPrimary: true,
+          }),
+        )
+        return el.hasAttribute('data-ink-pad')
+      },
+      { type, at },
+    )
+  expect(await ev('pointerdown')).toBe(true)
+  await expect(page.locator('.bn-editor')).toHaveAttribute(
+    'contenteditable',
+    'false',
+  )
+  await ev('pointerup')
+  await expect(page.locator('.bn-editor')).toHaveAttribute(
+    'contenteditable',
+    'true',
+  )
   // Under the ink tools a drawing pad covers the words: the Pencil draws, and
   // can never reach the text.
   await tool(page, 'Pen').click()
@@ -152,43 +183,59 @@ test('under Lasso (and the ink tools) the Pencil is held back from writing and d
   expect(top).toBe(true)
 })
 
-test('Lasso: a Pencil drag selects text', async ({ page }) => {
-  await openNote(page)
+test('Lasso with the Text filter on: a loop around a line selects it whole', async ({
+  page,
+}) => {
+  await openNote(page, 'touch', { 'ink.lasso': { text: true } })
   await tool(page, 'Lasso').click()
   await page.keyboard.press('Escape')
-  const a = await wordPoint(page, 'The')
-  const b = await wordPoint(page, 'DNA')
-  await page.evaluate(
-    ({ a, b }) => {
-      const make = (name: string, x: number, y: number) =>
-        new PointerEvent(name, {
-          pointerType: 'pen',
-          pointerId: 5,
-          clientX: x,
-          clientY: y,
-          bubbles: true,
-          cancelable: true,
-          buttons: name === 'pointerup' ? 0 : 1,
-          isPrimary: true,
-        })
-      const at = (x: number, y: number) => document.elementFromPoint(x, y)!
-      at(a.x, a.y).dispatchEvent(make('pointerdown', a.x, a.y))
-      for (let i = 1; i <= 10; i++) {
-        const x = a.x + ((b.x - a.x) * i) / 10
-        at(x, a.y).dispatchEvent(make('pointermove', x, a.y))
+  await page.waitForTimeout(650)
+  const b = (await page.locator('.bn-block-content').first().boundingBox())!
+  const corners = [
+    [b.x + 4, b.y + b.height + 6],
+    [b.x + 4, b.y - 4],
+    [b.x + b.width - 4, b.y - 4],
+    [b.x + b.width - 4, b.y + b.height + 6],
+    [b.x + 6, b.y + b.height + 4],
+  ]
+  await page.evaluate((corners) => {
+    const make = (name: string, x: number, y: number) =>
+      new PointerEvent(name, {
+        pointerType: 'pen',
+        pointerId: 5,
+        clientX: x,
+        clientY: y,
+        bubbles: true,
+        cancelable: true,
+        buttons: name === 'pointerup' ? 0 : 1,
+        isPrimary: true,
+      })
+    const el = document.elementFromPoint(corners[0][0], corners[0][1])!
+    el.dispatchEvent(make('pointerdown', corners[0][0], corners[0][1]))
+    for (let i = 1; i < corners.length; i++) {
+      const [px, py] = corners[i - 1]
+      const [qx, qy] = corners[i]
+      for (let k = 1; k <= 8; k++) {
+        el.dispatchEvent(
+          make(
+            'pointermove',
+            px + ((qx - px) * k) / 8,
+            py + ((qy - py) * k) / 8,
+          ),
+        )
       }
-      at(b.x, b.y).dispatchEvent(make('pointerup', b.x, b.y))
-    },
-    { a, b },
-  )
-  await expect.poll(() => selection(page)).toContain('nucleus')
+    }
+    const last = corners[corners.length - 1]
+    el.dispatchEvent(make('pointerup', last[0], last[1]))
+  }, corners)
+  await expect(page.locator('.bn-editor .ln-sel-node')).toHaveCount(1)
+  await expect(page.locator('[data-mini-toolbar]')).toBeVisible()
 })
 
-test('under Lasso a Pencil double-tap selects the word, a triple-tap the line, with the mini toolbar', async ({
+test('typing mode: a Pencil double-tap selects the word, a triple-tap the line, with the mini toolbar', async ({
   page,
 }) => {
   await openNote(page)
-  await tool(page, 'Lasso').click()
   await page.keyboard.press('Escape')
   await page.waitForTimeout(650)
   const at = await wordPoint(page, 'nucleus')
@@ -198,7 +245,8 @@ test('under Lasso a Pencil double-tap selects the word, a triple-tap the line, w
   await expect.poll(() => selection(page)).toBe('nucleus')
   const mini = page.locator('[data-mini-toolbar]')
   await expect(mini).toBeVisible()
-  await expect(tool(page, 'Lasso')).toHaveAttribute('aria-pressed', 'true')
+  // The Text tool stays: the Pencil acts like a finger here (owner, 7 Nov).
+  await expect(tool(page, 'Text')).toHaveAttribute('aria-pressed', 'true')
   const names = await mini
     .getByRole('button')
     .evaluateAll((els) => els.map((el) => el.getAttribute('aria-label')))
@@ -249,17 +297,20 @@ test('under Lasso a Pencil double-tap selects the word, a triple-tap the line, w
   await expect.poll(() => selection(page)).toBe('The nucleus holds the DNA')
 })
 
-test('under Lasso a finger double-tap selects a word too', async ({ page }) => {
+test('under Lasso a double-tap selects nothing: a tap is a loop (owner table)', async ({
+  page,
+}) => {
   await openNote(page)
   await tool(page, 'Lasso').click()
   await page.keyboard.press('Escape')
   await page.waitForTimeout(650)
   const at = await wordPoint(page, 'DNA')
-  await tap(page, at, 'touch')
+  await tap(page, at)
   await page.waitForTimeout(60)
-  await tap(page, at, 'touch')
-  await expect.poll(() => selection(page)).toBe('DNA')
-  await expect(page.locator('[data-mini-toolbar]')).toBeVisible()
+  await tap(page, at)
+  await page.waitForTimeout(300)
+  expect(await selection(page)).toBe('')
+  await expect(page.locator('[data-mini-toolbar]')).toHaveCount(0)
 })
 
 test('Text tool: a Pencil tap places the cursor but asks for no keyboard; a finger asks for it', async ({
@@ -366,7 +417,7 @@ test('hold-to-select: a still Pencil on text selects; a quick stroke is left to 
   await expect(page.locator('[data-mini-toolbar]')).toBeVisible()
 })
 
-test('under Text a double-tap does not select the word (that is a Lasso gesture)', async ({
+test('under Text a Pencil double-tap selects the word and keeps the Text tool', async ({
   page,
 }) => {
   await openNote(page)
@@ -374,12 +425,12 @@ test('under Text a double-tap does not select the word (that is a Lasso gesture)
   await tap(page, at)
   await page.waitForTimeout(60)
   await tap(page, at)
-  await page.waitForTimeout(200)
-  await expect(page.locator('[data-mini-toolbar]')).toHaveCount(0)
+  await expect.poll(() => selection(page)).toBe('nucleus')
+  await expect(page.locator('[data-mini-toolbar]')).toBeVisible()
   await expect(tool(page, 'Text')).toHaveAttribute('aria-pressed', 'true')
 })
 
-for (const name of ['Text', 'Lasso']) {
+for (const name of ['Text']) {
   test(`${name}: hold the Pencil still 0.5 s and the caret is placed there; a short tap keeps the two-tap rule`, async ({
     page,
   }) => {

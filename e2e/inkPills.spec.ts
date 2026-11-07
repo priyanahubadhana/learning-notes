@@ -289,16 +289,20 @@ test('Lasso: free-hand or rectangle, and a filter for ink, pictures or text', as
   ])
   await option(page, 'Rectangle').click()
   await option(page, 'Pictures').click()
+  // Ink only by default; Pictures was just turned on.
   expect(await pref(page, 'ink.lasso')).toMatchObject({
     shape: 'rect',
-    pictures: false,
+    pictures: true,
     ink: true,
-    text: true,
+    text: false,
   })
   await option(page, 'Rectangle').click() // active again: the card
   await expect(card(page).getByRole('group', { name: 'Lasso' })).toBeVisible()
   await expect(
     card(page).getByRole('switch', { name: 'Pictures' }),
+  ).toHaveAttribute('aria-checked', 'true')
+  await expect(
+    card(page).getByRole('switch', { name: 'Text', exact: true }),
   ).toHaveAttribute('aria-checked', 'false')
 })
 

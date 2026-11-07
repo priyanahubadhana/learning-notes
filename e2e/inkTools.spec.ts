@@ -257,6 +257,7 @@ test('lasso: select, move, scale and rotate with separate handles, duplicate, de
   // Menu: duplicate, then delete everything selected.
   await page.locator('[data-ink-action="duplicate"]').click()
   await expectStrokes(page, 2)
+  await page.locator('[data-ink-action="more"]').click()
   await page.locator('[data-ink-action="delete"]').click()
   await expectStrokes(page, 1)
   // Colour of what is left selected? Select it by a tap and recolour.

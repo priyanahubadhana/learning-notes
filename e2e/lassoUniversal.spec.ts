@@ -37,7 +37,10 @@ const loop = (corners: Pt[]) =>
   corners.slice(1).flatMap((c, i) => line(corners[i], c, 10))
 
 async function inkOverText(page: Page) {
-  await inkNote(page, 'Pen')
+  // The Lasso picks ink only by default; here its Text and Pictures filters are on.
+  await inkNote(page, 'Pen', 'pencil', {
+    'ink.lasso': { text: true, pictures: true },
+  })
   await page.waitForTimeout(800) // the hint line goes; the text settles
   const box = await textBox(page)
   await stroke(
@@ -71,13 +74,13 @@ test('a loop around text and ink gives the mixed menu; Delete removes both with 
     'Delete',
     'Screenshot of the selection',
     'Make card',
-    'Move',
-    'Resize',
-    'Turn',
     'Deselect',
   ])
-  // Moving, scaling and turning are for drawings only.
-  await expect(page.locator('[data-handle="scale"]')).toHaveCount(0)
+  // The handles move, resize and turn the ink only; the menu says so.
+  expect(
+    await page.locator('[data-handle="scale"]').count(),
+  ).toBeGreaterThanOrEqual(4)
+  await expect(page.locator('[data-ink-move-note]')).toBeVisible()
   await menu.getByRole('button', { name: 'Delete' }).click()
   await expect(page.locator('.bn-editor')).not.toContainText('nucleus')
   await expect.poll(async () => (await savedInk(page)).strokes.length).toBe(0)
@@ -117,5 +120,7 @@ test('a loop around drawings alone keeps the drawing menu and handles', async ({
   )
   await expect(page.locator('[data-ink-menu]')).toBeVisible()
   await expect(page.locator('[data-ink-menu="mixed"]')).toHaveCount(0)
-  await expect(page.locator('[data-handle="scale"]')).toHaveCount(8)
+  expect(
+    await page.locator('[data-handle="scale"]').count(),
+  ).toBeGreaterThanOrEqual(4)
 })

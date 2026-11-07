@@ -40,7 +40,7 @@ The settings model (`inkSettings.ts`: every value clamped when read, saved per d
 
 ## Lasso selection menu
 
-With the Lasso open: words or a picture selected give Copy, Cut, Duplicate, Delete, Colour, ★ Key point, Make card and Save to notes (keeps the words in the notebook's "Highlights" page). Selected drawings have their own box and menu (Duplicate, Colour, Copy as picture, Save as picture, Delete; move, resize and turn by the box and its handles), see [ink.md](ink.md). Move, Scale, Rotate and Screenshot are dimmed on words and say they work on drawings. Convert handwriting (beta) is still to come.
+With the Lasso open: words or a picture selected (the Lasso's Text or Pictures filter, or a tap selection in typing mode) give Copy, Cut, Duplicate, Delete, Colour, ★ Key point, Make card and Save to notes (keeps the words in the notebook's "Highlights" page). Selected drawings have their own box, handles and menu (a row of Copy, Cut, Duplicate, Convert to text, Colour by default, the rest under ⋯ More; the row is chosen in the Lasso card), see [ink.md](ink.md). Convert to text needs AI (Phase P) and says so.
 
 ## New line
 

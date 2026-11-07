@@ -65,4 +65,22 @@ export const hiO: Record<string, string> = {
   'ink.magnifier.boxLabel': 'लिखावट यहाँ उतरती है · हिलाने के लिए खींचें',
   'ink.magnifier.resize': 'पैड को ऊँचा या नीचा करने के लिए खींचें',
   'ink.magnifier.erasing': 'रबड़: पेज पर मिटाने के लिए यहाँ रगड़ें',
+  // ---- लैसो मेनू (मालिक का डिज़ाइन, 7 नव.) ----
+  'ink.sel.more': 'और',
+  'ink.sel.convert': 'टेक्स्ट में बदलें',
+  'ink.sel.convertLater':
+    'टेक्स्ट में बदलने के लिए AI चाहिए (चरण P); बाद में आएगा।',
+  'ink.sel.thickness': 'मोटाई',
+  'ink.sel.thin': 'पतला',
+  'ink.sel.medium': 'मध्यम',
+  'ink.sel.thick': 'मोटा',
+  'ink.sel.paste': 'चिपकाएँ',
+  'ink.sel.cutDone': 'काट लिया। किसी चयन के ⋯ मेनू से चिपकाएँ।',
+  'ink.sel.cardHint': 'चित्र कॉपी हुआ: इसे कार्ड में उत्तर के रूप में चिपकाएँ।',
+  'ink.sel.summaryNeedsName':
+    'पहले इस चित्र को नाम दें (⋯ › इस चित्र को नाम दें), फिर सारांश में जोड़ें।',
+  'ink.mixed.moveNote':
+    'खींचने से केवल स्याही हिलती है: टाइप किया टेक्स्ट पेज के साथ बहता है।',
+  'main.opt.lasso.row': 'मेनू पंक्ति की क्रियाएँ',
+  'main.opt.lasso.rowNote': 'बाकी ⋯ और के नीचे हैं।',
 }

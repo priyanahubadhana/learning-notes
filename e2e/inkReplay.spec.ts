@@ -62,6 +62,7 @@ test('a drawing made while recording plays the recording from that moment', asyn
     page,
     loop.slice(1).flatMap((c, i) => line(loop[i], c, 10)),
   )
+  await page.locator('[data-ink-action="more"]').click()
   const replay = page.locator('[data-ink-action="replay"]')
   await expect(replay).toBeVisible()
   await replay.click()
@@ -111,5 +112,6 @@ test('a drawing made without a recording offers no replay', async ({
     pts.slice(1).flatMap((c, i) => line(pts[i], c, 10)),
   )
   await expect(page.locator('[data-ink-action="duplicate"]')).toBeVisible()
+  await page.locator('[data-ink-action="more"]').click()
   await expect(page.locator('[data-ink-action="replay"]')).toHaveCount(0)
 })

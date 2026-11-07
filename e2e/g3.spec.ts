@@ -82,6 +82,7 @@ test('a typed name on a drawing makes Search find it', async ({ page }) => {
     page,
     corners.slice(1).flatMap((c, i) => line(corners[i], c, 10)),
   )
+  await page.locator('[data-ink-action="more"]').click()
   await page.locator('[data-ink-action="label"]').click()
   await page.locator('[data-ink-label-input]').fill('Ventricle sketch for exam')
   await page.getByRole('button', { name: 'Save name' }).click()

@@ -1,5 +1,5 @@
 import { expect, test, type Page } from '@playwright/test'
-import { card, openNote, pref, tool } from './mainBarHelpers.ts'
+import { card, openNote, pref } from './mainBarHelpers.ts'
 
 /**
  * The selection mini bar (round 5): its colour button opens the colour panel,
@@ -31,7 +31,6 @@ async function tap(page: Page, at: { x: number; y: number }) {
 
 async function selectWord(page: Page) {
   await openNote(page)
-  await tool(page, 'Lasso').click()
   await page.keyboard.press('Escape')
   await page.waitForTimeout(650)
   const at = await page.evaluate(() => {

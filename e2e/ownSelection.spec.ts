@@ -1,7 +1,7 @@
 // Browser types for code that runs inside the page.
 /// <reference lib="dom" />
 import { expect, test, type Page } from '@playwright/test'
-import { openNote, tool } from './mainBarHelpers.ts'
+import { openNote } from './mainBarHelpers.ts'
 
 /**
  * Our own selection (Phase A3): it stays until the person dismisses it, is
@@ -65,7 +65,6 @@ const marked = (page: Page) =>
 /** Lasso, then a double-tap on a word: the word is selected. */
 async function selectWord(page: Page, word: string) {
   await openNote(page)
-  await tool(page, 'Lasso').click()
   await page.keyboard.press('Escape')
   await page.waitForTimeout(650)
   const at = await wordPoint(page, word)

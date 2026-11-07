@@ -65,4 +65,22 @@ export const esO: Record<string, string> = {
   'ink.magnifier.boxLabel': 'La escritura cae aquí · arrastra para mover',
   'ink.magnifier.resize': 'Arrastra para hacer el panel más alto o más bajo',
   'ink.magnifier.erasing': 'Borrador: frota aquí para borrar en la página',
+  // ---- Menú del lazo (diseño del propietario, 7 nov) ----
+  'ink.sel.more': 'Más',
+  'ink.sel.convert': 'Convertir en texto',
+  'ink.sel.convertLater':
+    'Convertir en texto necesita IA (fase P); llegará más adelante.',
+  'ink.sel.thickness': 'Grosor',
+  'ink.sel.thin': 'Fino',
+  'ink.sel.medium': 'Medio',
+  'ink.sel.thick': 'Grueso',
+  'ink.sel.paste': 'Pegar',
+  'ink.sel.cutDone': 'Cortado. Pégalo desde el menú ⋯ de una selección.',
+  'ink.sel.cardHint': 'Imagen copiada: pégala en la tarjeta como respuesta.',
+  'ink.sel.summaryNeedsName':
+    'Ponle nombre al dibujo primero (⋯ › Nombrar este dibujo) y luego añádelo al Resumen.',
+  'ink.mixed.moveNote':
+    'Arrastrar mueve solo la tinta: el texto escrito fluye con la página.',
+  'main.opt.lasso.row': 'Acciones en la fila del menú',
+  'main.opt.lasso.rowNote': 'Las demás están bajo ⋯ Más.',
 }

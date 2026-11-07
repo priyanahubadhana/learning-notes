@@ -70,4 +70,21 @@ export const enO = {
   'ink.magnifier.boxLabel': 'Writing lands here · drag to move',
   'ink.magnifier.resize': 'Drag to make the writing pad taller or shorter',
   'ink.magnifier.erasing': 'Eraser: rub here to erase on the page',
+  // ---- Lasso menu (owner design, 7 Nov) ----
+  'ink.sel.more': 'More',
+  'ink.sel.convert': 'Convert to text',
+  'ink.sel.convertLater': 'Convert to text needs AI (Phase P), coming later.',
+  'ink.sel.thickness': 'Thickness',
+  'ink.sel.thin': 'Thin',
+  'ink.sel.medium': 'Medium',
+  'ink.sel.thick': 'Thick',
+  'ink.sel.paste': 'Paste',
+  'ink.sel.cutDone': 'Cut. Paste it from the ⋯ menu of a selection.',
+  'ink.sel.cardHint': 'Picture copied: paste it into the card as the answer.',
+  'ink.sel.summaryNeedsName':
+    'Name this drawing first (⋯ › Name this drawing), then add it to the Summary.',
+  'ink.mixed.moveNote':
+    'Dragging moves the ink only: typed text flows with the page.',
+  'main.opt.lasso.row': 'Actions in the menu row',
+  'main.opt.lasso.rowNote': 'The others sit under ⋯ More.',
 }

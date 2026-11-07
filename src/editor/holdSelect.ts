@@ -74,7 +74,8 @@ export function watchHoldSelect(
     if (
       e.pointerType !== 'pen' ||
       e.button > 0 ||
-      !['text', 'lasso'].includes(activeTool.get())
+      // Typing mode only: under the Lasso a press starts a loop (owner, 7 Nov).
+      activeTool.get() !== 'text'
     ) {
       return
     }

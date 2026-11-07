@@ -5,16 +5,17 @@ import { wordAround } from './penSelect'
 import type { AppSchema } from './schema'
 
 /**
- * Tap selection, GoodNotes style (owner, after trying 3a on an iPad): a
- * Pencil or finger DOUBLE-TAP selects the word under it, a TRIPLE-TAP the
- * line (the text block) at that spot. Hit-testing is tolerant: when the tap
- * lands between lines or in a margin, the nearest text within a few pixels is
- * used. After a tap selection the caller shows the mini toolbar.
+ * Pencil taps in typing mode (owner's table, 7 Nov): with no pen tool on,
+ * the Pencil acts like a finger. A DOUBLE-TAP selects the word under it, a
+ * TRIPLE-TAP the line (the text block) at that spot; the mini toolbar
+ * follows and the Text tool stays. Hit-testing is tolerant: when the tap
+ * lands between lines or in a margin, the nearest text within a few pixels
+ * is used. A finger keeps the browser's own double tap. Under the ink tools
+ * and the Lasso taps are the ink engine's (a tap draws nothing, a lasso tap
+ * starts a loop) and never select text.
  *
  * This is the ONE tap counter of the page (penSelect and the ink engine do
- * not count taps). It works under Lasso, Pen and Highlighter, also when the
- * ink pad lies over the words: the pad is looked through for the position,
- * and the ink engine drops the tap's dot (ink/tapFilter.ts).
+ * not count taps).
  */
 
 type Editor = AppSchema['BlockNoteEditor']
@@ -23,7 +24,6 @@ const TAP_MS = 350
 /** Taps this close together (px) count as the same spot. */
 const TAP_PX = 12
 const MOVE_PX = 10
-const TAP_TOOLS = ['lasso', 'pen', 'highlighter']
 
 /** The ink pad, when the tap landed on it (it covers the words). */
 export const padOf = (target: EventTarget | null): HTMLElement | null =>
@@ -116,44 +116,23 @@ export function watchTapSelect(
   const dom = editor.domElement
   if (!dom) return () => {}
   const doc = dom.ownerDocument
-  let down: {
-    id: number
-    x: number
-    y: number
-    type: string
-    pad: HTMLElement | null
-  } | null = null
+  let down: { id: number; x: number; y: number } | null = null
   let last: { at: number; x: number; y: number; count: number } | null = null
 
   const inText = (target: EventTarget | null) =>
     target instanceof Element &&
     dom.contains(target) &&
     !target.closest('a, button, input, textarea, select') &&
-    // The page itself is briefly not editable during a Lasso stroke.
     [null, dom].includes(target.closest('[contenteditable="false"]'))
 
   const onDown = (e: PointerEvent) => {
-    if (e.pointerType === 'mouse' || e.button > 0) return
-    if (!TAP_TOOLS.includes(activeTool.get())) return
-    const pad = padOf(e.target)
-    down =
-      pad || inText(e.target)
-        ? {
-            id: e.pointerId,
-            x: e.clientX,
-            y: e.clientY,
-            type: e.pointerType,
-            pad,
-          }
-        : null
-  }
-  /** A finger's single tap through the pad still places the caret (keyboard). */
-  const fingerCaret = (view: EditorView, pos: number) => {
-    view.dispatch(
-      view.state.tr.setSelection(TextSelection.create(view.state.doc, pos)),
-    )
-    dom.setAttribute('inputmode', 'text')
-    view.dom.focus({ preventScroll: true })
+    // The Pencil only (a finger has the browser's own double tap), and only
+    // in typing mode.
+    if (e.pointerType !== 'pen' || e.button > 0) return
+    if (activeTool.get() !== 'text') return
+    down = inText(e.target)
+      ? { id: e.pointerId, x: e.clientX, y: e.clientY }
+      : null
   }
   const onUp = (e: PointerEvent) => {
     if (!down || e.pointerId !== down.id) return
@@ -165,17 +144,11 @@ export function watchTapSelect(
     }
     const count = nextTapCount(last, Date.now(), e.clientX, e.clientY)
     last = { at: Date.now(), x: e.clientX, y: e.clientY, count }
+    if (count < 2) return
     const view = editor.prosemirrorView
     if (!view) return
-    const pos = lookThrough(start.pad, () =>
-      posNear(view, e.clientX, e.clientY),
-    )
+    const pos = posNear(view, e.clientX, e.clientY)
     if (pos === null) return
-    if (count < 2) {
-      if (start.pad && start.type === 'touch' && activeTool.get() === 'lasso')
-        fingerCaret(view, pos)
-      return
-    }
     const range = rangeForTaps(view, pos, count)
     if (!range) return
     // After the browser's own double-tap handling, so ours is what stays.

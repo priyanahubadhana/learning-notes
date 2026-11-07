@@ -78,6 +78,7 @@ import {
 } from './textSnap'
 import { MAX_LABEL, STRIDE } from '../core/inkTypes'
 import { selectGesture } from '../editor/gesture'
+import { mostlyInside } from './lassoMenu'
 import {
   DEG,
   isDoubleTap,
@@ -128,6 +129,17 @@ export interface InkEnv {
   /** Switch the active tool (circle to lasso). */
   setTool: (tool: ModeTool) => void
   textSize: () => number
+  /**
+   * The Lasso's T or Pictures filter found blocks but no ink: select them in
+   * the text editor (the usual text menu follows). Ids in page order.
+   */
+  selectBlocks: (ids: string[]) => void
+  /** The kind of a page block: words, or a picture. */
+  blockKind: (id: string) => 'text' | 'picture'
+  /** The words or picture of a block (page px), not its full-width box. */
+  blockBox: (id: string) => Rect | null
+  /** A finger tap or mouse click under the Lasso: the caret lands there. */
+  placeCaret: (clientX: number, clientY: number) => void
 }
 
 type Gesture =
@@ -394,11 +406,9 @@ export class InkController {
    * the page the Lasso keeps watching, and a Pencil drag still selects text.
    */
   lassoOwnsPad(): boolean {
-    return (
-      this.env.tool() === 'lasso' &&
-      lassoSettings.get().ink &&
-      this.env.doc.strokeCount > 0
-    )
+    // Owner design (7 Nov): under the Lasso the page under the ink never
+    // reacts; the loop picks what its filters say (ink, pictures, text).
+    return this.env.tool() === 'lasso'
   }
 
   /** Tells the pad what to catch for the tool now selected. */
@@ -524,6 +534,12 @@ export class InkController {
     }
     this.ensureRoom()
     const v = this.visible()
+    // The overlay is positioned from the body, so the page scroller does not
+    // clip it: when the page is scrolled the pad would lie over the bars and
+    // catch their taps. Clip it to the scroller's window ourselves.
+    // Sideways the menus may still hang out of the page column.
+    const below = Math.max(0, this.env.wrap.offsetHeight - v.top - v.height)
+    this.overlay.style.clipPath = `inset(${v.top}px -100vw ${below}px -100vw)`
     const dpr = clampDpr(window.devicePixelRatio || 1)
     const r = this.renderer
     r.setView(v.top, v.width, v.height, dpr)
@@ -1332,8 +1348,6 @@ export class InkController {
     return (
       this.env.tool() === 'lasso' &&
       !this.env.frozen() &&
-      lassoSettings.get().ink &&
-      this.env.doc.strokeCount > 0 &&
       (e.pointerType === 'pen' ||
         e.pointerType === 'mouse' ||
         this.fingerCanDraw())
@@ -1364,7 +1378,19 @@ export class InkController {
     if (e.pointerType === 'pen') penSeenEver = true
     const target = e.target as HTMLElement | null
     if (target?.closest('[data-ink-handles]')) return
-    if (!this.lassoActive(e)) return
+    if (!this.lassoActive(e)) {
+      // A finger that may not draw: it scrolls, and a tap places the caret
+      // (lassoUp), as it would on the words themselves.
+      if (
+        e.pointerType === 'touch' &&
+        target === this.pad &&
+        this.env.tool() === 'lasso' &&
+        !this.env.frozen()
+      ) {
+        this.fingerTap = { id: e.pointerId, x: e.clientX, y: e.clientY }
+      }
+      return
+    }
     this.layout.measure()
     const w = this.world(e)
     if (this.lassoOwnsPad()) {
@@ -1377,7 +1403,7 @@ export class InkController {
         // A pointer the browser does not know (a test): events still arrive.
       }
     }
-    const hit = this.hitStroke(w)
+    const hit = lassoSettings.get().ink ? this.hitStroke(w) : null
     if (hit && !this.selection.includes(hit.stroke.id)) {
       // Taking over: the page must not select text for this touch.
       e.preventDefault()
@@ -1393,8 +1419,9 @@ export class InkController {
       return
     }
     const box = this.selectionRect()
-    // A mixed selection cannot be moved here (the menu says so).
-    if (box && this.blockSel.length === 0 && containsPt(inflate(box, 8), w)) {
+    // Dragging the box moves the ink (a mixed selection: the ink only; the
+    // menu says so, typed text flows with the page).
+    if (box && containsPt(inflate(box, 8), w)) {
       e.preventDefault()
       e.stopPropagation()
       this.startTransform('move', e)
@@ -1435,7 +1462,18 @@ export class InkController {
     }
   }
 
+  /** A finger that may not draw, down on the pad (a tap places the caret). */
+  private fingerTap: { id: number; x: number; y: number } | null = null
+
   private lassoUp(e: PointerEvent): void {
+    const ft = this.fingerTap
+    if (ft && ft.id === e.pointerId) {
+      this.fingerTap = null
+      if (Math.hypot(e.clientX - ft.x, e.clientY - ft.y) < 8) {
+        this.env.placeCaret(e.clientX, e.clientY)
+      }
+      return
+    }
     const g = this.gesture
     if (!g) return
     // Either finger lifting ends a twist.
@@ -1452,13 +1490,27 @@ export class InkController {
       if (g.hitId && !moved) {
         this.select([g.hitId])
       } else if (moved || !g.owns) {
-        const found = this.inRegion(g.path)
+        const f = lassoSettings.get()
+        const found = f.ink ? this.inRegion(g.path) : []
+        const blocks = this.blocksIn(g.path)
         if (found.length > 0) {
           this.select(found.map((p) => p.stroke.id))
-          // Universal Lasso: text and pictures inside the same loop join in.
-          this.blockSel = this.blocksIn(g.path)
+          // Ink and words or pictures in one loop: the mixed menu.
+          this.blockSel = blocks
           this.notify()
-        } else if (!g.owns) this.clearSelection() // a tap or loop on empty paper
+        } else if (blocks.length > 0) {
+          // Words or pictures alone: the text editor's own selection and menu.
+          this.clearSelection()
+          this.env.selectBlocks(blocks)
+        } else if (!g.owns) {
+          // A tap or loop on empty paper lets go of the selection. A mouse
+          // click (no loop) places the caret, as it does everywhere.
+          const had = this.selection.length > 0
+          this.clearSelection()
+          if (!moved && !had && e.pointerType === 'mouse') {
+            this.env.placeCaret(e.clientX, e.clientY)
+          }
+        }
       }
       this.requestDraw()
     } else if (g.kind === 'transform') {
@@ -1496,16 +1548,103 @@ export class InkController {
   /** Page blocks whose centre is inside the loop (only blocks near its box are tested). */
   blocksIn(path: Pt[]): string[] {
     if (path.length < 3) return []
+    const f = lassoSettings.get()
+    if (!f.text && !f.pictures) return []
     const poly = this.polygonOf(path)
     const area = boundsOf(poly)
     return this.layout
       .blocks()
-      .filter(
-        (b) =>
-          intersects(b, area) &&
-          inPolygon({ x: b.x + b.w / 2, y: b.y + b.h / 2 }, poly),
-      )
+      .filter((b) => {
+        if (!intersects(b, area)) return false
+        const kind = this.env.blockKind(b.id)
+        if (kind === 'picture' ? !f.pictures : !f.text) return false
+        // "Most of the line inside": the words themselves, not the full-width block.
+        const words = this.env.blockBox(b.id) ?? b
+        return mostlyInside(words, (p) => inPolygon(p, poly))
+      })
       .map((b) => b.id)
+  }
+
+  // ---- Copy, cut, paste, thickness ----
+
+  /** The strokes copied last (page px, so they can land on any page). */
+  private static clipboard: { stroke: Stroke; world: Pt[] }[] = []
+
+  canPaste(): boolean {
+    return InkController.clipboard.length > 0
+  }
+
+  copySelection(): number {
+    const items = this.selected()
+    InkController.clipboard = items.map((p) => ({
+      stroke: p.stroke,
+      world: this.worldPoints(p),
+    }))
+    return items.length
+  }
+
+  cutSelection(): number {
+    const n = this.copySelection()
+    if (n > 0) this.deleteSelection()
+    return n
+  }
+
+  /** Pastes the copied strokes a little to the right and down, and selects them. */
+  pasteClipboard(): void {
+    const items = InkController.clipboard
+    if (items.length === 0 || this.env.frozen()) return
+    const layer = this.layerForDrawing()
+    if (!layer) return
+    this.layout.measure()
+    const now = Date.now()
+    const wNow = this.layout.width
+    const add: Placed[] = items.map((c, i) => {
+      const moved = c.world.map((q) => ({ x: q.x + 16, y: q.y + 16 }))
+      const mid = moved[Math.floor(moved.length / 2)] ?? moved[0]
+      const blockId = pickAnchor(mid, this.layout.blocks())
+      const frame = this.layout.frame(blockId)
+      const pts = c.stroke.pts.slice()
+      moved.forEach((q, k) => {
+        const l = toLocal(q, frame)
+        pts[k * STRIDE] = Math.round(l.x * 10000) / 10000
+        pts[k * STRIDE + 1] = Math.round(l.y * 10000) / 10000
+      })
+      const stroke: Stroke = {
+        ...c.stroke,
+        id: createId(),
+        at: now + i,
+        pts,
+        bw: wNow,
+        style: {
+          ...c.stroke.style,
+          width: c.stroke.style.width * (wNow / c.stroke.bw),
+        },
+      }
+      return { layerId: layer.id, blockId, stroke }
+    })
+    const { id, edit } = this.ensureLayer(layer.id)
+    for (const p of add) edit.add.push({ ...p, layerId: id })
+    this.commit(edit)
+    this.select(edit.add.map((p) => p.stroke.id))
+  }
+
+  /** Sets the selected strokes' thickness (px on screen now). One Undo. */
+  thicknessSelection(px: number): void {
+    const items = this.selected()
+    if (items.length === 0) return
+    const add = items.map((p) => ({
+      ...p,
+      stroke: {
+        ...p.stroke,
+        id: createId(),
+        style: {
+          ...p.stroke.style,
+          width: (px * p.stroke.bw) / this.layout.width,
+        },
+      },
+    }))
+    this.commit({ del: items, add, layers: [] })
+    this.select(add.map((p) => p.stroke.id))
   }
 
   private inRegion(path: Pt[]): Placed[] {

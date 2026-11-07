@@ -187,7 +187,7 @@ test('a lasso works over an empty block and over blank paper', async ({
   await expect(page.locator('[data-ink-box]')).toBeVisible()
   expect(await marked(page)).toBe('')
   // A tap on blank paper lets go of the selection (as in GoodNotes).
-  await tap(page, [empty.x + 300, y + dy + 120])
+  await tap(page, [empty.x + 300, y + dy + 220]) // well under the menu
   await expect(page.locator('[data-ink-box]')).toHaveCount(0)
 })
 
@@ -272,31 +272,45 @@ test('a quick Pen tap and a double tap leave no ink; a held press makes a dot', 
   expect((await savedInk(page)).strokes).toHaveLength(1)
 })
 
-for (const type of ['pen', 'touch'] as const) {
-  test(`${type}: under the Lasso with ink, a double tap selects the word and a triple tap the line`, async ({
-    page,
-  }) => {
-    await inkOverWords(page)
-    const at = await wordPoint(page, 'nucleus')
-    await taps(page, at, 2, type)
-    await expect.poll(() => marked(page)).toBe('nucleus')
-    await expect(page.locator('[data-mini-toolbar]')).toBeVisible()
-    await page.waitForTimeout(500)
-    await taps(page, at, 3, type)
-    await expect.poll(() => marked(page)).toBe('The nucleus holds the DNA')
-    // Still no ink selection and no stray stroke.
-    expect((await savedInk(page)).strokes).toHaveLength(1)
-  })
-}
-
-test('pen: under the Pen tool a double tap on a word selects it instead of drawing', async ({
+test('under the Lasso and the Pen a double tap selects no text and draws nothing (owner table)', async ({
   page,
 }) => {
-  await inkNote(page, 'Pen')
-  await page.waitForTimeout(600)
-  const at = await wordPoint(page, 'holds')
+  await inkOverWords(page)
+  const at = await wordPoint(page, 'nucleus')
   await taps(page, at, 2, 'pen')
-  await expect.poll(() => marked(page)).toBe('holds')
   await page.waitForTimeout(400)
-  expect((await savedInk(page)).strokes).toHaveLength(0)
+  expect(await marked(page)).toBe('')
+  await expect(page.locator('[data-mini-toolbar]')).toHaveCount(0)
+  await taps(page, at, 3, 'pen')
+  await page.waitForTimeout(400)
+  expect(await marked(page)).toBe('')
+  expect((await savedInk(page)).strokes).toHaveLength(1)
+  // The Pen: taps are not ink and select nothing either.
+  await tool(page, 'Pen').click()
+  await page.keyboard.press('Escape')
+  await page.waitForTimeout(500)
+  const at2 = await wordPoint(page, 'holds')
+  await taps(page, at2, 2, 'pen')
+  await page.waitForTimeout(400)
+  expect(await marked(page)).toBe('')
+  expect((await savedInk(page)).strokes).toHaveLength(1)
+})
+
+test('typing mode: a Pencil double tap selects the word and a triple tap the line', async ({
+  page,
+}) => {
+  await openNote(page, 'pencil')
+  await tool(page, 'Text').click() // Pencil mode starts with the Lasso
+  await page.keyboard.press('Escape')
+  await page.evaluate(() => (document.activeElement as HTMLElement)?.blur())
+  await page.waitForTimeout(400)
+  const at = await wordPoint(page, 'nucleus')
+  await taps(page, at, 2, 'pen')
+  await expect.poll(() => marked(page)).toBe('nucleus')
+  await expect(page.locator('[data-mini-toolbar]')).toBeVisible()
+  // The Text tool stays: the Pencil acts like a finger here.
+  await expect(tool(page, 'Text')).toHaveAttribute('aria-pressed', 'true')
+  await page.waitForTimeout(500)
+  await taps(page, at, 3, 'pen')
+  await expect.poll(() => marked(page)).toBe('The nucleus holds the DNA')
 })

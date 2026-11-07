@@ -139,20 +139,17 @@ test('a finger tap places the caret with one tap whatever the setting', async ({
   await expect(page.locator('.bn-editor')).toHaveAttribute('inputmode', 'text')
 })
 
-test('Lasso: the first Pencil tap marks a block with words, a tap on another block moves the mark, the second tap places the caret', async ({
+test('Lasso: a Pencil tap on words marks nothing and places no caret (a tap starts a loop)', async ({
   page,
 }) => {
   await setup(page)
   await tool(page, 'Lasso').click()
   await page.keyboard.press('Escape')
   expect(await tap(page, await blockPoint(page, 0))).toBe(true)
-  expect(await activeBlockIndex(page)).toBe(0)
-  expect(await tap(page, await blockPoint(page, 1))).toBe(true)
-  expect(await activeBlockIndex(page)).toBe(1)
+  expect(await activeBlockIndex(page)).toBe(-1)
   expect(await focused(page)).toBe(false)
-  // The second tap in the marked block is left to place the caret (no keyboard).
-  expect(await tap(page, await blockPoint(page, 1))).toBe(false)
-  await expect(page.locator('.bn-editor')).toHaveAttribute('inputmode', 'none')
+  expect(await tap(page, await blockPoint(page, 0))).toBe(true)
+  expect(await focused(page)).toBe(false)
 })
 
 test('Lasso: a blank line takes no caret (a stroke there is a lasso)', async ({

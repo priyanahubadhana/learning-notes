@@ -11,13 +11,23 @@ import {
 import { AppUiContext } from '../app/appUi'
 import { downloadFile } from '../app/download'
 import { ThemeContext } from '../app/themeContext'
-import { Icon } from '../app/tools/icons'
-import { activeTool, type ModeTool } from '../app/tools/main/mainTools'
+import { Icon, type IconName } from '../app/tools/icons'
+import {
+  activeTool,
+  miniToolbarOpen,
+  type ModeTool,
+} from '../app/tools/main/mainTools'
 import { PEN_COLOURS } from '../app/tools/main/inkSettings'
+import { runTool } from '../app/tools/toolRegistry'
 import { useLiveQuery } from 'dexie-react-hooks'
 import type { LearningNotesDB } from '../core/db'
 import { loadInk, saveInk } from '../core/inkService'
 import { MAX_LABEL } from '../core/inkTypes'
+import { addBlockToSummary } from '../core/summaryService'
+import { selectBlocks } from '../editor/dragSelect'
+import { lookThrough, posNear } from '../editor/tapSelect'
+import { TextSelection } from 'prosemirror-state'
+import { lassoRow, ROW_ACTIONS, splitMenu, type RowAction } from './lassoMenu'
 import {
   earliestAt,
   recordingTimes,
@@ -163,6 +173,47 @@ export function InkSurface({
         },
         setTool: (tool: ModeTool) => activeTool.set(tool),
         textSize: () => 100,
+        selectBlocks: (ids) => {
+          const ed = editor as unknown as Editor
+          if (selectBlocks(ed, ids[0], ids[ids.length - 1])) {
+            miniToolbarOpen.set(true)
+          }
+        },
+        blockKind: (id) => {
+          const el = wrap.querySelector(
+            `.bn-block[data-id="${CSS.escape(id)}"] > .bn-block-content`,
+          )
+          const type = el?.getAttribute('data-content-type') ?? ''
+          return type === 'image' || type === 'picture' ? 'picture' : 'text'
+        },
+        blockBox: (id) => {
+          // The words (or the picture) of the block, not the full-width block.
+          const el = wrap.querySelector(
+            `.bn-block[data-id="${CSS.escape(id)}"] > .bn-block-content`,
+          )
+          const inner =
+            el?.querySelector('.bn-inline-content, img, video, audio') ?? el
+          if (!inner) return null
+          const r = inner.getBoundingClientRect()
+          const w = wrap.getBoundingClientRect()
+          if (r.width === 0) return null
+          return { x: r.x - w.x, y: r.y - w.y, w: r.width, h: r.height }
+        },
+        placeCaret: (x, y) => {
+          // A finger (or mouse click) under the Lasso still starts typing.
+          const view = (editor as unknown as Editor).prosemirrorView
+          const dom = editor.domElement
+          if (!view || !dom) return
+          const pos = lookThrough(controller.pad, () => posNear(view, x, y))
+          if (pos === null) return
+          view.dispatch(
+            view.state.tr.setSelection(
+              TextSelection.create(view.state.doc, pos),
+            ),
+          )
+          dom.setAttribute('inputmode', 'text')
+          view.dom.focus({ preventScroll: true })
+        },
       })
       controller.lockedMessage = t('ink.locked')
       controller.layerMessage = (reason, name) =>
@@ -367,6 +418,36 @@ function InkUi({
           count={count}
           onPng={png}
           onReplay={replay ? () => requestReplay(replay) : undefined}
+          onSummary={() => {
+            // A drawing goes into the Summary by its name (a picture line
+            // is for later): name it first.
+            const label = controller.selectionLabel()
+            if (!label) {
+              toast(t('ink.sel.summaryNeedsName'))
+              return
+            }
+            const id = controller.selection[0]
+            void addBlockToSummary(db, `ink:${id}`, pageId, label).then((r) =>
+              toast(
+                t(
+                  r.status === 'added'
+                    ? 'summary.added'
+                    : r.status === 'exists'
+                      ? 'summary.exists'
+                      : r.status === 'full'
+                        ? 'summary.full'
+                        : 'summary.nothing',
+                ),
+              ),
+            )
+          }}
+          onCard={() => {
+            // The drawing goes on the clipboard as a picture for the card's answer.
+            void png('copy').then(() => {
+              toast(t('ink.sel.cardHint'))
+              runTool('card')
+            })
+          }}
         />
       )}
     </div>
@@ -381,6 +462,8 @@ function SelectionBox({
   count,
   onPng,
   onReplay,
+  onSummary,
+  onCard,
 }: {
   controller: InkController
   editor: Editor
@@ -390,9 +473,17 @@ function SelectionBox({
   onPng: (how: 'copy' | 'save') => void
   /** Set when the drawing was written during a recording. */
   onReplay?: () => void
+  /** Add to Summary for a drawing (its name) or the words in the loop. */
+  onSummary: () => void
+  /** Make card for a drawing alone. */
+  onCard: () => void
 }) {
+  const { toast } = useContext(AppUiContext)
   const [colours, setColours] = useState(false)
+  const [thickness, setThickness] = useState(false)
   const [labelling, setLabelling] = useState(false)
+  const [more, setMore] = useState(false)
+  const row = lassoRow.useValue()
   const grab =
     (
       how: 'scale' | 'rotate',
@@ -410,39 +501,36 @@ function SelectionBox({
       controller.startTransform(how, e.nativeEvent, corner, axis)
     }
   // Eight handles: four corners keep the shape, four edges stretch one way.
+  // The edge handles (44 px each) appear only when the box is long enough on
+  // that side to leave its middle free for dragging.
   const corners: { x: number; y: number; axis: 'x' | 'y' | 'both' }[] = [
     { x: box.x, y: box.y, axis: 'both' },
     { x: box.x + box.w, y: box.y, axis: 'both' },
     { x: box.x, y: box.y + box.h, axis: 'both' },
     { x: box.x + box.w, y: box.y + box.h, axis: 'both' },
-    { x: box.x + box.w / 2, y: box.y, axis: 'y' },
-    { x: box.x + box.w / 2, y: box.y + box.h, axis: 'y' },
-    { x: box.x, y: box.y + box.h / 2, axis: 'x' },
-    { x: box.x + box.w, y: box.y + box.h / 2, axis: 'x' },
+    ...(box.h >= EDGE_HANDLE_MIN
+      ? [
+          { x: box.x + box.w / 2, y: box.y, axis: 'y' as const },
+          { x: box.x + box.w / 2, y: box.y + box.h, axis: 'y' as const },
+        ]
+      : []),
+    ...(box.w >= EDGE_HANDLE_MIN
+      ? [
+          { x: box.x, y: box.y + box.h / 2, axis: 'x' as const },
+          { x: box.x + box.w, y: box.y + box.h / 2, axis: 'x' as const },
+        ]
+      : []),
   ]
-  const menuAbove = box.y > 70
-  // Drawings and page content in one loop: the mixed menu, no handles.
-  if (controller.blockSel.length > 0) {
-    return (
-      <>
-        <div
-          data-ink-box
-          aria-hidden
-          className="absolute rounded-sm border border-dashed border-accent"
-          style={{ left: box.x, top: box.y, width: box.w, height: box.h }}
-        />
-        <MixedMenu
-          controller={controller}
-          editor={editor}
-          wrap={wrap}
-          box={box}
-        />
-      </>
-    )
-  }
+  // Above the box when there is room in the visible part of the page (the
+  // overlay is clipped to it), else below.
+  const vTop = controller.view().top
+  const menuAbove = box.y - vTop > 120
+  const turnAbove = box.y - vTop >= 44
+  const turnY = turnAbove ? box.y - 34 : box.y + box.h + 34
+  const mixed = controller.blockSel.length > 0
   const handle =
     'pointer-events-auto absolute grid size-11 -translate-x-1/2 -translate-y-1/2 touch-none place-items-center'
-  return (
+  const handles = (
     <>
       <div
         data-ink-box
@@ -475,7 +563,11 @@ function SelectionBox({
       <div
         aria-hidden
         className="absolute w-px bg-accent"
-        style={{ left: box.x + box.w / 2, top: box.y - 30, height: 30 }}
+        style={{
+          left: box.x + box.w / 2,
+          top: turnAbove ? box.y - 30 : box.y + box.h,
+          height: 30,
+        }}
       />
       <button
         type="button"
@@ -485,72 +577,170 @@ function SelectionBox({
         aria-label={t('ink.sel.rotate')}
         onPointerDown={grab('rotate')}
         className={handle}
-        style={{ left: box.x + box.w / 2, top: box.y - 34 }}
+        style={{ left: box.x + box.w / 2, top: turnY }}
       >
         <span className="grid size-6 place-items-center rounded-full border-2 border-accent bg-bg text-accent">
           <Icon name="rotate" size={14} />
         </span>
       </button>
+    </>
+  )
+  // Drawings and page content in one loop: the mixed menu (the handles
+  // move, resize and turn the ink only; the menu says so).
+  if (mixed) {
+    return (
+      <>
+        {handles}
+        <MixedMenu
+          controller={controller}
+          editor={editor}
+          wrap={wrap}
+          box={box}
+        />
+      </>
+    )
+  }
+
+  /** Every action of the drawing menu, in its fixed order. */
+  const actions: Record<
+    RowAction,
+    { icon: IconName; label: string; run: () => void }
+  > = {
+    copy: {
+      icon: 'copy',
+      label: t('main.sel.copy'),
+      run: () => {
+        controller.copySelection()
+        void onPng('copy')
+      },
+    },
+    cut: {
+      icon: 'scissors',
+      label: t('main.sel.cut'),
+      run: () => {
+        controller.cutSelection()
+        toast(t('ink.sel.cutDone'))
+      },
+    },
+    duplicate: {
+      icon: 'duplicate',
+      label: t('ink.sel.duplicate'),
+      run: () => controller.duplicateSelection(),
+    },
+    convert: {
+      icon: 'type',
+      label: t('ink.sel.convert'),
+      run: () => toast(t('ink.sel.convertLater')),
+    },
+    colour: {
+      icon: 'palette',
+      label: t('ink.sel.colour'),
+      run: () => {
+        setThickness(false)
+        setColours((v) => !v)
+      },
+    },
+    delete: {
+      icon: 'trash',
+      label: t('ink.sel.delete'),
+      run: () => controller.deleteSelection(),
+    },
+    thickness: {
+      icon: 'sliders',
+      label: t('ink.sel.thickness'),
+      run: () => {
+        setColours(false)
+        setThickness((v) => !v)
+      },
+    },
+    makeCard: { icon: 'cards', label: t('main.sel.makeCard'), run: onCard },
+    summary: {
+      icon: 'anchor',
+      label: t('main.sel.summary'),
+      run: onSummary,
+    },
+    label: {
+      icon: 'pencil',
+      label: t('ink.sel.label'),
+      run: () => setLabelling((v) => !v),
+    },
+  }
+  const split = splitMenu(ROW_ACTIONS, row)
+  const button = (id: RowAction) => (
+    <MenuButton
+      key={id}
+      id={id}
+      icon={actions[id].icon}
+      label={actions[id].label}
+      onClick={actions[id].run}
+    />
+  )
+  return (
+    <>
+      {handles}
       <div
         role="toolbar"
         aria-label={t('ink.sel.menu')}
         data-ink-handles
         data-ink-menu
         data-chrome
-        title={t('ink.sel.hint')}
         className="pointer-events-auto absolute flex w-max max-w-[92vw] -translate-x-1/2 flex-wrap items-center gap-0.5 rounded-2xl border border-ink-soft bg-bg p-1 shadow-[0_2px_4px_rgba(0,0,0,0.08),0_10px_28px_rgba(0,0,0,0.2)]"
         style={{
-          left: Math.max(150, box.x + box.w / 2),
-          top: menuAbove ? box.y - 112 : box.y + box.h + 20,
+          left: Math.min(
+            Math.max(180, box.x + box.w / 2),
+            Math.max(180, wrap.clientWidth - 180),
+          ),
+          // Below the box it must clear the turn handle when that is below too.
+          top: menuAbove ? box.y - 112 : box.y + box.h + (turnAbove ? 20 : 64),
         }}
       >
         <span className="px-2 text-xs text-ink-soft">
           {t('ink.sel.count', { count })}
         </span>
-        {onReplay && (
-          <MenuButton
-            id="replay"
-            icon="music"
-            label={t('ink.sel.replay')}
-            onClick={onReplay}
-          />
+        {split.row.map(button)}
+        <MenuButton
+          id="more"
+          icon="more"
+          label={t('ink.sel.more')}
+          pressed={more}
+          onClick={() => setMore((v) => !v)}
+        />
+        {more && (
+          <div
+            data-ink-more
+            className="flex w-full flex-wrap items-center gap-0.5 border-t border-line pt-1"
+          >
+            {split.more.map(button)}
+            {controller.canPaste() && (
+              <MenuButton
+                id="paste"
+                icon="paste"
+                label={t('ink.sel.paste')}
+                onClick={() => controller.pasteClipboard()}
+              />
+            )}
+            {onReplay && (
+              <MenuButton
+                id="replay"
+                icon="music"
+                label={t('ink.sel.replay')}
+                onClick={onReplay}
+              />
+            )}
+            <MenuButton
+              id="copyPng"
+              icon="image"
+              label={t('ink.sel.copyPng')}
+              onClick={() => onPng('copy')}
+            />
+            <MenuButton
+              id="savePng"
+              icon="screenshot"
+              label={t('ink.sel.savePng')}
+              onClick={() => onPng('save')}
+            />
+          </div>
         )}
-        <MenuButton
-          id="duplicate"
-          icon="duplicate"
-          label={t('ink.sel.duplicate')}
-          onClick={() => controller.duplicateSelection()}
-        />
-        <MenuButton
-          id="label"
-          icon="type"
-          label={t('ink.sel.label')}
-          onClick={() => setLabelling((v) => !v)}
-        />
-        <MenuButton
-          id="colour"
-          icon="palette"
-          label={t('ink.sel.colour')}
-          onClick={() => setColours((v) => !v)}
-        />
-        <MenuButton
-          id="copyPng"
-          icon="copy"
-          label={t('ink.sel.copyPng')}
-          onClick={() => onPng('copy')}
-        />
-        <MenuButton
-          id="savePng"
-          icon="screenshot"
-          label={t('ink.sel.savePng')}
-          onClick={() => onPng('save')}
-        />
-        <MenuButton
-          id="delete"
-          icon="trash"
-          label={t('ink.sel.delete')}
-          onClick={() => controller.deleteSelection()}
-        />
         {labelling && (
           <LabelForm
             key={controller.selection.join(',')}
@@ -560,6 +750,28 @@ function SelectionBox({
               setLabelling(false)
             }}
           />
+        )}
+        {thickness && (
+          <div className="flex w-full flex-wrap gap-1 p-1">
+            {THICKNESSES.map(([id, px]) => (
+              <button
+                key={id}
+                type="button"
+                data-ink-thickness={id}
+                onClick={() => {
+                  controller.thicknessSelection(px)
+                  setThickness(false)
+                }}
+                className="flex min-h-11 items-center gap-2 rounded-lg px-3 text-sm text-ink hover:bg-hover"
+              >
+                <span
+                  className="block w-8 rounded-full bg-ink"
+                  style={{ height: Math.max(2, px) }}
+                />
+                {t(`ink.sel.${id}`)}
+              </button>
+            ))}
+          </div>
         )}
         {colours && (
           <div className="flex w-full flex-wrap gap-1 p-1">
@@ -583,6 +795,16 @@ function SelectionBox({
     </>
   )
 }
+
+/** A side this long (px) gets a handle in its middle too. */
+const EDGE_HANDLE_MIN = 110
+
+/** Thickness choices: px on screen. */
+const THICKNESSES = [
+  ['thin', 1.5],
+  ['medium', 3],
+  ['thick', 6],
+] as const
 
 /**
  * A layer that is hidden but has drawings shows a small chip at the page's top
@@ -658,20 +880,23 @@ function MenuButton({
   icon,
   label,
   onClick,
+  pressed,
 }: {
   id: string
   icon: Parameters<typeof Icon>[0]['name']
   label: string
   onClick: () => void
+  pressed?: boolean
 }) {
   return (
     <button
       type="button"
       data-ink-action={id}
       aria-label={label}
+      aria-pressed={pressed}
       onMouseDown={(e) => e.preventDefault()}
       onClick={onClick}
-      className="grid min-h-11 min-w-11 place-items-center rounded-xl text-ink-soft hover:bg-hover hover:text-ink"
+      className="grid min-h-11 min-w-11 place-items-center rounded-xl text-ink-soft hover:bg-hover hover:text-ink aria-pressed:bg-hover aria-pressed:text-ink"
     >
       <Icon name={icon} />
     </button>

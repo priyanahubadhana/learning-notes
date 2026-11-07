@@ -569,8 +569,11 @@ function LoadedPageEditor({
       const stopPen = watchPenSelect(editor)
       const stopKeys = watchKeyboardPolicy(editor)
       // After a tap or hold selection the Lasso context takes over, with a mini toolbar.
+      // In typing mode the Pencil acts like a finger (owner, 7 Nov): the
+      // Text tool stays, only the mini toolbar shows.
       const afterSelect = () => {
-        if (activeTool.get() !== 'read') {
+        const tool = activeTool.get()
+        if (tool !== 'read' && tool !== 'text') {
           activeTool.set('lasso')
           changeSet('draw', 'user')
         }

@@ -323,11 +323,12 @@ export interface LassoSettings {
   text: boolean
 }
 
+// Ink only by default (owner, 7 Nov): the text under the ink never reacts.
 const LASSO_DEFAULTS: LassoSettings = {
   shape: 'free',
   ink: true,
-  pictures: true,
-  text: true,
+  pictures: false,
+  text: false,
 }
 
 export const lassoSettings = modelStore<LassoSettings>(
@@ -336,8 +337,8 @@ export const lassoSettings = modelStore<LassoSettings>(
   {
     shape: pick(LASSO_SHAPES, 'free'),
     ink: flag(true),
-    pictures: flag(true),
-    text: flag(true),
+    pictures: flag(false),
+    text: flag(false),
   },
 )
 

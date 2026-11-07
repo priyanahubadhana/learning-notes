@@ -75,7 +75,7 @@ export function MixedMenu({
     id: string
     icon: IconName
     label: string
-    run?: () => void
+    run: () => void
   }[] = [
     {
       id: 'copy',
@@ -119,9 +119,6 @@ export function MixedMenu({
       label: t('main.sel.makeCard'),
       run: makeCard,
     },
-    { id: 'move', icon: 'move', label: t('ink.sel.move') },
-    { id: 'scale', icon: 'scale', label: t('ink.sel.scale') },
-    { id: 'rotate', icon: 'rotate', label: t('ink.sel.rotate') },
     {
       id: 'deselect',
       icon: 'close',
@@ -129,7 +126,7 @@ export function MixedMenu({
       run: () => controller.clearSelection(),
     },
   ]
-  const menuAbove = box.y > 70
+  const menuAbove = box.y - controller.view().top > 120
   return (
     <div
       role="toolbar"
@@ -139,7 +136,10 @@ export function MixedMenu({
       data-chrome
       className="pointer-events-auto absolute flex w-max max-w-[92vw] -translate-x-1/2 flex-wrap items-center gap-0.5 rounded-2xl border border-ink-soft bg-bg p-1 shadow-[0_2px_4px_rgba(0,0,0,0.08),0_10px_28px_rgba(0,0,0,0.2)]"
       style={{
-        left: Math.max(150, box.x + box.w / 2),
+        left: Math.min(
+          Math.max(180, box.x + box.w / 2),
+          Math.max(180, wrap.clientWidth - 180),
+        ),
         top: menuAbove ? box.y - 64 : box.y + box.h + 20,
       }}
     >
@@ -148,15 +148,18 @@ export function MixedMenu({
           key={item.id}
           type="button"
           data-ink-action={item.id}
-          data-coming={item.run ? undefined : ''}
           aria-label={item.label}
           onMouseDown={(e) => e.preventDefault()}
-          onClick={item.run ?? (() => toast(t('ink.sel.drawingsOnly')))}
-          className="grid min-h-11 min-w-11 place-items-center rounded-xl text-ink-soft hover:bg-hover hover:text-ink data-[coming]:opacity-55"
+          onClick={item.run}
+          className="grid min-h-11 min-w-11 place-items-center rounded-xl text-ink-soft hover:bg-hover hover:text-ink"
         >
           <Icon name={item.icon} />
         </button>
       ))}
+      {/* Typed text flows with the page: dragging and the handles move the ink only. */}
+      <p data-ink-move-note className="w-full px-2 pb-1 text-xs text-ink-soft">
+        {t('ink.mixed.moveNote')}
+      </p>
     </div>
   )
 }

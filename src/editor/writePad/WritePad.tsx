@@ -1,5 +1,6 @@
 import {
   useEffect,
+  useLayoutEffect,
   useRef,
   useState,
   type PointerEvent as ReactPointerEvent,
@@ -203,6 +204,14 @@ export default function WritePad() {
   const [aiError, setAiError] = useState('')
   const drag = useRef<{ y: number; h: number } | null>(null)
   const marks = useRef<HTMLDivElement>(null)
+  /** Where the caret goes once the key's new text is in the box. */
+  const pendingCaret = useRef<number | null>(null)
+  useLayoutEffect(() => {
+    const at = pendingCaret.current
+    if (at === null) return
+    pendingCaret.current = null
+    box.current?.setSelectionRange(at, at)
+  }, [text])
 
   const lift = useKeyboardLift()
   const look = lookOf(prefs)
@@ -250,7 +259,7 @@ export default function WritePad() {
     const el = box.current
     const start = el?.selectionStart ?? text.length
     const stop = el?.selectionEnd ?? text.length
-    let caret = start
+    let caret: number
     if (key === 'delete') {
       const from = start === stop ? Math.max(0, start - 1) : start
       change(text.slice(0, from) + text.slice(stop), true)
@@ -262,7 +271,7 @@ export default function WritePad() {
     }
     // Focus the box so the caret and the new line show where they are.
     el?.focus({ preventScroll: true })
-    requestAnimationFrame(() => el?.setSelectionRange(caret, caret))
+    pendingCaret.current = caret
   }
 
   const maxHeight = () => Math.round(window.innerHeight * MAX_FRACTION)

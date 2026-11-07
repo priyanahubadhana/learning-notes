@@ -46,6 +46,16 @@ describe.each(Object.entries(languages))('%s translation', (_code, texts) => {
     expect(bad).toEqual([])
   })
 
+  it('has the same key set as English (the two lists below are empty)', () => {
+    const own = new Set(Object.keys(texts))
+    const english = new Set(Object.keys(en))
+    const onlyEnglish = [...english].filter(
+      (k) => !own.has(k) && !SAME_AS_ENGLISH.has(k),
+    )
+    const onlyHere = [...own].filter((k) => !english.has(k))
+    expect({ onlyEnglish, onlyHere }).toEqual({ onlyEnglish: [], onlyHere: [] })
+  })
+
   it('translates every text', () => {
     const missing = Object.keys(en).filter(
       (k) => !(k in texts) && !SAME_AS_ENGLISH.has(k),

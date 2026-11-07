@@ -135,6 +135,11 @@ test('Aa sheet: four tabs, saved looks, and the dim layer', async ({
     'background-color',
     'rgba(0, 0, 0, 0.4)',
   )
+  // The daily reading goal shows today's progress.
+  await sheet.getByRole('radio', { name: '10 min' }).click()
+  await expect(sheet.getByTestId('reading-goal-note')).toContainText(
+    'of 10 min',
+  )
   // The saved look is remembered.
   await page.reload()
   await readSwitch(page).click()

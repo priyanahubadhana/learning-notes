@@ -32,7 +32,6 @@ import { runTask } from '../app/errors'
 import { editorColorScheme } from '../app/theme'
 import { ThemeContext } from '../app/themeContext'
 import { listBlocks } from '../core/blockService'
-import { watchPageChanges } from './pageChanges'
 import { syncCardRecords } from '../recall/cardService'
 import type { LearningNotesDB } from '../core/db'
 import type { Block, Page } from '../core/types'
@@ -168,7 +167,17 @@ export function PageEditor(props: PageEditorProps) {
   const watching = lock?.pageId === pageId && lock.state === 'elsewhere'
   useEffect(() => {
     if (!watching || taking) return
-    return watchPageChanges(db, pageId, () => setVersion((v) => v + 1))
+    // Loaded only when a second window is open.
+    let stop: (() => void) | undefined
+    let gone = false
+    void import('./pageChanges').then(({ watchPageChanges }) => {
+      if (!gone)
+        stop = watchPageChanges(db, pageId, () => setVersion((v) => v + 1))
+    })
+    return () => {
+      gone = true
+      stop?.()
+    }
   }, [db, pageId, watching, taking])
 
   useEffect(() => {

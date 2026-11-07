@@ -16,7 +16,6 @@ import { enSync } from './enSync'
 import { enF } from './enF'
 import { enD } from './enD'
 import { enN } from './enN'
-import { enO } from './enO'
 import { enM } from './enM'
 /**
  * English text for the app. Every new piece of on-screen text gets a key
@@ -45,7 +44,6 @@ export const en = {
   ...enF,
   ...enD,
   ...enN,
-  ...enO,
   ...enM,
   // Shared dialogs
   'dialog.cancel': 'Cancel',

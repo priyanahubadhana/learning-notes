@@ -14,7 +14,9 @@ type PluralForm = Intl.LDMLPluralRule
 type BaseKey<K> = K extends `${infer B}_${PluralForm}` ? B : K
 
 /** Every valid key (plural keys are used without their `_one`/`_other` suffix). */
-export type MessageKey = BaseKey<keyof typeof en>
+export type MessageKey = BaseKey<
+  keyof typeof en | keyof (typeof import('./enO'))['enO']
+>
 
 type Messages = Partial<Record<string, string>>
 

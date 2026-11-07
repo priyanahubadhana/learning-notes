@@ -37,12 +37,15 @@ export const getEditorDictionary = (): unknown => editorDictionary
  * is always the fallback for any text a language file does not have.
  */
 export async function applyLanguage(language: Language): Promise<void> {
+  // English texts of later features load here, not in the first download
+  // (the first-load size limit); other languages carry their own copies.
+  const late = await import('./enO').then((m) => m.enO)
   if (language === 'en') {
-    setMessages('en', {})
+    setMessages('en', late)
     editorDictionary = undefined
   } else {
     const messages = await LOADERS[language]()
-    setMessages(language, messages)
+    setMessages(language, { ...late, ...messages })
     editorDictionary =
       language === 'es'
         ? await import('@blocknote/core/locales').then((m) => m.es)

@@ -34,6 +34,18 @@ export function revealBlock(blockId: string, timeoutMs = 3000): void {
   )
 }
 
+/** Distance from the top of the content; scrolling does not change it. */
+function documentOffset(el: HTMLElement): number {
+  let y = 0
+  for (
+    let n: HTMLElement | null = el;
+    n;
+    n = n.offsetParent as HTMLElement | null
+  )
+    y += n.offsetTop
+  return y
+}
+
 /**
  * Highlights the element `find` returns once it exists (up to `timeoutMs`),
  * again if it is redrawn meanwhile (e.g. a screen that is still loading).
@@ -52,11 +64,18 @@ export function revealWhenReady(
       return
     }
     highlightElement(el)
+    let top = documentOffset(el)
     // A page that is still loading may redraw the block: reveal it again.
+    // A section loading above it pushes it away: scroll to it again.
     const watch = () => {
       if (performance.now() - started > timeoutMs) return
-      if (el.isConnected) requestAnimationFrame(watch)
-      else attempt()
+      if (!el.isConnected) return attempt()
+      const now = documentOffset(el)
+      if (now !== top) {
+        top = now
+        el.scrollIntoView({ block: 'center', behavior: 'auto' })
+      }
+      requestAnimationFrame(watch)
     }
     requestAnimationFrame(watch)
   }

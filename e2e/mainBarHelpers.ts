@@ -39,8 +39,13 @@ export async function openNote(
 
 /** Taps a main tool and waits for its pill. */
 export async function openPill(page: Page, name: string, pillName: string) {
-  await tool(page, name).click()
-  await expect(pill(page, pillName)).toBeVisible()
+  // Tap again only while the pill is not showing (a late re-render of the bar
+  // can swallow a tap), so a slow pill is never toggled shut.
+  await expect(async () => {
+    if (!(await pill(page, pillName).isVisible()))
+      await tool(page, name).click()
+    await expect(pill(page, pillName)).toBeVisible({ timeout: 2000 })
+  }).toPass()
 }
 
 /** The saved place of the options pill (null = the default). */

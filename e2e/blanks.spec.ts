@@ -44,8 +44,15 @@ test('Ctrl+Z undoes Make blank; using it on a blank removes it', async ({
   await selectText(page, 'aortic')
   await makeBlank(page).click()
   await expect(blanks(page)).toHaveCount(1)
-  await selectText(page, 'ort')
-  await page.getByRole('button', { name: 'Remove blank' }).click()
+  // The editor may redraw the new blank and drop the selection: select again
+  // until the toolbar shows.
+  const remove = page.getByRole('button', { name: 'Remove blank' })
+  await expect(async () => {
+    await page.locator('.bn-editor').focus()
+    await selectText(page, 'ort')
+    await expect(remove).toBeVisible({ timeout: 1500 })
+  }).toPass()
+  await remove.click()
   await expect(blanks(page)).toHaveCount(0)
 })
 

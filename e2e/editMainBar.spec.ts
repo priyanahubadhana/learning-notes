@@ -25,8 +25,14 @@ const mainNames = (page: Page) =>
     .evaluateAll((els) => els.map((el) => el.getAttribute('aria-label')))
 
 async function openEdit(page: Page) {
-  await barMenu(page).click()
-  await page.getByRole('button', { name: 'Edit bar…' }).click()
+  const item = page.getByRole('button', { name: 'Edit bar…' })
+  // Open the menu again only while it is still closed (a late re-render of
+  // the bar can swallow the first tap).
+  await expect(async () => {
+    if (!(await item.isVisible())) await barMenu(page).click()
+    await expect(item).toBeVisible({ timeout: 2000 })
+  }).toPass()
+  await item.click()
   await expect(panel(page)).toBeVisible()
 }
 

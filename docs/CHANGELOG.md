@@ -2,6 +2,11 @@
 
 Current phase only. Older entries are in [ARCHIVE.md](ARCHIVE.md).
 
+## 2026-11-07 (CI stabiliser: red main fixed)
+
+- **What:** `e2e/nestedCard.spec.ts:67` (Change in Settings) failed on every CI run since Settings sections went lazy (bundle diet): the setting was found and scrolled to, then a lazy section above it loaded and pushed it out of view, and nothing scrolled again. App fix: `revealWhenReady` now re-scrolls (no animation) when the element moves within its 3 s window. Flaky specs made deterministic with real conditions, no sleeps: `openPill`, the Edit bar menu and the Eraser pill (inkPills, editMainBar, inkLayers) tap again only while the thing is not showing.
+- **Files:** `src/editor/revealBlock.ts`, `e2e/{mainBarHelpers,editMainBar,inkLayers}.spec/ts`.
+
 ## 2026-11-07 (Pencil taps and Lasso words: R6-17..R6-20; no Dexie version)
 
 - **What:** (1) **R6-18/R6-20 the double-tap selection stays.** Cause: after our word selection, iPadOS sent the second tap's own reaction (its double-tap selection, then the tap's synthetic mousedown/mouseup/click), whose mousedown collapsed the selection to a caret; it arrived inside the 0.7 s "recent input" window that `ownSelection.ts` treats as the person's own doing, so it was not put back. Fix: from the second tap on, `tapSelect.ts` cancels the Pencil's pointerdown and its stylus `touchstart` (no native double tap, no late click, no Scribble dot), and the selection it sets is kept for 1.5 s against any collapse that comes with no new tap or key (`keepSelection`); the mini toolbar ignores the pointerups that made the selection. (2) **R6-19 tap counts:** double = word, triple = the visual line on screen (caret positions at the row's left and right edges, `visualLineRange`), four taps = the paragraph; real iPad timing (450 ms between taps, 12 px drift; a press over 300 ms is a hold, not a tap). (3) **R6-17 Lasso T filter:** a loop (freeform or rectangle) around part of a paragraph selects the words whose centre is inside, first to last in reading order, as a text selection with the text menu (`editor/lassoWords.ts`, `InkController.wordsInRegion`); whole lines still select as blocks.

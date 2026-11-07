@@ -317,7 +317,11 @@ test('strokes merged into a locked layer can be erased after Unlock (R5-11)', as
     layerRows(page).first().getByRole('button', { name: 'Lock Layer 1' }),
   ).toBeVisible()
   await page.keyboard.press('Escape')
-  await tool(page, 'Eraser').click({ force: true })
+  await expect(async () => {
+    if (!(await option(page, 'Whole stroke').isVisible()))
+      await tool(page, 'Eraser').click({ force: true })
+    await expect(option(page, 'Whole stroke')).toBeVisible({ timeout: 2000 })
+  }).toPass()
   await option(page, 'Whole stroke').click()
   // The pills and cards open now may have moved the page: measure again.
   await page.waitForTimeout(400)
@@ -355,7 +359,11 @@ test('strokes drawn on Layer 2, locked, then merged down can be erased (R5-11)',
   await page.reload()
   await expect(page.locator('[data-ink-pad]')).toBeAttached()
   await page.keyboard.press('Escape')
-  await tool(page, 'Eraser').click({ force: true })
+  await expect(async () => {
+    if (!(await option(page, 'Whole stroke').isVisible()))
+      await tool(page, 'Eraser').click({ force: true })
+    await expect(option(page, 'Whole stroke')).toBeVisible({ timeout: 2000 })
+  }).toPass()
   await option(page, 'Whole stroke').click()
   // The pills and cards open now may have moved the page: measure again.
   await page.waitForTimeout(400)

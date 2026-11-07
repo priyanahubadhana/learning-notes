@@ -42,7 +42,12 @@ async function unlabelled(page: Page, scope = 'body') {
           .trim()
         if (text) return text
       }
-      if (el instanceof HTMLInputElement && el.labels?.length) {
+      if (
+        (el instanceof HTMLInputElement ||
+          el instanceof HTMLTextAreaElement ||
+          el instanceof HTMLSelectElement) &&
+        el.labels?.length
+      ) {
         return Array.from(el.labels)
           .map((l) => l.textContent ?? '')
           .join(' ')

@@ -268,6 +268,9 @@ export const TOOL_HOLD_MS = 350
 /** The Pencil touching the page picks the Pen tool (off by default). */
 export const penPicksPen = prefStore('toolbar.penPicksPen', isBoolean, false)
 
+/** Toolbar: finger only. Pencil taps on any bar are ignored (off by default). */
+export const fingerOnlyBars = prefStore('toolbar.fingerOnly', isBoolean, false)
+
 /** Tests only. */
 export function resetMainState(): void {
   for (const store of [
@@ -278,6 +281,7 @@ export function resetMainState(): void {
     newLineExtras,
     newLineHoldMs,
     penPicksPen,
+    fingerOnlyBars,
     showNames,
   ]) {
     store.clearCache()

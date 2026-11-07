@@ -44,6 +44,7 @@ test('finger taps work right after Pencil input, and when pen and finger alterna
   for (let i = 0; i < 3; i++) {
     await penTapOn(page, 'Pen')
     await expect(pill(page, 'pen')).toBeVisible()
+    await page.waitForTimeout(600) // a touch right after the Pencil is a palm on a bar (R6-10)
     await finger(page, tool(page, 'Highlighter'))
     await expect(pill(page, 'highlighter')).toBeVisible()
     await finger(page, tool(page, 'Eraser'))
@@ -62,6 +63,7 @@ test('finger taps work right after Pencil input, and when pen and finger alterna
       }),
     )
   })
+  await page.waitForTimeout(450) // past the palm window
   await finger(page, tool(page, 'Lasso'))
   await expect(pill(page, 'lasso')).toBeVisible()
 })

@@ -24,6 +24,7 @@ import {
   NEW_LINE_EXTRAS,
   newLineExtras,
   newLineHoldMs,
+  fingerOnlyBars,
   penPicksPen,
   resetMainBar,
   showNames,
@@ -286,6 +287,23 @@ const penPicksPenSetting: SettingDefinition<OnOff> = {
   },
 }
 
+const fingerOnlySetting: SettingDefinition<OnOff> = {
+  id: 'toolbar.fingerOnly',
+  labelKey: 'settings.fingerOnly.label',
+  descriptionKey: 'settings.fingerOnly.description',
+  category: 'toolbar',
+  keywords:
+    KEYWORDS + ' finger only pencil taps ignored palm hand left right ipad',
+  scope: 'device',
+  defaultValue: 'off',
+  isValid: isOnOff,
+  control: { kind: 'segmented', options: onOff() },
+  derived: {
+    read: () => (fingerOnlyBars.get() ? 'on' : 'off'),
+    write: (value) => fingerOnlyBars.set(value === 'on'),
+  },
+}
+
 const showNamesSetting: SettingDefinition<OnOff> = {
   id: 'toolbar.showNames',
   labelKey: 'settings.showNames.label',
@@ -330,6 +348,7 @@ export function resetToolBar(): void {
   newLineExtras.set('hold')
   newLineHoldMs.set(600)
   penPicksPen.set(false)
+  fingerOnlyBars.set(false)
   resetNoteStyle()
   hiddenTabs.set([])
   stayOpen.set(false)
@@ -372,6 +391,7 @@ for (const definition of [
   newLineExtrasSetting,
   newLineHoldSetting,
   penPicksPenSetting,
+  fingerOnlySetting,
   showNamesSetting,
   pillPlaceSetting,
   resetToolBarSetting,

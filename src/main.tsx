@@ -6,7 +6,8 @@ import App from './App.tsx'
 import { reloadOnFailedChunk } from './app/chunkReload'
 import { ErrorBoundary } from './app/ErrorBoundary'
 import { startNavHistory } from './app/navHistory'
-import { installPenTap } from './app/penTap'
+import { installPenTap, penTapOptions } from './app/penTap'
+import { fingerOnlyBars } from './app/tools/main/mainTools'
 import { installPageAnchor } from './app/pageAnchor'
 import { UpgradeGate } from './app/UpgradeGate'
 import {
@@ -35,6 +36,10 @@ initDeviceMode()
 startNavHistory()
 reloadOnFailedChunk()
 installPenTap()
+penTapOptions.fingerOnly = fingerOnlyBars.get()
+fingerOnlyBars.subscribe(() => {
+  penTapOptions.fingerOnly = fingerOnlyBars.get()
+})
 installPageAnchor()
 {
   const hints = installScrollHints(

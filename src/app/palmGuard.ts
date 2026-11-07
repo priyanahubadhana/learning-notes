@@ -68,6 +68,22 @@ export function palmTouch(
   )
 }
 
+/**
+ * A touch on a bar that is probably a palm: the Pencil touched the screen a
+ * moment ago (under 400 ms) or lifted under 500 ms ago. A Pencil left "down"
+ * without any event (a lost lift) does not count, so a finger is never stuck.
+ */
+export function barPalm(
+  e: { pointerType: string },
+  now: number = Date.now(),
+): boolean {
+  return (
+    e.pointerType === 'touch' &&
+    ((penId !== null && now - lastPenEvent < 400) ||
+      now - lastPenLift < PALM_TAIL_MS)
+  )
+}
+
 /** Tests only. */
 export function resetPalmGuard(): void {
   penId = null

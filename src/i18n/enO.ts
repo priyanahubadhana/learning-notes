@@ -214,4 +214,7 @@ export const enO = {
   'ai.keysSync.hint':
     'The keys travel locked like your notes, so the server cannot read them. They still never go into backups.',
   'ai.keysSync.needsSync': 'Set up Sync first (Settings › Sync).',
+  'settings.fingerOnly.label': 'Toolbar: finger only',
+  'settings.fingerOnly.description':
+    'On: the bars ignore the Apple Pencil, so a finger works the bars and the Pencil only writes, draws and selects on the page. Off: both can tap the bars (a resting palm is ignored either way).',
 }

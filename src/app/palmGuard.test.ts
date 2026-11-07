@@ -1,6 +1,12 @@
 // @vitest-environment jsdom
 import { beforeEach, describe, expect, it } from 'vitest'
-import { ignoreTouch, palmTouch, penIsDown, resetPalmGuard } from './palmGuard'
+import {
+  barPalm,
+  ignoreTouch,
+  palmTouch,
+  penIsDown,
+  resetPalmGuard,
+} from './palmGuard'
 
 function fire(type: string, pointerType: string, pointerId: number) {
   const e = new Event(type, { bubbles: true }) as Event & {
@@ -32,6 +38,17 @@ describe('palm guard', () => {
     fire('pointerup', 'touch', 1)
     expect(penIsDown()).toBe(true)
     expect(penIsDown(Date.now() + 5000)).toBe(false)
+  })
+
+  it('barPalm ignores a touch just after the Pencil, but not one after a lost lift', () => {
+    fire('pointerdown', 'pen', 1)
+    const now = Date.now()
+    expect(barPalm({ pointerType: 'touch' }, now + 100)).toBe(true)
+    expect(barPalm({ pointerType: 'touch' }, now + 1000)).toBe(false)
+    expect(barPalm({ pointerType: 'pen' }, now + 100)).toBe(false)
+    fire('pointerup', 'pen', 1)
+    expect(barPalm({ pointerType: 'touch' }, Date.now() + 200)).toBe(true)
+    expect(barPalm({ pointerType: 'touch' }, Date.now() + 700)).toBe(false)
   })
 
   it('palmTouch blocks a touch while the Pencil is down and 500 ms after it lifts', () => {

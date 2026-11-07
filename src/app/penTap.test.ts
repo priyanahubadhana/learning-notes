@@ -4,6 +4,7 @@ import { installPenTap, penTapOptions } from './penTap'
 
 let off = () => {}
 let clicks = 0
+const count = () => clicks++
 
 function pen(type: 'pointerdown' | 'pointerup', el: Element, x = 10, y = 10) {
   const e = new MouseEvent(type, {
@@ -25,11 +26,15 @@ beforeEach(() => {
     <input id="i" />
   </div><button id="outside">x</button>`
   clicks = 0
-  document.addEventListener('click', () => clicks++)
+  document.addEventListener('click', count)
   off = installPenTap(document)
   penTapOptions.enabled = true
 })
-afterEach(() => off())
+afterEach(() => {
+  off()
+  document.removeEventListener('click', count)
+  penTapOptions.fingerOnly = false
+})
 
 const $ = (id: string) => document.getElementById(id)!
 
@@ -66,5 +71,22 @@ describe('penTap', () => {
     pen('pointerdown', $('b'))
     pen('pointerup', $('b'))
     expect(clicks).toBe(0)
+  })
+  it('with finger only on, Pencil taps on a bar are ignored; other chrome still works', () => {
+    document.body.insertAdjacentHTML(
+      'beforeend',
+      '<div data-bar><button id="bar">T</button></div>',
+    )
+    penTapOptions.fingerOnly = true
+    pen('pointerdown', $('bar'))
+    pen('pointerup', $('bar'))
+    expect(clicks).toBe(0)
+    pen('pointerdown', $('b'))
+    pen('pointerup', $('b'))
+    expect(clicks).toBe(1)
+    penTapOptions.fingerOnly = false
+    pen('pointerdown', $('bar'))
+    pen('pointerup', $('bar'))
+    expect(clicks).toBe(2)
   })
 })

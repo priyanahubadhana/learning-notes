@@ -219,4 +219,7 @@ export const esO: Record<string, string> = {
     'Las claves viajan bloqueadas como tus notas, así que el servidor no puede leerlas. Siguen sin entrar nunca en las copias de seguridad.',
   'ai.keysSync.needsSync':
     'Configura primero Sincronizar (Ajustes › Sincronizar).',
+  'settings.fingerOnly.label': 'Barra: solo el dedo',
+  'settings.fingerOnly.description':
+    'Activado: las barras ignoran el Apple Pencil, así el dedo maneja las barras y el Pencil solo escribe, dibuja y selecciona en la página. Desactivado: ambos pueden tocar las barras (la palma apoyada se ignora siempre).',
 }

@@ -25,9 +25,13 @@ test.use({ viewport: { width: 1024, height: 1000 }, hasTouch: true })
 /** Ink over the first line of words, then the Lasso. */
 async function inkThenLasso(page: Page) {
   await inkNote(page, 'Pen')
+  await page.keyboard.press('Escape') // the pill would cover the first line
+  await page.evaluate(() => {
+    document.querySelector('[data-page-scroller]')!.scrollTop = 0
+  })
   await page.waitForTimeout(600)
   const box = await textBox(page)
-  const y = box.y + box.height / 2
+  const y = box.y + 300 // blank paper under the words
   await stroke(page, line([box.x + 10, y], [box.x + 180, y]))
   await expectStrokes(page, 1)
   await tool(page, 'Lasso').click()
@@ -43,8 +47,8 @@ test('R6-3: the rectangle Lasso draws a live rectangle and selects by it', async
   await page.waitForTimeout(500)
   const now = await textBox(page)
   const dy = now.y - box.y
-  const from: Pt = [box.x + 2, y + dy + 30]
-  const to: Pt = [box.x + 200, y + dy - 30]
+  const from: Pt = [box.x + 2, y + dy + 25]
+  const to: Pt = [box.x + 200, y + dy - 25]
   // A diagonal drag: a freeform loop would paint a thin line, a rectangle
   // paints its four sides.
   await stroke(page, line(from, to, 12), { keepDown: true, id: 51 })
@@ -154,5 +158,75 @@ test('R6-8: choosing any tool on the main bar never moves the page', async ({
     await page.waitForTimeout(300)
     expect(Math.abs((await top()) - start), `closed ${name}`).toBeLessThan(2)
   }
+})
+/** A tap on an element with a pen or a finger, as pointer events. */
+async function tapEl(
+  page: Page,
+  selector: string,
+  type: 'pen' | 'touch',
+  id = 71,
+) {
+  await page.evaluate(
+    ({ selector, type, id }) => {
+      const el = document.querySelector(selector)!
+      const r = el.getBoundingClientRect()
+      const make = (name: string) =>
+        new PointerEvent(name, {
+          pointerType: type,
+          pointerId: id,
+          clientX: r.x + r.width / 2,
+          clientY: r.y + r.height / 2,
+          bubbles: true,
+          cancelable: true,
+          isPrimary: true,
+          button: 0,
+          buttons: name === 'pointerup' ? 0 : 1,
+          pressure: name === 'pointerup' ? 0 : 0.4,
+        })
+      el.dispatchEvent(make('pointerdown'))
+      el.dispatchEvent(make('pointerup'))
+    },
+    { selector, type, id },
+  )
+}
+
+const LASSO = '[data-bar-tool="eraser"]'
+const isOn = (page: Page) =>
+  page.locator(LASSO).evaluate((b) => b.getAttribute('aria-pressed') === 'true')
+
+test('R6-10: by default the Pencil and a finger both tap the bar buttons', async ({
+  page,
+}) => {
+  await openNote(page, 'pencil')
+  await tapEl(page, LASSO, 'pen')
+  await expect.poll(() => isOn(page)).toBe(true)
+  await page.waitForTimeout(700) // past the palm window after the Pencil lifts
+  await page.locator('[data-bar-tool="text"]').tap()
+  await expect.poll(() => isOn(page)).toBe(false)
+})
+
+test('R6-10: Toolbar: finger only ignores Pencil taps on bars, not the finger', async ({
+  page,
+}) => {
+  await openNote(page, 'pencil', { 'toolbar.fingerOnly': true })
+  await tapEl(page, LASSO, 'pen')
+  await page.waitForTimeout(700)
+  expect(await isOn(page)).toBe(false)
+  await page.locator(LASSO).tap()
+  await expect.poll(() => isOn(page)).toBe(true)
+})
+
+test('R6-10: a palm (a touch just after the Pencil lifts) is ignored on a bar', async ({
+  page,
+}) => {
+  await openNote(page, 'pencil')
+  await tapEl(page, '[data-bar-tool="insert"]', 'pen') // a Pencil tap, then at once a palm
+  await page.locator(LASSO).tap()
+  await page.waitForTimeout(400)
+  expect(await isOn(page)).toBe(false)
+  await page.keyboard.press('Escape') // close the Insert pill
+  await page.waitForTimeout(600) // later, a finger works
+  await page.locator(LASSO).tap()
+  await expect.poll(() => isOn(page)).toBe(true)
 })
 // END

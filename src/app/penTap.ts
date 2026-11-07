@@ -7,10 +7,14 @@
  * and we click the control ourselves when the Pencil lifts. A finger or a
  * mouse is untouched.
  */
+import { barPalm } from './palmGuard'
 
 /** Everything that counts as chrome (the app's own controls). */
 export const CHROME_SELECTOR =
   '[data-chrome], [data-bar], [data-pill-root], [data-popup], [role="menu"], [role="dialog"]'
+
+/** The bars: the main bar, the ribbon, pills, the mini bar and strips. */
+export const BAR_SELECTOR = '[data-bar], [data-pill-root]'
 
 /** Where a Pencil touch is left alone (typing, sliders, own pointer code). */
 const NATIVE =
@@ -26,17 +30,25 @@ export interface PenTapStats {
   cancelledTouches: number
   clicks: number
   swallowed: number
+  /** Touches on a bar that were ignored (a palm, or Pencil with finger only). */
+  ignored: number
 }
 export const penTapStats: PenTapStats = {
   cancelledTouches: 0,
   clicks: 0,
   swallowed: 0,
+  ignored: 0,
 }
 
 /** Switched off by the Pencil lab to show what the measure does. */
 export const penTapOptions = {
   enabled: true,
+  /** Settings > Tool bar > "Toolbar: finger only": the Pencil does not tap bars (R6-10). */
+  fingerOnly: false,
 }
+
+/** A touch on a bar is dropped for this long after, with its late click (ms). */
+const IGNORE_MS = 700
 
 export function installPenTap(doc: Document = document): () => void {
   let down: {
@@ -51,6 +63,12 @@ export function installPenTap(doc: Document = document): () => void {
   // True only while a PEN pointer is down. Any other pointer (a finger)
   // resets it, so a finger can never be treated as the stylus.
   let penDown = false
+
+  // A touch on a bar that was ignored: its late click is swallowed too.
+  let ignoredAt = 0
+  let ignoredId = -1
+  const inBar = (t: EventTarget | null): t is Element =>
+    t instanceof Element && !!t.closest(BAR_SELECTOR)
 
   const inChrome = (t: EventTarget | null): t is Element =>
     t instanceof Element && !!t.closest(CHROME_SELECTOR) && !t.closest(NATIVE)
@@ -68,6 +86,20 @@ export function installPenTap(doc: Document = document): () => void {
   }
   const onDown = (e: PointerEvent) => {
     down = null
+    // Bars (R6-10): the palm is ignored (a touch while the Pencil is down or
+    // has just lifted), and with "finger only" so is the Pencil itself.
+    if (
+      inBar(e.target) &&
+      ((e.pointerType === 'pen' && penTapOptions.fingerOnly) || barPalm(e))
+    ) {
+      if (e.pointerType === 'pen') penDown = true
+      e.preventDefault()
+      e.stopImmediatePropagation()
+      ignoredId = e.pointerId
+      ignoredAt = performance.now()
+      penTapStats.ignored++
+      return
+    }
     penDown = e.pointerType === 'pen'
     // A finger or mouse touch ends any pending Pencil click or swallow.
     if (e.pointerType === 'touch') marked = null
@@ -81,6 +113,13 @@ export function installPenTap(doc: Document = document): () => void {
     const d = down
     down = null
     if (e.pointerType === 'pen') penDown = false
+    // The lift of an ignored touch must not act as a tap either.
+    if (e.pointerId === ignoredId) {
+      ignoredId = -1
+      e.preventDefault()
+      e.stopImmediatePropagation()
+      return
+    }
     if (!d || e.pointerType !== 'pen' || e.pointerId !== d.id) return
     if (!penTapOptions.enabled) return
     const target = e.target instanceof Element ? e.target : null
@@ -104,6 +143,15 @@ export function installPenTap(doc: Document = document): () => void {
     }
   }
   const onClick = (e: MouseEvent) => {
+    if (
+      !clicking &&
+      performance.now() - ignoredAt < IGNORE_MS &&
+      inBar(e.target)
+    ) {
+      e.stopImmediatePropagation()
+      e.preventDefault()
+      return
+    }
     const m = marked
     if (!m || clicking) return // ours goes through
     if (performance.now() - m.at > SWALLOW_MS) {
@@ -122,6 +170,7 @@ export function installPenTap(doc: Document = document): () => void {
   doc.addEventListener('pointerup', onUp, true)
   const onCancel = (e: PointerEvent) => {
     if (e.pointerType === 'pen') penDown = false
+    if (e.pointerId === ignoredId) ignoredId = -1
   }
   doc.addEventListener('pointercancel', onCancel, true)
   doc.addEventListener('click', onClick, true)

@@ -17,6 +17,7 @@ Moved out of HANDOFF on 2026-11-06 (audit) so HANDOFF stays five lines. Newest f
 4. Write in Scribble, tap Insert, then ↶: the text leaves the page and is back in the pad; ↷ puts it on the page again. Switch to AI and ↶: back in Scribble. AI Read, then ↶: the words go and your strokes return. Clear (new button) then ↶: the text returns.
 5. First switch Scribble to AI shows the explainer; "Don't show again" stops it.
 6. Write in the pad: the dashed draft shows on the page at the cursor (or at the end of the page if you never tapped it) and is not hidden under the pad. Edit the pad text: the draft follows. Done, Insert, or the X make it final; ↶ is one step.
+
 ## Round 7 batch: updates, toolbar sheet, search, scroll handle (8 Nov)
 
 1. Update the app twice in a row (open the live site after each release). No backup question appears; your pages and your bar are as you left them. (Why human: real browser storage over real releases.)

@@ -87,8 +87,7 @@ export function DataScreen({
   )
   const backup = useLiveQuery(
     async () =>
-      (await readLatestBackup(DEFAULT_DB_NAME, ['notebooks'])) ??
-      null,
+      (await readLatestBackup(DEFAULT_DB_NAME, ['notebooks'])) ?? null,
     [],
   )
   const mark = useLiveQuery(

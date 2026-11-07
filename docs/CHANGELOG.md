@@ -7,6 +7,7 @@ Current phase only. Older entries are in [ARCHIVE.md](ARCHIVE.md).
 - **What:** `Page.boxes`, `Page.sheet`, `Block.boxId` (no Dexie version); pure model `paper/boxes.ts` (default box, grouping, reading order); `PageEditor` takes a `boxId` and loads, saves and live-applies only its box (`editor/boxScope.ts`); diff and `saveBlockChanges` carry the box id (null removes it); backup/sync row checks for boxes. Plan rewritten for the owner design.
 - **Why:** owner design: every page is paper, blocks grouped by box; a page with no boxes must behave exactly as before (unit tests prove it; whole suite green).
 - **Files:** `src/core/types.ts`, `src/core/blockService.ts`, `src/editor/{diff,liveApply,PageEditor,boxScope,boxScope.test}.ts(x)`, `src/paper/boxes{,.test}.ts`, `src/share/checkRows.ts`, `docs/plans/paper-page-plan.md`, `docs/DECISIONS.md`.
+
 ## 2026-11-08 (Round 7 batch: silent updates, toolbar layout, Edit toolbar sheet; no Dexie version)
 
 - **R7-2 silent safe updates.** Before the app opens a database with an older version, or when a new build starts on saved data, everything is copied to a rolling backup in this browser (last 3, `<db>-auto-1..3`) with no question (`core/autoBackup.ts`, `app/UpgradeGate.tsx`). The dialog appears only if the copy fails or free space is under 25 MB. The weekly "save a backup file" reminder now asks again after 90 days, not daily. Save & restore reads the newest automatic backup. Tests: `core/autoBackup.test.ts`, `e2e/upgradeBackup.spec.ts` (rows and bar settings survive).

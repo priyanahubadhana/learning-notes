@@ -18,7 +18,7 @@ describe('paper boxes', () => {
   it('a page made before Phase Q is one full-width box with every block', () => {
     const page = {}
     expect(boxesOf(page)).toEqual([mainBox(page)])
-    expect(mainBox(page)).toEqual({ id: MAIN_BOX, x: 15, y: 15, w: 180 })
+    expect(mainBox(page)).toEqual({ id: MAIN_BOX, x: 15, y: 8, w: 180 })
     const blocks = [blk('a'), blk('b'), blk('c', 'b'), blk('d')]
     const groups = groupBlocksByBox(page, blocks)
     expect([...groups.keys()]).toEqual([MAIN_BOX])

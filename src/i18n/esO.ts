@@ -337,4 +337,19 @@ export const esO: Record<string, string> = {
     'Más herramientas por aquí ({count} fuera de vista). Toca para deslizar la barra.',
   'bar.scrollBack': 'Deslizar la barra hacia atrás',
   'bar.scrollHandle': 'Deslizar la barra de lado (arrastra)',
+  // ---- Papel (Fase Q) ----
+  'paper.zoomIn': 'Acercar',
+  'paper.zoomOut': 'Alejar',
+  'paper.zoomFit': 'Ajustar al ancho',
+  'paper.size': 'Tamaño del papel',
+  'paper.sizeA4': 'A4',
+  'paper.sizeLetter': 'Carta',
+  'help.tip.paper.zoomIn.meaning': 'Hace el papel más grande.',
+  'help.tip.paper.zoomIn.example':
+    'Pellizca con dos dedos, o Ctrl y la rueda del ratón.',
+  'help.tip.paper.zoomOut.meaning': 'Hace el papel más pequeño.',
+  'help.tip.paper.zoomOut.example': 'Ver una hoja entera a la vez.',
+  'help.tip.paper.zoomFit.meaning':
+    'Muestra el papel tan ancho como la ventana.',
+  'help.tip.paper.zoomFit.example': 'Vuelve al 100 % después de acercar.',
 }

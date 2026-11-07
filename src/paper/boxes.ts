@@ -17,13 +17,15 @@ export const SHEETS = {
 
 /** Side margin of the default box, in mm. */
 export const MARGIN = 15
+/** Top margin of the default box, in mm (small: the text starts near the top). */
+export const TOP = 8
 
 export const sheetOf = (page: Pick<Page, 'sheet'>) => SHEETS[page.sheet ?? 'A4']
 
 /** The default full-width box at the top of the first sheet. */
 export function mainBox(page: Pick<Page, 'sheet'>): PaperBox {
   const s = sheetOf(page)
-  return { id: MAIN_BOX, x: MARGIN, y: MARGIN, w: s.w - 2 * MARGIN }
+  return { id: MAIN_BOX, x: MARGIN, y: TOP, w: s.w - 2 * MARGIN }
 }
 
 /**

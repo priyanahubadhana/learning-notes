@@ -1,6 +1,6 @@
 # Paper page: plan (Phase Q; owner design of 8 Nov 2026)
 
-Status: step 1 built. Steps 2–3 approved. **Step 4 (ink) waits for the owner, who wants to discuss ink anchoring again.**
+Status: step 1 built. Steps 2–3 approved. Step 4 (ink) is unblocked: the owner's final ink rules are at the end of this file.
 Research: [research/paper-page-2026-11.md](../research/paper-page-2026-11.md). Spec: [features/paper-page.md](../features/paper-page.md).
 
 ## 1. The design (owner, 8 Nov)
@@ -67,3 +67,18 @@ The same `inkBg` values and the same `[data-ink-paper]` CSS go on each sheet ele
 - Thumbnails go in the left panel.
 - Journal pages and database rows stay as they are.
 - Spacing: 8 mm for lined, 5 mm for grid and dots.
+
+## Ink rules on paper (owner, final, 8 Nov 2026)
+
+Each rule gets its own e2e test (chromium and ipad-webkit).
+
+1. **Layers:** text blocks are the bottom layer and ink is a top layer. The Pen, highlighter and eraser change only ink.
+2. **Linked to a line:** each stroke is linked to the text line under it (today's paragraph anchoring) and moves with it.
+3. **Text tool:** a tap on empty space creates a new block or box there.
+4. **Pencil on empty paper:** a new box is created under the ink, with an empty line, so the ink is always linked.
+5. **Lasso, ink only:** the moved ink unlinks from its old line and re-links to the line under its drop spot. If there is no text there, an empty block is created to hold the link.
+6. **Lasso, ink and text together:** both go to the new block as one piece, and the ink stays linked to that text.
+7. **Deleting a line with linked ink:** the ink moves to the next line. Nothing is ever deleted silently.
+8. **Link mark:** while ink is Lasso-selected, a thin, faint line shows the text line it is linked to.
+9. **Copy and paste of a line** also copies its linked ink.
+10. **Big drawings** that span many lines link to their top line and move as one piece.

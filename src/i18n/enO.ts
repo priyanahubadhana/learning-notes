@@ -333,4 +333,18 @@ export const enO = {
     'More tools this way ({count} out of sight). Tap to slide the bar.',
   'bar.scrollBack': 'Slide the bar back',
   'bar.scrollHandle': 'Slide the bar sideways (drag)',
+  // ---- Paper (Phase Q) ----
+  'paper.zoomIn': 'Zoom in',
+  'paper.zoomOut': 'Zoom out',
+  'paper.zoomFit': 'Fit width',
+  'paper.size': 'Paper size',
+  'paper.sizeA4': 'A4',
+  'paper.sizeLetter': 'Letter',
+  'help.tip.paper.zoomIn.meaning': 'Makes the paper bigger.',
+  'help.tip.paper.zoomIn.example':
+    'Pinch with two fingers, or Ctrl and the mouse wheel.',
+  'help.tip.paper.zoomOut.meaning': 'Makes the paper smaller.',
+  'help.tip.paper.zoomOut.example': 'See a whole sheet at once.',
+  'help.tip.paper.zoomFit.meaning': 'Shows the paper as wide as the window.',
+  'help.tip.paper.zoomFit.example': 'Back to 100 % after zooming.',
 }

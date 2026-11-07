@@ -88,6 +88,7 @@ export default defineConfig({
         /openNotebook/,
         /barFixes/,
         /pencilTaps/,
+        /paperPage/,
         /lassoWords/,
         /gestureWatchdog/,
         /lockToastStill/,

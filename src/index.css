@@ -688,7 +688,8 @@ html[data-note-line] .bn-editor {
 }
 
 /* Ink (redesign step 3): paper behind the drawings, and touch rules. */
-[data-ink-paper='lined'] {
+[data-ink-paper='lined'],
+[data-paper-bg='lined'] {
   background-image: linear-gradient(
     to bottom,
     transparent calc(var(--paper-step, 32px) - 1px),
@@ -697,7 +698,8 @@ html[data-note-line] .bn-editor {
   background-size: 100% var(--paper-step, 32px);
   background-position: 0 var(--paper-offset, 0px);
 }
-[data-ink-paper='grid'] {
+[data-ink-paper='grid'],
+[data-paper-bg='grid'] {
   background-image:
     linear-gradient(
       to right,
@@ -712,7 +714,8 @@ html[data-note-line] .bn-editor {
   background-size: var(--paper-step, 32px) var(--paper-step, 32px);
   background-position: 0 var(--paper-offset, 0px);
 }
-[data-ink-paper='dots'] {
+[data-ink-paper='dots'],
+[data-paper-bg='dots'] {
   background-image: radial-gradient(
     circle,
     color-mix(in srgb, var(--color-ink) 30%, transparent) 1.3px,
@@ -849,4 +852,9 @@ html[data-note-line] .bn-editor {
   .pdf-glow {
     animation-duration: 0.8s;
   }
+}
+
+/* Phase Q: on paper the sheets carry the background, not the box. */
+[data-paper-box] [data-ink-paper] {
+  background-image: none;
 }

@@ -76,3 +76,18 @@ Ink is device-local data. Every row from a file is checked field by field (strok
 - Unit: `ink/ink.test.ts` (stroke model, five pens differ, anchoring and reflow maths, eraser split and modes, shape recognition, scribble and circle gestures, layer rules, document edits, chunking and saving, one history), `core/inkService.test.ts` (storage, version 12 upgrade, History copies, Delete forever, backup round trip, v12 file accepted, damaged rows refused), `toolRegistry.test.ts`.
 - Browser (Chromium and WebKit, simulated pen events): `ink`, `inkTools`, `inkLayers` (draw and what is saved, palm rejection, pens, highlighter snap, eraser modes, scribble, shapes, lasso move, resize, turn, duplicate, delete, colour, keyboard, paper, layers, reflow, one history, reload, a 500-stroke page); `lassoPencil` and `magnifier` (also in the iPad stand-in): no text reacts under a lasso, a lasso over an empty block, handles turn and resize, a quick tap is not ink and a held press is a dot, a double tap takes its first mark back, Pencil double and triple taps select in typing mode only, the pad's ink sits under the pen, pad strokes land only in the box, erase in step both ways, pad height and hint; `penSelect` (the Lasso filters: ink only, text lines, pictures; not editable during a loop); `lassoUniversal` (the mixed menu). Unit: `ink/tapFilter.test.ts`, `ink/lassoMenu.test.ts`.
 - Only a real iPad can confirm Pencil feel and latency, finger scrolling next to the Pencil, and Scribble: see HANDOFF owner checks.
+
+## Ink rules on paper (owner, final, 8 Nov 2026)
+
+Each rule gets its own e2e test (chromium and ipad-webkit).
+
+1. **Layers:** text blocks are the bottom layer and ink is a top layer. The Pen, highlighter and eraser change only ink.
+2. **Linked to a line:** each stroke is linked to the text line under it (today's paragraph anchoring) and moves with it.
+3. **Text tool:** a tap on empty space creates a new block or box there.
+4. **Pencil on empty paper:** a new box is created under the ink, with an empty line, so the ink is always linked.
+5. **Lasso, ink only:** the moved ink unlinks from its old line and re-links to the line under its drop spot. If there is no text there, an empty block is created to hold the link.
+6. **Lasso, ink and text together:** both go to the new block as one piece, and the ink stays linked to that text.
+7. **Deleting a line with linked ink:** the ink moves to the next line. Nothing is ever deleted silently.
+8. **Link mark:** while ink is Lasso-selected, a thin, faint line shows the text line it is linked to.
+9. **Copy and paste of a line** also copies its linked ink.
+10. **Big drawings** that span many lines link to their top line and move as one piece.

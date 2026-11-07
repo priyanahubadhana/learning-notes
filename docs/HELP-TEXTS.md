@@ -2,7 +2,7 @@
 
 Every hover tip and help line in the app (shown while Settings › Show help is On). Generated from `src/help/helpRegistry.ts` and `src/i18n/en.ts`; to change a text, edit it in `en.ts`, then run `UPDATE_HELP=1 npx vitest run src/help` to refresh this file.
 
-## Hover tips (174)
+## Hover tips (177)
 
 ### `bar.newLine`
 
@@ -363,6 +363,24 @@ Every hover tip and help line in the app (shown while Settings › Show help is 
 - **Where:** Sidebar › a notebook’s ⟳ (on hover)
 - **Meaning:** Reviews only the cards of this notebook that are due.
 - **Example:** Revise Cardiology without seeing Chemistry cards.
+
+### `paper.zoomIn`
+
+- **Where:** A page › the zoom pill under the paper › +
+- **Meaning:** Makes the paper bigger.
+- **Example:** Pinch with two fingers, or Ctrl and the mouse wheel.
+
+### `paper.zoomOut`
+
+- **Where:** A page › the zoom pill under the paper › −
+- **Meaning:** Makes the paper smaller.
+- **Example:** See a whole sheet at once.
+
+### `paper.zoomFit`
+
+- **Where:** A page › the zoom pill under the paper › %
+- **Meaning:** Shows the paper as wide as the window.
+- **Example:** Back to 100 % after zooming.
 
 ### `sidebar.rowMenu`
 

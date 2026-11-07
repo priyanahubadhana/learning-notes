@@ -303,7 +303,14 @@ test('typing mode: a Pencil double tap selects the word and a triple tap the lin
   await tool(page, 'Text').click() // Pencil mode starts with the Lasso
   await page.keyboard.press('Escape')
   await page.evaluate(() => (document.activeElement as HTMLElement)?.blur())
-  await page.waitForTimeout(400)
+  // Past the page's 450 ms hold after a tool is chosen (app/pageAnchor.ts):
+  // a tap point measured while the page is still being put back goes stale.
+  await page.waitForTimeout(600)
+  // The line at the top of a tall page would sit under the mini bar that
+  // the double tap opens: start from the top of the page.
+  await page
+    .locator('[data-page-scroller]')
+    .evaluate((e) => e.scrollTo({ top: 0 }))
   const at = await wordPoint(page, 'nucleus')
   await taps(page, at, 2, 'pen')
   await expect.poll(() => marked(page)).toBe('nucleus')
@@ -311,6 +318,7 @@ test('typing mode: a Pencil double tap selects the word and a triple tap the lin
   // The Text tool stays: the Pencil acts like a finger here.
   await expect(tool(page, 'Text')).toHaveAttribute('aria-pressed', 'true')
   await page.waitForTimeout(500)
-  await taps(page, at, 3, 'pen')
+  // The word again: the mini bar may have scrolled the line into view.
+  await taps(page, await wordPoint(page, 'nucleus'), 3, 'pen')
   await expect.poll(() => marked(page)).toBe('The nucleus holds the DNA')
 })

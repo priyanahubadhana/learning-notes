@@ -2,6 +2,12 @@
 
 Current phase only. Older entries are in [ARCHIVE.md](ARCHIVE.md).
 
+## 2026-11-08 (Phase Q step 2: paper sheets, background, zoom and pan)
+
+- **What:** every page shows on A4 sheets (`paper/PaperFrame.tsx`, `paper/sheets.ts`): border, the page background (`inkBg`, same CSS via `[data-paper-bg]`, fixed 8 mm lined / 5 mm grid and dots), a new sheet as the text grows, zoom 50-400 % (two-finger pinch, Ctrl/⌘ + wheel, − / % / + pill under the paper), sideways pan when zoomed. At 100 % the default box is exactly the old page column and the text sits where it always did; nothing is `position`ed, so menus and ink measure as before. The full-screen reader stays flowing text (same tree, no remount). Default box top margin 8 mm.
+- **Also:** `e2e/lassoPencil` triple-tap test waits past the 450 ms page hold (a latent race the taller page exposed); new `e2e/paperPage.spec.ts` (chromium + ipad-webkit).
+- **Files:** `src/paper/*`, `src/pages/PageView.tsx`, `src/index.css`, `src/help/helpRegistry.ts`, `src/i18n/{en,es,hi}O.ts`, `docs/HELP-TEXTS.md`, `e2e/{paperPage,lassoPencil}.spec.ts`, `playwright.config.ts`, `docs/features/paper-page.md`.
+
 ## 2026-11-08 (Phase Q step 1: box model; existing pages are one box)
 
 - **What:** `Page.boxes`, `Page.sheet`, `Block.boxId` (no Dexie version); pure model `paper/boxes.ts` (default box, grouping, reading order); `PageEditor` takes a `boxId` and loads, saves and live-applies only its box (`editor/boxScope.ts`); diff and `saveBlockChanges` carry the box id (null removes it); backup/sync row checks for boxes. Plan rewritten for the owner design.

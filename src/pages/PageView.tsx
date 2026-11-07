@@ -21,6 +21,7 @@ import type { LearningNotesDB } from '../core/db'
 import type { Page } from '../core/types'
 import { pageMode } from '../editor/editPolicy'
 import { PageEditor } from '../editor/PageEditor'
+import { PaperFrame } from '../paper/PaperFrame'
 import type { EditorApi } from '../editor/editorContext'
 import { revealBlock } from '../editor/revealBlock'
 import { HistoryDialog } from '../history/HistoryDialog'
@@ -475,22 +476,24 @@ export function PageView({
             display: reader || pageTab === 'notes' ? 'contents' : 'none',
           }}
         >
-          <PageEditor
-            db={db}
-            pageId={page.id}
-            notebookId={page.notebookId}
-            onOpenPage={onOpenPage}
-            onOpenNewPage={onOpenNewPage}
-            onOpenTag={onOpenTag}
-            onOpenDatabase={onOpenDatabase}
-            onOpenAttachment={onOpenAttachment}
-            onReviewCards={notebook && !isTemplate ? onReview : undefined}
-            onSaveAsTemplate={
-              notebook && !isTemplate ? saveTemplate : undefined
-            }
-            editorRef={editor}
-            reading={view === 'off' ? undefined : { view }}
-          />
+          <PaperFrame page={page} flat={reader}>
+            <PageEditor
+              db={db}
+              pageId={page.id}
+              notebookId={page.notebookId}
+              onOpenPage={onOpenPage}
+              onOpenNewPage={onOpenNewPage}
+              onOpenTag={onOpenTag}
+              onOpenDatabase={onOpenDatabase}
+              onOpenAttachment={onOpenAttachment}
+              onReviewCards={notebook && !isTemplate ? onReview : undefined}
+              onSaveAsTemplate={
+                notebook && !isTemplate ? saveTemplate : undefined
+              }
+              editorRef={editor}
+              reading={view === 'off' ? undefined : { view }}
+            />
+          </PaperFrame>
         </div>
         {autoFocusTitle &&
           pageTab === 'notes' &&

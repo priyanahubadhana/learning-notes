@@ -323,4 +323,18 @@ export const hiO: Record<string, string> = {
     'इस तरफ़ और टूल ({count} नज़र से बाहर)। बार खिसकाने के लिए छुएँ।',
   'bar.scrollBack': 'बार को पीछे खिसकाएँ',
   'bar.scrollHandle': 'बार को बगल में खिसकाएँ (खींचें)',
+  // ---- कागज़ (चरण Q) ----
+  'paper.zoomIn': 'बड़ा करें',
+  'paper.zoomOut': 'छोटा करें',
+  'paper.zoomFit': 'चौड़ाई में फ़िट करें',
+  'paper.size': 'कागज़ का आकार',
+  'paper.sizeA4': 'A4',
+  'paper.sizeLetter': 'लेटर',
+  'help.tip.paper.zoomIn.meaning': 'कागज़ को बड़ा करता है।',
+  'help.tip.paper.zoomIn.example':
+    'दो उँगलियों से पिंच करें, या Ctrl और माउस व्हील।',
+  'help.tip.paper.zoomOut.meaning': 'कागज़ को छोटा करता है।',
+  'help.tip.paper.zoomOut.example': 'एक पूरी शीट एक साथ देखें।',
+  'help.tip.paper.zoomFit.meaning': 'कागज़ को खिड़की जितना चौड़ा दिखाता है।',
+  'help.tip.paper.zoomFit.example': 'ज़ूम के बाद वापस 100 % पर।',
 }

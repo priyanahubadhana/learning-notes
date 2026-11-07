@@ -182,6 +182,9 @@ type Gesture =
       owns: boolean
       hitId: string | null
       start: Pt
+      /** A rectangle Lasso (chosen when the touch began): start to now. */
+      rect: boolean
+      now: Pt
     }
   | {
       kind: 'transform'
@@ -203,6 +206,17 @@ const HOLD_MS = 600
 const HOLD_SLOP = 3
 /** A stroke is selected when this share of its points lies inside the loop. */
 export const LASSO_INSIDE = 0.6
+
+/** The four corners of the box between two points (the rectangle Lasso). */
+function rectPolygon(a: Pt, b: Pt): Pt[] {
+  const r = boundsOf([a, b])
+  return [
+    { x: r.x, y: r.y },
+    { x: r.x + r.w, y: r.y },
+    { x: r.x + r.w, y: r.y + r.h },
+    { x: r.x, y: r.y + r.h },
+  ]
+}
 /** Turning the selection clicks to quarter turns when within 5 degrees. */
 const TURN_SNAP = 5 * DEG
 const MIN_MOVE = 0.3
@@ -610,16 +624,18 @@ export class InkController {
       }
       ctx.restore()
     }
-    if (g?.kind === 'lasso' && g.path.length > 1) {
+    if (g?.kind === 'lasso' && (g.rect || g.path.length > 1)) {
       ctx.save()
       ctx.setTransform(r.dpr, 0, 0, r.dpr, 0, -r.dpr * r.top)
       ctx.setLineDash([6, 5])
       ctx.lineWidth = 1.5
       ctx.strokeStyle = '#0b6e99'
       ctx.beginPath()
-      if (lassoSettings.get().shape === 'rect') {
-        const b = boundsOf([g.path[0], g.path[g.path.length - 1]])
+      if (g.rect) {
+        const b = boundsOf([g.start, g.now])
         ctx.rect(b.x, b.y, b.w, b.h)
+        ctx.fillStyle = 'rgba(11, 110, 153, 0.08)'
+        ctx.fill()
       } else {
         ctx.moveTo(g.path[0].x, g.path[0].y)
         for (const p of g.path) ctx.lineTo(p.x, p.y)
@@ -1424,6 +1440,8 @@ export class InkController {
         owns: true,
         hitId: hit.stroke.id,
         start: w,
+        rect: false,
+        now: w,
       }
       return
     }
@@ -1443,6 +1461,8 @@ export class InkController {
       owns: false,
       hitId: null,
       start: w,
+      rect: lassoSettings.get().shape === 'rect',
+      now: w,
     }
   }
 
@@ -1464,7 +1484,8 @@ export class InkController {
         this.cancelGesture()
         return
       }
-      g.path.push(this.world(e))
+      g.now = this.world(e)
+      g.path.push(g.now)
       this.requestDraw()
     } else if (g.kind === 'transform') {
       this.transformTo(g, this.world(e))
@@ -1500,8 +1521,10 @@ export class InkController {
         this.select([g.hitId])
       } else if (moved || !g.owns) {
         const f = lassoSettings.get()
-        const found = f.ink ? this.inRegion(g.path) : []
-        const blocks = this.blocksIn(g.path)
+        // A rectangle selects by the box from the touch-down to the lift.
+        const region = g.rect ? rectPolygon(g.start, end) : g.path
+        const found = f.ink ? this.inRegion(region) : []
+        const blocks = this.blocksIn(region)
         if (found.length > 0) {
           this.select(found.map((p) => p.stroke.id))
           // Ink and words or pictures in one loop: the mixed menu.
@@ -1542,24 +1565,12 @@ export class InkController {
     }
   }
 
-  /** The loop (or rectangle) the Lasso drew, as a polygon. */
-  private polygonOf(path: Pt[]): Pt[] {
-    if (lassoSettings.get().shape !== 'rect') return path
-    const b = boundsOf([path[0], path[path.length - 1]])
-    return [
-      { x: b.x, y: b.y },
-      { x: b.x + b.w, y: b.y },
-      { x: b.x + b.w, y: b.y + b.h },
-      { x: b.x, y: b.y + b.h },
-    ]
-  }
-
   /** Page blocks whose centre is inside the loop (only blocks near its box are tested). */
   blocksIn(path: Pt[]): string[] {
     if (path.length < 3) return []
     const f = lassoSettings.get()
     if (!f.text && !f.pictures) return []
-    const poly = this.polygonOf(path)
+    const poly = path
     const area = boundsOf(poly)
     return this.layout
       .blocks()
@@ -1658,7 +1669,7 @@ export class InkController {
 
   private inRegion(path: Pt[]): Placed[] {
     if (path.length < 3) return []
-    const poly = this.polygonOf(path)
+    const poly = path
     const area = boundsOf(poly)
     return this.selectable().filter((p) => {
       const r = strokeRect(p.stroke, this.layout.frame(p.blockId))

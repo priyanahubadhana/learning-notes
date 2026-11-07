@@ -229,4 +229,70 @@ test('R6-10: a palm (a touch just after the Pencil lifts) is ignored on a bar', 
   await page.locator(LASSO).tap()
   await expect.poll(() => isOn(page)).toBe(true)
 })
+test('R6-6: the Lasso menu has an ⓧ Deselect that clears the selection', async ({
+  page,
+}) => {
+  const { box, y } = await inkThenLasso(page)
+  await page.keyboard.press('Escape')
+  await page.waitForTimeout(500)
+  const now = await textBox(page)
+  const dy = now.y - box.y
+  await stroke(
+    page,
+    [
+      [box.x + 2, y + dy + 30],
+      [box.x + 2, y + dy - 30],
+      [box.x + 200, y + dy - 30],
+      [box.x + 200, y + dy + 30],
+      [box.x + 4, y + dy + 28],
+    ].flatMap((p, i, c) => (i === 0 ? [] : line(c[i - 1] as Pt, p as Pt, 8))),
+  )
+  const menu = page.locator('[data-ink-menu]')
+  await expect(menu).toBeVisible()
+  await menu.getByRole('button', { name: 'Deselect' }).click()
+  await expect(page.locator('[data-ink-box]')).toHaveCount(0)
+})
+
+test('R6-6: a Pencil tap on empty page space clears a text selection (typing mode)', async ({
+  page,
+}) => {
+  await openNote(page, 'pencil')
+  await tool(page, 'Text').click()
+  await page.keyboard.press('Escape') // the pill
+  await page.evaluate(() =>
+    document.querySelector<HTMLElement>('.bn-editor')!.focus(),
+  )
+  await page.keyboard.press('Control+End')
+  await page.keyboard.press('Shift+Home')
+  await page.waitForTimeout(300)
+  const selected = () =>
+    page.evaluate(() => (window.getSelection()?.toString() ?? '').length)
+  expect(await selected()).toBeGreaterThan(3)
+  // Empty paper well under the one line, inside the page column.
+  const at = await page.evaluate(() => {
+    const s = document
+      .querySelector('[data-page-scroller]')!
+      .getBoundingClientRect()
+    const e = document.querySelector('.bn-editor')!.getBoundingClientRect()
+    return [e.x + e.width / 2, s.bottom - 24]
+  })
+  await page.evaluate(([x, y]) => {
+    const el = document.elementFromPoint(x, y)!
+    const make = (name: string) =>
+      new PointerEvent(name, {
+        pointerType: 'pen',
+        pointerId: 81,
+        clientX: x,
+        clientY: y,
+        bubbles: true,
+        cancelable: true,
+        isPrimary: true,
+        button: 0,
+        buttons: name === 'pointerup' ? 0 : 1,
+      })
+    el.dispatchEvent(make('pointerdown'))
+    el.dispatchEvent(make('pointerup'))
+  }, at)
+  await expect.poll(selected).toBe(0)
+})
 // END

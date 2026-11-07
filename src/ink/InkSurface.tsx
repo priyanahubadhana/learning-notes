@@ -726,6 +726,12 @@ function SelectionBox({
         <span className="px-2 text-xs text-ink-soft">
           {t('ink.sel.count', { count })}
         </span>
+        <MenuButton
+          id="deselect"
+          icon="close"
+          label={t('main.sel.deselect')}
+          onClick={() => controller.clearSelection()}
+        />
         {split.row.map(button)}
         <MenuButton
           id="more"

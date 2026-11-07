@@ -1,5 +1,6 @@
 import { activeTool } from '../app/tools/main/mainTools'
 import { tapTwiceActive } from './penMode'
+import { deselect } from './ownSelection'
 import type { AppSchema } from './schema'
 
 /**
@@ -119,6 +120,21 @@ export function watchKeyboardPolicy(editor: Editor): () => void {
     dom.setAttribute('inputmode', inputModeFor(e.pointerType))
     if (e.pointerType !== 'pen' || !e.cancelable) return
     const tool = activeTool.get()
+    // A Pencil tap on empty page space lets go of a selection (R6-6), so no
+    // finger is needed: not on a block, a control or a bar.
+    if (
+      tool === 'text' &&
+      e.target instanceof Element &&
+      !e.target.closest(
+        '.bn-block, [data-chrome], [data-bar], [data-pill-root], [data-popup], [role="menu"], [role="dialog"], button, a, input, textarea',
+      ) &&
+      editor.prosemirrorView &&
+      !editor.prosemirrorView.state.selection.empty &&
+      doc.querySelector('[data-page-scroller]')?.contains(e.target)
+    ) {
+      deselect(editor)
+      return
+    }
     const onText = plainText(e.target)
     const { id, words } = blockOf(e.target)
     if (tool === 'text' || tool === 'lasso') {

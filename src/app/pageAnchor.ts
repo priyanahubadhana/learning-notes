@@ -13,9 +13,9 @@
 
 /** The buttons that choose a tool or close its pill (not New line, Undo...). */
 const CHOOSES =
-  '[data-bar-tool]:not([data-bar-tool="newLine"]):not([data-bar-tool="backspace"]), ' +
-  '[role="tab"][data-tab], [data-pill-close], ' +
-  '[data-bar-btn][data-action="text"], [data-bar-btn][data-action="read"], ' +
+  '[data-bar-tool]:not([data-bar-tool="newLine"]):not([data-bar-tool="backspace"]):not([data-bar-tool="read"]), ' +
+  '[role="tab"][data-tab]:not([data-tab="read"]), [data-pill-close], ' +
+  '[data-bar-btn][data-action="text"], ' +
   '[data-bar-btn][data-action="pen"], [data-bar-btn][data-action="highlighter"], ' +
   '[data-bar-btn][data-action="eraser"], [data-bar-btn][data-action="lasso"]'
 

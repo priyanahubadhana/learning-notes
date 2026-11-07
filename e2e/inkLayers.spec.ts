@@ -74,7 +74,12 @@ test('layers: two at most, chip, hide, lock toast, merge and undo', async ({
   await expect(page.getByText('Layer 2 is locked')).toBeVisible()
   expect((await savedInk(page)).strokes).toHaveLength(2)
   await page.getByRole('button', { name: 'Unlock', exact: true }).click()
-  await stroke(page, line([box.x + 300, y + 360], [box.x + 560, y + 360]))
+  // Draw only once the toast has gone.
+  await expect(page.getByText('Layer 2 is locked')).toHaveCount(0)
+  // The page can have moved while the card and toast came and went: measure again.
+  const now = await textBox(page)
+  const y2 = y + (now.y - box.y)
+  await stroke(page, line([now.x + 300, y2 + 360], [now.x + 560, y2 + 360]))
   await expectStrokes(page, 3)
   // Merge Layer 2 into Layer 1: warning first, then one layer, then Undo.
   await openLayers(page)

@@ -6,11 +6,12 @@ import {
   inkNote,
   line,
   painted,
+  savedInk,
   stroke,
   textBox,
   type Pt,
 } from './inkHelpers.ts'
-import { option, tool } from './mainBarHelpers.ts'
+import { openNote, option, tool } from './mainBarHelpers.ts'
 
 /**
  * Round 6 bar fixes (7 Nov): R6-1 grip drags are drag-only, R6-3 the
@@ -52,3 +53,64 @@ test('R6-3: the rectangle Lasso draws a live rectangle and selects by it', async
   await stroke(page, [to], { id: 51 })
   await expect(page.locator('[data-ink-box]')).toBeVisible()
 })
+
+for (const grip of ['[data-keys="grip"]', '[data-pill-grip]']) {
+  test(`R6-1: dragging ${grip} draws no ink and the page leaves text input until the lift`, async ({
+    page,
+  }) => {
+    await gripDragTest(page, grip)
+  })
+}
+
+async function gripDragTest(page: Page, grip: string) {
+  if (grip === '[data-pill-grip]') await inkNote(page, 'Pen')
+  else await openNote(page, 'pencil', { 'toolbar.miniKeys': true })
+  await expect(page.locator(grip)).toBeVisible()
+  const editable = () =>
+    page.evaluate(() =>
+      document.querySelector('.bn-editor')?.getAttribute('contenteditable'),
+    )
+  // Under the Pen the page is read-only already; the lock matters in text mode.
+  const before = await editable()
+  const g = (await page.locator(grip).boundingBox())!
+  const box = await textBox(page)
+  const during = await page.evaluate(
+    async ({ g, box, sel }) => {
+      const make = (name: string, x: number, y: number) =>
+        new PointerEvent(name, {
+          pointerType: 'pen',
+          pointerId: 61,
+          clientX: x,
+          clientY: y,
+          bubbles: true,
+          cancelable: true,
+          isPrimary: true,
+          button: 0,
+          buttons: name === 'pointerup' ? 0 : 1,
+          pressure: 0.5,
+        })
+      const grip = document.querySelector(sel)!
+      grip.dispatchEvent(make('pointerdown', g.x + 8, g.y + 8))
+      // The pen strays over the page while the grip is held.
+      for (let i = 0; i < 12; i++) {
+        const x = box.x + 20 + i * 12
+        const y = box.y + 8
+        ;(document.elementFromPoint(x, y) ?? document.body).dispatchEvent(
+          make('pointermove', x, y),
+        )
+        await new Promise((r) => setTimeout(r, 8))
+      }
+      const state = document
+        .querySelector('.bn-editor')
+        ?.getAttribute('contenteditable')
+      grip.dispatchEvent(make('pointerup', box.x + 140, box.y + 8))
+      return state
+    },
+    { g, box, sel: grip },
+  )
+  expect(during).toBe('false')
+  await expect.poll(editable).toBe(before)
+  await page.waitForTimeout(400)
+  expect((await savedInk(page)).strokes.length).toBe(0)
+}
+// END

@@ -1,4 +1,5 @@
 import { clampDpr } from '../app/canvasBudget'
+import { gripDragging } from '../app/tools/gripDrag'
 import { inkSwitches } from './inkRuntime'
 import { createId } from '../core/ids'
 import type { InkLayer, Stroke } from '../core/inkTypes'
@@ -698,6 +699,7 @@ export class InkController {
   // ---- Pointers ----
 
   private accepts(e: PointerEvent): boolean {
+    if (gripDragging()) return false // a bar is being dragged by its grip
     if (e.pointerType === 'pen') {
       penSeenEver = true
       this.lastPenAt = performance.now()
@@ -1380,6 +1382,7 @@ export class InkController {
   }
 
   private lassoDown(e: PointerEvent): void {
+    if (gripDragging()) return
     const g = this.gesture
     if (g) {
       // A second finger while the selection is being dragged: twist it.

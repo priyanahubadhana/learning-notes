@@ -7,6 +7,7 @@ import {
   type KeyboardEvent,
   type PointerEvent,
 } from 'react'
+import { startGripDrag } from '../gripDrag'
 import { createPortal } from 'react-dom'
 import type { Editor } from '../../../editor/barActions'
 import type { Place } from '../toolbarState'
@@ -162,11 +163,7 @@ function Pill({
     const el = ref.current
     if (!el) return
     e.preventDefault()
-    try {
-      e.currentTarget.setPointerCapture(e.pointerId)
-    } catch {
-      // A pointer the browser does not know (a simulated pen): carry on.
-    }
+    startGripDrag(e.currentTarget, e.pointerId)
     const r = el.getBoundingClientRect()
     grab.current = { dx: e.clientX - r.left, dy: e.clientY - r.top }
     el.style.transition = 'none'

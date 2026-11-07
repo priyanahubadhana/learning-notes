@@ -7,6 +7,7 @@ import {
   useState,
   type PointerEvent,
 } from 'react'
+import { startGripDrag } from '../gripDrag'
 import { createPortal } from 'react-dom'
 import { t } from '../../../i18n/t'
 import type { Editor } from '../../../editor/barActions'
@@ -84,11 +85,7 @@ function Strip({ editor }: { editor: Editor }) {
     if (!el) return
     e.preventDefault()
     e.stopPropagation()
-    try {
-      e.currentTarget.setPointerCapture(e.pointerId)
-    } catch {
-      // A pointer the browser does not know: carry on.
-    }
+    startGripDrag(e.currentTarget, e.pointerId)
     const r = el.getBoundingClientRect()
     grab.current = { dx: e.clientX - r.left, dy: e.clientY - r.top }
     dragAt.current = { x: r.left, y: r.top }

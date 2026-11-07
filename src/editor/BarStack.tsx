@@ -1,4 +1,5 @@
 import { Tip } from '../help/Help'
+import { startGripDrag } from '../app/tools/gripDrag'
 import {
   useCallback,
   useEffect,
@@ -179,11 +180,7 @@ export function BarStack({
     const el = ref.current
     if (!el) return
     e.preventDefault()
-    try {
-      e.currentTarget.setPointerCapture(e.pointerId)
-    } catch {
-      // A pointer the browser does not know (a simulated pen): carry on.
-    }
+    startGripDrag(e.currentTarget, e.pointerId)
     const r = el.getBoundingClientRect()
     grab.current = { dx: e.clientX - r.left, dy: e.clientY - r.top }
     dragging.current = true

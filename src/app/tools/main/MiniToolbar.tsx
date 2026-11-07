@@ -1,4 +1,5 @@
 import { pmState } from '../../../editor/pm'
+import { startGripDrag } from '../gripDrag'
 import {
   useCallback,
   useEffect,
@@ -440,11 +441,7 @@ export function MiniToolbar({ editor }: { editor: Editor }) {
             e.preventDefault()
             e.stopPropagation()
             dragging.current = true
-            try {
-              e.currentTarget.setPointerCapture(e.pointerId)
-            } catch {
-              // A pointer the browser does not know: carry on.
-            }
+            startGripDrag(e.currentTarget, e.pointerId)
           }}
           onPointerMove={moveBar}
           onPointerUp={() => (dragging.current = false)}

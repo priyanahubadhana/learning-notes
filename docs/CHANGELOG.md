@@ -2,6 +2,11 @@
 
 Current phase only. Older entries are in [ARCHIVE.md](ARCHIVE.md).
 
+## 2026-11-07 (Phase O, part 1: live refresh and reading goal; no new Dexie version)
+
+- **What:** O1 a window that only watches a page (the other window holds it) now reloads the page when the other window or sync saves it (`editor/pageChanges.ts`, loaded on demand). O2 Daily reading goal (Off, 5, 10, 20, 30, 60 min) in the Aa sheet's More tab with today's progress and goal days this week (`readingMarks.ts`). O0 English texts of new features load on demand (`i18n/enO.ts`, `languages.ts`, `t.ts`, `vitest.setup.ts`). First load 349,941 bytes.
+- **Why:** master plan Phase O pool, within the size cap. **Files:** `src/editor/{pageChanges.ts,pageChanges.test.ts,PageEditor.tsx}`, `src/app/reading/{AaSheet.tsx,readingMarks.ts,readingMarks.test.ts}`, `src/i18n/*O.ts`, `e2e/readerControls.spec.ts`.
+
 ## 2026-11-07 (Phase K1/K2: debt, safety, languages, accessibility; no new Dexie version)
 
 - **What:** **First load 370 KB -> 349.6 KB gzipped** (brief B1): the bars no longer pull the editor library into the first download (own `useActiveStyles`; `insertOrUpdateBlockForSlashMenu` and ProseMirror state/history load on demand; the sync status store and display text are split from the sync engine). New `npm run check:size` (CI step after the build) fails above 350,000 bytes. **Sign-in:** Google sign-in always shows the account chooser (`prompt=select_account`, unit test). **Native titles:** 29 of 34 legacy files no longer set a native `title=` on a button (icon-only buttons use `aria-label`; extra hints became `aria-description`). **Dead code:** an unused-export scan (knip, run once, not added to the project) removed about 190 needless `export`s and about 20 dead functions and constants. **Accessibility:** new check that every text-less button has a name; the hard-coded-text check now also covers `title`, `aria-description` and `aria-valuetext`. **Languages:** audit run; no key is missing in Hindi or Spanish and none equals English except names and cognates (nothing to fix).

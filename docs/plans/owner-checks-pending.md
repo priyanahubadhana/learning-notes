@@ -2,6 +2,11 @@
 
 Moved out of HANDOFF on 2026-11-06 (audit) so HANDOFF stays five lines. Newest first; each paragraph names its step. The run decision (master plan) is one owner iPad pass before Sync; the Phase A builder adds its checks at the top. Tick a paragraph by deleting it.
 
+## PHASE O CHECKS (iPad or PC, installed app, tap Update until the new version shows)
+
+- **Two windows** (O1): open the same page in two browser windows. In the one that says it is open elsewhere, watch while you type in the other: does the text appear within a second or two without pressing anything? Why human: real two-window timing.
+- **Reading goal** (O2): Read a page, Aa, More: pick 5 min. Read for a minute: does "Today: 1 of 5 min" update next time you open the sheet, and do Spanish and Hindi look right? Why human: wording and feel.
+
 ## PHASE K CHECKS (debt, first load, languages, accessibility; iPad, installed app, tap Update until the new version shows)
 
 - **Three-day trial** (K2): use the app for three days with one tester for real study (notes, cards, reading, Home). Write down anything slow, confusing or lost. Why human: the plan's trial; only real use shows it.

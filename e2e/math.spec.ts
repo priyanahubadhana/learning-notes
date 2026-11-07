@@ -83,8 +83,9 @@ test('the editor fits a phone', async ({ page }) => {
   const box = (await editor(page).boundingBox())!
   expect(box.x).toBeGreaterThanOrEqual(0)
   expect(box.x + box.width).toBeLessThanOrEqual(390)
-  const overflow = await page.evaluate(
-    () => document.documentElement.scrollWidth - window.innerWidth,
+  // Nothing inside the editor sticks out sideways.
+  const sticksOut = await editor(page).evaluate(
+    (el) => el.scrollWidth - el.clientWidth,
   )
-  expect(overflow).toBeLessThanOrEqual(0)
+  expect(sticksOut).toBeLessThanOrEqual(0)
 })

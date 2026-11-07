@@ -102,7 +102,7 @@ for (const width of [768, 820, 1024, 1366]) {
       // The pin is an icon only, with a name for screen readers and a tooltip.
       const pin = dockedBar(page).locator('[data-action="ribbonBehaviour"]')
       await expect(pin).toHaveAccessibleName(/Tools close after use/)
-      await expect(pin).toHaveAttribute('title', /Ctrl\+F1|⌘F1/)
+      await expect(pin).toHaveAttribute('aria-description', /Ctrl\+F1|⌘F1/)
       expect((await box(pin)).width).toBeLessThan(60)
       // Groups scroll sideways; when there is more, the edge fades (no half labels).
       const panel = dockedBar(page).getByRole('tabpanel')
@@ -178,7 +178,7 @@ test('Slim: one row of icons, names in tooltips, all tabs fit at 820 px (sidebar
     const panel = bar.getByRole('tabpanel')
     await expect(panel).toBeVisible()
     const tool = panel.getByRole('button').first()
-    await expect(tool).toHaveAttribute('title', /./)
+    await expect(tool).toHaveAttribute('aria-label', /./)
     expect((await tool.innerText()).trim()).toBe('')
     await expect(panel.locator('span:text-is("Media")')).toHaveCount(0)
   }

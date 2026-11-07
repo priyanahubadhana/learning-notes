@@ -187,20 +187,31 @@ test('page menu: plain text, Markdown and page with pictures', async ({
   expect(await clipboardText(page)).toContain('(https://example.com')
 
   await pageSubAction(page, 'Copy & paste', 'Copy page with pictures')
+  // The clipboard is shared with other tests: a read can fail with
+  // "Clipboard data has changed", so it is simply tried again.
   const readItems = () =>
     page.evaluate(async () => {
-      const [item] = await navigator.clipboard.read()
-      const read = async (type: string) =>
-        item.types.includes(type) ? await (await item.getType(type)).text() : ''
-      return {
-        types: item.types,
-        html: await read('text/html'),
-        text: await read('text/plain'),
+      try {
+        const [item] = await navigator.clipboard.read()
+        const read = async (type: string) =>
+          item.types.includes(type)
+            ? await (await item.getType(type)).text()
+            : ''
+        return {
+          types: item.types,
+          html: await read('text/html'),
+          text: await read('text/plain'),
+        }
+      } catch {
+        return { types: [] as string[], html: '', text: '' }
       }
     })
   await expect
     .poll(async () => (await readItems()).types)
     .toContain('text/html')
+  await expect
+    .poll(async () => (await readItems()).html)
+    .toContain('<strong>beta</strong>')
   const items = await readItems()
   expect(items.types).toEqual(
     expect.arrayContaining(['text/html', 'text/plain']),

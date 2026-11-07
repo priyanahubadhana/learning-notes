@@ -223,7 +223,7 @@ export const enLib = {
   'ai.keyWarning':
     'The key is kept in this browser without a password, so anyone who can use this device could use it. Use a key with a spend limit.',
   'ai.model': 'Model (leave empty for the default)',
-  'ai.cap': 'Monthly spend cap (US dollars)',
+  'ai.cap': 'Default monthly cap for each key (US dollars)',
   'ai.usage': 'This month: about {cost} used, {tokens} tokens.',
   'ai.capReached':
     'The monthly cap is reached. Raise it in Settings › AI to continue.',

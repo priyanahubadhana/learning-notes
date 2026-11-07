@@ -81,6 +81,8 @@ export interface Notebook extends BaseRecord {
   paused?: true
   /** The user allows their own AI to read text from this notebook (CR4). Off when unset. */
   allowAi?: true
+  /** The key and model this notebook uses for AI (device-local key id; unset = the global default). */
+  aiChoice?: { keyId: string; model: string }
   /** Made by "Load sample notebook" (testing); "Remove sample notebook" finds it by this. */
   sample?: true
   /**

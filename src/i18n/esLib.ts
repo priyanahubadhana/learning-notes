@@ -222,7 +222,7 @@ export const esLib: Record<string, string> = {
   'ai.keyWarning':
     'La clave se guarda en este navegador sin contraseña, así que quien use este dispositivo podría usarla. Usa una clave con límite de gasto.',
   'ai.model': 'Modelo (vacío para el predeterminado)',
-  'ai.cap': 'Límite de gasto mensual (dólares)',
+  'ai.cap': 'Límite mensual por clave, el predeterminado (dólares)',
   'ai.usage': 'Este mes: unos {cost} gastados, {tokens} tokens.',
   'ai.capReached':
     'Se alcanzó el límite mensual. Súbelo en Ajustes › IA para continuar.',

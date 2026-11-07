@@ -15,6 +15,7 @@ import {
   applyKeyPoints,
   applySummary,
   blocker,
+  forNotebook,
   gatherText,
   parseCards,
   readAiConfig,
@@ -56,7 +57,7 @@ export function AiActions({
     () => db.notebooks.get(page.notebookId),
     [db, page.notebookId],
   )
-  const config = readAiConfig()
+  const config = forNotebook(readAiConfig(), notebook)
   if (!config.enabled) return null
 
   const undoable = (batchId: string, label: string) => {

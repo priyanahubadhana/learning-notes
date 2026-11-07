@@ -38,6 +38,7 @@ export const TIPS = {
   'writePad.ai.read': { where: 'Page › Write pad › AI › Read' },
   'writePad.ai.clear': { where: 'Page › Write pad › AI › Clear' },
   'writePad.close': { where: 'Page › Write pad › ✕' },
+  'ai.modelOrder': { where: 'Settings › AI › Models (heading)' },
   'ink.layers': { where: 'Page › Pen, Highlighter or Lasso card › Layers' },
   'ink.finger': { where: 'Page › Pen card › Pen settings › Finger can draw' },
   'ribbon.behaviour': {

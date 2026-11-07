@@ -22,7 +22,12 @@ async function aiPrefs(page: Page) {
   await page.addInitScript((key) => {
     localStorage.setItem('learning-notes:ai.enabled', 'true')
     localStorage.setItem('learning-notes:ai.privacyOk', 'true')
-    localStorage.setItem('learning-notes:ai.key.anthropic', key)
+    localStorage.setItem(
+      'learning-notes:ai.keys',
+      JSON.stringify([
+        { id: 'k1', provider: 'anthropic', name: 'Claude', key },
+      ]),
+    )
   }, KEY)
 }
 
@@ -211,10 +216,8 @@ test('the AI key stays in localStorage only: never in a backup', async ({
   await aiPrefs(page)
   await inkNote(page, 'Pen')
   expect(
-    await page.evaluate(() =>
-      localStorage.getItem('learning-notes:ai.key.anthropic'),
-    ),
-  ).toBe(KEY)
+    await page.evaluate(() => localStorage.getItem('learning-notes:ai.keys')),
+  ).toContain(KEY)
   await cornerAction(page, 'Save & restore')
   const downloading = page.waitForEvent('download')
   await page

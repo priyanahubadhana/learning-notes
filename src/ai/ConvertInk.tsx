@@ -1,3 +1,4 @@
+import { useLiveQuery } from 'dexie-react-hooks'
 import { createPortal } from 'react-dom'
 import { useContext, useEffect, useState } from 'react'
 import { AppUiContext } from '../app/appUi'
@@ -11,7 +12,7 @@ interface InkController {
   deleteSelection(): void
   undo(): boolean
 }
-import { blocker, readAiConfig } from './aiRun'
+import { blocker, forNotebook, readAiConfig } from './aiRun'
 import { AiError, PROVIDERS, type AiImage } from './provider'
 import { blobToImage, runVision, type VisionTask } from './vision'
 
@@ -43,7 +44,12 @@ export function ConvertInk({
   onClose,
 }: ConvertProps) {
   const { toast } = useContext(AppUiContext)
-  const config = readAiConfig()
+  const base = readAiConfig()
+  const pageNotebook = useLiveQuery(async () => {
+    const pg = await db.pages.get(pageId)
+    return pg ? db.notebooks.get(pg.notebookId) : undefined
+  }, [db, pageId])
+  const config = forNotebook(base, pageNotebook)
   const [url] = useState(() => URL.createObjectURL(png))
   useEffect(() => () => URL.revokeObjectURL(url), [url])
   const [state, setState] = useState<'ask' | 'busy' | 'done'>('ask')

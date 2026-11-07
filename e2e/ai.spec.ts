@@ -211,16 +211,17 @@ test('a notebook that does not allow AI, a refused key and a spent cap say so', 
   await expect(page.getByText(/monthly cap is reached/)).toBeVisible()
 })
 
-test('forgetting the key removes it from this device', async ({ page }) => {
+test('deleting the key removes it from this device', async ({ page }) => {
   await page.goto('/#/settings/ai')
   await page.getByTestId('ai-key').fill('sk-ant-test-1234567890')
   await page.getByTestId('ai-key-save').click()
-  await page.getByTestId('ai-key-forget').click()
-  await expect(page.getByTestId('ai-key')).toBeVisible()
+  await page.getByTestId('ai-key-delete').click()
+  await page.getByTestId('ai-key-delete-yes').click()
+  await expect(page.getByTestId('ai-key-row')).toHaveCount(0)
   const stored = await page.evaluate(() =>
-    Object.keys(localStorage).filter((k) => k.includes('ai.key')),
+    localStorage.getItem('learning-notes:ai.keys'),
   )
-  expect(stored).toEqual([])
+  expect(JSON.parse(stored ?? '[]')).toEqual([])
 })
 
 test('Cards from highlights: only the highlights are sent, each card is approved on its own, one Undo removes them', async ({

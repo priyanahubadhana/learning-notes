@@ -2,7 +2,7 @@
 
 Every hover tip and help line in the app (shown while Settings › Show help is On). Generated from `src/help/helpRegistry.ts` and `src/i18n/en.ts`; to change a text, edit it in `en.ts`, then run `UPDATE_HELP=1 npx vitest run src/help` to refresh this file.
 
-## Hover tips (169)
+## Hover tips (170)
 
 ### `bar.newLine`
 
@@ -87,6 +87,12 @@ Every hover tip and help line in the app (shown while Settings › Show help is 
 - **Where:** Page › Write pad › ✕
 - **Meaning:** Closes the Write pad.
 - **Example:** Your page keeps everything you inserted.
+
+### `ai.modelOrder`
+
+- **Where:** Settings › AI › Models (heading)
+- **Meaning:** The first card with a key is the default; the others are the fallback order.
+- **Example:** Put the free Gemini card first, Claude second.
 
 ### `ink.layers`
 

@@ -91,6 +91,10 @@ const notebook: Fields<Notebook> = {
   readFirst: yes,
   paused: yes,
   allowAi: yes,
+  aiChoice: (v) =>
+    object(v) &&
+    typeof (v as { keyId?: unknown }).keyId === 'string' &&
+    typeof (v as { model?: unknown }).model === 'string',
   tabs: objectList,
   view: oneOf('shelf', 'tabs'),
   tabViews: (v) =>

@@ -2,6 +2,13 @@
 
 Moved out of HANDOFF on 2026-11-06 (audit) so HANDOFF stays five lines. Newest first; each paragraph names its step. The run decision (master plan) is one owner iPad pass before Sync; the Phase A builder adds its checks at the top. Tick a paragraph by deleting it.
 
+## AI MODEL PICKER CHECKS (PC and iPad)
+
+- **Keys:** Settings › AI › add "Claude main" and "Gemini free" with your real keys. Are they masked? Press Test on each: does it say the key works? Rename one, Replace one, Delete one (does it ask first?). Why human: real keys.
+- **Models:** drag a card with your finger and with the Pencil on the iPad, and use Move up / down with a keyboard. Does the first card with a key say Default? Opus 5.5, Gemini 3.1 Flash-Lite and 3.6 Flash ids were not called live: use each once. Do the prices and notes look right?
+- **Fallback:** put Gemini free first, then paste a wrong Gemini key: does the next model answer? Why human: real failure.
+- **Per notebook:** Study → Gemini free, Private → Claude. Run Summarise in each: does console.anthropic.com / AI Studio show the call on the right account? Does the per-key spend list match?
+
 ## PHASE P CHECKS (AI with your own Claude key; iPad with Pencil and the PC, installed app, tap Update until the new version shows)
 
 - **Paste your own Claude key:** Settings › AI › turn AI on, Provider Anthropic, paste your key from console.anthropic.com, Save. Is it shown masked (sk-…last four)? Model should say claude-haiku-5-5 and the cap $5. Turn on Allow AI for one notebook only. Why human: your real key and account; never paste it anywhere else.

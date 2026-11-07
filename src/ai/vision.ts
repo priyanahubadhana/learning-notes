@@ -1,14 +1,12 @@
 import { t } from '../i18n/t'
 import type { AiConfig } from './aiRun'
-import { getKey } from './keyStore'
 import {
   AiError,
   MAX_IMAGE_SIDE,
   type AiImage,
   type AiResult,
 } from './provider'
-import { complete } from './providers'
-import { recordUsage, withinCap } from './usage'
+import { callAi } from './route'
 
 /**
  * Pictures to text (Phase P): handwriting (Lasso › Convert to text, the Write
@@ -45,26 +43,16 @@ export async function runVision(
   fetchImpl?: typeof fetch,
   sleep?: (ms: number) => Promise<void>,
 ): Promise<AiResult> {
-  const key = getKey(config.provider)
-  if (!config.enabled || !key) throw new AiError(t('ai.notReady'))
-  const prompt = visionPrompt(task)
-  const max = MAX_TOKENS[task]
-  if (
-    !withinCap(config.provider, prompt, max, config.capUsd, new Date(), [image])
-  ) {
-    throw new AiError(t('ai.capReached'))
+  if (!config.enabled || config.candidates.length === 0) {
+    throw new AiError(t('ai.notReady'))
   }
-  const result = await complete({
-    provider: config.provider,
-    key,
-    model: config.model,
-    prompt,
-    maxTokens: max,
+  const result = await callAi(config, {
+    prompt: visionPrompt(task),
+    maxTokens: MAX_TOKENS[task],
     images: [image],
     fetchImpl,
     sleep,
   })
-  recordUsage(config.provider, result.inputTokens, result.outputTokens)
   return { ...result, text: cleanAnswer(task, result.text) }
 }
 

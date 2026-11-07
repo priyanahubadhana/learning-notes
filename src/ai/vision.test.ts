@@ -125,11 +125,22 @@ describe('image cost and the cap', () => {
     expect(imageTokens(3136, 3136)).toBe(imageTokens(1568, 1568))
   })
   it('the cap counts the picture', () => {
-    expect(withinCap('anthropic', 'hi', 10, 0.0002)).toBe(true)
+    expect(
+      withinCap('k', 'anthropic', 'claude-haiku-5-5', 'hi', 10, 0.0002),
+    ).toBe(true)
     const big = { ...IMG, width: 1568, height: 1568 }
-    expect(withinCap('anthropic', 'hi', 10, 0.0002, new Date(), [big])).toBe(
-      false,
-    )
+    expect(
+      withinCap(
+        'k',
+        'anthropic',
+        'claude-haiku-5-5',
+        'hi',
+        10,
+        0.0002,
+        new Date(),
+        [big],
+      ),
+    ).toBe(false)
   })
   it('runVision is blocked by the cap and makes no call', async () => {
     writePref(AI_KEYS.enabled, true)

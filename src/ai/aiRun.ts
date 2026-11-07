@@ -1,4 +1,3 @@
-import { readPref } from '../app/uiPrefs'
 import { addBlocks } from '../core/blockBulk'
 import { listBlocks } from '../core/blockService'
 import type { LearningNotesDB } from '../core/db'
@@ -10,17 +9,16 @@ import { toPlainText } from '../editor/mapping'
 import { markdownToBlocks } from '../editor/textBlocks'
 import { t } from '../i18n/t'
 import { listAllHighlights } from '../reader/annotations/annotationService'
-import { getKey } from './keyStore'
-import {
-  AiError,
-  PROVIDERS,
-  estimateTokens,
-  isProviderId,
-  type AiResult,
-  type ProviderId,
-} from './provider'
-import { complete } from './providers'
-import { isCap, recordUsage, withinCap } from './usage'
+import { AiError, estimateTokens, type AiResult } from './provider'
+import { callAi, type AiConfig } from './route'
+
+export {
+  AI_KEYS,
+  DEFAULT_CAP_USD,
+  forNotebook,
+  readAiConfig,
+  type AiConfig,
+} from './route'
 
 /**
  * The four AI actions (CR4) and the checks around every call: AI is on, the
@@ -30,38 +28,6 @@ import { isCap, recordUsage, withinCap } from './usage'
  */
 
 export type AiAction = 'summary' | 'keyPoints' | 'cardsPage' | 'cardsHighlights'
-
-export interface AiConfig {
-  enabled: boolean
-  provider: ProviderId
-  model: string
-  capUsd: number
-}
-
-const isBool = (v: unknown): v is boolean => typeof v === 'boolean'
-const isText = (v: unknown): v is string => typeof v === 'string'
-
-export const AI_KEYS = {
-  enabled: 'ai.enabled',
-  provider: 'ai.provider',
-  model: 'ai.model',
-  cap: 'ai.cap',
-  privacy: 'ai.privacyOk',
-} as const
-
-export const DEFAULT_CAP_USD = 5
-
-export function readAiConfig(): AiConfig {
-  const provider = readPref(AI_KEYS.provider, isProviderId, 'anthropic')
-  return {
-    enabled: readPref(AI_KEYS.enabled, isBool, false),
-    provider,
-    model:
-      readPref(AI_KEYS.model, isText, '').trim() ||
-      PROVIDERS[provider].defaultModel,
-    capUsd: readPref(AI_KEYS.cap, isCap, DEFAULT_CAP_USD),
-  }
-}
 
 /** Most characters of one page sent in one call. */
 const MAX_SEND_CHARS = 30_000
@@ -117,7 +83,7 @@ export function blocker(
   config: AiConfig,
   allowedHere: boolean,
 ): 'notReady' | 'allowOff' | null {
-  if (!config.enabled || !getKey(config.provider)) return 'notReady'
+  if (!config.enabled || config.candidates.length === 0) return 'notReady'
   return allowedHere ? null : 'allowOff'
 }
 
@@ -130,25 +96,13 @@ export async function runAi(
   text: string,
   fetchImpl?: typeof fetch,
 ): Promise<AiResult> {
-  const key = getKey(config.provider)
-  if (!config.enabled || !key) throw new AiError(t('ai.notReady'))
+  if (!config.enabled || config.candidates.length === 0) {
+    throw new AiError(t('ai.notReady'))
+  }
   if (!text.trim()) throw new AiError(t('ai.noText'))
   const prompt = actionPrompt(action, text)
   if (estimateTokens(prompt) > 20_000) throw new AiError(t('ai.tooMuch'))
-  const max = MAX_TOKENS[action]
-  if (!withinCap(config.provider, prompt, max, config.capUsd)) {
-    throw new AiError(t('ai.capReached'))
-  }
-  const result = await complete({
-    provider: config.provider,
-    key,
-    model: config.model,
-    prompt,
-    maxTokens: max,
-    fetchImpl,
-  })
-  recordUsage(config.provider, result.inputTokens, result.outputTokens)
-  return result
+  return callAi(config, { prompt, maxTokens: MAX_TOKENS[action], fetchImpl })
 }
 
 // ---- Applying the answer ----

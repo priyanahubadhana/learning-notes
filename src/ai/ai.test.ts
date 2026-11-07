@@ -23,7 +23,7 @@ import {
   readAiConfig,
   runAi,
 } from './aiRun'
-import { forgetKey, getKey, maskKey, setKey } from './keyStore'
+import { deleteKey, getKey, listKeys, maskKey, setKey } from './keyStore'
 import { AiError, PROVIDERS, reasonFor } from './provider'
 import { complete } from './providers'
 import { costOf, monthKey, readUsage, recordUsage, withinCap } from './usage'
@@ -136,25 +136,29 @@ describe('key store', () => {
     expect(getKey('openai')).toBe('')
     expect(setKey('openai', 'short')).toBe(false)
     expect(setKey('openai', 'has a space in it')).toBe(false)
-    forgetKey('anthropic')
+    deleteKey(listKeys()[0].id)
     expect(getKey('anthropic')).toBe('')
   })
 })
 
+const M = 'claude-haiku-5-5'
+
 describe('usage and the monthly cap', () => {
   it('adds up this month, starts over next month, and stops at the cap', () => {
     const nov = new Date(2026, 10, 6)
-    recordUsage('anthropic', 10_000_000, 1_000_000, nov)
+    recordUsage('k1', 'anthropic', M, 10_000_000, 1_000_000, nov)
     expect(readUsage(nov).costUsd).toBeCloseTo(
-      costOf('anthropic', 10_000_000, 1_000_000),
+      costOf('anthropic', M, 10_000_000, 1_000_000),
     )
     expect(readUsage(nov).month).toBe(monthKey(nov))
     expect(readUsage(new Date(2026, 11, 1)).costUsd).toBe(0)
     // $1.50 used; a call that could cost about $0.005 fits under $2, not under $1.502.
-    expect(withinCap('anthropic', 'x'.repeat(400), 10_000, 2, nov)).toBe(true)
-    expect(withinCap('anthropic', 'x'.repeat(400), 10_000, 1.502, nov)).toBe(
-      false,
-    )
+    expect(
+      withinCap('k1', 'anthropic', M, 'x'.repeat(400), 10_000, 2, nov),
+    ).toBe(true)
+    expect(
+      withinCap('k1', 'anthropic', M, 'x'.repeat(400), 10_000, 1.502, nov),
+    ).toBe(false)
   })
 })
 
@@ -179,7 +183,7 @@ describe('actions', () => {
     turnOn()
     expect(blocker(readAiConfig(), false)).toBe('allowOff')
     expect(blocker(readAiConfig(), true)).toBeNull()
-    expect(readAiConfig().model).toBe(PROVIDERS.anthropic.defaultModel)
+    expect(readAiConfig().model).toBe('claude-haiku-5-5')
   })
 
   it('refuses before any call when off, empty, or over the cap', async () => {

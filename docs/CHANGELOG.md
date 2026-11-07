@@ -2,6 +2,12 @@
 
 Current phase only. Older entries are in [ARCHIVE.md](ARCHIVE.md).
 
+## 2026-11-07 (AI model picker: several named keys, model cards, per-notebook choice; no Dexie version)
+
+- **What:** Settings › AI now has several named keys (Add, Rename, Replace, Test, Delete with a confirm, masked, per-key monthly cap), model cards (cost badge, speed, picture mark, good and not-so-good lines, price) ordered by drag (finger, Pencil, mouse) or Move up / Move down, first with a key = default and the rest = fallback when a key fails or hits its cap; a notebook can use its own key and model (no fallback for it); usage is listed per key. Old one-key setups move in once.
+- **Why:** owner request of 7 Nov. Research: [research/ai-model-picker-2026-11.md](research/ai-model-picker-2026-11.md). **Files:** `src/ai/{models,route,keyStore,usage,aiRun,vision,padRead,AiKeys,ModelCards,AiSection,AiActions,ConvertInk}.ts(x)`, `src/core/types.ts` (`Notebook.aiChoice`), `src/share/checkRows.ts`, `src/help/helpRegistry.ts`, `docs/HELP-TEXTS.md`, `i18n/{en,es,hi}O.ts`, `{en,es,hi}Lib.ts` (cap label), `playwright.config.ts`.
+- **Tests:** unit picker.test.ts (9) and updated ai/vision tests; e2e aiPicker.spec.ts (3, chromium + ipad-webkit), ai/aiVision specs updated. First load 338.6 KB.
+
 ## 2026-11-07 (Phase P part 1: vision, Convert to text, Write pad AI engine; no new Dexie version)
 
 - **What:** image input for all three providers (strokes rendered to PNG), retry with backoff on 429/5xx/dropped connection, picture tokens in the cap check; Lasso › Convert to text (picture preview, only the picture sent, Insert below / Replace the ink / Copy, Maths to formula into a Formula block, one Undo); Write pad Scribble/AI switch with a pressure canvas, weight per word from normalised pressure (Kalam Light/Normal/Bold, Caveat Normal/Bold); cards from highlights e2e (per-card approval, one Undo). Defaults unchanged: Anthropic, `claude-haiku-5-5`, $5 cap, AI off per notebook.

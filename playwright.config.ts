@@ -79,6 +79,7 @@ export default defineConfig({
         /writePad/,
         /lassoPencil/,
         /magnifier/,
+        /aiPicker/,
       ],
       use: { ...devices['iPad Pro 11'], hasTouch: true },
       expect: { timeout: 15_000 },

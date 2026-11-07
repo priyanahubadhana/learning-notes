@@ -95,6 +95,7 @@ export async function runAi(
   action: AiAction,
   text: string,
   fetchImpl?: typeof fetch,
+  notebookId?: string,
 ): Promise<AiResult> {
   if (!config.enabled || config.candidates.length === 0) {
     throw new AiError(t('ai.notReady'))
@@ -102,7 +103,12 @@ export async function runAi(
   if (!text.trim()) throw new AiError(t('ai.noText'))
   const prompt = actionPrompt(action, text)
   if (estimateTokens(prompt) > 20_000) throw new AiError(t('ai.tooMuch'))
-  return callAi(config, { prompt, maxTokens: MAX_TOKENS[action], fetchImpl })
+  return callAi(config, {
+    prompt,
+    maxTokens: MAX_TOKENS[action],
+    fetchImpl,
+    log: { notebookId, feature: action },
+  })
 }
 
 // ---- Applying the answer ----

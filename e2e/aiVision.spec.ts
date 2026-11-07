@@ -31,10 +31,10 @@ async function aiPrefs(page: Page) {
   }, KEY)
 }
 
-/** Settings › AI › Allow AI in Biology, then back to the page. */
+/** Settings › Permissions › Allow AI in Biology, then back to the page. */
 async function allowBiology(page: Page) {
   const back = page.url()
-  await page.goto('/#/settings/ai')
+  await page.goto('/#/settings/permissions')
   const sw = page.getByRole('switch', { name: 'Allow AI in Biology' })
   await sw.focus()
   await page.keyboard.press('Space')

@@ -52,6 +52,7 @@ export async function runVision(
     images: [image],
     fetchImpl,
     sleep,
+    log: { feature: task },
   })
   return { ...result, text: cleanAnswer(task, result.text) }
 }

@@ -33,6 +33,11 @@ import { AiSection } from '../ai/AiSection'
 import { LockSection } from '../app/lock/LockSection'
 import '../sync/syncSettings'
 
+const PermissionsSection = lazy(() =>
+  import('../ai/PermissionsSection').then((m) => ({
+    default: m.PermissionsSection,
+  })),
+)
 // Sync's screen (and its encryption code) loads only when opened.
 const SyncSection = lazy(() =>
   import('../sync/SyncSection').then((m) => ({ default: m.SyncSection })),
@@ -151,6 +156,11 @@ export function SettingsScreen({
           {category === ALL && !q && <AboutSection />}
           {category === 'lock' && <LockSection db={db} />}
           {category === 'ai' && <AiSection db={db} />}
+          {category === 'permissions' && (
+            <Suspense fallback={null}>
+              <PermissionsSection db={db} />
+            </Suspense>
+          )}
           {category === 'sync' && (
             <Suspense fallback={null}>
               <SyncSection db={db} />

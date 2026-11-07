@@ -229,6 +229,7 @@ export const TIPS = {
   'reader.zoomOut': { where: 'Book reader (PDF) › top bar › −' },
   'reader.fitWidth': { where: 'Book reader (PDF) › top bar › zoom percent' },
   'reader.zoomIn': { where: 'Book reader (PDF) › top bar › +' },
+  'reader.askAi': { where: 'Book reader › top bar › Ask AI (when AI is on)' },
   'reader.prev': { where: 'Book reader (EPUB) › top bar › ‹' },
   'reader.next': { where: 'Book reader (EPUB) › top bar › ›' },
   'reader.smaller': { where: 'Book reader (EPUB) › top bar › A−' },

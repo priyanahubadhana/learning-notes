@@ -211,4 +211,61 @@ export const hiO: Record<string, string> = {
   'settings.fingerOnly.label': 'टूलबार: केवल उँगली',
   'settings.fingerOnly.description':
     'चालू: बार Apple Pencil को अनदेखा करते हैं, इसलिए उँगली से बार चलते हैं और पेंसिल केवल पेज पर लिखती, बनाती और चुनती है। बंद: दोनों बार को छू सकते हैं (टिकी हथेली दोनों हालत में अनदेखी होती है)।',
+  // ---- Phase P: Ask this book, Story so far, Permissions ----
+  'ai.book.button': '✦ AI से पूछें',
+  'ai.book.title': 'इस किताब से पूछें',
+  'ai.book.tabAsk': 'पूछें',
+  'ai.book.tabStory': 'अब तक की कहानी',
+  'ai.book.scope': 'क्या भेजें',
+  'ai.book.chapter': 'अध्याय: {title}',
+  'ai.book.pages': 'मेरे चुने पृष्ठ',
+  'ai.book.from': 'इस पृष्ठ से',
+  'ai.book.to': 'इस पृष्ठ तक',
+  'ai.book.question': 'आपका सवाल',
+  'ai.book.prepare': 'दिखाएँ कि क्या भेजा जाएगा',
+  'ai.book.willSend':
+    '{words} शब्द ({what}) {host} को जाएँगे। अधिक से अधिक लगभग {cost}।',
+  'ai.book.cut': 'बहुत लंबा: केवल पहला भाग समाता है और भेजा जाता है।',
+  'ai.book.cutStory':
+    'बहुत लंबा: केवल आपका हाल का पढ़ा भाग समाता है और भेजा जाता है।',
+  'ai.book.showText': 'ठीक-ठीक पाठ देखें',
+  'ai.book.send': 'भेजें',
+  'ai.book.stop': 'रोकें',
+  'ai.book.stopped': 'रोका गया। अब तक का जवाब रखा गया है।',
+  'ai.book.saveSummary': 'सारांश में सहेजें',
+  'ai.book.makeCards': 'कार्ड बनाएँ',
+  'ai.book.storyHelp':
+    'अब तक जो पढ़ा उसका सारांश। आपकी पढ़ने की जगह के बाद का कुछ नहीं भेजा जाता, इसलिए कोई स्पॉइलर नहीं।',
+  'ai.book.storyWhat': '{where} तक',
+  'ai.book.wherePage': 'पृष्ठ {page}',
+  'ai.book.whereChapter': 'अध्याय {n}',
+  'ai.book.pagesWhat': 'पृष्ठ {from} से {to}',
+  'ai.book.noneRead': 'यहाँ भेजने के लिए कोई पाठ नहीं है।',
+  'ai.book.cite': '{cite} पर जाएँ',
+  'ai.book.off': 'इस नोटबुक में AI बंद है। सेटिंग › अनुमतियाँ में चालू करें।',
+  'ai.book.openSettings': 'सेटिंग खोलें',
+  'help.tip.reader.askAi.meaning':
+    'इस किताब के बारे में अपने AI से पूछें, या अब तक की कहानी पाएँ। पहले आप देखते हैं कि क्या भेजा जाता है और कितना खर्च होगा।',
+  'help.tip.reader.askAi.example':
+    'अध्याय 4 के बारे में पूछें "कप्तान वापस क्यों लौटा?"',
+  'settings.category.permissions': 'अनुमतियाँ',
+  'settings.category.permissions.hint':
+    'कौन-सी नोटबुक AI इस्तेमाल कर सकती हैं, हर एक कौन-सा मॉडल इस्तेमाल करती है, और इस महीने AI ने जो कुछ भेजा।',
+  'ai.perm.title': 'अनुमतियाँ',
+  'ai.perm.intro':
+    'जब तक आप यहाँ चालू न करें, हर नोटबुक में AI बंद है। बंद नोटबुक से कुछ नहीं भेजा जाता।',
+  'ai.perm.spend': 'इस महीने का खर्च, हर कुंजी का',
+  'ai.perm.noKeys': 'अभी कोई कुंजी नहीं। सेटिंग › AI में जोड़ें।',
+  'ai.perm.log': 'इस महीने AI ने जो कुछ भेजा',
+  'ai.perm.logHelp':
+    'हर अनुरोध की एक पंक्ति: आपके नोट्स का कोई शब्द नहीं, कोई कुंजी नहीं। केवल इसी डिवाइस पर रखा जाता है।',
+  'ai.perm.logEmpty': 'इस महीने कुछ नहीं भेजा गया।',
+  'ai.perm.colDate': 'तारीख',
+  'ai.perm.colNotebook': 'नोटबुक',
+  'ai.perm.colFeature': 'सुविधा',
+  'ai.perm.colHost': 'किसे भेजा',
+  'ai.perm.colCost': 'खर्च',
+  'ai.perm.noNotebook': '(कोई नहीं)',
+  'ai.perm.moved':
+    'कौन-सी नोटबुक AI इस्तेमाल कर सकती हैं, अब सेटिंग › अनुमतियाँ में है।',
 }

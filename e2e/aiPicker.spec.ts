@@ -198,6 +198,7 @@ test('a notebook uses its own key and model; the default is used elsewhere', asy
   await expect(cards(page).first().getByTestId('ai-model-rank')).toHaveText(
     'Default',
   )
+  await page.goto('/#/settings/permissions')
   const sw = page.getByRole('switch', { name: 'Allow AI in Books' })
   await sw.focus()
   await page.keyboard.press('Space')
@@ -222,7 +223,7 @@ test('a notebook uses its own key and model; the default is used elsewhere', asy
   expect(bodies.map((b) => b.url)).toEqual(['gemini'])
 
   // Books now uses Claude private + Sonnet.
-  await page.goto('/#/settings/ai')
+  await page.goto('/#/settings/permissions')
   await page
     .getByRole('combobox', { name: 'Key and model for Books' })
     .selectOption({ label: 'Claude private · Claude Sonnet 5.5' })

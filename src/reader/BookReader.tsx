@@ -17,6 +17,7 @@ import type { Annotation, HighlightColour } from '../core/types'
 import { t } from '../i18n/t'
 import { createPage } from '../pages/pageService'
 import { usePref } from '../app/usePref'
+import { isBoolean, readPref } from '../app/uiPrefs'
 import { stepSize } from './epub/epubLoader'
 import { getBookFile, saveProgress } from '../library/libraryService'
 import { addBlocks } from '../core/blockBulk'
@@ -62,6 +63,10 @@ const PdfView = lazy(() =>
 )
 const EpubView = lazy(() =>
   import('./epub/EpubView').then((m) => ({ default: m.EpubView })),
+)
+// Ask this book (Phase P): the AI code loads only when the panel opens.
+const AskBook = lazy(() =>
+  import('../ai/AskBook').then((m) => ({ default: m.AskBook })),
 )
 
 /** What the reader needs of a selection, whatever the format. */
@@ -119,7 +124,7 @@ export function BookReader({
   } | null>(null)
   const [zoom, setZoom] = useState(1)
   const [panel, setPanel] = useState<
-    'contents' | 'annotations' | 'find' | null
+    'contents' | 'annotations' | 'find' | 'ask' | null
   >(null)
   const [pdfDoc, setPdfDoc] = useState<PDFDocumentProxy | null>(null)
   const [flipOpen, setFlipOpen] = useState(false)
@@ -146,6 +151,8 @@ export function BookReader({
     [db, pageId],
   )
   const format = page?.source?.format
+  // The Ask AI button shows only when AI is on (Settings › AI).
+  const aiOn = readPref('ai.enabled', isBoolean, false)
 
   // The book file.
   useEffect(() => {
@@ -720,6 +727,20 @@ export function BookReader({
         >
           {t('bookreader.annotations')}
         </button>
+        {aiOn && (
+          <IconButton
+            tip="reader.askAi"
+            bare
+            tipClassName="inline-flex shrink-0"
+            type="button"
+            data-testid="reader-ask"
+            aria-pressed={panel === 'ask'}
+            className={panelBtn(panel === 'ask')}
+            onClick={() => setPanel((p) => (p === 'ask' ? null : 'ask'))}
+          >
+            {t('ai.book.button')}
+          </IconButton>
+        )}
       </div>
       {noText && format === 'pdf' && (
         <p className="bg-soft px-3 py-1 text-xs text-muted">
@@ -871,7 +892,26 @@ export function BookReader({
             data-chrome
             className="absolute inset-y-0 end-0 z-20 w-full max-w-sm overflow-auto border-s border-line bg-bg p-3 shadow-lg"
           >
-            {panel === 'contents' ? (
+            {panel === 'ask' ? (
+              <Suspense fallback={null}>
+                <AskBook
+                  db={db}
+                  page={page}
+                  format={format === 'pdf' ? 'pdf' : 'epub'}
+                  pdfDoc={pdfDoc}
+                  epubData={format === 'epub' ? data : null}
+                  outline={outline}
+                  pageCount={pageCount}
+                  position={position}
+                  onGo={(at) =>
+                    setTarget((prev) => ({
+                      at,
+                      nonce: (prev?.nonce ?? 0) + 1,
+                    }))
+                  }
+                />
+              </Suspense>
+            ) : panel === 'contents' ? (
               <ContentsList
                 items={outline}
                 onPick={(item) => {

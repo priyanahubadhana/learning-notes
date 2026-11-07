@@ -1,0 +1,165 @@
+import { useLiveQuery } from 'dexie-react-hooks'
+import type { LearningNotesDB } from '../core/db'
+import { isLive } from '../core/records'
+import { t } from '../i18n/t'
+import { readAiConfig } from './route'
+import { listKeys, type AiKey } from './keyStore'
+import { MODELS } from './models'
+import { readSendLog } from './sendLog'
+import { readKeyUsage } from './usage'
+
+function choiceValue(
+  c: { keyId: string; model: string } | undefined,
+  keys: readonly AiKey[],
+): string {
+  return c && keys.some((k) => k.id === c.keyId) ? `${c.keyId}|${c.model}` : ''
+}
+
+/**
+ * Settings › Permissions (Phase P): every notebook with its AI switch and
+ * model choice, the spend per key, and "Everything AI sent this month"
+ * (date, notebook, feature, host, cost; never any content or key).
+ */
+export function PermissionsSection({ db }: { db: LearningNotesDB }) {
+  const keys = listKeys()
+  const cap = readAiConfig().capUsd
+  const log = readSendLog()
+  const notebooks = useLiveQuery(
+    async () =>
+      (await db.notebooks.toArray())
+        .filter(
+          (n) =>
+            isLive(n) &&
+            (!n.kind || n.kind === 'books' || n.kind === 'sources'),
+        )
+        .sort((a, b) => a.order.localeCompare(b.order)),
+    [db],
+  )
+  const names = new Map((notebooks ?? []).map((n) => [n.id, n.title]))
+  const date = new Intl.DateTimeFormat(undefined, {
+    dateStyle: 'medium',
+    timeStyle: 'short',
+  })
+
+  return (
+    <section
+      data-testid="permissions-section"
+      className="mb-6 flex flex-col gap-4"
+    >
+      <h2 className="text-base font-semibold">{t('ai.perm.title')}</h2>
+      <p className="text-sm text-muted">{t('ai.perm.intro')}</p>
+      <div>
+        <h3 className="mb-1 text-sm font-medium">{t('ai.allowTitle')}</h3>
+        <ul>
+          {(notebooks ?? []).map((n) => (
+            <li key={n.id}>
+              <label className="flex min-h-11 items-center gap-3 text-sm">
+                <input
+                  type="checkbox"
+                  role="switch"
+                  checked={!!n.allowAi}
+                  data-testid="ai-allow"
+                  aria-label={t('ai.allowNotebook', { name: n.title })}
+                  onChange={(e) =>
+                    void db.notebooks.update(n.id, {
+                      allowAi: e.target.checked ? true : undefined,
+                      updatedAt: Date.now(),
+                    })
+                  }
+                  className="size-5"
+                />
+                {n.title || t('review.untitled')}
+              </label>
+              <label className="mb-2 ml-8 flex flex-wrap items-center gap-2 text-xs text-muted">
+                {t('ai.nb.uses')}
+                <select
+                  data-testid="ai-nb-choice"
+                  aria-label={t('ai.nb.choiceFor', { name: n.title })}
+                  value={choiceValue(n.aiChoice, keys)}
+                  onChange={(e) => {
+                    const [keyId, model] = e.target.value.split('|')
+                    void db.notebooks.update(n.id, {
+                      aiChoice: keyId && model ? { keyId, model } : undefined,
+                      updatedAt: Date.now(),
+                    })
+                  }}
+                  className="min-h-11 rounded-lg border border-line bg-bg px-2 text-sm"
+                >
+                  <option value="">{t('ai.nb.default')}</option>
+                  {keys.flatMap((k) =>
+                    MODELS.filter((m) => m.provider === k.provider).map((m) => (
+                      <option key={k.id + m.id} value={`${k.id}|${m.id}`}>
+                        {k.name} · {m.label}
+                      </option>
+                    )),
+                  )}
+                </select>
+              </label>
+            </li>
+          ))}
+        </ul>
+      </div>
+      <div>
+        <h3 className="mb-1 text-sm font-medium">{t('ai.perm.spend')}</h3>
+        {keys.length === 0 ? (
+          <p className="text-sm text-muted">{t('ai.perm.noKeys')}</p>
+        ) : (
+          <ul data-testid="perm-spend" className="text-sm text-muted">
+            {keys.map((k) => (
+              <li key={k.id}>
+                {t('ai.usageKey', {
+                  name: k.name,
+                  cost: `$${readKeyUsage(k.id).costUsd.toFixed(2)}`,
+                  cap: `$${k.capUsd ?? cap}`,
+                })}
+              </li>
+            ))}
+          </ul>
+        )}
+      </div>
+      <div>
+        <h3 className="mb-1 text-sm font-medium">{t('ai.perm.log')}</h3>
+        <p className="mb-2 text-xs text-muted">{t('ai.perm.logHelp')}</p>
+        {log.length === 0 ? (
+          <p className="text-sm text-muted">{t('ai.perm.logEmpty')}</p>
+        ) : (
+          <div className="overflow-x-auto">
+            <table data-testid="perm-log" className="w-full text-left text-xs">
+              <thead className="text-muted">
+                <tr>
+                  <th className="py-1 pr-2 font-medium">
+                    {t('ai.perm.colDate')}
+                  </th>
+                  <th className="py-1 pr-2 font-medium">
+                    {t('ai.perm.colNotebook')}
+                  </th>
+                  <th className="py-1 pr-2 font-medium">
+                    {t('ai.perm.colFeature')}
+                  </th>
+                  <th className="py-1 pr-2 font-medium">
+                    {t('ai.perm.colHost')}
+                  </th>
+                  <th className="py-1 font-medium">{t('ai.perm.colCost')}</th>
+                </tr>
+              </thead>
+              <tbody>
+                {log.map((e, i) => (
+                  <tr key={i} className="border-t border-line">
+                    <td className="py-1 pr-2">{date.format(e.at)}</td>
+                    <td className="py-1 pr-2">
+                      {(e.notebookId && names.get(e.notebookId)) ||
+                        t('ai.perm.noNotebook')}
+                    </td>
+                    <td className="py-1 pr-2">{e.feature}</td>
+                    <td className="py-1 pr-2">{e.host}</td>
+                    <td className="py-1">${e.costUsd.toFixed(4)}</td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          </div>
+        )}
+      </div>
+    </section>
+  )
+}

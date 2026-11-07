@@ -217,4 +217,62 @@ export const enO = {
   'settings.fingerOnly.label': 'Toolbar: finger only',
   'settings.fingerOnly.description':
     'On: the bars ignore the Apple Pencil, so a finger works the bars and the Pencil only writes, draws and selects on the page. Off: both can tap the bars (a resting palm is ignored either way).',
+  // ---- Phase P: Ask this book, Story so far, Permissions ----
+  'ai.book.button': '✦ Ask AI',
+  'ai.book.title': 'Ask this book',
+  'ai.book.tabAsk': 'Ask',
+  'ai.book.tabStory': 'Story so far',
+  'ai.book.scope': 'What to send',
+  'ai.book.chapter': 'Chapter: {title}',
+  'ai.book.pages': 'Pages I choose',
+  'ai.book.from': 'From page',
+  'ai.book.to': 'To page',
+  'ai.book.question': 'Your question',
+  'ai.book.prepare': 'Show what will be sent',
+  'ai.book.willSend':
+    '{words} words ({what}) go to {host}. About {cost} at most.',
+  'ai.book.cut': 'Too long: only the first part fits and is sent.',
+  'ai.book.cutStory':
+    'Too long: only your most recent reading fits and is sent.',
+  'ai.book.showText': 'See the exact text',
+  'ai.book.send': 'Send',
+  'ai.book.stop': 'Stop',
+  'ai.book.stopped': 'Stopped. The answer so far is kept.',
+  'ai.book.saveSummary': 'Save to Summary',
+  'ai.book.makeCards': 'Make cards',
+  'ai.book.storyHelp':
+    'A summary of what you have read up to here. Nothing after your reading position is sent, so there are no spoilers.',
+  'ai.book.storyWhat': 'up to {where}',
+  'ai.book.wherePage': 'page {page}',
+  'ai.book.whereChapter': 'chapter {n}',
+  'ai.book.pagesWhat': 'pages {from} to {to}',
+  'ai.book.noneRead': 'There is no text to send here.',
+  'ai.book.cite': 'Go to {cite}',
+  'ai.book.off':
+    'AI is off for this notebook. Turn it on in Settings › Permissions.',
+  'ai.book.openSettings': 'Open Settings',
+  'help.tip.reader.askAi.meaning':
+    'Ask your AI about this book, or get the story so far. You see what is sent and its cost first.',
+  'help.tip.reader.askAi.example':
+    'Ask "Why did the captain turn back?" about chapter 4.',
+  'settings.category.permissions': 'Permissions',
+  'settings.category.permissions.hint':
+    'Which notebooks may use AI, which model each uses, and everything AI sent this month.',
+  'ai.perm.title': 'Permissions',
+  'ai.perm.intro':
+    'AI is off for every notebook until you switch it on here. Nothing is sent from a notebook that is off.',
+  'ai.perm.spend': 'Spend this month, per key',
+  'ai.perm.noKeys': 'No keys yet. Add one in Settings › AI.',
+  'ai.perm.log': 'Everything AI sent this month',
+  'ai.perm.logHelp':
+    'One line per request: no words of your notes, no keys. Kept on this device only.',
+  'ai.perm.logEmpty': 'Nothing has been sent this month.',
+  'ai.perm.colDate': 'Date',
+  'ai.perm.colNotebook': 'Notebook',
+  'ai.perm.colFeature': 'Feature',
+  'ai.perm.colHost': 'Sent to',
+  'ai.perm.colCost': 'Cost',
+  'ai.perm.noNotebook': '(none)',
+  'ai.perm.moved':
+    'Which notebooks may use AI is now in Settings › Permissions.',
 }

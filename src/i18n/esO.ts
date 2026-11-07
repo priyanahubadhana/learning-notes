@@ -222,4 +222,62 @@ export const esO: Record<string, string> = {
   'settings.fingerOnly.label': 'Barra: solo el dedo',
   'settings.fingerOnly.description':
     'Activado: las barras ignoran el Apple Pencil, así el dedo maneja las barras y el Pencil solo escribe, dibuja y selecciona en la página. Desactivado: ambos pueden tocar las barras (la palma apoyada se ignora siempre).',
+  // ---- Phase P: Ask this book, Story so far, Permissions ----
+  'ai.book.button': '✦ Preguntar a la IA',
+  'ai.book.title': 'Preguntar a este libro',
+  'ai.book.tabAsk': 'Preguntar',
+  'ai.book.tabStory': 'La historia hasta aquí',
+  'ai.book.scope': 'Qué enviar',
+  'ai.book.chapter': 'Capítulo: {title}',
+  'ai.book.pages': 'Las páginas que elija',
+  'ai.book.from': 'Desde la página',
+  'ai.book.to': 'Hasta la página',
+  'ai.book.question': 'Tu pregunta',
+  'ai.book.prepare': 'Ver lo que se enviará',
+  'ai.book.willSend':
+    '{words} palabras ({what}) van a {host}. Como mucho unos {cost}.',
+  'ai.book.cut': 'Demasiado largo: solo cabe y se envía la primera parte.',
+  'ai.book.cutStory':
+    'Demasiado largo: solo cabe y se envía tu lectura más reciente.',
+  'ai.book.showText': 'Ver el texto exacto',
+  'ai.book.send': 'Enviar',
+  'ai.book.stop': 'Detener',
+  'ai.book.stopped': 'Detenido. Se guarda la respuesta hasta aquí.',
+  'ai.book.saveSummary': 'Guardar en Resumen',
+  'ai.book.makeCards': 'Crear tarjetas',
+  'ai.book.storyHelp':
+    'Un resumen de lo que has leído hasta aquí. No se envía nada posterior a tu posición de lectura, así que no hay spoilers.',
+  'ai.book.storyWhat': 'hasta {where}',
+  'ai.book.wherePage': 'la página {page}',
+  'ai.book.whereChapter': 'el capítulo {n}',
+  'ai.book.pagesWhat': 'páginas {from} a {to}',
+  'ai.book.noneRead': 'Aquí no hay texto que enviar.',
+  'ai.book.cite': 'Ir a {cite}',
+  'ai.book.off':
+    'La IA está desactivada en este cuaderno. Actívala en Ajustes › Permisos.',
+  'ai.book.openSettings': 'Abrir Ajustes',
+  'help.tip.reader.askAi.meaning':
+    'Pregunta a tu IA sobre este libro u obtén la historia hasta aquí. Primero ves lo que se envía y su coste.',
+  'help.tip.reader.askAi.example':
+    'Pregunta "¿Por qué volvió el capitán?" sobre el capítulo 4.',
+  'settings.category.permissions': 'Permisos',
+  'settings.category.permissions.hint':
+    'Qué cuadernos pueden usar IA, qué modelo usa cada uno y todo lo que la IA envió este mes.',
+  'ai.perm.title': 'Permisos',
+  'ai.perm.intro':
+    'La IA está desactivada en todos los cuadernos hasta que la actives aquí. Nada se envía desde un cuaderno desactivado.',
+  'ai.perm.spend': 'Gasto de este mes, por clave',
+  'ai.perm.noKeys': 'Aún no hay claves. Añade una en Ajustes › IA.',
+  'ai.perm.log': 'Todo lo que la IA envió este mes',
+  'ai.perm.logHelp':
+    'Una línea por solicitud: ninguna palabra de tus notas, ninguna clave. Se guarda solo en este dispositivo.',
+  'ai.perm.logEmpty': 'Este mes no se ha enviado nada.',
+  'ai.perm.colDate': 'Fecha',
+  'ai.perm.colNotebook': 'Cuaderno',
+  'ai.perm.colFeature': 'Función',
+  'ai.perm.colHost': 'Enviado a',
+  'ai.perm.colCost': 'Coste',
+  'ai.perm.noNotebook': '(ninguno)',
+  'ai.perm.moved':
+    'Qué cuadernos pueden usar IA está ahora en Ajustes › Permisos.',
 }

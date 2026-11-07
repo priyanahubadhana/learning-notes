@@ -159,3 +159,145 @@ async function openaiStyle(call: AiCall): Promise<AiResult> {
 export function complete(call: AiCall): Promise<AiResult> {
   return call.provider === 'anthropic' ? anthropic(call) : openaiStyle(call)
 }
+
+// ---- Streaming (Phase P) ----
+
+/** Reads the `data:` lines of a server-sent-events body, one JSON value each. */
+async function* sseData(
+  body: ReadableStream<Uint8Array>,
+): AsyncGenerator<unknown> {
+  const reader = body.getReader()
+  const decoder = new TextDecoder()
+  let buf = ''
+  try {
+    for (;;) {
+      const { done, value } = await reader.read()
+      if (done) break
+      buf += decoder.decode(value, { stream: true })
+      let nl: number
+      while ((nl = buf.indexOf('\n')) >= 0) {
+        const line = buf.slice(0, nl).trim()
+        buf = buf.slice(nl + 1)
+        if (!line.startsWith('data:')) continue
+        const raw = line.slice(5).trim()
+        if (!raw || raw === '[DONE]') continue
+        try {
+          yield JSON.parse(raw)
+        } catch {
+          // A broken line is skipped.
+        }
+      }
+    }
+  } finally {
+    reader.releaseLock()
+  }
+}
+
+interface StreamEvent {
+  type?: string
+  delta?: { text?: string }
+  message?: { usage?: { input_tokens?: number } }
+  usage?: {
+    output_tokens?: number
+    prompt_tokens?: number
+    completion_tokens?: number
+  }
+  choices?: { delta?: { content?: string } }[]
+}
+
+/**
+ * Streams the answer (Anthropic and the OpenAI-style SSE that Gemini also
+ * speaks): `onText` gets each new piece. Stop (the signal) ends the stream
+ * early and returns what came so far, marked `stopped`. Token counts come
+ * from the stream; when it gives none (a stopped stream), they are estimated.
+ */
+export async function stream(
+  call: AiCall,
+  onText: (piece: string) => void,
+): Promise<AiResult & { stopped: boolean }> {
+  const doFetch = call.fetchImpl ?? fetch
+  const anth = call.provider === 'anthropic'
+  const url = anth
+    ? 'https://api.anthropic.com/v1/messages'
+    : `${PROVIDERS[call.provider].base}/chat/completions`
+  const headers: Record<string, string> = anth
+    ? {
+        'x-api-key': call.key,
+        'anthropic-version': '2023-06-01',
+        'anthropic-dangerous-direct-browser-access': 'true',
+      }
+    : { authorization: `Bearer ${call.key}` }
+  const messages = [
+    {
+      role: 'user',
+      content: anth ? anthropicContent(call) : openaiContent(call),
+    },
+  ]
+  const body = anth
+    ? { model: call.model, max_tokens: call.maxTokens, stream: true, messages }
+    : {
+        model: call.model,
+        max_tokens: call.maxTokens,
+        stream: true,
+        stream_options: { include_usage: true },
+        messages,
+      }
+  const stoppedEarly = () => !!call.signal?.aborted
+  let res: Response
+  try {
+    res = await doFetch(url, {
+      method: 'POST',
+      headers: { 'content-type': 'application/json', ...headers },
+      body: JSON.stringify(body),
+      signal: call.signal,
+      credentials: 'omit',
+      referrerPolicy: 'no-referrer',
+    })
+  } catch {
+    if (stoppedEarly()) {
+      return { text: '', inputTokens: 0, outputTokens: 0, stopped: true }
+    }
+    throw new AiError('no connection')
+  }
+  if (!res.ok) throw new AiError(reasonFor(res.status), res.status)
+  if (!res.body) throw new AiError('the answer was empty')
+  let text = ''
+  let inputTokens = 0
+  let outputTokens = 0
+  try {
+    for await (const ev of sseData(res.body)) {
+      if (stoppedEarly()) break
+      const e = ev as StreamEvent
+      let piece = ''
+      if (anth) {
+        if (e.type === 'message_start') {
+          inputTokens = num(e.message?.usage?.input_tokens)
+        } else if (e.type === 'content_block_delta') {
+          piece = e.delta?.text ?? ''
+        } else if (e.type === 'message_delta') {
+          outputTokens = num(e.usage?.output_tokens) || outputTokens
+        } else if (e.type === 'error') {
+          throw new AiError(reasonFor(529), 529)
+        }
+      } else {
+        piece = e.choices?.[0]?.delta?.content ?? ''
+        if (e.usage) {
+          inputTokens = num(e.usage.prompt_tokens) || inputTokens
+          outputTokens = num(e.usage.completion_tokens) || outputTokens
+        }
+      }
+      if (piece) {
+        text += piece
+        onText(piece)
+      }
+    }
+  } catch (e) {
+    if (e instanceof AiError) throw e
+    if (!stoppedEarly()) throw new AiError('no connection')
+  }
+  const stopped = stoppedEarly()
+  if (!text && !stopped) throw new AiError('the answer was empty')
+  if (!inputTokens) inputTokens = Math.ceil(call.prompt.length / 4)
+  if (!outputTokens) outputTokens = Math.ceil(text.length / 4)
+  return { text, inputTokens, outputTokens, stopped }
+}

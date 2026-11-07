@@ -10,8 +10,9 @@ import {
   type AiResult,
   type ProviderId,
 } from './provider'
-import { complete } from './providers'
-import { isCap, recordUsage, withinCap } from './usage'
+import { complete, stream } from './providers'
+import { logSend } from './sendLog'
+import { costOf, isCap, recordUsage, withinCap } from './usage'
 
 /**
  * Which key and model a request uses, and what happens when one fails.
@@ -136,6 +137,12 @@ export interface AiRequest {
   images?: AiImage[]
   fetchImpl?: typeof fetch
   sleep?: (ms: number) => Promise<void>
+  /** Streams the answer piece by piece (long answers, with Stop). */
+  onText?: (piece: string) => void
+  /** Stop: ends a streamed answer early (what came so far is kept). */
+  signal?: AbortSignal
+  /** For the "Everything AI sent" log (no content is logged). */
+  log?: { notebookId?: string; feature: string }
 }
 
 /**
@@ -146,8 +153,9 @@ export interface AiRequest {
 export async function callAi(
   config: AiConfig,
   req: AiRequest,
-): Promise<AiResult> {
+): Promise<AiResult & { stopped?: boolean }> {
   const failed = new Set<string>()
+  let streamed = false
   let last: AiError | undefined
   for (const c of config.candidates) {
     if (failed.has(c.keyId)) continue
@@ -172,7 +180,7 @@ export async function callAi(
       continue
     }
     try {
-      const result = await complete({
+      const call = {
         provider: key.provider,
         key: key.key,
         model: c.model,
@@ -181,7 +189,15 @@ export async function callAi(
         images: req.images,
         fetchImpl: req.fetchImpl,
         sleep: req.sleep,
-      })
+        signal: req.signal,
+      }
+      const onText = req.onText
+      const result = onText
+        ? await stream(call, (piece) => {
+            streamed = true
+            onText(piece)
+          })
+        : await complete(call)
       recordUsage(
         key.id,
         key.provider,
@@ -189,9 +205,24 @@ export async function callAi(
         result.inputTokens,
         result.outputTokens,
       )
+      {
+        logSend({
+          at: Date.now(),
+          notebookId: req.log?.notebookId,
+          feature: req.log?.feature ?? 'other',
+          host: PROVIDERS[key.provider].host,
+          costUsd: costOf(
+            key.provider,
+            c.model,
+            result.inputTokens,
+            result.outputTokens,
+          ),
+        })
+      }
       return result
     } catch (e) {
-      if (!(e instanceof AiError) || !canFallBack(e)) throw e
+      // Once part of an answer has been shown, another key is not tried.
+      if (streamed || !(e instanceof AiError) || !canFallBack(e)) throw e
       last = e
       failed.add(key.id)
     }

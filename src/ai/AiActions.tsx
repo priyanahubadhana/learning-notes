@@ -84,7 +84,13 @@ export function AiActions({
     toast(t('ai.working'))
     try {
       const text = await gatherText(db, page, action)
-      const result = await runAi(config, action, text)
+      const result = await runAi(
+        config,
+        action,
+        text,
+        undefined,
+        page.notebookId,
+      )
       if (action === 'summary' || action === 'keyPoints') {
         setPreview({ action, text: result.text })
       } else {
@@ -298,7 +304,7 @@ function TextPreview({
 }
 
 /** The approval list: untick cards you do not want. */
-function Approval({
+export function Approval({
   cards,
   onMake,
   onCancel,

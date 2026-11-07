@@ -33,6 +33,7 @@ async function bookPage(page: Page) {
 
 /** Turns on "Allow AI in Books" (keyboard: a toast can sit over the switch). */
 async function allowBooks(page: Page) {
+  await page.goto('/#/settings/permissions')
   const sw = page.getByRole('switch', { name: 'Allow AI in Books' })
   await sw.focus()
   await page.keyboard.press('Space')

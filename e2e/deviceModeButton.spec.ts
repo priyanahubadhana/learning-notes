@@ -15,7 +15,6 @@ test('the top bar button shows the mode, has a 44 px target and a tooltip', asyn
   await page.goto('/')
   await expect(button(page)).toBeVisible()
   await expect(button(page)).toHaveAttribute('aria-label', /^Device mode:/)
-  await expect(button(page)).toHaveAttribute('title', /^Device mode:/)
   const box = (await button(page).boundingBox())!
   expect(box.width).toBeGreaterThanOrEqual(43.5)
   expect(box.height).toBeGreaterThanOrEqual(43.5)

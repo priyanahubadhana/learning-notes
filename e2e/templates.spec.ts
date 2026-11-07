@@ -148,12 +148,12 @@ test('"New page from this template" makes a page in the first notebook', async (
   await expect(page.locator('.bn-editor')).toContainText('Highlights')
 })
 
-test('Import and Export are shown but disabled (coming soon)', async ({
+test('Import is shown but disabled (coming soon); Export is built', async ({
   page,
 }) => {
   await createNotebook(page, 'Notes', 'First')
   await page.getByRole('button', { name: 'More options' }).click()
-  for (const name of [/Import/, /Export/]) {
+  for (const name of [/Import/]) {
     const item = page.getByRole('menuitem', { name })
     await expect(item).toBeVisible()
     await expect(item).toBeDisabled()

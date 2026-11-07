@@ -102,7 +102,6 @@ test('the ⋯ menu moves with the arrow keys and greys what is coming', async ({
   await page.keyboard.press('ArrowDown')
   await expect(item('History')).toBeFocused()
   await expect(item('Import')).toBeDisabled()
-  await expect(item('Export')).toContainText('Coming soon')
 
   await page.keyboard.press('Escape')
   await expect(page.getByRole('menu')).toHaveCount(0)

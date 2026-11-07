@@ -74,6 +74,7 @@ export default defineConfig({
         /miniKeys/,
         /rowActions/,
         /toggles/,
+        /pencilFriction/,
       ],
       use: { ...devices['iPad Pro 11'], hasTouch: true },
       expect: { timeout: 15_000 },

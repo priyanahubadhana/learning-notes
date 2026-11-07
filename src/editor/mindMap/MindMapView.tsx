@@ -6,6 +6,7 @@ import {
   type PointerEvent as ReactPointerEvent,
 } from 'react'
 import { t } from '../../i18n/t'
+import { ignoreTouch } from '../../app/palmGuard'
 import {
   addChild,
   addSibling,
@@ -36,6 +37,9 @@ import { mindMapToPng } from './toPicture'
  * a branch, Enter one beside it, Delete removes, Alt+arrows reorder and
  * indent, and a branch can be dragged onto another to move it.
  */
+
+/** Two Pencil taps this close together are a double-tap (ms). */
+const DOUBLE_TAP_MS = 350
 
 const THEME_NAMES: Record<MindTheme, () => string> = {
   calm: () => t('mm.theme.calm'),
@@ -257,24 +261,36 @@ export function MindMapView({
     x: number
     y: number
     wasSelected: boolean
+    kind: string
   } | null>(null)
+  /** The last Pencil tap, so a double-tap can type. */
+  const lastPenTap = useRef<{ id: string; at: number } | null>(null)
   const onDown = (e: ReactPointerEvent, n: Placed) => {
     if (editing !== null) return
+    // A palm resting on the screen while the Pencil is down does nothing.
+    if (ignoreTouch(e)) return
     const wasSelected = n.id === sel
     setSelected(n.id)
     root.current?.focus({ preventScroll: true })
     if (!editable) return
     ;(e.currentTarget as HTMLElement).setPointerCapture(e.pointerId)
-    down.current = { id: n.id, x: e.clientX, y: e.clientY, wasSelected }
+    down.current = {
+      id: n.id,
+      x: e.clientX,
+      y: e.clientY,
+      wasSelected,
+      kind: e.pointerType,
+    }
   }
   const onMove = (e: ReactPointerEvent) => {
+    if (ignoreTouch(e)) return
     const d = down.current
     if (!d || d.id === map.root) return // the centre cannot be moved
     if (!drag && Math.hypot(e.clientX - d.x, e.clientY - d.y) < 6) return
     const p = local(e)
     setDrag({ id: d.id, x: p.x, y: p.y, over: hit(p.x, p.y, d.id) })
   }
-  const onUp = () => {
+  const onUp = (e: ReactPointerEvent) => {
     const d = down.current
     down.current = null
     if (!d) return
@@ -284,8 +300,18 @@ export function MindMapView({
         if (moved !== map) commit(moved)
       }
       setDrag(null)
+    } else if (d.kind === 'touch') {
+      setEditing(d.id) // a finger tap types, like the text tool
+    } else if (d.kind === 'pen') {
+      // The Pencil: one tap selects (no keyboard); a double-tap types.
+      const last = lastPenTap.current
+      const now = e.timeStamp
+      if (last && last.id === d.id && now - last.at < DOUBLE_TAP_MS) {
+        lastPenTap.current = null
+        setEditing(d.id)
+      } else lastPenTap.current = { id: d.id, at: now }
     } else if (d.wasSelected) {
-      setEditing(d.id) // a second tap types
+      setEditing(d.id) // a mouse: a second click types
     }
   }
 
@@ -443,6 +469,18 @@ export function MindMapView({
                   cursor: editable && n.depth > 0 ? 'grab' : 'default',
                 }}
               >
+                {NODE_H < 44 && (
+                  // Wider than it looks: a 44 px touch area (polish 1, item 9).
+                  <span
+                    aria-hidden
+                    data-node-hit
+                    className="absolute inset-x-0"
+                    style={{
+                      top: -(44 - NODE_H) / 2,
+                      height: 44,
+                    }}
+                  />
+                )}
                 {editing === n.id ? (
                   <input
                     autoFocus

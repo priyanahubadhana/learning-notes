@@ -1,4 +1,5 @@
 import { IconButton } from '../app/ui'
+import { ignoreTouch } from '../app/palmGuard'
 import {
   useCallback,
   useEffect,
@@ -166,6 +167,7 @@ export function CropSheet({ bitmap, canRestore, onDone }: CropSheetProps) {
   }
   const onStageDown = (e: PointerEvent) => {
     if ((e.target as HTMLElement).closest('[data-handle]')) return
+    if (ignoreTouch(e)) return
     pointers.current.set(e.pointerId, { x: e.clientX, y: e.clientY })
     if (pointers.current.size === 2) {
       pinch.current = { dist: distOf(), zoom }
@@ -191,6 +193,8 @@ export function CropSheet({ bitmap, canRestore, onDone }: CropSheetProps) {
     crop: Crop
   } | null>(null)
   const startDrag = (kind: Corner | 'move', e: PointerEvent) => {
+    // A palm resting on the screen while the Pencil is down does nothing.
+    if (ignoreTouch(e)) return
     e.preventDefault()
     e.stopPropagation()
     ;(e.currentTarget as HTMLElement).setPointerCapture(e.pointerId)

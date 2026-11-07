@@ -8,6 +8,7 @@ import {
   wordPressures,
   type PadStroke,
 } from './pressure'
+import { kept, keptKey } from './strokeKeep'
 
 /**
  * The AI engine's writing surface: records real strokes with pen pressure
@@ -21,17 +22,26 @@ export function AiCanvas({
   weight,
   onRead,
   onError,
+  onDirty,
 }: {
   pageId?: string
   font: PadFont
   weight: PadWeight
   onRead: (pieces: { text: string; weight: PadWeight }[]) => void
   onError: (message: string) => void
+  /** Whether there is unread writing on the canvas. */
+  onDirty?: (dirty: boolean) => void
 }) {
   const canvas = useRef<HTMLCanvasElement>(null)
-  const strokes = useRef<PadStroke[]>([])
+  const strokes = useRef<PadStroke[]>(kept.get(keptKey(pageId)) ?? [])
   const live = useRef<PadStroke | null>(null)
-  const [count, setCount] = useState(0)
+  const [count, setCount] = useState(kept.get(keptKey(pageId))?.length ?? 0)
+  const remember = () => {
+    if (strokes.current.length) kept.set(keptKey(pageId), strokes.current)
+    else kept.delete(keptKey(pageId))
+    setCount(strokes.current.length)
+    onDirty?.(strokes.current.length > 0)
+  }
   const [busy, setBusy] = useState(false)
 
   const paint = () => {
@@ -76,7 +86,7 @@ export function AiCanvas({
       const weights = weightsFor(wordPressures(strokes.current), font, weight)
       onRead(weightPieces(text, weights, weight))
       strokes.current = []
-      setCount(0)
+      remember()
     } catch (e) {
       onError(e instanceof Error ? e.message : String(e))
     } finally {
@@ -102,6 +112,7 @@ export function AiCanvas({
           }
           live.current = [point(e)]
           strokes.current.push(live.current)
+          remember()
         }}
         onPointerMove={(e) => {
           if (!live.current) return
@@ -110,7 +121,7 @@ export function AiCanvas({
         }}
         onPointerUp={() => {
           live.current = null
-          setCount(strokes.current.length)
+          remember()
         }}
         onPointerCancel={() => (live.current = null)}
         className="min-h-24 w-full flex-1 touch-none rounded-lg border border-line bg-bg text-ink"
@@ -125,7 +136,7 @@ export function AiCanvas({
             disabled={count === 0 || busy}
             onClick={() => {
               strokes.current = []
-              setCount(0)
+              remember()
             }}
             className={btn}
           >

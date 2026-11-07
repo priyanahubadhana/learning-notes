@@ -21,6 +21,13 @@ Write with Apple Pencil in a big pad; the words land in the note as typed text w
 - **Undo:** the main bar ↶ ↷ undo the pad's text first (`padHistory.ts`: typing within 600 ms is one step, each key is a step, Ctrl/Cmd+Z in the box too); with no pad steps, or after Insert, they act on the page.
 - **Enter:** the box keeps real newlines; a mirror layer behind it draws a ↵ mark at each line end; the keys focus the box so the caret shows.
 
+## Never lose text, live writing (R6-15, R6-16)
+
+- **Drafts:** the unsent text is saved per page in localStorage (`draft.ts`) on every change and restored when the pad opens; Insert clears it. Close, page change and reload keep it. Resize, zoom and font only change prefs.
+- **Read with:** switching keeps the text. In AI mode the text shows above the canvas and Read adds to it. Unread canvas strokes (`strokeKeep.ts`) survive close and page change; switching away from them asks "Keep writing / Discard".
+- **Live ghost:** the text is drawn at the page cursor as a widget decoration (`ghost.ts`, dashed underline, in the chosen look). It is not a document change (no Undo, no sync). Insert / Replace commits it as one step.
+- **Insert automatically when I pause (2 s):** pad option, off by default (`autoInsert` pref).
+
 ## Edge cases
 
 - Read-only page: Insert and Replace are off. Stale positions are clamped. A selection across blocks is removed, then the text is written at its start.

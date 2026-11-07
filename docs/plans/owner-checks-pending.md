@@ -2,6 +2,13 @@
 
 Moved out of HANDOFF on 2026-11-06 (audit) so HANDOFF stays five lines. Newest first; each paragraph names its step. The run decision (master plan) is one owner iPad pass before Sync; the Phase A builder adds its checks at the top. Tick a paragraph by deleting it.
 
+## Write pad: no lost text, live writing (7 Nov)
+
+1. Write a few words in the pad, switch **Read with** to AI and back: the words stay (in AI they sit above the canvas). Write on the AI canvas without tapping Read, then switch back: it asks Keep writing / Discard.
+2. Type or Scribble in the pad: the words appear faintly with a dashed underline at your cursor on the page, as you write. Do they sit where you expect, and is the ghost readable on the iPad? Why human: look and Scribble timing.
+3. Tick **Insert automatically when I pause (2 s)**: pause 2 seconds and the words land on the page; one Undo removes them.
+4. Close the pad with text in it and open it again (or leave the page and return): the text is back.
+
 ## Phase P part 2: Ask this book, Story so far, Permissions (7 Nov)
 
 1. Settings › AI on, your Claude key saved. Settings › **Permissions**: switch on **Books**; the model list and "spend per key" show.

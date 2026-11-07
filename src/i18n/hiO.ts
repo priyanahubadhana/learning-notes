@@ -116,6 +116,15 @@ export const hiO: Record<string, string> = {
   'help.tip.writePad.ai.read.example': 'ज़ोर से लिखे शब्द मोटे आते हैं।',
   'help.tip.writePad.ai.clear.meaning': 'लिखने की जगह साफ़ करता है।',
   'help.tip.writePad.ai.clear.example': 'कुछ नहीं भेजा जाता।',
+  'writePad.auto': 'रुकने पर अपने-आप डालें (2 सेकंड)',
+  'writePad.discard.ask':
+    'लिखने की जगह की लिखावट अभी पढ़ी नहीं गई। बदलने पर वह मिट जाएगी।',
+  'writePad.discard.keep': 'लिखते रहें',
+  'writePad.discard.discard': 'हटाएँ',
+  'help.tip.writePad.auto.meaning':
+    '2 सेकंड न लिखने पर आपका पाठ अपने-आप पन्ने पर डाल देता है।',
+  'help.tip.writePad.auto.example':
+    'शुरू में बंद है। तब तक पाठ कर्सर पर हल्का, बिंदीदार दिखता है।',
   // ---- Model picker and several keys ----
   'ai.keys.title': 'आपकी कुंजियाँ',
   'ai.keys.none': 'अभी कोई कुंजी नहीं। नीचे एक जोड़ें।',

@@ -120,6 +120,15 @@ export const enO = {
   'help.tip.writePad.ai.read.example': 'Firm words come out bolder.',
   'help.tip.writePad.ai.clear.meaning': 'Wipes the writing area.',
   'help.tip.writePad.ai.clear.example': 'Nothing is sent.',
+  'writePad.auto': 'Insert automatically when I pause (2 s)',
+  'writePad.discard.ask':
+    'Your writing on the canvas is not read yet. Switching would throw it away.',
+  'writePad.discard.keep': 'Keep writing',
+  'writePad.discard.discard': 'Discard',
+  'help.tip.writePad.auto.meaning':
+    'Puts your text on the page by itself after 2 seconds without writing.',
+  'help.tip.writePad.auto.example':
+    'Off by default. Until then the text shows faintly, dashed, at the page cursor.',
   // ---- Model picker and several keys ----
   'ai.keys.title': 'Your keys',
   'ai.keys.none': 'No keys yet. Add one below.',

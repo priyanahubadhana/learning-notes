@@ -20,6 +20,8 @@ export interface PadPrefs {
   zoom: number
   /** How handwriting is read: Scribble (the textarea) or the user's AI. */
   engine?: 'scribble' | 'ai'
+  /** Insert by itself after 2 s without writing (off by default). */
+  autoInsert?: boolean
 }
 
 export const PAD_ZOOMS = [1, 1.5, 2, 3] as const
@@ -48,7 +50,8 @@ const isPrefs = (v: unknown): v is PadPrefs => {
     p.height >= MIN_HEIGHT &&
     p.height <= 4000 &&
     (PAD_ZOOMS as readonly unknown[]).includes(p.zoom) &&
-    (p.engine === undefined || p.engine === 'scribble' || p.engine === 'ai')
+    (p.engine === undefined || p.engine === 'scribble' || p.engine === 'ai') &&
+    (p.autoInsert === undefined || typeof p.autoInsert === 'boolean')
   )
 }
 

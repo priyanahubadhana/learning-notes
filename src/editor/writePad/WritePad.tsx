@@ -14,6 +14,9 @@ import { t, type MessageKey } from '../../i18n/t'
 import { BACKGROUND_HEX, COLOR_NAMES, colorLabel, TEXT_HEX } from '../colorData'
 import { applyPad, type PadLook } from './apply'
 import { AiCanvas } from './AiCanvas'
+import { discardStrokes, hasUnreadStrokes } from './strokeKeep'
+import { loadDraft, saveDraft } from './draft'
+import { setGhost } from './ghost'
 import { pickEngine } from './engine'
 import {
   bindPadHistory,
@@ -202,6 +205,10 @@ export default function WritePad() {
     { text: string; weight: PadWeight }[] | null
   >(null)
   const [aiError, setAiError] = useState('')
+  /** The mode the user asked for while unread canvas writing would be lost. */
+  const [asking, setAsking] = useState<'scribble' | 'ai' | null>(null)
+  /** The draft is loaded for this page: only then is it saved (R6-15). */
+  const loadedFor = useRef<string | null>(null)
   const drag = useRef<{ y: number; h: number } | null>(null)
   const marks = useRef<HTMLDivElement>(null)
   /** Where the caret goes once the key's new text is in the box. */
@@ -231,27 +238,106 @@ export default function WritePad() {
     if (prefs.font !== 'app') void ensureFont(prefs.font)
   }, [prefs.font])
 
+  const pageKey = session?.pageId ?? 'none'
+  // Pieces only count while they still spell the text (Undo can change it).
+  const live =
+    pieces && pieces.map((p) => p.text).join('') === text ? pieces : null
+
+  // The unsent text is a per-page draft in localStorage: closing the pad,
+  // another page or a reload never loses it (R6-15). Save first, then load,
+  // so a page change cannot write the old text into the new page.
+  useEffect(() => {
+    if (open && loadedFor.current === pageKey) saveDraft(session?.pageId, text)
+  }, [open, text, pageKey, session?.pageId])
+  useEffect(() => {
+    if (!open) {
+      loadedFor.current = null
+      return
+    }
+    if (loadedFor.current === pageKey) return
+    const draft = loadDraft(session?.pageId)
+    loadedFor.current = pageKey
+    setPieces(null)
+    setAsking(null)
+    setText(draft)
+    resetPadHistory(draft)
+  }, [open, pageKey, session?.pageId])
+
+  /** The editor selection to use: live if the page has focus, else the saved one. */
+  const target = () => {
+    if (!session) return { from: 0, to: 0 }
+    const focused = session.editor.domElement?.contains(document.activeElement)
+    return focused
+      ? currentRange(session.editor)
+      : { from: session.from, to: session.to }
+  }
+
+  const apply = (mode: 'insert' | 'replace') => {
+    if (!session || !session.editor.isEditable || text.trim() === '') return
+    const end = applyPad(session.editor, live ?? text, look, mode, target())
+    setPieces(null)
+    if (end === null) return
+    writePad.set({ ...session, from: end, to: end })
+    setText('')
+    resetPadHistory('')
+    saveDraft(session.pageId, '')
+    box.current?.focus()
+  }
+  const applyNow = useRef(apply)
+  useEffect(() => {
+    applyNow.current = apply
+  })
+
+  // Live writing: the text shows at the page cursor as a ghost (not a
+  // document change). Gone when the pad closes (R6-16).
+  const ghostEditor = session?.editor
+  const ghostFrom = session?.from
+  const ghostTo = session?.to
+  useEffect(() => {
+    if (!ghostEditor) return
+    if (text.trim() === '') {
+      setGhost(ghostEditor, null)
+      return
+    }
+    const r = target()
+    setGhost(ghostEditor, {
+      pos: r.from,
+      pieces: live ?? [{ text, weight: look.weight }],
+      look,
+    })
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [ghostEditor, ghostFrom, ghostTo, text, pieces, prefs])
+  useEffect(
+    () => () => {
+      if (ghostEditor) setGhost(ghostEditor, null)
+    },
+    [ghostEditor],
+  )
+
+  // "Insert automatically when I pause (2 s)", off by default.
+  const auto = !!prefs.autoInsert
+  useEffect(() => {
+    if (!open || !auto || text.trim() === '') return
+    const id = window.setTimeout(() => applyNow.current('insert'), 2000)
+    return () => window.clearTimeout(id)
+  }, [open, auto, text])
+
   // Leaving the page (or turning the pad off) ends the session.
   if (!session) return null
   const editor = session.editor
   const set = (patch: Partial<typeof prefs>) =>
     padPrefs.set({ ...prefs, ...patch })
 
-  /** The editor selection to use: live if the page has focus, else the saved one. */
-  const target = () => {
-    const live = editor.domElement?.contains(document.activeElement)
-    return live ? currentRange(editor) : { from: session.from, to: session.to }
-  }
-
-  const apply = (mode: 'insert' | 'replace') => {
-    if (!editor.isEditable || text.trim() === '') return
-    const end = applyPad(editor, pieces ?? text, look, mode, target())
+  /** Switching mode keeps the text; only unread canvas writing needs asking. */
+  const pickMode = (mode: 'scribble' | 'ai') => {
+    if (mode === (ai ? 'ai' : 'scribble')) return
+    if (ai && hasUnreadStrokes(session.pageId)) {
+      setAsking(mode)
+      return
+    }
     setPieces(null)
-    if (end === null) return
-    writePad.set({ ...session, from: end, to: end })
-    setText('')
-    resetPadHistory('')
-    box.current?.focus()
+    setAiError('')
+    set({ engine: mode })
   }
 
   // Keys: act on the text box without taking its focus away.
@@ -351,13 +437,7 @@ export default function WritePad() {
             value={ai ? 'ai' : 'scribble'}
             options={['scribble', 'ai'] as const}
             show={(e) => t(`writePad.engine.${e}`)}
-            onPick={(e) => {
-              setPieces(null)
-              setAiError('')
-              setText('')
-              resetPadHistory('')
-              set({ engine: e })
-            }}
+            onPick={pickMode}
           />
         </Tip>
         <TipButton
@@ -446,9 +526,9 @@ export default function WritePad() {
           <span className="text-sm text-muted">
             {t('writePad.previewEmpty')}
           </span>
-        ) : pieces ? (
+        ) : live ? (
           <span data-write-pad-pieces>
-            {pieces.map((piece, i) => (
+            {live.map((piece, i) => (
               <span
                 key={i}
                 data-weight={piece.weight}
@@ -466,18 +546,70 @@ export default function WritePad() {
         )}
       </div>
 
+      {asking && (
+        <div
+          role="alert"
+          data-write-pad-ask
+          className="mx-3 mt-1 flex flex-wrap items-center gap-2 rounded-lg border border-line bg-soft px-3 py-2 text-sm"
+        >
+          <span className="min-w-0 flex-1">{t('writePad.discard.ask')}</span>
+          <button
+            type="button"
+            className="min-h-11 rounded-lg border border-line px-3 hover:bg-hover"
+            onClick={() => setAsking(null)}
+          >
+            {t('writePad.discard.keep')}
+          </button>
+          <button
+            type="button"
+            data-testid="write-pad-discard"
+            className="min-h-11 rounded-lg border border-line px-3 hover:bg-hover"
+            onClick={() => {
+              discardStrokes(session.pageId)
+              const mode = asking
+              setAsking(null)
+              setPieces(null)
+              setAiError('')
+              set({ engine: mode })
+            }}
+          >
+            {t('writePad.discard.discard')}
+          </button>
+        </div>
+      )}
+
       {ai ? (
-        <AiCanvas
-          pageId={session.pageId}
-          font={prefs.font}
-          weight={prefs.weight}
-          onRead={(read) => {
-            setAiError('')
-            setPieces(read)
-            change(read.map((p) => p.text).join(''))
-          }}
-          onError={(m) => setAiError(t('ai.failed', { reason: m }))}
-        />
+        <>
+          {text !== '' && (
+            <div
+              data-write-pad-kept
+              style={{ ...lookCss, fontSize: `${18 * prefs.zoom}px` }}
+              className="mx-3 mt-1 max-h-24 shrink-0 overflow-y-auto whitespace-pre-wrap break-words rounded-lg border border-line p-2 text-ink"
+            >
+              {text}
+            </div>
+          )}
+          <AiCanvas
+            pageId={session.pageId}
+            font={prefs.font}
+            weight={prefs.weight}
+            onRead={(read) => {
+              setAiError('')
+              // Add to the text already in the pad; never replace it.
+              const base =
+                live ?? (text ? [{ text, weight: prefs.weight }] : [])
+              const gap = base.length > 0 && !/\s$/.test(text)
+              const next = [
+                ...base,
+                ...(gap ? [{ text: ' ', weight: prefs.weight }] : []),
+                ...read,
+              ]
+              setPieces(next)
+              change(next.map((p) => p.text).join(''), true)
+            }}
+            onError={(m) => setAiError(t('ai.failed', { reason: m }))}
+          />
+        </>
       ) : (
         <div className="relative mx-3 my-2 min-h-0 flex-1 rounded-lg bg-bg">
           {/* Shows each Enter as a mark; the box on top stays a plain textarea. */}
@@ -563,6 +695,18 @@ export default function WritePad() {
         />
       </div>
       <div className="flex items-center gap-3 overflow-x-auto px-3 pb-3">
+        <Tip id="writePad.auto" touchInfo={false}>
+          <label className="flex min-h-11 shrink-0 items-center gap-2 text-sm">
+            <input
+              type="checkbox"
+              data-testid="write-pad-auto"
+              checked={auto}
+              onChange={(e) => set({ autoInsert: e.target.checked })}
+              className="size-5"
+            />
+            {t('writePad.auto')}
+          </label>
+        </Tip>
         <Seg
           label={t('writePad.size')}
           value={prefs.size}

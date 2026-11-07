@@ -2,6 +2,12 @@
 
 Current phase only. Older entries are in [ARCHIVE.md](ARCHIVE.md).
 
+## 2026-11-07 (Write pad: never lose text, live writing; no Dexie version)
+
+- **What:** (1) **R6-15 data loss fixed.** Switching Read with Scribble / AI keeps the text; in AI mode the text shows above the canvas and Read adds to it. Unread canvas writing is asked about first ("Keep writing / Discard") and survives closing the pad. The pad's text is a per-page draft in localStorage (saved on every change, restored on open, cleared by Insert), so close, page change and reload keep it; resize, zoom and font never touched it. (2) **R6-16 live writing.** The text shows at the page cursor as a ghost (ProseMirror widget decoration, dashed underline, in the chosen look): not a document change, so no Undo step and no sync. Insert / Replace commits it as one step as before. New pad option **Insert automatically when I pause (2 s)**, off by default.
+- **Why:** owner iPad notes R6-15, R6-16. **Files:** `src/editor/writePad/{WritePad.tsx,AiCanvas.tsx,padPrefs.ts}`, new `draft.ts`, `ghost.ts`, `strokeKeep.ts`; `src/i18n/{enO,esO,hiO}.ts`, `src/help/helpRegistry.ts`, `docs/HELP-TEXTS.md`; `e2e/{writePad,aiVision}.spec.ts`.
+- **Tests:** e2e +6 (keep on switch, ask on unread canvas, close/reload/resize/zoom/font keep, ghost then one-Undo Insert, auto-insert, AI Read appends). First load 279.1 KB.
+
 ## 2026-11-07 (Phase P part 2: Ask this book, Story so far, Permissions, streaming; no Dexie version)
 
 - **What:** (1) **Ask this book** in the PDF and EPUB readers (✦ Ask AI, only while AI is on): a chapter or chosen pages is sent, after a preview of the words, part, host and the most it can cost; the answer cites [p. N] / [ch. N] as links; Save to Summary and Make cards. (2) **Story so far:** only what was read up to the reading position. (3) **Settings › Permissions:** every notebook's AI switch and model (moved from Settings › AI), spend per key, and "Everything AI sent this month" (date, notebook, feature, host, cost; no content). Every AI call now adds a log row. (4) **Streaming** (Anthropic and OpenAI-style SSE incl. Gemini) with Stop for the book answers.

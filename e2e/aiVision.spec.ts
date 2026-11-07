@@ -253,3 +253,40 @@ test('the AI key stays in localStorage only: never in a backup', async ({
   }, KEY)
   expect(inDb).toBeNull()
 })
+
+test('Write pad: AI Read adds to the text already in the pad, never replaces it (R6-15)', async ({
+  page,
+}) => {
+  await aiPrefs(page)
+  mockClaude(page, 'second')
+  await openNote(page, 'touch')
+  await allowBiology(page)
+  await tool(page, 'Insert').click()
+  await option(page, 'Write pad').click()
+  const pad = page.locator('[data-write-pad]')
+  await pad.locator('[data-write-pad-input]').fill('first')
+  await pad.getByRole('button', { name: 'AI', exact: true }).click()
+  const canvas = pad.locator('[data-write-pad-canvas]')
+  const b = (await canvas.boundingBox())!
+  await canvas.evaluate((el, r) => {
+    const fire = (type: string, x: number, y: number) =>
+      el.dispatchEvent(
+        new PointerEvent(type, {
+          bubbles: true,
+          pointerId: 7,
+          pointerType: 'pen',
+          clientX: r.x + x,
+          clientY: r.y + y,
+          pressure: 0.5,
+        }),
+      )
+    fire('pointerdown', 20, 40)
+    for (let i = 1; i <= 8; i++)
+      fire('pointermove', 20 + i * 5, 40 + (i % 2) * 20)
+    fire('pointerup', 60, 40)
+  }, b)
+  await pad.getByTestId('write-pad-ai-read').click()
+  await expect(pad.locator('[data-write-pad-kept]')).toHaveText('first second')
+  await page.getByTestId('write-pad-insert').click()
+  await expect(page.locator('.bn-editor')).toContainText('first second')
+})

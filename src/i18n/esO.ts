@@ -116,6 +116,15 @@ export const esO: Record<string, string> = {
   'help.tip.writePad.ai.read.example': 'Las palabras firmes salen más gruesas.',
   'help.tip.writePad.ai.clear.meaning': 'Limpia la zona de escritura.',
   'help.tip.writePad.ai.clear.example': 'No se envía nada.',
+  'writePad.auto': 'Insertar automáticamente cuando hago una pausa (2 s)',
+  'writePad.discard.ask':
+    'Tu escritura en la zona aún no se ha leído. Cambiar la descartaría.',
+  'writePad.discard.keep': 'Seguir escribiendo',
+  'writePad.discard.discard': 'Descartar',
+  'help.tip.writePad.auto.meaning':
+    'Pone tu texto en la página solo, tras 2 segundos sin escribir.',
+  'help.tip.writePad.auto.example':
+    'Desactivado por defecto. Mientras, el texto se ve tenue y punteado en el cursor.',
   // ---- Model picker and several keys ----
   'ai.keys.title': 'Tus claves',
   'ai.keys.none': 'Aún no hay claves. Añade una abajo.',

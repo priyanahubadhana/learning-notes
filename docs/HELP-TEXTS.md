@@ -2,7 +2,7 @@
 
 Every hover tip and help line in the app (shown while Settings › Show help is On). Generated from `src/help/helpRegistry.ts` and `src/i18n/en.ts`; to change a text, edit it in `en.ts`, then run `UPDATE_HELP=1 npx vitest run src/help` to refresh this file.
 
-## Hover tips (171)
+## Hover tips (172)
 
 ### `bar.newLine`
 
@@ -87,6 +87,12 @@ Every hover tip and help line in the app (shown while Settings › Show help is 
 - **Where:** Page › Write pad › ✕
 - **Meaning:** Closes the Write pad.
 - **Example:** Your page keeps everything you inserted.
+
+### `writePad.auto`
+
+- **Where:** Page › Write pad › Insert automatically
+- **Meaning:** Puts your text on the page by itself after 2 seconds without writing.
+- **Example:** Off by default. Until then the text shows faintly, dashed, at the page cursor.
 
 ### `ai.modelOrder`
 

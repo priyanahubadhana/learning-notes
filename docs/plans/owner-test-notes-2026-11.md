@@ -297,3 +297,5 @@ R5-13 DECIDED: edge fade + slim auto-hiding scroll indicator on all scrollable l
 - R6-18 Pencil double-tap in typing mode selects the word, then it deselects almost at once, before the owner can act.
 - R6-19 Pencil triple-tap selects the whole paragraph; owner wants only the line(s) being tapped, not the paragraph.
 - R6-20 Owner: "the pencil tool double tap doesn't work" (meaning to be confirmed: double-tap while the Pen tool is on?).
+- R6-OK Real-time sync: all steps passed (live updates, caret kept, both directions, same-line typing, background).
+- R6-17 (screenshot) Lasso, T filter only, small freeform loop around "in Claude" inside a paragraph: nothing is selected. Cause: the "most of the line inside" rule selects whole lines only, so a small loop in a long line never qualifies. Owner expects the words inside the loop to be selected (a text range, word-level), for both freeform and rectangle.

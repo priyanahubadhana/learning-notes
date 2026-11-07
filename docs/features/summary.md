@@ -41,6 +41,6 @@ Designed by the builder (owner approved autonomous building, 7 Nov 2026); choice
 
 ## Tests
 
-- Unit: `src/core/summaryService.test.ts` (add, dedupe, live text follows edits, deleted note keeps the snapshot, page/notebook/app listings, remove, own line edit, href check, tab added once), `src/core/migration.test.ts` (20 to 21).
+- Unit: `src/core/summaryService.test.ts` (add, dedupe, live text follows edits, deleted note keeps the snapshot, page/notebook/app listings, remove, own line edit, href check, tab added once), `src/core/migration.test.ts` (20 to 21), `src/share/summaryRows.test.ts` (backup file checks).
 - E2E: `e2e/summary.spec.ts` (select a line, Summary button, line in the page Summary, edit the note and the Summary follows, notebook tab and app screen).
 - Owner (iPad): see [plans/owner-checks-pending.md](../plans/owner-checks-pending.md) "PHASE M CHECKS".

@@ -618,6 +618,39 @@ html[data-note-line] .bn-editor {
   -webkit-touch-callout: none;
 }
 
+/*
+ * R6-4: our own surfaces never show the iOS edit callout (Cut / Copy / Paste /
+ * AutoFill / Look Up). Bars, pills, menus and the ink layer are not text to
+ * select; typing fields inside them stay selectable.
+ */
+[data-chrome],
+[data-bar],
+[data-pill-root],
+[data-popup],
+[role='menu'],
+[role='dialog'],
+[data-ink-overlay],
+[data-ink-handles] {
+  -webkit-touch-callout: none;
+}
+[data-bar],
+[data-pill-root],
+[data-popup],
+[role='menu'],
+[data-ink-overlay],
+[data-ink-handles] {
+  -webkit-user-select: none;
+  user-select: none;
+}
+[data-bar] :is(input, textarea, [contenteditable='true']),
+[data-pill-root] :is(input, textarea, [contenteditable='true']),
+[data-popup] :is(input, textarea, [contenteditable='true']),
+[role='menu'] :is(input, textarea, [contenteditable='true']),
+[data-ink-handles] :is(input, textarea) {
+  -webkit-user-select: text;
+  user-select: text;
+}
+
 /* Pictures and blocks are never dragged by a pen or finger press (the ⠿ handle moves blocks). */
 .bn-editor img,
 .bn-editor .bn-block-content {

@@ -295,4 +295,46 @@ test('R6-6: a Pencil tap on empty page space clears a text selection (typing mod
   }, at)
   await expect.poll(selected).toBe(0)
 })
+test('R6-4: our own bars and menus show no iOS callout and no system menu', async ({
+  page,
+}) => {
+  await openNote(page, 'pencil')
+  await tool(page, 'Pen').click()
+  const info = await page.evaluate(() => {
+    const css = (sel: string) => {
+      const el = document.querySelector(sel)!
+      const s = getComputedStyle(el) as CSSStyleDeclaration & {
+        webkitTouchCallout?: string
+      }
+      return {
+        select: s.userSelect || s.webkitUserSelect,
+        callout: s.webkitTouchCallout,
+      }
+    }
+    const menu = (sel: string) => {
+      const el = document.querySelector(sel)!
+      const e = new MouseEvent('contextmenu', {
+        bubbles: true,
+        cancelable: true,
+      })
+      el.dispatchEvent(e)
+      return e.defaultPrevented
+    }
+    return {
+      bar: css('[data-main-bar]'),
+      pill: css('[data-options-pill]'),
+      barMenu: menu('[data-bar-tool="eraser"]'),
+      pageMenu: menu('.bn-block-content'),
+      supportsCallout: CSS.supports('-webkit-touch-callout', 'none'),
+    }
+  })
+  expect(info.bar.select).toBe('none')
+  expect(info.pill.select).toBe('none')
+  if (info.supportsCallout) {
+    expect(info.bar.callout).toBe('none')
+    expect(info.pill.callout).toBe('none')
+  }
+  expect(info.barMenu).toBe(true)
+  expect(info.pageMenu).toBe(false) // the page keeps its own text menus
+})
 // END

@@ -174,11 +174,17 @@ export function installPenTap(doc: Document = document): () => void {
   }
   doc.addEventListener('pointercancel', onCancel, true)
   doc.addEventListener('click', onClick, true)
+  // R6-4: a long press on our own bars and menus opens no system menu.
+  const onMenu = (e: Event) => {
+    if (inChrome(e.target) && e.cancelable) e.preventDefault()
+  }
+  doc.addEventListener('contextmenu', onMenu, true)
   return () => {
     doc.removeEventListener('touchstart', onTouch, true)
     doc.removeEventListener('pointerdown', onDown, true)
     doc.removeEventListener('pointerup', onUp, true)
     doc.removeEventListener('pointercancel', onCancel, true)
     doc.removeEventListener('click', onClick, true)
+    doc.removeEventListener('contextmenu', onMenu, true)
   }
 }

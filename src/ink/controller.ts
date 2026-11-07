@@ -422,10 +422,10 @@ export class InkController {
       !this.env.frozen()
     this.pad.style.pointerEvents = on ? 'auto' : 'none'
     this.pad.style.cursor = on ? 'crosshair' : 'default'
-    // A finger scrolls unless it may draw.
-    this.pad.style.touchAction = this.fingerCanDraw()
-      ? 'none'
-      : 'pan-x pan-y pinch-zoom'
+    // A finger scrolls unless it may draw (under the Lasso: only "Always").
+    const fingerOwns =
+      tool === 'lasso' ? this.fingerLassos() : this.fingerCanDraw()
+    this.pad.style.touchAction = fingerOwns ? 'none' : 'pan-x pan-y pinch-zoom'
     this.requestDraw()
   }
 
@@ -1344,13 +1344,22 @@ export class InkController {
     return null
   }
 
+  /**
+   * Under the Lasso a finger scrolls and taps (owner: finger scroll beside
+   * and under the Lasso), unless "Finger can draw" is Always (no Pencil at
+   * all): only then does a finger draw a loop.
+   */
+  private fingerLassos(): boolean {
+    return penSettings.get().finger === 'on'
+  }
+
   private lassoActive(e: PointerEvent): boolean {
     return (
       this.env.tool() === 'lasso' &&
       !this.env.frozen() &&
       (e.pointerType === 'pen' ||
         e.pointerType === 'mouse' ||
-        this.fingerCanDraw())
+        this.fingerLassos())
     )
   }
 

@@ -2,7 +2,7 @@ import type { Block } from '../core/types'
 import { toPlainText } from '../editor/mapping'
 
 /** Pages with at least this many sections show the jump chips. */
-export const MIN_SECTIONS = 3
+const MIN_SECTIONS = 3
 
 export interface Section {
   blockId: string

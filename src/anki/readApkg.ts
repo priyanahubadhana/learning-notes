@@ -11,7 +11,7 @@ import { loadSql } from './sqlite'
  */
 
 /** Largest collection file read (bytes, after unzipping). */
-export const MAX_COLLECTION_BYTES = 400_000_000
+const MAX_COLLECTION_BYTES = 400_000_000
 
 /** What is wrong with a file that cannot be read. */
 export class AnkiError extends Error {}

@@ -10,7 +10,6 @@ export function PopupClose({ onClose }: { onClose: () => void }) {
       type="button"
       data-popup-close
       aria-label={t('popup.close')}
-      title={t('popup.close')}
       onMouseDown={(e) => e.preventDefault()}
       onClick={onClose}
       className="grid size-11 shrink-0 place-items-center rounded-lg text-lg leading-none text-ink-soft hover:bg-hover hover:text-ink"

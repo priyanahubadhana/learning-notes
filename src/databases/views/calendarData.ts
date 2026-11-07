@@ -24,7 +24,7 @@ export interface CalendarDay<T = ResolvedRow> {
 }
 
 /** The first day of the month a day is in. */
-export const monthStart = (day: string): string => `${day.slice(0, 7)}-01`
+const monthStart = (day: string): string => `${day.slice(0, 7)}-01`
 
 /** The day `by` days after `day`. */
 export const addDays = (day: string, by: number): string =>

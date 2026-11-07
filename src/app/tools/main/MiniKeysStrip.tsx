@@ -180,7 +180,6 @@ function Strip({ editor }: { editor: Editor }) {
         type="button"
         data-keys="grip"
         aria-label={t('keys.move')}
-        title={t('keys.move')}
         onMouseDown={keepFocus}
         onPointerDown={down}
         onPointerMove={move}
@@ -195,7 +194,6 @@ function Strip({ editor }: { editor: Editor }) {
         data-keys="mic"
         data-pen-own
         aria-label={micLabel}
-        title={micLabel}
         aria-pressed={listening}
         onMouseDown={keepFocus}
         onPointerDown={(e) => e.stopPropagation()}
@@ -209,7 +207,6 @@ function Strip({ editor }: { editor: Editor }) {
         data-keys="enter"
         data-pen-own
         aria-label={t('keys.enter')}
-        title={t('keys.enter')}
         onMouseDown={keepFocus}
         onPointerDown={(e) => e.stopPropagation()}
         onClick={() => addLineAfterCursor(editor)}

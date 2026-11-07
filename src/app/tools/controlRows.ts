@@ -8,7 +8,6 @@ import '../../settings/readingSettings'
 import '../../settings/lockSettings'
 import { getAppActions } from './toolRuntime'
 import type { IconName } from './icons'
-import { TABS } from './tabs'
 import {
   allTools,
   comingText,
@@ -36,9 +35,6 @@ export interface Row {
   pinId?: string
   run: () => void
 }
-
-export const GROUP_ORDER: Group[] = [...TABS, 'go', 'settings']
-export const MAX_SHOWN = 300
 
 const englishName = (key: string): string =>
   (en as Record<string, string>)[key] ?? ''

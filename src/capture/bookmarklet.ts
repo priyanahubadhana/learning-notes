@@ -5,7 +5,7 @@
  * through a server). The text is cut to 8,000 characters (an address has a
  * limit); longer text is pasted by hand.
  */
-export const BOOKMARKLET_TEXT_LIMIT = 8000
+const BOOKMARKLET_TEXT_LIMIT = 8000
 
 /** The capture address of the app at `appUrl` (its origin and path). */
 export const captureAddress = (appUrl: string): string =>

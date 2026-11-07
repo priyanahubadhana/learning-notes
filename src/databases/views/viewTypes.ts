@@ -30,7 +30,7 @@ export interface ViewTypeDefinition {
 const viewTypes = new Map<string, ViewTypeDefinition>()
 
 /** Adds a view type. Throws if the name is taken. */
-export function registerViewType(definition: ViewTypeDefinition): void {
+function registerViewType(definition: ViewTypeDefinition): void {
   if (viewTypes.has(definition.type)) {
     throw new Error(`View type already registered: ${definition.type}`)
   }

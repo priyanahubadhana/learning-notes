@@ -206,7 +206,7 @@ export function baseHash(hash: string): string {
 }
 
 /** The screen's own levels in the current address. */
-export function currentParts(hash: string = location.hash): string[] {
+function currentParts(hash: string = location.hash): string[] {
   const route = parseHash(hash)
   return route.kind === 'notebook' ||
     route.kind === 'database' ||

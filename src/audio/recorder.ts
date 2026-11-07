@@ -34,7 +34,7 @@ const set = (next: RecorderState) => {
   for (const l of listeners) l()
 }
 export const getRecorderState = () => state
-export const subscribeRecorder = (l: () => void) => {
+const subscribeRecorder = (l: () => void) => {
   listeners.add(l)
   return () => listeners.delete(l)
 }
@@ -51,7 +51,7 @@ export const setRecorderNotice = (fn: ((message: string) => void) | null) => {
 /** Sound types to try, best first (Safari makes mp4, Chrome webm). */
 const TYPES = ['audio/mp4', 'audio/webm;codecs=opus', 'audio/webm', 'audio/ogg']
 
-export function isRecordingSupported(): boolean {
+function isRecordingSupported(): boolean {
   return (
     typeof MediaRecorder !== 'undefined' &&
     !!navigator.mediaDevices?.getUserMedia

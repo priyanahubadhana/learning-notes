@@ -1,4 +1,4 @@
-import { routeToHash, type Route } from '../../app/router'
+import { routeToHash } from '../../app/router'
 import type { Annotation } from '../../core/types'
 import { locatorOf } from './annotationService'
 
@@ -23,7 +23,7 @@ export function deepLinkFor(
 }
 
 /** The app address without any hash. */
-export const appBase = (): string =>
+const appBase = (): string =>
   typeof location === 'undefined'
     ? ''
     : `${location.origin}${location.pathname}`
@@ -48,7 +48,3 @@ export function installDeepLinks(): () => void {
   document.addEventListener('click', onClick, true)
   return () => document.removeEventListener('click', onClick, true)
 }
-
-/** Reads a route's locator ("at") for the reader. */
-export const atOf = (route: Route): string | undefined =>
-  route.kind === 'read' ? route.at : undefined

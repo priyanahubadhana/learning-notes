@@ -26,8 +26,8 @@ export const isMindTheme = (v: unknown): v is MindTheme =>
   (MIND_THEMES as readonly unknown[]).includes(v)
 
 /** Limits keep a damaged or huge file from freezing the page. */
-export const MAX_NODES = 500
-export const MAX_TEXT = 200
+const MAX_NODES = 500
+const MAX_TEXT = 200
 
 /** A new map with one central topic. */
 export function newMindMap(topic = ''): MindMap {
@@ -139,7 +139,7 @@ export function addSibling(
 }
 
 /** Every id in the branch that starts at `id`. */
-export function branchIds(map: MindMap, id: string): Set<string> {
+function branchIds(map: MindMap, id: string): Set<string> {
   return new Set(
     map.nodes.filter((n) => isUnder(map.nodes, n.id, id)).map((n) => n.id),
   )
@@ -306,7 +306,7 @@ const COL_GAP = 56
 const PAD = 16
 
 /** Width of a node's box for its text (an estimate; the font is fixed). */
-export const nodeWidth = (text: string, depth: number): number =>
+const nodeWidth = (text: string, depth: number): number =>
   Math.min(280, Math.max(depth === 0 ? 96 : 64, text.length * 8 + 28))
 
 /**

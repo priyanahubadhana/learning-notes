@@ -23,7 +23,7 @@ import {
   toggleLockToReading,
   toggleReadingMode,
 } from '../reading/readingTools'
-import { TABS, type TabId } from './tabs'
+import type { TabId } from './tabs'
 import { runInkTool } from '../../ink/inkTools'
 import {
   isAudioPanelOpen,
@@ -38,7 +38,7 @@ import {
  * control panel reads them from the settings registry.
  */
 
-export { TABS, type TabId }
+export { type TabId }
 /** A ribbon tab, or "go": places to go to (not on the ribbon). */
 export type Section = TabId | 'go'
 
@@ -649,8 +649,6 @@ export function findTool(id: string): ToolDef | undefined {
     ? markTools().find((tool) => tool.id === id)
     : undefined
 }
-
-export const isToolId = (id: string): boolean => findTool(id) !== undefined
 
 /** The tool's name in the chosen language. */
 export const toolLabel = (tool: ToolDef): string =>

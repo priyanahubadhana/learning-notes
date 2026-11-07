@@ -1,6 +1,6 @@
 import type { Box } from './pillPlace'
 
-export const MARGIN = 8
+const MARGIN = 8
 /** Space between the main bar and a pill that sits against it. */
 export const BAR_GAP = 4
 export const reducedMotion = () =>

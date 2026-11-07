@@ -47,7 +47,7 @@ const clamp = (n: number, lo: number, hi: number) =>
   Math.min(hi, Math.max(lo, n))
 
 /** Pressure per point after the pen's own rules (flat nib, tilt, speed). */
-export function effectivePressure(stroke: Stroke): number[] {
+function effectivePressure(stroke: Stroke): number[] {
   const { pts, style } = stroke
   const n = pts.length / STRIDE
   const out: number[] = []
@@ -80,7 +80,7 @@ export function effectivePressure(stroke: Stroke): number[] {
 }
 
 /** Does the stroke carry real pressure (not one constant value)? */
-export function hasRealPressure(stroke: Stroke): boolean {
+function hasRealPressure(stroke: Stroke): boolean {
   const { pts } = stroke
   for (let i = STRIDE + 2; i < pts.length; i += STRIDE) {
     if (pts[i] !== pts[2]) return true

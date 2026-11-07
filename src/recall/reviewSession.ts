@@ -12,7 +12,7 @@ import type { Card, Rating } from '../core/types'
  */
 
 /** How many cards later a practised (not due) Again card comes back. */
-export const PRACTICE_REPEAT_GAP = 3
+const PRACTICE_REPEAT_GAP = 3
 
 export interface ReviewSession {
   /** Cards still to show, in order. */

@@ -32,7 +32,7 @@ export const emptyMemoryState = (): MemoryState => ({
   fileSeq: 0,
 })
 
-export const MOCK_ACCOUNT: Account = {
+const MOCK_ACCOUNT: Account = {
   accountId: '00000000-0000-4000-8000-000000000001',
   email: 'owner@example.com',
   sub: 'mock-sub',

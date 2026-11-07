@@ -194,7 +194,6 @@ export function NotebookScreen({
             type="button"
             onClick={onClose}
             aria-label={t('notebook.close')}
-            title={t('notebook.close')}
             className="hidden size-11 items-center justify-center rounded-lg text-lg text-muted hover:bg-hover hover:text-ink phone:flex"
           >
             ×

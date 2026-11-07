@@ -46,7 +46,7 @@ export interface SavedTheme {
 }
 
 export const MAX_SAVED_THEMES = 8
-export const MAX_THEME_NAME = 40
+const MAX_THEME_NAME = 40
 
 /** The ready-made looks; `id` picks their name (`reading.theme.preset.<id>`). */
 export const PRESET_THEMES: readonly (Omit<SavedTheme, 'name'> & {
@@ -94,7 +94,7 @@ export const PRESET_THEMES: readonly (Omit<SavedTheme, 'name'> & {
   },
 ]
 
-export function isSavedTheme(v: unknown): v is SavedTheme {
+function isSavedTheme(v: unknown): v is SavedTheme {
   if (typeof v !== 'object' || v === null) return false
   const o = v as Record<string, unknown>
   return (
@@ -121,7 +121,7 @@ export const savedThemes = prefStore<SavedTheme[]>(
 )
 
 /** The look in use now. */
-export function currentLook(): Omit<SavedTheme, 'name'> {
+function currentLook(): Omit<SavedTheme, 'name'> {
   return {
     theme: readDeviceSetting(readingThemeSetting),
     font: readDeviceSetting(readingFontSetting),

@@ -6,8 +6,8 @@
 
 /** Longest file read (characters) and most rows kept. */
 export const MAX_CSV_CHARS = 30_000_000
-export const MAX_CSV_ROWS = 100_000
-export const MAX_CSV_COLUMNS = 200
+const MAX_CSV_ROWS = 100_000
+const MAX_CSV_COLUMNS = 200
 
 const SEPARATORS = [',', ';', '\t'] as const
 

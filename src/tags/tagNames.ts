@@ -11,7 +11,7 @@
 import { fold } from '../search/searchText'
 
 /** Longest name of one level. */
-export const TAG_NAME_MAX = 60
+const TAG_NAME_MAX = 60
 
 /** One level's name as stored: no "#" or "/", spaces → "-". */
 export function cleanTagName(text: string): string {

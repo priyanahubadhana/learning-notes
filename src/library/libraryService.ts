@@ -85,7 +85,7 @@ export const titleFromFileName = (name: string): string =>
     .slice(0, 200)
 
 /** The three sections every book page starts with. */
-export function bookSectionBlocks(): BlockInput[] {
+function bookSectionBlocks(): BlockInput[] {
   const heading = (key: Parameters<typeof t>[0]): BlockInput => ({
     type: 'heading',
     content: { level: 2, text: plainText(t(key)) },
@@ -215,7 +215,7 @@ const FILTER_KINDS: Record<Exclude<SourceFilter, 'all'>, SourceKind[]> = {
   pasted: ['paste'],
 }
 
-export const matchesFilter = (
+const matchesFilter = (
   source: PageSource | undefined,
   filter: SourceFilter,
 ): boolean =>

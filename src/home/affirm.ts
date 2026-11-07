@@ -46,7 +46,7 @@ export function readAffirmation(
 const isAudioType = (v: string): boolean => /^audio\/[\w.+-]{1,30}$/.test(v)
 
 const TYPES = ['audio/mp4', 'audio/webm;codecs=opus', 'audio/webm', 'audio/ogg']
-export const MAX_AFFIRMATION_MS = 10 * 60 * 1000
+const MAX_AFFIRMATION_MS = 10 * 60 * 1000
 
 export const canRecord = (): boolean =>
   typeof MediaRecorder !== 'undefined' && !!navigator.mediaDevices?.getUserMedia

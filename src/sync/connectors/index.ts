@@ -4,7 +4,7 @@ import { supabaseAuth, supabaseRecords } from './supabase'
 import type { Connectors } from './types'
 
 export * from './types'
-export { memoryConnectors, emptyMemoryState } from './memory'
+export { memoryConnectors } from './memory'
 
 /**
  * The app's connectors: Supabase (records, sign-in) and Drive (files). The

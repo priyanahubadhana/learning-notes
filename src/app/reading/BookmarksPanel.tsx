@@ -101,7 +101,6 @@ export function BookmarksPanel({
               <button
                 type="button"
                 aria-label={t('reading.bookmarkRemove', { name: m.label })}
-                title={t('reading.bookmarkRemove', { name: m.label })}
                 onClick={() => remove(m)}
                 className="grid min-h-11 min-w-11 place-items-center rounded-lg text-muted hover:bg-hover"
               >

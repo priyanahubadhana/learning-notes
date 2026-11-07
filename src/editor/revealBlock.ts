@@ -2,7 +2,7 @@
  * Scrolls an element into view and fades a soft accent highlight over it
  * (also used for a setting opened from a dialog).
  */
-export function highlightElement(el: HTMLElement): void {
+function highlightElement(el: HTMLElement): void {
   const reduce = window.matchMedia('(prefers-reduced-motion: reduce)').matches
   el.scrollIntoView({ block: 'center', behavior: reduce ? 'auto' : 'smooth' })
   const color = 'color-mix(in srgb, var(--color-accent) 16%, transparent)'

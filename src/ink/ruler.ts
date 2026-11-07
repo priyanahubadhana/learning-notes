@@ -19,7 +19,7 @@ export interface RulerState {
 /** Thickness of the bar, in px. */
 export const RULER_H = 56
 /** How close the pen must start to an edge to stick to it. */
-export const RULER_REACH = 24
+const RULER_REACH = 24
 export const RULER_MIN = 160
 export const RULER_MAX = 1200
 

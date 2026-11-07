@@ -2,7 +2,6 @@ import { isBoolean } from '../uiPrefs'
 import {
   clearPinnedCache,
   readPinned,
-  usePinned,
   writePinned,
 } from '../../settings/deviceModeSettings'
 import { isPinnedList, MAX_PINNED } from '../deviceMode'
@@ -16,10 +15,8 @@ import { TABS, type TabId } from './tabs'
  * behaviour. Saved on this device only; nothing goes with the notes.
  */
 
-export const BAR_SETS = ['write', 'draw', 'read'] as const
+const BAR_SETS = ['write', 'draw', 'read'] as const
 export type BarSet = (typeof BAR_SETS)[number]
-export const isBarSet = (v: unknown): v is BarSet =>
-  (BAR_SETS as readonly unknown[]).includes(v)
 
 /** The tools each set shows from the start. Write is DEFAULT_PINNED. */
 export const DEFAULT_SET_TOOLS: Record<Exclude<BarSet, 'write'>, string[]> = {
@@ -106,15 +103,6 @@ export function readSetTools(set: BarSet): readonly string[] {
 export function writeSetTools(set: BarSet, list: readonly string[]): void {
   if (set === 'write') writePinned(list)
   else (set === 'draw' ? drawTools : readTools).set([...list])
-}
-
-/** The tool ids on a set; re-draws when they change. */
-export function useSetTools(set: BarSet): readonly string[] {
-  // Hooks are called in the same order every time; unused ones just read.
-  const write = usePinned()
-  const draw = drawTools.useValue()
-  const read = readTools.useValue()
-  return set === 'write' ? write : set === 'draw' ? draw : read
 }
 
 /**
@@ -213,7 +201,7 @@ export function toggleRibbonBehaviour(): boolean {
 /** Where a bar sits: docked at an edge, or floating over the page. */
 export const PLACES = ['top', 'bottom', 'free'] as const
 export type Place = (typeof PLACES)[number]
-export const isPlace = (v: unknown): v is Place =>
+const isPlace = (v: unknown): v is Place =>
   (PLACES as readonly unknown[]).includes(v)
 
 /** "Ribbon replaces short bar" or "Ribbon + short bar" (both at once). */

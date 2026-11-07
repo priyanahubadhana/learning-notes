@@ -17,7 +17,7 @@ export function parseImageRef(text: string): string | null {
 }
 
 /** Kinds of picture that can be added (no SVG: it can carry scripts). */
-export const IMAGE_TYPES = [
+const IMAGE_TYPES = [
   'image/png',
   'image/jpeg',
   'image/webp',

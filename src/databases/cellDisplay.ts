@@ -27,7 +27,7 @@ export function starMax(column: DbColumn): number {
 }
 
 /** The message for a formula error, e.g. "No column called [Dose]". */
-export function errorText(error: FormulaError): string {
+function errorText(error: FormulaError): string {
   return t(`formula.error.${error.error}` as MessageKey, {
     detail: error.detail ?? '',
   })

@@ -4,7 +4,7 @@
  * asks here first and gives its bytes back when it is dropped.
  */
 export const BUDGET_BYTES = 160 * 1024 * 1024
-export const MAX_DPR = 2
+const MAX_DPR = 2
 
 const held = new Map<string, number>()
 

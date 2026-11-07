@@ -13,7 +13,7 @@ import { deepLinkFor } from './deepLink'
  */
 
 /** Index (among top-level blocks) just before the second heading, i.e. the end of the first section. */
-export function firstSectionEnd(blocks: readonly Block[]): number {
+function firstSectionEnd(blocks: readonly Block[]): number {
   const top = blocks.filter((b) => b.parentId === null)
   const headings = top
     .map((b, i) => ({ b, i }))
@@ -22,7 +22,7 @@ export function firstSectionEnd(blocks: readonly Block[]): number {
 }
 
 /** The block inputs of one saved highlight: quote, then note, linked back. */
-export function quoteBlocks(
+function quoteBlocks(
   a: Pick<Annotation, 'quote' | 'note' | 'pageId' | 'anchor'>,
   where: string,
   base?: string,

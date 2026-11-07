@@ -31,7 +31,7 @@ const key = new PluginKey('ln-own-selection')
 /** Input this recently (ms) makes a selection change the person's own. */
 export const INTENT_MS = 700
 /** The most block highlights drawn at once. */
-export const MAX_DECORATIONS = 300
+const MAX_DECORATIONS = 300
 /** A text selection longer than this is drawn by whole blocks. */
 const LONG_SELECTION = 6000
 

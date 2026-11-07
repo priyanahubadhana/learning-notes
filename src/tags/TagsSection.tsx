@@ -441,7 +441,6 @@ function ColorDialog({
           type="button"
           aria-pressed={color === null}
           aria-label={t('tags.colorNone')}
-          title={t('tags.colorNone')}
           onClick={() => pick(null)}
           className={`${swatch} border-line text-muted`}
         >
@@ -453,7 +452,6 @@ function ColorDialog({
             type="button"
             aria-pressed={color === c}
             aria-label={t(COLOR_NAME[c])}
-            title={t(COLOR_NAME[c])}
             onClick={() => pick(c)}
             style={{ background: c, borderColor: c }}
             className={swatch}

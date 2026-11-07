@@ -74,7 +74,7 @@ export async function createKey(
 }
 
 /** Writes the Drive spare (the passphrase copy). False if Drive is not reachable. */
-export async function saveSpare(
+async function saveSpare(
   conn: Connectors,
   bundle: KeyBundle,
 ): Promise<boolean> {
@@ -90,7 +90,7 @@ export async function saveSpare(
 }
 
 /** True if the typed text looks like a recovery code rather than a passphrase. */
-export const looksLikeCode = (s: string) =>
+const looksLikeCode = (s: string) =>
   /^[0-9A-Za-z]{4}(-?[0-9A-Za-z]{4}){5}-?[0-9A-Za-z]{2}$/.test(
     s.trim().replace(/\s+/g, '-'),
   )

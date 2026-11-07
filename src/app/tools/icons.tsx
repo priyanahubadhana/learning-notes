@@ -126,7 +126,7 @@ import {
  * Every icon the tool bar, ribbon and control panel can show. Each is named
  * here on purpose (not "all of Lucide"), so the build bundles only these.
  */
-export const ICONS = {
+const ICONS = {
   alignCenter: AlignCenter,
   alignLeft: AlignLeft,
   alignRight: AlignRight,

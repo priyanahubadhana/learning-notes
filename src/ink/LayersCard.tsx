@@ -121,7 +121,6 @@ export function LayersCard() {
                 data-layer-draw
                 aria-pressed={drawing}
                 aria-label={t('ink.layers.draw', { name })}
-                title={t('ink.layers.draw', { name })}
                 onMouseDown={keepFocus}
                 onClick={() => {
                   doc.chooseLayer(layer.id)
@@ -265,7 +264,6 @@ function IconBtn({
       type="button"
       data-layer-action={id}
       aria-label={label}
-      title={label}
       aria-pressed={pressed}
       disabled={disabled}
       onMouseDown={keepFocus}

@@ -15,7 +15,7 @@ export const MODE_ICON: Record<DeviceMode, IconName> = {
   pencil: 'pencil',
 }
 
-export const MODE_EMOJI: Record<DeviceMode, string> = {
+const MODE_EMOJI: Record<DeviceMode, string> = {
   computer: '🖥',
   touch: '✋',
   pencil: '✏️',

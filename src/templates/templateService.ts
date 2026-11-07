@@ -224,7 +224,7 @@ export async function createPageFromTemplate(
 }
 
 /** The stored (English) title of the starter "Study" template (N2). */
-export const STUDY_TEMPLATE_TITLE = 'Study notes'
+const STUDY_TEMPLATE_TITLE = 'Study notes'
 
 /**
  * The Study template of the new-page start: the starter "Study notes" page.

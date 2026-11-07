@@ -32,7 +32,7 @@ export function editKind(column: DbColumn | null): EditKind {
 }
 
 /** A stored cell value as this column reads it. */
-export function rawCell(row: ResolvedRow, column: DbColumn): JsonValue | null {
+function rawCell(row: ResolvedRow, column: DbColumn): JsonValue | null {
   const definition = getColumnType(column.type)
   return definition
     ? definition.read(row.page.values?.[column.id], column)

@@ -32,7 +32,7 @@ export const pageMode = memStore<PageMode>('edit')
  * Lasso mode makes the page not editable once the app draws its own caret and
  * selection (step A3); until then Lasso keeps the browser's own caret.
  */
-export const SELECT_IS_READ_ONLY = false
+const SELECT_IS_READ_ONLY = false
 
 /** Does the page accept typing in this mode? */
 export const editableIn = (mode: PageMode): boolean =>

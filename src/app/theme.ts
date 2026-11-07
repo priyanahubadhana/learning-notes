@@ -9,12 +9,6 @@
 export const THEMES = ['day', 'night', 'sepia'] as const
 export type Theme = (typeof THEMES)[number]
 
-export const THEME_LABELS: Record<Theme, string> = {
-  day: 'Day',
-  night: 'Night',
-  sepia: 'Sepia',
-}
-
 /** Preference key (stored as "learning-notes:theme"; see uiPrefs.ts). */
 export const THEME_PREF_KEY = 'theme'
 

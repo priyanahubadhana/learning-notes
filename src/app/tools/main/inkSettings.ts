@@ -261,7 +261,7 @@ export interface HighlighterSettings {
   saveToNotes: boolean
 }
 
-export const HIGHLIGHTER_DEFAULTS: HighlighterSettings = {
+const HIGHLIGHTER_DEFAULTS: HighlighterSettings = {
   size: 1,
   colour: HIGHLIGHT_COLOURS[0].hex,
   snapToText: true,
@@ -295,7 +295,7 @@ export interface EraserSettings {
   highlightsOnly: boolean
 }
 
-export const ERASER_DEFAULTS: EraserSettings = {
+const ERASER_DEFAULTS: EraserSettings = {
   mode: 'standard',
   size: 1,
   highlightsOnly: false,
@@ -313,7 +313,7 @@ export const eraserSettings = modelStore<EraserSettings>(
 
 // ---- Lasso ----
 
-export const LASSO_SHAPES = ['free', 'rect'] as const
+const LASSO_SHAPES = ['free', 'rect'] as const
 export type LassoShape = (typeof LASSO_SHAPES)[number]
 
 export interface LassoSettings {
@@ -323,7 +323,7 @@ export interface LassoSettings {
   text: boolean
 }
 
-export const LASSO_DEFAULTS: LassoSettings = {
+const LASSO_DEFAULTS: LassoSettings = {
   shape: 'free',
   ink: true,
   pictures: true,

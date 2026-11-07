@@ -169,13 +169,6 @@ export function SelectionMenu({
             data-sel={item.id}
             data-coming={dim ? '' : undefined}
             aria-label={label}
-            title={
-              item.soon
-                ? `${label}. ${t('main.coming.later')}`
-                : dim
-                  ? `${label}. ${t('ink.sel.textOnly')}`
-                  : label
-            }
             onMouseDown={keepFocus}
             onClick={item.soon ? later : dim ? coming : item.run}
             className="grid min-h-11 min-w-11 place-items-center rounded-xl text-ink-soft hover:bg-hover hover:text-ink data-[coming]:opacity-55"

@@ -215,7 +215,6 @@ function Sep({
           data-path-sep
           {...menu.trigger}
           aria-label={t('path.siblings')}
-          title={t('path.siblings')}
           onClick={menu.toggle}
           className={`${CHIP} min-w-8 justify-center`}
         >
@@ -259,7 +258,6 @@ function Dots({ parts }: { parts: Part[] }) {
         data-path-dots
         {...menu.trigger}
         aria-label={t('path.hidden')}
-        title={t('path.hidden')}
         onClick={menu.toggle}
         className={CHIP}
       >

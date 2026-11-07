@@ -8,7 +8,7 @@ import { TYPE_ICON } from './useSearch'
 /** Drawing one result (shared by the search popup and the Search screen). */
 
 /** Text with the searched words marked. */
-export function Highlighted({ text, query }: { text: string; query: string }) {
+function Highlighted({ text, query }: { text: string; query: string }) {
   return (
     <>
       {highlightParts(text, query).map((part, i) =>

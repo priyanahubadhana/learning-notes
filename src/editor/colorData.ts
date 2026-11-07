@@ -1,4 +1,4 @@
-import { useActiveStyles } from '@blocknote/react'
+import { useActiveStyles } from './useActiveStyles'
 import { t, type MessageKey } from '../i18n/t'
 import type { Editor } from './barActions'
 
@@ -50,7 +50,7 @@ export function useCurrentColors(editor: Editor): {
   text: string
   highlight: string
 } {
-  const styles = useActiveStyles(editor) as Record<string, unknown>
+  const styles = useActiveStyles(editor)
   return {
     text: typeof styles.textColor === 'string' ? styles.textColor : 'default',
     highlight:

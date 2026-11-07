@@ -5,13 +5,13 @@
  * glides, a touch stops it, and the target glows when you arrive.
  */
 
-export const DEFAULT_GLIDE_MS = 1200
+const DEFAULT_GLIDE_MS = 1200
 /** How long the glow around the arrival point shows. */
-export const LANDING_MS = 1600
+const LANDING_MS = 1600
 /** The id of the glow animation (tests look for it). */
-export const LANDING_ID = 'ln-landing'
+const LANDING_ID = 'ln-landing'
 /** Where the target ends up, as a share of the visible height from the top. */
-export const TARGET_OFFSET = 0.25
+const TARGET_OFFSET = 0.25
 
 export const easeInOutCubic = (x: number): number =>
   x < 0.5 ? 4 * x * x * x : 1 - Math.pow(-2 * x + 2, 3) / 2

@@ -31,7 +31,7 @@ const DIGITS = '0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz'
  * ends in '0' (the library refuses such keys) and the result still sorts
  * below `after`; if not, the plain key is kept.
  */
-export function withSuffix(key: OrderKey, after: OrderKey | null): OrderKey {
+function withSuffix(key: OrderKey, after: OrderKey | null): OrderKey {
   const pick = new Uint8Array(2)
   globalThis.crypto.getRandomValues(pick)
   const candidate = key + DIGITS[pick[0] % 62] + DIGITS[1 + (pick[1] % 61)]

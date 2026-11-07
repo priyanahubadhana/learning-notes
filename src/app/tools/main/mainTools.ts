@@ -24,7 +24,7 @@ export const MAIN_TOOLS = [
   'read',
 ] as const
 export type MainTool = (typeof MAIN_TOOLS)[number]
-export const isMainTool = (v: unknown): v is MainTool =>
+const isMainTool = (v: unknown): v is MainTool =>
   (MAIN_TOOLS as readonly unknown[]).includes(v)
 
 /** Tools that are a mode (the selected one is what the page does now). */
@@ -41,7 +41,7 @@ export const isModeTool = (v: unknown): v is ModeTool =>
   (MODE_TOOLS as readonly unknown[]).includes(v)
 
 /** Tools that draw ink (the drawing engine is step 3). */
-export const INK_TOOLS = ['pen', 'highlighter', 'eraser', 'lasso'] as const
+const INK_TOOLS = ['pen', 'highlighter', 'eraser', 'lasso'] as const
 export type InkTool = (typeof INK_TOOLS)[number]
 export const isInkTool = (v: unknown): v is InkTool =>
   (INK_TOOLS as readonly unknown[]).includes(v)
@@ -56,15 +56,11 @@ export const PILL_TOOLS = [
   'insert',
 ] as const
 export type PillTool = (typeof PILL_TOOLS)[number]
-export const isPillTool = (v: unknown): v is PillTool =>
+const isPillTool = (v: unknown): v is PillTool =>
   (PILL_TOOLS as readonly unknown[]).includes(v)
 
 /** Options a pill has but does not show until Edit bar turns them on. */
-export const HIDDEN_BY_DEFAULT: readonly string[] = [
-  'lineFocus',
-  'lock',
-  'selfTest',
-]
+const HIDDEN_BY_DEFAULT: readonly string[] = ['lineFocus', 'lock', 'selfTest']
 
 /** Every option of every pill, in the default order. */
 export const PILL_OPTIONS: Record<PillTool, readonly string[]> = {
@@ -159,7 +155,7 @@ export const shownMainTools = (list: readonly MainTool[]): MainTool[] =>
   list.length > 0 ? [...list] : [...MAIN_TOOLS]
 
 /** The removed Read pill (polish 1): only old saved bars still have it. */
-export const LEGACY_READ_PILL = 'read'
+const LEGACY_READ_PILL = 'read'
 type PillMap = Partial<Record<PillTool, string[]>>
 
 /** A saved pill map without the removed Read pill. */
@@ -241,7 +237,7 @@ export function toggleIn<T>(list: readonly T[], id: T, all: readonly T[]): T[] {
 
 export const NEW_LINE_EXTRAS = ['hold', 'doubleTap', 'off'] as const
 export type NewLineExtras = (typeof NEW_LINE_EXTRAS)[number]
-export const isNewLineExtras = (v: unknown): v is NewLineExtras =>
+const isNewLineExtras = (v: unknown): v is NewLineExtras =>
   (NEW_LINE_EXTRAS as readonly unknown[]).includes(v)
 
 /** How the extras of ↵ New line open: press and hold, double-tap, or never. */

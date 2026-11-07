@@ -13,8 +13,8 @@ interface Seg {
   start: number
 }
 
-export const WORD_HIGHLIGHT = 'reading-word'
-export const SENTENCE_HIGHLIGHT = 'reading-sentence'
+const WORD_HIGHLIGHT = 'reading-word'
+const SENTENCE_HIGHLIGHT = 'reading-sentence'
 
 export interface TextMap extends SpeechText {
   /** Offset in the text of a point on screen (or of a node), -1 if none. */

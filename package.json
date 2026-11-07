@@ -14,7 +14,8 @@
     "test:e2e:webkit": "playwright test --project=webkit",
     "format": "prettier --write .",
     "format:check": "prettier --check .",
-    "check:links": "node scripts/check-feature-links.mjs"
+    "check:links": "node scripts/check-feature-links.mjs",
+    "check:size": "node scripts/check-size.mjs"
   },
   "dependencies": {
     "@blocknote/core": "^0.56.0",

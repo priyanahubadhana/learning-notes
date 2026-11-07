@@ -16,7 +16,7 @@ import { useLockMethods } from './useLock'
  * The screen shown instead of locked content. Nothing of the content is
  * read or drawn behind it; only the title (with a 🔒) is shown.
  */
-export function LockScreen({
+function LockScreen({
   db,
   rootId,
   title,

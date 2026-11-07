@@ -275,9 +275,6 @@ export function LinkPicker({
                 aria-label={t('links.toHeading', {
                   page: p.title || t('review.untitled'),
                 })}
-                title={t('links.toHeading', {
-                  page: p.title || t('review.untitled'),
-                })}
                 className="min-h-10 min-w-10 shrink-0 rounded-md text-muted hover:bg-hover hover:text-ink"
               >
                 ›

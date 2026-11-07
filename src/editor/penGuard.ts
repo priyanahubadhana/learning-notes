@@ -26,10 +26,10 @@ import type { AppSchema } from './schema'
 
 type Editor = AppSchema['BlockNoteEditor']
 
-export const PEN_AFTER_MS = 500
-export const KEY_RECENT_MS = 500
+const PEN_AFTER_MS = 500
+const KEY_RECENT_MS = 500
 /** A drop of this many characters right after pen input offers Undo. */
-export const BIG_DELETION = 20
+const BIG_DELETION = 20
 const TOAST_AFTER_PEN_MS = 1000
 
 /** The Pencil and keyboard, as last seen in the page. */
@@ -43,21 +43,11 @@ export interface PenState {
 }
 
 export const penState: PenState = { down: false, upAt: -1e9, lastKeyAt: -1e9 }
-let clock: () => number = () => Date.now()
-
-/** Tests set a fake clock; returns a function that puts the real one back. */
-export function useClock(fake: () => number): () => void {
-  clock = fake
-  return () => {
-    clock = () => Date.now()
-  }
-}
+const clock: () => number = () => Date.now()
 
 /** Is a Pencil gesture going on, or did one just end? */
-export const penBusy = (
-  pen: { down: boolean; upAt: number },
-  now: number,
-): boolean => pen.down || now - pen.upAt < PEN_AFTER_MS
+const penBusy = (pen: { down: boolean; upAt: number }, now: number): boolean =>
+  pen.down || now - pen.upAt < PEN_AFTER_MS
 
 /** Pure rule: should this input be refused? */
 export function refuseDelete(
@@ -100,7 +90,7 @@ export function refuseInput(
 }
 
 /** Does this transaction remove or replace content? */
-export function removesContent(tr: Transaction): boolean {
+function removesContent(tr: Transaction): boolean {
   return tr.steps.some((step) => {
     const json = step.toJSON() as {
       stepType?: string

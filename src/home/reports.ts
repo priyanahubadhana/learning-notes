@@ -101,7 +101,7 @@ export function dayTimeline(
 }
 
 /** Minutes where a planned block and tracked time overlap. */
-export function overlapMinutes(a: readonly Span[], b: readonly Span[]): number {
+function overlapMinutes(a: readonly Span[], b: readonly Span[]): number {
   let total = 0
   for (const x of a) {
     for (const y of b) {

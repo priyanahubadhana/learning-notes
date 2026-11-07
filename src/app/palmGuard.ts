@@ -24,7 +24,7 @@ function onPen(e: PointerEvent) {
 }
 
 /** Starts watching (once). Safe to call again. */
-export function installPalmGuard(doc: Document = document): void {
+function installPalmGuard(doc: Document = document): void {
   if (installed.has(doc)) return
   installed.add(doc)
   for (const type of [

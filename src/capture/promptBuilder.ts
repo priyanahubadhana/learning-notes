@@ -8,9 +8,9 @@ import type { CaptureInput } from './captureService'
  */
 
 /** Longest pasted text put into a prompt (characters); the rest is cut. */
-export const MAX_PROMPT_SOURCE = 120_000
+const MAX_PROMPT_SOURCE = 120_000
 
-export const NOTES_FORMAT_PROMPT = `Write study notes in exactly this Markdown format (ln-notes/1). Use only these headings, in this order. Skip a section if it does not fit.
+const NOTES_FORMAT_PROMPT = `Write study notes in exactly this Markdown format (ln-notes/1). Use only these headings, in this order. Skip a section if it does not fit.
 
 # <A short title for the notes>
 
@@ -65,7 +65,7 @@ export interface PromptPreset {
 }
 
 export const MAX_PRESETS = 20
-export const MAX_PRESET_TEXT = 2000
+const MAX_PRESET_TEXT = 2000
 
 export function isPresetList(v: unknown): v is PromptPreset[] {
   return (

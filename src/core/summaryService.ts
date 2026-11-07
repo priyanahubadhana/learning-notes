@@ -17,7 +17,7 @@ import type { Block, Notebook, NotebookTab, Page, SummaryItem } from './types'
  */
 
 export const MAX_LINE_LENGTH = 2000
-export const MAX_LINES_PER_PAGE = 500
+const MAX_LINES_PER_PAGE = 500
 
 /** Link-back addresses a line may keep: https or an address inside the app. */
 export function isSafeHref(href: string): boolean {
@@ -308,7 +308,7 @@ export async function purgeSummaryOf(
 }
 
 /** The Summary tab of a notebook. */
-export const SUMMARY_TAB: NotebookTab = { id: 'summary', kind: 'summary' }
+const SUMMARY_TAB: NotebookTab = { id: 'summary', kind: 'summary' }
 
 /**
  * Notebooks made before Phase M have no Summary tab: adds it once, after

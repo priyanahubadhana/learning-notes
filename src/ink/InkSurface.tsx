@@ -449,7 +449,6 @@ function SelectionBox({
           data-ink-handles
           data-handle="scale"
           aria-label={t('ink.sel.scale')}
-          title={t('ink.sel.scale')}
           onPointerDown={grab('scale', c)}
           className={handle}
           style={{ left: c.x, top: c.y }}
@@ -468,7 +467,6 @@ function SelectionBox({
         data-ink-handles
         data-handle="rotate"
         aria-label={t('ink.sel.rotate')}
-        title={t('ink.sel.rotate')}
         onPointerDown={grab('rotate')}
         className={handle}
         style={{ left: box.x + box.w / 2, top: box.y - 34 }}
@@ -653,7 +651,6 @@ function MenuButton({
       type="button"
       data-ink-action={id}
       aria-label={label}
-      title={label}
       onMouseDown={(e) => e.preventDefault()}
       onClick={onClick}
       className="grid min-h-11 min-w-11 place-items-center rounded-xl text-ink-soft hover:bg-hover hover:text-ink"

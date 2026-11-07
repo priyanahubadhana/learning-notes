@@ -37,7 +37,7 @@ const purged = (v: Record<string, unknown>) => typeof v.purgedAt === 'number'
 /** Fields that do not count as a content difference. */
 const IGNORE = new Set(['updatedAt', 'order', 'parentId'])
 
-export function sameContent(
+function sameContent(
   a: Record<string, unknown>,
   b: Record<string, unknown>,
 ): boolean {

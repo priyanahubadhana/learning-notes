@@ -17,8 +17,7 @@ function runMd(r: Run): string {
   return pre + out + post
 }
 
-export const inlineMd = (runs: readonly Run[]): string =>
-  runs.map(runMd).join('')
+const inlineMd = (runs: readonly Run[]): string => runs.map(runMd).join('')
 
 /** Names the picture file for the zip: images/1.png … */
 export type ImageName = (id: string) => string | null

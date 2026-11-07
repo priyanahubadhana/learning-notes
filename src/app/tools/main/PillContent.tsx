@@ -1,4 +1,4 @@
-import { useActiveStyles } from '@blocknote/react'
+import { useActiveStyles } from '../../../editor/useActiveStyles'
 import { t, type MessageKey } from '../../../i18n/t'
 import type { Editor } from '../../../editor/barActions'
 import {
@@ -94,7 +94,7 @@ function TextOptions({
   cardIs,
 }: { ids: string[]; editor: Editor } & CardApi) {
   useEditorRedraw(editor)
-  const styles = useActiveStyles(editor) as Record<string, unknown>
+  const styles = useActiveStyles(editor)
   const block = editor.getTextCursorPosition().block as unknown as {
     type: string
     props: Record<string, unknown>

@@ -43,7 +43,7 @@ export const skipMode = prefStore<(typeof SKIP_MODES)[number]>(
   'sentence',
 )
 /** The voice chosen for each language (a voiceURI per language code). */
-export const voiceByLang = prefStore<Record<string, string>>(
+const voiceByLang = prefStore<Record<string, string>>(
   'reading.voices',
   (v): v is Record<string, string> =>
     typeof v === 'object' &&
@@ -139,8 +139,8 @@ export function nextPageAloud(): void {
 }
 
 /** Characters spoken per second at normal speed (a rough, steady guess). */
-export const CHARS_PER_SECOND = 15
-export const SKIP_SECONDS = 15
+const CHARS_PER_SECOND = 15
+const SKIP_SECONDS = 15
 
 /**
  * Back or forward: one sentence, or about 15 seconds of speech at the

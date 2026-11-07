@@ -46,7 +46,7 @@ export function epubCss(opts: {
 }
 
 /** Smallest and largest text size (percent) the EPUB view offers. */
-export const EPUB_SIZES = [80, 90, 100, 110, 125, 150, 175, 200]
+const EPUB_SIZES = [80, 90, 100, 110, 125, 150, 175, 200]
 
 /** The next size up or down the list (stays at the ends). */
 export function stepSize(current: number, dir: 1 | -1): number {

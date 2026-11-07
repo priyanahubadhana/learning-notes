@@ -1,20 +1,11 @@
 import { isOneOf } from '../../../settings/registry'
 import { ensureFont } from '../../reading/fonts'
 import {
-  BUILT_IN_FONTS,
   fontStack,
   isReadingFont,
   type ReadingFont,
 } from '../../reading/readingPrefs'
 import { prefStore } from '../store'
-
-/**
- * The look of the note text itself (Aa › Style card): font, size and line
- * height. Saved per device; "default" changes nothing. The values become CSS
- * variables on the page (see index.css) only when they are not the default.
- */
-
-export const NOTE_FONTS = ['default', ...BUILT_IN_FONTS] as const
 /** "default", a built-in font, or an imported one (`custom:<id>`). */
 export type NoteFont = Exclude<ReadingFont, 'app'> | 'default'
 const isNoteFont = (v: unknown): v is NoteFont =>
@@ -22,7 +13,7 @@ const isNoteFont = (v: unknown): v is NoteFont =>
 export const NOTE_SIZES = [90, 100, 115, 130, 150] as const
 export const NOTE_LINES = ['default', 'tight', 'loose'] as const
 export type NoteLine = (typeof NOTE_LINES)[number]
-export const LINE_VALUE: Record<Exclude<NoteLine, 'default'>, string> = {
+const LINE_VALUE: Record<Exclude<NoteLine, 'default'>, string> = {
   tight: '1.35',
   loose: '1.95',
 }

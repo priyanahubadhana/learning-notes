@@ -24,7 +24,7 @@ type Tab = (typeof TABS)[number]
 const isTab = (v: unknown): v is Tab => TABS.includes(v as Tab)
 
 /** Screens at least this wide dock the panel; narrower ones overlay it. */
-export const PANEL_DOCK_MIN = 1024
+const PANEL_DOCK_MIN = 1024
 export const PANEL_WIDTH = 280
 const MAX_ROWS = 200
 

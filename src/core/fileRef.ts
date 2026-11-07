@@ -3,7 +3,7 @@
  * `bookFiles` table) and written into the page as a short reference,
  * "lnfile:<id>", never as a path or web address.
  */
-export const FILE_SCHEME = 'lnfile:'
+const FILE_SCHEME = 'lnfile:'
 
 const REF =
   /^lnfile:([0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12})$/i

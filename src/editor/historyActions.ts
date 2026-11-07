@@ -1,4 +1,4 @@
-import { redo, undo } from 'prosemirror-history'
+import { pmHistory } from './pm'
 import { inkFor } from '../ink/inkRuntime'
 import type { AppSchema } from './schema'
 
@@ -15,6 +15,7 @@ export function runHistory(editor: Editor, kind: 'undo' | 'redo'): boolean {
   // Drawings and text share one history: the newest of the two goes first.
   const ink = inkFor(editor)?.controller
   const view = editor.prosemirrorView
+  const { undo, redo } = pmHistory()
   const text = kind === 'undo' ? undo : redo
   // A delete of drawings and text together (the Lasso) is one step.
   if (ink && view && kind === 'undo' && ink.undoIsChained()) {

@@ -3,7 +3,7 @@ import { changeSet } from '../toolbarState'
 import { activeTool, penPicksPen } from './mainTools'
 
 /** Pure rule: should this touch pick the Pen tool? */
-export function shouldPickPen(
+function shouldPickPen(
   pointerType: string,
   enabled: boolean,
   active: string,

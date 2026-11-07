@@ -14,9 +14,9 @@ import type { AppSchema } from './schema'
 
 type Editor = AppSchema['BlockNoteEditor']
 
-export const TAP_MS = 350
+const TAP_MS = 350
 /** Taps this close together (px) count as the same spot. */
-export const TAP_PX = 12
+const TAP_PX = 12
 const MOVE_PX = 10
 
 /** A text position near (x, y): exact, else the nearest within `reach` px. */

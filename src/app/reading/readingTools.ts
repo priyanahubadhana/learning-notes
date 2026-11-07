@@ -11,7 +11,6 @@ import { readingPanel, type ReadingPanelName } from './useReadingSettings'
 import {
   isReading,
   readingLocked,
-  readingView,
   startReading,
   stopReading,
 } from './readingState'
@@ -68,5 +67,3 @@ export function toggleLockToReading(): void {
   ensureReading()
   readingLocked.set(!readingLocked.get())
 }
-
-export const readingIsOn = () => readingView.get() !== 'off'

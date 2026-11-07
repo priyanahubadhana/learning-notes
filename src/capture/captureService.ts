@@ -18,7 +18,7 @@ import { parseYoutube } from './youtube'
 export class CaptureError extends Error {}
 
 /** Most text kept from one capture (2 MB of characters). */
-export const MAX_CAPTURE_CHARS = 2_000_000
+const MAX_CAPTURE_CHARS = 2_000_000
 
 export interface CaptureInput {
   url?: string
@@ -40,7 +40,7 @@ const looksLikeHtml = (text: string) =>
   /<(p|div|h[1-6]|ul|ol|li|br|span|a|table|article)[\s>/]/i.test(text)
 
 /** Pasted text to blocks: HTML is cleaned first; anything else is Markdown/plain. */
-export function textToBlocks(text: string): BlockInput[] {
+function textToBlocks(text: string): BlockInput[] {
   return looksLikeHtml(text)
     ? htmlToBlocks(sanitizePastedHtml(text))
     : markdownToBlocks(text)

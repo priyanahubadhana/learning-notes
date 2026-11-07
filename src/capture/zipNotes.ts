@@ -9,10 +9,10 @@ import { MAX_NOTES_CHARS } from './notesFormat'
  * picture type decided by its first bytes.
  */
 
-export const MAX_NOTES_ZIP_BYTES = 200 * 1024 * 1024
-export const MAX_NOTES_ZIP_ENTRIES = 500
-export const MAX_NOTES_ZIP_EXPANDED = 300 * 1024 * 1024
-export const MAX_NOTES_IMAGES = 200
+const MAX_NOTES_ZIP_BYTES = 200 * 1024 * 1024
+const MAX_NOTES_ZIP_ENTRIES = 500
+const MAX_NOTES_ZIP_EXPANDED = 300 * 1024 * 1024
+const MAX_NOTES_IMAGES = 200
 
 export class NotesZipError extends Error {}
 

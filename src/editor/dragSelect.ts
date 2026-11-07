@@ -20,7 +20,7 @@ import type { AppSchema } from './schema'
 type Editor = AppSchema['BlockNoteEditor']
 
 /** Block types without text: the picture-like ones. */
-export const MEDIA_TYPES = new Set(['image', 'video', 'audio', 'file'])
+const MEDIA_TYPES = new Set(['image', 'video', 'audio', 'file'])
 
 /** A selection of whole blocks (from before the first to after the last). */
 export class BlockRangeSelection extends Selection {
@@ -61,7 +61,7 @@ Object.defineProperty(BlockRangeSelection.prototype, 'visible', {
 Selection.jsonID('lnBlockRange', BlockRangeSelection)
 
 /** Where the block container with this id starts (null if there is none). */
-export function blockPos(doc: PMNode, id: string): number | null {
+function blockPos(doc: PMNode, id: string): number | null {
   let found: number | null = null
   doc.descendants((node, pos) => {
     if (found !== null) return false
@@ -100,7 +100,7 @@ export function blockRange(
 }
 
 /** Is this block container a picture-like block? */
-export const isMediaBlock = (node: PMNode): boolean =>
+const isMediaBlock = (node: PMNode): boolean =>
   node.type.name === 'blockContainer' &&
   MEDIA_TYPES.has(node.firstChild?.type.name ?? '')
 
@@ -189,7 +189,7 @@ export function markSelectedMedia(editor: Editor): void {
  * Returns a function that stops watching.
  */
 /** Autoscroll only near the edge of the visible page, at a capped speed. */
-export const EDGE_PX = 40
+const EDGE_PX = 40
 export const MAX_SCROLL_PX = 14
 export function edgeScroll(y: number, top: number, bottom: number): number {
   if (y < top + EDGE_PX) {

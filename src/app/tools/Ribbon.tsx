@@ -221,7 +221,7 @@ export function Ribbon({
                 data-action="ribbonBehaviour"
                 aria-pressed={stay}
                 aria-label={t(stay ? 'ribbon.stay' : 'ribbon.close')}
-                title={`${t(stay ? 'ribbon.stay' : 'ribbon.close')} (${getShortcut()})`}
+                aria-description={getShortcut()}
                 onMouseDown={keepFocus}
                 onClick={() => void toggleRibbonBehaviour()}
                 style={{ minHeight: size, minWidth: size }}
@@ -236,7 +236,6 @@ export function Ribbon({
             data-bar-btn
             data-action="controlPanel"
             aria-label={t('bar.search')}
-            title={t('bar.search')}
             onMouseDown={keepFocus}
             onClick={() => getAppActions()?.openControlPanel()}
             style={{ minHeight: size, minWidth: size }}
@@ -250,7 +249,6 @@ export function Ribbon({
             data-bar-btn
             data-action="shortBar"
             aria-label={t(both ? 'ribbon.hide' : 'ribbon.shortBar')}
-            title={t(both ? 'ribbon.hide' : 'ribbon.shortBar')}
             onMouseDown={keepFocus}
             onClick={() => {
               ribbonOpen.set(false)

@@ -205,7 +205,6 @@ export function MagnifierView({
           data-ink-handles
           data-magnifier-handle
           aria-label={t('ink.magnifier.moveBox')}
-          title={t('ink.magnifier.moveBox')}
           onPointerDown={dragBox}
           className="pointer-events-auto absolute -left-5 -top-5 grid size-11 touch-none place-items-center"
         >

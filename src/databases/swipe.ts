@@ -4,8 +4,8 @@
  * slow drag (selecting text) or a scroll never changes the day.
  */
 
-export const SWIPE_MIN_PX = 60
-export const SWIPE_MAX_MS = 700
+const SWIPE_MIN_PX = 60
+const SWIPE_MAX_MS = 700
 
 /**
  * -1 = back to the previous day, 1 = on to the next day, 0 = not a swipe.

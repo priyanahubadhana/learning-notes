@@ -103,7 +103,7 @@ const colour = (
   typeof v !== 'string' ? undefined : /^#[0-9a-f]{6}$/i.test(v) ? v : table[v]
 
 /** Rich text (`content.text`) as runs. Links, note links and tags become text. */
-export function runsOf(value: JsonValue | undefined, href?: string): Run[] {
+function runsOf(value: JsonValue | undefined, href?: string): Run[] {
   if (typeof value === 'string') return value ? [{ text: value, href }] : []
   if (!Array.isArray(value)) return []
   const out: Run[] = []
@@ -164,7 +164,7 @@ const str = (v: JsonValue | undefined): string =>
   typeof v === 'string' ? v : ''
 
 /** Turns the page's live blocks into nodes (nested like the page). */
-export function nodesOf(blocks: readonly Block[]): ExportNode[] {
+function nodesOf(blocks: readonly Block[]): ExportNode[] {
   const kids = new Map<string | null, Block[]>()
   const ids = new Set(blocks.map((b) => b.id))
   for (const b of [...blocks].sort(byOrder)) {

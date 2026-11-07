@@ -45,7 +45,7 @@ const TYPES = {
 } as const
 
 /** A name that is safe on every system. */
-export const safeFileName = (title: string, fallback = 'Notes'): string =>
+const safeFileName = (title: string, fallback = 'Notes'): string =>
   title
     // eslint-disable-next-line no-control-regex
     .replace(/[\\/:*?"<>|\u0000-\u001f]+/g, ' ')

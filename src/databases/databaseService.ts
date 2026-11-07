@@ -921,7 +921,7 @@ export async function hasRows(
 }
 
 /** The database a page is a row of (undefined if none). */
-export async function databaseOfRow(
+async function databaseOfRow(
   db: LearningNotesDB,
   page: Page,
 ): Promise<Database | undefined> {

@@ -18,7 +18,7 @@ import type { LayerFile, LayerManifest } from './manifest'
  */
 
 /** Small, fast text hash (FNV-1a, 53 bits) written in base 36. */
-export function hashText(text: string): string {
+function hashText(text: string): string {
   let h1 = 0x811c9dc5
   let h2 = 0x01000193
   for (let i = 0; i < text.length; i++) {

@@ -20,11 +20,11 @@ export interface Edit {
 }
 
 /** The longest side of an edited picture (pixels). */
-export const MAX_EDIT_SIDE = 4096
+const MAX_EDIT_SIDE = 4096
 /** The smallest crop side, as a fraction of the picture. */
 export const MIN_CROP = 0.04
 
-export const FULL_CROP: Crop = { x: 0, y: 0, w: 1, h: 1 }
+const FULL_CROP: Crop = { x: 0, y: 0, w: 1, h: 1 }
 export const NO_EDIT: Edit = { angle: 0, crop: FULL_CROP }
 
 /** Is this edit a no-op? */

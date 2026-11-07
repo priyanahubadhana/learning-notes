@@ -6,7 +6,7 @@ import type { Edit, Placed } from './inkDoc'
 /** Layer rules, as pure functions on a page's layer list. */
 
 export const MAX_LAYERS = 2
-export const MAX_NAME = 40
+const MAX_NAME = 40
 
 export const liveLayers = (layers: readonly InkLayer[]): InkLayer[] =>
   layers

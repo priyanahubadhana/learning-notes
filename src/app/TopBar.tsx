@@ -49,7 +49,6 @@ export function TopBar({
           type="button"
           data-testid="panel-toggle"
           aria-label={t('lp.open')}
-          title={t('lp.open')}
           aria-pressed={panel.open}
           onClick={panel.onToggle}
           className={`flex aria-pressed:text-accent ${ICON_BUTTON}`}
@@ -71,7 +70,6 @@ export function TopBar({
       <button
         type="button"
         aria-label={toggleName}
-        title={toggleName}
         aria-controls="sidebar"
         aria-expanded={!sidebarHidden}
         onClick={onToggleSidebar}
@@ -82,7 +80,6 @@ export function TopBar({
       <button
         type="button"
         aria-label={t('nav.back')}
-        title={t('nav.backHint')}
         disabled={!canGoBack}
         onClick={() => history.back()}
         className={`flex ${ICON_BUTTON}`}
@@ -94,7 +91,6 @@ export function TopBar({
       <button
         type="button"
         aria-label={t('nav.forward')}
-        title={t('nav.forwardHint')}
         disabled={!canGoForward}
         onClick={() => history.forward()}
         className={`flex ${ICON_BUTTON}`}

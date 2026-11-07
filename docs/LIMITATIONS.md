@@ -2,7 +2,7 @@
 
 - **Pages can't be dragged** in the sidebar tree (notebooks can).
 - **Safari on Windows is slow in tests:** run WebKit tests with `--workers=2 --timeout=120000`. One touch-drag test runs only in Chrome. Two WebKit tests still fail on robot typing and selecting in the editor; the owner confirmed both features work on the real iPad. Look and feel on real devices is checked by hand.
-- **First load size:** about 370 KB gzipped on 2026-11-06 (target ≤ 350 KB): the entry chunk carries the editor core because the main bar imports it; see the audit brief B1 in plans/audit-2026-11.md.
+- **First load size:** 349.6 KB gzipped on 2026-11-07 (limit 350 KB, checked by `npm run check:size` in CI); almost no spare room, so new code on the first screen must load on demand.
 - **Hindi editor menus:** BlockNote has no Hindi menus yet.
 - **Spanish and Hindi** need native-speaker review.
 - **Data lives in one browser:** no sync yet; move it with Save everything and Open saved file.

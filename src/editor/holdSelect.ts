@@ -18,10 +18,10 @@ import type { AppSchema } from './schema'
  */
 
 type Editor = AppSchema['BlockNoteEditor']
-export const HOLD_MOVE_PX = 6
+const HOLD_MOVE_PX = 6
 
 /** Pure rule: has the press moved too far to become a hold? */
-export const movedTooFar = (dx: number, dy: number): boolean =>
+const movedTooFar = (dx: number, dy: number): boolean =>
   Math.hypot(dx, dy) >= HOLD_MOVE_PX
 
 export function watchHoldSelect(

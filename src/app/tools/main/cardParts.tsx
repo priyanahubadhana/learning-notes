@@ -24,7 +24,6 @@ export function CardHeader({
           type="button"
           data-card-back
           aria-label={t('main.card.back')}
-          title={t('main.card.back')}
           onMouseDown={keepFocus}
           onClick={onBack}
           className="grid size-11 shrink-0 place-items-center rounded-lg text-ink hover:bg-hover"

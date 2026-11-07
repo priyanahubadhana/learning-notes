@@ -1,4 +1,3 @@
-import { insertOrUpdateBlockForSlashMenu } from '@blocknote/core'
 import type { Editor } from '../../editor/barActions'
 import { toggleBlank } from '../../editor/blankActions'
 import { canMakeCard, makeCard } from '../../editor/cardActions'
@@ -81,17 +80,19 @@ function toggleHighlight(editor: Editor) {
 }
 
 /** Puts a new block under the cursor's line (on it, if the line is empty). */
-function insertBlock(
+async function insertBlock(
   editor: Editor,
   block: { type: string; props?: Record<string, unknown> },
 ) {
+  const { insertOrUpdateBlockForSlashMenu } = await import('@blocknote/core')
   insertOrUpdateBlockForSlashMenu(editor, block as never)
   editor.focus()
 }
 
 /** A 3 by 3 table (the first row is the header) under the cursor's line. */
-function insertTable(editor: Editor) {
+async function insertTable(editor: Editor) {
   const cells = () => ({ cells: [[], [], []] })
+  const { insertOrUpdateBlockForSlashMenu } = await import('@blocknote/core')
   insertOrUpdateBlockForSlashMenu(editor, {
     type: 'table',
     content: { type: 'tableContent', rows: [cells(), cells(), cells()] },
@@ -145,17 +146,17 @@ const COMMANDS: Record<string, Command> = {
     if (!canMakeCard(block)) return
     makeCard(editor, block)
   },
-  picture: ({ editor }) => insertBlock(editor, { type: 'image' }),
-  callout: ({ editor }) => insertBlock(editor, { type: 'callout' }),
-  table: ({ editor }) => insertTable(editor),
-  file: ({ editor }) => insertBlock(editor, { type: 'file' }),
+  picture: ({ editor }) => void insertBlock(editor, { type: 'image' }),
+  callout: ({ editor }) => void insertBlock(editor, { type: 'callout' }),
+  table: ({ editor }) => void insertTable(editor),
+  file: ({ editor }) => void insertBlock(editor, { type: 'file' }),
   camera: ({ extras }) => extras?.takePhoto(),
   mindMap: ({ editor }) =>
-    insertBlock(editor, {
+    void insertBlock(editor, {
       type: 'mindMap',
       props: { data: serializeMindMap(newMindMap()) },
     }),
-  divider: ({ editor }) => insertBlock(editor, { type: 'divider' }),
+  divider: ({ editor }) => void insertBlock(editor, { type: 'divider' }),
   pageLink: ({ extras }) => extras?.linkPage(),
   database: ({ extras }) => extras?.insertDatabase(),
   insertTemplate: ({ extras }) => extras?.insertTemplate(),
@@ -182,7 +183,3 @@ export function runEditorCommand(id: string, c: CommandContext): boolean {
   command(c)
   return true
 }
-
-/** True for ids this file can run. */
-export const isEditorCommand = (id: string): boolean =>
-  id.startsWith('mark:') || id in COMMANDS

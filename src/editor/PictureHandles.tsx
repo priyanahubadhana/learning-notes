@@ -142,7 +142,6 @@ export function PictureHandles({ editor }: { editor: Host }) {
           tabIndex={-1}
           data-picture-handle={c}
           aria-label={t(LABEL[c])}
-          title={t(LABEL[c])}
           onPointerDown={start(c)}
           onPointerMove={move}
           onPointerUp={end}

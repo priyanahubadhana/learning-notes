@@ -6,9 +6,9 @@ import { prefStore } from '../store'
  * (tested); OptionsPill.tsx measures the room and moves the pill.
  */
 
-export const EDGES = ['top', 'bottom', 'left', 'right'] as const
+const EDGES = ['top', 'bottom', 'left', 'right'] as const
 export type Edge = (typeof EDGES)[number]
-export const isEdge = (v: unknown): v is Edge =>
+const isEdge = (v: unknown): v is Edge =>
   (EDGES as readonly unknown[]).includes(v)
 
 export interface PillPlace {
@@ -191,7 +191,7 @@ export interface CardAnchor {
   maxHeight: number
 }
 
-export const CARD_WIDTH = 340
+const CARD_WIDTH = 340
 const GAP = 6
 const EDGE_GAP = 8
 

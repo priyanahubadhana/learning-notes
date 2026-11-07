@@ -112,6 +112,23 @@ function toSession(r: TokenReply, old?: Session | null): Session {
   }
 }
 
+/**
+ * The Google sign-in address. `prompt=select_account` makes Google always
+ * show the account chooser, so a second Google account on the device is
+ * never picked silently (Supabase passes extra query values on to Google).
+ */
+export function authorizeUrl(redirectTo: string, challenge: string): URL {
+  const url = new URL(`${SUPABASE_URL}/auth/v1/authorize`)
+  url.searchParams.set('provider', 'google')
+  url.searchParams.set('redirect_to', redirectTo)
+  url.searchParams.set('code_challenge', challenge)
+  url.searchParams.set('code_challenge_method', 's256')
+  url.searchParams.set('scopes', DRIVE_SCOPE)
+  url.searchParams.set('login_hint', ALLOWED_EMAIL)
+  url.searchParams.set('prompt', 'select_account')
+  return url
+}
+
 export function supabaseAuth(): AuthProvider {
   let session = load()
 
@@ -148,13 +165,7 @@ export function supabaseAuth(): AuthProvider {
       const back = new URL(location.href)
       back.search = '?sync=callback'
       back.hash = ''
-      const url = new URL(`${SUPABASE_URL}/auth/v1/authorize`)
-      url.searchParams.set('provider', 'google')
-      url.searchParams.set('redirect_to', back.toString())
-      url.searchParams.set('code_challenge', challenge)
-      url.searchParams.set('code_challenge_method', 's256')
-      url.searchParams.set('scopes', DRIVE_SCOPE)
-      url.searchParams.set('login_hint', ALLOWED_EMAIL)
+      const url = authorizeUrl(back.toString(), challenge)
       location.assign(url.toString())
     },
 

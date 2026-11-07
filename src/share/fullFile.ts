@@ -14,7 +14,7 @@ import type { LearningNotesDB } from '../core/db'
  */
 
 /** Tables whose bytes "notes only" leaves out. */
-export const NOTES_SKIP_MEDIA: ReadonlySet<string> = new Set([
+const NOTES_SKIP_MEDIA: ReadonlySet<string> = new Set([
   'recordings',
   'bookFiles',
   'files',

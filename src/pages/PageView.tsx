@@ -354,7 +354,6 @@ export function PageView({
             <button
               type="button"
               aria-label={t('page.more')}
-              title={t('page.more')}
               aria-haspopup="menu"
               aria-expanded={!!moreAt}
               onMouseDown={(e) => e.stopPropagation()}

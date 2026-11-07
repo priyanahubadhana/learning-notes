@@ -112,10 +112,7 @@ const nonNegative = (v: unknown): v is number =>
   typeof v === 'number' && Number.isInteger(v) && v >= 0
 
 /** Checks a parsed manifest against what this app can open. */
-export function checkManifest(
-  data: unknown,
-  currentDbVersion: number,
-): Manifest {
+function checkManifest(data: unknown, currentDbVersion: number): Manifest {
   if (!isObject(data) || data.app !== 'learning-notes') {
     throw new BundleError(t('err.notOurFile'))
   }

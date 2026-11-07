@@ -149,11 +149,6 @@ export function MixedMenu({
           data-ink-action={item.id}
           data-coming={item.run ? undefined : ''}
           aria-label={item.label}
-          title={
-            item.run
-              ? item.label
-              : `${item.label}. ${t('ink.sel.drawingsOnly')}`
-          }
           onMouseDown={(e) => e.preventDefault()}
           onClick={item.run ?? (() => toast(t('ink.sel.drawingsOnly')))}
           className="grid min-h-11 min-w-11 place-items-center rounded-xl text-ink-soft hover:bg-hover hover:text-ink data-[coming]:opacity-55"

@@ -1,4 +1,3 @@
-import { insertOrUpdateBlockForSlashMenu } from '@blocknote/core'
 import type { DefaultReactSuggestionItem } from '@blocknote/react'
 import { t } from '../i18n/t'
 import { CARD_BLOCK_TYPE } from '../recall/cardService'
@@ -52,7 +51,7 @@ export function makeCard(editor: Editor, block: EditorBlock): boolean {
 export type NestedCardPlace = 'inside' | 'nextLine'
 
 /** The Card whose answer `block` is in (nearest one), if any. */
-export function enclosingCard(
+function enclosingCard(
   editor: Editor,
   block: EditorBlock,
 ): EditorBlock | undefined {
@@ -65,7 +64,9 @@ export function enclosingCard(
 }
 
 /** A new, empty Card at the cursor, with an empty answer line. */
-function insertCardHere(editor: Editor) {
+async function insertCardHere(editor: Editor) {
+  // Loaded only when a card is added, so the first download stays small.
+  const { insertOrUpdateBlockForSlashMenu } = await import('@blocknote/core')
   const card = insertOrUpdateBlockForSlashMenu(editor, {
     type: CARD_BLOCK_TYPE,
   })
@@ -112,11 +113,11 @@ export function cardSlashItem(
       const current = editor.getTextCursorPosition().block
       const outer = placeNested && enclosingCard(editor, current)
       if (!outer) {
-        insertCardHere(editor)
+        void insertCardHere(editor)
         return
       }
       const place = (choice: NestedCardPlace | null) => {
-        if (choice === 'inside') insertCardHere(editor)
+        if (choice === 'inside') void insertCardHere(editor)
         else if (choice === 'nextLine')
           insertCardAfter(editor, outer, current.id)
       }

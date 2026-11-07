@@ -38,7 +38,7 @@ export function PillButton({
       data-pill-option={id}
       data-coming={coming ? '' : undefined}
       aria-label={label}
-      title={hint ? `${label}. ${hint}` : label}
+      aria-description={hint || undefined}
       aria-pressed={pressed}
       aria-expanded={expanded}
       aria-disabled={disabled || undefined}
@@ -74,7 +74,6 @@ export function Caret({
       type="button"
       data-pill-caret={id}
       aria-label={label}
-      title={label}
       aria-expanded={open}
       onMouseDown={keepFocus}
       onClick={onClick}
@@ -107,7 +106,6 @@ export function Swatch({
       data-pill-option={id}
       data-colour={hex}
       aria-label={name}
-      title={name}
       aria-pressed={on}
       onMouseDown={keepFocus}
       onClick={onClick}

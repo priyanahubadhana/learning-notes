@@ -36,22 +36,6 @@ const CARDS: Record<string, [PillTool, string]> = {
   inkLayers: ['pen', 'layers'],
 }
 
-/** Ids of the tools in this file (the registry points them here). */
-export const INK_TOOL_IDS: readonly string[] = [
-  ...Object.keys(PEN_TOOLS),
-  ...Object.keys(PAPER),
-  ...Object.keys(CARDS),
-  'pen',
-  'highlighter',
-  'eraser',
-  'lasso',
-  'onlyPencil',
-  'shapes',
-  'tape',
-  'ruler',
-  'magnifier',
-]
-
 export function runInkTool(id: string): void {
   if (id in PEN_TOOLS) {
     // Choosing a pen means writing again, not drawing shapes or tape.

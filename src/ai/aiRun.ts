@@ -64,7 +64,7 @@ export function readAiConfig(): AiConfig {
 }
 
 /** Most characters of one page sent in one call. */
-export const MAX_SEND_CHARS = 30_000
+const MAX_SEND_CHARS = 30_000
 
 const MAX_TOKENS: Record<AiAction, number> = {
   summary: 700,

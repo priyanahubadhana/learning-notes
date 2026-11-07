@@ -162,7 +162,7 @@ function legacyCopy(text: string): boolean {
 }
 
 /** Puts text on the clipboard; false if the browser refused. */
-export async function copyText(text: string): Promise<boolean> {
+async function copyText(text: string): Promise<boolean> {
   try {
     await navigator.clipboard.writeText(text)
     return true

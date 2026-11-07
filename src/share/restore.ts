@@ -30,10 +30,10 @@ import type { ParsedFull } from './readFull'
  */
 
 /** Row in `meta` that remembers the last restore (for the Undo row). */
-export const RESTORE_MARK = 'restoreUndo'
+const RESTORE_MARK = 'restoreUndo'
 
 /** Oldest file version "Replace" accepts (12: pictures). */
-export const REPLACE_MIN_VERSION = 12
+const REPLACE_MIN_VERSION = 12
 
 /**
  * Database versions whose upgrade only added tables. A file from an older
@@ -42,7 +42,7 @@ export const REPLACE_MIN_VERSION = 12
  * (13 ink, 14 recordings, 15 fonts, 16 decks, 17 book files + annotations,
  * 18 sync state, 19 Home cockpit, 20 layer installs, 21 summary lines.)
  */
-export const TABLE_ONLY_VERSIONS: readonly number[] = [
+const TABLE_ONLY_VERSIONS: readonly number[] = [
   13, 14, 15, 16, 17, 18, 19, 20, 21,
 ]
 

@@ -107,7 +107,7 @@ export const isCustomFont = (v: unknown): v is CustomFont =>
 export const isReadingFont = (v: unknown): v is ReadingFont =>
   (READING_FONTS as readonly unknown[]).includes(v) || isCustomFont(v)
 
-export const FONT_STACKS: Record<BuiltInFont, string> = {
+const FONT_STACKS: Record<BuiltInFont, string> = {
   serif: 'Georgia, "Iowan Old Style", "Times New Roman", serif',
   sans: 'system-ui, -apple-system, "Segoe UI", Roboto, sans-serif',
   dyslexia: '"OpenDyslexic", "Comic Sans MS", system-ui, sans-serif',

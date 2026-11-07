@@ -8,7 +8,7 @@ import { clozeToLines, htmlToLines, type TextRun } from './ankiHtml'
 import type { AnkiCollection, AnkiNote } from './readApkg'
 
 /** Anki joins sub-deck levels with "::"; a page title shows them as nesting. */
-export const deckTitle = (deck: string) =>
+const deckTitle = (deck: string) =>
   deck
     .split('::')
     .map((part) => part.trim())

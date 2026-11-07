@@ -17,7 +17,7 @@ export const BOOK_MIME: Record<BookFormat, string> = {
 export const MAX_BOOK_BYTES = 300 * 1024 * 1024
 
 /** Above this size the app warns once that an iPad may not open the file. */
-export const BIG_BOOK_BYTES = 200 * 1024 * 1024
+const BIG_BOOK_BYTES = 200 * 1024 * 1024
 export const isBigBook = (bytes: number): boolean => bytes > BIG_BOOK_BYTES
 
 /** A size for the "Saving …" line, in whole megabytes (at least 1). */
@@ -29,7 +29,7 @@ export const formatOfMime = (mime: unknown): BookFormat | null =>
   null
 
 /** A PDF starts with `%PDF` (some files have a few bytes before it). */
-export function isPdfBytes(b: Uint8Array): boolean {
+function isPdfBytes(b: Uint8Array): boolean {
   const head = b.subarray(0, 1024)
   for (let i = 0; i + 4 <= head.length; i++) {
     if (
@@ -45,7 +45,7 @@ export function isPdfBytes(b: Uint8Array): boolean {
 }
 
 /** A zip starts with `PK\x03\x04`. */
-export const isZipBytes = (b: Uint8Array): boolean =>
+const isZipBytes = (b: Uint8Array): boolean =>
   b.length > 4 &&
   b[0] === 0x50 &&
   b[1] === 0x4b &&

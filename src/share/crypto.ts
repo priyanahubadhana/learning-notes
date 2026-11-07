@@ -12,7 +12,7 @@ import { t } from '../i18n/t'
 
 const MAGIC = new TextEncoder().encode('LNOTESE1')
 const HEADER_BYTES = MAGIC.length + 4 + 16 + 12
-export const PBKDF2_ROUNDS = 600_000
+const PBKDF2_ROUNDS = 600_000
 const MIN_ROUNDS = 100_000
 const MAX_ROUNDS = 5_000_000
 export const MIN_PASSWORD_LENGTH = 8
@@ -159,7 +159,7 @@ export async function peekIsEncrypted(file: Blob): Promise<boolean> {
 const MAGIC2 = new TextEncoder().encode('LNOTESE2')
 const HEADER2_BYTES = MAGIC2.length + 4 + 16 + 12 + 4
 const TAG_BYTES = 16
-export const CHUNK_BYTES = 1024 * 1024
+const CHUNK_BYTES = 1024 * 1024
 const MIN_CHUNK = 16
 const MAX_CHUNK = 16 * 1024 * 1024
 

@@ -68,7 +68,7 @@ describe('Make card', () => {
     expect(editor.document).toHaveLength(3)
   })
 
-  it('"/ Card" inserts an empty card with an answer line', () => {
+  it('"/ Card" inserts an empty card with an answer line', async () => {
     const editor = setup()
     editor.setTextCursorPosition('p', 'end')
     const items = buildSlashMenuItems(editor, {
@@ -78,9 +78,11 @@ describe('Make card', () => {
       onInsertDatabase: vi.fn(),
     })
     filterSuggestionItems(items, 'flashcard')[0].onItemClick()
-    const card = editor.document.find((b) => b.type === 'card')!
-    expect(card).toBeDefined()
-    expect(card.children).toHaveLength(1)
+    await vi.waitFor(() => {
+      const card = editor.document.find((b) => b.type === 'card')!
+      expect(card).toBeDefined()
+      expect(card.children).toHaveLength(1)
+    })
   })
 })
 

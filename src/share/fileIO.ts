@@ -26,7 +26,7 @@ export class PasswordNeeded extends Error {}
 export class WrongPassword extends BundleError {}
 
 /** Ending of a password-protected file. */
-export const LOCKED_EXTENSION = '.learningnotes.locked'
+const LOCKED_EXTENSION = '.learningnotes.locked'
 
 /** The file name of a protected copy: "X.learningnotes.json" or ".zip" → "X.learningnotes.locked". */
 export const lockedFileName = (name: string): string =>

@@ -63,14 +63,14 @@ export const MODE_PRESETS: Record<DeviceMode, ModePreset> = {
 }
 
 /** Height of a bar button in px for each size. */
-export const BAR_SIZE_PX: Record<BarSize, number> = {
+const BAR_SIZE_PX: Record<BarSize, number> = {
   compact: 36,
   normal: 44,
   large: 54,
 }
 
 /** Smallest comfortable touch target (px). */
-export const MIN_TOUCH_PX = 44
+const MIN_TOUCH_PX = 44
 
 /**
  * Button height in px. Touch and Pencil never go below a finger-sized

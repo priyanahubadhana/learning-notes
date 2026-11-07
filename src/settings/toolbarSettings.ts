@@ -107,7 +107,7 @@ export const toolbarLayoutSetting: SettingDefinition<Layout> = {
 type Behaviour = 'close' | 'stay'
 const BEHAVIOURS = ['close', 'stay'] as const
 
-export const ribbonBehaviourSetting: SettingDefinition<Behaviour> = {
+const ribbonBehaviourSetting: SettingDefinition<Behaviour> = {
   id: 'toolbar.ribbonBehaviour',
   labelKey: 'settings.ribbonBehaviour.label',
   descriptionKey: 'settings.ribbonBehaviour.description',
@@ -130,7 +130,7 @@ export const ribbonBehaviourSetting: SettingDefinition<Behaviour> = {
 }
 
 type Mode = (typeof RIBBON_MODES)[number]
-export const ribbonModeSetting: SettingDefinition<Mode> = {
+const ribbonModeSetting: SettingDefinition<Mode> = {
   id: 'toolbar.ribbonMode',
   labelKey: 'settings.ribbonMode.label',
   descriptionKey: 'settings.ribbonMode.description',
@@ -153,7 +153,7 @@ export const ribbonModeSetting: SettingDefinition<Mode> = {
 }
 
 type Size = (typeof RIBBON_SIZES)[number]
-export const ribbonSizeSetting: SettingDefinition<Size> = {
+const ribbonSizeSetting: SettingDefinition<Size> = {
   id: 'toolbar.ribbonSize',
   labelKey: 'settings.ribbonSize.label',
   descriptionKey: 'settings.ribbonSize.description',
@@ -176,7 +176,7 @@ export const ribbonSizeSetting: SettingDefinition<Size> = {
 }
 
 const RIBBON_PLACES = ['same', 'top', 'bottom', 'free'] as const
-export const ribbonPlaceSetting: SettingDefinition<RibbonPlace> = {
+const ribbonPlaceSetting: SettingDefinition<RibbonPlace> = {
   id: 'toolbar.ribbonPlacement',
   labelKey: 'settings.ribbonPlacement.label',
   descriptionKey: 'settings.ribbonPlacement.description',
@@ -202,7 +202,7 @@ export const ribbonPlaceSetting: SettingDefinition<RibbonPlace> = {
 }
 
 /** Opens Edit bar (the Write · Draw · Read tool lists) on the open page. */
-export const toolSetsSetting: SettingDefinition<'idle'> = {
+const toolSetsSetting: SettingDefinition<'idle'> = {
   id: 'toolbar.sets',
   labelKey: 'settings.toolbarSets.label',
   descriptionKey: 'settings.toolbarSets.description',
@@ -223,7 +223,7 @@ export const toolSetsSetting: SettingDefinition<'idle'> = {
   derived: { read: () => 'idle', write: () => {} },
 }
 
-export const newLineExtrasSetting: SettingDefinition<NewLineExtras> = {
+const newLineExtrasSetting: SettingDefinition<NewLineExtras> = {
   id: 'toolbar.newLineExtras',
   labelKey: 'settings.newLineExtras.label',
   descriptionKey: 'settings.newLineExtras.description',
@@ -247,7 +247,7 @@ export const newLineExtrasSetting: SettingDefinition<NewLineExtras> = {
   },
 }
 
-export const newLineHoldSetting: SettingDefinition<number> = {
+const newLineHoldSetting: SettingDefinition<number> = {
   id: 'toolbar.newLineHold',
   labelKey: 'settings.newLineHold.label',
   descriptionKey: 'settings.newLineHold.description',
@@ -270,7 +270,7 @@ export const newLineHoldSetting: SettingDefinition<number> = {
   },
 }
 
-export const penPicksPenSetting: SettingDefinition<OnOff> = {
+const penPicksPenSetting: SettingDefinition<OnOff> = {
   id: 'toolbar.penPicksPen',
   labelKey: 'settings.penPicksPen.label',
   descriptionKey: 'settings.penPicksPen.description',
@@ -286,7 +286,7 @@ export const penPicksPenSetting: SettingDefinition<OnOff> = {
   },
 }
 
-export const showNamesSetting: SettingDefinition<OnOff> = {
+const showNamesSetting: SettingDefinition<OnOff> = {
   id: 'toolbar.showNames',
   labelKey: 'settings.showNames.label',
   descriptionKey: 'settings.showNames.description',
@@ -302,7 +302,7 @@ export const showNamesSetting: SettingDefinition<OnOff> = {
   },
 }
 
-export const pillPlaceSetting: SettingDefinition<'idle'> = {
+const pillPlaceSetting: SettingDefinition<'idle'> = {
   id: 'toolbar.pillReset',
   labelKey: 'settings.pillReset.label',
   descriptionKey: 'settings.pillReset.description',
@@ -341,7 +341,7 @@ export function resetToolBar(): void {
   showToolBar()
 }
 
-export const resetToolBarSetting: SettingDefinition<'idle'> = {
+const resetToolBarSetting: SettingDefinition<'idle'> = {
   id: 'toolbar.reset',
   labelKey: 'settings.toolbarReset.label',
   descriptionKey: 'settings.toolbarReset.description',

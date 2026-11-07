@@ -9,7 +9,7 @@ import { isLive, stableRecordFields } from '../core/records'
  * them (the newer edit wins).
  */
 
-export const DAY_MINUTES = 24 * 60
+const DAY_MINUTES = 24 * 60
 export const SNAP_MIN = 15
 const MIN_BLOCK = 15
 

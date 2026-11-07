@@ -108,7 +108,6 @@ export function ContentsPane({
           data-chrome
           aria-pressed={docked}
           aria-label={t('reading.contents.dock')}
-          title={t('reading.contents.dock')}
           onClick={() => contentsDocked.set(!docked)}
           className="grid size-11 place-items-center rounded-lg hover:bg-hover aria-pressed:text-accent"
         >
@@ -118,7 +117,6 @@ export function ContentsPane({
           type="button"
           data-chrome
           aria-label={t('popup.close')}
-          title={t('popup.close')}
           onClick={onClose}
           className="grid size-11 place-items-center rounded-lg hover:bg-hover"
         >

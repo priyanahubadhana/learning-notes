@@ -8,7 +8,7 @@ import type { EditorView } from 'prosemirror-view'
  * smallest amount, with no animation. When nothing is hidden nothing moves.
  */
 
-export const REVEAL_MARGIN = 24
+const REVEAL_MARGIN = 24
 
 /** How far to scroll (px, positive = down) to bring [top, bottom] into [viewTop, viewBottom]. */
 export function revealDelta(

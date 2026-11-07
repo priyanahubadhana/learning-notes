@@ -61,9 +61,9 @@ export interface ColumnTypeDefinition {
 }
 
 /** Longest text a Text cell keeps. */
-export const MAX_TEXT_LENGTH = 100_000
+const MAX_TEXT_LENGTH = 100_000
 /** Most ids one list cell (Choices, Tags, Relation …) keeps. */
-export const MAX_LIST_LENGTH = 1_000
+const MAX_LIST_LENGTH = 1_000
 
 export function choiceOptions(column: DbColumn): ChoiceOption[] {
   // The Study tracker's Status is a fixed list the app keeps.
@@ -357,7 +357,7 @@ const rollup: ColumnTypeDefinition = {
 const definitions = new Map<string, ColumnTypeDefinition>()
 
 /** Adds a column type. Throws if the name is taken. */
-export function registerColumnType(definition: ColumnTypeDefinition): void {
+function registerColumnType(definition: ColumnTypeDefinition): void {
   if (definitions.has(definition.type)) {
     throw new Error(`Column type already registered: ${definition.type}`)
   }

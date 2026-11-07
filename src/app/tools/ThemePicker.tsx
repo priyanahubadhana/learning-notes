@@ -44,7 +44,6 @@ export function ThemeArrow({
           data-action="themeList"
           {...menu.trigger}
           aria-label={t('theme.pick')}
-          title={t('theme.pick')}
           onMouseDown={(e) => e.preventDefault()}
           onClick={menu.toggle}
           style={{ minHeight: vertical ? undefined : px, minWidth: 28 }}

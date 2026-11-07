@@ -2,6 +2,15 @@
 
 Moved out of HANDOFF on 2026-11-06 (audit) so HANDOFF stays five lines. Newest first; each paragraph names its step. The run decision (master plan) is one owner iPad pass before Sync; the Phase A builder adds its checks at the top. Tick a paragraph by deleting it.
 
+## PHASE K CHECKS (debt, first load, languages, accessibility; iPad, installed app, tap Update until the new version shows)
+
+- **Three-day trial** (K2): use the app for three days with one tester for real study (notes, cards, reading, Home). Write down anything slow, confusing or lost. Why human: the plan's trial; only real use shows it.
+- **Slash menu inserts** (K1): in a page type / then Table, Picture, Callout, Divider, Mind map and Card. Does each appear at once (the very first one after opening the app may take a blink)? Why human: the insert now loads a small part on demand.
+- **Undo and Redo, selection handles** (K1): type, tap Undo and Redo in the bar right after opening a page; select text and drag the two handles of the mini toolbar. Why human: these now load a small part in the background.
+- **Sign-in account chooser** (sync): Settings › Sync › Sign in. Does Google always show Choose an account, even with one account signed in on the iPad? Why human: needs the real Google account.
+- **VoiceOver on icon buttons** (K2): with VoiceOver on, swipe through the bars, reader and Home: does every icon button read a name (and the shortcut or "coming soon" hint after a pause)? Why human: needs a real screen reader.
+- **Spanish and Hindi** (K2): switch language, look at the bars, Settings, Home and Review for odd or cut-off words. Why human: native-speaker review.
+
 ## PHASE N CHECKS (maths, new-page start, Calendar Day; iPad, installed app, tap Update until the new version shows)
 
 - **Formula with the on-screen keyboard** (N1): in a page type / then Formula. Tap the empty formula; the editor opens with the keyboard up. Tap the fraction button, type the top part, then try Greek, Symbols and Statistics buttons: does the keyboard stay up, and does the cursor land where you expect? Done: is the formula crisp and the right size? Why human: iPad keyboard focus and touch feel.

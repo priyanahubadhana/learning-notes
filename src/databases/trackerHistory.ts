@@ -9,7 +9,7 @@ import { localDay } from './formula/formulaValue'
 
 const DAY = 86_400_000
 /** How far back the history reaches. */
-export const HISTORY_DAYS = 366
+const HISTORY_DAYS = 366
 
 export interface DayCount {
   answered: number

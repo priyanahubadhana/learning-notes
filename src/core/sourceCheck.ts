@@ -7,7 +7,7 @@ import type { PageSource } from './types'
  */
 
 /** Longest address kept. */
-export const MAX_URL_LENGTH = 2000
+const MAX_URL_LENGTH = 2000
 
 /** True for an https address (the only kind a source may keep). */
 export function isHttpsUrl(value: unknown): value is string {

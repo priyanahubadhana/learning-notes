@@ -9,7 +9,7 @@
  */
 
 /** How long the indicator stays after the last scroll or touch (ms). */
-export const HIDE_MS = 1000
+const HIDE_MS = 1000
 /** Smallest indicator height (px), so it stays easy to see. */
 const MIN_THUMB = 28
 /** Edge gap of the indicator (px). */
@@ -66,7 +66,7 @@ function scrolls(el: Element): boolean {
 }
 
 /** The nearest box around `from` that scrolls (or null). */
-export function scrollerOf(from: EventTarget | null): HTMLElement | null {
+function scrollerOf(from: EventTarget | null): HTMLElement | null {
   let el = from instanceof Element ? from : null
   while (el) {
     if (scrolls(el)) return el as HTMLElement

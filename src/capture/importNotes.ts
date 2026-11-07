@@ -34,7 +34,7 @@ const heading = (key: Parameters<typeof t>[0]): BlockInput => ({
 const IMAGE_LINE = /^\s*!\[([^\]]*)\]\(([^)\s]+)\)\s*$/
 
 /** The image file name in a Markdown reference (`images/x.png` → `x.png`). */
-export const imageNameOf = (ref: string): string =>
+const imageNameOf = (ref: string): string =>
   (ref.split('/').pop() ?? '').toLowerCase()
 
 /** Markdown with picture lines → blocks (pictures need `images`: name → id). */

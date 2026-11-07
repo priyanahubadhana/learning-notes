@@ -11,7 +11,7 @@ import { showNames } from './main/mainTools'
  * under the icons through a data attribute on the page (index.css).
  */
 
-export const HOVER_MS = 400
+const HOVER_MS = 400
 const TARGET =
   '[data-bar-btn], [data-pill-option], [data-pill-grip], [data-bar-tool]'
 

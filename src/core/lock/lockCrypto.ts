@@ -18,11 +18,11 @@ export interface SecretHash {
  * Rounds of PBKDF2. A balance for slow phones: a 4–6 digit PIN is weak
  * whatever the rounds, which is one more reason this is a privacy lock only.
  */
-export const DEFAULT_ITERATIONS = 210_000
+const DEFAULT_ITERATIONS = 210_000
 
-export const PIN_PATTERN = /^\d{4,6}$/
+const PIN_PATTERN = /^\d{4,6}$/
 export const PASSWORD_MIN = 6
-export const PASSWORD_MAX = 128
+const PASSWORD_MAX = 128
 
 export const isPin = (value: string): boolean => PIN_PATTERN.test(value)
 export const isPassword = (value: string): boolean =>

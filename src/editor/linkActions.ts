@@ -10,7 +10,7 @@ import type { AppSchema } from './schema'
 
 type Editor = AppSchema['BlockNoteEditor']
 
-export const LINK_TRIGGER = '[['
+const LINK_TRIGGER = '[['
 
 /** DOM event (bubbles from the editor) sent after "[" is typed. */
 export const BRACKET_TYPED = 'learning-notes:bracket-typed'

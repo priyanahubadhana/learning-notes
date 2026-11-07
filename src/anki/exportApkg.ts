@@ -29,7 +29,7 @@ const escapeHtml = (text: string) =>
  * Rich text as HTML (bold, italic, underline only). `clozeNumbers` maps a
  * blank's id to its Anki number: those words become {{cN::…}}.
  */
-export function runsToHtml(
+function runsToHtml(
   runs: JsonValue | undefined,
   clozeNumbers?: ReadonlyMap<string, number>,
 ): string {
@@ -261,7 +261,7 @@ export interface AnkiExport {
 }
 
 /** "Cardiology.apkg" */
-export const apkgFileName = (title: string): string =>
+const apkgFileName = (title: string): string =>
   `${title.replace(/[\\/:*?"<>|]+/g, ' ').trim() || 'notebook'}.apkg`
 
 /**

@@ -38,7 +38,7 @@ export const PERIODS = ['day', 'week', 'month'] as const
 export type Period = (typeof PERIODS)[number]
 
 /** Filter conditions a chart offers ("Only rows where …"). */
-export const CHART_FILTER_OPS: FilterOp[] = [
+const CHART_FILTER_OPS: FilterOp[] = [
   'isNotEmpty',
   'isEmpty',
   'is',
@@ -72,7 +72,7 @@ export interface ChartSpec {
   history?: HistoryChart
 }
 
-export const HISTORY_CHARTS = ['correct', 'days', 'streak'] as const
+const HISTORY_CHARTS = ['correct', 'days', 'streak'] as const
 export type HistoryChart = (typeof HISTORY_CHARTS)[number]
 
 /** Charts that compare groups; donut and progress show parts of a whole. */

@@ -8,7 +8,7 @@ type Editor = AppSchema['BlockNoteEditor']
  * editor gives each copied block a new id. A copied Card or blank is then
  * a new card with its own (fresh) schedule.
  */
-export function copyWithoutIds(block: EditorBlock): EditorPartialBlock {
+function copyWithoutIds(block: EditorBlock): EditorPartialBlock {
   const { type, props, content, children } = block
   return {
     type,

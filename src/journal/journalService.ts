@@ -16,7 +16,7 @@ import { dateKey, dayTitle, monthKey, monthTitle } from './dates'
  */
 
 /** Returns the Journal notebook, creating it the first time. */
-export async function ensureJournal(
+async function ensureJournal(
   db: LearningNotesDB,
   workspaceId: string,
 ): Promise<Notebook> {

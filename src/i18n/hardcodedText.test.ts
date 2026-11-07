@@ -75,7 +75,14 @@ function findings(file: string): [number, string][] {
     }
     if (
       ts.isJsxAttribute(node) &&
-      ['aria-label', 'placeholder', 'alt'].includes(node.name.getText(sf)) &&
+      [
+        'aria-label',
+        'aria-description',
+        'aria-valuetext',
+        'placeholder',
+        'alt',
+        'title',
+      ].includes(node.name.getText(sf)) &&
       node.initializer &&
       ts.isStringLiteral(node.initializer) &&
       wordy(node.initializer.text)

@@ -1,10 +1,10 @@
 import { useEffect, useState, useSyncExternalStore } from 'react'
 import { t } from '../i18n/t'
-import { getSyncStatus, subscribeSync } from './syncService'
-import { syncDisplay, type SyncDisplay } from './syncProblem'
+import { getSyncStatus, subscribeSync } from './syncStatus'
+import { syncDisplay, type SyncDisplay } from './syncDisplay'
 
 /** True while the device says it has a connection. */
-export function useOnline(): boolean {
+function useOnline(): boolean {
   const [online, setOnline] = useState(() => navigator.onLine)
   useEffect(() => {
     const on = () => setOnline(true)

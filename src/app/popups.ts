@@ -50,7 +50,7 @@ function isAncestor(a: Entry, b: Entry | null): boolean {
  * opening) is not the user scrolling and does not close a pop-up.
  */
 let userScrollAt = 0
-export const USER_SCROLL_MS = 1200
+const USER_SCROLL_MS = 1200
 const SCROLL_KEYS = new Set([
   'ArrowUp',
   'ArrowDown',

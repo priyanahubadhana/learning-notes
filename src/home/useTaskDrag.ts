@@ -8,7 +8,7 @@ import { useCallback, useEffect, useRef, useState } from 'react'
  * "Move to…" menu instead, so nothing needs a drag.
  */
 
-export const LIFT_MS = 400
+const LIFT_MS = 400
 const MOVE_SLOP = 8
 
 export interface DragState {
@@ -19,7 +19,7 @@ export interface DragState {
   over: string | null
 }
 
-export function dropAt(x: number, y: number): string | null {
+function dropAt(x: number, y: number): string | null {
   const el = document.elementFromPoint(x, y)
   const target = el?.closest<HTMLElement>('[data-drop]')
   return target?.dataset.drop ?? null

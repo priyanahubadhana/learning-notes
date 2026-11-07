@@ -8,7 +8,7 @@ import { clearStash, keepTryingStash, stashChanges } from './pendingStash'
 import { createSnapshot, diffBlocks, type BlockDraft } from './diff'
 
 /** A delete of this many blocks (or any picture-like block) is a big delete. */
-export const BIG_DELETE_BLOCKS = 3
+const BIG_DELETE_BLOCKS = 3
 const MEDIA_BLOCK_TYPES = new Set(['image', 'video', 'audio', 'file'])
 
 /** Is this a deletion History must be able to take back? */

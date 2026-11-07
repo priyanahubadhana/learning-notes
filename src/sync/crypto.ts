@@ -32,7 +32,7 @@ export const ARGON = { memoryKiB: 64 * 1024, iterations: 3, parallelism: 1 }
 /** Lowest Argon2id settings a stored bundle may ask for (guards a tampered bundle). */
 const ARGON_FLOOR = { memoryKiB: 19 * 1024, iterations: 2 }
 const ARGON_CEIL = { memoryKiB: 1024 * 1024, iterations: 20 }
-export const MIN_PASSPHRASE = 12
+const MIN_PASSPHRASE = 12
 const enc = new TextEncoder()
 const dec = new TextDecoder()
 const subtle = () => globalThis.crypto.subtle
@@ -87,7 +87,7 @@ export async function createMasterKey(): Promise<MasterKey> {
 }
 
 /** Opens a master key from its raw bytes (after unlocking a bundle). */
-export async function masterFromRaw(
+async function masterFromRaw(
   keyId: string,
   raw: Uint8Array,
 ): Promise<MasterKey> {

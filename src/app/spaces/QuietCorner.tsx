@@ -87,7 +87,6 @@ export function QuietCorner({
           data-testid="corner-button"
           type="button"
           aria-label={t('corner.label')}
-          title={t('corner.label')}
           aria-haspopup="true"
           aria-expanded={open}
           onClick={() => setOpen(!open)}

@@ -401,7 +401,7 @@ export function dayRecord(
 }
 
 /** How many times a task was carried to another day. */
-export const carriedTimes = (task: Task): number => task.carried.length
+const carriedTimes = (task: Task): number => task.carried.length
 
 /** The quiet "carried 3×" label shows from the third carry on. */
 export const showsCarried = (task: Task): boolean => carriedTimes(task) >= 3
@@ -411,7 +411,7 @@ export const showsCarried = (task: Task): boolean => carriedTimes(task) >= 3
 export const TOP3_MAX = 3
 
 /** The Top 3 of a day, in their box order (steady while you tick). */
-export function top3Of(tasks: readonly Task[], day: string): Task[] {
+function top3Of(tasks: readonly Task[], day: string): Task[] {
   return tasks.filter((t) => t.top3Day === day).sort(byOrder)
 }
 

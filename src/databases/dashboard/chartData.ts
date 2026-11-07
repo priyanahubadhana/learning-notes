@@ -66,7 +66,7 @@ export type ChartData =
     }
 
 /** Most groups shown before the rest fold into "Other". */
-export const MAX_GROUPS = { bar: 12, donut: 6, progress: 6 } as const
+const MAX_GROUPS = { bar: 12, donut: 6, progress: 6 } as const
 /** Points on a line chart, per period. */
 export const MAX_POINTS: Record<Period, number> = {
   day: 31,

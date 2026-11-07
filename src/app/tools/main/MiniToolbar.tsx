@@ -1,4 +1,4 @@
-import { TextSelection } from 'prosemirror-state'
+import { pmState } from '../../../editor/pm'
 import {
   useCallback,
   useEffect,
@@ -358,7 +358,6 @@ export function MiniToolbar({ editor }: { editor: Editor }) {
       type="button"
       data-mini={b.id}
       aria-label={b.label}
-      title={b.label}
       aria-pressed={b.on}
       onMouseDown={keepFocus}
       onPointerDown={(e) => e.stopPropagation()}
@@ -436,7 +435,6 @@ export function MiniToolbar({ editor }: { editor: Editor }) {
           type="button"
           data-mini="grip"
           aria-label={t('main.mini.move')}
-          title={t('main.mini.move')}
           onMouseDown={keepFocus}
           onPointerDown={(e) => {
             e.preventDefault()
@@ -461,7 +459,6 @@ export function MiniToolbar({ editor }: { editor: Editor }) {
           type="button"
           data-mini="pin"
           aria-label={t('main.mini.pin')}
-          title={t('main.mini.pin')}
           aria-pressed={pinned}
           onMouseDown={keepFocus}
           onPointerDown={(e) => e.stopPropagation()}
@@ -476,7 +473,6 @@ export function MiniToolbar({ editor }: { editor: Editor }) {
           type="button"
           data-mini="close"
           aria-label={t('main.sel.deselect')}
-          title={t('main.sel.deselect')}
           onMouseDown={keepFocus}
           onClick={() => {
             deselect(editor)
@@ -526,7 +522,7 @@ function Handle({
     if (a === b) return
     view.dispatch(
       view.state.tr.setSelection(
-        TextSelection.between(
+        pmState().TextSelection.between(
           view.state.doc.resolve(a),
           view.state.doc.resolve(b),
         ),
@@ -540,7 +536,6 @@ function Handle({
       data-sel-handle={which}
       data-pen-own
       aria-label={label}
-      title={label}
       onMouseDown={(e) => e.preventDefault()}
       onPointerDown={(e) => {
         e.preventDefault()

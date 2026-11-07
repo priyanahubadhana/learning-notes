@@ -120,7 +120,6 @@ export function RulerView({
         data-ink-handles
         data-ruler-handle="move"
         aria-label={t('ink.ruler.move')}
-        title={t('ink.ruler.move')}
         onPointerDown={grab('move')}
         className={handle}
         style={{ left: ruler.cx, top: ruler.cy }}
@@ -134,7 +133,6 @@ export function RulerView({
           data-ink-handles
           data-ruler-handle={end}
           aria-label={t('ink.ruler.turn')}
-          title={t('ink.ruler.turn')}
           onPointerDown={grab(end)}
           className={handle}
           style={{
@@ -150,7 +148,6 @@ export function RulerView({
         data-ink-handles
         data-ruler-handle="close"
         aria-label={t('ink.ruler.close')}
-        title={t('ink.ruler.close')}
         onClick={() => rulerTool.set({ on: false, ruler })}
         className={handle}
         style={{

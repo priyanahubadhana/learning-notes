@@ -17,7 +17,7 @@ export interface DailyState {
 
 export const EMPTY_DAILY: DailyState = { day: '', ids: [], seen: [], done: [] }
 
-export const DAILY_COUNT = 5
+const DAILY_COUNT = 5
 
 export const isDailyState = (v: unknown): v is DailyState =>
   !!v &&

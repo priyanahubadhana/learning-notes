@@ -5,7 +5,7 @@
  */
 
 /** Gap between pages (CSS px). */
-export const PAGE_GAP = 12
+const PAGE_GAP = 12
 
 export interface PageSize {
   w: number
@@ -179,8 +179,8 @@ export function groupRects(flat: readonly number[]): Rect4[] {
   return out
 }
 
-export const ZOOM_MIN = 0.5
-export const ZOOM_MAX = 3
+const ZOOM_MIN = 0.5
+const ZOOM_MAX = 3
 
 const clampZoom = (z: number): number =>
   Math.min(ZOOM_MAX, Math.max(ZOOM_MIN, z))

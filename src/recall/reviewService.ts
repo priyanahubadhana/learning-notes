@@ -66,7 +66,7 @@ export interface ReviewQueue {
 const WRONG_DAYS = 7
 
 /** Reads the scheduler settings fresh, so previews match current settings. */
-export async function getSchedulerSettings(
+async function getSchedulerSettings(
   db: LearningNotesDB,
 ): Promise<SchedulerSettings> {
   const [minutes, steps, hour, target] = await Promise.all([
@@ -84,7 +84,7 @@ export async function getSchedulerSettings(
 }
 
 /** The scheduler picked in Settings › Review. */
-export async function getScheduler(db: LearningNotesDB): Promise<Scheduler> {
+async function getScheduler(db: LearningNotesDB): Promise<Scheduler> {
   return schedulers[await getSetting(db, schedulerChoice)] ?? fsrsScheduler
 }
 
@@ -293,7 +293,7 @@ export async function getReviewQueue(
  * their order, then blocks in reading order; a blank's cards keep the order
  * of their blank. Cards whose block is missing go last.
  */
-export async function inRouteOrder(
+async function inRouteOrder(
   db: LearningNotesDB,
   cards: Card[],
 ): Promise<Card[]> {
@@ -397,7 +397,7 @@ export async function countsAsReview(
 }
 
 /** Cards per round of Practice anyway. */
-export const PRACTICE_ROUND = 50
+const PRACTICE_ROUND = 50
 const PRACTICE_CHUNK = 200
 
 /**
@@ -648,7 +648,7 @@ export function rebuildCard(card: Card, logs: ReviewLog[]): Card {
  * `card` with `lastReviewAt`/`lastRating` taken from its newest log entry
  * (review or practice; erased entries skipped), or without them if none.
  */
-export function withLastAnswer(card: Card, logs: readonly ReviewLog[]): Card {
+function withLastAnswer(card: Card, logs: readonly ReviewLog[]): Card {
   const rest = { ...card }
   delete rest.lastReviewAt
   delete rest.lastRating

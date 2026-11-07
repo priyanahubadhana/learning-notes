@@ -13,7 +13,7 @@ export function minutesLeft(totalWords: number, progress: number): number {
   return Math.max(1, Math.round(left / WORDS_PER_MINUTE))
 }
 
-export const clamp01 = (n: number): number =>
+const clamp01 = (n: number): number =>
   Number.isFinite(n) ? Math.min(1, Math.max(0, n)) : 0
 
 /** Scroll position → progress (0 to 1). */

@@ -88,6 +88,3 @@ export interface Runner {
 }
 
 export const currentRunner = (): Runner => ({ app, editor, extras, bar: barUi })
-
-/** True while a page's editor is open (editor tools can run). */
-export const hasEditor = () => editor !== null

@@ -2,7 +2,7 @@ import { isOneOf, type SettingDefinition } from './registry'
 import { settingsRegistry } from './builtinSettings'
 
 /** Settings › Advanced › Pencil lab: a test page for the iPad. */
-export const pencilLabSetting: SettingDefinition<'idle'> = {
+const pencilLabSetting: SettingDefinition<'idle'> = {
   id: 'advanced.pencilLab',
   labelKey: 'settings.pencilLab.label',
   descriptionKey: 'settings.pencilLab.description',

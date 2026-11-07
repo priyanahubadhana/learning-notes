@@ -7,7 +7,7 @@
 
 /** Largest text parsed (characters) and most cards kept. */
 export const MAX_NOTES_CHARS = 2_000_000
-export const MAX_CARDS = 500
+const MAX_CARDS = 500
 
 export type ParsedCard =
   { kind: 'qa'; q: string; a: string } | { kind: 'cloze'; text: string }

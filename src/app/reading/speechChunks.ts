@@ -12,7 +12,7 @@ export interface Chunk {
   text: string
 }
 
-export const MAX_CHUNK = 180
+const MAX_CHUNK = 180
 
 const SENTENCE_END = /[.!?…。！？।]["'”’)\]]*(?=\s|$)/g
 

@@ -1,4 +1,4 @@
-import { TextSelection } from 'prosemirror-state'
+import { pmState } from '../../editor/pm'
 import { currentRunner } from '../tools/toolRuntime'
 
 /** Wiktionary page of a word (only that word leaves the device, on a tap). */
@@ -34,7 +34,7 @@ export function highlightDomSelection(): boolean {
       doc: never
       setSelection: (s: unknown) => void
     }
-    t2.setSelection(TextSelection.create(t2.doc, from, to))
+    t2.setSelection(pmState().TextSelection.create(t2.doc, from, to))
   })
   editor.addStyles({ backgroundColor: 'yellow' })
   return true

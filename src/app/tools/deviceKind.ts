@@ -8,7 +8,7 @@ import { prefStore } from './store'
 
 export const DEVICE_KINDS = ['phone', 'tablet', 'computer'] as const
 export type DeviceKind = (typeof DEVICE_KINDS)[number]
-export const isDeviceKind = (v: unknown): v is DeviceKind =>
+const isDeviceKind = (v: unknown): v is DeviceKind =>
   (DEVICE_KINDS as readonly unknown[]).includes(v)
 
 const isFlag = (v: unknown): v is boolean => typeof v === 'boolean'

@@ -14,7 +14,7 @@ const KEY = 'lock.credentialId'
 const isId = (v: unknown): v is string =>
   typeof v === 'string' && v.length > 0 && v.length <= 1024
 
-export const getCredentialId = (): string => readPref(KEY, isId, '')
+const getCredentialId = (): string => readPref(KEY, isId, '')
 export const hasPasskey = (): boolean => getCredentialId() !== ''
 export const forgetPasskey = (): void => writePref(KEY, '')
 
@@ -44,7 +44,7 @@ export type PasskeyResult =
   | 'unsupported'
 
 /** Under this many ms, a refusal came before a sheet could have shown. */
-export const REFUSED_BEFORE_SHEET_MS = 100
+const REFUSED_BEFORE_SHEET_MS = 100
 
 /** Maps a WebAuthn error name and the time it took to a plain cause (tested). */
 export function passkeyFailure(name: string, ms: number): PasskeyResult {

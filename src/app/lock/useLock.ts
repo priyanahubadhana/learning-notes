@@ -6,7 +6,7 @@ import {
   methodsOf,
   type LockMethods,
 } from '../../core/lock/lockConfig'
-import { hiddenPageIds, lockChainIds } from '../../core/lock/lockService'
+import { lockChainIds } from '../../core/lock/lockService'
 import {
   DEFAULT_IDLE_MINUTES,
   relockAll,
@@ -22,23 +22,6 @@ export function useLockMethods(db: LearningNotesDB): LockMethods | undefined {
   return useLiveQuery(
     async () => methodsOf(await getLockConfig(db), hasPasskey()),
     [db],
-  )
-}
-
-/**
- * Which of these pages must stay hidden right now. Re-runs when notes or
- * the lock change and when something is unlocked or locked again.
- */
-export function useHiddenPageIds(
-  db: LearningNotesDB,
-  pageIds: readonly string[],
-): Set<string> {
-  const open = unlockedIds.useValue().join(',')
-  return (
-    useLiveQuery(
-      () => hiddenPageIds(db, pageIds),
-      [db, pageIds.join('|'), open],
-    ) ?? new Set<string>()
   )
 }
 

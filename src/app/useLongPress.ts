@@ -7,9 +7,9 @@ import {
 } from 'react'
 
 /** How long a finger or Pencil must stay down (ms). */
-export const LONG_PRESS_MS = 500
+const LONG_PRESS_MS = 500
 /** A move of more than this many pixels cancels the long-press. */
-export const LONG_PRESS_SLOP = 8
+const LONG_PRESS_SLOP = 8
 
 /**
  * Pure state machine behind `useLongPress` (kept apart so it can be tested

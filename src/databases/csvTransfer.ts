@@ -34,7 +34,7 @@ import {
 // ------------------------------------------------------------------ export
 
 /** A worked-out cell value as CSV text (dates as days, ticks as true/false). */
-export function exportText(value: FValue): string {
+function exportText(value: FValue): string {
   if (value === null || value === undefined) return ''
   if (isError(value)) return ''
   if (Array.isArray(value))

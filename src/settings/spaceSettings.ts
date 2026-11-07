@@ -10,7 +10,7 @@ import { useDeviceSetting } from './useSetting'
  * app always has a place to start. A hidden space's tools stay reachable
  * from Search.
  */
-export const SPACE_CHOICES = ['show', 'hide'] as const
+const SPACE_CHOICES = ['show', 'hide'] as const
 export type SpaceChoice = (typeof SPACE_CHOICES)[number]
 
 const define = (space: Space): SettingDefinition<SpaceChoice> => ({

@@ -278,7 +278,6 @@ export function BarStack({
               data-bar-handle
               data-pen-own
               aria-label={t('bar.move')}
-              title={t('bar.move')}
               onPointerDown={onDown}
               onPointerMove={onMove}
               onPointerUp={onUp}

@@ -1,4 +1,4 @@
-import type { SyncDisplay } from './syncProblem'
+import type { SyncDisplay } from './syncDisplay'
 import { useSyncLabel } from './useSyncLabel'
 
 const DOT: Record<SyncDisplay, string> = {

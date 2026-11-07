@@ -69,7 +69,6 @@ export function RibbonOptions({ px }: { px: number }) {
           data-action="ribbonOptions"
           {...menu.trigger}
           aria-label={t('ribbon.options')}
-          title={t('ribbon.options')}
           onMouseDown={(e) => e.preventDefault()}
           onClick={menu.toggle}
           style={{ minHeight: px, minWidth: px }}

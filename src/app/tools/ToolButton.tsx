@@ -117,9 +117,9 @@ function PlainToolButton({
       data-coming={tool.coming ? '' : undefined}
       aria-label={label}
       aria-pressed={active ?? undefined}
+      aria-description={title !== label ? title : undefined}
       disabled={disabled || undefined}
       aria-disabled={tool.coming ? true : undefined}
-      title={title}
       onMouseDown={keepFocus}
       onClick={() => {
         runTool(tool.id)

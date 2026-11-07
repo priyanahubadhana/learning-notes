@@ -23,10 +23,10 @@ export interface LayerFile {
   bundle: Bundle
 }
 
-export const LAYER_ID = /^[a-z0-9][a-z0-9-]{0,63}$/
-export const MAX_LAYER_NAME = 80
-export const MAX_LAYER_TEXT = 400
-export const MAX_LAYER_ADDS = 12
+const LAYER_ID = /^[a-z0-9][a-z0-9-]{0,63}$/
+const MAX_LAYER_NAME = 80
+const MAX_LAYER_TEXT = 400
+const MAX_LAYER_ADDS = 12
 
 const isObject = (v: unknown): v is Record<string, unknown> =>
   typeof v === 'object' && v !== null && !Array.isArray(v)

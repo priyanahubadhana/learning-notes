@@ -144,7 +144,7 @@ export const languageSetting: SettingDefinition<Language> = {
 }
 
 /** Hover tips and help lines (this device). */
-export const HELP_CHOICES = ['on', 'off'] as const
+const HELP_CHOICES = ['on', 'off'] as const
 export type HelpChoice = (typeof HELP_CHOICES)[number]
 
 export const showHelp: SettingDefinition<HelpChoice> = {
@@ -165,7 +165,7 @@ export const showHelp: SettingDefinition<HelpChoice> = {
 }
 
 /** How dates are written on this device. */
-export const DATE_STYLES = ['auto', 'dayFirst', 'monthFirst'] as const
+const DATE_STYLES = ['auto', 'dayFirst', 'monthFirst'] as const
 
 export const dateStyleSetting: SettingDefinition<DateStyle> = {
   id: 'general.dateStyle',
@@ -257,7 +257,7 @@ export const goodSteps: SettingDefinition<number[]> = {
 }
 
 /** How review gaps are picked (ids in `recall/scheduler.ts`). */
-export const SCHEDULER_CHOICES = ['fsrs', 'fixed'] as const
+const SCHEDULER_CHOICES = ['fsrs', 'fixed'] as const
 export type SchedulerChoice = (typeof SCHEDULER_CHOICES)[number]
 
 export const schedulerChoice: SettingDefinition<SchedulerChoice> = {
@@ -290,7 +290,7 @@ export const targetMemory: SettingDefinition<number> = {
 }
 
 /** Where "/card" puts a new card when typed inside a card's answer. */
-export const NESTED_CARD_CHOICES = ['ask', 'nextLine', 'inside'] as const
+const NESTED_CARD_CHOICES = ['ask', 'nextLine', 'inside'] as const
 export type NestedCardChoice = (typeof NESTED_CARD_CHOICES)[number]
 
 export const nestedCardPlacement: SettingDefinition<NestedCardChoice> = {
@@ -311,7 +311,7 @@ export const nestedCardPlacement: SettingDefinition<NestedCardChoice> = {
 }
 
 /** Order of a Practice anyway round. */
-export const PRACTICE_ORDERS = ['due', 'shuffle'] as const
+const PRACTICE_ORDERS = ['due', 'shuffle'] as const
 export type PracticeOrder = (typeof PRACTICE_ORDERS)[number]
 
 export const practiceOrder: SettingDefinition<PracticeOrder> = {
@@ -471,9 +471,7 @@ export const pencilWritesSetting: SettingDefinition<OnOff> = {
  * How long the Pencil rests on text before hold-to-select starts (ms).
  * Under the Text tool a quick stroke is handwriting; a still hold selects.
  */
-export const HOLD_SELECT_CHOICES = [
-  300, 400, 500, 600, 800, 1000, 1500,
-] as const
+const HOLD_SELECT_CHOICES = [300, 400, 500, 600, 800, 1000, 1500] as const
 export const holdSelectSetting: SettingDefinition<number> = {
   id: 'advanced.holdSelect',
   labelKey: 'settings.holdSelect.label',
@@ -494,7 +492,7 @@ export const holdSelectSetting: SettingDefinition<number> = {
   },
 }
 
-export const TAP_TWICE_CHOICES = ['auto', 'on', 'off'] as const
+const TAP_TWICE_CHOICES = ['auto', 'on', 'off'] as const
 export type TapTwice = (typeof TAP_TWICE_CHOICES)[number]
 /**
  * Pencil: tap twice to start typing. The first Pencil tap on a block that has
@@ -522,7 +520,7 @@ export const pencilTapTwiceSetting: SettingDefinition<TapTwice> = {
 }
 
 /** The Pencil can scroll the page (a flick, or a drag from the margins). */
-export const pencilScrollsSetting: SettingDefinition<OnOff> = {
+const pencilScrollsSetting: SettingDefinition<OnOff> = {
   id: 'advanced.pencilScrolls',
   labelKey: 'settings.pencilScrolls.label',
   descriptionKey: 'settings.pencilScrolls.description',

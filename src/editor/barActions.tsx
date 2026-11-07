@@ -1,4 +1,4 @@
-import { useActiveStyles } from '@blocknote/react'
+import { useActiveStyles } from './useActiveStyles'
 import type { ReactNode } from 'react'
 import { markActionId } from '../app/deviceMode'
 import { isApple } from '../app/keys'
@@ -90,7 +90,7 @@ const ALIGNMENTS = [
 ] as const
 
 /** Ids of every button, in the order of the Edit bar list. */
-export function allActionIds(): string[] {
+function allActionIds(): string[] {
   return [
     ...TEXT_STYLES.map((s) => s.id),
     ...markLabels().map((l) => markActionId(l.id)),
@@ -107,7 +107,7 @@ export function allActionIds(): string[] {
 
 /** All buttons with their current state; re-draws as the selection changes. */
 export function useBarActions(editor: Editor): BarAction[] {
-  const styles = useActiveStyles(editor) as Record<string, unknown>
+  const styles = useActiveStyles(editor)
   const dict = (
     editor.dictionary as unknown as { formatting_toolbar: Dictionary }
   ).formatting_toolbar

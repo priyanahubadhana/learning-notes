@@ -59,7 +59,7 @@ function buildPath(o: Outline): Path2D {
 }
 
 /** The outline, path and bounds of a stroke (built once per stroke). */
-export function cachedStroke(stroke: Stroke): Cached | null {
+function cachedStroke(stroke: Stroke): Cached | null {
   if (cache.has(stroke)) return cache.get(stroke) ?? null
   const outline = strokeOutline(stroke)
   const made = outline

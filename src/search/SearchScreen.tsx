@@ -169,7 +169,6 @@ export function SearchScreen({
             type="button"
             onClick={onClose}
             aria-label={t('search.close')}
-            title={t('search.close')}
             className="hidden size-11 items-center justify-center rounded-lg text-lg text-muted hover:bg-hover hover:text-ink phone:flex"
           >
             ×

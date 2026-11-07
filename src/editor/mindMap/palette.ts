@@ -7,7 +7,7 @@ import type { MindTheme } from './model'
  */
 
 /** Branch colours for the Bold and Paper themes. */
-export const BRANCH_COLOURS = [
+const BRANCH_COLOURS = [
   '#e5484d',
   '#d9822b',
   '#2f9e6f',

@@ -23,7 +23,6 @@ import {
   inPolygon,
   intersects,
   mapXY,
-  packPoints,
   unionRect,
   xy,
   type Affine,
@@ -1626,12 +1625,10 @@ function segHit(pts: Pt[], w: Pt, reach: number): boolean {
 }
 
 /** The nearest ancestor that scrolls up and down (else the window). */
-export function scrollParent(el: HTMLElement): HTMLElement | Window {
+function scrollParent(el: HTMLElement): HTMLElement | Window {
   for (let p = el.parentElement; p; p = p.parentElement) {
     const o = getComputedStyle(p).overflowY
     if (o === 'auto' || o === 'scroll' || o === 'overlay') return p
   }
   return window
 }
-
-export { packPoints }

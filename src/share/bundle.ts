@@ -27,7 +27,7 @@ import { checkedRow } from './checkRows'
  * Importing always makes new copies (see importBundle.ts).
  */
 
-export const BUNDLE_VERSION = 1
+const BUNDLE_VERSION = 1
 /** Largest file read (bytes). */
 export const MAX_BUNDLE_BYTES = 200_000_000
 

@@ -35,7 +35,7 @@ export function addDays(key: string, n: number): string {
 }
 
 /** 0 = Sunday … 6 = Saturday. */
-export function weekdayOf(key: string): number {
+function weekdayOf(key: string): number {
   return (parseDayKey(key) ?? new Date()).getDay()
 }
 

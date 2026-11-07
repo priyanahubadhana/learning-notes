@@ -1,3 +1,12 @@
+import {
+  getSyncStatus,
+  setSyncStatus,
+  subscribeSync,
+  type SyncPhase,
+  type SyncStatus,
+} from './syncStatus'
+export { getSyncStatus, subscribeSync }
+export type { SyncPhase, SyncStatus }
 import type { LearningNotesDB } from '../core/db'
 import { stableId } from '../core/ids'
 import { isLive } from '../core/records'
@@ -8,7 +17,7 @@ import { setTracking } from './device'
 import { enqueueChanged, syncOnce, type SyncReport } from './engine'
 import { forgetMasterKey, loadMasterKey, saveMasterKey } from './keyVault'
 import { createKey, findBundles, unlockKey } from './setup'
-import { mapSyncError, type SyncProblem } from './syncProblem'
+import { mapSyncError } from './syncProblem'
 
 /**
  * Sync service (L4–L8): the one place the app talks to for sync. It signs
@@ -17,40 +26,11 @@ import { mapSyncError, type SyncProblem } from './syncProblem'
  * cannot sync in the background). Signing in or out never deletes a note.
  */
 
-export type SyncPhase =
-  | 'signedOut'
-  | 'needsSetup' // signed in, no key anywhere yet: make one
-  | 'needsKey' // signed in, a key exists: type the passphrase or code
-  | 'ready'
-  | 'syncing'
-
-export interface SyncStatus {
-  phase: SyncPhase
-  email?: string
-  lastSyncedAt?: number
-  /** Short reason of the last failure (not shown as is: mapped to text). */
-  problem?: SyncProblem
-  needsDriveTap?: boolean
-  mergedPages?: number
-}
-
 const LAST = 'learning-notes:sync.lastSyncedAt'
-let status: SyncStatus = { phase: 'signedOut' }
-const listeners = new Set<() => void>()
 let master: MasterKey | null = null
 let running: Promise<void> | null = null
 let started = false
-
-function set(next: Partial<SyncStatus>) {
-  status = { ...status, ...next }
-  for (const l of listeners) l()
-}
-
-export const getSyncStatus = () => status
-export function subscribeSync(fn: () => void): () => void {
-  listeners.add(fn)
-  return () => listeners.delete(fn)
-}
+const set = setSyncStatus
 
 function readLast(): number | undefined {
   try {
@@ -105,7 +85,7 @@ export async function startSync(db: LearningNotesDB): Promise<void> {
   } catch {
     set({ problem: 'offline' })
   }
-  if (status.phase === 'ready') void syncNow(db)
+  if (getSyncStatus().phase === 'ready') void syncNow(db)
 
   const kick = () => {
     if (document.visibilityState === 'visible') void syncNow(db)
@@ -172,7 +152,7 @@ export async function unlock(
 /** Runs one sync now (joins a running one). */
 export function syncNow(db: LearningNotesDB): Promise<void> {
   if (running) return running
-  if (!master || status.phase === 'signedOut') return Promise.resolve()
+  if (!master || getSyncStatus().phase === 'signedOut') return Promise.resolve()
   const key = master
   running = (async () => {
     set({ phase: 'syncing' })
@@ -195,13 +175,14 @@ export function syncNow(db: LearningNotesDB): Promise<void> {
               ? 'clock'
               : undefined,
         needsDriveTap: report.needsDriveTap,
-        mergedPages: report.mergedPages.length || status.mergedPages,
+        mergedPages: report.mergedPages.length || getSyncStatus().mergedPages,
       })
     } catch (e) {
       set({
         // Always one of the plain problems, never the raw error text.
         problem: mapSyncError(e),
-        needsDriveTap: e instanceof NeedsTapError || status.needsDriveTap,
+        needsDriveTap:
+          e instanceof NeedsTapError || getSyncStatus().needsDriveTap,
       })
     } finally {
       set({ phase: 'ready' })
@@ -228,7 +209,7 @@ export function dismissMerged(): void {
  * After a sync, keep one (the fixed-id one, else the oldest) and move the
  * other's notebooks into it. Nothing is deleted except the empty duplicate.
  */
-export async function dedupeWorkspaces(db: LearningNotesDB): Promise<void> {
+async function dedupeWorkspaces(db: LearningNotesDB): Promise<void> {
   const live = (await db.workspaces.toArray()).filter(isLive)
   if (live.length >= 2) await mergeWorkspaces(db, live)
   await dedupeSpecialNotebooks(db)

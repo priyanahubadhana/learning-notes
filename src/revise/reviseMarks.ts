@@ -91,7 +91,7 @@ export function setMarkLabels(next: readonly LabelDef[]): void {
     .join('\n')
 }
 
-export const isMarkLabel = (v: unknown): v is MarkLabel =>
+const isMarkLabel = (v: unknown): v is MarkLabel =>
   typeof v === 'string' && v !== ''
 
 /** A label's name: the one set in Settings, or the built-in name. */

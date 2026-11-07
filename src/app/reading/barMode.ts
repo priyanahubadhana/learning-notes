@@ -8,7 +8,7 @@ import type { BarMode } from './readingPrefs'
  *   little (12 px) and always at the top.
  */
 
-export const SCROLL_THRESHOLD = 12
+const SCROLL_THRESHOLD = 12
 const TOP_ZONE = 8
 
 export interface BarState {

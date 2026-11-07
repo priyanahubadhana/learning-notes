@@ -5,7 +5,7 @@
  * past this device's time are not followed (bug 11 in RESEARCH.md).
  */
 
-export const MAX_AHEAD_MS = 24 * 60 * 60 * 1000
+const MAX_AHEAD_MS = 24 * 60 * 60 * 1000
 
 export interface Clock {
   ms: number

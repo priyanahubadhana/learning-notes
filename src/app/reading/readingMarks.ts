@@ -118,9 +118,9 @@ const isStreak = (v: unknown): v is StreakData =>
   Object.values(v.days).every((n) => typeof n === 'number')
 
 const STREAK_KEY = 'reading.streak'
-export const STREAK_MIN_SECONDS = 60
+const STREAK_MIN_SECONDS = 60
 
-export function dayKey(date: Date): string {
+function dayKey(date: Date): string {
   const p = (n: number) => String(n).padStart(2, '0')
   return `${date.getFullYear()}-${p(date.getMonth() + 1)}-${p(date.getDate())}`
 }

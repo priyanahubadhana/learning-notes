@@ -1,4 +1,4 @@
-import { useActiveStyles } from '@blocknote/react'
+import { useActiveStyles } from '../../../editor/useActiveStyles'
 import { useState } from 'react'
 import { t, type MessageKey } from '../../../i18n/t'
 import type { Editor } from '../../../editor/barActions'
@@ -184,7 +184,7 @@ function StyleCard({
   onPage: (page: string) => void
 }) {
   useEditorRedraw(editor)
-  const styles = useActiveStyles(editor) as Record<string, unknown>
+  const styles = useActiveStyles(editor)
   const block = editor.getTextCursorPosition().block as unknown as {
     type: string
     props: Record<string, unknown>
@@ -397,7 +397,7 @@ function ColourNames({
   editor: Editor
   kind: 'textColor' | 'backgroundColor'
 }) {
-  const styles = useActiveStyles(editor) as Record<string, unknown>
+  const styles = useActiveStyles(editor)
   const now =
     typeof styles[kind] === 'string' ? (styles[kind] as string) : 'default'
   const hex = kind === 'textColor' ? TEXT_HEX : BACKGROUND_HEX

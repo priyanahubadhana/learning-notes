@@ -104,3 +104,51 @@ export async function checkForUpdateNow(
     return 'failed'
   }
 }
+
+// ---- More triggers for looking (R6-14) ----
+
+/** At most one extra look per 5 minutes, and one every 10 while visible. */
+export const UPDATE_THROTTLE_MS = 5 * 60_000
+export const UPDATE_EVERY_MS = 10 * 60_000
+
+/** Wraps `run` so it goes at most once per `gap` ms; returns whether it ran. */
+export function throttled(
+  run: () => void,
+  gap = UPDATE_THROTTLE_MS,
+  now: () => number = Date.now,
+): () => boolean {
+  let last = -Infinity
+  return () => {
+    const at = now()
+    if (at - last < gap) return false
+    last = at
+    run()
+    return true
+  }
+}
+
+interface TriggerWindow {
+  addEventListener: (type: string, run: () => void, options?: object) => void
+  document: { visibilityState: string }
+  setInterval: (run: () => void, ms: number) => unknown
+}
+
+/**
+ * Looks for a new version on page navigation, on the first typing or touch
+ * after a pause, and every 10 minutes while the app is showing. Never
+ * reloads: a found version only raises the usual "Update available" offer,
+ * which App applies only when nothing is unsaved.
+ */
+export function watchUpdateTriggers(
+  win: TriggerWindow,
+  check: () => void,
+  now: () => number = Date.now,
+) {
+  const soft = throttled(check, UPDATE_THROTTLE_MS, now)
+  win.addEventListener('hashchange', soft)
+  win.addEventListener('keydown', soft, { capture: true, passive: true })
+  win.addEventListener('pointerdown', soft, { capture: true, passive: true })
+  win.setInterval(() => {
+    if (win.document.visibilityState === 'visible') soft()
+  }, UPDATE_EVERY_MS)
+}

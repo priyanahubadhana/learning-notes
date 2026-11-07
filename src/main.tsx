@@ -14,6 +14,7 @@ import {
   repeatUpdateOffer,
   setUpdateChecker,
   watchForUpdates,
+  watchUpdateTriggers,
 } from './app/updates'
 import { requestPersistentStorage } from './core/storage'
 import { db } from './core/db'
@@ -74,6 +75,11 @@ const update = registerSW({
       repeatUpdateOffer()
       noteChecked()
       void registration?.update().catch(() => {}) // offline: try next time
+    })
+    // R6-14: also on navigation, first typing or touch, and every 10 minutes.
+    watchUpdateTriggers(window, () => {
+      noteChecked()
+      void registration?.update().catch(() => {})
     })
   },
 })

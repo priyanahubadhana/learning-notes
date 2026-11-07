@@ -5,6 +5,10 @@ import {
   onUpdateOffer,
   repeatUpdateOffer,
   resetUpdates,
+  throttled,
+  watchUpdateTriggers,
+  UPDATE_EVERY_MS,
+  UPDATE_THROTTLE_MS,
   watchForUpdates,
 } from './updates'
 
@@ -25,6 +29,49 @@ describe('looking for updates', () => {
     expect(check).toHaveBeenCalledTimes(1)
     page.visibilityState = 'visible'
     changed()
+    expect(check).toHaveBeenCalledTimes(2)
+  })
+})
+
+describe('extra update checks (R6-14)', () => {
+  it('the throttle lets one look through per 5 minutes', () => {
+    let clock = 1_000_000
+    const run = vi.fn()
+    const soft = throttled(run, UPDATE_THROTTLE_MS, () => clock)
+    expect(soft()).toBe(true)
+    clock += UPDATE_THROTTLE_MS - 1
+    expect(soft()).toBe(false)
+    expect(run).toHaveBeenCalledTimes(1)
+    clock += 1
+    expect(soft()).toBe(true)
+    expect(run).toHaveBeenCalledTimes(2)
+  })
+
+  it('navigation, typing, touch and the 10 minute timer all use the throttle', () => {
+    const handlers = new Map<string, () => void>()
+    let tick = () => {}
+    const win = {
+      document: { visibilityState: 'visible' },
+      addEventListener: (type: string, run: () => void) =>
+        void handlers.set(type, run),
+      setInterval: (run: () => void, ms: number) => {
+        expect(ms).toBe(UPDATE_EVERY_MS)
+        tick = run
+      },
+    }
+    let clock = 0
+    const check = vi.fn()
+    watchUpdateTriggers(win, check, () => clock)
+    handlers.get('keydown')!() // the first typing looks
+    handlers.get('hashchange')!() // too soon
+    handlers.get('pointerdown')!()
+    expect(check).toHaveBeenCalledTimes(1)
+    clock += UPDATE_EVERY_MS
+    win.document.visibilityState = 'hidden'
+    tick() // not showing: no look
+    expect(check).toHaveBeenCalledTimes(1)
+    win.document.visibilityState = 'visible'
+    tick()
     expect(check).toHaveBeenCalledTimes(2)
   })
 })

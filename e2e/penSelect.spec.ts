@@ -27,7 +27,8 @@ async function setup(page: Page, lasso: Record<string, boolean> = {}) {
   await page.goto('/')
   await createNotebook(page, 'Cardiology', 'Heart')
   const editor = page.locator('.bn-editor')
-  await editor.click()
+  // In Pencil mode the Lasso pad lies over the page; a click on it places the caret.
+  await editor.click({ force: true })
   await page.keyboard.type('First line')
   for (const name of ['one.png', 'two.png']) {
     await page.keyboard.press('Enter')

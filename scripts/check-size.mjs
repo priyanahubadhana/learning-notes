@@ -1,10 +1,10 @@
 // First-download size gate (brief B1): the entry script plus its modulepreload
-// links, gzipped, must stay at or under 350,000 bytes. Run after `npm run build`.
+// links, gzipped, must stay at or under 320,000 bytes. Run after `npm run build`.
 import { readFileSync } from 'node:fs'
 import { gzipSync } from 'node:zlib'
 import { join } from 'node:path'
 
-const LIMIT = 350_000
+const LIMIT = 320_000
 const dist = new URL('../dist/', import.meta.url).pathname.replace(
   /^\/([A-Za-z]:)/,
   '$1',

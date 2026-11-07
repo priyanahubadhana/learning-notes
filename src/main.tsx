@@ -23,13 +23,14 @@ import { db } from './core/db'
 import { isTracking } from './sync/device'
 import { writePref } from './app/uiPrefs'
 import { initDeviceMode } from './settings/deviceModeSettings'
+import { prefetchAfterIdle } from './app/idlePrefetch'
 import { installScrollHints } from './app/scrollHints'
 import { scrollHintsSetting } from './settings/builtinSettings'
 import {
   readDeviceSetting,
   subscribeDeviceSettings,
 } from './settings/settingsService'
-import { saveEverything } from './share/saveEverything'
+import { saveEverythingLazy as saveEverything } from './share/saveEverythingLazy'
 import { setSlowMomentsOn, slowMomentsWanted } from './perf/slowMomentsSwitch'
 
 initDeviceMode()
@@ -94,6 +95,8 @@ const update = registerSW({
     })
   },
 })
+
+prefetchAfterIdle([() => import('./share/saveEverything')])
 
 /** The way out of a whole-app failure: start again with nothing open. */
 function goHome() {

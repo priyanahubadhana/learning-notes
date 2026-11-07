@@ -24,7 +24,7 @@ import {
 import { getSetting } from '../settings/settingsService'
 import { listPages } from '../pages/pageService'
 import { withCurrentLabels } from '../links/linkService'
-import { cardParts, hasQuestion, MAIN_PART } from './cardService'
+import { cardParts, hasQuestion, isNewCard, MAIN_PART } from './cardService'
 import { cardState, deckCards, getDeck } from './deckService'
 import { pausedIds, pausedPageIds } from './pauseService'
 import { fsrsScheduler } from './fsrsScheduler'
@@ -102,9 +102,8 @@ async function readyFor(
   const history = await db.reviewLogs.where('cardId').equals(card.id).toArray()
   return scheduler.adopt(card, history, settings)
 }
-
-/** A card is new until its first normal review. */
-export const isNewCard = (card: Card): boolean => card.reps === 0
+/** A card is new until its first normal review (defined in cardService). */
+export { isNewCard }
 
 /** Next state for each button, using the current settings. */
 export async function previewCard(

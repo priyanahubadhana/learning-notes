@@ -1,6 +1,7 @@
 import { useLiveQuery } from 'dexie-react-hooks'
 import type { LearningNotesDB } from '../../core/db'
-import { scopeCounts, type ReviewScope } from '../../recall/reviewService'
+import type { ReviewScope } from '../../recall/reviewService'
+import { scopeCounts } from '../../recall/reviewLazy'
 import { t } from '../../i18n/t'
 
 /** The three views of a page (Phase M): its notes, its Summary, its cards. */

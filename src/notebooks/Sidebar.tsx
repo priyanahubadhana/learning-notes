@@ -37,7 +37,8 @@ import { LazyNotebookMenu } from '../app/LazyNameSheet'
 import { useRowPalmGuard } from '../app/useRowPalmGuard'
 import { touchUi } from '../app/touchUi'
 import { useLongPress } from '../app/useLongPress'
-import { countDue, type ReviewScope } from '../recall/reviewService'
+import type { ReviewScope } from '../recall/reviewService'
+import { countDue } from '../recall/reviewLazy'
 import { deleteNotebook, moveNotebook, renameNotebook } from './notebookService'
 
 interface SidebarProps {

@@ -116,7 +116,7 @@ export async function importBook(
     throw new LibraryError(t('library.err.tooBig'))
   const data = await file.arrayBuffer()
   const bytes = new Uint8Array(data)
-  const format = detectBookFormat(bytes)
+  const format = await detectBookFormat(bytes)
   if (!format) throw new LibraryError(t('library.err.badType'))
   const fileName = (file.name ?? 'Book').slice(0, 300)
   let meta: BookMeta

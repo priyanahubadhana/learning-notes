@@ -10,6 +10,7 @@ import { memStore, prefStore } from '../tools/store'
 import { buildTextMap, type TextMap } from './domSpeech'
 import { rankVoices } from './voices'
 import { ReadAloud, speechAvailable, type AloudState } from './readAloud'
+import { aloudState, nowPlaying } from './aloudStores'
 
 /**
  * The one Read aloud that runs in the app. It lives outside the page, so
@@ -17,7 +18,7 @@ import { ReadAloud, speechAvailable, type AloudState } from './readAloud'
  * sleep timer stops it whatever page is showing.
  */
 
-export const aloudState = memStore<AloudState>('idle')
+export { aloudState, nowPlaying }
 /** Seconds left on the sleep timer, or null when none runs. */
 export const sleepLeft = memStore<number | null>(null)
 /** Speech finished a page and the next one (this id) is opening: keep reading there. */
@@ -29,10 +30,6 @@ export const voiceChoice = prefStore<string>(
   '',
 )
 
-/** What is being read, for the Now playing pill. */
-export const nowPlaying = memStore<{ title: string; pageId: string } | null>(
-  null,
-)
 /** Stop when this page ends instead of going on (sleep timer: end of page). */
 export const sleepAtEnd = memStore(false)
 /** What the forward and back buttons skip: one sentence or about 15 seconds. */

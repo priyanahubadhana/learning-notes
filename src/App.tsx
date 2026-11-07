@@ -45,7 +45,6 @@ import { toggleLock } from './app/lock/lockMenu'
 import { useAutoRelock } from './app/lock/useLock'
 import { useReadingSync } from './app/reading/useReadingSync'
 import { AudioDock } from './audio/AudioDock'
-import { DevicePicker } from './app/tools/DevicePicker'
 import { devicePickerDone } from './app/tools/deviceKind'
 import { setAppActions } from './app/tools/toolRuntime'
 import { SidebarResizer } from './app/SidebarResizer'
@@ -53,7 +52,7 @@ import { SIDEBAR_DEFAULT, isSidebarWidth } from './app/sidebarWidth'
 import { Toast, ChoiceDialog } from './app/ui'
 import { dismissUpdateOffer, onUpdateOffer } from './app/updates'
 import { UpdateBar } from './app/UpdateBar'
-import { NowPlayingPill } from './app/reading/NowPlayingPill'
+import { NowPlayingGate } from './app/reading/NowPlayingGate'
 import { TOAST_AFTER_HOLD_MS, toastDuration } from './app/toastTiming'
 import { isStringOrNull } from './app/uiPrefs'
 import { usePref } from './app/usePref'
@@ -89,13 +88,14 @@ import { pageForNotebook, rememberNotebookPage } from './notebooks/lastPage'
 import { LazyNameSheet } from './app/LazyNameSheet'
 import { touchUi } from './app/touchUi'
 import { BackupReminder } from './share/ReminderBar'
-import { saveEverything } from './share/saveEverything'
+import { saveEverythingLazy as saveEverything } from './share/saveEverythingLazy'
 import {
   noteFirstUse,
   reminderDue,
   snoozeReminder,
 } from './share/backupReminder'
-import { countDue, type ReviewScope } from './recall/reviewService'
+import type { ReviewScope } from './recall/reviewService'
+import { countDue } from './recall/reviewLazy'
 import {
   dateStyleSetting,
   languageSetting,
@@ -108,10 +108,8 @@ import { getSetting, readDeviceSetting } from './settings/settingsService'
 import { setMarkLabels } from './revise/reviseMarks'
 import { useAutoDeviceMode } from './settings/deviceModeSettings'
 import { useDeviceSetting, useSyncedSetting } from './settings/useSetting'
-import { TemplatePicker } from './templates/TemplatePicker'
 import { revealBlock } from './editor/revealBlock'
 import { rememberPage } from './search/recentPages'
-import { SearchPopup } from './search/SearchPopup'
 import { pushEntry, replaceEntry } from './app/navHistory'
 import { TopBar } from './app/TopBar'
 import { isBoolean, readPref, writePref } from './app/uiPrefs'
@@ -123,7 +121,6 @@ import {
   type SearchQuery,
 } from './search/searchQuery'
 import { getSavedSearch, readSavedQuery } from './search/savedSearchService'
-import { SaveSearchActions } from './search/SaveSearchActions'
 import { restorePage } from './trash/trashService'
 import {
   createPageFromTemplate,
@@ -139,6 +136,22 @@ let HomeLoaded: typeof import('./home/HomeScreen').HomeScreen | null = null
 const loadHome = () =>
   import('./home/HomeScreen').then((m) => (HomeLoaded = m.HomeScreen))
 const HomeLazy = lazy(() => loadHome().then((c) => ({ default: c })))
+const SearchPopup = lazy(() =>
+  import('./search/SearchPopup').then((m) => ({ default: m.SearchPopup })),
+)
+const TemplatePicker = lazy(() =>
+  import('./templates/TemplatePicker').then((m) => ({
+    default: m.TemplatePicker,
+  })),
+)
+const DevicePicker = lazy(() =>
+  import('./app/tools/DevicePicker').then((m) => ({ default: m.DevicePicker })),
+)
+const SaveSearchActions = lazy(() =>
+  import('./search/SaveSearchActions').then((m) => ({
+    default: m.SaveSearchActions,
+  })),
+)
 const NotebookScreen = lazy(() =>
   import('./notebooks/NotebookScreen').then((m) => ({
     default: m.NotebookScreen,
@@ -1669,42 +1682,48 @@ function App() {
             </div>
 
             {picker && (
-              <TemplatePicker
-                db={db}
-                workspaceId={workspace.id}
-                mode={picker.mode}
-                onDone={(result) => {
-                  setPicker(null)
-                  picker.resolve(result)
-                }}
-              />
+              <Suspense fallback={null}>
+                <TemplatePicker
+                  db={db}
+                  workspaceId={workspace.id}
+                  mode={picker.mode}
+                  onDone={(result) => {
+                    setPicker(null)
+                    picker.resolve(result)
+                  }}
+                />
+              </Suspense>
             )}
             {searchPopup && (
-              <SearchPopup
-                db={db}
-                onClose={() => setSearchPopup(false)}
-                onOpenMenu={() => {
-                  setSearchPopup(false)
-                  setDrawerAt(routeHash)
-                }}
-                onOpenHit={(hit) => {
-                  setSearchPopup(false)
-                  runTask(openHit(hit))
-                }}
-                onOpenPage={(id) => {
-                  setSearchPopup(false)
-                  openPage(id)
-                }}
-                onOpenTask={() => {
-                  writePref('home.tab', 'tasks')
-                  chooseSpace('home')
-                }}
-                onSeeAll={openSearch}
-                initialChip={searchChip}
-              />
+              <Suspense fallback={null}>
+                <SearchPopup
+                  db={db}
+                  onClose={() => setSearchPopup(false)}
+                  onOpenMenu={() => {
+                    setSearchPopup(false)
+                    setDrawerAt(routeHash)
+                  }}
+                  onOpenHit={(hit) => {
+                    setSearchPopup(false)
+                    runTask(openHit(hit))
+                  }}
+                  onOpenPage={(id) => {
+                    setSearchPopup(false)
+                    openPage(id)
+                  }}
+                  onOpenTask={() => {
+                    writePref('home.tab', 'tasks')
+                    chooseSpace('home')
+                  }}
+                  onSeeAll={openSearch}
+                  initialChip={searchChip}
+                />
+              </Suspense>
             )}
             {devicePicker && (
-              <DevicePicker onClose={() => setDevicePicker(false)} />
+              <Suspense fallback={null}>
+                <DevicePicker onClose={() => setDevicePicker(false)} />
+              </Suspense>
             )}
             {choice && (
               <ChoiceDialog
@@ -1726,7 +1745,7 @@ function App() {
               />
             )}
             <ReadingSync />
-            <NowPlayingPill onOpenPage={(id) => openPage(id)} />
+            <NowPlayingGate onOpenPage={(id) => openPage(id)} />
             <TimerChip db={db} onOpenHome={() => chooseSpace('home')} />
             <AudioDock db={db} pageId={currentPage?.id ?? null} />
             <div className="fixed bottom-16 left-1/2 z-40 flex w-max max-w-[calc(100vw-32px)] -translate-x-1/2 flex-col items-center gap-2">

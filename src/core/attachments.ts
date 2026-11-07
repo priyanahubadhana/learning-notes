@@ -26,7 +26,7 @@ export async function saveAttachment(
   const data = await file.arrayBuffer()
   const bytes = new Uint8Array(data)
   // A book is told by its first bytes, never by the name or claimed type.
-  const format = detectBookFormat(bytes)
+  const format = await detectBookFormat(bytes)
   const stored: BookFile = {
     ...newRecordFields(),
     pageId,

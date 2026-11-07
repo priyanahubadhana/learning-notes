@@ -1,5 +1,3 @@
-import { unzipSync, strFromU8 } from 'fflate'
-
 /**
  * Book file types: told apart by their first bytes, never by the file name or
  * the type the browser claims. Pure; shared by the Library import and by the
@@ -57,10 +55,14 @@ const isZipBytes = (b: Uint8Array): boolean =>
  * are read: EPUB has a `mimetype` file saying `application/epub+zip`; DOCX has
  * `word/document.xml`.
  */
-export function detectBookFormat(bytes: Uint8Array): BookFormat | null {
+export async function detectBookFormat(
+  bytes: Uint8Array,
+): Promise<BookFormat | null> {
   if (isPdfBytes(bytes)) return 'pdf'
   if (!isZipBytes(bytes)) return null
   try {
+    // Loaded here so the first download does not carry the zip reader.
+    const { unzipSync, strFromU8 } = await import('fflate')
     const files = unzipSync(bytes, {
       filter: (f) => f.name === 'mimetype' || f.name === 'word/document.xml',
     })

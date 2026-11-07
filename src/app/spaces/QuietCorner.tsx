@@ -1,13 +1,18 @@
-import { useEffect, useRef, useState } from 'react'
+import { lazy, Suspense, useEffect, useRef, useState } from 'react'
 import { createPortal } from 'react-dom'
 import { DeviceModeMenuRow } from '../DeviceModeMenu'
 import { THEMES, type Theme } from '../theme'
 import type { LearningNotesDB } from '../../core/db'
 import { Tip } from '../../help/Help'
 import { t } from '../../i18n/t'
-import { LayerGallery } from '../../layers/LayerGallery'
 import { TrashSection } from '../../trash/TrashSection'
 import { SyncDot } from '../../sync/SyncDot'
+
+const LayerGallery = lazy(() =>
+  import('../../layers/LayerGallery').then((m) => ({
+    default: m.LayerGallery,
+  })),
+)
 
 /**
  * The quiet corner (⚙ at the bottom of the strip): the things you use now
@@ -181,11 +186,13 @@ export function QuietCorner({
         )}
       {layers &&
         createPortal(
-          <LayerGallery
-            db={db}
-            workspaceId={workspaceId}
-            onClose={() => setLayers(false)}
-          />,
+          <Suspense fallback={null}>
+            <LayerGallery
+              db={db}
+              workspaceId={workspaceId}
+              onClose={() => setLayers(false)}
+            />
+          </Suspense>,
           document.body,
         )}
     </>

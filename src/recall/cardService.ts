@@ -124,3 +124,6 @@ export function maskedText(runs: JsonValue | undefined, blankId?: string) {
 export function hasQuestion(block: Pick<Block, 'type' | 'content'>): boolean {
   return block.type !== CARD_BLOCK_TYPE || maskedText(block.content.text) !== ''
 }
+
+/** A card is new until its first normal review. */
+export const isNewCard = (card: Card): boolean => card.reps === 0

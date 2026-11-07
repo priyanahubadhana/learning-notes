@@ -9,7 +9,7 @@ import {
   hasQuestion,
   maskedText,
 } from './cardService'
-import { isNewCard } from './reviewService'
+import { isNewCard } from './cardService'
 
 /**
  * Data for the live "Card list" block: the cards on a page (optionally its

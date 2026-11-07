@@ -59,16 +59,18 @@ const file = (bytes: Uint8Array, name: string) =>
   Object.assign(new Blob([bytes as BlobPart]), { name })
 
 describe('book format detection', () => {
-  it('tells PDF, EPUB and DOCX apart by their bytes', () => {
-    expect(detectBookFormat(pdfBytes())).toBe('pdf')
-    expect(detectBookFormat(epubBytes())).toBe('epub')
-    expect(detectBookFormat(docxBytes())).toBe('docx')
+  it('tells PDF, EPUB and DOCX apart by their bytes', async () => {
+    expect(await detectBookFormat(pdfBytes())).toBe('pdf')
+    expect(await detectBookFormat(epubBytes())).toBe('epub')
+    expect(await detectBookFormat(docxBytes())).toBe('docx')
   })
-  it('refuses other files, whatever they are called', () => {
-    expect(detectBookFormat(strToU8('hello'))).toBeNull()
-    expect(detectBookFormat(zipSync({ 'a.txt': strToU8('x') }))).toBeNull()
+  it('refuses other files, whatever they are called', async () => {
+    expect(await detectBookFormat(strToU8('hello'))).toBeNull()
     expect(
-      detectBookFormat(
+      await detectBookFormat(zipSync({ 'a.txt': strToU8('x') })),
+    ).toBeNull()
+    expect(
+      await detectBookFormat(
         zipSync({
           mimetype: strToU8('application/zip'),
           'a.txt': strToU8('x'),

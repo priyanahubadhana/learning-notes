@@ -23,4 +23,23 @@ export const esN: Record<string, string> = {
     'Cada página nueva se abrirá con la plantilla de apuntes de estudio. Puedes desactivarlo en Ajustes › General.',
   'help.tip.newPage.always.example':
     'Útil cuando casi todas tus páginas son apuntes de clase.',
+
+  'math.slash.title': 'Fórmula',
+  'math.slash.subtext': 'Matemáticas con fracciones, letras griegas y símbolos',
+  'math.empty': 'Toca para añadir una fórmula',
+  'math.edit': 'Editar fórmula',
+  'math.editor': 'Fórmula',
+  'math.latex': 'LaTeX',
+  'math.palette': 'Símbolos',
+  'math.cat.basics': 'Básico',
+  'math.cat.greek': 'Griego',
+  'math.cat.symbols': 'Símbolos',
+  'math.cat.statistics': 'Estadística',
+  'math.done': 'Listo',
+  'help.tip.math.palette.meaning':
+    'Toca un botón y escribe esa parte de la fórmula por ti. Si antes seleccionaste texto, queda dentro de la parte nueva.',
+  'help.tip.math.palette.example':
+    'Toca el botón de fracción y escribe el numerador y el denominador.',
+  'help.line.math.latex':
+    'LaTeX es una forma de escribir matemáticas como texto. Puedes escribirlo tú o usar los botones de abajo para que lo escriban por ti.',
 }

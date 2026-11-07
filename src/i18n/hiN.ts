@@ -23,4 +23,23 @@ export const hiN: Record<string, string> = {
     'हर नया पेज अध्ययन नोट्स टेम्पलेट भरकर खुलेगा। इसे सेटिंग › सामान्य में फिर बंद कर सकते हैं।',
   'help.tip.newPage.always.example':
     'तब काम आता है जब आपके लगभग हर पेज पाठ के नोट्स होते हैं।',
+
+  'math.slash.title': 'सूत्र',
+  'math.slash.subtext': 'भिन्न, ग्रीक अक्षर और चिह्नों वाला गणित',
+  'math.empty': 'सूत्र जोड़ने के लिए छुएँ',
+  'math.edit': 'सूत्र बदलें',
+  'math.editor': 'सूत्र',
+  'math.latex': 'LaTeX',
+  'math.palette': 'चिह्न',
+  'math.cat.basics': 'मूल',
+  'math.cat.greek': 'ग्रीक',
+  'math.cat.symbols': 'चिह्न',
+  'math.cat.statistics': 'सांख्यिकी',
+  'math.done': 'हो गया',
+  'help.tip.math.palette.meaning':
+    'किसी बटन को छुएँ, वह गणित का वह हिस्सा आपके लिए लिख देगा। पहले कुछ पाठ चुना हो तो वह नए हिस्से के अंदर चला जाता है।',
+  'help.tip.math.palette.example':
+    'भिन्न का बटन छुएँ, फिर ऊपर और नीचे का भाग लिखें।',
+  'help.line.math.latex':
+    'LaTeX गणित को पाठ की तरह लिखने का तरीका है। आप ख़ुद लिख सकते हैं, या नीचे के बटन दबाकर उन्हें लिखने दें।',
 }

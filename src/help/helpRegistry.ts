@@ -43,6 +43,9 @@ export const TIPS = {
   'path.sep': { where: 'Top bar › full page path › the arrow between parts' },
   'topBar.deviceMode': { where: 'Top bar › Device mode button (right side)' },
   'sidebar.calendar': { where: 'Sidebar › Calendar' },
+  'math.palette': {
+    where: 'Maths editor › the symbol buttons (fractions, Greek letters …)',
+  },
   'newPage.always': {
     where: 'New blank page › template list › Always start new pages as Study',
   },
@@ -232,6 +235,7 @@ export const HELP_LINES = {
     where: 'Study tracker › inside the Status menu (how Auto works)',
   },
   'page.editor': { where: 'Page › under the title' },
+  'math.latex': { where: 'Maths editor › under the LaTeX box' },
   'review.ratings': {
     where: 'Review › under the Again / Hard / Good / Easy buttons',
   },

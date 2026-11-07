@@ -75,6 +75,10 @@ export function blockText(content: Block['content']): string {
   }
   visit(content.text)
   if (typeof content.caption === 'string') out.push(content.caption)
+  // A formula is searchable by its LaTeX (N1).
+  if (typeof content.latex === 'string' && content.latex) {
+    out.push(content.latex)
+  }
   // A mind map keeps its words in `data` (blocks/mindMap/model.ts).
   if (typeof content.data === 'string' && content.data) {
     out.push(mindMapText(content.data))

@@ -96,6 +96,23 @@ export function buildSlashMenuItems(
       }),
   })
   items.push({
+    title: t('math.slash.title'),
+    subtext: t('math.slash.subtext'),
+    aliases: [
+      'math',
+      'maths',
+      'formula',
+      'equation',
+      'latex',
+      'fraction',
+      'greek',
+    ],
+    group: items[quoteIndex]?.group ?? 'Basic blocks',
+    icon: <span aria-hidden>∑</span>,
+    onItemClick: () =>
+      insertOrUpdateBlockForSlashMenu(editor, { type: 'math' }),
+  })
+  items.push({
     title: t('dayRecord.slash.title'),
     subtext: t('dayRecord.slash.subtext'),
     aliases: ['day record', 'tasks', 'done', 'today', 'record'],

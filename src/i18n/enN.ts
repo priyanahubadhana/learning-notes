@@ -28,4 +28,24 @@ export const enN = {
     'Every new page will open with the Study notes template filled in. You can turn it off again in Settings › General.',
   'help.tip.newPage.always.example':
     'Handy when almost every page you make is lesson notes.',
+
+  // ---- Maths (N1) ----
+  'math.slash.title': 'Formula',
+  'math.slash.subtext': 'Maths with fractions, Greek letters and symbols',
+  'math.empty': 'Tap to add a formula',
+  'math.edit': 'Edit formula',
+  'math.editor': 'Formula',
+  'math.latex': 'LaTeX',
+  'math.palette': 'Symbols',
+  'math.cat.basics': 'Basics',
+  'math.cat.greek': 'Greek',
+  'math.cat.symbols': 'Symbols',
+  'math.cat.statistics': 'Statistics',
+  'math.done': 'Done',
+  'help.tip.math.palette.meaning':
+    'Tap a button to write that piece of maths for you. If you selected some text first, it goes inside the new piece.',
+  'help.tip.math.palette.example':
+    'Tap the fraction button, then type the top and bottom.',
+  'help.line.math.latex':
+    'LaTeX is a way to write maths as text. You can type it yourself, or use the buttons below and let them write it.',
 }

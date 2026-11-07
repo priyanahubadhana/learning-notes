@@ -2,7 +2,7 @@
 
 Every hover tip and help line in the app (shown while Settings › Show help is On). Generated from `src/help/helpRegistry.ts` and `src/i18n/en.ts`; to change a text, edit it in `en.ts`, then run `UPDATE_HELP=1 npx vitest run src/help` to refresh this file.
 
-## Hover tips (154)
+## Hover tips (155)
 
 ### `bar.newLine`
 
@@ -93,6 +93,12 @@ Every hover tip and help line in the app (shown while Settings › Show help is 
 - **Where:** Sidebar › Calendar
 - **Meaning:** Every dated row of your databases and every journal day, by month or week.
 - **Example:** See what is due this week next to your journal.
+
+### `math.palette`
+
+- **Where:** Maths editor › the symbol buttons (fractions, Greek letters …)
+- **Meaning:** Tap a button to write that piece of maths for you. If you selected some text first, it goes inside the new piece.
+- **Example:** Tap the fraction button, then type the top and bottom.
 
 ### `newPage.always`
 
@@ -928,7 +934,7 @@ Every hover tip and help line in the app (shown while Settings › Show help is 
 - **Meaning:** Closes the audio panel. Recording keeps going.
 - **Example:** Hide the panel while a lecture records.
 
-## Help lines (11)
+## Help lines (12)
 
 Help lines are marked in the page with `data-help-line="<id>"`.
 
@@ -956,6 +962,11 @@ Help lines are marked in the page with `data-help-line="<id>"`.
 
 - **Where:** Page › under the title
 - **Text:** Type / for blocks · [[ to link a page · # to add a tag · select words to hide them as a blank · the ⠿ handle beside a line › Make card.
+
+### `math.latex`
+
+- **Where:** Maths editor › under the LaTeX box
+- **Text:** LaTeX is a way to write maths as text. You can type it yourself, or use the buttons below and let them write it.
 
 ### `review.ratings`
 

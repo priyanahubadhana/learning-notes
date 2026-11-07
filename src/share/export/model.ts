@@ -225,6 +225,12 @@ function nodeOf(b: Block): ExportNode | null {
     }
     case 'table':
       return { kind: 'table', runs: [], rows: tableRows(c.text), children: [] }
+    case 'math': {
+      const latex = str(c.latex).trim()
+      return latex
+        ? { kind: 'plain', runs: [{ text: `$$ ${latex} $$` }], children: [] }
+        : null
+    }
     case 'mindMap': {
       const text = toOutline(parseMindMap(c.data))
       return text.trim()

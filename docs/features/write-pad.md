@@ -26,7 +26,16 @@ Write with Apple Pencil in a big pad; the words land in the note as typed text w
 - **Drafts:** the unsent text is saved per page in localStorage (`draft.ts`) on every change and restored when the pad opens; Insert clears it. Close, page change and reload keep it. Resize, zoom and font only change prefs.
 - **Read with:** switching keeps the text. In AI mode the text shows above the canvas and Read adds to it. Unread canvas strokes (`strokeKeep.ts`) survive close and page change; switching away from them asks "Keep writing / Discard".
 - **Live ghost:** the text is drawn at the page cursor as a widget decoration (`ghost.ts`, dashed underline, in the chosen look). It is not a document change (no Undo, no sync). Insert / Replace commits it as one step.
-- **Insert automatically when I pause (2 s):** pad option, off by default (`autoInsert` pref).
+- ~~Insert automatically when I pause~~ replaced by the live copy option in round 7 (below).
+
+## Round 7 changes (8 Nov)
+
+- **One Undo list (R7-20, R7-21):** the main bar ↶ ↷ walk one list of steps in time order across the pad and the page (`padHistory.ts`). Pad steps: typing (600 ms merge), keys, Clear, the Scribble/AI switch, pen strokes, erasing, an AI Read result. Apply steps (Insert, Replace, Done): Undo takes the text off the page and puts it back in the pad; Redo inserts it again. Page steps (page edits while the pad is open) go to the page's own history. Closing the pad drops the list. Ink edits are not separate steps (see DECISIONS).
+- **Live copy (R7-25):** the dashed draft at the cursor follows the pad text; the pad keeps the text. **Insert** (stay open), **Done** (insert and close) and closing the pad make it final as one Undo step. Option "Show my writing on the page as I write" (default on). **Clear** (both modes) removes the pad text, the writing area and the draft, one step.
+- **Draft position (R7-24):** no cursor yet means the end of the page; the page scrolls so the draft is not under the pad.
+- **Tools in the AI pad (R7-15, R7-18, R7-19):** the Eraser (main bar or the pad's own Eraser button, one shared tool and setting; chips for mode and size appear in the pad) erases pad strokes. The Lasso and other non-writing tools are ignored (a hint says so); pad pointer events never reach the page. The first press of the pad Eraser sets it to Precise and Thin.
+- **Layout (R7-16, R7-26):** all rows wrap; the look rows (colour, highlight, size, font, weight, live-copy option) end with a gap for the safe area and the iPadOS dock bar. The pad scrolls when it is short.
+- **Explainer (R7-23):** the Scribble to AI switch explains what happens to the text (Switch to AI, Don't show again, Cancel).
 
 ## Edge cases
 

@@ -9,6 +9,15 @@ Moved out of HANDOFF on 2026-11-06 (audit) so HANDOFF stays five lines. Newest f
 3. Text tool, Pencil: double-tap a word, then wait 10 s doing nothing. It must stay selected (and triple = line, four = paragraph the same). Then do this once after a tab switch. If a selection still vanishes: Settings › Advanced › Tool state › Copy tool state right after it happened and paste the text into the chat (it shows which flag was stuck; nothing leaves the device otherwise).
 4. Update: when the "Update available" bar shows, press Update with the PWA and a Safari tab both open. Each should restart by itself within about 20 s (the Safari tab too, once you look at it), and the Pen must work in both without closing the app.
 
+## Write pad round 7: R7-15..R7-26 (8 Nov)
+
+1. AI mode, Pen: write a word. Tap the pad's Eraser button (next to ␣ ↵ ⌫): the main bar Eraser lights too. Rub through one letter: only that part goes (Precise, thin). Try Whole stroke. Nothing appears on the page above the pad. Undo brings the part back. Why human: real Pencil erasing feel.
+2. With the main bar Lasso chosen, draw a loop in the pad: no mark is left in the pad or on the page. Opening the AI canvas while the Lasso was chosen switches to the Pen by itself.
+3. Look at the pad at the narrowest iPad window (Split View): colour, highlight, size, font, weight and "Show my writing on the page as I write" wrap and never overlap. With the keyboard and the floating dock/shortcut bar up, the last row is not covered (scroll the pad if needed).
+4. Write in Scribble, tap Insert, then ↶: the text leaves the page and is back in the pad; ↷ puts it on the page again. Switch to AI and ↶: back in Scribble. AI Read, then ↶: the words go and your strokes return. Clear (new button) then ↶: the text returns.
+5. First switch Scribble to AI shows the explainer; "Don't show again" stops it.
+6. Write in the pad: the dashed draft shows on the page at the cursor (or at the end of the page if you never tapped it) and is not hidden under the pad. Edit the pad text: the draft follows. Done, Insert, or the X make it final; ↶ is one step.
+
 ## Pencil taps and Lasso words: R6-17..R6-20 (7 Nov)
 
 1. Text tool, Pencil: double-tap a word in a paragraph. The word stays selected (no flicker, no jump to a caret) and the mini toolbar shows; it stays until you tap elsewhere or press a key. Why human: the real iPad's own double-tap and late click cannot be simulated.

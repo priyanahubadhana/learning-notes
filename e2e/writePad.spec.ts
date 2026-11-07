@@ -107,6 +107,29 @@ test('the keys edit the text in the pad', async ({ page }) => {
   await expect(input(page)).toHaveValue('ab ')
 })
 
+test('Enter presses are real newlines, shown as marks, and the keys edit them (R6-9)', async ({
+  page,
+}) => {
+  await openNote(page, 'touch')
+  await openPad(page)
+  const marks = pad(page).locator('[data-write-pad-break]')
+  await input(page).fill('one')
+  await pad(page).getByRole('button', { name: 'New line' }).click()
+  await page.keyboard.type('two')
+  await pad(page).getByRole('button', { name: 'New line' }).click()
+  await expect(input(page)).toHaveValue('one\ntwo\n')
+  await expect(marks).toHaveCount(2)
+  await expect(page.locator('[data-write-pad-preview]')).toContainText('↵')
+  // Delete takes the last Enter away (caret is at the end).
+  await pad(page).getByRole('button', { name: 'Delete' }).click()
+  await expect(input(page)).toHaveValue('one\ntwo')
+  await expect(marks).toHaveCount(1)
+  // An Enter typed in the box is a newline too.
+  await input(page).press('Enter')
+  await expect(input(page)).toHaveValue('one\ntwo\n')
+  await expect(marks).toHaveCount(2)
+})
+
 test('the main bar Undo and Redo work inside the pad, then on the page (R6-7)', async ({
   page,
 }) => {

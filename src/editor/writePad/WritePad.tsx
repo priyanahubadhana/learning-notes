@@ -202,6 +202,7 @@ export default function WritePad() {
   >(null)
   const [aiError, setAiError] = useState('')
   const drag = useRef<{ y: number; h: number } | null>(null)
+  const marks = useRef<HTMLDivElement>(null)
 
   const lift = useKeyboardLift()
   const look = lookOf(prefs)
@@ -259,6 +260,8 @@ export default function WritePad() {
       change(text.slice(0, start) + add + text.slice(stop), true)
       caret = start + 1
     }
+    // Focus the box so the caret and the new line show where they are.
+    el?.focus({ preventScroll: true })
     requestAnimationFrame(() => el?.setSelectionRange(caret, caret))
   }
 
@@ -467,35 +470,73 @@ export default function WritePad() {
           onError={(m) => setAiError(t('ai.failed', { reason: m }))}
         />
       ) : (
-        <textarea
-          ref={box}
-          data-write-pad-input
-          aria-label={t('writePad.input')}
-          placeholder={t('writePad.placeholder')}
-          value={text}
-          onChange={(e) => change(e.target.value)}
-          onKeyDown={(e) => {
-            // The box is controlled, so the browser's own undo is replaced.
-            if (!(e.metaKey || e.ctrlKey) || e.key.toLowerCase() !== 'z') return
-            e.preventDefault()
-            if (e.shiftKey ? redoPad() : undoPad()) return
-          }}
-          // Remember where the page's cursor was when the pad is tapped.
-          onFocus={() => {
-            const range = currentRange(editor)
-            if (range.from !== session.from || range.to !== session.to) {
-              writePad.set({ ...session, ...range })
-            }
-          }}
-          autoCapitalize="sentences"
-          spellCheck={false}
-          style={{
-            ...lookCss,
-            fontSize: `${22 * prefs.zoom}px`,
-            lineHeight: 1.3,
-          }}
-          className="mx-3 my-2 min-h-0 flex-1 resize-none rounded-lg border border-line bg-bg p-3 text-ink"
-        />
+        <div className="relative mx-3 my-2 min-h-0 flex-1 rounded-lg bg-bg">
+          {/* Shows each Enter as a mark; the box on top stays a plain textarea. */}
+          <div
+            ref={marks}
+            aria-hidden
+            data-write-pad-marks
+            style={{
+              ...lookCss,
+              fontSize: `${22 * prefs.zoom}px`,
+              lineHeight: 1.3,
+              scrollbarGutter: 'stable',
+            }}
+            className="pointer-events-none absolute inset-0 overflow-hidden whitespace-pre-wrap break-words rounded-lg border border-transparent p-3 text-transparent"
+          >
+            {text.split('\n').map((line, i, all) => (
+              <span key={i}>
+                {line}
+                {i < all.length - 1 && (
+                  <>
+                    <span
+                      data-write-pad-break
+                      className="inline-block w-0 overflow-visible whitespace-nowrap text-muted"
+                    >
+                      ↵
+                    </span>
+                    {'\n'}
+                  </>
+                )}
+              </span>
+            ))}
+          </div>
+          <textarea
+            ref={box}
+            data-write-pad-input
+            aria-label={t('writePad.input')}
+            placeholder={t('writePad.placeholder')}
+            value={text}
+            onScroll={(e) => {
+              if (marks.current)
+                marks.current.scrollTop = e.currentTarget.scrollTop
+            }}
+            onChange={(e) => change(e.target.value)}
+            onKeyDown={(e) => {
+              // The box is controlled, so the browser's own undo is replaced.
+              if (!(e.metaKey || e.ctrlKey) || e.key.toLowerCase() !== 'z')
+                return
+              e.preventDefault()
+              if (e.shiftKey ? redoPad() : undoPad()) return
+            }}
+            // Remember where the page's cursor was when the pad is tapped.
+            onFocus={() => {
+              const range = currentRange(editor)
+              if (range.from !== session.from || range.to !== session.to) {
+                writePad.set({ ...session, ...range })
+              }
+            }}
+            autoCapitalize="sentences"
+            spellCheck={false}
+            style={{
+              ...lookCss,
+              fontSize: `${22 * prefs.zoom}px`,
+              lineHeight: 1.3,
+              scrollbarGutter: 'stable',
+            }}
+            className="absolute inset-0 size-full resize-none rounded-lg border border-line bg-transparent p-3 text-ink"
+          />
+        </div>
       )}
 
       <div className="flex items-center gap-3 overflow-x-auto px-3 pb-1">

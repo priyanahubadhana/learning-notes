@@ -307,7 +307,9 @@ test('R6-4: our own bars and menus show no iOS callout and no system menu', asyn
         webkitTouchCallout?: string
       }
       return {
-        select: s.userSelect || s.webkitUserSelect,
+        select: [s.userSelect, s.webkitUserSelect].includes('none')
+          ? 'none'
+          : s.userSelect,
         callout: s.webkitTouchCallout,
       }
     }

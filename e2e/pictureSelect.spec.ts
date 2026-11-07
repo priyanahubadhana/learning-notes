@@ -2,7 +2,6 @@
 /// <reference lib="dom" />
 import { expect, test, type Page } from '@playwright/test'
 import { createNotebook, solidPng } from './helpers.ts'
-import { tool } from './mainBarHelpers.ts'
 
 /**
  * Selecting a range that includes pictures (paragraph, picture, text below):
@@ -60,8 +59,8 @@ async function setup(page: Page) {
     )
     .toBe(true)
   await page.waitForTimeout(700)
-  await tool(page, 'Lasso').click() // the Pencil selects under Lasso
-  await page.keyboard.press('Escape')
+  // Typing mode: a pen or mouse drag that starts on text selects whole
+  // blocks across pictures (dragSelect); under the Lasso a drag is a loop.
   await page.evaluate(() => {
     document.querySelector('main')!.scrollTop = 0
   })

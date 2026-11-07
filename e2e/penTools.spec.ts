@@ -337,6 +337,7 @@ for (const name of ['Pen', 'Highlighter', 'Eraser', 'Lasso', 'Read']) {
     await openNote(page)
     await tool(page, name).click()
     await page.keyboard.press('Escape')
+    await page.waitForTimeout(300) // the closed pill gives the page its room back
     // Choosing the tool dropped the page's focus.
     expect(await focusedInEditor(page)).toBe(false)
     const at = await wordPoint(page, 'holds')

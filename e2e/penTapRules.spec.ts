@@ -145,6 +145,7 @@ test('Lasso: a Pencil tap on words marks nothing and places no caret (a tap star
   await setup(page)
   await tool(page, 'Lasso').click()
   await page.keyboard.press('Escape')
+  await page.waitForTimeout(500) // the closed pill gives the page its room back
   expect(await tap(page, await blockPoint(page, 0))).toBe(true)
   expect(await activeBlockIndex(page)).toBe(-1)
   expect(await focused(page)).toBe(false)

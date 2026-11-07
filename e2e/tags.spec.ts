@@ -69,6 +69,11 @@ test('a tag opens Search with everything tagged, including inherited cards', asy
   await page.keyboard.press('Enter')
   await typeInEditor(page, '/card')
   await page.keyboard.press('Enter')
+  // The card block loads on demand: type once it is there.
+  await expect(
+    page.locator('.bn-block-content[data-content-type="card"]'),
+  ).toBeAttached()
+  await page.waitForTimeout(150)
   await page.keyboard.type('Which valves close in S1?')
   await addPage(page, 'Cardiology', 'Murmurs') // saves Heart sounds
   await typeInEditor(page, 'Systolic #ex')

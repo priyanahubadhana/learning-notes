@@ -45,17 +45,58 @@ const same = (
   d.parentId === saved.parentId &&
   JSON.stringify(d.content) === saved.content
 
-/** The caret as a block id and a text offset inside it (collapsed to a point). */
-function caretOf(editor: Editor): { id: string; offset: number } | null {
+/** One end of the selection as a block id and a text offset inside it. */
+interface Spot {
+  id: string
+  offset: number
+}
+
+/**
+ * The selection as its two ends (anchor and head), each a block id and an
+ * offset, so it can be put back after blocks moved. A collapsed selection
+ * has both ends the same. R7-4: a word the person selected (a Pencil double
+ * tap) must survive a synced change arriving a few seconds later; putting
+ * back only a caret threw it away.
+ */
+function selectionOf(editor: Editor): { anchor: Spot; head: Spot } | null {
   try {
     const { doc, selection } = editor.prosemirrorState
-    const id = editor.getTextCursorPosition().block.id
-    const start = contentStart(doc, id)
-    return start === null ? null : { id, offset: selection.from - start }
+    const spot = (pos: number): Spot | null => {
+      const $pos = doc.resolve(pos)
+      for (let d = $pos.depth; d > 0; d--) {
+        const node = $pos.node(d)
+        if (node.type.name === 'blockContainer') {
+          const start = contentStart(doc, node.attrs.id as string)
+          return start === null
+            ? null
+            : { id: node.attrs.id as string, offset: pos - start }
+        }
+      }
+      return null
+    }
+    const anchor = spot(selection.anchor)
+    const head = spot(selection.head)
+    return anchor && head ? { anchor, head } : null
   } catch {
     return null
   }
 }
+
+const sameSpot = (a: Spot | undefined, b: Spot | undefined) =>
+  !!a && !!b && a.id === b.id && a.offset === b.offset
+
+/** Has the selection moved from where it was (by the block ids and offsets)? */
+function selectionMoved(
+  editor: Editor,
+  was: { anchor: Spot; head: Spot },
+): boolean {
+  const now = selectionOf(editor)
+  return (
+    !now || !sameSpot(now.anchor, was.anchor) || !sameSpot(now.head, was.head)
+  )
+}
+
+const caretOf = (editor: Editor) => selectionOf(editor)
 
 /** Position just inside a block's content node, or null when not shown. */
 function contentStart(doc: PMNode, id: string): number | null {
@@ -71,15 +112,23 @@ function contentStart(doc: PMNode, id: string): number | null {
   return found
 }
 
-function restoreCaret(editor: Editor, caret: { id: string; offset: number }) {
+function restoreCaret(editor: Editor, sel: { anchor: Spot; head: Spot }) {
   try {
     editor.transact((tr) => {
-      const start = contentStart(tr.doc, caret.id)
-      if (start === null) return
-      const $start = tr.doc.resolve(start)
-      const end = $start.end()
-      const pos = Math.min(Math.max(start, start + caret.offset), end)
-      tr.setSelection(TextSelection.create(tr.doc, pos))
+      const at = (s: Spot): number | null => {
+        const start = contentStart(tr.doc, s.id)
+        if (start === null) return null
+        const end = tr.doc.resolve(start).end()
+        return Math.min(Math.max(start, start + s.offset), end)
+      }
+      const anchor = at(sel.anchor)
+      const head = at(sel.head)
+      if (anchor === null) return
+      tr.setSelection(
+        head === null
+          ? TextSelection.create(tr.doc, anchor)
+          : TextSelection.between(tr.doc.resolve(anchor), tr.doc.resolve(head)),
+      )
       tr.setMeta('addToHistory', false)
     })
   } catch {
@@ -193,7 +242,9 @@ export async function applyRemoteBlocks(
         !!saved &&
         (saved.parentId !== r.parentId || saved.order !== r.order)
       let kids: Partial['children'] = []
-      if (draft && moved && caret?.id !== r.id) {
+      const inSelection =
+        !!caret && (caret.anchor.id === r.id || caret.head.id === r.id)
+      if (draft && moved && !inSelection) {
         // Put it at its new place; its children travel with it.
         kids = (editor.getBlock(r.id)?.children ?? []) as Partial['children']
         editor.removeBlocks([r.id])
@@ -237,7 +288,11 @@ export async function applyRemoteBlocks(
   })
 
   if (orders.size > 0) sync.absorb(orders)
-  if (caret && result.applied.length > 0) restoreCaret(editor, caret)
+  // Put the selection back only when the change moved it: a selection the
+  // editor mapped through the change by itself is left alone.
+  if (caret && result.applied.length > 0 && selectionMoved(editor, caret)) {
+    restoreCaret(editor, caret)
+  }
   editing?.(false)
   if (theirs.length > 0 && (await keepTheirsInHistory(db, pageId, theirs))) {
     await noteMergedPage(db, pageId)

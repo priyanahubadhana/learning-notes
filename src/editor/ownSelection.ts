@@ -7,6 +7,7 @@ import {
   type Transaction,
 } from 'prosemirror-state'
 import { Decoration, DecorationSet } from 'prosemirror-view'
+import { onGestureReset, registerToolState } from '../app/gestureReset'
 import { BlockRangeSelection } from './dragSelect'
 import { penState } from './penGuard'
 import type { AppSchema } from './schema'
@@ -35,8 +36,14 @@ const MAX_DECORATIONS = 300
 /** A text selection longer than this is drawn by whole blocks. */
 const LONG_SELECTION = 6000
 
-/** A kept selection stays this long (ms) against anything but a new tap or key. */
-export const KEEP_MS = 1500
+/**
+ * A kept selection stays this long (ms) against anything but a new tap or
+ * key. R7-4 (owner, real iPad): with 1.5 s the word still vanished a few
+ * seconds later; whatever collapsed it came with no tap and no key, so the
+ * keep now lasts until the person's next tap or key (`own` below clears it),
+ * with this ceiling only as a safety valve.
+ */
+export const KEEP_MS = 30_000
 
 let lastInputAt = -1e9
 let pointerDown = false
@@ -52,6 +59,18 @@ let keptUntil = -1e9
 export function keepSelection(now = Date.now()): void {
   keptUntil = now + KEEP_MS
 }
+
+// The watchdog (R7-4): a pointerdown whose lift was lost in the background
+// left `pointerDown` true for good, and with it every late collapse counted
+// as the person's own doing. Coming back forgets the press.
+onGestureReset(() => {
+  pointerDown = false
+})
+registerToolState('ownSelection', () => ({
+  pointerDown,
+  lastInputAgoMs: lastInputAt > 0 ? Date.now() - lastInputAt : null,
+  keptForMs: keptUntil > Date.now() ? keptUntil - Date.now() : 0,
+}))
 
 /** Was there input (a pointer or a key) just now? Pure for tests. */
 export const recentIntent = (

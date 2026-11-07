@@ -52,6 +52,13 @@ All four work on the ink layer, like the Pen; Lasso can select, move, scale and 
 - **Grip drags:** while any bar grip is held (`app/tools/gripDrag.ts`) the ink pad and the Lasso ignore every pointer.
 - **Choosing a tool:** `app/pageAnchor.ts` holds the page still (see toolbar.md).
 
+## Gesture watchdog (Round 7, 8 Nov)
+
+- **Why:** on the iPad a pointer that is down when the app goes to the background never gets its lift. Every "pointer is down" memory then stayed stuck until a restart: the engine's half gesture (no Pen, Eraser or Lasso after it), the page's "not editable during a Lasso gesture" hold (no taps, no caret), a grip drag (ink ignores every pointer), the palm guard, penTap, and the selection guard's pointer-down flag (the double-tap word vanished, R7-4).
+- **What:** `app/gestureReset.ts` is one bus. On `visibilitychange` (both ways), `pageshow`, `pagehide`, window `focus` and `blur` every registered piece forgets its transient state. The engine's `resetGestures` keeps a long half stroke as writing (3+ points over 50 ms, the pointercancel rule) and drops a stray one, finishes an erase, releases the editable hold and every pointer capture, clears pen-down, the double-tap memory and the finger tap, and arms the pad again (`syncPad`). The pad also ends a gesture on `lostpointercapture`. `InkSurface` waits for the editor's container with a MutationObserver (no time limit: after an update the editor's chunk comes over the network). `app/updates.ts` restarts the page at a safe moment when a new service worker takes over a page that was already controlled (Update pressed in another window), so old code never runs on new files.
+- **Seeing it:** Settings › Advanced › Tool state › Copy tool state (device only) copies every piece's flags (`InkController.debugState`, grip drag, palm guard, penTap, own selection, tap counter, hold press, pen guard) plus the tool, page mode and service-worker state as text.
+- **Tests:** `e2e/gestureWatchdog.spec.ts` (chromium and the iPad stand-in), `app/gestureReset.test.ts`, `app/updateRestart.test.ts`, `app/tools/gripDrag.test.ts`.
+
 ## Edge cases
 
 - Read-only pages (open in another window) and Reading mode show ink but do not draw.

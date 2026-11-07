@@ -1,5 +1,6 @@
 import { TextSelection } from 'prosemirror-state'
 import type { EditorView } from 'prosemirror-view'
+import { onGestureReset, registerToolState } from '../app/gestureReset'
 import { activeTool } from '../app/tools/main/mainTools'
 import { keepSelection } from './ownSelection'
 import { wordAround } from './penSelect'
@@ -277,7 +278,23 @@ export function watchTapSelect(
     capture: true,
     passive: false,
   })
+  // The watchdog (R7-6): a tap whose lift was lost in the background, or a
+  // stale count, must not swallow or miscount the next taps.
+  const offReset = onGestureReset(() => {
+    down = null
+    last = null
+  })
+  const offState = registerToolState('tapSelect', () => ({
+    down: down ? `#${down.id} count ${down.count}` : null,
+    lastCount: last?.count ?? 0,
+    lastAgoMs: last ? Date.now() - last.at : null,
+    editable: dom.getAttribute('contenteditable'),
+    inert: dom.hasAttribute('inert'),
+    focused: dom.contains(doc.activeElement),
+  }))
   return () => {
+    offReset()
+    offState()
     doc.removeEventListener('pointerdown', onDown, true)
     doc.removeEventListener('pointerup', onUp, true)
     doc.removeEventListener('touchstart', onTouchStart, true)

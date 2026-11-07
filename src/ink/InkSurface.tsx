@@ -93,19 +93,27 @@ export function InkSurface({
   frozen,
   mode,
 }: Props) {
-  // The editor draws its container a moment after mounting: wait for it.
+  // The editor draws its container a moment after mounting: wait for it,
+  // however long it takes (a reload right after an update fetches the
+  // editor's files over the network; the old two-second limit then left
+  // the page with no ink engine at all, R7-1).
   const [wrap, setWrap] = useState<HTMLElement | null>(null)
   useEffect(() => {
     if (!host) return
-    let frame = 0
-    let tries = 0
     const look = () => {
       const el = host.querySelector<HTMLElement>('.bn-container')
-      if (el) setWrap(el)
-      else if (tries++ < 120) frame = requestAnimationFrame(look)
+      if (!el) return false
+      mo.disconnect()
+      setWrap(el)
+      return true
     }
-    look()
-    return () => cancelAnimationFrame(frame)
+    const mo = new MutationObserver(look)
+    mo.observe(host, { childList: true, subtree: true })
+    const frame = requestAnimationFrame(look)
+    return () => {
+      cancelAnimationFrame(frame)
+      mo.disconnect()
+    }
   }, [host])
   const { toast } = useContext(AppUiContext)
   const theme = useContext(ThemeContext)

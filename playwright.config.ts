@@ -89,6 +89,7 @@ export default defineConfig({
         /barFixes/,
         /pencilTaps/,
         /lassoWords/,
+        /gestureWatchdog/,
       ],
       use: { ...devices['iPad Pro 11'], hasTouch: true },
       expect: { timeout: 15_000 },

@@ -1,6 +1,7 @@
 import { createExtension } from '@blocknote/core'
 import { Plugin } from 'prosemirror-state'
 import type { Transaction } from 'prosemirror-state'
+import { onGestureReset, registerToolState } from '../app/gestureReset'
 import { scribbleFree } from './penMode'
 import type { AppSchema } from './schema'
 
@@ -44,6 +45,16 @@ export interface PenState {
 
 export const penState: PenState = { down: false, upAt: -1e9, lastKeyAt: -1e9 }
 const clock: () => number = () => Date.now()
+
+// The watchdog: a Pencil gesture whose lift was lost in the background must
+// not keep refusing every deletion (R7-5 family).
+onGestureReset(() => {
+  penState.down = false
+})
+registerToolState('penGuard', () => ({
+  down: penState.down,
+  upAgoMs: penState.upAt > 0 ? clock() - penState.upAt : null,
+}))
 
 /** Is a Pencil gesture going on, or did one just end? */
 const penBusy = (pen: { down: boolean; upAt: number }, now: number): boolean =>

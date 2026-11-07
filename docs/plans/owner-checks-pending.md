@@ -2,6 +2,13 @@
 
 Moved out of HANDOFF on 2026-11-06 (audit) so HANDOFF stays five lines. Newest first; each paragraph names its step. The run decision (master plan) is one owner iPad pass before Sync; the Phase A builder adds its checks at the top. Tick a paragraph by deleting it.
 
+## Round 7 gesture watchdog: R7-1, R7-3, R7-4, R7-5, R7-6, R7-8 (8 Nov)
+
+1. Pen on: draw a line, then switch to another app (or a Safari tab) and come back. Draw again, erase it with the Eraser, loop it with the Lasso (freeform and rectangle). All three must work without restarting the app. Why human: the real background switch (iPadOS drops the pen's lift) cannot be simulated.
+2. Same again, but switch away while the Pencil is still touching the page (mid-stroke), and once while dragging a Lasso selection by a handle. Come back: everything still works; the half stroke is either kept (if it was real writing) or gone, never a dead pad.
+3. Text tool, Pencil: double-tap a word, then wait 10 s doing nothing. It must stay selected (and triple = line, four = paragraph the same). Then do this once after a tab switch. If a selection still vanishes: Settings › Advanced › Tool state › Copy tool state right after it happened and paste the text into the chat (it shows which flag was stuck; nothing leaves the device otherwise).
+4. Update: when the "Update available" bar shows, press Update with the PWA and a Safari tab both open. Each should restart by itself within about 20 s (the Safari tab too, once you look at it), and the Pen must work in both without closing the app.
+
 ## Pencil taps and Lasso words: R6-17..R6-20 (7 Nov)
 
 1. Text tool, Pencil: double-tap a word in a paragraph. The word stays selected (no flicker, no jump to a caret) and the mini toolbar shows; it stays until you tap elsewhere or press a key. Why human: the real iPad's own double-tap and late click cannot be simulated.

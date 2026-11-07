@@ -82,5 +82,40 @@ const slowMomentsCopySetting: SettingDefinition<'idle'> = {
   derived: { read: () => 'idle', write: () => {} },
 }
 
+/**
+ * Settings › Advanced › Copy tool state (R7): what the ink engine, the
+ * grip drag, the palm guard, the tap counters and the selection guard
+ * believe right now, as text for a message. This device only.
+ */
+const toolStateCopySetting: SettingDefinition<'idle'> = {
+  id: 'advanced.toolStateCopy',
+  labelKey: 'settings.toolStateCopy.label',
+  descriptionKey: 'settings.toolStateCopy.description',
+  category: 'advanced',
+  keywords: 'tool state debug pen lasso eraser stuck pointer dump copy',
+  scope: 'device',
+  defaultValue: 'idle',
+  isValid: isOneOf(['idle'] as const),
+  control: {
+    kind: 'action',
+    buttonKey: 'settings.toolStateCopy.button',
+    run: () => {
+      void import('../app/toolStateReport').then(async (m) => {
+        const toast = (s: string) => currentRunner().app?.toast(s)
+        const text = m.buildToolStateReport()
+        try {
+          await navigator.clipboard.writeText(text)
+          toast(t('settings.toolStateCopy.done'))
+        } catch {
+          console.info(text)
+          toast(t('settings.toolStateCopy.failed'))
+        }
+      })
+    },
+  },
+  derived: { read: () => 'idle', write: () => {} },
+}
+
 settingsRegistry.register(slowMomentsSetting as SettingDefinition)
 settingsRegistry.register(slowMomentsCopySetting as SettingDefinition)
+settingsRegistry.register(toolStateCopySetting as SettingDefinition)

@@ -2,6 +2,7 @@
  * @vitest-environment jsdom
  */
 import { BlockNoteEditor } from '@blocknote/core'
+import { TextSelection } from 'prosemirror-state'
 import { beforeEach, describe, expect, it } from 'vitest'
 import { createBlock, listBlocks, updateBlock } from '../core/blockService'
 import type { LearningNotesDB } from '../core/db'
@@ -161,5 +162,38 @@ describe('live apply of synced blocks (R6-13)', () => {
     ])
     expect(res.applied).toEqual([])
     expect(plain(editor)).toEqual(['one again', 'two', 'three'])
+  })
+
+  it('R7-4: a word selected here stays selected when another block arrives', async () => {
+    const { editor, sync } = await open()
+    // The word "two" is selected (a Pencil double tap).
+    let from = -1
+    editor.prosemirrorState.doc.descendants((node, pos) => {
+      if (from < 0 && node.isText && node.text === 'two') from = pos
+      return from < 0
+    })
+    expect(from).toBeGreaterThan(0)
+    editor.transact((tr) =>
+      tr.setSelection(TextSelection.create(tr.doc, from, from + 3)),
+    )
+    const selected = () => {
+      const { doc, selection } = editor.prosemirrorState
+      return doc.textBetween(selection.from, selection.to)
+    }
+    expect(selected()).toBe('two')
+    // The block above changes on the other device, and a new one is inserted.
+    await updateBlock(db, ids[0], { content: line('one, longer now') })
+    const added = await createBlock(db, {
+      pageId,
+      type: 'paragraph',
+      content: line('new from there'),
+    })
+    const res = await applyRemoteBlocks(db, editor, pageId, sync, [
+      ids[0],
+      added.id,
+    ])
+    expect(res.applied).toEqual(expect.arrayContaining([ids[0], added.id]))
+    expect(plain(editor)).toContain('one, longer now')
+    expect(selected()).toBe('two')
   })
 })

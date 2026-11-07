@@ -211,6 +211,12 @@ export const hiO: Record<string, string> = {
   'settings.slowMomentsCopy.done': 'रिपोर्ट कॉपी हुई',
   'settings.slowMomentsCopy.empty': 'अभी कोई धीमा पल दर्ज नहीं',
   'settings.slowMomentsCopy.failed': 'कॉपी नहीं हो सकी। रिपोर्ट कंसोल में है।',
+  'settings.toolStateCopy.label': 'टूल की स्थिति',
+  'settings.toolStateCopy.description':
+    'पेन, लैसो, इरेज़र और टैप कोड अभी क्या मानते हैं (कौन सा टूल, पकड़े हुए पॉइंटर, अटके हुए फ़्लैग) उसे कॉपी करता है, ताकि कोई टूल काम करना बंद करे तो आप उसे संदेश में चिपका सकें। केवल इसी डिवाइस पर।',
+  'settings.toolStateCopy.button': 'टूल की स्थिति कॉपी करें',
+  'settings.toolStateCopy.done': 'टूल की स्थिति कॉपी हो गई',
+  'settings.toolStateCopy.failed': 'कॉपी नहीं हो सकी। स्थिति कंसोल में है।',
   // ---- AI keys on all devices (R6-2) ----
   'ai.keysSync':
     'मेरी AI कुंजियाँ मेरे सभी डिवाइस पर रखें (आपके सिंक पासफ़्रेज़ से लॉक)',

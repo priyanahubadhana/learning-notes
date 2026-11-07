@@ -7,6 +7,7 @@
  * and we click the control ourselves when the Pencil lifts. A finger or a
  * mouse is untouched.
  */
+import { onGestureReset, registerToolState } from './gestureReset'
 import { barPalm } from './palmGuard'
 
 /** Everything that counts as chrome (the app's own controls). */
@@ -179,7 +180,23 @@ export function installPenTap(doc: Document = document): () => void {
     if (inChrome(e.target) && e.cancelable) e.preventDefault()
   }
   doc.addEventListener('contextmenu', onMenu, true)
+  // The watchdog: a Pencil left "down" (its lift was lost in the background)
+  // would cancel every later stylus touch on the bars.
+  const offReset = onGestureReset(() => {
+    penDown = false
+    down = null
+    marked = null
+    ignoredId = -1
+  })
+  const offState = registerToolState('penTap', () => ({
+    penDown,
+    pending: down?.el.tagName ?? null,
+    ignoredId,
+    ...penTapStats,
+  }))
   return () => {
+    offReset()
+    offState()
     doc.removeEventListener('touchstart', onTouch, true)
     doc.removeEventListener('pointerdown', onDown, true)
     doc.removeEventListener('pointerup', onUp, true)

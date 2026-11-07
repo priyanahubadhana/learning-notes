@@ -105,6 +105,62 @@ export async function checkForUpdateNow(
   }
 }
 
+// ---- A clean restart when the new version takes over (R7-1) ----
+
+/** The part of `navigator.serviceWorker` used here. */
+export interface ServiceWorkerLike {
+  controller: unknown
+  addEventListener: (type: 'controllerchange', run: () => void) => void
+}
+
+/** How long to wait (ms) for a safe moment before restarting anyway. */
+export const SAFE_RELOAD_MAX_MS = 20_000
+const SAFE_RELOAD_POLL_MS = 250
+
+/**
+ * Restarts the page at a safe moment: the app is showing, no pointer is down
+ * and nothing is unsaved. After `maxWait` it restarts anyway, so an old page
+ * can never keep running against a new version's files.
+ */
+export function reloadWhenSafe(
+  safe: () => boolean,
+  reload: () => void,
+  timers: {
+    setTimeout: (run: () => void, ms: number) => unknown
+    now: () => number
+  } = { setTimeout: (run, ms) => window.setTimeout(run, ms), now: Date.now },
+  maxWait = SAFE_RELOAD_MAX_MS,
+): void {
+  const started = timers.now()
+  const tick = () => {
+    if (safe() || timers.now() - started >= maxWait) reload()
+    else timers.setTimeout(tick, SAFE_RELOAD_POLL_MS)
+  }
+  tick()
+}
+
+/**
+ * When a NEW service worker takes control of a page that was already
+ * controlled by an old one, this page is now the old version running on the
+ * new version's files: its late-loaded chunks may be gone or mismatched
+ * (the owner's "Update, then the Pen is dead", R7-1). That happens when
+ * another window or the installed app pressed Update, or when the reload
+ * the Update button asks for was missed. The page restarts cleanly instead.
+ * The very first install (no controller before) is not an update.
+ */
+export function watchControllerChange(
+  sw: ServiceWorkerLike | undefined,
+  restart: () => void,
+): void {
+  if (!sw) return
+  let had = !!sw.controller
+  sw.addEventListener('controllerchange', () => {
+    const was = had
+    had = true
+    if (was) restart()
+  })
+}
+
 // ---- More triggers for looking (R6-14) ----
 
 /** At most one extra look per 5 minutes, and one every 10 while visible. */

@@ -1,4 +1,5 @@
 import { TextSelection } from 'prosemirror-state'
+import { onGestureReset, registerToolState } from '../app/gestureReset'
 import { activeTool } from '../app/tools/main/mainTools'
 import { readDeviceSetting } from '../settings/settingsService'
 import { holdSelectSetting } from '../settings/builtinSettings'
@@ -160,7 +161,17 @@ export function watchHoldSelect(
     passive: false,
   })
   doc.addEventListener('selectstart', onSelectStart)
+  // The watchdog: a press whose lift was lost in the background.
+  const offReset = onGestureReset(() => {
+    finish()
+  })
+  const offState = registerToolState('holdSelect', () => ({
+    press: press?.id ?? null,
+    holding,
+  }))
   return () => {
+    offReset()
+    offState()
     finish()
     doc.removeEventListener('pointerdown', onDown, true)
     doc.removeEventListener('pointermove', onMove, true)

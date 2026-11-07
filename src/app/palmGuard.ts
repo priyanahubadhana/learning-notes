@@ -7,6 +7,8 @@
  * check the editors can ask: `ignoreTouch(event)`.
  */
 
+import { onGestureReset, registerToolState } from './gestureReset'
+
 /** A Pencil that stayed "down" for this long without any event is forgotten. */
 const STALE_MS = 3000
 
@@ -40,6 +42,18 @@ function installPalmGuard(doc: Document = document): void {
 }
 const installed = new WeakSet<Document>()
 if (typeof document !== 'undefined') installPalmGuard()
+
+// The watchdog: a Pencil whose lift was lost is forgotten at once (not only
+// after STALE_MS), so a finger is never ignored after coming back.
+onGestureReset(() => {
+  penId = null
+})
+registerToolState('palmGuard', () => ({
+  penId,
+  penIsDown: penIsDown(),
+  penEventAgoMs: lastPenEvent ? Date.now() - lastPenEvent : null,
+  penLiftAgoMs: lastPenLift ? Date.now() - lastPenLift : null,
+}))
 
 /** True while a Pencil pointer is down. */
 export function penIsDown(now: number = Date.now()): boolean {

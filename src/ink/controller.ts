@@ -1,4 +1,9 @@
 import { clampDpr } from '../app/canvasBudget'
+import {
+  onGestureReset,
+  registerToolState,
+  type ResetReason,
+} from '../app/gestureReset'
 import { gripDragging } from '../app/tools/gripDrag'
 import { inkSwitches } from './inkRuntime'
 import { createId } from '../core/ids'
@@ -256,6 +261,8 @@ export class InkController {
   private pressureMax = 0
   private penDown = false
   private lastPenAt = -1e9
+  /** Pointers the pad holds captured now (the browser says when one goes). */
+  private captured = new Set<number>()
   private scroller: HTMLElement | Window = window
   private hover: Pt | null = null
   /** Tapes peeled off for now (ids; never saved). */
@@ -316,6 +323,15 @@ export class InkController {
     on(this.pad, 'pointerup', (e: PointerEvent) => this.guard(() => this.up(e)))
     on(this.pad, 'pointercancel', (e: PointerEvent) =>
       this.guard(() => this.cancel(e)),
+    )
+    on(this.pad, 'gotpointercapture', (e: PointerEvent) => {
+      this.captured.add(e.pointerId)
+    })
+    // The browser took the capture away (the app went to the background,
+    // the system took the touch): a gesture still waiting for that pointer
+    // would otherwise block every stroke after it (R7-3, R7-5).
+    on(this.pad, 'lostpointercapture', (e: PointerEvent) =>
+      this.guard(() => this.pointerLost(e)),
     )
     on(this.pad, 'pointerleave', () => {
       this.hover = null
@@ -388,8 +404,96 @@ export class InkController {
     )
     this.cleanups.push(penSettings.subscribe(() => this.syncPad()))
     this.cleanups.push(lassoSettings.subscribe(() => this.syncPad()))
+    // The watchdog: the app went away or came back (a lost pointerup, a
+    // bfcache wake, the Update reload in another window). Everything that
+    // was half-way is forgotten and the pad is armed again.
+    this.cleanups.push(onGestureReset((reason) => this.resetGestures(reason)))
+    this.cleanups.push(registerToolState('ink', () => this.debugState()))
     this.syncPad()
     this.dirty()
+  }
+
+  /**
+   * Forgets every transient gesture state and arms the pad again: a
+   * half-finished stroke, erase, lasso or handle drag (its pointerup never
+   * came), the pen-down flag, the taps remembered for a double tap, the
+   * finger tap waiting to place the caret, the page's "not editable during
+   * a gesture" hold, and any pointer capture the pad still has. Safe to run
+   * at any time: nothing is saved or changed, an erase in progress is kept.
+   */
+  resetGestures(reason: ResetReason = 'manual'): void {
+    void reason
+    const g = this.gesture
+    if (g?.kind === 'draw') {
+      // Real writing is kept, a stray touch is dropped (as a pointercancel).
+      const last = g.pts[g.pts.length - 1]
+      if (g.pts.length >= 3 && (last?.t ?? 0) >= 50) {
+        this.cancels.kept++
+        this.gesture = null
+        clearTimeout(g.holdTimer)
+        if (!this.peelTape(g)) this.finishDraw(g, last?.t ?? 0)
+      } else {
+        this.cancels.dropped++
+      }
+    }
+    this.cancelGesture()
+    this.penDown = false
+    this.lastTap = null
+    this.fingerTap = null
+    this.hover = null
+    this.hidden.clear()
+    this.releaseEditing()
+    for (const id of [...this.captured]) {
+      try {
+        this.pad.releasePointerCapture(id)
+      } catch {
+        // Already gone.
+      }
+    }
+    this.captured.clear()
+    this.syncPad()
+    this.dirty()
+    this.notify()
+  }
+
+  /** The pad lost a pointer it was tracking: the gesture cannot go on. */
+  private pointerLost(e: PointerEvent): void {
+    this.captured.delete(e.pointerId)
+    const g = this.gesture
+    if (!g || g.id !== e.pointerId) return
+    if (g.kind === 'draw' || g.kind === 'erase') this.cancel(e)
+    else this.cancelGesture()
+  }
+
+  /** What the engine believes right now (Settings › Advanced › Copy tool state). */
+  debugState(): Record<string, unknown> {
+    const g = this.gesture
+    return {
+      tool: this.env.tool(),
+      frozen: this.env.frozen(),
+      deviceMode: this.env.deviceMode(),
+      gesture: g ? `${g.kind}#${g.id}` : 'none',
+      penDown: this.penDown,
+      penAgoMs: Math.round(performance.now() - this.lastPenAt),
+      captured: [...this.captured],
+      padPointerEvents: this.pad.style.pointerEvents,
+      padTouchAction: this.pad.style.touchAction,
+      padInDom: this.pad.isConnected,
+      lassoOwnsPad: this.lassoOwnsPad(),
+      heldEditable: this.heldEditable,
+      editorEditable: this.env.editorEl()?.getAttribute('contenteditable'),
+      editorInert: this.env.editorEl()?.hasAttribute('inert') ?? null,
+      selection: this.selection.length,
+      blockSel: this.blockSel.length,
+      hidden: this.hidden.size,
+      strokes: this.strokeTotal(),
+      layers: this.env.doc.layers.length,
+      chosenLayer: this.env.doc.chosenLayer,
+      lastTap: this.lastTap ? Date.now() - this.lastTap.at : null,
+      fingerTap: this.fingerTap?.id ?? null,
+      taps: { ...this.taps },
+      cancels: { ...this.cancels },
+    }
   }
 
   destroy(): void {

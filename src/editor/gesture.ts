@@ -1,3 +1,4 @@
+import { onGestureReset, registerToolState } from '../app/gestureReset'
 /**
  * A selection gesture that STARTED ON TEXT (finger, Pencil or mouse). While it
  * lasts, pictures, embeds and other non-text blocks let the pointer pass over
@@ -7,6 +8,19 @@
  * (its long press keeps its menu and drag).
  */
 export const selectGesture = { active: false }
+
+// The watchdog: a selection gesture whose lift was lost in the background
+// would make the Lasso give way to it for ever (controller.lassoMove).
+onGestureReset(() => {
+  if (!selectGesture.active) return
+  selectGesture.active = false
+  if (typeof document !== 'undefined') {
+    for (const el of document.querySelectorAll('.ln-selgesture')) {
+      el.classList.remove('ln-selgesture')
+    }
+  }
+})
+registerToolState('selectGesture', () => ({ active: selectGesture.active }))
 
 export function beginSelectGesture(dom: HTMLElement): void {
   selectGesture.active = true

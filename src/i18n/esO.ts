@@ -221,6 +221,13 @@ export const esO: Record<string, string> = {
   'settings.slowMomentsCopy.empty': 'Aún no hay momentos lentos registrados',
   'settings.slowMomentsCopy.failed':
     'No se pudo copiar. El informe está en la consola.',
+  'settings.toolStateCopy.label': 'Estado de las herramientas',
+  'settings.toolStateCopy.description':
+    'Copia lo que el lápiz, el lazo, el borrador y los toques creen ahora mismo (qué herramienta, punteros retenidos, marcas atascadas), para pegarlo en un mensaje cuando una herramienta deja de funcionar. Solo en este dispositivo.',
+  'settings.toolStateCopy.button': 'Copiar estado',
+  'settings.toolStateCopy.done': 'Estado copiado',
+  'settings.toolStateCopy.failed':
+    'No se pudo copiar. El estado está en la consola.',
   // ---- AI keys on all devices (R6-2) ----
   'ai.keysSync':
     'Mantener mis claves de IA en todos mis dispositivos (bloqueadas con tu frase de sincronización)',

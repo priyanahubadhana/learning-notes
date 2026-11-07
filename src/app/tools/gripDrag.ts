@@ -8,10 +8,32 @@
  * also closes the keyboard). When the drag ends everything is restored.
  */
 
+import { onGestureReset, registerToolState } from '../gestureReset'
+
 let active = 0
+/** The drags going on now, each with the way to end it. */
+const open = new Set<() => void>()
 
 /** True while a grip is being dragged. */
 export const gripDragging = (): boolean => active > 0
+
+/**
+ * Ends every drag at once (the watchdog: the lift was lost while the app was
+ * in the background, which would leave the page read-only and the ink and
+ * Lasso ignoring every pointer, R7-3).
+ */
+export function resetGripDrags(): void {
+  for (const end of [...open]) end()
+}
+
+onGestureReset(resetGripDrags)
+registerToolState('gripDrag', () => ({
+  active,
+  open: open.size,
+  pageFlag:
+    typeof document !== 'undefined' &&
+    document.documentElement.hasAttribute('data-grip-drag'),
+}))
 
 interface Held {
   el: HTMLElement
@@ -58,6 +80,7 @@ export function startGripDrag(
     if (done) return
     if (e instanceof PointerEvent && e.pointerId !== pointerId) return
     done = true
+    open.delete(force)
     doc.removeEventListener('touchmove', stop, true)
     doc.removeEventListener('selectstart', stop, true)
     for (const w of ['pointerup', 'pointercancel', 'lostpointercapture']) {
@@ -84,4 +107,13 @@ export function startGripDrag(
   for (const w of ['pointerup', 'pointercancel', 'lostpointercapture']) {
     doc.addEventListener(w, end, true)
   }
+  const force = () => {
+    try {
+      grip.releasePointerCapture(pointerId)
+    } catch {
+      // Already released.
+    }
+    end()
+  }
+  open.add(force)
 }

@@ -217,6 +217,14 @@ export const enO = {
   'settings.slowMomentsCopy.empty': 'No slow moments recorded yet',
   'settings.slowMomentsCopy.failed':
     'Could not copy. The report is in the console.',
+  // ---- Tool state (R7 debugging) ----
+  'settings.toolStateCopy.label': 'Tool state',
+  'settings.toolStateCopy.description':
+    'Copies what the pen, Lasso, eraser and tap code believe right now (which tool, held pointers, stuck flags), so you can paste it into a message when a tool stops working. This device only.',
+  'settings.toolStateCopy.button': 'Copy tool state',
+  'settings.toolStateCopy.done': 'Tool state copied',
+  'settings.toolStateCopy.failed':
+    'Could not copy. The tool state is in the console.',
   // ---- AI keys on all devices (R6-2) ----
   'ai.keysSync':
     'Keep my AI keys on all my devices (locked with your sync passphrase)',

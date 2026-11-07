@@ -1,5 +1,4 @@
 import { expect, test, type Page } from '@playwright/test'
-import { readFile } from 'node:fs/promises'
 import { sidebar } from './helpers.ts'
 
 /**
@@ -17,7 +16,9 @@ async function reloadWithOldDatabase(page: Page) {
         r.onerror = () => reject(r.error)
       })
     await wait(indexedDB.deleteDatabase('learning-notes'))
-    await wait(indexedDB.deleteDatabase('learning-notes-backup'))
+    for (const n of ['backup', 'auto-1', 'auto-2', 'auto-3'])
+      await wait(indexedDB.deleteDatabase('learning-notes-' + n))
+    localStorage.removeItem('learning-notes:backup.auto')
     const open = indexedDB.open('learning-notes', 70)
     open.onupgradeneeded = () => {
       open.result.createObjectStore('cards', { keyPath: 'id' })
@@ -47,31 +48,20 @@ async function reloadWithOldDatabase(page: Page) {
 const dialog = (page: Page) =>
   page.getByRole('dialog', { name: 'Updating how your notes are stored' })
 
-test('an upgrade first backs up the data, then opens the app', async ({
+test('an upgrade backs up silently (no question), keeps every row and the bar', async ({
   page,
 }) => {
-  await reloadWithOldDatabase(page)
-  await expect(dialog(page)).toContainText('backup copy of everything')
-  await page.screenshot({ path: 'test-results/screens/upgrade-backup.png' })
-
-  const downloading = page.waitForEvent('download')
-  await dialog(page)
-    .getByRole('button', { name: 'Save backup file and update' })
-    .click()
-  const file = await downloading
-  expect(file.suggestedFilename()).toMatch(
-    /^learning-notes-backup-v7-\d{4}-\d\d-\d\d\.json$/,
+  await page.goto('/favicon.svg')
+  await page.evaluate(() =>
+    localStorage.setItem(
+      'learning-notes:toolbar.main',
+      JSON.stringify(['text', 'pen', 'read']),
+    ),
   )
-  const saved = JSON.parse(await readFile(await file.path(), 'utf8'))
-  expect(saved).toMatchObject({
-    version: 7,
-    tables: {
-      cards: [{ id: 'c1' }],
-      images: [{ id: 'img1', data: 'aGk=' }], // the bytes, not "{}"
-    },
-  })
-
+  await reloadWithOldDatabase(page)
   await expect(sidebar(page)).toBeVisible()
+  await expect(dialog(page)).toHaveCount(0)
+
   const result = await page.evaluate(async () => {
     const open = (name: string) =>
       new Promise<IDBDatabase>((resolve) => {
@@ -84,29 +74,30 @@ test('an upgrade first backs up the data, then opens the app', async ({
         r.onsuccess = () => resolve(r.result)
       })
     const app = await open('learning-notes')
-    const backup = await open('learning-notes-backup')
+    const backup = await open('learning-notes-auto-1')
     return {
       version: app.version,
       card: await get(app, 'cards', 'c1'),
+      log: await get(app, 'reviewLogs', 'l1'),
       backedUp: await get(backup, 'tables', 'cards'),
+      bar: localStorage.getItem('learning-notes:toolbar.main'),
     }
   })
   // Upgraded (v8 copied the newest answer onto the card; v9 added a column) …
   expect(result.version).toBeGreaterThanOrEqual(140)
   expect(result.card).toMatchObject({ lastReviewAt: 5, lastRating: 'good' })
-  // … and the browser backup holds the data as it was before.
+  expect(result.log).toMatchObject({ id: 'l1' })
+  // … the silent browser backup holds the data as it was before …
   expect(result.backedUp).toEqual([{ id: 'c1', due: 1, notebookId: 'nb' }])
+  // … and the owner's bar layout is untouched.
+  expect(JSON.parse(result.bar ?? '[]').slice(0, 3)).toEqual([
+    'text',
+    'pen',
+    'read',
+  ])
 
   // Next start: nothing to upgrade, no question.
   await page.reload()
   await expect(sidebar(page)).toBeVisible()
   await expect(dialog(page)).toHaveCount(0)
-})
-
-test('the update can go ahead without a file', async ({ page }) => {
-  await reloadWithOldDatabase(page)
-  await dialog(page)
-    .getByRole('button', { name: 'Skip the file, just update' })
-    .click()
-  await expect(sidebar(page)).toBeVisible()
 })

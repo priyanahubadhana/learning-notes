@@ -8,7 +8,7 @@ import type { LearningNotesDB } from '../core/db'
  */
 const META_ID = 'backupReminder'
 export const REMIND_AFTER_MS = 7 * 24 * 60 * 60 * 1000
-export const SNOOZE_MS = 24 * 60 * 60 * 1000
+export const SNOOZE_MS = 90 * 24 * 60 * 60 * 1000
 
 interface ReminderState {
   firstSeenAt: number

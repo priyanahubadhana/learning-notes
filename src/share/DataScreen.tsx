@@ -7,7 +7,7 @@ import { runTask } from '../app/errors'
 import { ConfirmDialog } from '../app/ui'
 import type { LearningNotesDB } from '../core/db'
 import { DEFAULT_DB_NAME } from '../core/db'
-import { readBrowserBackup } from '../core/upgradeBackup'
+import { readLatestBackup } from '../core/autoBackup'
 import { Tip } from '../help/Help'
 import { t } from '../i18n/t'
 import { listNotebooks } from '../notebooks/notebookService'
@@ -87,7 +87,7 @@ export function DataScreen({
   )
   const backup = useLiveQuery(
     async () =>
-      (await readBrowserBackup(DEFAULT_DB_NAME, undefined, ['notebooks'])) ??
+      (await readLatestBackup(DEFAULT_DB_NAME, ['notebooks'])) ??
       null,
     [],
   )
@@ -567,7 +567,7 @@ export function DataScreen({
                   disabled={busy}
                   onClick={() =>
                     run(async () => {
-                      const full = await readBrowserBackup(DEFAULT_DB_NAME)
+                      const full = await readLatestBackup(DEFAULT_DB_NAME)
                       if (full) {
                         await importBundleNow(
                           checkBundle(bundleFromSnapshot(full)),

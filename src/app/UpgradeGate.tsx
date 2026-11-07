@@ -1,11 +1,10 @@
 import { useEffect, useState, type ReactNode } from 'react'
 import { db, DEFAULT_DB_NAME } from '../core/db'
+import { runAutoBackup } from '../core/autoBackup'
 import {
   backupFile,
   backupFileName,
-  needsUpgrade,
   readSnapshot,
-  saveBrowserBackup,
   type BackupSnapshot,
 } from '../core/upgradeBackup'
 import { t } from '../i18n/t'
@@ -19,19 +18,28 @@ type Check =
 // Cached so React StrictMode's double effect backs up only once.
 let checkPromise: Promise<Check> | undefined
 
+/**
+ * R7-2: the backup is made silently (rolling, last 3). The person is asked
+ * only when it could not be made (or the browser is nearly out of space).
+ */
 async function check(): Promise<Check> {
   try {
-    if (!(await needsUpgrade(DEFAULT_DB_NAME, db.verno))) {
-      return { kind: 'ready' }
-    }
-    const snapshot = await readSnapshot(DEFAULT_DB_NAME)
-    let savedInBrowser = true
+    const result = await runAutoBackup(
+      DEFAULT_DB_NAME,
+      db.verno,
+      __APP_COMMIT__,
+    )
+    if (result.kind !== 'failed') return { kind: 'ready' }
+    // Still offer a file, if the data can be read at all.
+    let snapshot: BackupSnapshot | undefined
     try {
-      await saveBrowserBackup(snapshot)
+      snapshot = await readSnapshot(DEFAULT_DB_NAME)
     } catch {
-      savedInBrowser = false // e.g. storage full: the file is still offered
+      snapshot = undefined
     }
-    return { kind: 'upgrade', snapshot, savedInBrowser }
+    return snapshot
+      ? { kind: 'upgrade', snapshot, savedInBrowser: false }
+      : { kind: 'failed', message: result.message }
   } catch (error) {
     return { kind: 'failed', message: String(error) }
   }
@@ -48,10 +56,10 @@ function download(snapshot: BackupSnapshot) {
 }
 
 /**
- * Shows the app only once its saved data is safe to open. When the app's
- * database version is newer than the saved one, the data is first copied
- * to a backup database in the browser, and the user may download it as a
- * file, before the upgrade runs (on the app's first database read).
+ * Shows the app only once its saved data is safe to open. Before a database
+ * upgrade or a new app version, everything is copied silently to a rolling
+ * backup in this browser (the last 3). Only when that fails does the person
+ * see a question (save a file, or go on).
  */
 export function UpgradeGate({ children }: { children: ReactNode }) {
   const [state, setState] = useState<Check | 'checking'>('checking')

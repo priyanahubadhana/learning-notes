@@ -301,3 +301,8 @@ R5-13 DECIDED: edge fade + slim auto-hiding scroll indicator on all scrollable l
 - R6-17 (screenshot) Lasso, T filter only, small freeform loop around "in Claude" inside a paragraph: nothing is selected. Cause: the "most of the line inside" rule selects whole lines only, so a small loop in a long line never qualifies. Owner expects the words inside the loop to be selected (a text range, word-level), for both freeform and rectangle.
 - R6-17..R6-20 decision (owner, 7 Nov): the double-tap selection must stay (fixed: the tap's own late click collapsed it); double = word, triple = the visual line on screen, four taps = paragraph (450 ms, 12 px); the Lasso T filter selects just the words inside the loop, freeform or rectangle, whole lines still as blocks. Built; see CHANGELOG.
 - R6-21 (found by CI fixer) The page shifts ~62 px up after the layer lock toast appears. Possibly the same family as R6-8 (page jumps); check on iPad and fix if real.
+
+## Round 7 (owner iPad, 8 Nov 2026) — collecting; discuss at the end, then fix
+
+- R7-1 After tapping Update, Pen, Lasso and most ink tools don't work (only text and a few tools do) until the app is closed/reset. The update must leave every tool working without a restart (likely stale old code/chunks mixed with new after the update, or ink set-up not re-run).
+- R7-2 After many updates the app keeps asking to save a backup ("save to Drive / settings so data isn't lost"). Owner doesn't want that prompt again and again, and must never lose data on any update. Updates must be data-safe by design (upgrade backup automatic and silent, prompt only when truly needed).

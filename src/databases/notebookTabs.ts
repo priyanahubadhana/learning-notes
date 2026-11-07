@@ -19,6 +19,7 @@ export function studyTrackerId(notebookId: string): string {
 export function defaultNotebookTabs(notebookId: string): NotebookTab[] {
   return [
     { id: 'notes', kind: 'notes' },
+    { id: 'summary', kind: 'summary' },
     {
       id: 'database',
       kind: 'database',
@@ -31,6 +32,7 @@ export function defaultNotebookTabs(notebookId: string): NotebookTab[] {
 
 const DEFAULT_NAMES: Record<string, MessageKey> = {
   notes: 'notebook.tab.notes',
+  summary: 'notebook.tab.summary',
   database: 'notebook.tab.database',
   cards: 'notebook.tab.cards',
   revise: 'notebook.tab.revise',

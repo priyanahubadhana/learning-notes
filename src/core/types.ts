@@ -516,6 +516,25 @@ export interface LayerInstall extends BaseRecord {
 }
 
 /**
+ * One line of a page's Summary (Phase M). A linked line (`sourceBlockId`)
+ * shows the note's live text and keeps `text` as a snapshot for when the
+ * note is gone; an own line is typed in the Summary.
+ */
+export interface SummaryItem extends BaseRecord {
+  /** The page whose Summary holds this line. */
+  pageId: string
+  notebookId: string
+  order: OrderKey
+  text: string
+  /** The note line this one is linked to. Unset = an own line. */
+  sourceBlockId?: string
+  /** A link back (a saved highlight): `https://…` or `#/…`. */
+  href?: string
+  /** The label of the link ("p. 12"). */
+  where?: string
+}
+
+/**
  * A deck (E1): a live filter over cards. It is refilled by itself as notes
  * and cards change; it never holds cards. Empty scope lists = everything.
  */

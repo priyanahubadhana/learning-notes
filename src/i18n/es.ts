@@ -23,6 +23,7 @@ import { esSync } from './esSync'
 import { esF } from './esF'
 import { esD } from './esD'
 import { esN } from './esN'
+import { esM } from './esM'
 
 /** Spanish texts. A key missing here shows the English text. */
 export const es: Record<string, string> = {
@@ -51,4 +52,5 @@ export const es: Record<string, string> = {
   ...esF,
   ...esD,
   ...esN,
+  ...esM,
 }

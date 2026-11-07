@@ -24,6 +24,7 @@ import type {
   DbColumn,
   DbView,
   LayerInstall,
+  SummaryItem,
   LinkRef,
   MetaValue,
   Notebook,
@@ -77,6 +78,7 @@ export class LearningNotesDB extends Dexie {
   fonts!: EntityTable<StoredFont, 'id'>
   decks!: EntityTable<Deck, 'id'>
   layerInstalls!: EntityTable<LayerInstall, 'id'>
+  summaryItems!: EntityTable<SummaryItem, 'id'>
   inkLayers!: EntityTable<InkLayer, 'id'>
   inkChunks!: EntityTable<InkChunk, 'id'>
   recordings!: EntityTable<Recording, 'id'>
@@ -316,6 +318,12 @@ export class LearningNotesDB extends Dexie {
     // Version 20 (Phase I, Layer gallery): layers that were added, with what
     // each one made. Only adds a table.
     this.version(20).stores({ layerInstalls: 'id, packId' })
+
+    // Version 21 (Phase M, Summary tab): the lines of each page's Summary.
+    // Only adds a table.
+    this.version(21).stores({
+      summaryItems: 'id, pageId, notebookId, sourceBlockId',
+    })
 
     // Every save of a page or block also updates its search entry, in the
     // same transaction (see search/indexMiddleware.ts).

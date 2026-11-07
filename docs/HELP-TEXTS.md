@@ -730,6 +730,24 @@ Every hover tip and help line in the app (shown while Settings › Show help is 
 - **Meaning:** One revision sheet per lesson: your summary plus everything you marked in its notes.
 - **Example:** Read all Key points of a lesson before an exam.
 
+### `notebook.tabSummary`
+
+- **Where:** Notebook › Summary tab
+- **Meaning:** The key points you added from every page of this notebook, in one list.
+- **Example:** Read the whole notebook’s key points the night before an exam.
+
+### `summary.remove`
+
+- **Where:** Summary › × on a line
+- **Meaning:** Takes this line out of the Summary. The note itself stays.
+- **Example:** Drop a point you no longer need to revise.
+
+### `summary.goto`
+
+- **Where:** Summary › Go to the note (↗)
+- **Meaning:** Opens the note this line comes from and shows it.
+- **Example:** Check the full explanation behind a point.
+
 ### `sidebar.data`
 
 - **Where:** Quiet corner › Save & restore

@@ -9,6 +9,7 @@ import type {
   DbColumn,
   DbView,
   LayerInstall,
+  SummaryItem,
   Notebook,
   Page,
   Recording,
@@ -437,6 +438,22 @@ const inkLayer: Fields<InkLayer> = {
   locked: yes,
 }
 
+const summaryHref: Check = (v) =>
+  typeof v === 'string' &&
+  v.length <= 2000 &&
+  (v.startsWith('https://') || v.startsWith('#/'))
+
+const summaryItem: Fields<SummaryItem> = {
+  ...times,
+  pageId: text,
+  notebookId: text,
+  order,
+  text: (v) => typeof v === 'string' && v.length <= 2000,
+  sourceBlockId: text,
+  href: summaryHref,
+  where: (v) => typeof v === 'string' && v.length <= 200,
+}
+
 const inkChunk: Fields<InkChunk> = {
   ...times,
   pageId: text,
@@ -459,6 +476,7 @@ const FIELDS = {
   images: image,
   decks: deck,
   layerInstalls: layerInstall,
+  summaryItems: summaryItem,
   inkLayers: inkLayer,
   inkChunks: inkChunk,
   recordings: recording,
@@ -479,6 +497,7 @@ const REQUIRED: Partial<Record<keyof typeof FIELDS, readonly string[]>> = {
   blocks: ['pageId', 'type', 'content', 'order'],
   decks: ['name', 'scope'],
   layerInstalls: ['packId', 'createdIds'],
+  summaryItems: ['pageId', 'notebookId', 'order'],
   inkLayers: ['pageId', 'order'],
   inkChunks: ['pageId', 'layerId', 'strokes'],
   recordings: ['pageId', 'data'],

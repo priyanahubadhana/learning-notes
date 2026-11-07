@@ -28,6 +28,7 @@ export const SYNC_TABLES: Record<string, MergeMode> = {
   rowRefs: 'record',
   decks: 'record',
   layerInstalls: 'record',
+  summaryItems: 'record',
   inkLayers: 'record',
   inkChunks: 'record',
   annotations: 'record',

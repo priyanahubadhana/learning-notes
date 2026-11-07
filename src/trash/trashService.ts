@@ -1,6 +1,7 @@
 ﻿import type { LearningNotesDB } from '../core/db'
 import { purgeBooksOf } from '../core/bookPurge'
 import { purgeRecordingsOf } from '../core/recordingPurge'
+import { purgeSummaryOf } from '../core/summaryService'
 import { purgeInkOf } from '../core/inkService'
 import { byOrder, orderAtIndex } from '../core/order'
 import {
@@ -413,6 +414,7 @@ function purgeTables(db: LearningNotesDB) {
     db.recordings,
     db.bookFiles,
     db.annotations,
+    db.summaryItems,
   ]
 }
 
@@ -433,6 +435,7 @@ async function purgePages(
   await purgeInkOf(db, pageIds, now) // drawings
   await purgeRecordingsOf(db, pageIds, now) // voice recordings
   await purgeBooksOf(db, pageIds, now) // book files, highlights and notes
+  await purgeSummaryOf(db, pageIds, now) // Summary lines
 }
 
 /** Erases databases in Trash with their columns, views and deleted rows. */

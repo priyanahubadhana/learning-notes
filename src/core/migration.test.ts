@@ -12,7 +12,7 @@ import type { Notebook } from './types'
  */
 const T = 1_700_000_000_000
 const base = { createdAt: T, updatedAt: T, deletedAt: null }
-const CURRENT_VERSION = 20
+const CURRENT_VERSION = 21
 let name = ''
 
 afterEach(async () => {
@@ -182,9 +182,14 @@ async function createVersion3Db(dbName: string) {
   old.close()
 }
 
-/** The default tabs the upgrade gives an existing normal notebook. */
+/**
+ * The default tabs the upgrade gives an existing normal notebook. The
+ * Summary tab (Phase M) is added when a notebook is opened, not here.
+ */
 function expectDefaultTabs(notebook: Notebook | undefined) {
-  expect(notebook?.tabs).toEqual(defaultNotebookTabs(notebook!.id))
+  expect(notebook?.tabs).toEqual(
+    defaultNotebookTabs(notebook!.id).filter((t) => t.kind !== 'summary'),
+  )
   expect(notebook?.tabs?.map((t) => t.kind)).toEqual([
     'notes',
     'database',

@@ -47,11 +47,12 @@ describe('notebookService', () => {
     const notebook = await createNotebook(db, ws, 'Biology')
     expect(notebook.tabs?.map((t) => t.kind)).toEqual([
       'notes',
+      'summary',
       'database',
       'cards',
       'revise',
     ])
-    expect(notebook.tabs?.[1].databaseId).toBe(`tracker:${notebook.id}`)
+    expect(notebook.tabs?.[2].databaseId).toBe(`tracker:${notebook.id}`)
     expect((await db.notebooks.get(notebook.id))?.tabs).toEqual(notebook.tabs)
     const journal = await createNotebook(db, ws, 'Journal', 'journal')
     expect(journal.tabs).toBeUndefined()
@@ -149,6 +150,7 @@ describe('notebook tabs', () => {
     await updateNotebookTab(db, nb.id, 'notes', { hidden: true })
     await updateNotebookTab(db, nb.id, 'cards', { hidden: true })
     await updateNotebookTab(db, nb.id, 'revise', { hidden: true })
+    await updateNotebookTab(db, nb.id, 'summary', { hidden: true })
     await expect(
       updateNotebookTab(db, nb.id, 'database', { hidden: true }),
     ).rejects.toThrow()

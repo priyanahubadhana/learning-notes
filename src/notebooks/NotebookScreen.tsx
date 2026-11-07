@@ -414,6 +414,7 @@ const TAB_TIPS = {
   database: 'notebook.tabDatabase',
   cards: 'notebook.tabCards',
   revise: 'notebook.tabRevise',
+  summary: 'notebook.tabSummary',
 } as const
 
 /** A tab with the tip that explains it (own kinds of tab have none). */

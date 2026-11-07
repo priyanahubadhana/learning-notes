@@ -18,6 +18,8 @@ export interface PadPrefs {
   /** Height of the pad in px and its writing zoom. */
   height: number
   zoom: number
+  /** How handwriting is read: Scribble (the textarea) or the user's AI. */
+  engine?: 'scribble' | 'ai'
 }
 
 export const PAD_ZOOMS = [1, 1.5, 2, 3] as const
@@ -45,7 +47,8 @@ const isPrefs = (v: unknown): v is PadPrefs => {
     typeof p.height === 'number' &&
     p.height >= MIN_HEIGHT &&
     p.height <= 4000 &&
-    (PAD_ZOOMS as readonly unknown[]).includes(p.zoom)
+    (PAD_ZOOMS as readonly unknown[]).includes(p.zoom) &&
+    (p.engine === undefined || p.engine === 'scribble' || p.engine === 'ai')
   )
 }
 

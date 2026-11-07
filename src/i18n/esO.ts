@@ -83,4 +83,37 @@ export const esO: Record<string, string> = {
     'Arrastrar mueve solo la tinta: el texto escrito fluye con la página.',
   'main.opt.lasso.row': 'Acciones en la fila del menú',
   'main.opt.lasso.rowNote': 'Las demás están bajo ⋯ Más.',
+  'ai.convert.title': 'Convertir en texto',
+  'ai.convert.picture': 'La imagen de la tinta seleccionada',
+  'ai.convert.send':
+    'Solo se envía esta imagen de la tinta seleccionada a {provider} ({host}). Se lee inglés e hindi.',
+  'ai.convert.go': 'Enviar',
+  'ai.convert.reading': 'Leyendo…',
+  'ai.convert.preview': 'El texto (puedes editarlo)',
+  'ai.convert.insert': 'Insertar debajo',
+  'ai.convert.replace': 'Reemplazar la tinta',
+  'ai.convert.copy': 'Copiar',
+  'ai.convert.copied': 'Texto copiado.',
+  'ai.convert.empty': 'No se encontró escritura legible.',
+  'ai.convert.inserted': 'Texto añadido. Deshacer lo quita.',
+  'ai.convert.needsAi':
+    'Usa tu propia IA: actívala y añade una clave en Ajustes › IA.',
+  'ai.convert.maths': 'Matemáticas a fórmula',
+  'writePad.engine': 'Leer con',
+  'writePad.engine.scribble': 'Scribble',
+  'writePad.engine.ai': 'IA',
+  'writePad.ai.canvas': 'Zona de escritura: escribe aquí con el lápiz',
+  'writePad.ai.hint':
+    'Escribe y toca Leer. La presión del lápiz da el grosor de cada palabra.',
+  'writePad.ai.read': 'Leer',
+  'writePad.ai.clear': 'Borrar',
+  'help.tip.writePad.engine.meaning':
+    'Scribble lee la escritura en el iPad gratis; IA envía una imagen de tu escritura con tu propia clave.',
+  'help.tip.writePad.engine.example':
+    'La IA también lee hindi y guarda la presión.',
+  'help.tip.writePad.ai.read.meaning':
+    'Envía una imagen de lo escrito a tu IA y muestra las palabras arriba.',
+  'help.tip.writePad.ai.read.example': 'Las palabras firmes salen más gruesas.',
+  'help.tip.writePad.ai.clear.meaning': 'Limpia la zona de escritura.',
+  'help.tip.writePad.ai.clear.example': 'No se envía nada.',
 }

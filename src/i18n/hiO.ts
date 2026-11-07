@@ -83,4 +83,37 @@ export const hiO: Record<string, string> = {
     'खींचने से केवल स्याही हिलती है: टाइप किया टेक्स्ट पेज के साथ बहता है।',
   'main.opt.lasso.row': 'मेनू पंक्ति की क्रियाएँ',
   'main.opt.lasso.rowNote': 'बाकी ⋯ और के नीचे हैं।',
+  'ai.convert.title': 'टेक्स्ट में बदलें',
+  'ai.convert.picture': 'चुनी गई स्याही की तस्वीर',
+  'ai.convert.send':
+    'चुनी गई स्याही की केवल यह तस्वीर {provider} ({host}) को भेजी जाती है। अंग्रेज़ी और हिंदी पढ़ी जाती हैं।',
+  'ai.convert.go': 'भेजें',
+  'ai.convert.reading': 'पढ़ रहा है…',
+  'ai.convert.preview': 'टेक्स्ट (आप इसे बदल सकते हैं)',
+  'ai.convert.insert': 'नीचे जोड़ें',
+  'ai.convert.replace': 'स्याही की जगह रखें',
+  'ai.convert.copy': 'कॉपी करें',
+  'ai.convert.copied': 'टेक्स्ट कॉपी हुआ।',
+  'ai.convert.empty': 'पढ़ने लायक लिखावट नहीं मिली।',
+  'ai.convert.inserted': 'टेक्स्ट जुड़ा। Undo से हट जाएगा।',
+  'ai.convert.needsAi':
+    'यह आपकी अपनी AI से चलता है: सेटिंग्स › AI में इसे चालू करें और कुंजी जोड़ें।',
+  'ai.convert.maths': 'गणित से सूत्र',
+  'writePad.engine': 'किससे पढ़ें',
+  'writePad.engine.scribble': 'Scribble',
+  'writePad.engine.ai': 'AI',
+  'writePad.ai.canvas': 'लिखने की जगह: यहाँ पेन से लिखें',
+  'writePad.ai.hint':
+    'लिखें, फिर पढ़ें दबाएँ। पेन का दबाव हर शब्द की मोटाई तय करता है।',
+  'writePad.ai.read': 'पढ़ें',
+  'writePad.ai.clear': 'मिटाएँ',
+  'help.tip.writePad.engine.meaning':
+    'Scribble iPad पर मुफ़्त में पढ़ता है; AI आपकी लिखावट की तस्वीर आपकी अपनी कुंजी से भेजता है।',
+  'help.tip.writePad.engine.example':
+    'AI हिंदी भी पढ़ता है और दबाव याद रखता है।',
+  'help.tip.writePad.ai.read.meaning':
+    'आपकी लिखावट की तस्वीर AI को भेजता है और शब्द ऊपर दिखाता है।',
+  'help.tip.writePad.ai.read.example': 'ज़ोर से लिखे शब्द मोटे आते हैं।',
+  'help.tip.writePad.ai.clear.meaning': 'लिखने की जगह साफ़ करता है।',
+  'help.tip.writePad.ai.clear.example': 'कुछ नहीं भेजा जाता।',
 }

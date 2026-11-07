@@ -2,7 +2,7 @@
 
 Every hover tip and help line in the app (shown while Settings › Show help is On). Generated from `src/help/helpRegistry.ts` and `src/i18n/en.ts`; to change a text, edit it in `en.ts`, then run `UPDATE_HELP=1 npx vitest run src/help` to refresh this file.
 
-## Hover tips (166)
+## Hover tips (169)
 
 ### `bar.newLine`
 
@@ -63,6 +63,24 @@ Every hover tip and help line in the app (shown while Settings › Show help is 
 - **Where:** Page › Write pad › ␣ ↵ ⌫
 - **Meaning:** Adds a space or a new line, or deletes, in the pad.
 - **Example:** Handy when your pencil cannot reach the keyboard.
+
+### `writePad.engine`
+
+- **Where:** Page › Write pad › Scribble / AI
+- **Meaning:** Scribble reads writing on the iPad for free; AI sends a picture of your writing to your own AI key.
+- **Example:** AI also reads Hindi and keeps how hard you pressed.
+
+### `writePad.ai.read`
+
+- **Where:** Page › Write pad › AI › Read
+- **Meaning:** Sends a picture of what you wrote to your AI and shows the words above.
+- **Example:** Firm words come out bolder.
+
+### `writePad.ai.clear`
+
+- **Where:** Page › Write pad › AI › Clear
+- **Meaning:** Wipes the writing area.
+- **Example:** Nothing is sent.
 
 ### `writePad.close`
 

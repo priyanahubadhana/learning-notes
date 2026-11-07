@@ -1,11 +1,10 @@
 import type { MessageKey } from '../../i18n/t'
 
 /**
- * A way to turn handwriting into text for the Write pad. The MVP has one:
- * the iPad's own Scribble, which writes plain text into the pad's textarea
- * (so the pad just reads the box). Later engines plug in here without
- * touching the pad: a canvas with pressure, or the user's own AI key (needs
- * the owner's approval and is NOT built).
+ * A way to turn handwriting into text for the Write pad. Two exist: the
+ * iPad's own Scribble, which writes plain text into the pad's textarea (so
+ * the pad just reads the box), and the user's own AI (Phase P), a canvas
+ * with pen pressure. The user switches between them in the pad.
  */
 export interface WritePadEngine {
   id: 'scribble' | 'handwriting-api' | 'ai'
@@ -32,10 +31,26 @@ export const scribbleEngine: WritePadEngine = {
   missingHint: 'writePad.hint',
 }
 
-/** The engines to try, in order. The first is used. */
-const ENGINES: readonly WritePadEngine[] = [scribbleEngine]
+/**
+ * The user's own AI (Phase P): a canvas records the strokes with pen
+ * pressure; the picture goes to the model, which returns the text, and each
+ * word's weight follows how hard it was written (pressure.ts). The reading
+ * itself lives in src/ai/padRead.ts, loaded only when Read is tapped.
+ */
+export const aiEngine: WritePadEngine = {
+  id: 'ai',
+  supported: () => true,
+  pressure: true,
+  missingHint: 'writePad.ai.hint',
+}
 
-export const pickEngine = (): WritePadEngine => ENGINES[0]
+/** The engines to try, in order. The first is used. */
+const ENGINES: readonly WritePadEngine[] = [scribbleEngine, aiEngine]
+
+/** The engine the user picked in the pad (Scribble unless they chose AI). */
+export const pickEngine = (
+  id: WritePadEngine['id'] = 'scribble',
+): WritePadEngine => ENGINES.find((e) => e.id === id) ?? ENGINES[0]
 
 /**
  * The browser's own handwriting recogniser (ChromeOS only). Detected so a

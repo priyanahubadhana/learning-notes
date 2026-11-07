@@ -1,7 +1,13 @@
 import type { Mark, Node } from 'prosemirror-model'
 import { TextSelection } from 'prosemirror-state'
 import type { Editor } from '../barActions'
-import { encodeHand, HAND_STYLE, isPlainLook, type HandLook } from './handStyle'
+import {
+  encodeHand,
+  HAND_STYLE,
+  isPlainLook,
+  type HandLook,
+  type PadWeight,
+} from './handStyle'
 
 /** How the written text looks: the hand look plus BlockNote colour names. */
 export interface PadLook extends HandLook {
@@ -19,12 +25,15 @@ export interface PadLook extends HandLook {
  */
 export function applyPad(
   editor: Editor,
-  text: string,
+  text: string | readonly { text: string; weight: PadWeight }[],
   look: PadLook,
   mode: 'insert' | 'replace',
   saved: { from: number; to: number },
 ): number | null {
-  if (text.length === 0) return null
+  // The AI engine sends words with their own weight (from pen pressure).
+  const pieces =
+    typeof text === 'string' ? [{ text, weight: look.weight }] : text
+  if (pieces.every((piece) => piece.text.length === 0)) return null
   return editor.transact((tr) => {
     const size = tr.doc.content.size
     const at = (n: number) => Math.max(0, Math.min(size, n))
@@ -35,12 +44,13 @@ export function applyPad(
     const from = range.from
     let to = mode === 'insert' ? from : range.to
     const { schema } = tr.doc.type
-    const marks: Mark[] = []
-    if (!isPlainLook(look) && schema.marks[HAND_STYLE]) {
-      marks.push(
-        schema.marks[HAND_STYLE].create({ stringValue: encodeHand(look) }),
-      )
+    const handMarks = (weight: PadWeight): Mark[] => {
+      const l = { ...look, weight }
+      return !isPlainLook(l) && schema.marks[HAND_STYLE]
+        ? [schema.marks[HAND_STYLE].create({ stringValue: encodeHand(l) })]
+        : []
     }
+    const marks: Mark[] = []
     if (look.color !== 'default' && schema.marks.textColor) {
       marks.push(schema.marks.textColor.create({ stringValue: look.color }))
     }
@@ -52,10 +62,13 @@ export function applyPad(
     // Lines of the pad become line breaks inside the same block.
     const lineBreak = schema.nodes.hardBreak
     const nodes: Node[] = []
-    text.split('\n').forEach((line, i) => {
-      if (i > 0) nodes.push(lineBreak ? lineBreak.create() : schema.text(' '))
-      if (line) nodes.push(schema.text(line, marks))
-    })
+    for (const piece of pieces) {
+      const all = [...handMarks(piece.weight), ...marks]
+      piece.text.split('\n').forEach((line, i) => {
+        if (i > 0) nodes.push(lineBreak ? lineBreak.create() : schema.text(' '))
+        if (line) nodes.push(schema.text(line, all))
+      })
+    }
     const $from = tr.doc.resolve(from)
     if (!$from.parent.isTextblock || !$from.sameParent(tr.doc.resolve(to))) {
       // A selection across blocks: remove it, then write at its start.

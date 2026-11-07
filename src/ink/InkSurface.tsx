@@ -1,6 +1,8 @@
 import { undoDepth } from 'prosemirror-history'
 import { createPortal } from 'react-dom'
 import {
+  lazy,
+  Suspense,
   useContext,
   useEffect,
   useRef,
@@ -37,6 +39,11 @@ import {
 } from '../core/replay'
 import { t } from '../i18n/t'
 import { getPage, setPageInkBg } from '../pages/pageService'
+
+// Convert to text uses the user's own AI (Phase P): a late-loaded chunk.
+const ConvertInk = lazy(() =>
+  import('../ai/ConvertInk').then((m) => ({ default: m.ConvertInk })),
+)
 import { InkController, type TextEditor } from './controller'
 import { readActiveLayer, writeActiveLayer } from './activeLayer'
 import { InkDoc } from './inkDoc'
@@ -322,6 +329,7 @@ function InkUi({
   const strokes = controller.strokeTotal()
   const box = controller.selectionRect()
   const [status, setStatus] = useState('')
+  const [convertPng, setConvertPng] = useState<Blob | null>(null)
   const tool = activeTool.useValue()
 
   // Strokes written while a recording ran can play it from that moment.
@@ -409,6 +417,18 @@ function InkUi({
       <HiddenLayerChip controller={controller} />
       <RulerView controller={controller} wrap={wrap} />
       <MagnifierView controller={controller} wrap={wrap} />
+      {convertPng && (
+        <Suspense fallback={null}>
+          <ConvertInk
+            db={db}
+            pageId={pageId}
+            controller={controller}
+            editor={editor}
+            png={convertPng}
+            onClose={() => setConvertPng(null)}
+          />
+        </Suspense>
+      )}
       {count > 0 && box && tool === 'lasso' && (
         <SelectionBox
           controller={controller}
@@ -417,6 +437,12 @@ function InkUi({
           box={box}
           count={count}
           onPng={png}
+          onConvert={() => {
+            const style = getComputedStyle(document.body).backgroundColor
+            void selectionPng(controller, style || '#ffffff').then(
+              setConvertPng,
+            )
+          }}
           onReplay={replay ? () => requestReplay(replay) : undefined}
           onSummary={() => {
             // A drawing goes into the Summary by its name (a picture line
@@ -461,6 +487,7 @@ function SelectionBox({
   box,
   count,
   onPng,
+  onConvert,
   onReplay,
   onSummary,
   onCard,
@@ -471,6 +498,8 @@ function SelectionBox({
   box: { x: number; y: number; w: number; h: number }
   count: number
   onPng: (how: 'copy' | 'save') => void
+  /** Lasso › Convert to text (the user's own AI). */
+  onConvert: () => void
   /** Set when the drawing was written during a recording. */
   onReplay?: () => void
   /** Add to Summary for a drawing (its name) or the words in the loop. */
@@ -630,7 +659,7 @@ function SelectionBox({
     convert: {
       icon: 'type',
       label: t('ink.sel.convert'),
-      run: () => toast(t('ink.sel.convertLater')),
+      run: onConvert,
     },
     colour: {
       icon: 'palette',

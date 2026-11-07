@@ -87,4 +87,37 @@ export const enO = {
     'Dragging moves the ink only: typed text flows with the page.',
   'main.opt.lasso.row': 'Actions in the menu row',
   'main.opt.lasso.rowNote': 'The others sit under ⋯ More.',
+  'ai.convert.title': 'Convert to text',
+  'ai.convert.picture': 'The picture of the selected ink',
+  'ai.convert.send':
+    'Only this picture of the selected ink is sent to {provider} ({host}). English and Hindi are read.',
+  'ai.convert.go': 'Send',
+  'ai.convert.reading': 'Reading…',
+  'ai.convert.preview': 'The text (you can edit it)',
+  'ai.convert.insert': 'Insert below',
+  'ai.convert.replace': 'Replace the ink',
+  'ai.convert.copy': 'Copy',
+  'ai.convert.copied': 'Text copied.',
+  'ai.convert.empty': 'No readable handwriting was found.',
+  'ai.convert.inserted': 'Text added. Undo takes it back.',
+  'ai.convert.needsAi':
+    'This uses your own AI: turn it on and add a key in Settings › AI.',
+  'ai.convert.maths': 'Maths to formula',
+  'writePad.engine': 'Read with',
+  'writePad.engine.scribble': 'Scribble',
+  'writePad.engine.ai': 'AI',
+  'writePad.ai.canvas': 'Writing area: write here with the pen',
+  'writePad.ai.hint':
+    'Write, then tap Read. Pen pressure sets each word’s weight.',
+  'writePad.ai.read': 'Read',
+  'writePad.ai.clear': 'Clear',
+  'help.tip.writePad.engine.meaning':
+    'Scribble reads writing on the iPad for free; AI sends a picture of your writing to your own AI key.',
+  'help.tip.writePad.engine.example':
+    'AI also reads Hindi and keeps how hard you pressed.',
+  'help.tip.writePad.ai.read.meaning':
+    'Sends a picture of what you wrote to your AI and shows the words above.',
+  'help.tip.writePad.ai.read.example': 'Firm words come out bolder.',
+  'help.tip.writePad.ai.clear.meaning': 'Wipes the writing area.',
+  'help.tip.writePad.ai.clear.example': 'Nothing is sent.',
 }

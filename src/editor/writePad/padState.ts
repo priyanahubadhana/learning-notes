@@ -11,6 +11,8 @@ export interface PadSession {
   /** The editor selection to insert at or replace (document positions). */
   from: number
   to: number
+  /** The page being written on (the AI engine checks its notebook). */
+  pageId?: string
 }
 
 export const writePad = memStore<PadSession | null>(null)
@@ -24,10 +26,10 @@ export function currentRange(editor: Editor): { from: number; to: number } {
 }
 
 /** Opens the pad (or closes it when it is already open for this editor). */
-export function toggleWritePad(editor: Editor): void {
+export function toggleWritePad(editor: Editor, pageId?: string): void {
   const open = writePad.get()
   if (open && open.editor === editor) writePad.set(null)
-  else writePad.set({ editor, ...currentRange(editor) })
+  else writePad.set({ editor, pageId, ...currentRange(editor) })
 }
 
 /** Closes the pad when its editor goes away (the page was left). */

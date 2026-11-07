@@ -12,6 +12,7 @@ import type { TipId } from '../../help/helpRegistry'
 import { t, type MessageKey } from '../../i18n/t'
 import { BACKGROUND_HEX, COLOR_NAMES, colorLabel, TEXT_HEX } from '../colorData'
 import { applyPad, type PadLook } from './apply'
+import { AiCanvas } from './AiCanvas'
 import { pickEngine } from './engine'
 import {
   handCss,
@@ -19,6 +20,7 @@ import {
   PAD_SIZES,
   PAD_WEIGHTS,
   type HandLook,
+  type PadWeight,
 } from './handStyle'
 import { MIN_HEIGHT, PAD_ZOOMS, padPrefs, type PadPrefs } from './padPrefs'
 import { currentRange, writePad } from './padState'
@@ -159,7 +161,13 @@ export default function WritePad() {
   const prefs = padPrefs.useValue()
   const [text, setText] = useState('')
   const box = useRef<HTMLTextAreaElement>(null)
-  const engine = pickEngine()
+  const engine = pickEngine(prefs.engine)
+  const ai = engine.id === 'ai'
+  // What the AI engine read: words with a weight each (from pen pressure).
+  const [pieces, setPieces] = useState<
+    { text: string; weight: PadWeight }[] | null
+  >(null)
+  const [aiError, setAiError] = useState('')
   const drag = useRef<{ y: number; h: number } | null>(null)
 
   const look = lookOf(prefs)
@@ -181,9 +189,10 @@ export default function WritePad() {
 
   const apply = (mode: 'insert' | 'replace') => {
     if (!editor.isEditable || text.trim() === '') return
-    const end = applyPad(editor, text, look, mode, target())
+    const end = applyPad(editor, pieces ?? text, look, mode, target())
+    setPieces(null)
     if (end === null) return
-    writePad.set({ editor, from: end, to: end })
+    writePad.set({ ...session, from: end, to: end })
     setText('')
     box.current?.focus()
   }
@@ -245,7 +254,7 @@ export default function WritePad() {
       data-write-pad
       aria-label={t('writePad.title')}
       style={{ height }}
-      className="fixed inset-x-0 bottom-0 z-[60] flex flex-col border-t border-line bg-bg shadow-[0_-8px_24px_rgba(0,0,0,0.12)]"
+      className="fixed inset-x-0 bottom-0 z-[60] flex flex-col overflow-y-auto border-t border-line bg-bg shadow-[0_-8px_24px_rgba(0,0,0,0.12)]"
     >
       <Tip id="writePad.resize" touchInfo={false} className="flex w-full">
         <div
@@ -273,8 +282,24 @@ export default function WritePad() {
 
       <div className="flex items-center gap-2 px-3">
         <p className="min-w-0 flex-1 truncate text-xs text-muted">
-          {engine.supported() ? t('writePad.title') : t(engine.missingHint)}
+          {ai || engine.supported()
+            ? t('writePad.title')
+            : t(engine.missingHint)}
         </p>
+        <Tip id="writePad.engine" touchInfo={false}>
+          <Seg
+            label={t('writePad.engine')}
+            value={ai ? 'ai' : 'scribble'}
+            options={['scribble', 'ai'] as const}
+            show={(e) => t(`writePad.engine.${e}`)}
+            onPick={(e) => {
+              setPieces(null)
+              setAiError('')
+              setText('')
+              set({ engine: e })
+            }}
+          />
+        </Tip>
         <TipButton
           tip="writePad.zoom"
           label={t('writePad.zoomOut')}
@@ -309,38 +334,71 @@ export default function WritePad() {
         aria-live="polite"
         className="mx-3 mt-1 min-h-9 truncate rounded-lg bg-soft px-3 py-1 text-ink"
       >
-        {text.trim() === '' ? (
+        {aiError ? (
+          <span role="alert" className="text-sm text-muted">
+            {aiError}
+          </span>
+        ) : text.trim() === '' ? (
           <span className="text-sm text-muted">
             {t('writePad.previewEmpty')}
+          </span>
+        ) : pieces ? (
+          <span data-write-pad-pieces>
+            {pieces.map((piece, i) => (
+              <span
+                key={i}
+                data-weight={piece.weight}
+                style={{
+                  ...previewCss,
+                  ...handCss({ ...look, weight: piece.weight }),
+                }}
+              >
+                {piece.text.replace(/\n/g, ' ↵ ')}
+              </span>
+            ))}
           </span>
         ) : (
           <span style={previewCss}>{previewText}</span>
         )}
       </div>
 
-      <textarea
-        ref={box}
-        data-write-pad-input
-        aria-label={t('writePad.input')}
-        placeholder={t('writePad.placeholder')}
-        value={text}
-        onChange={(e) => setText(e.target.value)}
-        // Remember where the page's cursor was when the pad is tapped.
-        onFocus={() => {
-          const range = currentRange(editor)
-          if (range.from !== session.from || range.to !== session.to) {
-            writePad.set({ editor, ...range })
-          }
-        }}
-        autoCapitalize="sentences"
-        spellCheck={false}
-        style={{
-          ...lookCss,
-          fontSize: `${22 * prefs.zoom}px`,
-          lineHeight: 1.3,
-        }}
-        className="mx-3 my-2 min-h-0 flex-1 resize-none rounded-lg border border-line bg-bg p-3 text-ink"
-      />
+      {ai ? (
+        <AiCanvas
+          pageId={session.pageId}
+          font={prefs.font}
+          weight={prefs.weight}
+          onRead={(read) => {
+            setAiError('')
+            setPieces(read)
+            setText(read.map((p) => p.text).join(''))
+          }}
+          onError={(m) => setAiError(t('ai.failed', { reason: m }))}
+        />
+      ) : (
+        <textarea
+          ref={box}
+          data-write-pad-input
+          aria-label={t('writePad.input')}
+          placeholder={t('writePad.placeholder')}
+          value={text}
+          onChange={(e) => setText(e.target.value)}
+          // Remember where the page's cursor was when the pad is tapped.
+          onFocus={() => {
+            const range = currentRange(editor)
+            if (range.from !== session.from || range.to !== session.to) {
+              writePad.set({ ...session, ...range })
+            }
+          }}
+          autoCapitalize="sentences"
+          spellCheck={false}
+          style={{
+            ...lookCss,
+            fontSize: `${22 * prefs.zoom}px`,
+            lineHeight: 1.3,
+          }}
+          className="mx-3 my-2 min-h-0 flex-1 resize-none rounded-lg border border-line bg-bg p-3 text-ink"
+        />
+      )}
 
       <div className="flex items-center gap-3 overflow-x-auto px-3 pb-1">
         <Swatches

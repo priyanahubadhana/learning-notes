@@ -316,7 +316,8 @@ export const TOOLS: readonly ToolDef[] = [
     section: 'insert',
     group: 'media',
     run: (r) => {
-      if (r.editor) toggleWritePad(r.editor)
+      if (r.editor)
+        toggleWritePad(r.editor, r.app?.currentPageId() ?? undefined)
       else r.app?.toast(t('tool.needsPage'))
     },
   },

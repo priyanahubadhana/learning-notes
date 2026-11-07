@@ -1,6 +1,9 @@
 import { useLiveQuery } from 'dexie-react-hooks'
 import { useEffect, useRef, useState } from 'react'
-import { setAudioPanel } from '../../audio/audioActions'
+import { setAudioPanel, toggleRecording } from '../../audio/audioActions'
+import { EmptyState } from '../ui'
+import { useContext } from 'react'
+import { AppUiContext } from '../appUi'
 import { formatDuration, listRecordings } from '../../audio/recordingService'
 import type { LearningNotesDB } from '../../core/db'
 import type { Page } from '../../core/types'
@@ -195,6 +198,7 @@ function OutlineTab({ db, pageId }: { db: LearningNotesDB; pageId: string }) {
 }
 
 function AudioTab({ db, pageId }: { db: LearningNotesDB; pageId: string }) {
+  const { toast } = useContext(AppUiContext)
   const recordings = useLiveQuery(
     () => listRecordings(db, pageId),
     [db, pageId],
@@ -202,7 +206,14 @@ function AudioTab({ db, pageId }: { db: LearningNotesDB; pageId: string }) {
   return (
     <>
       {recordings && recordings.length === 0 && (
-        <p className="mb-2 px-1 text-sm text-muted">{t('lp.audio.empty')}</p>
+        <EmptyState
+          testId="audio-empty"
+          className="mb-2"
+          icon="🎙"
+          text={t('lp.audio.empty')}
+          action={t('empty.audio.action')}
+          onAction={() => void toggleRecording(pageId, toast)}
+        />
       )}
       <ul>
         {(recordings ?? []).map((r) => (

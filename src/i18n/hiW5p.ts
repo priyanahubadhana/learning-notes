@@ -70,4 +70,11 @@ export const hiW5p = {
   'ai.previewApply': 'पृष्ठ पर जोड़ें',
   'capture.keepAi': 'अपना रखें',
   'capture.keepAiDone': 'आपका रख लिया। अब यह AI-निर्मित नहीं दिखेगा।',
+  'empty.decks.action': 'अपना पहला डेक बनाएँ',
+  'empty.library.action': 'किताब आयात करें',
+  'empty.tasks.action': 'काम जोड़ें',
+  'empty.routines':
+    'अभी कोई आदत नहीं। अपनी सुबह के लिए एक छोटी आदत से शुरू करें।',
+  'empty.routines.action': 'आदत जोड़ें',
+  'empty.audio.action': 'अभी रिकॉर्ड करें',
 } as const

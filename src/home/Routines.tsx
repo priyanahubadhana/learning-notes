@@ -1,4 +1,4 @@
-import { IconButton } from '../app/ui'
+import { EmptyState, IconButton } from '../app/ui'
 import { useLiveQuery } from 'dexie-react-hooks'
 import { useContext, useEffect, useRef, useState, type FormEvent } from 'react'
 import { AppUiContext } from '../app/appUi'
@@ -299,6 +299,21 @@ export function Routines({
 
   return (
     <div className="flex flex-col gap-6" data-testid="routines-tab">
+      {habits.filter(isLive).length === 0 && (
+        <EmptyState
+          testId="routines-empty"
+          icon="🌅"
+          text={t('empty.routines')}
+          action={t('empty.routines.action')}
+          onAction={() =>
+            document
+              .querySelector<HTMLInputElement>(
+                '[data-testid="habit-name-morning"]',
+              )
+              ?.focus()
+          }
+        />
+      )}
       {ROUTINES.map((routine) => {
         const own = habits.filter((h) => h.routine === routine)
         return (

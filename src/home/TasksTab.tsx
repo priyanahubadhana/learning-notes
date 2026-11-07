@@ -1,5 +1,5 @@
-import { IconButton } from '../app/ui'
-import { useContext, useMemo, useState, type FormEvent } from 'react'
+import { EmptyState, IconButton } from '../app/ui'
+import { useContext, useMemo, useRef, useState, type FormEvent } from 'react'
 import { AppUiContext } from '../app/appUi'
 import { runTask } from '../app/errors'
 import { setLinkedBlockChecked } from '../app/taskLink'
@@ -59,6 +59,7 @@ export function TasksTab({
 }) {
   const { toast } = useContext(AppUiContext)
   const [text, setText] = useState('')
+  const quickAdd = useRef<HTMLInputElement>(null)
   const [projectFilter, setProjectFilter] = useState<string | null>(null)
   const [newProject, setNewProject] = useState('')
   const shown = useMemo(
@@ -190,6 +191,7 @@ export function TasksTab({
         <h3 className="mb-2 text-sm font-semibold">{t('home.inbox')}</h3>
         <form onSubmit={add} className="mb-2 flex gap-2">
           <input
+            ref={quickAdd}
             data-testid="quick-add"
             aria-label={t('home.quickAdd')}
             placeholder={t('home.quickAdd.placeholder')}
@@ -206,7 +208,13 @@ export function TasksTab({
           </button>
         </form>
         {buckets.inbox.length === 0 ? (
-          <p className="px-1 text-sm text-muted">{t('home.inbox.empty')}</p>
+          <EmptyState
+            testId="inbox-empty"
+            icon="✅"
+            text={t('home.inbox.empty')}
+            action={t('empty.tasks.action')}
+            onAction={() => quickAdd.current?.focus()}
+          />
         ) : (
           <ul className="flex flex-col gap-1.5">
             {buckets.inbox.map((x) => row(x))}

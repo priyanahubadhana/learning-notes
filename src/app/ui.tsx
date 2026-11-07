@@ -101,6 +101,49 @@ export function RenameInput({
   )
 }
 
+/**
+ * The one empty screen of the app: an icon, one line that says what this is
+ * and one primary button that does the single next step.
+ */
+export function EmptyState({
+  icon,
+  text,
+  action,
+  onAction,
+  testId = 'empty-state',
+  className = '',
+}: {
+  icon: string
+  text: string
+  /** The label of the one button (leave out when there is nothing to press). */
+  action?: string
+  onAction?: () => void
+  testId?: string
+  className?: string
+}) {
+  return (
+    <div
+      data-testid={testId}
+      className={`flex flex-col items-center gap-2 rounded-xl border border-dashed border-line p-5 text-center ${className}`}
+    >
+      <span aria-hidden className="text-2xl">
+        {icon}
+      </span>
+      <p className="max-w-md text-sm text-muted">{text}</p>
+      {action && onAction && (
+        <button
+          type="button"
+          data-testid={`${testId}-action`}
+          onClick={onAction}
+          className="min-h-11 rounded-lg bg-accent px-4 text-sm font-medium text-white hover:opacity-90"
+        >
+          {action}
+        </button>
+      )}
+    </div>
+  )
+}
+
 export interface MenuItem {
   label: string
   icon: string

@@ -74,4 +74,11 @@ export const esW5p = {
   'capture.keepAi': 'Conservar como mío',
   'capture.keepAiDone':
     'Conservado como tuyo. Ya no se marca como hecho por IA.',
+  'empty.decks.action': 'Crea tu primer mazo',
+  'empty.library.action': 'Importar un libro',
+  'empty.tasks.action': 'Añadir una tarea',
+  'empty.routines':
+    'Aún no hay hábitos. Empieza con un hábito pequeño para tu mañana.',
+  'empty.routines.action': 'Añadir un hábito',
+  'empty.audio.action': 'Grabar ahora',
 } as const

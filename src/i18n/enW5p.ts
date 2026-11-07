@@ -78,4 +78,12 @@ export const enW5p = {
   'ai.previewApply': 'Add to page',
   'capture.keepAi': 'Keep as mine',
   'capture.keepAiDone': 'Kept as yours. It is no longer marked as AI-made.',
+  // ---- Empty screens (item 8) ----
+  'empty.decks.action': 'Make your first deck',
+  'empty.library.action': 'Import a book',
+  'empty.tasks.action': 'Add a task',
+  'empty.routines':
+    'No habits yet. Start with one small habit for your morning.',
+  'empty.routines.action': 'Add a habit',
+  'empty.audio.action': 'Record now',
 } as const

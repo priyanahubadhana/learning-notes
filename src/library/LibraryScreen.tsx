@@ -1,7 +1,7 @@
 import { useLiveQuery } from 'dexie-react-hooks'
 import { useContext, useRef, useState } from 'react'
 import { AppUiContext } from '../app/appUi'
-import { ConfirmDialog, IconButton, MenuPopover } from '../app/ui'
+import { ConfirmDialog, EmptyState, IconButton, MenuPopover } from '../app/ui'
 import { useLongPress } from '../app/useLongPress'
 import { deletePage } from '../pages/pageService'
 import { runTask } from '../app/errors'
@@ -167,9 +167,14 @@ export function LibraryScreen({
         </p>
       )}
       {sources === undefined ? null : sources.length === 0 ? (
-        <p className="mt-10 text-center text-muted">
-          {t(filter === 'all' ? 'library.empty' : 'library.emptyFilter')}
-        </p>
+        <EmptyState
+          testId="library-empty"
+          className="mt-10"
+          icon="📚"
+          text={t(filter === 'all' ? 'library.empty' : 'library.emptyFilter')}
+          action={filter === 'all' ? t('empty.library.action') : undefined}
+          onAction={() => fileInput.current?.click()}
+        />
       ) : (
         <ul className="grid grid-cols-2 gap-4 sm:grid-cols-3 lg:grid-cols-4">
           {sources.map((page) => (

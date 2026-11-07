@@ -1,7 +1,7 @@
 import { useLiveQuery } from 'dexie-react-hooks'
 import { useState } from 'react'
 import { runTask } from '../app/errors'
-import { ConfirmDialog } from '../app/ui'
+import { ConfirmDialog, EmptyState } from '../app/ui'
 import { usePref } from '../app/usePref'
 import type { LearningNotesDB } from '../core/db'
 import type { Deck, SavedSearch } from '../core/types'
@@ -84,7 +84,14 @@ export function ReviewHome({
         ))}
       </ul>
       {decks.length === 0 && (
-        <p className="mt-2 text-xs text-muted">{t('decks.empty')}</p>
+        <EmptyState
+          testId="decks-empty"
+          className="mt-3"
+          icon="🗂"
+          text={t('decks.empty')}
+          action={t('empty.decks.action')}
+          onAction={() => setEditing({})}
+        />
       )}
 
       {searches.length > 0 && (

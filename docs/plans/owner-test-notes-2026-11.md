@@ -292,3 +292,8 @@ R5-13 DECIDED: edge fade + slim auto-hiding scroll indicator on all scrollable l
 - R6-8 decision (owner, 7 Nov): keep the options pill floating over the page (option 2, like GoodNotes); the page never moves.
 - R6-15 DATA LOSS: in the Write pad, switching "Read with" from Scribble to AI wipes all the text written in the pad, with no warning. Must never lose text: keep it (or ask first).
 - R6-16 Idea: live writing — as you write in the pad, the text appears at the page cursor in real time (instead of only on Insert), so you see it in context.
+- R6-OK Lasso ink selection, handles, rectangle shape: all good. No tiny dots. Magnifier + ruler: all good.
+- R6-17 Lasso with the T (text) filter, freeform and rectangle: selecting a lone line works, but looping part of a paragraph selects nothing. Owner sending screenshots.
+- R6-18 Pencil double-tap in typing mode selects the word, then it deselects almost at once, before the owner can act.
+- R6-19 Pencil triple-tap selects the whole paragraph; owner wants only the line(s) being tapped, not the paragraph.
+- R6-20 Owner: "the pencil tool double tap doesn't work" (meaning to be confirmed: double-tap while the Pen tool is on?).

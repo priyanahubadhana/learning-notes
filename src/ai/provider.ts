@@ -56,8 +56,32 @@ export interface AiCall {
   model: string
   prompt: string
   maxTokens: number
+  /** Pictures sent before the prompt (base64 without the data: prefix). */
+  images?: AiImage[]
   fetchImpl?: typeof fetch
   signal?: AbortSignal
+  /** Waits between retries (tests pass a no-op). */
+  sleep?: (ms: number) => Promise<void>
+}
+
+export interface AiImage {
+  mediaType: 'image/png' | 'image/jpeg'
+  /** Base64, no `data:` prefix, no line breaks. */
+  data: string
+  width: number
+  height: number
+}
+
+/** Longest side sent to a model; larger pictures are scaled down first. */
+export const MAX_IMAGE_SIDE = 1568
+
+/**
+ * Tokens one picture costs (Anthropic's rule: width x height / 750 once the
+ * picture fits 1568 px; the others are close, and the +85 errs high).
+ */
+export function imageTokens(width: number, height: number): number {
+  const s = Math.min(1, MAX_IMAGE_SIDE / Math.max(width, height, 1))
+  return Math.ceil((width * s * (height * s)) / 750) + 85
 }
 
 export interface AiResult {

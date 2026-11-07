@@ -1,5 +1,11 @@
 import { readPref, writePref } from '../app/uiPrefs'
-import { PROVIDERS, estimateTokens, type ProviderId } from './provider'
+import {
+  PROVIDERS,
+  estimateTokens,
+  imageTokens,
+  type AiImage,
+  type ProviderId,
+} from './provider'
 
 /**
  * What the AI has cost this month (an estimate from token counts and a small
@@ -76,8 +82,12 @@ export function withinCap(
   maxTokens: number,
   capUsd: number,
   now: Date = new Date(),
+  images: readonly AiImage[] = [],
 ): boolean {
-  const worst = costOf(provider, estimateTokens(prompt), maxTokens)
+  const input =
+    estimateTokens(prompt) +
+    images.reduce((n, i) => n + imageTokens(i.width, i.height), 0)
+  const worst = costOf(provider, input, maxTokens)
   return readUsage(now).costUsd + worst <= capUsd
 }
 

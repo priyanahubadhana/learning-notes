@@ -94,6 +94,15 @@ describe('several named keys', () => {
           if (/ai\/keyStore|ai\.keys|learning-notes:ai\./.test(text)) {
             bad.push(p)
           }
+          // The one allowed bridge (R6-2): sync starts the encrypted key
+          // mirror `ai/keySync.ts`, which alone reads the store; nothing in
+          // share/ (backups) may import it.
+          if (
+            /ai\/keySync/.test(text) &&
+            p !== join('src/sync', 'syncService.ts')
+          ) {
+            bad.push(`${p} (keySync allowed only from sync/syncService.ts)`)
+          }
         }
       }
     }

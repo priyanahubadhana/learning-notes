@@ -2,6 +2,14 @@
 
 Moved out of HANDOFF on 2026-11-06 (audit) so HANDOFF stays five lines. Newest first; each paragraph names its step. The run decision (master plan) is one owner iPad pass before Sync; the Phase A builder adds its checks at the top. Tick a paragraph by deleting it.
 
+## Phase P part 2: Ask this book, Story so far, Permissions (7 Nov)
+
+1. Settings › AI on, your Claude key saved. Settings › **Permissions**: switch on **Books**; the model list and "spend per key" show.
+2. Open a PDF book, tap **✦ Ask AI**. Pick a chapter or "Pages I choose", type a question, tap **Show what will be sent**: it lists the words, the pages, `api.anthropic.com` and a cost. Tap **See the exact text**, then **Send**: the answer types itself in; tap a **p. N** link and the reader jumps there. Try **Stop** on a long question.
+3. **Save to Summary** puts the answer under the book's Summary (Undo in the toast). **Make cards** shows the tick list.
+4. Read to the middle of an EPUB, **Story so far** › Show what will be sent: nothing after where you are is in the text.
+5. Settings › Permissions › **Everything AI sent this month**: one row per request (date, notebook, feature, host, cost) and none of your words.
+
 ## SYNC REALTIME SETUP (one-time, Supabase dashboard; about 2 minutes)
 
 Real-time sync needs one small table and a publication on the server. Until this is done the app still syncs by polling every 10 s (Settings › Sync says "Live updates are off right now").

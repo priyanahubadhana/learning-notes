@@ -120,3 +120,5 @@ New ideas that come up mid-build are parked here, not added to the current phase
 - 2026-11-07 — Calendar: Year view (parked by the owner), a sliding animation when the Day card changes, Day on the database Calendar view _(Likely phase: O)_
 - 2026-11-07 — Sync live updates via Supabase Realtime (about 1 s instead of the 10 s poll), later; owner-approved idea _(Likely phase: Q)_
 - 2026-11-07 — Pencil: a screen double-tap while drawing could switch to typing mode. Not built on purpose: the owner is designing a "write-into-text pad", which may change it _(Likely phase: after that design)_
+- **AI learning companion** (Phase P, later work): a tutor that quizzes from your notes and cards, with the same caps and per-notebook switches.
+- **Local MCP server** (Phase P, later work): lets a desktop AI app read and write notebooks on this device, with the Permissions screen as the gate.

@@ -27,11 +27,18 @@ export async function openNote(
   keys: Record<string, unknown> = {},
 ) {
   await startInMode(page, mode)
-  await page.addInitScript((entries) => {
-    for (const [key, value] of Object.entries(entries)) {
-      localStorage.setItem('learning-notes:' + key, JSON.stringify(value))
-    }
-  }, keys)
+  // The automatic switch to Pencil mode is off unless a spec asks for it: a
+  // simulated pen tap more than 1.5 s after the last key would otherwise flip
+  // the mode (and 'tap twice') mid-test, which is not an iPad state (the
+  // owner's iPad stays in Pencil mode). autoSwitch.spec.ts sets its own key.
+  await page.addInitScript(
+    (entries) => {
+      for (const [key, value] of Object.entries(entries)) {
+        localStorage.setItem('learning-notes:' + key, JSON.stringify(value))
+      }
+    },
+    { 'advanced.autoSwitch': 'off', ...keys },
+  )
   await page.goto('/')
   await createNotebook(page, 'Biology', 'First')
   await typeInEditor(page, 'The nucleus holds the DNA')

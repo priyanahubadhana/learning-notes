@@ -136,6 +136,7 @@ export function MixedMenu({
       aria-label={t('ink.mixed.label')}
       data-ink-handles
       data-ink-menu="mixed"
+      data-chrome
       className="pointer-events-auto absolute flex w-max max-w-[92vw] -translate-x-1/2 flex-wrap items-center gap-0.5 rounded-2xl border border-ink-soft bg-bg p-1 shadow-[0_2px_4px_rgba(0,0,0,0.08),0_10px_28px_rgba(0,0,0,0.2)]"
       style={{
         left: Math.max(150, box.x + box.w / 2),

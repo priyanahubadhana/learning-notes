@@ -20,13 +20,13 @@ import type { AppSchema } from './schema'
  *  - when the Pencil lifts the page is editable again, the selection is kept
  *    and the page gets the focus.
  * A stroke that reaches a picture is left to dragSelect.ts (whole blocks).
- * A double tap selects a word. penGuard.ts is the safety net behind this.
+ * Taps are not handled here: tapSelect.ts counts them (double tap = word,
+ * triple = line), so a pen down does not touch the selection until the pen
+ * has moved. penGuard.ts is the safety net behind this.
  */
 
 type Editor = AppSchema['BlockNoteEditor']
 
-const DOUBLE_TAP_MS = 350
-const DOUBLE_TAP_PX = 24
 const MOVE_PX = 4
 
 /** The word around `offset` in `text`, as [from, to) (null on a gap). */
@@ -56,7 +56,6 @@ export function watchPenSelect(editor: Editor): () => void {
     y: number
     wasEditable: string
   } | null = null
-  let lastTap = { at: -1e9, x: 0, y: 0 }
 
   const scribbleOn = () => !penSelectsText()
 
@@ -109,13 +108,7 @@ export function watchPenSelect(editor: Editor): () => void {
       '.bn-block[data-id]',
     )
     if (tapped && tapped.dataset.id === activeBlock()) return
-    const view = editor.prosemirrorView!
     e.preventDefault()
-    const now = Date.now()
-    const double =
-      now - lastTap.at < DOUBLE_TAP_MS &&
-      Math.hypot(e.clientX - lastTap.x, e.clientY - lastTap.y) < DOUBLE_TAP_PX
-    lastTap = { at: now, x: e.clientX, y: e.clientY }
     drag = {
       pointerId: e.pointerId,
       anchor: pos,
@@ -125,18 +118,8 @@ export function watchPenSelect(editor: Editor): () => void {
       wasEditable: dom.getAttribute('contenteditable') ?? 'true',
     }
     // Not editable for the length of the stroke: Scribble has nothing to write in.
+    // The selection is left alone until the pen moves (a tap is tapSelect's).
     dom.contentEditable = 'false'
-    if (double) {
-      const $pos = view.state.doc.resolve(pos)
-      const word = wordAround($pos.parent.textContent, $pos.parentOffset)
-      if (word) {
-        const start = $pos.start()
-        drag.anchor = start + word[0]
-        select(start + word[0], start + word[1])
-        return
-      }
-    }
-    select(pos, pos)
   }
 
   const onMove = (e: PointerEvent) => {

@@ -480,6 +480,7 @@ function SelectionBox({
         aria-label={t('ink.sel.menu')}
         data-ink-handles
         data-ink-menu
+        data-chrome
         title={t('ink.sel.hint')}
         className="pointer-events-auto absolute flex w-max max-w-[92vw] -translate-x-1/2 flex-wrap items-center gap-0.5 rounded-2xl border border-ink-soft bg-bg p-1 shadow-[0_2px_4px_rgba(0,0,0,0.08),0_10px_28px_rgba(0,0,0,0.2)]"
         style={{
@@ -578,6 +579,7 @@ function HiddenLayerChip({ controller }: { controller: InkController }) {
     <div
       className="pointer-events-none absolute end-2 top-2 flex flex-col items-end gap-1"
       data-hidden-layers
+      data-chrome
     >
       {hidden.map((layer) => (
         <button

@@ -77,6 +77,14 @@ import {
   textRunsUnder,
 } from './textSnap'
 import { MAX_LABEL, STRIDE } from '../core/inkTypes'
+import { selectGesture } from '../editor/gesture'
+import {
+  isDoubleTap,
+  isShort,
+  isTap,
+  travelOf,
+  type TapMark,
+} from './tapFilter'
 
 /**
  * The ink engine for one open page: pointer handling for the Pen,
@@ -260,18 +268,23 @@ export class InkController {
       this.requestDraw()
     })
     on(this.pad, 'contextmenu', (e: Event) => e.preventDefault())
-    // A Pencil must not scroll the page while a finger still can.
+    // A Pencil must not scroll the page while a finger still can, and iPadOS
+    // must not read a Pencil touch on the pad, a handle or a box as Scribble
+    // over the words underneath (the handles sit over editable text). Chrome
+    // inside the overlay (menus, chips) is left to penTap, which clicks it.
     const stylusOnly = (e: TouchEvent) => {
-      if (!inkSwitches.touchCancel) return
-      for (const t of Array.from(e.changedTouches)) {
-        if ((t as Touch & { touchType?: string }).touchType === 'stylus') {
+      if (!inkSwitches.touchCancel || !e.cancelable) return
+      const t = e.target as Element | null
+      if (t?.closest('[data-chrome]')) return
+      for (const touch of Array.from(e.changedTouches)) {
+        if ((touch as Touch & { touchType?: string }).touchType === 'stylus') {
           e.preventDefault()
           return
         }
       }
     }
-    on(this.pad, 'touchstart', stylusOnly, { passive: false })
-    on(this.pad, 'touchmove', stylusOnly, { passive: false })
+    on(this.overlay, 'touchstart', stylusOnly, { passive: false })
+    on(this.overlay, 'touchmove', stylusOnly, { passive: false })
     // The lasso watches the page without taking it over.
     on(
       wrap,
@@ -298,6 +311,9 @@ export class InkController {
     )
     const ro = new ResizeObserver(() => this.dirty())
     ro.observe(wrap)
+    // The page moves when the bars above it grow or shrink (a pill opens or
+    // closes): the scroller's size changes then, and the overlay must follow.
+    if (this.scroller !== window) ro.observe(this.scroller as HTMLElement)
     const editorEl = this.env.editorEl()
     if (editorEl) ro.observe(editorEl)
     this.cleanups.push(() => ro.disconnect())
@@ -312,11 +328,12 @@ export class InkController {
     this.cleanups.push(() => mo.disconnect())
     this.cleanups.push(
       doc.subscribe(() => {
-        this.requestDraw()
+        this.syncPad() // the Lasso owns the pad only while there is ink
         this.notify() // the hidden-layer chip follows the layers
       }),
     )
     this.cleanups.push(penSettings.subscribe(() => this.syncPad()))
+    this.cleanups.push(lassoSettings.subscribe(() => this.syncPad()))
     this.syncPad()
     this.dirty()
   }
@@ -354,11 +371,29 @@ export class InkController {
     this.requestDraw()
   }
 
+  /**
+   * Does the Lasso own the pointer? Yes while its Ink filter is on and the
+   * page has ink: the pad then catches the Pencil like the Pen's pad does, so
+   * nothing under the ink reacts (no text drag-selection, no Scribble, no
+   * scroll). Words join only as whole blocks inside the loop. With no ink on
+   * the page the Lasso keeps watching, and a Pencil drag still selects text.
+   */
+  lassoOwnsPad(): boolean {
+    return (
+      this.env.tool() === 'lasso' &&
+      lassoSettings.get().ink &&
+      this.env.doc.strokeCount > 0
+    )
+  }
+
   /** Tells the pad what to catch for the tool now selected. */
   syncPad(): void {
     const tool = this.env.tool()
     const on =
-      (tool === 'pen' || tool === 'highlighter' || tool === 'eraser') &&
+      (tool === 'pen' ||
+        tool === 'highlighter' ||
+        tool === 'eraser' ||
+        this.lassoOwnsPad()) &&
       !this.env.frozen()
     this.pad.style.pointerEvents = on ? 'auto' : 'none'
     this.pad.style.cursor = on ? 'crosshair' : 'default'
@@ -640,6 +675,8 @@ export class InkController {
   }
 
   private down(e: PointerEvent): void {
+    // Under the Lasso the pad only shields the page: lassoDown took the event.
+    if (this.env.tool() === 'lasso') return
     if (this.env.frozen() || !this.accepts(e)) return
     if (e.pointerType === 'pen') this.penDown = true
     if (this.gesture) {
@@ -833,11 +870,13 @@ export class InkController {
   private up(e: PointerEvent): void {
     if (e.pointerType === 'pen') this.penDown = false
     const g = this.gesture
-    if (!g || g.id !== e.pointerId) return
+    // Lasso and handle gestures end in lassoUp (the window listener).
+    if (!g || g.id !== e.pointerId || g.kind === 'lasso') return
+    if (g.kind === 'transform') return
     this.gesture = null
     if (g.kind === 'draw') {
       clearTimeout(g.holdTimer)
-      if (!this.peelTape(g)) this.finishDraw(g)
+      if (!this.peelTape(g)) this.finishDraw(g, e.timeStamp - g.t0)
     } else if (g.kind === 'erase') {
       this.finishErase(g)
     }
@@ -934,6 +973,7 @@ export class InkController {
     if (e.pointerType === 'pen') this.penDown = false
     const g = this.gesture
     if (!g || g.id !== e.pointerId) return
+    if (g.kind === 'lasso' || g.kind === 'transform') return // lassoCancel
     if (g.kind === 'draw') {
       const last = g.pts[g.pts.length - 1]
       const lasted = last?.t ?? 0
@@ -956,7 +996,83 @@ export class InkController {
       this.hidden.clear()
     }
     this.gesture = null
+    this.releaseEditing()
     this.requestDraw()
+  }
+
+  // ---- The page under a Lasso gesture ----
+
+  private heldEditable: string | null = null
+
+  /**
+   * While a Lasso or handle gesture lasts, the page is not editable: iPadOS
+   * Scribble then has nothing to write in or select (the cure penSelect uses
+   * for a Pencil drag). Put back when the gesture ends.
+   */
+  private holdEditing(): void {
+    const el = this.env.editorEl()
+    if (!el || this.heldEditable !== null) return
+    this.heldEditable = el.getAttribute('contenteditable') ?? ''
+    el.setAttribute('contenteditable', 'false')
+  }
+
+  private releaseEditing(): void {
+    const was = this.heldEditable
+    if (was === null) return
+    this.heldEditable = null
+    const el = this.env.editorEl()
+    if (!el) return
+    if (was === '') el.removeAttribute('contenteditable')
+    else el.setAttribute('contenteditable', was)
+  }
+
+  // ---- Taps are not ink ----
+
+  /** The last tap-like stroke (for a double tap), and the mark it left. */
+  private lastTap: (TapMark & { strokeId: string | null }) | null = null
+
+  /** Counted for tests and the Pencil lab. */
+  readonly taps = { dropped: 0, takenBack: 0 }
+
+  /**
+   * A stroke that is really a tap leaves no ink; the second tap of a double
+   * tap also takes back the mark the first one left (tapSelect turns the
+   * double tap into a word selection). Returns true when nothing is drawn.
+   */
+  private tapNotInk(
+    g: Extract<Gesture, { kind: 'draw' }>,
+    ms: number,
+  ): boolean {
+    const first = g.world[0]
+    if (!first) return true
+    const travel = travelOf(g.world)
+    const now = { at: Date.now(), x: first.x, y: first.y }
+    if (isShort(ms, travel) && isDoubleTap(this.lastTap, now)) {
+      this.takeBackTap()
+      this.lastTap = null
+      this.taps.dropped++
+      return true
+    }
+    if (isTap(ms, travel)) {
+      this.lastTap = { ...now, strokeId: null }
+      this.taps.dropped++
+      return true
+    }
+    this.lastTap = isShort(ms, travel) ? { ...now, strokeId: '' } : null
+    return false
+  }
+
+  /** The mark the first tap left is removed (no Undo step is made). */
+  private takeBackTap(): void {
+    const id = this.lastTap?.strokeId
+    if (!id) return
+    const top = this.env.history.peekUndo()
+    if (!top || top.add.length !== 1 || top.add[0].stroke.id !== id) return
+    if (top.del.length > 0 || top.layers.length > 0) return
+    this.env.history.dropTop()
+    this.env.doc.revert(top)
+    this.taps.takenBack++
+    this.notify()
   }
 
   // ---- Finishing a stroke ----
@@ -982,13 +1098,18 @@ export class InkController {
     return { id: made.id, edit }
   }
 
-  private finishDraw(g: Extract<Gesture, { kind: 'draw' }>): void {
+  private finishDraw(
+    g: Extract<Gesture, { kind: 'draw' }>,
+    /** How long the pen was down (ms). */
+    ms: number,
+  ): void {
     const world = g.world
     const pen = penSettings.get()
     const hl = highlighterSettings.get()
     if (g.pts.length === 0) return
     // A shape or tape needs a real drag; a tap leaves nothing.
     if (g.dragAs !== 'free' && !g.shape) return
+    if (this.tapNotInk(g, ms)) return
 
     if (g.highlight) {
       if (hl.snapToText && this.snapHighlight(g, hl)) return
@@ -1007,6 +1128,7 @@ export class InkController {
     const { id, edit } = this.ensureLayer(g.layerId)
     edit.add.push({ layerId: id, blockId: g.frame.blockId, stroke: finished })
     this.commit(edit)
+    if (this.lastTap?.strokeId === '') this.lastTap.strokeId = finished.id
   }
 
   /** The highlighter over words: marks the words instead of drawing. */
@@ -1172,6 +1294,16 @@ export class InkController {
     if (!this.lassoActive(e)) return
     this.layout.measure()
     const w = this.world(e)
+    if (this.lassoOwnsPad()) {
+      // The pad took the touch: the page under it must not react at all.
+      e.preventDefault()
+      this.holdEditing()
+      try {
+        this.pad.setPointerCapture(e.pointerId)
+      } catch {
+        // A pointer the browser does not know (a test): events still arrive.
+      }
+    }
     const hit = this.hitStroke(w)
     if (hit && !this.selection.includes(hit.stroke.id)) {
       // Taking over: the page must not select text for this touch.
@@ -1209,6 +1341,12 @@ export class InkController {
     const g = this.gesture
     if (!g || g.id !== e.pointerId) return
     if (g.kind === 'lasso') {
+      // A press-and-hold on words became a text selection (holdSelect): the
+      // loop gives way to it.
+      if (selectGesture.active) {
+        this.cancelGesture()
+        return
+      }
       g.path.push(this.world(e))
       this.requestDraw()
     } else if (g.kind === 'transform') {
@@ -1221,6 +1359,7 @@ export class InkController {
     if (!g || g.id !== e.pointerId) return
     if (g.kind === 'lasso') {
       this.gesture = null
+      this.releaseEditing()
       const end = this.world(e)
       const moved = dist(g.start, end) > 6
       if (g.hitId && !moved) {
@@ -1232,7 +1371,7 @@ export class InkController {
           // Universal Lasso: text and pictures inside the same loop join in.
           this.blockSel = this.blocksIn(g.path)
           this.notify()
-        } else if (!g.owns && moved) this.clearSelection()
+        } else if (!g.owns) this.clearSelection() // a tap or loop on empty paper
       }
       this.requestDraw()
     } else if (g.kind === 'transform') {
@@ -1471,6 +1610,7 @@ export class InkController {
   ): void {
     const box = this.selectionRect()
     if (!box || this.gesture) return
+    this.holdEditing()
     const centre = { x: box.x + box.w / 2, y: box.y + box.h / 2 }
     const start = this.world(e)
     // Scale about the corner opposite the one grabbed (centre if unknown).
@@ -1516,6 +1656,13 @@ export class InkController {
   private finishTransform(g: Extract<Gesture, { kind: 'transform' }>): void {
     this.gesture = null
     this.hidden = new Set()
+    this.releaseEditing()
+    // A tap on the selection or a handle that did not move changes nothing.
+    const { a, b, c, d, e, f } = g.m
+    if (a === 1 && b === 0 && c === 0 && d === 1 && e === 0 && f === 0) {
+      this.requestDraw()
+      return
+    }
     const add = g.before.map((p) => this.transformed(p, g.m, g.factor))
     this.commit({ del: g.before, add, layers: [] })
     this.select(add.map((p) => p.stroke.id))

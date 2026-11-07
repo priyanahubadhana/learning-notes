@@ -77,6 +77,7 @@ export default defineConfig({
         /toggles/,
         /pencilFriction/,
         /writePad/,
+        /lassoPencil/,
       ],
       use: { ...devices['iPad Pro 11'], hasTouch: true },
       expect: { timeout: 15_000 },

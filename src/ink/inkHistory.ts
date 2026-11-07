@@ -74,6 +74,16 @@ export class InkHistory {
     return e.edit
   }
 
+  /** The newest ink edit, without taking it (null when none). */
+  peekUndo(): Edit | null {
+    return this.undoStack[this.undoStack.length - 1]?.edit ?? null
+  }
+
+  /** Forgets the newest ink edit (a tap taken back: not a Redo step). */
+  dropTop(): Edit | undefined {
+    return this.undoStack.pop()?.edit
+  }
+
   /** New text typed after an Undo: the ink Redo steps no longer fit. */
   forgetRedo(): void {
     this.redoStack = []

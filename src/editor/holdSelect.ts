@@ -4,7 +4,7 @@ import { readDeviceSetting } from '../settings/settingsService'
 import { holdSelectSetting } from '../settings/builtinSettings'
 import { autoScrollWhileSelecting } from './dragSelect'
 import { beginSelectGesture, endSelectGesture } from './gesture'
-import { posNear } from './tapSelect'
+import { lookThrough, padOf, posNear } from './tapSelect'
 import type { AppSchema } from './schema'
 
 /**
@@ -37,6 +37,8 @@ export function watchHoldSelect(
     y: number
     timer: number
     anchor: number
+    /** The ink pad the press landed on (under Lasso with ink it covers the words). */
+    pad: HTMLElement | null
   } | null = null
   let holding = false
 
@@ -76,19 +78,24 @@ export function watchHoldSelect(
     ) {
       return
     }
-    if (!(e.target instanceof Element) || !dom.contains(e.target)) return
+    const pad = padOf(e.target)
+    // Through the pad, the element under the press is the one that counts.
+    const target = pad
+      ? lookThrough(pad, () => doc.elementFromPoint(e.clientX, e.clientY))
+      : e.target
+    if (!(target instanceof Element) || !dom.contains(target)) return
     if (
-      e.target.closest('a, button, input, textarea, select') ||
-      ![null, dom].includes(e.target.closest('[contenteditable="false"]'))
+      target.closest('a, button, input, textarea, select') ||
+      ![null, dom].includes(target.closest('[contenteditable="false"]'))
     ) {
       return
     }
     const view = editor.prosemirrorView
     if (!view) return
-    const pos = posNear(view, e.clientX, e.clientY)
+    const pos = lookThrough(pad, () => posNear(view, e.clientX, e.clientY))
     if (pos === null) return
     // Only a block that already has words (an empty block takes the caret at once).
-    const block = e.target.closest('.bn-block-content')
+    const block = target.closest('.bn-block-content')
     if ((block?.textContent ?? '').trim() === '') return
     const ms = readDeviceSetting(holdSelectSetting)
     press = {
@@ -96,6 +103,7 @@ export function watchHoldSelect(
       x: e.clientX,
       y: e.clientY,
       anchor: pos,
+      pad,
       timer: window.setTimeout(() => {
         if (!press) return
         holding = true
@@ -120,7 +128,8 @@ export function watchHoldSelect(
     const view = editor.prosemirrorView
     if (!view) return
     autoScrollWhileSelecting(dom, e.clientY)
-    const pos = posNear(view, e.clientX, e.clientY)
+    const pad = press.pad
+    const pos = lookThrough(pad, () => posNear(view, e.clientX, e.clientY))
     if (pos !== null) select(press.anchor, pos)
   }
   const onUp = (e: PointerEvent) => {

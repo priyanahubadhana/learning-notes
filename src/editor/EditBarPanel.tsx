@@ -1,4 +1,4 @@
-import { useRef, useState, type PointerEvent } from 'react'
+import { Suspense, lazy, useRef, useState, type PointerEvent } from 'react'
 import {
   BAR_PLACEMENTS,
   BAR_SIZES,
@@ -39,6 +39,12 @@ import { useDeviceSetting } from '../settings/useSetting'
  * plus the bar's size, position and auto-hide. Saved on this device. Reset
  * goes back to the standard bar.
  */
+
+const LazyPillSheet = lazy(() =>
+  import('../app/tools/main/EditToolbarSheet').then((m) => ({
+    default: m.EditPillSheet,
+  })),
+)
 
 const BUTTON =
   'min-h-11 min-w-11 shrink-0 rounded-lg px-2 text-sm hover:bg-hover disabled:opacity-35'
@@ -157,6 +163,7 @@ export function EditBarPanel({
   onClose: () => void
 }) {
   const [pillTool, setPillTool] = useState<PillTool>('text')
+  const [arranging, setArranging] = useState(false)
   const [size, setSize] = useDeviceSetting(barSizeSetting)
   const [placement, setPlacement] = useDeviceSetting(barPlacementSetting)
   const [autoHide, setAutoHide] = useDeviceSetting(barAutoHideSetting)
@@ -199,6 +206,18 @@ export function EditBarPanel({
           ))}
         </select>
       </label>
+      <button
+        type="button"
+        onClick={() => setArranging(true)}
+        className={`${BUTTON} mx-2 justify-self-start border border-line px-3`}
+      >
+        {t('editBar.pillOpen')}
+      </button>
+      {arranging && (
+        <Suspense fallback={null}>
+          <LazyPillSheet tool={pillTool} onClose={() => setArranging(false)} />
+        </Suspense>
+      )}
       <ReorderList
         scope={`pill-${pillTool}`}
         all={PILL_OPTIONS[pillTool]}

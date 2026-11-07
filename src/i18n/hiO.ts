@@ -301,4 +301,19 @@ export const hiO: Record<string, string> = {
   'ai.perm.noNotebook': '(कोई नहीं)',
   'ai.perm.moved':
     'कौन-सी नोटबुक AI इस्तेमाल कर सकती हैं, अब सेटिंग › अनुमतियाँ में है।',
+  'editList.close': 'बंद करें और बदलाव रखें',
+  'editList.preview': 'पूर्वावलोकन',
+  'editList.onList': 'सूची में',
+  'editList.empty': 'अभी कुछ नहीं है। नीचे से कोई टूल जोड़ें।',
+  'editList.remove': '{name} हटाएँ',
+  'editList.add': '{name} जोड़ें',
+  'editList.more': 'और टूल',
+  'editList.find': 'टूल खोजें',
+  'editList.cancel': 'रद्द करें',
+  'editBar.open': 'टूलबार बदलें…',
+  'editBar.title': 'टूलबार बदलें',
+  'editBar.hint':
+    'टूल को खींचकर हिलाएँ या तीरों का उपयोग करें। जोड़ने के लिए और टूल से किसी को सूची में छोड़ें। हो गया बदलाव रखता है; रद्द करें उन्हें छोड़ देता है।',
+  'editBar.pillTitle': '{name} के विकल्प',
+  'editBar.pillOpen': 'इन विकल्पों को सजाएँ…',
 }

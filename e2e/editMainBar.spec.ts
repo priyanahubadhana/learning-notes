@@ -25,7 +25,7 @@ const mainNames = (page: Page) =>
     .evaluateAll((els) => els.map((el) => el.getAttribute('aria-label')))
 
 async function openEdit(page: Page) {
-  const item = page.getByRole('button', { name: 'Edit bar…' })
+  const item = page.getByRole('button', { name: 'Bar settings…' })
   // Open the menu again only while it is still closed (a late re-render of
   // the bar can swallow the first tap).
   await expect(async () => {

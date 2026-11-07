@@ -217,7 +217,7 @@ export const es7: Record<string, string> = {
   'bar.newLine': 'Nueva línea',
   'bar.more': 'Más',
   'bar.done': 'Listo',
-  'bar.edit': 'Editar barra…',
+  'bar.edit': 'Ajustes de la barra…',
   'bar.editTitle': 'Editar barra',
   'bar.editHint':
     'Elige los botones de la barra y su orden. Se guarda en este dispositivo.',

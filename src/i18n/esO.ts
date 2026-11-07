@@ -315,4 +315,19 @@ export const esO: Record<string, string> = {
   'ai.perm.noNotebook': '(ninguno)',
   'ai.perm.moved':
     'Qué cuadernos pueden usar IA está ahora en Ajustes › Permisos.',
+  'editList.close': 'Cerrar y guardar los cambios',
+  'editList.preview': 'Vista previa',
+  'editList.onList': 'En la lista',
+  'editList.empty': 'Aún no hay nada. Añade una herramienta abajo.',
+  'editList.remove': 'Quitar {name}',
+  'editList.add': 'Añadir {name}',
+  'editList.more': 'Más herramientas',
+  'editList.find': 'Buscar una herramienta',
+  'editList.cancel': 'Cancelar',
+  'editBar.open': 'Editar barra de herramientas…',
+  'editBar.title': 'Editar barra de herramientas',
+  'editBar.hint':
+    'Arrastra una herramienta para moverla o usa las flechas. Suelta una de Más herramientas en la lista para añadirla. Listo guarda los cambios; Cancelar los descarta.',
+  'editBar.pillTitle': 'Opciones de {name}',
+  'editBar.pillOpen': 'Ordenar estas opciones…',
 }

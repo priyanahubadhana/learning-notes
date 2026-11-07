@@ -325,7 +325,7 @@ test('Edit bar can hide tabs (one always stays) and the choice is kept', async (
   await dockedBar(page).getByRole('button', { name: 'Toolbar menu' }).click()
   await page
     .locator('[data-bar="tray"]')
-    .getByRole('button', { name: /^Edit bar/ })
+    .getByRole('button', { name: /^Bar settings/ })
     .click()
   const edit = page
     .locator('[data-bar="tray"]')
@@ -355,7 +355,7 @@ test('Edit bar can hide tabs (one always stays) and the choice is kept', async (
   await dockedBar(page).getByRole('button', { name: 'Toolbar menu' }).click()
   await page
     .locator('[data-bar="tray"]')
-    .getByRole('button', { name: /^Edit bar/ })
+    .getByRole('button', { name: /^Bar settings/ })
     .click()
   const again = page
     .locator('[data-bar="tray"]')

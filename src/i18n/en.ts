@@ -1818,7 +1818,7 @@ export const en = {
   'bar.newLine': 'New line',
   'bar.more': 'More',
   'bar.done': 'Done',
-  'bar.edit': 'Edit bar…',
+  'bar.edit': 'Bar settings…',
   'bar.editTitle': 'Edit bar',
   'bar.editHint':
     'Choose the tools on the main bar, the options of each tool and their order. Saved on this device.',

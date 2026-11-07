@@ -101,7 +101,7 @@ test.describe('Touch (a tablet-sized touch screen)', () => {
     await expect(dockedBar(page)).toHaveAttribute('data-placement', 'top')
     await dockedBar(page).getByRole('button', { name: 'Toolbar menu' }).click()
     await tray(page)
-      .getByRole('button', { name: /^Edit bar/ })
+      .getByRole('button', { name: /^Bar settings/ })
       .click()
     await tray(page).getByLabel('Position').selectOption('bottom')
     await tray(page).getByRole('button', { name: 'Done' }).click()

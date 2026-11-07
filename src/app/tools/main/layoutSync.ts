@@ -5,7 +5,9 @@ import { newRecordFields } from '../../../core/records'
 import type { JsonObject, SecretRecord } from '../../../core/types'
 import { readPref, writePref } from '../../uiPrefs'
 import {
+  barOrder,
   cleanExtras,
+  cleanOrder,
   cleanMainList,
   cleanPillMap,
   extraTools,
@@ -28,12 +30,14 @@ interface LayoutValue {
   main: unknown
   pills: unknown
   extras: unknown
+  order?: unknown
 }
 
 const current = (): LayoutValue => ({
   main: mainList.get(),
   pills: pillLists.get(),
   extras: extraTools.get(),
+  order: barOrder.get(),
 })
 
 const print = (v: LayoutValue) => JSON.stringify(v)
@@ -50,6 +54,8 @@ export function applyLayout(value: Partial<LayoutValue>): boolean {
   if (main) mainList.set(main)
   if (pills) pillLists.set(pills)
   if (extras) extraTools.set(extras)
+  const order = cleanOrder(value.order)
+  if (order) barOrder.set(order)
   return print(current()) !== before
 }
 
@@ -78,7 +84,9 @@ export function startLayoutSync(db: LearningNotesDB): void {
       })()
     }, 600)
   }
-  const offs = [mainList, pillLists, extraTools].map((s) => s.subscribe(save))
+  const offs = [mainList, pillLists, extraTools, barOrder].map((s) =>
+    s.subscribe(save),
+  )
   let last: string | undefined
   const sub = liveQuery(() => db.secrets.get(LAYOUT_SECRET_ID)).subscribe({
     next: (rec) => {

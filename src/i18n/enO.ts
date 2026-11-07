@@ -311,4 +311,19 @@ export const enO = {
   'ai.perm.noNotebook': '(none)',
   'ai.perm.moved':
     'Which notebooks may use AI is now in Settings › Permissions.',
+  'editList.close': 'Close and keep changes',
+  'editList.preview': 'Preview',
+  'editList.onList': 'On the list',
+  'editList.empty': 'Nothing here yet. Add a tool below.',
+  'editList.remove': 'Remove {name}',
+  'editList.add': 'Add {name}',
+  'editList.more': 'More tools',
+  'editList.find': 'Find a tool',
+  'editList.cancel': 'Cancel',
+  'editBar.open': 'Edit toolbar…',
+  'editBar.title': 'Edit toolbar',
+  'editBar.hint':
+    'Drag a tool to move it, or use the arrows. Drop a tool from More tools into the list to add it. Done keeps your changes; Cancel throws them away.',
+  'editBar.pillTitle': 'Options of {name}',
+  'editBar.pillOpen': 'Arrange these options…',
 }

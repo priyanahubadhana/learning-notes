@@ -13,6 +13,8 @@ import {
   useEditorFocus,
 } from '@blocknote/react'
 import {
+  Suspense,
+  lazy,
   useContext,
   useEffect,
   useRef,
@@ -73,6 +75,12 @@ import {
 
 /** Keeps the editor's selection and keyboard when a bar button is pressed. */
 const keepFocus = (e: { preventDefault: () => void }) => e.preventDefault()
+
+const LazyEditToolbar = lazy(() =>
+  import('../app/tools/main/EditToolbarSheet').then((m) => ({
+    default: m.EditToolbarSheet,
+  })),
+)
 
 type Panel = 'more' | 'menu' | 'color' | 'edit'
 
@@ -145,6 +153,13 @@ function Bar({ editor, slot }: { editor: Editor; slot: HTMLElement }) {
   const ribbon = layout.ribbon !== null
   const both = layout.ribbon !== null && layout.short !== null
   const [panel, setPanel] = useState<Panel | null>(null)
+  // The Edit toolbar sheet is its own dialog, not a tray: a tap inside it
+  // must not count as a tap outside the bar's pop-ups.
+  const [sheet, setSheet] = useState(false)
+  const openSheet = () => {
+    setPanel(null)
+    setSheet(true)
+  }
   const { toast } = useContext(AppUiContext)
   const menuButton = useRef<HTMLButtonElement>(null)
   const [focusInBar, setFocusInBar] = useState(false)
@@ -349,11 +364,11 @@ function Bar({ editor, slot }: { editor: Editor; slot: HTMLElement }) {
             <button
               type="button"
               onMouseDown={keepFocus}
-              onClick={() => setPanel('edit')}
+              onClick={() => openSheet()}
               style={{ minHeight: Math.max(buttonPx, 44) }}
               className="rounded-lg px-3 text-left text-sm font-semibold text-accent hover:bg-hover"
             >
-              {t('bar.edit')}
+              {t('editBar.open')}
             </button>
           </Tray>
         )}
@@ -373,8 +388,8 @@ function Bar({ editor, slot }: { editor: Editor; slot: HTMLElement }) {
             focusFirst
             onClose={() => setPanel(null)}
           >
-            <MenuItem px={buttonPx} accent onClick={() => setPanel('edit')}>
-              {t('bar.edit')}
+            <MenuItem px={buttonPx} accent onClick={() => openSheet()}>
+              {t('editBar.open')}
             </MenuItem>
             {!ribbon && (
               <MenuItem px={buttonPx} onClick={openRibbon}>
@@ -392,6 +407,9 @@ function Bar({ editor, slot }: { editor: Editor; slot: HTMLElement }) {
             </MenuItem>
             <MenuItem px={buttonPx} onClick={done}>
               {t('bar.done')}
+            </MenuItem>
+            <MenuItem px={buttonPx} onClick={() => setPanel('edit')}>
+              {t('bar.edit')}
             </MenuItem>
             <hr className="my-1 border-line" />
             <MenuItem
@@ -453,6 +471,11 @@ function Bar({ editor, slot }: { editor: Editor; slot: HTMLElement }) {
               />
             ))}
           </Tray>
+        )}
+        {sheet && (
+          <Suspense fallback={null}>
+            <LazyEditToolbar onClose={() => setSheet(false)} />
+          </Suspense>
         )}
         {panel === 'edit' && (
           <Tray bottom={bottom} wide onClose={() => setPanel(null)}>

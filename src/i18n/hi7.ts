@@ -212,7 +212,7 @@ export const hi7: Record<string, string> = {
   'bar.newLine': 'नई पंक्ति',
   'bar.more': 'और',
   'bar.done': 'हो गया',
-  'bar.edit': 'बार बदलें…',
+  'bar.edit': 'बार सेटिंग…',
   'bar.editTitle': 'बार बदलें',
   'bar.editHint':
     'चुनें कि बार पर कौन-से बटन हों और किस क्रम में। इसी डिवाइस पर सहेजा जाता है।',

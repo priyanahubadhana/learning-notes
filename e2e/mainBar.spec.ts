@@ -359,7 +359,7 @@ test('the ⋯ menu: Edit bar first, then All tools (the ribbon), search, Done', 
   await openNote(page)
   await barMenu(page).click()
   const items = page.locator('[data-bar="tray"] button:not([data-popup-close])')
-  await expect(items.nth(0)).toHaveText('Edit bar…')
+  await expect(items.nth(0)).toHaveText('Edit toolbar…')
   await expect(items.nth(1)).toHaveText('All tools')
   await expect(items.nth(2)).toHaveText('Search all features')
   await expect(items.nth(3)).toHaveText('Done')

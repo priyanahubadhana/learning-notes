@@ -11,6 +11,8 @@ import { applyPageMode } from '../../../editor/editPolicy'
 import { setKeyboard } from '../../../editor/keyboardPolicy'
 import { AnchoredMenu } from '../AnchoredMenu'
 import { Icon, type IconName } from '../icons'
+import { TOOL_ICON } from './mainToolIcons'
+import { resolveBar } from './barOrder'
 import { ToolButton } from '../ToolButton'
 import { useAnchoredMenu } from '../useAnchoredMenu'
 import { findTool } from '../toolRegistry'
@@ -20,6 +22,7 @@ import {
   extraTools,
   isModeTool,
   mainList,
+  barOrder,
   newLineExtras,
   newLineHoldMs,
   openPillTool,
@@ -43,18 +46,6 @@ import { REPEAT_AFTER_MS, backspaceStep } from './backspaceHold'
  * pill, then the tools (the selected tool is the mode), then ⋯. Everything
  * is a 44 px target and looks the same on iPad, phone and computer.
  */
-
-const TOOL_ICON: Record<MainTool, IconName> = {
-  text: 'textSize',
-  pen: 'penTool',
-  highlighter: 'highlighter',
-  eraser: 'eraser',
-  newLine: 'newLine',
-  backspace: 'backspace',
-  lasso: 'lasso',
-  insert: 'layoutGrid',
-  read: 'bookOpen',
-}
 
 const keepFocus = (e: { preventDefault: () => void }) => e.preventDefault()
 
@@ -80,6 +71,7 @@ export function MainBarRow({
 }) {
   const list = shownMainTools(mainList.useValue())
   const extras = extraTools.useValue()
+  const order = barOrder.useValue()
   const active = activeTool.useValue()
   const opened = openPillTool.useValue()
   const pinned = pillPinned.useValue()
@@ -184,12 +176,13 @@ export function MainBarRow({
         className="flex min-w-0 flex-1 items-center gap-px overflow-x-auto phone:order-last phone:basis-full"
         style={{ scrollbarWidth: 'none' }}
       >
-        {list.map(toolButton)}
-        {extras.map((id) => {
+        {resolveBar(order, list, extras).map((token) => {
+          const id = token.slice(2)
+          if (token.startsWith('m:')) return toolButton(id as MainTool)
           const tool = findTool(id)
           return tool ? (
             <ToolButton
-              key={id}
+              key={token}
               tool={tool}
               px={min}
               variant="bar"

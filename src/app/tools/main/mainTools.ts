@@ -231,11 +231,29 @@ export const extraTools = cleanStore<string[]>(
   [],
 )
 
+const ORDER_TOKEN = /^[mx]:[a-zA-Z][a-zA-Z0-9:-]{0,60}$/
+export function cleanOrder(v: unknown): string[] | undefined {
+  if (!Array.isArray(v)) return undefined
+  return [
+    ...new Set(
+      v.filter(
+        (x): x is string => typeof x === 'string' && ORDER_TOKEN.test(x),
+      ),
+    ),
+  ].slice(0, MAX_PINNED + MAIN_TOOLS.length)
+}
+/**
+ * The order of the main tools and the pinned tools together (R7-11), as
+ * tokens "m:<main tool>" and "x:<tool id>". See barOrder.ts.
+ */
+export const barOrder = cleanStore<string[]>('toolbar.order', cleanOrder, [])
+
 /** Back to the standard main bar and pills (Edit bar › Reset). */
 export function resetMainBar(): void {
   mainList.set([...MAIN_TOOLS])
   pillLists.set({})
   extraTools.set([])
+  barOrder.set([])
 }
 
 /** Moves an id `delta` places inside a list (stays inside it). */
@@ -311,6 +329,7 @@ export function resetMainState(): void {
     mainList,
     pillLists,
     extraTools,
+    barOrder,
     newLineExtras,
     newLineHoldMs,
     penPicksPen,

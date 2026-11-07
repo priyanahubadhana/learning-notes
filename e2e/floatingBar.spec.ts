@@ -137,7 +137,7 @@ test('Edit bar › Position › Floating works the same way', async ({ page }) =
   await dockedBar(page).locator('[data-action="toolbarMenu"]').click()
   await page
     .locator('[data-bar="tray"]')
-    .getByRole('button', { name: 'Edit bar' })
+    .getByRole('button', { name: 'Bar settings…' })
     .click()
   await page.getByLabel('Position').selectOption('free')
   await expect(dockedBar(page)).toHaveAttribute('data-placement', 'free')

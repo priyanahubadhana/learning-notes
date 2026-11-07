@@ -44,7 +44,7 @@ for (const mode of ['touch', 'pencil'] as const) {
     // The Edit bar is reachable.
     await menuButton(page).click()
     await expect(
-      tray(page).getByRole('button', { name: /^Edit bar/ }),
+      tray(page).getByRole('button', { name: /^Bar settings/ }),
     ).toBeVisible()
   })
 }
@@ -130,7 +130,7 @@ test.describe('toolbar menu', () => {
       'Copy as Markdown',
       'Paste as plain text',
       'Copy page with pictures',
-      'Edit bar',
+      'Bar settings',
     ]) {
       await expect(
         menu.getByText(new RegExp('^' + name)).first(),
@@ -190,7 +190,7 @@ test.describe('toolbar menu', () => {
       'nucleus',
     )
     await tray(page)
-      .getByRole('button', { name: /^Edit bar/ })
+      .getByRole('button', { name: /^Bar settings/ })
       .click()
     await expect(
       tray(page).getByRole('group', { name: 'Edit bar' }),

@@ -15,13 +15,16 @@ import type { Pt } from './geometry'
 /** Down-and-up quicker than this (ms) with almost no travel is a tap. */
 export const TAP_MS = 90
 /** Travel (px, from the first point) a tap may have. */
-export const TAP_PX = 4
-/** A stroke this short (ms, px) may be the first half of a double tap. */
-export const SHORT_MS = 160
-export const SHORT_PX = 10
-/** Two short strokes this close in time (ms) and space (px) are a double tap. */
-export const DOUBLE_MS = 350
-export const DOUBLE_PX = 24
+export const TAP_PX = 3
+/** A stroke this short (ms, px) may be the first half of a double tap (owner, 7 Nov). */
+export const SHORT_MS = 150
+export const SHORT_PX = 3
+/**
+ * A second pen-down this soon (ms) after a short stroke ended, and this close
+ * (px) to it, makes a double tap (owner, 7 Nov).
+ */
+export const DOUBLE_MS = 300
+export const DOUBLE_PX = 10
 
 export interface TapMark {
   at: number
@@ -47,8 +50,22 @@ export const isTap = (ms: number, travel: number): boolean =>
 export const isShort = (ms: number, travel: number): boolean =>
   ms < SHORT_MS && travel < SHORT_PX
 
-/** Is `now` the second tap of a double tap after `last`? */
+/**
+ * Is `now` (where and when the second stroke BEGAN) the second tap of a
+ * double tap after `last` (where and when the first one ended)?
+ */
 export const isDoubleTap = (last: TapMark | null, now: TapMark): boolean =>
   !!last &&
   now.at - last.at < DOUBLE_MS &&
   Math.hypot(now.x - last.x, now.y - last.y) < DOUBLE_PX
+
+/**
+ * Turns snap to a step (radians) when within `within` of it: the Lasso
+ * selection to quarter turns within 5 degrees, the ruler to 15 degrees
+ * within 2 (the research brief).
+ */
+export function snapTurn(angle: number, step: number, within: number): number {
+  const near = Math.round(angle / step) * step
+  return Math.abs(angle - near) <= within ? near : angle
+}
+export const DEG = Math.PI / 180

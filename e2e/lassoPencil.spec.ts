@@ -258,15 +258,16 @@ test('a quick Pen tap and a double tap leave no ink; a held press makes a dot', 
   await stroke(page, [[blank[0] + 120, blank[1]]], { holdMs: 160 })
   const [dot] = await expectStrokes(page, 1)
   expect(dot.pts.length).toBeGreaterThanOrEqual(6)
-  // A comma-sized flick as the first half of a double tap is taken back.
+  // A tiny mark (under 3 px, 150 ms) followed by a second pen-down within
+  // 300 ms and 10 px is a double tap: the mark is taken back.
   const flick = line(
     [blank[0] + 200, blank[1]],
-    [blank[0] + 206, blank[1] + 6],
-    4,
+    [blank[0] + 202, blank[1] + 1],
+    3,
   )
-  await stroke(page, flick)
+  await stroke(page, flick, { holdMs: 100 })
   await page.waitForTimeout(40)
-  await tap(page, [blank[0] + 202, blank[1] + 2])
+  await tap(page, [blank[0] + 204, blank[1] + 2])
   await page.waitForTimeout(500)
   expect((await savedInk(page)).strokes).toHaveLength(1)
 })

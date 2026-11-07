@@ -64,4 +64,10 @@ export const enO = {
     'Handy when your pencil cannot reach the keyboard.',
   'help.tip.writePad.close.meaning': 'Closes the Write pad.',
   'help.tip.writePad.close.example': 'Your page keeps everything you inserted.',
+  // ---- Magnifier (Pencil fixes, 7 Nov) ----
+  'ink.magnifier.hint':
+    'Write big here. It lands small in the box on the page, which moves on by itself.',
+  'ink.magnifier.boxLabel': 'Writing lands here · drag to move',
+  'ink.magnifier.resize': 'Drag to make the writing pad taller or shorter',
+  'ink.magnifier.erasing': 'Eraser: rub here to erase on the page',
 }

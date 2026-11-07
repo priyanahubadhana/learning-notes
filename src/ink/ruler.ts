@@ -1,4 +1,5 @@
 import type { Pt } from './geometry'
+import { DEG, snapTurn } from './tapFilter'
 
 /**
  * The ruler (G1): a straight bar on the page that is not saved. A pen that
@@ -17,7 +18,7 @@ export interface RulerState {
 }
 
 /** Thickness of the bar, in px. */
-export const RULER_H = 56
+export const RULER_H = 80
 /** How close the pen must start to an edge to stick to it. */
 const RULER_REACH = 24
 export const RULER_MIN = 160
@@ -88,11 +89,9 @@ export function angleDegrees(r: RulerState): number {
   return Math.round(((deg % 180) + 180) % 180) % 180
 }
 
-/** Turns toward `target` but sticks to 0, 45, 90 and 135 degrees when close. */
-export function snapAngle(angle: number, within = (3 * Math.PI) / 180): number {
-  const step = Math.PI / 4
-  const near = Math.round(angle / step) * step
-  return Math.abs(angle - near) <= within ? near : angle
+/** Turns freely but clicks to every 15 degrees when within 2 (research brief). */
+export function snapAngle(angle: number, within = 2 * DEG): number {
+  return snapTurn(angle, 15 * DEG, within)
 }
 
 /** A bar the user can see: starts flat in the middle of the view. */

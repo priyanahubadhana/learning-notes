@@ -59,4 +59,10 @@ export const esO: Record<string, string> = {
   'help.tip.writePad.keys.example': 'Útil cuando el lápiz no llega al teclado.',
   'help.tip.writePad.close.meaning': 'Cierra el bloc de escritura.',
   'help.tip.writePad.close.example': 'Tu página conserva lo que insertaste.',
+  // ---- Lupa (correcciones del Pencil, 7 nov) ----
+  'ink.magnifier.hint':
+    'Escribe en grande aquí. Aparece pequeño en el recuadro de la página, que avanza solo.',
+  'ink.magnifier.boxLabel': 'La escritura cae aquí · arrastra para mover',
+  'ink.magnifier.resize': 'Arrastra para hacer el panel más alto o más bajo',
+  'ink.magnifier.erasing': 'Borrador: frota aquí para borrar en la página',
 }

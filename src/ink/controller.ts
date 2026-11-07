@@ -79,9 +79,11 @@ import {
 import { MAX_LABEL, STRIDE } from '../core/inkTypes'
 import { selectGesture } from '../editor/gesture'
 import {
+  DEG,
   isDoubleTap,
   isShort,
   isTap,
+  snapTurn,
   travelOf,
   type TapMark,
 } from './tapFilter'
@@ -173,16 +175,24 @@ type Gesture =
       kind: 'transform'
       id: number
       how: 'move' | 'scale' | 'rotate'
+      /** Edge handles scale along one axis; corners keep the shape. */
+      axis: 'x' | 'y' | 'both'
       start: Pt
       centre: Pt
       fixed: Pt
       m: Affine
       factor: number
       before: Placed[]
+      /** A second finger on the selection: the pair twists and moves it. */
+      second: { id: number; start: Pt; now: Pt; firstNow: Pt } | null
     }
 
 const HOLD_MS = 600
 const HOLD_SLOP = 3
+/** A stroke is selected when this share of its points lies inside the loop. */
+export const LASSO_INSIDE = 0.6
+/** Turning the selection clicks to quarter turns when within 5 degrees. */
+const TURN_SNAP = 5 * DEG
 const MIN_MOVE = 0.3
 const DEFAULT_PRESSURE = 0.4
 let penSeenEver = false
@@ -226,6 +236,11 @@ export class InkController {
       position: 'absolute',
       pointerEvents: 'none',
       zIndex: '5',
+      // Nothing on the overlay may be selected or get a long-press callout
+      // (research brief, web constraints).
+      userSelect: 'none',
+      WebkitUserSelect: 'none',
+      WebkitTouchCallout: 'none',
     })
     this.pad = document.createElement('div')
     this.pad.setAttribute('data-ink-pad', '')
@@ -994,6 +1009,7 @@ export class InkController {
     if (g.kind === 'erase') this.finishErase(g)
     if (g.kind === 'transform') {
       this.hidden.clear()
+      this.syncPad()
     }
     this.gesture = null
     this.releaseEditing()
@@ -1046,8 +1062,10 @@ export class InkController {
     const first = g.world[0]
     if (!first) return true
     const travel = travelOf(g.world)
+    // The double-tap window runs from the first stroke's end to the second's start.
+    const began = { at: Date.now() - ms, x: first.x, y: first.y }
     const now = { at: Date.now(), x: first.x, y: first.y }
-    if (isShort(ms, travel) && isDoubleTap(this.lastTap, now)) {
+    if (isShort(ms, travel) && isDoubleTap(this.lastTap, began)) {
       this.takeBackTap()
       this.lastTap = null
       this.taps.dropped++
@@ -1177,6 +1195,42 @@ export class InkController {
 
   // ---- Eraser ----
 
+  /** A pointer id of our own for an erase driven from the Magnifier's pad. */
+  private static readonly PAD_ERASE = -7
+
+  /** The Magnifier's pad rubs the page with the eraser (page px). */
+  beginErase(w: Pt): void {
+    if (this.env.frozen() || this.gesture) return
+    this.layout.measure()
+    this.gesture = {
+      kind: 'erase',
+      id: InkController.PAD_ERASE,
+      last: null,
+      path: [],
+      del: new Map(),
+      add: new Map(),
+      live: [],
+    }
+    this.eraseTo(w)
+    this.requestDraw()
+  }
+
+  eraseMove(w: Pt): void {
+    const g = this.gesture
+    if (g?.kind !== 'erase' || g.id !== InkController.PAD_ERASE) return
+    this.eraseTo(w)
+    this.requestDraw()
+  }
+
+  endErase(): void {
+    const g = this.gesture
+    if (g?.kind !== 'erase' || g.id !== InkController.PAD_ERASE) return
+    this.gesture = null
+    this.finishErase(g)
+    this.requestDraw()
+    this.notify()
+  }
+
   private eraseTo(w: Pt): void {
     const g = this.gesture
     if (g?.kind !== 'erase') return
@@ -1287,7 +1341,26 @@ export class InkController {
   }
 
   private lassoDown(e: PointerEvent): void {
-    if (this.gesture) return
+    const g = this.gesture
+    if (g) {
+      // A second finger while the selection is being dragged: twist it.
+      if (
+        g.kind === 'transform' &&
+        g.how === 'move' &&
+        !g.second &&
+        e.pointerType === 'touch'
+      ) {
+        e.preventDefault()
+        const w = this.world(e)
+        g.second = { id: e.pointerId, start: w, now: w, firstNow: g.start }
+        try {
+          this.pad.setPointerCapture(e.pointerId)
+        } catch {
+          // A pointer the browser does not know (a test).
+        }
+      }
+      return
+    }
     if (e.pointerType === 'pen') penSeenEver = true
     const target = e.target as HTMLElement | null
     if (target?.closest('[data-ink-handles]')) return
@@ -1339,7 +1412,15 @@ export class InkController {
 
   private lassoMove(e: PointerEvent): void {
     const g = this.gesture
-    if (!g || g.id !== e.pointerId) return
+    if (!g) return
+    if (g.kind === 'transform' && g.second) {
+      if (e.pointerId === g.second.id) g.second.now = this.world(e)
+      else if (e.pointerId === g.id) g.second.firstNow = this.world(e)
+      else return
+      this.twistTo(g)
+      return
+    }
+    if (g.id !== e.pointerId) return
     if (g.kind === 'lasso') {
       // A press-and-hold on words became a text selection (holdSelect): the
       // loop gives way to it.
@@ -1356,7 +1437,13 @@ export class InkController {
 
   private lassoUp(e: PointerEvent): void {
     const g = this.gesture
-    if (!g || g.id !== e.pointerId) return
+    if (!g) return
+    // Either finger lifting ends a twist.
+    if (g.kind === 'transform' && g.second?.id === e.pointerId) {
+      this.finishTransform(g)
+      return
+    }
+    if (g.id !== e.pointerId) return
     if (g.kind === 'lasso') {
       this.gesture = null
       this.releaseEditing()
@@ -1381,6 +1468,10 @@ export class InkController {
 
   private lassoCancel(e: PointerEvent): void {
     const g = this.gesture
+    if (g?.kind === 'transform' && g.second?.id === e.pointerId) {
+      this.finishTransform(g)
+      return
+    }
     if (
       g &&
       g.id === e.pointerId &&
@@ -1426,7 +1517,7 @@ export class InkController {
       if (!r || !intersects(r, area)) return false
       const pts = this.worldPoints(p)
       const inside = pts.filter((q) => inPolygon(q, poly)).length
-      return inside / pts.length >= 0.5
+      return inside / pts.length >= LASSO_INSIDE
     })
   }
 
@@ -1459,6 +1550,40 @@ export class InkController {
 
   strokeTotal(): number {
     return this.env.doc.strokeCount
+  }
+
+  /** Runs `fn` whenever the page's ink changes (the Magnifier's pad mirrors it). */
+  subscribeDoc(fn: () => void): () => void {
+    return this.env.doc.subscribe(fn)
+  }
+
+  /**
+   * Paints the page's ink that lies in `box` (page px) into another canvas,
+   * `zoom` times bigger, the box's corner at the canvas's top left. The
+   * Magnifier's pad shows the page this way, so page and pad never differ.
+   */
+  paintRegion(
+    ctx: CanvasRenderingContext2D,
+    dpr: number,
+    box: Rect,
+    zoom: number,
+  ): void {
+    const m: Affine = {
+      a: zoom,
+      b: 0,
+      c: 0,
+      d: zoom,
+      e: -box.x * zoom,
+      f: -box.y * zoom,
+    }
+    const target = { ctx, dpr, top: 0 }
+    for (const p of this.selectable()) {
+      if (this.hidden.has(p.stroke.id)) continue
+      const frame = this.layout.frame(p.blockId)
+      const r = strokeRect(p.stroke, frame)
+      if (!r || !intersects(r, box)) continue
+      paintStroke(target, p.stroke, frame, m)
+    }
   }
 
   /** The page element the ink sits on (for pictures of the whole page, J1). */
@@ -1606,32 +1731,40 @@ export class InkController {
   startTransform(
     how: 'move' | 'scale' | 'rotate',
     e: PointerEvent,
+    /** The handle grabbed (a corner or the middle of an edge). */
     corner?: Pt,
+    axis: 'x' | 'y' | 'both' = 'both',
   ): void {
     const box = this.selectionRect()
     if (!box || this.gesture) return
     this.holdEditing()
     const centre = { x: box.x + box.w / 2, y: box.y + box.h / 2 }
     const start = this.world(e)
-    // Scale about the corner opposite the one grabbed (centre if unknown).
+    // Scale about the side opposite the handle grabbed (centre if unknown).
     const fixed = corner
       ? {
-          x: box.x + (corner.x > centre.x ? 0 : box.w),
-          y: box.y + (corner.y > centre.y ? 0 : box.h),
+          x:
+            axis === 'y' ? centre.x : box.x + (corner.x > centre.x ? 0 : box.w),
+          y:
+            axis === 'x' ? centre.y : box.y + (corner.y > centre.y ? 0 : box.h),
         }
       : centre
     this.gesture = {
       kind: 'transform',
       id: e.pointerId,
       how,
+      axis,
       start,
       centre,
       fixed,
       m: { a: 1, b: 0, c: 0, d: 1, e: 0, f: 0 },
       factor: 1,
       before: this.selected(),
+      second: null,
     }
     this.hidden = new Set(this.selection)
+    // A second finger may join to twist: no native pinch meanwhile.
+    this.pad.style.touchAction = 'none'
     this.requestDraw()
   }
 
@@ -1640,16 +1773,63 @@ export class InkController {
       g.m = { a: 1, b: 0, c: 0, d: 1, e: w.x - g.start.x, f: w.y - g.start.y }
       g.factor = 1
     } else if (g.how === 'scale') {
-      const base = dist(g.start, g.fixed) || 1
-      const s = Math.max(0.1, Math.min(10, dist(w, g.fixed) / base))
-      g.m = around(g.fixed, s, 0)
-      g.factor = s
+      const clamp = (s: number) => Math.max(0.1, Math.min(10, s))
+      if (g.axis === 'both') {
+        const base = dist(g.start, g.fixed) || 1
+        const s = clamp(dist(w, g.fixed) / base)
+        g.m = around(g.fixed, s, 0)
+        g.factor = s
+      } else {
+        // An edge handle stretches along its axis only.
+        const sx =
+          g.axis === 'x'
+            ? clamp((w.x - g.fixed.x) / (g.start.x - g.fixed.x || 1))
+            : 1
+        const sy =
+          g.axis === 'y'
+            ? clamp((w.y - g.fixed.y) / (g.start.y - g.fixed.y || 1))
+            : 1
+        g.m = {
+          a: sx,
+          b: 0,
+          c: 0,
+          d: sy,
+          e: g.fixed.x * (1 - sx),
+          f: g.fixed.y * (1 - sy),
+        }
+        g.factor = Math.sqrt(sx * sy)
+      }
     } else {
       const a0 = Math.atan2(g.start.y - g.centre.y, g.start.x - g.centre.x)
       const a1 = Math.atan2(w.y - g.centre.y, w.x - g.centre.x)
-      g.m = around(g.centre, 1, a1 - a0)
+      g.m = around(g.centre, 1, snapTurn(a1 - a0, Math.PI / 2, TURN_SNAP))
       g.factor = 1
     }
+    this.requestDraw()
+  }
+
+  /** Two fingers: the selection turns by the angle they turned and moves with their middle. */
+  private twistTo(g: Extract<Gesture, { kind: 'transform' }>): void {
+    const s = g.second
+    if (!s) return
+    const a0 = Math.atan2(s.start.y - g.start.y, s.start.x - g.start.x)
+    const a1 = Math.atan2(s.now.y - s.firstNow.y, s.now.x - s.firstNow.x)
+    const mid0 = {
+      x: (g.start.x + s.start.x) / 2,
+      y: (g.start.y + s.start.y) / 2,
+    }
+    const mid1 = {
+      x: (s.firstNow.x + s.now.x) / 2,
+      y: (s.firstNow.y + s.now.y) / 2,
+    }
+    g.m = around(
+      g.centre,
+      1,
+      snapTurn(a1 - a0, Math.PI / 2, TURN_SNAP),
+      mid1.x - mid0.x,
+      mid1.y - mid0.y,
+    )
+    g.factor = 1
     this.requestDraw()
   }
 
@@ -1657,6 +1837,7 @@ export class InkController {
     this.gesture = null
     this.hidden = new Set()
     this.releaseEditing()
+    this.syncPad() // the pad's touch-action goes back to normal
     // A tap on the selection or a handle that did not move changes nothing.
     const { a, b, c, d, e, f } = g.m
     if (a === 1 && b === 0 && c === 0 && d === 1 && e === 0 && f === 0) {

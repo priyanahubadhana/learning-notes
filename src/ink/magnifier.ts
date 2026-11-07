@@ -2,14 +2,33 @@ import type { Pt } from './geometry'
 
 /**
  * The magnifier (G1): a big writing pad at the bottom of the screen. What is
- * written in it lands, small, in a target box on the page. The target box is
- * the size of the pad divided by the zoom. Pure maths in px, no DOM.
+ * written in it lands, small, in a target box on the page; the pad shows the
+ * page's own ink inside that box (one source of truth: the page). The target
+ * box is the size of the pad divided by the zoom. Pure maths in px, no DOM.
+ * Numbers follow the research brief (pencil-tools-best-practice-2026-11.md).
  */
 
-export const ZOOMS = [2, 3, 4] as const
+export const ZOOMS = [2, 2.5, 3, 4] as const
 export type Zoom = (typeof ZOOMS)[number]
+export const DEFAULT_ZOOM: Zoom = 2.5
 export const isZoom = (v: unknown): v is Zoom =>
   (ZOOMS as readonly unknown[]).includes(v)
+
+/** The pad's height as a share of the screen: default, least, most. */
+export const PAD_HEIGHT = 0.3
+export const PAD_HEIGHT_MIN = 0.2
+export const PAD_HEIGHT_MAX = 0.5
+export const clampPadHeight = (share: number): number =>
+  Math.min(PAD_HEIGHT_MAX, Math.max(PAD_HEIGHT_MIN, share))
+
+/** The page's margins the box keeps inside (share of the page width). */
+export const MARGIN = 0.05
+/** The pen lifting in this right share of the pad moves the box on. */
+export const ADVANCE_ZONE = 0.2
+/** How far the box moves on (share of its width). */
+export const ADVANCE_BY = 0.6
+/** The next line overlaps the last by this share of the box height. */
+export const LINE_OVERLAP = 0.1
 
 /** The pad's size in px. */
 export interface Pad {
@@ -39,10 +58,23 @@ export function toPad(p: Pt, target: Target, zoom: Zoom): Pt {
   return { x: (p.x - target.x) * zoom, y: (p.y - target.y) * zoom }
 }
 
+/** "Next line": back to the left margin, one box lower (a little overlap). */
+export function nextLine(
+  pad: Pad,
+  target: Target,
+  zoom: Zoom,
+  pageWidth: number,
+): Target {
+  return {
+    x: pageWidth * MARGIN,
+    y: target.y + targetSize(pad, zoom).h * (1 - LINE_OVERLAP),
+  }
+}
+
 /**
- * Where the target goes after a stroke. Writing near the right edge of the
- * pad moves the box on by 60 per cent of its width, so there is always room
- * for the next word. `null` = stay.
+ * Where the target goes after a stroke. The pen lifting in the right fifth
+ * of the pad moves the box on by 60 per cent of its width; past the right
+ * margin it goes to the next line at the left margin. `null` = stay.
  */
 export function advanceTarget(
   stroke: readonly Pt[],
@@ -51,21 +83,14 @@ export function advanceTarget(
   zoom: Zoom,
   pageWidth: number,
 ): Target | null {
-  const right = Math.max(...stroke.map((p) => p.x))
-  if (right < pad.w * 0.8) return null
+  const last = stroke[stroke.length - 1]
+  if (!last || last.x < pad.w * (1 - ADVANCE_ZONE)) return null
   const size = targetSize(pad, zoom)
-  const x = Math.min(target.x + size.w * 0.6, Math.max(0, pageWidth - size.w))
-  return x > target.x ? { x, y: target.y } : null
-}
-
-/** "Next line": back to the left, one box lower. */
-export function nextLine(
-  pad: Pad,
-  target: Target,
-  zoom: Zoom,
-  left: number,
-): Target {
-  return { x: left, y: target.y + targetSize(pad, zoom).h * 0.9 }
+  const x = target.x + size.w * ADVANCE_BY
+  if (x + size.w > pageWidth * (1 - MARGIN)) {
+    return nextLine(pad, target, zoom, pageWidth)
+  }
+  return { x, y: target.y }
 }
 
 /** "Space": the box moves on a quarter of its width. */

@@ -3,6 +3,7 @@ import { STRIDE, type Stroke } from '../core/inkTypes'
 import { eraseStroke } from './eraser'
 import {
   advanceTarget,
+  clampPadHeight,
   nextLine,
   space,
   targetSize,
@@ -144,9 +145,10 @@ describe('ruler', () => {
     expect(angleDegrees(turned)).toBe(90)
   })
 
-  it('clicks to 0, 45, 90 and 135 degrees when close', () => {
+  it('clicks to every 15 degrees when within 2', () => {
     expect(snapAngle((44 * Math.PI) / 180)).toBeCloseTo(Math.PI / 4, 9)
-    expect(snapAngle((30 * Math.PI) / 180)).toBeCloseTo((30 * Math.PI) / 180, 9)
+    expect(snapAngle((31 * Math.PI) / 180)).toBeCloseTo(Math.PI / 6, 9)
+    expect(snapAngle((37 * Math.PI) / 180)).toBeCloseTo((37 * Math.PI) / 180, 9)
     expect(angleDegrees({ ...flat, angle: -Math.PI / 4 })).toBe(135)
   })
 
@@ -173,24 +175,36 @@ describe('magnifier', () => {
     expect(back.y).toBeCloseTo(45, 9)
   })
 
-  it('moves on when the writing nears the right edge, never past the page', () => {
-    const early = [{ x: 100, y: 50 }]
+  it('moves on when the pen lifts in the right fifth of the pad, and wraps at the margin', () => {
+    // Where the pen LIFTS decides, not where it went.
+    const early = [
+      { x: 500, y: 50 },
+      { x: 100, y: 50 },
+    ]
     expect(advanceTarget(early, pad, target, 3, 800)).toBeNull()
-    const late = [{ x: 500, y: 50 }]
+    const late = [
+      { x: 100, y: 50 },
+      { x: 490, y: 50 },
+    ]
     expect(advanceTarget(late, pad, target, 3, 800)).toEqual({
       x: 50 + 200 * 0.6,
       y: 400,
     })
-    // Near the end of the page it stops at the last place that fits.
-    const end = advanceTarget(late, pad, { x: 590, y: 400 }, 3, 800)
-    expect(end).toEqual({ x: 600, y: 400 })
-    expect(advanceTarget(late, pad, { x: 600, y: 400 }, 3, 800)).toBeNull()
+    // Past the right margin (5 %) it goes to the next line at the left margin.
+    const end = advanceTarget(late, pad, { x: 500, y: 400 }, 3, 800)
+    expect(end).toEqual({ x: 40, y: 400 + (140 / 3) * 0.9 })
   })
 
   it('Space and Next line move the box', () => {
     expect(space(pad, target, 2)).toEqual({ x: 50 + (600 / 2) * 0.25, y: 400 })
-    const line = nextLine(pad, target, 2, 24)
-    expect(line.x).toBe(24)
+    const line = nextLine(pad, target, 2, 800)
+    expect(line.x).toBe(40)
     expect(line.y).toBeCloseTo(400 + (140 / 2) * 0.9, 9)
+  })
+
+  it('the pad height stays between a fifth and a half of the screen', () => {
+    expect(clampPadHeight(0.1)).toBe(0.2)
+    expect(clampPadHeight(0.33)).toBe(0.33)
+    expect(clampPadHeight(0.9)).toBe(0.5)
   })
 })

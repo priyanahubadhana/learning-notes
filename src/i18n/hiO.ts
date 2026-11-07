@@ -59,4 +59,10 @@ export const hiO: Record<string, string> = {
     'जब पेंसिल कीबोर्ड तक न पहुँचे तब काम आता है।',
   'help.tip.writePad.close.meaning': 'लिखने का पैड बंद करता है।',
   'help.tip.writePad.close.example': 'आपका पेज जोड़ा हुआ सब रखता है।',
+  // ---- आवर्धक (Pencil सुधार, 7 नव.) ----
+  'ink.magnifier.hint':
+    'यहाँ बड़ा लिखें। यह पेज के बॉक्स में छोटा उतरता है, और बॉक्स अपने आप आगे बढ़ता है।',
+  'ink.magnifier.boxLabel': 'लिखावट यहाँ उतरती है · हिलाने के लिए खींचें',
+  'ink.magnifier.resize': 'पैड को ऊँचा या नीचा करने के लिए खींचें',
+  'ink.magnifier.erasing': 'रबड़: पेज पर मिटाने के लिए यहाँ रगड़ें',
 }

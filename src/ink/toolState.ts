@@ -1,5 +1,5 @@
 import { memStore } from '../app/tools/store'
-import type { Target, Zoom } from './magnifier'
+import { DEFAULT_ZOOM, PAD_HEIGHT, type Target, type Zoom } from './magnifier'
 import type { RulerState } from './ruler'
 
 /**
@@ -18,12 +18,15 @@ export interface MagnifierTool {
   on: boolean
   zoom: Zoom
   target: Target | null
+  /** The pad's height as a share of the screen (drag its top edge). */
+  height: number
 }
 
 export const magnifierTool = memStore<MagnifierTool>({
   on: false,
-  zoom: 3,
+  zoom: DEFAULT_ZOOM,
   target: null,
+  height: PAD_HEIGHT,
 })
 
 export const toggleRuler = (): void => {

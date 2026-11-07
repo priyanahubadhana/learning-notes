@@ -394,7 +394,11 @@ function SelectionBox({
   const [colours, setColours] = useState(false)
   const [labelling, setLabelling] = useState(false)
   const grab =
-    (how: 'scale' | 'rotate', corner?: { x: number; y: number }) =>
+    (
+      how: 'scale' | 'rotate',
+      corner?: { x: number; y: number },
+      axis: 'x' | 'y' | 'both' = 'both',
+    ) =>
     (e: ReactPointerEvent) => {
       e.preventDefault()
       e.stopPropagation()
@@ -403,13 +407,18 @@ function SelectionBox({
       } catch {
         // Not a real pointer (a test): window events still reach the engine.
       }
-      controller.startTransform(how, e.nativeEvent, corner)
+      controller.startTransform(how, e.nativeEvent, corner, axis)
     }
-  const corners = [
-    { x: box.x, y: box.y },
-    { x: box.x + box.w, y: box.y },
-    { x: box.x, y: box.y + box.h },
-    { x: box.x + box.w, y: box.y + box.h },
+  // Eight handles: four corners keep the shape, four edges stretch one way.
+  const corners: { x: number; y: number; axis: 'x' | 'y' | 'both' }[] = [
+    { x: box.x, y: box.y, axis: 'both' },
+    { x: box.x + box.w, y: box.y, axis: 'both' },
+    { x: box.x, y: box.y + box.h, axis: 'both' },
+    { x: box.x + box.w, y: box.y + box.h, axis: 'both' },
+    { x: box.x + box.w / 2, y: box.y, axis: 'y' },
+    { x: box.x + box.w / 2, y: box.y + box.h, axis: 'y' },
+    { x: box.x, y: box.y + box.h / 2, axis: 'x' },
+    { x: box.x + box.w, y: box.y + box.h / 2, axis: 'x' },
   ]
   const menuAbove = box.y > 70
   // Drawings and page content in one loop: the mixed menu, no handles.
@@ -448,12 +457,19 @@ function SelectionBox({
           tabIndex={-1}
           data-ink-handles
           data-handle="scale"
+          data-axis={c.axis}
           aria-label={t('ink.sel.scale')}
-          onPointerDown={grab('scale', c)}
+          onPointerDown={grab('scale', c, c.axis)}
           className={handle}
           style={{ left: c.x, top: c.y }}
         >
-          <span className="size-3.5 rounded-full border-2 border-accent bg-bg" />
+          <span
+            className={
+              c.axis === 'both'
+                ? 'size-3.5 rounded-full border-2 border-accent bg-bg'
+                : 'size-3 rounded-sm border-2 border-accent bg-bg'
+            }
+          />
         </button>
       ))}
       <div

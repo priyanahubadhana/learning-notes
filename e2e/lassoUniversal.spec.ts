@@ -117,5 +117,5 @@ test('a loop around drawings alone keeps the drawing menu and handles', async ({
   )
   await expect(page.locator('[data-ink-menu]')).toBeVisible()
   await expect(page.locator('[data-ink-menu="mixed"]')).toHaveCount(0)
-  await expect(page.locator('[data-handle="scale"]')).toHaveCount(4)
+  await expect(page.locator('[data-handle="scale"]')).toHaveCount(8)
 })

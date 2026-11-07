@@ -99,16 +99,16 @@ test('the Ruler makes a pen line along its edge straight', async ({ page }) => {
   const c = (await centre.boundingBox())!
   const cy = c.y + c.height / 2
   const x0 = c.x + c.width / 2 - 120
-  // Start at the lower edge (28 px under the middle) and wobble.
+  // Start just under the lower edge (40 px under the middle) and wobble.
   await tool(page, 'Pen').click({ force: true })
-  await stroke(page, wave(x0, x0 + 240, cy + 28, 14))
+  await stroke(page, wave(x0, x0 + 240, cy + 48, 14))
   const [s] = await expectStrokes(page, 1)
   // Straight: every point at the same height.
   expect(spread(ys(s.pts))).toBeLessThan(0.002)
   expect(spread(xs(s.pts))).toBeGreaterThan(0.1)
 
   // Far from the ruler the pen is free.
-  await stroke(page, wave(x0, x0 + 240, cy + 28 + 120, 14))
+  await stroke(page, wave(x0, x0 + 240, cy + 48 + 120, 14))
   const all = await expectStrokes(page, 2)
   const free = all.find((x) => x.id !== s.id)!
   expect(spread(ys(free.pts))).toBeGreaterThan(0.01)
@@ -130,11 +130,11 @@ test('the Magnifier pad: big writing lands small in the target box', async ({
     { type: 'mouse' },
   )
   const [s] = await expectStrokes(page, 1)
-  // 180 px in the pad at 3x is about 60 px on the page.
+  // 180 px in the pad at 2.5x is about 72 px on the page.
   const wrapWidth = s.bw
   const landed = spread(xs(s.pts)) * wrapWidth
-  expect(landed).toBeGreaterThan(50)
-  expect(landed).toBeLessThan(70)
+  expect(landed).toBeGreaterThan(62)
+  expect(landed).toBeLessThan(82)
   // The pen's line is thinner too.
   expect(s.style.width).toBeLessThan(2)
 })

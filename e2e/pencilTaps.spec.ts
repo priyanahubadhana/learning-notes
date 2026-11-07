@@ -21,7 +21,9 @@ const LONG =
   'Learning works best when the notes are short, the summary is shorter and the recall cards ask one thing at a time, so that each review session stays quick and the memory of the page grows stronger every single day of the week.'
 
 async function setup(page: Page) {
-  await openNote(page, 'touch')
+  // The automatic switch to Pencil mode is off: it would turn 'tap twice' on
+  // mid-test after the first pen tap (that cancelled a second tap in CI).
+  await openNote(page, 'touch', { 'advanced.autoSwitch': 'off' })
   await expect(tool(page, 'Text')).toHaveAttribute('aria-pressed', 'true')
   await page.keyboard.press('Enter')
   await page.keyboard.type(LONG)
@@ -49,14 +51,25 @@ async function wordPoint(page: Page, word: string): Promise<Pt> {
   }, word)
 }
 
+/** One step of a tap run: where, how much the lift drifts, and the pause before it (ms). */
+interface TapStep {
+  at: Pt
+  drift?: number
+  gap?: number
+}
+
 /**
- * One Pencil tap: pointer events, then (as iPadOS does after a tap that was
- * not cancelled) the synthetic mouse events a moment later. Returns whether
- * the pointerdown was cancelled.
+ * Pencil taps run INSIDE the page on its own clock (a slow test runner
+ * cannot stretch the gaps): pointer events, then (as iPadOS does after a tap
+ * that was not cancelled) the synthetic mouse events a moment later. Returns,
+ * per tap, whether its pointerdown was cancelled.
  */
-async function penTap(page: Page, at: Pt, drift = 0): Promise<boolean> {
-  return page.evaluate(
-    ({ at, drift }) => {
+async function tapRun(page: Page, steps: TapStep[]): Promise<boolean[]> {
+  return page.evaluate(async (steps) => {
+    const sleep = (ms: number) => new Promise((r) => setTimeout(r, ms))
+    const flags: boolean[] = []
+    for (const s of steps) {
+      if (s.gap) await sleep(s.gap)
       const make = (name: string, x: number, y: number) =>
         new PointerEvent(name, {
           pointerType: 'pen',
@@ -69,16 +82,16 @@ async function penTap(page: Page, at: Pt, drift = 0): Promise<boolean> {
           button: 0,
           buttons: name === 'pointerup' ? 0 : 1,
         })
-      const el = document.elementFromPoint(at.x, at.y)!
-      const kept = el.dispatchEvent(make('pointerdown', at.x, at.y))
-      el.dispatchEvent(make('pointerup', at.x + drift, at.y))
+      const el = document.elementFromPoint(s.at.x, s.at.y)!
+      const kept = el.dispatchEvent(make('pointerdown', s.at.x, s.at.y))
+      el.dispatchEvent(make('pointerup', s.at.x + (s.drift ?? 0), s.at.y))
       if (kept) {
         setTimeout(() => {
           for (const name of ['mousedown', 'mouseup', 'click']) {
             el.dispatchEvent(
               new MouseEvent(name, {
-                clientX: at.x,
-                clientY: at.y,
+                clientX: s.at.x,
+                clientY: s.at.y,
                 bubbles: true,
                 cancelable: true,
                 button: 0,
@@ -87,20 +100,22 @@ async function penTap(page: Page, at: Pt, drift = 0): Promise<boolean> {
           }
         }, 0)
       }
-      return !kept
-    },
-    { at, drift },
-  )
+      flags.push(!kept)
+    }
+    return flags
+  }, steps)
 }
 
-/** Taps at the same spot, `gap` ms apart; the cancel flags of each tap. */
+/** Taps at the same spot, gap ms apart; the cancel flags of each tap. */
 async function taps(page: Page, at: Pt, n: number, gap = 160) {
-  const flags: boolean[] = []
-  for (let i = 0; i < n; i++) {
-    if (i > 0) await page.waitForTimeout(gap)
-    flags.push(await penTap(page, at, i % 2 ? 4 : 0))
-  }
-  return flags
+  return tapRun(
+    page,
+    Array.from({ length: n }, (_, i) => ({
+      at,
+      drift: i % 2 ? 4 : 0,
+      gap: i > 0 ? gap : 0,
+    })),
+  )
 }
 
 const marked = (page: Page) =>
@@ -149,9 +164,10 @@ test('R6-18: real iPad timing, 440 ms apart and 8 px of drift, still counts as a
 }) => {
   await setup(page)
   const at = await wordPoint(page, 'summary')
-  await penTap(page, at)
-  await page.waitForTimeout(420)
-  await penTap(page, { x: at.x + 6, y: at.y + 5 }, 3)
+  await tapRun(page, [
+    { at },
+    { at: { x: at.x + 6, y: at.y + 5 }, drift: 3, gap: 420 },
+  ])
   await expect.poll(() => marked(page)).toBe('summary')
   await expect(page.locator('[data-mini-toolbar]')).toBeVisible()
 })
@@ -187,9 +203,8 @@ test('a slow second tap (over 450 ms) is a plain tap: no word is selected', asyn
 }) => {
   await setup(page)
   const at = await wordPoint(page, 'summary')
-  await penTap(page, at)
-  await page.waitForTimeout(600)
-  expect(await penTap(page, at)).toBe(false)
+  const flags = await tapRun(page, [{ at }, { at, gap: 600 }])
+  expect(flags[1]).toBe(false)
   await page.waitForTimeout(300)
   expect(await marked(page)).toBe('')
 })

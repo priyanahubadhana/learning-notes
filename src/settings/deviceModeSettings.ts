@@ -1,3 +1,4 @@
+import { onGestureReset } from '../app/gestureReset'
 import { useEffect, useRef, useSyncExternalStore } from 'react'
 import {
   AUTO_SWITCH_QUIET_MS,
@@ -245,7 +246,13 @@ export function useAutoDeviceMode(
     window.addEventListener('pointerup', onUp, true)
     window.addEventListener('pointercancel', onUp, true)
     window.addEventListener('keydown', onKey, true)
+    // The watchdog: a lift lost in the background would leave `down` at 1
+    // for good, and the automatic switch would never happen again.
+    const offReset = onGestureReset(() => {
+      down = 0
+    })
     return () => {
+      offReset()
       window.removeEventListener('pointerdown', onDown, true)
       window.removeEventListener('pointerup', onUp, true)
       window.removeEventListener('pointercancel', onUp, true)

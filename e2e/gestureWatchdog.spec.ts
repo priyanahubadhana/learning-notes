@@ -177,7 +177,14 @@ test('the eraser still erases after the Pen, the Lasso and a background trip in 
 const LONG =
   'Learning works best when the notes are short, the summary is shorter and the recall cards ask one thing at a time, so that each review session stays quick and the memory of the page grows stronger every single day of the week.'
 
-async function typingSetup(page: Page) {
+/**
+ * A note with a long paragraph, Text tool on, in Touch mode with the
+ * automatic switch to Pencil mode off (it would turn "tap twice" on after
+ * the first pen tap and cancel the next one, which is not the iPad's state:
+ * the owner's iPad is in Pencil mode throughout).
+ */
+async function typingNote(page: Page) {
+  await openNote(page, 'touch', { 'advanced.autoSwitch': 'off' })
   await expect(tool(page, 'Text')).toHaveAttribute('aria-pressed', 'true')
   await page.keyboard.press('Enter')
   await page.keyboard.type(LONG)
@@ -185,7 +192,9 @@ async function typingSetup(page: Page) {
   await page.evaluate(() => (document.activeElement as HTMLElement)?.blur())
 }
 
-async function wordPoint(page: Page, word: string) {
+type Pt2 = { x: number; y: number }
+
+async function wordPoint(page: Page, word: string): Promise<Pt2> {
   return page.evaluate((w) => {
     const walker = document.createTreeWalker(
       document.querySelector('.bn-editor')!,
@@ -204,19 +213,20 @@ async function wordPoint(page: Page, word: string) {
   }, word)
 }
 
-/** One Pencil tap (down and up); `lift` false leaves it down for ever. */
-async function penTap(
-  page: Page,
-  at: { x: number; y: number },
-  lift = true,
-  id = 31,
-) {
+/**
+ * Pencil taps run INSIDE the page on its own clock (a slow test runner
+ * cannot stretch the gaps), `gap` ms apart: pointer events, and (as iPadOS
+ * does after a tap that was not cancelled) the synthetic mouse events a
+ * moment later.
+ */
+async function taps(page: Page, at: Pt2, n: number, gap = 160) {
   await page.evaluate(
-    ({ at, lift, id }) => {
+    async ({ at, n, gap }) => {
+      const sleep = (ms: number) => new Promise((r) => setTimeout(r, ms))
       const make = (name: string, x: number, y: number) =>
         new PointerEvent(name, {
           pointerType: 'pen',
-          pointerId: id,
+          pointerId: 31,
           clientX: x,
           clientY: y,
           bubbles: true,
@@ -225,19 +235,50 @@ async function penTap(
           button: 0,
           buttons: name === 'pointerup' ? 0 : 1,
         })
-      const el = document.elementFromPoint(at.x, at.y)!
-      el.dispatchEvent(make('pointerdown', at.x, at.y))
-      if (lift) el.dispatchEvent(make('pointerup', at.x, at.y))
+      for (let i = 0; i < n; i++) {
+        if (i > 0) await sleep(gap)
+        const el = document.elementFromPoint(at.x, at.y)!
+        const kept = el.dispatchEvent(make('pointerdown', at.x, at.y))
+        el.dispatchEvent(make('pointerup', at.x + (i % 2 ? 4 : 0), at.y))
+        if (kept) {
+          setTimeout(() => {
+            for (const name of ['mousedown', 'mouseup', 'click']) {
+              el.dispatchEvent(
+                new MouseEvent(name, {
+                  clientX: at.x,
+                  clientY: at.y,
+                  bubbles: true,
+                  cancelable: true,
+                  button: 0,
+                }),
+              )
+            }
+          }, 0)
+        }
+      }
     },
-    { at, lift, id },
+    { at, n, gap },
   )
 }
 
-async function taps(page: Page, at: { x: number; y: number }, n: number) {
-  for (let i = 0; i < n; i++) {
-    if (i > 0) await page.waitForTimeout(160)
-    await penTap(page, at)
-  }
+/** A Pencil pressed on the words and never lifted (the lift was lost). */
+async function penDownLost(page: Page, at: Pt2) {
+  await page.evaluate((at) => {
+    const el = document.elementFromPoint(at.x, at.y)!
+    el.dispatchEvent(
+      new PointerEvent('pointerdown', {
+        pointerType: 'pen',
+        pointerId: 77,
+        clientX: at.x,
+        clientY: at.y,
+        bubbles: true,
+        cancelable: true,
+        isPrimary: true,
+        button: 0,
+        buttons: 1,
+      }),
+    )
+  }, at)
 }
 
 const marked = (page: Page) =>
@@ -258,25 +299,50 @@ const markedRows = (page: Page) =>
     return tops.size
   })
 
-test('R7-6: double and triple taps still select after a lost lift and a background trip, Text tool on', async ({
-  page,
-}) => {
-  await openNote(page, 'touch')
-  await typingSetup(page)
-  const at = await wordPoint(page, 'summary')
-  // A Pencil press whose lift is lost, then away and back.
-  await penTap(page, at, false, 77)
+/** The iPad sequence behind R7-6: a press whose lift is lost, then away and back. */
+async function lostLiftAndBack(page: Page, at: Pt2) {
+  await penDownLost(page, at)
   await hideAndShow(page)
   await expect(tool(page, 'Text')).toHaveAttribute('aria-pressed', 'true')
+}
+
+test('R7-6: a double tap still selects the word after a lost lift and a background trip, Text tool on', async ({
+  page,
+}) => {
+  await typingNote(page)
+  const at = await wordPoint(page, 'summary')
+  await lostLiftAndBack(page, at)
   await taps(page, at, 2)
   await expect.poll(() => marked(page)).toBe('summary')
   await expect(page.locator('[data-mini-toolbar]')).toBeVisible()
-  // Triple tap: one screen row.
-  const deep = await wordPoint(page, 'review')
-  await page.waitForTimeout(600)
-  await taps(page, deep, 3)
-  await expect.poll(() => markedRows(page)).toBe(1)
-  expect(await marked(page)).toContain('review')
+  // It stays (R7-4): a late collapse with no new tap is put back.
+  await page.waitForTimeout(2000)
+  expect(await marked(page)).toBe('summary')
+})
+
+test('R7-6: a triple tap still selects the screen row after a lost lift and a background trip', async ({
+  page,
+}) => {
+  await typingNote(page)
+  const at = await wordPoint(page, 'review')
+  await lostLiftAndBack(page, at)
+  await taps(page, at, 3)
+  await expect.poll(() => marked(page)).toContain('review')
+  expect(await markedRows(page)).toBe(1)
+  const text = await marked(page)
+  expect(text.length).toBeLessThan(LONG.length - 20)
+  await page.waitForTimeout(2000)
+  expect(await marked(page)).toBe(text)
+})
+
+test('R7-6: four taps still select the paragraph after a lost lift and a background trip', async ({
+  page,
+}) => {
+  await typingNote(page)
+  const at = await wordPoint(page, 'review')
+  await lostLiftAndBack(page, at)
+  await taps(page, at, 4)
+  await expect.poll(() => marked(page)).toBe(LONG)
 })
 
 test('R7-4: a double-tap selection is still there after 5 s with sync live-apply running', async ({
@@ -286,8 +352,7 @@ test('R7-4: a double-tap selection is still there after 5 s with sync live-apply
   await page.addInitScript(() => {
     localStorage.setItem('learning-notes:sync.enabled', '1')
   })
-  await openNote(page, 'touch')
-  await typingSetup(page)
+  await typingNote(page)
   const at = await wordPoint(page, 'summary')
   await taps(page, at, 2)
   await expect.poll(() => marked(page)).toBe('summary')

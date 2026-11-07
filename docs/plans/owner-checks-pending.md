@@ -8,6 +8,7 @@ Moved out of HANDOFF on 2026-11-06 (audit) so HANDOFF stays five lines. Newest f
 2. Same again, but switch away while the Pencil is still touching the page (mid-stroke), and once while dragging a Lasso selection by a handle. Come back: everything still works; the half stroke is either kept (if it was real writing) or gone, never a dead pad.
 3. Text tool, Pencil: double-tap a word, then wait 10 s doing nothing. It must stay selected (and triple = line, four = paragraph the same). Then do this once after a tab switch. If a selection still vanishes: Settings › Advanced › Tool state › Copy tool state right after it happened and paste the text into the chat (it shows which flag was stuck; nothing leaves the device otherwise).
 4. Update: when the "Update available" bar shows, press Update with the PWA and a Safari tab both open. Each should restart by itself within about 20 s (the Safari tab too, once you look at it), and the Pen must work in both without closing the app.
+5. R6-21: Pen pill open, Layers, lock a layer, draw on it: the "locked" toast shows. Tap **Unlock** in the toast. The pill must stay open and the page must not jump (before, it moved up by the pill's height). Same for a toast's Undo.
 
 ## Write pad round 7: R7-15..R7-26 (8 Nov)
 

@@ -75,6 +75,10 @@ test('type in the pad, Insert at the cursor, then Replace the selection', async 
 
   // Select "DNA" on the page, write a replacement in the pad.
   await selectWord(page, 'DNA')
+  // The editor adopts a DOM selection a moment later (WebKit sends
+  // selectionchange on its own task); the pad reads the page's selection when
+  // it is focused, so wait until the page shows the word as selected.
+  await expect(page.locator('.bn-editor .ln-sel')).toHaveText('DNA')
   await input(page).focus()
   await input(page).fill('RNA')
   await page.getByTestId('write-pad-replace').click()

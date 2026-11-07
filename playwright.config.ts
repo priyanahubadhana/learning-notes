@@ -90,6 +90,7 @@ export default defineConfig({
         /pencilTaps/,
         /lassoWords/,
         /gestureWatchdog/,
+        /lockToastStill/,
         /editToolbar/,
         /toolSearchSections/,
         /pinnedTools/,

@@ -16,6 +16,8 @@ import { card, option, pill, tool } from './mainBarHelpers.ts'
 test.use({ viewport: { width: 1024, height: 1000 }, hasTouch: true })
 
 async function openLayers(page: Page) {
+  // Already showing (R6-21: a tap on the toast no longer closes the pill).
+  if (await page.locator('[data-layers]').isVisible()) return
   if (!(await pill(page).isVisible())) {
     await tool(page, 'Pen').click({ force: true })
   }

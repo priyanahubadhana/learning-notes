@@ -326,3 +326,8 @@ R5-13 DECIDED: edge fade + slim auto-hiding scroll indicator on all scrollable l
 - R7-20 Undo after Insert removes the text from the page but does not put it back into the Write pad (it used to). Owner wants one universal Undo/Redo that reverses every action in order across page, pad, ink and tools as far as possible (e.g. Undo of Insert restores the pad text; Redo re-inserts).
 - R7-21 Undo/Redo don't cover the Write pad mode switch: after writing with Scribble and switching to AI, Undo can't go back (to Scribble/the text state). Mode switches and AI 'Read' results should be undoable steps in the universal history (R7-20).
 - R7-22 Write pad Scribble mode needs a Clear button too (clear all text in the pad), like AI mode has. Clear must be undoable.
+- R7-OK Close and reopen the Write pad: the text is kept. Auto-insert on pause works.
+- R7-23 Switching Scribble → AI needs an explanation: a one-time pop-up (with "Don't show again") saying what happens to the text, because a user won't understand it.
+- R7-24 The dashed ghost preview at the page cursor did not appear (screenshot: text was in the pad, nothing ghosted on the page).
+- R7-25 Auto-insert on pause clears the pad text after inserting. Owner wants the pad text kept (for review/editing; they clear it themselves, or via an optional "clear after insert" setting). Reword and rethink: something like "Copy to the page as I pause (keep editing here)", where the page copy follows the pad until you clear or confirm, so the owner can audit before it lands for good.
+- R7-26 (screenshot) The iPadOS dock/shortcut bar overlaps the pad's bottom rows again; the Size/Weight row is still covered and overlapping (see R7-16).

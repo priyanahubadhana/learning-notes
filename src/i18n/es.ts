@@ -20,7 +20,6 @@ import { esW5p } from './esW5p'
 import { esE2 } from './esE2'
 import { esLib } from './esLib'
 import { esSync } from './esSync'
-import { esSheet } from './esSheet'
 import { esF } from './esF'
 import { esD } from './esD'
 import { esN } from './esN'
@@ -56,5 +55,4 @@ export const es: Record<string, string> = {
   ...esN,
   ...esO,
   ...esM,
-  ...esSheet,
 }

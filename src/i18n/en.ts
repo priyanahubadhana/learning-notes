@@ -13,7 +13,6 @@ import { enW5p } from './enW5p'
 import { enE2 } from './enE2'
 import { enLib } from './enLib'
 import { enSync } from './enSync'
-import { enSheet } from './enSheet'
 import { enF } from './enF'
 import { enD } from './enD'
 import { enN } from './enN'
@@ -46,7 +45,6 @@ export const en = {
   ...enD,
   ...enN,
   ...enM,
-  ...enSheet,
   // Shared dialogs
   'dialog.cancel': 'Cancel',
   'dialog.save': 'Save',

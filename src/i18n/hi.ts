@@ -20,7 +20,6 @@ import { hiW5p } from './hiW5p'
 import { hiE2 } from './hiE2'
 import { hiLib } from './hiLib'
 import { hiSync } from './hiSync'
-import { hiSheet } from './hiSheet'
 import { hiF } from './hiF'
 import { hiD } from './hiD'
 import { hiN } from './hiN'
@@ -56,5 +55,4 @@ export const hi: Record<string, string> = {
   ...hiN,
   ...hiO,
   ...hiM,
-  ...hiSheet,
 }

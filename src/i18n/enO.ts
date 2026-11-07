@@ -11,4 +11,10 @@ export const enO = {
   'reading.goal.reached': 'Goal reached today',
   'reading.goal.week_one': 'Goal reached on {count} day this week',
   'reading.goal.week_other': 'Goal reached on {count} days this week',
+  // ---- Name it sheet and touch rows ----
+  'nameSheet.newNotebook': 'Name your notebook',
+  'nameSheet.newPage': 'Name your page',
+  'sidebar.rowMenu': 'More for {name}',
+  'help.tip.sidebar.rowMenu.meaning': 'Opens this row’s actions.',
+  'help.tip.sidebar.rowMenu.example': 'Rename, lock, move or delete.',
 }

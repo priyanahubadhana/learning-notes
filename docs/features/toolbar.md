@@ -67,6 +67,15 @@ A tap adds a line and can be repeated. Press and hold (default 0.6 s) opens the 
 - **Pencil and finger on bars (option C):** both tap bar buttons. `penTap.ts` ignores a palm on bars (a touch under 400 ms after a Pencil touch or 500 ms after it lifts; `palmGuard.barPalm`), and with Settings › Tool bar › "Toolbar: finger only" (`toolbar.fingerOnly`, off by default) ignores Pencil taps on bars and pills ([data-bar], [data-pill-root]); menus and dialogs stay reachable. On the page the Pencil writes, draws and lassos and the finger scrolls, places the caret and selects text.
 - **No iOS callout on our surfaces:** `-webkit-touch-callout:none` and `user-select:none` on bars, pills, menus and the ink layer (typing fields excepted) and no system context menu on them; limits in LIMITATIONS.
 
+## Round 7 (8 Nov): layout, Edit toolbar, pins, search, scroll cue, mini bar
+
+- **Layout kept (R7-10).** `toolbar.main`, `toolbar.pills`, `toolbar.extras` and `toolbar.order` are cleaned when read (`cleanStore`): an id this build does not know drops out, every other choice stays; a pill left with nothing falls back to its defaults. New tools are never forced onto a saved bar; they are listed under "More tools". The layout syncs as one `secrets` record (`toolbarLayout`, newer edit wins, `layoutSync.ts`).
+- **Edit toolbar (R7-11).** ⋯ › Edit toolbar… opens `EditListSheet` (lazy, modal, in the body): preview strip, the list on the bar and "More tools" (with a find box; two columns when 700 px wide or more). Drag a row's ⠿ with finger, Pencil or mouse to move it, drop a tool from More tools into the list to add it, drop a row on More tools to remove it; every row also has ↑ ↓ and − / +. Done and ✕ keep the changes, Cancel and Esc revert; Reset puts the standard bar back. At least one main tool stays. ⋯ › Bar settings… keeps the old panel (size, position, auto-hide, tabs). The same sheet arranges a pill's options.
+- **One order (R7-12).** `toolbar.order` lists tokens `m:<main tool>` and `x:<pinned tool>`; a pinned tool can sit between main tools. A newly pinned tool goes first (or where dropped). Tokens that are no longer on the bar are ignored and tools the order does not know go last.
+- **Tool search (R7-13).** With nothing typed, Recent tools, Favourites (pinned) and Recommended come first, one tap runs a tool.
+- **Scrollable bar (R7-14, R7-17).** While the main bar overflows: edge fade, a chevron with the count of tools out of sight (tap = slide), and a thin track whose handle slides the bar (own pointer events, `data-pen-own`; it never taps a tool). Nothing shows while the bar fits.
+- **Mini bar (R7-7).** Clamped inside the page area (`main`) on all four edges from its measured size.
+
 ## Edge cases
 
 - A saved list or value that is invalid reads as its default (`isMainList`, `isPillMap`, `isPillPlace`, ink field clamps).

@@ -17,6 +17,15 @@ Moved out of HANDOFF on 2026-11-06 (audit) so HANDOFF stays five lines. Newest f
 4. Write in Scribble, tap Insert, then ↶: the text leaves the page and is back in the pad; ↷ puts it on the page again. Switch to AI and ↶: back in Scribble. AI Read, then ↶: the words go and your strokes return. Clear (new button) then ↶: the text returns.
 5. First switch Scribble to AI shows the explainer; "Don't show again" stops it.
 6. Write in the pad: the dashed draft shows on the page at the cursor (or at the end of the page if you never tapped it) and is not hidden under the pad. Edit the pad text: the draft follows. Done, Insert, or the X make it final; ↶ is one step.
+## Round 7 batch: updates, toolbar sheet, search, scroll handle (8 Nov)
+
+1. Update the app twice in a row (open the live site after each release). No backup question appears; your pages and your bar are as you left them. (Why human: real browser storage over real releases.)
+2. ⋯ › Edit toolbar…: add Write pad with + , drag it to the front with the Pencil, press Done. It stays first after closing and reopening the app, and after an update. Cancel throws a change away.
+3. Pin a tool from Search › Features: it lands first on the bar. Use ↑ ↓ in ⋯ › Bar settings… and drag in the sheet.
+4. Open Search with nothing typed: Recent, Favourites and Recommended come first; one tap runs a tool.
+5. On a narrow window or the iPad with the sidebar open: the bar shows a chevron with a count and a thin handle under it. Drag the handle with the Pencil: the bar slides and no tool is chosen.
+6. Select a word at the far right or bottom of the page: the mini bar stays inside the page, also when dragged to the corners.
+7. Second device (after SYNC SETUP): change the bar on one, it appears on the other.
 
 ## Pencil taps and Lasso words: R6-17..R6-20 (7 Nov)
 

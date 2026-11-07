@@ -19,6 +19,10 @@ Notes live only in this browser, so the app lets the user save them as files and
 - **Reminder** (`backupReminder.ts`): after 7 days with no saved file, only if a page exists; "Remind me later" snoozes 24 hours. Kept in `meta`.
 - **Screen order** (`DataScreen.tsx`): Save (Save everything, Save notes only, password), Restore (Open saved file, undo row), Share one notebook, Before last update, More (Anki, Sample notebook; a collapsible area).
 
+## Silent upgrade backups (R7-2, 8 Nov)
+
+Before the database opens, `core/autoBackup.ts` copies every table into `<db>-auto-1..3` (a rolling set of 3, newest wins) when the saved version is older than the code or the build id changed. No question is asked; the dialog (save a file / just update) appears only if the copy fails or free space is under 25 MB. Save & restore reads the newest automatic backup (`readLatestBackup`), else the older single `<db>-backup`. The weekly file reminder asks again after 90 days when postponed.
+
 ## Edge cases
 
 - Journal and Templates notebooks cannot be exported alone as a notebook file; journal days import as an ordinary notebook in copies.

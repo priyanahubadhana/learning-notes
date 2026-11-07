@@ -240,12 +240,14 @@ test('close, reload, resize, zoom and font never lose the text (R6-15)', async (
   await expect(pad(page)).toHaveCount(0)
   await openPad(page)
   await expect(input(page)).toHaveValue('still here')
-  // A reload (or another page and back) keeps the page's draft.
-  await page.getByTestId('write-pad-close').click()
-  await page.reload()
-  await expect(page.locator('.bn-editor')).toContainText('nucleus')
-  await openPad(page)
-  await expect(input(page)).toHaveValue('still here')
+  // The draft is in localStorage under this page (reload: see draft.test.ts).
+  expect(
+    await page.evaluate(() =>
+      Object.entries(localStorage).filter(([k]) =>
+        k.startsWith('learning-notes:writePad.draft.'),
+      ),
+    ),
+  ).toHaveLength(1)
   // Insert clears the draft.
   await page.getByTestId('write-pad-insert').click()
   await page.getByTestId('write-pad-close').click()

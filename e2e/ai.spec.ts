@@ -222,3 +222,61 @@ test('forgetting the key removes it from this device', async ({ page }) => {
   )
   expect(stored).toEqual([])
 })
+
+test('Cards from highlights: only the highlights are sent, each card is approved on its own, one Undo removes them', async ({
+  page,
+}) => {
+  const bodies: string[] = []
+  await page.route('https://api.anthropic.com/v1/messages', (route) => {
+    bodies.push(route.request().postData() ?? '')
+    return route.fulfill({
+      json: {
+        content: [
+          {
+            type: 'text',
+            text: '## Cards\nQ: Where is energy made?\nA: In the mitochondria.\nQ: Skip me?\nA: Yes.',
+          },
+        ],
+        usage: { input_tokens: 50, output_tokens: 30 },
+      },
+    })
+  })
+  await bookPage(page)
+  await page.getByTestId('book-continue').click()
+  await expect(async () => {
+    await page.evaluate(() => {
+      const span = Array.from(
+        document.querySelectorAll('.textLayer span'),
+      ).find((s) => s.textContent?.includes('mitochondria'))
+      if (!span) throw new Error('no text yet')
+      const range = document.createRange()
+      range.selectNodeContents(span)
+      getSelection()!.removeAllRanges()
+      getSelection()!.addRange(range)
+    })
+    await expect(page.getByTestId('selection-popup')).toBeVisible({
+      timeout: 1500,
+    })
+  }).toPass({ timeout: 20_000 })
+  await page.getByTestId('hl-green').click()
+  await expect(page.getByTestId('pdf-highlight').first()).toBeAttached()
+  await page.getByTestId('reader-close').click()
+  await setUpAi(page)
+  await space(page, 'Library').click()
+  await page
+    .getByTestId('source-card')
+    .getByRole('button', { name: 'Cell Book' })
+    .click()
+  await page.getByTestId('ai-cards-hl').click()
+  await page.getByTestId('ai-privacy-ok').click()
+  const dialog = page.getByTestId('ai-approval')
+  await expect(dialog.getByRole('checkbox')).toHaveCount(2)
+  const prompt = JSON.parse(bodies[0]).messages[0].content as string
+  expect(prompt).toContain('- Cells make energy in mitochondria')
+  await dialog.getByRole('checkbox').nth(1).uncheck()
+  await dialog.getByTestId('ai-approve').click()
+  await expect(main(page).getByText('Where is energy made?')).toBeVisible()
+  await expect(main(page).getByText('Skip me?')).toHaveCount(0)
+  await page.getByRole('status').getByRole('button', { name: 'Undo' }).click()
+  await expect(main(page).getByText('Where is energy made?')).toHaveCount(0)
+})

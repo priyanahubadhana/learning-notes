@@ -108,7 +108,7 @@ test('Lasso › Convert to text: shows the picture, sends only it, Insert below 
   await sheet.getByTestId('ai-convert-insert').click()
   const editor = page.locator('.bn-editor')
   await expect(editor).toContainText('नमस्ते mitochondria')
-  await page.getByRole('button', { name: 'Undo', exact: true }).first().click()
+  await page.getByRole('status').getByRole('button', { name: 'Undo' }).click()
   await expect(editor).not.toContainText('mitochondria')
 })
 

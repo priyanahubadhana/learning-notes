@@ -48,7 +48,8 @@ test('layers: two at most, chip, hide, lock toast, merge and undo', async ({
   await expect(page.locator('[data-layer-add]')).toHaveCount(0)
   await expect(layerRows(page).first()).toContainText('Layer 2')
   await expect(page.locator('[data-layer-page]')).toBeVisible()
-  await stroke(page, line([box.x + 20, y + 60], [box.x + 300, y + 60]))
+  // Clear of the open Layers card (it covers the column's upper left).
+  await stroke(page, line([box.x + 300, y + 300], [box.x + 560, y + 300]))
   await expectStrokes(page, 2)
   const ink = await savedInk(page)
   expect(new Set(ink.chunks.map((c) => c.layerId)).size).toBe(2)
@@ -69,11 +70,11 @@ test('layers: two at most, chip, hide, lock toast, merge and undo', async ({
     .first()
     .getByRole('button', { name: 'Lock Layer 2' })
     .click()
-  await stroke(page, line([box.x + 20, y + 120], [box.x + 300, y + 120]))
+  await stroke(page, line([box.x + 300, y + 360], [box.x + 560, y + 360]))
   await expect(page.getByText('Layer 2 is locked')).toBeVisible()
   expect((await savedInk(page)).strokes).toHaveLength(2)
   await page.getByRole('button', { name: 'Unlock', exact: true }).click()
-  await stroke(page, line([box.x + 20, y + 120], [box.x + 300, y + 120]))
+  await stroke(page, line([box.x + 300, y + 360], [box.x + 560, y + 360]))
   await expectStrokes(page, 3)
   // Merge Layer 2 into Layer 1: warning first, then one layer, then Undo.
   await openLayers(page)
@@ -305,7 +306,7 @@ test('strokes merged into a locked layer can be erased after Unlock (R5-11)', as
     .nth(1)
     .getByRole('button', { name: 'Lock Layer 1' })
     .click()
-  await stroke(page, line([box.x + 20, y + 80], [box.x + 420, y + 80], 60))
+  await stroke(page, line([box.x + 300, y + 300], [box.x + 560, y + 300], 40))
   await expectStrokes(page, 2)
   await ensureLayers(page)
   await page.locator('[data-layer-merge]').click()
@@ -318,7 +319,13 @@ test('strokes merged into a locked layer can be erased after Unlock (R5-11)', as
   await page.keyboard.press('Escape')
   await tool(page, 'Eraser').click({ force: true })
   await option(page, 'Whole stroke').click()
-  await stroke(page, line([box.x + 220, y - 30], [box.x + 220, y + 120], 20))
+  // The pills and cards open now may have moved the page: measure again.
+  await page.waitForTimeout(400)
+  const dy = (await textBox(page)).y - box.y
+  await stroke(
+    page,
+    line([box.x + 400, y + dy - 30], [box.x + 400, y + dy + 330], 20),
+  )
   await expectStrokes(page, 0)
 })
 
@@ -332,7 +339,7 @@ test('strokes drawn on Layer 2, locked, then merged down can be erased (R5-11)',
   await expectStrokes(page, 1)
   await openLayers(page)
   await page.locator('[data-layer-add]').click()
-  await stroke(page, line([box.x + 20, y + 80], [box.x + 420, y + 80], 60))
+  await stroke(page, line([box.x + 300, y + 300], [box.x + 560, y + 300], 40))
   await expectStrokes(page, 2)
   await ensureLayers(page)
   await layerRows(page)
@@ -350,6 +357,12 @@ test('strokes drawn on Layer 2, locked, then merged down can be erased (R5-11)',
   await page.keyboard.press('Escape')
   await tool(page, 'Eraser').click({ force: true })
   await option(page, 'Whole stroke').click()
-  await stroke(page, line([box.x + 220, y - 30], [box.x + 220, y + 120], 20))
+  // The pills and cards open now may have moved the page: measure again.
+  await page.waitForTimeout(400)
+  const dy = (await textBox(page)).y - box.y
+  await stroke(
+    page,
+    line([box.x + 400, y + dy - 30], [box.x + 400, y + dy + 330], 20),
+  )
   await expectStrokes(page, 0)
 })

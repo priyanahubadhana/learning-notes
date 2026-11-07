@@ -15,6 +15,13 @@ import { applyPad, type PadLook } from './apply'
 import { AiCanvas } from './AiCanvas'
 import { pickEngine } from './engine'
 import {
+  bindPadHistory,
+  recordPadText,
+  redoPad,
+  resetPadHistory,
+  undoPad,
+} from './padHistory'
+import {
   handCss,
   PAD_FONTS,
   PAD_SIZES,
@@ -198,6 +205,18 @@ export default function WritePad() {
 
   const lift = useKeyboardLift()
   const look = lookOf(prefs)
+  const open = !!session
+  // The pad's own Undo history, used by the main bar's ↶ ↷ (padHistory.ts).
+  useEffect(() => {
+    if (!open) return
+    bindPadHistory(setText)
+    return () => bindPadHistory(null)
+  }, [open])
+  /** A change made by the user: typing, Scribble, a key. */
+  const change = (next: string, ownStep = false) => {
+    recordPadText(next, Date.now(), ownStep)
+    setText(next)
+  }
   useEffect(() => {
     if (prefs.font !== 'app') void ensureFont(prefs.font)
   }, [prefs.font])
@@ -221,6 +240,7 @@ export default function WritePad() {
     if (end === null) return
     writePad.set({ ...session, from: end, to: end })
     setText('')
+    resetPadHistory('')
     box.current?.focus()
   }
 
@@ -232,11 +252,11 @@ export default function WritePad() {
     let caret = start
     if (key === 'delete') {
       const from = start === stop ? Math.max(0, start - 1) : start
-      setText(text.slice(0, from) + text.slice(stop))
+      change(text.slice(0, from) + text.slice(stop), true)
       caret = from
     } else {
       const add = key === 'space' ? ' ' : '\n'
-      setText(text.slice(0, start) + add + text.slice(stop))
+      change(text.slice(0, start) + add + text.slice(stop), true)
       caret = start + 1
     }
     requestAnimationFrame(() => el?.setSelectionRange(caret, caret))
@@ -323,6 +343,7 @@ export default function WritePad() {
               setPieces(null)
               setAiError('')
               setText('')
+              resetPadHistory('')
               set({ engine: e })
             }}
           />
@@ -356,7 +377,10 @@ export default function WritePad() {
         </TipButton>
       </div>
 
-      <div data-write-pad-actions className="flex items-center gap-2 px-3 pb-1 pt-1">
+      <div
+        data-write-pad-actions
+        className="flex items-center gap-2 px-3 pb-1 pt-1"
+      >
         <TipButton
           tip="writePad.keys"
           label={t('writePad.space')}
@@ -438,7 +462,7 @@ export default function WritePad() {
           onRead={(read) => {
             setAiError('')
             setPieces(read)
-            setText(read.map((p) => p.text).join(''))
+            change(read.map((p) => p.text).join(''))
           }}
           onError={(m) => setAiError(t('ai.failed', { reason: m }))}
         />
@@ -449,7 +473,13 @@ export default function WritePad() {
           aria-label={t('writePad.input')}
           placeholder={t('writePad.placeholder')}
           value={text}
-          onChange={(e) => setText(e.target.value)}
+          onChange={(e) => change(e.target.value)}
+          onKeyDown={(e) => {
+            // The box is controlled, so the browser's own undo is replaced.
+            if (!(e.metaKey || e.ctrlKey) || e.key.toLowerCase() !== 'z') return
+            e.preventDefault()
+            if (e.shiftKey ? redoPad() : undoPad()) return
+          }}
           // Remember where the page's cursor was when the pad is tapped.
           onFocus={() => {
             const range = currentRange(editor)

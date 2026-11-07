@@ -1,4 +1,6 @@
 import { pmHistory } from './pm'
+import { redoPad, undoPad } from './writePad/padHistory'
+import { writePad } from './writePad/padState'
 import { inkFor } from '../ink/inkRuntime'
 import type { AppSchema } from './schema'
 
@@ -12,6 +14,12 @@ type Editor = AppSchema['BlockNoteEditor']
  * of text and ink is undone first (see ink/inkHistory.ts).
  */
 export function runHistory(editor: Editor, kind: 'undo' | 'redo'): boolean {
+  // The open Write pad has its own history for the text not yet inserted.
+  if (
+    writePad.get()?.editor === editor &&
+    (kind === 'undo' ? undoPad() : redoPad())
+  )
+    return true
   // Drawings and text share one history: the newest of the two goes first.
   const ink = inkFor(editor)?.controller
   const view = editor.prosemirrorView

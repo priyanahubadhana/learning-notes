@@ -28,6 +28,7 @@ import { t } from '../i18n/t'
 import { useBarSettings } from '../settings/deviceModeSettings'
 import { redoDepth, undoDepth } from 'prosemirror-history'
 import { inkFor } from '../ink/inkRuntime'
+import { padHistoryState } from './writePad/padHistory'
 import { MainBarRow } from '../app/tools/main/MainBar'
 import { HoverName } from '../app/tools/HoverName'
 import { MiniToolbar } from '../app/tools/main/MiniToolbar'
@@ -150,7 +151,12 @@ function Bar({ editor, slot }: { editor: Editor; slot: HTMLElement }) {
   const [freeFraction, setFreeFraction] = useState(1)
   const editorFocused = useEditorFocus()
   const isActive = useToolActive(editor)
-  const history = useHistoryState(editor)
+  const pageHistory = useHistoryState(editor)
+  const pad = padHistoryState.useValue()
+  const history = {
+    canUndo: pageHistory.canUndo || pad.canUndo,
+    canRedo: pageHistory.canRedo || pad.canRedo,
+  }
   usePenPicksPen()
 
   // Ctrl/Cmd+F1: "Tools close after use" or "Tools stay open".

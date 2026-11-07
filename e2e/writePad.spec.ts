@@ -107,6 +107,27 @@ test('the keys edit the text in the pad', async ({ page }) => {
   await expect(input(page)).toHaveValue('ab ')
 })
 
+test('the main bar Undo and Redo work inside the pad, then on the page (R6-7)', async ({
+  page,
+}) => {
+  await openNote(page, 'touch')
+  await openPad(page)
+  await input(page).fill('ab')
+  await pad(page).getByRole('button', { name: 'New line' }).click()
+  await expect(input(page)).toHaveValue('ab\n')
+  await tool(page, 'Undo').click()
+  await expect(input(page)).toHaveValue('ab')
+  await tool(page, 'Undo').click()
+  await expect(input(page)).toHaveValue('')
+  await tool(page, 'Redo').click()
+  await expect(input(page)).toHaveValue('ab')
+  // After Insert the pad history is gone: Undo takes the text off the page.
+  await page.getByTestId('write-pad-insert').click()
+  await expect(page.locator('.bn-editor')).toContainText('ab')
+  await tool(page, 'Undo').click()
+  await expect(page.locator('.bn-editor [data-hand]')).toHaveCount(0)
+})
+
 test('the action keys sit at the top of the pad, above the writing box (R6-5)', async ({
   page,
 }) => {

@@ -253,6 +253,36 @@ export async function removeAiResult(
   return ids
 }
 
+/**
+ * "Keep as mine": the blocks of an AI result stop being marked as AI (no
+ * `source`, no `batchId`), so they are ordinary notes. Returns the block ids
+ * so the change can be put back.
+ */
+export async function keepAiResult(
+  db: LearningNotesDB,
+  pageId: string,
+  batchId: string,
+): Promise<string[]> {
+  const ids = (
+    await db.blocks
+      .where('pageId')
+      .equals(pageId)
+      .filter((b) => b.batchId === batchId && b.deletedAt === null)
+      .toArray()
+  ).map((b) => b.id)
+  const now = Date.now()
+  await db.transaction('rw', db.blocks, async () => {
+    for (const id of ids) {
+      await db.blocks.update(id, {
+        source: undefined,
+        batchId: undefined,
+        updatedAt: now,
+      })
+    }
+  })
+  return ids
+}
+
 /** The Undo of `removeAiResult`. */
 export async function restoreAiResult(
   db: LearningNotesDB,

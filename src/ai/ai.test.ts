@@ -7,7 +7,7 @@ import { listBlocks } from '../core/blockService'
 import type { LearningNotesDB } from '../core/db'
 import { createTestDb } from '../core/testing'
 import { getOrCreateDefaultWorkspace } from '../core/workspaceService'
-import { aiBatches } from '../capture/importNotes'
+import { aiBatches, keepAiResult, removeAiResult } from '../capture/importNotes'
 import { createNotebook } from '../notebooks/notebookService'
 import { createPage } from '../pages/pageService'
 import { addBlocks } from '../core/blockBulk'
@@ -234,6 +234,36 @@ describe('actions', () => {
       blocks.length - 1,
     )
     expect(parseCards('nothing here')).toEqual([])
+  })
+
+  it('applying then removing a result leaves the page as it was; Keep as mine clears the marks', async () => {
+    const nb = await createNotebook(db, ws, 'N')
+    const page = await createPage(db, nb.id, null, 'Page')
+    await addBlocks(db, page.id, [
+      {
+        type: 'paragraph',
+        content: { text: [{ type: 'text', text: 'Own words', styles: {} }] },
+      },
+    ])
+    const live = async () =>
+      JSON.stringify(
+        (await listBlocks(db, page.id)).map((b) => [b.id, b.type, b.content]),
+      )
+    const before = await live()
+    const s = await applySummary(db, page, 'One. Two.')
+    expect(await live()).not.toBe(before)
+    await removeAiResult(db, page.id, s.batchId)
+    expect(await live()).toBe(before)
+
+    const k = await applyKeyPoints(db, ws, page, '## Key points\n- a\n- b')
+    const kept = await keepAiResult(db, page.id, k.batchId)
+    expect(kept.length).toBeGreaterThan(0)
+    const blocks = await listBlocks(db, page.id)
+    expect(blocks.filter((b) => b.source === 'ai')).toHaveLength(0)
+    expect(blocks.filter((b) => b.batchId)).toHaveLength(0)
+    expect(await aiBatches(db, page.id)).toEqual([])
+    // Kept notes count as the person's own again.
+    expect(await gatherText(db, page, 'summary')).toContain('Key points')
   })
 
   it('collects the page text without earlier AI results', async () => {

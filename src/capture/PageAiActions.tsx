@@ -5,7 +5,13 @@ import { runTask } from '../app/errors'
 import type { LearningNotesDB } from '../core/db'
 import type { Page } from '../core/types'
 import { t } from '../i18n/t'
-import { aiBatches, removeAiResult, restoreAiResult } from './importNotes'
+import { MenuPopover } from '../app/ui'
+import {
+  aiBatches,
+  keepAiResult,
+  removeAiResult,
+  restoreAiResult,
+} from './importNotes'
 import { NotesPanel } from './NotesPanel'
 import { pageSourceInput } from './pageSource'
 import { buildPrompt } from './promptBuilder'
@@ -31,6 +37,7 @@ export function PageAiActions({
   const { toast } = useContext(AppUiContext)
   const batches = useLiveQuery(() => aiBatches(db, page.id), [db, page.id])
   const [open, setOpen] = useState<CaptureInput | null>(null)
+  const [chipAt, setChipAt] = useState<DOMRect | null>(null)
 
   const copy = () =>
     runTask(
@@ -53,6 +60,18 @@ export function PageAiActions({
           onSelect: () =>
             void runTask(restoreAiResult(db, ids).then(onChanged)),
         })
+      })(),
+    )
+
+  // "Keep as mine": the newest AI result becomes ordinary notes.
+  const keep = () =>
+    runTask(
+      (async () => {
+        const newest = batches?.[0]
+        if (!newest) return
+        await keepAiResult(db, page.id, newest.batchId)
+        onChanged()
+        toast(t('capture.keepAiDone'))
       })(),
     )
 
@@ -80,20 +99,25 @@ export function PageAiActions({
       </button>
       {!!batches?.length && (
         <>
-          <span
-            data-testid="ai-badge"
-            className="inline-flex min-h-11 items-center text-xs text-muted"
-          >
-            {t('capture.madeWithAi')}
-          </span>
           <button
             type="button"
-            data-testid="remove-ai"
-            onClick={remove}
-            className={btn}
+            data-testid="ai-badge"
+            aria-haspopup="menu"
+            onClick={(e) => setChipAt(e.currentTarget.getBoundingClientRect())}
+            className="inline-flex min-h-11 items-center rounded-lg px-2 text-xs text-muted hover:bg-hover"
           >
-            {t('capture.removeAi')}
+            {t('capture.madeWithAi')}
           </button>
+          {chipAt && (
+            <MenuPopover
+              anchor={chipAt}
+              onClose={() => setChipAt(null)}
+              items={[
+                { label: t('capture.keepAi'), icon: '✓', onSelect: keep },
+                { label: t('capture.removeAi'), icon: '🗑', onSelect: remove },
+              ]}
+            />
+          )}
         </>
       )}
       {open && (

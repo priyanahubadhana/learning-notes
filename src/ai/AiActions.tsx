@@ -46,6 +46,11 @@ export function AiActions({
   const [busy, setBusy] = useState(false)
   const [privacyFor, setPrivacyFor] = useState<AiAction | null>(null)
   const [proposal, setProposal] = useState<ParsedCard[] | null>(null)
+  // A summary or key points wait here until you press Add to page.
+  const [preview, setPreview] = useState<{
+    action: 'summary' | 'keyPoints'
+    text: string
+  } | null>(null)
   const notebook = useLiveQuery(
     () => db.notebooks.get(page.notebookId),
     [db, page.notebookId],
@@ -78,12 +83,8 @@ export function AiActions({
     try {
       const text = await gatherText(db, page, action)
       const result = await runAi(config, action, text)
-      if (action === 'summary') {
-        const r = await applySummary(db, page, result.text)
-        undoable(r.batchId, t('ai.done'))
-      } else if (action === 'keyPoints') {
-        const r = await applyKeyPoints(db, workspaceId, page, result.text)
-        undoable(r.batchId, t('ai.done'))
+      if (action === 'summary' || action === 'keyPoints') {
+        setPreview({ action, text: result.text })
       } else {
         const cards = parseCards(result.text)
         if (cards.length === 0) toast(t('ai.failed', { reason: t('ai.empty') }))
@@ -165,6 +166,27 @@ export function AiActions({
           </div>
         </div>
       )}
+      {preview && (
+        <TextPreview
+          action={preview.action}
+          initial={preview.text}
+          onCancel={() => setPreview(null)}
+          onApply={async (text) => {
+            try {
+              const r =
+                preview.action === 'summary'
+                  ? await applySummary(db, page, text)
+                  : await applyKeyPoints(db, workspaceId, page, text)
+              setPreview(null)
+              undoable(r.batchId, t('ai.done'))
+            } catch (e) {
+              if (e instanceof NotesFormatError) {
+                toast(t('ai.failed', { reason: t('ai.empty') }))
+              } else throw e
+            }
+          }}
+        />
+      )}
       {proposal && (
         <Approval
           cards={proposal}
@@ -180,6 +202,94 @@ export function AiActions({
         />
       )}
     </>
+  )
+}
+
+/**
+ * The preview of a summary or key points (the same idea as the cards list):
+ * nothing is written until Add to page. Edit first turns the text into a box
+ * you can change; Cancel throws the answer away.
+ */
+function TextPreview({
+  action,
+  initial,
+  onApply,
+  onCancel,
+}: {
+  action: 'summary' | 'keyPoints'
+  initial: string
+  onApply: (text: string) => Promise<void>
+  onCancel: () => void
+}) {
+  const [text, setText] = useState(initial)
+  const [editing, setEditing] = useState(false)
+  const [saving, setSaving] = useState(false)
+  return (
+    <div
+      data-chrome
+      role="dialog"
+      aria-label={t('ai.previewTitle')}
+      data-testid="ai-preview"
+      className="fixed inset-0 z-50 flex items-start justify-center overflow-auto bg-black/30 p-3"
+      onKeyDown={(e) => e.key === 'Escape' && onCancel()}
+    >
+      <div className="mt-8 w-full max-w-xl rounded-xl border border-line bg-bg p-4 shadow-xl">
+        <h2 className="mb-1 text-base font-semibold">
+          {t(
+            action === 'summary' ? 'ai.previewSummary' : 'ai.previewKeyPoints',
+          )}
+        </h2>
+        <p className="mb-3 text-sm text-muted">{t('ai.previewHelp')}</p>
+        {editing ? (
+          <textarea
+            autoFocus
+            value={text}
+            onChange={(e) => setText(e.target.value)}
+            aria-label={t('ai.previewText')}
+            data-testid="ai-preview-text"
+            className="mb-3 min-h-48 w-full rounded-lg border border-line bg-bg p-2 text-sm"
+          />
+        ) : (
+          <pre
+            data-testid="ai-preview-text"
+            className="mb-3 max-h-[50vh] overflow-auto rounded-lg border border-line p-2 text-sm whitespace-pre-wrap"
+          >
+            {text}
+          </pre>
+        )}
+        <div className="flex flex-wrap justify-end gap-2">
+          <button
+            type="button"
+            onClick={onCancel}
+            className="min-h-11 rounded-lg border border-line px-4 text-sm hover:bg-hover"
+          >
+            {t('annot.cancel')}
+          </button>
+          {!editing && (
+            <button
+              type="button"
+              data-testid="ai-preview-edit"
+              onClick={() => setEditing(true)}
+              className="min-h-11 rounded-lg border border-line px-4 text-sm hover:bg-hover"
+            >
+              {t('ai.previewEdit')}
+            </button>
+          )}
+          <button
+            type="button"
+            data-testid="ai-preview-apply"
+            disabled={saving || !text.trim()}
+            onClick={() => {
+              setSaving(true)
+              void runTask(onApply(text).finally(() => setSaving(false)))
+            }}
+            className="min-h-11 rounded-lg bg-accent px-4 text-sm font-medium text-white hover:opacity-90 disabled:opacity-50"
+          >
+            {t('ai.previewApply')}
+          </button>
+        </div>
+      </div>
+    </div>
   )
 }
 

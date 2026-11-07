@@ -67,4 +67,15 @@ export const enW5p = {
   // ---- Big files (item 6) ----
   'library.saving': 'Saving {name}…',
   'library.bigFile': 'Big files may not open on iPad. Importing it anyway.',
+  // ---- AI results: preview, keep, remove (item 7) ----
+  'ai.previewTitle': 'Check the AI result',
+  'ai.previewSummary': 'Summary from your AI',
+  'ai.previewKeyPoints': 'Key points from your AI',
+  'ai.previewHelp':
+    'Nothing is added until you press Add to page. You can edit the text first.',
+  'ai.previewText': 'AI text',
+  'ai.previewEdit': 'Edit first',
+  'ai.previewApply': 'Add to page',
+  'capture.keepAi': 'Keep as mine',
+  'capture.keepAiDone': 'Kept as yours. It is no longer marked as AI-made.',
 } as const

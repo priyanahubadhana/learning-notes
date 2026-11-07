@@ -92,6 +92,15 @@ test('Summarise: asks once about privacy, sends only the page text, adds an AI-m
 
   await page.getByTestId('ai-summary').click()
   await page.getByTestId('ai-privacy-ok').click()
+  // The answer waits in a preview: nothing is on the page until Add to page.
+  await expect(page.getByTestId('ai-preview-text')).toContainText(
+    'That is the summary.',
+  )
+  await expect(
+    page.locator('.bn-editor').getByText('That is the summary.'),
+  ).toHaveCount(0)
+  await expect(page.getByTestId('ai-badge')).toHaveCount(0)
+  await page.getByTestId('ai-preview-apply').click()
   await expect(main(page).getByText('That is the summary.')).toBeVisible()
   await expect(page.getByTestId('ai-badge')).toBeVisible()
   expect(requests).toHaveLength(1)
@@ -105,6 +114,24 @@ test('Summarise: asks once about privacy, sends only the page text, adds an AI-m
   // One Undo takes the whole result away.
   await page.getByRole('status').getByRole('button', { name: 'Undo' }).click()
   await expect(main(page).getByText('That is the summary.')).toHaveCount(0)
+
+  // Again: Cancel in the preview adds nothing; Apply, then the AI chip removes it.
+  await page.getByTestId('ai-summary').click()
+  await page.getByRole('button', { name: 'Cancel' }).click()
+  await expect(
+    page.locator('.bn-editor').getByText('That is the summary.'),
+  ).toHaveCount(0)
+  await page.getByTestId('ai-summary').click()
+  await page.getByTestId('ai-preview-edit').click()
+  await page
+    .getByTestId('ai-preview-text')
+    .fill('Cells make energy. My own edit.')
+  await page.getByTestId('ai-preview-apply').click()
+  await expect(main(page).getByText('My own edit.')).toBeVisible()
+  await page.getByTestId('ai-badge').click()
+  await page.getByRole('menuitem', { name: 'Keep as mine' }).click()
+  await expect(page.getByTestId('ai-badge')).toHaveCount(0)
+  await expect(main(page).getByText('My own edit.')).toBeVisible()
 })
 
 test('Cards from this page: an approval list, then cards marked as AI-made', async ({

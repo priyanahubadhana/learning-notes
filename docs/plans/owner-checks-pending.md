@@ -16,6 +16,10 @@ Moved out of HANDOFF on 2026-11-06 (audit) so HANDOFF stays five lines. Newest f
 - **The three views** (M2): under the page title tap Notes, Summary, Review. Is the switch quick, does the keyboard go away sensibly, and is nothing lost when you come back to Notes? Edit the note, then look at the Summary: does the line change too? Why human: feel, and the on-screen keyboard.
 - **Notebook and app level** (M2): open a notebook, tap the Summary tab (it sits after Notes; older notebooks get it the first time they open). Then sidebar › All summaries: filter by notebook, tap a page name and the ↗ button on a line (does it open the page and flash the line?). Why human: layout on the iPad at both orientations, and Night and Sepia themes.
 - **Save to Summary from a book** (C4 + M2): in a PDF select a passage, Save to… › Summary of this page. Open the book's page Summary: is the line there, and does its page link open the reader at the spot? Why human: real book and reader.
+## POLISH 1 CHECKS (item 7)
+
+- **AI preview** (item 7): make a summary with your own key; check the preview, press Add to page, then Remove it with the chip, and make it again. Nothing is left behind. Why human: needs a real key and a real answer.
+
 ## POLISH 1 CHECKS (item 6)
 
 - **Big PDF on the iPad** (item 6): import a 100 MB or larger PDF. Page 1 shows within a few seconds, the Contents appear after, and ink works on page 50. Why human: real iPad memory and speed.

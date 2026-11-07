@@ -106,7 +106,8 @@ test('Remove this AI result takes the answer away; Undo brings it back', async (
   await expect(
     main(page).getByRole('heading', { name: 'Key points' }),
   ).toBeVisible()
-  await page.getByTestId('remove-ai').click()
+  await page.getByTestId('ai-badge').click()
+  await page.getByRole('menuitem', { name: 'Remove this AI result' }).click()
   await expect(
     main(page).getByRole('heading', { name: 'Key points' }),
   ).toHaveCount(0)

@@ -63,4 +63,15 @@ export const esW5p = {
   'library.saving': 'Guardando {name}…',
   'library.bigFile':
     'Los archivos grandes quizá no abran en el iPad. Se importa de todos modos.',
+  'ai.previewTitle': 'Revisa el resultado de la IA',
+  'ai.previewSummary': 'Resumen de tu IA',
+  'ai.previewKeyPoints': 'Puntos clave de tu IA',
+  'ai.previewHelp':
+    'No se añade nada hasta que pulses Añadir a la página. Antes puedes editar el texto.',
+  'ai.previewText': 'Texto de la IA',
+  'ai.previewEdit': 'Editar antes',
+  'ai.previewApply': 'Añadir a la página',
+  'capture.keepAi': 'Conservar como mío',
+  'capture.keepAiDone':
+    'Conservado como tuyo. Ya no se marca como hecho por IA.',
 } as const

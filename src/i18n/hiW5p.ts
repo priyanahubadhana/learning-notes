@@ -60,4 +60,14 @@ export const hiW5p = {
   'library.saving': '{name} सहेज रहे हैं…',
   'library.bigFile':
     'बड़ी फ़ाइलें iPad पर शायद न खुलें। फिर भी आयात कर रहे हैं।',
+  'ai.previewTitle': 'AI का परिणाम जाँचें',
+  'ai.previewSummary': 'आपके AI से सारांश',
+  'ai.previewKeyPoints': 'आपके AI से मुख्य बिंदु',
+  'ai.previewHelp':
+    'पृष्ठ पर जोड़ें दबाने तक कुछ नहीं जुड़ता। पहले पाठ बदल सकते हैं।',
+  'ai.previewText': 'AI पाठ',
+  'ai.previewEdit': 'पहले बदलें',
+  'ai.previewApply': 'पृष्ठ पर जोड़ें',
+  'capture.keepAi': 'अपना रखें',
+  'capture.keepAiDone': 'आपका रख लिया। अब यह AI-निर्मित नहीं दिखेगा।',
 } as const

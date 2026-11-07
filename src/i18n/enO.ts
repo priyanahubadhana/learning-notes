@@ -329,4 +329,8 @@ export const enO = {
   'search.sec.recent': 'Recent tools',
   'search.sec.favourites': 'Favourites',
   'search.sec.recommended': 'Recommended',
+  'bar.scrollMore':
+    'More tools this way ({count} out of sight). Tap to slide the bar.',
+  'bar.scrollBack': 'Slide the bar back',
+  'bar.scrollHandle': 'Slide the bar sideways (drag)',
 }

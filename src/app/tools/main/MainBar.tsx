@@ -13,6 +13,7 @@ import { AnchoredMenu } from '../AnchoredMenu'
 import { Icon, type IconName } from '../icons'
 import { TOOL_ICON } from './mainToolIcons'
 import { resolveBar } from './barOrder'
+import { BarScroll } from '../BarScroll'
 import { ToolButton } from '../ToolButton'
 import { useAnchoredMenu } from '../useAnchoredMenu'
 import { findTool } from '../toolRegistry'
@@ -145,7 +146,7 @@ export function MainBarRow({
   const undo = findTool('undo')
   const redo = findTool('redo')
   return (
-    <div className="flex items-center gap-1 phone:flex-wrap" data-main-bar>
+    <div className="flex items-start gap-1 phone:flex-wrap" data-main-bar>
       <div
         role="group"
         aria-label={t('main.history')}
@@ -171,11 +172,7 @@ export function MainBarRow({
           />
         )}
       </div>
-      <div
-        data-slot="tools"
-        className="flex min-w-0 flex-1 items-center gap-px overflow-x-auto phone:order-last phone:basis-full"
-        style={{ scrollbarWidth: 'none' }}
-      >
+      <BarScroll className="flex-1 phone:order-last phone:basis-full">
         {resolveBar(order, list, extras).map((token) => {
           const id = token.slice(2)
           if (token.startsWith('m:')) return toolButton(id as MainTool)
@@ -190,7 +187,7 @@ export function MainBarRow({
             />
           ) : null
         })}
-      </div>
+      </BarScroll>
       <KeyboardButton editor={editor} min={min} />
       <MiniKeysButton min={min} />
       <Tip

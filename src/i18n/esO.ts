@@ -333,4 +333,8 @@ export const esO: Record<string, string> = {
   'search.sec.recent': 'Herramientas recientes',
   'search.sec.favourites': 'Favoritas',
   'search.sec.recommended': 'Recomendadas',
+  'bar.scrollMore':
+    'Más herramientas por aquí ({count} fuera de vista). Toca para deslizar la barra.',
+  'bar.scrollBack': 'Deslizar la barra hacia atrás',
+  'bar.scrollHandle': 'Deslizar la barra de lado (arrastra)',
 }

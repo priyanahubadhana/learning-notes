@@ -23,7 +23,9 @@ for (const [width, height] of [
   }) => {
     await page.setViewportSize({ width, height })
     await openNote(page)
-    const buttons = await mainBar(page).getByRole('button').all()
+    const buttons = await mainBar(page)
+      .locator('button:not([data-scroll-cue])')
+      .all()
     const ys = new Set<number>()
     for (const b of buttons) {
       const box = (await b.boundingBox())!

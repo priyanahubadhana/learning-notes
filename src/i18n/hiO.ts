@@ -319,4 +319,8 @@ export const hiO: Record<string, string> = {
   'search.sec.recent': 'हाल के टूल',
   'search.sec.favourites': 'पसंदीदा',
   'search.sec.recommended': 'सुझाए गए',
+  'bar.scrollMore':
+    'इस तरफ़ और टूल ({count} नज़र से बाहर)। बार खिसकाने के लिए छुएँ।',
+  'bar.scrollBack': 'बार को पीछे खिसकाएँ',
+  'bar.scrollHandle': 'बार को बगल में खिसकाएँ (खींचें)',
 }

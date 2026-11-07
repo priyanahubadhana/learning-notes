@@ -71,7 +71,7 @@ test('a pen tap on the pill ✕ closes it once', async ({ page }) => {
 test('a pen tap on a menu item runs it once', async ({ page }) => {
   await openNote(page, 'pencil')
   await penTap(page, page.getByRole('button', { name: 'Toolbar menu' }))
-  const item = page.getByRole('button', { name: /edit bar/i }).first()
+  const item = page.getByRole('button', { name: /bar settings/i }).first()
   await expect(item).toBeVisible()
   await penTap(page, item)
   await expect(page.locator('[data-bar="tray"]').first()).toBeVisible()

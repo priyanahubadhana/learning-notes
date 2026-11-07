@@ -116,3 +116,5 @@ New ideas that come up mid-build are parked here, not added to the current phase
 - 2026-11-06 — Decks: keep the search words of a saved search as a fifth deck filter, and a Books collection row in the deck Where step _(Likely phase: C1/E2)_
 - 2026-11-06 — Fonts: variable fonts and more weights (500/600) if the nine-font set needs them; a font picker for ink labels _(Likely phase: G3/O)_
 - 2026-11-06 — Reader: swap the margin ribbon CSS for a ProseMirror decoration when bookmarks move to annotations; show suspended single cards in the Paused list _(Likely phase: C1)_
+- 2026-11-07 — Maths: inline formulas inside a line of text, a ribbon Insert button for Formula, a true type-in-the-picture editor (MathLive) if the palette feels slow, formula to picture for PDF export, chemistry (mhchem) _(Likely phase: O)_
+- 2026-11-07 — Calendar: Year view (parked by the owner), a sliding animation when the Day card changes, Day on the database Calendar view _(Likely phase: O)_

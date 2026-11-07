@@ -7,6 +7,12 @@ Moved out of HANDOFF on 2026-11-06 (audit) so HANDOFF stays five lines. Newest f
 - **Two windows** (O1): open the same page in two browser windows. In the one that says it is open elsewhere, watch while you type in the other: does the text appear within a second or two without pressing anything? Why human: real two-window timing.
 - **Reading goal** (O2): Read a page, Aa, More: pick 5 min. Read for a minute: does "Today: 1 of 5 min" update next time you open the sheet, and do Spanish and Hindi look right? Why human: wording and feel.
 
+## NAME IT SHEET CHECKS (iPad with Pencil Pro, installed app, tap Update until the new version shows)
+
+- **Rename with Scribble** (sidebar): tap + for a new notebook, then write its name with the Pencil in the big box and tap Done. Do the same for a new page, and for Rename from a row's ⋯. Does Scribble convert your handwriting? Does Done/Enter work? Why human: Scribble and the Pencil cannot be tested by a computer.
+- **Palm resting** (sidebar): rest your palm on the screen while writing the name and while using the Pencil near the sidebar. Does nothing get added, renamed or deleted by the palm? Why human: real palm contact.
+- **⋯ rows** (sidebar): each notebook and page row shows only ⋯ (easy to tap with a finger); its menu has Add page, Rename, Lock, Favourite, Move up/down, Delete. Is anything missing or too crowded? Why human: feel and layout.
+
 ## PHASE K CHECKS (debt, first load, languages, accessibility; iPad, installed app, tap Update until the new version shows)
 
 - **Three-day trial** (K2): use the app for three days with one tester for real study (notes, cards, reading, Home). Write down anything slow, confusing or lost. Why human: the plan's trial; only real use shows it.

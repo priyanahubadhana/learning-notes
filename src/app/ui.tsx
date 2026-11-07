@@ -5,7 +5,7 @@ import { createPortal } from 'react-dom'
 import { usePopup } from './popups'
 import { PopupHeader } from './tools/PopupClose'
 import { t } from '../i18n/t'
-import { touchUi } from './NameSheet'
+import { touchUi } from './touchUi'
 import type { ChoiceRequest, ToastAction } from './appUi'
 
 /** Small UI building blocks shared across features. */
@@ -61,6 +61,27 @@ export function IconButton({
     </Tip>
   ) : (
     button
+  )
+}
+
+/** The ⋯ of a sidebar row on touch and Pencil devices (a 44 px target). */
+export function RowMenuButton({
+  name,
+  onOpen,
+}: {
+  name: string
+  onOpen: (anchor: DOMRect) => void
+}) {
+  return (
+    <IconButton
+      title={t('sidebar.rowMenu', { name })}
+      tip="sidebar.rowMenu"
+      style={{ minWidth: 44 }}
+      className="hidden items-center justify-center any-pointer-coarse:flex"
+      onClick={(e) => onOpen(e.currentTarget.getBoundingClientRect())}
+    >
+      ⋯
+    </IconButton>
   )
 }
 
@@ -511,7 +532,7 @@ export function NameDialog({
           ref={input}
           value={value}
           onChange={(e) => setValue(e.target.value)}
-          className="mb-5 w-full rounded-lg border border-line bg-bg px-3 py-2 text-sm outline-none focus:border-accent"
+          className="mb-5 w-full rounded-lg border border-line bg-bg px-3 py-2 text-sm outline-none focus:border-accent any-pointer-coarse:min-h-14 any-pointer-coarse:text-lg"
         />
         <div className="flex justify-end gap-2 text-sm">
           <button

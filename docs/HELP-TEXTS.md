@@ -2,7 +2,7 @@
 
 Every hover tip and help line in the app (shown while Settings › Show help is On). Generated from `src/help/helpRegistry.ts` and `src/i18n/en.ts`; to change a text, edit it in `en.ts`, then run `UPDATE_HELP=1 npx vitest run src/help` to refresh this file.
 
-## Hover tips (159)
+## Hover tips (160)
 
 ### `bar.newLine`
 
@@ -285,6 +285,12 @@ Every hover tip and help line in the app (shown while Settings › Show help is 
 - **Where:** Sidebar › a notebook’s ⟳ (on hover)
 - **Meaning:** Reviews only the cards of this notebook that are due.
 - **Example:** Revise Cardiology without seeing Chemistry cards.
+
+### `sidebar.rowMenu`
+
+- **Where:** Sidebar › a row’s ⋯ (touch and Pencil)
+- **Meaning:** Opens this row’s actions.
+- **Example:** Rename, lock, move or delete.
 
 ### `sidebar.rename`
 

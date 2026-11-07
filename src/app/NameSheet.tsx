@@ -1,13 +1,6 @@
 import { useEffect, useRef, useState } from 'react'
+import { createPortal } from 'react-dom'
 import { t } from '../i18n/t'
-
-/** True on a touch or Pencil device (a finger or Pencil can reach the screen). */
-export function touchUi(): boolean {
-  return (
-    typeof window !== 'undefined' &&
-    !!window.matchMedia?.('(any-pointer: coarse)').matches
-  )
-}
 
 /**
  * The "Name it" sheet: a centred dialog with a large text field, used to
@@ -47,7 +40,7 @@ export function NameSheet({
     else onDone(name)
   }
 
-  return (
+  return createPortal(
     <dialog
       ref={ref}
       data-testid="name-sheet"
@@ -65,16 +58,16 @@ export function NameSheet({
           finish()
         }}
       >
-        <h2 className="mb-1 text-base font-semibold">{title}</h2>
-        <p className="mb-3 text-xs text-muted">{t('nameSheet.hint')}</p>
+        <h2 className="mb-3 text-base font-semibold">{title}</h2>
         <input
           ref={input}
           value={value}
-          aria-label={t('nameSheet.field')}
+          aria-label={t('ui.name')}
           autoComplete="off"
           autoCapitalize="sentences"
           onChange={(e) => setValue(e.target.value)}
-          className="mb-5 box-border min-h-14 w-full rounded-xl border border-line bg-bg px-4 text-xl outline-none focus:border-accent"
+          style={{ minHeight: 56 }}
+          className="mb-5 box-border w-full rounded-xl border border-line bg-bg px-4 text-xl outline-none focus:border-accent"
         />
         <div className="flex justify-end gap-2 text-sm">
           <button
@@ -88,10 +81,11 @@ export function NameSheet({
             type="submit"
             className="min-h-11 min-w-20 rounded-lg bg-accent px-4 font-medium text-white"
           >
-            {t('nameSheet.done')}
+            {t('bar.done')}
           </button>
         </div>
       </form>
-    </dialog>
+    </dialog>,
+    document.body,
   )
 }

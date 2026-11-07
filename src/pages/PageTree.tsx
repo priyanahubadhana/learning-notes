@@ -5,8 +5,10 @@ import { useContext, useState, type ReactNode } from 'react'
 import { AppUiContext } from '../app/appUi'
 import { runTask } from '../app/errors'
 import { favourites, toggleFavourite } from '../app/favourites'
-import { IconButton, RenameInput, MenuPopover, type MenuItem } from '../app/ui'
+import { RenameInput, RowMenuButton, IconButton } from '../app/ui'
+import { LazyPageMenu } from '../app/LazyNameSheet'
 import { useLongPress } from '../app/useLongPress'
+import { touchUi } from '../app/touchUi'
 import type { TreeState } from '../app/useTreeState'
 import type { LearningNotesDB } from '../core/db'
 import type { Page } from '../core/types'
@@ -60,7 +62,7 @@ export function PageTree({
   )
   const [renamingId, setRenamingId] = useState<string | null>(null)
   const starred = favourites.useValue()
-  const { toast } = useContext(AppUiContext)
+  const { toast, askName } = useContext(AppUiContext)
   const [dragId, setDragId] = useState<string | null>(null)
   const [over, setOver] = useState<{ id: string; intent: DropIntent } | null>(
     null,
@@ -70,6 +72,7 @@ export function PageTree({
     id: string
     anchor: DOMRect
   } | null>(null)
+  const menuPage = rowMenu ? pages?.find((p) => p.id === rowMenu.id) : undefined
   const hold = useLongPress((x, y) => {
     const row = document
       .elementFromPoint(x, y)
@@ -99,6 +102,15 @@ export function PageTree({
     )
   }
   const canMove = !journal && !rootId
+  // Touch and Pencil rename in the Name it sheet; a mouse edits in the row.
+  const startRename = (page: Page) =>
+    touchUi()
+      ? runTask(
+          askName(t('sidebar.rename.title'), page.title).then((name) =>
+            name ? renamePage(db, page.id, name) : undefined,
+          ),
+        )
+      : setRenamingId(page.id)
 
   // The open page and the pages above it, worked out once per draw.
   const openPath = new Set<string>()
@@ -186,7 +198,7 @@ export function PageTree({
             >
               {hasChildren ? (open ? '▾' : '▸') : '·'}
             </button>
-            {renamingId === page.id ? (
+            {renamingId === page.id && !touchUi() ? (
               <RenameInput
                 initial={page.title}
                 onDone={(title) => {
@@ -198,7 +210,7 @@ export function PageTree({
               <button
                 type="button"
                 onClick={() => onOpen(page.id)}
-                onDoubleClick={() => setRenamingId(page.id)}
+                onDoubleClick={() => startRename(page)}
                 className="line-clamp-2 min-w-[5rem] flex-1 text-left break-words"
               >
                 {page.locked ? '🔒 ' : ''}
@@ -211,7 +223,11 @@ export function PageTree({
               </button>
             )}
             {/* May be clipped on a deep row, so the page name keeps its room. */}
-            <span className="flex min-w-0 shrink overflow-hidden opacity-0 group-focus-within:opacity-100 group-hover:opacity-100">
+            <RowMenuButton
+              name={page.title || t('review.untitled')}
+              onOpen={(anchor) => setRowMenu({ id: page.id, anchor })}
+            />
+            <span className="flex min-w-0 shrink overflow-hidden opacity-0 group-focus-within:opacity-100 group-hover:opacity-100 any-pointer-coarse:hidden">
               {canMove && (
                 <>
                   <IconButton
@@ -282,60 +298,24 @@ export function PageTree({
       )
     })
 
-  const menuPage = rowMenu ? pages.find((p) => p.id === rowMenu.id) : undefined
-  const menuItems: MenuItem[] = []
-  if (menuPage) {
-    menuItems.push({
-      label: t('sidebar.rename.title'),
-      icon: '✎',
-      onSelect: () => setRenamingId(menuPage.id),
-    })
-    if (!journal && onAddSubPage && rowMenu) {
-      menuItems.push({
-        label: t('tree.addSub'),
-        icon: '+',
-        onSelect: () => onAddSubPage(menuPage.id, rowMenu.anchor),
-      })
-    }
-    if (!rootId) {
-      const fav = starred.includes(menuPage.id)
-      menuItems.push({
-        label: t(fav ? 'fav.remove' : 'fav.add'),
-        icon: fav ? '★' : '☆',
-        onSelect: () => toggleFavourite(menuPage.id),
-      })
-    }
-    if (canMove) {
-      menuItems.push(
-        {
-          label: t('tree.moveUp'),
-          icon: '↑',
-          onSelect: () =>
-            moveWithUndo(menuPage.id, planStep(pages, menuPage.id, -1)),
-        },
-        {
-          label: t('tree.moveDown'),
-          icon: '↓',
-          onSelect: () =>
-            moveWithUndo(menuPage.id, planStep(pages, menuPage.id, 1)),
-        },
-      )
-    }
-    menuItems.push({
-      label: t('tree.deletePage'),
-      icon: '×',
-      onSelect: () => onRequestDelete(menuPage, openPath.has(menuPage.id)),
-      danger: true,
-    })
-  }
-
   return (
     <div {...hold}>
       {rootId ? renderLevel(rootId, 2) : renderLevel(null, 1)}
       {rowMenu && menuPage && (
-        <MenuPopover
+        <LazyPageMenu
+          db={db}
+          page={menuPage}
           anchor={rowMenu.anchor}
-          items={menuItems}
+          toast={toast}
+          rootId={rootId}
+          canMove={canMove}
+          canAddSub={!journal && !!onAddSubPage}
+          onRename={() => startRename(menuPage)}
+          onAddSub={() => onAddSubPage?.(menuPage.id, rowMenu.anchor)}
+          onMove={(step) =>
+            moveWithUndo(menuPage.id, planStep(pages, menuPage.id, step))
+          }
+          onDelete={() => onRequestDelete(menuPage, openPath.has(menuPage.id))}
           onClose={() => setRowMenu(null)}
         />
       )}

@@ -8,28 +8,19 @@ test.describe('touch screen', () => {
     isMobile: true,
   })
 
-  test('row icons are always visible and big enough for a finger', async ({
+  test('touch rows show one big ⋯ instead of the small icons', async ({
     page,
   }) => {
     await page.goto('/')
     await createNotebook(page, 'Touch NB', 'First')
     const side = await openSidebar(page)
-    // The "+" of the new notebook is visible without hovering.
-    const add = side.getByLabel('Add page', { exact: true }).first()
-    await expect(add).toBeVisible()
     for (const label of ['Add page', 'Rename', 'Delete notebook']) {
-      const button = side.getByLabel(label, { exact: true }).first()
-      expect(
-        await button.evaluate(
-          (el) =>
-            getComputedStyle(el.closest('[class*="group-hover:opacity-100"]')!)
-              .opacity,
-        ),
-      ).toBe('1')
-      const box = (await button.boundingBox())!
-      expect(box.width).toBeGreaterThanOrEqual(32) // narrow, so names stay readable
-      expect(box.height).toBeGreaterThanOrEqual(44)
+      await expect(side.getByLabel(label, { exact: true }).first()).toBeHidden()
     }
+    const more = side.getByRole('button', { name: 'More for Touch NB' })
+    const box = (await more.boundingBox())!
+    expect(box.width).toBeGreaterThanOrEqual(44)
+    expect(box.height).toBeGreaterThanOrEqual(44)
   })
 })
 

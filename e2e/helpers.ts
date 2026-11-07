@@ -52,10 +52,41 @@ export function row(page: Page, name: string): Locator {
     .first()
 }
 
-/** Clicks a hover action (by its title) on a sidebar row. */
+/**
+ * If the "Name it" sheet is open, types `name` and presses Enter (Done).
+ * Returns false when no sheet is open (a mouse names in the row).
+ */
+export async function sheetFill(page: Page, name: string): Promise<boolean> {
+  const touch = await page.evaluate(
+    () => window.matchMedia('(any-pointer: coarse)').matches,
+  )
+  if (!touch) return false
+  const sheet = page.getByTestId('name-sheet')
+  try {
+    await sheet.waitFor({ state: 'visible', timeout: 1500 })
+  } catch {
+    return false
+  }
+  const field = sheet.getByRole('textbox', { name: 'Name' })
+  await field.fill(name)
+  await field.press('Enter')
+  await expect(sheet).toBeHidden()
+  return true
+}
+
+/**
+ * Clicks a row action (by its title). A mouse uses the hover icons; touch
+ * and Pencil devices open the row's ⋯ menu and choose the item.
+ */
 export async function rowAction(page: Page, name: string, action: string) {
   await showSidebar(page)
   const r = row(page, name)
+  const more = r.getByRole('button', { name: /^More for/ })
+  if (await more.isVisible()) {
+    await more.click()
+    await page.getByRole('menuitem', { name: action, exact: true }).click()
+    return
+  }
   await r.hover()
   await r.getByLabel(action, { exact: true }).click()
 }
@@ -101,6 +132,12 @@ export async function createNotebook(
   // so repeat the whole step until the notebook shows its name, reopening
   // the field with Rename like a user would.
   await expect(async () => {
+    // Touch and Pencil devices name it in the "Name it" sheet instead.
+    if (await sheetFill(page, name)) {
+      await showSidebar(page)
+      await expect(named).toBeVisible({ timeout: 3000 })
+      return
+    }
     await showSidebar(page)
     if (await named.isVisible()) return
     if (!(await nameField.isVisible())) {
@@ -129,10 +166,12 @@ export async function addPage(
   )
   await page.getByRole('menuitem', { name: 'Blank page' }).click()
   await page.waitForURL((url) => url.toString() !== before) // the new page is open
-  // New pages open with the cursor in the title.
-  const field = page.getByRole('textbox', { name: 'Page title' })
-  await expect(field).toBeFocused()
-  await page.keyboard.type(title)
+  if (!(await sheetFill(page, title))) {
+    // New pages open with the cursor in the title.
+    const field = page.getByRole('textbox', { name: 'Page title' })
+    await expect(field).toBeFocused()
+    await page.keyboard.type(title)
+  }
   await showSidebar(page)
   await expect(
     sidebar(page).getByRole('button', { name: title, exact: true }),

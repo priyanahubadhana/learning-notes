@@ -73,6 +73,7 @@ export default defineConfig({
         /miniBar/,
         /miniKeys/,
         /rowActions/,
+        /nameSheet/,
         /toggles/,
         /pencilFriction/,
       ],

@@ -30,6 +30,8 @@ export interface AppUi {
   toast: (message: string, action?: ToastAction) => void
   /** Asks a question; resolves to the chosen value, or null if cancelled. */
   choose: (request: ChoiceRequest) => Promise<string | null>
+  /** The Name it sheet: resolves to the new name, or null if cancelled or unchanged. */
+  askName: (title: string, initial: string) => Promise<string | null>
   /** Opens Settings, optionally at one setting (highlighted). */
   openSettings: (settingId?: string) => void
 }
@@ -38,6 +40,7 @@ export const AppUiContext = createContext<AppUi>({
   chooseTemplate: async () => null,
   toast: () => {},
   choose: async () => null,
+  askName: async () => null,
   openSettings: () => {},
 })
 

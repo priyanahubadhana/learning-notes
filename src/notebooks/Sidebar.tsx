@@ -17,8 +17,8 @@ import {
   IconButton,
   MenuIcon,
   MenuPopover,
+  RowMenuButton,
   RenameInput,
-  type MenuItem,
 } from '../app/ui'
 import type { TreeState } from '../app/useTreeState'
 import type { LearningNotesDB } from '../core/db'
@@ -33,6 +33,9 @@ import { SavedSearchesSection } from '../search/SavedSearchesSection'
 import { TagsSection } from '../tags/TagsSection'
 import { FavouritesSection, RecentSection } from '../app/QuickPages'
 import { t } from '../i18n/t'
+import { LazyNotebookMenu } from '../app/LazyNameSheet'
+import { useRowPalmGuard } from '../app/useRowPalmGuard'
+import { touchUi } from '../app/touchUi'
 import { useLongPress } from '../app/useLongPress'
 import { countDue, type ReviewScope } from '../recall/reviewService'
 import { deleteNotebook, moveNotebook, renameNotebook } from './notebookService'
@@ -152,7 +155,18 @@ export function Sidebar({
   onCreatePage,
   onCreateTemplate,
 }: SidebarProps) {
-  const { chooseTemplate } = useContext(AppUiContext)
+  const { chooseTemplate, toast, askName } = useContext(AppUiContext)
+  useRowPalmGuard()
+  // Touch and Pencil: names are typed in the "Name it" sheet, rows show only ⋯.
+  const touch = touchUi()
+  const rename = (nb: Notebook) =>
+    touch
+      ? runTask(
+          askName(t('sidebar.rename.title'), nb.title).then((name) =>
+            name ? renameNotebook(db, nb.id, name) : undefined,
+          ),
+        )
+      : onRenamingChange(nb.id)
   const [pending, setPending] = useState<PendingDelete | null>(null)
   const [addMenu, setAddMenu] = useState<AddMenu | null>(null)
   // Touch: press and hold a notebook row for the same actions as its icons.
@@ -315,6 +329,7 @@ export function Sidebar({
     <aside
       data-chrome
       id="sidebar"
+      data-palm-guard
       aria-label={t('sidebar.label')}
       style={{ paddingTop: 'calc(14px + var(--top-clear))' }}
       className={`${hidden ? 'wide:hidden' : ''} flex w-[min(var(--sidebar-width,260px),50vw)] shrink-0 flex-col overflow-y-auto border-r border-line bg-side px-2 py-3.5 transition-colors duration-250 phone:fixed phone:top-0 phone:bottom-14 phone:left-0 phone:z-40 phone:w-[min(300px,85vw)] phone:shadow-[0_0_32px_rgba(0,0,0,0.25)] phone:transition-[transform,visibility] phone:duration-200 ${
@@ -484,7 +499,7 @@ export function Sidebar({
                       >
                         {open ? '▾' : '▸'}
                       </button>
-                      {renamingNotebookId === notebook.id ? (
+                      {renamingNotebookId === notebook.id && !touch ? (
                         <RenameInput
                           initial={notebook.title}
                           className="font-semibold"
@@ -512,7 +527,7 @@ export function Sidebar({
                                 ? 'page'
                                 : undefined
                             }
-                            onDoubleClick={() => onRenamingChange(notebook.id)}
+                            onDoubleClick={() => rename(notebook)}
                             className="line-clamp-2 flex-1 text-left font-semibold break-words"
                           >
                             {notebook.locked ? '🔒 ' : ''}
@@ -521,7 +536,13 @@ export function Sidebar({
                           </button>
                         </NotebookTip>
                       )}
-                      <span className="flex opacity-0 group-focus-within:opacity-100 group-hover:opacity-100">
+                      <RowMenuButton
+                        name={sampleName(notebook)}
+                        onOpen={(anchor) =>
+                          setRowMenu({ id: notebook.id, anchor })
+                        }
+                      />
+                      <span className="flex opacity-0 group-focus-within:opacity-100 group-hover:opacity-100 any-pointer-coarse:hidden">
                         {notebook.kind !== 'journal' && (
                           <IconButton
                             title={t('sidebar.addPage.title')}
@@ -554,7 +575,7 @@ export function Sidebar({
                         <IconButton
                           title={t('sidebar.rename.title')}
                           tip="sidebar.rename"
-                          onClick={() => onRenamingChange(notebook.id)}
+                          onClick={() => rename(notebook)}
                         >
                           ✎
                         </IconButton>
@@ -648,41 +669,23 @@ export function Sidebar({
 
       {rowMenu &&
         (() => {
-          const notebook = notebooks.find((n) => n.id === rowMenu.id)
-          if (!notebook) return null
-          const items: MenuItem[] = []
-          if (notebook.kind !== 'journal') {
-            items.push({
-              label: t('sidebar.addPage.title'),
-              icon: '+',
-              onSelect: () => openAddMenu(rowMenu.anchor, notebook.id, null),
-            })
-          }
-          if (notebook.kind !== 'templates') {
-            items.push({
-              label: t('review.thisNotebook'),
-              icon: '⟳',
-              onSelect: () =>
-                onOpenReview({ kind: 'notebook', notebookId: notebook.id }),
-            })
-          }
-          items.push(
-            {
-              label: t('sidebar.rename.title'),
-              icon: '✎',
-              onSelect: () => onRenamingChange(notebook.id),
-            },
-            {
-              label: t('sidebar.deleteNotebook.title'),
-              icon: '×',
-              onSelect: () => requestNotebookDelete(notebook),
-              danger: true,
-            },
-          )
+          const at = notebooks.findIndex((n) => n.id === rowMenu.id)
+          if (at < 0) return null
+          const notebook = notebooks[at]
           return (
-            <MenuPopover
+            <LazyNotebookMenu
+              db={db}
+              notebook={notebook}
+              index={at}
+              count={notebooks.length}
               anchor={rowMenu.anchor}
-              items={items}
+              toast={toast}
+              onAddPage={() => openAddMenu(rowMenu.anchor, notebook.id, null)}
+              onReview={() =>
+                onOpenReview({ kind: 'notebook', notebookId: notebook.id })
+              }
+              onRename={() => rename(notebook)}
+              onDelete={() => requestNotebookDelete(notebook)}
               onClose={() => setRowMenu(null)}
             />
           )

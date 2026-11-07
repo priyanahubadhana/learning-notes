@@ -72,10 +72,15 @@ import { ensureSearchIndex } from './search/searchService'
 import { appendJournalNotes, openJournalDay } from './journal/journalService'
 import { Sidebar } from './notebooks/Sidebar'
 import { LeftPanel } from './app/panel/LeftPanel'
-import { HomeScreen } from './home/HomeScreen'
 import { TimerChip } from './home/TimerChip'
-import { createNotebook, listNotebooks } from './notebooks/notebookService'
-import { createPage, getPage } from './pages/pageService'
+import {
+  createNotebook,
+  listNotebooks,
+  renameNotebook,
+} from './notebooks/notebookService'
+import { createPage, getPage, renamePage } from './pages/pageService'
+import { LazyNameSheet } from './app/LazyNameSheet'
+import { touchUi } from './app/touchUi'
 import { BackupReminder } from './share/ReminderBar'
 import { saveEverything } from './share/saveEverything'
 import {
@@ -120,6 +125,9 @@ import {
 } from './templates/templateService'
 
 // Screens load when first opened, so the app itself starts fast.
+const HomeScreen = lazy(() =>
+  import('./home/HomeScreen').then((m) => ({ default: m.HomeScreen })),
+)
 const NotebookScreen = lazy(() =>
   import('./notebooks/NotebookScreen').then((m) => ({
     default: m.NotebookScreen,
@@ -684,6 +692,8 @@ function App() {
       new Promise((resolve) => setPicker({ mode, resolve })),
     choose: (request) =>
       new Promise((resolve) => setChoice({ request, resolve })),
+    askName: (title, initial) =>
+      new Promise((resolve) => setNameAsk({ title, initial, resolve })),
     openSettings,
     toast: (message, action) => {
       // Choosing the action also closes the toast.
@@ -779,6 +789,12 @@ function App() {
   // Bumped when a tag merge/delete rewrites the open page's notes.
   const [notesVersion, setNotesVersion] = useState(0)
   const [focusTitlePageId, setFocusTitlePageId] = useState<string | null>(null)
+  // Touch and Pencil: a new page is named in the Name it sheet.
+  const [nameAsk, setNameAsk] = useState<{
+    title: string
+    initial: string
+    resolve: (name: string | null) => void
+  } | null>(null)
 
   /** Shows a just-created page: reveal it in the sidebar and open it. */
   const openNewPage = (page: Page, focusTitle = true) => {
@@ -806,7 +822,13 @@ function App() {
     const page = fillId
       ? await createPageFromTemplate(db, notebookId, parentId, fillId)
       : await createPage(db, notebookId, parentId)
-    openNewPage(page, focusTitle)
+    const sheet = focusTitle && touchUi() && !fillId
+    openNewPage(page, focusTitle && !sheet)
+    if (sheet) {
+      void appUi
+        .askName(t('nameSheet.newPage'), '')
+        .then((name) => name && runTask(renamePage(db, page.id, name)))
+    }
     if (templateId) {
       const template = await getPage(db, templateId)
       appUi.toast(
@@ -824,8 +846,12 @@ function App() {
       workspace.id,
       t('notebook.newName'),
     )
-    setRenamingNotebookId(notebook.id)
-    // The notebook name field keeps the cursor, not the page title.
+    // The notebook name field (or sheet) keeps the cursor, not the page title.
+    if (touchUi()) {
+      void appUi
+        .askName(t('nameSheet.newNotebook'), notebook.title)
+        .then((name) => name && runTask(renameNotebook(db, notebook.id, name)))
+    } else setRenamingNotebookId(notebook.id)
     await createPageIn(notebook.id, null, false)
   }
 
@@ -1676,6 +1702,20 @@ function App() {
                 />
               )}
             </div>
+            {nameAsk && (
+              <LazyNameSheet
+                title={nameAsk.title}
+                initial={nameAsk.initial}
+                onCancel={() => {
+                  setNameAsk(null)
+                  nameAsk.resolve(null)
+                }}
+                onDone={(name) => {
+                  setNameAsk(null)
+                  nameAsk.resolve(name)
+                }}
+              />
+            )}
             {toastMessage && (
               <Toast
                 message={toastMessage.message}

@@ -5,7 +5,11 @@ import { closeCorner, createNotebook, openSidebar } from './helpers.ts'
 
 /** Polish 1 · item 2: row actions reachable by touch (press and hold). */
 
-test.use({ hasTouch: true })
+test.use({
+  hasTouch: true,
+  isMobile: true,
+  viewport: { width: 1024, height: 768 },
+})
 
 /** A finger held on the middle of an element for 650 ms, then lifted. */
 async function hold(target: Locator) {
@@ -35,12 +39,12 @@ test('press and hold a notebook row: the menu offers Rename and Delete', async (
   const row = side
     .locator('[data-notebook-row]')
     .filter({ hasText: 'Touch NB' })
-  await hold(row.getByRole('button', { name: 'Touch NB' }))
+  await hold(row.getByRole('button', { name: 'Touch NB', exact: true }))
   const menu = page.getByRole('menu')
   await expect(menu).toBeVisible()
   await expect(menu.getByRole('menuitem', { name: /Rename/ })).toBeVisible()
   await menu.getByRole('menuitem', { name: /Rename/ }).click()
-  await expect(side.getByRole('textbox', { name: 'Name' })).toBeVisible()
+  await expect(page.getByTestId('name-sheet')).toBeVisible()
 })
 
 test('press and hold a page row: the menu has Delete last', async ({
@@ -54,7 +58,7 @@ test('press and hold a page row: the menu has Delete last', async ({
       .getByTestId('page-row')
       .filter({ hasText: 'First' })
       .first()
-      .getByRole('button', { name: 'First' }),
+      .getByRole('button', { name: 'First', exact: true }),
   )
   const items = page.getByRole('menu').getByRole('menuitem')
   await expect(items.last()).toContainText('Delete page')

@@ -28,6 +28,7 @@
   "editor -> links",
   "editor -> pages",
   "editor -> paper",
+  "pages -> paper",
   "editor -> recall",
   "editor -> revise",
   "editor -> sync",

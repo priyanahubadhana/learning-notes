@@ -31,6 +31,10 @@ Current phase only. Older entries are in [ARCHIVE.md](ARCHIVE.md).
 - **Why:** owner approved the paper page and asked for a deeper look first.
 - **Files:** `docs/research/paper-page-2026-11.md`, `docs/plans/paper-page-plan.md`, `docs/ROADMAP.md`, `docs/DECISIONS.md`, `docs/CHANGELOG.md`.
 
+## 2026-11-08 (CI: checks job red on check:links after Phase Q step 2)
+
+- **What:** the Phase Q step 2 commit (paper sheets, 61a5637) added a direct link `pages -> paper`, so `npm run check:links` failed and the chromium `checks` job stopped before any test. Allowed in `scripts/feature-links.json` (next to `editor -> paper`). **Still red on ipad-webkit after that commit:** `barFixes` R6-8 (the page moves 62 px when a tool is chosen) and R6-10 (a palm reaches a bar); green at 5e5cbaa, red at 65fce37, the only app change between them being the new `PaperFrame` around the page (a second scroller with negative margins and touch/gesture handling). `barFixes` passes in Chromium here; WebKit cannot run on this machine; the automatic device-mode switch default is `pen`, so the e2e helper change in this batch is inert in Pencil mode. Handed to the Phase Q builder.
+
 ## 2026-11-08 (R6-21 page jump after the lock toast; ipad-webkit red on the tap specs)
 
 - **R6-21, real cause:** the toast moves nothing (it is fixed at the bottom); the page jumped 62 px when the toast's **Unlock** was tapped: that tap counted as a tap outside the open options pill (`app/popups.ts`), the pill closed, and its height left the stack above the page (the R6-8 hold only covers tool buttons and never works at scroll 0). Fix: the Toast carries `data-popup-trigger` like the ink pad, so a tap on a toast or its Undo/Unlock keeps the pill open and the page still. Proven by `e2e/lockToastStill.spec.ts` (chromium and ipad-webkit): the first line's screen position is the same before the toast, with it, after Unlock, and the next stroke lands at the same place. (Probe numbers: first line at y 474 through card, Add, Lock and the toast; 412 after Unlock; the scroller's top 208 → 146.)

@@ -113,4 +113,46 @@ async function gripDragTest(page: Page, grip: string) {
   await page.waitForTimeout(400)
   expect((await savedInk(page)).strokes.length).toBe(0)
 }
+test('R6-8: choosing any tool on the main bar never moves the page', async ({
+  page,
+}) => {
+  await openNote(page, 'pencil')
+  for (let i = 0; i < 60; i++) {
+    await page.keyboard.press('Enter')
+    await page.keyboard.type(`Line number ${i}`)
+  }
+  // Where one line of the page is on the screen (what the person sees).
+  const top = () =>
+    page.evaluate(() => {
+      const line = [...document.querySelectorAll('.bn-block-content')].find(
+        (b) => b.textContent === 'Line number 30',
+      )!
+      return line.getBoundingClientRect().top
+    })
+  // Look at the middle of the page while the caret is at the end.
+  await page.evaluate(() => {
+    const s = document.querySelector('[data-page-scroller]')!
+    s.scrollTop = (s.scrollHeight - s.clientHeight) / 2
+  })
+  await page.waitForTimeout(300)
+  const start = await top()
+  for (const name of [
+    'Lasso',
+    'Text',
+    'Lasso',
+    'Pen',
+    'Highlighter',
+    'Eraser',
+    'Text',
+    'Lasso',
+  ]) {
+    await tool(page, name).click()
+    await page.waitForTimeout(300)
+    // With its pill open, and again after the pill is closed.
+    expect(Math.abs((await top()) - start), `after ${name}`).toBeLessThan(2)
+    await page.keyboard.press('Escape')
+    await page.waitForTimeout(300)
+    expect(Math.abs((await top()) - start), `closed ${name}`).toBeLessThan(2)
+  }
+})
 // END

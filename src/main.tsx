@@ -7,6 +7,7 @@ import { reloadOnFailedChunk } from './app/chunkReload'
 import { ErrorBoundary } from './app/ErrorBoundary'
 import { startNavHistory } from './app/navHistory'
 import { installPenTap } from './app/penTap'
+import { installPageAnchor } from './app/pageAnchor'
 import { UpgradeGate } from './app/UpgradeGate'
 import {
   noteChecked,
@@ -34,6 +35,7 @@ initDeviceMode()
 startNavHistory()
 reloadOnFailedChunk()
 installPenTap()
+installPageAnchor()
 {
   const hints = installScrollHints(
     () => readDeviceSetting(scrollHintsSetting) === 'on',

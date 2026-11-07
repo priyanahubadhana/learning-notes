@@ -5,10 +5,14 @@ import {
   clearResume,
   getBookmarks,
   getResume,
+  goalDays,
+  minutesRead,
+  readGoalMinutes,
   readStreakData,
   removeBookmark,
   saveResume,
   streakDays,
+  writeGoalMinutes,
 } from './readingMarks'
 
 beforeEach(() => {
@@ -50,6 +54,22 @@ describe('bookmarks', () => {
     expect(list.map((b) => b.label)).toEqual(['Intro', 'End'])
     expect(getBookmarks('other')).toEqual([])
     expect(removeBookmark('p', list[0].id).map((b) => b.label)).toEqual(['End'])
+  })
+})
+
+describe('reading goal', () => {
+  const day = (d: string) => new Date(`${d}T12:00:00`)
+
+  it('keeps the goal, counts minutes today and goal days of the week', () => {
+    expect(readGoalMinutes()).toBe(0)
+    writeGoalMinutes(10)
+    writeGoalMinutes(7) // not on offer: ignored
+    expect(readGoalMinutes()).toBe(10)
+    addReadingSeconds(11 * 60, day('2026-11-05'))
+    addReadingSeconds(5 * 60 + 30, day('2026-11-06'))
+    expect(minutesRead(readStreakData(), day('2026-11-06'))).toBe(5)
+    expect(goalDays(10, readStreakData(), day('2026-11-06'))).toBe(1)
+    expect(goalDays(0, readStreakData(), day('2026-11-06'))).toBe(0)
   })
 })
 

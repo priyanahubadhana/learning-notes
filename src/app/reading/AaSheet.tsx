@@ -9,7 +9,14 @@ import {
 } from '../../settings/readingSettings'
 import { FontTiles } from './FontTiles'
 import { Choices, Shell, Toggle } from './ReadingPanels'
-import { streakDays } from './readingMarks'
+import {
+  GOAL_MINUTES,
+  goalDays,
+  minutesRead,
+  readGoalMinutes,
+  streakDays,
+  writeGoalMinutes,
+} from './readingMarks'
 import {
   ALIGNS,
   BAR_MODES,
@@ -279,9 +286,44 @@ export function AaSheet({
           <p className="mt-2 text-xs text-muted" data-testid="reading-streak">
             {t('reading.streak', { count: streakDays() })}
           </p>
+          <GoalRow />
         </>
       )}
     </Shell>
+  )
+}
+
+/** The daily reading goal: minutes a day, with today's progress. */
+function GoalRow() {
+  const [goal, setGoal] = useState(readGoalMinutes)
+  const done = minutesRead()
+  return (
+    <div className="mt-3" data-testid="reading-goal">
+      <Choices
+        label={t('reading.goal.label')}
+        value={goal}
+        options={GOAL_MINUTES.map((value) => ({
+          value: value as number,
+          label:
+            value === 0
+              ? t('reading.goal.off')
+              : t('reading.goal.min', { count: value }),
+        }))}
+        onPick={(v) => {
+          writeGoalMinutes(v)
+          setGoal(v)
+        }}
+      />
+      {goal > 0 && (
+        <p className="-mt-2 text-xs text-muted" data-testid="reading-goal-note">
+          {done >= goal
+            ? t('reading.goal.reached')
+            : t('reading.goal.progress', { done, goal })}
+          {' · '}
+          {t('reading.goal.week', { count: goalDays(goal) })}
+        </p>
+      )}
+    </div>
   )
 }
 

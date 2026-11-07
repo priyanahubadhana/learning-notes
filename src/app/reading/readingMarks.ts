@@ -143,6 +143,44 @@ export function addReadingSeconds(
   })
 }
 
+// ---- Daily reading goal (Phase O): minutes a day, this device ----
+
+/** The goals on offer, in minutes (0 = no goal). */
+export const GOAL_MINUTES = [0, 5, 10, 20, 30, 60] as const
+
+const isGoal = (v: unknown): v is number =>
+  typeof v === 'number' && (GOAL_MINUTES as readonly number[]).includes(v)
+
+export const readGoalMinutes = (): number => readPref('reading.goal', isGoal, 0)
+export const writeGoalMinutes = (minutes: number): void => {
+  if (isGoal(minutes)) writePref('reading.goal', minutes)
+}
+
+/** Whole minutes read on the given day. */
+export function minutesRead(
+  data: StreakData = readStreakData(),
+  now: Date = new Date(),
+): number {
+  return Math.floor((data.days[dayKey(now)] ?? 0) / 60)
+}
+
+/** Days of the last `span` (ending today) on which the goal was reached. */
+export function goalDays(
+  goal: number,
+  data: StreakData = readStreakData(),
+  now: Date = new Date(),
+  span = 7,
+): number {
+  if (goal <= 0) return 0
+  let count = 0
+  const cursor = new Date(now.getFullYear(), now.getMonth(), now.getDate())
+  for (let i = 0; i < span; i += 1) {
+    if ((data.days[dayKey(cursor)] ?? 0) >= goal * 60) count += 1
+    cursor.setDate(cursor.getDate() - 1)
+  }
+  return count
+}
+
 /**
  * Days in a row with enough reading, counting back from today (or from
  * yesterday while today is not done yet, so the streak is not lost at dawn).

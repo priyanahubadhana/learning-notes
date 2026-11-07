@@ -21,6 +21,7 @@ import {
   runAi,
   type AiAction,
 } from './aiRun'
+import { PopupHeader } from '../app/tools/PopupClose'
 import { AiError, PROVIDERS } from './provider'
 
 const isBool = (v: unknown): v is boolean => typeof v === 'boolean'
@@ -132,6 +133,7 @@ export function AiActions({
           className="fixed inset-0 z-50 flex items-center justify-center bg-black/30 p-3"
         >
           <div className="w-full max-w-md rounded-xl border border-line bg-bg p-4 shadow-xl">
+            <PopupHeader onClose={() => setPrivacyFor(null)} />
             <h2 className="mb-2 text-base font-semibold">
               {t('ai.privacyTitle')}
             </h2>
@@ -234,6 +236,7 @@ function TextPreview({
       onKeyDown={(e) => e.key === 'Escape' && onCancel()}
     >
       <div className="mt-8 w-full max-w-xl rounded-xl border border-line bg-bg p-4 shadow-xl">
+        <PopupHeader onClose={onCancel} />
         <h2 className="mb-1 text-base font-semibold">
           {t(
             action === 'summary' ? 'ai.previewSummary' : 'ai.previewKeyPoints',
@@ -314,6 +317,7 @@ function Approval({
       className="fixed inset-0 z-50 flex items-start justify-center overflow-auto bg-black/30 p-3"
     >
       <div className="mt-8 w-full max-w-xl rounded-xl border border-line bg-bg p-4 shadow-xl">
+        <PopupHeader onClose={onCancel} />
         <h2 className="mb-1 text-base font-semibold">{t('ai.approveTitle')}</h2>
         <p className="mb-3 text-sm text-muted">{t('ai.approveHelp')}</p>
         <ul className="mb-3 flex max-h-[50vh] flex-col gap-1 overflow-auto">

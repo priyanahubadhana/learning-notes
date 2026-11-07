@@ -274,7 +274,12 @@ function SourceCard({
           onClose={() => setMenuAt(null)}
           items={[
             { label: t('library.openNotes'), icon: '📄', onSelect: onOpenPage },
-            { label: t('ui.delete'), icon: '🗑', onSelect: onDelete },
+            {
+              label: t('ui.delete'),
+              icon: '🗑',
+              onSelect: onDelete,
+              danger: true,
+            },
           ]}
         />
       )}

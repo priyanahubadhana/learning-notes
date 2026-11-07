@@ -325,6 +325,7 @@ export function PageTree({
       label: t('tree.deletePage'),
       icon: '×',
       onSelect: () => onRequestDelete(menuPage, openPath.has(menuPage.id)),
+      danger: true,
     })
   }
 

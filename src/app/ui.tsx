@@ -158,6 +158,8 @@ export interface MenuItem {
   checked?: boolean
   /** Opens a small list of its own (shown with ▸) instead of doing something. */
   submenu?: MenuItem[]
+  /** Destroys something: shown in red and always listed last. */
+  danger?: boolean
 }
 
 /**
@@ -245,7 +247,11 @@ export function MenuPopover({
       className={`fixed z-50 ${nested ? 'w-64' : 'w-52'} overflow-y-auto rounded-[10px] border border-line bg-bg p-1.5 text-ink shadow-[0_12px_32px_rgba(0,0,0,0.14)]`}
     >
       <PopupHeader onClose={onDone ?? onClose} />
-      {items.map((item) => (
+      {/* Destructive items are red and come last. */}
+      {[
+        ...items.filter((i) => !i.danger),
+        ...items.filter((i) => i.danger),
+      ].map((item) => (
         <button
           key={item.label}
           type="button"
@@ -268,9 +274,14 @@ export function MenuPopover({
             onDone?.()
             item.onSelect()
           }}
-          className="flex w-full items-center gap-2.5 rounded-md px-2.5 py-1.5 text-left text-sm outline-none enabled:hover:bg-hover enabled:focus:bg-hover disabled:text-muted any-pointer-coarse:min-h-11"
+          className={`flex min-h-11 w-full items-center gap-2.5 rounded-md px-2.5 py-1.5 text-left text-sm outline-none enabled:hover:bg-hover enabled:focus:bg-hover disabled:text-muted ${
+            item.danger ? 'text-danger' : ''
+          }`}
         >
-          <span aria-hidden className="w-5 text-center text-muted">
+          <span
+            aria-hidden
+            className={`w-5 text-center ${item.danger ? 'text-danger' : 'text-muted'}`}
+          >
             {item.checked !== undefined ? (item.checked ? '✓' : '') : item.icon}
           </span>
           <span className="flex-1">

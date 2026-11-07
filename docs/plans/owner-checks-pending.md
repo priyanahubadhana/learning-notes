@@ -16,6 +16,10 @@ Moved out of HANDOFF on 2026-11-06 (audit) so HANDOFF stays five lines. Newest f
 - **The three views** (M2): under the page title tap Notes, Summary, Review. Is the switch quick, does the keyboard go away sensibly, and is nothing lost when you come back to Notes? Edit the note, then look at the Summary: does the line change too? Why human: feel, and the on-screen keyboard.
 - **Notebook and app level** (M2): open a notebook, tap the Summary tab (it sits after Notes; older notebooks get it the first time they open). Then sidebar › All summaries: filter by notebook, tap a page name and the ↗ button on a line (does it open the page and flash the line?). Why human: layout on the iPad at both orientations, and Night and Sepia themes.
 - **Save to Summary from a book** (C4 + M2): in a PDF select a passage, Save to… › Summary of this page. Open the book's page Summary: is the line there, and does its page link open the reader at the spot? Why human: real book and reader.
+## POLISH 1 CHECKS (item 15)
+
+- **Menus look the same** (item 15): open the ⋯ menu on a book (Library), a task (Home), a page (sidebar, press and hold) and a Search filter. They look and behave the same, with Delete in red at the bottom. Why human: the look and feel of the menus.
+
 ## POLISH 1 CHECKS (item 14)
 
 - **Hindi** (item 14): switch the app to Hindi and open Home and Library. No English is left (the owner or the Hindi reviewer may also read the new `hiW5p.ts` lines). Why human: a native speaker judges the wording.

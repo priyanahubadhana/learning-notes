@@ -676,6 +676,7 @@ export function Sidebar({
               label: t('sidebar.deleteNotebook.title'),
               icon: '×',
               onSelect: () => requestNotebookDelete(notebook),
+              danger: true,
             },
           )
           return (

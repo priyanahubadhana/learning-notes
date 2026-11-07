@@ -262,6 +262,7 @@ export function DatabaseScreen({
                 ...lockItem,
                 {
                   label: t('databases.delete'),
+                  danger: true,
                   icon: '🗑',
                   onSelect: () =>
                     runTask(

@@ -1,14 +1,8 @@
 import { Tip } from '../help/Help'
 import { useLiveQuery } from 'dexie-react-hooks'
-import {
-  useContext,
-  useEffect,
-  useId,
-  useRef,
-  useState,
-  type ReactNode,
-} from 'react'
+import { useContext, useEffect, useId, useRef, useState } from 'react'
 import { AppUiContext } from '../app/appUi'
+import { MenuPopover, type MenuItem } from '../app/ui'
 import { usePref } from '../app/usePref'
 import { removeEmptyCards, restoreEmptyCards } from '../recall/emptyCards'
 import type { LearningNotesDB } from '../core/db'
@@ -239,32 +233,19 @@ export function SearchScreen({
                     }
                     on={filters.tagId !== null}
                     onClear={() => setFilter('tagId', null)}
-                    header={
-                      tagCrumbs.length > 0 && (
-                        <div className="flex flex-wrap items-center gap-0.5 border-b border-line px-1 pb-1.5 text-xs text-muted">
-                          <button
-                            type="button"
-                            role="menuitem"
-                            onClick={() => setFilter('tagId', null)}
-                            className="min-h-7 rounded px-1 hover:bg-hover hover:text-ink"
-                          >
-                            {t('search.filter.allTags')}
-                          </button>
-                          {tagCrumbs.map((tag) => (
-                            <span key={tag.id} className="flex items-center">
-                              ›
-                              <button
-                                type="button"
-                                role="menuitem"
-                                onClick={() => setFilter('tagId', tag.id)}
-                                className="min-h-7 rounded px-1 hover:bg-hover hover:text-ink"
-                              >
-                                {tag.name}
-                              </button>
-                            </span>
-                          ))}
-                        </div>
-                      )
+                    back={
+                      tagCrumbs.length > 0
+                        ? [
+                            {
+                              label: t('search.filter.allTags'),
+                              onSelect: () => setFilter('tagId', null),
+                            },
+                            ...tagCrumbs.map((tag) => ({
+                              label: tag.name,
+                              onSelect: () => setFilter('tagId', tag.id),
+                            })),
+                          ]
+                        : undefined
                     }
                     items={tagLevel}
                     empty={
@@ -474,7 +455,7 @@ function Facet({
   empty,
   onPick,
   onClear,
-  header,
+  back,
 }: {
   label: string
   on: boolean
@@ -482,35 +463,38 @@ function Facet({
   empty: string
   onPick: (value: string) => void
   onClear: () => void
-  /** Shown above the items (e.g. the tag menu's steps back). */
-  header?: ReactNode
+  /** Steps back up the tree (e.g. All tags › Biology), listed above the items. */
+  back?: { label: string; onSelect: () => void }[]
 }) {
-  const [open, setOpen] = useState(false)
-  const ref = useRef<HTMLDivElement>(null)
-  useEffect(() => {
-    if (!open) return
-    const onDown = (e: MouseEvent) => {
-      if (!ref.current?.contains(e.target as Node)) setOpen(false)
-    }
-    const onKey = (e: KeyboardEvent) => {
-      if (e.key === 'Escape') setOpen(false)
-    }
-    document.addEventListener('mousedown', onDown)
-    document.addEventListener('keydown', onKey)
-    ref.current?.querySelector<HTMLElement>('[role=menuitem]')?.focus()
-    return () => {
-      document.removeEventListener('mousedown', onDown)
-      document.removeEventListener('keydown', onKey)
-    }
-  }, [open])
+  // The shared menu (MenuPopover) opens under the button.
+  const [at, setAt] = useState<DOMRect | null>(null)
+  const open = at !== null
+  const menuItems: MenuItem[] = [
+    ...(back ?? []).map((b) => ({
+      label: b.label,
+      icon: '‹',
+      onSelect: b.onSelect,
+    })),
+    ...(items.length === 0
+      ? [{ label: empty, icon: '', onSelect: () => {}, disabled: true }]
+      : items.map((item) => ({
+          label: item.label,
+          icon: '',
+          hint: String(item.count),
+          onSelect: () => onPick(item.value),
+        }))),
+  ]
 
   return (
-    <div ref={ref} className="relative flex">
+    <div className="relative flex">
       <button
         type="button"
         aria-expanded={open}
         aria-haspopup="menu"
-        onClick={() => setOpen((o) => !o)}
+        onClick={(e) =>
+          setAt(at ? null : e.currentTarget.getBoundingClientRect())
+        }
+        data-popup-trigger
         className={facetClass(on)}
       >
         <span className="max-w-[180px] truncate">{label}</span>
@@ -526,32 +510,12 @@ function Facet({
           ✕
         </button>
       )}
-      {open && (
-        <div
-          role="menu"
-          className="absolute start-0 top-[calc(100%+4px)] z-30 max-h-[50vh] w-max max-w-[min(320px,86vw)] min-w-[220px] overflow-auto rounded-[10px] border border-line bg-bg p-1.5 shadow-[0_12px_32px_rgba(0,0,0,0.14)]"
-        >
-          {header}
-          {items.length === 0 ? (
-            <p className="px-2 py-1.5 text-xs text-muted">{empty}</p>
-          ) : (
-            items.map((item) => (
-              <button
-                key={item.value}
-                type="button"
-                role="menuitem"
-                onClick={() => {
-                  setOpen(false)
-                  onPick(item.value)
-                }}
-                className="flex min-h-9 w-full items-center justify-between gap-3 rounded-md px-2 text-start text-sm outline-none hover:bg-hover focus:bg-hover"
-              >
-                <span className="truncate">{item.label}</span>
-                <span className="text-muted tabular-nums">{item.count}</span>
-              </button>
-            ))
-          )}
-        </div>
+      {at && (
+        <MenuPopover
+          anchor={at}
+          items={menuItems}
+          onClose={() => setAt(null)}
+        />
       )}
     </div>
   )

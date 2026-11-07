@@ -2,7 +2,7 @@
 
 Every hover tip and help line in the app (shown while Settings › Show help is On). Generated from `src/help/helpRegistry.ts` and `src/i18n/en.ts`; to change a text, edit it in `en.ts`, then run `UPDATE_HELP=1 npx vitest run src/help` to refresh this file.
 
-## Hover tips (152)
+## Hover tips (153)
 
 ### `bar.newLine`
 
@@ -93,6 +93,12 @@ Every hover tip and help line in the app (shown while Settings › Show help is 
 - **Where:** Sidebar › Calendar
 - **Meaning:** Every dated row of your databases and every journal day, by month or week.
 - **Example:** See what is due this week next to your journal.
+
+### `calendar.nav`
+
+- **Where:** Calendar › ‹ Today › (previous, today, next)
+- **Meaning:** Moves the calendar back or forward by a day, a week or a month, or jumps to today.
+- **Example:** In Day, this also works by swiping the card sideways.
 
 ### `sidebar.favourites`
 

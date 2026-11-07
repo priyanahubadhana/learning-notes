@@ -1,8 +1,8 @@
 import { useLiveQuery } from 'dexie-react-hooks'
 import { useEffect, useId, useMemo, useRef, useState } from 'react'
-import { pinAction, unpinAction } from '../app/deviceMode'
 import { buildRows, rowMatches, type Row } from '../app/tools/controlRows'
 import { Icon } from '../app/tools/icons'
+import { pinTool, unpinTool } from '../app/tools/main/barOrder'
 import { extraTools } from '../app/tools/main/mainTools'
 import { MenuIcon } from '../app/ui'
 import type { LearningNotesDB } from '../core/db'
@@ -137,14 +137,9 @@ export function SearchPopup({
     // After the search is gone, so the page has its focus back first.
     setTimeout(row.run, 0)
   }
-  const togglePin = (id: string) => {
-    const list = extraTools.get()
-    extraTools.set(
-      list.includes(id)
-        ? unpinAction(list, id)
-        : pinAction(list, id).slice(0, 8),
-    )
-  }
+  // A newly pinned tool goes first (R7-12), not last where it hides off the end.
+  const togglePin = (id: string) =>
+    extraTools.get().includes(id) ? unpinTool(id) : pinTool(id)
   const openRow = (index: number) => {
     if (index >= offset) {
       const row = features[index - offset]

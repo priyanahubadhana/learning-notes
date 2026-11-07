@@ -1,10 +1,5 @@
 import { Suspense, lazy, useRef, useState, type PointerEvent } from 'react'
-import {
-  BAR_PLACEMENTS,
-  BAR_SIZES,
-  unpinAction,
-  type DeviceMode,
-} from '../app/deviceMode'
+import { BAR_PLACEMENTS, BAR_SIZES, type DeviceMode } from '../app/deviceMode'
 import { hiddenTabs, visibleTabs } from '../app/tools/toolbarState'
 import { TABS } from '../app/tools/tabs'
 import { findTool, tabLabel, toolLabel } from '../app/tools/toolRegistry'
@@ -23,6 +18,13 @@ import {
   type MainTool,
   type PillTool,
 } from '../app/tools/main/mainTools'
+import {
+  currentBar,
+  saveBar,
+  toolToken,
+  unpinTool,
+} from '../app/tools/main/barOrder'
+import { moveTo } from '../app/tools/listEdit'
 import { pillPlaceStore } from '../app/tools/main/pillPlace'
 import { t, type MessageKey } from '../i18n/t'
 import {
@@ -155,6 +157,15 @@ function ReorderList({
   )
 }
 
+/** Moves a pinned tool one place among the pinned tools (the bar order follows). */
+function movePinned(id: string, delta: number) {
+  const bar = currentBar()
+  const pinned = bar.filter((x) => x.startsWith('x:'))
+  const target = pinned[pinned.indexOf(toolToken(id)) + delta]
+  if (!target) return
+  saveBar(moveTo(bar, toolToken(id), bar.indexOf(target)))
+}
+
 export function EditBarPanel({
   mode,
   onClose,
@@ -239,13 +250,35 @@ export function EditBarPanel({
                     <input
                       type="checkbox"
                       checked
-                      onChange={() => extraTools.set(unpinAction(extras, id))}
+                      onChange={() => unpinTool(id)}
                       className="size-5"
                     />
                     <span className="truncate">
                       {tool ? toolLabel(tool) : id}
                     </span>
                   </label>
+                  <button
+                    type="button"
+                    disabled={extras.indexOf(id) === 0}
+                    aria-label={t('bar.moveEarlier', {
+                      name: tool ? toolLabel(tool) : id,
+                    })}
+                    onClick={() => movePinned(id, -1)}
+                    className={BUTTON}
+                  >
+                    <span aria-hidden>↑</span>
+                  </button>
+                  <button
+                    type="button"
+                    disabled={extras.indexOf(id) === extras.length - 1}
+                    aria-label={t('bar.moveLater', {
+                      name: tool ? toolLabel(tool) : id,
+                    })}
+                    onClick={() => movePinned(id, 1)}
+                    className={BUTTON}
+                  >
+                    <span aria-hidden>↓</span>
+                  </button>
                 </li>
               )
             })}

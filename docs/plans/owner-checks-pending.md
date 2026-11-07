@@ -32,6 +32,14 @@ Real-time sync needs one small table and a publication on the server. Until this
 - **Enter marks:** press ↵ in the pad and write on: do you see a faint ↵ at the end of each line, and does ⌫ remove it? Does pressing ↵ pop the keyboard up (we focus the box)?
 - **Notebook reopen:** open a deep page in a notebook, go to another notebook, tap the first one: does it return to the same page with the sidebar unfolded to it? Settings › General › Open notebooks at: try First page and Notebook tabs.
 - **Updates:** after a new version is published, keep the app open and type or move between pages: does "Update available" show within about 5 to 10 minutes without a restart, and never reload while you write?
+## ROUND 6 BAR FIXES CHECKS (iPad with Pencil, installed app, tap Update until the new version shows)
+
+- **Drag a bar with the Pencil** (mini keyboard strip, mini bar, a pill, the floating bar): hold the grip and move across the page. Is there no ink line, no caret and no keyboard during the drag, and does typing work again after? Why human: real Pencil.
+- **Rectangle Lasso:** Lasso › Rectangle. Drag diagonally over ink. Does a tinted box follow your Pencil, and does lifting select what is inside? Why human: touch and look.
+- **No callout:** long-press the toolbar, a pill, a menu and the ink layer. Does the Cut / Copy / Paste bubble stay away? Select words with a finger: iPadOS may still show its own bubble next to ours (a known limit). Why human: iPadOS decides.
+- **Deselect:** make a Lasso selection and tap ⓧ with the Pencil. Then select words in the Text tool and tap empty paper with the Pencil. Does each clear? Why human: Pencil.
+- **Page stays still:** scroll a long page, then tap Text, Lasso, Pen, Highlighter, Eraser. Does the page ever jump or scroll? The tool pill now floats over the first lines: is that acceptable, or should it push the page like before? Why human: feel.
+- **Finger for bars, Pencil for the page:** tap bars with the Pencil and with a finger; rest your palm while writing. Is a palm ignored on the bars? Settings › Tool bar › Toolbar: finger only: with it on, do Pencil taps on the bars do nothing while a finger works? Why human: real palm.
 
 ## AI MODEL PICKER CHECKS (PC and iPad)
 

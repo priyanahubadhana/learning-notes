@@ -60,6 +60,13 @@ A tap adds a line and can be repeated. Press and hold (default 0.6 s) opens the 
 - A selection that starts on text lets pictures and embeds pass the pointer (`ln-selgesture`) and never starts a drag or drop; a long press that starts on a picture keeps its menu and drag. Edge auto-scroll only while a selection is being extended.
 - Settings › Advanced › Pencil writes text (Scribble) stays as an override. Settings › Tool bar › Pencil picks the Pen tool (off by default). Settings › Advanced › Pencil can scroll.
 
+## Round 6 fixes (7 Nov)
+
+- **Drag-only grips:** the mini keyboard strip, mini bar, options pills and floating bar call `startGripDrag` on the grip: it captures the pointer, the page's editable parts turn read-only until the lift, and the ink and Lasso ignore all pointers. Restored on pointer up, cancel or lost capture.
+- **The page does not move when a tool is chosen:** the options pill reserves room (a space above the page or padding) which slid the lines by its height. `pageAnchor.ts` notes the first visible line when a tool button, ribbon tab or pill ✕ is pressed (or Escape closes a pill) and puts the page back every frame for 450 ms, so the pill floats over the page. A wheel, a touch on the page or any scroll that is not ours ends it.
+- **Pencil and finger on bars (option C):** both tap bar buttons. `penTap.ts` ignores a palm on bars (a touch under 400 ms after a Pencil touch or 500 ms after it lifts; `palmGuard.barPalm`), and with Settings › Tool bar › "Toolbar: finger only" (`toolbar.fingerOnly`, off by default) ignores Pencil taps on bars and pills ([data-bar], [data-pill-root]); menus and dialogs stay reachable. On the page the Pencil writes, draws and lassos and the finger scrolls, places the caret and selects text.
+- **No iOS callout on our surfaces:** `-webkit-touch-callout:none` and `user-select:none` on bars, pills, menus and the ink layer (typing fields excepted) and no system context menu on them; limits in LIMITATIONS.
+
 ## Edge cases
 
 - A saved list or value that is invalid reads as its default (`isMainList`, `isPillMap`, `isPillPlace`, ink field clamps).

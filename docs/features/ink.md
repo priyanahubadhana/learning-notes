@@ -45,6 +45,13 @@ All four work on the ink layer, like the Pen; Lasso can select, move, scale and 
 - **Name this drawing** (Lasso menu, the T button) types a name (80 characters at most) onto every selected stroke (`Stroke.label`, an optional field: no Dexie version; validated in `checkRows.ts`; kept by move, scale, colour, duplicate and erase pieces because strokes are copied whole). Saving is one Undo step (`InkController.labelSelection`); an empty name takes it away. The box is prefilled when the selection shares one name.
 - **Search:** `search/indexMiddleware.ts` also watches `inkChunks`: after any write (from ink, History restore, sync or import) the page's single entry `ink:<pageId>` (kind `ink`, score 150, listed as a note) is made again from all live chunks of the page, or removed when no label is left. Trashing or restoring the page flags/unflags the entry. A result row shows the labels as its text and opens the page. Not rebuilt by `ensureSearchIndex` (no labels exist before this feature; labels that arrive by sync pass the middleware).
 
+## Round 6 fixes (7 Nov)
+
+- **Rectangle Lasso:** the gesture remembers if it is a rectangle when the touch starts (setting `Lasso › Rectangle`), keeps its start and current point, draws a tinted dashed box, and on lift selects ink, words and pictures inside the box from start to lift.
+- **Deselect:** the Lasso (ink) menu has an ⓧ Deselect next to the count, always visible (not under More).
+- **Grip drags:** while any bar grip is held (`app/tools/gripDrag.ts`) the ink pad and the Lasso ignore every pointer.
+- **Choosing a tool:** `app/pageAnchor.ts` holds the page still (see toolbar.md).
+
 ## Edge cases
 
 - Read-only pages (open in another window) and Reading mode show ink but do not draw.

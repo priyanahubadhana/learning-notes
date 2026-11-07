@@ -27,6 +27,7 @@ import { loadInk, saveInk } from '../core/inkService'
 import { MAX_LABEL } from '../core/inkTypes'
 import { addBlockToSummary } from '../core/summaryService'
 import { selectBlocks } from '../editor/dragSelect'
+import { selectTextRange, wordsInRegion } from '../editor/lassoWords'
 import { lookThrough, posNear } from '../editor/tapSelect'
 import { TextSelection } from 'prosemirror-state'
 import { lassoRow, ROW_ACTIONS, splitMenu, type RowAction } from './lassoMenu'
@@ -206,6 +207,12 @@ export function InkSurface({
           if (r.width === 0) return null
           return { x: r.x - w.x, y: r.y - w.y, w: r.width, h: r.height }
         },
+        wordsIn: (inside, box) => {
+          const view = (editor as unknown as Editor).prosemirrorView
+          return view ? wordsInRegion(view, inside, box) : null
+        },
+        selectText: (from, to) =>
+          selectTextRange(editor as unknown as Editor, from, to),
         placeCaret: (x, y) => {
           // A finger (or mouse click) under the Lasso still starts typing.
           const view = (editor as unknown as Editor).prosemirrorView

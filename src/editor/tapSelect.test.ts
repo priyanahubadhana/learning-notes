@@ -18,22 +18,59 @@ const doc = schema.node('doc', null, [
 const state = EditorState.create({ doc })
 
 describe('tap counting', () => {
-  it('counts taps at the same spot within 350 ms', () => {
+  it('counts taps at the same spot within 450 ms (real iPad timing)', () => {
     expect(nextTapCount(null, 1000, 10, 10)).toBe(1)
     const one = { at: 1000, x: 10, y: 10, count: 1 }
     expect(nextTapCount(one, 1200, 15, 14)).toBe(2)
     expect(nextTapCount({ ...one, count: 2 }, 1300, 12, 10)).toBe(3)
-    expect(nextTapCount(one, 1400, 10, 10)).toBe(1) // too slow
+    expect(nextTapCount(one, 1440, 10, 10)).toBe(2) // 440 ms: still a tap pair
+    expect(nextTapCount(one, 1460, 10, 10)).toBe(1) // too slow
     expect(nextTapCount(one, 1100, 40, 10)).toBe(1) // too far (12 px)
   })
 })
 
-describe('what a double and a triple tap select', () => {
-  it('double: the word; triple: the whole block', () => {
+describe('what a double, a triple and a quadruple tap select', () => {
+  // "Hello big world" drawn on two rows: "Hello big " (positions 1 to 10,
+  // y 0 to 20) and "world" (11 to 16, y 20 to 40); 10 px per character.
+  const wrap = (pos: number) => pos <= 10
+  const view = {
+    state,
+    nodeDOM: () => ({
+      getBoundingClientRect: () => ({
+        left: 0,
+        right: 100,
+        top: 0,
+        bottom: 40,
+      }),
+    }),
+    coordsAtPos: (pos: number, side = 1) => {
+      const top = wrap(pos) && !(pos === 10 && side > 0) ? 0 : 20
+      const left = top === 0 ? (pos - 1) * 10 : (pos - 11) * 10
+      return { left, right: left, top, bottom: top + 20 }
+    },
+    posAtCoords: ({ left, top }: { left: number; top: number }) => {
+      if (top < 20)
+        return { pos: 1 + Math.min(9, Math.round(left / 10)), inside: 0 }
+      return { pos: 11 + Math.min(5, Math.round(left / 10)), inside: 0 }
+    },
+  } as unknown as Parameters<typeof rangeForTaps>[0]
+  it('double: the word', () => {
     // Position 8 is inside "big".
-    expect(rangeForTaps({ state }, 8, 2)).toEqual([7, 10])
-    expect(rangeForTaps({ state }, 8, 3)).toEqual([1, 16])
-    expect(rangeForTaps({ state }, 20, 3)).toEqual([18, 29])
+    expect(rangeForTaps(view, 8, 2)).toEqual([7, 10])
+  })
+  it('triple: the visual row on screen, not the whole paragraph', () => {
+    expect(rangeForTaps(view, 8, 3, 10)).toEqual([1, 10])
+    expect(rangeForTaps(view, 13, 3, 30)).toEqual([11, 16])
+    // On the wrap itself, the tap's y says which row is meant.
+    expect(rangeForTaps(view, 10, 3, 5)).toEqual([1, 10])
+    expect(rangeForTaps(view, 10, 3, 35)).toEqual([11, 16])
+  })
+  it('triple without a measurable row, and quadruple: the whole block', () => {
+    expect(rangeForTaps({ ...view, nodeDOM: () => null }, 8, 3, 10)).toEqual([
+      1, 16,
+    ])
+    expect(rangeForTaps(view, 8, 4, 10)).toEqual([1, 16])
+    expect(rangeForTaps(view, 20, 4)).toEqual([18, 29])
   })
 })
 

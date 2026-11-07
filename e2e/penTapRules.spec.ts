@@ -104,7 +104,9 @@ test('Text, tap twice on: the first Pencil tap only marks a block with words (no
   expect(await tap(page, await blockPoint(page, 1))).toBe(true)
   expect(await activeBlockIndex(page)).toBe(1)
   expect(await focused(page)).toBe(false)
-  // The second tap inside the active block is left to place the caret.
+  // The second tap inside the active block is left to place the caret. A
+  // quick re-tap (under 450 ms) would be a double tap and select the word.
+  await page.waitForTimeout(500)
   expect(await tap(page, await blockPoint(page, 1))).toBe(false)
   await expect(page.locator('.bn-editor [data-caret-flash]')).toHaveCount(1)
   expect(await activeBlockIndex(page)).toBe(-1)

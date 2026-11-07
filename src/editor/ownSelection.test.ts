@@ -41,6 +41,14 @@ describe('own selection', () => {
     expect(recentIntent(5000, 0, true)).toBe(true)
   })
 
+  it('a kept selection (a Pencil double tap) ignores recent input until the keep ends', () => {
+    // The tap's own late click arrives 100 ms after the selection (R6-18).
+    expect(recentIntent(1100, 1000, false, 1000 + 1500)).toBe(false)
+    expect(recentIntent(2600, 2500, false, 1000 + 1500)).toBe(true)
+    // A new pointerdown clears the keep (the plugin resets it to the past).
+    expect(recentIntent(1100, 1000, true, -1e9)).toBe(true)
+  })
+
   it('puts back a selection that collapses by itself, but not one the person ended', () => {
     const before = stateWith(3, 8)
     const collapse = before.tr.setSelection(TextSelection.create(doc, 8, 8))

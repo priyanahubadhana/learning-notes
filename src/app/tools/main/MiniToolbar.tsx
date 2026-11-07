@@ -18,6 +18,7 @@ import { runEditorCommand } from '../editorCommands'
 import { Icon, type IconName } from '../icons'
 import { runTool } from '../toolRegistry'
 import { CHROME_SELECTOR } from '../../penTap'
+import { tapSelected } from '../../../editor/tapSelect'
 import { currentRunner } from '../toolRuntime'
 import { highlightChoice, textColourChoice } from './pillChoices'
 import { miniToolbarOpen, openCard, openPillTool } from './mainTools'
@@ -132,7 +133,7 @@ export function MiniToolbar({ editor }: { editor: Editor }) {
   }, [open, measure])
   // A tap on the page away from the selection, or Esc, dismisses it (the
   // selection otherwise stays until the person acts). A tap that is part of
-  // making the selection (a triple-tap) comes sooner than the guard below.
+  // making the selection (a triple or quadruple tap) says so (tapSelect.ts).
   useEffect(() => {
     if (!open) return
     const born = Date.now()
@@ -143,7 +144,7 @@ export function MiniToolbar({ editor }: { editor: Editor }) {
     const onUp = (e: PointerEvent) => {
       const start = down
       down = null
-      if (!start || Date.now() - born < 450) return
+      if (!start || Date.now() - born < 450 || tapSelected(e)) return
       if (Math.hypot(e.clientX - start.x, e.clientY - start.y) > 10) return
       const target = e.target instanceof Element ? e.target : null
       if (!target || target.closest(CHROME_SELECTOR)) return

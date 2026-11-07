@@ -139,6 +139,18 @@ export interface InkEnv {
   blockKind: (id: string) => 'text' | 'picture'
   /** The words or picture of a block (page px), not its full-width box. */
   blockBox: (id: string) => Rect | null
+  /**
+   * The T filter around part of a paragraph (R6-17): the words whose centre
+   * is inside the region, as one text range in reading order, the ids of the
+   * blocks they sit in and which of those are taken in whole. `inside` and
+   * `box` are in client px.
+   */
+  wordsIn: (
+    inside: (x: number, y: number) => boolean,
+    box: Rect,
+  ) => { from: number; to: number; blocks: string[]; full: string[] } | null
+  /** Selects a text range in the editor (the usual text menu follows). */
+  selectText: (from: number, to: number) => void
   /** A finger tap or mouse click under the Lasso: the caret lands there. */
   placeCaret: (clientX: number, clientY: number) => void
 }
@@ -1528,15 +1540,38 @@ export class InkController {
         const region = g.rect ? rectPolygon(g.start, end) : g.path
         const found = f.ink ? this.inRegion(region) : []
         const blocks = this.blocksIn(region)
+        // The T filter around part of a paragraph: the words inside (R6-17).
+        const words =
+          found.length === 0 && f.text ? this.wordsInRegion(region) : null
+        // Lines taken in whole (most of the line, or every word, inside).
+        const wholeLines =
+          !words ||
+          words.blocks.every(
+            (id) => blocks.includes(id) || words.full.includes(id),
+          )
         if (found.length > 0) {
           this.select(found.map((p) => p.stroke.id))
           // Ink and words or pictures in one loop: the mixed menu.
           this.blockSel = blocks
           this.notify()
-        } else if (blocks.length > 0) {
-          // Words or pictures alone: the text editor's own selection and menu.
+        } else if (
+          words &&
+          !wholeLines &&
+          !blocks.some((id) => this.env.blockKind(id) === 'picture')
+        ) {
+          // Some words, or a full line and part of the next: that text range.
           this.clearSelection()
-          this.env.selectBlocks(blocks)
+          this.env.selectText(words.from, words.to)
+        } else if (blocks.length > 0 || words) {
+          // Whole lines or pictures: the text editor's own block selection and menu.
+          this.clearSelection()
+          const ids = words ? [...blocks, ...words.blocks] : blocks
+          this.env.selectBlocks(
+            this.layout
+              .blocks()
+              .map((b) => b.id)
+              .filter((id) => ids.includes(id)),
+          )
         } else if (!g.owns) {
           // A tap or loop on empty paper lets go of the selection. A mouse
           // click (no loop) places the caret, as it does everywhere.
@@ -1586,6 +1621,22 @@ export class InkController {
         return mostlyInside(words, (p) => inPolygon(p, poly))
       })
       .map((b) => b.id)
+  }
+
+  /**
+   * The words whose centre is inside the loop (R6-17), as one text range. The
+   * loop is in page px; the editor measures words in client px.
+   */
+  private wordsInRegion(
+    path: Pt[],
+  ): { from: number; to: number; blocks: string[]; full: string[] } | null {
+    if (path.length < 3) return null
+    const b = this.env.wrap.getBoundingClientRect()
+    const area = boundsOf(path)
+    return this.env.wordsIn(
+      (x, y) => inPolygon({ x: x - b.left, y: y - b.top }, path),
+      { x: area.x + b.left, y: area.y + b.top, w: area.w, h: area.h },
+    )
   }
 
   // ---- Copy, cut, paste, thickness ----

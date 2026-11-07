@@ -35,12 +35,31 @@ const MAX_DECORATIONS = 300
 /** A text selection longer than this is drawn by whole blocks. */
 const LONG_SELECTION = 6000
 
+/** A kept selection stays this long (ms) against anything but a new tap or key. */
+export const KEEP_MS = 1500
+
 let lastInputAt = -1e9
 let pointerDown = false
+let keptUntil = -1e9
+
+/**
+ * A selection the app just made on purpose (a Pencil double or triple tap,
+ * tapSelect.ts) is kept: the browser's own late reaction to that same tap
+ * (iPadOS sends the tap's synthetic click after our selection, and its
+ * mousedown collapses it, R6-18) arrives with no new pointerdown and is put
+ * back. The next pointerdown or key press is the person's own move.
+ */
+export function keepSelection(now = Date.now()): void {
+  keptUntil = now + KEEP_MS
+}
 
 /** Was there input (a pointer or a key) just now? Pure for tests. */
-export const recentIntent = (now: number, last: number, down: boolean) =>
-  down || now - last < INTENT_MS
+export const recentIntent = (
+  now: number,
+  last: number,
+  down: boolean,
+  kept = -1e9,
+) => (down || now - last < INTENT_MS) && now >= kept
 
 /** True when a transaction would collapse a non-empty selection by itself. */
 export function wouldLoseSelection(
@@ -100,9 +119,14 @@ export const ownSelection = createExtension({
         const note = () => {
           lastInputAt = Date.now()
         }
+        // A new tap or key is the person's own move: a kept selection is let go.
+        const own = () => {
+          keptUntil = -1e9
+          note()
+        }
         const down = () => {
           pointerDown = true
-          note()
+          own()
         }
         const up = () => {
           pointerDown = false
@@ -111,20 +135,25 @@ export const ownSelection = createExtension({
         doc.addEventListener('pointerdown', down, true)
         doc.addEventListener('pointerup', up, true)
         doc.addEventListener('pointercancel', up, true)
-        doc.addEventListener('keydown', note, true)
+        doc.addEventListener('keydown', own, true)
         doc.addEventListener('beforeinput', note, true)
         return {
           destroy() {
             doc.removeEventListener('pointerdown', down, true)
             doc.removeEventListener('pointerup', up, true)
             doc.removeEventListener('pointercancel', up, true)
-            doc.removeEventListener('keydown', note, true)
+            doc.removeEventListener('keydown', own, true)
             doc.removeEventListener('beforeinput', note, true)
           },
         }
       },
       appendTransaction(trs, before, after) {
-        const intent = recentIntent(Date.now(), lastInputAt, pointerDown)
+        const intent = recentIntent(
+          Date.now(),
+          lastInputAt,
+          pointerDown,
+          keptUntil,
+        )
         for (const tr of trs) {
           if (!wouldLoseSelection(before, tr, after, intent)) continue
           // Put back what was selected (no edit happened, so positions hold).

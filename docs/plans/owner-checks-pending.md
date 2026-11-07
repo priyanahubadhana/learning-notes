@@ -2,6 +2,13 @@
 
 Moved out of HANDOFF on 2026-11-06 (audit) so HANDOFF stays five lines. Newest first; each paragraph names its step. The run decision (master plan) is one owner iPad pass before Sync; the Phase A builder adds its checks at the top. Tick a paragraph by deleting it.
 
+## Pencil taps and Lasso words: R6-17..R6-20 (7 Nov)
+
+1. Text tool, Pencil: double-tap a word in a paragraph. The word stays selected (no flicker, no jump to a caret) and the mini toolbar shows; it stays until you tap elsewhere or press a key. Why human: the real iPad's own double-tap and late click cannot be simulated.
+2. Triple-tap a word deep inside a long wrapped paragraph: only that screen row is selected (not the paragraph). Four taps: the paragraph. Does the 450 ms pace feel natural? Too slow a second tap places the caret instead.
+3. Settings › Advanced › "Pencil: tap twice" on: tap a block (outline), pause, tap again: the caret lands. A quick tap-tap now selects the word instead; say if that gets in the way.
+4. Lasso, T filter on, Ink off: loop a few words inside a paragraph, freeform and rectangle: just those words are selected and the text menu shows. Loop a whole short line: the line is selected as a block, as before.
+
 ## Write pad: no lost text, live writing (7 Nov)
 
 1. Write a few words in the pad, switch **Read with** to AI and back: the words stay (in AI they sit above the canvas). Write on the AI canvas without tapping Read, then switch back: it asks Keep writing / Discard.

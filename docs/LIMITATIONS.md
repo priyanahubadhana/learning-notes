@@ -1,5 +1,7 @@
 # Known Limitations
 
+- **AI (bring your own key):** the key sits unencrypted in this browser's localStorage (a web page cannot encrypt it without a passphrase); it is never in a backup or sync, so each device needs the key again. Answers are not streamed (nothing shows until done). Handwriting reading is as good as the chosen model; Hindi needs a vision model (Haiku 5.5 reads it). Pen-pressure weights need a real pen: a mouse or finger gives every word the chosen weight. Prices are a dated table, not live.
+
 - **Pages can't be dragged** in the sidebar tree (notebooks can).
 - **Safari on Windows is slow in tests:** run WebKit tests with `--workers=2 --timeout=120000`. One touch-drag test runs only in Chrome. Two WebKit tests still fail on robot typing and selecting in the editor; the owner confirmed both features work on the real iPad. Look and feel on real devices is checked by hand.
 - **First load size:** 349.6 KB gzipped on 2026-11-07 (limit 350 KB, checked by `npm run check:size` in CI); almost no spare room, so new code on the first screen must load on demand.
@@ -26,4 +28,4 @@
 
 - **What a web app cannot match from native PencilKit apps (GoodNotes, Notability):** very low-latency ink (a browser adds a frame or two, even with pointer prediction), palm rejection by the system, and system Scribble integration (handwriting into any field, scratch-out, the Scribble palette). Instead: the Pencil follows the active tool (free for Scribble under Text, hold-to-select, double and triple tap selection, a mini toolbar instead of the iOS callout), a guard against big scratch-out deletes with Undo, and the ink engine (step 3) draws with pointer events and prediction. If that is not smooth enough on the owner's iPad, a native shell (PencilKit) is the later option. Not provable without a real iPad.
 - **Audio recording:** one recording at a time; held in memory until Stop (a full device loses it); iPadOS stops it when Safari goes to the background; not in single-notebook files or Add as copies; no ink replay, rename or lock-screen player yet; "Notes only" backups leave the sound out.
-- **Still "coming" in the bars:** Insert items Table, Shape, Camera, File, Tape, Magnifier and Ruler, Toggle list (master plan G1–G2), and the Lasso extras Save to notes and Convert handwriting (A2, P). The ink engine itself is built (step 3) and Phase A is making the Pencil trustworthy on the real iPad.
+- **Still "coming" in the bars:** Insert items Table, Shape, Camera, File, Tape, Magnifier and Ruler, Toggle list (master plan G1–G2), and the Lasso extra Save to notes (A2). Convert to text is built (Phase P) and needs the user's own AI key. The ink engine itself is built (step 3) and Phase A is making the Pencil trustworthy on the real iPad.

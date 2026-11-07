@@ -5,8 +5,12 @@ import { PopupHeader } from '../app/tools/PopupClose'
 import type { LearningNotesDB } from '../core/db'
 import type { Editor } from '../editor/barActions'
 import { t } from '../i18n/t'
-import type { InkController } from '../ink/controller'
-import { getPage } from '../pages/pageService'
+/** What the sheet needs of the ink (kept small: ai does not import ink). */
+interface InkController {
+  selected(): { blockId: string | null }[]
+  deleteSelection(): void
+  undo(): boolean
+}
 import { blocker, readAiConfig } from './aiRun'
 import { AiError, PROVIDERS, type AiImage } from './provider'
 import { blobToImage, runVision, type VisionTask } from './vision'
@@ -52,7 +56,7 @@ export function ConvertInk({
   const [task, setTask] = useState<VisionTask>(firstTask)
   const send = async (as: VisionTask) => {
     setTask(as)
-    const page = await getPage(db, pageId)
+    const page = await db.pages.get(pageId)
     const notebook = page ? await db.notebooks.get(page.notebookId) : undefined
     const why = blocker(config, !!notebook?.allowAi)
     if (why) {

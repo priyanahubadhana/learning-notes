@@ -1,7 +1,6 @@
 import { db } from '../core/db'
 import type { PadStroke } from '../editor/writePad/pressure'
 import { t } from '../i18n/t'
-import { getPage } from '../pages/pageService'
 import { blocker, readAiConfig } from './aiRun'
 import { AiError, MAX_IMAGE_SIDE, type AiImage } from './provider'
 import { runVision } from './vision'
@@ -64,7 +63,7 @@ export async function readPad(
   pageId: string | undefined,
 ): Promise<string> {
   const config = readAiConfig()
-  const page = pageId ? await getPage(db, pageId) : undefined
+  const page = pageId ? await db.pages.get(pageId) : undefined
   const notebook = page ? await db.notebooks.get(page.notebookId) : undefined
   const why = blocker(config, !!notebook?.allowAi)
   if (why) {

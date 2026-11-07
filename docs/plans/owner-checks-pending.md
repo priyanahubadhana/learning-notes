@@ -2,6 +2,16 @@
 
 Moved out of HANDOFF on 2026-11-06 (audit) so HANDOFF stays five lines. Newest first; each paragraph names its step. The run decision (master plan) is one owner iPad pass before Sync; the Phase A builder adds its checks at the top. Tick a paragraph by deleting it.
 
+## PHASE P CHECKS (AI with your own Claude key; iPad with Pencil and the PC, installed app, tap Update until the new version shows)
+
+- **Paste your own Claude key:** Settings › AI › turn AI on, Provider Anthropic, paste your key from console.anthropic.com, Save. Is it shown masked (sk-…last four)? Model should say claude-haiku-5-5 and the cap $5. Turn on Allow AI for one notebook only. Why human: your real key and account; never paste it anywhere else.
+- **Convert to text:** in that notebook, write a line in English and a line in Hindi with the Pencil, Lasso it, ⋯ / row › Convert to text. Does the sheet show exactly your ink and say only it is sent? Send. Is the text right in both scripts? Try Insert below, then Undo; then Replace the ink, then Undo (does the ink come back?); then Copy. Why human: real handwriting and Hindi quality.
+- **Maths to formula:** write a fraction or E = mc² and use Maths to formula. Does a Formula block appear with the right LaTeX? Why human: real handwriting.
+- **Write pad AI:** Insert › Write pad › Read with: AI. Write two words lightly and one word pressing hard, tap Read. Is the firm word bolder (Kalam shows Light/Normal/Bold; Caveat only Normal/Bold)? Insert: does the page match the preview? Why human: real Pencil pressure.
+- **Notebook without AI:** in another notebook try Convert to text. Does it say AI is off for this notebook and send nothing? Why human: final check of the permission.
+- **Cost:** after a few tries, Settings › AI shows this month's estimate. Compare with console.anthropic.com › Usage: is ours equal or higher? Set the cap to $0.01 and try again: is it blocked? Why human: your real bill.
+- **Backup:** Save everything, then open the zip on the PC and search for your key: it must not be there. Why human: your real key.
+
 ## WRITE PAD CHECKS (real iPad with Pencil, Safari and the installed app, tap Update until the new version shows)
 
 - **Scribble in the pad** (Insert › Write pad): write a few words with the Pencil in the big box. Does Scribble convert them? Try pad heights from small to tall and every zoom (A+). Does writing still work after zooming? Why human: Scribble cannot be tested by a computer; a zoom may break its hit-testing.

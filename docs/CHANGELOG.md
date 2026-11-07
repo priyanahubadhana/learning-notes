@@ -2,6 +2,12 @@
 
 Current phase only. Older entries are in [ARCHIVE.md](ARCHIVE.md).
 
+## 2026-11-07 (Phase P part 1: vision, Convert to text, Write pad AI engine; no new Dexie version)
+
+- **What:** image input for all three providers (strokes rendered to PNG), retry with backoff on 429/5xx/dropped connection, picture tokens in the cap check; Lasso › Convert to text (picture preview, only the picture sent, Insert below / Replace the ink / Copy, Maths to formula into a Formula block, one Undo); Write pad Scribble/AI switch with a pressure canvas, weight per word from normalised pressure (Kalam Light/Normal/Bold, Caveat Normal/Bold); cards from highlights e2e (per-card approval, one Undo). Defaults unchanged: Anthropic, `claude-haiku-5-5`, $5 cap, AI off per notebook.
+- **Why:** owner approved Phase P on 7 Nov ($100 Claude credit). **Files:** `src/ai/{provider,providers,usage,vision,ConvertInk,padRead}.ts(x)`, `src/ai/vision.test.ts`, `src/editor/writePad/{AiCanvas.tsx,pressure.ts,pressure.test.ts,WritePad.tsx,apply.ts,engine.ts,padPrefs.ts,padState.ts}`, `src/ink/InkSurface.tsx`, `src/app/tools/toolRegistry.ts`, `src/help/helpRegistry.ts`, `docs/HELP-TEXTS.md`, `src/i18n/{enO,esO,hiO}.ts`, `e2e/{ai,aiVision}.spec.ts`, docs (features/ai.md, write-pad.md, DECISIONS, HANDOFF, LIMITATIONS, owner checks).
+- **Tests:** unit vision.test.ts (11), pressure.test.ts (5); e2e aiVision.spec.ts (5), ai.spec.ts +1. First load unchanged in size class (AI code is lazy).
+
 ## 2026-11-07 (Write pad MVP, iPad Scribble; no new Dexie version)
 
 - **What:** Insert › Write pad (also a registry tool) opens a lazy docked pad: a big textarea for iPad Scribble, a preview line, a top-edge resize grip, writing zoom, Insert and Replace (one Undo step each; the page selection is saved on open and restored on apply), colour, highlight, size, font (Caveat default, Kalam for Hindi), weight (Light, Normal, Bold) and the keys ␣ ↵ ⌫. New text style `hand`. PC hint line. `WritePadEngine` interface for later engines; no AI built. First load 338,312 bytes (the pad is a separate chunk). Kalam Light (300) files added to the Kalam font loader.

@@ -325,6 +325,7 @@ test('Lasso menu on a selection: Copy, Duplicate, Delete, Key point, Make card; 
     'Screenshot of the selection',
     'Key point',
     'Make card',
+    'Add to Summary',
     'Save to notes',
     'Convert handwriting to text (beta)',
     'Deselect',

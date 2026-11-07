@@ -231,11 +231,11 @@ test('under Lasso a Pencil double-tap selects the word, a triple-tap the line, w
   // Bold from the mini toolbar.
   await mini.getByRole('button', { name: 'Bold' }).click()
   await expect(page.locator('.bn-editor strong')).toHaveText('nucleus')
-  // More: paste, Make card, key point, save to notes.
+  // More: paste, Make card, Add to Summary, key point, save to notes.
   await mini.getByRole('button', { name: 'More' }).click()
   await expect(
     mini.getByRole('group', { name: 'More' }).getByRole('button'),
-  ).toHaveCount(4)
+  ).toHaveCount(5)
   // The triple-tap selects the whole line.
   await mini.getByRole('button', { name: 'More' }).click()
   await mini.getByRole('button', { name: 'Deselect' }).click()

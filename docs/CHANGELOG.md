@@ -2,6 +2,12 @@
 
 Current phase only. Older entries are in [ARCHIVE.md](ARCHIVE.md).
 
+## 2026-11-08 (Phase Q Paper page: research and plan, docs only)
+
+- **What:** paper-page research added; plan with a full feature inventory (each feature on paper), design (box = hidden child page, ink anchor mode `sheets`, gesture rules, steps), how nothing is lost, reuse of lined/grid/dots, open owner questions. Phase Q in ROADMAP and DECISIONS. No app code.
+- **Why:** owner approved the paper page and asked for a deeper look first.
+- **Files:** `docs/research/paper-page-2026-11.md`, `docs/plans/paper-page-plan.md`, `docs/ROADMAP.md`, `docs/DECISIONS.md`, `docs/CHANGELOG.md`.
+
 ## 2026-11-07 (CI stabiliser: red main fixed)
 
 - **What:** `e2e/nestedCard.spec.ts:67` (Change in Settings) failed on every CI run since Settings sections went lazy (bundle diet): the setting was found and scrolled to, then a lazy section above it loaded and pushed it out of view, and nothing scrolled again. App fix: `revealWhenReady` now re-scrolls (no animation) when the element moves within its 3 s window. Flaky specs made deterministic with real conditions, no sleeps: `openPill`, the Edit bar menu and the Eraser pill (inkPills, editMainBar, inkLayers) tap again only while the thing is not showing.

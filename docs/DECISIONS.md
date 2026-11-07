@@ -7,6 +7,8 @@ Current phase only. Older decisions are in [ARCHIVE.md](ARCHIVE.md).
 
 ## Phase 9 decisions
 
+- **2026-11-08 · Owner decision: build Phase Q (Paper page) now, in parallel with the fixes.** Design in [plans/paper-page-plan.md](plans/paper-page-plan.md); building paused by the coordinator until the owner answers its open questions (section 6). Planned choice: each block box is a hidden child page, so every block feature keeps working.
+
 - **2026-11-06 · Owner decision: build Phase L (Sync) now, in parallel with Waves 4–5.** A one-time exception to "no skipping phases". No planning talk: the approved [RESEARCH.md](RESEARCH.md) design is followed; choices are logged under "Decisions to review" (Phase L rows).
 
 | Date       | Decision                                                                                                                                                    |

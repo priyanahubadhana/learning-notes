@@ -79,7 +79,13 @@ import {
   listNotebooks,
   renameNotebook,
 } from './notebooks/notebookService'
-import { createPage, getPage, renamePage } from './pages/pageService'
+import {
+  createPage,
+  getPage,
+  getPagePath,
+  renamePage,
+} from './pages/pageService'
+import { pageForNotebook, rememberNotebookPage } from './notebooks/lastPage'
 import { LazyNameSheet } from './app/LazyNameSheet'
 import { touchUi } from './app/touchUi'
 import { BackupReminder } from './share/ReminderBar'
@@ -94,10 +100,11 @@ import {
   dateStyleSetting,
   languageSetting,
   newPageStudySetting,
+  openNotebookAtSetting,
   reviseLabelsSetting,
   theme as themeSetting,
 } from './settings/builtinSettings'
-import { getSetting } from './settings/settingsService'
+import { getSetting, readDeviceSetting } from './settings/settingsService'
 import { setMarkLabels } from './revise/reviseMarks'
 import { useAutoDeviceMode } from './settings/deviceModeSettings'
 import { useDeviceSetting, useSyncedSetting } from './settings/useSetting'
@@ -364,12 +371,29 @@ function App() {
     () => !devicePickerDone.get(),
   )
   /** Opens a notebook's tabs (Notes · Database · Cards). */
-  const openNotebook = (id: string) => {
+  const openNotebookTabs = (id: string) => {
     setHub(null)
     setShowSettings(false)
     setReviewScope(null)
     setSearch(null)
     setNotebookId(id)
+  }
+  /**
+   * R6-12: a notebook opens at its last page (or first page) with the tree
+   * unfolded to it, as the setting says; "tabs" or an empty notebook opens
+   * the notebook screen.
+   */
+  const openNotebook = (id: string) => {
+    const mode = readDeviceSetting(openNotebookAtSetting)
+    if (mode === 'tabs') return openNotebookTabs(id)
+    void pageForNotebook(db, id, mode).then(async (page) => {
+      if (!page) return openNotebookTabs(id)
+      tree.expandNotebook(id)
+      for (const p of await getPagePath(db, page.id)) {
+        if (p.id !== page.id) tree.expandPage(p.id)
+      }
+      openPage(page.id)
+    })
   }
   const openPage = (id: string | null) => {
     setHub(null)
@@ -615,6 +639,12 @@ function App() {
       currentPageId ? ((await getPage(db, currentPageId)) ?? null) : null,
     [currentPageId],
   )
+
+  // R6-12: each notebook remembers the page last open in it (this device).
+  useEffect(() => {
+    if (currentPage && !currentPage.databaseId)
+      rememberNotebookPage(currentPage.notebookId, currentPage.id)
+  }, [currentPage?.id, currentPage?.notebookId]) // eslint-disable-line react-hooks/exhaustive-deps
 
   // No backup file for a week: a gentle reminder (not while reviewing).
   const backupDue = useLiveQuery(() => reminderDue(db), [])

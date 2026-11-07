@@ -181,4 +181,11 @@ export const hiO: Record<string, string> = {
   'help.tip.ai.modelOrder.meaning':
     'कुंजी वाला पहला कार्ड डिफ़ॉल्ट है; बाकी बैकअप क्रम हैं।',
   'help.tip.ai.modelOrder.example': 'मुफ़्त Gemini पहले रखें, Claude दूसरे।',
+  // ---- Open notebooks at (R6-12) ----
+  'settings.openNotebookAt.label': 'नोटबुक यहाँ खोलें',
+  'settings.openNotebookAt.description':
+    'इस डिवाइस पर नोटबुक दबाने पर क्या खुले: आख़िरी पेज, पहला पेज या उसके टैब (नोट्स, डेटाबेस, कार्ड)।',
+  'settings.openNotebookAt.last': 'आख़िरी पेज',
+  'settings.openNotebookAt.first': 'पहला पेज',
+  'settings.openNotebookAt.tabs': 'नोटबुक टैब',
 }

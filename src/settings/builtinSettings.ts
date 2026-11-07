@@ -31,6 +31,11 @@ import {
 import { dateLocale, t, type DateStyle, type MessageKey } from '../i18n/t'
 import { freeTip } from '../app/tools/freeBar'
 import { isPathStyle, PATH_STYLES, type PathStyle } from '../pages/pathStyle'
+import {
+  isOpenNotebookAt,
+  OPEN_NOTEBOOK_AT,
+  type OpenNotebookAt,
+} from '../notebooks/lastPage'
 import { writeDeviceSetting } from './settingsService'
 import {
   createSettingsRegistry,
@@ -575,6 +580,25 @@ export const pathStyleSetting: SettingDefinition<PathStyle> = {
   },
 }
 
+/** R6-12: what tapping a notebook opens (this device). */
+export const openNotebookAtSetting: SettingDefinition<OpenNotebookAt> = {
+  id: 'general.openNotebookAt',
+  labelKey: 'settings.openNotebookAt.label',
+  descriptionKey: 'settings.openNotebookAt.description',
+  category: 'general',
+  keywords: 'open notebook last page first page tabs resume where i left off',
+  scope: 'device',
+  defaultValue: 'last',
+  isValid: isOpenNotebookAt,
+  control: {
+    kind: 'segmented',
+    options: OPEN_NOTEBOOK_AT.map((value) => ({
+      value,
+      label: () => t(`settings.openNotebookAt.${value}` as MessageKey),
+    })),
+  },
+}
+
 /** Sets the five bar settings to a mode's preset. */
 export function applyModePreset(mode: DeviceMode): void {
   const preset = MODE_PRESETS[mode]
@@ -623,6 +647,7 @@ for (const definition of [
   pencilScrollsSetting,
   pencilTapTwiceSetting,
   pathStyleSetting,
+  openNotebookAtSetting,
   reviseLabelsSetting,
   languageSetting,
   showHelp,

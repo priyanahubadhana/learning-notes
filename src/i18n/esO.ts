@@ -188,4 +188,11 @@ export const esO: Record<string, string> = {
     'La primera tarjeta con clave es la predeterminada; las demás son el orden de respaldo.',
   'help.tip.ai.modelOrder.example':
     'Pon Gemini gratis primero y Claude después.',
+  // ---- Open notebooks at (R6-12) ----
+  'settings.openNotebookAt.label': 'Abrir cuadernos en',
+  'settings.openNotebookAt.description':
+    'Qué abre un toque en un cuaderno en este dispositivo: la última página, la primera o sus pestañas (Notas, Base de datos, Tarjetas).',
+  'settings.openNotebookAt.last': 'Última página',
+  'settings.openNotebookAt.first': 'Primera página',
+  'settings.openNotebookAt.tabs': 'Pestañas del cuaderno',
 }

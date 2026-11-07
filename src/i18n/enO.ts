@@ -186,4 +186,11 @@ export const enO = {
     'The first card with a key is the default; the others are the fallback order.',
   'help.tip.ai.modelOrder.example':
     'Put the free Gemini card first, Claude second.',
+  // ---- Open notebooks at (R6-12) ----
+  'settings.openNotebookAt.label': 'Open notebooks at',
+  'settings.openNotebookAt.description':
+    'What tapping a notebook opens on this device: the page you were on, its first page, or its tabs (Notes, Database, Cards).',
+  'settings.openNotebookAt.last': 'Last page',
+  'settings.openNotebookAt.first': 'First page',
+  'settings.openNotebookAt.tabs': 'Notebook tabs',
 }

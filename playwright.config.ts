@@ -30,6 +30,11 @@ export default defineConfig({
           origin: `http://localhost:${PORT}`,
           localStorage: [
             { name: 'learning-notes:devicePicker.done', value: 'true' },
+            // Most specs open a notebook's tabs by tapping it (R6-12).
+            {
+              name: 'learning-notes:general.openNotebookAt',
+              value: '"tabs"',
+            },
           ],
         },
       ],
@@ -80,6 +85,7 @@ export default defineConfig({
         /lassoPencil/,
         /magnifier/,
         /aiPicker/,
+        /openNotebook/,
       ],
       use: { ...devices['iPad Pro 11'], hasTouch: true },
       expect: { timeout: 15_000 },

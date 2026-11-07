@@ -109,10 +109,16 @@ export async function startSync(db: LearningNotesDB): Promise<void> {
   subscribeSync(() => {
     if (getSyncStatus().phase !== 'signedOut') {
       void import('../ai/keySync').then((m) => m.startKeySync(db))
+      void import('../app/tools/main/layoutSync').then((m) =>
+        m.startLayoutSync(db),
+      )
     }
   })
   if (getSyncStatus().phase !== 'signedOut') {
     void import('../ai/keySync').then((m) => m.startKeySync(db))
+    void import('../app/tools/main/layoutSync').then((m) =>
+      m.startLayoutSync(db),
+    )
   }
 
   const kick = () => {

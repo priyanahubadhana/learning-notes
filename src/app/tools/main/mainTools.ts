@@ -1,5 +1,6 @@
-import { isBoolean, isStringArray } from '../../uiPrefs'
-import { prefStore, memStore } from '../store'
+import { isBoolean } from '../../uiPrefs'
+import { MAX_PINNED } from '../../deviceMode'
+import { prefStore, memStore, cleanStore } from '../store'
 
 /**
  * The state of the main bar and its options pill (redesign step 2).
@@ -140,14 +141,19 @@ export function closePill(): void {
 
 // ---- What is on the main bar and in the pills (Edit bar) ----
 
-const isMainList = (v: unknown): v is MainTool[] =>
-  Array.isArray(v) &&
-  v.length <= MAIN_TOOLS.length &&
-  new Set(v).size === v.length &&
-  v.every(isMainTool)
+/**
+ * A saved main bar, cleaned (R7-10): tools this build does not know are left
+ * out and repeats dropped; the person's other choices and their order stay.
+ * New tools are never added here: they wait in the Edit toolbar list.
+ */
+export function cleanMainList(v: unknown): MainTool[] | undefined {
+  if (!Array.isArray(v)) return undefined
+  const kept = [...new Set(v.filter(isMainTool))]
+  return kept.length > 0 || v.length === 0 ? kept : undefined
+}
 
 /** The tools on the main bar, in order. */
-export const mainList = prefStore<MainTool[]>('toolbar.main', isMainList, [
+export const mainList = cleanStore<MainTool[]>('toolbar.main', cleanMainList, [
   ...MAIN_TOOLS,
 ])
 
@@ -165,22 +171,31 @@ export function withoutReadPill(map: PillMap): PillMap {
   void _gone
   return rest
 }
-const isPillMap = (v: unknown): v is PillMap => {
-  if (typeof v !== 'object' || v === null || Array.isArray(v)) return false
-  return Object.entries(v).every(
-    ([tool, list]) =>
-      // `read` was a pill before the Read pill was removed: still accepted
-      // (and dropped by tidyBarOnce) so an old saved bar keeps its other pills.
-      (tool === LEGACY_READ_PILL || isPillTool(tool)) &&
-      isStringArray(list) &&
-      new Set(list).size === list.length &&
-      (tool === LEGACY_READ_PILL ||
-        list.every((id) => PILL_OPTIONS[tool as PillTool].includes(id))),
-  )
+/**
+ * A saved pill map, cleaned (R7-10): unknown tools and unknown options are
+ * left out (the old Read pill too); every pill keeps its other choices.
+ */
+export function cleanPillMap(v: unknown): PillMap | undefined {
+  if (typeof v !== 'object' || v === null || Array.isArray(v)) return undefined
+  const out: PillMap = {}
+  for (const [tool, list] of Object.entries(v)) {
+    if (!isPillTool(tool) || !Array.isArray(list)) continue
+    const kept = [
+      ...new Set(
+        list.filter(
+          (id): id is string =>
+            typeof id === 'string' && PILL_OPTIONS[tool].includes(id),
+        ),
+      ),
+    ]
+    // Nothing left of a non-empty list: that pill goes back to its defaults.
+    if (kept.length > 0 || list.length === 0) out[tool] = kept
+  }
+  return out
 }
 
 /** Each pill's own options, in order (a missing pill uses its defaults). */
-export const pillLists = prefStore<PillMap>('toolbar.pills', isPillMap, {})
+export const pillLists = cleanStore<PillMap>('toolbar.pills', cleanPillMap, {})
 
 export function pillOptionsOf(tool: PillTool, map: PillMap): string[] {
   const own = map[tool]
@@ -194,9 +209,27 @@ export function setPillOptions(tool: PillTool, list: readonly string[]): void {
 }
 
 /** Pinned extra tools from the control panel (shown after the main tools). */
-const isExtras = (v: unknown): v is string[] =>
-  isStringArray(v) && v.length <= 8 && new Set(v).size === v.length
-export const extraTools = prefStore<string[]>('toolbar.extras', isExtras, [])
+const EXTRA_ID = /^[a-zA-Z][a-zA-Z0-9:-]{0,60}$/
+/**
+ * Saved extras, cleaned (R7-10): the old cap of 8 here was lower than the 40
+ * the pin button allows, so a ninth pin made the whole saved list unreadable
+ * and the bar fell back to its defaults. Now only bad ids drop out.
+ */
+export function cleanExtras(v: unknown): string[] | undefined {
+  if (!Array.isArray(v)) return undefined
+  return [
+    ...new Set(
+      v.filter(
+        (id): id is string => typeof id === 'string' && EXTRA_ID.test(id),
+      ),
+    ),
+  ].slice(0, MAX_PINNED)
+}
+export const extraTools = cleanStore<string[]>(
+  'toolbar.extras',
+  cleanExtras,
+  [],
+)
 
 /** Back to the standard main bar and pills (Edit bar › Reset). */
 export function resetMainBar(): void {

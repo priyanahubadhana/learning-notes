@@ -129,12 +129,31 @@ describe('the main bar', () => {
     expect(extraTools.get()).toEqual([])
   })
 
-  it('a damaged saved list reads as the default', () => {
-    localStorage.setItem('learning-notes:toolbar.main', '["pen","pen"]')
+  it('a wholly damaged saved list reads as the default', () => {
+    localStorage.setItem('learning-notes:toolbar.main', '"pen"')
     localStorage.setItem('learning-notes:toolbar.pills', '{"text":["nope"]}')
     resetMainState()
     expect(mainList.get()).toEqual([...MAIN_TOOLS])
     expect(pillLists.get()).toEqual({})
+  })
+
+  it('R7-10: a saved bar keeps your choices when this build knows fewer or more ids', () => {
+    localStorage.setItem(
+      'learning-notes:toolbar.main',
+      '["read","gone","pen","read"]',
+    )
+    localStorage.setItem(
+      'learning-notes:toolbar.pills',
+      '{"text":["italic","oldOption","bold"],"retired":["x"],"read":["y"]}',
+    )
+    const nine = Array.from({ length: 9 }, (_, i) => 'tool' + i)
+    localStorage.setItem('learning-notes:toolbar.extras', JSON.stringify(nine))
+    resetMainState()
+    expect(mainList.get()).toEqual(['read', 'pen'])
+    expect(pillLists.get()).toEqual({ text: ['italic', 'bold'] })
+    expect(extraTools.get()).toEqual(nine)
+    // New tools are not forced in: they wait in the Edit toolbar list.
+    expect(mainList.get()).not.toContain('text')
   })
 
   it('moves and toggles list items', () => {

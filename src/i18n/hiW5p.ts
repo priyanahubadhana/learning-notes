@@ -77,4 +77,17 @@ export const hiW5p = {
     'अभी कोई आदत नहीं। अपनी सुबह के लिए एक छोटी आदत से शुरू करें।',
   'empty.routines.action': 'आदत जोड़ें',
   'empty.audio.action': 'अभी रिकॉर्ड करें',
+  'settings.newPerDay.minutes': 'आपकी गति से लगभग {minutes} मिनट प्रतिदिन।',
+  'templates.mem.example': 'उदाहरण:',
+  'templates.mem.palace.example':
+    'मुख्य द्वार: खोलते ही एक विशाल घड़ी बजती है (संधि का वर्ष)।',
+  'templates.mem.vivid.example':
+    '“प्रकाश-संश्लेषण” याद करने के लिए धूप का चश्मा पहने धूप सेंकती हरी पत्ती की कल्पना करें।',
+  'templates.mem.major.example': '314 यानी M T R: “matter”।',
+  'templates.mem.pao.example':
+    '07: जेम्स बॉन्ड (व्यक्ति) कैसीनो (वस्तु) में मार्टिनी हिला रहा है (क्रिया)।',
+  'templates.mem.acronym.example':
+    'ROY G BIV: Red, Orange, Yellow, Green, Blue, Indigo, Violet।',
+  'templates.mem.story.example':
+    'शब्द: कुत्ता, चाबी, चाँद। कहानी: कुत्ते को चाबी मिलती है और वह चाँद का ताला खोलता है।',
 } as const

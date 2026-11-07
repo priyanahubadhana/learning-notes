@@ -21,6 +21,7 @@ import type { SettingControl, SettingDefinition } from './registry'
 import { getSetting, setSetting } from './settingsService'
 import { useDeviceSetting, useSyncedSetting } from './useSetting'
 import { AboutSection } from './AboutSection'
+import { averageReviewSeconds, estimateMinutes } from './reviewTime'
 import { DeviceSection } from './DeviceSection'
 import './toolbarSettings'
 import './spaceSettings'
@@ -249,7 +250,25 @@ function SyncedRow({
       category={category}
       value={value}
       onSave={save}
+      extra={
+        definition.id === 'review.newPerDay' && typeof value === 'number' ? (
+          <TimeHint db={db} cards={value} />
+        ) : undefined
+      }
     />
+  )
+}
+
+/** "About N min a day" under the new-cards limit, from your own pace. */
+function TimeHint({ db, cards }: { db: LearningNotesDB; cards: number }) {
+  const seconds = useLiveQuery(() => averageReviewSeconds(db), [db])
+  if (seconds === undefined || cards <= 0) return null
+  return (
+    <p data-testid="time-hint" className="mt-1.5 text-xs text-muted">
+      {t('settings.newPerDay.minutes', {
+        minutes: estimateMinutes(cards, seconds),
+      })}
+    </p>
   )
 }
 
@@ -276,11 +295,14 @@ function RowLayout({
   category,
   value,
   onSave,
+  extra,
 }: {
   definition: SettingDefinition
   category: string
   value: JsonValue
   onSave: (value: JsonValue) => void
+  /** A line under the control (a hint). */
+  extra?: React.ReactNode
 }) {
   const id = useId()
   const labelId = `${id}-label`
@@ -334,6 +356,7 @@ function RowLayout({
           labelId={labelId}
           descId={descId}
         />
+        {extra}
       </div>
       {(otherCategories.length > 0 && definition.alsoIn) || !isDefault ? (
         <div className="mt-2 flex flex-wrap gap-x-3 text-xs text-muted">

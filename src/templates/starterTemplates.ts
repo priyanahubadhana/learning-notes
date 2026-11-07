@@ -169,6 +169,22 @@ export const starterTemplates = (): StarterTemplate[] => [
   ...memoryTemplates(),
 ]
 
+/**
+ * A worked example in grey (item 10): a beginner sees what to type. It is an
+ * ordinary line, so deleting it (and Undo) works like any text.
+ */
+const example = (s: string): StarterBlock => ({
+  type: 'paragraph',
+  content: {
+    text: [
+      {
+        type: 'text',
+        text: `${t('templates.mem.example')} ${s}`,
+        styles: { textColor: 'gray', italic: true },
+      },
+    ],
+  },
+})
 const text = (s: string): StarterBlock => ({
   type: 'paragraph',
   content: { text: plainText(s) },
@@ -209,6 +225,7 @@ function memoryTemplates(): StarterTemplate[] {
       since: 3,
       blocks: [
         ...howTo('templates.mem.palace.how', 'templates.mem.palace.evidence'),
+        example(t('templates.mem.palace.example')),
         ...[1, 2, 3].flatMap((n) => [
           heading(t('templates.mem.room', { n })),
           card(),
@@ -220,6 +237,7 @@ function memoryTemplates(): StarterTemplate[] {
       since: 3,
       blocks: [
         ...howTo('templates.mem.vivid.how', 'templates.mem.vivid.evidence'),
+        example(t('templates.mem.vivid.example')),
         heading(t('templates.mem.vivid.card')),
         card([picture(), text(t('templates.mem.vivid.note'))]),
       ],
@@ -236,6 +254,7 @@ function memoryTemplates(): StarterTemplate[] {
           ),
         ),
         heading(t('templates.mem.major.mine')),
+        example(t('templates.mem.major.example')),
         bullet(),
       ],
     },
@@ -245,6 +264,7 @@ function memoryTemplates(): StarterTemplate[] {
       blocks: [
         ...howTo('templates.mem.pao.how', 'templates.mem.pao.evidence'),
         heading(t('templates.mem.pao.table')),
+        example(t('templates.mem.pao.example')),
         paragraph(),
       ],
     },
@@ -254,6 +274,7 @@ function memoryTemplates(): StarterTemplate[] {
       blocks: [
         ...howTo('templates.mem.acronym.how', 'templates.mem.acronym.evidence'),
         heading(t('templates.mem.acronym.list')),
+        example(t('templates.mem.acronym.example')),
         bullet(),
         heading(t('templates.mem.acronym.word')),
         card(),
@@ -265,6 +286,7 @@ function memoryTemplates(): StarterTemplate[] {
       blocks: [
         ...howTo('templates.mem.story.how', 'templates.mem.story.evidence'),
         heading(t('templates.mem.story.words')),
+        example(t('templates.mem.story.example')),
         bullet(),
         heading(t('templates.mem.story.story')),
         paragraph(),

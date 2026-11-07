@@ -86,4 +86,18 @@ export const enW5p = {
     'No habits yet. Start with one small habit for your morning.',
   'empty.routines.action': 'Add a habit',
   'empty.audio.action': 'Record now',
+  // ---- Kinder defaults (item 10) ----
+  'settings.newPerDay.minutes': 'About {minutes} min a day at your pace.',
+  'templates.mem.example': 'Example:',
+  'templates.mem.palace.example':
+    'Front door: a giant clock rings when you open it (the year of the treaty).',
+  'templates.mem.vivid.example':
+    'To remember “photosynthesis”, picture a green leaf in sunglasses sunbathing.',
+  'templates.mem.major.example': '314 is M T R: “matter”.',
+  'templates.mem.pao.example':
+    '07: James Bond (person) shaking a martini (action) at a casino (object).',
+  'templates.mem.acronym.example':
+    'ROY G BIV: Red, Orange, Yellow, Green, Blue, Indigo, Violet.',
+  'templates.mem.story.example':
+    'Words: dog, key, moon. Story: a dog finds a key and unlocks the moon.',
 } as const

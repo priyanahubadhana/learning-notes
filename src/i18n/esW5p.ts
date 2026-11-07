@@ -81,4 +81,17 @@ export const esW5p = {
     'Aún no hay hábitos. Empieza con un hábito pequeño para tu mañana.',
   'empty.routines.action': 'Añadir un hábito',
   'empty.audio.action': 'Grabar ahora',
+  'settings.newPerDay.minutes': 'Unos {minutes} min al día a tu ritmo.',
+  'templates.mem.example': 'Ejemplo:',
+  'templates.mem.palace.example':
+    'Puerta de entrada: un reloj gigante suena al abrirla (el año del tratado).',
+  'templates.mem.vivid.example':
+    'Para recordar «fotosíntesis», imagina una hoja verde con gafas de sol tomando el sol.',
+  'templates.mem.major.example': '314 es M T R: «matar».',
+  'templates.mem.pao.example':
+    '07: James Bond (persona) agitando un martini (acción) en un casino (objeto).',
+  'templates.mem.acronym.example':
+    'ROY G BIV: Red, Orange, Yellow, Green, Blue, Indigo, Violet.',
+  'templates.mem.story.example':
+    'Palabras: perro, llave, luna. Historia: un perro encuentra una llave y abre la luna.',
 } as const

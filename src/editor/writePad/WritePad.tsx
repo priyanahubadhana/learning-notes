@@ -156,6 +156,32 @@ function TipButton({
   )
 }
 
+/**
+ * How far the on-screen keyboard (or anything else) covers the bottom of the
+ * window, so the pad can sit above it. The floating iPadOS shortcut bar is
+ * not always reported here, so the action keys also live at the top of the
+ * pad where nothing floats over them.
+ */
+function useKeyboardLift(): number {
+  const [lift, setLift] = useState(0)
+  useEffect(() => {
+    const vv = window.visualViewport
+    if (!vv) return
+    const read = () =>
+      setLift(
+        Math.max(0, Math.round(window.innerHeight - vv.height - vv.offsetTop)),
+      )
+    read()
+    vv.addEventListener('resize', read)
+    vv.addEventListener('scroll', read)
+    return () => {
+      vv.removeEventListener('resize', read)
+      vv.removeEventListener('scroll', read)
+    }
+  }, [])
+  return lift
+}
+
 export default function WritePad() {
   const session = writePad.useValue()
   const prefs = padPrefs.useValue()
@@ -170,6 +196,7 @@ export default function WritePad() {
   const [aiError, setAiError] = useState('')
   const drag = useRef<{ y: number; h: number } | null>(null)
 
+  const lift = useKeyboardLift()
   const look = lookOf(prefs)
   useEffect(() => {
     if (prefs.font !== 'app') void ensureFont(prefs.font)
@@ -253,8 +280,8 @@ export default function WritePad() {
     <section
       data-write-pad
       aria-label={t('writePad.title')}
-      style={{ height }}
-      className="fixed inset-x-0 bottom-0 z-[60] flex flex-col overflow-y-auto border-t border-line bg-bg shadow-[0_-8px_24px_rgba(0,0,0,0.12)]"
+      style={{ height, bottom: lift }}
+      className="fixed inset-x-0 z-[60] flex flex-col overflow-y-auto border-t border-line bg-bg shadow-[0_-8px_24px_rgba(0,0,0,0.12)]"
     >
       <Tip id="writePad.resize" touchInfo={false} className="flex w-full">
         <div
@@ -329,6 +356,47 @@ export default function WritePad() {
         </TipButton>
       </div>
 
+      <div data-write-pad-actions className="flex items-center gap-2 px-3 pb-1 pt-1">
+        <TipButton
+          tip="writePad.keys"
+          label={t('writePad.space')}
+          onClick={() => edit('space')}
+        >
+          ␣
+        </TipButton>
+        <TipButton
+          tip="writePad.keys"
+          label={t('writePad.newLine')}
+          onClick={() => edit('newLine')}
+        >
+          ↵
+        </TipButton>
+        <TipButton
+          tip="writePad.keys"
+          label={t('writePad.delete')}
+          onClick={() => edit('delete')}
+        >
+          ⌫
+        </TipButton>
+        <span className="flex-1" />
+        <TipButton
+          tip="writePad.replace"
+          testId="write-pad-replace"
+          disabled={text.trim() === '' || !editor.isEditable}
+          onClick={() => apply('replace')}
+        >
+          {t('writePad.replace')}
+        </TipButton>
+        <TipButton
+          tip="writePad.insert"
+          testId="write-pad-insert"
+          disabled={text.trim() === '' || !editor.isEditable}
+          className="min-h-11 rounded-lg bg-accent px-4 text-sm font-medium text-white disabled:opacity-40"
+          onClick={() => apply('insert')}
+        >
+          {t('writePad.insert')}
+        </TipButton>
+      </div>
       <div
         data-write-pad-preview
         aria-live="polite"
@@ -414,7 +482,7 @@ export default function WritePad() {
           onPick={(highlight) => set({ highlight })}
         />
       </div>
-      <div className="flex items-center gap-3 overflow-x-auto px-3 pb-1">
+      <div className="flex items-center gap-3 overflow-x-auto px-3 pb-3">
         <Seg
           label={t('writePad.size')}
           value={prefs.size}
@@ -436,47 +504,6 @@ export default function WritePad() {
           show={(w) => t(`writePad.weight.${w}` as MessageKey)}
           onPick={(weight) => set({ weight })}
         />
-      </div>
-      <div className="flex items-center gap-2 px-3 pb-3 pt-1">
-        <TipButton
-          tip="writePad.keys"
-          label={t('writePad.space')}
-          onClick={() => edit('space')}
-        >
-          ␣
-        </TipButton>
-        <TipButton
-          tip="writePad.keys"
-          label={t('writePad.newLine')}
-          onClick={() => edit('newLine')}
-        >
-          ↵
-        </TipButton>
-        <TipButton
-          tip="writePad.keys"
-          label={t('writePad.delete')}
-          onClick={() => edit('delete')}
-        >
-          ⌫
-        </TipButton>
-        <span className="flex-1" />
-        <TipButton
-          tip="writePad.replace"
-          testId="write-pad-replace"
-          disabled={text.trim() === '' || !editor.isEditable}
-          onClick={() => apply('replace')}
-        >
-          {t('writePad.replace')}
-        </TipButton>
-        <TipButton
-          tip="writePad.insert"
-          testId="write-pad-insert"
-          disabled={text.trim() === '' || !editor.isEditable}
-          className="min-h-11 rounded-lg bg-accent px-4 text-sm font-medium text-white disabled:opacity-40"
-          onClick={() => apply('insert')}
-        >
-          {t('writePad.insert')}
-        </TipButton>
       </div>
     </section>,
     document.body,

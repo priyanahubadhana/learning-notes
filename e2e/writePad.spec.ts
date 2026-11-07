@@ -106,3 +106,15 @@ test('the keys edit the text in the pad', async ({ page }) => {
   await pad(page).getByRole('button', { name: 'Delete' }).click()
   await expect(input(page)).toHaveValue('ab ')
 })
+
+test('the action keys sit at the top of the pad, above the writing box (R6-5)', async ({
+  page,
+}) => {
+  await openNote(page, 'touch')
+  await openPad(page)
+  const box = (await input(page).boundingBox())!
+  const insert = (await page.getByTestId('write-pad-insert').boundingBox())!
+  const keys = (await page.locator('[data-write-pad-actions]').boundingBox())!
+  expect(insert.y + insert.height).toBeLessThanOrEqual(box.y)
+  expect(keys.y + keys.height).toBeLessThanOrEqual(box.y)
+})

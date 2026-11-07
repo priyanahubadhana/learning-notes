@@ -193,4 +193,25 @@ export const enO = {
   'settings.openNotebookAt.last': 'Last page',
   'settings.openNotebookAt.first': 'First page',
   'settings.openNotebookAt.tabs': 'Notebook tabs',
+  // ---- Live sync (R6-13) ----
+  'sync.live': 'Live: changes from your other devices arrive within a second.',
+  'sync.notLive': 'Live updates are off right now: checking every 10 seconds.',
+  // ---- Slow moments (R6-11) ----
+  'settings.slowMoments.label': 'Record slow moments',
+  'settings.slowMoments.description':
+    'Keeps a note on this device each time the app stalls (the last 50). Nothing is sent anywhere. Copy the report and share it with the builder.',
+  'settings.slowMomentsCopy.label': 'Slow-moments report',
+  'settings.slowMomentsCopy.description':
+    'Copies the recorded slow moments as text, so you can paste them into a message.',
+  'settings.slowMomentsCopy.button': 'Copy report',
+  'settings.slowMomentsCopy.done': 'Report copied',
+  'settings.slowMomentsCopy.empty': 'No slow moments recorded yet',
+  'settings.slowMomentsCopy.failed':
+    'Could not copy. The report is in the console.',
+  // ---- AI keys on all devices (R6-2) ----
+  'ai.keysSync':
+    'Keep my AI keys on all my devices (locked with your sync passphrase)',
+  'ai.keysSync.hint':
+    'The keys travel locked like your notes, so the server cannot read them. They still never go into backups.',
+  'ai.keysSync.needsSync': 'Set up Sync first (Settings › Sync).',
 }

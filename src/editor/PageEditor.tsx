@@ -105,6 +105,7 @@ import { readingLocked } from '../app/reading/readingState'
 import { holdPageLock, type LockState, type PageLock } from './pageLock'
 import { recoverStash } from './pendingStash'
 import { createPageSync } from './pageSync'
+import { isTracking } from '../sync/device'
 import { revealBlock } from './revealBlock'
 import { editorBlockTypes, schema } from './schema'
 import { buildSlashMenuItems } from './slashMenu'
@@ -135,6 +136,8 @@ interface PageEditorProps {
 
 /** Time for the window that lost the page to finish its last save. */
 const TAKE_OVER_WAIT_MS = 400
+/** Live sync waits this long after the last keystroke before touching the page. */
+export const LIVE_IDLE_MS = 1_500
 
 /** Loads a page's blocks, then shows the editor for that page. */
 export function PageEditor(props: PageEditorProps) {
@@ -339,6 +342,54 @@ function LoadedPageEditor({
   useEffect(() => {
     if (readOnly) void sync.flush()
   }, [readOnly, sync])
+
+  // Live sync (R6-13): blocks another device changed go into this editor
+  // without a reload, once typing has paused (the caret stays put). Loaded
+  // only when sync is on.
+  const lastEdit = useRef(0)
+  const applying = useRef(false)
+  const onEditorChange = () => {
+    if (!applying.current) lastEdit.current = Date.now()
+    sync.changed()
+  }
+  useEffect(() => {
+    if (readOnly || !isTracking()) return
+    let gone = false
+    let stop: (() => void) | undefined
+    let timer: ReturnType<typeof setTimeout> | undefined
+    const pending = new Set<string>()
+    void Promise.all([import('../sync/applied'), import('./liveApply')]).then(
+      ([{ onApplied }, { applyRemoteBlocks }]) => {
+        if (gone) return
+        const run = () => {
+          timer = undefined
+          if (gone || pending.size === 0) return
+          const quiet = Date.now() - lastEdit.current
+          if (quiet < LIVE_IDLE_MS) {
+            timer = setTimeout(run, LIVE_IDLE_MS - quiet)
+            return
+          }
+          const ids = [...pending]
+          pending.clear()
+          void applyRemoteBlocks(db, editor, pageId, sync, ids, (on) => {
+            applying.current = on
+          }).catch((error: unknown) =>
+            console.error('Could not apply a synced change', error),
+          )
+        }
+        stop = onApplied((a) => {
+          if (a.table !== 'blocks' || !a.pageIds?.includes(pageId)) return
+          for (const id of a.ids) pending.add(id)
+          if (!timer) timer = setTimeout(run, 0)
+        })
+      },
+    )
+    return () => {
+      gone = true
+      if (timer) clearTimeout(timer)
+      stop?.()
+    }
+  }, [db, editor, pageId, readOnly, sync])
 
   useEffect(() => {
     // Save right away when leaving the page or hiding the tab.
@@ -656,7 +707,7 @@ function LoadedPageEditor({
         <BlockNoteView
           editor={editor}
           editable={editableIn(mode)}
-          onChange={sync.changed}
+          onChange={onEditorChange}
           theme={editorColorScheme(theme)}
           slashMenu={false}
           sideMenu={false}

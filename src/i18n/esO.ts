@@ -195,4 +195,28 @@ export const esO: Record<string, string> = {
   'settings.openNotebookAt.last': 'Última página',
   'settings.openNotebookAt.first': 'Primera página',
   'settings.openNotebookAt.tabs': 'Pestañas del cuaderno',
+  // ---- Live sync (R6-13) ----
+  'sync.live':
+    'En directo: los cambios de tus otros dispositivos llegan en un segundo.',
+  'sync.notLive':
+    'Las actualizaciones en directo están apagadas ahora: se comprueba cada 10 segundos.',
+  // ---- Slow moments (R6-11) ----
+  'settings.slowMoments.label': 'Registrar momentos lentos',
+  'settings.slowMoments.description':
+    'Guarda una nota en este dispositivo cada vez que la app se atasca (los últimos 50). No se envía nada. Copia el informe y compártelo con el desarrollador.',
+  'settings.slowMomentsCopy.label': 'Informe de momentos lentos',
+  'settings.slowMomentsCopy.description':
+    'Copia los momentos lentos registrados como texto, para pegarlos en un mensaje.',
+  'settings.slowMomentsCopy.button': 'Copiar informe',
+  'settings.slowMomentsCopy.done': 'Informe copiado',
+  'settings.slowMomentsCopy.empty': 'Aún no hay momentos lentos registrados',
+  'settings.slowMomentsCopy.failed':
+    'No se pudo copiar. El informe está en la consola.',
+  // ---- AI keys on all devices (R6-2) ----
+  'ai.keysSync':
+    'Mantener mis claves de IA en todos mis dispositivos (bloqueadas con tu frase de sincronización)',
+  'ai.keysSync.hint':
+    'Las claves viajan bloqueadas como tus notas, así que el servidor no puede leerlas. Siguen sin entrar nunca en las copias de seguridad.',
+  'ai.keysSync.needsSync':
+    'Configura primero Sincronizar (Ajustes › Sincronizar).',
 }

@@ -1,5 +1,11 @@
 import { driveFiles } from './google'
-import { emptyMemoryState, memoryConnectors, type MemoryState } from './memory'
+import {
+  emptyMemoryState,
+  memoryConnectors,
+  sharedMemoryConnectors,
+  type MemoryState,
+} from './memory'
+import { supabaseChanges } from './realtime'
 import { supabaseAuth, supabaseRecords } from './supabase'
 import type { Connectors } from './types'
 
@@ -26,6 +32,11 @@ export function getConnectors(): Connectors {
     mock = false
   }
   if (mock) {
+    const server = typeof window !== 'undefined' && window.__lnSyncServer
+    if (server) {
+      cached = sharedMemoryConnectors(server)
+      return cached
+    }
     let state: MemoryState = emptyMemoryState()
     try {
       const raw = localStorage.getItem(MOCK_STATE)
@@ -43,7 +54,12 @@ export function getConnectors(): Connectors {
     return cached
   }
   const auth = supabaseAuth()
-  cached = { auth, records: supabaseRecords(auth), files: driveFiles(auth) }
+  cached = {
+    auth,
+    records: supabaseRecords(auth),
+    files: driveFiles(auth),
+    changes: supabaseChanges(auth),
+  }
   return cached
 }
 

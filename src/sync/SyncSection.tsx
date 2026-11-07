@@ -269,6 +269,9 @@ function Running({ db }: { db: LearningNotesDB }) {
             ? t('sync.last', { time: when(status.lastSyncedAt) })
             : t('sync.never')}
       </p>
+      <p className="text-xs text-muted" data-testid="sync-live">
+        {status.live ? t('sync.live') : t('sync.notLive')}
+      </p>
       {!!status.mergedPages && (
         <p className="text-sm">
           {t('sync.merged', { count: status.mergedPages })}{' '}

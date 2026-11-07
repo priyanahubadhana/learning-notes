@@ -21,6 +21,8 @@ export interface SyncStatus {
   problem?: SyncProblem
   needsDriveTap?: boolean
   mergedPages?: number
+  /** The live feed is open: other devices' saves arrive within a second. */
+  live?: boolean
 }
 
 let status: SyncStatus = { phase: 'signedOut' }

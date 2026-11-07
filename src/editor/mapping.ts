@@ -325,6 +325,15 @@ export function isShowableText(text: JsonValue | undefined): boolean {
   return isObject(text) && isShowableTable(text)
 }
 
+/** One record as the editor accepts it, without its children (live sync). */
+export const recordToEditorBlock = (record: Block): EditorPartialBlock => {
+  const { children: _kids, ...block } = toEditorBlock(record, []) as {
+    children: unknown
+  }
+  void _kids
+  return block as EditorPartialBlock
+}
+
 function toEditorBlock(
   record: Block,
   children: EditorPartialBlock[],

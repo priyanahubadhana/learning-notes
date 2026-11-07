@@ -19,7 +19,7 @@ export interface BlockDraft {
 }
 
 /** What was last saved for one block. order null = not in the database yet. */
-interface SavedBlock {
+export interface SavedBlock {
   parentId: string | null
   type: string
   /** Content as a JSON string, for cheap comparison. */
@@ -51,6 +51,35 @@ export function createSnapshot(
       },
     ]),
   )
+}
+
+/**
+ * Blocks another device changed were just put into the editor (live sync):
+ * the snapshot takes the editor's version of each as "saved", with the
+ * order the database holds, so the next diff does not write them back. An
+ * id whose order is null was removed from the editor and the database.
+ */
+export function absorbIntoSnapshot(
+  snapshot: Snapshot,
+  drafts: readonly BlockDraft[],
+  orders: ReadonlyMap<string, OrderKey | null>,
+): Snapshot {
+  const next = new Map(snapshot)
+  const byId = new Map(drafts.map((d) => [d.id, d]))
+  for (const [id, order] of orders) {
+    const d = byId.get(id)
+    if (!d || order === null) {
+      next.delete(id)
+      continue
+    }
+    next.set(id, {
+      parentId: d.parentId,
+      type: d.type,
+      content: JSON.stringify(d.content),
+      order,
+    })
+  }
+  return next
 }
 
 /**

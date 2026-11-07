@@ -5,7 +5,14 @@ import { syncCardRecords } from '../recall/cardService'
 import { recordVersion } from '../history/versionService'
 import { createAutosaver } from './autosave'
 import { clearStash, keepTryingStash, stashChanges } from './pendingStash'
-import { createSnapshot, diffBlocks, type BlockDraft } from './diff'
+import type { OrderKey } from '../core/types'
+import {
+  absorbIntoSnapshot,
+  createSnapshot,
+  diffBlocks,
+  type BlockDraft,
+  type SavedBlock,
+} from './diff'
 
 /** A delete of this many blocks (or any picture-like block) is a big delete. */
 const BIG_DELETE_BLOCKS = 3
@@ -40,6 +47,14 @@ export interface PageSync {
   stash: () => void
   /** Save now, then keep a history copy of what was written (page closes). */
   leave: () => Promise<void>
+  /** What was last saved for a block (undefined = not in the database yet). */
+  savedOf: (id: string) => SavedBlock | undefined
+  /**
+   * Another device's blocks were just put into the editor (live sync): the
+   * snapshot takes them as "saved", so they are not written back as edits.
+   * `orders` gives each block's order key; an id without one was removed.
+   */
+  absorb: (orders: ReadonlyMap<string, OrderKey | null>) => void
 }
 
 /**
@@ -101,6 +116,10 @@ export function createPageSync(
     changed: autosaver.schedule,
     flush: autosaver.flush,
     dispose: autosaver.dispose,
+    savedOf: (id) => snapshot.get(id),
+    absorb: (orders) => {
+      snapshot = absorbIntoSnapshot(snapshot, readDrafts(), orders)
+    },
     stash: () =>
       stashChanges(pageId, diffBlocks(snapshot, readDrafts()).changes),
     leave: async () => {

@@ -1,8 +1,9 @@
 import Dexie from 'dexie'
 import type { LearningNotesDB } from '../core/db'
-import { newRecordFields } from '../core/records'
-import type { Block, PageVersion, SyncState, VersionBlock } from '../core/types'
+import type { Block, SyncState } from '../core/types'
+import { keepTheirsInHistory } from '../history/loserVersion'
 import { recordVersion } from '../history/versionService'
+import { announceApplied } from './applied'
 import { NeedsTapError, type Connectors, type RemoteRecord } from './connectors'
 import {
   openFile,
@@ -62,6 +63,8 @@ export interface SyncReport {
   needsDriveTap: boolean
   /** A pulled clock was far in the future (clock problem on a device). */
   clockWarning: boolean
+  /** The newest server order seen (pulled or accepted): a ping at or below it is old news. */
+  seq: number
 }
 
 const emptyReport = (): SyncReport => ({
@@ -74,6 +77,7 @@ const emptyReport = (): SyncReport => ({
   filesDown: 0,
   needsDriveTap: false,
   clockWarning: false,
+  seq: 0,
 })
 
 /**
@@ -135,11 +139,13 @@ async function pull(
   report: SyncReport,
 ) {
   let cursor = Number((await db.meta.get(CURSOR))?.value ?? 0)
+  report.seq = Math.max(report.seq, cursor)
   for (;;) {
     const batch = await conn.records.pull(cursor, PAGE)
     if (batch.length === 0) break
     await applyRemote(db, master, batch, report)
     cursor = batch[batch.length - 1].seq
+    report.seq = Math.max(report.seq, cursor)
     await db.meta.put({ id: CURSOR, value: cursor })
     if (batch.length < PAGE) break
   }
@@ -269,6 +275,23 @@ async function applyRemote(
       await db.syncState.bulkPut(newStates)
     })
     report.pulled += items.length
+    // The open screens put these into the page live (R6-13).
+    const taken = decisions.filter((d) => d.result.action === 'take')
+    if (taken.length > 0) {
+      announceApplied({
+        table,
+        ids: taken.map((d) => d.item.id),
+        ...(mode === 'blocks'
+          ? {
+              pageIds: [
+                ...new Set(
+                  taken.map((d) => String(d.item.env.r.pageId ?? '')),
+                ),
+              ],
+            }
+          : {}),
+      })
+    }
   }
 }
 
@@ -295,30 +318,8 @@ async function keepLosers(
   for (const [pageId, remoteLosers] of pages) {
     if (remoteLosers.length === 0) {
       await recordVersion(db, pageId, { force: true })
-    } else {
-      // Their text loses: the page here with their blocks in place.
-      const page = await db.pages.get(pageId)
-      if (!page) continue
-      const swap = new Map(remoteLosers.map((b) => [b.id, b]))
-      const blocks: VersionBlock[] = (
-        await db.blocks.where('pageId').equals(pageId).toArray()
-      )
-        .filter((b) => b.deletedAt === null)
-        .map((b) => swap.get(b.id) ?? b)
-        .map((b) => ({
-          id: b.id,
-          parentId: b.parentId,
-          type: b.type,
-          content: b.content,
-          order: b.order,
-        }))
-      const version: PageVersion = {
-        ...newRecordFields(),
-        pageId,
-        title: page.title,
-        blocks,
-      }
-      await db.pageVersions.add(version)
+    } else if (!(await keepTheirsInHistory(db, pageId, remoteLosers))) {
+      continue
     }
     report.mergedPages.push(pageId)
   }
@@ -381,6 +382,7 @@ async function push(
       }
     })
     report.pushed += res.accepted.length
+    for (const a of res.accepted) report.seq = Math.max(report.seq, a.seq)
     if (res.conflicts.length > 0) {
       report.conflicts += res.conflicts.length
       await applyRemote(
@@ -482,6 +484,17 @@ async function downloadFiles(
 /** Pages merged in the last sync (for the "see History" notice). */
 export async function lastMergedPages(db: LearningNotesDB): Promise<string[]> {
   return ((await db.meta.get(MERGED))?.value as string[] | undefined) ?? []
+}
+
+/** Adds a page to the "changed on two devices" notice (live apply, R6-13). */
+export async function noteMergedPage(
+  db: LearningNotesDB,
+  pageId: string,
+): Promise<void> {
+  const list = await lastMergedPages(db)
+  if (!list.includes(pageId)) {
+    await db.meta.put({ id: MERGED, value: [pageId, ...list].slice(0, 50) })
+  }
 }
 
 export async function clearMergedNotice(db: LearningNotesDB): Promise<void> {

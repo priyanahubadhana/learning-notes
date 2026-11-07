@@ -188,4 +188,24 @@ export const hiO: Record<string, string> = {
   'settings.openNotebookAt.last': 'आख़िरी पेज',
   'settings.openNotebookAt.first': 'पहला पेज',
   'settings.openNotebookAt.tabs': 'नोटबुक टैब',
+  // ---- Live sync (R6-13) ----
+  'sync.live': 'लाइव: आपके दूसरे डिवाइस के बदलाव एक सेकंड में आ जाते हैं।',
+  'sync.notLive': 'लाइव अपडेट अभी बंद हैं: हर 10 सेकंड में जाँच होती है।',
+  // ---- Slow moments (R6-11) ----
+  'settings.slowMoments.label': 'धीमे पल दर्ज करें',
+  'settings.slowMoments.description':
+    'जब भी ऐप अटके, इस डिवाइस पर एक नोट रखता है (आख़िरी 50)। कुछ भी कहीं नहीं भेजा जाता। रिपोर्ट कॉपी करके बनाने वाले को भेजें।',
+  'settings.slowMomentsCopy.label': 'धीमे पलों की रिपोर्ट',
+  'settings.slowMomentsCopy.description':
+    'दर्ज धीमे पलों को टेक्स्ट की तरह कॉपी करता है, ताकि आप संदेश में चिपका सकें।',
+  'settings.slowMomentsCopy.button': 'रिपोर्ट कॉपी करें',
+  'settings.slowMomentsCopy.done': 'रिपोर्ट कॉपी हुई',
+  'settings.slowMomentsCopy.empty': 'अभी कोई धीमा पल दर्ज नहीं',
+  'settings.slowMomentsCopy.failed': 'कॉपी नहीं हो सकी। रिपोर्ट कंसोल में है।',
+  // ---- AI keys on all devices (R6-2) ----
+  'ai.keysSync':
+    'मेरी AI कुंजियाँ मेरे सभी डिवाइस पर रखें (आपके सिंक पासफ़्रेज़ से लॉक)',
+  'ai.keysSync.hint':
+    'कुंजियाँ आपके नोट्स की तरह लॉक होकर जाती हैं, इसलिए सर्वर उन्हें पढ़ नहीं सकता। वे अब भी कभी बैकअप में नहीं जातीं।',
+  'ai.keysSync.needsSync': 'पहले सिंक सेट करें (सेटिंग्स › सिंक)।',
 }

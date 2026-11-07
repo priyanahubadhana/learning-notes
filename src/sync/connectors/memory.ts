@@ -1,6 +1,7 @@
 import type {
   Account,
   AuthProvider,
+  ChangeFeed,
   Connectors,
   FileStore,
   PushItem,
@@ -38,12 +39,84 @@ const MOCK_ACCOUNT: Account = {
   sub: 'mock-sub',
 }
 
+/**
+ * A browser test can expose one shared "server" on `window` so two browser
+ * contexts (two devices) talk to the same state: `__lnSyncServer(op, …args)`
+ * answers like the memory stores below, and the test calls `__lnSyncPing`
+ * after a save, the way Realtime would.
+ */
+export type MockServer = (op: string, ...args: unknown[]) => Promise<unknown>
+declare global {
+  interface Window {
+    __lnSyncServer?: MockServer
+    __lnSyncPing?: (seq: number) => void
+  }
+}
+
+const toB64 = (bytes: Uint8Array) => btoa(String.fromCharCode(...bytes))
+const fromB64 = (s: string) => Uint8Array.from(atob(s), (c) => c.charCodeAt(0))
+
+/** Connectors that talk to the test's shared server (see `MockServer`). */
+export function sharedMemoryConnectors(call: MockServer): Connectors {
+  const records: RecordStore = {
+    pull: (since, limit) =>
+      call('pull', since, limit) as Promise<RemoteRecord[]>,
+    push: (items) => call('push', items) as Promise<PushResult>,
+    get: (ids) => call('get', ids) as Promise<RemoteRecord[]>,
+    listKeyBundles: () => call('listKeyBundles') as Promise<string[]>,
+    putKeyBundle: (id, json) => call('putKeyBundle', id, json) as Promise<void>,
+    serverTime: async () => Date.now(),
+  }
+  const files: FileStore = {
+    put: (name, bytes) =>
+      call('filePut', name, toB64(bytes)) as Promise<string>,
+    get: async (id) => fromB64((await call('fileGet', id)) as string),
+    list: (prefix) =>
+      call('fileList', prefix) as Promise<{ id: string; name: string }[]>,
+    remove: (id) => call('fileRemove', id) as Promise<void>,
+  }
+  const changes: ChangeFeed = {
+    subscribe(onPing, onOpen) {
+      window.__lnSyncPing = onPing
+      onOpen(true)
+      return () => {
+        if (window.__lnSyncPing === onPing) delete window.__lnSyncPing
+        onOpen(false)
+      }
+    },
+  }
+  return { auth: mockAuth(true), records, files, changes }
+}
+
+function mockAuth(persist: boolean): AuthProvider {
+  let signedIn: Account | null = persist ? loadSignedIn() : null
+  return {
+    current: () => signedIn,
+    async signIn() {
+      signedIn = MOCK_ACCOUNT
+      if (persist) saveSignedIn(true)
+    },
+    async finishSignIn() {
+      return false
+    },
+    async signOut() {
+      signedIn = null
+      if (persist) saveSignedIn(false)
+    },
+    async accessToken() {
+      return 'mock-token'
+    },
+    async driveToken() {
+      return 'mock-drive'
+    },
+  }
+}
+
 export function memoryConnectors(
   state: MemoryState = emptyMemoryState(),
   persist?: (s: MemoryState) => void,
 ): Connectors & { state: MemoryState } {
   const save = () => persist?.(state)
-  let signedIn: Account | null = persist ? loadSignedIn() : null
 
   const records: RecordStore = {
     async pull(sinceSeq, limit) {
@@ -116,28 +189,25 @@ export function memoryConnectors(
     },
   }
 
-  const auth: AuthProvider = {
-    current: () => signedIn,
-    async signIn() {
-      signedIn = MOCK_ACCOUNT
-      if (persist) saveSignedIn(true)
-    },
-    async finishSignIn() {
-      return false
-    },
-    async signOut() {
-      signedIn = null
-      if (persist) saveSignedIn(false)
-    },
-    async accessToken() {
-      return 'mock-token'
-    },
-    async driveToken() {
-      return 'mock-drive'
+  const auth = mockAuth(!!persist)
+
+  // Windows of one browser share the state: a write in one is a ping in the
+  // others (the `storage` event), like Realtime between devices.
+  const changes: ChangeFeed = {
+    subscribe(onPing, onOpen) {
+      const onStorage = (e: StorageEvent) => {
+        if (e.key === 'learning-notes:sync.mockState') onPing(0)
+      }
+      window.addEventListener('storage', onStorage)
+      onOpen(true)
+      return () => {
+        window.removeEventListener('storage', onStorage)
+        onOpen(false)
+      }
     },
   }
 
-  return { auth, records, files, state }
+  return { auth, records, files, state, ...(persist ? { changes } : {}) }
 }
 
 const SIGNED_KEY = 'learning-notes:sync.mockSignedIn'

@@ -24,17 +24,29 @@ import { mapSyncError } from './syncProblem'
 /**
  * Sync service (L4–L8): the one place the app talks to for sync. It signs
  * in, sets up or unlocks the key, and syncs on open, on return to the app,
- * on reconnect and every half minute while the app is in front (the iPad
- * cannot sync in the background). Signing in or out never deletes a note.
+ * on reconnect, on a live ping from the server (R6-13) and by polling while
+ * the app is in front (the iPad cannot sync in the background): every 10 s
+ * when the live feed is closed, every minute as a safety net while it is
+ * open. Signing in or out never deletes a note.
  */
 
 export const POLL_MS = 10_000
+export const POLL_LIVE_MS = 60_000
 export const SEND_AFTER_MS = 2_000
 export const SEND_MAX_MS = 10_000
+/** Pings that arrive together (one save per block) start one pull. */
+export const PING_SETTLE_MS = 150
 const LAST = 'learning-notes:sync.lastSyncedAt'
 let master: MasterKey | null = null
 let running: Promise<void> | null = null
+/** A ping came while a sync ran: run once more when it ends. */
+let again = false
 let started = false
+/** The newest server order this device has seen (pull cursor or accepted save). */
+let knownSeq = 0
+let lastRun = 0
+let feedOpen = false
+let stopFeed: (() => void) | null = null
 const set = setSyncStatus
 
 function readLast(): number | undefined {
@@ -95,14 +107,64 @@ export async function startSync(db: LearningNotesDB): Promise<void> {
   const kick = () => {
     if (document.visibilityState === 'visible') void syncNow(db)
   }
-  document.addEventListener('visibilitychange', kick)
-  window.addEventListener('online', kick)
-  // A poll every 10 s while the app is in front (kick does nothing hidden).
-  setInterval(kick, POLL_MS)
+  const poll = () => {
+    // While the live feed is open a poll is only a safety net.
+    if (feedOpen && Date.now() - lastRun < POLL_LIVE_MS) return
+    kick()
+  }
+  const front = () => {
+    kick()
+    openFeed(db)
+  }
+  document.addEventListener('visibilitychange', front)
+  window.addEventListener('online', front)
+  subscribeSync(() => openFeed(db))
+  openFeed(db)
+  setInterval(poll, POLL_MS)
   // Local edits go out about 2 s after typing stops, at the latest 10 s
   // after the first edit of a burst.
   const soon = debounceMax(kick, SEND_AFTER_MS, SEND_MAX_MS)
   onLocalWrite(soon.call)
+}
+
+/**
+ * The live feed (R6-13) is open while sync is ready and the app is in front;
+ * it is closed when the app is hidden (the socket would die on the iPad
+ * anyway, and the server counts open connections) and when signed out.
+ */
+function openFeed(db: LearningNotesDB) {
+  const want =
+    getConnectors().changes !== undefined &&
+    master !== null &&
+    getSyncStatus().phase !== 'signedOut' &&
+    document.visibilityState === 'visible'
+  if (want === (stopFeed !== null)) return
+  if (!want) {
+    stopFeed?.()
+    stopFeed = null
+    return
+  }
+  let settle: ReturnType<typeof setTimeout> | null = null
+  // Set before subscribing: a feed that opens at once calls back into here.
+  let stop: (() => void) | null = null
+  stopFeed = () => stop?.()
+  stop = getConnectors().changes!.subscribe(
+    (seq) => {
+      if (seq > 0 && seq <= knownSeq) return // our own save, or old news
+      if (settle) clearTimeout(settle)
+      settle = setTimeout(() => {
+        settle = null
+        if (running) again = true
+        else void syncNow(db)
+      }, PING_SETTLE_MS)
+    },
+    (open) => {
+      feedOpen = open
+      set({ live: open })
+      // Anything that happened while the feed was down is fetched now.
+      if (open) void syncNow(db)
+    },
+  )
 }
 
 export async function signIn(): Promise<void> {
@@ -120,6 +182,8 @@ export async function signOut(forgetKey: boolean): Promise<void> {
     master = null
     await forgetMasterKey()
   }
+  stopFeed?.()
+  stopFeed = null
   set({ phase: 'signedOut', email: undefined, needsDriveTap: false })
 }
 
@@ -166,9 +230,11 @@ export function syncNow(db: LearningNotesDB): Promise<void> {
   const key = master
   running = (async () => {
     set({ phase: 'syncing' })
+    lastRun = Date.now()
     try {
       await enqueueChanged(db)
       const report: SyncReport = await syncOnce(db, getConnectors(), key)
+      knownSeq = Math.max(knownSeq, report.seq)
       await dedupeWorkspaces(db)
       const now = Date.now()
       try {
@@ -197,6 +263,10 @@ export function syncNow(db: LearningNotesDB): Promise<void> {
     } finally {
       set({ phase: 'ready' })
       running = null
+      if (again) {
+        again = false
+        void syncNow(db)
+      }
     }
   })()
   return running

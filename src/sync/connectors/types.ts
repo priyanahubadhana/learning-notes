@@ -86,10 +86,29 @@ export interface AuthProvider {
   driveToken(interactive: boolean): Promise<string | null>
 }
 
+/**
+ * A "something changed" feed (R6-13): the server pings every open device
+ * about a second after a save, so it pulls at once instead of waiting for
+ * the next poll. Only a ping and the server order (`seq`) travel: no record.
+ */
+export interface ChangeFeed {
+  /**
+   * Opens the feed; `onPing(seq)` fires on each change, `onOpen` when the
+   * connection opens or closes (polling takes over while it is closed).
+   * Returns the stop function. Reconnects by itself while open.
+   */
+  subscribe(
+    onPing: (seq: number) => void,
+    onOpen: (open: boolean) => void,
+  ): () => void
+}
+
 export interface Connectors {
   auth: AuthProvider
   records: RecordStore
   files: FileStore
+  /** Missing = polling only. */
+  changes?: ChangeFeed
 }
 
 /** The sign-in was refused (e.g. not the allowed Gmail account). */

@@ -24,6 +24,10 @@ Current phase only. Older entries are in [ARCHIVE.md](ARCHIVE.md).
 - **Why:** owner approved the paper page and asked for a deeper look first.
 - **Files:** `docs/research/paper-page-2026-11.md`, `docs/plans/paper-page-plan.md`, `docs/ROADMAP.md`, `docs/DECISIONS.md`, `docs/CHANGELOG.md`.
 
+## 2026-11-08 (CI: main red on format:check)
+
+- **What:** `docs/plans/paper-page-plan.md` and `docs/research/paper-page-2026-11.md` (Phase Q, docs only) were not Prettier-formatted, so every CI run on main stopped at `format:check` before the tests. Formatted, nothing else changed.
+
 ## 2026-11-08 (Round 7 gesture watchdog: R7-1, R7-3, R7-4, R7-5, R7-6, R7-8; no Dexie version)
 
 - **Root causes.** (1) A pointer that is down when the app goes to the background (another app or tab, the Update reload) never gets its `pointerup`/`pointercancel`. Everything that remembered "a pointer is down" then stayed stuck for good: the ink engine kept a half gesture (`controller.gesture`) and refused every later Pen, Eraser and Lasso stroke (`down()` and `lassoDown()` return while a gesture exists); a Lasso or handle gesture left the page `contenteditable=false` (`holdEditing`), so taps and the caret failed; a grip drag kept `gripDragging()` true (ink and Lasso ignore every pointer) and the page read-only; the selection guard's `pointerDown` stayed true, so every late collapse counted as the person's own and the double-tap word vanished (R7-4); the palm guard and penTap kept a Pencil "down". (2) The ink engine waited at most 120 frames (2 s) for the editor's container; a reload right after an update fetches the editor's files over the network, and the page then had no ink engine at all (R7-1). (3) When a new service worker takes over a page that is already running (Update pressed in another window, or the plugin's own reload missed), the old code kept running on the new version's files; nothing restarted it. (4) Live sync's `restoreCaret` put back a caret, never a range, after a synced block arrived: a selected word a few seconds old was lost.

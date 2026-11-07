@@ -49,6 +49,13 @@ export async function inkNote(
   await openNote(page, mode, keys)
   await tool(page, name).click()
   await expect(page.locator('[data-ink-pad]')).toBeAttached()
+  // A short note sits at the top: the pill floats over the page (R6-8), so
+  // show the page from its first line, as the specs measure it there.
+  await page.evaluate(() => {
+    const s = document.querySelector('[data-page-scroller]')
+    if (s) s.scrollTop = 0
+  })
+  await page.waitForTimeout(100)
 }
 
 /** The page's text block (a place to draw over). */

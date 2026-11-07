@@ -2,6 +2,12 @@
 
 Current phase only. Older entries are in [ARCHIVE.md](ARCHIVE.md).
 
+## 2026-11-08 (Phase Q step 1: box model; existing pages are one box)
+
+- **What:** `Page.boxes`, `Page.sheet`, `Block.boxId` (no Dexie version); pure model `paper/boxes.ts` (default box, grouping, reading order); `PageEditor` takes a `boxId` and loads, saves and live-applies only its box (`editor/boxScope.ts`); diff and `saveBlockChanges` carry the box id (null removes it); backup/sync row checks for boxes. Plan rewritten for the owner design.
+- **Why:** owner design: every page is paper, blocks grouped by box; a page with no boxes must behave exactly as before (unit tests prove it; whole suite green).
+- **Files:** `src/core/types.ts`, `src/core/blockService.ts`, `src/editor/{diff,liveApply,PageEditor,boxScope,boxScope.test}.ts(x)`, `src/paper/boxes{,.test}.ts`, `src/share/checkRows.ts`, `docs/plans/paper-page-plan.md`, `docs/DECISIONS.md`.
+
 ## 2026-11-08 (Phase Q Paper page: research and plan, docs only)
 
 - **What:** paper-page research added; plan with a full feature inventory (each feature on paper), design (box = hidden child page, ink anchor mode `sheets`, gesture rules, steps), how nothing is lost, reuse of lined/grid/dots, open owner questions. Phase Q in ROADMAP and DECISIONS. No app code.

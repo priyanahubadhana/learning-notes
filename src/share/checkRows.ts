@@ -104,6 +104,22 @@ const notebook: Fields<Notebook> = {
     ),
 }
 
+/** A Phase Q box: finite mm inside a sane range. */
+const mm = (v: unknown) => number(v) && Math.abs(v as number) <= 1e6
+function isPaperBox(v: unknown): boolean {
+  if (!object(v)) return false
+  const b = v as Record<string, unknown>
+  return (
+    text(b.id) &&
+    mm(b.x) &&
+    mm(b.y) &&
+    mm(b.w) &&
+    (b.w as number) > 0 &&
+    (b.locked === undefined || b.locked === true) &&
+    (b.colour === undefined || isColour(b.colour))
+  )
+}
+
 const page: Fields<Page> = {
   ...times,
   notebookId: text,
@@ -126,6 +142,8 @@ const page: Fields<Page> = {
   databaseId: text,
   values: object,
   source: isPageSource,
+  boxes: (v) => Array.isArray(v) && v.length <= 500 && v.every(isPaperBox),
+  sheet: oneOf('A4', 'Letter'),
 }
 
 const block: Fields<Block> = {
@@ -138,6 +156,7 @@ const block: Fields<Block> = {
   source: text,
   derivedFrom: text,
   batchId: text,
+  boxId: text,
 }
 
 const rating = oneOf('again', 'hard', 'good', 'easy')

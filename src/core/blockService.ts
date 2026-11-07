@@ -157,6 +157,8 @@ export interface BlockUpsert {
   type: string
   content: JsonObject
   order: OrderKey
+  /** Phase Q: the block's box; null takes a stored box id off. */
+  boxId?: string | null
 }
 
 /** A batch of block changes for one page. */
@@ -186,11 +188,22 @@ export async function saveBlockChanges(
     const existing = await db.blocks.bulkGet(changes.upserts.map((u) => u.id))
     const records = changes.upserts.map((upsert, i): Block => {
       const old = existing[i]
-      if (!old) return { ...newRecordFields(), ...upsert, pageId }
+      // Phase Q: a box id is kept only when set; null takes it off.
+      const { boxId, ...rest } = upsert
+      const box = boxId ? { boxId } : {}
+      if (!old) return { ...newRecordFields(), ...rest, ...box, pageId }
       if (old.pageId !== pageId) {
         throw new Error(`Block ${old.id} belongs to another page`)
       }
-      return { ...old, ...upsert, updatedAt: now, deletedAt: null }
+      const merged: Block = {
+        ...old,
+        ...rest,
+        ...box,
+        updatedAt: now,
+        deletedAt: null,
+      }
+      if (boxId === null) delete merged.boxId
+      return merged
     })
     await db.blocks.bulkPut(records)
 

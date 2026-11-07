@@ -170,6 +170,27 @@ export interface Page extends BaseRecord {
   values?: JsonObject
   /** Where this page's material came from (C1/CR1). Unset = a normal page. */
   source?: PageSource
+  /**
+   * Phase Q: the page's block boxes on the paper, besides the default one.
+   * Unset or empty = one full-width box holding every block (every page
+   * made before Phase Q). See paper/boxes.ts.
+   */
+  boxes?: PaperBox[]
+  /** Phase Q: sheet size. Unset = A4. */
+  sheet?: 'A4' | 'Letter'
+}
+
+/**
+ * Phase Q: a block box on the paper. Units are millimetres from the top-left
+ * of the paper (sheets stacked top to bottom); the height follows the text.
+ */
+export interface PaperBox {
+  id: string
+  x: number
+  y: number
+  w: number
+  locked?: true
+  colour?: string
 }
 
 /** What a source page is: a book, an article, a video, … */
@@ -236,6 +257,11 @@ export interface Block extends BaseRecord {
   derivedFrom?: string
   /** One AI result (CR2/CR4): every block made together shares it. */
   batchId?: string
+  /**
+   * Phase Q: the box (Page.boxes) a top-level block sits in. Unset = the
+   * default box. Nested blocks follow their parent.
+   */
+  boxId?: string
 }
 
 /** How well a card was remembered (the four review buttons). */

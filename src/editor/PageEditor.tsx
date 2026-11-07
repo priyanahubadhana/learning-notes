@@ -32,6 +32,7 @@ import { runTask } from '../app/errors'
 import { editorColorScheme } from '../app/theme'
 import { ThemeContext } from '../app/themeContext'
 import { listBlocks } from '../core/blockService'
+import { blocksOfBox, tagDrafts } from './boxScope'
 import { syncCardRecords } from '../recall/cardService'
 import type { LearningNotesDB } from '../core/db'
 import type { Block, Page } from '../core/types'
@@ -132,6 +133,11 @@ interface PageEditorProps {
   editorRef?: RefObject<EditorApi | null>
   /** Reading mode is on: the full-screen reader hides the bar and freezes the text. */
   reading?: { view: 'inPlace' | 'reader' }
+  /**
+   * Phase Q: the box this editor shows (unset = the default box). A page
+   * with no boxes shows every block, exactly as before.
+   */
+  boxId?: string
 }
 
 /** Time for the window that lost the page to finish its last save. */
@@ -193,6 +199,7 @@ export function PageEditor(props: PageEditorProps) {
     recoverStash(db, pageId)
       .then(() => syncCardRecords(db, pageId))
       .then(() => listBlocks(db, pageId))
+      .then((records) => blocksOfBox(db, pageId, records, props.boxId))
       .then(
         (records) => {
           if (!cancelled) setLoaded({ pageId, records, version })
@@ -204,7 +211,7 @@ export function PageEditor(props: PageEditorProps) {
     return () => {
       cancelled = true
     }
-  }, [db, pageId, version])
+  }, [db, pageId, version, props.boxId])
 
   if (failed) throw failed.error // shows the error screen (ErrorBoundary)
   // Wait until this page's blocks are loaded (not a previous page's).
@@ -253,6 +260,7 @@ function LoadedPageEditor({
   reading,
   records,
   readOnly,
+  boxId,
 }: PageEditorProps & { records: Block[]; readOnly: boolean }) {
   const { chooseTemplate, toast, choose } = useContext(AppUiContext)
   // Blocks go in as the editor's starting content, so loading is not an edit.
@@ -309,7 +317,9 @@ function LoadedPageEditor({
   // The element ink is laid over (the editor sits in it).
   const [inkWrap, setInkWrap] = useState<HTMLElement | null>(null)
   const [sync] = useState(() =>
-    createPageSync(db, pageId, records, () => editorToDrafts(editor.document)),
+    createPageSync(db, pageId, records, () =>
+      tagDrafts(editorToDrafts(editor.document), boxId),
+    ),
   )
 
   useEffect(() => {
@@ -371,9 +381,17 @@ function LoadedPageEditor({
           }
           const ids = [...pending]
           pending.clear()
-          void applyRemoteBlocks(db, editor, pageId, sync, ids, (on) => {
-            applying.current = on
-          }).catch((error: unknown) =>
+          void applyRemoteBlocks(
+            db,
+            editor,
+            pageId,
+            sync,
+            ids,
+            (on) => {
+              applying.current = on
+            },
+            boxId,
+          ).catch((error: unknown) =>
             console.error('Could not apply a synced change', error),
           )
         }
@@ -389,7 +407,7 @@ function LoadedPageEditor({
       if (timer) clearTimeout(timer)
       stop?.()
     }
-  }, [db, editor, pageId, readOnly, sync])
+  }, [db, editor, pageId, readOnly, sync, boxId])
 
   useEffect(() => {
     // Save right away when leaving the page or hiding the tab.

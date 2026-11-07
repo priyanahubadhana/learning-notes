@@ -16,6 +16,8 @@ export interface BlockDraft {
   parentId: string | null
   type: string
   content: JsonObject
+  /** Phase Q: the box of a top-level block; left out for the default box. */
+  boxId?: string
 }
 
 /** What was last saved for one block. order null = not in the database yet. */
@@ -25,6 +27,7 @@ export interface SavedBlock {
   /** Content as a JSON string, for cheap comparison. */
   content: string
   order: OrderKey | null
+  boxId?: string
 }
 
 /** Last-saved state of every block shown in the editor, by id. */
@@ -48,6 +51,7 @@ export function createSnapshot(
         type: d.type,
         content: JSON.stringify(d.content),
         order: orderById.get(d.id) ?? null,
+        ...(d.boxId ? { boxId: d.boxId } : {}),
       },
     ]),
   )
@@ -77,6 +81,7 @@ export function absorbIntoSnapshot(
       type: d.type,
       content: JSON.stringify(d.content),
       order,
+      ...(d.boxId ? { boxId: d.boxId } : {}),
     })
   }
   return next
@@ -121,14 +126,24 @@ export function diffBlocks(
       !old ||
       old.parentId !== d.parentId ||
       old.type !== d.type ||
-      old.content !== content
+      old.content !== content ||
+      old.boxId !== d.boxId
     // An untouched block not yet in the database (e.g. the editor's empty
     // starting line) is not saved until it is actually edited.
     const moved = old?.order != null && old.order !== order
 
     if (edited || moved) {
-      upserts.push({ ...d, order })
-      next.set(d.id, { parentId: d.parentId, type: d.type, content, order })
+      // Back to the default box: the stored box id must go (null = remove).
+      upserts.push(
+        old?.boxId && !d.boxId ? { ...d, order, boxId: null } : { ...d, order },
+      )
+      next.set(d.id, {
+        parentId: d.parentId,
+        type: d.type,
+        content,
+        order,
+        ...(d.boxId ? { boxId: d.boxId } : {}),
+      })
     } else {
       next.set(d.id, old)
     }

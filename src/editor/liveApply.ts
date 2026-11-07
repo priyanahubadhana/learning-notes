@@ -1,3 +1,4 @@
+import { blocksOfBox, hasBoxes } from './boxScope'
 import type { Node as PMNode } from 'prosemirror-model'
 import { TextSelection } from 'prosemirror-state'
 import { listBlocks } from '../core/blockService'
@@ -190,6 +191,8 @@ export async function applyRemoteBlocks(
   ids: readonly string[],
   /** Called with true just before the editor is changed and false after. */
   editing?: (on: boolean) => void,
+  /** Phase Q: only blocks of this box reach this editor (unset = all). */
+  boxId?: string,
 ): Promise<LiveApplyResult> {
   const result: LiveApplyResult = { applied: [], kept: [] }
   const changed = (await db.blocks.bulkGet([...ids])).filter(
@@ -199,6 +202,19 @@ export async function applyRemoteBlocks(
   const live = await listBlocks(db, pageId)
   const all = new Map(live.map((b) => [b.id, b]))
   for (const b of changed) all.set(b.id, b)
+  if (boxId !== undefined || (await hasBoxes(db, pageId))) {
+    const mine = new Set(
+      (await blocksOfBox(db, pageId, [...all.values()], boxId)).map(
+        (b) => b.id,
+      ),
+    )
+    for (let i = changed.length - 1; i >= 0; i--) {
+      // A deleted block is not in the list: it still leaves this editor.
+      if (!mine.has(changed[i].id) && changed[i].deletedAt === null)
+        changed.splice(i, 1)
+    }
+    if (changed.length === 0) return result
+  }
 
   const drafts = new Map(editorToDrafts(editor.document).map((d) => [d.id, d]))
   const inEditor = (id: string | null) => id !== null && drafts.has(id)

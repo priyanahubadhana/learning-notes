@@ -17,6 +17,8 @@ import {
 } from './searchQuery'
 import { ResultRow } from './SearchResults'
 import { TaskResults } from './TaskResults'
+import { noteRecentTool } from './recentTools'
+import { ToolSections } from './ToolSections'
 import { TYPE_ICON, useHitDetails, useSearch } from './useSearch'
 
 /** Recent pages shown before typing. */
@@ -133,6 +135,7 @@ export function SearchPopup({
 
   const seeAll = () => onSeeAll(query)
   const runFeature = (row: Row) => {
+    if (row.pinId) noteRecentTool(row.key)
     onClose()
     // After the search is gone, so the page has its focus back first.
     setTimeout(row.run, 0)
@@ -279,6 +282,9 @@ export function SearchPopup({
             : t('panel.count', { count: total })}
       </p>
 
+      {!typed && (chip === 'all' || chip === 'feature') && (
+        <ToolSections rows={featureRows} pinned={onBar} onRun={runFeature} />
+      )}
       <div
         id={listId}
         role="listbox"

@@ -316,4 +316,7 @@ export const hiO: Record<string, string> = {
     'टूल को खींचकर हिलाएँ या तीरों का उपयोग करें। जोड़ने के लिए और टूल से किसी को सूची में छोड़ें। हो गया बदलाव रखता है; रद्द करें उन्हें छोड़ देता है।',
   'editBar.pillTitle': '{name} के विकल्प',
   'editBar.pillOpen': 'इन विकल्पों को सजाएँ…',
+  'search.sec.recent': 'हाल के टूल',
+  'search.sec.favourites': 'पसंदीदा',
+  'search.sec.recommended': 'सुझाए गए',
 }

@@ -330,4 +330,7 @@ export const esO: Record<string, string> = {
     'Arrastra una herramienta para moverla o usa las flechas. Suelta una de Más herramientas en la lista para añadirla. Listo guarda los cambios; Cancelar los descarta.',
   'editBar.pillTitle': 'Opciones de {name}',
   'editBar.pillOpen': 'Ordenar estas opciones…',
+  'search.sec.recent': 'Herramientas recientes',
+  'search.sec.favourites': 'Favoritas',
+  'search.sec.recommended': 'Recomendadas',
 }

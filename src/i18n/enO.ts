@@ -326,4 +326,7 @@ export const enO = {
     'Drag a tool to move it, or use the arrows. Drop a tool from More tools into the list to add it. Done keeps your changes; Cancel throws them away.',
   'editBar.pillTitle': 'Options of {name}',
   'editBar.pillOpen': 'Arrange these options…',
+  'search.sec.recent': 'Recent tools',
+  'search.sec.favourites': 'Favourites',
+  'search.sec.recommended': 'Recommended',
 }

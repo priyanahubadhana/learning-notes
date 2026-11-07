@@ -94,4 +94,11 @@ export const esW5p = {
     'ROY G BIV: Red, Orange, Yellow, Green, Blue, Indigo, Violet.',
   'templates.mem.story.example':
     'Palabras: perro, llave, luna. Historia: un perro encuentra una llave y abre la luna.',
+  'embed.copyLink': 'Copiar enlace',
+  'embed.linkCopied': 'Enlace copiado.',
+  'file.notHere': 'El archivo no está en este dispositivo.',
+  'file.notHereSync':
+    'Si la sincronización está activa, puede llegar tras la próxima sincronización.',
+  'camera.refused':
+    'La cámara está desactivada para este sitio. En iPad: Ajustes › Safari › Cámara, y elige Preguntar o Permitir.',
 } as const

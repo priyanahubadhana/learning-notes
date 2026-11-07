@@ -1,3 +1,4 @@
+import { useLiveQuery } from 'dexie-react-hooks'
 import { useContext, useRef, useState } from 'react'
 import { AppUiContext } from '../../app/appUi'
 import { runTask } from '../../app/errors'
@@ -5,6 +6,7 @@ import { Icon } from '../../app/tools/icons'
 import { db } from '../../core/db'
 import {
   FileError,
+  attachmentAvailable,
   downloadAttachment,
   looksReadable,
   saveAttachment,
@@ -44,6 +46,11 @@ export function FileView({
   const input = useRef<HTMLInputElement>(null)
   const [busy, setBusy] = useState(false)
   const id = parseFileRef(p.url)
+  // undefined while looking; false when the file is not on this device.
+  const available = useLiveQuery(
+    () => (id ? attachmentAvailable(db, id) : true),
+    [id],
+  )
 
   const choose = (file: File | undefined) => {
     if (!file || !ctx) return
@@ -113,6 +120,28 @@ export function FileView({
         if (!ok) toast(t('file.missing'))
       }),
     )
+
+  if (available === false) {
+    return (
+      <div
+        data-chrome
+        data-file
+        data-file-missing
+        contentEditable={false}
+        className="flex w-full flex-wrap items-center gap-2 rounded-lg border border-dashed border-line bg-soft p-3"
+      >
+        <Icon name="fileText" size={22} className="text-muted" />
+        <div className="min-w-0 flex-1">
+          <p className="truncate text-sm font-medium" data-file-name>
+            {p.name || t('file.untitled')}
+          </p>
+          <p role="status" className="text-xs text-muted">
+            {t('file.notHere')} {t('file.notHereSync')}
+          </p>
+        </div>
+      </div>
+    )
+  }
 
   return (
     <div

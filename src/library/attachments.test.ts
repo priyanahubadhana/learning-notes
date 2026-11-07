@@ -10,7 +10,12 @@ import { checkedRow } from '../share/checkRows'
 import { createNotebook } from '../notebooks/notebookService'
 import { createPage } from '../pages/pageService'
 import { fileRef, parseFileRef, sizeText } from '../core/fileRef'
-import { FileError, looksReadable, saveAttachment } from '../core/attachments'
+import {
+  FileError,
+  attachmentAvailable,
+  looksReadable,
+  saveAttachment,
+} from '../core/attachments'
 import { openAttachmentInReader } from './attachmentReader'
 import type { BookInspector } from './libraryService'
 
@@ -47,6 +52,19 @@ describe('file references', () => {
 })
 
 describe('attached files', () => {
+  it('knows when a file is not on this device (a Notes only restore)', async () => {
+    const saved = await saveAttachment(
+      db,
+      pageId,
+      new File([new Uint8Array([1, 2, 3])], 'a.zip'),
+    )
+    expect(await attachmentAvailable(db, saved.id)).toBe(true)
+    expect(await attachmentAvailable(db, 'no-such-file')).toBe(false)
+    // The file's bytes are left out of a notes-only backup: an empty row.
+    await db.bookFiles.update(saved.id, { data: new ArrayBuffer(0) })
+    expect(await attachmentAvailable(db, saved.id)).toBe(false)
+  })
+
   it('keeps any file, telling books apart by their bytes', async () => {
     const zip = await saveAttachment(
       db,

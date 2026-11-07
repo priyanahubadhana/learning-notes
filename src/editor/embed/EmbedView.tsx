@@ -336,9 +336,23 @@ function VideoCard({
             ▶ {t('embed.play')}
           </button>
           {!online && (
-            <span role="status" className="text-sm text-muted">
-              {t('embed.needsInternet')}
-            </span>
+            <>
+              <span role="status" className="text-sm text-muted">
+                {t('embed.needsInternet')}
+              </span>
+              <button
+                type="button"
+                data-testid="embed-copy-link"
+                className={btn}
+                onClick={() => {
+                  void navigator.clipboard
+                    ?.writeText(p.url)
+                    .then(() => onToast(t('embed.linkCopied')))
+                }}
+              >
+                {t('embed.copyLink')}
+              </button>
+            </>
           )}
         </div>
       )}

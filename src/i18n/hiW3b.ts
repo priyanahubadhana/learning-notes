@@ -55,7 +55,7 @@ export const hiW3b: Record<string, string> = {
   'embed.name': 'नाम (वैकल्पिक)',
   'embed.youtube': 'YouTube',
   'embed.play': 'चलाएँ',
-  'embed.needsInternet': 'इंटरनेट चाहिए',
+  'embed.needsInternet': 'वीडियो के लिए कनेक्शन चाहिए',
   'embed.timestamp': 'समय-चिह्न जोड़ें',
   'embed.screenshot': 'स्क्रीनशॉट चिपकाएँ',
   'embed.time': 'वीडियो में समय',

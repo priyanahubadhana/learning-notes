@@ -61,7 +61,7 @@ export const enW3b = {
   'embed.name': 'Name (optional)',
   'embed.youtube': 'YouTube',
   'embed.play': 'Play',
-  'embed.needsInternet': 'Needs internet',
+  'embed.needsInternet': 'Video needs a connection',
   'embed.timestamp': 'Insert timestamp',
   'embed.screenshot': 'Paste screenshot',
   'embed.time': 'Time in the video',

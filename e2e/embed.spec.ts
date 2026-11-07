@@ -67,16 +67,18 @@ test('a YouTube link shows a card first and loads the player only after Play', a
   await expect(page.locator('[data-embed="youtube"]')).toContainText('1:30')
 })
 
-test('offline, the card says Needs internet and Play waits', async ({
+test('offline, the card says the video needs a connection, offers Copy link and Play waits', async ({
   page,
 }) => {
   await insertEmbed(page, `https://www.youtube.com/watch?v=${ID}`)
   await expect(page.locator('[data-embed="youtube"]')).toBeVisible()
   await page.context().setOffline(true)
-  await expect(page.getByText('Needs internet')).toBeVisible()
+  await expect(page.getByText('Video needs a connection')).toBeVisible()
+  await expect(page.getByTestId('embed-copy-link')).toBeVisible()
   await expect(page.getByRole('button', { name: 'Play' })).toBeDisabled()
   await page.context().setOffline(false)
   await expect(page.getByRole('button', { name: 'Play' })).toBeEnabled()
+  await expect(page.getByTestId('embed-copy-link')).toHaveCount(0)
 })
 
 test('Insert timestamp adds a time link line (from the player, or typed)', async ({

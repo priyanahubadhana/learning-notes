@@ -77,6 +77,45 @@ test('a file is attached, saved out, and a PDF opens in the reader', async ({
   })
 })
 
+test('a file whose bytes are not on this device says so and offers no buttons', async ({
+  page,
+}) => {
+  await newPage(page)
+  await slash(page, 'attach')
+  await page.getByTestId('file-input').setInputFiles({
+    name: 'data.zip',
+    mimeType: 'application/zip',
+    buffer: Buffer.from([0x50, 0x4b, 3, 4, 1, 2, 3]),
+  })
+  await expect(page.locator('[data-file-name]')).toHaveText('data.zip')
+  await page.waitForTimeout(900)
+  // A notes-only restore keeps the block but not the file: empty the bytes.
+  await page.evaluate(
+    () =>
+      new Promise<void>((resolve, reject) => {
+        const open = indexedDB.open('learning-notes')
+        open.onerror = () => reject(open.error)
+        open.onsuccess = () => {
+          const tx = open.result.transaction('bookFiles', 'readwrite')
+          const store = tx.objectStore('bookFiles')
+          store.openCursor().onsuccess = (e) => {
+            const cursor = (e.target as IDBRequest<IDBCursorWithValue>).result
+            if (!cursor) return
+            cursor.update({ ...cursor.value, data: new ArrayBuffer(0) })
+            cursor.continue()
+          }
+          tx.oncomplete = () => resolve()
+          tx.onerror = () => reject(tx.error)
+        }
+      }),
+  )
+  await page.reload()
+  const card = page.locator('[data-file-missing]')
+  await expect(card).toContainText('File not on this device.')
+  await expect(card).toContainText('Sync')
+  await expect(card.getByRole('button')).toHaveCount(0)
+})
+
 test('a file that is not a book has no reader button', async ({ page }) => {
   await newPage(page)
   await slash(page, 'attach')

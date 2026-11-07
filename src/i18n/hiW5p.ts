@@ -90,4 +90,10 @@ export const hiW5p = {
     'ROY G BIV: Red, Orange, Yellow, Green, Blue, Indigo, Violet।',
   'templates.mem.story.example':
     'शब्द: कुत्ता, चाबी, चाँद। कहानी: कुत्ते को चाबी मिलती है और वह चाँद का ताला खोलता है।',
+  'embed.copyLink': 'लिंक कॉपी करें',
+  'embed.linkCopied': 'लिंक कॉपी हो गया।',
+  'file.notHere': 'फ़ाइल इस डिवाइस पर नहीं है।',
+  'file.notHereSync': 'सिंक चालू हो तो अगले सिंक के बाद आ सकती है।',
+  'camera.refused':
+    'इस साइट के लिए कैमरा बंद है। iPad पर: सेटिंग्स › Safari › कैमरा, फिर पूछें या अनुमति चुनें।',
 } as const

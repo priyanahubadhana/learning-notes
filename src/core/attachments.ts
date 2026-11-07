@@ -51,6 +51,18 @@ export const isReadable = (file: Pick<BookFile, 'mime' | 'size'>): boolean =>
  * Saves the stored bytes out as a download. The type is always the generic
  * "octet-stream", so the browser never opens (and runs) the file itself.
  */
+/**
+ * True when the file's bytes are on this device. False after a "Notes only"
+ * restore (the block is there, the file is not) or when it was deleted.
+ */
+export async function attachmentAvailable(
+  db: LearningNotesDB,
+  id: string,
+): Promise<boolean> {
+  const row = await db.bookFiles.get(id)
+  return !!row && row.deletedAt === null && row.data.byteLength > 0
+}
+
 export async function downloadAttachment(
   db: LearningNotesDB,
   id: string,

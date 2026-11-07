@@ -57,7 +57,7 @@ export const esW3b: Record<string, string> = {
   'embed.name': 'Nombre (opcional)',
   'embed.youtube': 'YouTube',
   'embed.play': 'Reproducir',
-  'embed.needsInternet': 'Necesita internet',
+  'embed.needsInternet': 'El vídeo necesita conexión',
   'embed.timestamp': 'Insertar marca de tiempo',
   'embed.screenshot': 'Pegar captura',
   'embed.time': 'Tiempo en el vídeo',

@@ -435,6 +435,14 @@ function LoadedPageEditor({
    * a file picker on a computer) and puts it in the page as a picture.
    */
   const takePhoto = () => {
+    // A camera the person has refused cannot be asked again by the page:
+    // say where to turn it back on instead of a silent nothing.
+    void navigator.permissions
+      ?.query({ name: 'camera' as PermissionName })
+      .then((status) => {
+        if (status.state === 'denied') toast(t('camera.refused'))
+      })
+      .catch(() => {})
     const input = document.createElement('input')
     input.type = 'file'
     input.accept = 'image/*'

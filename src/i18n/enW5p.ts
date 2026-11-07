@@ -100,4 +100,11 @@ export const enW5p = {
     'ROY G BIV: Red, Orange, Yellow, Green, Blue, Indigo, Violet.',
   'templates.mem.story.example':
     'Words: dog, key, moon. Story: a dog finds a key and unlocks the moon.',
+  // ---- Offline and refused (item 11) ----
+  'embed.copyLink': 'Copy link',
+  'embed.linkCopied': 'Link copied.',
+  'file.notHere': 'File not on this device.',
+  'file.notHereSync': 'If Sync is on, it can arrive after the next sync.',
+  'camera.refused':
+    'The camera is off for this site. On iPad: Settings › Safari › Camera, then choose Ask or Allow.',
 } as const

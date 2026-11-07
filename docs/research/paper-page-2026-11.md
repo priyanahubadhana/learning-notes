@@ -5,12 +5,12 @@ Method: two web searches today plus prior knowledge of these apps. Points marked
 
 ## 1. How the apps model a page
 
-| App | Page model | Templates | Typed text | Infinite mode |
-|---|---|---|---|---|
+| App                                            | Page model                                                                                                   | Templates                                                                                                                                   | Typed text                                                                             | Infinite mode                                                                                                      |
+| ---------------------------------------------- | ------------------------------------------------------------------------------------------------------------ | ------------------------------------------------------------------------------------------------------------------------------------------- | -------------------------------------------------------------------------------------- | ------------------------------------------------------------------------------------------------------------------ |
 | GoodNotes 6 (iPad, Mac, Windows, Android, web) | Fixed pages in a notebook. Sizes: A4, Letter, A5, GoodNotes Standard, custom. Portrait or landscape per page | Blank, lined, grid, dotted, planners, a PDF as a page. "Dynamic templates" change size, colour and spacing in the app (third-party listing) | Text box tool: a floating box you place, resize and move. No text flowing across pages | Vertical or horizontal page scroll (a setting). No real infinite canvas; whiteboards are separate **[unverified]** |
-| Notability | Paper pages that grow as you write: continuous vertical scroll **[unverified]** | Lined, grid, dotted, colours | Typing flows as a text area at the top; text boxes float | Continuous scroll is its signature feature; GoodNotes users ask for it (GoodNotes forum) |
-| Noteshelf 3 | Fixed pages, like GoodNotes | Large template library | Text box tool | Vertical or horizontal page scroll **[unverified]** |
-| OneNote | Infinite canvas per page, growing right and down; an optional paper-size view for printing | Rule lines and grid (View tab) | Click anywhere: a "note container", a positioned box of flowing text | The whole page is the canvas |
+| Notability                                     | Paper pages that grow as you write: continuous vertical scroll **[unverified]**                              | Lined, grid, dotted, colours                                                                                                                | Typing flows as a text area at the top; text boxes float                               | Continuous scroll is its signature feature; GoodNotes users ask for it (GoodNotes forum)                           |
+| Noteshelf 3                                    | Fixed pages, like GoodNotes                                                                                  | Large template library                                                                                                                      | Text box tool                                                                          | Vertical or horizontal page scroll **[unverified]**                                                                |
+| OneNote                                        | Infinite canvas per page, growing right and down; an optional paper-size view for printing                   | Rule lines and grid (View tab)                                                                                                              | Click anywhere: a "note container", a positioned box of flowing text                   | The whole page is the canvas                                                                                       |
 
 The common pattern is that **a page is a fixed rectangle (in points, 72 per inch) with a background template, and everything on it (ink, text boxes, images, shapes) sits at an absolute x,y.** Ink never re-flows. A text box keeps its own wrap width, and an image is a box you can crop and turn. Layers mostly mean z-order.
 
@@ -29,13 +29,13 @@ The common pattern is that **a page is a fixed rectangle (in points, 72 per inch
 
 ## 4. Web feasibility (libraries)
 
-| Library | What it is | Licence | Size (min+gz, approx) | Fit |
-|---|---|---|---|---|
-| tldraw SDK 4 | Full infinite-canvas editor | **Production needs a licence key**: a 100-day trial, then a paid commercial licence (price on request); the hobby licence keeps the "made with tldraw" watermark (tldraw.dev, read 8 Nov 2026) | ~1 MB+ **[unverified]** | No: it costs money, brings a second ink engine, and its own store clashes with E2EE sync |
-| Excalidraw | Hand-drawn-style whiteboard | MIT | ~1 MB+ **[unverified]** | No: sketchy look, weak pen, its own data model |
-| Konva | 2D canvas scene graph | MIT | ~55 kB **[unverified]** | Possible for boxes, but we already render ink ourselves |
-| Fabric.js | Canvas objects with handles | MIT | ~90 kB **[unverified]** | Duplicates our Lasso handles |
-| perfect-freehand | Pressure stroke outlines | MIT | ~2 kB | **Already used** |
+| Library          | What it is                  | Licence                                                                                                                                                                                        | Size (min+gz, approx)   | Fit                                                                                      |
+| ---------------- | --------------------------- | ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | ----------------------- | ---------------------------------------------------------------------------------------- |
+| tldraw SDK 4     | Full infinite-canvas editor | **Production needs a licence key**: a 100-day trial, then a paid commercial licence (price on request); the hobby licence keeps the "made with tldraw" watermark (tldraw.dev, read 8 Nov 2026) | ~1 MB+ **[unverified]** | No: it costs money, brings a second ink engine, and its own store clashes with E2EE sync |
+| Excalidraw       | Hand-drawn-style whiteboard | MIT                                                                                                                                                                                            | ~1 MB+ **[unverified]** | No: sketchy look, weak pen, its own data model                                           |
+| Konva            | 2D canvas scene graph       | MIT                                                                                                                                                                                            | ~55 kB **[unverified]** | Possible for boxes, but we already render ink ourselves                                  |
+| Fabric.js        | Canvas objects with handles | MIT                                                                                                                                                                                            | ~90 kB **[unverified]** | Duplicates our Lasso handles                                                             |
+| perfect-freehand | Pressure stroke outlines    | MIT                                                                                                                                                                                            | ~2 kB                   | **Already used**                                                                         |
 
 **iPad Safari:** the limits that matter are a maximum area per canvas (about 16.7 M pixels) and a total canvas memory cap on older iPads **[unverified figures]**, plus slow full repaints. Our engine already uses screen-sized canvases, a cached bitmap per layer, and redraws only the live stroke. For example, A4 (595 x 842 pt) at DPR 2 and 2x zoom is 2380 x 3368 px (about 8 M px), which fits. At 4x zoom we must paint only the visible part, which is the rule we already follow.
 
@@ -62,18 +62,19 @@ The common pattern is that **a page is a fixed rectangle (in points, 72 per inch
 
 ### 5.3 What we reuse
 
-| Piece | Reuse | Change needed |
-|---|---|---|
-| Ink engine (pens, eraser, shapes, tape, layers, undo) | Yes | A "sheet" coordinate mode: fixed points under a zoom/pan transform instead of block anchoring (a second path in `ink/layout.ts`) |
-| Lasso | Yes | Also select `PaperItem`s and move, resize and turn them (real positions now) |
-| Ruler, Magnifier | Yes | Map through the zoom transform |
-| Write pad | Yes | Lands strokes on the sheet; Next line follows the sheet's ruled spacing exactly |
-| Paper behind ink (`paperGrid.ts`) | Yes | Spacing in pt, drawn per sheet |
-| Text | BlockNote/ProseMirror in each box: an editor mounted only while editing, static HTML otherwise | New: box tool, auto-grow, width handle |
+| Piece                                                 | Reuse                                                                                          | Change needed                                                                                                                    |
+| ----------------------------------------------------- | ---------------------------------------------------------------------------------------------- | -------------------------------------------------------------------------------------------------------------------------------- |
+| Ink engine (pens, eraser, shapes, tape, layers, undo) | Yes                                                                                            | A "sheet" coordinate mode: fixed points under a zoom/pan transform instead of block anchoring (a second path in `ink/layout.ts`) |
+| Lasso                                                 | Yes                                                                                            | Also select `PaperItem`s and move, resize and turn them (real positions now)                                                     |
+| Ruler, Magnifier                                      | Yes                                                                                            | Map through the zoom transform                                                                                                   |
+| Write pad                                             | Yes                                                                                            | Lands strokes on the sheet; Next line follows the sheet's ruled spacing exactly                                                  |
+| Paper behind ink (`paperGrid.ts`)                     | Yes                                                                                            | Spacing in pt, drawn per sheet                                                                                                   |
+| Text                                                  | BlockNote/ProseMirror in each box: an editor mounted only while editing, static HTML otherwise | New: box tool, auto-grow, width handle                                                                                           |
 
 ### 5.4 MVP vs later
 
 **MVP (one phase):**
+
 - New paper page: A4 or Letter, portrait or landscape, blank, lined, grid or dots.
 - Sheets scroll vertically; add, delete and reorder them.
 - Zoom (pinch, fit width to 4x) and pan (two fingers).
@@ -86,6 +87,7 @@ The common pattern is that **a page is a fixed rectangle (in points, 72 per inch
 - Lasso on items.
 
 **Later:**
+
 - Horizontal flow, custom sizes, and planner or PDF templates.
 - Infinite canvas mode (OneNote style).
 - Converting either way.

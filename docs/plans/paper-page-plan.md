@@ -34,7 +34,7 @@ Research: [research/paper-page-2026-11.md](../research/paper-page-2026-11.md). S
 1. **Box model, existing pages as one box** (built): types, pure model, editor box scope, backup checks, tests.
 2. Paper look: sheets with border and background, A4/Letter, zoom and pan (pinch with two fingers; the Pencil always writes; Ctrl + wheel), and sheet thumbnails in the left panel's Pages tab. The default box sits on the first sheet, and the sheets are added under it as it grows.
 3. Tap empty paper to make a box (with the caret ready). Move by the box grip, resize from the corners and edges (width only; the height follows the text), lock, duplicate, colour and delete from the box menu. One shared toolbar follows the box that has the caret. Line height snaps to the sheet spacing.
-4. *(On hold)* Ink in and around boxes.
+4. _(On hold)_ Ink in and around boxes.
 5. The Lasso over boxes, reading order in read aloud/export/search, PDF export and print, sync and backup checks.
 6. Fit width on phones: the boxes stack in reading order.
 

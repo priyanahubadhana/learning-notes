@@ -118,3 +118,32 @@ test('drag the mini bar by its grip, pin it, and the place is remembered', async
   )
   expect(saved?.top).toBeGreaterThan(before.y + 100)
 })
+
+test('R7-7: the mini bar stays fully inside the page area, on all four edges', async ({
+  page,
+}) => {
+  await selectWord(page)
+  const inside = async () => {
+    const m = (await mini(page).boundingBox())!
+    const p = (await page.locator('main').boundingBox())!
+    expect(m.x).toBeGreaterThanOrEqual(p.x - 0.5)
+    expect(m.y).toBeGreaterThanOrEqual(p.y - 0.5)
+    expect(m.x + m.width).toBeLessThanOrEqual(p.x + p.width + 0.5)
+    expect(m.y + m.height).toBeLessThanOrEqual(p.y + p.height + 0.5)
+  }
+  await inside()
+  const grip = mini(page).locator('[data-mini="grip"]')
+  for (const to of [
+    { x: 2, y: 2 },
+    { x: 1022, y: 898 },
+    { x: 1022, y: 2 },
+    { x: 2, y: 898 },
+  ]) {
+    const g = (await grip.boundingBox())!
+    await page.mouse.move(g.x + g.width / 2, g.y + g.height / 2)
+    await page.mouse.down()
+    await page.mouse.move(to.x, to.y, { steps: 6 })
+    await page.mouse.up()
+    await inside()
+  }
+})

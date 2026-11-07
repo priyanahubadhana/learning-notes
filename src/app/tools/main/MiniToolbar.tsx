@@ -24,7 +24,8 @@ import { highlightChoice, textColourChoice } from './pillChoices'
 import { miniToolbarOpen, openCard, openPillTool } from './mainTools'
 import { keepFocus } from './pillKit'
 import {
-  clampPos,
+  clampInArea,
+  pageArea,
   isNewSelection,
   miniPinned,
   miniPos,
@@ -89,6 +90,18 @@ export function MiniToolbar({ editor }: { editor: Editor }) {
   const savedPos = miniPos.useValue()
   const [dragPos, setDragPos] = useState<FreePos | null>(null)
   const barRef = useRef<HTMLDivElement>(null)
+  // The bar's real size, read after every draw, so the clamp below never
+  // works from a stale width (R7-7).
+  const [measured, setMeasured] = useState({ width: 320, height: 52 })
+  // eslint-disable-next-line react-hooks/exhaustive-deps -- runs after every draw on purpose; setMeasured bails out when the size is unchanged
+  useLayoutEffect(() => {
+    const el = barRef.current
+    if (!el) return
+    const next = { width: el.offsetWidth, height: el.offsetHeight }
+    setMeasured((old) =>
+      old.width === next.width && old.height === next.height ? old : next,
+    )
+  })
   const dragging = useRef(false)
   const placed = useRef<{
     from: number
@@ -386,23 +399,20 @@ export function MiniToolbar({ editor }: { editor: Editor }) {
     </button>
   )
 
-  const screen = { width: window.innerWidth, height: window.innerHeight }
-  const size = {
-    width: barRef.current?.offsetWidth ?? 320,
-    height: barRef.current?.offsetHeight ?? 52,
-  }
-  const at: FreePos = clampPos(
+  const area = pageArea()
+  const size = measured
+  const at: FreePos = clampInArea(
     (pinned && savedPos) || dragPos || { left: spot.left, top: spot.top },
     size,
-    screen,
+    area,
   )
   // Drag by the grip: the bar goes anywhere (R5-5); pinned, the place is kept.
   const moveBar = (e: React.PointerEvent) => {
     if (!dragging.current) return
-    const next = clampPos(
+    const next = clampInArea(
       { left: e.clientX, top: e.clientY - 22 },
       size,
-      screen,
+      area,
     )
     setDragPos(next)
     if (pinned) miniPos.set(next)
@@ -429,7 +439,7 @@ export function MiniToolbar({ editor }: { editor: Editor }) {
           top: at.top,
           transform: 'translateX(-50%)',
           width: 'max-content',
-          maxWidth: 'calc(100vw - 16px)',
+          maxWidth: area.right - area.left - 16,
         }}
         className="fixed z-[var(--z-mini)] flex flex-wrap justify-center gap-0.5 rounded-2xl border border-ink-soft bg-bg p-1 shadow-[0_2px_4px_rgba(0,0,0,0.08),0_10px_28px_rgba(0,0,0,0.2)]"
       >

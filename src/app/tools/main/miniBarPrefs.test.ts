@@ -1,5 +1,10 @@
 import { describe, expect, it } from 'vitest'
-import { clampPos, isFreePos, isNewSelection } from './miniBarPrefs'
+import {
+  clampInArea,
+  clampPos,
+  isFreePos,
+  isNewSelection,
+} from './miniBarPrefs'
 
 const doc = {}
 describe('mini bar placement', () => {
@@ -26,5 +31,24 @@ describe('mini bar placement', () => {
     expect(isFreePos(null)).toBe(true)
     expect(isFreePos({ left: 1, top: 2 })).toBe(true)
     expect(isFreePos({ left: 'x', top: 2 })).toBe(false)
+  })
+})
+
+describe('mini bar stays inside the page area (R7-7)', () => {
+  const size = { width: 200, height: 50 }
+  const area = { left: 300, top: 100, right: 900, bottom: 700 }
+  it('clamps all four edges', () => {
+    expect(clampInArea({ left: 0, top: 0 }, size, area)).toEqual({
+      left: 408,
+      top: 108,
+    })
+    expect(clampInArea({ left: 5000, top: 5000 }, size, area)).toEqual({
+      left: 792,
+      top: 642,
+    })
+  })
+  it('a bar wider than the area sticks to its left edge', () => {
+    const r = clampInArea({ left: 0, top: 0 }, { width: 900, height: 50 }, area)
+    expect(r.left).toBe(300 + 8 + 292)
   })
 })

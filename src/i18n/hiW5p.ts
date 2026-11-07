@@ -71,7 +71,7 @@ export const hiW5p = {
   'capture.keepAi': 'अपना रखें',
   'capture.keepAiDone': 'आपका रख लिया। अब यह AI-निर्मित नहीं दिखेगा।',
   'empty.decks.action': 'अपना पहला डेक बनाएँ',
-  'empty.library.action': 'किताब आयात करें',
+  'empty.library.action': 'अपनी पहली किताब आयात करें',
   'empty.tasks.action': 'काम जोड़ें',
   'empty.routines':
     'अभी कोई आदत नहीं। अपनी सुबह के लिए एक छोटी आदत से शुरू करें।',

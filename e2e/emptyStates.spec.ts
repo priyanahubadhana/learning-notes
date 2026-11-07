@@ -15,7 +15,7 @@ test.beforeEach(async ({ page }) => {
   await page.goto('/')
 })
 
-test('Library: an empty library offers Import a book, which opens the file picker', async ({
+test('Library: an empty library offers Import your first book, which opens the file picker', async ({
   page,
 }) => {
   await closeCorner(page)
@@ -23,7 +23,7 @@ test('Library: an empty library offers Import a book, which opens the file picke
   const empty = page.getByTestId('library-empty')
   await expect(empty).toBeVisible()
   const chooser = page.waitForEvent('filechooser')
-  await empty.getByRole('button', { name: 'Import a book' }).click()
+  await empty.getByRole('button', { name: 'Import your first book' }).click()
   await chooser
 })
 

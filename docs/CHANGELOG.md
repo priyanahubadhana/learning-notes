@@ -52,7 +52,7 @@ Current phase only. Older entries are in [ARCHIVE.md](ARCHIVE.md).
 
 ## 2026-11-07 (Polish 1 · 8 · one empty-screen component)
 
-- **What:** New `EmptyState` (`app/ui.tsx`: icon, one line, one primary button). Used in Library (Import a book opens the file picker), the Tasks inbox (Add a task focuses the box), Decks (Make your first deck), Routines (Add a habit, only while there are none) and the Audio list of the left panel (Record now). `e2e/emptyStates.spec.ts` checks each on a fresh profile.
+- **What:** New `EmptyState` (`app/ui.tsx`: icon, one line, one primary button). Used in Library (Import your first book opens the file picker), the Tasks inbox (Add a task focuses the box), Decks (Make your first deck), Routines (Add a habit, only while there are none) and the Audio list of the left panel (Record now). `e2e/emptyStates.spec.ts` checks each on a fresh profile.
 - **Files:** `src/app/ui.tsx`, `src/library/LibraryScreen.tsx`, `src/home/{TasksTab,Routines}.tsx`, `src/recall/ReviewHome.tsx`, `src/app/panel/LeftPanel.tsx`, `src/i18n/*W5p.ts`, `e2e/emptyStates.spec.ts`
 
 ## 2026-11-07 (Polish 1 · 7 · AI results: preview, Keep as mine, Remove)

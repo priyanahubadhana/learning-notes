@@ -80,7 +80,7 @@ export const enW5p = {
   'capture.keepAiDone': 'Kept as yours. It is no longer marked as AI-made.',
   // ---- Empty screens (item 8) ----
   'empty.decks.action': 'Make your first deck',
-  'empty.library.action': 'Import a book',
+  'empty.library.action': 'Import your first book',
   'empty.tasks.action': 'Add a task',
   'empty.routines':
     'No habits yet. Start with one small habit for your morning.',

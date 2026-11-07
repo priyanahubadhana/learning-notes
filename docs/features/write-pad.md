@@ -15,6 +15,12 @@ Write with Apple Pencil in a big pad; the words land in the note as typed text w
 - **Not an iPad:** the box is an ordinary text box; the line "On iPad, write here with Apple Pencil (Scribble)" shows.
 - **Engines:** `WritePadEngine` (`engine.ts`) is the seam for later engines (Chromebook Handwriting API, a pen-pressure canvas, the user's own AI key). Only Scribble exists; `hasHandwritingApi()` just detects. The **AI engine** is built (Phase P): Read with Scribble / AI in the pad; AI is a pressure canvas, the model returns text and each word's weight follows the pen pressure (spec [ai.md](ai.md)).
 
+## Round 6 changes (7 Nov)
+
+- **Layout:** the action row (␣ ↵ ⌫, Replace, Insert) is the second row from the top, so the iPadOS floating bar cannot hide it; the pad also lifts by the `visualViewport` inset.
+- **Undo:** the main bar ↶ ↷ undo the pad's text first (`padHistory.ts`: typing within 600 ms is one step, each key is a step, Ctrl/Cmd+Z in the box too); with no pad steps, or after Insert, they act on the page.
+- **Enter:** the box keeps real newlines; a mirror layer behind it draws a ↵ mark at each line end; the keys focus the box so the caret shows.
+
 ## Edge cases
 
 - Read-only page: Insert and Replace are off. Stale positions are clamped. A selection across blocks is removed, then the text is written at its start.

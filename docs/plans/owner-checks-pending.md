@@ -2,6 +2,14 @@
 
 Moved out of HANDOFF on 2026-11-06 (audit) so HANDOFF stays five lines. Newest first; each paragraph names its step. The run decision (master plan) is one owner iPad pass before Sync; the Phase A builder adds its checks at the top. Tick a paragraph by deleting it.
 
+## ROUND 6 FIXES CHECKS (iPad, installed app; tap Update until the new version shows)
+
+- **Write pad above the iPadOS bar:** open the pad with the keyboard up and the Writing Tools bar showing. Are ␣ ↵ ⌫ Replace Insert at the top of the pad and fully reachable? Why human: only a real iPad draws that bar.
+- **Pad Undo:** write a few words with the Pencil, press the main bar ↶: do the words go away step by step, and ↷ bring them back? After Insert, does ↶ remove the text from the page?
+- **Enter marks:** press ↵ in the pad and write on: do you see a faint ↵ at the end of each line, and does ⌫ remove it? Does pressing ↵ pop the keyboard up (we focus the box)?
+- **Notebook reopen:** open a deep page in a notebook, go to another notebook, tap the first one: does it return to the same page with the sidebar unfolded to it? Settings › General › Open notebooks at: try First page and Notebook tabs.
+- **Updates:** after a new version is published, keep the app open and type or move between pages: does "Update available" show within about 5 to 10 minutes without a restart, and never reload while you write?
+
 ## AI MODEL PICKER CHECKS (PC and iPad)
 
 - **Keys:** Settings › AI › add "Claude main" and "Gemini free" with your real keys. Are they masked? Press Test on each: does it say the key works? Rename one, Replace one, Delete one (does it ask first?). Why human: real keys.

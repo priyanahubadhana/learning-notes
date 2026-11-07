@@ -2,6 +2,12 @@
 
 Current phase only. Older entries are in [ARCHIVE.md](ARCHIVE.md).
 
+## 2026-11-07 (Round 6: Write pad fixes, notebook reopen, update checks; no Dexie version)
+
+- **What:** R6-5 the Write pad's action row (␣ ↵ ⌫ Replace Insert) is at the top of the pad and the pad lifts by the visualViewport inset; R6-7 the main bar Undo/Redo work inside the pad (own history, `padHistory.ts`); R6-9 Enter in the pad is a real newline shown as a ↵ mark in the box (mirror layer) and the keys focus the box; R6-12 tapping a notebook opens its last page (or first page) with the tree unfolded, new setting Settings › General › Open notebooks at (Last page / First page / Notebook tabs); R6-14 more update looks (navigation, first input, every 10 min, throttled to 5 min), never an automatic reload.
+- **Why:** owner iPad test notes, round 6. **Files:** `src/editor/writePad/{WritePad.tsx,padHistory.ts}`, `src/editor/{historyActions,DockedBar}`, `src/notebooks/lastPage.ts`, `src/App.tsx`, `src/settings/builtinSettings.ts`, `src/i18n/{enO,esO,hiO}.ts`, `src/app/updates.ts`, `src/main.tsx`, `playwright.config.ts`.
+- **Tests:** unit padHistory.test.ts (2), updates.test.ts (+2); e2e writePad.spec.ts (+3), openNotebook.spec.ts (3, chromium and ipad-webkit); the e2e default is now "Notebook tabs" so older specs still open the tabs.
+
 ## 2026-11-07 (AI model picker: several named keys, model cards, per-notebook choice; no Dexie version)
 
 - **What:** Settings › AI now has several named keys (Add, Rename, Replace, Test, Delete with a confirm, masked, per-key monthly cap), model cards (cost badge, speed, picture mark, good and not-so-good lines, price) ordered by drag (finger, Pencil, mouse) or Move up / Move down, first with a key = default and the rest = fallback when a key fails or hits its cap; a notebook can use its own key and model (no fallback for it); usage is listed per key. Old one-key setups move in once.

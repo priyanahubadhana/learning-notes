@@ -338,3 +338,5 @@ R5-13 DECIDED: edge fade + slim auto-hiding scroll indicator on all scrollable l
 - R8-2 Pencil mode: offer once when the app first sees an Apple Pencil (owner: yes).
 - R8-3 Idea: a Reading mode with no editing allowed (locked, like Notion's lock page).
 - R8-4 Ideas (handwritten): a prompt library (like Notion); notebook options like OneNote / a database of notebooks; templates chooser at start (like Notion); a learning daily journal (web app); ability to transfer/export for recovery; encryption "like Telegram".
+- R8-5 Write pad idea 1 agreed (no text without confirmation; handwriting-look fonts, customisable as today). No more research on recognition.
+- R8-6 AI and locked (PIN) notebooks/pages: AI blocked by default while locked. Per-notebook option "Allow AI while locked": the notebook stays locked in the app view, but AI may read it. Owner can unlock for AI without unlocking for normal viewing.

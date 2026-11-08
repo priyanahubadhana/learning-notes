@@ -2,6 +2,12 @@
 
 Moved out of HANDOFF on 2026-11-06 (audit) so HANDOFF stays five lines. Newest first; each paragraph names its step. The run decision (master plan) is one owner iPad pass before Sync; the Phase A builder adds its checks at the top. Tick a paragraph by deleting it.
 
+## Alerts banner (8 Nov, fix #6)
+
+1. iPad, Sync on: nothing shows at the top when all is well. If Drive needs a tap, ONE blue bar says so with Reconnect Drive; tap it and the bar goes, "Drive reconnected" appears.
+2. A new version waiting (Automatic updates off): a calm grey bar with Update; × hides it for a week. It never shows two bars at once and never while you are typing.
+3. × on a blue bar hides it until you reopen the app.
+
 ## Insert > Picture chooser (8 Nov, fix #5)
 
 1. iPad: Insert > Picture (or short bar Picture, or "/image") opens a small Add a picture sheet. Photos offers Photo Library, Take Photo, Choose File; Files, Camera and Paste are there too. Choose one: the picture lands in the page. No empty picture block appears.

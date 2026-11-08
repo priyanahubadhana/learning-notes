@@ -1,3 +1,4 @@
+import { noteBackup } from './attention/attentionSignals'
 import { useEffect, useState, type ReactNode } from 'react'
 import { db, DEFAULT_DB_NAME } from '../core/db'
 import { runAutoBackup } from '../core/autoBackup'
@@ -29,6 +30,7 @@ async function check(): Promise<Check> {
       db.verno,
       __APP_COMMIT__,
     )
+    if (result.kind !== 'none') noteBackup(result.kind !== 'failed')
     if (result.kind !== 'failed') return { kind: 'ready' }
     // Still offer a file, if the data can be read at all.
     let snapshot: BackupSnapshot | undefined

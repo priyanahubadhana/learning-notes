@@ -2,6 +2,11 @@
 
 Current phase only. Older entries are in [ARCHIVE.md](ARCHIVE.md).
 
+## 2026-11-08 (Fix #6: attention system)
+
+- **What:** one banner spot at the top for important alerts. `app/attention/attentionLevel.ts` (pure: which problem, level, dismiss rules), `attentionSignals.ts` (update, storage, backups), `AttentionGate.tsx` (eager, tiny; waits for 2 s without typing) and lazy `AttentionBanner.tsx`. Level 1 locked pop-up unchanged (folded: the gate hands over to `LockedAlertGate`). Level 2 bright: Drive needs reconnecting (replaces `DriveBar`, deleted), Drive full, account not allowed, clock wrong, signed out, sync failing 3+ times or 30 min, backups failing twice, update needed. Level 3 calm: storage over 90%, finish sync setup, ordinary update (replaces `UpdateBar`; `UpdateRiskBar` stays). Dismiss: level 2 until next start or worse; level 3 for 7 days (`attn.snooze.<code>`). "Drive reconnected" toast when fixed. Text in `enO/hiO/esO`.
+- **Files:** `src/app/attention/*`, `src/App.tsx`, `src/app/{UpdateBar,UpgradeGate}.tsx`, `src/i18n/{enO,hiO,esO}.ts`, `e2e/attention.spec.ts`, docs.
+
 ## 2026-11-08 (Fix #5: Insert › Picture chooser)
 
 - **What:** root cause: Insert › Picture and "/image" only inserted an empty image block and relied on BlockNote's small floating "Add image" panel (upload/embed tabs), which gave an empty block and nothing to tap on iPad. Now a chooser sheet (lazy `images/PictureChooser.tsx`: Photos, Files, Camera, Paste with hint "Press and hold → Paste", Cancel) opens first; the block is made only when a picture is chosen (`images/placePicture.ts`, stored via `saveImage` as before so Dexie + Drive sync apply). The empty block's own Add button uses the same chooser (`PicturePanel`, image blocks only). Link choice left out (see DECISIONS).

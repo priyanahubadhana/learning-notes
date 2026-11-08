@@ -23,6 +23,8 @@ Keep the notes the same on the iPad and the PC, end-to-end encrypted: the server
 
 - **Locked alert (Level 1)**: `sync/lockedStatus.ts` (`isLocked`: needsKey, needCode, unreadable) is read by the eager `LockedAlertGate`, which lazy-loads `LockedAlert.tsx`: one `alertdialog` per session (sessionStorage `attn.locked.shown`) after the person stops typing, not while Settings › Sync is open; Later leaves a red banner with Unlock; unlocking clears both. Design: [research/attention-alerts-2026-11.md](../research/attention-alerts-2026-11.md); other levels not built. Tests: `lockedStatus.test.ts`, `e2e/lockedAlert.spec.ts`.
 
+- **Alerts (fix #6)**: `app/attention/`. `attentionLevel.ts` picks ONE problem, highest level first: L1 locked (pop-up above), L2 bright banner (Drive reconnect with one-tap fix, Drive full, account not allowed, clock, signed out, sync failing 3+ times or 30 min, backups failing twice, update needed), L3 calm banner (storage over 90%, finish setup, update available). L4 (the dot, offline, busy, single failure) is unchanged. × on L2 hides until the next start, or sooner if worse (higher failure count); × on L3 hides 7 days; stored per problem in localStorage `attn.snooze.<code>` (try/catch). It clears itself when fixed ("Drive reconnected" toast). The banner is lazy (`role="status"`, polite), appears only after 2 s without typing, pushes the page down (`--attn-h`). Signals for update/storage/backups come from `attentionSignals.ts`. "Update needed" (old app, new data) has no source yet. Tests: `attentionLevel.test.ts`, `e2e/attention.spec.ts`, `e2e/syncDriveTap.spec.ts`.
+
 ## Adding a table (for future builders)
 
 1. Add the table in `core/db.ts` (a new Dexie version, add-only) as usual.

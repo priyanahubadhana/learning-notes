@@ -55,11 +55,17 @@ import { setAppActions } from './app/tools/toolRuntime'
 import { SidebarResizer } from './app/SidebarResizer'
 import { SIDEBAR_DEFAULT, isSidebarWidth } from './app/sidebarWidth'
 import { Toast, ChoiceDialog, EmptyState } from './app/ui'
-import { dismissUpdateOffer, onUpdateOffer } from './app/updates'
-import { UpdateBar, UpdateRiskBar } from './app/UpdateBar'
+import { onUpdateOffer } from './app/updates'
+import { UpdateRiskBar } from './app/UpdateBar'
+import { AttentionGate } from './app/attention/AttentionGate'
+import {
+  checkStorage,
+  loadBackupFailures,
+  setSignals,
+  watchFailures,
+} from './app/attention/attentionSignals'
+import { subscribeSync } from './sync/syncStatus'
 import { restoreAfterUpdate, updateRisk } from './app/autoUpdate'
-import { LockedAlertGate } from './sync/LockedAlertGate'
-import { DriveBar } from './sync/DriveBar'
 import { getSyncStatus } from './sync/syncStatus'
 import { NowPlayingGate } from './app/reading/NowPlayingGate'
 import { TOAST_AFTER_HOLD_MS, toastDuration } from './app/toastTiming'
@@ -818,6 +824,33 @@ function App() {
   // question shows only when an update could lose data.
   const [autoUpdate] = useDeviceSetting(autoUpdateSetting)
   const updateQuestion = updateRisk.useValue()
+  // The alerts banner (one spot at the top) shows the waiting update.
+  useEffect(() => {
+    setSignals({
+      updateReady: !!applyUpdate && autoUpdate !== 'on',
+      applyUpdate: applyUpdate
+        ? () => {
+            applyUpdate()
+          }
+        : null,
+    })
+  }, [applyUpdate, autoUpdate])
+  useEffect(() => {
+    loadBackupFailures()
+    const stopWatch = watchFailures()
+    void checkStorage()
+    // Say so once when Google lets Drive in again.
+    let tapped = !!getSyncStatus().needsDriveTap
+    const stop = subscribeSync(() => {
+      const now = !!getSyncStatus().needsDriveTap
+      if (tapped && !now) showToastRef.current(t('attention.fixed'))
+      tapped = now
+    })
+    return () => {
+      stop()
+      stopWatch()
+    }
+  }, [])
   // After a restart by an update: keep the scroll and say so, once.
   useEffect(() => {
     if (!restoreAfterUpdate()) return
@@ -1843,8 +1876,7 @@ function App() {
               />
             )}
             <ReadingSync />
-            <LockedAlertGate />
-            <DriveBar db={db} />
+            <AttentionGate db={db} />
             <NowPlayingGate onOpenPage={(id) => openPage(id)} />
             <TimerChip db={db} onOpenHome={() => chooseSpace('home')} />
             <AudioDock db={db} pageId={currentPage?.id ?? null} />
@@ -1856,15 +1888,6 @@ function App() {
                   risk={updateQuestion.risk}
                   onUpdate={updateQuestion.apply}
                   onClose={() => updateRisk.set(null)}
-                />
-              )}
-              {applyUpdate && autoUpdate !== 'on' && (
-                <UpdateBar
-                  onUpdate={applyUpdate}
-                  onClose={() => {
-                    dismissUpdateOffer()
-                    setApplyUpdate(null)
-                  }}
                 />
               )}
             </div>

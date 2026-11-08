@@ -582,4 +582,27 @@ export const esO: Record<string, string> = {
   'pic.add.paste.sub': 'Usa una imagen copiada',
   'pic.add.pasteHint': 'Mantén pulsado → Pegar',
   'pic.add.cancel': 'Cancelar',
+  // ---- Attention banners (levels 2 and 3) ----
+  'attention.driveTap': 'Drive está desconectado. Las imágenes esperan.',
+  'attention.driveFull': 'Google Drive está lleno. Sincronización en pausa.',
+  'attention.openDrive': 'Abrir almacenamiento de Drive',
+  'attention.notAllowed': 'Esta cuenta de Google no puede sincronizar.',
+  'attention.switch': 'Cambiar de cuenta',
+  'attention.clock':
+    'El reloj del dispositivo parece incorrecto. Sincronización en pausa.',
+  'attention.details': 'Detalles',
+  'attention.signInAgain':
+    'Se cerró la sesión de sincronización. Los cambios no se sincronizan.',
+  'attention.signIn': 'Iniciar sesión',
+  'attention.syncFailing': 'La sincronización falla una y otra vez.',
+  'attention.tryAgain': 'Reintentar',
+  'attention.backups': 'Las copias de seguridad están fallando.',
+  'attention.openBackups': 'Abrir copias',
+  'attention.updateNeeded': 'Actualiza para seguir sincronizando.',
+  'attention.storage': 'El almacenamiento está casi lleno.',
+  'attention.manage': 'Gestionar almacenamiento',
+  'attention.setup': 'Termina de configurar la sincronización.',
+  'attention.setUp': 'Configurar',
+  'attention.dismiss': 'Descartar',
+  'attention.fixed': 'Drive reconectado',
 }

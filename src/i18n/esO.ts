@@ -782,6 +782,8 @@ export const esO: Record<string, string> = {
   'prompts.paste.copied': 'Copiado. Pégalo en tu chat de IA.',
   'prompts.paste.answerLabel': 'Pega aquí la respuesta de la IA',
   'prompts.paste.import': 'Pegar respuesta',
+  'prompts.paste.file': 'Importar un archivo .lnskill.json',
+  'prompts.paste.fileHint': 'O suelta el archivo aquí.',
   'prompts.paste.empty': 'No se pegó nada.',
   'prompts.paste.tooLong':
     'Esa respuesta es demasiado larga para leerla con seguridad.',
@@ -805,4 +807,16 @@ export const esO: Record<string, string> = {
   'editLock.barNotebook': 'Cuaderno bloqueado — toca para desbloquear',
   'editLock.deleteHint': 'Bloqueado',
   'editLock.refused': 'Esto está bloqueado para edición. Desbloquéalo primero.',
+  'claudeSkill.title': 'Usar con Claude',
+  'claudeSkill.intro':
+    'Una Skill gratuita de Claude convierte lo que le des (una transcripción, un artículo, un PDF, una respuesta de chat) en un conjunto de estudio con el formato exacto que lee esta app. Copia la respuesta de Claude, o guarda su archivo .lnskill.json, y luego usa Pegar respuesta o suelta el archivo en Prompts (abre cualquier skill).',
+  'claudeSkill.download': 'Descargar la Skill de Claude (.zip)',
+  'claudeSkill.how': 'Cómo añadirla en Claude',
+  'claudeSkill.step1': 'Descarga el .zip de arriba. No lo descomprimas.',
+  'claudeSkill.step2':
+    'En Claude, abre Ajustes, luego Capacidades, luego Skills, y sube el .zip.',
+  'claudeSkill.step3':
+    'En cualquier chat, dale tu material a Claude y di «haz apuntes para Learning Notes».',
+  'claudeSkill.step4':
+    'Copia el bloque JSON, o descarga el archivo .lnskill.json, y en esta app abre Prompts, una skill, y Pegar respuesta o suelta el archivo.',
 }

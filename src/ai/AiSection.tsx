@@ -5,6 +5,7 @@ import { t } from '../i18n/t'
 import { isTracking } from '../sync/device'
 import { AI_KEYS, DEFAULT_CAP_USD } from './aiRun'
 import { AiKeys } from './AiKeys'
+import { ClaudeSkillCard } from './ClaudeSkillCard'
 import { keySyncOn, onKeysArrived, setKeySync } from './keySync'
 import { listKeys } from './keyStore'
 import { ModelCards } from './ModelCards'
@@ -133,6 +134,7 @@ export function AiSection({ db }: { db: LearningNotesDB }) {
           ))}
         </ul>
       </div>
+      <ClaudeSkillCard />
       <p className="text-sm text-muted" data-testid="ai-perm-moved">
         {t('ai.perm.moved')}
       </p>

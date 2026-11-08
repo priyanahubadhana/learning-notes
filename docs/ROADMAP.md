@@ -20,6 +20,8 @@ Follows [plans/redesign-2026-11.md](plans/redesign-2026-11.md); it comes before 
 
 - **Phase Q — Paper page (owner decision 8 Nov 2026, parallel with the fixes):** a new page type: fixed sheets (A4/Letter), backgrounds, zoom/pan, ink at paper coordinates, block boxes with the normal block editor, Lasso over ink and boxes, search/Summary/cards, sync, backup, PDF/print, embed in block pages. Plan: [plans/paper-page-plan.md](plans/paper-page-plan.md) (waiting for owner answers before building). Converting page types comes later.
 
+- **Later phase — Claude connector (MCP), planned as its own phase (owner, 9 Nov 2026):** Claude writes into notebooks directly. Needs a hosted MCP server, sign-in, and an end-to-end-encryption design (the server must not read notes). Not started; the free Claude Skill (features/claude-skill.md) covers the need until then.
+
 ## Keep in mind
 
 - Online first, offline as a fallback: notes, cards and reading always work offline; features that need the internet show "Needs internet" (owner, 2026-11-03).

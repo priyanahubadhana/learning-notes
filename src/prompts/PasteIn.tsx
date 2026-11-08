@@ -1,10 +1,13 @@
-import { useContext, useState } from 'react'
+import { useContext, useRef, useState } from 'react'
 import { AppUiContext } from '../app/appUi'
 import { runTask } from '../app/errors'
 import { t, type MessageKey } from '../i18n/t'
 import { copyTextFor } from './pasteText'
 import type { PromptItem } from './promptModel'
 import type { FormatProblem } from './skillFormat'
+
+/** Largest file read (bytes): 400,000 characters of any language fit. */
+const MAX_FILE_BYTES = 2_000_000
 
 const btn =
   'min-h-11 rounded-lg border border-line px-3 text-sm hover:bg-hover disabled:opacity-50'
@@ -26,10 +29,28 @@ export function PasteIn({
   const { toast } = useContext(AppUiContext)
   const [raw, setRaw] = useState('')
   const [problem, setProblem] = useState<FormatProblem | null>(null)
+  const fileRef = useRef<HTMLInputElement>(null)
+  /** A .lnskill.json (or .json/.txt) file: read as text, then the same checks as a paste. */
+  const takeFile = (file: File | undefined) => {
+    if (!file) return
+    if (file.size > MAX_FILE_BYTES) return setProblem('tooLong')
+    runTask(
+      file.text().then((text) => {
+        const p = onImport(text)
+        setProblem(p)
+        if (!p) setRaw('')
+      }),
+    )
+  }
   return (
     <details
       className="rounded-lg border border-line p-2 text-sm"
       data-testid="paste-in"
+      onDragOver={(e) => e.preventDefault()}
+      onDrop={(e) => {
+        e.preventDefault()
+        takeFile(e.dataTransfer.files[0])
+      }}
     >
       <summary className="min-h-11 cursor-pointer leading-[44px] font-medium">
         {t('prompts.paste.title')}
@@ -62,6 +83,26 @@ export function PasteIn({
             }}
           />
         </label>
+        <input
+          ref={fileRef}
+          type="file"
+          accept=".json,application/json,text/plain"
+          hidden
+          data-testid="paste-file"
+          onChange={(e) => {
+            takeFile(e.target.files?.[0])
+            e.target.value = ''
+          }}
+        />
+        <button
+          type="button"
+          data-testid="paste-file-pick"
+          className={`${btn} self-start`}
+          onClick={() => fileRef.current?.click()}
+        >
+          {t('prompts.paste.file')}
+        </button>
+        <p className="text-xs text-muted">{t('prompts.paste.fileHint')}</p>
         {problem && (
           <p role="alert" className="text-danger" data-testid="paste-problem">
             {t(`prompts.paste.${problem}` as MessageKey)}

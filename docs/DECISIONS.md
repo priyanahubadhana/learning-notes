@@ -845,3 +845,10 @@ The other older decisions stand as built (owner, 2026-11-01); they are in [ARCHI
 - **2026-11-09 · Paper: no text across the gap between sheets:** A single block taller than a whole sheet, or one block with Shift+Enter line breaks that crosses the end of a sheet, is moved whole only if it fits one sheet; otherwise it still crosses (rare). The box frame is not yet drawn per sheet (it is the dashed outline while the caret is in the box, now spanning the gap). Owner please check.
 
 - **2026-11-09 · iPad fix 7 (part): boxes never overlap:** Safest option for overlap: the moved box yields (pushes itself down), the rest of the page never shifts. Resizing a box wider into a neighbour is resolved the same way (it moves down).
+
+## Decisions (Claude Skill, 9 Nov)
+
+- One format only: the Skill writes ln-skill/1; mind map outline = point topics, database rows = points (no new fields).
+- Zip built by a Vite plugin from claude-skill/learning-notes, same URL in dev and build; not in the offline cache.
+- File import lives in the existing paste-in box of a skill run (Import button and drop), 2 MB limit, same strict reader.
+- The card sits at the end of Settings › AI. Strings in enO (es/hi added).

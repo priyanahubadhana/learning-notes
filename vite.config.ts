@@ -5,6 +5,7 @@ import tailwindcss from '@tailwindcss/vite'
 import react from '@vitejs/plugin-react'
 import { defineConfig, type Plugin } from 'vite'
 import { VitePWA } from 'vite-plugin-pwa'
+import { buildSkillZip, SKILL_ZIP_NAME } from './scripts/skillZip.ts'
 
 /** The live site's `/*` headers, so the preview runs under the same rules. */
 function siteHeaders(): Record<string, string> {
@@ -45,6 +46,24 @@ const versionStamp = (): Plugin => ({
   },
 })
 
+/** The Claude Skill zip, built from claude-skill/learning-notes (build and dev). */
+const claudeSkillZip = (): Plugin => ({
+  name: 'claude-skill-zip',
+  generateBundle() {
+    this.emitFile({
+      type: 'asset',
+      fileName: SKILL_ZIP_NAME,
+      source: buildSkillZip(),
+    })
+  },
+  configureServer(server) {
+    server.middlewares.use(`/${SKILL_ZIP_NAME}`, (_req, res) => {
+      res.setHeader('Content-Type', 'application/zip')
+      res.end(Buffer.from(buildSkillZip()))
+    })
+  },
+})
+
 // https://vite.dev/config/
 export default defineConfig({
   define: {
@@ -59,6 +78,7 @@ export default defineConfig({
     react(),
     tailwindcss(),
     versionStamp(),
+    claudeSkillZip(),
     ...(process.env.E2E ? [] : [basicSsl()]),
     // Offline: the built app is kept on the device. A new version waits for
     // the user's OK (src/app/updates.ts); the manifest is in public/.

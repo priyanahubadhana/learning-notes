@@ -2,6 +2,11 @@
 
 Current phase only. Older entries are in [ARCHIVE.md](ARCHIVE.md).
 
+## 2026-11-09 (Claude Skill: Use with Claude)
+
+- **What:** a shareable Claude Skill (claude-skill/learning-notes: SKILL.md, reference/format.md) that makes notes in the app's ln-skill/1 format; zip built at build time and served as /learning-notes-skill.zip; Settings › AI › Use with Claude (explainer, download, how to add it in Claude); Import a .lnskill.json file or drop it, next to Paste answer. Later MCP connector logged in IDEAS and ROADMAP. Why: use Claude (no key, ₹0) to feed the app.
+- **Files:** claude-skill/learning-notes/*, scripts/skillZip.ts, vite.config.ts, src/ai/ClaudeSkillCard.tsx, AiSection.tsx, src/prompts/PasteIn.tsx, claudeSkill.test.ts, src/i18n/enO.ts, esO.ts, hiO.ts, e2e/claudeSkill.spec.ts, docs/features/claude-skill.md, docs/IDEAS.md, docs/ROADMAP.md
+
 ## 2026-11-09 (Table: row height, fit column, touch grips)
 
 - **What:** drag a row border's grip pill to set the row height (saved with the table, synced); double-click a column border (or double-tap its pill on touch) fits the column to its content; touch and Pencil get row and column grip pills with a 44 px hit area. The table block gets a `rowHeights` prop.

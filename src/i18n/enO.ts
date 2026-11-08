@@ -783,6 +783,8 @@ export const enO = {
   'prompts.paste.copied': 'Copied. Paste it into your AI chat.',
   'prompts.paste.answerLabel': 'Paste the AI answer here',
   'prompts.paste.import': 'Paste answer',
+  'prompts.paste.file': 'Import a .lnskill.json file',
+  'prompts.paste.fileHint': 'Or drop the file here.',
   'prompts.paste.empty': 'Nothing was pasted.',
   'prompts.paste.tooLong': 'That answer is too long to read safely.',
   'prompts.paste.notJson':
@@ -840,4 +842,16 @@ export const enO = {
   'lp.outline.toggles': 'Toggles',
   'lp.outline.numbers': '1, 1.1',
   'lp.outline.fold': 'Fold or unfold',
+  'claudeSkill.title': 'Use with Claude',
+  'claudeSkill.intro':
+    'A free Claude Skill turns anything you give Claude (a transcript, an article, a PDF, a chat answer) into a study set in the exact format this app reads. Copy Claude’s reply, or save its .lnskill.json file, then use Paste answer or drop the file in Prompts (open any skill).',
+  'claudeSkill.download': 'Download the Claude Skill (.zip)',
+  'claudeSkill.how': 'How to add it in Claude',
+  'claudeSkill.step1': 'Download the .zip above. Do not unzip it.',
+  'claudeSkill.step2':
+    'In Claude, open Settings, then Capabilities, then Skills, and upload the .zip.',
+  'claudeSkill.step3':
+    'In any chat, give Claude your material and say “make notes for Learning Notes”.',
+  'claudeSkill.step4':
+    'Copy the JSON block, or download the .lnskill.json file, then in this app open Prompts, a skill, and Paste answer or drop the file.',
 }

@@ -758,6 +758,8 @@ export const hiO: Record<string, string> = {
   'prompts.paste.copied': 'कॉपी हो गया। अपने AI चैट में चिपकाएँ।',
   'prompts.paste.answerLabel': 'AI का उत्तर यहाँ चिपकाएँ',
   'prompts.paste.import': 'उत्तर चिपकाएँ',
+  'prompts.paste.file': '.lnskill.json फ़ाइल इम्पोर्ट करें',
+  'prompts.paste.fileHint': 'या फ़ाइल यहाँ छोड़ें।',
   'prompts.paste.empty': 'कुछ नहीं चिपकाया गया।',
   'prompts.paste.tooLong':
     'वह उत्तर सुरक्षित रूप से पढ़ने के लिए बहुत लंबा है।',
@@ -781,4 +783,16 @@ export const hiO: Record<string, string> = {
   'editLock.barNotebook': 'नोटबुक लॉक है — अनलॉक करने के लिए टैप करें',
   'editLock.deleteHint': 'लॉक है',
   'editLock.refused': 'यह संपादन के लिए लॉक है। पहले अनलॉक करें।',
+  'claudeSkill.title': 'Claude के साथ इस्तेमाल करें',
+  'claudeSkill.intro':
+    'एक मुफ़्त Claude Skill आपकी दी हुई किसी भी चीज़ (ट्रांसक्रिप्ट, लेख, PDF, चैट का जवाब) को इस ऐप के सही फ़ॉर्मैट में स्टडी सेट बना देती है। Claude का जवाब कॉपी करें, या उसकी .lnskill.json फ़ाइल सेव करें, फिर Prompts में (कोई भी स्किल खोलें) जवाब पेस्ट करें या फ़ाइल छोड़ें।',
+  'claudeSkill.download': 'Claude Skill डाउनलोड करें (.zip)',
+  'claudeSkill.how': 'Claude में इसे कैसे जोड़ें',
+  'claudeSkill.step1': 'ऊपर का .zip डाउनलोड करें। इसे अनज़िप न करें।',
+  'claudeSkill.step2':
+    'Claude में सेटिंग्स, फिर Capabilities, फिर Skills खोलें और .zip अपलोड करें।',
+  'claudeSkill.step3':
+    'किसी भी चैट में Claude को अपनी सामग्री दें और कहें "Learning Notes के लिए नोट्स बनाओ"।',
+  'claudeSkill.step4':
+    'JSON ब्लॉक कॉपी करें, या .lnskill.json फ़ाइल डाउनलोड करें, फिर इस ऐप में Prompts, कोई स्किल, और जवाब पेस्ट करें या फ़ाइल छोड़ें।',
 }

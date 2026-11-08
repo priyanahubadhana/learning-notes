@@ -2,6 +2,11 @@
 
 Moved out of HANDOFF on 2026-11-06 (audit) so HANDOFF stays five lines. Newest first; each paragraph names its step. The run decision (master plan) is one owner iPad pass before Sync; the Phase A builder adds its checks at the top. Tick a paragraph by deleting it.
 
+## Claude Skill (9 Nov)
+
+1. Settings › AI › Use with Claude: tap Download the Claude Skill (.zip); in Claude open Settings › Capabilities › Skills and upload the zip (do not unzip). In a chat give Claude some text and say "make notes for Learning Notes": it replies with one JSON block (and maybe a .lnskill.json file).
+2. In the app: Library › Prompts › any skill › No AI key? › Paste answer (paste the JSON) or Import a .lnskill.json file / drop the file: the preview opens with stars, icons, sources and cards.
+
 ## Paste, tables, select all, Notion import (9 Nov)
 
 0. Table: hover a row border, drag the pill: the row grows and stays after reload. Double-click a column border: it shrinks to fit its text. On iPad tap a table: pills appear on row and column borders; drag them with a finger and the Pencil; double-tap a column pill to fit.

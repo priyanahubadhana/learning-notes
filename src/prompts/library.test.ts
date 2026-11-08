@@ -91,7 +91,8 @@ describe('library search and filters', () => {
 
   it('ranks the name above the text and needs every word', () => {
     const r = filterItems(items, { ...none, q: 'quiz' })
-    expect(r[0].name).toBe('Quiz me')
+    expect(r[0].name.startsWith('Quiz')).toBe(true)
+    expect(r.map((x) => x.name)).toContain('Quiz me')
     expect(filterItems(items, { ...none, q: 'quiz zebra' })).toEqual([])
   })
 

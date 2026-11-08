@@ -65,7 +65,43 @@ function skill(
   }
 }
 
+/**
+ * Paste-in prompts for NotebookLM chat: the owner pastes one there and copies
+ * the answer back; "Bring in from NotebookLM" reads exactly this shape
+ * (src/share/notebooklm/parse.ts and its tests use these same texts).
+ */
+export const NLM_MINDMAP_PROMPT =
+  'Write a mind map of the sources as an indented outline and nothing else. The first line is the central topic, written as "- Topic". Every other line starts with "- " and is indented two spaces for each level below its parent. Use at most 4 levels, short phrases, no bold, no numbers, no extra text before or after.'
+export const NLM_QUIZ_PROMPT =
+  'Write a quiz from the sources as a list of questions with their answers. Use exactly this shape, with one blank line between questions and nothing else:\n\nQ: the question\nA: the correct answer in a short line\n\nWrite 10 to 20 questions. For a multiple-choice question put the options in the Q line, like "Which is largest? (a) Sun (b) Moon (c) Mars", and give the right option in the A line.'
+export const NLM_INFOGRAPHIC_PROMPT =
+  'Write the content of an infographic about the sources as Markdown and nothing else. Start with the title as "# Title". Then write 4 to 8 sections, each "## Heading" followed by 2 to 4 lines starting with "- ", one short fact per line. No tables, no pictures, no text outside this shape.'
+
 export const SEEDS: readonly PromptItem[] = [
+  prompt(
+    'own.nlm.mindmap',
+    'Mind map as indented outline',
+    'import',
+    ['notebooklm', 'mind map'],
+    NLM_MINDMAP_PROMPT,
+    { input: 'text', output: 'notes' },
+  ),
+  prompt(
+    'own.nlm.quiz',
+    'Quiz as Q/A list with answers',
+    'import',
+    ['notebooklm', 'quiz'],
+    NLM_QUIZ_PROMPT,
+    { input: 'text', output: 'cards' },
+  ),
+  prompt(
+    'own.nlm.infographic',
+    'Infographic content as headings and bullets',
+    'import',
+    ['notebooklm', 'infographic'],
+    NLM_INFOGRAPHIC_PROMPT,
+    { input: 'text', output: 'notes' },
+  ),
   prompt(
     'own.summarise',
     'Summarise',

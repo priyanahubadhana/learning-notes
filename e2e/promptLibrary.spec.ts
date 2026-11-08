@@ -25,9 +25,9 @@ test('library: seeded prompts, search, filter, new prompt, edit keeps a version'
   await openLibrary(page)
   const dialog = page.getByTestId('prompts-dialog')
   await dialog.getByTestId('prompt-search').fill('quiz')
-  await expect(dialog.getByTestId('prompt-row').first()).toContainText(
-    'Quiz me',
-  )
+  await expect(
+    dialog.getByTestId('prompt-row').filter({ hasText: 'Quiz me' }),
+  ).toHaveCount(1)
   await dialog.getByTestId('prompt-search').fill('')
   await dialog.getByRole('combobox', { name: 'Purpose' }).selectOption('plan')
   await expect(dialog.getByTestId('prompt-row')).toHaveCount(1)

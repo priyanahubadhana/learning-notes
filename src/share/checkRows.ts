@@ -411,6 +411,8 @@ const bookFile: Fields<BookFile> = {
   data: object,
   /** An attached file that was opened in the reader: its Library page. */
   readerPageId: text,
+  /** A NotebookLM slide deck: shown in the page's Slides tab. */
+  slides: yes,
 }
 
 const annotation: Fields<Annotation> = {

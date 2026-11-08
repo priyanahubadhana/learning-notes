@@ -1,6 +1,6 @@
 import { sampleName } from '../i18n/defaultNames'
 import { useLiveQuery } from 'dexie-react-hooks'
-import { useContext, useEffect, useRef, useState } from 'react'
+import { lazy, Suspense, useContext, useEffect, useRef, useState } from 'react'
 import { AppUiContext } from '../app/appUi'
 import { downloadFile } from '../app/download'
 import { runTask } from '../app/errors'
@@ -44,6 +44,12 @@ import { formatSize } from './formatSize'
 import { readFullFile } from './readFull'
 import { RestoreDialog } from './RestoreDialog'
 import { NotionImportSection } from './NotionImportSection'
+
+const NotebookLmImport = lazy(() =>
+  import('./notebooklm/NotebookLmImport').then((m) => ({
+    default: m.NotebookLmImport,
+  })),
+)
 import {
   canReplaceFrom,
   fullToBundle,
@@ -594,6 +600,14 @@ export function DataScreen({
             notebooks={notebooks ?? []}
             box={box}
           />
+          <Suspense fallback={null}>
+            <NotebookLmImport
+              db={db}
+              workspaceId={workspaceId}
+              notebooks={notebooks ?? []}
+              box={box}
+            />
+          </Suspense>
           <section aria-label={t('data.anki.title')} className={box}>
             <h2 className="text-[15px] font-semibold">
               {t('data.anki.title')}

@@ -650,6 +650,8 @@ export interface BookFile extends BaseRecord {
   data: ArrayBuffer
   /** An attached file (G2) opened in the reader: its Library page. */
   readerPageId?: string
+  /** Brought in from NotebookLM as a slide deck: the page's Slides tab shows it. */
+  slides?: true
 }
 
 /** Colours of a highlight. */

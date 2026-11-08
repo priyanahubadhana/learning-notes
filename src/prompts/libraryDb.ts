@@ -119,6 +119,28 @@ async function columnsByKey(
     : undefined
 }
 
+/** An older library lacks Purpose options added later (Import): add them with their fixed ids. */
+async function ensurePurposeOptions(
+  db: LearningNotesDB,
+  column: DbColumn,
+): Promise<void> {
+  const have = (column.config.options ?? []) as unknown as { id: string }[]
+  const missing = PURPOSES.filter((p) => !have.some((o) => o.id === p))
+  if (missing.length === 0) return
+  const added = missing.map((id, i) => ({
+    id,
+    name: t(`prompts.purpose.${id}` as MessageKey),
+    color: COLORS[(have.length + i) % COLORS.length],
+  }))
+  await db.dbColumns.update(column.id, {
+    config: {
+      ...column.config,
+      options: [...have, ...added] as unknown as JsonValue,
+    },
+    updatedAt: Date.now(),
+  })
+}
+
 let making: Promise<Library> | undefined
 
 /** The library database of a workspace: found, or made with its columns. */
@@ -145,7 +167,10 @@ async function makeLibrary(
     .sort((a, b) => a.createdAt - b.createdAt)[0]
   if (found) {
     const cols = await columnsByKey(db, found.id)
-    if (cols) return { database: found, cols }
+    if (cols) {
+      await ensurePurposeOptions(db, cols.purpose)
+      return { database: found, cols }
+    }
   }
   const database =
     found ??

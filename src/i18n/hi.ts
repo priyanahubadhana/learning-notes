@@ -25,6 +25,7 @@ import { hiD } from './hiD'
 import { hiN } from './hiN'
 import { hiO } from './hiO'
 import { hiM } from './hiM'
+import { hiNlm } from './hiNlm'
 
 /** Hindi texts. A key missing here shows the English text. */
 export const hi: Record<string, string> = {
@@ -55,4 +56,5 @@ export const hi: Record<string, string> = {
   ...hiN,
   ...hiO,
   ...hiM,
+  ...hiNlm,
 }

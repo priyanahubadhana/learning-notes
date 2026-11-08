@@ -14,6 +14,7 @@ import {
 import { fileRef, parseFileRef, sizeText } from '../../core/fileRef'
 import { t } from '../../i18n/t'
 import { EditorContext } from '../editorContext'
+import { InlineVideo } from './InlineVideo'
 
 /** Props of the `file` block. */
 export interface FileProps {
@@ -170,6 +171,9 @@ export function FileView({
       <button type="button" className={btn} onClick={save}>
         {t('file.save')}
       </button>
+      <div className="basis-full empty:hidden">
+        <InlineVideo id={id} name={p.name} />
+      </div>
     </div>
   )
 }

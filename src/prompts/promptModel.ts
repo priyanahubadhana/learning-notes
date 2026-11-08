@@ -16,6 +16,7 @@ export const PURPOSES = [
   'practise',
   'write',
   'plan',
+  'import',
 ] as const
 export type Purpose = (typeof PURPOSES)[number]
 

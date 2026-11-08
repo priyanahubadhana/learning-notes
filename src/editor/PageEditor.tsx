@@ -78,6 +78,7 @@ import {
   pastePlainFromClipboard,
 } from './clipboard'
 import { installCalmHandles } from './calmHandles'
+import { onSelectAllKey } from './selectAllSteps'
 import { focusEndLine } from './lineActions'
 import { clearActiveEditor, setActiveEditor } from '../app/tools/toolRuntime'
 import {
@@ -421,6 +422,16 @@ function LoadedPageEditor({
     window.addEventListener('keydown', noteKeyForPaste, true)
     return () => window.removeEventListener('keydown', noteKeyForPaste, true)
   }, [])
+
+  // Ctrl/Cmd+A steps outward: cell or block, table or box, page.
+  useEffect(() => {
+    const on = (e: KeyboardEvent) => {
+      if (editor.domElement?.contains(e.target as Node))
+        onSelectAllKey(editor, e)
+    }
+    window.addEventListener('keydown', on, true)
+    return () => window.removeEventListener('keydown', on, true)
+  }, [editor])
 
   // Table grips and block handles show only near the pointer (calmHandles.ts).
   useEffect(() => installCalmHandles(), [])

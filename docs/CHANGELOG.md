@@ -2,6 +2,11 @@
 
 Current phase only. Older entries are in [ARCHIVE.md](ARCHIVE.md).
 
+## 2026-11-09 (Select all in steps)
+
+- **What:** Ctrl/Cmd+A steps outward: in a table cell its words, then the whole table (cell selection), then all blocks of the box, then (page with several boxes) one selection across every box; in a text block its words, then all blocks, then the page. Copy of the all-blocks selection keeps tables as tables (e2e: copy, delete, paste brings the table back). prosemirror-tables is now a direct dependency (same version BlockNote already uses; no new download).
+- **Files:** src/editor/selectAllSteps.ts, PageEditor.tsx, package.json, e2e/tableHandles.spec.ts, docs/features/files-table-camera.md
+
 ## 2026-11-09 (Calm table and block handles)
 
 - **What:** table grips (row, column, + edge buttons) and the block side menu (handle and +) hide ~300 ms after the pointer leaves their table or block (fade 0.2 s), and on touch 3 s after the last tap or at once on a tap elsewhere (src/editor/calmHandles.ts, two classes on html, CSS in index.css). A column border shows a grip pill (⋮) in the accent colour with the resize cursor; dragging resizes (BlockNote minimum width). Touch screens give the grips 44 px targets.

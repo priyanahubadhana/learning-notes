@@ -43,6 +43,7 @@
     "perfect-freehand": "1.2.3",
     "prosemirror-history": "^1.5.1",
     "prosemirror-state": "^1.4.4",
+    "prosemirror-tables": "^1.8.5",
     "react": "^19.3.1",
     "react-dom": "^19.3.1",
     "sql.js": "^1.15.2",

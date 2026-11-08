@@ -63,3 +63,38 @@ test('the block side menu hides after the pointer leaves the page', async ({
   await page.waitForTimeout(500)
   expect(await visible(page, '.bn-side-menu')).toBe(0)
 })
+
+test('Ctrl+A steps: cell words, whole table, all blocks', async ({ page }) => {
+  await tablePage(page)
+  await page.keyboard.type(' word')
+  const sel = () =>
+    page.evaluate(() => ({
+      text: window.getSelection()?.toString() ?? '',
+      cells: document.querySelectorAll('.selectedCell').length,
+    }))
+  await page.keyboard.press('Control+a')
+  expect((await sel()).text).toBe('A word')
+  expect((await sel()).cells).toBe(0)
+  await page.keyboard.press('Control+a')
+  expect((await sel()).cells).toBe(6)
+  await page.keyboard.press('Control+a')
+  // Everything: the whole page is selected, so Delete leaves a clean page.
+  await page.keyboard.press('Control+c')
+  await page.keyboard.press('Delete')
+  await expect(page.locator('.bn-editor table')).toHaveCount(0)
+  await page.keyboard.press('Control+v')
+  await expect(page.locator('.bn-editor table')).toHaveCount(1)
+})
+
+test('Ctrl+A in a text block steps block then page', async ({ page }) => {
+  await page.goto('/')
+  await page.getByRole('button', { name: 'Create notebook' }).click()
+  await page.locator('.bn-editor').click()
+  await page.keyboard.type('one')
+  await page.keyboard.press('Enter')
+  await page.keyboard.type('two')
+  await page.keyboard.press('Control+a')
+  expect(await page.evaluate(() => getSelection()?.toString())).toBe('two')
+  await page.keyboard.press('Control+a')
+  expect(await page.evaluate(() => getSelection()?.toString())).toContain('one')
+})

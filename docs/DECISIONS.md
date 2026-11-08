@@ -901,6 +901,7 @@ The other older decisions stand as built (owner, 2026-11-01); they are in [ARCHI
 | Page-wide Cut/Delete empties every box (they stay, one empty line each) and Undo restores                                                             | The boxes themselves are the layout                                       | You want the boxes removed too                             |
 
 ## Decisions to review (design system, 9 Nov night)
+
 - Design research, system and screen plan are in docs/research/premium-design-2026-11.md, docs/design/system.md, docs/design/screens.md. Proposed rules for rules/architecture.md are at the end of system.md: need the owner's OK.
 - Sepia theme: kept as a third option (safest; no one loses their theme).
 - Font: Inter loaded lazily, with the system font shown first so first load stays under the size gate.

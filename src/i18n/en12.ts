@@ -6,8 +6,6 @@
 export const en12 = {
   // ---- Pencil lab ----
   'settings.pencilLab.label': 'Pencil lab',
-  'settings.pencilLab.description':
-    'A test page that records what the iPad sends while you write and tap with the Pencil. Use it when text appears by itself.',
   'settings.pencilLab.button': 'Open Pencil lab',
   'lab.title': 'Pencil lab',
   'lab.needNotebook': 'Make a notebook first, then open the Pencil lab again.',

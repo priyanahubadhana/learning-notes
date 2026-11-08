@@ -24,14 +24,6 @@ export const enI = {
   'notebook.tabColourSet': 'Colour {n}',
   'notebook.tabColourNone': 'No colour',
   'notebook.noSubPages': 'No sub-pages in this section yet.',
-  'help.tip.notebook.viewMenu.meaning':
-    'Choose how this notebook shows its pages: the usual way, a shelf of covers, or coloured section tabs.',
-  'help.tip.notebook.viewMenu.example':
-    'Pick Shelf to see your pages like a row of notebooks.',
-  'help.tip.notebook.layoutMenu.meaning':
-    'Choose how this tab lists the pages: list, gallery, table or board. It is remembered.',
-  'help.tip.notebook.layoutMenu.example':
-    'Pick Gallery to see a preview of each page.',
 
   // ---- Layer gallery (I2) ----
   'layers.open': 'Layer gallery',

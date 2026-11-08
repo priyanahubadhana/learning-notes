@@ -1,8 +1,6 @@
 /** English text of Sync (Phase L). Spanish and Hindi drafts: esSync.ts, hiSync.ts. */
 export const enSync = {
   'settings.category.sync': 'Sync',
-  'settings.category.sync.hint':
-    'Keep your notes the same on your iPad and PC, locked so only you can read them.',
   'sync.title': 'Sync',
   'sync.intro':
     'Your notes are locked on this device before they leave it. The server and Google Drive only ever hold locked copies. Notes on this device are never removed by signing in or out.',

@@ -80,12 +80,4 @@ export const en10 = {
     'Automatic: a finger scrolls once a Pencil is used or in Pencil mode, and draws otherwise.',
 
   // ---- Help tips ----
-  'help.tip.ink.layers.meaning':
-    'Layers are clear sheets of ink over the page. Hide, lock or reorder them.',
-  'help.tip.ink.layers.example':
-    'Keep your corrections on their own layer and hide them to see the clean page.',
-  'help.tip.ink.finger.meaning':
-    'Chooses whether a finger draws or only scrolls and zooms.',
-  'help.tip.ink.finger.example':
-    'With an Apple Pencil, leave it on Automatic so a resting hand never draws.',
 }

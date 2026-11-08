@@ -40,19 +40,4 @@ export const enM = {
   'summary.notes.recent': 'Recently edited pages',
   'summary.notes.none': 'No pages yet.',
   'annot.saveToSummary': 'Summary of this page',
-  'help.tip.sidebar.allSummaries.meaning':
-    'Every key point you added from your notes, from all notebooks, in one list.',
-  'help.tip.sidebar.allSummaries.example':
-    'Skim all your summaries the evening before a test.',
-  'help.tip.summary.remove.meaning':
-    'Takes this line out of the Summary. The note itself stays.',
-  'help.tip.summary.remove.example':
-    'Drop a point you no longer need to revise.',
-  'help.tip.summary.goto.meaning':
-    'Opens the note this line comes from and shows it.',
-  'help.tip.summary.goto.example': 'Check the full explanation behind a point.',
-  'help.tip.notebook.tabSummary.meaning':
-    'The key points you added from every page of this notebook, in one list.',
-  'help.tip.notebook.tabSummary.example':
-    'Read the whole notebook’s key points the night before an exam.',
 } as const

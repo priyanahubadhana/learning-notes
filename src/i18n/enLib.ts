@@ -205,8 +205,6 @@ export const enLib = {
   'recall.vocabAdded': 'Added “{word}” to your vocabulary.',
   'recall.vocabPage': 'Vocabulary',
   'settings.category.ai': 'AI',
-  'settings.category.ai.hint':
-    'Use your own AI key for summaries, key points and cards. Off by default.',
   'ai.title': 'AI with your own key',
   'ai.intro':
     'Off by default. You bring your own key and your own account pays. The key stays on this device only: never synced, never in a backup.',

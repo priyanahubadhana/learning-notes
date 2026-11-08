@@ -35,16 +35,7 @@ export const en11 = {
   'settings.space.home.label': 'Home space',
   'settings.space.library.label': 'Library space',
   'settings.space.review.label': 'Review space',
-  'settings.space.description':
-    'Hide a whole space from the strip on this device. Notebooks always stays. Search still finds its tools.',
   'settings.space.show': 'Show',
   'settings.space.hide': 'Hide',
   // ---- Help ----
-  'help.tip.sidebar.spaces.meaning':
-    'The four spaces: Home, Library, Notebooks and Review. Each shows its own list.',
-  'help.tip.sidebar.spaces.example':
-    'Tap Review to see your cards and saved searches.',
-  'help.tip.sidebar.corner.meaning':
-    'The quiet corner: Settings, Save & restore, Trash, Device mode, Help and the theme.',
-  'help.tip.sidebar.corner.example': 'Switch to Night here in the evening.',
 }

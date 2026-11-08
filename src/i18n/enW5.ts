@@ -65,12 +65,7 @@ export const enW5 = {
     'Showing the first {count}. Type more words to narrow it down.',
   'reader.orient.help':
     "This screen can't be locked from here. On an iPad, open Control Centre (swipe down from the top right corner) and tap the rotation lock.",
-  'settings.reading.orient.label': 'Lock screen direction',
-  'settings.reading.orient.description':
-    'While you read a book, try to keep the screen upright or sideways. Some browsers refuse; on iPad use the rotation lock in Control Centre.',
   'reading.opt.orient.off': 'Off',
   'reading.opt.orient.portrait': 'Upright',
   'reading.opt.orient.landscape': 'Sideways',
-  'settings.category.reading.hint':
-    'How Reading mode looks and works: colours, font, size, spacing, page turns, read aloud. Look up opens a web page for the selected word only; nothing else is sent.',
 } as const

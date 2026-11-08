@@ -1,5 +1,6 @@
 import { describe, expect, it } from 'vitest'
 import { en } from '../../i18n/en'
+import { enO } from '../../i18n/enO'
 import { es } from '../../i18n/es'
 import { hi } from '../../i18n/hi'
 import { settingsRegistry } from '../../settings/builtinSettings'
@@ -9,7 +10,7 @@ import { TOOLS } from '../tools/toolRegistry'
 import { aloudSupported } from './aloudController'
 
 /** Texts built from a name at run time must all exist, in every language. */
-const all = { en, hi, es } as Record<string, Record<string, string>>
+const all = { en: { ...en, ...enO }, hi, es } as Record<string, Record<string, string>>
 
 const keysFor = () => {
   const keys: string[] = []

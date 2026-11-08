@@ -5,14 +5,8 @@
 export const en8 = {
   // ---- Settings categories ----
   'settings.category.lock': 'Lock',
-  'settings.category.lock.hint':
-    'Hide pages, notebooks and databases behind a PIN, a password or Face ID. This is a privacy lock, not encryption.',
   'settings.category.reading': 'Reading',
-  'settings.category.reading.hint':
-    'How Reading mode looks and works: colours, font, size, spacing, page turns, read aloud.',
   'settings.lock.idle.label': 'Lock again after',
-  'settings.lock.idle.description':
-    'Locked things lock again when you leave them, when you hide or close the app, and after this long without using the app.',
   'lock.idle.minutes_one': '{count} minute',
   'lock.idle.minutes_other': '{count} minutes',
 
@@ -108,8 +102,6 @@ export const en8 = {
   'lock.auth.title': 'Confirm it is you',
   'lock.auth.text':
     'Enter your current code, or use this device, to change the lock.',
-  'help.line.lock.privacy':
-    'A privacy lock hides the page behind this screen. It is not encryption: it keeps casual eyes out, not experts.',
 
   // ---- Reading: names of the tools ----
   'tool.readerFull': 'Full-screen reader',
@@ -152,60 +144,8 @@ export const en8 = {
   'reading.bookmarkUntitled': 'Bookmark',
 
   // ---- Reading: read aloud ----
-  'reading.aloud.start': 'Read this page',
-  'reading.aloud.pause': 'Pause',
-  'reading.aloud.resume': 'Resume',
-  'reading.aloud.stop': 'Stop',
-  'reading.aloud.state.idle': 'Not reading.',
-  'reading.aloud.state.playing': 'Reading aloud.',
-  'reading.aloud.state.paused': 'Paused.',
-  'reading.aloud.tapHint': 'While it reads, tap a word to read from there.',
-  'reading.aloud.voice': 'Voice',
-  'reading.aloud.voiceDefault': "This device's usual voice",
-  'reading.aloud.sleep': 'Sleep timer',
-  'reading.aloud.sleepOff': 'Off',
-  'reading.aloud.sleepMinutes': '{count} min',
-  'reading.aloud.sleepLeft': 'Stops in {time}',
-  'reading.aloud.sleepDone': 'The sleep timer stopped reading.',
-  'reading.aloud.end': 'Reached the end of the notebook.',
-  'reading.aloud.continues':
-    'At the end of a page it goes on with the next page of the notebook.',
-  'reading.aloud.unsupported':
-    'This browser cannot read aloud. Try Safari or Chrome.',
 
   // ---- Reading: Settings › Reading ----
-  'settings.reading.entry.label': 'The Read button opens',
-  'settings.reading.entry.description':
-    'What the 📖 Read button of the Write · Draw · Read switch does. You can always use the other way from the View tab.',
-  'settings.reading.theme.label': 'Reading theme',
-  'settings.reading.theme.description':
-    'Colours for reading. "Same as the app" follows Day, Night or Sepia.',
-  'settings.reading.font.label': 'Reading font',
-  'settings.reading.font.description':
-    'The typeface used while reading. OpenDyslexic is a free font made to be easier to read for some people with dyslexia.',
-  'settings.reading.size.label': 'Text size',
-  'settings.reading.size.description': 'How big the text is while reading.',
-  'settings.reading.spacing.label': 'Line spacing',
-  'settings.reading.spacing.description': 'The space between lines.',
-  'settings.reading.margin.label': 'Margin',
-  'settings.reading.margin.description': 'Empty space at the sides.',
-  'settings.reading.width.label': 'Line width',
-  'settings.reading.width.description':
-    'How wide the column of text is. Narrower lines are easier to follow.',
-  'settings.reading.flow.label': 'Scrolling or pages',
-  'settings.reading.flow.description':
-    'In the full-screen reader: scroll smoothly, or turn pages by tapping the edges or swiping. In place, a page always scrolls.',
-  'settings.reading.ruler.label': 'Line focus',
-  'settings.reading.ruler.description':
-    'Line focus dims everything except two lines. The ruler marks one line. Tap or move the pointer to move it, or use Alt+↑ and Alt+↓.',
-  'settings.reading.blanks.label': 'Blanks and hidden words',
-  'settings.reading.blanks.description':
-    'Softly marked keeps reading smooth. Hidden hides them so you can test yourself; tap a blank to show it.',
-  'settings.reading.speed.label': 'Read aloud speed',
-  'settings.reading.speed.description': 'From half speed to double speed.',
-  'settings.reading.awake.label': 'Keep the screen awake while reading',
-  'settings.reading.awake.description':
-    'The screen does not dim or lock while Reading mode is on (where the browser allows it).',
 
   'reading.opt.entry.inPlace': 'The page itself',
   'reading.opt.entry.reader': 'Full-screen reader',
@@ -258,6 +198,4 @@ export const en8 = {
   'reading.opt.awake.off': 'Off',
 
   // ---- Help ----
-  'help.line.reading.aloud':
-    'Uses your device voice, free and offline where the voice allows. Words are marked as they are spoken.',
 } as const

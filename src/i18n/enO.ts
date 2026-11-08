@@ -2,7 +2,12 @@
  * English text of Phase O (polish pack). Hindi and Spanish are hiO.ts and
  * esO.ts (machine drafts: mark for native review).
  */
+import { enH } from './enH'
+import { enS } from './enS'
+
 export const enO = {
+  ...enH,
+  ...enS,
   // ---- Template chooser at start ----
   'newPage.dontShow': "Don't show this again",
   'newPage.hiddenToast':

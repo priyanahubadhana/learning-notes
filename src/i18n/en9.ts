@@ -213,24 +213,14 @@ export const en9 = {
 
   // ---- Settings ----
   'settings.newLineExtras.label': 'New line extras',
-  'settings.newLineExtras.description':
-    'Tap ↵ New line to add a line. The extras (heading, checklist, divider) open by pressing and holding, by a double-tap, or never.',
   'settings.newLineExtras.hold': 'Press and hold',
   'settings.newLineExtras.doubleTap': 'Double-tap',
   'settings.newLineExtras.off': 'Off',
   'settings.newLineHold.label': 'New line hold time',
-  'settings.newLineHold.description':
-    'How long to hold ↵ New line before the extras open. Longer avoids opening them by mistake.',
   'settings.newLineHold.seconds': '{seconds} s',
   'settings.penPicksPen.label': 'Pencil picks the Pen tool',
-  'settings.penPicksPen.description':
-    'When the Apple Pencil touches the page, select the Pen tool by itself. Off by default: a Pencil drag on text only selects it either way.',
   'settings.showNames.label': 'Show names under icons',
-  'settings.showNames.description':
-    'Tiny names under the bar icons, for learning them. Off by default. Hovering with a mouse (or a hovering Pencil) always shows the name.',
   'settings.pillReset.label': 'Options pill position',
-  'settings.pillReset.description':
-    'The pill snaps to an edge when you drag it. Put it back next to the bar.',
   'settings.pillReset.button': 'Reset position',
   'settings.pillReset.done': 'Options position reset',
 
@@ -244,28 +234,13 @@ export const en9 = {
   'main.keyboard': 'Keyboard',
 
   'settings.holdSelect.label': 'Pencil hold time (caret and select)',
-  'settings.holdSelect.description':
-    'Under Text and Lasso, rest the Pencil on text this long without moving and the cursor is placed right there. Keep moving while held and it extends a selection. A quick stroke stays handwriting.',
   'settings.holdSelect.ms': '{ms} ms',
   'settings.pencilScrolls.label': 'Pencil can scroll',
-  'settings.pencilScrolls.description':
-    'A quick Pencil flick, or a drag that starts in the margins or empty space, scrolls the page. Under the Pen and other ink tools the Pencil draws and a finger scrolls.',
 
   'settings.pencilTapTwice.label': 'Pencil: tap twice to start typing',
-  'settings.pencilTapTwice.description':
-    'The first Pencil tap on a block with words only marks it with an outline (no cursor, no keyboard). The second tap inside it places the cursor. A finger, an empty line and blank space below the page place the cursor at once. Auto means on in Pencil mode.',
   'settings.pencilTapTwice.auto': 'Auto (on in Pencil mode)',
   'settings.pencilTapTwice.on': 'On',
   'settings.pencilTapTwice.off': 'Off',
 
   // ---- Help ----
-  'help.tip.bar.tools.meaning':
-    'Tap a tool to use it and see its options. Hold it and slide onto an option.',
-  'help.tip.bar.tools.example': 'Hold Pen, slide to a colour, let go.',
-  'help.tip.pill.grip.meaning':
-    'Drag to move the options; they snap to the nearest edge.',
-  'help.tip.pill.grip.example':
-    'Drag them to the right edge for a vertical strip.',
-  'help.tip.pill.pin.meaning': 'Keeps these options open until you close them.',
-  'help.tip.pill.pin.example': 'Pin the Text options while you format a page.',
 } as const

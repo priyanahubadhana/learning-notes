@@ -17,6 +17,7 @@ import {
 } from './libraryDb'
 import { PromptEdit } from './PromptEdit'
 import { RunPrompt } from './RunPrompt'
+import { RunSkill } from './RunSkill'
 import {
   PURPOSES,
   allSubjects,
@@ -146,6 +147,18 @@ export default function PromptsDialog({
         <PopupHeader title={t('prompts.title')} onClose={onClose} />
         {!lib ? (
           <p className="py-6 text-sm text-muted">{t('prompts.loading')}</p>
+        ) : running?.kind === 'skill' ? (
+          <RunSkill
+            db={db}
+            workspaceId={workspaceId}
+            page={page}
+            item={running}
+            lib={lib}
+            onBack={() => {
+              setRunning(null)
+              runTask(reload(lib))
+            }}
+          />
         ) : running ? (
           <RunPrompt
             db={db}

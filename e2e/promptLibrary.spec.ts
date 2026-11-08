@@ -49,13 +49,14 @@ test('library: seeded prompts, search, filter, new prompt, edit keeps a version'
 })
 
 /** Settings > AI: on, one key, and the Books notebook allowed. */
-async function setUpAi(page: Page) {
+async function setUpAi(page: Page, allowBooks = true) {
   await page.goto('/#/settings/ai')
   await expect(page.getByTestId('ai-section')).toBeVisible()
   await page.getByTestId('ai-enable').check()
   await page.getByTestId('ai-key').fill('sk-ant-test-1234567890')
   await page.getByTestId('ai-key-save').click()
   await expect(page.getByTestId('ai-key-masked')).toContainText('sk-…7890')
+  if (!allowBooks) return
   await page.goto('/#/settings/permissions')
   const sw = page.getByRole('switch', { name: 'Allow AI in Books' })
   await sw.focus()
@@ -129,4 +130,114 @@ test('run a prompt on a page: cost in rupees first, only the page words sent, ra
   await expect(
     page.getByRole('main').getByText('Mitochondria make energy.'),
   ).toHaveCount(0)
+})
+
+const skillAnswer = {
+  title: 'Cell energy',
+  summary: 'Cells make energy in mitochondria.',
+  keywords: ['cell', 'energy'],
+  sources: [{ n: 1, title: 'The lecture', url: 'https://example.org/lecture' }],
+  points: [
+    {
+      text: 'Mitochondria make ATP',
+      stars: 10,
+      icon: '🔋',
+      topic: 'Energy',
+      sources: [1],
+    },
+    { text: 'Cells are tiny', stars: 5, topic: 'Size', sources: [] },
+    { text: 'A fun aside', stars: 1, topic: 'Size', sources: [1] },
+  ],
+  pages: [
+    { title: 'Energy in cells', body: 'ATP is made in mitochondria [1].' },
+  ],
+  cards: [{ kind: 'qa', q: 'What makes ATP?', a: 'Mitochondria', point: 0 }],
+}
+
+test('skill: one cached call, preview, untick, save into a new Research book, one Undo', async ({
+  page,
+}) => {
+  const bodies: string[] = []
+  await page.route('https://api.anthropic.com/v1/messages', (route) => {
+    const body = route.request().postData() ?? ''
+    bodies.push(body)
+    const fact = body.includes('Check these points')
+    return route.fulfill({
+      json: {
+        content: [
+          {
+            type: 'text',
+            text: fact
+              ? '{"checks":[{"i":1,"verdict":"doubt","note":"No source"}]}'
+              : JSON.stringify(skillAnswer),
+          },
+        ],
+        usage: { input_tokens: 300, output_tokens: 200 },
+      },
+    })
+  })
+  await setUpAi(page, false)
+  await page.goto('/')
+  await space(page, 'Library').click()
+  await page.getByTestId('ai-prompts').click()
+  const dialog = page.getByTestId('prompts-dialog')
+  await dialog.getByTestId('prompt-search').fill('transcript')
+  await dialog.getByTestId('prompt-row').first().click()
+  await expect(dialog.getByTestId('run-skill')).toBeVisible()
+  await dialog
+    .getByTestId('input-text')
+    .fill('Mitochondria make ATP. Cells are tiny. A long lecture text.')
+  await expect(dialog.getByTestId('cost-line')).toContainText('₹')
+  expect(bodies).toHaveLength(0)
+  await dialog.getByTestId('run-ai').click()
+  await dialog.getByTestId('ai-privacy-ok').click()
+  await expect(dialog.getByTestId('skill-preview')).toBeVisible()
+
+  // One call; the lecture text is in the first (cached) block.
+  expect(bodies).toHaveLength(1)
+  const sent = JSON.parse(bodies[0])
+  expect(sent.messages[0].content[0].cache_control).toEqual({
+    type: 'ephemeral',
+  })
+  expect(sent.messages[0].content[0].text).toContain('Mitochondria make ATP')
+
+  // Must know has its icon; the unsourced point says so.
+  await expect(dialog.getByTestId('skill-point')).toHaveCount(3)
+  await expect(dialog.getByTestId('unchecked-count')).toContainText('1 point')
+  // The fact check shows its cost first, then marks the doubted point.
+  await expect(dialog.getByTestId('cost-line').last()).toContainText(
+    'Fact check',
+  )
+  await dialog.getByTestId('fact-check').click()
+  await expect(dialog.getByText('doubted by the fact check')).toBeVisible()
+  expect(bodies).toHaveLength(2)
+
+  // Untick the aside, edit the first point, save into a new notebook.
+  await dialog
+    .getByRole('checkbox', { name: 'Keep point: A fun aside' })
+    .uncheck()
+  await dialog
+    .getByTestId('skill-point')
+    .first()
+    .getByLabel('Point', { exact: true })
+    .fill('Mitochondria make ATP (edited)')
+  await expect(dialog.getByTestId('save-new-title')).toHaveValue(
+    'Research book',
+  )
+  await dialog.getByTestId('skill-save').click()
+  await expect(dialog.getByTestId('skill-saved')).toBeVisible()
+  // One Undo takes the whole result away; the preview is still there.
+  await dialog.getByTestId('skill-undo').click()
+  await expect(dialog.getByTestId('skill-preview')).toBeVisible()
+  await dialog.getByTestId('skill-save').click()
+  await expect(dialog.getByTestId('skill-saved')).toBeVisible()
+  await dialog.getByTestId('skill-open').click()
+  await expect(page.getByRole('main')).toContainText(
+    'Mitochondria make ATP (edited)',
+  )
+  await expect(page.getByRole('main')).not.toContainText('A fun aside')
+  await expect(page.getByRole('main')).toContainText('🔋')
+  await expect(page.getByRole('main')).toContainText(
+    'doubted by the fact check',
+  )
 })

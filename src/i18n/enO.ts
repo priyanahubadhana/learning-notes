@@ -480,4 +480,8 @@ export const enO = {
   'paper.box.delete': 'Delete box',
   'paper.box.deleted': 'Box deleted.',
   'paper.box.undo': 'Undo',
+  'pencilOffer.title': 'Use Pencil mode?',
+  'pencilOffer.body': 'Pencil writes, finger scrolls and taps',
+  'pencilOffer.yes': 'Yes',
+  'pencilOffer.no': 'Not now',
 }

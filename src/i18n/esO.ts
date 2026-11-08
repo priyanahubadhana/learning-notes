@@ -487,4 +487,8 @@ export const esO: Record<string, string> = {
   'paper.box.delete': 'Eliminar el cuadro',
   'paper.box.deleted': 'Cuadro eliminado.',
   'paper.box.undo': 'Deshacer',
+  'pencilOffer.title': '¿Usar el modo Lápiz?',
+  'pencilOffer.body': 'El lápiz escribe, el dedo desplaza y toca',
+  'pencilOffer.yes': 'Sí',
+  'pencilOffer.no': 'Ahora no',
 }

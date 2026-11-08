@@ -101,6 +101,8 @@ export default defineConfig({
         /paperHint/,
         /paperStyle/,
         /pillFloat/,
+        /toolBand/,
+        /pencilOffer/,
         /lassoWords/,
         /gestureWatchdog/,
         /lockToastStill/,

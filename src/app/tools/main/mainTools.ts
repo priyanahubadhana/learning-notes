@@ -111,9 +111,6 @@ export const pillPinned = prefStore('toolbar.pillPinned', isBoolean, false)
 /** The mini toolbar near a selection made by a double or triple tap. */
 export const miniToolbarOpen = memStore(false)
 
-/** Height the main bar's stack keeps free for a pill that sits against it. */
-export const pillReserve = memStore(0)
-
 /** The detail card that is open: which tool, and which page of it. */
 export interface CardState {
   tool: PillTool
@@ -367,7 +364,6 @@ export function resetMainState(): void {
   lastTool.set(null)
   openPillTool.set(null)
   openCard.set(null)
-  pillReserve.set(0)
   miniToolbarOpen.set(false)
   lastToolOffered.clearCache()
 }

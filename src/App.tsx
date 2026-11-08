@@ -112,7 +112,10 @@ import {
 } from './settings/builtinSettings'
 import { getSetting, readDeviceSetting } from './settings/settingsService'
 import { setMarkLabels } from './revise/reviseMarks'
-import { useAutoDeviceMode } from './settings/deviceModeSettings'
+import {
+  useAutoDeviceMode,
+  usePencilOfferTrigger,
+} from './settings/deviceModeSettings'
 import { useDeviceSetting, useSyncedSetting } from './settings/useSetting'
 import { revealBlock } from './editor/revealBlock'
 import { rememberPage } from './search/recentPages'
@@ -144,6 +147,9 @@ const loadHome = () =>
 const HomeLazy = lazy(() => loadHome().then((c) => ({ default: c })))
 const Welcome = lazy(() =>
   import('./onboarding/Welcome').then((m) => ({ default: m.Welcome })),
+)
+const PencilOffer = lazy(() =>
+  import('./settings/PencilOffer').then((m) => ({ default: m.PencilOffer })),
 )
 const LassoMenuSheet = lazy(() =>
   import('./ink/LassoMenuSheet').then((m) => ({ default: m.LassoMenuSheet })),
@@ -787,6 +793,7 @@ function App() {
 
   const showToast = appUi.toast
   useAutoDeviceMode(showToast)
+  const [pencilOffer, closePencilOffer] = usePencilOfferTrigger()
   // Home is a lazy screen; fetch it quietly once the app is up.
   useEffect(() => {
     const id = setTimeout(() => void loadHome(), 1000)
@@ -1409,7 +1416,7 @@ function App() {
                 )}
                 <main
                   data-page-scroller
-                  className="mb-[var(--dock-bottom,0px)] min-h-0 flex-1 overflow-auto pt-[var(--pill-pad-top,0px)] pr-[var(--pill-pad-right,0px)] pb-[var(--pill-pad-bottom,0px)] pl-[var(--pill-pad-left,0px)]"
+                  className="mb-[var(--dock-bottom,0px)] min-h-0 flex-1 overflow-auto pt-[var(--page-top-gap,0px)]"
                 >
                   <ErrorBoundary
                     resetKey={`${routeHash}:${notesVersion}:${currentPage?.id}`}
@@ -1762,6 +1769,11 @@ function App() {
                   onSeeAll={openSearch}
                   initialChip={searchChip}
                 />
+              </Suspense>
+            )}
+            {pencilOffer && (
+              <Suspense fallback={null}>
+                <PencilOffer onDone={closePencilOffer} />
               </Suspense>
             )}
             {(welcomeAtStart || welcomeAgain) && (

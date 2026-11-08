@@ -17,6 +17,7 @@ import {
   lazy,
   useContext,
   useEffect,
+  useLayoutEffect,
   useRef,
   useState,
   type KeyboardEvent,
@@ -36,7 +37,8 @@ import { HoverName } from '../app/tools/HoverName'
 import { MiniToolbar } from '../app/tools/main/MiniToolbar'
 import { MiniKeys } from '../app/tools/main/MiniKeysStrip'
 import { OptionsPill } from '../app/tools/main/OptionsPill'
-import { closePill, pillReserve } from '../app/tools/main/mainTools'
+import { TOP_GAP } from '../app/tools/main/pillRoom'
+import { closePill } from '../app/tools/main/mainTools'
 import { usePenPicksPen } from '../app/tools/main/penPicks'
 import { Ribbon } from '../app/tools/Ribbon'
 import { barGroups } from '../app/tools/barLayout'
@@ -152,6 +154,17 @@ function Bar({ editor, slot }: { editor: Editor; slot: HTMLElement }) {
   const actions = useBarActions(editor)
   const ribbon = layout.ribbon !== null
   const both = layout.ribbon !== null && layout.short !== null
+  // R8-1: the page keeps a top gap just tall enough for the options pill, so
+  // a pill docked at the top sits in it and opening it never moves the page.
+  const gap = layout.short === 'top'
+  useLayoutEffect(() => {
+    if (!gap) return
+    const root = document.documentElement.style
+    root.setProperty('--page-top-gap', `${TOP_GAP}px`)
+    return () => {
+      root.removeProperty('--page-top-gap')
+    }
+  }, [gap])
   const [panel, setPanel] = useState<Panel | null>(null)
   // The Edit toolbar sheet is its own dialog, not a tray: a tap inside it
   // must not count as a tap outside the bar's pop-ups.
@@ -308,7 +321,6 @@ function Bar({ editor, slot }: { editor: Editor; slot: HTMLElement }) {
           : 'border-y border-line bg-bg px-2 py-1 phone:px-1'
       }
     >
-      {place === 'bottom' && <PillRoom />}
       <MainBarRow
         editor={editor}
         px={buttonPx}
@@ -318,7 +330,6 @@ function Bar({ editor, slot }: { editor: Editor; slot: HTMLElement }) {
         menuRef={menuButton}
         onMenu={() => setPanel(panel === 'menu' ? null : 'menu')}
       />
-      {place !== 'bottom' && place !== 'free' && <PillRoom />}
     </div>
   )
 
@@ -661,12 +672,4 @@ function Tray({
       {children}
     </div>
   )
-}
-
-/** Empty room under (or over) the main bar for the options pill that sits against it. */
-function PillRoom() {
-  const height = pillReserve.useValue()
-  return height > 0 ? (
-    <div aria-hidden data-pill-room style={{ height }} />
-  ) : null
 }

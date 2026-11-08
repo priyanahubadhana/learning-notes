@@ -2,6 +2,12 @@
 
 Current phase only. Older entries are in [ARCHIVE.md](ARCHIVE.md).
 
+## 2026-11-08 (R8-1 top gap for the options pill, R8-2 Pencil mode offer)
+
+- **What:** the page keeps a top gap (62 px, in its top margin) for the options pill; a pill at the top sits in it, scrolled down it floats, other edges float with no padding; opening or closing never moves the page. Removed `pageAnchor.ts`, `gestureHold.ts`, `pillReserve`, `PillRoom`, `--pill-pad-*`. First Pencil touch on a device not in Pencil mode (Auto switch off) shows a lazy one-time card "Use Pencil mode? Pencil writes, finger scrolls and taps" (Yes / Not now), answer kept per device.
+- **Why:** owner round 8 (R8-1, R8-2 = polish-2 item 14). First load 312.9 KB.
+- **Files:** `src/editor/DockedBar.tsx`, `src/App.tsx`, `src/app/tools/main/{OptionsPill.tsx,mainTools.ts,pillRoom.ts}`, `src/settings/{PencilOffer.tsx,deviceModeSettings.ts}`, `src/i18n/{en,es,hi}O.ts`, `e2e/{toolBand,pencilOffer,pillMove}.spec.ts`, `playwright.config.ts`, `docs/features/toolbar.md`.
+
 ## 2026-11-08 (Fix: paper hint no longer covers the page)
 
 - **What:** the tap hint had made the first sheet a positioned element, which painted over the page text and blocked taps (deviceModes, twoWindows, barFixes R6-8). The sheet is plain again; the hint sits in a zero-height, click-through layer. topBar item count is 17 (Paper style, Paper size). The new-page Paper row test is skipped on the iPad stand-in (name sheet flow).

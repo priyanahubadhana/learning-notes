@@ -3,6 +3,11 @@ import type { Box } from './pillPlace'
 const MARGIN = 8
 /** Space between the main bar and a pill that sits against it. */
 export const BAR_GAP = 4
+/**
+ * The gap at the top of the page under the main bar (R8-1): part of the
+ * page's top margin, as tall as the options pill (about 54 px) plus a margin.
+ */
+export const TOP_GAP = 62
 export const reducedMotion = () =>
   typeof matchMedia === 'function' &&
   matchMedia('(prefers-reduced-motion: reduce)').matches

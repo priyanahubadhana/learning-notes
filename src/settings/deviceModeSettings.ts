@@ -1,5 +1,5 @@
 import { onGestureReset } from '../app/gestureReset'
-import { useEffect, useRef, useSyncExternalStore } from 'react'
+import { useEffect, useRef, useState, useSyncExternalStore } from 'react'
 import {
   AUTO_SWITCH_QUIET_MS,
   autoSwitchTarget,
@@ -263,4 +263,35 @@ export function useAutoDeviceMode(
       window.removeEventListener('keydown', onKey, true)
     }
   }, [setting])
+}
+
+// ---- The one-time offer of Pencil mode (R8-2) ----
+
+const OFFER_KEY = 'pencil.offer'
+const isAnswer = (v: unknown): v is 'yes' | 'no' | null =>
+  v === 'yes' || v === 'no' || v === null
+export const pencilOfferAnswered = (): boolean =>
+  readPref(OFFER_KEY, isAnswer, null) !== null
+export const answerPencilOffer = (answer: 'yes' | 'no'): void =>
+  writePref(OFFER_KEY, answer)
+
+/**
+ * True once, the first time a Pencil touches the screen of a device that is
+ * not already in Pencil mode (and has not answered before). Automatic
+ * switching, when on, already does the job, so no question then.
+ */
+export function usePencilOfferTrigger(): [boolean, () => void] {
+  const [mode] = useDeviceSetting(deviceModeSetting)
+  const [auto] = useDeviceSetting(autoSwitchSetting)
+  const [show, setShow] = useState(false)
+  const skip = mode === 'pencil' || auto !== 'off' || pencilOfferAnswered()
+  useEffect(() => {
+    if (skip) return
+    const onDown = (e: PointerEvent) => {
+      if (e.pointerType === 'pen') setShow(true)
+    }
+    window.addEventListener('pointerdown', onDown, true)
+    return () => window.removeEventListener('pointerdown', onDown, true)
+  }, [skip])
+  return [show, () => setShow(false)]
 }

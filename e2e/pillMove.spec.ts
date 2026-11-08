@@ -31,6 +31,9 @@ const room = (page: Page) =>
     }
   })
 
+const pageTop = (page: Page) =>
+  page.locator('.bn-editor').evaluate((e) => e.getBoundingClientRect().top)
+
 async function dropAt(page: Page, x: number, y: number) {
   await dragGrip(page, { x, y })
   await page.mouse.up()
@@ -89,8 +92,8 @@ test('snaps to the left, right, bottom and top edge, and remembers each', async 
   expect(p.x).toBeLessThan(r.left + 14)
   expect(p.height).toBeGreaterThan(p.width)
   expect((await savedPlace(page))?.edge).toBe('left')
-  // Moving it off the top means the page gets its room back.
-  await expect(page.locator('[data-pill-room]')).toHaveCount(0)
+  // The top gap stays (the page never moves); the pill just floats.
+  expect(await pageTop(page)).toBeGreaterThan(0)
 
   // Right.
   await dropAt(page, r.right - 20, 300)

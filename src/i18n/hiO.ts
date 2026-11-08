@@ -470,4 +470,8 @@ export const hiO: Record<string, string> = {
   'paper.box.delete': 'बॉक्स हटाएँ',
   'paper.box.deleted': 'बॉक्स हटाया गया।',
   'paper.box.undo': 'पूर्ववत करें',
+  'pencilOffer.title': 'पेंसिल मोड इस्तेमाल करें?',
+  'pencilOffer.body': 'पेंसिल लिखती है, उँगली स्क्रॉल और टैप करती है',
+  'pencilOffer.yes': 'हाँ',
+  'pencilOffer.no': 'अभी नहीं',
 }

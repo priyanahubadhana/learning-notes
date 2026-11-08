@@ -23,7 +23,6 @@ import {
   openCard,
   openPillTool,
   pillPinned,
-  pillReserve,
   shownPill,
 } from './mainTools'
 import {
@@ -42,20 +41,17 @@ import {
 import { PillContent } from './PillContent'
 import { SelectionMenu } from './SelectionMenu'
 import { keepFocus } from './pillKit'
-import { BAR_GAP, reducedMotion } from './pillRoom'
+import { reducedMotion } from './pillRoom'
 import { useRoom } from './useRoom'
-import { afterGesture } from './gestureHold'
-
-/** Newest room the pill asked for (an older, late give-back is ignored). */
-let reserveVersion = 0
-const padVersion: Record<string, number> = {}
 
 /**
  * The options pill: the second, smaller pill with the options of the tool
  * you tapped. Drag its grip and it snaps to the top, left, right or bottom
  * edge (drop zones show while dragging). It moves with CSS transforms
  * (will-change, requestAnimationFrame, pointer capture) and never changes
- * the page layout. Its place is saved per device.
+ * the page layout. Its place is saved per device. At the top of the page it
+ * sits in the page's top gap (R8-1); scrolled down, or on any other edge, it
+ * floats over the page.
  */
 
 export function OptionsPill({
@@ -116,37 +112,6 @@ function Pill({
     watch.observe(el)
     return () => watch.disconnect()
   }, [tool, isVertical])
-
-  // A pill that sits against the bar keeps its own room, so it never covers
-  // the first lines of the page (the bar's stack makes the space).
-  const docks =
-    (place.edge === 'top' && barPlace === 'top') ||
-    (place.edge === 'bottom' && barPlace === 'bottom')
-  // The room is given back only once the gesture that closed the pill ends,
-  // so the page never moves under a Pen stroke or a Lasso loop (owner, 8 Nov).
-  useLayoutEffect(() => {
-    const id = ++reserveVersion
-    pillReserve.set(docks && size.height > 0 ? size.height + 2 * BAR_GAP : 0)
-    return () =>
-      afterGesture(() => {
-        if (reserveVersion === id) pillReserve.set(0)
-      })
-  }, [docks, size.height])
-
-  // A pill on any other edge reserves its width (or height) as padding of the
-  // page scroller, so text never sits under it.
-  useLayoutEffect(() => {
-    const root = document.documentElement.style
-    const name = `--pill-pad-${place.edge}`
-    const extent = isVertical ? size.width : size.height
-    const id = (padVersion[name] = (padVersion[name] ?? 0) + 1)
-    if (!docks && extent > 0)
-      root.setProperty(name, `${extent + 2 * BAR_GAP}px`)
-    return () =>
-      afterGesture(() => {
-        if (padVersion[name] === id) root.removeProperty(name)
-      })
-  }, [docks, place.edge, isVertical, size.width, size.height])
 
   const pos = useMemo(() => positionOf(place, size, room), [place, size, room])
 

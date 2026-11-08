@@ -8,7 +8,6 @@ import { ErrorBoundary } from './app/ErrorBoundary'
 import { startNavHistory } from './app/navHistory'
 import { installPenTap, penTapOptions } from './app/penTap'
 import { fingerOnlyBars } from './app/tools/main/mainTools'
-import { installPageAnchor } from './app/pageAnchor'
 import { UpgradeGate } from './app/UpgradeGate'
 import {
   noteChecked,
@@ -63,7 +62,6 @@ penTapOptions.fingerOnly = fingerOnlyBars.get()
 fingerOnlyBars.subscribe(() => {
   penTapOptions.fingerOnly = fingerOnlyBars.get()
 })
-installPageAnchor()
 {
   const hints = installScrollHints(
     () => readDeviceSetting(scrollHintsSetting) === 'on',

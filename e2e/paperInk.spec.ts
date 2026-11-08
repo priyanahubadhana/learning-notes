@@ -18,9 +18,9 @@ test.use({ viewport: { width: 1024, height: 1000 }, hasTouch: true })
 const LINES = ['Line one', 'Line two', 'Line three', 'Line four', 'Line five']
 
 /** A note with five lines, then the Pen. */
-async function fiveLines(page: Page) {
+async function fiveLines(page: Page, keys: Record<string, unknown> = {}) {
   // The caret is at the end of the note's first line.
-  await openNote(page, 'computer')
+  await openNote(page, 'computer', keys)
   for (const l of LINES) {
     await page.keyboard.press('Enter')
     await page.keyboard.type(l)
@@ -207,16 +207,17 @@ test('rule 4: the Pencil on empty paper makes a box with lines under the ink', a
   expect(inBox).toBe(true)
 })
 
-/** Draws a Lasso loop round the box (client px) and waits for the selection. */
+/**
+ * Chooses the Lasso, then draws a loop round the box `at` gives (client px,
+ * measured once the tool is chosen) and waits for the selection.
+ */
 async function lassoRound(
   page: Page,
-  x0: number,
-  y0: number,
-  x1: number,
-  y1: number,
+  at: () => Promise<[number, number, number, number]>,
 ) {
   await tool(page, 'Lasso').click()
   await page.waitForTimeout(600)
+  const [x0, y0, x1, y1] = await at()
   const loop: Pt[] = [
     [x0, y0],
     [x1, y0],
@@ -265,7 +266,11 @@ test('rule 5: ink the Lasso drops on empty paper gets a new box with a line', as
   const x = five.x + 300
   await stroke(page, line([x, y], [x + 120, y]))
   await chunkOf(page)
-  await lassoRound(page, x - 20, y - 14, x + 140, y + 14)
+  await lassoRound(page, async () => {
+    const l = await lineAt(page, 'Line five')
+    const ly = l.y + l.h / 2
+    return [l.x + 280, ly - 14, l.x + 440, ly + 14]
+  })
   const main = (await page.locator('[data-paper-box="main"]').boundingBox())!
   const drop = main.y + main.height + 24
   expect(drop).toBeLessThan(sc.bottom - 4)
@@ -289,4 +294,47 @@ test('rule 5: ink the Lasso drops on empty paper gets a new box with a line', as
       { timeout: 8000 },
     )
     .toBe(true)
+})
+
+test('rule 6: ink and text Lasso-moved together go as one piece; one Undo', async ({
+  page,
+}) => {
+  await fiveLines(page, { 'ink.lasso': { text: true } })
+  const two = await lineAt(page, 'Line two')
+  const y = two.y + two.h / 2
+  // Ink over the words of "Line two".
+  await stroke(page, line([two.x + 4, y], [two.x + 60, y]))
+  await chunkOf(page)
+  // Inside the box (a loop that starts on bare paper picks boxes).
+  await lassoRound(page, async () => {
+    const l = await lineAt(page, 'Line two')
+    return [l.x + 1, l.y - 4, l.x + 120, l.y + l.h + 4]
+  })
+  await expect(page.locator('[data-ink-menu="mixed"]')).toBeVisible()
+  const four = await lineAt(page, 'Line four')
+  await dragSelectionTo(page, four.y + four.h * 0.8)
+  const order = () =>
+    page.evaluate(() =>
+      [...document.querySelectorAll('.bn-block-content')]
+        .map((e) => e.textContent)
+        .filter((t) => t?.startsWith('Line ')),
+    )
+  await expect
+    .poll(order)
+    .toEqual(['Line one', 'Line three', 'Line four', 'Line two', 'Line five'])
+  // The ink is still linked to "Line two" and sits on it in its new place.
+  const near = async () => {
+    const l = await lineAt(page, 'Line two')
+    const mid = await inkMidY(page)
+    return mid !== null && Math.abs(mid - (l.y + l.h / 2)) < l.h
+  }
+  await expect.poll(near).toBe(true)
+  expect((await chunkOf(page))[0].blockId).toBe(two.id)
+  // One Undo puts both back.
+  await page.getByRole('button', { name: 'Undo', exact: true }).first().click()
+  await expect
+    .poll(order)
+    .toEqual(['Line one', 'Line two', 'Line three', 'Line four', 'Line five'])
+  await expect.poll(near).toBe(true)
+  expect((await chunkOf(page))[0].blockId).toBe(two.id)
 })

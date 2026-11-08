@@ -181,7 +181,7 @@ export const enO = {
   'ink.sel.summaryNeedsName':
     'Name this drawing first (⋯ › Name this drawing), then add it to the Summary.',
   'ink.mixed.moveNote':
-    'Dragging moves the ink only: typed text flows with the page.',
+    'Dragging moves the ink and its lines together; the handles change the ink only.',
   'main.opt.lasso.row': 'Actions in the menu row',
   'main.opt.lasso.rowNote': 'The others sit under ⋯ More.',
   'ai.convert.title': 'Convert to text',

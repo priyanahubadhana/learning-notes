@@ -59,6 +59,7 @@ import { MixedMenu } from './MixedMenu'
 import { MagnifierView } from './MagnifierView'
 import { RulerView } from './RulerView'
 import type { Editor } from '../editor/barActions'
+import { closeHistory } from 'prosemirror-history'
 import { watchPaperStep } from './paperGrid'
 
 /**
@@ -253,6 +254,26 @@ export function InkSurface({
           )
           dom.setAttribute('inputmode', 'text')
           view.dom.focus({ preventScroll: true })
+        },
+        moveBlocks: (ids, target, place) => {
+          // Phase Q rule 6: one text step (the ink follows its lines).
+          const ed = editor as unknown as Editor
+          const view = ed.prosemirrorView
+          if (view) view.dispatch(closeHistory(view.state.tr))
+          try {
+            ed.transact(() => {
+              const blocks = ids.flatMap((id) => {
+                const b = ed.getBlock(id)
+                return b ? [b] : []
+              })
+              ed.removeBlocks(ids)
+              ed.insertBlocks(blocks, target, place)
+            })
+            return true
+          } catch (error) {
+            console.error('Could not move the lines', error)
+            return false
+          }
         },
       })
       controller.lockedMessage = t('ink.locked')

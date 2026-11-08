@@ -23,6 +23,11 @@ Current phase only. Older entries are in [ARCHIVE.md](ARCHIVE.md).
 - **What:** a box's editor is made only when the box comes within 800 px of the scrolling page (a light placeholder of three lines stands in; once made it stays, so nothing unsaved is ever torn down); a just-made box is made at once. The Lasso loop redraws in its own small component and the pick reads each box once. New CI budget `e2e/paperBudget.spec.ts` (chromium and ipad-webkit): 50 boxes + 2,000 strokes reopen with a median under 4 s including the whole reload (about 1.2 s here), far boxes are placeholders, scrolling makes them, and the Lasso over all 50 boxes takes under 150 ms (about 16 ms here).
 - **Files:** `src/paper/PaperFrame.tsx`, `src/pages/PageView.tsx`, `e2e/paperBudget.spec.ts`, `playwright.config.ts`.
 
+## 2026-11-08 (Paper ink rule 6: Lasso ink and text move as one piece)
+
+- **What:** dragging a mixed Lasso selection (ink and whole lines) now moves the lines to the drop spot (before or after the nearest other line) and the ink with them. Each stroke is first linked to the nearest selected line (saved, not an undo step, it does not move), then the lines move as one text step, so one Undo puts both back. The handles still change the ink only; the mixed menu note says so.
+- **Files:** `src/ink/{controller.ts,InkSurface.tsx}`, `src/i18n/{enO,esO,hiO}.ts`, `e2e/paperInk.spec.ts`.
+
 ## 2026-11-08 (Paper ink rule 5: Lasso drop on empty paper)
 
 - **What:** ink the Lasso moves (ink only) and drops outside its box now goes to the box under the drop spot, or, on empty paper, to a new box with empty lines made there (the same box as the Pencil on empty paper, rule 4), linked to its line. One Undo in each box. Boxes hand strokes over through `ink/inkTransfer.ts`; the paste code and the hand-over share `placeAndSelect`.

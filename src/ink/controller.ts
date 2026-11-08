@@ -179,6 +179,15 @@ export interface InkEnv {
    * screen tall while drawing (the box keeps the height of its text).
    */
   growRoom?: boolean
+  /**
+   * Phase Q rule 6: moves these lines (page order) before or after
+   * `target`, as one text step. False when it could not.
+   */
+  moveBlocks?: (
+    ids: string[],
+    target: string,
+    place: 'before' | 'after',
+  ) => boolean
 }
 
 type Gesture =
@@ -2349,6 +2358,8 @@ export class InkController {
     }
     if (g.how === 'move' && this.blockSel.length === 0 && this.dropElsewhere(g))
       return
+    if (g.how === 'move' && this.blockSel.length > 0 && this.moveWithText(g))
+      return
     const add = g.before.map((p) => this.transformed(p, g.m, g.factor))
     this.commit({ del: g.before, add, layers: [] })
     this.select(add.map((p) => p.stroke.id))
@@ -2381,6 +2392,68 @@ export class InkController {
     else if (!dropOnPaper(items)) return false
     this.commit({ del: g.before, add: [], layers: [] })
     this.clearSelection()
+    return true
+  }
+
+  /**
+   * Phase Q rule 6: ink and text Lasso-selected together move as one piece.
+   * Each stroke is first linked to the nearest selected line (saved, not an
+   * undo step: it does not move on screen), then the lines move to the drop
+   * spot as one text step; the ink follows its lines, and one Undo puts the
+   * lines, and so the ink, back.
+   */
+  private moveWithText(g: Extract<Gesture, { kind: 'transform' }>): boolean {
+    const move = this.env.moveBlocks
+    if (!move) return false
+    const blocks = this.layout.blocks()
+    const sel = blocks.filter((b) => this.blockSel.includes(b.id))
+    const others = blocks.filter((b) => !this.blockSel.includes(b.id))
+    if (sel.length === 0 || others.length === 0) return false
+    const top = Math.min(...sel.map((b) => b.y))
+    const bottom = Math.max(...sel.map((b) => b.y + b.h))
+    const dropY = (top + bottom) / 2 + g.m.f
+    let target = others[0]
+    for (const b of others) {
+      const d = Math.abs(b.y + b.h / 2 - dropY)
+      if (d < Math.abs(target.y + target.h / 2 - dropY)) target = b
+    }
+    const place = dropY < target.y + target.h / 2 ? 'before' : 'after'
+    const relink = emptyEdit()
+    for (const p of g.before) {
+      if (p.blockId && this.blockSel.includes(p.blockId)) continue
+      const r = strokeRect(p.stroke, this.layout.frame(p.blockId))
+      const mid = r ? r.y + r.h / 2 : top
+      let to = sel[0]
+      for (const b of sel) {
+        if (Math.abs(b.y + b.h / 2 - mid) < Math.abs(to.y + to.h / 2 - mid))
+          to = b
+      }
+      relink.del.push(p)
+      relink.add.push({
+        layerId: p.layerId,
+        blockId: to.id,
+        stroke: {
+          ...p.stroke,
+          pts: reanchorPts(
+            p.stroke.pts,
+            STRIDE,
+            this.layout.frame(p.blockId),
+            this.layout.frame(to.id),
+          ),
+        },
+      })
+    }
+    if (!isEmptyEdit(relink)) this.env.doc.apply(relink)
+    const ids = sel
+      .map((b) => b.id)
+      .sort(
+        (a, b) =>
+          blocks.findIndex((x) => x.id === a) -
+          blocks.findIndex((x) => x.id === b),
+      )
+    if (!move(ids, target.id, place)) return false
+    this.clearSelection()
+    this.dirty()
     return true
   }
 

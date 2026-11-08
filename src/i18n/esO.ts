@@ -179,7 +179,7 @@ export const esO: Record<string, string> = {
   'ink.sel.summaryNeedsName':
     'Ponle nombre al dibujo primero (⋯ › Nombrar este dibujo) y luego añádelo al Resumen.',
   'ink.mixed.moveNote':
-    'Arrastrar mueve solo la tinta: el texto escrito fluye con la página.',
+    'Arrastrar mueve la tinta junto con sus líneas; las asas cambian solo la tinta.',
   'main.opt.lasso.row': 'Acciones en la fila del menú',
   'main.opt.lasso.rowNote': 'Las demás están bajo ⋯ Más.',
   'ai.convert.title': 'Convertir en texto',

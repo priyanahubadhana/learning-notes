@@ -1,0 +1,65 @@
+import { expect, test, type Page } from '@playwright/test'
+
+/** Fix 3: calm table grips and block handles. */
+
+test.use({ viewport: { width: 1200, height: 800 } })
+
+const visible = (page: Page, sel: string) =>
+  page.evaluate(
+    (s) =>
+      [...document.querySelectorAll(s)].filter((e) => {
+        const st = getComputedStyle(e)
+        return (
+          e.getBoundingClientRect().width > 0 &&
+          st.opacity !== '0' &&
+          st.visibility !== 'hidden'
+        )
+      }).length,
+    sel,
+  )
+
+async function tablePage(page: Page) {
+  await page.goto('/')
+  await page.getByRole('button', { name: 'Create notebook' }).click()
+  await page.locator('.bn-editor').click()
+  await page.keyboard.type('/table')
+  await page.keyboard.press('Enter')
+  await page.keyboard.type('A')
+}
+
+test('table grips show on hover, hide within 500 ms of leaving, and show a column grip pill', async ({
+  page,
+}) => {
+  await tablePage(page)
+  await page.mouse.move(900, 700)
+  await expect.poll(() => visible(page, '.bn-table-handle')).toBe(0)
+  const cell = page.locator('.bn-editor td').nth(4)
+  await cell.hover()
+  await expect.poll(() => visible(page, '.bn-table-handle')).toBeGreaterThan(0)
+  await expect.poll(() => visible(page, '.bn-extend-button')).toBeGreaterThan(0)
+  await page.mouse.move(900, 700)
+  await page.waitForTimeout(500)
+  expect(await visible(page, '.bn-table-handle')).toBe(0)
+  expect(await visible(page, '.bn-extend-button')).toBe(0)
+  // A column border shows the grip pill and the resize cursor.
+  const box = (await page.locator('.bn-editor td').nth(1).boundingBox())!
+  await page.mouse.move(box.x + box.width - 1, box.y + 10)
+  await expect(page.locator('.column-resize-handle').first()).toBeVisible()
+  const w0 = box.width
+  await page.mouse.down()
+  await page.mouse.move(box.x + box.width + 60, box.y + 10, { steps: 5 })
+  await page.mouse.up()
+  const w1 = (await page.locator('.bn-editor td').nth(1).boundingBox())!.width
+  expect(w1).toBeGreaterThan(w0 + 30)
+})
+
+test('the block side menu hides after the pointer leaves the page', async ({
+  page,
+}) => {
+  await tablePage(page)
+  await page.locator('.bn-editor td').nth(0).hover()
+  await expect.poll(() => visible(page, '.bn-side-menu')).toBeGreaterThan(0)
+  await page.mouse.move(150, 700)
+  await page.waitForTimeout(500)
+  expect(await visible(page, '.bn-side-menu')).toBe(0)
+})

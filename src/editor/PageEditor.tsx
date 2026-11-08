@@ -77,6 +77,7 @@ import {
   pasteHandler,
   pastePlainFromClipboard,
 } from './clipboard'
+import { installCalmHandles } from './calmHandles'
 import { focusEndLine } from './lineActions'
 import { clearActiveEditor, setActiveEditor } from '../app/tools/toolRuntime'
 import {
@@ -413,6 +414,9 @@ function LoadedPageEditor({
     window.addEventListener('keydown', noteKeyForPaste, true)
     return () => window.removeEventListener('keydown', noteKeyForPaste, true)
   }, [])
+
+  // Table grips and block handles show only near the pointer (calmHandles.ts).
+  useEffect(() => installCalmHandles(), [])
 
   // The page moved to another window: finish saving what was typed here.
   useEffect(() => {

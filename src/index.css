@@ -877,3 +877,48 @@ html[data-note-line] .bn-editor {
 [data-page-scroller] {
   overscroll-behavior: none;
 }
+
+/*
+ * Table handles stay calm: BlockNote shows the column / row grips and the
+ * "+" edge buttons only for the hovered or tapped cell (hidden at rest).
+ * A column border shows a small grip pill while it can be dragged; on touch
+ * screens the handles get 44 px tap targets.
+ */
+.bn-editor .column-resize-handle {
+  width: 3px;
+  background-color: var(--color-accent);
+}
+.bn-editor .column-resize-handle::after {
+  content: '';
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  width: 12px;
+  height: 30px;
+  transform: translate(-50%, -50%);
+  border-radius: 999px;
+  background-color: var(--color-accent);
+  background-image: radial-gradient(circle, #fff 1.3px, transparent 1.6px);
+  background-size: 6px 8px;
+  background-position: center;
+}
+@media (pointer: coarse) {
+  .bn-table-handle,
+  .bn-extend-button {
+    min-width: 44px;
+    min-height: 44px;
+  }
+}
+
+/* Calm handles (editor/calmHandles.ts): fade out when the pointer has left. */
+.bn-table-handle,
+.bn-extend-button,
+.bn-side-menu {
+  transition: opacity 0.2s ease;
+}
+.ln-grips-away .bn-table-handle,
+.ln-grips-away .bn-extend-button,
+.ln-side-away .bn-side-menu {
+  opacity: 0 !important;
+  pointer-events: none !important;
+}

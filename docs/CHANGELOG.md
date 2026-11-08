@@ -2,6 +2,11 @@
 
 Current phase only. Older entries are in [ARCHIVE.md](ARCHIVE.md).
 
+## 2026-11-09 (Calm table and block handles)
+
+- **What:** table grips (row, column, + edge buttons) and the block side menu (handle and +) hide ~300 ms after the pointer leaves their table or block (fade 0.2 s), and on touch 3 s after the last tap or at once on a tap elsewhere (src/editor/calmHandles.ts, two classes on html, CSS in index.css). A column border shows a grip pill (⋮) in the accent colour with the resize cursor; dragging resizes (BlockNote minimum width). Touch screens give the grips 44 px targets.
+- **Files:** src/editor/calmHandles.ts, PageEditor.tsx, src/index.css, e2e/tableHandles.spec.ts, docs/features/files-table-camera.md
+
 ## 2026-11-09 (Paste from Notion keeps toggles)
 
 - **What:** pasted HTML now keeps `details`/`summary` (only the `open` attribute), so Notion's toggles (`ul.toggle > li > details`, nested, and toggle headings) become our Toggle list or a toggle heading with children kept. Notion callouts (`figure.callout`) become our Callout with their icon (`data-ln-callout`, read by a new parse rule). A single blank line (empty paragraph) is kept; runs and edges are dropped. Markdown paste already reads `<details>` as a toggle (tested). Fixtures in src/editor/notionPaste.test.ts are rebuilt from Notion's HTML shapes (no live clipboard here).

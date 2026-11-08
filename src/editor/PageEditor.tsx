@@ -111,7 +111,9 @@ import { ImageError, imageObjectUrl, saveImage } from '../images/imageService'
 import { PicturePanel } from '../images/PicturePanel'
 import { placePicture } from '../images/placePicture'
 import {
+  beginPlacement,
   openPictureChooser,
+  usePlacement,
   usePictureAsk,
 } from '../images/pictureChooserStore'
 import { shrinkImage } from '../images/shrinkImage'
@@ -162,6 +164,7 @@ export const LIVE_IDLE_MS = 1_500
 
 /** Loads a page's blocks, then shows the editor for that page. */
 const PictureChooser = lazy(() => import('../images/PictureChooser'))
+const PicturePlacement = lazy(() => import('../images/PicturePlacement'))
 
 export function PageEditor(props: PageEditorProps) {
   const { db, pageId } = props
@@ -348,6 +351,7 @@ function LoadedPageEditor({
   })
   const theme = useContext(ThemeContext)
   const pictureAsk = usePictureAsk()
+  const placement = usePlacement()
   // Touch and Pencil: a docked bar instead of the floating toolbar.
   const bar = useBarSettings()
   const keyboardInset = useKeyboardInset()
@@ -615,18 +619,24 @@ function LoadedPageEditor({
     input.onchange = () => {
       const file = input.files?.[0]
       if (!file) return
-      runTask(
-        (async () => {
-          const message = await placePicture(
-            db,
-            editor as never,
-            file,
-            undefined,
-            stampSaved,
-          )
-          if (message) toast(message)
-        })(),
-      )
+      beginPlacement({
+        owner: editor,
+        file,
+        onPlace: (place) =>
+          runTask(
+            (async () => {
+              const message = await placePicture(
+                db,
+                editor as never,
+                file,
+                undefined,
+                stampSaved,
+                place,
+              )
+              if (message) toast(message)
+            })(),
+          ),
+      })
     }
     input.click()
   }
@@ -641,11 +651,16 @@ function LoadedPageEditor({
   const choosePicture = () =>
     openPictureChooser({
       owner: editor,
-      onPick: (file) =>
+      onPick: (file, place) =>
         runTask(
-          placePicture(db, editor as never, file, undefined, stampSaved).then(
-            (message) => message && toast(message),
-          ),
+          placePicture(
+            db,
+            editor as never,
+            file,
+            undefined,
+            stampSaved,
+            place,
+          ).then((message) => message && toast(message)),
         ),
     })
 
@@ -878,6 +893,11 @@ function LoadedPageEditor({
         {pictureAsk?.owner === editor && (
           <Suspense fallback={null}>
             <PictureChooser ask={pictureAsk} />
+          </Suspense>
+        )}
+        {placement?.owner === editor && (
+          <Suspense fallback={null}>
+            <PicturePlacement ask={placement} editor={editor as never} />
           </Suspense>
         )}
         {editableIn(mode) && !readOnly && (

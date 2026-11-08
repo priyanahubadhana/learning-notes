@@ -37,6 +37,10 @@ A selected picture (Lasso or tap) gets a dashed orange outline on the picture it
 
 A tapped or pressed picture shows an action bar above it (below when there is no room): Copy, Cut, Duplicate, Delete, Resize (shows or hides the corner handles), Deselect (`PictureHandles.tsx`). Test: e2e/pictureActions.spec.ts.
 
+## Placing a picture (9 Nov)
+
+Choosing a picture (any source) shows it as a preview first (`images/PicturePlacement.tsx`): the page scrolls to it, drag it to another line (it snaps under the block it is over, left, centre or right by where it is dropped), drag a corner to resize, tick or Enter places it (one Undo), cross or Esc cancels. The block is made only on the tick. Tests: e2e/pictureChooser.spec.ts.
+
 ## Edge cases
 
 - A missing or deleted picture gives `null` and nothing is shown.

@@ -32,6 +32,7 @@ async function setup(page: Page) {
     await page
       .getByTestId('picture-input-photos')
       .setInputFiles({ name, mimeType: 'image/png', buffer: png })
+    await page.getByRole('button', { name: 'Place picture' }).click()
     await expect(
       page.locator('.bn-editor img').nth(name === 'one.png' ? 0 : 1),
     ).toBeVisible()

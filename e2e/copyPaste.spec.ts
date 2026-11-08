@@ -62,6 +62,7 @@ async function writeRichPage(page: Page) {
   await page
     .getByTestId('picture-input-photos')
     .setInputFiles({ name: 'red.png', mimeType: 'image/png', buffer: PNG })
+  await page.getByRole('button', { name: 'Place picture' }).click()
   await expect(editor(page).locator('img')).toHaveAttribute('src', /^blob:/)
   await page.waitForTimeout(900)
 }

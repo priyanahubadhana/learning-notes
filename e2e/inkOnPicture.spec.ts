@@ -25,8 +25,7 @@ test('ink on a picture scales and stays with it when the picture is resized', as
     mimeType: 'image/png',
     buffer: png(400, 200),
   })
-  const place = page.getByRole('button', { name: 'Place picture' })
-  if (await place.count()) await place.click()
+  await page.getByRole('button', { name: 'Place picture' }).click()
   const img = page.locator('.bn-editor img').first()
   await expect(img).toHaveAttribute('src', /^blob:/)
   await page.waitForTimeout(900)

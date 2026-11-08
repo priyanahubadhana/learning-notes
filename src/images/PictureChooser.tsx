@@ -3,6 +3,7 @@ import { createPortal } from 'react-dom'
 import { Icon, type IconName } from '../app/tools/icons'
 import { t } from '../i18n/t'
 import {
+  beginPlacement,
   closePictureChooser,
   firstImageFile,
   readClipboardPicture,
@@ -34,7 +35,12 @@ export default function PictureChooser({ ask }: { ask: PictureAsk }) {
   const pick = (file: File | null | undefined) => {
     if (!file) return
     closePictureChooser()
-    ask.onPick(file)
+    beginPlacement({
+      owner: ask.owner,
+      file,
+      blockId: ask.blockId,
+      onPlace: (place) => ask.onPick(file, place),
+    })
   }
   const fromInput = (el: HTMLInputElement) => {
     pick(el.files?.[0])

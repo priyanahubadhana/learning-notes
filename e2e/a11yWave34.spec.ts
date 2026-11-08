@@ -199,6 +199,7 @@ test('Picture editor: names on every control', async ({ page }) => {
     mimeType: 'image/png',
     buffer: png(400, 200),
   })
+  await page.getByRole('button', { name: 'Place picture' }).click()
   await expect(page.locator('.bn-editor img').first()).toHaveAttribute(
     'src',
     /^blob:/,

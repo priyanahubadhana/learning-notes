@@ -29,13 +29,16 @@ export function PicturePanel(props: FilePanelProps) {
     editor.getExtension(FilePanelExtension)?.closeMenu()
     openPictureChooser({
       owner: editor,
-      onPick: (file) =>
+      blockId: props.blockId,
+      onPick: (file, place) =>
         runTask(
           placePicture(
             db,
             editor as unknown as PictureHost,
             file,
             props.blockId,
+            undefined,
+            place,
           ).then((message) => message && toast(message)),
         ),
     })

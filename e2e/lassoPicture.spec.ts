@@ -26,6 +26,7 @@ async function pictureNote(page: Page) {
     mimeType: 'image/png',
     buffer: png(240, 120),
   })
+  await page.getByRole('button', { name: 'Place picture' }).click()
   const img = page.locator('.bn-editor img').first()
   await expect(img).toHaveAttribute('src', /^blob:/)
   await page.waitForTimeout(900)

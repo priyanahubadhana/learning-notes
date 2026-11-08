@@ -104,8 +104,6 @@ const CONTENT: Record<string, string[]> = {
     'Checklist',
     'Heading 1',
     'Align left',
-    'Undo',
-    'Redo',
     'Copy & paste',
   ],
   Insert: [
@@ -387,7 +385,7 @@ for (const theme of ['day', 'night', 'sepia'] as const) {
       ).toBeGreaterThanOrEqual(43.5)
     }
     expect(await contrastOf(tab(page, 'Home'))).toBeGreaterThanOrEqual(4.5)
-    for (const tool of ['Bold', 'Undo', 'Copy & paste']) {
+    for (const tool of ['Bold', 'Copy & paste']) {
       const button = ribbonTool(page, tool)
       expect(
         await contrastOf(button),
@@ -397,6 +395,12 @@ for (const theme of ['day', 'night', 'sepia'] as const) {
       expect(box.height).toBeGreaterThanOrEqual(43.5)
       expect(box.width).toBeGreaterThanOrEqual(43.5)
     }
+    // Undo is pinned at the left of the ribbon (outside its tool groups).
+    const undo = dockedBar(page)
+      .locator('[data-slot="history"]')
+      .getByRole('button', { name: 'Undo', exact: true })
+    expect(await contrastOf(undo), `${theme} Undo`).toBeGreaterThanOrEqual(4.5)
+    expect((await undo.boundingBox())!.height).toBeGreaterThanOrEqual(43.5)
     expect(await contrastOf(behaviour(page))).toBeGreaterThanOrEqual(4.5)
     expect(await contrastOf(shortBar(page))).toBeGreaterThanOrEqual(4.5)
     await page.screenshot({

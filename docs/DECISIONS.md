@@ -826,3 +826,5 @@ The other older decisions stand as built (owner, 2026-11-01); they are in [ARCHI
 - **2026-11-09 · iPad fix 8: ink on pictures, bounce:** Root cause of the jump (not reproducible without an iPad): the overlay is placed from measured rects and the scroll event; the iOS bounce moves the page without scroll events, so the overlay and its clip went stale. Mitigated at three points (no bounce, per-frame placement during touch, visualViewport events) - owner please confirm on the iPad. Ink drawn on a picture BEFORE this change takes its reference width from the first session after the update (so it does not jump).
 
 - **2026-11-09 · iPad fix 9: paper zoom spring:** The e2e uses Ctrl+wheel (same zoom code as the pinch); the touch pinch itself needs the iPad.
+
+- **2026-11-09 · iPad fix 1: picture placement preview:** The preview opens at the cursor line (or the empty picture block) and starts at the picture's size up to 60% of the page. Moving is by dropping under a line (the page is a flow of blocks, not free positions); inside paper boxes it stays in that box's page column.

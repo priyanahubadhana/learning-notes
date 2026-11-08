@@ -120,6 +120,7 @@ test('a picture added while the video plays is captioned with the video time', a
   await page
     .getByTestId('picture-input-photos')
     .setInputFiles({ name: 'shot.png', mimeType: 'image/png', buffer: PNG })
+  await page.getByRole('button', { name: 'Place picture' }).click()
   await expect(page.locator('.bn-editor img').first()).toHaveAttribute(
     'src',
     /^blob:/,

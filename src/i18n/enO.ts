@@ -8,6 +8,10 @@ import { enS } from './enS'
 export const enO = {
   ...enH,
   ...enS,
+  // ---- Placing a picture (iPad fix 1) ----
+  'pic.place.label': 'Place the picture',
+  'pic.place.ok': 'Place picture',
+  'pic.place.cancel': 'Cancel picture',
   // ---- Selected picture action bar (iPad fix 5) ----
   'pic.act.label': 'Picture actions',
   'pic.act.copy': 'Copy',

@@ -1,5 +1,6 @@
 import type { LearningNotesDB } from '../core/db'
 import { imageRef } from './imageRef'
+import type { PlaceOptions } from './pictureChooserStore'
 import { ImageError, saveImage } from './imageService'
 import { shrinkImage } from './shrinkImage'
 
@@ -27,16 +28,25 @@ export async function placePicture(
   blockId?: string,
   /** Called with the new picture's reference (the editor adds a video-time caption). */
   onSaved?: (ref: string) => void,
+  /** Where and how big (from the placement preview). */
+  place?: PlaceOptions,
 ): Promise<string | null> {
   try {
     const saved = await saveImage(db, file, shrinkImage)
-    const props = { url: imageRef(saved.id) }
-    onSaved?.(props.url)
+    const props: Record<string, unknown> = { url: imageRef(saved.id) }
+    onSaved?.(props.url as string)
+    if (place?.width) props.previewWidth = Math.round(place.width)
+    if (place?.align && place.align !== 'left') {
+      props.textAlignment = place.align
+    }
     if (blockId) {
       editor.updateBlock(blockId as never, { props } as never)
       return null
     }
-    const current = editor.getTextCursorPosition().block as {
+    const target = place?.afterId
+      ? editor.document.find((b) => b.id === place.afterId)
+      : undefined
+    const current = (target ?? editor.getTextCursorPosition().block) as {
       type: string
       content?: unknown
     }

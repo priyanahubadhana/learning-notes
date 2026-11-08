@@ -57,6 +57,11 @@ test('Insert › Picture: choose a file, the picture shows and is saved', async 
     buffer: PNG,
   })
   await expect(chooser(page)).toHaveCount(0)
+  // The picture shows as a preview; the block is made only on the tick.
+  await expect(page.locator('[data-picture-preview]')).toBeVisible()
+  await expect(page.locator('.bn-editor img')).toHaveCount(0)
+  await page.getByRole('button', { name: 'Place picture' }).click()
+  await expect(page.locator('[data-picture-preview]')).toHaveCount(0)
   await expect(page.locator('.bn-editor img')).toHaveCount(1)
   await page.waitForTimeout(900) // autosave
   await page.reload()
@@ -110,6 +115,7 @@ test('Paste uses a picture from the clipboard; without one it shows the hint', a
   }, PNG.toString('base64'))
   await insertPicture(page)
   await page.getByTestId('picture-paste').click()
+  await page.getByRole('button', { name: 'Place picture' }).click()
   await expect(page.locator('.bn-editor img')).toHaveCount(1)
 })
 
@@ -126,4 +132,69 @@ test("the empty picture block's own Add button opens the same chooser", async ({
   await expect(
     page.locator('.bn-editor [data-content-type="image"]'),
   ).toHaveCount(0)
+})
+
+async function choose(page: Page) {
+  await openPage(page)
+  await insertPicture(page)
+  await page.getByTestId('picture-input-photos').setInputFiles({
+    name: 'p.png',
+    mimeType: 'image/png',
+    buffer: PNG,
+  })
+  await expect(page.locator('[data-picture-preview]')).toBeVisible()
+}
+
+test('placement: Esc and the cross add nothing; Enter places', async ({
+  page,
+}) => {
+  await choose(page)
+  await page.keyboard.press('Escape')
+  await expect(page.locator('[data-picture-preview]')).toHaveCount(0)
+  await expect(page.locator('.bn-editor img')).toHaveCount(0)
+
+  await insertPicture(page)
+  await page.getByTestId('picture-input-photos').setInputFiles({
+    name: 'p.png',
+    mimeType: 'image/png',
+    buffer: PNG,
+  })
+  await page.getByRole('button', { name: 'Cancel picture' }).click()
+  await expect(page.locator('.bn-editor img')).toHaveCount(0)
+
+  await insertPicture(page)
+  await page.getByTestId('picture-input-photos').setInputFiles({
+    name: 'p.png',
+    mimeType: 'image/png',
+    buffer: PNG,
+  })
+  await expect(page.locator('[data-picture-preview]')).toBeVisible()
+  await page.keyboard.press('Enter')
+  await expect(page.locator('.bn-editor img')).toHaveCount(1)
+})
+
+test('placement: resize by a corner sets the width; one Undo removes it', async ({
+  page,
+}) => {
+  await choose(page)
+  const preview = page.locator('[data-picture-preview]')
+  const before = (await preview.boundingBox())!
+  const h = (await page.locator('[data-preview-handle="se"]').boundingBox())!
+  const x = h.x + h.width / 2
+  const y = h.y + h.height / 2
+  await page.mouse.move(x, y)
+  await page.mouse.down()
+  await page.mouse.move(x + 40, y, { steps: 5 })
+  await page.mouse.up()
+  const bigger = (await preview.boundingBox())!
+  expect(bigger.width).toBeGreaterThan(before.width + 20)
+  await page.getByRole('button', { name: 'Place picture' }).click()
+  const img = page.locator('.bn-editor img')
+  await expect(img).toHaveCount(1)
+  await expect
+    .poll(async () => (await img.boundingBox())!.width)
+    .toBeCloseTo(bigger.width, -1)
+  // One Undo takes the picture out again.
+  await page.keyboard.press('Control+z')
+  await expect(img).toHaveCount(0)
 })

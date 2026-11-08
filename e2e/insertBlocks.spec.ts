@@ -142,5 +142,6 @@ test('the camera adds a picture (a picker stands in on a computer)', async ({
     'base64',
   )
   await file.setFiles({ name: 'photo.png', mimeType: 'image/png', buffer: png })
+  await page.getByRole('button', { name: 'Place picture' }).click()
   await expect(page.locator('.bn-editor img')).toHaveCount(1)
 })

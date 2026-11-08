@@ -9,8 +9,43 @@ import { useSyncExternalStore } from 'react'
 export interface PictureAsk {
   /** Which editor asked, so only that page shows the sheet. */
   owner: unknown
-  onPick: (file: File) => void
+  /** Called when the picture is placed (✓), with where and how big. */
+  onPick: (file: File, place?: PlaceOptions) => void
+  /** An empty picture block to fill (the preview stays at that block). */
+  blockId?: string
 }
+
+/** Where and how big the person placed the picture (iPad fix 1). */
+export interface PlaceOptions {
+  /** Width in px (the block's previewWidth). */
+  width?: number
+  /** The block the picture goes after. */
+  afterId?: string
+  align?: 'left' | 'center' | 'right'
+}
+
+/**
+ * A picture was chosen: it shows as a preview on the page (move, resize, ✓ or
+ * ✕) and the block is made only on ✓ (`PicturePlacement.tsx`).
+ */
+export interface PlacementAsk {
+  owner: unknown
+  file: File
+  blockId?: string
+  onPlace: (place: PlaceOptions) => void
+}
+let placing: PlacementAsk | null = null
+export function beginPlacement(ask: PlacementAsk): void {
+  placing = ask
+  emit()
+}
+export function endPlacement(): void {
+  if (!placing) return
+  placing = null
+  emit()
+}
+export const usePlacement = (): PlacementAsk | null =>
+  useSyncExternalStore(subscribe, () => placing)
 
 let current: PictureAsk | null = null
 const listeners = new Set<() => void>()

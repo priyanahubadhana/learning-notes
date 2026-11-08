@@ -2,6 +2,11 @@
 
 Current phase only. Older entries are in [ARCHIVE.md](ARCHIVE.md).
 
+## 2026-11-09 (iPad fix 1: picture placement preview)
+
+- **What:** After a picture is chosen (Photos, Files, Camera, Paste, slash Camera, empty picture block) it shows as a preview at the cursor line; the page scrolls to it. Drag to another line (it snaps under the block it is over, side by thirds: left, centre, right, kept inside the page), corner handles resize, tick or Enter places (the block is made only then), cross or Esc cancels. Only a size the person changed is saved. Also repairs toolRibbon.spec for fix 2 (Undo is pinned, not in the Home group).
+- **Files:** src/images/PicturePlacement.tsx, pictureChooserStore.ts, PictureChooser.tsx, PicturePanel.tsx, placePicture.ts, src/editor/PageEditor.tsx, src/i18n/enO.ts, e2e (picture specs now click Place picture), e2e/toolRibbon.spec.ts, docs/features/pictures.md
+
 ## 2026-11-09 (iPad fix 9: paper zoom spring)
 
 - **What:** Pinch-out (or Ctrl+wheel) on a paper page gives way with resistance down to about 73% of fit width and eases back to fit (220 ms) on release; the − button stops at fit; zoom in is unchanged and stays where released. Ink follows because the zoom only changes the paper width.

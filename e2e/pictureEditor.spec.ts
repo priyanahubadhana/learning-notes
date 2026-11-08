@@ -52,6 +52,7 @@ async function addPicture(page: Page) {
     mimeType: 'image/png',
     buffer: png(400, 200),
   })
+  await page.getByRole('button', { name: 'Place picture' }).click()
   await expect(page.locator('.bn-editor img').first()).toHaveAttribute(
     'src',
     /^blob:/,

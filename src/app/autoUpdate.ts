@@ -2,14 +2,18 @@
  * Automatic updates. When a new version is found, the app applies it by
  * itself at a safe moment (no tap needed): nothing waiting to be saved, no
  * pen or finger down, no Write pad draft, no dialog open, and the app either
- * just came back to the front or has been idle for about 5 seconds. Saves
+ * just came back to the front or has paused for about 1.5 seconds (no IME
+ * composition either). Any input also triggers a throttled version check
+ * (updates.ts); the "Updating…" splash shows for a moment. Saves
  * are flushed and the silent backup (R7-2) is taken first. The person is
  * asked only when an update could lose data (no backup, low space, changes
  * that would not save).
  */
 import { memStore } from './tools/store'
+import { t } from '../i18n/t'
 
-export const IDLE_MS = 5000
+/** The first pause (no key, touch or pen) after which an update may apply. */
+export const IDLE_MS = 1500
 /** Right after coming to the front, with nothing touched yet. */
 export const FOREGROUND_MS = 1500
 export const POLL_MS = 500
@@ -28,12 +32,14 @@ export interface Moment {
   /** A Write pad draft is mid-entry. */
   padDraft: boolean
   dialogOpen: boolean
+  /** An IME composition is open (optional: false when unknown). */
+  composing?: boolean
 }
 
 /** True when an update may be applied now. */
 export function isSafeMoment(m: Moment): boolean {
   if (!m.visible || m.penDown || m.fingerDown) return false
-  if (m.pendingSave || m.padDraft || m.dialogOpen) return false
+  if (m.pendingSave || m.padDraft || m.dialogOpen || m.composing) return false
   return m.idleMs >= IDLE_MS || m.sinceForeground <= FOREGROUND_MS
 }
 
@@ -180,6 +186,9 @@ export function startAutoUpdate(d: AutoUpdateDeps) {
   const down = new Set<number>()
   let running = false
   let declined = false
+  let composing = false
+  d.win.addEventListener('compositionstart', () => (composing = true), true)
+  d.win.addEventListener('compositionend', () => (composing = false), true)
 
   const activity = () => {
     lastActivity = now()
@@ -222,6 +231,7 @@ export function startAutoUpdate(d: AutoUpdateDeps) {
     pendingSave: d.hasPendingSaves() && !d.hasUnsaved(),
     padDraft: d.padDraft(),
     dialogOpen: !!doc.querySelector(DIALOG),
+    composing,
   })
 
   /** A found version: applies it when the setting is on. */
@@ -246,6 +256,7 @@ export function startAutoUpdate(d: AutoUpdateDeps) {
           apply: () => {
             updateRisk.set(null)
             rememberPlace()
+            showUpdatingSplash(doc)
             apply()
           },
         })
@@ -253,9 +264,25 @@ export function startAutoUpdate(d: AutoUpdateDeps) {
         return
       }
       rememberPlace()
+      showUpdatingSplash(doc)
       apply()
     } finally {
       running = false
     }
+  }
+}
+
+/** A calm "Updating…" cover for the second or so the restart takes. */
+export function showUpdatingSplash(doc: Document): void {
+  try {
+    const el = doc.createElement('div')
+    el.setAttribute('data-update-splash', '')
+    el.setAttribute('role', 'status')
+    el.textContent = t('update.splash')
+    el.style.cssText =
+      'position:fixed;inset:0;z-index:2147483647;display:flex;align-items:center;justify-content:center;background:var(--color-bg,#fff);color:var(--color-fg,#222);font:500 16px system-ui,sans-serif;opacity:0.96'
+    doc.body.appendChild(el)
+  } catch {
+    // The splash is only a courtesy.
   }
 }

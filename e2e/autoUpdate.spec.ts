@@ -36,7 +36,7 @@ test('waits while typing, then updates when idle', async ({ page }) => {
   await start(page)
   await mark(page)
   await found(page)
-  // Typing for longer than the 5 s idle time: nothing may restart.
+  // Typing for without a 1.5 s pause: nothing may restart.
   for (let i = 0; i < 24; i++) {
     await page.keyboard.type('x')
     await page.waitForTimeout(300)

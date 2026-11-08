@@ -64,4 +64,5 @@ export const hiSync: Record<string, string> = {
     'ताले का समय {ms} ms · Web Crypto {crypto} · डेटा सुरक्षित {persist}',
   'sync.yes': 'हाँ',
   'sync.no': 'नहीं',
+  'update.splash': 'अपडेट हो रहा है…',
 }

@@ -163,8 +163,8 @@ export function watchControllerChange(
 
 // ---- More triggers for looking (R6-14) ----
 
-/** At most one extra look per 5 minutes, and one every 10 while visible. */
-export const UPDATE_THROTTLE_MS = 5 * 60_000
+/** At most one extra look per 2 minutes, and one every 10 while visible. */
+export const UPDATE_THROTTLE_MS = 2 * 60_000
 export const UPDATE_EVERY_MS = 10 * 60_000
 
 /** Wraps `run` so it goes at most once per `gap` ms; returns whether it ran. */
@@ -204,6 +204,7 @@ export function watchUpdateTriggers(
   win.addEventListener('hashchange', soft)
   win.addEventListener('keydown', soft, { capture: true, passive: true })
   win.addEventListener('pointerdown', soft, { capture: true, passive: true })
+  win.addEventListener('paste', soft, { capture: true, passive: true })
   win.setInterval(() => {
     if (win.document.visibilityState === 'visible') soft()
   }, UPDATE_EVERY_MS)

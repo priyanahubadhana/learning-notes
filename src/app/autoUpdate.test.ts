@@ -27,6 +27,7 @@ const quiet: Moment = {
 
 describe('the safe moment for an automatic update', () => {
   it('is safe when idle long enough with nothing going on', () => {
+    expect(IDLE_MS).toBe(1500) // the first pause
     expect(isSafeMoment(quiet)).toBe(true)
     expect(isSafeMoment({ ...quiet, idleMs: IDLE_MS - 1 })).toBe(false)
   })
@@ -46,6 +47,7 @@ describe('the safe moment for an automatic update', () => {
     ['a save waiting', { pendingSave: true }],
     ['a Write pad draft', { padDraft: true }],
     ['a dialog open', { dialogOpen: true }],
+    ['an IME composition', { composing: true }],
   ])('is never safe with %s', (_name, change) => {
     expect(isSafeMoment({ ...quiet, ...change })).toBe(false)
     expect(

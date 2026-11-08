@@ -66,4 +66,5 @@ export const esSync: Record<string, string> = {
     'Tiempo de cierre {ms} ms · Web Crypto {crypto} · Datos protegidos {persist}',
   'sync.yes': 'sí',
   'sync.no': 'no',
+  'update.splash': 'Actualizando…',
 }

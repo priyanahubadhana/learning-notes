@@ -2,6 +2,17 @@
 
 Current phase only. Older entries are in [ARCHIVE.md](ARCHIVE.md).
 
+## 2026-11-09 (Updates apply with no prompt)
+
+- **What:** an update applies at the first 1.5 s pause (no pen or finger down, no IME composition, no dialog, no Write pad draft) after saves are flushed and the silent backup is taken; right after opening or coming to the front it applies at once. A short "Updating…" cover shows during the restart; page, scroll and text are kept. Any key, pointer, Pencil or paste (and page change) triggers a version check, at most once per 2 minutes. The Update bar never shows while "Update automatically" is on; the person is asked only on a data risk. The service worker already uses clientsClaim and skips waiting on apply, so one restart is enough.
+- **Why:** the owner wants updates with no prompts.
+- **Files:** src/app/autoUpdate.ts, autoUpdate.test.ts, updates.ts, src/i18n/enSync.ts, esSync.ts, hiSync.ts, e2e/autoUpdate.spec.ts
+
+## 2026-11-09 (iPad fix 7: GoodNotes-style boxes, empty-box repair)
+
+- **What:** (a) With the Lasso, hovering a box shows its frame; a tap on the frame or grip selects it (thin frame, six handles that change the width, grab the frame to move). (b) A floating bar under one selected box: text colour, size, font, Bold, Italic, align, list, Cut, Duplicate, Delete, ⋯ (the toolbar's own text operations applied to the whole box; switches to the Text tool first). (c) Shift-tap or the Lasso loop picks several boxes; dragging one moves them all in one write, one Undo ("n boxes moved"). (d) While dragging, the box is a see-through live copy with a thin red line at the landing spot; boxes it would cover are pushed down (and the push cascades) instead of overlapping; locked boxes and the default box are never moved. (e) Light snap guides (1.5 mm) to other boxes' edges and the page margins. (f) A box that crosses the gap between sheets is framed once per sheet. (g) Ctrl+A page-wide selection: Delete and Cut now empty every box (toast Undo). **Bug fix (live site):** an empty box lying on the default box (or on another box) showed two "Enter text" lines and could not be deleted. Pages are repaired on open (`repairBoxes`: only boxes with no text, no ink and only empty lines, within 12 mm of another box; empty orphan lines when the page has text); Backspace or Delete in an empty box removes it (toast Undo); Delete with a box selected removes it.
+- **Files:** src/paper/BoxFrame.tsx (new), BoxBar.tsx (new), pageWide.ts (new), PaperFrame.tsx, boxes.ts, boxService.ts, usePaperBoxes.tsx, activeBox.ts, src/editor/PageEditor.tsx (box editor registry), src/pages/PageView.tsx, i18n enO/esO/hiO, tests boxes.test.ts, boxRepair.test.ts, e2e/paperBoxes.spec.ts
+
 ## 2026-11-09 (CI green again)
 
 - **What:** main was red on 9 Nov. Fixed: Prettier on the NotebookLM research doc; nameSheet touch-row test (two Lock items now: PIN lock + edit lock, count 2); paper pinch spring-back test skipped on WebKit (no mouse wheel; spring maths covered by zoomSpring.test.ts); removed a no-op `title={undefined}` from BoxBar; allowed the paper -> editor feature link (types and plain-text mapping).
@@ -23,6 +34,11 @@ Current phase only. Older entries are in [ARCHIVE.md](ARCHIVE.md).
 
 - **What:** pasting now reads the source: Gemini / ChatGPT / Claude web HTML (custom elements, code blocks, headings, tables), Google Docs (style spans to marks, flat lists nested), Word (mso lists), Apple Notes (big bold = heading), Notion; flat HTML with Markdown text falls back to Markdown; Markdown text (headings, lists, pipe tables, fences, quotes, tasks, links); tree drawings (├── └──) stay in a code block with spacing; Notion database rows (HTML table markers, or tab text with Notion HTML) become our Database block (first column = title, emoji kept, types guessed), plain tab text stays a Table; never a heading from the first line. New paste chooser (Keep original format / Plain text / As table, preview lines, Always use this, Enter/Esc) and the "Pasted as" chip that swaps the result; Settings › General › Paste.
 - **Files:** src/editor/pasteFlow.ts, pasteSources.ts (+test), PasteChooser.tsx, clipboard.ts, PageEditor.tsx, src/settings/builtinSettings.ts, src/i18n/enO.ts esO.ts hiO.ts, playwright.config.ts, e2e/pasteSources.spec.ts, docs/features/copy-paste.md
+
+## 2026-11-09 (Paste a lone address as an Embed)
+
+- **What:** a pasted lone YouTube address becomes an Embed block (inline player, start time kept), any other web address a Link card; the paste chooser and chip offer Embed / Link card, Link, Plain URL. Owner bug "placeholder drawn over a pasted YouTube URL in an empty paper box": not reproduced with synthetic paste events in a page or a new box (before or after this change), so an e2e now guards it (no block holding text may stay marked empty); the pasted URL now lands as an Embed block, which has no placeholder. Streaming Notion import also refuses non-zip bytes as "could not be read".
+- **Files:** src/editor/pasteFlow.ts, PasteChooser.tsx, pasteSources.test.ts, src/share/notionImport.ts, src/i18n/enO.ts esO.ts hiO.ts, e2e/pasteSources.spec.ts, e2e/pastePlaceholder.spec.ts, docs/features/copy-paste.md
 
 ## 2026-11-09 (Notion import streams the zip; Outline and Notion strings translated)
 

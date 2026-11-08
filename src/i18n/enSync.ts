@@ -64,4 +64,5 @@ export const enSync = {
     'Lock time {ms} ms · Web Crypto {crypto} · Storage kept {persist}',
   'sync.yes': 'yes',
   'sync.no': 'no',
+  'update.splash': 'Updating…',
 } as const

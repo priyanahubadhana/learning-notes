@@ -2,6 +2,11 @@
 
 Current phase only. Older entries are in [ARCHIVE.md](ARCHIVE.md).
 
+## 2026-11-09 (iPad fix 6c: study status in the Review tab)
+
+- **What:** The study status panel (Status, Last revised, Cards due, % correct, stars, Card levels, the Auto explanation) left the top of the page. In the Review tab it is one closed row, Study status: Learning · 3 due · 72%, that opens the full panel (open or closed is remembered on this device, key review.statusOpen); the explanation is behind an info button. The page top shows only the title, tags and the tabs. Data, sync and backups unchanged. Properties of ordinary database rows stay on top.
+- **Files:** src/databases/RowProperties.tsx, src/pages/PageView.tsx, src/i18n/enO.ts, e2e/databases.spec.ts
+
 ## 2026-11-09 (iPad fix 7 (part): boxes never overlap)
 
 - **What:** A box that is dropped or resized onto another box now gives way: it moves under the box it would cover (with a 3 mm gap, on the paper's line spacing). The other boxes never move. Box frame on hover/tap, grab bar and side edges already existed. NOT built yet from the owner's longer wish list: floating format bar under a tapped box, live see-through copy and red landing line while dragging, push-down of neighbours, snap guides, Lasso-select several boxes by loop frame.

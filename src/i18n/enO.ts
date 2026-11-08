@@ -8,6 +8,10 @@ import { enS } from './enS'
 export const enO = {
   ...enH,
   ...enS,
+  // ---- Study status row in Review ----
+  'study.status.title': 'Study status',
+  'study.status.due': '{n} due',
+  'study.status.why': 'How the status is worked out',
   // ---- Placing a picture (iPad fix 1) ----
   'pic.place.label': 'Place the picture',
   'pic.place.ok': 'Place picture',

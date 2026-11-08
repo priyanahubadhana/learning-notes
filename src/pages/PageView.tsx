@@ -563,11 +563,14 @@ export function PageView({
             />
           )}
           {withTabs && pageTab === 'review' && (
-            <PageReview
-              db={db}
-              pageId={page.id}
-              onReview={() => onReview(true)}
-            />
+            <>
+              <RowProperties db={db} page={page} where="review" />
+              <PageReview
+                db={db}
+                pageId={page.id}
+                onReview={() => onReview(true)}
+              />
+            </>
           )}
         </div>
         {/* The editor stays open (only hidden) on the other views, so no typing is lost. */}

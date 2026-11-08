@@ -106,7 +106,17 @@ test('a lesson page shows its tracker properties and Back to auto', async ({
     .getByRole('button', { name: 'Heart sounds', exact: true })
     .click()
 
-  const props = main(page).getByRole('region', { name: 'Properties' })
+  // The study status is in the Review tab, as one closed row (9 Nov).
+  await expect(
+    main(page).getByRole('region', { name: 'Properties' }),
+  ).toHaveCount(0)
+  await main(page).getByRole('button', { name: 'Review', exact: true }).click()
+  const props = main(page).getByRole('region', { name: 'Study status' })
+  await expect(props).toContainText('Study status: Not started · 0 due')
+  await expect(props.getByRole('button', { name: /^Edit Status/ })).toHaveCount(
+    0,
+  )
+  await props.getByRole('button', { name: /^Study status:/ }).click()
   await expect(props).toContainText('Not started')
   await props.getByRole('button', { name: /^Edit Status/ }).click()
   await page.getByRole('button', { name: 'Mastered' }).click()

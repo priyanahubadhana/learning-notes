@@ -1,5 +1,11 @@
 import { describe, expect, it } from 'vitest'
-import { DEFAULT_ROW, mostlyInside, ROW_ACTIONS, splitMenu } from './lassoMenu'
+import {
+  DEFAULT_ROW,
+  mostlyInside,
+  orderByRow,
+  ROW_ACTIONS,
+  splitMenu,
+} from './lassoMenu'
 
 describe('the Lasso menu', () => {
   it('splits the actions into the row and More, keeping the order', () => {
@@ -12,9 +18,19 @@ describe('the Lasso menu', () => {
       'summary',
       'label',
     ])
+    // The row keeps the order the person arranged.
     expect(splitMenu(ROW_ACTIONS, ['label', 'copy']).row).toEqual([
-      'copy',
       'label',
+      'copy',
+    ])
+  })
+  it('orders other menus by the row, the rest after in their own order', () => {
+    const items = ['copy', 'cut', 'delete', 'colour'].map((id) => ({ id }))
+    expect(orderByRow(items, ['colour', 'copy']).map((i) => i.id)).toEqual([
+      'colour',
+      'copy',
+      'cut',
+      'delete',
     ])
   })
   it('a line counts when most of its middle is inside the loop', () => {

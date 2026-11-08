@@ -8,6 +8,10 @@ export const hiO: Record<string, string> = {
   'reading.goal.week_one': 'इस हफ़्ते {count} दिन लक्ष्य पूरा हुआ',
   'reading.goal.week_other': 'इस हफ़्ते {count} दिन लक्ष्य पूरा हुआ',
   // ---- Polish 2 ----
+  'lassoMenu.title': 'लैसो मेनू सजाएँ',
+  'lassoMenu.hint':
+    'पंक्ति के आइकन इसी क्रम में पहले दिखते हैं। बाकी ⋯ और में रहते हैं।',
+  'lassoMenu.arrange': 'मेनू सजाएँ…',
   'tool.lastTool': 'पिछला टूल',
   'tool.lastTool.none':
     'अभी कोई पिछला टूल नहीं। दो टूल चुनें, फिर यह पीछे जाएगा।',

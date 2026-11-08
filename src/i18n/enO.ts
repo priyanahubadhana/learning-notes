@@ -12,6 +12,10 @@ export const enO = {
   'reading.goal.week_one': 'Goal reached on {count} day this week',
   'reading.goal.week_other': 'Goal reached on {count} days this week',
   // ---- Polish 2 ----
+  'lassoMenu.title': 'Arrange the Lasso menu',
+  'lassoMenu.hint':
+    'Icons in the row show first, in this order. The others wait under ⋯ More.',
+  'lassoMenu.arrange': 'Arrange the menu…',
   'tool.lastTool': 'Last tool',
   'tool.lastTool.none':
     'No earlier tool yet. Pick two tools and this goes back.',

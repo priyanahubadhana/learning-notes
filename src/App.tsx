@@ -20,6 +20,7 @@ import {
 import { ErrorBoundary } from './app/ErrorBoundary'
 import { FirstUseTip } from './help/FirstUseTip'
 import { handwritingChooser } from './app/tools/handwriting'
+import { lassoSheetOpen } from './ink/lassoMenu'
 import { SaveNotice } from './app/SaveNotice'
 import { onStorageFull, reportError, runTask } from './app/errors'
 import { FileError } from './core/attachments'
@@ -138,6 +139,9 @@ let HomeLoaded: typeof import('./home/HomeScreen').HomeScreen | null = null
 const loadHome = () =>
   import('./home/HomeScreen').then((m) => (HomeLoaded = m.HomeScreen))
 const HomeLazy = lazy(() => loadHome().then((c) => ({ default: c })))
+const LassoMenuSheet = lazy(() =>
+  import('./ink/LassoMenuSheet').then((m) => ({ default: m.LassoMenuSheet })),
+)
 const HandwritingChooser = lazy(() =>
   import('./app/tools/HandwritingChooser').then((m) => ({
     default: m.HandwritingChooser,
@@ -387,6 +391,7 @@ function App() {
   )
   const space = usableSpace(lastSpace, hiddenSpaces)
   const handwritingOpen = handwritingChooser.useValue()
+  const lassoSheet = lassoSheetOpen.useValue()
   // The device picker.
   const [devicePicker, setDevicePicker] = useState(
     () => !devicePickerDone.get(),
@@ -1726,6 +1731,11 @@ function App() {
                   onSeeAll={openSearch}
                   initialChip={searchChip}
                 />
+              </Suspense>
+            )}
+            {lassoSheet && (
+              <Suspense fallback={null}>
+                <LassoMenuSheet />
               </Suspense>
             )}
             {handwritingOpen && (

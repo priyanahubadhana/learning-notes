@@ -8,6 +8,10 @@ export const esO: Record<string, string> = {
   'reading.goal.week_one': 'Meta cumplida {count} día esta semana',
   'reading.goal.week_other': 'Meta cumplida {count} días esta semana',
   // ---- Polish 2 ----
+  'lassoMenu.title': 'Ordenar el menú del Lazo',
+  'lassoMenu.hint':
+    'Los iconos de la fila salen primero, en este orden. Los demás esperan en ⋯ Más.',
+  'lassoMenu.arrange': 'Ordenar el menú…',
   'tool.lastTool': 'Herramienta anterior',
   'tool.lastTool.none':
     'Aún no hay herramienta anterior. Elige dos herramientas y esto vuelve a la anterior.',

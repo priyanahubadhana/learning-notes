@@ -108,6 +108,7 @@ export default defineConfig({
         /firstUse/,
         /pillScroll/,
         /lastTool/,
+        /lassoMenuOrder/,
         /handwritingChooser/,
       ],
       use: { ...devices['iPad Pro 11'], hasTouch: true },

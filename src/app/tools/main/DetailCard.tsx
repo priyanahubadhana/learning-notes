@@ -62,10 +62,11 @@ import { useInk } from '../../../ink/inkRuntime'
 import type { CardState } from './mainTools'
 import {
   lassoRow,
+  lassoSheetOpen,
   ROW_ACTIONS,
   setRowAction,
-  type RowAction,
 } from '../../../ink/lassoMenu'
+import { rowLabel } from '../../../ink/lassoLabels'
 import { selectTool } from './selectTool'
 import { useEditorRedraw } from './useEditorRedraw'
 import {
@@ -860,18 +861,6 @@ function LassoCard({ onPage }: { onPage: (page: string) => void }) {
 /** Which actions sit in the drawing menu's first row; the rest go under ⋯ More. */
 function LassoRowChoice() {
   const row = lassoRow.useValue()
-  const labels: Record<RowAction, string> = {
-    copy: t('main.sel.copy'),
-    cut: t('main.sel.cut'),
-    duplicate: t('main.sel.duplicate'),
-    convert: t('ink.sel.convert'),
-    colour: t('main.sel.colour'),
-    delete: t('main.sel.delete'),
-    thickness: t('ink.sel.thickness'),
-    makeCard: t('main.sel.makeCard'),
-    summary: t('main.sel.summary'),
-    label: t('ink.sel.label'),
-  }
   return (
     <>
       <CardLabel>{t('main.opt.lasso.row')}</CardLabel>
@@ -879,7 +868,7 @@ function LassoRowChoice() {
         <SwitchRow
           key={id}
           id={`row-${id}`}
-          label={labels[id]}
+          label={rowLabel(id)}
           on={row.includes(id)}
           onChange={(on) => setRowAction(id, on)}
         />
@@ -887,6 +876,12 @@ function LassoRowChoice() {
       <p className="px-2 text-xs text-ink-soft">
         {t('main.opt.lasso.rowNote')}
       </p>
+      <ActionRow
+        id="arrangeMenu"
+        icon="sliders"
+        label={t('lassoMenu.arrange')}
+        onClick={() => lassoSheetOpen.set(true)}
+      />
     </>
   )
 }

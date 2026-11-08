@@ -11,6 +11,7 @@ import { keepFocus } from './pillKit'
 import { deselect } from '../../../editor/ownSelection'
 import { miniToolbarOpen } from './mainTools'
 import { inkFor, useInk } from '../../../ink/inkRuntime'
+import { lassoRow, orderByRow } from '../../../ink/lassoMenu'
 
 /**
  * What the Lasso offers once something is selected. On text and pictures it
@@ -78,6 +79,7 @@ export function SelectionMenu({
     }
   }, [editor])
   const ink = useInk()
+  const row = lassoRow.useValue()
   const sel = selected(editor)
   // The mini toolbar covers a tap selection of words.
   // Selected drawings have their own menu.
@@ -159,7 +161,7 @@ export function SelectionMenu({
       }}
       className="fixed z-[45] flex flex-wrap gap-0.5 rounded-2xl border border-ink-soft bg-bg p-1 shadow-[0_2px_4px_rgba(0,0,0,0.08),0_10px_28px_rgba(0,0,0,0.2)]"
     >
-      {items.map((item) => {
+      {orderByRow(items, row).map((item) => {
         const label = t(`main.sel.${item.id}` as MessageKey)
         const dim = !item.run || item.soon
         return (

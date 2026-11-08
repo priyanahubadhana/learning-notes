@@ -321,8 +321,10 @@ test('Lasso menu on a selection: Copy, Duplicate, Delete, Key point, Make card; 
     'Copy',
     'Cut',
     'Duplicate',
-    'Delete',
+    // The Lasso row (Convert, Colour) comes next, in the person's order.
+    'Convert handwriting to text (beta)',
     'Colour',
+    'Delete',
     'Move',
     'Scale',
     'Rotate',
@@ -331,7 +333,6 @@ test('Lasso menu on a selection: Copy, Duplicate, Delete, Key point, Make card; 
     'Make card',
     'Add to Summary',
     'Save to notes',
-    'Convert handwriting to text (beta)',
     'Deselect',
   ])
   await menu.getByRole('button', { name: 'Key point' }).click()

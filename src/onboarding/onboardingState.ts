@@ -26,12 +26,10 @@ export const welcomeOpen = memStore(false)
 /**
  * Fix #1 A: the first screen of the welcome asks "Sign in with Google" or
  * "Use without an account". `accountAsked` is set once it was answered.
- * `onboardingGuide` is on while the step-by-step sign-in sheets (passphrase,
- * recovery code, unlock) are open; the welcome waits until they are done.
+ * The guide flag (`onboardingGuide`) is in app/signInGuideState.ts.
  */
 export const onboardingAccountAsked = prefStore(
   'onboarding.accountAsked',
   isBoolean,
   false,
 )
-export const onboardingGuide = prefStore('onboarding.guide', isBoolean, false)

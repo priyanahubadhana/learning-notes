@@ -2,6 +2,12 @@
 
 Current phase only. Older entries are in [ARCHIVE.md](ARCHIVE.md).
 
+## 2026-11-08 (CI: feature links)
+
+- **What:** CI was red at `check:links` (onboarding -> sync, sync -> onboarding). `SignInGuide` moved to `src/sync/` (sync-owned UI, lazy from App); the guide flag moved to shared `src/app/signInGuideState.ts`; Welcome gets `signedIn` as a prop from App instead of reading sync status.
+- **Why:** rules/architecture.md: no new direct links between features.
+- **Files:** `src/App.tsx`, `src/onboarding/{Welcome,onboardingState}`, `src/sync/{SignInGuide,LockedAlertGate,syncService}`, `src/app/signInGuideState.ts`, docs.
+
 ## 2026-11-08 (Fix #4: Drive pass renews itself)
 
 - **What:** root cause in code: the pass was renewed only when a Drive call needed it (no renewal at start, on coming to the front or ahead of the end), a 401 gave up at once (no renew-and-retry), a blocked Google window could hang, and the only sign was a button hidden in Settings. Now: `drivePass.ts` renews 5 min before the end and shares one renewal; 401 renews and retries once; `keepDriveFresh` runs at start, on foreground, on online and each tick (quiet retry at most once a minute while a tap is needed); timeouts; if Google truly needs a tap, a top bar with one "Reconnect Drive" button (`DriveBar`); queued pictures resume after it.

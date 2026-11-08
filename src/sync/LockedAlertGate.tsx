@@ -1,5 +1,5 @@
 import { lazy, Suspense, useSyncExternalStore } from 'react'
-import { onboardingGuide } from '../onboarding/onboardingState'
+import { onboardingGuide } from '../app/signInGuideState'
 import { isLocked } from './lockedStatus'
 import { getSyncStatus, subscribeSync } from './syncStatus'
 

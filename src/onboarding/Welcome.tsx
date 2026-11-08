@@ -11,14 +11,13 @@ import {
   languageSetting,
   theme as themeSetting,
 } from '../settings/builtinSettings'
-import { getSyncStatus } from '../sync/syncStatus'
+import { onboardingGuide } from '../app/signInGuideState'
 import { readDeviceSetting } from '../settings/settingsService'
 import { useDeviceSetting } from '../settings/useSetting'
 import type { SettingDefinition } from '../settings/registry'
 import {
   onboardingAccountAsked,
   onboardingDone,
-  onboardingGuide,
   onboardingPending,
 } from './onboardingState'
 
@@ -84,17 +83,18 @@ function SettingButtons<T extends string>({
 export function Welcome({
   onFinish,
   onSkip,
+  signedIn,
 }: {
   /** Finished: `sample` says whether to make the Start here notebook. */
   onFinish: (sample: boolean) => void
   onSkip: () => void
+  /** Already signed in (from the sync status): skip the account question. */
+  signedIn: boolean
 }) {
   const ref = useRef<HTMLDialogElement>(null)
   // Step 0 (fix #1 A) asks once: sign in with Google, or use without an account.
   const [step, setStep] = useState(() =>
-    onboardingAccountAsked.get() || getSyncStatus().phase !== 'signedOut'
-      ? 1
-      : 0,
+    onboardingAccountAsked.get() || signedIn ? 1 : 0,
   )
   const [offline, setOffline] = useState(false)
   const [way, setWay] = useState<Way>(startWay)

@@ -20,11 +20,8 @@ import {
 import { ErrorBoundary } from './app/ErrorBoundary'
 import { FirstUseTip } from './help/FirstUseTip'
 import { handwritingChooser } from './app/tools/handwriting'
-import {
-  onboardingGuide,
-  welcomeNeeded,
-  welcomeOpen,
-} from './onboarding/onboardingState'
+import { onboardingGuide } from './app/signInGuideState'
+import { welcomeNeeded, welcomeOpen } from './onboarding/onboardingState'
 import { lassoSheetOpen } from './ink/lassoMenu'
 import { SaveNotice } from './app/SaveNotice'
 import { onStorageFull, reportError, runTask } from './app/errors'
@@ -63,6 +60,7 @@ import { UpdateBar, UpdateRiskBar } from './app/UpdateBar'
 import { restoreAfterUpdate, updateRisk } from './app/autoUpdate'
 import { LockedAlertGate } from './sync/LockedAlertGate'
 import { DriveBar } from './sync/DriveBar'
+import { getSyncStatus } from './sync/syncStatus'
 import { NowPlayingGate } from './app/reading/NowPlayingGate'
 import { TOAST_AFTER_HOLD_MS, toastDuration } from './app/toastTiming'
 import { isStringOrNull } from './app/uiPrefs'
@@ -152,7 +150,7 @@ const loadHome = () =>
   import('./home/HomeScreen').then((m) => (HomeLoaded = m.HomeScreen))
 const HomeLazy = lazy(() => loadHome().then((c) => ({ default: c })))
 const SignInGuide = lazy(() =>
-  import('./onboarding/SignInGuide').then((m) => ({ default: m.SignInGuide })),
+  import('./sync/SignInGuide').then((m) => ({ default: m.SignInGuide })),
 )
 const Welcome = lazy(() =>
   import('./onboarding/Welcome').then((m) => ({ default: m.Welcome })),
@@ -1802,6 +1800,7 @@ function App() {
               <Suspense fallback={null}>
                 <Welcome
                   onSkip={closeWelcome}
+                  signedIn={getSyncStatus().phase !== 'signedOut'}
                   onFinish={(sample) => {
                     closeWelcome()
                     if (sample) runTask(startHere())

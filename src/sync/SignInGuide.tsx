@@ -2,16 +2,16 @@ import { useEffect, useRef, useState, useSyncExternalStore } from 'react'
 import { createPortal } from 'react-dom'
 import type { LearningNotesDB } from '../core/db'
 import { t } from '../i18n/t'
-import { RecoveryCodeView } from '../sync/RecoveryCodeView'
-import { Arrival, SetUp, Unlock } from '../sync/SyncSection'
+import { RecoveryCodeView } from './RecoveryCodeView'
+import { Arrival, SetUp, Unlock } from './SyncSection'
 import {
   getSyncStatus,
   setUpKey,
   signIn,
   startSync,
   subscribeSync,
-} from '../sync/syncService'
-import { onboardingGuide } from './onboardingState'
+} from './syncService'
+import { onboardingGuide } from '../app/signInGuideState'
 
 /**
  * Fix #1 A: after "Sign in with Google" the first-run guide takes over the

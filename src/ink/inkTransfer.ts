@@ -13,9 +13,19 @@ export interface Carried {
   client: Pt[]
 }
 
+/**
+ * Rule 6 across boxes: the Lasso-selected lines go with their ink. `blocks`
+ * are the lines without ids; `refY` is where the first line's top lands on
+ * screen at the drop (client px), so the ink keeps its place on the lines.
+ */
+export interface CarriedLines {
+  blocks: unknown[]
+  refY: number
+}
+
 interface Adopter {
   wrap: HTMLElement
-  adopt: (items: Carried[]) => void
+  adopt: (items: Carried[], lines?: CarriedLines) => void
   /** Rule 9: these lines were copied (or cut): their ink goes with them. */
   copyLines: (ids: string[], text: string, cut: boolean) => void
   /** Lines whose words the page selection covers in full. */
@@ -53,7 +63,7 @@ export function adopterIn(el: Element): Adopter | null {
   return null
 }
 
-type PaperDrop = (items: Carried[]) => boolean
+type PaperDrop = (items: Carried[], lines?: CarriedLines) => boolean
 let paperDrop: PaperDrop | null = null
 
 /** The paper registers how it makes a box for dropped ink. */
@@ -62,5 +72,5 @@ export function setPaperDrop(fn: PaperDrop | null): void {
 }
 
 /** Makes a box under the ink on the paper; false when there is no paper. */
-export const dropOnPaper = (items: Carried[]): boolean =>
-  paperDrop ? paperDrop(items) : false
+export const dropOnPaper = (items: Carried[], lines?: CarriedLines): boolean =>
+  paperDrop ? paperDrop(items, lines) : false

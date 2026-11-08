@@ -2,6 +2,12 @@
 
 Moved out of HANDOFF on 2026-11-06 (audit) so HANDOFF stays five lines. Newest first; each paragraph names its step. The run decision (master plan) is one owner iPad pass before Sync; the Phase A builder adds its checks at the top. Tick a paragraph by deleting it.
 
+## Ink rule 6 across boxes (9 Nov)
+
+1. iPad, Lasso with Text on: write over a line, loop the line and its ink, drag them onto another box: the line and the ink arrive together and the ink still sits on the same words.
+2. Same, but drop on bare paper: a new box appears holding the line, the ink on it.
+3. Undo: the first Undo works in the box you dropped into, a second in the box you left (two steps, by design).
+
 ## Alerts banner (8 Nov, fix #6)
 
 1. iPad, Sync on: nothing shows at the top when all is well. If Drive needs a tap, ONE blue bar says so with Reconnect Drive; tap it and the bar goes, "Drive reconnected" appears.

@@ -52,6 +52,8 @@ Current phase only. Older decisions are in [ARCHIVE.md](ARCHIVE.md).
 
 ## Decisions to review
 
+- **2026-11-09 · Ink rule 6 across boxes.** The spec only says "both go to the new block as one piece". Chosen: (1) the other box takes copies of the lines (no ids) and the ink first, and only then do they leave the old box, so a failed copy loses nothing; (2) Undo is two steps, one in each box (each box has its own editor and undo history; one shared step would need a new cross-editor history); (3) the drop spot is where the INK lands (centre), not the whole-width selection box; a box under that spot wins even when the first box's area is larger; (4) the lines go before or after the line nearest the drop; on bare paper the new box gets them at its top (its empty lines stay under them); (5) the ink keeps its place on its lines (shifted so it still sits on the same text). Same box-wins check now also applies to rule 5.
+
 - **2026-11-08 · Fix #5 (Picture chooser).** (1) No "Link" (image web address) choice: pictures are never kept as web addresses (security rules), and fetching one needs the network and CORS; left out. (2) One chooser for Insert, short bar, "/image" and the empty block's Add button (BlockNote file panel replaced for images only; video/audio keep it). (3) Files uses an extension list plus image/* so iPad leans to the Files browser. (4) Camera in the chooser is a file input with capture; the old Camera tool stays. (5) Not testable here on a real iPad; owner check added.
 - **2026-11-08 · Fix #4 (Drive pass).** (1) I could not test against real Google here; the cause is found from the code (see CHANGELOG). Google's token window cannot be opened silently on browsers that block windows without a tap, so a tap fallback is unavoidable: one top bar "Google Drive needs a tap to reconnect" + Reconnect Drive. (2) I did NOT turn a random tap anywhere into a Google window (surprising); only the bar button does it. (3) The bar shows whenever the quiet renewal fails, even with no pictures waiting (the spare key also needs Drive). (4) No new strings (reused existing, so hi/es need nothing). (5) The bar is temporary; fix #6 merges it into the alerts banner.
 
@@ -763,3 +765,19 @@ Picked by Claude. Anything can be changed.
 The other older decisions stand as built (owner, 2026-11-01); they are in [ARCHIVE.md](ARCHIVE.md).
 
 - **8 Nov, fix #6 (alerts):** (a) Level 2 uses the accent colour, not red (red kept for the locked modal/banner, real data risk). (b) "Update needed" and "backups failing" are wired but "update needed" has no source yet (no version check exists); backups count failed silent backups across starts (`attn.backupFailures`). (c) Storage warning uses the browser quota estimate (>90%), checked at start only. (d) Update × now hides 7 days (was until next start). (e) Sign-in-again, clock "Details" and Switch account all open Settings > Sync.
+
+## Owner answers 9 Nov (parked features)
+
+- Database pages: full Notion-like (relations, rollups, formulas, Table/Board/Gallery/Calendar). Built before the prompt library, because the library is stored as a built-in database.
+- Lock editing: a lock switch makes a page or notebook read-only (no typing, no ink), no passcode.
+- Prompt library: prompts from the research (own + CC0), all editable, new ones can be made. Each prompt is a database row: name, subject, task, text, inputs, preferred provider and model (toggle, with a default), outputs. Chosen from a picker like the model picker. "Skills" = a saved chain of prompts that turns one transcript into a mind map, short notes, summary, database rows and review cards in one go. Cheaper and better API use: one call returning all outputs as structured data, prompt caching on the long transcript, cheap model for simple steps; uses the owner own keys.
+
+## Owner answers 9 Nov (skills and research books)
+
+- Skill results: preview, edit, untick, then save into an existing or new notebook (e.g. a Research book).
+- Prompt extras: versions + star rating of results; cost before running in rupees and tokens. No fill-in blanks; no Copy for Claude button (owner copies by hand).
+- Outputs of one run: pages (detailed notes), keyword summary, short summary, interactive mind map, database rows, review cards of several kinds, sources.
+- Symbols in notes: a free open icon set + emoji picked by the AI; owner can paste own pictures (no shipped brand icons, e.g. Adobe).
+- Two ways to run: in the app with own keys, or paste-in: each prompt copies itself with the app answer format, owner runs it in any AI chat and pastes the answer back (free, no API cost).
+- Priority: each key point gets 1-10 stars plus a level (Must know 8-10 / Good to know 4-7 / Extra 1-3); Must know comes first and gets a picture, a mind-map node and cards.
+- Sources: as many as possible, each point linked [n] to its source, Sources list at the bottom, points with no source marked unchecked; optional second-model fact check (extra cost, shown first).

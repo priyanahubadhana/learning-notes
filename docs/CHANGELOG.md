@@ -2,6 +2,15 @@
 
 Current phase only. Older entries are in [ARCHIVE.md](ARCHIVE.md).
 
+## 2026-11-09 (Ink rule 6 across boxes)
+
+- **What:** a Lasso drag of ink and lines together, dropped in another box or on bare paper, now moves the lines with their ink (the other box or a new box takes them, then they leave the old box; the ink stays linked to the same text). Before, it worked inside one box only. A box under the drop spot now also wins for rule 5 even when the first box's area is bigger. Undo is two steps (one per box), see DECISIONS.
+- **Files:** src/ink/controller.ts, src/ink/InkSurface.tsx, src/ink/inkTransfer.ts (+ test), src/paper/PaperFrame.tsx, e2e/paperInk.spec.ts, docs.
+
+## 2026-11-09 (New task queue)
+
+- Owner set the new build order and confirmed the sync_bundle_delete SQL is run. Files: docs/HANDOFF.md.
+
 ## 2026-11-08 (CI: flaky unit tests)
 
 - **What:** (1) crypto test checked that base64 ciphertext lacks 'hi' (random chance); now seals a long unique marker and checks decoded bytes. (2) decks speed test: median of five runs, 600 ms budget for shared CI runners. (3) tag-filter 10,000 cards test timed out at 60 s on CI: root cause: syncCardRecords looked up existing cards with a 10,000-value index anyOf (about 12 s locally); card ids are fixed from block and part, so it now does one bulkGet by key.

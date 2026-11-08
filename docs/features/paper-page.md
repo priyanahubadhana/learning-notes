@@ -37,7 +37,9 @@ Every page is paper. It shows as fixed sheets (A4, or Letter) with a border and 
 
 - **PDF as paper.** Export › Paper layout (PDF): real-size sheets, background, boxes and ink in place (`share/export/paperLayout.ts`; spec [export.md](export.md)).
 
+- **Ink rule 6 across boxes (9 Nov).** A mixed Lasso drag (ink + lines) dropped on another box or bare paper moves the lines with their ink: the target (or a new box) takes copies and the ink, then the old box drops them. Two Undo steps (one per box). Tests `e2e/paperInk.spec.ts` (two cases), `ink/inkTransfer.test.ts`.
+
 ## Not yet
 
-- Rule 6 across boxes (ink + lines dropped on another box or bare paper); ink at a zoom other than 100 %.
+- Ink at a zoom other than 100 %.
 - a default paper style for new pages (Settings).

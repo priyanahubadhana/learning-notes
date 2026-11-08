@@ -398,3 +398,122 @@ test('rule 9: copy and paste of a line also copies its linked ink', async ({
   expect(pasted).toHaveLength(2)
   expect(chunks.map((c) => c.blockId).sort()).toEqual([...pasted].sort())
 })
+
+test('rule 6 across boxes: ink and a line dropped on bare paper go to a new box together', async ({
+  page,
+}) => {
+  await fiveLines(page, { 'ink.lasso': { text: true } })
+  const sc = await page.evaluate(() => {
+    const r = document
+      .querySelector('[data-page-scroller]')!
+      .getBoundingClientRect()
+    return { top: r.top, bottom: r.bottom }
+  })
+  const five0 = await lineAt(page, 'Line five')
+  await page.evaluate(
+    (d) => {
+      document.querySelector('[data-page-scroller]')!.scrollTop += d
+    },
+    five0.y - sc.top - 48,
+  )
+  await page.waitForTimeout(400)
+  const five = await lineAt(page, 'Line five')
+  const y = five.y + five.h / 2
+  await stroke(page, line([five.x + 4, y], [five.x + 60, y]))
+  await chunkOf(page)
+  await lassoRound(page, async () => {
+    const l = await lineAt(page, 'Line five')
+    return [l.x + 1, l.y - 4, l.x + 120, l.y + l.h + 4]
+  })
+  await expect(page.locator('[data-ink-menu="mixed"]')).toBeVisible()
+  const main = (await page.locator('[data-paper-box="main"]').boundingBox())!
+  const drop = main.y + main.height + 24
+  expect(drop).toBeLessThan(sc.bottom - 4)
+  await dragSelectionTo(page, drop)
+  const box = page.locator('[data-paper-box]:not([data-paper-box="main"])')
+  await expect(box).toHaveCount(1)
+  // The line is in the new box, and no longer in the first one.
+  await expect(box).toContainText('Line five')
+  await expect(page.locator('[data-paper-box="main"]')).not.toContainText(
+    'Line five',
+  )
+  // The ink is linked to that very line.
+  await expect
+    .poll(
+      async () => {
+        const live = (await savedInk(page)).chunks.filter(
+          (c) => c.strokes.length > 0,
+        )
+        if (live.length !== 1 || live[0].strokes.length !== 1) return false
+        return box.evaluate(
+          (el, id) =>
+            el.querySelector(`[data-id="${id}"]`)?.textContent === 'Line five',
+          live[0].blockId,
+        )
+      },
+      { timeout: 8000 },
+    )
+    .toBe(true)
+})
+
+test('rule 6 across boxes: ink and a line dropped on another box go into it together', async ({
+  page,
+}) => {
+  await fiveLines(page, { 'ink.lasso': { text: true } })
+  // A second box on the paper below the first, with a line of its own.
+  await tool(page, 'Text').click()
+  await page.waitForTimeout(600)
+  const sheet = (await page.locator('[data-paper-sheet="1"]').boundingBox())!
+  const main = (await page.locator('[data-paper-box="main"]').boundingBox())!
+  await page.mouse.click(sheet.x + sheet.width * 0.5, main.y + main.height + 60)
+  const other = page.locator('[data-paper-box]:not([data-paper-box="main"])')
+  await expect(other).toHaveCount(1)
+  await expect(other.locator('.bn-editor')).toBeFocused()
+  await page.keyboard.type('Other box')
+  await expect(other).toContainText('Other box')
+  await page.waitForTimeout(700) // autosave
+  await tool(page, 'Pen').click()
+  await page.waitForTimeout(600)
+  // Ink over "Line two" of the first box.
+  const two = await lineAt(page, 'Line two')
+  const y = two.y + two.h / 2
+  await stroke(page, line([two.x + 4, y], [two.x + 60, y]))
+  await chunkOf(page)
+  await lassoRound(page, async () => {
+    const l = await lineAt(page, 'Line two')
+    return [l.x + 1, l.y - 4, l.x + 120, l.y + l.h + 4]
+  })
+  await expect(page.locator('[data-ink-menu="mixed"]')).toBeVisible()
+  const o = (await other.boundingBox())!
+  const sel = (await page.locator('[data-ink-box]').boundingBox())!
+  await page.mouse.move(sel.x + sel.width / 2, sel.y + sel.height / 2)
+  await page.mouse.down()
+  // The ink (not the whole-width box) must land in the other box.
+  const dx = o.x + o.width / 2 - (two.x + 32)
+  await page.mouse.move(sel.x + sel.width / 2 + dx, o.y + o.height * 0.8, {
+    steps: 10,
+  })
+  await page.mouse.up()
+  await expect(other).toContainText('Line two')
+  await expect(other).toContainText('Other box')
+  await expect(page.locator('[data-paper-box="main"]')).not.toContainText(
+    'Line two',
+  )
+  // The ink follows: it is linked to "Line two", now in the other box.
+  await expect
+    .poll(
+      async () => {
+        const live = (await savedInk(page)).chunks.filter(
+          (c) => c.strokes.length > 0,
+        )
+        if (live.length !== 1 || live[0].strokes.length !== 1) return false
+        return other.evaluate(
+          (el, id) =>
+            el.querySelector(`[data-id="${id}"]`)?.textContent === 'Line two',
+          live[0].blockId,
+        )
+      },
+      { timeout: 8000 },
+    )
+    .toBe(true)
+})

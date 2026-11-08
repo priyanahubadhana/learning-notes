@@ -11,6 +11,7 @@ import {
   dropOnPaper,
   registerAdopter,
   type Carried,
+  type CarriedLines,
 } from './inkTransfer'
 import { createId } from '../core/ids'
 import type { InkLayer, Stroke } from '../core/inkTypes'
@@ -188,6 +189,18 @@ export interface InkEnv {
     target: string,
     place: 'before' | 'after',
   ) => boolean
+  /**
+   * Phase Q rule 6 across boxes: copies of these lines without ids, and the
+   * insert of such copies next to a line here (the new ids, else null); the
+   * lines leave their old box with `removeLines` once the new box has them.
+   */
+  copyLines?: (ids: string[]) => unknown[] | null
+  insertLines?: (
+    blocks: unknown[],
+    target: string,
+    place: 'before' | 'after',
+  ) => string[] | null
+  removeLines?: (ids: string[]) => boolean
 }
 
 type Gesture =
@@ -448,7 +461,7 @@ export class InkController {
     this.cleanups.push(
       registerAdopter({
         wrap,
-        adopt: (items) => this.adoptCarried(items),
+        adopt: (items, lines) => this.adoptCarried(items, lines),
         copyLines: (ids, text, cut) => this.copyLines(ids, text, cut),
         wholeLines: () => this.wholeLinesSelected(),
         pasteLines: (text, run) => this.pasteLines(text, run),
@@ -2091,15 +2104,56 @@ export class InkController {
    * Phase Q rule 5: strokes another box's Lasso dropped here (client px).
    * They link to the line under them; one Undo here.
    */
-  adoptCarried(items: readonly Carried[]): void {
+  adoptCarried(items: readonly Carried[], lines?: CarriedLines): void {
     if (items.length === 0 || this.env.frozen()) return
+    if (lines && this.env.insertLines) {
+      void this.adoptWithLines(items, lines)
+      return
+    }
+    this.placeCarried(items, 0)
+  }
+
+  private placeCarried(items: readonly Carried[], dy: number): void {
     const b = this.env.wrap.getBoundingClientRect()
     this.placeAndSelect(
       items.map((c) => ({
         stroke: c.stroke,
-        world: c.client.map((q) => ({ x: q.x - b.left, y: q.y - b.top })),
+        world: c.client.map((q) => ({ x: q.x - b.left, y: q.y - b.top + dy })),
       })),
     )
+  }
+
+  /**
+   * Rule 6 across boxes: the lines go in next to the line nearest the drop
+   * (or at the top of a new box), then the ink is laid over them where it
+   * was over its old lines, so it stays linked to the same text.
+   */
+  private async adoptWithLines(
+    items: readonly Carried[],
+    lines: CarriedLines,
+  ): Promise<void> {
+    const insert = this.env.insertLines
+    if (!insert) return
+    this.layout.measure()
+    const here = this.layout.blocks()
+    const top = this.env.wrap.getBoundingClientRect().top
+    const dropY = lines.refY - top
+    let target = here[0]
+    for (const b of here)
+      if (Math.abs(b.y - dropY) < Math.abs(target.y - dropY)) target = b
+    if (!target) return
+    const place = dropY < target.y + target.h / 2 ? 'before' : 'after'
+    const ids = insert(lines.blocks, target.id, place)
+    if (!ids || ids.length === 0) return
+    // Wait for the editor to draw the new lines, then measure them.
+    let first: { y: number } | undefined
+    for (let i = 0; i < 60 && !first; i++) {
+      await new Promise((r) => requestAnimationFrame(r))
+      this.layout.measure()
+      first = this.layout.blocks().find((b) => b.id === ids[0])
+    }
+    const now = this.env.wrap.getBoundingClientRect().top
+    this.placeCarried(items, first ? first.y + now - lines.refY : 0)
   }
 
   /** New strokes at these page px, each linked to the line under it; selected. */
@@ -2496,7 +2550,11 @@ export class InkController {
     }
     if (g.how === 'move' && this.blockSel.length === 0 && this.dropElsewhere(g))
       return
-    if (g.how === 'move' && this.blockSel.length > 0 && this.moveWithText(g))
+    if (
+      g.how === 'move' &&
+      this.blockSel.length > 0 &&
+      (this.moveLinesElsewhere(g) || this.moveWithText(g))
+    )
       return
     const add = g.before.map((p) => this.transformed(p, g.m, g.factor))
     this.commit({ del: g.before, add, layers: [] })
@@ -2523,13 +2581,81 @@ export class InkController {
     const ys = all.map((q) => q.y)
     const cx = (Math.min(...xs) + Math.max(...xs)) / 2
     const cy = (Math.min(...ys) + Math.max(...ys)) / 2
-    if (cx >= b.left && cx <= b.right && cy >= b.top && cy <= b.bottom)
-      return false
     const target = adopterAt(cx, cy, this.env.wrap)
+    if (
+      !target &&
+      cx >= b.left &&
+      cx <= b.right &&
+      cy >= b.top &&
+      cy <= b.bottom
+    )
+      return false
     if (target) target.adopt(items)
     else if (!dropOnPaper(items)) return false
     this.commit({ del: g.before, add: [], layers: [] })
     this.clearSelection()
+    return true
+  }
+
+  /**
+   * Phase Q rule 6 across boxes: lines and ink dropped outside this box go
+   * to the box under the drop spot, or to a new box made there on bare
+   * paper. The other box takes the lines and ink first; only then do they
+   * leave this one (nothing is lost if it cannot). Two Undo steps, one in
+   * each box. False when the drop is inside this box.
+   */
+  private moveLinesElsewhere(
+    g: Extract<Gesture, { kind: 'transform' }>,
+  ): boolean {
+    const { copyLines, removeLines } = this.env
+    if (!copyLines || !removeLines) return false
+    const sel = this.layout.blocks().filter((b) => this.blockSel.includes(b.id))
+    if (sel.length === 0) return false
+    const b = this.env.wrap.getBoundingClientRect()
+    const inkPts = g.before.flatMap((p) => this.worldPoints(p))
+    const pts = [
+      ...inkPts,
+      ...sel.flatMap((s) => [
+        { x: 0, y: s.y },
+        { x: 0, y: s.y + s.h },
+      ]),
+    ].map((q) => apply(g.m, q))
+    const ys = pts.map((q) => q.y)
+    const cy = b.top + (Math.min(...ys) + Math.max(...ys)) / 2
+    const xs = inkPts.map((q) => apply(g.m, q).x)
+    const cx = b.left + (Math.min(...xs) + Math.max(...xs)) / 2
+    // Another box under the drop wins even when this box's area is larger.
+    const target = adopterAt(cx, cy, this.env.wrap)
+    if (
+      !target &&
+      cx >= b.left &&
+      cx <= b.right &&
+      cy >= b.top &&
+      cy <= b.bottom
+    )
+      return false
+    const items: Carried[] = g.before.map((p) => ({
+      stroke: p.stroke,
+      client: this.worldPoints(p).map((q) => {
+        const w = apply(g.m, q)
+        return { x: w.x + b.left, y: w.y + b.top }
+      }),
+    }))
+    const order = this.layout
+      .blocks()
+      .filter((x) => this.blockSel.includes(x.id))
+    const blocks = copyLines(order.map((x) => x.id))
+    if (!blocks || blocks.length === 0) return false
+    const lines: CarriedLines = {
+      blocks,
+      refY: b.top + order[0].y + g.m.f,
+    }
+    if (target) target.adopt(items, lines)
+    else if (!dropOnPaper(items, lines)) return false
+    this.commit({ del: g.before, add: [], layers: [] })
+    removeLines(order.map((x) => x.id))
+    this.clearSelection()
+    this.dirty()
     return true
   }
 

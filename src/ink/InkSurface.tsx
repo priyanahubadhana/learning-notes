@@ -59,6 +59,7 @@ import { MixedMenu } from './MixedMenu'
 import { MagnifierView } from './MagnifierView'
 import { RulerView } from './RulerView'
 import type { Editor } from '../editor/barActions'
+import type { EditorBlock } from '../editor/mapping'
 import { closeHistory } from 'prosemirror-history'
 import { watchPaperStep } from './paperGrid'
 
@@ -254,6 +255,45 @@ export function InkSurface({
           )
           dom.setAttribute('inputmode', 'text')
           view.dom.focus({ preventScroll: true })
+        },
+        copyLines: (ids) => {
+          const ed = editor as unknown as Editor
+          const bare = (b: EditorBlock): unknown => ({
+            type: b.type,
+            props: b.props,
+            content: b.content,
+            children: b.children.map(bare),
+          })
+          const blocks = ids.flatMap((id) => {
+            const b = ed.getBlock(id)
+            return b ? [bare(b as EditorBlock)] : []
+          })
+          return blocks.length === ids.length ? blocks : null
+        },
+        insertLines: (blocks, target, place) => {
+          const ed = editor as unknown as Editor
+          try {
+            const view = ed.prosemirrorView
+            if (view) view.dispatch(closeHistory(view.state.tr))
+            return ed
+              .insertBlocks(blocks as never, target, place)
+              .map((b) => b.id)
+          } catch (error) {
+            console.error('Could not put the lines here', error)
+            return null
+          }
+        },
+        removeLines: (ids) => {
+          const ed = editor as unknown as Editor
+          try {
+            const view = ed.prosemirrorView
+            if (view) view.dispatch(closeHistory(view.state.tr))
+            ed.removeBlocks(ids)
+            return true
+          } catch (error) {
+            console.error('Could not take the lines out', error)
+            return false
+          }
         },
         moveBlocks: (ids, target, place) => {
           // Phase Q rule 6: one text step (the ink follows its lines).

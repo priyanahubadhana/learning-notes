@@ -369,7 +369,7 @@ export function PaperFrame({
   const canDrop = !flat && !!onInkOnPaper
   useEffect(() => {
     if (!canDrop) return
-    setPaperDrop((items) => {
+    setPaperDrop((items, lines) => {
       const r = paperEl.current?.getBoundingClientRect()
       const made =
         r && dropRef.current(r, bounds(items.flatMap((c) => c.client)))
@@ -384,7 +384,7 @@ export function PaperFrame({
         const into =
           box &&
           (await waitFor(() => adopterIn(box.closest('[data-paper-box]')!)))
-        if (into) requestAnimationFrame(() => into.adopt(items))
+        if (into) requestAnimationFrame(() => into.adopt(items, lines))
       })
       return true
     })

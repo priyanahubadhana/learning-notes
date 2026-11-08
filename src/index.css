@@ -878,7 +878,6 @@ html[data-note-line] .bn-editor {
   overscroll-behavior: none;
 }
 
-<<<<<<< HEAD
 /*
  * Table handles stay calm: BlockNote shows the column / row grips and the
  * "+" edge buttons only for the hovered or tapped cell (hidden at rest).

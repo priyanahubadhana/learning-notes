@@ -8,6 +8,18 @@ export const esO: Record<string, string> = {
   'reading.goal.week_one': 'Meta cumplida {count} día esta semana',
   'reading.goal.week_other': 'Meta cumplida {count} días esta semana',
   // ---- Polish 2 ----
+  'ink.card.question': 'Pregunta de esta tarjeta',
+  'ink.card.made':
+    'Tarjeta creada al final de la página. La respuesta es tu dibujo.',
+  'main.opt.pen.favourites': 'Bolígrafos favoritos',
+  'main.opt.highlighter.favourites': 'Resaltadores favoritos',
+  'ink.fav.save': 'Guardar como favorito',
+  'ink.fav.use': 'Favorito {n}: {name}',
+  'ink.fav.saved': 'Guardado como favorito.',
+  'ink.fav.same': 'Este ya es un favorito.',
+  'ink.fav.full': 'Ya hay seis favoritos. Mantén pulsado uno para quitarlo.',
+  'ink.fav.removed': 'Favorito quitado.',
+  'ink.fav.undo': 'Deshacer',
   'welcome.title': 'Bienvenido',
   'welcome.step': 'Paso {n} de {total}',
   'welcome.skip': 'Omitir',

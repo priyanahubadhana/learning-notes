@@ -24,6 +24,7 @@ import {
   penSettings,
 } from './inkSettings'
 import { openCard, pillOptionsOf, pillLists, type PillTool } from './mainTools'
+import { FavouritesRow } from './FavouritesRow'
 import { Caret, PillButton, Swatch, ThicknessChip } from './pillParts'
 import { paletteFor, useCustomColours } from './pillKit'
 import { activeLayerOf } from '../../../ink/layers'
@@ -368,6 +369,7 @@ function PenOptions({ ids, open, cardIs }: { ids: string[] } & CardApi) {
             </span>
           )
         }
+        if (id === 'favourites') return <FavouritesRow key={id} tool="pen" />
         return null
       })}
     </>
@@ -437,6 +439,9 @@ function HighlighterOptions({
               />
             </span>
           )
+        }
+        if (id === 'favourites') {
+          return <FavouritesRow key={id} tool="highlighter" />
         }
         return null
       })}

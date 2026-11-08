@@ -21,7 +21,6 @@ import {
 } from '../app/tools/main/mainTools'
 import { swapToLastTool } from '../app/tools/main/selectTool'
 import { PEN_COLOURS } from '../app/tools/main/inkSettings'
-import { runTool } from '../app/tools/toolRegistry'
 import { useLiveQuery } from 'dexie-react-hooks'
 import type { LearningNotesDB } from '../core/db'
 import { loadInk, saveInk } from '../core/inkService'
@@ -53,6 +52,9 @@ import { InkHistory } from './inkHistory'
 import { bumpInk, registerInk } from './inkRuntime'
 import { saveToHighlightsPage } from './saveToNotes'
 import { copyPng, selectionPng } from './screenshot'
+import { insertPictureCard, pictureCard } from './cardFromInk'
+import { shrinkImage } from '../images/shrinkImage'
+import { runTask } from '../app/errors'
 import { MixedMenu } from './MixedMenu'
 import { MagnifierView } from './MagnifierView'
 import { RulerView } from './RulerView'
@@ -355,7 +357,7 @@ function InkUi({
   )
   void version
   void paper
-  const { toast } = useContext(AppUiContext)
+  const { toast, askName } = useContext(AppUiContext)
   const count = controller.selectionCount()
   const strokes = controller.strokeTotal()
   const box = controller.selectionRect()
@@ -404,6 +406,18 @@ function InkUi({
       controller.clearSelection()
       setStatus('')
     }
+  }
+
+  /** Make card (polish 2, item 12): the drawing is the answer, you give the question. */
+  const makeCardFromInk = async () => {
+    const style = getComputedStyle(document.body).backgroundColor
+    const blob = await selectionPng(controller, style || '#ffffff')
+    if (!blob) return
+    const question = await askName(t('ink.card.question'), '')
+    if (!question) return
+    const card = await pictureCard(db, blob, question, shrinkImage)
+    insertPictureCard(editor, card)
+    toast(t('ink.card.made'))
   }
 
   const png = async (how: 'copy' | 'save') => {
@@ -498,13 +512,7 @@ function InkUi({
               ),
             )
           }}
-          onCard={() => {
-            // The drawing goes on the clipboard as a picture for the card's answer.
-            void png('copy').then(() => {
-              toast(t('ink.sel.cardHint'))
-              runTool('card')
-            })
-          }}
+          onCard={() => runTask(makeCardFromInk())}
         />
       )}
     </div>

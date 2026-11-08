@@ -12,6 +12,18 @@ export const enO = {
   'reading.goal.week_one': 'Goal reached on {count} day this week',
   'reading.goal.week_other': 'Goal reached on {count} days this week',
   // ---- Polish 2 ----
+  'ink.card.question': 'Question for this card',
+  'ink.card.made':
+    'Card made at the end of the page. The answer is your drawing.',
+  'main.opt.pen.favourites': 'Favourite pens',
+  'main.opt.highlighter.favourites': 'Favourite highlighters',
+  'ink.fav.save': 'Save as favourite',
+  'ink.fav.use': 'Favourite {n}: {name}',
+  'ink.fav.saved': 'Saved as a favourite.',
+  'ink.fav.same': 'This one is already a favourite.',
+  'ink.fav.full': 'Six favourites already. Press and hold one to remove it.',
+  'ink.fav.removed': 'Favourite removed.',
+  'ink.fav.undo': 'Undo',
   'welcome.title': 'Welcome',
   'welcome.step': 'Step {n} of {total}',
   'welcome.skip': 'Skip',

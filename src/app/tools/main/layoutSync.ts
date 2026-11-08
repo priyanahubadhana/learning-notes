@@ -14,6 +14,7 @@ import {
   mainList,
   pillLists,
 } from './mainTools'
+import { cleanFavourites, penFavourites } from './penFavourites'
 
 /**
  * The tool bar layout as a synced setting (R7-10): the main bar, each pill's
@@ -31,6 +32,8 @@ interface LayoutValue {
   pills: unknown
   extras: unknown
   order?: unknown
+  /** Pen favourites (polish 2, item 5). */
+  favourites?: unknown
 }
 
 const current = (): LayoutValue => ({
@@ -38,6 +41,7 @@ const current = (): LayoutValue => ({
   pills: pillLists.get(),
   extras: extraTools.get(),
   order: barOrder.get(),
+  favourites: penFavourites.get(),
 })
 
 const print = (v: LayoutValue) => JSON.stringify(v)
@@ -56,6 +60,8 @@ export function applyLayout(value: Partial<LayoutValue>): boolean {
   if (extras) extraTools.set(extras)
   const order = cleanOrder(value.order)
   if (order) barOrder.set(order)
+  const favourites = cleanFavourites(value.favourites)
+  if (favourites) penFavourites.set(favourites)
   return print(current()) !== before
 }
 
@@ -84,8 +90,8 @@ export function startLayoutSync(db: LearningNotesDB): void {
       })()
     }, 600)
   }
-  const offs = [mainList, pillLists, extraTools, barOrder].map((s) =>
-    s.subscribe(save),
+  const offs = [mainList, pillLists, extraTools, barOrder, penFavourites].map(
+    (s) => s.subscribe(save),
   )
   let last: string | undefined
   const sub = liveQuery(() => db.secrets.get(LAYOUT_SECRET_ID)).subscribe({

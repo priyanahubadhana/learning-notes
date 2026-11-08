@@ -76,8 +76,8 @@ export const PILL_OPTIONS: Record<PillTool, readonly string[]> = {
     'align',
     'keyPoint',
   ],
-  pen: ['type', 'thickness', 'colour'],
-  highlighter: ['thickness', 'colour'],
+  pen: ['type', 'thickness', 'colour', 'favourites'],
+  highlighter: ['thickness', 'colour', 'favourites'],
   eraser: ['mode', 'size', 'highlightsOnly'],
   lasso: ['shape', 'filter'],
   insert: [

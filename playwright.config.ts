@@ -108,6 +108,8 @@ export default defineConfig({
         /firstUse/,
         /pillScroll/,
         /lastTool/,
+        /favourites/,
+        /cardFromInk/,
         /welcome/,
         /emptyStates2/,
         /lassoMenuOrder/,

@@ -2,6 +2,12 @@
 
 Current phase only. Older entries are in [ARCHIVE.md](ARCHIVE.md).
 
+## 2026-11-09 (Prompt library and skills, queue 3b, parts 1-6)
+
+- **What:** a prompt library stored as a built-in database (`Database.kind` 'promptLibrary'; 15 columns found by `config.key`; no Dexie version) with 19 seeds (own, plus four rewritten CC0 ideas with licence notes), search, filters, New prompt, edit, versions, delete with Undo; a picker (Library header, source pages, Ask this book) that shows the cost in rupees and tokens before running and honours a preferred company and model; skills = one structured-JSON call (`ln-skill/1`) giving pages, keyword summary, short summary, mind map, database rows, cards of four kinds and sources, with 1-10 stars + level per point, emoji icons for Must-know points, `[n]` sources (unsourced = unchecked), prompt caching of the long input for Claude (`AiCall.cachePrefix`), the cheapest model for simple skills and an optional second-model fact check with its cost shown; a preview (edit, untick, save into an existing or new notebook, one Undo); a paste-in path (copy prompt plus exact answer format, Paste answer through the same strict reader and preview, no API); 1-5 star ratings of results per prompt version.
+- **Why:** owner queue 3b and the two 9 Nov DECISIONS sections.
+- **Files:** src/prompts/* (new), src/core/types.ts (Database.kind), src/ai/provider.ts, providers.ts, route.ts (cachePrefix, cached tokens counted), AiActions.tsx, AskBook.tsx, library/LibraryScreen.tsx, i18n enO/hiO/esO, scripts/feature-links.json, e2e/promptLibrary.spec.ts, docs/features/prompt-library.md, docs/plans/prompt-library-plan.md.
+
 ## 2026-11-09 (Database pages part 4: Database page, row search)
 
 - **What:** new-page list has a last row "Database page" (a blank page becomes a full-width database block plus an empty line, page named after the database; `databases/databasePage.ts`, wired through PageView so templates does not import databases). The inline block switcher now includes List. Search finds database rows by property values (text, link, date, number, option names, tag names): the row's title entry carries the value words (`rowValueText`, max 400); `SEARCH_INDEX_VERSION` 5 rebuilds the index once after the update. No Dexie version.

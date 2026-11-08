@@ -752,4 +752,7 @@ export const hiO: Record<string, string> = {
     'यह अपेक्षित रूप में नहीं है। AI से कहें कि सिर्फ़ JSON ऑब्जेक्ट में उत्तर दे।',
   'prompts.paste.noContent':
     'उत्तर में काम की कोई चीज़ नहीं है (कोई बिंदु, पेज, कार्ड या सारांश नहीं)।',
+  'prompts.versionCurrent': 'मौजूदा टेक्स्ट',
+  'prompts.ratedCount_one': '({count} रेटिंग)',
+  'prompts.ratedCount_other': '({count} रेटिंग)',
 }

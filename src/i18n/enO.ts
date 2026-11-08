@@ -772,4 +772,7 @@ export const enO = {
     'That is not in the expected format. Ask the AI to answer with only the JSON object.',
   'prompts.paste.noContent':
     'The answer has nothing I can use (no points, pages, cards or summary).',
+  'prompts.versionCurrent': 'Current text',
+  'prompts.ratedCount_one': '({count} rating)',
+  'prompts.ratedCount_other': '({count} ratings)',
 }

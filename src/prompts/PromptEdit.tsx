@@ -7,7 +7,9 @@ import {
   OUTPUT_KINDS,
   PURPOSES,
   SKILL_PARTS,
+  starText,
   subjectList,
+  versionStats,
   type PromptItem,
   type SkillPart,
 } from './promptModel'
@@ -240,26 +242,37 @@ export function PromptEdit({
         </p>
       )}
       {draft.versions.length > 0 && (
-        <details className="rounded-lg border border-line p-2 text-sm">
+        <details
+          className="rounded-lg border border-line p-2 text-sm"
+          data-testid="prompt-versions"
+        >
           <summary className="min-h-11 cursor-pointer leading-[44px]">
             {t('prompts.versions', { count: draft.versions.length })}
           </summary>
           <ul className="flex flex-col gap-2">
-            {[...draft.versions].reverse().map((v) => (
-              <li key={v.at} className="rounded-lg border border-line p-2">
-                <div className="text-xs text-muted">
-                  {new Date(v.at).toLocaleString()}
-                </div>
-                <p className="line-clamp-3 whitespace-pre-wrap">{v.text}</p>
-                <button
-                  type="button"
-                  className={btn}
-                  onClick={() => set('text', v.text)}
-                >
-                  {t('prompts.restoreVersion')}
-                </button>
-              </li>
-            ))}
+            {versionStats(item)
+              .reverse()
+              .map((v) => (
+                <li key={v.index} className="rounded-lg border border-line p-2">
+                  <div className="text-xs text-muted">
+                    {v.current
+                      ? t('prompts.versionCurrent')
+                      : new Date(v.at ?? 0).toLocaleString()}
+                    {v.count > 0 &&
+                      ` · ${starText(v.average)} ${t('prompts.ratedCount', { count: v.count })}`}
+                  </div>
+                  <p className="line-clamp-3 whitespace-pre-wrap">{v.text}</p>
+                  {!v.current && (
+                    <button
+                      type="button"
+                      className={btn}
+                      onClick={() => set('text', v.text)}
+                    >
+                      {t('prompts.restoreVersion')}
+                    </button>
+                  )}
+                </li>
+              ))}
           </ul>
         </details>
       )}

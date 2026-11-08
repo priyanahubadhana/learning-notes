@@ -314,3 +314,36 @@ export function withRating(
 /** Stars as text (★★★☆☆); nothing before the first rating. */
 export const starText = (n: number): string =>
   n > 0 ? '★'.repeat(Math.round(n)) + '☆'.repeat(5 - Math.round(n)) : ''
+
+export interface VersionStat {
+  /** 0 = the oldest text; the last one is the current text. */
+  index: number
+  at: number | null
+  text: string
+  current: boolean
+  count: number
+  average: number
+}
+
+/**
+ * Every version of a prompt (the saved old texts, then the current one) with
+ * the ratings its results got. A rating belongs to the version that was
+ * current when it was given.
+ */
+export function versionStats(item: PromptItem): VersionStat[] {
+  const texts = [
+    ...item.versions.map((v) => ({ at: v.at as number | null, text: v.text })),
+    { at: null, text: item.text },
+  ]
+  return texts.map((v, index) => {
+    const mine = item.ratings.filter((r) => r.version === index)
+    return {
+      index,
+      at: v.at,
+      text: v.text,
+      current: index === texts.length - 1,
+      count: mine.length,
+      average: averageStars(mine),
+    }
+  })
+}

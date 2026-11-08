@@ -12,7 +12,13 @@ import {
   trashPrompt,
 } from './libraryDb'
 import { SEEDS } from './seedPrompts'
-import { allSubjects, filterItems, newPrompt, subjectList } from './promptModel'
+import {
+  allSubjects,
+  filterItems,
+  newPrompt,
+  subjectList,
+  versionStats,
+} from './promptModel'
 
 let db: LearningNotesDB
 let ws: string
@@ -104,5 +110,46 @@ describe('library search and filters', () => {
         (i) => i.kind === 'skill',
       ),
     ).toBe(true)
+  })
+})
+
+describe('versions and ratings', () => {
+  it('a rating belongs to the version that was current, and Restore keeps the history', async () => {
+    const lib = await ensureLibrary(db, ws)
+    const first = await savePrompt(db, lib, {
+      ...newPrompt('prompt'),
+      name: 'Explain',
+      text: 'Version one.',
+    })
+    const r1 = await ratePrompt(db, lib, first, 2)
+    const second = await savePrompt(
+      db,
+      lib,
+      { ...r1, text: 'Version two.' },
+      r1,
+    )
+    const r2 = await ratePrompt(db, lib, second, 5)
+    await ratePrompt(db, lib, r2, 4)
+    const item = (await listPrompts(db, lib))[0]
+    const stats = versionStats(item)
+    expect(stats.map((s) => s.text)).toEqual(['Version one.', 'Version two.'])
+    expect(stats[0]).toMatchObject({ count: 1, average: 2, current: false })
+    expect(stats[1]).toMatchObject({ count: 2, average: 4.5, current: true })
+    expect(item.stars).toBeCloseTo(3.7, 1)
+  })
+
+  it('keeps at most 30 old versions', async () => {
+    const lib = await ensureLibrary(db, ws)
+    let item = await savePrompt(db, lib, {
+      ...newPrompt('prompt'),
+      name: 'Many',
+      text: 'v0',
+    })
+    for (let i = 1; i <= 35; i++) {
+      item = await savePrompt(db, lib, { ...item, text: `v${i}` }, item)
+    }
+    const stored = (await listPrompts(db, lib))[0]
+    expect(stored.versions).toHaveLength(30)
+    expect(stored.versions.at(-1)?.text).toBe('v34')
   })
 })

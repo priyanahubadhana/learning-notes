@@ -776,4 +776,7 @@ export const esO: Record<string, string> = {
     'No tiene el formato esperado. Pide a la IA que responda solo con el objeto JSON.',
   'prompts.paste.noContent':
     'La respuesta no tiene nada útil (ni puntos, ni páginas, ni tarjetas, ni resumen).',
+  'prompts.versionCurrent': 'Texto actual',
+  'prompts.ratedCount_one': '({count} valoración)',
+  'prompts.ratedCount_other': '({count} valoraciones)',
 }

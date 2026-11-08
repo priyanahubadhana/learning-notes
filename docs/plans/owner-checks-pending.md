@@ -2,6 +2,14 @@
 
 Moved out of HANDOFF on 2026-11-06 (audit) so HANDOFF stays five lines. Newest first; each paragraph names its step. The run decision (master plan) is one owner iPad pass before Sync; the Phase A builder adds its checks at the top. Tick a paragraph by deleting it.
 
+## Prompt library and skills (9 Nov)
+
+1. iPad, Library space: tap Prompts. The list opens with prompts (Summarise, Quiz me, Study plan…) and skills (a chain sign). Type a word in the search box; the list shortens. Choose Purpose and Subject: it filters. Tap New prompt, give it a name and text, Save: it is in the list. Tap Edit, change the text, Save, Edit again: Earlier versions shows the old text.
+2. Tap a prompt, paste a few lines of text: one line shows the cost in rupees, tokens and the model before anything is sent. With your Claude key (Settings › AI) tap Run with my AI: an answer appears; tap a star to rate it.
+3. Tap a skill (Transcript to study set), paste a transcript, Run. Check the preview: points with 1-10 stars and an icon on the Must know ones, Sources at the bottom, unsourced points marked. Untick one point, edit another, tap Check the facts with a second model (its cost is shown first). Save into a new Research book: open it, see the summary, mind map, database table, pages and Cards page. Review the cards. Tap Undo in the saved panel: all of it is gone.
+4. Same skill with no AI key (or AI off): open Prompts › the skill › No AI key? › Copy the prompt, paste it into the Claude or ChatGPT app, copy its reply, paste it back under Paste the AI answer, tap Paste answer: the same preview opens. A wrong reply shows a plain message and changes nothing.
+5. In a book: Ask this book › Use a saved prompt fills the question box.
+
 ## Database pages (9 Nov)
 
 1. iPad, new page in a notebook: the last row of the template list says "Database page". Tap it: a full-width table appears with "+ New row"; add two rows. Switch to List with the buttons above the table; scroll is smooth.

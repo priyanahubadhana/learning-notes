@@ -331,3 +331,10 @@ R5-13 DECIDED: edge fade + slim auto-hiding scroll indicator on all scrollable l
 - R7-24 The dashed ghost preview at the page cursor did not appear (screenshot: text was in the pad, nothing ghosted on the page).
 - R7-25 Auto-insert on pause clears the pad text after inserting. Owner wants the pad text kept (for review/editing; they clear it themselves, or via an optional "clear after insert" setting). Reword and rethink: something like "Copy to the page as I pause (keep editing here)", where the page copy follows the pad until you clear or confirm, so the owner can audit before it lands for good.
 - R7-26 (screenshot) The iPadOS dock/shortcut bar overlaps the pad's bottom rows again; the Size/Weight row is still covered and overlapping (see R7-16).
+
+## Round 8 (owner, 8 Nov 2026, GoodNotes reference screenshots)
+
+- R8-1 Toolbar/pill layout like GoodNotes: a fixed band under the main bar, always reserved, just tall enough for the tool's options row (the pill), then a small margin, then the page. The page never shifts when the pill opens/closes (the band is always there). When the page scrolls up it slides under the floating band. A pill docked left/right/bottom floats over the page by default (as today, user can drag it).
+- R8-2 Pencil mode: offer once when the app first sees an Apple Pencil (owner: yes).
+- R8-3 Idea: a Reading mode with no editing allowed (locked, like Notion's lock page).
+- R8-4 Ideas (handwritten): a prompt library (like Notion); notebook options like OneNote / a database of notebooks; templates chooser at start (like Notion); a learning daily journal (web app); ability to transfer/export for recovery; encryption "like Telegram".

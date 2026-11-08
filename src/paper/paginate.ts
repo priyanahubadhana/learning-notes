@@ -1,5 +1,6 @@
 import { createExtension } from '@blocknote/core'
 import { Plugin, PluginKey } from 'prosemirror-state'
+import type { Node as PMNode } from 'prosemirror-model'
 import { Decoration, DecorationSet, type EditorView } from 'prosemirror-view'
 
 /** One text line of a block, as measured (client px). */
@@ -97,37 +98,55 @@ export function pushes(
 // ---- The editor side: the pushes are ProseMirror decorations (a style set
 // by hand on a block would be wiped when the editor redraws it) ----
 
-const key = new PluginKey<Map<string, number>>('ln-pagination')
+const key = new PluginKey<Pushes>('ln-pagination')
 const views = new Map<HTMLElement, EditorView>()
 
-/** Decorations: margin-top (CSS px) on the blocks listed in the plugin state. */
+/** The pushes and, built once from them, the decorations that draw them. */
+interface Pushes {
+  map: Map<string, number>
+  deco: DecorationSet
+}
+
+const buildPushes = (doc: PMNode, map: Map<string, number>): Pushes => {
+  if (map.size === 0) return { map, deco: DecorationSet.empty }
+  const found: Decoration[] = []
+  doc.descendants((node, pos) => {
+    if (node.type.name !== 'blockContainer') return true
+    const px = map.get(node.attrs.id as string)
+    if (px) {
+      found.push(
+        Decoration.node(pos, pos + node.nodeSize, {
+          style: `margin-top: ${px}px`,
+        }),
+      )
+    }
+    return false
+  })
+  return { map, deco: DecorationSet.create(doc, found) }
+}
+
+/**
+ * Decorations: margin-top (CSS px) on the blocks listed in the plugin state.
+ * Built only when the pushes change; while typing they are mapped through the
+ * edit (a walk over every block, on every key, was slow on big pages).
+ */
 export const pagination = createExtension({
   key: 'learning-notes-pagination',
   prosemirrorPlugins: [
-    new Plugin<Map<string, number>>({
+    new Plugin<Pushes>({
       key,
       state: {
-        init: () => new Map(),
-        apply: (tr, old) => tr.getMeta(key) ?? old,
+        init: () => ({ map: new Map(), deco: DecorationSet.empty }),
+        apply: (tr, old, _before, after) => {
+          const meta = tr.getMeta(key) as Map<string, number> | undefined
+          if (meta) return buildPushes(after.doc, meta)
+          if (!tr.docChanged || old.map.size === 0) return old
+          return { map: old.map, deco: old.deco.map(tr.mapping, tr.doc) }
+        },
       },
       props: {
         decorations(state) {
-          const map = key.getState(state)
-          if (!map || map.size === 0) return DecorationSet.empty
-          const found: Decoration[] = []
-          state.doc.descendants((node, pos) => {
-            if (node.type.name !== 'blockContainer') return true
-            const px = map.get(node.attrs.id as string)
-            if (px) {
-              found.push(
-                Decoration.node(pos, pos + node.nodeSize, {
-                  style: `margin-top: ${px}px`,
-                }),
-              )
-            }
-            return false
-          })
-          return DecorationSet.create(state.doc, found)
+          return key.getState(state)?.deco ?? DecorationSet.empty
         },
       },
       view: (view) => {
@@ -214,7 +233,7 @@ export function applyPagination(
   const scale = editorEl.offsetWidth
     ? editorEl.getBoundingClientRect().width / editorEl.offsetWidth
     : 1
-  const had = key.getState(view.state) ?? new Map<string, number>()
+  const had = key.getState(view.state)?.map ?? new Map<string, number>()
   const spacersHad = spacerKey.getState(view.state) ?? []
   const ids = outers.map(idOf)
   const room = sheet0.height - topMargin - bottomMargin
@@ -355,7 +374,7 @@ export function clearPagination(editorEl: HTMLElement): void {
   const view = views.get(editorEl)
   if (!view) return
   if (
-    (key.getState(view.state)?.size ?? 0) === 0 &&
+    (key.getState(view.state)?.map.size ?? 0) === 0 &&
     (spacerKey.getState(view.state)?.length ?? 0) === 0
   )
     return

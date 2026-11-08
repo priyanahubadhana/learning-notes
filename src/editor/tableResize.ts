@@ -15,6 +15,8 @@ const NEAR = 8
 const TOUCH_MS = 4000
 const DOUBLE_MS = 350
 const MAX_ROWS = 200
+/** Quiet time after the last change before saved row heights are put on the rows. */
+const HEIGHTS_SETTLE_MS = 150
 
 /**
  * Row heights are CSS variables on the <table> (a change there is ignored by
@@ -142,7 +144,8 @@ export function installTableResize(editor: Editor): () => void {
       '[data-content-type="table"] table',
     )) {
       const list = parseRowHeights(rowHeightsOf(t))
-      for (let i = 0; i < MAX_ROWS; i++) {
+      const rows = Math.min(MAX_ROWS, Math.max(list.length, t.rows.length))
+      for (let i = 0; i < rows; i++) {
         const name = `--ln-r${i + 1}`
         const want = list[i] ? `${list[i]}px` : ''
         if (t.style.getPropertyValue(name) === want) continue
@@ -373,7 +376,17 @@ export function installTableResize(editor: Editor): () => void {
   })
   const dom = editor.domElement
   if (dom) mo.observe(dom, { childList: true, subtree: true })
-  const off = editor.onChange(() => applyHeights())
+  // Once per burst of typing, not per key: it looks up every table by id,
+  // and each look-up walks the whole page.
+  let heightsTimer = 0
+  const offChange = editor.onChange(() => {
+    window.clearTimeout(heightsTimer)
+    heightsTimer = window.setTimeout(applyHeights, HEIGHTS_SETTLE_MS)
+  })
+  const off = () => {
+    window.clearTimeout(heightsTimer)
+    offChange?.()
+  }
   applyHeights()
   document.addEventListener('pointermove', onMove, true)
   document.addEventListener('pointerdown', onDown, true)

@@ -2,6 +2,12 @@
 
 Current phase only. Older entries are in [ARCHIVE.md](ARCHIVE.md).
 
+## 2026-11-09 (Speed on big pages: typing and paste)
+
+- **What:** measured a generated page of 2,000 blocks / 156 sheets (Chromium, also with the CPU slowed 4x). Typing cost 11-15 ms of script per key (45 ms at 4x), 50 long tasks at 4x. Causes and fixes: the sheet-gap pass asked the DOM for every block's document position on every key (now read from the document in one pass); table row heights looked up every table by id and read 200 CSS variables per table on every key (now once per typing burst, only real rows); the pen guard joined the whole page's text on every key (now `doc.content.size`); the sheet-gap decorations were rebuilt for all blocks on every key (now built when the pushes change, mapped while typing). After: 6.6-7.8 ms per key (31 ms at 4x), long tasks 0-2 at 1x (39 at 4x, from 50); longest paste task 160 to 130 ms (1,012 to 667 ms at 4x). Scrolling was already smooth in this page (0.2 ms script per frame, frames 16.7 ms even at 4x). New CI budget `e2e/bigPageBudget.spec.ts`.
+- **Why:** owner report (live site): big paste lags, scrolling and typing stutter.
+- **Files:** src/paper/paginate.ts, src/editor/tableResize.ts, src/editor/penGuard.ts, e2e/bigPageBudget.spec.ts (new), docs/research/perf-big-pages-2026-11.md (new), docs/features/paper-page.md.
+
 ## 2026-11-09 (Copy side: every format together, "Copy as…")
 
 - **What:** Ctrl/Cmd+C or X of whole blocks, Lasso Copy, mini-bar Copy and the block-menu Copy now put rich HTML, clean Markdown (headings, nested lists, pipe tables, toggles as `<details>`, cards as Q/A, links, code) and our own lossless format on the clipboard together; a single picture also copies as an image (PNG). The block menu has Copy and a "Copy as…" submenu (Markdown, Rich text, Plain text, HTML). Words inside one block stay BlockNote's own copy.

@@ -32,6 +32,7 @@ Every page is paper. It shows as fixed sheets (A4, or Letter) with a border and 
 
 - **Paper style, size, thumbnails (Polish 2 item 9).** Page ⋯: Paper style and Paper size submenus; new-page start: Paper style row; left panel › Pages: sheet thumbnails of the open page (2+ sheets), tap = scroll to that sheet.
 - **Speed (polish-2 item 15).** A box's editor is made when the box is within 800 px of the scrolling page; until then a three-line placeholder stands in (`LazyMount` in `PaperFrame.tsx`). Once made it stays. CI budget: `e2e/paperBudget.spec.ts`. A jump to a block in a still-placeholder box (search hit) calls `wakeBox(boxId)` (`paper/wakeBox.ts`, from `editor/revealBlock.ts`); the box makes its editor, then the block is scrolled to and highlighted (`e2e/paperSearchJump.spec.ts`).
+- **Big pages (9 Nov).** The sheet-gap pass reads block positions from the document, not the DOM; its decorations are mapped while typing; table heights and the pen guard no longer walk the whole page per key. Numbers and what was left: [research/perf-big-pages-2026-11.md](../research/perf-big-pages-2026-11.md). CI budget: `e2e/bigPageBudget.spec.ts`.
 
 - **Phones: new boxes.** Stacked layout (under 600 px): "Add a box here" at the end, or a Text-tool tap in the gap under a box adds one after it (`placeInOrder`, `addBoxInOrder`).
 

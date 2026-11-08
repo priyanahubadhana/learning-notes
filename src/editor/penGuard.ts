@@ -154,7 +154,10 @@ export function watchPenGuard(
   const dom = editor.domElement
   if (!dom) return () => {}
   const doc = dom.ownerDocument
-  let size = editor.prosemirrorView?.state.doc.textContent.length ?? 0
+  // content.size, not textContent.length: textContent joins the text of the
+  // WHOLE page on every keystroke (slow on big pages); the size falls by the
+  // same amount when text is deleted.
+  let size = editor.prosemirrorView?.state.doc.content.size ?? 0
   // Only a Pencil gesture that began in the page text counts: a tap on the
   // bar or a menu (Delete, Undo) is the user asking, so it is never held back.
   let gesturePointer: number | null = null
@@ -197,7 +200,7 @@ export function watchPenGuard(
   }
   const unchange = editor.onChange(() => {
     const now = clock()
-    const next = editor.prosemirrorView?.state.doc.textContent.length ?? size
+    const next = editor.prosemirrorView?.state.doc.content.size ?? size
     const penRecent = penState.down || now - penState.upAt < TOAST_AFTER_PEN_MS
     if (
       penRecent &&

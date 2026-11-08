@@ -8,6 +8,24 @@ import {
 import type { InkFallback } from '../core/inkTypes'
 
 /**
+ * C2b: the blocks of a BOOK instead of a note. A PDF's blocks are its pages
+ * (`pdf:<n>`), an EPUB's are its paragraphs (`epub:<section>:<n>`). The
+ * reader measures them (px from the top-left of `wrap`); `unit` is the width
+ * the saved points are measured in (a PDF's page width, so zoom scales ink
+ * exactly). A block that is not on screen (another EPUB section) is drawn far
+ * off-screen, never moved onto another block.
+ */
+export interface BookSurface {
+  blocks: (wrap: HTMLElement) => BlockRect[]
+  unit: (wrap: HTMLElement) => number
+  /** Calls `cb` whenever the blocks may have moved (scroll, load, resize). */
+  watch?: (cb: () => void) => () => void
+}
+
+/** Where an unmeasured book block is drawn: out of every view. */
+export const OFF_SCREEN_Y = -1e7
+
+/**
  * Where the page's blocks are now, in px from the top-left of the ink
  * container (the element ink is laid over). Measured with
  * getBoundingClientRect, so it is the same however far the page is scrolled.
@@ -16,6 +34,7 @@ import type { InkFallback } from '../core/inkTypes'
  */
 export class PageLayout {
   width = 1
+  private boxWidth = 0
   height = 1
   /** Raised each time the measurement changed. */
   version = 0
@@ -24,13 +43,16 @@ export class PageLayout {
 
   private readonly wrap: HTMLElement
   private readonly fallbackOf: (id: string) => InkFallback | undefined
+  private readonly book: BookSurface | undefined
 
   constructor(
     wrap: HTMLElement,
     fallbackOf: (id: string) => InkFallback | undefined,
+    book?: BookSurface,
   ) {
     this.wrap = wrap
     this.fallbackOf = fallbackOf
+    this.book = book
   }
 
   /** Measures every block (needed to pick the block under a pen). */
@@ -38,9 +60,17 @@ export class PageLayout {
     const box = this.wrap.getBoundingClientRect()
     const next = new Map<string, BlockRect>()
     const list: BlockRect[] = []
-    const nodes = this.wrap.querySelectorAll<HTMLElement>(
-      '.bn-block-outer > .bn-block > .bn-block-content',
-    )
+    const nodes = this.book
+      ? []
+      : this.wrap.querySelectorAll<HTMLElement>(
+          '.bn-block-outer > .bn-block > .bn-block-content',
+        )
+    if (this.book) {
+      for (const rect of this.book.blocks(this.wrap)) {
+        next.set(rect.id, rect)
+        list.push(rect)
+      }
+    }
     for (const content of nodes) {
       const id = content.parentElement?.getAttribute('data-id')
       if (!id) continue
@@ -55,8 +85,10 @@ export class PageLayout {
       next.set(id, rect)
       list.push(rect)
     }
+    const unit = this.book ? this.book.unit(this.wrap) : box.width
     const changed =
-      Math.abs(box.width - this.width) > 0.5 ||
+      Math.abs(unit - this.width) > 0.5 ||
+      Math.abs(box.width - this.boxWidth) > 0.5 ||
       Math.abs(box.height - this.height) > 0.5 ||
       next.size !== this.rects.size ||
       list.some((r) => {
@@ -68,7 +100,8 @@ export class PageLayout {
           Math.abs(o.h - r.h) > 0.25
         )
       })
-    this.width = Math.max(1, box.width)
+    this.width = Math.max(1, unit)
+    this.boxWidth = box.width
     this.height = Math.max(1, box.height)
     this.rects = next
     this.list = list
@@ -92,6 +125,7 @@ export class PageLayout {
     if (blockId === null) return pageFrame(this.width)
     const r = this.rects.get(blockId)
     if (r) return frameOf(r, this.width)
+    if (this.book) return { x: 0, y: OFF_SCREEN_Y, w: this.width }
     const fb = this.fallbackOf(blockId)
     if (fb) {
       // Phase Q rule 7: the ink of a deleted line goes with the next line

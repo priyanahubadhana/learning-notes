@@ -68,4 +68,13 @@ export const enW5 = {
   'reading.opt.orient.off': 'Off',
   'reading.opt.orient.portrait': 'Upright',
   'reading.opt.orient.landscape': 'Sideways',
+  'reader.ink': 'Pen',
+  'reader.ink.label': 'Draw on the book pages',
+  'reader.ink.done': 'Done',
+  'reader.ink.undo': 'Undo',
+  'reader.ink.redo': 'Redo',
+  'reader.ink.tools': 'Drawing tools',
+  'reader.ink.scrollOnly':
+    'Drawing works in Scroll mode. Switch from Pages to Scroll to draw.',
+  'reader.ink.hint': 'Drawing stays with its page (PDF) or paragraph (EPUB).',
 } as const

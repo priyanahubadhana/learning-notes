@@ -397,7 +397,7 @@ export function InkSurface({
 
 // ---- The region, the keyboard door and the selection ----
 
-function InkUi({
+export function InkUi({
   db,
   pageId,
   controller,

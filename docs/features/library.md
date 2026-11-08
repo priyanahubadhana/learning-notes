@@ -22,7 +22,8 @@ Books and other sources live in the app as ordinary pages. The Library space sho
 - A book file missing on this device (notes-only backup): the reader says so; importing again restores reading.
 - A PDF that the reader cannot show: "The book could not be shown."
 - DOCX progress is not tracked (chapters are ordinary pages).
-- Ink on book pages and EPUB page curl are not built (see DECISIONS). Matches found in a PDF are listed and jump to the page; they are not marked on it.
+- EPUB page curl is not built (see DECISIONS). Matches found in a PDF are listed and jump to the page; they are not marked on it.
+- **Ink on book pages (C2b):** the reader's **Pen** button opens a drawing strip (Pen, Highlighter, Eraser, Lasso, colours, Undo, Redo, Done) over the same ink engine as notes (`src/ink/BookInk.tsx`). PDF: ink belongs to the page it was drawn on (`pdf:<page>`), saved in page widths so zoom and fit-width keep it exact. EPUB: ink belongs to a paragraph (`epub:<section>:<n>`) and moves with it when the text size or width changes; Scroll mode only (Pages mode: the Pen button explains). Stored in `inkLayers` / `inkChunks` with the book page's id (backup, History, Trash and sync as for notes). Not built: View as drawn, ink in Liquid mode, Page Flip previews and PDF/Word export of a book page; the layer gallery card is not in the reader.
 
 ## Security check
 

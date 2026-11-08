@@ -2,6 +2,12 @@
 
 Current phase only. Older entries are in [ARCHIVE.md](ARCHIVE.md).
 
+## 2026-11-09 (C2b: ink on PDF and EPUB pages)
+
+- **What:** a Pen button in the book reader opens a small drawing strip (Pen, Highlighter, Eraser, Lasso, colours, Undo, Redo, Done). The shared ink engine now runs over the book: a PDF page is an ink block (`pdf:<page>`, exact under zoom), an EPUB paragraph is an ink block (`epub:<section>:<n>`, follows the paragraph when the text size changes; Scroll mode only, Pages mode says so). Saved in the existing ink tables, so backup, History, Trash and sync cover it; no Dexie version, no new table. The engine got an optional `BookSurface` (blocks and unit come from the reader), a `refresh()` and a no-deleted-blocks rule for books. Details and open choices in DECISIONS (C2b ink rows).
+- **Files:** src/ink/BookInk.tsx (new), src/ink/layout.ts, src/ink/controller.ts, src/ink/InkSurface.tsx (export InkUi), src/reader/ReaderInkBar.tsx (new), src/reader/BookReader.tsx, src/reader/pdf/PdfView.tsx, src/reader/pdf/pdfInk.ts (new), src/reader/epub/EpubView.tsx, src/reader/epub/epubInk.ts (new), src/reader/bookInk.test.ts (new), e2e/bookInk.spec.ts (new), src/i18n/enW5.ts, esW5.ts, hiW5.ts, docs.
+- **Checked:** unit 1640 pass; eslint clean; first load 301.0 KB gzip (limit 320); e2e library, epub, readerExtras, ink* all pass in Chromium.
+
 ## 2026-11-09 (Ink rule 6 across boxes)
 
 - **What:** a Lasso drag of ink and lines together, dropped in another box or on bare paper, now moves the lines with their ink (the other box or a new box takes them, then they leave the old box; the ink stays linked to the same text). Before, it worked inside one box only. A box under the drop spot now also wins for rule 5 even when the first box's area is bigger. Undo is two steps (one per box), see DECISIONS.

@@ -70,4 +70,14 @@ export const hiW5: Record<string, string> = {
   'reading.opt.orient.landscape': 'आड़ी',
   'settings.category.reading.hint':
     'पढ़ने का मोड कैसा दिखे और कैसे चले: रंग, फ़ॉन्ट, आकार, दूरी, पन्ने पलटना, ज़ोर से पढ़ना। शब्द खोजने पर सिर्फ़ चुने हुए शब्द के लिए वेब पेज खुलता है; और कुछ नहीं भेजा जाता।',
+  'reader.ink': 'पेन',
+  'reader.ink.label': 'किताब के पन्नों पर लिखें',
+  'reader.ink.done': 'हो गया',
+  'reader.ink.undo': 'पूर्ववत',
+  'reader.ink.redo': 'फिर करें',
+  'reader.ink.tools': 'लिखने के औज़ार',
+  'reader.ink.scrollOnly':
+    'लिखना स्क्रॉल मोड में चलता है। लिखने के लिए पन्ने से स्क्रॉल पर जाएँ।',
+  'reader.ink.hint':
+    'लिखा हुआ अपने पन्ने (PDF) या अनुच्छेद (EPUB) के साथ रहता है।',
 }

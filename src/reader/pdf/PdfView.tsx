@@ -1,6 +1,8 @@
 import type { PDFDocumentProxy, PDFPageProxy, RenderTask } from 'pdfjs-dist'
 import 'pdfjs-dist/web/pdf_viewer.css'
 import {
+  lazy,
+  Suspense,
   useCallback,
   useEffect,
   useLayoutEffect,
@@ -9,6 +11,8 @@ import {
   useState,
 } from 'react'
 import { loadPdfjs } from '../../app/pdfjs'
+import type { LearningNotesDB } from '../../core/db'
+import { pdfSurface } from './pdfInk'
 import { clampDpr, release, reserve } from '../../app/canvasBudget'
 import { parseLocator } from '../../core/sourceCheck'
 import type { Annotation, AnnotationAnchor } from '../../core/types'
@@ -66,8 +70,15 @@ export interface PdfPosition {
   progress: number
 }
 
+// The drawing code loads only after the pages are on screen (C2b).
+const BookInk = lazy(() =>
+  import('../../ink/BookInk').then((m) => ({ default: m.BookInk })),
+)
+
 export interface PdfViewProps {
   data: ArrayBuffer
+  /** C2b: ink over the pages (`on` = the Pen is on). */
+  ink?: { db: LearningNotesDB; pageId: string; on: boolean }
   /** Where to start: `pdf:<page>:<y>`. */
   startAt?: string
   annotations: readonly Annotation[]
@@ -102,6 +113,7 @@ export function PdfView(props: PdfViewProps) {
   const [sizes, setSizes] = useState<PageSize[]>([])
   const [width, setWidth] = useState(0)
   const [range, setRange] = useState<[number, number]>([0, 0])
+  const [inkWrap, setInkWrap] = useState<HTMLElement | null>(null)
   const propsRef = useRef(props)
   useEffect(() => {
     propsRef.current = props
@@ -450,6 +462,24 @@ export function PdfView(props: PdfViewProps) {
             </div>
           )
         })}
+        {props.ink && doc && (
+          <>
+            <div
+              ref={setInkWrap}
+              data-testid="pdf-ink-wrap"
+              className="pointer-events-none absolute inset-0"
+            />
+            <Suspense fallback={null}>
+              <BookInk
+                db={props.ink.db}
+                pageId={props.ink.pageId}
+                wrap={inkWrap}
+                surface={pdfSurface}
+                on={props.ink.on}
+              />
+            </Suspense>
+          </>
+        )}
       </div>
     </div>
   )

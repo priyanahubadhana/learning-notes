@@ -1,4 +1,7 @@
-import { useEffect, useRef } from 'react'
+import { lazy, Suspense, useEffect, useRef, useState } from 'react'
+import type { LearningNotesDB } from '../../core/db'
+import type { BookSurface } from '../../ink/layout'
+import { blockIn, epubBlockId, leafBlocks } from './epubInk'
 import { parseLocator } from '../../core/sourceCheck'
 import type { Annotation } from '../../core/types'
 import { makeQuote } from '../annotations/annotationService'
@@ -40,8 +43,15 @@ interface RelocateDetail {
   time?: { section: number; total: number }
 }
 
+// The drawing code loads only after the book is on screen (C2b).
+const BookInk = lazy(() =>
+  import('../../ink/BookInk').then((m) => ({ default: m.BookInk })),
+)
+
 export interface EpubViewProps {
   data: ArrayBuffer
+  /** C2b: ink over the paragraphs (Scroll mode only; `on` = the Pen is on). */
+  ink?: { db: LearningNotesDB; pageId: string; on: boolean }
   startAt?: string
   annotations: readonly Annotation[]
   target?: { at: string; nonce: number; glow?: string } | null
@@ -94,6 +104,44 @@ export function EpubView(props: EpubViewProps) {
     propsRef.current = props
   })
   const lastTocLabel = useRef('')
+  const [inkWrap, setInkWrap] = useState<HTMLElement | null>(null)
+  /** Tells the ink that paragraphs may have moved (scroll, load, resize). */
+  const inkWatchers = useRef(new Set<() => void>())
+  const leafCache = useRef(new WeakMap<Document, Element[]>())
+  const [surface] = useState<BookSurface>(() => ({
+    blocks: (wrap) => {
+      const view = viewRef.current
+      if (!view) return []
+      const box = wrap.getBoundingClientRect()
+      const out: ReturnType<typeof blockIn>[] = []
+      for (const { doc, index } of view.renderer.getContents()) {
+        const frame = doc.defaultView?.frameElement?.getBoundingClientRect()
+        if (!frame) continue
+        let leaves = leafCache.current.get(doc)
+        if (!leaves) {
+          leaves = leafBlocks(doc)
+          leafCache.current.set(doc, leaves)
+        }
+        leaves.forEach((el, n) => {
+          out.push(
+            blockIn(
+              epubBlockId(index, n),
+              el.getBoundingClientRect(),
+              frame,
+              box,
+            ),
+          )
+        })
+      }
+      return out.filter((b) => b !== null)
+    },
+    unit: (wrap) => wrap.getBoundingClientRect().width || 1,
+    watch: (cb) => {
+      inkWatchers.current.add(cb)
+      return () => inkWatchers.current.delete(cb)
+    },
+  }))
+  const pokeInk = () => inkWatchers.current.forEach((cb) => cb())
   const drawn = useRef(new Map<string, AnnotationDraft>())
 
   /** Our annotations → the frame's overlay. */
@@ -130,8 +178,10 @@ export function EpubView(props: EpubViewProps) {
         if (cancelled) return
         view.renderer.setAttribute('flow', propsRef.current.flow)
         applyStyle(view, propsRef.current.size)
+        view.renderer.addEventListener('scroll', pokeInk)
 
         view.addEventListener('relocate', (e) => {
+          pokeInk()
           const d = (e as CustomEvent<RelocateDetail>).detail
           lastTocLabel.current = d.tocItem?.label ?? ''
           propsRef.current.onPosition({
@@ -160,6 +210,12 @@ export function EpubView(props: EpubViewProps) {
             e as CustomEvent<{ doc: Document; index: number }>
           ).detail
           watchSelection(view!, doc, index)
+          pokeInk()
+          // The text re-flowed (size, font, width): the ink follows.
+          const body = doc.documentElement
+          if (body && typeof ResizeObserver !== 'undefined') {
+            new ResizeObserver(pokeInk).observe(body)
+          }
           doc.addEventListener('keydown', (k) => {
             if (k.key === 'ArrowLeft') void view?.goLeft()
             else if (k.key === 'ArrowRight') void view?.goRight()
@@ -283,11 +339,32 @@ export function EpubView(props: EpubViewProps) {
   }, [props.command?.nonce])
 
   return (
-    <div
-      ref={host}
-      data-testid="epub-host"
-      className="min-h-0 flex-1 overflow-hidden"
-    />
+    <div className="relative min-h-0 flex-1 overflow-hidden">
+      <div
+        ref={host}
+        data-testid="epub-host"
+        className="absolute inset-0 overflow-hidden"
+      />
+      {props.ink && props.flow === 'scrolled' && (
+        <>
+          <div
+            ref={setInkWrap}
+            data-testid="epub-ink-wrap"
+            className="pointer-events-none absolute inset-0 z-[2]"
+          />
+          <Suspense fallback={null}>
+            <BookInk
+              db={props.ink.db}
+              pageId={props.ink.pageId}
+              wrap={inkWrap}
+              surface={surface}
+              on={props.ink.on}
+              textSize={props.size}
+            />
+          </Suspense>
+        </>
+      )}
+    </div>
   )
 }
 

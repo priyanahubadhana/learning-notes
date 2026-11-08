@@ -66,7 +66,7 @@ import {
   setHidden,
   setLocked,
 } from './layers'
-import { PageLayout } from './layout'
+import { PageLayout, type BookSurface } from './layout'
 import { nearestEdge, projectOnEdge, type Edge } from './ruler'
 import { rulerTool } from './toolState'
 import { InkRenderer, paintStroke, strokeRect } from './render'
@@ -201,6 +201,12 @@ export interface InkEnv {
     place: 'before' | 'after',
   ) => string[] | null
   removeLines?: (ids: string[]) => boolean
+  /**
+   * C2b: set when the ink is over a book (PDF pages, EPUB paragraphs): the
+   * blocks come from the reader, there is no text editor, and a block that is
+   * not on screen keeps its ink (it is not "deleted").
+   */
+  book?: BookSurface
 }
 
 type Gesture =
@@ -323,7 +329,11 @@ export class InkController {
 
   constructor(env: InkEnv) {
     this.env = env
-    this.layout = new PageLayout(env.wrap, (id) => env.doc.fallbackOf(id))
+    this.layout = new PageLayout(
+      env.wrap,
+      (id) => env.doc.fallbackOf(id),
+      env.book,
+    )
     this.renderer = new InkRenderer(penSettings.get().lowLatency)
     this.overlay = document.createElement('div')
     this.overlay.setAttribute('data-ink-overlay', '')
@@ -421,6 +431,9 @@ export class InkController {
       this.guard(() => this.lassoCancel(e)),
     )
     on(window, 'resize', () => this.dirty())
+    if (this.env.book?.watch) {
+      this.cleanups.push(this.env.book.watch(() => this.dirty()))
+    }
     on(this.scroller, 'scroll', () => this.requestDraw(), { passive: true })
     on(
       document,
@@ -607,6 +620,11 @@ export class InkController {
     this.requestDraw()
   }
 
+  /** The blocks may have moved (a book scrolled or reflowed): measure again. */
+  refresh(): void {
+    this.dirty()
+  }
+
   /**
    * Does the Lasso own the pointer? Yes while its Ink filter is on and the
    * page has ink: the pad then catches the Pencil like the Pen's pad does, so
@@ -740,6 +758,7 @@ export class InkController {
       const gone: string[] = []
       for (const id of doc.anchorBlocks()) {
         const r = this.layout.rectOf(id)
+        if (this.env.book) continue // a book's block is never deleted
         if (r) {
           doc.noteBlock(id, { x: r.x, y: r.y, w: this.layout.width })
           this.seenBlocks.add(id)
@@ -1855,7 +1874,9 @@ export class InkController {
         const blocks = this.blocksIn(region)
         // The T filter around part of a paragraph: the words inside (R6-17).
         const words =
-          found.length === 0 && f.text ? this.wordsInRegion(region) : null
+          found.length === 0 && f.text && !this.env.book
+            ? this.wordsInRegion(region)
+            : null
         // Lines taken in whole (most of the line, or every word, inside).
         const wholeLines =
           !words ||
@@ -1918,7 +1939,7 @@ export class InkController {
 
   /** Page blocks whose centre is inside the loop (only blocks near its box are tested). */
   blocksIn(path: Pt[]): string[] {
-    if (path.length < 3) return []
+    if (path.length < 3 || this.env.book) return []
     const f = lassoSettings.get()
     if (!f.text && !f.pictures) return []
     const poly = path

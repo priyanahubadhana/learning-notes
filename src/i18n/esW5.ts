@@ -71,4 +71,13 @@ export const esW5: Record<string, string> = {
   'reading.opt.orient.landscape': 'Horizontal',
   'settings.category.reading.hint':
     'Cómo se ve y funciona el modo lectura: colores, fuente, tamaño, espacio, pasar páginas, leer en voz alta. Buscar una palabra abre una página web solo con la palabra seleccionada; no se envía nada más.',
+  'reader.ink': 'Lápiz',
+  'reader.ink.label': 'Dibujar en las páginas del libro',
+  'reader.ink.done': 'Listo',
+  'reader.ink.undo': 'Deshacer',
+  'reader.ink.redo': 'Rehacer',
+  'reader.ink.tools': 'Herramientas de dibujo',
+  'reader.ink.scrollOnly':
+    'Dibujar funciona en modo Desplazar. Cambia de Páginas a Desplazar para dibujar.',
+  'reader.ink.hint': 'El dibujo se queda con su página (PDF) o párrafo (EPUB).',
 }

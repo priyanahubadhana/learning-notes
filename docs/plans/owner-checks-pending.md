@@ -2,6 +2,13 @@
 
 Moved out of HANDOFF on 2026-11-06 (audit) so HANDOFF stays five lines. Newest first; each paragraph names its step. The run decision (master plan) is one owner iPad pass before Sync; the Phase A builder adds its checks at the top. Tick a paragraph by deleting it.
 
+## C2b: ink on PDF and EPUB pages (9 Nov)
+
+1. iPad, open a real PDF, tap Pen, write with the Pencil on page 2, then pinch or use + / - : the writing stays on the same words of page 2 and gets bigger or smaller with the page. Reload: it is still there. Scrolling with a finger still works while writing with the Pencil (Pencil mode).
+2. Tap Done: you can select text again (highlight pop-up works), and the writing is still shown.
+3. Open an EPUB in Scroll mode, tap Pen, underline a sentence, then make the text bigger (A+): the underline stays with its paragraph. In Pages mode the Pen button says drawing works in Scroll mode.
+4. Eraser, Lasso (move/delete a drawing) and Undo/Redo work on the book pages.
+
 ## Ink rule 6 across boxes (9 Nov)
 
 1. iPad, Lasso with Text on: write over a line, loop the line and its ink, drag them onto another box: the line and the ink arrive together and the ink still sits on the same words.

@@ -35,6 +35,8 @@ import {
 } from '../recall/cardFromAnnotation'
 import { addVocabulary, vocabContext, vocabWord } from '../recall/vocabulary'
 import { NoteSheet } from './annotations/NoteSheet'
+import { ReaderInkBar } from './ReaderInkBar'
+import { activeTool, type ModeTool } from '../app/tools/main/mainTools'
 import { SaveToSheet, type SaveTarget } from './annotations/SaveToSheet'
 import {
   saveAnnotationTo,
@@ -128,6 +130,9 @@ export function BookReader({
   >(null)
   const [pdfDoc, setPdfDoc] = useState<PDFDocumentProxy | null>(null)
   const [flipOpen, setFlipOpen] = useState(false)
+  // C2b: drawing on the pages (the Pen is on).
+  const [inking, setInking] = useState(false)
+  const toolBefore = useRef<ModeTool | null>(null)
   const [flipFrom, setFlipFrom] = useState<{
     locator: string
     where: string
@@ -164,6 +169,21 @@ export function BookReader({
       current = false
     }
   }, [db, pageId])
+
+  // Leaving the reader (or the Pen) gives the notes' tool back.
+  const stopInking = useCallback(() => {
+    if (toolBefore.current) activeTool.set(toolBefore.current)
+    toolBefore.current = null
+    setInking(false)
+  }, [])
+  useEffect(
+    () => () => {
+      if (toolBefore.current) activeTool.set(toolBefore.current)
+    },
+    [],
+  )
+  // Pages mode cannot hold ink (the text breaks across columns): Scroll only.
+  const drawing = inking && !(format === 'epub' && epubFlow === 'paginated')
 
   // A deep link while the reader is open jumps there.
   const [seenAt, setSeenAt] = useState(at)
@@ -661,6 +681,25 @@ export function BookReader({
         )}
         <button
           type="button"
+          data-testid="reader-ink"
+          aria-pressed={drawing}
+          aria-label={t('reader.ink.label')}
+          className={panelBtn(drawing)}
+          onClick={() => {
+            if (inking) return stopInking()
+            if (format === 'epub' && epubFlow === 'paginated') {
+              toast(t('reader.ink.scrollOnly'))
+              return
+            }
+            toolBefore.current = activeTool.get()
+            activeTool.set('pen')
+            setInking(true)
+          }}
+        >
+          {t('reader.ink')}
+        </button>
+        <button
+          type="button"
           data-testid="reader-flip"
           aria-pressed={flipOpen}
           disabled={liquid}
@@ -742,6 +781,7 @@ export function BookReader({
           </IconButton>
         )}
       </div>
+      {drawing && <ReaderInkBar onDone={stopInking} />}
       {noText && format === 'pdf' && (
         <p className="bg-soft px-3 py-1 text-xs text-muted">
           {t('bookreader.noText')}
@@ -765,6 +805,7 @@ export function BookReader({
           ) : format === 'pdf' ? (
             <PdfView
               data={data}
+              ink={{ db, pageId, on: drawing }}
               startAt={at ?? page.source.at}
               annotations={annotations ?? []}
               zoom={zoom}
@@ -789,6 +830,7 @@ export function BookReader({
           ) : (
             <EpubView
               data={data}
+              ink={{ db, pageId, on: drawing }}
               startAt={at ?? page.source.at}
               annotations={annotations ?? []}
               target={target}

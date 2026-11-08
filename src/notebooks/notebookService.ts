@@ -12,6 +12,7 @@ import type { Notebook, NotebookTab } from '../core/types'
 import { softDeleteDatabaseParts } from '../databases/databaseParts'
 import { defaultNotebookTabs } from '../databases/notebookTabs'
 import type { PathStyle } from '../pages/pathStyle'
+import { defaultPageTabs } from './pageTabs'
 
 /**
  * Notebook operations. UI code should call these instead of touching the
@@ -81,6 +82,9 @@ export async function createNotebook(
       order: orderBetween(last?.order ?? null, null),
       // Special notebooks (journal, templates, …) have no tabs.
       ...(kind ? { kind } : { tabs: defaultNotebookTabs(fields.id) }),
+      ...(!kind && defaultPageTabs().length > 0
+        ? { pageTabs: defaultPageTabs() }
+        : {}),
     }
     await db.notebooks.add(notebook)
     return notebook

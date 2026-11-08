@@ -98,6 +98,7 @@ const notebook: Fields<Notebook> = {
     typeof (v as { keyId?: unknown }).keyId === 'string' &&
     typeof (v as { model?: unknown }).model === 'string',
   tabs: objectList,
+  pageTabs: textList,
   view: oneOf('shelf', 'tabs'),
   tabViews: (v) =>
     object(v) &&

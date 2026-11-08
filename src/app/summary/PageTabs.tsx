@@ -1,11 +1,15 @@
 import { useLiveQuery } from 'dexie-react-hooks'
+import { useState } from 'react'
+import { MenuPopover } from '../ui'
+import { EXTRA_TAB_LABEL, type ExtraTab } from '../../notebooks/pageTabs'
 import type { LearningNotesDB } from '../../core/db'
 import type { ReviewScope } from '../../recall/reviewService'
 import { scopeCounts } from '../../recall/reviewLazy'
 import { t } from '../../i18n/t'
 
 /** The three views of a page (Phase M): its notes, its Summary, its cards. */
-export type PageTab = 'notes' | 'summary' | 'review'
+export type BaseTab = 'notes' | 'summary' | 'review'
+export type PageTab = BaseTab | ExtraTab
 
 const TABS: {
   id: PageTab
@@ -17,34 +21,75 @@ const TABS: {
 ]
 
 /** Notes · Summary · Review, under the page title. Buttons are 44 px tall. */
-export function Segments({
+export function Segments<T extends PageTab = PageTab>({
   tab,
   onTab,
   className = '',
+  extras = [],
+  onToggleExtra,
+  allExtras = [],
 }: {
-  tab: PageTab
-  onTab: (tab: PageTab) => void
+  tab: T
+  onTab: (tab: T) => void
   className?: string
+  /** The optional tabs this notebook has switched on, in order. */
+  extras?: readonly ExtraTab[]
+  /** Switches an optional tab on or off for the notebook (the ⋯ menu). */
+  onToggleExtra?: (tab: ExtraTab, on: boolean) => void
+  /** Every optional tab (for the ⋯ menu). */
+  allExtras?: readonly ExtraTab[]
 }) {
+  const [menu, setMenu] = useState<DOMRect | null>(null)
+  const shown = [
+    ...TABS,
+    ...extras.map((id) => ({ id, label: EXTRA_TAB_LABEL[id] })),
+  ]
   return (
-    <div
-      role="group"
-      aria-label={t('summary.seg.label')}
-      data-page-tabs
-      className={`inline-flex rounded-xl border border-line bg-soft p-0.5 ${className}`}
-    >
-      {TABS.map(({ id, label }) => (
+    <div className={`flex flex-wrap items-center gap-1 ${className}`}>
+      <div
+        role="group"
+        aria-label={t('summary.seg.label')}
+        data-page-tabs
+        className="inline-flex flex-wrap rounded-xl border border-line bg-soft p-0.5"
+      >
+        {shown.map(({ id, label }) => (
+          <button
+            key={id}
+            type="button"
+            aria-pressed={tab === id}
+            data-page-tab={id}
+            onClick={() => onTab(id as T)}
+            className="min-h-9 any-pointer-coarse:min-h-11 rounded-[10px] px-4 text-sm text-ink-soft hover:text-ink aria-pressed:bg-bg aria-pressed:font-semibold aria-pressed:text-ink aria-pressed:shadow-sm"
+          >
+            {t(label)}
+          </button>
+        ))}
+      </div>
+      {onToggleExtra && (
         <button
-          key={id}
           type="button"
-          aria-pressed={tab === id}
-          data-page-tab={id}
-          onClick={() => onTab(id)}
-          className="min-h-9 any-pointer-coarse:min-h-11 rounded-[10px] px-4 text-sm text-ink-soft hover:text-ink aria-pressed:bg-bg aria-pressed:font-semibold aria-pressed:text-ink aria-pressed:shadow-sm"
+          aria-label={t('tabs.menu')}
+          aria-haspopup="menu"
+          data-page-tabs-menu
+          onClick={(e) => setMenu(e.currentTarget.getBoundingClientRect())}
+          className="min-h-9 min-w-9 any-pointer-coarse:min-h-11 any-pointer-coarse:min-w-11 rounded-lg text-lg text-ink-soft hover:bg-hover hover:text-ink"
         >
-          {t(label)}
+          ⋯
         </button>
-      ))}
+      )}
+      {menu && onToggleExtra && (
+        <MenuPopover
+          anchor={menu}
+          label={t('tabs.menuLabel')}
+          onClose={() => setMenu(null)}
+          items={allExtras.map((id) => ({
+            label: t(EXTRA_TAB_LABEL[id]),
+            icon: '',
+            checked: extras.includes(id),
+            onSelect: () => onToggleExtra(id, !extras.includes(id)),
+          }))}
+        />
+      )}
     </div>
   )
 }

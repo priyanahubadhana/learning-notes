@@ -61,3 +61,43 @@ test('Bring in from NotebookLM: a video overview is kept', async ({ page }) => {
   await nlm.getByRole('button', { name: 'Add', exact: true }).click()
   await expect(page.getByText(/Added to /)).toBeVisible()
 })
+
+test('a PowerPoint from NotebookLM shows as a strip in the Slides tab', async ({
+  page,
+}) => {
+  const { zipSync, strToU8 } = await import('fflate')
+  const png = Buffer.from(
+    'iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAADUlEQVR42mP8z8BQDwAEhQGAhKmMIQAAAABJRU5ErkJggg==',
+    'base64',
+  )
+  const rel = (n: string) =>
+    strToU8(
+      `<Relationships><Relationship Id="r1" Target="../media/${n}"/></Relationships>`,
+    )
+  const pptx = Buffer.from(
+    zipSync({
+      'ppt/slides/_rels/slide1.xml.rels': rel('a.png'),
+      'ppt/slides/_rels/slide2.xml.rels': rel('b.png'),
+      'ppt/media/a.png': new Uint8Array(png),
+      'ppt/media/b.png': new Uint8Array(png),
+    }),
+  )
+  const nlm = await openImport(page)
+  await nlm.getByLabel('Choose a file').setInputFiles({
+    name: 'deck.pptx',
+    mimeType:
+      'application/vnd.openxmlformats-officedocument.presentationml.presentation',
+    buffer: pptx,
+  })
+  await nlm.getByRole('button', { name: 'Add', exact: true }).click()
+  await expect(page.getByText(/Added to /)).toBeVisible()
+  await page.getByRole('button', { name: 'From NotebookLM' }).first().click()
+  await page.locator('[data-page-tabs-menu]').click()
+  await page.getByText('Slides', { exact: true }).click()
+  await page.keyboard.press('Escape')
+  await page
+    .locator('[data-page-tabs]')
+    .getByRole('button', { name: 'Slides' })
+    .click()
+  await expect(page.locator('[data-slide]')).toHaveCount(2)
+})

@@ -14,6 +14,12 @@ import { AppUiContext, TopBarSlotContext } from '../app/appUi'
 import { altShortcutLabel } from '../app/keys'
 import { runTask } from '../app/errors'
 import { PageReview, Segments, type PageTab } from '../app/summary/PageTabs'
+import {
+  EXTRA_TABS,
+  isExtraTab,
+  notebookPageTabs,
+  setNotebookPageTab,
+} from '../notebooks/pageTabs'
 import { SummaryView } from '../app/summary/SummaryView'
 import { MenuPopover, NameDialog, type MenuItem } from '../app/ui'
 import type { LearningNotesDB } from '../core/db'
@@ -83,6 +89,10 @@ import { openReader } from '../app/reading/readingTools'
 
 const PromptsDialog = lazy(() => import('../prompts/PromptsDialog'))
 
+const MindMapTab = lazy(() => import('./tabs/MindMapTab'))
+const SlidesTab = lazy(() => import('./tabs/SlidesTab'))
+const AudioTab = lazy(() => import('./tabs/AudioTab'))
+const DatabaseTab = lazy(() => import('./tabs/DatabaseTab'))
 const ExportDialog = lazy(() =>
   import('../share/export/ExportDialog').then((m) => ({
     default: m.ExportDialog,
@@ -188,7 +198,11 @@ export function PageView({
     pageId: string
     tab: PageTab
   }>({ pageId: page.id, tab: 'notes' })
-  const pageTab = pageTabState.pageId === page.id ? pageTabState.tab : 'notes'
+  const extraTabs = notebookPageTabs(notebook)
+  const rawTab = pageTabState.pageId === page.id ? pageTabState.tab : 'notes'
+  // A switched-off optional tab falls back to the notes.
+  const pageTab: PageTab =
+    isExtraTab(rawTab) && !extraTabs.includes(rawTab) ? 'notes' : rawTab
   const setPageTab = (tab: PageTab) => setPageTabState({ pageId: page.id, tab })
   const saveTemplate = () => setNaming(true)
   // The prompt library on this page (opened from the ⋯ menu; lazy).
@@ -548,7 +562,19 @@ export function PageView({
             onOpenTag={onOpenTag}
           />
           {withTabs && (
-            <Segments tab={pageTab} onTab={setPageTab} className="mb-3" />
+            <Segments
+              tab={pageTab}
+              onTab={setPageTab}
+              className="mb-3"
+              extras={extraTabs}
+              allExtras={EXTRA_TABS}
+              onToggleExtra={
+                notebook
+                  ? (tab, on) =>
+                      runTask(setNotebookPageTab(db, notebook.id, tab, on))
+                  : undefined
+              }
+            />
           )}
           {withTabs && pageTab === 'summary' && (
             <SummaryView
@@ -571,6 +597,28 @@ export function PageView({
                 onReview={() => onReview(true)}
               />
             </>
+          )}
+          {withTabs && notebook && isExtraTab(pageTab) && (
+            <Suspense fallback={null}>
+              {pageTab === 'mindMap' && (
+                <MindMapTab
+                  db={db}
+                  page={page}
+                  editable={!editLockBy}
+                  onEdited={onReload}
+                />
+              )}
+              {pageTab === 'slides' && <SlidesTab db={db} pageId={page.id} />}
+              {pageTab === 'audio' && <AudioTab db={db} pageId={page.id} />}
+              {pageTab === 'database' && (
+                <DatabaseTab
+                  db={db}
+                  page={page}
+                  workspaceId={notebook.workspaceId}
+                  onOpenPage={onOpenPage}
+                />
+              )}
+            </Suspense>
           )}
         </div>
         {/* The editor stays open (only hidden) on the other views, so no typing is lost. */}

@@ -95,6 +95,8 @@ export interface Notebook extends BaseRecord {
    * the version 4 upgrade). Unset on special notebooks (journal, …).
    */
   tabs?: NotebookTab[]
+  /** Optional page tabs switched on for this notebook's pages (mindMap, slides, audio, database). Unset = none. */
+  pageTabs?: string[]
   /** I1: how the notebook shows its pages: covers and thumbnails, or coloured section tabs. Unset = default. */
   view?: 'shelf' | 'tabs'
   /** I1: the view each tab uses (tab id → view), remembered per notebook. */

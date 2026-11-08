@@ -1,5 +1,5 @@
 import type { LearningNotesDB } from '../core/db'
-import { Segments, type PageTab } from '../app/summary/PageTabs'
+import { Segments, type BaseTab } from '../app/summary/PageTabs'
 import { t } from '../i18n/t'
 import type { SearchHit } from '../search/searchQuery'
 import { CardsTab } from './CardsTab'
@@ -29,8 +29,8 @@ export function AllCardsScreen({
   /** The daily highlight review tile (CR3), made by the reader feature. */
   highlights?: React.ReactNode
   /** The open view; Review unless the app says otherwise. */
-  tab?: PageTab
-  onTab?: (tab: PageTab) => void
+  tab?: BaseTab
+  onTab?: (tab: BaseTab) => void
   /** The whole-app Summary and Notes views, made by the app. */
   summary?: React.ReactNode
   notes?: React.ReactNode

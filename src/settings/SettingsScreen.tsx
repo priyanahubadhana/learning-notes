@@ -31,6 +31,7 @@ import './lockSettings'
 import '../ai/aiSettings'
 import { AiSection } from '../ai/AiSection'
 import { LockSection } from '../app/lock/LockSection'
+import { PageTabsSection } from './PageTabsSection'
 import '../sync/syncSettings'
 
 const PermissionsSection = lazy(() =>
@@ -155,6 +156,9 @@ export function SettingsScreen({
           {category === ALL && !q && <DeviceSection db={db} />}
           {category === ALL && !q && <AboutSection />}
           {category === 'lock' && <LockSection db={db} />}
+          {(category === 'general' || (category === ALL && !q)) && (
+            <PageTabsSection db={db} />
+          )}
           {category === 'ai' && <AiSection db={db} />}
           {category === 'permissions' && (
             <Suspense fallback={null}>

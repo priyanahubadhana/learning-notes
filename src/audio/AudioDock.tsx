@@ -54,7 +54,7 @@ function seekAndPlay(audio: HTMLAudioElement, seconds: number) {
 }
 
 /** One recording: name, length, Play (the sound is loaded only then) and Delete. */
-function RecordingRow({
+export function RecordingRow({
   recording,
   onDelete,
 }: {

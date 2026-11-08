@@ -115,7 +115,7 @@ test.describe('the paste chooser', () => {
     await paste(page, GEMINI, 'Agents explained')
     const dialog = page.getByRole('dialog', { name: 'Paste as' })
     await expect(dialog).toBeVisible()
-    await expect(dialog.getByRole('option')).toHaveCount(2)
+    await expect(dialog.getByRole('option')).toHaveCount(3)
     await page.keyboard.press('Enter')
     await expect(editor(page).locator('h2')).toHaveCount(1)
     const chip = page.getByRole('group', { name: 'Pasted as' })

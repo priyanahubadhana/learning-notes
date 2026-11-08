@@ -916,4 +916,5 @@ export const enO = {
   'embed.video': 'Video file',
   'pasteChooser.cleaned': 'Cleaned up',
   'embed.openLink': 'Open the link',
+  'pasteChooser.boxMade': 'Pasted into a new text box',
 }

@@ -2,6 +2,12 @@
 
 Current phase only. Older entries are in [ARCHIVE.md](ARCHIVE.md).
 
+## 2026-11-09 (Paste chooser: As text box on paper pages)
+
+- **What:** on a paper page a rich paste can go "As text box": a new box is made at the paste spot (under the caret; in order on phones) holding the pasted blocks, with a toast Undo that removes the box. No chip follows it. Uses the paper's own `addBox`, `addBoxInOrder` and `removeBox`; nothing inside src/paper was changed.
+- **Why:** owner-approved leftover of the paste pipeline.
+- **Files:** src/editor/pasteBox.ts, pasteBox.test.ts (new), pasteFlow.ts, src/i18n/enO.ts, esO.ts, hiO.ts, e2e/pasteBox.spec.ts, e2e/pasteSources.spec.ts (chooser now has 3 rows for rich HTML on a page), docs/features/copy-paste.md
+
 ## 2026-11-09 (Embeds: Vimeo, Loom and video files)
 
 - **What:** the Embed block now shows Vimeo (public and unlisted links), Loom (share and embed links) and direct .mp4 / .webm files (https only, an inline video). Same lone-address paste chooser ("Embed (video)", Link card, Plain URL). Like YouTube, nothing is loaded until Play is tapped; frames carry a sandbox. The allow-list is closed: `frame-src` in public/_headers gains player.vimeo.com and www.loom.com; any other address stays a link card.

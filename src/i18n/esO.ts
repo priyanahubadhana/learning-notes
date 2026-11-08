@@ -917,4 +917,5 @@ export const esO: Record<string, string> = {
   'embed.video': 'Archivo de vídeo',
   'pasteChooser.cleaned': 'Ordenado',
   'embed.openLink': 'Abrir el enlace',
+  'pasteChooser.boxMade': 'Pegado en un cuadro de texto nuevo',
 }

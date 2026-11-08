@@ -891,4 +891,5 @@ export const hiO: Record<string, string> = {
   'embed.video': 'वीडियो फ़ाइल',
   'pasteChooser.cleaned': 'साफ़ किया हुआ',
   'embed.openLink': 'लिंक खोलें',
+  'pasteChooser.boxMade': 'नए टेक्स्ट बॉक्स में चिपकाया गया',
 }

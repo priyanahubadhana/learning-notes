@@ -2,6 +2,11 @@
 
 Moved out of HANDOFF on 2026-11-06 (audit) so HANDOFF stays five lines. Newest first; each paragraph names its step. The run decision (master plan) is one owner iPad pass before Sync; the Phase A builder adds its checks at the top. Tick a paragraph by deleting it.
 
+## Paste "As text box" (9 Nov, iPad and PC)
+
+1. Paste set to "Ask each time". Copy a ChatGPT answer with a heading and a list, tap in a blank spot of a page, paste: the chooser has a third row "As text box".
+2. Choose it: a new box with the heading and list appears under the cursor; the page text is unchanged; the toast Undo removes the box. Drag it like any box.
+
 ## Vimeo, Loom and video files (9 Nov)
 
 1. Paste a Vimeo link, a Loom share link and a link to an .mp4 file (one at a time, Paste set to Ask each time): the chooser says "Embed (video)"; Enter makes a card with the name and address, no picture or sound yet.

@@ -824,6 +824,12 @@ The other older decisions stand as built (owner, 2026-11-01); they are in [ARCHI
 - Timestamps and screenshots stay YouTube only (they depend on the YouTube player messages).
 - CSP `frame-src` now lists three hosts (YouTube no-cookie, Vimeo player, Loom); `media-src` already allowed https.
 
+## Decisions to review (As text box, 9 Nov)
+
+- Offered for rich pastes only (the same ones the chooser already appears for) and never for an address or a database. The box starts 120 mm wide (or what fits) at the caret's x and just under its line; on the stacked phone layout it goes first in reading order. Its height grows with the content like any box.
+- The pasted content is made by the same parsers as the normal paste, then stored as the box's blocks in one transaction with the box; Undo is the toast (removes the box with History copy via `removeBox`).
+- A locked page refuses with the usual lock message and nothing is made.
+
 ## Decisions to review (database pages, 9 Nov)
 
 - No new Dexie version or table: the database engine, relations, rollups, formulas, tags and stars (number with stars format, max up to 10) already existed; "stars 1-10" is that format, not a new type.

@@ -22,6 +22,7 @@ import {
 } from './pasteSources'
 import { embedProps, parseEmbedUrl } from './embed/embedUrl'
 import { readAiConfig } from '../ai/route'
+import { boxHost, pasteIntoNewBox } from './pasteBox'
 
 /**
  * The paste pipeline. Order: our own copies keep everything (BlockNote's
@@ -36,7 +37,8 @@ type Editor = AppSchema['BlockNoteEditor']
 export type PasteKind =
   'html' | 'markdown' | 'tree' | 'table' | 'database' | 'url' | 'text'
 
-export type PasteChoice = 'keep' | 'plain' | 'table' | 'link' | 'cleanup'
+export type PasteChoice =
+  'keep' | 'plain' | 'table' | 'link' | 'cleanup' | 'box'
 
 /** Longest text one AI clean-up takes (cleanupAi.ts has the same limit). */
 const CLEANUP_MAX = 24_000
@@ -184,7 +186,11 @@ export function cleanupOffered(plan: PastePlan): boolean {
 }
 
 /** The choices a plan offers (the first is "Keep original format"). */
-export function choicesFor(plan: PastePlan): PasteChoice[] {
+export function choicesFor(
+  plan: PastePlan,
+  /** `box`: the editor is on a paper page (the paste can go in a new box). */
+  o: { box?: boolean } = {},
+): PasteChoice[] {
   const out: PasteChoice[] = ['keep']
   if (plan.kind === 'url') out.push('link')
   if (plan.rich) out.push('plain')
@@ -198,6 +204,9 @@ export function choicesFor(plan: PastePlan): PasteChoice[] {
     out.push('table')
   }
   if (cleanupOffered(plan)) out.push('cleanup')
+  if (o.box && plan.rich && !['url', 'database'].includes(plan.kind)) {
+    out.push('box')
+  }
   return out.length > 1 ? out : ['keep']
 }
 
@@ -223,6 +232,7 @@ export function labelKey(plan: PastePlan, choice: PasteChoice): string {
     return 'pasteChooser.plainUrl'
   }
   if (choice === 'cleanup') return 'pasteChooser.cleanup'
+  if (choice === 'box') return 'pasteChooser.asBox'
   return choice === 'keep'
     ? plan.cleaned
       ? 'pasteChooser.cleaned'
@@ -239,6 +249,7 @@ export function previewOf(plan: PastePlan, choice: PasteChoice): string {
     return one.length > 60 ? `${one.slice(0, 57)}…` : one
   }
   if (choice === 'cleanup') return t('pasteChooser.preview.cleanup')
+  if (choice === 'box') return t('pasteChooser.preview.box')
   if (choice === 'plain' || choice === 'link') return clip(plan.text)
   if (plan.kind === 'url') return clip(plan.url ?? plan.text)
   if (choice === 'table') {
@@ -275,7 +286,10 @@ export function previewOf(plan: PastePlan, choice: PasteChoice): string {
 export interface PasteContext {
   db: LearningNotesDB
   notebookId: string
-  toast: (message: string) => void
+  toast: (
+    message: string,
+    action?: { label: string; onSelect: () => void },
+  ) => void
 }
 let context: PasteContext | null = null
 export const pasteContext = (): PasteContext | null => context
@@ -356,6 +370,47 @@ async function databaseBlock(plan: PastePlan): Promise<unknown | null> {
   return { type: 'database', props: { databaseId: database.id } }
 }
 
+/** The pasted content as editor blocks (for a new box). */
+async function blocksOfPlan(
+  editor: Editor,
+  plan: PastePlan,
+): Promise<unknown[]> {
+  switch (plan.kind) {
+    case 'html':
+      return editor.tryParseHTMLToBlocks(plan.html ?? '')
+    case 'markdown':
+      return editor.tryParseMarkdownToBlocks(plan.markdown ?? '')
+    case 'tree':
+      return treeBlocks(plan.text)
+    case 'table':
+      return [tableBlock(plan.rows ?? [])]
+    default:
+      return plan.text
+        .replace(/\r\n?/g, '\n')
+        .split('\n')
+        .map((line) => ({ type: 'paragraph', content: line }))
+  }
+}
+
+/** "As text box": the paste goes into a new box at the paste spot. */
+async function applyAsBox(editor: Editor, plan: PastePlan): Promise<void> {
+  if (!context) return
+  const undo = await pasteIntoNewBox(
+    context.db,
+    editor,
+    (await blocksOfPlan(editor, plan)) as never,
+  )
+  if (!undo) {
+    // No paper around the editor: the paste goes in as it would have.
+    await applyPaste(editor, plan, 'keep')
+    return
+  }
+  context.toast(t('pasteChooser.boxMade'), {
+    label: t('annot.undo'),
+    onSelect: () => void undo(),
+  })
+}
+
 /** Runs a choice. Resolves when the content is in the page. */
 export async function applyPaste(
   editor: Editor,
@@ -374,6 +429,7 @@ export async function applyPaste(
     )
     return
   }
+  if (choice === 'box') return applyAsBox(editor, plan)
   if (choice === 'table') {
     const rows = tableRowsOf(plan)
     if (rows)
@@ -469,8 +525,10 @@ async function run(
   choice: PasteChoice,
 ): Promise<void> {
   await applyPaste(editor, plan, choice)
+  // A box has its own Undo (the toast); no chip.
+  if (choice === 'box') return setUi({ chip: null })
   // The chip swaps between forms of the same paste; a clean-up is its own step.
-  choices = choices.filter((c) => c !== 'cleanup')
+  choices = choices.filter((c) => c !== 'cleanup' && c !== 'box')
   if (choices.length < 2) return setUi({ chip: null })
   setUi({
     chip: {
@@ -526,7 +584,7 @@ export function pasteWith(
   }
   const plan = planPaste(data)
   if (!plan) return false
-  const choices = choicesFor(plan)
+  const choices = choicesFor(plan, { box: !!boxHost(editor) })
   const mode = readDeviceSetting(pasteModeSetting)
   setUi({ chip: null })
   if (
@@ -542,6 +600,10 @@ export function pasteWith(
         pick: (choice, remember) => {
           setUi({ chooser: null })
           if (choice === 'cleanup') return openCleanup(editor, plan)
+          if (choice === 'box') {
+            editor.focus()
+            return void run(editor, plan, choices, 'box')
+          }
           if (remember && (choice === 'keep' || choice === 'plain')) {
             writeDeviceSetting(
               pasteModeSetting,

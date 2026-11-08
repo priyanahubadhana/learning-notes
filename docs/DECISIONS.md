@@ -824,3 +824,5 @@ The other older decisions stand as built (owner, 2026-11-01); they are in [ARCHI
 - **2026-11-09 · iPad fix 5: picture action bar:** Resize button toggles the corner handles (they are on by default so the old tap-to-resize still works). Copy puts the picture on the clipboard as an image (needs the browser's permission; Cut never deletes if the copy failed).
 
 - **2026-11-09 · iPad fix 8: ink on pictures, bounce:** Root cause of the jump (not reproducible without an iPad): the overlay is placed from measured rects and the scroll event; the iOS bounce moves the page without scroll events, so the overlay and its clip went stale. Mitigated at three points (no bounce, per-frame placement during touch, visualViewport events) - owner please confirm on the iPad. Ink drawn on a picture BEFORE this change takes its reference width from the first session after the update (so it does not jump).
+
+- **2026-11-09 · iPad fix 9: paper zoom spring:** The e2e uses Ctrl+wheel (same zoom code as the pinch); the touch pinch itself needs the iPad.

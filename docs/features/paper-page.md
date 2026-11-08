@@ -16,7 +16,7 @@ Every page is paper. It shows as fixed sheets (A4, or Letter) with a border and 
 - **Step 2: paper look.**
   - `paper/PaperFrame.tsx` draws the sheets, which stack as the default box grows.
   - The background reuses `Page.inkBg` and the `[data-ink-paper]` CSS, with a fixed spacing: 8 mm lined, 5 mm grid and dots.
-  - Zoom runs from 50 % to 400 %: pinch with two fingers (the Pencil is ignored), Ctrl or ⌘ + wheel, or the − / % / + pill under the paper (% = fit width).
+  - Zoom runs from fit width (100 %) to 400 %; pinching out below fit gives way to about 73 % and springs back on release (`rubberZoom`, `springEase` in sheets.ts): pinch with two fingers (the Pencil is ignored), Ctrl or ⌘ + wheel, or the − / % / + pill under the paper (% = fit width).
   - Zoomed in, the paper pans sideways inside its frame; at 100 % the page scrolls exactly as before.
   - The full-screen reader keeps flowing text (`flat`, with the same tree, so the editor never remounts).
 

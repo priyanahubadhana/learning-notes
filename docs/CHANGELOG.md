@@ -2,6 +2,11 @@
 
 Current phase only. Older entries are in [ARCHIVE.md](ARCHIVE.md).
 
+## 2026-11-09 (iPad fix 9: paper zoom spring)
+
+- **What:** Pinch-out (or Ctrl+wheel) on a paper page gives way with resistance down to about 73% of fit width and eases back to fit (220 ms) on release; the − button stops at fit; zoom in is unchanged and stays where released. Ink follows because the zoom only changes the paper width.
+- **Files:** src/paper/PaperFrame.tsx, src/paper/sheets.ts, src/paper/zoomSpring.test.ts, e2e/paperPage.spec.ts, docs/features/paper-page.md
+
 ## 2026-11-09 (Prompt gaps and Lock editing, queue 3c)
 
 - **What:** (A1) open icon set: 66 Lucide icons (ISC licence kept in src/prompts/ICONS-LICENSE.txt), a skill may name lucide:name; drawn in the preview (shapes loaded lazily), saved notes use the matching emoji; emoji still work. (A2) "Prompts and skills" in the page ⋯ menu of every note page; the answer box is the preview, "Insert below" adds it with one Undo. (A3) Convert to text and the Write pad's AI engine can use a saved prompt (optional, device pref ai.readPrompt, default unchanged). (B) Lock editing: optional flag editLocked on Page and Notebook (no Dexie version, synced with the row, no passcode). Page ⋯ and notebook Tab options menus; bar "Locked — tap to unlock"; editor, title, ink and paper boxes read-only; new blocks and deletes refused in the services (addBlocks, deletePage, deleteNotebook); 🔏 mark in the sidebar. Separate from the privacy lock (PIN, locked) and from Allow AI while locked.

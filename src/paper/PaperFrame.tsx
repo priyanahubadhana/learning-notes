@@ -33,6 +33,8 @@ import { onWakeBox } from './wakeBox'
 import {
   clampZoom,
   NARROW_PX,
+  rubberZoom,
+  springEase,
   paperStepMm,
   sheetCount,
   SHEET_GAP_PX,
@@ -149,9 +151,14 @@ export function PaperFrame({
   useEffect(() => {
     const el = scroller.current
     if (!el) return
-    const zoomAt = (next: number, clientX: number, clientY: number) => {
+    const zoomAt = (
+      next: number,
+      clientX: number,
+      clientY: number,
+      exact = false,
+    ) => {
       const z0 = zoomRef.current
-      const z1 = clampZoom(next)
+      const z1 = exact ? next : clampZoom(next)
       if (z1 === z0) return
       const r = el.getBoundingClientRect()
       const px = el.scrollLeft + clientX - r.left
@@ -163,12 +170,37 @@ export function PaperFrame({
         el.scrollTop = (py * z1) / z0 - (clientY - r.top)
       })
     }
+    // Below fit width the paper only gives way while the fingers (or the
+    // wheel) hold it; on release it eases back to fit (no sticky zoom-out).
+    let spring = 0
+    let wheelTimer = 0
+    const springBack = (cx: number, cy: number) => {
+      cancelAnimationFrame(spring)
+      const from = zoomRef.current
+      if (!(from < 1)) return
+      const t0 = performance.now()
+      const step = (now: number) => {
+        const k = springEase((now - t0) / 220)
+        zoomAt(from + (1 - from) * k, cx, cy, true)
+        if (k < 1) spring = requestAnimationFrame(step)
+      }
+      spring = requestAnimationFrame(step)
+    }
     const wheel = (e: WheelEvent) => {
       if (!e.ctrlKey && !e.metaKey) return
       e.preventDefault()
-      zoomAt(zoomRef.current * Math.exp(-e.deltaY / 300), e.clientX, e.clientY)
+      cancelAnimationFrame(spring)
+      zoomAt(
+        rubberZoom(zoomRef.current * Math.exp(-e.deltaY / 300)),
+        e.clientX,
+        e.clientY,
+      )
+      window.clearTimeout(wheelTimer)
+      const { clientX, clientY } = e
+      wheelTimer = window.setTimeout(() => springBack(clientX, clientY), 180)
     }
     let pinch: { d: number; z: number } | null = null
+    let mid = { x: 0, y: 0 }
     const fingers = (e: TouchEvent) =>
       Array.from(e.touches).filter(
         (x) => (x as Touch & { touchType?: string }).touchType !== 'stylus',
@@ -177,20 +209,30 @@ export function PaperFrame({
       Math.hypot(a.clientX - b.clientX, a.clientY - b.clientY)
     const start = (e: TouchEvent) => {
       const f = fingers(e)
-      if (f.length === 2) pinch = { d: dist(f[0], f[1]), z: zoomRef.current }
+      if (f.length === 2) {
+        cancelAnimationFrame(spring)
+        pinch = { d: dist(f[0], f[1]), z: zoomRef.current }
+      }
     }
     const move = (e: TouchEvent) => {
       const f = fingers(e)
       if (!pinch || f.length !== 2) return
       if (e.cancelable) e.preventDefault()
+      mid = {
+        x: (f[0].clientX + f[1].clientX) / 2,
+        y: (f[0].clientY + f[1].clientY) / 2,
+      }
       zoomAt(
-        (pinch.z * dist(f[0], f[1])) / Math.max(1, pinch.d),
-        (f[0].clientX + f[1].clientX) / 2,
-        (f[0].clientY + f[1].clientY) / 2,
+        rubberZoom((pinch.z * dist(f[0], f[1])) / Math.max(1, pinch.d)),
+        mid.x,
+        mid.y,
       )
     }
     const end = (e: TouchEvent) => {
-      if (fingers(e).length < 2) pinch = null
+      if (fingers(e).length < 2) {
+        if (pinch) springBack(mid.x, mid.y)
+        pinch = null
+      }
     }
     // Safari's own page pinch must not fight ours.
     const gesture = (e: Event) => e.preventDefault()
@@ -201,6 +243,8 @@ export function PaperFrame({
     el.addEventListener('touchcancel', end, { capture: true })
     el.addEventListener('gesturestart', gesture)
     return () => {
+      cancelAnimationFrame(spring)
+      window.clearTimeout(wheelTimer)
       el.removeEventListener('wheel', wheel)
       el.removeEventListener('touchstart', start, { capture: true })
       el.removeEventListener('touchmove', move, { capture: true })
@@ -616,7 +660,7 @@ export function PaperFrame({
             <button
               type="button"
               aria-label={t('paper.zoomOut')}
-              onClick={() => setZoom((z) => clampZoom(z / 1.25))}
+              onClick={() => setZoom((z) => Math.max(1, clampZoom(z / 1.25)))}
               className="min-h-8 min-w-8 rounded-full hover:bg-hover"
             >
               −

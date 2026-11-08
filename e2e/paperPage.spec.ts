@@ -276,3 +276,32 @@ test('fit width on a phone: the boxes stack under the text in reading order', as
   const sw = await page.evaluate(() => document.documentElement.scrollWidth)
   expect(sw).toBeLessThanOrEqual(390)
 })
+
+test('pinching out gives way a little, then springs back to fit width', async ({
+  page,
+}) => {
+  await page.goto('/')
+  await createNotebook(page, 'Paper', 'Sheet one')
+  await typeInEditor(page, 'Hello paper')
+  const sheet = page.locator('[data-paper-sheet="1"]')
+  const fit = (await sheet.boundingBox())!.width
+  const fitButton = page.getByRole('button', { name: 'Fit width' })
+  // Ctrl + wheel stands in for the pinch (same code path): zoom out hard.
+  const scroller = (await sheet.boundingBox())!
+  await page.mouse.move(scroller.x + 100, scroller.y + 100)
+  await page.keyboard.down('Control')
+  for (let i = 0; i < 8; i++) await page.mouse.wheel(0, 400)
+  await page.keyboard.up('Control')
+  const squeezed = (await sheet.boundingBox())!.width
+  expect(squeezed).toBeLessThan(fit)
+  expect(squeezed).toBeGreaterThan(fit * 0.7)
+  // Let go: back to fit, not stuck at 73 %.
+  await expect(fitButton).toHaveText('100 %')
+  await expect
+    .poll(async () => (await sheet.boundingBox())!.width)
+    .toBeCloseTo(fit, 0)
+  // Zooming in still stays where it is released.
+  await page.getByRole('button', { name: 'Zoom in' }).click()
+  await page.waitForTimeout(500)
+  await expect(fitButton).toHaveText('125 %')
+})

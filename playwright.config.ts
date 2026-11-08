@@ -118,6 +118,7 @@ export default defineConfig({
         /lassoMenuOrder/,
         /handwritingChooser/,
         /autoUpdate/,
+        /paperBudget/,
       ],
       use: { ...devices['iPad Pro 11'], hasTouch: true },
       expect: { timeout: 15_000 },

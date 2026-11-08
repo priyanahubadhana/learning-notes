@@ -1,10 +1,12 @@
 import {
   useCallback,
   useEffect,
+  useImperativeHandle,
   useLayoutEffect,
   useRef,
   useState,
   type CSSProperties,
+  type Ref,
   type PointerEvent as ReactPointerEvent,
   type ReactNode,
 } from 'react'
@@ -44,6 +46,7 @@ export function PaperFrame({
   page,
   flat = false,
   renderBox,
+  eager,
   onAddBox,
   onBoxChange,
   onBoxMenu,
@@ -54,6 +57,8 @@ export function PaperFrame({
   page: Pick<Page, 'id' | 'sheet' | 'inkBg' | 'boxes'>
   /** The block editor of a box other than the default one. */
   renderBox?: (boxId: string) => ReactNode
+  /** A box whose editor is made at once (just made: it takes the caret). */
+  eager?: string | null
   /** A tap on empty paper (mm); unset = no new boxes (read-only). */
   onAddBox?: (at: { x: number; y: number }) => void
   onBoxChange?: (boxId: string, patch: Partial<PaperBox>) => void
@@ -245,7 +250,10 @@ export function PaperFrame({
   }
   // Step 5: the Lasso on empty paper picks whole boxes (their ink moves with
   // them, as it is linked to their lines); a selected box's grip moves all.
-  const [loop, setLoop] = useState<{ x: number; y: number }[] | null>(null)
+  // The loop being drawn lives in its own small component, so each move
+  // redraws one line, not every box of the page.
+  const loopLayer = useRef<LoopApi>(null)
+  const loop = useRef<Pt[] | null>(null)
   const [picked, setPicked] = useState<string[]>([])
   const toPaper = (e: ReactPointerEvent) => {
     const r = paperEl.current!.getBoundingClientRect()
@@ -259,24 +267,30 @@ export function PaperFrame({
     } catch {
       // The moves still bubble here.
     }
-    setLoop([toPaper(e)])
+    loop.current = [toPaper(e)]
+    loopLayer.current?.set(loop.current)
     return true
   }
   const lassoUp = () => {
-    if (!loop) return
-    const poly = loop
-    setLoop(null)
+    const poly = loop.current
+    if (!poly) return
+    loop.current = null
+    loopLayer.current?.set(null)
     if (poly.length < 3) return setPicked([])
+    const p = paperEl.current?.getBoundingClientRect()
+    if (!p) return
+    // One pass: every box found once, not one search per box.
+    const frames = new Map<string, HTMLElement>()
+    paperEl.current
+      ?.querySelectorAll<HTMLElement>('[data-paper-box]')
+      .forEach((el) => frames.set(el.dataset.paperBox ?? '', el))
     setPicked(
       extra
         .filter((b) => {
-          const el = paperEl.current?.querySelector<HTMLElement>(
-            '[data-paper-box="' + CSS.escape(b.id) + '"]',
-          )
-          if (!el || !paperEl.current) return false
+          const el = frames.get(b.id)
+          if (!el) return false
           // Where the box is on screen, in paper px (as the loop is).
           const r = el.getBoundingClientRect()
-          const p = paperEl.current.getBoundingClientRect()
           const c = {
             x: r.left - p.left + r.width / 2,
             y: r.top - p.top + r.height / 2,
@@ -302,9 +316,9 @@ export function PaperFrame({
     pen.current = [record('pointerdown', e.nativeEvent)]
   }
   const penMove = (e: ReactPointerEvent<HTMLDivElement>) => {
-    if (loop) {
-      const p = toPaper(e)
-      setLoop((l) => (l ? [...l, p] : l))
+    if (loop.current) {
+      loop.current.push(toPaper(e))
+      loopLayer.current?.set(loop.current)
     }
     pen.current?.push(record('pointermove', e.nativeEvent))
   }
@@ -365,22 +379,7 @@ export function PaperFrame({
           : { position: 'relative', height: 0, zIndex: 6 }
       }
     >
-      {loop && (
-        <svg
-          aria-hidden
-          data-paper-lasso
-          className="pointer-events-none absolute top-0 left-0 overflow-visible"
-          width="1"
-          height="1"
-        >
-          <polyline
-            points={loop.map((p) => p.x + ',' + p.y).join(' ')}
-            fill="none"
-            stroke="var(--color-accent)"
-            strokeDasharray="4 3"
-          />
-        </svg>
-      )}
+      <LoopLayer ref={loopLayer} />
       {extra.map((b) => (
         <BoxFrame
           key={b.id}
@@ -403,7 +402,13 @@ export function PaperFrame({
             }
           }}
         >
-          {renderBox?.(b.id)}
+          <LazyMount
+            ready={fit > 0}
+            eager={b.id === eager}
+            height={(step / zoom) * 3}
+          >
+            {renderBox?.(b.id)}
+          </LazyMount>
         </BoxFrame>
       ))}
     </div>
@@ -757,4 +762,99 @@ function inPolygon(
       inside = !inside
   }
   return inside
+}
+
+type Pt = { x: number; y: number }
+type LoopApi = { set: (points: Pt[] | null) => void }
+
+/** The Lasso loop on the paper; redraws alone while the pen moves. */
+function LoopLayer({ ref }: { ref: Ref<LoopApi> }) {
+  const [points, setPoints] = useState<Pt[] | null>(null)
+  useImperativeHandle(ref, () => ({
+    set: (p) => setPoints(p && [...p]),
+  }))
+  if (!points) return null
+  return (
+    <svg
+      aria-hidden
+      data-paper-lasso
+      className="pointer-events-none absolute top-0 left-0 overflow-visible"
+      width="1"
+      height="1"
+    >
+      <polyline
+        points={points.map((p) => p.x + ',' + p.y).join(' ')}
+        fill="none"
+        stroke="var(--color-accent)"
+        strokeDasharray="4 3"
+      />
+    </svg>
+  )
+}
+
+/** The nearest ancestor that scrolls up and down (null = the window). */
+function scrollParent(node: HTMLElement): HTMLElement | null {
+  for (let p = node.parentElement; p; p = p.parentElement) {
+    const y = getComputedStyle(p).overflowY
+    if (y === 'auto' || y === 'scroll' || y === 'overlay') return p
+  }
+  return null
+}
+
+/** How far outside the screen a box's editor is made ready (px). */
+const NEAR_PX = 800
+
+/**
+ * A box's editor is made only when the box comes near the screen (before
+ * that a light placeholder of about its height stands in), so a page with
+ * many boxes opens with a few editors, not all. Once made it stays: an open
+ * editor is never torn down while it may hold unsaved text.
+ */
+function LazyMount({
+  ready,
+  eager,
+  height,
+  children,
+}: {
+  /** The paper has its width: boxes are where they will be. */
+  ready: boolean
+  eager: boolean
+  height: number
+  children: ReactNode
+}) {
+  const [near, setNear] = useState(typeof IntersectionObserver === 'undefined')
+  const el = useRef<HTMLDivElement>(null)
+  const on = near || eager
+  useEffect(() => {
+    const node = el.current
+    if (on || !ready || !node) return
+    // The margin only counts for the scrolling parent as the root (with the
+    // window as root, a scrolling parent clips the box with no margin).
+    const io = new IntersectionObserver(
+      (entries) => {
+        if (entries.some((e) => e.isIntersecting)) setNear(true)
+      },
+      { root: scrollParent(node), rootMargin: NEAR_PX + 'px 0px' },
+    )
+    io.observe(node)
+    return () => io.disconnect()
+  }, [on, ready])
+  if (on) return <>{children}</>
+  return (
+    <div
+      ref={el}
+      data-box-placeholder
+      aria-hidden
+      className="flex flex-col justify-around opacity-60"
+      style={{ minHeight: height }}
+    >
+      {[0, 1, 2].map((i) => (
+        <div
+          key={i}
+          className="h-2 rounded-full bg-soft"
+          style={{ width: 90 - i * 25 + '%' }}
+        />
+      ))}
+    </div>
+  )
 }

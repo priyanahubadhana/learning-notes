@@ -541,6 +541,7 @@ export function PageView({
             page={page}
             flat={reader}
             renderBox={editorOf}
+            eager={boxes.fresh}
             onAddBox={boxes.onAddBox}
             onBoxChange={boxes.onBoxChange}
             onBoxMenu={boxes.onBoxMenu}

@@ -98,6 +98,8 @@ export default defineConfig({
         /pencilTaps/,
         /paperPage/,
         /paperInk/,
+        /paperHint/,
+        /paperStyle/,
         /pillFloat/,
         /lassoWords/,
         /gestureWatchdog/,

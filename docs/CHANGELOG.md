@@ -2,6 +2,12 @@
 
 Current phase only. Older entries are in [ARCHIVE.md](ARCHIVE.md).
 
+## 2026-11-08 (Polish 2 item 8: paper shows a tap makes a box)
+
+- **What:** an empty page shows a faint "Type, or tap anywhere on the paper to add a box" on the first sheet (first 3 pages opened on a device, kept in this browser only, gone once the page has words); with the Text tool, a mouse or Pencil hovering empty paper shows a "+ box" tag by the pointer (body portal, not on touch); the default box shows a dashed outline while it has the caret.
+- **Why:** the tap-to-box could not be discovered.
+- **Files:** `src/paper/{PaperFrame.tsx,hintPages.ts(+test)}`, `src/pages/PageView.tsx`, `src/i18n/{en,es,hi}O.ts`, `e2e/paperHint.spec.ts`, `playwright.config.ts`.
+
 ## 2026-11-08 (Paper: the page holds still under a gesture; R6-10 palm test)
 
 - **What:** a Pen or Lasso touch on the page closes the tool's options pill; the room the pill kept (the space under the bar, or the scroller padding) is now given back only when every pointer has lifted (`app/tools/main/gestureHold.ts`), so the page no longer jumps by the pill's height under a stroke or a Lasso loop (it moved 62 px before). A late give-back never undoes a pill opened again meanwhile. The pill still keeps its room while open (the "pill clear of text" checks stay). R6-10 palm test: the palm is a raw touch at a place measured before the Pencil tap; a locator tap waits for actionability and on a slow CI machine landed after the 500 ms palm window (test timing, not an app bug).

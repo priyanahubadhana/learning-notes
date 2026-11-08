@@ -6,6 +6,7 @@ import {
   useContext,
   useEffect,
   useLayoutEffect,
+  useMemo,
   useRef,
   useState,
 } from 'react'
@@ -30,7 +31,8 @@ import { recordVersion } from '../history/versionService'
 import { dateKey } from '../journal/dates'
 import { t } from '../i18n/t'
 import { getNotebook } from '../notebooks/notebookService'
-import { saveAsTemplate } from '../templates/templateService'
+import { isPageBlank, saveAsTemplate } from '../templates/templateService'
+import { hintPageOk } from '../paper/hintPages'
 import { NewPageStart } from '../templates/NewPageStart'
 import { getPagePath, setPagePathStyle } from './pageService'
 import { PagePath } from './PagePath'
@@ -328,6 +330,8 @@ export function PageView({
   ]
 
   const boxes = usePaperBoxes(db, page.id, !reader && !isTemplate)
+  const hintPage = useMemo(() => hintPageOk(page.id), [page.id])
+  const blankPage = useLiveQuery(() => isPageBlank(db, page.id), [db, page.id])
   /** The page editor of one box (unset = the default box, as before). */
   const editorOf = (boxId?: string) => (
     <PageEditor
@@ -509,6 +513,9 @@ export function PageView({
             onBoxChange={boxes.onBoxChange}
             onBoxMenu={boxes.onBoxMenu}
             onInkOnPaper={boxes.onInkOnPaper}
+            showHint={
+              hintPage && !!blankPage && !!boxes.onAddBox && !page.boxes?.length
+            }
           >
             {editorOf()}
           </PaperFrame>

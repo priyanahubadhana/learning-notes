@@ -2,6 +2,10 @@
 
 Moved out of HANDOFF on 2026-11-06 (audit) so HANDOFF stays five lines. Newest first; each paragraph names its step. The run decision (master plan) is one owner iPad pass before Sync; the Phase A builder adds its checks at the top. Tick a paragraph by deleting it.
 
+## Paper hint and + box (8 Nov, Polish 2 item 8)
+
+1. New page: the faint hint is on the sheet; type a word and it goes. With the Pencil hovering (iPad Pro M2 or later) or a mouse over empty paper (Text tool), a small "+ box" tag follows; tap: a box appears. Needs human eyes: how faint and how helpful it feels.
+
 ## Automatic updates (8 Nov)
 
 1. After the next deploy, keep the app open on the iPad and write something. Within a few seconds of stopping (or of coming back to the app) it restarts by itself on the same page and scroll with "Updated to the latest version". It never restarts while the Pencil is on the glass or while you type.

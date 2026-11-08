@@ -456,6 +456,8 @@ export const esO: Record<string, string> = {
   'paper.size': 'Tamaño del papel',
   'paper.sizeA4': 'A4',
   'paper.sizeLetter': 'Carta',
+  'paper.hint': 'Escribe, o toca el papel donde quieras para añadir un cuadro',
+  'paper.addBox': '+ cuadro',
   'help.tip.paper.zoomIn.meaning': 'Hace el papel más grande.',
   'help.tip.paper.zoomIn.example':
     'Pellizca con dos dedos, o Ctrl y la rueda del ratón.',

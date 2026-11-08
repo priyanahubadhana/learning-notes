@@ -8,6 +8,7 @@ import {
   type PointerEvent as ReactPointerEvent,
   type ReactNode,
 } from 'react'
+import { createPortal } from 'react-dom'
 import { Tip } from '../help/Help'
 import { t } from '../i18n/t'
 import type { Page, PaperBox } from '../core/types'
@@ -46,6 +47,7 @@ export function PaperFrame({
   onBoxChange,
   onBoxMenu,
   onInkOnPaper,
+  showHint = false,
   children,
 }: {
   page: Pick<Page, 'sheet' | 'inkBg' | 'boxes'>
@@ -63,6 +65,8 @@ export function PaperFrame({
     at: { x: number; y: number; w: number },
     lines: number,
   ) => Promise<string | null>
+  /** The page is empty and among the first few: show the "tap to add a box" hint. */
+  showHint?: boolean
   /** The full-screen reader: plain flowing text, same tree (nothing remounts). */
   flat?: boolean
   children: ReactNode
@@ -212,6 +216,18 @@ export function PaperFrame({
   // Rule 4: a stroke on empty paper is recorded, a box is made under it and
   // the stroke is played into that box's ink pad.
   const pen = useRef<Recorded[] | null>(null)
+  // Where the mouse or Pencil hovers over empty paper (a "+ box" tag).
+  const [hover, setHover] = useState<{ x: number; y: number } | null>(null)
+  const hoverMove = (e: ReactPointerEvent<HTMLDivElement>) => {
+    const ok =
+      !!onAddBox &&
+      e.pointerType !== 'touch' &&
+      activeTool.get() === 'text' &&
+      e.buttons === 0 &&
+      (e.target === e.currentTarget ||
+        !!(e.target as Element).closest('[data-paper-sheet]'))
+    setHover(ok ? { x: e.clientX, y: e.clientY } : null)
+  }
   // Step 5: the Lasso on empty paper picks whole boxes (their ink moves with
   // them, as it is linked to their lines); a selected box's grip moves all.
   const [loop, setLoop] = useState<{ x: number; y: number }[] | null>(null)
@@ -418,7 +434,12 @@ export function PaperFrame({
             <div
               data-paper-sheets
               onPointerDown={penDown}
-              onPointerMove={penMove}
+              onPointerMove={(e) => {
+                penMove(e)
+                hoverMove(e)
+              }}
+              onPointerLeave={() => setHover(null)}
+              onPointerCancel={() => setHover(null)}
               onPointerUp={(e) => {
                 penUp(e)
                 tapPaper(e)
@@ -429,7 +450,7 @@ export function PaperFrame({
                   key={i}
                   data-paper-sheet={i + 1}
                   data-paper-bg={page.inkBg}
-                  className="rounded-sm border border-line bg-surface shadow-sm"
+                  className="relative rounded-sm border border-line bg-surface shadow-sm"
                   style={
                     {
                       height: sheetPx,
@@ -438,13 +459,40 @@ export function PaperFrame({
                       '--paper-offset': ((box.y * k) % step) + 'px',
                     } as CSSProperties
                   }
-                />
+                >
+                  {i === 0 && showHint && extra.length === 0 && (
+                    <p
+                      data-paper-hint
+                      className="pointer-events-none absolute inset-x-0 mx-auto w-max max-w-[80%] text-center text-sm text-muted"
+                      style={{ top: box.y * k + step * 5 }}
+                    >
+                      {t('paper.hint')}
+                    </p>
+                  )}
+                </div>
               ))}
+              {hover &&
+                createPortal(
+                  <span
+                    data-paper-addbox
+                    aria-hidden
+                    className="pointer-events-none fixed z-50 rounded-full bg-accent px-2 py-0.5 text-xs text-white shadow-sm"
+                    style={{ left: hover.x + 12, top: hover.y + 12 }}
+                  >
+                    {t('paper.addBox')}
+                  </span>,
+                  document.body,
+                )}
             </div>
           )}
           <div
             ref={boxEl}
             data-paper-box="main"
+            className={
+              flat
+                ? undefined
+                : 'rounded-md outline-1 outline-dashed outline-transparent focus-within:outline-line'
+            }
             style={
               flat
                 ? undefined

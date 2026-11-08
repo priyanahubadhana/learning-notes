@@ -28,6 +28,8 @@ Every page is paper. It shows as fixed sheets (A4, or Letter) with a border and 
 
 - **Step 6.** Fit width below a 480 px column: no sheets, boxes stacked in reading order, column wide.
 
+- **Discoverability (Polish 2 item 8).** Empty page: faint tap hint on the first sheet (first 3 pages per device); Text tool + mouse/Pencil hover on empty paper: "+ box" tag; the default box outlines while it has the caret.
+
 ## Not yet
 
 - Ink rules 6 (Lasso ink + text as one piece) and 9 (copy a line with its ink); ink at a zoom other than 100 %.

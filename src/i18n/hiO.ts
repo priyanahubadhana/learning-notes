@@ -441,6 +441,8 @@ export const hiO: Record<string, string> = {
   'paper.size': 'कागज़ का आकार',
   'paper.sizeA4': 'A4',
   'paper.sizeLetter': 'लेटर',
+  'paper.hint': 'लिखें, या कागज़ पर कहीं भी टैप करके बॉक्स जोड़ें',
+  'paper.addBox': '+ बॉक्स',
   'help.tip.paper.zoomIn.meaning': 'कागज़ को बड़ा करता है।',
   'help.tip.paper.zoomIn.example':
     'दो उँगलियों से पिंच करें, या Ctrl और माउस व्हील।',

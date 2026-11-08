@@ -20,6 +20,7 @@ import {
 import { ErrorBoundary } from './app/ErrorBoundary'
 import { FirstUseTip } from './help/FirstUseTip'
 import { handwritingChooser } from './app/tools/handwriting'
+import { welcomeNeeded, welcomeOpen } from './onboarding/onboardingState'
 import { lassoSheetOpen } from './ink/lassoMenu'
 import { SaveNotice } from './app/SaveNotice'
 import { onStorageFull, reportError, runTask } from './app/errors'
@@ -139,6 +140,9 @@ let HomeLoaded: typeof import('./home/HomeScreen').HomeScreen | null = null
 const loadHome = () =>
   import('./home/HomeScreen').then((m) => (HomeLoaded = m.HomeScreen))
 const HomeLazy = lazy(() => loadHome().then((c) => ({ default: c })))
+const Welcome = lazy(() =>
+  import('./onboarding/Welcome').then((m) => ({ default: m.Welcome })),
+)
 const LassoMenuSheet = lazy(() =>
   import('./ink/LassoMenuSheet').then((m) => ({ default: m.LassoMenuSheet })),
 )
@@ -392,9 +396,12 @@ function App() {
   const space = usableSpace(lastSpace, hiddenSpaces)
   const handwritingOpen = handwritingChooser.useValue()
   const lassoSheet = lassoSheetOpen.useValue()
+  // The first-run welcome (it takes the place of the device picker).
+  const [welcomeAtStart, setWelcomeAtStart] = useState(welcomeNeeded)
+  const welcomeAgain = welcomeOpen.useValue()
   // The device picker.
   const [devicePicker, setDevicePicker] = useState(
-    () => !devicePickerDone.get(),
+    () => !devicePickerDone.get() && !welcomeNeeded(),
   )
   /** Opens a notebook's tabs (Notes · Database · Cards). */
   const openNotebookTabs = (id: string) => {
@@ -409,8 +416,10 @@ function App() {
    * unfolded to it, as the setting says; "tabs" or an empty notebook opens
    * the notebook screen.
    */
-  const openNotebook = (id: string) => {
-    const mode = readDeviceSetting(openNotebookAtSetting)
+  const openNotebook = (
+    id: string,
+    mode = readDeviceSetting(openNotebookAtSetting),
+  ) => {
     if (mode === 'tabs') return openNotebookTabs(id)
     void pageForNotebook(db, id, mode).then(async (page) => {
       if (!page) return openNotebookTabs(id)
@@ -918,6 +927,18 @@ function App() {
         .then((name) => name && runTask(renameNotebook(db, notebook.id, name)))
     } else setRenamingNotebookId(notebook.id)
     await createPageIn(notebook.id, null, false)
+  }
+
+  const closeWelcome = () => {
+    setWelcomeAtStart(false)
+    welcomeOpen.set(false)
+  }
+  /** "Start here" (polish 2, item 2): makes the sample notebook and opens its first page. */
+  const startHere = async () => {
+    if (!workspace) return
+    const { loadStartHere } = await import('./onboarding/startHere')
+    const { notebook } = await loadStartHere(db, workspace.id)
+    openNotebook(notebook.id, 'first')
   }
 
   /** "New page from this template": in the first normal notebook. */
@@ -1726,6 +1747,17 @@ function App() {
                   }}
                   onSeeAll={openSearch}
                   initialChip={searchChip}
+                />
+              </Suspense>
+            )}
+            {(welcomeAtStart || welcomeAgain) && (
+              <Suspense fallback={null}>
+                <Welcome
+                  onSkip={closeWelcome}
+                  onFinish={(sample) => {
+                    closeWelcome()
+                    if (sample) runTask(startHere())
+                  }}
                 />
               </Suspense>
             )}

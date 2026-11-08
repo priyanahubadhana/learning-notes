@@ -7,7 +7,21 @@ import { expect, test, type Page } from '@playwright/test'
  * laptop). The other specs start with it answered; these start without.
  */
 
-test.use({ storageState: { cookies: [], origins: [] } })
+// The first-run welcome (polish 2) takes the picker's place on a brand-new device;
+// it is marked as seen here so these tests still reach the picker itself.
+test.use({
+  storageState: {
+    cookies: [],
+    origins: [
+      {
+        origin: 'http://localhost:' + (process.env.PW_PORT ?? 5199),
+        localStorage: [
+          { name: 'learning-notes:onboarding.done', value: 'true' },
+        ],
+      },
+    ],
+  },
+})
 
 const dialog = (page: Page) =>
   page.getByRole('dialog', { name: 'Which device is this?' })

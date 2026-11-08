@@ -59,7 +59,18 @@ test.describe('an iPad that says it is a Mac', () => {
     viewport: { width: 820, height: 1180 },
     hasTouch: true,
     isMobile: true,
-    storageState: { cookies: [], origins: [] },
+    // The welcome is marked as seen, so the device picker is the first thing.
+    storageState: {
+      cookies: [],
+      origins: [
+        {
+          origin: 'http://localhost:' + (process.env.PW_PORT ?? 5199),
+          localStorage: [
+            { name: 'learning-notes:onboarding.done', value: 'true' },
+          ],
+        },
+      ],
+    },
   })
 
   test('starts in Touch mode with the bar showing', async ({ page }) => {

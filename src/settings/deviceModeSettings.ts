@@ -38,6 +38,7 @@ import {
 import { applyNoteStyle } from '../app/tools/main/textStyle'
 import { activeTool, offerLastToolOnce } from '../app/tools/main/mainTools'
 import { migrateBarOff } from '../app/tools/toolbarVisibility'
+import { onboardingPending } from '../onboarding/onboardingState'
 import { readDeviceSetting } from './settingsService'
 import { useDeviceSetting } from './useSetting'
 
@@ -68,6 +69,8 @@ export function initDeviceMode(): void {
     null,
   )
   if (stored === null) {
+    // A brand-new device: the welcome (polish 2, item 1) opens once.
+    onboardingPending.set(true)
     applyDeviceMode(detectDeviceMode())
     writePref(RECHECKED_KEY, true)
     return

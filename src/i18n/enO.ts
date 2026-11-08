@@ -12,6 +12,56 @@ export const enO = {
   'reading.goal.week_one': 'Goal reached on {count} day this week',
   'reading.goal.week_other': 'Goal reached on {count} days this week',
   // ---- Polish 2 ----
+  'welcome.title': 'Welcome',
+  'welcome.step': 'Step {n} of {total}',
+  'welcome.skip': 'Skip',
+  'welcome.back': 'Back',
+  'welcome.next': 'Next',
+  'welcome.way.title': 'How will you write?',
+  'welcome.way.help':
+    'This sets up the toolbar for you. You can change it any time.',
+  'welcome.way.keyboard': 'Keyboard',
+  'welcome.way.keyboard.line': 'Type with a keyboard and mouse or trackpad.',
+  'welcome.way.finger': 'Finger',
+  'welcome.way.finger.line':
+    'Tap and type on a phone or tablet with your finger.',
+  'welcome.way.pencil': 'Apple Pencil',
+  'welcome.way.pencil.line':
+    'The Pencil writes and draws; your finger scrolls and taps the tools.',
+  'welcome.look.title': 'Language and theme',
+  'welcome.start.title': 'Where do you want to start?',
+  'welcome.start.help':
+    'The Start here notebook has five short pages that teach the app by doing. You can delete it later.',
+  'welcome.start.sample': 'Start with the Start here notebook',
+  'welcome.start.empty': 'Start empty',
+  'settings.welcomeAgain': 'Show the welcome again',
+  'startHere.title': 'Start here',
+  'startHere.p1.title': '1. Write on paper',
+  'startHere.p1.body':
+    'Every page is paper. Pick the Pen on the bar and write here with your Pencil or finger.',
+  'startHere.p1.try': 'Try it: choose the Pen, then write your name below.',
+  'startHere.p2.title': '2. Make a box',
+  'startHere.p2.body':
+    'With the Text tool, tap empty paper and a new box appears. A box holds text, pictures or ink, and you can move and resize it.',
+  'startHere.p2.try':
+    'Try it: tap empty paper below this line and type in the new box.',
+  'startHere.p3.title': '3. Lasso and convert',
+  'startHere.p3.body':
+    'The Lasso picks ink. Loop some handwriting, then choose Convert to text to turn it into typed words.',
+  'startHere.p3.try':
+    'Try it: write a word with the Pen, pick the Lasso, loop the word and choose Convert to text.',
+  'startHere.p4.title': '4. Write pad',
+  'startHere.p4.body':
+    'The Write pad is a roomy place to handwrite. Your words land on the page when you tap Insert.',
+  'startHere.p4.try':
+    'Try it: Insert › Handwriting › Write pad, write a sentence and tap Insert.',
+  'startHere.p5.title': '5. Make a card and review it',
+  'startHere.p5.body':
+    'A recall card is a question with a hidden answer. Review brings it back just before you would forget it.',
+  'startHere.p5.try':
+    'Try it: the card below is ready. Open Home and tap the due count, then rate it.',
+  'startHere.card.q': 'What does the Lasso do?',
+  'startHere.card.a': 'It picks ink so you can move it or convert it to text.',
   'search.clear': 'Clear search',
   'home.due.tile': '{count} due · Start',
   'lassoMenu.title': 'Arrange the Lasso menu',

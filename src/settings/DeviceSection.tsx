@@ -3,6 +3,7 @@ import { useEffect, useState } from 'react'
 import type { LearningNotesDB } from '../core/db'
 import { isStorageProtected } from '../core/storage'
 import { t } from '../i18n/t'
+import { welcomeOpen } from '../onboarding/onboardingState'
 import { dateKey, shortDayLabel } from '../journal/dates'
 import { lastBackupAt } from '../share/backupReminder'
 import { shortcutShiftLabel } from '../app/keys'
@@ -55,6 +56,13 @@ export function DeviceSection({ db }: { db: LearningNotesDB }) {
           className="min-h-11 rounded-lg border border-line px-3 hover:bg-hover"
         >
           {t('settings.devicePicker')}
+        </button>
+        <button
+          type="button"
+          onClick={() => welcomeOpen.set(true)}
+          className="min-h-11 rounded-lg border border-line px-3 hover:bg-hover"
+        >
+          {t('settings.welcomeAgain')}
         </button>
         <button
           type="button"

@@ -8,6 +8,56 @@ export const esO: Record<string, string> = {
   'reading.goal.week_one': 'Meta cumplida {count} día esta semana',
   'reading.goal.week_other': 'Meta cumplida {count} días esta semana',
   // ---- Polish 2 ----
+  'welcome.title': 'Bienvenido',
+  'welcome.step': 'Paso {n} de {total}',
+  'welcome.skip': 'Omitir',
+  'welcome.back': 'Atrás',
+  'welcome.next': 'Siguiente',
+  'welcome.way.title': '¿Cómo vas a escribir?',
+  'welcome.way.help':
+    'Esto prepara la barra de herramientas. Puedes cambiarlo cuando quieras.',
+  'welcome.way.keyboard': 'Teclado',
+  'welcome.way.keyboard.line': 'Escribe con teclado y ratón o panel táctil.',
+  'welcome.way.finger': 'Dedo',
+  'welcome.way.finger.line':
+    'Toca y escribe con el dedo en un móvil o tableta.',
+  'welcome.way.pencil': 'Apple Pencil',
+  'welcome.way.pencil.line':
+    'El Pencil escribe y dibuja; el dedo desplaza y toca las herramientas.',
+  'welcome.look.title': 'Idioma y tema',
+  'welcome.start.title': '¿Por dónde quieres empezar?',
+  'welcome.start.help':
+    'El cuaderno Empieza aquí tiene cinco páginas cortas que enseñan la app practicando. Puedes borrarlo después.',
+  'welcome.start.sample': 'Empezar con el cuaderno Empieza aquí',
+  'welcome.start.empty': 'Empezar vacío',
+  'settings.welcomeAgain': 'Mostrar la bienvenida otra vez',
+  'startHere.title': 'Empieza aquí',
+  'startHere.p1.title': '1. Escribe en el papel',
+  'startHere.p1.body':
+    'Cada página es papel. Elige el Bolígrafo en la barra y escribe aquí con tu Pencil o con el dedo.',
+  'startHere.p1.try': 'Pruébalo: elige el Bolígrafo y escribe tu nombre abajo.',
+  'startHere.p2.title': '2. Crea un cuadro',
+  'startHere.p2.body':
+    'Con la herramienta Texto, toca el papel vacío y aparece un cuadro nuevo. Un cuadro guarda texto, imágenes o tinta, y puedes moverlo y cambiar su tamaño.',
+  'startHere.p2.try':
+    'Pruébalo: toca el papel vacío debajo de esta línea y escribe en el cuadro nuevo.',
+  'startHere.p3.title': '3. Lazo y convertir',
+  'startHere.p3.body':
+    'El Lazo selecciona tinta. Rodea tu escritura y elige Convertir a texto para pasarla a texto escrito.',
+  'startHere.p3.try':
+    'Pruébalo: escribe una palabra con el Bolígrafo, elige el Lazo, rodéala y elige Convertir a texto.',
+  'startHere.p4.title': '4. Bloc de escritura',
+  'startHere.p4.body':
+    'El Bloc de escritura es un espacio amplio para escribir a mano. Tus palabras llegan a la página al tocar Insertar.',
+  'startHere.p4.try':
+    'Pruébalo: Insertar › Escritura a mano › Bloc de escritura, escribe una frase y toca Insertar.',
+  'startHere.p5.title': '5. Crea una tarjeta y repásala',
+  'startHere.p5.body':
+    'Una tarjeta de repaso es una pregunta con la respuesta oculta. El repaso la trae de vuelta justo antes de olvidarla.',
+  'startHere.p5.try':
+    'Pruébalo: la tarjeta de abajo está lista. Abre Inicio, toca el número pendiente y valórala.',
+  'startHere.card.q': '¿Qué hace el Lazo?',
+  'startHere.card.a': 'Selecciona tinta para moverla o convertirla en texto.',
   'search.clear': 'Borrar búsqueda',
   'home.due.tile': '{count} pendientes · Empezar',
   'lassoMenu.title': 'Ordenar el menú del Lazo',

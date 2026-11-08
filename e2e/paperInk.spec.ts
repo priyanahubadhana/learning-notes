@@ -356,11 +356,35 @@ test('rule 9: copy and paste of a line also copies its linked ink', async ({
   await editor.getByText('Line two', { exact: true }).click()
   await page.keyboard.press('End')
   await page.keyboard.press('Shift+Home')
-  await page.keyboard.press('ControlOrMeta+c')
+  // Real copy and paste events with a DataTransfer: WebKit on the CI machine
+  // does not run Ctrl+C / Ctrl+V from the keyboard on its own, and both the
+  // app's rule 9 hooks and the editor work from these events.
+  await page.evaluate(() => {
+    const dt = new DataTransfer()
+    ;(window as unknown as { __clip: DataTransfer }).__clip = dt
+    ;(document.activeElement ?? document.body).dispatchEvent(
+      new ClipboardEvent('copy', {
+        clipboardData: dt,
+        bubbles: true,
+        cancelable: true,
+      }),
+    )
+    if (!dt.getData('text/plain'))
+      dt.setData('text/plain', window.getSelection()?.toString() ?? '')
+  })
   await editor.getByText('Line five', { exact: true }).click()
   await page.keyboard.press('End')
   await page.keyboard.press('Enter')
-  await page.keyboard.press('ControlOrMeta+v')
+  await page.evaluate(() => {
+    const dt = (window as unknown as { __clip: DataTransfer }).__clip
+    ;(document.activeElement ?? document.body).dispatchEvent(
+      new ClipboardEvent('paste', {
+        clipboardData: dt,
+        bubbles: true,
+        cancelable: true,
+      }),
+    )
+  })
   await expect(editor.getByText('Line two', { exact: true })).toHaveCount(2)
   // Two strokes now: the copy is linked to the pasted line.
   const chunks = await chunkOf(page, 2)

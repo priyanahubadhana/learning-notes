@@ -2,6 +2,11 @@
 
 Current phase only. Older entries are in [ARCHIVE.md](ARCHIVE.md).
 
+## 2026-11-08 (CI fix: paperInk rule 9 on the iPad stand-in)
+
+- **What:** the rule 9 spec sent Ctrl+C / Ctrl+V as keys; WebKit on the CI machine did not paste (not even the plain text), so the count stayed 1. The spec now sends real copy and paste events with a DataTransfer, which the editor and the ink hooks both read. App code unchanged.
+- **Files:** `e2e/paperInk.spec.ts`.
+
 ## 2026-11-08 (R8-1 top gap for the options pill, R8-2 Pencil mode offer)
 
 - **What:** the page keeps a top gap (62 px, in its top margin) for the options pill; a pill at the top sits in it, scrolled down it floats, other edges float with no padding; opening or closing never moves the page. Removed `pageAnchor.ts`, `gestureHold.ts`, `pillReserve`, `PillRoom`, `--pill-pad-*`. First Pencil touch on a device not in Pencil mode (Auto switch off) shows a lazy one-time card "Use Pencil mode? Pencil writes, finger scrolls and taps" (Yes / Not now), answer kept per device.

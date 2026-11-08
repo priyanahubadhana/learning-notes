@@ -20,8 +20,10 @@ import {
   boxesOf,
   MAIN_BOX,
   mainBox,
+  clearOfBoxes,
   MARGIN,
   TOP,
+  type MmRect,
   readingOrder,
   sheetOf,
 } from './boxes'
@@ -824,8 +826,43 @@ function BoxFrame({
     const d = drag
     setDrag(null)
     if (!d || !live) return setLive(null)
-    onChange({ x: live.x, y: live.y, w: live.w })
-    if (picked && d.how === 'move') onMoved(live.x - box.x, live.y - box.y)
+    // Boxes never overlap: this one gives way, under the box it would cover.
+    let y = live.y
+    const node = el.current
+    const holder = node?.parentElement?.getBoundingClientRect()
+    if (node && holder && k > 0) {
+      const mm = (r: DOMRect): MmRect => ({
+        x: (r.left - holder.left) / k,
+        y: (r.top - holder.top) / k,
+        w: r.width / k,
+        h: r.height / k,
+      })
+      const others = Array.from(
+        document.querySelectorAll<HTMLElement>('[data-paper-box]'),
+      )
+        .filter((o) => o !== node && o.dataset.paperBox !== 'main-hidden')
+        .map((o) => mm(o.getBoundingClientRect()))
+      y = snap(
+        clearOfBoxes(
+          { x: live.x, y: live.y, w: live.w, h: node.offsetHeight / k },
+          others,
+        ),
+        stepMm,
+      )
+      // snap may round back into a neighbour: step down by whole lines.
+      while (
+        y < live.y - 0.01 ||
+        clearOfBoxes(
+          { x: live.x, y, w: live.w, h: node.offsetHeight / k },
+          others,
+        ) !== y
+      ) {
+        y += stepMm
+        if (y > live.y + 2000) break
+      }
+    }
+    onChange({ x: live.x, y, w: live.w })
+    if (picked && d.how === 'move') onMoved(live.x - box.x, y - box.y)
     setLive(null)
   }
   return (

@@ -157,3 +157,20 @@ describe('placeInOrder (phones)', () => {
     expect(p.shifted).toEqual(['b'])
   })
 })
+
+import { clearOfBoxes } from './boxes'
+
+describe('boxes never overlap', () => {
+  const a = { x: 15, y: 10, w: 100, h: 40 }
+  it('leaves a free spot alone', () => {
+    expect(clearOfBoxes({ x: 15, y: 60, w: 100, h: 20 }, [a])).toBe(60)
+    expect(clearOfBoxes({ x: 130, y: 10, w: 50, h: 20 }, [a])).toBe(10)
+  })
+  it('moves a box under the one it overlaps, with a gap', () => {
+    expect(clearOfBoxes({ x: 20, y: 30, w: 60, h: 20 }, [a])).toBe(53)
+  })
+  it('keeps going past several boxes', () => {
+    const b = { x: 15, y: 53, w: 100, h: 30 }
+    expect(clearOfBoxes({ x: 20, y: 30, w: 60, h: 20 }, [a, b])).toBe(86)
+  })
+})

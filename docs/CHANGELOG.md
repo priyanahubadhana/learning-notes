@@ -2,6 +2,11 @@
 
 Current phase only. Older entries are in [ARCHIVE.md](ARCHIVE.md).
 
+## 2026-11-09 (iPad fix 7 (part): boxes never overlap)
+
+- **What:** A box that is dropped or resized onto another box now gives way: it moves under the box it would cover (with a 3 mm gap, on the paper's line spacing). The other boxes never move. Box frame on hover/tap, grab bar and side edges already existed. NOT built yet from the owner's longer wish list: floating format bar under a tapped box, live see-through copy and red landing line while dragging, push-down of neighbours, snap guides, Lasso-select several boxes by loop frame.
+- **Files:** src/paper/boxes.ts (+ test), src/paper/PaperFrame.tsx, e2e/paperPage.spec.ts, docs/features/paper-page.md
+
 ## 2026-11-09 (Select all in steps)
 
 - **What:** Ctrl/Cmd+A steps outward: in a table cell its words, then the whole table (cell selection), then all blocks of the box, then (page with several boxes) one selection across every box; in a text block its words, then all blocks, then the page. Copy of the all-blocks selection keeps tables as tables (e2e: copy, delete, paste brings the table back). prosemirror-tables is now a direct dependency (same version BlockNote already uses; no new download).

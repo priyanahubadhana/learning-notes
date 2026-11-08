@@ -147,3 +147,39 @@ export const BOX_COLOURS: Record<string, string> = {
   pink: '#ec4899',
   purple: '#a855f7',
 }
+
+/** Smallest free space kept between two boxes, in mm. */
+export const BOX_GAP = 3
+
+export interface MmRect {
+  x: number
+  y: number
+  w: number
+  h: number
+}
+
+/**
+ * Boxes never overlap (iPad finding, 9 Nov). The y (mm) where `box` must sit
+ * so it clears every box it would overlap: just under the lowest of them,
+ * with a small gap. The moved box gives way (the others never move, so a
+ * drop cannot disturb the rest of the page). Unchanged when there is no overlap.
+ */
+export function clearOfBoxes(
+  box: MmRect,
+  others: readonly MmRect[],
+  gap = BOX_GAP,
+): number {
+  let y = box.y
+  for (let i = 0; i <= others.length; i++) {
+    const hit = others.find(
+      (o) =>
+        box.x < o.x + o.w + gap - 0.01 &&
+        o.x < box.x + box.w + gap - 0.01 &&
+        y < o.y + o.h + gap - 0.01 &&
+        o.y < y + box.h + gap - 0.01,
+    )
+    if (!hit) return Math.round(y * 10) / 10
+    y = hit.y + hit.h + gap
+  }
+  return Math.round(y * 10) / 10
+}

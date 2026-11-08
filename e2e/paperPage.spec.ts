@@ -355,3 +355,35 @@ test('pasted long lists never run across the gap between sheets', async ({
   expect(bad).toEqual([])
   await expect(page.locator('.bn-editor')).toContainText('Item number 60')
 })
+
+test('a box dropped on another box gives way: boxes never overlap', async ({
+  page,
+}) => {
+  await startInMode(page, 'computer')
+  await page.goto('/')
+  await createNotebook(page, 'Paper', 'Boxes')
+  await typeInEditor(page, 'Main text')
+  const sheet = (await page.locator('[data-paper-sheet="1"]').boundingBox())!
+  const main = page.locator('[data-paper-box="main"]')
+  const m0 = (await main.boundingBox())!
+  await page.mouse.click(sheet.x + sheet.width * 0.5, m0.y + m0.height + 80)
+  const extra = page.locator('[data-paper-box]:not([data-paper-box="main"])')
+  await expect(extra).toHaveCount(1)
+  await page.keyboard.type('Box text')
+  await extra.hover()
+  const g = (await extra.locator('[data-box-grip]').boundingBox())!
+  await page.mouse.move(g.x + g.width / 2, g.y + g.height / 2)
+  await page.mouse.down()
+  // Straight up onto the main box's text.
+  await page.mouse.move(g.x, m0.y + 10, { steps: 8 })
+  await page.mouse.up()
+  await page.waitForTimeout(500)
+  const a = (await main.boundingBox())!
+  const b = (await extra.boundingBox())!
+  const overlap =
+    b.x < a.x + a.width &&
+    a.x < b.x + b.width &&
+    b.y < a.y + a.height &&
+    a.y < b.y + b.height
+  expect(overlap).toBe(false)
+})

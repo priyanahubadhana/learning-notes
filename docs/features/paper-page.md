@@ -41,6 +41,8 @@ Every page is paper. It shows as fixed sheets (A4, or Letter) with a border and 
 
 - **Sheet gaps (9 Nov).** The gap between sheets is dead space: `paper/paginate.ts` pushes whole blocks that would reach the bottom margin of a sheet (15 mm) to the top of the next sheet (a block is never split; a block taller than a sheet is left to cross). Multi-line plain-text paste becomes one block per line. Test: e2e/paperPage.spec.ts, `paper/paginate.test.ts`.
 
+- **Boxes never overlap (9 Nov).** On drop or resize a box moves under any box it would cover (`clearOfBoxes` in boxes.ts, gap 3 mm); the others stay. Still to build: floating format bar under a tapped box, live copy and red landing line while dragging, snap guides.
+
 ## Not yet
 
 - Ink at a zoom other than 100 %.

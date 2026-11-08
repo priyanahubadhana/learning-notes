@@ -8,6 +8,24 @@ export const hiO: Record<string, string> = {
   'reading.goal.week_one': 'इस हफ़्ते {count} दिन लक्ष्य पूरा हुआ',
   'reading.goal.week_other': 'इस हफ़्ते {count} दिन लक्ष्य पूरा हुआ',
   // ---- Polish 2 ----
+  'tool.handwriting': 'हस्तलेख से टेक्स्ट',
+  'main.opt.insert.handwriting': 'हस्तलेख',
+  'handwriting.title': 'हस्तलेख से टेक्स्ट',
+  'handwriting.intro':
+    'हस्तलेख को टेक्स्ट बनाने के तीन तरीके। अपने काम का तरीका चुनें।',
+  'handwriting.pad.name': 'लिखने का पैड',
+  'handwriting.pad.line': 'पैड में लिखें (लिखने का पैड)',
+  'handwriting.lasso.name': 'स्याही बदलें',
+  'handwriting.lasso.line': 'जो स्याही पहले लिखी है उसे बदलें (लैसो)',
+  'handwriting.lasso.toast':
+    'अपनी स्याही पर घेरा बनाएँ, फिर टेक्स्ट में बदलें चुनें।',
+  'handwriting.scribble.name': 'स्क्रिबल',
+  'handwriting.scribble.line': 'सीधे टेक्स्ट में लिखें (स्क्रिबल, iPad)',
+  'handwriting.scribble.toast':
+    'टेक्स्ट में कहीं भी अपनी Apple Pencil से लिखें।',
+  'handwriting.scribble.off':
+    'स्क्रिबल बंद है। इस्तेमाल के लिए «पेंसिल टेक्स्ट लिखे» चालू करें।',
+  'handwriting.scribble.turnOn': 'चालू करें',
   'firstUse.lasso':
     'चुनने के लिए स्याही के चारों ओर घेरा बनाएँ। टेक्स्ट या चित्र चुनने के लिए फ़िल्टर दबाएँ।',
   'firstUse.writePad':

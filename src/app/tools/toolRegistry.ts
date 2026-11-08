@@ -26,6 +26,7 @@ import {
 import type { TabId } from './tabs'
 import { runInkTool } from '../../ink/inkTools'
 import { toggleWritePad } from '../../editor/writePad/padState'
+import { openHandwritingChooser } from './handwriting'
 import {
   isAudioPanelOpen,
   setAudioPanel,
@@ -320,6 +321,13 @@ export const TOOLS: readonly ToolDef[] = [
         toggleWritePad(r.editor, r.app?.currentPageId() ?? undefined)
       else r.app?.toast(t('tool.needsPage'))
     },
+  },
+  {
+    id: 'handwriting',
+    icon: 'penLine',
+    section: 'insert',
+    group: 'media',
+    run: () => openHandwritingChooser(),
   },
   {
     id: 'audio',

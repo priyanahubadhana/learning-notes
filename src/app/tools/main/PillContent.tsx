@@ -585,6 +585,7 @@ const INSERT_ICON: Record<string, IconName> = {
   magnifier: 'zoom',
   ruler: 'ruler',
   writePad: 'pencil',
+  handwriting: 'penLine',
 }
 /** The registry tool each Insert option runs (when the names differ). */
 const INSERT_TOOL: Record<string, string> = { shape: 'shapes' }

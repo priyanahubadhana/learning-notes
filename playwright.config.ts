@@ -106,6 +106,7 @@ export default defineConfig({
         /barScroll/,
         /firstUse/,
         /pillScroll/,
+        /handwritingChooser/,
       ],
       use: { ...devices['iPad Pro 11'], hasTouch: true },
       expect: { timeout: 15_000 },

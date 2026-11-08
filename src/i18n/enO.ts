@@ -12,6 +12,23 @@ export const enO = {
   'reading.goal.week_one': 'Goal reached on {count} day this week',
   'reading.goal.week_other': 'Goal reached on {count} days this week',
   // ---- Polish 2 ----
+  'tool.handwriting': 'Handwriting to text',
+  'main.opt.insert.handwriting': 'Handwriting',
+  'handwriting.title': 'Handwriting to text',
+  'handwriting.intro':
+    'Three ways to turn handwriting into text. Pick the one that fits.',
+  'handwriting.pad.name': 'Write pad',
+  'handwriting.pad.line': 'Write in a pad (Write pad)',
+  'handwriting.lasso.name': 'Convert ink',
+  'handwriting.lasso.line': 'Convert ink I already wrote (Lasso)',
+  'handwriting.lasso.toast': 'Loop your ink, then choose Convert to text.',
+  'handwriting.scribble.name': 'Scribble',
+  'handwriting.scribble.line': 'Write straight into text (Scribble, iPad)',
+  'handwriting.scribble.toast':
+    'Write with your Apple Pencil anywhere in the text.',
+  'handwriting.scribble.off':
+    'Scribble is off. Turn on Pencil writes text to use it.',
+  'handwriting.scribble.turnOn': 'Turn on',
   'firstUse.lasso':
     'Loop ink to select it. Tap a filter to pick text or pictures.',
   'firstUse.writePad':

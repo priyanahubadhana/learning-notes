@@ -8,6 +8,23 @@ export const esO: Record<string, string> = {
   'reading.goal.week_one': 'Meta cumplida {count} día esta semana',
   'reading.goal.week_other': 'Meta cumplida {count} días esta semana',
   // ---- Polish 2 ----
+  'tool.handwriting': 'Escritura a texto',
+  'main.opt.insert.handwriting': 'Escritura a mano',
+  'handwriting.title': 'Escritura a mano a texto',
+  'handwriting.intro':
+    'Tres formas de convertir tu escritura en texto. Elige la que te sirva.',
+  'handwriting.pad.name': 'Bloc de escritura',
+  'handwriting.pad.line': 'Escribe en un bloc (Bloc de escritura)',
+  'handwriting.lasso.name': 'Convertir tinta',
+  'handwriting.lasso.line': 'Convertir tinta que ya escribí (Lazo)',
+  'handwriting.lasso.toast': 'Rodea tu tinta y elige Convertir a texto.',
+  'handwriting.scribble.name': 'Garabato',
+  'handwriting.scribble.line': 'Escribe directo en el texto (Garabato, iPad)',
+  'handwriting.scribble.toast':
+    'Escribe con tu Apple Pencil en cualquier parte del texto.',
+  'handwriting.scribble.off':
+    'Garabato está desactivado. Activa «Pencil escribe texto» para usarlo.',
+  'handwriting.scribble.turnOn': 'Activar',
   'firstUse.lasso':
     'Rodea la tinta para seleccionarla. Toca un filtro para elegir texto o imágenes.',
   'firstUse.writePad':

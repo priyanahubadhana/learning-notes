@@ -294,6 +294,7 @@ test('Insert: Table and Shape first, then the rest; Table, Callout and Recall ca
     'Camera',
     'File or PDF',
     'Write pad',
+    'Handwriting',
     'Callout',
     'Audio',
     'Recall card',

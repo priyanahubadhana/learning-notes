@@ -13,9 +13,7 @@ import { openNote, tool } from './mainBarHelpers.ts'
  * lines move as one piece; copying a line copies its ink.
  */
 
-// 940 px tall: the page column keeps the height it had before the top gap (R8-1),
-// so the default box still fits one sheet.
-test.use({ viewport: { width: 1024, height: 940 }, hasTouch: true })
+test.use({ viewport: { width: 1024, height: 1000 }, hasTouch: true })
 
 const LINES = ['Line one', 'Line two', 'Line three', 'Line four', 'Line five']
 
@@ -191,7 +189,11 @@ test('rule 4: the Pencil on empty paper makes a box with lines under the ink', a
   // the paper's bottom margin.
   await page.evaluate(() => {
     const sc = document.querySelector('[data-page-scroller]')!
-    sc.scrollTop = sc.scrollHeight
+    const box = document.querySelector('[data-paper-box="main"]')!
+    // The bottom of the default box, 120 px above the foot of the screen.
+    sc.scrollTop +=
+      box.getBoundingClientRect().bottom -
+      (sc.getBoundingClientRect().bottom - 120)
   })
   await page.waitForTimeout(300)
   const main = (await page.locator('[data-paper-box="main"]').boundingBox())!

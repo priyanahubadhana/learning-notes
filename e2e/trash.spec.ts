@@ -27,7 +27,6 @@ test('restore brings back a page with its sub-page and text', async ({
   await typeInEditor(page, 'child text')
 
   await rowAction(page, 'Parent', 'Delete page')
-  await confirmDialog(page, 'Delete')
 
   await openTrash(page)
   // Only what was deleted directly is listed (not the sub-page).
@@ -47,7 +46,6 @@ test('delete forever asks first, and the page never comes back', async ({
   await typeInEditor(page, 'some text')
 
   await rowAction(page, 'Test delete', 'Delete page')
-  await confirmDialog(page, 'Delete')
   await openTrash(page)
 
   // Cancel keeps it in Trash.
@@ -102,7 +100,6 @@ test('restoring a page whose notebook is in Trash brings back only that notebook
   await addPage(page, 'Test NB2', 'Leave me')
 
   await rowAction(page, 'Keep me', 'Delete page')
-  await confirmDialog(page, 'Delete')
   await rowAction(page, 'Test NB2', 'Delete notebook')
   await confirmDialog(page, 'Delete')
 

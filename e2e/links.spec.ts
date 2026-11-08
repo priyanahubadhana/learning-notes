@@ -1,7 +1,6 @@
 import { expect, test, type Page } from '@playwright/test'
 import {
   addPage,
-  confirmDialog,
   createNotebook,
   openPage,
   rowAction,
@@ -112,7 +111,6 @@ test('a link to a page in the Trash offers Restore', async ({ page }) => {
   await linkWithKeys(page, 'heart')
   await page.waitForTimeout(800) // autosave
   await rowAction(page, 'Heart sounds', 'Delete page')
-  await confirmDialog(page, 'Delete')
   await expect(editorLink(page)).toHaveClass(/note-link-gone/)
 
   await editorLink(page).click()

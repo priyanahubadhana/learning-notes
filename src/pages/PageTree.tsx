@@ -177,7 +177,7 @@ export function PageTree({
               setDragId(null)
               setOver(null)
             }}
-            className={`group flex min-h-9 items-center gap-1.5 rounded-md py-1 pr-2 text-sm ${
+            className={`group @container flex min-h-9 items-center gap-1.5 rounded-md py-1 pr-2 text-sm ${
               active ? 'bg-hover font-medium' : 'hover:bg-hover'
             } ${dragId === page.id ? 'opacity-40' : ''} ${
               over?.id === page.id
@@ -226,40 +226,54 @@ export function PageTree({
             {/* May be clipped on a deep row, so the page name keeps its room. */}
             <RowMenuButton
               name={page.title || t('review.untitled')}
+              narrowToo
               onOpen={(anchor) => setRowMenu({ id: page.id, anchor })}
             />
-            <span className="flex min-w-0 shrink overflow-hidden opacity-0 group-focus-within:opacity-100 group-hover:opacity-100 any-pointer-coarse:hidden">
-              {canMove && (
-                <>
+            <span className="flex shrink-0 opacity-0 group-focus-within:opacity-100 group-hover:opacity-100 any-pointer-coarse:hidden">
+              <span className="flex @max-[19rem]:hidden">
+                {canMove && (
+                  <>
+                    <IconButton
+                      title={t('tree.moveUp')}
+                      tip="sidebar.moveUp"
+                      onClick={() =>
+                        moveWithUndo(page.id, planStep(pages, page.id, -1))
+                      }
+                    >
+                      ↑
+                    </IconButton>
+                    <IconButton
+                      title={t('tree.moveDown')}
+                      tip="sidebar.moveDown"
+                      onClick={() =>
+                        moveWithUndo(page.id, planStep(pages, page.id, 1))
+                      }
+                    >
+                      ↓
+                    </IconButton>
+                  </>
+                )}
+                {!journal && !rootId && page.parentId !== null && (
                   <IconButton
-                    title={t('tree.moveUp')}
-                    tip="sidebar.moveUp"
-                    onClick={() =>
-                      moveWithUndo(page.id, planStep(pages, page.id, -1))
-                    }
+                    title={t('tree.moveTop')}
+                    tip="sidebar.moveTop"
+                    onClick={() => runTask(movePageToTopLevel(db, page.id))}
                   >
-                    ↑
+                    ↰
                   </IconButton>
+                )}
+                {!rootId && (
                   <IconButton
-                    title={t('tree.moveDown')}
-                    tip="sidebar.moveDown"
-                    onClick={() =>
-                      moveWithUndo(page.id, planStep(pages, page.id, 1))
-                    }
+                    aria-label={t(
+                      starred.includes(page.id) ? 'fav.remove' : 'fav.add',
+                    )}
+                    aria-pressed={starred.includes(page.id)}
+                    onClick={() => toggleFavourite(page.id)}
                   >
-                    ↓
+                    {starred.includes(page.id) ? '★' : '☆'}
                   </IconButton>
-                </>
-              )}
-              {!journal && !rootId && page.parentId !== null && (
-                <IconButton
-                  title={t('tree.moveTop')}
-                  tip="sidebar.moveTop"
-                  onClick={() => runTask(movePageToTopLevel(db, page.id))}
-                >
-                  ↰
-                </IconButton>
-              )}
+                )}
+              </span>
               {!journal && onAddSubPage && (
                 <IconButton
                   title={t('tree.addSub')}
@@ -274,23 +288,12 @@ export function PageTree({
                   +
                 </IconButton>
               )}
-              {!rootId && (
-                <IconButton
-                  aria-label={t(
-                    starred.includes(page.id) ? 'fav.remove' : 'fav.add',
-                  )}
-                  aria-pressed={starred.includes(page.id)}
-                  onClick={() => toggleFavourite(page.id)}
-                >
-                  {starred.includes(page.id) ? '★' : '☆'}
-                </IconButton>
-              )}
               <IconButton
                 title={t('tree.deletePage')}
                 tip="sidebar.deletePage"
                 onClick={() => onRequestDelete(page, affectsCurrent)}
               >
-                ×
+                ✕
               </IconButton>
             </span>
           </div>

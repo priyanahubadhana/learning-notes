@@ -14,6 +14,12 @@ Current phase only. Older entries are in [ARCHIVE.md](ARCHIVE.md).
 - **Why:** owner-approved leftover of the paste pipeline: paste into other apps keeps structure, paste back into the app is identical.
 - **Files:** src/editor/copyFormats.ts (new), copyFormats.test.ts, clipboard.ts (`copyAs` kind `all`), CardMenu.tsx, PasteChooser.tsx (installs the Ctrl+C hook), src/app/tools/main/MiniToolbar.tsx, SelectionMenu.tsx, src/i18n/enO.ts, esO.ts, hiO.ts, e2e/copyFormats.spec.ts, e2e/copyPaste.spec.ts, docs/features/copy-paste.md
 
+## 2026-11-09 (Delete page in the page menu and a ✕ that is always reachable)
+
+- **What:** page ⋯ menu has a red "Delete page" above Save & restore (page and sub-pages to Trash, says how many, Undo toast; refused with a message when edit-locked); "Import - Coming soon" now opens Save & restore where the real Notion, NotebookLM and file imports are. Sidebar rows: the ✕ is no longer clipped; narrow rows (under 19 rem, the default sidebar too) fold ↑ ↓ ↰ ☆ (notebooks: ⟳ ✎) into a ⋯ menu and keep + and ✕. A page ✕ now moves to Trash at once with Undo (no confirm); a notebook ✕ confirms with the page count and then offers Undo.
+- **Why:** owner screenshots (PC, 9 Nov): no delete in the page menu, the sidebar hover actions showed no delete at normal width.
+- **Files:** src/pages/pageTrash.ts, pageTrash.test.ts, PageView.tsx, PageTree.tsx, src/notebooks/Sidebar.tsx, src/app/ui.tsx, src/i18n/enNlm.ts, esNlm.ts, hiNlm.ts, e2e/deletePage.spec.ts, e2e/helpers.ts (rowAction falls back to the ✕ for a greyed menu item), e2e/trash.spec.ts, links.spec.ts, search.spec.ts, docs/features/notebooks-and-pages.md
+
 ## 2026-11-09 (Updates apply with no prompt)
 
 - **What:** an update applies at the first 1.5 s pause (no pen or finger down, no IME composition, no dialog, no Write pad draft) after saves are flushed and the silent backup is taken; right after opening or coming to the front it applies at once. A short "Updating…" cover shows during the restart; page, scroll and text are kept. Any key, pointer, Pencil or paste (and page change) triggers a version check, at most once per 2 minutes. The Update bar never shows while "Update automatically" is on; the person is asked only on a data risk. The service worker already uses clientsClaim and skips waiting on apply, so one restart is enough.

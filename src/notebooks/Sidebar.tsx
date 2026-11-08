@@ -9,7 +9,7 @@ import {
 } from 'react'
 import { Tip } from '../help/Help'
 import { AppUiContext } from '../app/appUi'
-import { notebookDeleteBlocked, pageDeleteBlocked } from '../core/editLock'
+import { notebookDeleteBlocked } from '../core/editLock'
 import { runTask } from '../app/errors'
 import { SidebarGroup } from '../app/SidebarGroup'
 import { altShortcutLabel, shortcutLabel } from '../app/keys'
@@ -27,6 +27,7 @@ import type { Notebook, Page, SavedSearch } from '../core/types'
 import { dateKey, shortDayLabel } from '../journal/dates'
 import { PageTree } from '../pages/PageTree'
 import { deletePage, getPage } from '../pages/pageService'
+import { trashPageWithUndo } from '../pages/pageTrash'
 import { TemplatesSection } from '../templates/TemplatesSection'
 import { SpacePlaceholder } from '../app/spaces/SpacePlaceholder'
 import type { Space } from '../app/spaces/spaces'
@@ -228,33 +229,37 @@ export function Sidebar({
   // Edit lock (3c): a locked page or notebook is not deleted; say so, ask nothing.
   const requestNotebookDelete = (notebook: Notebook) =>
     runTask(
-      notebookDeleteBlocked(db, notebook.id).then((blocked) => {
+      notebookDeleteBlocked(db, notebook.id).then(async (blocked) => {
         if (blocked) return toast(t('editLock.refused'))
+        const count = (
+          await db.pages.where('notebookId').equals(notebook.id).toArray()
+        ).filter((p) => p.deletedAt === null).length
+        const name = sampleName(notebook)
         setPending({
-          message: t('sidebar.confirm.notebook', {
-            name: sampleName(notebook),
-          }),
+          message: t('trashDel.confirmNotebook', { name, count }),
           run: async () => {
             await deleteNotebook(db, notebook.id)
             if (currentPage?.notebookId === notebook.id) onOpenPage(null)
+            toast(t('trashDel.notebook', { name }), {
+              label: t('reading.undo'),
+              onSelect: () =>
+                runTask(
+                  import('../trash/trashService').then((m) =>
+                    m.restoreNotebook(db, notebook.id),
+                  ),
+                ),
+            })
           },
         })
       }),
     )
 
+  // A page goes to Trash at once; Undo (in the toast) brings it back.
   const requestPageDelete = (page: Page, affectsCurrent: boolean) =>
     runTask(
-      pageDeleteBlocked(db, page.id).then((blocked) => {
-        if (blocked) return toast(t('editLock.refused'))
-        setPending({
-          message: t('sidebar.confirm.page', {
-            name: sampleName(page) || t('review.untitled'),
-          }),
-          run: async () => {
-            await deletePage(db, page.id)
-            if (affectsCurrent) onOpenPage(page.parentId)
-          },
-        })
+      trashPageWithUndo(db, page, toast, {
+        onGone: () => affectsCurrent && onOpenPage(page.parentId),
+        onBack: () => affectsCurrent && onOpenPage(page.id),
       }),
     )
 
@@ -500,7 +505,7 @@ export function Sidebar({
                         setDragId(null)
                         setDropTarget(null)
                       }}
-                      className={`group flex min-h-9 items-center gap-1.5 rounded-md px-2 py-1 text-sm hover:bg-hover ${line} ${
+                      className={`group @container flex min-h-9 items-center gap-1.5 rounded-md px-2 py-1 text-sm hover:bg-hover ${line} ${
                         openNotebookId === notebook.id ? 'bg-hover' : ''
                       } ${dragId === notebook.id ? 'opacity-40' : ''}`}
                     >
@@ -552,11 +557,12 @@ export function Sidebar({
                       )}
                       <RowMenuButton
                         name={sampleName(notebook)}
+                        narrowToo
                         onOpen={(anchor) =>
                           setRowMenu({ id: notebook.id, anchor })
                         }
                       />
-                      <span className="flex opacity-0 group-focus-within:opacity-100 group-hover:opacity-100 any-pointer-coarse:hidden">
+                      <span className="flex shrink-0 opacity-0 group-focus-within:opacity-100 group-hover:opacity-100 any-pointer-coarse:hidden">
                         {notebook.kind !== 'journal' && (
                           <IconButton
                             title={t('sidebar.addPage.title')}
@@ -572,33 +578,35 @@ export function Sidebar({
                             +
                           </IconButton>
                         )}
-                        {notebook.kind !== 'templates' && (
+                        <span className="flex @max-[19rem]:hidden">
+                          {notebook.kind !== 'templates' && (
+                            <IconButton
+                              title={t('review.thisNotebook')}
+                              tip="sidebar.reviewNotebook"
+                              onClick={() =>
+                                onOpenReview({
+                                  kind: 'notebook',
+                                  notebookId: notebook.id,
+                                })
+                              }
+                            >
+                              ⟳
+                            </IconButton>
+                          )}
                           <IconButton
-                            title={t('review.thisNotebook')}
-                            tip="sidebar.reviewNotebook"
-                            onClick={() =>
-                              onOpenReview({
-                                kind: 'notebook',
-                                notebookId: notebook.id,
-                              })
-                            }
+                            title={t('sidebar.rename.title')}
+                            tip="sidebar.rename"
+                            onClick={() => rename(notebook)}
                           >
-                            ⟳
+                            ✎
                           </IconButton>
-                        )}
-                        <IconButton
-                          title={t('sidebar.rename.title')}
-                          tip="sidebar.rename"
-                          onClick={() => rename(notebook)}
-                        >
-                          ✎
-                        </IconButton>
+                        </span>
                         <IconButton
                           title={t('sidebar.deleteNotebook.title')}
                           tip="sidebar.deleteNotebook"
                           onClick={() => requestNotebookDelete(notebook)}
                         >
-                          ×
+                          ✕
                         </IconButton>
                       </span>
                     </div>

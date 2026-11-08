@@ -83,8 +83,23 @@ export async function rowAction(page: Page, name: string, action: string) {
   const r = row(page, name)
   const more = r.getByRole('button', { name: /^More for/ })
   if (await more.isVisible()) {
-    await more.click()
-    await page.getByRole('menuitem', { name: action, exact: true }).click()
+    const item = page
+      .getByRole('menuitem', { name: new RegExp(`^${action}( |$)`) })
+      .first()
+    // A locked row's Delete is greyed in the menu; the ✕ is always there and
+    // answers with the "locked" message.
+    // A tap during a redraw can miss: tap again until the menu is open.
+    await expect(async () => {
+      if (!(await item.isVisible())) await more.click()
+      await item.waitFor({ timeout: 2000 })
+    }).toPass()
+    if (await item.isDisabled()) {
+      await page.keyboard.press('Escape')
+      await r.hover()
+      await r.getByLabel(action, { exact: true }).click()
+      return
+    }
+    await item.click()
     return
   }
   await r.hover()

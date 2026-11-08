@@ -9,6 +9,13 @@ Moved out of HANDOFF on 2026-11-06 (audit) so HANDOFF stays five lines. Newest f
 3. Tap a picture, Copy, paste into Photos or a chat: it arrives as an image.
 4. iPad: Lasso a line of text, Copy in the pill: pasting elsewhere gives clean Markdown.
 
+## Delete page and sidebar ✕ (9 Nov)
+
+1. Open a page, ⋯ > Delete page (red, above Save & restore): it goes to Trash, a toast says how many sub-pages, Undo brings it back and reopens it. On an edit-locked page it says locked and nothing is deleted.
+2. ⋯ > Import now opens Save & restore (no more "Coming soon").
+3. Sidebar, mouse: hover a page row at the normal width: ⋯ + ✕ show; ⋯ holds Move up/down, Favourite. Drag the sidebar wide: all icons show. ✕ moves the page to Trash with Undo. On a notebook ✕ asks with the page count, then Undo.
+4. iPad: the row's 44 px ⋯ menu has Delete page / Delete notebook.
+
 ## Boxes like GoodNotes (9 Nov, iPad)
 
 1. Pick the Lasso, hover a box with the Pencil or tap its thin frame: frame shows, handles appear. Drag a corner/side handle to widen; drag the frame to move.

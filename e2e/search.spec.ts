@@ -117,7 +117,6 @@ test('Trash: found only when asked; Restore brings the page back', async ({
   page,
 }) => {
   await rowAction(page, 'Energy', 'Delete page')
-  await confirmDialog(page, 'Delete')
 
   await openSearchPopup(page)
   await page.keyboard.type('mitochondria')

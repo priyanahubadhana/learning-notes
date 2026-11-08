@@ -5,6 +5,8 @@
 
 Current phase only. Older decisions are in [ARCHIVE.md](ARCHIVE.md).
 
+- **2026-11-09 · Delete page / sidebar ✕ (owner request).** Page delete has no confirm anywhere: Trash plus an Undo toast is safer and quicker; notebooks keep a confirm (now with the page count) plus Undo. The ✕ keeps its label "Delete page" (help tip says it goes to Trash). Narrow rows (container width under 19 rem, which includes the default 260 px sidebar) show a ⋯ menu for a mouse too; + and ✕ stay on hover. New texts are in enNlm/esNlm/hiNlm (late-loaded, es and hi are machine drafts). Import in the page menu opens Save & restore rather than its own dialog.
+
 ## Phase 9 decisions
 
 - **2026-11-08 · R8-2 Pencil offer: owner says keep.** Auto switch stays on by default and the offer shows only when Auto switch is off. (Closes the open question in HANDOFF.)

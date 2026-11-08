@@ -94,3 +94,6 @@ Each rule gets its own e2e test (chromium and ipad-webkit).
 10. **Big drawings** that span many lines link to their top line and move as one piece.
 
 All ten are built (8 Nov). Rule 5: ink dropped outside its box goes to the box there or a new box with lines (`ink/inkTransfer.ts`). Rule 6: a mixed Lasso drag moves the whole lines within the box; strokes are re-linked to the nearest selected line first (no undo step), so one Undo restores both. Rule 9: copy/cut of lines whose words are selected in full keeps their ink in the app; a paste whose text matches links it to the pasted lines (new lines in order, or the caret line), through the editor's copy/cut/paste events and the app's Copy, Cut and Paste as plain text. Rule 6 across boxes (9 Nov): dropped on another box or bare paper, the lines and ink go together (`moveLinesElsewhere`, `CarriedLines` in `inkTransfer.ts`). Tests: `e2e/paperInk.spec.ts` (chromium, ipad-webkit).
+n## Selection look (9 Nov)
+
+What is selected (the picture itself, words, or a line) is outlined with a dashed orange line (`--color-select`; light, night and sepia values in index.css), never the whole box and never filled over a block. Test: e2e/lassoPicture.spec.ts.

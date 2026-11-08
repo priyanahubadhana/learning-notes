@@ -29,6 +29,10 @@ Tap or click a picture in the page: four corner handles (44 px to grab) appear (
 
 A drag with the Apple Pencil or a mouse that starts on a picture, ends on one or passes over one selects whole blocks, pictures included, so Copy, Delete and Move act on the whole range; the pictures inside any selection get a visible mark. BlockNote's own selection is a text selection, which cannot start or end in a block without text, so `src/editor/dragSelect.ts` watches pen and mouse drags and, when a picture is involved, sets its own `BlockRangeSelection` (whole blocks from the first to the last at the level they share, children included; no cursor drawn). A text-only drag is left to the browser; a finger keeps scrolling (long-press selection and handles are the browser's). A picture is not dragged away by the pointer (the ⠿ side handle moves blocks). Tests: `dragSelect.test.ts` (range maths, delete, copy, marks) and `e2e/penSelect.spec.ts` (simulated pen from text over a picture, from a picture, to a picture, upwards, mouse, Copy, Delete, Move, text-only, finger).
 
+## Selected picture look (9 Nov)
+
+A selected picture (Lasso or tap) gets a dashed orange outline on the picture itself, not the box around it.
+
 ## Edge cases
 
 - A missing or deleted picture gives `null` and nothing is shown.

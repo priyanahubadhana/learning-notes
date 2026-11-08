@@ -27,6 +27,8 @@
   --color-ink-soft: #55555a;
   --color-line: #ececec;
   --color-accent: #2f6feb;
+  /* The selection (copy/paste): dashed orange, never the app blue (9 Nov). */
+  --color-select: #c2410c;
   --color-hover: rgba(0, 0, 0, 0.04);
   --color-soft: #f4f6fb;
   --color-chip: #efefed;
@@ -87,6 +89,7 @@
   --color-ink-soft: #b9b9be;
   --color-line: #2c2c30;
   --color-accent: #5e9bff;
+  --color-select: #ffb454;
   --color-hover: rgba(255, 255, 255, 0.05);
   --color-soft: #22252c;
   --color-chip: #2a2a2e;
@@ -101,6 +104,7 @@
   --color-ink-soft: #6a5a44;
   --color-line: #e6dac3;
   --color-accent: #b5762a;
+  --color-select: #a8360a;
   --color-hover: rgba(90, 60, 20, 0.06);
   --color-soft: #efe4cc;
   --color-chip: #eadfc6;
@@ -464,9 +468,10 @@ button.tag-chip:hover {
 }
 
 /* Pictures inside a selection look selected, like the text around them. */
-.bn-block[data-ln-selected] > .bn-block-content {
-  background: color-mix(in srgb, var(--color-accent) 22%, transparent);
-  outline: 2px solid var(--color-accent);
+/* Only what is selected is outlined (the picture itself, or the words), never the whole box. */
+.bn-block[data-ln-selected] > .bn-block-content[data-content-type='image'] img,
+.bn-block[data-ln-selected] > .bn-block-content > .bn-inline-content {
+  outline: 2px dashed var(--color-select);
   outline-offset: 2px;
   border-radius: 6px;
 }
@@ -732,19 +737,24 @@ html[data-note-line] .bn-editor {
 
 /* Our own selection (Phase A3): drawn whether or not the page has focus. */
 .bn-editor .ln-sel {
-  background: color-mix(in srgb, var(--color-accent) 30%, transparent);
+  background: color-mix(in srgb, var(--color-select) 12%, transparent);
   border-radius: 3px;
-  box-shadow: 0 0 0 1px color-mix(in srgb, var(--color-accent) 45%, transparent);
+  outline: 1.5px dashed var(--color-select);
+  outline-offset: 0;
 }
-.bn-editor .ln-sel-node > .bn-block > .bn-block-content {
-  background: color-mix(in srgb, var(--color-accent) 18%, transparent);
-  outline: 2px solid var(--color-accent);
+.bn-editor
+  .ln-sel-node
+  > .bn-block
+  > .bn-block-content[data-content-type='image']
+  img,
+.bn-editor .ln-sel-node > .bn-block > .bn-block-content > .bn-inline-content {
+  outline: 2px dashed var(--color-select);
   outline-offset: 2px;
   border-radius: 6px;
 }
 @media (prefers-reduced-motion: no-preference) {
   .bn-editor .ln-sel,
-  .bn-editor .ln-sel-node > .bn-block > .bn-block-content {
+  .bn-editor .ln-sel-node img {
     transition:
       background-color 120ms ease,
       outline-color 120ms ease;

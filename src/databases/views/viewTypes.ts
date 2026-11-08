@@ -6,6 +6,7 @@ import { DashboardView } from '../dashboard/DashboardView'
 import { BoardView } from './BoardView'
 import { CalendarView } from './CalendarView'
 import { GalleryView } from './GalleryView'
+import { ListView } from './ListView'
 import { TableView } from './TableView'
 
 /**
@@ -77,4 +78,11 @@ registerViewType({
   icon: '▥',
   label: 'database.view.board',
   component: BoardView,
+})
+
+registerViewType({
+  type: 'list',
+  icon: '☰',
+  label: 'database.view.list',
+  component: ListView,
 })

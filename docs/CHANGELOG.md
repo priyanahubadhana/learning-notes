@@ -2,6 +2,12 @@
 
 Current phase only. Older entries are in [ARCHIVE.md](ARCHIVE.md).
 
+## 2026-11-09 (Database pages part 2: List view, grouping, windowed rows)
+
+- **What:** new List view (one line per row, sort picker, group by); Table and List can group rows by any column (collapsible groups, saved in the view as `groupBy`); Table and List draw only the rows near the screen above 200 rows (spacer rows, measured row height), so 10,000+ rows scroll smoothly; the Table's "More" button is gone. Board and Gallery keep their own "Show more" paging.
+- **Why:** owner queue 3a, full Notion-like databases (plan: docs/plans/database-pages-plan.md).
+- **Files:** src/databases/views/ListView.tsx, GroupSelect.tsx, rowGroups.ts, rowWindow.ts, useRowWindow.ts (+ tests), TableView.tsx, viewTypes.ts, src/i18n/enO.ts, esO.ts, hiO.ts, e2e/databasePages.spec.ts, docs.
+
 ## 2026-11-09 (C2b: ink on PDF and EPUB pages)
 
 - **What:** a Pen button in the book reader opens a small drawing strip (Pen, Highlighter, Eraser, Lasso, colours, Undo, Redo, Done). The shared ink engine now runs over the book: a PDF page is an ink block (`pdf:<page>`, exact under zoom), an EPUB paragraph is an ink block (`epub:<section>:<n>`, follows the paragraph when the text size changes; Scroll mode only, Pages mode says so). Saved in the existing ink tables, so backup, History, Trash and sync cover it; no Dexie version, no new table. The engine got an optional `BookSurface` (blocks and unit come from the reader), a `refresh()` and a no-deleted-blocks rule for books. Details and open choices in DECISIONS (C2b ink rows).

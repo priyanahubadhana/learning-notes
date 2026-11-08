@@ -4,7 +4,7 @@ Security rules: [rules/security.md](../../rules/security.md). Check them before 
 
 ## Purpose
 
-Shows one database in different ways: Table, Board, Calendar, Gallery (and Dashboard, see dashboards.md). Each view keeps its own sorts, filters and settings.
+Shows one database in different ways: Table, Board, Calendar, Gallery, List (and Dashboard, see dashboards.md). Each view keeps its own sorts, filters and settings.
 
 ## How it works
 
@@ -43,3 +43,5 @@ Shows one database in different ways: Table, Board, Calendar, Gallery (and Dashb
 - `src/databases/views/numberTyping.test.ts`
 - `src/databases/databaseQuery.test.ts`
 - `e2e/databaseTable.spec.ts`, `e2e/databases.spec.ts`
+
+See [database.md](database.md) for the List view, grouping and windowed rows.

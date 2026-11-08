@@ -1,5 +1,14 @@
 import type { ReactNode } from 'react'
 import { useContext, useMemo, useRef, useState } from 'react'
+import { GroupSelect } from './GroupSelect'
+import {
+  flattenGroups,
+  groupRowsByColumn,
+  viewGroupColumn,
+  withGroup,
+  type GroupedItem,
+} from './rowGroups'
+import { useRowWindow } from './useRowWindow'
 import { AppUiContext } from '../../app/appUi'
 import type { DbColumn, JsonValue } from '../../core/types'
 import { t, type MessageKey } from '../../i18n/t'
@@ -55,7 +64,6 @@ const COLUMN_WIDTH = 128
 const FILLER_WIDTH = 96
 
 /** Rows drawn at first, and added per "Show more" (keeps big tables fast). */
-const PAGE_SIZE = 100
 
 /** Column types offered by "+ Column", then under "More types". */
 const BASIC_TYPES = [
@@ -110,7 +118,8 @@ export function TableView({ db, database, view, onOpenPage }: ViewProps) {
   const ui = useContext(AppUiContext)
   const now = useMinuteClock()
   const data = useDatabaseData(db, database, now)
-  const [shown, setShown] = useState(PAGE_SIZE)
+  const body = useRef<HTMLTableSectionElement>(null)
+  const [collapsed, setCollapsed] = useState<ReadonlySet<string>>(new Set())
   const [editing, setEditing] = useState<{
     rowId: string
     columnId: string
@@ -131,9 +140,19 @@ export function TableView({ db, database, view, onOpenPage }: ViewProps) {
     const all = resolveRows(data, now)
     return { all, rows: queryRows(all, columns, query), query }
   }, [data, database.id, now, view.config])
+  const items = useMemo<GroupedItem[]>(() => {
+    const column = allColumns
+      ? viewGroupColumn(view.config, allColumns)
+      : undefined
+    return column
+      ? flattenGroups(groupRowsByColumn(rows, column), collapsed)
+      : rows.map((row) => ({ kind: 'row', row }))
+  }, [rows, allColumns, view.config, collapsed])
+  const { range, before, after } = useRowWindow(items.length, body)
   if (!data || !allColumns) {
     return <p className="text-sm text-muted">{t('notebook.loading')}</p>
   }
+  const groupColumn = viewGroupColumn(view.config, allColumns)
 
   const hidden = readHidden(view.config)
   const columns = allColumns.filter((c) => !hidden.includes(c.id))
@@ -190,7 +209,6 @@ export function TableView({ db, database, view, onOpenPage }: ViewProps) {
       tracker && database.notebookId
         ? await createPage(db, database.notebookId, null, '')
         : await addRow(db, database.id)
-    setShown(Math.max(shown, rows.length + 1))
     setEditing({ rowId: page.id, columnId: TITLE_COLUMN_ID })
   }
   const rowTitle = (row: ResolvedRow) => row.page.title || t('review.untitled')
@@ -395,6 +413,14 @@ export function TableView({ db, database, view, onOpenPage }: ViewProps) {
 
   return (
     <div>
+      <GroupSelect
+        columns={allColumns}
+        value={groupColumn?.id ?? ''}
+        onChange={(id) => {
+          setCollapsed(new Set())
+          saveConfig(withGroup(view.config, id || null))
+        }}
+      />
       {(sort || filters.length > 0 || hiddenColumns.length > 0) && (
         <div className="mb-2.5 flex flex-wrap items-center gap-1.5">
           {sort && (
@@ -541,64 +567,116 @@ export function TableView({ db, database, view, onOpenPage }: ViewProps) {
                 </th>
               </tr>
             </thead>
-            <tbody>
-              {rows.slice(0, shown).map((row) => (
-                <tr key={row.page.id}>
-                  <th
-                    scope="row"
-                    className={`${cell} sticky start-0 bg-bg text-start font-medium`}
-                  >
-                    {editing?.rowId === row.page.id &&
-                    editing.columnId === TITLE_COLUMN_ID ? (
-                      <InlineEditor
-                        column={null}
-                        label={titleName}
-                        initial={row.page.title}
-                        onCancel={() => setEditing(null)}
-                        onSave={(typed) => {
-                          setEditing(null)
-                          void write(row.page.id, TITLE_COLUMN_ID, typed.trim())
-                        }}
-                      />
-                    ) : (
-                      <span className="flex items-start gap-1.5">
-                        <button
-                          type="button"
-                          aria-label={`${t('table.editCell', {
-                            column: titleName,
-                            row: rowTitle(row),
-                          })}`}
-                          onClick={() =>
-                            setEditing({
-                              rowId: row.page.id,
-                              columnId: TITLE_COLUMN_ID,
-                            })
-                          }
-                          className={`${cellButton} ${row.page.title ? '' : 'text-muted'}`}
-                        >
-                          {rowTitle(row)}
-                        </button>
-                        <button
-                          type="button"
-                          aria-label={t('table.openRowLabel', {
-                            name: rowTitle(row),
-                          })}
-                          onClick={() => onOpenPage(row.page.id)}
-                          className="-my-0.5 min-h-7 shrink-0 rounded-md border border-line px-1.5 text-[11.5px] font-normal whitespace-nowrap text-muted hover:border-accent hover:text-accent"
-                        >
-                          {t('table.openRow')}
-                        </button>
-                      </span>
-                    )}
-                  </th>
-                  {columns.map((column) => (
-                    <td key={column.id} className={cell}>
-                      {renderCell(row, column)}
-                    </td>
-                  ))}
-                  <td className={cell} />
+            <tbody ref={body}>
+              {before > 0 && (
+                <tr aria-hidden style={{ height: before }}>
+                  <td colSpan={columns.length + 2} />
                 </tr>
-              ))}
+              )}
+              {items.slice(range.start, range.end).map((item) => {
+                if (item.kind === 'group') {
+                  const open = !collapsed.has(item.key)
+                  const name = item.key || t('group.noValue')
+                  return (
+                    <tr key={`group:${item.key}`}>
+                      <th
+                        scope="rowgroup"
+                        colSpan={columns.length + 2}
+                        className="border-b border-line bg-hover/40 px-3 py-1 text-start text-[12.5px] font-medium"
+                      >
+                        <button
+                          type="button"
+                          aria-expanded={open}
+                          aria-label={t(
+                            open ? 'group.collapse' : 'group.expand',
+                            { name },
+                          )}
+                          onClick={() => {
+                            const next = new Set(collapsed)
+                            if (open) next.add(item.key)
+                            else next.delete(item.key)
+                            setCollapsed(next)
+                          }}
+                          className="flex min-h-8 items-center gap-1.5"
+                        >
+                          <span aria-hidden>{open ? '▾' : '▸'}</span>
+                          {name}
+                          <span className="font-normal text-muted">
+                            {item.count}
+                          </span>
+                        </button>
+                      </th>
+                    </tr>
+                  )
+                }
+                const row = item.row
+                return (
+                  <tr key={row.page.id}>
+                    <th
+                      scope="row"
+                      className={`${cell} sticky start-0 bg-bg text-start font-medium`}
+                    >
+                      {editing?.rowId === row.page.id &&
+                      editing.columnId === TITLE_COLUMN_ID ? (
+                        <InlineEditor
+                          column={null}
+                          label={titleName}
+                          initial={row.page.title}
+                          onCancel={() => setEditing(null)}
+                          onSave={(typed) => {
+                            setEditing(null)
+                            void write(
+                              row.page.id,
+                              TITLE_COLUMN_ID,
+                              typed.trim(),
+                            )
+                          }}
+                        />
+                      ) : (
+                        <span className="flex items-start gap-1.5">
+                          <button
+                            type="button"
+                            aria-label={`${t('table.editCell', {
+                              column: titleName,
+                              row: rowTitle(row),
+                            })}`}
+                            onClick={() =>
+                              setEditing({
+                                rowId: row.page.id,
+                                columnId: TITLE_COLUMN_ID,
+                              })
+                            }
+                            className={`${cellButton} ${row.page.title ? '' : 'text-muted'}`}
+                          >
+                            {rowTitle(row)}
+                          </button>
+                          <button
+                            type="button"
+                            aria-label={t('table.openRowLabel', {
+                              name: rowTitle(row),
+                            })}
+                            onClick={() => onOpenPage(row.page.id)}
+                            className="-my-0.5 min-h-7 shrink-0 rounded-md border border-line px-1.5 text-[11.5px] font-normal whitespace-nowrap text-muted hover:border-accent hover:text-accent"
+                          >
+                            {t('table.openRow')}
+                          </button>
+                        </span>
+                      )}
+                    </th>
+                    {columns.map((column) => (
+                      <td key={column.id} className={cell}>
+                        {renderCell(row, column)}
+                      </td>
+                    ))}
+                    <td className={cell} />
+                  </tr>
+                )
+              })}
+              {after > 0 && (
+                <tr aria-hidden style={{ height: after }}>
+                  <td colSpan={columns.length + 2} />
+                </tr>
+              )}
             </tbody>
           </table>
         </div>
@@ -623,15 +701,6 @@ export function TableView({ db, database, view, onOpenPage }: ViewProps) {
           <HelpLine id="tracker.table" />
           <HelpLine id="tracker.levels" className="mt-1 text-xs text-muted" />
         </>
-      )}
-      {rows.length > shown && (
-        <button
-          type="button"
-          onClick={() => setShown(shown + PAGE_SIZE)}
-          className="mt-3 min-h-10 w-full rounded-lg border border-line text-sm text-muted hover:border-accent hover:text-accent"
-        >
-          {t('search.more')}
-        </button>
       )}
 
       {menu?.kind === 'column' && menuColumn !== undefined && menuColumnId && (

@@ -380,3 +380,24 @@ test('a Notion toggle with a sub-toggle pastes as our Toggle list', async ({
     editor(page).locator('[data-content-type="toggleListItem"]'),
   ).toHaveCount(2)
 })
+
+test('copied database rows (tab-separated text) paste as a Table, not a heading', async ({
+  page,
+}) => {
+  await startPage(page)
+  await editor(page).click()
+  await page.evaluate(() => {
+    const data = new DataTransfer()
+    data.setData('text/plain', '📄 Doc name\tStatus\nSecond doc\tDone')
+    document.querySelector('.bn-editor')!.dispatchEvent(
+      new ClipboardEvent('paste', {
+        clipboardData: data,
+        bubbles: true,
+        cancelable: true,
+      }),
+    )
+  })
+  await expect(editor(page).locator('table')).toHaveCount(1)
+  await expect(editor(page).locator('table')).toContainText('Doc name')
+  await expect(editor(page).locator('h1, h2, h3')).toHaveCount(0)
+})

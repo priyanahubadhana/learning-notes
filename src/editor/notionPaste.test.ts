@@ -3,7 +3,7 @@
  */
 import { BlockNoteEditor } from '@blocknote/core'
 import { describe, expect, it } from 'vitest'
-import { sanitizePastedHtml } from './clipboard'
+import { pasteHandler, sanitizePastedHtml, tsvToRows } from './clipboard'
 import { schema } from './schema'
 
 /*
@@ -81,5 +81,36 @@ describe('pasting Markdown', () => {
     const types = blocks.map((b) => b.type)
     expect(types).toContain('bulletListItem')
     expect(types).toContain('quote')
+  })
+})
+
+describe('pasting rows as text', () => {
+  it('reads tab-separated rows and keeps the first row a plain row', () => {
+    expect(tsvToRows('📄 Doc name\tTags\nSecond\tb\n')).toEqual([
+      ['📄 Doc name', 'Tags'],
+      ['Second', 'b'],
+    ])
+  })
+  it('refuses text that is not a grid', () => {
+    expect(tsvToRows('one line\twith tab')).toBeNull()
+    expect(tsvToRows('a\tb\nno tab')).toBeNull()
+    expect(tsvToRows('plain\ntext')).toBeNull()
+  })
+  it('pastes the rows as a Table block, never a heading', () => {
+    const editor = BlockNoteEditor.create({ schema })
+    editor.mount(document.createElement('div'))
+    const data = {
+      types: ['text/plain'],
+      getData: (t: string) =>
+        t === 'text/plain' ? '📄 Doc name\tTags\nB\tc' : '',
+    }
+    pasteHandler({
+      event: { clipboardData: data } as unknown as ClipboardEvent,
+      editor,
+      defaultPasteHandler: () => false,
+    })
+    const types = editor.document.map((b) => b.type)
+    expect(types).toContain('table')
+    expect(types).not.toContain('heading')
   })
 })

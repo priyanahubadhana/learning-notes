@@ -397,6 +397,48 @@ export function noteKeyForPaste(e: KeyboardEvent): void {
   plainTimer = window.setTimeout(() => (plainNext = false), 1000)
 }
 
+const TSV_MAX_ROWS = 500
+const TSV_MAX_COLS = 50
+const TSV_MAX_CHARS = 200_000
+
+/**
+ * Tab-separated text (copied rows of a Notion database, a spreadsheet or an
+ * HTML table without markup): rows of cells, or null when it is not a grid.
+ * Every line needs a tab; the first line is never treated as a heading.
+ */
+export function tsvToRows(text: string): string[][] | null {
+  if (text.length > TSV_MAX_CHARS || !text.includes('\t')) return null
+  const lines = text.replace(/\r\n?/g, '\n').replace(/\n+$/, '').split('\n')
+  if (lines.length < 2 || lines.length > TSV_MAX_ROWS) return null
+  if (lines.some((l) => !l.includes('\t'))) return null
+  const rows = lines.map((l) => l.split('\t').map((c) => c.trim()))
+  const cols = Math.max(...rows.map((r) => r.length))
+  if (cols < 2 || cols > TSV_MAX_COLS) return null
+  return rows.map((r) => [...r, ...Array(cols - r.length).fill('')])
+}
+
+/** Puts rows at the cursor as a Table block (replaces an empty line). */
+function insertTable(editor: Editor, rows: string[][]): void {
+  const here = editor.getTextCursorPosition().block
+  const table = {
+    type: 'table',
+    content: {
+      type: 'tableContent',
+      rows: rows.map((cells) => ({
+        cells: cells.map((c) => [{ type: 'text', text: c, styles: {} }]),
+      })),
+    },
+  }
+  const empty =
+    Array.isArray(here.content) &&
+    here.content.every((n) => (n as { text?: string }).text === '')
+  if (empty || (Array.isArray(here.content) && here.content.length === 0)) {
+    editor.replaceBlocks([here], [table] as never)
+  } else {
+    editor.insertBlocks([table] as never, here, 'after')
+  }
+}
+
 /**
  * The editor's paste handler. Ctrl/Cmd+Shift+V: plain text only. Pasted HTML
  * from other apps is cleaned first. BlockNote's own copies (same page,
@@ -419,6 +461,15 @@ export function pasteHandler({
     return true
   }
   const html = data.getData('text/html')
+  // Rows copied as text (Notion database rows, spreadsheets): a Table block.
+  // Real <table> HTML goes the normal way below and stays a table.
+  const grid = /<table[\s>]/i.test(html)
+    ? null
+    : tsvToRows(data.getData('text/plain'))
+  if (grid && !data.types.includes('blocknote/html')) {
+    insertTable(editor as Editor, grid)
+    return true
+  }
   if (html && !data.types.includes('blocknote/html')) {
     ;(editor as Editor).pasteHTML(sanitizePastedHtml(html))
     return true

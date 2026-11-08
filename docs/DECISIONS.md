@@ -52,6 +52,8 @@ Current phase only. Older decisions are in [ARCHIVE.md](ARCHIVE.md).
 
 ## Decisions to review
 
+- **2026-11-09 · Pasted database rows.** They become a Table block, never our Database block: copied rows carry no column types and I had no real Notion clipboard sample to find database markers or the header row (a copy of selected rows has no header; the first row stays a normal row). Whole databases come in through Import › Notion export (CSV to Database).
+
 - **2026-11-09 · Select all steps.** Across several paper boxes the last step is a native browser selection over all boxes: Copy takes tables as tables, but Cut/Delete/Format only act on the box with the cursor (one editor per box). Safest without merging editors. prosemirror-tables added as a direct dependency (already installed through BlockNote).
 
 - **2026-11-09 · Table handles.** Row-height resize, double-click "fit content" and touch drag of a column border are not built: the table stores column widths only and its resize plugin reads mouse and pen only, so they need a new block schema or our own resize code. Safest: pill and cursor on column borders (mouse/pen), BlockNote's grips on touch with 44 px targets. Owner to say if row height is wanted.

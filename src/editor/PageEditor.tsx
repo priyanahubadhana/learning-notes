@@ -11,6 +11,7 @@ import { SuggestionMenu } from '@blocknote/core/extensions'
 import { useLiveQuery } from 'dexie-react-hooks'
 import { BlockNoteView } from '@blocknote/mantine'
 import {
+  FilePanelController,
   FormattingToolbarController,
   SideMenu,
   SideMenuController,
@@ -18,6 +19,8 @@ import {
   useCreateBlockNote,
 } from '@blocknote/react'
 import {
+  Suspense,
+  lazy,
   useContext,
   useEffect,
   useRef,
@@ -104,6 +107,12 @@ import { PictureHandles } from './PictureHandles'
 import { stampLabel, stampPicture } from './embed/embedClock'
 import { StampWatcher } from './embed/StampWatcher'
 import { ImageError, imageObjectUrl, saveImage } from '../images/imageService'
+import { PicturePanel } from '../images/PicturePanel'
+import { placePicture } from '../images/placePicture'
+import {
+  openPictureChooser,
+  usePictureAsk,
+} from '../images/pictureChooserStore'
 import { shrinkImage } from '../images/shrinkImage'
 import { readingLocked } from '../app/reading/readingState'
 import { holdPageLock, type LockState, type PageLock } from './pageLock'
@@ -151,6 +160,8 @@ const TAKE_OVER_WAIT_MS = 400
 export const LIVE_IDLE_MS = 1_500
 
 /** Loads a page's blocks, then shows the editor for that page. */
+const PictureChooser = lazy(() => import('../images/PictureChooser'))
+
 export function PageEditor(props: PageEditorProps) {
   const { db, pageId } = props
   const [loaded, setLoaded] = useState<{
@@ -328,6 +339,7 @@ function LoadedPageEditor({
     },
   })
   const theme = useContext(ThemeContext)
+  const pictureAsk = usePictureAsk()
   // Touch and Pencil: a docked bar instead of the floating toolbar.
   const bar = useBarSettings()
   const keyboardInset = useKeyboardInset()
@@ -597,28 +609,37 @@ function LoadedPageEditor({
       if (!file) return
       runTask(
         (async () => {
-          try {
-            const saved = await saveImage(db, file, shrinkImage)
-            const current = editor.getTextCursorPosition().block
-            const block = {
-              type: 'image' as const,
-              props: { url: imageRef(saved.id) },
-            }
-            const emptyLine =
-              current.type === 'paragraph' &&
-              Array.isArray(current.content) &&
-              current.content.length === 0
-            if (emptyLine) editor.replaceBlocks([current], [block])
-            else editor.insertBlocks([block], current, 'after')
-          } catch (error) {
-            if (error instanceof ImageError) toast(error.message)
-            else throw error
-          }
+          const message = await placePicture(
+            db,
+            editor as never,
+            file,
+            undefined,
+            stampSaved,
+          )
+          if (message) toast(message)
         })(),
       )
     }
     input.click()
   }
+
+  /** A picture added while a video plays gets its time as a caption. */
+  const stampSaved = (ref: string) => {
+    const stamp = stampLabel()
+    if (stamp) stampPicture(ref, stamp)
+  }
+
+  /** Insert › Picture, "/image": the chooser; the block comes only with a picture. */
+  const choosePicture = () =>
+    openPictureChooser({
+      owner: editor,
+      onPick: (file) =>
+        runTask(
+          placePicture(db, editor as never, file, undefined, stampSaved).then(
+            (message) => message && toast(message),
+          ),
+        ),
+    })
 
   /** "/database": the open picker (resolves to the choice). */
   const [databasePicker, setDatabasePicker] = useState<{
@@ -738,6 +759,7 @@ function LoadedPageEditor({
       saveAsTemplate,
       linkPage: () => openLinkPicker(null),
       takePhoto,
+      choosePicture,
     })
   })
   useEffect(() => () => clearActiveEditor(editor as never), [editor])
@@ -791,6 +813,7 @@ function LoadedPageEditor({
           slashMenu={false}
           sideMenu={false}
           formattingToolbar={false}
+          filePanel={false}
           // The Card answer label is drawn by CSS (index.css) from this text.
           style={
             {
@@ -805,6 +828,7 @@ function LoadedPageEditor({
               formattingToolbar={AppFormattingToolbar}
             />
           )}
+          <FilePanelController filePanel={PicturePanel} />
           <SideMenuController
             sideMenu={(props) => (
               <SideMenu {...props} dragHandleMenu={AppDragHandleMenu} />
@@ -820,6 +844,7 @@ function LoadedPageEditor({
                   onInsertTemplate: insertTemplate,
                   onInsertDatabase: insertDatabase,
                   onTakePhoto: takePhoto,
+                  onChoosePicture: choosePicture,
                   onSaveAsTemplate: saveAsTemplate,
                   onPlaceNestedCard: placeNestedCard,
                 }),
@@ -842,6 +867,11 @@ function LoadedPageEditor({
           />
         </BlockNoteView>
         <PictureEditorHost />
+        {pictureAsk?.owner === editor && (
+          <Suspense fallback={null}>
+            <PictureChooser ask={pictureAsk} />
+          </Suspense>
+        )}
         {editableIn(mode) && !readOnly && (
           <PictureHandles editor={editor as never} />
         )}

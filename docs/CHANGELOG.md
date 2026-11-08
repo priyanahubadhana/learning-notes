@@ -2,6 +2,11 @@
 
 Current phase only. Older entries are in [ARCHIVE.md](ARCHIVE.md).
 
+## 2026-11-08 (Fix #5: Insert › Picture chooser)
+
+- **What:** root cause: Insert › Picture and "/image" only inserted an empty image block and relied on BlockNote's small floating "Add image" panel (upload/embed tabs), which gave an empty block and nothing to tap on iPad. Now a chooser sheet (lazy `images/PictureChooser.tsx`: Photos, Files, Camera, Paste with hint "Press and hold → Paste", Cancel) opens first; the block is made only when a picture is chosen (`images/placePicture.ts`, stored via `saveImage` as before so Dexie + Drive sync apply). The empty block's own Add button uses the same chooser (`PicturePanel`, image blocks only). Link choice left out (see DECISIONS).
+- **Files:** `src/images/{PictureChooser.tsx,PicturePanel.tsx,pictureChooserStore.ts,placePicture.ts,pictureChooser.test.ts}`, `src/editor/{PageEditor,slashMenu}.tsx`, `src/app/tools/{editorCommands,toolRuntime}.ts`, `src/i18n/{enO,hiO,esO}.ts`, `e2e/pictureChooser.spec.ts`, docs. First load 300.03 KB.
+
 ## 2026-11-08 (CI: feature links)
 
 - **What:** CI was red at `check:links` (onboarding -> sync, sync -> onboarding). `SignInGuide` moved to `src/sync/` (sync-owned UI, lazy from App); the guide flag moved to shared `src/app/signInGuideState.ts`; Welcome gets `signedIn` as a prop from App instead of reading sync status.

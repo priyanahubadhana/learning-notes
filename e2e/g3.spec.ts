@@ -17,8 +17,7 @@ async function pageWithPicture(page: Page) {
   await page.keyboard.type('/image')
   await page.keyboard.press('Enter')
   await page
-    .locator('input[type="file"]')
-    .last()
+    .getByTestId('picture-input-photos')
     .setInputFiles({ name: 'p.png', mimeType: 'image/png', buffer: png })
   const img = page.locator('.bn-editor img')
   await expect(img).toBeVisible()

@@ -30,8 +30,7 @@ async function setup(page: Page) {
     await page.keyboard.type('/image')
     await page.keyboard.press('Enter')
     await page
-      .locator('input[type="file"]')
-      .last()
+      .getByTestId('picture-input-photos')
       .setInputFiles({ name, mimeType: 'image/png', buffer: png })
     await expect(
       page.locator('.bn-editor img').nth(name === 'one.png' ? 0 : 1),

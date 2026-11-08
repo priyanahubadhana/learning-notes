@@ -571,4 +571,15 @@ export const esO: Record<string, string> = {
   'unlock.bringingCount':
     'Desbloqueado · Trayendo tus cuadernos a este dispositivo ({count} hasta ahora)',
   'unlock.allSet': 'Todo listo',
+  'pic.add.title': 'Añadir una imagen',
+  'pic.add.photos': 'Fotos',
+  'pic.add.photos.sub': 'Fototeca, o haz una foto',
+  'pic.add.files': 'Archivos',
+  'pic.add.files.sub': 'Elige un archivo de imagen',
+  'pic.add.camera': 'Cámara',
+  'pic.add.camera.sub': 'Haz una foto nueva',
+  'pic.add.paste': 'Pegar',
+  'pic.add.paste.sub': 'Usa una imagen copiada',
+  'pic.add.pasteHint': 'Mantén pulsado → Pegar',
+  'pic.add.cancel': 'Cancelar',
 }

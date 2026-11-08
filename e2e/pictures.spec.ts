@@ -60,8 +60,7 @@ test('a picture added in a note is kept in the app and shown again after a reloa
   await page.keyboard.type('/image')
   await page.keyboard.press('Enter')
   await page
-    .locator('input[type="file"]')
-    .last()
+    .getByTestId('picture-input-photos')
     .setInputFiles({ name: 'red.png', mimeType: 'image/png', buffer: PNG })
   const img = page.locator('.bn-editor img').first()
   await expect(img).toHaveAttribute('src', /^blob:/)

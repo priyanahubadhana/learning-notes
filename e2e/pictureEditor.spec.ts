@@ -47,14 +47,11 @@ async function addPicture(page: Page) {
   await page.locator('.bn-editor').click()
   await page.keyboard.type('/image')
   await page.keyboard.press('Enter')
-  await page
-    .locator('input[type="file"]')
-    .last()
-    .setInputFiles({
-      name: 'wide.png',
-      mimeType: 'image/png',
-      buffer: png(400, 200),
-    })
+  await page.getByTestId('picture-input-photos').setInputFiles({
+    name: 'wide.png',
+    mimeType: 'image/png',
+    buffer: png(400, 200),
+  })
   await expect(page.locator('.bn-editor img').first()).toHaveAttribute(
     'src',
     /^blob:/,

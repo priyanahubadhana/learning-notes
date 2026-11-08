@@ -45,6 +45,8 @@ export interface EditorExtras {
   linkPage: () => void
   /** Camera: takes a photo (or picks one) and adds it as a picture. */
   takePhoto: () => void
+  /** Insert › Picture: the chooser (Photos, Files, Camera, Paste). */
+  choosePicture: () => void
 }
 
 /** The short bar's own trays, for tools that open one. */

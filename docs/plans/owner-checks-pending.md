@@ -2,6 +2,12 @@
 
 Moved out of HANDOFF on 2026-11-06 (audit) so HANDOFF stays five lines. Newest first; each paragraph names its step. The run decision (master plan) is one owner iPad pass before Sync; the Phase A builder adds its checks at the top. Tick a paragraph by deleting it.
 
+## Insert > Picture chooser (8 Nov, fix #5)
+
+1. iPad: Insert > Picture (or short bar Picture, or "/image") opens a small Add a picture sheet. Photos offers Photo Library, Take Photo, Choose File; Files, Camera and Paste are there too. Choose one: the picture lands in the page. No empty picture block appears.
+2. Close the sheet (Cancel, tap outside): nothing is added.
+3. Copy a picture (Photos > Copy), Insert > Picture > Paste: iPad asks to allow Paste, then the picture lands. If it does not, the hint says Press and hold > Paste.
+
 ## Drive pass renews itself (8 Nov, fix #4)
 
 1. PC and iPad, Sync on: add a picture, wait 2 minutes; it appears on the other device without Reconnect Drive or Sync now.

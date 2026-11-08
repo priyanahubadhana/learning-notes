@@ -60,8 +60,7 @@ async function writeRichPage(page: Page) {
   await page.keyboard.type('/image')
   await page.keyboard.press('Enter')
   await page
-    .locator('input[type="file"]')
-    .last()
+    .getByTestId('picture-input-photos')
     .setInputFiles({ name: 'red.png', mimeType: 'image/png', buffer: PNG })
   await expect(editor(page).locator('img')).toHaveAttribute('src', /^blob:/)
   await page.waitForTimeout(900)

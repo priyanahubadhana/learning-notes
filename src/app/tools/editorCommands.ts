@@ -146,7 +146,7 @@ const COMMANDS: Record<string, Command> = {
     if (!canMakeCard(block)) return
     makeCard(editor, block)
   },
-  picture: ({ editor }) => void insertBlock(editor, { type: 'image' }),
+  picture: ({ extras }) => extras?.choosePicture(),
   callout: ({ editor }) => void insertBlock(editor, { type: 'callout' }),
   table: ({ editor }) => void insertTable(editor),
   file: ({ editor }) => void insertBlock(editor, { type: 'file' }),

@@ -26,6 +26,8 @@ export interface SlashMenuActions {
   onInsertDatabase: () => void
   /** "/camera": opens the camera (or the photo picker) and adds the picture. */
   onTakePhoto?: () => void
+  /** "/image": the picture chooser (no empty block is left behind). */
+  onChoosePicture?: () => void
   /** Left out of the menu when undefined (e.g. on template pages). */
   onSaveAsTemplate?: () => void
   /** "/card" inside a card's answer: where the new card goes. */
@@ -46,6 +48,7 @@ export function buildSlashMenuItems(
     onInsertTemplate,
     onInsertDatabase,
     onTakePhoto,
+    onChoosePicture,
     onSaveAsTemplate,
     onPlaceNestedCard,
   }: SlashMenuActions,
@@ -53,6 +56,11 @@ export function buildSlashMenuItems(
   // BlockNote's own File item opens its upload panel; ours has its own card.
   const items = getDefaultReactSlashMenuItems(editor)
     .filter((item) => (item as { key?: string }).key !== 'file')
+    .map((item) =>
+      (item as { key?: string }).key === 'image' && onChoosePicture
+        ? { ...item, onItemClick: onChoosePicture }
+        : item,
+    )
     .map((item) => {
       const extra = EXTRA_ALIASES[item.title]
       return extra

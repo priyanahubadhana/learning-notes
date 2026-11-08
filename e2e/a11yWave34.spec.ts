@@ -194,14 +194,11 @@ test('Picture editor: names on every control', async ({ page }) => {
   await page.locator('.bn-editor').click()
   await page.keyboard.type('/image')
   await page.keyboard.press('Enter')
-  await page
-    .locator('input[type="file"]')
-    .last()
-    .setInputFiles({
-      name: 'p.png',
-      mimeType: 'image/png',
-      buffer: png(400, 200),
-    })
+  await page.getByTestId('picture-input-photos').setInputFiles({
+    name: 'p.png',
+    mimeType: 'image/png',
+    buffer: png(400, 200),
+  })
   await expect(page.locator('.bn-editor img').first()).toHaveAttribute(
     'src',
     /^blob:/,

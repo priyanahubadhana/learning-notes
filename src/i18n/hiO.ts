@@ -551,4 +551,15 @@ export const hiO: Record<string, string> = {
   'unlock.bringingCount':
     'अनलॉक हो गया · आपकी नोटबुक इस डिवाइस पर आ रही हैं (अब तक {count})',
   'unlock.allSet': 'सब तैयार',
+  'pic.add.title': 'चित्र जोड़ें',
+  'pic.add.photos': 'फ़ोटो',
+  'pic.add.photos.sub': 'फ़ोटो लाइब्रेरी, या नई फ़ोटो लें',
+  'pic.add.files': 'फ़ाइलें',
+  'pic.add.files.sub': 'चित्र की फ़ाइल चुनें',
+  'pic.add.camera': 'कैमरा',
+  'pic.add.camera.sub': 'नई फ़ोटो लें',
+  'pic.add.paste': 'पेस्ट',
+  'pic.add.paste.sub': 'कॉपी किया हुआ चित्र लगाएँ',
+  'pic.add.pasteHint': 'देर तक दबाएँ → पेस्ट',
+  'pic.add.cancel': 'रद्द करें',
 }

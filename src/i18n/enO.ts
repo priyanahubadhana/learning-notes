@@ -571,4 +571,15 @@ export const enO = {
   'unlock.bringingCount':
     'Unlocked · Bringing your notebooks to this device ({count} so far)',
   'unlock.allSet': 'All set',
+  'pic.add.title': 'Add a picture',
+  'pic.add.photos': 'Photos',
+  'pic.add.photos.sub': 'Photo Library, or take a photo',
+  'pic.add.files': 'Files',
+  'pic.add.files.sub': 'Choose a picture file',
+  'pic.add.camera': 'Camera',
+  'pic.add.camera.sub': 'Take a new photo',
+  'pic.add.paste': 'Paste',
+  'pic.add.paste.sub': 'Use a picture you copied',
+  'pic.add.pasteHint': 'Press and hold → Paste',
+  'pic.add.cancel': 'Cancel',
 }

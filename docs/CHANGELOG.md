@@ -12,6 +12,11 @@ Current phase only. Older entries are in [ARCHIVE.md](ARCHIVE.md).
 - **What:** A box that is dropped or resized onto another box now gives way: it moves under the box it would cover (with a 3 mm gap, on the paper's line spacing). The other boxes never move. Box frame on hover/tap, grab bar and side edges already existed. NOT built yet from the owner's longer wish list: floating format bar under a tapped box, live see-through copy and red landing line while dragging, push-down of neighbours, snap guides, Lasso-select several boxes by loop frame.
 - **Files:** src/paper/boxes.ts (+ test), src/paper/PaperFrame.tsx, e2e/paperPage.spec.ts, docs/features/paper-page.md
 
+## 2026-11-09 (Outline view options)
+
+- **What:** the Outline tab has a view row: Headings 1 only / 1–2 / All, a Toggles chip (toggle summaries appear one level under the heading above; tapping one opens it, opens the toggles around it, and scrolls there), a numbers chip (1, 1.1, 1.2), and a fold arrow on every line that has deeper lines under it. Depth, toggles and numbers are remembered per device (prefs outline.depth, outline.toggles, outline.numbered); folds last while the panel is open.
+- **Files:** src/app/panel/panelModel.ts (+test), LeftPanel.tsx, src/i18n/enO.ts, e2e/leftPanel.spec.ts, docs/features/notebooks-and-pages.md
+
 ## 2026-11-09 (Import a Notion export)
 
 - **What:** Save & restore › More › Notion: pick Notion's "Markdown & CSV" zip, see the counts and target, import (new notebook or an existing one), Undo moves it all to Trash. CSV to Database with guessed types (reusing the CSV importer), row .md to the row's page, nested pages to sub-pages, pictures and files kept, links rewritten to note links, toggles/callouts/dividers/tables/code read. Strict zip and size limits.

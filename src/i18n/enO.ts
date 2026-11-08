@@ -524,6 +524,7 @@ export const enO = {
   'paper.box.delete': 'Delete box',
   'paper.box.deleted': 'Box deleted.',
   'paper.box.undo': 'Undo',
+  'paper.box.movedMany': '{n} boxes moved.',
   'pencilOffer.title': 'Use Pencil mode?',
   'pencilOffer.body': 'Pencil writes, finger scrolls and taps',
   'pencilOffer.yes': 'Yes',
@@ -830,4 +831,13 @@ export const enO = {
   'notion.err.expanded': 'This export is too big to open here.',
   'notion.err.pages': 'This export has too many pages for one import.',
   'notion.err.toobig': 'This file is too big (the limit is 400 MB).',
+  // ---- Outline view options ----
+  'lp.outline.view': 'Outline view',
+  'lp.outline.depth': 'Headings shown',
+  'lp.outline.h1': 'Headings 1 only',
+  'lp.outline.h12': 'Headings 1–2',
+  'lp.outline.hAll': 'All headings',
+  'lp.outline.toggles': 'Toggles',
+  'lp.outline.numbers': '1, 1.1',
+  'lp.outline.fold': 'Fold or unfold',
 }

@@ -52,6 +52,8 @@ Current phase only. Older decisions are in [ARCHIVE.md](ARCHIVE.md).
 
 ## Decisions to review
 
+- **2026-11-09 · Outline options.** (1) A toggle line sits one level under the nearest heading above it (not under a heading hidden by the depth setting: it uses the deepest shown level), nested toggles one level deeper. (2) Chapter numbers count headings only, restart under each parent, and a skipped level (1 then 1.1.1) numbers as 1.2.1-style counters from 1. (3) Folds are not remembered, only the three view options. (4) Strings are English only for now (Hindi and Spanish fall back).
+
 - **2026-11-09 · Notion export import.** (1) Notion has no Markdown spec for its zip, so the format is read from the known shape (names end in a 32-character id, a CSV sits beside a folder of row pages); I had no real export, only a hand-made one: owner to try a real zip. (2) A zip inside the zip, relations, formulas, comments, icons and covers are not imported. (3) Rows are matched to their .md by title. (4) The whole zip is read into memory with size caps (400 MB zip, 800 MB expanded) instead of a true stream, because the unzip library can skip big entries before inflating them; larger exports should be split in Notion.
 
 - **2026-11-09 · Pasted database rows.** They become a Table block, never our Database block: copied rows carry no column types and I had no real Notion clipboard sample to find database markers or the header row (a copy of selected rows has no header; the first row stays a normal row). Whole databases come in through Import › Notion export (CSV to Database).

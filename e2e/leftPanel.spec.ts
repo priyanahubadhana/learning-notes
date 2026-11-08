@@ -136,3 +136,79 @@ test('the PIN field has a name, a placeholder and a visible border', async ({
   await enterCode(page, '2468')
   await expect(lockScreen(page)).toBeHidden()
 })
+
+test('Outline view options: depth, toggles, numbers, folding and tapping a toggle', async ({
+  page,
+}) => {
+  await createNotebook(page, 'Outline NB', 'Long page')
+  await page.locator('.bn-editor').click()
+  await page.keyboard.type('# Alpha ')
+  await page.keyboard.press('Enter')
+  await page.keyboard.type('## Beta ')
+  await page.keyboard.press('Enter')
+  await page.keyboard.type('/toggle')
+  await page.keyboard.press('Enter')
+  await page.keyboard.type('Fold title')
+  await page.keyboard.press('Enter')
+  await page.keyboard.type('inside words')
+  await page.waitForTimeout(800)
+
+  await page.getByTestId('panel-toggle').click()
+  const panel = page.getByTestId('left-panel')
+  await panel.getByRole('tab', { name: 'Outline' }).click()
+  await expect(
+    panel.getByRole('button', { name: 'Alpha', exact: true }),
+  ).toBeVisible()
+  await expect(
+    panel.getByRole('button', { name: 'Beta', exact: true }),
+  ).toBeVisible()
+  await expect(panel.getByRole('button', { name: 'Fold title' })).toHaveCount(0)
+
+  // Headings 1 only hides Beta.
+  await panel.getByLabel('Headings shown').selectOption('1')
+  await expect(
+    panel.getByRole('button', { name: 'Beta', exact: true }),
+  ).toHaveCount(0)
+  await panel.getByLabel('Headings shown').selectOption('3')
+
+  // Toggles and numbers.
+  await panel.getByRole('button', { name: 'Toggles' }).click()
+  await expect(panel.getByRole('button', { name: 'Fold title' })).toBeVisible()
+  await panel.getByRole('button', { name: '1, 1.1' }).click()
+  await expect(panel.getByRole('button', { name: /^1\s*Alpha/ })).toBeVisible()
+  await expect(
+    panel.getByRole('button', { name: /^1\.1\s*Beta/ }),
+  ).toBeVisible()
+
+  // Folding Alpha hides what is under it.
+  await panel.getByRole('button', { name: 'Fold or unfold' }).first().click()
+  await expect(panel.getByRole('button', { name: /Beta/ })).toHaveCount(0)
+  await panel.getByRole('button', { name: 'Fold or unfold' }).first().click()
+
+  // Remembered on this device.
+  await page.reload()
+  await expect(page.locator('.bn-editor')).toBeVisible()
+  await page.waitForTimeout(500)
+  if (!(await page.getByTestId('left-panel').isVisible())) {
+    await page.getByTestId('panel-toggle').click()
+  }
+  await page
+    .getByTestId('left-panel')
+    .getByRole('tab', { name: 'Outline' })
+    .click()
+  await expect(
+    page.getByTestId('left-panel').getByRole('button', { name: 'Fold title' }),
+  ).toBeVisible()
+
+  // Closing the toggle on the page, then tapping it in the Outline opens it.
+  const chevron = page.locator('.bn-editor .bn-toggle-button').first()
+  if ((await chevron.getAttribute('aria-expanded')) === 'true') {
+    await chevron.click()
+  }
+  await expect(chevron).toHaveAttribute('aria-expanded', 'false')
+  await page
+    .getByTestId('left-panel')
+    .getByRole('button', { name: 'Fold title' })
+    .click()
+  await expect(chevron).toHaveAttribute('aria-expanded', 'true')
+})

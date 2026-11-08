@@ -2,6 +2,7 @@ import { useLiveQuery } from 'dexie-react-hooks'
 import {
   Fragment,
   useEffect,
+  useMemo,
   useRef,
   useState,
   type CSSProperties,
@@ -26,7 +27,13 @@ import {
   prefersReducedMotion,
   targetTopFor,
 } from '../reading/glide'
-import { outlineFromBlocks, previewLines } from './panelModel'
+import {
+  outlineItems,
+  previewLines,
+  visibleOutline,
+  type OutlineItem,
+  type OutlineView,
+} from './panelModel'
 
 const TABS = ['pages', 'outline', 'audio'] as const
 type Tab = (typeof TABS)[number]
@@ -168,45 +175,171 @@ function PagesTab({
   )
 }
 
+/** Opens a closed toggle (the block itself when `self`, and every toggle around it). */
+function openToggles(el: HTMLElement, self: boolean): void {
+  const open = (outer: Element | null) => {
+    const button = outer?.querySelector<HTMLElement>(
+      ':scope > .bn-block > .bn-toggle-wrapper > .bn-toggle-button, :scope .bn-toggle-button',
+    )
+    if (button?.getAttribute('aria-expanded') === 'false') button.click()
+  }
+  for (
+    let o = el.parentElement?.closest('.bn-block-outer') ?? null;
+    o;
+    o = o.parentElement?.closest('.bn-block-outer') ?? null
+  ) {
+    open(o)
+  }
+  if (self) open(el)
+}
+
+const isDepth = (v: unknown): v is OutlineView['depth'] =>
+  v === 1 || v === 2 || v === 3
+const isBool = (v: unknown): v is boolean => typeof v === 'boolean'
+
 function OutlineTab({ db, pageId }: { db: LearningNotesDB; pageId: string }) {
-  const headings = useLiveQuery(
-    async () =>
-      outlineFromBlocks(
-        await db.blocks.where('pageId').equals(pageId).toArray(),
-      ),
+  // View options are remembered on this device.
+  const [depth, setDepth] = usePref<OutlineView['depth']>(
+    'outline.depth',
+    isDepth,
+    3,
+  )
+  const [toggles, setToggles] = usePref('outline.toggles', isBool, false)
+  const [numbered, setNumbered] = usePref('outline.numbered', isBool, false)
+  const [folded, setFolded] = useState<ReadonlySet<string>>(new Set())
+  const records = useLiveQuery(
+    () => db.blocks.where('pageId').equals(pageId).toArray(),
     [db, pageId],
   )
-  const jump = (id: string) => {
-    const el = document.querySelector<HTMLElement>(
-      `.bn-block-outer[data-id="${CSS.escape(id)}"]`,
-    )
+  const items = useMemo(
+    () =>
+      records ? outlineItems(records, { depth, toggles, numbered }) : null,
+    [records, depth, toggles, numbered],
+  )
+  const jump = (item: OutlineItem) => {
+    const find = () =>
+      document.querySelector<HTMLElement>(
+        `.bn-block-outer[data-id="${CSS.escape(item.id)}"]`,
+      )
+    const el = find()
     const scroller = document.querySelector<HTMLElement>('[data-page-scroller]')
     if (!el || !scroller) return
-    glideTo(scroller, targetTopFor(scroller, el), 600, {
-      instant: prefersReducedMotion(),
+    // A toggle opens when tapped; a heading inside a closed toggle opens it.
+    openToggles(el, item.kind === 'toggle')
+    // The page grows when a toggle opens: scroll once it has settled.
+    window.setTimeout(
+      () => {
+        const now = find() ?? el
+        glideTo(scroller, targetTopFor(scroller, now), 600, {
+          instant: prefersReducedMotion(),
+        })
+        landOn(now)
+      },
+      item.kind === 'toggle' ? 60 : 0,
+    )
+  }
+  const flip = (id: string) =>
+    setFolded((old) => {
+      const next = new Set(old)
+      if (!next.delete(id)) next.add(id)
+      return next
     })
-    landOn(el)
-  }
-  if (!headings) return null
-  if (headings.length === 0) {
-    return <p className="px-1 text-sm text-muted">{t('lp.outline.empty')}</p>
-  }
+  if (!items) return null
+  const shown = visibleOutline(items, folded)
+  const chip = (on: boolean) =>
+    `min-h-11 rounded-lg border px-2.5 text-xs ${
+      on ? 'border-accent bg-soft' : 'border-line hover:bg-hover'
+    }`
   return (
-    <ul aria-label={t('lp.tab.outline')}>
-      {headings.map((h) => (
-        <li key={h.id} style={{ paddingInlineStart: (h.level - 1) * 14 }}>
-          <button
-            type="button"
-            data-chrome
-            data-heading={h.id}
-            onClick={() => jump(h.id)}
-            className="min-h-11 w-full rounded-lg px-2 text-start text-sm hover:bg-hover"
-          >
-            <span className="line-clamp-2 break-words">{h.text}</span>
-          </button>
-        </li>
-      ))}
-    </ul>
+    <>
+      <div
+        role="group"
+        aria-label={t('lp.outline.view')}
+        data-testid="outline-options"
+        className="mb-2 flex flex-wrap gap-1.5"
+      >
+        <select
+          aria-label={t('lp.outline.depth')}
+          value={depth}
+          onChange={(e) =>
+            setDepth(Number(e.target.value) as OutlineView['depth'])
+          }
+          className="min-h-11 rounded-lg border border-line bg-bg px-2 text-xs"
+        >
+          <option value={1}>{t('lp.outline.h1')}</option>
+          <option value={2}>{t('lp.outline.h12')}</option>
+          <option value={3}>{t('lp.outline.hAll')}</option>
+        </select>
+        <button
+          type="button"
+          data-chrome
+          aria-pressed={toggles}
+          onClick={() => setToggles(!toggles)}
+          className={chip(toggles)}
+        >
+          {t('lp.outline.toggles')}
+        </button>
+        <button
+          type="button"
+          data-chrome
+          aria-pressed={numbered}
+          onClick={() => setNumbered(!numbered)}
+          className={chip(numbered)}
+        >
+          {t('lp.outline.numbers')}
+        </button>
+      </div>
+      {items.length === 0 ? (
+        <p className="px-1 text-sm text-muted">{t('lp.outline.empty')}</p>
+      ) : (
+        <ul aria-label={t('lp.tab.outline')}>
+          {shown.map((h) => (
+            <li
+              key={h.id}
+              className="flex items-center"
+              style={{ paddingInlineStart: (h.level - 1) * 14 }}
+            >
+              {h.hasChildren ? (
+                <button
+                  type="button"
+                  data-chrome
+                  aria-expanded={!folded.has(h.id)}
+                  aria-label={t('lp.outline.fold')}
+                  onClick={() => flip(h.id)}
+                  className="flex min-h-11 w-6 shrink-0 items-center justify-center text-xs text-muted"
+                >
+                  {folded.has(h.id) ? '▸' : '▾'}
+                </button>
+              ) : (
+                <span className="w-6 shrink-0" />
+              )}
+              <button
+                type="button"
+                data-chrome
+                data-heading={h.id}
+                data-kind={h.kind}
+                onClick={() => jump(h)}
+                className="min-h-11 min-w-0 flex-1 rounded-lg px-2 text-start text-sm hover:bg-hover"
+              >
+                <span className="line-clamp-2 break-words">
+                  {h.number && (
+                    <span className="me-1.5 text-muted tabular-nums">
+                      {h.number}
+                    </span>
+                  )}
+                  {h.kind === 'toggle' && (
+                    <span aria-hidden className="me-1 text-muted">
+                      ▸
+                    </span>
+                  )}
+                  {h.text}
+                </span>
+              </button>
+            </li>
+          ))}
+        </ul>
+      )}
+    </>
   )
 }
 

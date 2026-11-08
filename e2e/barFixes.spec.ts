@@ -220,8 +220,13 @@ test('R6-10: a palm (a touch just after the Pencil lifts) is ignored on a bar', 
   page,
 }) => {
   await openNote(page, 'pencil')
+  const lb = (await page.locator(LASSO).boundingBox())!
+  const palm = { x: lb.x + lb.width / 2, y: lb.y + lb.height / 2 }
   await tapEl(page, '[data-bar-tool="insert"]', 'pen') // a Pencil tap, then at once a palm
-  await page.locator(LASSO).tap()
+  // The palm lands at once: its place is measured before, and a raw touch has
+  // no actionability waits (on a slow CI machine a locator tap could come
+  // after the 500 ms palm window and count as a real finger tap).
+  await page.touchscreen.tap(palm.x, palm.y)
   await page.waitForTimeout(400)
   expect(await isOn(page)).toBe(false)
   await page.keyboard.press('Escape') // close the Insert pill

@@ -13,6 +13,7 @@ Current phase only. Older entries are in [ARCHIVE.md](ARCHIVE.md).
 - **What:** an empty page shows a faint "Type, or tap anywhere on the paper to add a box" on the first sheet (first 3 pages opened on a device, kept in this browser only, gone once the page has words); with the Text tool, a mouse or Pencil hovering empty paper shows a "+ box" tag by the pointer (body portal, not on touch); the default box shows a dashed outline while it has the caret.
 - **Why:** the tap-to-box could not be discovered.
 - **Files:** `src/paper/{PaperFrame.tsx,hintPages.ts(+test)}`, `src/pages/PageView.tsx`, `src/i18n/{en,es,hi}O.ts`, `e2e/paperHint.spec.ts`, `playwright.config.ts`.
+
 ## 2026-11-08 (PDF and print laid out as paper)
 
 - **What:** Export › **Paper layout (PDF)** (one page, next to PDF). `share/export/paperLayout.ts` builds sheets at real size (`@page` = the page's A4/Letter, no margin) with the background (lined 8 mm; grid and dots 5 mm), every box at its x, y and width in mm (colour tint kept), text staying text, and the ink in place: a hidden frame lays the boxes out first, each block is measured (`data-b`), and each box's strokes are painted with the app's own `paintStroke` into one picture over the box. A box that crosses a sheet edge is on both sheets, cut at the edge. Hidden layers are left out. `ExportNode.id` and `printHtml.nodesHtml(mark)` carry block ids; `BOX_COLOURS` moved to `paper/boxes.ts`. Tests: `paperLayout.test.ts`, `e2e/paperExport.spec.ts` (chromium, ipad-webkit). No change to `ink/controller.ts` (ink read only).

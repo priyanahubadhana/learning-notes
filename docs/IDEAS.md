@@ -122,3 +122,5 @@ New ideas that come up mid-build are parked here, not added to the current phase
 - 2026-11-07 — Pencil: a screen double-tap while drawing could switch to typing mode. Not built on purpose: the owner is designing a "write-into-text pad", which may change it _(Likely phase: after that design)_
 - **AI learning companion** (Phase P, later work): a tutor that quizzes from your notes and cards, with the same caps and per-notebook switches.
 - **Local MCP server** (Phase P, later work): lets a desktop AI app read and write notebooks on this device, with the Permissions screen as the gate.
+
+- **Wispr Flow (owner, 9 Nov):** use Wispr Flow for talking notes. It types into any text box itself, so it already works in our pages; it has no public API to plug into our mic. Free tier is word-limited per week; Pro is paid. Revisit if they publish an API.

@@ -6,6 +6,8 @@
 
 Learning Notes App: a premium, minimal second brain (Notion + OneNote + Anki). Each notebook has detailed notes, a short summary and recall cards. Web now; iPhone, iPad, Android and Mac later. Global, millions of users, any field. Budget ₹0 unless the owner says otherwise.
 
+**Look and feel:** every screen must feel like a top-tier product from a company like Apple or Google: calm, polished, consistent spacing and type, smooth motion, clear hierarchy. Design rules live in rules/architecture.md (Design).
+
 ## Working With the Owner
 
 - Owner is a beginner: explain simply — what it is, what it does, why it matters.

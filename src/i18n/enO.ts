@@ -8,6 +8,14 @@ import { enS } from './enS'
 export const enO = {
   ...enH,
   ...enS,
+  // ---- Selected picture action bar (iPad fix 5) ----
+  'pic.act.label': 'Picture actions',
+  'pic.act.copy': 'Copy',
+  'pic.act.cut': 'Cut',
+  'pic.act.duplicate': 'Duplicate',
+  'pic.act.delete': 'Delete',
+  'pic.act.resize': 'Resize',
+  'pic.act.deselect': 'Deselect',
   // ---- Template chooser at start ----
   'newPage.dontShow': "Don't show this again",
   'newPage.hiddenToast':

@@ -8,6 +8,11 @@ Current phase only. Older entries are in [ARCHIVE.md](ARCHIVE.md).
 - **Why:** owner queue 3b and the two 9 Nov DECISIONS sections.
 - **Files:** src/prompts/* (new), src/core/types.ts (Database.kind), src/ai/provider.ts, providers.ts, route.ts (cachePrefix, cached tokens counted), AiActions.tsx, AskBook.tsx, library/LibraryScreen.tsx, i18n enO/hiO/esO, scripts/feature-links.json, e2e/promptLibrary.spec.ts, docs/features/prompt-library.md, docs/plans/prompt-library-plan.md.
 
+## 2026-11-09 (iPad fix 5: picture action bar)
+
+- **What:** Tapping (or pressing, Pencil included) a picture shows a bar above it: Copy, Cut, Duplicate, Delete, Resize (shows or hides the corner handles), Deselect, in the app's menu style (rounded pill, 44 px buttons). The iOS callout is already off on the page.
+- **Files:** src/editor/PictureHandles.tsx, src/i18n/enO.ts, e2e/pictureActions.spec.ts, docs/features/pictures.md
+
 ## 2026-11-09 (iPad fixes 3 and 4: Lasso on a picture, selection look)
 
 - **What:** Selection look: only what is selected is outlined (the picture itself, the words, or the line text), dashed in a new --color-select token (orange, light #c2410c / night #ffb454 / sepia #a8360a), no fill over whole blocks. Fix 3 (first Lasso loop on a picture after opening): could NOT be reproduced in Chromium; e2e now covers first use after a reload and a lost finger lift; see DECISIONS.

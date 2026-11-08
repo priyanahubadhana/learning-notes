@@ -812,3 +812,5 @@ The other older decisions stand as built (owner, 2026-11-01); they are in [ARCHI
 - **2026-11-09 · iPad fix 2: Undo/Redo pinned:** The main bar already had them pinned, so the owner most likely saw the full ribbon; pinned there too. The ribbon may now wrap its tab row by one line on iPad widths (compact limit 85 to 100 px).
 
 - **2026-11-09 · iPad fixes 3 and 4: Lasso on a picture, selection look:** Fix 3 root cause not found. Checked: gesture reset flag (selectGesture), stale layout, filters. Not reproducible with simulated events after a reload. Note the Lasso Pictures filter is OFF by default (owner 7 Nov), so a first loop with defaults picks no picture by design; owner please confirm the Pictures filter was on. Selection colour: orange dashed token --color-select (accessible on all three themes).
+
+- **2026-11-09 · iPad fix 5: picture action bar:** Resize button toggles the corner handles (they are on by default so the old tap-to-resize still works). Copy puts the picture on the clipboard as an image (needs the browser's permission; Cut never deletes if the copy failed).

@@ -33,6 +33,10 @@ A drag with the Apple Pencil or a mouse that starts on a picture, ends on one or
 
 A selected picture (Lasso or tap) gets a dashed orange outline on the picture itself, not the box around it.
 
+## Picture action bar (9 Nov)
+
+A tapped or pressed picture shows an action bar above it (below when there is no room): Copy, Cut, Duplicate, Delete, Resize (shows or hides the corner handles), Deselect (`PictureHandles.tsx`). Test: e2e/pictureActions.spec.ts.
+
 ## Edge cases
 
 - A missing or deleted picture gives `null` and nothing is shown.

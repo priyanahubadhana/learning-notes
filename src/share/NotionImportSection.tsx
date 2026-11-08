@@ -53,13 +53,11 @@ export function NotionImportSection({
     setError('')
     setProgress(t('notion.reading'))
     try {
-      const { planNotionZip, NotionImportError } =
+      const { planNotionStream, NotionImportError } =
         await import('./notionImport')
       if (file.size > 400 * 1024 * 1024) throw new Error(t('notion.tooBig'))
       try {
-        setPlan(
-          planNotionZip(new Uint8Array(await file.arrayBuffer()), file.name),
-        )
+        setPlan(await planNotionStream(file, file.name))
       } catch (e) {
         if (e instanceof NotionImportError) {
           throw new Error(notionError(e.message), { cause: e })

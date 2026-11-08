@@ -10,6 +10,7 @@ import {
   notionDate,
   NotionImportError,
   notionMarkdownToBlocks,
+  planNotionStream,
   planNotionZip,
   runNotionImport,
   splitName,
@@ -77,6 +78,24 @@ describe('Notion export', () => {
     expect(() => planNotionZip(zipSync({ '../evil.md': enc('x') }))).toThrow(
       NotionImportError,
     )
+  })
+  it('streams the same plan as the in-memory read and keeps the limits', async () => {
+    const bytes = sample()
+    const a = planNotionZip(bytes, 'My export.zip')
+    const b = await planNotionStream(
+      new Blob([bytes as BlobPart]),
+      'My export.zip',
+    )
+    expect(b.nodes.map((n) => n.key)).toEqual(a.nodes.map((n) => n.key))
+    expect(b).toMatchObject({ pages: 2, databases: 1, rows: 2, images: 1 })
+    await expect(planNotionStream(new Blob(['not a zip']))).rejects.toThrow(
+      NotionImportError,
+    )
+    await expect(
+      planNotionStream(
+        new Blob([zipSync({ '../evil.md': enc('x') }) as BlobPart]),
+      ),
+    ).rejects.toThrow(NotionImportError)
   })
   it('turns Notion Markdown into toggles, callouts, dividers, tables and quotes', () => {
     const blocks = notionMarkdownToBlocks(

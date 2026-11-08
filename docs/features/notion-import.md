@@ -16,6 +16,7 @@ Bring a whole Notion workspace or database across with Notion's free export, no 
 ## Technical
 
 - `src/share/notionImport.ts` (`planNotionZip`, `notionMarkdownToBlocks`, `runNotionImport`, `undoNotionImport`), `NotionImportSection.tsx`; the importer is loaded only when a file is chosen. Reuses `importCsvRows`, `createDatabase`, `addBlocks`, `saveImage`, `saveAttachment`, `markdownToBlocks`.
+- The zip is read as a stream (`planNotionStream`: the file in chunks, one entry inflated at a time, entries over their limit never inflated, entries with an unknown size cut off when they grow past it), so the whole zip never sits in memory beside its contents; `planNotionZip` (whole-file) stays for tests and small zips.
 - Limits: zip 400 MB, 20 000 entries, 800 MB expanded, .md 2 MB, .csv 30 MB (rows and columns by `parseCsv`), other files 50 MB (pictures 25 MB, told by their first bytes), 5 000 pages. Names that climb out of the zip, start with "/" or hold a backslash are never read; files over their limit are skipped before they are inflated (`filter` on `originalSize`); nothing in the zip is run. A failure half-way moves what was made to Trash.
 
 ## Tests

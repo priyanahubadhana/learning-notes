@@ -1,4 +1,10 @@
-import { strFromU8, unzipSync } from 'fflate'
+import {
+  strFromU8,
+  Unzip,
+  UnzipInflate,
+  UnzipPassThrough,
+  unzipSync,
+} from 'fflate'
 import { saveAttachment } from '../core/attachments'
 import { fileRef } from '../core/fileRef'
 import type { BlockInput } from '../core/blockBulk'
@@ -120,17 +126,107 @@ export function planNotionZip(bytes: Uint8Array, fileName = ''): NotionPlan {
         if (++count > MAX_ENTRIES) throw new NotionImportError('entries')
         total += f.originalSize
         if (total > MAX_EXPANDED) throw new NotionImportError('expanded')
-        if (f.name.endsWith('/') || unsafeName(f.name)) return false
-        const lower = f.name.toLowerCase()
-        if (lower.endsWith('.md')) return f.originalSize <= MAX_MD_BYTES
-        if (lower.endsWith('.csv')) return f.originalSize <= MAX_CSV_BYTES
-        return f.originalSize <= MAX_FILE_BYTES
+        return entryAllowed(f.name, f.originalSize)
       },
     })
   } catch (e) {
     if (e instanceof NotionImportError) throw e
     throw new NotionImportError('damaged')
   }
+  return buildPlan(raw, fileName)
+}
+
+/** Does the zip entry fit the limits? (Folders and unsafe names never do.) */
+function entryAllowed(name: string, size: number): boolean {
+  if (name.endsWith('/') || unsafeName(name)) return false
+  const lower = name.toLowerCase()
+  if (lower.endsWith('.md')) return size <= MAX_MD_BYTES
+  if (lower.endsWith('.csv')) return size <= MAX_CSV_BYTES
+  return size <= MAX_FILE_BYTES
+}
+
+/**
+ * Reads a Notion export zip as a stream: the file is read in chunks and each
+ * allowed entry is inflated on its own, so the whole zip is never in memory
+ * next to its contents (large exports on an iPad). Same limits as
+ * planNotionZip; entries over their limit are skipped before inflating, and
+ * entries whose size is not in the header are cut off when they grow past it.
+ */
+export async function planNotionStream(
+  file: Blob,
+  fileName = '',
+): Promise<NotionPlan> {
+  if (file.size > MAX_ZIP_BYTES) throw new NotionImportError('toobig')
+  const raw: Record<string, Uint8Array> = {}
+  let count = 0
+  let total = 0
+  let failure: unknown = null
+  const unzip = new Unzip((entry) => {
+    try {
+      if (++count > MAX_ENTRIES) throw new NotionImportError('entries')
+      const known = entry.originalSize
+      total += known ?? 0
+      if (total > MAX_EXPANDED) throw new NotionImportError('expanded')
+      if (!entryAllowed(entry.name, known ?? 0)) return // skipped, never inflated
+      const chunks: Uint8Array[] = []
+      let size = 0
+      entry.ondata = (err, chunk, final) => {
+        if (failure) return
+        try {
+          if (err) throw err
+          size += chunk.length
+          if (known === undefined) total += chunk.length
+          if (total > MAX_EXPANDED) throw new NotionImportError('expanded')
+          if (!entryAllowed(entry.name, size)) {
+            chunks.length = 0 // grew past its limit: drop it
+            return
+          }
+          chunks.push(chunk)
+          if (final) {
+            const out = new Uint8Array(size)
+            let at = 0
+            for (const c of chunks) {
+              out.set(c, at)
+              at += c.length
+            }
+            raw[entry.name] = out
+          }
+        } catch (e) {
+          failure = e
+        }
+      }
+      entry.start()
+    } catch (e) {
+      failure = e
+    }
+  })
+  unzip.register(UnzipInflate)
+  unzip.register(UnzipPassThrough)
+  try {
+    const reader = file.stream().getReader()
+    for (;;) {
+      const { done, value } = await reader.read()
+      unzip.push(value ?? new Uint8Array(0), done)
+      if (failure) {
+        await reader.cancel()
+        break
+      }
+      if (done) break
+    }
+  } catch (e) {
+    failure ??= e
+  }
+  if (failure) {
+    if (failure instanceof NotionImportError) throw failure
+    throw new NotionImportError('damaged')
+  }
+  return buildPlan(raw, fileName)
+}
+
+function buildPlan(
+  raw: Record<string, Uint8Array>,
+  fileName: string,
+): NotionPlan {
   const nodes = new Map<string, PlanNode>()
   const files = new Map<string, Uint8Array>()
   let nested = 0

@@ -782,8 +782,6 @@ export const esO: Record<string, string> = {
   'prompts.paste.copied': 'Copiado. Pégalo en tu chat de IA.',
   'prompts.paste.answerLabel': 'Pega aquí la respuesta de la IA',
   'prompts.paste.import': 'Pegar respuesta',
-  'prompts.paste.file': 'Importar un archivo .lnskill.json',
-  'prompts.paste.fileHint': 'O suelta el archivo aquí.',
   'prompts.paste.empty': 'No se pegó nada.',
   'prompts.paste.tooLong':
     'Esa respuesta es demasiado larga para leerla con seguridad.',
@@ -807,6 +805,8 @@ export const esO: Record<string, string> = {
   'editLock.barNotebook': 'Cuaderno bloqueado — toca para desbloquear',
   'editLock.deleteHint': 'Bloqueado',
   'editLock.refused': 'Esto está bloqueado para edición. Desbloquéalo primero.',
+  'prompts.paste.file': 'Importar un archivo .lnskill.json',
+  'prompts.paste.fileHint': 'O suelta el archivo aquí.',
   'claudeSkill.title': 'Usar con Claude',
   'claudeSkill.intro':
     'Una Skill gratuita de Claude convierte lo que le des (una transcripción, un artículo, un PDF, una respuesta de chat) en un conjunto de estudio con el formato exacto que lee esta app. Copia la respuesta de Claude, o guarda su archivo .lnskill.json, y luego usa Pegar respuesta o suelta el archivo en Prompts (abre cualquier skill).',
@@ -819,4 +819,41 @@ export const esO: Record<string, string> = {
     'En cualquier chat, dale tu material a Claude y di «haz apuntes para Learning Notes».',
   'claudeSkill.step4':
     'Copia el bloque JSON, o descarga el archivo .lnskill.json, y en esta app abre Prompts, una skill, y Pegar respuesta o suelta el archivo.',
+  'notion.title': 'Notion',
+  'notion.text':
+    'Trae una exportación de Notion: en Notion abre Ajustes, Exportar, elige "Markdown y CSV" e incluye las subpáginas; después elige aquí el zip. Llegan páginas, bases de datos, imágenes y enlaces.',
+  'notion.import': 'Importar exportación de Notion',
+  'notion.hint': 'Elige el .zip de Notion',
+  'notion.where': 'Dónde ponerlo',
+  'notion.newNotebook': 'Un cuaderno nuevo',
+  'notion.newNotebookNamed': 'un cuaderno nuevo llamado "{name}"',
+  'notion.reading': 'Leyendo la exportación…',
+  'notion.working': 'Importando…',
+  'notion.progress': 'Importando {done} de {total}…',
+  'notion.tooBig': 'Este archivo es demasiado grande (el límite es 400 MB).',
+  'notion.preview':
+    '"{name}" tiene {pages} páginas, {databases} bases de datos ({rows} filas), {images} imágenes y {files} otros archivos. ¿Ponerlos en {where}?',
+  'notion.done':
+    'Se importaron {pages} páginas, {databases} bases de datos y {rows} filas.',
+  'notion.undo': 'Deshacer',
+  'notion.err.damaged':
+    'No se pudo leer este zip. Vuelve a exportar desde Notion.',
+  'notion.err.nothing': 'No se encontraron páginas ni tablas en este zip.',
+  'notion.err.nested':
+    'Este zip contiene otros zips. Descomprímelo primero y elige el zip interior.',
+  'notion.err.entries': 'Este zip tiene demasiados archivos.',
+  'notion.err.expanded':
+    'Esta exportación es demasiado grande para abrirla aquí.',
+  'notion.err.pages':
+    'Esta exportación tiene demasiadas páginas para una sola importación.',
+  'notion.err.toobig':
+    'Este archivo es demasiado grande (el límite es 400 MB).',
+  'lp.outline.view': 'Vista del esquema',
+  'lp.outline.depth': 'Títulos mostrados',
+  'lp.outline.h1': 'Solo títulos de nivel 1',
+  'lp.outline.h12': 'Títulos de nivel 1–2',
+  'lp.outline.hAll': 'Todos los títulos',
+  'lp.outline.toggles': 'Desplegables',
+  'lp.outline.numbers': '1, 1.1',
+  'lp.outline.fold': 'Plegar o desplegar',
 }

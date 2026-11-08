@@ -16,6 +16,8 @@ const placeholders = (text: string) =>
 /** Texts that may stay the same as English (names, symbols, key names). */
 const SAME_AS_ENGLISH = new Set([
   'unit.percent',
+  'notion.title',
+  'lp.outline.numbers',
   'interval.countdown',
   'dashboard.share',
   'dashboard.heatLabel',

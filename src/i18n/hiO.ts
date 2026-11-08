@@ -758,8 +758,6 @@ export const hiO: Record<string, string> = {
   'prompts.paste.copied': 'कॉपी हो गया। अपने AI चैट में चिपकाएँ।',
   'prompts.paste.answerLabel': 'AI का उत्तर यहाँ चिपकाएँ',
   'prompts.paste.import': 'उत्तर चिपकाएँ',
-  'prompts.paste.file': '.lnskill.json फ़ाइल इम्पोर्ट करें',
-  'prompts.paste.fileHint': 'या फ़ाइल यहाँ छोड़ें।',
   'prompts.paste.empty': 'कुछ नहीं चिपकाया गया।',
   'prompts.paste.tooLong':
     'वह उत्तर सुरक्षित रूप से पढ़ने के लिए बहुत लंबा है।',
@@ -783,6 +781,8 @@ export const hiO: Record<string, string> = {
   'editLock.barNotebook': 'नोटबुक लॉक है — अनलॉक करने के लिए टैप करें',
   'editLock.deleteHint': 'लॉक है',
   'editLock.refused': 'यह संपादन के लिए लॉक है। पहले अनलॉक करें।',
+  'prompts.paste.file': '.lnskill.json फ़ाइल इम्पोर्ट करें',
+  'prompts.paste.fileHint': 'या फ़ाइल यहाँ छोड़ें।',
   'claudeSkill.title': 'Claude के साथ इस्तेमाल करें',
   'claudeSkill.intro':
     'एक मुफ़्त Claude Skill आपकी दी हुई किसी भी चीज़ (ट्रांसक्रिप्ट, लेख, PDF, चैट का जवाब) को इस ऐप के सही फ़ॉर्मैट में स्टडी सेट बना देती है। Claude का जवाब कॉपी करें, या उसकी .lnskill.json फ़ाइल सेव करें, फिर Prompts में (कोई भी स्किल खोलें) जवाब पेस्ट करें या फ़ाइल छोड़ें।',
@@ -795,4 +795,39 @@ export const hiO: Record<string, string> = {
     'किसी भी चैट में Claude को अपनी सामग्री दें और कहें "Learning Notes के लिए नोट्स बनाओ"।',
   'claudeSkill.step4':
     'JSON ब्लॉक कॉपी करें, या .lnskill.json फ़ाइल डाउनलोड करें, फिर इस ऐप में Prompts, कोई स्किल, और जवाब पेस्ट करें या फ़ाइल छोड़ें।',
+  'notion.title': 'Notion',
+  'notion.text':
+    'Notion का एक्सपोर्ट लाएँ: Notion में सेटिंग्स, एक्सपोर्ट खोलें, "Markdown & CSV" चुनें और सब-पेज शामिल करें, फिर यहाँ ज़िप चुनें। पेज, डेटाबेस, चित्र और लिंक आ जाते हैं।',
+  'notion.import': 'Notion एक्सपोर्ट इम्पोर्ट करें',
+  'notion.hint': 'Notion की .zip फ़ाइल चुनें',
+  'notion.where': 'कहाँ रखें',
+  'notion.newNotebook': 'एक नई नोटबुक',
+  'notion.newNotebookNamed': '"{name}" नाम की नई नोटबुक',
+  'notion.reading': 'एक्सपोर्ट पढ़ा जा रहा है…',
+  'notion.working': 'इम्पोर्ट हो रहा है…',
+  'notion.progress': '{total} में से {done} इम्पोर्ट हुए…',
+  'notion.tooBig': 'यह फ़ाइल बहुत बड़ी है (सीमा 400 MB है)।',
+  'notion.preview':
+    '"{name}" में {pages} पेज, {databases} डेटाबेस ({rows} पंक्तियाँ), {images} चित्र और {files} अन्य फ़ाइलें हैं। इन्हें {where} में रखें?',
+  'notion.done':
+    '{pages} पेज, {databases} डेटाबेस और {rows} पंक्तियाँ इम्पोर्ट हुईं।',
+  'notion.undo': 'पूर्ववत करें',
+  'notion.err.damaged':
+    'यह ज़िप पढ़ी नहीं जा सकी। Notion से दोबारा एक्सपोर्ट करें।',
+  'notion.err.nothing': 'इस ज़िप में कोई पेज या टेबल नहीं मिली।',
+  'notion.err.nested':
+    'इस ज़िप में और ज़िप फ़ाइलें हैं। पहले इसे अनज़िप करें और भीतर की ज़िप चुनें।',
+  'notion.err.entries': 'इस ज़िप में बहुत ज़्यादा फ़ाइलें हैं।',
+  'notion.err.expanded': 'यह एक्सपोर्ट यहाँ खोलने के लिए बहुत बड़ा है।',
+  'notion.err.pages':
+    'इस एक्सपोर्ट में एक इम्पोर्ट के लिए बहुत ज़्यादा पेज हैं।',
+  'notion.err.toobig': 'यह फ़ाइल बहुत बड़ी है (सीमा 400 MB है)।',
+  'lp.outline.view': 'आउटलाइन दृश्य',
+  'lp.outline.depth': 'दिखाए गए शीर्षक',
+  'lp.outline.h1': 'सिर्फ़ शीर्षक 1',
+  'lp.outline.h12': 'शीर्षक 1–2',
+  'lp.outline.hAll': 'सभी शीर्षक',
+  'lp.outline.toggles': 'टॉगल',
+  'lp.outline.numbers': '1, 1.1',
+  'lp.outline.fold': 'समेटें या खोलें',
 }

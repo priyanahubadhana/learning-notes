@@ -81,7 +81,14 @@ describe('sync encryption (L5)', () => {
   it('binds a record to its table, id and revision', async () => {
     const master = await createMasterKey()
     const sealed = await sealRecord(master, 'blocks', 'b1', 3, { text: 'hi' })
-    expect(sealed.data).not.toContain('hi')
+    // Real property: the plaintext bytes are not in the ciphertext (a 2-letter
+    // string can appear in random base64 by chance, so check the decoded bytes
+    // for a long unique marker instead).
+    const marker = 'unique-marker-plaintext-7f3a9c'
+    const marked = await sealRecord(master, 'blocks', 'b1', 3, { text: marker })
+    const raw = atob(marked.data)
+    expect(raw).not.toContain(marker)
+    expect(marked.data).not.toContain(btoa(marker).slice(0, 16))
     const rid = remoteId('blocks', 'b1')
     expect(rid).not.toContain('b1')
     expect(await openRecord(master, rid, 3, sealed)).toEqual({

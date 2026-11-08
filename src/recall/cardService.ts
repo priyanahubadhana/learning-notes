@@ -77,13 +77,13 @@ export async function syncCardRecords(
     )
     if (wanted.length === 0) return
 
-    const existing = await db.cards
-      .where('blockId')
-      .anyOf([...new Set(wanted.map((w) => w.block.id))])
-      .toArray()
-    const has = new Set(existing.map((c) => `${c.blockId}/${c.part}`))
+    // Card ids are fixed from block and part, so look them up by key: one
+    // bulk read, not one index lookup per block (slow with thousands).
+    const found = await db.cards.bulkGet(
+      wanted.map(({ block, part }) => stableId(`card:${block.id}/${part}`)),
+    )
     const missing = wanted
-      .filter(({ block, part }) => !has.has(`${block.id}/${part}`))
+      .filter((_, i) => !found[i])
       .map(({ block, part }) => newCard(block, page.notebookId, part, now))
     if (missing.length > 0) await db.cards.bulkAdd(missing)
   })

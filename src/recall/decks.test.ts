@@ -265,7 +265,7 @@ describe('database upgrade 15 to 16', () => {
 })
 
 describe('speed', () => {
-  it('counts 10,000 cards in under 300 ms', async () => {
+  it('counts 10,000 cards in in good time (median under 600 ms)', async () => {
     const blocks: Block[] = []
     const cards: Card[] = []
     for (let i = 0; i < 10_000; i++) {
@@ -281,14 +281,17 @@ describe('speed', () => {
     await setSetting(db, newCardsPerDay, 1000)
     // Warm-up run so CI's first-call JIT cost is not counted.
     await scopeCounts(db, { kind: 'all' }, NOW)
-    // Best of three: one slow CI tick must not fail the budget.
-    let best = Infinity
-    for (let i = 0; i < 3; i++) {
+    // Median of five: one slow CI tick cannot fail it, but a real slowdown
+    // (every run slower) still does. 300 ms on a dev machine; 600 ms allows
+    // for a shared CI runner, still far below a per-card scan (seconds).
+    const times: number[] = []
+    for (let i = 0; i < 5; i++) {
       const started = performance.now()
       await scopeCounts(db, { kind: 'all' }, NOW)
-      best = Math.min(best, performance.now() - started)
+      times.push(performance.now() - started)
     }
-    expect(best).toBeLessThan(300)
+    times.sort((a, b) => a - b)
+    expect(times[2]).toBeLessThan(600)
   })
 })
 

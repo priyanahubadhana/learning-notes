@@ -2,6 +2,11 @@
 
 Current phase only. Older entries are in [ARCHIVE.md](ARCHIVE.md).
 
+## 2026-11-08 (CI: flaky unit tests)
+
+- **What:** (1) crypto test checked that base64 ciphertext lacks 'hi' (random chance); now seals a long unique marker and checks decoded bytes. (2) decks speed test: median of five runs, 600 ms budget for shared CI runners. (3) tag-filter 10,000 cards test timed out at 60 s on CI: root cause: syncCardRecords looked up existing cards with a 10,000-value index anyOf (about 12 s locally); card ids are fixed from block and part, so it now does one bulkGet by key.
+- **Files:** src/sync/crypto.test.ts, src/recall/decks.test.ts, src/recall/cardService.ts, docs.
+
 ## 2026-11-08 (Fix #6: attention system)
 
 - **What:** one banner spot at the top for important alerts. `app/attention/attentionLevel.ts` (pure: which problem, level, dismiss rules), `attentionSignals.ts` (update, storage, backups), `AttentionGate.tsx` (eager, tiny; waits for 2 s without typing) and lazy `AttentionBanner.tsx`. Level 1 locked pop-up unchanged (folded: the gate hands over to `LockedAlertGate`). Level 2 bright: Drive needs reconnecting (replaces `DriveBar`, deleted), Drive full, account not allowed, clock wrong, signed out, sync failing 3+ times or 30 min, backups failing twice, update needed. Level 3 calm: storage over 90%, finish sync setup, ordinary update (replaces `UpdateBar`; `UpdateRiskBar` stays). Dismiss: level 2 until next start or worse; level 3 for 7 days (`attn.snooze.<code>`). "Drive reconnected" toast when fixed. Text in `enO/hiO/esO`.

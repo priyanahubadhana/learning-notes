@@ -910,6 +910,38 @@ html[data-note-line] .bn-editor {
   }
 }
 
+/* Table sizing grips (editor/tableResize.ts): pills on row and column borders. */
+.ln-grip-layer {
+  position: fixed;
+  inset: 0;
+  z-index: 40;
+  pointer-events: none;
+}
+.ln-grip {
+  position: fixed;
+  background-color: var(--color-accent);
+  border-radius: 999px;
+  pointer-events: auto;
+  touch-action: none;
+}
+.ln-row-grip {
+  width: 28px;
+  height: 10px;
+  margin: -5px 0 0 -14px;
+  cursor: ns-resize;
+}
+.ln-col-grip {
+  width: 10px;
+  height: 28px;
+  margin: 0 0 0 -5px;
+  cursor: ew-resize;
+}
+.ln-grip::before {
+  content: '';
+  position: absolute;
+  inset: -17px; /* 44 px hit area */
+}
+
 /* Calm handles (editor/calmHandles.ts): fade out when the pointer has left. */
 .bn-table-handle,
 .bn-extend-button,

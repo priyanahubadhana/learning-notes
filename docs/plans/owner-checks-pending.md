@@ -4,12 +4,14 @@ Moved out of HANDOFF on 2026-11-06 (audit) so HANDOFF stays five lines. Newest f
 
 ## Paste, tables, select all, Notion import (9 Nov)
 
-5. Left panel › Outline: choose Headings 1 only, 1–2, All; tick Toggles (a toggle summary appears; tap it: it opens and the page scrolls to it); tick 1, 1.1 numbers; fold a heading with its arrow. Close the app and reopen: the choices are still there.
+0. Table: hover a row border, drag the pill: the row grows and stays after reload. Double-click a column border: it shrinks to fit its text. On iPad tap a table: pills appear on row and column borders; drag them with a finger and the Pencil; double-tap a column pill to fit.
 
-1. PC/iPad: copy a Notion page with toggles (and sub-toggles, headings, callouts) and paste: toggles stay toggles with their children. Copy rows of a Notion database and paste: a table, no big heading.
-1. Hover a table: grips and + show only for the hovered row/column and fade about 0.3 s after the mouse leaves; the column border shows a grip pill and drags. On iPad tap a cell to see its grips, they hide after about 3 s.
-1. Ctrl/Cmd+A in a cell: its words, then the whole table, then everything.
-1. Save & restore › More › Notion: import a real Notion "Markdown & CSV" zip; check pages, database columns, row pages, pictures and links; then Undo.
+1. Left panel › Outline: choose Headings 1 only, 1–2, All; tick Toggles (a toggle summary appears; tap it: it opens and the page scrolls to it); tick 1, 1.1 numbers; fold a heading with its arrow. Close the app and reopen: the choices are still there.
+
+2. PC/iPad: copy a Notion page with toggles (and sub-toggles, headings, callouts) and paste: toggles stay toggles with their children. Copy rows of a Notion database and paste: a table, no big heading.
+3. Hover a table: grips and + show only for the hovered row/column and fade about 0.3 s after the mouse leaves; the column border shows a grip pill and drags. On iPad tap a cell to see its grips, they hide after about 3 s.
+4. Ctrl/Cmd+A in a cell: its words, then the whole table, then everything.
+5. Save & restore › More › Notion: import a real Notion "Markdown & CSV" zip; check pages, database columns, row pages, pictures and links; then Undo.
 
 ## Lock editing, prompt gaps (9 Nov)
 

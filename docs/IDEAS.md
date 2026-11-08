@@ -124,3 +124,5 @@ New ideas that come up mid-build are parked here, not added to the current phase
 - **Local MCP server** (Phase P, later work): lets a desktop AI app read and write notebooks on this device, with the Permissions screen as the gate.
 
 - **Wispr Flow (owner, 9 Nov):** use Wispr Flow for talking notes. It types into any text box itself, so it already works in our pages; it has no public API to plug into our mic. Free tier is word-limited per week; Pro is paid. Revisit if they publish an API.
+
+- **NotebookLM-style studio (owner, 9 Nov):** per notebook, turn your sources into outputs as new skills: Ask this notebook with citations, study guide/report, quiz, data table, flashcards and mind map (mostly exist via skills), slide deck (own viewer + .pptx export), infographic (AI fills an SVG template), audio overview (two-voice script + free device voices, or paid TTS with cost shown), video overview (slides + narration recorded in the browser). Google Flow-style video generation is paid per clip; only on owner approval. To discuss and order before building.

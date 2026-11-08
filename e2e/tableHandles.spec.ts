@@ -98,3 +98,44 @@ test('Ctrl+A in a text block steps block then page', async ({ page }) => {
   await page.keyboard.press('Control+a')
   expect(await page.evaluate(() => getSelection()?.toString())).toContain('one')
 })
+
+test('a row border grip drags the row height and it is kept', async ({
+  page,
+}) => {
+  await tablePage(page)
+  const row = page.locator('.bn-editor tr').first()
+  const before = (await row.boundingBox())!
+  await page.mouse.move(before.x + 40, before.y + before.height - 1)
+  const grip = page.locator('.ln-row-grip').first()
+  await expect(grip).toBeVisible()
+  const g = (await grip.boundingBox())!
+  await page.mouse.move(g.x + g.width / 2, g.y + g.height / 2)
+  await page.mouse.down()
+  await page.mouse.move(g.x + g.width / 2, g.y + 80, { steps: 5 })
+  await page.mouse.up()
+  const after = (await row.boundingBox())!
+  expect(after.height).toBeGreaterThan(before.height + 40)
+  await page.reload()
+  await expect
+    .poll(
+      async () =>
+        (await page.locator('.bn-editor tr').first().boundingBox())?.height ??
+        0,
+    )
+    .toBeGreaterThan(before.height + 40)
+})
+
+test('double-click on a column border fits the column to its text', async ({
+  page,
+}) => {
+  await tablePage(page)
+  await page.keyboard.type(' short')
+  const cell = page.locator('.bn-editor td').nth(1)
+  const box = (await cell.boundingBox())!
+  await page.mouse.move(box.x + box.width - 1, box.y + 10)
+  await expect(page.locator('.column-resize-handle').first()).toBeVisible()
+  await page.mouse.dblclick(box.x + box.width - 1, box.y + 10)
+  await expect
+    .poll(async () => (await cell.boundingBox())!.width)
+    .toBeLessThan(box.width - 20)
+})

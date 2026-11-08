@@ -206,9 +206,42 @@ const {
   divider,
   codeBlock,
   image,
-  table,
   toggleListItem,
 } = defaultBlockSpecs
+
+/**
+ * The table block with one extra prop: `rowHeights`, a comma list of pixel
+ * heights per row ("" = automatic; 0 = that row stays automatic). Stored
+ * with the block like any prop, so it syncs and is backed up.
+ */
+const baseTable = defaultBlockSpecs.table
+const table = {
+  ...baseTable,
+  config: {
+    ...baseTable.config,
+    propSchema: {
+      ...baseTable.config.propSchema,
+      rowHeights: { default: '' as string },
+    },
+  },
+  implementation: {
+    ...baseTable.implementation,
+    node: baseTable.implementation.node.extend({
+      addAttributes() {
+        return {
+          ...this.parent?.(),
+          rowHeights: {
+            default: '',
+            parseHTML: (el: HTMLElement) =>
+              el.getAttribute('data-row-heights') ?? '',
+            renderHTML: (a: { rowHeights?: string }) =>
+              a.rowHeights ? { 'data-row-heights': a.rowHeights } : {},
+          },
+        }
+      },
+    }),
+  },
+} as unknown as typeof baseTable
 
 export const schema = BlockNoteSchema.create({
   blockSpecs: {

@@ -78,6 +78,7 @@ import {
   pastePlainFromClipboard,
 } from './clipboard'
 import { installCalmHandles } from './calmHandles'
+import { installTableResize } from './tableResize'
 import { onSelectAllKey } from './selectAllSteps'
 import { focusEndLine } from './lineActions'
 import { clearActiveEditor, setActiveEditor } from '../app/tools/toolRuntime'
@@ -435,6 +436,9 @@ function LoadedPageEditor({
 
   // Table grips and block handles show only near the pointer (calmHandles.ts).
   useEffect(() => installCalmHandles(), [])
+
+  // Row-height and column grips, double-click to fit a column (tableResize.ts).
+  useEffect(() => installTableResize(editor), [editor])
 
   // The page moved to another window: finish saving what was typed here.
   useEffect(() => {

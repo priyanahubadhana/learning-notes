@@ -2,6 +2,11 @@
 
 Current phase only. Older entries are in [ARCHIVE.md](ARCHIVE.md).
 
+## 2026-11-09 (Table: row height, fit column, touch grips)
+
+- **What:** drag a row border's grip pill to set the row height (saved with the table, synced); double-click a column border (or double-tap its pill on touch) fits the column to its content; touch and Pencil get row and column grip pills with a 44 px hit area. The table block gets a `rowHeights` prop.
+- **Files:** src/editor/tableResize.ts (+tests), schema.tsx, PageEditor.tsx, src/index.css, e2e/tableHandles.spec.ts, docs/features/files-table-camera.md
+
 ## 2026-11-09 (iPad fix 6c: study status in the Review tab)
 
 - **What:** The study status panel (Status, Last revised, Cards due, % correct, stars, Card levels, the Auto explanation) left the top of the page. In the Review tab it is one closed row, Study status: Learning · 3 due · 72%, that opens the full panel (open or closed is remembered on this device, key review.statusOpen); the explanation is behind an info button. The page top shows only the title, tags and the tabs. Data, sync and backups unchanged. Properties of ordinary database rows stay on top.

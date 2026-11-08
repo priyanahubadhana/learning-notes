@@ -620,3 +620,5 @@ Current phase only. Older entries are in [ARCHIVE.md](ARCHIVE.md).
 - **What:** Site published; moved to learning-notes-app because learning-notes was taken.
 - **Why:** A clean permanent address before anything is installed.
 - **Files:** .github/workflows/ci.yml, docs/
+
+- 2026-11-08 · Polish plan 2 written (docs/plans/polish-2-2026-11.md), linked in INDEX. Why: overnight review vs other note apps. Files: docs/plans/polish-2-2026-11.md, docs/INDEX.md, docs/CHANGELOG.md.

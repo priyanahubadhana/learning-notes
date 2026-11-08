@@ -2,6 +2,12 @@
 
 Moved out of HANDOFF on 2026-11-06 (audit) so HANDOFF stays five lines. Newest first; each paragraph names its step. The run decision (master plan) is one owner iPad pass before Sync; the Phase A builder adds its checks at the top. Tick a paragraph by deleting it.
 
+## Clean up with AI (9 Nov)
+
+1. Settings > AI: on with your key; allow AI in the notebook. Paste a messy block of text (about 3 lines or more) with Paste set to "Ask each time": the chooser has a 4th row "Clean up with AI".
+2. It shows the instructions (edit them if you like) and "Cost before sending" in rupees; Clean up sends; the preview lists anything it could not place; Insert puts headings, lists and tables into the page; the chip "Pasted as" can go back to Plain text.
+3. Open Library > Prompts: "Clean up pasted text" is there and shows your edit as a version.
+
 ## Copy formats (9 Nov)
 
 1. Select a few headings, a list and a table on a page, Ctrl/Cmd+C, paste into Word, Gmail or a Markdown editor: structure stays. Paste into another page of the app: the blocks are the same.

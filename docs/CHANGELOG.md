@@ -2,6 +2,12 @@
 
 Current phase only. Older entries are in [ARCHIVE.md](ARCHIVE.md).
 
+## 2026-11-09 (Paste chooser: Clean up with AI)
+
+- **What:** the paste chooser has a 4th option, "Clean up with AI", when AI is on with the owner's own key: it shows the library prompt "Clean up pasted text" (seeded, editable; edits are saved to the library as a new version), the cost in rupees and tokens first, asks the first-use privacy question, then sends the pasted text (at most 24,000 characters). The answer is Markdown that keeps every fact; anything unplaced sits under "Not placed" and is flagged in a preview together with numbers of the original that are missing from the answer. Insert runs the normal Markdown paste, and the chip can swap back to the original words.
+- **Why:** owner-approved leftover of the paste pipeline.
+- **Files:** src/editor/cleanupAi.ts, CleanupDialog.tsx, cleanupAi.test.ts (new), pasteFlow.ts, PasteChooser.tsx, src/prompts/seedPrompts.ts, src/i18n/enO.ts, esO.ts, hiO.ts, e2e/pasteCleanup.spec.ts, docs/features/copy-paste.md, prompt-library.md
+
 ## 2026-11-09 (Speed on big pages: typing and paste)
 
 - **What:** measured a generated page of 2,000 blocks / 156 sheets (Chromium, also with the CPU slowed 4x). Typing cost 11-15 ms of script per key (45 ms at 4x), 50 long tasks at 4x. Causes and fixes: the sheet-gap pass asked the DOM for every block's document position on every key (now read from the document in one pass); table row heights looked up every table by id and read 200 CSS variables per table on every key (now once per typing burst, only real rows); the pen guard joined the whole page's text on every key (now `doc.content.size`); the sheet-gap decorations were rebuilt for all blocks on every key (now built when the pushes change, mapped while typing). After: 6.6-7.8 ms per key (31 ms at 4x), long tasks 0-2 at 1x (39 at 4x, from 50); longest paste task 160 to 130 ms (1,012 to 667 ms at 4x). Scrolling was already smooth in this page (0.2 ms script per frame, frames 16.7 ms even at 4x). New CI budget `e2e/bigPageBudget.spec.ts`.

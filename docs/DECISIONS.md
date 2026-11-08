@@ -810,6 +810,13 @@ The other older decisions stand as built (owner, 2026-11-01); they are in [ARCHI
 - Pictures in the rich HTML of a plain Copy are kept only when they are web or data addresses; "Copy as… Rich text" embeds app pictures as data URLs (same as Copy page with pictures).
 - Toggles are written as `<details>` in Markdown, cards as `**Q:** … / **A:** …`; database, mind map and day record blocks have no text form and are left out of the text formats.
 
+## Decisions to review (Clean up with AI, 9 Nov)
+
+- Offered only when AI is on and a key exists (otherwise the chooser looks as before). A rich paste of 40+ characters, or a plain multi-line paste of 200+, up to 24,000 characters; longer text is refused with "paste less" (the answer must fit in one reply of at most 8,000 tokens).
+- The instructions are the library prompt "Clean up pasted text" (starter id own.cleanup, purpose Write). If the owner deletes the row the shipped text is used; editing it in the dialog saves a new version in the library.
+- The model's answer is never inserted without the preview. A local check lists numbers of the original that are not in the answer, next to the AI's own "Not placed" list.
+- Only the pasted text and the instructions are sent; the notebook must allow AI. No new cost cap logic: the monthly cap applies as everywhere.
+
 ## Decisions to review (database pages, 9 Nov)
 
 - No new Dexie version or table: the database engine, relations, rollups, formulas, tags and stars (number with stars format, max up to 10) already existed; "stars 1-10" is that format, not a new type.

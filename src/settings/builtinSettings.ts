@@ -661,6 +661,28 @@ export const newPageChooserSetting: SettingDefinition<OnOff> = {
   control: { kind: 'segmented', options: onOffOptions() },
 }
 
+/** Paste chooser: ask on a rich paste, or always keep the format / paste plain text. */
+export type PasteMode = 'ask' | 'keep' | 'plain'
+const PASTE_MODES: readonly PasteMode[] = ['ask', 'keep', 'plain']
+export const pasteModeSetting: SettingDefinition<PasteMode> = {
+  id: 'general.pasteMode',
+  labelKey: 'settings.pasteMode.label',
+  descriptionKey: 'settings.pasteMode.description',
+  category: 'general',
+  keywords: 'paste keep format plain text ask each time chooser clipboard',
+  scope: 'device',
+  defaultValue: 'ask',
+  isValid: (value): value is PasteMode =>
+    PASTE_MODES.includes(value as PasteMode),
+  control: {
+    kind: 'segmented',
+    options: PASTE_MODES.map((value) => ({
+      value,
+      label: () => t(`settings.pasteMode.${value}` as MessageKey),
+    })),
+  },
+}
+
 for (const definition of [
   theme,
   deviceModeSetting,
@@ -693,6 +715,7 @@ for (const definition of [
   nestedCardPlacement,
   newPageStudySetting,
   newPageChooserSetting,
+  pasteModeSetting,
 ]) {
   settingsRegistry.register(definition as SettingDefinition)
 }

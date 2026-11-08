@@ -74,9 +74,10 @@ import {
   copyAs,
   copyPageWithPictures,
   noteKeyForPaste,
-  pasteHandler,
   pastePlainFromClipboard,
 } from './clipboard'
+import { pasteHandler, setPasteContext } from './pasteFlow'
+import { PasteChooser } from './PasteChooser'
 import { installCalmHandles } from './calmHandles'
 import { installTableResize } from './tableResize'
 import { onSelectAllKey } from './selectAllSteps'
@@ -436,6 +437,12 @@ function LoadedPageEditor({
 
   // Table grips and block handles show only near the pointer (calmHandles.ts).
   useEffect(() => installCalmHandles(), [])
+
+  // Pasted rows that become a Database need the notebook (pasteFlow.ts).
+  useEffect(() => {
+    setPasteContext({ db, notebookId, toast })
+    return () => setPasteContext(null)
+  }, [db, notebookId, toast])
 
   // Row-height and column grips, double-click to fit a column (tableResize.ts).
   useEffect(() => installTableResize(editor), [editor])
@@ -812,7 +819,6 @@ function LoadedPageEditor({
     })
   })
   useEffect(() => () => clearActiveEditor(editor as never), [editor])
-
   // One place decides what the page may do (see editPolicy.ts): ink tools make
   // it non-editable and inert so Scribble has nothing to write in.
   useEffect(() => {
@@ -870,6 +876,7 @@ function LoadedPageEditor({
             } as CSSProperties
           }
         >
+          <PasteChooser owner={editor} />
           {docked && ownsBar && <DockedBar slot={barSlot} />}
           {/* Computer keeps the toolbar over selected text as an extra. */}
           {!inReading && (!docked || bar.mode === 'computer') && (

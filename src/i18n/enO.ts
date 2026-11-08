@@ -844,6 +844,7 @@ export const enO = {
   'lp.outline.toggles': 'Toggles',
   'lp.outline.numbers': '1, 1.1',
   'lp.outline.fold': 'Fold or unfold',
+  // ---- Use with Claude (Skill) ----
   'claudeSkill.title': 'Use with Claude',
   'claudeSkill.intro':
     'A free Claude Skill turns anything you give Claude (a transcript, an article, a PDF, a chat answer) into a study set in the exact format this app reads. Copy Claude’s reply, or save its .lnskill.json file, then use Paste answer or drop the file in Prompts (open any skill).',
@@ -856,4 +857,26 @@ export const enO = {
     'In any chat, give Claude your material and say “make notes for Learning Notes”.',
   'claudeSkill.step4':
     'Copy the JSON block, or download the .lnskill.json file, then in this app open Prompts, a skill, and Paste answer or drop the file.',
+  'pasteChooser.title': 'Paste as',
+  'pasteChooser.keep': 'Keep original format',
+  'pasteChooser.plain': 'Plain text',
+  'pasteChooser.asTable': 'As table',
+  'pasteChooser.default': 'default',
+  'pasteChooser.always': 'Always use this, do not ask again',
+  'pasteChooser.keys': 'Enter = default, Esc = cancel the paste',
+  'pasteChooser.chip': 'Pasted as',
+  'pasteChooser.column': 'Column {n}',
+  'pasteChooser.preview.table': 'Table, {rows} rows, {cols} columns',
+  'pasteChooser.preview.database':
+    'Database, {rows} rows (first column = title)',
+  'pasteChooser.preview.tree': 'Folder tree kept with its spacing',
+  'pasteChooser.preview.headings': '{n} headings',
+  'pasteChooser.preview.tables': '{n} tables',
+  'pasteChooser.preview.items': '{n} list items',
+  'settings.pasteMode.label': 'Paste',
+  'settings.pasteMode.description':
+    'When you paste text with formatting: ask each time (a small chooser), always keep the original format, or always paste plain text.',
+  'settings.pasteMode.ask': 'Ask each time',
+  'settings.pasteMode.keep': 'Keep format',
+  'settings.pasteMode.plain': 'Plain text',
 }

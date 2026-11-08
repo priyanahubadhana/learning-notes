@@ -1,6 +1,7 @@
 import { t } from '../i18n/t'
 import type { AppSchema } from './schema'
 import { adopterIn } from '../ink/inkTransfer'
+import { detectSource, normalizePasteDoc } from './pasteSources'
 
 /**
  * Copy and paste beyond the browser's own Ctrl+C / Ctrl+V (which already
@@ -143,6 +144,7 @@ function keepBlankLines(body: HTMLElement): void {
  */
 export function sanitizePastedHtml(html: string): string {
   const doc = new DOMParser().parseFromString(html, 'text/html')
+  normalizePasteDoc(doc, detectSource(html))
   markCallouts(doc)
   const clean = (parent: Node) => {
     for (const node of [...parent.childNodes]) {
@@ -417,73 +419,9 @@ export function tsvToRows(text: string): string[][] | null {
   return rows.map((r) => [...r, ...Array(cols - r.length).fill('')])
 }
 
-/** Puts rows at the cursor as a Table block (replaces an empty line). */
-function insertTable(editor: Editor, rows: string[][]): void {
-  const here = editor.getTextCursorPosition().block
-  const table = {
-    type: 'table',
-    content: {
-      type: 'tableContent',
-      rows: rows.map((cells) => ({
-        cells: cells.map((c) => [{ type: 'text', text: c, styles: {} }]),
-      })),
-    },
-  }
-  const empty =
-    Array.isArray(here.content) &&
-    here.content.every((n) => (n as { text?: string }).text === '')
-  if (empty || (Array.isArray(here.content) && here.content.length === 0)) {
-    editor.replaceBlocks([here], [table] as never)
-  } else {
-    editor.insertBlocks([table] as never, here, 'after')
-  }
-}
-
-/**
- * The editor's paste handler. Ctrl/Cmd+Shift+V: plain text only. Pasted HTML
- * from other apps is cleaned first. BlockNote's own copies (same page,
- * another page or notebook) keep everything, through the default handler.
- */
-export function pasteHandler({
-  event,
-  editor,
-  defaultPasteHandler,
-}: {
-  event: ClipboardEvent
-  editor: unknown
-  defaultPasteHandler: () => boolean | undefined
-}): boolean | undefined {
-  const data = event.clipboardData
-  if (!data) return defaultPasteHandler()
-  if (plainNext) {
-    plainNext = false
-    insertPlainText(editor as Editor, data.getData('text/plain'))
-    return true
-  }
-  const html = data.getData('text/html')
-  // Rows copied as text (Notion database rows, spreadsheets): a Table block.
-  // Real <table> HTML goes the normal way below and stays a table.
-  const grid = /<table[\s>]/i.test(html)
-    ? null
-    : tsvToRows(data.getData('text/plain'))
-  if (grid && !data.types.includes('blocknote/html')) {
-    insertTable(editor as Editor, grid)
-    return true
-  }
-  if (html && !data.types.includes('blocknote/html')) {
-    ;(editor as Editor).pasteHTML(sanitizePastedHtml(html))
-    return true
-  }
-  // Several lines of plain text: one block per line (a single block with
-  // line breaks cannot be moved off the gap between sheets line by line).
-  const text = data.getData('text/plain')
-  if (
-    !html &&
-    text.trim().includes('\n') &&
-    !data.types.includes('blocknote/html')
-  ) {
-    insertPlainText(editor as Editor, text)
-    return true
-  }
-  return defaultPasteHandler()
+/** True once after a Ctrl/Cmd+Shift+V: the next paste is plain text. */
+export function takePlainNext(): boolean {
+  const was = plainNext
+  plainNext = false
+  return was
 }

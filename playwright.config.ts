@@ -39,6 +39,7 @@ export default defineConfig({
               value: '["lasso","writePad","layers","paperBox"]',
             },
             // Most specs open a notebook's tabs by tapping it (R6-12).
+            { name: 'learning-notes:general.pasteMode', value: '"keep"' },
             {
               name: 'learning-notes:general.openNotebookAt',
               value: '"tabs"',

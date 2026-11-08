@@ -3,7 +3,10 @@
  */
 import { BlockNoteEditor } from '@blocknote/core'
 import { describe, expect, it } from 'vitest'
-import { pasteHandler, sanitizePastedHtml, tsvToRows } from './clipboard'
+import { sanitizePastedHtml, tsvToRows } from './clipboard'
+import { pasteHandler } from './pasteFlow'
+import { pasteModeSetting } from '../settings/builtinSettings'
+import { writeDeviceSetting } from '../settings/settingsService'
 import { schema } from './schema'
 
 /*
@@ -97,6 +100,7 @@ describe('pasting rows as text', () => {
     expect(tsvToRows('plain\ntext')).toBeNull()
   })
   it('pastes the rows as a Table block, never a heading', () => {
+    writeDeviceSetting(pasteModeSetting, 'keep')
     const editor = BlockNoteEditor.create({ schema })
     editor.mount(document.createElement('div'))
     const data = {

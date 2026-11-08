@@ -7,6 +7,16 @@ Current phase only. Older entries are in [ARCHIVE.md](ARCHIVE.md).
 - **What:** a shareable Claude Skill (claude-skill/learning-notes: SKILL.md, reference/format.md) that makes notes in the app's ln-skill/1 format; zip built at build time and served as /learning-notes-skill.zip; Settings › AI › Use with Claude (explainer, download, how to add it in Claude); Import a .lnskill.json file or drop it, next to Paste answer. Later MCP connector logged in IDEAS and ROADMAP. Why: use Claude (no key, ₹0) to feed the app.
 - **Files:** claude-skill/learning-notes/*, scripts/skillZip.ts, vite.config.ts, src/ai/ClaudeSkillCard.tsx, AiSection.tsx, src/prompts/PasteIn.tsx, claudeSkill.test.ts, src/i18n/enO.ts, esO.ts, hiO.ts, e2e/claudeSkill.spec.ts, docs/features/claude-skill.md, docs/IDEAS.md, docs/ROADMAP.md
 
+## 2026-11-09 (Paste pipeline, chooser, Gemini/Docs/Word/Markdown/trees, Notion database rows)
+
+- **What:** pasting now reads the source: Gemini / ChatGPT / Claude web HTML (custom elements, code blocks, headings, tables), Google Docs (style spans to marks, flat lists nested), Word (mso lists), Apple Notes (big bold = heading), Notion; flat HTML with Markdown text falls back to Markdown; Markdown text (headings, lists, pipe tables, fences, quotes, tasks, links); tree drawings (├── └──) stay in a code block with spacing; Notion database rows (HTML table markers, or tab text with Notion HTML) become our Database block (first column = title, emoji kept, types guessed), plain tab text stays a Table; never a heading from the first line. New paste chooser (Keep original format / Plain text / As table, preview lines, Always use this, Enter/Esc) and the "Pasted as" chip that swaps the result; Settings › General › Paste.
+- **Files:** src/editor/pasteFlow.ts, pasteSources.ts (+test), PasteChooser.tsx, clipboard.ts, PageEditor.tsx, src/settings/builtinSettings.ts, src/i18n/enO.ts esO.ts hiO.ts, playwright.config.ts, e2e/pasteSources.spec.ts, docs/features/copy-paste.md
+
+## 2026-11-09 (Notion import streams the zip; Outline and Notion strings translated)
+
+- **What:** the Notion zip is read in chunks (one entry inflated at a time, same size checks), so big exports work on an iPad. The 29 Notion-import and Outline-view texts are translated to Spanish and Hindi (they were missing, which turned the translation test red).
+- **Files:** src/share/notionImport.ts (+test), NotionImportSection.tsx, src/i18n/esO.ts hiO.ts, translations.test.ts, docs/features/notion-import.md
+
 ## 2026-11-09 (Table: row height, fit column, touch grips)
 
 - **What:** drag a row border's grip pill to set the row height (saved with the table, synced); double-click a column border (or double-tap its pill on touch) fits the column to its content; touch and Pencil get row and column grip pills with a 44 px hit area. The table block gets a `rowHeights` prop.

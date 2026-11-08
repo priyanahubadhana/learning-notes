@@ -544,4 +544,9 @@ export const esO: Record<string, string> = {
     'No se pudo crear un código nuevo. Tu código antiguo sigue funcionando.',
   'sync.newCodeSaved':
     'Código de recuperación nuevo guardado. El antiguo ya no funciona.',
+  'clash.title': 'Cambiado en dos dispositivos',
+  'clash.other': 'La otra versión: {text}',
+  'clash.keepMine': 'Quedarme con la mía',
+  'clash.useOther': 'Usar la otra',
+  'clash.keepBoth': 'Conservar ambas',
 }

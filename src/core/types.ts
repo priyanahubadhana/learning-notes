@@ -264,6 +264,20 @@ export interface Block extends BaseRecord {
    * default box. Nested blocks follow their parent.
    */
   boxId?: string
+  /**
+   * Set when two devices changed this block at the same moment: the version
+   * that lost, kept here until the person chooses (Keep mine / Use other /
+   * Keep both). Synced with the block, so the choice shows on every device.
+   */
+  clash?: BlockClash
+}
+
+/** The other version of a block changed on two devices. */
+export interface BlockClash {
+  type: string
+  content: JsonObject
+  /** When the clash was noticed (tells one clash from the next). */
+  at: number
 }
 
 /** How well a card was remembered (the four review buttons). */

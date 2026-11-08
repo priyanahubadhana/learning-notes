@@ -2,6 +2,12 @@
 
 Moved out of HANDOFF on 2026-11-06 (audit) so HANDOFF stays five lines. Newest first; each paragraph names its step. The run decision (master plan) is one owner iPad pass before Sync; the Phase A builder adds its checks at the top. Tick a paragraph by deleting it.
 
+## Two devices, same line (8 Nov, fix #2)
+
+1. PC and iPad, Sync on, the same page open. Press a different key on each at the same moment, in the same line. Within a few seconds after you stop, both show the same line, with no refresh.
+2. Both show a small bar "Changed on two devices" with the other version. Page History on BOTH devices lists the other version.
+3. Tap Keep mine on one: the bar goes on both. Repeat and try Use other (then Undo) and Keep both (the other text appears as a line just below, on both).
+
 ## Sign in first and new recovery code (8 Nov)
 
 0. Supabase › SQL Editor: run `supabase/migrations/20261108000001_sync_bundle_delete.sql` once (lets the app remove an OLD recovery-code copy; recovery copies only).

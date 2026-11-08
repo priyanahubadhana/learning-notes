@@ -526,4 +526,9 @@ export const hiO: Record<string, string> = {
   'sync.newCodeFailed':
     'नया कोड नहीं बन सका। आपका पुराना कोड अब भी काम करता है।',
   'sync.newCodeSaved': 'नया रिकवरी कोड सहेज लिया। पुराना कोड अब काम नहीं करता।',
+  'clash.title': 'दो उपकरणों पर बदला गया',
+  'clash.other': 'दूसरा संस्करण: {text}',
+  'clash.keepMine': 'मेरा रखें',
+  'clash.useOther': 'दूसरा लें',
+  'clash.keepBoth': 'दोनों रखें',
 }

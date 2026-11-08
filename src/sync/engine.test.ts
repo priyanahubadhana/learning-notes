@@ -9,6 +9,7 @@ import { createPage } from '../pages/pageService'
 import { memoryConnectors as mem } from './connectors'
 import { createMasterKey, type MasterKey } from './crypto'
 import { setTracking } from './device'
+import { clearClash, excerptOf } from './clash'
 import { enqueueChanged, syncOnce } from './engine'
 import { mergeRecord } from './merge'
 import { SYNC_TABLES } from './tables'
@@ -102,6 +103,75 @@ describe('sync engine (L7)', () => {
       ...(await listVersions(b, page.id)),
     ]
     expect(JSON.stringify(versions)).toContain('from A')
+  })
+
+  it.each([
+    ['the second device wins', 'from A', 'from B (later)'],
+    ['the first device wins', 'from A (later)', 'from B'],
+  ])(
+    'a clash (%s): both devices keep the other version in History, show the same mark, and the choice clears it everywhere',
+    async (_name, textA, textB) => {
+      const conn = mem()
+      const { block, page } = await samplePage(a, 'v0')
+      await syncOnce(a, conn, master)
+      await syncOnce(b, conn, master)
+
+      const aFirst = textA === 'from A'
+      const [first, firstText, second, secondText] = aFirst
+        ? [a, textA, b, textB]
+        : [b, textB, a, textA]
+      await updateBlock(first, block.id, { content: text(firstText) })
+      await new Promise((r) => setTimeout(r, 5))
+      await updateBlock(second, block.id, { content: text(secondText) })
+      // The device that wrote last in time has the newer clock.
+      const winner = aFirst ? textB : textA
+      const loser = aFirst ? textA : textB
+
+      await syncOnce(a, conn, master)
+      await syncOnce(b, conn, master)
+      await syncOnce(a, conn, master)
+      await syncOnce(b, conn, master)
+
+      for (const db of [a, b]) {
+        const row = await db.blocks.get(block.id)
+        expect(row?.content).toEqual(text(winner))
+        expect(row?.clash?.content).toEqual(text(loser))
+        // The other version is in this device's History.
+        expect(JSON.stringify(await listVersions(db, page.id))).toContain(loser)
+      }
+
+      // The choice (here: Keep mine on A) reaches B.
+      await clearClash(a, block.id)
+      await syncOnce(a, conn, master)
+      await syncOnce(b, conn, master)
+      expect((await a.blocks.get(block.id))?.clash).toBeUndefined()
+      expect((await b.blocks.get(block.id))?.clash).toBeUndefined()
+      expect((await b.blocks.get(block.id))?.content).toEqual(text(winner))
+    },
+  )
+
+  it('a keystroke saved while a pulled batch is being merged is not lost', async () => {
+    const conn = mem()
+    const { block } = await samplePage(a, 'v0')
+    await syncOnce(a, conn, master)
+    await syncOnce(b, conn, master)
+    await updateBlock(a, block.id, { content: text('from A') })
+    await syncOnce(a, conn, master)
+    // B types right while its sync runs; the edit must still be sent.
+    const racing = syncOnce(b, conn, master)
+    await updateBlock(b, block.id, { content: text('B typed') })
+    await racing
+    await syncOnce(b, conn, master)
+    await syncOnce(a, conn, master)
+    const mine = (await b.blocks.get(block.id))?.content
+    expect((await a.blocks.get(block.id))?.content).toEqual(mine)
+  })
+
+  it('excerptOf shows plain text from block content', () => {
+    expect(
+      excerptOf({ text: [{ type: 'text', text: 'Hello ' }, 'world'] }),
+    ).toBe('Hello world')
+    expect(excerptOf({ text: 'x'.repeat(100) }, 10)).toHaveLength(10)
   })
 
   it('edits made while signed out are sent later', async () => {

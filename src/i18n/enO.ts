@@ -544,4 +544,9 @@ export const enO = {
     'Your new code works, but the old one could not be removed yet, so it may still work. Try again later.',
   'sync.newCodeFailed': 'Could not make a new code. Your old code still works.',
   'sync.newCodeSaved': 'New recovery code saved. The old code no longer works.',
+  'clash.title': 'Changed on two devices',
+  'clash.other': 'The other version: {text}',
+  'clash.keepMine': 'Keep mine',
+  'clash.useOther': 'Use other',
+  'clash.keepBoth': 'Keep both',
 }

@@ -99,6 +99,7 @@ import { imageRef, parseImageRef } from '../images/imageRef'
 import { PictureEditorHost } from '../images/pictureEditor'
 import { closeWritePadFor, writePad } from './writePad/padState'
 import { WritePadLazy } from './writePad/WritePadLazy'
+import { ClashBarsLazy } from './ClashBarsLazy'
 import { PictureHandles } from './PictureHandles'
 import { stampLabel, stampPicture } from './embed/embedClock'
 import { StampWatcher } from './embed/StampWatcher'
@@ -409,6 +410,7 @@ function LoadedPageEditor({
     let stop: (() => void) | undefined
     let timer: ReturnType<typeof setTimeout> | undefined
     const pending = new Set<string>()
+    let retries = 0
     void Promise.all([import('../sync/applied'), import('./liveApply')]).then(
       ([{ onApplied }, { applyRemoteBlocks }]) => {
         if (gone) return
@@ -432,13 +434,23 @@ function LoadedPageEditor({
               applying.current = on
             },
             boxId,
-          ).catch((error: unknown) =>
-            console.error('Could not apply a synced change', error),
           )
+            .then((result) => {
+              // Blocks being typed in were left alone: look again once the
+              // typing has settled (and been saved), so both devices end up
+              // the same without a reload.
+              if (gone || result.kept.length === 0 || retries++ >= 4) return
+              for (const id of result.kept) pending.add(id)
+              if (!timer) timer = setTimeout(run, LIVE_IDLE_MS)
+            })
+            .catch((error: unknown) =>
+              console.error('Could not apply a synced change', error),
+            )
         }
         stop = onApplied((a) => {
           if (a.table !== 'blocks' || !a.pageIds?.includes(pageId)) return
           for (const id of a.ids) pending.add(id)
+          retries = 0
           if (!timer) timer = setTimeout(run, 0)
         })
       },
@@ -762,6 +774,9 @@ function LoadedPageEditor({
         openAttachment: onOpenAttachment,
       }}
     >
+      {!readOnly && isTracking() && (
+        <ClashBarsLazy db={db} editor={editor} pageId={pageId} />
+      )}
       <div
         ref={setInkWrap}
         data-ink-wrap

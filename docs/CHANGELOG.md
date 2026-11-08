@@ -2,6 +2,12 @@
 
 Current phase only. Older entries are in [ARCHIVE.md](ARCHIVE.md).
 
+## 2026-11-08 (Fix #2: two devices, same line)
+
+- **What:** (A) cause: a pulled batch read the local copy, wrote History (slow), then overwrote the block: a key saved in that gap was replaced and never sent, so the devices stayed apart until a refresh; also a block skipped because it was being typed in was never looked at again. Now the write is re-checked and decided again if the copy changed, and skipped blocks are retried. (B) a clash writes the other version on both devices' History and puts a "Changed on two devices" bar (Keep mine / Use other / Keep both) at the page; the choice syncs and the bar goes on both; Undo works for Use other / Keep both.
+- **Why:** owner-approved fix #2.
+- **Files:** `src/sync/{engine,clash}.ts`, `src/editor/{ClashBars,ClashBarsLazy,PageEditor,liveApply}`, `src/core/types.ts` (Block.clash), `src/share/checkRows.ts`, `src/i18n/{en,hi,es}O.ts`, tests `src/sync/engine.test.ts`, `e2e/syncClash.spec.ts`, `e2e/syncMock.ts` (shared mock server, now with a hold gate). First load 299.7 KB.
+
 ## 2026-11-08 (Fix #1: sign in first, new recovery code)
 
 - **What:** (A) the welcome now opens with "Sign in with Google" or "Use without an account" (new step 0; asked once, existing users never see it). Sign in starts the Sync sign-in, then full-screen guide sheets (`onboarding/SignInGuide.tsx`): new account → passphrase → recovery code shown BIG with Print, Copy, Save as file (.txt) and last-four check; existing account → passphrase or code; "Not now" leaves the app usable. The welcome steps wait until the guide ends. (B) Settings › Sync › "Make a new recovery code" (signed in and unlocked): re-confirms the passphrase, locks the SAME master key with a fresh code, stores the new copy on the server first and checks it is there, then removes the old code copies; no re-encryption (`replaceRecoveryCode` in `sync/setup.ts`). New `deleteKeyBundle` on the record store (memory, shared test server, Supabase).

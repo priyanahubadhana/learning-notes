@@ -158,6 +158,7 @@ const block: Fields<Block> = {
   derivedFrom: text,
   batchId: text,
   boxId: text,
+  clash: 'drop',
 }
 
 const rating = oneOf('again', 'hard', 'good', 'easy')

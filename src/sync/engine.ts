@@ -1,4 +1,4 @@
-import Dexie from 'dexie'
+import Dexie, { type Table } from 'dexie'
 import type { LearningNotesDB } from '../core/db'
 import type { Block, SyncState } from '../core/types'
 import { keepTheirsInHistory } from '../history/loserVersion'
@@ -17,7 +17,12 @@ import { getDeviceId, nextHlc, seenHlc } from './device'
 import { isSuspect } from './hlc'
 import { mergeRecord, type MergeResult } from './merge'
 import { markRemote, syncStateId } from './outbox'
-import { SYNC_FORMAT_VERSION, SYNC_TABLES, isSynced } from './tables'
+import {
+  SYNC_FORMAT_VERSION,
+  SYNC_TABLES,
+  isSynced,
+  type MergeMode,
+} from './tables'
 import { fromWire, toWire } from './wire'
 
 /**
@@ -182,6 +187,12 @@ async function openAll(
   return out
 }
 
+type Opened = Awaited<ReturnType<typeof openAll>>
+type Decision = { item: Opened[0]; result: MergeResult }
+
+/** Thrown inside the write when a local copy changed after it was read. */
+class StaleRead extends Error {}
+
 /** Merges pulled records into the database. */
 async function applyRemote(
   db: LearningNotesDB,
@@ -201,79 +212,81 @@ async function applyRemote(
   for (const [table, items] of byTable) {
     const mode = SYNC_TABLES[table]
     const tb = db.table(table)
-    const decisions: { item: (typeof items)[0]; result: MergeResult }[] = []
     const keys = items.map((i) => syncStateId(table, i.id))
-    const [states, locals] = await Promise.all([
-      db.syncState.bulkGet(keys),
-      tb.bulkGet(items.map((i) => i.id)),
-    ])
-    items.forEach((item, i) => {
-      const local = locals[i] as Record<string, unknown> | undefined
-      const st = states[i]
-      decisions.push({
-        item,
-        result: mergeRecord(
-          mode,
-          local && st
-            ? { value: local, hlc: st.hlc, dirty: st.dirty === 1 }
-            : local
-              ? { value: local, hlc: '', dirty: true }
-              : undefined,
-          {
-            value: fromWire(item.env.r) as Record<string, unknown>,
-            hlc: item.env.h,
-          },
-        ),
-      })
-    })
-
-    // Blocks: keep the losing text in the page's History first.
-    if (mode === 'blocks') await keepLosers(db, decisions, report)
-
-    await db.transaction('rw', [tb, db.syncState], async () => {
-      markRemote(Dexie.currentTransaction!.idbtrans)
-      const puts: Record<string, unknown>[] = []
-      const newStates: SyncState[] = []
-      decisions.forEach(({ item, result }, i) => {
-        const old = states[i]
-        const take = result.action === 'take'
-        if (take) {
-          const value = fromWire(item.env.r) as Record<string, unknown>
-          if (mode === 'file') {
-            // Keep bytes we already have; otherwise wait for the download.
-            const have = locals[i] as { data?: ArrayBuffer } | undefined
-            value.data =
-              have?.data && old?.fileRef === item.env.file
-                ? have.data
-                : new ArrayBuffer(0)
-          }
-          puts.push(value)
+    // The read, the decision and the write must see the same local copies: a
+    // keystroke saved in between (History is written first, which takes a
+    // moment) would otherwise be overwritten and never sent. If a copy changed
+    // meanwhile, the write stops and everything is decided again.
+    let decisions: Decision[] = []
+    let clashed: Block[]
+    for (let attempt = 0; ; attempt++) {
+      const [states, locals] = await Promise.all([
+        db.syncState.bulkGet(keys),
+        tb.bulkGet(items.map((i) => i.id)),
+      ])
+      decisions = items.map((item, i) => {
+        const local = locals[i] as Record<string, unknown> | undefined
+        const st = states[i]
+        return {
+          item,
+          result: mergeRecord(
+            mode,
+            local && st
+              ? { value: local, hlc: st.hlc, dirty: st.dirty === 1 }
+              : local
+                ? { value: local, hlc: '', dirty: true }
+                : undefined,
+            {
+              value: fromWire(item.env.r) as Record<string, unknown>,
+              hlc: item.env.h,
+            },
+          ),
         }
-        newStates.push({
-          id: keys[i],
-          table,
-          recordId: item.id,
-          rev: item.rev,
-          hlc: take ? item.env.h : (old?.hlc ?? nextHlc()),
-          dirty: take ? 0 : 1,
-          ...(mode === 'file'
-            ? take
-              ? {
-                  fileRef: item.env.file,
-                  fileState:
-                    old?.fileRef === item.env.file && old?.fileState === 'ok'
-                      ? 'ok'
-                      : item.env.file
-                        ? 'down'
-                        : 'ok',
-                }
-              : { fileRef: old?.fileRef, fileState: old?.fileState ?? 'up' }
-            : {}),
-        })
       })
-      if (puts.length > 0) await tb.bulkPut(puts)
-      await db.syncState.bulkPut(newStates)
-    })
+
+      // Blocks: keep the losing text in the page's History first.
+      if (mode === 'blocks') await keepLosers(db, decisions, report)
+      try {
+        clashed = await db.transaction('rw', [tb, db.syncState], async () => {
+          markRemote(Dexie.currentTransaction!.idbtrans)
+          const fresh = await db.syncState.bulkGet(keys)
+          if (
+            attempt < 3 &&
+            fresh.some(
+              (f, i) =>
+                f?.hlc !== states[i]?.hlc ||
+                f?.dirty !== states[i]?.dirty ||
+                f?.rev !== states[i]?.rev,
+            )
+          )
+            throw new StaleRead()
+          return writeDecisions(
+            db,
+            tb,
+            table,
+            mode,
+            decisions,
+            states,
+            locals,
+            keys,
+          )
+        })
+        break
+      } catch (e) {
+        if (!(e instanceof StaleRead)) throw e
+      }
+    }
+    // The other version of a block both devices changed: kept in History on
+    // this device too (the one that noticed the clash has done so already).
+    for (const b of clashed) {
+      if (
+        b.clash &&
+        (await keepTheirsInHistory(db, b.pageId, [
+          { ...b, type: b.clash.type, content: b.clash.content },
+        ]))
+      )
+        report.mergedPages.push(b.pageId)
+    }
     report.pulled += items.length
     // The open screens put these into the page live (R6-13).
     const taken = decisions.filter((d) => d.result.action === 'take')
@@ -291,6 +304,86 @@ async function applyRemote(
       })
     }
   }
+}
+
+/**
+ * Writes the decisions (inside the transaction). Returns the blocks taken
+ * from another device that carry a new "changed on two devices" mark made
+ * there. A clash noticed here puts the losing version on the winning block as
+ * `clash` and sends the block again, so every device shows the same choice.
+ */
+async function writeDecisions(
+  db: LearningNotesDB,
+  tb: Table,
+  table: string,
+  mode: MergeMode,
+  decisions: Decision[],
+  states: (SyncState | undefined)[],
+  locals: unknown[],
+  keys: string[],
+): Promise<Block[]> {
+  const puts: Record<string, unknown>[] = []
+  const newStates: SyncState[] = []
+  const clashed: Block[] = []
+  decisions.forEach(({ item, result }, i) => {
+    const old = states[i]
+    const take = result.action === 'take'
+    const noticed = mode === 'blocks' && 'loser' in result
+    let hlc = take ? item.env.h : (old?.hlc ?? nextHlc())
+    let value: Record<string, unknown> | undefined
+    if (take) {
+      value = fromWire(item.env.r) as Record<string, unknown>
+      if (mode === 'file') {
+        // Keep bytes we already have; otherwise wait for the download.
+        const have = locals[i] as { data?: ArrayBuffer } | undefined
+        value.data =
+          have?.data && old?.fileRef === item.env.file
+            ? have.data
+            : new ArrayBuffer(0)
+      }
+    }
+    if (noticed) {
+      const other = (result as { loser: Record<string, unknown> }).loser
+      const winner = value ?? { ...(locals[i] as Record<string, unknown>) }
+      winner.clash = {
+        type: String(other.type),
+        content: other.content,
+        at: Date.now(),
+      }
+      value = winner
+      if (take) hlc = nextHlc() // sent again, so the other device gets the mark
+    } else if (take && mode === 'blocks') {
+      const mine = (locals[i] as Block | undefined)?.clash
+      const theirs = (value as unknown as Block).clash
+      if (theirs && theirs.at !== mine?.at)
+        clashed.push(value as unknown as Block)
+    }
+    if (value) puts.push(value)
+    newStates.push({
+      id: keys[i],
+      table,
+      recordId: item.id,
+      rev: item.rev,
+      hlc,
+      dirty: noticed ? 1 : take ? 0 : 1,
+      ...(mode === 'file'
+        ? take
+          ? {
+              fileRef: item.env.file,
+              fileState:
+                old?.fileRef === item.env.file && old?.fileState === 'ok'
+                  ? 'ok'
+                  : item.env.file
+                    ? 'down'
+                    : 'ok',
+            }
+          : { fileRef: old?.fileRef, fileState: old?.fileState ?? 'up' }
+        : {}),
+    })
+  })
+  if (puts.length > 0) await tb.bulkPut(puts)
+  await db.syncState.bulkPut(newStates)
+  return clashed
 }
 
 /** Saves the losing side of a block conflict in the page's History. */

@@ -6,6 +6,7 @@ import type { LearningNotesDB } from '../core/db'
 import { byOrder } from '../core/order'
 import type { Block, OrderKey } from '../core/types'
 import { keepTheirsInHistory } from '../history/loserVersion'
+import { markClash } from '../sync/clash'
 import { noteMergedPage } from '../sync/engine'
 import { getSyncStatus, setSyncStatus } from '../sync/syncStatus'
 import type { BlockDraft, SavedBlock } from './diff'
@@ -311,6 +312,8 @@ export async function applyRemoteBlocks(
   }
   editing?.(false)
   if (theirs.length > 0 && (await keepTheirsInHistory(db, pageId, theirs))) {
+    // The open page shows the choice bar on this block (and on the other device).
+    for (const r of theirs) await markClash(db, r.id, r)
     await noteMergedPage(db, pageId)
     setSyncStatus({ mergedPages: (getSyncStatus().mergedPages ?? 0) + 1 })
   }

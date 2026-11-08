@@ -893,3 +893,9 @@ The other older decisions stand as built (owner, 2026-11-01); they are in [ARCHI
 | Empty-box repair: an empty extra box within 12 mm of the default box or another box is removed on open; empty orphan lines too when the page has text | Fixes the stacked "Enter text" bug without touching anything with content | A deliberately empty box beside another is removed         |
 | Backspace/Delete in an empty box removes it; Delete with a box selected removes it (toast Undo; History copy if it had lines)                         | An empty box must always be deletable                                     | You want a confirm                                         |
 | Page-wide Cut/Delete empties every box (they stay, one empty line each) and Undo restores                                                             | The boxes themselves are the layout                                       | You want the boxes removed too                             |
+
+## Decisions to review (design system, 9 Nov night)
+- Design research, system and screen plan are in docs/research/premium-design-2026-11.md, docs/design/system.md, docs/design/screens.md. Proposed rules for rules/architecture.md are at the end of system.md: need the owner's OK.
+- Sepia theme: kept as a third option (safest; no one loses their theme).
+- Font: Inter loaded lazily, with the system font shown first so first load stays under the size gate.
+- Accent blue → violet: owner already chose violet; first chart colour changes with it.

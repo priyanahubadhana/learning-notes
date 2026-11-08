@@ -83,6 +83,7 @@
   "pages -> templates",
   "paper -> history",
   "paper -> ink",
+  "reader -> ink",
   "reader -> library",
   "reader -> pages",
   "reader -> recall",

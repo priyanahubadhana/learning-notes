@@ -62,6 +62,7 @@ import { dismissUpdateOffer, onUpdateOffer } from './app/updates'
 import { UpdateBar, UpdateRiskBar } from './app/UpdateBar'
 import { restoreAfterUpdate, updateRisk } from './app/autoUpdate'
 import { LockedAlertGate } from './sync/LockedAlertGate'
+import { DriveBar } from './sync/DriveBar'
 import { NowPlayingGate } from './app/reading/NowPlayingGate'
 import { TOAST_AFTER_HOLD_MS, toastDuration } from './app/toastTiming'
 import { isStringOrNull } from './app/uiPrefs'
@@ -1844,6 +1845,7 @@ function App() {
             )}
             <ReadingSync />
             <LockedAlertGate />
+            <DriveBar db={db} />
             <NowPlayingGate onOpenPage={(id) => openPage(id)} />
             <TimerChip db={db} onOpenHome={() => chooseSpace('home')} />
             <AudioDock db={db} pageId={currentPage?.id ?? null} />

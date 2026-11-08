@@ -60,26 +60,51 @@ export async function renewDriveToken(
   email: string,
   interactive: boolean,
 ): Promise<{ token: string; expiresAt: number } | null> {
-  const gis = await loadGis()
+  let gis: Gis
+  try {
+    await loadGis()
+    gis = (globalThis as unknown as { google: Gis }).google
+  } catch {
+    return null // offline or blocked: try again at the next chance
+  }
   return new Promise((resolve) => {
+    // A blocked or closed window can leave Google silent: never wait forever.
+    const timer = setTimeout(
+      () => resolve(null),
+      interactive ? 120_000 : 20_000,
+    )
+    const done = (v: { token: string; expiresAt: number } | null) => {
+      clearTimeout(timer)
+      resolve(v)
+    }
     const client = gis.accounts.oauth2.initTokenClient({
       client_id: GOOGLE_CLIENT_ID,
       scope: DRIVE_SCOPE,
       login_hint: email,
       prompt: interactive ? '' : 'none',
       callback: (r) =>
-        resolve(
+        done(
           r.access_token
             ? {
                 token: r.access_token,
-                expiresAt: Date.now() + ((r.expires_in ?? 3600) - 300) * 1000,
+                // A minute of slack; the app renews 5 minutes earlier still.
+                expiresAt: Date.now() + ((r.expires_in ?? 3600) - 60) * 1000,
               }
             : null,
         ),
-      error_callback: () => resolve(null),
+      error_callback: () => done(null),
     })
-    client.requestAccessToken({ login_hint: email })
+    try {
+      client.requestAccessToken({ login_hint: email })
+    } catch {
+      done(null)
+    }
   })
+}
+
+/** Loads Google's script ahead of a tap, so its window opens inside the tap. */
+export function preloadGoogle(): void {
+  void loadGis().catch(() => undefined)
 }
 
 const API = 'https://www.googleapis.com/drive/v3'
@@ -93,20 +118,27 @@ export function driveFiles(auth: AuthProvider): FileStore {
     return t
   }
   const call = async (url: string, init: RequestInit = {}) => {
-    let res: Response
-    try {
-      res = await fetch(url, {
-        ...init,
-        headers: {
-          Authorization: `Bearer ${await token()}`,
-          ...(init.headers ?? {}),
-        },
-      })
-    } catch (e) {
-      if (e instanceof NeedsTapError) throw e
-      throw new TryLaterError('offline')
+    const send = async () => {
+      try {
+        return await fetch(url, {
+          ...init,
+          headers: {
+            Authorization: `Bearer ${await token()}`,
+            ...(init.headers ?? {}),
+          },
+        })
+      } catch (e) {
+        if (e instanceof NeedsTapError) throw e
+        throw new TryLaterError('offline')
+      }
     }
-    if (res.status === 401) throw new NeedsTapError('drive 401')
+    let res = await send()
+    if (res.status === 401) {
+      // The pass ran out early: renew once and send the same request again.
+      auth.dropDriveToken?.()
+      res = await send()
+      if (res.status === 401) throw new NeedsTapError('drive 401')
+    }
     if (!res.ok) {
       // Drive answers 403 for "no room left" and for other refusals.
       if (res.status === 403 && /uotaExceeded/.test(await res.clone().text())) {

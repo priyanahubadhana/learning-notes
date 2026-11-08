@@ -86,6 +86,10 @@ export interface AuthProvider {
   accessToken(): Promise<string>
   /** A Drive pass; may need a tap (`interactive`) after its hour runs out. */
   driveToken(interactive: boolean): Promise<string | null>
+  /** The pass was refused (401): forget it so the next call renews. */
+  dropDriveToken?(): void
+  /** Loads Google's script early so a tap can open its window at once. */
+  prepareDrive?(): void
 }
 
 /**

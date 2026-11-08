@@ -2,6 +2,11 @@
 
 Moved out of HANDOFF on 2026-11-06 (audit) so HANDOFF stays five lines. Newest first; each paragraph names its step. The run decision (master plan) is one owner iPad pass before Sync; the Phase A builder adds its checks at the top. Tick a paragraph by deleting it.
 
+## Drive pass renews itself (8 Nov, fix #4)
+
+1. PC and iPad, Sync on: add a picture, wait 2 minutes; it appears on the other device without Reconnect Drive or Sync now.
+2. Leave the app open, or closed and reopened, for over an hour, then add a picture: it still syncs. If Google needs a tap, a bar at the top says so with one Reconnect Drive button; after the tap the waiting pictures go out by themselves. Tell me if the bar shows often (that means Safari blocks the quiet renewal).
+
 ## Wrong passphrase or code (8 Nov, fix #3)
 
 1. A second device, Settings > Sync, type a wrong passphrase, press Unlock: a red line with an icon says it does not match; your text stays selected; the eye shows it; turn Caps Lock on and a hint appears.

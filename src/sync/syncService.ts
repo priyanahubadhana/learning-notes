@@ -112,7 +112,9 @@ async function boot(db: LearningNotesDB): Promise<void> {
   } catch {
     set({ problem: 'offline' })
   }
-  if (getSyncStatus().phase === 'ready') void syncNow(db)
+  if (getSyncStatus().phase === 'ready') {
+    void keepDriveFresh(true).then(() => syncNow(db))
+  }
   // AI keys on all devices (R6-2): mirrored while the switch is on.
   subscribeSync(() => {
     if (getSyncStatus().phase !== 'signedOut') {
@@ -130,7 +132,8 @@ async function boot(db: LearningNotesDB): Promise<void> {
   }
 
   const kick = () => {
-    if (document.visibilityState === 'visible') void syncNow(db)
+    if (document.visibilityState !== 'visible') return
+    void keepDriveFresh(false).then(() => syncNow(db))
   }
   const poll = () => {
     // While the live feed is open a poll is only a safety net.
@@ -138,7 +141,10 @@ async function boot(db: LearningNotesDB): Promise<void> {
     kick()
   }
   const front = () => {
-    kick()
+    // Coming back to the app: try the quiet Drive renewal again.
+    if (document.visibilityState === 'visible') {
+      void keepDriveFresh(true).then(() => syncNow(db))
+    }
     openFeed(db)
   }
   document.addEventListener('visibilitychange', front)
@@ -315,7 +321,7 @@ export function syncNow(db: LearningNotesDB): Promise<void> {
             : report.clockWarning
               ? 'clock'
               : undefined,
-        needsDriveTap: report.needsDriveTap,
+        needsDriveTap: report.needsDriveTap || getSyncStatus().needsDriveTap,
         mergedPages: report.mergedPages.length || getSyncStatus().mergedPages,
       })
     } catch (e) {
@@ -336,6 +342,31 @@ export function syncNow(db: LearningNotesDB): Promise<void> {
     }
   })()
   return running
+}
+
+let driveTry = 0
+
+/**
+ * Keeps the Drive pass fresh (fix #4): renewed quietly shortly before it
+ * ends, at start, on coming back to the app and before a sync. If Google
+ * truly needs a tap, {@link SyncStatus.needsDriveTap} turns on (one
+ * "Reconnect Drive" button, shown at the top) and pictures wait in the
+ * queue; the next good pass sends them. While waiting for a tap the quiet
+ * attempt is repeated at most once a minute (not on every poll).
+ */
+export async function keepDriveFresh(force: boolean): Promise<void> {
+  const st = getSyncStatus()
+  if (st.phase !== 'ready' || !master) return
+  const auth = getConnectors().auth
+  if (st.needsDriveTap && !force && Date.now() - driveTry < 60_000) return
+  driveTry = Date.now()
+  const token = await auth.driveToken(false).catch(() => null)
+  if (token) {
+    if (getSyncStatus().needsDriveTap) set({ needsDriveTap: false })
+  } else {
+    auth.prepareDrive?.() // so the Reconnect tap can open Google's window at once
+    set({ needsDriveTap: true })
+  }
 }
 
 /** A tap on "Reconnect Drive": renews the Drive pass in a Google window. */

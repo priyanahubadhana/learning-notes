@@ -89,6 +89,8 @@ export function sharedMemoryConnectors(call: MockServer): Connectors {
   return { auth: mockAuth(true), records, files, changes }
 }
 
+const MOCK_DRIVE = 'learning-notes:sync.mockDrive'
+
 function mockAuth(persist: boolean): AuthProvider {
   let signedIn: Account | null = persist ? loadSignedIn() : null
   return {
@@ -107,7 +109,16 @@ function mockAuth(persist: boolean): AuthProvider {
     async accessToken() {
       return 'mock-token'
     },
-    async driveToken() {
+    // Browser tests: "tap" makes the quiet renewal fail until a tap.
+    async driveToken(interactive) {
+      try {
+        if (localStorage.getItem(MOCK_DRIVE) === 'tap') {
+          if (!interactive) return null
+          localStorage.removeItem(MOCK_DRIVE)
+        }
+      } catch {
+        // Storage blocked: the pass always works.
+      }
       return 'mock-drive'
     },
   }

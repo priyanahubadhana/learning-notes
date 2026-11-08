@@ -4,7 +4,8 @@ import {
   SUPABASE_PUBLISHABLE_KEY,
   SUPABASE_URL,
 } from './config'
-import { renewDriveToken } from './google'
+import { createDrivePass } from './drivePass'
+import { preloadGoogle, renewDriveToken } from './google'
 import {
   NotAllowedError,
   TryLaterError,
@@ -107,7 +108,7 @@ function toSession(r: TokenReply, old?: Session | null): Session {
       sub: r.user.user_metadata?.sub ?? r.user.user_metadata?.provider_id ?? '',
     },
     drive: r.provider_token
-      ? { token: r.provider_token, expiresAt: Date.now() + 55 * 60_000 }
+      ? { token: r.provider_token, expiresAt: Date.now() + 59 * 60_000 }
       : old?.drive,
   }
 }
@@ -146,6 +147,19 @@ export function supabaseAuth(): AuthProvider {
     session = toSession((await res.json()) as TokenReply, session)
     store(session)
   }
+
+  const pass = createDrivePass({
+    get: () => session?.drive,
+    set: (drive) => {
+      if (!session) return
+      session = { ...session, drive }
+      store(session)
+    },
+    renew: (interactive) =>
+      session
+        ? renewDriveToken(session.account.email, interactive)
+        : Promise.resolve(null),
+  })
 
   return {
     current: () => session?.account ?? null,
@@ -206,18 +220,13 @@ export function supabaseAuth(): AuthProvider {
       return session!.access
     },
 
+    // Supabase renews only its own session; Drive needs its own pass
+    // (2 Nov test). It is renewed through Google 5 minutes before it ends.
     async driveToken(interactive) {
-      if (!session) return null
-      const d = session.drive
-      if (d && d.expiresAt - Date.now() > 60_000) return d.token
-      // Supabase renews only its own session; Drive needs its own pass
-      // (2 Nov test). Renew through Google, quietly first.
-      const fresh = await renewDriveToken(session.account.email, interactive)
-      if (!fresh) return null
-      session = { ...session, drive: fresh }
-      store(session)
-      return fresh.token
+      return session ? pass.token(interactive) : null
     },
+    dropDriveToken: () => pass.drop(),
+    prepareDrive: preloadGoogle,
   }
 }
 

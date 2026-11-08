@@ -2,6 +2,12 @@
 
 Current phase only. Older entries are in [ARCHIVE.md](ARCHIVE.md).
 
+## 2026-11-08 (Fix #4: Drive pass renews itself)
+
+- **What:** root cause in code: the pass was renewed only when a Drive call needed it (no renewal at start, on coming to the front or ahead of the end), a 401 gave up at once (no renew-and-retry), a blocked Google window could hang, and the only sign was a button hidden in Settings. Now: `drivePass.ts` renews 5 min before the end and shares one renewal; 401 renews and retries once; `keepDriveFresh` runs at start, on foreground, on online and each tick (quiet retry at most once a minute while a tap is needed); timeouts; if Google truly needs a tap, a top bar with one "Reconnect Drive" button (`DriveBar`); queued pictures resume after it.
+- **Why:** owner-approved fix #4 (pictures did not sync after first setup on PC and iPad until Reconnect Drive + Sync now).
+- **Files:** `src/sync/connectors/{drivePass.ts,google.ts,supabase.ts,types.ts,memory.ts}`, `src/sync/{syncService.ts,DriveBar.tsx}`, `src/App.tsx`, tests `src/sync/connectors/drivePass.test.ts`, `e2e/syncDriveTap.spec.ts`, docs/features/sync.md. First load 299.97 KB.
+
 ## 2026-11-08 (Fix #3: wrong passphrase or recovery code)
 
 - **What:** one shared unlock box for Settings > Sync, the sign-in guide and "Make a new recovery code": red error with icon and aria wiring, text kept and selected, eye, Caps Lock hint, "Use your recovery code instead", 3 free tries then 1/5/15/60 min waits with a countdown (separate for passphrase and code, same wrong value counts once, wrong-length code is not a try, per-device in localStorage, reset on success). After Unlock: "Checking your passphrase..." then "Bringing your notebooks to this device (N so far)" and "All set", so a slow correct entry never looks wrong (owner's iPhone finding).

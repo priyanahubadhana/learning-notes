@@ -48,6 +48,8 @@ export interface RecordStore {
   /** Locked copies of the master key (see `KeyBundle`), as JSON text. */
   listKeyBundles(): Promise<string[]>
   putKeyBundle(id: string, json: string): Promise<void>
+  /** Removes one locked copy by id (the server allows recovery-code copies only). */
+  deleteKeyBundle(id: string): Promise<void>
   /** Server time in ms (clock-skew check, L8). */
   serverTime(): Promise<number>
 }

@@ -117,3 +117,67 @@ export async function unlockKey(
   }
   throw new SyncCryptoError('wrong')
 }
+
+export interface NewCode {
+  recoveryCode: string
+  /** False if an old code copy could not be removed (it may still work). */
+  oldRemoved: boolean
+}
+
+/**
+ * "Make a new recovery code". Re-checks the passphrase, locks the SAME
+ * master key with a fresh code, stores that new copy on the server FIRST and
+ * checks it is there, and only then removes the old code copies. Nothing is
+ * re-encrypted. If anything fails before the new copy is stored, the old code
+ * still works; if a removal fails, both codes work and `oldRemoved` is false.
+ * Throws SyncCryptoError('wrong') for a wrong passphrase.
+ */
+export async function replaceRecoveryCode(
+  conn: Connectors,
+  passphrase: string,
+  keyId?: string,
+): Promise<NewCode> {
+  const all = (await findBundles(conn)).filter(
+    (b) => !keyId || b.keyId === keyId,
+  )
+  let master: MasterKey | null = null
+  for (const b of all
+    .filter((x) => x.method === 'passphrase')
+    .sort((a, c) => c.createdAt - a.createdAt)) {
+    try {
+      master = await unlockBundle(b, passphrase)
+      break
+    } catch {
+      // Try an older copy.
+    }
+  }
+  if (!master) throw new SyncCryptoError('wrong')
+  const recoveryCode = newRecoveryCode()
+  const rec = await bundleWithRecovery(master, recoveryCode)
+  // The new copy must open with the new code before it is stored.
+  await unlockBundle(rec, recoveryCode)
+  delete master.raw
+  const bundleId = (b: KeyBundle) => `${b.keyId}-r-${b.createdAt}`
+  const old = all.filter((b) => b.method === 'recovery')
+  const newId = bundleId(rec)
+  await conn.records.putKeyBundle(newId, JSON.stringify(rec)) // first
+  const stored = (await conn.records.listKeyBundles()).some((j) => {
+    try {
+      const b = JSON.parse(j) as unknown
+      return isKeyBundle(b) && bundleId(b) === newId
+    } catch {
+      return false
+    }
+  })
+  if (!stored) throw new SyncCryptoError('The new code was not stored.')
+  let oldRemoved = true
+  for (const b of old) {
+    if (bundleId(b) === newId) continue
+    try {
+      await conn.records.deleteKeyBundle(bundleId(b))
+    } catch {
+      oldRemoved = false
+    }
+  }
+  return { recoveryCode, oldRemoved }
+}

@@ -302,6 +302,13 @@ export function supabaseRecords(auth: AuthProvider): RecordStore {
       })
     },
 
+    async deleteKeyBundle(id) {
+      await authed(
+        `/rest/v1/sync_key_bundles?id=eq.${encodeURIComponent(id)}`,
+        { method: 'DELETE', headers: { Prefer: 'return=minimal' } },
+      )
+    },
+
     async serverTime() {
       const res = await authed('/rest/v1/rpc/sync_now', {
         method: 'POST',

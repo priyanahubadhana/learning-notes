@@ -512,4 +512,36 @@ export const enO = {
   'pencilOffer.body': 'Pencil writes, finger scrolls and taps',
   'pencilOffer.yes': 'Yes',
   'pencilOffer.no': 'Not now',
+  // ---- Fix #1: sign in first, new recovery code ----
+  'welcome.account.title': 'Keep your notes with you',
+  'welcome.account.help':
+    'Sign in to have the same notes on all your devices, locked so only you can read them. Or start now without an account.',
+  'welcome.account.local': 'Use without an account',
+  'welcome.account.localHelp':
+    'Everything stays on this device. You can sign in later in Settings › Sync.',
+  'welcome.account.offline':
+    'Could not reach Google. Check your connection, or use the app without an account.',
+  'guide.connecting': 'Connecting…',
+  'guide.notNow': 'Not now',
+  'guide.signedOut.title': 'You are not signed in yet',
+  'guide.signedOut.help':
+    'Sign-in did not finish. Try again, or use the app without an account.',
+  'guide.tryAgain': 'Try again',
+  'guide.unlock.title': 'Welcome back',
+  'guide.code.title': 'Save your recovery code',
+  'guide.passphrase.title': 'Choose a passphrase',
+  'sync.copy': 'Copy',
+  'sync.copied': 'Copied',
+  'sync.saveFile': 'Save as file (.txt)',
+  'sync.codeFile':
+    'Learning Notes recovery code\n\n{code}\n\nKeep this somewhere safe, away from the device that holds your notes. Anyone with this code and access to your account data could open your notes.\n',
+  'sync.newCode': 'Make a new recovery code',
+  'sync.newCodeHelp':
+    'Your old code stops working. Your notes are not changed. Type your passphrase to continue.',
+  'sync.newCodeGo': 'Make a new code',
+  'sync.newCodeCancel': 'Cancel',
+  'sync.newCodeOldLeft':
+    'Your new code works, but the old one could not be removed yet, so it may still work. Try again later.',
+  'sync.newCodeFailed': 'Could not make a new code. Your old code still works.',
+  'sync.newCodeSaved': 'New recovery code saved. The old code no longer works.',
 }

@@ -511,4 +511,37 @@ export const esO: Record<string, string> = {
   'pencilOffer.body': 'El lápiz escribe, el dedo desplaza y toca',
   'pencilOffer.yes': 'Sí',
   'pencilOffer.no': 'Ahora no',
+  'welcome.account.title': 'Lleva tus notas contigo',
+  'welcome.account.help':
+    'Inicia sesión para tener las mismas notas en todos tus dispositivos, bloqueadas para que solo tú las leas. O empieza ahora sin cuenta.',
+  'welcome.account.local': 'Usar sin cuenta',
+  'welcome.account.localHelp':
+    'Todo se queda en este dispositivo. Puedes iniciar sesión luego en Ajustes › Sincronización.',
+  'welcome.account.offline':
+    'No se pudo llegar a Google. Revisa tu conexión o usa la app sin cuenta.',
+  'guide.connecting': 'Conectando…',
+  'guide.notNow': 'Ahora no',
+  'guide.signedOut.title': 'Aún no has iniciado sesión',
+  'guide.signedOut.help':
+    'El inicio de sesión no terminó. Inténtalo de nuevo o usa la app sin cuenta.',
+  'guide.tryAgain': 'Intentar de nuevo',
+  'guide.unlock.title': 'Bienvenido de nuevo',
+  'guide.code.title': 'Guarda tu código de recuperación',
+  'guide.passphrase.title': 'Elige una frase de contraseña',
+  'sync.copy': 'Copiar',
+  'sync.copied': 'Copiado',
+  'sync.saveFile': 'Guardar como archivo (.txt)',
+  'sync.codeFile':
+    'Código de recuperación de Learning Notes\n\n{code}\n\nGuárdalo en un lugar seguro, lejos del dispositivo que tiene tus notas. Quien tenga este código y los datos de tu cuenta podría abrir tus notas.\n',
+  'sync.newCode': 'Crear un código de recuperación nuevo',
+  'sync.newCodeHelp':
+    'Tu código antiguo dejará de funcionar. Tus notas no cambian. Escribe tu frase de contraseña para continuar.',
+  'sync.newCodeGo': 'Crear código nuevo',
+  'sync.newCodeCancel': 'Cancelar',
+  'sync.newCodeOldLeft':
+    'Tu código nuevo funciona, pero el antiguo aún no se pudo quitar y puede seguir funcionando. Inténtalo más tarde.',
+  'sync.newCodeFailed':
+    'No se pudo crear un código nuevo. Tu código antiguo sigue funcionando.',
+  'sync.newCodeSaved':
+    'Código de recuperación nuevo guardado. El antiguo ya no funciona.',
 }

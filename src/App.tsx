@@ -20,7 +20,11 @@ import {
 import { ErrorBoundary } from './app/ErrorBoundary'
 import { FirstUseTip } from './help/FirstUseTip'
 import { handwritingChooser } from './app/tools/handwriting'
-import { welcomeNeeded, welcomeOpen } from './onboarding/onboardingState'
+import {
+  onboardingGuide,
+  welcomeNeeded,
+  welcomeOpen,
+} from './onboarding/onboardingState'
 import { lassoSheetOpen } from './ink/lassoMenu'
 import { SaveNotice } from './app/SaveNotice'
 import { onStorageFull, reportError, runTask } from './app/errors'
@@ -146,6 +150,9 @@ let HomeLoaded: typeof import('./home/HomeScreen').HomeScreen | null = null
 const loadHome = () =>
   import('./home/HomeScreen').then((m) => (HomeLoaded = m.HomeScreen))
 const HomeLazy = lazy(() => loadHome().then((c) => ({ default: c })))
+const SignInGuide = lazy(() =>
+  import('./onboarding/SignInGuide').then((m) => ({ default: m.SignInGuide })),
+)
 const Welcome = lazy(() =>
   import('./onboarding/Welcome').then((m) => ({ default: m.Welcome })),
 )
@@ -408,6 +415,7 @@ function App() {
   // The first-run welcome (it takes the place of the device picker).
   const [welcomeAtStart, setWelcomeAtStart] = useState(welcomeNeeded)
   const welcomeAgain = welcomeOpen.useValue()
+  const signInGuide = onboardingGuide.useValue()
   // The device picker.
   const [devicePicker, setDevicePicker] = useState(
     () => !devicePickerDone.get() && !welcomeNeeded(),
@@ -1784,7 +1792,12 @@ function App() {
                 <PencilOffer onDone={closePencilOffer} />
               </Suspense>
             )}
-            {(welcomeAtStart || welcomeAgain) && (
+            {signInGuide && (
+              <Suspense fallback={null}>
+                <SignInGuide db={db} />
+              </Suspense>
+            )}
+            {(welcomeAtStart || welcomeAgain) && !signInGuide && (
               <Suspense fallback={null}>
                 <Welcome
                   onSkip={closeWelcome}

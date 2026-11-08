@@ -17,6 +17,11 @@ test('a first visit shows the welcome; Skip writes nothing else and it never ret
 }) => {
   await page.goto('/')
   await expect(welcome(page)).toBeVisible()
+  // The first screen asks about an account; local use needs no network.
+  await expect(welcome(page)).toContainText('Keep your notes with you')
+  await welcome(page)
+    .getByRole('button', { name: 'Use without an account' })
+    .click()
   await expect(welcome(page)).toContainText('How will you write?')
   await welcome(page).getByRole('button', { name: 'Skip' }).click()
   await expect(welcome(page)).toHaveCount(0)
@@ -36,6 +41,9 @@ test('three steps: Apple Pencil sets Pencil mode, then Start here opens the samp
 }) => {
   await page.goto('/')
   await expect(welcome(page)).toBeVisible()
+  await welcome(page)
+    .getByRole('button', { name: 'Use without an account' })
+    .click()
   await welcome(page)
     .getByRole('radio', { name: /Apple Pencil/ })
     .click()

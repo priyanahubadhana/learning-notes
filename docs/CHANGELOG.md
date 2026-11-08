@@ -2,6 +2,13 @@
 
 Current phase only. Older entries are in [ARCHIVE.md](ARCHIVE.md).
 
+## 2026-11-08 (Fix #1: sign in first, new recovery code)
+
+- **What:** (A) the welcome now opens with "Sign in with Google" or "Use without an account" (new step 0; asked once, existing users never see it). Sign in starts the Sync sign-in, then full-screen guide sheets (`onboarding/SignInGuide.tsx`): new account → passphrase → recovery code shown BIG with Print, Copy, Save as file (.txt) and last-four check; existing account → passphrase or code; "Not now" leaves the app usable. The welcome steps wait until the guide ends. (B) Settings › Sync › "Make a new recovery code" (signed in and unlocked): re-confirms the passphrase, locks the SAME master key with a fresh code, stores the new copy on the server first and checks it is there, then removes the old code copies; no re-encryption (`replaceRecoveryCode` in `sync/setup.ts`). New `deleteKeyBundle` on the record store (memory, shared test server, Supabase).
+- **Why:** owner-approved fix #1.
+- **Safety:** a failure before the new copy is stored leaves the old code working (unit-tested); a failed removal keeps both working and tells the person. The server may delete recovery copies only (migration `20261108000001_sync_bundle_delete.sql`, owner runs it once). Codes are never logged or stored by the app; only on screen, print, copy or the saved file.
+- **Files:** `src/onboarding/{Welcome,SignInGuide,onboardingState}.tsx/ts`, `src/sync/{RecoveryCodeView,SyncSection,setup,syncService,LockedAlertGate}`, `src/sync/connectors/{types,memory,supabase}.ts`, `src/App.tsx`, `src/i18n/{en,hi,es}O.ts`, `supabase/migrations/20261108000001_sync_bundle_delete.sql`, tests `src/sync/recoveryCode.test.ts`, `e2e/signInFirst.spec.ts`, `e2e/welcome.spec.ts`, `e2e/syncLive.spec.ts`. First load 299.7 KB.
+
 ## 2026-11-08 (Notebooks locked alert, Level 1)
 
 - **What:** when signed in to Sync but this device has no passphrase/recovery code (needsKey, or needCode/unreadable), one pop-up (alertdialog, focus trapped) "Your notebooks are locked" with Enter passphrase, Use recovery code, Later; once per session, never while typing (2 s idle) and never over Settings › Sync. Later leaves a bright top banner with Unlock; both vanish when unlocked. Lazy chunk, tiny eager gate. Settings › Sync shows the unlock box for needCode/unreadable too.

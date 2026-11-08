@@ -1,4 +1,5 @@
 import { lazy, Suspense, useSyncExternalStore } from 'react'
+import { onboardingGuide } from '../onboarding/onboardingState'
 import { isLocked } from './lockedStatus'
 import { getSyncStatus, subscribeSync } from './syncStatus'
 
@@ -9,7 +10,9 @@ const LockedAlert = lazy(() =>
 /** Loads the "notebooks locked" pop-up and banner only while locked. */
 export function LockedAlertGate() {
   const status = useSyncExternalStore(subscribeSync, getSyncStatus)
-  if (!isLocked(status)) return null
+  const guide = onboardingGuide.useValue()
+  // The first-run sign-in guide is already asking for the passphrase.
+  if (!isLocked(status) || guide) return null
   return (
     <Suspense fallback={null}>
       <LockedAlert />

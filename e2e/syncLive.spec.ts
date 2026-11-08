@@ -103,6 +103,11 @@ function makeServer() {
         state.bundles[id] = json
         return
       }
+      case 'deleteKeyBundle': {
+        const [id] = args as [string]
+        delete state.bundles[id]
+        return
+      }
       case 'filePut': {
         const [name, data] = args as [string, string]
         const id = `f${++state.fileSeq}`

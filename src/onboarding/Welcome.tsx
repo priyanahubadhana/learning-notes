@@ -11,10 +11,16 @@ import {
   languageSetting,
   theme as themeSetting,
 } from '../settings/builtinSettings'
+import { getSyncStatus } from '../sync/syncStatus'
 import { readDeviceSetting } from '../settings/settingsService'
 import { useDeviceSetting } from '../settings/useSetting'
 import type { SettingDefinition } from '../settings/registry'
-import { onboardingDone, onboardingPending } from './onboardingState'
+import {
+  onboardingAccountAsked,
+  onboardingDone,
+  onboardingGuide,
+  onboardingPending,
+} from './onboardingState'
 
 /**
  * The first-run welcome (polish 2, item 1): one sheet, three steps. (1) How
@@ -84,7 +90,13 @@ export function Welcome({
   onSkip: () => void
 }) {
   const ref = useRef<HTMLDialogElement>(null)
-  const [step, setStep] = useState(1)
+  // Step 0 (fix #1 A) asks once: sign in with Google, or use without an account.
+  const [step, setStep] = useState(() =>
+    onboardingAccountAsked.get() || getSyncStatus().phase !== 'signedOut'
+      ? 1
+      : 0,
+  )
+  const [offline, setOffline] = useState(false)
   const [way, setWay] = useState<Way>(startWay)
 
   useEffect(() => {
@@ -121,6 +133,20 @@ export function Welcome({
     seen()
     onSkip()
   }
+  const useLocal = () => {
+    onboardingAccountAsked.set(true)
+    setStep(1)
+  }
+  /** Starts the guided sign-in; the welcome waits until the guide is done. */
+  const signInFirst = () => {
+    setOffline(false)
+    if (!navigator.onLine) {
+      setOffline(true)
+      return
+    }
+    onboardingAccountAsked.set(true)
+    onboardingGuide.set(true)
+  }
 
   return createPortal(
     <dialog
@@ -134,9 +160,49 @@ export function Welcome({
       }}
       className="m-auto w-[min(32rem,calc(100vw-2rem))] rounded-2xl border border-line bg-bg p-5 text-ink shadow-[0_12px_32px_rgba(0,0,0,0.18)] backdrop:bg-black/40"
     >
-      <p className="text-xs text-muted" data-welcome-step={step}>
-        {t('welcome.step', { n: step, total: STEPS })}
-      </p>
+      {step > 0 && (
+        <p className="text-xs text-muted" data-welcome-step={step}>
+          {t('welcome.step', { n: step, total: STEPS })}
+        </p>
+      )}
+      {step === 0 && (
+        <>
+          <h2 className="mt-1 text-lg font-semibold">
+            {t('welcome.account.title')}
+          </h2>
+          <p className="mt-1 text-sm text-ink-soft">
+            {t('welcome.account.help')}
+          </p>
+          <div className="mt-3 grid gap-2">
+            <button
+              type="button"
+              data-account="google"
+              onClick={signInFirst}
+              className="min-h-14 rounded-xl bg-accent px-4 text-sm font-semibold text-white hover:opacity-90"
+            >
+              {t('sync.signIn')}
+            </button>
+            <button
+              type="button"
+              data-account="local"
+              onClick={useLocal}
+              className="min-h-14 rounded-xl border border-line px-4 text-left hover:bg-hover"
+            >
+              <span className="block text-sm font-semibold">
+                {t('welcome.account.local')}
+              </span>
+              <span className="block text-sm text-ink-soft">
+                {t('welcome.account.localHelp')}
+              </span>
+            </button>
+            {offline && (
+              <p role="alert" className="text-sm text-danger">
+                {t('welcome.account.offline')}
+              </p>
+            )}
+          </div>
+        </>
+      )}
       {step === 1 && (
         <>
           <h2 className="mt-1 text-lg font-semibold">
@@ -236,7 +302,7 @@ export function Welcome({
             {t('welcome.back')}
           </button>
         )}
-        {step < STEPS && (
+        {step > 0 && step < STEPS && (
           <button
             type="button"
             onClick={next}

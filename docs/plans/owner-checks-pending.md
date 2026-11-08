@@ -2,6 +2,14 @@
 
 Moved out of HANDOFF on 2026-11-06 (audit) so HANDOFF stays five lines. Newest first; each paragraph names its step. The run decision (master plan) is one owner iPad pass before Sync; the Phase A builder adds its checks at the top. Tick a paragraph by deleting it.
 
+## Sign in first and new recovery code (8 Nov)
+
+0. Supabase › SQL Editor: run `supabase/migrations/20261108000001_sync_bundle_delete.sql` once (lets the app remove an OLD recovery-code copy; recovery copies only).
+1. Fresh browser or Private window: the first screen shows "Sign in with Google" and "Use without an account". Pick the second with the network off: the welcome goes on, no error.
+2. Fresh window, Sign in with Google (real account): after Google returns, full-screen steps (passphrase, then the code BIG). Check Print, Copy and Save as file (.txt) look right and the last-four check works. Needs human eyes: look, feel, printing.
+3. A second device, Sign in with Google: "Welcome back", unlock with the passphrase, then with the code.
+4. Settings › Sync › Make a new recovery code: wrong passphrase is refused; right one shows a new code. Then on another device the OLD code no longer unlocks and the NEW one does.
+
 ## Notebooks locked pop-up (8 Nov)
 
 1. iPad: on a device signed in to Sync without the passphrase, open the app: one pop-up "Your notebooks are locked" appears (not while typing). Later leaves a red banner at the top with Unlock; Enter passphrase opens Settings › Sync with the box; after unlocking, banner and pop-up are gone and the notebooks appear. Quit and reopen while locked: the banner shows, no second pop-up. Needs eyes: banner height under the iPad clock.

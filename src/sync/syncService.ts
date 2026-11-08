@@ -16,7 +16,8 @@ import { SyncCryptoError, type MasterKey } from './crypto'
 import { setTracking, setWaitingForKey } from './device'
 import { enqueueChanged, syncOnce, type SyncReport } from './engine'
 import { forgetMasterKey, loadMasterKey, saveMasterKey } from './keyVault'
-import { createKey, findBundles, unlockKey } from './setup'
+import { createKey, findBundles, replaceRecoveryCode, unlockKey } from './setup'
+import { onboardingGuide } from '../onboarding/onboardingState'
 import { debounceMax } from './debounce'
 import { onLocalWrite } from './outbox'
 import { mapSyncError } from './syncProblem'
@@ -41,7 +42,6 @@ let master: MasterKey | null = null
 let running: Promise<void> | null = null
 /** A ping came while a sync ran: run once more when it ends. */
 let again = false
-let started = false
 /** The newest server order this device has seen (pull cursor or accepted save). */
 let knownSeq = 0
 let lastRun = 0
@@ -81,17 +81,23 @@ async function decidePhase(conn: Connectors) {
   })
 }
 
-/** Called once at app start. Cheap when sync was never set up. */
-export async function startSync(db: LearningNotesDB): Promise<void> {
-  if (started) return
-  started = true
+let booted: Promise<void> | null = null
+
+/** Called once at app start (later calls wait for the same start). Cheap when sync was never set up. */
+export function startSync(db: LearningNotesDB): Promise<void> {
+  booted ??= boot(db)
+  return booted
+}
+
+async function boot(db: LearningNotesDB): Promise<void> {
   const conn = getConnectors()
   set({ lastSyncedAt: readLast() })
   try {
     const url = new URL(location.href)
     if (await conn.auth.finishSignIn(url)) {
       url.search = ''
-      url.hash = '#/settings/sync' // back to the Sync page to finish
+      // Back to the Sync page to finish, unless the first-run guide does it.
+      if (!onboardingGuide.get()) url.hash = '#/settings/sync'
       history.replaceState(history.state, '', url.toString())
       window.dispatchEvent(
         new PopStateEvent('popstate', { state: history.state }),
@@ -221,6 +227,22 @@ export async function setUpKey(
   await enqueueChanged(db)
   void syncNow(db)
   return { recoveryCode: made.recoveryCode, spareSaved: made.spareSaved }
+}
+
+/**
+ * Settings › Sync › Make a new recovery code: the same master key, locked with
+ * a fresh code (see `replaceRecoveryCode`). Needs the unlocked key here.
+ */
+export async function makeNewRecoveryCode(
+  passphrase: string,
+): Promise<{ recoveryCode: string; oldRemoved: boolean } | null> {
+  if (!master) return null
+  try {
+    return await replaceRecoveryCode(getConnectors(), passphrase, master.keyId)
+  } catch (e) {
+    if (e instanceof SyncCryptoError) return null
+    throw e
+  }
 }
 
 /** Another device: opens the key with the passphrase or recovery code. */

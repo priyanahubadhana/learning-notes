@@ -4,10 +4,12 @@ import { t } from '../i18n/t'
 import { passphraseProblem } from './crypto'
 import { checkDevice } from './deviceCheck'
 import { SyncDot } from './SyncDot'
+import { RecoveryCodeView } from './RecoveryCodeView'
 import {
   dismissMerged,
   getSyncStatus,
   reconnectDrive,
+  makeNewRecoveryCode,
   setUpKey,
   signIn,
   signOut,
@@ -54,7 +56,7 @@ export function SyncSection({ db }: { db: LearningNotesDB }) {
       )}
 
       {code ? (
-        <RecoveryCode code={code} onDone={() => setCode(null)} />
+        <RecoveryCodeView code={code} onDone={() => setCode(null)} />
       ) : status.phase === 'signedOut' ? (
         <div>
           <button
@@ -107,7 +109,7 @@ export function SyncSection({ db }: { db: LearningNotesDB }) {
   )
 }
 
-function SetUp({ onMade }: { onMade: (p: string) => Promise<void> }) {
+export function SetUp({ onMade }: { onMade: (p: string) => Promise<void> }) {
   const [p1, setP1] = useState('')
   const [p2, setP2] = useState('')
   const [busy, setBusy] = useState(false)
@@ -166,62 +168,7 @@ function SetUp({ onMade }: { onMade: (p: string) => Promise<void> }) {
   )
 }
 
-function RecoveryCode({ code, onDone }: { code: string; onDone: () => void }) {
-  const [check, setCheck] = useState('')
-  const [wrong, setWrong] = useState(false)
-  const last = code.replace(/-/g, '').slice(-4)
-  return (
-    <div className="flex flex-col gap-3">
-      <style>
-        {
-          '@media print { body * { visibility: hidden } [data-print-code], [data-print-code] * { visibility: visible } [data-print-code] { position: fixed; inset: 0; padding: 2rem } }'
-        }
-      </style>
-      <div
-        data-print-code
-        className="rounded-lg border border-line p-4"
-        data-testid="recovery-code"
-      >
-        <h3 className="text-sm font-semibold">{t('sync.codeTitle')}</h3>
-        <p className="my-3 font-mono text-lg tracking-wider select-all">
-          {code}
-        </p>
-        <p className="text-sm text-muted">{t('sync.codeHelp')}</p>
-      </div>
-      <div>
-        <button type="button" className={button} onClick={() => window.print()}>
-          {t('sync.print')}
-        </button>
-      </div>
-      <label className="flex flex-col gap-1 text-sm">
-        {t('sync.codeCheck')}
-        <input
-          className={field}
-          value={check}
-          autoComplete="off"
-          onChange={(e) => {
-            setCheck(e.target.value)
-            setWrong(false)
-          }}
-        />
-      </label>
-      {wrong && <p className="text-sm text-danger">{t('sync.codeWrong')}</p>}
-      <div>
-        <button
-          type="button"
-          className={primary}
-          onClick={() =>
-            check.trim().toUpperCase() === last ? onDone() : setWrong(true)
-          }
-        >
-          {t('sync.codeDone')}
-        </button>
-      </div>
-    </div>
-  )
-}
-
-function Unlock({ db }: { db: LearningNotesDB }) {
+export function Unlock({ db }: { db: LearningNotesDB }) {
   const [secret, setSecret] = useState('')
   const [busy, setBusy] = useState(false)
   const [wrong, setWrong] = useState(false)
@@ -304,6 +251,7 @@ function Running({ db }: { db: LearningNotesDB }) {
       {status.needsDriveTap && (
         <p className="text-sm text-muted">{t('sync.driveTap')}</p>
       )}
+      <NewCode />
     </div>
   )
 }
@@ -344,5 +292,117 @@ function DeviceCheck() {
         </p>
       )}
     </details>
+  )
+}
+
+/**
+ * "Make a new recovery code" (signed in and unlocked only): asks for the
+ * passphrase again, then shows the new code. The old code stops working; the
+ * notes are not re-encrypted.
+ */
+function NewCode() {
+  const [open, setOpen] = useState(false)
+  const [pass, setPass] = useState('')
+  const [busy, setBusy] = useState(false)
+  const [error, setError] = useState<'wrong' | 'failed' | null>(null)
+  const [made, setMade] = useState<{
+    code: string
+    oldRemoved: boolean
+  } | null>(null)
+  const [saved, setSaved] = useState(false)
+  const reset = () => {
+    setOpen(false)
+    setPass('')
+    setError(null)
+    setMade(null)
+  }
+  if (saved && !open)
+    return (
+      <p className="text-sm" role="status" data-testid="new-code-saved">
+        {t('sync.newCodeSaved')}
+      </p>
+    )
+  if (made)
+    return (
+      <div className="flex flex-col gap-3" data-testid="new-code">
+        {!made.oldRemoved && (
+          <p role="alert" className="text-sm text-danger">
+            {t('sync.newCodeOldLeft')}
+          </p>
+        )}
+        <RecoveryCodeView
+          code={made.code}
+          onDone={() => {
+            setSaved(made.oldRemoved)
+            reset()
+          }}
+        />
+      </div>
+    )
+  if (!open)
+    return (
+      <div>
+        <button
+          type="button"
+          className={button}
+          onClick={() => {
+            setSaved(false)
+            setOpen(true)
+          }}
+        >
+          {t('sync.newCode')}
+        </button>
+      </div>
+    )
+  return (
+    <form
+      className="flex flex-col gap-3"
+      data-testid="new-code-form"
+      onSubmit={(e) => {
+        e.preventDefault()
+        setBusy(true)
+        setError(null)
+        void makeNewRecoveryCode(pass)
+          .then((r) =>
+            r
+              ? setMade({ code: r.recoveryCode, oldRemoved: r.oldRemoved })
+              : setError('wrong'),
+          )
+          .catch(() => setError('failed'))
+          .finally(() => {
+            setBusy(false)
+            setPass('')
+          })
+      }}
+    >
+      <h3 className="text-sm font-semibold">{t('sync.newCode')}</h3>
+      <p className="text-sm text-muted">{t('sync.newCodeHelp')}</p>
+      <label className="flex flex-col gap-1 text-sm">
+        {t('sync.passphrase')}
+        <input
+          type="password"
+          autoComplete="current-password"
+          className={field}
+          value={pass}
+          onChange={(e) => setPass(e.target.value)}
+        />
+      </label>
+      {error === 'wrong' && (
+        <p className="text-sm text-danger">{t('sync.wrongSecret')}</p>
+      )}
+      {error === 'failed' && (
+        <p role="alert" className="text-sm text-danger">
+          {t('sync.newCodeFailed')}
+        </p>
+      )}
+      <div className="flex gap-2">
+        <button type="submit" className={primary} disabled={busy || !pass}>
+          {busy ? t('sync.working') : t('sync.newCodeGo')}
+        </button>
+        <button type="button" className={button} onClick={reset}>
+          {t('sync.newCodeCancel')}
+        </button>
+      </div>
+    </form>
   )
 }

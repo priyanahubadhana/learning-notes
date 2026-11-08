@@ -65,6 +65,7 @@ export function sharedMemoryConnectors(call: MockServer): Connectors {
     get: (ids) => call('get', ids) as Promise<RemoteRecord[]>,
     listKeyBundles: () => call('listKeyBundles') as Promise<string[]>,
     putKeyBundle: (id, json) => call('putKeyBundle', id, json) as Promise<void>,
+    deleteKeyBundle: (id) => call('deleteKeyBundle', id) as Promise<void>,
     serverTime: async () => Date.now(),
   }
   const files: FileStore = {
@@ -154,6 +155,10 @@ export function memoryConnectors(
     },
     async putKeyBundle(id, json) {
       state.bundles[id] = json
+      save()
+    },
+    async deleteKeyBundle(id) {
+      delete state.bundles[id]
       save()
     },
     async serverTime() {

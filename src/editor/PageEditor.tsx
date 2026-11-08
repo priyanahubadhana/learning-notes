@@ -36,7 +36,7 @@ import { editorColorScheme } from '../app/theme'
 import { ThemeContext } from '../app/themeContext'
 import { listBlocks } from '../core/blockService'
 import { blocksOfBox, tagDrafts } from './boxScope'
-import { activeBox, useOwnsBar } from '../paper/activeBox'
+import { activeBox, boxEditors, useOwnsBar } from '../paper/activeBox'
 import { MAIN_BOX } from '../paper/boxes'
 import { syncCardRecords } from '../recall/cardService'
 import type { LearningNotesDB } from '../core/db'
@@ -819,6 +819,13 @@ function LoadedPageEditor({
     })
   })
   useEffect(() => () => clearActiveEditor(editor as never), [editor])
+  // The floating bar under a selected box formats this box's text.
+  useEffect(() => {
+    const id = boxId ?? MAIN_BOX
+    boxEditors.set(pageId, id, editor as never)
+    return () => boxEditors.clear(pageId, id, editor as never)
+  }, [editor, pageId, boxId])
+
   // One place decides what the page may do (see editPolicy.ts): ink tools make
   // it non-editable and inert so Scribble has nothing to write in.
   useEffect(() => {

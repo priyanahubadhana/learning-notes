@@ -1,4 +1,4 @@
-import { useContext, useState, type ReactNode } from 'react'
+import { useContext, useEffect, useState, type ReactNode } from 'react'
 import { AppUiContext } from '../app/appUi'
 import { runTask } from '../app/errors'
 import { activeTool } from '../app/tools/main/mainTools'
@@ -16,7 +16,11 @@ import {
   removeBox,
   restoreBox,
   updateBox,
+  updateBoxes,
 } from './boxService'
+import type { BoxChange } from './PaperFrame'
+import { BoxBar } from './BoxBar'
+import { clearPageWide, pageWideClip, pageWideRange } from './pageWide'
 
 const DOTS: Record<string, string> = {
   yellow: '🟡',
@@ -40,7 +44,11 @@ export function usePaperBoxes(
   /** Phones: a new box in the reading order (after a box id, 'start' or 'end'). */
   onAddBoxInOrder?: (after: string) => void
   onBoxChange: (id: string, patch: Partial<PaperBox>) => void
+  /** Several boxes moved by one drop: one write, and Undo when more than one. */
+  onBoxesChange: (changes: BoxChange[]) => void
   onBoxMenu: (box: PaperBox, at: DOMRect) => void
+  /** The floating bar under a selected box. */
+  renderBar: (box: PaperBox) => ReactNode
   onInkOnPaper?: (
     at: { x: number; y: number; w: number },
     lines: number,
@@ -56,6 +64,42 @@ export function usePaperBoxes(
     at: DOMRect
   } | null>(null)
 
+  // Cut and Delete of a page-wide selection (Ctrl+A, third step): every box
+  // is emptied at once; the toast's Undo puts it all back.
+  useEffect(() => {
+    if (!editable) return
+    const clear = () => {
+      const undo = clearPageWide()
+      toast(t('paper.pageCleared'), {
+        label: t('paper.box.undo'),
+        onSelect: undo,
+      })
+    }
+    const onCut = (e: ClipboardEvent) => {
+      const range = pageWideRange()
+      if (!range || !e.clipboardData) return
+      const clip = pageWideClip(range)
+      e.clipboardData.setData('text/plain', clip.text)
+      e.clipboardData.setData('text/html', clip.html)
+      e.preventDefault()
+      clear()
+    }
+    const onKey = (e: KeyboardEvent) => {
+      if (e.key !== 'Delete' && e.key !== 'Backspace') return
+      if (e.ctrlKey || e.metaKey || e.altKey) return
+      if (!pageWideRange()) return
+      e.preventDefault()
+      e.stopPropagation()
+      clear()
+    }
+    document.addEventListener('cut', onCut, true)
+    document.addEventListener('keydown', onKey, true)
+    return () => {
+      document.removeEventListener('cut', onCut, true)
+      document.removeEventListener('keydown', onKey, true)
+    }
+  }, [editable, toast])
+
   const onAddBox = (at: { x: number; y: number }) => {
     if (activeTool.get() !== 'text') return
     triggerFirstUse('paperBox')
@@ -67,6 +111,42 @@ export function usePaperBoxes(
   }
   const onBoxChange = (id: string, patch: Partial<PaperBox>) =>
     runTask(updateBox(db, pageId, id, patch))
+
+  const onBoxesChange = (changes: BoxChange[]) => {
+    runTask(
+      updateBoxes(
+        db,
+        pageId,
+        changes.map(({ id, patch }) => ({ id, patch })),
+      ).then(() => {
+        if (changes.length < 2) return
+        toast(t('paper.box.movedMany', { n: String(changes.length) }), {
+          label: t('paper.box.undo'),
+          onSelect: () =>
+            runTask(
+              updateBoxes(
+                db,
+                pageId,
+                changes.map(({ id, before }) => ({ id, patch: before })),
+              ),
+            ),
+        })
+      }),
+    )
+  }
+
+  const duplicate = (box: PaperBox) =>
+    runTask(duplicateBox(db, pageId, box.id).then((id) => id && setFresh(id)))
+  const remove = (box: PaperBox) =>
+    runTask(
+      removeBox(db, pageId, box.id).then((removed) => {
+        if (!removed) return
+        toast(t('paper.box.deleted'), {
+          label: t('paper.box.undo'),
+          onSelect: () => runTask(restoreBox(db, pageId, removed)),
+        })
+      }),
+    )
 
   const items = (box: PaperBox): MenuItem[] => [
     {
@@ -123,7 +203,18 @@ export function usePaperBoxes(
     onAddBox: editable ? onAddBox : undefined,
     onAddBoxInOrder: editable ? onAddBoxInOrder : undefined,
     onBoxChange,
+    onBoxesChange,
     onBoxMenu: (box, at) => setMenuFor({ box, at }),
+    renderBar: (box) => (
+      <BoxBar
+        pageId={pageId}
+        boxId={box.id}
+        canEdit={editable}
+        onDuplicate={() => editable && duplicate(box)}
+        onDelete={() => remove(box)}
+        onMenu={(at) => setMenuFor({ box, at })}
+      />
+    ),
     onInkOnPaper: editable
       ? (at, lines) =>
           addBoxWithLines(db, pageId, at, lines).catch((error: unknown) => {

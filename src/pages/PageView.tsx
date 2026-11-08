@@ -586,8 +586,9 @@ export function PageView({
             eager={boxes.fresh}
             onAddBox={boxes.onAddBox}
             onAddBoxInOrder={boxes.onAddBoxInOrder}
-            onBoxChange={editLockBy ? undefined : boxes.onBoxChange}
+            onBoxesChange={editLockBy ? undefined : boxes.onBoxesChange}
             onBoxMenu={editLockBy ? undefined : boxes.onBoxMenu}
+            renderBar={boxes.renderBar}
             onInkOnPaper={boxes.onInkOnPaper}
             showHint={
               hintPage && !!blankPage && !!boxes.onAddBox && !page.boxes?.length

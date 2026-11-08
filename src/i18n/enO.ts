@@ -526,6 +526,8 @@ export const enO = {
   'paper.box.delete': 'Delete box',
   'paper.box.deleted': 'Box deleted.',
   'paper.box.undo': 'Undo',
+  'paper.pageCleared': 'Page emptied.',
+  'paper.bar.label': 'Box format',
   'paper.box.movedMany': '{n} boxes moved.',
   'pencilOffer.title': 'Use Pencil mode?',
   'pencilOffer.body': 'Pencil writes, finger scrolls and taps',

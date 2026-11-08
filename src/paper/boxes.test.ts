@@ -158,7 +158,7 @@ describe('placeInOrder (phones)', () => {
   })
 })
 
-import { clearOfBoxes } from './boxes'
+import { clearOfBoxes, dropPlan, sheetSegments, snapMove } from './boxes'
 
 describe('boxes never overlap', () => {
   const a = { x: 15, y: 10, w: 100, h: 40 }
@@ -172,5 +172,88 @@ describe('boxes never overlap', () => {
   it('keeps going past several boxes', () => {
     const b = { x: 15, y: 53, w: 100, h: 30 }
     expect(clearOfBoxes({ x: 20, y: 30, w: 60, h: 20 }, [a, b])).toBe(86)
+  })
+})
+
+describe('dropPlan (boxes below make room)', () => {
+  const b = (
+    id: string,
+    x: number,
+    y: number,
+    w = 50,
+    h = 20,
+    fixed = false,
+  ) => ({
+    id,
+    x,
+    y,
+    w,
+    h,
+    fixed,
+  })
+  it('pushes a covered box down under the dropped one, and cascades', () => {
+    const plan = dropPlan([b('d', 20, 50)], [b('a', 20, 55), b('c', 20, 80)], 5)
+    expect(plan.get('a')).toBe(75)
+    // c was 80 and would now meet a (75..95): pushed under it.
+    expect(plan.get('c')).toBe(100)
+    expect(plan.has('d')).toBe(false)
+  })
+  it('leaves boxes that are not covered alone', () => {
+    const plan = dropPlan(
+      [b('d', 20, 50)],
+      [b('a', 100, 55), b('c', 20, 200)],
+      5,
+    )
+    expect(plan.size).toBe(0)
+  })
+  it('a dropped box gives way to a fixed box', () => {
+    const plan = dropPlan([b('d', 20, 50)], [b('l', 20, 40, 50, 30, true)], 5)
+    expect(plan.get('d')).toBeGreaterThanOrEqual(73)
+    expect(plan.get('d')! % 5).toBe(0)
+  })
+  it('a group dropped together does not push its own members', () => {
+    const plan = dropPlan(
+      [b('d1', 10, 10), b('d2', 80, 10)],
+      [b('x', 80, 15)],
+      5,
+    )
+    expect([...plan.keys()]).toEqual(['x'])
+  })
+})
+
+describe('snapMove (light guides)', () => {
+  it('sticks to another box edge and the margin within the tolerance', () => {
+    const s = snapMove(
+      { x: 15.8, y: 99, w: 40, h: 10 },
+      [{ x: 100, y: 100, w: 30, h: 10 }],
+      210,
+    )
+    expect(s.x).toBe(15)
+    expect(s.gx).toBe(15)
+    expect(s.y).toBe(100)
+    expect(s.gy).toBe(100)
+  })
+  it('does nothing when far from every edge', () => {
+    const s = snapMove(
+      { x: 40, y: 60, w: 40, h: 10 },
+      [{ x: 150, y: 150, w: 30, h: 10 }],
+      210,
+    )
+    expect(s).toEqual({ x: 40, y: 60, gx: null, gy: null })
+  })
+})
+
+describe('sheetSegments (frame per sheet)', () => {
+  it('splits a span at the gap', () => {
+    const s = sheetSegments(900, 300, 1000, 20, 2)
+    expect(s).toEqual([
+      { top: 0, height: 100 },
+      { top: 120, height: 180 },
+    ])
+  })
+  it('one segment when it fits a sheet', () => {
+    expect(sheetSegments(100, 200, 1000, 20, 2)).toEqual([
+      { top: 0, height: 200 },
+    ])
   })
 })

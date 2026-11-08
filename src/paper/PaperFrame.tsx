@@ -16,18 +16,19 @@ import { Tip } from '../help/Help'
 import { t } from '../i18n/t'
 import type { Page, PaperBox } from '../core/types'
 import {
-  BOX_COLOURS,
   boxesOf,
+  dropPlan,
   MAIN_BOX,
   mainBox,
-  clearOfBoxes,
   MARGIN,
   TOP,
-  type MmRect,
+  type PlanBox,
   readingOrder,
   sheetOf,
+  snapMove,
 } from './boxes'
-import { clampBox, MIN_W } from './boxService'
+import { BoxFrame, type GrabHow } from './BoxFrame'
+import { clampBox, MIN_W, type BoxPatch } from './boxService'
 import { bounds, record, replay, waitFor, type Recorded } from './penOnPaper'
 import { activeTool } from '../app/tools/main/mainTools'
 import { adopterIn, setPaperDrop } from '../ink/inkTransfer'
@@ -58,8 +59,9 @@ export function PaperFrame({
   eager,
   onAddBox,
   onAddBoxInOrder,
-  onBoxChange,
+  onBoxesChange,
   onBoxMenu,
+  renderBar,
   onInkOnPaper,
   showHint = false,
   children,
@@ -73,8 +75,11 @@ export function PaperFrame({
   onAddBox?: (at: { x: number; y: number }) => void
   /** Phones (fit width): a new box after a box id, at the 'start' or the 'end'. */
   onAddBoxInOrder?: (after: string) => void
-  onBoxChange?: (boxId: string, patch: Partial<PaperBox>) => void
+  /** Boxes moved or resized in one go (a drop pushes others): one Undo. */
+  onBoxesChange?: (changes: BoxChange[]) => void
   onBoxMenu?: (box: PaperBox, at: DOMRect) => void
+  /** The floating bar under a selected box. */
+  renderBar?: (box: PaperBox) => ReactNode
   /**
    * Rule 4: ink on empty paper. Makes a box (mm) with that many empty lines
    * and returns its id; unset = ink on empty paper is ignored.
@@ -347,9 +352,226 @@ export function PaperFrame({
   // them, as it is linked to their lines); a selected box's grip moves all.
   // The loop being drawn lives in its own small component, so each move
   // redraws one line, not every box of the page.
+  const layerRef = useRef<HTMLDivElement>(null)
   const loopLayer = useRef<LoopApi>(null)
   const loop = useRef<Pt[] | null>(null)
   const [picked, setPicked] = useState<string[]>([])
+  const lassoOn = activeTool.useValue() === 'lasso'
+  /** A tap on a box's frame (or grip): it is the selection; Shift adds. */
+  const selectBox = (id: string, add: boolean) =>
+    setPicked((p) =>
+      add ? (p.includes(id) ? p.filter((x) => x !== id) : [...p, id]) : [id],
+    )
+  useEffect(() => {
+    if (picked.length === 0) return
+    const key = (e: KeyboardEvent) => e.key === 'Escape' && setPicked([])
+    window.addEventListener('keydown', key)
+    return () => window.removeEventListener('keydown', key)
+  }, [picked.length])
+
+  // Moving and resizing boxes. The box under the pointer (and the others
+  // picked with it) follow it as see-through copies; every drop is planned
+  // (`dropPlan`) so boxes never overlap: the ones below make room.
+  const [liveBoxes, setLiveBoxes] = useState<Map<string, PaperBox> | null>(null)
+  const [landing, setLanding] = useState<Map<string, PaperBox> | null>(null)
+  // A dropped box stays where it landed until the saved page catches up.
+  const [heldRaw, setHeld] = useState<Map<string, PaperBox> | null>(null)
+  const held =
+    heldRaw &&
+    [...heldRaw].some(([id, h]) => {
+      const b = page.boxes?.find((x) => x.id === id)
+      return !b || b.x !== h.x || b.y !== h.y || b.w !== h.w
+    })
+      ? heldRaw
+      : null
+  useEffect(() => {
+    if (!heldRaw) return
+    const id = window.setTimeout(() => setHeld(null), 1500)
+    return () => window.clearTimeout(id)
+  }, [heldRaw])
+  const [dropLines, setDropLines] = useState<PaperBox[]>([])
+  const [guides, setGuides] = useState<{
+    gx: number | null
+    gy: number | null
+  } | null>(null)
+  const drag = useRef<{
+    how: GrabHow
+    x0: number
+    y0: number
+    lead: string
+    ids: string[]
+    orig: Map<string, PaperBox>
+    moved: boolean
+    shift: boolean
+  } | null>(null)
+  const grab = (box: PaperBox, how: GrabHow, e: ReactPointerEvent) => {
+    if (e.button !== 0) return
+    e.preventDefault()
+    e.stopPropagation()
+    try {
+      ;(e.currentTarget as Element).setPointerCapture(e.pointerId)
+    } catch {
+      // The moves still reach the handle.
+    }
+    const group =
+      how === 'move' && picked.includes(box.id)
+        ? extra.filter((b) => picked.includes(b.id) && !b.locked)
+        : [box]
+    drag.current = {
+      how,
+      x0: e.clientX,
+      y0: e.clientY,
+      lead: box.id,
+      ids: box.locked ? [] : group.map((b) => b.id),
+      orig: new Map(group.map((b) => [b.id, b])),
+      moved: false,
+      shift: e.shiftKey,
+    }
+  }
+  /** Every box now (mm): its place and size on the paper. */
+  const rectsNow = (): PlanBox[] => {
+    const out: PlanBox[] = []
+    const holder = layerRef.current
+    for (const b of boxesOf(page)) {
+      if (b.id === MAIN_BOX) {
+        out.push({
+          id: b.id,
+          x: b.x,
+          y: b.y,
+          w: b.w,
+          h: mainTextHeight() / k,
+          fixed: true,
+        })
+        continue
+      }
+      const el = holder?.querySelector<HTMLElement>(
+        '[data-paper-box="' + CSS.escape(b.id) + '"]',
+      )
+      out.push({
+        id: b.id,
+        x: b.x,
+        y: b.y,
+        w: b.w,
+        h: (el?.offsetHeight ?? 0) / k,
+        fixed: !!b.locked,
+      })
+    }
+    return out
+  }
+  /**
+   * How tall the default box is for a drop (px). With the Text tool it is the
+   * box itself; the ink tools stretch the box over the page, so then only its
+   * text (and the bottom margin) counts.
+   */
+  const mainTextHeight = () => {
+    const el = boxEl.current
+    if (!el) return 0
+    if (activeTool.get() === 'text') return el.offsetHeight
+    const blocks = el.querySelectorAll<HTMLElement>(
+      '.bn-editor > .bn-block-group > .bn-block-outer',
+    )
+    const last = blocks[blocks.length - 1]
+    return last
+      ? Math.min(
+          el.offsetHeight,
+          last.getBoundingClientRect().bottom -
+            el.getBoundingClientRect().top +
+            MARGIN * k,
+        )
+      : el.offsetHeight
+  }
+  const dragMove = (e: ReactPointerEvent) => {
+    const d = drag.current
+    if (!d || d.ids.length === 0) return
+    if (!d.moved && Math.hypot(e.clientX - d.x0, e.clientY - d.y0) < TAP_PX)
+      return
+    d.moved = true
+    const dx = (e.clientX - d.x0) / k
+    const dy = (e.clientY - d.y0) / k
+    const lead = d.orig.get(d.lead)!
+    const all = rectsNow()
+    const hOf = (id: string) => all.find((r) => r.id === id)?.h ?? 0
+    const live = new Map<string, PaperBox>()
+    if (d.how === 'move') {
+      // The lead sticks lightly to other boxes and the margins; the rest of
+      // the group keeps its distance to it.
+      let nx = lead.x + dx
+      let ny = snap(lead.y + dy, step / k)
+      const others = all.filter((r) => !d.ids.includes(r.id))
+      const sn = snapMove(
+        { x: nx, y: ny, w: lead.w, h: hOf(lead.id) },
+        others,
+        sheet.w,
+      )
+      nx = sn.x
+      if (sn.gy !== null) ny = sn.y
+      const c = clampBox({ ...lead, x: nx, y: ny }, sheet.w)
+      const ddx = c.x - lead.x
+      const ddy = c.y - lead.y
+      for (const id of d.ids) {
+        const o = d.orig.get(id)!
+        live.set(id, clampBox({ ...o, x: o.x + ddx, y: o.y + ddy }, sheet.w))
+      }
+      setGuides({ gx: sn.gx, gy: sn.gy })
+    } else {
+      live.set(
+        lead.id,
+        clampBox(
+          d.how === 'right'
+            ? { ...lead, w: lead.w + dx }
+            : { ...lead, x: lead.x + dx, w: lead.w - dx },
+          sheet.w,
+        ),
+      )
+    }
+    setLiveBoxes(live)
+    // Where it would land, and who makes room.
+    const plan = dropPlan(
+      d.ids.map((id) => ({ ...live.get(id)!, h: hOf(id), id })),
+      all.filter((r) => !d.ids.includes(r.id)),
+      step / k,
+    )
+    const land = new Map<string, PaperBox>()
+    for (const id of d.ids) {
+      const b = live.get(id)!
+      land.set(id, { ...b, y: plan.get(id) ?? b.y })
+    }
+    for (const [id, y] of plan) {
+      if (d.ids.includes(id)) continue
+      const o = extra.find((b) => b.id === id)
+      if (o) land.set(id, { ...o, y })
+    }
+    setLanding(land)
+    setDropLines(d.how === 'move' ? d.ids.map((id) => land.get(id)!) : [])
+  }
+  const dragEnd = (e: ReactPointerEvent) => {
+    const d = drag.current
+    drag.current = null
+    const land = landing
+    setLiveBoxes(null)
+    setLanding(null)
+    setDropLines([])
+    setGuides(null)
+    if (!d) return
+    if (e.type === 'pointercancel') return
+    if (!d.moved) return selectBox(d.lead, d.shift)
+    if (!land) return
+    const changes: BoxChange[] = []
+    for (const [id, b] of land) {
+      const was = extra.find((x) => x.id === id)
+      if (!was) continue
+      if (b.x === was.x && b.y === was.y && b.w === was.w) continue
+      changes.push({
+        id,
+        patch: { x: b.x, y: b.y, w: b.w },
+        before: { x: was.x, y: was.y, w: was.w },
+      })
+    }
+    if (changes.length) {
+      setHeld(land)
+      onBoxesChange?.(changes)
+    }
+  }
   const toPaper = (e: ReactPointerEvent) => {
     const r = paperEl.current!.getBoundingClientRect()
     return { x: e.clientX - r.left, y: e.clientY - r.top }
@@ -488,6 +710,7 @@ export function PaperFrame({
       !(e.target as Element).closest('[data-paper-sheet]')
     )
       return
+    if (activeTool.get() !== 'lasso') setPicked((p) => (p.length ? [] : p))
     const r = paperEl.current?.getBoundingClientRect()
     if (!r) return
     const x = (e.clientX - r.left) / k
@@ -519,6 +742,7 @@ export function PaperFrame({
   const layerEl = !flat &&
     (extra.length > 0 || (narrow && !!onAddBoxInOrder)) && (
       <div
+        ref={layerRef}
         data-paper-boxes
         onClick={narrow ? gapTap : undefined}
         // First in the paper, at its top (zero height): the boxes are placed
@@ -530,27 +754,70 @@ export function PaperFrame({
         }
       >
         <LoopLayer ref={loopLayer} />
+        {guides?.gx != null && (
+          <div
+            aria-hidden
+            data-snap-guide="x"
+            className="pointer-events-none absolute bg-accent"
+            style={{
+              left: guides.gx * k,
+              top: 0,
+              width: 1,
+              height: total,
+            }}
+          />
+        )}
+        {guides?.gy != null && (
+          <div
+            aria-hidden
+            data-snap-guide="y"
+            className="pointer-events-none absolute bg-accent"
+            style={{ top: guides.gy * k, left: 0, height: 1, width }}
+          />
+        )}
+        {dropLines.map((b) => (
+          <div
+            key={b.id}
+            aria-hidden
+            data-drop-line
+            className="pointer-events-none absolute"
+            style={{
+              left: b.x * k,
+              top: b.y * k - 1,
+              width: b.w * k,
+              height: 2,
+              background: '#ef4444',
+            }}
+          />
+        ))}
         {extra.map((b) => (
           <BoxFrame
             key={b.id}
             box={b}
+            shown={
+              liveBoxes?.get(b.id) ?? landing?.get(b.id) ?? held?.get(b.id) ?? b
+            }
             k={k}
             zoom={zoom}
-            sheetW={sheet.w}
-            stepMm={step / k}
             lineH={step / zoom}
+            sheetPx={sheetPx}
+            gapPx={SHEET_GAP_PX}
+            sheets={sheets}
             onBottom={(px) => reportBottom(b.id, px)}
-            onChange={(patch) => onBoxChange?.(b.id, patch)}
             onMenu={(at) => onBoxMenu?.(b, at)}
             picked={picked.includes(b.id)}
+            lasso={lassoOn}
+            dragging={!!liveBoxes?.has(b.id)}
+            pushed={!!landing?.has(b.id)}
+            onGrab={(how, e) => grab(b, how, e)}
+            onDragMove={dragMove}
+            onDragEnd={dragEnd}
             stacked={narrow ? { x: box.x, w: box.w } : null}
-            onMoved={(dx, dy) => {
-              // The other picked boxes go the same way.
-              for (const o of extra) {
-                if (o.id === b.id || !picked.includes(o.id)) continue
-                onBoxChange?.(o.id, { x: o.x + dx, y: o.y + dy })
-              }
-            }}
+            bar={
+              picked.length === 1 && picked[0] === b.id
+                ? renderBar?.(b)
+                : undefined
+            }
           >
             <LazyMount
               boxId={b.id}
@@ -737,215 +1004,17 @@ export function PaperFrame({
   )
 }
 
+/** A press that moves less than this (px) is a tap. */
+const TAP_PX = 4
+
+/** One box changed by a drop (with what it was, for Undo). */
+export type BoxChange = BoxPatch & {
+  before: { x: number; y: number; w: number }
+}
+
 /** Rounds a length in mm to the paper's line spacing. */
 const snap = (mm: number, stepMm: number) =>
   stepMm > 0 ? Math.round(mm / stepMm) * stepMm : mm
-
-type Drag = {
-  how: 'move' | 'left' | 'right'
-  x0: number
-  y0: number
-  box: PaperBox
-}
-
-/**
- * One box other than the default one: placed at its x, y (mm), its own block
- * editor inside. A grip on top moves it; the left and right edges (and the
- * bottom corners) change its width; the height follows the text, so Enter
- * grows the box, never the page. A locked box shows no grip or edges.
- */
-function BoxFrame({
-  box,
-  k,
-  zoom,
-  sheetW,
-  stepMm,
-  lineH,
-  onBottom,
-  onChange,
-  onMenu,
-  picked,
-  onMoved,
-  stacked,
-  children,
-}: {
-  box: PaperBox
-  k: number
-  zoom: number
-  sheetW: number
-  stepMm: number
-  /** Text line height in the box's own px: the paper's line spacing. */
-  lineH: number
-  onBottom: (px: number) => void
-  onChange: (patch: Partial<PaperBox>) => void
-  onMenu: (at: DOMRect) => void
-  /** Picked by the Lasso on the paper. */
-  picked: boolean
-  /** Fit width (step 6): in the page's flow at this x and width (mm). */
-  stacked: { x: number; w: number } | null
-  /** The box was moved by (mm); the other picked boxes follow. */
-  onMoved: (dx: number, dy: number) => void
-  children: ReactNode
-}) {
-  const el = useRef<HTMLDivElement>(null)
-  const [live, setLive] = useState<PaperBox | null>(null)
-  const [drag, setDrag] = useState<Drag | null>(null)
-  const shown = live ?? box
-  useEffect(() => {
-    const node = el.current
-    if (!node) return
-    const ro = new ResizeObserver(() =>
-      onBottom(node.offsetTop + node.offsetHeight),
-    )
-    ro.observe(node)
-    return () => ro.disconnect()
-  }, [onBottom])
-
-  const start = (how: Drag['how'], e: ReactPointerEvent) => {
-    if (box.locked || e.button !== 0) return
-    e.preventDefault()
-    e.stopPropagation()
-    ;(e.currentTarget as Element).setPointerCapture(e.pointerId)
-    setDrag({ how, x0: e.clientX, y0: e.clientY, box })
-  }
-  const move = (e: ReactPointerEvent) => {
-    const d = drag
-    if (!d) return
-    const dx = (e.clientX - d.x0) / k
-    const dy = (e.clientY - d.y0) / k
-    const b = d.box
-    const next =
-      d.how === 'move'
-        ? { ...b, x: b.x + dx, y: snap(b.y + dy, stepMm) }
-        : d.how === 'right'
-          ? { ...b, w: b.w + dx }
-          : { ...b, x: b.x + dx, w: b.w - dx }
-    setLive(clampBox(next, sheetW))
-  }
-  const end = () => {
-    const d = drag
-    setDrag(null)
-    if (!d || !live) return setLive(null)
-    // Boxes never overlap: this one gives way, under the box it would cover.
-    let y = live.y
-    const node = el.current
-    const holder = node?.parentElement?.getBoundingClientRect()
-    if (node && holder && k > 0) {
-      const mm = (r: DOMRect): MmRect => ({
-        x: (r.left - holder.left) / k,
-        y: (r.top - holder.top) / k,
-        w: r.width / k,
-        h: r.height / k,
-      })
-      const others = Array.from(
-        document.querySelectorAll<HTMLElement>('[data-paper-box]'),
-      )
-        .filter((o) => o !== node && o.dataset.paperBox !== 'main-hidden')
-        .map((o) => mm(o.getBoundingClientRect()))
-      y = snap(
-        clearOfBoxes(
-          { x: live.x, y: live.y, w: live.w, h: node.offsetHeight / k },
-          others,
-        ),
-        stepMm,
-      )
-      // snap may round back into a neighbour: step down by whole lines.
-      while (
-        y < live.y - 0.01 ||
-        clearOfBoxes(
-          { x: live.x, y, w: live.w, h: node.offsetHeight / k },
-          others,
-        ) !== y
-      ) {
-        y += stepMm
-        if (y > live.y + 2000) break
-      }
-    }
-    onChange({ x: live.x, y, w: live.w })
-    if (picked && d.how === 'move') onMoved(live.x - box.x, y - box.y)
-    setLive(null)
-  }
-  return (
-    <div
-      ref={el}
-      data-paper-box={box.id}
-      data-locked={box.locked ? '' : undefined}
-      data-picked={picked ? '' : undefined}
-      className={
-        (stacked ? 'relative mt-8 ' : 'absolute ') +
-        'group rounded-md outline-1 outline-dashed outline-transparent hover:outline-line focus-within:outline-line data-picked:outline-2 data-picked:outline-solid data-picked:outline-accent'
-      }
-      style={{
-        ...(stacked
-          ? { marginLeft: stacked.x * k, width: stacked.w * k }
-          : { left: shown.x * k, top: shown.y * k, width: shown.w * k }),
-        background: box.colour
-          ? `color-mix(in srgb, ${BOX_COLOURS[box.colour] ?? box.colour} 14%, transparent)`
-          : undefined,
-      }}
-    >
-      <div
-        data-chrome
-        className="absolute -top-6 left-0 right-0 flex h-6 items-center justify-between opacity-0 transition-opacity group-hover:opacity-100 group-focus-within:opacity-100 pointer-coarse:opacity-100"
-      >
-        {box.locked || stacked ? (
-          <span aria-hidden className="px-1 text-xs text-muted">
-            🔒
-          </span>
-        ) : (
-          <button
-            type="button"
-            data-box-grip
-            aria-label={t('paper.box.move')}
-            onPointerDown={(e) => start('move', e)}
-            onPointerMove={move}
-            onPointerUp={end}
-            onPointerCancel={end}
-            className="h-6 min-w-10 cursor-grab touch-none rounded px-2 text-xs leading-none text-muted hover:bg-hover"
-          >
-            ⠿
-          </button>
-        )}
-        <button
-          type="button"
-          data-box-menu
-          aria-label={t('paper.box.menu')}
-          aria-haspopup="menu"
-          onClick={(e) => onMenu(e.currentTarget.getBoundingClientRect())}
-          className="h-6 min-w-8 rounded px-1 text-sm leading-none text-muted hover:bg-hover"
-        >
-          ⋯
-        </button>
-      </div>
-      {!box.locked &&
-        !stacked &&
-        (['left', 'right'] as const).map((how) => (
-          <div
-            key={how}
-            data-box-edge={how}
-            role="separator"
-            aria-orientation="vertical"
-            aria-label={t('paper.box.resize')}
-            onPointerDown={(e) => start(how, e)}
-            onPointerMove={move}
-            onPointerUp={end}
-            onPointerCancel={end}
-            className="absolute inset-y-0 w-3 cursor-ew-resize touch-none"
-            style={{ [how]: -6 }}
-          />
-        ))}
-      <div
-        className="px-1"
-        style={{
-          ...(zoom === 1 ? {} : { zoom }),
-          ['--box-line' as string]: lineH + 'px',
-        }}
-      >
-        {children}
-      </div>
-    </div>
-  )
-}
 
 /** Is the point inside the polygon (even-odd rule)? */
 function inPolygon(

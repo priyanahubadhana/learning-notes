@@ -183,3 +183,136 @@ export function clearOfBoxes(
   }
   return Math.round(y * 10) / 10
 }
+
+/** A box with its id, for planning where a drop lands. */
+export interface PlanBox extends MmRect {
+  id: string
+  /** Cannot be pushed: locked boxes and the default box. */
+  fixed?: boolean
+}
+
+const overlaps = (a: MmRect, b: MmRect, gap: number) =>
+  a.x < b.x + b.w + gap - 0.01 &&
+  b.x < a.x + a.w + gap - 0.01 &&
+  a.y < b.y + b.h + gap - 0.01 &&
+  b.y < a.y + a.h + gap - 0.01
+
+const up = (y: number, step: number) =>
+  step > 0 ? Math.ceil(y / step - 1e-6) * step : y
+
+/**
+ * Where a drop lands (iPad finding 7, 9 Nov): the dropped boxes keep their
+ * place unless they would cover a fixed box (then they sit under it); every
+ * other box that would be covered is pushed down under what covers it, and
+ * that push cascades to the boxes below. Pushed boxes stay on the paper's
+ * line spacing. Returns the new y (mm) of the boxes that changed.
+ */
+export function dropPlan(
+  dropped: readonly PlanBox[],
+  others: readonly PlanBox[],
+  stepMm: number,
+  gap = BOX_GAP,
+): Map<string, number> {
+  const out = new Map<string, number>()
+  const fixed = others.filter((o) => o.fixed)
+  const placed: MmRect[] = [...fixed]
+  const landed: MmRect[] = []
+  for (const d of [...dropped].sort((a, b) => a.y - b.y)) {
+    let y = d.y
+    if (fixed.some((f) => overlaps({ ...d, y }, f, gap))) {
+      y = up(clearOfBoxes({ ...d, y }, fixed, gap), stepMm)
+      for (
+        let i = 0;
+        i < 200 && clearOfBoxes({ ...d, y }, fixed, gap) !== y;
+        i++
+      )
+        y += stepMm || 1
+    }
+    y = Math.round(y * 10) / 10
+    if (y !== d.y) out.set(d.id, y)
+    landed.push({ ...d, y })
+  }
+  placed.push(...landed)
+  for (const o of others
+    .filter((x) => !x.fixed)
+    .sort((a, b) => a.y - b.y || a.x - b.x)) {
+    let y = o.y
+    for (let i = 0; i < others.length + landed.length + 2; i++) {
+      const hit = placed.find((p) => overlaps({ ...o, y }, p, gap))
+      if (!hit) break
+      y = Math.max(y, up(hit.y + hit.h + gap, stepMm))
+    }
+    y = Math.round(y * 10) / 10
+    if (y !== o.y) out.set(o.id, y)
+    placed.push({ x: o.x, y, w: o.w, h: o.h })
+  }
+  return out
+}
+
+export interface Snap {
+  x: number
+  y: number
+  /** Guide lines to draw (mm): vertical at x, horizontal at y. */
+  gx: number | null
+  gy: number | null
+}
+
+/**
+ * Light snap guides while a box is moved (iPad finding 7, 9 Nov): the box's
+ * left or right edge sticks to another box's left or right edge, or to the
+ * page margin; its top or bottom to another box's top or bottom. Only within
+ * `tol` mm, so it helps and never fights the hand.
+ */
+export function snapMove(
+  r: MmRect,
+  others: readonly MmRect[],
+  sheetW: number,
+  tol = 1.5,
+): Snap {
+  const xs = [MARGIN, sheetW - MARGIN]
+  const ys: number[] = []
+  for (const o of others) {
+    xs.push(o.x, o.x + o.w)
+    ys.push(o.y, o.y + o.h)
+  }
+  const best = (edges: number[], targets: number[]) => {
+    let d = Infinity
+    let at: number | null = null
+    for (const e of edges)
+      for (const tg of targets)
+        if (Math.abs(tg - e) < Math.abs(d) && Math.abs(tg - e) <= tol) {
+          d = tg - e
+          at = tg
+        }
+    return { d: at === null ? 0 : d, at }
+  }
+  const bx = best([r.x, r.x + r.w], xs)
+  const by = best([r.y, r.y + r.h], ys)
+  return {
+    x: Math.round((r.x + bx.d) * 10) / 10,
+    y: Math.round((r.y + by.d) * 10) / 10,
+    gx: bx.at,
+    gy: by.at,
+  }
+}
+
+/**
+ * A box that crosses a sheet gap is drawn once per sheet: the parts of the
+ * span [top, top + height] (px) that lie on a sheet. Offsets are from `top`.
+ */
+export function sheetSegments(
+  top: number,
+  height: number,
+  sheetPx: number,
+  gapPx: number,
+  count: number,
+): { top: number; height: number }[] {
+  const out: { top: number; height: number }[] = []
+  for (let n = 0; n < Math.max(1, count); n++) {
+    const s0 = n * (sheetPx + gapPx)
+    const a = Math.max(top, s0)
+    const b = Math.min(top + height, s0 + sheetPx)
+    if (b > a + 0.5) out.push({ top: a - top, height: b - a })
+  }
+  return out.length ? out : [{ top: 0, height }]
+}

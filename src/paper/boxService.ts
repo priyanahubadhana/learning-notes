@@ -259,3 +259,37 @@ export async function addBoxInOrder(
   })
   return id
 }
+
+export interface BoxPatch {
+  id: string
+  patch: Partial<Omit<PaperBox, 'id'>>
+}
+
+/**
+ * Moves or resizes several boxes in one write (one Undo step): a group move,
+ * or a drop that pushes the boxes below it down. Locked boxes stay put.
+ */
+export async function updateBoxes(
+  db: LearningNotesDB,
+  pageId: string,
+  patches: readonly BoxPatch[],
+): Promise<void> {
+  if (patches.length === 0) return
+  const page = await getLive(db.pages, pageId)
+  const sheet = sheetOf(page)
+  const all = boxesOf(page)
+  const next = new Map<string, PaperBox>()
+  for (const { id, patch } of patches) {
+    const current = all.find((b) => b.id === id)
+    if (!current || current.locked) continue
+    next.set(id, clampBox({ ...current, ...patch }, sheet.w))
+  }
+  if (next.size === 0) return
+  await writeBoxes(db, pageId, (boxes) => {
+    const have = new Set(boxes.map((b) => b.id))
+    return [
+      ...boxes.map((b) => next.get(b.id) ?? b),
+      ...[...next.values()].filter((b) => !have.has(b.id)),
+    ]
+  })
+}

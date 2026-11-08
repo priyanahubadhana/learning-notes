@@ -33,3 +33,23 @@ export function useOwnsBar(pageId: string, boxId: string | undefined) {
   }
   return useSyncExternalStore(activeBox.subscribe, owns)
 }
+
+/**
+ * The editor of each box of an open page, so the floating bar under a
+ * selected box can format that box's text (the toolbar runtime only knows
+ * the editor that rendered last).
+ */
+type AnyEditor = import('../editor/barActions').Editor
+const editors = new Map<string, AnyEditor>()
+export const boxEditors = {
+  set: (pageId: string, boxId: string, ed: AnyEditor) =>
+    void editors.set(pageId + '/' + boxId, ed),
+  clear: (pageId: string, boxId: string, ed: AnyEditor) => {
+    if (editors.get(pageId + '/' + boxId) === ed)
+      editors.delete(pageId + '/' + boxId)
+  },
+  get: (pageId: string, boxId: string) => editors.get(pageId + '/' + boxId),
+}
+
+/** Every box editor that is open now (the page-wide Cut and Delete use them). */
+export const allBoxEditors = () => [...editors.values()]

@@ -334,6 +334,7 @@ export class InkController {
       (id) => env.doc.fallbackOf(id),
       env.book,
     )
+    this.layout.mediaRef = (id) => env.doc.fallbackOf(id)?.mw
     this.renderer = new InkRenderer(penSettings.get().lowLatency)
     this.overlay = document.createElement('div')
     this.overlay.setAttribute('data-ink-overlay', '')
@@ -363,7 +364,7 @@ export class InkController {
     this.placeOverlay()
     this.scroller = scrollParent(wrap)
     const on = (
-      el: HTMLElement | Window | Document,
+      el: EventTarget,
       type: string,
       fn: (e: never) => void,
       opts?: AddEventListenerOptions | boolean,
@@ -435,6 +436,22 @@ export class InkController {
       this.cleanups.push(this.env.book.watch(() => this.dirty()))
     }
     on(this.scroller, 'scroll', () => this.requestDraw(), { passive: true })
+    // iPad rubber band (pulling the page past its top or bottom): the page
+    // moves without scroll events, while the overlay (placed from the body)
+    // would stay behind or land over the bars. While a finger is on the page,
+    // and for a moment after (the bounce), the overlay is placed and clipped
+    // again on every frame.
+    for (const type of ['touchstart', 'touchmove', 'touchend', 'touchcancel']) {
+      on(window, type, () => this.trackBounce(), {
+        passive: true,
+        capture: true,
+      })
+    }
+    const vv = window.visualViewport
+    if (vv) {
+      on(vv, 'scroll', () => this.requestDraw())
+      on(vv, 'resize', () => this.requestDraw())
+    }
     on(
       document,
       'keydown',
@@ -760,7 +777,12 @@ export class InkController {
         const r = this.layout.rectOf(id)
         if (this.env.book) continue // a book's block is never deleted
         if (r) {
-          doc.noteBlock(id, { x: r.x, y: r.y, w: this.layout.width })
+          doc.noteBlock(id, {
+            x: r.x,
+            y: r.y,
+            w: this.layout.width,
+            ...(r.media ? { mw: r.w } : {}),
+          })
           this.seenBlocks.add(id)
         } else if (this.seenBlocks.has(id)) gone.push(id)
       }
@@ -1723,6 +1745,22 @@ export class InkController {
         e.pointerType === 'mouse' ||
         this.fingerLassos())
     )
+  }
+
+  private bounceUntil = 0
+  private bounceFrame = 0
+  /** Keeps the overlay glued to the page while it is touched and bouncing. */
+  private trackBounce(): void {
+    const idle = performance.now() > this.bounceUntil
+    this.bounceUntil = performance.now() + 900
+    if (!idle || this.bounceFrame) return
+    const step = () => {
+      this.bounceFrame = 0
+      if (performance.now() > this.bounceUntil) return
+      this.requestDraw()
+      this.bounceFrame = requestAnimationFrame(step)
+    }
+    this.bounceFrame = requestAnimationFrame(step)
   }
 
   private lassoDown(e: PointerEvent): void {

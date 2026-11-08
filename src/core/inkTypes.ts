@@ -89,6 +89,12 @@ export interface InkFallback {
   x: number
   y: number
   w: number
+  /**
+   * A picture block: the picture's width (px) when ink was first anchored to
+   * it. Ink scales with the picture by (width now / this), so resizing a
+   * picture takes its drawing along.
+   */
+  mw?: number
 }
 
 /** Up to `CHUNK_MAX` strokes of one layer over one block. */

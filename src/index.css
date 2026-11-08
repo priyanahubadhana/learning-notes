@@ -872,3 +872,8 @@ html[data-note-line] .bn-editor {
 [data-paper-box]:not([data-paper-box='main']) .bn-inline-content {
   line-height: var(--box-line, inherit);
 }
+
+/* The page does not rubber-band past its ends (the ink layer cannot follow the bounce). */
+[data-page-scroller] {
+  overscroll-behavior: none;
+}

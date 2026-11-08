@@ -171,9 +171,13 @@ export class InkDoc {
 
   /** Remembers where a block is now (saved later, with its chunks). */
   noteBlock(blockId: string, fb: InkFallback): void {
-    const old = this.fallbacks.get(blockId)
+    const old = this.fallbackOf(blockId)
+    // The picture's first width stays the reference for ever.
+    const mw = old?.mw ?? fb.mw
+    fb = mw ? { ...fb, mw } : fb
     if (
       old &&
+      old.mw === fb.mw &&
       Math.abs(old.x - fb.x) < 2 &&
       Math.abs(old.y - fb.y) < 2 &&
       Math.abs(old.w - fb.w) < 2

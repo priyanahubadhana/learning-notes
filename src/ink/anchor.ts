@@ -16,6 +16,8 @@ export interface BlockRect {
   y: number
   w: number
   h: number
+  /** Measured from the picture itself (not its full-width block). */
+  media?: boolean
 }
 
 export interface Frame {
@@ -33,10 +35,21 @@ export const pageFrame = (pageWidth: number): Frame => ({
   w: pageWidth,
 })
 
-export const frameOf = (b: BlockRect, pageWidth: number): Frame => ({
+/**
+ * `mediaRef`: a picture's width when its ink was first anchored; the ink
+ * then grows and shrinks with the picture.
+ */
+export const frameOf = (
+  b: BlockRect,
+  pageWidth: number,
+  mediaRef?: number,
+): Frame => ({
   x: b.x,
   y: b.y,
-  w: pageWidth,
+  w:
+    b.media && mediaRef && mediaRef > 0
+      ? (pageWidth * b.w) / mediaRef
+      : pageWidth,
 })
 
 /** Page px to saved units, relative to a frame. */

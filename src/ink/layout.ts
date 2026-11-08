@@ -44,6 +44,8 @@ export class PageLayout {
   private readonly wrap: HTMLElement
   private readonly fallbackOf: (id: string) => InkFallback | undefined
   private readonly book: BookSurface | undefined
+  /** A picture's width when its ink was first anchored (px), if known. */
+  mediaRef: (id: string) => number | undefined = () => undefined
 
   constructor(
     wrap: HTMLElement,
@@ -74,13 +76,21 @@ export class PageLayout {
     for (const content of nodes) {
       const id = content.parentElement?.getAttribute('data-id')
       if (!id) continue
-      const r = content.getBoundingClientRect()
+      // A picture is anchored by the picture itself (its box is the full
+      // width), so ink drawn over it moves and scales with it (9 Nov).
+      const media =
+        content.getAttribute('data-content-type') === 'image'
+          ? content.querySelector('img')
+          : null
+      const mr = media?.getBoundingClientRect()
+      const r = mr && mr.width > 0 ? mr : content.getBoundingClientRect()
       const rect = {
         id,
         x: r.left - box.left,
         y: r.top - box.top,
         w: r.width,
         h: r.height,
+        ...(mr && mr.width > 0 ? { media: true } : {}),
       }
       next.set(id, rect)
       list.push(rect)
@@ -124,7 +134,7 @@ export class PageLayout {
   frame(blockId: string | null): Frame {
     if (blockId === null) return pageFrame(this.width)
     const r = this.rects.get(blockId)
-    if (r) return frameOf(r, this.width)
+    if (r) return frameOf(r, this.width, this.mediaRef(blockId))
     if (this.book) return { x: 0, y: OFF_SCREEN_Y, w: this.width }
     const fb = this.fallbackOf(blockId)
     if (fb) {

@@ -97,3 +97,4 @@ All ten are built (8 Nov). Rule 5: ink dropped outside its box goes to the box t
 n## Selection look (9 Nov)
 
 What is selected (the picture itself, words, or a line) is outlined with a dashed orange line (`--color-select`; light, night and sepia values in index.css), never the whole box and never filled over a block. Test: e2e/lassoPicture.spec.ts.
+nInk over a picture (9 Nov): the picture itself is the anchor; the picture width at first anchoring is stored as `mw` in the chunk fallback and the drawing scales with the picture. Test: e2e/inkOnPicture.spec.ts.

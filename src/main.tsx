@@ -13,6 +13,8 @@ import { UpgradeGate } from './app/UpgradeGate'
 import {
   noteChecked,
   offerUpdate,
+  onUpdateOffer,
+  updateWaiting,
   reloadWhenSafe,
   repeatUpdateOffer,
   setUpdateChecker,
@@ -20,17 +22,29 @@ import {
   watchForUpdates,
   watchUpdateTriggers,
 } from './app/updates'
-import { installGestureWatchdog, resetGestures } from './app/gestureReset'
+import {
+  installGestureWatchdog,
+  onGestureReset,
+  resetGestures,
+} from './app/gestureReset'
+import { rememberPlace, startAutoUpdate } from './app/autoUpdate'
+import { flushAllSaves, hasPendingSaves } from './editor/autosave'
+import { writePad } from './editor/writePad/padState'
+import { loadDraft } from './editor/writePad/draft'
+import { runAutoBackup } from './core/autoBackup'
 import { penIsDown } from './app/palmGuard'
 import { hasUnsaved } from './app/saveStatus'
 import { requestPersistentStorage } from './core/storage'
-import { db } from './core/db'
+import { db, DEFAULT_DB_NAME } from './core/db'
 import { isTracking } from './sync/device'
 import { writePref } from './app/uiPrefs'
 import { initDeviceMode } from './settings/deviceModeSettings'
 import { prefetchAfterIdle } from './app/idlePrefetch'
 import { installScrollHints } from './app/scrollHints'
-import { scrollHintsSetting } from './settings/builtinSettings'
+import {
+  autoUpdateSetting,
+  scrollHintsSetting,
+} from './settings/builtinSettings'
 import {
   readDeviceSetting,
   subscribeDeviceSettings,
@@ -83,6 +97,42 @@ if (isTracking() || new URLSearchParams(location.search).has('sync')) {
   void import('./sync/syncService').then((m) => m.startSync(db))
 }
 
+// Automatic updates: a found version is applied at a safe moment (the
+// setting "Update automatically"); with it off the "Update" bar is shown.
+const autoUpdate = startAutoUpdate({
+  enabled: () => readDeviceSetting(autoUpdateSetting) === 'on',
+  win: window,
+  penDown: () => penIsDown(),
+  hasPendingSaves,
+  hasUnsaved,
+  padDraft: () => {
+    const session = writePad.get()
+    return !!session && loadDraft(session.pageId) !== ''
+  },
+  flush: flushAllSaves,
+  // A unique build name makes the silent backup due right now.
+  backup: async () => {
+    const result = await runAutoBackup(
+      DEFAULT_DB_NAME,
+      db.verno,
+      `update-${Date.now()}`,
+    )
+    return result.kind === 'failed' ? result.reason : 'ok'
+  },
+  onReset: (fn) => void onGestureReset(fn),
+})
+onUpdateOffer((apply) => void autoUpdate(apply))
+subscribeDeviceSettings(() => {
+  if (updateWaiting()) repeatUpdateOffer()
+})
+// Tests: pretend a new version was found (the restart is a plain reload).
+window.addEventListener('learning-notes:test-update', () =>
+  offerUpdate(() => {
+    resetGestures('manual')
+    location.reload()
+  }),
+)
+
 // Keep the app on the device for offline use, and look for new versions at
 // the start and whenever it comes to the front (an iPad rarely restarts it).
 const update = registerSW({
@@ -90,6 +140,7 @@ const update = registerSW({
     offerUpdate(() => {
       // Nothing half-way may be carried into the new version.
       resetGestures('manual')
+      rememberPlace()
       void update(true)
     }),
   onRegisteredSW: (_url, registration) => {
@@ -117,7 +168,10 @@ watchControllerChange(navigator.serviceWorker, () =>
   reloadWhenSafe(
     () =>
       document.visibilityState === 'visible' && !penIsDown() && !hasUnsaved(),
-    () => location.reload(),
+    () => {
+      rememberPlace()
+      location.reload()
+    },
   ),
 )
 

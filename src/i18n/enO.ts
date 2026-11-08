@@ -318,6 +318,19 @@ export const enO = {
   'settings.openNotebookAt.last': 'Last page',
   'settings.openNotebookAt.first': 'First page',
   'settings.openNotebookAt.tabs': 'Notebook tabs',
+  // ---- Update automatically ----
+  'settings.autoUpdate.label': 'Update automatically',
+  'settings.autoUpdate.description':
+    'Apply a new version by itself when it is safe: nothing unsaved, no pen down, and the app idle for a few seconds. Off: you get an "Update" button instead.',
+  'update.auto.done': 'Updated to the latest version',
+  'update.risk.unsaved':
+    'A new version is ready, but some changes could not be saved yet.',
+  'update.risk.space':
+    'A new version is ready, but this device is low on space, so no safety copy was made.',
+  'update.risk.backup':
+    'A new version is ready, but the safety copy of your notes could not be made.',
+  'update.risk.anyway': 'Update anyway',
+  'update.risk.later': 'Not now',
   // ---- Live sync (R6-13) ----
   'sync.live': 'Live: changes from your other devices arrive within a second.',
   'sync.notLive': 'Live updates are off right now: checking every 10 seconds.',

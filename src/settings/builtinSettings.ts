@@ -445,6 +445,19 @@ export const scrollHintsSetting: SettingDefinition<OnOff> = {
   control: { kind: 'segmented', options: onOffOptions() },
 }
 
+/** Update automatically: a new version is applied at a safe moment. */
+export const autoUpdateSetting: SettingDefinition<OnOff> = {
+  id: 'general.autoUpdate',
+  labelKey: 'settings.autoUpdate.label',
+  descriptionKey: 'settings.autoUpdate.description',
+  category: 'general',
+  keywords: 'update automatically new version restart reload upgrade',
+  scope: 'device',
+  defaultValue: 'on',
+  isValid: isOnOff,
+  control: { kind: 'segmented', options: onOffOptions() },
+}
+
 export const barAutoHideSetting: SettingDefinition<OnOff> = {
   id: 'advanced.barAutoHide',
   labelKey: 'settings.barAutoHide.label',
@@ -641,6 +654,7 @@ for (const definition of [
   shortcutHintsSetting,
   barAutoHideSetting,
   scrollHintsSetting,
+  autoUpdateSetting,
   autoSwitchSetting,
   pencilWritesSetting,
   holdSelectSetting,

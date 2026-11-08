@@ -2,6 +2,12 @@
 
 Moved out of HANDOFF on 2026-11-06 (audit) so HANDOFF stays five lines. Newest first; each paragraph names its step. The run decision (master plan) is one owner iPad pass before Sync; the Phase A builder adds its checks at the top. Tick a paragraph by deleting it.
 
+## Automatic updates (8 Nov)
+
+1. After the next deploy, keep the app open on the iPad and write something. Within a few seconds of stopping (or of coming back to the app) it restarts by itself on the same page and scroll with "Updated to the latest version". It never restarts while the Pencil is on the glass or while you type.
+2. Settings › General › Update automatically: Off. After the next deploy you get the "A new version is ready. Update" bar instead.
+3. Fill the iPad's storage nearly full (or ask me to): the update shows "this device is low on space" with Update anyway / Not now, and never restarts by itself.
+
 ## Polish pass 2 (8 Nov)
 
 1. Clear the site data on the iPad, open the app: a Welcome sheet asks how you write. Choose Apple Pencil, Next, pick a language and theme, Next, Start with the Start here notebook. The bar is in Pencil mode and the notebook opens at "1. Write on paper". Do each "Try it" line (needs the Pencil).

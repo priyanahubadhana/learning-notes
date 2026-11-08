@@ -7,27 +7,27 @@
 type Listener = (apply: () => void) => void
 
 let pending: (() => void) | undefined
-let listener: Listener | undefined
+const listeners = new Set<Listener>()
 let dismissed = false
 
 /** Called once the new version is ready; `apply` restarts into it. */
 export function offerUpdate(apply: () => void) {
   pending = apply
-  listener?.(apply)
+  for (const fn of [...listeners]) fn(apply)
 }
 
 /** Listens for offers, including one made before the app had started. */
 export function onUpdateOffer(next: Listener): () => void {
-  listener = next
+  listeners.add(next)
   if (pending) next(pending)
   return () => {
-    if (listener === next) listener = undefined
+    listeners.delete(next)
   }
 }
 
 /** Repeats a waiting offer, unless the user closed it. */
 export function repeatUpdateOffer() {
-  if (pending && !dismissed) listener?.(pending)
+  if (pending && !dismissed) for (const fn of [...listeners]) fn(pending)
 }
 
 /** The user closed the offer: not shown again until the next app start. */
@@ -56,7 +56,7 @@ export function watchForUpdates(
 /** Back to no offer and no listener (for tests). */
 export function resetUpdates() {
   pending = undefined
-  listener = undefined
+  listeners.clear()
   dismissed = false
 }
 
@@ -97,7 +97,7 @@ export async function checkForUpdateNow(
     noteChecked()
     if (pending) {
       dismissed = false
-      listener?.(pending)
+      for (const fn of [...listeners]) fn(pending)
     }
     return pending ? 'ready' : 'current'
   } catch {

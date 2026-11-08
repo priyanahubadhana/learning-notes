@@ -55,7 +55,8 @@ import { SidebarResizer } from './app/SidebarResizer'
 import { SIDEBAR_DEFAULT, isSidebarWidth } from './app/sidebarWidth'
 import { Toast, ChoiceDialog, EmptyState } from './app/ui'
 import { dismissUpdateOffer, onUpdateOffer } from './app/updates'
-import { UpdateBar } from './app/UpdateBar'
+import { UpdateBar, UpdateRiskBar } from './app/UpdateBar'
+import { restoreAfterUpdate, updateRisk } from './app/autoUpdate'
 import { NowPlayingGate } from './app/reading/NowPlayingGate'
 import { TOAST_AFTER_HOLD_MS, toastDuration } from './app/toastTiming'
 import { isStringOrNull } from './app/uiPrefs'
@@ -101,6 +102,7 @@ import {
 import type { ReviewScope } from './recall/reviewService'
 import { countDue } from './recall/reviewLazy'
 import {
+  autoUpdateSetting,
   dateStyleSetting,
   languageSetting,
   newPageStudySetting,
@@ -797,6 +799,18 @@ function App() {
   // A new version is ready: it starts only when the user says so. Unsaved
   // text is safe, because the editor keeps it when the page reloads.
   useEffect(() => onUpdateOffer((apply) => setApplyUpdate(() => apply)), [])
+  // Automatic updates: the bar below shows only when the setting is off; a
+  // question shows only when an update could lose data.
+  const [autoUpdate] = useDeviceSetting(autoUpdateSetting)
+  const updateQuestion = updateRisk.useValue()
+  // After a restart by an update: keep the scroll and say so, once.
+  useEffect(() => {
+    if (!restoreAfterUpdate()) return
+    // The late-loaded texts must be in before the words are looked up.
+    void applyLanguage(readDeviceSetting(languageSetting)).then(() =>
+      showToastRef.current(t('update.auto.done')),
+    )
+  }, [])
 
   // No space left: say so, at most once a minute. Other background
   // failures are logged too.
@@ -1802,7 +1816,14 @@ function App() {
             <div className="fixed bottom-16 left-1/2 z-40 flex w-max max-w-[calc(100vw-32px)] -translate-x-1/2 flex-col items-center gap-2">
               <SaveNotice />
               <FirstUseTip />
-              {applyUpdate && (
+              {updateQuestion && (
+                <UpdateRiskBar
+                  risk={updateQuestion.risk}
+                  onUpdate={updateQuestion.apply}
+                  onClose={() => updateRisk.set(null)}
+                />
+              )}
+              {applyUpdate && autoUpdate !== 'on' && (
                 <UpdateBar
                   onUpdate={applyUpdate}
                   onClose={() => {

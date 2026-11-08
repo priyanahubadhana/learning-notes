@@ -322,6 +322,19 @@ export const esO: Record<string, string> = {
   'settings.openNotebookAt.last': 'Última página',
   'settings.openNotebookAt.first': 'Primera página',
   'settings.openNotebookAt.tabs': 'Pestañas del cuaderno',
+  // ---- Update automatically ----
+  'settings.autoUpdate.label': 'Actualizar automáticamente',
+  'settings.autoUpdate.description':
+    'Aplica una versión nueva sola cuando es seguro: nada sin guardar, ningún lápiz apoyado y la app quieta unos segundos. Desactivado: verás un botón "Actualizar".',
+  'update.auto.done': 'Actualizado a la última versión',
+  'update.risk.unsaved':
+    'Hay una versión nueva, pero algunos cambios aún no se han podido guardar.',
+  'update.risk.space':
+    'Hay una versión nueva, pero queda poco espacio en el dispositivo y no se hizo copia de seguridad.',
+  'update.risk.backup':
+    'Hay una versión nueva, pero no se pudo hacer la copia de seguridad de tus notas.',
+  'update.risk.anyway': 'Actualizar igualmente',
+  'update.risk.later': 'Ahora no',
   // ---- Live sync (R6-13) ----
   'sync.live':
     'En directo: los cambios de tus otros dispositivos llegan en un segundo.',

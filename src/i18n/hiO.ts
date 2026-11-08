@@ -313,6 +313,19 @@ export const hiO: Record<string, string> = {
   'settings.openNotebookAt.last': 'आख़िरी पेज',
   'settings.openNotebookAt.first': 'पहला पेज',
   'settings.openNotebookAt.tabs': 'नोटबुक टैब',
+  // ---- Update automatically ----
+  'settings.autoUpdate.label': 'अपने आप अपडेट करें',
+  'settings.autoUpdate.description':
+    'नया संस्करण सुरक्षित समय पर अपने आप लगता है: कुछ अनसेव नहीं, पेन नीचे नहीं और ऐप कुछ सेकंड शांत। बंद: "अपडेट" बटन दिखेगा।',
+  'update.auto.done': 'नवीनतम संस्करण में अपडेट हो गया',
+  'update.risk.unsaved':
+    'नया संस्करण तैयार है, पर कुछ बदलाव अभी सेव नहीं हो सके।',
+  'update.risk.space':
+    'नया संस्करण तैयार है, पर डिवाइस में जगह कम है, इसलिए सुरक्षा कॉपी नहीं बनी।',
+  'update.risk.backup':
+    'नया संस्करण तैयार है, पर आपके नोट्स की सुरक्षा कॉपी नहीं बन सकी।',
+  'update.risk.anyway': 'फिर भी अपडेट करें',
+  'update.risk.later': 'अभी नहीं',
   // ---- Live sync (R6-13) ----
   'sync.live': 'लाइव: आपके दूसरे डिवाइस के बदलाव एक सेकंड में आ जाते हैं।',
   'sync.notLive': 'लाइव अपडेट अभी बंद हैं: हर 10 सेकंड में जाँच होती है।',

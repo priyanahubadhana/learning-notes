@@ -29,6 +29,17 @@ export interface Autosaver {
 export const retryDelay = (n: number): number =>
   Math.min(2000 * 2 ** (n - 1), 60_000)
 
+/** Savers with changes not yet written (for the automatic update). */
+const pending = new Map<object, () => Promise<void>>()
+
+/** True while any saver has changes that are not written yet. */
+export const hasPendingSaves = (): boolean => pending.size > 0
+
+/** Saves every saver's waiting changes now. */
+export async function flushAllSaves(): Promise<void> {
+  await Promise.all([...pending.values()].map((flush) => flush()))
+}
+
 export function createAutosaver(
   save: () => Promise<void>,
   delayMs = 500,
@@ -48,6 +59,7 @@ export function createAutosaver(
       try {
         await save()
         failures = 0
+        if (!dirty) pending.delete(token)
         markSaved(token)
       } catch (error) {
         dirty = true
@@ -75,12 +87,14 @@ export function createAutosaver(
   return {
     schedule() {
       dirty = true
+      pending.set(token, flush)
       clearTimeout(timer)
       timer = setTimeout(() => void flush(), delayMs)
     },
     flush,
     dispose() {
       disposed = true
+      pending.delete(token)
       clearTimeout(timer)
       timer = undefined
     },

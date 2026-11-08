@@ -3,7 +3,7 @@ import { Tip } from '../help/Help'
 import { useLiveQuery } from 'dexie-react-hooks'
 import { useState } from 'react'
 import { runTask } from '../app/errors'
-import { MenuPopover, type MenuItem } from '../app/ui'
+import { EmptyState, MenuPopover, type MenuItem } from '../app/ui'
 import { isStringOrNull } from '../app/uiPrefs'
 import { usePref } from '../app/usePref'
 import type { LearningNotesDB } from '../core/db'
@@ -156,7 +156,14 @@ export function NotesTab({
         )}
       </div>
       {top.length === 0 && mode !== 'shelf' ? (
-        <p className="mb-3 text-sm text-muted">{t('notebook.noPages')}</p>
+        <EmptyState
+          testId="notebook-empty"
+          className="mb-3"
+          icon="📄"
+          text={t('notebook.noPages')}
+          action={t('notebook.newPage')}
+          onAction={onCreatePage}
+        />
       ) : mode === 'shelf' ? (
         <ShelfView {...props} />
       ) : mode === 'tabs' ? (

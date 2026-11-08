@@ -1,6 +1,7 @@
 import { useLiveQuery } from 'dexie-react-hooks'
 import { useContext, useState } from 'react'
 import { EditorContext } from '../editor/editorContext'
+import { EmptyState } from '../app/ui'
 import { t } from '../i18n/t'
 import { listCardRows } from './cardList'
 import { CardStatusLabel } from './CardStatusLabel'
@@ -51,7 +52,12 @@ export function CardListView({
         )}
       </div>
       {rows.length === 0 ? (
-        <p className="px-2 py-1.5 text-sm text-muted">{t('cardList.empty')}</p>
+        <EmptyState
+          testId="cards-empty"
+          className="m-1"
+          icon="🃏"
+          text={t('cardList.empty')}
+        />
       ) : (
         <ul>
           {shown.map((row) => (

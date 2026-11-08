@@ -2,7 +2,7 @@ import { Tip } from '../help/Help'
 import { useLiveQuery } from 'dexie-react-hooks'
 import { useContext, useEffect, useId, useRef, useState } from 'react'
 import { AppUiContext } from '../app/appUi'
-import { MenuPopover, type MenuItem } from '../app/ui'
+import { EmptyState, MenuPopover, type MenuItem } from '../app/ui'
 import { usePref } from '../app/usePref'
 import { removeEmptyCards, restoreEmptyCards } from '../recall/emptyCards'
 import type { LearningNotesDB } from '../core/db'
@@ -355,13 +355,20 @@ export function SearchScreen({
           </p>
         ) : hits.length === 0 ? (
           <div className="px-4 py-7 text-center text-sm leading-relaxed text-muted">
-            <p className="font-semibold text-ink">
-              {text.trim()
-                ? t('search.noResults', { query: text.trim() })
-                : filters.tagId
-                  ? t('search.noResults', { query: tagLabel(filters.tagId) })
-                  : t('search.noCards')}
-            </p>
+            <EmptyState
+              testId="search-empty"
+              className="mb-2 border-0"
+              icon="🔎"
+              text={
+                text.trim()
+                  ? t('search.noResults', { query: text.trim() })
+                  : filters.tagId
+                    ? t('search.noResults', { query: tagLabel(filters.tagId) })
+                    : t('search.noCards')
+              }
+              action={text.trim() ? t('search.clear') : undefined}
+              onAction={() => setText('')}
+            />
             {suggestion && (
               <p>
                 {t('search.didYouMean')}{' '}

@@ -3,6 +3,7 @@ import { useLiveQuery } from 'dexie-react-hooks'
 import { useContext, useEffect, useRef, useState, type ReactNode } from 'react'
 import { AppUiContext } from '../app/appUi'
 import { runTask } from '../app/errors'
+import { EmptyState } from '../app/ui'
 import type { LearningNotesDB } from '../core/db'
 import type { JsonValue, Rating } from '../core/types'
 import { t } from '../i18n/t'
@@ -587,16 +588,24 @@ function Finished({
 }) {
   return (
     <Message>
-      <p className="text-[17px] font-semibold">
-        {reviewed > 0 ? t('review.done') : emptyMessage}
-      </p>
+      {reviewed > 0 ? (
+        <p className="text-[17px] font-semibold">{t('review.done')}</p>
+      ) : (
+        <EmptyState
+          testId="review-empty"
+          icon={canPractice ? '✅' : '🃏'}
+          text={emptyMessage}
+          action={canPractice ? t('review.practice') : t('review.back')}
+          onAction={canPractice ? onPractice : onClose}
+        />
+      )}
       {reviewed > 0 && (
         <p className="text-[13px] text-muted">
           {t('review.doneCount', { count: reviewed })}
         </p>
       )}
       <div className="mt-3 flex flex-wrap justify-center gap-2">
-        {canPractice && (
+        {canPractice && reviewed > 0 && (
           <Tip id="review.practice">
             <button
               type="button"
@@ -607,13 +616,15 @@ function Finished({
             </button>
           </Tip>
         )}
-        <button
-          type="button"
-          onClick={onClose}
-          className="min-h-11 rounded-lg border border-line px-4 text-sm hover:bg-hover"
-        >
-          {t('review.back')}
-        </button>
+        {(reviewed > 0 || canPractice) && (
+          <button
+            type="button"
+            onClick={onClose}
+            className="min-h-11 rounded-lg border border-line px-4 text-sm hover:bg-hover"
+          >
+            {t('review.back')}
+          </button>
+        )}
       </div>
       {canPractice && (
         <HelpLine id="review.practice" className="text-[12px] text-muted" />

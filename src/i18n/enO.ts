@@ -12,6 +12,7 @@ export const enO = {
   'reading.goal.week_one': 'Goal reached on {count} day this week',
   'reading.goal.week_other': 'Goal reached on {count} days this week',
   // ---- Polish 2 ----
+  'search.clear': 'Clear search',
   'home.due.tile': '{count} due · Start',
   'lassoMenu.title': 'Arrange the Lasso menu',
   'lassoMenu.hint':

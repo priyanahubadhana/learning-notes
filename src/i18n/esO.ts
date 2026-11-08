@@ -8,6 +8,7 @@ export const esO: Record<string, string> = {
   'reading.goal.week_one': 'Meta cumplida {count} día esta semana',
   'reading.goal.week_other': 'Meta cumplida {count} días esta semana',
   // ---- Polish 2 ----
+  'search.clear': 'Borrar búsqueda',
   'home.due.tile': '{count} pendientes · Empezar',
   'lassoMenu.title': 'Ordenar el menú del Lazo',
   'lassoMenu.hint':

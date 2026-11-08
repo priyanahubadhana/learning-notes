@@ -52,7 +52,7 @@ import { devicePickerDone } from './app/tools/deviceKind'
 import { setAppActions } from './app/tools/toolRuntime'
 import { SidebarResizer } from './app/SidebarResizer'
 import { SIDEBAR_DEFAULT, isSidebarWidth } from './app/sidebarWidth'
-import { Toast, ChoiceDialog } from './app/ui'
+import { Toast, ChoiceDialog, EmptyState } from './app/ui'
 import { dismissUpdateOffer, onUpdateOffer } from './app/updates'
 import { UpdateBar } from './app/UpdateBar'
 import { NowPlayingGate } from './app/reading/NowPlayingGate'
@@ -1669,18 +1669,14 @@ function App() {
                           }}
                         />
                       ) : notebooks.length === 0 && currentPage === null ? (
-                        <div className="mt-[30vh] text-center">
-                          <p className="mb-5 text-muted">
-                            {t('app.empty.intro')}
-                          </p>
-                          <button
-                            type="button"
-                            onClick={() => runTask(createNotebookAndOpen())}
-                            className="rounded-lg bg-accent px-4 py-2 text-sm font-medium text-white transition-opacity hover:opacity-90"
-                          >
-                            {t('app.empty.create')}
-                          </button>
-                        </div>
+                        <EmptyState
+                          testId="no-notebooks"
+                          className="mx-auto mt-[24vh] max-w-md"
+                          icon="📓"
+                          text={t('app.empty.intro')}
+                          action={t('app.empty.create')}
+                          onAction={() => runTask(createNotebookAndOpen())}
+                        />
                       ) : currentPage === null ? (
                         <p className="mt-[30vh] text-center text-muted">
                           {t('app.empty.select', {

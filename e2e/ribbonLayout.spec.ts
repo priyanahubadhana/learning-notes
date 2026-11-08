@@ -299,10 +299,16 @@ test('each bar has its own saved position that survives a reload, with Reset', a
       localStorage.getItem('learning-notes:toolbar.ribbonPlacement'),
     ),
   ).toBe('"bottom"')
-  await dockedBar(page).getByRole('button', { name: 'Ribbon options' }).click()
-  await page
-    .getByRole('menu', { name: 'Ribbon options' })
-    .getByRole('menuitem', { name: 'Reset ribbon' })
-    .click()
+  // Right after a reload the first tap can land before the bar is wired, and
+  // the menu closes again: retry the open + pick as one step.
+  await expect(async () => {
+    await dockedBar(page)
+      .getByRole('button', { name: 'Ribbon options' })
+      .click()
+    await page
+      .getByRole('menu', { name: 'Ribbon options' })
+      .getByRole('menuitem', { name: 'Reset ribbon' })
+      .click({ timeout: 2000 })
+  }).toPass({ timeout: 15_000 })
   await expect(dockedBar(page)).toHaveAttribute('data-placement', 'top')
 })

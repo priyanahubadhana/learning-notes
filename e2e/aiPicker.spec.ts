@@ -211,9 +211,13 @@ test('a notebook uses its own key and model; the default is used elsewhere', asy
       .getByRole('button', { name: 'Cell Book' })
       .click()
     await page.getByTestId('ai-summary').click()
+    // The privacy sheet opens a moment after the click, so wait for whichever
+    // of the two shows up instead of peeking once.
     const ok = page.getByTestId('ai-privacy-ok')
-    if (await ok.isVisible().catch(() => false)) await ok.click()
-    await expect(page.getByTestId('ai-preview-text')).toBeVisible()
+    const text = page.getByTestId('ai-preview-text')
+    await expect(ok.or(text)).toBeVisible()
+    if (await ok.isVisible()) await ok.click()
+    await expect(text).toBeVisible()
   }
 
   await run()

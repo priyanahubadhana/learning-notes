@@ -45,6 +45,7 @@ test('Pen pill: type, 3 thicknesses, colours and ⊕', async ({ page }) => {
     'Orange',
     'Purple',
     'Add a colour',
+    'Save as favourite',
   ])
   await expect(option(page, 'Medium')).toHaveAttribute('aria-pressed', 'true')
   await option(page, 'Thick').click()
@@ -197,6 +198,7 @@ test('Highlighter: its own tool with thicknesses, colours and a card', async ({
     'Purple',
     'Add a colour',
     'Highlighter settings',
+    'Save as favourite',
   ])
   await option(page, 'Thick').click()
   await option(page, 'Pink').click()

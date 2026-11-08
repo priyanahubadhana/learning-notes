@@ -1,6 +1,7 @@
 import { Selection } from 'prosemirror-state'
 import { memStore } from '../../app/tools/store'
 import type { Editor } from '../barActions'
+import { triggerFirstUse } from '../../help/firstUse'
 
 /**
  * Whether the Write pad is open, and where the editor's cursor or selection
@@ -45,7 +46,10 @@ export function startRange(editor: Editor): { from: number; to: number } {
 export function toggleWritePad(editor: Editor, pageId?: string): void {
   const open = writePad.get()
   if (open && open.editor === editor) closeWritePad()
-  else writePad.set({ editor, pageId, ...startRange(editor) })
+  else {
+    writePad.set({ editor, pageId, ...startRange(editor) })
+    triggerFirstUse('writePad')
+  }
 }
 
 /**

@@ -7,6 +7,15 @@ export const esO: Record<string, string> = {
   'reading.goal.reached': 'Meta de hoy cumplida',
   'reading.goal.week_one': 'Meta cumplida {count} día esta semana',
   'reading.goal.week_other': 'Meta cumplida {count} días esta semana',
+  // ---- Polish 2 ----
+  'firstUse.lasso':
+    'Rodea la tinta para seleccionarla. Toca un filtro para elegir texto o imágenes.',
+  'firstUse.writePad':
+    'Escribe con tu Pencil en el panel. Toca Insertar para ponerlo en la página.',
+  'firstUse.layers':
+    'Las capas separan la tinta. Oculta, bloquea o reordena aquí.',
+  'firstUse.paperBox':
+    'Se añadió un cuadro. Toca su borde para mover, cambiar el tamaño y el color.',
   // ---- Name it sheet and touch rows ----
   'nameSheet.newNotebook': 'Pon nombre a tu cuaderno',
   'nameSheet.newPage': 'Pon nombre a tu página',

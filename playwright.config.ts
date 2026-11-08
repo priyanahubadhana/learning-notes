@@ -30,6 +30,13 @@ export default defineConfig({
           origin: `http://localhost:${PORT}`,
           localStorage: [
             { name: 'learning-notes:devicePicker.done', value: 'true' },
+            // Polish 2: the welcome and the first-use tips are answered already;
+            // firstUse.spec.ts and welcome.spec.ts start without these.
+            { name: 'learning-notes:onboarding.done', value: 'true' },
+            {
+              name: 'learning-notes:firstUse.seen',
+              value: '["lasso","writePad","layers","paperBox"]',
+            },
             // Most specs open a notebook's tabs by tapping it (R6-12).
             {
               name: 'learning-notes:general.openNotebookAt',
@@ -97,6 +104,7 @@ export default defineConfig({
         /toolSearchSections/,
         /pinnedTools/,
         /barScroll/,
+        /firstUse/,
       ],
       use: { ...devices['iPad Pro 11'], hasTouch: true },
       expect: { timeout: 15_000 },

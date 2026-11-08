@@ -11,6 +11,14 @@ export const enO = {
   'reading.goal.reached': 'Goal reached today',
   'reading.goal.week_one': 'Goal reached on {count} day this week',
   'reading.goal.week_other': 'Goal reached on {count} days this week',
+  // ---- Polish 2 ----
+  'firstUse.lasso':
+    'Loop ink to select it. Tap a filter to pick text or pictures.',
+  'firstUse.writePad':
+    'Write with your Pencil in the pad. Tap Insert to put it on the page.',
+  'firstUse.layers': 'Layers keep ink apart. Hide, lock or reorder them here.',
+  'firstUse.paperBox':
+    'A box was added. Tap its edge for move, resize and colour.',
   // ---- Name it sheet and touch rows ----
   'nameSheet.newNotebook': 'Name your notebook',
   'nameSheet.newPage': 'Name your page',

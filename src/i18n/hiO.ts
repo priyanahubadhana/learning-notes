@@ -7,6 +7,15 @@ export const hiO: Record<string, string> = {
   'reading.goal.reached': 'आज का लक्ष्य पूरा हुआ',
   'reading.goal.week_one': 'इस हफ़्ते {count} दिन लक्ष्य पूरा हुआ',
   'reading.goal.week_other': 'इस हफ़्ते {count} दिन लक्ष्य पूरा हुआ',
+  // ---- Polish 2 ----
+  'firstUse.lasso':
+    'चुनने के लिए स्याही के चारों ओर घेरा बनाएँ। टेक्स्ट या चित्र चुनने के लिए फ़िल्टर दबाएँ।',
+  'firstUse.writePad':
+    'पैड में अपनी पेंसिल से लिखें। पेज पर डालने के लिए डालें दबाएँ।',
+  'firstUse.layers':
+    'लेयर स्याही को अलग रखती हैं। यहाँ छिपाएँ, लॉक करें या क्रम बदलें।',
+  'firstUse.paperBox':
+    'एक बॉक्स जुड़ा। हिलाने, आकार बदलने और रंग के लिए उसका किनारा दबाएँ।',
   // ---- Name it sheet and touch rows ----
   'nameSheet.newNotebook': 'अपनी नोटबुक का नाम रखें',
   'nameSheet.newPage': 'अपने पेज का नाम रखें',

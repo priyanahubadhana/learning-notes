@@ -5,6 +5,7 @@ import { activeTool } from '../app/tools/main/mainTools'
 import { MenuPopover, type MenuItem } from '../app/ui'
 import type { LearningNotesDB } from '../core/db'
 import type { PaperBox } from '../core/types'
+import { triggerFirstUse } from '../help/firstUse'
 import { t } from '../i18n/t'
 import {
   addBox,
@@ -62,6 +63,7 @@ export function usePaperBoxes(
 
   const onAddBox = (at: { x: number; y: number }) => {
     if (activeTool.get() !== 'text') return
+    triggerFirstUse('paperBox')
     runTask(addBox(db, pageId, at).then(setFresh))
   }
   const onBoxChange = (id: string, patch: Partial<PaperBox>) =>

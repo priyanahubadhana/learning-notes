@@ -18,6 +18,7 @@ import {
   TopStackSlotContext,
 } from './app/appUi'
 import { ErrorBoundary } from './app/ErrorBoundary'
+import { FirstUseTip } from './help/FirstUseTip'
 import { SaveNotice } from './app/SaveNotice'
 import { onStorageFull, reportError, runTask } from './app/errors'
 import { FileError } from './core/attachments'
@@ -1750,6 +1751,7 @@ function App() {
             <AudioDock db={db} pageId={currentPage?.id ?? null} />
             <div className="fixed bottom-16 left-1/2 z-40 flex w-max max-w-[calc(100vw-32px)] -translate-x-1/2 flex-col items-center gap-2">
               <SaveNotice />
+              <FirstUseTip />
               {applyUpdate && (
                 <UpdateBar
                   onUpdate={applyUpdate}

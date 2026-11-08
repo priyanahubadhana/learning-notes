@@ -69,6 +69,8 @@ test('Paper layout: sheets, boxes at their places and ink in place', async ({
 
   await pageAction(page, 'Export')
   const dialog = page.getByRole('dialog', { name: 'Export' })
+  page.on('console', (m) => console.log('PAGE', m.type(), m.text()))
+  page.on('pageerror', (e) => console.log('PAGEERROR', e.message))
   await dialog.getByTestId('export-paper').click()
   await expect(dialog.getByTestId('export-ready')).toContainText('.pdf')
   await dialog.getByTestId('export-print').click()

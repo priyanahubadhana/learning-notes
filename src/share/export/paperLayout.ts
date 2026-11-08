@@ -251,33 +251,36 @@ const imageUrls = (images: Map<string, StoredImage>) =>
 /** The most pixels one box's ink picture may have (iPad canvas memory). */
 const MAX_INK_PIXELS = 8_000_000
 
-/** Shows a document in a hidden frame the size of a sheet, ready to measure. */
+/**
+ * Lays the paper out off screen, ready to measure. It lives in a shadow root
+ * (its styles cannot touch the app, and the app's cannot touch it) rather
+ * than a frame: `body` rules become `:host` rules, so the text has the same
+ * font and size as in the printed document.
+ */
 async function loadFrame(html: string, widthMm: number) {
-  const frame = document.createElement('iframe')
-  frame.setAttribute('aria-hidden', 'true')
-  frame.style.cssText = `position:fixed;left:-99999px;top:0;width:${Math.ceil(widthMm * PX_PER_MM)}px;height:800px;border:0;visibility:hidden`
-  const url = URL.createObjectURL(new Blob([html], { type: 'text/html' }))
-  frame.src = url
-  await new Promise<void>((resolve, reject) => {
-    frame.onload = () => resolve()
-    frame.onerror = () => reject(new Error('paper frame failed'))
-    document.body.append(frame)
-  })
-  const doc = frame.contentDocument
-  if (!doc) throw new Error('paper frame failed')
+  const parsed = new DOMParser().parseFromString(html, 'text/html')
+  const css = (parsed.head.querySelector('style')?.textContent ?? '')
+    .replace(/html,body\{/g, ':host{')
+    .replace(/(^|\})\s*body\s*\{/g, '$1:host{')
+  const host = document.createElement('div')
+  host.setAttribute('aria-hidden', 'true')
+  host.style.cssText = `position:fixed;left:-99999px;top:0;width:${Math.ceil(widthMm * PX_PER_MM)}px;visibility:hidden;pointer-events:none`
+  const root = host.attachShadow({ mode: 'open' })
+  const style = document.createElement('style')
+  style.textContent = `:host{display:block}` + css
+  root.append(style)
+  for (const node of [...parsed.body.childNodes])
+    root.append(document.importNode(node, true))
+  document.body.append(host)
   // Pictures and fonts, but never wait for ever on a browser that stays quiet.
   const settled = Promise.all([
-    ...[...doc.images].map((i) => i.decode().catch(() => undefined)),
-    doc.fonts?.ready,
+    ...[...root.querySelectorAll('img')].map((i) =>
+      i.decode().catch(() => undefined),
+    ),
+    document.fonts?.ready,
   ])
   await Promise.race([settled, new Promise((r) => setTimeout(r, 3000))])
-  return {
-    doc,
-    close: () => {
-      frame.remove()
-      URL.revokeObjectURL(url)
-    },
-  }
+  return { doc: root, close: () => host.remove() }
 }
 
 /**

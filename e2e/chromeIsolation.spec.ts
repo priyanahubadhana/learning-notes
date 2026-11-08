@@ -43,6 +43,9 @@ const chromeRects = (page: Page) =>
       if (r.width < 4 || r.height < 4) continue
       if (getComputedStyle(el).visibility === 'hidden') continue
       if (r.bottom < 0 || r.top > innerHeight) continue
+      // R8-1: scrolled down, the options pill floats over the page by design
+      // (owner); at the top of the page it sits in the clear top gap (below).
+      if (el.closest('[data-pill-root]')) continue
       // The page's own content is not chrome.
       if (el.closest('[data-page-scroller]')) continue
       out.push({
@@ -76,6 +79,9 @@ test('Text: the options pill is clear of editable text too', async ({
   page,
 }) => {
   await longPage(page)
+  await page.evaluate(() => {
+    document.querySelector('[data-page-scroller]')!.scrollTop = 0
+  })
   await tool(page, 'Text').click()
   await expect(page.locator('[data-options-pill]')).toBeVisible()
   const pillBox = await page.locator('[data-options-pill]').boundingBox()

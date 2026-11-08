@@ -6,7 +6,8 @@ Moved out of HANDOFF on 2026-11-06 (audit) so HANDOFF stays five lines. Newest f
 
 1. iPad, Pen tool: the pill sits in the gap under the main bar and the page does not move when it opens or closes; scroll down and open it: it floats. Needs eyes: the gap's size and feel.
 2. Reading mode: the title is not covered.
-3. Fresh iPad with Auto switch off, first Pencil touch: the card appears once; Yes switches to Pencil mode; never asked again.
+3. iPad, Text tool, page scrolled down: the floating pill is tapped with the Pencil and no text is written under it (Scribble).
+4. Fresh iPad with Auto switch off, first Pencil touch: the card appears once; Yes switches to Pencil mode; never asked again.
 
 ## Paper style, size and sheet thumbnails (8 Nov, Polish 2 item 9)
 

@@ -13,7 +13,9 @@ import { openNote, tool } from './mainBarHelpers.ts'
  * lines move as one piece; copying a line copies its ink.
  */
 
-test.use({ viewport: { width: 1024, height: 1000 }, hasTouch: true })
+// 940 px tall: the page column keeps the height it had before the top gap (R8-1),
+// so the default box still fits one sheet.
+test.use({ viewport: { width: 1024, height: 940 }, hasTouch: true })
 
 const LINES = ['Line one', 'Line two', 'Line three', 'Line four', 'Line five']
 
@@ -258,7 +260,7 @@ test('rule 5: ink the Lasso drops on empty paper gets a new box with a line', as
     (d) => {
       document.querySelector('[data-page-scroller]')!.scrollTop += d
     },
-    five0.y - sc.top - 16,
+    five0.y - sc.top - 48, // below the options pill, which floats over the top of the page
   )
   await page.waitForTimeout(400)
   const five = await lineAt(page, 'Line five')

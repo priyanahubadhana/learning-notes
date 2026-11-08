@@ -16,6 +16,7 @@ import {
   type Library,
 } from './libraryDb'
 import { PromptEdit } from './PromptEdit'
+import { RunPrompt } from './RunPrompt'
 import {
   PURPOSES,
   allSubjects,
@@ -59,6 +60,8 @@ export interface DialogProps {
 export default function PromptsDialog({
   db,
   workspaceId,
+  page,
+  onChanged,
   onClose,
   onPick,
   renderRowAction,
@@ -74,6 +77,7 @@ export default function PromptsDialog({
   })
   const [shown, setShown] = useState(PAGE)
   const [editing, setEditing] = useState<PromptItem | null>(null)
+  const [running, setRunning] = useState<PromptItem | null>(null)
 
   const reload = useCallback(
     async (l: Library) => {
@@ -142,6 +146,19 @@ export default function PromptsDialog({
         <PopupHeader title={t('prompts.title')} onClose={onClose} />
         {!lib ? (
           <p className="py-6 text-sm text-muted">{t('prompts.loading')}</p>
+        ) : running ? (
+          <RunPrompt
+            db={db}
+            workspaceId={workspaceId}
+            page={page}
+            item={running}
+            lib={lib}
+            onBack={() => {
+              setRunning(null)
+              runTask(reload(lib))
+            }}
+            onChanged={onChanged}
+          />
         ) : editing ? (
           <PromptEdit
             item={editing}
@@ -160,6 +177,13 @@ export default function PromptsDialog({
                 placeholder={t('prompts.search')}
                 value={filter.q}
                 onChange={(e) => patch({ q: e.target.value })}
+                onKeyDown={(e) => {
+                  // Enter uses the top result.
+                  const top = results[0]
+                  if (e.key !== 'Enter' || !top) return
+                  if (onPick) onPick(top, lib)
+                  else setRunning(top)
+                }}
                 className={`${field} min-w-0 flex-1`}
               />
               <button
@@ -238,7 +262,7 @@ export default function PromptsDialog({
                       data-testid="prompt-row"
                       className="min-h-11 min-w-0 flex-1 text-left"
                       onClick={() =>
-                        onPick ? onPick(item, lib) : setEditing(item)
+                        onPick ? onPick(item, lib) : setRunning(item)
                       }
                     >
                       <span className="block truncate text-sm font-medium">

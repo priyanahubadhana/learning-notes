@@ -33,6 +33,7 @@ import {
   type BookPart,
   type Gathered,
 } from './bookAsk'
+import { PromptPickerButton } from '../prompts/PromptPickerButton'
 import { openEpub, pdfParts, type EpubBook } from './bookText'
 import { AiError, PROVIDERS } from './provider'
 import { callAi } from './route'
@@ -381,6 +382,14 @@ export function AskBook(props: AskBookProps) {
               </label>
             </div>
           )}
+          <PromptPickerButton
+            db={db}
+            workspaceId={notebook?.workspaceId ?? ''}
+            onPick={(text) => {
+              setQuestion(text.slice(0, 2000))
+              setPrepared(null)
+            }}
+          />
           <label className="flex flex-col gap-1">
             {t('ai.book.question')}
             <textarea

@@ -17,21 +17,22 @@ rule file when the phase is planned (rule change = owner OK, already given).
 
 ## 1. How others do it
 
-| Product | Structure | Categories / search | Rating | Versions | User-made |
-| --- | --- | --- | --- | --- | --- |
-| Anthropic prompt library | System prompt + user prompt per example | Two groups (work / play) at launch, plus user-submitted; later coding, writing, analysis | None | None | Copy into Console |
-| OpenAI guides | Instructions + examples (few-shot) in the prompt | Guide pages, not a catalogue | None | Saved prompts in platform | Yes (platform) |
-| Google Gemini / Vertex | Prompt gallery with good-vs-bad examples; chain-of-thought, few-shot | Gallery by task | None | Saved prompts in Vertex | Yes |
-| Raycast AI Commands | Title, icon, prompt, model; `{selection}`, `{argument name="Language"}`, clipboard, date | Command palette search | Store installs | None | Yes, import/export |
-| AIPRM | Title, teaser, category, `[PROMPT]`, `[TARGETLANGUAGE]` | Category + topic filters, search | Votes, views | None | Yes, public/private |
-| PromptBase | Paid listing, preview, model tag | Category, model, search | Reviews, sales | None | Sellers only |
-| FlowGPT / PromptHero | Community prompts (PromptHero = image prompts) | Tags, trending | Likes | None | Yes |
-| Notion AI | Saved prompts in workspace, act on page/selection | `/` menu list | None | Page history | Yes |
-| PromptLayer | Template + variables + model params | Registry folders | None | Every save = version; labels (`prod`, `staging`) | Yes |
-| LangChain Hub (LangSmith) | Prompt template with commits | Owner/name, tags | Likes | Commits; movable tags; staging/production promotion | Yes |
-| awesome-chatgpt-prompts | `act` + `prompt` rows in `prompts.csv` | Flat list + site search | GitHub stars | Git history | Pull requests |
+| Product                   | Structure                                                                                | Categories / search                                                                      | Rating         | Versions                                            | User-made           |
+| ------------------------- | ---------------------------------------------------------------------------------------- | ---------------------------------------------------------------------------------------- | -------------- | --------------------------------------------------- | ------------------- |
+| Anthropic prompt library  | System prompt + user prompt per example                                                  | Two groups (work / play) at launch, plus user-submitted; later coding, writing, analysis | None           | None                                                | Copy into Console   |
+| OpenAI guides             | Instructions + examples (few-shot) in the prompt                                         | Guide pages, not a catalogue                                                             | None           | Saved prompts in platform                           | Yes (platform)      |
+| Google Gemini / Vertex    | Prompt gallery with good-vs-bad examples; chain-of-thought, few-shot                     | Gallery by task                                                                          | None           | Saved prompts in Vertex                             | Yes                 |
+| Raycast AI Commands       | Title, icon, prompt, model; `{selection}`, `{argument name="Language"}`, clipboard, date | Command palette search                                                                   | Store installs | None                                                | Yes, import/export  |
+| AIPRM                     | Title, teaser, category, `[PROMPT]`, `[TARGETLANGUAGE]`                                  | Category + topic filters, search                                                         | Votes, views   | None                                                | Yes, public/private |
+| PromptBase                | Paid listing, preview, model tag                                                         | Category, model, search                                                                  | Reviews, sales | None                                                | Sellers only        |
+| FlowGPT / PromptHero      | Community prompts (PromptHero = image prompts)                                           | Tags, trending                                                                           | Likes          | None                                                | Yes                 |
+| Notion AI                 | Saved prompts in workspace, act on page/selection                                        | `/` menu list                                                                            | None           | Page history                                        | Yes                 |
+| PromptLayer               | Template + variables + model params                                                      | Registry folders                                                                         | None           | Every save = version; labels (`prod`, `staging`)    | Yes                 |
+| LangChain Hub (LangSmith) | Prompt template with commits                                                             | Owner/name, tags                                                                         | Likes          | Commits; movable tags; staging/production promotion | Yes                 |
+| awesome-chatgpt-prompts   | `act` + `prompt` rows in `prompts.csv`                                                   | Flat list + site search                                                                  | GitHub stars   | Git history                                         | Pull requests       |
 
 Patterns that work everywhere:
+
 1. **Few fixed fields:** title, body, short teaser, category, tags, target action, optional model.
 2. **Few named variables** filled by the app, plus at most one runtime question
    (Raycast `{argument}`).
@@ -47,16 +48,16 @@ paid prompts with unclear rights, prompts that silently send the whole book (bre
 
 ## 2. Licensing verdict
 
-| Collection | Licence | Can we bundle? |
-| --- | --- | --- |
-| awesome-chatgpt-prompts (prompts.csv, PROMPTS.md) | **CC0 1.0** (prompt data); site code MIT | **Yes.** No attribution needed; we credit anyway |
-| Our own prompts | Ours | **Yes** (preferred) |
-| Anthropic prompt library | No public licence found for the library pages | **No** — re-write in our words |
-| Anthropic courses repo | CC BY-NC 4.0 (non-commercial) | **No** (blocks commercial use) |
-| OpenAI / Google guides | Normal site terms, no open licence | **No** — learn ideas only |
-| PromptBase | Buyer gets a use licence; creator keeps rights | **No** (no redistribution) |
-| AIPRM, FlowGPT, PromptHero | Platform terms; rights stay with authors | **No** |
-| PromptLayer, LangChain Hub | User-owned prompts on a service | **No**, unless a prompt itself is marked MIT/CC0 |
+| Collection                                        | Licence                                        | Can we bundle?                                   |
+| ------------------------------------------------- | ---------------------------------------------- | ------------------------------------------------ |
+| awesome-chatgpt-prompts (prompts.csv, PROMPTS.md) | **CC0 1.0** (prompt data); site code MIT       | **Yes.** No attribution needed; we credit anyway |
+| Our own prompts                                   | Ours                                           | **Yes** (preferred)                              |
+| Anthropic prompt library                          | No public licence found for the library pages  | **No** — re-write in our words                   |
+| Anthropic courses repo                            | CC BY-NC 4.0 (non-commercial)                  | **No** (blocks commercial use)                   |
+| OpenAI / Google guides                            | Normal site terms, no open licence             | **No** — learn ideas only                        |
+| PromptBase                                        | Buyer gets a use licence; creator keeps rights | **No** (no redistribution)                       |
+| AIPRM, FlowGPT, PromptHero                        | Platform terms; rights stay with authors       | **No**                                           |
+| PromptLayer, LangChain Hub                        | User-owned prompts on a service                | **No**, unless a prompt itself is marked MIT/CC0 |
 
 **Recommendation:** ship only **our own prompts** plus a **curated, rewritten subset of
 awesome-chatgpt-prompts (CC0)**. Ideas and techniques (few-shot, step by step, role) are not
@@ -69,6 +70,7 @@ Expect to keep ~5–10% of it; the learner starters must be ours.
 ## 3. Design for our code
 
 ### Where prompts live (fits the existing pattern, no new Dexie version)
+
 - Hidden notebook with `kind: 'prompts'` (add to the `kind` union in `src/core/types.ts`), seeded
   like the Templates notebook with `starterVersion`.
 - **Each prompt = one page**, body = its blocks. Free: BlockNote editing, History
@@ -88,8 +90,10 @@ Expect to keep ~5–10% of it; the learner starters must be ours.
 - Chapter is not stored on the prompt; `{chapter}` is filled at run time from the open book.
 
 ### Search index that scales to thousands
+
 Rules (rules/scalability.md): indexed queries, no full table scans on keystroke, virtualised
 lists, lazy loading.
+
 - Filters use **indexes only**: notebook `kind` → pages by `notebookId`; tags by `*tagIds`.
   `purpose` and `for` need a multi-entry index to be fast at 10k+ prompts. Options:
   (a) put them as reserved tags (`purpose:summarise`, `for:cards`) in `tagIds` — **no Dexie
@@ -102,6 +106,7 @@ lists, lazy loading.
 - Snippets: store a short `teaser` (first 140 chars, plain text) so the list never loads blocks.
 
 ### Shipping a large starter pack (not in first load)
+
 - First load gets only the `kind` string and the "Prompts" button (~0.3 KB). Budget ~7 KB spare:
   keep it there.
 - **Core starters (~12 learner prompts)**: a lazy chunk in `src/ai/prompts/starters.ts`,
@@ -113,6 +118,7 @@ lists, lazy loading.
 - Packs are translated per language file (`learner-v1.hi.json`), English fallback.
 
 ### Variables
+
 `{selection}`, `{page}`, `{title}`, `{notebook}`, `{chapter}`, `{highlights}`, `{language}`,
 `{today}` (UTC date shown local), and one `{ask:Question}` box at run time (Raycast-style).
 Rich text → markdown (existing AI export) → fill variables → "Show what will be sent" shows
@@ -120,19 +126,22 @@ the final text. Each variable passes the lock check in `callAi`. Unknown names s
 with a warning. Later: variable chips as BlockNote custom inline content (built in, no package).
 
 ### Running and Reset
+
 - Each AI action opens the **searchable picker** filtered by `for`; Enter runs the top result.
 - Summarise / Key points / Cards are starter prompts with `starterId`. **Reset** copies the
   shipped text back (the edit stays in History). If the starter is deleted, the action falls
   back to the built-in text so AI never breaks.
 
 ### Import / export
+
 - Export one, a filter result, or all as JSON: `{ version, prompts: [{ title, markdown,
-  prompt meta, tags }] }`. Reuse `share/` code. Also accept **CSV with `act,prompt` columns**
+prompt meta, tags }] }`. Reuse `share/` code. Also accept **CSV with `act,prompt` columns**
   so users can import awesome-chatgpt-prompts directly (their choice, CC0).
 - Import: validate size and fields (rules/security.md), strip scripts/links, mark as user-made,
   never run on import.
 
 ### Taxonomy for learners (purpose = one; tags = many)
+
 Purposes: Understand (explain, simplify, analogy) · Summarise · Key points · Recall (cards,
 cloze, quiz) · Check (find gaps, fact check, mistakes) · Practise (problems, essay plan) ·
 Write (rewrite, outline, translate) · Read (chapter recap, characters, no spoilers) · Clean
@@ -141,16 +150,19 @@ Subjects: free tags, with a starter list (maths, science, history, languages, la
 code, business, arts). Level tags: `beginner`, `exam`, `deep`.
 
 ### Starter prompts (our own wording)
+
 Summarise · Key points · Make recall cards · Cloze cards · Explain like I am new · Quiz me ·
 Find gaps · Translate and keep terms · Chapter story so far (no spoilers) · Fix my handwriting
 text · Study plan for a chapter · Teach it back (Feynman check).
 
 ## 4. New dependencies
+
 **None needed.** BlockNote, Dexie, markdown export, sync and share code exist. A virtual list
 can be ~60 lines of our own code. Flag only if we later want a fuzzy-search library
 (e.g. MiniSearch, MIT, ~7 KB gz) — would have to stay in the lazy chunk; ask first.
 
 ## 5. Owner decisions needed
+
 1. OK: `kind: 'prompts'` + optional `Page.prompt`, purpose/for as reserved tags (no Dexie version)?
 2. OK: bundle only our own prompts + rewritten CC0 awesome-chatgpt-prompts; no others?
 3. Big pack as a downloadable JSON from our free host (not in the app bundle)?
@@ -158,6 +170,7 @@ can be ~60 lines of our own code. Flag only if we later want a fuzzy-search libr
 5. Which phase this belongs to (beyond the current phase as built).
 
 ## Sources
+
 - awesome-chatgpt-prompts (CC0 prompts, MIT code): https://github.com/f/awesome-chatgpt-prompts
 - Raycast AI Commands / placeholders: https://manual.raycast.com/ai/ai-commands ,
   https://manual.raycast.com/windows/raycast-ai

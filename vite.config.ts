@@ -72,7 +72,10 @@ export default defineConfig({
         globIgnores: ['404.html', 'pencil-test.*'],
         maximumFileSizeToCacheInBytes: 4 * 1024 * 1024,
         navigateFallback: 'index.html',
-        navigateFallbackDenylist: [/^\/pencil-test(\.html)?$/, /^\/privacy(\.html)?$/],
+        navigateFallbackDenylist: [
+          /^\/pencil-test(\.html)?$/,
+          /^\/privacy(\.html)?$/,
+        ],
         clientsClaim: true,
       },
     }),

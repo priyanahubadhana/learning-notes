@@ -1,5 +1,18 @@
 /** Hindi text of Phase O (draft: needs native review). English is enO.ts. */
 export const hiO: Record<string, string> = {
+  'study.status.title': 'अध्ययन स्थिति',
+  'study.status.due': '{n} बाकी',
+  'study.status.why': 'स्थिति कैसे तय होती है',
+  'pic.place.label': 'चित्र रखें',
+  'pic.place.ok': 'चित्र रखें',
+  'pic.place.cancel': 'चित्र रद्द करें',
+  'pic.act.label': 'चित्र की क्रियाएँ',
+  'pic.act.copy': 'कॉपी',
+  'pic.act.cut': 'काटें',
+  'pic.act.duplicate': 'डुप्लिकेट',
+  'pic.act.delete': 'हटाएँ',
+  'pic.act.resize': 'आकार',
+  'pic.act.deselect': 'चयन हटाएँ',
   'newPage.dontShow': 'इसे फिर न दिखाएँ',
   'newPage.hiddenToast':
     'टेम्पलेट सूची छिपी है। इसे सेटिंग › सामान्य में फिर चालू करें।',

@@ -16,6 +16,19 @@ Moved out of HANDOFF on 2026-11-06 (audit) so HANDOFF stays five lines. Newest f
 4. Same skill with no AI key (or AI off): open Prompts › the skill › No AI key? › Copy the prompt, paste it into the Claude or ChatGPT app, copy its reply, paste it back under Paste the AI answer, tap Paste answer: the same preview opens. A wrong reply shows a plain message and changes nothing.
 5. In a book: Ask this book › Use a saved prompt fills the question box.
 
+## Owner iPad findings, fixes (9 Nov)
+
+1. Insert > Picture, pick any picture: it shows as a preview at the cursor line and the page scrolls to it. Drag it to another line, drag a corner to resize; the tick places it (one Undo), the cross cancels. Nothing is added before the tick.
+2. Undo and Redo sit at the left of the main bar (and of the full ribbon) and never scroll away, at every width.
+3. Lasso: with Pictures on in its pill, loop a picture the very first time after opening the app. Tell me if it still does nothing (I could not reproduce it in the browser).
+4. A selected picture, word or line shows a dashed orange outline around only itself, no filled box.
+5. Tap (or press and hold with the Pencil) a picture: a bar above it has Copy, Cut, Duplicate, Delete, Resize, Deselect; no iOS callout.
+6. The Notes/Summary/Review tabs have no hint line under them; no section chips above the page; on a lesson page the study status is one closed row in Review ("Study status: Learning · 3 due · 72%") that opens the full panel.
+7. Write on a picture, then resize the picture with its corner handles: the writing stays on the same spot. Pull the page past its top or bottom: it no longer bounces and the writing never lands over the tool bar.
+8. Paper page, pinch out: the page shrinks a little with resistance and springs back to fit on release; pinch in stays where you let go.
+9. Paste a long list into a paper box: no line sits in the gap between two sheets; the lines continue at the top of the next sheet.
+10. Drag one box onto another: it settles under the box it would have covered, never on top.
+
 ## Database pages (9 Nov)
 
 1. iPad, new page in a notebook: the last row of the template list says "Database page". Tap it: a full-width table appears with "+ New row"; add two rows. Switch to List with the buttons above the table; scroll is smooth.

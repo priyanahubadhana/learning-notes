@@ -1,5 +1,18 @@
 /** Spanish text of Phase O (draft: needs native review). English is enO.ts. */
 export const esO: Record<string, string> = {
+  'study.status.title': 'Estado de estudio',
+  'study.status.due': '{n} pendientes',
+  'study.status.why': 'Cómo se calcula el estado',
+  'pic.place.label': 'Colocar la imagen',
+  'pic.place.ok': 'Colocar imagen',
+  'pic.place.cancel': 'Cancelar imagen',
+  'pic.act.label': 'Acciones de la imagen',
+  'pic.act.copy': 'Copiar',
+  'pic.act.cut': 'Cortar',
+  'pic.act.duplicate': 'Duplicar',
+  'pic.act.delete': 'Eliminar',
+  'pic.act.resize': 'Tamaño',
+  'pic.act.deselect': 'Deseleccionar',
   'newPage.dontShow': 'No mostrar de nuevo',
   'newPage.hiddenToast':
     'Lista de plantillas oculta. Vuelve a activarla en Ajustes › General.',

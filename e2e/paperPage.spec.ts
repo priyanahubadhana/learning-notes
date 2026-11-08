@@ -143,12 +143,36 @@ test('the Lasso on the paper picks boxes; moving one moves them all', async ({
     els.map((e) => e.getBoundingClientRect().y),
   )
   await tool(page, 'Lasso').click()
-  await page.waitForTimeout(600)
-  // A loop round both boxes, drawn on the paper.
-  const top = y - 30
-  const bottom = y + 70
-  const left = sheet.x + 8
-  const right = sheet.x + sheet.width - 8
+  // Close the Lasso's options pill first: a touch on the page closes it and
+  // the page then moves up by its height.
+  await page.keyboard.press('Escape')
+  // The Lasso's pill opens a moment later and the page is held still for a
+  // while (R6-8): wait until the boxes stop moving.
+  let last = -1
+  await expect
+    .poll(
+      async () => {
+        const y = (await extra.first().boundingBox())!.y
+        const still = Math.abs(y - last) < 0.5
+        last = y
+        return still
+      },
+      { intervals: [300] },
+    )
+    .toBe(true)
+  // A loop round both boxes, drawn on the paper (measured again: choosing a
+  // tool may have moved the page).
+  const boxes = await extra.evaluateAll((els) =>
+    els.map((e) => {
+      const r = e.getBoundingClientRect()
+      return { y: r.y, height: r.height }
+    }),
+  )
+  const now = (await page.locator('[data-paper-sheet="1"]').boundingBox())!
+  const top = Math.min(...boxes.map((b) => b.y)) - 30
+  const bottom = Math.max(...boxes.map((b) => b.y + b.height)) + 30
+  const left = now.x + 8
+  const right = now.x + now.width - 8
   await page.mouse.move(left, top)
   await page.mouse.down()
   for (const [px, py] of [

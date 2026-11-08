@@ -20,5 +20,5 @@ export function paperStepMm(bg: Page['inkBg']): number {
   return bg === 'lined' ? 8 : 5
 }
 
-/** Below this column width (px) the paper shows "fit width" (step 6). */
-export const NARROW_PX = 480
+/** Below this window width (px: phones) the paper shows "fit width" (step 6). */
+export const NARROW_PX = 600

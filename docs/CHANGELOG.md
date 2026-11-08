@@ -18,9 +18,14 @@ Plan: [plans/polish-2-2026-11.md](plans/polish-2-2026-11.md). Items 8, 9 and 15 
 - **Item 12 · Make card from Lasso ink.** The drawing is stored as a picture and becomes the answer of a new card at the end of the page; the question comes from the Name it sheet. Files: `ink/cardFromInk.ts`, `InkSurface.tsx`.
 - **Tests:** unit (firstUse, lastTool, lassoMenu order, dueCount, startHere, penFavourites, cardFromInk) and e2e (firstUse, pillScroll, handwritingChooser, lastTool, lassoMenuOrder, dueToday, emptyStates2, welcome, cardFromInk), the new ones also in the ipad-webkit project. First load 283 KB (cap 320 KB).
 
+## 2026-11-08 (Phase Q steps 5-6 fix: iPad keeps its sheets; steadier box layer)
+
+- **What:** fit width now depends on the window (under 600 px: phones), not the column, so an iPad beside the sidebar keeps its sheets (ipad-webkit was red). The box layer is back at the top of the paper (steady; the after-the-text placement moved boxes when the text grew), new boxes never reorder the page (the caret stays), fit width stacks them in reading order after the text, the paper Lasso tests boxes where they are on screen and keeps every loop point. Read aloud on wide screens meets the boxes before the page text (later).
+- **Files:** `src/paper/{PaperFrame,sheets}.ts(x)`, `e2e/paperPage.spec.ts`.
+
 ## 2026-11-08 (Phase Q step 6: fit width on phones)
 
-- **What:** below a 480 px column (phones, narrow windows) the paper shows "fit width": no sheets, the boxes stacked under the page's text in reading order, each as wide as the column, no grip or edges (their places on the paper are kept for wider screens); no sideways scroll.
+- **What:** below a 600 px window (phones) the paper shows "fit width": no sheets, the boxes stacked under the page's text in reading order, each as wide as the column, no grip or edges (their places on the paper are kept for wider screens); no sideways scroll.
 - **Not yet:** making a new box by tapping on a phone (a tap below the text adds a line, as before).
 - **Files:** `src/paper/{PaperFrame,sheets}.ts(x)`, `e2e/paperPage.spec.ts`.
 

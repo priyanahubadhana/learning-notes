@@ -197,10 +197,17 @@ export function PaperFrame({
   const step = paperStepMm(page.inkBg) * k
   // Step 6: a phone or narrow window shows "fit width": no sheets, the boxes
   // stacked under the page's text in reading order, as wide as the column.
-  const narrow = !flat && fit > 0 && fit < NARROW_PX
+  // A phone-sized window (not a narrow column beside the sidebar on an iPad).
+  const narrow =
+    !flat &&
+    fit > 0 &&
+    typeof window !== 'undefined' &&
+    window.innerWidth < NARROW_PX
   const total = narrow ? 0 : sheets * (sheetPx + SHEET_GAP_PX) - SHEET_GAP_PX
-  // In reading order, so read aloud and Tab meet them as they are read.
-  const extra = readingOrder(boxesOf(page).filter((b) => b.id !== MAIN_BOX))
+  const stored = boxesOf(page).filter((b) => b.id !== MAIN_BOX)
+  // Wide: in the order they were made (a new box never moves another in the
+  // page, so the caret stays); fit width: stacked in reading order.
+  const extra = narrow ? readingOrder(stored) : stored
 
   // Rule 4: a stroke on empty paper is recorded, a box is made under it and
   // the stroke is played into that box's ink pad.
@@ -232,11 +239,18 @@ export function PaperFrame({
     setPicked(
       extra
         .filter((b) => {
-          const el = document.querySelector<HTMLElement>(
+          const el = paperEl.current?.querySelector<HTMLElement>(
             '[data-paper-box="' + CSS.escape(b.id) + '"]',
           )
-          const h = el?.offsetHeight ?? 0
-          return inPolygon({ x: (b.x + b.w / 2) * k, y: b.y * k + h / 2 }, poly)
+          if (!el || !paperEl.current) return false
+          // Where the box is on screen, in paper px (as the loop is).
+          const r = el.getBoundingClientRect()
+          const p = paperEl.current.getBoundingClientRect()
+          const c = {
+            x: r.left - p.left + r.width / 2,
+            y: r.top - p.top + r.height / 2,
+          }
+          return inPolygon(c, poly)
         })
         .map((b) => b.id),
     )
@@ -257,7 +271,10 @@ export function PaperFrame({
     pen.current = [record('pointerdown', e.nativeEvent)]
   }
   const penMove = (e: ReactPointerEvent<HTMLDivElement>) => {
-    if (loop) setLoop([...loop, toPaper(e)])
+    if (loop) {
+      const p = toPaper(e)
+      setLoop((l) => (l ? [...l, p] : l))
+    }
     pen.current?.push(record('pointermove', e.nativeEvent))
   }
   const penUp = (e: ReactPointerEvent<HTMLDivElement>) => {
@@ -306,6 +323,61 @@ export function PaperFrame({
   // so its editor's menus and the ink overlay keep the same containing blocks
   // as before: the sheets are normal blocks and the box is pulled up over
   // them. Other boxes sit in a zero-height positioned layer of their own.
+  const layerEl = !flat && extra.length > 0 && (
+    <div
+      data-paper-boxes
+      // First in the paper, at its top (zero height): the boxes are placed
+      // from here. Read aloud meets them before the page text (later).
+      style={
+        narrow
+          ? { position: 'relative', paddingBottom: MARGIN * k }
+          : { position: 'relative', height: 0, zIndex: 6 }
+      }
+    >
+      {loop && (
+        <svg
+          aria-hidden
+          data-paper-lasso
+          className="pointer-events-none absolute top-0 left-0 overflow-visible"
+          width="1"
+          height="1"
+        >
+          <polyline
+            points={loop.map((p) => p.x + ',' + p.y).join(' ')}
+            fill="none"
+            stroke="var(--color-accent)"
+            strokeDasharray="4 3"
+          />
+        </svg>
+      )}
+      {extra.map((b) => (
+        <BoxFrame
+          key={b.id}
+          box={b}
+          k={k}
+          zoom={zoom}
+          sheetW={sheet.w}
+          stepMm={step / k}
+          lineH={step / zoom}
+          onBottom={(px) => reportBottom(b.id, px)}
+          onChange={(patch) => onBoxChange?.(b.id, patch)}
+          onMenu={(at) => onBoxMenu?.(b, at)}
+          picked={picked.includes(b.id)}
+          stacked={narrow ? { x: box.x, w: box.w } : null}
+          onMoved={(dx, dy) => {
+            // The other picked boxes go the same way.
+            for (const o of extra) {
+              if (o.id === b.id || !picked.includes(o.id)) continue
+              onBoxChange?.(o.id, { x: o.x + dx, y: o.y + dy })
+            }
+          }}
+        >
+          {renderBox?.(b.id)}
+        </BoxFrame>
+      ))}
+    </div>
+  )
+
   return (
     <div>
       <div
@@ -336,6 +408,7 @@ export function PaperFrame({
                 } as CSSProperties)
           }
         >
+          {!narrow && layerEl}
           {!flat && !narrow && (
             <div
               data-paper-sheets
@@ -382,65 +455,7 @@ export function PaperFrame({
               {children}
             </div>
           </div>
-          {!flat && extra.length > 0 && (
-            <div
-              data-paper-boxes
-              // After the default box in the page, so read aloud and the keyboard
-              // meet the boxes after the page's own text; moved up to the top.
-              style={
-                narrow
-                  ? { position: 'relative', paddingBottom: MARGIN * k }
-                  : {
-                      position: 'relative',
-                      height: 0,
-                      zIndex: 6,
-                      top: -boxBottom,
-                    }
-              }
-            >
-              {loop && (
-                <svg
-                  aria-hidden
-                  data-paper-lasso
-                  className="pointer-events-none absolute top-0 left-0 overflow-visible"
-                  width="1"
-                  height="1"
-                >
-                  <polyline
-                    points={loop.map((p) => p.x + ',' + p.y).join(' ')}
-                    fill="none"
-                    stroke="var(--color-accent)"
-                    strokeDasharray="4 3"
-                  />
-                </svg>
-              )}
-              {extra.map((b) => (
-                <BoxFrame
-                  key={b.id}
-                  box={b}
-                  k={k}
-                  zoom={zoom}
-                  sheetW={sheet.w}
-                  stepMm={step / k}
-                  lineH={step / zoom}
-                  onBottom={(px) => reportBottom(b.id, px)}
-                  onChange={(patch) => onBoxChange?.(b.id, patch)}
-                  onMenu={(at) => onBoxMenu?.(b, at)}
-                  picked={picked.includes(b.id)}
-                  stacked={narrow ? { x: box.x, w: box.w } : null}
-                  onMoved={(dx, dy) => {
-                    // The other picked boxes go the same way.
-                    for (const o of extra) {
-                      if (o.id === b.id || !picked.includes(o.id)) continue
-                      onBoxChange?.(o.id, { x: o.x + dx, y: o.y + dy })
-                    }
-                  }}
-                >
-                  {renderBox?.(b.id)}
-                </BoxFrame>
-              ))}
-            </div>
-          )}
+          {narrow && layerEl}
         </div>
       </div>
       {!flat && (

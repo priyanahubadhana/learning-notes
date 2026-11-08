@@ -12,6 +12,7 @@ import { listAllHighlights } from '../reader/annotations/annotationService'
 import { AiError, estimateTokens, type AiResult } from './provider'
 import { callAi, type AiConfig } from './route'
 
+export { aiLockedBlock } from './aiLock'
 export {
   AI_KEYS,
   DEFAULT_CAP_USD,
@@ -82,9 +83,11 @@ export async function gatherText(
 export function blocker(
   config: AiConfig,
   allowedHere: boolean,
-): 'notReady' | 'allowOff' | null {
+  lockedBlocked = false,
+): 'notReady' | 'allowOff' | 'lockedOff' | null {
   if (!config.enabled || config.candidates.length === 0) return 'notReady'
-  return allowedHere ? null : 'allowOff'
+  if (!allowedHere) return 'allowOff'
+  return lockedBlocked ? 'lockedOff' : null
 }
 
 /**
@@ -96,6 +99,7 @@ export async function runAi(
   text: string,
   fetchImpl?: typeof fetch,
   notebookId?: string,
+  where?: { db: LearningNotesDB; pageId: string },
 ): Promise<AiResult> {
   if (!config.enabled || config.candidates.length === 0) {
     throw new AiError(t('ai.notReady'))
@@ -108,6 +112,7 @@ export async function runAi(
     maxTokens: MAX_TOKENS[action],
     fetchImpl,
     log: { notebookId, feature: action },
+    where,
   })
 }
 

@@ -1,5 +1,11 @@
 /** Spanish text of Phase O (draft: needs native review). English is enO.ts. */
 export const esO: Record<string, string> = {
+  'ai.lockedOff':
+    'Esta página está bloqueada, así que la IA no la leerá. Para permitirlo, activa "Permitir IA con página bloqueada" para este cuaderno en Ajustes › Permisos.',
+  'ai.allowLocked': 'Permitir IA con página bloqueada',
+  'ai.allowLocked.hint':
+    'Desactivado: la IA nunca lee las páginas bloqueadas de este cuaderno. Activado: puede hacerlo cuando se lo pides.',
+  'ai.allowLocked.for': 'Permitir IA con página bloqueada para {name}',
   'reading.goal.label': 'Meta diaria de lectura',
   'reading.goal.off': 'Sin meta',
   'reading.goal.min': '{count} min',

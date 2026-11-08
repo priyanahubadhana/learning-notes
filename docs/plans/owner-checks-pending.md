@@ -2,6 +2,11 @@
 
 Moved out of HANDOFF on 2026-11-06 (audit) so HANDOFF stays five lines. Newest first; each paragraph names its step. The run decision (master plan) is one owner iPad pass before Sync; the Phase A builder adds its checks at the top. Tick a paragraph by deleting it.
 
+## Allow AI while locked (8 Nov, R8-6)
+
+1. iPad: lock a page, then try Lasso › Convert to text and a Write pad AI Read on it: a plain message says the page is locked and AI is not called.
+2. Settings › Permissions: turn on Allow AI for a notebook; "Allow AI while locked" appears under it (off). Turn it on: the same actions now work on the locked page.
+
 ## Top gap for the pill and Pencil offer (8 Nov, R8-1/R8-2)
 
 1. iPad, Pen tool: the pill sits in the gap under the main bar and the page does not move when it opens or closes; scroll down and open it: it floats. Needs eyes: the gap's size and feel.

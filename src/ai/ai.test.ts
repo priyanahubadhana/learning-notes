@@ -16,6 +16,7 @@ import {
   actionPrompt,
   applyCards,
   applyKeyPoints,
+  aiLockedBlock,
   applySummary,
   blocker,
   gatherText,
@@ -26,6 +27,7 @@ import {
 import { deleteKey, getKey, listKeys, maskKey, setKey } from './keyStore'
 import { AiError, PROVIDERS, reasonFor } from './provider'
 import { complete } from './providers'
+import { runVision } from './vision'
 import { costOf, monthKey, readUsage, recordUsage, withinCap } from './usage'
 
 /** A fake fetch that records the request and answers with `body`. */
@@ -291,5 +293,66 @@ describe('actions', () => {
       { source: 'ai', batchId: 'b' },
     )
     expect(await gatherText(db, page, 'summary')).toBe('Mine')
+  })
+})
+
+describe('AI while locked (R8-6)', () => {
+  let db: LearningNotesDB
+  beforeEach(async () => {
+    db = createTestDb()
+    await db.open()
+  })
+  afterEach(() => db.close())
+
+  async function setup() {
+    const ws = (await getOrCreateDefaultWorkspace(db)).id
+    const nb = await createNotebook(db, ws, 'Diary')
+    const page = await createPage(db, nb.id)
+    writePref(AI_KEYS.enabled, true)
+    setKey('anthropic', 'sk-ant-1234567890abcd')
+    return { nb, page }
+  }
+
+  it('blocks a locked page by default, before any request', async () => {
+    const { nb, page } = await setup()
+    await db.pages.update(page.id, { locked: true })
+    const { fn, calls } = fakeFetch({})
+    await expect(
+      runAi(readAiConfig(), 'summary', 'text', fn, nb.id, {
+        db,
+        pageId: page.id,
+      }),
+    ).rejects.toThrow(/locked/)
+    expect(calls).toHaveLength(0)
+  })
+
+  it('blocks a page of a locked notebook, and a picture too', async () => {
+    const { nb, page } = await setup()
+    await db.notebooks.update(nb.id, { locked: true })
+    const { fn, calls } = fakeFetch({})
+    await expect(
+      runVision(
+        readAiConfig(),
+        'handwriting',
+        { mediaType: 'image/png', data: 'AAAA', width: 10, height: 10 },
+        fn,
+        undefined,
+        { db, pageId: page.id },
+      ),
+    ).rejects.toThrow(/locked/)
+    expect(calls).toHaveLength(0)
+  })
+
+  it('goes through once the notebook allows AI while locked; unlocked pages never need it', async () => {
+    const { nb, page } = await setup()
+    await db.pages.update(page.id, { locked: true })
+    expect(await aiLockedBlock(db, page.id)).toBe(true)
+    await db.notebooks.update(nb.id, { allowAiLocked: true })
+    expect(await aiLockedBlock(db, page.id)).toBe(false)
+    await db.pages.update(page.id, { locked: undefined })
+    await db.notebooks.update(nb.id, { allowAiLocked: undefined })
+    expect(await aiLockedBlock(db, page.id)).toBe(false)
+    expect(blocker(readAiConfig(), true, true)).toBe('lockedOff')
+    expect(blocker(readAiConfig(), true, false)).toBeNull()
   })
 })

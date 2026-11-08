@@ -1,5 +1,7 @@
 import { readPref } from '../app/uiPrefs'
+import type { LearningNotesDB } from '../core/db'
 import { t } from '../i18n/t'
+import { aiLockedBlock } from './aiLock'
 import { getKeyById, listKeys, type AiKey } from './keyStore'
 import { modelInfo, orderedModels } from './models'
 import {
@@ -143,6 +145,11 @@ export interface AiRequest {
   signal?: AbortSignal
   /** For the "Everything AI sent" log (no content is logged). */
   log?: { notebookId?: string; feature: string }
+  /**
+   * The page the words or picture come from. With it, `callAi` refuses a
+   * locked page (or notebook) unless the notebook allows AI while locked.
+   */
+  where?: { db: LearningNotesDB; pageId: string }
 }
 
 /**
@@ -154,6 +161,9 @@ export async function callAi(
   config: AiConfig,
   req: AiRequest,
 ): Promise<AiResult & { stopped?: boolean }> {
+  if (req.where && (await aiLockedBlock(req.where.db, req.where.pageId))) {
+    throw new AiError(t('ai.lockedOff'))
+  }
   const failed = new Set<string>()
   let streamed = false
   let last: AiError | undefined

@@ -2,6 +2,12 @@
 
 Current phase only. Older entries are in [ARCHIVE.md](ARCHIVE.md).
 
+## 2026-11-08 (R8-6 Allow AI while locked)
+
+- **What:** AI never reads a locked page (or a page of a locked notebook) unless the notebook has the new switch Settings › Permissions › "Allow AI while locked" (off by default, shown under that notebook's Allow AI once that is on). `callAi` refuses first (`req.where = {db, pageId}`), so Convert to text, Write pad AI, Summarise, Key points, Cards, Ask this book, Story so far and Make cards all obey it; screens also say it up front (`blocker` gains `lockedOff`). Plain message `ai.lockedOff` says why and how to allow it. Stored as `Notebook.allowAiLocked` beside `allowAi` (no Dexie version; row check updated).
+- **Why:** owner-approved step R8-6; a lock must mean the words stay home.
+- **Files:** `src/ai/{aiLock,route,aiRun,vision,padRead,AiActions,AskBook,ConvertInk,PermissionsSection}.*`, `src/core/types.ts`, `src/share/checkRows.ts`, `src/i18n/{en,es,hi}O.ts`, `src/ai/ai.test.ts`, `e2e/aiLocked.spec.ts`, `docs/features/ai.md`.
+
 ## 2026-11-08 (CI fix: paperInk rule 9 on the iPad stand-in)
 
 - **What:** the rule 9 spec sent Ctrl+C / Ctrl+V as keys; WebKit on the CI machine did not paste (not even the plain text), so the count stayed 1. The spec now sends real copy and paste events with a DataTransfer, which the editor and the ink hooks both read. App code unchanged.

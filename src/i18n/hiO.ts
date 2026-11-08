@@ -1,5 +1,11 @@
 /** Hindi text of Phase O (draft: needs native review). English is enO.ts. */
 export const hiO: Record<string, string> = {
+  'ai.lockedOff':
+    'यह पेज लॉक है, इसलिए AI इसे नहीं पढ़ेगा। अनुमति देने के लिए सेटिंग › अनुमतियाँ में इस नोटबुक के लिए "लॉक होने पर भी AI की अनुमति" चालू करें।',
+  'ai.allowLocked': 'लॉक होने पर भी AI की अनुमति',
+  'ai.allowLocked.hint':
+    'बंद: AI इस नोटबुक के लॉक पेज कभी नहीं पढ़ता। चालू: आपके कहने पर पढ़ सकता है।',
+  'ai.allowLocked.for': '{name} के लिए लॉक होने पर भी AI की अनुमति',
   'reading.goal.label': 'रोज़ पढ़ने का लक्ष्य',
   'reading.goal.off': 'कोई लक्ष्य नहीं',
   'reading.goal.min': '{count} मिनट',

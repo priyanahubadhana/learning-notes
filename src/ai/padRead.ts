@@ -1,7 +1,7 @@
 import { db } from '../core/db'
 import type { PadStroke } from '../editor/writePad/pressure'
 import { t } from '../i18n/t'
-import { blocker, forNotebook, readAiConfig } from './aiRun'
+import { aiLockedBlock, blocker, forNotebook, readAiConfig } from './aiRun'
 import { AiError, MAX_IMAGE_SIDE, type AiImage } from './provider'
 import { runVision } from './vision'
 
@@ -65,15 +65,32 @@ export async function readPad(
   const page = pageId ? await db.pages.get(pageId) : undefined
   const notebook = page ? await db.notebooks.get(page.notebookId) : undefined
   const config = forNotebook(readAiConfig(), notebook)
-  const why = blocker(config, !!notebook?.allowAi)
+  const why = blocker(
+    config,
+    !!notebook?.allowAi,
+    pageId ? await aiLockedBlock(db, pageId) : false,
+  )
   if (why) {
     throw new AiError(
-      t(why === 'notReady' ? 'ai.convert.needsAi' : 'ai.allowOff'),
+      t(
+        why === 'notReady'
+          ? 'ai.convert.needsAi'
+          : why === 'lockedOff'
+            ? 'ai.lockedOff'
+            : 'ai.allowOff',
+      ),
     )
   }
   const image = strokesToImage(strokes)
   if (!image) throw new AiError(t('ai.convert.empty'))
-  const r = await runVision(config, 'handwriting', image)
+  const r = await runVision(
+    config,
+    'handwriting',
+    image,
+    undefined,
+    undefined,
+    pageId ? { db, pageId } : undefined,
+  )
   if (!r.text.trim()) throw new AiError(t('ai.convert.empty'))
   return r.text
 }

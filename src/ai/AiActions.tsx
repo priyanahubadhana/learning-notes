@@ -14,6 +14,7 @@ import {
   applyCards,
   applyKeyPoints,
   applySummary,
+  aiLockedBlock,
   blocker,
   forNotebook,
   gatherText,
@@ -70,7 +71,12 @@ export function AiActions({
   }
 
   const start = async (action: AiAction) => {
-    const why = blocker(config, !!notebook?.allowAi)
+    const why = blocker(
+      config,
+      !!notebook?.allowAi,
+      await aiLockedBlock(db, page.id),
+    )
+    if (why === 'lockedOff') return void toast(t('ai.lockedOff'))
     if (why === 'notReady') {
       toast(t('ai.notReady'))
       return openSettings()
@@ -90,6 +96,7 @@ export function AiActions({
         text,
         undefined,
         page.notebookId,
+        { db, pageId: page.id },
       )
       if (action === 'summary' || action === 'keyPoints') {
         setPreview({ action, text: result.text })

@@ -3,6 +3,13 @@
  * esO.ts (machine drafts: mark for native review).
  */
 export const enO = {
+  // ---- R8-6 AI while locked ----
+  'ai.lockedOff':
+    'This page is locked, so AI will not read it. To allow it, turn on "Allow AI while locked" for this notebook in Settings › Permissions.',
+  'ai.allowLocked': 'Allow AI while locked',
+  'ai.allowLocked.hint':
+    'Off: AI never reads locked pages of this notebook. On: it can, when you ask it to.',
+  'ai.allowLocked.for': 'Allow AI while locked for {name}',
   // ---- Reading goal ----
   'reading.goal.label': 'Daily reading goal',
   'reading.goal.off': 'No goal',

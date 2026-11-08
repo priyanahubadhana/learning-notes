@@ -12,7 +12,7 @@ interface InkController {
   deleteSelection(): void
   undo(): boolean
 }
-import { blocker, forNotebook, readAiConfig } from './aiRun'
+import { aiLockedBlock, blocker, forNotebook, readAiConfig } from './aiRun'
 import { AiError, PROVIDERS, type AiImage } from './provider'
 import { blobToImage, runVision, type VisionTask } from './vision'
 
@@ -64,15 +64,30 @@ export function ConvertInk({
     setTask(as)
     const page = await db.pages.get(pageId)
     const notebook = page ? await db.notebooks.get(page.notebookId) : undefined
-    const why = blocker(config, !!notebook?.allowAi)
+    const why = blocker(
+      config,
+      !!notebook?.allowAi,
+      await aiLockedBlock(db, pageId),
+    )
     if (why) {
-      toast(t(why === 'notReady' ? 'ai.convert.needsAi' : 'ai.allowOff'))
+      toast(
+        t(
+          why === 'notReady'
+            ? 'ai.convert.needsAi'
+            : why === 'lockedOff'
+              ? 'ai.lockedOff'
+              : 'ai.allowOff',
+        ),
+      )
       return onClose()
     }
     setState('busy')
     try {
       const image: AiImage = await blobToImage(png)
-      const r = await runVision(config, as, image)
+      const r = await runVision(config, as, image, undefined, undefined, {
+        db,
+        pageId,
+      })
       if (!r.text.trim()) {
         toast(t('ai.convert.empty'))
         return onClose()

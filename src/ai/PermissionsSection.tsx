@@ -70,6 +70,28 @@ export function PermissionsSection({ db }: { db: LearningNotesDB }) {
                 />
                 {n.title || t('review.untitled')}
               </label>
+              {n.allowAi && (
+                <label className="ml-8 flex min-h-11 items-center gap-3 text-xs text-muted">
+                  <input
+                    type="checkbox"
+                    role="switch"
+                    checked={!!n.allowAiLocked}
+                    data-testid="ai-allow-locked"
+                    aria-label={t('ai.allowLocked.for', { name: n.title })}
+                    onChange={(e) =>
+                      void db.notebooks.update(n.id, {
+                        allowAiLocked: e.target.checked ? true : undefined,
+                        updatedAt: Date.now(),
+                      })
+                    }
+                    className="size-5"
+                  />
+                  <span>
+                    {t('ai.allowLocked')}
+                    <span className="block">{t('ai.allowLocked.hint')}</span>
+                  </span>
+                </label>
+              )}
               <label className="mb-2 ml-8 flex flex-wrap items-center gap-2 text-xs text-muted">
                 {t('ai.nb.uses')}
                 <select

@@ -1,3 +1,4 @@
+import type { LearningNotesDB } from '../core/db'
 import { t } from '../i18n/t'
 import type { AiConfig } from './aiRun'
 import {
@@ -42,6 +43,7 @@ export async function runVision(
   image: AiImage,
   fetchImpl?: typeof fetch,
   sleep?: (ms: number) => Promise<void>,
+  where?: { db: LearningNotesDB; pageId: string },
 ): Promise<AiResult> {
   if (!config.enabled || config.candidates.length === 0) {
     throw new AiError(t('ai.notReady'))
@@ -53,6 +55,7 @@ export async function runVision(
     fetchImpl,
     sleep,
     log: { feature: task },
+    where,
   })
   return { ...result, text: cleanAnswer(task, result.text) }
 }

@@ -12,6 +12,7 @@ import { Approval } from './AiActions'
 import {
   applyCards,
   applySummary,
+  aiLockedBlock,
   blocker,
   forNotebook,
   parseCards,
@@ -84,6 +85,7 @@ export function AskBook(props: AskBookProps) {
     () => db.notebooks.get(page.notebookId),
     [db, page.notebookId],
   )
+  const locked = useLiveQuery(() => aiLockedBlock(db, page.id), [db, page.id])
   const config = forNotebook(readAiConfig(), notebook)
   const [mode, setMode] = useState<Mode>('ask')
   const [question, setQuestion] = useState('')
@@ -134,12 +136,20 @@ export function AskBook(props: AskBookProps) {
       : hereSection
   const chosen = scope ?? (chapters.length ? currentChapter : -1)
 
-  const why = blocker(config, !!notebook?.allowAi)
+  const why = blocker(config, !!notebook?.allowAi, locked === true)
   if (why) {
     return (
       <div data-testid="ask-book" className="flex flex-col gap-3 text-sm">
         <h2 className="text-base font-semibold">{t('ai.book.title')}</h2>
-        <p>{t(why === 'allowOff' ? 'ai.book.off' : 'ai.notReady')}</p>
+        <p>
+          {t(
+            why === 'allowOff'
+              ? 'ai.book.off'
+              : why === 'lockedOff'
+                ? 'ai.lockedOff'
+                : 'ai.notReady',
+          )}
+        </p>
         <button type="button" className={btn} onClick={() => openSettings()}>
           {t('ai.book.openSettings')}
         </button>
@@ -240,6 +250,7 @@ export function AskBook(props: AskBookProps) {
           notebookId: page.notebookId,
           feature: mode === 'ask' ? 'askBook' : 'storySoFar',
         },
+        where: { db, pageId: page.id },
       })
       setAnswer(r.text)
       if (r.stopped) setStopped(true)
@@ -267,6 +278,7 @@ export function AskBook(props: AskBookProps) {
         answer,
         undefined,
         page.notebookId,
+        { db, pageId: page.id },
       )
       const list = parseCards(r.text)
       if (list.length === 0) toast(t('ai.failed', { reason: t('ai.empty') }))

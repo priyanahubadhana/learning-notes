@@ -423,5 +423,16 @@ export function pasteHandler({
     ;(editor as Editor).pasteHTML(sanitizePastedHtml(html))
     return true
   }
+  // Several lines of plain text: one block per line (a single block with
+  // line breaks cannot be moved off the gap between sheets line by line).
+  const text = data.getData('text/plain')
+  if (
+    !html &&
+    text.trim().includes('\n') &&
+    !data.types.includes('blocknote/html')
+  ) {
+    insertPlainText(editor as Editor, text)
+    return true
+  }
   return defaultPasteHandler()
 }

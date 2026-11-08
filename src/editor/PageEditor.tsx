@@ -106,6 +106,7 @@ import { closeWritePadFor, writePad } from './writePad/padState'
 import { WritePadLazy } from './writePad/WritePadLazy'
 import { ClashBarsLazy } from './ClashBarsLazy'
 import { PictureHandles } from './PictureHandles'
+import { pagination } from '../paper/paginate'
 import { stampLabel, stampPicture } from './embed/embedClock'
 import { StampWatcher } from './embed/StampWatcher'
 import { ImageError, imageObjectUrl, saveImage } from '../images/imageService'
@@ -325,7 +326,13 @@ function LoadedPageEditor({
   const editor = useCreateBlockNote({
     schema,
     initialContent,
-    extensions: [codeBlockKeys, linkTrigger, penTransactionGuard, ownSelection],
+    extensions: [
+      codeBlockKeys,
+      linkTrigger,
+      penTransactionGuard,
+      ownSelection,
+      pagination,
+    ],
     // The page scrolls only when the caret would be hidden (no jumps).
     _tiptapOptions: { editorProps: { handleScrollToSelection } },
     // Pasted web pages are cleaned; Ctrl/Cmd+Shift+V pastes plain text.

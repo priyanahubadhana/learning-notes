@@ -832,3 +832,5 @@ The other older decisions stand as built (owner, 2026-11-01); they are in [ARCHI
 - **2026-11-09 · iPad fix 9: paper zoom spring:** The e2e uses Ctrl+wheel (same zoom code as the pinch); the touch pinch itself needs the iPad.
 
 - **2026-11-09 · iPad fix 1: picture placement preview:** The preview opens at the cursor line (or the empty picture block) and starts at the picture's size up to 60% of the page. Moving is by dropping under a line (the page is a flow of blocks, not free positions); inside paper boxes it stays in that box's page column.
+
+- **2026-11-09 · Paper: no text across the gap between sheets:** A single block taller than a whole sheet, or one block with Shift+Enter line breaks that crosses the end of a sheet, is moved whole only if it fits one sheet; otherwise it still crosses (rare). The box frame is not yet drawn per sheet (it is the dashed outline while the caret is in the box, now spanning the gap). Owner please check.

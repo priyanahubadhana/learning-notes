@@ -305,3 +305,53 @@ test('pinching out gives way a little, then springs back to fit width', async ({
   await page.waitForTimeout(500)
   await expect(fitButton).toHaveText('125 %')
 })
+
+test('pasted long lists never run across the gap between sheets', async ({
+  page,
+}) => {
+  await page.goto('/')
+  await createNotebook(page, 'Paper', 'Sheet one')
+  await typeInEditor(page, 'Start')
+  await page.locator('.bn-editor').first().click()
+  // Paste 60 list lines at once (as a pasted list does), more than a sheet.
+  await page.evaluate(() => {
+    const el = document.querySelector('.bn-editor') as HTMLElement
+    const data = new DataTransfer()
+    data.setData(
+      'text/plain',
+      Array.from({ length: 60 }, (_, i) => `Item number ${i + 1}`).join('\n'),
+    )
+    el.dispatchEvent(
+      new ClipboardEvent('paste', {
+        clipboardData: data,
+        bubbles: true,
+        cancelable: true,
+      }),
+    )
+  })
+  await expect(page.locator('[data-paper-sheet="2"]')).toBeVisible()
+  await page.waitForTimeout(600)
+  const bad = await page.evaluate(() => {
+    const sheets = [...document.querySelectorAll('[data-paper-sheet]')].map(
+      (s) => s.getBoundingClientRect(),
+    )
+    const gaps = sheets
+      .slice(0, -1)
+      .map((s, i) => ({ top: s.bottom, bottom: sheets[i + 1].top }))
+    const out: string[] = []
+    for (const b of document.querySelectorAll(
+      '[data-paper-box] .bn-block-content',
+    )) {
+      if (!b.textContent?.trim()) continue
+      const r = b.getBoundingClientRect()
+      for (const g of gaps) {
+        if (r.top < g.bottom && r.bottom > g.top) out.push(b.textContent!)
+      }
+      // And nothing reaches below the last sheet's bottom edge.
+      if (r.bottom > sheets[sheets.length - 1].bottom + 1) out.push('below')
+    }
+    return out
+  })
+  expect(bad).toEqual([])
+  await expect(page.locator('.bn-editor')).toContainText('Item number 60')
+})

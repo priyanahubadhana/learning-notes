@@ -878,6 +878,7 @@ html[data-note-line] .bn-editor {
   overscroll-behavior: none;
 }
 
+<<<<<<< HEAD
 /*
  * Table handles stay calm: BlockNote shows the column / row grips and the
  * "+" edge buttons only for the hovered or tapped cell (hidden at rest).
@@ -921,4 +922,9 @@ html[data-note-line] .bn-editor {
 .ln-side-away .bn-side-menu {
   opacity: 0 !important;
   pointer-events: none !important;
+=======
+/* A page push at a sheet gap must land at once (BlockNote animates margins). */
+[data-paper-box] .bn-block-outer {
+  transition: none;
+>>>>>>> a55b8c1 (Paper: blocks never sit in the gap between sheets; pasted lines page onto the next sheet)
 }

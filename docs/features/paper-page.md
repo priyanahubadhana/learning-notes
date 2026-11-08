@@ -39,6 +39,8 @@ Every page is paper. It shows as fixed sheets (A4, or Letter) with a border and 
 
 - **Ink rule 6 across boxes (9 Nov).** A mixed Lasso drag (ink + lines) dropped on another box or bare paper moves the lines with their ink: the target (or a new box) takes copies and the ink, then the old box drops them. Two Undo steps (one per box). Tests `e2e/paperInk.spec.ts` (two cases), `ink/inkTransfer.test.ts`.
 
+- **Sheet gaps (9 Nov).** The gap between sheets is dead space: `paper/paginate.ts` pushes whole blocks that would reach the bottom margin of a sheet (15 mm) to the top of the next sheet (a block is never split; a block taller than a sheet is left to cross). Multi-line plain-text paste becomes one block per line. Test: e2e/paperPage.spec.ts, `paper/paginate.test.ts`.
+
 ## Not yet
 
 - Ink at a zoom other than 100 %.

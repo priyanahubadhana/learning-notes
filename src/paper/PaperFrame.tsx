@@ -21,6 +21,7 @@ import {
   MAIN_BOX,
   mainBox,
   MARGIN,
+  TOP,
   readingOrder,
   sheetOf,
 } from './boxes'
@@ -29,6 +30,7 @@ import { bounds, record, replay, waitFor, type Recorded } from './penOnPaper'
 import { activeTool } from '../app/tools/main/mainTools'
 import { adopterIn, setPaperDrop } from '../ink/inkTransfer'
 import { sheetNav } from './sheetNav'
+import { applyPagination, clearPagination } from './paginate'
 import { onWakeBox } from './wakeBox'
 import {
   clampZoom,
@@ -264,6 +266,47 @@ export function PaperFrame({
     typeof window !== 'undefined' &&
     window.innerWidth < NARROW_PX
   const total = narrow ? 0 : sheets * (sheetPx + SHEET_GAP_PX) - SHEET_GAP_PX
+  // The gap between sheets is dead space: lines that would reach the bottom
+  // margin move to the top of the next sheet (never split; paste included).
+  useEffect(() => {
+    const root = scroller.current
+    if (!root || flat) return
+    const editors = () =>
+      Array.from(
+        root.querySelectorAll<HTMLElement>('[data-paper-box] .bn-editor'),
+      )
+    if (narrow) {
+      for (const el of editors()) clearPagination(el)
+      return
+    }
+    let frame = 0
+    const run = () => {
+      frame = 0
+      const sheet0 = root
+        .querySelector<HTMLElement>('[data-paper-sheet="1"]')
+        ?.getBoundingClientRect()
+      if (!sheet0 || sheet0.height === 0) return
+      for (const el of editors()) {
+        applyPagination(el, sheet0, SHEET_GAP_PX, MARGIN * k, TOP * k)
+      }
+    }
+    const later = () => {
+      if (!frame) frame = requestAnimationFrame(run)
+    }
+    later()
+    const mo = new MutationObserver(later)
+    mo.observe(root, { childList: true, subtree: true, characterData: true })
+    const ro = new ResizeObserver(later)
+    for (const el of editors()) ro.observe(el)
+    window.addEventListener('resize', later)
+    return () => {
+      cancelAnimationFrame(frame)
+      mo.disconnect()
+      ro.disconnect()
+      window.removeEventListener('resize', later)
+    }
+  }, [k, sheets, narrow, flat, page.boxes?.length])
+
   const stored = boxesOf(page).filter((b) => b.id !== MAIN_BOX)
   // Wide: in the order they were made (a new box never moves another in the
   // page, so the caret stays); fit width: stacked in reading order.

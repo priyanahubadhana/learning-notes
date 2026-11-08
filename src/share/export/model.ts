@@ -46,6 +46,8 @@ export type NodeKind =
   | 'plain'
 
 export interface ExportNode {
+  /** The block this came from (the paper layout puts ink by it). */
+  id?: string
   kind: NodeKind
   runs: Run[]
   level?: number
@@ -165,7 +167,7 @@ const str = (v: JsonValue | undefined): string =>
   typeof v === 'string' ? v : ''
 
 /** Turns the page's live blocks into nodes (nested like the page). */
-function nodesOf(blocks: readonly Block[]): ExportNode[] {
+export function nodesOf(blocks: readonly Block[]): ExportNode[] {
   const kids = new Map<string | null, Block[]>()
   const ids = new Set(blocks.map((b) => b.id))
   for (const b of [...blocks].sort(byOrder)) {
@@ -177,6 +179,7 @@ function nodesOf(blocks: readonly Block[]): ExportNode[] {
     (kids.get(parent) ?? []).flatMap((b) => {
       const node = nodeOf(b)
       if (!node) return []
+      node.id = b.id
       node.children = build(b.id)
       return [node]
     })

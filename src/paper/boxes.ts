@@ -138,3 +138,12 @@ export function placeInOrder(
     shifted: shift > 0 ? later.filter((b) => !b.locked).map((b) => b.id) : [],
   }
 }
+
+/** Box colours (the highlight colours). */
+export const BOX_COLOURS: Record<string, string> = {
+  yellow: '#eab308',
+  green: '#22c55e',
+  blue: '#3b82f6',
+  pink: '#ec4899',
+  purple: '#a855f7',
+}

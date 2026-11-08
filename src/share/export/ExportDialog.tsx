@@ -22,6 +22,7 @@ type InkSource = () => Promise<{
 
 const FORMATS: { id: ExportFormat; label: string; desc: string }[] = [
   { id: 'pdf', label: 'export.pdf', desc: 'export.pdf.desc' },
+  { id: 'paper', label: 'export.paper', desc: 'export.paper.desc' },
   { id: 'docx', label: 'export.docx', desc: 'export.docx.desc' },
   { id: 'md', label: 'export.md', desc: 'export.md.desc' },
   { id: 'txt', label: 'export.txt', desc: 'export.txt.desc' },
@@ -114,7 +115,11 @@ export function ExportDialog({
               </label>
             )}
             <ul className="mb-3 flex flex-col gap-1">
-              {FORMATS.map((f, i) => (
+              {FORMATS.filter(
+                // The paper layout is one page, as it is on its sheets.
+                (f) =>
+                  f.id !== 'paper' || (target.kind === 'page' && !subpages),
+              ).map((f, i) => (
                 <li key={f.id}>
                   <button
                     ref={i === 0 ? first : undefined}

@@ -7,6 +7,7 @@ import type { LearningNotesDB } from '../core/db'
 import type { PaperBox } from '../core/types'
 import { triggerFirstUse } from '../help/firstUse'
 import { t } from '../i18n/t'
+import { BOX_COLOURS } from './boxes'
 import {
   addBox,
   addBoxInOrder,
@@ -16,15 +17,6 @@ import {
   restoreBox,
   updateBox,
 } from './boxService'
-
-/** Box colours (the highlight colours). */
-export const BOX_COLOURS: Record<string, string> = {
-  yellow: '#eab308',
-  green: '#22c55e',
-  blue: '#3b82f6',
-  pink: '#ec4899',
-  purple: '#a855f7',
-}
 
 const DOTS: Record<string, string> = {
   yellow: '🟡',

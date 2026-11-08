@@ -120,6 +120,7 @@ export default defineConfig({
         /autoUpdate/,
         /paperBudget/,
         /paperPhone/,
+        /paperExport/,
       ],
       use: { ...devices['iPad Pro 11'], hasTouch: true },
       expect: { timeout: 15_000 },

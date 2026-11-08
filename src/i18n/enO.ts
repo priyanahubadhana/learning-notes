@@ -459,6 +459,9 @@ export const enO = {
   'paper.hint': 'Type, or tap anywhere on the paper to add a box',
   'paper.addBox': '+ box',
   'paper.addBoxEnd': 'Add a box here',
+  'export.paper': 'Paper layout (PDF)',
+  'export.paper.desc':
+    'Sheets at real size with the paper, boxes and ink where they are',
   'help.tip.paper.zoomIn.meaning': 'Makes the paper bigger.',
   'help.tip.paper.zoomIn.example':
     'Pinch with two fingers, or Ctrl and the mouse wheel.',

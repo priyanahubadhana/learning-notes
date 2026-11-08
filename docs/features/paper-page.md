@@ -35,8 +35,9 @@ Every page is paper. It shows as fixed sheets (A4, or Letter) with a border and 
 
 - **Phones: new boxes.** Stacked layout (under 600 px): "Add a box here" at the end, or a Text-tool tap in the gap under a box adds one after it (`placeInOrder`, `addBoxInOrder`).
 
+- **PDF as paper.** Export › Paper layout (PDF): real-size sheets, background, boxes and ink in place (`share/export/paperLayout.ts`; spec [export.md](export.md)).
+
 ## Not yet
 
 - Ink rules 6 (Lasso ink + text as one piece) and 9 (copy a line with its ink); ink at a zoom other than 100 %.
-- PDF/print laid out as the paper (sheets, box places, ink in place).
 - a default paper style for new pages (Settings).

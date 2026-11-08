@@ -465,6 +465,9 @@ export const esO: Record<string, string> = {
   'paper.hint': 'Escribe, o toca el papel donde quieras para añadir un cuadro',
   'paper.addBox': '+ cuadro',
   'paper.addBoxEnd': 'Añadir un cuadro aquí',
+  'export.paper': 'Diseño de papel (PDF)',
+  'export.paper.desc':
+    'Hojas a tamaño real con el papel, los cuadros y la tinta en su sitio',
   'help.tip.paper.zoomIn.meaning': 'Hace el papel más grande.',
   'help.tip.paper.zoomIn.example':
     'Pellizca con dos dedos, o Ctrl y la rueda del ratón.',

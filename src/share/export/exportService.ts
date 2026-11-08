@@ -20,7 +20,7 @@ import { printHtml } from './printHtml'
  * then saved or sent through the share sheet.
  */
 
-export type ExportFormat = 'pdf' | 'docx' | 'md' | 'txt'
+export type ExportFormat = 'pdf' | 'paper' | 'docx' | 'md' | 'txt'
 
 /** What to export. `ink` is the open page's picture (words + ink), if any. */
 export type ExportTarget =
@@ -128,6 +128,18 @@ export async function buildExport(
   format: ExportFormat,
   options: { lang?: string } = {},
 ): Promise<ExportResult> {
+  if (format === 'paper') {
+    // The page laid out as paper: its sheets, boxes and ink, to print (PDF).
+    if (target.kind !== 'page') throw new Error('Paper layout is for one page')
+    const { buildPaperPrint } = await import('./paperLayout')
+    const made = await buildPaperPrint(db, target.pageId, options)
+    return {
+      kind: 'print',
+      html: made.html,
+      fileName: safeFileName(made.title) + '.pdf',
+      skipped: 0,
+    }
+  }
   let pages: ExportPage[]
   let skipped: number
   let title: string

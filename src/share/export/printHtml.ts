@@ -36,16 +36,41 @@ function runHtml(r: Run): string {
 
 const inline = (runs: readonly Run[]): string => runs.map(runHtml).join('')
 
-function nodesHtml(
+/**
+ * With `mark`, every block is wrapped in an element carrying its id
+ * (`data-b`) and lists are written one item per list, so the paper layout can
+ * measure where each block is and put its ink there.
+ */
+export function nodesHtml(
   nodes: readonly ExportNode[],
   imageUrl: (id: string) => string | undefined,
   base: number,
+  mark = false,
 ): string {
   const out: string[] = []
   let i = 0
   while (i < nodes.length) {
     const n = nodes[i]
+    const tagged = (html: string) =>
+      mark && n.id ? `<div data-b="${esc(n.id)}">${html}</div>` : html
     // Consecutive list items of one kind share one list.
+    if (
+      mark &&
+      (n.kind === 'bullet' || n.kind === 'number' || n.kind === 'toggle')
+    ) {
+      // One list per item; numbered items keep counting from the first of the run.
+      let first = i
+      while (first > 0 && nodes[first - 1].kind === n.kind) first--
+      const tag = n.kind === 'number' ? 'ol' : 'ul'
+      const start = n.kind === 'number' ? ` start="${i - first + 1}"` : ''
+      out.push(
+        tagged(
+          `<${tag}${start}><li>${inline(n.runs)}${n.children.length ? nodesHtml(n.children, imageUrl, base, mark) : ''}</li></${tag}>`,
+        ),
+      )
+      i++
+      continue
+    }
     if (n.kind === 'bullet' || n.kind === 'number' || n.kind === 'toggle') {
       const tag = n.kind === 'number' ? 'ol' : 'ul'
       const items: string[] = []
@@ -56,7 +81,7 @@ function nodesHtml(
       ) {
         const m = nodes[i]
         items.push(
-          `<li>${inline(m.runs)}${m.children.length ? nodesHtml(m.children, imageUrl, base) : ''}</li>`,
+          `<li>${inline(m.runs)}${m.children.length ? nodesHtml(m.children, imageUrl, base, mark) : ''}</li>`,
         )
         i++
       }
@@ -64,8 +89,9 @@ function nodesHtml(
       continue
     }
     i++
+    const from = out.length
     const kids = n.children.length
-      ? `<div class="kids">${nodesHtml(n.children, imageUrl, base)}</div>`
+      ? `<div class="kids">${nodesHtml(n.children, imageUrl, base, mark)}</div>`
       : ''
     switch (n.kind) {
       case 'heading':
@@ -121,6 +147,8 @@ function nodesHtml(
       default:
         out.push(`<p>${inline(n.runs) || '&nbsp;'}</p>${kids}`)
     }
+    if (mark && n.id && out.length > from)
+      out.push(tagged(out.splice(from).join('')))
   }
   return out.join('')
 }
@@ -141,7 +169,7 @@ function pageHtml(
   )
 }
 
-const CSS = `
+export const PRINT_CSS = `
 @page { size: A4; margin: 18mm; }
 * { box-sizing: border-box; }
 body { font: 11pt/1.55 -apple-system, "Segoe UI", Roboto, "Noto Sans", "Noto Sans Devanagari", sans-serif; color: #1d1d1f; margin: 0; }
@@ -176,7 +204,7 @@ export function printHtml(
   const inkUrl = options.inkUrl ?? (() => undefined)
   return (
     `<!doctype html><html lang="${esc(options.lang ?? 'en')}"><head><meta charset="utf-8">` +
-    `<title>${esc(options.title ?? '')}</title><style>${CSS}</style></head><body>` +
+    `<title>${esc(options.title ?? '')}</title><style>${PRINT_CSS}</style></head><body>` +
     pages.map((p) => pageHtml(p, 1, imageUrl, inkUrl)).join('') +
     `</body></html>`
   )

@@ -450,6 +450,8 @@ export const hiO: Record<string, string> = {
   'paper.hint': 'लिखें, या कागज़ पर कहीं भी टैप करके बॉक्स जोड़ें',
   'paper.addBox': '+ बॉक्स',
   'paper.addBoxEnd': 'यहाँ बॉक्स जोड़ें',
+  'export.paper': 'पेपर लेआउट (PDF)',
+  'export.paper.desc': 'असली आकार की शीट, कागज़, बॉक्स और स्याही अपनी जगह पर',
   'help.tip.paper.zoomIn.meaning': 'कागज़ को बड़ा करता है।',
   'help.tip.paper.zoomIn.example':
     'दो उँगलियों से पिंच करें, या Ctrl और माउस व्हील।',

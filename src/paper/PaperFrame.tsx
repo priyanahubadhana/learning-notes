@@ -16,6 +16,7 @@ import { Tip } from '../help/Help'
 import { t } from '../i18n/t'
 import type { Page, PaperBox } from '../core/types'
 import {
+  BOX_COLOURS,
   boxesOf,
   MAIN_BOX,
   mainBox,
@@ -27,7 +28,6 @@ import { clampBox, MIN_W } from './boxService'
 import { bounds, record, replay, waitFor, type Recorded } from './penOnPaper'
 import { activeTool } from '../app/tools/main/mainTools'
 import { adopterIn, setPaperDrop } from '../ink/inkTransfer'
-import { BOX_COLOURS } from './usePaperBoxes'
 import { sheetNav } from './sheetNav'
 import {
   clampZoom,

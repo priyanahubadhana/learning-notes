@@ -288,7 +288,7 @@ function selectionTarget(editor: Editor): { blocks: Blocks; text: string } {
 /** Copy as plain text / Markdown for the given blocks, or the selection. */
 export async function copyAs(
   editor: Editor,
-  kind: 'plain' | 'markdown',
+  kind: 'plain' | 'markdown' | 'all',
   toast: Toast,
   blocks?: readonly unknown[],
   /** Cut: the lines' ink leaves with them (Phase Q rule 9). */
@@ -300,9 +300,20 @@ export async function copyAs(
         text: blocksToPlainText(blocks as TextBlock[]),
       }
     : selectionTarget(editor)
-  const text =
-    kind === 'plain' ? target.text : editor.blocksToMarkdownLossy(target.blocks)
-  const done = await copyText(text)
+  let text =
+    kind === 'plain' || kind === 'all'
+      ? target.text
+      : editor.blocksToMarkdownLossy(target.blocks)
+  let done: boolean
+  if (kind === 'all') {
+    // Rich HTML, Markdown and our lossless format together.
+    const { copyBlocksAllFormats } = await import('./copyFormats')
+    const md = await copyBlocksAllFormats(editor, () => {}, blocks as never)
+    done = md !== null
+    if (md !== null) text = md
+  } else {
+    done = await copyText(text)
+  }
   // Rule 9: whole lines copied in the app carry their ink.
   const dom = editor.domElement
   const ink = dom ? adopterIn(dom) : null

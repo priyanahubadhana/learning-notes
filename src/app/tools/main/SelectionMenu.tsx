@@ -95,7 +95,7 @@ export function SelectionMenu({
   }
 
   const cut = async () => {
-    await copyAs(editor, 'plain', toast, undefined, true)
+    await copyAs(editor, 'all', toast, undefined, true)
     remove()
   }
   const remove = () => {
@@ -115,7 +115,7 @@ export function SelectionMenu({
     {
       id: 'copy',
       icon: 'copy',
-      run: () => void copyAs(editor, 'plain', toast),
+      run: () => void copyAs(editor, 'all', toast),
     },
     { id: 'cut', icon: 'scissors', run: () => void cut() },
     { id: 'duplicate', icon: 'duplicate', run: duplicate },

@@ -26,6 +26,18 @@ export function PasteChooser({ owner }: { owner: unknown }) {
   const ui = useSyncExternalStore(pasteUiSubscribe, pasteUiState)
   const chooser = ui.chooser?.owner === owner ? ui.chooser : null
   const chip = ui.chip?.owner === owner ? ui.chip : null
+  // Ctrl/Cmd+C of whole blocks: clean Markdown and rich HTML go with them.
+  useEffect(() => {
+    let off = () => {}
+    let gone = false
+    void import('./copyFormats').then((m) => {
+      if (!gone) off = m.installCopyFormats(owner as never)
+    })
+    return () => {
+      gone = true
+      off()
+    }
+  }, [owner])
   // The chip fades away on its own after a few seconds.
   useEffect(() => {
     if (!chip) return

@@ -2,6 +2,13 @@
 
 Moved out of HANDOFF on 2026-11-06 (audit) so HANDOFF stays five lines. Newest first; each paragraph names its step. The run decision (master plan) is one owner iPad pass before Sync; the Phase A builder adds its checks at the top. Tick a paragraph by deleting it.
 
+## Copy formats (9 Nov)
+
+1. Select a few headings, a list and a table on a page, Ctrl/Cmd+C, paste into Word, Gmail or a Markdown editor: structure stays. Paste into another page of the app: the blocks are the same.
+2. Block menu (⋮⋮) > Copy, then Copy as… > Markdown / Rich text / Plain text / HTML: each writes only that format; a toast says Copied.
+3. Tap a picture, Copy, paste into Photos or a chat: it arrives as an image.
+4. iPad: Lasso a line of text, Copy in the pill: pasting elsewhere gives clean Markdown.
+
 ## Boxes like GoodNotes (9 Nov, iPad)
 
 1. Pick the Lasso, hover a box with the Pencil or tap its thin frame: frame shows, handles appear. Drag a corner/side handle to widen; drag the frame to move.

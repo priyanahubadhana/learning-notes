@@ -207,7 +207,7 @@ export function MiniToolbar({ editor }: { editor: Editor }) {
   const text = textColourChoice.get()
   const mark = highlightChoice.get()
   const cut = async () => {
-    await copyAs(editor, 'plain', toast)
+    await copyAs(editor, 'all', toast)
     editor.insertInlineContent([])
   }
 
@@ -305,7 +305,7 @@ export function MiniToolbar({ editor }: { editor: Editor }) {
       id: 'copy',
       icon: 'copy',
       label: t('main.sel.copy'),
-      run: () => void copyAs(editor, 'plain', toast),
+      run: () => void copyAs(editor, 'all', toast),
     },
     {
       id: 'delete',

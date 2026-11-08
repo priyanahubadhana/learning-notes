@@ -801,6 +801,13 @@ The other older decisions stand as built (owner, 2026-11-01); they are in [ARCHI
 - Priority: each key point gets 1-10 stars plus a level (Must know 8-10 / Good to know 4-7 / Extra 1-3); Must know comes first and gets a picture, a mind-map node and cards.
 - Sources: as many as possible, each point linked [n] to its source, Sources list at the bottom, points with no source marked unchecked; optional second-model fact check (extra cost, shown first).
 
+## Decisions to review (copy side, 9 Nov)
+
+- Ctrl/Cmd+C keeps BlockNote's own copy (it already writes our lossless `blocknote/html`) and then replaces `text/plain` with clean Markdown and `text/html` with our own rich HTML, only when whole blocks are copied; words inside one block stay BlockNote's, so they paste into a line.
+- Button copies (Lasso, mini bar, block menu) use a one-shot copy event so the lossless format travels too; if the browser refuses, they fall back to HTML + Markdown without it.
+- Pictures in the rich HTML of a plain Copy are kept only when they are web or data addresses; "Copy as… Rich text" embeds app pictures as data URLs (same as Copy page with pictures).
+- Toggles are written as `<details>` in Markdown, cards as `**Q:** … / **A:** …`; database, mind map and day record blocks have no text form and are left out of the text formats.
+
 ## Decisions to review (database pages, 9 Nov)
 
 - No new Dexie version or table: the database engine, relations, rollups, formulas, tags and stars (number with stars format, max up to 10) already existed; "stars 1-10" is that format, not a new type.

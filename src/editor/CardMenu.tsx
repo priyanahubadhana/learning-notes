@@ -6,6 +6,7 @@ import {
   useBlockNoteEditor,
   useComponentsContext,
   useDictionary,
+  usePortalElement,
   useExtensionState,
 } from '@blocknote/react'
 import { useContext } from 'react'
@@ -63,9 +64,10 @@ function DuplicateItem() {
   )
 }
 
-/** Block menu entries: copy this block as plain text or Markdown. */
+/** Block menu entries: Copy (every format), and "Copy as..." one format. */
 function CopyItems() {
   const Components = useComponentsContext()!
+  const portalElement = usePortalElement()
   const editor = useBlockNoteEditor() as unknown as Editor
   const { toast } = useContext(AppUiContext)
   const block = useExtensionState(SideMenuExtension, {
@@ -73,17 +75,52 @@ function CopyItems() {
     selector: (state) => state?.block,
   }) as EditorBlock | undefined
   if (!block) return null
+  const kinds = [
+    ['markdown', 'copy.as.markdown'],
+    ['rich', 'copy.as.rich'],
+    ['plain', 'copy.as.plain'],
+    ['html', 'copy.as.html'],
+  ] as const
   return (
     <>
-      {(['plain', 'markdown'] as const).map((kind) => (
-        <Components.Generic.Menu.Item
-          key={kind}
-          className="bn-menu-item"
-          onClick={() => void copyAs(editor, kind, toast, [block])}
+      <Components.Generic.Menu.Item
+        className="bn-menu-item"
+        onClick={() => void copyAs(editor, 'all', toast, [block])}
+      >
+        {t('copy.all')}
+      </Components.Generic.Menu.Item>
+      <Components.Generic.Menu.Root
+        position="right"
+        sub={true}
+        portalElement={portalElement}
+      >
+        <Components.Generic.Menu.Trigger sub={true}>
+          <Components.Generic.Menu.Item
+            className="bn-menu-item"
+            subTrigger={true}
+          >
+            {t('copy.as')}
+          </Components.Generic.Menu.Item>
+        </Components.Generic.Menu.Trigger>
+        <Components.Generic.Menu.Dropdown
+          sub={true}
+          className="bn-menu-dropdown"
         >
-          {t(kind === 'plain' ? 'copy.plain' : 'copy.markdown')}
-        </Components.Generic.Menu.Item>
-      ))}
+          {kinds.map(([kind, key]) => (
+            <Components.Generic.Menu.Item
+              key={kind}
+              className="bn-menu-item"
+              onClick={() =>
+                void import('./copyFormats').then((m) =>
+                  m.copyBlocksAs(editor, kind, toast, [block as never]),
+                )
+              }
+            >
+              {t(key)}
+            </Components.Generic.Menu.Item>
+          ))}
+        </Components.Generic.Menu.Dropdown>
+      </Components.Generic.Menu.Root>
     </>
   )
 }

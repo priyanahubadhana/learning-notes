@@ -148,7 +148,7 @@ test('normal copy and paste keep everything on another page and in another noteb
   await expect(editor(page).locator('strong')).toHaveText('beta')
 })
 
-test('block menu: Copy as plain text and Copy as Markdown say Copied', async ({
+test('block menu: Copy as... Plain text and Markdown say Copied', async ({
   page,
 }) => {
   await startPage(page)
@@ -161,15 +161,17 @@ test('block menu: Copy as plain text and Copy as Markdown say Copied', async ({
   const block = page.locator('.bn-block-content', { hasText: 'plain bold' })
   await block.hover()
   await page.locator('.bn-side-menu [draggable="true"]').click()
-  await page.getByRole('menuitem', { name: 'Copy as plain text' }).click()
+  await page.getByRole('menuitem', { name: 'Copy as…' }).hover()
+  await page.getByRole('menuitem', { name: 'Plain text' }).click()
   await expect(toast(page, 'Copied')).toBeVisible()
   expect(await clipboardText(page)).toBe('plain bold')
 
   await block.hover()
   await page.locator('.bn-side-menu [draggable="true"]').click()
-  await page.getByRole('menuitem', { name: 'Copy as Markdown' }).click()
+  await page.getByRole('menuitem', { name: 'Copy as…' }).hover()
+  await page.getByRole('menuitem', { name: 'Markdown' }).click()
   await expect(toast(page, 'Copied')).toBeVisible()
-  expect(await clipboardText(page)).toContain('plain **bold**')
+  await expect.poll(() => clipboardText(page)).toContain('plain **bold**')
 })
 
 test('page menu: plain text, Markdown and page with pictures', async ({

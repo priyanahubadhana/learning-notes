@@ -61,6 +61,7 @@ export function PaperFrame({
   onAddBoxInOrder,
   onBoxesChange,
   onBoxMenu,
+  onDeleteBox,
   renderBar,
   onInkOnPaper,
   showHint = false,
@@ -78,6 +79,8 @@ export function PaperFrame({
   /** Boxes moved or resized in one go (a drop pushes others): one Undo. */
   onBoxesChange?: (changes: BoxChange[]) => void
   onBoxMenu?: (box: PaperBox, at: DOMRect) => void
+  /** Delete a box (an empty box goes with Backspace; a selected one with Delete). */
+  onDeleteBox?: (box: PaperBox) => void
   /** The floating bar under a selected box. */
   renderBar?: (box: PaperBox) => ReactNode
   /**
@@ -364,10 +367,23 @@ export function PaperFrame({
     )
   useEffect(() => {
     if (picked.length === 0) return
-    const key = (e: KeyboardEvent) => e.key === 'Escape' && setPicked([])
+    const key = (e: KeyboardEvent) => {
+      if (e.key === 'Escape') return setPicked([])
+      // Delete with a box selected and the caret elsewhere removes it.
+      const el = e.target as HTMLElement | null
+      if (
+        (e.key === 'Delete' || e.key === 'Backspace') &&
+        onDeleteBox &&
+        !el?.closest('input, textarea, [contenteditable="true"]')
+      ) {
+        for (const b of extra)
+          if (picked.includes(b.id) && !b.locked) onDeleteBox(b)
+        setPicked([])
+      }
+    }
     window.addEventListener('keydown', key)
     return () => window.removeEventListener('keydown', key)
-  }, [picked.length])
+  }, [picked, extra, onDeleteBox])
 
   // Moving and resizing boxes. The box under the pointer (and the others
   // picked with it) follow it as see-through copies; every drop is planned
@@ -812,6 +828,7 @@ export function PaperFrame({
             onGrab={(how, e) => grab(b, how, e)}
             onDragMove={dragMove}
             onDragEnd={dragEnd}
+            onEmptyDelete={onDeleteBox ? () => onDeleteBox(b) : undefined}
             stacked={narrow ? { x: box.x, w: box.w } : null}
             bar={
               picked.length === 1 && picked[0] === b.id

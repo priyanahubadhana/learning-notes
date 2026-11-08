@@ -2,6 +2,15 @@
 
 Moved out of HANDOFF on 2026-11-06 (audit) so HANDOFF stays five lines. Newest first; each paragraph names its step. The run decision (master plan) is one owner iPad pass before Sync; the Phase A builder adds its checks at the top. Tick a paragraph by deleting it.
 
+## Boxes like GoodNotes (9 Nov, iPad)
+
+1. Pick the Lasso, hover a box with the Pencil or tap its thin frame: frame shows, handles appear. Drag a corner/side handle to widen; drag the frame to move.
+2. Tap a box: a bar shows under it. Try colour, size, Bold, align, list, Duplicate, Delete (Undo), Cut.
+3. Tap one box, Shift-tap (or loop with the Lasso) another: drag; both move, a see-through copy follows and a red line shows where it lands. Drop one on another: the one below slides down. One Undo ("2 boxes moved").
+4. Drag near another box's edge or the margin: a thin guide line and a light click-in.
+5. Page with several boxes: Ctrl+A three times, Delete (or Cut): all boxes empty, Undo brings them back.
+6. Make an empty box on top of the page text, reopen the page: it is gone. An empty box: Backspace removes it.
+
 ## NotebookLM import and page tabs (9 Nov)
 
 1. Data › More › Bring in from NotebookLM. From NotebookLM download an audio overview, a video overview, a slide deck (PDF, then PowerPoint), a mind map PNG and flashcards CSV; bring each in (choose "A new page"). Check the preview names the right thing, Add works, Undo removes it. The video should play on the page; the audio in the Audio panel.

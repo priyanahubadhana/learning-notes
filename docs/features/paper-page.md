@@ -41,7 +41,9 @@ Every page is paper. It shows as fixed sheets (A4, or Letter) with a border and 
 
 - **Sheet gaps (9 Nov).** The gap between sheets is dead space: `paper/paginate.ts` pushes whole blocks that would reach the bottom margin of a sheet (15 mm) to the top of the next sheet (a block is never split; a block taller than a sheet is left to cross). Multi-line plain-text paste becomes one block per line. Test: e2e/paperPage.spec.ts, `paper/paginate.test.ts`.
 
-- **Boxes never overlap (9 Nov).** On drop or resize a box moves under any box it would cover (`clearOfBoxes` in boxes.ts, gap 3 mm); the others stay. Still to build: floating format bar under a tapped box, live copy and red landing line while dragging, snap guides.
+- **Boxes never overlap (9 Nov).** On drop or resize a box moves under any box it would cover (`clearOfBoxes` in boxes.ts, gap 3 mm); the others stay.
+
+- **Boxes like GoodNotes (9 Nov).** `paper/BoxFrame.tsx` (frame per sheet, thin frame on Lasso hover, handles), `BoxBar.tsx` (floating bar), one drag controller in `PaperFrame.tsx`: pick (tap, Shift-tap, Lasso loop), move together in one write (`updateBoxes`, one Undo), live see-through copy, red landing line, `dropPlan` pushes covered boxes down, `snapMove` guides, `sheetSegments`. Page-wide Ctrl+A: Cut/Delete in `pageWide.ts`. Repair on open: `repairBoxes` (empty boxes on top of others); Backspace in an empty box deletes it. Tests `boxes.test.ts`, `boxRepair.test.ts`, `e2e/paperBoxes.spec.ts`.
 
 ## Not yet
 

@@ -7,6 +7,7 @@ import {
   softDeleteMany,
 } from '../core/records'
 import type { Block, PaperBox } from '../core/types'
+import { toPlainText } from '../editor/mapping'
 import { recordVersion } from '../history/versionService'
 import { ordersBetween } from '../core/order'
 import {
@@ -292,4 +293,74 @@ export async function updateBoxes(
       ...[...next.values()].filter((b) => !have.has(b.id)),
     ]
   })
+}
+
+/** Two boxes whose corners are this close (mm) sit on top of each other. */
+const SAME_SPOT_MM = 12
+
+/**
+ * Page repair on open (owner bug, 9 Nov): an empty box that sits (almost) on
+ * top of the default box or another box shows a second "Enter text" line on
+ * top of the first, and cannot be told apart or deleted. Such a box is
+ * removed when it holds nothing at all: no text, no ink, only empty lines.
+ * Empty orphan lines (their box is gone) go too, when the page has other
+ * text. Nothing with content is ever touched. Returns the removed box ids.
+ */
+export async function repairBoxes(
+  db: LearningNotesDB,
+  pageId: string,
+): Promise<string[]> {
+  const page = await getLive(db.pages, pageId)
+  const boxes = boxesOf(page)
+  const live = (
+    await db.blocks.where('pageId').equals(pageId).toArray()
+  ).filter(isLive)
+  const known = new Set(boxes.map((b) => b.id))
+  const groups = groupBlocksByBox(page, live)
+  const inkBlocks = new Set(
+    (await db.inkChunks.where('pageId').equals(pageId).toArray())
+      .filter((c) => isLive(c) && c.strokes.length > 0)
+      .map((c) => c.blockId),
+  )
+  const isEmptyLine = (b: Block) =>
+    b.type === 'paragraph' &&
+    toPlainText(b.content).trim() === '' &&
+    !inkBlocks.has(b.id)
+  const empty = (id: string) => (groups.get(id) ?? []).every(isEmptyLine)
+  const near = (a: PaperBox, b: PaperBox) =>
+    Math.abs(a.x - b.x) <= SAME_SPOT_MM && Math.abs(a.y - b.y) <= SAME_SPOT_MM
+  const drop: PaperBox[] = []
+  const kept: PaperBox[] = [boxes[0]]
+  for (const b of boxes.slice(1)) {
+    const twin = [
+      ...kept,
+      ...boxes.slice(1).filter((o) => o !== b && !empty(o.id)),
+    ]
+    if (empty(b.id) && !b.locked && twin.some((o) => near(o, b))) drop.push(b)
+    else kept.push(b)
+  }
+  // Lines pointing at a box that no longer exists show up in the default box.
+  const topLevel = live.filter((b) => b.parentId === null)
+  const orphans = topLevel.filter(
+    (b) => b.boxId && !known.has(b.boxId) && isEmptyLine(b),
+  )
+  const others = topLevel.filter((b) => !orphans.includes(b))
+  const orphanIds = others.length > 0 ? orphans.map((b) => b.id) : []
+  if (drop.length === 0 && orphanIds.length === 0) return []
+  const ids = [
+    ...drop.flatMap((b) => (groups.get(b.id) ?? []).map((x) => x.id)),
+    ...orphanIds,
+  ]
+  const gone = new Set(drop.map((b) => b.id))
+  await db.transaction('rw', db.pages, db.blocks, async () => {
+    if (ids.length) await softDeleteMany(db.blocks, ids, Date.now())
+    if (gone.size)
+      await writeBoxes(db, pageId, (all) => all.filter((b) => !gone.has(b.id)))
+  })
+  console.info(
+    'Repaired the paper page: removed empty boxes',
+    [...gone],
+    orphanIds,
+  )
+  return [...gone]
 }

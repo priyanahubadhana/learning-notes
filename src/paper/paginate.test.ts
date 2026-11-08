@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest'
-import { pushes, type SheetGeometry } from './paginate'
+import { groupLines, pushes, type SheetGeometry } from './paginate'
 
 const g: SheetGeometry = {
   top: 0,
@@ -43,5 +43,32 @@ describe('pagination across sheets', () => {
   it('a block taller than a sheet is left to cross', () => {
     const p = pushes([{ top: 50, height: 2500 }], g)
     expect(p).toEqual([0])
+  })
+})
+
+describe('groupLines', () => {
+  it('joins the rects of one line and keeps lines apart', () => {
+    const lines = groupLines([
+      { top: 0, bottom: 20, left: 10 },
+      { top: 1, bottom: 19, left: 80 },
+      { top: 20, bottom: 40, left: 10 },
+      { top: 40, bottom: 40.2, left: 10 },
+    ])
+    expect(lines).toEqual([
+      { top: 0, height: 20, left: 10 },
+      { top: 20, height: 20, left: 10 },
+    ])
+  })
+  it('lines of a block taller than a sheet get their own pushes', () => {
+    const g = { top: 0, height: 1000, gap: 20, bottomMargin: 50, topMargin: 30 }
+    const lines = Array.from({ length: 60 }, (_, i) => ({
+      top: 30 + i * 20,
+      height: 20,
+    }))
+    const p = pushes(lines, g)
+    // The first line past the bottom margin moves to the next sheet; none after it moves again.
+    expect(p.filter((v) => v > 0)).toHaveLength(1)
+    const j = p.findIndex((v) => v > 0)
+    expect(lines[j].top + p[j]).toBe(1020 + 30)
   })
 })

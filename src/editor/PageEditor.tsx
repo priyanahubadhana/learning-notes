@@ -109,7 +109,7 @@ import { closeWritePadFor, writePad } from './writePad/padState'
 import { WritePadLazy } from './writePad/WritePadLazy'
 import { ClashBarsLazy } from './ClashBarsLazy'
 import { PictureHandles } from './PictureHandles'
-import { pagination } from '../paper/paginate'
+import { pagination, paginationSpacers } from '../paper/paginate'
 import { stampLabel, stampPicture } from './embed/embedClock'
 import { StampWatcher } from './embed/StampWatcher'
 import { ImageError, imageObjectUrl, saveImage } from '../images/imageService'
@@ -335,6 +335,7 @@ function LoadedPageEditor({
       penTransactionGuard,
       ownSelection,
       pagination,
+      paginationSpacers,
     ],
     // The page scrolls only when the caret would be hidden (no jumps).
     _tiptapOptions: { editorProps: { handleScrollToSelection } },

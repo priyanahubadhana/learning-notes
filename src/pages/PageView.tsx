@@ -636,6 +636,7 @@ export function PageView({
             onAddBoxInOrder={boxes.onAddBoxInOrder}
             onBoxesChange={editLockBy ? undefined : boxes.onBoxesChange}
             onBoxMenu={editLockBy ? undefined : boxes.onBoxMenu}
+            onDeleteBox={editLockBy ? undefined : boxes.onDeleteBox}
             renderBar={boxes.renderBar}
             onInkOnPaper={boxes.onInkOnPaper}
             showHint={

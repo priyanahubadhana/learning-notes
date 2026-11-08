@@ -262,3 +262,93 @@ test('Delete and Cut on a page-wide Ctrl+A selection empty every box; Undo bring
   await page.keyboard.press('Control+x')
   await expect(extra.nth(1)).not.toContainText('Box 2')
 })
+
+test('an empty box lying on the default box is repaired on open, and an empty box goes with Backspace', async ({
+  page,
+}) => {
+  await startInMode(page, 'computer')
+  await page.goto('/')
+  await createNotebook(page, 'Paper', 'Doubles')
+  await typeInEditor(page, 'Main text')
+  await page.waitForTimeout(800)
+  const sheet = (await page.locator('[data-paper-sheet="1"]').boundingBox())!
+  const extra = page.locator(EXTRA)
+  // Seed the broken page: an empty box lying on the default box.
+  await page.evaluate(async () => {
+    const dbs = await indexedDB.databases()
+    const db: IDBDatabase = await new Promise((res, rej) => {
+      const r = indexedDB.open(dbs[0].name!)
+      r.onsuccess = () => res(r.result)
+      r.onerror = () => rej(r.error)
+    })
+    const tx = db.transaction(['pages', 'blocks'], 'readwrite')
+    const all = <T>(name: string) =>
+      new Promise<T[]>((res) => {
+        const r = tx.objectStore(name).getAll()
+        r.onsuccess = () => res(r.result as T[])
+      })
+    const blocks = await all<Record<string, unknown>>('blocks')
+    const pages = await all<Record<string, unknown>>('pages')
+    const src = blocks.find((x) =>
+      JSON.stringify(x.content).includes('Main text'),
+    )!
+    const pg = pages.find((x) => x.id === src.pageId)!
+    tx.objectStore('pages').put({
+      ...pg,
+      boxes: [{ id: 'dup', x: 16, y: 10, w: 90 }],
+    })
+    tx.objectStore('blocks').put({
+      ...src,
+      id: 'dupline',
+      content: {},
+      boxId: 'dup',
+      order: 'a0',
+    })
+    await new Promise((r) => (tx.oncomplete = r))
+    db.close()
+  })
+  await page.reload()
+  await expect(page.locator('[data-paper-box="main"]')).toBeVisible()
+  await expect(extra).toHaveCount(0)
+  // An empty box far away: Backspace removes it (and a toast offers Undo).
+  const main = (await page.locator('[data-paper-box="main"]').boundingBox())!
+  await page.mouse.click(sheet.x + sheet.width * 0.5, main.y + main.height + 90)
+  await expect(extra).toHaveCount(1)
+  await expect(extra.locator('.bn-editor')).toBeFocused()
+  await page.keyboard.press('Backspace')
+  await expect(extra).toHaveCount(0)
+})
+
+test('one paragraph taller than a sheet is split at line boundaries: no line sits in the gap', async ({
+  page,
+}) => {
+  await startInMode(page, 'computer')
+  await page.goto('/')
+  await createNotebook(page, 'Paper', 'Tall block')
+  await typeInEditor(page, 'Start')
+  const words = Array.from({ length: 1400 }, (_, i) => 'word' + i).join(' ')
+  await page.keyboard.insertText(' ' + words)
+  await expect(page.locator('[data-paper-sheet="2"]')).toBeVisible()
+  await expect(page.locator('[data-page-spacer]').first()).toBeAttached()
+  const bad = await page.evaluate(() => {
+    const s1 = document
+      .querySelector('[data-paper-sheet="1"]')!
+      .getBoundingClientRect()
+    const s2 = document
+      .querySelector('[data-paper-sheet="2"]')!
+      .getBoundingClientRect()
+    const p = document.querySelector(
+      '[data-paper-box="main"] .bn-inline-content',
+    )!
+    const r = document.createRange()
+    r.selectNodeContents(p)
+    return Array.from(r.getClientRects()).filter(
+      (x) =>
+        x.height > 4 &&
+        x.height < 60 &&
+        x.bottom > s1.bottom + 1 &&
+        x.top < s2.top - 1,
+    ).length
+  })
+  expect(bad).toBe(0)
+})

@@ -39,6 +39,7 @@ export function BoxFrame({
   onGrab,
   onDragMove,
   onDragEnd,
+  onEmptyDelete,
   stacked,
   bar,
   children,
@@ -67,6 +68,8 @@ export function BoxFrame({
   onGrab: (how: GrabHow, e: ReactPointerEvent) => void
   onDragMove: (e: ReactPointerEvent) => void
   onDragEnd: (e: ReactPointerEvent) => void
+  /** Backspace or Delete in a box with nothing in it: the box goes. */
+  onEmptyDelete?: () => void
   /** Fit width (step 6): in the page's flow at this x and width (mm). */
   stacked: { x: number; w: number } | null
   /** The floating bar under a selected box. */
@@ -108,6 +111,14 @@ export function BoxFrame({
       data-picked={picked ? '' : undefined}
       data-dragging={dragging ? '' : undefined}
       data-lasso={lasso ? '' : undefined}
+      onKeyDownCapture={(e) => {
+        if (e.key !== 'Backspace' && e.key !== 'Delete') return
+        if (!onEmptyDelete || box.locked || !el.current) return
+        if (!isEmptyBox(el.current)) return
+        e.preventDefault()
+        e.stopPropagation()
+        onEmptyDelete()
+      }}
       className={
         (stacked ? 'relative mt-8 ' : 'absolute ') +
         'group' +
@@ -241,5 +252,17 @@ export function BoxFrame({
         </div>
       )}
     </div>
+  )
+}
+
+/** Is there only one empty line in this box (no text, no picture, nothing)? */
+function isEmptyBox(el: HTMLElement): boolean {
+  const lines = el.querySelectorAll('.bn-editor .bn-block-outer')
+  if (lines.length > 1) return false
+  const content = el.querySelector('.bn-editor .bn-block-content')
+  if (!content) return true
+  return (
+    content.getAttribute('data-content-type') === 'paragraph' &&
+    (content.textContent ?? '').trim() === ''
   )
 }

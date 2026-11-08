@@ -12,6 +12,7 @@ import {
   addBox,
   addBoxInOrder,
   addBoxWithLines,
+  repairBoxes,
   duplicateBox,
   removeBox,
   restoreBox,
@@ -47,6 +48,7 @@ export function usePaperBoxes(
   /** Several boxes moved by one drop: one write, and Undo when more than one. */
   onBoxesChange: (changes: BoxChange[]) => void
   onBoxMenu: (box: PaperBox, at: DOMRect) => void
+  onDeleteBox: (box: PaperBox) => void
   /** The floating bar under a selected box. */
   renderBar: (box: PaperBox) => ReactNode
   onInkOnPaper?: (
@@ -63,6 +65,11 @@ export function usePaperBoxes(
     box: PaperBox
     at: DOMRect
   } | null>(null)
+
+  // Page repair on open: an empty box on top of another one goes.
+  useEffect(() => {
+    if (editable) runTask(repairBoxes(db, pageId).then(() => {}))
+  }, [db, pageId, editable])
 
   // Cut and Delete of a page-wide selection (Ctrl+A, third step): every box
   // is emptied at once; the toast's Undo puts it all back.
@@ -205,6 +212,7 @@ export function usePaperBoxes(
     onBoxChange,
     onBoxesChange,
     onBoxMenu: (box, at) => setMenuFor({ box, at }),
+    onDeleteBox: remove,
     renderBar: (box) => (
       <BoxBar
         pageId={pageId}

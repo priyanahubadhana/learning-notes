@@ -2,14 +2,48 @@ import { createExtension } from '@blocknote/core'
 import { Plugin, PluginKey } from 'prosemirror-state'
 import { Decoration, DecorationSet, type EditorView } from 'prosemirror-view'
 
+/** One text line of a block, as measured (client px). */
+export interface LineRect {
+  top: number
+  height: number
+  left: number
+}
+
+/**
+ * Joins the client rects of a block's text into lines: rects whose middles
+ * fall inside one line are that line. Sorted top to bottom.
+ */
+export function groupLines(
+  rects: readonly { top: number; bottom: number; left: number }[],
+): LineRect[] {
+  const lines: { top: number; bottom: number; left: number }[] = []
+  for (const r of [...rects].sort((a, b) => a.top - b.top || a.left - b.left)) {
+    if (r.bottom - r.top < 1) continue
+    const mid = (r.top + r.bottom) / 2
+    const hit = lines.find((l) => mid > l.top + 1 && mid < l.bottom - 1)
+    if (hit) {
+      hit.top = Math.min(hit.top, r.top)
+      hit.bottom = Math.max(hit.bottom, r.bottom)
+      hit.left = Math.min(hit.left, r.left)
+    } else lines.push({ ...r })
+  }
+  return lines.map((l) => ({
+    top: l.top,
+    height: l.bottom - l.top,
+    left: l.left,
+  }))
+}
+
 /**
  * Sheets and the gap between them (iPad finding, 9 Nov). A box's text is one
  * continuous flow, but the paper is sheets with a gap: a line must never sit
  * in the gap or across a sheet's bottom margin. Each top-level block that
  * would reach the bottom margin (or starts in the margin or gap) is pushed
  * down to the top of the next sheet; a block is never split, so a line is
- * never cut. A block taller than a whole sheet is the one exception (it is
- * left to cross). Pure maths; `applyPagination` does the DOM.
+ * never cut. A block taller than a whole sheet cannot move as one: it is split
+ * for display at line boundaries (a spacer before the first line that would
+ * reach the margin), so no line sits in the gap either. Pure maths;
+ * `applyPagination` does the DOM.
  */
 
 export interface SheetGeometry {
@@ -104,6 +138,55 @@ export const pagination = createExtension({
   ],
 })
 
+/** A spacer inside a tall block: `px` of free space before the text at `pos`. */
+interface Spacer {
+  pos: number
+  px: number
+}
+const spacerKey = new PluginKey<Spacer[]>('ln-pagination-spacers')
+
+/** Splits tall blocks for display: widgets that push the lines after them down. */
+export const paginationSpacers = createExtension({
+  key: 'learning-notes-pagination-spacers',
+  prosemirrorPlugins: [
+    new Plugin<Spacer[]>({
+      key: spacerKey,
+      state: {
+        init: () => [],
+        apply: (tr, old) =>
+          tr.getMeta(spacerKey) ??
+          (tr.docChanged
+            ? old.map((s) => ({ ...s, pos: tr.mapping.map(s.pos) }))
+            : old),
+      },
+      props: {
+        decorations(state) {
+          const list = spacerKey.getState(state) ?? []
+          if (list.length === 0) return DecorationSet.empty
+          return DecorationSet.create(
+            state.doc,
+            list
+              .filter((s) => s.pos > 0 && s.pos < state.doc.content.size)
+              .map((s) =>
+                Decoration.widget(
+                  s.pos,
+                  () => {
+                    const el = document.createElement('span')
+                    el.setAttribute('data-page-spacer', '')
+                    el.contentEditable = 'false'
+                    el.style.cssText = `display:block;height:${s.px}px;pointer-events:none`
+                    return el
+                  },
+                  { side: -1, key: 'sp' + s.px + '-' + s.pos },
+                ),
+              ),
+          )
+        },
+      },
+    }),
+  ],
+})
+
 const idOf = (outer: HTMLElement) =>
   outer.querySelector(':scope > .bn-block')?.getAttribute('data-id') ?? ''
 
@@ -132,15 +215,63 @@ export function applyPagination(
     ? editorEl.getBoundingClientRect().width / editorEl.offsetWidth
     : 1
   const had = key.getState(view.state) ?? new Map<string, number>()
-  // Natural positions: what is measured minus the pushes already applied.
-  let applied = 0
+  const spacersHad = spacerKey.getState(view.state) ?? []
   const ids = outers.map(idOf)
-  const natural = outers.map((el, i) => {
-    applied += (had.get(ids[i]) ?? 0) * scale
+  const room = sheet0.height - topMargin - bottomMargin
+  // Natural positions: what is measured minus the pushes already applied
+  // (block margins and spacers). A block taller than a sheet is measured line
+  // by line, so a line can move on its own.
+  interface Item {
+    top: number
+    height: number
+    block: number
+    /** Set for a line of a tall block: where its text starts. */
+    pos?: number
+    first?: boolean
+  }
+  const items: Item[] = []
+  // Where each top-level block starts, from the document (one pass). The old
+  // way asked the DOM for every block (posAtDOM walks the siblings each time:
+  // slow on a page of thousands of blocks, on every keystroke).
+  const starts = blockStarts(view, outers.length)
+  let margins = 0
+  const spacerPx = (from: number, to: number) =>
+    spacersHad
+      .filter((x) => x.pos >= from && x.pos < to)
+      .reduce((n, x) => n + x.px, 0) * scale
+  outers.forEach((el, i) => {
+    margins += (had.get(ids[i]) ?? 0) * scale
     const r = el.getBoundingClientRect()
-    return { top: r.top - applied, height: r.height }
+    const start = starts ? starts[i] : posOf(view, el)
+    const nextEl = el.nextElementSibling as HTMLElement | null
+    const end = starts
+      ? i + 1 < starts.length
+        ? starts[i + 1]
+        : view.state.doc.content.size
+      : nextEl
+        ? (posOf(view, nextEl) ?? view.state.doc.content.size)
+        : view.state.doc.content.size
+    const before = start === null ? 0 : spacerPx(0, start)
+    const inside = start === null || end === null ? 0 : spacerPx(start, end)
+    const naturalH = r.height - inside
+    if (naturalH > room && start !== null) {
+      const lines = linesOf(view, el)
+      if (lines.length > 1) {
+        lines.forEach((l, j) =>
+          items.push({
+            top: l.top - margins - spacerPx(0, l.pos + 1),
+            height: l.height,
+            block: i,
+            pos: l.pos,
+            first: j === 0,
+          }),
+        )
+        return
+      }
+    }
+    items.push({ top: r.top - margins - before, height: naturalH, block: i })
   })
-  const want = pushes(natural, {
+  const want = pushes(items, {
     top: sheet0.top,
     height: sheet0.height,
     gap: gapPx,
@@ -148,22 +279,90 @@ export function applyPagination(
     topMargin,
   })
   const next = new Map<string, number>()
-  let changed = false
-  ids.forEach((id, i) => {
-    const css = Math.round(want[i] / scale)
-    if (css > 0 && id) next.set(id, css)
-    if (Math.abs(css - (had.get(id) ?? 0)) >= 1) changed = true
+  const spacers: Spacer[] = []
+  items.forEach((it, j) => {
+    const css = Math.round(want[j] / scale)
+    if (css <= 0) return
+    if (it.pos === undefined || it.first) next.set(ids[it.block], css)
+    else spacers.push({ pos: it.pos, px: css })
   })
+  let changed = spacers.length !== spacersHad.length
+  if (!changed)
+    changed = spacers.some(
+      (x, j) =>
+        x.pos !== spacersHad[j].pos || Math.abs(x.px - spacersHad[j].px) >= 1,
+    )
+  for (const id of ids) {
+    if (Math.abs((next.get(id) ?? 0) - (had.get(id) ?? 0)) >= 1) changed = true
+  }
   if (!changed) return false
-  view.dispatch(view.state.tr.setMeta(key, next).setMeta('addToHistory', false))
+  view.dispatch(
+    view.state.tr
+      .setMeta(key, next)
+      .setMeta(spacerKey, spacers)
+      .setMeta('addToHistory', false),
+  )
   return true
+}
+
+/**
+ * The document position where each top-level block starts (inside it, as
+ * posAtDOM(outer, 0) says), read from the document, not the DOM. Null if the
+ * document and the DOM disagree on the count (then the DOM way is used).
+ */
+function blockStarts(view: EditorView, count: number): number[] | null {
+  const group = view.state.doc.firstChild
+  if (!group || group.childCount !== count) return null
+  const out: number[] = []
+  group.forEach((_node, offset) => out.push(offset + 2))
+  return out
+}
+
+const posOf = (view: EditorView, el: HTMLElement): number | null => {
+  try {
+    return view.posAtDOM(el, 0)
+  } catch {
+    return null
+  }
+}
+
+/** The text lines of a block (client rects) with the document position each starts at. */
+function linesOf(
+  view: EditorView,
+  outer: HTMLElement,
+): (LineRect & { pos: number })[] {
+  const content = outer.querySelector<HTMLElement>('.bn-inline-content')
+  if (!content) return []
+  const range = document.createRange()
+  range.selectNodeContents(content)
+  const lines = groupLines(
+    Array.from(range.getClientRects()).map((r) => ({
+      top: r.top,
+      bottom: r.bottom,
+      left: r.left,
+    })),
+  )
+  const out: (LineRect & { pos: number })[] = []
+  for (const l of lines) {
+    const at = view.posAtCoords({ left: l.left + 1, top: l.top + l.height / 2 })
+    if (at) out.push({ ...l, pos: at.pos })
+  }
+  return out
 }
 
 /** Takes every push away (the paper is not in sheets: fit width, the reader). */
 export function clearPagination(editorEl: HTMLElement): void {
   const view = views.get(editorEl)
-  if (!view || (key.getState(view.state)?.size ?? 0) === 0) return
+  if (!view) return
+  if (
+    (key.getState(view.state)?.size ?? 0) === 0 &&
+    (spacerKey.getState(view.state)?.length ?? 0) === 0
+  )
+    return
   view.dispatch(
-    view.state.tr.setMeta(key, new Map()).setMeta('addToHistory', false),
+    view.state.tr
+      .setMeta(key, new Map())
+      .setMeta(spacerKey, [])
+      .setMeta('addToHistory', false),
   )
 }

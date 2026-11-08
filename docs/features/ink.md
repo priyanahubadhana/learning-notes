@@ -91,3 +91,5 @@ Each rule gets its own e2e test (chromium and ipad-webkit).
 8. **Link mark:** while ink is Lasso-selected, a thin, faint line shows the text line it is linked to.
 9. **Copy and paste of a line** also copies its linked ink.
 10. **Big drawings** that span many lines link to their top line and move as one piece.
+
+All ten are built (8 Nov). Rule 5: ink dropped outside its box goes to the box there or a new box with lines (`ink/inkTransfer.ts`). Rule 6: a mixed Lasso drag moves the whole lines within the box; strokes are re-linked to the nearest selected line first (no undo step), so one Undo restores both. Rule 9: copy/cut of lines whose words are selected in full keeps their ink in the app; a paste whose text matches links it to the pasted lines (new lines in order, or the caret line), through the editor's copy/cut/paste events and the app's Copy, Cut and Paste as plain text. Tests: `e2e/paperInk.spec.ts` (chromium, ipad-webkit).

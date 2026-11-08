@@ -28,6 +28,11 @@ Current phase only. Older entries are in [ARCHIVE.md](ARCHIVE.md).
 - **What:** a box's editor is made only when the box comes within 800 px of the scrolling page (a light placeholder of three lines stands in; once made it stays, so nothing unsaved is ever torn down); a just-made box is made at once. The Lasso loop redraws in its own small component and the pick reads each box once. New CI budget `e2e/paperBudget.spec.ts` (chromium and ipad-webkit): 50 boxes + 2,000 strokes reopen with a median under 4 s including the whole reload (about 1.2 s here), far boxes are placeholders, scrolling makes them, and the Lasso over all 50 boxes takes under 150 ms (about 16 ms here).
 - **Files:** `src/paper/PaperFrame.tsx`, `src/pages/PageView.tsx`, `e2e/paperBudget.spec.ts`, `playwright.config.ts`.
 
+## 2026-11-08 (Paper ink rule 9: copy and paste of a line carries its ink)
+
+- **What:** copying or cutting lines whose words are selected in full keeps their ink in the app; pasting the same text links copies of it to the pasted lines (new lines in order, or the line at the caret). Works with Ctrl/Cmd+C/X/V in the editor, the selection menu Copy/Cut and Paste as plain text. Cut takes the ink with it. Specs, DECISIONS, HANDOFF and owner checks updated for rules 5, 6 and 9.
+- **Files:** `src/ink/{controller,inkTransfer}.ts`, `src/editor/clipboard.ts`, `src/app/tools/main/SelectionMenu.tsx`, `e2e/paperInk.spec.ts`, docs.
+
 ## 2026-11-08 (Paper ink rule 6: Lasso ink and text move as one piece)
 
 - **What:** dragging a mixed Lasso selection (ink and whole lines) now moves the lines to the drop spot (before or after the nearest other line) and the ink with them. Each stroke is first linked to the nearest selected line (saved, not an undo step, it does not move), then the lines move as one text step, so one Undo puts both back. The handles still change the ink only; the mixed menu note says so.

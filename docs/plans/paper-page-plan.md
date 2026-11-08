@@ -70,7 +70,7 @@ The same `inkBg` values and the same `[data-ink-paper]` CSS go on each sheet ele
 
 ## Ink rules on paper (owner, final, 8 Nov 2026)
 
-Each rule gets its own e2e test (chromium and ipad-webkit).
+Each rule gets its own e2e test (chromium and ipad-webkit). All ten built (8 Nov); rule 6 moves lines within their own box only (DECISIONS).
 
 1. **Layers:** text blocks are the bottom layer and ink is a top layer. The Pen, highlighter and eraser change only ink.
 2. **Linked to a line:** each stroke is linked to the text line under it (today's paragraph anchoring) and moves with it.

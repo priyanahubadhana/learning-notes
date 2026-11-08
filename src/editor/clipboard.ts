@@ -1,5 +1,6 @@
 import { t } from '../i18n/t'
 import type { AppSchema } from './schema'
+import { adopterIn } from '../ink/inkTransfer'
 
 /**
  * Copy and paste beyond the browser's own Ctrl+C / Ctrl+V (which already
@@ -248,6 +249,8 @@ export async function copyAs(
   kind: 'plain' | 'markdown',
   toast: Toast,
   blocks?: readonly unknown[],
+  /** Cut: the lines' ink leaves with them (Phase Q rule 9). */
+  cut = false,
 ): Promise<void> {
   const target = blocks
     ? {
@@ -257,7 +260,19 @@ export async function copyAs(
     : selectionTarget(editor)
   const text =
     kind === 'plain' ? target.text : editor.blocksToMarkdownLossy(target.blocks)
-  toast((await copyText(text)) ? t('copy.done') : t('copy.blocked'))
+  const done = await copyText(text)
+  // Rule 9: whole lines copied in the app carry their ink.
+  const dom = editor.domElement
+  const ink = dom ? adopterIn(dom) : null
+  if (done && ink) {
+    // A selection: only lines whose words it covers in full.
+    const ids =
+      !blocks && editor.getSelectedText()
+        ? ink.wholeLines()
+        : (target.blocks as { id: string }[]).map((b) => b.id)
+    ink.copyLines(ids, text, cut)
+  }
+  toast(done ? t('copy.done') : t('copy.blocked'))
 }
 
 /** Copies the whole page: HTML with pictures inside, plus plain text. */
@@ -310,7 +325,11 @@ export async function pastePlainFromClipboard(
   try {
     const text = await navigator.clipboard.readText()
     editor.focus()
-    insertPlainText(editor, text)
+    const dom = editor.domElement
+    const ink = dom ? adopterIn(dom) : null
+    // Rule 9: the copied lines' ink comes with them.
+    if (ink) ink.pasteLines(text, () => insertPlainText(editor, text))
+    else insertPlainText(editor, text)
     toast(t('paste.done'))
   } catch {
     toast(t('paste.blocked'))

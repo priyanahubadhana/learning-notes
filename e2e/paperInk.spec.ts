@@ -9,8 +9,8 @@ import { openNote, tool } from './mainBarHelpers.ts'
  * linked to the line under it; a deleted line hands its ink to the next
  * line; a drawing over many lines belongs to its top line; the Lasso shows
  * the link and re-links moved ink; the Pencil on empty paper makes a box
- * with lines under the ink. Rules 6 and 9 (Lasso ink + text as one piece,
- * copy a line with its ink) are not built yet (plans/paper-page-plan.md).
+ * with lines under the ink; ink dropped on bare paper gets a box; ink and
+ * lines move as one piece; copying a line copies its ink.
  */
 
 test.use({ viewport: { width: 1024, height: 1000 }, hasTouch: true })
@@ -337,4 +337,36 @@ test('rule 6: ink and text Lasso-moved together go as one piece; one Undo', asyn
     .toEqual(['Line one', 'Line two', 'Line three', 'Line four', 'Line five'])
   await expect.poll(near).toBe(true)
   expect((await chunkOf(page))[0].blockId).toBe(two.id)
+})
+
+test('rule 9: copy and paste of a line also copies its linked ink', async ({
+  page,
+}) => {
+  await fiveLines(page)
+  const two = await lineAt(page, 'Line two')
+  const y = two.y + two.h / 2
+  await stroke(page, line([two.x + 260, y], [two.x + 420, y]))
+  await chunkOf(page)
+  // Text tool: select "Line two", copy; a new line after "Line five", paste.
+  await tool(page, 'Text').click()
+  await page.waitForTimeout(600)
+  const editor = page.locator('.bn-editor').first()
+  await editor.getByText('Line two', { exact: true }).click()
+  await page.keyboard.press('End')
+  await page.keyboard.press('Shift+Home')
+  await page.keyboard.press('ControlOrMeta+c')
+  await editor.getByText('Line five', { exact: true }).click()
+  await page.keyboard.press('End')
+  await page.keyboard.press('Enter')
+  await page.keyboard.press('ControlOrMeta+v')
+  await expect(editor.getByText('Line two', { exact: true })).toHaveCount(2)
+  // Two strokes now: the copy is linked to the pasted line.
+  const chunks = await chunkOf(page, 2)
+  const pasted = await page.evaluate(() =>
+    [...document.querySelectorAll('.bn-block-content')]
+      .filter((e) => e.textContent === 'Line two')
+      .map((e) => e.closest('[data-id]')!.getAttribute('data-id')),
+  )
+  expect(pasted).toHaveLength(2)
+  expect(chunks.map((c) => c.blockId).sort()).toEqual([...pasted].sort())
 })

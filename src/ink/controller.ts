@@ -446,8 +446,34 @@ export class InkController {
     this.cleanups.push(onGestureReset((reason) => this.resetGestures(reason)))
     this.cleanups.push(registerToolState('ink', () => this.debugState()))
     this.cleanups.push(
-      registerAdopter({ wrap, adopt: (items) => this.adoptCarried(items) }),
+      registerAdopter({
+        wrap,
+        adopt: (items) => this.adoptCarried(items),
+        copyLines: (ids, text, cut) => this.copyLines(ids, text, cut),
+        wholeLines: () => this.wholeLinesSelected(),
+        pasteLines: (text, run) => this.pasteLines(text, run),
+      }),
     )
+    // Rule 9: the editor's own copy, cut and paste carry the lines' ink.
+    const clip = (e: ClipboardEvent) =>
+      this.guard(() => {
+        if (e.type === 'paste') {
+          this.pasteLines(e.clipboardData?.getData('text/plain') ?? null)
+          return
+        }
+        if (this.selection.length > 0) return
+        const ids = this.wholeLinesSelected()
+        if (ids.length > 0)
+          this.copyLines(
+            ids,
+            window.getSelection()?.toString() ?? '',
+            e.type === 'cut',
+          )
+        else InkController.lineClip = null
+      })
+    on(wrap, 'copy', clip, true)
+    on(wrap, 'cut', clip, true)
+    on(wrap, 'paste', clip, true)
     this.syncPad()
     this.dirty()
   }
@@ -1920,6 +1946,118 @@ export class InkController {
 
   canPaste(): boolean {
     return InkController.clipboard.length > 0
+  }
+
+  /** Rule 9: the ink of the lines copied last (saved units, per line). */
+  private static lineClip: {
+    text: string
+    lines: number
+    items: { index: number; stroke: Stroke }[]
+  } | null = null
+
+  /** Lines (ids) whose words the page's text selection covers in full. */
+  private wholeLinesSelected(): string[] {
+    const sel = window.getSelection()
+    if (!sel || sel.isCollapsed || sel.rangeCount === 0) return []
+    const ranges = Array.from({ length: sel.rangeCount }, (_, i) =>
+      sel.getRangeAt(i),
+    )
+    const inside = (n: Node, off: number) =>
+      ranges.some((r) => {
+        try {
+          return r.comparePoint(n, off) === 0
+        } catch {
+          return false
+        }
+      })
+    const out: string[] = []
+    for (const el of this.env.wrap.querySelectorAll<HTMLElement>(
+      '.bn-block[data-id] > .bn-block-content',
+    )) {
+      const walk = document.createTreeWalker(el, NodeFilter.SHOW_TEXT)
+      let any = false
+      let all = true
+      for (let n = walk.nextNode(); n; n = walk.nextNode()) {
+        const len = n.textContent?.length ?? 0
+        if (len === 0) continue
+        any = true
+        if (!inside(n, 0) || !inside(n, len)) all = false
+      }
+      if (any && all) out.push(el.parentElement!.getAttribute('data-id')!)
+    }
+    return out
+  }
+
+  /** Rule 9: these lines (page order) were copied or cut; their ink goes too. */
+  copyLines(ids: string[], text: string, cut: boolean): void {
+    const mine = this.env.doc.all().filter((p) => ids.includes(p.blockId ?? ''))
+    InkController.lineClip =
+      mine.length === 0
+        ? null
+        : {
+            text,
+            lines: ids.length,
+            items: mine.map((p) => ({
+              index: ids.indexOf(p.blockId ?? ''),
+              stroke: p.stroke,
+            })),
+          }
+    // Cut: the ink leaves with its lines (one Undo brings it back).
+    if (cut && mine.length > 0 && !this.env.frozen())
+      this.commit({ del: mine, add: [], layers: [] })
+  }
+
+  /**
+   * Rule 9: a paste of `text` (null: unknown) is running, or `run` does it.
+   * When it is the lines copied last, their ink is linked to the pasted
+   * lines (new lines in order; a paste into the line at the caret uses it).
+   */
+  pasteLines(text: string | null, run?: () => void): void {
+    const clip = InkController.lineClip
+    const norm = (s: string) => s.replace(/\s+/g, ' ').trim()
+    if (
+      !clip ||
+      this.env.frozen() ||
+      (text !== null && norm(text) !== '' && norm(text) !== norm(clip.text))
+    ) {
+      run?.()
+      return
+    }
+    const ids = () =>
+      [
+        ...this.env.wrap.querySelectorAll<HTMLElement>('.bn-block[data-id]'),
+      ].map((e) => e.getAttribute('data-id')!)
+    const before = new Set(ids())
+    const anchor = window.getSelection()?.anchorNode
+    const caret =
+      (anchor instanceof Element ? anchor : anchor?.parentElement)
+        ?.closest('.bn-block[data-id]')
+        ?.getAttribute('data-id') ?? null
+    run?.()
+    // The editor puts the pasted lines in after this event.
+    setTimeout(() =>
+      requestAnimationFrame(() =>
+        this.guard(() => {
+          const fresh = ids().filter((id) => !before.has(id))
+          const targets =
+            fresh.length >= clip.lines || !caret ? fresh : [caret, ...fresh]
+          if (targets.length === 0) return
+          const layer = this.layerForDrawing()
+          if (!layer) return
+          this.layout.measure()
+          const now = Date.now()
+          const { id, edit } = this.ensureLayer(layer.id)
+          clip.items.forEach((c, i) =>
+            edit.add.push({
+              layerId: id,
+              blockId: targets[Math.min(c.index, targets.length - 1)],
+              stroke: { ...c.stroke, id: createId(), at: now + i },
+            }),
+          )
+          this.commit(edit)
+        }),
+      ),
+    )
   }
 
   copySelection(): number {

@@ -95,7 +95,7 @@ export function SelectionMenu({
   }
 
   const cut = async () => {
-    await copyAs(editor, 'plain', toast)
+    await copyAs(editor, 'plain', toast, undefined, true)
     remove()
   }
   const remove = () => {

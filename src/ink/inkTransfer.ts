@@ -16,6 +16,12 @@ export interface Carried {
 interface Adopter {
   wrap: HTMLElement
   adopt: (items: Carried[]) => void
+  /** Rule 9: these lines were copied (or cut): their ink goes with them. */
+  copyLines: (ids: string[], text: string, cut: boolean) => void
+  /** Lines whose words the page selection covers in full. */
+  wholeLines: () => string[]
+  /** Rule 9: runs a paste of this text and links the copied ink to the new lines. */
+  pasteLines: (text: string | null, run?: () => void) => void
 }
 
 const adopters = new Set<Adopter>()
@@ -40,9 +46,10 @@ export function adopterAt(
   return null
 }
 
-/** The engine inside an element (a paper box). */
+/** The engine of the editor holding this element (or inside it, a paper box). */
 export function adopterIn(el: Element): Adopter | null {
-  for (const a of adopters) if (el.contains(a.wrap)) return a
+  for (const a of adopters)
+    if (el.contains(a.wrap) || a.wrap.contains(el)) return a
   return null
 }
 

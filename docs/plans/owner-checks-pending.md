@@ -11,6 +11,7 @@ Moved out of HANDOFF on 2026-11-06 (audit) so HANDOFF stays five lines. Newest f
 ## Paper hint and + box (8 Nov, Polish 2 item 8)
 
 1. New page: the faint hint is on the sheet; type a word and it goes. With the Pencil hovering (iPad Pro M2 or later) or a mouse over empty paper (Text tool), a small "+ box" tag follows; tap: a box appears. Needs human eyes: how faint and how helpful it feels.
+
 ## Paper layout PDF (8 Nov)
 
 1. On the iPad, draw on a paper page with two boxes, then page ⋯ › Export › Paper layout (PDF) › Print or save as PDF. Look at the preview: sheets look like the screen, boxes where they are, ink over its lines. Needs your eyes: the print preview cannot be tested.
@@ -22,6 +23,12 @@ Moved out of HANDOFF on 2026-11-06 (audit) so HANDOFF stays five lines. Newest f
 ## Paper speed (8 Nov)
 
 1. Open your biggest paper page on the iPad (many boxes and ink) and scroll up and down: no stutter, boxes far down show faint grey lines for a moment and then their text. Needs hands on the real iPad for the feel.
+
+## Paper ink rules 5, 6, 9 (8 Nov)
+
+1. Lasso some ink and drag it off its box onto bare paper: a new box with empty lines appears there holding the ink.
+2. Turn on the Lasso's Text filter, loop a line with ink on it, drag it two lines down: the line and its ink move together; one Undo puts both back.
+3. Select a whole line that has ink, copy, make a new line, paste: the copy brings the ink. Cut and paste moves it.
 
 ## Automatic updates (8 Nov)
 

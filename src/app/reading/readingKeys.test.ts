@@ -10,7 +10,10 @@ import { TOOLS } from '../tools/toolRegistry'
 import { aloudSupported } from './aloudController'
 
 /** Texts built from a name at run time must all exist, in every language. */
-const all = { en: { ...en, ...enO }, hi, es } as Record<string, Record<string, string>>
+const all = { en: { ...en, ...enO }, hi, es } as Record<
+  string,
+  Record<string, string>
+>
 
 const keysFor = () => {
   const keys: string[] = []

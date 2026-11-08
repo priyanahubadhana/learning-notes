@@ -11,7 +11,7 @@ Problem: sync/backup/update problems show only a red dot in Settings behind the 
 - **App patterns (product observation, general knowledge; not verified page-by-page this session):**
   - Google Docs shows an "offline/reconnecting" status inline in the doc header, not a pop-up.
   - Dropbox and Google Drive desktop show a tray badge, then a persistent "Sign in again" notice with one button.
-  - 1Password and Bitwarden use a full lock screen when the vault is locked. You can't see the data until you unlock, so the unlock prompt *is* the screen.
+  - 1Password and Bitwarden use a full lock screen when the vault is locked. You can't see the data until you unlock, so the unlock prompt _is_ the screen.
   - Obsidian Sync shows a status-bar icon that turns red, plus a notice on error.
   - Slack shows a top yellow/red bar for "connection trouble / reconnecting", which clears itself.
   - Notion shows a small offline banner.
@@ -22,31 +22,31 @@ Problem: sync/backup/update problems show only a red dot in Settings behind the 
 
 ## Severity levels for our app
 
-| Level | UI | Interrupts? | Dismiss |
-|---|---|---|---|
-| L1 Blocking | One modal (`alertdialog`) | Yes, once per session | "Later" closes it; after that, an L2 banner remains |
-| L2 Action needed | Top banner, bright (danger/warn token), one fix button + × | No | × snoozes it for this session; it returns on next app start, or sooner if the problem gets worse |
-| L3 Heads-up | Top banner, calm (accent token) | No | × snoozes it for 7 days |
-| L4 Status | Dot on gear + Settings › Sync status (exists today) | No | Not dismissable; clears when fixed |
+| Level            | UI                                                         | Interrupts?           | Dismiss                                                                                          |
+| ---------------- | ---------------------------------------------------------- | --------------------- | ------------------------------------------------------------------------------------------------ |
+| L1 Blocking      | One modal (`alertdialog`)                                  | Yes, once per session | "Later" closes it; after that, an L2 banner remains                                              |
+| L2 Action needed | Top banner, bright (danger/warn token), one fix button + × | No                    | × snoozes it for this session; it returns on next app start, or sooner if the problem gets worse |
+| L3 Heads-up      | Top banner, calm (accent token)                            | No                    | × snoozes it for 7 days                                                                          |
+| L4 Status        | Dot on gear + Settings › Sync status (exists today)        | No                    | Not dismissable; clears when fixed                                                               |
 
 Every L1–L3 problem also keeps the L4 dot, so Settings is always the full record.
 
 ## Mapping our problem types
 
-| Problem (code) | Level | Copy idea | Buttons |
-|---|---|---|---|
-| `phase: needsKey` after sign-in (notebooks hidden) | L1 | "Your notebooks are locked on this device" | Enter passphrase · Use recovery code · Later |
-| `problem: needCode` / `unreadable` | L1 | "This key can't open your notes" | Use recovery code · Later |
-| `needsDriveTap` / `signInAgain` (Drive token expired) | L2 | "Drive disconnected — changes aren't syncing" | Reconnect Drive · × |
-| `driveFull` | L2 | "Google Drive is full — sync paused" | Open Drive storage · × |
-| `notAllowed` | L2 | "This Google account can't sync" | Switch account · × |
-| `clock` | L2 | "Your device clock is wrong — sync paused" | How to fix · × |
-| `failed` repeated (3+ tries or >30 min) | L2 | "Sync keeps failing" | Try again · × |
-| Backup failing (2+ in a row) | L2 | "Backups are failing" | Open backups · × |
-| Storage almost full (>90% local quota) | L3 | "Storage almost full" | Manage storage · × |
-| Update needed (old app can't read new data) | L2; plain update available = L3 (existing `UpdateBar`) | "Update to keep syncing" | Update now · × |
-| `needsSetup` | L3 | "Finish setting up sync" | Set up · × |
-| `offline`, `busy`, single `failed` | L4 only | — | Silent retry; dot says Offline |
+| Problem (code)                                        | Level                                                  | Copy idea                                     | Buttons                                      |
+| ----------------------------------------------------- | ------------------------------------------------------ | --------------------------------------------- | -------------------------------------------- |
+| `phase: needsKey` after sign-in (notebooks hidden)    | L1                                                     | "Your notebooks are locked on this device"    | Enter passphrase · Use recovery code · Later |
+| `problem: needCode` / `unreadable`                    | L1                                                     | "This key can't open your notes"              | Use recovery code · Later                    |
+| `needsDriveTap` / `signInAgain` (Drive token expired) | L2                                                     | "Drive disconnected — changes aren't syncing" | Reconnect Drive · ×                          |
+| `driveFull`                                           | L2                                                     | "Google Drive is full — sync paused"          | Open Drive storage · ×                       |
+| `notAllowed`                                          | L2                                                     | "This Google account can't sync"              | Switch account · ×                           |
+| `clock`                                               | L2                                                     | "Your device clock is wrong — sync paused"    | How to fix · ×                               |
+| `failed` repeated (3+ tries or >30 min)               | L2                                                     | "Sync keeps failing"                          | Try again · ×                                |
+| Backup failing (2+ in a row)                          | L2                                                     | "Backups are failing"                         | Open backups · ×                             |
+| Storage almost full (>90% local quota)                | L3                                                     | "Storage almost full"                         | Manage storage · ×                           |
+| Update needed (old app can't read new data)           | L2; plain update available = L3 (existing `UpdateBar`) | "Update to keep syncing"                      | Update now · ×                               |
+| `needsSetup`                                          | L3                                                     | "Finish setting up sync"                      | Set up · ×                                   |
+| `offline`, `busy`, single `failed`                    | L4 only                                                | —                                             | Silent retry; dot says Offline               |
 
 ## Rules
 
@@ -67,7 +67,7 @@ Every L1–L3 problem also keeps the L4 dot, so Settings is always the full reco
 
 - **Source of truth:** `src/sync/syncStatus.ts` (`phase`, `problem`, `needsDriveTap`), `src/sync/syncDisplay.ts` (`SyncProblem`), `src/sync/useSyncLabel.ts`, and `src/sync/SyncDot.tsx` (L4 stays as is).
 - **New `src/app/attention/attentionLevel.ts`** (tiny, eager, ~1 KB): a pure function that turns the status into `{code, level}` or null. It also reads backup, storage and update state. Unit-test it.
-- **New `src/app/attention/AttentionBanner.tsx` + `AttentionModal.tsx`**: load them lazily with `React.lazy`, *only when* the level is not null. Healthy users download nothing extra, which protects the tight first-load budget (about 299 KB).
+- **New `src/app/attention/AttentionBanner.tsx` + `AttentionModal.tsx`**: load them lazily with `React.lazy`, _only when_ the level is not null. Healthy users download nothing extra, which protects the tight first-load budget (about 299 KB).
 - **Mount point:** the `src/App.tsx` top layout, above the main area.
 - **Reuse:**
   - `UpdateBar.tsx` styling for the banner shell. Better still, fold UpdateBar into the banner so there's one system, not two bars.

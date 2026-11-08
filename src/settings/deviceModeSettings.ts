@@ -36,7 +36,7 @@ import {
   tidyBarOnce,
 } from '../app/tools/main/migrateApply'
 import { applyNoteStyle } from '../app/tools/main/textStyle'
-import { activeTool } from '../app/tools/main/mainTools'
+import { activeTool, offerLastToolOnce } from '../app/tools/main/mainTools'
 import { migrateBarOff } from '../app/tools/toolbarVisibility'
 import { readDeviceSetting } from './settingsService'
 import { useDeviceSetting } from './useSetting'
@@ -60,6 +60,7 @@ export function initDeviceMode(): void {
   if (readDeviceSetting(deviceModeSetting) === 'pencil') {
     activeTool.set('lasso')
     changeSet('draw', 'user')
+    offerLastToolOnce()
   }
   const stored = readPref<DeviceMode | null>(
     deviceModeSetting.id,

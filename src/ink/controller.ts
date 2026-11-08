@@ -142,6 +142,8 @@ export interface InkEnv {
   saveToNotes: (text: string) => void
   /** Switch the active tool (circle to lasso). */
   setTool: (tool: ModeTool) => void
+  /** Polish 2 item 4: after one erase, back to the tool used before. */
+  returnTool?: () => void
   textSize: () => number
   /**
    * The Lasso's T or Pictures filter found blocks but no ink: select them in
@@ -1069,6 +1071,9 @@ export class InkController {
       if (!this.peelTape(g)) this.finishDraw(g, e.timeStamp - g.t0)
     } else if (g.kind === 'erase') {
       this.finishErase(g)
+      if (eraserSettings.get().returnAfter && g.path.length > 0) {
+        this.env.returnTool?.()
+      }
     }
     this.requestDraw()
     this.notify()

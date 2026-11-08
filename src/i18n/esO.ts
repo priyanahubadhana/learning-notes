@@ -8,6 +8,11 @@ export const esO: Record<string, string> = {
   'reading.goal.week_one': 'Meta cumplida {count} día esta semana',
   'reading.goal.week_other': 'Meta cumplida {count} días esta semana',
   // ---- Polish 2 ----
+  'tool.lastTool': 'Herramienta anterior',
+  'tool.lastTool.none':
+    'Aún no hay herramienta anterior. Elige dos herramientas y esto vuelve a la anterior.',
+  'ink.eraser.returnAfter':
+    'Volver a la herramienta anterior tras borrar una vez',
   'tool.handwriting': 'Escritura a texto',
   'main.opt.insert.handwriting': 'Escritura a mano',
   'handwriting.title': 'Escritura a mano a texto',

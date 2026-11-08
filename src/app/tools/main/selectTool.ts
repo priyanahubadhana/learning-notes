@@ -1,5 +1,6 @@
 import {
   activeTool,
+  lastTool,
   openCard,
   openPillTool,
   pillPinned,
@@ -50,6 +51,17 @@ export function selectTool(
   }
   openPillTool.set(tool)
   return 'opened'
+}
+
+/**
+ * ⇄ Last tool: goes back to the tool used before this one. Returns false
+ * when there is none (the first tool of the visit).
+ */
+export function swapToLastTool(): boolean {
+  const back = lastTool.get()
+  if (!back || back === activeTool.get()) return false
+  selectTool(back)
+  return true
 }
 
 /** Opens a tool's pill without closing it when it is open already (hold). */

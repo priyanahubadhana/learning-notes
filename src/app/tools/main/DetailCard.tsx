@@ -813,6 +813,12 @@ function EraserCard() {
         on={e.highlightsOnly}
         onChange={(highlightsOnly) => eraserSettings.update({ highlightsOnly })}
       />
+      <SwitchRow
+        id="returnAfter"
+        label={t('ink.eraser.returnAfter')}
+        on={e.returnAfter}
+        onChange={(returnAfter) => eraserSettings.update({ returnAfter })}
+      />
     </>
   )
 }

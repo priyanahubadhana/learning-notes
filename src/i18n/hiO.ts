@@ -8,6 +8,10 @@ export const hiO: Record<string, string> = {
   'reading.goal.week_one': 'इस हफ़्ते {count} दिन लक्ष्य पूरा हुआ',
   'reading.goal.week_other': 'इस हफ़्ते {count} दिन लक्ष्य पूरा हुआ',
   // ---- Polish 2 ----
+  'tool.lastTool': 'पिछला टूल',
+  'tool.lastTool.none':
+    'अभी कोई पिछला टूल नहीं। दो टूल चुनें, फिर यह पीछे जाएगा।',
+  'ink.eraser.returnAfter': 'एक बार मिटाने के बाद पिछले टूल पर लौटें',
   'tool.handwriting': 'हस्तलेख से टेक्स्ट',
   'main.opt.insert.handwriting': 'हस्तलेख',
   'handwriting.title': 'हस्तलेख से टेक्स्ट',

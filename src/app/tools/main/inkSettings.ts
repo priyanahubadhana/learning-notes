@@ -293,12 +293,15 @@ export interface EraserSettings {
   mode: EraserMode
   size: 0 | 1 | 2
   highlightsOnly: boolean
+  /** Item 4: after one erase, go back to the tool used before. */
+  returnAfter: boolean
 }
 
 const ERASER_DEFAULTS: EraserSettings = {
   mode: 'standard',
   size: 1,
   highlightsOnly: false,
+  returnAfter: false,
 }
 
 export const eraserSettings = modelStore<EraserSettings>(
@@ -308,6 +311,7 @@ export const eraserSettings = modelStore<EraserSettings>(
     mode: pick(ERASER_MODES, 'standard'),
     size: size3,
     highlightsOnly: flag(false),
+    returnAfter: flag(false),
   },
 )
 

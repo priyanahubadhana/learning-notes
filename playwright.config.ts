@@ -33,6 +33,7 @@ export default defineConfig({
             // Polish 2: the welcome and the first-use tips are answered already;
             // firstUse.spec.ts and welcome.spec.ts start without these.
             { name: 'learning-notes:onboarding.done', value: 'true' },
+            { name: 'learning-notes:toolbar.lastToolOffered', value: 'true' },
             {
               name: 'learning-notes:firstUse.seen',
               value: '["lasso","writePad","layers","paperBox"]',
@@ -106,6 +107,7 @@ export default defineConfig({
         /barScroll/,
         /firstUse/,
         /pillScroll/,
+        /lastTool/,
         /handwritingChooser/,
       ],
       use: { ...devices['iPad Pro 11'], hasTouch: true },

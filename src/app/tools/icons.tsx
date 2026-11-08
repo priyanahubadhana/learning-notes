@@ -117,6 +117,7 @@ import {
   Scaling,
   Circle,
   AlignJustify,
+  ArrowLeftRight,
   ChevronsUpDown,
   GripVertical,
   type LucideIcon,
@@ -246,6 +247,7 @@ const ICONS = {
   circle: Circle,
   alignJustify: AlignJustify,
   toggle: ChevronsUpDown,
+  swap: ArrowLeftRight,
   grip: GripVertical,
 } as const satisfies Record<string, LucideIcon>
 

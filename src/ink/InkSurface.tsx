@@ -19,6 +19,7 @@ import {
   miniToolbarOpen,
   type ModeTool,
 } from '../app/tools/main/mainTools'
+import { swapToLastTool } from '../app/tools/main/selectTool'
 import { PEN_COLOURS } from '../app/tools/main/inkSettings'
 import { runTool } from '../app/tools/toolRegistry'
 import { useLiveQuery } from 'dexie-react-hooks'
@@ -201,6 +202,7 @@ export function InkSurface({
           ).then((id) => id && latest.current.toast(t('ink.hl.saved')))
         },
         setTool: (tool: ModeTool) => activeTool.set(tool),
+        returnTool: () => void swapToLastTool(),
         growRoom: register,
         textSize: () => 100,
         selectBlocks: (ids) => {

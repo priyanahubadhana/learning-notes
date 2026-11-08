@@ -27,6 +27,7 @@ import type { TabId } from './tabs'
 import { runInkTool } from '../../ink/inkTools'
 import { toggleWritePad } from '../../editor/writePad/padState'
 import { openHandwritingChooser } from './handwriting'
+import { swapToLastTool } from './main/selectTool'
 import {
   isAudioPanelOpen,
   setAudioPanel,
@@ -320,6 +321,16 @@ export const TOOLS: readonly ToolDef[] = [
       if (r.editor)
         toggleWritePad(r.editor, r.app?.currentPageId() ?? undefined)
       else r.app?.toast(t('tool.needsPage'))
+    },
+  },
+  {
+    id: 'lastTool',
+    icon: 'swap',
+    section: 'draw',
+    group: 'tools',
+    repeat: true,
+    run: (r) => {
+      if (!swapToLastTool()) r.app?.toast(t('tool.lastTool.none'))
     },
   },
   {

@@ -121,6 +121,30 @@ export interface CardState {
 }
 export const openCard = memStore<CardState | null>(null)
 
+/**
+ * The tool selected before the current one (never Reading mode), so ⇄ can
+ * go back (polish 2, item 4): Pen, Eraser, ⇄ is the Pen again with its own
+ * colour and size (those live in the pen settings, not in the tool).
+ */
+export const lastTool = memStore<ModeTool | null>(null)
+
+/** What "the last tool" becomes when the selected tool changes. */
+export function nextLastTool(
+  last: ModeTool | null,
+  from: ModeTool,
+  to: ModeTool,
+): ModeTool | null {
+  if (from === to || from === 'read') return last
+  return from
+}
+
+let selectedBefore: ModeTool = activeTool.get()
+activeTool.subscribe(() => {
+  const now = activeTool.get()
+  lastTool.set(nextLastTool(lastTool.get(), selectedBefore, now))
+  selectedBefore = now
+})
+
 /** Names under the bar icons, always (the hover name needs no setting). */
 export const showNames = prefStore('toolbar.showNames', isBoolean, false)
 
@@ -340,8 +364,22 @@ export function resetMainState(): void {
     store.clearCache()
   }
   activeTool.set('text')
+  lastTool.set(null)
   openPillTool.set(null)
   openCard.set(null)
   pillReserve.set(0)
   miniToolbarOpen.set(false)
+  lastToolOffered.clearCache()
+}
+
+/**
+ * Pencil mode gets the ⇄ Last tool button once (polish 2, item 4). After
+ * that it is the person's: removing it in Edit toolbar sticks.
+ */
+const lastToolOffered = prefStore('toolbar.lastToolOffered', isBoolean, false)
+export function offerLastToolOnce(): void {
+  if (lastToolOffered.get()) return
+  lastToolOffered.set(true)
+  const extras = extraTools.get()
+  if (!extras.includes('lastTool')) extraTools.set([...extras, 'lastTool'])
 }

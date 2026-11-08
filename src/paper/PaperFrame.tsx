@@ -29,6 +29,7 @@ import { bounds, record, replay, waitFor, type Recorded } from './penOnPaper'
 import { activeTool } from '../app/tools/main/mainTools'
 import { adopterIn, setPaperDrop } from '../ink/inkTransfer'
 import { sheetNav } from './sheetNav'
+import { onWakeBox } from './wakeBox'
 import {
   clampZoom,
   NARROW_PX,
@@ -463,6 +464,7 @@ export function PaperFrame({
             }}
           >
             <LazyMount
+              boxId={b.id}
               ready={fit > 0}
               eager={b.id === eager}
               height={(step / zoom) * 3}
@@ -886,11 +888,13 @@ const NEAR_PX = 800
  * editor is never torn down while it may hold unsaved text.
  */
 function LazyMount({
+  boxId,
   ready,
   eager,
   height,
   children,
 }: {
+  boxId: string
   /** The paper has its width: boxes are where they will be. */
   ready: boolean
   eager: boolean
@@ -900,6 +904,11 @@ function LazyMount({
   const [near, setNear] = useState(typeof IntersectionObserver === 'undefined')
   const el = useRef<HTMLDivElement>(null)
   const on = near || eager
+  // A jump (search hit) needs this box's editor now, wherever the box is.
+  useEffect(() => {
+    if (on) return
+    return onWakeBox((id) => id === boxId && setNear(true))
+  }, [on, boxId])
   useEffect(() => {
     const node = el.current
     if (on || !ready || !node) return

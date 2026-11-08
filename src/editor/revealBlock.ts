@@ -1,3 +1,6 @@
+import { db } from '../core/db'
+import { wakeBox } from '../paper/wakeBox'
+
 /**
  * Scrolls an element into view and fades a soft accent highlight over it
  * (also used for a setting opened from a dialog).
@@ -25,13 +28,27 @@ function highlightElement(el: HTMLElement): void {
  * own elements and would drop a class we add.
  */
 export function revealBlock(blockId: string, timeoutMs = 3000): void {
-  revealWhenReady(
-    () =>
-      document.querySelector<HTMLElement>(
-        `.bn-block-outer[data-id="${CSS.escape(blockId)}"] > .bn-block`,
-      ),
-    timeoutMs,
-  )
+  let lastWake = -Infinity
+  revealWhenReady(() => {
+    const el = document.querySelector<HTMLElement>(
+      `.bn-block-outer[data-id="${CSS.escape(blockId)}"] > .bn-block`,
+    )
+    // On a paper page the block may sit in a box that is still a placeholder
+    // (far from the screen): ask that box to make its editor, then keep
+    // waiting for the block to appear.
+    if (
+      !el &&
+      performance.now() - lastWake > 400 &&
+      document.querySelector('[data-box-placeholder]')
+    ) {
+      lastWake = performance.now()
+      void db.blocks
+        .get(blockId)
+        .then((b) => b?.boxId && wakeBox(b.boxId))
+        .catch(() => undefined)
+    }
+    return el
+  }, timeoutMs)
 }
 
 /** Distance from the top of the content; scrolling does not change it. */

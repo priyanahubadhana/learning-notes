@@ -25,6 +25,7 @@ import {
 import { clampBox, MIN_W } from './boxService'
 import { bounds, record, replay, waitFor, type Recorded } from './penOnPaper'
 import { activeTool } from '../app/tools/main/mainTools'
+import { adopterIn, setPaperDrop } from '../ink/inkTransfer'
 import { BOX_COLOURS } from './usePaperBoxes'
 import { sheetNav } from './sheetNav'
 import {
@@ -330,13 +331,7 @@ export function PaperFrame({
     events.push(record('pointerup', e.nativeEvent))
     const r = paperEl.current?.getBoundingClientRect()
     if (!r) return
-    const b = bounds(events)
-    const stepMm = step / k
-    const x = Math.max(0, (b.x - r.left) / k - 4)
-    const y = Math.max(0, snap((b.y - r.top) / k - stepMm / 2, stepMm))
-    const w = Math.max(MIN_W, b.w / k + 8)
-    const lines = Math.ceil((b.h / k + stepMm) / stepMm) + 1
-    void onInkOnPaper({ x, y, w }, lines).then(async (id) => {
+    void boxUnder(r, bounds(events))?.then(async (id) => {
       if (!id) return
       const pad = await waitFor(() =>
         document.querySelector(
@@ -347,6 +342,49 @@ export function PaperFrame({
       if (pad) requestAnimationFrame(() => replay(pad, events))
     })
   }
+
+  /** Rules 4 and 5: a box with empty lines under ink at `b` (client px). */
+  const boxUnder = (
+    r: DOMRect,
+    b: { x: number; y: number; w: number; h: number },
+  ) => {
+    const stepMm = step / k
+    const x = Math.max(0, (b.x - r.left) / k - 4)
+    const y = Math.max(0, snap((b.y - r.top) / k - stepMm / 2, stepMm))
+    const w = Math.max(MIN_W, b.w / k + 8)
+    const lines = Math.ceil((b.h / k + stepMm) / stepMm) + 1
+    return onInkOnPaper ? onInkOnPaper({ x, y, w }, lines) : null
+  }
+
+  // Rule 5: ink the Lasso drops on empty paper gets a box with lines there.
+  const dropRef = useRef(boxUnder)
+  useEffect(() => {
+    dropRef.current = boxUnder
+  })
+  const canDrop = !flat && !!onInkOnPaper
+  useEffect(() => {
+    if (!canDrop) return
+    setPaperDrop((items) => {
+      const r = paperEl.current?.getBoundingClientRect()
+      const made =
+        r && dropRef.current(r, bounds(items.flatMap((c) => c.client)))
+      if (!made) return false
+      void made.then(async (id) => {
+        if (!id) return
+        const box = await waitFor(() =>
+          document.querySelector(
+            '[data-paper-box="' + CSS.escape(id) + '"] [data-ink-pad]',
+          ),
+        )
+        const into =
+          box &&
+          (await waitFor(() => adopterIn(box.closest('[data-paper-box]')!)))
+        if (into) requestAnimationFrame(() => into.adopt(items))
+      })
+      return true
+    })
+    return () => setPaperDrop(null)
+  }, [canDrop])
 
   /** A tap on empty paper with the Text tool: a new box there (step 3). */
   const tapPaper = (e: ReactPointerEvent<HTMLDivElement>) => {

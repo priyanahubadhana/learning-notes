@@ -6,6 +6,12 @@ import {
 } from '../app/gestureReset'
 import { gripDragging } from '../app/tools/gripDrag'
 import { inkSwitches } from './inkRuntime'
+import {
+  adopterAt,
+  dropOnPaper,
+  registerAdopter,
+  type Carried,
+} from './inkTransfer'
 import { createId } from '../core/ids'
 import type { InkLayer, Stroke } from '../core/inkTypes'
 import {
@@ -430,6 +436,9 @@ export class InkController {
     // was half-way is forgotten and the pad is armed again.
     this.cleanups.push(onGestureReset((reason) => this.resetGestures(reason)))
     this.cleanups.push(registerToolState('ink', () => this.debugState()))
+    this.cleanups.push(
+      registerAdopter({ wrap, adopt: (items) => this.adoptCarried(items) }),
+    )
     this.syncPad()
     this.dirty()
   }
@@ -1923,13 +1932,38 @@ export class InkController {
   pasteClipboard(): void {
     const items = InkController.clipboard
     if (items.length === 0 || this.env.frozen()) return
+    this.placeAndSelect(
+      items.map((c) => ({
+        stroke: c.stroke,
+        world: c.world.map((q) => ({ x: q.x + 16, y: q.y + 16 })),
+      })),
+    )
+  }
+
+  /**
+   * Phase Q rule 5: strokes another box's Lasso dropped here (client px).
+   * They link to the line under them; one Undo here.
+   */
+  adoptCarried(items: readonly Carried[]): void {
+    if (items.length === 0 || this.env.frozen()) return
+    const b = this.env.wrap.getBoundingClientRect()
+    this.placeAndSelect(
+      items.map((c) => ({
+        stroke: c.stroke,
+        world: c.client.map((q) => ({ x: q.x - b.left, y: q.y - b.top })),
+      })),
+    )
+  }
+
+  /** New strokes at these page px, each linked to the line under it; selected. */
+  private placeAndSelect(items: { stroke: Stroke; world: Pt[] }[]): void {
     const layer = this.layerForDrawing()
     if (!layer) return
     this.layout.measure()
     const now = Date.now()
     const wNow = this.layout.width
     const add: Placed[] = items.map((c, i) => {
-      const moved = c.world.map((q) => ({ x: q.x + 16, y: q.y + 16 }))
+      const moved = c.world
       const mid = moved[Math.floor(moved.length / 2)] ?? moved[0]
       const blockId = pickAnchor(mid, this.layout.blocks())
       const frame = this.layout.frame(blockId)
@@ -2313,9 +2347,41 @@ export class InkController {
       this.requestDraw()
       return
     }
+    if (g.how === 'move' && this.blockSel.length === 0 && this.dropElsewhere(g))
+      return
     const add = g.before.map((p) => this.transformed(p, g.m, g.factor))
     this.commit({ del: g.before, add, layers: [] })
     this.select(add.map((p) => p.stroke.id))
+  }
+
+  /**
+   * Phase Q rule 5: ink dropped outside this box goes to the box under the
+   * drop spot, or to a new box with an empty line made there on the paper
+   * (so it is linked to a line). False when it stays in this box.
+   */
+  private dropElsewhere(g: Extract<Gesture, { kind: 'transform' }>): boolean {
+    const b = this.env.wrap.getBoundingClientRect()
+    const items: Carried[] = g.before.map((p) => ({
+      stroke: p.stroke,
+      client: this.worldPoints(p).map((q) => {
+        const w = apply(g.m, q)
+        return { x: w.x + b.left, y: w.y + b.top }
+      }),
+    }))
+    const all = items.flatMap((c) => c.client)
+    if (all.length === 0) return false
+    const xs = all.map((q) => q.x)
+    const ys = all.map((q) => q.y)
+    const cx = (Math.min(...xs) + Math.max(...xs)) / 2
+    const cy = (Math.min(...ys) + Math.max(...ys)) / 2
+    if (cx >= b.left && cx <= b.right && cy >= b.top && cy <= b.bottom)
+      return false
+    const target = adopterAt(cx, cy, this.env.wrap)
+    if (target) target.adopt(items)
+    else if (!dropOnPaper(items)) return false
+    this.commit({ del: g.before, add: [], layers: [] })
+    this.clearSelection()
+    return true
   }
 
   /** A stroke after a page-px transform, anchored to the block it now lies over. */

@@ -1,0 +1,59 @@
+import type { Stroke } from '../core/inkTypes'
+import type { Pt } from './geometry'
+
+/**
+ * Phase Q rule 5: ink the Lasso drops outside its box moves to the box
+ * under the drop spot, or to a new box made there on the paper. Each box
+ * has its own ink engine; this is how they hand strokes to each other.
+ * Points travel in client px (where they are on screen now).
+ */
+
+export interface Carried {
+  stroke: Stroke
+  client: Pt[]
+}
+
+interface Adopter {
+  wrap: HTMLElement
+  adopt: (items: Carried[]) => void
+}
+
+const adopters = new Set<Adopter>()
+
+/** An ink engine that can take strokes; returns the unregister. */
+export function registerAdopter(a: Adopter): () => void {
+  adopters.add(a)
+  return () => adopters.delete(a)
+}
+
+/** The engine of a box whose area holds this point (client px). */
+export function adopterAt(
+  x: number,
+  y: number,
+  not?: HTMLElement,
+): Adopter | null {
+  for (const a of adopters) {
+    if (a.wrap === not || !a.wrap.isConnected) continue
+    const r = a.wrap.getBoundingClientRect()
+    if (x >= r.left && x <= r.right && y >= r.top && y <= r.bottom) return a
+  }
+  return null
+}
+
+/** The engine inside an element (a paper box). */
+export function adopterIn(el: Element): Adopter | null {
+  for (const a of adopters) if (el.contains(a.wrap)) return a
+  return null
+}
+
+type PaperDrop = (items: Carried[]) => boolean
+let paperDrop: PaperDrop | null = null
+
+/** The paper registers how it makes a box for dropped ink. */
+export function setPaperDrop(fn: PaperDrop | null): void {
+  paperDrop = fn
+}
+
+/** Makes a box under the ink on the paper; false when there is no paper. */
+export const dropOnPaper = (items: Carried[]): boolean =>
+  paperDrop ? paperDrop(items) : false

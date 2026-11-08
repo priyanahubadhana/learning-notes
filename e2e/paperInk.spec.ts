@@ -206,3 +206,87 @@ test('rule 4: the Pencil on empty paper makes a box with lines under the ink', a
   )
   expect(inBox).toBe(true)
 })
+
+/** Draws a Lasso loop round the box (client px) and waits for the selection. */
+async function lassoRound(
+  page: Page,
+  x0: number,
+  y0: number,
+  x1: number,
+  y1: number,
+) {
+  await tool(page, 'Lasso').click()
+  await page.waitForTimeout(600)
+  const loop: Pt[] = [
+    [x0, y0],
+    [x1, y0],
+    [x1, y1],
+    [x0, y1],
+    [x0 + 2, y0 + 2],
+  ]
+  await stroke(
+    page,
+    loop.flatMap((p, i) => (i ? line(loop[i - 1], p, 8) : [p])),
+  )
+  await expect(page.locator('[data-ink-box]')).toBeVisible()
+}
+
+/** Drags the Lasso selection by its middle to (client) y. */
+async function dragSelectionTo(page: Page, y: number) {
+  const b = (await page.locator('[data-ink-box]').boundingBox())!
+  await page.mouse.move(b.x + b.width / 2, b.y + b.height / 2)
+  await page.mouse.down()
+  await page.mouse.move(b.x + b.width / 2, y, { steps: 10 })
+  await page.mouse.up()
+}
+
+test('rule 5: ink the Lasso drops on empty paper gets a new box with a line', async ({
+  page,
+}) => {
+  await fiveLines(page)
+  // Scroll so "Line five" is at the top of the visible page: the paper
+  // under the default box is then on screen too.
+  const sc = await page.evaluate(() => {
+    const r = document
+      .querySelector('[data-page-scroller]')!
+      .getBoundingClientRect()
+    return { top: r.top, bottom: r.bottom }
+  })
+  const five0 = await lineAt(page, 'Line five')
+  await page.evaluate(
+    (d) => {
+      document.querySelector('[data-page-scroller]')!.scrollTop += d
+    },
+    five0.y - sc.top - 16,
+  )
+  await page.waitForTimeout(400)
+  const five = await lineAt(page, 'Line five')
+  const y = five.y + five.h / 2
+  const x = five.x + 300
+  await stroke(page, line([x, y], [x + 120, y]))
+  await chunkOf(page)
+  await lassoRound(page, x - 20, y - 14, x + 140, y + 14)
+  const main = (await page.locator('[data-paper-box="main"]').boundingBox())!
+  const drop = main.y + main.height + 24
+  expect(drop).toBeLessThan(sc.bottom - 4)
+  // Onto the paper just below the default box: no line there.
+  await dragSelectionTo(page, drop)
+  const box = page.locator('[data-paper-box]:not([data-paper-box="main"])')
+  await expect(box).toHaveCount(1)
+  // The one stroke is now linked to a line of the new box.
+  await expect
+    .poll(
+      async () => {
+        const live = (await savedInk(page)).chunks.filter(
+          (c) => c.strokes.length > 0,
+        )
+        if (live.length !== 1 || live[0].strokes.length !== 1) return false
+        return box.evaluate(
+          (el, id) => !!el.querySelector(`[data-id="${id}"]`),
+          live[0].blockId,
+        )
+      },
+      { timeout: 8000 },
+    )
+    .toBe(true)
+})

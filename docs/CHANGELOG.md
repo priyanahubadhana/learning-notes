@@ -18,6 +18,11 @@ Current phase only. Older entries are in [ARCHIVE.md](ARCHIVE.md).
 - **What:** a box's editor is made only when the box comes within 800 px of the scrolling page (a light placeholder of three lines stands in; once made it stays, so nothing unsaved is ever torn down); a just-made box is made at once. The Lasso loop redraws in its own small component and the pick reads each box once. New CI budget `e2e/paperBudget.spec.ts` (chromium and ipad-webkit): 50 boxes + 2,000 strokes reopen with a median under 4 s including the whole reload (about 1.2 s here), far boxes are placeholders, scrolling makes them, and the Lasso over all 50 boxes takes under 150 ms (about 16 ms here).
 - **Files:** `src/paper/PaperFrame.tsx`, `src/pages/PageView.tsx`, `e2e/paperBudget.spec.ts`, `playwright.config.ts`.
 
+## 2026-11-08 (Paper ink rule 5: Lasso drop on empty paper)
+
+- **What:** ink the Lasso moves (ink only) and drops outside its box now goes to the box under the drop spot, or, on empty paper, to a new box with empty lines made there (the same box as the Pencil on empty paper, rule 4), linked to its line. One Undo in each box. Boxes hand strokes over through `ink/inkTransfer.ts`; the paste code and the hand-over share `placeAndSelect`.
+- **Files:** `src/ink/{inkTransfer,controller}.ts`, `src/paper/{PaperFrame.tsx,penOnPaper.ts}`, `e2e/paperInk.spec.ts`.
+
 ## 2026-11-08 (Paper: the page holds still under a gesture; R6-10 palm test)
 
 - **What:** a Pen or Lasso touch on the page closes the tool's options pill; the room the pill kept (the space under the bar, or the scroller padding) is now given back only when every pointer has lifted (`app/tools/main/gestureHold.ts`), so the page no longer jumps by the pill's height under a stroke or a Lasso loop (it moved 62 px before). A late give-back never undoes a pill opened again meanwhile. The pill still keeps its room while open (the "pill clear of text" checks stay). R6-10 palm test: the palm is a raw touch at a place measured before the Pencil tap; a locator tap waits for actionability and on a slow CI machine landed after the 500 ms palm window (test timing, not an app bug).

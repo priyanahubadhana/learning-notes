@@ -28,7 +28,7 @@ export const record = (type: string, e: PointerEvent): Recorded => ({
 })
 
 /** The stroke's box on screen (client px). */
-export function bounds(events: readonly Recorded[]) {
+export function bounds(events: readonly { x: number; y: number }[]) {
   const xs = events.map((e) => e.x)
   const ys = events.map((e) => e.y)
   const x = Math.min(...xs)

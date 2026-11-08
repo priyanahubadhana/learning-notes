@@ -3,6 +3,13 @@
  * esO.ts (machine drafts: mark for native review).
  */
 export const enO = {
+  // ---- Template chooser at start ----
+  'newPage.dontShow': "Don't show this again",
+  'newPage.hiddenToast':
+    'Template list hidden. Turn it back on in Settings › General.',
+  'settings.newPageChooser.label': 'Template list on new pages',
+  'settings.newPageChooser.description':
+    'On: a new page or notebook shows a list of templates (Blank first) under the cursor. Off: it opens blank.',
   // ---- R8-6 AI while locked ----
   'ai.lockedOff':
     'This page is locked, so AI will not read it. To allow it, turn on "Allow AI while locked" for this notebook in Settings › Permissions.',

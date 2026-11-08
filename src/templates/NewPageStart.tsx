@@ -1,5 +1,5 @@
 import { useLiveQuery } from 'dexie-react-hooks'
-import { useContext } from 'react'
+import { useContext, useState } from 'react'
 import { AppUiContext } from '../app/appUi'
 import { runTask } from '../app/errors'
 import type { LearningNotesDB } from '../core/db'
@@ -8,7 +8,10 @@ import { displayName } from '../i18n/defaultNames'
 import { t } from '../i18n/t'
 import { PAPER_STYLES, paperStyleKey } from '../pages/paperStyles'
 import { setPageInkBg } from '../pages/pageService'
-import { newPageStudySetting } from '../settings/builtinSettings'
+import {
+  newPageChooserSetting,
+  newPageStudySetting,
+} from '../settings/builtinSettings'
 import { setSetting } from '../settings/settingsService'
 import { useSyncedSetting } from '../settings/useSetting'
 import {
@@ -48,11 +51,13 @@ export function NewPageStart({
     [db, workspaceId],
   )
   const always = useSyncedSetting(db, newPageStudySetting)
+  const chooser = useSyncedSetting(db, newPageChooserSetting)
+  const [hidden, setHidden] = useState(false)
   const paper = useLiveQuery(
     async () => (await db.pages.get(pageId))?.inkBg,
     [db, pageId],
   )
-  if (!blank || !templates) return null
+  if (!blank || !templates || hidden || chooser === 'off') return null
 
   const others = templates.filter((x) => !x.isDaily && x.id !== study?.id)
   const choose = (templateId: string) =>
@@ -95,6 +100,19 @@ export function NewPageStart({
         ))}
       </div>
       <ul className="grid gap-1.5">
+        <li>
+          <button
+            type="button"
+            onClick={() => setHidden(true)}
+            className={`${row} w-full font-medium`}
+            data-template="blank"
+          >
+            {t('sidebar.blankPage')}
+            <span className="ms-2 text-[12px] font-normal text-ink-soft">
+              {t('picker.blankHelp')}
+            </span>
+          </button>
+        </li>
         {study && (
           <li>
             <button
@@ -147,6 +165,17 @@ export function NewPageStart({
           </label>
         </Tip>
       )}
+      <button
+        type="button"
+        data-new-page-dismiss
+        onClick={() => {
+          runTask(setSetting(db, newPageChooserSetting, 'off'))
+          toast(t('newPage.hiddenToast'))
+        }}
+        className="mt-1 min-h-11 text-start text-[13px] text-ink-soft underline"
+      >
+        {t('newPage.dontShow')}
+      </button>
     </section>
   )
 }

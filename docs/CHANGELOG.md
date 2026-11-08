@@ -8,6 +8,12 @@ Current phase only. Older entries are in [ARCHIVE.md](ARCHIVE.md).
 - **Why:** Google needs a privacy policy URL before the OAuth app can leave Testing (Testing signs the owner out of Sync every 7 days).
 - **Files:** `public/privacy.html`, `vite.config.ts`, `docs/research/prompt-library-2026-11.md`.
 
+## 2026-11-08 (Template chooser at start)
+
+- **What:** the N2 list under a new page's cursor now starts with Blank page, has a "Don't show this again" button, and also appears on the first page of a new notebook. New synced setting Settings › General › "Template list on new pages" (`general.newPageChooser`, default on). Strings in enO/hiO/esO.
+- **Why:** owner-approved Notion-style chooser; reuses the existing start screen, no new bundle (first load 313.0 KB of 320).
+- **Files:** `src/templates/NewPageStart.tsx`, `src/pages/PageView.tsx`, `src/App.tsx`, `src/settings/builtinSettings.ts`, `src/i18n/enO.ts`, `hiO.ts`, `esO.ts`, `e2e/newPageStart.spec.ts`, docs.
+
 ## 2026-11-08 (Build fix: rollup without its native file)
 
 - **What:** devDependency `rollup` is now `npm:@rollup/wasm-node@4.67.3` (same rollup, WebAssembly instead of a native `.node` file).

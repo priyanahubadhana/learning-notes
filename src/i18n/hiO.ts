@@ -1,5 +1,11 @@
 /** Hindi text of Phase O (draft: needs native review). English is enO.ts. */
 export const hiO: Record<string, string> = {
+  'newPage.dontShow': 'इसे फिर न दिखाएँ',
+  'newPage.hiddenToast':
+    'टेम्पलेट सूची छिपी है। इसे सेटिंग › सामान्य में फिर चालू करें।',
+  'settings.newPageChooser.label': 'नए पेज पर टेम्पलेट सूची',
+  'settings.newPageChooser.description':
+    'चालू: नया पेज या नोटबुक कर्सर के नीचे टेम्पलेट की सूची दिखाता है (पहले खाली)। बंद: वह खाली खुलता है।',
   'ai.lockedOff':
     'यह पेज लॉक है, इसलिए AI इसे नहीं पढ़ेगा। अनुमति देने के लिए सेटिंग › अनुमतियाँ में इस नोटबुक के लिए "लॉक होने पर भी AI की अनुमति" चालू करें।',
   'ai.allowLocked': 'लॉक होने पर भी AI की अनुमति',

@@ -8,7 +8,7 @@ import { addPage, createNotebook, typeInEditor } from './helpers.ts'
 const start = (page: import('@playwright/test').Page) =>
   page.locator('[data-new-page-start]')
 
-test('a new page offers Study (Recommended) first; choosing it fills the page', async ({
+test('a new page offers Blank, then Study (Recommended); choosing it fills the page', async ({
   page,
 }) => {
   await page.goto('/')
@@ -16,7 +16,8 @@ test('a new page offers Study (Recommended) first; choosing it fills the page', 
   await addPage(page, 'Biology', 'Cells')
   await expect(start(page)).toBeVisible()
   const names = await start(page).locator('li button').allTextContents()
-  expect(names[0]).toContain('Study (Recommended)')
+  expect(names[0]).toContain('Blank page')
+  expect(names[1]).toContain('Study (Recommended)')
   expect(names.length).toBeGreaterThan(3)
 
   await start(page)
@@ -28,12 +29,12 @@ test('a new page offers Study (Recommended) first; choosing it fills the page', 
   await expect(start(page)).toHaveCount(0)
 })
 
-test('the list goes away once you type, and the first page of a notebook has none', async ({
+test('the list goes away once you type, and a new notebook first page offers the chooser too', async ({
   page,
 }) => {
   await page.goto('/')
   await createNotebook(page, 'Biology', 'First')
-  await expect(start(page)).toHaveCount(0)
+  await expect(start(page)).toBeVisible()
   await addPage(page, 'Biology', 'Cells')
   await expect(start(page)).toBeVisible()
   await typeInEditor(page, 'hello')
@@ -68,4 +69,23 @@ test('the list fits a phone', async ({ page }) => {
     () => document.documentElement.scrollWidth - window.innerWidth,
   )
   expect(overflow).toBeLessThanOrEqual(0)
+})
+
+test('Blank hides the list; Do not show again turns it off', async ({
+  page,
+}) => {
+  await page.goto('/')
+  await createNotebook(page, 'Biology', 'First')
+  await addPage(page, 'Biology', 'Cells')
+  await start(page)
+    .getByRole('button', { name: /^Blank page/ })
+    .click()
+  await expect(start(page)).toHaveCount(0)
+  await addPage(page, 'Biology', 'Tissues')
+  await start(page)
+    .getByRole('button', { name: "Don't show this again" })
+    .click()
+  await expect(start(page)).toHaveCount(0)
+  await addPage(page, 'Biology', 'Organs')
+  await expect(start(page)).toHaveCount(0)
 })

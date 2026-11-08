@@ -884,6 +884,7 @@ function App() {
   // Bumped when a tag merge/delete rewrites the open page's notes.
   const [notesVersion, setNotesVersion] = useState(0)
   const [focusTitlePageId, setFocusTitlePageId] = useState<string | null>(null)
+  const [startOfferPageId, setStartOfferPageId] = useState<string | null>(null)
   // Touch and Pencil: a new page is named in the Name it sheet.
   const [nameAsk, setNameAsk] = useState<{
     title: string
@@ -904,7 +905,7 @@ function App() {
     parentId: string | null,
     focusTitle = true,
     templateId?: string,
-  ) => {
+  ): Promise<Page> => {
     // N2: with "Always start new pages as Study" on, a plain new page is filled
     // from the Study template (quietly: no toast).
     const studyId =
@@ -932,6 +933,7 @@ function App() {
         }),
       )
     }
+    return page
   }
 
   const createNotebookAndOpen = async () => {
@@ -947,7 +949,8 @@ function App() {
         .askName(t('nameSheet.newNotebook'), notebook.title)
         .then((name) => name && runTask(renameNotebook(db, notebook.id, name)))
     } else setRenamingNotebookId(notebook.id)
-    await createPageIn(notebook.id, null, false)
+    const first = await createPageIn(notebook.id, null, false)
+    setStartOfferPageId(first.id)
   }
 
   const closeWelcome = () => {
@@ -1612,6 +1615,7 @@ function App() {
                             db={db}
                             page={currentPage}
                             autoFocusTitle={focusTitlePageId === currentPage.id}
+                            offerStart={startOfferPageId === currentPage.id}
                             onOpenPage={openPage}
                             onOpenNewPage={openNewPage}
                             onReview={(includeSubpages) =>

@@ -92,6 +92,8 @@ interface PageViewProps {
   page: Page
   /** Put the cursor in the title (for newly created pages). */
   autoFocusTitle: boolean
+  /** Show the template chooser though the title is not focused (first page of a new notebook). */
+  offerStart?: boolean
   onOpenPage: (pageId: string) => void
   /** Opens a page just created from inside this page. */
   onOpenNewPage: (page: Page) => void
@@ -118,6 +120,7 @@ export function PageView({
   db,
   page,
   autoFocusTitle,
+  offerStart,
   onOpenPage,
   onOpenNewPage,
   onNewPageFromTemplate,
@@ -555,7 +558,7 @@ export function PageView({
           </PaperFrame>
           {boxes.menu}
         </div>
-        {autoFocusTitle &&
+        {(autoFocusTitle || offerStart) &&
           pageTab === 'notes' &&
           !reader &&
           !isTemplate &&

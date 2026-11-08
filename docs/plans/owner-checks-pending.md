@@ -2,6 +2,12 @@
 
 Moved out of HANDOFF on 2026-11-06 (audit) so HANDOFF stays five lines. Newest first; each paragraph names its step. The run decision (master plan) is one owner iPad pass before Sync; the Phase A builder adds its checks at the top. Tick a paragraph by deleting it.
 
+## Template chooser at start (8 Nov)
+
+1. Make a new page: the list shows Blank page first, then Study and the others. Tap Blank: the list closes. Tap a template: the page fills.
+2. Make a new notebook: its first page shows the same list.
+3. Tap "Don't show this again": the list goes and new pages open blank. Settings › General › "Template list on new pages" turns it back on.
+
 ## Allow AI while locked (8 Nov, R8-6)
 
 1. iPad: lock a page, then try Lasso › Convert to text and a Write pad AI Read on it: a plain message says the page is locked and AI is not called.

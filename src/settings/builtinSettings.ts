@@ -645,6 +645,22 @@ export const newPageStudySetting: SettingDefinition<OnOff> = {
   control: { kind: 'segmented', options: onOffOptions() },
 }
 
+/**
+ * Template chooser at start: the "Start with a template" list under the cursor
+ * of a new page or notebook. Off: new pages just open blank. Synced.
+ */
+export const newPageChooserSetting: SettingDefinition<OnOff> = {
+  id: 'general.newPageChooser',
+  labelKey: 'settings.newPageChooser.label',
+  descriptionKey: 'settings.newPageChooser.description',
+  category: 'general',
+  keywords: 'template chooser start new page notebook blank show again',
+  scope: 'synced',
+  defaultValue: 'on',
+  isValid: isOnOff,
+  control: { kind: 'segmented', options: onOffOptions() },
+}
+
 for (const definition of [
   theme,
   deviceModeSetting,
@@ -676,6 +692,7 @@ for (const definition of [
   practiceOrder,
   nestedCardPlacement,
   newPageStudySetting,
+  newPageChooserSetting,
 ]) {
   settingsRegistry.register(definition as SettingDefinition)
 }

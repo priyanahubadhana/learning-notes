@@ -1,5 +1,11 @@
 /** Spanish text of Phase O (draft: needs native review). English is enO.ts. */
 export const esO: Record<string, string> = {
+  'newPage.dontShow': 'No mostrar de nuevo',
+  'newPage.hiddenToast':
+    'Lista de plantillas oculta. Vuelve a activarla en Ajustes › General.',
+  'settings.newPageChooser.label': 'Lista de plantillas en páginas nuevas',
+  'settings.newPageChooser.description':
+    'Activado: una página o cuaderno nuevo muestra una lista de plantillas (en blanco primero) bajo el cursor. Desactivado: se abre en blanco.',
   'ai.lockedOff':
     'Esta página está bloqueada, así que la IA no la leerá. Para permitirlo, activa "Permitir IA con página bloqueada" para este cuaderno en Ajustes › Permisos.',
   'ai.allowLocked': 'Permitir IA con página bloqueada',

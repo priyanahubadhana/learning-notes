@@ -7,6 +7,9 @@ Current phase only. Older decisions are in [ARCHIVE.md](ARCHIVE.md).
 
 ## Phase 9 decisions
 
+- **2026-11-08 · R8-2 Pencil offer: owner says keep.** Auto switch stays on by default and the offer shows only when Auto switch is off. (Closes the open question in HANDOFF.)
+- **2026-11-08 · Today button skipped:** Home › Today already covers it (owner, 8 Nov).
+- **2026-11-08 · Template chooser at start (owner-approved).** Reused the N2 new-page start list instead of a second screen. Blank page is the first row (it just closes the list); then Study, then the other templates (sidebar templates and memory templates live in the same list). New notebooks now show it on their first page too (`offerStart`). "Don't show this again" turns off the synced setting `general.newPageChooser` (default on; Settings › General). Not added: database starters (they belong to databases, not pages) and no pop-up dialog (the inline list is less intrusive; the old `TemplatePicker` dialog stays for the menus). No Dexie version.
 - **2026-11-08 · Owner decision: build Phase Q (Paper page) now, in parallel with the fixes.** Design in [plans/paper-page-plan.md](plans/paper-page-plan.md); building paused by the coordinator until the owner answers its open questions (section 6). Planned choice: each block box is a hidden child page, so every block feature keeps working.
 
 - **2026-11-06 · Owner decision: build Phase L (Sync) now, in parallel with Waves 4–5.** A one-time exception to "no skipping phases". No planning talk: the approved [RESEARCH.md](RESEARCH.md) design is followed; choices are logged under "Decisions to review" (Phase L rows).

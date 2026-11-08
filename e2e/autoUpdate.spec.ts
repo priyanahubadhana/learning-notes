@@ -128,7 +128,9 @@ test('asks when the safety copy cannot be made', async ({ page }) => {
   // Almost no space left (only before the restart, so the app still starts).
   await page.addInitScript(() => {
     if (sessionStorage.getItem('ln.updated')) return
-    Object.defineProperty(navigator.storage, 'estimate', {
+    // On the prototype: some browsers hand out a new storage object each time.
+    Object.defineProperty(StorageManager.prototype, 'estimate', {
+      configurable: true,
       value: async () => ({ quota: 1_000_000, usage: 0 }),
     })
   })

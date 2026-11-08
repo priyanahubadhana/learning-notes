@@ -15,6 +15,7 @@ import { t, type MessageKey } from '../../../i18n/t'
 import { Tip } from '../../../help/Help'
 import { insideAny, usePopup } from '../../popups'
 import { Icon } from '../icons'
+import { BarScroll } from '../BarScroll'
 import { DetailCard } from './DetailCard'
 import {
   activeTool,
@@ -243,7 +244,7 @@ function Pill({
               maxHeight: isVertical ? Math.round(room.height * 0.6) : undefined,
             }}
             className={`fixed top-0 left-0 z-40 flex items-center gap-0.5 rounded-2xl border border-ink-soft bg-bg p-1 text-ink shadow-[0_2px_4px_rgba(0,0,0,0.08),0_10px_28px_rgba(0,0,0,0.16)] ${
-              isVertical ? 'flex-col overflow-y-auto' : 'overflow-x-auto'
+              isVertical ? 'flex-col overflow-y-auto' : ''
             } ${dragging ? 'cursor-grabbing' : ''}`}
           >
             <Tip
@@ -272,7 +273,14 @@ function Pill({
                 />
               </button>
             </Tip>
-            <PillContent tool={tool} editor={editor} />
+            {isVertical ? (
+              <PillContent tool={tool} editor={editor} />
+            ) : (
+              // A wide pill in a narrow window: the bar's cue and handle (item 7).
+              <BarScroll className="shrink">
+                <PillContent tool={tool} editor={editor} />
+              </BarScroll>
+            )}
             <Tip
               id="pill.pin"
               touchInfo={false}

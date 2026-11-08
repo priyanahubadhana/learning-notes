@@ -6,6 +6,14 @@ export const hiO: Record<string, string> = {
   'settings.newPageChooser.label': 'नए पेज पर टेम्पलेट सूची',
   'settings.newPageChooser.description':
     'चालू: नया पेज या नोटबुक कर्सर के नीचे टेम्पलेट की सूची दिखाता है (पहले खाली)। बंद: वह खाली खुलता है।',
+  'attention.locked.title': 'आपकी नोटबुक लॉक हैं',
+  'attention.locked.text':
+    'आपके सिंक किए नोट एन्क्रिप्टेड हैं। इस डिवाइस पर उन्हें देखने के लिए अपना पासफ़्रेज़ या रिकवरी कोड डालें।',
+  'attention.locked.enter': 'पासफ़्रेज़ डालें',
+  'attention.locked.code': 'रिकवरी कोड इस्तेमाल करें',
+  'attention.locked.later': 'बाद में',
+  'attention.locked.banner': 'आपकी नोटबुक लॉक हैं',
+  'attention.locked.unlock': 'अनलॉक करें',
   'ai.lockedOff':
     'यह पेज लॉक है, इसलिए AI इसे नहीं पढ़ेगा। अनुमति देने के लिए सेटिंग › अनुमतियाँ में इस नोटबुक के लिए "लॉक होने पर भी AI की अनुमति" चालू करें।',
   'ai.allowLocked': 'लॉक होने पर भी AI की अनुमति',

@@ -10,6 +10,15 @@ export const enO = {
   'settings.newPageChooser.label': 'Template list on new pages',
   'settings.newPageChooser.description':
     'On: a new page or notebook shows a list of templates (Blank first) under the cursor. Off: it opens blank.',
+  // ---- Attention: notebooks locked (Level 1) ----
+  'attention.locked.title': 'Your notebooks are locked',
+  'attention.locked.text':
+    'Your synced notes are encrypted. Enter your passphrase or recovery code to see them on this device.',
+  'attention.locked.enter': 'Enter passphrase',
+  'attention.locked.code': 'Use recovery code',
+  'attention.locked.later': 'Later',
+  'attention.locked.banner': 'Your notebooks are locked',
+  'attention.locked.unlock': 'Unlock',
   // ---- R8-6 AI while locked ----
   'ai.lockedOff':
     'This page is locked, so AI will not read it. To allow it, turn on "Allow AI while locked" for this notebook in Settings › Permissions.',

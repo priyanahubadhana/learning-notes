@@ -6,6 +6,14 @@ export const esO: Record<string, string> = {
   'settings.newPageChooser.label': 'Lista de plantillas en páginas nuevas',
   'settings.newPageChooser.description':
     'Activado: una página o cuaderno nuevo muestra una lista de plantillas (en blanco primero) bajo el cursor. Desactivado: se abre en blanco.',
+  'attention.locked.title': 'Tus cuadernos están bloqueados',
+  'attention.locked.text':
+    'Tus notas sincronizadas están cifradas. Escribe tu frase de contraseña o código de recuperación para verlas en este dispositivo.',
+  'attention.locked.enter': 'Escribir frase de contraseña',
+  'attention.locked.code': 'Usar código de recuperación',
+  'attention.locked.later': 'Más tarde',
+  'attention.locked.banner': 'Tus cuadernos están bloqueados',
+  'attention.locked.unlock': 'Desbloquear',
   'ai.lockedOff':
     'Esta página está bloqueada, así que la IA no la leerá. Para permitirlo, activa "Permitir IA con página bloqueada" para este cuaderno en Ajustes › Permisos.',
   'ai.allowLocked': 'Permitir IA con página bloqueada',

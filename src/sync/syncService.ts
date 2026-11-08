@@ -13,7 +13,7 @@ import { isLive } from '../core/records'
 import type { Workspace } from '../core/types'
 import { NeedsTapError, getConnectors, type Connectors } from './connectors'
 import { SyncCryptoError, type MasterKey } from './crypto'
-import { setTracking } from './device'
+import { setTracking, setWaitingForKey } from './device'
 import { enqueueChanged, syncOnce, type SyncReport } from './engine'
 import { forgetMasterKey, loadMasterKey, saveMasterKey } from './keyVault'
 import { createKey, findBundles, unlockKey } from './setup'
@@ -63,6 +63,7 @@ function readLast(): number | undefined {
 async function decidePhase(conn: Connectors) {
   const account = conn.auth.current()
   if (!account) {
+    setWaitingForKey(false)
     set({ phase: 'signedOut', email: undefined })
     return
   }
@@ -73,6 +74,7 @@ async function decidePhase(conn: Connectors) {
     return
   }
   const bundles = await findBundles(conn)
+  setWaitingForKey(bundles.length > 0)
   set({
     phase: bundles.length > 0 ? 'needsKey' : 'needsSetup',
     email: account.email,
@@ -195,6 +197,7 @@ export async function signOut(forgetKey: boolean): Promise<void> {
   const conn = getConnectors()
   await conn.auth.signOut()
   setTracking(false)
+  setWaitingForKey(false)
   if (forgetKey) {
     master = null
     await forgetMasterKey()
@@ -233,7 +236,7 @@ export async function unlock(
   }
   await saveMasterKey(master)
   setTracking(true)
-  set({ phase: 'ready' })
+  set({ phase: 'ready', problem: undefined })
   // Notes already on this device are kept and sent too (never wiped).
   await enqueueChanged(db)
   void syncNow(db)

@@ -77,7 +77,9 @@ export function SyncSection({ db }: { db: LearningNotesDB }) {
               }
             />
           )}
-          {status.phase === 'needsKey' && <Unlock db={db} />}
+          {(status.phase === 'needsKey' ||
+            status.problem === 'needCode' ||
+            status.problem === 'unreadable') && <Unlock db={db} />}
           {(status.phase === 'ready' || status.phase === 'syncing') && (
             <Running db={db} />
           )}

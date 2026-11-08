@@ -2,6 +2,12 @@
 
 Current phase only. Older entries are in [ARCHIVE.md](ARCHIVE.md).
 
+## 2026-11-08 (Notebooks locked alert, Level 1)
+
+- **What:** when signed in to Sync but this device has no passphrase/recovery code (needsKey, or needCode/unreadable), one pop-up (alertdialog, focus trapped) "Your notebooks are locked" with Enter passphrase, Use recovery code, Later; once per session, never while typing (2 s idle) and never over Settings › Sync. Later leaves a bright top banner with Unlock; both vanish when unlocked. Lazy chunk, tiny eager gate. Settings › Sync shows the unlock box for needCode/unreadable too.
+- **Why:** owner request; hidden notebooks went unnoticed behind a red dot.
+- **Files:** `src/sync/{lockedStatus,LockedAlertGate,LockedAlert}.ts(x)`, `syncService.ts`, `SyncSection.tsx`, `src/App.tsx`, `src/i18n/{en,hi,es}O.ts`, `src/sync/lockedStatus.test.ts`, `e2e/lockedAlert.spec.ts`, docs.
+
 ## 2026-11-08 (Privacy page for Google publishing)
 
 - **What:** `public/privacy.html`, a short plain privacy policy (local-first, end-to-end encrypted Sync, own-key AI, no tracking, how to delete); the service worker no longer swaps it for the app (`navigateFallbackDenylist`). Also the prompt library research (`docs/research/prompt-library-2026-11.md`).

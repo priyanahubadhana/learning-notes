@@ -57,6 +57,7 @@ import { Toast, ChoiceDialog, EmptyState } from './app/ui'
 import { dismissUpdateOffer, onUpdateOffer } from './app/updates'
 import { UpdateBar, UpdateRiskBar } from './app/UpdateBar'
 import { restoreAfterUpdate, updateRisk } from './app/autoUpdate'
+import { LockedAlertGate } from './sync/LockedAlertGate'
 import { NowPlayingGate } from './app/reading/NowPlayingGate'
 import { TOAST_AFTER_HOLD_MS, toastDuration } from './app/toastTiming'
 import { isStringOrNull } from './app/uiPrefs'
@@ -1228,7 +1229,10 @@ function App() {
               data-app-shell
               className="flex h-screen h-dvh phone:pb-[calc(56px+env(safe-area-inset-bottom))]"
               style={
-                { '--sidebar-width': `${sidebarWidth}px` } as CSSProperties
+                {
+                  '--sidebar-width': `${sidebarWidth}px`,
+                  paddingTop: 'var(--attn-h, 0px)',
+                } as CSSProperties
               }
             >
               <SpaceStrip
@@ -1826,6 +1830,7 @@ function App() {
               />
             )}
             <ReadingSync />
+            <LockedAlertGate />
             <NowPlayingGate onOpenPage={(id) => openPage(id)} />
             <TimerChip db={db} onOpenHome={() => chooseSpace('home')} />
             <AudioDock db={db} pageId={currentPage?.id ?? null} />

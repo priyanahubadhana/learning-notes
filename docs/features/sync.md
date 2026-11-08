@@ -18,6 +18,8 @@ Keep the notes the same on the iPad and the PC, end-to-end encrypted: the server
 - **Merge rules** (`merge.ts`): new here → take; Delete forever always wins; review logs are only added; no change here → take; both changed → the newer hybrid clock wins (device time + counter + device id; a clock more than a day ahead is not followed and shows a warning). Blocks: the losing text is kept in that page's **History**, and a "changed on two devices" notice shows.
 - **First merge**: workspaces, special notebooks (Journal, Templates, …), journal day/month pages and cards now get **fixed ids**, so two new devices make the same ones. Older devices that already have their own are merged after each sync (`dedupeWorkspaces`): the other's notebooks, pages and cards move into the kept one; the empty duplicate is soft-deleted.
 
+- **Locked alert (Level 1)**: `sync/lockedStatus.ts` (`isLocked`: needsKey, needCode, unreadable) is read by the eager `LockedAlertGate`, which lazy-loads `LockedAlert.tsx`: one `alertdialog` per session (sessionStorage `attn.locked.shown`) after the person stops typing, not while Settings › Sync is open; Later leaves a red banner with Unlock; unlocking clears both. Design: [research/attention-alerts-2026-11.md](../research/attention-alerts-2026-11.md); other levels not built. Tests: `lockedStatus.test.ts`, `e2e/lockedAlert.spec.ts`.
+
 ## Adding a table (for future builders)
 
 1. Add the table in `core/db.ts` (a new Dexie version, add-only) as usual.

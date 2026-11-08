@@ -35,7 +35,7 @@ import { penIsDown } from './app/palmGuard'
 import { hasUnsaved } from './app/saveStatus'
 import { requestPersistentStorage } from './core/storage'
 import { db, DEFAULT_DB_NAME } from './core/db'
-import { isTracking } from './sync/device'
+import { isTracking, isWaitingForKey } from './sync/device'
 import { writePref } from './app/uiPrefs'
 import { initDeviceMode } from './settings/deviceModeSettings'
 import { prefetchAfterIdle } from './app/idlePrefetch'
@@ -91,7 +91,11 @@ if (slowMomentsWanted()) setSlowMomentsOn(true)
 
 // Sync (Phase L): loaded only when it is set up or a Google sign-in is
 // coming back, so people who never sync download none of it.
-if (isTracking() || new URLSearchParams(location.search).has('sync')) {
+if (
+  isTracking() ||
+  isWaitingForKey() ||
+  new URLSearchParams(location.search).has('sync')
+) {
   void import('./sync/syncService').then((m) => m.startSync(db))
 }
 

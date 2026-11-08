@@ -2,6 +2,13 @@
 
 Moved out of HANDOFF on 2026-11-06 (audit) so HANDOFF stays five lines. Newest first; each paragraph names its step. The run decision (master plan) is one owner iPad pass before Sync; the Phase A builder adds its checks at the top. Tick a paragraph by deleting it.
 
+## Paste, tables, select all, Notion import (9 Nov)
+
+1. PC/iPad: copy a Notion page with toggles (and sub-toggles, headings, callouts) and paste: toggles stay toggles with their children. Copy rows of a Notion database and paste: a table, no big heading.
+2. Hover a table: grips and + show only for the hovered row/column and fade about 0.3 s after the mouse leaves; the column border shows a grip pill and drags. On iPad tap a cell to see its grips, they hide after about 3 s.
+3. Ctrl/Cmd+A in a cell: its words, then the whole table, then everything.
+4. Save & restore › More › Notion: import a real Notion "Markdown & CSV" zip; check pages, database columns, row pages, pictures and links; then Undo.
+
 ## Lock editing, prompt gaps (9 Nov)
 
 1. iPad: page ⋯ › Lock editing. The grey bar says "Locked — tap to unlock"; typing, Pencil drawing, the title and paper boxes do nothing. Tap the bar: editing works again. Lock a notebook (notebook screen › Tab options › Lock editing (all pages)): every page shows "Notebook locked"; Delete is refused.

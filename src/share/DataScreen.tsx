@@ -43,6 +43,7 @@ import {
 import { formatSize } from './formatSize'
 import { readFullFile } from './readFull'
 import { RestoreDialog } from './RestoreDialog'
+import { NotionImportSection } from './NotionImportSection'
 import {
   canReplaceFrom,
   fullToBundle,
@@ -587,6 +588,12 @@ export function DataScreen({
           <summary className="flex min-h-11 cursor-pointer items-center text-[15px] font-semibold">
             {t('data.more.title')}
           </summary>
+          <NotionImportSection
+            db={db}
+            workspaceId={workspaceId}
+            notebooks={notebooks ?? []}
+            box={box}
+          />
           <section aria-label={t('data.anki.title')} className={box}>
             <h2 className="text-[15px] font-semibold">
               {t('data.anki.title')}

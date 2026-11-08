@@ -804,4 +804,30 @@ export const enO = {
   'editLock.barNotebook': 'Notebook locked — tap to unlock',
   'editLock.deleteHint': 'Locked',
   'editLock.refused': 'This is locked for editing. Unlock it first.',
+  // ---- Import a Notion export ----
+  'notion.title': 'Notion',
+  'notion.text':
+    'Bring in a Notion export: in Notion open Settings, Export, choose "Markdown & CSV" and include sub-pages, then pick the zip here. Pages, databases, pictures and links come across.',
+  'notion.import': 'Import Notion export',
+  'notion.hint': 'Pick the .zip from Notion',
+  'notion.where': 'Where to put it',
+  'notion.newNotebook': 'A new notebook',
+  'notion.newNotebookNamed': 'a new notebook called "{name}"',
+  'notion.reading': 'Reading the export…',
+  'notion.working': 'Importing…',
+  'notion.progress': 'Importing {done} of {total}…',
+  'notion.tooBig': 'This file is too big (the limit is 400 MB).',
+  'notion.preview':
+    '"{name}" has {pages} pages, {databases} databases ({rows} rows), {images} pictures and {files} other files. Put them in {where}?',
+  'notion.done':
+    'Imported {pages} pages, {databases} databases and {rows} rows.',
+  'notion.undo': 'Undo',
+  'notion.err.damaged': 'This zip could not be read. Export again from Notion.',
+  'notion.err.nothing': 'No pages or tables were found in this zip.',
+  'notion.err.nested':
+    'This zip holds other zips. Unzip it first and pick the inner zip.',
+  'notion.err.entries': 'This zip has too many files.',
+  'notion.err.expanded': 'This export is too big to open here.',
+  'notion.err.pages': 'This export has too many pages for one import.',
+  'notion.err.toobig': 'This file is too big (the limit is 400 MB).',
 }

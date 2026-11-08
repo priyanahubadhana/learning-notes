@@ -12,6 +12,11 @@ Current phase only. Older entries are in [ARCHIVE.md](ARCHIVE.md).
 - **What:** A box that is dropped or resized onto another box now gives way: it moves under the box it would cover (with a 3 mm gap, on the paper's line spacing). The other boxes never move. Box frame on hover/tap, grab bar and side edges already existed. NOT built yet from the owner's longer wish list: floating format bar under a tapped box, live see-through copy and red landing line while dragging, push-down of neighbours, snap guides, Lasso-select several boxes by loop frame.
 - **Files:** src/paper/boxes.ts (+ test), src/paper/PaperFrame.tsx, e2e/paperPage.spec.ts, docs/features/paper-page.md
 
+## 2026-11-09 (Import a Notion export)
+
+- **What:** Save & restore › More › Notion: pick Notion's "Markdown & CSV" zip, see the counts and target, import (new notebook or an existing one), Undo moves it all to Trash. CSV to Database with guessed types (reusing the CSV importer), row .md to the row's page, nested pages to sub-pages, pictures and files kept, links rewritten to note links, toggles/callouts/dividers/tables/code read. Strict zip and size limits.
+- **Files:** src/share/notionImport.ts (+test), NotionImportSection.tsx, DataScreen.tsx, src/i18n/enO.ts, e2e/notionImport.spec.ts, docs/features/notion-import.md
+
 ## 2026-11-09 (Paste rows as a Table)
 
 - **What:** pasted tab-separated text (Notion database rows, spreadsheet cells; every line has a tab, 2-500 rows, 2-50 columns, 200k characters at most) becomes a Table block with emoji kept; the first line is never made a heading. Pasted HTML with a real table keeps going the normal way (a Table).

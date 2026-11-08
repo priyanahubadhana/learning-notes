@@ -8,7 +8,14 @@ import { ensureBlockView, getBlockView, setBlockViewType } from './blockViews'
 import { getDatabase, updateView } from './databaseService'
 import { getViewType } from './views/viewTypes'
 
-const TYPES = ['table', 'dashboard', 'board', 'calendar', 'gallery'] as const
+const TYPES = [
+  'table',
+  'list',
+  'dashboard',
+  'board',
+  'calendar',
+  'gallery',
+] as const
 
 /** Widest a "Full width" database grows (pixels). */
 const MAX_WIDE = 1400

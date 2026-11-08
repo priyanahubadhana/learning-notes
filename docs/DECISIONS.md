@@ -783,3 +783,12 @@ The other older decisions stand as built (owner, 2026-11-01); they are in [ARCHI
 - Two ways to run: in the app with own keys, or paste-in: each prompt copies itself with the app answer format, owner runs it in any AI chat and pastes the answer back (free, no API cost).
 - Priority: each key point gets 1-10 stars plus a level (Must know 8-10 / Good to know 4-7 / Extra 1-3); Must know comes first and gets a picture, a mind-map node and cards.
 - Sources: as many as possible, each point linked [n] to its source, Sources list at the bottom, points with no source marked unchecked; optional second-model fact check (extra cost, shown first).
+
+## Decisions to review (database pages, 9 Nov)
+
+- No new Dexie version or table: the database engine, relations, rollups, formulas, tags and stars (number with stars format, max up to 10) already existed; "stars 1-10" is that format, not a new type.
+- "Database page" = a page holding one full-width database block (not a new page kind), so every database feature works in notes and as a page. Offered as the last row of the new-page list.
+- Search: row values go into the row's existing title entry (no new entry kind), index version 5 rebuilds once; option/tag renames show in search after the row is next saved. Checkboxes and computed columns are not searched.
+- Grouping groups by the cell's shown text; multi-value cells group by their joined text. Filter and sort controls stay in Table (chips) and List (sort picker); Board and Gallery use the view's saved filters/sorts.
+- Windowing starts above 200 rows (Table, List); Board/Gallery keep paging ("Show more").
+- Link check: NewPageStart gets an `onMakeDatabase` prop from PageView, so templates and databases do not import each other.

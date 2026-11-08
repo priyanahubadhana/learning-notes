@@ -33,12 +33,15 @@ export function NewPageStart({
   pageId,
   workspaceId,
   onApplied,
+  onMakeDatabase,
 }: {
   db: LearningNotesDB
   pageId: string
   workspaceId: string
   /** The page was filled: reload the editor. */
   onApplied: () => void
+  /** Turns the page into a database page; false = the page was not blank. */
+  onMakeDatabase?: () => Promise<boolean>
 }) {
   const { toast } = useContext(AppUiContext)
   const blank = useLiveQuery(() => isPageBlank(db, pageId), [db, pageId])
@@ -64,6 +67,13 @@ export function NewPageStart({
     runTask(
       (async () => {
         if (await applyTemplateToPage(db, pageId, templateId)) onApplied()
+        else toast(t('newPage.notBlank'))
+      })(),
+    )
+  const makeDatabase = () =>
+    runTask(
+      (async () => {
+        if (await onMakeDatabase?.()) onApplied()
         else toast(t('newPage.notBlank'))
       })(),
     )
@@ -144,6 +154,21 @@ export function NewPageStart({
             </button>
           </li>
         ))}
+        {onMakeDatabase && (
+          <li>
+            <button
+              type="button"
+              onClick={makeDatabase}
+              className={`${row} w-full font-medium`}
+              data-template="database"
+            >
+              {t('newPage.database')}
+              <span className="ms-2 text-[12px] font-normal text-ink-soft">
+                {t('newPage.databaseHelp')}
+              </span>
+            </button>
+          </li>
+        )}
       </ul>
       {study && (
         <Tip id="newPage.always" className="mt-2 flex">

@@ -2,6 +2,8 @@
 
 Security rules: [rules/security.md](../../rules/security.md). Check them before building.
 
+See also [database.md](database.md) (database pages, List view, search).
+
 ## Purpose
 
 Lets a user keep structured lists (drugs, books, habits) as databases. Each row is a full page, so it can also hold notes, cards, links and tags. Everything is stored on the device.

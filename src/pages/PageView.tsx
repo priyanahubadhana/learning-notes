@@ -34,6 +34,7 @@ import { getNotebook } from '../notebooks/notebookService'
 import { isPageBlank, saveAsTemplate } from '../templates/templateService'
 import { hintPageOk } from '../paper/hintPages'
 import { PAPER_STYLES, paperStyleKey } from './paperStyles'
+import { makeDatabasePage } from '../databases/databasePage'
 import { NewPageStart } from '../templates/NewPageStart'
 import {
   getPagePath,
@@ -569,6 +570,9 @@ export function PageView({
               pageId={page.id}
               workspaceId={notebook.workspaceId}
               onApplied={onReload}
+              onMakeDatabase={async () =>
+                (await makeDatabasePage(db, page.id)) !== null
+              }
             />
           )}
       </ReadingFrame>

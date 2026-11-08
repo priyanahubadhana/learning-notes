@@ -6,7 +6,7 @@ import type {
   DBCoreTransaction,
   Middleware,
 } from 'dexie'
-import type { Block, Page, SearchEntry } from '../core/types'
+import type { Block, DbColumn, Page, SearchEntry, Tag } from '../core/types'
 import { linkRowRange, linkRows } from '../links/linkRows'
 import { blockTagRowRange, blockTagRows } from '../tags/tagRows'
 import type { InkChunk } from '../core/inkTypes'
@@ -15,6 +15,7 @@ import {
   inkEntry,
   inkEntryId,
   pageEntry,
+  rowTagIds,
   titleEntryId,
 } from './searchText'
 
@@ -48,7 +49,13 @@ export const searchIndexMiddleware: Middleware<DBCore> = {
         ...table,
         mutate: (req) =>
           name === 'pages'
-            ? mutatePages(table, entries(), req)
+            ? mutatePages(
+                table,
+                entries(),
+                down.table('dbColumns'),
+                down.table('tags'),
+                req,
+              )
             : name === 'inkChunks'
               ? mutateInk(table, down.table('pages'), entries(), req)
               : mutateBlocks(
@@ -71,7 +78,7 @@ function withIndexStores(stores: string[], mode: string): string[] {
     ...(stores.includes('blocks')
       ? ['pages', 'searchEntries', 'links', 'blockTags']
       : []),
-    ...(stores.includes('pages') ? ['searchEntries'] : []),
+    ...(stores.includes('pages') ? ['searchEntries', 'dbColumns', 'tags'] : []),
     ...(stores.includes('inkChunks') ? ['pages', 'searchEntries'] : []),
   ]
   return extra.every((s) => stores.includes(s))
@@ -220,6 +227,8 @@ async function mutateInk(
 async function mutatePages(
   pages: DBCoreTable,
   entries: DBCoreTable,
+  dbColumns: DBCoreTable,
+  tags: DBCoreTable,
   req: DBCoreMutateRequest,
 ): Promise<DBCoreMutateResponse> {
   const { trans } = req
@@ -239,10 +248,15 @@ async function mutatePages(
   const saved = written<Page>(req, res)
   if (saved.length === 0) return res
 
+  const rowInfo = await rowContext(dbColumns, tags, req.trans, saved)
   const put: SearchEntry[] = []
   const empty: string[] = []
   for (const page of saved) {
-    const entry = pageEntry(page)
+    const entry = pageEntry(
+      page,
+      page.databaseId ? rowInfo.columnsOf.get(page.databaseId) : undefined,
+      rowInfo.tagNames,
+    )
     if (entry) put.push(entry)
     else empty.push(titleEntryId(page.id))
   }
@@ -289,4 +303,59 @@ async function mutatePages(
   }
   await apply(entries, trans, put, empty)
   return res
+}
+
+/**
+ * What database rows need to put their property values in the index: the
+ * columns of their databases (for option names) and the names of tags in
+ * Tag cells. One read per database, however many rows are saved at once.
+ */
+export async function rowContext(
+  dbColumns: DBCoreTable,
+  tags: DBCoreTable,
+  trans: DBCoreTransaction,
+  pages: readonly Page[],
+): Promise<{
+  columnsOf: Map<string, DbColumn[]>
+  tagNames: Map<string, string>
+}> {
+  const columnsOf = new Map<string, DbColumn[]>()
+  const tagNames = new Map<string, string>()
+  const databaseIds = [
+    ...new Set(
+      pages.filter((p) => p.databaseId && p.values).map((p) => p.databaseId!),
+    ),
+  ]
+  for (const id of databaseIds) {
+    const found = (
+      await dbColumns.query({
+        trans,
+        values: true,
+        query: {
+          index: dbColumns.schema.getIndexByKeyPath('databaseId')!,
+          range: { type: 1 /* DBCoreRangeType.Equal */, lower: id, upper: id },
+        },
+      })
+    ).result as DbColumn[]
+    columnsOf.set(
+      id,
+      found.filter((c) => c.deletedAt === null),
+    )
+  }
+  const tagIds = [
+    ...new Set(
+      pages.flatMap((p) =>
+        p.databaseId && p.values
+          ? rowTagIds(p.values, columnsOf.get(p.databaseId) ?? [])
+          : [],
+      ),
+    ),
+  ]
+  if (tagIds.length > 0) {
+    const found = (await tags.getMany({ trans, keys: tagIds })) as (
+      Tag | undefined
+    )[]
+    for (const tag of found) if (tag) tagNames.set(tag.id, tag.name)
+  }
+  return { columnsOf, tagNames }
 }

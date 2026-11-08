@@ -1,7 +1,12 @@
 // Browser types for code that runs inside the page.
 /// <reference lib="dom" />
 import { expect, test, type Page } from '@playwright/test'
-import { createNotebook, openSidebar } from './helpers.ts'
+import {
+  addPage,
+  createNotebook,
+  openSearchPopup,
+  openSidebar,
+} from './helpers.ts'
 
 const main = (page: Page) => page.getByRole('main')
 
@@ -142,4 +147,30 @@ test('Formula helper adds a column and a function to an advanced formula', async
   await expect(dialog.getByRole('textbox', { name: 'Formula' })).toHaveValue(
     /SUM\(\[Author\]$/,
   )
+})
+
+test('Database page: a new page becomes a full-page database; its rows are found by search', async ({
+  page,
+}) => {
+  await addPage(page, 'Cardiology', 'Drug list')
+  const start = page.locator('[data-new-page-start]')
+  await expect(start).toBeVisible()
+  await start.getByRole('button', { name: /^Database page/ }).click()
+  await expect(start).toHaveCount(0)
+  const block = main(page).getByRole('button', { name: '+ New row' })
+  await expect(block).toBeVisible()
+  await block.click()
+  await page.getByRole('textbox', { name: /^(Title|Name)/ }).fill('Warfarin')
+  await page.getByRole('textbox', { name: /^(Title|Name)/ }).press('Enter')
+  // The inline view switcher offers List too.
+  await main(page).getByRole('button', { name: /List/ }).first().click()
+  await expect(
+    main(page)
+      .getByRole('button', { name: /Warfarin/ })
+      .first(),
+  ).toBeVisible()
+  await page.waitForTimeout(700)
+  const popup = await openSearchPopup(page)
+  await page.keyboard.type('warfarin')
+  await expect(popup.getByText('Warfarin').first()).toBeVisible()
 })

@@ -618,4 +618,6 @@ export const esO: Record<string, string> = {
   'formula.helper': 'Columnas y funciones',
   'formula.helper.columns': 'Toca una columna para añadirla:',
   'formula.helper.functions': 'Toca una función para añadirla:',
+  'newPage.database': 'Página de base de datos',
+  'newPage.databaseHelp': 'una tabla de filas que son páginas',
 }

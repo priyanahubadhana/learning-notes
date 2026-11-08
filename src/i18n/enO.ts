@@ -616,4 +616,6 @@ export const enO = {
   'formula.helper': 'Columns and functions',
   'formula.helper.columns': 'Tap a column to add it:',
   'formula.helper.functions': 'Tap a function to add it:',
+  'newPage.database': 'Database page',
+  'newPage.databaseHelp': 'a table of rows that are pages',
 }

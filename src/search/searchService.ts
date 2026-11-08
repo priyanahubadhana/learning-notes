@@ -1,10 +1,11 @@
 import type { LearningNotesDB } from '../core/db'
-import type { Block, Page, SearchEntry } from '../core/types'
+import type { Block, DbColumn, Page, SearchEntry } from '../core/types'
 import { linkRowRange, linkRows } from '../links/linkRows'
 import { blockTagRowRange, blockTagRows } from '../tags/tagRows'
 import {
   blockEntry,
   pageEntry,
+  rowTagIds,
   SEARCH_INDEX_VERSION,
   searchWords,
   titleEntryId,
@@ -150,7 +151,16 @@ export async function ensureSearchIndex(
     const { table, after } = state.next
     state = await db.transaction(
       'rw',
-      [db.pages, db.blocks, db.searchEntries, db.links, db.blockTags, db.meta],
+      [
+        db.pages,
+        db.blocks,
+        db.searchEntries,
+        db.links,
+        db.blockTags,
+        db.dbColumns,
+        db.tags,
+        db.meta,
+      ],
       async () => {
         const records = await db[table]
           .where(':id')
@@ -182,8 +192,41 @@ async function indexRecords(
   records: (Page | Block)[],
 ): Promise<void> {
   let entries: (SearchEntry | null)[]
-  if (table === 'pages') entries = (records as Page[]).map(pageEntry)
-  else {
+  if (table === 'pages') {
+    const pages = records as Page[]
+    const columns = new Map<string, DbColumn[]>()
+    for (const id of new Set(
+      pages.filter((p) => p.databaseId && p.values).map((p) => p.databaseId!),
+    )) {
+      columns.set(
+        id,
+        (await db.dbColumns.where('databaseId').equals(id).toArray()).filter(
+          (c) => c.deletedAt === null,
+        ),
+      )
+    }
+    const tagIds = [
+      ...new Set(
+        pages.flatMap((p) =>
+          p.databaseId && p.values
+            ? rowTagIds(p.values, columns.get(p.databaseId) ?? [])
+            : [],
+        ),
+      ),
+    ]
+    const tagNames = new Map(
+      (await db.tags.bulkGet(tagIds)).flatMap((x) =>
+        x ? [[x.id, x.name]] : [],
+      ),
+    )
+    entries = pages.map((p) =>
+      pageEntry(
+        p,
+        p.databaseId ? columns.get(p.databaseId) : undefined,
+        tagNames,
+      ),
+    )
+  } else {
     const blocks = records as Block[]
     const pageIds = [...new Set(blocks.map((b) => b.pageId))]
     const pages = await db.pages.bulkGet(pageIds)

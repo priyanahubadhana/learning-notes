@@ -1,5 +1,11 @@
 import type { InkChunk } from '../core/inkTypes'
-import type { Block, JsonValue, Page, SearchEntry } from '../core/types'
+import type {
+  Block,
+  DbColumn,
+  JsonValue,
+  Page,
+  SearchEntry,
+} from '../core/types'
 import { noteLinkProps } from '../editor/mapping'
 import { mindMapText } from '../editor/mindMap/model'
 export { isShowableText } from '../editor/mapping'
@@ -15,9 +21,10 @@ import { cardParts, hasQuestion } from '../recall/cardService'
  * Bump when splitting/folding or entry contents change: rebuilds the index
  * (and the links and block tags lists, see links/linkRows.ts and
  * tags/tagRows.ts). 2 = links (Phase 4 Step 4), 3 = block tags (Step 5),
- * 4 = empty Cards get an entry (Step 6).
+ * 4 = empty Cards get an entry (Step 6), 5 = database rows also carry
+ * their property values.
  */
-export const SEARCH_INDEX_VERSION = 4
+export const SEARCH_INDEX_VERSION = 5
 
 /** Longer "words" (e.g. pasted hashes) are cut to this many characters. */
 const MAX_WORD_LENGTH = 40
@@ -128,10 +135,84 @@ export function inkEntry(
 /** Search entry id of a page's title. */
 export const titleEntryId = (pageId: string) => `title:${pageId}`
 
-/** The entry for a page title, or null when there is nothing to find. */
-export function pageEntry(page: Page): SearchEntry | null {
+/** Most property words one row adds to its entry (a long text cell must not bloat the index). */
+const MAX_VALUE_WORDS = 400
+
+/** Ids of the tags a row's Tag cells hold (to look their names up). */
+export function rowTagIds(
+  values: Page['values'],
+  columns: readonly DbColumn[],
+): string[] {
+  if (!values) return []
+  return columns.flatMap((c) => {
+    const raw = c.type === 'tag' ? values[c.id] : undefined
+    return Array.isArray(raw)
+      ? raw.filter((v): v is string => typeof v === 'string')
+      : []
+  })
+}
+
+/**
+ * The text of a database row's property values, for search: text, links,
+ * numbers, dates, the names of chosen options and of tags. Computed columns
+ * (formula, rollup, relation) and checkboxes are not searched.
+ */
+export function rowValueText(
+  values: Page['values'],
+  columns: readonly DbColumn[],
+  tagNames: ReadonlyMap<string, string> = new Map(),
+): string {
+  if (!values) return ''
+  const parts: string[] = []
+  for (const column of columns) {
+    const raw = values[column.id]
+    if (raw === undefined || raw === null) continue
+    if (column.type === 'choice' || column.type === 'choices') {
+      const options = Array.isArray(column.config.options)
+        ? (column.config.options as unknown as { id: string; name: string }[])
+        : []
+      const ids = Array.isArray(raw) ? raw : [raw]
+      for (const id of ids) {
+        const name = options.find((o) => o.id === id)?.name
+        if (name) parts.push(name)
+      }
+    } else if (column.type === 'tag') {
+      for (const id of Array.isArray(raw) ? raw : []) {
+        const name = typeof id === 'string' ? tagNames.get(id) : undefined
+        if (name) parts.push(name)
+      }
+    } else if (
+      column.type === 'text' ||
+      column.type === 'url' ||
+      column.type === 'date'
+    ) {
+      if (typeof raw === 'string') parts.push(raw)
+    } else if (column.type === 'number' && typeof raw === 'number') {
+      parts.push(String(raw))
+    }
+  }
+  return parts.join(' ')
+}
+
+/**
+ * The entry for a page title, or null when there is nothing to find. A
+ * database row passes its database's `columns` (and tag names) so its
+ * property values are found too.
+ */
+export function pageEntry(
+  page: Page,
+  columns?: readonly DbColumn[],
+  tagNames?: ReadonlyMap<string, string>,
+): SearchEntry | null {
   if (page.purgedAt !== undefined) return null
   const words = searchWords(page.title)
+  if (columns && page.values) {
+    const seen = new Set(words)
+    const extra = searchWords(rowValueText(page.values, columns, tagNames))
+    for (const w of extra.slice(0, MAX_VALUE_WORDS)) {
+      if (!seen.has(w)) words.push(w)
+    }
+  }
   if (words.length === 0) return null
   return {
     id: titleEntryId(page.id),

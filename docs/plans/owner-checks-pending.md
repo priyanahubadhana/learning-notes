@@ -2,6 +2,13 @@
 
 Moved out of HANDOFF on 2026-11-06 (audit) so HANDOFF stays five lines. Newest first; each paragraph names its step. The run decision (master plan) is one owner iPad pass before Sync; the Phase A builder adds its checks at the top. Tick a paragraph by deleting it.
 
+## Database pages (9 Nov)
+
+1. iPad, new page in a notebook: the last row of the template list says "Database page". Tap it: a full-width table appears with "+ New row"; add two rows. Switch to List with the buttons above the table; scroll is smooth.
+2. In the table, choose Group by > a choice column: groups appear; tap a group heading to fold it.
+3. Open Search, type a word from a row's text cell or tag: the row is found.
+4. Formula column > Advanced > "Columns and functions": tapping a column or function adds it to the formula.
+
 ## C2b: ink on PDF and EPUB pages (9 Nov)
 
 1. iPad, open a real PDF, tap Pen, write with the Pencil on page 2, then pinch or use + / - : the writing stays on the same words of page 2 and gets bigger or smaller with the page. Reload: it is still there. Scrolling with a finger still works while writing with the Pencil (Pencil mode).

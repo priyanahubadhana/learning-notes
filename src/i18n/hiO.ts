@@ -596,4 +596,6 @@ export const hiO: Record<string, string> = {
   'formula.helper': 'कॉलम और फ़ंक्शन',
   'formula.helper.columns': 'जोड़ने के लिए कॉलम चुनें:',
   'formula.helper.functions': 'जोड़ने के लिए फ़ंक्शन चुनें:',
+  'newPage.database': 'डेटाबेस पेज',
+  'newPage.databaseHelp': 'पंक्तियाँ जो खुद पेज हैं',
 }

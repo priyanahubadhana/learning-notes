@@ -330,7 +330,7 @@ export function PaperFrame({
       // from here. Read aloud meets them before the page text (later).
       style={
         narrow
-          ? { position: 'relative', paddingBottom: MARGIN * k }
+          ? { position: 'relative', paddingBottom: MARGIN * k, order: 2 }
           : { position: 'relative', height: 0, zIndex: 6 }
       }
     >
@@ -405,10 +405,15 @@ export function PaperFrame({
                   // The text starts exactly where it always did: the sheet's
                   // top margin reaches up behind the line above the paper.
                   marginTop: -box.y * k,
+                  ...(narrow
+                    ? { display: 'flex', flexDirection: 'column' }
+                    : {}),
                 } as CSSProperties)
           }
         >
-          {!narrow && layerEl}
+          {/* One place in the tree for both layouts: a switch never remounts the
+              boxes (their editors). Fit width shows them after the text. */}
+          {layerEl}
           {!flat && !narrow && (
             <div
               data-paper-sheets
@@ -455,7 +460,6 @@ export function PaperFrame({
               {children}
             </div>
           </div>
-          {narrow && layerEl}
         </div>
       </div>
       {!flat && (

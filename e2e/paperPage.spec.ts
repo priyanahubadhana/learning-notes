@@ -136,6 +136,7 @@ test('the Lasso on the paper picks boxes; moving one moves them all', async ({
   for (const [i, fx] of [0.1, 0.55].entries()) {
     await page.mouse.click(sheet.x + sheet.width * fx, y)
     await expect(extra).toHaveCount(i + 1)
+    await expect(extra.nth(i).locator('.bn-editor')).toBeFocused()
     await page.keyboard.type('Box ' + (i + 1))
   }
   await page.waitForTimeout(600)
@@ -160,29 +161,64 @@ test('the Lasso on the paper picks boxes; moving one moves them all', async ({
       { intervals: [300] },
     )
     .toBe(true)
-  // A loop round both boxes, drawn on the paper (measured again: choosing a
-  // tool may have moved the page).
-  const boxes = await extra.evaluateAll((els) =>
-    els.map((e) => {
-      const r = e.getBoundingClientRect()
-      return { y: r.y, height: r.height }
-    }),
-  )
-  const now = (await page.locator('[data-paper-sheet="1"]').boundingBox())!
-  const top = Math.min(...boxes.map((b) => b.y)) - 30
-  const bottom = Math.max(...boxes.map((b) => b.y + b.height)) + 30
-  const left = now.x + 8
-  const right = now.x + now.width - 8
-  await page.mouse.move(left, top)
-  await page.mouse.down()
-  for (const [px, py] of [
-    [right, top],
-    [right, bottom],
-    [left, bottom],
-    [left, top + 2],
-  ])
-    await page.mouse.move(px, py, { steps: 6 })
-  await page.mouse.up()
+  // A loop round both boxes, drawn on the paper. Each point is placed from
+  // where the boxes are at that moment (the page may move when the pen first
+  // touches it and the tool's pill closes).
+  await page.evaluate(async () => {
+    const sheets = document.querySelector('[data-paper-sheets]')!
+    const frame = () => new Promise((r) => requestAnimationFrame(r))
+    const at = (fx: number, fy: number) => {
+      const boxes = [
+        ...document.querySelectorAll<HTMLElement>(
+          '[data-paper-box]:not([data-paper-box="main"])',
+        ),
+      ].map((e) => e.getBoundingClientRect())
+      const s = document
+        .querySelector('[data-paper-sheet="1"]')!
+        .getBoundingClientRect()
+      const top = Math.min(...boxes.map((r) => r.top)) - 30
+      const bottom = Math.max(...boxes.map((r) => r.bottom)) + 30
+      return {
+        x: s.left + 8 + fx * (s.width - 16),
+        y: top + fy * (bottom - top),
+      }
+    }
+    const send = (type: string, p: { x: number; y: number }) =>
+      sheets.dispatchEvent(
+        new PointerEvent(type, {
+          pointerType: 'mouse',
+          pointerId: 1,
+          clientX: p.x,
+          clientY: p.y,
+          bubbles: true,
+          cancelable: true,
+          isPrimary: true,
+          button: 0,
+          buttons: type === 'pointerup' ? 0 : 1,
+        }),
+      )
+    send('pointerdown', at(0, 0))
+    for (let i = 0; i < 10; i++) await frame()
+    const path: [number, number][] = [
+      [0, 0],
+      [1, 0],
+      [1, 1],
+      [0, 1],
+      [0, 0.02],
+    ]
+    for (let i = 1; i < path.length; i++) {
+      for (let s = 1; s <= 6; s++) {
+        const [x0, y0] = path[i - 1]
+        const [x1, y1] = path[i]
+        send(
+          'pointermove',
+          at(x0 + ((x1 - x0) * s) / 6, y0 + ((y1 - y0) * s) / 6),
+        )
+        await frame()
+      }
+    }
+    send('pointerup', at(0, 0.02))
+  })
   await expect(page.locator('[data-picked]')).toHaveCount(2)
   // Drag the first box's grip down: both boxes move.
   const first = extra.first()
@@ -219,6 +255,7 @@ test('fit width on a phone: the boxes stack under the text in reading order', as
       main0.y + main0.height + 50,
     )
     await expect(extra).toHaveCount(i + 1)
+    await expect(extra.nth(i).locator('.bn-editor')).toBeFocused()
     await page.keyboard.type(i === 0 ? 'Right box' : 'Left box')
   }
   await page.waitForTimeout(600)

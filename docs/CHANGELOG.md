@@ -2,6 +2,12 @@
 
 Current phase only. Older entries are in [ARCHIVE.md](ARCHIVE.md).
 
+## 2026-11-08 (Privacy page for Google publishing)
+
+- **What:** `public/privacy.html`, a short plain privacy policy (local-first, end-to-end encrypted Sync, own-key AI, no tracking, how to delete); the service worker no longer swaps it for the app (`navigateFallbackDenylist`). Also the prompt library research (`docs/research/prompt-library-2026-11.md`).
+- **Why:** Google needs a privacy policy URL before the OAuth app can leave Testing (Testing signs the owner out of Sync every 7 days).
+- **Files:** `public/privacy.html`, `vite.config.ts`, `docs/research/prompt-library-2026-11.md`.
+
 ## 2026-11-08 (Build fix: rollup without its native file)
 
 - **What:** devDependency `rollup` is now `npm:@rollup/wasm-node@4.67.3` (same rollup, WebAssembly instead of a native `.node` file).

@@ -15,6 +15,7 @@ Read this first, then open only what the task needs.
 | [plans/master-plan-2026-11.md](plans/master-plan-2026-11.md)           | Owner-approved final master plan (6 Nov 2026), Phases A–Q, builder instructions | Planning or building any step from Phase A on |
 | [plans/audit-2026-11.md](plans/audit-2026-11.md)                       | Audit of 6 Nov 2026: direction verdict, findings, plan changes, builder briefs  | Before planning a wave; picking up a brief    |
 | [plans/polish-1-2026-11.md](plans/polish-1-2026-11.md)                 | Polish pass 1 (7 Nov 2026): 15 items after Waves 3–4 and Sync, Phase P gaps     | Building a polish item                        |
+| [plans/polish-2-2026-11.md](plans/polish-2-2026-11.md)                 | Polish pass 2 (8 Nov 2026): 15 items vs GoodNotes, Notability, OneNote, Notion  | Building a polish 2 item                      |
 | [plans/owner-checks-pending.md](plans/owner-checks-pending.md)         | Every owner iPad check still pending, by step                                   | Adding a check; the owner's iPad pass         |
 | [research/deep-research-2026-11.md](research/deep-research-2026-11.md) | Deep research behind the master plan (Pencil root causes, reader, library)      | Before building the matching step             |
 | [research/](research/)                                                 | Inspiration research (toolbar and ribbon, Home and productivity)                | Before building the matching step             |

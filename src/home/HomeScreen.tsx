@@ -9,6 +9,7 @@ import { t, type MessageKey } from '../i18n/t'
 import { buildBriefing } from './briefing'
 import { BriefingCard } from './BriefingCard'
 import { dayMonthLabel } from './dayLabel'
+import { DueTile } from './DueTile'
 import { EveningReview } from './EveningReview'
 import { listChecks, listHabits, readDayStart } from './habitService'
 import { PlanTab } from './PlanTab'
@@ -124,6 +125,7 @@ export function HomeScreen({
       </div>
       {tab === 'today' && record && (
         <div className="flex flex-col gap-4" data-testid="home-today">
+          <DueTile count={cardsDue} onStart={deps.openReview} />
           {briefing && (
             <BriefingCard briefing={briefing} onOpenCards={deps.openReview} />
           )}

@@ -76,6 +76,13 @@ A tap adds a line and can be repeated. Press and hold (default 0.6 s) opens the 
 - **Scrollable bar (R7-14, R7-17).** While the main bar overflows: edge fade, a chevron with the count of tools out of sight (tap = slide), and a thin track whose handle slides the bar (own pointer events, `data-pen-own`; it never taps a tool). Nothing shows while the bar fits.
 - **Mini bar (R7-7).** Clamped inside the page area (`main`) on all four edges from its measured size.
 
+## Polish pass 2 (8 Nov)
+
+- **⇄ Last tool.** `lastTool` (mainTools.ts) is the mode tool selected before the current one, never Reading mode; `swapToLastTool()` selects it again. The registry tool `lastTool` is pinnable and is pinned once in Pencil mode. Eraser card › "Go back to the previous tool after one erase" (`ink.eraser.returnAfter`, off).
+- **Favourites.** Pen and Highlighter pills have a ★ and up to six saved pens each (type, colour, size); tap applies, press and hold removes with Undo. Saved in `toolbar.favourites` and in the layout sync record.
+- **Lasso menu order.** Lasso card › Arrange the menu… opens `EditListSheet`; `ink.lasso.row` is the ordered row, the rest sit under ⋯ More. The text and picture selection menu is ordered the same way.
+- **Options pill scroll.** A horizontal pill wraps its options in `BarScroll` (cue, count, handle).
+
 ## Edge cases
 
 - A saved list or value that is invalid reads as its default (`isMainList`, `isPillMap`, `isPillPlace`, ink field clamps).

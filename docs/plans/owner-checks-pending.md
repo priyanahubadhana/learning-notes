@@ -2,6 +2,19 @@
 
 Moved out of HANDOFF on 2026-11-06 (audit) so HANDOFF stays five lines. Newest first; each paragraph names its step. The run decision (master plan) is one owner iPad pass before Sync; the Phase A builder adds its checks at the top. Tick a paragraph by deleting it.
 
+## Polish pass 2 (8 Nov)
+
+1. Clear the site data on the iPad, open the app: a Welcome sheet asks how you write. Choose Apple Pencil, Next, pick a language and theme, Next, Start with the Start here notebook. The bar is in Pencil mode and the notebook opens at "1. Write on paper". Do each "Try it" line (needs the Pencil).
+2. Pick the Lasso for the first time: a one-line tip shows once; pick it again: no tip. Same for the Write pad, the Layers row and the first tap on empty paper that makes a box.
+3. Pen, Eraser, then the ⇄ Last tool button (pinned in Pencil mode): you are on the Pen with the same colour. Eraser card › "Go back to the previous tool after one erase": erase once and you are back on the Pen.
+4. Save a red fine pen with the ★ in the Pen pill, switch to blue, tap the red favourite: red fine again. Press and hold a favourite: it goes, with Undo.
+5. Lasso card › Arrange the menu…: move Convert to text first, Done: the Lasso menu starts with it, also after a reload.
+6. Split View so the window is narrow, open the Pen pill: a fade, arrow and handle appear and the handle slides the pill.
+7. Insert › Handwriting: three clear choices that open the Write pad, the Lasso, and Text with Scribble.
+8. With cards due, Home › Today shows "N due · Start"; one tap starts the review.
+9. Loop a handwritten formula, ⋯ More › Make card, type the question: a card appears at the end of the page with your drawing as its answer; review it.
+10. New notebook with no pages, search for nonsense, and an empty review: each shows one line and one button.
+
 ## Phase Q paper page, steps 4–6 (8 Nov)
 
 1. A new page opens with the keyboard ready in the top box; tapping the title edits the title.

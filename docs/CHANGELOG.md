@@ -2,6 +2,22 @@
 
 Current phase only. Older entries are in [ARCHIVE.md](ARCHIVE.md).
 
+## 2026-11-08 (Polish pass 2, items 1-7, 10-13)
+
+Plan: [plans/polish-2-2026-11.md](plans/polish-2-2026-11.md). Items 8, 9 and 15 (paper) belong to the Paper builder; item 14 waits for the owner. One commit per item.
+
+- **Item 3 · first-use tips.** The first time the Lasso, the Write pad, the Layers card or a tap that makes a paper box is used, a small dismissible line shows once per device (seen list `firstUse.seen`); Settings › Show help off hides them. Files: `src/help/{firstUse.ts,FirstUseTip.tsx}`, `App.tsx`, `editor/writePad/padState.ts`, `paper/usePaperBoxes.tsx`.
+- **Item 7 · scroll cue on the options pill.** A pill wider than the window gets the bar's fade, chevron, count and handle (`BarScroll`); the grip, pin and ✕ stay in view. Files: `app/tools/main/OptionsPill.tsx`, `e2e/pillScroll.spec.ts`.
+- **Item 10 · Insert › Handwriting.** One entry opens a small sheet that says in one line what Write pad, Convert ink (Lasso) and Scribble do, and opens each. Files: `app/tools/{handwriting.ts,HandwritingChooser.tsx,toolRegistry.ts}`, `main/PillContent.tsx`.
+- **Item 4 · ⇄ Last tool and one-erase.** `lastTool` remembers the tool before (never Reading mode); a registry tool "Last tool" (pinnable; pinned once in Pencil mode, `toolbar.lastToolOffered`); Eraser card switch "Go back to the previous tool after one erase" (off). Files: `main/{mainTools,selectTool,inkSettings,DetailCard}.ts(x)`, `ink/{controller,InkSurface}`.
+- **Item 6 · Lasso menu in the Edit toolbar sheet.** Lasso card › Arrange the menu… opens the same `EditListSheet`; the row order is kept (`ink.lasso.row` is now an ordered list); the text and picture selection menu follows the same order (`orderByRow`). Files: `ink/{lassoMenu,LassoMenuSheet,lassoLabels}`, `main/SelectionMenu.tsx`.
+- **Item 11 · Due today.** A "N due · Start" tile at the top of Home › Today (the sidebar Review badge already existed). Test: 25 due among 10,000 cards under 1.5 s. Files: `home/DueTile.tsx`, `recall/dueCount.test.ts`.
+- **Item 13 · empty states.** One `EmptyState` with a button for: no notebooks (Create notebook), an empty notebook (+ New page), review with nothing due (Practice anyway) or no cards (Back to notes), search with no results (Clear search); the page's card list shows the hint without a button. The Layers gallery is never empty (it lists the starter layers), so it is unchanged.
+- **Items 1 and 2 · welcome and Start here.** On a brand-new device (no device mode saved yet) a lazy three-step sheet opens: how will you write (Keyboard, Finger, Apple Pencil: sets the device mode), language and theme, then the Start here notebook or empty. Skip is always there and only marks it seen. It replaces the device picker on a new device; an existing user is never greeted. Settings › Device › Show the welcome again. Start here is five pages with a Try it line each and one real card. Files: `src/onboarding/*`, `settings/deviceModeSettings.ts`.
+- **Item 5 · pen favourites.** The Pen and Highlighter pills get a ★ (save the pen as it is now) and up to six saved pens each; tap sets the pen; press and hold, right-click or Delete removes (with Undo). They travel in the bar-layout record (`favourites`). Files: `main/{penFavourites.ts,FavouritesRow.tsx}`, `layoutSync.ts`.
+- **Item 12 · Make card from Lasso ink.** The drawing is stored as a picture and becomes the answer of a new card at the end of the page; the question comes from the Name it sheet. Files: `ink/cardFromInk.ts`, `InkSurface.tsx`.
+- **Tests:** unit (firstUse, lastTool, lassoMenu order, dueCount, startHere, penFavourites, cardFromInk) and e2e (firstUse, pillScroll, handwritingChooser, lastTool, lassoMenuOrder, dueToday, emptyStates2, welcome, cardFromInk), the new ones also in the ipad-webkit project. First load 283 KB (cap 320 KB).
+
 ## 2026-11-08 (Phase Q step 6: fit width on phones)
 
 - **What:** below a 480 px column (phones, narrow windows) the paper shows "fit width": no sheets, the boxes stacked under the page's text in reading order, each as wide as the column, no grip or edges (their places on the paper are kept for wider screens); no sideways scroll.

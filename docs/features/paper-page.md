@@ -33,8 +33,10 @@ Every page is paper. It shows as fixed sheets (A4, or Letter) with a border and 
 - **Paper style, size, thumbnails (Polish 2 item 9).** Page ⋯: Paper style and Paper size submenus; new-page start: Paper style row; left panel › Pages: sheet thumbnails of the open page (2+ sheets), tap = scroll to that sheet.
 - **Speed (polish-2 item 15).** A box's editor is made when the box is within 800 px of the scrolling page; until then a three-line placeholder stands in (`LazyMount` in `PaperFrame.tsx`). Once made it stays. CI budget: `e2e/paperBudget.spec.ts`.
 
+- **Phones: new boxes.** Stacked layout (under 600 px): "Add a box here" at the end, or a Text-tool tap in the gap under a box adds one after it (`placeInOrder`, `addBoxInOrder`).
+
 ## Not yet
 
 - Ink rules 6 (Lasso ink + text as one piece) and 9 (copy a line with its ink); ink at a zoom other than 100 %.
 - PDF/print laid out as the paper (sheets, box places, ink in place).
-- New boxes by tapping on a phone; a default paper style for new pages (Settings).
+- a default paper style for new pages (Settings).

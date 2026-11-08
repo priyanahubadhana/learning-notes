@@ -103,3 +103,38 @@ export function inPaperOrder<
     inOrder(groups.get(b.id) ?? []),
   )
 }
+
+/** Gap between a box and the one made after it, in mm (more than a row). */
+export const ORDER_STEP = 6
+
+/**
+ * Phones (stacked layout): where a new box goes in the reading order.
+ * `after` = a box id (right after it), 'start' (before every other box) or
+ * 'end'. Returns the new box's y and the boxes that must move down so the
+ * reading order puts the new box exactly there (locked boxes stay put).
+ */
+export function placeInOrder(
+  others: readonly PaperBox[],
+  after: string,
+): { y: number; shift: number; shifted: string[] } {
+  const order = readingOrder(others.filter((b) => b.id !== MAIN_BOX))
+  const at =
+    after === 'end'
+      ? order.length - 1
+      : after === 'start'
+        ? -1
+        : order.findIndex((b) => b.id === after)
+  const prev = at >= 0 ? order[at] : undefined
+  const later = order.slice(at + 1)
+  const y = Math.max(
+    0,
+    prev ? prev.y + ORDER_STEP : later[0] ? later[0].y - ORDER_STEP : 40,
+  )
+  const need = later[0] ? y + ORDER_STEP - later[0].y : 0
+  const shift = Math.max(0, Math.round(need * 10) / 10)
+  return {
+    y,
+    shift,
+    shifted: shift > 0 ? later.filter((b) => !b.locked).map((b) => b.id) : [],
+  }
+}

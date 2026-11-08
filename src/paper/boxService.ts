@@ -9,7 +9,14 @@ import {
 import type { Block, PaperBox } from '../core/types'
 import { recordVersion } from '../history/versionService'
 import { ordersBetween } from '../core/order'
-import { boxesOf, groupBlocksByBox, MAIN_BOX, MARGIN, sheetOf } from './boxes'
+import {
+  boxesOf,
+  groupBlocksByBox,
+  MAIN_BOX,
+  MARGIN,
+  placeInOrder,
+  sheetOf,
+} from './boxes'
 
 /**
  * Phase Q step 3: adding, changing and removing boxes. Box geometry lives on
@@ -224,5 +231,31 @@ export async function addBoxWithLines(
       boxId: id,
     })),
   )
+  return id
+}
+
+/**
+ * Phones: a new empty box placed in the reading order, right after a box,
+ * at the start (`'start'`) or at the end (`'end'`) of the extra boxes. Later
+ * boxes that would otherwise read before it move down a little.
+ */
+export async function addBoxInOrder(
+  db: LearningNotesDB,
+  pageId: string,
+  after: string,
+): Promise<string> {
+  const page = await getLive(db.pages, pageId)
+  const sheet = sheetOf(page)
+  const id = createId()
+  await writeBoxes(db, pageId, (boxes) => {
+    const { y, shift, shifted } = placeInOrder(boxes, after)
+    const box = clampBox({ id, x: MARGIN, y, w: sheet.w - 2 * MARGIN }, sheet.w)
+    return [
+      ...boxes.map((b) =>
+        shifted.includes(b.id) ? { ...b, y: b.y + shift } : b,
+      ),
+      box,
+    ]
+  })
   return id
 }

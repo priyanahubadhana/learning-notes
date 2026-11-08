@@ -119,6 +119,7 @@ export default defineConfig({
         /handwritingChooser/,
         /autoUpdate/,
         /paperBudget/,
+        /paperPhone/,
       ],
       use: { ...devices['iPad Pro 11'], hasTouch: true },
       expect: { timeout: 15_000 },

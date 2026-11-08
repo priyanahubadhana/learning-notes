@@ -9,6 +9,7 @@ import { triggerFirstUse } from '../help/firstUse'
 import { t } from '../i18n/t'
 import {
   addBox,
+  addBoxInOrder,
   addBoxWithLines,
   duplicateBox,
   removeBox,
@@ -44,6 +45,8 @@ export function usePaperBoxes(
   editable: boolean,
 ): {
   onAddBox?: (at: { x: number; y: number }) => void
+  /** Phones: a new box in the reading order (after a box id, 'start' or 'end'). */
+  onAddBoxInOrder?: (after: string) => void
   onBoxChange: (id: string, patch: Partial<PaperBox>) => void
   onBoxMenu: (box: PaperBox, at: DOMRect) => void
   onInkOnPaper?: (
@@ -65,6 +68,10 @@ export function usePaperBoxes(
     if (activeTool.get() !== 'text') return
     triggerFirstUse('paperBox')
     runTask(addBox(db, pageId, at).then(setFresh))
+  }
+  const onAddBoxInOrder = (after: string) => {
+    triggerFirstUse('paperBox')
+    runTask(addBoxInOrder(db, pageId, after).then(setFresh))
   }
   const onBoxChange = (id: string, patch: Partial<PaperBox>) =>
     runTask(updateBox(db, pageId, id, patch))
@@ -122,6 +129,7 @@ export function usePaperBoxes(
 
   return {
     onAddBox: editable ? onAddBox : undefined,
+    onAddBoxInOrder: editable ? onAddBoxInOrder : undefined,
     onBoxChange,
     onBoxMenu: (box, at) => setMenuFor({ box, at }),
     onInkOnPaper: editable

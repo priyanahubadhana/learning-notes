@@ -13,6 +13,11 @@ Current phase only. Older entries are in [ARCHIVE.md](ARCHIVE.md).
 - **What:** an empty page shows a faint "Type, or tap anywhere on the paper to add a box" on the first sheet (first 3 pages opened on a device, kept in this browser only, gone once the page has words); with the Text tool, a mouse or Pencil hovering empty paper shows a "+ box" tag by the pointer (body portal, not on touch); the default box shows a dashed outline while it has the caret.
 - **Why:** the tap-to-box could not be discovered.
 - **Files:** `src/paper/{PaperFrame.tsx,hintPages.ts(+test)}`, `src/pages/PageView.tsx`, `src/i18n/{en,es,hi}O.ts`, `e2e/paperHint.spec.ts`, `playwright.config.ts`.
+## 2026-11-08 (Paper on phones: new boxes)
+
+- **What:** on a phone-sized window (under 600 px, stacked layout) an "Add a box here" strip ends the stack, and a Text-tool tap in the gap under a box (or above the first box) adds a box right there in the reading order. `placeInOrder` (boxes.ts) gives the new box a y that reads exactly there and moves later unlocked boxes down only when they are within a row; `addBoxInOrder` (boxService.ts). Tests: `boxes.test.ts`, `e2e/paperPhone.spec.ts` (chromium, ipad-webkit).
+- **Files:** `src/paper/{boxes,boxService,usePaperBoxes,PaperFrame}.ts(x)`, `src/pages/PageView.tsx`, `src/i18n/{en,es,hi}O.ts`.
+
 ## 2026-11-08 (Paper speed, polish-2 item 15)
 
 - **What:** a box's editor is made only when the box comes within 800 px of the scrolling page (a light placeholder of three lines stands in; once made it stays, so nothing unsaved is ever torn down); a just-made box is made at once. The Lasso loop redraws in its own small component and the pick reads each box once. New CI budget `e2e/paperBudget.spec.ts` (chromium and ipad-webkit): 50 boxes + 2,000 strokes reopen with a median under 4 s including the whole reload (about 1.2 s here), far boxes are placeholders, scrolling makes them, and the Lasso over all 50 boxes takes under 150 ms (about 16 ms here).

@@ -543,6 +543,7 @@ export function PageView({
             renderBox={editorOf}
             eager={boxes.fresh}
             onAddBox={boxes.onAddBox}
+            onAddBoxInOrder={boxes.onAddBoxInOrder}
             onBoxChange={boxes.onBoxChange}
             onBoxMenu={boxes.onBoxMenu}
             onInkOnPaper={boxes.onInkOnPaper}

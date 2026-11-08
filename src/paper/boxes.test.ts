@@ -5,6 +5,7 @@ import {
   MAIN_BOX,
   mainBox,
   inPaperOrder,
+  placeInOrder,
   readingOrder,
 } from './boxes'
 import { checkedRow } from '../share/checkRows'
@@ -124,5 +125,35 @@ describe('paper reading order of blocks', () => {
       inOrder,
     ).map((b) => b.id)
     expect(order).toEqual(['m1', 'm2', 'x1', 'r1', 'l1'])
+  })
+})
+
+describe('placeInOrder (phones)', () => {
+  const box = (id: string, y: number, x = 15, locked?: true) => ({
+    id,
+    x,
+    y,
+    w: 90,
+    ...(locked ? { locked } : {}),
+  })
+  const order = (boxes: ReturnType<typeof box>[], after: string) => {
+    const p = placeInOrder(boxes, after)
+    const moved = boxes.map((b) =>
+      p.shifted.includes(b.id) ? { ...b, y: b.y + p.shift } : b,
+    )
+    return readingOrder([...moved, box('new', p.y)]).map((b) => b.id)
+  }
+  it('puts a box at the end, after a box, or at the start', () => {
+    const list = [box('a', 40), box('b', 100), box('c', 160)]
+    expect(order(list, 'end')).toEqual(['a', 'b', 'c', 'new'])
+    expect(order(list, 'b')).toEqual(['a', 'b', 'new', 'c'])
+    expect(order(list, 'start')).toEqual(['new', 'a', 'b', 'c'])
+    expect(order([], 'end')).toEqual(['new'])
+  })
+  it('moves tight neighbours down, but not locked ones', () => {
+    const list = [box('a', 40), box('b', 43, 100), box('c', 44, 50, true)]
+    const p = placeInOrder(list, 'a')
+    expect(p.shift).toBeGreaterThan(0)
+    expect(p.shifted).toEqual(['b'])
   })
 })

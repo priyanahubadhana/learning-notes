@@ -7,6 +7,7 @@ import {
   useState,
   type CSSProperties,
   type Ref,
+  type MouseEvent as ReactMouseEvent,
   type PointerEvent as ReactPointerEvent,
   type ReactNode,
 } from 'react'
@@ -49,6 +50,7 @@ export function PaperFrame({
   renderBox,
   eager,
   onAddBox,
+  onAddBoxInOrder,
   onBoxChange,
   onBoxMenu,
   onInkOnPaper,
@@ -62,6 +64,8 @@ export function PaperFrame({
   eager?: string | null
   /** A tap on empty paper (mm); unset = no new boxes (read-only). */
   onAddBox?: (at: { x: number; y: number }) => void
+  /** Phones (fit width): a new box after a box id, at the 'start' or the 'end'. */
+  onAddBoxInOrder?: (after: string) => void
   onBoxChange?: (boxId: string, patch: Partial<PaperBox>) => void
   onBoxMenu?: (box: PaperBox, at: DOMRect) => void
   /**
@@ -406,51 +410,79 @@ export function PaperFrame({
   // so its editor's menus and the ink overlay keep the same containing blocks
   // as before: the sheets are normal blocks and the box is pulled up over
   // them. Other boxes sit in a zero-height positioned layer of their own.
-  const layerEl = !flat && extra.length > 0 && (
-    <div
-      data-paper-boxes
-      // First in the paper, at its top (zero height): the boxes are placed
-      // from here. Read aloud meets them before the page text (later).
-      style={
-        narrow
-          ? { position: 'relative', paddingBottom: MARGIN * k, order: 2 }
-          : { position: 'relative', height: 0, zIndex: 6 }
-      }
-    >
-      <LoopLayer ref={loopLayer} />
-      {extra.map((b) => (
-        <BoxFrame
-          key={b.id}
-          box={b}
-          k={k}
-          zoom={zoom}
-          sheetW={sheet.w}
-          stepMm={step / k}
-          lineH={step / zoom}
-          onBottom={(px) => reportBottom(b.id, px)}
-          onChange={(patch) => onBoxChange?.(b.id, patch)}
-          onMenu={(at) => onBoxMenu?.(b, at)}
-          picked={picked.includes(b.id)}
-          stacked={narrow ? { x: box.x, w: box.w } : null}
-          onMoved={(dx, dy) => {
-            // The other picked boxes go the same way.
-            for (const o of extra) {
-              if (o.id === b.id || !picked.includes(o.id)) continue
-              onBoxChange?.(o.id, { x: o.x + dx, y: o.y + dy })
-            }
-          }}
-        >
-          <LazyMount
-            ready={fit > 0}
-            eager={b.id === eager}
-            height={(step / zoom) * 3}
+  // Phones: a Text-tool tap in the gap under a box adds a box right after it
+  // (above the first box: before every other box).
+  const gapTap = (e: ReactMouseEvent<HTMLDivElement>) => {
+    const target = e.target as HTMLElement
+    if (!onAddBoxInOrder || activeTool.get() !== 'text') return
+    if (target !== e.currentTarget && !target.hasAttribute('data-chrome'))
+      return
+    let after = 'start'
+    for (const b of extra) {
+      const el = e.currentTarget.querySelector<HTMLElement>(
+        '[data-paper-box="' + CSS.escape(b.id) + '"]',
+      )
+      if (el && el.getBoundingClientRect().bottom <= e.clientY) after = b.id
+    }
+    onAddBoxInOrder(after)
+  }
+  const layerEl = !flat &&
+    (extra.length > 0 || (narrow && !!onAddBoxInOrder)) && (
+      <div
+        data-paper-boxes
+        onClick={narrow ? gapTap : undefined}
+        // First in the paper, at its top (zero height): the boxes are placed
+        // from here. Read aloud meets them before the page text (later).
+        style={
+          narrow
+            ? { position: 'relative', paddingBottom: MARGIN * k, order: 2 }
+            : { position: 'relative', height: 0, zIndex: 6 }
+        }
+      >
+        <LoopLayer ref={loopLayer} />
+        {extra.map((b) => (
+          <BoxFrame
+            key={b.id}
+            box={b}
+            k={k}
+            zoom={zoom}
+            sheetW={sheet.w}
+            stepMm={step / k}
+            lineH={step / zoom}
+            onBottom={(px) => reportBottom(b.id, px)}
+            onChange={(patch) => onBoxChange?.(b.id, patch)}
+            onMenu={(at) => onBoxMenu?.(b, at)}
+            picked={picked.includes(b.id)}
+            stacked={narrow ? { x: box.x, w: box.w } : null}
+            onMoved={(dx, dy) => {
+              // The other picked boxes go the same way.
+              for (const o of extra) {
+                if (o.id === b.id || !picked.includes(o.id)) continue
+                onBoxChange?.(o.id, { x: o.x + dx, y: o.y + dy })
+              }
+            }}
           >
-            {renderBox?.(b.id)}
-          </LazyMount>
-        </BoxFrame>
-      ))}
-    </div>
-  )
+            <LazyMount
+              ready={fit > 0}
+              eager={b.id === eager}
+              height={(step / zoom) * 3}
+            >
+              {renderBox?.(b.id)}
+            </LazyMount>
+          </BoxFrame>
+        ))}
+        {narrow && onAddBoxInOrder && (
+          <button
+            type="button"
+            data-paper-add-end
+            onClick={() => onAddBoxInOrder('end')}
+            className="mt-8 flex min-h-12 w-full items-center justify-center rounded-md border border-dashed border-line text-sm text-muted hover:bg-hover"
+          >
+            {t('paper.addBoxEnd')}
+          </button>
+        )}
+      </div>
+    )
 
   return (
     <div>

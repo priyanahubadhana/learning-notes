@@ -11,6 +11,10 @@ Moved out of HANDOFF on 2026-11-06 (audit) so HANDOFF stays five lines. Newest f
 ## Paper hint and + box (8 Nov, Polish 2 item 8)
 
 1. New page: the faint hint is on the sheet; type a word and it goes. With the Pencil hovering (iPad Pro M2 or later) or a mouse over empty paper (Text tool), a small "+ box" tag follows; tap: a box appears. Needs human eyes: how faint and how helpful it feels.
+## Paper on phones (8 Nov)
+
+1. On the iPhone: open a paper page, tap "Add a box here" under the last box: a box appears at the end with the keyboard. With the Text tool, tap the empty space between two boxes: the new box sits between them. Needs a real phone for the feel of the tap zones.
+
 ## Paper speed (8 Nov)
 
 1. Open your biggest paper page on the iPad (many boxes and ink) and scroll up and down: no stutter, boxes far down show faint grey lines for a moment and then their text. Needs hands on the real iPad for the feel.

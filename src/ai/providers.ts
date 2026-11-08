@@ -42,24 +42,35 @@ async function post(
 
 /** The user content: pictures first, then the words. */
 function anthropicContent(call: AiCall): unknown {
-  if (!call.images?.length) return call.prompt
+  if (!call.images?.length && !call.cachePrefix) return call.prompt
   return [
-    ...call.images.map((i) => ({
+    ...(call.images ?? []).map((i) => ({
       type: 'image',
       source: { type: 'base64', media_type: i.mediaType, data: i.data },
     })),
+    // The long text first, marked for caching (prompt caching).
+    ...(call.cachePrefix
+      ? [
+          {
+            type: 'text',
+            text: call.cachePrefix,
+            cache_control: { type: 'ephemeral' },
+          },
+        ]
+      : []),
     { type: 'text', text: call.prompt },
   ]
 }
 
 function openaiContent(call: AiCall): unknown {
-  if (!call.images?.length) return call.prompt
+  const text = (call.cachePrefix ?? '') + call.prompt
+  if (!call.images?.length) return text
   return [
     ...call.images.map((i) => ({
       type: 'image_url',
       image_url: { url: `data:${i.mediaType};base64,${i.data}` },
     })),
-    { type: 'text', text: call.prompt },
+    { type: 'text', text },
   ]
 }
 
@@ -114,7 +125,12 @@ async function anthropic(call: AiCall): Promise<AiResult> {
     },
   )) as {
     content?: { type?: string; text?: string }[]
-    usage?: { input_tokens?: number; output_tokens?: number }
+    usage?: {
+      input_tokens?: number
+      output_tokens?: number
+      cache_creation_input_tokens?: number
+      cache_read_input_tokens?: number
+    }
   }
   const text = (data.content ?? [])
     .filter((c) => c.type === 'text' && typeof c.text === 'string')
@@ -123,7 +139,11 @@ async function anthropic(call: AiCall): Promise<AiResult> {
   if (!text) throw new AiError('the answer was empty')
   return {
     text,
-    inputTokens: num(data.usage?.input_tokens),
+    // Cached tokens are counted too (they cost less, so this errs high).
+    inputTokens:
+      num(data.usage?.input_tokens) +
+      num(data.usage?.cache_creation_input_tokens) +
+      num(data.usage?.cache_read_input_tokens),
     outputTokens: num(data.usage?.output_tokens),
   }
 }
@@ -297,7 +317,10 @@ export async function stream(
   }
   const stopped = stoppedEarly()
   if (!text && !stopped) throw new AiError('the answer was empty')
-  if (!inputTokens) inputTokens = Math.ceil(call.prompt.length / 4)
+  if (!inputTokens)
+    inputTokens = Math.ceil(
+      ((call.cachePrefix?.length ?? 0) + call.prompt.length) / 4,
+    )
   if (!outputTokens) outputTokens = Math.ceil(text.length / 4)
   return { text, inputTokens, outputTokens, stopped }
 }

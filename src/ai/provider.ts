@@ -55,6 +55,12 @@ export interface AiCall {
   key: string
   model: string
   prompt: string
+  /**
+   * A long text that comes first and is the same for several calls (a
+   * transcript). Claude is asked to cache it, so asking again about the same
+   * text costs far less; the others just get it in front of the prompt.
+   */
+  cachePrefix?: string
   maxTokens: number
   /** Pictures sent before the prompt (base64 without the data: prefix). */
   images?: AiImage[]

@@ -135,6 +135,8 @@ function canFallBack(e: AiError): boolean {
 
 export interface AiRequest {
   prompt: string
+  /** A long text sent first and cached by Claude (see AiCall.cachePrefix). */
+  cachePrefix?: string
   maxTokens: number
   images?: AiImage[]
   fetchImpl?: typeof fetch
@@ -178,7 +180,7 @@ export async function callAi(
         key.id,
         key.provider,
         c.model,
-        req.prompt,
+        (req.cachePrefix ?? '') + req.prompt,
         req.maxTokens,
         cap,
         new Date(),
@@ -195,6 +197,7 @@ export async function callAi(
         key: key.key,
         model: c.model,
         prompt: req.prompt,
+        cachePrefix: req.cachePrefix,
         maxTokens: req.maxTokens,
         images: req.images,
         fetchImpl: req.fetchImpl,

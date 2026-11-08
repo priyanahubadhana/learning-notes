@@ -10,6 +10,7 @@ import { ToolButton } from './ToolButton'
 import {
   TAB_GROUPS,
   groupLabel,
+  findTool,
   ribbonGroup,
   tabLabel,
   type TabId,
@@ -47,6 +48,7 @@ export function Ribbon({
   activeOf,
   tip,
   hint,
+  history,
 }: {
   px: number
   /** The short bar shows too ("Ribbon + short bar"). */
@@ -55,6 +57,8 @@ export function Ribbon({
   activeOf: (id: string) => boolean
   tip: boolean
   hint: boolean
+  /** Undo and Redo are pinned at the left, outside the scrolling tools. */
+  history?: { canUndo: boolean; canRedo: boolean }
 }) {
   const tab = ribbonTab.useValue()
   const expanded = ribbonExpanded.useValue()
@@ -129,7 +133,7 @@ export function Ribbon({
     >
       {TAB_GROUPS[current].map((group) => {
         const tools = ribbonGroup(current, group)
-        if (tools.length === 0) return null
+        if (tools.length === 0 || (history && group === 'undoRedo')) return null
         return (
           <div
             key={group}
@@ -167,103 +171,136 @@ export function Ribbon({
     </ScrollFade>
   )
 
-  return (
+  const undo = history ? findTool('undo') : undefined
+  const redo = history ? findTool('redo') : undefined
+  const pinned = history && (undo || redo) && (
     <div
-      ref={root}
-      data-ribbon
-      data-size={slim ? 'slim' : 'full'}
-      className="grid grid-cols-[minmax(0,1fr)] gap-0.5 px-0.5"
+      role="group"
+      aria-label={t('main.history')}
+      data-slot="history"
+      className="flex shrink-0 rounded-xl bg-hover"
     >
-      <div className="flex flex-wrap items-center gap-x-1">
-        <ScrollFade
-          role="tablist"
-          aria-label={t('ribbon.label')}
-          onKeyDown={arrows}
-          className={`flex min-w-0 gap-0.5 ${
-            slim ? 'shrink-0' : 'flex-1 basis-[26rem]'
-          }`}
-        >
-          {tabs.map((name) => {
-            const on = name === current
-            return (
-              <button
-                key={name}
-                id={tabId(name)}
-                type="button"
-                role="tab"
-                data-tab={name}
-                aria-selected={on}
-                aria-controls={on && shown ? PANEL_ID : undefined}
-                tabIndex={on ? 0 : -1}
-                onMouseDown={keepFocus}
-                onClick={() => choose(name)}
-                style={{ minHeight: size }}
-                className={`relative shrink-0 rounded-xl text-sm motion-safe:transition-colors ${
-                  slim ? 'px-2.5' : 'px-3.5'
-                } ${
-                  on
-                    ? 'font-semibold text-ink after:absolute after:inset-x-2 after:bottom-1 after:h-0.5 after:rounded-full after:bg-accent'
-                    : 'text-ink-soft hover:bg-hover hover:text-ink'
-                }`}
-              >
-                {tabLabel(name)}
-              </button>
-            )
-          })}
-        </ScrollFade>
-        {slim && panel}
-        <div className="ms-auto flex items-center justify-end gap-0.5">
-          {!slim && (
-            <Tip id="ribbon.behaviour" touchInfo={false}>
-              <button
-                type="button"
-                data-bar-btn
-                data-action="ribbonBehaviour"
-                aria-pressed={stay}
-                aria-label={t(stay ? 'ribbon.stay' : 'ribbon.close')}
-                aria-description={getShortcut()}
-                onMouseDown={keepFocus}
-                onClick={() => void toggleRibbonBehaviour()}
-                style={{ minHeight: size, minWidth: size }}
-                className={`${control} !text-ink ${stay ? 'bg-hover' : ''}`}
-              >
-                <Icon name={stay ? 'pin' : 'pinOff'} size={18} />
-              </button>
-            </Tip>
-          )}
-          <button
-            type="button"
-            data-bar-btn
-            data-action="controlPanel"
-            aria-label={t('bar.search')}
-            onMouseDown={keepFocus}
-            onClick={() => getAppActions()?.openControlPanel()}
-            style={{ minHeight: size, minWidth: size }}
-            className={control}
-          >
-            <Icon name="search" />
-          </button>
-          <RibbonOptions px={size} />
-          <button
-            type="button"
-            data-bar-btn
-            data-action="shortBar"
-            aria-label={t(both ? 'ribbon.hide' : 'ribbon.shortBar')}
-            onMouseDown={keepFocus}
-            onClick={() => {
-              ribbonOpen.set(false)
-              ribbonExpanded.set(false)
-            }}
-            style={{ minHeight: size, minWidth: slim ? size : undefined }}
-            className={`${control} bg-hover !text-ink`}
-          >
-            <Icon name="chevronUp" size={18} />
-            {!slim && t(both ? 'ribbon.hide' : 'ribbon.shortBar')}
-          </button>
-        </div>
-      </div>
-      {!slim && panel}
+      {undo && (
+        <ToolButton
+          tool={undo}
+          px={size}
+          variant="bar"
+          disabled={!history.canUndo || undefined}
+          tip={tip}
+        />
+      )}
+      {redo && (
+        <ToolButton
+          tool={redo}
+          px={size}
+          variant="bar"
+          disabled={!history.canRedo || undefined}
+          tip={tip}
+        />
+      )}
     </div>
+  )
+
+  return (
+    <>
+      <div
+        ref={root}
+        data-ribbon
+        data-size={slim ? 'slim' : 'full'}
+        className="grid grid-cols-[minmax(0,1fr)] gap-0.5 px-0.5"
+      >
+        <div className="flex flex-wrap items-center gap-x-1">
+          {pinned}
+          <ScrollFade
+            role="tablist"
+            aria-label={t('ribbon.label')}
+            onKeyDown={arrows}
+            className={`flex min-w-0 gap-0.5 ${
+              slim ? 'shrink-0' : 'flex-1 basis-[26rem]'
+            }`}
+          >
+            {tabs.map((name) => {
+              const on = name === current
+              return (
+                <button
+                  key={name}
+                  id={tabId(name)}
+                  type="button"
+                  role="tab"
+                  data-tab={name}
+                  aria-selected={on}
+                  aria-controls={on && shown ? PANEL_ID : undefined}
+                  tabIndex={on ? 0 : -1}
+                  onMouseDown={keepFocus}
+                  onClick={() => choose(name)}
+                  style={{ minHeight: size }}
+                  className={`relative shrink-0 rounded-xl text-sm motion-safe:transition-colors ${
+                    slim ? 'px-2.5' : 'px-3.5'
+                  } ${
+                    on
+                      ? 'font-semibold text-ink after:absolute after:inset-x-2 after:bottom-1 after:h-0.5 after:rounded-full after:bg-accent'
+                      : 'text-ink-soft hover:bg-hover hover:text-ink'
+                  }`}
+                >
+                  {tabLabel(name)}
+                </button>
+              )
+            })}
+          </ScrollFade>
+          {slim && panel}
+          <div className="ms-auto flex items-center justify-end gap-0.5">
+            {!slim && (
+              <Tip id="ribbon.behaviour" touchInfo={false}>
+                <button
+                  type="button"
+                  data-bar-btn
+                  data-action="ribbonBehaviour"
+                  aria-pressed={stay}
+                  aria-label={t(stay ? 'ribbon.stay' : 'ribbon.close')}
+                  aria-description={getShortcut()}
+                  onMouseDown={keepFocus}
+                  onClick={() => void toggleRibbonBehaviour()}
+                  style={{ minHeight: size, minWidth: size }}
+                  className={`${control} !text-ink ${stay ? 'bg-hover' : ''}`}
+                >
+                  <Icon name={stay ? 'pin' : 'pinOff'} size={18} />
+                </button>
+              </Tip>
+            )}
+            <button
+              type="button"
+              data-bar-btn
+              data-action="controlPanel"
+              aria-label={t('bar.search')}
+              onMouseDown={keepFocus}
+              onClick={() => getAppActions()?.openControlPanel()}
+              style={{ minHeight: size, minWidth: size }}
+              className={control}
+            >
+              <Icon name="search" />
+            </button>
+            <RibbonOptions px={size} />
+            <button
+              type="button"
+              data-bar-btn
+              data-action="shortBar"
+              aria-label={t(both ? 'ribbon.hide' : 'ribbon.shortBar')}
+              onMouseDown={keepFocus}
+              onClick={() => {
+                ribbonOpen.set(false)
+                ribbonExpanded.set(false)
+              }}
+              style={{ minHeight: size, minWidth: slim ? size : undefined }}
+              className={`${control} bg-hover !text-ink`}
+            >
+              <Icon name="chevronUp" size={18} />
+              {!slim && t(both ? 'ribbon.hide' : 'ribbon.shortBar')}
+            </button>
+          </div>
+        </div>
+        {!slim && panel}
+      </div>
+    </>
   )
 }
 

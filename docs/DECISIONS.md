@@ -808,3 +808,5 @@ The other older decisions stand as built (owner, 2026-11-01); they are in [ARCHI
 - A plain prompt run from the Library header (no page) can only be copied, not added to a page (no target page).
 - Deleting a prompt asks no question; it goes to Trash with an Undo toast (rules/security.md: deletes are reversible).
 - Fact check sends only the key points and the source titles (not the whole input), so it is cheap and cannot show the model more than the first call did.
+
+- **2026-11-09 · iPad fix 2: Undo/Redo pinned:** The main bar already had them pinned, so the owner most likely saw the full ribbon; pinned there too. The ribbon may now wrap its tab row by one line on iPad widths (compact limit 85 to 100 px).

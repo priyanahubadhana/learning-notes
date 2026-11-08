@@ -162,7 +162,7 @@ test('the ribbon is compact', async ({ page }) => {
   await page.keyboard.press('Escape')
   const closed = (await box(dockedBar(page))).height
   expect(open).toBeLessThan(190)
-  expect(closed).toBeLessThan(85)
+  expect(closed).toBeLessThan(100) // pinned Undo/Redo take one button width
 })
 
 test('Slim: one row of icons, names in tooltips, all tabs fit at 820 px (sidebar open and closed)', async ({

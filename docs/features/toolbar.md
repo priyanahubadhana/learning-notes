@@ -11,6 +11,7 @@ One simple way to use every tool: tap a tool, see its few options, tap the activ
 - One solid, icon-only row at the top of the page view (44 px targets, strong contrast). Order: Undo, Redo (a separate small pill) | Text, Pen, Highlighter, Eraser, New line, Lasso, Insert, Read | extra pinned tools (control panel pin), then ⌨ Keyboard and ⋯.
 - **The selected tool is the mode.** The Write · Draw · Read switch and all automatic switching are gone. `activeTool` (`src/app/tools/main/mainTools.ts`) is Text, Pen, Highlighter, Eraser, Lasso or Read; Insert opens its pill without being a mode; New line is a button. The old "set" (`activeSet`) only tells the ribbon which tab to open and Reading mode whether to start (`changeSet` keeps them in step).
 - Phone: two rows (Undo/Redo and ⋯, then the tools, which scroll sideways if the screen is narrower than 360 px).
+- Undo and Redo are pinned at the left, outside the scrolling tools, in the main bar and in the full ribbon (the ribbon no longer lists them under Home). Test: e2e/pinnedHistory.spec.ts.
 - **⋯ menu:** Edit bar first, then All tools (opens the existing ribbon), Search all features, Done, copy and paste items, Reset bar position (floating) and the full list of formatting actions.
 - Placement (top, bottom, floating), size, auto-hide, the Show tool bar safety and the ribbon behave as in [toolbar-ribbon.md](toolbar-ribbon.md) and [device-modes.md](device-modes.md). The bar can never be lost.
 

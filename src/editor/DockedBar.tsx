@@ -297,6 +297,7 @@ function Bar({ editor, slot }: { editor: Editor; slot: HTMLElement }) {
       className={pillClass(place)}
     >
       <Ribbon
+        history={history}
         px={buttonPx}
         both={both}
         activeOf={(id) => byId.get(id)?.active ?? isActive(id)}

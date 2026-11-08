@@ -100,7 +100,8 @@ test('touch rows show only ⋯ (44 px), whose menu has the actions', async ({
   const menu = page.getByRole('menu')
   for (const item of ['Add page', 'Rename', 'Move up', 'Move down'])
     await expect(menu.getByRole('menuitem', { name: item })).toBeVisible()
-  await expect(menu.getByRole('menuitem', { name: /Lock/ })).toBeVisible()
+  // Two lock items: the PIN lock and the edit lock.
+  await expect(menu.getByRole('menuitem', { name: /Lock/ })).toHaveCount(2)
   await expect(menu.getByRole('menuitem').last()).toContainText(
     'Delete notebook',
   )

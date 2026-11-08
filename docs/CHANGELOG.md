@@ -2,6 +2,12 @@
 
 Current phase only. Older entries are in [ARCHIVE.md](ARCHIVE.md).
 
+## 2026-11-09 (CI green again)
+
+- **What:** main was red on 9 Nov. Fixed: Prettier on the NotebookLM research doc; nameSheet touch-row test (two Lock items now: PIN lock + edit lock, count 2); paper pinch spring-back test skipped on WebKit (no mouse wheel; spring maths covered by zoomSpring.test.ts); removed a no-op `title={undefined}` from BoxBar; allowed the paper -> editor feature link (types and plain-text mapping).
+- **Why:** nothing had deployed.
+- **Files:** docs/research/notebooklm-import-2026-11.md, e2e/nameSheet.spec.ts, e2e/paperPage.spec.ts, src/paper/BoxBar.tsx, scripts/feature-links.json
+
 ## 2026-11-09 (Bring in from NotebookLM, optional page tabs)
 
 - **What:** Data › More › "Bring in from NotebookLM": audio and video overviews (video plays inline), slide decks (PDF or PowerPoint) into a Slides tab strip, mind map pictures (optional AI rebuild with cost shown), report text, flashcards and quiz (CSV or Q/A text) as cards, data tables as a database; preview with target page, one Undo. Three NotebookLM paste-in prompts in the Prompt library (purpose Import). Optional page tabs Mind map, Slides, Audio & video, Database per notebook (⋯ on the tab row, Settings › General › Page tabs, off by default). Research: what NotebookLM can export.

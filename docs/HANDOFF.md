@@ -1,5 +1,6 @@
 # Handoff
 
+- **CI green again (9 Nov):** format, nameSheet lock count, pinch test skipped on WebKit, BoxBar title, paper -> editor link.
 - **NotebookLM import + optional page tabs done (9 Nov):** Data › More › Bring in from NotebookLM (audio, video, slides, mind map picture with optional AI rebuild, report, cards, quiz, table), 3 NotebookLM prompts (purpose Import), page tabs Mind map / Slides / Audio & video / Database per notebook (⋯ on the tab row, Settings › General). Spec docs/features/notebooklm-import.md, research docs/research/notebooklm-import-2026-11.md, owner check at the top of owner-checks-pending.md. Not built: drop/paste straight onto a page, page filter on the notebook Database tab. Warning: translations.test fails for older Notion and outline keys missing in es/hi (not from this work).
 
 - **Claude Skill done (9 Nov):** claude-skill/learning-notes + zip in the build, Settings › AI › Use with Claude, .lnskill.json import/drop in the paste-in box. Spec docs/features/claude-skill.md. Later: MCP connector (IDEAS/ROADMAP). Owner check at the top of owner-checks-pending.md.

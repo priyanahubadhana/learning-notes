@@ -279,7 +279,10 @@ test('fit width on a phone: the boxes stack under the text in reading order', as
 
 test('pinching out gives way a little, then springs back to fit width', async ({
   page,
+  browserName,
 }) => {
+  // Mobile WebKit has no mouse wheel; the spring maths is in zoomSpring.test.ts.
+  test.skip(browserName === 'webkit', 'mouse.wheel is not supported in WebKit')
   await page.goto('/')
   await createNotebook(page, 'Paper', 'Sheet one')
   await typeInEditor(page, 'Hello paper')

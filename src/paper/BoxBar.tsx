@@ -90,7 +90,6 @@ export function BoxBar({
       type="button"
       data-box-bar-action={id}
       aria-label={label}
-      title={undefined}
       // The editor keeps its selection while a bar button is pressed.
       onMouseDown={(e) => e.preventDefault()}
       onClick={onClick}

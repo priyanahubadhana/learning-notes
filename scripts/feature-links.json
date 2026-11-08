@@ -86,6 +86,7 @@
   "pages -> paper",
   "pages -> tags",
   "pages -> templates",
+  "paper -> editor",
   "paper -> history",
   "paper -> ink",
   "prompts -> ai",

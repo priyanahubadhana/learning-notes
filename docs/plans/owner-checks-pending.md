@@ -138,7 +138,7 @@ Moved out of HANDOFF on 2026-11-06 (audit) so HANDOFF stays five lines. Newest f
 4. Read to the middle of an EPUB, **Story so far** › Show what will be sent: nothing after where you are is in the text.
 5. Settings › Permissions › **Everything AI sent this month**: one row per request (date, notebook, feature, host, cost) and none of your words.
 
-## SYNC REALTIME SETUP (one-time, Supabase dashboard; about 2 minutes)
+## SYNC REALTIME SETUP — DONE 8 Nov 2026 (SQL run)
 
 Real-time sync needs one small table and a publication on the server. Until this is done the app still syncs by polling every 10 s (Settings › Sync says "Live updates are off right now").
 
@@ -334,7 +334,7 @@ Real-time sync needs one small table and a publication on the server. Until this
 - **Picture resize** (G3): tap a picture, drag each corner with the Pencil and then a finger. Does it follow smoothly, with no page scrolling or text selecting? Why human: touch and Pencil feel; handles must not fight Scribble or the page scroll.
 - **Name a drawing** (G3): draw, Lasso it, the T button, name it, then Search (the magnifier) for a word of the name. Does the page appear? Why human: the typing and the Lasso menu on the iPad keyboard.
 
-## SYNC SETUP (Phase L, do once, on the PC, about 10 minutes)
+## SYNC SETUP (Phase L) — DONE 8 Nov 2026 (owner: PC and iPad sync work; Google app In production; privacy page added)
 
 Sync is built but stays off until these steps are done. Nothing here costs money. Never paste a secret into a chat.
 

@@ -4,7 +4,6 @@ import { expect, test, type Page } from '@playwright/test'
 import {
   createNotebook,
   dockedBar,
-  rowAction,
   startInMode,
   typeInEditor,
 } from './helpers.ts'
@@ -62,42 +61,6 @@ test('the presets use the top position for Touch and Pencil', async ({
         .getByRole('button', { name: 'Top', pressed: true }),
     ).toBeVisible()
   }
-})
-
-test('sticky section chips stay visible below the docked bar', async ({
-  page,
-}) => {
-  await startInMode(page, 'touch')
-  await page.goto('/')
-  await createNotebook(page, 'Biology', 'First')
-  await rowAction(page, 'Biology', 'Add page')
-  await page.getByRole('menuitem', { name: 'From template…' }).click()
-  await page
-    .getByRole('dialog')
-    .getByRole('button', { name: /^Lesson\s*Detailed/ })
-    .click()
-  const chips = page.getByRole('navigation', { name: 'Sections' })
-  await expect(chips).toBeVisible()
-  // Make the page long, then scroll to the end.
-  await page.locator('.bn-editor').click()
-  await page.keyboard.press('Control+End')
-  for (let i = 0; i < 70; i++) {
-    await page.keyboard.press('Enter')
-    await page.keyboard.type(`Line ${i}`)
-  }
-  await page.keyboard.press('Control+End')
-  await page.waitForTimeout(500)
-  const bar = (await dockedBar(page).boundingBox())!
-  const chipBox = (await chips.boundingBox())!
-  expect(bar.y).toBeLessThan(100)
-  expect(chipBox.y).toBeGreaterThanOrEqual(bar.y + bar.height - 1)
-  // The chips are not covered: the topmost thing at their centre is a chip.
-  const covered = await page.evaluate(
-    ({ x, y }) =>
-      !document.elementFromPoint(x, y)?.closest('nav[aria-label="Sections"]'),
-    { x: chipBox.x + 20, y: chipBox.y + chipBox.height / 2 },
-  )
-  expect(covered).toBe(false)
 })
 
 test.describe('toolbar menu', () => {

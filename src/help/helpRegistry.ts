@@ -162,7 +162,6 @@ export const TIPS = {
   'page.import': { where: 'Page › ⋯ › Import (coming soon)' },
   'page.export': { where: 'Page › ⋯ › Export' },
   'page.addTag': { where: 'Page › + Add tag (under the title)' },
-  'page.sections': { where: 'Page › the chips at the top of a long page' },
   'review.show': { where: 'Review › Show answer' },
   'review.ratings': { where: 'Review › Again / Hard / Good / Easy' },
   'review.scope': { where: 'Review › All / Got wrong switch' },

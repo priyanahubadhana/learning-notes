@@ -51,7 +51,7 @@ The docked bar is now the **short bar** (full spec in [toolbar-ribbon.md](toolba
 - A saved button that no longer exists (a deleted Revise label) is left out of the bar but stays in the saved list.
 - Read-only pages (open in another window) show no bar and no tap area.
 - Hover tips and shortcut hints apply to the docked bar. The Computer floating toolbar keeps BlockNote's own tips.
-- The sticky section chips sit below a top bar (never covered). Their wrapper is what sticks, at `top: var(--dock-top, 0px)`; without a docked bar the value is 0.
+- The section chips above the page were removed (9 Nov): the left panel Outline lists and jumps to the headings.
 - A pen that touches while a finger is down, or right after a key press, does not switch; it switches on the next pen touch.
 
 ## Security check

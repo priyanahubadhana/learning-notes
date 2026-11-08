@@ -211,8 +211,6 @@ export const enH = {
   'help.tip.page.addTag.meaning':
     'Puts a tag on this page so you can find it with others.',
   'help.tip.page.addTag.example': 'Tag “Heart sounds” with “cardiology”.',
-  'help.tip.page.sections.meaning': 'Jumps to a heading on this page.',
-  'help.tip.page.sections.example': 'Click “Murmurs” to scroll straight to it.',
   'help.tip.review.show.meaning':
     'Reveals the answer. Try to remember it first, then check.',
   'help.tip.review.show.example': 'Press Space to reveal.',

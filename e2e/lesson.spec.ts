@@ -43,15 +43,9 @@ test.beforeEach(async ({ page }) => {
   await createNotebook(page, 'Biology', 'First')
 })
 
-test('Lesson: section chips and a live card list that jumps to the card', async ({
-  page,
-}) => {
+test('Lesson: a live card list that jumps to the card', async ({ page }) => {
   await newFromTemplate(page, LESSON)
-  await expect(chips(page).getByRole('button')).toHaveText([
-    'Detailed notes',
-    'Keyword summary',
-    'Flashcards',
-  ])
+  await expect(chips(page)).toHaveCount(0) // the Outline lists the headings
   await expect(cardList(page)).toContainText('No cards yet')
 
   await makeCardUnder(page, 'Detailed notes', 'What does the nucleus hold?')
@@ -74,11 +68,6 @@ test('Lesson: section chips and a live card list that jumps to the card', async 
     'What does the nucleus hold?',
   )
   await page.keyboard.press('Escape')
-
-  // Chips stay pinned and jump to their heading.
-  await expect(chips(page).locator('xpath=..')).toHaveCSS('position', 'sticky')
-  await chips(page).getByRole('button', { name: 'Flashcards' }).click()
-  await expect.poll(() => highlighted(page)).toContain('Flashcards')
 })
 
 test('"/" menu adds a card list block', async ({ page }) => {
@@ -102,8 +91,6 @@ test('Lesson (large topic): sub-pages, links, and one list for all', async ({
   await expect(cardList(page)).toHaveAccessibleName(
     'Cards on this page and its sub-pages',
   )
-  // Fewer than three sections: no chips.
-  await expect(chips(page)).toHaveCount(0)
 
   await editor(page).getByRole('button', { name: 'Detailed notes' }).click()
   await expect(page.getByRole('textbox', { name: 'Page title' })).toHaveValue(

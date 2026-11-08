@@ -146,7 +146,6 @@ export const hi1: Record<string, string> = {
   'cardList.status.suspended': 'रोका गया',
   'cardList.slash.title': 'कार्ड सूची',
   'cardList.slash.subtext': 'इस पृष्ठ के कार्डों की जीवंत सूची',
-  'sections.label': 'खंड',
   'templates.lesson': 'पाठ',
   'templates.lessonLarge': 'पाठ (बड़ा विषय)',
   'templates.lesson.notes': 'विस्तृत नोट',

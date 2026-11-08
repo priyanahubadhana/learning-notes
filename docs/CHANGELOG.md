@@ -8,6 +8,11 @@ Current phase only. Older entries are in [ARCHIVE.md](ARCHIVE.md).
 - **Why:** owner queue 3b and the two 9 Nov DECISIONS sections.
 - **Files:** src/prompts/* (new), src/core/types.ts (Database.kind), src/ai/provider.ts, providers.ts, route.ts (cachePrefix, cached tokens counted), AiActions.tsx, AskBook.tsx, library/LibraryScreen.tsx, i18n enO/hiO/esO, scripts/feature-links.json, e2e/promptLibrary.spec.ts, docs/features/prompt-library.md, docs/plans/prompt-library-plan.md.
 
+## 2026-11-09 (iPad fix 6: section chips removed)
+
+- **What:** The chip row (Topic, Key ideas ...) above pages is gone; the headings stay in templates and the Outline lists them. Tests that expected the chips updated.
+- **Files:** src/pages/PageView.tsx, help/i18n entries, e2e/lesson.spec.ts, e2e/dockedBar.spec.ts, docs/features/device-modes.md, notebooks-and-pages.md
+
 ## 2026-11-09 (iPad fix 2: Undo/Redo pinned)
 
 - **What:** Undo and Redo are pinned at the left of the main bar (already outside the scroll) and now also of the full ribbon (they used to scroll inside Home). Test checks 4 widths.

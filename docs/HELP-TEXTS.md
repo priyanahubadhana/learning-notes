@@ -2,7 +2,7 @@
 
 Every hover tip and help line in the app (shown while Settings › Show help is On). Generated from `src/help/helpRegistry.ts` and `src/i18n/en.ts`; to change a text, edit it in `en.ts`, then run `UPDATE_HELP=1 npx vitest run src/help` to refresh this file.
 
-## Hover tips (178)
+## Hover tips (177)
 
 ### `bar.newLine`
 
@@ -591,12 +591,6 @@ Every hover tip and help line in the app (shown while Settings › Show help is 
 - **Where:** Page › + Add tag (under the title)
 - **Meaning:** Puts a tag on this page so you can find it with others.
 - **Example:** Tag “Heart sounds” with “cardiology”.
-
-### `page.sections`
-
-- **Where:** Page › the chips at the top of a long page
-- **Meaning:** Jumps to a heading on this page.
-- **Example:** Click “Murmurs” to scroll straight to it.
 
 ### `review.show`
 

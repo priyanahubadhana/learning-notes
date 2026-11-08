@@ -195,8 +195,6 @@ export const en = {
   'cardList.status.suspended': 'Suspended',
   'cardList.slash.title': 'Card list',
   'cardList.slash.subtext': 'Live list of the cards on this page',
-  // Section chips
-  'sections.label': 'Sections',
 
   // Starter templates (text is copied into the user's notes once)
   'templates.lesson': 'Lesson',

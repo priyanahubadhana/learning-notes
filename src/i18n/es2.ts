@@ -230,9 +230,6 @@ export const es2: Record<string, string> = {
     'Pone una etiqueta en esta página para encontrarla junto con otras.',
   'help.tip.page.addTag.example':
     'Etiqueta «Sonidos cardíacos» con «cardiología».',
-  'help.tip.page.sections.meaning': 'Salta a un encabezado de esta página.',
-  'help.tip.page.sections.example':
-    'Haz clic en «Soplos» para ir directamente.',
   'help.tip.review.show.meaning':
     'Muestra la respuesta. Intenta recordarla primero, y luego compruébalo.',
   'help.tip.review.show.example': 'Pulsa la barra espaciadora para mostrarla.',

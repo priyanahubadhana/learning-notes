@@ -220,8 +220,6 @@ export const hi2: Record<string, string> = {
     'इस पृष्ठ पर एक टैग लगाता है ताकि उसे दूसरों के साथ ढूँढा जा सके।',
   'help.tip.page.addTag.example':
     '“हृदय की ध्वनियाँ” पर “हृदय-विज्ञान” टैग लगाएँ।',
-  'help.tip.page.sections.meaning': 'इस पृष्ठ के किसी शीर्षक पर कूदता है।',
-  'help.tip.page.sections.example': '“मर्मर” पर क्लिक करके सीधे वहाँ पहुँचें।',
   'help.tip.review.show.meaning':
     'उत्तर दिखाता है। पहले खुद याद करने की कोशिश करें, फिर जाँचें।',
   'help.tip.review.show.example': 'दिखाने के लिए स्पेस दबाएँ।',

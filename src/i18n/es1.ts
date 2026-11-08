@@ -146,7 +146,6 @@ export const es1: Record<string, string> = {
   'cardList.status.suspended': 'Suspendida',
   'cardList.slash.title': 'Lista de tarjetas',
   'cardList.slash.subtext': 'Lista en vivo de las tarjetas de esta página',
-  'sections.label': 'Secciones',
   'templates.lesson': 'Lección',
   'templates.lessonLarge': 'Lección (tema grande)',
   'templates.lesson.notes': 'Notas detalladas',

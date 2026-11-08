@@ -13,7 +13,7 @@ Notebooks hold pages; pages nest under other pages. This is the main structure o
 - `src/pages/pageService.ts`: `createPage`, `renamePage`, `movePage`, `movePageToTopLevel`, `deletePage`, `listPages`, `listChildPages`, `getPagePath` (breadcrumb), `listNotePages` (hides database row pages).
 - Order uses order keys (`core/order`), so moving one item rewrites only that item.
 - `titleSaver.ts` saves the title 300 ms after typing stops, using the shared autosaver.
-- `sections.ts`: `pageSections` gives jump chips from the page's top-level headings of the largest size; needs at least 3.
+- `sections.ts`: `pageSections` (headings of the largest size, at least 3); the chip row that used it was removed on 9 Nov (the Outline does the job).
 
 ## Edge cases
 

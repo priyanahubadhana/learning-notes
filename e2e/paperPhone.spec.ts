@@ -36,6 +36,7 @@ test('on a phone a tap adds a box at the end, or after the box above the tap', a
   const a = (await extra.first().boundingBox())!
   await page.mouse.click(a.x + a.width / 2, a.y + a.height + 4)
   await expect(extra).toHaveCount(3)
+  await expect(extra.nth(1).locator('.bn-editor')).toBeFocused()
   await page.keyboard.type('Box C')
   await page.waitForTimeout(500)
   const texts = async () =>

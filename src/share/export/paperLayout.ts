@@ -265,10 +265,12 @@ async function loadFrame(html: string, widthMm: number) {
   })
   const doc = frame.contentDocument
   if (!doc) throw new Error('paper frame failed')
-  await Promise.all(
-    [...doc.images].map((i) => i.decode().catch(() => undefined)),
-  )
-  await doc.fonts?.ready
+  // Pictures and fonts, but never wait for ever on a browser that stays quiet.
+  const settled = Promise.all([
+    ...[...doc.images].map((i) => i.decode().catch(() => undefined)),
+    doc.fonts?.ready,
+  ])
+  await Promise.race([settled, new Promise((r) => setTimeout(r, 3000))])
   return {
     doc,
     close: () => {
@@ -308,37 +310,44 @@ export async function buildPaperPrint(
       heights[b.id] = round(box.height / PX_PER_MM)
       const list = strokes.get(b.id)
       if (!list) continue
-      // Where each line is, from the top left of the box's content.
-      const frameOf = (s: PaperStroke) => {
-        const el = s.blockId
-          ? bc.querySelector<HTMLElement>(`[data-b="${CSS.escape(s.blockId)}"]`)
-          : null
-        if (el) {
-          const r = el.getBoundingClientRect()
-          return { x: r.left - box.left, y: r.top - box.top, w: box.width }
+      try {
+        // Where each line is, from the top left of the box's content.
+        const frameOf = (s: PaperStroke) => {
+          const el = s.blockId
+            ? bc.querySelector<HTMLElement>(
+                `[data-b="${CSS.escape(s.blockId)}"]`,
+              )
+            : null
+          if (el) {
+            const r = el.getBoundingClientRect()
+            return { x: r.left - box.left, y: r.top - box.top, w: box.width }
+          }
+          // A line that is gone keeps the place it was last seen.
+          const k = s.fb && s.fb.w > 0 ? box.width / s.fb.w : 1
+          return { x: (s.fb?.x ?? 0) * k, y: (s.fb?.y ?? 0) * k, w: box.width }
         }
-        // A line that is gone keeps the place it was last seen.
-        const k = s.fb && s.fb.w > 0 ? box.width / s.fb.w : 1
-        return { x: (s.fb?.x ?? 0) * k, y: (s.fb?.y ?? 0) * k, w: box.width }
+        const placed = list.map((s) => ({ s, frame: frameOf(s) }))
+        let bottom = box.height
+        for (const p of placed) {
+          const r = strokeRect(p.s.stroke, p.frame)
+          if (r) bottom = Math.max(bottom, r.y + r.h)
+        }
+        const w = Math.max(1, Math.ceil(box.width))
+        const h = Math.max(1, Math.ceil(bottom))
+        const scale = Math.min(2, Math.sqrt(MAX_INK_PIXELS / (w * h)))
+        if (scale < 0.25) continue
+        const canvas = document.createElement('canvas')
+        canvas.width = Math.ceil(w * scale)
+        canvas.height = Math.ceil(h * scale)
+        const ctx = canvas.getContext('2d')
+        if (!ctx) continue
+        const target = { ctx, top: 0, dpr: scale }
+        for (const p of placed) paintStroke(target, p.s.stroke, p.frame)
+        ink.set(b.id, { url: canvas.toDataURL('image/png'), w, h })
+      } catch (error) {
+        // One box's ink picture failing must not lose the sheets.
+        console.error('Could not draw the ink of a box', error)
       }
-      const placed = list.map((s) => ({ s, frame: frameOf(s) }))
-      let bottom = box.height
-      for (const p of placed) {
-        const r = strokeRect(p.s.stroke, p.frame)
-        if (r) bottom = Math.max(bottom, r.y + r.h)
-      }
-      const w = Math.max(1, Math.ceil(box.width))
-      const h = Math.max(1, Math.ceil(bottom))
-      const scale = Math.min(2, Math.sqrt(MAX_INK_PIXELS / (w * h)))
-      if (scale < 0.25) continue
-      const canvas = document.createElement('canvas')
-      canvas.width = Math.ceil(w * scale)
-      canvas.height = Math.ceil(h * scale)
-      const ctx = canvas.getContext('2d')
-      if (!ctx) continue
-      const target = { ctx, top: 0, dpr: scale }
-      for (const p of placed) paintStroke(target, p.s.stroke, p.frame)
-      ink.set(b.id, { url: canvas.toDataURL('image/png'), w, h })
     }
   } finally {
     frame.close()

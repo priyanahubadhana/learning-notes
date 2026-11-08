@@ -1,5 +1,6 @@
 import type { LearningNotesDB } from '../../core/db'
 import { inReadingOrder } from '../../core/blockService'
+import { inPaperOrder } from '../../paper/boxes'
 import { byOrder } from '../../core/order'
 import { isLive } from '../../core/records'
 import type { Block, JsonObject, JsonValue, Page } from '../../core/types'
@@ -286,8 +287,11 @@ export async function loadExportPage(
       skipped++
       return null
     }
-    const blocks = inReadingOrder(
+    // Phase Q: box by box, top to bottom, then left to right.
+    const blocks = inPaperOrder(
+      p,
       (await db.blocks.where('pageId').equals(p.id).toArray()).filter(isLive),
+      inReadingOrder,
     )
     const children: ExportPage[] = []
     if (options.subpages) {

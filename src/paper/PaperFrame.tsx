@@ -11,7 +11,14 @@ import {
 import { Tip } from '../help/Help'
 import { t } from '../i18n/t'
 import type { Page, PaperBox } from '../core/types'
-import { boxesOf, MAIN_BOX, mainBox, MARGIN, sheetOf } from './boxes'
+import {
+  boxesOf,
+  MAIN_BOX,
+  mainBox,
+  MARGIN,
+  readingOrder,
+  sheetOf,
+} from './boxes'
 import { clampBox, MIN_W } from './boxService'
 import { bounds, record, replay, waitFor, type Recorded } from './penOnPaper'
 import { activeTool } from '../app/tools/main/mainTools'
@@ -183,12 +190,51 @@ export function PaperFrame({
 
   const step = paperStepMm(page.inkBg) * k
   const total = sheets * (sheetPx + SHEET_GAP_PX) - SHEET_GAP_PX
-  const extra = boxesOf(page).filter((b) => b.id !== MAIN_BOX)
+  // In reading order, so read aloud and Tab meet them as they are read.
+  const extra = readingOrder(boxesOf(page).filter((b) => b.id !== MAIN_BOX))
 
   // Rule 4: a stroke on empty paper is recorded, a box is made under it and
   // the stroke is played into that box's ink pad.
   const pen = useRef<Recorded[] | null>(null)
+  // Step 5: the Lasso on empty paper picks whole boxes (their ink moves with
+  // them, as it is linked to their lines); a selected box's grip moves all.
+  const [loop, setLoop] = useState<{ x: number; y: number }[] | null>(null)
+  const [picked, setPicked] = useState<string[]>([])
+  const toPaper = (e: ReactPointerEvent) => {
+    const r = paperEl.current!.getBoundingClientRect()
+    return { x: e.clientX - r.left, y: e.clientY - r.top }
+  }
+  const lassoDown = (e: ReactPointerEvent<HTMLDivElement>) => {
+    if (flat || activeTool.get() !== 'lasso' || e.pointerType === 'touch')
+      return false
+    try {
+      e.currentTarget.setPointerCapture(e.pointerId)
+    } catch {
+      // The moves still bubble here.
+    }
+    setLoop([toPaper(e)])
+    return true
+  }
+  const lassoUp = () => {
+    if (!loop) return
+    const poly = loop
+    setLoop(null)
+    if (poly.length < 3) return setPicked([])
+    setPicked(
+      extra
+        .filter((b) => {
+          const el = document.querySelector<HTMLElement>(
+            '[data-paper-box="' + CSS.escape(b.id) + '"]',
+          )
+          const h = el?.offsetHeight ?? 0
+          return inPolygon({ x: (b.x + b.w / 2) * k, y: b.y * k + h / 2 }, poly)
+        })
+        .map((b) => b.id),
+    )
+  }
+
   const penDown = (e: ReactPointerEvent<HTMLDivElement>) => {
+    if (lassoDown(e)) return
     const tool = activeTool.get()
     if (!onInkOnPaper || flat || (tool !== 'pen' && tool !== 'highlighter'))
       return
@@ -202,9 +248,11 @@ export function PaperFrame({
     pen.current = [record('pointerdown', e.nativeEvent)]
   }
   const penMove = (e: ReactPointerEvent<HTMLDivElement>) => {
+    if (loop) setLoop([...loop, toPaper(e)])
     pen.current?.push(record('pointermove', e.nativeEvent))
   }
   const penUp = (e: ReactPointerEvent<HTMLDivElement>) => {
+    lassoUp()
     const events = pen.current
     pen.current = null
     if (!events || !onInkOnPaper) return
@@ -279,29 +327,6 @@ export function PaperFrame({
                 } as CSSProperties)
           }
         >
-          {!flat && extra.length > 0 && (
-            <div
-              data-paper-boxes
-              style={{ position: 'relative', height: 0, zIndex: 6 }}
-            >
-              {extra.map((b) => (
-                <BoxFrame
-                  key={b.id}
-                  box={b}
-                  k={k}
-                  zoom={zoom}
-                  sheetW={sheet.w}
-                  stepMm={step / k}
-                  lineH={step / zoom}
-                  onBottom={(px) => reportBottom(b.id, px)}
-                  onChange={(patch) => onBoxChange?.(b.id, patch)}
-                  onMenu={(at) => onBoxMenu?.(b, at)}
-                >
-                  {renderBox?.(b.id)}
-                </BoxFrame>
-              ))}
-            </div>
-          )}
           {!flat && (
             <div
               data-paper-sheets
@@ -348,6 +373,60 @@ export function PaperFrame({
               {children}
             </div>
           </div>
+          {!flat && extra.length > 0 && (
+            <div
+              data-paper-boxes
+              // After the default box in the page, so read aloud and the keyboard
+              // meet the boxes after the page's own text; moved up to the top.
+              style={{
+                position: 'relative',
+                height: 0,
+                zIndex: 6,
+                top: -boxBottom,
+              }}
+            >
+              {loop && (
+                <svg
+                  aria-hidden
+                  data-paper-lasso
+                  className="pointer-events-none absolute top-0 left-0 overflow-visible"
+                  width="1"
+                  height="1"
+                >
+                  <polyline
+                    points={loop.map((p) => p.x + ',' + p.y).join(' ')}
+                    fill="none"
+                    stroke="var(--color-accent)"
+                    strokeDasharray="4 3"
+                  />
+                </svg>
+              )}
+              {extra.map((b) => (
+                <BoxFrame
+                  key={b.id}
+                  box={b}
+                  k={k}
+                  zoom={zoom}
+                  sheetW={sheet.w}
+                  stepMm={step / k}
+                  lineH={step / zoom}
+                  onBottom={(px) => reportBottom(b.id, px)}
+                  onChange={(patch) => onBoxChange?.(b.id, patch)}
+                  onMenu={(at) => onBoxMenu?.(b, at)}
+                  picked={picked.includes(b.id)}
+                  onMoved={(dx, dy) => {
+                    // The other picked boxes go the same way.
+                    for (const o of extra) {
+                      if (o.id === b.id || !picked.includes(o.id)) continue
+                      onBoxChange?.(o.id, { x: o.x + dx, y: o.y + dy })
+                    }
+                  }}
+                >
+                  {renderBox?.(b.id)}
+                </BoxFrame>
+              ))}
+            </div>
+          )}
         </div>
       </div>
       {!flat && (
@@ -418,6 +497,8 @@ function BoxFrame({
   onBottom,
   onChange,
   onMenu,
+  picked,
+  onMoved,
   children,
 }: {
   box: PaperBox
@@ -430,6 +511,10 @@ function BoxFrame({
   onBottom: (px: number) => void
   onChange: (patch: Partial<PaperBox>) => void
   onMenu: (at: DOMRect) => void
+  /** Picked by the Lasso on the paper. */
+  picked: boolean
+  /** The box was moved by (mm); the other picked boxes follow. */
+  onMoved: (dx: number, dy: number) => void
   children: ReactNode
 }) {
   const el = useRef<HTMLDivElement>(null)
@@ -472,6 +557,7 @@ function BoxFrame({
     setDrag(null)
     if (!d || !live) return setLive(null)
     onChange({ x: live.x, y: live.y, w: live.w })
+    if (picked && d.how === 'move') onMoved(live.x - box.x, live.y - box.y)
     setLive(null)
   }
   return (
@@ -479,7 +565,8 @@ function BoxFrame({
       ref={el}
       data-paper-box={box.id}
       data-locked={box.locked ? '' : undefined}
-      className="group absolute rounded-md outline-1 outline-dashed outline-transparent hover:outline-line focus-within:outline-line"
+      data-picked={picked ? '' : undefined}
+      className="group absolute rounded-md outline-1 outline-dashed outline-transparent hover:outline-line focus-within:outline-line data-picked:outline-2 data-picked:outline-solid data-picked:outline-accent"
       style={{
         left: shown.x * k,
         top: shown.y * k,
@@ -549,4 +636,22 @@ function BoxFrame({
       </div>
     </div>
   )
+}
+
+/** Is the point inside the polygon (even-odd rule)? */
+function inPolygon(
+  p: { x: number; y: number },
+  poly: { x: number; y: number }[],
+) {
+  let inside = false
+  for (let i = 0, j = poly.length - 1; i < poly.length; j = i++) {
+    const a = poly[i]
+    const b = poly[j]
+    if (
+      a.y > p.y !== b.y > p.y &&
+      p.x < ((b.x - a.x) * (p.y - a.y)) / (b.y - a.y) + a.x
+    )
+      inside = !inside
+  }
+  return inside
 }

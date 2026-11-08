@@ -4,6 +4,7 @@ import {
   groupBlocksByBox,
   MAIN_BOX,
   mainBox,
+  inPaperOrder,
   readingOrder,
 } from './boxes'
 import { checkedRow } from '../share/checkRows'
@@ -94,5 +95,34 @@ describe('paper boxes in backups and sync rows', () => {
     ]) {
       expect(checkedRow('pages', { ...base, boxes: bad })).toBeNull()
     }
+  })
+})
+
+describe('paper reading order of blocks', () => {
+  const inOrder = <T>(b: T[]) => b
+  it('a page with no boxes keeps its own order', () => {
+    const blocks = [blk('a'), blk('b')]
+    expect(inPaperOrder({}, blocks, inOrder)).toEqual(blocks)
+  })
+  it('box by box: top to bottom, then left to right', () => {
+    const page = {
+      boxes: [
+        { id: 'right', x: 120, y: 100, w: 60 },
+        { id: 'left', x: 10, y: 101, w: 60 },
+        { id: 'low', x: 10, y: 250, w: 60 },
+      ],
+    }
+    const order = inPaperOrder(
+      page,
+      [
+        blk('m1'),
+        blk('l1', null, 'low'),
+        blk('r1', null, 'right'),
+        blk('x1', null, 'left'),
+        blk('m2'),
+      ],
+      inOrder,
+    ).map((b) => b.id)
+    expect(order).toEqual(['m1', 'm2', 'x1', 'r1', 'l1'])
   })
 })

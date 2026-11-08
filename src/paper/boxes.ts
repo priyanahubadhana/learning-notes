@@ -84,3 +84,22 @@ export function readingOrder(
     Math.abs(a.y - b.y) <= rowMm ? a.x - b.x : a.y - b.y,
   )
 }
+
+/**
+ * A page's blocks in paper reading order (export, read aloud): box by box,
+ * top to bottom then left to right, each box in its own order (`inOrder`).
+ * A page with no boxes is exactly `inOrder(blocks)`.
+ */
+export function inPaperOrder<
+  B extends Pick<Block, 'id' | 'parentId' | 'boxId'>,
+>(
+  page: Pick<Page, 'sheet' | 'boxes'>,
+  blocks: B[],
+  inOrder: (blocks: B[]) => B[],
+): B[] {
+  if (!page.boxes?.length) return inOrder(blocks)
+  const groups = groupBlocksByBox(page, blocks)
+  return readingOrder(boxesOf(page)).flatMap((b) =>
+    inOrder(groups.get(b.id) ?? []),
+  )
+}

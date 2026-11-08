@@ -2,6 +2,7 @@
 /// <reference lib="dom" />
 import { expect, test } from '@playwright/test'
 import { createNotebook, startInMode, typeInEditor } from './helpers.ts'
+import { tool } from './mainBarHelpers.ts'
 
 /**
  * Phase Q steps 1–2: every page is paper. The page's text is one default
@@ -119,4 +120,60 @@ test('a tap on empty paper makes a box; it moves, resizes, locks, duplicates and
   await page.getByRole('button', { name: 'Undo' }).last().click()
   await expect(extra).toHaveCount(2)
   await expect(extra.nth(1)).toContainText('Second line')
+})
+
+test('the Lasso on the paper picks boxes; moving one moves them all', async ({
+  page,
+}) => {
+  await startInMode(page, 'computer')
+  await page.goto('/')
+  await createNotebook(page, 'Paper', 'Lasso boxes')
+  await typeInEditor(page, 'Main text')
+  const sheet = (await page.locator('[data-paper-sheet="1"]').boundingBox())!
+  const main = (await page.locator('[data-paper-box="main"]').boundingBox())!
+  const extra = page.locator('[data-paper-box]:not([data-paper-box="main"])')
+  const y = main.y + main.height + 50
+  for (const [i, fx] of [0.1, 0.55].entries()) {
+    await page.mouse.click(sheet.x + sheet.width * fx, y)
+    await expect(extra).toHaveCount(i + 1)
+    await page.keyboard.type('Box ' + (i + 1))
+  }
+  await page.waitForTimeout(600)
+  const before = await extra.evaluateAll((els) =>
+    els.map((e) => e.getBoundingClientRect().y),
+  )
+  await tool(page, 'Lasso').click()
+  await page.waitForTimeout(600)
+  // A loop round both boxes, drawn on the paper.
+  const top = y - 30
+  const bottom = y + 70
+  const left = sheet.x + 8
+  const right = sheet.x + sheet.width - 8
+  await page.mouse.move(left, top)
+  await page.mouse.down()
+  for (const [px, py] of [
+    [right, top],
+    [right, bottom],
+    [left, bottom],
+    [left, top + 2],
+  ])
+    await page.mouse.move(px, py, { steps: 6 })
+  await page.mouse.up()
+  await expect(page.locator('[data-picked]')).toHaveCount(2)
+  // Drag the first box's grip down: both boxes move.
+  const first = extra.first()
+  await first.hover()
+  const g = (await first.locator('[data-box-grip]').boundingBox())!
+  await page.mouse.move(g.x + g.width / 2, g.y + g.height / 2)
+  await page.mouse.down()
+  await page.mouse.move(g.x + g.width / 2, g.y + 120, { steps: 6 })
+  await page.mouse.up()
+  await expect
+    .poll(async () => {
+      const now = await extra.evaluateAll((els) =>
+        els.map((e) => e.getBoundingClientRect().y),
+      )
+      return now.every((v, i) => v > before[i] + 60)
+    })
+    .toBe(true)
 })

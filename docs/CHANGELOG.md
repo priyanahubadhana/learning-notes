@@ -2,6 +2,12 @@
 
 Current phase only. Older entries are in [ARCHIVE.md](ARCHIVE.md).
 
+## 2026-11-08 (Phase Q step 5: Lasso over boxes, reading order, export)
+
+- **What:** the Lasso drawn on empty paper picks whole boxes (dashed loop; picked boxes get an accent outline); moving one picked box by its grip moves them all, and their ink goes with them (it is linked to their lines). Reading order everywhere: boxes are in the page in reading order (top to bottom, then left to right) after the default box, so read aloud and Tab meet them in that order; Export (PDF/print, Word, Markdown, Text) writes the blocks box by box in that order (`paper/boxes.ts` `inPaperOrder`). Search already finds box text and opens the page at it; sync and backups carry `Page.boxes`, `Page.sheet` and `Block.boxId` through the existing page and block rows (checked in `share/checkRows.ts`).
+- **Not yet:** PDF/print with the paper layout itself (sheets, box positions, ink in place): export is the text in reading order plus the page ink picture, as before.
+- **Files:** `src/paper/{PaperFrame,boxes,boxes.test}.ts(x)`, `src/share/export/model.ts`, `scripts/feature-links.json`, `e2e/paperPage.spec.ts`.
+
 ## 2026-11-08 (Phase Q step 4: ink in and around boxes; new pages start in the top box)
 
 - **What:** owner ink rules 1, 2, 4, 5, 7, 8, 10. Every box has its own ink surface (`InkSurface` `owns` scope: each box loads only the ink of its own lines; the default box keeps page-level and orphan rows; extra boxes do not grow to a screen while drawing, `growRoom`). Rule 4: the Pen/Pencil on empty paper records the stroke, makes a box with empty lines under it (`addBoxWithLines`) and plays the stroke into that box (`paper/penOnPaper.ts`). Rule 7: a line that was on screen and is deleted hands its ink to the next line for good (`adoptOrphans`, saved, not an undo step). Rule 10: a stroke (with the strokes of the same drawing drawn in the last 20 s that it overlaps) over three lines or more is linked to its top line and moves as one piece. Rule 8: while ink is Lasso-selected a faint dashed line points to its linked line. Rule 5 was already how a Lasso move re-links (tested now). New pages open with the cursor in the top box (owner); a tap on the title edits the title.

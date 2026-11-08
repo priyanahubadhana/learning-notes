@@ -2,6 +2,11 @@
 
 Current phase only. Older entries are in [ARCHIVE.md](ARCHIVE.md).
 
+## 2026-11-09 (Database pages part 3: formula helper; relation and rollup UI checked)
+
+- **What:** the advanced formula box has a "Columns and functions" helper: tap a column to add `[Name]`, tap a function to add `NAME(` (the evaluator's fixed list). The relation picker (search, 50 shown), rollup settings (Through, Show, Calculate) and the formula sentence/preview already existed and are covered by e2e.
+- **Files:** src/databases/views/FormulaHelper.tsx (new), ColumnDialog.tsx, src/i18n/enO.ts, esO.ts, hiO.ts, e2e/databasePages.spec.ts, docs/features/database.md.
+
 ## 2026-11-09 (Database pages part 2: List view, grouping, windowed rows)
 
 - **What:** new List view (one line per row, sort picker, group by); Table and List can group rows by any column (collapsible groups, saved in the view as `groupBy`); Table and List draw only the rows near the screen above 200 rows (spacer rows, measured row height), so 10,000+ rows scroll smoothly; the Table's "More" button is gone. Board and Gallery keep their own "Show more" paging.

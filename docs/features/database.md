@@ -13,6 +13,7 @@ A database is a page-like thing with properties (columns). Every row is a page, 
 
 - **Views (part 2):** Table, Board, Gallery, Calendar, Dashboard and the new **List** (`views/ListView.tsx`). Filters, sorts and hidden columns are saved per view (`viewConfig.ts`); views are saved records, added with "+ View". **Group by** (Table and List): `config.groupBy` = a column id; groups are the cell's shown text (choice groups in option order, no value last), collapsible (`rowGroups.ts`). A multi-value cell (choices, tags) groups by its joined text.
 - **Many rows:** Table and List draw all rows up to 200; above that only the rows near the screen plus 12 either side, with empty spacer rows for the rest (`rowWindow.ts`, `useRowWindow.ts`). Row height is measured from what is drawn. Board and Gallery page their cards ("Show more").
+- **Relations, rollups, formulas (part 3):** a Relation column opens a searchable picker (first 50 matches shown, so a 10,000-row target is fine); two-way relations add the partner column. A Rollup picks a relation (Through), a column of the related rows (Show) and a function (Calculate). A Formula is edited as a sentence (If … write … otherwise …) or, under Advanced, as text with a live preview, a plain-words "Means:" line and the **Columns and functions** helper (`FormulaHelper.tsx`).
 
 ## Edge cases
 

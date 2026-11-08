@@ -613,4 +613,7 @@ export const enO = {
   'list.sortManual': 'Manual order',
   'list.ascending': 'Ascending ↑',
   'list.descending': 'Descending ↓',
+  'formula.helper': 'Columns and functions',
+  'formula.helper.columns': 'Tap a column to add it:',
+  'formula.helper.functions': 'Tap a function to add it:',
 }

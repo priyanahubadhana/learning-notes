@@ -125,3 +125,21 @@ test('Group by Status in Table and List, and collapse a group', async ({
     main(page).getByRole('button', { name: /^Collapse No value/ }),
   ).toBeVisible()
 })
+
+test('Formula helper adds a column and a function to an advanced formula', async ({
+  page,
+}) => {
+  await newBooks(page)
+  await main(page).getByRole('button', { name: '+ Column' }).click()
+  const menu = page.getByRole('dialog', { name: 'Column type' })
+  await menu.getByRole('button', { name: /^More types/ }).click()
+  await menu.getByRole('button', { name: /^Formula( |$)/ }).click()
+  const dialog = page.getByRole('dialog', { name: 'New Formula column' })
+  await dialog.getByRole('button', { name: /^Advanced/ }).click()
+  await dialog.getByText('Columns and functions').click()
+  await dialog.getByRole('button', { name: 'SUM', exact: true }).click()
+  await dialog.getByRole('button', { name: 'Author' }).click()
+  await expect(dialog.getByRole('textbox', { name: 'Formula' })).toHaveValue(
+    /SUM\(\[Author\]$/,
+  )
+})

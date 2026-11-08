@@ -615,4 +615,7 @@ export const esO: Record<string, string> = {
   'list.sortManual': 'Orden manual',
   'list.ascending': 'Ascendente ↑',
   'list.descending': 'Descendente ↓',
+  'formula.helper': 'Columnas y funciones',
+  'formula.helper.columns': 'Toca una columna para añadirla:',
+  'formula.helper.functions': 'Toca una función para añadirla:',
 }

@@ -31,6 +31,7 @@ import {
 } from '../databaseService'
 import { typeName } from './columnLook'
 import { numberTyping } from './columnFilters'
+import { FormulaHelper } from './FormulaHelper'
 import { previewFormula, previewSentence } from './formulaPreview'
 import {
   firstOptionName,
@@ -560,6 +561,11 @@ export function ColumnDialog({
                     ? t('formula.means', { text: meaning })
                     : t('column.formulaHint')}
                 </p>
+                <FormulaHelper
+                  columns={columns.filter((c) => c.id !== editing?.id)}
+                  titleName={titleColumnName(database)}
+                  onInsert={(text) => patch({ formula: typed + text })}
+                />
                 {(typedRule || typed.trim() === '') && (
                   <button
                     type="button"

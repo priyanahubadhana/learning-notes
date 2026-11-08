@@ -593,4 +593,7 @@ export const hiO: Record<string, string> = {
   'list.sortManual': 'हाथ से क्रम',
   'list.ascending': 'बढ़ता ↑',
   'list.descending': 'घटता ↓',
+  'formula.helper': 'कॉलम और फ़ंक्शन',
+  'formula.helper.columns': 'जोड़ने के लिए कॉलम चुनें:',
+  'formula.helper.functions': 'जोड़ने के लिए फ़ंक्शन चुनें:',
 }

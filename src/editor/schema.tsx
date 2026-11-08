@@ -41,6 +41,11 @@ const createCallout = createReactBlockSpec(
     content: 'inline',
   },
   {
+    // A pasted Notion callout (see clipboard.ts) arrives as this marked div.
+    parse: (el) =>
+      el.hasAttribute('data-ln-callout')
+        ? { emoji: el.getAttribute('data-ln-callout') || '💡' }
+        : undefined,
     render: ({ block, contentRef }) => (
       <div className="flex w-full gap-3 rounded-lg bg-soft px-4 py-3.5">
         <span contentEditable={false} className="select-none">

@@ -2,6 +2,11 @@
 
 Current phase only. Older entries are in [ARCHIVE.md](ARCHIVE.md).
 
+## 2026-11-09 (Paste from Notion keeps toggles)
+
+- **What:** pasted HTML now keeps `details`/`summary` (only the `open` attribute), so Notion's toggles (`ul.toggle > li > details`, nested, and toggle headings) become our Toggle list or a toggle heading with children kept. Notion callouts (`figure.callout`) become our Callout with their icon (`data-ln-callout`, read by a new parse rule). A single blank line (empty paragraph) is kept; runs and edges are dropped. Markdown paste already reads `<details>` as a toggle (tested). Fixtures in src/editor/notionPaste.test.ts are rebuilt from Notion's HTML shapes (no live clipboard here).
+- **Files:** src/editor/clipboard.ts, schema.tsx, notionPaste.test.ts, e2e/copyPaste.spec.ts, docs/features/copy-paste.md
+
 ## 2026-11-09 (iPad fix 6b: hint line removed)
 
 - **What:** The hint line under the Notes/Summary/Review tabs (Type / for blocks ...) is gone, with its help entry and its English, Spanish and Hindi strings (the first-use tips teach the same things).

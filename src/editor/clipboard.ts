@@ -76,13 +76,16 @@ const KEEP = new Set([
   'p', 'br', 'div', 'span', 'h1', 'h2', 'h3', 'h4', 'h5', 'h6', 'ul', 'ol',
   'li', 'strong', 'b', 'em', 'i', 'u', 's', 'del', 'strike', 'code', 'pre',
   'blockquote', 'a', 'img', 'table', 'thead', 'tbody', 'tfoot', 'tr', 'th',
-  'td', 'hr', 'sub', 'sup', 'figure', 'figcaption', 'mark',
+  'td', 'hr', 'sub', 'sup', 'figure', 'figcaption', 'mark', 'details',
+  'summary',
 ]) // prettier-ignore
 
 /** The only attributes kept, per element. */
 const ATTRS: Record<string, string[]> = {
   a: ['href'],
   img: ['src', 'alt'],
+  details: ['open'],
+  div: ['data-ln-callout'],
   td: ['colspan', 'rowspan'],
   th: ['colspan', 'rowspan'],
 }
@@ -98,6 +101,41 @@ export const isSafeSrc = (value: string): boolean =>
   )
 
 /**
+ * Notion's callout (`figure.callout`: an icon box, then the text) becomes a
+ * plain div carrying only the icon, which our callout block reads. The icon
+ * is cut to two characters; the rest of the figure is kept as text.
+ */
+function markCallouts(doc: Document): void {
+  for (const fig of [...doc.querySelectorAll('figure.callout')]) {
+    const icon = fig.querySelector('.icon, [class*="icon"]')
+    const emoji = [...(icon?.textContent?.trim() ?? '')].slice(0, 2).join('')
+    icon?.closest('div')?.remove()
+    const box = doc.createElement('div')
+    box.setAttribute('data-ln-callout', emoji || '💡')
+    box.append(...[...fig.childNodes])
+    fig.replaceWith(box)
+  }
+}
+
+/**
+ * An empty paragraph (Notion's blank line) is dropped by the parser unless it
+ * holds a line break. Give each one a break, but keep at most one blank line
+ * in a row and none at the very start or end of the paste.
+ */
+function keepBlankLines(body: HTMLElement): void {
+  const isBlank = (el: Element | null) =>
+    el?.tagName === 'P' &&
+    !el.querySelector('img') &&
+    (el.textContent ?? '').replace(/[\p{Cf}\s]/gu, '') === ''
+  for (const p of [...body.querySelectorAll('p')]) {
+    if (!isBlank(p)) continue
+    const edge = !p.previousElementSibling || !p.nextElementSibling
+    if (edge || isBlank(p.previousElementSibling)) p.remove()
+    else p.replaceChildren(p.ownerDocument.createElement('br'))
+  }
+}
+
+/**
  * Makes pasted HTML safe: scripts, styles, frames, forms and event handlers
  * go; only a small set of text elements and attributes stay; links and
  * pictures must use safe addresses. The result is parsed into a detached
@@ -105,6 +143,7 @@ export const isSafeSrc = (value: string): boolean =>
  */
 export function sanitizePastedHtml(html: string): string {
   const doc = new DOMParser().parseFromString(html, 'text/html')
+  markCallouts(doc)
   const clean = (parent: Node) => {
     for (const node of [...parent.childNodes]) {
       if (node.nodeType === Node.COMMENT_NODE) {
@@ -139,6 +178,7 @@ export function sanitizePastedHtml(html: string): string {
     }
   }
   clean(doc.body)
+  keepBlankLines(doc.body)
   return doc.body.innerHTML
 }
 

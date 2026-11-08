@@ -351,3 +351,32 @@ test('the toolbar menu copies the selection as plain text and Markdown', async (
   await expect(toast(page, 'Copied')).toBeVisible()
   expect(await clipboardText(page)).toContain('first heart')
 })
+
+test('a Notion toggle with a sub-toggle pastes as our Toggle list', async ({
+  page,
+}) => {
+  await startPage(page)
+  await editor(page).click()
+  await page.evaluate(() => {
+    const data = new DataTransfer()
+    data.setData(
+      'text/html',
+      '<ul class="toggle"><li><details open=""><summary>Outer</summary><p>Inside</p>' +
+        '<ul class="toggle"><li><details open=""><summary>Inner</summary><p>Deep</p></details></li></ul>' +
+        '</details></li></ul>',
+    )
+    data.setData('text/plain', 'Outer\nInside\nInner\nDeep')
+    document.querySelector('.bn-editor')!.dispatchEvent(
+      new ClipboardEvent('paste', {
+        clipboardData: data,
+        bubbles: true,
+        cancelable: true,
+      }),
+    )
+  })
+  await expect(editor(page)).toContainText('Outer')
+  await expect(editor(page)).toContainText('Deep')
+  await expect(
+    editor(page).locator('[data-content-type="toggleListItem"]'),
+  ).toHaveCount(2)
+})

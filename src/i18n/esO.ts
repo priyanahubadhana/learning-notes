@@ -881,4 +881,8 @@ export const esO: Record<string, string> = {
   'lp.outline.toggles': 'Desplegables',
   'lp.outline.numbers': '1, 1.1',
   'lp.outline.fold': 'Plegar o desplegar',
+  'pasteChooser.embed': 'Insertar (vídeo)',
+  'pasteChooser.linkCard': 'Tarjeta de enlace',
+  'pasteChooser.link': 'Enlace',
+  'pasteChooser.plainUrl': 'URL sin formato',
 }

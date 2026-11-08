@@ -881,4 +881,8 @@ export const enO = {
   'settings.pasteMode.ask': 'Ask each time',
   'settings.pasteMode.keep': 'Keep format',
   'settings.pasteMode.plain': 'Plain text',
+  'pasteChooser.embed': 'Embed (video)',
+  'pasteChooser.linkCard': 'Link card',
+  'pasteChooser.link': 'Link',
+  'pasteChooser.plainUrl': 'Plain URL',
 }

@@ -4,7 +4,13 @@
 import { BlockNoteEditor } from '@blocknote/core'
 import { describe, expect, it } from 'vitest'
 import { sanitizePastedHtml } from './clipboard'
-import { applyPaste, choicesFor, planPaste, previewOf } from './pasteFlow'
+import {
+  applyPaste,
+  choicesFor,
+  labelKey,
+  planPaste,
+  previewOf,
+} from './pasteFlow'
 import {
   detectSource,
   fenceTrees,
@@ -237,5 +243,40 @@ describe('Notion database rows', () => {
   })
   it('our own copies are left to the default handler', () => {
     expect(planPaste({ html: '<p>x</p>', text: 'x', own: true })).toBeNull()
+  })
+})
+
+describe('a lone address', () => {
+  const url = 'https://youtu.be/dQw4w9WgXcQ?t=30'
+  it('is an embed plan with Embed, Link and Plain URL choices', async () => {
+    const plan = planPaste({ html: '', text: url, own: false })
+    expect(plan?.kind).toBe('url')
+    expect(choicesFor(plan!)).toEqual(['keep', 'link', 'plain'])
+    expect(labelKey(plan!, 'keep')).toBe('pasteChooser.embed')
+    const doc = await insertPlan(plan)
+    const embed = doc.find((b) => b.type === 'embed')!
+    expect(embed.props).toMatchObject({
+      provider: 'youtube',
+      videoId: 'dQw4w9WgXcQ',
+      start: 30,
+    })
+  })
+  it('a web page is a link card; an HTML link with the same words too', () => {
+    const plan = planPaste({
+      html: '<a href="https://example.com/a">https://example.com/a</a>',
+      text: 'https://example.com/a',
+      own: false,
+    })
+    expect(plan?.kind).toBe('url')
+    expect(labelKey(plan!, 'keep')).toBe('pasteChooser.linkCard')
+  })
+  it('a sentence with a link in it is not a lone address', () => {
+    expect(
+      planPaste({
+        html: '',
+        text: 'see https://example.com/a now',
+        own: false,
+      }),
+    ).toBeNull()
   })
 })

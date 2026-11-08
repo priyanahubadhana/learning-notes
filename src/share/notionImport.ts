@@ -220,6 +220,8 @@ export async function planNotionStream(
     if (failure instanceof NotionImportError) throw failure
     throw new NotionImportError('damaged')
   }
+  // Bytes that are not a zip show no entries at all.
+  if (count === 0) throw new NotionImportError('damaged')
   return buildPlan(raw, fileName)
 }
 

@@ -855,4 +855,8 @@ export const hiO: Record<string, string> = {
   'lp.outline.toggles': 'टॉगल',
   'lp.outline.numbers': '1, 1.1',
   'lp.outline.fold': 'समेटें या खोलें',
+  'pasteChooser.embed': 'एम्बेड करें (वीडियो)',
+  'pasteChooser.linkCard': 'लिंक कार्ड',
+  'pasteChooser.link': 'लिंक',
+  'pasteChooser.plainUrl': 'सादा URL',
 }

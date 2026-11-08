@@ -151,3 +151,29 @@ test.describe('the paste chooser', () => {
     await expect(editor(page)).toContainText('Second paste')
   })
 })
+
+test('a lone YouTube address becomes an Embed; the chip swaps it to a link and to plain text', async ({
+  page,
+}) => {
+  await page.addInitScript(() =>
+    localStorage.setItem('learning-notes:general.pasteMode', '"ask"'),
+  )
+  await start(page)
+  await paste(page, '', 'https://youtu.be/dQw4w9WgXcQ')
+  const dialog = page.getByRole('dialog', { name: 'Paste as' })
+  await expect(dialog.getByRole('option')).toHaveCount(3)
+  await expect(dialog.getByRole('option', { name: /Embed/ })).toBeVisible()
+  await page.keyboard.press('Enter')
+  await expect(editor(page).locator('[data-content-type="embed"]')).toHaveCount(
+    1,
+  )
+  const chip = page.getByRole('group', { name: 'Pasted as' })
+  await chip.getByRole('button', { name: 'Link', exact: true }).click()
+  await expect(editor(page).locator('[data-content-type="embed"]')).toHaveCount(
+    0,
+  )
+  await expect(editor(page).locator('a[href*="youtube.com"]')).toHaveCount(1)
+  await chip.getByRole('button', { name: 'Plain URL' }).click()
+  await expect(editor(page).locator('a[href*="youtube.com"]')).toHaveCount(0)
+  await expect(editor(page)).toContainText('https://youtu.be/dQw4w9WgXcQ')
+})

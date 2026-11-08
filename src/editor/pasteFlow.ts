@@ -20,6 +20,7 @@ import {
   markdownTableRows,
   treeSegments,
 } from './pasteSources'
+import { parseEmbedUrl } from './embed/embedUrl'
 
 /**
  * The paste pipeline. Order: our own copies keep everything (BlockNote's
@@ -32,9 +33,9 @@ import {
 type Editor = AppSchema['BlockNoteEditor']
 
 export type PasteKind =
-  'html' | 'markdown' | 'tree' | 'table' | 'database' | 'text'
+  'html' | 'markdown' | 'tree' | 'table' | 'database' | 'url' | 'text'
 
-export type PasteChoice = 'keep' | 'plain' | 'table'
+export type PasteChoice = 'keep' | 'plain' | 'table' | 'link'
 
 export interface PastePlan {
   kind: PasteKind
@@ -48,6 +49,8 @@ export interface PastePlan {
   header?: string[]
   /** The plain text on the clipboard. */
   text: string
+  /** The address (kind url). */
+  url?: string
   /** Rich content worth asking about. */
   rich: boolean
 }
@@ -101,6 +104,19 @@ export function planPaste(data: PasteData): PastePlan | null {
   if (data.own) return null
   const { html, text } = data
   const grid = /<table[\s>]/i.test(html) ? null : tsvToRows(text)
+  // A lone address (a video, a web page): embed, link or plain.
+  const lone = parseEmbedUrl(text.trim())
+  if (lone && !/\s/.test(text.trim()) && /^https?:\/\//i.test(text.trim())) {
+    const words = html
+      ? (
+          new DOMParser().parseFromString(html, 'text/html').body.textContent ??
+          ''
+        ).trim()
+      : text.trim()
+    if (words === text.trim()) {
+      return { kind: 'url', url: lone.url, text: text.trim(), rich: true }
+    }
+  }
   if (html) {
     const clean = sanitizePastedHtml(html)
     // Rows of a Notion database view: our Database block.
@@ -150,9 +166,15 @@ export function planPaste(data: PasteData): PastePlan | null {
 /** The choices a plan offers (the first is "Keep original format"). */
 export function choicesFor(plan: PastePlan): PasteChoice[] {
   const out: PasteChoice[] = ['keep']
+  if (plan.kind === 'url') out.push('link')
   if (plan.rich) out.push('plain')
   const rows = plan.rows ?? tsvToRows(plan.text) ?? markdownTableRows(plan.text)
-  if (rows && plan.kind !== 'table' && plan.kind !== 'database') {
+  if (
+    rows &&
+    plan.kind !== 'table' &&
+    plan.kind !== 'database' &&
+    plan.kind !== 'url'
+  ) {
     out.push('table')
   }
   return out.length > 1 ? out : ['keep']
@@ -162,13 +184,32 @@ export function choicesFor(plan: PastePlan): PasteChoice[] {
 const tableRowsOf = (plan: PastePlan): string[][] | null =>
   plan.rows ?? tsvToRows(plan.text) ?? markdownTableRows(plan.text)
 
+/** The text key naming a choice (an address says Embed / Link card / Plain URL). */
+export function labelKey(plan: PastePlan, choice: PasteChoice): string {
+  if (plan.kind === 'url') {
+    if (choice === 'keep') {
+      return parseEmbedUrl(plan.url ?? '')?.provider === 'youtube'
+        ? 'pasteChooser.embed'
+        : 'pasteChooser.linkCard'
+    }
+    if (choice === 'link') return 'pasteChooser.link'
+    return 'pasteChooser.plainUrl'
+  }
+  return choice === 'keep'
+    ? 'pasteChooser.keep'
+    : choice === 'table'
+      ? 'pasteChooser.asTable'
+      : 'pasteChooser.plain'
+}
+
 /** One short line shown under an option. */
 export function previewOf(plan: PastePlan, choice: PasteChoice): string {
   const clip = (s: string) => {
     const one = s.replace(/\s+/g, ' ').trim()
     return one.length > 60 ? `${one.slice(0, 57)}…` : one
   }
-  if (choice === 'plain') return clip(plan.text)
+  if (choice === 'plain' || choice === 'link') return clip(plan.text)
+  if (plan.kind === 'url') return clip(plan.url ?? plan.text)
   if (choice === 'table') {
     const r = tableRowsOf(plan)
     return r
@@ -293,6 +334,14 @@ export async function applyPaste(
     editor.transact(() => insertPlainText(editor, plan.text))
     return
   }
+  if (choice === 'link') {
+    editor.transact(() =>
+      editor.insertInlineContent([
+        { type: 'link', href: plan.url ?? plan.text, content: plan.text },
+      ] as never),
+    )
+    return
+  }
   if (choice === 'table') {
     const rows = tableRowsOf(plan)
     if (rows)
@@ -311,6 +360,23 @@ export async function applyPaste(
     case 'tree':
       editor.transact(() => insertBlocksAtCursor(editor, treeBlocks(plan.text)))
       return
+    case 'url': {
+      const parsed = parseEmbedUrl(plan.url ?? plan.text)
+      if (!parsed) return
+      const props =
+        parsed.provider === 'youtube'
+          ? {
+              url: parsed.url,
+              provider: 'youtube',
+              videoId: parsed.videoId,
+              start: parsed.start,
+            }
+          : { url: parsed.url, provider: 'link' }
+      editor.transact(() =>
+        insertBlocksAtCursor(editor, [{ type: 'embed', props }]),
+      )
+      return
+    }
     case 'table':
       editor.transact(() =>
         insertBlocksAtCursor(editor, [tableBlock(plan.rows ?? [])]),
@@ -339,6 +405,7 @@ export interface ChooserRequest {
 }
 export interface ChipState {
   owner: unknown
+  plan: PastePlan
   choices: PasteChoice[]
   current: PasteChoice
   swap: (choice: PasteChoice) => void
@@ -369,6 +436,7 @@ async function run(
   setUi({
     chip: {
       owner: editor,
+      plan,
       choices,
       current: choice,
       swap: (next) => {

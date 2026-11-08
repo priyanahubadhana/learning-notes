@@ -36,7 +36,7 @@ import { editorColorScheme } from '../app/theme'
 import { ThemeContext } from '../app/themeContext'
 import { listBlocks } from '../core/blockService'
 import { blocksOfBox, tagDrafts } from './boxScope'
-import { activeBox, boxEditors, useOwnsBar } from '../paper/activeBox'
+import { activeBox, useOwnsBar } from '../paper/activeBox'
 import { MAIN_BOX } from '../paper/boxes'
 import { syncCardRecords } from '../recall/cardService'
 import type { LearningNotesDB } from '../core/db'
@@ -109,7 +109,7 @@ import { closeWritePadFor, writePad } from './writePad/padState'
 import { WritePadLazy } from './writePad/WritePadLazy'
 import { ClashBarsLazy } from './ClashBarsLazy'
 import { PictureHandles } from './PictureHandles'
-import { pagination } from '../paper/paginate'
+import { pagination, paginationSpacers } from '../paper/paginate'
 import { stampLabel, stampPicture } from './embed/embedClock'
 import { StampWatcher } from './embed/StampWatcher'
 import { ImageError, imageObjectUrl, saveImage } from '../images/imageService'
@@ -335,6 +335,7 @@ function LoadedPageEditor({
       penTransactionGuard,
       ownSelection,
       pagination,
+      paginationSpacers,
     ],
     // The page scrolls only when the caret would be hidden (no jumps).
     _tiptapOptions: { editorProps: { handleScrollToSelection } },
@@ -819,13 +820,6 @@ function LoadedPageEditor({
     })
   })
   useEffect(() => () => clearActiveEditor(editor as never), [editor])
-  // The floating bar under a selected box formats this box's text.
-  useEffect(() => {
-    const id = boxId ?? MAIN_BOX
-    boxEditors.set(pageId, id, editor as never)
-    return () => boxEditors.clear(pageId, id, editor as never)
-  }, [editor, pageId, boxId])
-
   // One place decides what the page may do (see editPolicy.ts): ink tools make
   // it non-editable and inert so Scribble has nothing to write in.
   useEffect(() => {

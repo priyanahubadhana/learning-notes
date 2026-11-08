@@ -11,6 +11,7 @@ import {
   closePasteUi,
   pasteUiState,
   pasteUiSubscribe,
+  labelKey,
   previewOf,
   type ChooserRequest,
 } from './pasteFlow'
@@ -21,12 +22,6 @@ import {
  * State lives in pasteFlow.ts; one instance per page editor shows only the
  * requests of its own editor.
  */
-const LABEL = {
-  keep: 'pasteChooser.keep',
-  plain: 'pasteChooser.plain',
-  table: 'pasteChooser.asTable',
-} as const
-
 export function PasteChooser({ owner }: { owner: unknown }) {
   const ui = useSyncExternalStore(pasteUiSubscribe, pasteUiState)
   const chooser = ui.chooser?.owner === owner ? ui.chooser : null
@@ -58,7 +53,7 @@ export function PasteChooser({ owner }: { owner: unknown }) {
             onClick={() => chip.swap(choice)}
             className="min-h-11 rounded-full px-3 hover:bg-hover aria-pressed:bg-hover aria-pressed:font-medium"
           >
-            {t(LABEL[choice])}
+            {t(labelKey(chip.plan, choice) as never)}
           </button>
         ))}
       </div>,
@@ -120,7 +115,7 @@ function ChooserBox({ chooser }: { chooser: ChooserRequest }) {
                 className="flex min-h-11 w-full flex-col items-start justify-center rounded-lg border border-line px-3 py-1 text-start hover:bg-hover aria-selected:border-accent aria-selected:bg-hover"
               >
                 <span className="text-[14px] font-medium">
-                  {t(LABEL[choice])}
+                  {t(labelKey(plan, choice) as never)}
                   {i === 0 && (
                     <span className="ms-2 text-[12px] font-normal text-ink-soft">
                       {t('pasteChooser.default')}

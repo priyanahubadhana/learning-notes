@@ -2,6 +2,11 @@
 
 Current phase only. Older entries are in [ARCHIVE.md](ARCHIVE.md).
 
+## 2026-11-08 (Fix: paper hint no longer covers the page)
+
+- **What:** the tap hint had made the first sheet a positioned element, which painted over the page text and blocked taps (deviceModes, twoWindows, barFixes R6-8). The sheet is plain again; the hint sits in a zero-height, click-through layer. topBar item count is 17 (Paper style, Paper size). The new-page Paper row test is skipped on the iPad stand-in (name sheet flow).
+- **Files:** `src/paper/PaperFrame.tsx`, `e2e/{topBar,paperStyle}.spec.ts`.
+
 ## 2026-11-08 (Polish 2 item 9: paper style, size and sheet thumbnails)
 
 - **What:** page ⋯ menu gets Paper style (blank, lined, grid, dots) and Paper size (A4, Letter) submenus with ticks (`setPageInkBg`, new `setPageSheet`); a new, still-empty page shows a Paper style row above the template list (Pen pill entry kept); the left panel Pages tab shows one thumbnail per sheet under the open page when it has 2 or more sheets, and a tap scrolls to that sheet (`paper/sheetNav.ts`: the paper reports its sheets, nothing stored).

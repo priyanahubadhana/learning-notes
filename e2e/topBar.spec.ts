@@ -124,8 +124,8 @@ test.describe('phone and tablet', () => {
     expect(box.y + box.height).toBeLessThanOrEqual(844)
     // Page actions (review, history, full-screen reader, lock, favourite,
     // template, pause, import, export, search), then Copy & paste, Page address,
-    // Device mode, tool bar and Save & restore.
-    await expect(page.getByRole('menuitem')).toHaveCount(15)
+    // Device mode, tool bar and Save & restore; plus Paper style and size.
+    await expect(page.getByRole('menuitem')).toHaveCount(17)
 
     await page.getByRole('menuitem', { name: /Save & restore/ }).tap()
     await expect(

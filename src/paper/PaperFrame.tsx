@@ -535,12 +535,27 @@ export function PaperFrame({
                 tapPaper(e)
               }}
             >
+              {showHint && extra.length === 0 && (
+                // Zero height, so nothing moves; it never takes a click.
+                <div
+                  className="pointer-events-none"
+                  style={{ position: 'relative', height: 0 }}
+                >
+                  <p
+                    data-paper-hint
+                    className="absolute inset-x-0 mx-auto w-max max-w-[80%] text-center text-sm text-muted"
+                    style={{ top: box.y * k + step * 5 }}
+                  >
+                    {t('paper.hint')}
+                  </p>
+                </div>
+              )}
               {Array.from({ length: sheets }, (_, i) => (
                 <div
                   key={i}
                   data-paper-sheet={i + 1}
                   data-paper-bg={page.inkBg}
-                  className="relative rounded-sm border border-line bg-surface shadow-sm"
+                  className="rounded-sm border border-line bg-surface shadow-sm"
                   style={
                     {
                       height: sheetPx,
@@ -549,17 +564,7 @@ export function PaperFrame({
                       '--paper-offset': ((box.y * k) % step) + 'px',
                     } as CSSProperties
                   }
-                >
-                  {i === 0 && showHint && extra.length === 0 && (
-                    <p
-                      data-paper-hint
-                      className="pointer-events-none absolute inset-x-0 mx-auto w-max max-w-[80%] text-center text-sm text-muted"
-                      style={{ top: box.y * k + step * 5 }}
-                    >
-                      {t('paper.hint')}
-                    </p>
-                  )}
-                </div>
+                />
               ))}
               {hover &&
                 createPortal(

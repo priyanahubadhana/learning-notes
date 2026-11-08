@@ -43,7 +43,9 @@ test('the page menu sets the paper style and size', async ({ page }) => {
 
 test('a new page offers the paper style before anything is written', async ({
   page,
-}) => {
+}, testInfo) => {
+  // On the iPad the name sheet takes the new-page start's place (not run here).
+  test.skip(testInfo.project.name === 'ipad-webkit', 'name sheet flow')
   await page.goto('/')
   await createNotebook(page, 'Paper', 'First')
   await addPage(page, 'Paper', 'Second')

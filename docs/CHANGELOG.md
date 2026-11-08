@@ -2,6 +2,12 @@
 
 Current phase only. Older entries are in [ARCHIVE.md](ARCHIVE.md).
 
+## 2026-11-08 (Build fix: rollup without its native file)
+
+- **What:** devDependency `rollup` is now `npm:@rollup/wasm-node@4.67.3` (same rollup, WebAssembly instead of a native `.node` file).
+- **Why:** Windows Application Control blocked `rollup.win32-x64-msvc.node`, so `vite build` failed at the PWA step (no `sw.js`) and `npm run test:e2e` could not start. Turning that Windows feature off cannot be undone, so the build avoids the file instead.
+- **Files:** `package.json`, `package-lock.json`.
+
 ## 2026-11-08 (R8-6 Allow AI while locked)
 
 - **What:** AI never reads a locked page (or a page of a locked notebook) unless the notebook has the new switch Settings › Permissions › "Allow AI while locked" (off by default, shown under that notebook's Allow AI once that is on). `callAi` refuses first (`req.where = {db, pageId}`), so Convert to text, Write pad AI, Summarise, Key points, Cards, Ask this book, Story so far and Make cards all obey it; screens also say it up front (`blocker` gains `lockedOff`). Plain message `ai.lockedOff` says why and how to allow it. Stored as `Notebook.allowAiLocked` beside `allowAi` (no Dexie version; row check updated).

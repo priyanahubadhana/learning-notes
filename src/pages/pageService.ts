@@ -116,6 +116,16 @@ export async function setPageInkBg(
   await db.pages.update(id, { inkBg, updatedAt: Date.now() })
 }
 
+/** Sets the sheet size of a page's paper (A4 or Letter; undefined = A4). */
+export async function setPageSheet(
+  db: LearningNotesDB,
+  id: string,
+  sheet: Page['sheet'],
+): Promise<void> {
+  await getLive(db.pages, id)
+  await db.pages.update(id, { sheet, updatedAt: Date.now() })
+}
+
 /** Creates a page at the end of its siblings (top level if parentId is null). */
 export async function createPage(
   db: LearningNotesDB,

@@ -2,6 +2,12 @@
 
 Moved out of HANDOFF on 2026-11-06 (audit) so HANDOFF stays five lines. Newest first; each paragraph names its step. The run decision (master plan) is one owner iPad pass before Sync; the Phase A builder adds its checks at the top. Tick a paragraph by deleting it.
 
+## Paper style, size and sheet thumbnails (8 Nov, Polish 2 item 9)
+
+1. Page ⋯ › Paper style › Grid, then ⋯ › Paper size › Letter: the sheet changes at once. Needs eyes: the look of the lines at both sizes.
+2. New page: the Paper style row sits above the template list and feels reachable with the Pencil.
+3. Long page (2+ sheets), left panel › Pages: small sheet thumbnails under the open page; tap sheet 2 and the page scrolls to it.
+
 ## Paper hint and + box (8 Nov, Polish 2 item 8)
 
 1. New page: the faint hint is on the sheet; type a word and it goes. With the Pencil hovering (iPad Pro M2 or later) or a mouse over empty paper (Text tool), a small "+ box" tag follows; tap: a box appears. Needs human eyes: how faint and how helpful it feels.

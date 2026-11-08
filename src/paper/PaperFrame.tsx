@@ -24,6 +24,7 @@ import { clampBox, MIN_W } from './boxService'
 import { bounds, record, replay, waitFor, type Recorded } from './penOnPaper'
 import { activeTool } from '../app/tools/main/mainTools'
 import { BOX_COLOURS } from './usePaperBoxes'
+import { sheetNav } from './sheetNav'
 import {
   clampZoom,
   NARROW_PX,
@@ -50,7 +51,7 @@ export function PaperFrame({
   showHint = false,
   children,
 }: {
-  page: Pick<Page, 'sheet' | 'inkBg' | 'boxes'>
+  page: Pick<Page, 'id' | 'sheet' | 'inkBg' | 'boxes'>
   /** The block editor of a box other than the default one. */
   renderBox?: (boxId: string) => ReactNode
   /** A tap on empty paper (mm); unset = no new boxes (read-only). */
@@ -212,6 +213,20 @@ export function PaperFrame({
   // Wide: in the order they were made (a new box never moves another in the
   // page, so the caret stays); fit width: stacked in reading order.
   const extra = narrow ? readingOrder(stored) : stored
+
+  // The left panel shows this page's sheets as thumbnails.
+  const navSheet = page.sheet ?? 'A4'
+  useEffect(() => {
+    if (flat || narrow) sheetNav.set(null)
+    else
+      sheetNav.set({
+        pageId: page.id,
+        count: sheets,
+        sheet: navSheet,
+        bg: page.inkBg,
+      })
+  }, [flat, narrow, page.id, sheets, navSheet, page.inkBg])
+  useEffect(() => () => sheetNav.set(null), [])
 
   // Rule 4: a stroke on empty paper is recorded, a box is made under it and
   // the stroke is played into that box's ink pad.

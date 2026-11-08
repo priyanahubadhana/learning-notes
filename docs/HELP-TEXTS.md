@@ -2,7 +2,7 @@
 
 Every hover tip and help line in the app (shown while Settings › Show help is On). Generated from `src/help/helpRegistry.ts` and `src/i18n/en.ts`; to change a text, edit it in `en.ts`, then run `UPDATE_HELP=1 npx vitest run src/help` to refresh this file.
 
-## Hover tips (177)
+## Hover tips (178)
 
 ### `bar.newLine`
 
@@ -381,6 +381,12 @@ Every hover tip and help line in the app (shown while Settings › Show help is 
 - **Where:** A page › the zoom pill under the paper › %
 - **Meaning:** Shows the paper as wide as the window.
 - **Example:** Back to 100 % after zooming.
+
+### `paper.sheetThumb`
+
+- **Where:** Left panel › Pages › under the open page (long pages) › a sheet
+- **Meaning:** Jumps to this sheet of the page.
+- **Example:** On a long page, tap sheet 2 to go straight to it.
 
 ### `sidebar.rowMenu`
 

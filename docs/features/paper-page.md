@@ -30,8 +30,10 @@ Every page is paper. It shows as fixed sheets (A4, or Letter) with a border and 
 
 - **Discoverability (Polish 2 item 8).** Empty page: faint tap hint on the first sheet (first 3 pages per device); Text tool + mouse/Pencil hover on empty paper: "+ box" tag; the default box outlines while it has the caret.
 
+- **Paper style, size, thumbnails (Polish 2 item 9).** Page ⋯: Paper style and Paper size submenus; new-page start: Paper style row; left panel › Pages: sheet thumbnails of the open page (2+ sheets), tap = scroll to that sheet.
+
 ## Not yet
 
 - Ink rules 6 (Lasso ink + text as one piece) and 9 (copy a line with its ink); ink at a zoom other than 100 %.
 - PDF/print laid out as the paper (sheets, box places, ink in place).
-- New boxes by tapping on a phone; paper-size menu; sheet thumbnails in the left panel.
+- New boxes by tapping on a phone; a default paper style for new pages (Settings).

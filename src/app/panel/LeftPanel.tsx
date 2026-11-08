@@ -1,5 +1,14 @@
 import { useLiveQuery } from 'dexie-react-hooks'
-import { useEffect, useRef, useState } from 'react'
+import {
+  Fragment,
+  useEffect,
+  useRef,
+  useState,
+  type CSSProperties,
+} from 'react'
+import { Tip } from '../../help/Help'
+import { SHEETS } from '../../paper/boxes'
+import { jumpToSheet, useSheetInfo } from '../../paper/sheetNav'
 import { setAudioPanel, toggleRecording } from '../../audio/audioActions'
 import { EmptyState } from '../ui'
 import { useContext } from 'react'
@@ -137,14 +146,18 @@ function PagesTab({
   return (
     <>
       {flat.slice(0, MAX_ROWS).map(({ page, depth }) => (
-        <PageThumb
-          key={page.id}
-          db={db}
-          page={page}
-          depth={depth}
-          active={page.id === currentPageId}
-          onOpen={() => onOpenPage(page.id)}
-        />
+        <Fragment key={page.id}>
+          <PageThumb
+            db={db}
+            page={page}
+            depth={depth}
+            active={page.id === currentPageId}
+            onOpen={() => onOpenPage(page.id)}
+          />
+          {page.id === currentPageId && (
+            <SheetStrip pageId={page.id} depth={depth} />
+          )}
+        </Fragment>
       ))}
       {flat.length > MAX_ROWS && (
         <p className="px-1 text-xs text-muted">
@@ -315,5 +328,46 @@ export function LeftPanel({
         {tab === 'audio' && <AudioTab db={db} pageId={pageId} />}
       </div>
     </aside>
+  )
+}
+
+/** Thumbnails of the open page's sheets (long pages only); a tap jumps there. */
+function SheetStrip({ pageId, depth }: { pageId: string; depth: number }) {
+  const info = useSheetInfo()
+  if (!info || info.pageId !== pageId || info.count < 2) return null
+  const shape = SHEETS[info.sheet]
+  return (
+    <ul
+      aria-label={t('paper.sheets')}
+      data-sheet-strip
+      className="mb-1.5 flex flex-wrap gap-1.5 ps-1"
+      style={{ marginInlineStart: Math.min(depth, 3) * 10 }}
+    >
+      {Array.from({ length: Math.min(info.count, 60) }, (_, i) => (
+        <li key={i}>
+          <Tip id="paper.sheetThumb" touchInfo={false}>
+            <button
+              type="button"
+              data-chrome
+              data-sheet-thumb={i + 1}
+              aria-label={t('paper.sheetN', { n: i + 1 })}
+              onClick={() => jumpToSheet(i + 1)}
+              className="relative block w-10 rounded-sm border border-line bg-surface hover:border-accent"
+              style={
+                {
+                  aspectRatio: shape.w + ' / ' + shape.h,
+                  '--paper-step': '6px',
+                } as CSSProperties
+              }
+              data-paper-bg={info.bg}
+            >
+              <span className="absolute inset-x-0 bottom-0.5 text-center text-[10px] leading-none text-muted tabular-nums">
+                {i + 1}
+              </span>
+            </button>
+          </Tip>
+        </li>
+      ))}
+    </ul>
   )
 }

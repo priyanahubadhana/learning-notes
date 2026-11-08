@@ -6,6 +6,8 @@ import type { LearningNotesDB } from '../core/db'
 import { Tip } from '../help/Help'
 import { displayName } from '../i18n/defaultNames'
 import { t } from '../i18n/t'
+import { PAPER_STYLES, paperStyleKey } from '../pages/paperStyles'
+import { setPageInkBg } from '../pages/pageService'
 import { newPageStudySetting } from '../settings/builtinSettings'
 import { setSetting } from '../settings/settingsService'
 import { useSyncedSetting } from '../settings/useSetting'
@@ -46,6 +48,10 @@ export function NewPageStart({
     [db, workspaceId],
   )
   const always = useSyncedSetting(db, newPageStudySetting)
+  const paper = useLiveQuery(
+    async () => (await db.pages.get(pageId))?.inkBg,
+    [db, pageId],
+  )
   if (!blank || !templates) return null
 
   const others = templates.filter((x) => !x.isDaily && x.id !== study?.id)
@@ -66,6 +72,28 @@ export function NewPageStart({
       className="mt-3 mb-6 max-w-[560px] rounded-xl bg-soft p-3"
     >
       <p className="mb-2 text-[13px] text-ink-soft">{t('newPage.title')}</p>
+      <div
+        role="group"
+        aria-label={t('paper.style')}
+        data-new-page-paper
+        className="mb-2 flex flex-wrap items-center gap-1.5"
+      >
+        <span className="me-1 text-[13px] text-ink-soft">
+          {t('paper.style')}
+        </span>
+        {PAPER_STYLES.map((bg) => (
+          <button
+            key={bg ?? 'blank'}
+            type="button"
+            aria-pressed={paper === bg}
+            data-paper-style={bg ?? 'blank'}
+            onClick={() => runTask(setPageInkBg(db, pageId, bg))}
+            className="min-h-11 rounded-lg border border-line px-3 text-[13px] hover:border-accent hover:bg-hover aria-pressed:border-accent aria-pressed:bg-hover"
+          >
+            {t(paperStyleKey(bg))}
+          </button>
+        ))}
+      </div>
       <ul className="grid gap-1.5">
         {study && (
           <li>

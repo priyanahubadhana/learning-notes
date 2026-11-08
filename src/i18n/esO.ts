@@ -456,6 +456,12 @@ export const esO: Record<string, string> = {
   'paper.size': 'Tamaño del papel',
   'paper.sizeA4': 'A4',
   'paper.sizeLetter': 'Carta',
+  'paper.style': 'Estilo del papel',
+  'paper.sheetN': 'Hoja {n}',
+  'paper.sheets': 'Hojas de esta página',
+  'help.tip.paper.sheetThumb.meaning': 'Salta a esta hoja de la página.',
+  'help.tip.paper.sheetThumb.example':
+    'En una página larga, toca la hoja 2 para ir directo.',
   'paper.hint': 'Escribe, o toca el papel donde quieras para añadir un cuadro',
   'paper.addBox': '+ cuadro',
   'help.tip.paper.zoomIn.meaning': 'Hace el papel más grande.',

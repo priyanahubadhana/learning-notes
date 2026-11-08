@@ -33,8 +33,14 @@ import { t } from '../i18n/t'
 import { getNotebook } from '../notebooks/notebookService'
 import { isPageBlank, saveAsTemplate } from '../templates/templateService'
 import { hintPageOk } from '../paper/hintPages'
+import { PAPER_STYLES, paperStyleKey } from './paperStyles'
 import { NewPageStart } from '../templates/NewPageStart'
-import { getPagePath, setPagePathStyle } from './pageService'
+import {
+  getPagePath,
+  setPageInkBg,
+  setPagePathStyle,
+  setPageSheet,
+} from './pageService'
 import { PagePath } from './PagePath'
 
 import { resolvePathStyle } from './pathStyle'
@@ -230,6 +236,31 @@ export function PageView({
     // Only when another page opens.
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [page.id, notebookLoaded])
+  // Polish 2 item 9: the paper's style and size.
+  const paperItems: MenuItem[] = [
+    {
+      label: t('paper.style'),
+      icon: '▦',
+      onSelect: () => {},
+      submenu: PAPER_STYLES.map((bg) => ({
+        label: t(paperStyleKey(bg)),
+        icon: '▦',
+        checked: page.inkBg === bg,
+        onSelect: () => runTask(setPageInkBg(db, page.id, bg)),
+      })),
+    },
+    {
+      label: t('paper.size'),
+      icon: '▭',
+      onSelect: () => {},
+      submenu: (['A4', 'Letter'] as const).map((size) => ({
+        label: t(size === 'A4' ? 'paper.sizeA4' : 'paper.sizeLetter'),
+        icon: '▭',
+        checked: (page.sheet ?? 'A4') === size,
+        onSelect: () => runTask(setPageSheet(db, page.id, size)),
+      })),
+    },
+  ]
   const moreItems: MenuItem[] = [
     // Page actions first.
     ...(notebook && !isTemplate
@@ -244,6 +275,7 @@ export function PageView({
       : []),
     { label: t('history.button'), icon: '🕘', onSelect: openHistory },
     { label: t('tool.readerFull'), icon: '📖', onSelect: openReader },
+    ...(isTemplate ? [] : paperItems),
     ...lockItem,
     {
       label: t(starred ? 'fav.remove' : 'fav.add'),

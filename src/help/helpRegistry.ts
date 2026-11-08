@@ -123,6 +123,9 @@ export const TIPS = {
   'paper.zoomIn': { where: 'A page › the zoom pill under the paper › +' },
   'paper.zoomOut': { where: 'A page › the zoom pill under the paper › −' },
   'paper.zoomFit': { where: 'A page › the zoom pill under the paper › %' },
+  'paper.sheetThumb': {
+    where: 'Left panel › Pages › under the open page (long pages) › a sheet',
+  },
   'sidebar.rowMenu': { where: 'Sidebar › a row’s ⋯ (touch and Pencil)' },
   'sidebar.rename': { where: 'Sidebar › a notebook’s ✎ (on hover)' },
   'sidebar.deleteNotebook': { where: 'Sidebar › a notebook’s × (on hover)' },

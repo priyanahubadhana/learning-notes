@@ -14,6 +14,8 @@ import {
   movePage,
   movePageToTopLevel,
   renamePage,
+  setPageInkBg,
+  setPageSheet,
 } from './pageService'
 
 let db: LearningNotesDB
@@ -147,5 +149,17 @@ describe('pageService', () => {
     )
     expect((await db.blocks.get(keptBlock.id))?.deletedAt).toBeNull()
     await expect(createPage(db, nb, a.id)).rejects.toThrow('not found')
+  })
+
+  it('sets the paper style and sheet size of a page', async () => {
+    const a = await createPage(db, nb, null, 'A')
+    await setPageInkBg(db, a.id, 'grid')
+    await setPageSheet(db, a.id, 'Letter')
+    expect(await getPage(db, a.id)).toMatchObject({
+      inkBg: 'grid',
+      sheet: 'Letter',
+    })
+    await setPageInkBg(db, a.id, undefined)
+    expect((await getPage(db, a.id))?.inkBg).toBeUndefined()
   })
 })

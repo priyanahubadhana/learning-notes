@@ -450,6 +450,12 @@ export const enO = {
   'paper.size': 'Paper size',
   'paper.sizeA4': 'A4',
   'paper.sizeLetter': 'Letter',
+  'paper.style': 'Paper style',
+  'paper.sheetN': 'Sheet {n}',
+  'paper.sheets': 'Sheets of this page',
+  'help.tip.paper.sheetThumb.meaning': 'Jumps to this sheet of the page.',
+  'help.tip.paper.sheetThumb.example':
+    'On a long page, tap sheet 2 to go straight to it.',
   'paper.hint': 'Type, or tap anywhere on the paper to add a box',
   'paper.addBox': '+ box',
   'help.tip.paper.zoomIn.meaning': 'Makes the paper bigger.',

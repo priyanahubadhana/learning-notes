@@ -2,6 +2,12 @@
 
 Current phase only. Older entries are in [ARCHIVE.md](ARCHIVE.md).
 
+## 2026-11-08 (Polish 2 item 9: paper style, size and sheet thumbnails)
+
+- **What:** page ⋯ menu gets Paper style (blank, lined, grid, dots) and Paper size (A4, Letter) submenus with ticks (`setPageInkBg`, new `setPageSheet`); a new, still-empty page shows a Paper style row above the template list (Pen pill entry kept); the left panel Pages tab shows one thumbnail per sheet under the open page when it has 2 or more sheets, and a tap scrolls to that sheet (`paper/sheetNav.ts`: the paper reports its sheets, nothing stored).
+- **Why:** the paper choices sat only in the Pen pill; long pages had no way to jump between sheets.
+- **Files:** `src/paper/{sheetNav,sheets,PaperFrame}`, `src/pages/{PageView,pageService}`, `src/templates/NewPageStart.tsx`, `src/app/panel/LeftPanel.tsx`, `src/help/helpRegistry.ts`, `docs/HELP-TEXTS.md`, `src/i18n/{en,es,hi}O.ts`, `e2e/paperStyle.spec.ts`, `playwright.config.ts`.
+
 ## 2026-11-08 (Polish 2 item 8: paper shows a tap makes a box)
 
 - **What:** an empty page shows a faint "Type, or tap anywhere on the paper to add a box" on the first sheet (first 3 pages opened on a device, kept in this browser only, gone once the page has words); with the Text tool, a mouse or Pencil hovering empty paper shows a "+ box" tag by the pointer (body portal, not on touch); the default box shows a dashed outline while it has the caret.

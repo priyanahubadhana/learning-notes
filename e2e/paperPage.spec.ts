@@ -177,3 +177,41 @@ test('the Lasso on the paper picks boxes; moving one moves them all', async ({
     })
     .toBe(true)
 })
+
+test('fit width on a phone: the boxes stack under the text in reading order', async ({
+  page,
+}) => {
+  await startInMode(page, 'computer')
+  await page.goto('/')
+  await createNotebook(page, 'Paper', 'Phone')
+  await typeInEditor(page, 'Main text')
+  const sheet = (await page.locator('[data-paper-sheet="1"]').boundingBox())!
+  const main0 = (await page.locator('[data-paper-box="main"]').boundingBox())!
+  const extra = page.locator('[data-paper-box]:not([data-paper-box="main"])')
+  // Right box first, then a left box on the same row.
+  for (const [i, fx] of [0.55, 0.1].entries()) {
+    await page.mouse.click(
+      sheet.x + sheet.width * fx,
+      main0.y + main0.height + 50,
+    )
+    await expect(extra).toHaveCount(i + 1)
+    await page.keyboard.type(i === 0 ? 'Right box' : 'Left box')
+  }
+  await page.waitForTimeout(600)
+  await page.setViewportSize({ width: 390, height: 844 })
+  await expect(page.locator('[data-paper-sheet]')).toHaveCount(0)
+  const main = (await page.locator('[data-paper-box="main"]').boundingBox())!
+  await expect(extra.first()).toContainText('Left box')
+  await expect(extra.nth(1)).toContainText('Right box')
+  const a = (await extra.first().boundingBox())!
+  const b = (await extra.nth(1).boundingBox())!
+  for (const r of [a, b]) {
+    expect(Math.abs(r.x - main.x)).toBeLessThan(2)
+    expect(Math.abs(r.width - main.width)).toBeLessThan(2)
+  }
+  expect(a.y).toBeGreaterThan(main.y + main.height - 1)
+  expect(b.y).toBeGreaterThan(a.y + a.height - 1)
+  // No sideways scroll on the phone.
+  const sw = await page.evaluate(() => document.documentElement.scrollWidth)
+  expect(sw).toBeLessThanOrEqual(390)
+})

@@ -26,9 +26,10 @@ Every page is paper. It shows as fixed sheets (A4, or Letter) with a border and 
 
 - **Step 5.** Lasso on empty paper picks boxes; moving one moves all picked (with their ink). Reading order (top to bottom, then left to right) for read aloud, Tab and export. Search, sync and backups carry boxes through the page and block rows.
 
+- **Step 6.** Fit width below a 480 px column: no sheets, boxes stacked in reading order, column wide.
+
 ## Not yet
 
 - Ink rules 6 (Lasso ink + text as one piece) and 9 (copy a line with its ink); ink at a zoom other than 100 %.
 - PDF/print laid out as the paper (sheets, box places, ink in place).
-- Fit width on phones (step 6).
-- Sheet thumbnails in the left panel, and a menu to choose the paper size.
+- New boxes by tapping on a phone; paper-size menu; sheet thumbnails in the left panel.

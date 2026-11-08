@@ -23,7 +23,13 @@ import { clampBox, MIN_W } from './boxService'
 import { bounds, record, replay, waitFor, type Recorded } from './penOnPaper'
 import { activeTool } from '../app/tools/main/mainTools'
 import { BOX_COLOURS } from './usePaperBoxes'
-import { clampZoom, paperStepMm, sheetCount, SHEET_GAP_PX } from './sheets'
+import {
+  clampZoom,
+  NARROW_PX,
+  paperStepMm,
+  sheetCount,
+  SHEET_GAP_PX,
+} from './sheets'
 
 /**
  * Phase Q step 2: the page shown as paper. Fixed sheets (A4 or Letter) with
@@ -189,7 +195,10 @@ export function PaperFrame({
   }, [])
 
   const step = paperStepMm(page.inkBg) * k
-  const total = sheets * (sheetPx + SHEET_GAP_PX) - SHEET_GAP_PX
+  // Step 6: a phone or narrow window shows "fit width": no sheets, the boxes
+  // stacked under the page's text in reading order, as wide as the column.
+  const narrow = !flat && fit > 0 && fit < NARROW_PX
+  const total = narrow ? 0 : sheets * (sheetPx + SHEET_GAP_PX) - SHEET_GAP_PX
   // In reading order, so read aloud and Tab meet them as they are read.
   const extra = readingOrder(boxesOf(page).filter((b) => b.id !== MAIN_BOX))
 
@@ -327,7 +336,7 @@ export function PaperFrame({
                 } as CSSProperties)
           }
         >
-          {!flat && (
+          {!flat && !narrow && (
             <div
               data-paper-sheets
               onPointerDown={penDown}
@@ -378,12 +387,16 @@ export function PaperFrame({
               data-paper-boxes
               // After the default box in the page, so read aloud and the keyboard
               // meet the boxes after the page's own text; moved up to the top.
-              style={{
-                position: 'relative',
-                height: 0,
-                zIndex: 6,
-                top: -boxBottom,
-              }}
+              style={
+                narrow
+                  ? { position: 'relative', paddingBottom: MARGIN * k }
+                  : {
+                      position: 'relative',
+                      height: 0,
+                      zIndex: 6,
+                      top: -boxBottom,
+                    }
+              }
             >
               {loop && (
                 <svg
@@ -414,6 +427,7 @@ export function PaperFrame({
                   onChange={(patch) => onBoxChange?.(b.id, patch)}
                   onMenu={(at) => onBoxMenu?.(b, at)}
                   picked={picked.includes(b.id)}
+                  stacked={narrow ? { x: box.x, w: box.w } : null}
                   onMoved={(dx, dy) => {
                     // The other picked boxes go the same way.
                     for (const o of extra) {
@@ -499,6 +513,7 @@ function BoxFrame({
   onMenu,
   picked,
   onMoved,
+  stacked,
   children,
 }: {
   box: PaperBox
@@ -513,6 +528,8 @@ function BoxFrame({
   onMenu: (at: DOMRect) => void
   /** Picked by the Lasso on the paper. */
   picked: boolean
+  /** Fit width (step 6): in the page's flow at this x and width (mm). */
+  stacked: { x: number; w: number } | null
   /** The box was moved by (mm); the other picked boxes follow. */
   onMoved: (dx: number, dy: number) => void
   children: ReactNode
@@ -566,11 +583,14 @@ function BoxFrame({
       data-paper-box={box.id}
       data-locked={box.locked ? '' : undefined}
       data-picked={picked ? '' : undefined}
-      className="group absolute rounded-md outline-1 outline-dashed outline-transparent hover:outline-line focus-within:outline-line data-picked:outline-2 data-picked:outline-solid data-picked:outline-accent"
+      className={
+        (stacked ? 'relative mt-8 ' : 'absolute ') +
+        'group rounded-md outline-1 outline-dashed outline-transparent hover:outline-line focus-within:outline-line data-picked:outline-2 data-picked:outline-solid data-picked:outline-accent'
+      }
       style={{
-        left: shown.x * k,
-        top: shown.y * k,
-        width: shown.w * k,
+        ...(stacked
+          ? { marginLeft: stacked.x * k, width: stacked.w * k }
+          : { left: shown.x * k, top: shown.y * k, width: shown.w * k }),
         background: box.colour
           ? `color-mix(in srgb, ${BOX_COLOURS[box.colour] ?? box.colour} 14%, transparent)`
           : undefined,
@@ -580,7 +600,7 @@ function BoxFrame({
         data-chrome
         className="absolute -top-6 left-0 right-0 flex h-6 items-center justify-between opacity-0 transition-opacity group-hover:opacity-100 group-focus-within:opacity-100 pointer-coarse:opacity-100"
       >
-        {box.locked ? (
+        {box.locked || stacked ? (
           <span aria-hidden className="px-1 text-xs text-muted">
             🔒
           </span>
@@ -610,6 +630,7 @@ function BoxFrame({
         </button>
       </div>
       {!box.locked &&
+        !stacked &&
         (['left', 'right'] as const).map((how) => (
           <div
             key={how}

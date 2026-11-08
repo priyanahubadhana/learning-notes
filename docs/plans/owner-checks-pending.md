@@ -2,6 +2,16 @@
 
 Moved out of HANDOFF on 2026-11-06 (audit) so HANDOFF stays five lines. Newest first; each paragraph names its step. The run decision (master plan) is one owner iPad pass before Sync; the Phase A builder adds its checks at the top. Tick a paragraph by deleting it.
 
+## Phase Q paper page, steps 4–6 (8 Nov)
+
+1. A new page opens with the keyboard ready in the top box; tapping the title edits the title.
+2. Write with the Pencil over a line in a box, then add lines above it: the ink moves with its line. Delete a line that has ink: the ink stays, with the next line.
+3. Draw a big picture over several lines: it moves as one piece with its top line.
+4. Write with the Pencil on empty paper beside or below the text: a box with lines appears under the writing and the stroke stays.
+5. Lasso some ink: a faint dashed line points to its text line. Drag it to another line: it now moves with that line.
+6. Lasso on empty paper around two boxes: both get an outline; drag one by its grip and both move with their ink.
+7. On the iPhone (or a narrow window): the boxes are stacked under the text, full width, in reading order; no sideways scroll.
+
 ## Phase Q paper page, steps 1–3 (8 Nov)
 
 1. Open an old page. It shows on an A4 sheet, with the text exactly where it was before and nothing missing. Turn on lined, grid or dots in the Pen pill: the sheet shows the lines.

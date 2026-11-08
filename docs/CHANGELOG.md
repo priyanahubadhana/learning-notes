@@ -2,6 +2,12 @@
 
 Current phase only. Older entries are in [ARCHIVE.md](ARCHIVE.md).
 
+## 2026-11-08 (Phase Q step 6: fit width on phones)
+
+- **What:** below a 480 px column (phones, narrow windows) the paper shows "fit width": no sheets, the boxes stacked under the page's text in reading order, each as wide as the column, no grip or edges (their places on the paper are kept for wider screens); no sideways scroll.
+- **Not yet:** making a new box by tapping on a phone (a tap below the text adds a line, as before).
+- **Files:** `src/paper/{PaperFrame,sheets}.ts(x)`, `e2e/paperPage.spec.ts`.
+
 ## 2026-11-08 (Phase Q step 5: Lasso over boxes, reading order, export)
 
 - **What:** the Lasso drawn on empty paper picks whole boxes (dashed loop; picked boxes get an accent outline); moving one picked box by its grip moves them all, and their ink goes with them (it is linked to their lines). Reading order everywhere: boxes are in the page in reading order (top to bottom, then left to right) after the default box, so read aloud and Tab meet them in that order; Export (PDF/print, Word, Markdown, Text) writes the blocks box by box in that order (`paper/boxes.ts` `inPaperOrder`). Search already finds box text and opens the page at it; sync and backups carry `Page.boxes`, `Page.sheet` and `Block.boxId` through the existing page and block rows (checked in `share/checkRows.ts`).

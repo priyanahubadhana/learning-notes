@@ -68,16 +68,18 @@ export function IconButton({
 export function RowMenuButton({
   name,
   onOpen,
+  narrowToo = false,
 }: {
   name: string
   onOpen: (anchor: DOMRect) => void
+  /** Also for a mouse when the row (an `@container`) is narrow. */
+  narrowToo?: boolean
 }) {
   return (
     <IconButton
       title={t('sidebar.rowMenu', { name })}
       tip="sidebar.rowMenu"
-      style={{ minWidth: 44 }}
-      className="hidden items-center justify-center any-pointer-coarse:flex"
+      className={`hidden items-center justify-center any-pointer-coarse:flex [@media(any-pointer:coarse)]:min-w-[44px]! ${narrowToo ? '@max-[19rem]:flex' : ''}`}
       onClick={(e) => onOpen(e.currentTarget.getBoundingClientRect())}
     >
       ⋯
@@ -182,6 +184,8 @@ export interface MenuItem {
   submenu?: MenuItem[]
   /** Destroys something: shown in red and always listed last. */
   danger?: boolean
+  /** Red but kept where it was put, not moved to the end. */
+  inPlace?: boolean
 }
 
 /**
@@ -271,8 +275,8 @@ export function MenuPopover({
       <PopupHeader onClose={onDone ?? onClose} />
       {/* Destructive items are red and come last. */}
       {[
-        ...items.filter((i) => !i.danger),
-        ...items.filter((i) => i.danger),
+        ...items.filter((i) => !i.danger || i.inPlace),
+        ...items.filter((i) => i.danger && !i.inPlace),
       ].map((item) => (
         <button
           key={item.label}

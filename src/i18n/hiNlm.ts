@@ -92,4 +92,12 @@ export const hiNlm: Record<string, string> = {
   'tabs.db.empty': 'यहाँ अभी कोई डेटाबेस नहीं है।',
   'tabs.db.rows': '{count} पंक्तियाँ',
   'tabs.db.openAll': 'सभी डेटाबेस',
+  'trashDel.page': '“{name}” ट्रैश में भेजा गया',
+  'trashDel.pageSubs_one': '“{name}” और {count} उप-पृष्ठ ट्रैश में भेजे गए',
+  'trashDel.pageSubs_other': '“{name}” और {count} उप-पृष्ठ ट्रैश में भेजे गए',
+  'trashDel.notebook': '“{name}” ट्रैश में भेजी गई',
+  'trashDel.confirmNotebook_one':
+    '“{name}” और उसका {count} पृष्ठ ट्रैश में भेजें? आप इसे पूर्ववत कर सकते हैं।',
+  'trashDel.confirmNotebook_other':
+    '“{name}” और उसके {count} पृष्ठ ट्रैश में भेजें? आप इसे पूर्ववत कर सकते हैं।',
 }

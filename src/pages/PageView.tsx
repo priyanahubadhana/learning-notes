@@ -47,6 +47,7 @@ import {
   setPageSheet,
 } from './pageService'
 import { PagePath } from './PagePath'
+import { trashPageWithUndo } from './pageTrash'
 
 import { resolvePathStyle } from './pathStyle'
 import { pageAddressItem } from './pageAddressMenu'
@@ -106,7 +107,7 @@ interface PageViewProps {
   autoFocusTitle: boolean
   /** Show the template chooser though the title is not focused (first page of a new notebook). */
   offerStart?: boolean
-  onOpenPage: (pageId: string) => void
+  onOpenPage: (pageId: string | null) => void
   /** Opens a page just created from inside this page. */
   onOpenNewPage: (page: Page) => void
   /** "New page from this template" (template pages only). */
@@ -332,12 +333,11 @@ export function PageView({
     ...(notebook && !isTemplate
       ? [pauseMenuItem(db, 'page', page.id, page.title, !!page.paused, toast)]
       : []),
+    // The real import options (Notion, NotebookLM, files) live in Save & restore.
     {
       label: t('page.import'),
       icon: '⤓',
-      disabled: true,
-      hint: t('page.comingSoon'),
-      onSelect: () => {},
+      onSelect: onOpenBackup,
     },
     {
       label: t('page.export'),
@@ -388,6 +388,20 @@ export function PageView({
       label: t(barPlacement === 'floating' ? 'bar.show' : 'bar.hide'),
       icon: '☰',
       onSelect: () => toggleToolBar(),
+    },
+    // Red, just above Save & restore.
+    {
+      label: t('tree.deletePage'),
+      icon: '×',
+      danger: true,
+      inPlace: true,
+      onSelect: () =>
+        runTask(
+          trashPageWithUndo(db, page, toast, {
+            onGone: () => onOpenPage(page.parentId),
+            onBack: () => onOpenPage(page.id),
+          }),
+        ),
     },
     {
       label: t('page.restoreBackup'),

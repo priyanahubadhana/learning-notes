@@ -95,4 +95,13 @@ export const enNlm = {
   'tabs.db.empty': 'No databases here yet.',
   'tabs.db.rows': '{count} rows',
   'tabs.db.openAll': 'All databases',
+  // ---- Move to Trash with Undo (page menu, sidebar ✕) ----
+  'trashDel.page': 'Moved “{name}” to Trash',
+  'trashDel.pageSubs_one': 'Moved “{name}” and {count} sub-page to Trash',
+  'trashDel.pageSubs_other': 'Moved “{name}” and {count} sub-pages to Trash',
+  'trashDel.notebook': 'Moved “{name}” to Trash',
+  'trashDel.confirmNotebook_one':
+    'Move “{name}” and its {count} page to Trash? You can undo this.',
+  'trashDel.confirmNotebook_other':
+    'Move “{name}” and its {count} pages to Trash? You can undo this.',
 } as const

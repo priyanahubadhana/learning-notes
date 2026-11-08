@@ -96,4 +96,13 @@ export const esNlm: Record<string, string> = {
   'tabs.db.empty': 'Aún no hay bases de datos aquí.',
   'tabs.db.rows': '{count} filas',
   'tabs.db.openAll': 'Todas las bases de datos',
+  'trashDel.page': '“{name}” movida a la papelera',
+  'trashDel.pageSubs_one': '“{name}” y {count} subpágina movidas a la papelera',
+  'trashDel.pageSubs_other':
+    '“{name}” y {count} subpáginas movidas a la papelera',
+  'trashDel.notebook': '“{name}” movido a la papelera',
+  'trashDel.confirmNotebook_one':
+    '¿Mover “{name}” y su {count} página a la papelera? Puedes deshacerlo.',
+  'trashDel.confirmNotebook_other':
+    '¿Mover “{name}” y sus {count} páginas a la papelera? Puedes deshacerlo.',
 }

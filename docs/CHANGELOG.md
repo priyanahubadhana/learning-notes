@@ -8,6 +8,12 @@ Current phase only. Older entries are in [ARCHIVE.md](ARCHIVE.md).
 - **Why:** owner request; hidden notebooks went unnoticed behind a red dot.
 - **Files:** `src/sync/{lockedStatus,LockedAlertGate,LockedAlert}.ts(x)`, `syncService.ts`, `SyncSection.tsx`, `src/App.tsx`, `src/i18n/{en,hi,es}O.ts`, `src/sync/lockedStatus.test.ts`, `e2e/lockedAlert.spec.ts`, docs.
 
+## 2026-11-08 (Testing-week fixes batch)
+
+- **What:** (1) `aiPicker.spec.ts:150` failed on chromium because the test looked once for the privacy sheet's "I understand" button right after the click; the sheet opens a moment later, so the test skipped it and waited for the preview in vain. It now waits for whichever shows first. `ribbonLayout.spec.ts` "Reset ribbon" retries the open + pick after a reload (the first tap could land before the bar was wired); review.spec.ts passed 4 repeats, no flake found. (2) CI: the last two main runs failed only at `npm run format:check` (privacy.html, prompt-library research, vite.config.ts), which skipped the tests behind it; formatted. The "Live site check" is red only because deploys were blocked; it follows the next deploy. (3) Size trim: help tips (`enH.ts`) and settings descriptions, memory-template and read-aloud texts (`enS.ts`) load late with `enO`; first load 313.0 to 299.3 KB gzipped. (4) A search hit inside a paper box that is still a placeholder now wakes that box (`paper/wakeBox.ts`, called from `revealBlock`) and then scrolls to and highlights the block; new `e2e/paperSearchJump.spec.ts` (also on ipad-webkit). (5) Deleted the remote branches `diag/ink-budget-head` and `diag/ink-budget-live`.
+- **Why:** owner's one-week testing period; keep CI green and under the size cap.
+- **Files:** `e2e/aiPicker.spec.ts`, `e2e/ribbonLayout.spec.ts`, `e2e/paperSearchJump.spec.ts`, `playwright.config.ts`, `src/i18n/en*.ts`, `src/i18n/enH.ts`, `src/i18n/enS.ts`, `src/app/reading/readingKeys.test.ts`, `src/editor/revealBlock.ts`, `src/paper/PaperFrame.tsx`, `src/paper/wakeBox.ts`, `docs/features/paper-page.md`.
+
 ## 2026-11-08 (Privacy page for Google publishing)
 
 - **What:** `public/privacy.html`, a short plain privacy policy (local-first, end-to-end encrypted Sync, own-key AI, no tracking, how to delete); the service worker no longer swaps it for the app (`navigateFallbackDenylist`). Also the prompt library research (`docs/research/prompt-library-2026-11.md`).

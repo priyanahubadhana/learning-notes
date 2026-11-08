@@ -398,7 +398,7 @@ export interface Database extends BaseRecord {
    * 'studyTracker': the notebook's Study tracker; its rows are the
    * notebook's top-level pages (lessons), not row pages. Unset = normal.
    */
-  kind?: 'studyTracker'
+  kind?: 'studyTracker' | 'promptLibrary'
   /**
    * Name of the title column (the row page's title), e.g. "Name" or
    * "Lesson"; formulas refer to it as `[Name]`. Unset = "Name".

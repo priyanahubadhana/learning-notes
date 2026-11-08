@@ -11,6 +11,7 @@ import type { Page } from '../core/types'
 import { t } from '../i18n/t'
 import { useImageUrl } from '../images/useImageUrl'
 import { imageRef } from '../images/imageRef'
+import { PromptsEntry } from '../prompts/PromptsEntry'
 import { inspectBook } from './inspect'
 import {
   LibraryError,
@@ -133,6 +134,7 @@ export function LibraryScreen({
         >
           {t('library.capture')}
         </button>
+        <PromptsEntry db={db} workspaceId={workspaceId} />
       </div>
       <p className="mb-4 text-xs text-muted">{t('library.importHint')}</p>
       {busy && (

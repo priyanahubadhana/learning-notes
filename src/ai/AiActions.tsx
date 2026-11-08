@@ -24,6 +24,7 @@ import {
   type AiAction,
 } from './aiRun'
 import { PopupHeader } from '../app/tools/PopupClose'
+import { PromptsEntry } from '../prompts/PromptsEntry'
 import { AiError, PROVIDERS } from './provider'
 
 const isBool = (v: unknown): v is boolean => typeof v === 'boolean'
@@ -59,7 +60,16 @@ export function AiActions({
     [db, page.notebookId],
   )
   const config = forNotebook(readAiConfig(), notebook)
-  if (!config.enabled) return null
+  const prompts = (
+    <PromptsEntry
+      db={db}
+      workspaceId={workspaceId}
+      page={page}
+      onChanged={onChanged}
+    />
+  )
+  // The paste-in path needs no AI: the Prompts button shows either way.
+  if (!config.enabled) return prompts
 
   const undoable = (batchId: string, label: string) => {
     onChanged()
@@ -127,6 +137,7 @@ export function AiActions({
   }
   return (
     <>
+      {prompts}
       {actions.map(([action, key, id]) => (
         <button
           key={action}

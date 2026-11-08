@@ -24,7 +24,7 @@ test('a search hit in a far, placeholder box wakes its editor and scrolls to the
       open.onsuccess = () => res(open.result)
     })
     const read = (store: string) =>
-      new Promise<Record<string, any>[]>((res) => {
+      new Promise<Record<string, unknown>[]>((res) => {
         const r = db.transaction(store).objectStore(store).getAll()
         r.onsuccess = () => res(r.result)
       })

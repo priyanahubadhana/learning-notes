@@ -914,4 +914,5 @@ export const enO = {
   'embed.vimeo': 'Vimeo',
   'embed.loom': 'Loom',
   'embed.video': 'Video file',
+  'pasteChooser.cleaned': 'Cleaned up',
 }

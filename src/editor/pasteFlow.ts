@@ -21,6 +21,7 @@ import {
   treeSegments,
 } from './pasteSources'
 import { parseEmbedUrl } from './embed/embedUrl'
+import { readAiConfig } from '../ai/route'
 
 /**
  * The paste pipeline. Order: our own copies keep everything (BlockNote's
@@ -35,7 +36,10 @@ type Editor = AppSchema['BlockNoteEditor']
 export type PasteKind =
   'html' | 'markdown' | 'tree' | 'table' | 'database' | 'url' | 'text'
 
-export type PasteChoice = 'keep' | 'plain' | 'table' | 'link'
+export type PasteChoice = 'keep' | 'plain' | 'table' | 'link' | 'cleanup'
+
+/** Longest text one AI clean-up takes (cleanupAi.ts has the same limit). */
+const CLEANUP_MAX = 24_000
 
 export interface PastePlan {
   kind: PasteKind
@@ -53,6 +57,8 @@ export interface PastePlan {
   url?: string
   /** Rich content worth asking about. */
   rich: boolean
+  /** The Markdown came back from "Clean up with AI". */
+  cleaned?: boolean
 }
 
 /** What the browser gave us (a ClipboardEvent's data, or a test double). */
@@ -163,6 +169,20 @@ export function planPaste(data: PasteData): PastePlan | null {
   return null
 }
 
+/** Is "Clean up with AI" offered: messy text, AI on with a key, not too long. */
+export function cleanupOffered(plan: PastePlan): boolean {
+  if (
+    plan.cleaned ||
+    !['html', 'markdown', 'text', 'tree'].includes(plan.kind)
+  ) {
+    return false
+  }
+  const n = plan.text.trim().length
+  if (n < (plan.rich ? 40 : 200) || n > CLEANUP_MAX) return false
+  const c = readAiConfig()
+  return c.enabled && c.candidates.length > 0
+}
+
 /** The choices a plan offers (the first is "Keep original format"). */
 export function choicesFor(plan: PastePlan): PasteChoice[] {
   const out: PasteChoice[] = ['keep']
@@ -177,6 +197,7 @@ export function choicesFor(plan: PastePlan): PasteChoice[] {
   ) {
     out.push('table')
   }
+  if (cleanupOffered(plan)) out.push('cleanup')
   return out.length > 1 ? out : ['keep']
 }
 
@@ -195,8 +216,11 @@ export function labelKey(plan: PastePlan, choice: PasteChoice): string {
     if (choice === 'link') return 'pasteChooser.link'
     return 'pasteChooser.plainUrl'
   }
+  if (choice === 'cleanup') return 'pasteChooser.cleanup'
   return choice === 'keep'
-    ? 'pasteChooser.keep'
+    ? plan.cleaned
+      ? 'pasteChooser.cleaned'
+      : 'pasteChooser.keep'
     : choice === 'table'
       ? 'pasteChooser.asTable'
       : 'pasteChooser.plain'
@@ -208,6 +232,7 @@ export function previewOf(plan: PastePlan, choice: PasteChoice): string {
     const one = s.replace(/\s+/g, ' ').trim()
     return one.length > 60 ? `${one.slice(0, 57)}…` : one
   }
+  if (choice === 'cleanup') return t('pasteChooser.preview.cleanup')
   if (choice === 'plain' || choice === 'link') return clip(plan.text)
   if (plan.kind === 'url') return clip(plan.url ?? plan.text)
   if (choice === 'table') {
@@ -247,6 +272,7 @@ export interface PasteContext {
   toast: (message: string) => void
 }
 let context: PasteContext | null = null
+export const pasteContext = (): PasteContext | null => context
 export const setPasteContext = (c: PasteContext | null): void => {
   context = c
 }
@@ -410,8 +436,20 @@ export interface ChipState {
   current: PasteChoice
   swap: (choice: PasteChoice) => void
 }
-type Ui = { chooser: ChooserRequest | null; chip: ChipState | null }
-let ui: Ui = { chooser: null, chip: null }
+/** "Clean up with AI" waiting for the owner (CleanupDialog.tsx). */
+export interface CleanupRequest {
+  owner: unknown
+  plan: PastePlan
+  /** Puts the cleaned Markdown in the page (and shows the chip). */
+  insert: (markdown: string) => void
+  cancel: () => void
+}
+type Ui = {
+  chooser: ChooserRequest | null
+  chip: ChipState | null
+  cleanup: CleanupRequest | null
+}
+let ui: Ui = { chooser: null, chip: null, cleanup: null }
 const listeners = new Set<() => void>()
 export const pasteUiSubscribe = (fn: () => void): (() => void) => {
   listeners.add(fn)
@@ -422,7 +460,8 @@ const setUi = (next: Partial<Ui>): void => {
   ui = { ...ui, ...next }
   for (const fn of listeners) fn()
 }
-export const closePasteUi = (): void => setUi({ chooser: null, chip: null })
+export const closePasteUi = (): void =>
+  setUi({ chooser: null, chip: null, cleanup: null })
 
 /** Does the work of a pick and shows the chip that can swap it. */
 async function run(
@@ -432,6 +471,8 @@ async function run(
   choice: PasteChoice,
 ): Promise<void> {
   await applyPaste(editor, plan, choice)
+  // The chip swaps between forms of the same paste; a clean-up is its own step.
+  choices = choices.filter((c) => c !== 'cleanup')
   if (choices.length < 2) return setUi({ chip: null })
   setUi({
     chip: {
@@ -444,6 +485,32 @@ async function run(
         // One Undo: take the paste back, then put the other form in.
         editor.undo()
         void run(editor, plan, choices, next)
+      },
+    },
+  })
+}
+
+/** Opens the clean-up step; its Insert runs the cleaned Markdown as a paste. */
+function openCleanup(editor: Editor, plan: PastePlan): void {
+  setUi({
+    cleanup: {
+      owner: editor,
+      plan,
+      cancel: () => {
+        setUi({ cleanup: null })
+        editor.focus()
+      },
+      insert: (markdown) => {
+        setUi({ cleanup: null })
+        editor.focus()
+        const cleaned: PastePlan = {
+          kind: 'markdown',
+          markdown,
+          text: plan.text,
+          rich: true,
+          cleaned: true,
+        }
+        void run(editor, cleaned, ['keep', 'plain'], 'keep')
       },
     },
   })
@@ -464,7 +531,11 @@ export function pasteWith(
   const choices = choicesFor(plan)
   const mode = readDeviceSetting(pasteModeSetting)
   setUi({ chip: null })
-  if (plan.rich && choices.length > 1 && mode === 'ask') {
+  if (
+    (plan.rich || choices.includes('cleanup')) &&
+    choices.length > 1 &&
+    mode === 'ask'
+  ) {
     setUi({
       chooser: {
         owner: editor,
@@ -472,7 +543,8 @@ export function pasteWith(
         choices,
         pick: (choice, remember) => {
           setUi({ chooser: null })
-          if (remember && choice !== 'table') {
+          if (choice === 'cleanup') return openCleanup(editor, plan)
+          if (remember && (choice === 'keep' || choice === 'plain')) {
             writeDeviceSetting(
               pasteModeSetting,
               choice === 'plain' ? 'plain' : 'keep',

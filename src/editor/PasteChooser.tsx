@@ -6,6 +6,7 @@ import {
   type KeyboardEvent,
 } from 'react'
 import { createPortal } from 'react-dom'
+import { lazy, Suspense } from 'react'
 import { t } from '../i18n/t'
 import {
   closePasteUi,
@@ -15,6 +16,10 @@ import {
   previewOf,
   type ChooserRequest,
 } from './pasteFlow'
+
+const CleanupDialog = lazy(() =>
+  import('./CleanupDialog').then((m) => ({ default: m.CleanupDialog })),
+)
 
 /**
  * The paste chooser (a small pop-up on a rich paste: Keep original format,
@@ -26,6 +31,7 @@ export function PasteChooser({ owner }: { owner: unknown }) {
   const ui = useSyncExternalStore(pasteUiSubscribe, pasteUiState)
   const chooser = ui.chooser?.owner === owner ? ui.chooser : null
   const chip = ui.chip?.owner === owner ? ui.chip : null
+  const cleanup = ui.cleanup?.owner === owner ? ui.cleanup : null
   // Ctrl/Cmd+C of whole blocks: clean Markdown and rich HTML go with them.
   useEffect(() => {
     let off = () => {}
@@ -45,6 +51,13 @@ export function PasteChooser({ owner }: { owner: unknown }) {
     return () => window.clearTimeout(id)
   }, [chip])
 
+  if (cleanup) {
+    return (
+      <Suspense fallback={null}>
+        <CleanupDialog request={cleanup} />
+      </Suspense>
+    )
+  }
   if (chooser)
     return createPortal(<ChooserBox chooser={chooser} />, document.body)
 

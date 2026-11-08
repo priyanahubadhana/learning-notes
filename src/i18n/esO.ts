@@ -915,4 +915,5 @@ export const esO: Record<string, string> = {
   'embed.vimeo': 'Vimeo',
   'embed.loom': 'Loom',
   'embed.video': 'Archivo de vídeo',
+  'pasteChooser.cleaned': 'Ordenado',
 }

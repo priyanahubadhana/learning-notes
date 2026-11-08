@@ -77,7 +77,20 @@ export const NLM_QUIZ_PROMPT =
 export const NLM_INFOGRAPHIC_PROMPT =
   'Write the content of an infographic about the sources as Markdown and nothing else. Start with the title as "# Title". Then write 4 to 8 sections, each "## Heading" followed by 2 to 4 lines starting with "- ", one short fact per line. No tables, no pictures, no text outside this shape.'
 
+/** The paste chooser's "Clean up with AI" instructions (editable in the library). */
+export const CLEANUP_STARTER = 'own.cleanup'
+export const CLEANUP_PROMPT =
+  'Rebuild the structure of the messy text below. Work out its headings, nested bullet and numbered lists, tables, quotes and code, and write it out cleanly. Keep every fact, number, name, date and link exactly as written. Do not summarise, shorten, reword or add anything. If a piece does not fit anywhere, do not drop it: list it unchanged under a last heading "Not placed".'
+
 export const SEEDS: readonly PromptItem[] = [
+  prompt(
+    CLEANUP_STARTER,
+    'Clean up pasted text',
+    'write',
+    ['general', 'paste'],
+    CLEANUP_PROMPT,
+    { input: 'text', output: 'notes' },
+  ),
   prompt(
     'own.nlm.mindmap',
     'Mind map as indented outline',

@@ -20,6 +20,8 @@ A searchable, editable library of prompts, and "skills": a saved recipe that tur
 - **Paste-in (part 5):** "No AI key? Use any AI chat (free)" in every run view: Copy puts the prompt, the exact answer format and the input on the clipboard; Paste answer reads the reply. Plain answers: cleaned (control and invisible characters) and limited to 200,000 characters. Skill answers: the same strict reader as an answer from the app (`parseSkillAnswer`): at most 400,000 characters, JSON only (a code fence or a sentence around it is tolerated), unknown fields ignored, strings cut and cleaned, stars clamped, only http/https links, emoji-only icons, source numbers must exist, limits on points (200), cards (300), pages (40), sources (100). A refused answer shows a plain reason and changes nothing.
 - **Versions and ratings (part 6):** changing the prompt text keeps the old text as a version (30 kept); Restore puts an old text back into the box. After a result, 1-5 stars rate it; the rating belongs to the version current at the time; the row's Stars column is the average (whole stars shown in the table, exact average in the list). The edit screen lists every version with its average and number of ratings.
 
+- **Clean up pasted text (9 Nov):** seeded prompt `own.cleanup` (purpose Write) used by the paste chooser's "Clean up with AI" (copy-paste.md); edits made in that dialog are saved here as versions.
+
 ## Edge cases
 
 - Input over 300,000 characters is cut and the screen says so; over about 80,000 tokens the run is refused ("too much").

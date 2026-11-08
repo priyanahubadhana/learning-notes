@@ -30,3 +30,7 @@ A block that holds a tree of ideas the user can type, rearrange and keep. It is 
 ## Tests
 
 `model.test.ts` (tree, moves, repair, outline, layout, search words); `e2e/mindMap.spec.ts` (keyboard build and reload, drag and delete, Save as picture).
+
+## NotebookLM (9 Nov)
+
+See [notebooklm-import.md](notebooklm-import.md): this feature gets imports from NotebookLM and an optional page tab.

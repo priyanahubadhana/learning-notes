@@ -2,6 +2,13 @@
 
 Moved out of HANDOFF on 2026-11-06 (audit) so HANDOFF stays five lines. Newest first; each paragraph names its step. The run decision (master plan) is one owner iPad pass before Sync; the Phase A builder adds its checks at the top. Tick a paragraph by deleting it.
 
+## NotebookLM import and page tabs (9 Nov)
+
+1. Data › More › Bring in from NotebookLM. From NotebookLM download an audio overview, a video overview, a slide deck (PDF, then PowerPoint), a mind map PNG and flashcards CSV; bring each in (choose "A new page"). Check the preview names the right thing, Add works, Undo removes it. The video should play on the page; the audio in the Audio panel.
+2. Mind map picture: tick "Also rebuild it as an editable mind map": the cost line shows first; with your key it makes a mind map block. Check the rebuild is close to the picture.
+3. In the Prompt library (purpose Import) copy the three NotebookLM prompts into NotebookLM chat; paste each answer into the paste box (mind map outline, A quiz, A report) and check it comes in.
+4. Open the new page, tap ⋯ at the end of Notes · Summary · Review and switch on Slides, Audio & video, Mind map, Database one by one (also in Settings › General › Page tabs). Slides should show the strip; Database should show this page's databases with the two widening chips.
+
 ## Claude Skill (9 Nov)
 
 1. Settings › AI › Use with Claude: tap Download the Claude Skill (.zip); in Claude open Settings › Capabilities › Skills and upload the zip (do not unzip). In a chat give Claude some text and say "make notes for Learning Notes": it replies with one JSON block (and maybe a .lnskill.json file).

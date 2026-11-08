@@ -2,6 +2,12 @@
 
 Current phase only. Older entries are in [ARCHIVE.md](ARCHIVE.md).
 
+## 2026-11-09 (Bring in from NotebookLM, optional page tabs)
+
+- **What:** Data › More › "Bring in from NotebookLM": audio and video overviews (video plays inline), slide decks (PDF or PowerPoint) into a Slides tab strip, mind map pictures (optional AI rebuild with cost shown), report text, flashcards and quiz (CSV or Q/A text) as cards, data tables as a database; preview with target page, one Undo. Three NotebookLM paste-in prompts in the Prompt library (purpose Import). Optional page tabs Mind map, Slides, Audio & video, Database per notebook (⋯ on the tab row, Settings › General › Page tabs, off by default). Research: what NotebookLM can export.
+- **Why:** the owner wants NotebookLM outputs kept as normal notes; no API exists, so a one-time import.
+- **Files:** docs/research/notebooklm-import-2026-11.md, docs/features/notebooklm-import.md, src/share/notebooklm/_, src/share/DataScreen.tsx, src/pages/tabs/_, src/pages/PageView.tsx, src/app/summary/PageTabs.tsx, src/notebooks/pageTabs.ts, notebookService.ts, src/settings/PageTabsSection.tsx, SettingsScreen.tsx, src/editor/fileBlock/InlineVideo.tsx, FileView.tsx, src/prompts/*, src/audio/AudioDock.tsx, src/core/types.ts, src/share/checkRows.ts, src/i18n/enNlm.ts, esNlm.ts, hiNlm.ts, scripts/feature-links.json, e2e/notebooklmImport.spec.ts, pageTabs.spec.ts, promptLibrary.spec.ts
+
 ## 2026-11-09 (Claude Skill: Use with Claude)
 
 - **What:** a shareable Claude Skill (claude-skill/learning-notes: SKILL.md, reference/format.md) that makes notes in the app's ln-skill/1 format; zip built at build time and served as /learning-notes-skill.zip; Settings › AI › Use with Claude (explainer, download, how to add it in Claude); Import a .lnskill.json file or drop it, next to Paste answer. Later MCP connector logged in IDEAS and ROADMAP. Why: use Claude (no key, ₹0) to feed the app.

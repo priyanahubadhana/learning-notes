@@ -42,3 +42,7 @@ Own keys only, nothing sent before the cost is shown and the first-use privacy q
 - **Icons:** 66 Lucide icons (ISC, src/prompts/ICONS-LICENSE.txt); a skill may send `lucide:name`; drawn in the preview, saved as the emoji. Tests: icons.test.ts.
 - **Note pages:** page ⋯ › Prompts and skills; the answer box is the preview, Insert below, one Undo.
 - **Handwriting:** Convert to text and the Write pad can use a saved prompt (pref `ai.readPrompt`; optional). Tests: src/ai/readPrompt.test.ts.
+
+## NotebookLM (9 Nov)
+
+See [notebooklm-import.md](notebooklm-import.md): this feature gets imports from NotebookLM and an optional page tab.

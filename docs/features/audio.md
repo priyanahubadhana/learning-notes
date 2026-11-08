@@ -36,3 +36,7 @@ Record your voice while you take notes (like GoodNotes), keep the sound with the
 - Replay: `src/core/replay.test.ts` (which recording and second, slack, deleted, overlap), e2e `inkReplay.spec.ts` (draw while recording, Lasso, Play from here seeks past 1.5 s; no recording, no button).
 
 `src/audio/recordingService.test.ts` (save, order, soft delete, restore, erase rules, page purge, both backup kinds, row checks, v13 upgrade), `migration.test.ts` (current version 14), e2e `audio.spec.ts` (fake microphone: record, stop, play, delete with Undo, Delete forever, chip).
+
+## NotebookLM (9 Nov)
+
+See [notebooklm-import.md](notebooklm-import.md): this feature gets imports from NotebookLM and an optional page tab.

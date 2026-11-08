@@ -33,3 +33,7 @@ Same as databases.md: values checked per type, formulas never run as code, links
 - `src/databases/views/rowWindow.test.ts`, `rowGroups.test.ts`
 - `src/databases/databasePage.test.ts`, `src/search/rowSearch.test.ts`
 - `e2e/databasePages.spec.ts` (3,000 rows windowed, group by, List view)
+
+## NotebookLM (9 Nov)
+
+See [notebooklm-import.md](notebooklm-import.md): this feature gets imports from NotebookLM and an optional page tab.

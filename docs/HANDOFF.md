@@ -1,5 +1,7 @@
 # Handoff
 
+- **NotebookLM import + optional page tabs done (9 Nov):** Data › More › Bring in from NotebookLM (audio, video, slides, mind map picture with optional AI rebuild, report, cards, quiz, table), 3 NotebookLM prompts (purpose Import), page tabs Mind map / Slides / Audio & video / Database per notebook (⋯ on the tab row, Settings › General). Spec docs/features/notebooklm-import.md, research docs/research/notebooklm-import-2026-11.md, owner check at the top of owner-checks-pending.md. Not built: drop/paste straight onto a page, page filter on the notebook Database tab. Warning: translations.test fails for older Notion and outline keys missing in es/hi (not from this work).
+
 - **Claude Skill done (9 Nov):** claude-skill/learning-notes + zip in the build, Settings › AI › Use with Claude, .lnskill.json import/drop in the paste-in box. Spec docs/features/claude-skill.md. Later: MCP connector (IDEAS/ROADMAP). Owner check at the top of owner-checks-pending.md.
 - **Paste, tables, select-all, Notion import done (9 Nov):** Notion toggles/callouts/blank lines paste (clipboard.ts `details` kept), tab-separated rows paste as a Table, calm table/side handles (editor/calmHandles.ts), Ctrl+A steps (editor/selectAllSteps.ts), Import Notion export (share/notionImport.ts, spec features/notion-import.md). Owner check at the top of owner-checks-pending.md. Outline view options done (panelModel.ts). Not built: row-height resize.
 

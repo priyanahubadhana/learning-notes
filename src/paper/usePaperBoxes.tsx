@@ -8,6 +8,7 @@ import type { PaperBox } from '../core/types'
 import { t } from '../i18n/t'
 import {
   addBox,
+  addBoxWithLines,
   duplicateBox,
   removeBox,
   restoreBox,
@@ -44,6 +45,10 @@ export function usePaperBoxes(
   onAddBox?: (at: { x: number; y: number }) => void
   onBoxChange: (id: string, patch: Partial<PaperBox>) => void
   onBoxMenu: (box: PaperBox, at: DOMRect) => void
+  onInkOnPaper?: (
+    at: { x: number; y: number; w: number },
+    lines: number,
+  ) => Promise<string | null>
   /** The box made just now (its editor takes the caret). */
   fresh: string | null
   menu: ReactNode
@@ -117,6 +122,13 @@ export function usePaperBoxes(
     onAddBox: editable ? onAddBox : undefined,
     onBoxChange,
     onBoxMenu: (box, at) => setMenuFor({ box, at }),
+    onInkOnPaper: editable
+      ? (at, lines) =>
+          addBoxWithLines(db, pageId, at, lines).catch((error: unknown) => {
+            console.error('Could not make a box for the ink', error)
+            return null
+          })
+      : undefined,
     fresh,
     menu: menuFor && (
       <MenuPopover

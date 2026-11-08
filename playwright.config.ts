@@ -89,6 +89,7 @@ export default defineConfig({
         /barFixes/,
         /pencilTaps/,
         /paperPage/,
+        /paperInk/,
         /lassoWords/,
         /gestureWatchdog/,
         /lockToastStill/,

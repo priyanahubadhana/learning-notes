@@ -17,7 +17,15 @@ import {
   type DrawAs,
 } from '../app/tools/main/inkSettings'
 import type { ModeTool } from '../app/tools/main/mainTools'
-import { pickAnchor, toLocal, toWorld } from './anchor'
+import {
+  drawingAnchor,
+  nextBlockAt,
+  pickAnchor,
+  reanchorPts,
+  toLocal,
+  toWorld,
+  type Frame,
+} from './anchor'
 import { eraseStroke, touches } from './eraser'
 import {
   apply,
@@ -158,6 +166,11 @@ export interface InkEnv {
   selectText: (from: number, to: number) => void
   /** A finger tap or mouse click under the Lasso: the caret lands there. */
   placeCaret: (clientX: number, clientY: number) => void
+  /**
+   * Phase Q: false for a small box on the paper: the page is not made a
+   * screen tall while drawing (the box keeps the height of its text).
+   */
+  growRoom?: boolean
 }
 
 type Gesture =
@@ -221,6 +234,10 @@ type Gesture =
     }
 
 const HOLD_MS = 600
+/** Phase Q rule 10: strokes this close in time can be one drawing (ms). */
+const DRAWING_MS = 20_000
+/** A drawing over this many lines or more belongs to its top line. */
+const DRAWING_LINES = 3
 const HOLD_SLOP = 3
 /** A stroke is selected when this share of its points lies inside the loop. */
 export const LASSO_INSIDE = 0.6
@@ -270,6 +287,8 @@ export class InkController {
   /** Raised when the selection or what the overlay shows changed. */
   version = 0
   private lastDepth = 0
+  /** Lines seen on screen while this page is open (Phase Q rule 7). */
+  private seenBlocks = new Set<string>()
   private noted = -1
 
   constructor(env: InkEnv) {
@@ -584,6 +603,7 @@ export class InkController {
    */
   private roomKey = ''
   private ensureRoom(): void {
+    if (this.env.growRoom === false) return
     const { doc, wrap } = this.env
     const tool = this.env.tool()
     const inking =
@@ -658,10 +678,15 @@ export class InkController {
     if (this.layoutDirty && (doc.strokeCount > 0 || this.gesture)) {
       this.layoutDirty = false
       this.layout.measure()
+      const gone: string[] = []
       for (const id of doc.anchorBlocks()) {
         const r = this.layout.rectOf(id)
-        if (r) doc.noteBlock(id, { x: r.x, y: r.y, w: this.layout.width })
+        if (r) {
+          doc.noteBlock(id, { x: r.x, y: r.y, w: this.layout.width })
+          this.seenBlocks.add(id)
+        } else if (this.seenBlocks.has(id)) gone.push(id)
       }
+      if (gone.length && !this.gesture) this.adoptOrphans(gone)
     }
     this.ensureRoom()
     const v = this.visible()
@@ -1294,9 +1319,131 @@ export class InkController {
       drawn: { w: this.layout.width, fs: this.env.textSize() },
     }
     const { id, edit } = this.ensureLayer(g.layerId)
-    edit.add.push({ layerId: id, blockId: g.frame.blockId, stroke: finished })
+    // Phase Q rule 10: a drawing over several lines belongs to its top line,
+    // with the strokes it touches, so it moves as one piece.
+    const piece = g.highlight
+      ? null
+      : this.drawingPiece(finished, g.frame.blockId)
+    if (piece) {
+      edit.add.push({
+        layerId: id,
+        blockId: piece.blockId,
+        stroke: piece.stroke,
+      })
+      edit.del.push(...piece.del)
+      edit.add.push(...piece.add)
+    } else {
+      edit.add.push({ layerId: id, blockId: g.frame.blockId, stroke: finished })
+    }
     this.commit(edit)
     if (this.lastTap?.strokeId === '') this.lastTap.strokeId = finished.id
+  }
+
+  /**
+   * Phase Q rule 7: lines that were on screen and are gone now (deleted)
+   * hand their ink to the next line, for good: the strokes are re-linked
+   * (saved, not an undo step), so they follow that line from now on.
+   */
+  private adoptOrphans(gone: readonly string[]): void {
+    const { doc } = this.env
+    const blocks = this.layout.blocks()
+    if (blocks.length === 0) return
+    const edit = emptyEdit()
+    for (const id of gone) {
+      const fb = doc.fallbackOf(id)
+      const next = fb ? nextBlockAt(fb.y, blocks) : undefined
+      if (!next) continue
+      const from = this.layout.frame(id)
+      const to = this.layout.frame(next.id)
+      for (const p of doc.all()) {
+        if (p.blockId !== id) continue
+        edit.del.push(p)
+        edit.add.push({
+          layerId: p.layerId,
+          blockId: next.id,
+          stroke: {
+            ...p.stroke,
+            pts: reanchorPts(p.stroke.pts, STRIDE, from, to),
+          },
+        })
+      }
+      this.seenBlocks.delete(id)
+    }
+    if (!isEmptyEdit(edit)) doc.apply(edit)
+  }
+
+  /**
+   * Phase Q rule 10: where a new stroke belongs when it spans lines or
+   * touches other strokes of a drawing. Null when it stays on its own line.
+   */
+  private drawingPiece(
+    stroke: Stroke,
+    blockId: string | null,
+  ): {
+    blockId: string | null
+    stroke: Stroke
+    del: Placed[]
+    add: Placed[]
+  } | null {
+    const blocks = this.layout.blocks()
+    if (blocks.length < 2) return null
+    const from = this.layout.frame(blockId)
+    const box = strokeRect(stroke, from)
+    if (!box) return null
+    // Strokes of the same drawing: drawn in the last 20 s and overlapping it.
+    const recent = stroke.at - DRAWING_MS
+    let top = box.y
+    let bottom = box.y + box.h
+    const touched = this.env.doc
+      .all()
+      .filter(
+        (p) =>
+          p.stroke.kind === 'ink' &&
+          p.stroke.at >= recent &&
+          !this.hidden.has(p.layerId),
+      )
+      .filter((p) => {
+        const r = strokeRect(p.stroke, this.layout.frame(p.blockId))
+        const hit =
+          !!r &&
+          r.x <= box.x + box.w &&
+          box.x <= r.x + r.w &&
+          r.y <= box.y + box.h &&
+          box.y <= r.y + r.h
+        if (hit && r) {
+          top = Math.min(top, r.y)
+          bottom = Math.max(bottom, r.y + r.h)
+        }
+        return hit
+      })
+    // Only a drawing over three lines or more; handwriting stays per line.
+    const spanned = blocks.filter((b) => b.y < bottom && b.y + b.h > top)
+    if (spanned.length < DRAWING_LINES) return null
+    const anchor = drawingAnchor(
+      { x: box.x + box.w / 2, y: box.y },
+      touched.map((p) => p.blockId),
+      blocks,
+    )
+    const moveOthers = touched.filter((p) => p.blockId !== anchor)
+    if (anchor === blockId && moveOthers.length === 0) return null
+    const to = this.layout.frame(anchor)
+    const reanchored = (s: Stroke, f: Frame): Stroke => ({
+      ...s,
+      pts: reanchorPts(s.pts, STRIDE, f, to),
+    })
+    return {
+      blockId: anchor,
+      stroke: anchor === blockId ? stroke : reanchored(stroke, from),
+      del: moveOthers,
+      add: moveOthers.map((p) => ({
+        layerId: p.layerId,
+        blockId: anchor,
+        stroke: {
+          ...reanchored(p.stroke, this.layout.frame(p.blockId)),
+          id: createId(),
+        },
+      })),
+    }
   }
 
   /** The highlighter over words: marks the words instead of drawing. */

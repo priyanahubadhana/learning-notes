@@ -2,6 +2,12 @@
 
 Current phase only. Older entries are in [ARCHIVE.md](ARCHIVE.md).
 
+## 2026-11-08 (Phase Q step 4: ink in and around boxes; new pages start in the top box)
+
+- **What:** owner ink rules 1, 2, 4, 5, 7, 8, 10. Every box has its own ink surface (`InkSurface` `owns` scope: each box loads only the ink of its own lines; the default box keeps page-level and orphan rows; extra boxes do not grow to a screen while drawing, `growRoom`). Rule 4: the Pen/Pencil on empty paper records the stroke, makes a box with empty lines under it (`addBoxWithLines`) and plays the stroke into that box (`paper/penOnPaper.ts`). Rule 7: a line that was on screen and is deleted hands its ink to the next line for good (`adoptOrphans`, saved, not an undo step). Rule 10: a stroke (with the strokes of the same drawing drawn in the last 20 s that it overlaps) over three lines or more is linked to its top line and moves as one piece. Rule 8: while ink is Lasso-selected a faint dashed line points to its linked line. Rule 5 was already how a Lasso move re-links (tested now). New pages open with the cursor in the top box (owner); a tap on the title edits the title.
+- **Not yet:** rule 6 (Lasso ink + text moved together into a new block) and rule 9 (copying a line copies its ink); rule 5's empty block when nothing is under the drop spot.
+- **Files:** `src/ink/{anchor,layout,controller,InkSurface}.ts(x)`, `src/ink/paperAnchor.test.ts`, `src/paper/{PaperFrame,boxService,penOnPaper,usePaperBoxes}.ts(x)`, `src/editor/PageEditor.tsx`, `src/pages/PageView.tsx`, `e2e/{paperInk,helpers,lesson,templates}.spec.ts`, `playwright.config.ts`.
+
 ## 2026-11-08 (Phase Q step 3: boxes on the paper)
 
 - **What:** with the Text tool, a tap on empty paper makes a box there with the caret in it (y snapped to the paper spacing); each box is its own block editor (`PageEditor` with `boxId`, own lock key, no ink yet); the one docked toolbar follows the box with the caret (`paper/activeBox.ts`); a grip moves the box, the left/right edges change its width, the height follows the text (Enter grows the box); the ⋯ menu locks, duplicates (blocks copied with new ids), colours and deletes (History copy first, Undo restores the blocks). Box text line height = the paper spacing. Service `paper/boxService.ts`, hook `paper/usePaperBoxes.tsx`.

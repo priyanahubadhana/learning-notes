@@ -22,9 +22,11 @@ Every page is paper. It shows as fixed sheets (A4, or Letter) with a border and 
 
 - **Step 3: boxes.** A Text-tool tap on empty paper makes a box (caret in it). Grip = move (y snaps to the spacing), left/right edges = width, height follows the text. ⋯ menu: Lock in place, Duplicate box, Colour, Delete box (History copy + Undo). One toolbar follows the box with the caret. Each box is a block editor with every block feature.
 
+- **Step 4: ink.** Each box has its own ink, linked to its lines (rules 1, 2). The Pencil on empty paper makes a box with lines under the stroke (rule 4). A Lasso move re-links to the line under the drop (5); a faint line shows the link (8). A deleted line hands its ink to the next line (7). A drawing over 3+ lines belongs to its top line and moves as one piece (10). New pages open with the cursor in the top box.
+
 ## Not yet
 
-- Ink at a zoom other than 100 % (step 4, on hold for the owner).
+- Ink rules 6 (Lasso ink + text as one piece) and 9 (copy a line with its ink); ink at a zoom other than 100 %.
 - The Lasso over boxes, reading order, export and print (step 5).
 - Fit width on phones (step 6).
 - Sheet thumbnails in the left panel, and a menu to choose the paper size.

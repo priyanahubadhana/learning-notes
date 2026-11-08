@@ -12,7 +12,9 @@ import { Tip } from '../help/Help'
 import { t } from '../i18n/t'
 import type { Page, PaperBox } from '../core/types'
 import { boxesOf, MAIN_BOX, mainBox, MARGIN, sheetOf } from './boxes'
-import { clampBox } from './boxService'
+import { clampBox, MIN_W } from './boxService'
+import { bounds, record, replay, waitFor, type Recorded } from './penOnPaper'
+import { activeTool } from '../app/tools/main/mainTools'
 import { BOX_COLOURS } from './usePaperBoxes'
 import { clampZoom, paperStepMm, sheetCount, SHEET_GAP_PX } from './sheets'
 
@@ -30,6 +32,7 @@ export function PaperFrame({
   onAddBox,
   onBoxChange,
   onBoxMenu,
+  onInkOnPaper,
   children,
 }: {
   page: Pick<Page, 'sheet' | 'inkBg' | 'boxes'>
@@ -39,6 +42,14 @@ export function PaperFrame({
   onAddBox?: (at: { x: number; y: number }) => void
   onBoxChange?: (boxId: string, patch: Partial<PaperBox>) => void
   onBoxMenu?: (box: PaperBox, at: DOMRect) => void
+  /**
+   * Rule 4: ink on empty paper. Makes a box (mm) with that many empty lines
+   * and returns its id; unset = ink on empty paper is ignored.
+   */
+  onInkOnPaper?: (
+    at: { x: number; y: number; w: number },
+    lines: number,
+  ) => Promise<string | null>
   /** The full-screen reader: plain flowing text, same tree (nothing remounts). */
   flat?: boolean
   children: ReactNode
@@ -174,6 +185,50 @@ export function PaperFrame({
   const total = sheets * (sheetPx + SHEET_GAP_PX) - SHEET_GAP_PX
   const extra = boxesOf(page).filter((b) => b.id !== MAIN_BOX)
 
+  // Rule 4: a stroke on empty paper is recorded, a box is made under it and
+  // the stroke is played into that box's ink pad.
+  const pen = useRef<Recorded[] | null>(null)
+  const penDown = (e: ReactPointerEvent<HTMLDivElement>) => {
+    const tool = activeTool.get()
+    if (!onInkOnPaper || flat || (tool !== 'pen' && tool !== 'highlighter'))
+      return
+    // A finger scrolls the paper; only the Pencil and the mouse write here.
+    if (e.pointerType === 'touch') return
+    try {
+      e.currentTarget.setPointerCapture(e.pointerId)
+    } catch {
+      // A pointer the browser no longer knows: the moves still bubble here.
+    }
+    pen.current = [record('pointerdown', e.nativeEvent)]
+  }
+  const penMove = (e: ReactPointerEvent<HTMLDivElement>) => {
+    pen.current?.push(record('pointermove', e.nativeEvent))
+  }
+  const penUp = (e: ReactPointerEvent<HTMLDivElement>) => {
+    const events = pen.current
+    pen.current = null
+    if (!events || !onInkOnPaper) return
+    events.push(record('pointerup', e.nativeEvent))
+    const r = paperEl.current?.getBoundingClientRect()
+    if (!r) return
+    const b = bounds(events)
+    const stepMm = step / k
+    const x = Math.max(0, (b.x - r.left) / k - 4)
+    const y = Math.max(0, snap((b.y - r.top) / k - stepMm / 2, stepMm))
+    const w = Math.max(MIN_W, b.w / k + 8)
+    const lines = Math.ceil((b.h / k + stepMm) / stepMm) + 1
+    void onInkOnPaper({ x, y, w }, lines).then(async (id) => {
+      if (!id) return
+      const pad = await waitFor(() =>
+        document.querySelector(
+          '[data-paper-box="' + CSS.escape(id) + '"] [data-ink-pad]',
+        ),
+      )
+      // The box's lines are laid out a frame after its pad shows.
+      if (pad) requestAnimationFrame(() => replay(pad, events))
+    })
+  }
+
   /** A tap on empty paper with the Text tool: a new box there (step 3). */
   const tapPaper = (e: ReactPointerEvent<HTMLDivElement>) => {
     if (!onAddBox || flat || e.button !== 0) return
@@ -248,7 +303,15 @@ export function PaperFrame({
             </div>
           )}
           {!flat && (
-            <div data-paper-sheets onPointerUp={tapPaper}>
+            <div
+              data-paper-sheets
+              onPointerDown={penDown}
+              onPointerMove={penMove}
+              onPointerUp={(e) => {
+                penUp(e)
+                tapPaper(e)
+              }}
+            >
               {Array.from({ length: sheets }, (_, i) => (
                 <div
                   key={i}

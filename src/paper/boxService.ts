@@ -1,8 +1,14 @@
 import type { LearningNotesDB } from '../core/db'
 import { createId } from '../core/ids'
-import { getLive, isLive, softDeleteMany } from '../core/records'
+import {
+  getLive,
+  isLive,
+  newRecordFields,
+  softDeleteMany,
+} from '../core/records'
 import type { Block, PaperBox } from '../core/types'
 import { recordVersion } from '../history/versionService'
+import { ordersBetween } from '../core/order'
 import { boxesOf, groupBlocksByBox, MAIN_BOX, MARGIN, sheetOf } from './boxes'
 
 /**
@@ -192,4 +198,31 @@ export async function duplicateBox(
     await writeBoxes(db, pageId, (boxes) => [...boxes, copy])
   })
   return copyId
+}
+
+/**
+ * Phase Q rule 4: the Pencil wrote on empty paper. A box is made there with
+ * `lines` empty lines under the writing, so its ink is linked to lines.
+ */
+export async function addBoxWithLines(
+  db: LearningNotesDB,
+  pageId: string,
+  at: { x: number; y: number; w: number },
+  lines: number,
+): Promise<string> {
+  const id = await addBox(db, pageId, at)
+  const n = Math.max(1, Math.min(60, Math.round(lines)))
+  const orders = ordersBetween(null, null, n)
+  await db.blocks.bulkAdd(
+    orders.map((order): Block => ({
+      ...newRecordFields(),
+      pageId,
+      parentId: null,
+      type: 'paragraph',
+      content: { text: [] },
+      order,
+      boxId: id,
+    })),
+  )
+  return id
 }

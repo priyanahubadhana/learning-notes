@@ -344,7 +344,7 @@ export function PageView({
       editorRef={boxId ? undefined : editor}
       reading={view === 'off' ? undefined : { view }}
       boxId={boxId}
-      autoFocus={!!boxId && boxId === boxes.fresh}
+      autoFocus={boxId ? boxId === boxes.fresh : autoFocusTitle && !reader}
       key={boxId ?? 'main'}
     />
   )
@@ -451,7 +451,9 @@ export function PageView({
           db={db}
           pageId={page.id}
           savedTitle={page.title}
-          autoFocus={autoFocusTitle}
+          // Owner (8 Nov): a new page opens with the cursor in its top box;
+          // a tap on the title still edits the title.
+          autoFocus={false}
           readOnly={reader}
           onEnter={() => editor.current?.focus()}
         />
@@ -506,6 +508,7 @@ export function PageView({
             onAddBox={boxes.onAddBox}
             onBoxChange={boxes.onBoxChange}
             onBoxMenu={boxes.onBoxMenu}
+            onInkOnPaper={boxes.onInkOnPaper}
           >
             {editorOf()}
           </PaperFrame>

@@ -17,7 +17,7 @@ async function newFromTemplate(page: Page, name: RegExp) {
   await rowAction(page, 'Biology', 'Add page')
   await page.getByRole('menuitem', { name: 'From template…' }).click()
   await page.getByRole('dialog').getByRole('button', { name }).click()
-  await expect(page.getByRole('textbox', { name: 'Page title' })).toBeFocused()
+  await expect(page.locator('.bn-editor').first()).toBeFocused()
 }
 const LESSON = /^Lesson\s*Detailed/
 const LARGE = /^Lesson \(large topic\)/
@@ -141,7 +141,7 @@ for (const [theme, width, height] of [
 ] as const) {
   test(`screenshot: ${theme} ${width}×${height}`, async ({ page }) => {
     await newFromTemplate(page, LESSON)
-    await page.keyboard.type('Cell biology')
+    await page.getByRole('textbox', { name: 'Page title' }).fill('Cell biology')
     await makeCardUnder(page, 'Detailed notes', 'What does the nucleus hold?')
     await setTheme(page, theme)
     await page.setViewportSize({ width, height })

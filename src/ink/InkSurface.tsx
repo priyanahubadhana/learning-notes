@@ -78,6 +78,14 @@ interface Props {
   }
   frozen: boolean
   mode: 'computer' | 'touch' | 'pencil'
+  /**
+   * Phase Q: the ink rows this surface owns (one box of a paper page). Unset
+   * = every row of the page, exactly as before boxes existed.
+   */
+  owns?: (blockId: string | null) => boolean
+  /** Phase Q: false for a box other than the default one (the bars and
+   * export keep talking to the default box's ink). Default true. */
+  register?: boolean
 }
 
 interface Live {
@@ -92,6 +100,8 @@ export function InkSurface({
   editor,
   frozen,
   mode,
+  owns,
+  register = true,
 }: Props) {
   // The editor draws its container a moment after mounting: wait for it,
   // however long it takes (a reload right after an update fetches the
@@ -147,8 +157,11 @@ export function InkSurface({
     if (!wrap) return
     let cancelled = false
     let stop = () => {}
-    void loadInk(db, pageId).then((data) => {
+    void loadInk(db, pageId).then((all) => {
       if (cancelled) return
+      const data = owns
+        ? { ...all, chunks: all.chunks.filter((c) => owns(c.blockId)) }
+        : all
       const doc = new InkDoc({
         pageId,
         data,
@@ -188,6 +201,7 @@ export function InkSurface({
           ).then((id) => id && latest.current.toast(t('ink.hl.saved')))
         },
         setTool: (tool: ModeTool) => activeTool.set(tool),
+        growRoom: register,
         textSize: () => 100,
         selectBlocks: (ids) => {
           const ed = editor as unknown as Editor
@@ -256,7 +270,7 @@ export function InkSurface({
         if (activeTool.get() !== 'lasso') controller.clearSelection()
       })
       const offText = editor.onChange(() => controller.noteTextChange())
-      const offReg = registerInk({
+      const offReg = (register ? registerInk : () => () => {})({
         editor,
         controller,
         doc,
@@ -582,6 +596,33 @@ function SelectionBox({
         className="absolute rounded-sm border border-dashed border-accent"
         style={{ left: box.x, top: box.y, width: box.w, height: box.h }}
       />
+      {/* Phase Q rule 8: a faint line to the text line each stroke is linked to. */}
+      <svg
+        aria-hidden
+        data-ink-links
+        className="pointer-events-none absolute top-0 left-0 overflow-visible"
+        width="1"
+        height="1"
+      >
+        {[...new Set(controller.selected().map((p) => p.blockId))].map((id) => {
+          const r = id === null ? undefined : controller.layout.rectOf(id)
+          if (!r) return null
+          return (
+            <line
+              key={id}
+              data-ink-link={id}
+              x1={box.x}
+              y1={box.y + box.h / 2}
+              x2={r.x}
+              y2={r.y + r.h / 2}
+              stroke="var(--color-accent)"
+              strokeOpacity={0.35}
+              strokeWidth={1}
+              strokeDasharray="3 3"
+            />
+          )
+        })}
+      </svg>
       {corners.map((c, i) => (
         <button
           key={i}

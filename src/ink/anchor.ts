@@ -68,3 +68,63 @@ export function pickAnchor(p: Pt, blocks: readonly BlockRect[]): string | null {
   }
   return (above ?? first).id
 }
+
+/**
+ * Phase Q rule 10: saved points (flat, `stride` numbers per point, x and y
+ * first) moved from one frame to another, so a stroke can change the line
+ * it belongs to without moving on screen.
+ */
+export function reanchorPts(
+  pts: readonly number[],
+  stride: number,
+  from: Frame,
+  to: Frame,
+): number[] {
+  const out = pts.slice()
+  for (let i = 0; i + 1 < out.length; i += stride) {
+    const l = toLocal(toWorld({ x: out[i], y: out[i + 1] }, from), to)
+    out[i] = Math.round(l.x * 10000) / 10000
+    out[i + 1] = Math.round(l.y * 10000) / 10000
+  }
+  return out
+}
+
+/**
+ * Phase Q rule 7: the line that takes over the ink of a deleted line: the
+ * first block now at or below where the deleted one was (the next line has
+ * moved up into its place). None when nothing is below.
+ */
+export function nextBlockAt(
+  y: number,
+  blocks: readonly BlockRect[],
+): BlockRect | undefined {
+  let best: BlockRect | undefined
+  for (const b of blocks) {
+    if (b.y + b.h <= y + 1) continue
+    if (!best || b.y < best.y) best = b
+  }
+  return best
+}
+
+/**
+ * Phase Q rule 10: a drawing that spans several lines belongs to its TOP
+ * line. `top` is the stroke's highest point; `touching` are the lines of
+ * strokes it overlaps (one drawing moves as one piece).
+ */
+export function drawingAnchor(
+  top: Pt,
+  touching: readonly (string | null)[],
+  blocks: readonly BlockRect[],
+): string | null {
+  const ids = [pickAnchor(top, blocks), ...touching]
+  let best: string | null = ids[0]
+  let bestY = Infinity
+  for (const id of ids) {
+    const b = blocks.find((r) => r.id === id)
+    if (b && b.y < bestY) {
+      best = b.id
+      bestY = b.y
+    }
+  }
+  return best
+}

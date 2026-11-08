@@ -155,6 +155,8 @@ export function PageEditor(props: PageEditorProps) {
   const [loaded, setLoaded] = useState<{
     pageId: string
     records: Block[]
+    /** Phase Q: which ink rows this box owns (unset = all, no boxes). */
+    owns?: (blockId: string | null) => boolean
     version: number
   }>()
   const [failed, setFailed] = useState<{ error: unknown }>()
@@ -208,10 +210,22 @@ export function PageEditor(props: PageEditorProps) {
     recoverStash(db, pageId)
       .then(() => syncCardRecords(db, pageId))
       .then(() => listBlocks(db, pageId))
-      .then((records) => blocksOfBox(db, pageId, records, props.boxId))
+      .then(async (all) => {
+        const records = await blocksOfBox(db, pageId, all, props.boxId)
+        if (records === all) return { records, owns: undefined }
+        const mine = new Set(records.map((b) => b.id))
+        const extra = !!props.boxId && props.boxId !== 'main'
+        // Ink rows of blocks in other boxes belong to those boxes; rows of
+        // the page itself (no block) or of gone blocks stay with the default.
+        const known = new Set(all.map((b) => b.id))
+        const owns = extra
+          ? (id: string | null) => id !== null && mine.has(id)
+          : (id: string | null) => id === null || mine.has(id) || !known.has(id)
+        return { records, owns }
+      })
       .then(
-        (records) => {
-          if (!cancelled) setLoaded({ pageId, records, version })
+        ({ records, owns }) => {
+          if (!cancelled) setLoaded({ pageId, records, owns, version })
         },
         (error: unknown) => {
           if (!cancelled) setFailed({ error })
@@ -248,6 +262,7 @@ export function PageEditor(props: PageEditorProps) {
         key={`${pageId}:${loaded.version}`}
         {...props}
         records={loaded.records}
+        owns={loaded.owns}
         readOnly={readOnly}
       />
     </>
@@ -271,7 +286,12 @@ function LoadedPageEditor({
   readOnly,
   boxId,
   autoFocus,
-}: PageEditorProps & { records: Block[]; readOnly: boolean }) {
+  owns,
+}: PageEditorProps & {
+  records: Block[]
+  readOnly: boolean
+  owns?: (blockId: string | null) => boolean
+}) {
   const { chooseTemplate, toast, choose } = useContext(AppUiContext)
   // Blocks go in as the editor's starting content, so loading is not an edit.
   const [initialContent] = useState(() => {
@@ -812,7 +832,7 @@ function LoadedPageEditor({
         )}
         <StampWatcher editor={editor} />
         {padSession?.editor === (editor as never) && <WritePadLazy />}
-        {!extraBox && (
+        {
           <InkSurface
             db={db}
             pageId={pageId}
@@ -821,8 +841,10 @@ function LoadedPageEditor({
             editor={editor as never}
             frozen={frozen}
             mode={bar.mode}
+            owns={owns}
+            register={!extraBox}
           />
-        )}
+        }
       </div>
       {bar.mode !== 'computer' && !frozen && !extraBox && (
         <button

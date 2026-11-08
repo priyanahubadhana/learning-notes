@@ -1,4 +1,10 @@
-import { frameOf, pageFrame, type BlockRect, type Frame } from './anchor'
+import {
+  frameOf,
+  nextBlockAt,
+  pageFrame,
+  type BlockRect,
+  type Frame,
+} from './anchor'
 import type { InkFallback } from '../core/inkTypes'
 
 /**
@@ -87,7 +93,12 @@ export class PageLayout {
     const r = this.rects.get(blockId)
     if (r) return frameOf(r, this.width)
     const fb = this.fallbackOf(blockId)
-    if (fb) return { x: fb.x, y: fb.y, w: this.width }
+    if (fb) {
+      // Phase Q rule 7: the ink of a deleted line goes with the next line
+      // (which has moved up into its place), so it is never left behind.
+      const next = nextBlockAt(fb.y, this.list)
+      return { x: fb.x, y: next ? next.y : fb.y, w: this.width }
+    }
     return pageFrame(this.width)
   }
 }

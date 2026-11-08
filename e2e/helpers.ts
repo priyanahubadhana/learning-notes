@@ -167,9 +167,11 @@ export async function addPage(
   await page.getByRole('menuitem', { name: 'Blank page' }).click()
   await page.waitForURL((url) => url.toString() !== before) // the new page is open
   if (!(await sheetFill(page, title))) {
-    // New pages open with the cursor in the title.
+    // New pages open with the cursor in the top box; a tap on the title
+    // edits the title.
+    await expect(page.locator('.bn-editor').first()).toBeFocused()
     const field = page.getByRole('textbox', { name: 'Page title' })
-    await expect(field).toBeFocused()
+    await field.click()
     await page.keyboard.type(title)
   }
   await showSidebar(page)

@@ -74,7 +74,7 @@ test('+ menu: new page from a template', async ({ page }) => {
     .getByRole('button', { name: /Study notes/ })
     .click()
 
-  await expect(page.getByRole('textbox', { name: 'Page title' })).toBeFocused()
+  await expect(page.locator('.bn-editor').first()).toBeFocused()
   await expect(page.locator('.bn-editor')).toContainText('Key ideas')
   await expect(page.getByRole('status')).toContainText(
     'New page from “Study notes”',

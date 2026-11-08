@@ -549,4 +549,26 @@ export const enO = {
   'clash.keepMine': 'Keep mine',
   'clash.useOther': 'Use other',
   'clash.keepBoth': 'Keep both',
+  // ---- Fix #3: wrong passphrase / recovery code, progress after Unlock ----
+  'unlock.wrongPassphrase':
+    "That passphrase doesn't match. Check it and try again.",
+  'unlock.wrongCode':
+    "That recovery code doesn't match. Check it and try again.",
+  'unlock.codeLength':
+    'A recovery code has 26 letters and numbers. You typed {count}.',
+  'unlock.show': 'Show passphrase',
+  'unlock.hide': 'Hide passphrase',
+  'unlock.caps': 'Caps Lock is on.',
+  'unlock.useCode': 'Use your recovery code instead',
+  'unlock.usePassphrase': 'Use your passphrase instead',
+  'unlock.codeLabel': 'Recovery code',
+  'unlock.wait': 'Too many tries. Try again in {time}.',
+  'unlock.waitSr': 'Too many tries. Try again in about {count} min.',
+  'unlock.checkingPassphrase': 'Checking your passphrase…',
+  'unlock.checkingCode': 'Checking your recovery code…',
+  'unlock.checkingSlow': 'This can take a few seconds on a phone.',
+  'unlock.bringing': 'Unlocked · Bringing your notebooks to this device…',
+  'unlock.bringingCount':
+    'Unlocked · Bringing your notebooks to this device ({count} so far)',
+  'unlock.allSet': 'All set',
 }

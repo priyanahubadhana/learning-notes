@@ -2,6 +2,13 @@
 
 Moved out of HANDOFF on 2026-11-06 (audit) so HANDOFF stays five lines. Newest first; each paragraph names its step. The run decision (master plan) is one owner iPad pass before Sync; the Phase A builder adds its checks at the top. Tick a paragraph by deleting it.
 
+## Wrong passphrase or code (8 Nov, fix #3)
+
+1. A second device, Settings > Sync, type a wrong passphrase, press Unlock: a red line with an icon says it does not match; your text stays selected; the eye shows it; turn Caps Lock on and a hint appears.
+2. Two more wrong tries: "Too many tries. Try again in 0:59" counts down and the box is off. "Use your recovery code instead" still opens a working code box. A code with too few letters says how many you typed and does not count.
+3. After the wait, the right passphrase unlocks. On an iPhone, right after Unlock you see "Checking your passphrase..." with a spinner (never red), then "Bringing your notebooks to this device" and "All set".
+4. Same checks in the first-run sign-in guide and in Make a new recovery code.
+
 ## Two devices, same line (8 Nov, fix #2)
 
 1. PC and iPad, Sync on, the same page open. Press a different key on each at the same moment, in the same line. Within a few seconds after you stop, both show the same line, with no refresh.

@@ -124,7 +124,10 @@ test('an existing account unlocks on a second device with the code; Not now keep
     .click()
   const gb = b.getByTestId('signin-guide')
   await expect(gb.getByRole('heading', { name: 'Welcome back' })).toBeVisible()
-  await gb.getByLabel('Passphrase', { exact: true }).fill(code)
+  await gb
+    .getByRole('button', { name: 'Use your recovery code instead' })
+    .click()
+  await gb.getByLabel('Recovery code', { exact: true }).fill(code)
   await gb.getByRole('button', { name: 'Unlock' }).click()
   await expect(gb).toHaveCount(0)
   await expect(b.getByTestId('welcome')).toContainText('How will you write?')
@@ -183,7 +186,7 @@ test('Settings: a new recovery code needs the passphrase, then the old code stop
     .getByLabel('Passphrase', { exact: true })
     .fill('wrong passphrase here')
   await section.getByRole('button', { name: 'Make a new code' }).click()
-  await expect(section.getByText(/does not open the notes/)).toBeVisible()
+  await expect(section.getByText(/passphrase doesn't match/)).toBeVisible()
   await section.getByLabel('Passphrase', { exact: true }).fill(PASS)
   await section.getByRole('button', { name: 'Make a new code' }).click()
   const fresh = (
@@ -200,10 +203,13 @@ test('Settings: a new recovery code needs the passphrase, then the old code stop
   await b.goto('/#/settings/sync')
   const sb = b.getByTestId('sync-section')
   await sb.getByRole('button', { name: 'Sign in with Google' }).click()
-  await sb.getByLabel('Passphrase', { exact: true }).fill(code)
+  await sb
+    .getByRole('button', { name: 'Use your recovery code instead' })
+    .click()
+  await sb.getByLabel('Recovery code', { exact: true }).fill(code)
   await sb.getByRole('button', { name: 'Unlock' }).click()
-  await expect(sb.getByText(/does not open the notes/)).toBeVisible()
-  await sb.getByLabel('Passphrase', { exact: true }).fill(fresh)
+  await expect(sb.getByText(/recovery code doesn't match/)).toBeVisible()
+  await sb.getByLabel('Recovery code', { exact: true }).fill(fresh)
   await sb.getByRole('button', { name: 'Unlock' }).click()
   await expect(b.getByTestId('sync-status')).toContainText('Last synced', {
     timeout: 20_000,

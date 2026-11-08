@@ -23,6 +23,8 @@ export interface SyncStatus {
   mergedPages?: number
   /** The live feed is open: other devices' saves arrive within a second. */
   live?: boolean
+  /** Just unlocked: the first download is running (notes so far) or done. */
+  arrival?: { done: number; finished: boolean }
 }
 
 let status: SyncStatus = { phase: 'signedOut' }

@@ -2,6 +2,12 @@
 
 Current phase only. Older entries are in [ARCHIVE.md](ARCHIVE.md).
 
+## 2026-11-08 (Fix #3: wrong passphrase or recovery code)
+
+- **What:** one shared unlock box for Settings > Sync, the sign-in guide and "Make a new recovery code": red error with icon and aria wiring, text kept and selected, eye, Caps Lock hint, "Use your recovery code instead", 3 free tries then 1/5/15/60 min waits with a countdown (separate for passphrase and code, same wrong value counts once, wrong-length code is not a try, per-device in localStorage, reset on success). After Unlock: "Checking your passphrase..." then "Bringing your notebooks to this device (N so far)" and "All set", so a slow correct entry never looks wrong (owner's iPhone finding).
+- **Why:** owner-approved fix #3; research/unlock-attempts-2026-11.md. No server-side limit (deferred, noted in sync.md).
+- **Files:** `src/sync/{UnlockForm.tsx,unlockAttempts.ts,SyncSection.tsx,syncService.ts,syncStatus.ts,engine.ts}`, `src/onboarding/SignInGuide.tsx`, `src/i18n/{en,hi,es}O.ts`, tests `src/sync/unlockAttempts.test.ts`, `e2e/unlockAttempts.spec.ts` (signInFirst and sync specs updated), docs/features/sync.md.
+
 ## 2026-11-08 (Fix #2: two devices, same line)
 
 - **What:** (A) cause: a pulled batch read the local copy, wrote History (slow), then overwrote the block: a key saved in that gap was replaced and never sent, so the devices stayed apart until a refresh; also a block skipped because it was being typed in was never looked at again. Now the write is re-checked and decided again if the copy changed, and skipped blocks are retried. (B) a clash writes the other version on both devices' History and puts a "Changed on two devices" bar (Keep mine / Use other / Keep both) at the page; the choice syncs and the bar goes on both; Undo works for Use other / Keep both.

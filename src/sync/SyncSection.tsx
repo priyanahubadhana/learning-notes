@@ -4,8 +4,10 @@ import { t } from '../i18n/t'
 import { passphraseProblem } from './crypto'
 import { checkDevice } from './deviceCheck'
 import { SyncDot } from './SyncDot'
+import { ArrivalNotice, UnlockForm } from './UnlockForm'
 import { RecoveryCodeView } from './RecoveryCodeView'
 import {
+  dismissArrival,
   dismissMerged,
   getSyncStatus,
   reconnectDrive,
@@ -169,47 +171,29 @@ export function SetUp({ onMade }: { onMade: (p: string) => Promise<void> }) {
 }
 
 export function Unlock({ db }: { db: LearningNotesDB }) {
-  const [secret, setSecret] = useState('')
-  const [busy, setBusy] = useState(false)
-  const [wrong, setWrong] = useState(false)
   return (
-    <form
-      className="flex flex-col gap-3"
-      onSubmit={(e) => {
-        e.preventDefault()
-        setBusy(true)
-        setWrong(false)
-        void unlock(db, secret)
-          .then((ok) => setWrong(!ok))
-          .finally(() => setBusy(false))
-      }}
-    >
-      <h3 className="text-sm font-semibold">{t('sync.unlockTitle')}</h3>
-      <p className="text-sm text-muted">{t('sync.unlockHelp')}</p>
-      <label className="flex flex-col gap-1 text-sm">
-        {t('sync.passphrase')}
-        <input
-          type="password"
-          autoComplete="current-password"
-          className={field}
-          value={secret}
-          onChange={(e) => setSecret(e.target.value)}
-        />
-      </label>
-      {wrong && <p className="text-sm text-danger">{t('sync.wrongSecret')}</p>}
-      <div>
-        <button type="submit" className={primary} disabled={busy || !secret}>
-          {busy ? t('sync.working') : t('sync.unlock')}
-        </button>
-      </div>
-    </form>
+    <UnlockForm
+      kinds={['passphrase', 'code']}
+      title={t('sync.unlockTitle')}
+      help={t('sync.unlockHelp')}
+      submitLabel={t('sync.unlock')}
+      submit={async (secret) => ((await unlock(db, secret)) ? 'ok' : 'wrong')}
+    />
   )
+}
+
+/** After Unlock: progress of the first download, then "All set". */
+export function Arrival() {
+  const { arrival } = useSyncExternalStore(subscribeSync, getSyncStatus)
+  if (!arrival) return null
+  return <ArrivalNotice arrival={arrival} onDone={dismissArrival} />
 }
 
 function Running({ db }: { db: LearningNotesDB }) {
   const status = useSyncExternalStore(subscribeSync, getSyncStatus)
   return (
     <div className="flex flex-col gap-3">
+      <Arrival />
       <SyncDot className="text-sm" />
       <p className="text-sm" data-testid="sync-status" aria-live="polite">
         {status.phase === 'syncing'
@@ -302,9 +286,7 @@ function DeviceCheck() {
  */
 function NewCode() {
   const [open, setOpen] = useState(false)
-  const [pass, setPass] = useState('')
-  const [busy, setBusy] = useState(false)
-  const [error, setError] = useState<'wrong' | 'failed' | null>(null)
+  const [error, setError] = useState<'failed' | null>(null)
   const [made, setMade] = useState<{
     code: string
     oldRemoved: boolean
@@ -312,7 +294,6 @@ function NewCode() {
   const [saved, setSaved] = useState(false)
   const reset = () => {
     setOpen(false)
-    setPass('')
     setError(null)
     setMade(null)
   }
@@ -355,54 +336,40 @@ function NewCode() {
       </div>
     )
   return (
-    <form
-      className="flex flex-col gap-3"
-      data-testid="new-code-form"
-      onSubmit={(e) => {
-        e.preventDefault()
-        setBusy(true)
-        setError(null)
-        void makeNewRecoveryCode(pass)
-          .then((r) =>
-            r
-              ? setMade({ code: r.recoveryCode, oldRemoved: r.oldRemoved })
-              : setError('wrong'),
-          )
-          .catch(() => setError('failed'))
-          .finally(() => {
-            setBusy(false)
-            setPass('')
-          })
-      }}
-    >
-      <h3 className="text-sm font-semibold">{t('sync.newCode')}</h3>
-      <p className="text-sm text-muted">{t('sync.newCodeHelp')}</p>
-      <label className="flex flex-col gap-1 text-sm">
-        {t('sync.passphrase')}
-        <input
-          type="password"
-          autoComplete="current-password"
-          className={field}
-          value={pass}
-          onChange={(e) => setPass(e.target.value)}
-        />
-      </label>
-      {error === 'wrong' && (
-        <p className="text-sm text-danger">{t('sync.wrongSecret')}</p>
-      )}
-      {error === 'failed' && (
-        <p role="alert" className="text-sm text-danger">
-          {t('sync.newCodeFailed')}
-        </p>
-      )}
-      <div className="flex gap-2">
-        <button type="submit" className={primary} disabled={busy || !pass}>
-          {busy ? t('sync.working') : t('sync.newCodeGo')}
-        </button>
-        <button type="button" className={button} onClick={reset}>
-          {t('sync.newCodeCancel')}
-        </button>
-      </div>
-    </form>
+    <>
+      <UnlockForm
+        kinds={['passphrase']}
+        testId="new-code-form"
+        title={t('sync.newCode')}
+        help={t('sync.newCodeHelp')}
+        submitLabel={t('sync.newCodeGo')}
+        submit={async (secret) => {
+          setError(null)
+          try {
+            const r = await makeNewRecoveryCode(secret)
+            if (!r) return 'wrong'
+            setMade({ code: r.recoveryCode, oldRemoved: r.oldRemoved })
+            return 'ok'
+          } catch {
+            setError('failed')
+            return 'error'
+          }
+        }}
+        extra={
+          <>
+            {error === 'failed' && (
+              <p role="alert" className="text-sm text-danger">
+                {t('sync.newCodeFailed')}
+              </p>
+            )}
+            <div>
+              <button type="button" className={button} onClick={reset}>
+                {t('sync.newCodeCancel')}
+              </button>
+            </div>
+          </>
+        }
+      />
+    </>
   )
 }

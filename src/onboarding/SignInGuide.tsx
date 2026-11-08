@@ -3,7 +3,7 @@ import { createPortal } from 'react-dom'
 import type { LearningNotesDB } from '../core/db'
 import { t } from '../i18n/t'
 import { RecoveryCodeView } from '../sync/RecoveryCodeView'
-import { SetUp, Unlock } from '../sync/SyncSection'
+import { Arrival, SetUp, Unlock } from '../sync/SyncSection'
 import {
   getSyncStatus,
   setUpKey,
@@ -68,8 +68,9 @@ export function SignInGuide({ db }: { db: LearningNotesDB }) {
   // Already unlocked (or finished elsewhere): nothing to guide.
   const open = status.phase === 'ready' || status.phase === 'syncing'
   useEffect(() => {
-    if (booted && open && !settingUp.current && !code) close()
-  }, [booted, open, code])
+    if (booted && open && !settingUp.current && !code && !status.arrival)
+      close()
+  }, [booted, open, code, status.arrival])
 
   const Local = (
     <button
@@ -141,7 +142,11 @@ export function SignInGuide({ db }: { db: LearningNotesDB }) {
       </>
     )
   } else if (open) {
-    body = <p className="text-sm text-muted">{t('guide.connecting')}</p>
+    body = status.arrival ? (
+      <Arrival />
+    ) : (
+      <p className="text-sm text-muted">{t('guide.connecting')}</p>
+    )
   } else {
     body = (
       <>

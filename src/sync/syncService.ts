@@ -258,7 +258,11 @@ export async function unlock(
   }
   await saveMasterKey(master)
   setTracking(true)
-  set({ phase: 'ready', problem: undefined })
+  set({
+    phase: 'ready',
+    problem: undefined,
+    arrival: { done: 0, finished: false },
+  })
   // Notes already on this device are kept and sent too (never wiped).
   await enqueueChanged(db)
   void syncNow(db)
@@ -282,7 +286,15 @@ export function syncNow(db: LearningNotesDB): Promise<void> {
         scanned = true
         await enqueueChanged(db)
       }
-      const report: SyncReport = await syncOnce(db, getConnectors(), key)
+      const report: SyncReport = await syncOnce(
+        db,
+        getConnectors(),
+        key,
+        (done) => {
+          if (getSyncStatus().arrival)
+            set({ arrival: { done, finished: false } })
+        },
+      )
       knownSeq = Math.max(knownSeq, report.seq)
       await dedupeWorkspaces(db)
       const now = Date.now()
@@ -292,6 +304,10 @@ export function syncNow(db: LearningNotesDB): Promise<void> {
         // Storage blocked: the time shows for this session only.
       }
       set({
+        arrival: getSyncStatus().arrival && {
+          done: report.pulled,
+          finished: true,
+        },
         lastSyncedAt: now,
         problem:
           report.unreadable > 0
@@ -304,6 +320,7 @@ export function syncNow(db: LearningNotesDB): Promise<void> {
       })
     } catch (e) {
       set({
+        arrival: undefined,
         // Always one of the plain problems, never the raw error text.
         problem: mapSyncError(e),
         needsDriveTap:
@@ -327,6 +344,11 @@ export async function reconnectDrive(db: LearningNotesDB): Promise<boolean> {
   set({ needsDriveTap: !token })
   if (token) void syncNow(db)
   return !!token
+}
+
+/** The "All set" line has been shown. */
+export function dismissArrival(): void {
+  set({ arrival: undefined })
 }
 
 export function dismissMerged(): void {

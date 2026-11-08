@@ -531,4 +531,24 @@ export const hiO: Record<string, string> = {
   'clash.keepMine': 'मेरा रखें',
   'clash.useOther': 'दूसरा लें',
   'clash.keepBoth': 'दोनों रखें',
+  'unlock.wrongPassphrase':
+    'यह पासफ़्रेज़ मेल नहीं खाता। इसे जाँचकर फिर कोशिश करें।',
+  'unlock.wrongCode': 'यह रिकवरी कोड मेल नहीं खाता। इसे जाँचकर फिर कोशिश करें।',
+  'unlock.codeLength':
+    'रिकवरी कोड में 26 अक्षर और अंक होते हैं। आपने {count} लिखे।',
+  'unlock.show': 'पासफ़्रेज़ दिखाएँ',
+  'unlock.hide': 'पासफ़्रेज़ छिपाएँ',
+  'unlock.caps': 'Caps Lock चालू है।',
+  'unlock.useCode': 'इसके बजाय अपना रिकवरी कोड इस्तेमाल करें',
+  'unlock.usePassphrase': 'इसके बजाय अपना पासफ़्रेज़ इस्तेमाल करें',
+  'unlock.codeLabel': 'रिकवरी कोड',
+  'unlock.wait': 'बहुत सारी कोशिशें। {time} में फिर कोशिश करें।',
+  'unlock.waitSr': 'बहुत सारी कोशिशें। लगभग {count} मिनट में फिर कोशिश करें।',
+  'unlock.checkingPassphrase': 'आपका पासफ़्रेज़ जाँचा जा रहा है…',
+  'unlock.checkingCode': 'आपका रिकवरी कोड जाँचा जा रहा है…',
+  'unlock.checkingSlow': 'फ़ोन पर इसमें कुछ सेकंड लग सकते हैं।',
+  'unlock.bringing': 'अनलॉक हो गया · आपकी नोटबुक इस डिवाइस पर आ रही हैं…',
+  'unlock.bringingCount':
+    'अनलॉक हो गया · आपकी नोटबुक इस डिवाइस पर आ रही हैं (अब तक {count})',
+  'unlock.allSet': 'सब तैयार',
 }

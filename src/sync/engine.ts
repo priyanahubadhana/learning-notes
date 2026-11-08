@@ -125,9 +125,10 @@ export async function syncOnce(
   db: LearningNotesDB,
   conn: Connectors,
   master: MasterKey,
+  onProgress?: (pulled: number) => void,
 ): Promise<SyncReport> {
   const report = emptyReport()
-  await pull(db, conn, master, report)
+  await pull(db, conn, master, report, onProgress)
   await uploadFiles(db, conn, master, report)
   await push(db, conn, master, report)
   await downloadFiles(db, conn, master, report)
@@ -142,6 +143,7 @@ async function pull(
   conn: Connectors,
   master: MasterKey,
   report: SyncReport,
+  onProgress?: (pulled: number) => void,
 ) {
   let cursor = Number((await db.meta.get(CURSOR))?.value ?? 0)
   report.seq = Math.max(report.seq, cursor)
@@ -152,6 +154,7 @@ async function pull(
     cursor = batch[batch.length - 1].seq
     report.seq = Math.max(report.seq, cursor)
     await db.meta.put({ id: CURSOR, value: cursor })
+    onProgress?.(report.pulled)
     if (batch.length < PAGE) break
   }
 }

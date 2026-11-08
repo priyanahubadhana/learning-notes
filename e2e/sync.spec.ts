@@ -80,7 +80,7 @@ test('set up on one device, unlock on another; notes merge, server holds only lo
     .getByLabel('Passphrase', { exact: true })
     .fill('wrong passphrase here')
   await sb.getByRole('button', { name: 'Unlock' }).click()
-  await expect(sb.getByText(/does not open the notes/)).toBeVisible()
+  await expect(sb.getByText(/passphrase doesn't match/)).toBeVisible()
   await sb.getByLabel('Passphrase', { exact: true }).fill(PASS)
   await sb.getByRole('button', { name: 'Unlock' }).click()
   await expect(b.getByTestId('sync-status')).toContainText('Last synced', {

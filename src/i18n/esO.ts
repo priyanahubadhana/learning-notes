@@ -549,4 +549,26 @@ export const esO: Record<string, string> = {
   'clash.keepMine': 'Quedarme con la mía',
   'clash.useOther': 'Usar la otra',
   'clash.keepBoth': 'Conservar ambas',
+  'unlock.wrongPassphrase':
+    'Esa frase no coincide. Revísala e inténtalo de nuevo.',
+  'unlock.wrongCode': 'Ese código no coincide. Revísalo e inténtalo de nuevo.',
+  'unlock.codeLength':
+    'Un código de recuperación tiene 26 letras y números. Escribiste {count}.',
+  'unlock.show': 'Mostrar la frase',
+  'unlock.hide': 'Ocultar la frase',
+  'unlock.caps': 'Las mayúsculas están activadas.',
+  'unlock.useCode': 'Usar mejor tu código de recuperación',
+  'unlock.usePassphrase': 'Usar mejor tu frase',
+  'unlock.codeLabel': 'Código de recuperación',
+  'unlock.wait': 'Demasiados intentos. Inténtalo de nuevo en {time}.',
+  'unlock.waitSr':
+    'Demasiados intentos. Inténtalo de nuevo en unos {count} min.',
+  'unlock.checkingPassphrase': 'Comprobando tu frase…',
+  'unlock.checkingCode': 'Comprobando tu código de recuperación…',
+  'unlock.checkingSlow': 'En el móvil puede tardar unos segundos.',
+  'unlock.bringing':
+    'Desbloqueado · Trayendo tus cuadernos a este dispositivo…',
+  'unlock.bringingCount':
+    'Desbloqueado · Trayendo tus cuadernos a este dispositivo ({count} hasta ahora)',
+  'unlock.allSet': 'Todo listo',
 }

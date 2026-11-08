@@ -62,8 +62,6 @@ export const es3: Record<string, string> = {
   'help.tip.db.cardShows.meaning':
     'Elige qué valores aparecen en cada tarjeta.',
   'help.tip.db.cardShows.example': 'Muestra una valoración en cada tarjeta.',
-  'help.line.page.editor':
-    'Escribe / para bloques · [[ para enlazar una página · # para añadir una etiqueta · selecciona palabras para ocultarlas como hueco · el asa ⠿ junto a una línea › Crear tarjeta.',
   'help.line.review.ratings':
     'Otra vez = lo olvidaste · Difícil = apenas lo recordaste · Bien = lo recordaste · Fácil = sin ningún esfuerzo.',
   'help.line.review.practice':

@@ -18,9 +18,6 @@ test.beforeEach(async ({ page }) => {
 test('Show help: tips across the app, help lines, and nothing when Off', async ({
   page,
 }) => {
-  // A help line under the page title (marked for review).
-  await expect(page.locator('[data-help-line="page.editor"]')).toBeVisible()
-
   // Hover tips on sidebar buttons, with a meaning and an example.
   await (
     await openSidebar(page)

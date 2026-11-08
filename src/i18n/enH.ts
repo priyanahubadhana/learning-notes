@@ -277,8 +277,6 @@ export const enH = {
     'Group a board by a Choice column such as “Status”.',
   'help.tip.db.cardShows.meaning': 'Chooses which values appear on each card.',
   'help.tip.db.cardShows.example': 'Show a rating on every card.',
-  'help.line.page.editor':
-    'Type / for blocks · [[ to link a page · # to add a tag · select words to hide them as a blank · the ⠿ handle beside a line › Make card.',
   'help.line.review.ratings':
     'Again = you forgot it · Hard = you barely remembered · Good = you remembered · Easy = no effort at all.',
   'help.line.review.practice':

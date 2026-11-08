@@ -1,4 +1,3 @@
-import { HelpLine } from '../help/Help'
 import { useLiveQuery } from 'dexie-react-hooks'
 import {
   lazy,
@@ -550,11 +549,6 @@ export function PageView({
           />
           {withTabs && (
             <Segments tab={pageTab} onTab={setPageTab} className="mb-3" />
-          )}
-          {pageTab === 'notes' && (
-            <>
-              <HelpLine id="page.editor" className="mb-3 text-xs text-muted" />
-            </>
           )}
           {withTabs && pageTab === 'summary' && (
             <SummaryView

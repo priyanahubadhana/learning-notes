@@ -1066,7 +1066,7 @@ Every hover tip and help line in the app (shown while Settings › Show help is 
 - **Meaning:** Closes the audio panel. Recording keeps going.
 - **Example:** Hide the panel while a lecture records.
 
-## Help lines (12)
+## Help lines (11)
 
 Help lines are marked in the page with `data-help-line="<id>"`.
 
@@ -1089,11 +1089,6 @@ Help lines are marked in the page with `data-help-line="<id>"`.
 
 - **Where:** Study tracker › inside the Status menu (how Auto works)
 - **Text:** Auto: Not started = no cards answered yet · Learning = under 75% correct · Mastered = 90% or more correct, nothing due, no new cards, and at least 80% of the cards at level Mastered · Review = in between.
-
-### `page.editor`
-
-- **Where:** Page › under the title
-- **Text:** Type / for blocks · [[ to link a page · # to add a tag · select words to hide them as a blank · the ⠿ handle beside a line › Make card.
 
 ### `math.latex`
 

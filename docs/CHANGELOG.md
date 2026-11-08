@@ -2,6 +2,11 @@
 
 Current phase only. Older entries are in [ARCHIVE.md](ARCHIVE.md).
 
+## 2026-11-09 (iPad fix 6b: hint line removed)
+
+- **What:** The hint line under the Notes/Summary/Review tabs (Type / for blocks ...) is gone, with its help entry and its English, Spanish and Hindi strings (the first-use tips teach the same things).
+- **Files:** src/pages/PageView.tsx, src/help/helpRegistry.ts, src/i18n/enH.ts, es3.ts, hi3.ts, e2e/help.spec.ts, docs/HELP-TEXTS.md
+
 ## 2026-11-09 (iPad fix 1: picture placement preview)
 
 - **What:** After a picture is chosen (Photos, Files, Camera, Paste, slash Camera, empty picture block) it shows as a preview at the cursor line; the page scrolls to it. Drag to another line (it snaps under the block it is over, side by thirds: left, centre, right, kept inside the page), corner handles resize, tick or Enter places (the block is made only then), cross or Esc cancels. Only a size the person changed is saved. Also repairs toolRibbon.spec for fix 2 (Undo is pinned, not in the Home group).

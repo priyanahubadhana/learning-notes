@@ -258,7 +258,6 @@ export const HELP_LINES = {
   'tracker.statusRule': {
     where: 'Study tracker › inside the Status menu (how Auto works)',
   },
-  'page.editor': { where: 'Page › under the title' },
   'math.latex': { where: 'Maths editor › under the LaTeX box' },
   'review.ratings': {
     where: 'Review › under the Again / Hard / Good / Easy buttons',

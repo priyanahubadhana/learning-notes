@@ -1,4 +1,4 @@
-# Embeds (YouTube and links)
+# Embeds (YouTube, Vimeo, Loom, video files and links)
 
 Security rules: [rules/security.md](../../rules/security.md). Check them before building.
 
@@ -13,7 +13,8 @@ Lets a note hold a YouTube video next to the notes about it, and lets the user m
 - YouTube card: name, address and start time first; **nothing is loaded from YouTube until Play is tapped**. The frame is `https://www.youtube-nocookie.com/embed/<id>` with `enablejsapi=1`, `referrerPolicy="strict-origin-when-cross-origin"` (YouTube refuses frames with no referrer; only the site's address is sent, and only after the tap). Offline the card shows **Needs internet** and Play is disabled.
 - While playing: **Insert timestamp** adds a paragraph with a link `▶ 12:34` to `https://www.youtube.com/watch?v=<id>&t=754s` below the card (the time comes from the player's messages, see below; if none arrived in the last 5 seconds a small field asks for the time). **Paste screenshot** reads a picture from the clipboard and adds it below, captioned `▶ 12:34`. A picture pasted or added with `/image` while the video plays gets the same caption (`StampWatcher`, `stampPicture` in the editor's upload).
 - `embedClock.ts`: listens to `message` events from the player frame only (checks the origin and the frame window), reads `infoDelivery.currentTime` (the IFrame API's widget channel; no script from YouTube is loaded) and greets the frame with `{event:'listening'}` for ten seconds. Best effort: the web cannot grab video frames from a frame, and some devices may not report the time, so typing it always works.
-- `public/_headers`: `frame-src https://www.youtube-nocookie.com` added to the CSP (nothing else may be framed).
+- `public/_headers`: `frame-src` lists youtube-nocookie.com, player.vimeo.com and www.loom.com (nothing else may be framed).
+- **Vimeo, Loom and video files (9 Nov):** `provider` can also be `vimeo`, `loom` or `video`. `parseEmbedUrl` reads vimeo.com/ID, vimeo.com/ID/HASH, player.vimeo.com/video/ID?h=HASH, channel and group paths, Loom /share/ID and /embed/ID (32 hex), and any https address ending .mp4 or .webm. `PlayerCard` (EmbedView.tsx) shows name and address first; Play loads a sandboxed frame from player.vimeo.com / www.loom.com (address rebuilt from the stored URL by `frameSrc`) or an inline `<video controls>`. Nothing is loaded before Play. Timestamps and screenshots stay YouTube only. The lone-address paste chooser offers "Embed (video)" for all four.
 
 ## Edge cases
 
@@ -31,3 +32,5 @@ Lets a note hold a YouTube video next to the notes about it, and lets the user m
 ## Tests
 
 `embed.test.ts` (URL forms, refusals, times, message origin and freshness, stamps); `e2e/embed.spec.ts` (card then Play, offline, timestamp from the player and typed, picture caption, link card, refused address).
+
+Vimeo, Loom and video files: `embed.test.ts` (forms, refusals, frame addresses), `e2e/embedMore.spec.ts`.

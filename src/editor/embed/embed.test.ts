@@ -10,7 +10,9 @@ import {
   timeFromMessage,
 } from './embedClock'
 import {
+  embedProps,
   formatTime,
+  frameSrc,
   parseEmbedUrl,
   parseTime,
   playerSrc,
@@ -166,5 +168,86 @@ describe('the play clock', () => {
     stampPicture('lnimg:a', '▶ 1:40')
     expect(takeStamp('lnimg:a')).toBe('▶ 1:40')
     expect(takeStamp('lnimg:a')).toBeUndefined()
+  })
+})
+
+describe('Vimeo, Loom and video files', () => {
+  it('reads Vimeo addresses, public and unlisted', () => {
+    expect(parseEmbedUrl('https://vimeo.com/76979871')).toEqual({
+      provider: 'vimeo',
+      videoId: '76979871',
+      hash: '',
+      start: 0,
+      url: 'https://vimeo.com/76979871',
+    })
+    expect(
+      parseEmbedUrl('https://vimeo.com/76979871/abcdef1234'),
+    ).toMatchObject({ provider: 'vimeo', hash: 'abcdef1234' })
+    expect(
+      parseEmbedUrl('https://player.vimeo.com/video/76979871?h=abcdef1234'),
+    ).toMatchObject({ provider: 'vimeo', hash: 'abcdef1234' })
+    expect(
+      parseEmbedUrl('https://vimeo.com/channels/staff/76979871'),
+    ).toMatchObject({ provider: 'vimeo', videoId: '76979871' })
+    expect(parseEmbedUrl('https://vimeo.com/76979871#t=1m5s')).toMatchObject({
+      start: 65,
+    })
+    // Not a video: a plain link.
+    expect(parseEmbedUrl('https://vimeo.com/staff')).toMatchObject({
+      provider: 'link',
+    })
+  })
+  it('reads Loom share and embed addresses', () => {
+    const id = 'a'.repeat(32)
+    expect(parseEmbedUrl(`https://www.loom.com/share/${id}`)).toEqual({
+      provider: 'loom',
+      videoId: id,
+      start: 0,
+      url: `https://www.loom.com/share/${id}`,
+    })
+    expect(parseEmbedUrl(`https://loom.com/embed/${id}?t=30`)).toMatchObject({
+      provider: 'loom',
+      start: 30,
+    })
+    expect(parseEmbedUrl('https://www.loom.com/share/short')).toMatchObject({
+      provider: 'link',
+    })
+  })
+  it('accepts direct .mp4 and .webm over https only', () => {
+    expect(parseEmbedUrl('https://cdn.example.com/a/clip.mp4?x=1')).toEqual({
+      provider: 'video',
+      url: 'https://cdn.example.com/a/clip.mp4?x=1',
+    })
+    expect(parseEmbedUrl('https://cdn.example.com/clip.WEBM')).toMatchObject({
+      provider: 'video',
+    })
+    expect(parseEmbedUrl('http://cdn.example.com/clip.mp4')).toMatchObject({
+      provider: 'link',
+    })
+    expect(parseEmbedUrl('https://example.com/page.html')).toMatchObject({
+      provider: 'link',
+    })
+  })
+  it('frames only the allow-listed hosts', () => {
+    expect(
+      frameSrc({ url: 'https://vimeo.com/76979871/abcdef1234', start: 12 }),
+    ).toBe(
+      'https://player.vimeo.com/video/76979871?dnt=1&autoplay=1&h=abcdef1234#t=12s',
+    )
+    const id = 'b'.repeat(32)
+    expect(frameSrc({ url: `https://www.loom.com/share/${id}` })).toBe(
+      `https://www.loom.com/embed/${id}?autoplay=1&hide_owner=true`,
+    )
+    expect(frameSrc({ url: 'https://evil.example/x.mp4' })).toBeNull()
+    expect(frameSrc({ url: 'https://example.com/' })).toBeNull()
+  })
+  it('builds block props', () => {
+    expect(embedProps(parseEmbedUrl('https://example.com/a')!)).toEqual({
+      url: 'https://example.com/a',
+      provider: 'link',
+    })
+    expect(
+      embedProps(parseEmbedUrl('https://cdn.example.com/clip.mp4')!),
+    ).toEqual({ url: 'https://cdn.example.com/clip.mp4', provider: 'video' })
   })
 })

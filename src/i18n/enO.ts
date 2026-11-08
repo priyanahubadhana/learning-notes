@@ -915,4 +915,5 @@ export const enO = {
   'embed.loom': 'Loom',
   'embed.video': 'Video file',
   'pasteChooser.cleaned': 'Cleaned up',
+  'embed.openLink': 'Open the link',
 }

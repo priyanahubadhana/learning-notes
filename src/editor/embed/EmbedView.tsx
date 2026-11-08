@@ -6,7 +6,9 @@ import { imageRef } from '../../images/imageRef'
 import { saveImage } from '../../images/imageService'
 import { currentVideoTime, listenToPlayer, stampLabel } from './embedClock'
 import {
+  embedProps,
   formatTime,
+  frameSrc,
   parseEmbedUrl,
   parseTime,
   playerSrc,
@@ -64,16 +66,7 @@ export function EmbedView({
         setBad(true)
         return
       }
-      setProps(
-        parsed.provider === 'youtube'
-          ? {
-              url: parsed.url,
-              provider: 'youtube',
-              videoId: parsed.videoId,
-              start: parsed.start,
-            }
-          : { url: parsed.url, provider: 'link' },
-      )
+      setProps(embedProps(parsed))
     }
     return (
       <div
@@ -115,6 +108,13 @@ export function EmbedView({
     )
   }
 
+  if (
+    p.provider === 'vimeo' ||
+    p.provider === 'loom' ||
+    p.provider === 'video'
+  ) {
+    return <PlayerCard props={p} editable={editable} setProps={setProps} />
+  }
   if (p.provider !== 'youtube' || p.videoId === '') {
     return <LinkCard props={p} editable={editable} setProps={setProps} />
   }
@@ -191,6 +191,115 @@ function LinkCard({
       </a>
     </div>
   )
+}
+
+/**
+ * Vimeo, Loom (a frame from that one host) and a direct .mp4 / .webm file (an
+ * inline <video>). Like YouTube, nothing is loaded until Play is tapped. The
+ * address is parsed again here, so a damaged value falls back to a link card.
+ */
+function PlayerCard({
+  props: p,
+  editable,
+  setProps,
+}: {
+  props: EmbedProps
+  editable: boolean
+  setProps: (p: Partial<EmbedProps>) => void
+}) {
+  const [playing, setPlaying] = useState(false)
+  const online = useOnline()
+  const parsed = parseEmbedUrl(p.url)
+  const src = p.provider === 'video' ? null : frameSrc(p)
+  const file = p.provider === 'video' && parsed?.provider === 'video'
+  if (!file && !src) {
+    return <LinkCard props={p} editable={editable} setProps={setProps} />
+  }
+  const label = t(`embed.${p.provider}` as 'embed.vimeo')
+  return (
+    <div
+      data-chrome
+      data-embed={p.provider}
+      contentEditable={false}
+      className="w-full overflow-hidden rounded-lg border border-line bg-soft"
+    >
+      <div className="px-3 pt-2">
+        <Caption
+          value={p.caption}
+          editable={editable}
+          onSave={(caption) => setProps({ caption })}
+        />
+        <p className="truncate pb-1 text-xs text-muted">
+          {label} · {p.url}
+        </p>
+      </div>
+      {playing ? (
+        <div className="aspect-video w-full bg-black">
+          {file ? (
+            <video
+              src={p.url}
+              controls
+              autoPlay
+              playsInline
+              preload="metadata"
+              aria-label={p.caption || label}
+              className="size-full"
+            />
+          ) : (
+            <iframe
+              title={p.caption || label}
+              src={src!}
+              className="size-full border-0"
+              allow="autoplay; encrypted-media; picture-in-picture; fullscreen"
+              allowFullScreen
+              sandbox="allow-scripts allow-same-origin allow-presentation allow-popups"
+              referrerPolicy="strict-origin-when-cross-origin"
+            />
+          )}
+        </div>
+      ) : (
+        <div className="flex flex-wrap items-center gap-2 px-3 pb-2">
+          <button
+            type="button"
+            className="min-h-11 rounded-lg bg-accent px-4 text-sm font-medium text-white disabled:opacity-40"
+            disabled={!online}
+            onClick={() => setPlaying(true)}
+          >
+            ▶ {t('embed.play')}
+          </button>
+          {!online && (
+            <span role="status" className="text-sm text-muted">
+              {t('embed.needsInternet')}
+            </span>
+          )}
+          <a
+            href={p.url}
+            target="_blank"
+            rel="noopener noreferrer"
+            className="min-h-11 content-center text-sm text-accent underline underline-offset-2"
+          >
+            {t('embed.openLink')}
+          </a>
+        </div>
+      )}
+    </div>
+  )
+}
+
+/** True while the browser is online. */
+function useOnline(): boolean {
+  const [online, setOnline] = useState(() => navigator.onLine)
+  useEffect(() => {
+    const on = () => setOnline(true)
+    const off = () => setOnline(false)
+    window.addEventListener('online', on)
+    window.addEventListener('offline', off)
+    return () => {
+      window.removeEventListener('online', on)
+      window.removeEventListener('offline', off)
+    }
+  }, [])
+  return online
 }
 
 function VideoCard({

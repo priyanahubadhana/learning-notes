@@ -2,6 +2,12 @@
 
 Current phase only. Older entries are in [ARCHIVE.md](ARCHIVE.md).
 
+## 2026-11-09 (Embeds: Vimeo, Loom and video files)
+
+- **What:** the Embed block now shows Vimeo (public and unlisted links), Loom (share and embed links) and direct .mp4 / .webm files (https only, an inline video). Same lone-address paste chooser ("Embed (video)", Link card, Plain URL). Like YouTube, nothing is loaded until Play is tapped; frames carry a sandbox. The allow-list is closed: `frame-src` in public/_headers gains player.vimeo.com and www.loom.com; any other address stays a link card.
+- **Why:** owner-approved leftover of the paste pipeline.
+- **Files:** src/editor/embed/embedUrl.ts (parse, `embedProps`, `frameSrc`), EmbedView.tsx (`PlayerCard`), embed.test.ts, src/editor/pasteFlow.ts, public/_headers, src/i18n/enO.ts, esO.ts, hiO.ts, e2e/embedMore.spec.ts, docs/features/embeds.md
+
 ## 2026-11-09 (Paste chooser: Clean up with AI)
 
 - **What:** the paste chooser has a 4th option, "Clean up with AI", when AI is on with the owner's own key: it shows the library prompt "Clean up pasted text" (seeded, editable; edits are saved to the library as a new version), the cost in rupees and tokens first, asks the first-use privacy question, then sends the pasted text (at most 24,000 characters). The answer is Markdown that keeps every fact; anything unplaced sits under "Not placed" and is flagged in a preview together with numbers of the original that are missing from the answer. Insert runs the normal Markdown paste, and the chip can swap back to the original words.

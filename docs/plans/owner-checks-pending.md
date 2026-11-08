@@ -2,6 +2,12 @@
 
 Moved out of HANDOFF on 2026-11-06 (audit) so HANDOFF stays five lines. Newest first; each paragraph names its step. The run decision (master plan) is one owner iPad pass before Sync; the Phase A builder adds its checks at the top. Tick a paragraph by deleting it.
 
+## Vimeo, Loom and video files (9 Nov)
+
+1. Paste a Vimeo link, a Loom share link and a link to an .mp4 file (one at a time, Paste set to Ask each time): the chooser says "Embed (video)"; Enter makes a card with the name and address, no picture or sound yet.
+2. Tap Play: the video starts inside the page (iPad: full-screen button works). Offline the card says it needs a connection.
+3. Any other address (a news page, an http file) is still a plain link card.
+
 ## Clean up with AI (9 Nov)
 
 1. Settings > AI: on with your key; allow AI in the notebook. Paste a messy block of text (about 3 lines or more) with Paste set to "Ask each time": the chooser has a 4th row "Clean up with AI".

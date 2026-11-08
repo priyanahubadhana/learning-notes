@@ -20,7 +20,7 @@ import {
   markdownTableRows,
   treeSegments,
 } from './pasteSources'
-import { parseEmbedUrl } from './embed/embedUrl'
+import { embedProps, parseEmbedUrl } from './embed/embedUrl'
 import { readAiConfig } from '../ai/route'
 
 /**
@@ -205,11 +205,17 @@ export function choicesFor(plan: PastePlan): PasteChoice[] {
 const tableRowsOf = (plan: PastePlan): string[][] | null =>
   plan.rows ?? tsvToRows(plan.text) ?? markdownTableRows(plan.text)
 
+/** Is this address one that shows a player (YouTube, Vimeo, Loom, a video file)? */
+const parsePlayer = (url: string): boolean => {
+  const p = parseEmbedUrl(url)
+  return !!p && p.provider !== 'link'
+}
+
 /** The text key naming a choice (an address says Embed / Link card / Plain URL). */
 export function labelKey(plan: PastePlan, choice: PasteChoice): string {
   if (plan.kind === 'url') {
     if (choice === 'keep') {
-      return parseEmbedUrl(plan.url ?? '')?.provider === 'youtube'
+      return parsePlayer(plan.url ?? '')
         ? 'pasteChooser.embed'
         : 'pasteChooser.linkCard'
     }
@@ -389,15 +395,7 @@ export async function applyPaste(
     case 'url': {
       const parsed = parseEmbedUrl(plan.url ?? plan.text)
       if (!parsed) return
-      const props =
-        parsed.provider === 'youtube'
-          ? {
-              url: parsed.url,
-              provider: 'youtube',
-              videoId: parsed.videoId,
-              start: parsed.start,
-            }
-          : { url: parsed.url, provider: 'link' }
+      const props = embedProps(parsed)
       editor.transact(() =>
         insertBlocksAtCursor(editor, [{ type: 'embed', props }]),
       )

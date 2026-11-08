@@ -817,6 +817,13 @@ The other older decisions stand as built (owner, 2026-11-01); they are in [ARCHI
 - The model's answer is never inserted without the preview. A local check lists numbers of the original that are not in the answer, next to the AI's own "Not placed" list.
 - Only the pasted text and the instructions are sent; the notebook must allow AI. No new cost cap logic: the monthly cap applies as everywhere.
 
+## Decisions to review (Vimeo, Loom and video files, 9 Nov)
+
+- Vimeo: `dnt=1` (do not track) and the private-link hash of unlisted videos are kept; Loom frames use `hide_owner=true`. Frames use a sandbox (scripts, same-origin, presentation, popups; no forms, no top navigation).
+- Direct video files must be https and end in .mp4 or .webm; the file loads from its own host only after Play (no preload before). No CORS or download proxy.
+- Timestamps and screenshots stay YouTube only (they depend on the YouTube player messages).
+- CSP `frame-src` now lists three hosts (YouTube no-cookie, Vimeo player, Loom); `media-src` already allowed https.
+
 ## Decisions to review (database pages, 9 Nov)
 
 - No new Dexie version or table: the database engine, relations, rollups, formulas, tags and stars (number with stars format, max up to 10) already existed; "stars 1-10" is that format, not a new type.

@@ -890,4 +890,5 @@ export const hiO: Record<string, string> = {
   'embed.loom': 'Loom',
   'embed.video': 'वीडियो फ़ाइल',
   'pasteChooser.cleaned': 'साफ़ किया हुआ',
+  'embed.openLink': 'लिंक खोलें',
 }

@@ -916,4 +916,5 @@ export const esO: Record<string, string> = {
   'embed.loom': 'Loom',
   'embed.video': 'Archivo de vídeo',
   'pasteChooser.cleaned': 'Ordenado',
+  'embed.openLink': 'Abrir el enlace',
 }

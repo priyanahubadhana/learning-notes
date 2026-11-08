@@ -738,4 +738,18 @@ export const hiO: Record<string, string> = {
   'prompts.openResult': 'नतीजा खोलें',
   'prompts.oneCall':
     'एक ही कॉल सब कुछ बनाती है। Claude के लिए टेक्स्ट कैश होता है, इसलिए दोबारा पूछना सस्ता है।',
+  'prompts.paste.title': 'AI कुंजी नहीं? कोई भी AI चैट इस्तेमाल करें (मुफ़्त)',
+  'prompts.paste.help':
+    'इसे कॉपी करें, किसी भी AI चैट में चिपकाएँ, फिर उत्तर नीचे वापस चिपकाएँ। वही जाँच और वही प्रिव्यू होगा।',
+  'prompts.paste.copy': 'प्रॉम्प्ट और उत्तर का रूप कॉपी करें',
+  'prompts.paste.copied': 'कॉपी हो गया। अपने AI चैट में चिपकाएँ।',
+  'prompts.paste.answerLabel': 'AI का उत्तर यहाँ चिपकाएँ',
+  'prompts.paste.import': 'उत्तर चिपकाएँ',
+  'prompts.paste.empty': 'कुछ नहीं चिपकाया गया।',
+  'prompts.paste.tooLong':
+    'वह उत्तर सुरक्षित रूप से पढ़ने के लिए बहुत लंबा है।',
+  'prompts.paste.notJson':
+    'यह अपेक्षित रूप में नहीं है। AI से कहें कि सिर्फ़ JSON ऑब्जेक्ट में उत्तर दे।',
+  'prompts.paste.noContent':
+    'उत्तर में काम की कोई चीज़ नहीं है (कोई बिंदु, पेज, कार्ड या सारांश नहीं)।',
 }

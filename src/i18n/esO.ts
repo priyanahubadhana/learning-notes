@@ -762,4 +762,18 @@ export const esO: Record<string, string> = {
   'prompts.openResult': 'Abrir el resultado',
   'prompts.oneCall':
     'Una sola llamada lo crea todo. El texto se guarda en caché para Claude, así que volver a preguntar cuesta menos.',
+  'prompts.paste.title': '¿Sin clave de IA? Usa cualquier chat de IA (gratis)',
+  'prompts.paste.help':
+    'Copia esto, pégalo en cualquier chat de IA y pega la respuesta abajo. Pasa por las mismas comprobaciones y la misma vista previa.',
+  'prompts.paste.copy': 'Copiar el prompt y el formato de respuesta',
+  'prompts.paste.copied': 'Copiado. Pégalo en tu chat de IA.',
+  'prompts.paste.answerLabel': 'Pega aquí la respuesta de la IA',
+  'prompts.paste.import': 'Pegar respuesta',
+  'prompts.paste.empty': 'No se pegó nada.',
+  'prompts.paste.tooLong':
+    'Esa respuesta es demasiado larga para leerla con seguridad.',
+  'prompts.paste.notJson':
+    'No tiene el formato esperado. Pide a la IA que responda solo con el objeto JSON.',
+  'prompts.paste.noContent':
+    'La respuesta no tiene nada útil (ni puntos, ni páginas, ni tarjetas, ni resumen).',
 }

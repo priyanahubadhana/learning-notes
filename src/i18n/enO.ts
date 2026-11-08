@@ -759,4 +759,17 @@ export const enO = {
   'prompts.openResult': 'Open the result',
   'prompts.oneCall':
     'One call makes everything. The text is cached for Claude, so asking again costs less.',
+  'prompts.paste.title': 'No AI key? Use any AI chat (free)',
+  'prompts.paste.help':
+    'Copy this, paste it into any AI chat, then paste the answer back below. It goes through the same checks and the same preview.',
+  'prompts.paste.copy': 'Copy the prompt and answer format',
+  'prompts.paste.copied': 'Copied. Paste it into your AI chat.',
+  'prompts.paste.answerLabel': 'Paste the AI answer here',
+  'prompts.paste.import': 'Paste answer',
+  'prompts.paste.empty': 'Nothing was pasted.',
+  'prompts.paste.tooLong': 'That answer is too long to read safely.',
+  'prompts.paste.notJson':
+    'That is not in the expected format. Ask the AI to answer with only the JSON object.',
+  'prompts.paste.noContent':
+    'The answer has nothing I can use (no points, pages, cards or summary).',
 }

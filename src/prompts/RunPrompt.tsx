@@ -20,6 +20,8 @@ import {
 } from '../ai/aiRun'
 import { AiError, PROVIDERS } from '../ai/provider'
 import { ratePrompt, type Library } from './libraryDb'
+import { PasteIn } from './PasteIn'
+import { readPastedAnswer } from './pasteText'
 import type { PromptItem } from './promptModel'
 import {
   PROMPT_MAX_TOKENS,
@@ -188,6 +190,17 @@ export function RunPrompt({
           {busy ? t('ai.working') : t('prompts.run')}
         </button>
       </div>
+      <PasteIn
+        item={item}
+        input={input.text}
+        onImport={(raw) => {
+          const r = readPastedAnswer(raw)
+          if (!r.ok) return r.problem
+          setAnswer(r.text)
+          setRated(0)
+          return null
+        }}
+      />
       {answer && (
         <div className="flex flex-col gap-2">
           <textarea

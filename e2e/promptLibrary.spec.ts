@@ -241,3 +241,45 @@ test('skill: one cached call, preview, untick, save into a new Research book, on
     'doubted by the fact check',
   )
 })
+
+test('paste-in: no AI key, copy the prompt with its format, paste a bad then a good answer', async ({
+  page,
+  context,
+}) => {
+  await context.grantPermissions(['clipboard-read', 'clipboard-write'])
+  const calls: string[] = []
+  await page.route('https://api.anthropic.com/**', (route) => {
+    calls.push(route.request().url())
+    return route.abort()
+  })
+  await page.goto('/')
+  await space(page, 'Library').click()
+  await page.getByTestId('ai-prompts').click()
+  const dialog = page.getByTestId('prompts-dialog')
+  await dialog.getByTestId('prompt-search').fill('quick digest')
+  await dialog.getByTestId('prompt-row').first().click()
+  await dialog.getByTestId('input-text').fill('Mitochondria make ATP.')
+  await dialog.getByText('No AI key? Use any AI chat (free)').click()
+  await dialog.getByTestId('paste-copy').click()
+  const copied = await page.evaluate(() => navigator.clipboard.readText())
+  expect(copied).toContain('Mitochondria make ATP.')
+  expect(copied).toContain('ln-skill/1')
+  expect(copied).toContain('"points"')
+
+  // A wrong answer is refused with a plain reason and nothing changes.
+  await dialog.getByTestId('paste-answer').fill('Sure! Here is a summary.')
+  await dialog.getByTestId('paste-import').click()
+  await expect(dialog.getByTestId('paste-problem')).toContainText(
+    'not in the expected format',
+  )
+  await expect(dialog.getByTestId('skill-preview')).toHaveCount(0)
+
+  // A good one goes through the same preview.
+  await dialog.getByTestId('paste-answer').fill(JSON.stringify(skillAnswer))
+  await dialog.getByTestId('paste-import').click()
+  await expect(dialog.getByTestId('skill-preview')).toBeVisible()
+  await expect(dialog.getByTestId('skill-point')).toHaveCount(3)
+  await dialog.getByTestId('skill-save').click()
+  await expect(dialog.getByTestId('skill-saved')).toBeVisible()
+  expect(calls).toHaveLength(0)
+})

@@ -11,12 +11,17 @@ import { listNotebooks } from '../notebooks/notebookService'
 import { AI_KEYS, forNotebook, readAiConfig } from '../ai/aiRun'
 import { AiError, PROVIDERS } from '../ai/provider'
 import { ratePrompt, type Library } from './libraryDb'
+import { PasteIn } from './PasteIn'
 import { EMPTY_INPUT, type InputValue } from './inputSource'
 import type { PromptItem } from './promptModel'
 import { whyNot } from './promptRun'
 import { CostLine, InputPicker, InputStatus, StarRating } from './RunParts'
 import { SkillPreview } from './SkillPreview'
-import { SkillFormatError, type SkillResult } from './skillFormat'
+import {
+  SkillFormatError,
+  parseSkillAnswer,
+  type SkillResult,
+} from './skillFormat'
 import {
   factCheckCost,
   runFactCheck,
@@ -253,6 +258,20 @@ export function RunSkill({
           </button>
         </div>
       )}
+      <PasteIn
+        item={item}
+        input={input.text}
+        onImport={(raw) => {
+          try {
+            setResult(parseSkillAnswer(raw))
+            setRated(0)
+            return null
+          } catch (e) {
+            if (e instanceof SkillFormatError) return e.problem
+            throw e
+          }
+        }}
+      />
       <div className="flex flex-wrap gap-2">
         <button
           type="button"

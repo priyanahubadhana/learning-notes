@@ -5,6 +5,7 @@ import { runTask } from '../app/errors'
 import { readPref, writePref } from '../app/uiPrefs'
 import { addBlocks } from '../core/blockBulk'
 import type { LearningNotesDB } from '../core/db'
+import { EditLockedError } from '../core/editLock'
 import { createId } from '../core/ids'
 import type { Page } from '../core/types'
 import { removeAiResult } from '../capture/importNotes'
@@ -234,7 +235,15 @@ export function RunPrompt({
                 type="button"
                 data-testid="run-apply"
                 className={primary}
-                onClick={() => runTask(apply())}
+                onClick={() =>
+                  runTask(
+                    apply().catch((e: unknown) => {
+                      if (e instanceof EditLockedError)
+                        toast(t('editLock.refused'))
+                      else throw e
+                    }),
+                  )
+                }
               >
                 {t('prompts.addToPage')}
               </button>

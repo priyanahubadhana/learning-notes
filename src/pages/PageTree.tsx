@@ -214,6 +214,7 @@ export function PageTree({
                 className="line-clamp-2 min-w-[5rem] flex-1 text-left break-words"
               >
                 {page.locked ? '🔒 ' : ''}
+                {page.editLocked ? '🔏 ' : ''}
                 {page.journalDate && !page.customTitle
                   ? shortDayLabel(page.journalDate)
                   : page.journalMonth && !page.customTitle

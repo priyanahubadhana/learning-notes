@@ -1,4 +1,5 @@
 import type { LearningNotesDB } from '../core/db'
+import { EditLockedError } from '../core/editLock'
 import { byOrder, orderAtIndex } from '../core/order'
 import {
   descendantIds,
@@ -248,10 +249,17 @@ export async function deletePage(
   db: LearningNotesDB,
   id: string,
 ): Promise<void> {
-  await db.transaction('rw', db.pages, db.blocks, async () => {
+  await db.transaction('rw', db.pages, db.notebooks, db.blocks, async () => {
     const page = await getLive(db.pages, id)
     const pages = await livePages(db, page.notebookId)
     const pageIds = [id, ...descendantIds(pages, id)]
+    // Edit lock: neither a locked page (or sub-page) nor a locked notebook's page goes.
+    if (
+      pages.some((p) => pageIds.includes(p.id) && p.editLocked) ||
+      (await db.notebooks.get(page.notebookId))?.editLocked
+    ) {
+      throw new EditLockedError()
+    }
     if (
       pages.some((p) => pageIds.includes(p.id) && p.templateRole === 'daily')
     ) {

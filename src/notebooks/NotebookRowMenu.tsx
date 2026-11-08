@@ -1,4 +1,5 @@
 import { runTask } from '../app/errors'
+import { editLockItem } from '../app/lock/editLockMenu'
 import { toggleLock } from '../app/lock/lockMenu'
 import { MenuPopover, type MenuItem } from '../app/ui'
 import type { LearningNotesDB } from '../core/db'
@@ -58,6 +59,7 @@ export default function NotebookRowMenu({
       icon: '🔒',
       onSelect: () => runTask(toggleLock(db, 'notebook', notebook.id, toast)),
     },
+    editLockItem(db, 'notebook', notebook.id, !!notebook.editLocked, toast),
     {
       label: t('tree.moveUp'),
       icon: '↑',
@@ -75,6 +77,8 @@ export default function NotebookRowMenu({
       icon: '×',
       onSelect: onDelete,
       danger: true,
+      disabled: !!notebook.editLocked,
+      hint: notebook.editLocked ? t('editLock.deleteHint') : undefined,
     },
   )
   return <MenuPopover anchor={anchor} items={items} onClose={onClose} />

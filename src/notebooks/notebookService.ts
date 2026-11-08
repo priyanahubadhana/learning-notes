@@ -1,4 +1,5 @@
 import type { LearningNotesDB } from '../core/db'
+import { EditLockedError } from '../core/editLock'
 import { byOrder, orderAtIndex, orderBetween } from '../core/order'
 import {
   getLive,
@@ -146,7 +147,16 @@ export async function deleteNotebook(
     db.dbViews,
   ]
   await db.transaction('rw', tables, async () => {
-    await getLive(db.notebooks, id)
+    const notebook = await getLive(db.notebooks, id)
+    // Edit lock: a locked notebook, or one holding a locked page, stays.
+    if (
+      notebook.editLocked ||
+      (await db.pages.where('notebookId').equals(id).toArray()).some(
+        (p) => isLive(p) && p.editLocked,
+      )
+    ) {
+      throw new EditLockedError()
+    }
     const deletedAt = Date.now()
 
     const databases = await db.databases

@@ -28,6 +28,7 @@ import { studyTrackerId, tabName } from '../databases/notebookTabs'
 import { DatabaseView } from '../databases/views/DatabaseView'
 import { t } from '../i18n/t'
 import { pageAddressItem } from '../pages/pageAddressMenu'
+import { editLockItem } from '../app/lock/editLockMenu'
 import { useLockItem } from '../app/lock/lockMenu'
 import { CardsTab } from '../recall/CardsTab'
 import { ReviseTab } from '../revise/ReviseTab'
@@ -151,6 +152,7 @@ export function NotebookScreen({
       toast,
     ),
     ...lockItem,
+    editLockItem(db, 'notebook', notebook.id, !!notebook.editLocked, toast),
     // I2: this notebook as a file a friend opens with Layer gallery › Add.
     {
       label: t('layers.share'),

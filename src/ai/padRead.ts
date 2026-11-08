@@ -3,6 +3,7 @@ import type { PadStroke } from '../editor/writePad/pressure'
 import { t } from '../i18n/t'
 import { aiLockedBlock, blocker, forNotebook, readAiConfig } from './aiRun'
 import { AiError, MAX_IMAGE_SIDE, type AiImage } from './provider'
+import { getReadPrompt } from './readPrompt'
 import { runVision } from './vision'
 
 /**
@@ -90,6 +91,7 @@ export async function readPad(
     undefined,
     undefined,
     pageId ? { db, pageId } : undefined,
+    getReadPrompt()?.text,
   )
   if (!r.text.trim()) throw new AiError(t('ai.convert.empty'))
   return r.text

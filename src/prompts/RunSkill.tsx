@@ -71,7 +71,10 @@ export function RunSkill({
     [db, page],
   )
   const notebooks = useLiveQuery(
-    async () => (await listNotebooks(db, workspaceId)).filter((n) => !n.kind),
+    async () =>
+      (await listNotebooks(db, workspaceId)).filter(
+        (n) => !n.kind && !n.editLocked,
+      ),
     [db, workspaceId],
   )
   const base = forNotebook(readAiConfig(), notebook)

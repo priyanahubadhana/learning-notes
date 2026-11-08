@@ -9,6 +9,7 @@ import {
 } from 'react'
 import { Tip } from '../help/Help'
 import { AppUiContext } from '../app/appUi'
+import { notebookDeleteBlocked, pageDeleteBlocked } from '../core/editLock'
 import { runTask } from '../app/errors'
 import { SidebarGroup } from '../app/SidebarGroup'
 import { altShortcutLabel, shortcutLabel } from '../app/keys'
@@ -224,27 +225,38 @@ export function Sidebar({
   const [dragId, setDragId] = useState<string | null>(null)
   const [dropTarget, setDropTarget] = useState<DropTarget | null>(null)
 
+  // Edit lock (3c): a locked page or notebook is not deleted; say so, ask nothing.
   const requestNotebookDelete = (notebook: Notebook) =>
-    setPending({
-      message: t('sidebar.confirm.notebook', {
-        name: sampleName(notebook),
+    runTask(
+      notebookDeleteBlocked(db, notebook.id).then((blocked) => {
+        if (blocked) return toast(t('editLock.refused'))
+        setPending({
+          message: t('sidebar.confirm.notebook', {
+            name: sampleName(notebook),
+          }),
+          run: async () => {
+            await deleteNotebook(db, notebook.id)
+            if (currentPage?.notebookId === notebook.id) onOpenPage(null)
+          },
+        })
       }),
-      run: async () => {
-        await deleteNotebook(db, notebook.id)
-        if (currentPage?.notebookId === notebook.id) onOpenPage(null)
-      },
-    })
+    )
 
   const requestPageDelete = (page: Page, affectsCurrent: boolean) =>
-    setPending({
-      message: t('sidebar.confirm.page', {
-        name: sampleName(page) || t('review.untitled'),
+    runTask(
+      pageDeleteBlocked(db, page.id).then((blocked) => {
+        if (blocked) return toast(t('editLock.refused'))
+        setPending({
+          message: t('sidebar.confirm.page', {
+            name: sampleName(page) || t('review.untitled'),
+          }),
+          run: async () => {
+            await deletePage(db, page.id)
+            if (affectsCurrent) onOpenPage(page.parentId)
+          },
+        })
       }),
-      run: async () => {
-        await deletePage(db, page.id)
-        if (affectsCurrent) onOpenPage(page.parentId)
-      },
-    })
+    )
 
   const handleDragOver = (e: DragEvent, id: string) => {
     if (!dragId || dragId === id) return
@@ -532,6 +544,7 @@ export function Sidebar({
                             className="line-clamp-2 flex-1 text-left font-semibold break-words"
                           >
                             {notebook.locked ? '🔒 ' : ''}
+                            {notebook.editLocked ? '🔏 ' : ''}
                             {displayName(sampleName(notebook)) ||
                               t('review.untitled')}
                           </button>

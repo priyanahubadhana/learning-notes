@@ -1,4 +1,4 @@
-import { useEffect, useRef, useState } from 'react'
+import { lazy, Suspense, useEffect, useRef, useState } from 'react'
 import { Tip } from '../../help/Help'
 import { t } from '../../i18n/t'
 import { erasePadStrokes, type PadEraseMode } from './padErase'
@@ -9,6 +9,12 @@ import {
   wordPressures,
   type PadStroke,
 } from './pressure'
+
+const ReadPromptChoice = lazy(() =>
+  import('../../ai/ReadPromptChoice').then((m) => ({
+    default: m.ReadPromptChoice,
+  })),
+)
 
 /** What the main bar's tool does on the pad (R7-15, R7-19). */
 export type PadTool =
@@ -223,6 +229,9 @@ export function AiCanvas({
             ? t('writePad.ai.ignored')
             : t('writePad.ai.hint')}
         </p>
+        <Suspense fallback={null}>
+          <ReadPromptChoice pageId={pageId} />
+        </Suspense>
         <Tip id="writePad.ai.read" touchInfo={false}>
           <button
             type="button"

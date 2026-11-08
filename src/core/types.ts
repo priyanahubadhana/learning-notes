@@ -75,6 +75,8 @@ export interface Notebook extends BaseRecord {
    * pages. A flag only; the notes are not changed (not encryption).
    */
   locked?: true
+  /** Edit lock (queue 3c): read-only with all its pages; one tap unlocks, no passcode. Not the privacy lock. */
+  editLocked?: true
   /** Always opens in Reading mode (batch 3). */
   readFirst?: true
   /** Paused (E1): this notebook's cards stay out of reviews until resumed. */
@@ -145,6 +147,8 @@ export interface Page extends BaseRecord {
   pathStyle?: 'simple' | 'full' | 'page'
   /** Privacy lock on this page (batch 3); see Notebook.locked. */
   locked?: true
+  /** Edit lock (queue 3c): read-only; see Notebook.editLocked. */
+  editLocked?: true
   /** Always opens in Reading mode (batch 3). */
   readFirst?: true
   /** Paused (E1): this page and its sub-pages stay out of reviews. */

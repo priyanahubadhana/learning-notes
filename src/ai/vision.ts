@@ -7,6 +7,7 @@ import {
   type AiImage,
   type AiResult,
 } from './provider'
+import { readingInstruction } from './readPrompt'
 import { callAi } from './route'
 
 /**
@@ -44,12 +45,17 @@ export async function runVision(
   fetchImpl?: typeof fetch,
   sleep?: (ms: number) => Promise<void>,
   where?: { db: LearningNotesDB; pageId: string },
+  /** A saved prompt to read handwriting with (handwriting only; unset = the built-in prompt). */
+  custom?: string,
 ): Promise<AiResult> {
   if (!config.enabled || config.candidates.length === 0) {
     throw new AiError(t('ai.notReady'))
   }
   const result = await callAi(config, {
-    prompt: visionPrompt(task),
+    prompt:
+      custom && task === 'handwriting'
+        ? readingInstruction(custom)
+        : visionPrompt(task),
     maxTokens: MAX_TOKENS[task],
     images: [image],
     fetchImpl,

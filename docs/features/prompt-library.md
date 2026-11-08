@@ -36,3 +36,9 @@ Own keys only, nothing sent before the cost is shown and the first-use privacy q
 
 - Unit: `src/prompts/library.test.ts` (database made once, seeds with licence notes, versions, ratings, search and filters), `promptRun.test.ts` (cost in ₹ and tokens, preferred model), `skills.test.ts` (strict reader, levels, icons, sources, cached request, cheapest model, fact check), `skillSave.test.ts` (what is saved, unticked items, Undo, rollback), `pasteText.test.ts`.
 - E2E (mocked AI, chromium): `e2e/promptLibrary.spec.ts` (library, run a prompt on a page with cost first, skill with fact check, preview, save and Undo, paste-in with no key and no network).
+
+## Gaps closed (9 Nov)
+
+- **Icons:** 66 Lucide icons (ISC, src/prompts/ICONS-LICENSE.txt); a skill may send `lucide:name`; drawn in the preview, saved as the emoji. Tests: icons.test.ts.
+- **Note pages:** page ⋯ › Prompts and skills; the answer box is the preview, Insert below, one Undo.
+- **Handwriting:** Convert to text and the Write pad can use a saved prompt (pref `ai.readPrompt`; optional). Tests: src/ai/readPrompt.test.ts.

@@ -2,6 +2,12 @@
 
 Moved out of HANDOFF on 2026-11-06 (audit) so HANDOFF stays five lines. Newest first; each paragraph names its step. The run decision (master plan) is one owner iPad pass before Sync; the Phase A builder adds its checks at the top. Tick a paragraph by deleting it.
 
+## Lock editing, prompt gaps (9 Nov)
+
+1. iPad: page ⋯ › Lock editing. The grey bar says "Locked — tap to unlock"; typing, Pencil drawing, the title and paper boxes do nothing. Tap the bar: editing works again. Lock a notebook (notebook screen › Tab options › Lock editing (all pages)): every page shows "Notebook locked"; Delete is refused.
+2. Page ⋯ › Prompts and skills on a plain note page: run Summarise, Insert below, Undo. In a skill answer an icon like lucide:brain shows drawn in the preview and as 🧠 in the saved notes.
+3. Lasso › Convert to text and the Write pad: "Use a saved prompt (optional)" picks a prompt; Use the normal reading clears it.
+
 ## Prompt library and skills (9 Nov)
 
 1. iPad, Library space: tap Prompts. The list opens with prompts (Summarise, Quiz me, Study plan…) and skills (a chain sign). Type a word in the search box; the list shortens. Choose Purpose and Subject: it filters. Tap New prompt, give it a name and text, Save: it is in the list. Tap Edit, change the text, Save, Edit again: Earlier versions shows the old text.

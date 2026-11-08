@@ -4,6 +4,7 @@ import { t, type MessageKey } from '../i18n/t'
 import type { RunCost } from './promptRun'
 import { CostLine } from './RunParts'
 import { choose, NOTHING_OFF, type Off, type Sections } from './skillChoose'
+import { SkillIcon } from './SkillIcon'
 import { levelOf, type SkillResult } from './skillFormat'
 import type { Chosen, Target } from './skillSave'
 
@@ -185,11 +186,14 @@ export function SkillPreview({
                   setOff((o) => ({ ...o, points: toggle(o.points, i) }))
                 }
               />
+              <span className="flex size-6 items-center justify-center">
+                <SkillIcon icon={p.icon} />
+              </span>
               <input
                 aria-label={t('prompts.icon')}
-                className={`${input} w-12 px-1 text-center`}
+                className={`${input} w-20 px-1 text-center`}
                 value={p.icon}
-                maxLength={8}
+                maxLength={24}
                 onChange={(e) => setPoint(i, { icon: e.target.value })}
               />
               <input

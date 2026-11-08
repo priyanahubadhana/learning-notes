@@ -63,7 +63,9 @@ import { getAppActions } from '../app/tools/toolRuntime'
 import { shortcutShiftLabel } from '../app/keys'
 import { useDeviceSetting } from '../settings/useSetting'
 import { pathStyleSetting } from '../settings/builtinSettings'
+import { editLockItem } from '../app/lock/editLockMenu'
 import { useLockItem } from '../app/lock/lockMenu'
+import { editLockSource, setEditLocked } from '../core/editLock'
 import { ReadingFrame } from '../app/reading/ReadingFrame'
 import { MARGIN_PX, WIDTH_PX } from '../app/reading/readingPrefs'
 import { setReadFirst } from '../app/reading/readFirst'
@@ -79,6 +81,8 @@ import {
 } from '../app/reading/useReadingSettings'
 import { readingEntrySetting } from '../settings/readingSettings'
 import { openReader } from '../app/reading/readingTools'
+
+const PromptsDialog = lazy(() => import('../prompts/PromptsDialog'))
 
 const ExportDialog = lazy(() =>
   import('../share/export/ExportDialog').then((m) => ({
@@ -188,6 +192,8 @@ export function PageView({
   const pageTab = pageTabState.pageId === page.id ? pageTabState.tab : 'notes'
   const setPageTab = (tab: PageTab) => setPageTabState({ pageId: page.id, tab })
   const saveTemplate = () => setNaming(true)
+  // The prompt library on this page (opened from the ⋯ menu; lazy).
+  const [promptsOpen, setPromptsOpen] = useState(false)
 
   /** Saves a copy of this page (latest edits included) as a template. */
   const saveTemplateAs = (name: string) =>
@@ -223,6 +229,8 @@ export function PageView({
   )
   const starred = favourites.useValue().includes(page.id)
   const lockItem = useLockItem(db, 'page', page.id, !!page.locked)
+  // Edit lock (3c): this page's own flag or its notebook's.
+  const editLockBy = editLockSource(page, notebook)
   const view = readingView.useValue()
   const reader = view === 'reader'
   const reading = useReadingSettings()
@@ -275,10 +283,22 @@ export function PageView({
           },
         ]
       : []),
+    ...(notebook && !isTemplate
+      ? [
+          {
+            label: t('prompts.menu'),
+            icon: '✦',
+            onSelect: () => setPromptsOpen(true),
+          },
+        ]
+      : []),
     { label: t('history.button'), icon: '🕘', onSelect: openHistory },
     { label: t('tool.readerFull'), icon: '📖', onSelect: openReader },
     ...(isTemplate ? [] : paperItems),
     ...lockItem,
+    ...(editLockBy === 'notebook'
+      ? []
+      : [editLockItem(db, 'page', page.id, !!page.editLocked, toast)]),
     {
       label: t(starred ? 'fav.remove' : 'fav.add'),
       icon: starred ? '★' : '☆',
@@ -363,7 +383,11 @@ export function PageView({
     },
   ]
 
-  const boxes = usePaperBoxes(db, page.id, !reader && !isTemplate)
+  const boxes = usePaperBoxes(
+    db,
+    page.id,
+    !reader && !isTemplate && !editLockBy,
+  )
   const hintPage = useMemo(() => hintPageOk(page.id), [page.id])
   const blankPage = useLiveQuery(() => isPageBlank(db, page.id), [db, page.id])
   /** The page editor of one box (unset = the default box, as before). */
@@ -466,6 +490,26 @@ export function PageView({
           </Banner>
         )}
       </div>
+      {editLockBy && !reader && (
+        <button
+          type="button"
+          data-testid="edit-lock-bar"
+          onClick={() =>
+            runTask(
+              setEditLocked(
+                db,
+                editLockBy,
+                editLockBy === 'page' ? page.id : page.notebookId,
+                false,
+              ).then(() => toast(t('editLock.unlocked'))),
+            )
+          }
+          className="mb-3 flex min-h-11 w-full items-center gap-2 rounded-lg bg-soft px-3 py-2 text-left text-sm text-ink-soft hover:bg-hover"
+        >
+          <span aria-hidden>🔏</span>
+          {t(editLockBy === 'page' ? 'editLock.bar' : 'editLock.barNotebook')}
+        </button>
+      )}
       <ReadingFrame
         db={db}
         pageId={page.id}
@@ -492,7 +536,7 @@ export function PageView({
           // Owner (8 Nov): a new page opens with the cursor in its top box;
           // a tap on the title still edits the title.
           autoFocus={false}
-          readOnly={reader}
+          readOnly={reader || !!editLockBy}
           onEnter={() => editor.current?.focus()}
         />
         {header}
@@ -545,8 +589,8 @@ export function PageView({
             eager={boxes.fresh}
             onAddBox={boxes.onAddBox}
             onAddBoxInOrder={boxes.onAddBoxInOrder}
-            onBoxChange={boxes.onBoxChange}
-            onBoxMenu={boxes.onBoxMenu}
+            onBoxChange={editLockBy ? undefined : boxes.onBoxChange}
+            onBoxMenu={editLockBy ? undefined : boxes.onBoxMenu}
             onInkOnPaper={boxes.onInkOnPaper}
             showHint={
               hintPage && !!blankPage && !!boxes.onAddBox && !page.boxes?.length
@@ -590,6 +634,17 @@ export function PageView({
           />
         )}
       </div>
+      {promptsOpen && notebook && (
+        <Suspense fallback={null}>
+          <PromptsDialog
+            db={db}
+            workspaceId={notebook.workspaceId}
+            page={page}
+            onChanged={onReload}
+            onClose={() => setPromptsOpen(false)}
+          />
+        </Suspense>
+      )}
       {historyOpen && (
         <HistoryDialog
           db={db}

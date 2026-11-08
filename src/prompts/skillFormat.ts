@@ -1,3 +1,4 @@
+import { ICON_EMOJI } from './iconNames'
 import type { SkillPart } from './promptModel'
 
 /**
@@ -104,7 +105,7 @@ export function answerFormat(parts: readonly SkillPart[]): string {
     '  "sources": [{"n": 1, "title": "name of the source", "url": "https://... or empty"}],',
   )
   lines.push(
-    '  "points": [{"text": "one key point", "stars": 9, "icon": "emoji", "topic": "group name", "sources": [1]}],',
+    '  "points": [{"text": "one key point", "stars": 9, "icon": "emoji or lucide:name", "topic": "group name", "sources": [1]}],',
   )
   if (has('pages')) {
     lines.push(
@@ -123,7 +124,7 @@ export function answerFormat(parts: readonly SkillPart[]): string {
 export function answerRules(parts: readonly SkillPart[]): string {
   const rules = [
     'Reply with ONE JSON object only: no code fence, no comments, no text around it. Use the same language as the text.',
-    '"points": every important idea, most important first. "stars" is 1 to 10: 8-10 Must know, 4-7 Good to know, 1-3 Extra. Give "icon" (one emoji) to every point with 8 or more stars.',
+    `"points": every important idea, most important first. "stars" is 1 to 10: 8-10 Must know, 4-7 Good to know, 1-3 Extra. Give "icon" (one emoji, or one name from this list written as lucide:name: ${Object.keys(ICON_EMOJI).join(', ')}) to every point with 8 or more stars.`,
     '"sources": list every source you can name (the text itself, works it cites, well-known references), numbered from 1. Each point lists in "sources" the numbers it rests on, or [] when no source backs it. Never invent a source.',
   ]
   if (parts.includes('pages')) {
@@ -172,7 +173,9 @@ export function safeUrl(v: unknown): string {
 
 /** One emoji-like symbol, or ''. Letters, digits and markup characters are refused. */
 export function safeIcon(v: unknown): string {
-  const s = clean(v, 12)
+  const s = clean(v, 24)
+  const named = /^lucide:([a-z0-9-]+)$/.exec(s)
+  if (named) return Object.hasOwn(ICON_EMOJI, named[1]) ? s : ''
   if (!s || !/\p{Extended_Pictographic}/u.test(s)) return ''
   return /[\p{L}\p{N}<>&"'`\\]/u.test(s) ? '' : s
 }

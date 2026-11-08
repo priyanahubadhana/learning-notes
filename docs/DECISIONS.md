@@ -793,6 +793,14 @@ The other older decisions stand as built (owner, 2026-11-01); they are in [ARCHI
 - Windowing starts above 200 rows (Table, List); Board/Gallery keep paging ("Show more").
 - Link check: NewPageStart gets an `onMakeDatabase` prop from PageView, so templates and databases do not import each other.
 
+## Decisions to review (prompt gaps and Lock editing, 9 Nov)
+
+- Icons: 66 Lucide icons, drawn only in the skill preview; saved text (pages, mind map, database, cards) uses the emoji of the icon because those are plain text. Unknown names are dropped. Not a full icon picker.
+- Prompts on note pages: in the page ⋯ menu only (note pages have no AI button row). Insert goes to the end of the page ("below"), not at the caret.
+- Reading handwriting with a saved prompt: one device preference () shared by Convert to text and the Write pad; applies to handwriting, never to maths; no cost line there (as before).
+- Lock editing uses the field and the words "Lock editing" / "Locked — tap to unlock" to stay apart from the privacy lock (, PIN) and from R8-6 "Allow AI while locked" (which only concerns the privacy lock). Prompt inserts into a locked page are refused; locked notebooks are not offered as skill save targets. A page under a locked notebook has no switch of its own; the bar unlocks the notebook. Tags and row properties are not locked. Deleting is refused (menu rows disabled, desktop icons show a toast, services throw). Paper boxes: add, move, resize, menu and ink-drop are off (done in PageView; src/paper untouched).
+- Not run: iPad WebKit e2e for this work.
+
 ## Decisions to review (prompt library and skills, 9 Nov)
 
 - Library = one `Database` with `kind: 'promptLibrary'`, found by workspace and kind (not a fixed id, so two devices that both create it before syncing end up with two; the oldest is used, the other stays as an ordinary database). Columns are found by `config.key`, so the owner can rename or reorder them. Seeds are added once per starter id; ids seen on this device are remembered (pref `prompts.seeded`); a deleted starter stays deleted on this device but would come back on a fresh device.

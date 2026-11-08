@@ -1,8 +1,11 @@
+import { useLiveQuery } from 'dexie-react-hooks'
+import { editLockItem } from '../app/lock/editLockMenu'
 import { runTask } from '../app/errors'
 import { favourites, toggleFavourite } from '../app/favourites'
 import { toggleLock } from '../app/lock/lockMenu'
 import { MenuPopover, type MenuItem } from '../app/ui'
 import type { LearningNotesDB } from '../core/db'
+import { editLockSource } from '../core/editLock'
 import type { Page } from '../core/types'
 import { t } from '../i18n/t'
 
@@ -36,6 +39,11 @@ export default function PageRowMenu({
   onClose: () => void
 }) {
   const starred = favourites.useValue()
+  const notebook = useLiveQuery(
+    () => db.notebooks.get(page.notebookId),
+    [db, page.notebookId],
+  )
+  const editLockBy = editLockSource(page, notebook)
   const items: MenuItem[] = [
     { label: t('sidebar.rename.title'), icon: '✎', onSelect: onRename },
   ]
@@ -57,6 +65,9 @@ export default function PageRowMenu({
       },
     )
   }
+  if (editLockBy !== 'notebook') {
+    items.push(editLockItem(db, 'page', page.id, !!page.editLocked, toast))
+  }
   if (canMove) {
     items.push(
       { label: t('tree.moveUp'), icon: '↑', onSelect: () => onMove(-1) },
@@ -68,6 +79,8 @@ export default function PageRowMenu({
     icon: '×',
     onSelect: onDelete,
     danger: true,
+    disabled: !!editLockBy,
+    hint: editLockBy ? t('editLock.deleteHint') : undefined,
   })
   return <MenuPopover anchor={anchor} items={items} onClose={onClose} />
 }

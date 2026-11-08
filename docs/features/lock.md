@@ -49,3 +49,7 @@ Hide a page, a notebook or a database behind a lock screen, so a casual look ove
 
 - The PIN and password fields show a placeholder ("Type your PIN here"), have a 2 px border in the soft ink colour and the Unlock button an outline, for contrast. The field keeps its label "Enter your PIN" as its accessible name.
 - Device-lock failures are told apart (`core/lock/webauthn.ts` `passkeyFailure`): cancelled, not set up on this device, refused at once (under 100 ms, no sheet showed), not supported here. The error name and time are logged with `console.debug`. The Face ID call is the first thing the tap does (no `await` before it).
+
+## Edit lock (queue 3c, 9 Nov)
+
+A second, separate switch: `editLocked: true` on a Page or Notebook makes it read-only. No passcode, one tap unlocks; nothing is hidden. Menus: page ⋯ "Lock editing", notebook Tab options "Lock editing (all pages)". Bar "Locked — tap to unlock" ("Notebook locked" when the notebook holds the lock). Read-only: editor, title, ink, paper boxes; services refuse addBlocks, deletePage, deleteNotebook (src/core/editLock.ts). Not the privacy lock, not Allow AI while locked. Tests: src/core/editLock.test.ts, e2e/editLock.spec.ts.

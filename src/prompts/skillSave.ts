@@ -18,6 +18,7 @@ import {
 } from '../editor/mindMap/model'
 import { markdownToBlocks } from '../editor/textBlocks'
 import { t } from '../i18n/t'
+import { iconSymbol } from './iconNames'
 import { createNotebook, deleteNotebook } from '../notebooks/notebookService'
 import { createPage, deletePage } from '../pages/pageService'
 import { syncCardRecords } from '../recall/cardService'
@@ -84,7 +85,9 @@ const cite = (p: SkillPoint) => p.sources.map((n) => `[${n}]`).join('')
 
 /** The text of one key point line. */
 export function pointLine(p: SkillPoint): string {
-  const parts = [p.icon, p.text, `(${p.stars}/10)`, cite(p)].filter(Boolean)
+  const parts = [iconSymbol(p.icon), p.text, `(${p.stars}/10)`, cite(p)].filter(
+    Boolean,
+  )
   let line = parts.join(' ')
   if (p.flag) line += ` — ${t(`prompts.flag.${p.flag}`)}`
   else if (!p.checked) line += ` — ${t('prompts.unchecked')}`
@@ -114,7 +117,10 @@ export function buildMindMap(result: SkillResult, title: string): MindMap {
     }
     nodes.push({
       id: createId(),
-      text: [p.icon, p.text].filter(Boolean).join(' ').slice(0, 200),
+      text: [iconSymbol(p.icon), p.text]
+        .filter(Boolean)
+        .join(' ')
+        .slice(0, 200),
       parent,
     })
   }
@@ -127,7 +133,7 @@ export function buildCards(result: SkillResult): ParsedCard[] {
   const covered = new Set<number>()
   const icon = (c: SkillCard) =>
     c.point !== null && result.points[c.point]?.level === 'must'
-      ? `${result.points[c.point].icon} `
+      ? `${iconSymbol(result.points[c.point].icon)} `
       : ''
   for (const c of result.cards) {
     if (c.point !== null) covered.add(c.point)
@@ -147,7 +153,7 @@ export function buildCards(result: SkillResult): ParsedCard[] {
     if (p.level !== 'must' || covered.has(i)) return
     out.push({
       kind: 'qa',
-      q: `${p.icon} ${t('prompts.recallPoint', { topic: p.topic || result.title })}`,
+      q: `${iconSymbol(p.icon)} ${t('prompts.recallPoint', { topic: p.topic || result.title })}`,
       a: p.text,
     })
   })
@@ -208,7 +214,7 @@ async function makePointsDatabase(
         [topic.id]: p.topic,
         [sources.id]: cite(p),
         [checked.id]: p.checked,
-        [icon.id]: p.icon,
+        [icon.id]: iconSymbol(p.icon),
       },
     })),
   )

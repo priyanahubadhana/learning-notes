@@ -1,4 +1,5 @@
 import type { LearningNotesDB } from './db'
+import { EditLockedError, editLockSource } from './editLock'
 import { createId } from './ids'
 import { orderAtIndex } from './order'
 import { getLive, newRecordFields } from './records'
@@ -35,8 +36,11 @@ export async function addBlocks(
   options: AddBlocksOptions = {},
 ): Promise<Block[]> {
   const parentId = options.parentId ?? null
-  return db.transaction('rw', db.pages, db.blocks, async () => {
-    await getLive(db.pages, pageId)
+  return db.transaction('rw', db.pages, db.notebooks, db.blocks, async () => {
+    const page = await getLive(db.pages, pageId)
+    if (editLockSource(page, await db.notebooks.get(page.notebookId))) {
+      throw new EditLockedError()
+    }
     const existing = (await listBlocks(db, pageId)).filter(
       (b) => b.parentId === parentId,
     )

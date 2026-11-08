@@ -14,6 +14,8 @@ interface InkController {
 }
 import { aiLockedBlock, blocker, forNotebook, readAiConfig } from './aiRun'
 import { AiError, PROVIDERS, type AiImage } from './provider'
+import { getReadPrompt } from './readPrompt'
+import { ReadPromptChoice } from './ReadPromptChoice'
 import { blobToImage, runVision, type VisionTask } from './vision'
 
 /**
@@ -84,10 +86,15 @@ export function ConvertInk({
     setState('busy')
     try {
       const image: AiImage = await blobToImage(png)
-      const r = await runVision(config, as, image, undefined, undefined, {
-        db,
-        pageId,
-      })
+      const r = await runVision(
+        config,
+        as,
+        image,
+        undefined,
+        undefined,
+        { db, pageId },
+        getReadPrompt()?.text,
+      )
       if (!r.text.trim()) {
         toast(t('ai.convert.empty'))
         return onClose()
@@ -158,6 +165,9 @@ export function ConvertInk({
                 host: PROVIDERS[config.provider].host,
               })}
             </p>
+            <div className="mb-3">
+              <ReadPromptChoice pageId={pageId} />
+            </div>
             <div className="flex flex-wrap justify-end gap-2">
               <button type="button" onClick={onClose} className={btn}>
                 {t('annot.cancel')}

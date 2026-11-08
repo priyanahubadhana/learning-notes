@@ -1,5 +1,6 @@
 import { expect, test, type Page } from '@playwright/test'
 import { makePdf } from './fixtures/books.ts'
+import { createNotebook, pageAction, typeInEditor } from './helpers.ts'
 
 /** Prompt library and skills (queue 3b). AI is mocked; nothing leaves the test. */
 
@@ -145,7 +146,13 @@ const skillAnswer = {
       topic: 'Energy',
       sources: [1],
     },
-    { text: 'Cells are tiny', stars: 5, topic: 'Size', sources: [] },
+    {
+      text: 'Cells are tiny',
+      stars: 5,
+      icon: 'lucide:brain',
+      topic: 'Size',
+      sources: [],
+    },
     { text: 'A fun aside', stars: 1, topic: 'Size', sources: [1] },
   ],
   pages: [
@@ -204,6 +211,8 @@ test('skill: one cached call, preview, untick, save into a new Research book, on
   // Must know has its icon; the unsourced point says so.
   await expect(dialog.getByTestId('skill-point')).toHaveCount(3)
   await expect(dialog.getByTestId('unchecked-count')).toContainText('1 point')
+  // An open drawn icon (Lucide) shows in the preview.
+  await expect(dialog.getByTestId('drawn-icon')).toHaveCount(1)
   // The fact check shows its cost first, then marks the doubted point.
   await expect(dialog.getByTestId('cost-line').last()).toContainText(
     'Fact check',
@@ -237,6 +246,8 @@ test('skill: one cached call, preview, untick, save into a new Research book, on
   )
   await expect(page.getByRole('main')).not.toContainText('A fun aside')
   await expect(page.getByRole('main')).toContainText('🔋')
+  // Saved notes are plain text: the drawn icon becomes its emoji.
+  await expect(page.getByRole('main')).toContainText('🧠')
   await expect(page.getByRole('main')).toContainText(
     'doubted by the fact check',
   )
@@ -282,4 +293,47 @@ test('paste-in: no AI key, copy the prompt with its format, paste a bad then a g
   await dialog.getByTestId('skill-save').click()
   await expect(dialog.getByTestId('skill-saved')).toBeVisible()
   expect(calls).toHaveLength(0)
+})
+
+test('a note page: Prompts in the ⋯ menu runs a prompt on the page, Insert below, one Undo', async ({
+  page,
+}) => {
+  await page.route('https://api.anthropic.com/v1/messages', (route) =>
+    route.fulfill({
+      json: {
+        content: [{ type: 'text', text: 'Short version of the page.' }],
+        usage: { input_tokens: 60, output_tokens: 10 },
+      },
+    }),
+  )
+  await setUpAi(page, false)
+  await page.goto('/')
+  await createNotebook(page, 'Biology', 'Cells')
+  await typeInEditor(page, 'The nucleus holds the DNA')
+  await page.goto('/#/settings/permissions')
+  const sw = page.getByRole('switch', { name: 'Allow AI in Biology' })
+  await sw.focus()
+  await page.keyboard.press('Space')
+  await expect(sw).toBeChecked()
+  await page.goBack()
+  await expect(page.locator('.bn-editor')).toContainText('nucleus')
+  await pageAction(page, 'Prompts and skills')
+  const dialog = page.getByTestId('prompts-dialog')
+  await dialog.getByTestId('prompt-search').fill('summarise')
+  await dialog.getByTestId('prompt-row').first().click()
+  await expect(dialog.getByTestId('cost-line')).toContainText('₹')
+  await dialog.getByTestId('run-ai').click()
+  await dialog.getByTestId('ai-privacy-ok').click()
+  await expect(dialog.getByTestId('run-answer')).toHaveValue(
+    'Short version of the page.',
+  )
+  await dialog.getByTestId('run-apply').click()
+  await expect(page.locator('.bn-editor')).toContainText(
+    'Short version of the page.',
+  )
+  await page.getByRole('status').getByRole('button', { name: 'Undo' }).click()
+  await expect(page.locator('.bn-editor')).not.toContainText(
+    'Short version of the page.',
+  )
+  await expect(page.locator('.bn-editor')).toContainText('nucleus')
 })

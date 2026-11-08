@@ -40,6 +40,7 @@ import { activeBox, useOwnsBar } from '../paper/activeBox'
 import { MAIN_BOX } from '../paper/boxes'
 import { syncCardRecords } from '../recall/cardService'
 import type { LearningNotesDB } from '../core/db'
+import { pageEditLock } from '../core/editLock'
 import type { Block, Page } from '../core/types'
 import { createPage } from '../pages/pageService'
 import { tagMap } from '../tags/tagService'
@@ -175,6 +176,10 @@ export function PageEditor(props: PageEditorProps) {
   // Only one window edits a page (pageLock.ts).
   const [lock, setLock] = useState<{ pageId: string; state: LockState }>()
   const pageLock = useRef<PageLock>(null)
+  const editLock = useLiveQuery(
+    async () => (await pageEditLock(db, pageId)) ?? 'none',
+    [db, pageId],
+  )
   const [taking, setTaking] = useState(false)
   // Raised after Edit here: reads what the other window saved.
   const [version, setVersion] = useState(0)
@@ -251,7 +256,10 @@ export function PageEditor(props: PageEditorProps) {
   if (failed) throw failed.error // shows the error screen (ErrorBoundary)
   // Wait until this page's blocks are loaded (not a previous page's).
   if (loaded?.pageId !== pageId || lock?.pageId !== pageId) return null
+  if (editLock === undefined) return null
   const readOnly = lock.state === 'elsewhere' || taking
+  // Edit lock (3c): the page's or its notebook's switch makes the editor read-only.
+  const frozenByLock = editLock !== 'none'
   return (
     <>
       {readOnly && (
@@ -275,7 +283,7 @@ export function PageEditor(props: PageEditorProps) {
         {...props}
         records={loaded.records}
         owns={loaded.owns}
-        readOnly={readOnly}
+        readOnly={readOnly || frozenByLock}
       />
     </>
   )

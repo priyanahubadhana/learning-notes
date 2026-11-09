@@ -621,7 +621,7 @@ function App() {
       stop = m.startCurrencyMirror(db)
     })
     return () => stop?.()
-  }, [db])
+  }, [])
 
   // Back / Forward: show the screen of the address (unless only the
   // notebook's tab or the database's view changed; those listen themselves).

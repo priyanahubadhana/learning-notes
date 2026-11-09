@@ -254,7 +254,7 @@ describe('running a skill', () => {
     const config = readAiConfig()
     const cost = skillCost(config, skill, 'x'.repeat(8000))
     expect(cost.inputTokens).toBeGreaterThan(2000)
-    expect(cost.inr).toBeGreaterThan(0)
+    expect(cost.amount).toBeGreaterThan(0)
     const result = parseSkillAnswer(JSON.stringify(good))
     expect(secondModelConfig(config, 'claude-sonnet-5-5').model).toBe(
       'claude-haiku-5-5',

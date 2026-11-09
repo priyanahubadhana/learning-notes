@@ -1,4 +1,5 @@
 import { useState } from 'react'
+import { formatCost } from './costCurrency'
 import { t } from '../i18n/t'
 import {
   addKey,
@@ -305,7 +306,7 @@ function KeyRow({
           />
         </label>
         <span data-testid="ai-key-used">
-          {t('ai.keys.used', { cost: `$${used.toFixed(2)}` })}
+          {t('ai.keys.used', { cost: formatCost(used) })}
         </span>
       </div>
     </li>

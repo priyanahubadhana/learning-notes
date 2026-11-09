@@ -5,6 +5,8 @@ import { t } from '../i18n/t'
 import { isTracking } from '../sync/device'
 import { AI_KEYS, DEFAULT_CAP_USD } from './aiRun'
 import { AiKeys } from './AiKeys'
+import { CostCurrencyPicker } from './CostCurrencyPicker'
+import { formatCap, formatCost } from './costCurrency'
 import { ClaudeSkillCard } from './ClaudeSkillCard'
 import { keySyncOn, onKeysArrived, setKeySync } from './keySync'
 import { listKeys } from './keyStore'
@@ -115,10 +117,11 @@ export function AiSection({ db }: { db: LearningNotesDB }) {
           className={`${field} max-w-[10rem]`}
         />
       </label>
+      <CostCurrencyPicker db={db} onChange={() => bump((n) => n + 1)} />
       <div>
         <p className="text-sm text-muted" data-testid="ai-usage">
           {t('ai.usage', {
-            cost: `$${usage.costUsd.toFixed(2)}`,
+            cost: formatCost(usage.costUsd),
             tokens: usage.inputTokens + usage.outputTokens,
           })}
         </p>
@@ -127,8 +130,8 @@ export function AiSection({ db }: { db: LearningNotesDB }) {
             <li key={k.id}>
               {t('ai.usageKey', {
                 name: k.name,
-                cost: `$${readKeyUsage(k.id).costUsd.toFixed(2)}`,
-                cap: `$${k.capUsd ?? cap}`,
+                cost: formatCost(readKeyUsage(k.id).costUsd),
+                cap: formatCap(k.capUsd ?? cap),
               })}
             </li>
           ))}

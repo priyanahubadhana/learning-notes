@@ -9,7 +9,8 @@ import type { AiConfig } from '../../ai/route'
 import { callAi } from '../../ai/route'
 import { blobToImage } from '../../ai/vision'
 import { costOf } from '../../ai/usage'
-import { costLine, estimateCost, inrPerUsd } from '../../prompts/promptRun'
+import { toCurrency } from '../../ai/costCurrency'
+import { costLine, estimateCost } from '../../prompts/promptRun'
 import type { LearningNotesDB } from '../../core/db'
 import { t } from '../../i18n/t'
 
@@ -34,8 +35,7 @@ export function rebuildCostLine(
   const inputTokens =
     estimateTokens(REBUILD_PROMPT) + imageTokens(width, height)
   const usd = costOf(config.provider, config.model, inputTokens, MAX_OUT)
-  const inr = usd * inrPerUsd()
-  return costLine({ ...base, inputTokens, usd, inr })
+  return costLine({ ...base, inputTokens, usd, amount: toCurrency(usd) })
 }
 
 /** Why the rebuild cannot run now (no key, AI off for the notebook, locked page), or null. */

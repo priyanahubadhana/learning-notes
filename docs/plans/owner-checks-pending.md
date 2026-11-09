@@ -2,6 +2,14 @@
 
 Moved out of HANDOFF on 2026-11-06 (audit) so HANDOFF stays five lines. Newest first; each paragraph names its step. The run decision (master plan) is one owner iPad pass before Sync; the Phase A builder adds its checks at the top. Tick a paragraph by deleting it.
 
+## AI cost currency (9 Nov)
+
+What it is: costs can show in any currency you choose, with a rate you type.
+
+1. Settings > AI > Cost currency: it says INR with rate 90. Search "euro", tap it: rate shows 1. Type 0.92: "Rate last changed <today>" appears.
+2. Open a prompt in the picker (or Clean up with AI): the cost line shows euros and tokens. Settings > Permissions spend lines too.
+3. Switch back to INR: rate is 90 again. Open the app on a second signed-in device: same currency.
+
 ## Reader bar hide/show, pin, Contents (9 Nov, iPad)
 
 What it is: the reader bar now behaves like Safari's, has a pin, and Contents opens the left panel's Outline tab.

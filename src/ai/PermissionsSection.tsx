@@ -1,4 +1,5 @@
 import { useLiveQuery } from 'dexie-react-hooks'
+import { formatCap, formatCost } from './costCurrency'
 import type { LearningNotesDB } from '../core/db'
 import { isLive } from '../core/records'
 import { t } from '../i18n/t'
@@ -131,8 +132,8 @@ export function PermissionsSection({ db }: { db: LearningNotesDB }) {
               <li key={k.id}>
                 {t('ai.usageKey', {
                   name: k.name,
-                  cost: `$${readKeyUsage(k.id).costUsd.toFixed(2)}`,
-                  cap: `$${k.capUsd ?? cap}`,
+                  cost: formatCost(readKeyUsage(k.id).costUsd),
+                  cap: formatCap(k.capUsd ?? cap),
                 })}
               </li>
             ))}
@@ -174,7 +175,7 @@ export function PermissionsSection({ db }: { db: LearningNotesDB }) {
                     </td>
                     <td className="py-1 pr-2">{e.feature}</td>
                     <td className="py-1 pr-2">{e.host}</td>
-                    <td className="py-1">${e.costUsd.toFixed(4)}</td>
+                    <td className="py-1">{formatCost(e.costUsd, 4)}</td>
                   </tr>
                 ))}
               </tbody>

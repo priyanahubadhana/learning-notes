@@ -2,6 +2,7 @@
  * @vitest-environment jsdom
  */
 import { beforeEach, describe, expect, it } from 'vitest'
+import { formatAmount } from '../ai/costCurrency'
 import { addKey } from '../ai/keyStore'
 import { AI_KEYS, readAiConfig } from '../ai/route'
 import { writePref } from '../app/uiPrefs'
@@ -12,7 +13,6 @@ import {
   configFor,
   costLine,
   estimateCost,
-  formatInr,
   runPrompt,
 } from './promptRun'
 
@@ -33,7 +33,7 @@ describe('cost before running', () => {
     // Haiku 5.5: $0.1 in, $0.5 out per million tokens; rate 90 INR per USD.
     expect(c.inputTokens).toBe(Math.ceil(prompt.length / 4))
     expect(c.usd).toBeCloseTo((c.inputTokens * 0.1 + 2000 * 0.5) / 1e6, 8)
-    expect(c.inr).toBeCloseTo(c.usd * 90, 8)
+    expect(c.amount).toBeCloseTo(c.usd * 90, 8)
     const line = costLine(c)
     expect(line).toContain('₹')
     expect(line).toContain('Claude Haiku 5.5')
@@ -41,12 +41,12 @@ describe('cost before running', () => {
   })
 
   it('uses the rate from the pref, and says "under" for almost nothing', () => {
-    writePref('ai.inrPerUsd', 100)
+    writePref('ai.inrPerUsd', 100) // older pref still read
     addKey('anthropic', 'Claude', 'sk-ant-test-1234567890')
     const c = estimateCost(readAiConfig(), 'short', 10)
-    expect(c.inr).toBeCloseTo(c.usd * 100, 10)
-    expect(formatInr(0.0001)).toContain('under')
-    expect(formatInr(12.5)).toContain('12.50')
+    expect(c.amount).toBeCloseTo(c.usd * 100, 10)
+    expect(formatAmount(0.0001)).toContain('under')
+    expect(formatAmount(12.5)).toContain('12.50')
   })
 })
 

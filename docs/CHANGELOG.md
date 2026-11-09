@@ -2,6 +2,12 @@
 
 Current phase only. Older entries are in [ARCHIVE.md](ARCHIVE.md).
 
+## 2026-11-09 (AI cost currency)
+
+- **What:** Settings > AI > Cost currency: search any currency (Intl.supportedValuesOf, names by Intl.DisplayNames, default INR) and edit its rate per 1 US dollar (INR 90, others 1 until edited; each currency keeps its own rate; "Rate last changed <date>"). Every cost display uses it with Intl.NumberFormat in the app language plus tokens: prompt picker, skills, Clean up with AI, NotebookLM rebuild, Ask book, spend per key, Settings > AI usage, Permissions. Stored as the synced setting `ai.currency`; a copy in the browser (kept equal by a small mirror started in App) lets the plain cost lines read it. Old pref `ai.inrPerUsd` still read, and moved into the setting on first start. No network.
+- **Why:** owner review 9 Nov: any currency, rate editable.
+- **Files:** src/ai/{costCurrency,CostCurrencyPicker,AiSection,AiKeys,AskBook,PermissionsSection}, src/ai/costCurrency.test.ts, src/prompts/{promptRun,promptRun.test,skills.test}, src/share/notebooklm/rebuild.ts, src/App.tsx, src/i18n/{enO,esO,hiO}.ts, e2e/costCurrency.spec.ts, docs/features/{ai,prompt-library}.md, docs/plans/owner-checks-pending.md
+
 ## 2026-11-09 (Reader bar Safari-style + pin, Contents = left Outline, whole-pixel centring)
 
 - **What:** reader bar returns after a 10 px scroll up, a page tap, or at the top; slides in over 180 ms (off with reduce-motion); new pin button (device setting `reading.barPin`, default off) keeps it visible. Contents (☰) now opens the left panel on Outline (`app/panel/outlineRequest.ts`); `ContentsPane.tsx` removed (the pure helpers in `contentsTree.ts` remain, still unit-tested). Toast, backup reminder, Now playing, paste chip, save notice, Lasso and Mixed menus and the mini bar are centred with a whole-pixel margin (`app/centreEl.ts`) instead of `translateX(-50%)`. Reader bar z-index 40 so the overlay left panel never covers it. `dist-bars/` and `playwright.bars.config.ts` ignored.

@@ -1,4 +1,5 @@
 import { useLiveQuery } from 'dexie-react-hooks'
+import { formatCost } from './costCurrency'
 import { useContext, useEffect, useRef, useState } from 'react'
 import { AppUiContext } from '../app/appUi'
 import { runTask } from '../app/errors'
@@ -428,7 +429,7 @@ export function AskBook(props: AskBookProps) {
               words: prepared.gathered.words,
               what: prepared.what,
               host,
-              cost: `$${cost.toFixed(4)}`,
+              cost: formatCost(cost, 4),
             })}
           </p>
           {prepared.gathered.cut && (

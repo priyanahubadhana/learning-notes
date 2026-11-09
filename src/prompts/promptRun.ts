@@ -7,8 +7,8 @@ import { listKeys } from '../ai/keyStore'
 import { modelInfo } from '../ai/models'
 import { callAi } from '../ai/route'
 import { costOf } from '../ai/usage'
-import { readPref } from '../app/uiPrefs'
-import { currentLocale, t } from '../i18n/t'
+import { formatAmount, toCurrency } from '../ai/costCurrency'
+import { t } from '../i18n/t'
 import type { PromptItem } from './promptModel'
 
 /**
@@ -20,13 +20,6 @@ import type { PromptItem } from './promptModel'
 /** The answer format every plain prompt gets (also in the paste-in copy). */
 export const ANSWER_FORMAT =
   'Answer with Markdown only: no introduction, no code fence. Keep every line short. Use only what is in the text.'
-
-/** Rupees per US dollar. An estimate for the cost line; change the pref ai.inrPerUsd. */
-export const DEFAULT_INR_PER_USD = 90
-const isRate = (v: unknown): v is number =>
-  typeof v === 'number' && Number.isFinite(v) && v > 0 && v < 10_000
-export const inrPerUsd = (): number =>
-  readPref('ai.inrPerUsd', isRate, DEFAULT_INR_PER_USD)
 
 /** Most tokens one plain prompt may answer with. */
 export const PROMPT_MAX_TOKENS = 2000
@@ -66,7 +59,8 @@ export interface RunCost {
   /** The most the answer can be (the call's limit). */
   outputTokens: number
   usd: number
-  inr: number
+  /** usd in the chosen cost currency (Settings > AI > Cost currency). */
+  amount: number
 }
 
 /** What a call of `prompt` (up to `maxTokens` back) costs on the first choice of `config`. */
@@ -84,27 +78,14 @@ export function estimateCost(
     inputTokens,
     outputTokens: maxTokens,
     usd,
-    inr: usd * inrPerUsd(),
+    amount: toCurrency(usd),
   }
-}
-
-/** "₹0.42" (two decimals; "under ₹0.01" for almost nothing). */
-export function formatInr(inr: number): string {
-  const f = new Intl.NumberFormat(currentLocale(), {
-    style: 'currency',
-    currency: 'INR',
-    minimumFractionDigits: 2,
-    maximumFractionDigits: 2,
-  })
-  return inr < 0.005
-    ? t('prompts.underInr', { amount: f.format(0.01) })
-    : f.format(inr)
 }
 
 /** The cost line shown before a run. */
 export function costLine(c: RunCost): string {
   return t('prompts.cost', {
-    inr: formatInr(c.inr),
+    amount: formatAmount(c.amount),
     input: c.inputTokens,
     output: c.outputTokens,
     model: c.modelLabel,

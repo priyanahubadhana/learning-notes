@@ -2,6 +2,8 @@
 
 # Handoff
 
+- **AI cost currency done (9 Nov):** Settings > AI > Cost currency (any currency, editable rate, synced `ai.currency`), all cost lines use it (src/ai/costCurrency.ts). Owner check at the top of owner-checks-pending.md.
+
 - **Ink scrolls natively (9 Nov, night):** overlay inside the page scroller + tiled canvases (src/ink/render.ts, controller.ts); mixed paper page at 4x CPU 17-25 % -> 0.9-3.0 % late frames; ink-over-toolbar drift fixed at the root (no more bounce tracker). Spec docs/features/ink.md (Speed), numbers in docs/research/perf-big-pages-2026-11.md, choices in DECISIONS. iPad owner check at the top of owner-checks-pending.md. Test helpers `painted`, `paintedBox`, `inkClientBox` (e2e/inkHelpers.ts) join the tiles.
 - **Drive stays connected built (9 Nov):** cause in docs/research/drive-reconnect-2026-11.md; function `supabase/functions/drive-token`, SQL `20261109000001_drive_tokens.sql`, client `connectors/driveServer.ts` + `supabase.ts`. Does nothing until the OWNER does the 7 setup steps at the top of owner-checks-pending.md (secrets, SQL, deploy, sign out/in once). Warning: docs/CHANGELOG.md already had a stray text suffix on several lines (from an earlier commit).
 

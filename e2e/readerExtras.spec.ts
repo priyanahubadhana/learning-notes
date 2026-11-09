@@ -18,7 +18,7 @@ async function openBook(
   await page.goto('/')
   await space(page, 'Library').click()
   await page.getByTestId('library-file').setInputFiles(file)
-  await page.getByRole('button', { name: '▶ Start reading' }).click()
+  await page.getByRole('button', { name: 'Start reading' }).click()
   await expect(page.getByTestId('book-reader')).toBeVisible()
 }
 

@@ -66,7 +66,7 @@ test('under a locked notebook no page and no notebook can be deleted', async ({
   await expect(
     sidebar(page).getByRole('button', { name: 'Day two', exact: true }),
   ).toBeVisible()
-  await rowAction(page, '🔏 Diary', 'Delete notebook')
+  await rowAction(page, 'Diary', 'Delete notebook')
   await expect(page.getByRole('dialog')).toHaveCount(0)
   await expect(sidebar(page).getByText('Diary')).toBeVisible()
 })

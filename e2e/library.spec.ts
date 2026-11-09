@@ -112,7 +112,7 @@ test('reading progress is saved and the book opens where you left it', async ({
 }) => {
   await openLibrary(page)
   await importFile(page, 'fixture.pdf', 'application/pdf', pdf())
-  await page.getByRole('button', { name: '▶ Start reading' }).click()
+  await page.getByRole('button', { name: 'Start reading' }).click()
   await expect(page.getByTestId('reader-page')).toHaveText('Page 1 of 3')
   await page.getByTestId('pdf-scroller').evaluate((el) => {
     el.scrollTop = el.scrollHeight
@@ -130,7 +130,7 @@ test('reading progress is saved and the book opens where you left it', async ({
 test('Contents jump, zoom and a bookmark', async ({ page }) => {
   await openLibrary(page)
   await importFile(page, 'fixture.pdf', 'application/pdf', pdf())
-  await page.getByRole('button', { name: '▶ Start reading' }).click()
+  await page.getByRole('button', { name: 'Start reading' }).click()
   await page.getByRole('button', { name: 'Zoom in' }).click()
   await expect(page.getByRole('button', { name: 'Fit width' })).toHaveText(
     '125%',
@@ -149,7 +149,7 @@ test('select text, highlight it, and it lands on the book page and survives a re
 }) => {
   await openLibrary(page)
   await importFile(page, 'fixture.pdf', 'application/pdf', pdf())
-  await page.getByRole('button', { name: '▶ Start reading' }).click()
+  await page.getByRole('button', { name: 'Start reading' }).click()
   await expect(page.locator('.textLayer span').first()).toBeVisible()
   await selectText(page, 'Alpha page')
   await expect(page.getByTestId('selection-popup')).toBeVisible()
@@ -202,7 +202,7 @@ test('a note, Undo of a delete, and the Markdown copy', async ({
   await context.grantPermissions(['clipboard-read', 'clipboard-write'])
   await openLibrary(page)
   await importFile(page, 'fixture.pdf', 'application/pdf', pdf())
-  await page.getByRole('button', { name: '▶ Start reading' }).click()
+  await page.getByRole('button', { name: 'Start reading' }).click()
   await expect(page.locator('.textLayer span').first()).toBeVisible()
   await selectText(page, 'Bravo page', 2)
   await page.getByRole('button', { name: 'Note', exact: true }).click()
@@ -226,7 +226,7 @@ test('a note, Undo of a delete, and the Markdown copy', async ({
 test('a saved highlight links back to the exact spot', async ({ page }) => {
   await openLibrary(page)
   await importFile(page, 'fixture.pdf', 'application/pdf', pdf())
-  await page.getByRole('button', { name: '▶ Start reading' }).click()
+  await page.getByRole('button', { name: 'Start reading' }).click()
   await expect(page.locator('.textLayer span').first()).toBeVisible()
   await selectText(page, 'Charlie page', 3)
   await page.getByTestId('hl-yellow').click()
@@ -337,7 +337,7 @@ test('page 1 is on screen before the Contents are read', async ({ page }) => {
   })
   await openLibrary(page)
   await importFile(page, 'fixture.pdf', 'application/pdf', pdf())
-  await page.getByRole('button', { name: '▶ Start reading' }).click()
+  await page.getByRole('button', { name: 'Start reading' }).click()
   await expect(page.getByTestId('reader-page')).toHaveText('Page 1 of 3')
   await expect(
     page.locator('.textLayer span', { hasText: 'Alpha' }).first(),

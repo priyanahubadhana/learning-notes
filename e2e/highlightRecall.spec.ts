@@ -28,7 +28,7 @@ async function openBook(page: Page) {
       { title: 'Cell Book' },
     ),
   })
-  await page.getByRole('button', { name: '▶ Start reading' }).click()
+  await page.getByRole('button', { name: 'Start reading' }).click()
   await expect(page.getByTestId('book-reader')).toBeVisible()
 }
 

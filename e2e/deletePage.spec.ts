@@ -70,6 +70,6 @@ test('sidebar ✕ is reachable at a narrow width and Undo restores', async ({
 test('sidebar: a locked page refuses with a message', async ({ page }) => {
   await createNotebook(page, 'Lock NB', 'Locked one')
   await pageAction(page, 'Lock editing')
-  await rowAction(page, '🔏 Locked one', 'Delete page')
+  await rowAction(page, 'Locked one', 'Delete page')
   await expect(page.getByRole('status')).toContainText('locked')
 })

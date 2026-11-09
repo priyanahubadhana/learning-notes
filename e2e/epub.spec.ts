@@ -20,7 +20,7 @@ async function openEpub(page: Page) {
     mimeType: 'application/epub+zip',
     buffer: makeEpub('The Story'),
   })
-  await page.getByRole('button', { name: '▶ Start reading' }).click()
+  await page.getByRole('button', { name: 'Start reading' }).click()
   await expect(page.getByTestId('book-reader')).toBeVisible()
 }
 

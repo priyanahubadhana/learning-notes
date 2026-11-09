@@ -2,6 +2,11 @@
 
 Current phase only. Older entries are in [ARCHIVE.md](ARCHIVE.md).
 
+## 2026-11-09 (CI: e2e after Lucide icons and scroll handle)
+
+- **What:** a mouse now hits only the last 12 px of the scroll handle (clip-path) so it never covers row buttons; e2e names updated for icons (no emoji in button names: Start reading, locked page and notebook rows).
+- **Why:** deletePage, sidebarQuick, a11yWave34 failed on main. **Files:** src/index.css, e2e/{deletePage,editLock,a11yWave34,lock,lockHelpers,bookInk,epub,highlightRecall,library}*.
+
 ## 2026-11-09 (Notebooks home, sidebar tiles, stronger rail icon)
 
 - **What:** (1) The Notebooks rail icon opens a Notebooks home (src/notebooks/NotebooksHome.tsx): a shelf of 3:4 covers (notebook colour with spine and short label, or the first page when chosen), title, last opened, cards due, star to pin (pinned first), "New notebook" button and a dashed "+" tile, Shelf/List toggle (remembered), responsive, and virtualised (only the visible rows are drawn; notebookLook.ts `visibleRows`). A card's ⋯ (or right-click) menu: Pin, first page or colour cover, Change colour. (2) Sidebar notebook rows: coloured tile with short label, bolder name, accent-soft background when open, due badge; pages under them lighter. (3) The Notebooks rail icon is a filled accent tile when active. Left out on purpose: All/Starred/Recent tabs; room for a "Views" row is kept in the header.

@@ -33,7 +33,7 @@ async function openBook(
   await page
     .getByTestId('library-file')
     .setInputFiles({ name, mimeType, buffer })
-  await page.getByRole('button', { name: '▶ Start reading' }).click()
+  await page.getByRole('button', { name: 'Start reading' }).click()
   await expect(page.getByTestId('book-reader')).toBeVisible()
 }
 

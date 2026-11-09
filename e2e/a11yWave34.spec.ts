@@ -174,7 +174,7 @@ test('Library and the reader: names on every control, the card menu returns the 
   await expect(page.getByRole('menu')).toHaveCount(0)
   await expect(menuButton).toBeFocused()
 
-  await page.getByRole('button', { name: '▶ Start reading' }).click()
+  await page.getByRole('button', { name: 'Start reading' }).click()
   await expect(page.getByTestId('book-reader')).toBeVisible()
   expect(await unlabelled(page, '[data-testid="book-reader"]')).toEqual([])
 })

@@ -234,14 +234,12 @@ test('hidden from search, Recent and the sidebar text; the title shows with a lo
 
   // The sidebar and Recent show the title with the lock, never the text.
   const side = await openSidebar(page)
-  await expect(
-    side.getByRole('button', { name: '🔒 Private page' }),
-  ).toBeVisible()
+  await expect(side.getByRole('button', { name: 'Private page' })).toBeVisible()
   await side.getByRole('button', { name: 'Recent' }).click()
   await expect(
     side
       .getByRole('list', { name: 'Recent' })
-      .getByRole('button', { name: '🔒 Private page' }),
+      .getByRole('button', { name: 'Private page' }),
   ).toBeVisible()
   await expect(side).not.toContainText(SECRET)
 })

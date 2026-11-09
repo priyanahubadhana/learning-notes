@@ -47,9 +47,7 @@ export async function enterCode(page: Page, code: string) {
 /** Opens a locked page from the sidebar (its name starts with a lock). */
 export async function openLockedPage(page: Page, title: string) {
   await showSidebar(page)
-  await sidebar(page)
-    .getByRole('button', { name: `🔒 ${title}`, exact: true })
-    .click()
+  await sidebar(page).getByRole('button', { name: title, exact: true }).click()
 }
 
 /** The lock screen. */

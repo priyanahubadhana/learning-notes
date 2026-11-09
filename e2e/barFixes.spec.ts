@@ -54,7 +54,7 @@ test('R6-3: the rectangle Lasso draws a live rectangle and selects by it', async
   await stroke(page, line(from, to, 12), { keepDown: true, id: 51 })
   const px = await painted(page, 'live')
   expect(px).toBeGreaterThan(5000) // the tinted box, not a thin line
-  await stroke(page, [to], { id: 51 })
+  await stroke(page, [to], { id: 51, liftOnly: true })
   await expect(page.locator('[data-ink-box]')).toBeVisible()
 })
 

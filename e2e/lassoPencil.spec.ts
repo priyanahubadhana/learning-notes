@@ -144,7 +144,7 @@ test('a lasso over ink on words never selects or marks the text, during the drag
       () => document.querySelectorAll('[data-active-block]').length,
     ),
   ).toBe(0)
-  await stroke(page, [path[path.length - 1]], { id: 41 }) // lift
+  await stroke(page, [path[path.length - 1]], { id: 41, liftOnly: true }) // lift
   await expect(page.locator('[data-ink-box]')).toBeVisible()
   expect(await marked(page)).toBe('')
   expect(await browserSelected(page)).toBe(false)

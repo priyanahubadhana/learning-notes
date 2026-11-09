@@ -83,6 +83,8 @@ export interface StrokeOptions {
   holdMs?: number
   /** Do not lift (the stroke stays open). */
   keepDown?: boolean
+  /** Only lift a pointer that is down (a pointerup at the first point). */
+  liftOnly?: boolean
   id?: number
   tilt?: [number, number]
 }
@@ -115,6 +117,10 @@ export async function stroke(page: Page, pts: Pt[], o: StrokeOptions = {}) {
           tiltY: o.tilt?.[1] ?? 0,
         })
       const target = document.elementFromPoint(pts[0][0], pts[0][1])!
+      if (o.liftOnly) {
+        target.dispatchEvent(make('pointerup', pts[0], 0))
+        return
+      }
       target.dispatchEvent(make('pointerdown', pts[0], 0))
       for (let i = 1; i < pts.length; i++) {
         target.dispatchEvent(make('pointermove', pts[i], i))

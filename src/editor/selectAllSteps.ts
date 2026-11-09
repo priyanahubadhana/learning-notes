@@ -2,6 +2,7 @@ import { AllSelection, TextSelection } from 'prosemirror-state'
 import { CellSelection } from 'prosemirror-tables'
 import type { Node as PmNode } from 'prosemirror-model'
 import type { AppSchema } from './schema'
+import { markPageWide } from '../paper/pageWide'
 
 type Editor = AppSchema['BlockNoteEditor']
 
@@ -113,6 +114,7 @@ function selectPage(editor: Editor): boolean {
   const last = boxes[boxes.length - 1]
   const s = window.getSelection()
   s?.setBaseAndExtent(first, 0, last, last.childNodes.length)
+  markPageWide()
   return true
 }
 

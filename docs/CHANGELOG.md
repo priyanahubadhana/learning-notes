@@ -2,6 +2,12 @@
 
 Current phase only. Older entries are in [ARCHIVE.md](ARCHIVE.md).
 
+## 2026-11-09 (Page-wide Ctrl+A Delete/Cut race fixed)
+
+- **What:** Ctrl+A's third step (whole page) could be shrunk back to one box by the browser a moment later, so Delete/Cut sometimes saw no page-wide selection (the flaky paperBoxes spec, ~40% locally). Now the step records an intent (pageWide.ts markPageWide) that Delete/Cut trust until a click or a non-select/copy/cut key; the selection is also re-applied (max 5 times) if it shrinks. paperBoxes spec passes 20/20 (--repeat-each=20), no sleeps.
+- **Why:** HANDOFF known flake.
+- **Files:** src/paper/pageWide.ts, src/editor/selectAllSteps.ts, docs/HANDOFF.md
+
 ## 2026-11-09 (AI cost currency)
 
 - **What:** Settings > AI > Cost currency: search any currency (Intl.supportedValuesOf, names by Intl.DisplayNames, default INR) and edit its rate per 1 US dollar (INR 90, others 1 until edited; each currency keeps its own rate; "Rate last changed <date>"). Every cost display uses it with Intl.NumberFormat in the app language plus tokens: prompt picker, skills, Clean up with AI, NotebookLM rebuild, Ask book, spend per key, Settings > AI usage, Permissions. Stored as the synced setting `ai.currency`; a copy in the browser (kept equal by a small mirror started in App) lets the plain cost lines read it. Old pref `ai.inrPerUsd` still read, and moved into the setting on first start. No network.

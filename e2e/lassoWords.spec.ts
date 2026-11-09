@@ -225,6 +225,7 @@ for (const shape of ['free', 'rect'] as const) {
 test('our pill: Copy puts the selected words on the clipboard, Cut removes them, Undo brings them back', async ({
   page,
   context,
+  browserName,
 }) => {
   await context
     .grantPermissions(['clipboard-read', 'clipboard-write'])
@@ -235,9 +236,12 @@ test('our pill: Copy puts the selected words on the clipboard, Cut removes them,
   await expect.poll(() => marked(page)).toBe(phrase)
   const pill = page.locator('[data-mini-toolbar]')
   await pill.getByRole('button', { name: 'Copy', exact: true }).click()
-  await expect
-    .poll(() => page.evaluate(() => navigator.clipboard.readText()))
-    .toContain(phrase)
+  // WebKit never lets a page read the clipboard (no permission to grant).
+  if (browserName === 'chromium') {
+    await expect
+      .poll(() => page.evaluate(() => navigator.clipboard.readText()))
+      .toContain(phrase)
+  }
   await pill.getByRole('button', { name: 'Cut', exact: true }).click()
   await expect
     .poll(() => page.locator('.bn-editor').innerText())

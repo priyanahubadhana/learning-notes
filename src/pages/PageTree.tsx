@@ -319,6 +319,11 @@ export function PageTree({
           onMove={(step) =>
             moveWithUndo(menuPage.id, planStep(pages, menuPage.id, step))
           }
+          onMoveTop={
+            !journal && !rootId && menuPage.parentId !== null
+              ? () => runTask(movePageToTopLevel(db, menuPage.id))
+              : undefined
+          }
           onDelete={() => onRequestDelete(menuPage, openPath.has(menuPage.id))}
           onClose={() => setRowMenu(null)}
         />

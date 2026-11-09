@@ -7,8 +7,8 @@ import {
   openPage,
   openSidebar,
   pageAction,
-  row,
   openCorner,
+  rowAction,
 } from './helpers.ts'
 
 /**
@@ -119,9 +119,7 @@ test('Favourites: star from the page menu and from the sidebar; remove; remember
     favs.getByRole('button', { name: 'Second', exact: true }),
   ).toBeVisible()
   // From the sidebar row: the star next to the page.
-  const first = row(page, 'First')
-  await first.hover()
-  await first.getByLabel('Add to favourites', { exact: true }).click()
+  await rowAction(page, 'First', 'Add to favourites')
   await expect(
     favs.getByRole('button', { name: 'First', exact: true }),
   ).toBeVisible()

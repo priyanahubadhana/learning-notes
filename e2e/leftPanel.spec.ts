@@ -8,6 +8,7 @@ import {
   openPage,
   showSidebar,
   sidebar,
+  rowAction,
 } from './helpers.ts'
 import {
   enterCode,
@@ -111,9 +112,7 @@ test('pages can be moved with the keyboard buttons', async ({ page }) => {
       .getByTestId('page-row')
       .getByRole('button', { name: /^(One|Two)$/ })
   await expect(names()).toHaveText(['One', 'Two'])
-  const two = sidebar(page).getByTestId('page-row').filter({ hasText: 'Two' })
-  await two.hover()
-  await two.getByRole('button', { name: 'Move up' }).click()
+  await rowAction(page, 'Two', 'Move up')
   await expect(names()).toHaveText(['Two', 'One'])
 })
 

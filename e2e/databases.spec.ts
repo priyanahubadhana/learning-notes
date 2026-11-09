@@ -404,7 +404,7 @@ test('/database lists all your databases, searchable, newest first, with the rea
   await (
     await openSidebar(page)
   )
-    .getByRole('button', { name: 'Heart sounds' })
+    .getByRole('button', { name: 'Heart sounds', exact: true })
     .click()
   await expect(page.getByRole('textbox', { name: 'Page title' })).toHaveValue(
     'Heart sounds',

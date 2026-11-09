@@ -4,12 +4,12 @@ import {
   highlighted,
   createNotebook,
   selectText,
-  sidebar,
   typeInEditor,
   openSidebar,
   pageAction,
   cornerAction,
   setTheme,
+  rowAction,
 } from './helpers.ts'
 
 // The Review screen (not the page's "Linked from" section).
@@ -164,9 +164,7 @@ test('Settings: Simple steps scheduler changes the button gaps', async ({
 test('notebook review and empty states', async ({ page }) => {
   await page.goto('/')
   await createNotebook(page, 'Empty', 'Nothing here')
-  const row = sidebar(page).locator('div.group').filter({ hasText: 'Empty' })
-  await row.first().hover()
-  await row.first().getByLabel('Review this notebook').click()
+  await rowAction(page, 'Empty', 'Review this notebook')
   await expect(review(page)).toContainText('No cards here yet.')
   await expect(
     review(page).getByRole('button', { name: 'Practice anyway' }),

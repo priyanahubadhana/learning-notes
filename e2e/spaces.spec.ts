@@ -35,7 +35,9 @@ test('the strip has four spaces; each shows only its own list', async ({
   await expect(space(page, 'Notebooks')).toHaveAttribute('aria-current', 'page')
   const side = sidebar(page)
   // Notebooks: the notebook tree, calendar, databases, favourites, recent.
-  await expect(side.getByRole('button', { name: 'Biology' })).toBeVisible()
+  await expect(
+    side.getByRole('button', { name: 'Biology', exact: true }),
+  ).toBeVisible()
   await expect(side.getByRole('button', { name: 'Calendar' })).toBeVisible()
 
   await space(page, 'Review').click()

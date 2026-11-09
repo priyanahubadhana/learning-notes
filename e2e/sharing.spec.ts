@@ -113,7 +113,9 @@ test('a notebook file round-trips as a new copy; nothing existing changes', asyn
 
   // The templates in the file were already here: none is added twice.
   await expect(
-    sidebar(page).getByRole('button', { name: /\(imported\)$/ }),
+    sidebar(page).getByRole('button', {
+      name: /^(?!More for|Delete).*\(imported\)$/,
+    }),
   ).toHaveCount(1)
 
   // A file that is not ours is refused with a clear message.
@@ -192,7 +194,10 @@ test('the browser backup can be restored as copies', async ({ page }) => {
   await expect(section).toContainText('1 notebooks')
   await section.getByRole('button', { name: 'Bring back' }).click()
   await expect(
-    sidebar(page).getByRole('button', { name: 'Old notebook (imported)' }),
+    sidebar(page).getByRole('button', {
+      name: 'Old notebook (imported)',
+      exact: true,
+    }),
   ).toBeVisible()
 })
 

@@ -31,7 +31,7 @@ test('Today creates the day page from the Daily journal template, under its mont
     /25 October 2026/,
   )
   await expect(
-    sidebar(page).getByRole('button', { name: /25 Oct/ }),
+    sidebar(page).getByRole('button', { name: /^(?!More for|Delete).*25 Oct/ }),
   ).toHaveCount(1)
 })
 
@@ -40,7 +40,7 @@ test('journal days are listed newest first', async ({ page }) => {
   await page.goto('/')
   await page.getByRole('button', { name: 'Open today’s journal' }).click()
   await expect(
-    sidebar(page).getByRole('button', { name: /24 Oct/ }),
+    sidebar(page).getByRole('button', { name: /^(?!More for|Delete).*24 Oct/ }),
   ).toBeVisible()
 
   await page.clock.setFixedTime(at(25))
@@ -57,15 +57,15 @@ test('a renamed month keeps its new name in the sidebar', async ({ page }) => {
     month: 'long',
     year: 'numeric',
   }).format(new Date())
-  await side.getByRole('button', { name: month }).dblclick()
+  await side.getByRole('button', { name: month, exact: true }).dblclick()
   const field = side.getByRole('textbox').first()
   await field.fill('My exam month')
   await field.press('Enter')
   await expect(
-    side.getByRole('button', { name: 'My exam month' }),
+    side.getByRole('button', { name: 'My exam month', exact: true }),
   ).toBeVisible()
   await page.reload()
   await expect(
-    side.getByRole('button', { name: 'My exam month' }),
+    side.getByRole('button', { name: 'My exam month', exact: true }),
   ).toBeVisible()
 })

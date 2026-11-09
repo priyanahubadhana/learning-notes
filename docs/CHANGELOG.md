@@ -82,7 +82,7 @@ Current phase only. Older entries are in [ARCHIVE.md](ARCHIVE.md).
 ## 2026-11-09 (CI green again)
 
 - **What:** main was red on 9 Nov. Fixed: Prettier on the NotebookLM research doc; nameSheet touch-row test (two Lock items now: PIN lock + edit lock, count 2); paper pinch spring-back test skipped on WebKit (no mouse wheel; spring maths covered by zoomSpring.test.ts); removed a no-op `title={undefined}` from BoxBar; allowed the paper -> editor feature link (types and plain-text mapping).
-- **Why:** nothing had deployed. Also stabilised reading.spec "selecting while reading offers Highlight": waits for the saved write (not 900 ms) and for the reload to end reading before switching it on.
+- **Why:** nothing had deployed. Sidebar specs follow the ⋯ row menu (More for X rows, rowAction); the page row menu gained "Move to top level" (a narrow row hides the ↰ button). Also stabilised reading.spec "selecting while reading offers Highlight": waits for the saved write (not 900 ms) and for the reload to end reading before switching it on.
 - **Files:** docs/research/notebooklm-import-2026-11.md, e2e/nameSheet.spec.ts, e2e/paperPage.spec.ts, src/paper/BoxBar.tsx, scripts/feature-links.json, e2e/topBar.spec.ts, popups.spec.ts, readerControls.spec.ts (menu items now: Prompts and skills, Lock editing, Delete page; Import enabled; no Undo & redo group; reader scroll offset)
 
 ## 2026-11-09 (Bring in from NotebookLM, optional page tabs)

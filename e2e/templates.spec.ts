@@ -54,7 +54,9 @@ test('a template’s sub-pages fold out in the sidebar and open', async ({
   await template.getByRole('button', { name: 'Expand' }).click()
   await expect(row(page, 'Detailed notes')).toBeVisible()
   await expect(row(page, 'Flashcards')).toBeVisible()
-  await subPage.getByRole('button', { name: 'Keyword summary' }).click()
+  await subPage
+    .getByRole('button', { name: 'Keyword summary', exact: true })
+    .click()
   await expect(page.getByRole('textbox', { name: 'Page title' })).toHaveValue(
     'Keyword summary',
   )
@@ -148,7 +150,7 @@ test('"New page from this template" makes a page in the first notebook', async (
   await expect(page.locator('.bn-editor')).toContainText('Highlights')
 })
 
-test('Import is shown but disabled (coming soon); Export is built', async ({
+test('Import is shown and opens Save & restore; Export is built', async ({
   page,
 }) => {
   await createNotebook(page, 'Notes', 'First')
@@ -156,7 +158,6 @@ test('Import is shown but disabled (coming soon); Export is built', async ({
   for (const name of [/Import/]) {
     const item = page.getByRole('menuitem', { name })
     await expect(item).toBeVisible()
-    await expect(item).toBeDisabled()
-    await expect(item).toContainText('Coming soon')
+    await expect(item).toBeEnabled()
   }
 })

@@ -21,6 +21,7 @@ export default function PageRowMenu({
   onRename,
   onAddSub,
   onMove,
+  onMoveTop,
   onDelete,
   onClose,
 }: {
@@ -35,6 +36,8 @@ export default function PageRowMenu({
   onAddSub: () => void
   /** Moves this page one step up (-1) or down (1). */
   onMove: (step: -1 | 1) => void
+  /** Only given for a sub-page that may go to the top level. */
+  onMoveTop?: () => void
   onDelete: () => void
   onClose: () => void
 }) {
@@ -74,6 +77,8 @@ export default function PageRowMenu({
       { label: t('tree.moveDown'), icon: '↓', onSelect: () => onMove(1) },
     )
   }
+  if (onMoveTop)
+    items.push({ label: t('tree.moveTop'), icon: '↰', onSelect: onMoveTop })
   items.push({
     label: t('tree.deletePage'),
     icon: '×',

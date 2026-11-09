@@ -2,6 +2,8 @@
 
 # Handoff
 
+- **Tools robustness done (10 Nov), steps 1-7 of docs/plans/tools-robustness-plan.md:** input machine (4 s limit), Lasso on it, editLock, remaining flags, health check, soft refresh ("Refresh app" in the gear menu; auto at most once per 10 min), resume suite. Limits are in DECISIONS "Decisions to review". Owner iPad check at the top of owner-checks-pending.md. Known: chromium specs gestureWatchdog:338, pencilTaps:175/:193, lassoPencil:299, penTools:235, penTapChrome:49, magnifier:129 also fail on the commit before this work (tap-timing / load); not caused by it. Spec: docs/features/ink.md.
+
 - **Contextual strips + picture resize (9 Nov):** Picture/Video/Table/Drawing/Text tab in the full bar, compact row with More, smooth rAF resize, 180 ms presets, bug guards, sheet-gap hold/ghost/slide/tappable gap. Spec toolbar.md, pictures.md, paper-page.md; choices in DECISIONS. Owner check at the top of owner-checks-pending.md. Note: e2e/mainBar.spec.ts "nine tools" and "44 px" fail on a scroll-chevron button in this tree (bar overflow, not from this change).
 
 - **Settings that follow you done (9 Nov):** see docs/features/sync.md. Theme, language, AI spending limit etc. sync by default; What syncs panel, tags, row menu, migration notice. Permissions links to AI > Usage and cost. Clash bars only for words (one summary bar). Owner check at the top of owner-checks-pending.md. Not done: reading progress/favourites stay per device; the migration notice has unit tests but no e2e.

@@ -2,6 +2,10 @@
 
 Moved out of HANDOFF on 2026-11-06 (audit) so HANDOFF stays five lines. Newest first; each paragraph names its step. The run decision (master plan) is one owner iPad pass before Sync; the Phase A builder adds its checks at the top. Tick a paragraph by deleting it.
 
+## iPad tools robustness (10 Nov)
+
+On the iPad (installed app): use the Lasso 20 times in a row (free and rectangle, on ink, words and a picture); switch to another app and back 3 times (once in the middle of a loop, once with the Pencil held down); after each return check that the Lasso, a Pencil double tap on a word, a Pencil Text selection, the Pen and the Text tool (typing) all work, and that nothing needs a restart. Then open Settings gear > "Refresh app": you should land on the same page, same scroll, same tool, with your text and drawing kept. Settings > Advanced > Copy tool state: the "health" lines list anything the app fixed by itself. Why human: real iPadOS drops lifts and cancels in ways a test cannot copy.
+
 ## iPad contextual strips and picture resize (9 Nov)
 
 On the iPad: (1) paste a picture: it is selected at once, with the action bar and a Picture row under the tool bar (Smaller, Bigger, Fit width); tap More: the full bar opens on the Picture tab (resize, crop and rotate, replace, align, caption, Copy, Cut, Duplicate, Delete). Tap empty page: the Picture tab goes and the bar returns to what it showed. Try a table, a video link and a Lasso loop around a drawing: Table, Video and Drawing tabs. (2) Drag a corner with finger and Pencil: the picture follows every frame with no stutter, one Undo. Smaller and Bigger glide quickly. (3) Make a picture too big for the sheet: a dashed ghost shows on the next sheet while you drag, nothing jumps; on release it slides there, the page follows and it pulses once. Tap the blank end of the sheet: the caret appears at the end of the last line and "Continues on next page" is faintly visible. (4) Resize, switch to another app, come back, type, resize smaller again: the picture stays. Why human: touch and Pencil smoothness.

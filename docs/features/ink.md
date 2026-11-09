@@ -99,3 +99,13 @@ n## Selection look (9 Nov)
 
 What is selected (the picture itself, words, or a line) is outlined with a dashed orange line (`--color-select`; light, night and sepia values in index.css), never the whole box and never filled over a block. Test: e2e/lassoPicture.spec.ts.
 nInk over a picture (9 Nov): the picture itself is the anchor; the picture width at first anchoring is stored as `mw` in the chunk fallback and the drawing scales with the picture. Test: e2e/inkOnPicture.spec.ts.
+
+## Tools robustness (10 Nov)
+
+Plan: [../plans/tools-robustness-plan.md](../plans/tools-robustness-plan.md). Research: [../research/tools-robustness-2026-11.md](../research/tools-robustness-2026-11.md).
+
+- **One input machine** (`src/app/inputMachine.ts`): the Lasso, handle drags, Pencil text drag, hold-select, selection guards, grip drag and the auto device mode counter call `begin`. A lift, cancel, lost capture, app switch, tool change or **4 s without movement** drops the gesture through one function and resets its owner. The Lasso never returns early on a stale gesture (same pointer after a pause, or one the machine dropped).
+- **One owner of contenteditable** (`src/editor/editLock.ts`): `lock(owner, el)` / `unlock(owner)`, counted; the page follows `editableIn(pageMode)`, nothing writes back a remembered value.
+- **Health check** (`src/app/healthCheck.ts`): on visible, pageshow, focus and every 10 s when idle for 30 s. Heals stuck flags, locks, a wrong contenteditable, blank ink (repaint) and listener leaks; logged in Copy tool state under `health`. A heal failing twice within 60 s asks for a soft refresh.
+- **Soft refresh** (`src/app/softRefresh.ts`): "Refresh app" in the settings gear menu, and the automatic last resort (safe moment only, at most once per 10 minutes, toast). Page, scroll and tool come back.
+- Tests: e2e/{tools-machine,lassoLoops,toolsEditLock,toolsFlags,toolsHealth,toolsRefresh,resume}.spec.ts (all in the ipad-webkit list); test hooks on `window.__lnTools`.

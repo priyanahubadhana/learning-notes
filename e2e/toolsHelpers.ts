@@ -8,6 +8,7 @@ import { line, type Pt } from './inkHelpers.ts'
 type Tools = {
   toolState: () => Record<string, Record<string, unknown>>
   machine: { state: () => string; abort: (r: string) => void }
+  setLasso: (patch: Record<string, unknown>) => Promise<void>
   [more: string]: unknown
 }
 declare global {

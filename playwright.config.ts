@@ -127,6 +127,7 @@ export default defineConfig({
         /paperPhone/,
         /paperExport/,
         /tools-machine/,
+        /lassoLoops/,
       ],
       use: { ...devices['iPad Pro 11'], hasTouch: true },
       expect: { timeout: 15_000 },

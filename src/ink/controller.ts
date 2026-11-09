@@ -1863,12 +1863,22 @@ export class InkController {
 
   /** The machine knows the touch (its age limit drops a lost lift), then the Lasso starts. */
   private lassoDown(e: PointerEvent): void {
+    // A Lasso or handle gesture whose lift never came must not block this
+    // touch: the same pointer going down again, or a pointer the machine no
+    // longer knows (it drops one that has not moved for 4 s), means it is dead.
+    if (this.staleGesture(e)) this.cancelGesture()
     const before = this.gesture
     this.lassoDownInner(e)
     const g = this.gesture
     if (g && g !== before && g.id === e.pointerId && g.kind === 'lasso') {
       this.machineBegin(e, 'selecting')
     }
+  }
+
+  private staleGesture(e: PointerEvent): boolean {
+    const g = this.gesture
+    if (!g || (g.kind !== 'lasso' && g.kind !== 'transform')) return false
+    return g.id === e.pointerId || !inputMachine.isDown('ink', g.id)
   }
 
   private machineBegin(e: PointerEvent, state: 'selecting' | 'transforming') {
@@ -2008,7 +2018,17 @@ export class InkController {
       this.finishTransform(g)
       return
     }
-    if (g.id !== e.pointerId) return
+    if (g.id !== e.pointerId) {
+      // Another pointer lifted while the machine no longer knows this one:
+      // its own lift was lost.
+      if (
+        (g.kind === 'lasso' || g.kind === 'transform') &&
+        !inputMachine.isDown('ink', g.id)
+      ) {
+        this.cancelGesture()
+      }
+      return
+    }
     if (g.kind === 'lasso') {
       this.gesture = null
       this.releaseEditing()

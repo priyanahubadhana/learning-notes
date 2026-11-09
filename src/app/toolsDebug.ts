@@ -23,6 +23,11 @@ export function installToolsDebug(extra: Record<string, unknown> = {}): void {
     ...window.__lnTools,
     toolState,
     machine: inputMachine,
+    // Tests: the Lasso's shape and filters without opening its pill.
+    setLasso: async (patch: Record<string, unknown>) => {
+      const m = await import('./tools/main/inkSettings')
+      m.lassoSettings.update(patch as never)
+    },
     ...extra,
   }
 }

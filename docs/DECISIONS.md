@@ -906,3 +906,11 @@ The other older decisions stand as built (owner, 2026-11-01); they are in [ARCHI
 - Sepia theme: kept as a third option (safest; no one loses their theme).
 - Font: Inter loaded lazily, with the system font shown first so first load stays under the size gate.
 - Accent blue → violet: owner already chose violet; first chart colour changes with it.
+
+## Decisions to review (Drive stays connected, 9 Nov)
+
+- Instead of a separate "exchange the code" function, Supabase Auth (which already holds the client secret) does the code exchange and returns `provider_refresh_token`; one function `drive-token` (store, token, revoke) keeps it. Fewer secrets, no new redirect address. The refresh token passes through the owner's own browser once, at sign-in, and is never kept there.
+- One function, not two: smaller setup. It runs with `--no-verify-jwt` and checks the signed-in owner (and the owner email) itself, so the new publishable keys cannot break it.
+- Token locked with AES-GCM using a Supabase secret (`DRIVE_TOKEN_KEY`) on top of a table with RLS on, no policy and no rights for browser roles. A leaked database dump alone cannot be used.
+- Consent screen only when the server holds no token (flag `sync.driveOffline`), because Google limits refresh tokens per account and client.
+- The old Google token window stays as fallback while the function is missing or has nothing stored.

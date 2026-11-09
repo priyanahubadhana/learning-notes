@@ -5,6 +5,7 @@ import {
   SUPABASE_URL,
 } from './config'
 import { createDrivePass } from './drivePass'
+import { revokeServerToken, serverPass, storeRefreshToken } from './driveServer'
 import { preloadGoogle, renewDriveToken } from './google'
 import {
   NotAllowedError,
@@ -30,6 +31,18 @@ import {
 
 const SESSION = 'learning-notes:sync.session'
 const VERIFIER = 'learning-notes:sync.pkce'
+/** '1' once the server holds Google's refresh token for this account. */
+const OFFLINE = 'learning-notes:sync.driveOffline'
+
+function flag(set?: boolean): boolean {
+  try {
+    if (set === true) localStorage.setItem(OFFLINE, '1')
+    else if (set === false) localStorage.removeItem(OFFLINE)
+    return localStorage.getItem(OFFLINE) === '1'
+  } catch {
+    return false
+  }
+}
 
 interface Session {
   access: string
@@ -88,6 +101,7 @@ interface TokenReply {
   refresh_token: string
   expires_in: number
   provider_token?: string
+  provider_refresh_token?: string
   user: {
     id: string
     email?: string
@@ -118,7 +132,11 @@ function toSession(r: TokenReply, old?: Session | null): Session {
  * show the account chooser, so a second Google account on the device is
  * never picked silently (Supabase passes extra query values on to Google).
  */
-export function authorizeUrl(redirectTo: string, challenge: string): URL {
+export function authorizeUrl(
+  redirectTo: string,
+  challenge: string,
+  consent = false,
+): URL {
   const url = new URL(`${SUPABASE_URL}/auth/v1/authorize`)
   url.searchParams.set('provider', 'google')
   url.searchParams.set('redirect_to', redirectTo)
@@ -126,12 +144,40 @@ export function authorizeUrl(redirectTo: string, challenge: string): URL {
   url.searchParams.set('code_challenge_method', 's256')
   url.searchParams.set('scopes', DRIVE_SCOPE)
   url.searchParams.set('login_hint', ALLOWED_EMAIL)
-  url.searchParams.set('prompt', 'select_account')
+  // Offline access gives a long-lived refresh token (kept by the server).
+  // Google sends it only after a consent screen, so ask for that only when
+  // the server does not hold one yet (first time, or after a revoke).
+  url.searchParams.set('access_type', 'offline')
+  url.searchParams.set(
+    'prompt',
+    consent ? 'select_account consent' : 'select_account',
+  )
   return url
 }
 
 export function supabaseAuth(): AuthProvider {
   let session = load()
+  let serverOffUntil = 0
+
+  async function startSignIn(consent: boolean) {
+    const verifier = b64url(crypto.getRandomValues(new Uint8Array(32)))
+    sessionStorage.setItem(VERIFIER, verifier)
+    localStorage.setItem(VERIFIER, verifier) // the redirect may open a new tab
+    const challenge = b64url(
+      new Uint8Array(
+        await crypto.subtle.digest(
+          'SHA-256',
+          new TextEncoder().encode(verifier),
+        ),
+      ),
+    )
+    const back = new URL(location.href)
+    back.search = '?sync=callback'
+    back.hash = ''
+    location.assign(
+      authorizeUrl(back.toString(), challenge, consent).toString(),
+    )
+  }
 
   const refresh = async () => {
     if (!session) throw new NotAllowedError('signed out')
@@ -148,6 +194,11 @@ export function supabaseAuth(): AuthProvider {
     store(session)
   }
 
+  const freshAccess = async () => {
+    if (session && session.expiresAt - Date.now() < 60_000) await refresh()
+    return session!.access
+  }
+
   const pass = createDrivePass({
     get: () => session?.drive,
     set: (drive) => {
@@ -155,33 +206,33 @@ export function supabaseAuth(): AuthProvider {
       session = { ...session, drive }
       store(session)
     },
-    renew: (interactive) =>
-      session
-        ? renewDriveToken(session.account.email, interactive)
-        : Promise.resolve(null),
+    renew: async (interactive) => {
+      if (!session) return null
+      // 1. The server's refresh token: no window, no Google cookies.
+      if (Date.now() > serverOffUntil) {
+        const r = await serverPass(await freshAccess())
+        if (r.kind === 'ok') return r
+        if (r.kind === 'error') return null // offline: try again later
+        if (r.kind === 'unavailable') serverOffUntil = Date.now() + 10 * 60_000
+        if (r.kind === 'revoked' || r.kind === 'none') {
+          flag(false)
+          // The one calm bar: its tap signs in again WITH consent so the
+          // server gets a new refresh token.
+          if (interactive) {
+            void startSignIn(true)
+            return null
+          }
+        }
+      }
+      // 2. The old way (Google's token window), until setup is done.
+      return renewDriveToken(session.account.email, interactive)
+    },
   })
 
   return {
     current: () => session?.account ?? null,
 
-    async signIn() {
-      const verifier = b64url(crypto.getRandomValues(new Uint8Array(32)))
-      sessionStorage.setItem(VERIFIER, verifier)
-      localStorage.setItem(VERIFIER, verifier) // the redirect may open a new tab
-      const challenge = b64url(
-        new Uint8Array(
-          await crypto.subtle.digest(
-            'SHA-256',
-            new TextEncoder().encode(verifier),
-          ),
-        ),
-      )
-      const back = new URL(location.href)
-      back.search = '?sync=callback'
-      back.hash = ''
-      const url = authorizeUrl(back.toString(), challenge)
-      location.assign(url.toString())
-    },
+    signIn: () => startSignIn(!flag()),
 
     async finishSignIn(url: URL) {
       const code = url.searchParams.get('code')
@@ -198,15 +249,29 @@ export function supabaseAuth(): AuthProvider {
       sessionStorage.removeItem(VERIFIER)
       localStorage.removeItem(VERIFIER)
       if (!res.ok) throw new NotAllowedError(`sign-in ${res.status}`)
-      session = toSession((await res.json()) as TokenReply)
+      const reply = (await res.json()) as TokenReply
+      session = toSession(reply)
       store(session)
+      // Google's refresh token goes to the server once (locked there); this
+      // device never keeps it.
+      if (reply.provider_refresh_token)
+        flag(
+          await storeRefreshToken(
+            reply.access_token,
+            reply.provider_refresh_token,
+          ),
+        )
       return true
     },
 
     async signOut() {
       const s = session
+      // Cancel Google's long-lived token first (needs a working sign-in).
+      if (s && flag())
+        await revokeServerToken(await freshAccess().catch(() => s.access))
       session = null
       store(null)
+      flag(false)
       if (s)
         await call('/auth/v1/logout', {
           method: 'POST',

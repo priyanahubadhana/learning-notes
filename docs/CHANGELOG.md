@@ -4,6 +4,12 @@
 Current phase only. Older entries are in [ARCHIVE.md](ARCHIVE.md)., e2e/topBar.spec.ts, popups.spec.ts, readerControls.spec.ts (menu items now: Prompts and skills, Lock editing, Delete page; Import enabled; no Undo & redo group; reader scroll offset)
 , e2e/topBar.spec.ts, popups.spec.ts, readerControls.spec.ts (menu items now: Prompts and skills, Lock editing, Delete page; Import enabled; no Undo & redo group; reader scroll offset)
 
+## 2026-11-09 (Drive stays connected: refresh token kept on the server)
+
+- **What:** cause written up (docs/research/drive-reconnect-2026-11.md). Sign-in now asks Google for offline access; Edge Function `drive-token` (store, token, revoke) keeps the refresh token locked in new table `drive_tokens`; the Drive pass asks it first and falls back to the old Google window until the owner finishes setup. Sign-out revokes.
+- **Why:** owner kept seeing Reconnect Drive after idle or on Safari; a browser-only token flow cannot renew quietly.
+- **Files:** supabase/functions/drive-token/index.ts, supabase/functions/_shared/driveTokenHandler.ts, supabase/migrations/20261109000001_drive_tokens.sql, src/sync/connectors/driveServer.ts (+ .test.ts), src/sync/connectors/supabase.ts, docs/features/sync.md, docs/plans/owner-checks-pending.md, docs/research/drive-reconnect-2026-11.md, HANDOFF, DECISIONS.
+
 ## 2026-11-09 (Paste chooser: As text box on paper pages), e2e/topBar.spec.ts, popups.spec.ts, readerControls.spec.ts (menu items now: Prompts and skills, Lock editing, Delete page; Import enabled; no Undo & redo group; reader scroll offset)
 
 , e2e/topBar.spec.ts, popups.spec.ts, readerControls.spec.ts (menu items now: Prompts and skills, Lock editing, Delete page; Import enabled; no Undo & redo group; reader scroll offset)

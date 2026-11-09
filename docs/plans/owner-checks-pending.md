@@ -2,6 +2,20 @@
 
 Moved out of HANDOFF on 2026-11-06 (audit) so HANDOFF stays five lines. Newest first; each paragraph names its step. The run decision (master plan) is one owner iPad pass before Sync; the Phase A builder adds its checks at the top. Tick a paragraph by deleting it.
 
+## Drive stays connected (9 Nov) - owner setup, about 10 minutes
+
+What it is: today the app asks Google for a new one-hour Drive pass in the browser, and that fails after long idle or on Safari, so "Reconnect Drive" appears. This setup lets a small server step (free) keep a long-lasting Google key for you, locked, and hand the app a new pass whenever it needs one. After it, the bar should appear only if you remove the app's access in your Google account or change your Google password. Until you finish, the old way keeps working.
+
+1. Google Cloud (console.cloud.google.com > APIs & Services > Credentials > your Web client): nothing new to add. The redirect address is the same Supabase one already there. Just check the consent screen still says "In production".
+2. Supabase > Edge Functions > Secrets (or Project Settings > Edge Functions): add two secrets.
+   - `GOOGLE_CLIENT_SECRET`: the same client secret you pasted in Authentication > Providers > Google. Paste it only there, never in chat or files.
+   - `DRIVE_TOKEN_KEY`: any long random text (30+ characters). Keep a copy in your password manager. If it is ever lost, nothing breaks except one more Reconnect.
+3. Supabase > SQL Editor: paste and run `supabase/migrations/20261109000001_drive_tokens.sql` (safe to run twice). It makes a table no browser can read.
+4. Deploy the function `drive-token` from `supabase/functions/drive-token` (and its helper in `supabase/functions/_shared`). Easiest, in a terminal in the project folder: `npx supabase login`, then `npx supabase functions deploy drive-token --project-ref eludllranljtyasdoyaj --no-verify-jwt` (the function checks the signed-in owner itself). If you prefer the dashboard, ask the builder for a one-file copy.
+5. In the app: Settings > Sync > sign out, then sign in again with Google. Google shows its permission screen once. This is when the long-lasting key is saved.
+6. Check: leave the app closed for a day (or close Safari fully), open it: Drive pictures still sync and no Reconnect bar. Offline for a while, then online: same.
+7. If a bar does appear after this, its tap signs in again once (that is the "Google cancelled access" case). Tell the builder if it appears without you changing a password or removing access.
+
 ## Paste "As text box" (9 Nov, iPad and PC)
 
 1. Paste set to "Ask each time". Copy a ChatGPT answer with a heading and a list, tap in a blank spot of a page, paste: the chooser has a third row "As text box".

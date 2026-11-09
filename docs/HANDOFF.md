@@ -1,5 +1,7 @@
 # Handoff
 
+- **Drive stays connected built (9 Nov):** cause in docs/research/drive-reconnect-2026-11.md; function `supabase/functions/drive-token`, SQL `20261109000001_drive_tokens.sql`, client `connectors/driveServer.ts` + `supabase.ts`. Does nothing until the OWNER does the 7 setup steps at the top of owner-checks-pending.md (secrets, SQL, deploy, sign out/in once). Warning: docs/CHANGELOG.md already had a stray text suffix on several lines (from an earlier commit).
+
 - **Copy side done (9 Nov):** Ctrl/Cmd+C, Lasso Copy, mini-bar Copy and block-menu Copy write rich HTML + clean Markdown + our lossless format (src/editor/copyFormats.ts); single picture copies as an image; block menu "Copy as…" (Markdown, Rich text, Plain text, HTML). Also done the same day: paste chooser "Clean up with AI" (seeded prompt `own.cleanup` in the library; src/editor/cleanupAi.ts, CleanupDialog.tsx), Vimeo/Loom/.mp4 embeds (embedUrl.ts, EmbedView `PlayerCard`, CSP frame-src), "As text box" on paper pages (src/editor/pasteBox.ts calls the paper's addBox/addBoxInOrder/removeBox). Owner checks at the top of owner-checks-pending.md.
 
 - **Delete page + sidebar ✕ done (9 Nov):** page ⋯ Delete page (Undo), Import opens Save & restore, sidebar ✕ never clipped (narrow rows fold extras into ⋯), notebook delete confirms with page count + Undo. Spec docs/features/notebooks-and-pages.md (Delete with Undo); owner check at the top of owner-checks-pending.md.

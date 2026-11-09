@@ -2,6 +2,13 @@
 
 Moved out of HANDOFF on 2026-11-06 (audit) so HANDOFF stays five lines. Newest first; each paragraph names its step. The run decision (master plan) is one owner iPad pass before Sync; the Phase A builder adds its checks at the top. Tick a paragraph by deleting it.
 
+## Done by the owner (9 Nov, tested live)
+- Drive lasting connection: "Drive: stays connected" ✓
+- AI key Test passed ✓; prompt picker found
+- Insert › Picture (Photos, Files, Camera, Paste), placement, resize, action bar ✓ (resize smoothness still being improved)
+- Lasso free-form word selection ✓ (rectangle menu, 3rd loop, handles: fixes pending deploy)
+- Picture moved to next sheet when too big: understood; shrinking brings it back ✓ (animation and tappable gap pending)
+
 ## Notebooks home (9 Nov)
 
 On the iPad and iPhone: tap the Notebooks icon (on the phone, tap it twice if the list slides in first). You see a shelf of covers with the notebook name, when you last opened it and how many cards are due. (1) Tap a star: the notebook jumps to the front. (2) Tap ⋯ on a cover: choose "Show the first page as the cover" and back, and "Change colour". (3) Switch Shelf / List. (4) Tap the dashed "+" or "New notebook": a new notebook starts. (5) Turn the iPad round: covers re-flow, nothing overlaps. (6) In the sidebar each notebook has a coloured tile, a bold name and a small number for cards due. Why human: touch feel and real screen sizes.

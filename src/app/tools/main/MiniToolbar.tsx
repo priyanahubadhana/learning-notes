@@ -11,6 +11,7 @@ import {
 import { createPortal } from 'react-dom'
 import { t, type MessageKey } from '../../../i18n/t'
 import type { Editor } from '../../../editor/barActions'
+import { dropNativeSelection } from '../../../editor/lassoWords'
 import { copyAs, pastePlainFromClipboard } from '../../../editor/clipboard'
 import { BACKGROUND_HEX, TEXT_HEX, setColor } from '../../../editor/colorData'
 import { posNear } from '../../../editor/tapSelect'
@@ -71,7 +72,9 @@ function spotOf(editor: Editor): Spot | null {
       ),
       top: edge(above < 8 ? b.bottom + 28 : above),
       below: above < 8,
-      start: { x: a.left, y: a.bottom },
+      // iOS style: the start handle above-left of the first letter, the end
+      // handle below-right of the last.
+      start: { x: a.left, y: a.top },
       end: { x: b.right, y: b.bottom },
     }
   } catch {
@@ -522,15 +525,30 @@ function Handle({
   at: { x: number; y: number }
 }) {
   const dragging = useRef(false)
+  // Where the finger took hold, relative to the edge it holds: the new edge
+  // follows the finger's movement from there, so the first move never jumps
+  // to another line (the handle sits beside the text, not on it).
+  const grab = useRef({ dx: 0, dy: 0 })
+  const edge = () => {
+    const view = editor.prosemirrorView
+    if (!view) return null
+    const { from, to } = view.state.selection
+    const c = view.coordsAtPos(which === 'start' ? from : to)
+    return {
+      x: which === 'start' ? c.left : c.right,
+      y: (c.top + c.bottom) / 2,
+    }
+  }
   const move = (x: number, y: number) => {
     const view = editor.prosemirrorView
-    if (!view) return
-    // The fingertip is below the text it points at.
-    const pos = posNear(view, x, y - 14, 20)
+    const e = edge()
+    if (!view || !e) return
+    const pos = posNear(view, x - grab.current.dx, y - grab.current.dy, 20)
     if (pos === null) return
     const { from, to } = view.state.selection
     const [a, b] = which === 'start' ? [pos, to] : [from, pos]
     if (a === b) return
+    if (a === from && b === to) return
     view.dispatch(
       view.state.tr.setSelection(
         pmState().TextSelection.between(
@@ -539,6 +557,7 @@ function Handle({
         ),
       ),
     )
+    dropNativeSelection(view) // no iPadOS menu during the drag
   }
   const label = t(`main.mini.handle.${which}` as MessageKey)
   return (
@@ -552,6 +571,10 @@ function Handle({
         e.preventDefault()
         e.stopPropagation()
         dragging.current = true
+        const at0 = edge()
+        grab.current = at0
+          ? { dx: e.clientX - at0.x, dy: e.clientY - at0.y }
+          : { dx: 0, dy: 0 }
         try {
           e.currentTarget.setPointerCapture(e.pointerId)
         } catch {
@@ -561,7 +584,11 @@ function Handle({
       onPointerMove={(e) => dragging.current && move(e.clientX, e.clientY)}
       onPointerUp={() => (dragging.current = false)}
       onPointerCancel={() => (dragging.current = false)}
-      style={{ left: at.x - 11, top: at.y + 3, touchAction: 'none' }}
+      style={{
+        left: at.x - 11,
+        top: which === 'start' ? at.y - 25 : at.y + 3,
+        touchAction: 'none',
+      }}
       className="fixed z-[var(--z-mini)] size-[22px] rounded-full border-2 border-accent bg-bg shadow after:absolute after:-inset-2 after:content-['']"
     />
   )

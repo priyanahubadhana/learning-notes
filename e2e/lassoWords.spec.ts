@@ -22,38 +22,50 @@ type Box = { x: number; y: number; width: number; height: number }
  * (never the row's first word, so a loop starting left of them is still on
  * the page), with their box.
  */
-async function rowPhrase(page: Page): Promise<{ phrase: string; box: Box }> {
-  return page.evaluate((long) => {
-    const walker = document.createTreeWalker(
-      document.querySelector('.bn-editor')!,
-      NodeFilter.SHOW_TEXT,
-    )
-    let node: Text | null = null
-    for (let n = walker.nextNode(); n; n = walker.nextNode()) {
-      if (n.textContent === long) node = n as Text
-    }
-    if (!node) throw new Error('paragraph not found')
-    const words: { word: string; at: number; r: DOMRect }[] = []
-    for (const m of long.matchAll(/\S+/g)) {
-      const r = document.createRange()
-      r.setStart(node, m.index)
-      r.setEnd(node, m.index + m[0].length)
-      words.push({ word: m[0], at: m.index, r: r.getBoundingClientRect() })
-    }
-    const rows = [...new Set(words.map((w) => Math.round(w.r.top)))].sort(
-      (a, b) => a - b,
-    )
-    const row = words.filter((w) => Math.round(w.r.top) === rows[1])
-    const pick = row.slice(2, 5)
-    const x = Math.min(...pick.map((w) => w.r.left))
-    const right = Math.max(...pick.map((w) => w.r.right))
-    const y = Math.min(...pick.map((w) => w.r.top))
-    const bottom = Math.max(...pick.map((w) => w.r.bottom))
-    return {
-      phrase: long.slice(pick[0].at, pick[2].at + pick[2].word.length),
-      box: { x, y, width: right - x, height: bottom - y },
-    }
-  }, LONG)
+async function rowPhrase(
+  page: Page,
+  rowNo = 1,
+  first = 2,
+): Promise<{ phrase: string; box: Box }> {
+  return page.evaluate(
+    ([long, rowNo, first]) => {
+      // The paragraph's text may be split by a selection highlight: map
+      // each character to its text node.
+      const para = [
+        ...document.querySelectorAll('.bn-editor .bn-inline-content'),
+      ].find((e) => e.textContent === long)
+      if (!para) throw new Error('paragraph not found')
+      const at: { n: Text; o: number }[] = []
+      const walker = document.createTreeWalker(para, NodeFilter.SHOW_TEXT)
+      for (let n = walker.nextNode(); n; n = walker.nextNode()) {
+        for (let o = 0; o < (n.textContent ?? '').length; o++) {
+          at.push({ n: n as Text, o })
+        }
+      }
+      const words: { word: string; at: number; r: DOMRect }[] = []
+      for (const m of long.matchAll(/\S+/g)) {
+        const r = document.createRange()
+        r.setStart(at[m.index].n, at[m.index].o)
+        const e = at[m.index + m[0].length - 1]
+        r.setEnd(e.n, e.o + 1)
+        words.push({ word: m[0], at: m.index, r: r.getBoundingClientRect() })
+      }
+      const rows = [...new Set(words.map((w) => Math.round(w.r.top)))].sort(
+        (a, b) => a - b,
+      )
+      const row = words.filter((w) => Math.round(w.r.top) === rows[rowNo])
+      const pick = row.slice(first, first + 3)
+      const x = Math.min(...pick.map((w) => w.r.left))
+      const right = Math.max(...pick.map((w) => w.r.right))
+      const y = Math.min(...pick.map((w) => w.r.top))
+      const bottom = Math.max(...pick.map((w) => w.r.bottom))
+      return {
+        phrase: long.slice(pick[0].at, pick[2].at + pick[2].word.length),
+        box: { x, y, width: right - x, height: bottom - y },
+      }
+    },
+    [LONG, rowNo, first] as const,
+  )
 }
 
 /** The screen box of a phrase (inside one text node). */
@@ -165,4 +177,92 @@ test('after a Lasso word selection no native selection remains (iPadOS shows onl
   await page.keyboard.press('Escape')
   await expect.poll(() => marked(page)).toBe('')
   expect((await native()).text).toBe('')
+})
+
+for (const shape of ['free', 'rect'] as const) {
+  for (const between of [false, true]) {
+    test(`${shape} Lasso: every loop in a row selects its words (${between ? 'tap on empty paper between' : 'back to back'}), no native selection`, async ({
+      page,
+    }) => {
+      await setup(page, shape)
+      // Back to back, the pill of one selection sits over the lines above it,
+      // so the next loops go down the page; after a tap on empty paper (Esc)
+      // the same lines can be looped again.
+      const rows = between ? [0, 2, 0, 2, 0] : [0, 2]
+      for (let i = 0; i < rows.length; i++) {
+        const { phrase, box } = await rowPhrase(page, rows[i], 1 + (i % 2))
+        if (shape === 'free') {
+          await stroke(page, loopAround(box), { id: 60 + i })
+        } else {
+          const from: Pt = [box.x + box.width + 5, box.y + box.height + 5]
+          const to: Pt = [box.x - 5, box.y - 5]
+          await stroke(page, line(from, to, 12), { id: 60 + i })
+        }
+        await expect
+          .poll(() => marked(page), { message: `loop ${i + 1}` })
+          .toBe(phrase)
+        expect(
+          await page.evaluate(() => window.getSelection()?.toString() ?? ''),
+        ).toBe('')
+        if (between) {
+          await page.keyboard.press('Escape')
+          await expect.poll(() => marked(page)).toBe('')
+        }
+      }
+    })
+  }
+}
+
+test('our pill: Copy puts the selected words on the clipboard, Cut removes them, Undo brings them back', async ({
+  page,
+  context,
+}) => {
+  await context
+    .grantPermissions(['clipboard-read', 'clipboard-write'])
+    .catch(() => {})
+  await setup(page)
+  const { phrase, box } = await rowPhrase(page)
+  await stroke(page, loopAround(box))
+  await expect.poll(() => marked(page)).toBe(phrase)
+  const pill = page.locator('[data-mini-toolbar]')
+  await pill.getByRole('button', { name: 'Copy', exact: true }).click()
+  await expect
+    .poll(() => page.evaluate(() => navigator.clipboard.readText()))
+    .toContain(phrase)
+  await pill.getByRole('button', { name: 'Cut', exact: true }).click()
+  await expect
+    .poll(() => page.locator('.bn-editor').innerText())
+    .not.toContain(phrase)
+  await page.keyboard.press('Control+z')
+  await expect
+    .poll(() => page.locator('.bn-editor').innerText())
+    .toContain(phrase)
+})
+
+test('the end handle: a 5 px nudge keeps the selection, a drag along the line extends it on that line', async ({
+  page,
+}) => {
+  await setup(page)
+  const { phrase, box } = await rowPhrase(page)
+  await stroke(page, loopAround(box))
+  await expect.poll(() => marked(page)).toBe(phrase)
+  const h = page.locator('[data-sel-handle="end"]')
+  await expect(h).toBeVisible()
+  const hb = (await h.boundingBox())!
+  const x = hb.x + hb.width / 2
+  const y = hb.y + hb.height / 2
+  // The handle sits at the selection's end, not a line below it.
+  expect(y).toBeLessThan(box.y + box.height + 30)
+  await page.mouse.move(x, y)
+  await page.mouse.down()
+  await page.mouse.move(x + 5, y, { steps: 3 })
+  expect((await marked(page)).trim()).toBe(phrase)
+  await page.mouse.move(x + 90, y, { steps: 8 })
+  await page.mouse.up()
+  const after = await marked(page)
+  expect(after.startsWith(phrase)).toBe(true)
+  expect(after.length).toBeGreaterThan(phrase.length)
+  expect(
+    await page.evaluate(() => window.getSelection()?.toString() ?? ''),
+  ).toBe('')
 })

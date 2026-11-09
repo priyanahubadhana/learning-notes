@@ -2,6 +2,11 @@
 
 Current phase only. Older entries are in [ARCHIVE.md](ARCHIVE.md).
 
+## 2026-11-09 (iPad: selection handles and repeated Lasso loops)
+
+- **What:** the round selection handles (app/tools/main/MiniToolbar.tsx) now sit at the selection edge (start handle above-left, end handle below-right), remember where the finger took hold (grab offset) and move the edge by the finger's movement, so the first move never jumps a line; a no-change move is ignored; `dropNativeSelection` runs on every drag step (no iPadOS menu). Tests in e2e/lassoWords.spec.ts: handle nudge and drag, Copy/Cut/Undo from our pill, repeated loops (free and rectangle).
+- **Root causes:** (1) the old drag used the fingertip point minus 14 px, which for the end handle (drawn below the line) fell on the next line. (2) The rectangle path already used the same word flow as the free-form one (verified by test); the "3rd loop does nothing" is the pill: it sits above the previous selection and its buttons (and the handles) lie over the pad, so a loop that starts under them never reaches the Lasso. Tapping empty paper or Esc closes the pill and the next loop works (tested, 5 in a row). Not changed: moving the pill away automatically (DECISIONS).
+
 ## 2026-11-09 (iPad: Lasso text selection shows only our pill)
 
 - **What:** the Lasso's T filter (and the Pencil word selection) no longer sets a native DOM selection. `selectTextRange` (editor/lassoWords.ts) sets the editor's own selection (drawn by `ln-sel`), then `dropNativeSelection` blurs the editor and clears the browser's ranges. A tap on empty paper (ink/controller.ts) and `deselect` (editor/ownSelection.ts) clear the native selection too. Typing-mode selections are untouched (normal iOS menu).

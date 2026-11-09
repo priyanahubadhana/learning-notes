@@ -192,7 +192,11 @@ test('20 Lasso loops in a row all select, with Esc, a tap or nothing between', a
     // Ink: Esc, a tap or nothing in turn. Words, pictures and ink over words
     // keep their marks after Esc, so they are cleared with a tap.
     const inkOnly = target === 'inkA' || target === 'inkB'
-    const how = inkOnly ? between[i % between.length] : 'tap'
+    // The mixed loop starts at the same top corner where an earlier ink
+    // selection keeps its handles on a narrow (iPad) page, so before it the
+    // old selection is always cleared with a tap.
+    const nextIsMixed = order[(i + 1) % order.length] === 'mixed'
+    const how = inkOnly && !nextIsMixed ? between[i % between.length] : 'tap'
     if (how === 'esc') await page.keyboard.press('Escape')
     else if (how === 'tap')
       await stroke(page, [s.empty, [s.empty[0], s.empty[1] + 1]])

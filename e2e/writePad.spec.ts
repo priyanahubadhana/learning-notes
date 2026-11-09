@@ -406,9 +406,15 @@ test('the first Scribble to AI switch explains, with Don’t show again (R7-23)'
   await expect(pad(page).locator('[data-write-pad-canvas]')).toBeVisible()
   // Back to Scribble and again: no explainer any more.
   await pad(page).getByRole('button', { name: 'Scribble', exact: true }).click()
-  await aiButton.click()
-  await expect(pad(page).locator('[data-write-pad-explain]')).toHaveCount(0)
-  await expect(pad(page).locator('[data-write-pad-canvas]')).toBeVisible()
+  // A tap that lands while the pad is still redrawing is repeated (switching to
+  // the mode it is already in does nothing).
+  await expect(async () => {
+    await aiButton.click()
+    await expect(pad(page).locator('[data-write-pad-explain]')).toHaveCount(0)
+    await expect(pad(page).locator('[data-write-pad-canvas]')).toBeVisible({
+      timeout: 2000,
+    })
+  }).toPass({ timeout: 15_000 })
 })
 
 /** Draws one pen stroke on the AI canvas. */

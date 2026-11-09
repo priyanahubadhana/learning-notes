@@ -127,9 +127,11 @@ test('ink follows its text when the text moves or the page is resized', async ({
   expect(Math.abs((await rel()) - first)).toBeLessThan(3)
   const b = (await paintedBox(page, 'ink'))!
   const wide = (b.x1 - b.x0) / b.dpr
-  // A narrower page (the text column is capped, so the window must shrink well
-  // below it): the drawing gets narrower with it.
-  await page.setViewportSize({ width: 700, height: 1000 })
+  // A narrower page: the sidebar is made wider (the window itself cannot be
+  // resized in the iPad profile), and the drawing gets narrower with it.
+  const grip = page.getByRole('separator', { name: 'Resize menu' })
+  await grip.focus()
+  for (let i = 0; i < 20; i++) await page.keyboard.press('ArrowRight')
   await page.waitForTimeout(600)
   const c = (await paintedBox(page, 'ink'))!
   expect((c.x1 - c.x0) / c.dpr).toBeLessThan(wide * 0.98)

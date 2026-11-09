@@ -267,8 +267,8 @@ test('R6-6: a Pencil tap on empty page space clears a text selection (typing mod
   await page.evaluate(() =>
     document.querySelector<HTMLElement>('.bn-editor')!.focus(),
   )
-  await page.keyboard.press('Control+End')
-  await page.keyboard.press('Shift+Home')
+  // Any text selection will do (Control+End, Shift+Home does not select in WebKit).
+  await page.keyboard.press('Control+A')
   await page.waitForTimeout(300)
   const selected = () =>
     page.evaluate(() => (window.getSelection()?.toString() ?? '').length)

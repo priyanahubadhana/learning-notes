@@ -236,7 +236,7 @@ export const es6: Record<string, string> = {
   'ui.cancel': 'Cancelar',
   'app.newPageFromTemplate': 'Página nueva desde «{name}»',
   'app.templateWord': 'plantilla',
-  'notebook.newName': 'Cuaderno nuevo',
+  'notebook.newName': 'Cuaderno sin título',
   'notebook.firstName': 'Mi cuaderno',
   'app.journalCreated': 'Se creó la página de hoy desde la plantilla «Diario»',
   'app.empty.intro': 'Crea un cuaderno para empezar, o abre el diario de hoy.',

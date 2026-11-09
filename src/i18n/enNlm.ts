@@ -63,10 +63,8 @@ export const enNlm = {
   'tabs.database': 'Database',
   'tabs.settings.title': 'Page tabs',
   'tabs.settings.text':
-    'Every page has Notes, Summary and Review. Switch on more tabs for a notebook. They are off by default so pages stay clean.',
+    'Each notebook can change its own tabs from ⋯ on its tab row.',
   'tabs.settings.default': 'Tabs for new notebooks',
-  'tabs.settings.notebooks': 'Tabs per notebook',
-  'tabs.settings.none': 'No notebooks yet.',
   'tabs.mindMap.empty': 'This page has no mind map yet.',
   'tabs.mindMap.fromHeadings': 'Make one from the headings',
   'tabs.mindMap.noHeadings':

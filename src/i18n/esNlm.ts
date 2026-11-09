@@ -64,10 +64,8 @@ export const esNlm: Record<string, string> = {
   'tabs.database': 'Base de datos',
   'tabs.settings.title': 'Pestañas de página',
   'tabs.settings.text':
-    'Cada página tiene Notas, Resumen y Repaso. Activa más pestañas por cuaderno. Están desactivadas por defecto para que las páginas sigan limpias.',
+    'Cada cuaderno puede cambiar sus propias pestañas desde ⋯ en su fila de pestañas.',
   'tabs.settings.default': 'Pestañas para cuadernos nuevos',
-  'tabs.settings.notebooks': 'Pestañas por cuaderno',
-  'tabs.settings.none': 'Aún no hay cuadernos.',
   'tabs.mindMap.empty': 'Esta página aún no tiene mapa mental.',
   'tabs.mindMap.fromHeadings': 'Crear uno desde los títulos',
   'tabs.mindMap.noHeadings':

@@ -236,7 +236,7 @@ export const hi6: Record<string, string> = {
   'ui.cancel': 'रद्द करें',
   'app.newPageFromTemplate': '“{name}” से नया पृष्ठ',
   'app.templateWord': 'टेम्पलेट',
-  'notebook.newName': 'नई नोटबुक',
+  'notebook.newName': 'बिना शीर्षक की नोटबुक',
   'notebook.firstName': 'मेरी नोटबुक',
   'app.journalCreated': 'आज का पृष्ठ “रोज़ की डायरी” टेम्पलेट से बनाया गया',
   'app.empty.intro': 'शुरू करने के लिए नोटबुक बनाएँ, या आज की डायरी खोलें।',

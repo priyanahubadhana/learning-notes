@@ -20,6 +20,7 @@ const DEFAULT_NAMES: Record<string, MessageKey> = {
   Overview: 'templates.lesson.overview',
   'All cards': 'templates.lesson.allCards',
   'New notebook': 'notebook.newName',
+  'Untitled notebook': 'notebook.newName',
   'My Notebook': 'notebook.firstName',
 }
 
@@ -41,7 +42,10 @@ export function sampleName(record: { title: string; sample?: true }): string {
     record.sample && Object.hasOwn(SAMPLE_NAMES, record.title)
       ? SAMPLE_NAMES[record.title]
       : undefined
-  return key ? t(key) : record.title
+  if (key) return t(key)
+  return record.title === 'New notebook' || record.title === 'Untitled notebook'
+    ? t('notebook.newName')
+    : record.title
 }
 
 /** The name to show for a stored title (translated only for the app's own names). */

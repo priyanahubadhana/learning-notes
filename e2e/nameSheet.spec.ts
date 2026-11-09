@@ -57,15 +57,15 @@ test('the sheet field is 56 px tall, focused, modal, and Esc cancels', async ({
 test('Cancel keeps the default name; Enter is Done', async ({ page }) => {
   await page.goto('/')
   await createNotebook(page, 'Chem', 'First')
-  // A new notebook: Cancel keeps "New notebook".
+  // A new notebook: Cancel keeps "Untitled notebook".
   const side = await openSidebar(page)
   await side.getByLabel('New notebook').click()
   await expect(sheetOf(page)).toBeVisible()
   await sheetOf(page).getByRole('button', { name: 'Cancel' }).click()
   await expect(sheetOf(page)).toHaveCount(0)
-  await expect(nbRow(side, 'New notebook')).toBeVisible()
+  await expect(nbRow(side, 'Untitled notebook')).toBeVisible()
   // Enter means Done.
-  await rowAction(page, 'New notebook', 'Rename')
+  await rowAction(page, 'Untitled notebook', 'Rename')
   expect(await sheetFill(page, 'Physics')).toBe(true)
   await expect(nbRow(side, 'Physics')).toBeVisible()
 })

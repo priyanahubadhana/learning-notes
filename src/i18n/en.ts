@@ -1106,7 +1106,7 @@ export const en = {
   'ui.cancel': 'Cancel',
   'app.newPageFromTemplate': 'New page from “{name}”',
   'app.templateWord': 'template',
-  'notebook.newName': 'New notebook',
+  'notebook.newName': 'Untitled notebook',
   'notebook.firstName': 'My Notebook',
   'app.journalCreated':
     'Created today’s page from the “Daily journal” template',

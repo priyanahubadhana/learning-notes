@@ -156,7 +156,7 @@ export async function createNotebook(
     await showSidebar(page)
     if (await named.isVisible()) return
     if (!(await nameField.isVisible())) {
-      await rowAction(page, 'New notebook', 'Rename')
+      await rowAction(page, 'Untitled notebook', 'Rename')
     }
     await nameField.fill(name, { timeout: 3000 })
     await nameField.press('Enter', { timeout: 3000 }).catch(() => {})

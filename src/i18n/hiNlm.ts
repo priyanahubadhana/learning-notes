@@ -61,10 +61,8 @@ export const hiNlm: Record<string, string> = {
   'tabs.database': 'डेटाबेस',
   'tabs.settings.title': 'पेज टैब',
   'tabs.settings.text':
-    'हर पेज में नोट्स, सारांश और रिव्यू होते हैं। हर नोटबुक के लिए और टैब चालू करें। ये शुरू में बंद रहते हैं ताकि पेज साफ़ रहें।',
+    'हर नोटबुक अपने टैब अपनी टैब पंक्ति के ⋯ से बदल सकती है।',
   'tabs.settings.default': 'नई नोटबुक के लिए टैब',
-  'tabs.settings.notebooks': 'हर नोटबुक के टैब',
-  'tabs.settings.none': 'अभी कोई नोटबुक नहीं है।',
   'tabs.mindMap.empty': 'इस पेज पर अभी माइंड मैप नहीं है।',
   'tabs.mindMap.fromHeadings': 'शीर्षकों से बनाएँ',
   'tabs.mindMap.noHeadings':

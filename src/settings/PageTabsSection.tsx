@@ -1,15 +1,10 @@
-import { useLiveQuery } from 'dexie-react-hooks'
 import { usePref } from '../app/usePref'
-import type { LearningNotesDB } from '../core/db'
-import { isLive } from '../core/records'
 import { t } from '../i18n/t'
 import {
   DEFAULT_TABS_PREF,
   EXTRA_TABS,
   EXTRA_TAB_LABEL,
   cleanTabs,
-  notebookPageTabs,
-  setNotebookPageTab,
   type ExtraTab,
 } from '../notebooks/pageTabs'
 
@@ -42,19 +37,12 @@ function Ticks({
 
 /**
  * Settings › General › Page tabs: which optional tabs (Mind map, Slides,
- * Audio & video, Database) each notebook shows on its pages, and the default
- * for new notebooks. Off by default; the same choice is in the ⋯ on the tab row.
+ * Audio & video, Database) new notebooks start with. Each notebook changes
+ * its own in the ⋯ on its tab row. Off by default.
  */
-export function PageTabsSection({ db }: { db: LearningNotesDB }) {
+export function PageTabsSection() {
   const [stored, setStored] = usePref(DEFAULT_TABS_PREF, isList, [])
   const defaults = cleanTabs(stored)
-  const notebooks = useLiveQuery(
-    async () =>
-      (await db.notebooks.toArray())
-        .filter((n) => isLive(n) && !n.kind)
-        .sort((a, b) => (a.order < b.order ? -1 : 1)),
-    [db],
-  )
   return (
     <section
       aria-label={t('tabs.settings.title')}
@@ -73,20 +61,6 @@ export function PageTabsSection({ db }: { db: LearningNotesDB }) {
           )
         }
       />
-      <h3 className="text-sm font-semibold">{t('tabs.settings.notebooks')}</h3>
-      {notebooks?.length === 0 && (
-        <p className="text-sm text-muted">{t('tabs.settings.none')}</p>
-      )}
-      {notebooks?.map((n) => (
-        <div key={n.id} className="grid">
-          <span className="text-sm">{n.title || t('review.untitled')}</span>
-          <Ticks
-            name={n.title}
-            on={notebookPageTabs(n)}
-            onChange={(tab, on) => void setNotebookPageTab(db, n.id, tab, on)}
-          />
-        </div>
-      ))}
     </section>
   )
 }

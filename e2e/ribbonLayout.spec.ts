@@ -184,11 +184,14 @@ test('Slim: one row of icons, names in tooltips, all tabs fit at 820 px (sidebar
   }
   // With the sidebar closed there is room for tabs, icons and buttons in one row.
   await sidebarOpen(page, false)
-  const tabs = await box(dockedBar(page).getByRole('tab', { name: 'File' }))
-  const tools = await box(
-    dockedBar(page).getByRole('tabpanel').getByRole('button').first(),
-  )
-  expect(Math.abs(tabs.y - tools.y)).toBeLessThan(12)
+  // The layout settles after the sidebar closes: poll, do not measure once.
+  await expect(async () => {
+    const tabs = await box(dockedBar(page).getByRole('tab', { name: 'File' }))
+    const tools = await box(
+      dockedBar(page).getByRole('tabpanel').getByRole('button').first(),
+    )
+    expect(Math.abs(tabs.y - tools.y)).toBeLessThan(12)
+  }).toPass({ timeout: 5000 })
 })
 
 test('Slim is also chosen from the ribbon ⋯ options menu, and Reset brings Full back', async ({

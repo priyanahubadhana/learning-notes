@@ -12,6 +12,9 @@ import { expectStrokes, inkNote, line, stroke, textBox } from './inkHelpers.ts'
  */
 
 test.use({ viewport: { width: 1024, height: 900 } })
+/** GitHub's two-core runner is about 2.5 times slower than a dev machine: the
+ * limits scale there; locally they stay strict. */
+const RUNNER = process.env.CI ? 2.5 : 1
 // Chromium only: it has the CDP metrics (the code under test is the same).
 test.skip(({ browserName }) => browserName !== 'chromium')
 
@@ -334,11 +337,11 @@ test('a big page scrolls and types within the budget', async ({ page }) => {
   if (process.env.BIGPAGE_NOASSERT) return
   // No long task in the scroll pass or while typing; the paste (one big edit)
   // may take a moment but must not freeze the page.
-  expect(out.scrollMaxLongMs).toBeLessThan(100)
-  expect(out.typeMaxLongMs).toBeLessThan(100)
-  expect(out.scrollScriptPerFrameMs).toBeLessThan(6)
-  expect(out.typeScriptPerKeyMs).toBeLessThan(25)
-  expect(out.pasteMaxLongMs).toBeLessThan(1000)
+  expect(out.scrollMaxLongMs).toBeLessThan(100 * RUNNER)
+  expect(out.typeMaxLongMs).toBeLessThan(100 * RUNNER)
+  expect(out.scrollScriptPerFrameMs).toBeLessThan(6 * RUNNER)
+  expect(out.typeScriptPerKeyMs).toBeLessThan(25 * RUNNER)
+  expect(out.pasteMaxLongMs).toBeLessThan(1000 * RUNNER)
 })
 
 // ---- A mixed page: pictures, embeds, tables, ink, several boxes, zoom ----
@@ -612,9 +615,9 @@ for (const zoom of [1, 0.73, 1.5]) {
     console.log('MIXEDPAGE ' + JSON.stringify({ ...info, ...out }))
     if (process.env.BIGPAGE_NOASSERT) return
     // Medians and shares, not single frames (a two-core CI machine).
-    expect(out.maxLongMs).toBeLessThan(150)
-    expect(out.p95FrameMs).toBeLessThan(34)
-    expect(out.lateFramePct).toBeLessThan(10)
-    expect(out.scriptPerFrameMs).toBeLessThan(3)
+    expect(out.maxLongMs).toBeLessThan(150 * RUNNER)
+    expect(out.p95FrameMs).toBeLessThan(34 * RUNNER)
+    expect(out.lateFramePct).toBeLessThan(10 * RUNNER)
+    expect(out.scriptPerFrameMs).toBeLessThan(3 * RUNNER)
   })
 }

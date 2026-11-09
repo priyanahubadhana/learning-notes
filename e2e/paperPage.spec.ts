@@ -372,7 +372,10 @@ test('a box dropped on another box gives way: boxes never overlap', async ({
   await page.mouse.click(sheet.x + sheet.width * 0.5, m0.y + m0.height + 80)
   const extra = page.locator('[data-paper-box]:not([data-paper-box="main"])')
   await expect(extra).toHaveCount(1)
+  // Type only once the new box has the caret (keys sent before are lost).
+  await expect(extra.locator('[contenteditable="true"]').first()).toBeFocused()
   await page.keyboard.type('Box text')
+  await expect(extra).toContainText('Box text')
   await extra.hover()
   const g = (await extra.locator('[data-box-grip]').boundingBox())!
   await page.mouse.move(g.x + g.width / 2, g.y + g.height / 2)

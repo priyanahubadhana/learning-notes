@@ -4,7 +4,6 @@ import {
   useSyncExternalStore,
   type ReactNode,
 } from 'react'
-import { keySyncOn } from '../ai/keySync'
 import { useLockMethods } from '../app/lock/useLock'
 import { ConfirmDialog } from '../app/ui'
 import type { LearningNotesDB } from '../core/db'
@@ -15,6 +14,7 @@ import { RecoveryCodeView } from './RecoveryCodeView'
 import { UnlockForm } from './UnlockForm'
 import {
   driveLastingState,
+  aiKeysSyncOn,
   getSyncStatus,
   makeNewRecoveryCode,
   setUpLastingDrive,
@@ -197,6 +197,10 @@ function SyncLine({ db }: { db: LearningNotesDB }) {
 
 /** Lock and AI keys: the state shows here, the control stays in its section. */
 function Security({ db }: { db: LearningNotesDB }) {
+  const [keysOn, setKeysOn] = useState(false)
+  useEffect(() => {
+    void aiKeysSyncOn().then(setKeysOn)
+  }, [])
   const status = useSyncExternalStore(subscribeSync, getSyncStatus)
   const methods = useLockMethods(db)
   const unlocked = status.phase === 'ready' || status.phase === 'syncing'
@@ -215,7 +219,7 @@ function Security({ db }: { db: LearningNotesDB }) {
         </a>
       </p>
       <p className="text-sm" data-setting-id="account.aiKeys">
-        {keySyncOn() && isTracking()
+        {keysOn && isTracking()
           ? t('account.aiKeysOn')
           : t('account.aiKeysOff')}{' '}
         <a className="underline" href="#/settings/ai">

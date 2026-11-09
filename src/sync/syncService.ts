@@ -84,6 +84,11 @@ async function decidePhase(conn: Connectors) {
 
 let booted: Promise<void> | null = null
 
+/** Whether AI keys are mirrored to other devices (read-only; the switch is in Settings > AI). */
+export async function aiKeysSyncOn(): Promise<boolean> {
+  return (await import('../ai/keySync')).keySyncOn()
+}
+
 /** Called once at app start (later calls wait for the same start). Cheap when sync was never set up. */
 export function startSync(db: LearningNotesDB): Promise<void> {
   booted ??= boot(db)

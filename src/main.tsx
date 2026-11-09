@@ -95,13 +95,20 @@ if (slowMomentsWanted()) setSlowMomentsOn(true)
 
 // Sync (Phase L): loaded only when it is set up or a Google sign-in is
 // coming back, so people who never sync download none of it.
+// Settings that follow you start first, so a change made while signed out
+// is ready to travel and sync never sees a half-set-up list.
+const startSettings = import('./settings/settingsMirror').then((m) =>
+  m.startSettingsMirror(db),
+)
 if (
   isTracking() ||
   isWaitingForKey() ||
   hasStoredSession() ||
   new URLSearchParams(location.search).has('sync')
 ) {
-  void import('./sync/syncService').then((m) => m.startSync(db))
+  void startSettings
+    .then(() => import('./sync/syncService'))
+    .then((m) => m.startSync(db))
 }
 
 // Automatic updates: a found version is applied at a safe moment (the

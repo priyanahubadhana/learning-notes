@@ -5,6 +5,7 @@ import { readPref, writePref } from '../app/uiPrefs'
 import { currentLocale, t } from '../i18n/t'
 import { getSetting, setSetting } from '../settings/settingsService'
 import type { SettingDefinition } from '../settings/registry'
+import { groupOn, hasOverride } from '../settings/syncPrefs'
 
 /**
  * Cost currency (Settings > AI). Costs are worked out in US dollars; every
@@ -175,8 +176,11 @@ export function startCurrencyMirror(db: LearningNotesDB): () => void {
   ).subscribe({
     next: (row) => {
       const v = row?.value as JsonValue | undefined
-      if (isCostCurrency(v)) writePref(MIRROR_KEY, v)
-      else if (!row) {
+      // This device's own choice (or a group that is off) keeps its copy.
+      if (isCostCurrency(v)) {
+        if (!hasOverride(costCurrencySetting.id) && groupOn('ai'))
+          writePref(MIRROR_KEY, v)
+      } else if (!row) {
         const mine = readCostCurrency()
         if (mine.rates.INR !== undefined) void saveCostCurrency(db, mine)
       }

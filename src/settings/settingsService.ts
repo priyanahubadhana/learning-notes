@@ -1,7 +1,14 @@
 import type { LearningNotesDB } from '../core/db'
 import type { JsonValue } from '../core/types'
 import { readPref, writePref, type PrefStorage } from '../app/uiPrefs'
-import type { SettingDefinition } from './registry'
+import { groupOf, type SettingDefinition } from './registry'
+import {
+  getOverride,
+  groupOn,
+  hasOverride,
+  setOverride,
+  whileApplying,
+} from './syncPrefs'
 
 /**
  * Reading and saving settings. Synced settings live in the database (they
@@ -25,6 +32,17 @@ function assertScope(definition: { id: string; scope: string }, scope: string) {
   }
 }
 
+/** Key-like text must never travel in a settings record (keys have their own, locked record). */
+const KEY_LIKE = /sk-[A-Za-z0-9_-]{16,}|AIza[0-9A-Za-z_-]{20,}/
+export const looksLikeSecret = (value: unknown): boolean =>
+  KEY_LIKE.test(JSON.stringify(value) ?? '')
+
+function assertNoSecret(id: string, value: unknown) {
+  if (looksLikeSecret(value)) {
+    throw new Error(`Setting ${id} looks like it holds a key; not saved`)
+  }
+}
+
 // ---- Synced settings (database) ----
 
 export async function getSetting<T extends JsonValue>(
@@ -32,6 +50,13 @@ export async function getSetting<T extends JsonValue>(
   definition: SettingDefinition<T>,
 ): Promise<T> {
   assertScope(definition, 'synced')
+  // This device's own choice first, then the synced row, then the default.
+  if (hasOverride(definition.id)) {
+    const own = getOverride(definition.id)
+    if (definition.isValid(own)) return own
+  }
+  const group = groupOf(definition)
+  if (group && !groupOn(group)) return definition.defaultValue
   const row = await db.settings.get(definition.id)
   return row && definition.isValid(row.value)
     ? row.value
@@ -46,6 +71,13 @@ export async function setSetting<T extends JsonValue>(
 ): Promise<void> {
   assertScope(definition, 'synced')
   assertValid(definition, value)
+  assertNoSecret(definition.id, value)
+  const group = groupOf(definition)
+  if (group && (!groupOn(group) || hasOverride(definition.id))) {
+    // A group that is off, or a setting kept on this device: nothing is sent.
+    setOverride(definition.id, value)
+    return
+  }
   await db.settings.put({ id: definition.id, value, updatedAt: now })
 }
 
@@ -101,6 +133,25 @@ export function writeDeviceSetting<T extends JsonValue>(
     writePref(storageKeyOf(definition), value, storage)
   }
   for (const listener of listeners) listener()
+}
+
+/**
+ * Puts a value that came from another device (or an undo) in place on this
+ * device: the cache, the browser copy, the open screens and `onChange`.
+ * It is not a new edit, so nothing is sent.
+ */
+export function applyDeviceValue<T extends JsonValue>(
+  definition: SettingDefinition<T>,
+  value: T,
+): void {
+  assertScope(definition, 'device')
+  assertValid(definition, value)
+  whileApplying(() => {
+    deviceCache.set(definition.id, value)
+    writePref(storageKeyOf(definition), value)
+  })
+  for (const listener of listeners) listener()
+  definition.onChange?.(value)
 }
 
 /** Calls `listener` whenever a device setting changes. Returns "unsubscribe". */

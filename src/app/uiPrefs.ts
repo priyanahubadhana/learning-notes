@@ -36,17 +36,40 @@ export function readPref<T>(
   }
 }
 
+/** Calls the hook after a preference is saved in this browser (settings that follow you). */
+let writeHook: ((key: string, value: unknown) => void) | null = null
+export function setPrefWriteHook(
+  fn: ((key: string, value: unknown) => void) | null,
+): void {
+  writeHook = fn
+}
+
+/** Tells open screens a preference changed because of sync, not a click. */
+const externalListeners = new Set<(key: string, value: unknown) => void>()
+export function onPrefChangedExternally(
+  fn: (key: string, value: unknown) => void,
+): () => void {
+  externalListeners.add(fn)
+  return () => externalListeners.delete(fn)
+}
+export function announcePrefChanged(key: string, value: unknown): void {
+  for (const l of externalListeners) l(key, value)
+}
+
 /** Saves a preference; silently does nothing if storage is unavailable. */
 export function writePref(
   key: string,
   value: unknown,
-  storage: PrefStorage | null | undefined = defaultStorage(),
+  storage?: PrefStorage | null,
 ): void {
   try {
-    storage?.setItem(PREFIX + key, JSON.stringify(value))
+    const target = storage === undefined ? defaultStorage() : storage
+    target?.setItem(PREFIX + key, JSON.stringify(value))
   } catch {
     // Storage full or blocked: preferences are optional.
   }
+  // Only the browser's own storage can follow the person to other devices.
+  if (storage === undefined) writeHook?.(key, value)
 }
 
 export const isStringArray = (value: unknown): value is string[] =>

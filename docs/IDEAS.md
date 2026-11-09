@@ -130,3 +130,5 @@ New ideas that come up mid-build are parked here, not added to the current phase
 - **Claude connector (MCP) (owner, 9 Nov):** Claude writes into notebooks directly instead of the user copying a result. Needs a server, sign-in and an end-to-end-encryption design; plan as its own phase. Until then the free Claude Skill (features/claude-skill.md) makes the import format. _(Likely phase: its own, after Sync)_
 
 - **Make notes from a PDF page/selection (owner likes it, later, 9 Nov):** in the PDF reader, rebuild headings, lists and tables from pdf.js text positions and font sizes into a page (no AI). Also PDF-copied plain text cleanup (join wrapped lines, bullets, page footers, aligned columns to a Table) for pastes that carry no structure.
+
+- **Named AI assistant in the tool bar (owner, 9 Nov):** a Copilot-style AI button/panel in the tool bar and everywhere (selection, page, notebook, reader), with its own name and personality. Discuss before building.

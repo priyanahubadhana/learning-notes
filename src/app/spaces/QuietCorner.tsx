@@ -1,5 +1,6 @@
 import { lazy, Suspense, useEffect, useRef, useState } from 'react'
 import { createPortal } from 'react-dom'
+import { Settings } from 'lucide-react'
 import { DeviceModeMenuRow } from '../DeviceModeMenu'
 import { THEMES, type Theme } from '../theme'
 import type { LearningNotesDB } from '../../core/db'
@@ -95,9 +96,9 @@ export function QuietCorner({
           aria-haspopup="true"
           aria-expanded={open}
           onClick={() => setOpen(!open)}
-          className="grid size-11 place-items-center rounded-xl text-lg text-ink-soft hover:bg-hover hover:text-ink aria-expanded:bg-hover"
+          className="grid size-11 place-items-center rounded-xl text-ink-soft hover:bg-hover hover:text-ink aria-expanded:bg-hover"
         >
-          <span aria-hidden>⚙</span>
+          <Settings aria-hidden size={21} strokeWidth={1.75} />
         </button>
       </Tip>
       {open &&

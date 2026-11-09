@@ -2,6 +2,12 @@
 
 Current phase only. Older entries are in [ARCHIVE.md](ARCHIVE.md).
 
+## 2026-11-09 (Rail line icons)
+
+- **What:** the icon rail (Home, Library, Notebooks, Review) and its quiet corner (Settings) now use Lucide line icons (House, BookOpen, Notebook, Brain, Settings; 21 px, stroke 1.75) instead of emoji. Ink-soft at rest, accent on accent-soft pill when active, title tooltip plus unchanged aria-label, 44 px targets. Other emoji used as UI icons (e.g. lock, trash, pin, slash menu, sidebar rows, Templates, Library header) are listed in the report, not yet replaced.
+- **Why:** colourful emoji looked old; one icon set, one stroke.
+- **Files:** src/app/spaces/{spaces.ts,SpaceStrip.tsx,QuietCorner.tsx}.
+
 ## 2026-11-09 (Update check fix)
 
 - **What:** "Check for updates now" and the automatic look no longer depend on the service-worker registration. New `lookForUpdate` (src/app/updates.ts) reads /version.json (no-store, cache-busted), compares it with the built commit, also asks `registration.update()` when there is one (its errors are swallowed), and when a newer build exists with no service-worker update waiting, offers a fallback restart (drop service workers and caches, reload) that goes through the normal auto-update safe-moment rule. "Could not check" now shows only when neither version.json nor the service worker could be reached. Looks at start, on foreground, navigation, input and every 10 min now run even when registration failed. The auto-update backup step no longer blocks: a failing or slow (8 s) backup (large synced library) proceeds; only low storage or unsaved typing asks. sw.js and version.json were already no-cache in public/_headers.

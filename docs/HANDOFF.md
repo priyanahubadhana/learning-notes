@@ -2,6 +2,8 @@
 
 # Handoff
 
+- **Rail line icons (9 Nov):** spaces rail and quiet corner use Lucide (src/app/spaces). Remaining emoji-as-UI-icons are in the CHANGELOG/report list; replace as each screen is redesigned.
+
 - **Update check fix (9 Nov):** version check works without a service worker (src/app/updates.ts lookForUpdate); a failing/slow backup no longer blocks auto-update. Owner check at the top of owner-checks-pending.md.
 
 - **Design step 2 done (9 Nov):** the frame (wash, floating glass sidebar and flat-glass rail, one glass bar layer, solid paper card, glass menus and palette, solid toasts, Reduce glass setting + probe in src/design/glass.ts). Next: design step 3 (see docs/design/screens.md). Open: decisions in DECISIONS "Design step 2"; owner check at top of owner-checks-pending.md.

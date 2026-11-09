@@ -1,3 +1,4 @@
+import { BookOpen, Brain, House, Notebook, type LucideIcon } from 'lucide-react'
 import type { Route } from '../router'
 
 /**
@@ -13,12 +14,12 @@ export const isSpace = (value: unknown): value is Space =>
 /** Spaces the owner may hide in Settings. Notebooks always stays. */
 export const HIDEABLE_SPACES: readonly Space[] = ['home', 'library', 'review']
 
-/** The icon (emoji) of each space. */
-export const SPACE_ICON: Record<Space, string> = {
-  home: '🏠',
-  library: '📚',
-  notebooks: '📓',
-  review: '🧠',
+/** The line icon (Lucide) of each space. */
+export const SPACE_ICON: Record<Space, LucideIcon> = {
+  home: House,
+  library: BookOpen,
+  notebooks: Notebook,
+  review: Brain,
 }
 
 /**

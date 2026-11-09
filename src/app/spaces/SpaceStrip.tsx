@@ -34,6 +34,7 @@ export function SpaceStrip({
         {spaces.map((space) => {
           const name = t(`space.${space}` as MessageKey)
           const active = space === current
+          const Icon = SPACE_ICON[space]
           return (
             <button
               key={space}
@@ -41,17 +42,16 @@ export function SpaceStrip({
               aria-label={t('space.button', { name })}
               aria-current={active ? 'page' : undefined}
               data-space={space}
+              title={name}
               onClick={() => onSelect(space)}
-              className={`flex size-11 flex-col items-center justify-center rounded-xl text-lg leading-none hover:bg-hover phone:h-12 phone:min-w-0 phone:flex-1 phone:rounded-lg ${
-                active
-                  ? 'bg-hover shadow-[inset_2px_0_0_var(--color-accent)]'
-                  : ''
+              className={`flex size-11 flex-col items-center justify-center rounded-xl leading-none hover:bg-hover phone:h-12 phone:min-w-0 phone:flex-1 phone:rounded-lg ${
+                active ? 'bg-accent-soft text-accent' : 'text-ink-soft'
               }`}
             >
-              <span aria-hidden>{SPACE_ICON[space]}</span>
+              <Icon aria-hidden size={21} strokeWidth={1.75} />
               <span
                 aria-hidden
-                className="hidden text-[10px] leading-tight text-ink-soft phone:mt-0.5 phone:block"
+                className="hidden text-[10px] leading-tight phone:mt-0.5 phone:block"
               >
                 {name}
               </span>

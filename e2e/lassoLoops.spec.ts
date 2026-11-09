@@ -31,6 +31,8 @@ interface Scene {
   mixed: Box
   empty: Pt
   pad: Box
+  /** Where the first line was when the boxes were measured. */
+  l1y: number
 }
 
 async function scene(page: Page): Promise<Scene> {
@@ -98,6 +100,23 @@ async function scene(page: Page): Promise<Scene> {
     mixed: l2,
     empty: [l1.x + 400, yB + 60],
     pad,
+    l1y: l1.y,
+  }
+}
+
+/** The scene's boxes moved by however far the page has scrolled since (selection bars can move it). */
+async function fresh(page: Page, s: Scene): Promise<Scene> {
+  const first = (await page.locator('.bn-block-content').nth(0).boundingBox())!
+  const dy = first.y - s.l1y
+  const move = (b: Box): Box => ({ ...b, y: b.y + dy })
+  return {
+    ...s,
+    inkA: move(s.inkA),
+    inkB: move(s.inkB),
+    text: move(s.text),
+    picture: move(s.picture),
+    mixed: move(s.mixed),
+    empty: [s.empty[0], s.empty[1] + dy],
   }
 }
 
@@ -173,11 +192,12 @@ async function loopOn(
 test('20 Lasso loops in a row all select, with Esc, a tap or nothing between', async ({
   page,
 }) => {
-  const s = await scene(page)
+  const s0 = await scene(page)
   const order: Target[] = ['inkA', 'text', 'picture', 'inkB', 'mixed']
   const between = ['esc', 'tap', 'none'] as const
   let prev = ''
   for (let i = 0; i < 20; i++) {
+    const s = await fresh(page, s0)
     const target = order[i % order.length]
     const rect = i % 2 === 1
     await loopOn(page, s, target, rect)

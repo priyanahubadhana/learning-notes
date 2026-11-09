@@ -942,3 +942,5 @@ The other older decisions stand as built (owner, 2026-11-01); they are in [ARCHI
 - Sync and Drive helper stay owner-email-only while testing. LAUNCH CHECKLIST: open sync/Drive to all accounts (remove ALLOWED_EMAIL / owner allow-list) before other users.
 
 - **Reader bar follow-ups (9 Nov):** the pin is not in the Settings list (no label keys); the bar still unmounts when hidden (slide-in only, tests rely on it). Contents in the full-screen reader switches to reading in place first, since the full-screen page covers the left panel.
+
+- **2026-11-09 · Owner approved the design preview** (artifact) and design step 1 (tokens, violet, Inter lazy). Next: step 2, the frame.

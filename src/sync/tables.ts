@@ -45,8 +45,10 @@ export const SYNC_TABLES: Record<string, MergeMode> = {
   habitChecks: 'record',
   files: 'file',
   secrets: 'record',
+  // One record per setting (settings that follow you). Per-device overrides
+  // and group switches are in the browser, not in this table.
+  settings: 'record',
   // Device-only.
-  settings: 'local',
   meta: 'local',
   searchEntries: 'local',
   links: 'local',

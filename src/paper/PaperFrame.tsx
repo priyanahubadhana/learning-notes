@@ -34,6 +34,12 @@ import { activeTool } from '../app/tools/main/mainTools'
 import { adopterIn, setPaperDrop } from '../ink/inkTransfer'
 import { sheetNav } from './sheetNav'
 import { applyPagination, clearPagination } from './paginate'
+import {
+  onPaginationRelease,
+  paginationHeld,
+  playTrackedMove,
+  sheetMetrics,
+} from './paginateHold'
 import { onWakeBox } from './wakeBox'
 import {
   clampZoom,
@@ -292,13 +298,18 @@ export function PaperFrame({
     let frame = 0
     const run = () => {
       frame = 0
+      // A picture is being resized: nothing jumps until the finger lifts.
+      if (paginationHeld()) return
       const sheet0 = root
         .querySelector<HTMLElement>('[data-paper-sheet="1"]')
         ?.getBoundingClientRect()
       if (!sheet0 || sheet0.height === 0) return
+      sheetMetrics.bottomMargin = MARGIN * k
+      sheetMetrics.topMargin = TOP * k
       for (const el of editors()) {
         applyPagination(el, sheet0, SHEET_GAP_PX, MARGIN * k, TOP * k)
       }
+      playTrackedMove(root)
     }
     const later = () => {
       if (!frame) frame = requestAnimationFrame(run)
@@ -309,7 +320,9 @@ export function PaperFrame({
     const ro = new ResizeObserver(later)
     for (const el of editors()) ro.observe(el)
     window.addEventListener('resize', later)
+    const unhold = onPaginationRelease(later)
     return () => {
+      unhold()
       cancelAnimationFrame(frame)
       mo.disconnect()
       ro.disconnect()

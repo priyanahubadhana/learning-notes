@@ -822,6 +822,14 @@ The other older decisions stand as built (owner, 2026-11-01); they are in [ARCHI
 
 ## Decisions to review (remote sign-out, 9 Nov)
 
+## Decisions to review (contextual strips, 9 Nov)
+
+- Alt text is stored as the picture's caption (BlockNote shows the caption under the picture and uses it as alt); a separate hidden alt prop needs a schema change. Review if you want them apart.
+- Compact bar: words keep the mini toolbar (no ContextBar for text); the row floats over the page so the layout never moves.
+- Minimum picture width 48 px (was 64). Smaller = 40 % less, Bigger = 1.5x.
+- Not built: picture border, text wrap, a Draw-on-picture button in the strip, video start-time/size controls (embed has only start in its card).
+- A tap in the blank end of a sheet places the caret at the end of the block before it; if that block has no text (a picture) an empty line is made after it.
+
 - The key stays on the device when a session is ended remotely (only the notes are hidden); Start fresh removes it. A person who fears a stolen unlocked device should use Start fresh or the PIN lock.
 - 400, 401, 403 and 404 from the renewal count as "session ended"; every other failure keeps the session.
 - "Use the cloud version" makes a History copy of each page with unsent edits first. Records that exist only on this device are kept and sent whatever is chosen.

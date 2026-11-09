@@ -2,6 +2,8 @@
 
 # Handoff
 
+- **Contextual strips + picture resize (9 Nov):** Picture/Video/Table/Drawing/Text tab in the full bar, compact row with More, smooth rAF resize, 180 ms presets, bug guards, sheet-gap hold/ghost/slide/tappable gap. Spec toolbar.md, pictures.md, paper-page.md; choices in DECISIONS. Owner check at the top of owner-checks-pending.md. Note: e2e/mainBar.spec.ts "nine tools" and "44 px" fail on a scroll-chevron button in this tree (bar overflow, not from this change).
+
 - **Settings that follow you done (9 Nov):** see docs/features/sync.md. Theme, language, AI spending limit etc. sync by default; What syncs panel, tags, row menu, migration notice. Permissions links to AI > Usage and cost. Clash bars only for words (one summary bar). Owner check at the top of owner-checks-pending.md. Not done: reading progress/favourites stay per device; the migration notice has unit tests but no e2e.
 
 - **Notebooks home (9 Nov):** rail Notebooks icon opens a shelf/list of covers (src/notebooks/NotebooksHome.tsx, virtualised); sidebar notebook tiles + due badges; filled rail tile. Left room for a "Views" row (docs/plans/custom-views-plan.md); All/Starred/Recent tabs not built (owner). Owner check at the top of owner-checks-pending.md.

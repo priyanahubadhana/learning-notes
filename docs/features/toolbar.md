@@ -85,6 +85,10 @@ A tap adds a line and can be repeated. Press and hold (default 0.6 s) opens the 
 - **Lasso menu order.** Lasso card › Arrange the menu… opens `EditListSheet`; `ink.lasso.row` is the ordered row, the rest sit under ⋯ More. The text and picture selection menu is ordered the same way.
 - **Options pill scroll.** A horizontal pill wraps its options in `BarScroll` (cue, count, handle).
 
+## Contextual strips (9 Nov)
+
+What is selected decides an extra tab, like Word's contextual tabs. `context/contextStore.ts` keeps which kinds are active (picture, video, table, ink, text; the first in that order wins). Sources: `PictureHandles` (picture), `ContextWatcher` (embed, table, words, a Lasso drawing selection). The full bar (`Ribbon.tsx`) shows the extra tab, opens on it when a selection starts or when All tools is opened, and returns to the tab it had when the selection clears. The compact bar has a row under the main bar (`ContextBar`, floats over the page so nothing moves): the first three actions and More. Words keep the mini toolbar in the compact bar. Buttons are 44 px with names; strips are built in `context/stripItems.ts`. Test: e2e/pictureStrip.spec.ts.
+
 ## Edge cases
 
 - A saved list or value that is invalid reads as its default (`isMainList`, `isPillMap`, `isPillPlace`, ink field clamps).

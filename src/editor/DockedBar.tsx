@@ -41,6 +41,8 @@ import { TOP_GAP } from '../app/tools/main/pillRoom'
 import { closePill } from '../app/tools/main/mainTools'
 import { usePenPicksPen } from '../app/tools/main/penPicks'
 import { Ribbon } from '../app/tools/Ribbon'
+import { openOnContext } from '../app/tools/context/contextStore'
+import { ContextBar } from '../app/tools/context/ContextStrip'
 import { barGroups } from '../app/tools/barLayout'
 import { resetFreePos } from '../app/tools/freeBar'
 import { isEditorPopup, usePopup } from '../app/popups'
@@ -202,6 +204,7 @@ function Bar({ editor, slot }: { editor: Editor; slot: HTMLElement }) {
   // "All tools": the ribbon opens on the tab of the set showing.
   const openRibbon = () => {
     ribbonTab.set(tabForSet(activeSet.get()))
+    openOnContext() // a selection (picture, table …) opens its own tab
     ribbonExpanded.set(true)
     ribbonOpen.set(true)
     setPanel(null)
@@ -318,8 +321,8 @@ function Bar({ editor, slot }: { editor: Editor; slot: HTMLElement }) {
       {...focusHandlers}
       className={
         place === 'free'
-          ? 'rounded-2xl border border-ink-soft bg-bg px-1.5 py-1 shadow-[0_2px_4px_rgba(0,0,0,0.08),0_10px_28px_rgba(0,0,0,0.16)]'
-          : 'border-y border-line bg-bg px-2 py-1 phone:px-1'
+          ? 'relative rounded-2xl border border-ink-soft bg-bg px-1.5 py-1 shadow-[0_2px_4px_rgba(0,0,0,0.08),0_10px_28px_rgba(0,0,0,0.16)]'
+          : 'relative border-y border-line bg-bg px-2 py-1 phone:px-1'
       }
     >
       <MainBarRow
@@ -331,6 +334,7 @@ function Bar({ editor, slot }: { editor: Editor; slot: HTMLElement }) {
         menuRef={menuButton}
         onMenu={() => setPanel(panel === 'menu' ? null : 'menu')}
       />
+      <ContextBar up={up(place)} />
     </div>
   )
 

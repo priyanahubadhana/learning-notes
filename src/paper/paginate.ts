@@ -1,5 +1,6 @@
 import { createExtension } from '@blocknote/core'
-import { Plugin, PluginKey } from 'prosemirror-state'
+import { Plugin, PluginKey, TextSelection } from 'prosemirror-state'
+import { t } from '../i18n/t'
 import type { Node as PMNode } from 'prosemirror-model'
 import { Decoration, DecorationSet, type EditorView } from 'prosemirror-view'
 
@@ -116,7 +117,9 @@ const buildPushes = (doc: PMNode, map: Map<string, number>): Pushes => {
     if (px) {
       found.push(
         Decoration.node(pos, pos + node.nodeSize, {
-          style: `margin-top: ${px}px`,
+          style: `margin-top: ${px}px; --ln-push: ${px}px`,
+          class: 'ln-pushed',
+          'data-continues': t('paper.continues'),
         }),
       )
     }
@@ -148,6 +151,15 @@ export const pagination = createExtension({
         decorations(state) {
           return key.getState(state)?.deco ?? DecorationSet.empty
         },
+        // The blank end of a sheet: a tap there puts the caret at the end of
+        // the last block on that sheet (or makes an empty line).
+        handleClick(view, _pos, event) {
+          const el = event.target as HTMLElement | null
+          const outer = el?.closest?.('.ln-pushed')
+          if (!outer || !view.dom.contains(outer)) return false
+          if (event.clientY >= outer.getBoundingClientRect().top) return false
+          return caretInGap(view, outer as HTMLElement)
+        },
       },
       view: (view) => {
         views.set(view.dom as HTMLElement, view)
@@ -156,6 +168,45 @@ export const pagination = createExtension({
     }),
   ],
 })
+
+/**
+ * Tap in the blank space above a pushed block: the caret goes to the end of
+ * the block before it; if that one has no text (a picture), an empty line is
+ * made after it.
+ */
+export function caretInGap(view: EditorView, pushed: HTMLElement): boolean {
+  const id =
+    pushed.getAttribute('data-id') ??
+    pushed.querySelector('[data-id]')?.getAttribute('data-id')
+  const group = view.state.doc.firstChild
+  if (!id || !group) return false
+  let prev: { node: PMNode; pos: number } | null = null
+  let hit = false
+  group.forEach((node, offset) => {
+    if (hit) return
+    if (node.attrs.id === id) hit = true
+    else prev = { node, pos: offset + 1 }
+  })
+  const before = prev as { node: PMNode; pos: number } | null
+  if (!hit || !before) return false
+  const { node, pos } = before
+  const after = pos + node.nodeSize
+  const text = node.firstChild
+  if (text?.isTextblock) {
+    const end = pos + 1 + text.nodeSize - 1
+    view.dispatch(
+      view.state.tr.setSelection(TextSelection.create(view.state.doc, end)),
+    )
+  } else {
+    const fresh = view.state.schema.nodes.blockContainer.createAndFill()
+    if (!fresh) return false
+    const tr = view.state.tr.insert(after, fresh)
+    tr.setSelection(TextSelection.near(tr.doc.resolve(after + 2)))
+    view.dispatch(tr)
+  }
+  view.focus()
+  return true
+}
 
 /** A spacer inside a tall block: `px` of free space before the text at `pos`. */
 interface Spacer {

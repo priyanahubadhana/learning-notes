@@ -2,6 +2,7 @@ import type { LearningNotesDB } from '../core/db'
 import { imageRef } from './imageRef'
 import type { PlaceOptions } from './pictureChooserStore'
 import { ImageError, saveImage } from './imageService'
+import { requestPictureSelect } from './pictureSelect'
 import { shrinkImage } from './shrinkImage'
 
 /** The few editor calls a picture needs (keeps this file out of the schema). */
@@ -41,6 +42,7 @@ export async function placePicture(
     }
     if (blockId) {
       editor.updateBlock(blockId as never, { props } as never)
+      requestPictureSelect(blockId)
       return null
     }
     const target = place?.afterId
@@ -82,6 +84,8 @@ export async function placePicture(
     }
     editor.setTextCursorPosition(below as never, 'start')
     editor.focus()
+    // The new picture is selected at once, so its Picture strip shows.
+    requestPictureSelect(last.id)
     return null
   } catch (error) {
     if (error instanceof ImageError) return error.message

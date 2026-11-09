@@ -109,6 +109,7 @@ import { closeWritePadFor, writePad } from './writePad/padState'
 import { WritePadLazy } from './writePad/WritePadLazy'
 import { ClashBarsLazy } from './ClashBarsLazy'
 import { PictureHandles } from './PictureHandles'
+import { ContextWatcher } from './ContextWatcher'
 import { pagination, paginationSpacers } from '../paper/paginate'
 import { stampLabel, stampPicture } from './embed/embedClock'
 import { StampWatcher } from './embed/StampWatcher'
@@ -943,6 +944,9 @@ function LoadedPageEditor({
         )}
         {editableIn(mode) && !readOnly && (
           <PictureHandles editor={editor as never} />
+        )}
+        {editableIn(mode) && !readOnly && (
+          <ContextWatcher editor={editor as never} />
         )}
         <StampWatcher editor={editor} />
         {padSession?.editor === (editor as never) && <WritePadLazy />}

@@ -26,6 +26,9 @@ import {
   visibleTabs,
 } from './toolbarState'
 import { getAppActions } from './toolRuntime'
+import { contextTabOn, selectionContext } from './context/contextStore'
+import { ContextStrip } from './context/ContextStrip'
+import { contextTabLabel } from './context/stripItems'
 
 const keepFocus = (e: { preventDefault: () => void }) => e.preventDefault()
 
@@ -72,12 +75,14 @@ export function Ribbon({
 
   // "Tools stay open" keeps the tools showing; Slim always shows them (they
   // are the one row of icons).
-  const shown = stay || expanded || slim
+  const ctx = selectionContext.useValue()
+  const ctxOn = contextTabOn.useValue() && ctx !== null
+  const shown = stay || expanded || slim || ctxOn
 
   // The shared pop-up rule: a tap outside, Esc, a scroll, navigating or another
   // pop-up opening closes the tools (unless they stay open).
   usePopup(
-    shown && !stay && !slim,
+    shown && !stay && !slim && !ctxOn,
     () => ribbonExpanded.set(false),
     (el) => el.closest('[data-ribbon]') !== null || isEditorPopup(el),
     {
@@ -87,6 +92,7 @@ export function Ribbon({
   )
 
   const choose = (next: TabId) => {
+    contextTabOn.set(false)
     if (next === current && shown && !stay) ribbonExpanded.set(false)
     else {
       ribbonTab.set(next)
@@ -119,57 +125,70 @@ export function Ribbon({
   const control =
     'inline-flex shrink-0 items-center justify-center gap-1.5 rounded-xl px-3 text-sm whitespace-nowrap text-ink-soft hover:bg-hover hover:text-ink motion-safe:transition-colors'
 
-  const panel = shown && (
-    <ScrollFade
-      id={PANEL_ID}
-      role="tabpanel"
-      aria-labelledby={tabId(current)}
-      snap
-      className={
-        slim
-          ? 'flex min-w-[9rem] flex-1 basis-72 items-center gap-1'
-          : 'flex items-stretch gap-1.5 pb-0.5'
-      }
-    >
-      {TAB_GROUPS[current].map((group) => {
-        const tools = ribbonGroup(current, group)
-        if (tools.length === 0 || (history && group === 'undoRedo')) return null
-        return (
-          <div
-            key={group}
-            role="group"
-            aria-label={groupLabel(group)}
-            className={
-              slim
-                ? 'flex shrink-0 snap-start items-center gap-0.5 border-s border-line ps-1 first:border-s-0 first:ps-0'
-                : 'flex shrink-0 snap-start scroll-ms-1 flex-col rounded-xl border border-line px-1 pt-0.5'
-            }
-          >
-            <div className="flex gap-0.5">
-              {tools.map((tool) => (
-                <ToolButton
-                  key={tool.id}
-                  tool={tool}
-                  px={px}
-                  // Slim: icons only, the name is the tooltip and the label.
-                  variant={slim ? 'bar' : 'ribbon'}
-                  active={activeOf(tool.id) || undefined}
-                  tip={slim || tip}
-                  hint={hint}
-                  onRun={afterUse}
-                />
-              ))}
-            </div>
-            {!slim && (
-              <span className="px-1 pb-0.5 text-center text-[11px] text-ink-soft">
-                {groupLabel(group)}
-              </span>
-            )}
-          </div>
-        )
-      })}
-    </ScrollFade>
-  )
+  const panel =
+    ctxOn && ctx ? (
+      <div
+        id={PANEL_ID}
+        role="tabpanel"
+        aria-labelledby="ribbon-tab-ctx"
+        className="min-w-0 flex-1"
+      >
+        <ContextStrip kind={ctx} />
+      </div>
+    ) : (
+      shown && (
+        <ScrollFade
+          id={PANEL_ID}
+          role="tabpanel"
+          aria-labelledby={tabId(current)}
+          snap
+          className={
+            slim
+              ? 'flex min-w-[9rem] flex-1 basis-72 items-center gap-1'
+              : 'flex items-stretch gap-1.5 pb-0.5'
+          }
+        >
+          {TAB_GROUPS[current].map((group) => {
+            const tools = ribbonGroup(current, group)
+            if (tools.length === 0 || (history && group === 'undoRedo'))
+              return null
+            return (
+              <div
+                key={group}
+                role="group"
+                aria-label={groupLabel(group)}
+                className={
+                  slim
+                    ? 'flex shrink-0 snap-start items-center gap-0.5 border-s border-line ps-1 first:border-s-0 first:ps-0'
+                    : 'flex shrink-0 snap-start scroll-ms-1 flex-col rounded-xl border border-line px-1 pt-0.5'
+                }
+              >
+                <div className="flex gap-0.5">
+                  {tools.map((tool) => (
+                    <ToolButton
+                      key={tool.id}
+                      tool={tool}
+                      px={px}
+                      // Slim: icons only, the name is the tooltip and the label.
+                      variant={slim ? 'bar' : 'ribbon'}
+                      active={activeOf(tool.id) || undefined}
+                      tip={slim || tip}
+                      hint={hint}
+                      onRun={afterUse}
+                    />
+                  ))}
+                </div>
+                {!slim && (
+                  <span className="px-1 pb-0.5 text-center text-[11px] text-ink-soft">
+                    {groupLabel(group)}
+                  </span>
+                )}
+              </div>
+            )
+          })}
+        </ScrollFade>
+      )
+    )
 
   const undo = history ? findTool('undo') : undefined
   const redo = history ? findTool('redo') : undefined
@@ -220,7 +239,7 @@ export function Ribbon({
             }`}
           >
             {tabs.map((name) => {
-              const on = name === current
+              const on = name === current && !ctxOn
               return (
                 <button
                   key={name}
@@ -246,6 +265,30 @@ export function Ribbon({
                 </button>
               )
             })}
+            {ctx && (
+              <button
+                id="ribbon-tab-ctx"
+                type="button"
+                role="tab"
+                data-tab="ctx"
+                aria-selected={ctxOn}
+                aria-controls={ctxOn ? PANEL_ID : undefined}
+                tabIndex={ctxOn ? 0 : -1}
+                onMouseDown={keepFocus}
+                onClick={() => {
+                  contextTabOn.set(true)
+                  ribbonExpanded.set(true)
+                }}
+                style={{ minHeight: size, minWidth: 44 }}
+                className={`relative shrink-0 rounded-xl px-3.5 text-sm font-semibold text-accent motion-safe:transition-colors ${
+                  ctxOn
+                    ? 'after:absolute after:inset-x-2 after:bottom-1 after:h-0.5 after:rounded-full after:bg-accent'
+                    : 'hover:bg-hover'
+                }`}
+              >
+                {contextTabLabel(ctx)}
+              </button>
+            )}
           </ScrollFade>
           {slim && panel}
           <div className="ms-auto flex items-center justify-end gap-0.5">

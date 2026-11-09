@@ -41,6 +41,10 @@ A tapped or pressed picture shows an action bar above it (below when there is no
 
 Choosing a picture (any source) shows it as a preview first (`images/PicturePlacement.tsx`): the page scrolls to it, drag it to another line (it snaps under the block it is over, left, centre or right by where it is dropped), drag a corner to resize, tick or Enter places it (one Undo), cross or Esc cancels. The block is made only on the tick. Tests: e2e/pictureChooser.spec.ts.
 
+## Picture strip, smooth resize, guards (9 Nov)
+
+Placing or pasting a picture selects it at once (`images/pictureSelect.ts`), so the Picture tab shows. Resize writes the width once per frame while pagination is held (`paper/paginateHold.ts`), commits on release (one Undo). Size presets (Smaller = 40 % less, Bigger = 1.5x, Fit width, Original size) glide for 180 ms; with Reduce motion they are instant. Guards (`pictureResize.ts`): width never 0, negative or NaN, minimum 48 px; the start size is measured at each pointer-down; a drag is cancelled when the app goes to the background; a saved bad `previewWidth` is dropped on load. Alt text is the block's caption (BlockNote uses the caption as alt). Not built: border, text wrap, Draw on picture strip button (Lasso/ink on pictures exists, see inkOnPicture).
+
 ## Edge cases
 
 - A missing or deleted picture gives `null` and nothing is shown.

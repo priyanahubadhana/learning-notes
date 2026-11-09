@@ -14,7 +14,15 @@ import type { Workspace } from '../core/types'
 import { NeedsTapError, getConnectors, type Connectors } from './connectors'
 import { SyncCryptoError, type MasterKey } from './crypto'
 import { setTracking, setWaitingForKey } from './device'
-import { enqueueChanged, syncOnce, type SyncReport } from './engine'
+import {
+  enqueueChanged,
+  syncOnce,
+  type SyncChoice,
+  type SyncReport,
+} from './engine'
+import { measureDivergence, measureHere } from './divergence'
+import { readEnded, startFresh, writeEnded } from './remoteSignOut'
+import { recordVersion } from '../history/versionService'
 import { forgetMasterKey, loadMasterKey, saveMasterKey } from './keyVault'
 import { createKey, findBundles, replaceRecoveryCode, unlockKey } from './setup'
 import { onboardingGuide } from '../app/signInGuideState'
@@ -50,6 +58,11 @@ let scanned = false
 let feedOpen = false
 let stopFeed: (() => void) | null = null
 const set = setSyncStatus
+let appDb: LearningNotesDB | null = null
+/** What the person chose after a remote sign-out; used by the next sync. */
+let pendingChoice: SyncChoice | undefined
+/** Sync-state ids and pages unsent when the choice dialog opened. */
+let choiceFor: { dirtyIds: string[]; pageIds: string[] } | undefined
 
 function readLast(): number | undefined {
   try {
@@ -64,7 +77,12 @@ async function decidePhase(conn: Connectors) {
   const account = conn.auth.current()
   if (!account) {
     setWaitingForKey(false)
-    set({ phase: 'signedOut', email: undefined, avatar: undefined })
+    set({
+      phase: 'signedOut',
+      email: undefined,
+      avatar: undefined,
+      endedRemotely: readEnded(),
+    })
     return
   }
   master = await loadMasterKey()
@@ -91,6 +109,7 @@ export async function aiKeysSyncOn(): Promise<boolean> {
 
 /** Called once at app start (later calls wait for the same start). Cheap when sync was never set up. */
 export function startSync(db: LearningNotesDB): Promise<void> {
+  appDb = db
   booted ??= boot(db)
   return booted
 }
@@ -98,6 +117,7 @@ export function startSync(db: LearningNotesDB): Promise<void> {
 async function boot(db: LearningNotesDB): Promise<void> {
   const conn = getConnectors()
   set({ lastSyncedAt: readLast() })
+  conn.auth.onSessionEnded?.(() => void sessionEndedRemotely())
   try {
     const url = new URL(location.href)
     if (await conn.auth.finishSignIn(url)) {
@@ -116,10 +136,13 @@ async function boot(db: LearningNotesDB): Promise<void> {
   try {
     await decidePhase(conn)
   } catch {
-    set({ problem: 'offline' })
+    // A session the server ended already shows its own lock screen.
+    if (!getSyncStatus().endedRemotely) set({ problem: 'offline' })
   }
   if (getSyncStatus().phase === 'ready') {
-    void keepDriveFresh(true).then(() => syncNow(db))
+    void settleAfterReturn(db).then(() =>
+      keepDriveFresh(true).then(() => syncNow(db)),
+    )
   }
   // AI keys on all devices (R6-2): mirrored while the switch is on.
   subscribeSync(() => {
@@ -208,12 +231,101 @@ export async function signIn(): Promise<void> {
   const conn = getConnectors()
   await conn.auth.signIn() // the real one leaves the page for Google
   await decidePhase(conn)
+  if (appDb && getSyncStatus().phase === 'ready') {
+    await settleAfterReturn(appDb)
+    void syncNow(appDb)
+  }
 }
 
 /** Signs out on this device; notes stay. `forgetKey` also removes the key here. */
 export async function signOut(forgetKey: boolean): Promise<void> {
   await getConnectors().auth.signOut()
+  writeEnded(false)
   await afterSignOut(forgetKey)
+}
+
+/**
+ * The server ended this device's session (for example "Sign out on all
+ * devices" elsewhere). The notes stay and are hidden behind the lock screen
+ * until sign-in; unsent edits stay marked and are never dropped.
+ */
+export async function sessionEndedRemotely(): Promise<void> {
+  writeEnded(true)
+  await afterSignOut(false)
+  // So the next start loads sync and shows the lock again (main.tsx starts it
+  // only for a tracking or waiting device).
+  setWaitingForKey(true)
+  set({ endedRemotely: true, choice: undefined, problem: undefined })
+}
+
+/**
+ * Signed back in after a remote sign-out: if this device has unsent changes,
+ * asks how to join them with the cloud (the dialog); otherwise the normal
+ * merge simply goes on. Syncing waits for the answer.
+ */
+async function settleAfterReturn(db: LearningNotesDB): Promise<void> {
+  if (!readEnded()) return
+  if (!master) return // the unlock box comes first; it calls this again
+  try {
+    const d = await measureDivergence(db, getConnectors(), master)
+    if (d.itemsHere === 0) {
+      writeEnded(false)
+      set({ endedRemotely: false, choice: undefined })
+      return
+    }
+    choiceFor = { dirtyIds: d.dirtyIds, pageIds: d.pageIdsHere }
+    set({
+      endedRemotely: false,
+      choice: {
+        pagesHere: d.pagesHere,
+        pagesThere: d.pagesThere,
+        itemsHere: d.itemsHere,
+        itemsThere: d.itemsThere,
+      },
+    })
+  } catch {
+    // Could not look (offline): the normal merge (the default choice) goes on.
+    writeEnded(false)
+    set({ endedRemotely: false })
+  }
+}
+
+/**
+ * The choice after a remote sign-out. "merge" (the default) is the normal
+ * two-device merge: both kept, the other version in History, "Keep both"
+ * where lines differ. "here" and "there" decide each clash in favour of one
+ * side; the other side still goes to History and nothing is deleted.
+ */
+export async function resolveChoice(
+  prefer: 'merge' | 'here' | 'there',
+): Promise<void> {
+  const db = appDb
+  if (!db) return
+  const mine = choiceFor
+  choiceFor = undefined
+  if (prefer === 'there' && mine) {
+    // A copy of every page with unsent edits, before the cloud version lands.
+    for (const id of mine.pageIds) {
+      await recordVersion(db, id, { force: true }).catch(() => null)
+    }
+  }
+  pendingChoice =
+    prefer === 'merge' || !mine
+      ? undefined
+      : { prefer, ids: new Set(mine.dirtyIds) }
+  writeEnded(false)
+  set({ choice: undefined, endedRemotely: false })
+  void syncNow(db)
+}
+
+/** Unsent changes on this device (for the Start fresh warning). */
+export async function countUnsent(): Promise<number> {
+  return appDb ? (await measureHere(appDb)).itemsHere : 0
+}
+
+/** Start fresh: one last backup file, then an empty app (see remoteSignOut.ts). */
+export async function startFreshOnThisDevice(): Promise<void> {
+  if (appDb) await startFresh(appDb)
 }
 
 /**
@@ -298,6 +410,7 @@ export async function unlock(
   })
   // Notes already on this device are kept and sent too (never wiped).
   await enqueueChanged(db)
+  await settleAfterReturn(db)
   void syncNow(db)
   return true
 }
@@ -305,7 +418,11 @@ export async function unlock(
 /** Runs one sync now (joins a running one). */
 export function syncNow(db: LearningNotesDB): Promise<void> {
   if (running) return running
-  if (!master || getSyncStatus().phase === 'signedOut') return Promise.resolve()
+  const st = getSyncStatus()
+  // Waiting for the answer to "changes on both sides": nothing is sent or applied.
+  if (!master || st.phase === 'signedOut' || st.choice) return Promise.resolve()
+  // Signed back in after a remote sign-out: nothing moves until the choice is made.
+  if (readEnded()) return Promise.resolve()
   const key = master
   running = (async () => {
     set({ phase: 'syncing' })
@@ -327,7 +444,9 @@ export function syncNow(db: LearningNotesDB): Promise<void> {
           if (getSyncStatus().arrival)
             set({ arrival: { done, finished: false } })
         },
+        pendingChoice,
       )
+      pendingChoice = undefined
       knownSeq = Math.max(knownSeq, report.seq)
       await dedupeWorkspaces(db)
       const now = Date.now()

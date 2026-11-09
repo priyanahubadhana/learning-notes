@@ -54,6 +54,17 @@ interface Envelope {
   file?: string
 }
 
+/**
+ * The choice made after signing back in ("Use this device's version" or "Use
+ * the cloud version"). It applies only to the records that were changed here
+ * and unsent at that moment (their sync-state ids); the other side of each
+ * conflict still goes to History. "Merge both" needs nothing here.
+ */
+export interface SyncChoice {
+  prefer: 'here' | 'there'
+  ids: ReadonlySet<string>
+}
+
 export interface SyncReport {
   pulled: number
   pushed: number
@@ -126,9 +137,10 @@ export async function syncOnce(
   conn: Connectors,
   master: MasterKey,
   onProgress?: (pulled: number) => void,
+  choice?: SyncChoice,
 ): Promise<SyncReport> {
   const report = emptyReport()
-  await pull(db, conn, master, report, onProgress)
+  await pull(db, conn, master, report, onProgress, choice)
   await uploadFiles(db, conn, master, report)
   await push(db, conn, master, report)
   await downloadFiles(db, conn, master, report)
@@ -144,13 +156,14 @@ async function pull(
   master: MasterKey,
   report: SyncReport,
   onProgress?: (pulled: number) => void,
+  choice?: SyncChoice,
 ) {
   let cursor = Number((await db.meta.get(CURSOR))?.value ?? 0)
   report.seq = Math.max(report.seq, cursor)
   for (;;) {
     const batch = await conn.records.pull(cursor, PAGE)
     if (batch.length === 0) break
-    await applyRemote(db, master, batch, report)
+    await applyRemote(db, master, batch, report, choice)
     cursor = batch[batch.length - 1].seq
     report.seq = Math.max(report.seq, cursor)
     await db.meta.put({ id: CURSOR, value: cursor })
@@ -191,7 +204,12 @@ async function openAll(
 }
 
 type Opened = Awaited<ReturnType<typeof openAll>>
-type Decision = { item: Opened[0]; result: MergeResult }
+type Decision = {
+  item: Opened[0]
+  result: MergeResult
+  /** The person chose a side for this record: no "changed on two devices" mark. */
+  chosen?: boolean
+}
 
 /** Thrown inside the write when a local copy changed after it was read. */
 class StaleRead extends Error {}
@@ -202,6 +220,7 @@ async function applyRemote(
   master: MasterKey,
   rows: RemoteRecord[],
   report: SyncReport,
+  choice?: SyncChoice,
 ) {
   const opened = await openAll(master, rows, report)
   const now = Date.now()
@@ -230,8 +249,11 @@ async function applyRemote(
       decisions = items.map((item, i) => {
         const local = locals[i] as Record<string, unknown> | undefined
         const st = states[i]
+        const chosen =
+          !!choice && st?.dirty === 1 && choice.ids.has(keys[i]) ? choice : null
         return {
           item,
+          chosen: !!chosen,
           result: mergeRecord(
             mode,
             local && st
@@ -243,6 +265,7 @@ async function applyRemote(
               value: fromWire(item.env.r) as Record<string, unknown>,
               hlc: item.env.h,
             },
+            chosen?.prefer,
           ),
         }
       })
@@ -328,10 +351,10 @@ async function writeDecisions(
   const puts: Record<string, unknown>[] = []
   const newStates: SyncState[] = []
   const clashed: Block[] = []
-  decisions.forEach(({ item, result }, i) => {
+  decisions.forEach(({ item, result, chosen }, i) => {
     const old = states[i]
     const take = result.action === 'take'
-    const noticed = mode === 'blocks' && 'loser' in result
+    const noticed = mode === 'blocks' && 'loser' in result && !chosen
     let hlc = take ? item.env.h : (old?.hlc ?? nextHlc())
     let value: Record<string, unknown> | undefined
     if (take) {
@@ -593,4 +616,37 @@ export async function noteMergedPage(
 
 export async function clearMergedNotice(db: LearningNotesDB): Promise<void> {
   await db.meta.delete(MERGED)
+}
+
+/**
+ * What changed in the cloud since this device last synced, without applying
+ * anything (the choice dialog after signing back in): the pages touched and
+ * the number of items. Our own earlier saves (same revision as we know) do not
+ * count.
+ */
+export async function previewRemote(
+  db: LearningNotesDB,
+  conn: Connectors,
+  master: MasterKey,
+): Promise<{ pageIds: Set<string>; items: number }> {
+  const pageIds = new Set<string>()
+  let items = 0
+  let cursor = Number((await db.meta.get(CURSOR))?.value ?? 0)
+  for (;;) {
+    const batch = await conn.records.pull(cursor, PAGE)
+    if (batch.length === 0) break
+    const opened = await openAll(master, batch, emptyReport())
+    const states = await db.syncState.bulkGet(
+      opened.map((o) => syncStateId(o.table, o.id)),
+    )
+    opened.forEach((o, i) => {
+      if (o.rev <= (states[i]?.rev ?? 0)) return
+      items++
+      if (o.table === 'pages') pageIds.add(o.id)
+      else if (o.table === 'blocks') pageIds.add(String(o.env.r.pageId ?? ''))
+    })
+    cursor = batch[batch.length - 1].seq
+    if (batch.length < PAGE) break
+  }
+  return { pageIds, items }
 }

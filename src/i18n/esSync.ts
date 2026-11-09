@@ -70,4 +70,42 @@ export const esSync: Record<string, string> = {
   'sync.yes': 'sí',
   'sync.no': 'no',
   'update.splash': 'Actualizando…',
+  'sync.ended.title': 'Se cerró tu sesión',
+  'sync.ended.text':
+    'Inicia sesión para continuar. Tu cuenta se cerró desde otro dispositivo. Tus notas están a salvo en este dispositivo y ocultas hasta que inicies sesión.',
+  'sync.ended.signIn': 'Inicia sesión para continuar',
+  'sync.ended.fresh': 'Empezar de cero en este dispositivo',
+  'sync.fresh.title': '¿Empezar de cero en este dispositivo?',
+  'sync.fresh.text':
+    'Se guarda una última copia de seguridad en un archivo, luego se quitan todas las notas de este dispositivo y se abre una app nueva y vacía. Las notas de tu cuenta en la nube no se tocan.',
+  'sync.fresh.unsent_one':
+    '{count} cambio de este dispositivo nunca se envió a la nube. Solo existirá en el archivo de copia.',
+  'sync.fresh.unsent_other':
+    '{count} cambios de este dispositivo nunca se enviaron a la nube. Solo existirán en el archivo de copia.',
+  'sync.fresh.none':
+    'Todos los cambios de este dispositivo ya se enviaron a la nube.',
+  'sync.fresh.go': 'Guardar copia y empezar de cero',
+  'sync.fresh.working': 'Guardando la copia…',
+  'sync.fresh.back': 'Volver',
+  'sync.fresh.error':
+    'No se pudo terminar. Cierra otras ventanas de la app e inténtalo de nuevo. Comprueba que se guardó el archivo de copia.',
+  'sync.choice.title': 'Cambios en este dispositivo y en la nube',
+  'sync.choice.text':
+    'Mientras tu sesión estaba cerrada, este dispositivo tiene cambios que la nube no tiene.',
+  'sync.choice.here': 'Cambiado en este dispositivo: {n}.',
+  'sync.choice.there': 'Cambiado en la nube: {n}.',
+  'sync.choice.pages_one': '{count} página',
+  'sync.choice.pages_other': '{count} páginas',
+  'sync.choice.nothing': 'nada',
+  'sync.choice.items_one': '{count} elemento',
+  'sync.choice.items_other': '{count} elementos',
+  'sync.choice.safe':
+    'No se borra nada: la versión que no elijas se guarda en el Historial de la página.',
+  'sync.choice.merge': 'Combinar ambas',
+  'sync.choice.mergeHelp':
+    'Conserva las dos. Donde la misma línea difiere, puedes elegir Conservar ambas.',
+  'sync.choice.useHere': 'Usar la versión de este dispositivo',
+  'sync.choice.hereHelp': 'La versión de la nube pasa al Historial.',
+  'sync.choice.useThere': 'Usar la versión de la nube',
+  'sync.choice.thereHelp': 'La versión de este dispositivo pasa al Historial.',
 }

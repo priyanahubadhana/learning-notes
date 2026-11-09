@@ -90,6 +90,13 @@ export interface AuthProvider {
    * server could not be reached. Local notes stay.
    */
   signOutEverywhere?(): Promise<boolean>
+  /**
+   * Calls `fn` when the server ended a session that was signed in (for
+   * example "Sign out on all devices" on another device): the renewal was
+   * refused as invalid. Not called for the person's own sign out, going
+   * offline or a normal token expiry.
+   */
+  onSessionEnded?(fn: () => void): void
   /** A fresh access token for the record store (renews when needed). */
   accessToken(): Promise<string>
   /** A Drive pass; may need a tap (`interactive`) after its hour runs out. */

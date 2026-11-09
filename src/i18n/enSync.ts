@@ -68,4 +68,42 @@ export const enSync = {
   'sync.yes': 'yes',
   'sync.no': 'no',
   'update.splash': 'Updating…',
+  'sync.ended.title': 'You were signed out',
+  'sync.ended.text':
+    'Sign in to continue. Your account was signed out from another device. Your notes are safe on this device and hidden until you sign in.',
+  'sync.ended.signIn': 'Sign in to continue',
+  'sync.ended.fresh': 'Start fresh on this device',
+  'sync.fresh.title': 'Start fresh on this device?',
+  'sync.fresh.text':
+    'This saves one last backup file, then removes all notes from this device and opens a new, empty app. Notes already in your cloud account are not touched.',
+  'sync.fresh.unsent_one':
+    '{count} change on this device was never sent to the cloud. It will only exist in the backup file.',
+  'sync.fresh.unsent_other':
+    '{count} changes on this device were never sent to the cloud. They will only exist in the backup file.',
+  'sync.fresh.none':
+    'Every change on this device was already sent to the cloud.',
+  'sync.fresh.go': 'Save backup and start fresh',
+  'sync.fresh.working': 'Saving the backup…',
+  'sync.fresh.back': 'Go back',
+  'sync.fresh.error':
+    'Could not finish. Close other windows of the app and try again. Check that the backup file was saved.',
+  'sync.choice.title': 'Changes on this device and in the cloud',
+  'sync.choice.text':
+    'While you were signed out, this device has changes the cloud does not have.',
+  'sync.choice.here': 'Changed on this device: {n}.',
+  'sync.choice.there': 'Changed in the cloud: {n}.',
+  'sync.choice.pages_one': '{count} page',
+  'sync.choice.pages_other': '{count} pages',
+  'sync.choice.nothing': 'nothing',
+  'sync.choice.items_one': '{count} item',
+  'sync.choice.items_other': '{count} items',
+  'sync.choice.safe':
+    'Nothing is deleted: the version you do not pick is kept in the page’s History.',
+  'sync.choice.merge': 'Merge both',
+  'sync.choice.mergeHelp':
+    'Keeps both. Where the same line differs you can choose Keep both.',
+  'sync.choice.useHere': 'Use this device’s version',
+  'sync.choice.hereHelp': 'The cloud version goes to History.',
+  'sync.choice.useThere': 'Use the cloud version',
+  'sync.choice.thereHelp': 'This device’s version goes to History.',
 } as const

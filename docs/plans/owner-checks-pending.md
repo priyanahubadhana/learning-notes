@@ -20,6 +20,16 @@ What it is: accounts are now required. People sign in with Google, an email code
 8. Keep the testing allow-list: the "Before User Created" hook still blocks any email except yours. Before the public launch it must be turned off (launch checklist), and the paid-plan question (leaked-password check, custom limits) decided.
 9. Check on the live site: sign out, then sign in with "Email me a code" (the mail arrives within a minute, the code works inside the app); sign out, then "Email and password" > Create account; Settings > Account > Connected accounts shows Google, Email code, Password with their emails; Connect Google works; you cannot disconnect the last one.
 
+## Signed out from another device (9 Nov, after deploy)
+
+What it is: if you press Sign out on all devices on one device, the others show a lock the next time they check in, like Instagram. Your notes are hidden, not erased.
+
+1. Use two devices (for example iPad and iPhone), both signed in. On the iPad: Settings > Account > Sign out on all devices.
+2. On the iPhone, open the app (or wait a minute). Check: a full screen says "You were signed out. Sign in to continue". Your notes are hidden and nothing else works behind it. Close and reopen the app: it still shows.
+3. Before step 1, on the iPhone turn on Airplane mode, write something in a note, then turn it off after the lock appears. Tap Sign in to continue and sign in. Check: a box lists how many pages changed on this device and in the cloud, with three choices: Merge both (highlighted), Use this device's version, Use the cloud version. Pick Merge both. Check: your offline words are still in the note; where the same line differed, a bar offers Keep mine, Use other, Keep both; the other version is in the note's History.
+4. Repeat once and pick Use the cloud version. Check: the cloud text is shown and your offline text is in History.
+5. On a spare device only: tap Start fresh on this device. Check: a warning shows how many changes were never sent; the button saves a backup file (check it in Files/Downloads) and then opens the empty welcome. Do not do this on a device with notes you have not backed up.
+
 ## Update check fix (9 Nov, after deploy)
 
 What it is: the version check no longer needs the offline helper to be working.

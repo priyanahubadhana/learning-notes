@@ -809,6 +809,14 @@ The other older decisions stand as built (owner, 2026-11-01); they are in [ARCHI
 - Priority: each key point gets 1-10 stars plus a level (Must know 8-10 / Good to know 4-7 / Extra 1-3); Must know comes first and gets a picture, a mind-map node and cards.
 - Sources: as many as possible, each point linked [n] to its source, Sources list at the bottom, points with no source marked unchecked; optional second-model fact check (extra cost, shown first).
 
+## Decisions to review (remote sign-out, 9 Nov)
+
+- The key stays on the device when a session is ended remotely (only the notes are hidden); Start fresh removes it. A person who fears a stolen unlocked device should use Start fresh or the PIN lock.
+- 400, 401, 403 and 404 from the renewal count as "session ended"; every other failure keeps the session.
+- "Use the cloud version" makes a History copy of each page with unsent edits first. Records that exist only on this device are kept and sent whatever is chosen.
+- If the cloud cannot be looked at when signing back in, the default (Merge both) goes on without asking.
+- Start fresh leaves the in-browser rolling backups (the safety copies) in place; Settings > Save & restore removes them.
+
 ## Decisions to review (copy side, 9 Nov)
 
 - Ctrl/Cmd+C keeps BlockNote's own copy (it already writes our lossless `blocknote/html`) and then replaces `text/plain` with clean Markdown and `text/html` with our own rich HTML, only when whole blocks are copied; words inside one block stay BlockNote's, so they paste into a line.

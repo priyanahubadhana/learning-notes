@@ -8,7 +8,8 @@ import type { MergeMode } from './tables'
  * 2. "Delete forever" always wins (a purged copy beats an unpurged one).
  * 3. `append` rows never change: keep what is here.
  * 4. This device has no unsent change → take it (it is newer than our base).
- * 5. Both changed (a true conflict) → the newer clock wins; equal clocks
+ * 5. Both changed (a true conflict) → the newer clock wins (or the side the
+ *    person chose after signing back in, `prefer`); equal clocks
  *    cannot happen (the device id is part of the clock). For `blocks`, the
  *    loser is kept in History when its content differs.
  */
@@ -53,13 +54,14 @@ export function mergeRecord(
   mode: MergeMode,
   local: LocalCopy | undefined,
   remote: RemoteCopy,
+  prefer?: 'here' | 'there',
 ): MergeResult {
   if (!local) return { action: 'take' }
   if (purged(remote.value) && !purged(local.value)) return { action: 'take' }
   if (purged(local.value) && !purged(remote.value)) return { action: 'keep' }
   if (mode === 'append') return { action: 'keep' }
   if (!local.dirty) return { action: 'take' }
-  const remoteWins = remote.hlc > local.hlc
+  const remoteWins = prefer ? prefer === 'there' : remote.hlc > local.hlc
   const loser = remoteWins ? local.value : remote.value
   const winner = remoteWins ? remote.value : local.value
   const keepLoser =

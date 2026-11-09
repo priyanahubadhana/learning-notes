@@ -9,6 +9,7 @@ import type {
   RecordStore,
   RemoteRecord,
 } from './types'
+import { TryLaterError } from './types'
 
 /**
  * In-memory connectors with the same rules as the real ones (compare-and-
@@ -50,6 +51,8 @@ declare global {
   interface Window {
     __lnSyncServer?: MockServer
     __lnSyncPing?: (seq: number) => void
+    /** Browser tests: the server ends this device's session (remote sign-out). */
+    __lnEndSession?: () => void
   }
 }
 
@@ -93,8 +96,18 @@ const MOCK_DRIVE = 'learning-notes:sync.mockDrive'
 
 function mockAuth(persist: boolean): AuthProvider {
   let signedIn: Account | null = persist ? loadSignedIn() : null
+  const ended: (() => void)[] = []
+  if (persist && typeof window !== 'undefined') {
+    window.__lnEndSession = () => {
+      if (!signedIn) return
+      signedIn = null
+      saveSignedIn(false)
+      for (const fn of ended) fn()
+    }
+  }
   return {
     current: () => signedIn,
+    onSessionEnded: (fn) => void ended.push(fn),
     async signIn() {
       signedIn = MOCK_ACCOUNT
       if (persist) saveSignedIn(true)
@@ -137,12 +150,14 @@ export function memoryConnectors(
 
   const records: RecordStore = {
     async pull(sinceSeq, limit) {
+      testOffline()
       return Object.values(state.records)
         .filter((r) => r.seq > sinceSeq)
         .sort((a, b) => a.seq - b.seq)
         .slice(0, limit)
     },
     async push(items: PushItem[]): Promise<PushResult> {
+      testOffline()
       const result: PushResult = { accepted: [], conflicts: [] }
       for (const item of items) {
         const now = state.records[item.id]
@@ -229,6 +244,16 @@ export function memoryConnectors(
   }
 
   return { auth, records, files, state, ...(persist ? { changes } : {}) }
+}
+
+/** Browser tests: `learning-notes:sync.mockOffline` = 1 makes the server unreachable. */
+function testOffline() {
+  try {
+    if (localStorage.getItem('learning-notes:sync.mockOffline') === '1')
+      throw new TryLaterError('offline')
+  } catch (e) {
+    if (e instanceof TryLaterError) throw e
+  }
 }
 
 const SIGNED_KEY = 'learning-notes:sync.mockSignedIn'

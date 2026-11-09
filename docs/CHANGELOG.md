@@ -2,6 +2,12 @@
 
 Current phase only. Older entries are in [ARCHIVE.md](ARCHIVE.md).
 
+## 2026-11-09 (Remote sign-out: lock, choice, Start fresh)
+
+- **What:** when another device uses "Sign out on all devices", this device learns it at its next renewal (the server refuses the refresh as invalid: 400/401/403/404; offline, 429 and 5xx are only "try later", a normal token expiry renews with a 200) and shows a full-screen glass lock "You were signed out. Sign in to continue" (modal dialog, solid backdrop: notes hidden, not erased, nothing behind it usable). Only Sign in and Start fresh work. The flag survives a reload. Signing back in with unsent edits opens a choice: Merge both (default, the normal two-device merge: both kept, other version in History, Keep both where lines differ), Use this device's version, Use the cloud version, with pages changed here and there; syncing waits for the answer; the unchosen version always goes to History. Start fresh: warning with the count of unsent changes, saves one last backup file, then removes this device's notes, key and settings and reloads into the welcome. Never-signed-in devices and "Use without an account" are unaffected.
+- **Why:** owner-approved design (9 Nov): like Instagram, a remote sign-out must be visible and safe, and nothing may be lost.
+- **Files:** src/sync/{SignedOutGate,SignedOutLock,SyncChoiceDialog}.tsx, remoteSignOut.ts, divergence.ts, syncService.ts, syncStatus.ts, engine.ts (SyncChoice, previewRemote), merge.ts (prefer), connectors/{sessionEnd,supabase,memory,types}.ts, src/App.tsx, src/i18n/{en,es,hi}Sync.ts; tests src/sync/remoteSignOut.test.ts, src/sync/connectors/sessionEnd.test.ts, e2e/remoteSignOut.spec.ts.
+
 ## 2026-11-09 (AI settings made clear: order, AI-off card, Usage and cost, Connections)
 
 - **What:** Settings > AI is now (a) on/off, (b) keys + default model, (c) Spending limit typed in the chosen currency (kept in US$ inside; per-key limits too), (d) Usage and cost (this month vs limit bar, by key / model / feature / notebook, recent calls with tokens in/out and cost, Export CSV), then a button to Permissions. Every AI place (AI page, Ask this book, Prompts, Skills, Clean up with AI, Convert to text) shows a calm "AI is off" card with Turn on AI (in place) and Add a key. "APIs" (a placeholder) is now "Connections": each key, company, status, this month, Test, links to make a key, Manage in AI. The send log also keeps key id, model and tokens (still no content); Clean up logs as "cleanup". Audit in docs/features/ai.md.

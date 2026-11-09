@@ -13,6 +13,14 @@ export type SyncPhase =
   | 'ready'
   | 'syncing'
 
+/** Counts shown when this device and the cloud both changed (after a remote sign-out). */
+export interface SyncChoiceCounts {
+  pagesHere: number
+  pagesThere: number
+  itemsHere: number
+  itemsThere: number
+}
+
 export interface SyncStatus {
   phase: SyncPhase
   email?: string
@@ -25,6 +33,10 @@ export interface SyncStatus {
   mergedPages?: number
   /** The live feed is open: other devices' saves arrive within a second. */
   live?: boolean
+  /** The server ended this device's session: the lock screen shows until sign-in. */
+  endedRemotely?: boolean
+  /** Signed back in with unsent changes here: the person chooses how to join. */
+  choice?: SyncChoiceCounts
   /** Just unlocked: the first download is running (notes so far) or done. */
   arrival?: { done: number; finished: boolean }
 }

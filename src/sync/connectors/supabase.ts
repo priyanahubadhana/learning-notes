@@ -8,6 +8,7 @@ import { driveNote, lastDriveNote } from './driveDiag'
 import { createDrivePass } from './drivePass'
 import { revokeServerToken, serverPass, storeRefreshToken } from './driveServer'
 import { preloadGoogle, renewDriveToken } from './google'
+import { sessionEnded } from './sessionEnd'
 import {
   NotAllowedError,
   TryLaterError,
@@ -191,6 +192,10 @@ export function supabaseAuth(): AuthProvider {
     )
   }
 
+  const endedListeners: (() => void)[] = []
+  /** True while the person signs out on purpose: not a remote sign-out. */
+  let leaving = false
+
   const refresh = async () => {
     if (!session) throw new NotAllowedError('signed out')
     const res = await call('/auth/v1/token?grant_type=refresh_token', {
@@ -198,8 +203,14 @@ export function supabaseAuth(): AuthProvider {
       body: JSON.stringify({ refresh_token: session.refresh }),
     })
     if (!res.ok) {
+      // Anything but "the session is gone" is a passing problem: keep it.
+      if (!sessionEnded(res.status))
+        throw new TryLaterError(`server ${res.status}`)
       session = null
       store(null)
+      // Only a session ended behind our back counts (not the person's own
+      // sign out).
+      if (!leaving) for (const fn of endedListeners) fn()
       throw new NotAllowedError('session ended')
     }
     session = toSession((await res.json()) as TokenReply, session)
@@ -285,14 +296,20 @@ export function supabaseAuth(): AuthProvider {
       return true
     },
 
+    onSessionEnded(fn) {
+      endedListeners.push(fn)
+    },
+
     async signOut() {
       const s = session
+      leaving = true
       // Cancel Google's long-lived token first (needs a working sign-in).
       if (s && flag())
         await revokeServerToken(await freshAccess().catch(() => s.access))
       session = null
       store(null)
       flag(false)
+      leaving = false
       if (s)
         await call('/auth/v1/logout', {
           method: 'POST',
@@ -303,6 +320,7 @@ export function supabaseAuth(): AuthProvider {
     async signOutEverywhere() {
       const s = session
       if (!s) return true
+      leaving = true
       try {
         const token = await freshAccess().catch(() => s.access)
         // Cancel Google's long-lived key first (needs a working sign-in).
@@ -316,6 +334,8 @@ export function supabaseAuth(): AuthProvider {
         if (!res.ok && ![401, 403, 404].includes(res.status)) return false
       } catch {
         return false // offline: nothing changed, the person can try again
+      } finally {
+        leaving = false
       }
       session = null
       store(null)

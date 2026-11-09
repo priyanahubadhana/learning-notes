@@ -2,6 +2,12 @@
 
 Moved out of HANDOFF on 2026-11-06 (audit) so HANDOFF stays five lines. Newest first; each paragraph names its step. The run decision (master plan) is one owner iPad pass before Sync; the Phase A builder adds its checks at the top. Tick a paragraph by deleting it.
 
+## Update check fix (9 Nov, after deploy)
+
+What it is: the version check no longer needs the offline helper to be working.
+
+1. Open the live site, Settings > About, tap Check for updates now. Check: it never says Could not check while online; if a newer version exists the app restarts by itself within a few seconds. Do this signed in to sync too.
+
 ## Design step 2: the frame (9 Nov, after deploy)
 
 What it is: the new look of the outer shell: soft violet backdrop, floating frosted sidebar, frosted bars, solid page.

@@ -10,6 +10,10 @@ import {
   UPDATE_EVERY_MS,
   UPDATE_THROTTLE_MS,
   watchForUpdates,
+  latestVersion,
+  lookForUpdate,
+  setUpdateChecker,
+  setUpdateFallback,
 } from './updates'
 
 describe('looking for updates', () => {
@@ -125,5 +129,53 @@ describe('closing the update offer', () => {
     dismissUpdateOffer()
     repeatUpdateOffer()
     expect(shown).toHaveBeenCalledTimes(1)
+  })
+})
+
+const json = (commit: unknown, ok = true) =>
+  (async () => ({
+    ok,
+    json: async () => ({ commit }),
+  })) as unknown as typeof fetch
+
+describe('version check without depending on the service worker', () => {
+  beforeEach(resetUpdates)
+
+  it('compares version.json with the built commit', async () => {
+    expect(await latestVersion('aaa', json('aaa'))).toBe('same')
+    expect(await latestVersion('aaa', json('bbb'))).toBe('newer')
+    expect(await latestVersion('aaa', json('bbb', false))).toBe('failed')
+    expect(await latestVersion('aaa', json(undefined))).toBe('failed')
+    expect(
+      await latestVersion('aaa', (async () => {
+        throw new Error('offline')
+      }) as unknown as typeof fetch),
+    ).toBe('failed')
+  })
+
+  it('offers a restart for a newer version when no service worker is set', async () => {
+    const apply = vi.fn()
+    const shown = vi.fn()
+    setUpdateFallback(apply)
+    onUpdateOffer(shown)
+    expect(await lookForUpdate(0, json('new'), 'old')).toBe('ready')
+    expect(shown).toHaveBeenCalledWith(apply)
+  })
+
+  it('is current when the commit is the same, and failed only when offline', async () => {
+    setUpdateFallback(vi.fn())
+    expect(await lookForUpdate(0, json('x'), 'x')).toBe('current')
+    const offline = (async () => {
+      throw new Error('offline')
+    }) as unknown as typeof fetch
+    expect(await lookForUpdate(0, offline, 'x')).toBe('failed')
+  })
+
+  it('still finds a newer version when registration.update() throws', async () => {
+    setUpdateFallback(vi.fn())
+    setUpdateChecker(async () => {
+      throw new Error('bad sw script')
+    })
+    expect(await lookForUpdate(0, json('new'), 'old')).toBe('ready')
   })
 })

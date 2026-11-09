@@ -116,7 +116,7 @@ describe('preparing an update', () => {
     expect(backup).not.toHaveBeenCalled()
   })
 
-  it('asks when the backup fails or the storage is low', async () => {
+  it('asks only when the storage is low; a failing backup never blocks', async () => {
     expect(await prepareUpdate({ ...ok, backup: async () => 'space' })).toEqual(
       { kind: 'backup', reason: 'space' },
     )
@@ -127,7 +127,7 @@ describe('preparing an update', () => {
           throw new Error('x')
         },
       }),
-    ).toEqual({ kind: 'backup', reason: 'error' })
+    ).toBeNull()
   })
 
   it('treats a flush that throws as unsaved when a save is still failing', async () => {

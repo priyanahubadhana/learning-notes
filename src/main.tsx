@@ -17,6 +17,8 @@ import {
   reloadWhenSafe,
   repeatUpdateOffer,
   setUpdateChecker,
+  setUpdateFallback,
+  lookForUpdate,
   watchControllerChange,
   watchForUpdates,
   watchUpdateTriggers,
@@ -151,18 +153,38 @@ const update = registerSW({
     setUpdateChecker(async () => {
       await registration?.update()
     })
-    watchForUpdates(document, () => {
-      repeatUpdateOffer()
-      noteChecked()
-      void registration?.update().catch(() => {}) // offline: try next time
-    })
-    // R6-14: also on navigation, first typing or touch, and every 10 minutes.
-    watchUpdateTriggers(window, () => {
-      noteChecked()
-      void registration?.update().catch(() => {})
-    })
   },
 })
+
+// Looking works with or without a service worker: version.json is compared
+// with this build, and a newer one is applied by the auto-update rule.
+setUpdateFallback(() => {
+  resetGestures('manual')
+  rememberPlace()
+  void restartIntoNewFiles()
+})
+const lookQuietly = () => {
+  noteChecked()
+  void lookForUpdate(4000).catch(() => {}) // offline: try next time
+}
+watchForUpdates(document, () => {
+  repeatUpdateOffer()
+  lookQuietly()
+})
+// R6-14: also on navigation, first typing or touch, and every 10 minutes.
+watchUpdateTriggers(window, lookQuietly)
+
+/** Drops the saved copy of the old files, then restarts on the live ones. */
+async function restartIntoNewFiles() {
+  try {
+    const regs = (await navigator.serviceWorker?.getRegistrations()) ?? []
+    await Promise.all(regs.map((r) => r.unregister()))
+    for (const key of (await caches?.keys()) ?? []) await caches.delete(key)
+  } catch {
+    // Restart anyway.
+  }
+  location.reload()
+}
 
 // R7-1: a new version took over this page without a restart (Update pressed
 // in another window, or the restart was missed): the old code must not keep

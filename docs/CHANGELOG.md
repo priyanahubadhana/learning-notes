@@ -2,6 +2,12 @@
 
 Current phase only. Older entries are in [ARCHIVE.md](ARCHIVE.md).
 
+## 2026-11-09 (Update check fix)
+
+- **What:** "Check for updates now" and the automatic look no longer depend on the service-worker registration. New `lookForUpdate` (src/app/updates.ts) reads /version.json (no-store, cache-busted), compares it with the built commit, also asks `registration.update()` when there is one (its errors are swallowed), and when a newer build exists with no service-worker update waiting, offers a fallback restart (drop service workers and caches, reload) that goes through the normal auto-update safe-moment rule. "Could not check" now shows only when neither version.json nor the service worker could be reached. Looks at start, on foreground, navigation, input and every 10 min now run even when registration failed. The auto-update backup step no longer blocks: a failing or slow (8 s) backup (large synced library) proceeds; only low storage or unsaved typing asks. sw.js and version.json were already no-cache in public/_headers.
+- **Why:** owner stuck on an old build; update only ran after signing out of sync. The safety copy of a big synced library failed or hung, so the update question was raised once and then held back for the session.
+- **Files:** src/app/{updates,autoUpdate}.ts, src/main.tsx, tests src/app/{updates,autoUpdate}.test.ts, e2e/versionCheck.spec.ts.
+
 ## 2026-11-09 (Design step 2: the frame)
 
 - **What:** the app frame on the new look. A fixed violet wash behind everything (`bg-wash` on the shell); a floating glass sidebar (12 px gap, radius 16) and a flat-glass strip of spaces (the icon rail: hiding the sidebar leaves it); the top bar and tool bar share ONE glass layer; the page is a solid rounded card. Phones stay edge to edge (`--frame-gap` is 0). Active rows use the soft violet tint, section labels are 11 px caps, the Review badge uses on-accent. Menus (⋯ menus, anchored menus, Quiet corner, pickers, database popovers) and the search palette use `.glass`; toasts (Undo, update, reminder) are solid surface-3; dialogs use surface-3, elev-3 and the scrim. `.glass` now lives in the components layer (utilities can adjust it) and `.glass-flat` is the same look without blur. New `src/design/glass.ts`: Settings > General > Reduce glass (Automatic or Solid) and a frame-time probe that sets `data-glass="lite"` for the session when scrolling or pointer bursts run slower than 20 ms.

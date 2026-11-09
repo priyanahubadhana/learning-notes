@@ -58,6 +58,8 @@ export function resetUpdates() {
   pending = undefined
   listeners.clear()
   dismissed = false
+  checker = undefined
+  fallback = undefined
 }
 
 // ---- "Check for updates now" (Settings › About this app) ----
@@ -85,25 +87,75 @@ export function onChecked(fn: () => void): () => void {
 }
 export const updateWaiting = (): boolean => pending !== undefined
 
-/** Asks for a new version now. 'ready' = one waits, 'current' = up to date. */
-export async function checkForUpdateNow(
-  wait = 2500,
-): Promise<'ready' | 'current' | 'failed'> {
-  if (!checker) return 'failed'
+/** Restarts into the newest files when the service worker did not (or could not). */
+let fallback: (() => void) | undefined
+export function setUpdateFallback(apply: () => void) {
+  fallback = apply
+}
+
+/**
+ * Reads /version.json (never from a cache) and compares it with the commit
+ * this page was built from. Works with or without a service worker.
+ */
+export async function latestVersion(
+  current: string,
+  get: typeof fetch = (input, init) => fetch(input, init),
+): Promise<'newer' | 'same' | 'failed'> {
   try {
-    await checker()
-    // A new version needs a moment to download before it is "waiting".
-    await new Promise((r) => setTimeout(r, wait))
-    noteChecked()
-    if (pending) {
-      dismissed = false
-      for (const fn of [...listeners]) fn(pending)
-    }
-    return pending ? 'ready' : 'current'
+    const res = await get(`/version.json?t=${Date.now()}`, {
+      cache: 'no-store',
+    })
+    if (!res.ok) return 'failed'
+    const { commit } = (await res.json()) as { commit?: unknown }
+    if (typeof commit !== 'string' || !commit) return 'failed'
+    if (current === 'unknown') return 'same'
+    return commit === current ? 'same' : 'newer'
   } catch {
     return 'failed'
   }
 }
+
+const builtCommit = () =>
+  typeof __APP_COMMIT__ === 'string' ? __APP_COMMIT__ : 'unknown'
+
+/**
+ * One look for a new version: asks the service worker (if there is one) and
+ * reads version.json. A newer version with no service-worker update waiting
+ * is offered through the fallback (clear caches, restart). Resolves
+ * 'failed' only when neither way could reach the network.
+ */
+export async function lookForUpdate(
+  wait = 2500,
+  get?: typeof fetch,
+  current: string = builtCommit(),
+): Promise<'ready' | 'current' | 'failed'> {
+  let swFailed = !checker
+  const [latest] = await Promise.all([
+    latestVersion(current, get),
+    checker
+      ? checker().catch(() => {
+          swFailed = true
+        })
+      : undefined,
+  ])
+  if (latest === 'failed' && swFailed) return 'failed'
+  if (latest === 'newer' && !pending) {
+    // The service worker may still be fetching the new files.
+    await new Promise((r) => setTimeout(r, wait))
+    if (!pending && fallback) offerUpdate(fallback)
+  } else if (checker && !swFailed) {
+    await new Promise((r) => setTimeout(r, wait))
+  }
+  noteChecked()
+  if (pending) {
+    dismissed = false
+    for (const fn of [...listeners]) fn(pending)
+  }
+  return pending ? 'ready' : 'current'
+}
+
+/** "Check for updates now": 'ready' = one waits, 'current' = up to date. */
+export const checkForUpdateNow = lookForUpdate
 
 // ---- A clean restart when the new version takes over (R7-1) ----
 

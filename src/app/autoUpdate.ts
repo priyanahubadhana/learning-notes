@@ -17,6 +17,8 @@ export const IDLE_MS = 1500
 /** Right after coming to the front, with nothing touched yet. */
 export const FOREGROUND_MS = 1500
 export const POLL_MS = 500
+/** The longest the update waits for its backup. */
+export const BACKUP_MAX_MS = 8000
 
 /** What the app is doing right now. */
 export interface Moment {
@@ -64,13 +66,19 @@ export async function prepareUpdate(
     // The saver reports its own failure; hasUnsaved below sees it.
   }
   if (d.hasUnsaved()) return { kind: 'unsaved' }
+  // A slow or failing backup (a big synced library) never blocks updating:
+  // the notes stay in this browser's database across the restart, and a
+  // database upgrade takes its own backup. Only "storage is low" is asked.
   let backup: 'ok' | 'space' | 'error'
   try {
-    backup = await d.backup()
+    backup = await Promise.race([
+      d.backup(),
+      new Promise<'error'>((r) => setTimeout(() => r('error'), BACKUP_MAX_MS)),
+    ])
   } catch {
     backup = 'error'
   }
-  return backup === 'ok' ? null : { kind: 'backup', reason: backup }
+  return backup === 'space' ? { kind: 'backup', reason: 'space' } : null
 }
 
 /**

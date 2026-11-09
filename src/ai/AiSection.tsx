@@ -1,3 +1,4 @@
+import { onPrefChangedExternally } from '../app/uiPrefs'
 import { useEffect, useState } from 'react'
 import { usePref } from '../app/usePref'
 import type { LearningNotesDB } from '../core/db'
@@ -43,6 +44,15 @@ export function AiSection({
     AI_KEYS.keyFor,
     isStringMap,
     {},
+  )
+  // A limit that arrived from another device replaces what the box shows.
+  const [capFrom, setCapFrom] = useState(0)
+  useEffect(
+    () =>
+      onPrefChangedExternally((k) => {
+        if (k === AI_KEYS.cap) setCapFrom((n) => n + 1)
+      }),
+    [],
   )
   const [keys, setKeys] = useState(() => listKeys())
   const [, bump] = useState(0)
@@ -122,7 +132,7 @@ export function AiSection({
       <label className="flex flex-col gap-1 text-sm">
         {t('ai.cap', { currency: code })}
         <input
-          key={code + readCostCurrency().rates[code]}
+          key={`${code}${readCostCurrency().rates[code]}-${capFrom}`}
           type="number"
           min={0}
           step="any"

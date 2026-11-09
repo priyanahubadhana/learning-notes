@@ -26,7 +26,7 @@ import {
   openSettingsNotice,
   undoSettingsNotice,
   watchSettingsNotice,
-} from './settingsNotice'
+} from './settingsNoticeState'
 
 function fakeStorage() {
   const m = new Map<string, string>()

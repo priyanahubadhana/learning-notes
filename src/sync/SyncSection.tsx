@@ -6,6 +6,7 @@ import { checkDevice } from './deviceCheck'
 import { SyncDot } from './SyncDot'
 import { ArrivalNotice, UnlockForm } from './UnlockForm'
 import { RecoveryCodeView } from './RecoveryCodeView'
+import { WhatSyncs } from '../settings/WhatSyncs'
 import {
   dismissArrival,
   dismissMerged,
@@ -85,6 +86,7 @@ export function SyncSection({ db }: { db: LearningNotesDB }) {
           )}
         </>
       )}
+      <WhatSyncs db={db} signedIn={status.phase !== 'signedOut'} />
       <p className="text-xs text-muted">{t('sync.privacy')}</p>
       <DeviceCheck />
     </section>

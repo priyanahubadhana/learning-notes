@@ -98,15 +98,16 @@ if (slowMomentsWanted()) setSlowMomentsOn(true)
 // Settings that follow you start first, so a change made while signed out
 // is ready to travel and sync never sees a half-set-up list.
 const startSettings = (async () => {
-  const [mirror, migration, notice] = await Promise.all([
+  const [mirror, migration, notice, noticeView] = await Promise.all([
     import('./settings/settingsMirror'),
     import('./settings/settingsMigration'),
-    import('./settings/settingsNotice'),
+    import('./settings/settingsNoticeState'),
+    import('./settings/settingsNoticeMount'),
   ])
   if (await migration.migrateSettings(db)) notice.openSettingsNotice()
   mirror.startSettingsMirror(db)
   notice.watchSettingsNotice()
-  notice.mountSettingsNotice()
+  noticeView.mountSettingsNotice()
 })().catch(() => undefined)
 if (
   isTracking() ||

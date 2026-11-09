@@ -18,6 +18,7 @@ import {
 import { pushRouteParts, useRouteParts } from '../app/router'
 import { settingsRegistry } from './builtinSettings'
 import type { SettingControl, SettingDefinition } from './registry'
+import { SettingSyncBadge } from './SettingSyncBadge'
 import { getSetting, setSetting } from './settingsService'
 import { useDeviceSetting, useSyncedSetting } from './useSetting'
 import { AboutSection } from './AboutSection'
@@ -343,8 +344,6 @@ function RowLayout({
       const cat = settingsRegistry.categories().find((x) => x.id === c)
       return cat ? t(cat.labelKey) : c
     })
-  const synced = definition.scope === 'synced'
-
   return (
     <section
       data-setting-id={definition.id}
@@ -355,16 +354,7 @@ function RowLayout({
         <h2 id={labelId} className="font-semibold">
           {t(definition.labelKey)}
         </h2>
-        <span
-          title={t(
-            synced
-              ? 'settings.scope.synced.hint'
-              : 'settings.scope.device.hint',
-          )}
-          className="rounded-full border border-line px-2 text-[11px] text-muted"
-        >
-          {t(synced ? 'settings.scope.synced' : 'settings.scope.device')}
-        </span>
+        <SettingSyncBadge definition={definition} />
       </div>
       <p id={descId} className="mt-0.5 text-[13px] text-muted">
         {t(definition.descriptionKey)}

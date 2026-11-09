@@ -271,7 +271,7 @@ export function resetToSynced(id: string) {
 }
 
 /** "Use this device's value everywhere": it becomes the account's value. */
-export async function useThisDeviceEverywhere(id: string) {
+export async function shareThisDeviceValue(id: string) {
   const value = await effective(id)
   if (value === undefined || !db || looksLikeSecret(value)) return
   clearOverrides([id])

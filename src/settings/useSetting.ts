@@ -9,13 +9,16 @@ import {
   subscribeDeviceSettings,
   writeDeviceSetting,
 } from './settingsService'
+import { subscribeSyncPrefs, syncPrefsEpoch } from './syncPrefs'
 
 /** A synced setting's live value (undefined while loading). */
 export function useSyncedSetting<T extends JsonValue>(
   db: LearningNotesDB,
   definition: SettingDefinition<T>,
 ): T | undefined {
-  return useLiveQuery(() => getSetting(db, definition), [db, definition])
+  // A group switch or an override changes what is read (not a database row).
+  const epoch = useSyncExternalStore(subscribeSyncPrefs, syncPrefsEpoch)
+  return useLiveQuery(() => getSetting(db, definition), [db, definition, epoch])
 }
 
 /** A device setting's value and setter; every user of it stays in step. */

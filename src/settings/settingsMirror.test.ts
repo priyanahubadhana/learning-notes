@@ -21,7 +21,7 @@ import {
   setGroupOn,
   startSettingsMirror,
   stopSettingsMirror,
-  useThisDeviceEverywhere,
+  shareThisDeviceValue,
 } from './settingsMirror'
 import {
   clearDeviceSettingsCache,
@@ -203,7 +203,7 @@ describe('overrides and group switches (step 5)', () => {
     await settle()
     await keepOnThisDevice(theme.id)
     writeDeviceSetting(theme, 'sepia')
-    await useThisDeviceEverywhere(theme.id)
+    await shareThisDeviceValue(theme.id)
     expect(hasOverride(theme.id)).toBe(false)
     expect((await a.settings.get(theme.id))?.value).toBe('sepia')
   })

@@ -56,7 +56,6 @@ function Button({
       data-chrome
       data-testid={testId}
       aria-label={label}
-      title={label}
       aria-pressed={pressed}
       disabled={disabled}
       onClick={onClick}

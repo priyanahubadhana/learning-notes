@@ -131,7 +131,7 @@ function Pill({
         const el = ref.current
         if (!el) return
         const at = clampInside(x, y, size, room)
-        el.style.transform = `translate3d(${at.x}px, ${at.y}px, 0)`
+        el.style.transform = `translate3d(${Math.round(at.x)}px, ${Math.round(at.y)}px, 0)`
         const edge = nearestEdge(at.x, at.y, size, room)
         setHot((old) => (old === edge ? old : edge))
       })
@@ -167,7 +167,7 @@ function Pill({
       el.style.transition = reducedMotion()
         ? 'none'
         : 'transform 220ms cubic-bezier(0.22, 1, 0.36, 1)'
-      el.style.transform = `translate3d(${target.x}px, ${target.y}px, 0)`
+      el.style.transform = `translate3d(${Math.round(target.x)}px, ${Math.round(target.y)}px, 0)`
       window.setTimeout(() => {
         if (ref.current) ref.current.style.transition = ''
       }, 260)
@@ -211,8 +211,7 @@ function Pill({
             data-edge={place.edge}
             data-dragging={dragging || undefined}
             style={{
-              transform: `translate3d(${pos.x}px, ${pos.y}px, 0)`,
-              willChange: 'transform',
+              transform: `translate3d(${Math.round(pos.x)}px, ${Math.round(pos.y)}px, 0)`,
               // Measured first, then shown: never a flash in the wrong place.
               visibility: size.width > 0 ? 'visible' : 'hidden',
               touchAction: 'none',

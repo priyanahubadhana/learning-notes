@@ -6,6 +6,9 @@ import {
   readingRulerSetting,
 } from '../../settings/readingSettings'
 import { AppUiContext } from '../appUi'
+import { runHistory } from '../../editor/historyActions'
+import { currentRunner } from '../tools/toolRuntime'
+import { useReaderHistory } from './useReaderHistory'
 import { MenuPopover, type MenuItem } from '../ui'
 import { Icon, type IconName } from '../tools/icons'
 import {
@@ -28,13 +31,14 @@ import { readingPanel, type ReadingPanelName } from './useReadingSettings'
  */
 
 const BUTTON =
-  'grid size-11 shrink-0 place-items-center rounded-xl hover:bg-black/10 aria-pressed:bg-black/10'
+  'grid size-11 shrink-0 place-items-center rounded-xl hover:bg-black/10 aria-pressed:bg-black/10 disabled:text-[var(--rd-soft,#999)]'
 
 function Button({
   label,
   icon,
   onClick,
   pressed,
+  disabled,
   testId,
   children,
 }: {
@@ -42,6 +46,7 @@ function Button({
   icon?: IconName
   onClick: (e: React.MouseEvent<HTMLButtonElement>) => void
   pressed?: boolean
+  disabled?: boolean
   testId?: string
   children?: ReactNode
 }) {
@@ -51,7 +56,9 @@ function Button({
       data-chrome
       data-testid={testId}
       aria-label={label}
+      title={label}
       aria-pressed={pressed}
+      disabled={disabled}
       onClick={onClick}
       className={BUTTON}
     >
@@ -75,6 +82,7 @@ export function ReaderControls({
   const { toast } = useContext(AppUiContext)
   const panel = readingPanel.useValue()
   const locked = readingLocked.useValue()
+  const history = useReaderHistory()
   const [ruler] = useDeviceSetting(readingRulerSetting)
   const [blanks] = useDeviceSetting(readingBlanksSetting)
   const [menu, setMenu] = useState<DOMRect | null>(null)
@@ -122,7 +130,7 @@ export function ReaderControls({
           data-chrome
           aria-label={t('reading.ctl.exit')}
           onClick={exit}
-          className="grid size-11 place-items-center rounded-full opacity-70 hover:opacity-100"
+          className="grid size-11 place-items-center rounded-full border border-[var(--rd-soft,#ccc)]"
           style={{
             background: 'var(--rd-bg, #fff)',
             color: 'var(--rd-fg, #000)',
@@ -140,7 +148,7 @@ export function ReaderControls({
       data-testid="reader-controls"
       role="toolbar"
       aria-label={t('reading.ctl.label')}
-      className="fixed inset-x-0 top-0 z-[38] flex items-center gap-0.5 border-b px-2 pt-[env(safe-area-inset-top)]"
+      className="fixed inset-x-0 top-0 z-[38] flex min-h-[calc(3.25rem+env(safe-area-inset-top))] items-center gap-0.5 border-b px-2 pt-[env(safe-area-inset-top)]"
       style={{
         background: 'var(--rd-bg, #fff)',
         color: 'var(--rd-fg, #000)',
@@ -152,6 +160,26 @@ export function ReaderControls({
         icon="close"
         testId="reader-exit"
         onClick={exit}
+      />
+      <Button
+        label={t('tool.undo')}
+        icon="undo"
+        testId="reader-undo"
+        disabled={!history.canUndo}
+        onClick={() => {
+          const ed = currentRunner().editor
+          if (ed) runHistory(ed as never, 'undo')
+        }}
+      />
+      <Button
+        label={t('tool.redo')}
+        icon="redo"
+        testId="reader-redo"
+        disabled={!history.canRedo}
+        onClick={() => {
+          const ed = currentRunner().editor
+          if (ed) runHistory(ed as never, 'redo')
+        }}
       />
       <Button
         label={t('reading.ctl.contents')}

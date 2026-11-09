@@ -393,7 +393,7 @@ export function ReadingFrame({
       {view === 'inPlace' && (
         <div
           aria-hidden
-          style={{ height: 'calc(44px + env(safe-area-inset-top))' }}
+          style={{ height: 'calc(52px + env(safe-area-inset-top))' }}
         />
       )}
       <div style={pagedFrame}>

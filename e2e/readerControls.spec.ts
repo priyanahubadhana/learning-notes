@@ -47,7 +47,7 @@ test('reading hides the main bar and shows the same controls in both views', asy
     'Reading look (Aa)',
     'Find',
     'Listen',
-    'Edit',
+    'Edit page',
     'More reading options',
   ]
   for (const name of names) {
@@ -56,13 +56,13 @@ test('reading hides the main bar and shows the same controls in both views', asy
   // Full screen has the same controls, minus Edit (it is in place only).
   await (await moreItem(page, 'Full screen')).click()
   await expect(frame(page)).toHaveAttribute('data-view', 'reader')
-  for (const name of names.filter((n) => n !== 'Edit')) {
+  for (const name of names.filter((n) => n !== 'Edit page')) {
     await expect(barTool(page, name), name).toBeVisible()
   }
-  await expect(barTool(page, 'Edit')).toHaveCount(0)
+  await expect(barTool(page, 'Edit page')).toHaveCount(0)
   // ✎ Edit in place leaves reading and brings the main bar back.
   await (await moreItem(page, 'Back to the page')).click()
-  await barTool(page, 'Edit').click()
+  await barTool(page, 'Edit page').click()
   await expect(frame(page)).toHaveAttribute('data-view', 'off')
   await expect(page.locator('[data-main-bar]')).toBeVisible()
 })

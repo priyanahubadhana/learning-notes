@@ -160,8 +160,7 @@ function Strip({ editor }: { editor: Editor }) {
       data-pill-root
       data-edge={place.edge}
       style={{
-        transform: `translate3d(${at.x}px, ${at.y}px, 0)`,
-        willChange: 'transform',
+        transform: `translate3d(${Math.round(at.x)}px, ${Math.round(at.y)}px, 0)`,
         visibility: size.width > 0 ? 'visible' : 'hidden',
         touchAction: 'none',
         transition:

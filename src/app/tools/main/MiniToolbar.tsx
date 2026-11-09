@@ -435,8 +435,8 @@ export function MiniToolbar({ editor }: { editor: Editor }) {
         data-pill-root
         data-pinned={pinned || undefined}
         style={{
-          left: at.left,
-          top: at.top,
+          left: Math.round(at.left),
+          top: Math.round(at.top),
           transform: 'translateX(-50%)',
           width: 'max-content',
           maxWidth: area.right - area.left - 16,

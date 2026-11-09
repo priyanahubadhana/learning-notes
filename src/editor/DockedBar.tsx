@@ -275,7 +275,7 @@ function Bar({ editor, slot }: { editor: Editor; slot: HTMLElement }) {
   }
 
   const pillClass = (place: Place) =>
-    `${place === 'free' ? 'mx-0' : 'mx-3'} my-1 items-center rounded-2xl border border-line bg-bg px-1.5 py-0.5 shadow-[0_1px_2px_rgba(0,0,0,0.05),0_6px_18px_rgba(0,0,0,0.07)] supports-[backdrop-filter]:bg-bg/80 supports-[backdrop-filter]:backdrop-blur-xl`
+    `${place === 'free' ? 'mx-0' : 'mx-3'} my-1 items-center rounded-2xl border border-line bg-bg px-1.5 py-0.5 shadow-[0_1px_2px_rgba(0,0,0,0.05),0_6px_18px_rgba(0,0,0,0.07)]`
 
   const focusHandlers = {
     onFocus: () => setFocusInBar(true),

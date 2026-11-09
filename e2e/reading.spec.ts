@@ -75,7 +75,7 @@ test('📖 Read turns the page into Reading mode in place, with the Read tools',
     'Bookmarks',
     'Listen',
     'Find',
-    'Edit',
+    'Edit page',
     'More reading options',
     'Exit reading',
   ]) {

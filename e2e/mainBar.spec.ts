@@ -327,12 +327,14 @@ test('Read: one tap enters Reading mode; the reader controls replace the bar', a
     .evaluateAll((els) => els.map((el) => el.getAttribute('aria-label')))
   expect(names).toEqual([
     'Exit reading',
+    'Undo',
+    'Redo',
     'Contents',
     'Bookmarks',
     'Reading look (Aa)',
     'Find',
     'Listen',
-    'Edit',
+    'Edit page',
     'More reading options',
   ])
   // Aa: a sheet with Font, Layout, Themes and More.

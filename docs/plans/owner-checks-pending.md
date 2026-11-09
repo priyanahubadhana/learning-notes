@@ -2,6 +2,17 @@
 
 Moved out of HANDOFF on 2026-11-06 (audit) so HANDOFF stays five lines. Newest first; each paragraph names its step. The run decision (master plan) is one owner iPad pass before Sync; the Phase A builder adds its checks at the top. Tick a paragraph by deleting it.
 
+## Ink scrolls with the page (9 Nov, iPad)
+
+What it is: the ink now lives inside the page, so the browser scrolls it with the words (before, the app re-placed it on every scroll, which stuttered on big pages and could drift over the tool bar).
+
+1. Open a long page with ink on it (a big pasted page with a few drawings is best). Scroll with one finger, slowly then fast: the ink moves exactly with its words, no lag, no flicker, no blank patch. Compare with the feel from before: it should be as smooth as a page with no ink.
+2. Pull the page past its top and past its bottom (rubber band) with Pen, Lasso and Text tools: the ink never lands over the tool bar or the ribbon, and never trails behind the words.
+3. Zoom the paper (pinch out to 73 %, in to 150 %, release): the ink stays on the same words at every zoom, also during the spring back.
+4. Draw while the page is partly scrolled, then scroll away and back: the new stroke is still on its words. Lasso a stroke, drag it, scroll: fine. Erase and highlight: fine.
+5. A book (PDF page) with ink: scroll the pages; ink stays on its page.
+6. Tell the builder if you ever see a blank patch where ink should be after a very fast flick; the fix is a larger margin.
+
 ## Drive stays connected (9 Nov) - owner setup, about 10 minutes
 
 What it is: today the app asks Google for a new one-hour Drive pass in the browser, and that fails after long idle or on Safari, so "Reconnect Drive" appears. This setup lets a small server step (free) keep a long-lasting Google key for you, locked, and hand the app a new pass whenever it needs one. After it, the bar should appear only if you remove the app's access in your Google account or change your Google password. Until you finish, the old way keeps working.

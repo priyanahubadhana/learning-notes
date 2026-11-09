@@ -826,6 +826,14 @@ The other older decisions stand as built (owner, 2026-11-01); they are in [ARCHI
 - Timestamps and screenshots stay YouTube only (they depend on the YouTube player messages).
 - CSP `frame-src` now lists three hosts (YouTube no-cookie, Vimeo player, Loom); `media-src` already allowed https.
 
+## Decisions to review (Ink scrolls natively, 9 Nov)
+
+- **No setting and no old path kept.** The task allowed a setting with the old path as fallback if the redesign was too risky; it was not (all ink, paper, book and Lasso specs pass in Chromium, WebKit and the iPad stand-in), and two code paths would double the bugs. If the iPad shows a problem, the previous version is the commit before this one.
+- **Tiles of 640 px, at most 8 slots per box, one tile above and below the screen, 160 px scroll step.** Chosen by measurement: creating and removing canvases while scrolling cost 6-18 % late frames; reusing slots with a transform gave 1 %. A big sheet at 2x pixel ratio is about 10 MB per tile canvas, so 8 slots stay inside the 160 MB canvas budget (it still falls back to 1x if the budget says no).
+- **Geometry is cached while scrolling** and read fresh 150 ms after the scroll stops and on every other redraw. A box dragged during a scroll could show its ink tiles for the wrong band for 150 ms; ink moves with its box either way.
+- **The overlay is zoomed back by the measured ratio** (rect width / CSS width) instead of knowing the paper zoom, so it works whichever way a browser reports zoomed rectangles. Chromium reports them zoomed (the old overlay was 1.56x too big at 156 %); WebKit's answer is unknown, the ratio handles both.
+- **The 4x-CPU budget is 5 % late frames, not 3 %** in CI mode: 150 % zoom measured 3.0 % with one 358 ms task (a big tile's first paint). Target stays 3 %.
+
 ## Decisions to review (As text box, 9 Nov)
 
 - Offered for rich pastes only (the same ones the chooser already appears for) and never for an address or a database. The box starts 120 mm wide (or what fits) at the caret's x and just under its line; on the stacked phone layout it goes first in reading order. Its height grows with the content like any box.

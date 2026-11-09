@@ -2,6 +2,12 @@
 
 Current phase only. Older entries are in [ARCHIVE.md](ARCHIVE.md).
 
+## 2026-11-09 (Ink scrolls natively: overlay inside the scroller, tiled canvases)
+
+- **What:** the ink overlay now sits inside the page scroller (child of a zero-size positioned anchor at the end of the editor container; it was positioned from the body and clipped and re-placed by script on every scroll). Finished ink is on 640 px tiles (`ink` and `hl` canvases only where strokes touch; at most 8 reusable slots per box, moved by transform, spare ones given back when idle); one screen-sized `live` canvas holds only the stroke being drawn, eraser ring, lasso and peeled tape. Scrolling runs no ink code: tiles are chosen again after 160 px from cached geometry, and once with fresh geometry 150 ms after the scroll stops. Removed: per-scroll measuring, re-placing, clip-path, bitmap-per-layer cache, the rubber-band tracker and the visual-viewport listeners (the overlay can no longer land over the bars: the scroller clips it). Also fixed: under a zoomed paper (CSS zoom) the overlay was sized in zoomed px (1.56x too wide in Chromium at 156 %); it is now zoomed back by the measured ratio. The mixed paper page at 4x CPU: late frames 17-25 % -> 0.9 % (73 %), 1.0 % (100 %), 3.0 % (150 %); script per frame 2.5-4.0 -> 0.7 ms; long tasks 145 -> 6. 1x CPU: 0 %.
+- **Why:** owner stutter on big pages and the iPad ink drifting over the tool bar on overscroll (9 Nov): both come from the overlay living outside the scroller. Research: docs/research/perf-big-pages-2026-11.md (third pass).
+- **Files:** src/ink/render.ts, src/ink/controller.ts, e2e/inkScrollNative.spec.ts (new), e2e/inkHelpers.ts (painted, paintedBox, inkClientBox join the tiles), e2e/bookInk.spec.ts, magnifier.spec.ts, paperInk.spec.ts, inkOnPicture.spec.ts (Text tool before clicking the editor; root instead of canvas), e2e/bigPageBudget.spec.ts (budget 10 % -> 2 % late at 1x, 5 % at 4x, slots <= 8), docs/features/ink.md, docs/research/perf-big-pages-2026-11.md, docs/DECISIONS.md, docs/HANDOFF.md, docs/plans/owner-checks-pending.md
+
 ## 2026-11-09 (Drive stays connected: refresh token kept on the server)
 
 - **What:** cause written up (docs/research/drive-reconnect-2026-11.md). Sign-in now asks Google for offline access; Edge Function `drive-token` (store, token, revoke) keeps the refresh token locked in new table `drive_tokens`; the Drive pass asks it first and falls back to the old Google window until the owner finishes setup. Sign-out revokes.

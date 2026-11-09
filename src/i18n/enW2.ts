@@ -65,7 +65,7 @@ export const enW2 = {
   'reading.ctl.aa': 'Reading look (Aa)',
   'reading.ctl.find': 'Find',
   'reading.ctl.listen': 'Listen',
-  'reading.ctl.edit': 'Edit',
+  'reading.ctl.edit': 'Edit page',
   'reading.ctl.more': 'More reading options',
   'reading.ctl.lock': 'Lock to reading',
   'reading.ctl.lineFocus': 'Line focus',

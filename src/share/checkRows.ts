@@ -100,6 +100,9 @@ const notebook: Fields<Notebook> = {
   tabs: objectList,
   pageTabs: textList,
   view: oneOf('shelf', 'tabs'),
+  colour: (v) => typeof v === 'string' && /^#[0-9a-f]{6}$/i.test(v),
+  cover: oneOf('page'),
+  starred: yes,
   tabViews: (v) =>
     object(v) &&
     Object.values(v as Record<string, unknown>).every((x) =>

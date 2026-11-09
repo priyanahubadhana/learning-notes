@@ -212,7 +212,7 @@ export function PageTree({
                 type="button"
                 onClick={() => onOpen(page.id)}
                 onDoubleClick={() => startRename(page)}
-                className="line-clamp-2 min-w-[5rem] flex-1 text-left break-words"
+                className={`line-clamp-2 min-w-[5rem] flex-1 text-left break-words ${active ? '' : 'text-ink-soft'}`}
               >
                 {page.locked && (
                   <Icon name="lock" size={13} className="me-1 inline" />

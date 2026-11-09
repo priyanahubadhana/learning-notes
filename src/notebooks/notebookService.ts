@@ -219,3 +219,29 @@ export async function updateNotebookTab(
     })
   })
 }
+/** Pins a notebook to the top of the Notebooks home (or unpins it). */
+export async function setNotebookStarred(
+  db: LearningNotesDB,
+  id: string,
+  starred: boolean,
+): Promise<void> {
+  await db.transaction('rw', db.notebooks, async () => {
+    await getLive(db.notebooks, id)
+    await db.notebooks.update(id, {
+      starred: starred ? true : undefined,
+      updatedAt: Date.now(),
+    })
+  })
+}
+
+/** Sets a notebook cover: its colour and/or the first page as the cover. */
+export async function setNotebookCover(
+  db: LearningNotesDB,
+  id: string,
+  change: { colour?: string; cover?: 'page' | undefined },
+): Promise<void> {
+  await db.transaction('rw', db.notebooks, async () => {
+    await getLive(db.notebooks, id)
+    await db.notebooks.update(id, { ...change, updatedAt: Date.now() })
+  })
+}

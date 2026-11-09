@@ -1,0 +1,20 @@
+/** English text of the Notebooks home (late-loaded, with enO.ts). */
+export const enNbh = {
+  'nbh.title': 'Notebooks',
+  'nbh.new': 'New notebook',
+  'nbh.layout': 'Layout',
+  'nbh.layout.shelf': 'Shelf',
+  'nbh.layout.list': 'List',
+  'nbh.today': 'Today',
+  'nbh.yesterday': 'Yesterday',
+  'nbh.due': '{n} due',
+  'nbh.starNamed': 'Pin {name}',
+  'nbh.unstarNamed': 'Unpin {name}',
+  'nbh.star': 'Pin to the top',
+  'nbh.unstar': 'Unpin',
+  'nbh.menu': 'Options for {name}',
+  'nbh.cover.page': 'Show the first page as the cover',
+  'nbh.cover.colour': 'Show a colour cover',
+  'nbh.colour.next': 'Change colour',
+  'nbh.blankPage': 'Empty page',
+}

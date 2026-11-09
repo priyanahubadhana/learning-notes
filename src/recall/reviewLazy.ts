@@ -18,3 +18,6 @@ export const failCounts = (...a: Parameters<Review['failCounts']>) =>
 
 export const wrongCardIds = (...a: Parameters<Review['wrongCardIds']>) =>
   review().then((m) => m.wrongCardIds(...a))
+
+export const dueByNotebook = (...a: Parameters<Review['dueByNotebook']>) =>
+  review().then((m) => m.dueByNotebook(...a))

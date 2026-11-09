@@ -2,6 +2,10 @@
 
 Moved out of HANDOFF on 2026-11-06 (audit) so HANDOFF stays five lines. Newest first; each paragraph names its step. The run decision (master plan) is one owner iPad pass before Sync; the Phase A builder adds its checks at the top. Tick a paragraph by deleting it.
 
+## Notebooks home (9 Nov)
+
+On the iPad and iPhone: tap the Notebooks icon (on the phone, tap it twice if the list slides in first). You see a shelf of covers with the notebook name, when you last opened it and how many cards are due. (1) Tap a star: the notebook jumps to the front. (2) Tap ⋯ on a cover: choose "Show the first page as the cover" and back, and "Change colour". (3) Switch Shelf / List. (4) Tap the dashed "+" or "New notebook": a new notebook starts. (5) Turn the iPad round: covers re-flow, nothing overlaps. (6) In the sidebar each notebook has a coloured tile, a bold name and a small number for cards due. Why human: touch feel and real screen sizes.
+
 ## iPad Lasso text selection (9 Nov)
 
 On the iPad: Lasso with Text on, loop around a few words. The words get the dashed amber outline and our pill shows; Apple's Cut / Copy / Paste / Select All menu must NOT appear. Try Copy and Cut on our pill (they must work), then tap empty paper: the outline and pill go and no Apple menu is left. In Text (typing) mode a finger long-press still shows the normal Apple menu. Why human: iPadOS menus only show on a real device.

@@ -36,7 +36,6 @@ import { THEMES, applyTheme } from './app/theme'
 import { setGlassLite, startGlassProbe } from './design/glass'
 import { ThemeContext } from './app/themeContext'
 import type { ToastAction } from './app/appUi'
-import { altShortcutLabel } from './app/keys'
 import { toggleFavourite } from './app/favourites'
 import { SpaceStrip } from './app/spaces/SpaceStrip'
 import { QuietCorner } from './app/spaces/QuietCorner'
@@ -105,6 +104,7 @@ import {
   renamePage,
 } from './pages/pageService'
 import { pageForNotebook, rememberNotebookPage } from './notebooks/lastPage'
+import { touchNotebookOpened } from './notebooks/notebookLook'
 import { LazyNameSheet } from './app/LazyNameSheet'
 import { touchUi } from './app/touchUi'
 import { BackupReminder } from './share/ReminderBar'
@@ -208,6 +208,11 @@ const PageView = lazy(() =>
 const LibraryScreen = lazy(() =>
   import('./library/LibraryScreen').then((m) => ({
     default: m.LibraryScreen,
+  })),
+)
+const NotebooksHome = lazy(() =>
+  import('./notebooks/NotebooksHome').then((m) => ({
+    default: m.NotebooksHome,
   })),
 )
 const BookReader = lazy(() =>
@@ -441,6 +446,7 @@ function App() {
   )
   /** Opens a notebook's tabs (Notes · Database · Cards). */
   const openNotebookTabs = (id: string) => {
+    touchNotebookOpened(id)
     setHub(null)
     setShowSettings(false)
     setReviewScope(null)
@@ -729,8 +735,10 @@ function App() {
 
   // R6-12: each notebook remembers the page last open in it (this device).
   useEffect(() => {
-    if (currentPage && !currentPage.databaseId)
+    if (currentPage && !currentPage.databaseId) {
       rememberNotebookPage(currentPage.notebookId, currentPage.id)
+      touchNotebookOpened(currentPage.notebookId)
+    }
   }, [currentPage?.id, currentPage?.notebookId]) // eslint-disable-line react-hooks/exhaustive-deps
 
   // No backup file for a week: a gentle reminder (not while reviewing).
@@ -750,6 +758,13 @@ function App() {
   const chooseSpace = (next: Space) => {
     setLastSpace(next)
     if (next === 'home' || next === 'library') {
+      setDrawerAt(null)
+      openPage(null)
+    } else if (
+      next === 'notebooks' &&
+      (space === 'notebooks' || !matchMedia(PHONE_SCREEN).matches)
+    ) {
+      // The Notebooks icon opens the shelf (on a phone, from another space it opens the list).
       setDrawerAt(null)
       openPage(null)
     } else if (matchMedia(PHONE_SCREEN).matches) setDrawerAt(routeHash)
@@ -1815,11 +1830,12 @@ function App() {
                           onAction={() => runTask(createNotebookAndOpen())}
                         />
                       ) : currentPage === null ? (
-                        <p className="mt-[30vh] text-center text-muted">
-                          {t('app.empty.select', {
-                            key: altShortcutLabel('N'),
-                          })}
-                        </p>
+                        <NotebooksHome
+                          db={db}
+                          notebooks={notebooks}
+                          onOpen={(id) => openNotebook(id)}
+                          onCreate={() => runTask(createNotebookAndOpen())}
+                        />
                       ) : null}
                     </Suspense>
                   </ErrorBoundary>

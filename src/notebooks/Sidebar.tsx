@@ -40,7 +40,8 @@ import { useRowPalmGuard } from '../app/useRowPalmGuard'
 import { touchUi } from '../app/touchUi'
 import { useLongPress } from '../app/useLongPress'
 import type { ReviewScope } from '../recall/reviewService'
-import { countDue } from '../recall/reviewLazy'
+import { countDue, dueByNotebook } from '../recall/reviewLazy'
+import { notebookColour, shortLabel } from './notebookLook'
 import { deleteNotebook, moveNotebook, renameNotebook } from './notebookService'
 import { Icon } from '../app/tools/icons'
 
@@ -203,6 +204,12 @@ export function Sidebar({
     // card is added or rescheduled outside the "due by now" range.
     await db.cards.count()
     return countDue(db, Date.now())
+  }, [db, minute])
+
+  // Cards due in each notebook (the small badge on its row).
+  const dueIn = useLiveQuery(async () => {
+    await db.cards.count()
+    return dueByNotebook(db, Date.now())
   }, [db, minute])
 
   const openAddMenu = (
@@ -506,7 +513,7 @@ export function Sidebar({
                         setDragId(null)
                         setDropTarget(null)
                       }}
-                      className={`group @container flex min-h-9 items-center gap-1.5 rounded-md px-2 py-1 text-sm hover:bg-hover ${line} ${
+                      className={`group @container flex min-h-9 items-center gap-1.5 rounded-lg px-2 py-1 text-sm hover:bg-hover ${line} ${
                         openNotebookId === notebook.id ? 'bg-accent-soft' : ''
                       } ${dragId === notebook.id ? 'opacity-40' : ''}`}
                     >
@@ -518,6 +525,16 @@ export function Sidebar({
                       >
                         {open ? '▾' : '▸'}
                       </button>
+                      {!notebook.kind && (
+                        <span
+                          aria-hidden
+                          data-notebook-tile
+                          className="grid size-6 shrink-0 place-items-center rounded-lg text-[10px] leading-none font-bold text-white"
+                          style={{ background: notebookColour(notebook) }}
+                        >
+                          {shortLabel(displayName(sampleName(notebook)) || '·')}
+                        </span>
+                      )}
                       {renamingNotebookId === notebook.id && !touch ? (
                         <RenameInput
                           initial={notebook.title}
@@ -547,7 +564,7 @@ export function Sidebar({
                                 : undefined
                             }
                             onDoubleClick={() => rename(notebook)}
-                            className="line-clamp-2 flex-1 text-left font-semibold break-words"
+                            className="line-clamp-2 flex-1 text-left font-bold break-words"
                           >
                             {notebook.locked && (
                               <Icon
@@ -567,6 +584,16 @@ export function Sidebar({
                               t('review.untitled')}
                           </button>
                         </NotebookTip>
+                      )}
+                      {!notebook.kind && (dueIn?.get(notebook.id) ?? 0) > 0 && (
+                        <span
+                          aria-label={t('review.dueCount', {
+                            count: dueIn?.get(notebook.id) ?? 0,
+                          })}
+                          className="rounded-full bg-accent px-1.5 text-[11px] leading-5 font-semibold text-on-accent tabular-nums group-hover:hidden any-pointer-coarse:inline"
+                        >
+                          {dueIn?.get(notebook.id)}
+                        </span>
                       )}
                       <RowMenuButton
                         name={sampleName(notebook)}

@@ -101,6 +101,12 @@ export interface Notebook extends BaseRecord {
   view?: 'shelf' | 'tabs'
   /** I1: the view each tab uses (tab id → view), remembered per notebook. */
   tabViews?: Record<string, TabView>
+  /** Notebooks home: the cover colour (#rrggbb). Unset = one picked from the id. No new Dexie version. */
+  colour?: string
+  /** Notebooks home: 'page' shows the first page as the cover. Unset = the colour cover. */
+  cover?: 'page'
+  /** Notebooks home: pinned to the top of the shelf and the list. */
+  starred?: true
 }
 
 /** Views a notebook tab can show its pages in (I1). */

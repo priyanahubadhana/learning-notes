@@ -730,3 +730,16 @@ export async function scopeCounts(
   for (const card of cards) counts[cardState(card)]++
   return counts
 }
+
+/** Cards due now in each notebook (notebook id to count), from the same queue as the sidebar count. */
+export async function dueByNotebook(
+  db: LearningNotesDB,
+  now: number = Date.now(),
+): Promise<Map<string, number>> {
+  const { cards } = await getReviewQueue(db, { kind: 'all' }, now)
+  const counts = new Map<string, number>()
+  for (const card of cards) {
+    counts.set(card.notebookId, (counts.get(card.notebookId) ?? 0) + 1)
+  }
+  return counts
+}

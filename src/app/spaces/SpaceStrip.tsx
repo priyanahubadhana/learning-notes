@@ -44,7 +44,11 @@ export function SpaceStrip({
               data-space={space}
               onClick={() => onSelect(space)}
               className={`flex size-11 flex-col items-center justify-center rounded-xl leading-none hover:bg-hover phone:h-12 phone:min-w-0 phone:flex-1 phone:rounded-lg ${
-                active ? 'bg-accent-soft text-accent' : 'text-ink-soft'
+                active
+                  ? space === 'notebooks'
+                    ? 'bg-accent text-on-accent shadow-[var(--elev-1)]'
+                    : 'bg-accent-soft text-accent'
+                  : 'text-ink-soft'
               }`}
             >
               <Icon aria-hidden size={21} strokeWidth={1.75} />

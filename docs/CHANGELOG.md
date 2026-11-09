@@ -2,6 +2,12 @@
 
 Current phase only. Older entries are in [ARCHIVE.md](ARCHIVE.md).
 
+## 2026-11-09 (Notebooks home, sidebar tiles, stronger rail icon)
+
+- **What:** (1) The Notebooks rail icon opens a Notebooks home (src/notebooks/NotebooksHome.tsx): a shelf of 3:4 covers (notebook colour with spine and short label, or the first page when chosen), title, last opened, cards due, star to pin (pinned first), "New notebook" button and a dashed "+" tile, Shelf/List toggle (remembered), responsive, and virtualised (only the visible rows are drawn; notebookLook.ts `visibleRows`). A card's ⋯ (or right-click) menu: Pin, first page or colour cover, Change colour. (2) Sidebar notebook rows: coloured tile with short label, bolder name, accent-soft background when open, due badge; pages under them lighter. (3) The Notebooks rail icon is a filled accent tile when active. Left out on purpose: All/Starred/Recent tabs; room for a "Views" row is kept in the header.
+- **Data:** optional fields on Notebook (`colour`, `cover: 'page'`, `starred`); no Dexie version; backup check updated (share/checkRows.ts). "Last opened" is per device (pref `notebookOpenedAt`, falls back to the last change). Per-notebook due counts: `dueByNotebook` (recall/reviewService.ts), same queue as the sidebar count.
+- **Files:** src/notebooks/{NotebooksHome.tsx,notebookLook.ts,notebookLook.test.ts,notebookService.ts,Sidebar.tsx}, src/App.tsx, src/app/spaces/SpaceStrip.tsx, src/pages/PageTree.tsx, src/core/types.ts, src/share/checkRows.ts, src/recall/review{Service,Lazy}.ts, src/i18n/{enNbh,esNbh,hiNbh}.ts (+ enO, es, hi), e2e/notebooksHome.spec.ts, docs.
+
 ## 2026-11-09 (iPad: selection handles and repeated Lasso loops)
 
 - **What:** the round selection handles (app/tools/main/MiniToolbar.tsx) now sit at the selection edge (start handle above-left, end handle below-right), remember where the finger took hold (grab offset) and move the edge by the finger's movement, so the first move never jumps a line; a no-change move is ignored; `dropNativeSelection` runs on every drag step (no iPadOS menu). Tests in e2e/lassoWords.spec.ts: handle nudge and drag, Copy/Cut/Undo from our pill, repeated loops (free and rectangle).

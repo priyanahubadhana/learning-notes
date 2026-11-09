@@ -2,6 +2,8 @@
 
 # Handoff
 
+- **Notebooks home (9 Nov):** rail Notebooks icon opens a shelf/list of covers (src/notebooks/NotebooksHome.tsx, virtualised); sidebar notebook tiles + due badges; filled rail tile. Left room for a "Views" row (docs/plans/custom-views-plan.md); All/Starred/Recent tabs not built (owner). Owner check at the top of owner-checks-pending.md.
+
 - **iPad scroll feel (9 Nov):** draggable thin handle with 1:1 drag (scrollHints.ts `dragScrollTop`), edge stretch (edgeStretch.ts, ink-safe: transform on the shared scroller content), page tabs on one line. Owner check at the top of owner-checks-pending.md. Not done: handle on the page scroller itself.
 
 - **Lasso text selection (9 Nov):** native DOM selection dropped after a Lasso word selection (lassoWords.ts `dropNativeSelection`); e2e in lassoWords.spec.ts. Owner iPad check at the top of owner-checks-pending.md.

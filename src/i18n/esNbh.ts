@@ -1,0 +1,20 @@
+/** Spanish text of the Notebooks home (draft: needs native review). English is enNbh.ts. */
+export const esNbh: Record<string, string> = {
+  'nbh.title': 'Cuadernos',
+  'nbh.new': 'Cuaderno nuevo',
+  'nbh.layout': 'Vista',
+  'nbh.layout.shelf': 'Estante',
+  'nbh.layout.list': 'Lista',
+  'nbh.today': 'Hoy',
+  'nbh.yesterday': 'Ayer',
+  'nbh.due': '{n} pendientes',
+  'nbh.starNamed': 'Fijar {name}',
+  'nbh.unstarNamed': 'Quitar {name} de los fijados',
+  'nbh.star': 'Fijar arriba',
+  'nbh.unstar': 'Quitar de fijados',
+  'nbh.menu': 'Opciones de {name}',
+  'nbh.cover.page': 'Usar la primera página como portada',
+  'nbh.cover.colour': 'Usar una portada de color',
+  'nbh.colour.next': 'Cambiar color',
+  'nbh.blankPage': 'Página vacía',
+}

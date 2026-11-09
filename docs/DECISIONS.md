@@ -56,6 +56,8 @@ Current phase only. Older decisions are in [ARCHIVE.md](ARCHIVE.md).
 
 ## Decisions to review
 
+- **2026-11-09 · Notebooks home (owner-approved design).** (a) The Notebooks icon always opens the shelf on a computer; on a phone it opens the shelf only when already in the Notebooks space (from another space it still opens the drawer, as before). (b) "Last opened" is stored per device, not synced (like the last page of a notebook). (c) Cover colour, first-page cover and pin are optional fields on the notebook (synced), no new Dexie version. (d) Colours come from a fixed list of 8; "Change colour" cycles it (no picker yet). (e) The shelf shows special notebooks (Journal, Books...) too; they open like any notebook. (f) Due counts reuse the whole review queue (as the sidebar badge does): fine for thousands of cards, revisit with a per-notebook index if it slows.
+
 - **2026-11-09 · Lasso text selection without a native selection.** The selection lives only in the editor state (our decorations); the editor is blurred so iPadOS has no edit menu to show. Cut/Copy from our pill use the editor selection. Risk: if Copy needs focus on some device, refocus before copying (owner check).
 
 - **2026-11-09 · Pill and handles over the next Lasso loop.** A loop cannot start under the selection pill or a handle (they are above the pad). Kept (iOS behaves the same; the pill can be dragged, Esc or a tap on empty paper closes it). Option for later: slide the pill away when the Pencil hovers near it.

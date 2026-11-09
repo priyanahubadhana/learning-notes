@@ -2,6 +2,24 @@
 
 Moved out of HANDOFF on 2026-11-06 (audit) so HANDOFF stays five lines. Newest first; each paragraph names its step. The run decision (master plan) is one owner iPad pass before Sync; the Phase A builder adds its checks at the top. Tick a paragraph by deleting it.
 
+## AI settings clarity (9 Nov)
+
+On your PC: open Settings > AI. You should see, in order: the on/off switch, Keys and default model, Spending limit, Usage and cost. (1) With AI off, a card "AI is off" with Turn on AI: press it, the switch turns on. (2) Type the monthly limit in rupees (for example 450): it stays 450 after reload. (3) Use AI once (for example Clean up with AI), then Usage and cost shows the total against the limit, the call under its feature and a row in Recent calls; Export CSV downloads a file with no note text. (4) Settings > Connections lists your Claude and Gemini keys with Test, and says nothing about "later phase". (5) With AI off, open Ask this book, a prompt and Convert to text: each shows the same "AI is off" card.
+
+## ACCOUNTS SETUP (9 Nov): do this first, in the Supabase dashboard (no secrets in chat)
+
+What it is: accounts are now required. People sign in with Google, an email code (6 digits) or email + password. These settings make the two email ways work. Until they are done, the Google button keeps working and the email ways say "could not reach the server" or never send mail.
+
+1. Authentication > Sign In / Providers > Email: turn on Enable Email provider, turn ON "Confirm email", leave the email code (OTP) on. Set "Minimum password length" to 15. Set the one-time code length to 6 and its expiry to 3600 seconds.
+2. Authentication > Email Templates: in "Magic Link", "Confirm signup" and "Reset Password" show the code instead of a link: put `Your code is {{ .Token }}` in the body (you may leave the link out). Save each.
+3. Authentication > URL Configuration: Site URL = the live site address (the one you open the app at). Under Redirect URLs add that address with `/**` on the end (for example `https://YOUR-SITE/**`) and `http://localhost:5173/**` for testing. Google sign-in and "Connect Google" come back to these.
+4. Authentication > Sign In / Providers: turn ON "Allow manual linking" (the page calls it beta). This lets you connect Google to an email account and the other way round.
+5. Authentication > Sessions: leave "Time-box user sessions" and "Inactivity timeout" OFF, so a device stays signed in.
+6. Free email sender (the built-in one sends about 2 emails an hour, too few). Easiest is Brevo (free, 300 emails a day). Make a Brevo account, add and verify your sender address (Senders), then SMTP & API > SMTP: copy the login and make an SMTP key. Then in Supabase: Authentication > Email > SMTP Settings > Enable Custom SMTP: sender email = the verified address, sender name = Learning Notes, host = `smtp-relay.brevo.com`, port = 587, username = the Brevo login, password = the SMTP key (paste it only in that box, never in chat). Alternative: Resend (100 a day) needs your own domain.
+7. After the SMTP is saved, Authentication > Rate Limits: raise "Rate limit for sending emails" to 30 an hour (enough for testing).
+8. Keep the testing allow-list: the "Before User Created" hook still blocks any email except yours. Before the public launch it must be turned off (launch checklist), and the paid-plan question (leaked-password check, custom limits) decided.
+9. Check on the live site: sign out, then sign in with "Email me a code" (the mail arrives within a minute, the code works inside the app); sign out, then "Email and password" > Create account; Settings > Account > Connected accounts shows Google, Email code, Password with their emails; Connect Google works; you cannot disconnect the last one.
+
 ## Update check fix (9 Nov, after deploy)
 
 What it is: the version check no longer needs the offline helper to be working.

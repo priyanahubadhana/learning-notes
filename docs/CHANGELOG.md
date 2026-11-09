@@ -2,6 +2,18 @@
 
 Current phase only. Older entries are in [ARCHIVE.md](ARCHIVE.md).
 
+## 2026-11-09 (AI settings made clear: order, AI-off card, Usage and cost, Connections)
+
+- **What:** Settings > AI is now (a) on/off, (b) keys + default model, (c) Spending limit typed in the chosen currency (kept in US$ inside; per-key limits too), (d) Usage and cost (this month vs limit bar, by key / model / feature / notebook, recent calls with tokens in/out and cost, Export CSV), then a button to Permissions. Every AI place (AI page, Ask this book, Prompts, Skills, Clean up with AI, Convert to text) shows a calm "AI is off" card with Turn on AI (in place) and Add a key. "APIs" (a placeholder) is now "Connections": each key, company, status, this month, Test, links to make a key, Manage in AI. The send log also keeps key id, model and tokens (still no content); Clean up logs as "cleanup". Audit in docs/features/ai.md.
+- **Why:** owner feedback (APIs placeholder, AI off while keys exist, US$ cap vs rupee costs, no place to see spending).
+- **Files:** src/ai/{AiSection,AiKeys,AiOffCard,aiOffStore,UsageSection,usageReport(+test),ConnectionsSection,sendLog,route,costCurrency,AskBook,ConvertInk}.ts(x), src/prompts/{RunPrompt,RunSkill}.tsx, src/editor/{CleanupDialog.tsx,cleanupAi.ts}, src/settings/{SettingsScreen,builtinSettings}.ts(x), src/i18n/{en,es,hi}{O,Lib}.ts, e2e/{aiUsage,costCurrency,settings}.spec.ts, docs.
+
+## 2026-11-09 (Accounts required: email code, password, Connected accounts)
+
+- **What:** owner decision, accounts are required: the welcome's first screen is "Sign in or create an account" (Google, Email code, Email + password with create / sign in / forgot password by code); "Use without an account" and the Skip on that screen are gone. Settings > Account has the same panel when signed out and a new "Connected accounts" group (Google, Email code, Password, each with its email; Connect Google, Add or change password, Disconnect never for the last method). Notes on a device used before without an account are kept and sent on the first sign-in (same path as Google). The testing allow-list is unchanged. CLAUDE.md "Things We Said No To" updated. Research: docs/research/accounts-2026-11.md. Owner setup at the top of owner-checks-pending.md.
+- **Why:** owner decision of 9 Nov.
+- **Files:** src/sync/{SignInPanel,ConnectedAccounts}.tsx, src/sync/{passwordRules,signInErrors}.ts, src/sync/connectors/{emailAuth.ts,emailAuth.test.ts,supabase.ts,memory.ts,types.ts}, src/sync/{syncService.ts,AccountSection.tsx,SignInGuide.tsx}, src/onboarding/Welcome.tsx, src/App.tsx (passes the panel to the welcome), src/i18n/{en,es,hi}Accounts.ts (+ *Sync.ts, *O.ts), e2e/{accounts,welcome,signInFirst}.spec.ts, docs.
+
 ## 2026-11-09 (Page tabs simplified)
 
 - **What:** Settings › Page tabs now has only "Tabs for new notebooks" plus one line pointing to the ⋯ on a notebook's tab row; the per-notebook list is gone. Default notebook name now reads "Untitled notebook" (es/hi too); old stored "New notebook" shows the same via displayName/sampleName, which the notebook lists in AI permissions, skills, data, Notion and NotebookLM import now use.

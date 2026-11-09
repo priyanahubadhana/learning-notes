@@ -2,6 +2,21 @@
 
 **Status:** built 2026-11-07 (CR4 + Phase P parts 1 and 2). Off by default; off per notebook by default.
 
+## Audit 9 Nov
+
+Found and fixed (owner feedback, PC):
+
+1. Settings > APIs said "Connections to AI services arrive in a later phase... Nothing is connected yet" while two keys were saved. Now **Connections**: each key with company, status, this month, Test, links to make a key, Manage in AI.
+2. "Turn on AI features" off while keys exist gave no hint. Now an "AI is off" card (Turn on AI, Add a key) at the top of the AI page and in Ask this book, Prompts, Skills, Clean up with AI and Convert to text. Page actions (Summarise, Key points, cards) still hide when AI is off (open: no card there).
+3. Monthly limit was typed in US$ while costs show the chosen currency. Now typed in the chosen currency and kept in US$ inside (also the per-key limit; fromCurrency / limitToInput in costCurrency.ts).
+4. No place to see spend. New **Usage and cost** (UsageSection.tsx): bar, by key / model / feature / notebook, recent calls (time, feature, model, tokens in/out, cost), Export CSV; from the no-content send log, which now also keeps key id, model and tokens.
+5. The AI intro said keys are "never synced" although opt-in key sync exists. Reworded.
+6. Page order was mixed (limit between models and currency, usage after). Now: on/off, keys + models, spending, usage, then a button to Permissions.
+7. Clean up with AI was logged as "prompt". Now "cleanup".
+8. Not changed: Permissions still repeats spend per key and the sent table (kept as the privacy record); model picker has no separate off state beyond the top card.
+
+Code: src/ai/{AiOffCard,aiOffStore,UsageSection,usageReport,ConnectionsSection}. Tests: usageReport.test.ts, e2e/aiUsage.spec.ts.
+
 ## What it does
 
 The user's own API key calls the provider straight from the browser. No server of ours, the user's account pays.

@@ -107,8 +107,8 @@ test('one setting appears in several categories with the same value', async ({
   await expect(inReview).toContainText('Also in: General, Journal')
   await expect(inReview.getByRole('combobox')).toHaveValue('2')
 
-  await nav.getByRole('button', { name: /^APIs/ }).click()
-  await expect(main(page)).toContainText('Keys will be stored encrypted')
+  await nav.getByRole('button', { name: /^Connections/ }).click()
+  await expect(main(page)).toContainText('Your AI keys and whether they work')
 })
 
 test('search in All finds settings by name or description', async ({

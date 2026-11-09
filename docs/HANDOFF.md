@@ -2,6 +2,12 @@
 
 # Handoff
 
+- **AI settings clarity (9 Nov):** AI page order, AI-off card (src/ai/AiOffCard.tsx, aiOffStore.ts), Usage and cost (UsageSection.tsx, usageReport.ts), Settings > Connections (category id still 'apis'). Audit in docs/features/ai.md. Not done: page actions (Summarise etc.) stay hidden when AI is off (no card); Permissions still holds its own spend list and "Everything AI sent" table. Owner check at the top of owner-checks-pending.md.
+
+- **Accounts required (9 Nov):** welcome step 0 is "Sign in or create an account" (Google, email code, email + password), no skip; Settings > Account has the panel and Connected accounts (src/sync/SignInPanel.tsx, ConnectedAccounts.tsx; connector methods in connectors/supabase.ts + emailAuth.ts; mock in memory.ts, code 123456). Owner must do ACCOUNTS SETUP at the top of owner-checks-pending.md (email provider, templates with the code, redirect URLs, manual linking, SMTP). Not built: hard gate for old signed-out devices (DECISIONS). Research docs/research/accounts-2026-11.md.
+
+- **Page tabs simplified (9 Nov):** Settings > Page tabs keeps only "Tabs for new notebooks"; per-notebook choice is the ⋯ on the tab row. Untitled notebooks show as "Untitled notebook" (stored name "New notebook" still maps; sampleName() handles lists).
+
 - **Rail line icons (9 Nov):** spaces rail and quiet corner use Lucide (src/app/spaces). Remaining emoji-as-UI-icons are in the CHANGELOG/report list; replace as each screen is redesigned.
 
 - **Update check fix (9 Nov):** version check works without a service worker (src/app/updates.ts lookForUpdate); a failing/slow backup no longer blocks auto-update. Owner check at the top of owner-checks-pending.md.

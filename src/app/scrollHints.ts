@@ -12,8 +12,12 @@
 const HIDE_MS = 1000
 /** Smallest indicator height (px), so it stays easy to see. */
 const MIN_THUMB = 28
+/** Width of the invisible touch area of the handle (px). */
+const HIT = 44
 /** Edge gap of the indicator (px). */
 const INSET = 3
+
+import { installEdgeStretch } from './edgeStretch'
 
 export type More = 'top' | 'bottom' | 'both' | null
 
@@ -47,6 +51,25 @@ export function thumbOf(
   const range = scrollHeight - clientHeight
   const ratio = Math.min(1, Math.max(0, scrollTop / range))
   return { top: INSET + ratio * (track - height), height }
+}
+
+/**
+ * Pure: the scrollTop for a handle dragged `dy` px from where it was grabbed.
+ * The thumb travels `clientHeight - 2 * INSET - thumbHeight` px while the
+ * content travels `scrollHeight - clientHeight` px, so the ratio is exact
+ * (the thumb stays under the finger) and both ends meet. Clamped.
+ */
+export function dragScrollTop(
+  startScrollTop: number,
+  dy: number,
+  scrollHeight: number,
+  clientHeight: number,
+  thumbHeight: number,
+): number {
+  const range = scrollHeight - clientHeight
+  const travel = clientHeight - INSET * 2 - thumbHeight
+  if (range <= 0 || travel <= 0) return startScrollTop
+  return Math.min(range, Math.max(0, startScrollTop + (dy * range) / travel))
 }
 
 /** True for a box that scrolls up and down by itself. */
@@ -96,22 +119,93 @@ export function installScrollHints(isOn: () => boolean): {
   thumb.setAttribute('aria-hidden', 'true')
   thumb.dataset.noScrollHint = ''
   document.body.appendChild(thumb)
+  const stopStretch = installEdgeStretch()
 
   let hideTimer: ReturnType<typeof setTimeout> | undefined
   let scanTimer: ReturnType<typeof setTimeout> | undefined
 
-  const hide = () => thumb.classList.remove('is-on')
+  let current: HTMLElement | null = null
+  let drag: { y: number; top: number; height: number } | null = null
+  let hovered = false
+
+  const hide = () => {
+    if (drag || hovered) return
+    thumb.classList.remove('is-on')
+  }
+  const later = () => {
+    clearTimeout(hideTimer)
+    hideTimer = setTimeout(hide, HIDE_MS)
+  }
 
   const show = (el: HTMLElement) => {
     const g = thumbOf(el.scrollTop, el.scrollHeight, el.clientHeight)
-    if (!g) return hide()
+    if (!g) {
+      current = null
+      return hide()
+    }
+    current = el
     const box = el.getBoundingClientRect()
     thumb.style.top = `${box.top + el.clientTop + g.top}px`
     thumb.style.height = `${g.height}px`
-    thumb.style.left = `${box.right - 7}px`
+    // The hit area is 44 px wide and ends at the list's right edge.
+    thumb.style.left = `${box.right - el.clientLeft - HIT}px`
     thumb.classList.add('is-on')
+    if (!drag) later()
+  }
+
+  // The handle: drag it and the content follows 1:1.
+  thumb.addEventListener('pointerdown', (e) => {
+    if (!current) return
+    e.preventDefault()
+    e.stopPropagation()
+    try {
+      thumb.setPointerCapture(e.pointerId)
+    } catch {
+      // Not a real pointer (a test): move and up still arrive.
+    }
+    drag = {
+      y: e.clientY,
+      top: current.scrollTop,
+      height: thumb.getBoundingClientRect().height,
+    }
+    thumb.classList.add('is-drag')
     clearTimeout(hideTimer)
-    hideTimer = setTimeout(hide, HIDE_MS)
+  })
+  thumb.addEventListener('pointermove', (e) => {
+    if (!drag || !current) return
+    current.scrollTop = dragScrollTop(
+      drag.top,
+      e.clientY - drag.y,
+      current.scrollHeight,
+      current.clientHeight,
+      drag.height,
+    )
+  })
+  const endDrag = () => {
+    if (!drag) return
+    drag = null
+    thumb.classList.remove('is-drag')
+    later()
+  }
+  thumb.addEventListener('pointerup', endDrag)
+  thumb.addEventListener('pointercancel', endDrag)
+  thumb.addEventListener('pointerenter', (e) => {
+    if (e.pointerType !== 'mouse') return
+    hovered = true
+    clearTimeout(hideTimer)
+  })
+  thumb.addEventListener('pointerleave', () => {
+    hovered = false
+    later()
+  })
+  // A mouse over a list shows the handle (touch: on scroll or touch).
+  const over = (event: PointerEvent) => {
+    if (!isOn() || event.pointerType !== 'mouse' || drag) return
+    const el = scrollerOf(event.target)
+    if (el && el !== current) {
+      mark(el)
+      show(el)
+    }
   }
 
   const touch = (event: Event) => {
@@ -125,6 +219,7 @@ export function installScrollHints(isOn: () => boolean): {
     if (!isOn()) return
     const el = event.target
     if (!(el instanceof HTMLElement) || !scrolls(el)) return
+    if (drag && el !== current) return
     mark(el)
     show(el)
   }
@@ -160,6 +255,10 @@ export function installScrollHints(isOn: () => boolean): {
     capture: true,
     passive: true,
   })
+  document.addEventListener('pointerover', over, {
+    capture: true,
+    passive: true,
+  })
   document.addEventListener('touchstart', touch, {
     capture: true,
     passive: true,
@@ -174,7 +273,9 @@ export function installScrollHints(isOn: () => boolean): {
     stop: () => {
       document.removeEventListener('scroll', onScroll, true)
       document.removeEventListener('pointerdown', touch, true)
+      document.removeEventListener('pointerover', over, true)
       document.removeEventListener('touchstart', touch, true)
+      stopStretch()
       window.removeEventListener('resize', soon)
       observer.disconnect()
       clearTimeout(hideTimer)

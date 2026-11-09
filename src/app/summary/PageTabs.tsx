@@ -50,7 +50,7 @@ export function Segments<T extends PageTab = PageTab>({
         role="group"
         aria-label={t('summary.seg.label')}
         data-page-tabs
-        className="inline-flex flex-wrap rounded-xl border border-line bg-soft p-0.5"
+        className="inline-flex max-w-full flex-nowrap overflow-x-auto rounded-xl border border-line bg-soft p-0.5 [scrollbar-width:none]"
       >
         {shown.map(({ id, label }) => (
           <button
@@ -59,7 +59,7 @@ export function Segments<T extends PageTab = PageTab>({
             aria-pressed={tab === id}
             data-page-tab={id}
             onClick={() => onTab(id as T)}
-            className="min-h-9 any-pointer-coarse:min-h-11 rounded-[10px] px-4 text-sm text-ink-soft hover:text-ink aria-pressed:bg-bg aria-pressed:font-semibold aria-pressed:text-ink aria-pressed:shadow-sm"
+            className="min-h-9 any-pointer-coarse:min-h-11 shrink-0 whitespace-nowrap rounded-[10px] px-4 text-sm text-ink-soft hover:text-ink aria-pressed:bg-bg aria-pressed:font-semibold aria-pressed:text-ink aria-pressed:shadow-sm"
           >
             {t(label)}
           </button>

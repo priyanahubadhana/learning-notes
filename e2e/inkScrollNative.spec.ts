@@ -88,6 +88,42 @@ test('the ink scrolls with the page by itself and stays on its words at zoom', a
   await page.evaluate(() => {
     document.querySelector('[data-page-scroller]')!.scrollTop = 0
   })
+  // Edge stretch (a pull past the top): words and ink give together, the ink
+  // stays on its words, and everything springs back.
+  const gap = async () =>
+    page.evaluate(() => {
+      const o = document
+        .querySelector('[data-ink-overlay]')!
+        .getBoundingClientRect()
+      const b = [...document.querySelectorAll('.bn-block-content')]
+        .find((e) => e.textContent?.includes('nucleus'))!
+        .getBoundingClientRect()
+      return { dy: o.y - b.y, by: b.y }
+    })
+  const rest = await gap()
+  const pulled = await page.evaluate(() => {
+    const s = document.querySelector('[data-page-scroller]')!
+    s.dispatchEvent(
+      new WheelEvent('wheel', {
+        deltaY: -150,
+        bubbles: true,
+        cancelable: true,
+      }),
+    )
+    const o = document
+      .querySelector('[data-ink-overlay]')!
+      .getBoundingClientRect()
+    const b = [...document.querySelectorAll('.bn-block-content')]
+      .find((e) => e.textContent?.includes('nucleus'))!
+      .getBoundingClientRect()
+    return { dy: o.y - b.y, by: b.y }
+  })
+  expect(pulled.by - rest.by).toBeGreaterThan(2)
+  expect(pulled.by - rest.by).toBeLessThanOrEqual(16)
+  expect(Math.abs(pulled.dy - rest.dy)).toBeLessThan(0.5)
+  await expect
+    .poll(async () => Math.abs((await gap()).by - rest.by), { timeout: 2000 })
+    .toBeLessThan(0.5)
   await page.getByRole('button', { name: 'Zoom in' }).click()
   await page.getByRole('button', { name: 'Zoom in' }).click()
   await page.waitForTimeout(600)

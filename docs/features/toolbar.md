@@ -75,6 +75,7 @@ A tap adds a line and can be repeated. Press and hold (default 0.6 s) opens the 
 - **One order (R7-12).** `toolbar.order` lists tokens `m:<main tool>` and `x:<pinned tool>`; a pinned tool can sit between main tools. A newly pinned tool goes first (or where dropped). Tokens that are no longer on the bar are ignored and tools the order does not know go last.
 - **Tool search (R7-13).** With nothing typed, Recent tools, Favourites (pinned) and Recommended come first, one tap runs a tool.
 - **Scrollable bar (R7-14, R7-17).** While the main bar overflows: edge fade, a chevron with the count of tools out of sight (tap = slide), and a thin track whose handle slides the bar (own pointer events, `data-pen-own`; it never taps a tool). Nothing shows while the bar fits.
+- **Panel scroll handle and edge stretch (9 Nov).** Lists and panels use one thin handle from src/app/scrollHints.ts (3 px, 7 px dragged, 44 px touch area, 1:1 drag, fades after 1 s); src/app/edgeStretch.ts gives the pull-past-the-end spring. Test: e2e/scrollHints.spec.ts.
 - **Mini bar (R7-7).** Clamped inside the page area (`main`) on all four edges from its measured size.
 
 ## Polish pass 2 (8 Nov)

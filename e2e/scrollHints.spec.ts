@@ -55,3 +55,80 @@ test('the Settings switch is there, and off means no hints', async ({
   )
   await expect(page.locator('.scroll-hint-thumb')).not.toHaveClass(/is-on/)
 })
+
+test('the handle is thin, has a 44 px touch area and drags 1:1', async ({
+  page,
+}) => {
+  await page.goto('/')
+  await page.locator('aside').waitFor({ state: 'attached' })
+  await addList(page)
+  const list = page.locator('#hint-list')
+  const thumb = page.locator('.scroll-hint-thumb')
+  await list.evaluate((el) => (el.scrollTop = 100))
+  await expect(thumb).toHaveClass(/is-on/)
+  const box = (await thumb.boundingBox())!
+  expect(box.width).toBe(44)
+  expect(box.height).toBeGreaterThanOrEqual(24)
+  expect(box.height).toBeLessThanOrEqual(40)
+  const bar = await thumb.evaluate((el) =>
+    parseFloat(getComputedStyle(el, '::after').width),
+  )
+  expect(bar).toBeLessThanOrEqual(4)
+
+  // Drag 30 px: the content moves by 30 * range / travel, not to the end.
+  const before = await list.evaluate((el) => el.scrollTop)
+  const x = box.x + box.width - 5
+  const y = box.y + box.height / 2
+  await page.mouse.move(x, y)
+  await page.mouse.down()
+  await page.mouse.move(x, y + 30, { steps: 6 })
+  await expect(thumb).toHaveClass(/is-drag/)
+  const wide = await thumb.evaluate((el) =>
+    parseFloat(getComputedStyle(el, '::after').width),
+  )
+  expect(wide).toBeGreaterThanOrEqual(6)
+  await page.mouse.up()
+  const after = await list.evaluate((el) => el.scrollTop)
+  const range = 900 - 150
+  const travel = 150 - 6 - box.height
+  expect(after - before).toBeCloseTo((30 * range) / travel, 0)
+  expect(after).toBeLessThan(range)
+  // The thumb followed the pointer by the same 30 px.
+  const moved = (await thumb.boundingBox())!
+  expect(moved.y - box.y).toBeCloseTo(30, 0)
+  // It fades after about a second once the pointer has left it.
+  await page.mouse.move(box.x - 300, box.y + 400)
+  await expect(thumb).not.toHaveClass(/is-on/, { timeout: 3000 })
+})
+
+test('pulling past the top gives a small stretch that springs back', async ({
+  page,
+}) => {
+  await page.goto('/')
+  await page.locator('aside').waitFor({ state: 'attached' })
+  await addList(page)
+  const list = page.locator('#hint-list')
+  const child = list.locator('> div')
+  const box = (await list.boundingBox())!
+  // Record the biggest give the content shows while the wheel pulls.
+  await child.evaluate((el) => {
+    const w = window as unknown as { __give: number }
+    w.__give = 0
+    new MutationObserver(() => {
+      const m = /translate3d\(0(?:px)?, ?(-?[\d.]+)px/.exec(el.style.transform)
+      if (m) w.__give = Math.max(w.__give, Math.abs(parseFloat(m[1])))
+    }).observe(el, { attributes: true, attributeFilter: ['style'] })
+  })
+  await page.mouse.move(box.x + 50, box.y + 50)
+  await page.mouse.wheel(0, -120)
+  const give = () =>
+    page.evaluate(() => (window as unknown as { __give: number }).__give)
+  await expect.poll(give).toBeGreaterThan(2)
+  const px = await give()
+  expect(px).toBeGreaterThan(2)
+  expect(px).toBeLessThanOrEqual(16)
+  // Springs back and leaves no transform behind.
+  await expect
+    .poll(() => child.evaluate((el) => el.style.transform), { timeout: 2000 })
+    .toBe('')
+})

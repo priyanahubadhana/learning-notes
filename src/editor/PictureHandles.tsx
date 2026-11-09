@@ -67,6 +67,8 @@ export function PictureHandles({ editor }: { editor: Host }) {
   const wanted = useRef<{ w: number; frame: number }>({ w: 0, frame: 0 })
   const anim = useRef(0)
   const [ghost, setGhost] = useState<{ top: number } | null>(null)
+  // The block's own props (alignment) are read at render: ask for one after a change.
+  const [, redraw] = useState(0)
   // The newest actions, for the strip (it outlives a render).
   const latest = useRef<(a: PictureAction) => void>(() => undefined)
   const blockId = img?.closest('[data-id]')?.getAttribute('data-id') ?? ''
@@ -386,6 +388,7 @@ export function PictureHandles({ editor }: { editor: Host }) {
     const side =
       a === 'alignLeft' ? 'left' : a === 'alignRight' ? 'right' : 'center'
     editor.updateBlock(blockId, { props: { textAlignment: side } })
+    redraw((n) => n + 1)
   }
   const actions: [string, MessageKey, () => void][] = [
     ['copy', 'pic.act.copy', () => void run('copy')],

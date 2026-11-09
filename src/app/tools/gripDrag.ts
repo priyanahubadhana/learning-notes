@@ -9,6 +9,7 @@
  */
 
 import { onGestureReset, registerToolState } from '../gestureReset'
+import { lock, unlock } from '../../editor/editLock'
 
 let active = 0
 /** The drags going on now, each with the way to end it. */
@@ -35,10 +36,7 @@ registerToolState('gripDrag', () => ({
     document.documentElement.hasAttribute('data-grip-drag'),
 }))
 
-interface Held {
-  el: HTMLElement
-  was: string
-}
+let grips = 0
 
 /**
  * Call from a grip's pointerdown. It captures the pointer on the grip and
@@ -62,12 +60,16 @@ export function startGripDrag(
     doc.activeElement.isContentEditable
       ? doc.activeElement
       : null
-  const held: Held[] = []
+  // The editable parts leave text input for the drag (edit locks: nothing is
+  // remembered, the last lock puts each element right).
+  const held: string[] = []
+  const me = grips++
   for (const el of Array.from(
     doc.querySelectorAll<HTMLElement>('[contenteditable="true"]'),
   )) {
-    held.push({ el, was: 'true' })
-    el.setAttribute('contenteditable', 'false')
+    const owner = 'grip' + me + ':' + held.length
+    held.push(owner)
+    lock(owner, el)
   }
   refocus?.blur()
   const stop = (e: Event) => {
@@ -86,11 +88,7 @@ export function startGripDrag(
     for (const w of ['pointerup', 'pointercancel', 'lostpointercapture']) {
       doc.removeEventListener(w, end, true)
     }
-    for (const h of held) {
-      if (h.el.getAttribute('contenteditable') === 'false') {
-        h.el.setAttribute('contenteditable', h.was)
-      }
-    }
+    for (const owner of held) unlock(owner)
     // A moment later, so the page sees the lift as part of the drag.
     window.setTimeout(() => {
       active = Math.max(0, active - 1)

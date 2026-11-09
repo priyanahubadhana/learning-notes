@@ -6,6 +6,10 @@ import {
 } from '../app/gestureReset'
 import { gripDragging } from '../app/tools/gripDrag'
 import { inputMachine } from '../app/inputMachine'
+import {
+  lock as lockEditing,
+  unlock as unlockEditing,
+} from '../editor/editLock'
 import { inkSwitches } from './inkRuntime'
 import {
   adopterAt,
@@ -615,7 +619,6 @@ export class InkController {
       padTouchAction: this.pad.style.touchAction,
       padInDom: this.pad.isConnected,
       lassoOwnsPad: this.lassoOwnsPad(),
-      heldEditable: this.heldEditable,
       editorEditable: this.env.editorEl()?.getAttribute('contenteditable'),
       editorInert: this.env.editorEl()?.hasAttribute('inert') ?? null,
       selection: this.selection.length,
@@ -1410,28 +1413,19 @@ export class InkController {
 
   // ---- The page under a Lasso gesture ----
 
-  private heldEditable: string | null = null
-
   /**
    * While a Lasso or handle gesture lasts, the page is not editable: iPadOS
    * Scribble then has nothing to write in or select (the cure penSelect uses
-   * for a Pencil drag). Put back when the gesture ends.
+   * for a Pencil drag). The lock (editLock.ts) puts the right value back; this
+   * code never remembers one.
    */
   private holdEditing(): void {
     const el = this.env.editorEl()
-    if (!el || this.heldEditable !== null) return
-    this.heldEditable = el.getAttribute('contenteditable') ?? ''
-    el.setAttribute('contenteditable', 'false')
+    if (el) lockEditing('ink', el)
   }
 
   private releaseEditing(): void {
-    const was = this.heldEditable
-    if (was === null) return
-    this.heldEditable = null
-    const el = this.env.editorEl()
-    if (!el) return
-    if (was === '') el.removeAttribute('contenteditable')
-    else el.setAttribute('contenteditable', was)
+    unlockEditing('ink')
   }
 
   // ---- Taps are not ink ----

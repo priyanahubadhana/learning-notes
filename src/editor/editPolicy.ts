@@ -38,6 +38,15 @@ const SELECT_IS_READ_ONLY = false
 export const editableIn = (mode: PageMode): boolean =>
   mode === 'edit' || (mode === 'select' && !SELECT_IS_READ_ONLY)
 
+/** Runs after every applyPageMode (the edit locks use it to stay locked). */
+const applied = new Set<() => void>()
+export function onModeApplied(fn: () => void): () => void {
+  applied.add(fn)
+  return () => {
+    applied.delete(fn)
+  }
+}
+
 export function applyPageMode(
   mode: PageMode,
   el: {
@@ -60,4 +69,5 @@ export function applyPageMode(
     title.toggleAttribute('inert', mode === 'ink')
   }
   pageMode.set(mode)
+  for (const fn of [...applied]) fn()
 }

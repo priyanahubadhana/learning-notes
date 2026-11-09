@@ -128,6 +128,7 @@ export default defineConfig({
         /paperExport/,
         /tools-machine/,
         /lassoLoops/,
+        /toolsEditLock/,
       ],
       use: { ...devices['iPad Pro 11'], hasTouch: true },
       expect: { timeout: 15_000 },

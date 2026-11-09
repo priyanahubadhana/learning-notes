@@ -1,4 +1,6 @@
 import { TextSelection } from 'prosemirror-state'
+import { inputMachine } from '../app/inputMachine'
+import { lock, unlock } from './editLock'
 import { penSelectsText } from './penMode'
 import { autoScrollWhileSelecting } from './dragSelect'
 import { activeBlock } from './keyboardPolicy'
@@ -54,7 +56,6 @@ export function watchPenSelect(editor: Editor): () => void {
     startId: string | null
     x: number
     y: number
-    wasEditable: string
   } | null = null
 
   const scribbleOn = () => !penSelectsText()
@@ -77,8 +78,8 @@ export function watchPenSelect(editor: Editor): () => void {
 
   const restore = () => {
     if (!drag) return
-    if (drag.wasEditable === 'true') dom.contentEditable = 'true'
-    else dom.removeAttribute('contenteditable')
+    inputMachine.end({ pointerId: drag.pointerId }, 'penSelect')
+    unlock('penSelect')
     drag = null
   }
 
@@ -115,11 +116,12 @@ export function watchPenSelect(editor: Editor): () => void {
       startId: blockIdAt(dom, e.clientX, e.clientY),
       x: e.clientX,
       y: e.clientY,
-      wasEditable: dom.getAttribute('contenteditable') ?? 'true',
     }
     // Not editable for the length of the stroke: Scribble has nothing to write in.
     // The selection is left alone until the pen moves (a tap is tapSelect's).
-    dom.contentEditable = 'false'
+    lock('penSelect', dom)
+    // A lift that never comes is dropped by the machine (4 s without movement).
+    inputMachine.begin(e, 'penSelect', () => restore(), 'selecting')
   }
 
   const onMove = (e: PointerEvent) => {

@@ -526,6 +526,7 @@ export class InkController {
         name: 'ink-canvas',
         check: () => this.canvasProblem(),
         heal: () => this.repaintAll(),
+        recheckAfterMs: 1500,
       }),
     )
     this.cleanups.push(

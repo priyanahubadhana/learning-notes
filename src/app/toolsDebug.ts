@@ -1,5 +1,6 @@
 import { toolState } from './gestureReset'
-import { runHealth } from './healthCheck'
+import { registerProbe, runHealth } from './healthCheck'
+import { refreshNow, requestSoftRefresh } from './softRefresh'
 import { inputMachine } from './inputMachine'
 import { lock } from '../editor/editLock'
 
@@ -31,8 +32,17 @@ export function installToolsDebug(extra: Record<string, unknown> = {}): void {
       m.lassoSettings.update(patch as never)
     },
     // Tests: one health run now; and a few ways to put a flag in a bad state.
+    softRefresh: (why = 'test') => requestSoftRefresh(why),
+    refreshNow,
     health: (reason = 'manual') => runHealth(reason),
     stick: {
+      // A problem no heal can fix: two runs ask for a soft refresh.
+      unhealable: () =>
+        registerProbe({
+          name: 'test-unhealable',
+          check: () => 'still bad',
+          heal: () => {},
+        }),
       selectGesture: async () => {
         ;(await import('../editor/gesture')).selectGesture.active = true
       },

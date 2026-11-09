@@ -131,6 +131,7 @@ export default defineConfig({
         /toolsEditLock/,
         /toolsFlags/,
         /toolsHealth/,
+        /toolsRefresh/,
       ],
       use: { ...devices['iPad Pro 11'], hasTouch: true },
       expect: { timeout: 15_000 },

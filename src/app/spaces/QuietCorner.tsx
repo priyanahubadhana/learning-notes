@@ -154,6 +154,19 @@ export function QuietCorner({
               </span>
               {t('layers.open')}
             </button>
+            <button
+              type="button"
+              data-testid="refresh-app"
+              onClick={choose(() => {
+                void import('../softRefresh').then((m) => m.refreshNow())
+              })}
+              className={row}
+            >
+              <span aria-hidden className="text-muted">
+                ↻
+              </span>
+              {t('refresh.app')}
+            </button>
             <button type="button" onClick={choose(onOpenHelp)} className={row}>
               <span aria-hidden className="text-muted">
                 ?

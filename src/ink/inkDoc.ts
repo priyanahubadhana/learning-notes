@@ -57,6 +57,17 @@ export interface DocOptions {
 const live = (c: { deletedAt: number | null; purgedAt?: number }) =>
   c.deletedAt === null && c.purgedAt === undefined
 
+/** Every ink document that is open now (for the soft refresh: save them all). */
+const open = new Set<InkDoc>()
+
+/** True while any open ink document has changes not written yet. */
+export const inkHasUnsaved = (): boolean => [...open].some((d) => d.dirty)
+
+/** Writes every open ink document now. */
+export async function flushAllInk(): Promise<void> {
+  await Promise.all([...open].map((d) => d.flush()))
+}
+
 export class InkDoc {
   readonly pageId: string
   /** Raised on every change (layers, strokes). */
@@ -84,6 +95,7 @@ export class InkDoc {
     this.save = o.save
     this.delay = o.delay ?? 400
     this.now = o.now ?? Date.now
+    open.add(this)
     for (const l of o.data.layers) this.layerMap.set(l.id, l)
     for (const c of o.data.chunks) {
       this.chunkMap.set(c.id, c)
@@ -358,6 +370,7 @@ export class InkDoc {
   }
 
   dispose(): Promise<void> {
+    open.delete(this)
     clearTimeout(this.timer)
     this.listeners.clear()
     return this.flush()

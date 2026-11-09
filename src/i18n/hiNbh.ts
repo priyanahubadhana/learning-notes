@@ -1,5 +1,8 @@
 /** Hindi text of the Notebooks home (draft: needs native review). English is enNbh.ts. */
+import { hiRobust } from './hiRobust'
+
 export const hiNbh: Record<string, string> = {
+  ...hiRobust,
   'nbh.title': 'नोटबुक',
   'nbh.new': 'नई नोटबुक',
   'nbh.layout': 'दृश्य',

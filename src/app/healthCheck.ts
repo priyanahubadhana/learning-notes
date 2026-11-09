@@ -32,6 +32,8 @@ export interface Probe {
   /** What is wrong (one line), or null. */
   check: () => string | null
   heal: () => void
+  /** The heal works later (a repaint): look again after this many ms, not at once. */
+  recheckAfterMs?: number
 }
 
 interface Entry {
@@ -178,6 +180,20 @@ export function runHealth(reason: string = 'manual'): string[] {
       p.heal()
     } catch (e) {
       console.error('Health heal', p.name, e)
+    }
+    if (p.recheckAfterMs) {
+      log.push({ at: t, name: p.name, problem, healed: true, reason })
+      if (log.length > 30) log.shift()
+      setTimeout(() => {
+        let still: string | null = null
+        try {
+          still = p.check()
+        } catch {
+          still = 'check failed'
+        }
+        if (still) failed(p.name, Date.now(), still)
+      }, p.recheckAfterMs)
+      continue
     }
     let again: string | null = null
     try {

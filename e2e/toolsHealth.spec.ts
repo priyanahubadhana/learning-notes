@@ -3,7 +3,7 @@
 import { expect, test, type Page } from '@playwright/test'
 import { expectStrokes, inkNote, stroke, textBox, wave } from './inkHelpers.ts'
 import { openNote, tool } from './mainBarHelpers.ts'
-import { appSwitch, section } from './toolsHelpers.ts'
+import { appSwitch, section, toolsReady } from './toolsHelpers.ts'
 
 /**
  * Tools robustness, step 5: the health check. A bad state is forced through
@@ -27,10 +27,23 @@ declare global {
   }
 }
 
-const health = (page: Page, reason = 'test') =>
-  page.evaluate((r) => (window.__lnTools as unknown as Hooks).health(r), reason)
-const stick = (page: Page, what: 'selectGesture' | 'penGuard' | 'lock') =>
-  page.evaluate((w) => (window.__lnTools as unknown as Hooks).stick[w](), what)
+const health = async (page: Page, reason = 'test') => {
+  await toolsReady(page)
+  return page.evaluate(
+    (r) => (window.__lnTools as unknown as Hooks).health(r),
+    reason,
+  )
+}
+const stick = async (
+  page: Page,
+  what: 'selectGesture' | 'penGuard' | 'lock',
+) => {
+  await toolsReady(page)
+  return page.evaluate(
+    (w) => (window.__lnTools as unknown as Hooks).stick[w](),
+    what,
+  )
+}
 
 async function quietNote(page: Page) {
   await openNote(page, 'touch', { 'advanced.autoSwitch': 'off' })
@@ -83,6 +96,7 @@ test('a page whose contenteditable disagrees with the mode is put right', async 
   page,
 }) => {
   await quietNote(page)
+  await toolsReady(page)
   await page.evaluate(() =>
     (window.__lnTools as unknown as Hooks).stick.editable('false'),
   )

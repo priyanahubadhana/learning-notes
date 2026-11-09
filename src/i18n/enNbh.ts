@@ -1,5 +1,8 @@
 /** English text of the Notebooks home (late-loaded, with enO.ts). */
+import { enRobust } from './enRobust'
+
 export const enNbh = {
+  ...enRobust,
   'nbh.title': 'Notebooks',
   'nbh.new': 'New notebook',
   'nbh.layout': 'Layout',

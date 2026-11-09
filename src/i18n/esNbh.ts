@@ -1,5 +1,8 @@
 /** Spanish text of the Notebooks home (draft: needs native review). English is enNbh.ts. */
+import { esRobust } from './esRobust'
+
 export const esNbh: Record<string, string> = {
+  ...esRobust,
   'nbh.title': 'Cuadernos',
   'nbh.new': 'Cuaderno nuevo',
   'nbh.layout': 'Vista',

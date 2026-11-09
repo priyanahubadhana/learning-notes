@@ -9,6 +9,7 @@ type Tools = {
   toolState: () => Record<string, Record<string, unknown>>
   machine: { state: () => string; abort: (r: string) => void }
   setLasso: (patch: Record<string, unknown>) => Promise<void>
+  health: (reason?: string) => string[]
   [more: string]: unknown
 }
 declare global {
@@ -17,13 +18,23 @@ declare global {
   }
 }
 
+/** The tools hooks load when the browser is idle after start: wait for them. */
+export const toolsReady = (page: Page) =>
+  page.waitForFunction(() => !!window.__lnTools?.health, null, {
+    timeout: 20_000,
+  })
+
 /** The input machine's state: 'idle' when no pointer is believed down. */
-export const machineState = (page: Page) =>
-  page.evaluate(() => window.__lnTools!.machine.state())
+export const machineState = async (page: Page) => {
+  await toolsReady(page)
+  return page.evaluate(() => window.__lnTools!.machine.state())
+}
 
 /** One section of the tool-state dump. */
-export const section = (page: Page, name: string) =>
-  page.evaluate((n) => window.__lnTools!.toolState()[n] ?? {}, name)
+export const section = async (page: Page, name: string) => {
+  await toolsReady(page)
+  return page.evaluate((n) => window.__lnTools!.toolState()[n] ?? {}, name)
+}
 
 /** A loop of small steps around the corners of a box (a hand does not jump). */
 export function loopAround(

@@ -909,6 +909,17 @@ function App() {
     )
   }, [])
 
+  // After a soft refresh (stuck tool): put the place back; say so when it was automatic.
+  useEffect(() => {
+    // Only after a refresh: the module is not in the first download.
+    if (!sessionStorage.getItem('ln.softRefresh')) return
+    void import('./app/softRefresh').then(async (m) => {
+      if (m.restoreSoftRefresh() !== 'auto') return
+      await applyLanguage(readDeviceSetting(languageSetting))
+      showToastRef.current(t('refresh.auto.done'))
+    })
+  }, [])
+
   // No space left: say so, at most once a minute. Other background
   // failures are logged too.
   useEffect(() => {

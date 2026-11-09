@@ -100,8 +100,10 @@ test('the ⋯ menu moves with the arrow keys and greys what is coming', async ({
     page.getByRole('menuitem', { name: new RegExp(`^.{0,3}${name}`) })
   await expect(item('Review this page')).toBeFocused()
   await page.keyboard.press('ArrowDown')
+  await expect(item('Prompts and skills')).toBeFocused()
+  await page.keyboard.press('ArrowDown')
   await expect(item('History')).toBeFocused()
-  await expect(item('Import')).toBeDisabled()
+  await expect(item('Import')).toBeEnabled() // opens Save & restore
 
   await page.keyboard.press('Escape')
   await expect(page.getByRole('menu')).toHaveCount(0)
@@ -122,10 +124,10 @@ test.describe('phone and tablet', () => {
     expect(box.x).toBeGreaterThanOrEqual(0)
     expect(box.x + box.width).toBeLessThanOrEqual(390)
     expect(box.y + box.height).toBeLessThanOrEqual(844)
-    // Page actions (review, history, full-screen reader, lock, favourite,
-    // template, pause, import, export, search), then Copy & paste, Page address,
+    // Page actions (review, prompts, history, full-screen reader, locks, favourite,
+    // template, pause, import, export, search, delete), then Copy & paste, Page address,
     // Device mode, tool bar and Save & restore; plus Paper style and size.
-    await expect(page.getByRole('menuitem')).toHaveCount(17)
+    await expect(page.getByRole('menuitem')).toHaveCount(20)
 
     await page.getByRole('menuitem', { name: /Save & restore/ }).tap()
     await expect(

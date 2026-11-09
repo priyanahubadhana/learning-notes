@@ -175,7 +175,7 @@ test('Contents is a tree you can fold, highlights where you are, and can stay op
   const pane = page.getByTestId('reading-panel-contents')
   await expect(pane.getByRole('treeitem')).toHaveCount(3)
   // Scrolling to the first chapter makes it the highlighted one.
-  await main(page).evaluate((m) => m.scrollTo({ top: 380 }))
+  await main(page).evaluate((m) => m.scrollTo({ top: 250 }))
   await expect(pane.getByRole('treeitem').first()).toHaveAttribute(
     'aria-current',
     'location',

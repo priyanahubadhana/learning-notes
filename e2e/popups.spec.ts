@@ -160,7 +160,6 @@ test('Home follows the Google Docs order, with the old Clipboard group gone', as
     .getByRole('group')
     .evaluateAll((els) => els.map((el) => el.getAttribute('aria-label')))
   expect(labels).toEqual([
-    'Undo & redo',
     'Text style',
     'Font & size',
     'Format',

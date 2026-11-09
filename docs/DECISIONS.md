@@ -924,3 +924,9 @@ The other older decisions stand as built (owner, 2026-11-01); they are in [ARCHI
 - Token locked with AES-GCM using a Supabase secret (`DRIVE_TOKEN_KEY`) on top of a table with RLS on, no policy and no rights for browser roles. A leaked database dump alone cannot be used.
 - Consent screen only when the server holds no token (flag `sync.driveOffline`), because Google limits refresh tokens per account and client.
 - The old Google token window stays as fallback while the function is missing or has nothing stored.
+
+## Owner review (9 Nov morning)
+
+- Boxes: width-only handles, page-wide font/size: approved. Picture placement between lines (free placement via a box): approved.
+- AI cost currency: add Settings › AI › currency (any currency) and its rate per US dollar, both editable; default ₹ and 90.
+- Sync and Drive helper stay owner-email-only while testing. LAUNCH CHECKLIST: open sync/Drive to all accounts (remove ALLOWED_EMAIL / owner allow-list) before other users.

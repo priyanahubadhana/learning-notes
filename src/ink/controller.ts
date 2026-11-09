@@ -1866,23 +1866,13 @@ export class InkController {
     const before = this.gesture
     this.lassoDownInner(e)
     const g = this.gesture
-    if (
-      g &&
-      g !== before &&
-      g.id === e.pointerId &&
-      g.kind === 'lasso'
-    ) {
+    if (g && g !== before && g.id === e.pointerId && g.kind === 'lasso') {
       this.machineBegin(e, 'selecting')
     }
   }
 
   private machineBegin(e: PointerEvent, state: 'selecting' | 'transforming') {
-    inputMachine.begin(
-      e,
-      'ink',
-      (reason) => this.resetGestures(reason),
-      state,
-    )
+    inputMachine.begin(e, 'ink', (reason) => this.resetGestures(reason), state)
   }
 
   private lassoDownInner(e: PointerEvent): void {

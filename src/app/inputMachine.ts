@@ -20,11 +20,7 @@ import {
  */
 
 export type MachineState =
-  | 'idle'
-  | 'pressing'
-  | 'drawing'
-  | 'selecting'
-  | 'transforming'
+  'idle' | 'pressing' | 'drawing' | 'selecting' | 'transforming'
 
 /** A pointer that is down and has not moved this long (ms) is dropped. */
 export const AGE_LIMIT_MS = 4000

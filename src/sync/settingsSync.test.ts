@@ -55,6 +55,8 @@ describe('settings that follow you (step 1)', () => {
     })
     await syncOnce(a, conn, master)
     await syncOnce(b, conn, master)
-    expect(await getSetting(b, newCardsPerDay)).toBe(newCardsPerDay.defaultValue)
+    expect(await getSetting(b, newCardsPerDay)).toBe(
+      newCardsPerDay.defaultValue,
+    )
   })
 })

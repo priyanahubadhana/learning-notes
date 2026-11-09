@@ -16,7 +16,7 @@ describe('reader bar modes', () => {
     return ys.map((y) => (s = barStep(mode, s, y)).visible)
   }
 
-  it('mini: hides while scrolling down, returns after scrolling up 12 px', () => {
+  it('mini: hides while scrolling down, returns after scrolling up 10 px', () => {
     expect(run('mini', [0, 100, 300, 295, 285])).toEqual([
       true,
       false,

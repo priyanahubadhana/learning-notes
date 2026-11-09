@@ -8,6 +8,8 @@ export const hiW2: Record<string, string> = {
   'reading.ctl.find': 'खोजें',
   'reading.ctl.listen': 'सुनें',
   'reading.ctl.edit': 'संपादित करें',
+  'reading.ctl.pin': 'पट्टी हमेशा दिखाएँ',
+  'reading.ctl.unpin': 'स्क्रोल पर पट्टी छिपने दें',
   'reading.ctl.more': 'और पढ़ने के विकल्प',
   'reading.ctl.lock': 'पढ़ने तक सीमित करें',
   'reading.ctl.lineFocus': 'पंक्ति पर ध्यान',

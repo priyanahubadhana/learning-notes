@@ -28,3 +28,6 @@ dist-ssr
 *.sln
 *.sw?
 dist-perf
+
+dist-bars/
+playwright.bars.config.ts

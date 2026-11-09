@@ -1,3 +1,4 @@
+import { centreEl } from '../app/centreEl'
 import { t } from '../i18n/t'
 
 /**
@@ -15,9 +16,10 @@ export function BackupReminder({
     'min-h-9 shrink-0 rounded-md px-2.5 font-semibold underline underline-offset-2 hover:bg-bg/15'
   return (
     <div
+      ref={centreEl}
       role="region"
       aria-label={t('backup.reminder.label')}
-      className="fixed bottom-5 left-1/2 z-30 flex max-w-[calc(100vw-32px)] -translate-x-1/2 flex-wrap items-center gap-x-3 gap-y-1 rounded-[10px] bg-ink px-3.5 py-2 text-[13px] text-bg shadow-[0_8px_24px_rgba(0,0,0,0.14)]"
+      className="fixed bottom-5 left-1/2 z-30 flex max-w-[calc(100vw-32px)] flex-wrap items-center gap-x-3 gap-y-1 rounded-[10px] bg-ink px-3.5 py-2 text-[13px] text-bg shadow-[0_8px_24px_rgba(0,0,0,0.14)]"
     >
       <span>{t('backup.reminder.text')}</span>
       <button type="button" onClick={onSave} className={button}>

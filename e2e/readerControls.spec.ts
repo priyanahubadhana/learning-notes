@@ -80,6 +80,7 @@ test('small ✕ while scrolling down; the bar returns after scrolling up', async
   await expect(controls(page)).toBeVisible()
   // The small ✕ leaves reading, too.
   await main(page).evaluate((m) => m.scrollTo({ top: 900 }))
+  await expect(controls(page)).toHaveCount(0)
   await page.getByTestId('reader-mini-exit').getByRole('button').click()
   await expect(frame(page)).toHaveAttribute('data-view', 'off')
 })
@@ -160,42 +161,22 @@ test('the Read pill is not needed: the options come from the reader controls onl
 
 // ------------------------------------------------------------------- B2
 
-test('Contents is a tree you can fold, highlights where you are, and can stay open', async ({
+test('Contents opens the left panel on its Outline tab and jumps', async ({
   page,
 }) => {
-  // WebKit (simulated iPad) does not report the highlighted heading in this
-  // script; the iPad owner check covers it (see DECISIONS, 6 Nov).
-  test.fixme(
-    test.info().project.name === 'webkit',
-    'current heading in WebKit: owner check',
-  )
   await startBook(page)
   await readSwitch(page).click()
   await barTool(page, 'Contents').click()
-  const pane = page.getByTestId('reading-panel-contents')
-  await expect(pane.getByRole('treeitem')).toHaveCount(3)
-  // Scrolling to the first chapter makes it the highlighted one.
-  await main(page).evaluate((m) => m.scrollTo({ top: 250 }))
-  await expect(pane.getByRole('treeitem').first()).toHaveAttribute(
-    'aria-current',
-    'location',
+  const panel = page.getByTestId('left-panel')
+  await expect(panel.getByRole('tab', { name: /Outline/ })).toHaveAttribute(
+    'aria-selected',
+    'true',
   )
-  // Pinned: the pane stays open after choosing a heading, and pushes the text.
-  await pane.getByRole('button', { name: 'Keep the contents open' }).click()
-  await pane.getByRole('button', { name: 'Chapter 2' }).click()
-  await expect(pane).toBeVisible()
+  await expect(panel.locator('[data-heading]')).toHaveCount(3)
+  await panel.getByRole('button', { name: 'Chapter 2' }).click()
   await expect
     .poll(() => main(page).evaluate((m) => m.scrollTop))
     .toBeGreaterThan(200)
-  await expect(pane.getByRole('treeitem').nth(1)).toHaveAttribute(
-    'aria-current',
-    'location',
-  )
-  expect(
-    await page.evaluate(() =>
-      document.documentElement.style.getPropertyValue('--rd-dock'),
-    ),
-  ).toBe('300px')
 })
 
 test('a jump takes the same time near and far, and a touch stops it', async ({
@@ -206,7 +187,7 @@ test('a jump takes the same time near and far, and a touch stops it', async ({
   await barTool(page, 'Contents').click()
   const t0 = Date.now()
   await page
-    .getByTestId('reading-panel-contents')
+    .getByTestId('left-panel')
     .getByRole('button', { name: 'Chapter 3' })
     .click()
   await expect
@@ -291,4 +272,32 @@ test('the player: back and forward by a sentence, Now playing everywhere, stop',
   await expect(pill).toBeVisible()
   await pill.getByRole('button', { name: 'Stop' }).click()
   await expect(pill).toHaveCount(0)
+})
+
+// ---------------------------------------------------- bar: hide, show, pin
+
+test('reader bar: hides scrolling down, returns on a small scroll up, a tap, or when pinned', async ({
+  page,
+}) => {
+  await startBook(page)
+  await readSwitch(page).click()
+  await expect(controls(page)).toBeVisible()
+  await main(page).evaluate((m) => m.scrollTo({ top: 600 }))
+  await expect(controls(page)).toHaveCount(0)
+  // A small scroll up (10 px or a bit more) brings it back.
+  await main(page).evaluate((m) => m.scrollBy(0, -15))
+  await expect(controls(page)).toBeVisible()
+  // Hide it again, then a tap on the page shows it.
+  await main(page).evaluate((m) => m.scrollBy(0, 400))
+  await expect(controls(page)).toHaveCount(0)
+  await page.mouse.click(600, 350)
+  await expect(controls(page)).toBeVisible()
+  // Pinned: it stays while scrolling down.
+  await controls(page).getByTestId('reader-pin').click()
+  await main(page).evaluate((m) => m.scrollBy(0, 400))
+  await page.waitForTimeout(300)
+  await expect(controls(page)).toBeVisible()
+  await controls(page).getByTestId('reader-pin').click()
+  await main(page).evaluate((m) => m.scrollBy(0, 400))
+  await expect(controls(page)).toHaveCount(0)
 })

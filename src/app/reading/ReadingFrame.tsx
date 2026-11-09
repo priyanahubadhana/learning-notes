@@ -26,7 +26,6 @@ import { addReadingSeconds } from './readingMarks'
 import { AloudPanel } from './ReadingPanels'
 import { AaSheet } from './AaSheet'
 import { BookmarksPanel } from './BookmarksPanel'
-import { ContentsPane } from './ContentsPane'
 import { ReaderFind } from './ReaderFind'
 import { ReaderControls } from './ReaderControls'
 import { useReaderBarVisible } from './useReaderBar'
@@ -432,13 +431,6 @@ export function ReadingFrame({
           speed={speed}
           title={pageTitle}
           pageId={pageId}
-          onClose={() => readingPanel.set(null)}
-        />
-      )}
-      {active && panel === 'contents' && (
-        <ContentsPane
-          scroller={barScroller}
-          position={position}
           onClose={() => readingPanel.set(null)}
         />
       )}

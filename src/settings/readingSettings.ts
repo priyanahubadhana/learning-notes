@@ -180,6 +180,13 @@ export const readingBarSetting: SettingDefinition<BarMode> = choice(
   isBarMode,
   { keywords: 'reader bar top close exit controls scroll' },
 )
+export const readingBarPinSetting: SettingDefinition<OnOffValue> = choice(
+  'barPin',
+  ON_OFF,
+  'off',
+  isOnOffValue,
+  { keywords: 'reader bar pin always show keep visible' },
+)
 export const readingDimSetting = choice('dim', DIM_LEVELS, 0, isDimLevel, {
   keywords: 'dim brightness dark screen',
   select: true,

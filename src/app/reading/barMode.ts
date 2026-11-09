@@ -5,10 +5,10 @@ import type { BarMode } from './readingPrefs'
  * - `always`: always;
  * - `top`: only while the page is at (or near) the top;
  * - `mini`: hidden while you scroll down, back after you scroll up by a
- *   little (12 px) and always at the top.
+ *   little (10 px) and always at the top.
  */
 
-const SCROLL_THRESHOLD = 12
+const SCROLL_THRESHOLD = 10
 const TOP_ZONE = 8
 
 export interface BarState {

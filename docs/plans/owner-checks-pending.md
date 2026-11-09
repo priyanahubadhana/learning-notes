@@ -2,6 +2,15 @@
 
 Moved out of HANDOFF on 2026-11-06 (audit) so HANDOFF stays five lines. Newest first; each paragraph names its step. The run decision (master plan) is one owner iPad pass before Sync; the Phase A builder adds its checks at the top. Tick a paragraph by deleting it.
 
+## Reader bar hide/show, pin, Contents (9 Nov, iPad)
+
+What it is: the reader bar now behaves like Safari's, has a pin, and Contents opens the left panel's Outline tab.
+
+1. In Read mode scroll down: the bar slides away (a small ✕ stays). Scroll up a little (about 10 px) or tap the page: the bar slides back. At the top it is always there.
+2. Tap the pin on the bar: it stays visible while you scroll; tap again to let it hide. It is remembered on this iPad.
+3. Tap Contents (☰): the left panel opens on Outline; tap a heading and the page jumps. In the full-screen reader it first returns to reading in place (the full-screen page covers the panel).
+4. Toasts, the Lasso and mixed menus, the Now playing pill and the paste chip are sharp (no soft text).
+
 ## Ink scrolls with the page (9 Nov, iPad)
 
 What it is: the ink now lives inside the page, so the browser scrolls it with the words (before, the app re-placed it on every scroll, which stuttered on big pages and could drift over the tool bar).

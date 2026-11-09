@@ -959,3 +959,21 @@ html[data-note-line] .bn-editor {
 [data-paper-box] .bn-block-outer {
   transition: none;
 }
+
+/* The reader bar slides down when it comes back (150-200 ms). */
+@keyframes reader-bar-in {
+  from {
+    transform: translateY(-100%);
+  }
+  to {
+    transform: translateY(0);
+  }
+}
+.reader-bar-in {
+  animation: reader-bar-in 180ms ease-out;
+}
+@media (prefers-reduced-motion: reduce) {
+  .reader-bar-in {
+    animation: none;
+  }
+}

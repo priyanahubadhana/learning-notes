@@ -727,8 +727,12 @@ export const enO = {
   'prompts.inputSize_other': '{count} characters will be used',
   'prompts.inputCut': 'Only the first part fits, the rest is left out.',
   'prompts.cost':
-    'About {inr} · {input} tokens in, up to {output} out · {model}',
-  'prompts.underInr': 'under {amount}',
+    'About {amount} · {input} tokens in, up to {output} out · {model}',
+  'prompts.underAmount': 'under {amount}',
+  'ai.currency.label': 'Cost currency',
+  'ai.currency.search': 'Search currencies',
+  'ai.currency.rate': 'Rate: how many {code} for 1 US dollar',
+  'ai.currency.changed': 'Rate last changed {date}',
   'prompts.useSaved': 'Use a saved prompt',
   'prompts.level.must': 'Must know',
   'prompts.level.good': 'Good to know',
@@ -917,4 +921,6 @@ export const enO = {
   'pasteChooser.cleaned': 'Cleaned up',
   'embed.openLink': 'Open the link',
   'pasteChooser.boxMade': 'Pasted into a new text box',
+  'reading.ctl.pin': 'Keep the bar visible',
+  'reading.ctl.unpin': 'Let the bar hide while scrolling',
 }

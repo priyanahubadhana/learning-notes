@@ -1,3 +1,4 @@
+import { centreEl } from '../centreEl'
 import { t } from '../../i18n/t'
 import { Icon } from '../tools/icons'
 import {
@@ -26,11 +27,12 @@ export function NowPlayingPill({
     'grid size-11 shrink-0 place-items-center rounded-full hover:bg-hover'
   return (
     <div
+      ref={centreEl}
       data-chrome
       data-testid="now-playing"
       role="region"
       aria-label={t('reading.nowPlaying')}
-      className="fixed bottom-[calc(env(safe-area-inset-bottom)+0.75rem)] left-1/2 z-[45] flex max-w-[min(26rem,calc(100vw-1.5rem))] -translate-x-1/2 items-center gap-1 rounded-full border border-line bg-bg py-0.5 ps-4 pe-1 text-ink shadow-[0_6px_20px_rgba(0,0,0,0.16)] phone:bottom-[calc(env(safe-area-inset-bottom)+4.25rem)]"
+      className="fixed bottom-[calc(env(safe-area-inset-bottom)+0.75rem)] left-1/2 z-[45] flex max-w-[min(26rem,calc(100vw-1.5rem))] items-center gap-1 rounded-full border border-line bg-bg py-0.5 ps-4 pe-1 text-ink shadow-[0_6px_20px_rgba(0,0,0,0.16)] phone:bottom-[calc(env(safe-area-inset-bottom)+4.25rem)]"
     >
       <button
         type="button"

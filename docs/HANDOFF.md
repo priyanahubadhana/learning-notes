@@ -1,3 +1,5 @@
+- **Reader bar follow-ups (9 Nov):** Safari-style hide/show + pin, Contents opens left Outline, centring by whole pixels (centreEl.ts); see CHANGELOG.
+
 # Handoff
 
 - **Ink scrolls natively (9 Nov, night):** overlay inside the page scroller + tiled canvases (src/ink/render.ts, controller.ts); mixed paper page at 4x CPU 17-25 % -> 0.9-3.0 % late frames; ink-over-toolbar drift fixed at the root (no more bounce tracker). Spec docs/features/ink.md (Speed), numbers in docs/research/perf-big-pages-2026-11.md, choices in DECISIONS. iPad owner check at the top of owner-checks-pending.md. Test helpers `painted`, `paintedBox`, `inkClientBox` (e2e/inkHelpers.ts) join the tiles.

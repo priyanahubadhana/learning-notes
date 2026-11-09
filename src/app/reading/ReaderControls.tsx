@@ -3,9 +3,11 @@ import { t } from '../../i18n/t'
 import { useDeviceSetting } from '../../settings/useSetting'
 import {
   readingBlanksSetting,
+  readingBarPinSetting,
   readingRulerSetting,
 } from '../../settings/readingSettings'
 import { AppUiContext } from '../appUi'
+import { requestOutline } from '../panel/outlineRequest'
 import { runHistory } from '../../editor/historyActions'
 import { currentRunner } from '../tools/toolRuntime'
 import { useReaderHistory } from './useReaderHistory'
@@ -84,6 +86,7 @@ export function ReaderControls({
   const history = useReaderHistory()
   const [ruler] = useDeviceSetting(readingRulerSetting)
   const [blanks] = useDeviceSetting(readingBlanksSetting)
+  const [pin, setPin] = useDeviceSetting(readingBarPinSetting)
   const [menu, setMenu] = useState<DOMRect | null>(null)
   const toggle = (name: Exclude<ReadingPanelName, null>) =>
     openReadingPanel(name)
@@ -114,6 +117,12 @@ export function ReaderControls({
     },
   ]
 
+  // One outline in one place: the left panel's Outline tab. The full-screen
+  // reader covers the panel, so it steps back to reading in place first.
+  const openContents = () => {
+    if (view === 'reader') startReading('inPlace')
+    requestOutline()
+  }
   const exit = () => exitReading()
   if (!visible) {
     // Mini mode: only a small ✕, top left inside the safe area.
@@ -122,7 +131,7 @@ export function ReaderControls({
         data-chrome
         data-reader-chrome
         data-testid="reader-mini-exit"
-        className="fixed top-[env(safe-area-inset-top)] left-1 z-[38]"
+        className="fixed top-[env(safe-area-inset-top)] left-1 z-[40]"
       >
         <button
           type="button"
@@ -147,7 +156,7 @@ export function ReaderControls({
       data-testid="reader-controls"
       role="toolbar"
       aria-label={t('reading.ctl.label')}
-      className="fixed inset-x-0 top-0 z-[38] flex min-h-[calc(3.25rem+env(safe-area-inset-top))] items-center gap-0.5 border-b px-2 pt-[env(safe-area-inset-top)]"
+      className="reader-bar-in fixed inset-x-0 top-0 z-[40] flex min-h-[calc(3.25rem+env(safe-area-inset-top))] items-center gap-0.5 border-b px-2 pt-[env(safe-area-inset-top)]"
       style={{
         background: 'var(--rd-bg, #fff)',
         color: 'var(--rd-fg, #000)',
@@ -183,8 +192,7 @@ export function ReaderControls({
       <Button
         label={t('reading.ctl.contents')}
         icon="list"
-        pressed={panel === 'contents'}
-        onClick={() => toggle('contents')}
+        onClick={openContents}
       />
       <Button
         label={t('reading.ctl.bookmarks')}
@@ -222,6 +230,13 @@ export function ReaderControls({
       <span className="min-w-0 flex-1 truncate ps-2 text-sm font-medium">
         {showTitle ? title || t('review.untitled') : ''}
       </span>
+      <Button
+        label={t(pin === 'on' ? 'reading.ctl.unpin' : 'reading.ctl.pin')}
+        icon={pin === 'on' ? 'pinOff' : 'pin'}
+        testId="reader-pin"
+        pressed={pin === 'on'}
+        onClick={() => setPin(pin === 'on' ? 'off' : 'on')}
+      />
       <Button
         label={t('reading.ctl.more')}
         icon="more"

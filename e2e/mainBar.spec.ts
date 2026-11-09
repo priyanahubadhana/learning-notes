@@ -335,6 +335,7 @@ test('Read: one tap enters Reading mode; the reader controls replace the bar', a
     'Find',
     'Listen',
     'Edit page',
+    'Keep the bar visible',
     'More reading options',
   ])
   // Aa: a sheet with Font, Layout, Themes and More.

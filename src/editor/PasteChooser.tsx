@@ -1,3 +1,4 @@
+import { centreEl } from '../app/centreEl'
 import {
   useEffect,
   useRef,
@@ -65,9 +66,10 @@ export function PasteChooser({ owner }: { owner: unknown }) {
     return createPortal(
       <div
         data-chrome
+        ref={centreEl}
         role="group"
         aria-label={t('pasteChooser.chip')}
-        className="pointer-events-auto fixed bottom-4 start-1/2 z-40 flex max-w-[calc(100vw-1.5rem)] -translate-x-1/2 flex-wrap items-center gap-1 rounded-full border border-line bg-bg px-2 py-1 text-[13px] shadow-lg"
+        className="pointer-events-auto fixed bottom-4 left-1/2 z-40 flex max-w-[calc(100vw-1.5rem)] flex-wrap items-center gap-1 rounded-full border border-line bg-bg px-2 py-1 text-[13px] shadow-lg"
       >
         <span className="px-2 text-ink-soft">{t('pasteChooser.chip')}</span>
         {chip.choices.map((choice) => (

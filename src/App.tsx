@@ -1,3 +1,4 @@
+import { centreEl } from './app/centreEl'
 import { useLiveQuery } from 'dexie-react-hooks'
 import {
   lazy,
@@ -71,6 +72,7 @@ import { NowPlayingGate } from './app/reading/NowPlayingGate'
 import { TOAST_AFTER_HOLD_MS, toastDuration } from './app/toastTiming'
 import { isStringOrNull } from './app/uiPrefs'
 import { usePref } from './app/usePref'
+import { outlineRequest } from './app/panel/outlineRequest'
 import { applyLanguage } from './i18n/languages'
 import { setDateStyle, t } from './i18n/t'
 import { useTreeState } from './app/useTreeState'
@@ -612,6 +614,15 @@ function App() {
     }
   }
 
+  // Cost currency: keep this browser's copy equal to the synced setting.
+  useEffect(() => {
+    let stop: (() => void) | undefined
+    void import('./ai/costCurrency').then((m) => {
+      stop = m.startCurrencyMirror(db)
+    })
+    return () => stop?.()
+  }, [db])
+
   // Back / Forward: show the screen of the address (unless only the
   // notebook's tab or the database's view changed; those listen themselves).
   useEffect(() => {
@@ -750,6 +761,10 @@ function App() {
     readPref('sidebarHidden', isBoolean, false),
   )
   const [panelOpen, setPanelOpen] = usePref('leftPanel.open', isBoolean, false)
+  const outlineAsk = outlineRequest.useValue()
+  useEffect(() => {
+    if (outlineAsk.n > 0) setPanelOpen(true)
+  }, [outlineAsk.n, setPanelOpen])
   const toggleSidebar = () => {
     setSidebarHidden(!sidebarHidden)
     writePref('sidebarHidden', !sidebarHidden)
@@ -1880,7 +1895,10 @@ function App() {
             <NowPlayingGate onOpenPage={(id) => openPage(id)} />
             <TimerChip db={db} onOpenHome={() => chooseSpace('home')} />
             <AudioDock db={db} pageId={currentPage?.id ?? null} />
-            <div className="fixed bottom-16 left-1/2 z-40 flex w-max max-w-[calc(100vw-32px)] -translate-x-1/2 flex-col items-center gap-2">
+            <div
+              ref={centreEl}
+              className="fixed bottom-16 left-1/2 z-40 flex w-max max-w-[calc(100vw-32px)] flex-col items-center gap-2"
+            >
               <SaveNotice />
               <FirstUseTip />
               {updateQuestion && (

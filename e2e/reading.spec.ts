@@ -285,16 +285,11 @@ test('Contents lists the headings and jumps to one; a bookmark can be added, use
 }) => {
   await startBook(page)
   await readSwitch(page).click()
-  // Contents is its own pane on the right, Bookmarks its own panel.
+  // Contents is the left panel's Outline tab, Bookmarks its own panel.
   await barTool(page, 'Contents').click()
-  const pane = page.getByTestId('reading-panel-contents')
-  await expect(pane.getByRole('button', { name: /^Chapter \d$/ })).toHaveText([
-    'Chapter 1',
-    'Chapter 2',
-    'Chapter 3',
-  ])
+  const pane = page.getByTestId('left-panel')
+  await expect(pane.locator('[data-heading]')).toHaveCount(3)
   await pane.getByRole('button', { name: 'Chapter 3' }).click()
-  await expect(pane).toHaveCount(0)
   // The arrival point glows.
   await expect.poll(() => landings(page)).toBeGreaterThan(0)
   await expect

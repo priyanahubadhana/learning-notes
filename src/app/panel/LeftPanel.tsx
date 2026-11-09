@@ -21,6 +21,7 @@ import { sampleName } from '../../i18n/defaultNames'
 import { t } from '../../i18n/t'
 import { listNotePages } from '../../pages/pageService'
 import { usePref } from '../usePref'
+import { outlineRequest } from './outlineRequest'
 import {
   glideTo,
   landOn,
@@ -405,6 +406,10 @@ export function LeftPanel({
   onClose: () => void
 }) {
   const [tab, setTab] = usePref<Tab>('leftPanel.tab', isTab, 'pages')
+  const ask = outlineRequest.useValue()
+  useEffect(() => {
+    if (ask.n > 0 && Date.now() - ask.at < 1500) setTab('outline')
+  }, [ask, setTab])
   const docked = window.innerWidth >= PANEL_DOCK_MIN
   return (
     <aside

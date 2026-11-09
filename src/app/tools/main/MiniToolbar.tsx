@@ -1,3 +1,4 @@
+import { centreEl } from '../../centreEl'
 import { pmState } from '../../../editor/pm'
 import { startGripDrag } from '../gripDrag'
 import {
@@ -428,7 +429,10 @@ export function MiniToolbar({ editor }: { editor: Editor }) {
   return createPortal(
     <>
       <div
-        ref={barRef}
+        ref={(el) => {
+          barRef.current = el
+          centreEl(el)
+        }}
         role="toolbar"
         aria-label={t('main.mini.label')}
         data-mini-toolbar
@@ -437,7 +441,6 @@ export function MiniToolbar({ editor }: { editor: Editor }) {
         style={{
           left: Math.round(at.left),
           top: Math.round(at.top),
-          transform: 'translateX(-50%)',
           width: 'max-content',
           maxWidth: area.right - area.left - 16,
         }}

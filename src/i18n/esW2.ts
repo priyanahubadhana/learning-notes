@@ -8,6 +8,8 @@ export const esW2: Record<string, string> = {
   'reading.ctl.find': 'Buscar',
   'reading.ctl.listen': 'Escuchar',
   'reading.ctl.edit': 'Editar',
+  'reading.ctl.pin': 'Mantener la barra visible',
+  'reading.ctl.unpin': 'Dejar que la barra se oculte al desplazar',
   'reading.ctl.more': 'Más opciones de lectura',
   'reading.ctl.lock': 'Bloquear en lectura',
   'reading.ctl.lineFocus': 'Enfoque de línea',

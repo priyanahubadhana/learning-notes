@@ -58,6 +58,51 @@ export default function ClashBars({
     }
   }
 
+  const bar =
+    'flex flex-wrap items-center gap-x-3 gap-y-1 rounded-lg bg-soft px-3 py-2 text-sm'
+  if (clashed.length > 1) {
+    // One calm bar for the page, never a stack of them.
+    const takeAllOther = async () => {
+      for (const b of clashed) await chooseOther(b)
+    }
+    const keepAll = async () => {
+      for (const b of clashed) await clearClash(db, b.id)
+    }
+    return (
+      <div className="mb-2">
+        <div
+          role="group"
+          aria-label={t('clash.title')}
+          data-testid="clash-bar"
+          className={bar}
+        >
+          <div className="min-w-0 flex-1">
+            <div className="font-medium">{t('clash.title')}</div>
+            <div className="text-muted">
+              {t('clash.many', { n: clashed.length })}
+            </div>
+          </div>
+          <div className="flex flex-wrap gap-1">
+            <button
+              type="button"
+              className={button}
+              onClick={() => void keepAll()}
+            >
+              {t('clash.keepMine')}
+            </button>
+            <button
+              type="button"
+              className={button}
+              onClick={() => void takeAllOther()}
+            >
+              {t('clash.useOther')}
+            </button>
+          </div>
+        </div>
+      </div>
+    )
+  }
+
   return (
     <div className="mb-2 flex flex-col gap-2">
       {clashed.map((b) => (

@@ -284,15 +284,50 @@ describe('merge rules (L7)', () => {
   it('true conflict: newer clock wins; blocks keep the loser', () => {
     const r = mergeRecord(
       'blocks',
-      { value: v({ content: 'a' }), hlc: '2', dirty: true },
-      { value: v({ content: 'b' }), hlc: '1' },
+      { value: v({ content: { text: 'a' } }), hlc: '2', dirty: true },
+      { value: v({ content: { text: 'b' } }), hlc: '1' },
     )
-    expect(r).toEqual({ action: 'keep', loser: v({ content: 'b' }) })
+    expect(r).toEqual({
+      action: 'keep',
+      loser: v({ content: { text: 'b' } }),
+    })
     const moved = mergeRecord(
       'blocks',
       { value: v({ content: 'a', order: 'a1' }), hlc: '1', dirty: true },
       { value: v({ content: 'a', order: 'a2' }), hlc: '2' },
     )
     expect(moved).toEqual({ action: 'take' })
+  })
+  it('no clash for blocks without text, or for props and position alone', () => {
+    const local = (o: Record<string, unknown>) => ({
+      value: v(o),
+      hlc: '2',
+      dirty: true,
+    })
+    const remote = (o: Record<string, unknown>) => ({ value: v(o), hlc: '1' })
+    // A video: nothing to read, newest wins silently.
+    expect(
+      mergeRecord(
+        'blocks',
+        local({ type: 'video', content: { text: '' }, props: { url: 'a' } }),
+        remote({ type: 'video', content: { text: '' }, props: { url: 'b' } }),
+      ),
+    ).toEqual({ action: 'keep' })
+    // Same words, only props differ.
+    expect(
+      mergeRecord(
+        'blocks',
+        local({ content: { text: 'same' }, props: { w: 1 } }),
+        remote({ content: { text: 'same' }, props: { w: 2 } }),
+      ),
+    ).toEqual({ action: 'keep' })
+    // The other side has no words to lose.
+    expect(
+      mergeRecord(
+        'blocks',
+        local({ content: { text: 'words' } }),
+        remote({ content: { text: '' } }),
+      ),
+    ).toEqual({ action: 'keep' })
   })
 })

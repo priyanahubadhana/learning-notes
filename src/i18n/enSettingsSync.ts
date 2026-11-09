@@ -1,5 +1,6 @@
 /** English text of "settings that follow you". Spanish and Hindi: esSettingsSync.ts, hiSettingsSync.ts (drafts). */
 export const enSettingsSync = {
+  'clash.many': '{n} blocks changed on two devices. Choose for all of them.',
   'syncGroup.general': 'General',
   'syncGroup.general.list':
     'Language, date style, day start, help, path style, new page choices, paste.',

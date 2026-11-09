@@ -1,5 +1,6 @@
 /** Hindi text of "settings that follow you" (draft: needs native review). English is enSettingsSync.ts. */
 export const hiSettingsSync: Record<string, string> = {
+  'clash.many': '{n} ब्लॉक दो डिवाइस पर बदले। सबके लिए चुनें।',
   'syncGroup.general': 'सामान्य',
   'syncGroup.general.list':
     'भाषा, तारीख़ की शैली, दिन की शुरुआत, मदद, पाथ शैली, नए पेज के विकल्प, पेस्ट।',

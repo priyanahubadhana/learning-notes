@@ -1,5 +1,6 @@
 /** Spanish text of "settings that follow you" (draft: needs native review). English is enSettingsSync.ts. */
 export const esSettingsSync: Record<string, string> = {
+  'clash.many': '{n} bloques cambiaron en dos dispositivos. Elige para todos.',
   'syncGroup.general': 'General',
   'syncGroup.general.list':
     'Idioma, estilo de fecha, inicio del día, ayuda, estilo de ruta, opciones de página nueva, pegar.',

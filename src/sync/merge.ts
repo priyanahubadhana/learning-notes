@@ -1,3 +1,4 @@
+import { excerptOf } from './clash'
 import type { MergeMode } from './tables'
 
 /**
@@ -50,6 +51,19 @@ function sameContent(
   return true
 }
 
+/**
+ * A clash is about words. The losing side counts only if it has text the
+ * winner lacks: pictures, videos and other blocks without text, and changes
+ * of position or props alone, merge silently (newest wins).
+ */
+export function differentText(
+  winner: Record<string, unknown>,
+  loser: Record<string, unknown>,
+): boolean {
+  const lost = excerptOf(loser.content, 1000)
+  return lost !== '' && lost !== excerptOf(winner.content, 1000)
+}
+
 export function mergeRecord(
   mode: MergeMode,
   local: LocalCopy | undefined,
@@ -68,7 +82,8 @@ export function mergeRecord(
     mode === 'blocks' &&
     winner.deletedAt === null &&
     loser.deletedAt === null &&
-    !sameContent(winner, loser)
+    !sameContent(winner, loser) &&
+    differentText(winner, loser)
   if (remoteWins)
     return keepLoser ? { action: 'take', loser } : { action: 'take' }
   return keepLoser ? { action: 'keep', loser } : { action: 'keep' }

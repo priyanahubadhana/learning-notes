@@ -1,3 +1,4 @@
+/* eslint-disable react-refresh/only-export-components -- a small notice module: its exports are plain functions plus one tiny component, never hot-reloaded alone */
 import { useSyncExternalStore } from 'react'
 import { createRoot } from 'react-dom/client'
 import { readPref, writePref } from '../app/uiPrefs'

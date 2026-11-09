@@ -61,7 +61,7 @@ describe('settings registry', () => {
   it('rejects duplicates, unknown categories and invalid defaults', () => {
     const r = createSettingsRegistry()
     r.registerCategory({ id: 'a', labelKey: 'settings.title', order: 1 })
-    const def = { ...newCardsPerDay, category: 'a' }
+    const def = { ...newCardsPerDay, category: 'a', group: 'review' as const }
     r.register(def)
     expect(() => r.register(def)).toThrow(/already/)
     expect(() => r.register({ ...def, id: 'x', alsoIn: ['nope'] })).toThrow(

@@ -1,5 +1,6 @@
 import type { JsonValue } from '../core/types'
 import type { MessageKey } from '../i18n/t'
+import { groupOfId, type SyncGroupId } from './syncGroups'
 
 /**
  * Settings registry: the plug-in point for settings (like block types).
@@ -54,7 +55,12 @@ export type SettingControl =
       unitKey: MessageKey
     }
 
-/** Where the value is kept. 'synced' = with the notes; 'device' = browser. */
+/**
+ * Where the value is kept. 'synced' = in the database with the notes;
+ * 'device' = in the browser. A setting named in SETTING_GROUPS (syncGroups.ts)
+ * also follows the person to other devices; a device setting in no group
+ * never leaves this device.
+ */
 export type SettingScope = 'synced' | 'device'
 
 export interface SettingDefinition<T extends JsonValue = JsonValue> {
@@ -69,6 +75,8 @@ export interface SettingDefinition<T extends JsonValue = JsonValue> {
   scope: SettingScope
   /** Device settings only: storage key, if it differs from `id`. */
   storageKey?: string
+  /** Sync group, if the id is not in SETTING_GROUPS (syncGroups.ts). */
+  group?: SyncGroupId
   defaultValue: T
   /** Checks any stored or entered value; invalid values are never saved. */
   isValid: (value: unknown) => value is T
@@ -134,6 +142,12 @@ export function createSettingsRegistry(): SettingsRegistry {
           `shownWhen needs a registered synced setting: ${controller}`,
         )
       }
+      if (
+        definition.scope === 'synced' &&
+        !(definition.group ?? groupOfId(definition.id))
+      ) {
+        throw new Error(`Synced setting needs a sync group: ${definition.id}`)
+      }
       if (!definition.isValid(definition.defaultValue)) {
         throw new Error(`Invalid default for setting ${definition.id}`)
       }
@@ -182,3 +196,9 @@ export const isRisingSteps =
         v <= max &&
         (i === 0 || v > (value[i - 1] as number)),
     )
+
+/** The sync group a setting belongs to (none = stays on this device). */
+export const groupOf = (d: {
+  id: string
+  group?: SyncGroupId
+}): SyncGroupId | undefined => d.group ?? groupOfId(d.id)

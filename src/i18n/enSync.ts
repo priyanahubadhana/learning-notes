@@ -1,3 +1,4 @@
+import { enSettingsSync } from './enSettingsSync'
 import { enAccounts } from './enAccounts'
 /** English text of Sync (Phase L). Spanish and Hindi drafts: esSync.ts, hiSync.ts. */
 export const enSync = {
@@ -108,4 +109,5 @@ export const enSync = {
   'sync.choice.useThere': 'Use the cloud version',
   'sync.choice.thereHelp': 'This device’s version goes to History.',
   ...enAccounts,
+  ...enSettingsSync,
 } as const

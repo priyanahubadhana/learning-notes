@@ -97,7 +97,7 @@ export function MathEditor({
       onClick={(e) => {
         if (e.target === ref.current) onCancel() // click on the backdrop
       }}
-      className="m-auto max-h-[92vh] w-[min(640px,calc(100vw-24px))] overflow-auto rounded-[14px] border border-line bg-bg p-4 text-ink shadow-[0_18px_48px_rgba(0,0,0,0.18)] backdrop:bg-black/20"
+      className="m-auto max-h-[92vh] w-[min(640px,calc(100vw-24px))] overflow-auto rounded-[14px] border border-line bg-surface-3 p-4 text-ink shadow-[0_18px_48px_rgba(0,0,0,0.18)] backdrop:bg-[var(--scrim)]"
     >
       <h2 className="mb-2 text-[16px] font-semibold">{t('math.editor')}</h2>
       <div

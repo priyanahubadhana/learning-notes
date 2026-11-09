@@ -201,7 +201,7 @@ export function EditListSheet({
         e.preventDefault()
         onClose()
       }}
-      className="m-auto h-[min(40rem,calc(100dvh-1rem))] w-[min(52rem,calc(100vw-1rem))] overflow-hidden rounded-2xl border border-line bg-bg p-0 text-ink shadow-[0_12px_32px_rgba(0,0,0,0.18)] backdrop:bg-black/30"
+      className="m-auto h-[min(40rem,calc(100dvh-1rem))] w-[min(52rem,calc(100vw-1rem))] overflow-hidden rounded-2xl border border-line bg-surface-3 p-0 text-ink shadow-[var(--elev-3)] backdrop:bg-[var(--scrim)]"
     >
       <div className="flex h-full flex-col">
         <header className="flex items-center gap-2 border-b border-line px-3 py-2">

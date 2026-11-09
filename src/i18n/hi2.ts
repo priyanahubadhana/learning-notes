@@ -8,6 +8,11 @@ export const hi2: Record<string, string> = {
   'settings.theme.day': 'दिन',
   'settings.theme.night': 'रात',
   'settings.theme.sepia': 'सेपिया',
+  'settings.reduceGlass.label': 'काँच कम करें',
+  'settings.reduceGlass.description':
+    'साइडबार, बार और मेनू धुँधले काँच जैसे हैं। स्वचालित में डिवाइस धीमा होने पर धुँधलापन अपने-आप बंद हो जाता है; ठोस में हमेशा बंद रहता है।',
+  'settings.reduceGlass.auto': 'स्वचालित',
+  'settings.reduceGlass.reduce': 'ठोस',
   'settings.showHelp.label': 'सहायता दिखाएँ',
   'settings.showHelp.description':
     'किसी सुविधा पर माउस ले जाने (या टच स्क्रीन पर उसके ⓘ को छूने) पर छोटा-सा स्पष्टीकरण दिखाता है, और कठिन सुविधाओं के नीचे सहायता पंक्ति। सब छिपाने के लिए इसे बंद करें।',

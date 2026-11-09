@@ -136,7 +136,7 @@ export function CsvImportDialog({
       onClick={(e) => {
         if (e.target === ref.current) requestClose()
       }}
-      className="m-auto max-h-[calc(100vh-2rem)] w-[min(40rem,calc(100vw-2rem))] rounded-xl border border-line bg-bg p-5 text-ink shadow-[0_12px_32px_rgba(0,0,0,0.14)] backdrop:bg-black/20"
+      className="m-auto max-h-[calc(100vh-2rem)] w-[min(40rem,calc(100vw-2rem))] rounded-xl border border-line bg-surface-3 p-5 text-ink shadow-[var(--elev-3)] backdrop:bg-[var(--scrim)]"
     >
       <h2 className="mb-1 text-[15px] font-semibold">{t('csv.title')}</h2>
       <p className="mb-3 text-sm text-muted">{t('csv.intro')}</p>

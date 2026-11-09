@@ -66,7 +66,8 @@ async function showPage(page: Page, n: number) {
     const target = el.querySelector<HTMLElement>(`[data-pdf-page="${i}"]`)!
     el.scrollTop = target.offsetTop - 20
   }, n)
-  await expect.poll(async () => (await pageRect(page, n)).y).toBeLessThan(260)
+  // 300, not 260: the frame gaps of design step 2 push the page down about 24 px.
+  await expect.poll(async () => (await pageRect(page, n)).y).toBeLessThan(300)
 }
 
 test('a pen stroke on page 2 stays on page 2 after zoom and reload', async ({

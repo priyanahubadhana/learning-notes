@@ -58,7 +58,7 @@ export function SidebarGroup({
           onClick={() => setOpen(!open)}
           aria-expanded={open}
           aria-controls={body}
-          className="flex min-h-8 flex-1 items-center gap-1.5 rounded-md px-2.5 text-[10.5px] font-medium tracking-[0.07em] text-muted uppercase hover:bg-hover any-pointer-coarse:min-h-11"
+          className="flex min-h-8 flex-1 items-center gap-1.5 rounded-md px-2.5 text-[11px] font-semibold tracking-[0.06em] text-muted uppercase hover:bg-hover any-pointer-coarse:min-h-11"
         >
           <span aria-hidden className="w-3 text-[10px]">
             {open ? '▾' : '▸'}

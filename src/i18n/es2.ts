@@ -8,6 +8,11 @@ export const es2: Record<string, string> = {
   'settings.theme.day': 'Día',
   'settings.theme.night': 'Noche',
   'settings.theme.sepia': 'Sepia',
+  'settings.reduceGlass.label': 'Reducir cristal',
+  'settings.reduceGlass.description':
+    'La barra lateral, las barras y los menús son de cristal esmerilado. Automático quita el desenfoque si el dispositivo va lento; Sólido lo quita siempre.',
+  'settings.reduceGlass.auto': 'Automático',
+  'settings.reduceGlass.reduce': 'Sólido',
   'settings.showHelp.label': 'Mostrar ayuda',
   'settings.showHelp.description':
     'Muestra una breve explicación al pasar el cursor sobre una función (o al tocar su ⓘ en una pantalla táctil), y una línea de ayuda bajo las funciones más difíciles. Desactívalo para ocultarlo todo.',

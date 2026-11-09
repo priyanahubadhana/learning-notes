@@ -108,7 +108,7 @@ export function QuietCorner({
             data-testid="corner-panel"
             role="region"
             aria-label={t('corner.label')}
-            className="fixed bottom-2 left-14 z-50 flex max-h-[80vh] w-64 flex-col gap-0.5 overflow-y-auto rounded-2xl border border-line bg-bg p-2 text-ink shadow-[0_12px_40px_rgba(0,0,0,0.2)] phone:right-2 phone:bottom-16 phone:left-auto"
+            className="fixed bottom-2 left-14 z-50 flex max-h-[80vh] w-64 flex-col gap-0.5 overflow-y-auto glass rounded-xl p-2 text-ink phone:right-2 phone:bottom-16 phone:left-auto"
           >
             <Tip id="sidebar.settings" className="flex" touchInfo={false}>
               <button

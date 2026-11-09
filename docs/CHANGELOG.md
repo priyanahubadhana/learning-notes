@@ -2,6 +2,13 @@
 
 Current phase only. Older entries are in [ARCHIVE.md](ARCHIVE.md).
 
+## 2026-11-09 (Design step 2: the frame)
+
+- **What:** the app frame on the new look. A fixed violet wash behind everything (`bg-wash` on the shell); a floating glass sidebar (12 px gap, radius 16) and a flat-glass strip of spaces (the icon rail: hiding the sidebar leaves it); the top bar and tool bar share ONE glass layer; the page is a solid rounded card. Phones stay edge to edge (`--frame-gap` is 0). Active rows use the soft violet tint, section labels are 11 px caps, the Review badge uses on-accent. Menus (⋯ menus, anchored menus, Quiet corner, pickers, database popovers) and the search palette use `.glass`; toasts (Undo, update, reminder) are solid surface-3; dialogs use surface-3, elev-3 and the scrim. `.glass` now lives in the components layer (utilities can adjust it) and `.glass-flat` is the same look without blur. New `src/design/glass.ts`: Settings > General > Reduce glass (Automatic or Solid) and a frame-time probe that sets `data-glass="lite"` for the session when scrolling or pointer bursts run slower than 20 ms.
+- **Why:** step 2 of the premium design plan. Blur budget: sidebar + bars + one menu or the palette = 3 layers at most; the paper never blurs.
+- **Measured:** e2e/bigPageBudget scroll median/p95 frame 16.7 ms before and after, 0 long tasks, type and paste figures unchanged.
+- **Files:** src/App.tsx, src/index.css, src/design/{tokens.css,glass.ts,glass.test.ts}, src/app/{TopBar,SidebarGroup,UpdateBar,ui}.tsx, src/app/spaces/{SpaceStrip,QuietCorner}.tsx, src/app/tools/AnchoredMenu.tsx, src/notebooks/Sidebar.tsx, src/pages/PageTree.tsx, src/search/SearchPopup.tsx, src/links/LinkPicker.tsx, src/tags/TagPicker.tsx, src/databases/views/Popover.tsx, src/share/ReminderBar.tsx, src/settings/builtinSettings.ts, src/i18n/{en,enS}.ts, 20 dialogs (colour, shadow and scrim classes only).
+
 ## 2026-11-09 (Settings › Account)
 
 - **What:** new section Settings › Account (`src/sync/AccountSection.tsx`, lazy; its items are findable in Search all features through `settings/accountSettings.ts`, `searchOnly` entries). Who (email, Google picture, sign in), Connections (last synced, Sync now, Drive lasting connection with Set up button), Security (key state, Make a new recovery code, PIN lock and AI keys state with links), Sessions (sign out here, sign out and forget the key, NEW Sign out on all devices: confirm dialog, Drive key revoked through the drive-token function, then Supabase ; a server failure changes nothing). Moved out of Sync (no duplicate controls): sign in, sign out buttons, Sync now, Drive lasting, new recovery code. Sync keeps setup/unlock, status, live, merged notice, Reconnect Drive, device check, and links to Account.

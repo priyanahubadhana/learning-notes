@@ -178,7 +178,7 @@ export function PageTree({
               setOver(null)
             }}
             className={`group @container flex min-h-9 items-center gap-1.5 rounded-md py-1 pr-2 text-sm ${
-              active ? 'bg-hover font-medium' : 'hover:bg-hover'
+              active ? 'bg-accent-soft font-medium' : 'hover:bg-hover'
             } ${dragId === page.id ? 'opacity-40' : ''} ${
               over?.id === page.id
                 ? over.intent === 'before'

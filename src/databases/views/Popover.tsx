@@ -74,7 +74,7 @@ export function Popover({
       role="dialog"
       aria-label={label}
       style={{ ...style, maxHeight }}
-      className="fixed z-20 overflow-y-auto rounded-[10px] border border-line bg-bg p-1.5 text-[13.5px] text-ink shadow-[0_12px_32px_rgba(0,0,0,0.14)]"
+      className="fixed z-20 overflow-y-auto glass rounded-xl p-1.5 text-[13.5px] text-ink"
     >
       {children}
     </div>

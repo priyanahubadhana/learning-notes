@@ -58,7 +58,7 @@ export function HandwritingChooser() {
         e.preventDefault()
         close()
       }}
-      className="m-auto w-[min(28rem,calc(100vw-2rem))] rounded-2xl border border-line bg-bg p-5 text-ink shadow-[0_12px_32px_rgba(0,0,0,0.18)] backdrop:bg-black/30"
+      className="m-auto w-[min(28rem,calc(100vw-2rem))] rounded-2xl border border-line bg-surface-3 p-5 text-ink shadow-[var(--elev-3)] backdrop:bg-[var(--scrim)]"
     >
       <h2 className="text-lg font-semibold">{t('handwriting.title')}</h2>
       <p className="mt-1 text-sm text-ink-soft">{t('handwriting.intro')}</p>

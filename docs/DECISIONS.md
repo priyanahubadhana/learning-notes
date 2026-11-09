@@ -944,3 +944,11 @@ The other older decisions stand as built (owner, 2026-11-01); they are in [ARCHI
 - **Reader bar follow-ups (9 Nov):** the pin is not in the Settings list (no label keys); the bar still unmounts when hidden (slide-in only, tests rely on it). Contents in the full-screen reader switches to reading in place first, since the full-screen page covers the left panel.
 
 - **2026-11-09 · Owner approved the design preview** (artifact) and design step 1 (tokens, violet, Inter lazy). Next: step 2, the frame.
+
+## Decisions to review (Design step 2, 9 Nov)
+
+- **Toasts are solid, not glass.** The request said glass; docs/design/system.md (owner-approved) says solid surface-3. I followed the doc. Say if you want glass toasts.
+- **Icon rail = the strip of spaces.** Hiding the sidebar (button in the top bar) leaves the 56 px strip of spaces as the rail; I did not build a second 72 px rail of notebook icons or an automatic collapse on tablet widths. Say if you want that.
+- **Strip of spaces is flat glass (no blur)** so the blur budget stays at 3 (sidebar, bars, and one menu or the palette).
+- **Dialogs** moved to surface-3, elev-3 and the scrim (class swaps only; they are not glass, per system.md).
+- **Automatic Reduce glass** uses a frame-time probe on scroll and pointer bursts (30 frames, over half slower than 20 ms), kept for the session only. Ink drawing and big pages are covered by the same probe, not by separate triggers.

@@ -80,7 +80,7 @@ export function AnchoredMenu({
         ...vertical,
         width,
       }}
-      className="fixed z-50 overflow-y-auto rounded-xl border border-ink-soft bg-bg p-1.5 text-ink shadow-lg"
+      className="fixed z-50 glass overflow-y-auto rounded-xl p-1 text-ink"
     >
       <PopupHeader title={label} onClose={close} />
       {children}

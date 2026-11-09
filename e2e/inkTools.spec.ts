@@ -230,7 +230,8 @@ test('lasso: select, move, scale and rotate with separate handles, duplicate, de
   // Scale: drag the bottom-right corner outwards.
   const b1 = (await selBox.boundingBox())!
   const corner = page.locator('[data-handle="scale"]').nth(3)
-  await corner.hover()
+  // Lower right of the handle: the middle-edge handle of a flat selection overlaps its centre.
+  await corner.hover({ position: { x: 32, y: 34 } })
   await page.mouse.down()
   await page.mouse.move(b1.x + b1.width + 80, b1.y + b1.height + 40, {
     steps: 6,

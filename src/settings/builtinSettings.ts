@@ -1,3 +1,4 @@
+import { GLASS_CHOICES, setGlassLite, type GlassChoice } from '../design/glass'
 import {
   BAR_PLACEMENTS,
   BAR_SIZES,
@@ -683,8 +684,29 @@ export const pasteModeSetting: SettingDefinition<PasteMode> = {
   },
 }
 
+/** Glass (blurred frame) or solid: "auto" turns glass off by itself on slow devices. */
+export const reduceGlassSetting: SettingDefinition<GlassChoice> = {
+  id: 'general.reduceGlass',
+  labelKey: 'settings.reduceGlass.label',
+  descriptionKey: 'settings.reduceGlass.description',
+  category: 'general',
+  keywords: 'glass blur transparency solid slow reduce frosted',
+  scope: 'device',
+  defaultValue: 'auto',
+  isValid: isOneOf<GlassChoice>(GLASS_CHOICES),
+  onChange: (value) => setGlassLite(value === 'reduce'),
+  control: {
+    kind: 'segmented',
+    options: GLASS_CHOICES.map((value) => ({
+      value,
+      label: () => t(`settings.reduceGlass.${value}` as MessageKey),
+    })),
+  },
+}
+
 for (const definition of [
   theme,
+  reduceGlassSetting,
   deviceModeSetting,
   barPlacementSetting,
   barSizeSetting,

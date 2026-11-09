@@ -32,6 +32,7 @@ import { baseHash, parseHash, routeToHash, type Route } from './app/router'
 import { installDeepLinks } from './reader/annotations/deepLink'
 import { locatorOf } from './reader/annotations/annotationService'
 import { THEMES, applyTheme } from './app/theme'
+import { setGlassLite, startGlassProbe } from './design/glass'
 import { ThemeContext } from './app/themeContext'
 import type { ToastAction } from './app/appUi'
 import { altShortcutLabel } from './app/keys'
@@ -121,6 +122,7 @@ import {
   openNotebookAtSetting,
   reviseLabelsSetting,
   theme as themeSetting,
+  reduceGlassSetting,
 } from './settings/builtinSettings'
 import { getSetting, readDeviceSetting } from './settings/settingsService'
 import { setMarkLabels } from './revise/reviseMarks'
@@ -676,6 +678,13 @@ function App() {
     }
   }, [language])
   useEffect(() => applyTheme(theme), [theme])
+  // Glass: the person's choice, else a frame-time probe switches it to solid.
+  const [glassChoice] = useDeviceSetting(reduceGlassSetting)
+  useEffect(() => {
+    setGlassLite(glassChoice === 'reduce')
+    if (glassChoice === 'reduce') return
+    return startGlassProbe(() => setGlassLite(true))
+  }, [glassChoice])
 
   useEffect(() => {
     workspacePromise ??= (async () => {
@@ -1282,11 +1291,11 @@ function App() {
           <TopStackSlotContext value={stackSlot}>
             <div
               data-app-shell
-              className="flex h-screen h-dvh phone:pb-[calc(56px+env(safe-area-inset-bottom))]"
+              className="bg-wash flex h-screen h-dvh gap-[var(--frame-gap)] px-[var(--frame-gap)] pb-[var(--frame-gap)] phone:pb-[calc(56px+env(safe-area-inset-bottom))]"
               style={
                 {
                   '--sidebar-width': `${sidebarWidth}px`,
-                  paddingTop: 'var(--attn-h, 0px)',
+                  paddingTop: 'calc(var(--attn-h, 0px) + var(--frame-gap))',
                 } as CSSProperties
               }
             >
@@ -1448,29 +1457,42 @@ function App() {
                   className="fixed inset-0 z-30 hidden bg-black/30 phone:bottom-14 phone:block"
                 />
               )}
-              <div className="flex min-w-0 flex-1 flex-col">
-                <TopBar
-                  title={barTitle}
-                  sidebarHidden={sidebarHidden}
-                  drawerOpen={drawerOpen}
-                  onOpenDrawer={() => setDrawerAt(routeHash)}
-                  onToggleSidebar={toggleSidebar}
-                  panel={
-                    currentPage
-                      ? {
-                          open: panelOpen,
-                          onToggle: () => setPanelOpen(!panelOpen),
-                        }
-                      : undefined
-                  }
-                  onSlot={setBarSlot}
-                />
+              <div className="flex min-w-0 flex-1 flex-col gap-[var(--frame-gap)]">
+                {/* One glass layer for the top bar and the tool bar (blur budget). The
+                    glass is a sibling layer behind the bars: a backdrop-filter on
+                    the wrapper itself would trap the floating bar and the tray
+                    (position: fixed) inside it. */}
                 <div
-                  ref={setStackSlot}
-                  data-chrome
-                  data-bar-slot
-                  className="bg-bg pb-2 empty:p-0"
-                />
+                  data-frame-bars
+                  className="relative shrink-0 rounded-[var(--r-lg)]"
+                >
+                  <div
+                    aria-hidden
+                    className="glass pointer-events-none absolute inset-0 rounded-[inherit] phone:rounded-none phone:border-x-0 phone:border-t-0 phone:shadow-none"
+                  />
+                  <TopBar
+                    title={barTitle}
+                    sidebarHidden={sidebarHidden}
+                    drawerOpen={drawerOpen}
+                    onOpenDrawer={() => setDrawerAt(routeHash)}
+                    onToggleSidebar={toggleSidebar}
+                    panel={
+                      currentPage
+                        ? {
+                            open: panelOpen,
+                            onToggle: () => setPanelOpen(!panelOpen),
+                          }
+                        : undefined
+                    }
+                    onSlot={setBarSlot}
+                  />
+                  <div
+                    ref={setStackSlot}
+                    data-chrome
+                    data-bar-slot
+                    className="relative pb-1 empty:p-0"
+                  />
+                </div>
                 {currentPage && currentPage.id === labPage && (
                   <Suspense fallback={null}>
                     <PencilLabPanel />
@@ -1478,7 +1500,7 @@ function App() {
                 )}
                 <main
                   data-page-scroller
-                  className="mb-[var(--dock-bottom,0px)] min-h-0 flex-1 overflow-auto pt-[var(--page-top-gap,0px)]"
+                  className="mb-[var(--dock-bottom,0px)] min-h-0 flex-1 overflow-auto rounded-[var(--r-lg)] border border-line bg-bg pt-[var(--page-top-gap,0px)] shadow-[var(--elev-1)] phone:rounded-none phone:border-0 phone:shadow-none"
                 >
                   <ErrorBoundary
                     resetKey={`${routeHash}:${notesVersion}:${currentPage?.id}`}

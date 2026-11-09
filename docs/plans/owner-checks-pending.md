@@ -2,6 +2,15 @@
 
 Moved out of HANDOFF on 2026-11-06 (audit) so HANDOFF stays five lines. Newest first; each paragraph names its step. The run decision (master plan) is one owner iPad pass before Sync; the Phase A builder adds its checks at the top. Tick a paragraph by deleting it.
 
+## Design step 2: the frame (9 Nov, after deploy)
+
+What it is: the new look of the outer shell: soft violet backdrop, floating frosted sidebar, frosted bars, solid page.
+
+1. Open the app in Day, Night and Sepia. Check: the sidebar floats with a gap and rounded corners, the top and tool bars are one frosted strip, the page is a solid white (dark, cream) card, the selected row is soft violet, the Review number is a violet pill.
+2. Scroll a long page and write with the Pencil on the iPad. Check: nothing stutters. If it does, Settings > General > Reduce glass > Solid, and tell the builder.
+3. Open a ⋯ menu, the Quiet corner (⚙), and Search (Ctrl+K). Check: they look frosted and every word is easy to read. Trigger a toast (delete a page): it is a solid card.
+4. Hide the sidebar (button at the top left): the strip of spaces stays as the icon rail. On the phone: the menu opens as a drawer, the bottom tabs stay.
+
 ## Settings > Account (9 Nov, after deploy)
 
 What it is: one place for your account, instead of Sync, Lock and AI.

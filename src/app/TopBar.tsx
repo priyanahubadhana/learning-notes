@@ -42,7 +42,7 @@ export function TopBar({
         paddingLeft: 'max(8px, env(safe-area-inset-left))',
         paddingRight: 'max(8px, env(safe-area-inset-right))',
       }}
-      className="flex min-h-13 shrink-0 items-center gap-0.5 border-b border-line bg-bg"
+      className="relative flex min-h-13 shrink-0 items-center gap-0.5 "
     >
       {panel && (
         <button

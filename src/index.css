@@ -17,6 +17,8 @@
 
 /* One stacking scale for chrome (bars under pills under pop-ups under toasts). */
 :root {
+  /* The gap between floating frame pieces (sidebar, bars, paper); none on a phone. */
+  --frame-gap: 12px;
   --z-bar: 20;
   --z-pill: 30;
   --z-popup: 40;
@@ -24,6 +26,12 @@
   --z-modal: 60;
   /* Selection mini bar and mini keyboard: under every pill, menu and card. */
   --z-mini: 35;
+}
+
+@media (width < 40rem), (height < 32rem) {
+  :root {
+    --frame-gap: 0px;
+  }
 }
 
 /*

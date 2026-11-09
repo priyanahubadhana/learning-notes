@@ -249,7 +249,7 @@ export function CropSheet({ bitmap, canRestore, onDone }: CropSheetProps) {
       aria-label={t('pic.edit')}
       data-chrome
       onCancel={() => onDone(null)}
-      className="m-auto flex h-[min(92vh,760px)] w-[min(96vw,820px)] flex-col overflow-hidden rounded-xl border border-line bg-bg p-0 text-ink shadow-[0_12px_32px_rgba(0,0,0,0.14)] backdrop:bg-black/30 open:flex"
+      className="m-auto flex h-[min(92vh,760px)] w-[min(96vw,820px)] flex-col overflow-hidden rounded-xl border border-line bg-surface-3 p-0 text-ink shadow-[var(--elev-3)] backdrop:bg-[var(--scrim)] open:flex"
     >
       <div className="flex flex-wrap items-center gap-1 border-b border-line px-3 py-2">
         <button

@@ -11,6 +11,8 @@ export const enS = {
     'Saved with your notes, so it will follow you to other devices once sync is added.',
   'settings.scope.device.hint': 'Only changes this device.',
   'settings.theme.description': 'How the app looks on this device.',
+  'settings.reduceGlass.description':
+    'The sidebar, bars and menus are frosted glass. Automatic turns the blur off by itself if this device gets slow; Solid turns it off always.',
   'settings.showHelp.description':
     'Shows a short explanation when you hover over a feature (or tap its ⓘ on a touch screen), and a help line under features that are harder to learn. Turn it off to hide them all.',
   'settings.dayStart.description':

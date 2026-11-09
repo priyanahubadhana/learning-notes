@@ -271,7 +271,7 @@ export function MenuPopover({
         // A long menu scrolls inside the screen instead of running off it.
         maxHeight: window.innerHeight - top - 8,
       }}
-      className={`fixed z-50 ${nested ? 'w-64' : 'w-52'} overflow-y-auto rounded-[10px] border border-line bg-bg p-1.5 text-ink shadow-[0_12px_32px_rgba(0,0,0,0.14)]`}
+      className={`fixed z-50 ${nested ? 'w-64' : 'w-52'} glass overflow-y-auto rounded-xl p-1 text-ink`}
     >
       <PopupHeader onClose={onDone ?? onClose} />
       {/* Destructive items are red and come last. */}
@@ -404,14 +404,14 @@ export function Toast({
       // open options pill. The pill used to close, and the page jumped up by
       // the pill's height (62 px) under the person's pen.
       data-popup-trigger
-      className="fixed bottom-5 left-1/2 z-40 flex max-w-[calc(100vw-32px)] items-center gap-3 rounded-[10px] bg-ink px-3.5 py-2 text-[13px] text-bg shadow-[0_8px_24px_rgba(0,0,0,0.14)]"
+      className="fixed bottom-5 left-1/2 z-40 flex max-w-[calc(100vw-32px)] items-center gap-3 rounded-xl border border-line bg-surface-3 px-3.5 py-2 text-[13px] text-ink shadow-[var(--elev-2)]"
     >
       <span>{message}</span>
       {action && (
         <button
           type="button"
           onClick={action.onSelect}
-          className="-my-1 min-h-9 shrink-0 rounded-md px-2.5 font-semibold text-bg underline underline-offset-2 hover:bg-bg/15"
+          className="-my-1 min-h-9 shrink-0 rounded-md px-2.5 font-semibold text-accent underline underline-offset-2 hover:bg-hover"
         >
           {action.label}
         </button>
@@ -454,7 +454,7 @@ export function ConfirmDialog({
       onClick={(e) => {
         if (e.target === ref.current) onCancel() // click on the backdrop
       }}
-      className="m-auto w-80 rounded-xl border border-line bg-bg p-5 text-ink shadow-[0_12px_32px_rgba(0,0,0,0.14)] backdrop:bg-black/20"
+      className="m-auto w-80 rounded-xl border border-line bg-surface-3 p-5 text-ink shadow-[var(--elev-3)] backdrop:bg-[var(--scrim)]"
     >
       <p className="mb-5 text-sm leading-relaxed">{message}</p>
       <div className="flex justify-end gap-2 text-sm">
@@ -524,7 +524,7 @@ export function NameDialog({
         if (touched) setAsking(true)
         else onCancel()
       }}
-      className="m-auto w-[min(22rem,calc(100vw-2rem))] rounded-xl border border-line bg-bg p-5 text-ink shadow-[0_12px_32px_rgba(0,0,0,0.14)] backdrop:bg-black/20"
+      className="m-auto w-[min(22rem,calc(100vw-2rem))] rounded-xl border border-line bg-surface-3 p-5 text-ink shadow-[var(--elev-3)] backdrop:bg-[var(--scrim)]"
     >
       <form
         onSubmit={(e) => {
@@ -608,7 +608,7 @@ export function ChoiceDialog({
       onClick={(e) => {
         if (e.target === ref.current) onDone(null) // click on the backdrop
       }}
-      className="m-auto w-[min(27rem,calc(100vw-2rem))] rounded-xl border border-line bg-bg p-5 text-ink shadow-[0_12px_32px_rgba(0,0,0,0.14)] backdrop:bg-black/20"
+      className="m-auto w-[min(27rem,calc(100vw-2rem))] rounded-xl border border-line bg-surface-3 p-5 text-ink shadow-[var(--elev-3)] backdrop:bg-[var(--scrim)]"
     >
       <h2 className="mb-1.5 text-[15px] font-semibold">{request.title}</h2>
       <p className="mb-5 text-sm leading-relaxed text-muted">

@@ -12,7 +12,7 @@ export function UpdateRiskBar({
   onClose: () => void
 }) {
   const button =
-    '-my-1 min-h-9 shrink-0 rounded-md px-2.5 text-bg hover:bg-bg/15'
+    '-my-1 min-h-9 shrink-0 rounded-md px-2.5 text-accent hover:bg-hover'
   const message =
     risk.kind === 'unsaved'
       ? t('update.risk.unsaved')
@@ -23,7 +23,7 @@ export function UpdateRiskBar({
     <div
       role="status"
       data-chrome
-      className="flex max-w-full flex-wrap items-center gap-x-3 gap-y-1 rounded-[10px] bg-ink px-3.5 py-2 text-[13px] text-bg shadow-[0_8px_24px_rgba(0,0,0,0.14)]"
+      className="flex max-w-full flex-wrap items-center gap-x-3 gap-y-1 rounded-xl border border-line bg-surface-3 px-3.5 py-2 text-[13px] text-ink shadow-[var(--elev-2)]"
     >
       <span>{message}</span>
       <button

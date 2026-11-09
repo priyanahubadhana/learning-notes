@@ -276,34 +276,46 @@
   }
 }
 
-/* ---------- Glass (frame only; the paper is always solid) ---------- */
-.glass {
-  background: var(--color-surface-2);
-  border: 1px solid var(--glass-line);
-  box-shadow:
-    0 0 0 1px var(--glass-outer),
-    var(--elev-2);
-}
-@supports (
-  (backdrop-filter: blur(1px)) or (-webkit-backdrop-filter: blur(1px))
-) {
-  .glass {
-    background: var(--glass-fill);
-    -webkit-backdrop-filter: blur(20px) saturate(160%);
-    backdrop-filter: blur(20px) saturate(160%);
+/* ---------- Glass (frame only; the paper is always solid) ----------
+ * In the components layer, so a Tailwind utility (border-x-0, rounded-*) can
+ * still adjust it. Never put a bg-* utility on a .glass element: the fallbacks
+ * below own its background. `.glass-flat` is the same look without the blur
+ * (the narrow strip of spaces), so the blur budget (3 layers) holds. */
+@layer components {
+  .glass,
+  .glass-flat {
+    background: var(--color-surface-2);
+    border: 1px solid var(--glass-line);
+    box-shadow:
+      0 0 0 1px var(--glass-outer),
+      var(--elev-2);
   }
-}
-@media (prefers-reduced-transparency: reduce) {
-  .glass {
+  @supports (
+    (backdrop-filter: blur(1px)) or (-webkit-backdrop-filter: blur(1px))
+  ) {
+    .glass,
+    .glass-flat {
+      background: var(--glass-fill);
+    }
+    .glass {
+      -webkit-backdrop-filter: blur(20px) saturate(160%);
+      backdrop-filter: blur(20px) saturate(160%);
+    }
+  }
+  @media (prefers-reduced-transparency: reduce) {
+    .glass,
+    .glass-flat {
+      background: var(--color-surface-2);
+      -webkit-backdrop-filter: none;
+      backdrop-filter: none;
+    }
+  }
+  :root[data-glass='lite'] .glass,
+  :root[data-glass='lite'] .glass-flat {
     background: var(--color-surface-2);
     -webkit-backdrop-filter: none;
     backdrop-filter: none;
   }
-}
-:root[data-glass='lite'] .glass {
-  background: var(--color-surface-2);
-  -webkit-backdrop-filter: none;
-  backdrop-filter: none;
 }
 
 /* ---------- Motion: reduced = short fades only ---------- */

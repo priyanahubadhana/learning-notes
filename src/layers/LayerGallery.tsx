@@ -96,7 +96,7 @@ export function LayerGallery({
       onClick={(e) => {
         if (e.target === ref.current) onClose()
       }}
-      className="m-auto max-h-[90vh] w-[min(40rem,94vw)] overflow-y-auto rounded-2xl border border-line bg-bg p-5 text-ink shadow-[0_12px_40px_rgba(0,0,0,0.2)] backdrop:bg-black/20"
+      className="m-auto max-h-[90vh] w-[min(40rem,94vw)] overflow-y-auto rounded-2xl border border-line bg-surface-3 p-5 text-ink shadow-[var(--elev-3)] backdrop:bg-[var(--scrim)]"
     >
       <div className="mb-1 flex items-start gap-2">
         <h2 className="flex-1 text-lg font-semibold">{t('layers.title')}</h2>

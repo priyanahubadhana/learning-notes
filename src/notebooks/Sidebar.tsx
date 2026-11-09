@@ -293,7 +293,7 @@ export function Sidebar({
           onClick={() => onOpenReview({ kind: 'all' })}
           aria-current={reviewOpen ? 'page' : undefined}
           className={`flex min-h-9 any-pointer-coarse:min-h-11 w-full items-center gap-2 rounded-lg px-2.5 text-left text-sm transition-colors hover:bg-hover ${
-            reviewOpen ? 'bg-hover font-semibold' : ''
+            reviewOpen ? 'bg-accent-soft font-medium' : ''
           }`}
         >
           <span aria-hidden className="text-muted">
@@ -303,7 +303,7 @@ export function Sidebar({
           {dueCount !== undefined && dueCount > 0 && (
             <span
               aria-label={t('review.dueCount', { count: dueCount })}
-              className="rounded-full bg-accent px-2 text-[12px] leading-5 font-medium text-white tabular-nums"
+              className="rounded-full bg-accent px-2 text-[11px] leading-5 font-semibold text-on-accent tabular-nums"
             >
               {dueCount}
             </span>
@@ -316,7 +316,7 @@ export function Sidebar({
           onClick={onOpenAllCards}
           aria-current={allCardsOpen ? 'page' : undefined}
           className={`flex min-h-9 any-pointer-coarse:min-h-11 w-full items-center gap-2 rounded-lg px-2.5 text-left text-sm transition-colors hover:bg-hover ${
-            allCardsOpen ? 'bg-hover font-semibold' : ''
+            allCardsOpen ? 'bg-accent-soft font-medium' : ''
           }`}
         >
           <span aria-hidden className="text-muted">
@@ -331,7 +331,7 @@ export function Sidebar({
           onClick={onOpenSummaries}
           aria-current={summariesOpen ? 'page' : undefined}
           className={`flex min-h-9 any-pointer-coarse:min-h-11 w-full items-center gap-2 rounded-lg px-2.5 text-left text-sm transition-colors hover:bg-hover ${
-            summariesOpen ? 'bg-hover font-semibold' : ''
+            summariesOpen ? 'bg-accent-soft font-medium' : ''
           }`}
         >
           <span aria-hidden className="text-muted">
@@ -350,7 +350,7 @@ export function Sidebar({
       data-palm-guard
       aria-label={t('sidebar.label')}
       style={{ paddingTop: 'calc(14px + var(--top-clear))' }}
-      className={`${hidden ? 'wide:hidden' : ''} flex w-[min(var(--sidebar-width,260px),50vw)] shrink-0 flex-col overflow-y-auto border-r border-line bg-side px-2 py-3.5 transition-colors duration-250 phone:fixed phone:top-0 phone:bottom-14 phone:left-0 phone:z-40 phone:w-[min(300px,85vw)] phone:shadow-[0_0_32px_rgba(0,0,0,0.25)] phone:transition-[transform,visibility] phone:duration-200 ${
+      className={`${hidden ? 'wide:hidden' : ''} flex w-[min(var(--sidebar-width,260px),50vw)] shrink-0 flex-col overflow-y-auto glass rounded-[var(--r-lg)] px-2 py-3.5 transition-colors duration-250 phone:fixed phone:top-0 phone:bottom-14 phone:left-0 phone:z-40 phone:w-[min(300px,85vw)] phone:rounded-s-none phone:shadow-[var(--elev-3)] phone:transition-[transform,visibility] phone:duration-200 ${
         drawerOpen
           ? 'phone:translate-x-0'
           : 'phone:invisible phone:-translate-x-full'
@@ -400,7 +400,7 @@ export function Sidebar({
           onClick={onOpenSearch}
           aria-current={searchOpen ? 'page' : undefined}
           className={`flex min-h-9 any-pointer-coarse:min-h-11 w-full items-center gap-2 rounded-lg px-2.5 text-left text-sm transition-colors hover:bg-hover ${
-            searchOpen ? 'bg-hover font-semibold' : ''
+            searchOpen ? 'bg-accent-soft font-medium' : ''
           }`}
         >
           <span aria-hidden className="text-muted">
@@ -441,7 +441,7 @@ export function Sidebar({
                   onClick={onOpenCalendar}
                   aria-current={calendarOpen ? 'page' : undefined}
                   className={`flex min-h-9 any-pointer-coarse:min-h-11 w-full items-center gap-2 rounded-lg px-2.5 text-left text-sm transition-colors hover:bg-hover ${
-                    calendarOpen ? 'bg-hover font-semibold' : ''
+                    calendarOpen ? 'bg-accent-soft font-medium' : ''
                   }`}
                 >
                   <span aria-hidden className="text-muted">
@@ -456,7 +456,7 @@ export function Sidebar({
                   onClick={onOpenAllDatabases}
                   aria-current={allDatabasesOpen ? 'page' : undefined}
                   className={`flex min-h-9 any-pointer-coarse:min-h-11 w-full items-center gap-2 rounded-lg px-2.5 text-left text-sm transition-colors hover:bg-hover ${
-                    allDatabasesOpen ? 'bg-hover font-semibold' : ''
+                    allDatabasesOpen ? 'bg-accent-soft font-medium' : ''
                   }`}
                 >
                   <span aria-hidden className="text-muted">
@@ -506,7 +506,7 @@ export function Sidebar({
                         setDropTarget(null)
                       }}
                       className={`group @container flex min-h-9 items-center gap-1.5 rounded-md px-2 py-1 text-sm hover:bg-hover ${line} ${
-                        openNotebookId === notebook.id ? 'bg-hover' : ''
+                        openNotebookId === notebook.id ? 'bg-accent-soft' : ''
                       } ${dragId === notebook.id ? 'opacity-40' : ''}`}
                     >
                       <button

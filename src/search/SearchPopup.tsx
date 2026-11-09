@@ -207,7 +207,7 @@ export function SearchPopup({
       onClick={(e) => {
         if (e.target === ref.current) onClose() // click on the backdrop
       }}
-      className="mx-auto mt-[10vh] flex max-h-[72vh] w-[min(620px,calc(100vw-32px))] flex-col overflow-hidden rounded-[14px] border border-line bg-bg p-0 text-ink shadow-[0_12px_40px_rgba(0,0,0,0.16)] backdrop:bg-black/25 phone:m-0 phone:h-full phone:max-h-none phone:w-full phone:max-w-none phone:rounded-none phone:border-0"
+      className="mx-auto mt-[10vh] flex max-h-[72vh] w-[min(620px,calc(100vw-32px))] flex-col overflow-hidden glass rounded-[var(--r-lg)] p-0 text-ink backdrop:bg-[var(--scrim)] phone:m-0 phone:h-full phone:max-h-none phone:w-full phone:max-w-none phone:rounded-none phone:border-0"
     >
       <div className="flex items-center gap-2.5 border-b border-line px-3.5 py-3 phone:ps-2">
         <button

@@ -45,7 +45,7 @@ export function HistoryDialog({
       onClick={(e) => {
         if (e.target === ref.current) onClose()
       }}
-      className="m-auto h-[min(34rem,calc(100vh-2rem))] w-[min(46rem,calc(100vw-2rem))] rounded-xl border border-line bg-bg p-0 text-ink shadow-[0_12px_32px_rgba(0,0,0,0.14)] backdrop:bg-black/20"
+      className="m-auto h-[min(34rem,calc(100vh-2rem))] w-[min(46rem,calc(100vw-2rem))] rounded-xl border border-line bg-surface-3 p-0 text-ink shadow-[var(--elev-3)] backdrop:bg-[var(--scrim)]"
     >
       <div className="flex h-full flex-col p-5">
         <div className="mb-3 flex items-center gap-2">

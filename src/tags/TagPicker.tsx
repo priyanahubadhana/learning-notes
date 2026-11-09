@@ -140,7 +140,7 @@ export function TagPicker({
       role="dialog"
       aria-label={title}
       style={style}
-      className="fixed z-50 w-[300px] rounded-[10px] border border-line bg-bg p-1.5 text-ink shadow-[0_12px_40px_rgba(0,0,0,0.16)] phone:!inset-x-3 phone:w-auto"
+      className="fixed z-50 w-[300px] glass rounded-xl p-1.5 text-ink phone:!inset-x-3 phone:w-auto"
     >
       <input
         autoFocus

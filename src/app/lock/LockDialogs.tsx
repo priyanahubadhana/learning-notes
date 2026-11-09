@@ -37,7 +37,7 @@ export function LockDialog({
       onClick={(e) => {
         if (e.target === ref.current) onClose()
       }}
-      className="m-auto w-[min(380px,calc(100vw-24px))] rounded-2xl border border-line bg-bg p-4 text-ink shadow-[0_12px_32px_rgba(0,0,0,0.18)] backdrop:bg-black/30"
+      className="m-auto w-[min(380px,calc(100vw-24px))] rounded-2xl border border-line bg-surface-3 p-4 text-ink shadow-[var(--elev-3)] backdrop:bg-[var(--scrim)]"
     >
       <div className="mb-2 flex items-center justify-between">
         <h2 className="text-base font-semibold">{title}</h2>

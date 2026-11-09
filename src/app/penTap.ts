@@ -8,6 +8,7 @@
  * mouse is untouched.
  */
 import { onGestureReset, registerToolState } from './gestureReset'
+import { inputMachine } from './inputMachine'
 import { barPalm } from './palmGuard'
 
 /** Everything that counts as chrome (the app's own controls). */
@@ -102,6 +103,13 @@ export function installPenTap(doc: Document = document): () => void {
       return
     }
     penDown = e.pointerType === 'pen'
+    // A Pencil lift that never comes is dropped after 4 s without movement.
+    if (penDown) {
+      inputMachine.begin(e, 'penTap', () => {
+        penDown = false
+        down = null
+      })
+    }
     // A finger or mouse touch ends any pending Pencil click or swallow.
     if (e.pointerType === 'touch') marked = null
     if (!penTapOptions.enabled || e.pointerType !== 'pen') return

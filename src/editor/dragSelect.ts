@@ -249,7 +249,7 @@ export function watchDragSelect(editor: Editor): () => void {
       !el.closest('img, iframe, video, [contenteditable="false"]') &&
       el.closest('.bn-inline-content')
     ) {
-      beginSelectGesture(dom)
+      beginSelectGesture(dom, e.pointerId)
     }
     if (e.pointerType === 'touch') return // a finger keeps scrolling
     const id = blockIdAt(dom, e.clientX, e.clientY)

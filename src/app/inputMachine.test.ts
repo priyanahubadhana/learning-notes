@@ -1,6 +1,7 @@
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
 import {
   AGE_LIMIT_MS,
+  ANY_POINTER,
   inputMachine,
   installInputMachine,
   resetInputMachineForTests,
@@ -131,5 +132,41 @@ describe('inputMachine', () => {
   it('stopping removes its listeners', () => {
     stop()
     expect(doc.count()).toBe(0)
+  })
+})
+
+describe('inputMachine: owners without a pointer', () => {
+  beforeEach(() => {
+    vi.useFakeTimers()
+    resetWatchdogForTests()
+    resetInputMachineForTests()
+  })
+  afterEach(() => {
+    resetInputMachineForTests()
+    vi.useRealTimers()
+  })
+
+  it('a gesture of ANY_POINTER stays alive on any movement and ends by owner', () => {
+    const doc = fakeDoc()
+    const stop = installInputMachine(doc)
+    const reset = vi.fn()
+    inputMachine.begin({ pointerId: ANY_POINTER }, 'selectGesture', reset)
+    for (let i = 0; i < 3; i++) {
+      vi.advanceTimersByTime(3000)
+      doc.send('pointermove', 5)
+    }
+    expect(reset).not.toHaveBeenCalled()
+    inputMachine.endOwner('selectGesture')
+    expect(inputMachine.isDown()).toBe(false)
+    stop()
+  })
+
+  it('a gesture of ANY_POINTER that never moves is dropped after the limit', () => {
+    const stop = installInputMachine(fakeDoc())
+    const reset = vi.fn()
+    inputMachine.begin({ pointerId: ANY_POINTER }, 'selectGesture', reset)
+    vi.advanceTimersByTime(AGE_LIMIT_MS + 600)
+    expect(reset).toHaveBeenCalledWith('timeout')
+    stop()
   })
 })

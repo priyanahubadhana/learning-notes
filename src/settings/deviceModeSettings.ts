@@ -1,4 +1,5 @@
 import { onGestureReset } from '../app/gestureReset'
+import { inputMachine } from '../app/inputMachine'
 import { useEffect, useRef, useState, useSyncExternalStore } from 'react'
 import {
   AUTO_SWITCH_QUIET_MS,
@@ -229,6 +230,10 @@ export function useAutoDeviceMode(
     }
     const onDown = (e: PointerEvent) => {
       down++
+      // A lift that never comes is dropped after 4 s without movement.
+      inputMachine.begin(e, 'autoMode', () => {
+        down = Math.max(0, down - 1)
+      })
       const now = Date.now()
       const target = autoSwitchTarget(modeRef.current, e.pointerType, setting)
       // Pen and finger both count while a gesture is going on.

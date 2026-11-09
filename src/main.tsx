@@ -30,6 +30,7 @@ import {
 } from './app/gestureReset'
 import { inputMachine, installInputMachine } from './app/inputMachine'
 import { installToolsDebug } from './app/toolsDebug'
+import { installListenerCount } from './app/listenerCount'
 import { activeTool } from './app/tools/main/mainTools'
 import { rememberPlace, startAutoUpdate } from './app/autoUpdate'
 import { flushAllSaves, hasPendingSaves } from './editor/autosave'
@@ -66,6 +67,7 @@ reloadOnFailedChunk()
 installGestureWatchdog()
 // One state machine owns "a pointer is down" (tools robustness): a lift that
 // never came is dropped after 4 s, and a tool change drops a half gesture.
+installListenerCount() // the dump counts the document listeners
 installInputMachine()
 inputMachine.setTool(activeTool.get())
 activeTool.subscribe(() => inputMachine.setTool(activeTool.get()))

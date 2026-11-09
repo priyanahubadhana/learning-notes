@@ -1,4 +1,5 @@
 import { onGestureReset, registerToolState } from '../app/gestureReset'
+import { ANY_POINTER, inputMachine } from '../app/inputMachine'
 /**
  * A selection gesture that STARTED ON TEXT (finger, Pencil or mouse). While it
  * lasts, pictures, embeds and other non-text blocks let the pointer pass over
@@ -22,12 +23,24 @@ onGestureReset(() => {
 })
 registerToolState('selectGesture', () => ({ active: selectGesture.active }))
 
-export function beginSelectGesture(dom: HTMLElement): void {
+export function beginSelectGesture(
+  dom: HTMLElement,
+  pointerId: number = ANY_POINTER,
+): void {
   selectGesture.active = true
   dom.classList.add('ln-selgesture')
+  // The same 4 s age limit as every pointer: a lift that never came must not
+  // make the Lasso give way for ever.
+  inputMachine.begin(
+    { pointerId },
+    'selectGesture',
+    () => endSelectGesture(dom),
+    'selecting',
+  )
 }
 
 export function endSelectGesture(dom: HTMLElement): void {
+  inputMachine.endOwner('selectGesture')
   selectGesture.active = false
   dom.classList.remove('ln-selgesture')
 }

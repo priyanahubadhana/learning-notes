@@ -22,6 +22,9 @@ import {
 export type MachineState =
   'idle' | 'pressing' | 'drawing' | 'selecting' | 'transforming'
 
+/** For a gesture that does not know its pointer: any movement keeps it alive. */
+export const ANY_POINTER = -1
+
 /** A pointer that is down and has not moved this long (ms) is dropped. */
 export const AGE_LIMIT_MS = 4000
 const SWEEP_MS = 500
@@ -45,6 +48,8 @@ const listeners = new Set<() => void>()
 /** The last abort, for the tool-state dump. */
 let lastAbort: { reason: ResetReason; owner: string; at: number } | null = null
 let aborts = 0
+/** The last pointer event of any kind (the health check waits for quiet). */
+let lastEventAt = 0
 
 const notify = () => {
   for (const fn of [...listeners]) fn()
@@ -117,7 +122,10 @@ export const inputMachine = {
   /** A pointer moved: it is alive. */
   move(e: { pointerId: number }): void {
     const t = now()
-    for (const d of downs) if (d.id === e.pointerId) d.lastMove = t
+    lastEventAt = t
+    for (const d of downs) {
+      if (d.id === e.pointerId || d.id === ANY_POINTER) d.lastMove = t
+    }
   },
 
   /** The pointer lifted or was cancelled (not an abort: no owner reset). */
@@ -127,6 +135,16 @@ export const inputMachine = {
       (d) =>
         !(d.id === e.pointerId && (owner === undefined || d.owner === owner)),
     )
+    if (downs.length !== before) {
+      if (downs.length === 0) stopSweeper()
+      notify()
+    }
+  },
+
+  /** The owner is done (whatever pointer it had). */
+  endOwner(owner: string): void {
+    const before = downs.length
+    downs = downs.filter((d) => d.owner !== owner)
     if (downs.length !== before) {
       if (downs.length === 0) stopSweeper()
       notify()
@@ -156,6 +174,17 @@ export const inputMachine = {
 
   state(): MachineState {
     return downs[downs.length - 1]?.state ?? 'idle'
+  },
+
+  /** How long (ms) since any pointer event was seen (a large number: never). */
+  quietForMs(): number {
+    return lastEventAt ? now() - lastEventAt : 1e9
+  },
+
+  /** How long (ms) the owner's gesture has not moved (0: it has none). */
+  idleMs(owner: string): number {
+    const d = downs.find((x) => x.owner === owner)
+    return d ? now() - d.lastMove : 0
   },
 
   /** How long (ms) the owner's gesture has been down. */
@@ -201,14 +230,23 @@ export function installInputMachine(
 ): () => void {
   now = clock
   const ptr = (e: Event) => e as PointerEvent
+  // A new touch is not movement of an old one (a stale gesture of the same
+  // pointer id must still look idle when the Lasso decides).
+  const onDown = () => {
+    lastEventAt = now()
+  }
   const onMove = (e: Event) => inputMachine.move(ptr(e))
-  const onEnd = (e: Event) => inputMachine.end(ptr(e))
+  const onEnd = (e: Event) => {
+    lastEventAt = now()
+    inputMachine.end(ptr(e))
+  }
   const onLost = (e: Event) => {
     // After a normal lift the entry is gone already; a still-live one lost
     // its pointer (the system took it): the owner gives up.
     const id = ptr(e).pointerId
     for (const d of downs.filter((x) => x.id === id)) drop(d, 'lost')
   }
+  doc.addEventListener('pointerdown', onDown, true)
   doc.addEventListener('pointermove', onMove, true)
   doc.addEventListener('pointerup', onEnd, true)
   doc.addEventListener('pointercancel', onEnd, true)
@@ -240,6 +278,7 @@ export function installInputMachine(
       : 'never',
   }))
   return () => {
+    doc.removeEventListener('pointerdown', onDown, true)
     doc.removeEventListener('pointermove', onMove, true)
     doc.removeEventListener('pointerup', onEnd, true)
     doc.removeEventListener('pointercancel', onEnd, true)
@@ -259,4 +298,5 @@ export function resetInputMachineForTests(): void {
   listeners.clear()
   lastAbort = null
   aborts = 0
+  lastEventAt = 0
 }

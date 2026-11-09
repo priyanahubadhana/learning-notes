@@ -8,6 +8,7 @@ import {
 } from 'prosemirror-state'
 import { Decoration, DecorationSet } from 'prosemirror-view'
 import { onGestureReset, registerToolState } from '../app/gestureReset'
+import { inputMachine } from '../app/inputMachine'
 import { BlockRangeSelection } from './dragSelect'
 import { penState } from './penGuard'
 import type { AppSchema } from './schema'
@@ -143,8 +144,12 @@ export const ownSelection = createExtension({
           keptUntil = -1e9
           note()
         }
-        const down = () => {
+        const down = (e: Event) => {
           pointerDown = true
+          // A lift that never comes must not hold the selection guard for ever.
+          inputMachine.begin(e as PointerEvent, 'ownSelection', () => {
+            pointerDown = false
+          })
           own()
         }
         const up = () => {

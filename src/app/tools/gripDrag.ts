@@ -9,6 +9,7 @@
  */
 
 import { onGestureReset, registerToolState } from '../gestureReset'
+import { inputMachine } from '../inputMachine'
 import { lock, unlock } from '../../editor/editLock'
 
 let active = 0
@@ -83,6 +84,7 @@ export function startGripDrag(
     if (e instanceof PointerEvent && e.pointerId !== pointerId) return
     done = true
     open.delete(force)
+    inputMachine.end({ pointerId }, 'gripDrag')
     doc.removeEventListener('touchmove', stop, true)
     doc.removeEventListener('selectstart', stop, true)
     for (const w of ['pointerup', 'pointercancel', 'lostpointercapture']) {
@@ -114,4 +116,6 @@ export function startGripDrag(
     end()
   }
   open.add(force)
+  // A lift that never comes ends the drag after 4 s without movement.
+  inputMachine.begin({ pointerId }, 'gripDrag', force, 'transforming')
 }

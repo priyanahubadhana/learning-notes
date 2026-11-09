@@ -5,6 +5,7 @@ import { readDeviceSetting } from '../settings/settingsService'
 import { holdSelectSetting } from '../settings/builtinSettings'
 import { autoScrollWhileSelecting } from './dragSelect'
 import { beginSelectGesture, endSelectGesture } from './gesture'
+import { inputMachine } from '../app/inputMachine'
 import { lookThrough, padOf, posNear } from './tapSelect'
 import type { AppSchema } from './schema'
 
@@ -44,7 +45,10 @@ export function watchHoldSelect(
   let holding = false
 
   const finish = () => {
-    if (press) window.clearTimeout(press.timer)
+    if (press) {
+      window.clearTimeout(press.timer)
+      inputMachine.end({ pointerId: press.id }, 'holdSelect')
+    }
     const was = holding
     press = null
     holding = false
@@ -100,6 +104,8 @@ export function watchHoldSelect(
     const block = target.closest('.bn-block-content')
     if ((block?.textContent ?? '').trim() === '') return
     const ms = readDeviceSetting(holdSelectSetting)
+    // The press is dropped by the machine if its lift never comes (4 s).
+    inputMachine.begin(e, 'holdSelect', () => void finish())
     press = {
       id: e.pointerId,
       x: e.clientX,
@@ -109,7 +115,7 @@ export function watchHoldSelect(
       timer: window.setTimeout(() => {
         if (!press) return
         holding = true
-        beginSelectGesture(dom)
+        beginSelectGesture(dom, press.id)
         dom.setAttribute('data-hold-select', '')
         // The caret lands exactly here, skipping the two-tap step.
         dom

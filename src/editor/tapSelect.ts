@@ -273,7 +273,13 @@ export function watchTapSelect(
     }, 0)
   }
   doc.addEventListener('pointerdown', onDown, true)
+  // A cancelled tap (the system took the touch) is not a tap and not a lift
+  // to wait for: the count must not carry a dead press into the next tap.
+  const onCancel = (e: PointerEvent) => {
+    if (down && e.pointerId === down.id) down = null
+  }
   doc.addEventListener('pointerup', onUp, true)
+  doc.addEventListener('pointercancel', onCancel, true)
   doc.addEventListener('touchstart', onTouchStart, {
     capture: true,
     passive: false,
@@ -297,6 +303,7 @@ export function watchTapSelect(
     offState()
     doc.removeEventListener('pointerdown', onDown, true)
     doc.removeEventListener('pointerup', onUp, true)
+    doc.removeEventListener('pointercancel', onCancel, true)
     doc.removeEventListener('touchstart', onTouchStart, true)
   }
 }

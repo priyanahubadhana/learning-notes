@@ -2,6 +2,7 @@ import { createExtension } from '@blocknote/core'
 import { Plugin } from 'prosemirror-state'
 import type { Transaction } from 'prosemirror-state'
 import { onGestureReset, registerToolState } from '../app/gestureReset'
+import { inputMachine } from '../app/inputMachine'
 import { scribbleFree } from './penMode'
 import type { AppSchema } from './schema'
 
@@ -168,6 +169,12 @@ export function watchPenGuard(
       if (e.target instanceof Node && dom.contains(e.target)) {
         penState.down = true
         gesturePointer = e.pointerId
+        // A Pencil lift that never comes is dropped after 4 s without movement.
+        inputMachine.begin(e, 'penGuard', () => {
+          penState.down = false
+          penState.upAt = clock()
+          gesturePointer = null
+        })
       }
     } else if (
       (e.type === 'pointerup' || e.type === 'pointercancel') &&

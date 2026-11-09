@@ -117,7 +117,7 @@ async function saveEverything(): Promise<void> {
 
 function remember(auto: boolean) {
   const scroller = document.querySelector<HTMLElement>('[data-page-scroller]')
-  let pageId: string | null = null
+  let pageId: string | null
   try {
     pageId = JSON.parse(
       localStorage.getItem('learning-notes:currentPage') ?? 'null',

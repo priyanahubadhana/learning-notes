@@ -8,6 +8,11 @@ Current phase only. Older entries are in [ARCHIVE.md](ARCHIVE.md).
 - **Data:** optional fields on Notebook (`colour`, `cover: 'page'`, `starred`); no Dexie version; backup check updated (share/checkRows.ts). "Last opened" is per device (pref `notebookOpenedAt`, falls back to the last change). Per-notebook due counts: `dueByNotebook` (recall/reviewService.ts), same queue as the sidebar count.
 - **Files:** src/notebooks/{NotebooksHome.tsx,notebookLook.ts,notebookLook.test.ts,notebookService.ts,Sidebar.tsx}, src/App.tsx, src/app/spaces/SpaceStrip.tsx, src/pages/PageTree.tsx, src/core/types.ts, src/share/checkRows.ts, src/recall/review{Service,Lazy}.ts, src/i18n/{enNbh,esNbh,hiNbh}.ts (+ enO, es, hi), e2e/notebooksHome.spec.ts, docs.
 
+## 2026-11-09 (Lasso: a loop may start over the pill)
+
+- **What:** under the Lasso (`[data-ink-pad]` present) the selection pill is `pointer-events: none` except its buttons, and the handle halo is off (src/index.css), so a loop that starts on the pill's gaps or a handle's halo reaches the pad and makes a new selection (the old one is replaced). Pill placement was already above the selection and flips below near the top. e2e: 5 loops in a row on one paragraph, free and rectangle, with and without Esc between (e2e/lassoWords.spec.ts); fails without the CSS.
+- **Rectangle iOS menu:** the rectangle path is the same word flow as free-form, so the earlier dropNativeSelection fix covers it.
+
 ## 2026-11-09 (iPad: selection handles and repeated Lasso loops)
 
 - **What:** the round selection handles (app/tools/main/MiniToolbar.tsx) now sit at the selection edge (start handle above-left, end handle below-right), remember where the finger took hold (grab offset) and move the edge by the finger's movement, so the first move never jumps a line; a no-change move is ignored; `dropNativeSelection` runs on every drag step (no iPadOS menu). Tests in e2e/lassoWords.spec.ts: handle nudge and drag, Copy/Cut/Undo from our pill, repeated loops (free and rectangle).

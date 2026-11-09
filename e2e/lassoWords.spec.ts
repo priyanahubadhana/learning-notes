@@ -185,17 +185,26 @@ for (const shape of ['free', 'rect'] as const) {
       page,
     }) => {
       await setup(page, shape)
-      // Back to back, the pill of one selection sits over the lines above it,
-      // so the next loops go down the page; after a tap on empty paper (Esc)
-      // the same lines can be looped again.
-      const rows = between ? [0, 2, 0, 2, 0] : [0, 2]
+      // The old pill and handles may sit over the next words: a loop that
+      // starts there (but not on a pill button) still makes a new selection.
+      const rows = [0, 2, 0, 2, 0]
       for (let i = 0; i < rows.length; i++) {
         const { phrase, box } = await rowPhrase(page, rows[i], 1 + (i % 2))
+        // Start where no pill button is (bottom right, else top left).
+        const br: Pt = [box.x + box.width + 5, box.y + box.height + 5]
+        const tl: Pt = [box.x - 5, box.y - 5]
+        const onButton = await page.evaluate(
+          ([x, y]) => !!document.elementFromPoint(x, y)?.closest('button'),
+          br,
+        )
         if (shape === 'free') {
-          await stroke(page, loopAround(box), { id: 60 + i })
+          const c: Pt[] = onButton
+            ? [tl, [br[0], tl[1]], br, [tl[0], br[1]], [tl[0] + 1, tl[1] + 2]]
+            : [br, [tl[0], br[1]], tl, [br[0], tl[1]], [br[0] - 1, br[1] - 2]]
+          const path = c.slice(1).flatMap((q, k) => line(c[k], q, 10))
+          await stroke(page, path, { id: 60 + i })
         } else {
-          const from: Pt = [box.x + box.width + 5, box.y + box.height + 5]
-          const to: Pt = [box.x - 5, box.y - 5]
+          const [from, to] = onButton ? [tl, br] : [br, tl]
           await stroke(page, line(from, to, 12), { id: 60 + i })
         }
         await expect

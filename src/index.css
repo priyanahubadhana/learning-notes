@@ -939,3 +939,61 @@ html[data-note-line] .bn-editor {
     animation: none;
   }
 }
+
+/* Under the Lasso a loop may start anywhere, also over the selection pill and
+   a handle's halo: only the pill's own buttons and the handle dots take
+   touches (the pill's gaps and the halo pass them to the pad). */
+body:has([data-ink-pad]) [data-mini-toolbar] {
+  pointer-events: none;
+}
+body:has([data-ink-pad]) [data-mini-toolbar] button {
+  pointer-events: auto;
+}
+body:has([data-ink-pad]) [data-sel-handle]::after {
+  display: none;
+}
+
+/* Sheet gap: the blank end of a sheet above a pushed block is tappable (it
+   puts the caret at the end of the block before) and says where the text
+   went. The block keeps its margin; the marker sits in that margin. */
+.bn-editor .ln-pushed {
+  position: relative;
+}
+.bn-editor .ln-pushed::before {
+  content: attr(data-continues);
+  position: absolute;
+  inset-inline: 0;
+  top: calc(-1 * var(--ln-push, 0px));
+  height: var(--ln-push, 0px);
+  display: flex;
+  align-items: flex-end;
+  justify-content: center;
+  padding-bottom: 6px;
+  font-size: 12px;
+  color: var(--color-ink-soft);
+  opacity: 0.55;
+  cursor: text;
+  user-select: none;
+}
+/* A block that just moved to another sheet pulses so the eye can follow. */
+.bn-block[data-moved] {
+  animation: ln-moved 1.2s ease-out 1;
+}
+@keyframes ln-moved {
+  0%,
+  40% {
+    outline: 2px solid var(--color-accent);
+    outline-offset: 4px;
+  }
+  100% {
+    outline: 2px solid transparent;
+    outline-offset: 4px;
+  }
+}
+@media (prefers-reduced-motion: reduce) {
+  .bn-block[data-moved] {
+    animation: none;
+    outline: 2px solid var(--color-accent);
+    outline-offset: 4px;
+  }
+}

@@ -54,6 +54,8 @@ Current phase only. Older decisions are in [ARCHIVE.md](ARCHIVE.md).
 
 ## Decisions to review
 
+- **2026-11-09 · AI settings clarity.** "APIs" is repurposed as "Connections" (read-only key overview; category id stays 'apis'). The limit shown in Usage is the sum of each key's limit. Usage reads the existing send log (500 rows, this month, this device only), so older calls show "(older call)" for model; Clean up now logs as "cleanup". Page actions (Summarise etc.) keep hiding when AI is off rather than adding a card to the page header. Permissions keeps its own spend list and sent table (not edited: another builder had uncommitted changes in that file). Old unused strings settings.apis.empty and settings.category.apis(.hint) remain in the language files (shared files in use).
+
 - **2026-11-09 · Settings › Account.** Account section sits right after All. Sign in lives only in Account (Sync shows a link); setup/unlock stays in Sync because the locked alert and the sign-in guide lead there. Sign out on all devices cancels Drive's key first, then ends all sessions; if the server cannot be reached nothing changes (safer than a half sign-out). AI keys and PIN lock are shown as state with a link, not duplicated switches.
 
 - **2026-11-09 · Feature links allowed for CI.** `paper -> editor` (box bar and box service use editor types and plain-text mapping) and `editor -> ai`, `editor -> prompts` (paste "Clean up with AI" reads the AI key and the editable cleanup prompt). No existing seam covers them; revisit if the editor should receive these through a prop.
@@ -954,3 +956,15 @@ The other older decisions stand as built (owner, 2026-11-01); they are in [ARCHI
 - **Automatic Reduce glass** uses a frame-time probe on scroll and pointer bursts (30 frames, over half slower than 20 ms), kept for the session only. Ink drawing and big pages are covered by the same probe, not by separate triggers.
 
 - **2026-11-09 · Drive lasting connection confirmed live** by the owner (Settings › Account: "Drive: stays connected"). Fix: remove the old Google grant, then Set up lasting connection.
+
+## Decisions to review (Accounts, 9 Nov)
+
+- **Email code over magic link.** An iPad web app cannot receive a link (it opens in Safari, separate storage), so the code is typed inside the app. No magic link is offered. Research: docs/research/accounts-2026-11.md.
+- **Passwords: 15 to 128 characters, no other rules** (NIST 800-63B-4). Checked in the app; Supabase minimum length should also be 15 (owner step). A password cannot be removed once set (Supabase has no way); it can be changed. It is tracked by a has_password flag in user_metadata (user-writable, used only as a label).
+- **Disconnect rules:** only Google or the email identity can be disconnected, and only while the other remains. Linking uses Supabase "manual linking" (beta; an advisory about unverified provider emails exists, we only link Google). The server also refuses the last identity.
+- **Existing signed-out devices are not locked out.** A hard gate would lock the owner out of notes on a device that is offline or whose session ended. They see the sign-in panel in Settings > Account and the signed-out banner. A fresh device cannot get past the welcome without signing in, so a first run needs internet. Say if you want a hard gate.
+- **Drive needs Google.** An email sign-in has no Google token, so Drive's lasting connection and pictures need Connect Google; until then Drive shows its normal "will ask" line.
+- **Welcome gets the sign-in panel from App.tsx** (a render prop) so onboarding does not link to sync (check:links).
+- **Spanish and Hindi texts are drafts.** The mock connector accepts code 123456 only in browser tests.
+
+- **2026-11-09 · Settings sync plan approved** (docs/plans/settings-sync-plan.md). Theme, language and AI spending limit sync by default. Build after the remote sign-out and accounts builders finish.

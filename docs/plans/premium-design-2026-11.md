@@ -35,3 +35,6 @@ Owner-liked styles: glassmorphism, immersive storytelling, editorial, Swiss mini
 - References: 4-point spacing system; Notion notes dashboard (quick add, navigation, folder cards with tags); flashcard app (deck progress, Easy/Good/Hard with intervals, colourful card grid, 1/5 counter, tap to show answer); analytics dashboard (funnel, cohort heatmap, KPI tiles, line charts); type scale sheet; button states (primary/secondary/tertiary/ghost × default/hover/disabled/active/loading); input and card components; journey map and user flow; skeleton loading states.
 - Learning features to design for: quizzes, tests, progression and assessment; active recall and spaced repetition screens.
 - Quality audit checklist: consistent type hierarchy, 4-pt spacing, limited intentional palette, consistent radius, consistent icon style, balanced white space, clear hierarchy, dark and light done well, responsive desktop/tablet/phone, consistent component states, subtle meaningful motion, no unnecessary decoration, readability.
+
+## Owner addition (9 Nov night)
+- Notebook rows in the sidebar feel dull: give notebooks more presence (notebook colour/icon chip, bolder name, page and due-card counts, progress hint, clearer open/active state). Do in the sidebar redesign (step 4/6), plus the Notebook overview (step 5).

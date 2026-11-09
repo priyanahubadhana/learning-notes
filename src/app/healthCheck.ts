@@ -168,7 +168,7 @@ export function runHealth(reason: string = 'manual'): string[] {
   lastRun = t
   const found: string[] = []
   for (const p of all()) {
-    let problem: string | null = null
+    let problem: string | null
     try {
       problem = p.check()
     } catch (e) {
@@ -185,7 +185,7 @@ export function runHealth(reason: string = 'manual'): string[] {
       log.push({ at: t, name: p.name, problem, healed: true, reason })
       if (log.length > 30) log.shift()
       setTimeout(() => {
-        let still: string | null = null
+        let still: string | null
         try {
           still = p.check()
         } catch {
@@ -195,7 +195,7 @@ export function runHealth(reason: string = 'manual'): string[] {
       }, p.recheckAfterMs)
       continue
     }
-    let again: string | null = null
+    let again: string | null
     try {
       again = p.check()
     } catch {

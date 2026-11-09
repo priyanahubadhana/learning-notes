@@ -15,15 +15,15 @@ import {
 /**
  * Drawing ink on canvases.
  *
- * Three stacked canvases over the page text:
- *  - `hl`   highlights drawn behind the ink (blended like a real highlighter);
- *  - `ink`  every visible layer, put together from one cached bitmap per layer;
- *  - `live` only the stroke being drawn (low latency, `desynchronized`).
- * The canvases cover just the part of the page that is on screen, so a very
- * long page never makes a huge canvas (iPad Safari refuses about 16 million
- * pixels). A layer's bitmap is a little taller than the screen, so scrolling
- * only moves it; strokes are drawn again only when the ink or the layout
- * changes, or the screen leaves the bitmap.
+ * The overlay lives inside the page's scroller, so the browser scrolls the
+ * ink with the text (no script on scroll). The finished ink is cut into
+ * TILE_H-tall tiles; a tile has an `hl` canvas (highlights behind the ink)
+ * and an `ink` canvas (every visible layer) only when it has strokes, and
+ * only the tiles near the screen exist (bounded memory, iPad Safari refuses
+ * about 16 million pixels per canvas). One `live` canvas the size of the
+ * screen holds only what moves: the stroke being drawn, the eraser ring, a
+ * lasso. A tile is painted again only when the ink, layout, size or look
+ * changes, or when it first comes near the screen.
  */
 
 interface Cached {
@@ -132,15 +132,8 @@ export function paintStroke(
   ctx.restore()
 }
 
-interface Bitmap {
-  canvas: HTMLCanvasElement
-  key: string
-  top: number
-  height: number
-}
-
-/** The most pixels one layer bitmap may have. */
-const MAX_BITMAP_PIXELS = 6_000_000
+/** The height of one tile of ink canvas (page px). */
+export const TILE_H = 640
 
 export interface RenderOptions {
   /** Strokes not painted (the ones being moved by the lasso). */
@@ -149,21 +142,55 @@ export interface RenderOptions {
   night: boolean
 }
 
+interface Item {
+  stroke: Stroke
+  frame: Frame
+  r: Rect
+  behind: boolean
+}
+
+interface Plane {
+  canvas: HTMLCanvasElement
+  ctx: CanvasRenderingContext2D
+}
+
+/**
+ * A tile's canvases. Slots are made once and reused for whichever tile needs
+ * ink (moved with a transform), so scrolling builds and removes no DOM.
+ */
+interface Slot {
+  el: HTMLDivElement
+  hl: Plane | null
+  ink: Plane | null
+  /** The tile it shows, or -1 (hidden, free). */
+  index: number
+}
+
+/** One band of the page; `slot` is null while it has no ink to show. */
+interface Tile {
+  index: number
+  slot: Slot | null
+  key: string
+}
+
+/** The most slots (tiles with ink) one page keeps: bounds the memory. */
+const MAX_SLOTS = 8
+/** Free slots kept for reuse when the page is idle. */
+const SPARE_SLOTS = 2
+
 let rendererCount = 0
 
 export class InkRenderer {
   private readonly budgetId = `ink-${++rendererCount}`
   readonly root: HTMLDivElement
-  readonly hl: HTMLCanvasElement
-  readonly ink: HTMLCanvasElement
   readonly live: HTMLCanvasElement
-  private hlCtx: CanvasRenderingContext2D
-  private inkCtx: CanvasRenderingContext2D
   readonly liveCtx: CanvasRenderingContext2D
-  private bitmaps = new Map<string, Bitmap>()
+  private tiles = new Map<number, Tile>()
+  private slots: Slot[] = []
   dpr = 1
-  /** Top edge of the visible part, in page px, and its size. */
+  /** Top edge of the live canvas (the part of the page on screen), page px. */
   top = 0
+  /** The page's width, and the live canvas's height (page px). */
   width = 1
   height = 1
 
@@ -174,82 +201,92 @@ export class InkRenderer {
       position: 'absolute',
       left: '0',
       top: '0',
+      width: '100%',
+      height: '100%',
       pointerEvents: 'none',
       overflow: 'hidden',
-      willChange: 'transform',
+      // Changing tiles never makes the page lay out or restyle again.
+      contain: 'strict',
     })
-    const make = (name: string, desync = false) => {
-      const c = document.createElement('canvas')
-      c.setAttribute('data-ink-canvas', name)
-      Object.assign(c.style, {
-        position: 'absolute',
-        inset: '0',
-        width: '100%',
-        height: '100%',
-        pointerEvents: 'none',
-      })
-      this.root.append(c)
-      const ctx = c.getContext('2d', desync ? { desynchronized: true } : {})
-      if (!ctx) throw new Error('No canvas')
-      return [c, ctx] as const
-    }
-    ;[this.hl, this.hlCtx] = make('highlights')
-    ;[this.ink, this.inkCtx] = make('ink')
-    ;[this.live, this.liveCtx] = make('live', lowLatency)
+    const c = document.createElement('canvas')
+    c.setAttribute('data-ink-canvas', 'live')
+    Object.assign(c.style, {
+      position: 'absolute',
+      left: '0',
+      top: '0',
+      pointerEvents: 'none',
+    })
+    this.root.append(c)
+    const ctx = c.getContext('2d', lowLatency ? { desynchronized: true } : {})
+    if (!ctx) throw new Error('No canvas')
+    this.live = c
+    this.liveCtx = ctx
   }
 
-  /** Sets which part of the page is on screen. Returns true if anything moved. */
+  /**
+   * Sets the live canvas (the stroke being drawn, the eraser ring, a lasso):
+   * it covers the part of the page on screen, `top` px down. The finished ink
+   * is on tiles that scroll with the page and are not touched by scrolling.
+   * Returns true if the sizes changed.
+   */
   setView(top: number, width: number, height: number, dpr: number): boolean {
     dpr = clampDpr(dpr)
     // Over the memory budget: draw at 1x rather than turn blank.
     if (
       !reserve(
         this.budgetId,
-        3 * canvasBytes(width * dpr, height * dpr) + this.bitmapBytes(),
+        canvasBytes(width * dpr, height * dpr) + this.tileBytes(),
       )
     ) {
       dpr = 1
-      reserve(this.budgetId, 3 * canvasBytes(width, height))
+      reserve(this.budgetId, canvasBytes(width, height) + this.tileBytes())
     }
     const w = Math.max(1, Math.round(width))
     const h = Math.max(1, Math.round(height))
     const sizeChanged =
       w !== this.width || h !== this.height || dpr !== this.dpr
+    if (top !== this.top || sizeChanged) this.live.style.top = `${top}px`
     this.top = top
     this.dpr = dpr
-    this.root.style.transform = `translate3d(0, ${top}px, 0)`
     if (sizeChanged) {
       this.width = w
       this.height = h
-      this.root.style.width = `${w}px`
-      this.root.style.height = `${h}px`
-      for (const c of [this.hl, this.ink, this.live]) {
-        c.width = Math.round(w * dpr)
-        c.height = Math.round(h * dpr)
-      }
-      this.bitmaps.clear()
+      this.live.style.width = `${w}px`
+      this.live.style.height = `${h}px`
+      this.live.width = Math.round(w * dpr)
+      this.live.height = Math.round(h * dpr)
     }
     return sizeChanged
   }
 
-  private bitmapBytes(): number {
+  private tileBytes(): number {
     let n = 0
-    for (const b of this.bitmaps.values())
-      n += canvasBytes(b.canvas.width, b.canvas.height)
+    for (const sl of this.slots) {
+      for (const pl of [sl.hl, sl.ink]) {
+        if (pl) n += canvasBytes(pl.canvas.width, pl.canvas.height)
+      }
+    }
+    return n
+  }
+
+  /** How many tile canvases exist now (tests, the lab). */
+  tileCount(): number {
+    let n = 0
+    for (const sl of this.slots) n += (sl.hl ? 1 : 0) + (sl.ink ? 1 : 0)
     return n
   }
 
   /** Gives the canvases' memory back (the page closed). */
   dispose(): void {
-    for (const c of [this.hl, this.ink, this.live]) c.width = c.height = 0
-    for (const b of this.bitmaps.values()) b.canvas.width = b.canvas.height = 0
-    this.bitmaps.clear()
+    this.live.width = this.live.height = 0
+    for (const sl of [...this.slots]) this.dropSlot(sl)
+    this.tiles.clear()
     release(this.budgetId)
   }
 
-  /** Forgets cached bitmaps (when layers are removed). */
+  /** Forgets what the tiles show (layers removed): they paint again. */
   dropBitmaps(): void {
-    this.bitmaps.clear()
+    for (const t of this.tiles.values()) t.key = ''
   }
 
   clearLive(): void {
@@ -264,95 +301,222 @@ export class InkRenderer {
     this.live.style.mixBlendMode = blend ? 'multiply' : 'normal'
   }
 
-  /** Paints the finished ink: highlights behind, then each visible layer. */
-  draw(doc: InkDoc, layout: PageLayout, o: RenderOptions): void {
-    const { dpr } = this
-    const viewTop = this.top
-    const viewBottom = viewTop + this.height
-    const blend = o.night ? 'normal' : 'multiply'
-    this.hl.style.mixBlendMode = blend
-    this.hl.style.opacity = o.night ? '0.6' : '1'
-    this.hlCtx.clearRect(0, 0, this.hl.width, this.hl.height)
-    this.inkCtx.clearRect(0, 0, this.ink.width, this.ink.height)
-    const hlTarget: Target = { ctx: this.hlCtx, top: viewTop, dpr }
-    const seen = new Set<string>()
-    for (const layer of doc.layers) {
-      if (layer.hidden) continue
-      const strokes = doc.strokesOf(layer.id)
-      if (strokes.length === 0) continue
-      seen.add(layer.id)
-      for (const p of strokes) {
-        if (o.hidden.has(p.stroke.id)) continue
-        if (p.stroke.kind !== 'highlight' || !p.stroke.style.behind) continue
-        const frame = layout.frame(p.blockId)
-        const r = strokeRect(p.stroke, frame)
-        if (!r || r.y > viewBottom || r.y + r.h < viewTop) continue
-        paintStroke(hlTarget, p.stroke, frame)
-      }
-      const bmp = this.layerBitmap(doc, layout, layer.id, strokes, o)
-      if (bmp) {
-        this.inkCtx.drawImage(
-          bmp.canvas,
-          0,
-          Math.round((bmp.top - viewTop) * dpr),
-        )
-      }
+  private dropSlot(sl: Slot): void {
+    for (const pl of [sl.hl, sl.ink]) {
+      if (pl) pl.canvas.width = pl.canvas.height = 0
     }
-    for (const id of [...this.bitmaps.keys()]) {
-      if (!seen.has(id)) this.bitmaps.delete(id)
+    sl.el.remove()
+    this.slots = this.slots.filter((x) => x !== sl)
+  }
+
+  private freeSlot(sl: Slot): void {
+    sl.index = -1
+    sl.el.style.display = 'none'
+    // A free slot shows nothing (and holds no stale picture).
+    for (const pl of [sl.hl, sl.ink]) {
+      if (pl) pl.ctx.clearRect(0, 0, pl.canvas.width, pl.canvas.height)
     }
   }
 
-  private layerBitmap(
+  /** A slot for tile `index`: its own, a free one, a new one, or the farthest. */
+  private takeSlot(index: number, from: number, to: number): Slot | null {
+    let sl = this.slots.find((x) => x.index === index)
+    if (sl) return sl
+    sl = this.slots.find((x) => x.index === -1)
+    if (!sl && this.slots.length < MAX_SLOTS) {
+      const el = document.createElement('div')
+      el.setAttribute('data-ink-tile', '')
+      Object.assign(el.style, {
+        position: 'absolute',
+        left: '0',
+        top: '0',
+        pointerEvents: 'none',
+        contain: 'strict',
+      })
+      // Before the live canvas, which is always on top.
+      this.root.insertBefore(el, this.live)
+      sl = { el, hl: null, ink: null, index: -1 }
+      this.slots.push(sl)
+    }
+    if (!sl) {
+      // Take the slot whose tile is farthest outside the wanted range.
+      let far = -1
+      for (const x of this.slots) {
+        const d = x.index < from ? from - x.index : x.index - to
+        if (d > far) {
+          far = d
+          sl = x
+        }
+      }
+      const old = sl && this.tiles.get(sl.index)
+      if (old) {
+        old.slot = null
+        old.key = ''
+      }
+    }
+    return sl ?? null
+  }
+
+  private plane(sl: Slot, name: 'hl' | 'ink'): Plane | null {
+    let pl = sl[name]
+    if (pl) return pl
+    const canvas = document.createElement('canvas')
+    canvas.setAttribute('data-ink-canvas', name === 'hl' ? 'highlights' : 'ink')
+    Object.assign(canvas.style, {
+      position: 'absolute',
+      inset: '0',
+      width: '100%',
+      height: '100%',
+      pointerEvents: 'none',
+    })
+    const ctx = canvas.getContext('2d')
+    if (!ctx) return null
+    // The highlights lie behind the ink: first in the tile.
+    if (name === 'hl') sl.el.prepend(canvas)
+    else sl.el.append(canvas)
+    pl = { canvas, ctx }
+    sl[name] = pl
+    return pl
+  }
+
+  private removePlane(sl: Slot, name: 'hl' | 'ink'): void {
+    const pl = sl[name]
+    if (!pl) return
+    pl.canvas.width = pl.canvas.height = 0
+    pl.canvas.remove()
+    sl[name] = null
+  }
+
+  /**
+   * Keeps the tiles that cover `lo`..`hi` (page px: the screen plus a margin)
+   * and paints the ones whose picture is out of date (`key` says when the ink,
+   * the layout, the size or the look changed). A tile that is already right is
+   * not touched, so scrolling costs nothing here. `idle` (the page is at
+   * rest) also gives spare canvases back.
+   */
+  syncTiles(
     doc: InkDoc,
     layout: PageLayout,
-    layerId: string,
-    strokes: ReturnType<InkDoc['strokesOf']>,
     o: RenderOptions,
-  ): Bitmap | null {
+    key: string,
+    lo: number,
+    hi: number,
+    pageH: number,
+    idle = false,
+  ): void {
+    const count = Math.max(1, Math.ceil(pageH / TILE_H))
+    const first = Math.min(count - 1, Math.max(0, Math.floor(lo / TILE_H)))
+    const last = Math.min(count - 1, Math.max(first, Math.floor(hi / TILE_H)))
+    // A tile leaves only a tile's height beyond the range it joined at, so
+    // a page that is scrolled back and forth does not paint tiles again.
+    for (const t of [...this.tiles.values()]) {
+      if (t.index >= first - 1 && t.index <= last + 1) continue
+      if (t.slot) this.freeSlot(t.slot)
+      this.tiles.delete(t.index)
+    }
+    let items: Item[] | null = null
+    let changed = false
+    for (let i = first; i <= last; i++) {
+      const h = Math.max(1, Math.min(TILE_H, Math.ceil(pageH - i * TILE_H)))
+      const tkey = `${key}|${this.width}|${this.dpr}|${h}`
+      let t = this.tiles.get(i)
+      if (!t) {
+        t = { index: i, slot: null, key: '' }
+        this.tiles.set(i, t)
+      }
+      if (t.key === tkey) continue
+      t.key = tkey
+      changed = true
+      items ??= this.collect(doc, layout, o)
+      this.paintTile(t, items, o, h, first, last)
+    }
+    if (idle) {
+      const free = this.slots.filter((x) => x.index === -1)
+      for (const sl of free.slice(SPARE_SLOTS)) this.dropSlot(sl)
+    }
+    if (changed || idle) {
+      reserve(
+        this.budgetId,
+        canvasBytes(this.live.width, this.live.height) + this.tileBytes(),
+      )
+    }
+  }
+
+  private collect(doc: InkDoc, layout: PageLayout, o: RenderOptions): Item[] {
+    const items: Item[] = []
+    for (const layer of doc.layers) {
+      if (layer.hidden) continue
+      for (const p of doc.strokesOf(layer.id)) {
+        if (o.hidden.has(p.stroke.id)) continue
+        const frame = layout.frame(p.blockId)
+        const r = strokeRect(p.stroke, frame)
+        if (!r) continue
+        items.push({
+          stroke: p.stroke,
+          frame,
+          r,
+          behind: p.stroke.kind === 'highlight' && !!p.stroke.style.behind,
+        })
+      }
+    }
+    return items
+  }
+
+  private paintTile(
+    t: Tile,
+    items: Item[],
+    o: RenderOptions,
+    h: number,
+    from: number,
+    to: number,
+  ): void {
     const { dpr } = this
-    const key = `${doc.layerVersion(layerId)}|${layout.version}|${[...o.hidden].join(',')}|${this.width}x${this.height}`
-    const viewTop = this.top
-    const viewBottom = viewTop + this.height
-    let bmp = this.bitmaps.get(layerId)
-    if (
-      bmp &&
-      bmp.key === key &&
-      bmp.top <= viewTop &&
-      bmp.top + bmp.height >= viewBottom
-    ) {
-      return bmp
+    const y0 = t.index * TILE_H
+    const y1 = y0 + h
+    const hl: Item[] = []
+    const ink: Item[] = []
+    for (const it of items) {
+      if (it.r.y > y1 || it.r.y + it.r.h < y0) continue
+      ;(it.behind ? hl : ink).push(it)
     }
-    // A bitmap a little taller than the screen, within the pixel budget.
-    const maxH = MAX_BITMAP_PIXELS / (this.width * dpr * dpr)
-    const height = Math.max(this.height, Math.min(this.height * 1.5, maxH))
-    const spare = (height - this.height) / 2
-    const top = Math.max(0, viewTop - spare)
-    if (!bmp) {
-      bmp = { canvas: document.createElement('canvas'), key, top, height }
-      this.bitmaps.set(layerId, bmp)
+    if (hl.length + ink.length === 0) {
+      if (t.slot) this.freeSlot(t.slot)
+      t.slot = null
+      return
     }
-    bmp.key = key
-    bmp.top = top
-    bmp.height = height
-    bmp.canvas.width = Math.round(this.width * dpr)
-    bmp.canvas.height = Math.round(height * dpr)
-    reserve(
-      this.budgetId,
-      3 * canvasBytes(this.width * dpr, this.height * dpr) + this.bitmapBytes(),
-    )
-    const ctx = bmp.canvas.getContext('2d')
-    if (!ctx) return null
-    const target: Target = { ctx, top, dpr }
-    const bottom = top + height
-    for (const p of strokes) {
-      if (o.hidden.has(p.stroke.id)) continue
-      if (p.stroke.kind === 'highlight' && p.stroke.style.behind) continue
-      const frame = layout.frame(p.blockId)
-      const r = strokeRect(p.stroke, frame)
-      if (!r || r.y > bottom || r.y + r.h < top) continue
-      paintStroke(target, p.stroke, frame)
+    const sl = this.takeSlot(t.index, from, to)
+    if (!sl) return
+    t.slot = sl
+    sl.index = t.index
+    const st = sl.el.style
+    st.display = ''
+    st.transform = `translateY(${y0}px)`
+    st.width = `${this.width}px`
+    st.height = `${h}px`
+    const W = Math.round(this.width * dpr)
+    const H = Math.round(h * dpr)
+    for (const [name, list] of [
+      ['hl', hl],
+      ['ink', ink],
+    ] as const) {
+      if (list.length === 0) {
+        this.removePlane(sl, name)
+        continue
+      }
+      const pl = this.plane(sl, name)
+      if (!pl) continue
+      if (pl.canvas.width !== W || pl.canvas.height !== H) {
+        pl.canvas.width = W
+        pl.canvas.height = H
+      } else {
+        pl.ctx.clearRect(0, 0, W, H)
+      }
+      if (name === 'hl') {
+        pl.canvas.style.mixBlendMode = o.night ? 'normal' : 'multiply'
+        pl.canvas.style.opacity = o.night ? '0.6' : '1'
+      }
+      const target: Target = { ctx: pl.ctx, top: y0, dpr }
+      for (const it of list) paintStroke(target, it.stroke, it.frame)
     }
-    return bmp
   }
 }

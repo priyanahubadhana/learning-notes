@@ -122,6 +122,7 @@ export default defineConfig({
         /handwritingChooser/,
         /autoUpdate/,
         /paperBudget/,
+        /inkScrollNative/,
         /paperSearchJump/,
         /paperPhone/,
         /paperExport/,

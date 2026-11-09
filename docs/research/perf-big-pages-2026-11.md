@@ -68,3 +68,27 @@ Tried and reverted: (1) writing the overlay's style only when it changed, and re
 The harness could not scroll with the mouse wheel or a synthesized touch gesture (nothing moved the page scroller with the Pen tool's ink layer present), so the pass scrolls with `scrollTop` writes, 60 px a frame. Numbers are comparable between runs, not a promise of a real finger's frame rate.
 
 CI budget for the mixed page (Chromium, 1x CPU, each zoom): no long task over 150 ms, 95th-percentile frame under 34 ms, under 10 % late frames, under 3 ms script per frame.
+
+## Third pass: the ink scrolls natively (9 Nov, night)
+
+The fix named above: the ink overlay moved inside the page scroller (a zero-size `position: relative` anchor at the end of the editor's container is its containing block, so the browser scrolls it with the text) and the viewport-sized canvases became tiles (640 px bands, at most 8 slots per box, reused with a transform, empty bands cost nothing). Scrolling no longer runs ink code: the scroll handler reads the scroll position (clean layout), and only after 160 px chooses the tiles again from cached geometry (no `getBoundingClientRect` while scrolling), and once more with fresh geometry when the scroll stops. The `contain: strict` on the canvas root keeps tile changes from restyling the paper.
+
+Same mixed page, same harness (`scrollTop` +60 px a frame, one worker, 4x CPU throttle):
+
+| Frames later than 25 ms (4x CPU) | Before                                   | After                   |
+| -------------------------------- | ---------------------------------------- | ----------------------- |
+| 73 % zoom                        | 17-25 %                                  | 0.9 %                   |
+| 100 % zoom                       | 15-23 %                                  | 1.0 %                   |
+| 150 % zoom                       | 9-16 %                                   | 3.0 % (one 358 ms task) |
+| Script per frame (100 %)         | 2.5-4.0 ms                               | 0.7 ms                  |
+| Style recalc per frame (100 %)   | 0.7-1.5 ms                               | 0.6 ms                  |
+| Ink code in a 19 s CPU profile   | 13 s (`redraw`, `getBoundingClientRect`) | 0.13 s                  |
+
+What the steps taught (each measured on the 100 % page at 4x):
+
+1. Overlay inside the scroller, tiles created and removed as the page scrolls: **worse** (18 % late, 31 ms style recalc per frame). Every tile change dirtied the layout and every other box's `getBoundingClientRect` (13 boxes, plus the paper's own listeners) forced a whole-page restyle.
+2. `contain: strict` on the canvas root and the tiles, empty tiles with no element: 5.9 % late.
+3. No geometry reads while scrolling (cached): ink code left the profile, still 6.7 % late. With tiles switched off the same pass gave 0 % late, so the rest was the browser building and tearing down canvas layers.
+4. Slots reused with a transform instead of created and removed: **1.0 % late**, 7 long tasks over 50 ms (was 145).
+
+Not measured here: a real finger on an iPad (the harness scrolls with `scrollTop`); see owner-checks-pending.md.

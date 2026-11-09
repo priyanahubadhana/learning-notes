@@ -192,39 +192,94 @@ export async function expectStrokes(
   return (await savedInk(page)).strokes
 }
 
-/** How many pixels of a canvas are painted. */
+/**
+ * The ink is cut into tiles (one canvas pair per band of the page that has
+ * strokes) that scroll with the page. These helpers join all tiles of one
+ * kind, so a test reads "the ink canvas" as before.
+ */
+
+/** How many pixels of a canvas kind are painted (all tiles together). */
 export const painted = (page: Page, canvas: 'ink' | 'highlights' | 'live') =>
   page.evaluate((name) => {
-    const c = document.querySelector<HTMLCanvasElement>(
-      `[data-ink-canvas="${name}"]`,
-    )!
-    const data = c.getContext('2d')!.getImageData(0, 0, c.width, c.height).data
     let n = 0
-    for (let i = 3; i < data.length; i += 4) if (data[i] > 8) n++
+    for (const c of document.querySelectorAll<HTMLCanvasElement>(
+      `[data-ink-canvas="${name}"]`,
+    )) {
+      if (c.width === 0 || c.height === 0) continue
+      const data = c
+        .getContext('2d')!
+        .getImageData(0, 0, c.width, c.height).data
+      for (let i = 3; i < data.length; i += 4) if (data[i] > 8) n++
+    }
     return n
   }, canvas)
 
-/** The bounding box of painted pixels of a canvas (device px), or null. */
+/**
+ * The bounding box of painted pixels of a canvas kind (all tiles), in device
+ * px from the top-left of the ink canvases' root (the page's top), or null.
+ */
 export const paintedBox = (page: Page, canvas: 'ink' | 'highlights') =>
   page.evaluate((name) => {
-    const c = document.querySelector<HTMLCanvasElement>(
-      `[data-ink-canvas="${name}"]`,
-    )!
-    const { width, height } = c
-    const data = c.getContext('2d')!.getImageData(0, 0, width, height).data
-    let x0 = width
-    let y0 = height
+    const root = document
+      .querySelector('[data-ink-canvases]')!
+      .getBoundingClientRect()
+    let x0 = Infinity
+    let y0 = Infinity
     let x1 = -1
     let y1 = -1
-    for (let y = 0; y < height; y++) {
-      for (let x = 0; x < width; x++) {
-        if (data[(y * width + x) * 4 + 3] > 8) {
-          if (x < x0) x0 = x
-          if (x > x1) x1 = x
-          if (y < y0) y0 = y
-          if (y > y1) y1 = y
+    let dpr = 1
+    for (const c of document.querySelectorAll<HTMLCanvasElement>(
+      `[data-ink-canvas="${name}"]`,
+    )) {
+      const { width, height } = c
+      if (width === 0 || height === 0) continue
+      const r = c.getBoundingClientRect()
+      dpr = width / r.width
+      const dy = (r.top - root.top) * dpr
+      const data = c.getContext('2d')!.getImageData(0, 0, width, height).data
+      for (let y = 0; y < height; y++) {
+        for (let x = 0; x < width; x++) {
+          if (data[(y * width + x) * 4 + 3] > 8) {
+            if (x < x0) x0 = x
+            if (x > x1) x1 = x
+            if (y + dy < y0) y0 = y + dy
+            if (y + dy > y1) y1 = y + dy
+          }
         }
       }
     }
-    return x1 < 0 ? null : { x0, y0, x1, y1, dpr: c.width / c.clientWidth }
+    return x1 < 0 ? null : { x0, y0, x1, y1, dpr }
   }, canvas)
+
+/**
+ * The painted ink (all tiles) as a box in client px, counting pixels whose
+ * alpha is above `alpha`; null when nothing is painted.
+ */
+export const inkClientBox = (page: Page, alpha = 8) =>
+  page.evaluate((min) => {
+    let x0 = Infinity
+    let y0 = Infinity
+    let x1 = -Infinity
+    let y1 = -Infinity
+    for (const c of document.querySelectorAll<HTMLCanvasElement>(
+      '[data-ink-canvas="ink"]',
+    )) {
+      const { width, height } = c
+      if (width === 0 || height === 0) continue
+      const r = c.getBoundingClientRect()
+      const sx = r.width / width
+      const sy = r.height / height
+      const d = c.getContext('2d')!.getImageData(0, 0, width, height).data
+      for (let y = 0; y < height; y++) {
+        for (let x = 0; x < width; x++) {
+          if (d[(y * width + x) * 4 + 3] > min) {
+            x0 = Math.min(x0, r.x + x * sx)
+            x1 = Math.max(x1, r.x + x * sx)
+            y0 = Math.min(y0, r.y + y * sy)
+            y1 = Math.max(y1, r.y + y * sy)
+          }
+        }
+      }
+    }
+    return x1 < 0 ? null : { x0, y0, x1, y1 }
+  }, alpha)

@@ -3,6 +3,7 @@
 import { expect, test, type Page } from '@playwright/test'
 import {
   expectStrokes,
+  inkClientBox,
   inkNote,
   line,
   painted,
@@ -67,37 +68,7 @@ const padPainted = (page: Page) =>
   })
 
 /** The painted box of the page's ink canvas, in client px. */
-const pagePainted = (page: Page) =>
-  page.evaluate(() => {
-    const c = document.querySelector<HTMLCanvasElement>(
-      '[data-ink-canvas="ink"]',
-    )!
-    const { width, height } = c
-    const data = c.getContext('2d')!.getImageData(0, 0, width, height).data
-    let x0 = width
-    let y0 = height
-    let x1 = -1
-    let y1 = -1
-    for (let y = 0; y < height; y++) {
-      for (let x = 0; x < width; x++) {
-        if (data[(y * width + x) * 4 + 3] > 8) {
-          if (x < x0) x0 = x
-          if (x > x1) x1 = x
-          if (y < y0) y0 = y
-          if (y > y1) y1 = y
-        }
-      }
-    }
-    if (x1 < 0) return null
-    const dpr = c.width / c.clientWidth
-    const r = c.getBoundingClientRect()
-    return {
-      x0: r.x + x0 / dpr,
-      y0: r.y + y0 / dpr,
-      x1: r.x + x1 / dpr,
-      y1: r.y + y1 / dpr,
-    }
-  })
+const pagePainted = (page: Page) => inkClientBox(page)
 
 test('the pad is a third of the screen, shows a hint until the first stroke, and its top edge resizes it', async ({
   page,

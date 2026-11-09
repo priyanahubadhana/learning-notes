@@ -69,7 +69,7 @@ import {
 import { PageLayout, type BookSurface } from './layout'
 import { nearestEdge, projectOnEdge, type Edge } from './ruler'
 import { rulerTool } from './toolState'
-import { InkRenderer, paintStroke, strokeRect } from './render'
+import { InkRenderer, paintStroke, strokeRect, TILE_H } from './render'
 import {
   isLoop,
   isScribble,
@@ -292,6 +292,9 @@ function rectPolygon(a: Pt, b: Pt): Pt[] {
 const TURN_SNAP = 5 * DEG
 const MIN_MOVE = 0.3
 const DEFAULT_PRESSURE = 0.4
+/** Scrolling this far (px) chooses the ink tiles near the screen again. */
+const SCROLL_STEP = 160
+
 let penSeenEver = false
 
 export class InkController {
@@ -299,6 +302,12 @@ export class InkController {
   readonly renderer: InkRenderer
   readonly pad: HTMLDivElement
   readonly overlay: HTMLDivElement
+  /**
+   * A zero-size, positioned box at the end of the editor's container. It is
+   * the overlay's containing block, so the overlay lives inside the page's
+   * scroller and the browser scrolls it with the text (no script on scroll).
+   */
+  private readonly anchor: HTMLDivElement
   selection: string[] = []
   /** Page blocks inside the same Lasso loop as the drawings (a mixed selection). */
   blockSel: string[] = []
@@ -306,8 +315,6 @@ export class InkController {
   private gesture: Gesture | null = null
   private raf = 0
   private layoutDirty = true
-  /** What the canvases show now (see `redraw`); '' after anything live. */
-  private painted = ''
   private hidden = new Set<string>()
   private listeners = new Set<() => void>()
   private cleanups: (() => void)[] = []
@@ -317,6 +324,25 @@ export class InkController {
   /** Pointers the pad holds captured now (the browser says when one goes). */
   private captured = new Set<number>()
   private scroller: HTMLElement | Window = window
+  /** The overlay's position or the page's zoom may have changed. */
+  private placeDirty = true
+  private placed = ''
+  /** Something moves on the live canvas now (it follows the screen). */
+  private liveOn = false
+  private liveWas = false
+  /** The scroll position the tiles were last chosen for. */
+  private drawnScroll = -1e9
+  private scrollNow = 0
+  private lastScrollAt = 0
+  private settleTimer = 0
+  /** The next draw reads the page's geometry again. */
+  private fresh = true
+  private geom: {
+    contentTop: number
+    viewH: number
+    width: number
+    pageHeight: number
+  } | null = null
   private hover: Pt | null = null
   /** Tapes peeled off for now (ids; never saved). */
   private peeled = new Set<string>()
@@ -336,6 +362,14 @@ export class InkController {
     )
     this.layout.mediaRef = (id) => env.doc.fallbackOf(id)?.mw
     this.renderer = new InkRenderer(penSettings.get().lowLatency)
+    this.anchor = document.createElement('div')
+    this.anchor.setAttribute('data-ink-anchor', '')
+    Object.assign(this.anchor.style, {
+      position: 'relative',
+      width: '0',
+      height: '0',
+      pointerEvents: 'none',
+    })
     this.overlay = document.createElement('div')
     this.overlay.setAttribute('data-ink-overlay', '')
     Object.assign(this.overlay.style, {
@@ -354,13 +388,14 @@ export class InkController {
     this.pad.setAttribute('data-popup-trigger', '')
     Object.assign(this.pad.style, { position: 'absolute', inset: '0' })
     this.overlay.append(this.renderer.root, this.pad)
+    this.anchor.append(this.overlay)
   }
 
   // ---- Setup ----
 
   mount(): void {
     const { wrap, doc } = this.env
-    wrap.append(this.overlay)
+    wrap.append(this.anchor)
     this.placeOverlay()
     this.scroller = scrollParent(wrap)
     const on = (
@@ -435,23 +470,10 @@ export class InkController {
     if (this.env.book?.watch) {
       this.cleanups.push(this.env.book.watch(() => this.dirty()))
     }
-    on(this.scroller, 'scroll', () => this.requestDraw(), { passive: true })
-    // iPad rubber band (pulling the page past its top or bottom): the page
-    // moves without scroll events, while the overlay (placed from the body)
-    // would stay behind or land over the bars. While a finger is on the page,
-    // and for a moment after (the bounce), the overlay is placed and clipped
-    // again on every frame.
-    for (const type of ['touchstart', 'touchmove', 'touchend', 'touchcancel']) {
-      on(window, type, () => this.trackBounce(), {
-        passive: true,
-        capture: true,
-      })
-    }
-    const vv = window.visualViewport
-    if (vv) {
-      on(vv, 'scroll', () => this.requestDraw())
-      on(vv, 'resize', () => this.requestDraw())
-    }
+    // The ink scrolls with the page by itself. The tiles near the screen are
+    // chosen again only after a good step of scrolling (or while something
+    // live follows the screen).
+    on(this.scroller, 'scroll', () => this.onScroll(), { passive: true })
     on(
       document,
       'keydown',
@@ -466,7 +488,11 @@ export class InkController {
     const editorEl = this.env.editorEl()
     if (editorEl) ro.observe(editorEl)
     this.cleanups.push(() => ro.disconnect())
-    const mo = new MutationObserver(() => this.dirty())
+    const mo = new MutationObserver((records) => {
+      // The ink's own canvases and menus changing is not the page changing.
+      if (records.every((r) => this.overlay.contains(r.target))) return
+      this.dirty()
+    })
     mo.observe(editorEl ?? wrap, {
       childList: true,
       subtree: true,
@@ -606,9 +632,10 @@ export class InkController {
 
   destroy(): void {
     cancelAnimationFrame(this.raf)
+    window.clearTimeout(this.settleTimer)
     for (const c of this.cleanups) c()
     this.cleanups = []
-    this.overlay.remove()
+    this.anchor.remove()
     this.renderer.dispose()
     this.listeners.clear()
   }
@@ -634,6 +661,7 @@ export class InkController {
 
   private dirty(): void {
     this.layoutDirty = true
+    this.placeDirty = true
     this.requestDraw()
   }
 
@@ -682,7 +710,10 @@ export class InkController {
 
   // ---- Drawing the page ----
 
-  requestDraw(): void {
+  requestDraw(fresh = true): void {
+    // A scroll-only draw may use the geometry read last time (no layout read
+    // while the page scrolls); anything else reads it again.
+    if (fresh) this.fresh = true
     if (this.raf) return
     this.raf = requestAnimationFrame(() => {
       this.raf = 0
@@ -727,7 +758,12 @@ export class InkController {
       wrap.style.minHeight = `${Math.round(want)}px`
   }
 
-  private visible(): { top: number; height: number; width: number } {
+  private visible(): {
+    top: number
+    height: number
+    width: number
+    pageHeight: number
+  } {
     const wb = this.env.wrap.getBoundingClientRect()
     const s = this.scroller
     const vTop =
@@ -738,36 +774,112 @@ export class InkController {
         : (s as HTMLElement).getBoundingClientRect().bottom
     const top = Math.min(Math.max(0, vTop - wb.top), wb.height)
     const bottom = Math.min(Math.max(0, vBottom - wb.top), wb.height)
-    return { top, height: Math.max(1, bottom - top), width: wb.width }
+    // Where the page starts inside the scroller's content, and how tall the
+    // scroller's window is: they do not change when only the scroll moves.
+    this.geom = {
+      contentTop: wb.top - vTop + this.scrollPos(),
+      viewH: vBottom - vTop,
+      width: wb.width,
+      pageHeight: wb.height,
+    }
+    return {
+      top,
+      height: Math.max(1, bottom - top),
+      width: wb.width,
+      pageHeight: wb.height,
+    }
+  }
+
+  /** The visible part from the geometry read last time (no layout read). */
+  private visibleCached(): {
+    top: number
+    height: number
+    width: number
+    pageHeight: number
+  } | null {
+    const g = this.geom
+    if (!g) return null
+    const from = this.scrollNow - g.contentTop
+    const top = Math.min(Math.max(0, from), g.pageHeight)
+    const bottom = Math.min(Math.max(0, from + g.viewH), g.pageHeight)
+    return {
+      top,
+      height: Math.max(1, bottom - top),
+      width: g.width,
+      pageHeight: g.pageHeight,
+    }
+  }
+
+  /** The scroller's position (page px). */
+  private scrollPos(): number {
+    const s = this.scroller
+    return s === window ? window.scrollY : (s as HTMLElement).scrollTop
+  }
+
+  /**
+   * Scroll events (they come before the frame's changes, so the page is clean
+   * and reading the position costs nothing): the ink itself scrolls with the
+   * page. Choose the tiles again only after a step, or while something live
+   * follows the screen; and once more, with fresh geometry, when it stops.
+   */
+  private onScroll(): void {
+    this.scrollNow = this.scrollPos()
+    this.lastScrollAt = performance.now()
+    if (!this.settleTimer) {
+      const check = () => {
+        this.settleTimer = 0
+        if (performance.now() - this.lastScrollAt < 140) {
+          this.settleTimer = window.setTimeout(check, 150)
+        } else this.requestDraw()
+      }
+      this.settleTimer = window.setTimeout(check, 150)
+    }
+    if (
+      this.liveOn ||
+      Math.abs(this.scrollNow - this.drawnScroll) >= SCROLL_STEP
+    ) {
+      this.requestDraw(false)
+    }
   }
 
   /**
    * Lays the overlay exactly over the editor without making the editor's
-   * container positioned (that moves the editor's own floating toolbars).
+   * container positioned (that moves the editor's own floating toolbars). The
+   * overlay sits in the anchor, inside the scroller, so it scrolls with the
+   * text. A zoomed paper (CSS zoom on an ancestor) scales the overlay's own
+   * numbers; the overlay is zoomed back so its units are screen px.
    */
   private placeOverlay(): void {
+    this.placeDirty = false
     const { wrap } = this.env
     const wr = wrap.getBoundingClientRect()
-    const parent = this.overlay.offsetParent as HTMLElement | null
-    let left: number
-    let top: number
-    if (parent && getComputedStyle(parent).position !== 'static') {
-      const pr = parent.getBoundingClientRect()
-      left = pr.left + parent.clientLeft
-      top = pr.top + parent.clientTop
-    } else {
-      left = -window.scrollX
-      top = -window.scrollY
+    const ar = this.anchor.getBoundingClientRect()
+    const cs = getComputedStyle(wrap)
+    let local = parseFloat(cs.width)
+    if (cs.boxSizing !== 'border-box') {
+      local +=
+        (parseFloat(cs.paddingLeft) || 0) +
+        (parseFloat(cs.paddingRight) || 0) +
+        (parseFloat(cs.borderLeftWidth) || 0) +
+        (parseFloat(cs.borderRightWidth) || 0)
     }
+    let zoom = local > 1 && wr.width > 1 ? wr.width / local : 1
+    if (Math.abs(zoom - 1) < 0.004) zoom = 1
+    const left = Math.round((wr.left - ar.left) * 100) / 100
+    const top = Math.round((wr.top - ar.top) * 100) / 100
+    const key = `${left}|${top}|${Math.round(wr.width * 100)}|${Math.round(wr.height * 100)}|${zoom}`
+    if (key === this.placed) return
+    this.placed = key
     const st = this.overlay.style
-    st.left = `${wr.left - left}px`
-    st.top = `${wr.top - top}px`
+    st.zoom = zoom === 1 ? '' : String(1 / zoom)
+    st.left = `${left}px`
+    st.top = `${top}px`
     st.width = `${wr.width}px`
     st.height = `${wr.height}px`
   }
 
   private redraw(): void {
-    this.placeOverlay()
+    if (this.placeDirty) this.placeOverlay()
     const { doc } = this.env
     if (this.layoutDirty && (doc.strokeCount > 0 || this.gesture)) {
       this.layoutDirty = false
@@ -789,40 +901,40 @@ export class InkController {
       if (gone.length && !this.gesture) this.adoptOrphans(gone)
     }
     this.ensureRoom()
-    const v = this.visible()
-    // The overlay is positioned from the body, so the page scroller does not
-    // clip it: when the page is scrolled the pad would lie over the bars and
-    // catch their taps. Clip it to the scroller's window ourselves.
-    // Sideways the menus may still hang out of the page column.
-    const below = Math.max(0, this.env.wrap.offsetHeight - v.top - v.height)
-    this.overlay.style.clipPath = `inset(${v.top}px -100vw ${below}px -100vw)`
+    const cached = this.fresh ? null : this.visibleCached()
+    this.fresh = false
+    if (!cached) this.scrollNow = this.scrollPos()
+    const v = cached ?? this.visible()
     const dpr = clampDpr(window.devicePixelRatio || 1)
     const r = this.renderer
-    r.setView(v.top, v.width, v.height, dpr)
     const tool = this.env.tool()
     const night = this.env.night()
-    // Nothing on the canvases would change: leave them alone. Clearing three
-    // screen-sized canvases and putting the layer bitmap back costs a whole
-    // frame in WebKit (every keystroke, resize and layout check comes here).
-    // Anything live (a stroke, the eraser ring, a lasso, peeled tape) paints
-    // every frame.
+    // Anything live (a stroke, the eraser ring, a lasso, peeled tape) is on
+    // the live canvas, which follows the screen and is painted every frame;
+    // everything finished is on tiles that scroll with the page.
     const live =
       this.gesture !== null ||
       (tool === 'eraser' && this.hover !== null) ||
       this.peeled.size > 0
-    const key = live
-      ? ''
-      : `${doc.version}|${this.layout.version}|${r.top}|${r.width}|${r.height}|${r.dpr}|${[...this.hidden].join(',')}|${night}|${tool}`
-    if (key === '' || key !== this.painted) {
-      this.painted = key
-      r.draw(doc, this.layout, {
-        hidden: this.peeled.size
-          ? new Set([...this.hidden, ...this.peeled])
-          : this.hidden,
-        night,
-      })
-      this.drawLive()
-    }
+    this.liveOn = live
+    this.drawnScroll = this.scrollNow
+    r.setView(live || this.liveWas ? v.top : r.top, v.width, v.height, dpr)
+    const hidden = this.peeled.size
+      ? new Set([...this.hidden, ...this.peeled])
+      : this.hidden
+    const key = `${doc.version}|${this.layout.version}|${[...hidden].join(',')}|${night}|${tool}`
+    r.syncTiles(
+      doc,
+      this.layout,
+      { hidden, night },
+      key,
+      v.top - TILE_H,
+      v.top + v.height + TILE_H,
+      v.pageHeight,
+      cached === null && !live,
+    )
+    if (live || this.liveWas) this.drawLive()
+    this.liveWas = live
     if (this.layout.version !== this.noted) {
       this.noted = this.layout.version
       this.notify()
@@ -1745,22 +1857,6 @@ export class InkController {
         e.pointerType === 'mouse' ||
         this.fingerLassos())
     )
-  }
-
-  private bounceUntil = 0
-  private bounceFrame = 0
-  /** Keeps the overlay glued to the page while it is touched and bouncing. */
-  private trackBounce(): void {
-    const idle = performance.now() > this.bounceUntil
-    this.bounceUntil = performance.now() + 900
-    if (!idle || this.bounceFrame) return
-    const step = () => {
-      this.bounceFrame = 0
-      if (performance.now() > this.bounceUntil) return
-      this.requestDraw()
-      this.bounceFrame = requestAnimationFrame(step)
-    }
-    this.bounceFrame = requestAnimationFrame(step)
   }
 
   private lassoDown(e: PointerEvent): void {

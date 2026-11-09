@@ -16,7 +16,8 @@ async function pictureNote(page: Page) {
   await openNote(page, 'pencil', {
     'ink.lasso': { text: false, pictures: true, ink: true },
   })
-  await page.locator('.bn-editor').click()
+  // The Lasso's pad is over the text: a click on it places the caret.
+  await page.locator('.bn-editor').click({ force: true })
   await page.keyboard.press('Control+End')
   await page.keyboard.press('Enter')
   await page.keyboard.type('/image')

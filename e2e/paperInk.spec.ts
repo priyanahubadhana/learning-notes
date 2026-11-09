@@ -1,7 +1,7 @@
 // Browser types for code that runs inside the page.
 /// <reference lib="dom" />
 import { expect, test, type Page } from '@playwright/test'
-import { line, savedInk, stroke, type Pt } from './inkHelpers.ts'
+import { inkClientBox, line, savedInk, stroke, type Pt } from './inkHelpers.ts'
 import { openNote, tool } from './mainBarHelpers.ts'
 
 /**
@@ -47,27 +47,10 @@ async function lineAt(page: Page, text: string) {
 }
 
 /** The middle of the painted ink, in client px (null = nothing painted). */
-const inkMidY = (page: Page) =>
-  page.evaluate(() => {
-    const c = document.querySelector<HTMLCanvasElement>(
-      '[data-ink-canvas="ink"]',
-    )!
-    const data = c.getContext('2d')!.getImageData(0, 0, c.width, c.height).data
-    let y0 = -1
-    let y1 = -1
-    for (let y = 0; y < c.height; y++) {
-      for (let x = 0; x < c.width; x++) {
-        if (data[(y * c.width + x) * 4 + 3] > 8) {
-          if (y0 < 0) y0 = y
-          y1 = y
-          break
-        }
-      }
-    }
-    if (y0 < 0) return null
-    const dpr = c.width / c.clientWidth
-    return c.getBoundingClientRect().top + (y0 + y1) / 2 / dpr
-  })
+const inkMidY = async (page: Page) => {
+  const b = await inkClientBox(page)
+  return b && (b.y0 + b.y1) / 2
+}
 
 const chunkOf = async (page: Page, strokeCount = 1) => {
   await expect

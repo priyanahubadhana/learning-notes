@@ -15,6 +15,9 @@ test('ink on a picture scales and stays with it when the picture is resized', as
   page,
 }) => {
   await openNote(page, 'pencil')
+  // The Lasso's pad lies over the text (the page may now be scrolled to its
+  // top): the Text tool lets the click reach the editor.
+  await tool(page, 'Text').click()
   await page.locator('.bn-editor').click()
   await page.keyboard.press('Control+End')
   await page.keyboard.press('Enter')
@@ -40,7 +43,7 @@ test('ink on a picture scales and stays with it when the picture is resized', as
   const rel = async () => {
     const ib = (await img.boundingBox())!
     const pb = (await paintedBox(page, 'ink'))!
-    const c = await page.locator('[data-ink-canvas="ink"]').evaluate((el) => {
+    const c = await page.locator('[data-ink-canvases]').evaluate((el) => {
       const r = el.getBoundingClientRect()
       return { left: r.left, top: r.top }
     })

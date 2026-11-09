@@ -2,7 +2,13 @@
 /// <reference lib="dom" />
 import { expect, test, type Page } from '@playwright/test'
 import { makeEpub, makePdf } from './fixtures/books.ts'
-import { expectStrokes, line, savedInk, stroke } from './inkHelpers.ts'
+import {
+  expectStrokes,
+  inkClientBox,
+  line,
+  savedInk,
+  stroke,
+} from './inkHelpers.ts'
 
 /**
  * C2b: ink on the pages of the PDF and EPUB readers, driven by simulated
@@ -48,41 +54,11 @@ const pageRect = (page: Page, n: number) =>
     return { x: r.x, y: r.y, w: r.width, h: r.height }
   })
 
-/** The painted pixels of the ink canvas, as a box in client px (or null). */
-const inkBox = (page: Page) =>
-  page.evaluate(() => {
-    const c = document.querySelector<HTMLCanvasElement>(
-      '[data-ink-canvas="ink"]',
-    )
-    if (!c) return null
-    const ctx = c.getContext('2d')!
-    const { width, height } = c
-    const d = ctx.getImageData(0, 0, width, height).data
-    let x0 = width
-    let y0 = height
-    let x1 = -1
-    let y1 = -1
-    for (let y = 0; y < height; y++) {
-      for (let x = 0; x < width; x++) {
-        if (d[(y * width + x) * 4 + 3] > 40) {
-          if (x < x0) x0 = x
-          if (x > x1) x1 = x
-          if (y < y0) y0 = y
-          if (y > y1) y1 = y
-        }
-      }
-    }
-    if (x1 < 0) return null
-    const r = c.getBoundingClientRect()
-    const sx = r.width / width
-    const sy = r.height / height
-    return {
-      x: r.x + x0 * sx,
-      y: r.y + y0 * sy,
-      w: (x1 - x0) * sx,
-      h: (y1 - y0) * sy,
-    }
-  })
+/** The painted pixels of the ink canvases, as a box in client px (or null). */
+const inkBox = async (page: Page) => {
+  const b = await inkClientBox(page, 40)
+  return b && { x: b.x0, y: b.y0, w: b.x1 - b.x0, h: b.y1 - b.y0 }
+}
 
 async function showPage(page: Page, n: number) {
   await expect(page.locator(`[data-pdf-page="${n}"]`)).toBeAttached()

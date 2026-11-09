@@ -48,6 +48,22 @@ async function drag(page: Page, dx: number, corner = 'se') {
 const widthOf = async (page: Page) =>
   (await page.locator('.bn-editor img').first().boundingBox())!.width
 
+/** Waits until a size change has finished (the glide, then the redraw). */
+async function sizeSettled(page: Page) {
+  let last = -1
+  await expect
+    .poll(
+      async () => {
+        const w = await widthOf(page)
+        const same = Math.abs(w - last) < 0.5
+        last = w
+        return same
+      },
+      { intervals: [300] },
+    )
+    .toBe(true)
+}
+
 test('a pasted/placed picture is selected and the Picture strip shows', async ({
   page,
 }) => {
@@ -85,6 +101,7 @@ test('a pasted/placed picture is selected and the Picture strip shows', async ({
   const w0 = await widthOf(page)
   await strip.locator('[data-ctx-action="smaller"]').click()
   await expect.poll(() => widthOf(page)).toBeLessThan(w0 - 30)
+  await sizeSettled(page) // a person taps the next button after the glide
   // Alignment through the strip.
   await strip.locator('[data-ctx-action="alignCenter"]').click()
   await expect(

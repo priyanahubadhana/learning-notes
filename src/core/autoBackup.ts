@@ -152,3 +152,14 @@ export async function readLatestBackup(
 
 /** Tests only. */
 export const AUTO_KEYS = { INDEX_KEY, BUILD_KEY }
+
+/**
+ * Opens once the silent backup before an upgrade is done (or was not needed).
+ * Anything that touches the database at start-up waits for it: opening the
+ * database first would run the upgrade before its backup was taken.
+ */
+export const backupGate = (() => {
+  let open = () => {}
+  const ready = new Promise<void>((resolve) => (open = resolve))
+  return { ready, open: () => open() }
+})()

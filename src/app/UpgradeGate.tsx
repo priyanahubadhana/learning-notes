@@ -1,7 +1,7 @@
 import { noteBackup } from './attention/attentionSignals'
 import { useEffect, useState, type ReactNode } from 'react'
 import { db, DEFAULT_DB_NAME } from '../core/db'
-import { runAutoBackup } from '../core/autoBackup'
+import { backupGate, runAutoBackup } from '../core/autoBackup'
 import {
   backupFile,
   backupFileName,
@@ -24,6 +24,14 @@ let checkPromise: Promise<Check> | undefined
  * only when it could not be made (or the browser is nearly out of space).
  */
 async function check(): Promise<Check> {
+  try {
+    return await checkInner()
+  } finally {
+    backupGate.open()
+  }
+}
+
+async function checkInner(): Promise<Check> {
   try {
     const result = await runAutoBackup(
       DEFAULT_DB_NAME,

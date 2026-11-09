@@ -35,7 +35,7 @@ import { rememberPlace, startAutoUpdate } from './app/autoUpdate'
 import { flushAllSaves, hasPendingSaves } from './editor/autosave'
 import { writePad } from './editor/writePad/padState'
 import { loadDraft } from './editor/writePad/draft'
-import { runAutoBackup } from './core/autoBackup'
+import { backupGate, runAutoBackup } from './core/autoBackup'
 import { penIsDown } from './app/palmGuard'
 import { hasUnsaved } from './app/saveStatus'
 import { requestPersistentStorage } from './core/storage'
@@ -107,6 +107,11 @@ if (slowMomentsWanted()) setSlowMomentsOn(true)
 // Settings that follow you start first, so a change made while signed out
 // is ready to travel and sync never sees a half-set-up list.
 const startSettings = (async () => {
+  // Opening the database runs its upgrade: the silent backup comes first.
+  await Promise.race([
+    backupGate.ready,
+    new Promise((resolve) => setTimeout(resolve, 8000)),
+  ])
   const [mirror, migration, notice, noticeView] = await Promise.all([
     import('./settings/settingsMirror'),
     import('./settings/settingsMigration'),

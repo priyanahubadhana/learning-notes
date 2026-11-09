@@ -777,12 +777,10 @@ html[data-note-line] .bn-editor {
 .scroll-hint-thumb.is-drag {
   opacity: 1;
 }
-/* A mouse hits only the last 12 px (it has a real scroll bar too), so the
-   handle never sits over a row's buttons; touch keeps the 44 px area. */
-@media (pointer: fine) {
-  .scroll-hint-thumb {
-    clip-path: inset(0 0 0 32px);
-  }
+/* Only the last 12 px of the handle takes a press (a clip-path hit area), so the
+   handle never sits over a row's or header's buttons. */
+.scroll-hint-thumb {
+  clip-path: inset(0 0 0 32px);
 }
 .scroll-hint-thumb.is-drag::after {
   width: 7px;

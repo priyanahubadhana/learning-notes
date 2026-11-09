@@ -23,8 +23,14 @@ import { option, tool } from './mainBarHelpers.ts'
 
 test.use({ viewport: { width: 1024, height: 1000 }, hasTouch: true })
 
-async function openMagnifier(page: Page) {
+async function openMagnifier(page: Page, closeSidebar = false) {
   await inkNote(page, 'Pen')
+  if (closeSidebar) {
+    // With the sidebar open the bar scrolls and its edge cue covers tools a
+    // spec taps by position: close it so every tool is in plain view.
+    await page.getByRole('button', { name: 'Hide menu' }).first().click()
+    await expect(page.locator('aside')).toBeHidden()
+  }
   await tool(page, 'Insert').click()
   await option(page, 'Magnifier').click()
   const padEl = page.locator('[data-magnifier-pad]')
@@ -129,7 +135,7 @@ test('the pad ink sits under the pen (within a pixel) and lands only in the targ
 test('erasing on the page clears the pad at once; erasing in the pad clears the page', async ({
   page,
 }) => {
-  const pad = await openMagnifier(page)
+  const pad = await openMagnifier(page, true)
   await stroke(page, line([pad.x + 20, pad.y + 60], [pad.x + 220, pad.y + 60]))
   await expectStrokes(page, 1)
   await expect

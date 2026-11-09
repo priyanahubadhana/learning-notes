@@ -587,9 +587,18 @@ function Handle({
       style={{
         left: at.x - 11,
         top: which === 'start' ? at.y - 25 : at.y + 3,
+        // The touch rule that makes every button 44 px must not blow it up.
+        minWidth: 0,
+        minHeight: 0,
         touchAction: 'none',
       }}
-      className="fixed z-[var(--z-mini)] size-[22px] rounded-full border-2 border-accent bg-bg shadow after:absolute after:-inset-2 after:content-['']"
+      // The bigger touch area grows away from the words only, so a third or
+      // fourth tap on a short selected word never lands on a handle.
+      className={`fixed z-[var(--z-mini)] size-[22px] rounded-full border-2 border-accent bg-bg shadow after:absolute after:-inset-x-2 after:content-[''] ${
+        which === 'start'
+          ? 'after:-top-2 after:bottom-0'
+          : 'after:top-0 after:-bottom-2'
+      }`}
     />
   )
 }

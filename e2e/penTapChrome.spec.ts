@@ -51,6 +51,10 @@ test('a pen tap on a toggling control fires once, also with a late real click', 
 }) => {
   await openNote(page, 'pencil')
   const insert = tool(page, 'Insert')
+  // With the sidebar open the bar scrolls and its edge cue covers the last
+  // tool; close the sidebar so every tool is in plain view.
+  await page.getByRole('button', { name: 'Hide menu' }).first().click()
+  await expect(page.locator('aside')).toBeHidden()
   await penTap(page, insert)
   await expect(pill(page, 'insert')).toBeVisible()
   // The browser's own click comes right after (trusted): swallowed.

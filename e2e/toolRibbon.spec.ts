@@ -349,12 +349,18 @@ test('Edit bar can hide tabs (one always stays) and the choice is kept', async (
     'Review',
   ])
   // Hide all but one: the last one cannot be unticked.
-  await shortBar(page).click()
-  await dockedBar(page).getByRole('button', { name: 'Toolbar menu' }).click()
-  await page
-    .locator('[data-bar="tray"]')
-    .getByRole('button', { name: /^Bar settings/ })
-    .click()
+  // The page may still be settling after the reload: repeat until the tray opens.
+  await expect(async () => {
+    if (await tablist(page).isVisible())
+      await shortBar(page).click({ timeout: 2000 })
+    await dockedBar(page)
+      .getByRole('button', { name: 'Toolbar menu' })
+      .click({ timeout: 2000 })
+    await page
+      .locator('[data-bar="tray"]')
+      .getByRole('button', { name: /^Bar settings/ })
+      .click({ timeout: 2000 })
+  }).toPass({ timeout: 15_000 })
   const again = page
     .locator('[data-bar="tray"]')
     .getByRole('group', { name: 'Edit bar' })

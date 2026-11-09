@@ -1,6 +1,7 @@
 // Browser types for code that runs inside the page.
 /// <reference lib="dom" />
 import { expect, test, type Browser, type Page } from '@playwright/test'
+import { signInFromAccount } from './helpers.ts'
 
 /**
  * Fix #3: a wrong passphrase or recovery code keeps and selects the text, shows
@@ -50,7 +51,7 @@ test('wrong passphrase: error, kept text, three tries, wait, then success resets
   const a = await device(browser)
   await a.goto('/#/settings/sync')
   const sa = a.getByTestId('sync-section')
-  await sa.getByRole('button', { name: 'Sign in with Google' }).click()
+  await signInFromAccount(sa.page())
   await sa.getByLabel('Passphrase', { exact: true }).fill(PASS)
   await sa.getByLabel('Type it again').fill(PASS)
   await sa.getByRole('button', { name: 'Lock my notes and start' }).click()
@@ -69,7 +70,7 @@ test('wrong passphrase: error, kept text, three tries, wait, then success resets
   const b = await device(browser, state)
   await b.goto('/#/settings/sync')
   const sb = b.getByTestId('sync-section')
-  await sb.getByRole('button', { name: 'Sign in with Google' }).click()
+  await signInFromAccount(sb.page())
   const box = sb.getByLabel('Passphrase', { exact: true })
   const unlock = sb.getByRole('button', { name: 'Unlock', exact: true })
 

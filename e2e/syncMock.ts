@@ -1,7 +1,7 @@
 // Browser types for code that runs inside the page.
 /// <reference lib="dom" />
 import { expect, type Browser, type Page } from '@playwright/test'
-import { createNotebook, openPage } from './helpers.ts'
+import { createNotebook, openPage, signInFromAccount } from './helpers.ts'
 
 export type MockServer = (op: string, ...args: unknown[]) => Promise<unknown>
 interface Rec {
@@ -187,7 +187,7 @@ export async function setupA(a: Page, texts: string[]) {
   await a.waitForTimeout(800)
   await a.goto('/#/settings/sync')
   const sa = a.getByTestId('sync-section')
-  await sa.getByRole('button', { name: 'Sign in with Google' }).click()
+  await signInFromAccount(sa.page())
   await sa.getByLabel('Passphrase', { exact: true }).fill(PASS)
   await sa.getByLabel('Type it again').fill(PASS)
   await sa.getByRole('button', { name: 'Lock my notes and start' }).click()
@@ -206,7 +206,7 @@ export async function setupA(a: Page, texts: string[]) {
 export async function setupB(b: Page) {
   await b.goto('/#/settings/sync')
   const sb = b.getByTestId('sync-section')
-  await sb.getByRole('button', { name: 'Sign in with Google' }).click()
+  await signInFromAccount(sb.page())
   await sb.getByLabel('Passphrase', { exact: true }).fill(PASS)
   await sb.getByRole('button', { name: 'Unlock' }).click()
   await expect(b.getByTestId('sync-status')).toContainText('Last synced', {

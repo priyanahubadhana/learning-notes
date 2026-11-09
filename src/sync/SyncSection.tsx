@@ -9,17 +9,11 @@ import { RecoveryCodeView } from './RecoveryCodeView'
 import {
   dismissArrival,
   dismissMerged,
-  driveLastingState,
-  setUpLastingDrive,
   getSyncStatus,
   reconnectDrive,
-  makeNewRecoveryCode,
   setUpKey,
-  signIn,
-  signOut,
   startSync,
   subscribeSync,
-  syncNow,
   unlock,
 } from './syncService'
 
@@ -39,8 +33,9 @@ const when = (ms: number) =>
 /**
  * Settings › Sync (L4, L5): sign in, choose the passphrase and save the
  * printed recovery code (first device), or unlock (other devices); then
- * status, Sync now, Reconnect Drive and sign out. Signing in or out never
- * touches the notes on this device.
+ * status and Reconnect Drive. Sign in, sign out, Sync now, Drive's lasting
+ * connection and the new recovery code live in Settings › Account
+ * (AccountSection). Signing in or out never touches the notes.
  */
 export function SyncSection({ db }: { db: LearningNotesDB }) {
   const status = useSyncExternalStore(subscribeSync, getSyncStatus)
@@ -62,19 +57,18 @@ export function SyncSection({ db }: { db: LearningNotesDB }) {
       {code ? (
         <RecoveryCodeView code={code} onDone={() => setCode(null)} />
       ) : status.phase === 'signedOut' ? (
-        <div>
-          <button
-            type="button"
-            className={primary}
-            onClick={() => void signIn()}
-          >
-            {t('sync.signIn')}
-          </button>
-        </div>
+        <p className="text-sm">
+          <a className="underline" href="#/settings/account">
+            {t('account.signInIn')}
+          </a>
+        </p>
       ) : (
         <>
           <p className="text-sm">
-            {t('sync.signedInAs', { email: status.email ?? '' })}
+            {t('sync.signedInAs', { email: status.email ?? '' })}{' '}
+            <a className="underline" href="#/settings/account">
+              {t('account.manage')}
+            </a>
           </p>
           {status.phase === 'needsSetup' && (
             <SetUp
@@ -89,22 +83,6 @@ export function SyncSection({ db }: { db: LearningNotesDB }) {
           {(status.phase === 'ready' || status.phase === 'syncing') && (
             <Running db={db} />
           )}
-          <div className="flex flex-wrap gap-2">
-            <button
-              type="button"
-              className={button}
-              onClick={() => void signOut(false)}
-            >
-              {t('sync.signOut')}
-            </button>
-            <button
-              type="button"
-              className={button}
-              onClick={() => void signOut(true)}
-            >
-              {t('sync.signOutForget')}
-            </button>
-          </div>
         </>
       )}
       <p className="text-xs text-muted">{t('sync.privacy')}</p>
@@ -216,14 +194,6 @@ function Running({ db }: { db: LearningNotesDB }) {
         </p>
       )}
       <div className="flex flex-wrap gap-2">
-        <button
-          type="button"
-          className={button}
-          disabled={status.phase === 'syncing'}
-          onClick={() => void syncNow(db)}
-        >
-          {t('sync.syncNow')}
-        </button>
         {status.needsDriveTap && (
           <button
             type="button"
@@ -236,35 +206,6 @@ function Running({ db }: { db: LearningNotesDB }) {
       </div>
       {status.needsDriveTap && (
         <p className="text-sm text-muted">{t('sync.driveTap')}</p>
-      )}
-      <DriveLasting />
-      <NewCode />
-    </div>
-  )
-}
-
-function DriveLasting() {
-  const d = driveLastingState()
-  if (!d) return null
-  const kept = d.state === 'kept'
-  return (
-    <div className="flex flex-col gap-2" data-testid="drive-lasting">
-      <p className="text-sm" role="status">
-        {kept ? t('sync.driveKept') : t('sync.driveWillAsk')}
-      </p>
-      {!kept && (
-        <>
-          {d.note && <p className="text-xs text-muted">{d.note}</p>}
-          <div>
-            <button
-              type="button"
-              className={button}
-              onClick={() => void setUpLastingDrive()}
-            >
-              {t('sync.driveSetUp')}
-            </button>
-          </div>
-        </>
       )}
     </div>
   )
@@ -306,100 +247,5 @@ function DeviceCheck() {
         </p>
       )}
     </details>
-  )
-}
-
-/**
- * "Make a new recovery code" (signed in and unlocked only): asks for the
- * passphrase again, then shows the new code. The old code stops working; the
- * notes are not re-encrypted.
- */
-function NewCode() {
-  const [open, setOpen] = useState(false)
-  const [error, setError] = useState<'failed' | null>(null)
-  const [made, setMade] = useState<{
-    code: string
-    oldRemoved: boolean
-  } | null>(null)
-  const [saved, setSaved] = useState(false)
-  const reset = () => {
-    setOpen(false)
-    setError(null)
-    setMade(null)
-  }
-  if (saved && !open)
-    return (
-      <p className="text-sm" role="status" data-testid="new-code-saved">
-        {t('sync.newCodeSaved')}
-      </p>
-    )
-  if (made)
-    return (
-      <div className="flex flex-col gap-3" data-testid="new-code">
-        {!made.oldRemoved && (
-          <p role="alert" className="text-sm text-danger">
-            {t('sync.newCodeOldLeft')}
-          </p>
-        )}
-        <RecoveryCodeView
-          code={made.code}
-          onDone={() => {
-            setSaved(made.oldRemoved)
-            reset()
-          }}
-        />
-      </div>
-    )
-  if (!open)
-    return (
-      <div>
-        <button
-          type="button"
-          className={button}
-          onClick={() => {
-            setSaved(false)
-            setOpen(true)
-          }}
-        >
-          {t('sync.newCode')}
-        </button>
-      </div>
-    )
-  return (
-    <>
-      <UnlockForm
-        kinds={['passphrase']}
-        testId="new-code-form"
-        title={t('sync.newCode')}
-        help={t('sync.newCodeHelp')}
-        submitLabel={t('sync.newCodeGo')}
-        submit={async (secret) => {
-          setError(null)
-          try {
-            const r = await makeNewRecoveryCode(secret)
-            if (!r) return 'wrong'
-            setMade({ code: r.recoveryCode, oldRemoved: r.oldRemoved })
-            return 'ok'
-          } catch {
-            setError('failed')
-            return 'error'
-          }
-        }}
-        extra={
-          <>
-            {error === 'failed' && (
-              <p role="alert" className="text-sm text-danger">
-                {t('sync.newCodeFailed')}
-              </p>
-            )}
-            <div>
-              <button type="button" className={button} onClick={reset}>
-                {t('sync.newCodeCancel')}
-              </button>
-            </div>
-          </>
-        }
-      />
-    </>
   )
 }

@@ -70,6 +70,8 @@ export interface Account {
   email: string
   /** Google's never-reused subject id. */
   sub: string
+  /** Google profile picture address (https), if Google sent one. */
+  avatar?: string
 }
 
 /** Sign-in provider (Google through Supabase). */
@@ -82,6 +84,12 @@ export interface AuthProvider {
   finishSignIn(url: URL): Promise<boolean>
   /** Forgets the session on this device; local notes stay. */
   signOut(): Promise<void>
+  /**
+   * Signs out on EVERY device (the server ends all sessions and cancels
+   * Drive's long-lived key). Returns false, changing nothing here, if the
+   * server could not be reached. Local notes stay.
+   */
+  signOutEverywhere?(): Promise<boolean>
   /** A fresh access token for the record store (renews when needed). */
   accessToken(): Promise<string>
   /** A Drive pass; may need a tap (`interactive`) after its hour runs out. */

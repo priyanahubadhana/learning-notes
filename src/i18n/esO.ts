@@ -922,4 +922,57 @@ export const esO: Record<string, string> = {
   'pasteChooser.cleaned': 'Ordenado',
   'embed.openLink': 'Abrir el enlace',
   'pasteChooser.boxMade': 'Pegado en un cuadro de texto nuevo',
+  // ---- Settings › Account ----
+  'settings.category.account': 'Cuenta',
+  'settings.category.account.hint':
+    'Quién eres, tus conexiones, seguridad y dónde has iniciado sesión.',
+  'account.title': 'Cuenta',
+  'account.who': 'Quién',
+  'account.signedIn': 'Has iniciado sesión.',
+  'account.signedOut': 'No has iniciado sesión.',
+  'account.connections': 'Conexiones',
+  'account.security': 'Seguridad',
+  'account.sessions': 'Sesiones',
+  'account.syncLocked':
+    'Sincronizar espera tu frase o tu código de recuperación.',
+  'account.unlockInSync': 'Desbloquear en Sincronizar',
+  'account.syncOptions': 'Opciones de sincronización',
+  'account.keyOn':
+    'Tus notas están desbloqueadas en este dispositivo (la clave está aquí).',
+  'account.keyOff':
+    'Bloqueado: escribe tu frase o código de recuperación en Sincronizar.',
+  'account.lockOn': 'El bloqueo con PIN está activado.',
+  'account.lockOff': 'El bloqueo con PIN está desactivado.',
+  'account.changeInLock': 'Cambiar en Bloqueo',
+  'account.aiKeysOn': 'Las claves de IA te siguen a tus otros dispositivos.',
+  'account.aiKeysOff': 'Las claves de IA se quedan solo en este dispositivo.',
+  'account.changeInAi': 'Cambiar en IA',
+  'account.signOutAll': 'Cerrar sesión en todos los dispositivos',
+  'account.signOutAll.confirm':
+    '¿Cerrar sesión en todos los dispositivos? Cada otro dispositivo tendrá que iniciar sesión de nuevo y Google Drive se desconectará. Tus notas se quedan en cada dispositivo.',
+  'account.signOutAll.go': 'Cerrar sesión en todas partes',
+  'account.signOutAll.failed':
+    'No se pudo conectar con el servidor. No cambió nada. Inténtalo con conexión.',
+  'account.signOutAll.done': 'Sesión cerrada en todos los dispositivos.',
+  'account.signInIn': 'Inicia sesión desde Cuenta',
+  'account.manage': 'Cuenta y cerrar sesión',
+  'account.signIn.hint':
+    'Inicia sesión para sincronizar tus notas y conectar Google Drive.',
+  'account.driveLasting.hint':
+    'Mantén Google Drive conectado para que las imágenes y copias no pidan reconectar.',
+  'account.syncNow.hint':
+    'Sincroniza ahora y mira cuándo se sincronizaron tus notas.',
+  'account.newCode.hint':
+    'Cierra tus notas con un código de recuperación nuevo (pide tu frase).',
+  'account.pinLock.label': 'Bloqueo con PIN',
+  'account.pinLock.hint':
+    'Bloquea cuadernos y páginas con un PIN (mira la sección Bloqueo).',
+  'account.aiKeys.hint':
+    'Lleva tus claves de IA a todos tus dispositivos (mira la sección IA).',
+  'account.signOut.hint':
+    'Cierra sesión solo en este dispositivo. Tus notas se quedan.',
+  'account.signOutForget.hint':
+    'Cierra sesión aquí y quita la clave de este dispositivo. Tus notas se quedan.',
+  'account.signOutAll.hint':
+    'Cierra sesión en todos los dispositivos y desconecta Google Drive. Las notas se quedan en cada dispositivo.',
 }

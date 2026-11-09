@@ -923,4 +923,51 @@ export const enO = {
   'pasteChooser.boxMade': 'Pasted into a new text box',
   'reading.ctl.pin': 'Keep the bar visible',
   'reading.ctl.unpin': 'Let the bar hide while scrolling',
+  // ---- Settings › Account ----
+  'settings.category.account': 'Account',
+  'settings.category.account.hint':
+    'Who you are, your connections, security and where you are signed in.',
+  'account.title': 'Account',
+  'account.who': 'Who',
+  'account.signedIn': 'You are signed in.',
+  'account.signedOut': 'You are not signed in.',
+  'account.connections': 'Connections',
+  'account.security': 'Security',
+  'account.sessions': 'Sessions',
+  'account.syncLocked': 'Sync is waiting for your passphrase or recovery code.',
+  'account.unlockInSync': 'Unlock in Sync',
+  'account.syncOptions': 'Sync options',
+  'account.keyOn': 'Your notes are unlocked on this device (the key is here).',
+  'account.keyOff': 'Locked: type your passphrase or recovery code in Sync.',
+  'account.lockOn': 'PIN lock is on.',
+  'account.lockOff': 'PIN lock is off.',
+  'account.changeInLock': 'Change in Lock',
+  'account.aiKeysOn': 'AI keys follow you to your other devices.',
+  'account.aiKeysOff': 'AI keys stay on this device only.',
+  'account.changeInAi': 'Change in AI',
+  'account.signOutAll': 'Sign out on all devices',
+  'account.signOutAll.confirm':
+    'Sign out on every device? Each other device will need to sign in again, and Google Drive will be disconnected. Your notes stay on every device.',
+  'account.signOutAll.go': 'Sign out everywhere',
+  'account.signOutAll.failed':
+    'Could not reach the server. Nothing changed. Try again when you are online.',
+  'account.signOutAll.done': 'Signed out on all devices.',
+  'account.signInIn': 'Sign in from Account',
+  'account.manage': 'Account and sign out',
+  'account.signIn.hint': 'Sign in to sync your notes and connect Google Drive.',
+  'account.driveLasting.hint':
+    'Keep Google Drive connected so pictures and backups need no reconnect.',
+  'account.syncNow.hint': 'Sync now and see when your notes last synced.',
+  'account.newCode.hint':
+    'Lock your notes with a new recovery code (needs your passphrase).',
+  'account.pinLock.label': 'PIN lock',
+  'account.pinLock.hint':
+    'Lock notebooks and pages with a PIN (see the Lock section).',
+  'account.aiKeys.hint':
+    'Keep your AI keys on all your devices (see the AI section).',
+  'account.signOut.hint': 'Sign out on this device only. Your notes stay.',
+  'account.signOutForget.hint':
+    'Sign out here and remove the key from this device. Your notes stay.',
+  'account.signOutAll.hint':
+    'Sign out on every device and disconnect Google Drive. Notes stay on each device.',
 }

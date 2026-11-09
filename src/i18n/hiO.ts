@@ -896,4 +896,52 @@ export const hiO: Record<string, string> = {
   'pasteChooser.cleaned': 'साफ़ किया हुआ',
   'embed.openLink': 'लिंक खोलें',
   'pasteChooser.boxMade': 'नए टेक्स्ट बॉक्स में चिपकाया गया',
+  // ---- Settings › Account ----
+  'settings.category.account': 'खाता',
+  'settings.category.account.hint':
+    'आप कौन हैं, आपके कनेक्शन, सुरक्षा और आप कहाँ साइन इन हैं।',
+  'account.title': 'खाता',
+  'account.who': 'कौन',
+  'account.signedIn': 'आप साइन इन हैं।',
+  'account.signedOut': 'आप साइन इन नहीं हैं।',
+  'account.connections': 'कनेक्शन',
+  'account.security': 'सुरक्षा',
+  'account.sessions': 'सेशन',
+  'account.syncLocked':
+    'सिंक आपके पासफ़्रेज़ या रिकवरी कोड का इंतज़ार कर रहा है।',
+  'account.unlockInSync': 'सिंक में अनलॉक करें',
+  'account.syncOptions': 'सिंक विकल्प',
+  'account.keyOn': 'इस डिवाइस पर आपके नोट्स अनलॉक हैं (चाबी यहीं है)।',
+  'account.keyOff': 'लॉक है: सिंक में अपना पासफ़्रेज़ या रिकवरी कोड लिखें।',
+  'account.lockOn': 'PIN लॉक चालू है।',
+  'account.lockOff': 'PIN लॉक बंद है।',
+  'account.changeInLock': 'लॉक में बदलें',
+  'account.aiKeysOn': 'AI कुंजियाँ आपके दूसरे डिवाइस पर भी रहती हैं।',
+  'account.aiKeysOff': 'AI कुंजियाँ सिर्फ़ इसी डिवाइस पर रहती हैं।',
+  'account.changeInAi': 'AI में बदलें',
+  'account.signOutAll': 'सभी डिवाइस पर साइन आउट',
+  'account.signOutAll.confirm':
+    'सभी डिवाइस पर साइन आउट करें? हर दूसरे डिवाइस को फिर साइन इन करना होगा और Google Drive डिस्कनेक्ट हो जाएगा। आपके नोट्स हर डिवाइस पर रहेंगे।',
+  'account.signOutAll.go': 'हर जगह साइन आउट',
+  'account.signOutAll.failed':
+    'सर्वर तक नहीं पहुँच सके। कुछ नहीं बदला। ऑनलाइन होने पर फिर कोशिश करें।',
+  'account.signOutAll.done': 'सभी डिवाइस पर साइन आउट हो गया।',
+  'account.signInIn': 'खाता से साइन इन करें',
+  'account.manage': 'खाता और साइन आउट',
+  'account.signIn.hint':
+    'नोट्स सिंक करने और Google Drive जोड़ने के लिए साइन इन करें।',
+  'account.driveLasting.hint':
+    'Google Drive जुड़ा रखें ताकि तस्वीरों और बैकअप के लिए दोबारा जोड़ना न पड़े।',
+  'account.syncNow.hint':
+    'अभी सिंक करें और देखें कि नोट्स आख़िरी बार कब सिंक हुए।',
+  'account.newCode.hint': 'नए रिकवरी कोड से नोट्स लॉक करें (पासफ़्रेज़ चाहिए)।',
+  'account.pinLock.label': 'PIN लॉक',
+  'account.pinLock.hint': 'नोटबुक और पेज PIN से लॉक करें (लॉक सेक्शन देखें)।',
+  'account.aiKeys.hint':
+    'अपनी AI कुंजियाँ सभी डिवाइस पर रखें (AI सेक्शन देखें)।',
+  'account.signOut.hint': 'सिर्फ़ इस डिवाइस पर साइन आउट करें। नोट्स रहेंगे।',
+  'account.signOutForget.hint':
+    'यहाँ साइन आउट करें और इस डिवाइस से चाबी हटाएँ। नोट्स रहेंगे।',
+  'account.signOutAll.hint':
+    'हर डिवाइस पर साइन आउट करें और Google Drive डिस्कनेक्ट करें। नोट्स हर डिवाइस पर रहेंगे।',
 }

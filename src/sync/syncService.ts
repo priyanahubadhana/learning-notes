@@ -64,13 +64,13 @@ async function decidePhase(conn: Connectors) {
   const account = conn.auth.current()
   if (!account) {
     setWaitingForKey(false)
-    set({ phase: 'signedOut', email: undefined })
+    set({ phase: 'signedOut', email: undefined, avatar: undefined })
     return
   }
   master = await loadMasterKey()
   if (master) {
     setTracking(true)
-    set({ phase: 'ready', email: account.email })
+    set({ phase: 'ready', email: account.email, avatar: account.avatar })
     return
   }
   const bundles = await findBundles(conn)
@@ -78,6 +78,7 @@ async function decidePhase(conn: Connectors) {
   set({
     phase: bundles.length > 0 ? 'needsKey' : 'needsSetup',
     email: account.email,
+    avatar: account.avatar,
   })
 }
 
@@ -206,8 +207,24 @@ export async function signIn(): Promise<void> {
 
 /** Signs out on this device; notes stay. `forgetKey` also removes the key here. */
 export async function signOut(forgetKey: boolean): Promise<void> {
-  const conn = getConnectors()
-  await conn.auth.signOut()
+  await getConnectors().auth.signOut()
+  await afterSignOut(forgetKey)
+}
+
+/**
+ * Signs out on all devices: the server ends every session and cancels
+ * Drive's key. False = could not reach the server; nothing changed.
+ */
+export async function signOutEverywhere(): Promise<boolean> {
+  const auth = getConnectors().auth
+  if (auth.signOutEverywhere) {
+    if (!(await auth.signOutEverywhere())) return false
+  } else await auth.signOut()
+  await afterSignOut(false)
+  return true
+}
+
+async function afterSignOut(forgetKey: boolean): Promise<void> {
   setTracking(false)
   setWaitingForKey(false)
   if (forgetKey) {
@@ -216,7 +233,12 @@ export async function signOut(forgetKey: boolean): Promise<void> {
   }
   stopFeed?.()
   stopFeed = null
-  set({ phase: 'signedOut', email: undefined, needsDriveTap: false })
+  set({
+    phase: 'signedOut',
+    email: undefined,
+    avatar: undefined,
+    needsDriveTap: false,
+  })
 }
 
 /** First device: makes the key, returns the recovery code to print. */

@@ -127,6 +127,7 @@
   "share -> revise",
   "share -> search",
   "share -> tags",
+  "sync -> ai",
   "sync -> history",
   "tags -> editor",
   "tags -> recall",

@@ -1,6 +1,7 @@
 // Browser types for code that runs inside the page.
 /// <reference lib="dom" />
 import { expect, test, type Page } from '@playwright/test'
+import { signInFromAccount } from './helpers.ts'
 
 /**
  * Alerts system: one banner spot at the top, highest level only, Dismiss
@@ -15,7 +16,7 @@ const banner = (page: Page) => page.getByTestId('attention-banner')
 async function signedIn(page: Page) {
   await page.goto('/#/settings/sync')
   const section = page.getByTestId('sync-section')
-  await section.getByRole('button', { name: 'Sign in with Google' }).click()
+  await signInFromAccount(section.page())
   await section.getByLabel('Passphrase', { exact: true }).fill(PASS)
   await section.getByLabel('Type it again').fill(PASS)
   await section.getByRole('button', { name: 'Lock my notes and start' }).click()

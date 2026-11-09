@@ -16,6 +16,8 @@ export type SyncPhase =
 export interface SyncStatus {
   phase: SyncPhase
   email?: string
+  /** Google profile picture (https), if any. */
+  avatar?: string
   lastSyncedAt?: number
   /** Short reason of the last failure (not shown as is: mapped to text). */
   problem?: SyncProblem

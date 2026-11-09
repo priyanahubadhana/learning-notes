@@ -85,6 +85,11 @@ export interface SettingDefinition<T extends JsonValue = JsonValue> {
    * being stored itself (e.g. "Show tool bar" from the bar position).
    */
   derived?: { read: () => T; write: (value: T) => void }
+  /**
+   * Only findable in "Search all features": the Settings screen draws no
+   * row for it (its home page shows the item itself, marked data-setting-id).
+   */
+  searchOnly?: boolean
   /** English words that also find this setting in a search (e.g. "ribbon"). */
   keywords?: string
 }

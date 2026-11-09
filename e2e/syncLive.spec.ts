@@ -1,7 +1,7 @@
 // Browser types for code that runs inside the page.
 /// <reference lib="dom" />
 import { expect, test } from '@playwright/test'
-import { createNotebook, openPage } from './helpers.ts'
+import { createNotebook, openPage, signInFromAccount } from './helpers.ts'
 import { PASS, device, lines, makeServer } from './syncMock.ts'
 
 /**
@@ -32,7 +32,7 @@ test('an edit on A shows on B’s open page live; B’s caret and typing are kep
 
   await a.goto('/#/settings/sync')
   const sa = a.getByTestId('sync-section')
-  await sa.getByRole('button', { name: 'Sign in with Google' }).click()
+  await signInFromAccount(sa.page())
   await sa.getByLabel('Passphrase', { exact: true }).fill(PASS)
   await sa.getByLabel('Type it again').fill(PASS)
   await sa.getByRole('button', { name: 'Lock my notes and start' }).click()
@@ -51,7 +51,7 @@ test('an edit on A shows on B’s open page live; B’s caret and typing are kep
   const b = await device(browser, serve, pages)
   await b.goto('/#/settings/sync')
   const sb = b.getByTestId('sync-section')
-  await sb.getByRole('button', { name: 'Sign in with Google' }).click()
+  await signInFromAccount(sb.page())
   await sb.getByLabel('Passphrase', { exact: true }).fill(PASS)
   await sb.getByRole('button', { name: 'Unlock' }).click()
   await expect(b.getByTestId('sync-status')).toContainText('Last synced', {

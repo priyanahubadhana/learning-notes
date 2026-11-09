@@ -600,3 +600,13 @@ export async function skipNameSheet(page: Page) {
   await sheet.getByRole('button', { name: 'Cancel' }).click()
   await expect(sheet).toBeHidden()
 }
+
+/** Sign in from Settings › Account (the only place with the button), then back to Sync. */
+export async function signInFromAccount(page: Page) {
+  await page.goto('/#/settings/account')
+  await page
+    .getByTestId('account-section')
+    .getByRole('button', { name: 'Sign in with Google' })
+    .click()
+  await page.goto('/#/settings/sync')
+}

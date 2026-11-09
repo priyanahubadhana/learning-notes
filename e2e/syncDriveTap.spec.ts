@@ -1,6 +1,7 @@
 // Browser types for code that runs inside the page.
 /// <reference lib="dom" />
 import { expect, test } from '@playwright/test'
+import { signInFromAccount } from './helpers.ts'
 
 /**
  * Fix #4: when Google truly needs a tap, the app shows one clear line with a
@@ -27,7 +28,7 @@ test('Drive needs a tap: one bar, one Reconnect, then it is gone', async ({
   const page = await context.newPage()
   await page.goto('/#/settings/sync')
   const section = page.getByTestId('sync-section')
-  await section.getByRole('button', { name: 'Sign in with Google' }).click()
+  await signInFromAccount(section.page())
   await section.getByLabel('Passphrase', { exact: true }).fill(PASS)
   await section.getByLabel('Type it again').fill(PASS)
   await section.getByRole('button', { name: 'Lock my notes and start' }).click()

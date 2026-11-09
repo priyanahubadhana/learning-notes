@@ -1,7 +1,12 @@
 // Browser types for code that runs inside the page.
 /// <reference lib="dom" />
 import { expect, test, type Browser, type Page } from '@playwright/test'
-import { createNotebook, sidebar, showSidebar } from './helpers.ts'
+import {
+  createNotebook,
+  sidebar,
+  showSidebar,
+  signInFromAccount,
+} from './helpers.ts'
 
 /**
  * Phase L sync with the in-memory connector (no real account is reached):
@@ -43,7 +48,7 @@ test('set up on one device, unlock on another; notes merge, server holds only lo
 
   await a.goto('/#/settings/sync')
   const section = a.getByTestId('sync-section')
-  await section.getByRole('button', { name: 'Sign in with Google' }).click()
+  await signInFromAccount(section.page())
   await section.getByLabel('Passphrase', { exact: true }).fill(PASS)
   await section.getByLabel('Type it again').fill(PASS)
   await section.getByRole('button', { name: 'Lock my notes and start' }).click()
@@ -75,7 +80,7 @@ test('set up on one device, unlock on another; notes merge, server holds only lo
   await createNotebook(b, 'Only on B', 'Mine')
   await b.goto('/#/settings/sync')
   const sb = b.getByTestId('sync-section')
-  await sb.getByRole('button', { name: 'Sign in with Google' }).click()
+  await signInFromAccount(sb.page())
   await sb
     .getByLabel('Passphrase', { exact: true })
     .fill('wrong passphrase here')
@@ -106,7 +111,7 @@ test('the status dot follows the connection: Synced, Offline, Synced again', asy
   const section = a.getByTestId('sync-section')
   // Nothing is set up yet: no dot at all.
   await expect(a.getByTestId('sync-dot')).toHaveCount(0)
-  await section.getByRole('button', { name: 'Sign in with Google' }).click()
+  await signInFromAccount(section.page())
   await section.getByLabel('Passphrase', { exact: true }).fill(PASS)
   await section.getByLabel('Type it again').fill(PASS)
   await section.getByRole('button', { name: 'Lock my notes and start' }).click()

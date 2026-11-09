@@ -106,6 +106,11 @@ function mockAuth(persist: boolean): AuthProvider {
       signedIn = null
       if (persist) saveSignedIn(false)
     },
+    async signOutEverywhere() {
+      signedIn = null
+      if (persist) saveSignedIn(false)
+      return true
+    },
     async accessToken() {
       return 'mock-token'
     },

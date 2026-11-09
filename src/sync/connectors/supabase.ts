@@ -106,9 +106,17 @@ interface TokenReply {
   user: {
     id: string
     email?: string
-    user_metadata?: { sub?: string; provider_id?: string }
+    user_metadata?: {
+      sub?: string
+      provider_id?: string
+      avatar_url?: string
+      picture?: string
+    }
   }
 }
+
+/** Only a plain https address is ever used as a picture. */
+const httpsOnly = (u?: string) => (u?.startsWith('https://') ? u : undefined)
 
 function toSession(r: TokenReply, old?: Session | null): Session {
   const email = (r.user.email ?? '').toLowerCase()
@@ -121,6 +129,9 @@ function toSession(r: TokenReply, old?: Session | null): Session {
       accountId: r.user.id,
       email,
       sub: r.user.user_metadata?.sub ?? r.user.user_metadata?.provider_id ?? '',
+      avatar: httpsOnly(
+        r.user.user_metadata?.avatar_url ?? r.user.user_metadata?.picture,
+      ),
     },
     drive: r.provider_token
       ? { token: r.provider_token, expiresAt: Date.now() + 59 * 60_000 }
@@ -287,6 +298,29 @@ export function supabaseAuth(): AuthProvider {
           method: 'POST',
           token: s.access,
         }).catch(() => undefined)
+    },
+
+    async signOutEverywhere() {
+      const s = session
+      if (!s) return true
+      try {
+        const token = await freshAccess().catch(() => s.access)
+        // Cancel Google's long-lived key first (needs a working sign-in).
+        await revokeServerToken(token)
+        // scope=global ends every session of this account on every device.
+        const res = await call('/auth/v1/logout?scope=global', {
+          method: 'POST',
+          token,
+        })
+        // 401/403/404 = the sign-in was already ended: nothing left to end.
+        if (!res.ok && ![401, 403, 404].includes(res.status)) return false
+      } catch {
+        return false // offline: nothing changed, the person can try again
+      }
+      session = null
+      store(null)
+      flag(false)
+      return true
     },
 
     async accessToken() {

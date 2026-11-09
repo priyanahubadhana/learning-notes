@@ -149,6 +149,36 @@ describe('the app asks the server first (mocked endpoints)', () => {
     )
   })
 
+  it('sign out on all devices: cancels Drive, then a global logout, then forgets', async () => {
+    const calls: string[] = []
+    g.fetch = async (url: string, init: RequestInit = {}) => {
+      const body = init.body ? String(init.body) : ''
+      calls.push(
+        String(url).replace(new RegExp('^https://[^/]+'), '') + ' ' + body,
+      )
+      return reply(204)
+    }
+    expect(await supabaseAuth().signOutEverywhere?.()).toBe(true)
+    expect(calls).toEqual([
+      '/functions/v1/drive-token {"action":"revoke"}',
+      '/auth/v1/logout?scope=global ',
+    ])
+    expect(mem.has('learning-notes:sync.session')).toBe(false)
+    expect(mem.has('learning-notes:sync.driveOffline')).toBe(false)
+  })
+
+  it('sign out on all devices: a refused or unreachable server changes nothing', async () => {
+    g.fetch = async (url: string) =>
+      String(url).includes('logout') ? reply(503) : reply(204)
+    expect(await supabaseAuth().signOutEverywhere?.()).toBe(false)
+    expect(mem.has('learning-notes:sync.session')).toBe(true)
+    g.fetch = async () => {
+      throw new TypeError('offline')
+    }
+    expect(await supabaseAuth().signOutEverywhere?.()).toBe(false)
+    expect(mem.has('learning-notes:sync.session')).toBe(true)
+  })
+
   it('offline: null now, asks again next time', async () => {
     g.fetch = async () => {
       throw new TypeError('offline')

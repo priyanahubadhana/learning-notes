@@ -6,6 +6,7 @@ import '../../settings/spaceSettings'
 import '../../settings/labSettings'
 import '../../settings/readingSettings'
 import '../../settings/lockSettings'
+import '../../settings/accountSettings'
 import { getAppActions } from './toolRuntime'
 import type { IconName } from './icons'
 import {

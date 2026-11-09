@@ -1,6 +1,7 @@
 // Browser types for code that runs inside the page.
 /// <reference lib="dom" />
 import { expect, test, type Browser } from '@playwright/test'
+import { signInFromAccount } from './helpers.ts'
 
 /**
  * Level 1 alert: signed in to Sync on a device that has no passphrase yet
@@ -35,7 +36,7 @@ test('locked notebooks: pop-up once, Later leaves a banner, unlock clears both',
   const a = await device(browser)
   await a.goto('/#/settings/sync')
   const sa = a.getByTestId('sync-section')
-  await sa.getByRole('button', { name: 'Sign in with Google' }).click()
+  await signInFromAccount(sa.page())
   await sa.getByLabel('Passphrase', { exact: true }).fill(PASS)
   await sa.getByLabel('Type it again').fill(PASS)
   await sa.getByRole('button', { name: 'Lock my notes and start' }).click()
@@ -54,7 +55,7 @@ test('locked notebooks: pop-up once, Later leaves a banner, unlock clears both',
   const b = await device(browser, state)
   await b.goto('/#/settings/sync')
   const sb = b.getByTestId('sync-section')
-  await sb.getByRole('button', { name: 'Sign in with Google' }).click()
+  await signInFromAccount(sb.page())
   await expect(sb.getByLabel('Passphrase', { exact: true })).toBeVisible()
   // On the unlock form itself the pop-up never covers it.
   await b.waitForTimeout(1500)

@@ -33,6 +33,7 @@ import { AiSection } from '../ai/AiSection'
 import { LockSection } from '../app/lock/LockSection'
 import { PageTabsSection } from './PageTabsSection'
 import '../sync/syncSettings'
+import './accountSettings'
 
 const PermissionsSection = lazy(() =>
   import('../ai/PermissionsSection').then((m) => ({
@@ -40,6 +41,9 @@ const PermissionsSection = lazy(() =>
   })),
 )
 // Sync's screen (and its encryption code) loads only when opened.
+const AccountSection = lazy(() =>
+  import('../sync/AccountSection').then((m) => ({ default: m.AccountSection })),
+)
 const SyncSection = lazy(() =>
   import('../sync/SyncSection').then((m) => ({ default: m.SyncSection })),
 )
@@ -165,6 +169,11 @@ export function SettingsScreen({
               <PermissionsSection db={db} />
             </Suspense>
           )}
+          {category === 'account' && (
+            <Suspense fallback={null}>
+              <AccountSection db={db} />
+            </Suspense>
+          )}
           {category === 'sync' && (
             <Suspense fallback={null}>
               <SyncSection db={db} />
@@ -209,7 +218,7 @@ const inCategory = (visible: SettingDefinition[], category: string) => {
 
 /** All settings, minus those hidden by `shownWhen` (hidden while loading). */
 function useVisibleSettings(db: LearningNotesDB): SettingDefinition[] {
-  const all = settingsRegistry.list()
+  const all = settingsRegistry.list().filter((s) => !s.searchOnly)
   const controllers = useLiveQuery(async () => {
     const ids = [
       ...new Set(

@@ -1,6 +1,7 @@
 // Browser types for code that runs inside the page.
 /// <reference lib="dom" />
 import { expect, test, type Browser, type Page } from '@playwright/test'
+import { signInFromAccount } from './helpers.ts'
 
 /**
  * Fix #1: the first screen offers "Sign in with Google" or "Use without an
@@ -176,9 +177,11 @@ test('Settings: a new recovery code needs the passphrase, then the old code stop
   await guide.getByRole('button', { name: 'I saved it' }).click()
   await a.getByTestId('welcome').getByRole('button', { name: 'Skip' }).click()
 
-  await a.goto('/#/settings/sync')
-  const section = a.getByTestId('sync-section')
-  await expect(a.getByTestId('sync-status')).toContainText('Last synced')
+  await a.goto('/#/settings/account')
+  const section = a.getByTestId('account-section')
+  await expect(a.getByTestId('account-sync-status')).toContainText(
+    'Last synced',
+  )
   await section
     .getByRole('button', { name: 'Make a new recovery code' })
     .click()
@@ -202,7 +205,7 @@ test('Settings: a new recovery code needs the passphrase, then the old code stop
   const b = await device(browser, state, true)
   await b.goto('/#/settings/sync')
   const sb = b.getByTestId('sync-section')
-  await sb.getByRole('button', { name: 'Sign in with Google' }).click()
+  await signInFromAccount(sb.page())
   await sb
     .getByRole('button', { name: 'Use your recovery code instead' })
     .click()

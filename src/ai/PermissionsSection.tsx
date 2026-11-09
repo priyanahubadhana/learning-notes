@@ -1,14 +1,10 @@
 import { sampleName } from '../i18n/defaultNames'
 import { useLiveQuery } from 'dexie-react-hooks'
-import { formatCap, formatCost } from './costCurrency'
 import type { LearningNotesDB } from '../core/db'
 import { isLive } from '../core/records'
 import { t } from '../i18n/t'
-import { readAiConfig } from './route'
 import { listKeys, type AiKey } from './keyStore'
 import { MODELS } from './models'
-import { readSendLog } from './sendLog'
-import { readKeyUsage } from './usage'
 
 function choiceValue(
   c: { keyId: string; model: string } | undefined,
@@ -19,13 +15,10 @@ function choiceValue(
 
 /**
  * Settings › Permissions (Phase P): every notebook with its AI switch and
- * model choice, the spend per key, and "Everything AI sent this month"
- * (date, notebook, feature, host, cost; never any content or key).
+ * model choice. Spending and what was sent live in AI › Usage and cost.
  */
 export function PermissionsSection({ db }: { db: LearningNotesDB }) {
   const keys = listKeys()
-  const cap = readAiConfig().capUsd
-  const log = readSendLog()
   const notebooks = useLiveQuery(
     async () =>
       (await db.notebooks.toArray())
@@ -37,11 +30,6 @@ export function PermissionsSection({ db }: { db: LearningNotesDB }) {
         .sort((a, b) => a.order.localeCompare(b.order)),
     [db],
   )
-  const names = new Map((notebooks ?? []).map((n) => [n.id, n.title]))
-  const date = new Intl.DateTimeFormat(undefined, {
-    dateStyle: 'medium',
-    timeStyle: 'short',
-  })
 
   return (
     <section
@@ -123,67 +111,12 @@ export function PermissionsSection({ db }: { db: LearningNotesDB }) {
           ))}
         </ul>
       </div>
-      <div>
-        <h3 className="mb-1 text-sm font-medium">{t('ai.perm.spend')}</h3>
-        {keys.length === 0 ? (
-          <p className="text-sm text-muted">{t('ai.perm.noKeys')}</p>
-        ) : (
-          <ul data-testid="perm-spend" className="text-sm text-muted">
-            {keys.map((k) => (
-              <li key={k.id}>
-                {t('ai.usageKey', {
-                  name: k.name,
-                  cost: formatCost(readKeyUsage(k.id).costUsd),
-                  cap: formatCap(k.capUsd ?? cap),
-                })}
-              </li>
-            ))}
-          </ul>
-        )}
-      </div>
-      <div>
-        <h3 className="mb-1 text-sm font-medium">{t('ai.perm.log')}</h3>
-        <p className="mb-2 text-xs text-muted">{t('ai.perm.logHelp')}</p>
-        {log.length === 0 ? (
-          <p className="text-sm text-muted">{t('ai.perm.logEmpty')}</p>
-        ) : (
-          <div className="overflow-x-auto">
-            <table data-testid="perm-log" className="w-full text-left text-xs">
-              <thead className="text-muted">
-                <tr>
-                  <th className="py-1 pr-2 font-medium">
-                    {t('ai.perm.colDate')}
-                  </th>
-                  <th className="py-1 pr-2 font-medium">
-                    {t('ai.perm.colNotebook')}
-                  </th>
-                  <th className="py-1 pr-2 font-medium">
-                    {t('ai.perm.colFeature')}
-                  </th>
-                  <th className="py-1 pr-2 font-medium">
-                    {t('ai.perm.colHost')}
-                  </th>
-                  <th className="py-1 font-medium">{t('ai.perm.colCost')}</th>
-                </tr>
-              </thead>
-              <tbody>
-                {log.map((e, i) => (
-                  <tr key={i} className="border-t border-line">
-                    <td className="py-1 pr-2">{date.format(e.at)}</td>
-                    <td className="py-1 pr-2">
-                      {(e.notebookId && names.get(e.notebookId)) ||
-                        t('ai.perm.noNotebook')}
-                    </td>
-                    <td className="py-1 pr-2">{e.feature}</td>
-                    <td className="py-1 pr-2">{e.host}</td>
-                    <td className="py-1">{formatCost(e.costUsd, 4)}</td>
-                  </tr>
-                ))}
-              </tbody>
-            </table>
-          </div>
-        )}
-      </div>
+      <p className="text-sm text-muted" data-testid="perm-usage-link">
+        {t('ai.perm.seeUsage')}{' '}
+        <a className="text-accent underline" href="#/settings/ai">
+          {t('ai.perm.openUsage')}
+        </a>
+      </p>
     </section>
   )
 }

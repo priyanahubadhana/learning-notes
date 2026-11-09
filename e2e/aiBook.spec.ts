@@ -108,12 +108,14 @@ test('Ask this book: preview of what is sent, a streamed answer with page links,
   await expect(page.getByTestId('ask-book-cards')).toBeVisible()
 
   // The log has the line, without any content.
-  await page.goto('/#/settings/permissions')
-  const log = page.getByTestId('perm-log')
-  await expect(log).toContainText('askBook')
-  await expect(log).toContainText('api.anthropic.com')
+  await page.goto('/#/settings/ai')
+  const log = page.getByTestId('ai-use-recent')
+  await expect(log).toContainText('Ask this book')
   await expect(log).not.toContainText('mitochondria')
-  await expect(page.getByTestId('perm-spend')).toBeVisible()
+  // Permissions no longer repeats it; it points here.
+  await page.goto('/#/settings/permissions')
+  await expect(page.getByTestId('perm-log')).toHaveCount(0)
+  await expect(page.getByTestId('perm-usage-link')).toBeVisible()
 })
 
 test('Story so far sends only what has been read; Stop ends a long answer', async ({

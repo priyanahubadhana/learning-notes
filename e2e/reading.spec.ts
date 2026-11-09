@@ -65,8 +65,14 @@ test('📖 Read turns the page into Reading mode in place, with the Read tools',
 }) => {
   await startBook(page)
   await expect(frame(page)).toHaveAttribute('data-view', 'off')
-  await readSwitch(page).click()
-  await expect(frame(page)).toHaveAttribute('data-view', 'inPlace')
+  // The page may still be settling after the reload, so tap until it takes.
+  await expect(async () => {
+    if ((await frame(page).getAttribute('data-view')) === 'off')
+      await readSwitch(page).click({ timeout: 1000 })
+    await expect(frame(page)).toHaveAttribute('data-view', 'inPlace', {
+      timeout: 1500,
+    })
+  }).toPass({ timeout: 10_000 })
   // The same page, the bar now shows the Read tools.
   await expect(editor(page)).toContainText('Chapter 1')
   for (const name of [
@@ -440,21 +446,52 @@ test('selecting while reading offers Highlight (saved as a normal mark, with Und
       .locator('[data-style-type="backgroundColor"][data-value="yellow"]')
       .first(),
   ).toContainText('four chambers')
-  // It is saved in the page, so it is there after a reload.
-  await page.waitForTimeout(900)
+  // It is saved in the page (wait for the write itself, not a fixed time).
+  await expect
+    .poll(() =>
+      page.evaluate(
+        () =>
+          new Promise<boolean>((resolve) => {
+            const open = indexedDB.open('learning-notes')
+            open.onerror = () => resolve(false)
+            open.onsuccess = () => {
+              const all = open.result
+                .transaction('blocks')
+                .objectStore('blocks')
+                .getAll()
+              all.onsuccess = () => {
+                open.result.close()
+                resolve(
+                  JSON.stringify(all.result).includes(
+                    '"backgroundColor":"yellow"',
+                  ),
+                )
+              }
+              all.onerror = () => resolve(false)
+            }
+          }),
+      ),
+    )
+    .toBe(true)
   await page.reload()
   await expect(
     editor(page)
       .locator('[data-style-type="backgroundColor"][data-value="yellow"]')
       .first(),
   ).toContainText('four chambers')
-  // Undo takes it off.
+  // Undo takes it off. The reload ends reading: wait for the page, then switch it on.
+  await expect(frame(page)).toHaveAttribute('data-view', 'off')
   await readSwitch(page).click()
-  await selectText(page, 'four valves')
-  await page
+  await expect(frame(page)).toHaveAttribute('data-view', 'inPlace')
+  // The view is still settling after the switch: select again until the bar shows.
+  const valves = page
     .getByTestId('reading-selection-bar')
     .getByRole('button', { name: 'Highlight' })
-    .click()
+  await expect(async () => {
+    await selectText(page, 'four valves')
+    await expect(valves).toBeVisible({ timeout: 1000 })
+  }).toPass({ timeout: 10_000 })
+  await valves.click()
   const count = await editor(page)
     .locator('[data-style-type="backgroundColor"][data-value="yellow"]')
     .count()

@@ -152,6 +152,7 @@ test('the monthly cap blocks the call: nothing is sent', async ({ page }) => {
   await setUp(page, 0)
   await page.getByTestId('ask-book-question').fill('Anything?')
   await page.getByTestId('ask-book-prepare').click()
+  await expect(page.getByTestId('ask-book-preview')).toBeVisible()
   await page.getByTestId('ask-book-send').click()
   await expect(page.getByText(/monthly limit|cap/i).first()).toBeVisible()
   expect(calls).toBe(0)

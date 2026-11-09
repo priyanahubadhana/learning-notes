@@ -2,6 +2,11 @@
 
 Current phase only. Older entries are in [ARCHIVE.md](ARCHIVE.md).
 
+
+## 2026-11-09 (CI fix: esO.ts syntax)
+
+- **What:** restored two entries in src/i18n/esO.ts that an AI-settings edit had split (account.signOut.hint value was stranded after the AI block). All keys keep Spanish text.
+- **Why:** origin/main failed tsc and 4 test files. **Files:** src/i18n/esO.ts, two docs formatted by Prettier.
 ## 2026-11-09 (Remote sign-out: lock, choice, Start fresh)
 
 - **What:** when another device uses "Sign out on all devices", this device learns it at its next renewal (the server refuses the refresh as invalid: 400/401/403/404; offline, 429 and 5xx are only "try later", a normal token expiry renews with a 200) and shows a full-screen glass lock "You were signed out. Sign in to continue" (modal dialog, solid backdrop: notes hidden, not erased, nothing behind it usable). Only Sign in and Start fresh work. The flag survives a reload. Signing back in with unsent edits opens a choice: Merge both (default, the normal two-device merge: both kept, other version in History, Keep both where lines differ), Use this device's version, Use the cloud version, with pages changed here and there; syncing waits for the answer; the unchosen version always goes to History. Start fresh: warning with the count of unsent changes, saves one last backup file, then removes this device's notes, key and settings and reloads into the welcome. Never-signed-in devices and "Use without an account" are unaffected.

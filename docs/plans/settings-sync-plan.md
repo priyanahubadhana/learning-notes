@@ -24,16 +24,16 @@ Last-writer-wins per setting by HLC (`nextHlc()` in `sync/device.ts`), ties brok
 
 ## Groups and defaults
 
-| Group | Scope | Default | Settings |
-|---|---|---|---|
-| General | synced | on | language, date style, day start hour, show help, path style, open notebook at, new page study and chooser, paste mode |
-| Appearance | synced | on | theme (default "System", which already follows each device), reduce glass |
-| Review | synced | on | all `review.*`, Revise labels |
-| Reading | synced | on | reading look (font, size, spacing). Reading progress and favourites stay out for now |
-| AI | synced | on | ai.enabled, provider, model order, model-to-key map (key ids only), spending cap, privacy OK, permissions, ai.currency |
-| Lock | synced | on | lock.idleMinutes |
-| AI keys | secret | **off** | the `secrets` record (R6-2) |
-| This device (no switch) | device | n/a | device mode, toolbar and ribbon layout, sizes, placement, sets, bar auto-hide, Pencil options, finger only, hover tips, shortcut hints, scroll hints, auto update, zoom, lab flags, the sync choices themselves, unlock throttle, sessions |
+| Group                   | Scope  | Default | Settings                                                                                                                                                                                                                                   |
+| ----------------------- | ------ | ------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------ |
+| General                 | synced | on      | language, date style, day start hour, show help, path style, open notebook at, new page study and chooser, paste mode                                                                                                                      |
+| Appearance              | synced | on      | theme (default "System", which already follows each device), reduce glass                                                                                                                                                                  |
+| Review                  | synced | on      | all `review.*`, Revise labels                                                                                                                                                                                                              |
+| Reading                 | synced | on      | reading look (font, size, spacing). Reading progress and favourites stay out for now                                                                                                                                                       |
+| AI                      | synced | on      | ai.enabled, provider, model order, model-to-key map (key ids only), spending cap, privacy OK, permissions, ai.currency                                                                                                                     |
+| Lock                    | synced | on      | lock.idleMinutes                                                                                                                                                                                                                           |
+| AI keys                 | secret | **off** | the `secrets` record (R6-2)                                                                                                                                                                                                                |
+| This device (no switch) | device | n/a     | device mode, toolbar and ribbon layout, sizes, placement, sets, bar auto-hide, Pencil options, finger only, hover tips, shortcut hints, scroll hints, auto update, zoom, lab flags, the sync choices themselves, unlock throttle, sessions |
 
 Privacy: a device without a key still shows the AI-off card even if "AI on" synced; AI never runs on a device until a key is present there.
 

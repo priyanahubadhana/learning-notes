@@ -965,6 +965,7 @@ export const esO: Record<string, string> = {
   'account.aiKeys.hint':
     'Lleva tus claves de IA a todos tus dispositivos (mira la sección IA).',
   'account.signOut.hint':
+    'Cierra sesión solo en este dispositivo. Tus notas se quedan.',
   'ai.sec.keys': 'Claves y modelo predeterminado',
   'ai.sec.spending': 'Límite de gasto',
   'ai.sec.usage': 'Uso y coste',
@@ -1028,7 +1029,6 @@ export const esO: Record<string, string> = {
   'conn.manage': 'Gestionar claves en IA',
   'conn.permissions': 'Qué cuadernos pueden usar IA',
   'conn.getKey': 'Crear una clave',
-    'Cierra sesión solo en este dispositivo. Tus notas se quedan.',
   'account.signOutForget.hint':
     'Cierra sesión aquí y quita la clave de este dispositivo. Tus notas se quedan.',
   'account.signOutAll.hint':

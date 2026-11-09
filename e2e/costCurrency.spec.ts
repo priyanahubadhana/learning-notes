@@ -9,13 +9,13 @@ test('cost currency: default rupee at 90, pick euro, edit its rate, usage follow
   await expect(page.getByTestId('cost-currency')).toBeVisible()
   await expect(page.getByTestId('cost-currency-now')).toContainText('INR')
   await expect(page.getByTestId('cost-currency-rate')).toHaveValue('90')
-  await expect(page.getByTestId('ai-usage')).toContainText('₹')
+  await expect(page.getByTestId('ai-use-total')).toContainText('₹')
 
   await page.getByTestId('cost-currency-search').fill('euro')
   await page.getByTestId('cost-currency-EUR').click()
   await expect(page.getByTestId('cost-currency-now')).toContainText('EUR')
   await expect(page.getByTestId('cost-currency-rate')).toHaveValue('1')
-  await expect(page.getByTestId('ai-usage')).toContainText('€')
+  await expect(page.getByTestId('ai-use-total')).toContainText('€')
 
   await page.getByTestId('cost-currency-rate').fill('0.92')
   await expect(page.getByTestId('cost-currency-changed')).toBeVisible()
@@ -23,5 +23,5 @@ test('cost currency: default rupee at 90, pick euro, edit its rate, usage follow
   await page.reload()
   await expect(page.getByTestId('cost-currency-now')).toContainText('EUR')
   await expect(page.getByTestId('cost-currency-rate')).toHaveValue('0.92')
-  await expect(page.getByTestId('ai-usage')).toContainText('€')
+  await expect(page.getByTestId('ai-use-total')).toContainText('€')
 })

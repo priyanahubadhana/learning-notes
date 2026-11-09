@@ -208,7 +208,7 @@ export const esLib: Record<string, string> = {
     'Usa tu propia clave de IA para resúmenes, puntos clave y tarjetas. Desactivado por defecto.',
   'ai.title': 'IA con tu propia clave',
   'ai.intro':
-    'Desactivada por defecto. Tú pones la clave y tu cuenta paga. La clave se queda solo en este dispositivo: nunca se sincroniza ni entra en una copia de seguridad.',
+    'Desactivada por defecto. Tú pones la clave y tu cuenta paga. Las claves se quedan en este dispositivo y nunca entran en una copia de seguridad; puedes elegir tenerlas en todos tus dispositivos, protegidas con tu frase de sincronización.',
   'ai.enable': 'Activar las funciones de IA',
   'ai.provider': 'Proveedor',
   'ai.provider.anthropic': 'Anthropic (Claude)',
@@ -222,7 +222,7 @@ export const esLib: Record<string, string> = {
   'ai.keyWarning':
     'La clave se guarda en este navegador sin contraseña, así que quien use este dispositivo podría usarla. Usa una clave con límite de gasto.',
   'ai.model': 'Modelo (vacío para el predeterminado)',
-  'ai.cap': 'Límite mensual por clave, el predeterminado (dólares)',
+  'ai.cap': 'Límite mensual de cada clave ({currency})',
   'ai.usage': 'Este mes: unos {cost} gastados, {tokens} tokens.',
   'ai.capReached':
     'Se alcanzó el límite mensual. Súbelo en Ajustes › IA para continuar.',

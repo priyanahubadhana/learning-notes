@@ -33,6 +33,8 @@ import {
   whyNot,
 } from './promptRun'
 import { CostLine, InputPicker, InputStatus, StarRating } from './RunParts'
+import { AiOffCard } from '../ai/AiOffCard'
+import { useAiTick } from '../ai/aiOffStore'
 import { EMPTY_INPUT, type InputValue } from './inputSource'
 
 const btn =
@@ -74,6 +76,7 @@ export function RunPrompt({
     () => (page ? db.notebooks.get(page.notebookId) : undefined),
     [db, page],
   )
+  useAiTick()
   const config = configFor(forNotebook(readAiConfig(), notebook), item)
 
   const cost = useMemo(
@@ -158,6 +161,7 @@ export function RunPrompt({
       <InputPicker db={db} page={page} onChange={setInput} />
       <InputStatus value={input} />
       <CostLine cost={cost} />
+      <AiOffCard />
       {privacy && (
         <div className="rounded-lg border border-line p-3 text-sm" role="alert">
           <p className="mb-2">

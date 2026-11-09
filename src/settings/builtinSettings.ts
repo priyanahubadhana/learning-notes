@@ -86,10 +86,9 @@ settingsRegistry.registerCategory({
 })
 settingsRegistry.registerCategory({
   id: 'apis',
-  labelKey: 'settings.category.apis',
-  descriptionKey: 'settings.category.apis.hint',
+  labelKey: 'settings.category.connections',
+  descriptionKey: 'settings.category.connections.hint',
   order: 90,
-  emptyKey: 'settings.apis.empty',
 })
 
 /** Formats an hour of the day in the user's regional style (e.g. "4:00 AM" or "04:00"). */

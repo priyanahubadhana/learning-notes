@@ -4,6 +4,8 @@ import { AppUiContext } from '../app/appUi'
 import { runTask } from '../app/errors'
 import { routeToHash } from '../app/router'
 import { readPref, writePref } from '../app/uiPrefs'
+import { AiOffCard } from '../ai/AiOffCard'
+import { useAiTick } from '../ai/aiOffStore'
 import type { LearningNotesDB } from '../core/db'
 import type { Page } from '../core/types'
 import { t } from '../i18n/t'
@@ -77,6 +79,7 @@ export function RunSkill({
       ),
     [db, workspaceId],
   )
+  useAiTick()
   const base = forNotebook(readAiConfig(), notebook)
   const config = skillConfig(base, item)
 
@@ -238,6 +241,7 @@ export function RunSkill({
       <InputPicker db={db} page={page} onChange={setInput} />
       <InputStatus value={input} />
       <CostLine cost={cost} />
+      <AiOffCard />
       <p className="text-xs text-muted">{t('prompts.oneCall')}</p>
       {privacy && (
         <div className="rounded-lg border border-line p-3 text-sm" role="alert">

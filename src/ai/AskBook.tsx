@@ -39,6 +39,8 @@ import { openEpub, pdfParts, type EpubBook } from './bookText'
 import { AiError, PROVIDERS } from './provider'
 import { callAi } from './route'
 import { costOf } from './usage'
+import { AiOffCard } from './AiOffCard'
+import { useAiTick } from './aiOffStore'
 
 export interface AskBookProps {
   db: LearningNotesDB
@@ -83,6 +85,7 @@ const field =
 export function AskBook(props: AskBookProps) {
   const { db, page, format } = props
   const { toast, openSettings } = useContext(AppUiContext)
+  useAiTick()
   const notebook = useLiveQuery(
     () => db.notebooks.get(page.notebookId),
     [db, page.notebookId],
@@ -143,15 +146,19 @@ export function AskBook(props: AskBookProps) {
     return (
       <div data-testid="ask-book" className="flex flex-col gap-3 text-sm">
         <h2 className="text-base font-semibold">{t('ai.book.title')}</h2>
-        <p>
-          {t(
-            why === 'allowOff'
-              ? 'ai.book.off'
-              : why === 'lockedOff'
-                ? 'ai.lockedOff'
-                : 'ai.notReady',
-          )}
-        </p>
+        {why === 'notReady' ? (
+          <AiOffCard />
+        ) : (
+          <p>
+            {t(
+              why === 'allowOff'
+                ? 'ai.book.off'
+                : why === 'lockedOff'
+                  ? 'ai.lockedOff'
+                  : 'ai.notReady',
+            )}
+          </p>
+        )}
         <button type="button" className={btn} onClick={() => openSettings()}>
           {t('ai.book.openSettings')}
         </button>

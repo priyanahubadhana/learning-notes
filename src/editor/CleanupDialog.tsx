@@ -16,6 +16,8 @@ import {
   unplacedLines,
   type CleanupPrompt,
 } from './cleanupAi'
+import { AiOffCard } from '../ai/AiOffCard'
+import { useAiTick } from '../ai/aiOffStore'
 import { pasteContext, type CleanupRequest } from './pasteFlow'
 
 const isBool = (v: unknown): v is boolean => typeof v === 'boolean'
@@ -66,6 +68,7 @@ export function CleanupDialog({ request }: { request: CleanupRequest }) {
   }, [ctx])
   useEffect(() => box.current?.focus(), [])
 
+  useAiTick()
   const config = forNotebook(readAiConfig(), notebook ?? undefined)
   const tooLong = plan.text.length > MAX_CLEANUP_CHARS
   const cost = loaded ? cleanupCost(config, prompt, plan.text) : null
@@ -121,6 +124,7 @@ export function CleanupDialog({ request }: { request: CleanupRequest }) {
         className="flex max-h-[90vh] w-full max-w-lg flex-col gap-2 overflow-y-auto rounded-xl border border-line bg-bg p-4 shadow-xl outline-none"
       >
         <h2 className="text-base font-semibold">{t('cleanup.title')}</h2>
+        <AiOffCard />
         {privacy ? (
           <>
             <p className="text-sm">

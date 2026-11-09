@@ -30,6 +30,7 @@ import './readingSettings'
 import './lockSettings'
 import '../ai/aiSettings'
 import { AiSection } from '../ai/AiSection'
+import { ConnectionsSection } from '../ai/ConnectionsSection'
 import { LockSection } from '../app/lock/LockSection'
 import { PageTabsSection } from './PageTabsSection'
 import '../sync/syncSettings'
@@ -69,7 +70,10 @@ export function SettingsScreen({
 }) {
   // The open category is kept in the address, so Back and refresh keep it.
   const [ownCategory, setOwnCategory] = useState(
-    () => (focusId && settingsRegistry.get(focusId)?.category) || ALL,
+    () =>
+      (focusId?.startsWith('category:') && focusId.slice(9)) ||
+      (focusId && settingsRegistry.get(focusId)?.category) ||
+      ALL,
   )
   const routeCategory = useRouteParts(0)
   const category =
@@ -163,7 +167,8 @@ export function SettingsScreen({
           {(category === 'general' || (category === ALL && !q)) && (
             <PageTabsSection db={db} />
           )}
-          {category === 'ai' && <AiSection db={db} />}
+          {category === 'ai' && <AiSection db={db} onGo={setCategory} />}
+          {category === 'apis' && <ConnectionsSection onGo={setCategory} />}
           {category === 'permissions' && (
             <Suspense fallback={null}>
               <PermissionsSection db={db} />

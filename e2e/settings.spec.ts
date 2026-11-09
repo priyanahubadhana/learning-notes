@@ -161,7 +161,7 @@ test('each category page starts with a one-line description', async ({
     ['General', 'How the app looks and behaves'],
     ['Review', 'How cards come back'],
     ['Journal', 'Settings for your daily journal'],
-    ['APIs', 'Connections to other services'],
+    ['Connections', 'Your AI keys and whether they work'],
   ]) {
     await page.getByRole('button', { name: new RegExp(`^${tab}, `) }).click()
     await expect(main(page)).toContainText(text)

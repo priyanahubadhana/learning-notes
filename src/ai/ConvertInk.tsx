@@ -16,6 +16,8 @@ import { aiLockedBlock, blocker, forNotebook, readAiConfig } from './aiRun'
 import { AiError, PROVIDERS, type AiImage } from './provider'
 import { getReadPrompt } from './readPrompt'
 import { ReadPromptChoice } from './ReadPromptChoice'
+import { AiOffCard } from './AiOffCard'
+import { useAiTick } from './aiOffStore'
 import { blobToImage, runVision, type VisionTask } from './vision'
 
 /**
@@ -46,6 +48,7 @@ export function ConvertInk({
   onClose,
 }: ConvertProps) {
   const { toast } = useContext(AppUiContext)
+  useAiTick()
   const base = readAiConfig()
   const pageNotebook = useLiveQuery(async () => {
     const pg = await db.pages.get(pageId)
@@ -159,6 +162,9 @@ export function ConvertInk({
         />
         {state !== 'done' ? (
           <>
+            <div className="mb-3">
+              <AiOffCard />
+            </div>
             <p className="mb-4 text-sm">
               {t('ai.convert.send', {
                 provider: t(`ai.provider.${config.provider}`),

@@ -7,11 +7,7 @@ import { AI_KEYS, DEFAULT_CAP_USD } from './aiRun'
 import { AiKeys } from './AiKeys'
 import { AiOffCard } from './AiOffCard'
 import { CostCurrencyPicker } from './CostCurrencyPicker'
-import {
-  fromCurrency,
-  limitToInput,
-  readCostCurrency,
-} from './costCurrency'
+import { fromCurrency, limitToInput, readCostCurrency } from './costCurrency'
 import { ClaudeSkillCard } from './ClaudeSkillCard'
 import { keySyncOn, onKeysArrived, setKeySync } from './keySync'
 import { listKeys } from './keyStore'
@@ -139,7 +135,9 @@ export function AiSection({
           className={`${field} max-w-[10rem]`}
         />
       </label>
-      <p className="text-xs text-muted">{t('ai.cap.hint', { currency: code })}</p>
+      <p className="text-xs text-muted">
+        {t('ai.cap.hint', { currency: code })}
+      </p>
       <CostCurrencyPicker db={db} onChange={() => bump((n) => n + 1)} />
 
       {/* (d) Usage and cost */}
@@ -147,7 +145,10 @@ export function AiSection({
       <UsageSection db={db} />
 
       <ClaudeSkillCard />
-      <div className="flex flex-col items-start gap-1" data-testid="ai-perm-moved">
+      <div
+        className="flex flex-col items-start gap-1"
+        data-testid="ai-perm-moved"
+      >
         <p className="text-sm text-muted">{t('ai.perm.moved')}</p>
         {onGo && (
           <button

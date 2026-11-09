@@ -207,7 +207,7 @@ export const enLib = {
   'settings.category.ai': 'AI',
   'ai.title': 'AI with your own key',
   'ai.intro':
-    'Off by default. You bring your own key and your own account pays. The key stays on this device only: never synced, never in a backup.',
+    'Off by default. You bring your own key and your own account pays. Keys stay on this device and are never in a backup; you can choose to keep them on all your devices, locked with your sync passphrase.',
   'ai.enable': 'Turn on AI features',
   'ai.provider': 'Provider',
   'ai.provider.anthropic': 'Anthropic (Claude)',
@@ -221,7 +221,7 @@ export const enLib = {
   'ai.keyWarning':
     'The key is kept in this browser without a password, so anyone who can use this device could use it. Use a key with a spend limit.',
   'ai.model': 'Model (leave empty for the default)',
-  'ai.cap': 'Default monthly cap for each key (US dollars)',
+  'ai.cap': 'Monthly limit for each key ({currency})',
   'ai.usage': 'This month: about {cost} used, {tokens} tokens.',
   'ai.capReached':
     'The monthly cap is reached. Raise it in Settings › AI to continue.',

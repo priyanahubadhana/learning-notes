@@ -179,7 +179,17 @@ describe('streaming', () => {
     })
     // The log holds no content.
     expect(Object.keys(log[0]).sort()).toEqual(
-      ['at', 'costUsd', 'feature', 'host', 'notebookId'].sort(),
+      [
+        'at',
+        'costUsd',
+        'feature',
+        'host',
+        'notebookId',
+        'keyId',
+        'model',
+        'inputTokens',
+        'outputTokens',
+      ].sort(),
     )
     expect(JSON.stringify(log)).not.toContain('question')
   })

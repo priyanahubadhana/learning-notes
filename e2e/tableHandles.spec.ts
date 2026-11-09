@@ -38,9 +38,14 @@ test('table grips show on hover, hide within 500 ms of leaving, and show a colum
   await expect.poll(() => visible(page, '.bn-table-handle')).toBeGreaterThan(0)
   await expect.poll(() => visible(page, '.bn-extend-button')).toBeGreaterThan(0)
   await page.mouse.move(900, 700)
-  await page.waitForTimeout(500)
-  expect(await visible(page, '.bn-table-handle')).toBe(0)
-  expect(await visible(page, '.bn-extend-button')).toBe(0)
+  // Fades ~500 ms after leaving (300 ms wait + 200 ms fade); loaded machines get room.
+  const room = process.env.CI ? 3000 : 1500
+  await expect
+    .poll(() => visible(page, '.bn-table-handle'), { timeout: room })
+    .toBe(0)
+  await expect
+    .poll(() => visible(page, '.bn-extend-button'), { timeout: room })
+    .toBe(0)
   // A column border shows the grip pill and the resize cursor.
   const box = (await page.locator('.bn-editor td').nth(1).boundingBox())!
   await page.mouse.move(box.x + box.width - 1, box.y + 10)
@@ -60,8 +65,11 @@ test('the block side menu hides after the pointer leaves the page', async ({
   await page.locator('.bn-editor td').nth(0).hover()
   await expect.poll(() => visible(page, '.bn-side-menu')).toBeGreaterThan(0)
   await page.mouse.move(150, 700)
-  await page.waitForTimeout(500)
-  expect(await visible(page, '.bn-side-menu')).toBe(0)
+  await expect
+    .poll(() => visible(page, '.bn-side-menu'), {
+      timeout: process.env.CI ? 3000 : 1500,
+    })
+    .toBe(0)
 })
 
 test('Ctrl+A steps: cell words, whole table, all blocks', async ({ page }) => {

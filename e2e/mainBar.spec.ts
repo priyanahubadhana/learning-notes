@@ -37,8 +37,9 @@ test('the bar has Undo, Redo, the nine tools in order and ⋯; no switch', async
   await openNote(page)
   const bar = mainBar(page)
   await expect(bar).toBeVisible()
+  // The scroll cue (chevron) is an affordance of a narrow bar, not a tool.
   const names = await bar
-    .getByRole('button')
+    .locator('button:not([data-scroll-cue])')
     .evaluateAll((els) => els.map((el) => el.getAttribute('aria-label')))
   expect(names).toEqual([
     'Undo',
@@ -58,7 +59,9 @@ test('the bar has Undo, Redo, the nine tools in order and ⋯; no switch', async
 
 test('every control is icon-only and at least 44 px', async ({ page }) => {
   await openNote(page)
-  for (const button of await mainBar(page).getByRole('button').all()) {
+  for (const button of await mainBar(page)
+    .locator('button:not([data-scroll-cue])')
+    .all()) {
     const name = await button.getAttribute('aria-label')
     const box = (await button.boundingBox())!
     expect(box.width, name!).toBeGreaterThanOrEqual(43.5)

@@ -129,6 +129,20 @@ export function wordsInRegion(
   return first === null ? null : { from: first, to: last, blocks, full }
 }
 
+/**
+ * iPadOS shows its own edit menu (Cut, Copy, Paste, Select All) over any
+ * native selection in a contenteditable. Under the Lasso only our pill may
+ * show, so the selection lives in the editor's state and is drawn by our
+ * `ln-sel` decorations; the browser's own copy is cleared and the editor
+ * loses focus (a blurred view does not draw its selection back).
+ */
+export function dropNativeSelection(view: Pick<EditorView, 'dom'>): void {
+  const doc = view.dom.ownerDocument
+  const active = doc.activeElement as HTMLElement | null
+  if (active && view.dom.contains(active)) active.blur()
+  doc.getSelection()?.removeAllRanges()
+}
+
 /** Selects a text range as our own selection (drawn, kept) with the mini toolbar. */
 export function selectTextRange(
   editor: Editor,
@@ -140,14 +154,6 @@ export function selectTextRange(
   const d = view.state.doc
   if (to > d.content.size || from >= to) return
   view.dispatch(view.state.tr.setSelection(TextSelection.create(d, from, to)))
-  try {
-    const a = view.domAtPos(from)
-    const h = view.domAtPos(to)
-    view.dom.ownerDocument
-      .getSelection()
-      ?.setBaseAndExtent(a.node, a.offset, h.node, h.offset)
-  } catch {
-    // The editor's own selection is set; the browser copy is cosmetic.
-  }
+  dropNativeSelection(view)
   miniToolbarOpen.set(true)
 }

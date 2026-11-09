@@ -5,6 +5,8 @@
 
 Current phase only. Older decisions are in [ARCHIVE.md](ARCHIVE.md).
 
+- **2026-11-09 · Scroll handle and edge stretch (iPad owner).** One handle for all panels, 44 px touch area shown only while the handle is visible (so it never blocks taps for more than a second). Hid the system scrollbar on lists that carry our hint marks. The page scroller keeps no native bounce; the stretch is our own transform on the scroller's children (max 14 px, 200 ms). The paper page's own handle is not added (the page keeps the system bar). Stretch is on regardless of the Scroll hints switch. Page tabs scroll sideways instead of wrapping. Review if the stretch feels too much or too little (MAX_STRETCH in edgeStretch.ts).
+
 - **2026-11-09 · Delete page / sidebar ✕ (owner request).** Page delete has no confirm anywhere: Trash plus an Undo toast is safer and quicker; notebooks keep a confirm (now with the page count) plus Undo. The ✕ keeps its label "Delete page" (help tip says it goes to Trash). Narrow rows (container width under 19 rem, which includes the default 260 px sidebar) show a ⋯ menu for a mouse too; + and ✕ stay on hover. New texts are in enNlm/esNlm/hiNlm (late-loaded, es and hi are machine drafts). Import in the page menu opens Save & restore rather than its own dialog.
 
 ## Phase 9 decisions
@@ -53,6 +55,8 @@ Current phase only. Older decisions are in [ARCHIVE.md](ARCHIVE.md).
 | 2026-11-03 | AI permission per notebook, off by default, listed in Settings › Permissions (Phase 14) (owner)                                                             |
 
 ## Decisions to review
+
+- **2026-11-09 · Lasso text selection without a native selection.** The selection lives only in the editor state (our decorations); the editor is blurred so iPadOS has no edit menu to show. Cut/Copy from our pill use the editor selection. Risk: if Copy needs focus on some device, refocus before copying (owner check).
 
 - **2026-11-09 · AI settings clarity.** "APIs" is repurposed as "Connections" (read-only key overview; category id stays 'apis'). The limit shown in Usage is the sum of each key's limit. Usage reads the existing send log (500 rows, this month, this device only), so older calls show "(older call)" for model; Clean up now logs as "cleanup". Page actions (Summarise etc.) keep hiding when AI is off rather than adding a card to the page header. Permissions keeps its own spend list and sent table (not edited: another builder had uncommitted changes in that file). Old unused strings settings.apis.empty and settings.category.apis(.hint) remain in the language files (shared files in use).
 

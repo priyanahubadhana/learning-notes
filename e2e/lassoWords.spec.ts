@@ -147,3 +147,22 @@ test('a loop around a whole line still selects it as a block', async ({
   await expect(page.locator('.bn-editor .ln-sel-node')).toHaveCount(1)
   await expect(page.locator('[data-mini-toolbar]')).toBeVisible()
 })
+
+test('after a Lasso word selection no native selection remains (iPadOS shows only our pill)', async ({
+  page,
+}) => {
+  await setup(page)
+  const { phrase, box } = await rowPhrase(page)
+  await stroke(page, loopAround(box))
+  await expect.poll(() => marked(page)).toBe(phrase)
+  const native = () =>
+    page.evaluate(() => ({
+      text: window.getSelection()?.toString() ?? '',
+      focused: !!document.activeElement?.closest('.bn-editor'),
+    }))
+  expect(await native()).toEqual({ text: '', focused: false })
+  // A tap on empty paper lets go of both ours and the browser's.
+  await page.keyboard.press('Escape')
+  await expect.poll(() => marked(page)).toBe('')
+  expect((await native()).text).toBe('')
+})

@@ -2,6 +2,18 @@
 
 Current phase only. Older entries are in [ARCHIVE.md](ARCHIVE.md).
 
+## 2026-11-09 (iPad: Lasso text selection shows only our pill)
+
+- **What:** the Lasso's T filter (and the Pencil word selection) no longer sets a native DOM selection. `selectTextRange` (editor/lassoWords.ts) sets the editor's own selection (drawn by `ln-sel`), then `dropNativeSelection` blurs the editor and clears the browser's ranges. A tap on empty paper (ink/controller.ts) and `deselect` (editor/ownSelection.ts) clear the native selection too. Typing-mode selections are untouched (normal iOS menu).
+- **Why:** owner iPad screenshot: iPadOS's Cut/Copy/Paste menu appeared over the selected words and stayed after our pill closed. **Files:** src/editor/lassoWords.ts, src/editor/ownSelection.ts, src/ink/controller.ts, e2e/lassoWords.spec.ts (new test, chromium + ipad-webkit), docs.
+- **Honest note:** the WebKit project could not start locally (every test in that file timed out on this PC, old ones too); chromium passes, CI runs ipad-webkit.
+
+## 2026-11-09 (iPad: scroll handle, edge stretch, page tabs)
+
+- **What:** (1) the scroll handle (src/app/scrollHints.ts) is now a real, draggable handle: 3 px bar at rest, 7 px while dragged, 44 px wide invisible touch area, length proportional to visible/total (min 28 px), drag maps 1:1 (`dragScrollTop`: thumb travel = track - thumb), fades about 1 s after scrolling stops, appears on scroll, touch and mouse hover; the system scrollbar of such lists is hidden (it was the second, bigger bar). (2) New src/app/edgeStretch.ts: pulling a list, panel, settings or the paper page (finger or wheel) past its top or bottom gives up to 14 px that spring back in 200 ms (transform on the scroller's children, which on the paper page include the ink overlay, so words and ink move together); Reduce motion shows a brief edge glow instead. Native bounce stays off (overscroll-behavior: none). (3) Page tabs (Notes, Summary, Review) stay on one line and scroll sideways when narrow (src/app/summary/PageTabs.tsx).
+- **Why:** owner iPad feedback, compared with Notion. **Files:** src/app/scrollHints.ts, src/app/edgeStretch.ts, src/app/scrollHints.test.ts, src/app/summary/PageTabs.tsx, src/index.css, e2e/scrollHints.spec.ts, docs.
+- **Honest note:** the old indicator was display-only (pointer-events none); the big grey bar the owner dragged was most likely the iPadOS system scrollbar, which is now hidden on these lists. The old drag math lived in the system, so the new drag math is the fix at the cause (exact ratio, unit tested).
+
 ## 2026-11-09 (CI fix: esO.ts syntax)
 
 - **What:** restored two entries in src/i18n/esO.ts that an AI-settings edit had split (account.signOut.hint value was stranded after the AI block). All keys keep Spanish text.

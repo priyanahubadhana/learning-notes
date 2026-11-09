@@ -2045,6 +2045,8 @@ export class InkController {
           // click (no loop) places the caret, as it does everywhere.
           const had = this.selection.length > 0
           this.clearSelection()
+          // Nor may a native selection (and iPadOS's menu) outlive the tap.
+          window.getSelection()?.removeAllRanges()
           if (!moved && !had && e.pointerType === 'mouse') {
             this.env.placeCaret(e.clientX, e.clientY)
           }

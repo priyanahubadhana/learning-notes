@@ -2,6 +2,10 @@
 
 # Handoff
 
+- **iPad scroll feel (9 Nov):** draggable thin handle with 1:1 drag (scrollHints.ts `dragScrollTop`), edge stretch (edgeStretch.ts, ink-safe: transform on the shared scroller content), page tabs on one line. Owner check at the top of owner-checks-pending.md. Not done: handle on the page scroller itself.
+
+- **Lasso text selection (9 Nov):** native DOM selection dropped after a Lasso word selection (lassoWords.ts `dropNativeSelection`); e2e in lassoWords.spec.ts. Owner iPad check at the top of owner-checks-pending.md.
+
 - **Remote sign-out done (9 Nov):** lock "You were signed out", choice dialog (Merge both / this device / cloud) and Start fresh; see docs/features/sync.md and the CHANGELOG. Owner check at the top of owner-checks-pending.md (iPhone/iPad). Sync tests: remoteSignOut.test.ts, sessionEnd.test.ts, e2e/remoteSignOut.spec.ts.
 
 - **AI settings clarity (9 Nov):** AI page order, AI-off card (src/ai/AiOffCard.tsx, aiOffStore.ts), Usage and cost (UsageSection.tsx, usageReport.ts), Settings > Connections (category id still 'apis'). Audit in docs/features/ai.md. Not done: page actions (Summarise etc.) stay hidden when AI is off (no card); Permissions still holds its own spend list and "Everything AI sent" table. Owner check at the top of owner-checks-pending.md.

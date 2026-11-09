@@ -2,6 +2,14 @@
 
 Moved out of HANDOFF on 2026-11-06 (audit) so HANDOFF stays five lines. Newest first; each paragraph names its step. The run decision (master plan) is one owner iPad pass before Sync; the Phase A builder adds its checks at the top. Tick a paragraph by deleting it.
 
+## iPad Lasso text selection (9 Nov)
+
+On the iPad: Lasso with Text on, loop around a few words. The words get the dashed amber outline and our pill shows; Apple's Cut / Copy / Paste / Select All menu must NOT appear. Try Copy and Cut on our pill (they must work), then tap empty paper: the outline and pill go and no Apple menu is left. In Text (typing) mode a finger long-press still shows the normal Apple menu. Why human: iPadOS menus only show on a real device.
+
+## iPad scroll feel (9 Nov)
+
+On the iPad: (1) scroll the sidebar: a thin grey line (3 px) appears at the right edge and fades about a second after you stop. Grab it (touch area is wide): it grows a little and the list follows your finger step for step, no jump from bottom to top. (2) Pull any list, Settings or the page past the top or bottom: the content gives a few pixels and springs back. On a paper page with ink, pull at the bottom: words and ink move together and the ink stays on the words. With Reduce motion on, you see a brief glow at the edge instead. (3) Make the window narrow (split view): Notes, Summary, Review stay on one line (scroll sideways if needed). Why human: real touch and Pencil feel.
+
 ## AI settings clarity (9 Nov)
 
 On your PC: open Settings > AI. You should see, in order: the on/off switch, Keys and default model, Spending limit, Usage and cost. (1) With AI off, a card "AI is off" with Turn on AI: press it, the switch turns on. (2) Type the monthly limit in rupees (for example 450): it stays 450 after reload. (3) Use AI once (for example Clean up with AI), then Usage and cost shows the total against the limit, the call under its feature and a row in Recent calls; Export CSV downloads a file with no note text. (4) Settings > Connections lists your Claude and Gemini keys with Test, and says nothing about "later phase". (5) With AI off, open Ask this book, a prompt and Convert to text: each shows the same "AI is off" card.

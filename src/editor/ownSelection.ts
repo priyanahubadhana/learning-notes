@@ -202,6 +202,8 @@ export function deselect(editor: Editor): void {
   const at = Math.min(state.selection.to, state.doc.content.size)
   const near = TextSelection.near(state.doc.resolve(at), -1)
   view.dispatch(state.tr.setSelection(near).setMeta(key, { deselect: true }))
+  // No native selection may outlive ours (iPadOS would keep its own menu).
+  if (!view.hasFocus()) view.dom.ownerDocument.getSelection()?.removeAllRanges()
 }
 
 /** Deletes what is selected (the Delete of our bar): one Undo step. */

@@ -5,6 +5,7 @@ import {
   type ResetReason,
 } from '../app/gestureReset'
 import { gripDragging } from '../app/tools/gripDrag'
+import { inputMachine } from '../app/inputMachine'
 import { inkSwitches } from './inkRuntime'
 import {
   adopterAt,
@@ -1402,6 +1403,7 @@ export class InkController {
       this.syncPad()
     }
     this.gesture = null
+    inputMachine.end({ pointerId: g.id }, 'ink')
     this.releaseEditing()
     this.requestDraw()
   }
@@ -1859,7 +1861,31 @@ export class InkController {
     )
   }
 
+  /** The machine knows the touch (its age limit drops a lost lift), then the Lasso starts. */
   private lassoDown(e: PointerEvent): void {
+    const before = this.gesture
+    this.lassoDownInner(e)
+    const g = this.gesture
+    if (
+      g &&
+      g !== before &&
+      g.id === e.pointerId &&
+      g.kind === 'lasso'
+    ) {
+      this.machineBegin(e, 'selecting')
+    }
+  }
+
+  private machineBegin(e: PointerEvent, state: 'selecting' | 'transforming') {
+    inputMachine.begin(
+      e,
+      'ink',
+      (reason) => this.resetGestures(reason),
+      state,
+    )
+  }
+
+  private lassoDownInner(e: PointerEvent): void {
     if (gripDragging()) return
     const g = this.gesture
     if (g) {
@@ -2623,6 +2649,7 @@ export class InkController {
       before: this.selected(),
       second: null,
     }
+    this.machineBegin(e, 'transforming')
     this.hidden = new Set(this.selection)
     // A second finger may join to twist: no native pinch meanwhile.
     this.pad.style.touchAction = 'none'

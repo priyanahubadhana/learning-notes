@@ -22,7 +22,17 @@
  */
 
 export type ResetReason =
-  'hidden' | 'visible' | 'pageshow' | 'pagehide' | 'focus' | 'blur' | 'manual'
+  | 'hidden'
+  | 'visible'
+  | 'pageshow'
+  | 'pagehide'
+  | 'focus'
+  | 'blur'
+  | 'manual'
+  | 'timeout'
+  | 'toolchange'
+  | 'health'
+  | 'lost'
 
 type Reset = (reason: ResetReason) => void
 

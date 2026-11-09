@@ -126,6 +126,7 @@ export default defineConfig({
         /paperSearchJump/,
         /paperPhone/,
         /paperExport/,
+        /tools-machine/,
       ],
       use: { ...devices['iPad Pro 11'], hasTouch: true },
       expect: { timeout: 15_000 },

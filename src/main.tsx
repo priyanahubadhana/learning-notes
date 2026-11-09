@@ -28,6 +28,9 @@ import {
   onGestureReset,
   resetGestures,
 } from './app/gestureReset'
+import { inputMachine, installInputMachine } from './app/inputMachine'
+import { installToolsDebug } from './app/toolsDebug'
+import { activeTool } from './app/tools/main/mainTools'
 import { rememberPlace, startAutoUpdate } from './app/autoUpdate'
 import { flushAllSaves, hasPendingSaves } from './editor/autosave'
 import { writePad } from './editor/writePad/padState'
@@ -61,6 +64,12 @@ reloadOnFailedChunk()
 // R7-5: coming back from another app or tab forgets every half gesture
 // (a pointer whose lift was lost) and arms the ink pad and tap counters again.
 installGestureWatchdog()
+// One state machine owns "a pointer is down" (tools robustness): a lift that
+// never came is dropped after 4 s, and a tool change drops a half gesture.
+installInputMachine()
+inputMachine.setTool(activeTool.get())
+activeTool.subscribe(() => inputMachine.setTool(activeTool.get()))
+installToolsDebug()
 installPenTap()
 penTapOptions.fingerOnly = fingerOnlyBars.get()
 fingerOnlyBars.subscribe(() => {

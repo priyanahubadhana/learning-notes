@@ -155,6 +155,30 @@ test('select text, highlight it, and it lands on the book page and survives a re
   await expect(page.getByTestId('selection-popup')).toBeVisible()
   await page.getByTestId('hl-green').click()
   await expect(page.getByTestId('pdf-highlight').first()).toBeAttached()
+  // The quote reaches the book page through a debounced save: wait for the
+  // write itself before the reload, not for a fixed time.
+  await expect
+    .poll(() =>
+      page.evaluate(
+        () =>
+          new Promise<boolean>((resolve) => {
+            const open = indexedDB.open('learning-notes')
+            open.onerror = () => resolve(false)
+            open.onsuccess = () => {
+              const all = open.result
+                .transaction('blocks')
+                .objectStore('blocks')
+                .getAll()
+              all.onsuccess = () => {
+                open.result.close()
+                resolve(JSON.stringify(all.result).includes('Alpha page words'))
+              }
+              all.onerror = () => resolve(false)
+            }
+          }),
+      ),
+    )
+    .toBe(true)
 
   await page.reload()
   await expect(page.getByTestId('pdf-highlight').first()).toBeAttached()

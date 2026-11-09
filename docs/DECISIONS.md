@@ -54,6 +54,8 @@ Current phase only. Older decisions are in [ARCHIVE.md](ARCHIVE.md).
 
 ## Decisions to review
 
+- **2026-11-09 · Settings › Account.** Account section sits right after All. Sign in lives only in Account (Sync shows a link); setup/unlock stays in Sync because the locked alert and the sign-in guide lead there. Sign out on all devices cancels Drive's key first, then ends all sessions; if the server cannot be reached nothing changes (safer than a half sign-out). AI keys and PIN lock are shown as state with a link, not duplicated switches.
+
 - **2026-11-09 · Feature links allowed for CI.** `paper -> editor` (box bar and box service use editor types and plain-text mapping) and `editor -> ai`, `editor -> prompts` (paste "Clean up with AI" reads the AI key and the editable cleanup prompt). No existing seam covers them; revisit if the editor should receive these through a prop.
 
 - **2026-11-09 · Bring in from NotebookLM + optional page tabs.** (1) NotebookLM has no consumer API, so import is a one-time file or paste (research doc). (2) Cards are added as Card blocks on the chosen page; decks here are filters, so no deck is chosen. (3) Slide decks are kept as a file flagged `slides` (PDF drawn with pdf.js, PowerPoint pictures read from the zip); NotebookLM slides are pictures, not editable text. (4) The picture-to-mind-map rebuild is a choice in the preview, shows its cost first and uses the owner's key and the notebook's AI permission. (5) The three NotebookLM prompts are ordinary prompts with a new Purpose "Import" (an older library gets the option added on open); kind stays "prompt" because "paste-in" is not a kind in the library. (6) Optional tabs (Mind map, Slides, Audio & video, Database) are off by default, kept on the notebook (`pageTabs`), set from the ⋯ on the tab row or Settings › General › Page tabs, with a device default for new notebooks. (7) Database tab reuses the Quick access database view, default "this page", widened by chips. (8) Not built: drop or paste directly onto a page, a page filter on the notebook's Database tab. (9) Import is in Data › More, not a new top-level menu.
@@ -916,6 +918,14 @@ The other older decisions stand as built (owner, 2026-11-01); they are in [ARCHI
 - Sepia theme: kept as a third option (safest; no one loses their theme).
 - Font: Inter loaded lazily, with the system font shown first so first load stays under the size gate.
 - Accent blue → violet: owner already chose violet; first chart colour changes with it.
+
+## Decisions to review (design tokens, 9 Nov)
+
+- Colour values changed from system.md so every pair passes AA (the test found them): Day success #1D7A50 → #1A7248 (on its soft fill); Night muted #8F8D9B → #9A98A6 (on surface-3), Night line-strong #6E6C7A → #7F7D8C (3:1 on menus and dialogs); Sepia values were mine (system.md has none): accent #5F37D4, danger #A8321F, muted #6F614B.
+- "Text on glass" is tested over the wash colours, the paper and blurred text (at most 20 % ink) under a bar, not over pure white or black: the glass sits over canvas and paper, never over raw black or white.
+- Radius, type and shadow tokens are named `--r-*`, `t-*`, `--elev-*` (not Tailwind's `rounded-*`, `text-*`, `shadow-*`) so current screens do not shift before their redesign.
+- Inter is skipped on Apple devices (they keep SF), saving the download there. The review page is at `#/design-tokens` (hidden), not under Settings › Advanced, to keep out of the Settings files another builder is editing; a link can be added later.
+- Old chart slot 4 (purple) became blue and the tag colour map swapped, so a violet tag still draws as chart 1 (the accent).
 
 ## Decisions to review (Drive stays connected, 9 Nov)
 

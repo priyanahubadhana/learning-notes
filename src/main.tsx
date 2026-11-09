@@ -49,6 +49,8 @@ import {
   subscribeDeviceSettings,
 } from './settings/settingsService'
 import { saveEverythingLazy as saveEverything } from './share/saveEverythingLazy'
+import { loadInter } from './design/loadInter'
+import { isDesignTokensRoute } from './design/designRoute'
 import { setSlowMomentsOn, slowMomentsWanted } from './perf/slowMomentsSwitch'
 
 initDeviceMode()
@@ -187,12 +189,22 @@ function goHome() {
   location.reload()
 }
 
-createRoot(document.getElementById('root')!).render(
-  <StrictMode>
-    <ErrorBoundary onHome={goHome} onSaveAll={saveEverything} fullScreen>
-      <UpgradeGate>
-        <App />
-      </UpgradeGate>
-    </ErrorBoundary>
-  </StrictMode>,
-)
+// Hidden review page for the design system (not linked from the app).
+if (isDesignTokensRoute(location.hash)) {
+  void import('./design/DesignTokensPage').then((m) =>
+    createRoot(document.getElementById('root')!).render(<m.default />),
+  )
+} else {
+  createRoot(document.getElementById('root')!).render(
+    <StrictMode>
+      <ErrorBoundary onHome={goHome} onSaveAll={saveEverything} fullScreen>
+        <UpgradeGate>
+          <App />
+        </UpgradeGate>
+      </ErrorBoundary>
+    </StrictMode>,
+  )
+}
+
+// Inter comes after the first paint (never in the critical path).
+loadInter()

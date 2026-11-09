@@ -2,6 +2,10 @@
 
 # Handoff
 
+- **Settings › Account done (9 Nov):** one section for who, connections, security, sessions incl. Sign out on all devices (global Supabase logout + Drive key revoke). Sign in, sign out, Sync now, Drive lasting and new recovery code moved there from Sync (no duplicates). Spec docs/features/sync.md. Owner check at the top of owner-checks-pending.md.
+
+- **Design step 1 done (9 Nov):** tokens in src/design/tokens.css (violet accent, Day/Night/Sepia, glass, motion), Inter after first paint, AA contrast test (src/design/contrast.test.ts), hidden page #/design-tokens. Next: design step 2 (frame). Screens still use old class names via aliases; migrate as each is redesigned. Values changed for contrast: DECISIONS.
+
 - **Drive status line (9 Nov):** Settings > Sync shows if the server holds Drive's key; failures go to the slow-moments log as kind drive (connectors/driveDiag.ts). Root cause of the 0 rows is NOT yet confirmed: the only path that skips the store call is a sign-in reply without provider_refresh_token. Owner check at the top of owner-checks-pending.md; read the grey note it shows.
 
 - **AI cost currency done (9 Nov):** Settings > AI > Cost currency (any currency, editable rate, synced `ai.currency`), all cost lines use it (src/ai/costCurrency.ts). Owner check at the top of owner-checks-pending.md.

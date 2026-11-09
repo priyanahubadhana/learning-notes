@@ -2,6 +2,22 @@
 
 Moved out of HANDOFF on 2026-11-06 (audit) so HANDOFF stays five lines. Newest first; each paragraph names its step. The run decision (master plan) is one owner iPad pass before Sync; the Phase A builder adds its checks at the top. Tick a paragraph by deleting it.
 
+## Settings > Account (9 Nov, after deploy)
+
+What it is: one place for your account, instead of Sync, Lock and AI.
+
+1. Open Settings > Account (right under All). Check: your email and picture, Last synced and Sync now, the Google Drive line (and Set up lasting connection if it says it will ask), Make a new recovery code, the PIN lock and AI keys lines with their links.
+2. Press Search all features and type "all devices", "recovery code" or "drive": the Account items show up and open the right place.
+3. Sign out on all devices: press it, read the box, choose Sign out everywhere. Check: this device signs out; on your other device the next sync asks you to sign in again; the notes are still on both. Sign in again from Account.
+
+## Design tokens review (9 Nov, after deploy)
+
+What it is: the new colours, type, spacing and buttons, on one page.
+
+1. On the iPad open the live site address followed by `#/design-tokens`. Look at Day, Night and Sepia (buttons at the top), and the buttons: hover/press, disabled, loading.
+2. Check: violet accent looks right, text is easy to read everywhere, nothing looks washed out. Tell the builder what to change.
+3. In the normal app the accent is now violet (links, selected items); layouts are unchanged until the screen redesigns.
+
 ## Drive lasting connection status (9 Nov, after deploy)
 
 What it is: Settings > Sync now says whether Drive stays connected, and why not.

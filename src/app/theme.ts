@@ -30,7 +30,7 @@ export const THEME_SWATCH: Record<
   Theme,
   { page: string; ink: string; accent: string }
 > = {
-  day: { page: '#ffffff', ink: '#1d1d1f', accent: '#2f6feb' },
-  night: { page: '#161618', ink: '#ececee', accent: '#5e9bff' },
-  sepia: { page: '#f8f1e3', ink: '#433422', accent: '#b5762a' },
+  day: { page: '#ffffff', ink: '#1d1d1f', accent: '#6941e0' },
+  night: { page: '#161618', ink: '#ececee', accent: '#a08cff' },
+  sepia: { page: '#f8f1e3', ink: '#433422', accent: '#6941e0' },
 }

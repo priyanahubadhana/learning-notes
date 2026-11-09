@@ -1,0 +1,415 @@
+/*
+ * Design tokens (docs/design/system.md, owner-approved 9 Nov 2026).
+ * Every value is checked for WCAG AA by src/design/contrast.test.ts, which
+ * reads this file: change a colour here and the test re-checks it.
+ * Colours are hex so the test can read them; the gradient wash uses oklch.
+ * Old names (bg, side, soft, chip, ...) are aliases of the new tokens, so
+ * current screens keep working while they move over one by one.
+ */
+
+/* ---------- Colour (light = "day", the default) ---------- */
+@theme static {
+  --color-canvas: #f4f3f8;
+  --color-surface-0: #ffffff;
+  --color-surface-1: #fafafc;
+  --color-surface-2: #ffffff;
+  --color-surface-3: #ffffff;
+  --color-neutral-fill: #efeef4;
+
+  --color-ink: #18171c;
+  --color-ink-soft: #4d4b55;
+  --color-muted: #6b6976;
+  --color-line: #eceaf1;
+  --color-line-strong: #8a8796;
+
+  --color-hover: rgba(24, 23, 28, 0.05);
+  --color-pressed: rgba(24, 23, 28, 0.09);
+
+  --color-accent: #6941e0;
+  --color-on-accent: #ffffff;
+  --color-accent-soft: rgba(105, 65, 224, 0.1);
+  --color-accent-hover: color-mix(in srgb, var(--color-accent) 92%, white);
+  --color-accent-active: color-mix(in srgb, var(--color-accent) 92%, black);
+
+  --color-success: #1a7248;
+  --color-warn: #8f5200;
+  --color-danger: #c0352b;
+  --color-success-soft: rgba(26, 114, 72, 0.1);
+  --color-warn-soft: rgba(143, 82, 0, 0.1);
+  --color-danger-soft: rgba(192, 53, 43, 0.1);
+  --color-select: #c2410c;
+
+  /* Old names: aliases (screens migrate gradually). */
+  --color-bg: var(--color-surface-0);
+  --color-side: var(--color-surface-1);
+  --color-soft: var(--color-surface-1);
+  --color-chip: var(--color-neutral-fill);
+
+  /* Glass (frame only): fill, inside hairline, outside hairline. */
+  --glass-fill: rgba(255, 255, 255, 0.72);
+  --glass-line: rgba(255, 255, 255, 0.6);
+  --glass-outer: rgba(24, 23, 28, 0.08);
+  --scrim: rgba(0, 0, 0, 0.24);
+  --wash:
+    radial-gradient(at 15% 0%, oklch(0.92 0.06 290 / 0.55), transparent 55%),
+    radial-gradient(at 90% 10%, oklch(0.93 0.05 250 / 0.45), transparent 50%);
+
+  /* Elevation */
+  --elev-1: 0 1px 2px rgba(24, 23, 28, 0.06);
+  --elev-2: 0 4px 16px rgba(24, 23, 28, 0.08), 0 1px 2px rgba(24, 23, 28, 0.06);
+  --elev-3: 0 16px 48px rgba(24, 23, 28, 0.14);
+
+  /* Radius (soft round). Named --r-* so Tailwind's rounded-* stay as today. */
+  --r-xs: 6px;
+  --r-sm: 8px;
+  --r-md: 12px;
+  --r-lg: 16px;
+  --r-xl: 24px;
+  --r-pill: 999px;
+
+  /* Spacing (4-pt): Tailwind's own steps (1 = 4px), also as variables. */
+  --space-1: calc(var(--spacing) * 1);
+  --space-2: calc(var(--spacing) * 2);
+  --space-3: calc(var(--spacing) * 3);
+  --space-4: calc(var(--spacing) * 4);
+  --space-5: calc(var(--spacing) * 5);
+  --space-6: calc(var(--spacing) * 6);
+  --space-8: calc(var(--spacing) * 8);
+  --space-10: calc(var(--spacing) * 10);
+  --space-12: calc(var(--spacing) * 12);
+  --space-16: calc(var(--spacing) * 16);
+  --space-20: calc(var(--spacing) * 20);
+
+  /* Type: system font first; Inter swaps in after the first paint. */
+  --font-sans:
+    -apple-system, BlinkMacSystemFont, 'SF Pro Text', 'Inter Variable', Inter,
+    system-ui, sans-serif;
+
+  /* Motion */
+  --dur-1: 120ms;
+  --dur-2: 180ms;
+  --dur-3: 240ms;
+  --ease-out: cubic-bezier(0.2, 0.8, 0.2, 1);
+  --ease-in: cubic-bezier(0.4, 0, 1, 1);
+  --spring: linear(
+    0,
+    0.19 6%,
+    0.52 15%,
+    0.77 25%,
+    0.93 36%,
+    1.01 47%,
+    1.02 58%,
+    1.01 70%,
+    1 85%,
+    1
+  );
+  --press-scale: 0.97;
+
+  /* Charts: 1 is the accent; the six-colour rule stays. */
+  --chart-1: var(--color-accent);
+  --chart-2: #c8402f;
+  --chart-3: #2e9e6b;
+  --chart-4: #2f6feb;
+  --chart-5: #d9822b;
+  --chart-6: #c2417f;
+  --chart-none: #b4b4b9;
+}
+
+/* ---------- Dark ("night") ---------- */
+:root[data-theme='night'] {
+  --color-canvas: #0f0e13;
+  --color-surface-0: #16151b;
+  --color-surface-1: #1d1c23;
+  --color-surface-2: #25242c;
+  --color-surface-3: #2e2d36;
+  --color-neutral-fill: #2a2931;
+
+  --color-ink: #ecebf2;
+  --color-ink-soft: #b8b6c3;
+  --color-muted: #9a98a6;
+  --color-line: #2a2931;
+  --color-line-strong: #7f7d8c;
+
+  --color-hover: rgba(255, 255, 255, 0.06);
+  --color-pressed: rgba(255, 255, 255, 0.1);
+
+  --color-accent: #a08cff;
+  --color-on-accent: #16112e;
+  --color-accent-soft: rgba(160, 140, 255, 0.16);
+
+  --color-success: #4cc28b;
+  --color-warn: #e8a541;
+  --color-danger: #ff7a6b;
+  --color-success-soft: rgba(76, 194, 139, 0.16);
+  --color-warn-soft: rgba(232, 165, 65, 0.16);
+  --color-danger-soft: rgba(255, 122, 107, 0.16);
+  --color-select: #ffb454;
+
+  --glass-fill: rgba(29, 28, 35, 0.7);
+  --glass-line: rgba(255, 255, 255, 0.08);
+  --glass-outer: rgba(0, 0, 0, 0.4);
+  --scrim: rgba(0, 0, 0, 0.48);
+  --wash:
+    radial-gradient(at 15% 0%, oklch(0.35 0.12 290 / 0.45), transparent 55%),
+    radial-gradient(at 90% 10%, oklch(0.32 0.1 255 / 0.35), transparent 50%);
+
+  --elev-1: 0 0 0 1px rgba(255, 255, 255, 0.06);
+  --elev-2: 0 8px 24px rgba(0, 0, 0, 0.4);
+  --elev-3: 0 16px 48px rgba(0, 0, 0, 0.55);
+
+  --chart-2: #d4513f;
+  --chart-4: #3d7bf0;
+  --chart-5: #c97a26;
+  --chart-6: #c94a87;
+  --chart-none: #5c5c63;
+  color-scheme: dark;
+}
+
+/* ---------- Sepia (a paper tint of the light theme, violet accent) ---------- */
+:root[data-theme='sepia'] {
+  --color-canvas: #efe6d3;
+  --color-surface-0: #f8f1e3;
+  --color-surface-1: #f1e8d6;
+  --color-surface-2: #fbf6ea;
+  --color-surface-3: #fbf6ea;
+  --color-neutral-fill: #eadfc6;
+
+  --color-ink: #433422;
+  --color-ink-soft: #5f4f3a;
+  --color-muted: #6f614b;
+  --color-line: #e6dac3;
+  --color-line-strong: #8c7b60;
+
+  --color-hover: rgba(90, 60, 20, 0.06);
+  --color-pressed: rgba(90, 60, 20, 0.1);
+
+  --color-accent: #5f37d4;
+  --color-accent-soft: rgba(95, 55, 212, 0.1);
+
+  --color-success: #1d6b47;
+  --color-warn: #85490a;
+  --color-danger: #a8321f;
+  --color-success-soft: rgba(29, 107, 71, 0.1);
+  --color-warn-soft: rgba(133, 73, 10, 0.1);
+  --color-danger-soft: rgba(168, 50, 31, 0.1);
+  --color-select: #a8360a;
+
+  --glass-fill: rgba(248, 241, 227, 0.72);
+  --glass-line: rgba(255, 255, 255, 0.5);
+  --glass-outer: rgba(67, 52, 34, 0.1);
+  --wash:
+    radial-gradient(at 15% 0%, oklch(0.92 0.05 85 / 0.5), transparent 55%),
+    radial-gradient(at 90% 10%, oklch(0.93 0.04 60 / 0.4), transparent 50%);
+
+  --elev-1: 0 1px 2px rgba(67, 52, 34, 0.08);
+  --elev-2: 0 4px 16px rgba(67, 52, 34, 0.1), 0 1px 2px rgba(67, 52, 34, 0.08);
+  --elev-3: 0 16px 48px rgba(67, 52, 34, 0.16);
+
+  --chart-none: #c4b79e;
+}
+
+/* ---------- Type scale (UI chrome uses h3, body, small, micro) ---------- */
+@utility t-display {
+  font-size: 40px;
+  line-height: 48px;
+  font-weight: 700;
+  letter-spacing: -0.02em;
+}
+@utility t-title {
+  font-size: 32px;
+  line-height: 40px;
+  font-weight: 700;
+  letter-spacing: -0.02em;
+}
+@utility t-h1 {
+  font-size: 24px;
+  line-height: 32px;
+  font-weight: 650;
+  letter-spacing: -0.015em;
+}
+@utility t-h2 {
+  font-size: 20px;
+  line-height: 28px;
+  font-weight: 600;
+  letter-spacing: -0.01em;
+}
+@utility t-h3 {
+  font-size: 17px;
+  line-height: 24px;
+  font-weight: 600;
+  letter-spacing: -0.005em;
+}
+@utility t-body {
+  font-size: 15px;
+  line-height: 24px;
+  font-weight: 400;
+}
+@utility t-paper {
+  font-size: 16px;
+  line-height: 26px;
+  font-weight: 400;
+  max-width: 72ch;
+}
+@utility t-small {
+  font-size: 13px;
+  line-height: 20px;
+  font-weight: 500;
+}
+@utility t-micro {
+  font-size: 11px;
+  line-height: 16px;
+  font-weight: 600;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+}
+@utility t-num {
+  font-variant-numeric: tabular-nums;
+}
+
+/* ---------- Gradient wash (behind the frame; never scrolls) ---------- */
+@utility bg-wash {
+  background-color: var(--color-canvas);
+  background-image: var(--wash);
+  background-attachment: fixed;
+  @media (prefers-reduced-transparency: reduce) {
+    background-image: none;
+  }
+}
+
+/* ---------- Glass (frame only; the paper is always solid) ---------- */
+.glass {
+  background: var(--color-surface-2);
+  border: 1px solid var(--glass-line);
+  box-shadow:
+    0 0 0 1px var(--glass-outer),
+    var(--elev-2);
+}
+@supports (
+  (backdrop-filter: blur(1px)) or (-webkit-backdrop-filter: blur(1px))
+) {
+  .glass {
+    background: var(--glass-fill);
+    -webkit-backdrop-filter: blur(20px) saturate(160%);
+    backdrop-filter: blur(20px) saturate(160%);
+  }
+}
+@media (prefers-reduced-transparency: reduce) {
+  .glass {
+    background: var(--color-surface-2);
+    -webkit-backdrop-filter: none;
+    backdrop-filter: none;
+  }
+}
+:root[data-glass='lite'] .glass {
+  background: var(--color-surface-2);
+  -webkit-backdrop-filter: none;
+  backdrop-filter: none;
+}
+
+/* ---------- Motion: reduced = short fades only ---------- */
+@media (prefers-reduced-motion: reduce) {
+  :root {
+    --dur-1: 120ms;
+    --dur-2: 120ms;
+    --dur-3: 120ms;
+    --spring: cubic-bezier(0.2, 0.8, 0.2, 1);
+    --press-scale: 1;
+  }
+  html {
+    scroll-behavior: auto;
+  }
+}
+
+/* ---------- Buttons (all states; the Design tokens page shows them) ---------- */
+.ds-btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: var(--space-2);
+  min-height: 44px;
+  padding: 0 var(--space-4);
+  border: 1px solid transparent;
+  border-radius: var(--r-pill);
+  font: inherit;
+  font-size: 15px;
+  font-weight: 600;
+  cursor: pointer;
+  transition:
+    background-color var(--dur-1) var(--ease-out),
+    transform var(--dur-1) var(--ease-out),
+    opacity var(--dur-1) var(--ease-out);
+}
+.ds-btn:active:not(:disabled, [aria-disabled='true']) {
+  transform: scale(var(--press-scale));
+}
+.ds-btn:disabled,
+.ds-btn[aria-disabled='true'] {
+  opacity: 0.4;
+  cursor: not-allowed;
+}
+.ds-btn[aria-busy='true'] {
+  cursor: progress;
+}
+.ds-primary {
+  background: var(--color-accent);
+  color: var(--color-on-accent);
+}
+.ds-primary:hover:not(:disabled, [aria-disabled='true']) {
+  background: var(--color-accent-hover);
+}
+.ds-primary:active:not(:disabled, [aria-disabled='true']) {
+  background: var(--color-accent-active);
+}
+.ds-secondary {
+  background: var(--color-surface-1);
+  color: var(--color-ink);
+  border-color: var(--color-line-strong);
+}
+.ds-tertiary {
+  background: var(--color-accent-soft);
+  color: var(--color-accent);
+}
+.ds-ghost {
+  background: transparent;
+  color: var(--color-ink-soft);
+}
+.ds-danger {
+  background: var(--color-danger);
+  color: var(--color-surface-0);
+}
+.ds-secondary:hover:not(:disabled, [aria-disabled='true']),
+.ds-tertiary:hover:not(:disabled, [aria-disabled='true']),
+.ds-ghost:hover:not(:disabled, [aria-disabled='true']) {
+  background-image: linear-gradient(var(--color-hover), var(--color-hover));
+}
+.ds-ghost:hover:not(:disabled, [aria-disabled='true']) {
+  color: var(--color-ink);
+}
+.ds-secondary:active:not(:disabled, [aria-disabled='true']),
+.ds-tertiary:active:not(:disabled, [aria-disabled='true']),
+.ds-ghost:active:not(:disabled, [aria-disabled='true']) {
+  background-image: linear-gradient(var(--color-pressed), var(--color-pressed));
+}
+.ds-danger:hover:not(:disabled, [aria-disabled='true']) {
+  filter: brightness(1.08);
+}
+.ds-spinner {
+  width: 16px;
+  height: 16px;
+  border: 2px solid currentColor;
+  border-right-color: transparent;
+  border-radius: var(--r-pill);
+  animation: ds-spin 0.8s linear infinite;
+}
+@keyframes ds-spin {
+  to {
+    transform: rotate(360deg);
+  }
+}
+@media (prefers-reduced-motion: reduce) {
+  .ds-spinner {
+    animation: none;
+    border-right-color: currentColor;
+    opacity: 0.6;
+  }
+}

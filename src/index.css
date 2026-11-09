@@ -1,4 +1,5 @@
 @import 'tailwindcss';
+@import './design/tokens.css';
 
 /* Phone-sized screens: narrow (portrait) or short (landscape). */
 @custom-variant phone {
@@ -12,31 +13,6 @@
   @media (width >= 40rem) and (height >= 32rem) {
     @slot;
   }
-}
-
-/*
- * Design tokens (from docs/prototypes/prototype.html). Tailwind turns these into classes
- * such as bg-side, text-muted, border-line. Themes (step 6b) override them.
- */
-@theme {
-  --color-bg: #fff;
-  --color-side: #f7f7f5;
-  --color-ink: #1d1d1f;
-  --color-muted: #8a8a8e;
-  /* Between ink and muted: secondary text that is still read (Linked from). */
-  --color-ink-soft: #55555a;
-  --color-line: #ececec;
-  --color-accent: #2f6feb;
-  /* The selection (copy/paste): dashed orange, never the app blue (9 Nov). */
-  --color-select: #c2410c;
-  --color-hover: rgba(0, 0, 0, 0.04);
-  --color-soft: #f4f6fb;
-  --color-chip: #efefed;
-  --color-danger: #c8402f;
-
-  --font-sans:
-    -apple-system, BlinkMacSystemFont, 'SF Pro Text', 'Inter', system-ui,
-    sans-serif;
 }
 
 /* One stacking scale for chrome (bars under pills under pop-ups under toasts). */
@@ -81,63 +57,6 @@
   }
 }
 
-:root[data-theme='night'] {
-  --color-bg: #161618;
-  --color-side: #1e1e21;
-  --color-ink: #ececee;
-  --color-muted: #8e8e93;
-  --color-ink-soft: #b9b9be;
-  --color-line: #2c2c30;
-  --color-accent: #5e9bff;
-  --color-select: #ffb454;
-  --color-hover: rgba(255, 255, 255, 0.05);
-  --color-soft: #22252c;
-  --color-chip: #2a2a2e;
-  --color-danger: #ff7b6b;
-  color-scheme: dark; /* native controls & scrollbars */
-}
-:root[data-theme='sepia'] {
-  --color-bg: #f8f1e3;
-  --color-side: #f1e8d6;
-  --color-ink: #433422;
-  --color-muted: #9a8a72;
-  --color-ink-soft: #6a5a44;
-  --color-line: #e6dac3;
-  --color-accent: #b5762a;
-  --color-select: #a8360a;
-  --color-hover: rgba(90, 60, 20, 0.06);
-  --color-soft: #efe4cc;
-  --color-chip: #eadfc6;
-  --color-danger: #b23a2a;
-}
-
-/*
- * Dashboard chart colours: a fixed order (never cycled past 6), checked
- * with a colour-blind safety validator against each theme's background.
- * Charts also label every part, so colour is never the only clue.
- */
-:root {
-  --chart-1: #2f6feb;
-  --chart-2: #c8402f;
-  --chart-3: #2e9e6b;
-  --chart-4: #8a5cf6;
-  --chart-5: #d9822b;
-  --chart-6: #c2417f;
-  --chart-none: #b4b4b9;
-}
-:root[data-theme='night'] {
-  --chart-1: #3d7bf0;
-  --chart-2: #d4513f;
-  --chart-3: #2e9e6b;
-  --chart-4: #8f66f7;
-  --chart-5: #c97a26;
-  --chart-6: #c94a87;
-  --chart-none: #5c5c63;
-}
-:root[data-theme='sepia'] {
-  --chart-none: #c4b79e;
-}
-
 /* The app shell scrolls inside its own page scroller, never the document. */
 html:has([data-app-shell]),
 html:has([data-app-shell]) body {
@@ -171,7 +90,7 @@ body {
   --bn-colors-hovered-background: var(--color-hover);
   --bn-colors-hovered-text: var(--color-ink);
   --bn-colors-selected-background: var(--color-accent);
-  --bn-colors-selected-text: #fff;
+  --bn-colors-selected-text: var(--color-on-accent);
   --bn-colors-disabled-background: var(--color-side);
   --bn-colors-disabled-text: var(--color-muted);
   --bn-colors-border: var(--color-line);

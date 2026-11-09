@@ -6,10 +6,10 @@ import { TAG_COLORS } from '../../tags/tagTools'
  * "Done" option is green in its chip and in every chart.
  */
 const SLOT_OF: Record<(typeof TAG_COLORS)[number], number> = {
-  '#2f6feb': 1, // blue
+  '#2f6feb': 4, // blue (slot 1 is the accent violet)
   '#c8402f': 2, // red
   '#2e9e6b': 3, // green
-  '#8a5cf6': 4, // purple
+  '#8a5cf6': 1, // purple = the accent
   '#d9822b': 5, // orange
   '#c2417f': 6, // pink
 }

@@ -21,6 +21,7 @@
     "@blocknote/core": "^0.56.0",
     "@blocknote/mantine": "^0.56.0",
     "@blocknote/react": "^0.56.0",
+    "@fontsource-variable/inter": "5.3.0",
     "@fontsource/atkinson-hyperlegible-next": "5.3.0",
     "@fontsource/caveat": "5.3.0",
     "@fontsource/kalam": "5.3.0",

@@ -148,25 +148,6 @@ test('an existing account unlocks on a second device with the code; Not now keep
   await expect(c.getByTestId('welcome')).toBeVisible()
 })
 
-test('Use without an account never touches the network and never shows the guide', async ({
-  browser,
-}) => {
-  const page = await device(browser)
-  const calls: string[] = []
-  page.on('request', (r) => {
-    if (/supabase|google/.test(r.url())) calls.push(r.url())
-  })
-  await page.goto('/')
-  await page
-    .getByTestId('welcome')
-    .getByRole('button', { name: 'Use without an account' })
-    .click()
-  await expect(page.getByTestId('signin-guide')).toHaveCount(0)
-  await expect(page.getByTestId('welcome')).toContainText('How will you write?')
-  expect(calls).toEqual([])
-  expect(await stored(page, 'onboarding.accountAsked')).toBe('true')
-})
-
 test('Settings: a new recovery code needs the passphrase, then the old code stops working', async ({
   browser,
 }) => {

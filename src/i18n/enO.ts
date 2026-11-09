@@ -535,13 +535,8 @@ export const enO = {
   'pencilOffer.no': 'Not now',
   // ---- Fix #1: sign in first, new recovery code ----
   'welcome.account.title': 'Keep your notes with you',
-  'welcome.account.help':
-    'Sign in to have the same notes on all your devices, locked so only you can read them. Or start now without an account.',
-  'welcome.account.local': 'Use without an account',
-  'welcome.account.localHelp':
-    'Everything stays on this device. You can sign in later in Settings › Sync.',
   'welcome.account.offline':
-    'Could not reach Google. Check your connection, or use the app without an account.',
+    'You need to be online to sign in. Check your connection and try again.',
   'guide.connecting': 'Connecting…',
   'guide.notNow': 'Not now',
   'guide.signedOut.title': 'You are not signed in yet',

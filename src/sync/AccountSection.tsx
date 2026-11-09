@@ -9,8 +9,10 @@ import { ConfirmDialog } from '../app/ui'
 import type { LearningNotesDB } from '../core/db'
 import { lockIsSetUp } from '../core/lock/lockConfig'
 import { t } from '../i18n/t'
+import { ConnectedAccounts } from './ConnectedAccounts'
 import { isTracking } from './device'
 import { RecoveryCodeView } from './RecoveryCodeView'
+import { SignInPanel } from './SignInPanel'
 import { UnlockForm } from './UnlockForm'
 import {
   driveLastingState,
@@ -28,8 +30,6 @@ import {
 
 const button =
   'min-h-11 rounded-lg border border-line px-4 text-sm font-medium hover:bg-hover disabled:opacity-50'
-const primary =
-  'min-h-11 rounded-lg bg-accent px-4 text-sm font-semibold text-white disabled:opacity-50'
 
 const when = (ms: number) =>
   new Intl.DateTimeFormat(undefined, {
@@ -82,15 +82,10 @@ export function AccountSection({ db }: { db: LearningNotesDB }) {
                 {t('account.signOutAll.done')}
               </p>
             )}
-            <div>
-              <button
-                type="button"
-                className={primary}
-                onClick={() => void signIn()}
-              >
-                {t('sync.signIn')}
-              </button>
-            </div>
+            <SignInPanel
+              onGoogle={() => void signIn()}
+              onDone={() => undefined}
+            />
           </div>
         )}
       </Group>
@@ -99,6 +94,9 @@ export function AccountSection({ db }: { db: LearningNotesDB }) {
           <Group id="connections" title={t('account.connections')}>
             <SyncLine db={db} />
             <DriveLasting />
+          </Group>
+          <Group id="connected" title={t('connected.title')}>
+            <ConnectedAccounts />
           </Group>
           <Group id="security" title={t('account.security')}>
             <Security db={db} />

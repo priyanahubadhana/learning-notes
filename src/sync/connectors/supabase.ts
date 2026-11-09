@@ -9,7 +9,9 @@ import { createDrivePass } from './drivePass'
 import { revokeServerToken, serverPass, storeRefreshToken } from './driveServer'
 import { preloadGoogle, renewDriveToken } from './google'
 import { sessionEnded } from './sessionEnd'
+import { failure, parseMethods } from './emailAuth'
 import {
+  AuthInputError,
   NotAllowedError,
   TryLaterError,
   type Account,
@@ -35,6 +37,9 @@ const SESSION = 'learning-notes:sync.session'
 const VERIFIER = 'learning-notes:sync.pkce'
 /** '1' once the server holds Google's refresh token for this account. */
 const OFFLINE = 'learning-notes:sync.driveOffline'
+/** '1' while a "connect Google" round trip is under way (a failure must not sign out). */
+const LINKING = 'learning-notes:sync.linking'
+const LINK_ERROR = 'learning-notes:sync.linkError'
 
 function flag(set?: boolean): boolean {
   try {
@@ -172,7 +177,7 @@ export function supabaseAuth(): AuthProvider {
   let session = load()
   let serverOffUntil = 0
 
-  async function startSignIn(consent: boolean) {
+  async function pkce() {
     const verifier = b64url(crypto.getRandomValues(new Uint8Array(32)))
     sessionStorage.setItem(VERIFIER, verifier)
     localStorage.setItem(VERIFIER, verifier) // the redirect may open a new tab
@@ -187,10 +192,42 @@ export function supabaseAuth(): AuthProvider {
     const back = new URL(location.href)
     back.search = '?sync=callback'
     back.hash = ''
-    location.assign(
-      authorizeUrl(back.toString(), challenge, consent).toString(),
-    )
+    return { challenge, back: back.toString() }
   }
+
+  async function startSignIn(consent: boolean) {
+    const { challenge, back } = await pkce()
+    location.assign(authorizeUrl(back, challenge, consent).toString())
+  }
+
+  /** Signed-in person adds Google: the server answers with the Google address. */
+  async function startLink() {
+    const { challenge, back } = await pkce()
+    const url = authorizeUrl(back, challenge, !flag())
+    url.pathname = '/auth/v1/user/identities/authorize'
+    url.searchParams.delete('login_hint')
+    url.searchParams.set('skip_http_redirect', 'true')
+    const res = await call(url.pathname + url.search, {
+      token: await freshAccess(),
+    })
+    const out = res.ok ? ((await res.json()) as { url?: string }) : null
+    if (!out?.url?.startsWith('https://')) throw new AuthInputError('failed')
+    try {
+      localStorage.setItem(LINKING, '1')
+    } catch {
+      // Without storage a failed link may sign out; nothing else breaks.
+    }
+    location.assign(out.url)
+  }
+
+  /** Takes the token reply of an email sign-in step as the new session. */
+  async function adopt(res: Response) {
+    if (!res.ok) throw await failure(res)
+    session = toSession((await res.json()) as TokenReply)
+    store(session)
+  }
+  const post = (path: string, body: unknown, token?: string) =>
+    call(path, { method: 'POST', body: JSON.stringify(body), token })
 
   const endedListeners: (() => void)[] = []
   /** True while the person signs out on purpose: not a remote sign-out. */
@@ -266,6 +303,18 @@ export function supabaseAuth(): AuthProvider {
       const code = url.searchParams.get('code')
       if (url.searchParams.get('sync') !== 'callback') return false
       const error = url.searchParams.get('error_description')
+      const linking = localStorage.getItem(LINKING) === '1'
+      localStorage.removeItem(LINKING)
+      if (!code && linking && session) {
+        // A failed "connect Google" (already used by another account...):
+        // the person stays signed in; Connected accounts shows the reason.
+        try {
+          sessionStorage.setItem(LINK_ERROR, error ?? 'failed')
+        } catch {
+          // Shown nowhere then.
+        }
+        return true
+      }
       if (!code) throw new NotAllowedError(error ?? 'no code')
       const verifier =
         sessionStorage.getItem(VERIFIER) ?? localStorage.getItem(VERIFIER)
@@ -294,6 +343,69 @@ export function supabaseAuth(): AuthProvider {
           ),
         )
       return true
+    },
+
+    async emailCodeSend(email) {
+      const res = await post('/auth/v1/otp', { email, create_user: true })
+      if (!res.ok) throw await failure(res)
+    },
+    async emailCodeVerify(email, code, kind = 'email') {
+      await adopt(
+        await post('/auth/v1/verify', { type: kind, email, token: code }),
+      )
+    },
+    async passwordSignIn(email, password) {
+      await adopt(
+        await post('/auth/v1/token?grant_type=password', { email, password }),
+      )
+    },
+    async passwordSignUp(email, password) {
+      const res = await post('/auth/v1/signup', {
+        email,
+        password,
+        data: { has_password: true },
+      })
+      if (!res.ok) throw await failure(res)
+      const out = (await res.json()) as Partial<TokenReply>
+      if (!out.access_token) return 'confirm'
+      session = toSession(out as TokenReply)
+      store(session)
+      return 'signedIn'
+    },
+    async passwordResetSend(email) {
+      const res = await post('/auth/v1/recover', { email })
+      if (!res.ok) throw await failure(res)
+    },
+    async setPassword(password) {
+      const res = await call('/auth/v1/user', {
+        method: 'PUT',
+        token: await freshAccess(),
+        body: JSON.stringify({ password, data: { has_password: true } }),
+      })
+      if (!res.ok) throw await failure(res)
+    },
+    async methods() {
+      const res = await call('/auth/v1/user', { token: await freshAccess() })
+      if (!res.ok) throw new TryLaterError(`user ${res.status}`)
+      return parseMethods(await res.json())
+    },
+    linkGoogle: startLink,
+    async unlinkIdentity(id) {
+      if (!/^[0-9a-f-]{36}$/.test(id)) throw new AuthInputError('failed')
+      const res = await call(`/auth/v1/user/identities/${id}`, {
+        method: 'DELETE',
+        token: await freshAccess(),
+      })
+      if (!res.ok) throw await failure(res)
+    },
+    takeLinkError() {
+      try {
+        const e = sessionStorage.getItem(LINK_ERROR)
+        sessionStorage.removeItem(LINK_ERROR)
+        return e
+      } catch {
+        return null
+      }
     },
 
     onSessionEnded(fn) {

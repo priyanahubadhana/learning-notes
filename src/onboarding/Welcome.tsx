@@ -1,4 +1,4 @@
-import { useEffect, useRef, useState } from 'react'
+import { useEffect, useRef, useState, type ReactNode } from 'react'
 import { createPortal } from 'react-dom'
 import { t, type MessageKey } from '../i18n/t'
 import { offerLastToolOnce } from '../app/tools/main/mainTools'
@@ -84,18 +84,21 @@ export function Welcome({
   onFinish,
   onSkip,
   signedIn,
+  renderSignIn,
 }: {
   /** Finished: `sample` says whether to make the Start here notebook. */
   onFinish: (sample: boolean) => void
   onSkip: () => void
   /** Already signed in (from the sync status): skip the account question. */
   signedIn: boolean
+  /** The sign-in panel (passed in by the app, so onboarding does not link to sync). */
+  renderSignIn: (p: { onGoogle: () => void; onDone: () => void }) => ReactNode
 }) {
   const ref = useRef<HTMLDialogElement>(null)
-  // Step 0 (fix #1 A) asks once: sign in with Google, or use without an account.
-  const [step, setStep] = useState(() =>
-    onboardingAccountAsked.get() || signedIn ? 1 : 0,
-  )
+  // Step 0: sign in or create an account (required since 9 Nov 2026).
+  const [rawStep, setStep] = useState(() => (signedIn ? 1 : 0))
+  // Signed in (the status can arrive after the first paint): no account screen.
+  const step = signedIn && rawStep === 0 ? 1 : rawStep
   const [offline, setOffline] = useState(false)
   const [way, setWay] = useState<Way>(startWay)
 
@@ -133,9 +136,10 @@ export function Welcome({
     seen()
     onSkip()
   }
-  const useLocal = () => {
+  /** An email step signed in: the guide takes over like after Google. */
+  const emailSignedIn = () => {
     onboardingAccountAsked.set(true)
-    setStep(1)
+    onboardingGuide.set(true)
   }
   /** Starts the guided sign-in; the welcome waits until the guide is done. */
   const signInFirst = () => {
@@ -156,7 +160,7 @@ export function Welcome({
       aria-label={t('welcome.title')}
       onCancel={(e) => {
         e.preventDefault()
-        skip()
+        if (step > 0) skip() // accounts are required: step 0 has no way out
       }}
       className="m-auto w-[min(32rem,calc(100vw-2rem))] rounded-2xl border border-line bg-surface-3 p-5 text-ink shadow-[var(--elev-3)] backdrop:bg-[var(--scrim)]"
     >
@@ -167,34 +171,10 @@ export function Welcome({
       )}
       {step === 0 && (
         <>
-          <h2 className="mt-1 text-lg font-semibold">
-            {t('welcome.account.title')}
-          </h2>
-          <p className="mt-1 text-sm text-ink-soft">
-            {t('welcome.account.help')}
-          </p>
+          <h2 className="mt-1 text-lg font-semibold">{t('signin.title')}</h2>
+          <p className="mt-1 text-sm text-ink-soft">{t('signin.help')}</p>
           <div className="mt-3 grid gap-2">
-            <button
-              type="button"
-              data-account="google"
-              onClick={signInFirst}
-              className="min-h-14 rounded-xl bg-accent px-4 text-sm font-semibold text-white hover:opacity-90"
-            >
-              {t('sync.signIn')}
-            </button>
-            <button
-              type="button"
-              data-account="local"
-              onClick={useLocal}
-              className="min-h-14 rounded-xl border border-line px-4 text-left hover:bg-hover"
-            >
-              <span className="block text-sm font-semibold">
-                {t('welcome.account.local')}
-              </span>
-              <span className="block text-sm text-ink-soft">
-                {t('welcome.account.localHelp')}
-              </span>
-            </button>
+            {renderSignIn({ onGoogle: signInFirst, onDone: emailSignedIn })}
             {offline && (
               <p role="alert" className="text-sm text-danger">
                 {t('welcome.account.offline')}
@@ -285,13 +265,15 @@ export function Welcome({
         </>
       )}
       <div className="mt-4 flex items-center gap-2">
-        <button
-          type="button"
-          onClick={skip}
-          className="min-h-11 rounded-xl px-3 text-sm text-ink-soft hover:bg-hover"
-        >
-          {t('welcome.skip')}
-        </button>
+        {step > 0 && (
+          <button
+            type="button"
+            onClick={skip}
+            className="min-h-11 rounded-xl px-3 text-sm text-ink-soft hover:bg-hover"
+          >
+            {t('welcome.skip')}
+          </button>
+        )}
         <span className="grow" />
         {step > 1 && (
           <button

@@ -1,15 +1,16 @@
-import type {
-  Account,
-  AuthProvider,
-  ChangeFeed,
-  Connectors,
-  FileStore,
-  PushItem,
-  PushResult,
-  RecordStore,
-  RemoteRecord,
+import {
+  AuthInputError,
+  TryLaterError,
+  type Account,
+  type AuthProvider,
+  type ChangeFeed,
+  type Connectors,
+  type FileStore,
+  type PushItem,
+  type PushResult,
+  type RecordStore,
+  type RemoteRecord,
 } from './types'
-import { TryLaterError } from './types'
 
 /**
  * In-memory connectors with the same rules as the real ones (compare-and-
@@ -110,11 +111,22 @@ function mockAuth(persist: boolean): AuthProvider {
     onSessionEnded: (fn) => void ended.push(fn),
     async signIn() {
       signedIn = MOCK_ACCOUNT
-      if (persist) saveSignedIn(true)
+      if (persist) {
+        saveSignedIn(true)
+        const m = readMethods()
+        if (!m.google && !m.email) writeMethods({ ...m, google: true })
+      }
     },
     async finishSignIn() {
       return false
     },
+    ...mockEmailAuth(
+      () => {
+        signedIn = MOCK_ACCOUNT
+        if (persist) saveSignedIn(true)
+      },
+      () => signedIn !== null,
+    ),
     async signOut() {
       signedIn = null
       if (persist) saveSignedIn(false)
@@ -253,6 +265,91 @@ function testOffline() {
       throw new TryLaterError('offline')
   } catch (e) {
     if (e instanceof TryLaterError) throw e
+  }
+}
+
+/** Browser tests: the one-time code every mock email accepts. */
+export const MOCK_CODE = '123456'
+const METHODS_KEY = 'learning-notes:sync.mockMethods'
+interface MockMethods {
+  google: boolean
+  email: boolean
+  password: string | null
+}
+function readMethods(): MockMethods {
+  try {
+    const raw = localStorage.getItem(METHODS_KEY)
+    if (raw) return JSON.parse(raw) as MockMethods
+  } catch {
+    // Start empty.
+  }
+  return { google: false, email: false, password: null }
+}
+function writeMethods(m: MockMethods) {
+  try {
+    localStorage.setItem(METHODS_KEY, JSON.stringify(m))
+  } catch {
+    // Private mode: not kept.
+  }
+}
+
+/** Email code, password and connected accounts for the test connector. */
+function mockEmailAuth(
+  enter: () => void,
+  isIn: () => boolean,
+): Partial<AuthProvider> {
+  const MAIL = MOCK_ACCOUNT.email
+  return {
+    async emailCodeSend() {},
+    async emailCodeVerify(_email, code, kind = 'email') {
+      if (code !== MOCK_CODE) throw new AuthInputError('invalid')
+      const m = readMethods()
+      if (kind === 'email') m.email = true
+      if (kind === 'signup') m.email = true
+      writeMethods(m)
+      enter()
+    },
+    async passwordSignIn(_email, password) {
+      const m = readMethods()
+      if (!m.password || m.password !== password)
+        throw new AuthInputError('invalid')
+      enter()
+    },
+    async passwordSignUp(_email, password) {
+      const m = readMethods()
+      m.password = password
+      writeMethods(m)
+      return 'confirm'
+    },
+    async passwordResetSend() {},
+    async setPassword(password) {
+      const m = readMethods()
+      m.password = password
+      writeMethods(m)
+    },
+    async methods() {
+      const m = readMethods()
+      return {
+        google: m.google ? { id: 'g-1', email: MAIL } : undefined,
+        email: m.email ? { id: 'e-1', email: MAIL } : undefined,
+        password: !!m.password,
+      }
+    },
+    async linkGoogle() {
+      if (!isIn()) return
+      const m = readMethods()
+      m.google = true
+      writeMethods(m)
+    },
+    async unlinkIdentity(id) {
+      const m = readMethods()
+      const count = [m.google, m.email].filter(Boolean).length
+      if (count < 2) throw new AuthInputError('failed')
+      if (id === 'g-1') m.google = false
+      else m.email = false
+      writeMethods(m)
+    },
+    takeLinkError: () => null,
   }
 }
 

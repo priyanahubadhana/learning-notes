@@ -1,3 +1,4 @@
+import { enAccounts } from './enAccounts'
 /** English text of Sync (Phase L). Spanish and Hindi drafts: esSync.ts, hiSync.ts. */
 export const enSync = {
   'settings.category.sync': 'Sync',
@@ -106,4 +107,5 @@ export const enSync = {
   'sync.choice.hereHelp': 'The cloud version goes to History.',
   'sync.choice.useThere': 'Use the cloud version',
   'sync.choice.thereHelp': 'This device’s version goes to History.',
+  ...enAccounts,
 } as const

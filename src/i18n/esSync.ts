@@ -1,3 +1,4 @@
+import { esAccounts } from './esAccounts'
 /** Spanish text of Sync (Phase L; draft: needs native review). English is enSync.ts. */
 export const esSync: Record<string, string> = {
   'settings.category.sync': 'Sincronizar',
@@ -108,4 +109,5 @@ export const esSync: Record<string, string> = {
   'sync.choice.hereHelp': 'La versión de la nube pasa al Historial.',
   'sync.choice.useThere': 'Usar la versión de la nube',
   'sync.choice.thereHelp': 'La versión de este dispositivo pasa al Historial.',
+  ...esAccounts,
 }

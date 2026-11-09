@@ -11,7 +11,12 @@ import type { LearningNotesDB } from '../core/db'
 import { stableId } from '../core/ids'
 import { isLive } from '../core/records'
 import type { Workspace } from '../core/types'
-import { NeedsTapError, getConnectors, type Connectors } from './connectors'
+import {
+  NeedsTapError,
+  getConnectors,
+  type AuthProvider,
+  type Connectors,
+} from './connectors'
 import { SyncCryptoError, type MasterKey } from './crypto'
 import { setTracking, setWaitingForKey } from './device'
 import {
@@ -123,7 +128,8 @@ async function boot(db: LearningNotesDB): Promise<void> {
     if (await conn.auth.finishSignIn(url)) {
       url.search = ''
       // Back to the Sync page to finish, unless the first-run guide does it.
-      if (!onboardingGuide.get()) url.hash = '#/settings/sync'
+      if (!onboardingGuide.get())
+        url.hash = linkingBack() ? '#/settings/account' : '#/settings/sync'
       history.replaceState(history.state, '', url.toString())
       window.dispatchEvent(
         new PopStateEvent('popstate', { state: history.state }),
@@ -225,6 +231,35 @@ function openFeed(db: LearningNotesDB) {
       if (open) void syncNow(db)
     },
   )
+}
+
+/** True once after "connect Google" comes back, so Account opens (not Sync). */
+function linkingBack(): boolean {
+  try {
+    const back = sessionStorage.getItem('learning-notes:sync.linkBack') === '1'
+    sessionStorage.removeItem('learning-notes:sync.linkBack')
+    return back
+  } catch {
+    return false
+  }
+}
+
+/** The sign-in provider, for the email code / password / connected accounts screens. */
+export const accountAuth = (): AuthProvider => getConnectors().auth
+
+/** After an email step signed the person in: read the account and the key state. */
+export async function afterAccountSignIn(): Promise<void> {
+  await decidePhase(getConnectors())
+}
+
+/** Settings > Account > Connect Google: leaves the page and comes back to Account. */
+export async function linkGoogleAccount(): Promise<void> {
+  try {
+    sessionStorage.setItem('learning-notes:sync.linkBack', '1')
+  } catch {
+    // Comes back to Sync instead.
+  }
+  await accountAuth().linkGoogle?.()
 }
 
 export async function signIn(): Promise<void> {

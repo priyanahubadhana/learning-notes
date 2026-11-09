@@ -72,17 +72,6 @@ export function SignInGuide({ db }: { db: LearningNotesDB }) {
       close()
   }, [booted, open, code, status.arrival])
 
-  const Local = (
-    <button
-      type="button"
-      className={button}
-      data-testid="guide-local"
-      onClick={close}
-    >
-      {t('welcome.account.local')}
-    </button>
-  )
-
   let body
   if (code) {
     body = (
@@ -120,7 +109,9 @@ export function SignInGuide({ db }: { db: LearningNotesDB }) {
           >
             {t('guide.tryAgain')}
           </button>
-          {Local}
+          <button type="button" className={button} onClick={close}>
+            {t('signin.back')}
+          </button>
         </div>
       </>
     )

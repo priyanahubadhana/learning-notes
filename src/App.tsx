@@ -6,6 +6,7 @@ import {
   useEffect,
   useRef,
   useState,
+  useSyncExternalStore,
   type ComponentProps,
   type CSSProperties,
 } from 'react'
@@ -162,6 +163,9 @@ const loadHome = () =>
 const HomeLazy = lazy(() => loadHome().then((c) => ({ default: c })))
 const SignInGuide = lazy(() =>
   import('./sync/SignInGuide').then((m) => ({ default: m.SignInGuide })),
+)
+const SignInPanel = lazy(() =>
+  import('./sync/SignInPanel').then((m) => ({ default: m.SignInPanel })),
 )
 const Welcome = lazy(() =>
   import('./onboarding/Welcome').then((m) => ({ default: m.Welcome })),
@@ -423,6 +427,11 @@ function App() {
   const handwritingOpen = handwritingChooser.useValue()
   const lassoSheet = lassoSheetOpen.useValue()
   // The first-run welcome (it takes the place of the device picker).
+  // A boolean snapshot: re-renders only when sign-in flips, not on every sync tick.
+  const isSignedIn = useSyncExternalStore(
+    subscribeSync,
+    () => getSyncStatus().phase !== 'signedOut',
+  )
   const [welcomeAtStart, setWelcomeAtStart] = useState(welcomeNeeded)
   const welcomeAgain = welcomeOpen.useValue()
   const signInGuide = onboardingGuide.useValue()
@@ -1871,7 +1880,12 @@ function App() {
               <Suspense fallback={null}>
                 <Welcome
                   onSkip={closeWelcome}
-                  signedIn={getSyncStatus().phase !== 'signedOut'}
+                  renderSignIn={(p) => (
+                    <Suspense fallback={null}>
+                      <SignInPanel {...p} />
+                    </Suspense>
+                  )}
+                  signedIn={isSignedIn}
                   onFinish={(sample) => {
                     closeWelcome()
                     if (sample) runTask(startHere())

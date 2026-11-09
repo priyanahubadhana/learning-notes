@@ -74,7 +74,33 @@ export interface Account {
   avatar?: string
 }
 
-/** Sign-in provider (Google through Supabase). */
+/** Why an email sign-in step was refused (shown in plain words). */
+export type AuthInputKind =
+  | 'invalid' // wrong or expired code, wrong password
+  | 'badEmail'
+  | 'weak'
+  | 'exists'
+  | 'limit' // too many emails or tries
+  | 'refused' // testing allow-list
+  | 'failed'
+export class AuthInputError extends Error {
+  kind: AuthInputKind
+  constructor(kind: AuthInputKind) {
+    super(kind)
+    this.kind = kind
+  }
+}
+
+/** The ways this account can sign in (Settings > Account > Connected accounts). */
+export interface SignInMethods {
+  google?: { id: string; email: string }
+  /** The email identity: it signs in with a code, and with a password if one is set. */
+  email?: { id: string; email: string }
+  /** A password was added. */
+  password: boolean
+}
+
+/** Sign-in provider (Google, email code and email + password through Supabase). */
 export interface AuthProvider {
   /** The signed-in account, or null. Never touches local notes. */
   current(): Account | null
@@ -111,6 +137,33 @@ export interface AuthProvider {
   setUpLasting?(): Promise<void>
   /** Loads Google's script early so a tap can open its window at once. */
   prepareDrive?(): void
+
+  /** Email code: sends a one-time code (a new account is made if needed). */
+  emailCodeSend?(email: string): Promise<void>
+  /** Checks the code and signs in. `kind` is 'signup' or 'recovery' after those emails. */
+  emailCodeVerify?(
+    email: string,
+    code: string,
+    kind?: 'email' | 'signup' | 'recovery',
+  ): Promise<void>
+  passwordSignIn?(email: string, password: string): Promise<void>
+  /** 'confirm' = a code was emailed; finish with `emailCodeVerify(.., 'signup')`. */
+  passwordSignUp?(
+    email: string,
+    password: string,
+  ): Promise<'signedIn' | 'confirm'>
+  /** Forgot password: emails a code; finish with `emailCodeVerify(.., 'recovery')` then `setPassword`. */
+  passwordResetSend?(email: string): Promise<void>
+  /** Sets or changes the password of the signed-in account. */
+  setPassword?(password: string): Promise<void>
+  /** The linked sign-in methods of the signed-in account. */
+  methods?(): Promise<SignInMethods>
+  /** Links Google to this account (leaves the page and comes back). */
+  linkGoogle?(): Promise<void>
+  /** Unlinks one identity (the server refuses the last one). */
+  unlinkIdentity?(id: string): Promise<void>
+  /** Why the last Google link failed (plain words), once. */
+  takeLinkError?(): string | null
 }
 
 /**

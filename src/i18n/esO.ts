@@ -528,13 +528,8 @@ export const esO: Record<string, string> = {
   'pencilOffer.yes': 'Sí',
   'pencilOffer.no': 'Ahora no',
   'welcome.account.title': 'Lleva tus notas contigo',
-  'welcome.account.help':
-    'Inicia sesión para tener las mismas notas en todos tus dispositivos, bloqueadas para que solo tú las leas. O empieza ahora sin cuenta.',
-  'welcome.account.local': 'Usar sin cuenta',
-  'welcome.account.localHelp':
-    'Todo se queda en este dispositivo. Puedes iniciar sesión luego en Ajustes › Sincronización.',
   'welcome.account.offline':
-    'No se pudo llegar a Google. Revisa tu conexión o usa la app sin cuenta.',
+    'Necesitas conexión para iniciar sesión. Revisa tu conexión e inténtalo de nuevo.',
   'guide.connecting': 'Conectando…',
   'guide.notNow': 'Ahora no',
   'guide.signedOut.title': 'Aún no has iniciado sesión',

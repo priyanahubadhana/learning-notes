@@ -511,13 +511,8 @@ export const hiO: Record<string, string> = {
   'pencilOffer.yes': 'हाँ',
   'pencilOffer.no': 'अभी नहीं',
   'welcome.account.title': 'अपने नोट अपने साथ रखें',
-  'welcome.account.help':
-    'साइन इन करें ताकि सभी डिवाइस पर वही नोट हों, ऐसे लॉक किए हुए कि केवल आप पढ़ सकें। या बिना अकाउंट के अभी शुरू करें।',
-  'welcome.account.local': 'बिना अकाउंट के उपयोग करें',
-  'welcome.account.localHelp':
-    'सब कुछ इसी डिवाइस पर रहता है। बाद में सेटिंग › सिंक में साइन इन कर सकते हैं।',
   'welcome.account.offline':
-    'Google तक नहीं पहुँच सके। कनेक्शन जाँचें, या बिना अकाउंट के उपयोग करें।',
+    'साइन इन के लिए इंटरनेट चाहिए। कनेक्शन जाँचें और फिर कोशिश करें।',
   'guide.connecting': 'जोड़ रहे हैं…',
   'guide.notNow': 'अभी नहीं',
   'guide.signedOut.title': 'आप अभी साइन इन नहीं हैं',

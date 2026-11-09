@@ -18,7 +18,7 @@ Learning Notes App: a premium, minimal second brain (Notion + OneNote + Anki). E
 
 ## Things We Said No To (for now)
 
-- Hosting: allowed. Sync and accounts: only after the deep research. AI: only after the owner approves the cost.
+- Hosting: allowed. Sync: built after the deep research. Accounts are required (owner-approved 9 Nov 2026): Google, email code or email + password; notes still work offline once signed in. AI: only after the owner approves the cost.
 - No native apps, no collaboration.
 - No building beyond the current phase. No skipping phases.
 - No switching editor from BlockNote or stack choices without asking.

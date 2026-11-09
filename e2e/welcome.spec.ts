@@ -1,5 +1,5 @@
 import { expect, test, type Page } from '@playwright/test'
-import { cornerAction } from './helpers.ts'
+import { openCorner } from './helpers.ts'
 
 /**
  * Polish 2, items 1 and 2: the first-run welcome (three steps) and the
@@ -7,6 +7,18 @@ import { cornerAction } from './helpers.ts'
  */
 
 test.use({ storageState: { cookies: [], origins: [] } })
+
+// Accounts are required, so these tests start already signed in (the
+// in-memory connector); the account screen has its own tests (accounts.spec).
+test.beforeEach(async ({ context }) => {
+  await context.addInitScript(() => {
+    localStorage.setItem('learning-notes:sync.mock', '1')
+    localStorage.setItem('learning-notes:sync.mockSignedIn', '1')
+  })
+  await context.route(/supabase.co|googleapis.com|accounts.google.com/, (r) =>
+    r.abort(),
+  )
+})
 
 const welcome = (page: Page) => page.getByTestId('welcome')
 const stored = (page: Page, key: string) =>
@@ -17,11 +29,6 @@ test('a first visit shows the welcome; Skip writes nothing else and it never ret
 }) => {
   await page.goto('/')
   await expect(welcome(page)).toBeVisible()
-  // The first screen asks about an account; local use needs no network.
-  await expect(welcome(page)).toContainText('Keep your notes with you')
-  await welcome(page)
-    .getByRole('button', { name: 'Use without an account' })
-    .click()
   await expect(welcome(page)).toContainText('How will you write?')
   await welcome(page).getByRole('button', { name: 'Skip' }).click()
   await expect(welcome(page)).toHaveCount(0)
@@ -41,9 +48,6 @@ test('three steps: Apple Pencil sets Pencil mode, then Start here opens the samp
 }) => {
   await page.goto('/')
   await expect(welcome(page)).toBeVisible()
-  await welcome(page)
-    .getByRole('button', { name: 'Use without an account' })
-    .click()
   await welcome(page)
     .getByRole('radio', { name: /Apple Pencil/ })
     .click()
@@ -68,7 +72,12 @@ test('three steps: Apple Pencil sets Pencil mode, then Start here opens the samp
 test('Settings can show the welcome again', async ({ page }) => {
   await page.goto('/')
   await welcome(page).getByRole('button', { name: 'Skip' }).click()
-  await cornerAction(page, 'Settings')
+  // Signed in without a key yet, so the button also says "Needs attention".
+  await (
+    await openCorner(page)
+  )
+    .getByRole('button', { name: /^Settings/ })
+    .click()
   await page.getByRole('button', { name: 'Show the welcome again' }).click()
   await expect(welcome(page)).toBeVisible()
   await welcome(page).getByRole('button', { name: 'Skip' }).click()

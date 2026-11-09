@@ -1,3 +1,4 @@
+import { hiAccounts } from './hiAccounts'
 /** Hindi text of Sync (Phase L; draft: needs native review). English is enSync.ts. */
 export const hiSync: Record<string, string> = {
   'settings.category.sync': 'सिंक',
@@ -105,4 +106,5 @@ export const hiSync: Record<string, string> = {
   'sync.choice.hereHelp': 'क्लाउड वाला संस्करण हिस्ट्री में जाएगा।',
   'sync.choice.useThere': 'क्लाउड वाला संस्करण इस्तेमाल करें',
   'sync.choice.thereHelp': 'इस डिवाइस वाला संस्करण हिस्ट्री में जाएगा।',
+  ...hiAccounts,
 }

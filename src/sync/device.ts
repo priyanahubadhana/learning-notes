@@ -66,6 +66,10 @@ export function seenHlc(remote: string, now = Date.now()): void {
 export const isTracking = () => enabled
 /** Signed in but locked: sync must still start so the locked alert can show. */
 const WAITING = 'learning-notes:sync.waiting'
+/** A sign-in session is stored on this device (real or the test connector's). */
+export const hasStoredSession = () =>
+  read('learning-notes:sync.session') !== null ||
+  read('learning-notes:sync.mockSignedIn') === '1'
 export const isWaitingForKey = () => read(WAITING) === '1'
 export function setWaitingForKey(on: boolean): void {
   write(WAITING, on ? '1' : null)

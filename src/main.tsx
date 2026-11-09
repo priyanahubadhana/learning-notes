@@ -37,7 +37,7 @@ import { penIsDown } from './app/palmGuard'
 import { hasUnsaved } from './app/saveStatus'
 import { requestPersistentStorage } from './core/storage'
 import { db, DEFAULT_DB_NAME } from './core/db'
-import { isTracking, isWaitingForKey } from './sync/device'
+import { hasStoredSession, isTracking, isWaitingForKey } from './sync/device'
 import { writePref } from './app/uiPrefs'
 import { initDeviceMode } from './settings/deviceModeSettings'
 import { prefetchAfterIdle } from './app/idlePrefetch'
@@ -98,6 +98,7 @@ if (slowMomentsWanted()) setSlowMomentsOn(true)
 if (
   isTracking() ||
   isWaitingForKey() ||
+  hasStoredSession() ||
   new URLSearchParams(location.search).has('sync')
 ) {
   void import('./sync/syncService').then((m) => m.startSync(db))

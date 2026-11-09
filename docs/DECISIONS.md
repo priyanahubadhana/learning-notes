@@ -910,7 +910,7 @@ The other older decisions stand as built (owner, 2026-11-01); they are in [ARCHI
 | Backspace/Delete in an empty box removes it; Delete with a box selected removes it (toast Undo; History copy if it had lines)                         | An empty box must always be deletable                                     | You want a confirm                                         |
 | Page-wide Cut/Delete empties every box (they stay, one empty line each) and Undo restores                                                             | The boxes themselves are the layout                                       | You want the boxes removed too                             |
 
-## Decisions to review (design system, 9 Nov night)
+## Design system (owner-approved 9 Nov): 9 rules added to rules/architecture.md; Sepia kept, Inter loads after the page, violet everywhere
 
 - Design research, system and screen plan are in docs/research/premium-design-2026-11.md, docs/design/system.md, docs/design/screens.md. Proposed rules for rules/architecture.md are at the end of system.md: need the owner's OK.
 - Sepia theme: kept as a third option (safest; no one loses their theme).

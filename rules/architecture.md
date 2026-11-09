@@ -30,3 +30,15 @@
 - Clear, commented, production-quality code.
 - No hard-coded user-facing text (from Phase 3): use `t("key")` backed by one English strings file; dates/numbers via `Intl`. Phase 1–2 text is converted later (see docs/IDEAS.md).
 - New screens are responsive and touch-friendly (large tap targets, no hover-only actions).
+
+## Design System (owner-approved 9 Nov 2026)
+
+- The design system is docs/design/system.md; screens follow docs/design/screens.md.
+- Use tokens only: colours, spacing (4-pt), radius, type, shadow, motion come from `src/index.css` tokens. No raw hex, no arbitrary px values in components.
+- Glass is for the frame only (bars, sidebar, menus, pop-ups, palette, floating panels), at most 3 blurred layers on screen, with a solid fallback for no support, reduced transparency and `data-glass='lite'`. The paper is always solid.
+- Every text and colour pair passes WCAG AA (4.5:1 text, 3:1 large text and controls) in light and dark; dark uses near-black and lighter surfaces for elevation.
+- Accent (violet) only for primary actions, selection and focus. Colour is never the only signal.
+- Every control has default, hover, active, focus, disabled and (if async) loading states; 44 px hit areas; visible focus ring.
+- Motion 120-240 ms with the shared easings; under reduced motion, fades only; no animation while typing or drawing.
+- One icon set, one stroke, labelled icon buttons.
+- Each screen is checked against the quality audit list (screens.md) in light and dark, on phone, tablet and desktop, before it is called done.

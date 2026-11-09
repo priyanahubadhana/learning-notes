@@ -37,4 +37,5 @@ Owner-liked styles: glassmorphism, immersive storytelling, editorial, Swiss mini
 - Quality audit checklist: consistent type hierarchy, 4-pt spacing, limited intentional palette, consistent radius, consistent icon style, balanced white space, clear hierarchy, dark and light done well, responsive desktop/tablet/phone, consistent component states, subtle meaningful motion, no unnecessary decoration, readability.
 
 ## Owner addition (9 Nov night)
+
 - Notebook rows in the sidebar feel dull: give notebooks more presence (notebook colour/icon chip, bolder name, page and due-card counts, progress hint, clearer open/active state). Do in the sidebar redesign (step 4/6), plus the Notebook overview (step 5).

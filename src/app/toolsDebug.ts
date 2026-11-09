@@ -1,5 +1,7 @@
 import { toolState } from './gestureReset'
+import { runHealth } from './healthCheck'
 import { inputMachine } from './inputMachine'
+import { lock } from '../editor/editLock'
 
 /**
  * `window.__lnTools`: what the end-to-end tests (and a person with the
@@ -27,6 +29,25 @@ export function installToolsDebug(extra: Record<string, unknown> = {}): void {
     setLasso: async (patch: Record<string, unknown>) => {
       const m = await import('./tools/main/inkSettings')
       m.lassoSettings.update(patch as never)
+    },
+    // Tests: one health run now; and a few ways to put a flag in a bad state.
+    health: (reason = 'manual') => runHealth(reason),
+    stick: {
+      selectGesture: async () => {
+        ;(await import('../editor/gesture')).selectGesture.active = true
+      },
+      penGuard: async () => {
+        ;(await import('../editor/penGuard')).penState.down = true
+      },
+      lock: () => {
+        const el = document.querySelector<HTMLElement>('[data-page-content]')
+        if (el) lock('test', el)
+      },
+      editable: (value: string) => {
+        document
+          .querySelector('[data-page-content]')
+          ?.setAttribute('contenteditable', value)
+      },
     },
     ...extra,
   }

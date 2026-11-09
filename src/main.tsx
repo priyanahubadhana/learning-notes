@@ -18,6 +18,7 @@ import {
   repeatUpdateOffer,
   setUpdateChecker,
   setUpdateFallback,
+  throttled,
   lookForUpdate,
   watchControllerChange,
   watchForUpdates,
@@ -31,6 +32,7 @@ import {
 import { inputMachine, installInputMachine } from './app/inputMachine'
 import { installToolsDebug } from './app/toolsDebug'
 import { installListenerCount } from './app/listenerCount'
+import { installHealthCheck, onHealthRun } from './app/healthCheck'
 import { activeTool } from './app/tools/main/mainTools'
 import { rememberPlace, startAutoUpdate } from './app/autoUpdate'
 import { flushAllSaves, hasPendingSaves } from './editor/autosave'
@@ -201,6 +203,20 @@ watchForUpdates(document, () => {
 })
 // R6-14: also on navigation, first typing or touch, and every 10 minutes.
 watchUpdateTriggers(window, lookQuietly)
+
+// Tools robustness: when the app comes back or has been idle, look for stuck
+// tool state (healthCheck.ts), and while at it read the settings again and
+// look for a new version (at most once per 2 minutes).
+installHealthCheck()
+{
+  const lookSoon = throttled(lookQuietly)
+  onHealthRun(() => {
+    lookSoon()
+    void import('./settings/settingsMirror')
+      .then((m) => m.rereadSettings())
+      .catch(() => {})
+  })
+}
 
 /** Drops the saved copy of the old files, then restarts on the live ones. */
 async function restartIntoNewFiles() {

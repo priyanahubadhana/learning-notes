@@ -180,6 +180,19 @@ const SPARE_SLOTS = 2
 
 let rendererCount = 0
 
+/** Is any pixel of the canvas not clear? Read in bands, stops at the first. */
+function hasPixels(c: HTMLCanvasElement): boolean {
+  const ctx = c.getContext('2d')
+  if (!ctx || c.width === 0 || c.height === 0) return false
+  const band = 48
+  for (let y = 0; y < c.height; y += band) {
+    const h = Math.min(band, c.height - y)
+    const d = ctx.getImageData(0, y, c.width, h).data
+    for (let i = 3; i < d.length; i += 4) if (d[i] !== 0) return true
+  }
+  return false
+}
+
 export class InkRenderer {
   private readonly budgetId = `ink-${++rendererCount}`
   readonly root: HTMLDivElement
@@ -273,6 +286,33 @@ export class InkRenderer {
   tileCount(): number {
     let n = 0
     for (const sl of this.slots) n += (sl.hl ? 1 : 0) + (sl.ink ? 1 : 0)
+    return n
+  }
+
+  /** Did the browser take a canvas's context away (memory pressure, a long background)? */
+  contextLost(): boolean {
+    const lost = (ctx: CanvasRenderingContext2D) =>
+      (
+        ctx as CanvasRenderingContext2D & { isContextLost?: () => boolean }
+      ).isContextLost?.() === true
+    if (lost(this.liveCtx)) return true
+    return this.slots.some((sl) =>
+      [sl.hl, sl.ink].some((pl) => pl !== null && lost(pl.ctx)),
+    )
+  }
+
+  /**
+   * Tiles that should show ink (they have a slot) but whose canvases read back
+   * empty: the system dropped what a backgrounded app had drawn (health check).
+   */
+  blankTiles(): number {
+    let n = 0
+    for (const t of this.tiles.values()) {
+      const sl = t.slot
+      if (!sl || sl.index !== t.index) continue
+      const planes = [sl.hl, sl.ink].filter((p): p is Plane => p !== null)
+      if (planes.length > 0 && !planes.some((p) => hasPixels(p.canvas))) n++
+    }
     return n
   }
 

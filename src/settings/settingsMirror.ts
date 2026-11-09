@@ -212,6 +212,14 @@ export function startSettingsMirror(database: LearningNotesDB): () => void {
   return stopSettingsMirror
 }
 
+/** Reads the settings table again and applies it (the health check, after the app was away). */
+export async function rereadSettings(): Promise<void> {
+  if (!db) return
+  const list = await db.settings.toArray()
+  rows = new Map(list.map((r) => [r.id, r.value]))
+  syncAll()
+}
+
 export function stopSettingsMirror(): void {
   stopper?.()
   stopper = null

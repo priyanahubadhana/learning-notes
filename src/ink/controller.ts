@@ -6,6 +6,7 @@ import {
 } from '../app/gestureReset'
 import { gripDragging } from '../app/tools/gripDrag'
 import { inputMachine } from '../app/inputMachine'
+import { registerProbe } from '../app/healthCheck'
 import {
   lock as lockEditing,
   unlock as unlockEditing,
@@ -519,6 +520,14 @@ export class InkController {
     // was half-way is forgotten and the pad is armed again.
     this.cleanups.push(onGestureReset((reason) => this.resetGestures(reason)))
     this.cleanups.push(registerToolState('ink', () => this.debugState()))
+    // The health check: ink that went blank while the app was away is painted again.
+    this.cleanups.push(
+      registerProbe({
+        name: 'ink-canvas',
+        check: () => this.canvasProblem(),
+        heal: () => this.repaintAll(),
+      }),
+    )
     this.cleanups.push(
       registerAdopter({
         wrap,
@@ -593,6 +602,22 @@ export class InkController {
     this.syncPad()
     this.dirty()
     this.notify()
+  }
+
+  /** What is wrong with the ink canvases, or null (health check). */
+  private canvasProblem(): string | null {
+    // Not while ink is hidden or moving (a transform hides the selection).
+    if (this.gesture || this.hidden.size > 0) return null
+    if (this.renderer.contextLost()) return 'canvas context lost'
+    const blank = this.renderer.blankTiles()
+    return blank > 0 ? blank + ' ink tile(s) blank' : null
+  }
+
+  /** Paints every tile again (the health check, a context that came back). */
+  repaintAll(): void {
+    this.renderer.dropBitmaps()
+    this.dirty()
+    this.requestDraw()
   }
 
   /** The pad lost a pointer it was tracking: the gesture cannot go on. */
@@ -1858,7 +1883,7 @@ export class InkController {
   /** The machine knows the touch (its age limit drops a lost lift), then the Lasso starts. */
   private lassoDown(e: PointerEvent): void {
     // A Lasso or handle gesture whose lift never came must not block this
-    // touch: the same pointer going down again, or a pointer the machine no
+    // touch: the same pointer going down again after a pause, or a pointer the machine no
     // longer knows (it drops one that has not moved for 4 s), means it is dead.
     if (this.staleGesture(e)) this.cancelGesture()
     const before = this.gesture
@@ -1872,7 +1897,12 @@ export class InkController {
   private staleGesture(e: PointerEvent): boolean {
     const g = this.gesture
     if (!g || (g.kind !== 'lasso' && g.kind !== 'transform')) return false
-    return g.id === e.pointerId || !inputMachine.isDown('ink', g.id)
+    // The same pointer going down again cannot be the same press: but not
+    // within a blink of its last movement (a synthetic lift, a double event).
+    return (
+      !inputMachine.isDown('ink', g.id) ||
+      (g.id === e.pointerId && inputMachine.idleMs('ink') >= 250)
+    )
   }
 
   private machineBegin(e: PointerEvent, state: 'selecting' | 'transforming') {

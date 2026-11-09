@@ -44,3 +44,27 @@ Scrolling was already cheap here: 0.2 ms scripting per frame, 1 layout and 2 sty
 ## CI budget
 
 `bigPageBudget.spec.ts` asserts (Chromium): no long task over 100 ms in the scroll pass or while typing, script per scroll frame under 6 ms, script per key under 25 ms, paste longest task under 1 s.
+
+## Second pass: a mixed paper page, scrolling (9 Nov, evening)
+
+Owner saw stutter while scrolling a big pasted document. `e2e/bigPageBudget.spec.ts` now also seeds a mixed paper page: 300 main blocks (20 pictures of 1200 x 800, 5 embeds, 5 tables, text), 12 boxes (14 blocks each, 4 with a picture) and 600 ink strokes spread over 12 blocks (27 sheets at fit, 38 at 150 %). It scrolls top to bottom to top at 100 %, at the paper held at 73 % (Ctrl+wheel kept coming so it does not spring back) and at 150 %, at normal CPU and at 4x.
+
+| Metric (scroll pass)    | 1x CPU, all three zooms | 4x CPU, 73 % | 4x, 100 % | 4x, 150 % |
+| ----------------------- | ----------------------- | ------------ | --------- | --------- |
+| Median frame            | 16.7 ms                 | 16.7 ms      | 16.7 ms   | 16.7 ms   |
+| Frames later than 25 ms | 0 %                     | 16-17 %      | 15 %      | 9 %       |
+| Script per frame        | 0.3-0.4 ms              | 2.9 ms       | 2.5 ms    | 1.9 ms    |
+| Style recalc per frame  | 0.1-0.2 ms              | 1.2-1.3 ms   | 0.7 ms    | 0.8 ms    |
+| Long tasks over 50 ms   | 0                       | 0            | 0         | 0         |
+
+Findings (CPU profile, 4x, 100 %):
+
+- **The ink layer is the whole cost.** With the ink scroll listener switched off for a test run the same pass gave 0 % late frames and 0.47 ms script per frame; with it on, 13 s of a 19 s profile was `InkSurface.redraw` (`getBoundingClientRect` 1.9 s, `placeOverlay`, then the canvas `draw` / `clearRect` / `drawImage` / `setView`). Every scroll event schedules one redraw: the overlay is measured, re-placed (left/top written), re-clipped, and the canvases are cleared and painted again for the new strip.
+- Pictures (decoding), embeds, box frames per sheet, snap guides and the calm-handle listeners did not show in the profile (no listener of theirs above 0.1 ms per frame); 24 images were in the DOM and decode off the main thread.
+- Zoom changes the load only through the number of sheets and boxes in view; 73 % is the worst (more of the page on screen).
+
+Tried and reverted: (1) writing the overlay's style only when it changed, and reading all geometry before writing; (2) reusing the measured geometry shifted by the scroll distance on scroll-only frames; (3) painting the canvases for 1.7 screens and repainting only when the screen leaves them. Together they cut the ink redraw's CPU in the profile by about half (3,978 to 1,931 ms), but the share of late frames did not move (about 16 % at 4x, within noise), and the change broke four ink e2e specs (`inkLayers` 500-stroke budget, `inkTools` highlight eraser, two `paperInk` rules). A safe fix needs the ink overlay to scroll with the page (inside the scroller, moved by the compositor) instead of being re-placed from JavaScript on every scroll event; that is a redesign of `ink/controller.ts` (overlay parent, clip, pointer mapping) and is left for its own step with the owner's iPad check.
+
+The harness could not scroll with the mouse wheel or a synthesized touch gesture (nothing moved the page scroller with the Pen tool's ink layer present), so the pass scrolls with `scrollTop` writes, 60 px a frame. Numbers are comparable between runs, not a promise of a real finger's frame rate.
+
+CI budget for the mixed page (Chromium, 1x CPU, each zoom): no long task over 150 ms, 95th-percentile frame under 34 ms, under 10 % late frames, under 3 ms script per frame.

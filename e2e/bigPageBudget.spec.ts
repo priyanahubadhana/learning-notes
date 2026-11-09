@@ -2,6 +2,7 @@
 /// <reference lib="dom" />
 import { expect, test, type CDPSession, type Page } from '@playwright/test'
 import { openNote } from './mainBarHelpers.ts'
+import { expectStrokes, inkNote, line, stroke, textBox } from './inkHelpers.ts'
 
 /**
  * Perf pass of 9 Nov 2026: a big page (2,000 blocks, tables, many A4 sheets)
@@ -339,3 +340,281 @@ test('a big page scrolls and types within the budget', async ({ page }) => {
   expect(out.typeScriptPerKeyMs).toBeLessThan(25)
   expect(out.pasteMaxLongMs).toBeLessThan(1000)
 })
+
+// ---- A mixed page: pictures, embeds, tables, ink, several boxes, zoom ----
+
+const MIXED_BOXES = 12
+
+/** One page of 300 main blocks (pictures, embeds, tables) and 12 boxes with ink. */
+async function seedMixed(page: Page) {
+  await page.evaluate(
+    async ({ boxes }) => {
+      const open = indexedDB.open('learning-notes')
+      const db: IDBDatabase = await new Promise((res) => {
+        open.onsuccess = () => res(open.result)
+      })
+      const read = (store: string) =>
+        new Promise<Row[]>((res) => {
+          const r = db.transaction(store).objectStore(store).getAll()
+          r.onsuccess = () => res(r.result)
+        })
+      const notePage = (await read('pages')).find((p) => p.title === 'First')!
+      const block = (await read('blocks')).find(
+        (b) => b.pageId === notePage.id,
+      )!
+      const [chunk] = await read('inkChunks')
+      const base = chunk.strokes[0]
+      // Pictures: 20 busy 1200 x 800 PNGs (decoded for real).
+      const images: Row[] = []
+      for (let i = 0; i < 20; i++) {
+        const c = document.createElement('canvas')
+        c.width = 1200
+        c.height = 800
+        const g = c.getContext('2d')!
+        for (let k = 0; k < 400; k++) {
+          g.fillStyle = `hsl(${(k * 7 + i * 31) % 360} 70% 60%)`
+          g.fillRect((k * 37) % 1200, (k * 53) % 800, 90, 70)
+        }
+        const blob: Blob = await new Promise((res) =>
+          c.toBlob((b) => res(b!), 'image/png'),
+        )
+        images.push({
+          id: 'perfimg-' + i,
+          createdAt: 1,
+          updatedAt: 1,
+          deletedAt: null,
+          name: 'p' + i + '.png',
+          type: 'image/png',
+          width: 1200,
+          height: 800,
+          data: await blob.arrayBuffer(),
+        })
+      }
+      const cell = (s: string) => [{ type: 'text', text: s, styles: {} }]
+      const words =
+        'the cell nucleus holds genetic material and controls growth'
+      const blocks: Row[] = []
+      let n = 0
+      const mk = (boxId: string | undefined, kind: string, i: number): Row => {
+        const id = `mixed-${boxId ?? 'main'}-${n++}`
+        const b: Row = {
+          ...block,
+          id,
+          parentId: null,
+          order: 'a' + String(n).padStart(5, '1'),
+        }
+        if (boxId) b.boxId = boxId
+        if (kind === 'image')
+          return {
+            ...b,
+            type: 'image',
+            content: { url: 'lnimg:perfimg-' + (i % 20), caption: '' },
+          }
+        if (kind === 'embed')
+          return {
+            ...b,
+            type: 'embed',
+            content: {
+              url: 'https://example.com/x' + i,
+              provider: 'link',
+              videoId: '',
+              start: 0,
+              caption: 'Embed ' + i,
+            },
+          }
+        if (kind === 'table')
+          return {
+            ...b,
+            type: 'table',
+            content: {
+              text: {
+                type: 'tableContent',
+                rows: [0, 1, 2].map((r) => ({
+                  cells: [0, 1, 2].map((c2) => cell(`r${r} c${c2}`)),
+                })),
+              },
+            },
+          }
+        return {
+          ...b,
+          content: {
+            ...block.content,
+            text: cell(`${i}. ${words} ${words} ${words}`),
+          },
+        }
+      }
+      for (let i = 0; i < 300; i++) {
+        const kind =
+          i % 15 === 3
+            ? 'image'
+            : i % 60 === 10
+              ? 'embed'
+              : i % 60 === 30
+                ? 'table'
+                : 'text'
+        blocks.push(mk(undefined, kind, i))
+      }
+      const boxIds = Array.from({ length: boxes }, (_, i) => 'mixbox-' + i)
+      boxIds.forEach((id, b) => {
+        for (let i = 0; i < 14; i++)
+          blocks.push(mk(id, i === 2 && b % 3 === 0 ? 'image' : 'text', i + b))
+      })
+      const chunks: Row[] = []
+      const owners = blocks.filter((b) => b.type !== 'image')
+      for (let c = 0; c < 12; c++) {
+        const list: Row[] = []
+        for (let i = 0; i < 50; i++) {
+          const k = c * 50 + i
+          const pts: number[] = []
+          for (let q = 0; q < 20; q++)
+            pts.push(0.05 + q * 0.02, 0.2 + (k % 40) * 0.02, 0.5, 0, 0, q * 8)
+          list.push({ ...base, id: 'mixink-' + k, at: base.at + k + 1, pts })
+        }
+        chunks.push({
+          ...chunk,
+          id: 'mixchunk-' + c,
+          blockId: owners[(c * 37) % owners.length].id,
+          strokes: list,
+        })
+      }
+      await new Promise<void>((res) => {
+        const tx = db.transaction(
+          ['pages', 'blocks', 'inkChunks', 'images'],
+          'readwrite',
+        )
+        tx.objectStore('pages').put({
+          ...notePage,
+          boxes: boxIds.map((id, i) => ({
+            id,
+            x: 8 + (i % 3) * 30,
+            y: 40 + Math.floor(i / 3) * 100,
+            w: 28,
+          })),
+        })
+        for (const b of blocks) tx.objectStore('blocks').put(b)
+        for (const c of chunks) tx.objectStore('inkChunks').put(c)
+        for (const im of images) tx.objectStore('images').put(im)
+        tx.oncomplete = () => res()
+      })
+      db.close()
+    },
+    { boxes: MIXED_BOXES },
+  )
+}
+
+/** Scrolls top -> bottom -> top; zoom other than 1 is held with Ctrl+wheel. */
+async function mixedPass(page: Page, cdp: CDPSession, zoom: number) {
+  if (zoom !== 1) {
+    // Below fit width the paper springs back unless the wheel keeps coming.
+    await page.evaluate((z) => {
+      const el = document.querySelector('[data-paper-scroller]')!
+      const wheel = (dy: number) =>
+        el.dispatchEvent(
+          new WheelEvent('wheel', {
+            ctrlKey: true,
+            deltaY: dy,
+            clientX: 400,
+            clientY: 300,
+            bubbles: true,
+            cancelable: true,
+          }),
+        )
+      wheel(z < 1 ? 3000 : -300 * Math.log(z))
+      ;(window as unknown as Row).__keep = window.setInterval(
+        () => wheel(z < 1 ? 3000 : 0),
+        100,
+      )
+    }, zoom)
+    await page.waitForTimeout(500)
+  }
+  const m0 = await metrics(cdp)
+  await record(page)
+  await page.evaluate(
+    () =>
+      new Promise<void>((done) => {
+        const s = document.querySelector('[data-page-scroller]')!
+        const max = s.scrollHeight - s.clientHeight
+        let dir = 1
+        let steps = 0
+        const step = () => {
+          s.scrollTop += dir * 60
+          steps++
+          if (dir === 1 && s.scrollTop >= max - 1) dir = -1
+          else if (dir === -1 && s.scrollTop <= 0) return done()
+          if (steps > 3000) return done()
+          requestAnimationFrame(step)
+        }
+        requestAnimationFrame(step)
+      }),
+  )
+  const r = await stop(page)
+  const m1 = await metrics(cdp)
+  await page.evaluate(() =>
+    window.clearInterval((window as unknown as Row).__keep),
+  )
+  const d = (k: string) => ((m1[k] ?? 0) - (m0[k] ?? 0)) * 1000
+  const n = Math.max(1, r.frames.length)
+  const late = r.frames.filter((f) => f > 25).length
+  return {
+    zoom,
+    frames: r.frames.length,
+    medianFrameMs: +median(r.frames).toFixed(1),
+    p95FrameMs: +percentile(r.frames, 0.95).toFixed(1),
+    lateFramePct: +((100 * late) / n).toFixed(1),
+    longTasks: r.long.length,
+    maxLongMs: Math.round(Math.max(0, ...r.long)),
+    scriptPerFrameMs: +(d('ScriptDuration') / n).toFixed(2),
+    layoutPerFrameMs: +(d('LayoutDuration') / n).toFixed(2),
+    stylePerFrameMs: +(d('RecalcStyleDuration') / n).toFixed(2),
+  }
+}
+
+for (const zoom of [1, 0.73, 1.5]) {
+  test(`a mixed paper page scrolls within the budget at zoom ${zoom}`, async ({
+    page,
+  }) => {
+    test.setTimeout(150_000)
+    await inkNote(page, 'Pen')
+    const first = await textBox(page)
+    await stroke(
+      page,
+      line([first.x + 10, first.y + 150], [first.x + 100, first.y + 150]),
+    )
+    await expectStrokes(page, 1)
+    await page.waitForTimeout(700) // autosave
+    await seedMixed(page)
+    await page.reload()
+    await expect(page.locator('.bn-editor').first()).toBeVisible({
+      timeout: 20000,
+    })
+    await expect(page.locator('[data-paper-box]')).toHaveCount(
+      MIXED_BOXES + 1,
+      { timeout: 20000 },
+    )
+    await page.waitForTimeout(2000)
+    const cdp = await page.context().newCDPSession(page)
+    await cdp.send('Performance.enable')
+    const slow = Number(process.env.BIGPAGE_THROTTLE ?? 1)
+    if (slow > 1)
+      await cdp.send('Emulation.setCPUThrottlingRate', { rate: slow })
+    const prof = process.env.BIGPAGE_PROFILE
+    if (prof) {
+      await cdp.send('Profiler.enable')
+      await cdp.send('Profiler.start')
+    }
+    const out = await mixedPass(page, cdp, zoom)
+    if (prof) await dumpProfile(cdp, 'mixed' + zoom)
+    const info = await page.evaluate(() => ({
+      blocks: document.querySelectorAll('.bn-block-outer').length,
+      pictures: document.querySelectorAll('img').length,
+      sheets: document.querySelectorAll('[data-paper-sheet]').length,
+    }))
+    console.log('MIXEDPAGE ' + JSON.stringify({ ...info, ...out }))
+    if (process.env.BIGPAGE_NOASSERT) return
+    // Medians and shares, not single frames (a two-core CI machine).
+    expect(out.maxLongMs).toBeLessThan(150)
+    expect(out.p95FrameMs).toBeLessThan(34)
+    expect(out.lateFramePct).toBeLessThan(10)
+    expect(out.scriptPerFrameMs).toBeLessThan(3)
+  })
+}

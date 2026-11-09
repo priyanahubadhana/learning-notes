@@ -20,6 +20,12 @@ Current phase only. Older entries are in [ARCHIVE.md](ARCHIVE.md).
 - **Why:** owner-approved leftover of the paste pipeline.
 - **Files:** src/editor/cleanupAi.ts, CleanupDialog.tsx, cleanupAi.test.ts (new), pasteFlow.ts, PasteChooser.tsx, src/prompts/seedPrompts.ts, src/i18n/enO.ts, esO.ts, hiO.ts, e2e/pasteCleanup.spec.ts, docs/features/copy-paste.md, prompt-library.md
 
+## 2026-11-09 (Scroll trace of a mixed paper page)
+
+- **What:** measured scrolling on a paper page with 20 pictures, embeds, tables, 12 boxes and 600 ink strokes at 73 %, 100 % and 150 % zoom, at 1x and 4x CPU. 1x: 0 % late frames, 0.4 ms script per frame. 4x: 9-17 % late frames, 2-3 ms script per frame; the cause is the ink layer being measured, re-placed, re-clipped and repainted on every scroll event (off: 0 % late frames). Pictures, embeds, box frames, snap guides and calm handles did not show. No code fix kept: three attempts halved the ink redraw's CPU but not the late frames and broke four ink specs, so they were reverted; the real fix (ink overlay inside the scroller) is a separate step. New CI budget for this page in `e2e/bigPageBudget.spec.ts`.
+- **Why:** owner saw stutter while scrolling a big pasted document.
+- **Files:** e2e/bigPageBudget.spec.ts, docs/research/perf-big-pages-2026-11.md.
+
 ## 2026-11-09 (Speed on big pages: typing and paste)
 
 - **What:** measured a generated page of 2,000 blocks / 156 sheets (Chromium, also with the CPU slowed 4x). Typing cost 11-15 ms of script per key (45 ms at 4x), 50 long tasks at 4x. Causes and fixes: the sheet-gap pass asked the DOM for every block's document position on every key (now read from the document in one pass); table row heights looked up every table by id and read 200 CSS variables per table on every key (now once per typing burst, only real rows); the pen guard joined the whole page's text on every key (now `doc.content.size`); the sheet-gap decorations were rebuilt for all blocks on every key (now built when the pushes change, mapped while typing). After: 6.6-7.8 ms per key (31 ms at 4x), long tasks 0-2 at 1x (39 at 4x, from 50); longest paste task 160 to 130 ms (1,012 to 667 ms at 4x). Scrolling was already smooth in this page (0.2 ms script per frame, frames 16.7 ms even at 4x). New CI budget `e2e/bigPageBudget.spec.ts`.

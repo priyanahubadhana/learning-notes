@@ -212,7 +212,7 @@ export function EditListSheet({
             onClick={commit}
             className={BTN}
           >
-            <span aria-hidden>✕</span>
+            <Icon name="close" size={18} />
           </button>
         </header>
         <div

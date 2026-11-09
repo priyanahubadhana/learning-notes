@@ -42,7 +42,6 @@ export function SpaceStrip({
               aria-label={t('space.button', { name })}
               aria-current={active ? 'page' : undefined}
               data-space={space}
-              title={name}
               onClick={() => onSelect(space)}
               className={`flex size-11 flex-col items-center justify-center rounded-xl leading-none hover:bg-hover phone:h-12 phone:min-w-0 phone:flex-1 phone:rounded-lg ${
                 active ? 'bg-accent-soft text-accent' : 'text-ink-soft'

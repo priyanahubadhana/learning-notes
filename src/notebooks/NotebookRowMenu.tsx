@@ -56,7 +56,7 @@ export default function NotebookRowMenu({
           ? 'lock.menu.remove.notebook'
           : 'lock.menu.lock.notebook',
       ),
-      icon: '🔒',
+      icon: 'lock',
       onSelect: () => runTask(toggleLock(db, 'notebook', notebook.id, toast)),
     },
     editLockItem(db, 'notebook', notebook.id, !!notebook.editLocked, toast),

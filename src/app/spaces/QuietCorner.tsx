@@ -8,6 +8,7 @@ import { Tip } from '../../help/Help'
 import { t } from '../../i18n/t'
 import { TrashSection } from '../../trash/TrashSection'
 import { SyncDot } from '../../sync/SyncDot'
+import { Icon } from '../tools/icons'
 
 const LayerGallery = lazy(() =>
   import('../../layers/LayerGallery').then((m) => ({
@@ -119,7 +120,7 @@ export function QuietCorner({
                 className={`${row} ${settingsOpen ? 'bg-hover font-semibold' : ''}`}
               >
                 <span aria-hidden className="text-muted">
-                  ⚙
+                  <Icon name="settings" size={18} />
                 </span>
                 {t('settings.title')}
                 <SyncDot className="ms-auto" />

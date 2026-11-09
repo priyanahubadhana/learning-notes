@@ -94,7 +94,7 @@ export function ReaderControls({
   const items: MenuItem[] = [
     {
       label: t('reading.ctl.lock'),
-      icon: '🔒',
+      icon: 'lock',
       checked: locked,
       onSelect: toggleLockToReading,
     },

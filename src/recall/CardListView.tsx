@@ -55,7 +55,7 @@ export function CardListView({
         <EmptyState
           testId="cards-empty"
           className="m-1"
-          icon="🃏"
+          icon="cards"
           text={t('cardList.empty')}
         />
       ) : (

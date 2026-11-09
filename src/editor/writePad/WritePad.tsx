@@ -50,6 +50,7 @@ import {
   writePad,
 } from './padState'
 import type { PadStroke } from './pressure'
+import { Icon } from '../../app/tools/icons'
 
 /**
  * The Write pad: a docked pad at the bottom of the page. It holds one large
@@ -618,7 +619,7 @@ export default function WritePad() {
           testId="write-pad-close"
           onClick={closeWritePad}
         >
-          ✕
+          <Icon name="close" size={18} />
         </TipButton>
       </div>
 

@@ -25,6 +25,7 @@ import {
 import { rankVoices } from './voices'
 import { SLEEP_MINUTES, SPEEDS } from './readingPrefs'
 import { speechAvailable } from './readAloud'
+import { Icon } from '../tools/icons'
 
 /** The Reading mode panels: look, read aloud, and outline with bookmarks. */
 
@@ -229,7 +230,7 @@ export function AloudPanel({
           onClick={() => skipAloud(-1)}
           className={`${secondary} disabled:opacity-40`}
         >
-          ⏪
+          <Icon name="rewind" size={18} />
         </button>
         <button
           type="button"
@@ -238,7 +239,7 @@ export function AloudPanel({
           onClick={() => skipAloud(1)}
           className={`${secondary} disabled:opacity-40`}
         >
-          ⏩
+          <Icon name="fastForward" size={18} />
         </button>
         <button
           type="button"

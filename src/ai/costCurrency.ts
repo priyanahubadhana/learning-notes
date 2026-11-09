@@ -185,3 +185,11 @@ export function startCurrencyMirror(db: LearningNotesDB): () => void {
   })
   return () => sub.unsubscribe()
 }
+
+/** Converts an amount in the chosen currency back to US dollars. */
+export const fromCurrency = (amount: number): number =>
+  amount / rateOf(readCostCurrency())
+
+/** A US-dollar limit as a plain number in the chosen currency (for inputs). */
+export const limitToInput = (usd: number): number =>
+  Math.round(toCurrency(usd) * 100) / 100

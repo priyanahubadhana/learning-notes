@@ -121,6 +121,22 @@ import {
   ChevronsUpDown,
   GripVertical,
   type LucideIcon,
+  LockKeyhole,
+  LockOpen,
+  Play,
+  Pause,
+  Rewind,
+  FastForward,
+  ArrowUpRight,
+  Tag,
+  SquareCheck,
+  Lightbulb,
+  Paperclip,
+  Sunrise,
+  CircleCheck,
+  ClipboardList,
+  House,
+  Inbox,
 } from 'lucide-react'
 
 /**
@@ -249,9 +265,28 @@ const ICONS = {
   toggle: ChevronsUpDown,
   swap: ArrowLeftRight,
   grip: GripVertical,
+  lockKeyhole: LockKeyhole,
+  lockOpen: LockOpen,
+  play: Play,
+  pause: Pause,
+  rewind: Rewind,
+  fastForward: FastForward,
+  arrowUpRight: ArrowUpRight,
+  tag: Tag,
+  checkSquare: SquareCheck,
+  lightbulb: Lightbulb,
+  paperclip: Paperclip,
+  sunrise: Sunrise,
+  circleCheck: CircleCheck,
+  clipboard: ClipboardList,
+  house: House,
+  inbox: Inbox,
 } as const satisfies Record<string, LucideIcon>
 
 export type IconName = keyof typeof ICONS
+
+const isIconName = (n: string): n is IconName =>
+  Object.prototype.hasOwnProperty.call(ICONS, n)
 
 /** A thin (1.6 px) line icon, decorative: the button carries the name. */
 export function Icon({
@@ -273,4 +308,12 @@ export function Icon({
       className={className}
     />
   )
+}
+
+/**
+ * A menu or empty-state icon given as a string: a known icon name draws the
+ * line icon; anything else (a user's own emoji) is shown as it is.
+ */
+export function Glyph({ icon, size = 18 }: { icon: string; size?: number }) {
+  return isIconName(icon) ? <Icon name={icon} size={size} /> : <>{icon}</>
 }

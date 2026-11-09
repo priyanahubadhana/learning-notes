@@ -51,7 +51,7 @@ export function NowPlayingPill({
         onClick={state === 'playing' ? pauseAloud : resumeAloud}
         className={btn}
       >
-        <span aria-hidden>{state === 'playing' ? '⏸' : '▶'}</span>
+        <Icon name={state === 'playing' ? 'pause' : 'play'} size={18} />
       </button>
       <button
         type="button"

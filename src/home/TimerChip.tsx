@@ -14,6 +14,7 @@ import {
 } from './timer'
 import { keepWorking, stopAt, stopTimer } from './timerService'
 import { useNow, useRunning } from './useTimer'
+import { Icon } from '../app/tools/icons'
 
 /** "14:30" from a UTC time, for the time field. */
 const timeValue = (at: number): string => {
@@ -111,7 +112,7 @@ export function TimerChip({
           onClick={() => runTask(stopTimer(db))}
           className="grid size-11 place-items-center rounded-full hover:bg-hover"
         >
-          ⏹
+          <Icon name="square" size={18} />
         </IconButton>
       </div>
       {stillWorking && (

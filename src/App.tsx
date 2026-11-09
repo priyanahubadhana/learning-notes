@@ -60,6 +60,7 @@ import { Toast, ChoiceDialog, EmptyState } from './app/ui'
 import { onUpdateOffer } from './app/updates'
 import { UpdateRiskBar } from './app/UpdateBar'
 import { AttentionGate } from './app/attention/AttentionGate'
+import { SignedOutGate } from './sync/SignedOutGate'
 import {
   checkStorage,
   loadBackupFailures,
@@ -1914,6 +1915,7 @@ function App() {
             )}
             <ReadingSync />
             <AttentionGate db={db} />
+            <SignedOutGate />
             <NowPlayingGate onOpenPage={(id) => openPage(id)} />
             <TimerChip db={db} onOpenHome={() => chooseSpace('home')} />
             <AudioDock db={db} pageId={currentPage?.id ?? null} />

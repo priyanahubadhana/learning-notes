@@ -15,6 +15,11 @@ export interface SendEntry {
   feature: string
   host: string
   costUsd: number
+  /** Which key and model served it, and the tokens counted (no content). */
+  keyId?: string
+  model?: string
+  inputTokens?: number
+  outputTokens?: number
 }
 
 const PREF = 'ai.sendLog'
@@ -30,7 +35,11 @@ const isEntry = (v: unknown): v is SendEntry => {
     typeof e.feature === 'string' &&
     typeof e.host === 'string' &&
     typeof e.costUsd === 'number' &&
-    (e.notebookId === undefined || typeof e.notebookId === 'string')
+    (e.notebookId === undefined || typeof e.notebookId === 'string') &&
+    (e.keyId === undefined || typeof e.keyId === 'string') &&
+    (e.model === undefined || typeof e.model === 'string') &&
+    (e.inputTokens === undefined || typeof e.inputTokens === 'number') &&
+    (e.outputTokens === undefined || typeof e.outputTokens === 'number')
   )
 }
 const isLog = (v: unknown): v is SendEntry[] =>
@@ -52,6 +61,12 @@ export function logSend(entry: SendEntry, now: Date = new Date()): void {
     host: entry.host.slice(0, 80),
     costUsd: entry.costUsd,
     ...(entry.notebookId && { notebookId: entry.notebookId }),
+    ...(entry.keyId && { keyId: entry.keyId.slice(0, 80) }),
+    ...(entry.model && { model: entry.model.slice(0, 80) }),
+    ...(entry.inputTokens !== undefined && { inputTokens: entry.inputTokens }),
+    ...(entry.outputTokens !== undefined && {
+      outputTokens: entry.outputTokens,
+    }),
   }
   writePref(PREF, [clean, ...readSendLog(now)].slice(0, MAX_LOG))
 }

@@ -35,6 +35,7 @@ import {
   type OutlineItem,
   type OutlineView,
 } from './panelModel'
+import { Icon } from '../tools/icons'
 
 const TABS = ['pages', 'outline', 'audio'] as const
 type Tab = (typeof TABS)[number]
@@ -96,7 +97,9 @@ function PageThumb({
         }`}
       >
         <span className="line-clamp-2 text-sm font-medium break-words">
-          {page.locked ? '🔒 ' : ''}
+          {page.locked && (
+            <Icon name="lock" size={13} className="me-1 inline" />
+          )}
           {sampleName(page) || t('review.untitled')}
         </span>
         {!page.locked &&
@@ -356,7 +359,7 @@ function AudioTab({ db, pageId }: { db: LearningNotesDB; pageId: string }) {
         <EmptyState
           testId="audio-empty"
           className="mb-2"
-          icon="🎙"
+          icon="mic"
           text={t('lp.audio.empty')}
           action={t('empty.audio.action')}
           onAction={() => void toggleRecording(pageId, toast)}
@@ -447,7 +450,7 @@ export function LeftPanel({
           onClick={onClose}
           className="grid size-11 shrink-0 place-items-center rounded-lg hover:bg-hover"
         >
-          ✕
+          <Icon name="close" size={18} />
         </button>
       </div>
       <div role="tabpanel" className="min-h-0 flex-1 overflow-y-auto p-2">

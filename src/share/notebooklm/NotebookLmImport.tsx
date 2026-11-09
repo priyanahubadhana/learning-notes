@@ -1,3 +1,4 @@
+import { sampleName } from '../../i18n/defaultNames'
 import { useLiveQuery } from 'dexie-react-hooks'
 import { useContext, useMemo, useState } from 'react'
 import { AppUiContext } from '../../app/appUi'
@@ -391,7 +392,7 @@ export function NotebookLmImport({
         >
           {notebooks.map((n) => (
             <option key={n.id} value={n.id}>
-              {n.title || t('review.untitled')}
+              {sampleName(n) || t('review.untitled')}
             </option>
           ))}
         </select>

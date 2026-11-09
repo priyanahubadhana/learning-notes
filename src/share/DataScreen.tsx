@@ -342,7 +342,7 @@ export function DataScreen({
     >
       {notebooks?.map((n) => (
         <option key={n.id} value={n.id}>
-          {n.title || t('review.untitled')}
+          {sampleName(n) || t('review.untitled')}
         </option>
       ))}
     </select>

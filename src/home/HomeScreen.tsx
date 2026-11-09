@@ -19,6 +19,7 @@ import { TasksTab } from './TasksTab'
 import { TimerCard } from './TimerCard'
 import { Top3 } from './Top3'
 import { useTasks, useToday } from './useHomeData'
+import { Icon } from '../app/tools/icons'
 
 const TABS = ['today', 'tasks', 'plan', 'routines', 'reports'] as const
 type Tab = (typeof TABS)[number]
@@ -134,7 +135,8 @@ export function HomeScreen({
             onClick={deps.openToday}
             className="min-h-11 rounded-lg border border-line px-3 text-start text-sm hover:border-accent"
           >
-            ☀ {t('space.home.today', { date: dayMonthLabel(today) })}
+            <Icon name="sun" size={16} className="me-1 inline" />
+            {t('space.home.today', { date: dayMonthLabel(today) })}
           </button>
           <Top3 db={db} tasks={tasks} today={today} />
           <TimerCard db={db} projects={projects} />

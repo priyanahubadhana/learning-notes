@@ -103,14 +103,14 @@ export function PageTags({
               ? [
                   {
                     label: t('tags.showTagged'),
-                    icon: '🔍',
+                    icon: 'search',
                     onSelect: () => onOpenTag(menu.tagId),
                   },
                 ]
               : []),
             {
               label: t('tags.removeFromPage'),
-              icon: '✕',
+              icon: 'close',
               onSelect: () => runTask(removePageTag(db, pageId, menu.tagId)),
             },
           ]}

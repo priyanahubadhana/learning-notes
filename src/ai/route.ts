@@ -224,6 +224,10 @@ export async function callAi(
           notebookId: req.log?.notebookId,
           feature: req.log?.feature ?? 'other',
           host: PROVIDERS[key.provider].host,
+          keyId: key.id,
+          model: c.model,
+          inputTokens: result.inputTokens,
+          outputTokens: result.outputTokens,
           costUsd: costOf(
             key.provider,
             c.model,

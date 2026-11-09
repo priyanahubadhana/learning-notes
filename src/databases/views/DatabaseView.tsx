@@ -201,7 +201,7 @@ export function DatabaseView({
             }}
           />
           <PopItem
-            icon="🗑"
+            icon="trash"
             label={t('database.deleteView')}
             onClick={() => {
               setMenu(null)

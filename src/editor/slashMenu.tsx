@@ -8,6 +8,7 @@ import { newMindMap, serializeMindMap } from './mindMap/model'
 import { cardSlashItem, type NestedCardPlace } from './cardActions'
 import { t } from '../i18n/t'
 import type { AppSchema } from './schema'
+import { Icon } from '../app/tools/icons'
 
 type Editor = AppSchema['BlockNoteEditor']
 
@@ -75,7 +76,7 @@ export function buildSlashMenuItems(
     subtext: t('slash.callout.subtext'),
     aliases: ['callout', 'note', 'tip', 'info', 'highlight'],
     group: items[quoteIndex]?.group ?? 'Basic blocks',
-    icon: <span aria-hidden>💡</span>,
+    icon: <Icon name="lightbulb" size={18} />,
     onItemClick: () =>
       insertOrUpdateBlockForSlashMenu(editor, { type: 'callout' }),
   }
@@ -86,7 +87,7 @@ export function buildSlashMenuItems(
     subtext: t('cardList.slash.subtext'),
     aliases: ['cards', 'list', 'flashcards', 'deck'],
     group: t('card.slash.group'),
-    icon: <span aria-hidden>🗂</span>,
+    icon: <Icon name="inbox" size={18} />,
     onItemClick: () =>
       insertOrUpdateBlockForSlashMenu(editor, { type: 'cardList' }),
   })
@@ -96,7 +97,7 @@ export function buildSlashMenuItems(
     subtext: t('mm.slash.subtext'),
     aliases: ['mind map', 'mindmap', 'map', 'tree', 'brainstorm', 'diagram'],
     group: items[quoteIndex]?.group ?? 'Basic blocks',
-    icon: <span aria-hidden>🧠</span>,
+    icon: <Icon name="layers" size={18} />,
     onItemClick: () =>
       insertOrUpdateBlockForSlashMenu(editor, {
         type: 'mindMap',
@@ -125,7 +126,7 @@ export function buildSlashMenuItems(
     subtext: t('dayRecord.slash.subtext'),
     aliases: ['day record', 'tasks', 'done', 'today', 'record'],
     group: items[quoteIndex]?.group ?? 'Basic blocks',
-    icon: <span aria-hidden>✓</span>,
+    icon: <Icon name="check" size={18} />,
     onItemClick: () =>
       insertOrUpdateBlockForSlashMenu(editor, {
         type: 'dayRecord',
@@ -137,7 +138,7 @@ export function buildSlashMenuItems(
     subtext: t('embed.slash.subtext'),
     aliases: ['youtube', 'video', 'embed', 'link', 'web', 'bookmark'],
     group: items[quoteIndex]?.group ?? 'Basic blocks',
-    icon: <span aria-hidden>▶</span>,
+    icon: <Icon name="play" size={18} />,
     onItemClick: () =>
       insertOrUpdateBlockForSlashMenu(editor, { type: 'embed' }),
   })
@@ -146,7 +147,7 @@ export function buildSlashMenuItems(
     subtext: t('file.slash.subtext'),
     aliases: ['file', 'pdf', 'attach', 'attachment', 'document', 'upload'],
     group: items[quoteIndex]?.group ?? 'Basic blocks',
-    icon: <span aria-hidden>📎</span>,
+    icon: <Icon name="paperclip" size={18} />,
     onItemClick: () =>
       insertOrUpdateBlockForSlashMenu(editor, { type: 'file' }),
   })
@@ -156,7 +157,7 @@ export function buildSlashMenuItems(
       subtext: t('camera.slash.subtext'),
       aliases: ['camera', 'photo', 'picture', 'scan'],
       group: items[quoteIndex]?.group ?? 'Basic blocks',
-      icon: <span aria-hidden>📷</span>,
+      icon: <Icon name="camera" size={18} />,
       onItemClick: onTakePhoto,
     })
   }
@@ -173,7 +174,7 @@ export function buildSlashMenuItems(
     subtext: t('slash.insertTemplate.subtext'),
     aliases: ['template', 'insert'],
     group: t('slash.group.templates'),
-    icon: <span aria-hidden>📋</span>,
+    icon: <Icon name="clipboard" size={18} />,
     onItemClick: onInsertTemplate,
   })
   if (onSaveAsTemplate) {
@@ -182,7 +183,7 @@ export function buildSlashMenuItems(
       subtext: t('slash.saveTemplate.subtext'),
       aliases: ['template', 'save'],
       group: t('slash.group.templates'),
-      icon: <span aria-hidden>💾</span>,
+      icon: <Icon name="save" size={18} />,
       onItemClick: onSaveAsTemplate,
     })
   }
@@ -191,7 +192,7 @@ export function buildSlashMenuItems(
     subtext: t('slash.subpage.subtext'),
     aliases: ['page', 'subpage', 'sub-page'],
     group: t('slash.group.pages'),
-    icon: <span aria-hidden>📄</span>,
+    icon: <Icon name="fileText" size={18} />,
     onItemClick: onNewSubPage,
   })
   items.push({
@@ -199,7 +200,7 @@ export function buildSlashMenuItems(
     subtext: t('links.slash.subtext'),
     aliases: ['link', 'page', 'heading', '[['],
     group: 'Pages',
-    icon: <span aria-hidden>🔗</span>,
+    icon: <Icon name="link" size={18} />,
     onItemClick: onLinkPage,
   })
   return items

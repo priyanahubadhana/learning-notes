@@ -42,6 +42,7 @@ import { useLongPress } from '../app/useLongPress'
 import type { ReviewScope } from '../recall/reviewService'
 import { countDue } from '../recall/reviewLazy'
 import { deleteNotebook, moveNotebook, renameNotebook } from './notebookService'
+import { Icon } from '../app/tools/icons'
 
 interface SidebarProps {
   db: LearningNotesDB
@@ -382,7 +383,7 @@ export function Sidebar({
             aria-label={t('sidebar.openToday')}
             className="mb-1 flex min-h-9 any-pointer-coarse:min-h-11 w-full items-center gap-2 rounded-lg border border-line bg-bg px-2.5 py-1.5 text-left text-sm transition-colors hover:border-accent"
           >
-            <span aria-hidden>☀</span>
+            <Icon name="sun" size={16} />
             <span className="flex-1">
               {t('sidebar.todayLabel', {
                 date: shortDayLabel(dateKey(new Date())),
@@ -404,7 +405,7 @@ export function Sidebar({
           }`}
         >
           <span aria-hidden className="text-muted">
-            🔍
+            <Icon name="search" size={18} />
           </span>
           <span className="flex-1">{t('search.sidebar')}</span>
           <kbd className="rounded border border-line bg-side px-1 font-mono text-[11px] text-muted">
@@ -548,8 +549,20 @@ export function Sidebar({
                             onDoubleClick={() => rename(notebook)}
                             className="line-clamp-2 flex-1 text-left font-semibold break-words"
                           >
-                            {notebook.locked ? '🔒 ' : ''}
-                            {notebook.editLocked ? '🔏 ' : ''}
+                            {notebook.locked && (
+                              <Icon
+                                name="lock"
+                                size={13}
+                                className="me-1 inline"
+                              />
+                            )}
+                            {notebook.editLocked && (
+                              <Icon
+                                name="lockKeyhole"
+                                size={13}
+                                className="me-1 inline"
+                              />
+                            )}
                             {displayName(sampleName(notebook)) ||
                               t('review.untitled')}
                           </button>
@@ -606,7 +619,7 @@ export function Sidebar({
                           tip="sidebar.deleteNotebook"
                           onClick={() => requestNotebookDelete(notebook)}
                         >
-                          ✕
+                          <Icon name="close" size={18} />
                         </IconButton>
                       </span>
                     </div>
@@ -666,13 +679,13 @@ export function Sidebar({
           items={[
             {
               label: t('sidebar.blankPage'),
-              icon: '📄',
+              icon: 'fileText',
               onSelect: () =>
                 onCreatePage(addMenu.notebookId, addMenu.parentId),
             },
             {
               label: t('sidebar.fromTemplate'),
-              icon: '📋',
+              icon: 'clipboard',
               onSelect: () =>
                 runTask(
                   chooseTemplate('new').then((templateId) => {

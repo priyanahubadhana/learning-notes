@@ -199,7 +199,7 @@ export function DashboardView({ db, database, view }: ViewProps) {
           )}
           <PopSeparator />
           <PopItem
-            icon="🗑"
+            icon="trash"
             label={t('dashboard.delete')}
             onClick={() => {
               setMenu(null)

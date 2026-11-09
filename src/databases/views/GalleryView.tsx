@@ -330,7 +330,7 @@ export function GalleryView({ db, database, view, onOpenPage }: ViewProps) {
           {links.map((c) => (
             <PopItem
               key={c.id}
-              icon="🔗"
+              icon="link"
               label={c.name}
               on={imageColumn?.id === c.id}
               onClick={() => save({ imageColumnId: c.id })}

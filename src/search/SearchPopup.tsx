@@ -219,7 +219,7 @@ export function SearchPopup({
           <MenuIcon />
         </button>
         <span aria-hidden className="text-muted">
-          🔍
+          <Icon name="search" size={18} />
         </span>
         <input
           ref={inputRef}

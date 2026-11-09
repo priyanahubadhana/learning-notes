@@ -13,6 +13,7 @@ import { deleteDeck, listDecks } from './deckService'
 import { listPaused, resumeItem } from './pauseService'
 import { scopeCounts, type ReviewScope } from './reviewService'
 import { useMinuteClock } from './useMinuteClock'
+import { Icon } from '../app/tools/icons'
 
 /**
  * The Review home (E1): "All cards" and your decks as tiles with three
@@ -87,7 +88,7 @@ export function ReviewHome({
         <EmptyState
           testId="decks-empty"
           className="mt-3"
-          icon="🗂"
+          icon="inbox"
           text={t('decks.empty')}
           action={t('empty.decks.action')}
           onAction={() => setEditing({})}
@@ -250,7 +251,7 @@ function DeckTile({
             aria-label={t('decks.deleteNamed', { name })}
             className="grid size-11 place-items-center rounded-lg text-muted hover:bg-hover"
           >
-            🗑
+            <Icon name="trash" size={18} />
           </button>
         )}
       </div>

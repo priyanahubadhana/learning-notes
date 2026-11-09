@@ -88,7 +88,7 @@ export async function runCleanup(
     prompt: composeCleanup(prompt, text),
     maxTokens: answerTokens(text),
     fetchImpl: o.fetchImpl,
-    log: { notebookId: o.notebookId, feature: 'prompt' },
+    log: { notebookId: o.notebookId, feature: 'cleanup' },
   })
   // A reply wrapped in one code fence is unwrapped.
   const fenced = /^\s*```(?:markdown|md)?\n([\s\S]*?)\n```\s*$/.exec(r.text)

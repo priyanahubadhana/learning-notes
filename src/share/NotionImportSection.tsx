@@ -1,3 +1,4 @@
+import { sampleName } from '../i18n/defaultNames'
 import { useContext, useState } from 'react'
 import { AppUiContext } from '../app/appUi'
 import { ConfirmDialog } from '../app/ui'
@@ -135,7 +136,7 @@ export function NotionImportSection({
           <option value="">{t('notion.newNotebook')}</option>
           {notebooks.map((n) => (
             <option key={n.id} value={n.id}>
-              {n.title || t('review.untitled')}
+              {sampleName(n) || t('review.untitled')}
             </option>
           ))}
         </select>

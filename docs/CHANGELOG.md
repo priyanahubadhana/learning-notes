@@ -2,7 +2,15 @@
 
 Current phase only. Older entries are in [ARCHIVE.md](ARCHIVE.md).
 
+## 2026-11-09 (Page tabs simplified)
+
+- **What:** Settings › Page tabs now has only "Tabs for new notebooks" plus one line pointing to the ⋯ on a notebook's tab row; the per-notebook list is gone. Default notebook name now reads "Untitled notebook" (es/hi too); old stored "New notebook" shows the same via displayName/sampleName, which the notebook lists in AI permissions, skills, data, Notion and NotebookLM import now use.
+- **Why:** the long list repeated identical rows and confused the owner.
+- **Files:** src/settings/{PageTabsSection,SettingsScreen}.tsx, src/i18n/{en,es6,hi6,enNlm,esNlm,hiNlm,defaultNames(.test)}.ts, src/ai/PermissionsSection.tsx, src/prompts/SkillPreview.tsx, src/share/{DataScreen,NotionImportSection}.tsx, src/share/notebooklm/NotebookLmImport.tsx, e2e/{helpers,nameSheet.spec}.ts.
+
 ## 2026-11-09 (Rail line icons)
+
+- **Follow-up:** removed the native title tooltip (the help tip stays). Emoji used as UI icons replaced by Lucide through the shared Icon/Glyph (src/app/tools/icons.tsx; menu, empty-state, banner and database popover icons accept an icon name, anything else is shown as the user's own emoji): sidebar, left panel, page tree, page view, slash menu, library, review, home, search, close buttons (popups, sheets, panels), quiet corner, reading player, database column types and menus, paper menus. Left as text: lock marks inside titles in search/calendar/path, geometric view glyphs, paper colour dots, export/import text.
 
 - **What:** the icon rail (Home, Library, Notebooks, Review) and its quiet corner (Settings) now use Lucide line icons (House, BookOpen, Notebook, Brain, Settings; 21 px, stroke 1.75) instead of emoji. Ink-soft at rest, accent on accent-soft pill when active, title tooltip plus unchanged aria-label, 44 px targets. Other emoji used as UI icons (e.g. lock, trash, pin, slash menu, sidebar rows, Templates, Library header) are listed in the report, not yet replaced.
 - **Why:** colourful emoji looked old; one icon set, one stroke.

@@ -210,7 +210,7 @@ export function TasksTab({
         {buckets.inbox.length === 0 ? (
           <EmptyState
             testId="inbox-empty"
-            icon="✅"
+            icon="circleCheck"
             text={t('home.inbox.empty')}
             action={t('empty.tasks.action')}
             onAction={() => quickAdd.current?.focus()}

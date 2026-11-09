@@ -63,7 +63,7 @@ export default function PageRowMenu({
       },
       {
         label: t(page.locked ? 'lock.menu.remove.page' : 'lock.menu.lock.page'),
-        icon: '🔒',
+        icon: 'lock',
         onSelect: () => runTask(toggleLock(db, 'page', page.id, toast)),
       },
     )

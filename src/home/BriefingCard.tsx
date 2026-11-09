@@ -1,5 +1,6 @@
 import { t } from '../i18n/t'
 import type { Briefing } from './briefing'
+import { Icon } from '../app/tools/icons'
 
 /**
  * The Briefing (F3), at the top of Home: short lines about today, nothing
@@ -69,7 +70,7 @@ export function BriefingCard({
             className="flex items-center gap-2"
           >
             <span aria-hidden className="font-bold text-danger">
-              ✕
+              <Icon name="close" size={18} />
             </span>
             <span>{t('home.brief.missed', { name: h.name })}</span>
           </li>

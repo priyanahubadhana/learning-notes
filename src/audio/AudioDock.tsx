@@ -19,6 +19,7 @@ import {
   listRecordings,
   restoreRecording,
 } from './recordingService'
+import { Icon } from '../app/tools/icons'
 
 const button =
   'inline-flex min-h-11 min-w-11 items-center justify-center rounded-lg border border-line px-3 text-sm text-ink hover:bg-hover focus-visible:outline-2 focus-visible:outline-accent'
@@ -225,7 +226,7 @@ function AudioPanel({
           onClick={() => setAudioPanel(false)}
           aria-label={t('audio.panel.close')}
         >
-          ✕
+          <Icon name="close" size={18} />
         </IconButton>
       </div>
       <div className="overflow-y-auto p-3">

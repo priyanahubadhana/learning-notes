@@ -159,7 +159,7 @@ export function NotesTab({
         <EmptyState
           testId="notebook-empty"
           className="mb-3"
-          icon="📄"
+          icon="fileText"
           text={t('notebook.noPages')}
           action={t('notebook.newPage')}
           onAction={onCreatePage}

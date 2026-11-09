@@ -1,4 +1,5 @@
 import { t } from '../../i18n/t'
+import { Icon } from './icons'
 
 /**
  * The visible ✕ every pop-up, menu and tray carries (44 px target, named
@@ -12,9 +13,9 @@ export function PopupClose({ onClose }: { onClose: () => void }) {
       aria-label={t('popup.close')}
       onMouseDown={(e) => e.preventDefault()}
       onClick={onClose}
-      className="grid size-11 shrink-0 place-items-center rounded-lg text-lg leading-none text-ink-soft hover:bg-hover hover:text-ink"
+      className="grid size-11 shrink-0 place-items-center rounded-lg text-ink-soft hover:bg-hover hover:text-ink"
     >
-      <span aria-hidden>✕</span>
+      <Icon name="close" size={18} />
     </button>
   )
 }

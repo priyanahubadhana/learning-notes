@@ -8,6 +8,7 @@ import { PopupHeader } from './tools/PopupClose'
 import { t } from '../i18n/t'
 import { touchUi } from './touchUi'
 import type { ChoiceRequest, ToastAction } from './appUi'
+import { Glyph, Icon } from './tools/icons'
 
 /** Small UI building blocks shared across features. */
 
@@ -152,7 +153,7 @@ export function EmptyState({
       className={`flex flex-col items-center gap-2 rounded-xl border border-dashed border-line p-5 text-center ${className}`}
     >
       <span aria-hidden className="text-2xl">
-        {icon}
+        <Glyph icon={icon} size={28} />
       </span>
       <p className="max-w-md text-sm text-muted">{text}</p>
       {action && onAction && (
@@ -309,7 +310,15 @@ export function MenuPopover({
             aria-hidden
             className={`w-5 text-center ${item.danger ? 'text-danger' : 'text-muted'}`}
           >
-            {item.checked !== undefined ? (item.checked ? '✓' : '') : item.icon}
+            {item.checked !== undefined ? (
+              item.checked ? (
+                <Icon name="check" size={16} />
+              ) : (
+                ''
+              )
+            ) : (
+              <Glyph icon={item.icon} />
+            )}
           </span>
           <span className="flex-1">
             {item.label}

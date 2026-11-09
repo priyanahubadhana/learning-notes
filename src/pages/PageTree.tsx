@@ -27,6 +27,7 @@ import {
   movePageToTopLevel,
   renamePage,
 } from './pageService'
+import { Icon } from '../app/tools/icons'
 
 interface PageTreeProps {
   db: LearningNotesDB
@@ -213,8 +214,12 @@ export function PageTree({
                 onDoubleClick={() => startRename(page)}
                 className="line-clamp-2 min-w-[5rem] flex-1 text-left break-words"
               >
-                {page.locked ? '🔒 ' : ''}
-                {page.editLocked ? '🔏 ' : ''}
+                {page.locked && (
+                  <Icon name="lock" size={13} className="me-1 inline" />
+                )}
+                {page.editLocked && (
+                  <Icon name="lockKeyhole" size={13} className="me-1 inline" />
+                )}
                 {page.journalDate && !page.customTitle
                   ? shortDayLabel(page.journalDate)
                   : page.journalMonth && !page.customTitle
@@ -293,7 +298,7 @@ export function PageTree({
                 tip="sidebar.deletePage"
                 onClick={() => onRequestDelete(page, affectsCurrent)}
               >
-                ✕
+                <Icon name="close" size={18} />
               </IconButton>
             </span>
           </div>

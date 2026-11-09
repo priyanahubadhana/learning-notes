@@ -87,6 +87,7 @@ import {
 } from '../app/reading/useReadingSettings'
 import { readingEntrySetting } from '../settings/readingSettings'
 import { openReader } from '../app/reading/readingTools'
+import { Glyph, Icon } from '../app/tools/icons'
 
 const PromptsDialog = lazy(() => import('../prompts/PromptsDialog'))
 
@@ -306,8 +307,8 @@ export function PageView({
           },
         ]
       : []),
-    { label: t('history.button'), icon: '🕘', onSelect: openHistory },
-    { label: t('tool.readerFull'), icon: '📖', onSelect: openReader },
+    { label: t('history.button'), icon: 'history', onSelect: openHistory },
+    { label: t('tool.readerFull'), icon: 'bookOpen', onSelect: openReader },
     ...(isTemplate ? [] : paperItems),
     ...lockItem,
     ...(editLockBy === 'notebook'
@@ -325,7 +326,7 @@ export function PageView({
       ? [
           {
             label: t('page.saveTemplate'),
-            icon: '📋',
+            icon: 'clipboard',
             onSelect: saveTemplate,
           },
         ]
@@ -346,7 +347,7 @@ export function PageView({
     },
     {
       label: t('panel.open'),
-      icon: '🔍',
+      icon: 'search',
       hint: shortcutShiftLabel('K'),
       onSelect: () => getAppActions()?.openControlPanel(),
     },
@@ -492,7 +493,7 @@ export function PageView({
 
       <div style={{ display: reader ? 'none' : 'contents' }}>
         {isTemplate && (
-          <Banner icon="📋">
+          <Banner icon="clipboard">
             <span className="min-w-[160px] flex-1">
               <b className="font-semibold text-ink">
                 {t('page.template.title')}
@@ -509,7 +510,7 @@ export function PageView({
           </Banner>
         )}
         {isToday && (
-          <Banner icon="☀">
+          <Banner icon="sun">
             <span className="flex-1">
               <b className="font-semibold text-ink">{t('page.today.title')}</b>
               {t('page.today.text')}
@@ -533,7 +534,7 @@ export function PageView({
           }
           className="mb-3 flex min-h-11 w-full items-center gap-2 rounded-lg bg-soft px-3 py-2 text-left text-sm text-ink-soft hover:bg-hover"
         >
-          <span aria-hidden>🔏</span>
+          <Icon name="lockKeyhole" size={14} aria-hidden />
           {t(editLockBy === 'page' ? 'editLock.bar' : 'editLock.barNotebook')}
         </button>
       )}
@@ -764,7 +765,9 @@ function Banner({
 }) {
   return (
     <div className="mb-5 flex flex-wrap items-center gap-2.5 rounded-[10px] bg-soft px-3.5 py-2.5 text-[13px] text-muted">
-      <span aria-hidden>{icon}</span>
+      <span aria-hidden>
+        <Glyph icon={icon} size={16} />
+      </span>
       {children}
     </div>
   )

@@ -492,7 +492,7 @@ export function MiniToolbar({ editor }: { editor: Editor }) {
           }}
           className="grid min-h-11 min-w-11 place-items-center rounded-xl text-ink-soft hover:bg-hover"
         >
-          <span aria-hidden>✕</span>
+          <Icon name="close" size={18} />
         </button>
         {more && (
           <div

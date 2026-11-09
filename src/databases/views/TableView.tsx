@@ -56,6 +56,7 @@ import {
 } from './viewConfig'
 import { useDatabaseData } from './useDatabaseData'
 import type { ViewProps } from './viewTypes'
+import { Glyph } from '../../app/tools/icons'
 
 /** Column widths until the user drags one (pixels). */
 const TITLE_WIDTH = 208
@@ -234,7 +235,12 @@ export function TableView({ db, database, view, onOpenPage }: ViewProps) {
           }
           className="flex min-h-8 max-w-full items-center gap-1.5 rounded-md px-1 hover:bg-hover hover:text-ink"
         >
-          <span aria-hidden>{column ? columnIcon(column) : '↗'}</span>
+          <span aria-hidden>
+            <Glyph
+              icon={column ? columnIcon(column) : 'arrowUpRight'}
+              size={16}
+            />
+          </span>
           <span className="min-w-0 truncate">{nameOf(columnId)}</span>
           {column && isAutoColumn(column) && (
             <span className="rounded bg-hover px-1 py-px text-[10.5px]">

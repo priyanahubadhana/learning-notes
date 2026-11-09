@@ -113,10 +113,10 @@ export function PageAiActions({
               anchor={chipAt}
               onClose={() => setChipAt(null)}
               items={[
-                { label: t('capture.keepAi'), icon: '✓', onSelect: keep },
+                { label: t('capture.keepAi'), icon: 'check', onSelect: keep },
                 {
                   label: t('capture.removeAi'),
-                  icon: '🗑',
+                  icon: 'trash',
                   onSelect: remove,
                   danger: true,
                 },

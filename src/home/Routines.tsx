@@ -28,6 +28,7 @@ import {
   strip,
   type DayState,
 } from './habitService'
+import { Icon } from '../app/tools/icons'
 
 const ROUTINES = ['morning', 'night', 'daily'] as const
 
@@ -67,7 +68,13 @@ function Strip({
                 : 'text-muted'
           }`}
         >
-          {state === 'done' ? '✓' : state === 'missed' ? '✕' : '·'}
+          {state === 'done' ? (
+            <Icon name="check" size={14} />
+          ) : state === 'missed' ? (
+            <Icon name="close" size={14} />
+          ) : (
+            '·'
+          )}
         </li>
       ))}
     </ul>
@@ -132,7 +139,7 @@ function PlayButton({ db, habit }: { db: LearningNotesDB; habit: Habit }) {
       onClick={() => runTask(play())}
       className="grid size-11 shrink-0 place-items-center rounded-lg border border-line"
     >
-      {playing ? '⏹' : '▶'}
+      <Icon name={playing ? 'square' : 'play'} size={18} />
     </IconButton>
   )
 }
@@ -302,7 +309,7 @@ export function Routines({
       {habits.filter(isLive).length === 0 && (
         <EmptyState
           testId="routines-empty"
-          icon="🌅"
+          icon="sunrise"
           text={t('empty.routines')}
           action={t('empty.routines.action')}
           onAction={() =>
@@ -358,7 +365,7 @@ export function Routines({
                             : 'border-ink-soft'
                         }`}
                       >
-                        {done ? '✓' : ''}
+                        {done ? <Icon name="check" size={14} /> : ''}
                       </span>
                     </IconButton>
                     <span className="min-w-0 flex-1 py-2 text-sm break-words">

@@ -1,4 +1,5 @@
 import { useEffect, useRef, type ReactNode } from 'react'
+import { Glyph } from '../../app/tools/icons'
 
 /**
  * A panel that opens next to the button that opened it (column menus,
@@ -120,7 +121,7 @@ export function PopItem({
       className="flex min-h-9 w-full items-center gap-2.5 rounded-md px-2.5 py-1 text-start outline-none hover:bg-hover focus-visible:bg-hover"
     >
       <span aria-hidden className="w-5 shrink-0 text-center text-muted">
-        {icon}
+        {typeof icon === 'string' ? <Glyph icon={icon} /> : icon}
       </span>
       <span className="min-w-0 flex-1">
         <span className="block truncate">{label}</span>

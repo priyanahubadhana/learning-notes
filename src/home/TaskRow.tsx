@@ -7,6 +7,7 @@ import type { Project, Task } from '../core/homeTypes'
 import { shortDayLabel } from './dayLabel'
 import { t } from '../i18n/t'
 import { TaskMenu, type TaskActions } from './TaskMenu'
+import { Icon } from '../app/tools/icons'
 
 /**
  * One task: a tick, the title (drag it by the title), a quiet "carried 3×"
@@ -68,7 +69,7 @@ export function TaskRow({
             done ? 'border-accent bg-accent text-white' : 'border-ink-soft'
           }`}
         >
-          {done ? '✓' : ''}
+          {done ? <Icon name="check" size={14} /> : ''}
         </span>
       </IconButton>
       <div

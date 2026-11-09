@@ -40,6 +40,7 @@ import {
   savedThemes,
 } from './savedThemes'
 import type { ReadingSettings } from './useReadingSettings'
+import { Icon } from '../tools/icons'
 
 /**
  * The Aa sheet (B1): the reading look in four tabs, the same in the
@@ -197,7 +198,7 @@ export function AaSheet({
                   onClick={() => removeSavedLook(look.name)}
                   className="grid size-11 place-items-center rounded-lg text-muted hover:bg-hover"
                 >
-                  <span aria-hidden>✕</span>
+                  <Icon name="close" size={18} />
                 </button>
               </li>
             ))}

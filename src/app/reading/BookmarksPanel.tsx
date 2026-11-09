@@ -14,6 +14,7 @@ import {
   type Bookmark,
 } from './readingMarks'
 import type { ReadingPosition } from './useReadingPosition'
+import { Icon } from '../tools/icons'
 
 /**
  * Bookmarks (B2): their own panel (separate from Contents). Each shows a
@@ -104,7 +105,7 @@ export function BookmarksPanel({
                 onClick={() => remove(m)}
                 className="grid min-h-11 min-w-11 place-items-center rounded-lg text-muted hover:bg-hover"
               >
-                <span aria-hidden>🗑</span>
+                <Icon name="trash" size={16} />
               </button>
             </li>
           ))}

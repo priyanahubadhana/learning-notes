@@ -14,6 +14,7 @@ import {
   top3Marks,
 } from '../core/taskService'
 import { t } from '../i18n/t'
+import { Icon } from '../app/tools/icons'
 
 /**
  * Top 3 for today (F2): up to three tasks you pick yourself, a "2 of 3"
@@ -97,7 +98,7 @@ export function Top3({
                     : 'border-ink-soft'
                 }`}
               >
-                {task.status === 'done' ? '✓' : ''}
+                {task.status === 'done' ? <Icon name="check" size={14} /> : ''}
               </span>
             </IconButton>
             <span
@@ -173,7 +174,7 @@ export function Top3({
                   )}
                   className={mark === 'done' ? 'text-accent' : 'text-danger'}
                 >
-                  {mark === 'done' ? '✓' : '✕'}
+                  <Icon name={mark === 'done' ? 'check' : 'close'} size={16} />
                 </span>
                 <span className="break-words">{task.title}</span>
               </li>

@@ -812,7 +812,7 @@ export function BoardView({ db, database, view, onOpenPage }: ViewProps) {
           onClose={() => setMenu(null)}
         >
           <PopItem
-            icon="↗"
+            icon="arrowUpRight"
             label={t('board.open')}
             onClick={() => {
               setMenu(null)

@@ -1,3 +1,4 @@
+import { sampleName } from '../i18n/defaultNames'
 import { useMemo, useState } from 'react'
 import { runTask } from '../app/errors'
 import { t, type MessageKey } from '../i18n/t'
@@ -429,7 +430,7 @@ export function SkillPreview({
             <option value="new">{t('prompts.newNotebook')}</option>
             {notebooks.map((n) => (
               <option key={n.id} value={n.id}>
-                {n.title || t('prompts.untitled')}
+                {sampleName(n) || t('prompts.untitled')}
               </option>
             ))}
           </select>

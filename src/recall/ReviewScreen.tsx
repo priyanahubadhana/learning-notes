@@ -593,7 +593,7 @@ function Finished({
       ) : (
         <EmptyState
           testId="review-empty"
-          icon={canPractice ? '✅' : '🃏'}
+          icon={canPractice ? 'circleCheck' : 'cards'}
           text={emptyMessage}
           action={canPractice ? t('review.practice') : t('review.back')}
           onAction={canPractice ? onPractice : onClose}

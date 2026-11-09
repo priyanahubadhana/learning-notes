@@ -158,7 +158,7 @@ export function usePaperBoxes(
   const items = (box: PaperBox): MenuItem[] => [
     {
       label: t(box.locked ? 'paper.box.unlock' : 'paper.box.lock'),
-      icon: box.locked ? '🔓' : '🔒',
+      icon: box.locked ? 'lockOpen' : 'lock',
       onSelect: () =>
         onBoxChange(box.id, { locked: box.locked ? undefined : true }),
     },
@@ -172,7 +172,7 @@ export function usePaperBoxes(
     },
     {
       label: t('paper.box.colour'),
-      icon: '🎨',
+      icon: 'palette',
       onSelect: () => {},
       submenu: [
         ...Object.keys(BOX_COLOURS).map((name): MenuItem => ({
@@ -191,7 +191,7 @@ export function usePaperBoxes(
     },
     {
       label: t('paper.box.delete'),
-      icon: '🗑',
+      icon: 'trash',
       danger: true,
       onSelect: () =>
         runTask(

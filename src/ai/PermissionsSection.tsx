@@ -1,3 +1,4 @@
+import { sampleName } from '../i18n/defaultNames'
 import { useLiveQuery } from 'dexie-react-hooks'
 import { formatCap, formatCost } from './costCurrency'
 import type { LearningNotesDB } from '../core/db'
@@ -69,7 +70,7 @@ export function PermissionsSection({ db }: { db: LearningNotesDB }) {
                   }
                   className="size-5"
                 />
-                {n.title || t('review.untitled')}
+                {sampleName(n) || t('review.untitled')}
               </label>
               {n.allowAi && (
                 <label className="ml-8 flex min-h-11 items-center gap-3 text-xs text-muted">

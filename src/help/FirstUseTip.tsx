@@ -2,6 +2,7 @@ import { useEffect } from 'react'
 import { t, type MessageKey } from '../i18n/t'
 import { activeTool, openCard } from '../app/tools/main/mainTools'
 import { dismissFirstUse, firstUseTip, triggerFirstUse } from './firstUse'
+import { Icon } from '../app/tools/icons'
 
 /** The small line for a first-use tip (it also watches the tools that raise one). */
 export function FirstUseTip() {
@@ -36,7 +37,7 @@ export function FirstUseTip() {
         aria-label={t('popup.close')}
         className="grid min-h-11 min-w-11 shrink-0 place-items-center rounded-md text-ink-soft hover:bg-hover"
       >
-        <span aria-hidden>✕</span>
+        <Icon name="close" size={18} />
       </button>
     </div>
   )

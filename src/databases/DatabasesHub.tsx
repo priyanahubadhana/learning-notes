@@ -263,7 +263,7 @@ export function DatabaseScreen({
                 {
                   label: t('databases.delete'),
                   danger: true,
-                  icon: '🗑',
+                  icon: 'trash',
                   onSelect: () =>
                     runTask(
                       deleteDatabase(db, database.id).then(() => {

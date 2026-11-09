@@ -1,5 +1,10 @@
 import { useState } from 'react'
-import { formatCost } from './costCurrency'
+import {
+  formatCost,
+  fromCurrency,
+  limitToInput,
+  readCostCurrency,
+} from './costCurrency'
 import { t } from '../i18n/t'
 import {
   addKey,
@@ -287,19 +292,19 @@ function KeyRow({
       )}
       <div className="flex flex-wrap items-center gap-3 text-muted">
         <label className="flex items-center gap-2">
-          {t('ai.keys.cap')}
+          {t('ai.keys.cap', { currency: readCostCurrency().code })}
           <input
             type="number"
             min={0}
-            max={10000}
-            step={1}
-            placeholder={String(defaultCap)}
-            defaultValue={k.capUsd ?? ''}
+            step="any"
+            placeholder={String(limitToInput(defaultCap))}
+            defaultValue={k.capUsd === undefined ? '' : limitToInput(k.capUsd)}
             data-testid="ai-key-cap"
             onChange={(e) => {
               const raw = e.target.value
               if (raw === '') setKeyCap(k.id, undefined)
-              else if (isCap(Number(raw))) setKeyCap(k.id, Number(raw))
+              else if (isCap(fromCurrency(Number(raw))))
+                setKeyCap(k.id, fromCurrency(Number(raw)))
               onChange()
             }}
             className="min-h-11 w-24 rounded-lg border border-line bg-bg px-2 text-sm outline-none focus:border-accent"

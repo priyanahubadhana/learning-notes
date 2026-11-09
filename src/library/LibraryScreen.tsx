@@ -172,7 +172,7 @@ export function LibraryScreen({
         <EmptyState
           testId="library-empty"
           className="mt-10"
-          icon="📚"
+          icon="bookOpen"
           text={t(filter === 'all' ? 'library.empty' : 'library.emptyFilter')}
           action={filter === 'all' ? t('empty.library.action') : undefined}
           onAction={() => fileInput.current?.click()}
@@ -275,10 +275,14 @@ function SourceCard({
           anchor={menuAt}
           onClose={() => setMenuAt(null)}
           items={[
-            { label: t('library.openNotes'), icon: '📄', onSelect: onOpenPage },
+            {
+              label: t('library.openNotes'),
+              icon: 'fileText',
+              onSelect: onOpenPage,
+            },
             {
               label: t('ui.delete'),
-              icon: '🗑',
+              icon: 'trash',
               onSelect: onDelete,
               danger: true,
             },
@@ -320,8 +324,8 @@ function SourceCard({
             : status === 'finished'
               ? t('library.readAgain')
               : status === 'reading'
-                ? `▶ ${t('library.continue')}`
-                : `▶ ${t('library.startReading')}`}
+                ? t('library.continue')
+                : t('library.startReading')}
         </button>
       </div>
     </article>

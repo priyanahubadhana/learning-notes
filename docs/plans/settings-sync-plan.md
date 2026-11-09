@@ -1,6 +1,6 @@
 # Plan: settings that follow you (settings sync)
 
-Research: [../research/settings-sync-2026-11.md](../research/settings-sync-2026-11.md). Status: proposal, needs the owner's OK. Builder: Sonnet. No new costs, no new server tables.
+Research: [../research/settings-sync-2026-11.md](../research/settings-sync-2026-11.md). Status: approved 9 Nov, built 9 Nov (deviations: DECISIONS). Builder: Sonnet. No new costs, no new server tables.
 
 ## In short
 

@@ -2,6 +2,8 @@
 
 # Handoff
 
+- **Settings that follow you done (9 Nov):** see docs/features/sync.md. Theme, language, AI spending limit etc. sync by default; What syncs panel, tags, row menu, migration notice. Permissions links to AI > Usage and cost. Clash bars only for words (one summary bar). Owner check at the top of owner-checks-pending.md. Not done: reading progress/favourites stay per device; the migration notice has unit tests but no e2e.
+
 - **Notebooks home (9 Nov):** rail Notebooks icon opens a shelf/list of covers (src/notebooks/NotebooksHome.tsx, virtualised); sidebar notebook tiles + due badges; filled rail tile. Left room for a "Views" row (docs/plans/custom-views-plan.md); All/Starred/Recent tabs not built (owner). Owner check at the top of owner-checks-pending.md.
 
 - **iPad scroll feel (9 Nov):** draggable thin handle with 1:1 drag (scrollHints.ts `dragScrollTop`), edge stretch (edgeStretch.ts, ink-safe: transform on the shared scroller content), page tabs on one line. Owner check at the top of owner-checks-pending.md. Not done: handle on the page scroller itself.
@@ -10,7 +12,7 @@
 
 - **Remote sign-out done (9 Nov):** lock "You were signed out", choice dialog (Merge both / this device / cloud) and Start fresh; see docs/features/sync.md and the CHANGELOG. Owner check at the top of owner-checks-pending.md (iPhone/iPad). Sync tests: remoteSignOut.test.ts, sessionEnd.test.ts, e2e/remoteSignOut.spec.ts.
 
-- **AI settings clarity (9 Nov):** AI page order, AI-off card (src/ai/AiOffCard.tsx, aiOffStore.ts), Usage and cost (UsageSection.tsx, usageReport.ts), Settings > Connections (category id still 'apis'). Audit in docs/features/ai.md. Not done: page actions (Summarise etc.) stay hidden when AI is off (no card); Permissions still holds its own spend list and "Everything AI sent" table. Owner check at the top of owner-checks-pending.md.
+- **AI settings clarity (9 Nov):** AI page order, AI-off card (src/ai/AiOffCard.tsx, aiOffStore.ts), Usage and cost (UsageSection.tsx, usageReport.ts), Settings > Connections (category id still 'apis'). Audit in docs/features/ai.md. Not done: page actions (Summarise etc.) stay hidden when AI is off (no card); Permissions now links to Usage and cost. Owner check at the top of owner-checks-pending.md.
 
 - **Accounts required (9 Nov):** welcome step 0 is "Sign in or create an account" (Google, email code, email + password), no skip; Settings > Account has the panel and Connected accounts (src/sync/SignInPanel.tsx, ConnectedAccounts.tsx; connector methods in connectors/supabase.ts + emailAuth.ts; mock in memory.ts, code 123456). Owner must do ACCOUNTS SETUP at the top of owner-checks-pending.md (email provider, templates with the code, redirect URLs, manual linking, SMTP). Not built: hard gate for old signed-out devices (DECISIONS). Research docs/research/accounts-2026-11.md.
 

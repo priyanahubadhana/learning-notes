@@ -2,6 +2,12 @@
 
 Current phase only. Older entries are in [ARCHIVE.md](ARCHIVE.md).
 
+## 2026-11-09 (Settings that follow you)
+
+- **What:** the `settings` table now syncs (record mode). Sync groups with switches (Settings > Sync > What syncs), per-device overrides, tags and a row menu on every setting, Reset this device (Undo), a one-time migration with the oldest clock and a quiet notice with Undo. Theme, language and the AI spending limit follow the account by default; AI keys stay opt-in. Device settings keep their browser value as the live copy and mirror to the record (`settingsMirror.ts`); `writePref` has a hook and `usePref` listens for values from sync.
+- **Also:** Settings > Permissions no longer repeats the spend list and sent table (link to AI > Usage and cost). Clash fix: no "Changed on two devices" bar for blocks without text (video, picture) or position/props-only changes; one summary bar when several.
+- **Files:** src/sync/{tables,merge,SyncSection}, src/settings/{syncGroups,syncPrefs,settingsMirror,settingsMigration,settingsNotice*,settingsService,registry,useSetting,SettingSyncBadge,WhatSyncs,SettingsScreen}, src/app/{uiPrefs,usePref}, src/ai/{costCurrency,AiSection,PermissionsSection}, src/editor/ClashBars.tsx, src/main.tsx, src/i18n/{en,es,hi}SettingsSync.ts, tests (settingsSync, settingsMirror, settingsMigration, syncGroups, engine), e2e/settingsSync.spec.ts, e2e/aiBook.spec.ts, docs.
+
 ## 2026-11-09 (CI: e2e after Lucide icons and scroll handle)
 
 - **What:** a mouse now hits only the last 12 px of the scroll handle (clip-path) so it never covers row buttons; e2e names updated for icons (no emoji in button names: Start reading, locked page and notebook rows).

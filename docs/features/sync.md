@@ -40,6 +40,21 @@ Keep the notes the same on the iPad and the PC, end-to-end encrypted: the server
 
 Sync fields of a record live beside it in `syncState` (Dexie 18), one row per record: `rev` (server revision last seen = the base revision of the next save), `hlc` (clock of the last change), `dirty` (0/1), `fileState`/`fileRef` (files). The device id and clock live in localStorage (`device.ts`), the pull cursor (server seq) in `meta` `sync.cursor`. `formatVersion` travels inside each locked record.
 
+## Settings that follow you (9 Nov 2026)
+
+Plan: [plans/settings-sync-plan.md](../plans/settings-sync-plan.md); research: [research/settings-sync-2026-11.md](../research/settings-sync-2026-11.md).
+
+- **One record per setting** in the `settings` table (now `record` mode: newer edit wins per setting; invalid values read as the default). The clock lives in `syncState` as for every table, so rows carry no `hlc` of their own.
+- **Groups** (`settings/syncGroups.ts`): General, Appearance (theme, reduce glass), Review, Reading (look only), AI settings (on/off, model order, key per model, spending limit, privacy OK, currency), Lock; all on by default. **AI keys** is the existing R6-2 opt-in (`ai.keysSync`), off by default. Everything not in a group stays on the device (device mode, tool bars, sizes, Pencil, hints, auto update, zoom, lab flags).
+- **Device side** (`settings/settingsMirror.ts`): the browser keeps the effective value as before (readers unchanged, first paint right). A change made here goes to the record; a record that arrives is applied (open screens update). Per-device **overrides** (`learning-notes:settings.override.v1`) and **group switches** (`settings.syncGroups.v1`) never sync, back up or export. A group that is off keeps its own values and stores incoming records unapplied; turning it on applies them.
+- **Settings > Sync > What syncs**: a switch per group, "Reset this device to synced values" (with Undo). Each setting row shows "All devices", "This device" or "This device only" and a menu: Keep on this device only / Use this device's value everywhere / Reset to synced value.
+- **One-time migration** (`settingsMigration.ts`): values a device already has become records stamped with the oldest clock, so what is on the server wins and a fresh device never overwrites the account; a quiet notice ("N changed to match your other devices", Undo) shows for two minutes after.
+- **Security:** values that look like a key are refused by `setSetting`, the mirror and the migration; the AI list holds key ids only.
+
+## Clash bars
+
+A "Changed on two devices" bar is raised only when the losing side has words the winner lacks. Blocks without text (picture, video, embed) and changes of position or props alone merge silently (newest wins). Several clashes on a page show one summary bar.
+
 ## Vendor wall
 
 Vendor code and addresses live only in `src/sync/connectors/` (`supabase.ts`, `google.ts`, `config.ts`); the rest imports `sync/connectors` (its index). ESLint enforces it (`no-restricted-imports`, `no-restricted-syntax` on `supabase.co`, `www.googleapis.com`, `accounts.google.com`). `memory.ts` is the test connector (browser tests set `learning-notes:sync.mock`). No vendor SDK: plain `fetch` (small, and nothing else can call the server).

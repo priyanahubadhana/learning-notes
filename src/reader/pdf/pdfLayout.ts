@@ -85,7 +85,9 @@ export function locatorAt(
   const probe = scrollTop + PAGE_GAP
   let i = 0
   for (let k = 0; k < n; k++) {
-    if (layout.tops[k] <= probe) i = k
+    // A pixel of slack: the browser rounds scrollTop, so a jump to a page
+    // must not land a hair above it and report the page before.
+    if (layout.tops[k] <= probe + 1) i = k
     else break
   }
   const y = (probe - layout.tops[i]) / (layout.heights[i] || 1)

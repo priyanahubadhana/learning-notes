@@ -2,6 +2,10 @@
 
 Current phase only. Older entries are in [ARCHIVE.md](ARCHIVE.md).
 
+## 2026-11-10 (Stabiliser: main green again)
+
+- **Scroll handle:** 24 px wide, with its own 24 px gutter (`padding-inline-end` on a list that has the handle), so it never covers row or column-edge buttons; a handle whose list left the page (a closed menu) goes at once. Picture corner handles are 24 px for a mouse, 44 px for touch (they covered the block menu). Ribbon tabs and the slim tool row fit the narrower frame; PDF page jumps tolerate a rounded scrollTop. Specs updated: habit cross is an icon, review and toggles leave the Notebooks space on purpose, 820 px bar is checked with the sidebar closed. Files: src/app/scrollHints.ts, src/index.css, src/editor/PictureHandles.tsx, src/app/tools/Ribbon.tsx, src/reader/pdf/pdfLayout.ts, src/app/healthCheck.ts (lint), e2e/*.
+
 ## 2026-11-10 (Tools robustness: stuck Lasso, Text, Pencil after use or an app switch)
 
 Plan: [plans/tools-robustness-plan.md](plans/tools-robustness-plan.md). Research: [research/tools-robustness-2026-11.md](research/tools-robustness-2026-11.md). One bullet per step.

@@ -144,7 +144,7 @@ export function Ribbon({
           snap
           className={
             slim
-              ? 'flex min-w-[9rem] flex-1 basis-72 items-center gap-1'
+              ? 'flex min-w-[9rem] flex-1 basis-48 items-center gap-1'
               : 'flex items-stretch gap-1.5 pb-0.5'
           }
         >
@@ -254,7 +254,7 @@ export function Ribbon({
                   onClick={() => choose(name)}
                   style={{ minHeight: size }}
                   className={`relative shrink-0 rounded-xl text-sm motion-safe:transition-colors ${
-                    slim ? 'px-2.5' : 'px-3.5'
+                    slim ? 'px-2.5' : 'px-2.5 min-[1100px]:px-3.5'
                   } ${
                     on
                       ? 'font-semibold text-ink after:absolute after:inset-x-2 after:bottom-1 after:h-0.5 after:rounded-full after:bg-accent'

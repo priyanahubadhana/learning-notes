@@ -86,6 +86,8 @@ test('review a card: reveal, intervals, Again stays hidden until due', async ({
   await expect(review(page)).toContainText('All caught up.')
   await expect(review(page)).toContainText('You reviewed 3 cards.')
   await expect(await reviewButton(page)).toHaveText(/^\S*\s*Review$/)
+  // Looking at the sidebar goes to the Notebooks space: open Review again.
+  await (await reviewButton(page)).click()
 
   // "Got wrong (7 days)": the card rated Again comes back as practice.
   await review(page).getByRole('button', { name: 'Got wrong (7 days)' }).click()

@@ -458,7 +458,7 @@ export function PictureHandles({ editor }: { editor: Host }) {
             onPointerUp={end}
             onPointerCancel={end}
             onLostPointerCapture={() => cancelDrag()}
-            className="fixed z-[var(--z-popup)] grid size-11 -translate-x-1/2 -translate-y-1/2 touch-none place-items-center"
+            className="fixed z-[var(--z-popup)] grid size-6 [@media(pointer:coarse)]:size-11 -translate-x-1/2 -translate-y-1/2 touch-none place-items-center"
             style={spot(c)}
           >
             <span className="size-3.5 rounded-full border-2 border-accent bg-bg" />

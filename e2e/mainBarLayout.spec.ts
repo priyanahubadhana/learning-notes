@@ -23,6 +23,13 @@ for (const [width, height] of [
   }) => {
     await page.setViewportSize({ width, height })
     await openNote(page)
+    // With the rail and the sidebar open a 820 px window leaves the bar a
+    // 444 px column, where it scrolls (R7-14) by design; the one-row check is
+    // for the bar with the sidebar closed.
+    if (width === 820) {
+      await page.getByRole('button', { name: 'Hide menu' }).first().click()
+      await expect(page.locator('aside')).toBeHidden()
+    }
     const buttons = await mainBar(page)
       .locator('button:not([data-scroll-cue])')
       .all()

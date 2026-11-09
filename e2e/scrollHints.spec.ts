@@ -56,7 +56,7 @@ test('the Settings switch is there, and off means no hints', async ({
   await expect(page.locator('.scroll-hint-thumb')).not.toHaveClass(/is-on/)
 })
 
-test('the handle is thin, has a 44 px touch area and drags 1:1', async ({
+test('the handle is thin, has a 24 px touch area and drags 1:1', async ({
   page,
 }) => {
   await page.goto('/')
@@ -67,7 +67,7 @@ test('the handle is thin, has a 44 px touch area and drags 1:1', async ({
   await list.evaluate((el) => (el.scrollTop = 100))
   await expect(thumb).toHaveClass(/is-on/)
   const box = (await thumb.boundingBox())!
-  expect(box.width).toBe(44)
+  expect(box.width).toBe(24)
   expect(box.height).toBeGreaterThanOrEqual(24)
   expect(box.height).toBeLessThanOrEqual(40)
   const bar = await thumb.evaluate((el) =>

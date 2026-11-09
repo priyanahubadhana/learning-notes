@@ -747,12 +747,14 @@ html[data-note-line] .bn-editor {
   scrollbar-width: none;
 }
 /*
- * The handle: a 44 px wide invisible touch area (only while shown) with a thin
- * bar on its right edge: 3 px at rest, 7 px while dragged. Drag = 1:1.
+ * The handle: a 24 px wide invisible touch area (only while shown) with a thin
+ * bar on its right edge: 3 px at rest, 7 px while dragged. Drag = 1:1. A list
+ * that has the handle keeps its own 24 px gutter (padding at its end), so the
+ * handle never covers a row's or header's buttons.
  */
 .scroll-hint-thumb {
   position: fixed;
-  width: 44px;
+  width: 24px;
   opacity: 0;
   pointer-events: none;
   touch-action: none;
@@ -777,10 +779,8 @@ html[data-note-line] .bn-editor {
 .scroll-hint-thumb.is-drag {
   opacity: 1;
 }
-/* Only the last 12 px of the handle takes a press (a clip-path hit area), so the
-   handle never sits over a row's or header's buttons. */
-.scroll-hint-thumb {
-  clip-path: inset(0 0 0 32px);
+[data-scroll-more] {
+  padding-inline-end: 24px;
 }
 .scroll-hint-thumb.is-drag::after {
   width: 7px;

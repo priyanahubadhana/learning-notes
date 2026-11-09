@@ -56,6 +56,9 @@ for (const tab of ['Home', 'Insert', 'Draw', 'View', 'Review']) {
         // Reading mode (and what starts it) covers the bar by design: leave it
         // and check the ribbon is still on the tab it was on (owner note 18).
         await page.getByRole('button', { name: 'Exit reading' }).first().click()
+        // The restored selection opens its own context tab (by design); a caret
+        // puts the bar back on the tab it remembered.
+        await page.locator('.bn-editor').click()
         await expect(tabButton, `${name} stays on ${tab}`).toHaveAttribute(
           'aria-selected',
           'true',

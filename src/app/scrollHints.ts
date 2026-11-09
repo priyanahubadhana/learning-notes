@@ -12,8 +12,8 @@
 const HIDE_MS = 1000
 /** Smallest indicator height (px), so it stays easy to see. */
 const MIN_THUMB = 28
-/** Width of the invisible touch area of the handle (px). */
-const HIT = 44
+/** Width of the handle's own gutter and touch area (px). */
+const HIT = 24
 /** Edge gap of the indicator (px). */
 const INSET = 3
 
@@ -147,7 +147,7 @@ export function installScrollHints(isOn: () => boolean): {
     const box = el.getBoundingClientRect()
     thumb.style.top = `${box.top + el.clientTop + g.top}px`
     thumb.style.height = `${g.height}px`
-    // The hit area is 44 px wide and ends at the list's right edge.
+    // The hit area is 24 px wide and ends at the list's right edge.
     thumb.style.left = `${box.right - el.clientLeft - HIT}px`
     thumb.classList.add('is-on')
     if (!drag) later()
@@ -264,7 +264,23 @@ export function installScrollHints(isOn: () => boolean): {
     passive: true,
   })
   window.addEventListener('resize', soon)
-  const observer = new MutationObserver(soon)
+  // A list that leaves the page (a closed menu) takes its handle along at once,
+  // so a stale handle never sits over what is now under it.
+  const dropIfGone = () => {
+    if (
+      current &&
+      !drag &&
+      (!current.isConnected || current.getClientRects().length === 0)
+    ) {
+      current = null
+      hovered = false
+      thumb.classList.remove('is-on')
+    }
+  }
+  const observer = new MutationObserver(() => {
+    dropIfGone()
+    soon()
+  })
   observer.observe(document.body, { childList: true, subtree: true })
   soon()
 

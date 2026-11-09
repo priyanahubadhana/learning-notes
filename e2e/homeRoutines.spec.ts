@@ -49,7 +49,9 @@ test('tick a habit; a habit missed on an earlier day shows a red cross', async (
   await expect(cells).toHaveCount(7)
   await expect(cells.nth(4)).toHaveAttribute('data-state', 'done') // 5 Nov
   await expect(cells.nth(5)).toHaveAttribute('data-state', 'missed') // 6 Nov
-  await expect(cells.nth(5)).toHaveText('✕')
+  // The red cross is a line icon (not text), named by the cell's label.
+  await expect(cells.nth(5).locator('svg')).toHaveCount(1)
+  await expect(cells.nth(5)).toHaveAttribute('aria-label', /: missed$/)
   await expect(cells.nth(6)).toHaveAttribute('data-state', 'open') // today
 
   // Home shows yesterday's miss in the Briefing.

@@ -9,6 +9,8 @@ import { RecoveryCodeView } from './RecoveryCodeView'
 import {
   dismissArrival,
   dismissMerged,
+  driveLastingState,
+  setUpLastingDrive,
   getSyncStatus,
   reconnectDrive,
   makeNewRecoveryCode,
@@ -235,7 +237,35 @@ function Running({ db }: { db: LearningNotesDB }) {
       {status.needsDriveTap && (
         <p className="text-sm text-muted">{t('sync.driveTap')}</p>
       )}
+      <DriveLasting />
       <NewCode />
+    </div>
+  )
+}
+
+function DriveLasting() {
+  const d = driveLastingState()
+  if (!d) return null
+  const kept = d.state === 'kept'
+  return (
+    <div className="flex flex-col gap-2" data-testid="drive-lasting">
+      <p className="text-sm" role="status">
+        {kept ? t('sync.driveKept') : t('sync.driveWillAsk')}
+      </p>
+      {!kept && (
+        <>
+          {d.note && <p className="text-xs text-muted">{d.note}</p>}
+          <div>
+            <button
+              type="button"
+              className={button}
+              onClick={() => void setUpLastingDrive()}
+            >
+              {t('sync.driveSetUp')}
+            </button>
+          </div>
+        </>
+      )}
     </div>
   )
 }

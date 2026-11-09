@@ -1,4 +1,5 @@
 import { SUPABASE_PUBLISHABLE_KEY, SUPABASE_URL } from './config'
+import { driveNote } from './driveDiag'
 
 /**
  * Client side of the Drive pass keeper (Supabase function `drive-token`):
@@ -72,8 +73,10 @@ export async function storeRefreshToken(
       action: 'store',
       refresh_token: refreshToken,
     })
+    driveNote(res.ok ? 'store ok' : `store refused ${res.status}`)
     return res.ok
   } catch {
+    driveNote('store failed: could not reach the function')
     return false
   }
 }

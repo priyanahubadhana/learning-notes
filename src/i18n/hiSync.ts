@@ -49,6 +49,9 @@ export const hiSync: Record<string, string> = {
   'sync.driveTap':
     'Google Drive को फिर जुड़ने के लिए एक टैप चाहिए (तस्वीरें और अतिरिक्त चाबी तब तक रुकी रहेंगी)।',
   'sync.reconnectDrive': 'Drive फिर जोड़ें',
+  'sync.driveKept': 'Drive: जुड़ा रहता है',
+  'sync.driveWillAsk': 'Drive: फिर जोड़ने को कहेगा (ठीक करने के लिए टैप करें)',
+  'sync.driveSetUp': 'स्थायी कनेक्शन बनाएँ',
   'sync.merged_one':
     '{count} पेज दो डिवाइस पर बदला गया। दूसरा रूप उस पेज के इतिहास में है।',
   'sync.merged_other':

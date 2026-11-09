@@ -2,6 +2,8 @@
 
 # Handoff
 
+- **Drive status line (9 Nov):** Settings > Sync shows if the server holds Drive's key; failures go to the slow-moments log as kind drive (connectors/driveDiag.ts). Root cause of the 0 rows is NOT yet confirmed: the only path that skips the store call is a sign-in reply without provider_refresh_token. Owner check at the top of owner-checks-pending.md; read the grey note it shows.
+
 - **AI cost currency done (9 Nov):** Settings > AI > Cost currency (any currency, editable rate, synced `ai.currency`), all cost lines use it (src/ai/costCurrency.ts). Owner check at the top of owner-checks-pending.md.
 
 - **Ink scrolls natively (9 Nov, night):** overlay inside the page scroller + tiled canvases (src/ink/render.ts, controller.ts); mixed paper page at 4x CPU 17-25 % -> 0.9-3.0 % late frames; ink-over-toolbar drift fixed at the root (no more bounce tracker). Spec docs/features/ink.md (Speed), numbers in docs/research/perf-big-pages-2026-11.md, choices in DECISIONS. iPad owner check at the top of owner-checks-pending.md. Test helpers `painted`, `paintedBox`, `inkClientBox` (e2e/inkHelpers.ts) join the tiles.

@@ -2,6 +2,14 @@
 
 Moved out of HANDOFF on 2026-11-06 (audit) so HANDOFF stays five lines. Newest first; each paragraph names its step. The run decision (master plan) is one owner iPad pass before Sync; the Phase A builder adds its checks at the top. Tick a paragraph by deleting it.
 
+## Drive lasting connection status (9 Nov, after deploy)
+
+What it is: Settings > Sync now says whether Drive stays connected, and why not.
+
+1. Open the live site after the deploy, Settings > Sync. Read the Drive line. "Drive: stays connected" = done (Supabase table drive_tokens has 1 row).
+2. If it says "will ask to reconnect": tap "Set up lasting connection", pick the account, press Allow on Google's permissions screen. Come back: the line should now say "stays connected".
+3. If it still says "will ask", read the small grey line under it and tell the builder; also Settings > Advanced > Slow moments > Copy report has a "drive" line (no secrets). "no Google refresh token" means Google or Supabase did not send one: also remove the app at myaccount.google.com/permissions (Third-party access) and tap the button again, so Google asks afresh.
+
 ## AI cost currency (9 Nov)
 
 What it is: costs can show in any currency you choose, with a rate you type.

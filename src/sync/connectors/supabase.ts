@@ -4,6 +4,7 @@ import {
   SUPABASE_PUBLISHABLE_KEY,
   SUPABASE_URL,
 } from './config'
+import { driveNote, lastDriveNote } from './driveDiag'
 import { createDrivePass } from './drivePass'
 import { revokeServerToken, serverPass, storeRefreshToken } from './driveServer'
 import { preloadGoogle, renewDriveToken } from './google'
@@ -234,6 +235,11 @@ export function supabaseAuth(): AuthProvider {
 
     signIn: () => startSignIn(!flag()),
 
+    driveLasting: () => (flag() ? 'kept' : 'ask'),
+    lastDriveNote,
+    // Re-runs Google's consent so the server gets a refresh token.
+    setUpLasting: () => startSignIn(true),
+
     async finishSignIn(url: URL) {
       const code = url.searchParams.get('code')
       if (url.searchParams.get('sync') !== 'callback') return false
@@ -254,7 +260,11 @@ export function supabaseAuth(): AuthProvider {
       store(session)
       // Google's refresh token goes to the server once (locked there); this
       // device never keeps it.
-      if (reply.provider_refresh_token)
+      if (!reply.provider_refresh_token)
+        driveNote(
+          'sign-in reply had no Google refresh token (consent screen needed)',
+        )
+      else
         flag(
           await storeRefreshToken(
             reply.access_token,

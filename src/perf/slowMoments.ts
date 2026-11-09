@@ -24,7 +24,9 @@ const LONG_TASK_MS = 50
 export interface SlowMoment {
   /** ms since the epoch */
   at: number
-  kind: 'longtask' | 'stall'
+  kind: 'longtask' | 'stall' | 'drive'
+  /** Plain note (Drive connection log). */
+  note?: string
   /** ms */
   ms: number
   route: string
@@ -146,8 +148,8 @@ export function slowMomentsReport(
     const when = new Date(m.at).toISOString().replace('T', ' ').slice(0, 19)
     const parts = [
       when,
-      m.kind === 'stall' ? 'froze' : 'long task',
-      `${m.ms} ms`,
+      m.kind === 'stall' ? 'froze' : m.kind === 'drive' ? 'drive' : 'long task',
+      m.kind === 'drive' ? (m.note ?? '') : `${m.ms} ms`,
       m.route || '#',
       m.tool ? `tool=${m.tool}` : '',
       m.focus ? `focus=${m.focus}` : '',

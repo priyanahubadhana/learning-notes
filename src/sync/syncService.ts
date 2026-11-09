@@ -369,6 +369,22 @@ export async function keepDriveFresh(force: boolean): Promise<void> {
   }
 }
 
+/** Drive's lasting connection: kept on the server, or it will ask to reconnect. */
+export function driveLastingState(): {
+  state: 'kept' | 'ask'
+  note: string
+} | null {
+  const a = getConnectors().auth
+  return a.driveLasting
+    ? { state: a.driveLasting(), note: a.lastDriveNote?.() ?? '' }
+    : null
+}
+
+/** "Set up lasting connection": signs in again with Google's consent screen. */
+export async function setUpLastingDrive(): Promise<void> {
+  await getConnectors().auth.setUpLasting?.()
+}
+
 /** A tap on "Reconnect Drive": renews the Drive pass in a Google window. */
 export async function reconnectDrive(db: LearningNotesDB): Promise<boolean> {
   const token = await getConnectors().auth.driveToken(true)

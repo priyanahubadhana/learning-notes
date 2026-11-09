@@ -2,6 +2,12 @@
 
 Current phase only. Older entries are in [ARCHIVE.md](ARCHIVE.md).
 
+## 2026-11-09 (Drive lasting connection: visible status and diagnosis)
+
+- **What:** Live finding: after sign-out/in with the consent screen the server had 0 rows and the function saw no request. Code check: every sign-in (Settings, SignInGuide, welcome, Reconnect bar) goes through one path, PKCE `finishSignIn`; the store call is made only when the token reply carries `provider_refresh_token`, and Supabase (auth source token.go) copies it into the reply only when Google handed one over. No request means the reply had none; the call itself is awaited, the URL is the project URL, and nothing else skips it. The old code logged nothing in that case. Now: the case is logged (`no Google refresh token`, store status) in the slow-moments log (Settings > Advanced, kind `drive`, no secrets), and Settings > Sync shows "Drive: stays connected" or "Drive: will ask to reconnect (tap to fix)" with the last note and a "Set up lasting connection" button that signs in again with the consent screen. Unit tests: PKCE sign-in stores the token with the new JWT, no token logged, refused store logged without secret.
+- **Why:** owner could not tell whether the lasting connection was set up.
+- **Files:** src/sync/connectors/{driveDiag,driveServer,supabase,types}.ts, driveServer.test.ts, src/sync/{syncService,SyncSection}.ts(x), src/perf/slowMoments.ts, src/i18n/{en,es,hi}Sync.ts, docs/{HANDOFF,CHANGELOG}.md, docs/plans/owner-checks-pending.md
+
 ## 2026-11-09 (Page-wide Ctrl+A Delete/Cut race fixed)
 
 - **What:** Ctrl+A's third step (whole page) could be shrunk back to one box by the browser a moment later, so Delete/Cut sometimes saw no page-wide selection (the flaky paperBoxes spec, ~40% locally). Now the step records an intent (pageWide.ts markPageWide) that Delete/Cut trust until a click or a non-select/copy/cut key; the selection is also re-applied (max 5 times) if it shrinks. paperBoxes spec passes 20/20 (--repeat-each=20), no sleeps.

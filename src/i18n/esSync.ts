@@ -51,6 +51,9 @@ export const esSync: Record<string, string> = {
   'sync.driveTap':
     'Google Drive necesita un toque para reconectarse (las imágenes y la clave de reserva esperan hasta entonces).',
   'sync.reconnectDrive': 'Reconectar Drive',
+  'sync.driveKept': 'Drive: sigue conectado',
+  'sync.driveWillAsk': 'Drive: pedirá reconectar (toca para arreglar)',
+  'sync.driveSetUp': 'Configurar conexión duradera',
   'sync.merged_one':
     '{count} página se cambió en dos dispositivos. La otra versión está en su Historial.',
   'sync.merged_other':

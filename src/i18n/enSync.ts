@@ -49,6 +49,9 @@ export const enSync = {
   'sync.driveTap':
     'Google Drive needs a tap to reconnect (pictures and the spare key wait until then).',
   'sync.reconnectDrive': 'Reconnect Drive',
+  'sync.driveKept': 'Drive: stays connected',
+  'sync.driveWillAsk': 'Drive: will ask to reconnect (tap to fix)',
+  'sync.driveSetUp': 'Set up lasting connection',
   'sync.merged_one':
     '{count} page was changed on two devices. The other version is in that page’s History.',
   'sync.merged_other':

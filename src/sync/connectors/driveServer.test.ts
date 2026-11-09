@@ -6,6 +6,7 @@ import {
   type Env,
 } from '../../../supabase/functions/_shared/driveTokenHandler'
 import { revokeServerToken, serverPass, storeRefreshToken } from './driveServer'
+import { ALLOWED_EMAIL } from './config'
 import { authorizeUrl, supabaseAuth } from './supabase'
 
 const g = globalThis as Record<string, unknown>
@@ -270,5 +271,83 @@ describe('server function (mocked Supabase and Google)', () => {
       ).status,
     ).toBe(503)
     expect((await ask('nope', w.f)).status).toBe(400)
+  })
+})
+
+describe('sign-in hands Google’s refresh token to the server', () => {
+  let saved: Record<string, unknown>
+  let mem: Map<string, string>
+  let calls: { url: string; body: string; auth?: string }[]
+  const tokenReply = (extra: object) => ({
+    access_token: 'JWT',
+    refresh_token: 'r',
+    expires_in: 3600,
+    provider_token: 'G',
+    user: { id: 'u', email: ALLOWED_EMAIL, user_metadata: { sub: 's' } },
+    ...extra,
+  })
+  const run = async (reply_: object, storeStatus = 200) => {
+    g.fetch = async (u: string, init: RequestInit) => {
+      const h = (init.headers ?? {}) as Record<string, string>
+      calls.push({ url: u, body: String(init.body), auth: h.Authorization })
+      return u.includes('/auth/v1/token')
+        ? reply(200, reply_)
+        : reply(storeStatus, { ok: true })
+    }
+    const auth = supabaseAuth()
+    return auth.finishSignIn(new URL('https://app.test/?sync=callback&code=c'))
+  }
+  beforeEach(() => {
+    saved = {
+      fetch: g.fetch,
+      localStorage: g.localStorage,
+      sessionStorage: g.sessionStorage,
+    }
+    mem = new Map([['learning-notes:sync.pkce', 'verifier']])
+    const store = {
+      getItem: (k: string) => mem.get(k) ?? null,
+      setItem: (k: string, v: string) => mem.set(k, v),
+      removeItem: (k: string) => mem.delete(k),
+    }
+    g.localStorage = store
+    g.sessionStorage = store
+    calls = []
+  })
+  afterEach(() => Object.assign(g, saved))
+
+  it('the code (PKCE) path stores the token, with the new sign-in token', async () => {
+    expect(await run(tokenReply({ provider_refresh_token: 'RT' }))).toBe(true)
+    const store = calls.find((c) => c.url.endsWith('/functions/v1/drive-token'))
+    expect(store?.auth).toBe('Bearer JWT')
+    expect(JSON.parse(store!.body)).toEqual({
+      action: 'store',
+      refresh_token: 'RT',
+    })
+    expect(mem.get('learning-notes:sync.driveOffline')).toBe('1')
+    expect(mem.get('learning-notes:sync.driveLast')).toBe('store ok')
+  })
+
+  it('the consent sign-in (Settings, SignInGuide, Reconnect bar) asks for offline access', () => {
+    const u = authorizeUrl('https://app.test/', 'c', true)
+    expect(u.searchParams.get('access_type')).toBe('offline')
+    expect(u.searchParams.get('prompt')).toContain('consent')
+  })
+
+  it('no refresh token in the reply: noted in the log, status stays "ask"', async () => {
+    await run(tokenReply({}))
+    expect(calls.some((c) => c.url.includes('drive-token'))).toBe(false)
+    expect(mem.get('learning-notes:sync.driveLast')).toMatch(
+      /no Google refresh/,
+    )
+    expect(mem.get('learning-notes:perf.slow')).toContain('"kind":"drive"')
+    expect(mem.has('learning-notes:sync.driveOffline')).toBe(false)
+    expect(supabaseAuth().driveLasting?.()).toBe('ask')
+  })
+
+  it('a refused store is logged with its status, no secret', async () => {
+    await run(tokenReply({ provider_refresh_token: 'RT' }), 503)
+    expect(mem.get('learning-notes:sync.driveLast')).toBe('store refused 503')
+    expect(mem.get('learning-notes:perf.slow')).not.toContain('RT')
+    expect(mem.has('learning-notes:sync.driveOffline')).toBe(false)
   })
 })

@@ -88,6 +88,12 @@ export interface AuthProvider {
   driveToken(interactive: boolean): Promise<string | null>
   /** The pass was refused (401): forget it so the next call renews. */
   dropDriveToken?(): void
+  /** Does the server hold Drive's long-lived key? ('ask' = will ask to reconnect). */
+  driveLasting?(): 'kept' | 'ask'
+  /** The last Drive-connection note (plain words, no secrets). */
+  lastDriveNote?(): string
+  /** Sign in again WITH Google's consent screen so the server gets the key. */
+  setUpLasting?(): Promise<void>
   /** Loads Google's script early so a tap can open its window at once. */
   prepareDrive?(): void
 }

@@ -97,9 +97,17 @@ if (slowMomentsWanted()) setSlowMomentsOn(true)
 // coming back, so people who never sync download none of it.
 // Settings that follow you start first, so a change made while signed out
 // is ready to travel and sync never sees a half-set-up list.
-const startSettings = import('./settings/settingsMirror').then((m) =>
-  m.startSettingsMirror(db),
-)
+const startSettings = (async () => {
+  const [mirror, migration, notice] = await Promise.all([
+    import('./settings/settingsMirror'),
+    import('./settings/settingsMigration'),
+    import('./settings/settingsNotice'),
+  ])
+  if (await migration.migrateSettings(db)) notice.openSettingsNotice()
+  mirror.startSettingsMirror(db)
+  notice.watchSettingsNotice()
+  notice.mountSettingsNotice()
+})().catch(() => undefined)
 if (
   isTracking() ||
   isWaitingForKey() ||

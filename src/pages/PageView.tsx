@@ -171,7 +171,7 @@ export function PageView({
     runTask(
       (async () => {
         await editor.current?.flush()
-        await recordVersion(db, page.id, { force: true }) // newest edits too
+        await recordVersion(db, page.id, { force: true, reason: 'leave' }) // newest edits too
         setHistoryOpen(true)
       })(),
     )

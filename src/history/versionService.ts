@@ -7,10 +7,16 @@ import type { PageVersion, VersionBlock } from '../core/types'
 import { getPage, renamePage } from '../pages/pageService'
 import { syncCardRecords } from '../recall/cardService'
 
-/** Copies kept per page; older ones are dropped. */
-export const KEEP_VERSIONS = 30
+/** Most copies kept per page (thinned over time, see `thinVersions`). */
+export const KEEP_VERSIONS = 300
+/** A page's copies may not use more than this much (rough bytes). */
+export const VERSION_BYTES_MAX = 20 * 1024 * 1024
 /** While editing, a new copy is taken at most this often. */
-export const VERSION_GAP_MS = 5 * 60 * 1000
+export const VERSION_GAP_MS = 2 * 60 * 1000
+/** A big change (many blocks added or removed) may be kept this soon. */
+export const BIG_GAP_MS = 20 * 1000
+const HOUR = 60 * 60 * 1000
+const DAY = 24 * HOUR
 
 /** The page's live title and blocks as they are now. */
 async function currentState(db: LearningNotesDB, pageId: string) {
@@ -22,16 +28,30 @@ async function currentState(db: LearningNotesDB, pageId: string) {
     type: b.type,
     content: b.content,
     order: b.order,
+    ...(b.boxId ? { boxId: b.boxId } : {}),
   }))
   const ink = await inkSnapshot(db, pageId)
-  return ink
-    ? { title: page.title, blocks, ink }
-    : { title: page.title, blocks }
+  const layout: NonNullable<PageVersion['layout']> = {}
+  if (page.boxes?.length) layout.boxes = page.boxes
+  if (page.inkBg) layout.inkBg = page.inkBg
+  if (page.sheet) layout.sheet = page.sheet
+  return {
+    title: page.title,
+    blocks,
+    ...(ink ? { ink } : {}),
+    ...(Object.keys(layout).length ? { layout } : {}),
+  }
 }
 
-type State = { title: string; blocks: VersionBlock[]; ink?: InkSnapshot }
+type State = {
+  title: string
+  blocks: VersionBlock[]
+  ink?: InkSnapshot
+  layout?: PageVersion['layout']
+}
 const same = (a: State, b: State) =>
   a.title === b.title &&
+  JSON.stringify(a.layout ?? null) === JSON.stringify(b.layout ?? null) &&
   JSON.stringify(a.blocks) === JSON.stringify(b.blocks) &&
   JSON.stringify(a.ink?.chunks ?? null) ===
     JSON.stringify(b.ink?.chunks ?? null) &&
@@ -52,10 +72,79 @@ export async function listVersions(
  * the newest copy; unless `force`, also skipped when that copy is younger
  * than `VERSION_GAP_MS`. Returns the new copy, if one was made.
  */
+/** Many blocks added or removed since the last copy (or ink gone/new). */
+export function isBigChange(prev: State, now: State): boolean {
+  const a = prev.blocks.length
+  const b = now.blocks.length
+  if (Math.abs(a - b) >= Math.max(5, Math.round(a * 0.2))) return true
+  if ((prev.layout?.boxes?.length ?? 0) !== (now.layout?.boxes?.length ?? 0))
+    return true
+  return (prev.ink?.chunks.length ?? 0) !== (now.ink?.chunks.length ?? 0)
+    ? Math.abs(
+        (prev.ink?.chunks.length ?? 0) - (now.ink?.chunks.length ?? 0),
+      ) >= 5
+    : false
+}
+
+/**
+ * Which copies to keep: everything from the last 2 hours, one per hour for
+ * 2 days, one per day for 90 days; copies taken before a restore or a big
+ * change are favoured when two compete. Never more than KEEP_VERSIONS.
+ * Newest first in, ids to delete out. (Pure.)
+ */
+export function thinVersions(
+  versions: readonly PageVersion[],
+  now: number,
+  maxBytes = VERSION_BYTES_MAX,
+): string[] {
+  const drop: string[] = []
+  const slots = new Map<string, PageVersion>()
+  const kept: PageVersion[] = []
+  for (const v of versions) {
+    const age = now - v.createdAt
+    if (age <= 2 * HOUR) {
+      kept.push(v)
+      continue
+    }
+    if (age > 90 * DAY) {
+      drop.push(v.id)
+      continue
+    }
+    const slot =
+      age <= 2 * DAY
+        ? `h${Math.floor(v.createdAt / HOUR)}`
+        : `d${Math.floor(v.createdAt / DAY)}`
+    const held = slots.get(slot)
+    if (!held) {
+      slots.set(slot, v)
+      kept.push(v)
+    } else if (
+      v.reason === 'before-restore' &&
+      held.reason !== 'before-restore'
+    ) {
+      drop.push(held.id)
+      kept.splice(kept.indexOf(held), 1)
+      slots.set(slot, v)
+      kept.push(v)
+    } else drop.push(v.id)
+  }
+  kept.sort((a, b) => b.createdAt - a.createdAt)
+  let bytes = 0
+  kept.forEach((v, i) => {
+    bytes += v.bytes ?? 0
+    if (i >= KEEP_VERSIONS || (i > 0 && bytes > maxBytes)) drop.push(v.id)
+  })
+  return drop
+}
+
 export async function recordVersion(
   db: LearningNotesDB,
   pageId: string,
-  { force = false, now = Date.now() } = {},
+  {
+    force = false,
+    now = Date.now(),
+    reason,
+  }: { force?: boolean; now?: number; reason?: PageVersion['reason'] } = {},
 ): Promise<PageVersion | null> {
   return db.transaction(
     'rw',
@@ -72,8 +161,11 @@ export async function recordVersion(
       // A first copy of an empty page would hold nothing worth bringing back.
       if (!newest && state.blocks.length === 0 && !state.ink) return null
       if (newest) {
-        if (!force && now - newest.createdAt < VERSION_GAP_MS) return null
         if (same(newest, state)) return null
+        const age = now - newest.createdAt
+        const big = isBigChange(newest, state)
+        if (!force && age < (big ? BIG_GAP_MS : VERSION_GAP_MS)) return null
+        reason ??= big ? 'big' : 'timed'
       }
       const version: PageVersion = {
         ...newRecordFields(),
@@ -81,12 +173,12 @@ export async function recordVersion(
         updatedAt: now,
         pageId,
         ...state,
+        ...(reason ? { reason } : {}),
+        bytes: JSON.stringify(state).length,
       }
       await db.pageVersions.add(version)
-      const extra = versions.slice(KEEP_VERSIONS - 1)
-      if (extra.length > 0) {
-        await db.pageVersions.bulkDelete(extra.map((v) => v.id))
-      }
+      const drop = thinVersions([version, ...versions], now)
+      if (drop.length > 0) await db.pageVersions.bulkDelete(drop)
       return version
     },
   )
@@ -113,7 +205,13 @@ export async function restoreVersion(
     async () => {
       const version = await db.pageVersions.get(versionId)
       if (!version) throw new Error('That copy no longer exists')
-      await recordVersion(db, version.pageId, { force: true })
+      await recordVersion(db, version.pageId, {
+        force: true,
+        reason: 'before-restore',
+      })
+      // Copies made before 11 Nov 2026 hold no box layout: those leave the
+      // live boxes alone (everything else is restored).
+      const hasLayout = version.bytes !== undefined
       const live = await listBlocks(db, version.pageId)
       const keep = new Set(version.blocks.map((b) => b.id))
       const liveById = new Map(live.map((b) => [b.id, b]))
@@ -125,11 +223,14 @@ export async function restoreVersion(
           now.parentId !== b.parentId ||
           now.type !== b.type ||
           now.order !== b.order ||
+          (now.boxId ?? null) !== (b.boxId ?? null) ||
           JSON.stringify(now.content) !== JSON.stringify(b.content)
         )
       })
       await saveBlockChanges(db, version.pageId, {
-        upserts,
+        upserts: upserts.map((b) =>
+          hasLayout ? { ...b, boxId: b.boxId ?? null } : b,
+        ),
         deletes: live.filter((b) => !keep.has(b.id)).map((b) => b.id),
       })
       // Not a rename when the title is the same (a journal page keeps its
@@ -137,6 +238,15 @@ export async function restoreVersion(
       const current = await getPage(db, version.pageId)
       if (current?.title !== version.title) {
         await renamePage(db, version.pageId, version.title)
+      }
+      if (hasLayout) {
+        // Boxes, positions, sizes, locks and the paper settings, as they were.
+        await db.pages.update(version.pageId, {
+          boxes: version.layout?.boxes,
+          inkBg: version.layout?.inkBg,
+          sheet: version.layout?.sheet,
+          updatedAt: Date.now(),
+        })
       }
       await restoreInk(db, version.pageId, version.ink)
       await syncCardRecords(db, version.pageId)

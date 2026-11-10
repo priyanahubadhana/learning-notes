@@ -5,7 +5,7 @@ import type { LearningNotesDB } from '../core/db'
 import type { PageVersion } from '../core/types'
 import { t } from '../i18n/t'
 import { previewLines } from './previewLines'
-import { KEEP_VERSIONS, listVersions, restoreVersion } from './versionService'
+import { listVersions, restoreVersion } from './versionService'
 
 const when = (time: number) =>
   new Date(time).toLocaleString(undefined, {
@@ -77,6 +77,11 @@ export function HistoryDialog({
                     className="min-h-9 w-full rounded-lg px-2.5 text-start text-sm whitespace-nowrap hover:bg-hover aria-pressed:bg-soft aria-pressed:font-semibold"
                   >
                     {when(v.createdAt)}
+                    {v.reason && v.reason !== 'timed' && (
+                      <span className="ms-2 text-xs text-muted">
+                        {t(`history.reason.${v.reason}`)}
+                      </span>
+                    )}
                   </button>
                 </li>
               ))}
@@ -107,6 +112,12 @@ export function HistoryDialog({
                     {t('history.restore')}
                   </button>
                 </div>
+                <p className="mb-2 text-xs text-muted">
+                  {t('history.contains', {
+                    boxes: String((current.layout?.boxes?.length ?? 0) + 1),
+                    ink: t(current.ink ? 'history.inkYes' : 'history.inkNo'),
+                  })}
+                </p>
                 <div className="min-h-0 flex-1 overflow-y-auto rounded-lg border border-line p-3 text-sm whitespace-pre-wrap">
                   {lines.length > 0 ? (
                     lines.join('\n')
@@ -118,9 +129,7 @@ export function HistoryDialog({
             )}
           </div>
         )}
-        <p className="mt-3 text-xs text-muted">
-          {t('history.keep', { count: String(KEEP_VERSIONS) })}
-        </p>
+        <p className="mt-3 text-xs text-muted">{t('history.keep')}</p>
       </div>
     </dialog>
   )

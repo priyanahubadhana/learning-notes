@@ -33,4 +33,11 @@ export const esNbh: Record<string, string> = {
   'sync.allOn.notice':
     'Ahora todo se sincroniza, también las claves de IA (cifradas de extremo a extremo, nunca en copias). Puedes cambiarlo en Ajustes.',
   'sync.allOn.change': 'Revisar',
+  'history.reason.big': 'cambio grande',
+  'history.reason.leave': 'al salir',
+  'history.reason.before-restore': 'antes de restaurar',
+  'history.contains':
+    'Cuadros: {boxes}. Dibujo: {ink}. Restaurar recupera toda la página.',
+  'history.inkYes': 'sí',
+  'history.inkNo': 'ninguno',
 }

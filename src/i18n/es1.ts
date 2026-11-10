@@ -70,7 +70,8 @@ export const es1: Record<string, string> = {
   'history.empty':
     'Aún no hay copias anteriores. Se guardan mientras escribes: una cada 5 minutos aproximadamente, y otra al salir de la página.',
   'history.list': 'Copias anteriores',
-  'history.keep': 'Se guardan las últimas {count} copias de esta página.',
+  'history.keep':
+    'Se guardan copias cada pocos minutos y tras cambios grandes: todas las de las últimas 2 horas, luego una por hora y una por día.',
   'history.restore': 'Restaurar esta copia',
   'history.restored':
     'Se restauró la copia del {when}. Deshacer está en el Historial.',

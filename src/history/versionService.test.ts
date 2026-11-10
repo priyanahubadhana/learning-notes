@@ -68,9 +68,9 @@ describe('recordVersion', () => {
     ).not.toBeNull()
   })
 
-  it('keeps only the newest copies', async () => {
-    expect(KEEP_VERSIONS).toBe(30) // owner decision: 30 full copies
-    for (let i = 0; i < KEEP_VERSIONS + 5; i++) {
+  it('keeps every copy of the last 2 hours, then thins by the hour', async () => {
+    expect(KEEP_VERSIONS).toBe(300)
+    for (let i = 0; i < 90; i++) {
       await createBlock(db, {
         pageId,
         type: 'paragraph',
@@ -79,8 +79,29 @@ describe('recordVersion', () => {
       await recordVersion(db, pageId, { now: T + i * VERSION_GAP_MS })
     }
     const versions = await listVersions(db, pageId)
-    expect(versions).toHaveLength(KEEP_VERSIONS)
-    expect(versions[0].createdAt).toBe(T + (KEEP_VERSIONS + 4) * VERSION_GAP_MS)
+    const newestAt = T + 89 * VERSION_GAP_MS
+    const recent = versions.filter((v) => newestAt - v.createdAt <= 2 * 3600e3)
+    expect(recent).toHaveLength(61) // 2 h at one per 2 minutes
+    expect(versions[0].createdAt).toBe(newestAt)
+    // Older than 2 h: at most one per hour.
+    const hours = versions
+      .filter((v) => newestAt - v.createdAt > 2 * 3600e3)
+      .map((v) => Math.floor(v.createdAt / 3600e3))
+    expect(new Set(hours).size).toBe(hours.length)
+  })
+
+  it('takes a copy soon after a big change', async () => {
+    await createBlock(db, { pageId, type: 'paragraph', content: text('a') })
+    await recordVersion(db, pageId, { now: T })
+    for (let i = 0; i < 8; i++)
+      await createBlock(db, {
+        pageId,
+        type: 'paragraph',
+        content: text(`x${i}`),
+      })
+    // 30 s later: past the big-change gap, well inside the normal one.
+    const v = await recordVersion(db, pageId, { now: T + 30_000 })
+    expect(v?.reason).toBe('big')
   })
 })
 
@@ -123,6 +144,30 @@ describe('restoreVersion', () => {
     await restoreVersion(db, old.id)
     const cards = await db.cards.where('blockId').equals(card.id).toArray()
     expect(cards.filter((c) => c.deletedAt === null)).toHaveLength(1)
+  })
+})
+
+describe('restoreVersion keeps the whole page', () => {
+  it('brings back the boxes, the box of a block and the paper style', async () => {
+    await db.pages.update(pageId, {
+      boxes: [{ id: 'bx1', x: 20, y: 30, w: 80 }],
+      inkBg: 'grid',
+    })
+    const a = await createBlock(db, {
+      pageId,
+      type: 'paragraph',
+      content: text('in box'),
+    })
+    await db.blocks.update(a.id, { boxId: 'bx1' })
+    const old = (await recordVersion(db, pageId, { now: T }))!
+    // The stray change: box removed, block back in the main box, paper changed.
+    await db.pages.update(pageId, { boxes: undefined, inkBg: undefined })
+    await db.blocks.update(a.id, { boxId: undefined })
+    await restoreVersion(db, old.id)
+    const page = await getPage(db, pageId)
+    expect(page?.boxes).toEqual([{ id: 'bx1', x: 20, y: 30, w: 80 }])
+    expect(page?.inkBg).toBe('grid')
+    expect((await listBlocks(db, pageId))[0].boxId).toBe('bx1')
   })
 })
 

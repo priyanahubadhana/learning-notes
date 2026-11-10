@@ -32,4 +32,11 @@ export const hiNbh: Record<string, string> = {
   'sync.allOn.notice':
     'अब सब कुछ सिंक होता है, AI कुंजियाँ भी (एंड-टू-एंड एन्क्रिप्टेड, बैकअप में कभी नहीं)। आप इसे सेटिंग्स में बदल सकते हैं।',
   'sync.allOn.change': 'देखें',
+  'history.reason.big': 'बड़ा बदलाव',
+  'history.reason.leave': 'पन्ना छोड़ते समय',
+  'history.reason.before-restore': 'वापस लाने से पहले',
+  'history.contains':
+    'बॉक्स: {boxes}। चित्रांकन: {ink}। वापस लाने पर पूरा पन्ना लौट आता है।',
+  'history.inkYes': 'हाँ',
+  'history.inkNo': 'कोई नहीं',
 }

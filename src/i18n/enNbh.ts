@@ -43,4 +43,11 @@ export const enNbh = {
   'sync.allOn.notice':
     'Everything now syncs, including AI keys (locked end to end, never in backups). You can change it in Settings.',
   'sync.allOn.change': 'Review',
+  'history.reason.big': 'big change',
+  'history.reason.leave': 'on leaving',
+  'history.reason.before-restore': 'before a restore',
+  'history.contains':
+    'Boxes: {boxes}. Drawing: {ink}. Restoring brings back the whole page.',
+  'history.inkYes': 'yes',
+  'history.inkNo': 'none',
 }

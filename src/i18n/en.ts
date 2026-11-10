@@ -118,7 +118,8 @@ export const en = {
   'history.empty':
     'No earlier copies yet. Copies are kept while you write: about one every 5 minutes, and one when you leave the page.',
   'history.list': 'Earlier copies',
-  'history.keep': 'The last {count} copies of this page are kept.',
+  'history.keep':
+    'Copies are kept every few minutes and after big changes: all from the last 2 hours, then one per hour, then one per day. A restore keeps the page as it was first.',
   'history.restore': 'Restore this copy',
   'history.restored': 'Restored the copy from {when}. Undo is in History.',
   'history.preview': 'Copy from {when}',

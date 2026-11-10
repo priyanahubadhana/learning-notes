@@ -548,6 +548,8 @@ export interface VersionBlock {
   type: string
   content: JsonObject
   order: OrderKey
+  /** The paper box the block sat in (unset = the main box). */
+  boxId?: string
 }
 
 /**
@@ -560,6 +562,16 @@ export interface PageVersion extends BaseRecord {
   blocks: VersionBlock[]
   /** The page's ink at that moment (step 3). Unset = no ink. */
   ink?: InkSnapshot
+  /** Items 4 and 8: the paper boxes and paper settings at that moment. */
+  layout?: {
+    boxes?: PaperBox[]
+    inkBg?: 'lined' | 'grid' | 'dots'
+    sheet?: 'A4' | 'Letter'
+  }
+  /** Why the copy was taken (shown in History). */
+  reason?: 'timed' | 'big' | 'leave' | 'before-restore'
+  /** Rough size in bytes, for the storage budget. */
+  bytes?: number
 }
 
 /** A font file the user imported (H1). Used as `custom:<id>`. */

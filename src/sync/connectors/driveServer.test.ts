@@ -253,8 +253,14 @@ describe('server function (mocked Supabase and Google)', () => {
 
   it('store then token: the refresh token is locked in the table and trades for a pass', async () => {
     const w = world()
-    expect((await ask('store', w.f, { refresh_token: 'RT' })).status).toBe(200)
-    expect(w.rows.get('U1')).not.toContain('RT')
+    expect(
+      (
+        await ask('store', w.f, {
+          refresh_token: 'REFRESH-SECRET-VALUE-1234567890',
+        })
+      ).status,
+    ).toBe(200)
+    expect(w.rows.get('U1')).not.toContain('REFRESH-SECRET-VALUE-1234567890')
     const r = await ask('token', w.f)
     expect(await r.json()).toEqual({ access_token: 'G', expires_in: 3599 })
   })

@@ -44,3 +44,6 @@ Research: [research/snap-assist-2026-11.md](../research/snap-assist-2026-11.md).
 1. After Skip, should empty zones collapse (recommended) or stay as visible empty slots to fill later?
 2. Should the tray list boxes from other sheets too, or only the same sheet (simpler)?
 3. Remember layouts like Snap Groups (a "recent layouts" row)? Recommend later.
+
+## Owner answers (10 Nov)
+- Skipped zones collapse. Box list: same sheet by default, with a "Whole page" toggle. Recent layouts: later. Approved; build with batch 2.

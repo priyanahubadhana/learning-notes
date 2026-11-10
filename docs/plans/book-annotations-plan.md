@@ -41,3 +41,5 @@ Research: [docs/research/book-annotations-2026-11.md](../research/book-annotatio
 - Highlight cards (owner idea): by default a card shows only the highlight; tapping it expands to show the whole book page with the highlight marked. Each card also has an adjustable "context frame": a crop window the user can drag/resize to choose how much of the page around the highlight the card shows (saved per card).
 - AI "handwriting to text" button: build it (cost shown first), but only after the research is complete and validated.
 - Status: WAIT — do not build until the owner confirms the remaining questions and finishes their own research.
+- Handwriting: one card per phrase (nearby strokes grouped). Context frame: auto (paragraph), adjustable, saved per card. Colours: named colour meanings with filters.
+- Tap vs hold (owner): tap a card = it expands in place to the whole page with the highlight marked; press-and-hold = a floating preview of the page/context window, and tapping inside that preview jumps to the spot in the reader (works like a link).

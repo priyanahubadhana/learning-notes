@@ -195,7 +195,7 @@ function isIndependent(
   saved: SavedBlock,
   draftContent: unknown,
 ): boolean {
-  let base: unknown = null
+  let base: unknown
   try {
     base = JSON.parse(saved.content)
   } catch {

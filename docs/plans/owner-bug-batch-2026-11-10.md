@@ -43,3 +43,9 @@ Collected from the owner's iPad pass; fix all in one go when the owner says so.
    - Owner decision on 26 (10 Nov): NO overlap. Instead a Windows "Snap layouts"-style grid: boxes snap into columns/quadrants (1, 2 or 3 per row; up to 6 in an area, e.g. 2x3), like Notion columns, always tidy; small customisation (column widths). Writing on top of text stays possible via the ink layer (pen tools), not overlapping boxes. Research Windows Snap Layouts, Notion columns, OneNote/GoodNotes, Craft, Apple Freeform alignment, and propose the design.
 27. **Review space looks like Notebooks.** Tapping the Review (brain) icon in the rail now shows the same notebooks shelf/home instead of the Review space (due cards, decks, stats). Likely a regression from the Notebooks home / rail work (17384be): the rail icon routes or the space content got swapped. Restore the Review space and audit every rail space (Home, Library, Notebooks, Review, Settings) and every sidebar section against main before 9 Nov (git history) for anything that went missing.
    - Item 23 sync list approved as recommended. Item 19 hold time: owner wants longer to avoid mis-clicks → default 1.0 s, adjustable 0.6-3 s in Settings › Advanced.
+   - Item 26 answers: 6 per area ✓; row height from text ✓; Layout picker in ⋯ › Layout NOW, plus drag-and-drop with live on-screen previews.
+
+## Build split (10 Nov)
+- Builder A (input & selection): items 1, 2, 11, 15, 17, 19, 20, 21, 22e/h/i, 25 (input ownership, smooth drag of boxes).
+- Builder B (paper layout & pictures): items 5, 6, 7, 9, 10, 13, 14, 22a-d/f/g/j, 26 (snap grid per docs/plans/box-grid-plan.md, with Layout picker now).
+- Builder C (app-wide): items 3, 4, 8 (undo/redo + version history), 12 (micro text bar), 16, 24 (update), 18 (refresh button), 23 (sync defaults), 27 (Review space).

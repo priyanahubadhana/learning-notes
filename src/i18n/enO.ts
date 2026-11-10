@@ -9,6 +9,7 @@ import { enNbh } from './enNbh'
 import { enRdr } from './enRdr'
 import { enB } from './enB'
 import { enG } from './enG'
+import { enL } from './enL'
 
 export const enO = {
   ...enH,
@@ -18,6 +19,7 @@ export const enO = {
   ...enRdr,
   ...enB,
   ...enG,
+  ...enL,
   'history.typing': 'Typing',
   'history.layout': 'Layout change',
   'history.tags': 'Tag change',

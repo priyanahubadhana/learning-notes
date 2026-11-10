@@ -41,6 +41,7 @@ export function BoxBar({
   onDuplicate,
   onDelete,
   onMenu,
+  onLayout,
 }: {
   pageId: string
   boxId: string
@@ -48,6 +49,8 @@ export function BoxBar({
   onDuplicate: () => void
   onDelete: () => void
   onMenu: (at: DOMRect) => void
+  /** Opens Layout Assist for this box. */
+  onLayout?: () => void
 }) {
   const [menu, setMenu] = useState<{ at: DOMRect; items: MenuItem[] } | null>(
     null,
@@ -156,6 +159,9 @@ export function BoxBar({
           {btn('cut', 'scissors', t('pic.act.cut'), cut)}
         </>
       )}
+      {canEdit &&
+        onLayout &&
+        btn('layout', 'grid', t('layout.title'), () => onLayout())}
       {btn('duplicate', 'copy', t('paper.box.duplicate'), onDuplicate)}
       {canEdit && btn('delete', 'trash', t('paper.box.delete'), onDelete, true)}
       {btn('more', 'more', t('paper.box.menu'), (e) =>

@@ -173,24 +173,18 @@ test('a divider resizes the columns, snapping to thirds; a double tap makes them
   expect(Math.abs(wa3 - wb3)).toBeLessThan(8)
 })
 
-test('box ⋯ › Layout makes the row two columns with a new box; Undo puts it back', async ({
+test('box ⋯ › Layout opens Layout Assist; a layout never makes an empty box (layoutAssist.spec.ts has the rest)', async ({
   page,
 }) => {
   const { extra } = await boxes(page, 1)
   const a = extra.nth(0)
-  const ra = await rect(a)
   await a.hover()
   await a.locator('[data-box-menu]').click()
   await page.getByRole('menuitem', { name: 'Layout' }).click()
-  await page.getByRole('menuitem', { name: 'Two columns' }).click()
-  await expect(extra).toHaveCount(2)
-  const r0 = await rect(extra.nth(0))
-  const r1 = await rect(extra.nth(1))
-  expect(r1.x).toBeGreaterThan(r0.x + r0.width - 1)
-  expect(Math.abs(r1.y - r0.y)).toBeLessThan(6)
-  expect(r0.width).toBeLessThan(ra.width * 0.6)
-  await noOverlap(page)
-  await page.getByRole('button', { name: 'Undo' }).last().click()
+  await expect(page.locator('[data-layout-assist]')).toBeVisible()
+  await page.locator('[data-layout-zone="two:0"]').click()
+  await page.locator('[data-layout-done]').click()
+  await expect(page.locator('[data-layout-assist]')).toHaveCount(0)
   await expect(extra).toHaveCount(1)
 })
 

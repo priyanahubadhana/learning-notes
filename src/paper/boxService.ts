@@ -19,7 +19,7 @@ import {
   placeInOrder,
   sheetOf,
 } from './boxes'
-import { applyPreset, freshNeeded, insertRow, PRESETS, reconcile } from './grid'
+import { insertRow, reconcile } from './grid'
 
 /**
  * Phase Q step 3: adding, changing and removing boxes. Box geometry lives on
@@ -474,7 +474,7 @@ export async function updateGrid(
   })
 }
 
-/** Undo of `updateGrid` and `applyBoxLayout`: puts back the rows and boxes. */
+/** Undo of `updateGrid` and the layout assist: puts back the rows and boxes. */
 export async function restoreGrid(
   db: LearningNotesDB,
   pageId: string,
@@ -484,68 +484,5 @@ export async function restoreGrid(
     rows: before.rows,
     boxes: before.boxes,
     updatedAt: Date.now(),
-  })
-}
-
-/**
- * Item 26, box ⋯ › Layout: re-arranges the row holding `anchor` as a preset
- * (a Windows-style layout). Its boxes fill the cells in reading order, empty
- * cells get new boxes, boxes that do not fit go to a new row below. Nothing
- * is deleted. Returns what it replaced, or null for an unknown preset.
- */
-export async function applyBoxLayout(
-  db: LearningNotesDB,
-  pageId: string,
-  anchor: string,
-  presetId: string,
-  rows: readonly GridRow[],
-  places: readonly BoxPatch[],
-): Promise<GridBefore | null> {
-  const preset = PRESETS.find((p) => p.id === presetId)
-  if (!preset) return null
-  const first = await getLive(db.pages, pageId)
-  if (!first.rows) await recordVersion(db, pageId, { force: true })
-  return db.transaction('rw', db.pages, async () => {
-    const page = await getLive(db.pages, pageId)
-    const sheet = sheetOf(page)
-    const before: GridBefore = {
-      rows: page.rows?.map((r) => ({
-        ...r,
-        cols: r.cols.map((c) => ({ ...c, boxIds: [...c.boxIds] })),
-      })),
-      boxes: page.boxes?.map((b) => ({ ...b })),
-    }
-    const at = boxesOf(page).find((b) => b.id === anchor)
-    const need = freshNeeded(rows, anchor, preset)
-    const fresh = Array.from({ length: need }, () => createId())
-    const stored = new Map((page.boxes ?? []).map((b) => [b.id, b]))
-    for (const { id, patch } of places) {
-      const cur = stored.get(id)
-      if (cur && id !== MAIN_BOX)
-        stored.set(id, clampBox({ ...cur, ...patch }, sheet.w))
-    }
-    for (const id of fresh)
-      stored.set(
-        id,
-        clampBox(
-          {
-            id,
-            x: at?.x ?? MARGIN,
-            y: at?.y ?? 0,
-            w: Math.min(NEW_W, sheet.w - 2 * MARGIN),
-          },
-          sheet.w,
-        ),
-      )
-    const boxes = [...stored.values()]
-    await db.pages.update(pageId, {
-      boxes,
-      rows: reconcile(applyPreset(rows, anchor, preset, fresh), [
-        MAIN_BOX,
-        ...boxes.filter((b) => b.id !== MAIN_BOX).map((b) => b.id),
-      ]),
-      updatedAt: Date.now(),
-    })
-    return before
   })
 }

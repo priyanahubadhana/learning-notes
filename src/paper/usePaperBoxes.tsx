@@ -7,14 +7,17 @@ import { MenuPopover, type MenuItem } from '../app/ui'
 import type { LearningNotesDB } from '../core/db'
 import type { GridRow, PaperBox } from '../core/types'
 import { triggerFirstUse } from '../help/firstUse'
-import { t, type MessageKey } from '../i18n/t'
+import { t } from '../i18n/t'
 import { BOX_COLOURS } from './boxes'
-import { PRESETS } from './grid'
+import type { GridInfo } from './layoutPlan'
+import type { AssistResult } from './LayoutAssist'
+import { LayoutAssistLazy } from './LayoutAssistLazy'
+
+import { NARROW_PX } from './sheets'
 import {
   addBox,
   addBoxInOrder,
   addBoxWithLines,
-  applyBoxLayout,
   restoreGrid,
   updateGrid,
   type BoxPatch,
@@ -61,7 +64,11 @@ export function usePaperBoxes(
   /** The grid changed (a drop, a divider): one write, with Undo. */
   onGridChange: (rows: GridRow[], places: BoxPatch[]) => void
   /** The paper tells the hook the grid as drawn now: for ⋯ › Layout. */
-  onGridView: (rows: GridRow[], places: BoxPatch[]) => void
+  onGridView: (
+    rows: GridRow[],
+    places: BoxPatch[],
+    measured: { heights: Record<string, number>; geo: GridInfo['geo'] },
+  ) => void
   onBoxMenu: (box: PaperBox, at: DOMRect) => void
   onDeleteBox: (box: PaperBox) => void
   /** The floating bar under a selected box. */
@@ -152,10 +159,62 @@ export function usePaperBoxes(
     }
   }, [editable, toast])
 
-  const gridView = useRef<{ rows: GridRow[]; places: BoxPatch[] }>({
+  const gridView = useRef<GridInfo>({
     rows: [],
     places: [],
+    heights: {},
+    geo: {
+      sheetW: 210,
+      sheetH: 297,
+      gapMm: 8,
+      left: 15,
+      right: 15,
+      top: 8,
+      bottom: 15,
+    },
   })
+  // Layout Assist (bug batch 2, items 7 and 10): a lazy dialog.
+  const [assist, setAssist] = useState<{
+    anchor: string
+    info: GridInfo
+    texts: Record<string, string>
+    sheetOf: Record<string, number>
+  } | null>(null)
+  const openAssist = (boxId: string) => {
+    if (!editable) return toast(t('layout.assist.readOnly'))
+    if (window.innerWidth < NARROW_PX) return toast(t('layout.assist.phone'))
+    const info = gridView.current
+    const texts: Record<string, string> = {}
+    const sheetOf: Record<string, number> = {}
+    const period = info.geo.sheetH + info.geo.gapMm
+    for (const row of info.rows)
+      for (const col of row.cols)
+        for (const id of col.boxIds) {
+          texts[id] =
+            document.querySelector(
+              '[data-paper-box="' + CSS.escape(id) + '"] .bn-editor',
+            )?.textContent ?? ''
+          const at = info.places.find((p) => p.id === id)?.patch.y ?? 0
+          sheetOf[id] = Math.max(0, Math.floor((at + 1e-6) / period))
+        }
+    setAssist({ anchor: boxId, info: { ...info }, texts, sheetOf })
+  }
+  // Ctrl/Cmd + Alt + L: Layout for the box that has the caret.
+  useEffect(() => {
+    if (!editable) return
+    const key = (e: KeyboardEvent) => {
+      if (!(e.ctrlKey || e.metaKey) || !e.altKey || e.code !== 'KeyL') return
+      const id = document.activeElement
+        ?.closest('[data-paper-box]')
+        ?.getAttribute('data-paper-box')
+      if (!id || id === 'main') return
+      e.preventDefault()
+      openAssist(id)
+    }
+    document.addEventListener('keydown', key)
+    return () => document.removeEventListener('keydown', key)
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [editable])
   const undoGrid = (before: GridBefore | null) => {
     if (!before) return
     toast(t('layout.done'), {
@@ -165,17 +224,31 @@ export function usePaperBoxes(
   }
   const onGridChange = (rows: GridRow[], places: BoxPatch[]) =>
     runTask(updateGrid(db, pageId, rows, places).then(undoGrid))
-  const onLayout = (box: PaperBox, presetId: string) =>
+  const applyAssist = (r: AssistResult) => {
+    setAssist(null)
     runTask(
-      applyBoxLayout(
-        db,
-        pageId,
-        box.id,
-        presetId,
-        gridView.current.rows,
-        gridView.current.places,
-      ).then(undoGrid),
+      import('./layoutAssistService').then(({ applyLayout }) =>
+        applyLayout(db, pageId, r.rows, r.places, r.fresh).then(undoGrid),
+      ),
     )
+  }
+  const applyNotebookAssist = (presetId: string) => {
+    setAssist(null)
+    runTask(
+      import('./layoutAssistService').then(
+        async ({ applyNotebook, restoreNotebook }) => {
+          const nb = (await db.pages.get(pageId))?.notebookId
+          if (!nb) return
+          const done = await applyNotebook(db, nb, presetId)
+          if (done.length === 0) return
+          toast(t('layout.assist.notebookDone', { n: done.length }), {
+            label: t('paper.box.undo'),
+            onSelect: () => runTask(restoreNotebook(db, done)),
+          })
+        },
+      ),
+    )
+  }
   const onAddBox = (at: { x: number; y: number; row?: number }) => {
     if (activeTool.get() !== 'text') return
     triggerFirstUse('paperBox')
@@ -273,14 +346,9 @@ export function usePaperBoxes(
     {
       label: t('layout.title'),
       icon: '▦',
-      onSelect: () => {},
-      submenu: PRESETS.map((p): MenuItem => ({
-        label: t(('layout.' + p.id) as MessageKey),
-        icon: '▦',
-        // The grid is read from a ref when the item is chosen, not while drawing.
-        // eslint-disable-next-line react-hooks/refs
-        onSelect: () => onLayout(box, p.id),
-      })),
+      hint: '⌃⌥L',
+      // eslint-disable-next-line react-hooks/refs
+      onSelect: () => openAssist(box.id),
     },
     {
       label: t('paper.box.delete'),
@@ -296,8 +364,8 @@ export function usePaperBoxes(
     onBoxChange,
     onBoxesChange,
     onGridChange: editable ? onGridChange : () => {},
-    onGridView: (rows, places) => {
-      gridView.current = { rows, places }
+    onGridView: (rows, places, measured) => {
+      gridView.current = { rows, places, ...measured }
     },
     onBoxMenu: (box, at) => setMenuFor({ box, at }),
     onDeleteBox: remove,
@@ -309,6 +377,7 @@ export function usePaperBoxes(
         onDuplicate={() => editable && duplicate(box)}
         onDelete={() => remove(box)}
         onMenu={(at) => setMenuFor({ box, at })}
+        onLayout={() => openAssist(box.id)}
       />
     ),
     onInkOnPaper: editable
@@ -319,12 +388,35 @@ export function usePaperBoxes(
           })
       : undefined,
     fresh,
-    menu: menuFor && (
-      <MenuPopover
-        anchor={menuFor.at}
-        items={items(menuFor.box)}
-        onClose={() => setMenuFor(null)}
-      />
+    menu: (
+      <>
+        {menuFor && (
+          <MenuPopover
+            anchor={menuFor.at}
+            items={items(menuFor.box)}
+            onClose={() => setMenuFor(null)}
+          />
+        )}
+        {assist && (
+          <>
+            <LayoutAssistLazy
+              db={db}
+              pageId={pageId}
+              anchor={assist.anchor}
+              info={assist.info}
+              texts={assist.texts}
+              sheetOf={assist.sheetOf}
+              onApply={applyAssist}
+              onApplyNotebook={applyNotebookAssist}
+              onClose={() => setAssist(null)}
+              onFail={() => {
+                setAssist(null)
+                toast(t('layout.assist.fail'))
+              }}
+            />
+          </>
+        )}
+      </>
     ),
   }
 }

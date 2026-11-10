@@ -113,7 +113,11 @@ export function PaperFrame({
    */
   onGridChange?: (rows: GridRow[], places: BoxPatch[]) => void
   /** Tells the hook the grid as drawn now (rows, places), for ⋯ › Layout. */
-  onGridView?: (rows: GridRow[], places: BoxPatch[]) => void
+  onGridView?: (
+    rows: GridRow[],
+    places: BoxPatch[],
+    measured: { heights: Record<string, number>; geo: Geometry },
+  ) => void
   onBoxMenu?: (box: PaperBox, at: DOMRect) => void
   /** Delete a box (an empty box goes with Backspace; a selected one with Delete). */
   onDeleteBox?: (box: PaperBox) => void
@@ -697,7 +701,7 @@ export function PaperFrame({
     for (const [id, rc] of layout)
       if (id !== MAIN_BOX)
         places.push({ id, patch: { x: rc.x, y: rc.y, w: rc.w } })
-    onGridView(rowsView, places)
+    onGridView(rowsView, places, { heights: heightsMm, geo })
   })
   const toPaper = (e: ReactPointerEvent) => {
     const r = paperEl.current!.getBoundingClientRect()

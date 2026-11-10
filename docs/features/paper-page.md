@@ -77,6 +77,10 @@ Hold still on text under the Text tool (1.5 s, Settings › Advanced 0.6-3 s; a 
 
 **Rules (bug batch 2, items 4-6):** any drift beyond 5 px, or a harder Pencil press, ends the hold for that whole stroke (no re-arming); text input ends it. The Pencil opens it only on or within 12 px of the caret, or on a selection, and never within 3 s of text going in (it is Scribble writing). The menu is measured and kept inside the visible area (flips above near the bottom, clamps to the sides; `MenuPopover`).
 
+## Layout Assist (10 Nov, bug batch 2 items 7 and 10)
+
+Box ⋯ › Layout, the Box bar ▦ or Ctrl/Cmd+Alt+L: pick a layout and a zone, fill the other zones with the page's boxes (tap or drag), + New box or leave empty (empty zones collapse), see a full-page preview, then Done (one Undo). Apply to whole notebook previews every page first. No layout ever creates an empty box. Code: `paper/layoutPlan.ts` (pure), `LayoutAssist.tsx` (lazy), `layoutAssistService.ts`. Plan: [layout-assist-plan.md](../plans/layout-assist-plan.md).
+
 ## Not yet
 
 - Ink at a zoom other than 100 %.

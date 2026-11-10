@@ -1,5 +1,7 @@
 # Layout Assist plan (owner bug batch 2, item 7) — 10 Nov 2026
 
+**Status (10 Nov): built (Builder L), steps 1-7. Differences: the preview is inside the dialog (not live on the page); drag uses HTML5 drag and drop plus tap.**
+
 Research: [research/snap-assist-2026-11.md](../research/snap-assist-2026-11.md). Replaces "preset creates empty boxes". Builds on `paper/grid.ts` (rows of 1-3 columns, up to 2 stacked).
 
 ## Flow

@@ -143,6 +143,7 @@ export default defineConfig({
         /undoHistory/,
         /gridRow/,
         /penUi/,
+        /layoutAssist/,
       ],
       use: { ...devices['iPad Pro 11'], hasTouch: true },
       expect: { timeout: 15_000 },

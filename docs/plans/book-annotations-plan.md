@@ -49,3 +49,5 @@ Research: [docs/research/book-annotations-2026-11.md](../research/book-annotatio
 - Status: WAIT — do not build until the owner confirms the remaining questions and finishes their own research.
 - Handwriting: one card per phrase (nearby strokes grouped). Context frame: auto (paragraph), adjustable, saved per card. Colours: named colour meanings with filters.
 - Hold only (owner correction): NO tap action on cards (avoids mis-taps). Press-and-hold a card = floating preview of the page/context window; tapping inside that preview jumps to the spot in the reader.
+
+- Owner (10 Nov): build from this plan after the current bug fixes (owner research not needed).

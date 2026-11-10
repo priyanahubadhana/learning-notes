@@ -43,12 +43,14 @@ async function openAssist(page: Page, box: Locator) {
   await expect(assist(page)).toBeVisible()
 }
 
+/** Where the boxes are (place and width; the height can differ by a pixel with the caret). */
 const rects = (page: Page) =>
-  page
-    .locator(EXTRA)
-    .evaluateAll((els) =>
-      els.map((e) => JSON.stringify(e.getBoundingClientRect().toJSON())),
-    )
+  page.locator(EXTRA).evaluateAll((els) =>
+    els.map((e) => {
+      const r = e.getBoundingClientRect()
+      return JSON.stringify({ x: r.x, y: r.y, width: r.width })
+    }),
+  )
 
 test('1:1:1 with two thumbnails tapped gives one row of three; one Undo puts it back', async ({
   page,

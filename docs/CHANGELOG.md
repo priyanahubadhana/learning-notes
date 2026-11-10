@@ -2,6 +2,10 @@
 
 Current phase only. Older entries are in [ARCHIVE.md](ARCHIVE.md).
 
+## 2026-11-10 (Builder L, owner bug batch 2)
+
+- **Item 9, two-column rows:** a dragged box now keeps its start place (left/top never change) and moves only by a transform, so a drag repaints one layer; the grip and the box menu are positioned at the top-left / top-right of the box (not by flex, so never in the middle); the "Tap here to keep writing" line is hidden when the page has other boxes (it floated among them). Placeholder rule (only in the focused empty box) was already in index.css. Files: src/paper/PaperFrame.tsx, src/paper/BoxFrame.tsx, src/editor/PageEditor.tsx, src/index.css, e2e/gridRow.spec.ts (new, also in the ipad-webkit list), playwright.config.ts. Prettier run on four plan docs that failed format:check.
+
 ## 2026-11-10 (CI stabiliser 3: WebKit box drag)
 
 - **Typing speed regression (bigPageBudget) fixed at the cause:** found by measuring commits locally (typing script per key 6.3 ms before, 11.6 ms after ea1f75c). Pagination looked for table rows in EVERY block on every key (now only in a block taller than the room); the micro text bar drew inside the key's own task (about +50 ms on the longest task) and now appears a moment later in its own task, and reads the cursor block only when Align is tapped. Back to 6.9 ms a key and 56 ms longest task on a 2,000-block page. Files: src/paper/paginate.ts, src/app/tools/main/MicroBar.tsx.

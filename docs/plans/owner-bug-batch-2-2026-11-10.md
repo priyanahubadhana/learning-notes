@@ -16,4 +16,5 @@ Collected during the owner's test pass; fix together when the owner says so.
 10. **Layout preview before applying, per page and per notebook.** Choosing a layout shows a full-page preview (sheets with the zones drawn, where the page divides, which boxes go where) before anything changes; Confirm applies, Cancel leaves the page as it was. Also "Apply to whole notebook" with a notebook preview (thumbnails of every page with the new layout); confirm applies to all, one Undo. Single-column pages work fine today; the problems start with multi-column rows (item 9).
 
 ## Order (owner, 10 Nov evening)
+
 FIRST: fix layout, Text tool and text problems only — items 2, 3, 4, 5, 6, 7, 8, 9, 10 (and 1, the clash bar, because it breaks the layout). The owner has NOT tested anything else yet; proper testing happens after this. Everything else (reader batch 2 tests, bug-batch-1 retests, ideas) waits.

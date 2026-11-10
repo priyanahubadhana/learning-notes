@@ -1100,3 +1100,10 @@ body:has([data-ink-pad]) [data-sel-handle]::after {
 [data-page-content] * {
   -webkit-touch-callout: none;
 }
+
+/* Owner bug batch 2, item 9: with other boxes on the page, the "Tap here to
+   keep writing" line under the page's text would float among them. */
+[data-paper]:has([data-paper-boxes]) .ln-tap-below {
+  visibility: hidden;
+  pointer-events: none;
+}

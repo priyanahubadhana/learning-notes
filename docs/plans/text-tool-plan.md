@@ -10,18 +10,18 @@ GoodNotes' strip and box styles, plus our grid (no cramped handles), our flowing
 
 Today there are the MicroBar (floating above the caret box), the BoxBar (on a picked box, with side pills) and the Text options pill. Each new bar should do one job:
 
-| Bar | Shows when | Holds |
-|---|---|---|
-| **Text strip** (the Text options pill, restyled) | the Text tool is chosen (or pinned) | **text:** style▾ (Title/H1-3/Body), font▾, size −/26/+, colour, highlight, B, I, U, align▾, list▾, line spacing▾ · **box:** style swatch▾ (Box style popover), Layout ▦ · 📌 Pin |
-| **Box bar** (kept, slimmer) | a box is picked (Lasso, box-select tap, or ⠿) | ⠿ move, Box style swatch, Layout ▦, Duplicate, Delete, ⋯ |
-| **MicroBar** | **removed on iPad and desktop** while the strip is visible; kept only when the strip is hidden (tool bar auto-hidden, phone, or floating bar out of view) | B, I, colour, ⋯ (as now) |
+| Bar                                              | Shows when                                                                                                                                                | Holds                                                                                                                                                                            |
+| ------------------------------------------------ | --------------------------------------------------------------------------------------------------------------------------------------------------------- | -------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| **Text strip** (the Text options pill, restyled) | the Text tool is chosen (or pinned)                                                                                                                       | **text:** style▾ (Title/H1-3/Body), font▾, size −/26/+, colour, highlight, B, I, U, align▾, list▾, line spacing▾ · **box:** style swatch▾ (Box style popover), Layout ▦ · 📌 Pin |
+| **Box bar** (kept, slimmer)                      | a box is picked (Lasso, box-select tap, or ⠿)                                                                                                             | ⠿ move, Box style swatch, Layout ▦, Duplicate, Delete, ⋯                                                                                                                         |
+| **MicroBar**                                     | **removed on iPad and desktop** while the strip is visible; kept only when the strip is hidden (tool bar auto-hidden, phone, or floating bar out of view) | B, I, colour, ⋯ (as now)                                                                                                                                                         |
 
 Rule: one text-formatting surface at a time. The strip wins. The MicroBar is only a fallback, and the hold menu is unchanged.
 
 ## 2. Text tool strip
 
 - Choosing AA opens the strip in the existing pill slot (top gap, draggable, `toolbar.pillPlace`). It mirrors the selection (shows the current font and size). With nothing selected, the values are those of the **next new box**.
-- **📌 Pin Text Tool**: when off (default), picking or making a box with a tap keeps the Text tool until the user chooses another tool. That is today's behaviour, so the pin here means *keep the strip open* (the pin already exists as `pinned`). Decision: rename the label "Pin Text Tool" and keep one meaning: the strip stays open even while another pill would have closed it. (Owner Q1.)
+- **📌 Pin Text Tool**: when off (default), picking or making a box with a tap keeps the Text tool until the user chooses another tool. That is today's behaviour, so the pin here means _keep the strip open_ (the pin already exists as `pinned`). Decision: rename the label "Pin Text Tool" and keep one meaning: the strip stays open even while another pill would have closed it. (Owner Q1.)
 - Size uses real points per box (12-72; stored as a box text scale), while the device font settings in `textStyle.ts` stay as display preferences.
 
 ## 3. Box style (per box, synced, default for new boxes)
@@ -44,12 +44,12 @@ Rule: one text-formatting surface at a time. The strip wins. The MicroBar is onl
 
 ## 5b. Box states (owner-observed GoodNotes behaviour, 10 Nov)
 
-| State | How you get there | What shows |
-|---|---|---|
-| **Idle** | tap bare paper, Esc | the box's own style only (None = no frame) |
-| **Selected** | tap the box's **outer frame** (finger or Pencil; a 12 px band inside + 8 px outside the edge, at least 44 px total for touch) | floating Box bar + grid handles (⠿ move, column dividers), accent frame |
-| **Typing** | tap inside the text (or a new box) | Box bar **hidden**, only a thin 1 px outline round the typing area, caret; iPad keyboard bar if the keyboard is up; the Text strip stays as it is |
-| back to **Selected** | tap the frame again while typing | bar and handles return, caret kept in memory (tap inside resumes at the same spot) |
+| State                | How you get there                                                                                                             | What shows                                                                                                                                        |
+| -------------------- | ----------------------------------------------------------------------------------------------------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------- |
+| **Idle**             | tap bare paper, Esc                                                                                                           | the box's own style only (None = no frame)                                                                                                        |
+| **Selected**         | tap the box's **outer frame** (finger or Pencil; a 12 px band inside + 8 px outside the edge, at least 44 px total for touch) | floating Box bar + grid handles (⠿ move, column dividers), accent frame                                                                           |
+| **Typing**           | tap inside the text (or a new box)                                                                                            | Box bar **hidden**, only a thin 1 px outline round the typing area, caret; iPad keyboard bar if the keyboard is up; the Text strip stays as it is |
+| back to **Selected** | tap the frame again while typing                                                                                              | bar and handles return, caret kept in memory (tap inside resumes at the same spot)                                                                |
 
 - One state per page (`boxState: idle | selected(ids) | typing(id)`) in a small pure reducer `paper/boxState.ts`, fed by `tapSelect.ts`. Frame hits are tested before text hits. Unit-test every transition.
 - The MicroBar never shows in Typing (the strip or keyboard bar covers it), which matches "while typing, the bar hides".
@@ -82,5 +82,6 @@ When the on-screen keyboard is up (`visualViewport` shrinks more than 150 px), a
 4. Remove the MicroBar when the strip is showing (recommended), or keep both?
 
 ## Owner answers (10 Nov)
+
 - Layout and box style: in the strip and box bar only (no main-bar icons). Own presets: per account (synced). MicroBar hidden while the strip shows. Pin = keep the text strip open when switching tools (GoodNotes-style), owner chose the recommendation.
 - Presets tab like GoodNotes (owner screenshot): a grid of 10 colour swatches (none/transparent, dark, lime, peach, white, red, yellow, pale blue, slate, white-bordered) for one-tap box backgrounds; use theme-aware tokens so they read in Day/Night/Sepia.

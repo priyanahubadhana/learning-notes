@@ -162,10 +162,10 @@ export function BoxFrame({
       ))}
       <div
         data-chrome
-        className="absolute -top-6 left-0 right-0 flex h-6 items-center justify-between opacity-0 transition-opacity group-hover:opacity-100 group-focus-within:opacity-100 group-data-picked:opacity-100 pointer-coarse:opacity-100"
+        className="absolute -top-6 left-0 right-0 h-6 opacity-0 transition-opacity group-hover:opacity-100 group-focus-within:opacity-100 group-data-picked:opacity-100 pointer-coarse:opacity-100"
       >
         {box.locked || stacked ? (
-          <span aria-hidden className="px-1 text-xs text-muted">
+          <span aria-hidden className="absolute left-0 px-1 text-xs text-muted">
             🔒
           </span>
         ) : (
@@ -175,7 +175,7 @@ export function BoxFrame({
             aria-label={t('paper.box.move')}
             onPointerDown={(e) => onGrab('move', e)}
             {...pointer}
-            className="h-6 min-w-10 cursor-grab touch-none rounded px-2 text-xs leading-none text-muted hover:bg-hover"
+            className="absolute top-0 left-0 h-6 min-w-10 cursor-grab touch-none rounded px-2 text-xs leading-none text-muted hover:bg-hover"
           >
             ⠿
           </button>
@@ -186,7 +186,7 @@ export function BoxFrame({
           aria-label={t('paper.box.menu')}
           aria-haspopup="menu"
           onClick={(e) => onMenu(e.currentTarget.getBoundingClientRect())}
-          className="h-6 min-w-8 rounded px-1 text-sm leading-none text-muted hover:bg-hover"
+          className="absolute top-0 right-0 h-6 min-w-8 rounded px-1 text-sm leading-none text-muted hover:bg-hover"
         >
           ⋯
         </button>

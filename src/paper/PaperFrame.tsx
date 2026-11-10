@@ -524,6 +524,10 @@ export function PaperFrame({
   // arrangement the drop would give (a live preview), an accent outline marks
   // the landing cell. Release = one write, one Undo.
   const [liveBoxes, setLiveBoxes] = useState<Map<string, PaperBox> | null>(null)
+  /** Where the dragged boxes were at the start: they stay there, a transform moves them. */
+  const [dragOrigin, setDragOrigin] = useState<Map<string, PaperBox> | null>(
+    null,
+  )
   const [ghost, setGhost] = useState<{ id: string; full: boolean } | null>(null)
   const drag = useRef<{
     x0: number
@@ -638,6 +642,7 @@ export function PaperFrame({
       live.set(id, clampBox({ ...o, x: o.x + dx, y: o.y + dy }, sheet.w))
     }
     setLiveBoxes(live)
+    setDragOrigin(d.orig)
     const drop = dropAt(e.clientX, e.clientY, d.ids, d.rows0)
     setPreview(drop.rows)
     setGhost({ id: d.lead, full: drop.full })
@@ -648,6 +653,7 @@ export function PaperFrame({
       if (e.key !== 'Escape' || !drag.current?.moved) return
       drag.current = null
       setLiveBoxes(null)
+      setDragOrigin(null)
       setGhost(null)
       setPreview(null)
     }
@@ -669,6 +675,7 @@ export function PaperFrame({
         ? dropAt(e.clientX, e.clientY, d.ids, d.rows0).rows
         : null
     setLiveBoxes(null)
+    setDragOrigin(null)
     setGhost(null)
     setPreview(null)
     if (!d) return
@@ -962,7 +969,7 @@ export function PaperFrame({
         {extra.map((b) => (
           <BoxFrame
             key={b.id}
-            box={b}
+            box={liveBoxes?.has(b.id) ? (dragOrigin?.get(b.id) ?? b) : b}
             shown={liveBoxes?.get(b.id) ?? b}
             k={k}
             zoom={zoom}

@@ -82,5 +82,5 @@ When the on-screen keyboard is up (`visualViewport` shrinks more than 150 px), a
 4. Remove the MicroBar when the strip is showing (recommended), or keep both?
 
 ## Owner answers (10 Nov)
-- Layout and box style: in the strip and box bar only (no main-bar icons). Own presets: per account (synced). MicroBar hidden while the strip shows. Pin: owner asked for an explanation; pending.
+- Layout and box style: in the strip and box bar only (no main-bar icons). Own presets: per account (synced). MicroBar hidden while the strip shows. Pin = keep the text strip open when switching tools (GoodNotes-style), owner chose the recommendation.
 - Presets tab like GoodNotes (owner screenshot): a grid of 10 colour swatches (none/transparent, dark, lime, peach, white, red, yellow, pale blue, slate, white-bordered) for one-tap box backgrounds; use theme-aware tokens so they read in Day/Night/Sepia.

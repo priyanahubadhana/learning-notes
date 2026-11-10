@@ -55,7 +55,9 @@ export async function inkNote(
     const s = document.querySelector('[data-page-scroller]')
     if (s) s.scrollTop = 0
   })
-  await page.waitForTimeout(100)
+  // Past the page's 450 ms hold after a tool is chosen: a stroke drawn inside
+  // it can be lost on the slower WebKit machine.
+  await page.waitForTimeout(600)
 }
 
 /** The page's text block (a place to draw over). */

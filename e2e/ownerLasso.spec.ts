@@ -148,7 +148,7 @@ async function scene(page: Page) {
   await page.evaluate(() => {
     document.querySelector('[data-page-scroller]')!.scrollTop = 0
   })
-  await page.waitForTimeout(300)
+  await page.waitForTimeout(700)
   const last = await wordsBox(page, 'apple banana')
   const ink = { x: last.x + 40, y: last.y + 80, width: 200, height: 40 }
   await stroke(page, line([ink.x, ink.y], [ink.x + 200, ink.y + 30], 30), {

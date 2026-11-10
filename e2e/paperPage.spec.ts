@@ -261,7 +261,11 @@ test('fit width on a phone: the boxes stack under the text in reading order', as
       let worst = 0
       for (const box of [extra.first(), extra.nth(1)]) {
         const r = (await box.boundingBox())!
-        worst = Math.max(worst, Math.abs(r.x - m.x), Math.abs(r.width - m.width))
+        worst = Math.max(
+          worst,
+          Math.abs(r.x - m.x),
+          Math.abs(r.width - m.width),
+        )
       }
       return worst
     })

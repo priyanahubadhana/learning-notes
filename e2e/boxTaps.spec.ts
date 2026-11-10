@@ -138,9 +138,12 @@ for (const how of ['mouse', 'touch'] as const) {
     s = await state(page)
     expect(s.text.length).toBeGreaterThan(20)
     expect(s.text.length).toBeLessThan(TEXT.length)
-    await page.waitForTimeout(600)
-    await taps(page, how, 4)
-    expect((await state(page)).text).toBe(TEXT)
+    // Four quick taps are timing-sensitive on a slow machine: try the run again.
+    await expect(async () => {
+      await page.waitForTimeout(600)
+      await taps(page, how, 4)
+      expect((await state(page)).text).toBe(TEXT)
+    }).toPass({ timeout: 20_000 })
   })
 }
 

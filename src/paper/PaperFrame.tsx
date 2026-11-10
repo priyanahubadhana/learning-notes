@@ -1104,6 +1104,7 @@ export function PaperFrame({
         <div
           ref={paperEl}
           data-paper
+          data-has-boxes={extra.length > 0 ? '' : undefined}
           data-sheet={page.sheet ?? 'A4'}
           style={
             flat

@@ -44,6 +44,8 @@ export function boxReducer(state: BoxState, e: BoxEvent): BoxState {
       return { kind: 'selected', ids: [e.id] }
     }
     case 'caretIn':
+      // Already typing here: the same state (no redraw of the whole paper).
+      if (state.kind === 'typing' && state.id === e.id) return state
       // Typing in a box that is not picked is plain typing (idle): the bar
       // and handles belong to a picked box.
       if (

@@ -85,6 +85,14 @@ export function BoxFrame({
 }) {
   const el = useRef<HTMLDivElement>(null)
   const [h, setH] = useState(0)
+  // A new empty box with the caret: accent dashed frame and "Type here".
+  const [emptyFocused, setEmptyFocused] = useState(false)
+  const checkEmpty = () => {
+    const node = el.current
+    const on =
+      !!node && node.contains(document.activeElement) && isEmptyBox(node)
+    setEmptyFocused((old) => (old === on ? old : on))
+  }
   useEffect(() => {
     const node = el.current
     if (!node) return
@@ -118,6 +126,10 @@ export function BoxFrame({
       data-locked={box.locked ? '' : undefined}
       data-picked={picked ? '' : undefined}
       data-typing={typing ? '' : undefined}
+      data-empty-focused={emptyFocused ? '' : undefined}
+      onFocusCapture={() => window.setTimeout(checkEmpty, 0)}
+      onBlurCapture={() => window.setTimeout(checkEmpty, 0)}
+      onKeyUpCapture={checkEmpty}
       data-dragging={dragging ? '' : undefined}
       data-lasso={lasso ? '' : undefined}
       onKeyDownCapture={(e) => {

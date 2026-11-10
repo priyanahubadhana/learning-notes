@@ -1103,7 +1103,7 @@ body:has([data-ink-pad]) [data-sel-handle]::after {
 
 /* Owner bug batch 2, item 9: with other boxes on the page, the "Tap here to
    keep writing" line under the page's text would float among them. */
-[data-paper]:has([data-paper-boxes]) .ln-tap-below {
+[data-paper][data-has-boxes] .ln-tap-below {
   visibility: hidden;
   pointer-events: none;
 }
@@ -1117,10 +1117,7 @@ body:has([data-ink-pad]) [data-sel-handle]::after {
   )::after {
   content: var(--type-here, '') !important;
 }
-[data-paper-box]:not([data-paper-box='main']):has(
-    .bn-block-content[data-is-empty-and-focused]:only-child
-  )
-  [data-box-frame] {
+[data-paper-box][data-empty-focused] [data-box-frame] {
   border-color: var(--color-accent) !important;
   border-style: dashed !important;
   border-width: 1.5px !important;

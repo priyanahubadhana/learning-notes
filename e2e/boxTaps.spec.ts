@@ -65,14 +65,13 @@ const state = (page: Page) =>
 type How = 'mouse' | 'touch'
 async function taps(page: Page, how: How, n: number) {
   const p = await wordPoint(page)
-  for (let i = 0; i < n; i++) {
-    if (how === 'mouse') {
-      await page.mouse.move(p.x, p.y)
-      await page.mouse.down({ clickCount: i + 1 })
-      await page.mouse.up({ clickCount: i + 1 })
-    } else {
-      await page.touchscreen.tap(p.x, p.y)
-    }
+  if (how === 'mouse') {
+    // One call runs all the down/up pairs back to back (WebKit on the CI
+    // machine is too slow between separate calls for them to count as one run).
+    await page.mouse.move(p.x, p.y)
+    await page.mouse.click(p.x, p.y, { clickCount: n })
+  } else {
+    for (let i = 0; i < n; i++) await page.touchscreen.tap(p.x, p.y)
   }
   await page.waitForTimeout(150)
 }

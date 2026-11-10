@@ -621,15 +621,11 @@ export function PaperFrame({
       if (at) applyMove(at)
     })
   }
-  const flushMove = () => {
-    if (frame.current) cancelAnimationFrame(frame.current)
-    frame.current = 0
-    const at = pending.current
-    pending.current = null
-    if (at) applyMove(at)
-  }
-  const applyMove = (e: { clientX: number; clientY: number }) => {
-    const d = drag.current
+  const applyMove = (
+    e: { clientX: number; clientY: number },
+    held = drag.current,
+  ) => {
+    const d = held
     if (!d || d.ids.length === 0) return
     if (!d.moved && Math.hypot(e.clientX - d.x0, e.clientY - d.y0) < TAP_PX)
       return
@@ -659,10 +655,19 @@ export function PaperFrame({
     return () => window.removeEventListener('keydown', key)
   }, [])
   const dragEnd = (e: ReactPointerEvent) => {
-    flushMove()
+    if (frame.current) cancelAnimationFrame(frame.current)
+    frame.current = 0
+    pending.current = null
     const d = drag.current
     drag.current = null
-    const rows = preview
+    // The drop is planned from the lift itself, not from the last drawn
+    // preview: moves that all land inside one frame (a fast flick, a quick
+    // WebKit drag) have not re-drawn yet when the lift comes.
+    if (d && e.type !== 'pointercancel') applyMove(e, d)
+    const rows =
+      d?.moved && d.ids.length > 0
+        ? dropAt(e.clientX, e.clientY, d.ids, d.rows0).rows
+        : null
     setLiveBoxes(null)
     setGhost(null)
     setPreview(null)

@@ -80,7 +80,7 @@ test('a tap on empty paper makes a box; it moves, locks, duplicates and deletes 
   const g = (await extra.locator('[data-box-grip]').boundingBox())!
   await page.mouse.move(g.x + g.width / 2, g.y + g.height / 2)
   await page.mouse.down()
-  await page.mouse.move(g.x - 60, g.y + 80, { steps: 5 })
+  await page.mouse.move(g.x - 60, g.y + 200, { steps: 8 })
   await page.mouse.up()
   await expect
     .poll(async () => (await extra.boundingBox())!.y)
@@ -215,7 +215,7 @@ test('the Lasso on the paper picks boxes; moving one moves them all', async ({
   const g = (await first.locator('[data-box-grip]').boundingBox())!
   await page.mouse.move(g.x + g.width / 2, g.y + g.height / 2)
   await page.mouse.down()
-  await page.mouse.move(g.x + g.width / 2, g.y + 120, { steps: 6 })
+  await page.mouse.move(g.x + g.width / 2, g.y + 250, { steps: 10 })
   await page.mouse.up()
   await expect
     .poll(async () => {
@@ -255,9 +255,14 @@ test('fit width on a phone: the boxes stack under the text in reading order', as
   await expect(extra.nth(1)).toContainText('Right box')
   const a = (await extra.first().boundingBox())!
   const b = (await extra.nth(1).boundingBox())!
-  for (const r of [a, b]) {
-    expect(Math.abs(r.x - main.x)).toBeLessThan(2)
-    expect(Math.abs(r.width - main.width)).toBeLessThan(2)
+  // The boxes ease into the stack, so wait for them to settle (WebKit is slower).
+  for (const box of [extra.first(), extra.nth(1)]) {
+    await expect
+      .poll(async () => {
+        const r = (await box.boundingBox())!
+        return Math.max(Math.abs(r.x - main.x), Math.abs(r.width - main.width))
+      })
+      .toBeLessThan(2)
   }
   expect(a.y).toBeGreaterThan(main.y + main.height - 1)
   expect(b.y).toBeGreaterThan(a.y + a.height - 1)

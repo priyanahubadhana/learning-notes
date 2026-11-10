@@ -7,6 +7,7 @@ import {
 } from 'react'
 import { t } from '../i18n/t'
 import type { PaperBox } from '../core/types'
+import { frameCss, padOf } from '../core/boxStyle'
 import { BOX_COLOURS, sheetSegments } from './boxes'
 
 /** How a press on a box is dragged: moves it, or changes its width. */
@@ -34,6 +35,7 @@ export function BoxFrame({
   onHeight,
   onMenu,
   picked,
+  typing,
   lasso,
   dragging,
   pushed,
@@ -62,6 +64,8 @@ export function BoxFrame({
   onMenu: (at: DOMRect) => void
   /** Selected (tap on the frame, or the Lasso). */
   picked: boolean
+  /** The caret is in this picked box: the bar hides, a thin outline stays. */
+  typing: boolean
   /** The Lasso tool is on: hovering shows the frame, a tap on it selects. */
   lasso: boolean
   /** Being dragged: a see-through copy that follows the pointer. */
@@ -113,6 +117,7 @@ export function BoxFrame({
       data-paper-box={box.id}
       data-locked={box.locked ? '' : undefined}
       data-picked={picked ? '' : undefined}
+      data-typing={typing ? '' : undefined}
       data-dragging={dragging ? '' : undefined}
       data-lasso={lasso ? '' : undefined}
       onKeyDownCapture={(e) => {
@@ -148,6 +153,16 @@ export function BoxFrame({
             : { left: shown.x * k, top: shown.y * k, width: shown.w * k }
       }
     >
+      {box.style &&
+        segments.map((s, i) => (
+          <div
+            key={'s' + i}
+            aria-hidden
+            data-box-style={i}
+            className="pointer-events-none absolute inset-x-0 box-border"
+            style={{ top: s.top, height: s.height, ...frameCss(box.style) }}
+          />
+        ))}
       {segments.map((s, i) => (
         <div
           key={i}
@@ -155,6 +170,7 @@ export function BoxFrame({
           data-box-frame={i}
           className={
             'pointer-events-none absolute inset-x-0 rounded-md border border-dashed border-transparent group-hover:border-line group-focus-within:border-line group-data-lasso:group-hover:border-solid group-data-lasso:group-hover:border-accent group-data-picked:border-solid group-data-picked:border-accent' +
+            (typing ? ' !border-solid !border-line-strong' : '') +
             (dragging ? ' !border-solid !border-accent' : '')
           }
           style={{ top: s.top, height: s.height, background: colour }}
@@ -192,7 +208,7 @@ export function BoxFrame({
         </button>
       </div>
       {!stacked &&
-        (lasso || picked) &&
+        (lasso || picked || !box.locked) &&
         // The frame itself, as four thin strips: a tap selects the box, a
         // drag moves it (the text inside stays free to edit).
         (['top', 'bottom', 'left', 'right'] as const).map((side) => (
@@ -212,15 +228,17 @@ export function BoxFrame({
           />
         ))}
       <div
-        className="px-1"
+        className={box.style ? undefined : 'px-1'}
         style={{
+          ...(box.style ? { padding: padOf(box.style) + 4 } : {}),
           ...(zoom === 1 ? {} : { zoom }),
           ['--box-line' as string]: lineH + 'px',
+          ['--type-here' as string]: JSON.stringify(t('textTool.typeHere')),
         }}
       >
         {children}
       </div>
-      {picked && !dragging && bar && (
+      {picked && !typing && !dragging && bar && (
         <div data-box-bar-holder className="absolute top-full left-0 z-20 mt-2">
           {bar}
         </div>

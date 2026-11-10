@@ -224,6 +224,8 @@ export interface PaperBox {
   w: number
   locked?: true
   colour?: string
+  /** Bug batch 2, item 8: background, border, corners, shadow, padding (core/boxStyle.ts). */
+  style?: import('./boxStyle').BoxStyle
 }
 
 /** What a source page is: a book, an article, a video, … */

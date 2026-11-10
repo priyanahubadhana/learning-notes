@@ -1,5 +1,7 @@
 # Text tool plan (owner bug batch 2, item 8): 10 Nov 2026
 
+**Status (10 Nov): built by Builder L (see CHANGELOG, "Item 8"). Left for later: the strip's own font/size/line-spacing controls, per-notebook presets.**
+
 Research: [research/goodnotes-text-tool-2026-11.md](../research/goodnotes-text-tool-2026-11.md). Builds on the options pill ([features/toolbar.md](../features/toolbar.md)), the box grid ([box-grid-plan.md](box-grid-plan.md)), Layout Assist ([layout-assist-plan.md](layout-assist-plan.md)) and the tap model (batch 1, items 11 and 20, `editor/tapSelect.ts`).
 
 ## The idea in one line

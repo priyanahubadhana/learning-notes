@@ -21,6 +21,7 @@ import {
 import type { Editor } from '../editor/barActions'
 import { t, type MessageKey } from '../i18n/t'
 import { boxEditors } from './activeBox'
+import { openBoxStyle } from './boxStyleBus'
 
 /** Select every block of a box's editor, so a change applies to all of it. */
 function selectAllBlocks(editor: Editor): void {
@@ -159,6 +160,8 @@ export function BoxBar({
           {btn('cut', 'scissors', t('pic.act.cut'), cut)}
         </>
       )}
+      {canEdit &&
+        btn('style', 'palette', t('boxStyle.title'), () => openBoxStyle(boxId))}
       {canEdit &&
         onLayout &&
         btn('layout', 'grid', t('layout.title'), () => onLayout())}

@@ -1,4 +1,5 @@
 import { useActiveStyles } from '../../../editor/useActiveStyles'
+import { lazy, Suspense } from 'react'
 import { t, type MessageKey } from '../../../i18n/t'
 import type { Editor } from '../../../editor/barActions'
 import {
@@ -76,6 +77,9 @@ export function PillContent({
       return <InsertOptions ids={ids} />
   }
 }
+
+// The box part of the Text strip (Box style, Layout) loads with the strip.
+const TextBoxExtras = lazy(() => import('./TextBoxExtras'))
 
 // ---- Aa ----
 
@@ -274,6 +278,9 @@ function TextOptions({
             return null
         }
       })}
+      <Suspense fallback={null}>
+        <TextBoxExtras />
+      </Suspense>
     </>
   )
 }

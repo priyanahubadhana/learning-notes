@@ -81,6 +81,10 @@ Hold still on text under the Text tool (1.5 s, Settings › Advanced 0.6-3 s; a 
 
 Box ⋯ › Layout, the Box bar ▦ or Ctrl/Cmd+Alt+L: pick a layout and a zone, fill the other zones with the page's boxes (tap or drag), + New box or leave empty (empty zones collapse), see a full-page preview, then Done (one Undo). Apply to whole notebook previews every page first. No layout ever creates an empty box. Code: `paper/layoutPlan.ts` (pure), `LayoutAssist.tsx` (lazy), `layoutAssistService.ts`. Plan: [layout-assist-plan.md](../plans/layout-assist-plan.md).
 
+## Text tool and box style (10 Nov, bug batch 2 item 8)
+
+See [text-tool-plan.md](../plans/text-tool-plan.md). Box ⋯ › Box style, the Box bar and the Text strip open the Box style panel; boxes are Idle, Selected (frame tap) or Typing (tap inside; the bar hides); new boxes show a dashed frame and "Type here"; hold on blank paper gives "Start typing here"; the iPad keyboard bar sits on the keyboard. Code: `core/boxStyle.ts`, `paper/BoxStylePopover.tsx`, `paper/boxState.ts`, `paper/blankHold.ts`, `app/tools/main/KeyboardBar.tsx`, `TextBoxExtras.tsx`.
+
 ## Not yet
 
 - Ink at a zoom other than 100 %.

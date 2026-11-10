@@ -12,6 +12,8 @@ import { BOX_COLOURS } from './boxes'
 import type { GridInfo } from './layoutPlan'
 import type { AssistResult } from './LayoutAssist'
 import { LayoutAssistLazy } from './LayoutAssistLazy'
+import { BoxStylePopoverLazy } from './BoxStylePopoverLazy'
+import { BOX_STYLE_EVENT, LAYOUT_EVENT, openBoxStyle } from './boxStyleBus'
 
 import { NARROW_PX } from './sheets'
 import {
@@ -173,6 +175,14 @@ export function usePaperBoxes(
       bottom: 15,
     },
   })
+  // The Box style panel (bug batch 2, item 8): a lazy panel, opened by an event
+  // from the Box bar, the Text strip or the box menu.
+  const [styleFor, setStyleFor] = useState<string | null>(null)
+  useEffect(() => {
+    const on = (e: Event) => setStyleFor((e as CustomEvent<string>).detail)
+    window.addEventListener(BOX_STYLE_EVENT, on)
+    return () => window.removeEventListener(BOX_STYLE_EVENT, on)
+  }, [])
   // Layout Assist (bug batch 2, items 7 and 10): a lazy dialog.
   const [assist, setAssist] = useState<{
     anchor: string
@@ -199,6 +209,13 @@ export function usePaperBoxes(
         }
     setAssist({ anchor: boxId, info: { ...info }, texts, sheetOf })
   }
+  // The Text strip's Layout button.
+  useEffect(() => {
+    const on = (e: Event) => openAssist((e as CustomEvent<string>).detail)
+    window.addEventListener(LAYOUT_EVENT, on)
+    return () => window.removeEventListener(LAYOUT_EVENT, on)
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [editable])
   // Ctrl/Cmd + Alt + L: Layout for the box that has the caret.
   useEffect(() => {
     if (!editable) return
@@ -344,6 +361,11 @@ export function usePaperBoxes(
       ],
     },
     {
+      label: t('boxStyle.title'),
+      icon: 'palette',
+      onSelect: () => openBoxStyle(box.id),
+    },
+    {
       label: t('layout.title'),
       icon: '▦',
       hint: '⌃⌥L',
@@ -395,6 +417,14 @@ export function usePaperBoxes(
             anchor={menuFor.at}
             items={items(menuFor.box)}
             onClose={() => setMenuFor(null)}
+          />
+        )}
+        {styleFor && (
+          <BoxStylePopoverLazy
+            db={db}
+            pageId={pageId}
+            boxId={styleFor}
+            onClose={() => setStyleFor(null)}
           />
         )}
         {assist && (

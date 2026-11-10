@@ -1,4 +1,5 @@
 import { isOrderKey } from '../core/order'
+import { isStyleValue } from '../core/boxStyle'
 import { isGridRows } from '../core/gridRows'
 import type {
   Annotation,
@@ -123,7 +124,8 @@ function isPaperBox(v: unknown): boolean {
     mm(b.w) &&
     (b.w as number) > 0 &&
     (b.locked === undefined || b.locked === true) &&
-    (b.colour === undefined || isColour(b.colour))
+    (b.colour === undefined || isColour(b.colour)) &&
+    isStyleValue(b.style)
   )
 }
 

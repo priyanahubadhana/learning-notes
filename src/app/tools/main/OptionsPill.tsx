@@ -267,7 +267,9 @@ function Pill({
                 type="button"
                 data-pill-pin
                 aria-pressed={pinned}
-                aria-label={t('main.pill.pin')}
+                aria-label={
+                  tool === 'text' ? t('textTool.pin') : t('main.pill.pin')
+                }
                 onMouseDown={keepFocus}
                 onClick={() => pillPinned.set(!pinned)}
                 className={`grid min-h-11 min-w-11 shrink-0 place-items-center rounded-xl hover:bg-hover ${

@@ -1107,3 +1107,21 @@ body:has([data-ink-pad]) [data-sel-handle]::after {
   visibility: hidden;
   pointer-events: none;
 }
+
+/* Bug batch 2, item 8: a new, empty text box that has the caret shows a clear
+   accent dashed frame and "Type here" (not the page hint) until the first
+   character. The text comes from BoxFrame (--type-here, in the chosen language). */
+[data-paper-box]:not([data-paper-box='main'])
+  .bn-block-content[data-is-empty-and-focused]:has(
+    .ProseMirror-trailingBreak:only-child
+  )::after {
+  content: var(--type-here, '') !important;
+}
+[data-paper-box]:not([data-paper-box='main']):has(
+    .bn-block-content[data-is-empty-and-focused]:only-child
+  )
+  [data-box-frame] {
+  border-color: var(--color-accent) !important;
+  border-style: dashed !important;
+  border-width: 1.5px !important;
+}

@@ -28,7 +28,10 @@ import type { Place } from '../app/tools/toolbarState'
 import { AppUiContext } from '../app/appUi'
 import { isApple } from '../app/keys'
 import { t } from '../i18n/t'
-import { useBarSettings } from '../settings/deviceModeSettings'
+import {
+  useBarSettings,
+  useKeyboardInset,
+} from '../settings/deviceModeSettings'
 import { historyState } from '../core/historySteps'
 import { padHistoryState } from './writePad/padHistory'
 import { MainBarRow } from '../app/tools/main/MainBar'
@@ -110,7 +113,11 @@ function useToolActive(editor: Editor): (id: string) => boolean {
   }
 }
 
+// The iPad keyboard bar loads only when the keyboard is up (bug batch 2, item 8).
+const KeyboardBar = lazy(() => import('../app/tools/main/KeyboardBar'))
+
 function Bar({ editor, slot }: { editor: Editor; slot: HTMLElement }) {
+  const kbInset = useKeyboardInset()
   const settings = useBarSettings()
   const { buttonPx, hoverTips, shortcutHints, autoHide } = settings
   const layout = useBarLayout()
@@ -489,6 +496,11 @@ function Bar({ editor, slot }: { editor: Editor; slot: HTMLElement }) {
       <ToolsBoundary name="selection bar">
         <MiniToolbar editor={editor} />
         <MicroBar editor={editor} />
+        {kbInset > 150 && (
+          <Suspense fallback={null}>
+            <KeyboardBar editor={editor} inset={kbInset} />
+          </Suspense>
+        )}
         <MiniKeys editor={editor} />
       </ToolsBoundary>
       <HoverName />

@@ -71,7 +71,7 @@ function penOnCaretOrSelection(editor: Editor, x: number, y: number): boolean {
 }
 
 /** The small ring that fills while the hold runs (item 6); lift to cancel. */
-function showRing(doc: Document, x: number, y: number, ms: number) {
+export function showRing(doc: Document, x: number, y: number, ms: number) {
   const el = doc.createElement('div')
   el.setAttribute('data-hold-ring', '')
   el.setAttribute('aria-hidden', 'true')

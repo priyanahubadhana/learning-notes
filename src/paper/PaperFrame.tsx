@@ -6,6 +6,7 @@ import {
   useCallback,
   useEffect,
   useImperativeHandle,
+  useReducer,
   useLayoutEffect,
   useMemo,
   useRef,
@@ -43,6 +44,7 @@ import {
   type Zone,
 } from './grid'
 import { GridDividers } from './GridDividers'
+import { boxReducer, IDLE, pickedOf } from './boxState'
 import { bounds, record, replay, waitFor, type Recorded } from './penOnPaper'
 import { activeTool } from '../app/tools/main/mainTools'
 import { onGestureReset } from '../app/gestureReset'
@@ -487,13 +489,44 @@ export function PaperFrame({
   const layerRef = useRef<HTMLDivElement>(null)
   const loopLayer = useRef<LoopApi>(null)
   const loop = useRef<Pt[] | null>(null)
-  const [picked, setPicked] = useState<string[]>([])
+  // Box states (bug batch 2, item 8): idle, selected, typing (boxState.ts).
+  const [bs, dispatchBs] = useReducer(boxReducer, IDLE)
+  const picked = useMemo(() => pickedOf(bs), [bs])
+  const setPicked = (ids: string[]) => dispatchBs({ type: 'pick', ids })
+  // The caret going into a picked box's text (a tap inside it, or a key typed)
+  // or out of it. A bar button that focuses the editor does not count.
+  useEffect(() => {
+    const boxOfText = (t: EventTarget | null) => {
+      const el = t instanceof Element ? t : null
+      if (!el?.closest('[contenteditable="true"]')) return null
+      return el.closest('[data-paper-box]')?.getAttribute('data-paper-box')
+    }
+    const down = (e: Event) => {
+      const id = boxOfText(e.target)
+      if (id) dispatchBs({ type: 'caretIn', id })
+    }
+    const key = (e: KeyboardEvent) => {
+      if (e.key.length !== 1 || e.metaKey || e.ctrlKey) return
+      const id = boxOfText(document.activeElement)
+      if (id) dispatchBs({ type: 'caretIn', id })
+    }
+    const out = () =>
+      window.setTimeout(() => {
+        if (!boxOfText(document.activeElement)) dispatchBs({ type: 'caretOut' })
+      }, 0)
+    document.addEventListener('pointerdown', down, true)
+    document.addEventListener('keydown', key, true)
+    document.addEventListener('focusout', out)
+    return () => {
+      document.removeEventListener('pointerdown', down, true)
+      document.removeEventListener('keydown', key, true)
+      document.removeEventListener('focusout', out)
+    }
+  }, [])
   const lassoOn = activeTool.useValue() === 'lasso'
   /** A tap on a box's frame (or grip): it is the selection; Shift adds. */
   const selectBox = (id: string, add: boolean) =>
-    setPicked((p) =>
-      add ? (p.includes(id) ? p.filter((x) => x !== id) : [...p, id]) : [id],
-    )
+    dispatchBs({ type: 'frameTap', id, add })
   // A first tap on a box's text selects the box (tapSelect.ts, item 11).
   useEffect(() => {
     const on = (e: Event) => {
@@ -685,7 +718,14 @@ export function PaperFrame({
     setPreview(null)
     if (!d) return
     if (e.type === 'pointercancel') return
-    if (!d.moved) return selectBox(d.lead, d.shift)
+    if (!d.moved) {
+      // A tap on the frame while typing goes back to "selected": the caret
+      // leaves the text (the editor keeps its place for the next tap inside).
+      const live = document.activeElement
+      if (live?.closest('[data-paper-box="' + CSS.escape(d.lead) + '"]'))
+        (live as HTMLElement).blur()
+      return selectBox(d.lead, d.shift)
+    }
     if (!rows) return
     // The places the new arrangement gives (for old clients and exports).
     const places: BoxPatch[] = []
@@ -888,7 +928,7 @@ export function PaperFrame({
       !(e.target as Element).closest('[data-paper-sheet]')
     )
       return
-    if (activeTool.get() !== 'lasso') setPicked((p) => (p.length ? [] : p))
+    if (activeTool.get() !== 'lasso') dispatchBs({ type: 'clear' })
     const r = paperEl.current?.getBoundingClientRect()
     if (!r) return
     const x = (e.clientX - r.left) / k
@@ -987,6 +1027,7 @@ export function PaperFrame({
             onBottom={(px) => reportBottom(b.id, px)}
             onMenu={(at) => onBoxMenu?.(b, at)}
             picked={picked.includes(b.id)}
+            typing={bs.kind === 'typing' && bs.id === b.id}
             lasso={lassoOn}
             dragging={!!liveBoxes?.has(b.id)}
             pushed={!!preview || !!heldRows}
@@ -1093,6 +1134,23 @@ export function PaperFrame({
                   t: Date.now(),
                 }
                 penDown(e)
+                // Hold on blank paper: "Start typing here" (loads on demand).
+                if (
+                  !flat &&
+                  activeTool.get() === 'text' &&
+                  !isUiEvent(e.nativeEvent) &&
+                  (e.target === e.currentTarget ||
+                    (e.target as Element).closest('[data-paper-sheet]'))
+                ) {
+                  const ne = e.nativeEvent
+                  const r = paperEl.current?.getBoundingClientRect()
+                  const mx = r ? (e.clientX - r.left) / k : 0
+                  const my = r ? (e.clientY - r.top) / k : 0
+                  if (mx > EDGE_MM && mx < sheet.w - EDGE_MM && my > EDGE_MM)
+                    void import('./blankHold').then((m) =>
+                      m.startBlankHold(ne, page.id, paperStepMm(page.inkBg), k),
+                    )
+                }
               }}
               onPointerMove={(e) => {
                 penMove(e)
@@ -1119,7 +1177,7 @@ export function PaperFrame({
                     className="absolute inset-x-0 mx-auto w-max max-w-[80%] text-center text-sm text-muted"
                     style={{ top: box.y * k + step * 5 }}
                   >
-                    {t('paper.hint')}
+                    {t('textTool.hint')}
                   </p>
                 </div>
               )}

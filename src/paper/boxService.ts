@@ -1,6 +1,7 @@
 import { quietTx } from '../core/historySteps'
 import type { LearningNotesDB } from '../core/db'
 import { createId } from '../core/ids'
+import { cleanStyle } from '../core/boxStyle'
 import {
   getLive,
   isLive,
@@ -80,12 +81,17 @@ export async function addBox(
   const page = await getLive(db.pages, pageId)
   const sheet = sheetOf(page)
   const id = createId()
+  // "Use for new boxes" (bug batch 2, item 8): the default style, never the page's own box.
+  const style = cleanStyle(
+    (await db.settings.get('paper.boxStyleDefault'))?.value,
+  )
   const box = clampBox(
     {
       id,
       x: at.x,
       y: at.y,
       w: at.w ?? Math.min(NEW_W, sheet.w - at.x - MARGIN),
+      ...(style ? { style } : {}),
     },
     sheet.w,
   )
@@ -119,6 +125,7 @@ export async function updateBox(
   const next = clampBox({ ...current, ...patch }, sheet.w)
   if (patch.locked === undefined && 'locked' in patch) delete next.locked
   if (patch.colour === undefined && 'colour' in patch) delete next.colour
+  if (patch.style === undefined && 'style' in patch) delete next.style
   await writeBoxes(db, pageId, (boxes) =>
     boxes.some((b) => b.id === id)
       ? boxes.map((b) => (b.id === id ? next : b))

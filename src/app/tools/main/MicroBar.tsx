@@ -5,10 +5,17 @@ import type { Editor } from '../../../editor/barActions'
 import { BACKGROUND_HEX, TEXT_HEX, setColor } from '../../../editor/colorData'
 import { runEditorCommand } from '../editorCommands'
 import { Icon, type IconName } from '../icons'
+import { useKeyboardInset } from '../../../settings/deviceModeSettings'
 import { currentRunner } from '../toolRuntime'
 import { startGripDrag } from '../gripDrag'
 import { highlightChoice, textColourChoice } from './pillChoices'
-import { activeTool, openCard, openPillTool } from './mainTools'
+import {
+  activeTool,
+  openCard,
+  openPillTool,
+  pillPinned,
+  shownPill,
+} from './mainTools'
 import { keepFocus } from './pillKit'
 import { clampInArea, microPos, pageArea, type FreePos } from './miniBarPrefs'
 import { NOTE_SIZES, applyNoteStyle, noteSize } from './textStyle'
@@ -69,7 +76,19 @@ export function MicroBar({ editor }: { editor: Editor }) {
   }, [editor])
   const view = editor.prosemirrorView
   const caret = !!view && view.state.selection.empty
-  const show = held || (typed && focused && caret && tool === 'text')
+  // The Text strip (the Text pill) is the one text-formatting surface while
+  // it shows (bug batch 2, item 8); this bar is only the fallback.
+  const strip = shownPill(openPillTool.useValue(), pillPinned.useValue(), tool)
+  // The iPad keyboard bar replaces it while the keyboard is up.
+  const keyboardUp = useKeyboardInset() > 150
+  const show =
+    held ||
+    (typed &&
+      focused &&
+      caret &&
+      tool === 'text' &&
+      strip !== 'text' &&
+      !keyboardUp)
   // The bar appears a moment after the key, in a task of its own: drawn in the
   // key's own task it added about 50 ms to the longest task on a big page.
   const [late, setLate] = useState(false)

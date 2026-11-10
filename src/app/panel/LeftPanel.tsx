@@ -1,6 +1,8 @@
 import { useLiveQuery } from 'dexie-react-hooks'
 import {
   Fragment,
+  Suspense,
+  lazy,
   useEffect,
   useMemo,
   useRef,
@@ -36,6 +38,12 @@ import {
   type OutlineView,
 } from './panelModel'
 import { Icon } from '../tools/icons'
+import { readerBridge } from '../../reader/readerBridge'
+import type { BookTab } from '../../reader/BookPanel'
+
+const BookPanel = lazy(() => import('../../reader/BookPanel'))
+const BOOK_TABS = ['pages', 'outline', 'audio', 'annotations'] as const
+type BookTabId = (typeof BOOK_TABS)[number]
 
 const TABS = ['pages', 'outline', 'audio'] as const
 type Tab = (typeof TABS)[number]
@@ -408,11 +416,17 @@ export function LeftPanel({
   onOpenPage: (id: string) => void
   onClose: () => void
 }) {
-  const [tab, setTab] = usePref<Tab>('leftPanel.tab', isTab, 'pages')
+  const [noteTab, setTab] = usePref<Tab>('leftPanel.tab', isTab, 'pages')
+  // While a book is open the panel is about the book (items 32 and 45).
+  const book = readerBridge.useValue()
+  const [bookTab, setBookTab] = useState<BookTabId>('pages')
+  const tab: BookTabId = book ? bookTab : noteTab
+  const tabs: readonly BookTabId[] = book ? BOOK_TABS : TABS
   const ask = outlineRequest.useValue()
   useEffect(() => {
-    if (ask.n > 0 && Date.now() - ask.at < 1500) setTab('outline')
-  }, [ask, setTab])
+    if (ask.n > 0 && Date.now() - ask.at < 1500)
+      (book ? setBookTab : setTab)('outline')
+  }, [ask, setTab, book])
   const docked = window.innerWidth >= PANEL_DOCK_MIN
   return (
     <aside
@@ -426,21 +440,25 @@ export function LeftPanel({
       }
     >
       <div className="flex items-center gap-1 px-2 pt-2" role="tablist">
-        {TABS.map((id) => (
+        {tabs.map((id) => (
           <button
             key={id}
             type="button"
             role="tab"
             data-chrome
             aria-selected={tab === id}
-            onClick={() => setTab(id)}
+            onClick={() =>
+              book ? setBookTab(id as BookTabId) : setTab(id as Tab)
+            }
             className={`min-h-11 flex-1 rounded-lg px-2 text-sm ${
               tab === id
                 ? 'bg-hover font-semibold text-accent'
                 : 'text-ink-soft hover:bg-hover'
             }`}
           >
-            {t(`lp.tab.${id}`)}
+            {id === 'annotations'
+              ? t('bookpanel.tab.annotations')
+              : t(`lp.tab.${id}`)}
           </button>
         ))}
         <button
@@ -453,8 +471,20 @@ export function LeftPanel({
           <Icon name="close" size={18} />
         </button>
       </div>
-      <div role="tabpanel" className="min-h-0 flex-1 overflow-y-auto p-2">
-        {tab === 'pages' && (
+      <div
+        role="tabpanel"
+        className={`min-h-0 flex-1 p-2 ${
+          book?.format === 'pdf' && tab === 'pages'
+            ? 'overflow-hidden'
+            : 'overflow-y-auto'
+        }`}
+      >
+        {book && tab !== 'audio' && (
+          <Suspense fallback={null}>
+            <BookPanel db={db} bridge={book} tab={tab as BookTab} />
+          </Suspense>
+        )}
+        {!book && tab === 'pages' && (
           <PagesTab
             db={db}
             notebookId={notebookId}
@@ -465,8 +495,10 @@ export function LeftPanel({
             }}
           />
         )}
-        {tab === 'outline' && <OutlineTab db={db} pageId={pageId} />}
-        {tab === 'audio' && <AudioTab db={db} pageId={pageId} />}
+        {!book && tab === 'outline' && <OutlineTab db={db} pageId={pageId} />}
+        {tab === 'audio' && (
+          <AudioTab db={db} pageId={book ? book.pageId : pageId} />
+        )}
       </div>
     </aside>
   )

@@ -278,11 +278,17 @@ export async function saveProgress(
       patch.progress === undefined
         ? undefined
         : Math.min(1, Math.max(0, patch.progress))
+    // The furthest place only ever moves forward (it travels with the page).
+    const farther =
+      progress !== undefined &&
+      patch.at !== undefined &&
+      progress > (page.source.furthest ?? -1)
     await db.pages.update(pageId, {
       source: {
         ...page.source,
         ...patch,
         ...(progress === undefined ? {} : { progress }),
+        ...(farther ? { furthest: progress, furthestAt: patch.at } : {}),
       },
       // Not `updatedAt`: reading a book is not editing the page.
     })

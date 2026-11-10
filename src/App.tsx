@@ -1487,11 +1487,11 @@ function App() {
                   onChange={setSidebarWidth}
                 />
               )}
-              {panelOpen && currentPage && (
+              {panelOpen && (currentPage || hub?.kind === 'read') && (
                 <LeftPanel
                   db={db}
-                  notebookId={currentPage.notebookId}
-                  pageId={currentPage.id}
+                  notebookId={currentPage?.notebookId ?? ''}
+                  pageId={currentPage?.id ?? ''}
                   onOpenPage={(id) => openPage(id)}
                   onClose={() => setPanelOpen(false)}
                 />
@@ -1527,7 +1527,7 @@ function App() {
                     onOpenDrawer={() => setDrawerAt(routeHash)}
                     onToggleSidebar={toggleSidebar}
                     panel={
-                      currentPage
+                      currentPage || hub?.kind === 'read'
                         ? {
                             open: panelOpen,
                             onToggle: () => setPanelOpen(!panelOpen),

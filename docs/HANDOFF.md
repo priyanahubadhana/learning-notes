@@ -2,6 +2,8 @@
 
 # Handoff
 
+- **Book reader panel, full screen, zoom done (10 Nov, Builder F, bug batch items 28-verify, 29, 32, 33, 44, 45):** see CHANGELOG ("Builder F") and docs/features/library.md. Left panel follows the open book (readerBridge store), Notes tab, Go to / Sync to furthest in the reader ⋯, ribbon, Kindle-style full screen, double-tap zoom with overview. Open: 34, 37, 38, 41, 42 (next builder); Undo/Redo in the reader bar is Builder D; book read-aloud does not exist yet (Audio tab shows recordings); right-hand Contents/Notes panels in the reader are now duplicates. iPad checks at the top of plans/owner-checks-pending.md.
+
 - **Owner bug batch, Builder A (10 Nov):** items 1, 2, 15, 17, 21, 42 done (see CHANGELOG). Still open for A: 11, 19, 20, 22e/h/i, 25. e2e/ownerLasso.spec.ts is the owner's Lasso steps.
 - **Paper layout, scroll bar, pictures, box grid done (10 Nov, builder B, bug batch items 5, 6, 7, 9, 10, 13, 14, 22a-d/f/g/i/j, 26):** see CHANGELOG ("Builder B") and docs/features/paper-page.md ("Box grid", "Safe edge, empty boxes, scroll bar") and pictures.md. Open: table rows (BlockNote, database) still cross a sheet gap; the "Pencil tap goes back to the Lasso" part of item 9 and 22e / 22h are builder A's. iPad checks at the top of plans/owner-checks-pending.md.
 - **Owner bug batch, Builder A (10 Nov):** items 1, 2, 15, 17, 21, 42 done (see CHANGELOG). 22e/h/i and most of 25 done. Still open for A: 11 (box tap model), 19 (hold menu + setting), 20 (tap counter exactness), rest of 25. e2e/ownerLasso.spec.ts is the owner's Lasso steps.

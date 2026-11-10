@@ -73,6 +73,8 @@ export interface EpubViewProps {
     unitsLeft?: { chapter: number; book: number }
   }) => void
   onSelection: (sel: ReaderSelection | null) => void
+  /** A tap on the text: where across the view (x of width), for page turns. */
+  onTap?: (x: number, width: number) => void
   onFailed: () => void
 }
 
@@ -216,6 +218,18 @@ export function EpubView(props: EpubViewProps) {
           if (body && typeof ResizeObserver !== 'undefined') {
             new ResizeObserver(pokeInk).observe(body)
           }
+          doc.addEventListener('click', (c) => {
+            const target = c.target as Element | null
+            if (target?.closest('a, button, input, select, textarea')) return
+            if (!doc.getSelection()?.isCollapsed) return
+            const box = host.current?.getBoundingClientRect()
+            const frame = doc.defaultView?.frameElement?.getBoundingClientRect()
+            if (!box || !frame) return
+            propsRef.current.onTap?.(
+              c.clientX + frame.left - box.left,
+              box.width,
+            )
+          })
           doc.addEventListener('keydown', (k) => {
             if (k.key === 'ArrowLeft') void view?.goLeft()
             else if (k.key === 'ArrowRight') void view?.goRight()

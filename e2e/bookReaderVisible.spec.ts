@@ -111,3 +111,54 @@ test('a PDF opened with Continue shows its page', async ({ page }) => {
     page.locator('[data-testid="book-reader"] canvas').first(),
   ).toBeVisible()
 })
+
+/** A 13-hour-sized book: one chapter of 12,000 paragraphs (about 1.6 MB). */
+function makeHugeEpub(): Buffer {
+  const files = unzipSync(makeEpub('Huge'))
+  const para = Array.from(
+    { length: 12000 },
+    (_, i) =>
+      `<p>${i === 0 ? 'The quick brown fox' : 'Paragraph ' + i} jumps over the lazy dog again and again, and then once more for good measure.</p>`,
+  ).join('')
+  files['OEBPS/c1.xhtml'] = strToU8(
+    `<?xml version="1.0"?><html xmlns="http://www.w3.org/1999/xhtml"><head><title>Chapter 1</title></head><body><h1>Chapter 1</h1>${para}</body></html>`,
+  )
+  return Buffer.from(zipSync(files))
+}
+
+test('a huge EPUB in Pages (columns) layout is never blank', async ({
+  page,
+}) => {
+  await page.addInitScript(() =>
+    localStorage.setItem('learning-notes:epubFlow', '"paginated"'),
+  )
+  await importBook(page, 'huge.epub', 'application/epub+zip', makeHugeEpub())
+  await page.getByRole('button', { name: 'Start reading' }).click()
+  await expect(page.getByTestId('book-reader')).toBeVisible()
+  // Text must be on screen within the safety-net time (2.5 s) plus drawing.
+  await expect
+    .poll(
+      async () => {
+        for (const f of page.frames()) {
+          if (f === page.mainFrame()) continue
+          const seen = await f
+            .evaluate(() => {
+              const text = document.body?.innerText ?? ''
+              if (!text.includes('quick brown fox')) return null
+              const box = document.querySelector('p')!.getBoundingClientRect()
+              return box.width > 20 &&
+                box.height > 5 &&
+                box.right > 0 &&
+                box.left < window.innerWidth
+                ? 'visible'
+                : 'off-screen'
+            })
+            .catch(() => null)
+          if (seen) return seen
+        }
+        return null
+      },
+      { timeout: 20_000 },
+    )
+    .toBe('visible')
+})

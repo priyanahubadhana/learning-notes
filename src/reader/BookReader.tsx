@@ -1,4 +1,7 @@
-import { IconButton } from '../app/ui'
+import { IconButton, MenuPopover, NameDialog, type MenuItem } from '../app/ui'
+import { Icon } from '../app/tools/icons'
+import { tapZone } from '../app/reading/readingMath'
+import { readerBridge } from './readerBridge'
 import { useLiveQuery } from 'dexie-react-hooks'
 import {
   lazy,
@@ -66,6 +69,7 @@ const EpubView = lazy(() =>
   import('./epub/EpubView').then((m) => ({ default: m.EpubView })),
 )
 // Ask this book (Phase P): the AI code loads only when the panel opens.
+const ZoomPreview = lazy(() => import('./pdf/ZoomPreview'))
 const AskBook = lazy(() =>
   import('../ai/AskBook').then((m) => ({ default: m.AskBook })),
 )
@@ -137,6 +141,16 @@ export function BookReader({
     where: string
   } | null>(null)
   const [wordsPerPage, setWordsPerPage] = useState(300)
+  const [moreAt, setMoreAt] = useState<DOMRect | null>(null)
+  const [goTo, setGoTo] = useState(false)
+  // Kindle-style full screen (item 29): only the text; a tap in the middle
+  // shows the bar, taps at the edges turn the page.
+  const [full, setFull] = useState(false)
+  const [barShown, setBarShown] = useState(false)
+  const contentRef = useRef<HTMLDivElement>(null)
+  const tapDown = useRef<{ x: number; y: number; t: number } | null>(null)
+  const lastTap = useRef<{ x: number; y: number; t: number } | null>(null)
+  const tapTimer = useRef(0)
   const [orient] = useDeviceSetting(readingOrientSetting)
   const [outline, setOutline] = useState<OutlineItem[]>([])
   const [selection, setSelection] = useState<ReaderSelection | null>(null)
@@ -423,6 +437,69 @@ export function BookReader({
     }))
   }
 
+  // The left panel shows this book while the reader is open (items 32, 45).
+  const bridgeFormat = format === 'pdf' ? 'pdf' : 'epub'
+  const bridgeTitle = page?.title ?? ''
+  const bridgePage = position?.page ?? 1
+  const bridgeLabel = position?.label ?? ''
+  const bridgeProgress = position?.progress ?? 0
+  useEffect(() => {
+    readerBridge.set({
+      pageId,
+      title: bridgeTitle,
+      format: bridgeFormat,
+      pageCount,
+      page: bridgePage,
+      label: bridgeLabel,
+      progress: bridgeProgress,
+      outline,
+      doc: pdfDoc,
+      go: (at) => setTarget((prev) => ({ at, nonce: (prev?.nonce ?? 0) + 1 })),
+      jump: (a) => {
+        const loc = locatorOf(a.anchor)
+        if (!loc) return
+        setTarget((prev) => ({
+          at: loc,
+          nonce: (prev?.nonce ?? 0) + 1,
+          glow: a.id,
+        }))
+      },
+    })
+  }, [
+    pageId,
+    bridgeTitle,
+    bridgeFormat,
+    pageCount,
+    bridgePage,
+    bridgeLabel,
+    bridgeProgress,
+    outline,
+    pdfDoc,
+  ])
+  useEffect(() => () => readerBridge.set(null), [])
+
+  // Full screen: the browser's own too where there is one; Esc leaves.
+  useEffect(() => {
+    if (!full) return
+    const onKey = (e: KeyboardEvent) => {
+      if (e.key === 'Escape') setFull(false)
+    }
+    const onChange = () => {
+      if (!document.fullscreenElement) setFull(false)
+    }
+    document.addEventListener('keydown', onKey)
+    document.addEventListener('fullscreenchange', onChange)
+    void document.documentElement.requestFullscreen?.().catch(() => {})
+    return () => {
+      document.removeEventListener('keydown', onKey)
+      document.removeEventListener('fullscreenchange', onChange)
+      if (document.fullscreenElement) {
+        void document.exitFullscreen().catch(() => {})
+      }
+    }
+  }, [full])
+  useEffect(() => () => window.clearTimeout(tapTimer.current), [])
+
   if (!page || data === undefined) {
     return <p className="p-6 text-muted">{t('bookreader.loading')}</p>
   }
@@ -484,6 +561,114 @@ export function BookReader({
 
   const goPage = (p: number) =>
     setTarget((prev) => ({ at: `pdf:${p}:0`, nonce: (prev?.nonce ?? 0) + 1 }))
+  const toggleBookmark = () =>
+    runTask(
+      (async () => {
+        if (bookmarkHere) {
+          await deleteAnnotation(db, bookmarkHere.id)
+          toast(t('bookreader.bookmarkRemoved'))
+        } else {
+          await createAnnotation(db, {
+            pageId,
+            kind: 'bookmark',
+            anchor:
+              format === 'epub' && hereCfi
+                ? { type: 'epub', cfi: hereCfi }
+                : { type: 'pdf', page: pageNo, rects: [] },
+            chapter: format === 'epub' ? position?.label : chapterAt(pageNo),
+          })
+          toast(t('bookreader.bookmarked'))
+        }
+      })(),
+    )
+  const turn = (dir: 1 | -1) => {
+    if (format === 'pdf') {
+      goPage(Math.min(pageCount || 1, Math.max(1, pageNo + dir)))
+    } else {
+      setCommand((c) => ({
+        type: dir > 0 ? 'next' : 'prev',
+        nonce: (c?.nonce ?? 0) + 1,
+      }))
+    }
+  }
+  /** A tap in full screen: edges turn the page, the middle shows the bar. */
+  const onEdgeTap = (x: number, width: number) => {
+    if (!full) return
+    const zone = tapZone(x, width)
+    if (zone === 'previous') turn(-1)
+    else if (zone === 'next') turn(1)
+    else setBarShown((v) => !v)
+  }
+  /** Double tap (item 44): zoom in around the spot, or back to fit width. */
+  const toggleZoom = (x: number, y: number) => {
+    if (zoom > 1.05) return setZoom(1)
+    const sc = contentRef.current?.querySelector<HTMLElement>(
+      '[data-testid="pdf-scroller"]',
+    )
+    if (!sc) return setZoom(2)
+    const box = sc.getBoundingClientRect()
+    const fx = (sc.scrollLeft + x - box.left) / (sc.scrollWidth || 1)
+    const fy = (sc.scrollTop + y - box.top) / (sc.scrollHeight || 1)
+    setZoom(2)
+    window.setTimeout(() => {
+      sc.scrollLeft = fx * sc.scrollWidth - (x - box.left)
+      sc.scrollTop = fy * sc.scrollHeight - (y - box.top)
+    }, 160)
+  }
+  const pdfTap = (x: number, y: number) => {
+    const now = Date.now()
+    const prev = lastTap.current
+    window.clearTimeout(tapTimer.current)
+    if (prev && now - prev.t < 320 && Math.hypot(x - prev.x, y - prev.y) < 40) {
+      lastTap.current = null
+      return toggleZoom(x, y)
+    }
+    lastTap.current = { x, y, t: now }
+    if (!full) return
+    tapTimer.current = window.setTimeout(() => {
+      lastTap.current = null
+      const box = contentRef.current?.getBoundingClientRect()
+      if (box) onEdgeTap(x - box.left, box.width)
+    }, 330)
+  }
+  const goToSubmit = (value: string) => {
+    setGoTo(false)
+    const n = Number(value.replace('%', '').trim().replace(',', '.'))
+    const [min, max] = format === 'pdf' ? [1, pageCount || 1] : [0, 100]
+    if (!value.trim() || !Number.isFinite(n) || n < min || n > max) {
+      return toast(t('reader.goTo.bad', { min, max }))
+    }
+    if (format === 'pdf') goPage(Math.round(n))
+    else {
+      setCommand((c) => ({
+        type: 'fraction',
+        value: n / 100,
+        nonce: (c?.nonce ?? 0) + 1,
+      }))
+    }
+  }
+  const syncFurthest = () => {
+    const far = page.source?.furthest
+    const farAt = page.source?.furthestAt
+    if (far === undefined || !farAt) return toast(t('reader.syncFurthest.none'))
+    if (Math.abs((position?.progress ?? 0) - far) < 0.005) {
+      return toast(t('reader.syncFurthest.here'))
+    }
+    setTarget((prev) => ({ at: farAt, nonce: (prev?.nonce ?? 0) + 1 }))
+    toast(t('reader.syncFurthest.done'))
+  }
+  const moreItems: MenuItem[] = [
+    {
+      label: t('reader.goTo'),
+      icon: 'crosshair',
+      onSelect: () => setGoTo(true),
+    },
+    {
+      label: t('reader.syncFurthest'),
+      icon: 'swap',
+      onSelect: syncFurthest,
+    },
+  ]
   const startScrub = () =>
     setFlipFrom(
       (prev) =>
@@ -503,13 +688,22 @@ export function BookReader({
 
   return (
     <div
-      className="flex h-full min-h-0 flex-col"
+      className={
+        full
+          ? 'fixed inset-0 z-[60] flex min-h-0 flex-col bg-bg'
+          : 'flex h-full min-h-0 flex-col'
+      }
+      data-full={full ? 'true' : undefined}
       data-testid="book-reader"
       aria-label={t('bookreader.label')}
     >
       <div
         data-chrome
-        className="flex flex-wrap items-center gap-1 border-b border-line bg-bg px-2 py-1"
+        data-testid="reader-bar"
+        hidden={full && !barShown}
+        className={`flex flex-wrap items-center gap-1 border-b border-line bg-bg px-2 py-1 ${
+          full ? 'absolute inset-x-0 top-0 z-30 shadow-md' : ''
+        }`}
       >
         <IconButton
           tip="reader.close"
@@ -703,28 +897,7 @@ export function BookReader({
           aria-pressed={bookmarked}
           data-testid="reader-bookmark"
           className={panelBtn(bookmarked)}
-          onClick={() =>
-            runTask(
-              (async () => {
-                if (bookmarkHere) {
-                  await deleteAnnotation(db, bookmarkHere.id)
-                  toast(t('bookreader.bookmarkRemoved'))
-                } else {
-                  await createAnnotation(db, {
-                    pageId,
-                    kind: 'bookmark',
-                    anchor:
-                      format === 'epub' && hereCfi
-                        ? { type: 'epub', cfi: hereCfi }
-                        : { type: 'pdf', page: pageNo, rects: [] },
-                    chapter:
-                      format === 'epub' ? position?.label : chapterAt(pageNo),
-                  })
-                  toast(t('bookreader.bookmarked'))
-                }
-              })(),
-            )
-          }
+          onClick={toggleBookmark}
         >
           {bookmarked ? '★' : '☆'}
         </IconButton>
@@ -764,14 +937,37 @@ export function BookReader({
             {t('ai.book.button')}
           </IconButton>
         )}
+        <button
+          type="button"
+          data-testid="reader-fullscreen"
+          aria-pressed={full}
+          aria-label={t(full ? 'reader.fullscreen.exit' : 'reader.fullscreen')}
+          className={panelBtn(full)}
+          onClick={() => {
+            setBarShown(false)
+            setFull((v) => !v)
+          }}
+        >
+          <Icon name="maximize" size={18} />
+        </button>
+        <button
+          type="button"
+          data-testid="reader-more"
+          aria-label={t('reader.more')}
+          aria-haspopup="menu"
+          className={panelBtn(!!moreAt)}
+          onClick={(e) => setMoreAt(e.currentTarget.getBoundingClientRect())}
+        >
+          <Icon name="more" size={18} />
+        </button>
       </div>
-      {drawing && <ReaderInkBar onDone={stopInking} />}
+      {drawing && !full && <ReaderInkBar onDone={stopInking} />}
       {noText && format === 'pdf' && (
         <p className="bg-soft px-3 py-1 text-xs text-muted">
           {t('bookreader.noText')}
         </p>
       )}
-      {timeLeftText && (
+      {timeLeftText && !full && (
         <p
           className="truncate px-3 py-0.5 text-xs text-muted"
           data-testid="reader-timeleft"
@@ -780,7 +976,73 @@ export function BookReader({
           {timeLeftText}
         </p>
       )}
-      <div className="relative flex min-h-0 flex-1">
+      <div
+        ref={contentRef}
+        className="relative flex min-h-0 flex-1"
+        onPointerDownCapture={(e) => {
+          tapDown.current = { x: e.clientX, y: e.clientY, t: Date.now() }
+        }}
+        onPointerUpCapture={(e) => {
+          const d = tapDown.current
+          tapDown.current = null
+          if (!d || format !== 'pdf' || drawing) return
+          if (
+            (e.target as Element).closest('[data-chrome], button, a, input')
+          ) {
+            return
+          }
+          if (Math.hypot(e.clientX - d.x, e.clientY - d.y) > 10) return
+          if (Date.now() - d.t > 400) return
+          if (!document.getSelection()?.isCollapsed) return
+          pdfTap(e.clientX, e.clientY)
+        }}
+      >
+        {full && (
+          <>
+            <p
+              data-testid="reader-fs-title"
+              className="pointer-events-none absolute inset-x-0 top-0 z-10 truncate px-12 pt-0.5 text-center text-[11px] text-muted"
+            >
+              {page.title}
+            </p>
+            <p
+              data-testid="reader-fs-progress"
+              className="pointer-events-none absolute inset-x-0 bottom-0 z-10 truncate bg-bg/80 px-12 pb-0.5 text-center text-[11px] text-muted"
+            >
+              {format === 'pdf' && pageCount
+                ? t('reader.fs.progressPage', {
+                    page: pageNo,
+                    total: pageCount,
+                    percent: Math.round((position?.progress ?? 0) * 100),
+                  })
+                : t('reader.fs.progress', {
+                    percent: Math.round((position?.progress ?? 0) * 100),
+                  })}
+              {timeLeftText ? ` · ${timeLeftText}` : ''}
+            </p>
+          </>
+        )}
+        <button
+          type="button"
+          data-chrome
+          data-testid="reader-ribbon"
+          aria-pressed={bookmarked}
+          aria-label={t(
+            bookmarked ? 'reader.ribbon.remove' : 'reader.ribbon.add',
+          )}
+          onClick={toggleBookmark}
+          className="absolute end-8 top-0 z-10 grid h-11 w-8 place-items-start justify-items-center"
+        >
+          <svg width="22" height="34" viewBox="0 0 22 34" aria-hidden>
+            <path
+              d="M2 0h18v32l-9-7-9 7z"
+              fill={bookmarked ? 'var(--color-accent)' : 'transparent'}
+              stroke="var(--color-accent)"
+              strokeWidth="1.5"
+              opacity={bookmarked ? 1 : 0.45}
+            />
+          </svg>
+        </button>
         <Suspense
           fallback={<p className="p-6 text-muted">{t('bookreader.loading')}</p>}
         >
@@ -826,7 +1088,15 @@ export function BookReader({
                 report(pos.progress, pos.locator, pos.label, 0, pos.unitsLeft)
               }
               onSelection={setSelection}
+              onTap={onEdgeTap}
               onFailed={() => setFailed(true)}
+            />
+          )}
+          {format === 'pdf' && pdfDoc && zoom > 1.05 && !drawing && (
+            <ZoomPreview
+              doc={pdfDoc}
+              page={pageNo}
+              onClose={() => setZoom(1)}
             />
           )}
         </Suspense>
@@ -919,6 +1189,34 @@ export function BookReader({
           </aside>
         )}
       </div>
+      {moreAt && (
+        <MenuPopover
+          anchor={moreAt}
+          items={moreItems}
+          label={t('reader.more')}
+          onClose={() => setMoreAt(null)}
+        />
+      )}
+      {goTo && (
+        <NameDialog
+          title={t(
+            format === 'pdf' ? 'reader.goTo.titlePdf' : 'reader.goTo.titleEpub',
+          )}
+          label={
+            format === 'pdf'
+              ? t('reader.goTo.labelPdf', { max: pageCount || 1 })
+              : t('reader.goTo.labelEpub')
+          }
+          initialValue={
+            format === 'pdf'
+              ? String(pageNo)
+              : String(Math.round((position?.progress ?? 0) * 100))
+          }
+          confirmLabel={t('reader.goTo.go')}
+          onConfirm={goToSubmit}
+          onCancel={() => setGoTo(false)}
+        />
+      )}
       {selection && !noting && !saving && (
         <SelectionPopup
           rect={selection.rect}

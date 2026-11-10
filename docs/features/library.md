@@ -38,3 +38,11 @@ Books and other sources live in the app as ordinary pages. The Library space sho
 - Unit: `src/library/library.test.ts`, `src/reader/reader.test.ts`, `src/capture/capture.test.ts`, `src/share/bookBackup.test.ts`, `src/core/migration.test.ts` (16 to 17), `src/app/router.test.ts`.
 - Unit (wave 5): `src/reader/extras/extras.test.ts` (time left, speed tracker, orientation answers, Liquid grouping, PDF search). E2E: `e2e/readerExtras.spec.ts` (Page Flip and Back, time left, Find, Liquid, EPUB flip, pinch).
 - E2E: `e2e/library.spec.ts` (import PDF/EPUB/DOCX, refusal, progress and resume, Contents, zoom, bookmark, highlight survives reload and lands on the book page, note, Undo, Markdown copy, link back to the spot).
+
+## Reader panel, full screen and zoom (10 Nov)
+
+- **Left panel while reading:** Pages (PDF page pictures, virtualised; EPUB numbered chapters), Outline (contents), Audio (the book page's recordings), Notes (bookmarks, highlights, notes; filter by type, colour, chapter; tap to jump). Source: `src/reader/readerBridge.ts` (store), `BookPanel.tsx` (lazy), `LeftPanel.tsx`. Closing the reader gives the note's own tabs back.
+- **Reader ⋯:** Go to page / location; Sync to furthest page read (`source.furthest`). Bookmark ribbon at the page corner.
+- **Full screen:** text only, tiny title, progress line; tap middle = bar; tap left/right quarter = page turn; Esc leaves.
+- **Double-tap zoom (PDF):** 200% around the spot, corner overview with a frame, ✕ or a second double tap returns.
+- Tests: e2e/bookPanel.spec.ts, bookReaderVisible.spec.ts, src/reader/bookPanel.test.ts.

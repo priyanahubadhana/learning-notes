@@ -256,6 +256,9 @@ export interface PageSource {
   progress?: number
   /** Where reading stopped: `pdf:<page>:<yFraction>` or `epub:<cfi>`. */
   at?: string
+  /** The furthest 0 to 1 ever read, and where (item 45: Sync to furthest page). */
+  furthest?: number
+  furthestAt?: string
   /** UTC ms the book was last opened. */
   openedAt?: number
 }

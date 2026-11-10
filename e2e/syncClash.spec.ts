@@ -114,3 +114,35 @@ test('Keep both inserts the other version below, on both devices', async ({
   await expect.poll(() => lines(a)).toEqual(both)
   await expect.poll(() => lines(b), { timeout: 20_000 }).toEqual(both)
 })
+
+test('sequential typing on two devices, and typing while the other is open, never shows the bar (item 1)', async ({
+  browser,
+}) => {
+  test.setTimeout(120_000)
+  const { serve, pages } = makeServer()
+  const a = await device(browser, serve, pages)
+  await setupA(a, ['hello world'])
+  const b = await device(browser, serve, pages)
+  await setupB(b)
+  await a.goto('/')
+  await openPage(a, 'Shared')
+  for (const p of [a, b]) {
+    await p.locator('.bn-editor .bn-block-content').nth(0).click()
+    await p.keyboard.press('End')
+  }
+  // A types a little at a time (its earlier states reach B while it types).
+  for (const w of [' one', ' two', ' three'])
+    await a.keyboard.type(w, { delay: 40 }).then(() => a.waitForTimeout(700))
+  await expect
+    .poll(async () => (await lines(b))[0], { timeout: 20_000 })
+    .toBe('hello world one two three')
+  // Then B types after it has heard everything (no overlap in time).
+  await b.keyboard.press('End')
+  await b.keyboard.type(' four', { delay: 40 })
+  await expect
+    .poll(async () => (await lines(a))[0], { timeout: 20_000 })
+    .toBe('hello world one two three four')
+  await a.waitForTimeout(1500)
+  await expect(bar(a)).toHaveCount(0)
+  await expect(bar(b)).toHaveCount(0)
+})

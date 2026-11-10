@@ -6,7 +6,7 @@ import type { LearningNotesDB } from '../core/db'
 import { byOrder } from '../core/order'
 import type { Block, OrderKey } from '../core/types'
 import { keepTheirsInHistory } from '../history/loserVersion'
-import { markClash } from '../sync/clash'
+import { excerptOf, independentEdit, markClash } from '../sync/clash'
 import { noteMergedPage } from '../sync/engine'
 import { getSyncStatus, setSyncStatus } from '../sync/syncStatus'
 import type { BlockDraft, SavedBlock } from './diff'
@@ -184,6 +184,33 @@ function upToDate(r: Block, saved: SavedBlock): boolean {
   }
 }
 
+/**
+ * Item 1: a three-way check. `saved` is the last common version (what this
+ * editor last saved and sent), `draft` is what is typed now, `r` is the
+ * other device's. A clash only if their text is neither the base, nor ours,
+ * nor an earlier or shorter state of the same line.
+ */
+function isIndependent(
+  r: Block,
+  saved: SavedBlock,
+  draftContent: unknown,
+): boolean {
+  let base: unknown = null
+  try {
+    base = JSON.parse(saved.content)
+  } catch {
+    return canon(r.content) !== saved.content
+  }
+  if (canon(r.content) === canon(base)) return false
+  const hasText = excerptOf(r.content, 1) !== ''
+  if (!hasText) return true // non-text change: handled as before
+  return independentEdit(
+    excerptOf(base, 100000),
+    excerptOf(draftContent, 100000),
+    excerptOf(r.content, 100000),
+  )
+}
+
 export async function applyRemoteBlocks(
   db: LearningNotesDB,
   editor: Editor,
@@ -236,7 +263,7 @@ export async function applyRemoteBlocks(
         if (
           r.deletedAt === null &&
           saved &&
-          JSON.stringify(r.content) !== saved.content
+          isIndependent(r, saved, draft?.content)
         ) {
           theirs.push(r)
         }

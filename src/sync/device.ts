@@ -79,3 +79,9 @@ export function setTracking(on: boolean): void {
   if (on) setWaitingForKey(false)
   write(ENABLED, on ? '1' : null)
 }
+
+/** Tests only: pretend to be another device (its id is in every clock value). */
+export function setDeviceIdForTests(id: string): void {
+  deviceId = id
+  clock = { ...current(), deviceId: id }
+}

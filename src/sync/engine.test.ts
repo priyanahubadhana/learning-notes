@@ -8,7 +8,7 @@ import { createNotebook } from '../notebooks/notebookService'
 import { createPage } from '../pages/pageService'
 import { memoryConnectors as mem } from './connectors'
 import { createMasterKey, type MasterKey } from './crypto'
-import { setTracking } from './device'
+import { setDeviceIdForTests, setTracking } from './device'
 import { clearClash, excerptOf } from './clash'
 import { enqueueChanged, syncOnce } from './engine'
 import { mergeRecord } from './merge'
@@ -19,6 +19,17 @@ let a: LearningNotesDB
 let b: LearningNotesDB
 
 const text = (s: string) => ({ text: s })
+
+/** An edit made on one of the two test devices (each has its own id). */
+async function editAs(
+  device: string,
+  db: LearningNotesDB,
+  id: string,
+  patch: Parameters<typeof updateBlock>[2],
+) {
+  setDeviceIdForTests(device)
+  await updateBlock(db, id, patch)
+}
 
 beforeEach(async () => {
   setTracking(true)
@@ -82,9 +93,9 @@ describe('sync engine (L7)', () => {
     await syncOnce(a, conn, master)
     await syncOnce(b, conn, master)
 
-    await updateBlock(a, block.id, { content: text('from A') })
+    await editAs('A', a, block.id, { content: text('from A') })
     await new Promise((r) => setTimeout(r, 5))
-    await updateBlock(b, block.id, { content: text('from B (later)') })
+    await editAs('B', b, block.id, { content: text('from B (later)') })
 
     await syncOnce(a, conn, master)
     const rb = await syncOnce(b, conn, master)
@@ -120,9 +131,13 @@ describe('sync engine (L7)', () => {
       const [first, firstText, second, secondText] = aFirst
         ? [a, textA, b, textB]
         : [b, textB, a, textA]
-      await updateBlock(first, block.id, { content: text(firstText) })
+      await editAs(first === a ? 'A' : 'B', first, block.id, {
+        content: text(firstText),
+      })
       await new Promise((r) => setTimeout(r, 5))
-      await updateBlock(second, block.id, { content: text(secondText) })
+      await editAs(second === a ? 'A' : 'B', second, block.id, {
+        content: text(secondText),
+      })
       // The device that wrote last in time has the newer clock.
       const winner = aFirst ? textB : textA
       const loser = aFirst ? textA : textB
@@ -155,11 +170,11 @@ describe('sync engine (L7)', () => {
     const { block } = await samplePage(a, 'v0')
     await syncOnce(a, conn, master)
     await syncOnce(b, conn, master)
-    await updateBlock(a, block.id, { content: text('from A') })
+    await editAs('A', a, block.id, { content: text('from A') })
     await syncOnce(a, conn, master)
     // B types right while its sync runs; the edit must still be sent.
     const racing = syncOnce(b, conn, master)
-    await updateBlock(b, block.id, { content: text('B typed') })
+    await editAs('B', b, block.id, { content: text('B typed') })
     await racing
     await syncOnce(b, conn, master)
     await syncOnce(a, conn, master)
@@ -179,7 +194,7 @@ describe('sync engine (L7)', () => {
     const { block } = await samplePage(a, 'one')
     await syncOnce(a, conn, master)
     setTracking(false)
-    await updateBlock(a, block.id, { content: text('offline edit') })
+    await editAs('A', a, block.id, { content: text('offline edit') })
     setTracking(true)
     await new Promise((r) => setTimeout(r, 2))
     expect(await enqueueChanged(a)).toBeGreaterThan(0)
@@ -229,9 +244,9 @@ describe('sync engine (L7)', () => {
     const { block } = await samplePage(a, 'base')
     await syncOnce(a, conn, master)
     await syncOnce(b, conn, master)
-    await updateBlock(b, block.id, { content: text('B wins first') })
+    await editAs('B', b, block.id, { content: text('B wins first') })
     await syncOnce(b, conn, master)
-    await updateBlock(a, block.id, { content: text('A later') })
+    await editAs('A', a, block.id, { content: text('A later') })
     await syncOnce(a, conn, master)
     await syncOnce(b, conn, master)
     const blocksA = await listBlocks(a, block.pageId)

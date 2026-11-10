@@ -8,7 +8,7 @@ import { createNotebook } from '../notebooks/notebookService'
 import { createPage } from '../pages/pageService'
 import { memoryConnectors as mem } from './connectors'
 import { createMasterKey, type MasterKey } from './crypto'
-import { setTracking } from './device'
+import { setDeviceIdForTests, setTracking } from './device'
 import { measureDivergence } from './divergence'
 import { syncOnce } from './engine'
 import { mergeRecord } from './merge'
@@ -40,9 +40,11 @@ describe('the three choices after signing back in', () => {
     await syncOnce(a, conn, master)
     await syncOnce(b, conn, master)
     // B changes the cloud; A edits and cannot send (signed out).
+    setDeviceIdForTests('B')
     await updateBlock(b, block.id, { content: text('from cloud') })
     await syncOnce(b, conn, master)
     await new Promise((r) => setTimeout(r, 5))
+    setDeviceIdForTests('A')
     await updateBlock(a, block.id, { content: text('from here') })
     return { conn, block, page }
   }

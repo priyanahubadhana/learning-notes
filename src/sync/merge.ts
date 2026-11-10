@@ -1,4 +1,5 @@
-import { excerptOf } from './clash'
+import { excerptOf, independentEdit } from './clash'
+import { parseHlc } from './hlc'
 import type { MergeMode } from './tables'
 
 /**
@@ -60,8 +61,13 @@ export function differentText(
   winner: Record<string, unknown>,
   loser: Record<string, unknown>,
 ): boolean {
-  const lost = excerptOf(loser.content, 1000)
-  return lost !== '' && lost !== excerptOf(winner.content, 1000)
+  // No base is stored here, so the check is: the loser is not the winner's
+  // text, nor an earlier or shorter state of it (item 1).
+  return independentEdit(
+    null,
+    excerptOf(winner.content, 100000),
+    excerptOf(loser.content, 100000),
+  )
 }
 
 export function mergeRecord(
@@ -78,8 +84,13 @@ export function mergeRecord(
   const remoteWins = prefer ? prefer === 'there' : remote.hlc > local.hlc
   const loser = remoteWins ? local.value : remote.value
   const winner = remoteWins ? remote.value : local.value
+  // Our own change coming back is never a clash (item 1).
+  const echo =
+    parseHlc(remote.hlc)?.deviceId !== undefined &&
+    parseHlc(remote.hlc)?.deviceId === parseHlc(local.hlc)?.deviceId
   const keepLoser =
     mode === 'blocks' &&
+    !echo &&
     winner.deletedAt === null &&
     loser.deletedAt === null &&
     !sameContent(winner, loser) &&

@@ -40,33 +40,36 @@ export default function ClashBars({
         .toArray(),
     [db, pageId],
   )
-  // Every box of the page has its own editor, but the query is by page: each
-  // editor shows only its own blocks (the page's own text also any that no
-  // box holds), so a clash is never shown twice.
-  const clashed = all?.filter(
-    (b) =>
-      !!editor.getBlock(b.id) ||
-      (main && !allBoxEditors().some((e) => !!e.getBlock(b.id))),
-  )
+  // Item 1: at most one bar per page, above the rows and as wide as the page's
+  // text: only the page's own editor shows it (for every box), so a narrow
+  // column never gets a squeezed bar.
+  const clashed = main ? all : undefined
   if (!clashed || clashed.length === 0) return null
+  /** The editor that holds a block (the page's, or a box's). */
+  const editorOf = (id: string): Editor | undefined =>
+    [editor, ...(allBoxEditors() as unknown as Editor[])].find(
+      (e) => !!e.getBlock(id),
+    )
 
   const chooseOther = async (b: Block) => {
     const other = { ...b, type: b.clash!.type, content: b.clash!.content }
     await clearClash(db, b.id)
-    if (editor.getBlock(b.id) && editorBlockTypes.has(other.type)) {
+    const ed = editorOf(b.id)
+    if (ed && editorBlockTypes.has(other.type)) {
       // An editor change, so Undo takes it back; the autosaver writes it.
-      editor.updateBlock(b.id, recordToEditorBlock(other))
+      ed.updateBlock(b.id, recordToEditorBlock(other))
     }
   }
   const keepBoth = async (b: Block) => {
     const other = { ...b, type: b.clash!.type, content: b.clash!.content }
     await clearClash(db, b.id)
-    if (editor.getBlock(b.id) && editorBlockTypes.has(other.type)) {
+    const ed = editorOf(b.id)
+    if (ed && editorBlockTypes.has(other.type)) {
       const { id: _id, ...partial } = recordToEditorBlock(other) as {
         id?: string
       }
       void _id
-      editor.insertBlocks([partial as never], b.id, 'after')
+      ed.insertBlocks([partial as never], b.id, 'after')
     }
   }
 

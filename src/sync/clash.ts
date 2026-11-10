@@ -51,3 +51,25 @@ export function excerptOf(content: unknown, max = 60): string {
   const text = parts.join('').replace(/\s+/g, ' ').trim()
   return text.length > max ? `${text.slice(0, max - 1)}…` : text
 }
+
+/**
+ * Owner bug batch 2, item 1: is `theirs` a real, independent edit? A
+ * three-way check against the last common version (`base`, null when not
+ * known). No clash when it is the same as the base or as ours, or an earlier
+ * or shorter state of the same line (it sits inside what we have or had), as
+ * happens while typing with another device open on the page.
+ */
+export function independentEdit(
+  base: string | null,
+  mine: string,
+  theirs: string,
+): boolean {
+  const t = theirs.replace(/s+/g, ' ').trim()
+  if (t === '') return false
+  const norm = (x: string | null) => (x ?? '').replace(/s+/g, ' ').trim()
+  const m = norm(mine)
+  const b = norm(base)
+  if (t === m || t === b) return false
+  if ((m && m.includes(t)) || (b && b.includes(t))) return false
+  return true
+}

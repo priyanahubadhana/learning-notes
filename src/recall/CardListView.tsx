@@ -61,7 +61,7 @@ export function CardListView({
       ) : (
         <ul>
           {shown.map((row) => (
-            <li key={row.cardId}>
+            <li key={row.cardId} data-page-row>
               <button
                 type="button"
                 onClick={() => app?.openBlock(row.pageId, row.blockId)}

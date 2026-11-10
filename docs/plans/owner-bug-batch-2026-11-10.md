@@ -58,6 +58,10 @@ Collected from the owner's iPad pass; fix all in one go when the owner says so.
 - Item 23 sync list approved as recommended. Item 19 hold time: owner wants longer to avoid mis-clicks → default 1.0 s, adjustable 0.6-3 s in Settings › Advanced.
 - Item 26 answers: 6 per area ✓; row height from text ✓; Layout picker in ⋯ › Layout NOW, plus drag-and-drop with live on-screen previews.
 
+## Progress (builder B)
+
+- Done 10 Nov: 5 (card list rows; table rows not yet), 6, 7, 9 (Pencil tap to Lasso is builder A), 10, 13, 14.
+
 ## Build split (10 Nov)
 
 - Builder A (input & selection): items 1, 2, 11, 15, 17, 19, 20, 21, 22e/h/i, 25 (input ownership, smooth drag of boxes).

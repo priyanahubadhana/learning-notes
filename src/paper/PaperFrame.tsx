@@ -1,4 +1,6 @@
 import {
+  lazy,
+  Suspense,
   useCallback,
   useEffect,
   useImperativeHandle,
@@ -50,6 +52,11 @@ import {
   sheetCount,
   SHEET_GAP_PX,
 } from './sheets'
+
+/** Item 7: the page scroll bar loads when a paper page shows (first-load size). */
+const PageScrollBar = lazy(() =>
+  import('./PageScrollBar').then((m) => ({ default: m.PageScrollBar })),
+)
 
 /**
  * Phase Q step 2: the page shown as paper. Fixed sheets (A4 or Letter) with
@@ -676,7 +683,10 @@ export function PaperFrame({
     events.push(record('pointerup', e.nativeEvent))
     const r = paperEl.current?.getBoundingClientRect()
     if (!r) return
-    void boxUnder(r, bounds(events))?.then(async (id) => {
+    // A tap with the pen (a dot, under 2 mm) is not writing: no box.
+    const b = bounds(events)
+    if (b.w / k < 2 && b.h / k < 2) return
+    void boxUnder(r, b)?.then(async (id) => {
       if (!id) return
       const pad = await waitFor(() =>
         document.querySelector(
@@ -732,8 +742,19 @@ export function PaperFrame({
   }, [canDrop])
 
   /** A tap on empty paper with the Text tool: a new box there (step 3). */
+  const tapStart = useRef<{ x: number; y: number; t: number } | null>(null)
   const tapPaper = (e: ReactPointerEvent<HTMLDivElement>) => {
+    const down = tapStart.current
+    tapStart.current = null
     if (!onAddBox || flat || e.button !== 0) return
+    // Items 6/9: only a deliberate tap makes a box, not the end of a scroll
+    // or a drag (moved more than 10 px, or held more than 600 ms).
+    if (
+      !down ||
+      Math.hypot(e.clientX - down.x, e.clientY - down.y) > 10 ||
+      Date.now() - down.t > 600
+    )
+      return
     if (
       e.target !== e.currentTarget &&
       !(e.target as Element).closest('[data-paper-sheet]')
@@ -744,6 +765,9 @@ export function PaperFrame({
     if (!r) return
     const x = (e.clientX - r.left) / k
     const y = (e.clientY - r.top) / k
+    // A safe zone along the sheet's edges (and its scroll side): a tap there
+    // never makes a box, it is a grab for scrolling.
+    if (x < EDGE_MM || x > sheet.w - EDGE_MM || y < EDGE_MM) return
     // Inside the default box's column the tap belongs to the page's text.
     onAddBox({ x: Math.max(0, x - 4), y: Math.max(0, snap(y, step / k)) })
   }
@@ -911,7 +935,14 @@ export function PaperFrame({
           {!flat && !narrow && (
             <div
               data-paper-sheets
-              onPointerDown={penDown}
+              onPointerDown={(e) => {
+                tapStart.current = {
+                  x: e.clientX,
+                  y: e.clientY,
+                  t: Date.now(),
+                }
+                penDown(e)
+              }}
               onPointerMove={(e) => {
                 penMove(e)
                 hoverMove(e)
@@ -993,6 +1024,11 @@ export function PaperFrame({
           </div>
         </div>
       </div>
+      {!flat && !narrow && (
+        <Suspense fallback={null}>
+          <PageScrollBar sheetsKey={sheets} />
+        </Suspense>
+      )}
       {!flat && (
         <div
           data-chrome
@@ -1041,6 +1077,9 @@ const TAP_PX = 4
 export type BoxChange = BoxPatch & {
   before: { x: number; y: number; w: number }
 }
+
+/** Items 6/9: taps this close to a sheet edge (mm) never make a box. */
+const EDGE_MM = 8
 
 /** Rounds a length in mm to the paper's line spacing. */
 const snap = (mm: number, stepMm: number) =>

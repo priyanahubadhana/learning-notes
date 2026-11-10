@@ -21,6 +21,7 @@ import { AiCanvas, type PadTool } from './AiCanvas'
 import { kept, keptKey } from './strokeKeep'
 import { loadDraft, saveDraft } from './draft'
 import { setGhost } from './ghost'
+import { revealInsertion } from './revealCaret'
 import { pickEngine } from './engine'
 import {
   bindPadHistory,
@@ -420,6 +421,19 @@ export default function WritePad() {
     })
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [ghostEditor, ghostFrom, ghostTo, text, pieces, prefs])
+  // Item 13: as soon as the pad opens (and when it is resized or lifted by
+  // the keyboard) the insertion line is scrolled to just above the pad.
+  const padHeight = prefs.height
+  useEffect(() => {
+    if (!ghostEditor || ghostFrom === undefined) return
+    const run = () => revealInsertion(ghostEditor, ghostFrom)
+    const id = requestAnimationFrame(() => requestAnimationFrame(run))
+    const late = setTimeout(run, 300)
+    return () => {
+      cancelAnimationFrame(id)
+      clearTimeout(late)
+    }
+  }, [ghostEditor, ghostFrom, padHeight, lift])
   useEffect(
     () => () => {
       if (ghostEditor) setGhost(ghostEditor, null)

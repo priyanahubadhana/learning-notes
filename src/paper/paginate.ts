@@ -298,7 +298,11 @@ export function applyPagination(
     /** Set for a line of a tall block: where its text starts. */
     pos?: number
     first?: boolean
+    /** Set for a row of a tall list block (a card list): the row itself. */
+    row?: HTMLElement
   }
+  /** Rows (data-page-row) of every block, to set or clear their push. */
+  const allRows: HTMLElement[] = []
   const items: Item[] = []
   // Where each top-level block starts, from the document (one pass). The old
   // way asked the DOM for every block (posAtDOM walks the siblings each time:
@@ -312,6 +316,33 @@ export function applyPagination(
   outers.forEach((el, i) => {
     margins += (had.get(ids[i]) ?? 0) * scale
     const r = el.getBoundingClientRect()
+    // Item 5: a list block (card list) is split at its rows: a row never
+    // sits in the gap. Each row carries its own push (margin-top, set by
+    // hand: the block's React content is not part of the document).
+    const rowEls = rowsOf(el)
+    if (rowEls.length > 0) {
+      allRows.push(...rowEls)
+      const own = (x: HTMLElement) => rowPush(x) * scale
+      const inner = rowEls.reduce((n, x) => n + own(x), 0)
+      if (r.height - inner > room) {
+        let cum = 0
+        for (const x of rowEls) {
+          cum += own(x)
+          const rr = x.getBoundingClientRect()
+          items.push({
+            top: rr.top - margins - cum,
+            height: rr.height,
+            block: i,
+            row: x,
+          })
+        }
+        margins += cum
+        return
+      }
+      items.push({ top: r.top - margins, height: r.height - inner, block: i })
+      margins += inner
+      return
+    }
     const start = starts ? starts[i] : posOf(view, el)
     const nextEl = el.nextElementSibling as HTMLElement | null
     const end = starts
@@ -350,8 +381,13 @@ export function applyPagination(
   })
   const next = new Map<string, number>()
   const spacers: Spacer[] = []
+  const rowWant = new Map<HTMLElement, number>(allRows.map((x) => [x, 0]))
   items.forEach((it, j) => {
     const css = Math.round(want[j] / scale)
+    if (it.row) {
+      rowWant.set(it.row, Math.max(0, css))
+      return
+    }
     if (css <= 0) return
     if (it.pos === undefined || it.first) next.set(ids[it.block], css)
     else spacers.push({ pos: it.pos, px: css })
@@ -365,6 +401,12 @@ export function applyPagination(
   for (const id of ids) {
     if (Math.abs((next.get(id) ?? 0) - (had.get(id) ?? 0)) >= 1) changed = true
   }
+  for (const [x, px] of rowWant) {
+    if (Math.abs(px - rowPush(x)) >= 1) {
+      setRowPush(x, px)
+      changed = true
+    }
+  }
   if (!changed) return false
   view.dispatch(
     view.state.tr
@@ -373,6 +415,23 @@ export function applyPagination(
       .setMeta('addToHistory', false),
   )
   return true
+}
+
+/** The rows of a list block that can be pushed on their own. */
+const rowsOf = (outer: HTMLElement) =>
+  Array.from(outer.querySelectorAll<HTMLElement>('[data-page-row]'))
+
+/** A row's push in CSS px (kept on the element). */
+const rowPush = (row: HTMLElement) => Number(row.dataset.lnPush ?? 0) || 0
+
+function setRowPush(row: HTMLElement, px: number): void {
+  if (px > 0) {
+    row.dataset.lnPush = String(px)
+    row.style.marginTop = px + 'px'
+  } else {
+    delete row.dataset.lnPush
+    row.style.marginTop = ''
+  }
 }
 
 /**
@@ -422,6 +481,8 @@ function linesOf(
 
 /** Takes every push away (the paper is not in sheets: fit width, the reader). */
 export function clearPagination(editorEl: HTMLElement): void {
+  for (const x of editorEl.querySelectorAll<HTMLElement>('[data-ln-push]'))
+    setRowPush(x, 0)
   const view = views.get(editorEl)
   if (!view) return
   if (

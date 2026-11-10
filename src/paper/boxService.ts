@@ -364,3 +364,41 @@ export async function repairBoxes(
   )
   return [...gone]
 }
+
+/**
+ * Item 6/9 (10 Nov): an accidental box left empty goes away. It holds nothing
+ * at all (only empty lines, no ink), is not locked and is not the default
+ * box. Returns true when it was removed (its empty lines go with it; there
+ * is nothing to bring back, so no History copy or Undo is offered).
+ */
+export async function removeIfEmptyBox(
+  db: LearningNotesDB,
+  pageId: string,
+  boxId: string,
+): Promise<boolean> {
+  if (boxId === MAIN_BOX) return false
+  const page = await getLive(db.pages, pageId)
+  const box = (page.boxes ?? []).find((b) => b.id === boxId)
+  if (!box || box.locked) return false
+  const blocks = await blocksOf(db, pageId, boxId)
+  const inked = new Set(
+    (await db.inkChunks.where('pageId').equals(pageId).toArray())
+      .filter((c) => isLive(c) && c.strokes.length > 0)
+      .map((c) => c.blockId),
+  )
+  const emptyLine = (b: Block) =>
+    b.type === 'paragraph' &&
+    toPlainText(b.content).trim() === '' &&
+    !inked.has(b.id)
+  if (!blocks.every(emptyLine)) return false
+  await db.transaction('rw', db.pages, db.blocks, async () => {
+    if (blocks.length)
+      await softDeleteMany(
+        db.blocks,
+        blocks.map((b) => b.id),
+        Date.now(),
+      )
+    await writeBoxes(db, pageId, (all) => all.filter((b) => b.id !== boxId))
+  })
+  return true
+}

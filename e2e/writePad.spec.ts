@@ -369,6 +369,43 @@ test('the draft shows at the end of the page when no cursor was set, above the p
     .toBe(true)
 })
 
+test('opening the pad scrolls the insertion line above it before anything is written (item 13)', async ({
+  page,
+}) => {
+  await openNote(page, 'touch')
+  await page.locator('.bn-editor').click()
+  for (let i = 0; i < 24; i++) {
+    await page.keyboard.type('Line ' + i)
+    await page.keyboard.press('Enter')
+  }
+  // The caret on a line in the lower half of the window (under the pad).
+  await page.keyboard.press('ArrowUp')
+  await page.keyboard.press('ArrowUp')
+  await page.evaluate(() => {
+    const sc = document.querySelector('[data-page-scroller]')!
+    const line = Array.from(
+      document.querySelectorAll('.bn-block-content'),
+    ).find((el) => el.textContent === 'Line 21')!
+    sc.scrollTop += line.getBoundingClientRect().top - window.innerHeight * 0.8
+  })
+  await openPad(page)
+  await expect
+    .poll(async () => {
+      const p = (await pad(page).boundingBox())!
+      return page.evaluate((limit) => {
+        const sel = window.getSelection()!
+        const el = (
+          sel.focusNode instanceof Element
+            ? sel.focusNode
+            : sel.focusNode!.parentElement
+        )!
+        const r = el.getBoundingClientRect()
+        return r.top >= 0 && r.bottom <= limit
+      }, p.y)
+    })
+    .toBe(true)
+})
+
 test('Undo and Redo reverse mode switches, Read-less clears and keys in order (R7-21, R7-22)', async ({
   page,
 }) => {

@@ -13,6 +13,7 @@ import {
   addBoxInOrder,
   addBoxWithLines,
   repairBoxes,
+  removeIfEmptyBox,
   duplicateBox,
   removeBox,
   restoreBox,
@@ -69,6 +70,36 @@ export function usePaperBoxes(
   // Page repair on open: an empty box on top of another one goes.
   useEffect(() => {
     if (editable) runTask(repairBoxes(db, pageId).then(() => {}))
+  }, [db, pageId, editable])
+
+  // Item 6/9: an accidental box left empty is removed when the caret leaves
+  // it (a short wait first: the caret may be moving to its own bar or menu).
+  useEffect(() => {
+    if (!editable) return
+    const BOX = '[data-paper-box]:not([data-paper-box="main"])'
+    const out = (e: FocusEvent) => {
+      const box = (e.target as Element | null)?.closest?.(BOX)
+      const id = box?.getAttribute('data-paper-box')
+      if (!box || !id) return
+      if (box.contains(e.relatedTarget as Node | null)) return
+      window.setTimeout(() => {
+        const live = document.querySelector(
+          '[data-paper-box="' + CSS.escape(id) + '"]',
+        )
+        if (!live || live.contains(document.activeElement)) return
+        if (live.hasAttribute('data-picked')) return
+        // Focus on a bar button or field (the user is setting up the box): keep it.
+        if (
+          document.activeElement?.closest(
+            'button, input, select, textarea, [role="menu"]',
+          )
+        )
+          return
+        runTask(removeIfEmptyBox(db, pageId, id).then(() => {}))
+      }, 600)
+    }
+    document.addEventListener('focusout', out, true)
+    return () => document.removeEventListener('focusout', out, true)
   }, [db, pageId, editable])
 
   // Cut and Delete of a page-wide selection (Ctrl+A, third step): every box

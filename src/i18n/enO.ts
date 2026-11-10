@@ -6,12 +6,14 @@ import { enH } from './enH'
 import { enS } from './enS'
 import { enNlm } from './enNlm'
 import { enNbh } from './enNbh'
+import { enB } from './enB'
 
 export const enO = {
   ...enH,
   ...enS,
   ...enNlm,
   ...enNbh,
+  ...enB,
   // ---- Study status row in Review ----
   'study.status.title': 'Study status',
   'study.status.due': '{n} due',

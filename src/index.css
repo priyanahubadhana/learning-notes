@@ -1002,3 +1002,35 @@ body:has([data-ink-pad]) [data-sel-handle]::after {
     outline-offset: 4px;
   }
 }
+
+/* Item 14 (10 Nov): the caret is easy to see on every paper: accent colour,
+   full contrast. Its width is the browser's (thin, precise); only colour
+   changes, so it never covers a neighbouring letter. */
+.bn-editor,
+[data-write-pad-ghost] {
+  caret-color: var(--color-accent);
+}
+
+/* Item 10 (10 Nov): the hint ("Enter text or type '/'", "Heading", "List")
+   shows only on the empty line that has the caret in the focused editor.
+   BlockNote draws it for every editor's remembered selection, so an unfocused
+   box showed one too; and block-specific hints (heading, list) showed always. */
+.bn-editor:not(:focus)
+  .bn-block-content:has(.ProseMirror-trailingBreak:only-child)::after,
+.bn-editor
+  .bn-block-content:not([data-is-empty-and-focused]):has(
+    .ProseMirror-trailingBreak:only-child
+  )::after {
+  content: none !important;
+}
+
+/* Item 7 (10 Nov): the page has its own scroll bar (paper/PageScrollBar.tsx).
+   Its gutter is reserved here so the bar never covers the paper, and the
+   system bar hides so there are not two. */
+[data-page-scroller][data-pagebar] {
+  padding-inline-end: 24px;
+  scrollbar-width: none;
+}
+[data-page-scroller][data-pagebar]::-webkit-scrollbar {
+  display: none;
+}

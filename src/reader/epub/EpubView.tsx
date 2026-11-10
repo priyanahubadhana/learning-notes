@@ -236,6 +236,14 @@ export function EpubView(props: EpubViewProps) {
           lastLocation: loc?.type === 'epub' ? loc.cfi : undefined,
           showTextStart: true,
         })
+        // Never a blank page (item 28): a very long chapter in columns can
+        // draw nothing on some devices. If no text is on screen a moment
+        // after opening, fall back to the scrolling layout.
+        window.setTimeout(() => {
+          if (cancelled || !view || textIsShowing(view)) return
+          view.renderer.setAttribute('flow', 'scrolled')
+          console.warn('EPUB: no text on screen, switched to Scroll')
+        }, 2500)
       } catch (e) {
         console.error('EPUB failed', e)
         if (!cancelled) propsRef.current.onFailed()
@@ -366,6 +374,35 @@ export function EpubView(props: EpubViewProps) {
       )}
     </div>
   )
+}
+
+/** True when some paragraph of the open chapter sits inside the view. */
+function textIsShowing(view: FoliateView): boolean {
+  try {
+    const box = view.getBoundingClientRect()
+    for (const { doc } of view.renderer.getContents()) {
+      const frame = doc.defaultView?.frameElement?.getBoundingClientRect()
+      if (!frame) return true
+      const els = doc.querySelectorAll('p, li, h1, h2, h3, div')
+      for (let i = 0; i < Math.min(els.length, 6000); i++) {
+        const r = els[i].getBoundingClientRect()
+        const x = r.left + frame.left
+        const y = r.top + frame.top
+        if (
+          r.width > 4 &&
+          r.height > 4 &&
+          x < box.right &&
+          x + r.width > box.left &&
+          y < box.bottom &&
+          y + r.height > box.top
+        )
+          return true
+      }
+    }
+    return false
+  } catch {
+    return true // cannot tell: leave it
+  }
 }
 
 /** Puts the app's colours and the chosen text size into the book's pages. */

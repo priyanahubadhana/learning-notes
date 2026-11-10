@@ -10,6 +10,10 @@ Current phase only. Older entries are in [ARCHIVE.md](ARCHIVE.md).
 
 - **Items 16 and 24:** the "Updating…" cover now goes after at most 5 s (logged in the slow-moments log as `update`); 4 s after applying, a restart that did not come is forced (drops old files, reloads); the window that applies tells the others over a BroadcastChannel (`ln-update`) and they restart with it at a safe moment. New non-blocking pill (bottom-left): Checking, Downloading n / m MB (%) with a bar, slow reason with seconds left, No connection, Installing, Update ready, and a toast "Updated to version X". The build writes `precache.json` (files and sizes) so the pill can count the download. AudioDock became a lazy chunk to keep the first load under the limit (317.3 KB). Files: src/app/updateStatus.ts, updateProgress.ts, updateChannel.ts, UpdatePill.tsx, autoUpdate.ts, main.tsx, App.tsx, AboutSection.tsx, vite.config.ts, public/_headers.
 
+## 2026-11-10 (Builder C: Book reader never blank (28))
+
+- **Item 28:** not reproduced in desktop Chromium (EPUB and PDF open and show text on both themes, also a 3,000-paragraph chapter); the owner's blank screen was a 13 h EPUB on the iPad (long chapter in columns). Safety net: 2.5 s after opening, if no paragraph of the chapter is inside the view, the EPUB view switches itself to the Scroll layout (and logs it). New e2e/bookReaderVisible.spec.ts checks readable, on-screen text (big EPUB, light and dark) and a PDF canvas. **Needs the owner's iPad check** with the 13 h book. Files: src/reader/epub/EpubView.tsx, e2e/bookReaderVisible.spec.ts.
+
 ## 2026-11-10 (Builder B: paper layout, scroll bar, pictures, box grid)
 
 One bullet per push.

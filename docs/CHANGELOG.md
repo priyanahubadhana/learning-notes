@@ -5,6 +5,7 @@ Current phase only. Older entries are in [ARCHIVE.md](ARCHIVE.md).
 ## 2026-11-10 (Builder L, owner bug batch 2)
 
 - **Item 9, two-column rows:** a dragged box now keeps its start place (left/top never change) and moves only by a transform, so a drag repaints one layer; the grip and the box menu are positioned at the top-left / top-right of the box (not by flex, so never in the middle); the "Tap here to keep writing" line is hidden when the page has other boxes (it floated among them). Placeholder rule (only in the focused empty box) was already in index.css. Files: src/paper/PaperFrame.tsx, src/paper/BoxFrame.tsx, src/editor/PageEditor.tsx, src/index.css, e2e/gridRow.spec.ts (new, also in the ipad-webkit list), playwright.config.ts. Prettier run on four plan docs that failed format:check.
+- **Items 4-6, hold menu:** default 1.5 s with a filling ring from 0.4 s (lift cancels); drift over 5 px or a harder Pencil press cancels for the whole stroke; text input cancels; Pencil only on/near the caret (12 px) or on a selection, never within 3 s of written text; `data-ui` elements are skipped. `MenuPopover` measures itself and stays inside the visual viewport (flip above, clamp sides, shrink and scroll). Files: src/editor/holdMenuWatch.ts (+test), src/app/ui.tsx, src/settings/builtinSettings.ts, e2e/holdMenu.spec.ts, docs/features/paper-page.md.
 
 ## 2026-11-10 (CI stabiliser 3: WebKit box drag)
 

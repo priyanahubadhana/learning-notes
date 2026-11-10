@@ -73,7 +73,9 @@ Taps are counted once, in `editor/tapSelect.ts`, for finger, Pencil and mouse. B
 
 ## Hold menu, table rows, micro bar (10 Nov, items 19, 5, 12)
 
-Hold still on text under the Text tool (1.0 s, Settings › Advanced 0.6-3 s): Paste, Select, Select all, Cut/Copy, Insert. Table rows (BlockNote and database) are split with spacer rows, never in the gap. The micro text bar floats above the box while the caret is in it; drag to move, remembered.
+Hold still on text under the Text tool (1.5 s, Settings › Advanced 0.6-3 s; a ring fills from 0.4 s, lift to cancel): Paste, Select, Select all, Cut/Copy, Insert. Table rows (BlockNote and database) are split with spacer rows, never in the gap. The micro text bar floats above the box while the caret is in it; drag to move, remembered.
+
+**Rules (bug batch 2, items 4-6):** any drift beyond 5 px, or a harder Pencil press, ends the hold for that whole stroke (no re-arming); text input ends it. The Pencil opens it only on or within 12 px of the caret, or on a selection, and never within 3 s of text going in (it is Scribble writing). The menu is measured and kept inside the visible area (flips above near the bottom, clamps to the sides; `MenuPopover`).
 
 ## Not yet
 

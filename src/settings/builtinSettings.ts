@@ -532,7 +532,7 @@ export const holdMenuSetting: SettingDefinition<number> = {
   category: 'advanced',
   keywords: 'press hold menu paste select long press touch time',
   scope: 'device',
-  defaultValue: 1000,
+  defaultValue: 1500,
   isValid: (v): v is number =>
     typeof v === 'number' &&
     (HOLD_MENU_CHOICES as readonly number[]).includes(v),

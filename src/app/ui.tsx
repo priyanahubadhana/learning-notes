@@ -1,7 +1,13 @@
 import { centreEl } from './centreEl'
 import { Tip } from '../help/Help'
 import type { TipId } from '../help/helpRegistry'
-import { useEffect, useRef, useState, type ComponentProps } from 'react'
+import {
+  useEffect,
+  useLayoutEffect,
+  useRef,
+  useState,
+  type ComponentProps,
+} from 'react'
 import { createPortal } from 'react-dom'
 import { usePopup } from './popups'
 import { PopupHeader } from './tools/PopupClose'
@@ -222,6 +228,35 @@ export function MenuPopover({
     at: DOMRect
     el: Element
   } | null>(null)
+  // Owner bug batch 2, item 4: the menu is measured and kept inside what
+  // the person can see (the visual viewport: the keyboard and pinch-zoom
+  // shrink it). Near the bottom it flips above the point; it never leaves
+  // the left or right edge.
+  useLayoutEffect(() => {
+    const el = ref.current
+    if (!el) return
+    const vv = window.visualViewport
+    const vw = vv?.width ?? window.innerWidth
+    const vh = vv?.height ?? window.innerHeight
+    const ox = vv?.offsetLeft ?? 0
+    const oy = vv?.offsetTop ?? 0
+    const room = vh - 16
+    const h = Math.min(el.scrollHeight, room)
+    const w = el.offsetWidth
+    let y: number
+    if (nested) y = anchor.top
+    else if (anchor.bottom + 6 + h <= oy + vh - 8) y = anchor.bottom + 6
+    else if (anchor.top - 6 - h >= oy + 8) y = anchor.top - 6 - h
+    else y = oy + vh - h - 8
+    y = Math.max(oy + 8, Math.min(y, oy + vh - h - 8))
+    const x = Math.max(
+      ox + 8,
+      Math.min(anchor.left + (nested ? 12 : 0), ox + vw - w - 8),
+    )
+    el.style.left = x + 'px'
+    el.style.top = y + 'px'
+    el.style.maxHeight = room + 'px'
+  })
   // Esc gives the focus back to the button that opened the menu.
   const [returnTo] = useState(
     () => document.activeElement as HTMLElement | null,

@@ -35,3 +35,9 @@ Research: [docs/research/book-annotations-2026-11.md](../research/book-annotatio
 2. Old ink with no known page: keep as "From before" card (recommended) or delete?
 3. Highlights only as cards, or also as quote blocks in the note text?
 4. AI "Convert to text" for handwriting: keep hidden until cost is approved?
+
+## Owner answers (10 Nov)
+- Old loose ink with no known page: keep as a "From before" card.
+- Highlight cards (owner idea): by default a card shows only the highlight; tapping it expands to show the whole book page with the highlight marked. Each card also has an adjustable "context frame": a crop window the user can drag/resize to choose how much of the page around the highlight the card shows (saved per card).
+- AI "handwriting to text" button: build it (cost shown first), but only after the research is complete and validated.
+- Status: WAIT — do not build until the owner confirms the remaining questions and finishes their own research.

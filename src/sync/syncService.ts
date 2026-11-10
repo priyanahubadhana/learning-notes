@@ -192,8 +192,11 @@ async function boot(db: LearningNotesDB): Promise<void> {
   }
   document.addEventListener('visibilitychange', front)
   window.addEventListener('online', front)
-  window.addEventListener('focus', front)
-  window.addEventListener('pageshow', front)
+  // Focus and pageshow only renew the sign-in quietly (no sync run: a sync
+  // after a focus trip must not disturb a text selection).
+  const renewQuietly = () => void conn.auth.accessToken().catch(() => undefined)
+  window.addEventListener('focus', renewQuietly)
+  window.addEventListener('pageshow', renewQuietly)
   subscribeSync(() => openFeed(db))
   openFeed(db)
   setInterval(poll, POLL_MS)

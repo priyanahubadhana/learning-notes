@@ -6,7 +6,7 @@ import {
   newRecordFields,
   softDeleteMany,
 } from '../core/records'
-import type { Block, PaperBox } from '../core/types'
+import type { Block, GridRow, Page, PaperBox } from '../core/types'
 import { toPlainText } from '../editor/mapping'
 import { recordVersion } from '../history/versionService'
 import { ordersBetween } from '../core/order'
@@ -18,6 +18,7 @@ import {
   placeInOrder,
   sheetOf,
 } from './boxes'
+import { applyPreset, freshNeeded, insertRow, PRESETS, reconcile } from './grid'
 
 /**
  * Phase Q step 3: adding, changing and removing boxes. Box geometry lives on
@@ -52,10 +53,19 @@ async function writeBoxes(
     const stored = page.boxes ?? []
     const next = edit(stored.map((b) => ({ ...b })))
     if (next.length > MAX_BOXES) throw new Error('Too many boxes')
-    await db.pages.update(pageId, {
+    const update: Partial<Page> = {
       boxes: next.length ? next : undefined,
       updatedAt: Date.now(),
-    })
+    }
+    // Item 26: once a page has a box grid, it follows every box that is made,
+    // removed or restored (a new box gets a row of its own at the end).
+    if (page.rows) {
+      update.rows = reconcile(page.rows, [
+        MAIN_BOX,
+        ...next.filter((b) => b.id !== MAIN_BOX).map((b) => b.id),
+      ])
+    }
+    await db.pages.update(pageId, update)
     return next
   })
 }
@@ -64,7 +74,7 @@ async function writeBoxes(
 export async function addBox(
   db: LearningNotesDB,
   pageId: string,
-  at: { x: number; y: number; w?: number },
+  at: { x: number; y: number; w?: number; row?: number },
 ): Promise<string> {
   const page = await getLive(db.pages, pageId)
   const sheet = sheetOf(page)
@@ -79,6 +89,16 @@ export async function addBox(
     sheet.w,
   )
   await writeBoxes(db, pageId, (boxes) => [...boxes, box])
+  // On a page with a box grid the new box is a full-width row at the tap.
+  if (page.rows && at.row !== undefined) {
+    await db.transaction('rw', db.pages, async () => {
+      const now = await getLive(db.pages, pageId)
+      if (now.rows)
+        await db.pages.update(pageId, {
+          rows: insertRow(now.rows, at.row!, id, at.y),
+        })
+    })
+  }
   return id
 }
 
@@ -401,4 +421,129 @@ export async function removeIfEmptyBox(
     await writeBoxes(db, pageId, (all) => all.filter((b) => b.id !== boxId))
   })
   return true
+}
+
+/** What a grid change replaced, for Undo. */
+export interface GridBefore {
+  rows: GridRow[] | undefined
+  boxes: PaperBox[] | undefined
+}
+
+/**
+ * Item 26: writes the box grid (and, for old clients, the places it gives the
+ * boxes) in one step. The first time a page gets rows, a History copy is made
+ * first. Locked boxes keep their stored place. The default box keeps its
+ * stored size (the paper's scale hangs on it). Returns what it replaced.
+ */
+export async function updateGrid(
+  db: LearningNotesDB,
+  pageId: string,
+  rows: readonly GridRow[],
+  places: readonly BoxPatch[],
+): Promise<GridBefore> {
+  const first = await getLive(db.pages, pageId)
+  if (!first.rows) await recordVersion(db, pageId, { force: true })
+  return db.transaction('rw', db.pages, async () => {
+    const page = await getLive(db.pages, pageId)
+    const sheet = sheetOf(page)
+    const before: GridBefore = {
+      rows: page.rows?.map((r) => ({
+        ...r,
+        cols: r.cols.map((c) => ({ ...c, boxIds: [...c.boxIds] })),
+      })),
+      boxes: page.boxes?.map((b) => ({ ...b })),
+    }
+    const stored = new Map((page.boxes ?? []).map((b) => [b.id, b]))
+    for (const { id, patch } of places) {
+      if (id === MAIN_BOX) continue
+      const cur = stored.get(id)
+      if (cur) stored.set(id, clampBox({ ...cur, ...patch }, sheet.w))
+    }
+    const boxes = [...stored.values()]
+    await db.pages.update(pageId, {
+      boxes: boxes.length ? boxes : undefined,
+      rows: reconcile(rows, [
+        MAIN_BOX,
+        ...boxes.filter((b) => b.id !== MAIN_BOX).map((b) => b.id),
+      ]),
+      updatedAt: Date.now(),
+    })
+    return before
+  })
+}
+
+/** Undo of `updateGrid` and `applyBoxLayout`: puts back the rows and boxes. */
+export async function restoreGrid(
+  db: LearningNotesDB,
+  pageId: string,
+  before: GridBefore,
+): Promise<void> {
+  await db.pages.update(pageId, {
+    rows: before.rows,
+    boxes: before.boxes,
+    updatedAt: Date.now(),
+  })
+}
+
+/**
+ * Item 26, box ⋯ › Layout: re-arranges the row holding `anchor` as a preset
+ * (a Windows-style layout). Its boxes fill the cells in reading order, empty
+ * cells get new boxes, boxes that do not fit go to a new row below. Nothing
+ * is deleted. Returns what it replaced, or null for an unknown preset.
+ */
+export async function applyBoxLayout(
+  db: LearningNotesDB,
+  pageId: string,
+  anchor: string,
+  presetId: string,
+  rows: readonly GridRow[],
+  places: readonly BoxPatch[],
+): Promise<GridBefore | null> {
+  const preset = PRESETS.find((p) => p.id === presetId)
+  if (!preset) return null
+  const first = await getLive(db.pages, pageId)
+  if (!first.rows) await recordVersion(db, pageId, { force: true })
+  return db.transaction('rw', db.pages, async () => {
+    const page = await getLive(db.pages, pageId)
+    const sheet = sheetOf(page)
+    const before: GridBefore = {
+      rows: page.rows?.map((r) => ({
+        ...r,
+        cols: r.cols.map((c) => ({ ...c, boxIds: [...c.boxIds] })),
+      })),
+      boxes: page.boxes?.map((b) => ({ ...b })),
+    }
+    const at = boxesOf(page).find((b) => b.id === anchor)
+    const need = freshNeeded(rows, anchor, preset)
+    const fresh = Array.from({ length: need }, () => createId())
+    const stored = new Map((page.boxes ?? []).map((b) => [b.id, b]))
+    for (const { id, patch } of places) {
+      const cur = stored.get(id)
+      if (cur && id !== MAIN_BOX)
+        stored.set(id, clampBox({ ...cur, ...patch }, sheet.w))
+    }
+    for (const id of fresh)
+      stored.set(
+        id,
+        clampBox(
+          {
+            id,
+            x: at?.x ?? MARGIN,
+            y: at?.y ?? 0,
+            w: Math.min(NEW_W, sheet.w - 2 * MARGIN),
+          },
+          sheet.w,
+        ),
+      )
+    const boxes = [...stored.values()]
+    await db.pages.update(pageId, {
+      boxes,
+      rows: reconcile(applyPreset(rows, anchor, preset, fresh), [
+        MAIN_BOX,
+        ...boxes.filter((b) => b.id !== MAIN_BOX).map((b) => b.id),
+      ]),
+      updatedAt: Date.now(),
+    })
+    return before
+  })
 }

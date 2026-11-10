@@ -67,4 +67,5 @@ Notebooks home: heading "Notebooks" and "+ New notebook". Row "Views": [★ Star
 Nested views, shared views, AI prompts/skills in views (type reserved until the prompt library exists), per-item sync merge, drag to reorder inside a collection (newest first for now), more rule fields, views inside a single notebook.
 
 ## Owner decision (10 Nov)
+
 - Approved as recommended: one word "Views" (Collections + Smart views), Study = one-off session. Build after the bug fixes.

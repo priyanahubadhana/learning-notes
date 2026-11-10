@@ -160,6 +160,12 @@ async function scene(page: Page) {
   return { ink }
 }
 
+/** Where the pen stroke of scene() is now (the page may have moved since). */
+const inkNow = async (page: Page) => {
+  const last = await wordsBox(page, 'apple banana')
+  return { x: last.x + 40, y: last.y + 80, width: 200, height: 40 }
+}
+
 /** Browser state that must be clean while a Lasso selection shows. */
 const stale = (page: Page) =>
   page.evaluate(() => {
@@ -182,7 +188,7 @@ const pen = (page: Page, pts: Pt[]) => stroke(page, pts, { id: nextId++ })
 test('item 17: ten and more loops (free and rectangle) in a row, pin the bar, loop again, drag a handle', async ({
   page,
 }) => {
-  const { ink } = await scene(page)
+  await scene(page)
   // Part of a line each time (more than about half a line is the whole line).
   const targets = [
     'beta',
@@ -257,7 +263,7 @@ test('item 17: ten and more loops (free and rectangle) in a row, pin the bar, lo
   // The ink: a loop selects it, and a corner handle drag resizes it.
   await page.keyboard.press('Escape')
   await page.evaluate(() => window.__lnTools!.setLasso({ shape: 'free' }))
-  await pen(page, await loop(page, ink, false))
+  await pen(page, await loop(page, await inkNow(page), false))
   const box = page.locator('[data-ink-box]')
   await expect(box).toBeVisible()
   const [orig] = await expectStrokes(page, 1)
@@ -292,9 +298,12 @@ test('item 17: ten and more loops (free and rectangle) in a row, pin the bar, lo
 test('item 15: an earlier word selection, its handles and caret are gone when a new loop selects ink', async ({
   page,
 }) => {
-  const { ink } = await scene(page)
+  await scene(page)
   // Select a word with the Text tool (our handles and bar show).
   await tool(page, 'Text').click()
+  // Past the page's 450 ms hold after a tool is chosen: a tap point measured
+  // while the page is still being put back goes stale (see lassoPencil.spec).
+  await page.waitForTimeout(600)
   const w = await wordsBox(page, 'monday')
   const at: Pt = [w.x + w.width / 2, w.y + w.height / 2]
   await pen(page, [at])
@@ -303,7 +312,7 @@ test('item 15: an earlier word selection, its handles and caret are gone when a 
   await expect(page.locator('[data-sel-handle]')).toHaveCount(2)
   await tool(page, 'Lasso').click()
   await page.evaluate(() => window.__lnTools!.setLasso({ shape: 'free' }))
-  await pen(page, await loop(page, ink, false))
+  await pen(page, await loop(page, await inkNow(page), false))
   await expect(page.locator('[data-ink-box]')).toBeVisible()
   await expect(page.locator('[data-sel-handle]')).toHaveCount(0)
   await expect(page.locator('[data-mini-toolbar]')).toHaveCount(0)

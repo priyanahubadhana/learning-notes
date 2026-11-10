@@ -250,20 +250,25 @@ test('fit width on a phone: the boxes stack under the text in reading order', as
   await page.waitForTimeout(600)
   await page.setViewportSize({ width: 390, height: 844 })
   await expect(page.locator('[data-paper-sheet]')).toHaveCount(0)
-  const main = (await page.locator('[data-paper-box="main"]').boundingBox())!
+  const mainBox = page.locator('[data-paper-box="main"]')
   await expect(extra.first()).toContainText('Left box')
   await expect(extra.nth(1)).toContainText('Right box')
+  // The page and the boxes ease into the stack, so wait until the boxes match
+  // the page's text column (measured together each time; WebKit is slower).
+  await expect
+    .poll(async () => {
+      const m = (await mainBox.boundingBox())!
+      let worst = 0
+      for (const box of [extra.first(), extra.nth(1)]) {
+        const r = (await box.boundingBox())!
+        worst = Math.max(worst, Math.abs(r.x - m.x), Math.abs(r.width - m.width))
+      }
+      return worst
+    })
+    .toBeLessThan(2)
+  const main = (await mainBox.boundingBox())!
   const a = (await extra.first().boundingBox())!
   const b = (await extra.nth(1).boundingBox())!
-  // The boxes ease into the stack, so wait for them to settle (WebKit is slower).
-  for (const box of [extra.first(), extra.nth(1)]) {
-    await expect
-      .poll(async () => {
-        const r = (await box.boundingBox())!
-        return Math.max(Math.abs(r.x - main.x), Math.abs(r.width - main.width))
-      })
-      .toBeLessThan(2)
-  }
   expect(a.y).toBeGreaterThan(main.y + main.height - 1)
   expect(b.y).toBeGreaterThan(a.y + a.height - 1)
   // No sideways scroll on the phone.

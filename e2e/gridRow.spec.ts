@@ -1,7 +1,12 @@
 // Browser types for code that runs inside the page.
 /// <reference lib="dom" />
 import { expect, test, type Locator, type Page } from '@playwright/test'
-import { createNotebook, startInMode, typeInEditor } from './helpers.ts'
+import {
+  createNotebook,
+  pickBox,
+  startInMode,
+  typeInEditor,
+} from './helpers.ts'
 
 /**
  * Owner bug batch 2, item 9 (10 Nov): a 50/50 two-column row on iPad width
@@ -34,7 +39,7 @@ async function twoColumns(page: Page) {
   }
   // Drop box 2 on the right third of box 1: one row, two columns.
   const from = extra.nth(1)
-  await from.hover()
+  await pickBox(page, from)
   const g = await rect(from.locator('[data-box-grip]'))
   const t = await rect(extra.nth(0))
   await page.mouse.move(g.x + g.width / 2, g.y + g.height / 2)
@@ -92,7 +97,7 @@ test('after a move the grip is still at the top-left; the drag is one transform'
 }) => {
   const { extra } = await twoColumns(page)
   const from = extra.nth(1)
-  await from.hover()
+  await pickBox(page, from)
   const g0 = await rect(from.locator('[data-box-grip]'))
   const b0 = await rect(from)
   await page.mouse.move(g0.x + g0.width / 2, g0.y + g0.height / 2)

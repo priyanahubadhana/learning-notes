@@ -2,6 +2,18 @@
 
 Current phase only. Older entries are in [ARCHIVE.md](ARCHIVE.md).
 
+## 2026-11-11 (Text box and Layout mode, owner bug batch 3, Priority 1)
+
+- **One box, many lines:** in a Text-tool box, Enter in a plain paragraph adds a line break inside the same block (`editor/boxLineKeys.ts`); lists, headings, code and the "/" menu keep their own Enter. Old pages are not converted (several blocks in a box still work), so no text can be lost.
+- **B3-1/6:** the grip and the menu are 44 pt (inline size, so the global touch rule cannot shrink them), shown only on the selected box. The page's own first box shows them while its caret is in it (`MainChrome`).
+- **B3-2/3/4:** no new box during a drag or resize, or for 800 ms after a real drag; a tap inside an existing box's frame (any part) puts the caret in it and never makes a box on top. Locked boxes can be selected too (to reach their menu).
+- **B3-9:** 8 round 44 pt handles on a selected box (`paper/boxHandles.ts`). East/west handles move the column divider beside the box; north/south set a minimum height (`PaperBox.h`) that never goes below the content; the old pill handles are gone.
+- **B3-10:** one shared module `paper/safeGap.ts`: the paper starts 44 px below the tab bar and no box may start above the page text's top (`clampBox`).
+- **B3-5/7/8:** Layout mode replaces the Layout Assist dialog (`LayoutAssist.tsx`, its e2e and its Lazy wrapper removed). The page zooms out to 85 %, boxes wiggle, any box (the first included) drags with the others sliding aside, a lazy preset strip (`LayoutModeBar`) applies a layout at once, coach line, Undo (the whole session is one step), Apply to all pages, Done. A Layout button is in the Text strip (always enabled), the box menu and the toolbar registry (`layout`, Home > More).
+- **B3-11 (these screens):** every toast sits above the on-screen keyboard and its bar (`Toast` in `app/ui.tsx`).
+- Tests: `paper/safeGap.test.ts`, `e2e/textBoxBatch3.spec.ts`; boxPills, gridRow, paperBoxes, paperGrid, paperPage updated (select a box before its grip; 8 handles).
+- Files: src/paper/ (BoxFrame, PaperFrame, usePaperBoxes, boxService, boxHandles, safeGap, LayoutModeBar(+Lazy), layoutModeBus), src/editor/boxLineKeys.ts, src/editor/PageEditor.tsx, src/app/ui.tsx, src/app/tools/toolRegistry.ts, src/app/tools/main/TextBoxExtras.tsx, src/pages/PageView.tsx, src/core/types.ts, src/index.css, src/i18n/enL, esL, hiL.
+
 ## 2026-11-11 (Sign-in stays, owner bug)
 
 - **Root cause:** the sign-in renewal (refresh token, single-use) ran several times at once on start (sync, live feed, Drive, key and layout sync all ask for a token) and treated any plain HTTP 400 as "session ended". After the access token expired (an hour or more closed, or after an update), the twin request got a 400 "already used", the saved sign-in was deleted and the "signed out" lock / sign-in asks came back. An odd 400 (proxy) or an offline sign-in callback could also wipe it.

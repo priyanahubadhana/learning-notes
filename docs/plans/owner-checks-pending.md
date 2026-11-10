@@ -1,5 +1,9 @@
 # Owner checks still pending (collected for the end-of-run iPad pass)
 
+## Text box and Layout mode checks (11 Nov, owner bug batch 3)
+
+On the iPad: (1) Text tool: tap empty paper, type, press Enter: new lines stay in the same box. (2) Tap a box once (frame or text): the grip and the menu show only on the selected box, and are easy to hit with a finger. (3) Drag a box and drop it, then tap empty paper at once: no new box; wait a second, tap again: a new box. (4) Tap any part of a box (the empty right side, the corner) with the Text tool: the caret goes into that box, never a new box on top. (5) The page's first text box shows the grip and the menu while you type in it. (6) Select a box: 8 round handles; drag the bottom or a corner: it grows, and it will not go smaller than its text. (7) Top row: the grip and menu sit clear of the Notes/Summary/Review bar, fully visible. (8) Layout button in the Text strip and the toolbar menu opens Layout mode: the page shrinks a little, boxes wiggle, the strip shows the layouts and the coach line; tap Two columns (changes at once), drag a box (others slide aside), pull a handle, Undo (back to before), Apply to all pages, Done. (9) With the keyboard up, a toast (for example after a drop) sits above the keyboard bar.
+
 ## Stay signed in checks (11 Nov)
 
 On the iPad, PC and phone: after the update, close and reopen the app, leave it a few hours and reopen, switch apps and come back, and go offline for a day then back online. You should never be asked to sign in again unless you tapped Sign out. Tell me if it still happens, and when.

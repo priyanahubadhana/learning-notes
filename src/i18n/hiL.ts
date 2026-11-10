@@ -83,4 +83,11 @@ export const hiL: Record<string, string> = {
   'kbBar.strike': 'कटा हुआ',
   'kbBar.hide': 'कीबोर्ड छिपाएँ',
   'bar.scrollRight': 'दाईं ओर स्क्रॉल करें',
+  'tool.layout': 'लेआउट',
+  'layout.mode.coach':
+    'आपका पेज ऐसा दिखेगा। किसी बॉक्स को हिलाने के लिए खींचें, आकार बदलने के लिए उसका किनारा खींचें। संतुष्ट होने पर हो गया दबाएँ।',
+  'layout.mode.undo': 'लेआउट पूर्ववत करें',
+  'layout.mode.all': 'सभी पेजों पर लागू करें',
+  'layout.mode.pickFirst': 'पहले एक लेआउट चुनें, फिर सभी पेजों पर लागू करें',
+  'layout.mode.tapFirst': 'पहले पेज में टैप करें, फिर लेआउट चुनें',
 }

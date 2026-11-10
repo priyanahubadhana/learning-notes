@@ -83,4 +83,11 @@ export const enL = {
   'kbBar.strike': 'Strikethrough',
   'kbBar.hide': 'Hide keyboard',
   'bar.scrollRight': 'Scroll right',
+  'tool.layout': 'Layout',
+  'layout.mode.coach':
+    "This is how your page will look. Drag a box to move it, pull an edge to resize. Tap Done when you're happy.",
+  'layout.mode.undo': 'Undo layout',
+  'layout.mode.all': 'Apply to all pages',
+  'layout.mode.pickFirst': 'Pick a layout first, then apply it to all pages',
+  'layout.mode.tapFirst': 'Tap in the page first, then choose Layout',
 }

@@ -7,6 +7,7 @@ import {
   openRibbon,
   startInMode,
   typeInEditor,
+  pickBox,
 } from './helpers.ts'
 import { line, stroke } from './inkHelpers.ts'
 import { tool } from './mainBarHelpers.ts'
@@ -118,7 +119,7 @@ test('item 25: a box dragged by its grip owns input; no red drop line', async ({
   await page.waitForTimeout(500)
   const a = extra.nth(0)
   const yb = (await extra.nth(1).boundingBox())!.y
-  await a.hover()
+  await pickBox(page, a)
   const g = (await a.locator('[data-box-grip]').boundingBox())!
   const gx = g.x + g.width / 2
   const gy = g.y + g.height / 2

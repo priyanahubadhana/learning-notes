@@ -1,7 +1,12 @@
 // Browser types for code that runs inside the page.
 /// <reference lib="dom" />
 import { expect, test, type Page } from '@playwright/test'
-import { createNotebook, startInMode, typeInEditor } from './helpers.ts'
+import {
+  createNotebook,
+  pickBox,
+  startInMode,
+  typeInEditor,
+} from './helpers.ts'
 import { line, savedInk, stroke } from './inkHelpers.ts'
 import { mainBar, openNote, tool } from './mainBarHelpers.ts'
 
@@ -160,7 +165,7 @@ test('a new box, its text and a lock are steps; a deleted box comes back', async
     await page.keyboard.type('Box text')
   })
   await roundTrip(page, async () => {
-    await extra.hover()
+    await pickBox(page, extra)
     await extra.locator('[data-box-menu]').click()
     await page.getByRole('menuitem', { name: 'Lock in place' }).click()
     await expect(extra.locator('[data-box-grip]')).toHaveCount(0)
@@ -168,7 +173,7 @@ test('a new box, its text and a lock are steps; a deleted box comes back', async
   // Delete the box, then Undo from the tool bar (not the toast).
   await page.waitForTimeout(900)
   const before = await snap(page)
-  await extra.hover()
+  await pickBox(page, extra)
   await extra.locator('[data-box-menu]').click()
   await page.getByRole('menuitem', { name: 'Delete box' }).click()
   await expect(extra).toHaveCount(0)

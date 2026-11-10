@@ -21,6 +21,7 @@ import {
   sheetOf,
 } from './boxes'
 import { insertRow, reconcile } from './grid'
+import { SAFE_TOP_MM } from './safeGap'
 
 /**
  * Phase Q step 3: adding, changing and removing boxes. Box geometry lives on
@@ -40,7 +41,7 @@ const round = (v: number) => Math.round(v * 10) / 10
 export function clampBox(box: PaperBox, sheetW: number): PaperBox {
   const w = round(Math.min(sheetW, Math.max(MIN_W, box.w)))
   const x = round(Math.min(sheetW - w, Math.max(0, box.x)))
-  const y = round(Math.max(0, box.y))
+  const y = round(Math.max(SAFE_TOP_MM, box.y))
   return { ...box, x, y, w }
 }
 
@@ -126,6 +127,7 @@ export async function updateBox(
   if (patch.locked === undefined && 'locked' in patch) delete next.locked
   if (patch.colour === undefined && 'colour' in patch) delete next.colour
   if (patch.style === undefined && 'style' in patch) delete next.style
+  if (patch.h === undefined && 'h' in patch) delete next.h
   await writeBoxes(db, pageId, (boxes) =>
     boxes.some((b) => b.id === id)
       ? boxes.map((b) => (b.id === id ? next : b))

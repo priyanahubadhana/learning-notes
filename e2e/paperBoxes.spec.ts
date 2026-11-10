@@ -1,7 +1,12 @@
 // Browser types for code that runs inside the page.
 /// <reference lib="dom" />
 import { expect, test, type Page } from '@playwright/test'
-import { createNotebook, startInMode, typeInEditor } from './helpers.ts'
+import {
+  createNotebook,
+  pickBox,
+  startInMode,
+  typeInEditor,
+} from './helpers.ts'
 import { tool } from './mainBarHelpers.ts'
 
 /**
@@ -10,6 +15,8 @@ import { tool } from './mainBarHelpers.ts'
  * several picked boxes move together; a dragged box is a see-through live
  * copy with a red landing line, the boxes below make room; light snap guides.
  */
+
+test.use({ viewport: { width: 1336, height: 1100 } })
 
 const EXTRA = '[data-paper-box]:not([data-paper-box="main"])'
 
@@ -73,9 +80,12 @@ test('Lasso: hover shows the frame, a tap selects, there are no side handles, th
   await expect(extra.locator('[data-box-handle]')).toHaveCount(0)
   // Grabbing the frame moves it.
   const y0 = (await extra.boundingBox())!.y
-  const left = centre(
-    (await extra.locator('[data-box-band="top"]').boundingBox())!,
-  )
+  const bandBox = (await extra.locator('[data-box-band="top"]').boundingBox())!
+  // A quarter along the top: the corner and middle handles sit elsewhere.
+  const left = {
+    x: bandBox.x + bandBox.width * 0.25,
+    y: bandBox.y + bandBox.height / 2,
+  }
   await page.mouse.move(left.x, left.y)
   await page.mouse.down()
   await page.mouse.move(left.x, left.y + 100, { steps: 6 })
@@ -106,7 +116,9 @@ test('dragging shows a see-through copy and an accent landing outline; picked bo
   const ya = (await a.boundingBox())!.y
   const yb = (await b.boundingBox())!.y
   // Drag by the first one's frame: live copy + red line while holding.
-  const g = centre((await a.locator('[data-box-band="top"]').boundingBox())!)
+  const gb = (await a.locator('[data-box-band="top"]').boundingBox())!
+  // A quarter along: the middle and corner handles of a picked box sit elsewhere.
+  const g = { x: gb.x + gb.width * 0.25, y: gb.y + gb.height / 2 }
   await page.mouse.move(g.x, g.y)
   await page.mouse.down()
   await page.mouse.move(g.x, g.y + 120, { steps: 8 })
@@ -137,7 +149,7 @@ test('a box dropped on the right of another goes beside it: two columns, no over
   const { extra } = await boxes(page, 2)
   const a = extra.nth(0)
   const b = extra.nth(1)
-  await b.hover()
+  await pickBox(page, b)
   const g = centre((await b.locator('[data-box-grip]').boundingBox())!)
   const ar = (await a.boundingBox())!
   await page.mouse.move(g.x, g.y)

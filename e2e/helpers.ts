@@ -610,3 +610,13 @@ export async function signInFromAccount(page: Page) {
     .click()
   await page.goto('/#/settings/sync')
 }
+
+/**
+ * Selects an extra box with a tap on the left edge of its frame (owner batch
+ * 3, B3-1): only then its ⠿, ⋯ and 8 round handles show.
+ */
+export async function pickBox(page: Page, box: Locator) {
+  const r = (await box.boundingBox())!
+  await page.mouse.click(r.x - 5, r.y + r.height / 2)
+  await expect(box).toHaveAttribute('data-picked', '')
+}

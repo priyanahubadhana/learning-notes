@@ -1122,3 +1122,32 @@ body:has([data-ink-pad]) [data-sel-handle]::after {
   border-style: dashed !important;
   border-width: 1.5px !important;
 }
+
+/* Owner batch 3, B3-7: Layout mode. The boxes wiggle a little (iPad Home
+   Screen style) so it is clear they can be dragged. Only the content moves
+   (a transform), never the box's place, so nothing reflows. */
+@keyframes ln-wiggle {
+  0% {
+    transform: rotate(-0.4deg);
+  }
+  50% {
+    transform: rotate(0.4deg);
+  }
+  100% {
+    transform: rotate(-0.4deg);
+  }
+}
+[data-layout-mode] [data-box-content],
+[data-layout-mode] [data-paper-box='main'] > div {
+  animation: ln-wiggle 0.3s ease-in-out infinite;
+  transform-origin: 50% 50%;
+}
+[data-layout-mode] [data-paper-box]:nth-of-type(even) [data-box-content] {
+  animation-delay: -0.15s;
+}
+@media (prefers-reduced-motion: reduce) {
+  [data-layout-mode] [data-box-content],
+  [data-layout-mode] [data-paper-box='main'] > div {
+    animation: none;
+  }
+}

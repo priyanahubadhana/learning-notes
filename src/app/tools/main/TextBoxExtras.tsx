@@ -6,7 +6,8 @@ import { t } from '../../../i18n/t'
 import { activeBox } from '../../../paper/activeBox'
 import { boxesOf, MAIN_BOX } from '../../../paper/boxes'
 import { loadNewBoxStyle } from '../../../paper/boxPresets'
-import { openBoxStyle, openLayout } from '../../../paper/boxStyleBus'
+import { openBoxStyle } from '../../../paper/boxStyleBus'
+import { openLayoutMode } from '../../../paper/layoutModeBus'
 import { Icon } from '../icons'
 import { PillButton } from './pillParts'
 
@@ -52,8 +53,8 @@ export default function TextBoxExtras() {
       <PillButton
         id="layout"
         label={t('layout.title')}
-        disabled={!mine}
-        onClick={() => mine && openLayout(box.id)}
+        disabled={!at}
+        onClick={() => at && openLayoutMode(at.pageId)}
       >
         <Icon name="grid" />
       </PillButton>

@@ -13,7 +13,7 @@ import { card, option, pill, tool } from './mainBarHelpers.ts'
 
 /** Layers, anchoring to text, one history with the text, saving, speed. */
 
-test.use({ viewport: { width: 1024, height: 1000 }, hasTouch: true })
+test.use({ viewport: { width: 1024, height: 1100 }, hasTouch: true })
 
 async function openLayers(page: Page) {
   // Already showing (R6-21: a tap on the toast no longer closes the pill).

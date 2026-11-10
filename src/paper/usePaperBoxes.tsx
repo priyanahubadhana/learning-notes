@@ -8,12 +8,13 @@ import type { LearningNotesDB } from '../core/db'
 import type { GridRow, PaperBox } from '../core/types'
 import { triggerFirstUse } from '../help/firstUse'
 import { t } from '../i18n/t'
-import { BOX_COLOURS } from './boxes'
-import type { GridInfo } from './layoutPlan'
-import type { AssistResult } from './LayoutAssist'
-import { LayoutAssistLazy } from './LayoutAssistLazy'
+import { BOX_COLOURS, MAIN_BOX } from './boxes'
+import { layoutRows } from './grid'
+import { arrangeAll, type GridInfo } from './layoutPlan'
+import { LayoutModeBarLazy } from './LayoutModeBarLazy'
+import { LAYOUT_MODE_EVENT } from './layoutModeBus'
 import { BoxStylePopoverLazy } from './BoxStylePopoverLazy'
-import { BOX_STYLE_EVENT, LAYOUT_EVENT, openBoxStyle } from './boxStyleBus'
+import { BOX_STYLE_EVENT, openBoxStyle } from './boxStyleBus'
 
 import { NARROW_PX } from './sheets'
 import {
@@ -81,6 +82,9 @@ export function usePaperBoxes(
   ) => Promise<string | null>
   /** The box made just now (its editor takes the caret). */
   fresh: string | null
+  layoutMode: boolean
+  layoutBar: ReactNode
+  onBoxHeight: (id: string, h: number | undefined) => void
   menu: ReactNode
 } {
   const { toast } = useContext(AppUiContext)
@@ -193,40 +197,44 @@ export function usePaperBoxes(
     window.addEventListener(BOX_STYLE_EVENT, on)
     return () => window.removeEventListener(BOX_STYLE_EVENT, on)
   }, [])
-  // Layout Assist (bug batch 2, items 7 and 10): a lazy dialog.
-  const [assist, setAssist] = useState<{
-    anchor: string
-    info: GridInfo
-    texts: Record<string, string>
-    sheetOf: Record<string, number>
-  } | null>(null)
-  const openAssist = (boxId: string) => {
+  // Layout mode (owner batch 3, B3-7/8): the page itself becomes the editor.
+  // The whole session is one Undo step: the page as it was when it began.
+  const [layoutAsked, setLayoutOn] = useState(false)
+  const layoutOn = layoutAsked && editable
+  const layoutBefore = useRef<GridBefore | null>(null)
+  const [layoutPreset, setLayoutPreset] = useState<string | null>(null)
+  const [layoutDirty, setLayoutDirty] = useState(false)
+  const layoutOnRef = useRef(false)
+  useEffect(() => {
+    layoutOnRef.current = layoutOn
+  }, [layoutOn])
+  const openLayoutHere = () => {
     if (!editable) return toast(t('layout.assist.readOnly'))
     if (window.innerWidth < NARROW_PX) return toast(t('layout.assist.phone'))
-    const info = gridView.current
-    const texts: Record<string, string> = {}
-    const sheetOf: Record<string, number> = {}
-    const period = info.geo.sheetH + info.geo.gapMm
-    for (const row of info.rows)
-      for (const col of row.cols)
-        for (const id of col.boxIds) {
-          texts[id] =
-            document.querySelector(
-              '[data-paper-box="' + CSS.escape(id) + '"] .bn-editor',
-            )?.textContent ?? ''
-          const at = info.places.find((p) => p.id === id)?.patch.y ?? 0
-          sheetOf[id] = Math.max(0, Math.floor((at + 1e-6) / period))
-        }
-    setAssist({ anchor: boxId, info: { ...info }, texts, sheetOf })
+    void db.pages.get(pageId).then((page) => {
+      if (!page) return
+      layoutBefore.current = {
+        rows: page.rows?.map((r) => ({
+          ...r,
+          cols: r.cols.map((c) => ({ ...c, boxIds: [...c.boxIds] })),
+        })),
+        boxes: page.boxes?.map((b) => ({ ...b })),
+      }
+      setLayoutPreset(null)
+      setLayoutDirty(false)
+      setLayoutOn(true)
+    })
   }
-  // The Text strip's Layout button.
+  // The Text strip's, the toolbar's and the box menu's Layout button.
   useEffect(() => {
-    const on = (e: Event) => openAssist((e as CustomEvent<string>).detail)
-    window.addEventListener(LAYOUT_EVENT, on)
-    return () => window.removeEventListener(LAYOUT_EVENT, on)
+    const on = (e: Event) => {
+      if ((e as CustomEvent<string>).detail === pageId) openLayoutHere()
+    }
+    window.addEventListener(LAYOUT_MODE_EVENT, on)
+    return () => window.removeEventListener(LAYOUT_MODE_EVENT, on)
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [editable])
-  // Ctrl/Cmd + Alt + L: Layout for the box that has the caret.
+  }, [editable, pageId])
+  // Ctrl/Cmd + Alt + L: Layout mode.
   useEffect(() => {
     if (!editable) return
     const key = (e: KeyboardEvent) => {
@@ -234,9 +242,9 @@ export function usePaperBoxes(
       const id = document.activeElement
         ?.closest('[data-paper-box]')
         ?.getAttribute('data-paper-box')
-      if (!id || id === 'main') return
+      if (!id) return
       e.preventDefault()
-      openAssist(id)
+      openLayoutHere()
     }
     document.addEventListener('keydown', key)
     return () => document.removeEventListener('keydown', key)
@@ -244,6 +252,7 @@ export function usePaperBoxes(
   }, [editable])
   const undoGrid = (before: GridBefore | null) => {
     if (!before) return
+    if (layoutOnRef.current) return setLayoutDirty(true) // one Undo for the whole session
     toast(t('layout.done'), {
       label: t('paper.box.undo'),
       onSelect: () => runTask(restoreGrid(db, pageId, before)),
@@ -251,16 +260,28 @@ export function usePaperBoxes(
   }
   const onGridChange = (rows: GridRow[], places: BoxPatch[]) =>
     runTask(updateGrid(db, pageId, rows, places).then(undoGrid))
-  const applyAssist = (r: AssistResult) => {
-    setAssist(null)
-    runTask(
-      import('./layoutAssistService').then(({ applyLayout }) =>
-        applyLayout(db, pageId, r.rows, r.places, r.fresh).then(undoGrid),
-      ),
-    )
+  const pickPreset = (presetId: string) => {
+    const info = gridView.current
+    const rows = arrangeAll(info.rows, presetId)
+    if (!rows) return
+    const places: BoxPatch[] = []
+    for (const [id, rc] of layoutRows(rows, info.heights, info.geo))
+      if (id !== MAIN_BOX)
+        places.push({ id, patch: { x: rc.x, y: rc.y, w: rc.w } })
+    setLayoutPreset(presetId)
+    setLayoutDirty(true)
+    runTask(updateGrid(db, pageId, rows, places).then(() => {}))
   }
-  const applyNotebookAssist = (presetId: string) => {
-    setAssist(null)
+  const undoLayout = () => {
+    const before = layoutBefore.current
+    if (!before) return
+    setLayoutPreset(null)
+    setLayoutDirty(false)
+    runTask(restoreGrid(db, pageId, before))
+  }
+  const applyAllPages = () => {
+    const presetId = layoutPreset
+    if (!presetId) return toast(t('layout.mode.pickFirst'))
     runTask(
       import('./layoutAssistService').then(
         async ({ applyNotebook, restoreNotebook }) => {
@@ -336,7 +357,11 @@ export function usePaperBoxes(
     )
   }
 
-  const items = (box: PaperBox): MenuItem[] => [
+  const items = (box: PaperBox): MenuItem[] =>
+    box.id === MAIN_BOX
+      ? allItems(box).filter((i) => i.label === t('layout.title'))
+      : allItems(box)
+  const allItems = (box: PaperBox): MenuItem[] => [
     {
       label: t(box.locked ? 'paper.box.unlock' : 'paper.box.lock'),
       icon: box.locked ? 'lockOpen' : 'lock',
@@ -379,8 +404,7 @@ export function usePaperBoxes(
       label: t('layout.title'),
       icon: '▦',
       hint: '⌃⌥L',
-      // eslint-disable-next-line react-hooks/refs
-      onSelect: () => openAssist(box.id),
+      onSelect: openLayoutHere,
     },
     {
       label: t('paper.box.delete'),
@@ -391,6 +415,18 @@ export function usePaperBoxes(
   ]
 
   return {
+    layoutMode: layoutOn,
+    onBoxHeight: (id: string, h: number | undefined) => onBoxChange(id, { h }),
+    layoutBar: layoutOn ? (
+      <LayoutModeBarLazy
+        active={layoutPreset}
+        canUndo={layoutDirty}
+        onPreset={pickPreset}
+        onUndo={undoLayout}
+        onApplyAll={applyAllPages}
+        onDone={() => setLayoutOn(false)}
+      />
+    ) : null,
     onAddBox: editable ? onAddBox : undefined,
     onAddBoxInOrder: editable ? onAddBoxInOrder : undefined,
     onBoxChange,
@@ -409,7 +445,7 @@ export function usePaperBoxes(
         onDuplicate={() => editable && duplicate(box)}
         onDelete={() => remove(box)}
         onMenu={(at) => setMenuFor({ box, at })}
-        onLayout={() => openAssist(box.id)}
+        onLayout={openLayoutHere}
       />
     ),
     onInkOnPaper: editable
@@ -436,25 +472,6 @@ export function usePaperBoxes(
             boxId={styleFor}
             onClose={() => setStyleFor(null)}
           />
-        )}
-        {assist && (
-          <>
-            <LayoutAssistLazy
-              db={db}
-              pageId={pageId}
-              anchor={assist.anchor}
-              info={assist.info}
-              texts={assist.texts}
-              sheetOf={assist.sheetOf}
-              onApply={applyAssist}
-              onApplyNotebook={applyNotebookAssist}
-              onClose={() => setAssist(null)}
-              onFail={() => {
-                setAssist(null)
-                toast(t('layout.assist.fail'))
-              }}
-            />
-          </>
         )}
       </>
     ),

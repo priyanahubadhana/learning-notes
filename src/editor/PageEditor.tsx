@@ -93,6 +93,7 @@ import {
   useKeyboardInset,
 } from '../settings/deviceModeSettings'
 import { codeBlockKeys } from './codeBlockKeys'
+import { boxLineKeys } from './boxLineKeys'
 import type { NestedCardPlace } from './cardActions'
 import { EditorContext, type EditorApi } from './editorContext'
 import {
@@ -339,6 +340,7 @@ function LoadedPageEditor({
     disableExtensions: ['history'],
     extensions: [
       codeBlockKeys,
+      ...(boxId && boxId !== 'main' ? [boxLineKeys] : []),
       linkTrigger,
       penTransactionGuard,
       ownSelection,

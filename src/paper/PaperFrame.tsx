@@ -31,6 +31,8 @@ import {
   sheetOf,
 } from './boxes'
 import { BoxFrame, type GrabHow } from './BoxFrame'
+import { caretAtEnd, type ResizeHow } from './boxHandles'
+import { SAFE_GAP_PX, TOUCH_PX, TOUCH_STYLE } from './safeGap'
 import { clampBox, MIN_W, type BoxPatch } from './boxService'
 import {
   insertAt,
@@ -39,6 +41,7 @@ import {
   migrateToRows,
   reconcile,
   removeBox as removeFromRows,
+  resizeCols,
   zoneOf,
   type Geometry,
   type Zone,
@@ -93,6 +96,9 @@ export function PaperFrame({
   onGridChange,
   onGridView,
   onBoxMenu,
+  onBoxHeight,
+  layoutMode = false,
+  layoutBar,
   onDeleteBox,
   renderBar,
   onInkOnPaper,
@@ -122,6 +128,11 @@ export function PaperFrame({
     measured: { heights: Record<string, number>; geo: Geometry },
   ) => void
   onBoxMenu?: (box: PaperBox, at: DOMRect) => void
+  /** The bottom handles set a box's minimum height (mm); undefined = back to its content. */
+  onBoxHeight?: (id: string, h: number | undefined) => void
+  /** Layout mode (owner batch 3, B3-7/8): the page zooms out a little, boxes wiggle and drag; `layoutBar` is the strip. */
+  layoutMode?: boolean
+  layoutBar?: ReactNode
   /** Delete a box (an empty box goes with Backspace; a selected one with Delete). */
   onDeleteBox?: (box: PaperBox) => void
   /** The floating bar under a selected box. */
@@ -143,7 +154,9 @@ export function PaperFrame({
   const scroller = useRef<HTMLDivElement>(null)
   const boxEl = useRef<HTMLDivElement>(null)
   const [fit, setFit] = useState(0)
-  const [zoom, setZoom] = useState(1)
+  const [zoomState, setZoom] = useState(1)
+  // Layout mode shows the page a little smaller; Done brings the zoom back.
+  const zoom = layoutMode ? Math.min(zoomState, LAYOUT_ZOOM) : zoomState
   const [boxBottom, setBoxBottom] = useState(0)
   const sheet = sheetOf(page)
   const box = boxesOf(page)[0]
@@ -473,6 +486,25 @@ export function PaperFrame({
   const pen = useRef<Recorded[] | null>(null)
   // Where the mouse or Pencil hovers over empty paper (a "+ box" tag).
   const [hover, setHover] = useState<{ x: number; y: number } | null>(null)
+  // B3-6: the page's own text box shows ⠿ and ⋯ while the caret is in it.
+  const [mainFocus, setMainFocus] = useState(false)
+  useEffect(() => {
+    const el = boxEl.current
+    if (!el || flat) return
+    const on = () => setMainFocus(true)
+    const off = (e: FocusEvent) => {
+      if (el.contains(e.relatedTarget as Node | null)) return
+      window.setTimeout(() => {
+        if (!el.contains(document.activeElement)) setMainFocus(false)
+      }, 150)
+    }
+    el.addEventListener('focusin', on)
+    el.addEventListener('focusout', off)
+    return () => {
+      el.removeEventListener('focusin', on)
+      el.removeEventListener('focusout', off)
+    }
+  }, [flat])
   const hoverMove = (e: ReactPointerEvent<HTMLDivElement>) => {
     const ok =
       !!onAddBox &&
@@ -583,6 +615,8 @@ export function PaperFrame({
     null,
   )
   const [ghost, setGhost] = useState<{ id: string; full: boolean } | null>(null)
+  /** When the last drag, drop or resize ended: no new box for a moment after (B3-2). */
+  const lastDragEnd = useRef(-Infinity)
   const drag = useRef<{
     x0: number
     y0: number
@@ -720,6 +754,7 @@ export function PaperFrame({
     pending.current = null
     const d = drag.current
     drag.current = null
+    if (d?.moved) lastDragEnd.current = e.timeStamp
     // The drop is planned from the lift itself, not from the last drawn
     // preview: moves that all land inside one frame (a fast flick, a quick
     // WebKit drag) have not re-drawn yet when the lift comes.
@@ -750,6 +785,98 @@ export function PaperFrame({
         places.push({ id, patch: { x: rc.x, y: rc.y, w: rc.w } })
     setHeldRows(rows)
     onGridChange?.(rows, places)
+  }
+  // Eight round handles (B3-9). Sides and corners to the east or west move the
+  // column divider beside the box; north, south and the corners set a minimum
+  // height that never goes below what the box's text and pictures need.
+  const resizing = useRef<{
+    id: string
+    x0: number
+    y0: number
+    h0: number
+    minH: number
+    rowId: string | null
+    i: number | null
+    vert: boolean
+    rows: GridRow[]
+    h?: number
+    moved: boolean
+  } | null>(null)
+  const [liveH, setLiveH] = useState<{ id: string; h: number } | null>(null)
+  const resizeDown = (b: PaperBox, how: ResizeHow, e: ReactPointerEvent) => {
+    if (e.button !== 0) return
+    e.preventDefault()
+    e.stopPropagation()
+    try {
+      e.currentTarget.setPointerCapture(e.pointerId)
+    } catch {
+      // The moves still arrive.
+    }
+    const el = paperEl.current?.querySelector<HTMLElement>(
+      '[data-paper-box="' + CSS.escape(b.id) + '"]',
+    )
+    const content = el?.querySelector<HTMLElement>('[data-box-content]')
+    const row = baseRows.find((r) =>
+      r.cols.some((c) => c.boxIds.includes(b.id)),
+    )
+    const ci = row ? row.cols.findIndex((c) => c.boxIds.includes(b.id)) : -1
+    let i: number | null = null
+    if (row && how.includes('e') && ci < row.cols.length - 1) i = ci
+    else if (row && how.includes('w') && ci > 0) i = ci - 1
+    resizing.current = {
+      id: b.id,
+      x0: e.clientX,
+      y0: e.clientY,
+      h0: (el?.getBoundingClientRect().height ?? 0) / k,
+      minH: (content?.getBoundingClientRect().height ?? 0) / k,
+      rowId: i !== null && row ? row.id : null,
+      i,
+      vert: how.includes('n') || how.includes('s'),
+      rows: baseRows,
+      moved: false,
+    }
+  }
+  const resizeMove = (e: ReactPointerEvent) => {
+    const d = resizing.current
+    const r = paperEl.current?.getBoundingClientRect()
+    if (!d || !r) return
+    if (!d.moved && Math.hypot(e.clientX - d.x0, e.clientY - d.y0) < TAP_PX)
+      return
+    d.moved = true
+    if (d.i !== null) {
+      const at =
+        ((e.clientX - r.left) / k - geo.left) /
+        Math.max(1, geo.sheetW - geo.left - geo.right)
+      d.rows = baseRows.map((row) =>
+        row.id === d.rowId ? resizeCols(row, d.i!, at) : row,
+      )
+      setPreview(d.rows)
+    }
+    if (d.vert) {
+      d.h = Math.max(d.minH, d.h0 + (e.clientY - d.y0) / k)
+      setLiveH({ id: d.id, h: d.h })
+    }
+  }
+  const resizeEnd = (e: ReactPointerEvent) => {
+    const d = resizing.current
+    resizing.current = null
+    if (d?.moved) lastDragEnd.current = e.timeStamp
+    setLiveH(null)
+    setPreview(null)
+    if (!d || e.type === 'pointercancel' || !d.moved) return
+    if (d.i !== null) {
+      const places: BoxPatch[] = []
+      for (const [id, rc] of layoutRows(d.rows, heightsMm, geo))
+        if (id !== MAIN_BOX)
+          places.push({ id, patch: { x: rc.x, y: rc.y, w: rc.w } })
+      setHeldRows(d.rows)
+      onGridChange?.(d.rows, places)
+    }
+    if (d.vert && d.h !== undefined)
+      onBoxHeight?.(
+        d.id,
+        d.h <= d.minH + 0.5 ? undefined : Math.round(d.h * 10) / 10,
+      )
   }
   useEffect(() => {
     if (!onGridView) return
@@ -931,6 +1058,14 @@ export function PaperFrame({
     const down = tapStart.current
     tapStart.current = null
     if (!onAddBox || flat || e.button !== 0) return
+    // B3-2/3: during a drag, a resize and for a moment after a drop, a tap
+    // elsewhere never makes a box.
+    if (
+      drag.current ||
+      resizing.current ||
+      e.nativeEvent.timeStamp - lastDragEnd.current < AFTER_DRAG_MS
+    )
+      return
     // Items 6/9: only a deliberate tap makes a box, not the end of a scroll
     // or a drag (moved more than 10 px, or held more than 600 ms).
     if (
@@ -949,6 +1084,26 @@ export function PaperFrame({
     if (!r) return
     const x = (e.clientX - r.left) / k
     const y = (e.clientY - r.top) / k
+    // B3-4: a tap anywhere on an existing box's frame edits that box, it never
+    // makes a box on top of it.
+    for (const b of extra) {
+      if (b.locked) continue
+      const el = paperEl.current?.querySelector<HTMLElement>(
+        '[data-paper-box="' + CSS.escape(b.id) + '"]',
+      )
+      const fr = el?.getBoundingClientRect()
+      if (
+        el &&
+        fr &&
+        e.clientX >= fr.left &&
+        e.clientX <= fr.right &&
+        e.clientY >= fr.top &&
+        e.clientY <= fr.bottom
+      ) {
+        caretAtEnd(el)
+        return
+      }
+    }
     // A safe zone along the sheet's edges (and its scroll side): a tap there
     // never makes a box, it is a grab for scrolling.
     if (x < EDGE_MM || x > sheet.w - EDGE_MM || y < EDGE_MM) return
@@ -990,7 +1145,10 @@ export function PaperFrame({
     onAddBoxInOrder(after)
   }
   const layerEl = !flat &&
-    (extra.length > 0 || (narrow && !!onAddBoxInOrder)) && (
+    (extra.length > 0 ||
+      (narrow && !!onAddBoxInOrder) ||
+      mainFocus ||
+      layoutMode) && (
       <div
         ref={layerRef}
         data-paper-boxes
@@ -1029,11 +1187,33 @@ export function PaperFrame({
               </div>
             )
           })()}
+        {!narrow && ((mainFocus && !!onBoxMenu) || layoutMode) && (
+          <MainChrome
+            at={mainShown}
+            k={k}
+            layoutMode={layoutMode}
+            onGrab={(e) => grab(box, 'move', e)}
+            onDragMove={dragMove}
+            onDragEnd={dragEnd}
+            onMenu={(at) => onBoxMenu?.(box, at)}
+            height={(heightsMm[MAIN_BOX] ?? 40) * k}
+          />
+        )}
         {extra.map((b) => (
           <BoxFrame
             key={b.id}
             box={liveBoxes?.has(b.id) ? (dragOrigin?.get(b.id) ?? b) : b}
-            shown={liveBoxes?.get(b.id) ?? b}
+            shown={
+              liveH?.id === b.id
+                ? { ...(liveBoxes?.get(b.id) ?? b), h: liveH.h }
+                : (liveBoxes?.get(b.id) ?? b)
+            }
+            layoutMode={layoutMode}
+            onResize={{
+              down: (how, e) => resizeDown(b, how, e),
+              move: resizeMove,
+              end: resizeEnd,
+            }}
             k={k}
             zoom={zoom}
             lineH={step / zoom}
@@ -1078,7 +1258,6 @@ export function PaperFrame({
             width={geo.sheetW - geo.left - geo.right}
             paperEl={paperEl}
             enabled={!!onGridChange}
-            picked={picked}
             onLive={setPreview}
             onCommit={(rows) => {
               setPreview(null)
@@ -1105,7 +1284,12 @@ export function PaperFrame({
     )
 
   return (
-    <div>
+    <div data-paper-wrap style={flat ? undefined : { paddingTop: SAFE_GAP_PX }}>
+      {layoutMode && layoutBar && (
+        <div data-layout-bar data-chrome className="sticky top-2 z-30 mb-3">
+          {layoutBar}
+        </div>
+      )}
       <div
         ref={scroller}
         data-paper-scroller
@@ -1121,6 +1305,7 @@ export function PaperFrame({
           ref={paperEl}
           data-paper
           data-has-boxes={extra.length > 0 ? '' : undefined}
+          data-layout-mode={layoutMode ? '' : undefined}
           data-sheet={page.sheet ?? 'A4'}
           style={
             flat
@@ -1314,6 +1499,12 @@ export type BoxChange = BoxPatch & {
 /** Items 6/9: taps this close to a sheet edge (mm) never make a box. */
 const EDGE_MM = 8
 
+/** B3-3: no new box this long (ms) after a drag, drop or resize. */
+const AFTER_DRAG_MS = 800
+
+/** Layout mode shows the page a little smaller. */
+const LAYOUT_ZOOM = 0.85
+
 /** Rounds a length in mm to the paper's line spacing. */
 const snap = (mm: number, stepMm: number) =>
   stepMm > 0 ? Math.round(mm / stepMm) * stepMm : mm
@@ -1457,6 +1648,82 @@ function LazyMount({
           style={{ width: 90 - i * 25 + '%' }}
         />
       ))}
+    </div>
+  )
+}
+
+/**
+ * B3-6: ⠿ and ⋯ of the page's own text box (the first box), one 44 pt target
+ * each, one touch target above its top edge. In Layout mode a cover over the
+ * whole box takes the drag.
+ */
+function MainChrome({
+  at,
+  k,
+  layoutMode,
+  height,
+  onGrab,
+  onDragMove,
+  onDragEnd,
+  onMenu,
+}: {
+  at: { x: number; y: number; w: number }
+  k: number
+  layoutMode: boolean
+  height: number
+  onGrab: (e: ReactPointerEvent) => void
+  onDragMove: (e: ReactPointerEvent) => void
+  onDragEnd: (e: ReactPointerEvent) => void
+  onMenu: (at: DOMRect) => void
+}) {
+  const pointer = {
+    onPointerMove: onDragMove,
+    onPointerUp: onDragEnd,
+    onPointerCancel: onDragEnd,
+  }
+  return (
+    <div
+      data-main-chrome
+      className="absolute"
+      style={{ left: at.x * k, top: at.y * k, width: at.w * k }}
+    >
+      {layoutMode ? (
+        <div
+          data-layout-cover="main"
+          onPointerDown={onGrab}
+          {...pointer}
+          className="absolute left-0 z-20 cursor-grab touch-none"
+          style={{ top: 0, width: '100%', height }}
+        />
+      ) : (
+        <div
+          className="pointer-events-none absolute left-0 right-0 z-20 flex items-center justify-between"
+          style={{ top: -TOUCH_PX, height: TOUCH_PX }}
+        >
+          <button
+            type="button"
+            data-box-grip
+            aria-label={t('paper.box.move')}
+            onPointerDown={onGrab}
+            {...pointer}
+            style={TOUCH_STYLE}
+            className="pointer-events-auto cursor-grab touch-none rounded-lg px-3 text-xl leading-none text-muted hover:bg-hover"
+          >
+            ⠿
+          </button>
+          <button
+            type="button"
+            data-box-menu
+            aria-label={t('paper.box.menu')}
+            aria-haspopup="menu"
+            onClick={(e) => onMenu(e.currentTarget.getBoundingClientRect())}
+            style={TOUCH_STYLE}
+            className="pointer-events-auto rounded-lg px-2 text-xl leading-none text-muted hover:bg-hover"
+          >
+            ⋯
+          </button>
+        </div>
+      )}
     </div>
   )
 }

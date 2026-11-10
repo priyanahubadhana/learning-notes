@@ -1,8 +1,12 @@
 // Browser types for code that runs inside the page.
 /// <reference lib="dom" />
 import { expect, test } from '@playwright/test'
-import { createNotebook, startInMode, typeInEditor } from './helpers.ts'
-import { tool } from './mainBarHelpers.ts'
+import {
+  createNotebook,
+  pickBox,
+  startInMode,
+  typeInEditor,
+} from './helpers.ts'
 
 /**
  * Bug batch item 46 (10 Nov): a tapped box shows two pill handles on its
@@ -35,7 +39,7 @@ test('a picked box in a two-column row has a pill that resizes it', async ({
   // Box 2 beside box 1 (drop on its right half).
   const a = extra.nth(0)
   const b = extra.nth(1)
-  await b.hover()
+  await pickBox(page, b)
   const grip = (await b.locator('[data-box-grip]').boundingBox())!
   const ta = (await a.boundingBox())!
   await page.mouse.move(grip.x + grip.width / 2, grip.y + grip.height / 2)
@@ -45,14 +49,13 @@ test('a picked box in a two-column row has a pill that resizes it', async ({
   })
   await page.mouse.up()
   await page.waitForTimeout(500)
-  await tool(page, 'Lasso').click()
-  // Pick the left box with a tap on its text.
-  const tx = (await a.locator('.bn-inline-content').first().boundingBox())!
-  await page.mouse.click(tx.x + 12, tx.y + tx.height / 2)
-  const pill = page.locator('[data-box-pill="right"]')
+  // Select the left box with a tap on its frame: 8 round handles show.
+  await pickBox(page, a)
+  await expect(a.locator('[data-resize-handle]')).toHaveCount(8)
+  const pill = a.locator('[data-resize-handle="e"]')
   await expect(pill).toBeVisible()
-  await expect(page.locator('[data-box-pill="left"]')).toHaveCount(0)
   const p = (await pill.boundingBox())!
+  expect(p.width).toBeGreaterThanOrEqual(44)
   const before = (await a.boundingBox())!.width
   await page.mouse.move(p.x + p.width / 2, p.y + p.height / 2)
   await page.mouse.down()

@@ -9,6 +9,14 @@ import { t } from '../i18n/t'
 import type { PaperBox } from '../core/types'
 import { frameCss, padOf } from '../core/boxStyle'
 import { BOX_COLOURS, sheetSegments } from './boxes'
+import { activeTool } from '../app/tools/main/mainTools'
+import { TOUCH_PX, TOUCH_STYLE } from './safeGap'
+import {
+  caretAtEnd,
+  HANDLE_AT,
+  RESIZE_HANDLES,
+  type ResizeHow,
+} from './boxHandles'
 
 /** How a press on a box is dragged: moves it, or changes its width. */
 export type GrabHow = 'move' | 'left' | 'right'
@@ -42,6 +50,8 @@ export function BoxFrame({
   onGrab,
   onDragMove,
   onDragEnd,
+  onResize,
+  layoutMode = false,
   onEmptyDelete,
   stacked,
   bar,
@@ -75,6 +85,14 @@ export function BoxFrame({
   onGrab: (how: GrabHow, e: ReactPointerEvent) => void
   onDragMove: (e: ReactPointerEvent) => void
   onDragEnd: (e: ReactPointerEvent) => void
+  /** The 8 round resize handles of a selected box (B3-9). */
+  onResize?: {
+    down: (how: ResizeHow, e: ReactPointerEvent) => void
+    move: (e: ReactPointerEvent) => void
+    end: (e: ReactPointerEvent) => void
+  }
+  /** Layout mode: the whole box is a drag cover, no handles. */
+  layoutMode?: boolean
   /** Backspace or Delete in a box with nothing in it: the box goes. */
   onEmptyDelete?: () => void
   /** Fit width (step 6): in the page's flow at this x and width (mm). */
@@ -162,8 +180,21 @@ export function BoxFrame({
                 transform: `translate3d(${(shown.x - box.x) * k}px, ${(shown.y - box.y) * k}px, 0)`,
                 willChange: 'transform',
               }
-            : { left: shown.x * k, top: shown.y * k, width: shown.w * k }
+            : {
+                left: shown.x * k,
+                top: shown.y * k,
+                width: shown.w * k,
+                ...(box.h ? { minHeight: box.h * k } : {}),
+              }
       }
+      onClick={(e) => {
+        // B3-4: a tap anywhere on the frame (padding, empty corners) edits this
+        // box with the Text tool; it never makes a box on top.
+        const el = e.target as HTMLElement
+        if (activeTool.get() !== 'text' || box.locked) return
+        if (el === e.currentTarget || el.hasAttribute('data-box-content'))
+          caretAtEnd(e.currentTarget)
+      }}
     >
       {box.style &&
         segments.map((s, i) => (
@@ -190,7 +221,9 @@ export function BoxFrame({
       ))}
       <div
         data-chrome
-        className="absolute -top-6 left-0 right-0 flex h-6 items-center justify-between opacity-0 transition-opacity group-hover:opacity-100 group-focus-within:opacity-100 group-data-picked:opacity-100 pointer-coarse:opacity-100"
+        // B3-1: only on the selected box, one 44 pt target each.
+        className="pointer-events-none invisible absolute left-0 right-0 z-20 flex items-center justify-between group-data-picked:visible"
+        style={{ top: -TOUCH_PX, height: TOUCH_PX }}
       >
         {box.locked || stacked ? (
           <span aria-hidden className="px-1 text-xs text-muted">
@@ -203,7 +236,8 @@ export function BoxFrame({
             aria-label={t('paper.box.move')}
             onPointerDown={(e) => onGrab('move', e)}
             {...pointer}
-            className="h-6 min-w-10 cursor-grab touch-none rounded px-2 text-xs leading-none text-muted hover:bg-hover"
+            style={TOUCH_STYLE}
+            className="pointer-events-auto cursor-grab touch-none rounded-lg px-3 text-xl leading-none text-muted hover:bg-hover"
           >
             ⠿
           </button>
@@ -214,13 +248,13 @@ export function BoxFrame({
           aria-label={t('paper.box.menu')}
           aria-haspopup="menu"
           onClick={(e) => onMenu(e.currentTarget.getBoundingClientRect())}
-          className="h-6 min-w-8 rounded px-1 text-sm leading-none text-muted hover:bg-hover"
+          style={TOUCH_STYLE}
+          className="pointer-events-auto rounded-lg px-2 text-xl leading-none text-muted hover:bg-hover"
         >
           ⋯
         </button>
       </div>
       {!stacked &&
-        (lasso || picked || !box.locked) &&
         // The frame itself, as four thin strips: a tap selects the box, a
         // drag moves it (the text inside stays free to edit).
         (['top', 'bottom', 'left', 'right'] as const).map((side) => (
@@ -234,7 +268,7 @@ export function BoxFrame({
               (movable ? 'cursor-move ' : 'cursor-pointer ') +
               (side === 'top'
                 ? // Not over the grip and ⋯ above the corners.
-                  'left-12 right-10 h-2.5 '
+                  'left-14 right-12 h-2.5 '
                 : side === 'bottom'
                   ? 'inset-x-0 h-2.5 '
                   : 'inset-y-0 w-2.5 ')
@@ -243,6 +277,7 @@ export function BoxFrame({
           />
         ))}
       <div
+        data-box-content
         className={box.style ? undefined : 'px-1'}
         style={{
           ...(box.style ? { padding: padOf(box.style) + 4 } : {}),
@@ -253,6 +288,53 @@ export function BoxFrame({
       >
         {children}
       </div>
+      {layoutMode && !stacked && (
+        <div
+          data-layout-cover={box.id}
+          onPointerDown={(e) => onGrab('move', e)}
+          {...pointer}
+          className="absolute inset-0 z-20 cursor-grab touch-none"
+        />
+      )}
+      {onResize &&
+        !layoutMode &&
+        picked &&
+        !stacked &&
+        !box.locked &&
+        !dragging &&
+        RESIZE_HANDLES.map((how) => (
+          <div
+            key={how}
+            data-resize-handle={how}
+            role="separator"
+            aria-label={t('paper.box.resize')}
+            onPointerDown={(e) => onResize.down(how, e)}
+            onPointerMove={onResize.move}
+            onPointerUp={onResize.end}
+            onPointerCancel={onResize.end}
+            className="absolute z-10 grid touch-none place-items-center"
+            style={{
+              left: HANDLE_AT[how][0],
+              top: HANDLE_AT[how][1],
+              width: TOUCH_PX,
+              height: TOUCH_PX,
+              transform: 'translate(-50%, -50%)',
+              cursor:
+                how.length === 2
+                  ? how === 'nw' || how === 'se'
+                    ? 'nwse-resize'
+                    : 'nesw-resize'
+                  : how === 'n' || how === 's'
+                    ? 'ns-resize'
+                    : 'ew-resize',
+            }}
+          >
+            <span
+              aria-hidden
+              className="size-3.5 rounded-full border-2 border-accent bg-bg shadow-sm"
+            />
+          </div>
+        ))}
       {picked && !typing && !dragging && bar && (
         <div data-box-bar-holder className="absolute top-full left-0 z-20 mt-2">
           {bar}

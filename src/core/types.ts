@@ -226,6 +226,8 @@ export interface PaperBox {
   colour?: string
   /** Bug batch 2, item 8: background, border, corners, shadow, padding (core/boxStyle.ts). */
   style?: import('./boxStyle').BoxStyle
+  /** Minimum height in mm set by the bottom handles (never below the content; B3-9). */
+  h?: number
 }
 
 /** What a source page is: a book, an article, a video, … */

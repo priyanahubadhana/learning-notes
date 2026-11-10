@@ -13,6 +13,7 @@ import { usePopup } from './popups'
 import { PopupHeader } from './tools/PopupClose'
 import { t } from '../i18n/t'
 import { touchUi } from './touchUi'
+import { useKeyboardInset } from '../settings/deviceModeSettings'
 import type { ChoiceRequest, ToastAction } from './appUi'
 import { Glyph, Icon } from './tools/icons'
 
@@ -411,6 +412,8 @@ export function Toast({
 }) {
   const box = useRef<HTMLDivElement>(null)
   const held = useRef(false)
+  // B3-11: above the on-screen keyboard and its 44 px bar, never under them.
+  const kb = useKeyboardInset()
   // A tap holds the toast; a tap anywhere else lets it go.
   useEffect(() => {
     if (!onRelease) return
@@ -448,6 +451,8 @@ export function Toast({
       // open options pill. The pill used to close, and the page jumped up by
       // the pill's height (62 px) under the person's pen.
       data-popup-trigger
+      data-toast
+      style={kb > 150 ? { bottom: kb + 44 + 12 } : undefined}
       className="fixed bottom-5 left-1/2 z-40 flex max-w-[calc(100vw-32px)] items-center gap-3 rounded-xl border border-line bg-surface-3 px-3.5 py-2 text-[13px] text-ink shadow-[var(--elev-2)]"
     >
       <span>{message}</span>

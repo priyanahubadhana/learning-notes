@@ -1,7 +1,12 @@
 // Browser types for code that runs inside the page.
 /// <reference lib="dom" />
 import { expect, test } from '@playwright/test'
-import { createNotebook, startInMode, typeInEditor } from './helpers.ts'
+import {
+  createNotebook,
+  pickBox,
+  startInMode,
+  typeInEditor,
+} from './helpers.ts'
 import { tool } from './mainBarHelpers.ts'
 
 /**
@@ -9,6 +14,8 @@ import { tool } from './mainBarHelpers.ts'
  * box on A4 sheets; the paper grows a sheet at a time; zoom changes the
  * paper's width and the text scales with it.
  */
+
+test.use({ viewport: { width: 1336, height: 1100 } })
 
 test('a page shows on an A4 sheet with its text in one box; zoom and fit', async ({
   page,
@@ -77,7 +84,7 @@ test('a tap on empty paper makes a box; it moves, locks, duplicates and deletes 
 
   // Drag the grip: the box moves (tried again if a slow machine lost the drag).
   await expect(async () => {
-    await extra.hover()
+    await pickBox(page, extra)
     const g = (await extra.locator('[data-box-grip]').boundingBox())!
     await page.mouse.move(g.x + g.width / 2, g.y + g.height / 2)
     await page.mouse.down()
@@ -88,7 +95,7 @@ test('a tap on empty paper makes a box; it moves, locks, duplicates and deletes 
       .toBeGreaterThan(b1.y + 50)
   }).toPass({ timeout: 30_000 })
   // Lock: no grip; a reload keeps everything.
-  await extra.hover()
+  await pickBox(page, extra)
   await extra.locator('[data-box-menu]').click()
   await page.getByRole('menuitem', { name: 'Lock in place' }).click()
   await expect(extra.locator('[data-box-grip]')).toHaveCount(0)
@@ -99,12 +106,12 @@ test('a tap on empty paper makes a box; it moves, locks, duplicates and deletes 
   await expect(extra).toContainText('Second line')
 
   // Duplicate, then delete the copy and bring it back with Undo.
-  await extra.hover()
+  await pickBox(page, extra)
   await extra.locator('[data-box-menu]').click()
   await page.getByRole('menuitem', { name: 'Duplicate box' }).click()
   await expect(extra).toHaveCount(2)
   await expect(extra.nth(1)).toContainText('Box text')
-  await extra.nth(1).hover()
+  await pickBox(page, extra.nth(1))
   await extra.nth(1).locator('[data-box-menu]').click()
   await page.getByRole('menuitem', { name: 'Delete box' }).click()
   await expect(extra).toHaveCount(1)
@@ -213,7 +220,7 @@ test('the Lasso on the paper picks boxes; moving one moves them all', async ({
   await expect(page.locator('[data-picked]')).toHaveCount(2)
   // Drag the first box's grip down: both boxes move.
   const first = extra.first()
-  await first.hover()
+  await pickBox(page, first)
   const g = (await first.locator('[data-box-grip]').boundingBox())!
   await page.mouse.move(g.x + g.width / 2, g.y + g.height / 2)
   await page.mouse.down()
@@ -381,7 +388,7 @@ test('a box dropped on another box gives way: boxes never overlap', async ({
   await expect(extra.locator('[contenteditable="true"]').first()).toBeFocused()
   await page.keyboard.type('Box text')
   await expect(extra).toContainText('Box text')
-  await extra.hover()
+  await pickBox(page, extra)
   const g = (await extra.locator('[data-box-grip]').boundingBox())!
   await page.mouse.move(g.x + g.width / 2, g.y + g.height / 2)
   await page.mouse.down()

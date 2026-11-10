@@ -14,6 +14,8 @@ import type { IconName } from './icons'
 import { currentRunner, type Runner } from './toolRuntime'
 import { runHistory } from '../../editor/historyActions'
 import { redo, undo } from '../../core/historySteps'
+import { activeBox } from '../../paper/activeBox'
+import { openLayoutMode } from '../../paper/layoutModeBus'
 
 /** Undo / Redo work on the open page, with or without a text editor. */
 function historyRun(r: Runner, kind: 'undo' | 'redo'): void {
@@ -301,6 +303,18 @@ export const TOOLS: readonly ToolDef[] = [
     repeat: true,
   },
   { id: 'blank', icon: 'input', section: 'home', group: 'moreFormat' },
+  {
+    // Owner batch 3, B3-5: Layout is one tap away (opens Layout mode).
+    id: 'layout',
+    icon: 'grid',
+    section: 'home',
+    group: 'moreFormat',
+    run: (r) => {
+      const at = activeBox.get()
+      if (at) openLayoutMode(at.pageId)
+      else r.app?.toast(t('layout.mode.tapFirst'))
+    },
+  },
   {
     id: 'undo',
     icon: 'undo',

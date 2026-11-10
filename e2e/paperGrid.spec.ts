@@ -1,7 +1,12 @@
 // Browser types for code that runs inside the page.
 /// <reference lib="dom" />
 import { expect, test, type Locator, type Page } from '@playwright/test'
-import { createNotebook, startInMode, typeInEditor } from './helpers.ts'
+import {
+  createNotebook,
+  pickBox,
+  startInMode,
+  typeInEditor,
+} from './helpers.ts'
 import { tool } from './mainBarHelpers.ts'
 
 /**
@@ -47,7 +52,7 @@ async function dropOn(
   fy: number,
   release = true,
 ) {
-  await from.hover()
+  await pickBox(page, from)
   const g = await rect(from.locator('[data-box-grip]'))
   const t = await rect(onto)
   await page.mouse.move(g.x + g.width / 2, g.y + g.height / 2)
@@ -171,21 +176,6 @@ test('a divider resizes the columns, snapping to thirds; a double tap makes them
   const wa3 = (await rect(extra.nth(0))).width
   const wb3 = (await rect(extra.nth(1))).width
   expect(Math.abs(wa3 - wb3)).toBeLessThan(8)
-})
-
-test('box ⋯ › Layout opens Layout Assist; a layout never makes an empty box (layoutAssist.spec.ts has the rest)', async ({
-  page,
-}) => {
-  const { extra } = await boxes(page, 1)
-  const a = extra.nth(0)
-  await a.hover()
-  await a.locator('[data-box-menu]').click()
-  await page.getByRole('menuitem', { name: 'Layout' }).click()
-  await expect(page.locator('[data-layout-assist]')).toBeVisible()
-  await page.locator('[data-layout-zone="two:0"]').click()
-  await page.locator('[data-layout-done]').click()
-  await expect(page.locator('[data-layout-assist]')).toHaveCount(0)
-  await expect(extra).toHaveCount(1)
 })
 
 test('switching tools does not move the boxes', async ({ page }) => {

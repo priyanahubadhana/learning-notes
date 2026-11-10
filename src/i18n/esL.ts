@@ -82,4 +82,12 @@ export const esL: Record<string, string> = {
   'kbBar.strike': 'Tachado',
   'kbBar.hide': 'Ocultar teclado',
   'bar.scrollRight': 'Desplazar a la derecha',
+  'tool.layout': 'Diseño',
+  'layout.mode.coach':
+    'Así se verá tu página. Arrastra un cuadro para moverlo y tira de un borde para cambiar su tamaño. Toca Listo cuando estés conforme.',
+  'layout.mode.undo': 'Deshacer diseño',
+  'layout.mode.all': 'Aplicar a todas las páginas',
+  'layout.mode.pickFirst':
+    'Elige primero un diseño y luego aplícalo a todas las páginas',
+  'layout.mode.tapFirst': 'Toca primero la página y luego elige Diseño',
 }

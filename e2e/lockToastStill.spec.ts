@@ -13,7 +13,7 @@ import { card, option, pill, tool } from './mainBarHelpers.ts'
  * it (Undo, Unlock) must leave the pill open and the page where it is.
  */
 
-test.use({ viewport: { width: 1024, height: 1000 }, hasTouch: true })
+test.use({ viewport: { width: 1024, height: 1100 }, hasTouch: true })
 
 /** Where the first line of the page sits on screen, and the page scroller's top. */
 const placement = (page: Page) =>

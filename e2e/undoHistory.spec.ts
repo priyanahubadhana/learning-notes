@@ -11,8 +11,6 @@ import { mainBar, openNote, tool } from './mainBarHelpers.ts'
  * action. A random walk of 50 steps goes back to the start and forward again.
  */
 
-test.use({ viewport: { width: 1200, height: 900 } })
-
 interface Snap {
   page: unknown
   blocks: unknown[]

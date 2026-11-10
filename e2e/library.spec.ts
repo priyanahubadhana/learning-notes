@@ -219,7 +219,7 @@ test('a note, Undo of a delete, and the Markdown copy', async ({
 
   await page.getByRole('button', { name: 'Delete', exact: true }).click()
   await expect(page.getByTestId('annotation-row')).toHaveCount(0)
-  await page.getByRole('button', { name: 'Undo' }).last().click()
+  await page.getByRole('status').getByRole('button', { name: 'Undo' }).click()
   await expect(page.getByTestId('annotation-row')).toHaveCount(1)
 })
 

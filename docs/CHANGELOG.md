@@ -2,6 +2,13 @@
 
 Current phase only. Older entries are in [ARCHIVE.md](ARCHIVE.md).
 
+## 2026-11-11 (Sign-in stays, owner bug)
+
+- **Root cause:** the sign-in renewal (refresh token, single-use) ran several times at once on start (sync, live feed, Drive, key and layout sync all ask for a token) and treated any plain HTTP 400 as "session ended". After the access token expired (an hour or more closed, or after an update), the twin request got a 400 "already used", the saved sign-in was deleted and the "signed out" lock / sign-in asks came back. An odd 400 (proxy) or an offline sign-in callback could also wipe it.
+- **Fix:** one renewal at a time (in-page promise plus Web Locks across tabs); a newer session another tab stored is adopted; the session ends only on 401/403/404 or a 400 with a dead-token code (`sessionEnded(status, body)`); a failed callback while offline no longer signs out; the app renews quietly on focus, pageshow, visible and online.
+- Tests: `sessionEnd.test.ts` (twin renewals, adopt other tab, days offline, odd 400), `e2e/staySignedIn.spec.ts`.
+- Files: src/sync/connectors/supabase.ts, sessionEnd.ts, src/sync/syncService.ts, tests.
+
 ## 2026-11-10 (Builder L, owner bug batch 2)
 
 - **Item 9, two-column rows:** a dragged box now keeps its start place (left/top never change) and moves only by a transform, so a drag repaints one layer; the grip and the box menu are positioned at the top-left / top-right of the box (not by flex, so never in the middle); the "Tap here to keep writing" line is hidden when the page has other boxes (it floated among them). Placeholder rule (only in the focused empty box) was already in index.css. Files: src/paper/PaperFrame.tsx, src/paper/BoxFrame.tsx, src/editor/PageEditor.tsx, src/index.css, e2e/gridRow.spec.ts (new, also in the ipad-webkit list), playwright.config.ts. Prettier run on four plan docs that failed format:check.

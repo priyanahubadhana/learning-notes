@@ -1,5 +1,9 @@
 # Owner checks still pending (collected for the end-of-run iPad pass)
 
+## Stay signed in checks (11 Nov)
+
+On the iPad, PC and phone: after the update, close and reopen the app, leave it a few hours and reopen, switch apps and come back, and go offline for a day then back online. You should never be asked to sign in again unless you tapped Sign out. Tell me if it still happens, and when.
+
 ## Builder L checks (10 Nov, owner bug batch 2: layout, Text tool, hold menu)
 
 On the iPad (these need a real Pencil and eyes): (1) Two-column row from Layout: boxes sit side by side, no overlap; drag a box: frame and text move together smoothly; the ⠿ grip stays at its top-left corner; "Tap here to keep writing" does not float in the middle. (2) Pencil tap on Done in "Name your page", and on a clash bar, picture strip, Box bar, link and tag chips: it presses, no ink, no dots typed. (3) Hold menu: write with Scribble in the Text tool, the menu never pops up; hold the Pencil on the caret or a selection for 1.5 s: it opens (a ring fills from 0.4 s); drift of a few millimetres cancels; near the bottom edge the menu stays on screen. (4) Layout: Box bar ▦ or ⋯ › Layout: pick 1:1:1, tap the zones, see the full-page preview, Done; Undo once puts it back; "Apply to whole notebook" shows every page first. (5) Text tool: Box style panel (swatches, Advanced); new box shows a dashed frame and "Type here"; tap the frame (selected), tap inside (bar hides), frame again; hold on blank paper gives "Start typing here"; the keyboard bar sits on the iPad keyboard (outdent, indent, lists, B I U S). (6) Clash bar: type on the iPad with the PC open on the same page: no "Changed on two devices" bar appears.

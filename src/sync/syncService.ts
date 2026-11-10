@@ -13,6 +13,7 @@ import { isLive } from '../core/records'
 import type { Workspace } from '../core/types'
 import {
   NeedsTapError,
+  TryLaterError,
   getConnectors,
   type AuthProvider,
   type Connectors,
@@ -137,7 +138,8 @@ async function boot(db: LearningNotesDB): Promise<void> {
     }
   } catch (e) {
     set({ problem: mapSyncError(e) })
-    await conn.auth.signOut()
+    // A passing problem (offline) must never wipe a saved sign-in.
+    if (!(e instanceof TryLaterError)) await conn.auth.signOut()
   }
   try {
     await decidePhase(conn)
@@ -178,12 +180,20 @@ async function boot(db: LearningNotesDB): Promise<void> {
   const front = () => {
     // Coming back to the app: try the quiet Drive renewal again.
     if (document.visibilityState === 'visible') {
-      void keepDriveFresh(true).then(() => syncNow(db))
+      // Renew the sign-in first (the iPad may have slept past its hour);
+      // a failure while offline is ignored and never signs out.
+      void conn.auth
+        .accessToken()
+        .catch(() => undefined)
+        .then(() => keepDriveFresh(true))
+        .then(() => syncNow(db))
     }
     openFeed(db)
   }
   document.addEventListener('visibilitychange', front)
   window.addEventListener('online', front)
+  window.addEventListener('focus', front)
+  window.addEventListener('pageshow', front)
   subscribeSync(() => openFeed(db))
   openFeed(db)
   setInterval(poll, POLL_MS)

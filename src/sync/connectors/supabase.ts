@@ -243,16 +243,38 @@ export function supabaseAuth(): AuthProvider {
   /** True while the person signs out on purpose: not a remote sign-out. */
   let leaving = false
 
-  const refresh = async () => {
+  /** A session another tab stored while we waited (refresh tokens are single-use). */
+  const fromStorage = (): Session | null => {
+    const s = load()
+    return s && s.account.accountId === session?.account.accountId ? s : null
+  }
+
+  const refreshOnce = async () => {
     if (!session) throw new NotAllowedError('signed out')
+    // Another tab may have renewed it already: use that, never spend the
+    // single-use refresh token twice.
+    const other = fromStorage()
+    if (other && other.refresh !== session.refresh) {
+      session = other
+      if (session.expiresAt - Date.now() > 60_000) return
+    }
+    const sent = session.refresh
     const res = await call('/auth/v1/token?grant_type=refresh_token', {
       method: 'POST',
-      body: JSON.stringify({ refresh_token: session.refresh }),
+      body: JSON.stringify({ refresh_token: sent }),
     })
     if (!res.ok) {
+      const body: unknown = await res.json().catch(() => null)
       // Anything but "the session is gone" is a passing problem: keep it.
-      if (!sessionEnded(res.status))
+      if (!sessionEnded(res.status, body))
         throw new TryLaterError(`server ${res.status}`)
+      // "Already used" can be another tab that won the race: its newer
+      // session is in storage, so adopt it.
+      const winner = fromStorage()
+      if (winner && winner.refresh !== sent) {
+        session = winner
+        return
+      }
       session = null
       store(null)
       // Only a session ended behind our back counts (not the person's own
@@ -262,6 +284,24 @@ export function supabaseAuth(): AuthProvider {
     }
     session = toSession((await res.json()) as TokenReply, session)
     store(session)
+  }
+
+  /** One renewal at a time (also across tabs where Web Locks exist). */
+  let renewing: Promise<void> | null = null
+  const refresh = (): Promise<void> => {
+    renewing ??= (async () => {
+      try {
+        const locks = (
+          globalThis.navigator as { locks?: LockManager } | undefined
+        )?.locks
+        if (locks)
+          await locks.request('learning-notes:sync.refresh', refreshOnce)
+        else await refreshOnce()
+      } finally {
+        renewing = null
+      }
+    })()
+    return renewing
   }
 
   const freshAccess = async () => {

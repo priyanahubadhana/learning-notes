@@ -220,9 +220,12 @@ export function BoxFrame({
             className={
               'absolute touch-none ' +
               (movable ? 'cursor-move ' : 'cursor-pointer ') +
-              (side === 'top' || side === 'bottom'
-                ? 'inset-x-0 h-2.5 '
-                : 'inset-y-0 w-2.5 ')
+              (side === 'top'
+                ? // Not over the grip and ⋯ above the corners.
+                  'left-12 right-10 h-2.5 '
+                : side === 'bottom'
+                  ? 'inset-x-0 h-2.5 '
+                  : 'inset-y-0 w-2.5 ')
             }
             style={{ [side]: -10 }}
           />

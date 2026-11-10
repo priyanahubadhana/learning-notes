@@ -30,7 +30,7 @@ async function start(page: Page) {
   await typeInEditor(page, 'The nucleus holds the DNA')
 }
 
-const toast = (page: Page) => page.getByText('Updated to the latest version')
+const toast = (page: Page) => page.getByText(/Updated to version/)
 
 test('waits while typing, then updates when idle', async ({ page }) => {
   await start(page)

@@ -1,4 +1,5 @@
 import { useEffect, useState } from 'react'
+import { updateStatus } from '../app/updateStatus'
 import {
   checkForUpdateNow,
   lastCheckedAt,
@@ -47,7 +48,17 @@ export function AboutSection() {
         disabled={status === 'checking'}
         onClick={() => {
           setStatus('checking')
-          void checkForUpdateNow().then(setStatus)
+          updateStatus.set({ phase: 'checking' })
+          void checkForUpdateNow().then((r) => {
+            setStatus(r)
+            if (r === 'current') updateStatus.set({ phase: 'current' })
+            else if (r === 'failed')
+              updateStatus.set({
+                phase: navigator.onLine ? 'failed' : 'offline',
+              })
+            else if (updateStatus.get().phase === 'checking')
+              updateStatus.set({ phase: 'ready' })
+          })
         }}
         className="mt-3 min-h-11 rounded-lg border border-line px-3 hover:bg-hover"
       >

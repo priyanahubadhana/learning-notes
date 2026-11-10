@@ -51,7 +51,6 @@ import { DatabaseGate, LockGate, PageGate } from './app/lock/LockScreen'
 import { toggleLock } from './app/lock/lockMenu'
 import { useAutoRelock } from './app/lock/useLock'
 import { useReadingSync } from './app/reading/useReadingSync'
-import { AudioDock } from './audio/AudioDock'
 import { devicePickerDone } from './app/tools/deviceKind'
 import { setAppActions } from './app/tools/toolRuntime'
 import { SidebarResizer } from './app/SidebarResizer'
@@ -69,6 +68,7 @@ import {
 } from './app/attention/attentionSignals'
 import { subscribeSync } from './sync/syncStatus'
 import { restoreAfterUpdate, updateRisk } from './app/autoUpdate'
+import { updateStatus } from './app/updateStatus'
 import { getSyncStatus } from './sync/syncStatus'
 import { NowPlayingGate } from './app/reading/NowPlayingGate'
 import { TOAST_AFTER_HOLD_MS, toastDuration } from './app/toastTiming'
@@ -218,6 +218,10 @@ const NotebooksHome = lazy(() =>
 const ReviewHome = lazy(() =>
   import('./notebooks/ReviewHome').then((m) => ({ default: m.ReviewHome })),
 )
+const AudioDock = lazy(() =>
+  import('./audio/AudioDock').then((m) => ({ default: m.AudioDock })),
+)
+const UpdatePill = lazy(() => import('./app/UpdatePill'))
 const BookReader = lazy(() =>
   import('./reader/BookReader').then((m) => ({ default: m.BookReader })),
 )
@@ -880,6 +884,7 @@ function App() {
   // question shows only when an update could lose data.
   const [autoUpdate] = useDeviceSetting(autoUpdateSetting)
   const updateQuestion = updateRisk.useValue()
+  const updatePhase = updateStatus.useValue().phase
   // The alerts banner (one spot at the top) shows the waiting update.
   useEffect(() => {
     setSignals({
@@ -912,7 +917,9 @@ function App() {
     if (!restoreAfterUpdate()) return
     // The late-loaded texts must be in before the words are looked up.
     void applyLanguage(readDeviceSetting(languageSetting)).then(() =>
-      showToastRef.current(t('update.auto.done')),
+      showToastRef.current(
+        t('upd.updated', { version: __APP_COMMIT__.slice(0, 7) }),
+      ),
     )
   }, [])
 
@@ -1977,7 +1984,14 @@ function App() {
             <SignedOutGate />
             <NowPlayingGate onOpenPage={(id) => openPage(id)} />
             <TimerChip db={db} onOpenHome={() => chooseSpace('home')} />
-            <AudioDock db={db} pageId={currentPage?.id ?? null} />
+            <Suspense fallback={null}>
+              <AudioDock db={db} pageId={currentPage?.id ?? null} />
+            </Suspense>
+            {updatePhase !== 'idle' && (
+              <Suspense fallback={null}>
+                <UpdatePill />
+              </Suspense>
+            )}
             <div
               ref={centreEl}
               className="fixed bottom-16 left-1/2 z-40 flex w-max max-w-[calc(100vw-32px)] flex-col items-center gap-2"

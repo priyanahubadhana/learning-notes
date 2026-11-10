@@ -11,6 +11,7 @@
  */
 import { memStore } from './tools/store'
 import { t } from '../i18n/t'
+import { updateStatus } from './updateStatus'
 
 /** The first pause (no key, touch or pen) after which an update may apply. */
 export const IDLE_MS = 1500
@@ -19,6 +20,10 @@ export const FOREGROUND_MS = 1500
 export const POLL_MS = 500
 /** The longest the update waits for its backup. */
 export const BACKUP_MAX_MS = 8000
+/** The cover never stays longer than this (item 16). */
+export const SPLASH_MAX_MS = 5000
+/** If the restart has not come by now, force it. */
+export const HARD_RESTART_MS = 4000
 
 /** What the app is doing right now. */
 export interface Moment {
@@ -180,6 +185,10 @@ export interface AutoUpdateDeps {
   flush: () => Promise<void>
   backup: () => Promise<'ok' | 'space' | 'error'>
   onReset: (fn: () => void) => void
+  /** Last resort when the restart did not come (drops the old files, reloads). */
+  hardRestart?: () => void
+  /** Tells other open windows to restart too. */
+  announce?: () => void
 }
 
 const DIALOG = '[role="dialog"],[role="alertdialog"],[aria-modal="true"]'
@@ -242,6 +251,17 @@ export function startAutoUpdate(d: AutoUpdateDeps) {
     composing,
   })
 
+  /** Applies now: the cover is short, and a restart that does not come is forced. */
+  const begin = (apply: () => void) => {
+    rememberPlace()
+    d.announce?.()
+    showUpdatingSplash(doc)
+    apply()
+    // Several open windows can keep the new worker from taking over: force
+    // the restart if it has not come (items 16, 24).
+    d.win.setTimeout(() => d.hardRestart?.(), HARD_RESTART_MS)
+  }
+
   /** A found version: applies it when the setting is on. */
   return async function offer(apply: () => void): Promise<void> {
     if (running || declined || !d.enabled()) return
@@ -263,17 +283,13 @@ export function startAutoUpdate(d: AutoUpdateDeps) {
           risk,
           apply: () => {
             updateRisk.set(null)
-            rememberPlace()
-            showUpdatingSplash(doc)
-            apply()
+            begin(apply)
           },
         })
         declined = true // asked once; not again until the next start
         return
       }
-      rememberPlace()
-      showUpdatingSplash(doc)
-      apply()
+      begin(apply)
     } finally {
       running = false
     }
@@ -290,6 +306,20 @@ export function showUpdatingSplash(doc: Document): void {
     el.style.cssText =
       'position:fixed;inset:0;z-index:2147483647;display:flex;align-items:center;justify-content:center;background:var(--color-bg,#fff);color:var(--color-fg,#222);font:500 16px system-ui,sans-serif;opacity:0.96'
     doc.body.appendChild(el)
+    // Never longer than 5 s: if the restart did not happen, give the app back.
+    setTimeout(() => {
+      if (!el.isConnected) return
+      el.remove()
+      updateStatus.set({ phase: 'ready' })
+      void import('../perf/slowMoments').then((m) =>
+        m.noteSlowMoment(
+          'update',
+          SPLASH_MAX_MS,
+          Date.now(),
+          'update cover removed: the restart did not start',
+        ),
+      )
+    }, SPLASH_MAX_MS)
   } catch {
     // The splash is only a courtesy.
   }

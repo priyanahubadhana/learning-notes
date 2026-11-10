@@ -46,6 +46,25 @@ const versionStamp = (): Plugin => ({
   },
 })
 
+/** precache.json: the files of this build and their sizes, so the update pill can count the download. */
+const precacheList = (): Plugin => ({
+  name: 'precache-list',
+  apply: 'build',
+  generateBundle(_o, bundle) {
+    const files = Object.values(bundle)
+      .filter((f) => /.(js|css|html|svg|png|wasm|woff2)$/.test(f.fileName))
+      .map((f) => ({
+        u: '/' + f.fileName,
+        s: f.type === 'chunk' ? Buffer.byteLength(f.code) : f.source.length,
+      }))
+    this.emitFile({
+      type: 'asset',
+      fileName: 'precache.json',
+      source: JSON.stringify({ commit: COMMIT, files }),
+    })
+  },
+})
+
 /** The Claude Skill zip, built from claude-skill/learning-notes (build and dev). */
 const claudeSkillZip = (): Plugin => ({
   name: 'claude-skill-zip',
@@ -78,6 +97,7 @@ export default defineConfig({
     react(),
     tailwindcss(),
     versionStamp(),
+    precacheList(),
     claudeSkillZip(),
     ...(process.env.E2E ? [] : [basicSsl()]),
     // Offline: the built app is kept on the device. A new version waits for

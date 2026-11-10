@@ -12,6 +12,7 @@ import { throttled } from './updates'
  */
 export function startRobustness(lookQuietly: () => void): void {
   installToolsDebug()
+  void import('./updateChannel') // listen for another window's update
   installHealthCheck()
   // A heal that fails twice within a minute: refresh the app (at a safe moment,
   // at most once every 10 minutes), the last resort.

@@ -24,7 +24,7 @@ const LONG_TASK_MS = 50
 export interface SlowMoment {
   /** ms since the epoch */
   at: number
-  kind: 'longtask' | 'stall' | 'drive'
+  kind: 'longtask' | 'stall' | 'drive' | 'update'
   /** Plain note (Drive connection log). */
   note?: string
   /** ms */
@@ -86,8 +86,15 @@ export function noteSlowMoment(
   kind: SlowMoment['kind'],
   ms: number,
   now = Date.now(),
+  note?: string,
 ): void {
-  const entry: SlowMoment = { at: now, kind, ms: Math.round(ms), ...context() }
+  const entry: SlowMoment = {
+    at: now,
+    kind,
+    ms: Math.round(ms),
+    ...(note ? { note } : {}),
+    ...context(),
+  }
   const list = [...readSlowMoments(), entry].slice(-KEEP)
   try {
     store()?.setItem(KEY, JSON.stringify(list))
@@ -148,8 +155,12 @@ export function slowMomentsReport(
     const when = new Date(m.at).toISOString().replace('T', ' ').slice(0, 19)
     const parts = [
       when,
-      m.kind === 'stall' ? 'froze' : m.kind === 'drive' ? 'drive' : 'long task',
-      m.kind === 'drive' ? (m.note ?? '') : `${m.ms} ms`,
+      m.kind === 'stall'
+        ? 'froze'
+        : m.kind === 'drive' || m.kind === 'update'
+          ? m.kind
+          : 'long task',
+      m.kind === 'drive' || m.kind === 'update' ? (m.note ?? '') : `${m.ms} ms`,
       m.route || '#',
       m.tool ? `tool=${m.tool}` : '',
       m.focus ? `focus=${m.focus}` : '',

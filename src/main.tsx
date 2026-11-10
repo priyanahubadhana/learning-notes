@@ -157,6 +157,9 @@ const autoUpdate = startAutoUpdate({
     return result.kind === 'failed' ? result.reason : 'ok'
   },
   onReset: (fn) => void onGestureReset(fn),
+  hardRestart: () => void restartIntoNewFiles(),
+  announce: () =>
+    void import('./app/updateChannel').then((c) => c.announceApply()),
 })
 onUpdateOffer((apply) => void autoUpdate(apply))
 subscribeDeviceSettings(() => {
@@ -181,6 +184,10 @@ const update = registerSW({
       void update(true)
     }),
   onRegisteredSW: (_url, registration) => {
+    if (registration)
+      void import('./app/updateProgress').then((m) =>
+        m.trackInstalls(registration),
+      )
     setUpdateChecker(async () => {
       await registration?.update()
     })

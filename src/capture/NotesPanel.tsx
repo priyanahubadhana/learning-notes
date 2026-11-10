@@ -1,4 +1,5 @@
 import { useContext, useState } from 'react'
+import { recordAiBatch } from '../core/aiHistory'
 import { AppUiContext } from '../app/appUi'
 import { runTask } from '../app/errors'
 import { usePref } from '../app/usePref'
@@ -76,6 +77,11 @@ export function NotesPanel({
         pageId,
         images,
       })
+      recordAiBatch(
+        result.pageId,
+        result.batchId,
+        t('capture.notesMade', { count: result.cards }),
+      )
       toast(t('capture.notesMade', { count: result.cards }))
       setPasted('')
       onDone(result.pageId)

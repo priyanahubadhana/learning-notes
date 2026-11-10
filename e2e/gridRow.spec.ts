@@ -21,16 +21,17 @@ async function twoColumns(page: Page) {
   const sheet = await rect(page.locator('[data-paper-sheet="1"]'))
   const main = await rect(page.locator('[data-paper-box="main"]'))
   const extra = page.locator(EXTRA)
-  await page.mouse.click(sheet.x + sheet.width * 0.3, main.y + main.height + 60)
-  await expect(extra).toHaveCount(1)
-  await page.keyboard.type('Left text here')
-  await page.mouse.click(
-    sheet.x + sheet.width * 0.3,
-    main.y + main.height + 160,
-  )
-  await expect(extra).toHaveCount(2)
-  await page.keyboard.type('Right words')
-  await page.waitForTimeout(600)
+  // Two boxes, the way paperGrid.spec makes them: wait for the caret before typing.
+  for (const [i, text] of ['Left text here', 'Right words'].entries()) {
+    await page.mouse.click(
+      sheet.x + sheet.width * 0.3,
+      main.y + main.height + 50 + i * 110,
+    )
+    await expect(extra).toHaveCount(i + 1)
+    await expect(extra.nth(i).locator('.bn-editor')).toBeFocused()
+    await page.keyboard.type(text)
+    await page.waitForTimeout(600)
+  }
   // Drop box 2 on the right third of box 1: one row, two columns.
   const from = extra.nth(1)
   await from.hover()

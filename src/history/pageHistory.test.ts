@@ -271,3 +271,35 @@ describe('the box service', () => {
     expect((await db.pages.get('p1'))?.boxes).toHaveLength(1)
   })
 })
+
+describe('AI results and imports (bug batch 1, item 47)', () => {
+  it('one step: Undo hides the whole batch, Redo brings it back, and it survives a reload', async () => {
+    const mk = (id: string) => ({
+      ...newRecordFields(),
+      id,
+      pageId: 'p1',
+      parentId: null,
+      type: 'paragraph',
+      content: { text: [] },
+      order: id,
+      source: 'ai',
+      batchId: 'b1',
+    })
+    await db.blocks.bulkAdd([mk('a1'), mk('a2')])
+    pushStep({
+      kind: 'aiBatch',
+      label: 'AI result',
+      data: { pageId: 'p1', batchId: 'b1' },
+    })
+    await persistNow('page:p1')
+    expect(journalOf('page:p1').done).toHaveLength(1)
+    await undo()
+    expect(
+      (await db.blocks.toArray()).filter((b) => b.deletedAt === null),
+    ).toHaveLength(0)
+    await redo()
+    expect(
+      (await db.blocks.toArray()).filter((b) => b.deletedAt === null),
+    ).toHaveLength(2)
+  })
+})

@@ -6,6 +6,7 @@ import { readPref, writePref } from '../app/uiPrefs'
 import type { LearningNotesDB } from '../core/db'
 import type { Page } from '../core/types'
 import { removeAiResult } from '../capture/importNotes'
+import { recordAiBatch, undoAiBatch } from '../core/aiHistory'
 import { NotesFormatError, type ParsedCard } from '../capture/notesFormat'
 import { t } from '../i18n/t'
 import { cardText } from '../recall/cardFromAnnotation'
@@ -73,10 +74,15 @@ export function AiActions({
 
   const undoable = (batchId: string, label: string) => {
     onChanged()
+    const since = recordAiBatch(page.id, batchId, label)
     toast(label, {
       label: t('annot.undo'),
       onSelect: () =>
-        void runTask(removeAiResult(db, page.id, batchId).then(onChanged)),
+        undoAiBatch(
+          since,
+          () =>
+            void runTask(removeAiResult(db, page.id, batchId).then(onChanged)),
+        ),
     })
   }
 

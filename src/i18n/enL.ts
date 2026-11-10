@@ -82,4 +82,5 @@ export const enL = {
   'kbBar.underline': 'Underline',
   'kbBar.strike': 'Strikethrough',
   'kbBar.hide': 'Hide keyboard',
+  'bar.scrollRight': 'Scroll right',
 }

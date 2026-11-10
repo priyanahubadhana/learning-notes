@@ -64,6 +64,21 @@ export function BarScroll({
     return () => watch.disconnect()
   }, [measure, children])
 
+  // The mouse wheel scrolls the bar sideways (bug batch 1, item 49).
+  useEffect(() => {
+    const el = scroller.current
+    if (!el) return
+    const wheel = (e: WheelEvent) => {
+      if (e.ctrlKey || e.metaKey || Math.abs(e.deltaX) >= Math.abs(e.deltaY))
+        return
+      if (el.scrollWidth <= el.clientWidth + 2) return
+      el.scrollLeft += e.deltaY
+      e.preventDefault()
+    }
+    el.addEventListener('wheel', wheel, { passive: false })
+    return () => el.removeEventListener('wheel', wheel)
+  }, [])
+
   const slide = (direction: 1 | -1) =>
     scroller.current?.scrollBy({
       left: direction * (scroller.current.clientWidth * 0.7),

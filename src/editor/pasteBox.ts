@@ -105,15 +105,22 @@ export async function pasteIntoNewBox(
   const spot = caretSpot(editor, host)
   const narrow = getComputedStyle(host.sheetEl).display === 'flex'
   let boxId = ''
-  await db.transaction('rw', db.pages, db.notebooks, db.blocks, async () => {
-    boxId =
-      narrow || !spot
-        ? await addBoxInOrder(db, host.pageId, host.boxId || MAIN_BOX)
-        : await addBox(db, host.pageId, spot)
-    const made = await addBlocks(db, host.pageId, blocks.map(toInput))
-    const top = made.filter((b) => b.parentId === null).map((b) => b.id)
-    await db.blocks.where('id').anyOf(top).modify({ boxId })
-  })
+  await db.transaction(
+    'rw',
+    db.pages,
+    db.notebooks,
+    db.blocks,
+    db.settings,
+    async () => {
+      boxId =
+        narrow || !spot
+          ? await addBoxInOrder(db, host.pageId, host.boxId || MAIN_BOX)
+          : await addBox(db, host.pageId, spot)
+      const made = await addBlocks(db, host.pageId, blocks.map(toInput))
+      const top = made.filter((b) => b.parentId === null).map((b) => b.id)
+      await db.blocks.where('id').anyOf(top).modify({ boxId })
+    },
+  )
   return async () => {
     await removeBox(db, host.pageId, boxId)
   }

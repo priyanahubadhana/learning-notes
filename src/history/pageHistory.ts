@@ -7,6 +7,7 @@ import {
 import type { EditorView } from 'prosemirror-view'
 import { getAppActions } from '../app/tools/toolRuntime'
 import { db } from '../core/db'
+import { restoreMany, softDeleteMany } from '../core/records'
 import type { MetaValue } from '../core/types'
 import { t } from '../i18n/t'
 import { installRowCapture, setOpenPage, setRowSink } from '../core/rowCapture'
@@ -583,6 +584,36 @@ registerKind('restore', {
   },
   redo: async (d) => {
     await restoreVersion(db, (d as { to: string }).to)
+    reloadPage()
+  },
+})
+
+// An AI result or an import (bug batch 1 item 47): its blocks share one
+// batch id. Undo hides them, Redo brings them back; the page redraws.
+registerKind('aiBatch', {
+  undo: async (d) => {
+    const { pageId, batchId } = d as { pageId: string; batchId: string }
+    const ids = (
+      await db.blocks
+        .where('pageId')
+        .equals(pageId)
+        .filter((b) => b.batchId === batchId && b.deletedAt === null)
+        .toArray()
+    ).map((b) => b.id)
+    if (ids.length === 0) throw new Error(t('history.why.gone'))
+    await softDeleteMany(db.blocks, ids, Date.now())
+    reloadPage()
+  },
+  redo: async (d) => {
+    const { pageId, batchId } = d as { pageId: string; batchId: string }
+    const ids = (
+      await db.blocks
+        .where('pageId')
+        .equals(pageId)
+        .filter((b) => b.batchId === batchId && b.deletedAt !== null)
+        .toArray()
+    ).map((b) => b.id)
+    await restoreMany(db.blocks, ids, Date.now())
     reloadPage()
   },
 })

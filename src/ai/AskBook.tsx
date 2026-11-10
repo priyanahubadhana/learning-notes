@@ -6,6 +6,7 @@ import { runTask } from '../app/errors'
 import type { LearningNotesDB } from '../core/db'
 import type { Page } from '../core/types'
 import { removeAiResult } from '../capture/importNotes'
+import { recordAiBatch, undoAiBatch } from '../core/aiHistory'
 import type { ParsedCard } from '../capture/notesFormat'
 import { t } from '../i18n/t'
 import type { SearchableDoc } from '../reader/pdf/pdfSearch'
@@ -306,11 +307,17 @@ export function AskBook(props: AskBookProps) {
     }
   }
 
-  const undoable = (batchId: string) =>
+  const undoable = (batchId: string) => {
+    const since = recordAiBatch(page.id, batchId, t('ai.done'))
     toast(t('ai.done'), {
       label: t('annot.undo'),
-      onSelect: () => void runTask(removeAiResult(db, page.id, batchId)),
+      onSelect: () =>
+        undoAiBatch(
+          since,
+          () => void runTask(removeAiResult(db, page.id, batchId)),
+        ),
     })
+  }
 
   const makeCards = async () => {
     try {

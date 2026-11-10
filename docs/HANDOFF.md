@@ -2,6 +2,7 @@
 
 # Handoff
 
+- **Owner bug batch 2 done (10 Nov, Builder L):** items 1-10 and the batch 1 leftovers 12, 47 (AI batches only), 48, 49; see CHANGELOG ("Builder L") and DECISIONS (review list). Open: text and ink Undo steps over a reload (47), strip font/size controls, per-notebook presets; iPad checks at the top of owner-checks-pending.md. First download 318.8 of 320 KB: keep new UI lazy.
 - **Builder G (10 Nov, bug batch 11, 19, 20, 25, 5, 12):** box tap model + one tap counter (tapSelect.ts), hold menu (holdMenuWatch.ts, HoldMenu.tsx, Settings › Advanced), clash bar once per editor and transform box drag, table rows split with spacer rows (paginate.ts), micro text bar (MicroBar.tsx). Open: merge/removal of mini bar and box bar into the micro bar, and stopping the main bar from switching to Text on typing (item 12); iPad checks at the top of owner-checks-pending.md.
 - **One Undo history per page (10 Nov, Builder D):** core/historySteps.ts (API) + history/pageHistory.ts (journal) + core/rowCapture.ts (database writes become steps by themselves). A new action needs nothing if it writes pages/tags/databases rows; for anything else call `pushStep({kind,label,undo,redo})` or wrap it in `group(label, fn)`; closures last the session, steps with `data` + `registerKind` survive a reload. src/history/bypass.test.ts fails on a second history; pageHistory.test.ts fails on an unclassified table. Spec docs/features/undo-history.md. Owner check at the top of owner-checks-pending.md. First download has 1.6 KB left.
 

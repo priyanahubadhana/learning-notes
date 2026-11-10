@@ -82,4 +82,5 @@ export const hiL: Record<string, string> = {
   'kbBar.underline': 'रेखांकित',
   'kbBar.strike': 'कटा हुआ',
   'kbBar.hide': 'कीबोर्ड छिपाएँ',
+  'bar.scrollRight': 'दाईं ओर स्क्रॉल करें',
 }

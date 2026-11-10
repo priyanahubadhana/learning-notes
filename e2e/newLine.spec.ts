@@ -40,7 +40,10 @@ const box = async (locator: Locator) => (await locator.boundingBox())!
 /** Taps `button` three times: three new blocks, the button never moves or hides. */
 async function tapThree(page: Page, button: Locator) {
   await expect(button).toBeVisible()
-  await button.scrollIntoViewIfNeeded()
+  // Centre it: a chevron at the row's edge would cover a tool that sits flush with it.
+  await button.evaluate((el) =>
+    el.scrollIntoView({ inline: 'center', block: 'nearest' }),
+  )
   const start = await blocks(page).count()
   const where = await box(button)
   for (let i = 1; i <= 3; i++) {

@@ -15,6 +15,10 @@ One simple way to use every tool: tap a tool, see its few options, tap the activ
 - **⋯ menu:** Edit bar first, then All tools (opens the existing ribbon), Search all features, Done, copy and paste items, Reset bar position (floating) and the full list of formatting actions.
 - Placement (top, bottom, floating), size, auto-hide, the Show tool bar safety and the ribbon behave as in [toolbar-ribbon.md](toolbar-ribbon.md) and [device-modes.md](device-modes.md). The bar can never be lost.
 
+## Bars that overflow (bug batch 1 item 49)
+
+A row wider than its room (the ribbon, the context strip, the main bar, pills) scrolls sideways with a mouse too: edge chevrons (`ScrollFade`, `BarScroll`), the wheel scrolls it sideways, a thin scrollbar shows on hover, touch swipes natively. Test: e2e/ribbonScroll.spec.ts, barScroll.spec.ts.
+
 ## The options pill
 
 - Tapping a tool opens a second, smaller pill with that tool's options (tap again to close; the tool stays selected). Insert has a pill too.

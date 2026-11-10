@@ -318,3 +318,17 @@ test('a Pencil tap on a strip button presses it and inks nothing', async ({
   await expect(panel(page)).toBeVisible()
   void tool
 })
+
+test('typing does not switch the main bar to the Text tool (item 12)', async ({
+  page,
+}) => {
+  await start(page, 'No switch')
+  await tool(page, 'Lasso').click()
+  await expect(tool(page, 'Lasso')).toHaveAttribute('aria-pressed', 'true')
+  const ed = page.locator('[data-paper-box="main"] .bn-editor')
+  await ed.click({ force: true })
+  await ed.click({ force: true })
+  await page.keyboard.type('z')
+  await expect(tool(page, 'Lasso')).toHaveAttribute('aria-pressed', 'true')
+  await expect(tool(page, 'Text')).toHaveAttribute('aria-pressed', 'false')
+})

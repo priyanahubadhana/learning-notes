@@ -111,6 +111,16 @@ export function usePaperBoxes(
         )
         if (!live || live.contains(document.activeElement)) return
         if (live.hasAttribute('data-picked')) return
+        // What is on the screen counts too: text typed a moment ago may not be
+        // saved yet, and that box must not go as "empty".
+        const ed = live.querySelector('.bn-editor')
+        if (
+          (ed?.textContent ?? '').trim() !== '' ||
+          live.querySelector(
+            '.bn-block-content:not([data-content-type="paragraph"])',
+          )
+        )
+          return
         // Focus on a bar button or field (the user is setting up the box): keep it.
         if (
           document.activeElement?.closest(

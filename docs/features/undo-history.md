@@ -18,7 +18,7 @@ Every change a person makes to a page can be taken back from one Undo button, in
 
 ## Edge cases
 
-- Text and ink steps last the session; after a reload only steps with data (page settings, boxes, tags, databases, restores) can be undone, and a new text history starts.
+- Text and ink steps last the session; after a reload only steps with data (page settings, boxes, tags, databases, restores, AI results and imports) can be undone, and a new text history starts.
 - Changing page throws away the closures of the old page's editors (`release`); data steps stay.
 - A click below the last line that adds an empty line is a real change and a real step.
 - `HISTORY_TABLES` (rowCapture) lists what is recorded; every other table must be listed as "not an action" in `pageHistory.test.ts`, so a new table cannot be forgotten.

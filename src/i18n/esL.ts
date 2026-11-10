@@ -81,4 +81,5 @@ export const esL: Record<string, string> = {
   'kbBar.underline': 'Subrayado',
   'kbBar.strike': 'Tachado',
   'kbBar.hide': 'Ocultar teclado',
+  'bar.scrollRight': 'Desplazar a la derecha',
 }

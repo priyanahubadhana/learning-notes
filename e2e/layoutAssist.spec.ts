@@ -67,11 +67,18 @@ test('1:1:1 with two thumbnails tapped gives one row of three; one Undo puts it 
   await page.locator('[data-layout-done]').click()
   await expect(assist(page)).toHaveCount(0)
   await expect(extra).toHaveCount(3)
-  const r = await Promise.all([0, 1, 2].map((i) => rect(extra.nth(i))))
-  expect(Math.abs(r[0].y - r[1].y)).toBeLessThan(6)
-  expect(Math.abs(r[1].y - r[2].y)).toBeLessThan(6)
-  expect(r[1].x).toBeGreaterThan(r[0].x + r[0].width - 1)
-  expect(r[2].x).toBeGreaterThan(r[1].x + r[1].width - 1)
+  // The boxes slide into place (150 ms): wait for the row to settle.
+  await expect
+    .poll(async () => {
+      const r = await Promise.all([0, 1, 2].map((i) => rect(extra.nth(i))))
+      return (
+        Math.abs(r[0].y - r[1].y) < 6 &&
+        Math.abs(r[1].y - r[2].y) < 6 &&
+        r[1].x > r[0].x + r[0].width - 1 &&
+        r[2].x > r[1].x + r[1].width - 1
+      )
+    })
+    .toBe(true)
   await page.getByRole('button', { name: 'Undo' }).last().click()
   await expect(extra).toHaveCount(3)
   await expect.poll(() => rects(page)).toEqual(before)

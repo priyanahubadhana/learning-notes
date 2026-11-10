@@ -112,7 +112,8 @@ test('a paper page with 50 boxes and 2,000 strokes opens within the budget; the 
   }
   times.sort((a, b) => a - b)
   console.log('PAPER OPEN ms', times.join(', '))
-  // GitHub's 2-core machine opens it about 2.5 times slower than a laptop.
+  // Measured on GitHub's 2-core machine (same code, several runs): 2.2 to 5.9 s
+  // in Chrome, 1.6 to 4.6 s in WebKit, against 1.7 s on a laptop.
   expect(times[1]).toBeLessThan(process.env.CI ? 8000 : 4000)
 
   // Far boxes are placeholders; the editors made are a few, not fifty.
@@ -164,20 +165,26 @@ test('a paper page with 50 boxes and 2,000 strokes opens within the budget; the 
       fire('pointerup', x0, y0)
       await new Promise((r) => requestAnimationFrame(r))
       const n = document.querySelectorAll('[data-picked]').length
-      return { ms: performance.now() - start, n }
+      const sel = document.querySelectorAll('[data-ink-box]').length
+      return { ms: performance.now() - start, n, sel }
     }
     const out: number[] = []
     let n = 0
+    let sel = 0
     for (let i = 0; i < 5; i++) {
       const r = await round()
       out.push(r.ms)
       n = r.n
+      sel = r.sel
     }
-    return { median: out.sort((a, b) => a - b)[2], n }
+    return { median: out.sort((a, b) => a - b)[2], n, sel }
   })
   console.log('PAPER LASSO ms', ms.median)
-  // Owner item 2: a loop from the margin selects what it covers inside the
-  // boxes (their ink) instead of picking whole boxes, so no box is "picked"
+  // Owner item 2: a loop that starts on the margin selects what it covers
+  // inside the boxes (their ink), top to bottom, instead of picking whole
+  // boxes: no box is "picked", and the boxes with an editor made (the far
+  // ones are placeholders) hold a selection.
   expect(ms.n).toBe(0)
+  expect(ms.sel).toBeGreaterThan(0)
   expect(ms.median).toBeLessThan(150)
 })

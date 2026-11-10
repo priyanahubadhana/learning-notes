@@ -110,8 +110,11 @@ test('item 25: a box dragged by its grip owns input; no red drop line', async ({
       main.y + main.height + 60 + n * 110,
     )
     await expect(extra).toHaveCount(n + 1)
+    // Type only once the new box has the caret (an empty box is removed).
+    await expect(extra.nth(n).locator('.bn-editor')).toBeFocused()
     await page.keyboard.type('Box ' + (n + 1))
   }
+  await expect(extra).toHaveCount(2)
   await page.waitForTimeout(500)
   const a = extra.nth(0)
   const yb = (await extra.nth(1).boundingBox())!.y

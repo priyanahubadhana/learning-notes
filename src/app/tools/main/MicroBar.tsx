@@ -70,6 +70,14 @@ export function MicroBar({ editor }: { editor: Editor }) {
   const view = editor.prosemirrorView
   const caret = !!view && view.state.selection.empty
   const show = held || (typed && focused && caret && tool === 'text')
+  // The bar appears a moment after the key, in a task of its own: drawn in the
+  // key's own task it added about 50 ms to the longest task on a big page.
+  const [late, setLate] = useState(false)
+  useEffect(() => {
+    if (!show) return void setLate(false)
+    const id = window.setTimeout(() => setLate(true), 0)
+    return () => window.clearTimeout(id)
+  }, [show])
   // eslint-disable-next-line react-hooks/exhaustive-deps -- runs after every draw on purpose; setSize bails out when unchanged
   useLayoutEffect(() => {
     const el = barRef.current
@@ -79,16 +87,19 @@ export function MicroBar({ editor }: { editor: Editor }) {
       old.width === next.width && old.height === next.height ? old : next,
     )
   })
-  if (!show || !editor.domElement) return null
+  if (!show || !(late || held) || !editor.domElement) return null
 
   const run = (id: string) => {
     const r = currentRunner()
     runEditorCommand(id, { editor, extras: r.extras, app: r.app })
   }
   const styles = editor.getActiveStyles() as Record<string, unknown>
-  const block = editor.getTextCursorPosition().block as unknown as {
-    props: Record<string, unknown>
-  }
+  // Read only when Align is tapped: on a big page the lookup costs milliseconds
+  // a key (the bar draws after every keystroke).
+  const block = () =>
+    editor.getTextCursorPosition().block as unknown as {
+      props: Record<string, unknown>
+    }
   const text = textColourChoice.get()
   const mark = highlightChoice.get()
 
@@ -244,7 +255,7 @@ export function MicroBar({ editor }: { editor: Editor }) {
         icon: 'alignCenter',
         label: t('main.opt.text.align'),
         run: () => {
-          const now = ALIGNS.indexOf(alignOf(block))
+          const now = ALIGNS.indexOf(alignOf(block()))
           setAlign(editor, ALIGNS[(now + 1) % 3])
         },
       })}

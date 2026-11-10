@@ -364,9 +364,16 @@ export function applyPagination(
     const inside = start === null || end === null ? 0 : spacerPx(start, end)
     const naturalH = r.height - inside
     // A BlockNote table taller than a sheet is split at its rows (item 5).
-    const trs = Array.from(
-      el.querySelectorAll<HTMLElement>('table tr:not([data-ln-row-spacer])'),
-    )
+    // Only a block taller than the room is searched (a query per block on
+    // every keystroke cost 5 ms a key on a 2,000-block page).
+    const trs =
+      start !== null && naturalH > room
+        ? Array.from(
+            el.querySelectorAll<HTMLElement>(
+              'table tr:not([data-ln-row-spacer])',
+            ),
+          )
+        : []
     if (start !== null && trs.length > 1 && naturalH > room) {
       const rowPositions = trs.map((tr) => rowPosOf(view, tr))
       if (rowPositions.every((x) => x !== null)) {

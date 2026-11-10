@@ -112,7 +112,8 @@ test('a paper page with 50 boxes and 2,000 strokes opens within the budget; the 
   }
   times.sort((a, b) => a - b)
   console.log('PAPER OPEN ms', times.join(', '))
-  expect(times[1]).toBeLessThan(4000)
+  // GitHub's 2-core machine opens it about 2.5 times slower than a laptop.
+  expect(times[1]).toBeLessThan(process.env.CI ? 8000 : 4000)
 
   // Far boxes are placeholders; the editors made are a few, not fifty.
   const made = await page.locator('[data-paper-box] .bn-editor').count()

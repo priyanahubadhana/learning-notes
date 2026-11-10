@@ -89,6 +89,7 @@ export default function ClashBars({
           role="group"
           aria-label={t('clash.title')}
           data-testid="clash-bar"
+          data-ui
           className={bar}
         >
           <div className="min-w-0 flex-1">
@@ -126,6 +127,7 @@ export default function ClashBars({
           role="group"
           aria-label={t('clash.title')}
           data-testid="clash-bar"
+          data-ui
           data-block={b.id}
           className="flex flex-wrap items-center gap-x-3 gap-y-1 rounded-lg bg-soft px-3 py-2 text-sm"
         >

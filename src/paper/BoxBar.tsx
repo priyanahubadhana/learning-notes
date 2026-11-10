@@ -101,6 +101,7 @@ export function BoxBar({
   return (
     <div
       data-box-bar
+      data-ui
       role="toolbar"
       aria-label={t('paper.bar.label')}
       className="flex max-w-[92vw] flex-wrap items-center gap-0.5 rounded-lg border border-line bg-surface p-1 shadow-md"

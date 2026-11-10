@@ -13,7 +13,7 @@ import { barPalm } from './palmGuard'
 
 /** Everything that counts as chrome (the app's own controls). */
 export const CHROME_SELECTOR =
-  '[data-chrome], [data-bar], [data-pill-root], [data-popup], [role="menu"], [role="dialog"]'
+  '[data-chrome], [data-ui], [data-bar], [data-pill-root], [data-popup], [role="menu"], [role="dialog"], dialog'
 
 /** The bars: the main bar, the ribbon, pills, the mini bar and strips. */
 export const BAR_SELECTOR = '[data-bar], [data-pill-root]'
@@ -22,7 +22,7 @@ export const BAR_SELECTOR = '[data-bar], [data-pill-root]'
 const NATIVE =
   'input, textarea, select, [contenteditable="true"], [data-pen-native]'
 const ACTION =
-  'button, [role=button], [role=menuitem], [role=tab], [role=option], [role=switch], a, label'
+  'button, [role=button], [role=link], [role=menuitem], [role=tab], [role=option], [role=switch], a, label'
 
 const MAX_MOVE = 12
 const MAX_MS = 1000
@@ -103,6 +103,16 @@ export function installPenTap(doc: Document = document): () => void {
       return
     }
     penDown = e.pointerType === 'pen'
+    // Our own in-page buttons: the Pencil presses them and the page behind
+    // (caret, Scribble) never sees the touch (items 2, 3).
+    if (
+      penDown &&
+      e.target instanceof Element &&
+      e.target.closest('[data-ui]') &&
+      !e.target.closest(NATIVE) &&
+      e.cancelable
+    )
+      e.preventDefault()
     // A Pencil lift that never comes is dropped after 4 s without movement.
     if (penDown) {
       inputMachine.begin(e, 'penTap', () => {

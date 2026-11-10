@@ -1,4 +1,5 @@
 import { PICK_BOX } from '../editor/tapSelect'
+import { isUiEvent } from '../app/uiGuard'
 import {
   lazy,
   Suspense,
@@ -759,6 +760,7 @@ export function PaperFrame({
   const penDown = (e: ReactPointerEvent<HTMLDivElement>) => {
     // Placing a picture is a mode: no loop, ink or new box meanwhile (22h).
     if (document.documentElement.hasAttribute('data-placing')) return
+    if (isUiEvent(e.nativeEvent)) return
     if (lassoDown(e)) return
     const tool = activeTool.get()
     // Item 9: a Pencil tap on blank paper with a drawing tool goes back to the
@@ -865,6 +867,7 @@ export function PaperFrame({
   const tapStart = useRef<{ x: number; y: number; t: number } | null>(null)
   const tapPaper = (e: ReactPointerEvent<HTMLDivElement>) => {
     if (document.documentElement.hasAttribute('data-placing')) return
+    if (isUiEvent(e.nativeEvent)) return
     const down = tapStart.current
     tapStart.current = null
     if (!onAddBox || flat || e.button !== 0) return

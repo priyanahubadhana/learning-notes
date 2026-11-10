@@ -23,6 +23,7 @@ export function PageLinkView({ pageId }: { pageId: string }) {
 
   return (
     <button
+      data-ui
       type="button"
       contentEditable={false}
       onClick={() => app?.openPage(page.id)}

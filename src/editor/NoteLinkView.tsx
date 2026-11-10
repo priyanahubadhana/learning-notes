@@ -57,6 +57,7 @@ export function NoteLinkView({ pageId, blockId, label }: NoteLinkProps) {
 
   return (
     <span
+      data-ui
       role="link"
       tabIndex={-1}
       onClick={open}

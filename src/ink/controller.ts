@@ -1,4 +1,5 @@
 import { clampDpr } from '../app/canvasBudget'
+import { isUiEvent } from '../app/uiGuard'
 import {
   onGestureReset,
   registerToolState,
@@ -1136,6 +1137,8 @@ export class InkController {
     // Under the Lasso the pad only shields the page: lassoDown took the event.
     if (this.env.tool() === 'lasso') return
     if (this.env.frozen() || !this.accepts(e)) return
+    // A dialog is open or the press is on our own UI: no ink (items 2, 3).
+    if (isUiEvent(e)) return
     if (e.pointerType === 'pen') this.penDown = true
     if (this.gesture) {
       // A second finger: a pinch, not a stroke.
@@ -1920,6 +1923,7 @@ export class InkController {
   private lassoDown(e: PointerEvent): void {
     // A picture is being placed: only its own preview takes pointers (22h).
     if (document.documentElement.hasAttribute('data-placing')) return
+    if (isUiEvent(e)) return
     // A Lasso or handle gesture whose lift never came must not block this
     // touch: the same pointer going down again after a pause, or a pointer the machine no
     // longer knows (it drops one that has not moved for 4 s), means it is dead.

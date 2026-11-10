@@ -142,6 +142,7 @@ export default defineConfig({
         /ownerPlacement/,
         /undoHistory/,
         /gridRow/,
+        /penUi/,
       ],
       use: { ...devices['iPad Pro 11'], hasTouch: true },
       expect: { timeout: 15_000 },

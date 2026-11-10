@@ -58,6 +58,7 @@ export function TagChip({
   }
   return (
     <button
+      data-ui
       type="button"
       onClick={onClick}
       className={className}

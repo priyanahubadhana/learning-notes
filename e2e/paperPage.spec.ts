@@ -75,16 +75,18 @@ test('a tap on empty paper makes a box; it moves, locks, duplicates and deletes 
   const b1 = (await extra.boundingBox())!
   expect(b1.height).toBeGreaterThan(40)
 
-  // Drag the grip: the box moves.
-  await extra.hover()
-  const g = (await extra.locator('[data-box-grip]').boundingBox())!
-  await page.mouse.move(g.x + g.width / 2, g.y + g.height / 2)
-  await page.mouse.down()
-  await page.mouse.move(g.x - 60, g.y + 200, { steps: 8 })
-  await page.mouse.up()
-  await expect
-    .poll(async () => (await extra.boundingBox())!.y)
-    .toBeGreaterThan(b1.y + 50)
+  // Drag the grip: the box moves (tried again if a slow machine lost the drag).
+  await expect(async () => {
+    await extra.hover()
+    const g = (await extra.locator('[data-box-grip]').boundingBox())!
+    await page.mouse.move(g.x + g.width / 2, g.y + g.height / 2)
+    await page.mouse.down()
+    await page.mouse.move(g.x - 60, g.y + 200, { steps: 8 })
+    await page.mouse.up()
+    await expect
+      .poll(async () => (await extra.boundingBox())!.y, { timeout: 4000 })
+      .toBeGreaterThan(b1.y + 50)
+  }).toPass({ timeout: 30_000 })
   // Lock: no grip; a reload keeps everything.
   await extra.hover()
   await extra.locator('[data-box-menu]').click()

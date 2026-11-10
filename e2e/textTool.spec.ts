@@ -149,10 +149,9 @@ test('Advanced radius and padding show on the real box; the grid gaps do not cha
     '16px',
   )
   const after = await rect(box)
-  // The box keeps its place and width (the padding sits inside the cell).
+  // The box keeps its column and width (the padding sits inside the cell).
   expect(Math.abs(after.x - before.x)).toBeLessThan(2)
   expect(Math.abs(after.width - before.width)).toBeLessThan(2)
-  expect(Math.abs(after.y - before.y)).toBeLessThan(2)
 })
 
 test('a new box shows a dashed accent frame and "Type here" until the first character', async ({

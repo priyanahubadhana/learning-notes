@@ -148,3 +148,27 @@ describe('grace period after a tap selects text', () => {
     expect(refuseTransaction(tr(), 1700, pen, true)).toBe(false)
   })
 })
+
+describe('grace period: only the selection is protected', () => {
+  const schema = new Schema({
+    nodes: {
+      doc: { content: 'paragraph+' },
+      paragraph: { content: 'text*' },
+      text: {},
+    },
+  })
+  const doc = schema.node('doc', null, [
+    schema.node('paragraph', null, schema.text('let me type text')),
+    schema.node('paragraph', null, schema.text('another block')),
+  ])
+  const pen = { down: false, upAt: -1e9, lastKeyAt: -1e9, selectedAt: 1000 }
+  const sel = { from: 8, to: 12 }
+  it('refuses a removal over the selection', () => {
+    const tr = EditorState.create({ doc }).tr.insertText('x', 9, 11)
+    expect(refuseTransaction(tr, 1200, pen, true, sel)).toBe(true)
+  })
+  it('lets a synced change to another block through', () => {
+    const tr = EditorState.create({ doc }).tr.insertText('synced', 20, 25)
+    expect(refuseTransaction(tr, 1200, pen, true, sel)).toBe(false)
+  })
+})

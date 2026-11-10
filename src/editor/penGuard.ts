@@ -136,18 +136,28 @@ export function refuseInput(
   )
 }
 
-/** Does this transaction remove or replace content? */
-function removesContent(tr: Transaction): boolean {
+/**
+ * Does this transaction remove or replace content? With `within`, only a
+ * removal that overlaps that range counts (a synced change to another block
+ * is not an attack on the selection).
+ */
+function removesContent(
+  tr: Transaction,
+  within?: { from: number; to: number },
+): boolean {
   return tr.steps.some((step) => {
     const json = step.toJSON() as {
       stepType?: string
       from?: number
       to?: number
     }
-    return (
-      (json.stepType === 'replace' || json.stepType === 'replaceAround') &&
-      json.from !== json.to
+    if (
+      !(json.stepType === 'replace' || json.stepType === 'replaceAround') ||
+      json.from === json.to
     )
+      return false
+    if (!within) return true
+    return (json.from ?? 0) <= within.to && (json.to ?? 0) >= within.from
   })
 }
 
@@ -157,12 +167,19 @@ export function refuseTransaction(
   now: number,
   pen: PenState,
   scribbleOn: boolean,
+  selection?: { from: number; to: number },
 ): boolean {
   if (!tr.docChanged || !removesContent(tr)) return false
   // Undo and Redo, and a real key press, are the user's own doing.
   if (tr.getMeta('history$') !== undefined) return false
   if (now - pen.lastKeyAt <= KEY_RECENT_MS) return false
-  if (selectGraceOn(pen, now)) return true
+  // Grace after a tap-selection: nothing may remove what is selected. (With
+  // no selection to look at, any removal; a collapsed caret uses the rules
+  // below.)
+  if (selectGraceOn(pen, now)) {
+    if (!selection) return true
+    if (selection.from !== selection.to) return removesContent(tr, selection)
+  }
   if (!penBusy(pen, now)) return false
   // Scribble free: small edits are fine, a big scratch-out is refused.
   if (scribbleOn) {
@@ -178,8 +195,14 @@ export const penTransactionGuard = createExtension({
   key: 'learning-notes-pen-guard',
   prosemirrorPlugins: [
     new Plugin({
-      filterTransaction: (tr) =>
-        !refuseTransaction(tr, clock(), penState, scribbleFree()),
+      filterTransaction: (tr, state) =>
+        !refuseTransaction(
+          tr,
+          clock(),
+          penState,
+          scribbleFree(),
+          state.selection,
+        ),
     }),
   ],
 })

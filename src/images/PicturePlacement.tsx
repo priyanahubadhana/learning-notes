@@ -1,4 +1,7 @@
-import { useEffect, useMemo, useRef, useState } from 'react'
+import { useContext, useEffect, useMemo, useRef, useState } from 'react'
+import { AppUiContext } from '../app/appUi'
+import { activeTool } from '../app/tools/main/mainTools'
+import { lock, unlock } from '../editor/editLock'
 import { createPortal } from 'react-dom'
 import type { EditorView } from 'prosemirror-view'
 import { Icon } from '../app/tools/icons'
@@ -48,6 +51,29 @@ export default function PicturePlacement({
   ask: PlacementAsk
   editor: Host
 }) {
+  const { toast } = useContext(AppUiContext)
+  // Placement is a mode (items 22h, 22i): until ✓ or ✕ only dragging and
+  // resizing the preview and scrolling work. The ink pad and the page's
+  // text selection are off (CSS on [data-placing]), the page is not
+  // editable, and a tool change is undone with a hint.
+  useEffect(() => {
+    const root = document.documentElement
+    root.setAttribute('data-placing', '')
+    const dom = editor.domElement
+    if (dom) lock('placement', dom)
+    const keep = activeTool.get()
+    const off = activeTool.subscribe(() => {
+      if (activeTool.get() === keep) return
+      activeTool.set(keep)
+      toast(t('pic.place.first'))
+    })
+    return () => {
+      off()
+      root.removeAttribute('data-placing')
+      unlock('placement')
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [])
   const url = useMemo(() => URL.createObjectURL(ask.file), [ask.file])
   useEffect(() => () => URL.revokeObjectURL(url), [url])
   const [ratio, setRatio] = useState(0.5)
@@ -300,6 +326,7 @@ export default function PicturePlacement({
 
   const down = (e: React.PointerEvent) => {
     e.preventDefault()
+    e.stopPropagation() // 22e: no Lasso or ink under the page sees this drag
     ;(e.currentTarget as HTMLElement).setPointerCapture?.(e.pointerId)
     const s = spot.current ?? { left: 0, top: 0 }
     pointer.current = { x: e.clientX, y: e.clientY }
@@ -327,6 +354,7 @@ export default function PicturePlacement({
   const move = (e: React.PointerEvent) => {
     const g = gesture.current
     if (!g) return
+    e.stopPropagation()
     if (g.kind === 'move') {
       pointer.current = { x: e.clientX, y: e.clientY }
     } else {
@@ -345,6 +373,7 @@ export default function PicturePlacement({
     }
   }
   const up = (e: React.PointerEvent) => {
+    e.stopPropagation()
     const g = gesture.current
     gesture.current = null
     if (g?.kind === 'move') {

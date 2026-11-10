@@ -21,6 +21,7 @@ export const enO = {
   // ---- Placing a picture (iPad fix 1) ----
   'pic.place.label': 'Place the picture',
   'pic.place.ok': 'Place picture',
+  'pic.place.first': 'Place or cancel the picture first',
   'pic.place.cancel': 'Cancel picture',
   // ---- Selected picture action bar (iPad fix 5) ----
   'pic.act.label': 'Picture actions',

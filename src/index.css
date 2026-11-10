@@ -1085,3 +1085,12 @@ body:has([data-ink-pad]) [data-sel-handle]::after {
   animation: none !important;
   pointer-events: none !important;
 }
+
+/* Placing a picture is a mode (owner 22h): no ink or Lasso, no text selection. */
+[data-placing] [data-ink-pad] {
+  pointer-events: none !important;
+}
+[data-placing] .bn-editor {
+  user-select: none;
+  -webkit-user-select: none;
+}

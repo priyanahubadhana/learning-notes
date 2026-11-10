@@ -44,6 +44,7 @@ import { GridDividers } from './GridDividers'
 import { bounds, record, replay, waitFor, type Recorded } from './penOnPaper'
 import { activeTool } from '../app/tools/main/mainTools'
 import { onGestureReset } from '../app/gestureReset'
+import { startGripDrag } from '../app/tools/gripDrag'
 import { adopterIn, lassoAcrossBoxes, setPaperDrop } from '../ink/inkTransfer'
 import { lassoSettings } from '../app/tools/main/inkSettings'
 import { sheetNav } from './sheetNav'
@@ -527,11 +528,9 @@ export function PaperFrame({
     if (e.button !== 0) return
     e.preventDefault()
     e.stopPropagation()
-    try {
-      ;(e.currentTarget as Element).setPointerCapture(e.pointerId)
-    } catch {
-      // The moves still reach the handle.
-    }
+    // The drag owns every pointer and key (item 25): the page leaves text
+    // input (no "/" menu, no caret), the ink and Lasso ignore the touch.
+    startGripDrag(e.currentTarget as Element, e.pointerId)
     const group = picked.includes(box.id)
       ? extra.filter((b) => picked.includes(b.id) && !b.locked)
       : [box]
@@ -596,7 +595,29 @@ export function PaperFrame({
     }
     return { rows, full: false }
   }
+  // One update per frame (item 25): pointer moves only note the spot; the
+  // frame callback plans the drop and re-draws once.
+  const pending = useRef<{ clientX: number; clientY: number } | null>(null)
+  const frame = useRef(0)
   const dragMove = (e: ReactPointerEvent) => {
+    if (!drag.current) return
+    pending.current = { clientX: e.clientX, clientY: e.clientY }
+    if (frame.current) return
+    frame.current = requestAnimationFrame(() => {
+      frame.current = 0
+      const at = pending.current
+      pending.current = null
+      if (at) applyMove(at)
+    })
+  }
+  const flushMove = () => {
+    if (frame.current) cancelAnimationFrame(frame.current)
+    frame.current = 0
+    const at = pending.current
+    pending.current = null
+    if (at) applyMove(at)
+  }
+  const applyMove = (e: { clientX: number; clientY: number }) => {
     const d = drag.current
     if (!d || d.ids.length === 0) return
     if (!d.moved && Math.hypot(e.clientX - d.x0, e.clientY - d.y0) < TAP_PX)
@@ -627,6 +648,7 @@ export function PaperFrame({
     return () => window.removeEventListener('keydown', key)
   }, [])
   const dragEnd = (e: ReactPointerEvent) => {
+    flushMove()
     const d = drag.current
     drag.current = null
     const rows = preview
@@ -710,9 +732,18 @@ export function PaperFrame({
     )
   }
 
+  const tapAt = useRef<{ x: number; y: number; t: number } | null>(null)
   const penDown = (e: ReactPointerEvent<HTMLDivElement>) => {
+    // Placing a picture is a mode: no loop, ink or new box meanwhile (22h).
+    if (document.documentElement.hasAttribute('data-placing')) return
     if (lassoDown(e)) return
     const tool = activeTool.get()
+    // Item 9: a Pencil tap on blank paper with a drawing tool goes back to the
+    // Lasso (as GoodNotes does); it never makes a box.
+    tapAt.current =
+      e.pointerType === 'pen' && tool !== 'text'
+        ? { x: e.clientX, y: e.clientY, t: e.timeStamp }
+        : null
     if (!onInkOnPaper || flat || (tool !== 'pen' && tool !== 'highlighter'))
       return
     // A finger scrolls the paper; only the Pencil and the mouse write here.
@@ -733,6 +764,16 @@ export function PaperFrame({
   }
   const penUp = (e: ReactPointerEvent<HTMLDivElement>) => {
     lassoUp()
+    const tap = tapAt.current
+    tapAt.current = null
+    if (
+      tap &&
+      activeTool.get() !== 'lasso' &&
+      Math.hypot(e.clientX - tap.x, e.clientY - tap.y) < 8 &&
+      e.timeStamp - tap.t < 350
+    ) {
+      activeTool.set('lasso')
+    }
     const events = pen.current
     pen.current = null
     if (!events || !onInkOnPaper) return
@@ -800,6 +841,7 @@ export function PaperFrame({
   /** A tap on empty paper with the Text tool: a new box there (step 3). */
   const tapStart = useRef<{ x: number; y: number; t: number } | null>(null)
   const tapPaper = (e: ReactPointerEvent<HTMLDivElement>) => {
+    if (document.documentElement.hasAttribute('data-placing')) return
     const down = tapStart.current
     tapStart.current = null
     if (!onAddBox || flat || e.button !== 0) return

@@ -1098,6 +1098,7 @@ export class InkController {
   // ---- Pointers ----
 
   private accepts(e: PointerEvent): boolean {
+    if (document.documentElement.hasAttribute('data-placing')) return false
     if (gripDragging(e)) return false // a bar is being dragged by its grip
     if (e.pointerType === 'pen') {
       penSeenEver = true
@@ -1899,6 +1900,8 @@ export class InkController {
 
   /** The machine knows the touch (its age limit drops a lost lift), then the Lasso starts. */
   private lassoDown(e: PointerEvent): void {
+    // A picture is being placed: only its own preview takes pointers (22h).
+    if (document.documentElement.hasAttribute('data-placing')) return
     // A Lasso or handle gesture whose lift never came must not block this
     // touch: the same pointer going down again after a pause, or a pointer the machine no
     // longer knows (it drops one that has not moved for 4 s), means it is dead.

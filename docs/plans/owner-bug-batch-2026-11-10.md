@@ -110,4 +110,4 @@ Collected from the owner's iPad pass; fix all in one go when the owner says so.
 
 ## Done by Builder A (10 Nov)
 
-Items 1, 2, 15, 17, 21, 42 (and the tools error boundary of 17d) done. Open: 11, 19, 20, 22e/h/i, 25.
+Items 1, 2, 15, 17, 21, 22e, 22h, 22i, 42 (and the tools error boundary of 17d) done; 25 mostly (smooth drag, accent drop line, input ownership; not the doubled clash bar or the flicker). Open: 11, 19, 20 (the Pencil tap counter and its e2e already exist in editor/tapSelect.ts and pencilTaps.spec.ts; the new box tap model and the hold menu are not built).

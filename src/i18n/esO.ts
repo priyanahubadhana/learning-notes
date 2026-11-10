@@ -5,6 +5,7 @@ export const esO: Record<string, string> = {
   'study.status.why': 'Cómo se calcula el estado',
   'pic.place.label': 'Colocar la imagen',
   'pic.place.ok': 'Colocar imagen',
+  'pic.place.first': 'Primero coloca o cancela la imagen',
   'pic.place.cancel': 'Cancelar imagen',
   'pic.act.label': 'Acciones de la imagen',
   'pic.act.copy': 'Copiar',

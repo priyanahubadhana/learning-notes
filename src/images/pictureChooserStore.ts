@@ -46,6 +46,8 @@ export function endPlacement(): void {
   placing = null
   emit()
 }
+/** True while a picture preview waits for ✓ or ✕ (placement is a mode). */
+export const placementActive = (): boolean => placing !== null
 export const usePlacement = (): PlacementAsk | null =>
   useSyncExternalStore(subscribe, () => placing)
 

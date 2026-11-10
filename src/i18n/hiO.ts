@@ -5,6 +5,7 @@ export const hiO: Record<string, string> = {
   'study.status.why': 'स्थिति कैसे तय होती है',
   'pic.place.label': 'चित्र रखें',
   'pic.place.ok': 'चित्र रखें',
+  'pic.place.first': 'पहले चित्र रखें या रद्द करें',
   'pic.place.cancel': 'चित्र रद्द करें',
   'pic.act.label': 'चित्र की क्रियाएँ',
   'pic.act.copy': 'कॉपी',

@@ -1094,3 +1094,9 @@ body:has([data-ink-pad]) [data-sel-handle]::after {
   user-select: none;
   -webkit-user-select: none;
 }
+
+/* No system callout (copy / look up sheet) on a press-and-hold in the page: our own menu opens instead (item 19). */
+[data-page-content],
+[data-page-content] * {
+  -webkit-touch-callout: none;
+}

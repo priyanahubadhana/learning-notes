@@ -97,6 +97,7 @@ export default defineConfig({
         /openNotebook/,
         /barFixes/,
         /pencilTaps/,
+        /holdMenu/,
         /boxTaps/,
         /paperPage/,
         /paperInk/,

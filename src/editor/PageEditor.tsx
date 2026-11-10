@@ -65,6 +65,8 @@ import { watchPenSelect } from './penSelect'
 import { watchKeyboardPolicy } from './keyboardPolicy'
 import { watchTapSelect } from './tapSelect'
 import { watchHoldSelect } from './holdSelect'
+import { watchHoldMenu, type HoldPoint } from './holdMenuWatch'
+import { HoldMenuLazy } from './HoldMenuLazy'
 import { activeTool, miniToolbarOpen } from '../app/tools/main/mainTools'
 import { ToolsBoundary } from '../app/tools/ToolsBoundary'
 import { changeSet } from '../app/tools/toolbarState'
@@ -757,6 +759,8 @@ function LoadedPageEditor({
         )
     : undefined
 
+  // The press-and-hold menu (item 19): where it is open, or null.
+  const [holdAt, setHoldAt] = useState<HoldPoint | null>(null)
   // The newest toast function, without restarting the pen watchers.
   const toastRef = useRef(toast)
   useEffect(() => {
@@ -783,6 +787,7 @@ function LoadedPageEditor({
       }
       const stopTap = watchTapSelect(editor, afterSelect)
       const stopHold = watchHoldSelect(editor, afterSelect)
+      const stopMenu = watchHoldMenu(editor, setHoldAt)
       // The Pencil must never delete text by itself (iPadOS Scribble).
       const stopGuard = watchPenGuard(editor, () =>
         toastRef.current(t('pen.guard.removed'), {
@@ -796,6 +801,7 @@ function LoadedPageEditor({
         stopKeys()
         stopTap()
         stopHold()
+        stopMenu()
         stopGuard()
       }
     }
@@ -892,6 +898,16 @@ function LoadedPageEditor({
           }
         >
           <PasteChooser owner={editor} />
+          {holdAt && (
+            <HoldMenuLazy
+              editor={editor}
+              at={holdAt}
+              onClose={() => setHoldAt(null)}
+              toast={(m) => toastRef.current(m)}
+              onSelected={() => miniToolbarOpen.set(true)}
+              choosePicture={choosePicture}
+            />
+          )}
           {docked && ownsBar && <DockedBar slot={barSlot} />}
           {/* Computer keeps the toolbar over selected text as an extra. */}
           {!inReading && (!docked || bar.mode === 'computer') && (

@@ -523,6 +523,28 @@ export const holdSelectSetting: SettingDefinition<number> = {
   },
 }
 
+/** How long a still press waits before our hold menu opens (ms, item 19). */
+const HOLD_MENU_CHOICES = [600, 800, 1000, 1500, 2000, 3000] as const
+export const holdMenuSetting: SettingDefinition<number> = {
+  id: 'advanced.holdMenu',
+  labelKey: 'settings.holdMenu.label',
+  descriptionKey: 'settings.holdMenu.description',
+  category: 'advanced',
+  keywords: 'press hold menu paste select long press touch time',
+  scope: 'device',
+  defaultValue: 1000,
+  isValid: (v): v is number =>
+    typeof v === 'number' &&
+    (HOLD_MENU_CHOICES as readonly number[]).includes(v),
+  control: {
+    kind: 'select',
+    options: HOLD_MENU_CHOICES.map((value) => ({
+      value,
+      label: () => t('settings.holdMenu.s', { s: value / 1000 }),
+    })),
+  },
+}
+
 const TAP_TWICE_CHOICES = ['auto', 'on', 'off'] as const
 export type TapTwice = (typeof TAP_TWICE_CHOICES)[number]
 /**
@@ -731,6 +753,7 @@ for (const definition of [
   autoSwitchSetting,
   pencilWritesSetting,
   holdSelectSetting,
+  holdMenuSetting,
   pencilScrollsSetting,
   pencilTapTwiceSetting,
   pathStyleSetting,

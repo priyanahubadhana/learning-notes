@@ -1,5 +1,6 @@
 import { useEffect, useRef, useState } from 'react'
 import { t } from '../i18n/t'
+import { getAppActions } from '../app/tools/toolRuntime'
 
 const SHOWN = 'attn.locked.shown'
 const IDLE_MS = 2000
@@ -29,7 +30,8 @@ const typingIn = (el: Element | null) =>
 const onSyncPage = () => location.hash.startsWith('#/settings/sync')
 
 function openUnlock() {
-  location.hash = '#/settings/sync'
+  if (getAppActions()) getAppActions()?.openSettings('account/account.syncNow')
+  else location.hash = '#/settings/sync'
 }
 
 /**

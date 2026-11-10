@@ -3,12 +3,15 @@ import { t } from '../../i18n/t'
 import type { LearningNotesDB } from '../../core/db'
 import { dismissUpdateOffer } from '../updates'
 import { browserSnooze, snooze, type Attention } from './attentionLevel'
+import { getAppActions } from '../tools/toolRuntime'
 import { getSignals, setSignals } from './attentionSignals'
 
 type Action = { label: string; run: () => void }
 
-const go = (hash: string) => () => {
-  location.hash = hash
+const go = (focus: string) => () => {
+  const open = getAppActions()?.openSettings
+  if (open) open(focus)
+  else location.hash = '#/settings'
 }
 
 /** The text, and the one button that fixes it. */
@@ -44,17 +47,26 @@ function content(
     case 'notAllowed':
       return {
         text: t('attention.notAllowed'),
-        action: { label: t('attention.switch'), run: go('#/settings/sync') },
+        action: {
+          label: t('attention.switch'),
+          run: go('account/account.syncNow'),
+        },
       }
     case 'clock':
       return {
         text: t('attention.clock'),
-        action: { label: t('attention.details'), run: go('#/settings/sync') },
+        action: {
+          label: t('attention.details'),
+          run: go('account/account.syncNow'),
+        },
       }
     case 'signInAgain':
       return {
         text: t('attention.signInAgain'),
-        action: { label: t('attention.signIn'), run: go('#/settings/sync') },
+        action: {
+          label: t('attention.signIn'),
+          run: go('account/account.signIn'),
+        },
       }
     case 'syncFailing':
       return {
@@ -70,7 +82,7 @@ function content(
         text: t('attention.backups'),
         action: {
           label: t('attention.openBackups'),
-          run: go('#/settings/data'),
+          run: go('category:data'),
         },
       }
     case 'updateNeeded':
@@ -84,12 +96,15 @@ function content(
     case 'storage':
       return {
         text: t('attention.storage'),
-        action: { label: t('attention.manage'), run: go('#/settings/data') },
+        action: { label: t('attention.manage'), run: go('category:data') },
       }
     case 'setup':
       return {
         text: t('attention.setup'),
-        action: { label: t('attention.setUp'), run: go('#/settings/sync') },
+        action: {
+          label: t('attention.setUp'),
+          run: go('account/account.syncNow'),
+        },
       }
     default:
       return {

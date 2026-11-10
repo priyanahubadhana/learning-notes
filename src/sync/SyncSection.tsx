@@ -17,6 +17,7 @@ import {
   subscribeSync,
   unlock,
 } from './syncService'
+import { SettingsLink } from '../settings/SettingsLink'
 
 const field =
   'min-h-11 w-full rounded-lg border border-line bg-bg px-3 text-sm outline-none focus:border-accent'
@@ -59,17 +60,17 @@ export function SyncSection({ db }: { db: LearningNotesDB }) {
         <RecoveryCodeView code={code} onDone={() => setCode(null)} />
       ) : status.phase === 'signedOut' ? (
         <p className="text-sm">
-          <a className="underline" href="#/settings/account">
+          <SettingsLink to="account/account.signIn">
             {t('account.signInIn')}
-          </a>
+          </SettingsLink>
         </p>
       ) : (
         <>
           <p className="text-sm">
             {t('sync.signedInAs', { email: status.email ?? '' })}{' '}
-            <a className="underline" href="#/settings/account">
+            <SettingsLink to="category:account">
               {t('account.manage')}
-            </a>
+            </SettingsLink>
           </p>
           {status.phase === 'needsSetup' && (
             <SetUp

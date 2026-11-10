@@ -1,3 +1,4 @@
+import { SettingsLink } from '../settings/SettingsLink'
 import { sampleName } from '../i18n/defaultNames'
 import { useLiveQuery } from 'dexie-react-hooks'
 import type { LearningNotesDB } from '../core/db'
@@ -42,7 +43,7 @@ export function PermissionsSection({ db }: { db: LearningNotesDB }) {
         <h3 className="mb-1 text-sm font-medium">{t('ai.allowTitle')}</h3>
         <ul>
           {(notebooks ?? []).map((n) => (
-            <li key={n.id}>
+            <li key={n.id} data-setting-id={`perm.nb.${n.id}`}>
               <label className="flex min-h-11 items-center gap-3 text-sm">
                 <input
                   type="checkbox"
@@ -113,9 +114,9 @@ export function PermissionsSection({ db }: { db: LearningNotesDB }) {
       </div>
       <p className="text-sm text-muted" data-testid="perm-usage-link">
         {t('ai.perm.seeUsage')}{' '}
-        <a className="text-accent underline" href="#/settings/ai">
+        <SettingsLink to="category:ai" className="text-accent underline">
           {t('ai.perm.openUsage')}
-        </a>
+        </SettingsLink>
       </p>
     </section>
   )

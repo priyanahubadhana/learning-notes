@@ -141,7 +141,13 @@ export function AskBook(props: AskBookProps) {
       : hereSection
   const chosen = scope ?? (chapters.length ? currentChapter : -1)
 
-  const why = blocker(config, !!notebook?.allowAi, locked === true)
+  // Library books follow the global AI switch; only other notebooks need their own permission.
+  const libraryBook = notebook?.kind === 'books' || notebook?.kind === 'sources'
+  const why = blocker(
+    config,
+    !!notebook?.allowAi || libraryBook,
+    locked === true,
+  )
   if (why) {
     return (
       <div data-testid="ask-book" className="flex flex-col gap-3 text-sm">
@@ -159,7 +165,32 @@ export function AskBook(props: AskBookProps) {
             )}
           </p>
         )}
-        <button type="button" className={btn} onClick={() => openSettings()}>
+        {why === 'allowOff' && (
+          <button
+            type="button"
+            data-testid="ask-book-allow"
+            className={primary}
+            onClick={() =>
+              void db.notebooks.update(page.notebookId, {
+                allowAi: true,
+                updatedAt: Date.now(),
+              })
+            }
+          >
+            {t('ai.book.allowHere')}
+          </button>
+        )}
+        <button
+          type="button"
+          className={btn}
+          onClick={() =>
+            openSettings(
+              why === 'notReady'
+                ? 'ai/ai.keyList'
+                : `permissions/perm.nb.${page.notebookId}`,
+            )
+          }
+        >
           {t('ai.book.openSettings')}
         </button>
       </div>

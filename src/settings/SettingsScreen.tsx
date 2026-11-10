@@ -73,6 +73,7 @@ export function SettingsScreen({
   const [ownCategory, setOwnCategory] = useState(
     () =>
       (focusId?.startsWith('category:') && focusId.slice(9)) ||
+      (focusId?.includes('/') && focusId.split('/')[0]) ||
       (focusId && settingsRegistry.get(focusId)?.category) ||
       ALL,
   )
@@ -93,7 +94,7 @@ export function SettingsScreen({
     revealWhenReady(
       () =>
         root.current?.querySelector<HTMLElement>(
-          `[data-setting-id="${CSS.escape(focusId)}"]`,
+          `[data-setting-id="${CSS.escape(focusId.split('/').pop() ?? focusId)}"]`,
         ) ?? null,
     )
   }, [focusId])

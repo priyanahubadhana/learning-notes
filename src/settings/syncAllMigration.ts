@@ -32,7 +32,7 @@ export function runSyncAllMigration(): void {
       window.clearInterval(timer)
       app.toast(t('sync.allOn.notice'), {
         label: t('sync.allOn.change'),
-        onSelect: () => app.openSettings(),
+        onSelect: () => app.openSettings('category:sync'),
       })
     } else if (++tries > 60) window.clearInterval(timer)
   }, 500)

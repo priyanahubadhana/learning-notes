@@ -436,6 +436,7 @@ export const esO: Record<string, string> = {
   'ai.book.off':
     'La IA está desactivada en este cuaderno. Actívala en Ajustes › Permisos.',
   'ai.book.openSettings': 'Abrir Ajustes',
+  'ai.book.allowHere': 'Permitir IA para este libro',
   'help.tip.reader.askAi.meaning':
     'Pregunta a tu IA sobre este libro u obtén la historia hasta aquí. Primero ves lo que se envía y su coste.',
   'help.tip.reader.askAi.example':

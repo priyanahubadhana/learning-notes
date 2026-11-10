@@ -421,6 +421,7 @@ export const hiO: Record<string, string> = {
   'ai.book.cite': '{cite} पर जाएँ',
   'ai.book.off': 'इस नोटबुक में AI बंद है। सेटिंग › अनुमतियाँ में चालू करें।',
   'ai.book.openSettings': 'सेटिंग खोलें',
+  'ai.book.allowHere': 'इस किताब के लिए AI की अनुमति दें',
   'help.tip.reader.askAi.meaning':
     'इस किताब के बारे में अपने AI से पूछें, या अब तक की कहानी पाएँ। पहले आप देखते हैं कि क्या भेजा जाता है और कितना खर्च होगा।',
   'help.tip.reader.askAi.example':

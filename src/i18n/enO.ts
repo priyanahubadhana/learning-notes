@@ -447,6 +447,7 @@ export const enO = {
   'ai.book.off':
     'AI is off for this notebook. Turn it on in Settings › Permissions.',
   'ai.book.openSettings': 'Open Settings',
+  'ai.book.allowHere': 'Allow AI for this book',
   'help.tip.reader.askAi.meaning':
     'Ask your AI about this book, or get the story so far. You see what is sent and its cost first.',
   'help.tip.reader.askAi.example':

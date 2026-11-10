@@ -93,7 +93,9 @@ export function RunSkill({
     const why = await whyNot(db, config, page)
     if (why) {
       toast(why)
-      if (!config.enabled || config.candidates.length === 0) openSettings()
+      if (!config.enabled || config.candidates.length === 0) {
+        openSettings('ai/ai.keyList')
+      }
       return
     }
     if (!readPref(AI_KEYS.privacy, isBool, false)) return setPrivacy(true)

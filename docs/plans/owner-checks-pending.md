@@ -2,6 +2,10 @@
 
 Moved out of HANDOFF on 2026-11-06 (audit) so HANDOFF stays five lines. Newest first; each paragraph names its step. The run decision (master plan) is one owner iPad pass before Sync; the Phase A builder adds its checks at the top. Tick a paragraph by deleting it.
 
+## Builder E checks (10 Nov)
+
+(1) Library book, Ask this book with AI on and a key: it works without touching Permissions. (2) Turn AI off, tap the AI-off card button: Settings opens on the AI keys row, highlighted. (3) Sync banner buttons open Account at the Sync / Sign in row.
+
 ## iPad checks: Builder C (10 Nov)
 
 On the iPad: (1) Library, open the 13 h EPUB with Continue: text must show (a note appears in the console only if it fell back to Scroll). (2) Settings › Advanced: switch on "Show Refresh button in the top bar", tap it: the app restarts on the same page. (3) Open Page history on a page where you added and removed a text box: restore an old copy and check the boxes, picture and paper style come back; History shows the "before a restore" copy. (4) With two tabs open on the PC, let an update arrive: no black cover longer than 5 s, a small pill shows the download.

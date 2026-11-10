@@ -4,6 +4,7 @@ import {
   useSyncExternalStore,
   type ReactNode,
 } from 'react'
+import { SettingsLink } from '../settings/SettingsLink'
 import { useLockMethods } from '../app/lock/useLock'
 import { ConfirmDialog } from '../app/ui'
 import type { LearningNotesDB } from '../core/db'
@@ -185,9 +186,9 @@ function SyncLine({ db }: { db: LearningNotesDB }) {
             {t('sync.syncNow')}
           </button>
         )}
-        <a className="text-sm underline" href="#/settings/sync">
+        <SettingsLink to="category:sync" className="text-sm underline">
           {running ? t('account.syncOptions') : t('account.unlockInSync')}
-        </a>
+        </SettingsLink>
       </div>
     </div>
   )
@@ -212,17 +213,17 @@ function Security({ db }: { db: LearningNotesDB }) {
         {methods && lockIsSetUp(methods)
           ? t('account.lockOn')
           : t('account.lockOff')}{' '}
-        <a className="underline" href="#/settings/lock">
+        <SettingsLink to="lock/lock.idleMinutes">
           {t('account.changeInLock')}
-        </a>
+        </SettingsLink>
       </p>
       <p className="text-sm" data-setting-id="account.aiKeys">
         {keysOn && isTracking()
           ? t('account.aiKeysOn')
           : t('account.aiKeysOff')}{' '}
-        <a className="underline" href="#/settings/ai">
+        <SettingsLink to="ai/ai.keyList">
           {t('account.changeInAi')}
-        </a>
+        </SettingsLink>
       </p>
     </div>
   )

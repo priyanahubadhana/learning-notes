@@ -89,11 +89,11 @@ export function AiActions({
     if (why === 'lockedOff') return void toast(t('ai.lockedOff'))
     if (why === 'notReady') {
       toast(t('ai.notReady'))
-      return openSettings()
+      return openSettings('ai/ai.keyList')
     }
     if (why === 'allowOff') {
       toast(t('ai.allowOff'))
-      return openSettings()
+      return openSettings(`permissions/perm.nb.${page.notebookId}`)
     }
     if (!readPref(AI_KEYS.privacy, isBool, false)) return setPrivacyFor(action)
     setBusy(true)

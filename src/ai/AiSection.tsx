@@ -96,7 +96,9 @@ export function AiSection({
       {!enabled && <AiOffCard here onTurnOn={() => setEnabled(true)} />}
 
       {/* (b) Keys, default model */}
-      <h3 className={head}>{t('ai.sec.keys')}</h3>
+      <h3 className={head} data-setting-id="ai.keyList">
+        {t('ai.sec.keys')}
+      </h3>
       <AiKeys keys={keys} defaultCap={cap} onChange={refresh} />
       <div>
         <label className="flex min-h-11 items-center gap-3 text-sm">

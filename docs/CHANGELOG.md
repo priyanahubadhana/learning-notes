@@ -2,6 +2,11 @@
 
 Current phase only. Older entries are in [ARCHIVE.md](ARCHIVE.md).
 
+## 2026-11-10 (Builder E: AI for books, Settings deep links (30, 31))
+
+- **Item 30:** library books (Books and Sources notebooks) follow the global AI switch, so "Ask this book" no longer says AI is off for the notebook. Other notebooks show a one-tap "Allow AI for this book" button. Files: AskBook.tsx, enO/esO/hiO.
+- **Item 31:** "Open Settings" now opens the exact row and highlights it. Focus ids can be `<category>/<row>`; new rows: perm.nb.<notebookId>, ai.keyList. New SettingsLink component replaces plain `#/settings/...` links (permissions, account, sync); AttentionBanner, LockedAlert, AI off card, AI actions, prompts and skills pass a row. Files: SettingsLink.tsx, SettingsScreen.tsx, AttentionBanner.tsx, LockedAlert.tsx, AiOffCard.tsx, AiActions.tsx, RunPrompt/RunSkill, syncAllMigration.ts, PermissionsSection/AccountSection/SyncSection. Still to do for data/backups links: they open the Data category, not a row.
+
 ## 2026-11-10 (Builder C: Review space)
 
 - **Item 27:** the Review rail icon showed the Notebooks shelf (the shelf was drawn whenever no page was open). New src/notebooks/ReviewHome.tsx (cards due, Start review, All cards, decks with due counts); the icon now opens it on desktop. Audit of rail spaces and sidebar sections against `e3cecbd` (8 Nov): only styling changed, no section or space is missing. Files: App.tsx, ReviewHome.tsx, enNbh/esNbh/hiNbh, e2e/notebooksHome.spec.ts.

@@ -29,7 +29,7 @@ export function AiOffCard({
   const keys = listKeys().length
   if (config.enabled && config.candidates.length > 0) return null
   const off = !config.enabled
-  const goAi = () => openSettings('category:ai')
+  const goAi = () => openSettings('ai/ai.keyList')
   return (
     <div
       data-testid="ai-off-card"

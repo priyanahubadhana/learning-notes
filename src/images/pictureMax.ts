@@ -1,4 +1,4 @@
-import { sheetMetrics } from '../paper/paginateHold'
+import { sheetMetrics } from '../editor/paperBridge'
 import { t } from '../i18n/t'
 
 /**

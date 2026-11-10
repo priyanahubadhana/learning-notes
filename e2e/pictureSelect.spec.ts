@@ -11,7 +11,7 @@ import { createNotebook, solidPng } from './helpers.ts'
  */
 
 test.use({
-  viewport: { width: 1000, height: 700 },
+  viewport: { width: 1000, height: 800 },
   hasTouch: true,
 })
 

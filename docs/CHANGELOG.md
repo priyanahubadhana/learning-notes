@@ -2,6 +2,10 @@
 
 Current phase only. Older entries are in [ARCHIVE.md](ARCHIVE.md).
 
+## 2026-11-10 (Builder F: reader (33))
+
+- **Item 33:** Liquid mode is removed from the book reader (button, layer, LiquidView, liquid.ts, strings, its e2e and unit test). Undo/Redo for the reader bar belongs to Builder D. Files: src/reader/BookReader.tsx, src/reader/extras/*, src/i18n/*W5.ts, e2e/readerExtras.spec.ts.
+
 ## 2026-11-10 (Builder E: AI for books, Settings deep links (30, 31))
 
 - **Item 30:** library books (Books and Sources notebooks) follow the global AI switch, so "Ask this book" no longer says AI is off for the notebook. Other notebooks show a one-tap "Allow AI for this book" button. Files: AskBook.tsx, enO/esO/hiO.

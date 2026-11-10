@@ -381,9 +381,14 @@ describe('sign-in hands Google’s refresh token to the server', () => {
   })
 
   it('a refused store is logged with its status, no secret', async () => {
-    await run(tokenReply({ provider_refresh_token: 'RT' }), 503)
+    await run(
+      tokenReply({ provider_refresh_token: 'RT-plain-secret-value' }),
+      503,
+    )
     expect(mem.get('learning-notes:sync.driveLast')).toBe('store refused 503')
-    expect(mem.get('learning-notes:perf.slow')).not.toContain('RT')
+    expect(mem.get('learning-notes:perf.slow')).not.toContain(
+      'RT-plain-secret-value',
+    )
     expect(mem.has('learning-notes:sync.driveOffline')).toBe(false)
   })
 })

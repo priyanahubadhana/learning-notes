@@ -24,6 +24,8 @@ Current phase only. Older entries are in [ARCHIVE.md](ARCHIVE.md).
 
 - **Bug (owner, iPad):** a Pencil double tap on a word, then the word vanished. Cause: under the Text tool Scribble is free, so the data-loss guard let small deletes and writes through; a little Pencil drift or a stray Scribble dot right after the tap replaced or deleted the freshly selected word. Fix: a 600 ms grace period after a tap selects text (word, line or paragraph): every delete, replace or write (beforeinput and transaction level) is refused unless a real key was pressed, whatever the Scribble setting. Files: src/editor/penGuard.ts (SELECT_GRACE_MS, noteTapSelected, selectGraceOn), src/editor/tapSelect.ts, tests in src/editor/penGuard.test.ts and e2e/pencilTaps.spec.ts.
 
+- **Flaky test fixed:** driveServer.test.ts checked that random ciphertext did not contain the two letters "RT" (failed by chance in CI); it now uses a long marker.
+
 ## 2026-11-10 (CI stabiliser 3: WebKit box drag)
 
 - **Typing speed regression (bigPageBudget) fixed at the cause:** found by measuring commits locally (typing script per key 6.3 ms before, 11.6 ms after ea1f75c). Pagination looked for table rows in EVERY block on every key (now only in a block taller than the room); the micro text bar drew inside the key's own task (about +50 ms on the longest task) and now appears a moment later in its own task, and reads the cursor block only when Align is tapped. Back to 6.9 ms a key and 56 ms longest task on a 2,000-block page. Files: src/paper/paginate.ts, src/app/tools/main/MicroBar.tsx.

@@ -80,3 +80,6 @@ When the on-screen keyboard is up (`visualViewport` shrinks more than 150 px), a
 2. Layout and Box style: in the strip and Box bar only (recommended), or also as fixed icons on the main bar?
 3. Own presets: up to 8 synced per account (recommended), or per notebook?
 4. Remove the MicroBar when the strip is showing (recommended), or keep both?
+
+## Owner answers (10 Nov)
+- Layout and box style: in the strip and box bar only (no main-bar icons). Own presets: per account (synced). MicroBar hidden while the strip shows. Pin: owner asked for an explanation; pending.

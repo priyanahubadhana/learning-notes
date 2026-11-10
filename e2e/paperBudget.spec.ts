@@ -84,7 +84,7 @@ async function seed(page: Page) {
   )
 }
 
-test('a paper page with 50 boxes and 2,000 strokes opens within the budget; the Lasso picks all 50 at once', async ({
+test('a paper page with 50 boxes and 2,000 strokes opens within the budget; the Lasso takes the ink of all 50 at once', async ({
   page,
 }) => {
   await inkNote(page, 'Pen')
@@ -175,6 +175,8 @@ test('a paper page with 50 boxes and 2,000 strokes opens within the budget; the 
     return { median: out.sort((a, b) => a - b)[2], n }
   })
   console.log('PAPER LASSO ms', ms.median)
-  expect(ms.n).toBe(BOXES)
+  // Owner item 2: a loop from the margin selects what it covers inside the
+  // boxes (their ink) instead of picking whole boxes, so no box is "picked"
+  expect(ms.n).toBe(0)
   expect(ms.median).toBeLessThan(150)
 })

@@ -77,10 +77,10 @@ test('Account page: who, connections, security and sessions', async ({
   for (const name of ['Who', 'Connections', 'Security', 'Sessions'])
     await expect(account.getByRole('group', { name })).toBeVisible()
   await expect(
-    account.getByRole('link', { name: 'Change in Lock' }),
+    account.getByRole('button', { name: 'Change in Lock' }),
   ).toBeVisible()
   await expect(
-    account.getByRole('link', { name: 'Change in AI' }),
+    account.getByRole('button', { name: 'Change in AI' }),
   ).toBeVisible()
   for (const name of [
     'Sign out on this device',

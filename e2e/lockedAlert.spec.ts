@@ -79,7 +79,11 @@ test('locked notebooks: pop-up once, Later leaves a banner, unlock clears both',
   await expect(b.getByTestId('locked-modal')).toHaveCount(0)
 
   await banner.getByRole('button', { name: 'Unlock' }).click()
-  await expect(b).toHaveURL(/#\/settings\/sync/)
+  // Unlock opens the Account row (account.syncNow); its link goes to Sync.
+  await b
+    .getByTestId('account-section')
+    .getByRole('button', { name: 'Unlock in Sync' })
+    .click()
   await sb.getByLabel('Passphrase', { exact: true }).fill(PASS)
   await sb.getByRole('button', { name: 'Unlock' }).click()
   await expect(b.getByTestId('sync-status')).toContainText('Last synced', {

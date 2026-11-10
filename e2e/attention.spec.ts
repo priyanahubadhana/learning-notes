@@ -67,10 +67,18 @@ test('Drive reconnect banner, one tap, update merged, one at a time', async ({
   await page.evaluate(() =>
     localStorage.setItem('learning-notes:sync.mockDrive', 'tap'),
   )
-  await page.evaluate(() =>
-    document.dispatchEvent(new Event('visibilitychange')),
-  )
-  await expect(banner(page)).toHaveAttribute('data-code', 'driveTap')
+  // A sync already running on a slow machine skips one nudge; nudge again.
+  await expect
+    .poll(
+      async () => {
+        await page.evaluate(() =>
+          document.dispatchEvent(new Event('visibilitychange')),
+        )
+        return banner(page).getAttribute('data-code', { timeout: 1000 })
+      },
+      { timeout: 20_000 },
+    )
+    .toBe('driveTap')
   await expect(banner(page)).toHaveCount(1)
   await banner(page).getByRole('button', { name: 'Reconnect Drive' }).click()
   // Fixed: the update offer comes back in the same spot.

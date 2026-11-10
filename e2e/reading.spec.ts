@@ -166,6 +166,8 @@ test('the Settings screen has a Reading section with every choice', async ({
 test('theme, font, size, spacing, margin and width change the page and are remembered', async ({
   page,
 }) => {
+  // Room for the 920 px Wide page beside the sidebar.
+  await page.setViewportSize({ width: 1400, height: 800 })
   await startBook(page)
   await readSwitch(page).click()
   const panel = await openPanel(page, 'Text size', LOOK)

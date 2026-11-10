@@ -9,7 +9,7 @@ import { getAppActions } from '../app/tools/toolRuntime'
 import { db } from '../core/db'
 import type { MetaValue } from '../core/types'
 import { t } from '../i18n/t'
-import { setOpenPage, setRowSink } from '../core/rowCapture'
+import { installRowCapture, setOpenPage, setRowSink } from '../core/rowCapture'
 import type { RowChange } from '../core/rowTypes'
 import {
   historyState,
@@ -91,6 +91,7 @@ export const ready = (scope: string): Promise<void> =>
   journal(scope).loaded ?? Promise.resolve()
 
 setOpenPage(() => active)
+installRowCapture(db)
 
 function publish(): void {
   const j = active ? journals.get(active) : undefined

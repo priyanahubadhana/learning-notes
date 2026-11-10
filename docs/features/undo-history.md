@@ -22,7 +22,7 @@ Every change a person makes to a page can be taken back from one Undo button, in
 - Changing page throws away the closures of the old page's editors (`release`); data steps stay.
 - A click below the last line that adds an empty line is a real change and a real step.
 - `HISTORY_TABLES` (rowCapture) lists what is recorded; every other table must be listed as "not an action" in `pageHistory.test.ts`, so a new table cannot be forgotten.
-- First download budget: only the facade and the hooks are in the first load.
+- First download budget: only the facade (core/historySteps.ts) is in the first load; the journal and the database hooks load in the background right after start.
 
 ## Security check
 

@@ -41,11 +41,10 @@ async function newBox(page: Page, n: number, text = 'Box') {
 }
 
 async function pickFrame(page: Page, box: Locator) {
-  // A tap on the frame (the band just outside the top edge) selects the box.
-  // Mid-screen first: at the top the main bar would cover the band (iPad WebKit).
-  await box.evaluate((el) => el.scrollIntoView({ block: 'center' }))
+  // A tap on the frame (the band just below the bottom edge) selects the box.
+  // The bottom edge: at the top of a scrolled page the main bar would cover the top band.
   await box.hover()
-  const b = await rect(box.locator('[data-box-band="top"]'))
+  const b = await rect(box.locator('[data-box-band="bottom"]'))
   await page.mouse.click(b.x + b.width / 2, b.y + b.height / 2)
 }
 
@@ -299,26 +298,20 @@ test('a Pencil tap on a strip button presses it and inks nothing', async ({
   const btn = pill(page, 'text').getByLabel('Box style')
   await btn.evaluate((el) => el.scrollIntoView({ block: 'nearest' }))
   await expect(btn).not.toHaveAttribute('aria-disabled', 'true')
-  const b = (await btn.boundingBox())!
-  await page.evaluate(
-    ({ x, y }) => {
-      const make = (n: string) =>
-        new PointerEvent(n, {
-          pointerType: 'pen',
-          pointerId: 31,
-          clientX: x,
-          clientY: y,
-          bubbles: true,
-          cancelable: true,
-          isPrimary: true,
-          buttons: n === 'pointerup' ? 0 : 1,
-        })
-      const el = document.elementFromPoint(x, y)!
-      el.dispatchEvent(make('pointerdown'))
-      el.dispatchEvent(make('pointerup'))
-    },
-    { x: b.x + b.width / 2, y: b.y + b.height / 2 },
-  )
+  // The pen's pointer events go to the button itself (no hit test).
+  await btn.evaluate((el) => {
+    const make = (n: string) =>
+      new PointerEvent(n, {
+        pointerType: 'pen',
+        pointerId: 31,
+        bubbles: true,
+        cancelable: true,
+        isPrimary: true,
+        buttons: n === 'pointerup' ? 0 : 1,
+      })
+    el.dispatchEvent(make('pointerdown'))
+    el.dispatchEvent(make('pointerup'))
+  })
   await expect(panel(page)).toBeVisible()
   void tool
 })

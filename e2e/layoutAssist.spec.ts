@@ -134,9 +134,13 @@ test('dragging a thumbnail onto a zone fills it', async ({ page }) => {
     'Box 2',
   )
   await page.locator('[data-layout-done]').click()
-  const r0 = await rect(extra.nth(0))
-  const r1 = await rect(extra.nth(1))
-  expect(Math.abs(r0.y - r1.y)).toBeLessThan(6)
+  await expect
+    .poll(async () => {
+      const r0 = await rect(extra.nth(0))
+      const r1 = await rect(extra.nth(1))
+      return Math.abs(r0.y - r1.y) < 6
+    })
+    .toBe(true)
 })
 
 test('recent layouts come first next time', async ({ page }) => {

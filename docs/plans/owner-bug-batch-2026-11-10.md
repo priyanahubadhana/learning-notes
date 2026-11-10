@@ -61,6 +61,7 @@ Collected from the owner's iPad pass; fix all in one go when the owner says so.
 ## Progress (builder B)
 
 - Done 10 Nov: 5 (card list rows; table rows not yet), 6, 7, 9 (Pencil tap to Lasso is builder A), 10, 13, 14.
+- Done 10 Nov: 22a-d, f, g, i, j (the line split comes with the gap; builder A still owns 22e and 22h input ownership and the placement mode).
 
 ## Build split (10 Nov)
 

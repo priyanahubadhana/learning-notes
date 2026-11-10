@@ -86,7 +86,7 @@ export interface PdfViewProps {
   /** Jump to a locator; a new `nonce` repeats the jump. `glow` flashes an annotation. */
   target?: { at: string; nonce: number; glow?: string } | null
   onReady: (info: { pageCount: number }) => void
-  /** The opened document (for Find, Liquid mode and Page Flip previews). */
+  /** The opened document (for Find, the left panel and Page Flip previews). */
   onDoc?: (doc: PDFDocumentProxy) => void
   /** Pinch zoom: the new zoom (1 = fit width). */
   onZoom?: (zoom: number) => void

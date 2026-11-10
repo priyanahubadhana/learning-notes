@@ -46,7 +46,6 @@ import { SelectionPopup } from './annotations/SelectionPopup'
 import type { OutlineItem, PdfSelection } from './pdf/PdfView'
 import { FindPanel } from './pdf/FindPanel'
 import { pageText } from './pdf/pdfSearch'
-import { LiquidView } from './extras/LiquidView'
 import { applyOrientation } from './extras/orientation'
 import { PageFlip } from './extras/PageFlip'
 import {
@@ -137,7 +136,6 @@ export function BookReader({
     locator: string
     where: string
   } | null>(null)
-  const [liquid, setLiquid] = useState(false)
   const [wordsPerPage, setWordsPerPage] = useState(300)
   const [orient] = useDeviceSetting(readingOrientSetting)
   const [outline, setOutline] = useState<OutlineItem[]>([])
@@ -303,7 +301,7 @@ export function BookReader({
   // A jump or a pause is not reading.
   useEffect(() => {
     speed.current.reset()
-  }, [target?.nonce, command?.nonce, liquid])
+  }, [target?.nonce, command?.nonce])
   useEffect(() => {
     const onHide = () =>
       document.visibilityState === 'hidden' && speed.current.reset()
@@ -664,19 +662,6 @@ export function BookReader({
             >
               {t('reader.find')}
             </button>
-            <button
-              type="button"
-              data-testid="reader-liquid"
-              aria-pressed={liquid}
-              disabled={noText}
-              className={`${panelBtn(liquid)} disabled:opacity-40`}
-              onClick={() => {
-                setFlipOpen(false)
-                setLiquid((v) => !v)
-              }}
-            >
-              {t('reader.liquid')}
-            </button>
           </>
         )}
         <button
@@ -702,8 +687,7 @@ export function BookReader({
           type="button"
           data-testid="reader-flip"
           aria-pressed={flipOpen}
-          disabled={liquid}
-          className={`${panelBtn(flipOpen)} disabled:opacity-40`}
+          className={panelBtn(flipOpen)}
           onClick={() => setFlipOpen((v) => !v)}
         >
           {t('reader.flip')}
@@ -846,58 +830,7 @@ export function BookReader({
             />
           )}
         </Suspense>
-        {liquid && pdfDoc && format === 'pdf' && (
-          <div
-            data-chrome
-            className="absolute inset-0 z-10 flex flex-col bg-bg"
-            data-testid="liquid-layer"
-          >
-            <div className="flex items-center justify-between gap-2 border-b border-line px-3 py-1 text-xs text-muted">
-              <span className="flex-1">{t('reader.liquid.beta')}</span>
-              <button
-                type="button"
-                aria-label={t('bookreader.epubSmaller')}
-                className={panelBtn(false)}
-                onClick={() => setEpubSize((n) => stepSize(n, -1))}
-              >
-                A−
-              </button>
-              <button
-                type="button"
-                aria-label={t('bookreader.epubLarger')}
-                className={panelBtn(false)}
-                onClick={() => setEpubSize((n) => stepSize(n, 1))}
-              >
-                A+
-              </button>
-              <button
-                type="button"
-                data-testid="liquid-original"
-                className="min-h-11 rounded-lg border border-line px-3 text-sm text-ink hover:bg-hover"
-                onClick={() => {
-                  setLiquid(false)
-                  goPage(pageNo)
-                }}
-              >
-                {t('reader.liquid.original')}
-              </button>
-            </div>
-            <LiquidView
-              doc={pdfDoc}
-              startPage={pageNo}
-              size={epubSize}
-              onPage={(p) =>
-                report(
-                  pageCount ? (p - 1) / pageCount : 0,
-                  `pdf:${p}:0`,
-                  t('bookreader.pageShort', { page: p }),
-                  p,
-                )
-              }
-            />
-          </div>
-        )}
-        {flipOpen && !liquid && (
+        {flipOpen && (
           <PageFlip
             doc={format === 'pdf' ? pdfDoc : null}
             pageCount={format === 'pdf' ? pageCount : 0}
@@ -970,7 +903,6 @@ export function BookReader({
                 noText={noText}
                 onJump={(p) => {
                   setPanel(null)
-                  setLiquid(false)
                   goPage(p)
                 }}
               />

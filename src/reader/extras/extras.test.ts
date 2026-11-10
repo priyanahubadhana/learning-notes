@@ -1,7 +1,6 @@
 // @vitest-environment jsdom
 import { beforeEach, describe, expect, it } from 'vitest'
 import { applyOrientation } from './orientation'
-import { liquidBlocks, type TextPiece } from './liquid'
 import {
   DEFAULT_WPM,
   SpeedTracker,
@@ -69,42 +68,6 @@ describe('orientation lock', () => {
       },
     }
     expect(await applyOrientation('portrait', refuses)).toBe('refused')
-  })
-})
-
-const piece = (str: string, x: number, y: number, h = 10): TextPiece => ({
-  str,
-  transform: [h, 0, 0, h, x, y],
-  height: h,
-})
-
-describe('liquid mode grouping', () => {
-  it('finds a heading, joins lines into paragraphs and mends hyphens', () => {
-    const blocks = liquidBlocks([
-      piece('Valves', 50, 700, 20),
-      piece('Blood flows through the', 50, 660),
-      piece('heart in one direc-', 50, 648),
-      piece('tion only.', 50, 636),
-      // A bigger gap starts a new paragraph.
-      piece('The aortic valve', 50, 600),
-      piece('opens first.', 50, 588),
-    ])
-    expect(blocks).toEqual([
-      { kind: 'heading', text: 'Valves' },
-      {
-        kind: 'paragraph',
-        text: 'Blood flows through the heart in one direction only.',
-      },
-      { kind: 'paragraph', text: 'The aortic valve opens first.' },
-    ])
-  })
-
-  it('puts pieces of one line together in left-to-right order, and gives nothing for no text', () => {
-    expect(
-      liquidBlocks([piece('world', 100, 500), piece('Hello', 50, 500.2)]),
-    ).toEqual([{ kind: 'paragraph', text: 'Hello world' }])
-    expect(liquidBlocks([])).toEqual([])
-    expect(liquidBlocks([piece('   ', 1, 1)])).toEqual([])
   })
 })
 

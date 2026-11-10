@@ -2,7 +2,7 @@
 import { expect, test, type Page } from '@playwright/test'
 import { makeEpub, makePdf } from './fixtures/books.ts'
 
-/** Wave 5 part A, C5 and C2b: Page Flip, time left, Liquid mode, Find in a PDF. */
+/** Wave 5 part A, C5 and C2b: Page Flip, time left, Find in a PDF. */
 
 test.use({ viewport: { width: 1200, height: 800 } })
 
@@ -69,21 +69,6 @@ test('Find in a PDF lists matches and jumps to the page', async ({ page }) => {
   await page.getByTestId('reader-find').click()
   await page.getByTestId('pdf-find-input').fill('zzzz')
   await expect(page.getByText('No matches.')).toBeVisible()
-})
-
-test('Liquid mode reflows the text and Show original returns to the page', async ({
-  page,
-}) => {
-  await openPdf(page)
-  await page.getByTestId('reader-liquid').click()
-  const liquid = page.getByTestId('liquid-view')
-  await expect(liquid).toContainText('Alpha page words here')
-  await expect(page.getByTestId('liquid-layer')).toContainText(
-    'Liquid mode (beta)',
-  )
-  await page.getByTestId('liquid-original').click()
-  await expect(page.getByTestId('liquid-layer')).toHaveCount(0)
-  await expect(page.getByTestId('pdf-scroller')).toBeVisible()
 })
 
 test('Pinch zoom: two fingers spreading zoom a PDF in', async ({ page }) => {

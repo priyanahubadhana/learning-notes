@@ -1011,7 +1011,6 @@ body:has([data-ink-pad]) [data-sel-handle]::after {
   }
 }
 
-<<<<<<< HEAD
 /* Item 14 (10 Nov): the caret is easy to see on every paper: accent colour,
    full contrast. Its width is the browser's (thin, precise); only colour
    changes, so it never covers a neighbouring letter. */
@@ -1042,7 +1041,8 @@ body:has([data-ink-pad]) [data-sel-handle]::after {
 }
 [data-page-scroller][data-pagebar]::-webkit-scrollbar {
   display: none;
-=======
+}
+
 /* Owner item 21: the Lasso selection appears softly (fade and a small scale,
    about 220 ms, ease-out) and leaves in 150 ms; reduced motion: instant. */
 @keyframes ln-select-in {
@@ -1084,5 +1084,4 @@ body:has([data-ink-pad]) [data-sel-handle]::after {
 [data-select-leaving] * {
   animation: none !important;
   pointer-events: none !important;
->>>>>>> f04cfa2 (Owner bug batch A: Lasso outline, margin start, stale selection, grip-drag cause, tools boundary, fade, selection look (items 1, 2, 15, 17, 21, 42))
 }

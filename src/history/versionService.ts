@@ -4,6 +4,8 @@ import { inkSnapshot, restoreInk } from '../core/inkService'
 import type { InkSnapshot } from '../core/inkTypes'
 import { newRecordFields } from '../core/records'
 import type { PageVersion, VersionBlock } from '../core/types'
+import { t } from '../i18n/t'
+import { pushStep, quietAsync } from '../core/historySteps'
 import { getPage, renamePage } from '../pages/pageService'
 import { syncCardRecords } from '../recall/cardService'
 
@@ -192,6 +194,29 @@ export async function restoreVersion(
   db: LearningNotesDB,
   versionId: string,
 ): Promise<void> {
+  // The restore is one step of the page's Undo list, written below; the many
+  // writes inside it are not steps of their own.
+  let pageId = ''
+  let before = ''
+  await quietAsync(() =>
+    doRestore(db, versionId, (p, b) => {
+      pageId = p
+      before = b
+    }),
+  )
+  if (before)
+    pushStep({
+      kind: 'restore',
+      label: t('history.restoreStep'),
+      data: { pageId, to: versionId, from: before },
+    })
+}
+
+async function doRestore(
+  db: LearningNotesDB,
+  versionId: string,
+  made: (pageId: string, before: string) => void,
+): Promise<void> {
   await db.transaction(
     'rw',
     [
@@ -205,10 +230,15 @@ export async function restoreVersion(
     async () => {
       const version = await db.pageVersions.get(versionId)
       if (!version) throw new Error('That copy no longer exists')
-      await recordVersion(db, version.pageId, {
+      const kept = await recordVersion(db, version.pageId, {
         force: true,
         reason: 'before-restore',
       })
+      // Nothing new is kept when the page is the same as its newest copy.
+      made(
+        version.pageId,
+        kept?.id ?? (await listVersions(db, version.pageId))[0]?.id ?? '',
+      )
       // Copies made before 11 Nov 2026 hold no box layout: those leave the
       // live boxes alone (everything else is restored).
       const hasLayout = version.bytes !== undefined

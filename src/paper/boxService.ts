@@ -1,3 +1,4 @@
+import { quietTx } from '../core/historySteps'
 import type { LearningNotesDB } from '../core/db'
 import { createId } from '../core/ids'
 import {
@@ -373,6 +374,7 @@ export async function repairBoxes(
   ]
   const gone = new Set(drop.map((b) => b.id))
   await db.transaction('rw', db.pages, db.blocks, async () => {
+    quietTx() // an automatic repair is not an Undo step
     if (ids.length) await softDeleteMany(db.blocks, ids, Date.now())
     if (gone.size)
       await writeBoxes(db, pageId, (all) => all.filter((b) => !gone.has(b.id)))

@@ -12,6 +12,14 @@ import {
 import { runEditorCommand } from './editorCommands'
 import type { IconName } from './icons'
 import { currentRunner, type Runner } from './toolRuntime'
+import { runHistory } from '../../editor/historyActions'
+import { redo, undo } from '../../core/historySteps'
+
+/** Undo / Redo work on the open page, with or without a text editor. */
+function historyRun(r: Runner, kind: 'undo' | 'redo'): void {
+  if (r.editor) runHistory(r.editor, kind)
+  else void (kind === 'undo' ? undo() : redo())
+}
 import { toggleRibbonBehaviour } from './toolbarState'
 import { toggleToolBar } from './toolbarVisibility'
 import {
@@ -296,6 +304,7 @@ export const TOOLS: readonly ToolDef[] = [
   {
     id: 'undo',
     icon: 'undo',
+    run: (r) => historyRun(r, 'undo'),
     repeat: true,
     section: 'home',
     group: 'undoRedo',
@@ -304,6 +313,7 @@ export const TOOLS: readonly ToolDef[] = [
   {
     id: 'redo',
     icon: 'redo',
+    run: (r) => historyRun(r, 'redo'),
     repeat: true,
     section: 'home',
     group: 'undoRedo',

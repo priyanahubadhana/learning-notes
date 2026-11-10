@@ -8,9 +8,7 @@ import {
 } from '../../settings/readingSettings'
 import { AppUiContext } from '../appUi'
 import { requestOutline } from '../panel/outlineRequest'
-import { runHistory } from '../../editor/historyActions'
-import { currentRunner } from '../tools/toolRuntime'
-import { useReaderHistory } from './useReaderHistory'
+import { HistoryButtons } from '../tools/HistoryButtons'
 import { MenuPopover, type MenuItem } from '../ui'
 import { Icon, type IconName } from '../tools/icons'
 import {
@@ -83,7 +81,6 @@ export function ReaderControls({
   const { toast } = useContext(AppUiContext)
   const panel = readingPanel.useValue()
   const locked = readingLocked.useValue()
-  const history = useReaderHistory()
   const [ruler] = useDeviceSetting(readingRulerSetting)
   const [blanks] = useDeviceSetting(readingBlanksSetting)
   const [pin, setPin] = useDeviceSetting(readingBarPinSetting)
@@ -163,31 +160,12 @@ export function ReaderControls({
         borderColor: 'var(--rd-soft, #ccc)',
       }}
     >
+      <HistoryButtons />
       <Button
         label={t('reading.ctl.exit')}
         icon="close"
         testId="reader-exit"
         onClick={exit}
-      />
-      <Button
-        label={t('tool.undo')}
-        icon="undo"
-        testId="reader-undo"
-        disabled={!history.canUndo}
-        onClick={() => {
-          const ed = currentRunner().editor
-          if (ed) runHistory(ed as never, 'undo')
-        }}
-      />
-      <Button
-        label={t('tool.redo')}
-        icon="redo"
-        testId="reader-redo"
-        disabled={!history.canRedo}
-        onClick={() => {
-          const ed = currentRunner().editor
-          if (ed) runHistory(ed as never, 'redo')
-        }}
       />
       <Button
         label={t('reading.ctl.contents')}

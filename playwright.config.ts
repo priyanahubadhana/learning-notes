@@ -137,6 +137,7 @@ export default defineConfig({
         /resume/,
         /ownerLasso/,
         /ownerPlacement/,
+        /undoHistory/,
       ],
       use: { ...devices['iPad Pro 11'], hasTouch: true },
       expect: { timeout: 15_000 },

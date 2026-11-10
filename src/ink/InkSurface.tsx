@@ -352,7 +352,6 @@ export function InkSurface({
         controller.syncPad()
         if (activeTool.get() !== 'lasso') controller.clearSelection()
       })
-      const offText = editor.onChange(() => controller.noteTextChange())
       const offReg = (register ? registerInk : () => () => {})({
         editor,
         controller,
@@ -382,7 +381,6 @@ export function InkSurface({
         offDoc()
         offCtl()
         offTool()
-        if (typeof offText === 'function') offText()
         offReg()
         controller.destroy()
         void doc.dispose()

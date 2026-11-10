@@ -119,3 +119,7 @@ function writeStates(
   if (values.length === 0) return undefined
   return states.mutate({ type: 'put', trans: req.trans, values })
 }
+
+/** Is this transaction applying records pulled from another device? */
+export const isRemoteTrans = (idbtrans: object | undefined): boolean =>
+  !!idbtrans && remote.has(idbtrans)

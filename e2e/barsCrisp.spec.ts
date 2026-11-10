@@ -74,6 +74,6 @@ test('reader top bar is crisp and covers the app header', async ({ page }) => {
 test('reader bar has Undo and Redo, in place', async ({ page }) => {
   await startBook(page)
   await readSwitch(page).click()
-  await expect(controls(page).getByTestId('reader-undo')).toBeVisible()
-  await expect(controls(page).getByTestId('reader-redo')).toBeVisible()
+  await expect(controls(page).getByTestId('history-undo')).toBeVisible()
+  await expect(controls(page).getByTestId('history-redo')).toBeVisible()
 })

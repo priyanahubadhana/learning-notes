@@ -1,6 +1,7 @@
 import Dexie, { type EntityTable, type Transaction } from 'dexie'
 import { t, type MessageKey } from '../i18n/t'
 import { searchIndexMiddleware } from '../search/indexMiddleware'
+import { installRowCapture } from './rowCapture'
 import { syncOutboxMiddleware } from '../sync/outbox'
 import type {
   DayPlan,
@@ -337,6 +338,8 @@ export class LearningNotesDB extends Dexie {
     this.use(searchIndexMiddleware)
     // Every save of a synced table marks it for sync (sync/outbox.ts).
     this.use(syncOutboxMiddleware)
+    // Writes that are actions become Undo steps (core/rowCapture.ts).
+    installRowCapture(this)
   }
 }
 

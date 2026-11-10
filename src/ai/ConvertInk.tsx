@@ -1,3 +1,4 @@
+import { undo } from '../core/historySteps'
 import { useLiveQuery } from 'dexie-react-hooks'
 import { createPortal } from 'react-dom'
 import { useContext, useEffect, useState } from 'react'
@@ -10,7 +11,7 @@ import { t } from '../i18n/t'
 interface InkController {
   selected(): { blockId: string | null }[]
   deleteSelection(): void
-  undo(): boolean
+  undo(): void
 }
 import { aiLockedBlock, blocker, forNotebook, readAiConfig } from './aiRun'
 import { AiError, PROVIDERS, type AiImage } from './provider'
@@ -125,17 +126,16 @@ export function ConvertInk({
         : value
             .split(/\n+/)
             .map((line) => ({ type: 'paragraph', content: line }))
-    const made = ref
-      ? editor.insertBlocks(blocks as never, ref, 'after')
-      : editor.insertBlocks(blocks as never, doc[0], 'before')
-    const ids = made.map((b) => b.id)
+    if (ref) editor.insertBlocks(blocks as never, ref, 'after')
+    else editor.insertBlocks(blocks as never, doc[0], 'before')
     if (replace) controller.deleteSelection()
     onClose()
     toast(t('ai.convert.inserted'), {
       label: t('annot.undo'),
       onSelect: () => {
-        editor.removeBlocks(ids)
-        if (replace) controller.undo()
+        // The inserted text, and with Replace the deleted ink: two steps of the
+        // page's history, newest first.
+        void undo().then(() => (replace ? undo() : undefined))
       },
     })
   }

@@ -1,4 +1,5 @@
 import { centreEl } from './app/centreEl'
+import { setActiveScope } from './core/historySteps'
 import { useLiveQuery } from 'dexie-react-hooks'
 import {
   lazy,
@@ -591,6 +592,16 @@ function App() {
               ? { kind: 'page', id: currentPageId }
               : { kind: 'home' }
   const routeHash = routeToHash(route)
+  // Undo works on the open page (or database): one history for each.
+  const historyScope =
+    route.kind === 'page'
+      ? `page:${route.id}`
+      : route.kind === 'read'
+        ? `page:${route.pageId}`
+        : route.kind === 'database'
+          ? `db:${route.id}`
+          : null
+  useEffect(() => setActiveScope(historyScope), [historyScope])
   const routeHashRef = useRef(routeHash)
   useEffect(() => {
     routeHashRef.current = routeHash

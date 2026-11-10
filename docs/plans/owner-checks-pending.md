@@ -2,6 +2,10 @@
 
 Moved out of HANDOFF on 2026-11-06 (audit) so HANDOFF stays five lines. Newest first; each paragraph names its step. The run decision (master plan) is one owner iPad pass before Sync; the Phase A builder adds its checks at the top. Tick a paragraph by deleting it.
 
+## iPad checks: one Undo history (Builder D, 10 Nov)
+
+On the iPad: (1) Type a line, draw a stroke, move a box, change the paper style, add a tag, then tap Undo 5 times: each change goes back in that order and Redo brings it forward; a stray Enter, comma or pen tap can be undone. (2) Make 30 small changes (words, strokes, box moves) and Undo 30 times: still going. (3) Delete a box and Undo from the tool bar: the box and its lines come back. (4) Restore an old version in Page history, then Undo: the page returns to how it was. (5) Open a book (PDF and EPUB) and a note in reading mode: the Undo/Redo pair is the first thing at the top left on every screen, and the Pen strip has no Undo/Redo words. (6) Switch to another app and back, then Undo: it still works. Reload the app: Undo still walks back through box and paper changes (typing and drawing start fresh). Why human: Pencil timing and real iPadOS app switching.
+
 ## Builder G checks (10 Nov)
 
 (0) Text tool: press and hold still on text with finger, Pencil and mouse for 1 s: our menu (Paste, Select, Select all, Insert) opens at that spot, never the iOS callout. Settings › Advanced › Press-and-hold menu time changes the delay. (1) Lasso tool, tap a text box once: the frame and box bar show, no keyboard. Tap again: caret where you tapped; again: word; again: line; again: paragraph. Same with finger, Pencil and mouse. Text tool: 1 caret, 2 word, 3 line, 4 paragraph. Tap bare paper: the box is deselected. (2) Drag a box by its grip while sync shows "Changed on two devices": the bar shows once and the box moves smoothly without white lines.

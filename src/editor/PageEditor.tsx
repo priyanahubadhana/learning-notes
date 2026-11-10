@@ -52,6 +52,8 @@ import { AppFormattingToolbar } from './SelectionToolbar'
 import { DockedBar } from './DockedBar'
 import { watchDragSelect } from './dragSelect'
 import { ownSelection } from './ownSelection'
+import { pageHistoryExtension } from './historyExtension'
+import { attachEditor } from '../core/historySteps'
 import { handleScrollToSelection } from './scrollPolicy'
 import { penTransactionGuard, watchPenGuard } from './penGuard'
 import {
@@ -333,11 +335,14 @@ function LoadedPageEditor({
   const editor = useCreateBlockNote({
     schema,
     initialContent,
+    // Our deeper history replaces the default one (historyExtension.ts).
+    disableExtensions: ['history'],
     extensions: [
       codeBlockKeys,
       linkTrigger,
       penTransactionGuard,
       ownSelection,
+      pageHistoryExtension,
       pagination,
       paginationSpacers,
     ],
@@ -392,6 +397,9 @@ function LoadedPageEditor({
       tagDrafts(editorToDrafts(editor.document), boxId),
     ),
   )
+
+  // Every box feeds the page's one Undo history.
+  useEffect(() => attachEditor(editor, boxId ?? MAIN_BOX), [editor, boxId])
 
   // Phase Q: a box other than the default one (no ink, no page controls yet).
   const extraBox = !!boxId && boxId !== MAIN_BOX

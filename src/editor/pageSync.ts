@@ -1,3 +1,4 @@
+import { quietTx } from '../core/historySteps'
 import { saveBlockChanges } from '../core/blockService'
 import type { LearningNotesDB } from '../core/db'
 import type { Block } from '../core/types'
@@ -96,7 +97,9 @@ export function createPageSync(
     try {
       // One transaction: a saved Card block (new, pasted or duplicated) never
       // ends up without its review schedule.
+      // The text has its own Undo steps: this save is not a new one.
       await db.transaction('rw', db.pages, db.blocks, db.cards, async () => {
+        quietTx()
         await saveBlockChanges(db, pageId, changes)
         await syncCardRecords(db, pageId)
       })

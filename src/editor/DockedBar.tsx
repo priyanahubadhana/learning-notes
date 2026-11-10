@@ -29,8 +29,7 @@ import { AppUiContext } from '../app/appUi'
 import { isApple } from '../app/keys'
 import { t } from '../i18n/t'
 import { useBarSettings } from '../settings/deviceModeSettings'
-import { redoDepth, undoDepth } from 'prosemirror-history'
-import { inkFor } from '../ink/inkRuntime'
+import { historyState } from '../core/historySteps'
 import { padHistoryState } from './writePad/padHistory'
 import { MainBarRow } from '../app/tools/main/MainBar'
 import { HoverName } from '../app/tools/HoverName'
@@ -110,45 +109,6 @@ function useToolActive(editor: Editor): (id: string) => boolean {
   }
 }
 
-/** Is there anything to undo or redo? Re-read whenever the page changes. */
-function useHistoryState(editor: Editor) {
-  const read = () => {
-    const state = editor.prosemirrorView?.state
-    // Drawings are part of the same history (ink/inkHistory.ts).
-    const ink = inkFor(editor)?.history
-    return state
-      ? {
-          canUndo: undoDepth(state) > 0 || !!ink?.canUndo,
-          canRedo: redoDepth(state) > 0 || !!ink?.canRedo,
-        }
-      : { canUndo: false, canRedo: false }
-  }
-  const [value, setValue] = useState(read)
-  useEffect(() => {
-    const update = () => {
-      const next = read()
-      setValue((old) =>
-        old.canUndo === next.canUndo && old.canRedo === next.canRedo
-          ? old
-          : next,
-      )
-    }
-    update()
-    const offChange = editor.onChange(update)
-    const offSelect = editor.onSelectionChange(update)
-    // Also on a timer: some transactions (a restore, an undo from a menu) do
-    // not raise either event, and a stale grey button would do nothing.
-    const timer = window.setInterval(update, 400)
-    return () => {
-      offChange?.()
-      offSelect?.()
-      window.clearInterval(timer)
-    }
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [editor])
-  return value
-}
-
 function Bar({ editor, slot }: { editor: Editor; slot: HTMLElement }) {
   const settings = useBarSettings()
   const { buttonPx, hoverTips, shortcutHints, autoHide } = settings
@@ -182,7 +142,7 @@ function Bar({ editor, slot }: { editor: Editor; slot: HTMLElement }) {
   const [freeFraction, setFreeFraction] = useState(1)
   const editorFocused = useEditorFocus()
   const isActive = useToolActive(editor)
-  const pageHistory = useHistoryState(editor)
+  const pageHistory = historyState.useValue()
   const pad = padHistoryState.useValue()
   const history = {
     canUndo: pageHistory.canUndo || pad.canUndo,

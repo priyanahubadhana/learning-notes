@@ -8,7 +8,6 @@ import {
   highlighterSettings,
   penSettings,
 } from '../app/tools/main/inkSettings'
-import { useInk } from '../ink/inkRuntime'
 import { t } from '../i18n/t'
 import type { InkBarMode } from './readStyle'
 
@@ -37,7 +36,6 @@ export function ReaderInkBar({
   const tool = activeTool.useValue()
   const pen = penSettings.useValue()
   const hl = highlighterSettings.useValue()
-  const api = useInk()
   // Drawing starts with the Pen.
   useEffect(() => {
     if (!TOOLS.includes(activeTool.get() as (typeof TOOLS)[number])) {
@@ -178,22 +176,6 @@ export function ReaderInkBar({
         </label>
       )}
       <span className="flex-1" />
-      <button
-        type="button"
-        data-testid="reader-ink-undo"
-        className={btn(false)}
-        onClick={() => api?.controller.undo()}
-      >
-        {t('reader.ink.undo')}
-      </button>
-      <button
-        type="button"
-        data-testid="reader-ink-redo"
-        className={btn(false)}
-        onClick={() => api?.controller.redo()}
-      >
-        {t('reader.ink.redo')}
-      </button>
       <button
         type="button"
         data-testid="reader-ink-done"

@@ -88,6 +88,7 @@ import {
 import { readingEntrySetting } from '../settings/readingSettings'
 import { openReader } from '../app/reading/readingTools'
 import { Glyph, Icon } from '../app/tools/icons'
+import { setPageReloader } from '../core/historySteps'
 
 const PromptsDialog = lazy(() => import('../prompts/PromptsDialog'))
 
@@ -147,6 +148,8 @@ export function PageView({
   header,
 }: PageViewProps) {
   const { toast } = useContext(AppUiContext)
+  // Undo of a restored version redraws the page from the database.
+  useEffect(() => setPageReloader(onReload), [onReload])
   const path = useLiveQuery(() => getPagePath(db, page.id), [db, page.id]) ?? []
   const notebook = useLiveQuery(
     () => getNotebook(db, page.notebookId),

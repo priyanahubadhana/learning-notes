@@ -52,6 +52,7 @@ import {
 } from './readStyle'
 import { bookSource } from './aloud/bookText'
 import { setBookAloudHost } from './aloud/bookAloud'
+import { HistoryButtons } from '../app/tools/HistoryButtons'
 import { activeTool, type ModeTool } from '../app/tools/main/mainTools'
 import { SaveToSheet, type SaveTarget } from './annotations/SaveToSheet'
 import {
@@ -816,6 +817,7 @@ export function BookReader({
           full ? 'absolute inset-x-0 top-0 z-30 shadow-md' : ''
         }`}
       >
+        <HistoryButtons />
         <IconButton
           tip="reader.close"
           bare

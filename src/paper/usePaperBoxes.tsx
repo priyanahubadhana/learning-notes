@@ -1,3 +1,4 @@
+import { undoSince } from '../core/historySteps'
 import { useContext, useEffect, useRef, useState, type ReactNode } from 'react'
 import { AppUiContext } from '../app/appUi'
 import { runTask } from '../app/errors'
@@ -43,6 +44,9 @@ const DOTS: Record<string, string> = {
  * tap on empty paper makes one (the caret goes in), the grip and edges move
  * and resize it, and its ⋯ menu locks, duplicates, colours or deletes it.
  */
+/** The time an action starts (a toast's Undo checks nothing newer happened). */
+const stamp = (): number => Date.now()
+
 export function usePaperBoxes(
   db: LearningNotesDB,
   pageId: string,
@@ -185,6 +189,7 @@ export function usePaperBoxes(
     runTask(updateBox(db, pageId, id, patch))
 
   const onBoxesChange = (changes: BoxChange[]) => {
+    const since = stamp()
     runTask(
       updateBoxes(
         db,
@@ -195,11 +200,13 @@ export function usePaperBoxes(
         toast(t('paper.box.movedMany', { n: String(changes.length) }), {
           label: t('paper.box.undo'),
           onSelect: () =>
-            runTask(
-              updateBoxes(
-                db,
-                pageId,
-                changes.map(({ id, before }) => ({ id, patch: before })),
+            undoOr(since, () =>
+              runTask(
+                updateBoxes(
+                  db,
+                  pageId,
+                  changes.map(({ id, before }) => ({ id, patch: before })),
+                ),
               ),
             ),
         })
@@ -207,18 +214,27 @@ export function usePaperBoxes(
     )
   }
 
+  /** A toast's Undo: the page's history if the action is its newest step. */
+  const undoOr = (since: number, fallback: () => void) =>
+    void undoSince(since).then((ok) => {
+      if (!ok) fallback()
+    })
+
   const duplicate = (box: PaperBox) =>
     runTask(duplicateBox(db, pageId, box.id).then((id) => id && setFresh(id)))
-  const remove = (box: PaperBox) =>
-    runTask(
+  const remove = (box: PaperBox) => {
+    const since = stamp()
+    return runTask(
       removeBox(db, pageId, box.id).then((removed) => {
         if (!removed) return
         toast(t('paper.box.deleted'), {
           label: t('paper.box.undo'),
-          onSelect: () => runTask(restoreBox(db, pageId, removed)),
+          onSelect: () =>
+            undoOr(since, () => runTask(restoreBox(db, pageId, removed))),
         })
       }),
     )
+  }
 
   const items = (box: PaperBox): MenuItem[] => [
     {
@@ -270,16 +286,7 @@ export function usePaperBoxes(
       label: t('paper.box.delete'),
       icon: 'trash',
       danger: true,
-      onSelect: () =>
-        runTask(
-          removeBox(db, pageId, box.id).then((removed) => {
-            if (!removed) return
-            toast(t('paper.box.deleted'), {
-              label: t('paper.box.undo'),
-              onSelect: () => runTask(restoreBox(db, pageId, removed)),
-            })
-          }),
-        ),
+      onSelect: () => remove(box),
     },
   ]
 

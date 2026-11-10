@@ -107,6 +107,15 @@ import { MAX_LABEL, STRIDE } from '../core/inkTypes'
 import { selectGesture } from '../editor/gesture'
 import { mostlyInside } from './lassoMenu'
 import {
+  chainLast,
+  dropLast,
+  pushStep,
+  redo as historyRedo,
+  releaseOwner,
+  undo as historyUndo,
+} from '../core/historySteps'
+import { t as tr } from '../i18n/t'
+import {
   DEG,
   isDoubleTap,
   isShort,
@@ -356,7 +365,6 @@ export class InkController {
   private peeled = new Set<string>()
   /** Raised when the selection or what the overlay shows changed. */
   version = 0
-  private lastDepth = 0
   /** Lines seen on screen while this page is open (Phase Q rule 7). */
   private seenBlocks = new Set<string>()
   private noted = -1
@@ -665,6 +673,7 @@ export class InkController {
   }
 
   destroy(): void {
+    releaseOwner(this)
     cancelAnimationFrame(this.raf)
     window.clearTimeout(this.settleTimer)
     for (const c of this.cleanups) c()
@@ -1517,6 +1526,7 @@ export class InkController {
     if (!top || top.add.length !== 1 || top.add[0].stroke.id !== id) return
     if (top.del.length > 0 || top.layers.length > 0) return
     this.env.history.dropTop()
+    dropLast('ink')
     this.env.doc.revert(top)
     this.taps.takenBack++
     this.notify()
@@ -1529,6 +1539,14 @@ export class InkController {
     if (isEmptyEdit(edit)) return
     if (!alreadyApplied) this.env.doc.apply(edit)
     this.env.history.push(edit, this.env.textDepth())
+    // The page's one Undo list gets a step for it (core/historySteps.ts).
+    pushStep({
+      kind: 'ink',
+      label: tr('history.drawing'),
+      undo: () => this.undoStep(),
+      redo: () => this.redoStep(),
+      owner: this,
+    })
     this.notify()
   }
 
@@ -2622,11 +2640,9 @@ export class InkController {
       (e.key === 'z' || e.key === 'Z' || e.key === 'y' || e.key === 'Y')
     ) {
       const redo = e.key.toLowerCase() === 'y' || e.shiftKey
-      const used = redo ? this.redo() : this.undo()
-      if (used) {
-        e.preventDefault()
-        e.stopPropagation()
-      }
+      void (redo ? historyRedo() : historyUndo())
+      e.preventDefault()
+      e.stopPropagation()
       return
     }
     if (inText || this.env.frozen()) return
@@ -2659,6 +2675,7 @@ export class InkController {
     this.commit({ del, add: [], layers: [] })
     removeText()
     this.env.history.chainTop()
+    chainLast()
     this.notify()
   }
 
@@ -3041,9 +3058,18 @@ export class InkController {
 
   // ---- Undo and Redo (one history with the text) ----
 
-  undo(): boolean {
+  /** Undo from a menu: the page's one history (the newest step of any kind). */
+  undo(): void {
+    void historyUndo()
+  }
+
+  redo(): void {
+    void historyRedo()
+  }
+
+  /** The ink part of one history step: takes the newest drawing edit back. */
+  undoStep(): boolean {
     const { history, doc } = this.env
-    if (history.undoTarget(this.env.textDepth()) !== 'ink') return false
     const edit = history.takeUndo()
     if (!edit) return false
     doc.revert(edit)
@@ -3065,18 +3091,8 @@ export class InkController {
     this.notify()
   }
 
-  /** Is the newest step a drawings-and-text delete (one Undo for both)? */
-  undoIsChained(): boolean {
-    return this.env.history.undoIsChained(this.env.textDepth())
-  }
-
-  redoIsChained(): boolean {
-    return this.env.history.redoIsChained()
-  }
-
-  redo(): boolean {
+  redoStep(): boolean {
     const { history, doc } = this.env
-    if (history.redoTarget(this.env.textDepth()) !== 'ink') return false
     const edit = history.takeRedo()
     if (!edit) return false
     doc.apply(edit)
@@ -3088,13 +3104,6 @@ export class InkController {
   private dropMissingSelection(): void {
     this.selection = this.selection.filter((id) => this.env.doc.find(id))
     if (this.selection.length === 0) this.blockSel = []
-  }
-
-  /** Called when the text changed: ink Redo steps no longer fit after new typing. */
-  noteTextChange(): void {
-    const depth = this.env.textDepth()
-    if (depth > this.lastDepth) this.env.history.forgetRedo()
-    this.lastDepth = depth
   }
 }
 

@@ -130,9 +130,9 @@ test('a stroke on page 3 is saved against page 3; Undo and Redo work', async ({
   )
   await expectStrokes(page, 1)
   expect((await savedInk(page)).chunks[0].blockId).toBe('pdf:3')
-  await page.getByTestId('reader-ink-undo').click()
+  await page.getByTestId('history-undo').click()
   await expect.poll(async () => (await savedInk(page)).strokes.length).toBe(0)
-  await page.getByTestId('reader-ink-redo').click()
+  await page.getByTestId('history-redo').click()
   await expectStrokes(page, 1)
 })
 
@@ -219,4 +219,24 @@ test('EPUB: ink is anchored to its paragraph; Pages mode points to Scroll', asyn
     })
     .toBe(true)
   expect((await savedInk(page)).chunks[0].blockId).toBe(ink.chunks[0].blockId)
+})
+
+test('one Undo / Redo icon pair at the far left of the reader bar (item 35)', async ({
+  page,
+}) => {
+  await openPdf(page)
+  await page.getByTestId('reader-ink').click()
+  const bar = page.getByTestId('book-reader').locator('[data-chrome]').first()
+  const undo = page.getByTestId('history-undo')
+  await expect(undo).toBeVisible()
+  const [u, b] = await Promise.all([undo.boundingBox(), bar.boundingBox()])
+  // The pair starts at the left edge of the bar, before the close button.
+  expect(u!.x - b!.x).toBeLessThan(16)
+  const close = (await page.getByTestId('reader-close').boundingBox())!
+  expect(u!.x).toBeLessThan(close.x)
+  // The pen strip has no Undo / Redo words of its own.
+  await expect(page.getByTestId('reader-ink-bar')).not.toContainText(
+    /Undo|Redo/,
+  )
+  await expect(page.getByTestId('history-undo')).toHaveCount(1)
 })

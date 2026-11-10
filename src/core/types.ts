@@ -190,6 +190,12 @@ export interface Page extends BaseRecord {
    * made before Phase Q). See paper/boxes.ts.
    */
   boxes?: PaperBox[]
+  /**
+   * Box grid (bug batch item 26): how the boxes sit, in rows of 1-3 columns.
+   * Unset = not arranged yet (derived from the boxes on open and written on
+   * the first change). See paper/grid.ts.
+   */
+  rows?: GridRow[]
   /** Phase Q: sheet size. Unset = A4. */
   sheet?: 'A4' | 'Letter'
 }
@@ -198,6 +204,19 @@ export interface Page extends BaseRecord {
  * Phase Q: a block box on the paper. Units are millimetres from the top-left
  * of the paper (sheets stacked top to bottom); the height follows the text.
  */
+/** A column of a grid row: a width (fraction of the row) and 1-2 boxes stacked. */
+export interface GridCol {
+  w: number
+  boxIds: string[]
+}
+
+/** A row of the box grid: 1-3 columns; `y` (mm) is the least top it may have. */
+export interface GridRow {
+  id: string
+  y?: number
+  cols: GridCol[]
+}
+
 export interface PaperBox {
   id: string
   x: number

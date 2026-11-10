@@ -1,4 +1,5 @@
 import { isOrderKey } from '../core/order'
+import { isGridRows } from '../core/gridRows'
 import type {
   Annotation,
   Block,
@@ -150,6 +151,7 @@ const page: Fields<Page> = {
   values: object,
   source: isPageSource,
   boxes: (v) => Array.isArray(v) && v.length <= 500 && v.every(isPaperBox),
+  rows: isGridRows,
   sheet: oneOf('A4', 'Letter'),
 }
 

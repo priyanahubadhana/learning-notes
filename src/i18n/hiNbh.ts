@@ -20,4 +20,9 @@ export const hiNbh: Record<string, string> = {
   'nbh.cover.colour': 'रंगीन कवर दिखाएँ',
   'nbh.colour.next': 'रंग बदलें',
   'nbh.blankPage': 'खाली पृष्ठ',
+  'rvh.title': 'दोहराव',
+  'rvh.due': '{n} कार्ड दोहराने के लिए तैयार हैं।',
+  'rvh.none': 'अभी कुछ बाकी नहीं है।',
+  'rvh.start': 'दोहराव शुरू करें',
+  'rvh.allCards': 'सभी कार्ड',
 }

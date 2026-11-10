@@ -53,3 +53,11 @@ test('Notebooks icon opens the shelf; star pins; list view; sidebar tile', async
     .click()
   await expect(home).toBeHidden()
 })
+
+test('Review icon shows the Review space, not the shelf', async ({ page }) => {
+  await page.goto('/')
+  await createNotebook(page, 'Alpha book', 'A page')
+  await page.locator('[data-space="review"]').click()
+  await expect(page.getByTestId('review-home')).toBeVisible()
+  await expect(page.getByTestId('notebooks-home')).toHaveCount(0)
+})

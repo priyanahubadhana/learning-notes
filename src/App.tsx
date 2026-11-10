@@ -215,6 +215,9 @@ const NotebooksHome = lazy(() =>
     default: m.NotebooksHome,
   })),
 )
+const ReviewHome = lazy(() =>
+  import('./notebooks/ReviewHome').then((m) => ({ default: m.ReviewHome })),
+)
 const BookReader = lazy(() =>
   import('./reader/BookReader').then((m) => ({ default: m.BookReader })),
 )
@@ -765,6 +768,10 @@ function App() {
       (space === 'notebooks' || !matchMedia(PHONE_SCREEN).matches)
     ) {
       // The Notebooks icon opens the shelf (on a phone, from another space it opens the list).
+      setDrawerAt(null)
+      openPage(null)
+    } else if (next === 'review' && !matchMedia(PHONE_SCREEN).matches) {
+      // The Review icon opens the Review space itself, not the page that was open.
       setDrawerAt(null)
       openPage(null)
     } else if (matchMedia(PHONE_SCREEN).matches) setDrawerAt(routeHash)
@@ -1839,6 +1846,17 @@ function App() {
                           text={t('app.empty.intro')}
                           action={t('app.empty.create')}
                           onAction={() => runTask(createNotebookAndOpen())}
+                        />
+                      ) : space === 'review' && currentPage === null ? (
+                        <ReviewHome
+                          db={db}
+                          notebooks={notebooks}
+                          onReview={(scope) => openReview(scope)}
+                          onAllCards={() => {
+                            openPage(null)
+                            setStudyTab('review')
+                            setHub({ kind: 'cards' })
+                          }}
                         />
                       ) : currentPage === null ? (
                         <NotebooksHome

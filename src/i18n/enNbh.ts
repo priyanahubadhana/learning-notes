@@ -20,4 +20,9 @@ export const enNbh = {
   'nbh.cover.colour': 'Show a colour cover',
   'nbh.colour.next': 'Change colour',
   'nbh.blankPage': 'Empty page',
+  'rvh.title': 'Review',
+  'rvh.due': '{n} cards are ready to review.',
+  'rvh.none': 'Nothing is due. Nice work.',
+  'rvh.start': 'Start review',
+  'rvh.allCards': 'All cards',
 }

@@ -20,4 +20,9 @@ export const esNbh: Record<string, string> = {
   'nbh.cover.colour': 'Usar una portada de color',
   'nbh.colour.next': 'Cambiar color',
   'nbh.blankPage': 'Página vacía',
+  'rvh.title': 'Repaso',
+  'rvh.due': 'Hay {n} tarjetas listas para repasar.',
+  'rvh.none': 'No hay nada pendiente.',
+  'rvh.start': 'Empezar repaso',
+  'rvh.allCards': 'Todas las tarjetas',
 }

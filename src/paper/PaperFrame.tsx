@@ -44,7 +44,8 @@ import {
   type Zone,
 } from './grid'
 import { GridDividers } from './GridDividers'
-import { boxReducer, IDLE, pickedOf } from './boxState'
+import { boxReducer, IDLE, pickedOf, type BoxEvent } from './boxState'
+import { startBlankHold } from './blankHold'
 import { bounds, record, replay, waitFor, type Recorded } from './penOnPaper'
 import { activeTool } from '../app/tools/main/mainTools'
 import { onGestureReset } from '../app/gestureReset'
@@ -491,8 +492,17 @@ export function PaperFrame({
   const loop = useRef<Pt[] | null>(null)
   // Box states (bug batch 2, item 8): idle, selected, typing (boxState.ts).
   const [bs, dispatchBs] = useReducer(boxReducer, IDLE)
+  // A change of the state only: a dispatch that would leave it as it is would
+  // still run this whole component again (on every tap in a box's text).
+  const bsRef = useRef(bs)
+  useEffect(() => {
+    bsRef.current = bs
+  }, [bs])
+  const send = useCallback((e: BoxEvent) => {
+    if (boxReducer(bsRef.current, e) !== bsRef.current) dispatchBs(e)
+  }, [])
   const picked = useMemo(() => pickedOf(bs), [bs])
-  const setPicked = (ids: string[]) => dispatchBs({ type: 'pick', ids })
+  const setPicked = (ids: string[]) => send({ type: 'pick', ids })
   // The caret going into a picked box's text (a tap inside it, or a key typed)
   // or out of it. A bar button that focuses the editor does not count.
   useEffect(() => {
@@ -501,32 +511,38 @@ export function PaperFrame({
       if (!el?.closest('[contenteditable="true"]')) return null
       return el.closest('[data-paper-box]')?.getAttribute('data-paper-box')
     }
+    // A run of quick taps (word, line, paragraph) must not be slowed by a
+    // redraw between two taps: the state changes once the run has ended.
+    let later = 0
     const down = (e: Event) => {
       const id = boxOfText(e.target)
-      if (id) dispatchBs({ type: 'caretIn', id })
+      window.clearTimeout(later)
+      if (id)
+        later = window.setTimeout(() => send({ type: 'caretIn', id }), 250)
     }
     const key = (e: KeyboardEvent) => {
       if (e.key.length !== 1 || e.metaKey || e.ctrlKey) return
       const id = boxOfText(document.activeElement)
-      if (id) dispatchBs({ type: 'caretIn', id })
+      if (id) send({ type: 'caretIn', id })
     }
     const out = () =>
       window.setTimeout(() => {
-        if (!boxOfText(document.activeElement)) dispatchBs({ type: 'caretOut' })
+        if (!boxOfText(document.activeElement)) send({ type: 'caretOut' })
       }, 0)
     document.addEventListener('pointerdown', down, true)
     document.addEventListener('keydown', key, true)
     document.addEventListener('focusout', out)
     return () => {
+      window.clearTimeout(later)
       document.removeEventListener('pointerdown', down, true)
       document.removeEventListener('keydown', key, true)
       document.removeEventListener('focusout', out)
     }
-  }, [])
+  }, [send])
   const lassoOn = activeTool.useValue() === 'lasso'
   /** A tap on a box's frame (or grip): it is the selection; Shift adds. */
   const selectBox = (id: string, add: boolean) =>
-    dispatchBs({ type: 'frameTap', id, add })
+    send({ type: 'frameTap', id, add })
   // A first tap on a box's text selects the box (tapSelect.ts, item 11).
   useEffect(() => {
     const on = (e: Event) => {
@@ -928,7 +944,7 @@ export function PaperFrame({
       !(e.target as Element).closest('[data-paper-sheet]')
     )
       return
-    if (activeTool.get() !== 'lasso') dispatchBs({ type: 'clear' })
+    if (activeTool.get() !== 'lasso') send({ type: 'clear' })
     const r = paperEl.current?.getBoundingClientRect()
     if (!r) return
     const x = (e.clientX - r.left) / k
@@ -1148,9 +1164,7 @@ export function PaperFrame({
                   const mx = r ? (e.clientX - r.left) / k : 0
                   const my = r ? (e.clientY - r.top) / k : 0
                   if (mx > EDGE_MM && mx < sheet.w - EDGE_MM && my > EDGE_MM)
-                    void import('./blankHold').then((m) =>
-                      m.startBlankHold(ne, page.id, paperStepMm(page.inkBg), k),
-                    )
+                    startBlankHold(ne, page.id, paperStepMm(page.inkBg), k)
                 }
               }}
               onPointerMove={(e) => {

@@ -151,13 +151,16 @@ async function scene(page: Page) {
   await page.waitForTimeout(700)
   const last = await wordsBox(page, 'apple banana')
   const ink = { x: last.x + 40, y: last.y + 80, width: 200, height: 40 }
-  // The paper grows after the typing: draw once the stroke's start is on the
-  // paper, not still on the (shorter) editor, or the stroke is lost.
+  // The pad grows with the paper after the typing: draw once it reaches the
+  // stroke's end, or the stroke starts on the editor under it and is lost.
   await expect
     .poll(() =>
       page.evaluate(
-        ([x, y]) => !document.elementFromPoint(x, y)?.closest('.bn-root'),
-        [ink.x, ink.y],
+        (bottom) =>
+          (
+            document.querySelector('[data-ink-pad]') as HTMLElement
+          ).getBoundingClientRect().bottom > bottom,
+        ink.y + ink.height,
       ),
     )
     .toBe(true)

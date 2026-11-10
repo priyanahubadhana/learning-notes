@@ -592,7 +592,19 @@ if (typeof window !== 'undefined')
     dump: () => {
       const j = active ? journals.get(active) : undefined
       const name = (s: Step): string =>
-        s.subs ? `[${s.subs.map(name).join(',')}]` : `${s.kind}:${s.label}`
+        s.subs
+          ? `[${s.subs.map(name).join(',')}]`
+          : `${s.kind}:${s.label}${
+              s.kind === 'rows'
+                ? ':' +
+                  (s.data as { rows: RowChange[] }).rows
+                    .map(
+                      (r) =>
+                        `${r.t}.${Object.keys(r.a?.set ?? {}).join('+')}${(r.a?.del ?? []).map((d) => '-' + d).join('')}`,
+                    )
+                    .join('|')
+                : ''
+            }`
       return {
         scope: active,
         done: j?.done.map(name) ?? [],

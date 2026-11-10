@@ -52,6 +52,8 @@ beforeEach(async () => {
 
 /** Tables that are not actions (helper lists, logs, settings, files, drawings). */
 const NOT_ACTIONS = [
+  'cards',
+  'blockTags',
   'workspaces',
   'notebooks',
   'reviewLogs',
@@ -262,7 +264,7 @@ describe('the box service', () => {
     await removeBox(db, 'p1', id as string)
     await tick()
     const done = journalOf('page:p1').done
-    
+
     expect(done.length).toBeGreaterThan(1)
     await undo()
     expect((await db.blocks.get('blk3'))?.deletedAt).toBeNull()

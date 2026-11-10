@@ -103,7 +103,7 @@ test('Cards from all highlights: preview, untick one, one Undo takes the batch a
   await dialog.getByRole('checkbox').nth(1).uncheck()
   await dialog.getByTestId('bulk-make').click()
   await expect(page.getByText('Made 2 cards.')).toBeVisible()
-  await page.getByRole('button', { name: 'Undo' }).click()
+  await page.getByRole('button', { name: 'Undo' }).last().click()
 
   // All of them can be carded again after the Undo.
   await page.getByTestId('make-cards-all').click()

@@ -328,10 +328,11 @@ test('Read: one tap enters Reading mode; the reader controls replace the bar', a
   const names = await controls
     .getByRole('button')
     .evaluateAll((els) => els.map((el) => el.getAttribute('aria-label')))
+  // Undo and Redo are always first, at the far left (item 35).
   expect(names).toEqual([
-    'Exit reading',
     'Undo',
     'Redo',
+    'Exit reading',
     'Contents',
     'Bookmarks',
     'Reading look (Aa)',

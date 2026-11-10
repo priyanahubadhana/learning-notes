@@ -19,15 +19,14 @@ import type { RowChange } from './rowTypes'
  * What is recorded. 'page': belongs to one page, recorded when that page is
  * open. 'open': belongs to no page, recorded on whatever page is open.
  * 'with': text rows, recorded only inside a transaction that also changes
- * the page itself (a box removed or copied); the editor's own saves are quiet.
+ * the page's boxes or grid (a box removed or copied); the editor's own saves
+ * are quiet. Cards and block tags are derived from the lines (not recorded).
  * Text and drawings otherwise keep their own steps. Every other table (helper
  * lists, logs, settings, files) is not an action; the unit test lists them so
  * that a new table must be classified before it ships.
  */
 export const HISTORY_TABLES: Record<string, 'page' | 'open' | 'with'> = {
   pages: 'page',
-  cards: 'page',
-  blockTags: 'page',
   blocks: 'with',
   tags: 'open',
   databases: 'open',
@@ -107,10 +106,21 @@ function note(table: string, trans: Transaction, change: RowChange): void {
     const mine = p
     const done = () => {
       pending.delete(key)
-      // Text rows alone are the editor's business (its own steps).
-      if (mine.rows.every((r) => r.t === 'blocks')) return
-      if (sink) sink(mine.rows, mine.gid, mine.label)
-      else early.push([mine.rows, mine.gid, mine.label])
+      // Lines are the editor's business (its own steps) unless the same
+      // transaction moves the layout (a box removed or copied).
+      const layout = mine.rows.some(
+        (r) =>
+          r.t === 'pages' &&
+          ['boxes', 'rows'].some(
+            (f) => f in (r.a?.set ?? {}) || !!r.a?.del.includes(f),
+          ),
+      )
+      const rows = layout
+        ? mine.rows
+        : mine.rows.filter((r) => r.t !== 'blocks')
+      if (rows.length === 0) return
+      if (sink) sink(rows, mine.gid, mine.label)
+      else early.push([rows, mine.gid, mine.label])
     }
     if (idb) {
       const target = idb as unknown as EventTarget

@@ -33,7 +33,9 @@ import { BoxFrame, type GrabHow } from './BoxFrame'
 import { clampBox, MIN_W, type BoxPatch } from './boxService'
 import { bounds, record, replay, waitFor, type Recorded } from './penOnPaper'
 import { activeTool } from '../app/tools/main/mainTools'
-import { adopterIn, setPaperDrop } from '../ink/inkTransfer'
+import { onGestureReset } from '../app/gestureReset'
+import { adopterIn, lassoAcrossBoxes, setPaperDrop } from '../ink/inkTransfer'
+import { lassoSettings } from '../app/tools/main/inkSettings'
 import { sheetNav } from './sheetNav'
 import { applyPagination, clearPagination } from './paginate'
 import {
@@ -621,9 +623,15 @@ export function PaperFrame({
       // The moves still bubble here.
     }
     loop.current = [toPaper(e)]
-    loopLayer.current?.set(loop.current)
+    loopLayer.current?.set(loop.current, lassoSettings.get().shape === 'rect')
     return true
   }
+  /** A loop whose lift never came (cancel, app switch): its path goes. */
+  const dropLoop = () => {
+    loop.current = null
+    loopLayer.current?.set(null)
+  }
+  useEffect(() => onGestureReset(dropLoop), [])
   const lassoUp = () => {
     const poly = loop.current
     if (!poly) return
@@ -632,6 +640,11 @@ export function PaperFrame({
     if (poly.length < 3) return setPicked([])
     const p = paperEl.current?.getBoundingClientRect()
     if (!p) return
+    // Owner item 2: a loop that starts on the margin or between boxes selects
+    // whatever it covers inside the boxes (words, ink, pictures) first.
+    const rect = lassoSettings.get().shape === 'rect'
+    const client = poly.map((q) => ({ x: q.x + p.left, y: q.y + p.top }))
+    if (lassoAcrossBoxes(client, rect)) return setPicked([])
     // One pass: every box found once, not one search per box.
     const frames = new Map<string, HTMLElement>()
     paperEl.current
@@ -671,7 +684,7 @@ export function PaperFrame({
   const penMove = (e: ReactPointerEvent<HTMLDivElement>) => {
     if (loop.current) {
       loop.current.push(toPaper(e))
-      loopLayer.current?.set(loop.current)
+      loopLayer.current?.set(loop.current, lassoSettings.get().shape === 'rect')
     }
     pen.current?.push(record('pointermove', e.nativeEvent))
   }
@@ -948,7 +961,10 @@ export function PaperFrame({
                 hoverMove(e)
               }}
               onPointerLeave={() => setHover(null)}
-              onPointerCancel={() => setHover(null)}
+              onPointerCancel={() => {
+                setHover(null)
+                dropLoop()
+              }}
               onPointerUp={(e) => {
                 penUp(e)
                 tapPaper(e)
@@ -1104,15 +1120,27 @@ function inPolygon(
 }
 
 type Pt = { x: number; y: number }
-type LoopApi = { set: (points: Pt[] | null) => void }
+type LoopApi = { set: (points: Pt[] | null, rect?: boolean) => void }
 
 /** The Lasso loop on the paper; redraws alone while the pen moves. */
 function LoopLayer({ ref }: { ref: Ref<LoopApi> }) {
-  const [points, setPoints] = useState<Pt[] | null>(null)
+  const [shape, setShape] = useState<{ points: Pt[]; rect: boolean } | null>(
+    null,
+  )
   useImperativeHandle(ref, () => ({
-    set: (p) => setPoints(p && [...p]),
+    set: (p, rect = false) => setShape(p && { points: [...p], rect }),
   }))
-  if (!points) return null
+  if (!shape) return null
+  const pts = shape.rect
+    ? (() => {
+        const a = shape.points[0]
+        const z = shape.points[shape.points.length - 1]
+        return [a, { x: z.x, y: a.y }, z, { x: a.x, y: z.y }]
+      })()
+    : shape.points
+  const list = pts.map((p) => p.x + ',' + p.y).join(' ')
+  // Clearly visible on light and dark paper (owner item 1): accent line with
+  // a halo, a tinted fill.
   return (
     <svg
       aria-hidden
@@ -1121,11 +1149,22 @@ function LoopLayer({ ref }: { ref: Ref<LoopApi> }) {
       width="1"
       height="1"
     >
-      <polyline
-        points={points.map((p) => p.x + ',' + p.y).join(' ')}
+      <polygon
+        points={list}
+        fill="var(--color-accent)"
+        fillOpacity={0.14}
+        stroke="var(--color-bg)"
+        strokeOpacity={0.8}
+        strokeWidth={5}
+        strokeLinejoin="round"
+      />
+      <polygon
+        points={list}
         fill="none"
         stroke="var(--color-accent)"
-        strokeDasharray="4 3"
+        strokeWidth={2.5}
+        strokeDasharray="9 5"
+        strokeLinejoin="round"
       />
     </svg>
   )

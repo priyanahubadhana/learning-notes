@@ -32,6 +32,10 @@ interface Adopter {
   wholeLines: () => string[]
   /** Rule 9: runs a paste of this text and links the copied ink to the new lines. */
   pasteLines: (text: string | null, run?: () => void) => void
+  /** A Lasso loop that began on the paper (client px): selects what it covers here. */
+  lassoRegion: (client: Pt[], rect: boolean) => boolean
+  /** Lets go of this box's Lasso selection. */
+  lassoClear: () => void
 }
 
 const adopters = new Set<Adopter>()
@@ -74,3 +78,41 @@ export function setPaperDrop(fn: PaperDrop | null): void {
 /** Makes a box under the ink on the paper; false when there is no paper. */
 export const dropOnPaper = (items: Carried[], lines?: CarriedLines): boolean =>
   paperDrop ? paperDrop(items, lines) : false
+
+/**
+ * A Lasso loop that began on the paper outside every box (client px): each
+ * box the loop reaches selects what it covers, top to bottom; the others
+ * let go. True when any box selected something.
+ */
+export function lassoAcrossBoxes(client: Pt[], rect: boolean): boolean {
+  const xs = client.map((p) => p.x)
+  const ys = client.map((p) => p.y)
+  const area = {
+    left: Math.min(...xs),
+    right: Math.max(...xs),
+    top: Math.min(...ys),
+    bottom: Math.max(...ys),
+  }
+  let any = false
+  const hit: Adopter[] = []
+  for (const a of adopters) {
+    if (!a.wrap.isConnected) continue
+    const r = a.wrap.getBoundingClientRect()
+    const reaches =
+      r.right >= area.left &&
+      r.left <= area.right &&
+      r.bottom >= area.top &&
+      r.top <= area.bottom
+    if (reaches) hit.push(a)
+    else a.lassoClear()
+  }
+  hit.sort(
+    (a, b) =>
+      a.wrap.getBoundingClientRect().top - b.wrap.getBoundingClientRect().top,
+  )
+  for (const a of hit) {
+    if (a.lassoRegion(client, rect)) any = true
+    else a.lassoClear()
+  }
+  return any
+}

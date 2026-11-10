@@ -16,8 +16,26 @@ let active = 0
 /** The drags going on now, each with the way to end it. */
 const open = new Set<() => void>()
 
-/** True while a grip is being dragged. */
-export const gripDragging = (): boolean => active > 0
+/** The pointers of the drags going on, and of those that ended a moment ago. */
+const liveIds = new Set<number>()
+const graceIds = new Set<number>()
+
+/**
+ * True while a grip is being dragged. Given a pointer that just went down,
+ * only that pointer's own drag (or its lift a moment ago) counts, and a
+ * second finger: a Pencil or mouse that is a different pointer than the
+ * grip's cannot be part of the drag, so a drag whose end was late never
+ * blocks the Lasso or the pen (owner item 17).
+ */
+export const gripDragging = (e?: {
+  pointerId: number
+  pointerType?: string
+}): boolean => {
+  if (active === 0) return false
+  if (!e) return true
+  if (liveIds.has(e.pointerId) || graceIds.has(e.pointerId)) return true
+  return e.pointerType === 'touch' && liveIds.size > 0
+}
 
 /**
  * Ends every drag at once (the watchdog: the lift was lost while the app was
@@ -54,6 +72,7 @@ export function startGripDrag(
     // A pointer the browser does not know (a test): the window still hears it.
   }
   active++
+  liveIds.add(pointerId)
   const root = doc.documentElement
   root.setAttribute('data-grip-drag', '')
   const refocus =
@@ -83,6 +102,8 @@ export function startGripDrag(
     if (done) return
     if (e instanceof PointerEvent && e.pointerId !== pointerId) return
     done = true
+    liveIds.delete(pointerId)
+    graceIds.add(pointerId)
     open.delete(force)
     inputMachine.end({ pointerId }, 'gripDrag')
     doc.removeEventListener('touchmove', stop, true)
@@ -93,6 +114,7 @@ export function startGripDrag(
     for (const owner of held) unlock(owner)
     // A moment later, so the page sees the lift as part of the drag.
     window.setTimeout(() => {
+      graceIds.delete(pointerId)
       active = Math.max(0, active - 1)
       if (active === 0) root.removeAttribute('data-grip-drag')
       if (refocus && refocus.isConnected) {

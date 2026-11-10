@@ -42,3 +42,20 @@ describe('a grip drag whose lift was lost (R7-3)', () => {
     expect(gripDragging()).toBe(false)
   })
 })
+
+describe('a different pointer is never part of the drag (owner item 17)', () => {
+  it('a Pencil that goes down while a mouse grip drag is still open is free', async () => {
+    document.body.innerHTML = '<div data-grip></div>'
+    const grip = document.querySelector('[data-grip]')!
+    startGripDrag(grip, 1)
+    expect(gripDragging({ pointerId: 1, pointerType: 'mouse' })).toBe(true)
+    expect(gripDragging({ pointerId: 31, pointerType: 'pen' })).toBe(false)
+    // A second finger still belongs to a touch drag.
+    resetGripDrags()
+    startGripDrag(grip, 4)
+    expect(gripDragging({ pointerId: 5, pointerType: 'touch' })).toBe(true)
+    expect(gripDragging({ pointerId: 6, pointerType: 'pen' })).toBe(false)
+    resetGripDrags()
+    await tick(80)
+  })
+})

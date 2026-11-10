@@ -47,6 +47,7 @@ import { barGroups } from '../app/tools/barLayout'
 import { resetFreePos } from '../app/tools/freeBar'
 import { isEditorPopup, usePopup } from '../app/popups'
 import { BarStack } from './BarStack'
+import { ToolsBoundary } from '../app/tools/ToolsBoundary'
 import { useBarLayout } from './useBarLayout'
 import {
   PLACES,
@@ -524,11 +525,15 @@ function Bar({ editor, slot }: { editor: Editor; slot: HTMLElement }) {
           place,
         )
       })}
-      <MiniToolbar editor={editor} />
-      <MiniKeys editor={editor} />
+      <ToolsBoundary name="selection bar">
+        <MiniToolbar editor={editor} />
+        <MiniKeys editor={editor} />
+      </ToolsBoundary>
       <HoverName />
       {layout.short !== null && (
-        <OptionsPill editor={editor} barPlace={layout.short} />
+        <ToolsBoundary name="options pill">
+          <OptionsPill editor={editor} barPlace={layout.short} />
+        </ToolsBoundary>
       )}
     </>
   )

@@ -113,6 +113,7 @@ export function BookInk({
         blockBox: () => null,
         wordsIn: () => null,
         selectText: () => {},
+        clearText: () => {},
         placeCaret: () => {},
         // The surface is read through a ref, so the engine is made once.
         book: {

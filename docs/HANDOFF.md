@@ -2,6 +2,8 @@
 
 # Handoff
 
+- **Owner bug batch, Builder A (10 Nov):** items 1, 2, 15, 17, 21, 42 done (see CHANGELOG). Still open for A: 11, 19, 20, 22e/h/i, 25. e2e/ownerLasso.spec.ts is the owner's Lasso steps.
+
 - **Tools robustness done (10 Nov), steps 1-7 of docs/plans/tools-robustness-plan.md:** input machine (4 s limit), Lasso on it, editLock, remaining flags, health check, soft refresh ("Refresh app" in the gear menu; auto at most once per 10 min), resume suite. Limits are in DECISIONS "Decisions to review". Owner iPad check at the top of owner-checks-pending.md. Known: chromium specs gestureWatchdog:338, pencilTaps:175/:193, lassoPencil:299, penTools:235, penTapChrome:49, magnifier:129 also fail on the commit before this work (tap-timing / load); not caused by it. Spec: docs/features/ink.md.
 
 - **Contextual strips + picture resize (9 Nov):** Picture/Video/Table/Drawing/Text tab in the full bar, compact row with More, smooth rAF resize, 180 ms presets, bug guards, sheet-gap hold/ghost/slide/tappable gap. Spec toolbar.md, pictures.md, paper-page.md; choices in DECISIONS. Owner check at the top of owner-checks-pending.md. Note: e2e/mainBar.spec.ts "nine tools" and "44 px" fail on a scroll-chevron button in this tree (bar overflow, not from this change).

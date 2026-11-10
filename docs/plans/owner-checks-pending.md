@@ -10,6 +10,10 @@ Moved out of HANDOFF on 2026-11-06 (audit) so HANDOFF stays five lines. Newest f
 
 On the iPad: (1) Library, open the 13 h EPUB with Continue: text must show (a note appears in the console only if it fell back to Scroll). (2) Settings › Advanced: switch on "Show Refresh button in the top bar", tap it: the app restarts on the same page. (3) Open Page history on a page where you added and removed a text box: restore an old copy and check the boxes, picture and paper style come back; History shows the "before a restore" copy. (4) With two tabs open on the PC, let an update arrive: no black cover longer than 5 s, a small pill shows the download.
 
+## iPad Lasso batch A (10 Nov)
+
+On the iPad with the Pencil: (1) loop and rectangle outlines clearly visible on dark and light paper; (2) start a loop in the page margin left of the text: it selects the words; (3) select a word with the Text tool, then Lasso a drawing: no old caret, handles or bar remain; (4) 12 loops mixed free and rectangle, drag the selection bar to the top and pin it, loop again several times, drag a handle: all work, the bar returns each time; (5) selection fades in softly; (6) selected words show a soft tint (no dashed line), thin handles, a loupe above the Pencil while dragging a handle. Why human: Pencil and real iPadOS.
+
 ## iPad tools robustness (10 Nov)
 
 On the iPad (installed app): use the Lasso 20 times in a row (free and rectangle, on ink, words and a picture); switch to another app and back 3 times (once in the middle of a loop, once with the Pencil held down); after each return check that the Lasso, a Pencil double tap on a word, a Pencil Text selection, the Pen and the Text tool (typing) all work, and that nothing needs a restart. Then open Settings gear > "Refresh app": you should land on the same page, same scroll, same tool, with your text and drawing kept. Settings > Advanced > Copy tool state: the "health" lines list anything the app fixed by itself. Why human: real iPadOS drops lifts and cancels in ways a test cannot copy.

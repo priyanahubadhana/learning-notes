@@ -133,6 +133,7 @@ export default defineConfig({
         /toolsHealth/,
         /toolsRefresh/,
         /resume/,
+        /ownerLasso/,
       ],
       use: { ...devices['iPad Pro 11'], hasTouch: true },
       expect: { timeout: 15_000 },

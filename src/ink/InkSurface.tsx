@@ -10,6 +10,7 @@ import {
   useState,
   useSyncExternalStore,
   type PointerEvent as ReactPointerEvent,
+  type ReactNode,
 } from 'react'
 import { AppUiContext } from '../app/appUi'
 import { downloadFile } from '../app/download'
@@ -28,7 +29,12 @@ import { loadInk, saveInk } from '../core/inkService'
 import { MAX_LABEL } from '../core/inkTypes'
 import { addBlockToSummary } from '../core/summaryService'
 import { selectBlocks } from '../editor/dragSelect'
-import { selectTextRange, wordsInRegion } from '../editor/lassoWords'
+import {
+  dropNativeSelection,
+  selectTextRange,
+  wordsInRegion,
+} from '../editor/lassoWords'
+import { deselect } from '../editor/ownSelection'
 import { lookThrough, posNear } from '../editor/tapSelect'
 import { TextSelection } from 'prosemirror-state'
 import { lassoRow, ROW_ACTIONS, splitMenu, type RowAction } from './lassoMenu'
@@ -242,6 +248,15 @@ export function InkSurface({
         },
         selectText: (from, to) =>
           selectTextRange(editor as unknown as Editor, from, to),
+        clearText: () => {
+          // A new loop starts: the earlier text selection (and its handles
+          // and bar), the caret and the browser's own range all go (item 15).
+          const ed = editor as unknown as Editor
+          deselect(ed)
+          miniToolbarOpen.set(false)
+          const view = ed.prosemirrorView
+          if (view) dropNativeSelection(view)
+        },
         placeCaret: (x, y) => {
           // A finger (or mouse click) under the Lasso still starts typing.
           const view = (editor as unknown as Editor).prosemirrorView
@@ -536,47 +551,76 @@ export function InkUi({
           />
         </Suspense>
       )}
-      {count > 0 && box && tool === 'lasso' && (
-        <SelectionBox
-          controller={controller}
-          editor={editor}
-          wrap={wrap}
-          box={box}
-          count={count}
-          onPng={png}
-          onConvert={() => {
-            const style = getComputedStyle(document.body).backgroundColor
-            void selectionPng(controller, style || '#ffffff').then(
-              setConvertPng,
-            )
-          }}
-          onReplay={replay ? () => requestReplay(replay) : undefined}
-          onSummary={() => {
-            // A drawing goes into the Summary by its name (a picture line
-            // is for later): name it first.
-            const label = controller.selectionLabel()
-            if (!label) {
-              toast(t('ink.sel.summaryNeedsName'))
-              return
-            }
-            const id = controller.selection[0]
-            void addBlockToSummary(db, `ink:${id}`, pageId, label).then((r) =>
-              toast(
-                t(
-                  r.status === 'added'
-                    ? 'summary.added'
-                    : r.status === 'exists'
-                      ? 'summary.exists'
-                      : r.status === 'full'
-                        ? 'summary.full'
-                        : 'summary.nothing',
+      <FadeOut show={count > 0 && !!box && tool === 'lasso'}>
+        {box && (
+          <SelectionBox
+            controller={controller}
+            editor={editor}
+            wrap={wrap}
+            box={box}
+            count={count}
+            onPng={png}
+            onConvert={() => {
+              const style = getComputedStyle(document.body).backgroundColor
+              void selectionPng(controller, style || '#ffffff').then(
+                setConvertPng,
+              )
+            }}
+            onReplay={replay ? () => requestReplay(replay) : undefined}
+            onSummary={() => {
+              // A drawing goes into the Summary by its name (a picture line
+              // is for later): name it first.
+              const label = controller.selectionLabel()
+              if (!label) {
+                toast(t('ink.sel.summaryNeedsName'))
+                return
+              }
+              const id = controller.selection[0]
+              void addBlockToSummary(db, `ink:${id}`, pageId, label).then((r) =>
+                toast(
+                  t(
+                    r.status === 'added'
+                      ? 'summary.added'
+                      : r.status === 'exists'
+                        ? 'summary.exists'
+                        : r.status === 'full'
+                          ? 'summary.full'
+                          : 'summary.nothing',
+                  ),
                 ),
-              ),
-            )
-          }}
-          onCard={() => runTask(makeCardFromInk())}
-        />
-      )}
+              )
+            }}
+            onCard={() => runTask(makeCardFromInk())}
+          />
+        )}
+      </FadeOut>
+    </div>
+  )
+}
+
+/**
+ * Owner item 21: the Lasso selection (outline, handles, bar) fades out in
+ * 150 ms instead of vanishing (it fades in by CSS). Reduced motion: instant.
+ */
+function FadeOut({ show, children }: { show: boolean; children: ReactNode }) {
+  // The last shown children are kept while the fade-out runs.
+  const [held, setHeld] = useState<ReactNode>(null)
+  if (show && held !== children) setHeld(children)
+  useEffect(() => {
+    if (show) return
+    const id = window.setTimeout(() => setHeld(null), 150)
+    return () => window.clearTimeout(id)
+  }, [show])
+  if (show) return <>{children}</>
+  const calm = window.matchMedia?.('(prefers-reduced-motion: reduce)').matches
+  if (!held || calm) return null
+  return (
+    <div
+      data-select-leaving
+      aria-hidden
+      className="pointer-events-none absolute inset-0"
+    >
+      {held}
     </div>
   )
 }

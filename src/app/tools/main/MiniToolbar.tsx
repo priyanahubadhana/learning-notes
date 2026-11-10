@@ -525,6 +525,13 @@ function Handle({
   at: { x: number; y: number }
 }) {
   const dragging = useRef(false)
+  // The loupe above the finger or Pencil while a handle is dragged (item 42).
+  const [loupe, setLoupe] = useState<{
+    x: number
+    y: number
+    before: string
+    after: string
+  } | null>(null)
   // Where the finger took hold, relative to the edge it holds: the new edge
   // follows the finger's movement from there, so the first move never jumps
   // to another line (the handle sits beside the text, not on it).
@@ -559,46 +566,88 @@ function Handle({
     )
     dropNativeSelection(view) // no iPadOS menu during the drag
   }
+  const showLoupe = (x: number, y: number) => {
+    const view = editor.prosemirrorView
+    if (!view) return
+    const pos =
+      which === 'start' ? view.state.selection.from : view.state.selection.to
+    const d = view.state.doc
+    const a = Math.max(0, pos - 14)
+    const b = Math.min(d.content.size, pos + 14)
+    setLoupe({
+      x,
+      y,
+      before: d.textBetween(a, pos, ' '),
+      after: d.textBetween(pos, b, ' '),
+    })
+  }
   const label = t(`main.mini.handle.${which}` as MessageKey)
   return (
-    <button
-      type="button"
-      data-sel-handle={which}
-      data-pen-own
-      aria-label={label}
-      onMouseDown={(e) => e.preventDefault()}
-      onPointerDown={(e) => {
-        e.preventDefault()
-        e.stopPropagation()
-        dragging.current = true
-        const at0 = edge()
-        grab.current = at0
-          ? { dx: e.clientX - at0.x, dy: e.clientY - at0.y }
-          : { dx: 0, dy: 0 }
-        try {
-          e.currentTarget.setPointerCapture(e.pointerId)
-        } catch {
-          // A pointer the browser does not know: carry on.
-        }
-      }}
-      onPointerMove={(e) => dragging.current && move(e.clientX, e.clientY)}
-      onPointerUp={() => (dragging.current = false)}
-      onPointerCancel={() => (dragging.current = false)}
-      style={{
-        left: at.x - 11,
-        top: which === 'start' ? at.y - 25 : at.y + 3,
-        // The touch rule that makes every button 44 px must not blow it up.
-        minWidth: 0,
-        minHeight: 0,
-        touchAction: 'none',
-      }}
-      // The bigger touch area grows away from the words only, so a third or
-      // fourth tap on a short selected word never lands on a handle.
-      className={`fixed z-[var(--z-mini)] size-[22px] rounded-full border-2 border-accent bg-bg shadow after:absolute after:-inset-x-2 after:content-[''] ${
-        which === 'start'
-          ? 'after:-top-2 after:bottom-0'
-          : 'after:top-0 after:-bottom-2'
-      }`}
-    />
+    <>
+      <button
+        type="button"
+        data-sel-handle={which}
+        data-pen-own
+        aria-label={label}
+        onMouseDown={(e) => e.preventDefault()}
+        onPointerDown={(e) => {
+          e.preventDefault()
+          e.stopPropagation()
+          dragging.current = true
+          const at0 = edge()
+          grab.current = at0
+            ? { dx: e.clientX - at0.x, dy: e.clientY - at0.y }
+            : { dx: 0, dy: 0 }
+          try {
+            e.currentTarget.setPointerCapture(e.pointerId)
+          } catch {
+            // A pointer the browser does not know: carry on.
+          }
+        }}
+        onPointerMove={(e) => {
+          if (!dragging.current) return
+          move(e.clientX, e.clientY)
+          showLoupe(e.clientX, e.clientY)
+        }}
+        onPointerUp={() => {
+          dragging.current = false
+          setLoupe(null)
+        }}
+        onPointerCancel={() => {
+          dragging.current = false
+          setLoupe(null)
+        }}
+        style={{
+          left: at.x - 7,
+          top: which === 'start' ? at.y - 12 : at.y - 2,
+          // The touch rule that makes every button 44 px must not blow it up.
+          minWidth: 0,
+          minHeight: 0,
+          touchAction: 'none',
+        }}
+        // The bigger touch area grows away from the words only, so a third or
+        // fourth tap on a short selected word never lands on a handle.
+        className={`fixed z-[var(--z-mini)] size-[14px] rounded-full border-[1.5px] border-accent bg-bg before:pointer-events-none before:absolute before:left-1/2 before:h-[22px] before:w-[1.5px] before:-translate-x-1/2 before:bg-accent before:content-[''] after:absolute after:-inset-x-3 after:content-[''] ${
+          which === 'start'
+            ? 'before:top-full after:-top-3 after:bottom-0'
+            : 'before:bottom-full after:top-0 after:-bottom-3'
+        }`}
+      />
+      {loupe && (
+        <div
+          aria-hidden
+          data-sel-loupe
+          className="pointer-events-none fixed z-[var(--z-mini)] max-w-[80vw] -translate-x-1/2 whitespace-pre rounded-xl border border-ink-soft bg-bg px-3 py-1.5 text-xl text-ink shadow-lg"
+          style={{
+            left: Math.max(60, Math.min(window.innerWidth - 60, loupe.x)),
+            top: Math.max(8, loupe.y - 84),
+          }}
+        >
+          <span>{loupe.before}</span>
+          <span className="mx-px inline-block h-[1.1em] w-[2px] translate-y-[3px] bg-accent" />
+          <span>{loupe.after}</span>
+        </div>
+      )}
+    </>
   )
 }

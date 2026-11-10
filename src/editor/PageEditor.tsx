@@ -66,6 +66,7 @@ import { watchKeyboardPolicy } from './keyboardPolicy'
 import { watchTapSelect } from './tapSelect'
 import { watchHoldSelect } from './holdSelect'
 import { activeTool, miniToolbarOpen } from '../app/tools/main/mainTools'
+import { ToolsBoundary } from '../app/tools/ToolsBoundary'
 import { changeSet } from '../app/tools/toolbarState'
 import { runHistory } from './historyActions'
 import { InkSurface } from '../ink/InkSurface'
@@ -950,7 +951,7 @@ function LoadedPageEditor({
         )}
         <StampWatcher editor={editor} />
         {padSession?.editor === (editor as never) && <WritePadLazy />}
-        {
+        <ToolsBoundary name="ink surface">
           <InkSurface
             db={db}
             pageId={pageId}
@@ -962,7 +963,7 @@ function LoadedPageEditor({
             owns={owns}
             register={!extraBox}
           />
-        }
+        </ToolsBoundary>
       </div>
       {bar.mode !== 'computer' && !frozen && !extraBox && (
         <button

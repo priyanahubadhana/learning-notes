@@ -179,6 +179,8 @@ export interface InkEnv {
   ) => { from: number; to: number; blocks: string[]; full: string[] } | null
   /** Selects a text range in the editor (the usual text menu follows). */
   selectText: (from: number, to: number) => void
+  /** A new loop starts: drops the old text selection, caret and native range. */
+  clearText: () => void
   /** A finger tap or mouse click under the Lasso: the caret lands there. */
   placeCaret: (clientX: number, clientY: number) => void
   /**
@@ -536,6 +538,8 @@ export class InkController {
         copyLines: (ids, text, cut) => this.copyLines(ids, text, cut),
         wholeLines: () => this.wholeLinesSelected(),
         pasteLines: (text, run) => this.pasteLines(text, run),
+        lassoRegion: (client, rect) => this.lassoClient(client, rect),
+        lassoClear: () => this.dropSelection(),
       }),
     )
     // Rule 9: the editor's own copy, cut and paste carry the lines' ink.
@@ -1009,22 +1013,34 @@ export class InkController {
       ctx.restore()
     }
     if (g?.kind === 'lasso' && (g.rect || g.path.length > 1)) {
+      // Clearly visible on light and dark paper (owner item 1): the theme's
+      // accent, a 2.5 px line with a halo, and a tinted fill.
+      const night = this.env.night()
       ctx.save()
       ctx.setTransform(r.dpr, 0, 0, r.dpr, 0, -r.dpr * r.top)
-      ctx.setLineDash([6, 5])
-      ctx.lineWidth = 1.5
-      ctx.strokeStyle = '#0b6e99'
+      ctx.lineJoin = 'round'
       ctx.beginPath()
       if (g.rect) {
         const b = boundsOf([g.start, g.now])
         ctx.rect(b.x, b.y, b.w, b.h)
-        ctx.fillStyle = 'rgba(11, 110, 153, 0.08)'
-        ctx.fill()
       } else {
         ctx.moveTo(g.path[0].x, g.path[0].y)
         for (const p of g.path) ctx.lineTo(p.x, p.y)
         ctx.closePath()
       }
+      ctx.fillStyle = night
+        ? 'rgba(92, 200, 255, 0.16)'
+        : 'rgba(11, 110, 153, 0.12)'
+      ctx.fill()
+      // A halo in the paper's opposite colour keeps the line apart from ink.
+      ctx.lineWidth = 5
+      ctx.strokeStyle = night
+        ? 'rgba(0, 0, 0, 0.55)'
+        : 'rgba(255, 255, 255, 0.8)'
+      ctx.stroke()
+      ctx.setLineDash([9, 5])
+      ctx.lineWidth = 2.5
+      ctx.strokeStyle = night ? '#5cc8ff' : '#0b6e99'
       ctx.stroke()
       ctx.restore()
     }
@@ -1082,7 +1098,7 @@ export class InkController {
   // ---- Pointers ----
 
   private accepts(e: PointerEvent): boolean {
-    if (gripDragging()) return false // a bar is being dragged by its grip
+    if (gripDragging(e)) return false // a bar is being dragged by its grip
     if (e.pointerType === 'pen') {
       penSeenEver = true
       this.lastPenAt = performance.now()
@@ -1910,8 +1926,26 @@ export class InkController {
     inputMachine.begin(e, 'ink', (reason) => this.resetGestures(reason), state)
   }
 
+  /**
+   * A new loop (or a tap on a stroke) starts: only the new selection may
+   * show. The old ink selection, text selection with its handles and bar,
+   * caret and native range all go (owner item 15).
+   */
+  private hadAtDown = false
+  private freshStart(): void {
+    this.hadAtDown = this.selection.length > 0
+    if (this.selection.length > 0 || this.blockSel.length > 0) {
+      this.clearSelection()
+    }
+    this.env.clearText()
+    const doc = this.env.wrap.ownerDocument
+    doc.getSelection()?.removeAllRanges()
+    const a = doc.activeElement as HTMLElement | null
+    if (a && a.isContentEditable) a.blur()
+  }
+
   private lassoDownInner(e: PointerEvent): void {
-    if (gripDragging()) return
+    if (gripDragging(e)) return
     const g = this.gesture
     if (g) {
       // A second finger while the selection is being dragged: twist it.
@@ -1962,6 +1996,7 @@ export class InkController {
     }
     const hit = lassoSettings.get().ink ? this.hitStroke(w) : null
     if (hit && !this.selection.includes(hit.stroke.id)) {
+      this.freshStart()
       // Taking over: the page must not select text for this touch.
       e.preventDefault()
       e.stopPropagation()
@@ -1986,6 +2021,7 @@ export class InkController {
       this.startTransform('move', e)
       return
     }
+    this.freshStart()
     this.gesture = {
       kind: 'lasso',
       id: e.pointerId,
@@ -2062,49 +2098,14 @@ export class InkController {
       if (g.hitId && !moved) {
         this.select([g.hitId])
       } else if (moved || !g.owns) {
-        const f = lassoSettings.get()
         // A rectangle selects by the box from the touch-down to the lift.
         const region = g.rect ? rectPolygon(g.start, end) : g.path
-        const found = f.ink ? this.inRegion(region) : []
-        const blocks = this.blocksIn(region)
-        // The T filter around part of a paragraph: the words inside (R6-17).
-        const words =
-          found.length === 0 && f.text && !this.env.book
-            ? this.wordsInRegion(region)
-            : null
-        // Lines taken in whole (most of the line, or every word, inside).
-        const wholeLines =
-          !words ||
-          words.blocks.every(
-            (id) => blocks.includes(id) || words.full.includes(id),
-          )
-        if (found.length > 0) {
-          this.select(found.map((p) => p.stroke.id))
-          // Ink and words or pictures in one loop: the mixed menu.
-          this.blockSel = blocks
-          this.notify()
-        } else if (
-          words &&
-          !wholeLines &&
-          !blocks.some((id) => this.env.blockKind(id) === 'picture')
-        ) {
-          // Some words, or a full line and part of the next: that text range.
-          this.clearSelection()
-          this.env.selectText(words.from, words.to)
-        } else if (blocks.length > 0 || words) {
-          // Whole lines or pictures: the text editor's own block selection and menu.
-          this.clearSelection()
-          const ids = words ? [...blocks, ...words.blocks] : blocks
-          this.env.selectBlocks(
-            this.layout
-              .blocks()
-              .map((b) => b.id)
-              .filter((id) => ids.includes(id)),
-          )
+        if (this.selectRegion(region)) {
+          // Selected something.
         } else if (!g.owns) {
           // A tap or loop on empty paper lets go of the selection. A mouse
           // click (no loop) places the caret, as it does everywhere.
-          const had = this.selection.length > 0
+          const had = this.selection.length > 0 || this.hadAtDown
           this.clearSelection()
           // Nor may a native selection (and iPadOS's menu) outlive the tap.
           window.getSelection()?.removeAllRanges()
@@ -2117,6 +2118,74 @@ export class InkController {
     } else if (g.kind === 'transform') {
       this.finishTransform(g)
     }
+  }
+
+  /**
+   * A loop that started outside this box, on the paper (client px): selects
+   * what it covers here. False when it covers nothing of this box.
+   */
+  lassoClient(client: Pt[], rect: boolean): boolean {
+    if (this.env.frozen() || client.length < 3) return false
+    const b = this.env.wrap.getBoundingClientRect()
+    const path = client.map((q) => ({ x: q.x - b.left, y: q.y - b.top }))
+    this.layout.measure()
+    const region = rect ? rectPolygon(path[0], path[path.length - 1]) : path
+    return this.selectRegion(region)
+  }
+
+  /** Lets go of this box's selection (another box's loop took over). */
+  dropSelection(): void {
+    if (this.selection.length === 0 && this.blockSel.length === 0) return
+    this.clearSelection()
+    this.requestDraw()
+  }
+
+  /**
+   * Selects what a loop covers (ink, words, whole lines, pictures) and
+   * shows the usual menu. `region` is in page px (this box). False: it
+   * covered nothing, the selection is untouched.
+   */
+  selectRegion(region: Pt[]): boolean {
+    const f = lassoSettings.get()
+    const found = f.ink ? this.inRegion(region) : []
+    const blocks = this.blocksIn(region)
+    // The T filter around part of a paragraph: the words inside (R6-17).
+    const words =
+      found.length === 0 && f.text && !this.env.book
+        ? this.wordsInRegion(region)
+        : null
+    // Lines taken in whole (most of the line, or every word, inside).
+    const wholeLines =
+      !words ||
+      words.blocks.every((id) => blocks.includes(id) || words.full.includes(id))
+    if (found.length > 0) {
+      this.select(found.map((p) => p.stroke.id))
+      // Ink and words or pictures in one loop: the mixed menu.
+      this.blockSel = blocks
+      this.notify()
+      return true
+    } else if (
+      words &&
+      !wholeLines &&
+      !blocks.some((id) => this.env.blockKind(id) === 'picture')
+    ) {
+      // Some words, or a full line and part of the next: that text range.
+      this.clearSelection()
+      this.env.selectText(words.from, words.to)
+      return true
+    } else if (blocks.length > 0 || words) {
+      // Whole lines or pictures: the text editor's own block selection and menu.
+      this.clearSelection()
+      const ids = words ? [...blocks, ...words.blocks] : blocks
+      this.env.selectBlocks(
+        this.layout
+          .blocks()
+          .map((b) => b.id)
+          .filter((id) => ids.includes(id)),
+      )
+      return true
+    }
+    return false
   }
 
   private lassoCancel(e: PointerEvent): void {

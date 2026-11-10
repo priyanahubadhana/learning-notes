@@ -46,4 +46,4 @@ Research: [research/snap-assist-2026-11.md](../research/snap-assist-2026-11.md).
 3. Remember layouts like Snap Groups (a "recent layouts" row)? Recommend later.
 
 ## Owner answers (10 Nov)
-- Skipped zones collapse. Box list: same sheet by default, with a "Whole page" toggle. Recent layouts: later. Approved; build with batch 2.
+- Skipped zones collapse. Box list: same sheet by default, with a "Whole page" toggle. Recent layouts: NOW (owner changed mind 10 Nov: remember recently used layouts, shown first). Approved; build with batch 2.

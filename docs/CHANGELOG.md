@@ -7,6 +7,7 @@ Current phase only. Older entries are in [ARCHIVE.md](ARCHIVE.md).
 One bullet per push.
 
 - **Items 11 and 20 (tap model, one counter):** `editor/tapSelect.ts` now counts taps for finger, Pencil and mouse, under the Text tool and the Lasso. A box that is not active (Lasso, an extra box that is not picked) shifts every count by one: 1 selects the BOX (frame, handles, box bar; no caret, no keyboard: the pointerdown, the mouse events and the ink pad's caret are held off), 2 caret, 3 word, 4 line, 5 paragraph. An active box (picked, the main text, or the Text tool): 1 caret, 2 word, 3 line, 4 paragraph. The shift is fixed at the first tap of a run, so selecting the box does not move the later counts. A tap on bare paper deselects (PaperFrame). Old rule changed: a finger double tap in Text now selects the word (penTapRules spec updated). Item 25 rest: the clash bar showed once per editor (every box queried the whole page); each editor now shows only its own blocks (the page text also those no box holds); the dragged box moves by a transform on its own layer (no relayout per move). Files: src/editor/{tapSelect,ClashBars,PageEditor}.ts*, src/ink/InkSurface.tsx, src/paper/{PaperFrame,BoxFrame}.tsx, e2e/boxTaps.spec.ts, e2e/penTapRules.spec.ts, playwright.config.ts.
+
 ## 2026-11-10 (Builder H: reader gestures, Aa, lock, read aloud (34, 37, 38, 41, 42))
 
 One bullet per push.

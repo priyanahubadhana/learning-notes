@@ -5,6 +5,7 @@ Moved out of HANDOFF on 2026-11-06 (audit) so HANDOFF stays five lines. Newest f
 ## Builder G checks (10 Nov)
 
 (1) Lasso tool, tap a text box once: the frame and box bar show, no keyboard. Tap again: caret where you tapped; again: word; again: line; again: paragraph. Same with finger, Pencil and mouse. Text tool: 1 caret, 2 word, 3 line, 4 paragraph. Tap bare paper: the box is deselected. (2) Drag a box by its grip while sync shows "Changed on two devices": the bar shows once and the box moves smoothly without white lines.
+
 ## Builder H checks (10 Nov)
 
 (1) In a book, Contents and Notes open the left panel (no panel on the right).
@@ -42,6 +43,7 @@ On the iPad: (1) paste a picture: it is selected at once, with the action bar an
 With two devices signed in (PC and iPad): (1) On the PC change the theme, the language and the AI spending limit; within a minute the iPad shows them. (2) Settings > Sync > What syncs: switch Review off on the iPad, change "New cards per day" on the PC: the iPad keeps its number; switch Review on again: it takes the PC's. (3) On any setting tap the three dots beside "All devices": "Keep on this device only", change it on the PC, the iPad keeps its value; "Reset to synced value" brings the PC's back. (4) The first time the new version opens on a device that already has your account, a small note may say how many settings changed; try Undo. (5) On a page edited on both devices you should no longer see empty "The other version:" bars; at most one bar per page. Why human: real devices, real sign-in and timing.
 
 ## Done by the owner (9 Nov, tested live)
+
 - Email code sign-in works live ✓ (10 Nov). Brevo: SMTP IP blocking must stay DEACTIVATED (Supabase sends from changing IPs; error was 525 Unauthorized IP).
 - Accounts setup steps 1-7 in Supabase + Brevo SMTP (10 Nov) ✓ — Brevo SMTP key expires Nov 2027 or after 90 days unused (renew in Brevo, paste in Supabase SMTP)
 

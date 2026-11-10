@@ -25,4 +25,11 @@ export const hiNbh: Record<string, string> = {
   'rvh.none': 'अभी कुछ बाकी नहीं है।',
   'rvh.start': 'दोहराव शुरू करें',
   'rvh.allCards': 'सभी कार्ड',
+  'settings.showRefresh.label': 'ऊपर की पट्टी में रीफ़्रेश बटन दिखाएँ',
+  'settings.showRefresh.description':
+    'वापस और आगे के पास एक रीफ़्रेश बटन। यह पहले सहेजता है, फिर उसी पन्ने पर ऐप दोबारा शुरू करता है।',
+  'nav.refresh': 'ऐप रीफ़्रेश करें',
+  'sync.allOn.notice':
+    'अब सब कुछ सिंक होता है, AI कुंजियाँ भी (एंड-टू-एंड एन्क्रिप्टेड, बैकअप में कभी नहीं)। आप इसे सेटिंग्स में बदल सकते हैं।',
+  'sync.allOn.change': 'देखें',
 }

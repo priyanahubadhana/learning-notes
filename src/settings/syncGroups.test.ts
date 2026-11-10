@@ -27,7 +27,7 @@ describe('sync groups', () => {
     for (const g of Object.values(SETTING_GROUPS)) expect(ids.has(g)).toBe(true)
   })
 
-  it('keys are off by default; the rest are on', () => {
-    for (const g of SYNC_GROUPS) expect(g.defaultOn).toBe(!g.secret)
+  it('every group is on by default, AI keys too', () => {
+    for (const g of SYNC_GROUPS) expect(g.defaultOn).toBe(true)
   })
 })

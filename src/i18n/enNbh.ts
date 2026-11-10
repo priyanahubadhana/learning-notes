@@ -36,4 +36,11 @@ export const enNbh = {
   'upd.current': 'You have the latest version',
   'upd.offline': 'No connection',
   'upd.failed': 'The update did not finish. It will try again.',
+  'settings.showRefresh.label': 'Show Refresh button in the top bar',
+  'settings.showRefresh.description':
+    'A Refresh button next to Back and Forward. It saves first, then restarts the app on the same page.',
+  'nav.refresh': 'Refresh app',
+  'sync.allOn.notice':
+    'Everything now syncs, including AI keys (locked end to end, never in backups). You can change it in Settings.',
+  'sync.allOn.change': 'Review',
 }

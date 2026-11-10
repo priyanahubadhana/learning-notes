@@ -62,7 +62,7 @@ export const SYNC_GROUPS: readonly SyncGroup[] = [
     id: 'aiKeys',
     labelKey: 'syncGroup.aiKeys',
     listKey: 'syncGroup.aiKeys.list',
-    defaultOn: false,
+    defaultOn: true,
     secret: true,
   },
 ]
@@ -78,6 +78,7 @@ export const SETTING_GROUPS: Readonly<Record<string, SyncGroupId>> = {
   'general.newPageStudy': 'general',
   'general.newPageChooser': 'general',
   'general.pasteMode': 'general',
+  'advanced.showRefresh': 'general',
   'general.theme': 'appearance',
   'general.reduceGlass': 'appearance',
   'review.reviseLabels': 'review',

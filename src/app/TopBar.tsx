@@ -1,6 +1,9 @@
 import { t } from '../i18n/t'
+import { db } from '../core/db'
 import { useCanGoBack, useCanGoForward } from './navHistory'
-import { PanelLeft } from 'lucide-react'
+import { PanelLeft, RefreshCw } from 'lucide-react'
+import { useSyncedSetting } from '../settings/useSetting'
+import { showRefreshSetting } from '../settings/builtinSettings'
 import { MenuIcon } from './ui'
 import { DeviceModeButton } from './DeviceModeMenu'
 import { showToolBar, useShowBarButton } from './tools/toolbarVisibility'
@@ -33,6 +36,7 @@ export function TopBar({
   const toggleName = t(sidebarHidden ? 'nav.showMenu' : 'nav.hideMenu')
   // While the tool bar is off, the way back stays in sight.
   const barOff = useShowBarButton()
+  const showRefresh = useSyncedSetting(db, showRefreshSetting)
 
   return (
     <header
@@ -99,6 +103,19 @@ export function TopBar({
           →
         </span>
       </button>
+      {showRefresh === 'on' && (
+        <button
+          type="button"
+          data-testid="topbar-refresh"
+          aria-label={t('nav.refresh')}
+          onClick={() =>
+            void import('./softRefresh').then((m) => m.refreshNow())
+          }
+          className={`flex ${ICON_BUTTON}`}
+        >
+          <RefreshCw aria-hidden size={18} strokeWidth={1.6} />
+        </button>
+      )}
       <div
         ref={onSlot}
         className="flex min-w-0 flex-1 items-center gap-1 ps-1.5"

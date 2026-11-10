@@ -19,7 +19,7 @@ export const enSettingsSync = {
   'syncGroup.lock.list': 'How long before the app locks.',
   'syncGroup.aiKeys': 'AI keys',
   'syncGroup.aiKeys.list':
-    'Your AI keys, locked end to end. A new device needs your sync passphrase to open them. Off by default.',
+    'Your AI keys, locked end to end. A new device needs your sync passphrase to open them. On by default; never in backups.',
   'syncWhat.title': 'What syncs',
   'syncWhat.intro':
     'Choose which settings follow you to your other devices. Tool bars, sizes, Pencil options and other things tied to one device never sync. These switches are for this device only.',

@@ -119,6 +119,9 @@ const startSettings = (async () => {
     import('./settings/settingsNoticeMount'),
   ])
   if (await migration.migrateSettings(db)) notice.openSettingsNotice()
+  void import('./settings/syncAllMigration').then((m) =>
+    m.runSyncAllMigration(),
+  )
   mirror.startSettingsMirror(db)
   notice.watchSettingsNotice()
   noticeView.mountSettingsNotice()

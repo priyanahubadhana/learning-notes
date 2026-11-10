@@ -458,6 +458,19 @@ export const autoUpdateSetting: SettingDefinition<OnOff> = {
   control: { kind: 'segmented', options: onOffOptions() },
 }
 
+/** A Refresh button in the top bar (item 18); the gear menu always has Refresh app. */
+export const showRefreshSetting: SettingDefinition<OnOff> = {
+  id: 'advanced.showRefresh',
+  labelKey: 'settings.showRefresh.label',
+  descriptionKey: 'settings.showRefresh.description',
+  category: 'advanced',
+  keywords: 'refresh reload restart top bar button',
+  scope: 'synced',
+  defaultValue: 'off',
+  isValid: isOnOff,
+  control: { kind: 'segmented', options: onOffOptions() },
+}
+
 export const barAutoHideSetting: SettingDefinition<OnOff> = {
   id: 'advanced.barAutoHide',
   labelKey: 'settings.barAutoHide.label',
@@ -712,6 +725,7 @@ for (const definition of [
   hoverTipsSetting,
   shortcutHintsSetting,
   barAutoHideSetting,
+  showRefreshSetting,
   scrollHintsSetting,
   autoUpdateSetting,
   autoSwitchSetting,

@@ -42,6 +42,19 @@ Rule: one text-formatting surface at a time. The strip wins. The MicroBar is onl
 
 `tapSelect.ts` stays the single counter. Text tool: 1 caret, 2 word, 3 line, 4 paragraph. On bare paper a tap = new box (above). A tap on the box border or ⠿ = pick the box (Box bar). Strip and popover buttons are `data-ui` (item 3 fix), so Pencil taps press them.
 
+## 5b. Box states (owner-observed GoodNotes behaviour, 10 Nov)
+
+| State | How you get there | What shows |
+|---|---|---|
+| **Idle** | tap bare paper, Esc | the box's own style only (None = no frame) |
+| **Selected** | tap the box's **outer frame** (finger or Pencil; a 12 px band inside + 8 px outside the edge, at least 44 px total for touch) | floating Box bar + grid handles (⠿ move, column dividers), accent frame |
+| **Typing** | tap inside the text (or a new box) | Box bar **hidden**, only a thin 1 px outline round the typing area, caret; iPad keyboard bar if the keyboard is up; the Text strip stays as it is |
+| back to **Selected** | tap the frame again while typing | bar and handles return, caret kept in memory (tap inside resumes at the same spot) |
+
+- One state per page (`boxState: idle | selected(ids) | typing(id)`) in a small pure reducer `paper/boxState.ts`, fed by `tapSelect.ts`. Frame hits are tested before text hits. Unit-test every transition.
+- The MicroBar never shows in Typing (the strip or keyboard bar covers it), which matches "while typing, the bar hides".
+- e2e (added to `textTool.spec.ts`): (l) frame tap shows bar + handles; tap inside hides the bar, outline stays, typing works; frame tap brings the bar back, then typing resumes at the same caret; (m) the same with a Pencil pointer; (n) Esc / bare-paper tap goes to Idle.
+
 ## 6. Tool bar: Layout + Box style
 
 Add the Layout ▦ (from the Layout Assist plan) and a Box style swatch to the **Text strip** and the **Box bar**, and not as new main-bar icons. A main-bar slot is allowed only through the existing pin-a-tool control panel (both are offered there). Reason: the main bar is tools (modes), while these are actions on a box. (Owner Q2.)

@@ -223,6 +223,13 @@ export function watchPenGuard(
   let gesturePointer: number | null = null
 
   const onPointer = (e: PointerEvent) => {
+    // A press on a bar, menu or button (Delete, Cut ...) is the person asking:
+    // it ends the grace period after a tap-selection at once.
+    if (
+      e.type === 'pointerdown' &&
+      !(e.target instanceof Node && dom.contains(e.target))
+    )
+      penState.selectedAt = -1e9
     if (e.pointerType !== 'pen') return
     if (e.type === 'pointerdown') {
       if (e.target instanceof Node && dom.contains(e.target)) {

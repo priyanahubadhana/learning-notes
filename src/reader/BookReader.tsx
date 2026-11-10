@@ -30,7 +30,6 @@ import {
   listAnnotations,
   locatorOf,
 } from './annotations/annotationService'
-import { AnnotationsPanel } from './annotations/AnnotationsPanel'
 import { BulkCardsDialog } from './annotations/BulkCardsDialog'
 import {
   makeCardsFromAnnotations,
@@ -47,6 +46,7 @@ import {
 } from './annotations/saveToNotes'
 import { SelectionPopup } from './annotations/SelectionPopup'
 import type { OutlineItem, PdfSelection } from './pdf/PdfView'
+import { requestOutline } from '../app/panel/outlineRequest'
 import { FindPanel } from './pdf/FindPanel'
 import { pageText } from './pdf/pdfSearch'
 import { applyOrientation } from './extras/orientation'
@@ -128,9 +128,7 @@ export function BookReader({
     value?: number
   } | null>(null)
   const [zoom, setZoom] = useState(1)
-  const [panel, setPanel] = useState<
-    'contents' | 'annotations' | 'find' | 'ask' | null
-  >(null)
+  const [panel, setPanel] = useState<'find' | 'ask' | null>(null)
   const [pdfDoc, setPdfDoc] = useState<PDFDocumentProxy | null>(null)
   const [flipOpen, setFlipOpen] = useState(false)
   // C2b: drawing on the pages (the Pen is on).
@@ -426,15 +424,10 @@ export function BookReader({
       })(),
     )
 
-  const jump = (a: Annotation) => {
-    const loc = locatorOf(a.anchor)
-    if (!loc) return
-    setPanel(null)
-    setTarget((prev) => ({
-      at: loc,
-      nonce: (prev?.nonce ?? 0) + 1,
-      glow: a.id,
-    }))
+  /** Contents and Notes live in the left panel (one place). */
+  const openLeft = (tab: 'outline' | 'annotations' | 'audio') => {
+    setFull(false)
+    requestOutline(tab)
   }
 
   // The left panel shows this book while the reader is open (items 32, 45).
@@ -455,6 +448,7 @@ export function BookReader({
       outline,
       doc: pdfDoc,
       go: (at) => setTarget((prev) => ({ at, nonce: (prev?.nonce ?? 0) + 1 })),
+      makeCards: (list) => setBulk(list),
       jump: (a) => {
         const loc = locatorOf(a.anchor)
         if (!loc) return
@@ -904,22 +898,16 @@ export function BookReader({
         <button
           type="button"
           data-testid="reader-contents"
-          aria-pressed={panel === 'contents'}
-          className={panelBtn(panel === 'contents')}
-          onClick={() =>
-            setPanel((p) => (p === 'contents' ? null : 'contents'))
-          }
+          className={panelBtn(false)}
+          onClick={() => openLeft('outline')}
         >
           {t('bookreader.contents')}
         </button>
         <button
           type="button"
           data-testid="reader-annotations"
-          aria-pressed={panel === 'annotations'}
-          className={panelBtn(panel === 'annotations')}
-          onClick={() =>
-            setPanel((p) => (p === 'annotations' ? null : 'annotations'))
-          }
+          className={panelBtn(false)}
+          onClick={() => openLeft('annotations')}
         >
           {t('bookreader.annotations')}
         </button>
@@ -1156,17 +1144,6 @@ export function BookReader({
                   }
                 />
               </Suspense>
-            ) : panel === 'contents' ? (
-              <ContentsList
-                items={outline}
-                onPick={(item) => {
-                  setPanel(null)
-                  setTarget((prev) => ({
-                    at: (item as { at?: string }).at ?? `pdf:${item.page}:0`,
-                    nonce: (prev?.nonce ?? 0) + 1,
-                  }))
-                }}
-              />
             ) : panel === 'find' ? (
               <FindPanel
                 doc={pdfDoc}
@@ -1176,16 +1153,7 @@ export function BookReader({
                   goPage(p)
                 }}
               />
-            ) : (
-              <AnnotationsPanel
-                db={db}
-                pageId={pageId}
-                title={page.title}
-                onJump={jump}
-                onMakeCard={(a) => makeCards([a])}
-                onMakeCards={(list) => setBulk(list)}
-              />
-            )}
+            ) : null}
           </aside>
         )}
       </div>
@@ -1318,38 +1286,5 @@ export function BookReader({
         />
       )}
     </div>
-  )
-}
-
-function ContentsList({
-  items,
-  onPick,
-}: {
-  items: (OutlineItem & { at?: string })[]
-  onPick: (item: OutlineItem & { at?: string }) => void
-}) {
-  if (items.length === 0) {
-    return <p className="text-sm text-muted">{t('bookreader.noContents')}</p>
-  }
-  return (
-    <nav aria-label={t('bookreader.contents')}>
-      <ul>
-        {items.map((item, i) => (
-          <li key={i}>
-            <button
-              type="button"
-              onClick={() => onPick(item)}
-              style={{ paddingInlineStart: 8 + item.depth * 14 }}
-              className="flex min-h-11 w-full items-center justify-between gap-2 rounded-lg pe-2 text-start text-sm hover:bg-hover"
-            >
-              <span className="truncate">{item.title}</span>
-              {item.page > 0 && (
-                <span className="shrink-0 text-xs text-muted">{item.page}</span>
-              )}
-            </button>
-          </li>
-        ))}
-      </ul>
-    </nav>
   )
 }

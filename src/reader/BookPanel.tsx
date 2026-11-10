@@ -27,6 +27,8 @@ export default function BookPanel({
         pageId={bridge.pageId}
         title={bridge.title}
         onJump={bridge.jump}
+        onMakeCard={(a) => bridge.makeCards([a])}
+        onMakeCards={bridge.makeCards}
       />
     )
   }

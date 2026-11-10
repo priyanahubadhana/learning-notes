@@ -2,6 +2,10 @@
 
 Moved out of HANDOFF on 2026-11-06 (audit) so HANDOFF stays five lines. Newest first; each paragraph names its step. The run decision (master plan) is one owner iPad pass before Sync; the Phase A builder adds its checks at the top. Tick a paragraph by deleting it.
 
+## Builder H checks (10 Nov)
+
+(1) In a book, Contents and Notes open the left panel (no panel on the right).
+
 ## iPad checks: Builder F, book reader (10 Nov)
 
 On the iPad: (1) open a PDF with Continue, open the left panel: Pages shows page pictures, the open page is highlighted, tapping one jumps; scroll a long PDF's thumbnails (smooth, no blank flashes); Outline shows the contents; Notes lists bookmarks and highlights, tap jumps; closing the reader brings back the note's tabs. (2) EPUB: Pages lists chapters, the current one is highlighted. (3) Reader ⋯: Go to page (type a number), Sync to furthest page read (read to page 5 on one device, go back to page 1, tap it: back at 5). (4) Tap the ribbon at the page corner: it fills, a bookmark appears in Notes. (5) Full screen button: only text, tiny title and progress; tap the middle for the bar; tap the left or right edge to turn pages; the Home swipe or the button leaves. (6) PDF: double tap zooms around the spot with a small overview in the corner, drag to pan, double tap or the cross returns; pinch still works. (7) The 13 h EPUB (item 28) opens with text, also in Pages layout. Why human: touch, iPad Safari full screen and long books.

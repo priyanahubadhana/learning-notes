@@ -29,6 +29,8 @@ export interface ReaderBridge {
   doc: PDFDocumentProxy | null
   go: (at: string) => void
   jump: (a: Annotation) => void
+  /** Cards from one or several notes (the reader owns the card maker). */
+  makeCards: (list: Annotation[]) => void
 }
 
 export const readerBridge = memStore<ReaderBridge | null>(null)

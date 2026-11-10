@@ -424,8 +424,10 @@ export function LeftPanel({
   const tabs: readonly BookTabId[] = book ? BOOK_TABS : TABS
   const ask = outlineRequest.useValue()
   useEffect(() => {
-    if (ask.n > 0 && Date.now() - ask.at < 1500)
-      (book ? setBookTab : setTab)('outline')
+    if (ask.n > 0 && Date.now() - ask.at < 1500) {
+      const want = book ? ask.tab : ask.tab === 'audio' ? 'audio' : 'outline'
+      ;(book ? setBookTab : setTab)(want as never)
+    }
   }, [ask, setTab, book])
   const docked = window.innerWidth >= PANEL_DOCK_MIN
   return (

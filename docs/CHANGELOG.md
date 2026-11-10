@@ -2,6 +2,12 @@
 
 Current phase only. Older entries are in [ARCHIVE.md](ARCHIVE.md).
 
+## 2026-11-10 (Builder H: reader gestures, Aa, lock, read aloud (34, 37, 38, 41, 42))
+
+One bullet per push.
+
+- **Reader side panels removed:** the right-hand Contents and Notes panels are gone (the left BookPanel has both). The bar's Contents and Notes buttons open the left panel on Outline / Notes (`requestOutline(tab)`, `PanelAsk`); full screen steps out first. The left Notes tab now also makes cards (bridge `makeCards`). Files: BookReader.tsx, BookPanel.tsx, readerBridge.ts, LeftPanel.tsx, outlineRequest.ts.
+
 ## 2026-11-10 (Builder F: book reader panel, full screen, zoom (28, 29, 32, 44, 45))
 
 - **Items 32 and 45, context-aware left panel:** while the reader is open the left panel is about the book. The reader publishes a small store (`src/reader/readerBridge.ts`: page, chapter, outline, PDF document, go/jump) and clears it on close; `LeftPanel` reads it and shows Pages / Outline / Audio / **Notes** (new). Pages = PDF page pictures (virtualised: only the rows in view exist, 136 px rows, drawn after 150 ms so fast scrolls draw nothing; the open page is highlighted and scrolled into view) or, for an EPUB, the numbered chapters; Outline = the book's contents with the open entry highlighted; Notes = the existing annotations list (bookmarks, highlights, notes; filter by type, colour and chapter; tap to jump); Audio = the book page's recordings. The panel and its top-bar button now also show when the reader is open on a book that is not the current page. New code is a lazy chunk (`BookPanel.tsx`); the first load only gained the small store and tab list. Reader **⋯** menu: Go to page / location (PDF page number; EPUB percent) and Sync to furthest page read (`PageSource.furthest/furthestAt`, only moves forward, travels with the page record). Bookmark ribbon on the page corner (tap toggles; the bar star stays).

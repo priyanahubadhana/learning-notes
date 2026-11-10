@@ -42,6 +42,8 @@ async function newBox(page: Page, n: number, text = 'Box') {
 
 async function pickFrame(page: Page, box: Locator) {
   // A tap on the frame (the band just outside the top edge) selects the box.
+  // Mid-screen first: at the top the main bar would cover the band (iPad WebKit).
+  await box.evaluate((el) => el.scrollIntoView({ block: 'center' }))
   await box.hover()
   const b = await rect(box.locator('[data-box-band="top"]'))
   await page.mouse.click(b.x + b.width / 2, b.y + b.height / 2)
@@ -295,6 +297,8 @@ test('a Pencil tap on a strip button presses it and inks nothing', async ({
   await openPill(page, 'Text', 'text')
   void box
   const btn = pill(page, 'text').getByLabel('Box style')
+  await btn.evaluate((el) => el.scrollIntoView({ block: 'nearest' }))
+  await expect(btn).not.toHaveAttribute('aria-disabled', 'true')
   const b = (await btn.boundingBox())!
   await page.evaluate(
     ({ x, y }) => {

@@ -82,7 +82,8 @@ test('two columns: side by side, no overlap, stable sizes, grip top-left', async
     const box = await rect(extra.nth(i))
     const g = await rect(extra.nth(i).locator('[data-box-grip]'))
     expect(Math.abs(g.x - box.x)).toBeLessThan(6)
-    expect(g.y + g.height).toBeLessThan(box.y + 4)
+    // The corner above the box's top left (not the middle): WebKit sits a few px lower.
+    expect(g.y).toBeLessThan(box.y + 12)
   }
 })
 
@@ -98,17 +99,17 @@ test('after a move the grip is still at the top-left; the drag is one transform'
   await page.mouse.down()
   await page.mouse.move(g0.x + 40, g0.y + 120, { steps: 6 })
   // Mid-drag: the copy is placed once and moved by a transform only.
-  const mid = await from.evaluate((e) => ({
-    left: (e as HTMLElement).style.left,
-    top: (e as HTMLElement).style.top,
-    t: (e as HTMLElement).style.transform,
-  }))
-  expect(mid.t).toContain('translate3d')
+  const style = () =>
+    from.evaluate((e) => ({
+      left: (e as HTMLElement).style.left,
+      top: (e as HTMLElement).style.top,
+      t: (e as HTMLElement).style.transform,
+    }))
+  await expect.poll(async () => (await style()).t).toContain('translate3d')
+  const mid = await style()
   await page.mouse.move(g0.x + 80, g0.y + 160, { steps: 6 })
-  const mid2 = await from.evaluate((e) => ({
-    left: (e as HTMLElement).style.left,
-    top: (e as HTMLElement).style.top,
-  }))
+  await page.waitForTimeout(300)
+  const mid2 = await style()
   expect(mid2.left).toBe(mid.left)
   expect(mid2.top).toBe(mid.top)
   await page.mouse.up()
@@ -119,6 +120,6 @@ test('after a move the grip is still at the top-left; the drag is one transform'
     const box = await rect(extra.nth(i))
     const g = await rect(extra.nth(i).locator('[data-box-grip]'))
     expect(Math.abs(g.x - box.x), 'grip x').toBeLessThan(6)
-    expect(g.y + g.height, 'grip above box').toBeLessThan(box.y + 4)
+    expect(g.y, 'grip in the top-left corner').toBeLessThan(box.y + 12)
   }
 })

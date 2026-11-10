@@ -63,3 +63,4 @@ Collected from the owner's iPad pass; fix all in one go when the owner says so.
 - Builder A (input & selection): items 1, 2, 11, 15, 17, 19, 20, 21, 22e/h/i, 25 (input ownership, smooth drag of boxes).
 - Builder B (paper layout & pictures): items 5, 6, 7, 9, 10, 13, 14, 22a-d/f/g/j, 26 (snap grid per docs/plans/box-grid-plan.md, with Layout picker now).
 - Builder C (app-wide): items 3, 4, 8 (undo/redo + version history), 12 (micro text bar), 16, 24 (update), 18 (refresh button), 23 (sync defaults), 27 (Review space).
+28. **Book reader blank (live).** Library › imported a book › Continue/Play → blank empty screen, nothing loads. Find cause (likely a regression from the frame/glass, icons, tools-robustness ink changes to BookInk, or the reader player route), fix, and add an e2e: import EPUB and PDF, open, Continue, read aloud Play.

@@ -1018,3 +1018,7 @@ The other older decisions stand as built (owner, 2026-11-01); they are in [ARCHI
 - **Spanish and Hindi texts are drafts.** The mock connector accepts code 123456 only in browser tests.
 
 - **2026-11-09 · Settings sync plan approved** (docs/plans/settings-sync-plan.md). Theme, language and AI spending limit sync by default. Build after the remote sign-out and accounts builders finish.
+
+## Decisions to review (Pencil double tap, 11 Nov)
+
+- **Grace period 600 ms** after a tap selects text, nothing may delete, replace or write over the selection (no key pressed). Chosen just above the 500 ms Pencil-lift window and the 450 ms tap gap; short enough that real Scribble writing still works a moment later. Applies even when Scribble is free (Text tool). Side effect: dictation or autocorrect inside that 600 ms is also refused. Change: SELECT_GRACE_MS in src/editor/penGuard.ts.

@@ -208,3 +208,57 @@ test('a slow second tap (over 450 ms) is a plain tap: no word is selected', asyn
   await page.waitForTimeout(300)
   expect(await marked(page)).toBe('')
 })
+
+test('11 Nov bug: after a Pencil double tap, no stray input erases or replaces the word for 600 ms', async ({
+  page,
+}) => {
+  await setup(page)
+  const at = await wordPoint(page, 'summary')
+  await taps(page, at, 2)
+  await expect.poll(() => marked(page)).toBe('summary')
+  const before = await page.evaluate(
+    () => document.querySelector('.bn-editor')!.textContent,
+  )
+  // Pencil drift / Scribble right after the tap: a delete, a write and a
+  // real insert over the selection. All are refused inside the grace period.
+  const inGrace = await page.evaluate(() => {
+    const ed = document.querySelector('.bn-editor') as HTMLElement
+    const prevented = (inputType: string, data?: string) => {
+      const ev = new InputEvent('beforeinput', {
+        inputType,
+        data,
+        bubbles: true,
+        cancelable: true,
+      })
+      ed.dispatchEvent(ev)
+      return ev.defaultPrevented
+    }
+    const out = {
+      del: prevented('deleteContentBackward'),
+      write: prevented('insertText', '.'),
+      replace: prevented('insertReplacementText', 'x'),
+    }
+    document.execCommand('insertText', false, 'x')
+    return out
+  })
+  expect(inGrace).toEqual({ del: true, write: true, replace: true })
+  expect(
+    await page.evaluate(
+      () => document.querySelector('.bn-editor')!.textContent,
+    ),
+  ).toBe(before)
+  expect(await marked(page)).toBe('summary')
+  // After the grace period the Text tool is free for Scribble again.
+  await page.waitForTimeout(800)
+  const after = await page.evaluate(() => {
+    const ev = new InputEvent('beforeinput', {
+      inputType: 'insertReplacementText',
+      data: 'x',
+      bubbles: true,
+      cancelable: true,
+    })
+    document.querySelector('.bn-editor')!.dispatchEvent(ev)
+    return ev.defaultPrevented
+  })
+  expect(after).toBe(false)
+})

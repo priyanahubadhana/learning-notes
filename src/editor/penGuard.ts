@@ -29,6 +29,13 @@ import type { AppSchema } from './schema'
 type Editor = AppSchema['BlockNoteEditor']
 
 const PEN_AFTER_MS = 500
+/**
+ * After a Pencil double/triple tap selects text, nothing may delete, replace
+ * or write over that selection for this long (ms) unless a key was pressed,
+ * whatever the Scribble setting. Pencil drift or a stray Scribble dot right
+ * after the tap otherwise replaces the word (owner bug, 11 Nov 2026).
+ */
+export const SELECT_GRACE_MS = 600
 const KEY_RECENT_MS = 500
 /** A drop of this many characters right after pen input offers Undo. */
 const BIG_DELETION = 20
@@ -42,9 +49,16 @@ export interface PenState {
   upAt: number
   /** When a key was last pressed (ms). */
   lastKeyAt: number
+  /** When a tap last selected text on purpose (ms). */
+  selectedAt?: number
 }
 
-export const penState: PenState = { down: false, upAt: -1e9, lastKeyAt: -1e9 }
+export const penState: PenState = {
+  down: false,
+  upAt: -1e9,
+  lastKeyAt: -1e9,
+  selectedAt: -1e9,
+}
 const clock: () => number = () => Date.now()
 
 // The watchdog: a Pencil gesture whose lift was lost in the background must
@@ -57,6 +71,17 @@ registerToolState('penGuard', () => ({
   upAgoMs: penState.upAt > 0 ? clock() - penState.upAt : null,
 }))
 
+/** A tap just selected text: the grace period is on. */
+export const selectGraceOn = (
+  pen: { selectedAt?: number },
+  now: number,
+): boolean => now - (pen.selectedAt ?? -1e9) < SELECT_GRACE_MS
+
+/** Called by tapSelect when a Pencil tap has selected a word, line or block. */
+export function noteTapSelected(now: number = clock()): void {
+  penState.selectedAt = now
+}
+
 /** Is a Pencil gesture going on, or did one just end? */
 const penBusy = (pen: { down: boolean; upAt: number }, now: number): boolean =>
   pen.down || now - pen.upAt < PEN_AFTER_MS
@@ -65,11 +90,14 @@ const penBusy = (pen: { down: boolean; upAt: number }, now: number): boolean =>
 export function refuseDelete(
   inputType: string,
   now: number,
-  pen: { down: boolean; upAt: number },
+  pen: { down: boolean; upAt: number; selectedAt?: number },
   lastKeyAt: number,
 ): boolean {
   if (!inputType.startsWith('delete')) return false
-  return penBusy(pen, now) && now - lastKeyAt > KEY_RECENT_MS
+  return (
+    (penBusy(pen, now) || selectGraceOn(pen, now)) &&
+    now - lastKeyAt > KEY_RECENT_MS
+  )
 }
 
 /** What Scribble sends when it writes: text in, or text swapped. */
@@ -85,10 +113,17 @@ const WRITING = new Set([
 export function refuseInput(
   inputType: string,
   now: number,
-  pen: { down: boolean; upAt: number },
+  pen: { down: boolean; upAt: number; selectedAt?: number },
   lastKeyAt: number,
   scribbleOn: boolean,
 ): boolean {
+  // Grace after a tap-selection: no deleting and no writing, Scribble or not.
+  if (
+    selectGraceOn(pen, now) &&
+    now - lastKeyAt > KEY_RECENT_MS &&
+    (inputType.startsWith('delete') || WRITING.has(inputType))
+  )
+    return true
   // Scribble free (Text tool): handwriting and small deletes are the user's
   // own; only a big scratch-out is held back (see refuseTransaction).
   if (scribbleOn) return false
@@ -127,6 +162,7 @@ export function refuseTransaction(
   // Undo and Redo, and a real key press, are the user's own doing.
   if (tr.getMeta('history$') !== undefined) return false
   if (now - pen.lastKeyAt <= KEY_RECENT_MS) return false
+  if (selectGraceOn(pen, now)) return true
   if (!penBusy(pen, now)) return false
   // Scribble free: small edits are fine, a big scratch-out is refused.
   if (scribbleOn) {

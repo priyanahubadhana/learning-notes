@@ -3,6 +3,7 @@ import type { EditorView } from 'prosemirror-view'
 import { onGestureReset, registerToolState } from '../app/gestureReset'
 import { activeTool } from '../app/tools/main/mainTools'
 import { keepSelection } from './ownSelection'
+import { noteTapSelected } from './penGuard'
 import { wordAround } from './penSelect'
 import type { AppSchema } from './schema'
 
@@ -370,10 +371,13 @@ export function watchTapSelect(
     const range = rangeForTaps(view, pos, level, e.clientY)
     if (!range) return
     ;(e as PointerEvent & { [TAP_SELECTED]?: boolean })[TAP_SELECTED] = true
+    // Grace period: nothing may erase or replace this selection for a moment.
+    noteTapSelected()
     // After the browser's own tap handling, so ours is what stays.
     setTimeout(() => {
       const d = view.state.doc
       if (range[1] > d.content.size) return
+      noteTapSelected()
       view.dispatch(
         view.state.tr.setSelection(TextSelection.create(d, range[0], range[1])),
       )

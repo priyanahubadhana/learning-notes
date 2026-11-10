@@ -6,6 +6,10 @@ On the iPad (these need a real Pencil and eyes): (1) Two-column row from Layout:
 
 Moved out of HANDOFF on 2026-11-06 (audit) so HANDOFF stays five lines. Newest first; each paragraph names its step. The run decision (master plan) is one owner iPad pass before Sync; the Phase A builder adds its checks at the top. Tick a paragraph by deleting it.
 
+## Pencil double tap bug (11 Nov)
+
+On the iPad, Text tool: double tap a word with the Pencil, wiggling it a little, several times in different words ("let me type text"). The word is selected and stays; nothing is deleted or replaced. Then, after about a second, write with the Pencil (Scribble): handwriting still works. Why human: real Pencil drift and Scribble.
+
 ## iPad checks: one Undo history (Builder D, 10 Nov)
 
 On the iPad: (1) Type a line, draw a stroke, move a box, change the paper style, add a tag, then tap Undo 5 times: each change goes back in that order and Redo brings it forward; a stray Enter, comma or pen tap can be undone. (2) Make 30 small changes (words, strokes, box moves) and Undo 30 times: still going. (3) Delete a box and Undo from the tool bar: the box and its lines come back. (4) Restore an old version in Page history, then Undo: the page returns to how it was. (5) Open a book (PDF and EPUB) and a note in reading mode: the Undo/Redo pair is the first thing at the top left on every screen, and the Pen strip has no Undo/Redo words. (6) Switch to another app and back, then Undo: it still works. Reload the app: Undo still walks back through box and paper changes (typing and drawing start fresh). Why human: Pencil timing and real iPadOS app switching.

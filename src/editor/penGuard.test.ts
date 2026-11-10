@@ -112,3 +112,39 @@ describe('refuseTransaction', () => {
     ).toBe(false)
   })
 })
+
+describe('grace period after a tap selects text', () => {
+  const sel = { down: false, upAt: -1e9, selectedAt: 1000 }
+  it('refuses delete and writing for 600 ms, even with Scribble free', () => {
+    for (const type of [
+      'deleteContentBackward',
+      'insertText',
+      'insertReplacementText',
+    ]) {
+      expect(refuseInput(type, 1500, sel, -1e9, true)).toBe(true)
+      expect(refuseInput(type, 1599, sel, -1e9, false)).toBe(true)
+      expect(refuseInput(type, 1600, sel, -1e9, true)).toBe(false)
+    }
+  })
+  it('lets a real key press through', () => {
+    expect(refuseInput('deleteContentBackward', 1200, sel, 1100, true)).toBe(
+      false,
+    )
+  })
+  it('refuses a transaction that replaces the selection, then allows it', () => {
+    const schema = new Schema({
+      nodes: {
+        doc: { content: 'paragraph+' },
+        paragraph: { content: 'text*' },
+        text: {},
+      },
+    })
+    const doc = schema.node('doc', null, [
+      schema.node('paragraph', null, schema.text('let me type text')),
+    ])
+    const tr = () => EditorState.create({ doc }).tr.insertText('x', 8, 12)
+    const pen = { down: false, upAt: -1e9, lastKeyAt: -1e9, selectedAt: 1000 }
+    expect(refuseTransaction(tr(), 1300, pen, true)).toBe(true)
+    expect(refuseTransaction(tr(), 1700, pen, true)).toBe(false)
+  })
+})

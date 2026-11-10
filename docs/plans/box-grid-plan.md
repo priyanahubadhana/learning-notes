@@ -1,5 +1,7 @@
 # Box grid plan (bug batch item 26, owner decision 10 Nov)
 
+**Status (10 Nov): built, including the Layout picker (not later). Notes on what differs are in DECISIONS ("Box grid replaces").**
+
 Research: [research/box-grid-2026-11.md](../research/box-grid-2026-11.md). This replaces free x/y boxes and the `clearOfBoxes`/`dropPlan` push-down. Boxes never overlap. Ink can still go over text (ink layer).
 
 ## Terms (data model)

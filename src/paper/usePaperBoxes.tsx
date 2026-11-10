@@ -1,17 +1,23 @@
-import { useContext, useEffect, useState, type ReactNode } from 'react'
+import { useContext, useEffect, useRef, useState, type ReactNode } from 'react'
 import { AppUiContext } from '../app/appUi'
 import { runTask } from '../app/errors'
 import { activeTool } from '../app/tools/main/mainTools'
 import { MenuPopover, type MenuItem } from '../app/ui'
 import type { LearningNotesDB } from '../core/db'
-import type { PaperBox } from '../core/types'
+import type { GridRow, PaperBox } from '../core/types'
 import { triggerFirstUse } from '../help/firstUse'
-import { t } from '../i18n/t'
+import { t, type MessageKey } from '../i18n/t'
 import { BOX_COLOURS } from './boxes'
+import { PRESETS } from './grid'
 import {
   addBox,
   addBoxInOrder,
   addBoxWithLines,
+  applyBoxLayout,
+  restoreGrid,
+  updateGrid,
+  type BoxPatch,
+  type GridBefore,
   repairBoxes,
   removeIfEmptyBox,
   duplicateBox,
@@ -42,12 +48,16 @@ export function usePaperBoxes(
   pageId: string,
   editable: boolean,
 ): {
-  onAddBox?: (at: { x: number; y: number }) => void
+  onAddBox?: (at: { x: number; y: number; row?: number }) => void
   /** Phones: a new box in the reading order (after a box id, 'start' or 'end'). */
   onAddBoxInOrder?: (after: string) => void
   onBoxChange: (id: string, patch: Partial<PaperBox>) => void
   /** Several boxes moved by one drop: one write, and Undo when more than one. */
   onBoxesChange: (changes: BoxChange[]) => void
+  /** The grid changed (a drop, a divider): one write, with Undo. */
+  onGridChange: (rows: GridRow[], places: BoxPatch[]) => void
+  /** The paper tells the hook the grid as drawn now: for ⋯ › Layout. */
+  onGridView: (rows: GridRow[], places: BoxPatch[]) => void
   onBoxMenu: (box: PaperBox, at: DOMRect) => void
   onDeleteBox: (box: PaperBox) => void
   /** The floating bar under a selected box. */
@@ -138,7 +148,31 @@ export function usePaperBoxes(
     }
   }, [editable, toast])
 
-  const onAddBox = (at: { x: number; y: number }) => {
+  const gridView = useRef<{ rows: GridRow[]; places: BoxPatch[] }>({
+    rows: [],
+    places: [],
+  })
+  const undoGrid = (before: GridBefore | null) => {
+    if (!before) return
+    toast(t('layout.done'), {
+      label: t('paper.box.undo'),
+      onSelect: () => runTask(restoreGrid(db, pageId, before)),
+    })
+  }
+  const onGridChange = (rows: GridRow[], places: BoxPatch[]) =>
+    runTask(updateGrid(db, pageId, rows, places).then(undoGrid))
+  const onLayout = (box: PaperBox, presetId: string) =>
+    runTask(
+      applyBoxLayout(
+        db,
+        pageId,
+        box.id,
+        presetId,
+        gridView.current.rows,
+        gridView.current.places,
+      ).then(undoGrid),
+    )
+  const onAddBox = (at: { x: number; y: number; row?: number }) => {
     if (activeTool.get() !== 'text') return
     triggerFirstUse('paperBox')
     runTask(addBox(db, pageId, at).then(setFresh))
@@ -221,6 +255,18 @@ export function usePaperBoxes(
       ],
     },
     {
+      label: t('layout.title'),
+      icon: '▦',
+      onSelect: () => {},
+      submenu: PRESETS.map((p): MenuItem => ({
+        label: t(('layout.' + p.id) as MessageKey),
+        icon: '▦',
+        // The grid is read from a ref when the item is chosen, not while drawing.
+        // eslint-disable-next-line react-hooks/refs
+        onSelect: () => onLayout(box, p.id),
+      })),
+    },
+    {
       label: t('paper.box.delete'),
       icon: 'trash',
       danger: true,
@@ -242,6 +288,10 @@ export function usePaperBoxes(
     onAddBoxInOrder: editable ? onAddBoxInOrder : undefined,
     onBoxChange,
     onBoxesChange,
+    onGridChange: editable ? onGridChange : () => {},
+    onGridView: (rows, places) => {
+      gridView.current = { rows, places }
+    },
     onBoxMenu: (box, at) => setMenuFor({ box, at }),
     onDeleteBox: remove,
     renderBar: (box) => (

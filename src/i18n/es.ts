@@ -24,6 +24,7 @@ import { esF } from './esF'
 import { esD } from './esD'
 import { esN } from './esN'
 import { esO } from './esO'
+import { esB } from './esB'
 import { esM } from './esM'
 import { esNlm } from './esNlm'
 import { esNbh } from './esNbh'
@@ -56,6 +57,7 @@ export const es: Record<string, string> = {
   ...esD,
   ...esN,
   ...esO,
+  ...esB,
   ...esM,
   ...esNlm,
   ...esNbh,

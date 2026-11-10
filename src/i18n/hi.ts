@@ -24,6 +24,7 @@ import { hiF } from './hiF'
 import { hiD } from './hiD'
 import { hiN } from './hiN'
 import { hiO } from './hiO'
+import { hiB } from './hiB'
 import { hiM } from './hiM'
 import { hiNlm } from './hiNlm'
 import { hiNbh } from './hiNbh'
@@ -56,6 +57,7 @@ export const hi: Record<string, string> = {
   ...hiD,
   ...hiN,
   ...hiO,
+  ...hiB,
   ...hiM,
   ...hiNlm,
   ...hiNbh,

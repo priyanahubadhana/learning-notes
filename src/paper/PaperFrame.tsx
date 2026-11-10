@@ -5,6 +5,7 @@ import {
   useEffect,
   useImperativeHandle,
   useLayoutEffect,
+  useMemo,
   useRef,
   useState,
   type CSSProperties,
@@ -16,21 +17,30 @@ import {
 import { createPortal } from 'react-dom'
 import { Tip } from '../help/Help'
 import { t } from '../i18n/t'
-import type { Page, PaperBox } from '../core/types'
+import type { GridRow, Page, PaperBox } from '../core/types'
 import {
   boxesOf,
-  dropPlan,
   MAIN_BOX,
   mainBox,
   MARGIN,
   TOP,
-  type PlanBox,
   readingOrder,
   sheetOf,
-  snapMove,
 } from './boxes'
 import { BoxFrame, type GrabHow } from './BoxFrame'
 import { clampBox, MIN_W, type BoxPatch } from './boxService'
+import {
+  insertAt,
+  insertRow,
+  layoutRows,
+  migrateToRows,
+  reconcile,
+  removeBox as removeFromRows,
+  zoneOf,
+  type Geometry,
+  type Zone,
+} from './grid'
+import { GridDividers } from './GridDividers'
 import { bounds, record, replay, waitFor, type Recorded } from './penOnPaper'
 import { activeTool } from '../app/tools/main/mainTools'
 import { onGestureReset } from '../app/gestureReset'
@@ -74,7 +84,8 @@ export function PaperFrame({
   eager,
   onAddBox,
   onAddBoxInOrder,
-  onBoxesChange,
+  onGridChange,
+  onGridView,
   onBoxMenu,
   onDeleteBox,
   renderBar,
@@ -82,17 +93,24 @@ export function PaperFrame({
   showHint = false,
   children,
 }: {
-  page: Pick<Page, 'id' | 'sheet' | 'inkBg' | 'boxes'>
+  page: Pick<Page, 'id' | 'sheet' | 'inkBg' | 'boxes' | 'rows'>
   /** The block editor of a box other than the default one. */
   renderBox?: (boxId: string) => ReactNode
   /** A box whose editor is made at once (just made: it takes the caret). */
   eager?: string | null
   /** A tap on empty paper (mm); unset = no new boxes (read-only). */
-  onAddBox?: (at: { x: number; y: number }) => void
+  onAddBox?: (at: { x: number; y: number; row?: number }) => void
   /** Phones (fit width): a new box after a box id, at the 'start' or the 'end'. */
   onAddBoxInOrder?: (after: string) => void
   /** Boxes moved or resized in one go (a drop pushes others): one Undo. */
   onBoxesChange?: (changes: BoxChange[]) => void
+  /**
+   * Item 26: a drop or a divider changed the box grid: the new rows and the
+   * places they give the boxes (mm), in one write, one Undo.
+   */
+  onGridChange?: (rows: GridRow[], places: BoxPatch[]) => void
+  /** Tells the hook the grid as drawn now (rows, places), for ⋯ › Layout. */
+  onGridView?: (rows: GridRow[], places: BoxPatch[]) => void
   onBoxMenu?: (box: PaperBox, at: DOMRect) => void
   /** Delete a box (an empty box goes with Backspace; a selected one with Delete). */
   onDeleteBox?: (box: PaperBox) => void
@@ -148,25 +166,105 @@ export function PaperFrame({
   const k = width / sheet.w // px per mm
   const sheetPx = sheet.h * k
 
+  // ---- The box grid (item 26): rows of 1-3 columns, boxes never overlap ----
+  // Heights are measured (px) and turned into mm; the layout is pure maths
+  // (grid.ts). A page with no stored rows is arranged in memory from its
+  // boxes; rows are written on the first change.
+  const [heights, setHeights] = useState<Record<string, number>>({})
+  const reportHeight = useCallback((id: string, px: number) => {
+    setHeights((h) => (h[id] === px ? h : { ...h, [id]: px }))
+  }, [])
+  const heightsMm = useMemo(
+    () =>
+      Object.fromEntries(
+        Object.entries(heights).map(([id, px]) => [id, px / (k || 1)]),
+      ),
+    [heights, k],
+  )
+  const geo: Geometry = useMemo(
+    () => ({
+      sheetW: sheet.w,
+      sheetH: sheet.h,
+      gapMm: SHEET_GAP_PX / (k || 1),
+      left: box.x,
+      right: sheet.w - box.x - box.w,
+      top: box.y,
+      bottom: MARGIN,
+    }),
+    [sheet.w, sheet.h, k, box.x, box.w, box.y],
+  )
+  const baseRows = useMemo(
+    () =>
+      page.rows
+        ? reconcile(
+            page.rows,
+            boxesOf(page).map((b) => b.id),
+          )
+        : migrateToRows(boxesOf(page), heightsMm),
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+    [page.rows, page.boxes, page.sheet],
+  )
+  /** The arrangement shown while a box is dragged (the live preview). */
+  const [preview, setPreview] = useState<GridRow[] | null>(null)
+  /** A dropped arrangement stays until the saved page catches up. */
+  const [heldState, setHeldState] = useState<{
+    rows: GridRow[]
+    base: GridRow[] | undefined
+  } | null>(null)
+  const heldRows =
+    heldState && heldState.base === page.rows ? heldState.rows : null
+  const setHeldRows = (rows: GridRow[] | null) =>
+    setHeldState(rows ? { rows, base: page.rows } : null)
+  useEffect(() => {
+    if (!heldState) return
+    const id = window.setTimeout(() => setHeldState(null), 1500)
+    return () => window.clearTimeout(id)
+  }, [heldState])
+  const rowsView = preview ?? heldRows ?? baseRows
+  const layout = useMemo(
+    () => layoutRows(rowsView, heightsMm, geo),
+    [rowsView, heightsMm, geo],
+  )
+  const mainShown = layout.get(MAIN_BOX) ?? { x: box.x, y: box.y, w: box.w }
+  /** A box with the place the grid gives it. */
+  const placed = (b: PaperBox): PaperBox => {
+    const r = layout.get(b.id)
+    return r ? { ...b, x: r.x, y: r.y, w: r.w } : b
+  }
+
   // The paper grows a sheet at a time under the box's text.
   useEffect(() => {
     const el = boxEl.current
     if (!el) return
-    const measure = () =>
+    const measure = () => {
       setBoxBottom(
         el.getBoundingClientRect().bottom -
           (el.parentElement?.getBoundingClientRect().top ?? 0),
       )
+      // The default box's height for the grid: its editor (the text, not the
+      // stretch the ink tools give the box) and the bottom margin.
+      const ed = el.querySelector<HTMLElement>('.bn-editor')
+      reportHeight(
+        MAIN_BOX,
+        Math.round(
+          ed
+            ? ed.getBoundingClientRect().bottom -
+                el.getBoundingClientRect().top +
+                MARGIN * k
+            : el.offsetHeight,
+        ),
+      )
+    }
     measure()
     const ro = new ResizeObserver(measure)
     ro.observe(el)
     return () => ro.disconnect()
-  }, [k])
+  }, [k, reportHeight])
   const lowest = Math.max(
     boxBottom,
     ...boxesOf(page)
       .filter((b) => b.id !== MAIN_BOX)
-      .map((b) => bottoms[b.id] ?? b.y * k),
+      .map((b) => bottoms[b.id] ?? (layout.get(b.id)?.y ?? b.y) * k),
   )
   const sheets = sheetCount(lowest + MARGIN * k, sheetPx)
 
@@ -339,7 +437,9 @@ export function PaperFrame({
     }
   }, [k, sheets, narrow, flat, page.boxes?.length])
 
-  const stored = boxesOf(page).filter((b) => b.id !== MAIN_BOX)
+  const stored = boxesOf(page)
+    .filter((b) => b.id !== MAIN_BOX)
+    .map(placed)
   // Wide: in the order they were made (a new box never moves another in the
   // page, so the caret stays); fit width: stacked in reading order.
   const extra = narrow ? readingOrder(stored) : stored
@@ -407,42 +507,23 @@ export function PaperFrame({
     return () => window.removeEventListener('keydown', key)
   }, [picked, extra, onDeleteBox])
 
-  // Moving and resizing boxes. The box under the pointer (and the others
-  // picked with it) follow it as see-through copies; every drop is planned
-  // (`dropPlan`) so boxes never overlap: the ones below make room.
+  // Moving boxes (item 26). The box under the pointer (and the others picked
+  // with it) follow it as see-through copies; the other boxes slide into the
+  // arrangement the drop would give (a live preview), an accent outline marks
+  // the landing cell. Release = one write, one Undo.
   const [liveBoxes, setLiveBoxes] = useState<Map<string, PaperBox> | null>(null)
-  const [landing, setLanding] = useState<Map<string, PaperBox> | null>(null)
-  // A dropped box stays where it landed until the saved page catches up.
-  const [heldRaw, setHeld] = useState<Map<string, PaperBox> | null>(null)
-  const held =
-    heldRaw &&
-    [...heldRaw].some(([id, h]) => {
-      const b = page.boxes?.find((x) => x.id === id)
-      return !b || b.x !== h.x || b.y !== h.y || b.w !== h.w
-    })
-      ? heldRaw
-      : null
-  useEffect(() => {
-    if (!heldRaw) return
-    const id = window.setTimeout(() => setHeld(null), 1500)
-    return () => window.clearTimeout(id)
-  }, [heldRaw])
-  const [dropLines, setDropLines] = useState<PaperBox[]>([])
-  const [guides, setGuides] = useState<{
-    gx: number | null
-    gy: number | null
-  } | null>(null)
+  const [ghost, setGhost] = useState<{ id: string; full: boolean } | null>(null)
   const drag = useRef<{
-    how: GrabHow
     x0: number
     y0: number
     lead: string
     ids: string[]
     orig: Map<string, PaperBox>
+    rows0: GridRow[]
     moved: boolean
     shift: boolean
   } | null>(null)
-  const grab = (box: PaperBox, how: GrabHow, e: ReactPointerEvent) => {
+  const grab = (box: PaperBox, _how: GrabHow, e: ReactPointerEvent) => {
     if (e.button !== 0) return
     e.preventDefault()
     e.stopPropagation()
@@ -451,72 +532,69 @@ export function PaperFrame({
     } catch {
       // The moves still reach the handle.
     }
-    const group =
-      how === 'move' && picked.includes(box.id)
-        ? extra.filter((b) => picked.includes(b.id) && !b.locked)
-        : [box]
+    const group = picked.includes(box.id)
+      ? extra.filter((b) => picked.includes(b.id) && !b.locked)
+      : [box]
+    const ids = box.locked ? [] : group.map((b) => b.id)
+    // The grabbed box leads, the others follow in reading order.
+    ids.sort((a, b2) => (a === box.id ? -1 : b2 === box.id ? 1 : 0))
     drag.current = {
-      how,
       x0: e.clientX,
       y0: e.clientY,
       lead: box.id,
-      ids: box.locked ? [] : group.map((b) => b.id),
+      ids,
       orig: new Map(group.map((b) => [b.id, b])),
+      rows0: baseRows,
       moved: false,
       shift: e.shiftKey,
     }
   }
-  /** Every box now (mm): its place and size on the paper. */
-  const rectsNow = (): PlanBox[] => {
-    const out: PlanBox[] = []
-    const holder = layerRef.current
-    for (const b of boxesOf(page)) {
-      if (b.id === MAIN_BOX) {
-        out.push({
-          id: b.id,
-          x: b.x,
-          y: b.y,
-          w: b.w,
-          h: mainTextHeight() / k,
-          fixed: true,
-        })
-        continue
+  /** The arrangement a drop at the pointer would give (pure, from the rows at drag start). */
+  const dropAt = (cx: number, cy: number, ids: string[], rows0: GridRow[]) => {
+    const r = paperEl.current!.getBoundingClientRect()
+    const mx = (cx - r.left) / k
+    const my = (cy - r.top) / k
+    const now = layoutRows(rows0, heightsMm, geo)
+    let target: string | null = null
+    let zone: Zone = 'bottom'
+    for (const [id, rc] of now) {
+      if (ids.includes(id)) continue
+      if (mx >= rc.x && mx <= rc.x + rc.w && my >= rc.y && my <= rc.y + rc.h) {
+        target = id
+        zone = zoneOf((mx - rc.x) / rc.w, (my - rc.y) / rc.h)
+        break
       }
-      const el = holder?.querySelector<HTMLElement>(
-        '[data-paper-box="' + CSS.escape(b.id) + '"]',
-      )
-      out.push({
-        id: b.id,
-        x: b.x,
-        y: b.y,
-        w: b.w,
-        h: (el?.offsetHeight ?? 0) / k,
-        fixed: !!b.locked,
-      })
     }
-    return out
-  }
-  /**
-   * How tall the default box is for a drop (px). With the Text tool it is the
-   * box itself; the ink tools stretch the box over the page, so then only its
-   * text (and the bottom margin) counts.
-   */
-  const mainTextHeight = () => {
-    const el = boxEl.current
-    if (!el) return 0
-    if (activeTool.get() === 'text') return el.offsetHeight
-    const blocks = el.querySelectorAll<HTMLElement>(
-      '.bn-editor > .bn-block-group > .bn-block-outer',
-    )
-    const last = blocks[blocks.length - 1]
-    return last
-      ? Math.min(
-          el.offsetHeight,
-          last.getBoundingClientRect().bottom -
-            el.getBoundingClientRect().top +
-            MARGIN * k,
-        )
-      : el.offsetHeight
+    const [lead, ...rest] = ids
+    if (target) {
+      let d = insertAt(rows0, target, zone, lead)
+      let prev = lead
+      for (const id of rest) {
+        d = {
+          ...insertAt(
+            d.rows,
+            prev,
+            zone === 'left' || zone === 'right' ? 'right' : 'bottom',
+            id,
+          ),
+          full: d.full,
+        }
+        prev = id
+      }
+      return { rows: d.rows, full: d.full }
+    }
+    // Blank paper: a new full-width row at that height.
+    let rows = ids.reduce((acc, id) => removeFromRows(acc, id), rows0)
+    const top = (row: GridRow) =>
+      Math.min(
+        ...row.cols.flatMap((c) => c.boxIds).map((id) => now.get(id)?.y ?? 1e9),
+      )
+    let idx = rows.filter((row) => top(row) < my).length
+    const y = snap(my, step / k)
+    for (const id of [lead, ...rest]) {
+      rows = insertRow(rows, idx++, id, y)
+    }
+    return { rows, full: false }
   }
   const dragMove = (e: ReactPointerEvent) => {
     const d = drag.current
@@ -526,90 +604,55 @@ export function PaperFrame({
     d.moved = true
     const dx = (e.clientX - d.x0) / k
     const dy = (e.clientY - d.y0) / k
-    const lead = d.orig.get(d.lead)!
-    const all = rectsNow()
-    const hOf = (id: string) => all.find((r) => r.id === id)?.h ?? 0
     const live = new Map<string, PaperBox>()
-    if (d.how === 'move') {
-      // The lead sticks lightly to other boxes and the margins; the rest of
-      // the group keeps its distance to it.
-      let nx = lead.x + dx
-      let ny = snap(lead.y + dy, step / k)
-      const others = all.filter((r) => !d.ids.includes(r.id))
-      const sn = snapMove(
-        { x: nx, y: ny, w: lead.w, h: hOf(lead.id) },
-        others,
-        sheet.w,
-      )
-      nx = sn.x
-      if (sn.gy !== null) ny = sn.y
-      const c = clampBox({ ...lead, x: nx, y: ny }, sheet.w)
-      const ddx = c.x - lead.x
-      const ddy = c.y - lead.y
-      for (const id of d.ids) {
-        const o = d.orig.get(id)!
-        live.set(id, clampBox({ ...o, x: o.x + ddx, y: o.y + ddy }, sheet.w))
-      }
-      setGuides({ gx: sn.gx, gy: sn.gy })
-    } else {
-      live.set(
-        lead.id,
-        clampBox(
-          d.how === 'right'
-            ? { ...lead, w: lead.w + dx }
-            : { ...lead, x: lead.x + dx, w: lead.w - dx },
-          sheet.w,
-        ),
-      )
+    for (const id of d.ids) {
+      const o = d.orig.get(id)!
+      live.set(id, clampBox({ ...o, x: o.x + dx, y: o.y + dy }, sheet.w))
     }
     setLiveBoxes(live)
-    // Where it would land, and who makes room.
-    const plan = dropPlan(
-      d.ids.map((id) => ({ ...live.get(id)!, h: hOf(id), id })),
-      all.filter((r) => !d.ids.includes(r.id)),
-      step / k,
-    )
-    const land = new Map<string, PaperBox>()
-    for (const id of d.ids) {
-      const b = live.get(id)!
-      land.set(id, { ...b, y: plan.get(id) ?? b.y })
-    }
-    for (const [id, y] of plan) {
-      if (d.ids.includes(id)) continue
-      const o = extra.find((b) => b.id === id)
-      if (o) land.set(id, { ...o, y })
-    }
-    setLanding(land)
-    setDropLines(d.how === 'move' ? d.ids.map((id) => land.get(id)!) : [])
+    const drop = dropAt(e.clientX, e.clientY, d.ids, d.rows0)
+    setPreview(drop.rows)
+    setGhost({ id: d.lead, full: drop.full })
   }
+  // Esc while a box is dragged: nothing changes (the preview closes).
+  useEffect(() => {
+    const key = (e: KeyboardEvent) => {
+      if (e.key !== 'Escape' || !drag.current?.moved) return
+      drag.current = null
+      setLiveBoxes(null)
+      setGhost(null)
+      setPreview(null)
+    }
+    window.addEventListener('keydown', key)
+    return () => window.removeEventListener('keydown', key)
+  }, [])
   const dragEnd = (e: ReactPointerEvent) => {
     const d = drag.current
     drag.current = null
-    const land = landing
+    const rows = preview
     setLiveBoxes(null)
-    setLanding(null)
-    setDropLines([])
-    setGuides(null)
+    setGhost(null)
+    setPreview(null)
     if (!d) return
     if (e.type === 'pointercancel') return
     if (!d.moved) return selectBox(d.lead, d.shift)
-    if (!land) return
-    const changes: BoxChange[] = []
-    for (const [id, b] of land) {
-      const was = extra.find((x) => x.id === id)
-      if (!was) continue
-      if (b.x === was.x && b.y === was.y && b.w === was.w) continue
-      changes.push({
-        id,
-        patch: { x: b.x, y: b.y, w: b.w },
-        before: { x: was.x, y: was.y, w: was.w },
-      })
-    }
-    if (changes.length) {
-      setHeld(land)
-      onBoxesChange?.(changes)
-    }
+    if (!rows) return
+    // The places the new arrangement gives (for old clients and exports).
+    const places: BoxPatch[] = []
+    for (const [id, rc] of layoutRows(rows, heightsMm, geo))
+      if (id !== MAIN_BOX)
+        places.push({ id, patch: { x: rc.x, y: rc.y, w: rc.w } })
+    setHeldRows(rows)
+    onGridChange?.(rows, places)
   }
+  useEffect(() => {
+    if (!onGridView) return
+    const places: BoxPatch[] = []
+    for (const [id, rc] of layout)
+      if (id !== MAIN_BOX)
+        places.push({ id, patch: { x: rc.x, y: rc.y, w: rc.w } })
+    onGridView(rowsView, places)
+  })
   const toPaper = (e: ReactPointerEvent) => {
     const r = paperEl.current!.getBoundingClientRect()
     return { x: e.clientX - r.left, y: e.clientY - r.top }
@@ -782,7 +825,20 @@ export function PaperFrame({
     // never makes a box, it is a grab for scrolling.
     if (x < EDGE_MM || x > sheet.w - EDGE_MM || y < EDGE_MM) return
     // Inside the default box's column the tap belongs to the page's text.
-    onAddBox({ x: Math.max(0, x - 4), y: Math.max(0, snap(y, step / k)) })
+    // On a page with a box grid the new box is a row at that height.
+    const row = rowsView.filter(
+      (r) =>
+        Math.min(
+          ...r.cols
+            .flatMap((c) => c.boxIds)
+            .map((id) => layout.get(id)?.y ?? 1e9),
+        ) <= y,
+    ).length
+    onAddBox({
+      x: Math.max(0, x - 4),
+      y: Math.max(0, snap(y, step / k)),
+      row,
+    })
   }
 
   // Nothing around the default box is positioned (no relative or absolute),
@@ -820,49 +876,36 @@ export function PaperFrame({
         }
       >
         <LoopLayer ref={loopLayer} />
-        {guides?.gx != null && (
-          <div
-            aria-hidden
-            data-snap-guide="x"
-            className="pointer-events-none absolute bg-accent"
-            style={{
-              left: guides.gx * k,
-              top: 0,
-              width: 1,
-              height: total,
-            }}
-          />
-        )}
-        {guides?.gy != null && (
-          <div
-            aria-hidden
-            data-snap-guide="y"
-            className="pointer-events-none absolute bg-accent"
-            style={{ top: guides.gy * k, left: 0, height: 1, width }}
-          />
-        )}
-        {dropLines.map((b) => (
-          <div
-            key={b.id}
-            aria-hidden
-            data-drop-line
-            className="pointer-events-none absolute"
-            style={{
-              left: b.x * k,
-              top: b.y * k - 1,
-              width: b.w * k,
-              height: 2,
-              background: '#ef4444',
-            }}
-          />
-        ))}
+        {ghost &&
+          (() => {
+            const g = layout.get(ghost.id)
+            if (!g) return null
+            return (
+              <div
+                aria-hidden
+                data-grid-ghost
+                data-full={ghost.full ? '' : undefined}
+                className="pointer-events-none absolute rounded-md border-2 border-accent bg-accent/10 transition-[left,top,width,height] duration-150 motion-reduce:transition-none"
+                style={{
+                  left: g.x * k,
+                  top: g.y * k,
+                  width: g.w * k,
+                  height: g.h * k,
+                }}
+              >
+                {ghost.full && (
+                  <span className="absolute -top-6 left-0 rounded bg-accent px-1.5 py-0.5 text-xs text-white">
+                    {t('layout.full')}
+                  </span>
+                )}
+              </div>
+            )
+          })()}
         {extra.map((b) => (
           <BoxFrame
             key={b.id}
             box={b}
-            shown={
-              liveBoxes?.get(b.id) ?? landing?.get(b.id) ?? held?.get(b.id) ?? b
-            }
+            shown={liveBoxes?.get(b.id) ?? b}
             k={k}
             zoom={zoom}
             lineH={step / zoom}
@@ -874,7 +917,8 @@ export function PaperFrame({
             picked={picked.includes(b.id)}
             lasso={lassoOn}
             dragging={!!liveBoxes?.has(b.id)}
-            pushed={!!landing?.has(b.id)}
+            pushed={!!preview || !!heldRows}
+            onHeight={(px) => reportHeight(b.id, px)}
             onGrab={(how, e) => grab(b, how, e)}
             onDragMove={dragMove}
             onDragEnd={dragEnd}
@@ -896,6 +940,27 @@ export function PaperFrame({
             </LazyMount>
           </BoxFrame>
         ))}
+        {!narrow && (
+          <GridDividers
+            rows={rowsView}
+            layout={layout}
+            k={k}
+            left={geo.left}
+            width={geo.sheetW - geo.left - geo.right}
+            paperEl={paperEl}
+            enabled={!!onGridChange}
+            onLive={setPreview}
+            onCommit={(rows) => {
+              setPreview(null)
+              setHeldRows(rows)
+              const places: BoxPatch[] = []
+              for (const [id, rc] of layoutRows(rows, heightsMm, geo))
+                if (id !== MAIN_BOX)
+                  places.push({ id, patch: { x: rc.x, y: rc.y, w: rc.w } })
+              onGridChange?.(rows, places)
+            }}
+          />
+        )}
         {narrow && onAddBoxInOrder && (
           <button
             type="button"
@@ -1027,10 +1092,16 @@ export function PaperFrame({
               flat
                 ? undefined
                 : {
-                    marginLeft: box.x * k,
-                    width: box.w * k,
-                    marginTop: box.y * k - total,
+                    marginLeft: mainShown.x * k,
+                    width: mainShown.w * k,
+                    marginTop: mainShown.y * k - total,
                     paddingBottom: MARGIN * k,
+                    ...(preview || heldRows
+                      ? {
+                          transition:
+                            'margin 150ms ease-out, width 150ms ease-out',
+                        }
+                      : {}),
                   }
             }
           >

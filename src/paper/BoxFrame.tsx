@@ -31,6 +31,7 @@ export function BoxFrame({
   gapPx,
   sheets,
   onBottom,
+  onHeight,
   onMenu,
   picked,
   lasso,
@@ -56,6 +57,8 @@ export function BoxFrame({
   gapPx: number
   sheets: number
   onBottom: (px: number) => void
+  /** The box's own height (px), for the box grid. */
+  onHeight?: (px: number) => void
   onMenu: (at: DOMRect) => void
   /** Selected (tap on the frame, or the Lasso). */
   picked: boolean
@@ -83,13 +86,14 @@ export function BoxFrame({
     if (!node) return
     const measure = () => {
       onBottom(node.offsetTop + node.offsetHeight)
+      onHeight?.(node.offsetHeight)
       setH(node.offsetHeight)
     }
     measure()
     const ro = new ResizeObserver(measure)
     ro.observe(node)
     return () => ro.disconnect()
-  }, [onBottom])
+  }, [onBottom, onHeight])
 
   const pointer = {
     onPointerMove: onDragMove,
@@ -123,7 +127,9 @@ export function BoxFrame({
         (stacked ? 'relative mt-8 ' : 'absolute ') +
         'group' +
         (dragging ? ' opacity-60' : '') +
-        (pushed && !dragging ? ' transition-[top] duration-150' : '')
+        (pushed && !dragging
+          ? ' transition-[left,top,width] duration-150 motion-reduce:transition-none'
+          : '')
       }
       style={
         stacked
@@ -192,49 +198,6 @@ export function BoxFrame({
                 : 'inset-y-0 w-2.5 ')
             }
             style={{ [side]: -10 }}
-          />
-        ))}
-      {movable &&
-        !lasso &&
-        !picked &&
-        (['left', 'right'] as const).map((how) => (
-          <div
-            key={how}
-            data-box-edge={how}
-            role="separator"
-            aria-orientation="vertical"
-            aria-label={t('paper.box.resize')}
-            onPointerDown={(e) => onGrab(how, e)}
-            {...pointer}
-            className="absolute inset-y-0 w-3 cursor-ew-resize touch-none"
-            style={{ [how]: -6 }}
-          />
-        ))}
-      {movable &&
-        picked &&
-        (
-          [
-            ['tl', 'left', 'top'],
-            ['tr', 'right', 'top'],
-            ['bl', 'left', 'bottom'],
-            ['br', 'right', 'bottom'],
-            ['ml', 'left', 'middle'],
-            ['mr', 'right', 'middle'],
-          ] as const
-        ).map(([id, how, v]) => (
-          <div
-            key={id}
-            data-box-handle={id}
-            aria-label={t('paper.box.resize')}
-            onPointerDown={(e) => onGrab(how, e)}
-            {...pointer}
-            className="absolute size-3.5 cursor-ew-resize touch-none rounded-sm border border-accent bg-surface"
-            style={{
-              [how]: -14,
-              ...(v === 'middle'
-                ? { top: '50%', marginTop: -6 }
-                : { [v]: -14 }),
-            }}
           />
         ))}
       <div

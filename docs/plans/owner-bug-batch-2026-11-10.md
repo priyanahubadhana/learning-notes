@@ -64,6 +64,7 @@ Collected from the owner's iPad pass; fix all in one go when the owner says so.
 ## Progress (builder B)
 
 - Done 10 Nov: 5 (card list rows; table rows not yet), 6, 7, 9 (Pencil tap to Lasso is builder A), 10, 13, 14.
+- Done 10 Nov: 26 (box grid with Layout picker; replaces the push-down; see DECISIONS).
 - Done 10 Nov: 22a-d, f, g, i, j (the line split comes with the gap; builder A still owns 22e and 22h input ownership and the placement mode).
 
 27. **Review space looks like Notebooks.** Tapping the Review (brain) icon in the rail now shows the same notebooks shelf/home instead of the Review space (due cards, decks, stats). Likely a regression from the Notebooks home / rail work (17384be): the rail icon routes or the space content got swapped. Restore the Review space and audit every rail space (Home, Library, Notebooks, Review, Settings) and every sidebar section against main before 9 Nov (git history) for anything that went missing.

@@ -6,6 +6,7 @@ export const enB = {
   'pic.maxSize': 'Largest size for one page',
   'pic.fitPage': 'Fit to page',
   'layout.title': 'Layout',
+  'layout.done': 'Layout changed',
   'layout.one': 'One box',
   'layout.two': 'Two columns',
   'layout.three': 'Three columns',

@@ -50,7 +50,7 @@ test('a page shows on an A4 sheet with its text in one box; zoom and fit', async
   await expect(page.locator('[data-paper-sheet="2"]')).toBeVisible()
 })
 
-test('a tap on empty paper makes a box; it moves, resizes, locks, duplicates and deletes with Undo', async ({
+test('a tap on empty paper makes a box; it moves, locks, duplicates and deletes with Undo', async ({
   page,
 }) => {
   await startInMode(page, 'computer')
@@ -85,17 +85,6 @@ test('a tap on empty paper makes a box; it moves, resizes, locks, duplicates and
   await expect
     .poll(async () => (await extra.boundingBox())!.y)
     .toBeGreaterThan(b1.y + 50)
-  // Drag the right edge: it is wider.
-  const before = (await extra.boundingBox())!
-  const e = (await extra.locator('[data-box-edge="right"]').boundingBox())!
-  await page.mouse.move(e.x + e.width / 2, e.y + 10)
-  await page.mouse.down()
-  await page.mouse.move(e.x + 80, e.y + 10, { steps: 5 })
-  await page.mouse.up()
-  await expect
-    .poll(async () => (await extra.boundingBox())!.width)
-    .toBeGreaterThan(before.width + 40)
-
   // Lock: no grip; a reload keeps everything.
   await extra.hover()
   await extra.locator('[data-box-menu]').click()
@@ -134,7 +123,7 @@ test('the Lasso on the paper picks boxes; moving one moves them all', async ({
   const extra = page.locator('[data-paper-box]:not([data-paper-box="main"])')
   const y = main.y + main.height + 50
   for (const [i, fx] of [0.1, 0.55].entries()) {
-    await page.mouse.click(sheet.x + sheet.width * fx, y)
+    await page.mouse.click(sheet.x + sheet.width * fx, y + i * 90)
     await expect(extra).toHaveCount(i + 1)
     await expect(extra.nth(i).locator('.bn-editor')).toBeFocused()
     await page.keyboard.type('Box ' + (i + 1))
@@ -248,11 +237,11 @@ test('fit width on a phone: the boxes stack under the text in reading order', as
   const sheet = (await page.locator('[data-paper-sheet="1"]').boundingBox())!
   const main0 = (await page.locator('[data-paper-box="main"]').boundingBox())!
   const extra = page.locator('[data-paper-box]:not([data-paper-box="main"])')
-  // Right box first, then a left box on the same row.
+  // Right box first, then a left box above it.
   for (const [i, fx] of [0.55, 0.1].entries()) {
     await page.mouse.click(
       sheet.x + sheet.width * fx,
-      main0.y + main0.height + 50,
+      main0.y + main0.height + (i === 0 ? 130 : 50),
     )
     await expect(extra).toHaveCount(i + 1)
     await expect(extra.nth(i).locator('.bn-editor')).toBeFocused()

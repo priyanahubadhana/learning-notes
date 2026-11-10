@@ -3,6 +3,7 @@
 # Handoff
 
 - **Owner bug batch, Builder A (10 Nov):** items 1, 2, 15, 17, 21, 42 done (see CHANGELOG). Still open for A: 11, 19, 20, 22e/h/i, 25. e2e/ownerLasso.spec.ts is the owner's Lasso steps.
+- **Paper layout, scroll bar, pictures, box grid done (10 Nov, builder B, bug batch items 5, 6, 7, 9, 10, 13, 14, 22a-d/f/g/i/j, 26):** see CHANGELOG ("Builder B") and docs/features/paper-page.md ("Box grid", "Safe edge, empty boxes, scroll bar") and pictures.md. Open: table rows (BlockNote, database) still cross a sheet gap; the "Pencil tap goes back to the Lasso" part of item 9 and 22e / 22h are builder A's. iPad checks at the top of plans/owner-checks-pending.md.
 
 - **Tools robustness done (10 Nov), steps 1-7 of docs/plans/tools-robustness-plan.md:** input machine (4 s limit), Lasso on it, editLock, remaining flags, health check, soft refresh ("Refresh app" in the gear menu; auto at most once per 10 min), resume suite. Limits are in DECISIONS "Decisions to review". Owner iPad check at the top of owner-checks-pending.md. Known: chromium specs gestureWatchdog:338, pencilTaps:175/:193, lassoPencil:299, penTools:235, penTapChrome:49, magnifier:129 also fail on the commit before this work (tap-timing / load); not caused by it. Spec: docs/features/ink.md.
 

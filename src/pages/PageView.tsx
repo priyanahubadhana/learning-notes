@@ -649,7 +649,8 @@ export function PageView({
             eager={boxes.fresh}
             onAddBox={boxes.onAddBox}
             onAddBoxInOrder={boxes.onAddBoxInOrder}
-            onBoxesChange={editLockBy ? undefined : boxes.onBoxesChange}
+            onGridChange={editLockBy ? undefined : boxes.onGridChange}
+            onGridView={boxes.onGridView}
             onBoxMenu={editLockBy ? undefined : boxes.onBoxMenu}
             onDeleteBox={editLockBy ? undefined : boxes.onDeleteBox}
             renderBar={boxes.renderBar}

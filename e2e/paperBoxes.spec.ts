@@ -52,7 +52,7 @@ const centre = (r: {
   y: r.y + r.height / 2,
 })
 
-test('Lasso: hover shows the frame, a tap selects, handles resize, the frame moves', async ({
+test('Lasso: hover shows the frame, a tap selects, there are no side handles, the frame moves', async ({
   page,
 }) => {
   const { extra } = await boxes(page, 1)
@@ -64,25 +64,13 @@ test('Lasso: hover shows the frame, a tap selects, handles resize, the frame mov
     'solid',
   )
   await expect(extra.locator('[data-box-handle]')).toHaveCount(0)
-  // A tap on the frame selects it: handles show.
+  // A tap on the frame selects it (no width handles: the grid decides widths).
   const top = centre(
     (await extra.locator('[data-box-band="top"]').boundingBox())!,
   )
   await page.mouse.click(top.x, top.y)
   await expect(extra).toHaveAttribute('data-picked', '')
-  await expect(extra.locator('[data-box-handle]')).toHaveCount(6)
-  // A corner handle widens it.
-  const w0 = (await extra.boundingBox())!.width
-  const br = centre(
-    (await extra.locator('[data-box-handle="br"]').boundingBox())!,
-  )
-  await page.mouse.move(br.x, br.y)
-  await page.mouse.down()
-  await page.mouse.move(br.x + 60, br.y, { steps: 6 })
-  await page.mouse.up()
-  await expect
-    .poll(async () => (await extra.boundingBox())!.width)
-    .toBeGreaterThan(w0 + 40)
+  await expect(extra.locator('[data-box-handle]')).toHaveCount(0)
   // Grabbing the frame moves it.
   const y0 = (await extra.boundingBox())!.y
   const left = centre(
@@ -100,7 +88,7 @@ test('Lasso: hover shows the frame, a tap selects, handles resize, the frame mov
   await expect(page.locator('[data-picked]')).toHaveCount(0)
 })
 
-test('dragging shows a see-through copy and a red landing line; boxes below make room; picked boxes move together with one Undo', async ({
+test('dragging shows a see-through copy and an accent landing outline; picked boxes move together in order with one Undo', async ({
   page,
 }) => {
   const { extra } = await boxes(page, 2)
@@ -123,15 +111,16 @@ test('dragging shows a see-through copy and a red landing line; boxes below make
   await page.mouse.down()
   await page.mouse.move(g.x, g.y + 120, { steps: 8 })
   await expect(a).toHaveAttribute('data-dragging', '')
-  await expect(page.locator('[data-drop-line]')).toHaveCount(2)
+  await expect(page.locator('[data-grid-ghost]')).toHaveCount(1)
   await page.mouse.up()
-  // Both moved down together, keeping their distance.
+  // Both moved down together, in the same order, without overlapping.
   await expect
     .poll(async () => (await a.boundingBox())!.y)
     .toBeGreaterThan(ya + 80)
-  const ya1 = (await a.boundingBox())!.y
-  const yb1 = (await b.boundingBox())!.y
-  expect(Math.abs(yb1 - ya1 - (yb - ya))).toBeLessThan(8)
+  const ra = (await a.boundingBox())!
+  const rb = (await b.boundingBox())!
+  expect(rb.y).toBeGreaterThanOrEqual(ra.y + ra.height - 1)
+  void yb
   // One Undo puts both back.
   await page.getByRole('button', { name: 'Undo' }).last().click()
   await expect
@@ -142,54 +131,34 @@ test('dragging shows a see-through copy and a red landing line; boxes below make
     .toBeLessThan(2)
 })
 
-test('a box dropped on another pushes it down instead of overlapping', async ({
+test('a box dropped on the right of another goes beside it: two columns, no overlap', async ({
   page,
 }) => {
   const { extra } = await boxes(page, 2)
   const a = extra.nth(0)
   const b = extra.nth(1)
-  const yb = (await b.boundingBox())!.y
-  await a.hover()
-  const g = centre((await a.locator('[data-box-grip]').boundingBox())!)
+  await b.hover()
+  const g = centre((await b.locator('[data-box-grip]').boundingBox())!)
+  const ar = (await a.boundingBox())!
   await page.mouse.move(g.x, g.y)
   await page.mouse.down()
-  // Onto the second box's place.
-  await page.mouse.move(g.x, g.y + (yb - (await a.boundingBox())!.y), {
+  // Onto the right third of the first box.
+  await page.mouse.move(ar.x + ar.width * 0.9, ar.y + ar.height / 2, {
     steps: 8,
   })
-  await expect(page.locator('[data-drop-line]')).toHaveCount(1)
+  await expect(page.locator('[data-grid-ghost]')).toHaveCount(1)
   await page.mouse.up()
   await expect
     .poll(async () => {
       const ra = (await a.boundingBox())!
       const rb = (await b.boundingBox())!
-      return rb.y >= ra.y + ra.height - 1
+      return rb.x >= ra.x + ra.width - 1 && Math.abs(rb.y - ra.y) < 6
     })
     .toBe(true)
   await expect(page.locator(EXTRA)).toHaveCount(2)
 })
 
-test('light snap guides: a box sticks to another box edge', async ({
-  page,
-}) => {
-  // The second box is about 1 mm off the first one's left edge.
-  const { extra, sheet } = await boxes(page, 2, [0, (1 * 700) / 210])
-  const a = (await extra.nth(0).boundingBox())!
-  const b = extra.nth(1)
-  void sheet
-  await b.hover()
-  const g = centre((await b.locator('[data-box-grip]').boundingBox())!)
-  await page.mouse.move(g.x, g.y)
-  await page.mouse.down()
-  await page.mouse.move(g.x, g.y + 150, { steps: 8 })
-  await expect(page.locator('[data-snap-guide="x"]')).toHaveCount(1)
-  await page.mouse.up()
-  await expect
-    .poll(async () => Math.abs((await b.boundingBox())!.x - a.x))
-    .toBeLessThan(1)
-})
-
-test('a box over the gap between sheets is framed once per sheet', async ({
+test('a row that does not fit what is left of a sheet starts on the next sheet', async ({
   page,
 }) => {
   await startInMode(page, 'computer')
@@ -211,7 +180,10 @@ test('a box over the gap between sheets is framed once per sheet', async ({
     await page.keyboard.type('Line ' + i)
     await page.keyboard.press('Enter')
   }
-  await expect(extra.locator('[data-box-frame]')).toHaveCount(2)
+  await expect(extra.locator('[data-box-frame]')).toHaveCount(1)
+  const s2 = (await page.locator('[data-paper-sheet="2"]').boundingBox())!
+  const box = (await extra.boundingBox())!
+  expect(box.y).toBeGreaterThanOrEqual(s2.y - 1)
 })
 
 test('a tapped box shows a floating bar: Bold, Duplicate and Delete work on the whole box', async ({

@@ -8,6 +8,9 @@ import { makeQuote } from '../annotations/annotationService'
 import { COLOUR_FILL } from '../annotations/colours'
 import type { ReaderSelection } from '../BookReader'
 import type { OutlineItem } from '../pdf/PdfView'
+import { pageSurface, styleCss, type ReadStyle } from '../readStyle'
+import { bookSource } from '../aloud/bookText'
+import { setBookAloudHost } from '../aloud/bookAloud'
 import { epubCss, flattenToc, makeEpubLoader, type TocNode } from './epubLoader'
 
 /** The parts of foliate-js's view that we use (the library is plain JS). */
@@ -17,6 +20,7 @@ interface FoliateView extends HTMLElement {
     setStyles?: (css: string) => void
     next: () => Promise<void>
     prev: () => Promise<void>
+    nextSection?: () => Promise<void>
     getContents: () => { doc: Document; index: number }[]
   }
   open: (book: unknown) => Promise<void>
@@ -58,6 +62,8 @@ export interface EpubViewProps {
   /** Text size in percent. */
   size: number
   flow: 'paginated' | 'scrolled'
+  /** The Aa sheet's look (font, spacing, margins, page colour). */
+  look?: ReadStyle
   command?: {
     type: 'prev' | 'next' | 'fraction'
     nonce: number
@@ -179,8 +185,33 @@ export function EpubView(props: EpubViewProps) {
         await view.open(book)
         if (cancelled) return
         view.renderer.setAttribute('flow', propsRef.current.flow)
-        applyStyle(view, propsRef.current.size)
+        applyStyle(view, propsRef.current.size, propsRef.current.look)
         view.renderer.addEventListener('scroll', pokeInk)
+        // Read aloud reads the open chapter and goes on to the next one.
+        setBookAloudHost({
+          source: () => {
+            const c = view?.renderer.getContents()[0]
+            const frame = c?.doc.defaultView?.frameElement
+            if (!c?.doc.body || !frame || !host.current) return null
+            return bookSource(c.doc.body, () => {
+              const f = frame.getBoundingClientRect()
+              const h = host.current!.getBoundingClientRect()
+              return {
+                left: h.left - f.left,
+                top: h.top - f.top,
+                right: h.right - f.left,
+                bottom: h.bottom - f.top,
+              }
+            })
+          },
+          next: async () => {
+            const was = view?.renderer.getContents()[0]?.index
+            await view?.renderer.nextSection?.()
+            await new Promise((res) => setTimeout(res, 400))
+            const now = view?.renderer.getContents()[0]?.index
+            return now !== undefined && now !== was
+          },
+        })
 
         view.addEventListener('relocate', (e) => {
           pokeInk()
@@ -299,6 +330,7 @@ export function EpubView(props: EpubViewProps) {
 
     return () => {
       cancelled = true
+      setBookAloudHost(null)
       view?.close()
       view?.remove()
       viewRef.current = null
@@ -316,14 +348,14 @@ export function EpubView(props: EpubViewProps) {
     const v = viewRef.current
     if (!v) return
     v.renderer.setAttribute('flow', props.flow)
-    applyStyle(v, props.size)
-    const mo = new MutationObserver(() => applyStyle(v, props.size))
+    applyStyle(v, props.size, props.look)
+    const mo = new MutationObserver(() => applyStyle(v, props.size, props.look))
     mo.observe(document.documentElement, {
       attributes: true,
       attributeFilter: ['data-theme', 'class', 'style'],
     })
     return () => mo.disconnect()
-  }, [props.flow, props.size])
+  }, [props.flow, props.size, props.look])
 
   // Jumps: contents (`href:`), annotations and deep links (`epub:`).
   useEffect(() => {
@@ -420,13 +452,17 @@ function textIsShowing(view: FoliateView): boolean {
 }
 
 /** Puts the app's colours and the chosen text size into the book's pages. */
-function applyStyle(view: FoliateView, size: number) {
+function applyStyle(view: FoliateView, size: number, look?: ReadStyle) {
   const css = getComputedStyle(document.documentElement)
+  const surface = look ? pageSurface(look.page) : null
   view.renderer.setStyles?.(
     epubCss({
       size,
-      bg: css.getPropertyValue('--color-bg').trim() || '#fff',
-      ink: css.getPropertyValue('--color-ink').trim() || '#111',
+      bg: surface?.bg ?? (css.getPropertyValue('--color-bg').trim() || '#fff'),
+      ink:
+        surface?.ink ?? (css.getPropertyValue('--color-ink').trim() || '#111'),
+      select: css.getPropertyValue('--color-select').trim(),
+      extra: look ? styleCss(look) : '',
     }),
   )
 }

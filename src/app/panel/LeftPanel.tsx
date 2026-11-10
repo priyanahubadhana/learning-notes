@@ -42,6 +42,7 @@ import { readerBridge } from '../../reader/readerBridge'
 import type { BookTab } from '../../reader/BookPanel'
 
 const BookPanel = lazy(() => import('../../reader/BookPanel'))
+const AloudPanel = lazy(() => import('../../reader/aloud/AloudPanel'))
 const BOOK_TABS = ['pages', 'outline', 'audio', 'annotations'] as const
 type BookTabId = (typeof BOOK_TABS)[number]
 
@@ -498,6 +499,11 @@ export function LeftPanel({
           />
         )}
         {!book && tab === 'outline' && <OutlineTab db={db} pageId={pageId} />}
+        {book && tab === 'audio' && (
+          <Suspense fallback={null}>
+            <AloudPanel />
+          </Suspense>
+        )}
         {tab === 'audio' && (
           <AudioTab db={db} pageId={book ? book.pageId : pageId} />
         )}

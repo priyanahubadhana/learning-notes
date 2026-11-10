@@ -38,6 +38,20 @@ import {
 import { addVocabulary, vocabContext, vocabWord } from '../recall/vocabulary'
 import { NoteSheet } from './annotations/NoteSheet'
 import { ReaderInkBar } from './ReaderInkBar'
+import { ReadingLock } from './ReadingLock'
+import {
+  cleanStyle,
+  dictionaryWord,
+  isInkBarMode,
+  type InkBarMode,
+  DEFAULT_STYLE,
+  isReadStyle,
+  pageSurface,
+  pdfFilter,
+  type ReadStyle,
+} from './readStyle'
+import { bookSource } from './aloud/bookText'
+import { setBookAloudHost } from './aloud/bookAloud'
 import { activeTool, type ModeTool } from '../app/tools/main/mainTools'
 import { SaveToSheet, type SaveTarget } from './annotations/SaveToSheet'
 import {
@@ -69,6 +83,8 @@ const EpubView = lazy(() =>
   import('./epub/EpubView').then((m) => ({ default: m.EpubView })),
 )
 // Ask this book (Phase P): the AI code loads only when the panel opens.
+const AaSheet = lazy(() => import('./AaSheet'))
+const DictionarySheet = lazy(() => import('./DictionarySheet'))
 const ZoomPreview = lazy(() => import('./pdf/ZoomPreview'))
 const AskBook = lazy(() =>
   import('../ai/AskBook').then((m) => ({ default: m.AskBook })),
@@ -145,6 +161,25 @@ export function BookReader({
   // shows the bar, taps at the edges turn the page.
   const [full, setFull] = useState(false)
   const [barShown, setBarShown] = useState(false)
+  // Aa sheet, reading lock, dictionary, pen tool bar choice (items 34-41).
+  const [lookRaw, setLookRaw] = usePref<ReadStyle>(
+    'reader.look',
+    isReadStyle,
+    DEFAULT_STYLE,
+  )
+  const look = cleanStyle(lookRaw)
+  const setLook = (patch: Partial<ReadStyle>) =>
+    setLookRaw(cleanStyle({ ...look, ...patch }))
+  const [aaOpen, setAaOpen] = useState(false)
+  const [locked, setLocked] = useState(false)
+  const [dict, setDict] = useState<string | null>(null)
+  const [askSeed, setAskSeed] = useState('')
+  const [penBar, setPenBar] = usePref<InkBarMode>(
+    'reader.penBar',
+    isInkBarMode,
+    'simple',
+  )
+  const clock = useClock(look.clock)
   const contentRef = useRef<HTMLDivElement>(null)
   const tapDown = useRef<{ x: number; y: number; t: number } | null>(null)
   const lastTap = useRef<{ x: number; y: number; t: number } | null>(null)
@@ -472,6 +507,52 @@ export function BookReader({
   ])
   useEffect(() => () => readerBridge.set(null), [])
 
+  // Read aloud for a PDF: the text layer of the open page; next = next page.
+  // (An EPUB supplies its own source from EpubView.)
+  const aloudNow = useRef({
+    page: 1,
+    count: 0,
+    go: null as null | ((p: number) => void),
+  })
+  useEffect(() => {
+    aloudNow.current = {
+      page: bridgePage,
+      count: pageCount,
+      go: (p) =>
+        setTarget((prev) => ({
+          at: `pdf:${p}:0`,
+          nonce: (prev?.nonce ?? 0) + 1,
+        })),
+    }
+  })
+  useEffect(() => {
+    if (bridgeFormat !== 'pdf') return
+    setBookAloudHost({
+      source: () => {
+        const box = contentRef.current
+        const layer = box?.querySelector<HTMLElement>(
+          `[data-pdf-page="${aloudNow.current.page}"] .textLayer`,
+        )
+        if (!box || !layer || !layer.textContent?.trim()) return null
+        return bookSource(layer, () => {
+          const b = box.getBoundingClientRect()
+          return { left: b.left, top: b.top, right: b.right, bottom: b.bottom }
+        })
+      },
+      next: async () => {
+        const { page, count, go } = aloudNow.current
+        if (page >= count) return false
+        go?.(page + 1)
+        for (let i = 0; i < 20; i++) {
+          await new Promise((res) => setTimeout(res, 150))
+          if (aloudNow.current.page === page + 1) return true
+        }
+        return false
+      },
+    })
+    return () => setBookAloudHost(null)
+  }, [bridgeFormat])
+
   // Full screen: the browser's own too where there is one; Esc leaves.
   useEffect(() => {
     if (!full) return
@@ -553,6 +634,27 @@ export function BookReader({
           })
       : ''
 
+  const locationText =
+    format === 'pdf' && pageCount
+      ? t('reader.fs.progressPage', {
+          page: pageNo,
+          total: pageCount,
+          percent: Math.round((position?.progress ?? 0) * 100),
+        })
+      : t('reader.fs.progress', {
+          percent: Math.round((position?.progress ?? 0) * 100),
+        })
+  const progressText =
+    look.progress === 'chapter' && chapterLeft > 0
+      ? t('reader.progress.chapter', {
+          time: formatMinutes(minutesFor(chapterLeft, wpm)),
+        })
+      : look.progress === 'book' && bookLeft > 0
+        ? t('reader.progress.book', {
+            time: formatMinutes(minutesFor(bookLeft, wpm)),
+          })
+        : `${locationText}${timeLeftText ? ` · ${timeLeftText}` : ''}`
+
   const goPage = (p: number) =>
     setTarget((prev) => ({ at: `pdf:${p}:0`, nonce: (prev?.nonce ?? 0) + 1 }))
   const toggleBookmark = () =>
@@ -591,7 +693,11 @@ export function BookReader({
     const zone = tapZone(x, width)
     if (zone === 'previous') turn(-1)
     else if (zone === 'next') turn(1)
-    else setBarShown((v) => !v)
+    else {
+      const next = !barShown
+      setBarShown(next)
+      setFlipOpen(next)
+    }
   }
   /** Double tap (item 44): zoom in around the spot, or back to fit width. */
   const toggleZoom = (x: number, y: number) => {
@@ -653,6 +759,17 @@ export function BookReader({
   }
   const moreItems: MenuItem[] = [
     {
+      label: t('reader.toolBar'),
+      icon: 'pen',
+      onSelect: () => {},
+      submenu: (['simple', 'compact', 'full'] as const).map((m) => ({
+        label: t(`reader.toolBar.${m}` as 'reader.toolBar.simple'),
+        icon: 'pen',
+        checked: penBar === m,
+        onSelect: () => setPenBar(m),
+      })),
+    },
+    {
       label: t('reader.goTo'),
       icon: 'crosshair',
       onSelect: () => setGoTo(true),
@@ -694,7 +811,7 @@ export function BookReader({
       <div
         data-chrome
         data-testid="reader-bar"
-        hidden={full && !barShown}
+        hidden={locked || (full && !barShown)}
         className={`flex flex-wrap items-center gap-1 border-b border-line bg-bg px-2 py-1 ${
           full ? 'absolute inset-x-0 top-0 z-30 shadow-md' : ''
         }`}
@@ -927,6 +1044,34 @@ export function BookReader({
         )}
         <button
           type="button"
+          data-testid="reader-aa"
+          aria-haspopup="dialog"
+          aria-expanded={aaOpen}
+          aria-label={t('aa.title')}
+          className={panelBtn(aaOpen)}
+          onClick={() => setAaOpen((v) => !v)}
+        >
+          Aa
+        </button>
+        <button
+          type="button"
+          data-testid="reader-lock"
+          aria-label={t('reader.lock')}
+          className={panelBtn(false)}
+          onClick={() => {
+            stopInking()
+            clearSelection()
+            setPanel(null)
+            setAaOpen(false)
+            setBarShown(false)
+            setFlipOpen(false)
+            setLocked(true)
+          }}
+        >
+          <Icon name="lock" size={18} />
+        </button>
+        <button
+          type="button"
           data-testid="reader-fullscreen"
           aria-pressed={full}
           aria-label={t(full ? 'reader.fullscreen.exit' : 'reader.fullscreen')}
@@ -949,24 +1094,29 @@ export function BookReader({
           <Icon name="more" size={18} />
         </button>
       </div>
-      {drawing && !full && <ReaderInkBar onDone={stopInking} />}
+      {drawing && !full && !locked && (
+        <ReaderInkBar onDone={stopInking} mode={penBar} />
+      )}
       {noText && format === 'pdf' && (
         <p className="bg-soft px-3 py-1 text-xs text-muted">
           {t('bookreader.noText')}
         </p>
       )}
-      {timeLeftText && !full && (
+      {(timeLeftText || clock) && !full && (
         <p
           className="truncate px-3 py-0.5 text-xs text-muted"
           data-testid="reader-timeleft"
           aria-label={t('reader.timeLeft.label')}
         >
-          {timeLeftText}
+          {look.progress === 'location' ? timeLeftText : progressText}
+          {clock ? ` · ${clock}` : ''}
         </p>
       )}
       <div
         ref={contentRef}
+        data-read-page={look.page}
         className="relative flex min-h-0 flex-1"
+        style={{ background: pageSurface(look.page)?.bg }}
         onPointerDownCapture={(e) => {
           tapDown.current = { x: e.clientX, y: e.clientY, t: Date.now() }
         }}
@@ -985,6 +1135,18 @@ export function BookReader({
           pdfTap(e.clientX, e.clientY)
         }}
       >
+        <style>{`[data-read-page] [data-pdf-page] canvas{filter:${pdfFilter(look.page)}}[data-pdf-page] .textLayer ::selection{background:var(--select-tint)}`}</style>
+        {look.dim > 0 && (
+          <div
+            aria-hidden
+            data-testid="reader-dim"
+            className="pointer-events-none absolute inset-0 z-[24] bg-black"
+            style={{ opacity: look.dim / 100 }}
+          />
+        )}
+        {locked && (
+          <ReadingLock onUnlock={() => setLocked(false)} onSwipe={turn} />
+        )}
         {full && (
           <>
             <p
@@ -993,21 +1155,15 @@ export function BookReader({
             >
               {page.title}
             </p>
-            <p
-              data-testid="reader-fs-progress"
-              className="pointer-events-none absolute inset-x-0 bottom-0 z-10 truncate bg-bg/80 px-12 pb-0.5 text-center text-[11px] text-muted"
-            >
-              {format === 'pdf' && pageCount
-                ? t('reader.fs.progressPage', {
-                    page: pageNo,
-                    total: pageCount,
-                    percent: Math.round((position?.progress ?? 0) * 100),
-                  })
-                : t('reader.fs.progress', {
-                    percent: Math.round((position?.progress ?? 0) * 100),
-                  })}
-              {timeLeftText ? ` · ${timeLeftText}` : ''}
-            </p>
+            {!flipOpen && (
+              <p
+                data-testid="reader-fs-progress"
+                className="pointer-events-none absolute inset-x-0 bottom-0 z-10 truncate bg-bg/80 px-12 pb-0.5 text-center text-[11px] text-muted"
+              >
+                {progressText}
+                {clock ? ` · ${clock}` : ''}
+              </p>
+            )}
           </>
         )}
         <button
@@ -1069,6 +1225,7 @@ export function BookReader({
               annotations={annotations ?? []}
               target={target}
               size={epubSize}
+              look={look}
               flow={epubFlow}
               command={command}
               onOutline={setOutline}
@@ -1128,6 +1285,10 @@ export function BookReader({
             {panel === 'ask' ? (
               <Suspense fallback={null}>
                 <AskBook
+                  key={askSeed}
+                  initialQuestion={
+                    askSeed ? t('reader.askSeed', { text: askSeed }) : undefined
+                  }
                   db={db}
                   page={page}
                   format={format === 'pdf' ? 'pdf' : 'epub'}
@@ -1157,6 +1318,25 @@ export function BookReader({
           </aside>
         )}
       </div>
+      {aaOpen && (
+        <Suspense fallback={null}>
+          <AaSheet
+            look={look}
+            onLook={setLook}
+            size={epubSize}
+            onSize={setEpubSize}
+            flow={epubFlow}
+            onFlow={setEpubFlow}
+            format={bridgeFormat}
+            onClose={() => setAaOpen(false)}
+          />
+        </Suspense>
+      )}
+      {dict && (
+        <Suspense fallback={null}>
+          <DictionarySheet word={dict} onClose={() => setDict(null)} />
+        </Suspense>
+      )}
       {moreAt && (
         <MenuPopover
           anchor={moreAt}
@@ -1185,8 +1365,27 @@ export function BookReader({
           onCancel={() => setGoTo(false)}
         />
       )}
-      {selection && !noting && !saving && (
+      {selection && !noting && !saving && look.menuOnSelect && (
         <SelectionPopup
+          onDefine={
+            dictionaryWord(selection.text)
+              ? () => {
+                  const w = dictionaryWord(selection.text)
+                  clearSelection()
+                  setDict(w)
+                }
+              : undefined
+          }
+          onAsk={
+            aiOn
+              ? () => {
+                  const text = selection.text.slice(0, 300)
+                  clearSelection()
+                  setAskSeed(text)
+                  setPanel('ask')
+                }
+              : undefined
+          }
           rect={selection.rect}
           selected={selection.text}
           onColour={onColour}
@@ -1287,4 +1486,17 @@ export function BookReader({
       )}
     </div>
   )
+}
+
+/** The time of day as HH:MM, refreshed each half minute; '' when off. */
+function useClock(on: boolean): string {
+  const [now, setNow] = useState(() => new Date())
+  useEffect(() => {
+    if (!on) return
+    const id = window.setInterval(() => setNow(new Date()), 30_000)
+    return () => window.clearInterval(id)
+  }, [on])
+  return on
+    ? now.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })
+    : ''
 }

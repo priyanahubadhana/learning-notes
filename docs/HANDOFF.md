@@ -2,6 +2,8 @@
 
 # Handoff
 
+- **Reader: Aa, lock, gestures, dictionary, pen bar choice, read aloud done (10 Nov, Builder H, bug batch items 34, 37, 38, 41, 42):** see CHANGELOG ("Builder H") and docs/features/library.md. Right-hand Contents/Notes panels are gone (left BookPanel only). Open: owner iPad checks (docs/plans/owner-checks-pending.md, "Builder H"); not done: PDF continuous/paged, shapes/ruler/tape in the reader pen bar, the app's own loupe in the reader, Bookerly font.
+
 - **Book reader panel, full screen, zoom done (10 Nov, Builder F, bug batch items 28-verify, 29, 32, 33, 44, 45):** see CHANGELOG ("Builder F") and docs/features/library.md. Left panel follows the open book (readerBridge store), Notes tab, Go to / Sync to furthest in the reader ⋯, ribbon, Kindle-style full screen, double-tap zoom with overview. Open: 34, 37, 38, 41, 42 (next builder); Undo/Redo in the reader bar is Builder D; book read-aloud does not exist yet (Audio tab shows recordings); right-hand Contents/Notes panels in the reader are now duplicates. iPad checks at the top of plans/owner-checks-pending.md.
 
 - **Owner bug batch, Builder A (10 Nov):** items 1, 2, 15, 17, 21, 42 done (see CHANGELOG). Still open for A: 11, 19, 20, 22e/h/i, 25. e2e/ownerLasso.spec.ts is the owner's Lasso steps.

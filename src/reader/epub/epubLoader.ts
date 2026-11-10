@@ -35,6 +35,10 @@ export function epubCss(opts: {
   size: number
   bg: string
   ink: string
+  /** More CSS (font, spacing, margins from the Aa sheet). */
+  extra?: string
+  /** The app's selection colour (--color-select); the tint is 22% of it. */
+  select?: string
 }): string {
   return `
     html { font-size: ${Math.round(opts.size)}% !important; }
@@ -42,6 +46,11 @@ export function epubCss(opts: {
     p, li, blockquote, dd { line-height: 1.6; }
     a:link, a:visited { color: inherit; text-decoration: underline; }
     img, svg { max-width: 100%; height: auto; }
+    /* One subtle selection look everywhere (item 42): a soft tint, no outline. */
+    ::selection { background: color-mix(in srgb, ${opts.select || '#0d9488'} 22%, transparent); color: inherit; }
+    ::highlight(reading-word) { background-color: color-mix(in srgb, ${opts.select || '#0d9488'} 45%, transparent); }
+    ::highlight(reading-sentence) { background-color: color-mix(in srgb, ${opts.select || '#0d9488'} 22%, transparent); }
+    ${opts.extra ?? ''}
   `
 }
 

@@ -19,6 +19,8 @@ export function SelectionPopup({
   onSaveTo,
   onMakeCard,
   onVocab,
+  onDefine,
+  onAsk,
 }: {
   rect: PopupRect
   selected: string
@@ -29,6 +31,10 @@ export function SelectionPopup({
   onSaveTo: () => void
   onMakeCard?: () => void
   onVocab?: () => void
+  /** Opens the Dictionary sheet (item 38). */
+  onDefine?: () => void
+  /** Ask AI about the words (only when AI is on). */
+  onAsk?: () => void
 }) {
   const [lookup, setLookup] = useState(false)
   // A selection scrolled out of view offers nothing.
@@ -85,6 +91,16 @@ export function SelectionPopup({
       <button type="button" onClick={onCopy} className={btn}>
         {t('annot.copy')}
       </button>
+      {onDefine && (
+        <button
+          type="button"
+          data-testid="popup-define"
+          onClick={onDefine}
+          className={btn}
+        >
+          {t('annot.define')}
+        </button>
+      )}
       <button
         type="button"
         aria-expanded={lookup}
@@ -107,6 +123,16 @@ export function SelectionPopup({
           className={btn}
         >
           {t('annot.makeCard')}
+        </button>
+      )}
+      {onAsk && (
+        <button
+          type="button"
+          data-testid="popup-ask"
+          onClick={onAsk}
+          className={btn}
+        >
+          {t('annot.askAi')}
         </button>
       )}
       {lookup && (

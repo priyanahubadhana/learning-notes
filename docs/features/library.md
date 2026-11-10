@@ -46,3 +46,12 @@ Books and other sources live in the app as ordinary pages. The Library space sho
 - **Full screen:** text only, tiny title, progress line; tap middle = bar; tap left/right quarter = page turn; Esc leaves.
 - **Double-tap zoom (PDF):** 200% around the spot, corner overview with a frame, ✕ or a second double tap returns.
 - Tests: e2e/bookPanel.spec.ts, bookReaderVisible.spec.ts, src/reader/bookPanel.test.ts.
+
+## Reader settings, lock, dictionary, read aloud (10 Nov, Builder H)
+
+- **Contents / Notes buttons** open the left panel (Outline / Notes); there is no right-hand panel any more (Find and Ask stay).
+- **Aa sheet** (Font, Layout, Themes, More) stored as `reader.look` on this device; EPUB gets all of it, PDF page colour, dim, progress, clock. `src/reader/readStyle.ts` is the pure part.
+- **Reading lock:** bar hides, a clear layer ignores taps, Pencil and scroll; swipe turns the page; hold the lock icon 1.5 s to unlock.
+- **Selection pop-up:** Define (Dictionary sheet, dictionaryapi.dev, offline message, Pronounce), Ask AI (when AI is on). Tool bar choice in ⋯ (Simple, Compact, Full).
+- **Read aloud:** left panel Audio tab; device voice; follows the text.
+- Tests: e2e/readerSheets.spec.ts, src/reader/readStyle.test.ts.

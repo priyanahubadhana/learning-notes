@@ -43,6 +43,8 @@ import { AiOffCard } from './AiOffCard'
 import { useAiTick } from './aiOffStore'
 
 export interface AskBookProps {
+  /** A question to start with (from the reader's Ask AI on a selection). */
+  initialQuestion?: string
   db: LearningNotesDB
   page: Page
   format: 'pdf' | 'epub'
@@ -93,7 +95,7 @@ export function AskBook(props: AskBookProps) {
   const locked = useLiveQuery(() => aiLockedBlock(db, page.id), [db, page.id])
   const config = forNotebook(readAiConfig(), notebook)
   const [mode, setMode] = useState<Mode>('ask')
-  const [question, setQuestion] = useState('')
+  const [question, setQuestion] = useState(props.initialQuestion ?? '')
   const [epub, setEpub] = useState<EpubBook | null>(null)
   const here = props.position?.page ?? 1
   const hereSection = props.position

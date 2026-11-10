@@ -8,7 +8,7 @@ Moved out of HANDOFF on 2026-11-06 (audit) so HANDOFF stays five lines. Newest f
 
 ## Builder H checks (10 Nov)
 
-(1) In a book, Contents and Notes open the left panel (no panel on the right).
+(1) In a book, Contents and Notes open the left panel (no panel on the right). (2) Aa: change font, size, spacing, margins, page colour (sepia, black) on an EPUB and a PDF; Themes presets; Dim. (3) Lock: tap the lock, tap and draw (nothing happens), swipe turns the page, hold the lock icon 1.5 s (ring fills) to unlock. (4) Press and hold a word on the iPad: the menu shows Define and Ask AI; Define shows meanings (online) or the offline message; Pronounce speaks. (5) Full screen: tap the middle for the bar and the page slider ("Back to n" after a jump). (6) ⋯ › Tool bar: Compact and Full add sizes, pen type, colour picker. (7) Left panel › Audio › Read this page: the iPad voice reads, the sentence is marked and the page follows, then goes on to the next chapter/page; speed and voice change. (8) The selection tint looks soft in both themes.
 
 ## iPad checks: Builder F, book reader (10 Nov)
 

@@ -4,7 +4,7 @@ Current phase only. Older entries are in [ARCHIVE.md](ARCHIVE.md).
 
 ## 2026-11-10 (CI stabiliser 3: WebKit box drag)
 
-- **App fix:** a box dropped after a drag whose moves all came within one frame (a quick flick; the CI WebKit) was ignored, because the drop used the last drawn preview. `PaperFrame.dragEnd` now plans the drop from the lift position. Specs: boxTaps mouse taps in one call; margin Lasso (paperBudget) asserts picked 0 and ink selected (owner item 2: content, not whole boxes); CI open budget 8 s kept, measured 2.2-5.9 s Chrome / 1.6-4.6 s WebKit on CI vs 1.7 s laptop; paperPage phone stack measures page and boxes together; ownerLasso re-measures the ink and waits past the 450 ms tool hold; inkNote waits 600 ms. Files: src/paper/PaperFrame.tsx, e2e/{boxTaps,paperBudget,paperPage,ownerLasso,inkHelpers}.ts.
+- **App fix:** a box dropped after a drag whose moves all came within one frame (a quick flick; the CI WebKit) was ignored, because the drop used the last drawn preview. `PaperFrame.dragEnd` now plans the drop from the lift position. Specs: boxTaps mouse taps in one call; margin Lasso (paperBudget) asserts picked 0 and ink selected (owner item 2: content, not whole boxes); CI open budget 8 s kept, measured 2.2-5.9 s Chrome / 1.6-4.6 s WebKit on CI vs 1.7 s laptop; paperPage phone stack measures page and boxes together; ownerLasso re-measures the ink and waits past the 450 ms tool hold; inkNote waits 600 ms; item 15 taps in one page call (a separate call left over 450 ms between taps on WebKit CI) and scene waits until the stroke start is on the paper. Files: src/paper/PaperFrame.tsx, e2e/{boxTaps,paperBudget,paperPage,ownerLasso,inkHelpers}.ts.
 
 ## 2026-11-10 (CI stabiliser: outdated specs updated)
 

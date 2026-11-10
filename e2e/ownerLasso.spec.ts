@@ -151,6 +151,16 @@ async function scene(page: Page) {
   await page.waitForTimeout(700)
   const last = await wordsBox(page, 'apple banana')
   const ink = { x: last.x + 40, y: last.y + 80, width: 200, height: 40 }
+  // The paper grows after the typing: draw once the stroke's start is on the
+  // paper, not still on the (shorter) editor, or the stroke is lost.
+  await expect
+    .poll(() =>
+      page.evaluate(
+        ([x, y]) => !document.elementFromPoint(x, y)?.closest('.bn-root'),
+        [ink.x, ink.y],
+      ),
+    )
+    .toBe(true)
   await stroke(page, line([ink.x, ink.y], [ink.x + 200, ink.y + 30], 30), {
     id: 3,
   })
@@ -184,6 +194,40 @@ const stale = (page: Page) =>
 
 let nextId = 20
 const pen = (page: Page, pts: Pt[]) => stroke(page, pts, { id: nextId++ })
+
+/**
+ * Quick Pencil taps in ONE page call, each a new pointer id (as iPadOS does).
+ * Separate calls leave more than the 450 ms tap window between taps on the
+ * slow WebKit machine, so the second tap would count as a first.
+ */
+const penTaps = (page: Page, at: Pt, n: number) => {
+  const first = nextId
+  nextId += n
+  return page.evaluate(
+    async ({ at, n, first }) => {
+      const el = document.elementFromPoint(at[0], at[1])!
+      for (let i = 0; i < n; i++) {
+        for (const name of ['pointerdown', 'pointerup'])
+          el.dispatchEvent(
+            new PointerEvent(name, {
+              pointerType: 'pen',
+              pointerId: first + i,
+              clientX: at[0] + i,
+              clientY: at[1],
+              bubbles: true,
+              cancelable: true,
+              isPrimary: true,
+              button: 0,
+              buttons: name === 'pointerup' ? 0 : 1,
+              pressure: name === 'pointerup' ? 0 : 0.4,
+            }),
+          )
+        await new Promise((r) => setTimeout(r, 60))
+      }
+    },
+    { at, n, first },
+  )
+}
 
 test('item 17: ten and more loops (free and rectangle) in a row, pin the bar, loop again, drag a handle', async ({
   page,
@@ -306,9 +350,7 @@ test('item 15: an earlier word selection, its handles and caret are gone when a 
   await page.waitForTimeout(600)
   const w = await wordsBox(page, 'monday')
   const at: Pt = [w.x + w.width / 2, w.y + w.height / 2]
-  await pen(page, [at])
-  await page.waitForTimeout(60)
-  await pen(page, [[at[0] + 2, at[1] + 1]])
+  await penTaps(page, at, 2)
   await expect(page.locator('[data-sel-handle]')).toHaveCount(2)
   await tool(page, 'Lasso').click()
   await page.evaluate(() => window.__lnTools!.setLasso({ shape: 'free' }))

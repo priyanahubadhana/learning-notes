@@ -12,6 +12,7 @@ import { openPictureChooser } from '../images/pictureChooserStore'
 import { openPictureEditor } from '../images/pictureEditorStore'
 import { onPictureSelect, takePictureSelect } from '../images/pictureSelect'
 import { ghostSpot, holdPagination, trackBlock } from '../paper/paginateHold'
+import { maxPictureWidth, sizeHint, writableHeight } from '../images/pictureMax'
 import { pictureControl, type PictureAction } from './pictureControl'
 import {
   CORNERS,
@@ -161,6 +162,16 @@ export function PictureHandles({ editor }: { editor: Host }) {
     return editor.domElement?.firstElementChild?.clientWidth ?? 4000
   }
 
+  /** Item 22j: the widest this picture may be (one sheet's writable area). */
+  function maxNow(): number {
+    const ratio = img?.naturalWidth ? img.naturalHeight / img.naturalWidth : 1
+    return maxPictureWidth(
+      ratio,
+      roomNow(),
+      writableHeight(editor.domElement as HTMLElement | undefined),
+    )
+  }
+
   /** Puts a drag back as it was (cancel, background, lost pointer). */
   function cancelDrag() {
     const d = drag.current
@@ -264,14 +275,18 @@ export function PictureHandles({ editor }: { editor: Host }) {
     const d = drag.current
     if (!d) return null
     const centred = editor.getBlock(blockId)?.props.textAlignment === 'center'
-    return resizedWidth(
+    const cap = maxNow()
+    const w = resizedWidth(
       d.width,
       d.corner,
       e.clientX - d.x,
       e.clientY - d.y,
-      roomNow(),
+      cap,
       centred,
     )
+    // A gentle stop at the largest size for one page, with a hint.
+    if (w >= cap) sizeHint()
+    return w
   }
   // Every frame: one write of the width (no layout read in between), and the
   // ghost that says where the picture will land.
@@ -313,7 +328,7 @@ export function PictureHandles({ editor }: { editor: Host }) {
   }
 
   /** Size presets: a 180 ms glide, then one saved width (instant when motion is reduced). */
-  const sizeTo = (preset: SizePreset) => {
+  const sizeTo = (preset: SizePreset | 'fitPage') => {
     const target =
       holder ?? img.closest<HTMLElement>('.bn-file-block-content-wrapper')
     if (!target || !blockId) return
@@ -322,11 +337,16 @@ export function PictureHandles({ editor }: { editor: Host }) {
       img.getBoundingClientRect().width,
     )
     if (from === null) return
-    const to = presetWidth(preset, from, roomNow(), img.naturalWidth)
+    const cap = maxNow()
+    const to =
+      preset === 'fitPage'
+        ? cap
+        : presetWidth(preset, from, cap, img.naturalWidth)
+    if (preset === 'bigger' && to >= cap) sizeHint()
     const done = () => {
       trackBlock(blockId)
       editor.updateBlock(blockId, {
-        props: { previewWidth: clampWidth(to, roomNow()) },
+        props: { previewWidth: clampWidth(to, maxNow()) },
       })
     }
     cancelAnimationFrame(anim.current)
@@ -374,7 +394,13 @@ export function PictureHandles({ editor }: { editor: Host }) {
   latest.current = (a) => {
     if (a === 'copy' || a === 'cut' || a === 'duplicate' || a === 'delete')
       return void run(a)
-    if (a === 'smaller' || a === 'bigger' || a === 'fit' || a === 'natural')
+    if (
+      a === 'smaller' ||
+      a === 'bigger' ||
+      a === 'fit' ||
+      a === 'natural' ||
+      a === 'fitPage'
+    )
       return sizeTo(a)
     if (a === 'handles') return setHandles((h) => !h)
     if (a === 'deselect') return setImg(null)

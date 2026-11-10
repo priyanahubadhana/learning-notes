@@ -80,6 +80,7 @@ export function stripGroups(kind: ContextKind): StripItem[][] {
         item('smaller', 'pic.s.smaller'),
         item('bigger', 'pic.s.bigger'),
         item('fit', 'pic.s.fit'),
+        item('fitPage', 'pic.fitPage'),
         item('natural', 'pic.s.natural'),
         item('handles', 'pic.act.resize', c.handles),
       ],

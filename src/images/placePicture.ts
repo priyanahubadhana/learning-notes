@@ -9,7 +9,11 @@ import { shrinkImage } from './shrinkImage'
 export interface PictureHost {
   getTextCursorPosition: () => { block: unknown }
   replaceBlocks: (remove: never[], add: never[]) => unknown
-  insertBlocks: (blocks: never[], ref: never, placement: 'after') => unknown
+  insertBlocks: (
+    blocks: never[],
+    ref: never,
+    placement: 'after' | 'before',
+  ) => unknown
   updateBlock: (block: never, update: never) => unknown
   document: { id: string }[]
   setTextCursorPosition: (block: never, placement: 'start') => void
@@ -47,13 +51,17 @@ export async function placePicture(
     }
     const target = place?.afterId
       ? editor.document.find((b) => b.id === place.afterId)
-      : undefined
+      : place?.beforeId
+        ? editor.document.find((b) => b.id === place.beforeId)
+        : undefined
     const current = (target ?? editor.getTextCursorPosition().block) as {
       type: string
       content?: unknown
     }
     const block = { type: 'image' as const, props }
+    const before = !!place?.beforeId && !place.afterId && !!target
     const emptyLine =
+      !before &&
       current.type === 'paragraph' &&
       Array.isArray(current.content) &&
       current.content.length === 0
@@ -64,7 +72,11 @@ export async function placePicture(
               insertedBlocks: { id: string }[]
             }
           ).insertedBlocks
-        : editor.insertBlocks([block as never], current as never, 'after')
+        : editor.insertBlocks(
+            [block as never],
+            current as never,
+            before ? ('before' as never) : 'after',
+          )
     ) as { id: string }[]
     // Like the other blocks: the cursor lands on the line below the picture
     // (a new one when the picture is last), so typing carries on.

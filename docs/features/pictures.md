@@ -62,3 +62,10 @@ Placing or pasting a picture selects it at once (`images/pictureSelect.ts`), so 
 ## Tests
 
 `src/images/images.test.ts`; e2e: `pictures.spec.ts`.
+
+## Placing a picture, reworked (10 Nov, bug batch item 22)
+
+- The preview drags with a transform per frame (one rAF loop in `images/PicturePlacement.tsx`), scrolls the page near its top or bottom edge (`placementDrag.ts`), stays inside the page area (not over bars or the page scroll bar) and stays in place across an app switch. Only the tick or Enter places it; the cross or Esc cancels.
+- A real gap opens in the text flow at the drop point (`placementGap.ts`, a widget decoration, not a document change). In the middle of a line the line splits there like a caret: the tick runs `tr.split` (like Enter), then the picture goes between; at the start of a block it goes before, at the end after (`PlaceOptions.beforeId` / `afterId`). One Undo joins the line again (the split and the insert are grouped by the editor history).
+- Largest size: a picture is never taller or wider than one sheet's writable area (`pictureMax.ts`). Resize, Smaller / Bigger / Fit width stop there with "Largest size for one page"; the Picture strip has **Fit to page**. So a picture never crosses the gap between sheets; if it does not fit what is left of a sheet, the sheet rule moves it to the next one.
+- Tests: `e2e/pictureGap.spec.ts`, `placementDrag.test.ts`, `pictureMax.test.ts`.

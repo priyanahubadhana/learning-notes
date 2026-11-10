@@ -8,6 +8,7 @@ export type PictureAction =
   | 'smaller'
   | 'bigger'
   | 'fit'
+  | 'fitPage'
   | 'natural'
   | 'cropRotate'
   | 'replace'

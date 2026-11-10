@@ -21,6 +21,8 @@ export interface PlaceOptions {
   width?: number
   /** The block the picture goes after. */
   afterId?: string
+  /** Or the block it goes before (the drop was at the start of a line). */
+  beforeId?: string
   align?: 'left' | 'center' | 'right'
 }
 

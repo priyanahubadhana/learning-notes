@@ -59,13 +59,19 @@ test('Insert › Picture: choose a file, the picture shows and is saved', async 
   await expect(chooser(page)).toHaveCount(0)
   // The picture shows as a preview; the block is made only on the tick.
   await expect(page.locator('[data-picture-preview]')).toBeVisible()
-  await expect(page.locator('.bn-editor img')).toHaveCount(0)
+  await expect(
+    page.locator('.bn-editor img:not(.ProseMirror-separator)'),
+  ).toHaveCount(0)
   await page.getByRole('button', { name: 'Place picture' }).click()
   await expect(page.locator('[data-picture-preview]')).toHaveCount(0)
-  await expect(page.locator('.bn-editor img')).toHaveCount(1)
+  await expect(
+    page.locator('.bn-editor img:not(.ProseMirror-separator)'),
+  ).toHaveCount(1)
   await page.waitForTimeout(900) // autosave
   await page.reload()
-  await expect(page.locator('.bn-editor img')).toHaveCount(1)
+  await expect(
+    page.locator('.bn-editor img:not(.ProseMirror-separator)'),
+  ).toHaveCount(1)
 })
 
 test('cancelling the chooser leaves no empty picture block', async ({
@@ -116,7 +122,9 @@ test('Paste uses a picture from the clipboard; without one it shows the hint', a
   await insertPicture(page)
   await page.getByTestId('picture-paste').click()
   await page.getByRole('button', { name: 'Place picture' }).click()
-  await expect(page.locator('.bn-editor img')).toHaveCount(1)
+  await expect(
+    page.locator('.bn-editor img:not(.ProseMirror-separator)'),
+  ).toHaveCount(1)
 })
 
 test("the empty picture block's own Add button opens the same chooser", async ({
@@ -151,7 +159,9 @@ test('placement: Esc and the cross add nothing; Enter places', async ({
   await choose(page)
   await page.keyboard.press('Escape')
   await expect(page.locator('[data-picture-preview]')).toHaveCount(0)
-  await expect(page.locator('.bn-editor img')).toHaveCount(0)
+  await expect(
+    page.locator('.bn-editor img:not(.ProseMirror-separator)'),
+  ).toHaveCount(0)
 
   await insertPicture(page)
   await page.getByTestId('picture-input-photos').setInputFiles({
@@ -160,7 +170,9 @@ test('placement: Esc and the cross add nothing; Enter places', async ({
     buffer: PNG,
   })
   await page.getByRole('button', { name: 'Cancel picture' }).click()
-  await expect(page.locator('.bn-editor img')).toHaveCount(0)
+  await expect(
+    page.locator('.bn-editor img:not(.ProseMirror-separator)'),
+  ).toHaveCount(0)
 
   await insertPicture(page)
   await page.getByTestId('picture-input-photos').setInputFiles({
@@ -170,7 +182,9 @@ test('placement: Esc and the cross add nothing; Enter places', async ({
   })
   await expect(page.locator('[data-picture-preview]')).toBeVisible()
   await page.keyboard.press('Enter')
-  await expect(page.locator('.bn-editor img')).toHaveCount(1)
+  await expect(
+    page.locator('.bn-editor img:not(.ProseMirror-separator)'),
+  ).toHaveCount(1)
 })
 
 test('placement: resize by a corner sets the width; one Undo removes it', async ({
@@ -189,7 +203,7 @@ test('placement: resize by a corner sets the width; one Undo removes it', async 
   const bigger = (await preview.boundingBox())!
   expect(bigger.width).toBeGreaterThan(before.width + 20)
   await page.getByRole('button', { name: 'Place picture' }).click()
-  const img = page.locator('.bn-editor img')
+  const img = page.locator('.bn-editor img:not(.ProseMirror-separator)')
   await expect(img).toHaveCount(1)
   await expect
     .poll(async () => (await img.boundingBox())!.width)

@@ -37,6 +37,8 @@ export const esAccounts: Record<string, string> = {
   'signin.err.badEmail': 'Ese correo no parece correcto.',
   'signin.err.weak': 'Elige una contraseña más larga (15 o más caracteres).',
   'signin.err.exists': 'Este correo ya tiene una cuenta. Inicia sesión.',
+  'signin.err.mail':
+    'El servicio de correo no pudo enviar el código. Inténtalo de nuevo en un minuto.',
   'signin.err.limit':
     'Demasiados intentos. Espera un minuto e inténtalo de nuevo.',
   'signin.err.later':

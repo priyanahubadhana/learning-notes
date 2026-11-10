@@ -36,6 +36,8 @@ export const enAccounts = {
   'signin.err.badEmail': 'That email address does not look right.',
   'signin.err.weak': 'Choose a longer password (15 or more characters).',
   'signin.err.exists': 'This email already has an account. Sign in instead.',
+  'signin.err.mail':
+    'The email service refused to send the code. Try again in a minute.',
   'signin.err.limit': 'Too many tries. Wait a minute and try again.',
   'signin.err.later':
     'Could not reach the server, or too many tries. Check your connection, wait a minute and try again.',

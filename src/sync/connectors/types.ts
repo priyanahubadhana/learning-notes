@@ -82,6 +82,7 @@ export type AuthInputKind =
   | 'exists'
   | 'limit' // too many emails or tries
   | 'refused' // testing allow-list
+  | 'mail' // the email service refused to send
   | 'failed'
 export class AuthInputError extends Error {
   kind: AuthInputKind
@@ -96,6 +97,8 @@ export interface SignInMethods {
   google?: { id: string; email: string }
   /** The email identity: it signs in with a code, and with a password if one is set. */
   email?: { id: string; email: string }
+  /** True when the email is confirmed but has no email identity of its own (a code still works). */
+  emailImplicit?: boolean
   /** A password was added. */
   password: boolean
 }

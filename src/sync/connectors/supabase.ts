@@ -9,7 +9,7 @@ import { createDrivePass } from './drivePass'
 import { revokeServerToken, serverPass, storeRefreshToken } from './driveServer'
 import { preloadGoogle, renewDriveToken } from './google'
 import { sessionEnded } from './sessionEnd'
-import { failure, parseMethods } from './emailAuth'
+import { failure, parseMethods, serverFailure } from './emailAuth'
 import {
   AuthInputError,
   NotAllowedError,
@@ -98,8 +98,18 @@ async function call(path: string, init: RequestInit & { token?: string } = {}) {
   } catch {
     throw new TryLaterError('offline')
   }
-  if (res.status >= 500 || res.status === 429)
+  if (res.status >= 500 || res.status === 429) {
+    // Sign-in steps say why in plain words (mail trouble, too many tries).
+    if (path.startsWith('/auth/v1/')) {
+      const body = await res
+        .clone()
+        .json()
+        .catch(() => null)
+      const kind = serverFailure(res.status, body)
+      if (kind) throw new AuthInputError(kind)
+    }
     throw new TryLaterError(`server ${res.status}`)
+  }
   return res
 }
 

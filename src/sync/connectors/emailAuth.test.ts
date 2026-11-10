@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest'
-import { failKind, parseMethods } from './emailAuth'
+import { failKind, parseMethods, serverFailure } from './emailAuth'
 import { passwordProblem } from '../passwordRules'
 
 describe('email sign-in answers', () => {
@@ -50,5 +50,32 @@ describe('password rules (NIST 800-63B-4)', () => {
     expect(passwordProblem('a'.repeat(15))).toBeNull()
     expect(passwordProblem('correct horse battery staple')).toBeNull()
     expect(passwordProblem('a'.repeat(129))).toBe('long')
+  })
+})
+
+describe('plain reasons for server failures', () => {
+  it('names mail trouble and rate limits', () => {
+    expect(
+      serverFailure(500, { msg: 'Error sending magic link email: SMTP' }),
+    ).toBe('mail')
+    expect(serverFailure(500, { error_code: 'unexpected_failure' })).toBe(
+      'mail',
+    )
+    expect(serverFailure(429, null)).toBe('limit')
+    expect(serverFailure(500, { msg: 'Email not allowed' })).toBe('refused')
+    expect(serverFailure(503, null)).toBeNull()
+    expect(serverFailure(400, null)).toBeNull()
+  })
+  it('a confirmed email works as a code sign-in without its own identity', () => {
+    const m = parseMethods({
+      email: 'a@b.c',
+      email_confirmed_at: '2026-11-10T00:00:00Z',
+      identities: [{ identity_id: 'g1', provider: 'google' }],
+    })
+    expect(m.email).toEqual({ id: '', email: 'a@b.c' })
+    expect(m.emailImplicit).toBe(true)
+    expect(
+      parseMethods({ email: 'a@b.c', identities: [] }).email,
+    ).toBeUndefined()
   })
 })

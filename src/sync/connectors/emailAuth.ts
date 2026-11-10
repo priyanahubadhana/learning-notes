@@ -18,6 +18,7 @@ export function failKind(
   if (['email_address_invalid', 'validation_failed'].includes(code))
     return 'badEmail'
   if (code === 'weak_password') return 'weak'
+  if (code === 'unexpected_failure' || /smtp|sending/.test(msg)) return 'mail'
   if (['user_already_exists', 'email_exists'].includes(code)) return 'exists'
   if (['over_email_send_rate_limit', 'over_request_rate_limit'].includes(code))
     return 'limit'
@@ -25,6 +26,28 @@ export function failKind(
   if (code.startsWith('hook_') || msg.includes('not allowed')) return 'refused'
   if (status === 400 || status === 401 || status === 422) return 'invalid'
   return 'failed'
+}
+
+/**
+ * A server-side failure (429 or 5xx) in plain words, or null to treat it as
+ * a plain "try later". Mail trouble (SMTP) and rate limits are named.
+ */
+export function serverFailure(
+  status: number,
+  body: {
+    error_code?: string
+    code?: string | number
+    msg?: string
+    message?: string
+  } | null,
+): AuthInputKind | null {
+  if (status === 429) return 'limit'
+  if (status < 500) return null
+  const code = String(body?.error_code ?? body?.code ?? '')
+  const msg = (body?.msg ?? body?.message ?? '').toLowerCase()
+  if (msg.includes('not allowed') || code.startsWith('hook_')) return 'refused'
+  if (/smtp|mail|unexpected_failure/.test(code + ' ' + msg)) return 'mail'
+  return null
 }
 
 export async function failure(res: Response): Promise<AuthInputError> {
@@ -39,6 +62,8 @@ export async function failure(res: Response): Promise<AuthInputError> {
 
 interface UserReply {
   email?: string
+  email_confirmed_at?: string | null
+  confirmed_at?: string | null
   user_metadata?: { has_password?: boolean }
   identities?: {
     identity_id?: string
@@ -58,6 +83,15 @@ export function parseMethods(user: UserReply): SignInMethods {
     }
     if (i.provider === 'google') out.google = entry
     else if (i.provider === 'email') out.email = entry
+  }
+  // A confirmed email signs in with a code even without its own identity.
+  if (
+    !out.email &&
+    user.email &&
+    (user.email_confirmed_at || user.confirmed_at)
+  ) {
+    out.email = { id: '', email: user.email }
+    out.emailImplicit = true
   }
   return out
 }

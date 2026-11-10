@@ -48,7 +48,9 @@ export function ConnectedAccounts() {
   }, [tick])
 
   const count = methods
-    ? [methods.google, methods.email].filter(Boolean).length
+    ? [methods.google, methods.email?.id ? methods.email : undefined].filter(
+        Boolean,
+      ).length
     : 0
   const unlink = async (which: 'google' | 'email') => {
     const id = methods?.[which]?.id
@@ -116,7 +118,7 @@ export function ConnectedAccounts() {
                 : t('connected.codeOff')
             }
             action={
-              methods.email &&
+              methods.email?.id &&
               count > 1 && (
                 <button
                   type="button"

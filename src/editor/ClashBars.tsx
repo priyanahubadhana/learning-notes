@@ -4,6 +4,7 @@ import type { Block } from '../core/types'
 import { t } from '../i18n/t'
 import { clearClash, excerptOf } from '../sync/clash'
 import { recordToEditorBlock } from './mapping'
+import { allBoxEditors } from '../paper/activeBox'
 import { editorBlockTypes, type AppSchema } from './schema'
 
 /**
@@ -22,12 +23,15 @@ export default function ClashBars({
   db,
   editor,
   pageId,
+  main = true,
 }: {
   db: LearningNotesDB
   editor: Editor
   pageId: string
+  /** The page's own text (not a paper box): it also shows clashes no box holds. */
+  main?: boolean
 }) {
-  const clashed = useLiveQuery(
+  const all = useLiveQuery(
     () =>
       db.blocks
         .where('pageId')
@@ -35,6 +39,14 @@ export default function ClashBars({
         .filter((b) => !!b.clash && b.deletedAt === null)
         .toArray(),
     [db, pageId],
+  )
+  // Every box of the page has its own editor, but the query is by page: each
+  // editor shows only its own blocks (the page's own text also any that no
+  // box holds), so a clash is never shown twice.
+  const clashed = all?.filter(
+    (b) =>
+      !!editor.getBlock(b.id) ||
+      (main && !allBoxEditors().some((e) => !!e.getBlock(b.id))),
   )
   if (!clashed || clashed.length === 0) return null
 

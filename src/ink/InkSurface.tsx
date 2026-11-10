@@ -35,7 +35,7 @@ import {
   wordsInRegion,
 } from '../editor/lassoWords'
 import { deselect } from '../editor/ownSelection'
-import { lookThrough, posNear } from '../editor/tapSelect'
+import { boxTapPending, lookThrough, posNear } from '../editor/tapSelect'
 import { TextSelection } from 'prosemirror-state'
 import { lassoRow, ROW_ACTIONS, splitMenu, type RowAction } from './lassoMenu'
 import {
@@ -258,7 +258,9 @@ export function InkSurface({
           if (view) dropNativeSelection(view)
         },
         placeCaret: (x, y) => {
-          // A finger (or mouse click) under the Lasso still starts typing.
+          // A finger (or mouse click) under the Lasso still starts typing,
+          // except the tap that selects a box (item 11).
+          if (boxTapPending()) return
           const view = (editor as unknown as Editor).prosemirrorView
           const dom = editor.domElement
           if (!view || !dom) return

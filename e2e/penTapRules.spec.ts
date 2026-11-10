@@ -165,7 +165,7 @@ test('Lasso: a blank line takes no caret (a stroke there is a lasso)', async ({
   expect(await focused(page)).toBe(false)
 })
 
-test('Text: no double-tap word select, and the finger pans (a touch drag is never cancelled)', async ({
+test('Text: a finger double tap selects the word (one counter, item 20), and the finger pans (a touch drag is never cancelled)', async ({
   page,
 }) => {
   await setup(page)
@@ -173,7 +173,7 @@ test('Text: no double-tap word select, and the finger pans (a touch drag is neve
   await tap(page, at, 'touch')
   await page.waitForTimeout(60)
   await tap(page, at, 'touch')
-  await expect(page.locator('[data-mini-toolbar]')).toHaveCount(0)
+  await expect(page.locator('[data-mini-toolbar]')).toHaveCount(1)
   const moved = await page.evaluate((from) => {
     const el = document.elementFromPoint(from.x, from.y)!
     const make = (name: string, y: number) =>

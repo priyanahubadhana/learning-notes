@@ -134,7 +134,18 @@ export function BoxFrame({
       style={
         stacked
           ? { marginLeft: stacked.x * k, width: stacked.w * k }
-          : { left: shown.x * k, top: shown.y * k, width: shown.w * k }
+          : dragging
+            ? {
+                // One moving copy: placed at its old spot and moved by a
+                // transform, so a move repaints one layer and relayouts
+                // nothing (item 25, the white-line flicker).
+                left: box.x * k,
+                top: box.y * k,
+                width: shown.w * k,
+                transform: `translate3d(${(shown.x - box.x) * k}px, ${(shown.y - box.y) * k}px, 0)`,
+                willChange: 'transform',
+              }
+            : { left: shown.x * k, top: shown.y * k, width: shown.w * k }
       }
     >
       {segments.map((s, i) => (

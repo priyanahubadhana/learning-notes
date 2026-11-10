@@ -172,6 +172,49 @@ export function nextTapCount(
   return 1
 }
 
+/** A tap that selects a box is under way: the ink pad must not place a caret. */
+let boxTapUntil = 0
+export const boxTapPending = (): boolean => Date.now() < boxTapUntil
+
+/** Fired on window when a first tap selects a box: detail {id, add}. */
+export const PICK_BOX = 'ln:pick-box'
+
+/**
+ * 1 when a tap on this editor's box first selects the box (Lasso, an extra
+ * box that is not picked): every count then moves up by one. 0 when the box
+ * is active already (Text tool, the page's main box, a picked box).
+ */
+function boxShift(dom: HTMLElement, tool: string): number {
+  const box = dom.closest('[data-paper-box]')
+  if (!box || tool === 'text') return 0
+  if (box.getAttribute('data-paper-box') === 'main') return 0
+  return box.hasAttribute('data-picked') ? 0 : 1
+}
+
+/** The browser's own mouse events of a box-selecting tap are cancelled. */
+function swallowCaret(doc: Document) {
+  const stop = (ev: Event) => {
+    ev.preventDefault()
+    ev.stopPropagation()
+  }
+  const names = ['mousedown', 'mouseup', 'click']
+  const off = () => {
+    window.clearTimeout(timer)
+    for (const n of names) doc.removeEventListener(n, stop, true)
+  }
+  const done = (ev: Event) => {
+    stop(ev)
+    off()
+  }
+  for (const n of names) doc.addEventListener(n, stop, true)
+  doc.removeEventListener('click', stop, true)
+  doc.addEventListener('click', done, true)
+  const timer = window.setTimeout(() => {
+    off()
+    doc.removeEventListener('click', done, true)
+  }, 350)
+}
+
 /** Set on the pointerup of a tap that selected: other tap listeners stand back. */
 export const TAP_SELECTED = 'lnTapSelected'
 export const tapSelected = (e: Event): boolean =>
@@ -184,14 +227,17 @@ export function watchTapSelect(
   const dom = editor.domElement
   if (!dom) return () => {}
   const doc = dom.ownerDocument
-  let down: {
+  type Tap = {
     id: number
     x: number
     y: number
     at: number
     count: number
-  } | null = null
-  let last: { at: number; x: number; y: number; count: number } | null = null
+    /** 1 when the first tap of the run found its box not active (it selects the box). */
+    shift: number
+  }
+  let down: Tap | null = null
+  let last: Tap | null = null
 
   const inText = (target: EventTarget | null) =>
     target instanceof Element &&
@@ -206,18 +252,43 @@ export function watchTapSelect(
     nextTapCount(last, Date.now(), x, y) >= 2
 
   const onDown = (e: PointerEvent) => {
-    // The Pencil only (a finger has the browser's own double tap), and only
-    // in typing mode.
-    if (e.pointerType !== 'pen' || e.button > 0) return
-    if (activeTool.get() !== 'text' || !inText(e.target)) {
+    // Finger, Pencil and mouse count alike (owner, 10 Nov, items 11 and 20).
+    if (e.button > 0) return
+    const tool = activeTool.get()
+    if (tool !== 'text' && tool !== 'lasso') {
+      down = null
+      return
+    }
+    // Under the Lasso the ink pad covers the words: look through it.
+    const pad = padOf(e.target)
+    const target = pad
+      ? lookThrough(pad, () => doc.elementFromPoint(e.clientX, e.clientY))
+      : e.target
+    if (!inText(target)) {
       down = null
       return
     }
     const now = Date.now()
     const count = nextTapCount(last, now, e.clientX, e.clientY)
-    down = { id: e.pointerId, x: e.clientX, y: e.clientY, at: now, count }
-    // The second tap on: the browser's own tap is held off (R6-18).
-    if (count >= 2 && e.cancelable) e.preventDefault()
+    const shift = count > 1 && last ? last.shift : boxShift(dom, tool)
+    down = {
+      id: e.pointerId,
+      x: e.clientX,
+      y: e.clientY,
+      at: now,
+      count,
+      shift,
+    }
+    const level = count - shift
+    // The tap that selects a box types nothing and shows no keyboard; the
+    // taps after the first on the Pencil are held off (R6-18).
+    if (level <= 0) {
+      boxTapUntil = Date.now() + 500
+      swallowCaret(doc)
+      if (e.cancelable) e.preventDefault()
+    } else if (e.pointerType === 'pen' && count >= 2 && e.cancelable) {
+      e.preventDefault()
+    }
   }
   // Safari reports the Pencil as a touch of type "stylus": its own double
   // tap (and Scribble's dot) start there, so that touch is cancelled too.
@@ -226,7 +297,11 @@ export function watchTapSelect(
     const touch = Array.from(e.changedTouches).find(
       (t) => (t as Touch & { touchType?: string }).touchType === 'stylus',
     )
-    if (touch && ours(e.target, touch.clientX, touch.clientY)) {
+    if (
+      touch &&
+      (ours(e.target, touch.clientX, touch.clientY) ||
+        (down && down.count - down.shift <= 0))
+    ) {
       e.preventDefault()
     }
   }
@@ -243,13 +318,46 @@ export function watchTapSelect(
       return
     }
     const count = start.count
-    last = { at: Date.now(), x: e.clientX, y: e.clientY, count }
-    if (count < 2) return
+    const level = count - start.shift
+    last = { ...start, at: Date.now(), x: e.clientX, y: e.clientY }
     const view = editor.prosemirrorView
     if (!view) return
-    const pos = posNear(view, e.clientX, e.clientY)
+    if (level <= 0) {
+      // First tap on a box that is not active: select the BOX (frame, handles,
+      // box bar); the caret stays out until the next tap.
+      const id = dom.closest('[data-paper-box]')?.getAttribute('data-paper-box')
+      if (id) {
+        window.dispatchEvent(
+          new CustomEvent(PICK_BOX, { detail: { id, add: e.shiftKey } }),
+        )
+        if (dom.contains(doc.activeElement))
+          (doc.activeElement as HTMLElement).blur()
+      }
+      return
+    }
+    // The first caret tap is the browser's own (Text tool) or the ink pad's
+    // (Lasso); in a paper box under the Lasso it is placed here.
+    const inBox = !!dom.closest('[data-paper-box]:not([data-paper-box="main"])')
+    if (level === 1 && (activeTool.get() === 'text' || !inBox)) return
+    const pos = lookThrough(padOf(e.target), () =>
+      posNear(view, e.clientX, e.clientY),
+    )
     if (pos === null) return
-    const range = rangeForTaps(view, pos, count, e.clientY)
+    if (level === 1) {
+      // The caret goes exactly where the tap landed (Lasso, picked box).
+      setTimeout(() => {
+        if (pos > view.state.doc.content.size) return
+        view.dispatch(
+          view.state.tr.setSelection(
+            TextSelection.near(view.state.doc.resolve(pos)),
+          ),
+        )
+        view.dom.focus({ preventScroll: true })
+        keepSelection()
+      }, 0)
+      return
+    }
+    const range = rangeForTaps(view, pos, level, e.clientY)
     if (!range) return
     ;(e as PointerEvent & { [TAP_SELECTED]?: boolean })[TAP_SELECTED] = true
     // After the browser's own tap handling, so ours is what stays.
@@ -293,6 +401,7 @@ export function watchTapSelect(
   const offState = registerToolState('tapSelect', () => ({
     down: down ? `#${down.id} count ${down.count}` : null,
     lastCount: last?.count ?? 0,
+    lastShift: last?.shift ?? 0,
     lastAgoMs: last ? Date.now() - last.at : null,
     editable: dom.getAttribute('contenteditable'),
     inert: dom.hasAttribute('inert'),

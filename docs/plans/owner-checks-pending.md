@@ -2,6 +2,9 @@
 
 Moved out of HANDOFF on 2026-11-06 (audit) so HANDOFF stays five lines. Newest first; each paragraph names its step. The run decision (master plan) is one owner iPad pass before Sync; the Phase A builder adds its checks at the top. Tick a paragraph by deleting it.
 
+## Builder G checks (10 Nov)
+
+(1) Lasso tool, tap a text box once: the frame and box bar show, no keyboard. Tap again: caret where you tapped; again: word; again: line; again: paragraph. Same with finger, Pencil and mouse. Text tool: 1 caret, 2 word, 3 line, 4 paragraph. Tap bare paper: the box is deselected. (2) Drag a box by its grip while sync shows "Changed on two devices": the bar shows once and the box moves smoothly without white lines.
 ## Builder H checks (10 Nov)
 
 (1) In a book, Contents and Notes open the left panel (no panel on the right).

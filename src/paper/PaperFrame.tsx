@@ -1,3 +1,4 @@
+import { PICK_BOX } from '../editor/tapSelect'
 import {
   lazy,
   Suspense,
@@ -488,6 +489,28 @@ export function PaperFrame({
     setPicked((p) =>
       add ? (p.includes(id) ? p.filter((x) => x !== id) : [...p, id]) : [id],
     )
+  // A first tap on a box's text selects the box (tapSelect.ts, item 11).
+  useEffect(() => {
+    const on = (e: Event) => {
+      const d = (e as CustomEvent<{ id: string; add: boolean }>).detail
+      if (extra.some((b) => b.id === d.id)) selectBox(d.id, d.add)
+    }
+    window.addEventListener(PICK_BOX, on)
+    return () => window.removeEventListener(PICK_BOX, on)
+  }, [extra])
+  // A tap on the bare paper (outside every box and bar) deselects.
+  useEffect(() => {
+    if (picked.length === 0) return
+    const off = (e: PointerEvent) => {
+      const t = e.target
+      if (!(t instanceof Element) || !paperEl.current?.contains(t)) return
+      if (t.closest('[data-paper-box], [data-box-bar-holder], [role="menu"]'))
+        return
+      setPicked([])
+    }
+    document.addEventListener('pointerdown', off, true)
+    return () => document.removeEventListener('pointerdown', off, true)
+  }, [picked.length])
   useEffect(() => {
     if (picked.length === 0) return
     const key = (e: KeyboardEvent) => {

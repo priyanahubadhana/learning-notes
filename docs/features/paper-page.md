@@ -67,6 +67,10 @@ Replaces "Boxes never overlap" and the push-down of the 9 Nov work. Plan: [plans
 - The Write pad scrolls the insertion line above itself when it opens (`writePad/revealCaret.ts`).
 - A Card list (rows `data-page-row`) is split at its rows at a sheet gap. Not yet: BlockNote and database table rows.
 
+## Tap model (10 Nov, items 11 and 20)
+
+Taps are counted once, in `editor/tapSelect.ts`, for finger, Pencil and mouse. Box not active (Lasso, extra box not picked): 1 selects the box, 2 caret, 3 word, 4 line, 5 paragraph. Active box or Text tool: 1 caret, 2 word, 3 line, 4 paragraph. A tap on bare paper deselects. Test: e2e/boxTaps.spec.ts.
+
 ## Not yet
 
 - Ink at a zoom other than 100 %.

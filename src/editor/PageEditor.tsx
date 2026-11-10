@@ -862,7 +862,12 @@ function LoadedPageEditor({
       }}
     >
       {!readOnly && isTracking() && (
-        <ClashBarsLazy db={db} editor={editor} pageId={pageId} />
+        <ClashBarsLazy
+          db={db}
+          editor={editor}
+          pageId={pageId}
+          main={!boxId || boxId === MAIN_BOX}
+        />
       )}
       <div
         ref={setInkWrap}

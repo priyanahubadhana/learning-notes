@@ -26,6 +26,13 @@ export const miniPos = prefStore<FreePos | null>(
   null,
 )
 
+/** The micro text bar's dragged place (null = beside the box), per device. */
+export const microPos = prefStore<FreePos | null>(
+  'toolbar.microPos',
+  isFreePos,
+  null,
+)
+
 /** A box on the screen: the page area the mini bar must stay inside. */
 export interface Area {
   left: number

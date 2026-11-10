@@ -5,6 +5,8 @@
 
 Current phase only. Older decisions are in [ARCHIVE.md](ARCHIVE.md).
 
+- **2026-11-10 · Micro bar (item 12) is additive first.** Replacing the mini bar and box bar touches about 40 specs; the micro bar ships beside them so nothing regresses, and the merge is a follow-up.
+- **2026-11-10 · Table rows (item 5).** Spacer rows instead of margins; database tables that scroll in a window may show an uneven first/last spacer (row-window math ignores the spacers).
 - **2026-11-10 · Hold menu (item 19).** Only under the Text tool (other tools draw or select). The Pencil's 0.5 s hold-select still runs first; the menu opens at 1.0 s if the Pencil has not moved. Default 1.0 s (owner: longer avoids mis-clicks).
 - **2026-11-10 · Tap model (items 11, 20).** One counter for finger, Pencil and mouse. Only the Text tool and the Lasso count (ink tools draw). The page's main text counts as an active box. A finger double tap in Text now selects the word (the old rule "a finger keeps the browser's own double tap" is gone, so all three pointers agree). Under the Lasso a tap on text of the main box is still the ink pad's (no caret placed by the counter).
 - **2026-11-10 · Clash bar (item 25).** Bars are per editor: a block's bar shows in the editor that holds it. The flicker fix (transform for the dragged box) could not be seen on an iPad here: owner check.

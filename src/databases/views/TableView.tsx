@@ -617,7 +617,7 @@ export function TableView({ db, database, view, onOpenPage }: ViewProps) {
                 }
                 const row = item.row
                 return (
-                  <tr key={row.page.id}>
+                  <tr key={row.page.id} data-page-row>
                     <th
                       scope="row"
                       className={`${cell} sticky start-0 bg-bg text-start font-medium`}

@@ -61,7 +61,7 @@ test('the hint shows only on the focused empty line', async ({ page }) => {
       return getComputedStyle(empties[n], '::after').content
     }, nth)
   // Caret is on the first empty line: it shows the hint, the other does not.
-  expect(await after(0)).toContain('Enter text')
+  await expect.poll(() => after(0)).toContain('Enter text')
   expect(await after(1)).toBe('none')
   // Focus leaves the editor: no hint anywhere.
   await page.evaluate(() => (document.activeElement as HTMLElement).blur())

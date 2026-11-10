@@ -18,6 +18,7 @@ export function GridDividers({
   width,
   paperEl,
   enabled,
+  picked = [],
   onLive,
   onCommit,
 }: {
@@ -29,6 +30,8 @@ export function GridDividers({
   width: number
   paperEl: RefObject<HTMLDivElement | null>
   enabled: boolean
+  /** Selected boxes: a lone one shows two pill handles that move its dividers (item 46). */
+  picked?: string[]
   /** The rows while a divider is dragged (null: back to the saved ones). */
   onLive: (rows: GridRow[] | null) => void
   onCommit: (rows: GridRow[]) => void
@@ -63,6 +66,38 @@ export function GridDividers({
     onLive(null)
   }
 
+  /** Starts dragging divider `i` of `row` (a divider line or a pill handle). */
+  const grab = (e: React.PointerEvent, row: GridRow, i: number) => {
+    e.preventDefault()
+    e.stopPropagation()
+    try {
+      e.currentTarget.setPointerCapture(e.pointerId)
+    } catch {
+      // A pointer the browser no longer knows: the moves still arrive.
+    }
+    const now = e.timeStamp
+    if (now - lastTap.current < 350) {
+      lastTap.current = 0
+      onCommit(rows.map((rw) => (rw.id === row.id ? equalRow(rw) : rw)))
+      return
+    }
+    lastTap.current = now
+    drag.current = { rowId: row.id, i, rows, moved: false }
+  }
+  // Item 46: the lone selected box gets a pill on each side that has a neighbour.
+  const pills = (() => {
+    if (picked.length !== 1) return []
+    const id = picked[0]
+    const row = rows.find((r) => r.cols.some((c) => c.boxIds.includes(id)))
+    const rc = layout.get(id)
+    if (!row || !rc) return []
+    const ci = row.cols.findIndex((c) => c.boxIds.includes(id))
+    const out: { side: 'left' | 'right'; i: number; x: number }[] = []
+    if (ci > 0) out.push({ side: 'left', i: ci - 1, x: rc.x })
+    if (ci < row.cols.length - 1)
+      out.push({ side: 'right', i: ci, x: rc.x + rc.w })
+    return out.map((p) => ({ ...p, row, y: rc.y + rc.h / 2 }))
+  })()
   const out = rows.flatMap((row) => {
     if (row.cols.length < 2) return []
     const spans = row.cols.map((c) => {
@@ -125,5 +160,34 @@ export function GridDividers({
       )
     })
   })
-  return <>{out}</>
+  return (
+    <>
+      {out}
+      {pills.map((p) => (
+        <div
+          key={'pill:' + p.side}
+          role="separator"
+          aria-orientation="vertical"
+          aria-label={t('paper.box.resize')}
+          data-box-pill={p.side}
+          className="absolute z-10 flex w-11 cursor-col-resize touch-none items-center justify-center"
+          style={{
+            left: p.x * k,
+            top: p.y * k,
+            height: 56,
+            transform: 'translate(-50%, -50%)',
+          }}
+          onPointerDown={(e) => grab(e, p.row, p.i)}
+          onPointerMove={move}
+          onPointerUp={end}
+          onPointerCancel={end}
+        >
+          <span
+            aria-hidden
+            className="h-9 w-2 rounded-full border border-bg bg-accent shadow-sm"
+          />
+        </div>
+      ))}
+    </>
+  )
 }

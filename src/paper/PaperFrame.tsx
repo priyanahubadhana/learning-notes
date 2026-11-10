@@ -498,19 +498,7 @@ export function PaperFrame({
     window.addEventListener(PICK_BOX, on)
     return () => window.removeEventListener(PICK_BOX, on)
   }, [extra])
-  // A tap on the bare paper (outside every box and bar) deselects.
-  useEffect(() => {
-    if (picked.length === 0) return
-    const off = (e: PointerEvent) => {
-      const t = e.target
-      if (!(t instanceof Element) || !paperEl.current?.contains(t)) return
-      if (t.closest('[data-paper-box], [data-box-bar-holder], [role="menu"]'))
-        return
-      setPicked([])
-    }
-    document.addEventListener('pointerdown', off, true)
-    return () => document.removeEventListener('pointerdown', off, true)
-  }, [picked.length])
+  // A tap on the bare paper deselects: the Lasso's own loop-up does it.
   useEffect(() => {
     if (picked.length === 0) return
     const key = (e: KeyboardEvent) => {
@@ -1014,6 +1002,7 @@ export function PaperFrame({
             width={geo.sheetW - geo.left - geo.right}
             paperEl={paperEl}
             enabled={!!onGridChange}
+            picked={picked}
             onLive={setPreview}
             onCommit={(rows) => {
               setPreview(null)

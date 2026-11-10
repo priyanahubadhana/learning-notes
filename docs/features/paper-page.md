@@ -71,6 +71,10 @@ Replaces "Boxes never overlap" and the push-down of the 9 Nov work. Plan: [plans
 
 Taps are counted once, in `editor/tapSelect.ts`, for finger, Pencil and mouse. Box not active (Lasso, extra box not picked): 1 selects the box, 2 caret, 3 word, 4 line, 5 paragraph. Active box or Text tool: 1 caret, 2 word, 3 line, 4 paragraph. A tap on bare paper deselects. Test: e2e/boxTaps.spec.ts.
 
+## Hold menu, table rows, micro bar (10 Nov, items 19, 5, 12)
+
+Hold still on text under the Text tool (1.0 s, Settings › Advanced 0.6-3 s): Paste, Select, Select all, Cut/Copy, Insert. Table rows (BlockNote and database) are split with spacer rows, never in the gap. The micro text bar floats above the box while the caret is in it; drag to move, remembered.
+
 ## Not yet
 
 - Ink at a zoom other than 100 %.

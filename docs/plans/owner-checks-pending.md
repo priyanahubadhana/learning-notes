@@ -8,7 +8,7 @@ On the iPad: (1) Type a line, draw a stroke, move a box, change the paper style,
 
 ## Builder G checks (10 Nov)
 
-(0) Text tool: press and hold still on text with finger, Pencil and mouse for 1 s: our menu (Paste, Select, Select all, Insert) opens at that spot, never the iOS callout. Settings › Advanced › Press-and-hold menu time changes the delay. (1) Lasso tool, tap a text box once: the frame and box bar show, no keyboard. Tap again: caret where you tapped; again: word; again: line; again: paragraph. Same with finger, Pencil and mouse. Text tool: 1 caret, 2 word, 3 line, 4 paragraph. Tap bare paper: the box is deselected. (2) Drag a box by its grip while sync shows "Changed on two devices": the bar shows once and the box moves smoothly without white lines.
+(00) Type in a box: a small bar floats above it (colour, size, Aa, B, I, align, list, highlighter, more); drag it and it stays there next time. A long table or database table: no row sits in the gap between two sheets. (0) Text tool: press and hold still on text with finger, Pencil and mouse for 1 s: our menu (Paste, Select, Select all, Insert) opens at that spot, never the iOS callout. Settings › Advanced › Press-and-hold menu time changes the delay. (1) Lasso tool, tap a text box once: the frame and box bar show, no keyboard. Tap again: caret where you tapped; again: word; again: line; again: paragraph. Same with finger, Pencil and mouse. Text tool: 1 caret, 2 word, 3 line, 4 paragraph. Tap bare paper: the box is deselected. (2) Drag a box by its grip while sync shows "Changed on two devices": the bar shows once and the box moves smoothly without white lines.
 
 ## Builder H checks (10 Nov)
 

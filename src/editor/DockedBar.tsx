@@ -34,6 +34,7 @@ import { padHistoryState } from './writePad/padHistory'
 import { MainBarRow } from '../app/tools/main/MainBar'
 import { HoverName } from '../app/tools/HoverName'
 import { MiniToolbar } from '../app/tools/main/MiniToolbar'
+import { MicroBar } from '../app/tools/main/MicroBar'
 import { MiniKeys } from '../app/tools/main/MiniKeysStrip'
 import { OptionsPill } from '../app/tools/main/OptionsPill'
 import { TOP_GAP } from '../app/tools/main/pillRoom'
@@ -487,6 +488,7 @@ function Bar({ editor, slot }: { editor: Editor; slot: HTMLElement }) {
       })}
       <ToolsBoundary name="selection bar">
         <MiniToolbar editor={editor} />
+        <MicroBar editor={editor} />
         <MiniKeys editor={editor} />
       </ToolsBoundary>
       <HoverName />

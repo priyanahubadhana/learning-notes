@@ -1,5 +1,6 @@
 /** Hindi text of the press-and-hold menu (10 Nov batch, item 19). */
 export const hiG = {
+  'main.micro.label': 'टेक्स्ट फ़ॉर्मैट',
   'hold.paste': 'चिपकाएँ',
   'hold.select': 'चुनें',
   'hold.selectAll': 'सब चुनें',

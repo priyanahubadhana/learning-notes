@@ -191,6 +191,10 @@ function boxShift(dom: HTMLElement, tool: string): number {
   return box.hasAttribute('data-picked') ? 0 : 1
 }
 
+/** Is this editor in a paper box that is picked now? */
+const isPicked = (dom: HTMLElement): boolean =>
+  !!dom.closest('[data-paper-box][data-picked]')
+
 /** The browser's own mouse events of a box-selecting tap are cancelled. */
 function swallowCaret(doc: Document) {
   const stop = (ev: Event) => {
@@ -265,6 +269,12 @@ export function watchTapSelect(
       ? lookThrough(pad, () => doc.elementFromPoint(e.clientX, e.clientY))
       : e.target
     if (!inText(target)) {
+      down = null
+      return
+    }
+    // Under the Lasso only paper boxes count taps (item 11); the page's own
+    // text keeps the Lasso's table (a double tap selects nothing).
+    if (tool === 'lasso' && boxShift(dom, tool) === 0 && !isPicked(dom)) {
       down = null
       return
     }

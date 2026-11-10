@@ -1,5 +1,6 @@
 /** Spanish text of the press-and-hold menu (10 Nov batch, item 19). */
 export const esG = {
+  'main.micro.label': 'Formato de texto',
   'hold.paste': 'Pegar',
   'hold.select': 'Seleccionar',
   'hold.selectAll': 'Seleccionar todo',

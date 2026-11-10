@@ -241,7 +241,7 @@ test('fit width on a phone: the boxes stack under the text in reading order', as
   for (const [i, fx] of [0.55, 0.1].entries()) {
     await page.mouse.click(
       sheet.x + sheet.width * fx,
-      main0.y + main0.height + (i === 0 ? 130 : 50),
+      main0.y + main0.height + (i === 0 ? 130 : 30),
     )
     await expect(extra).toHaveCount(i + 1)
     await expect(extra.nth(i).locator('.bn-editor')).toBeFocused()

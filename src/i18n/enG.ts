@@ -1,5 +1,6 @@
 /** English text of the press-and-hold menu (10 Nov batch, item 19). */
 export const enG = {
+  'main.micro.label': 'Text formatting',
   'hold.paste': 'Paste',
   'hold.select': 'Select',
   'hold.selectAll': 'Select all',

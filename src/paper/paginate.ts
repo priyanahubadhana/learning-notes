@@ -212,6 +212,8 @@ export function caretInGap(view: EditorView, pushed: HTMLElement): boolean {
 interface Spacer {
   pos: number
   px: number
+  /** A table row spacer (a `tr`) before the row that starts at `pos`. */
+  row?: boolean
 }
 const spacerKey = new PluginKey<Spacer[]>('ln-pagination-spacers')
 
@@ -241,13 +243,17 @@ export const paginationSpacers = createExtension({
                 Decoration.widget(
                   s.pos,
                   () => {
+                    if (s.row) return rowSpacerEl(s.px)
                     const el = document.createElement('span')
                     el.setAttribute('data-page-spacer', '')
                     el.contentEditable = 'false'
                     el.style.cssText = `display:block;height:${s.px}px;pointer-events:none`
                     return el
                   },
-                  { side: -1, key: 'sp' + s.px + '-' + s.pos },
+                  {
+                    side: -1,
+                    key: (s.row ? 'rsp' : 'sp') + s.px + '-' + s.pos,
+                  },
                 ),
               ),
           )
@@ -300,6 +306,8 @@ export function applyPagination(
     first?: boolean
     /** Set for a row of a tall list block (a card list): the row itself. */
     row?: HTMLElement
+    /** The line is a row of a BlockNote table (its spacer is a `tr`). */
+    tableRow?: boolean
   }
   /** Rows (data-page-row) of every block, to set or clear their push. */
   const allRows: HTMLElement[] = []
@@ -355,6 +363,28 @@ export function applyPagination(
     const before = start === null ? 0 : spacerPx(0, start)
     const inside = start === null || end === null ? 0 : spacerPx(start, end)
     const naturalH = r.height - inside
+    // A BlockNote table taller than a sheet is split at its rows (item 5).
+    const trs = Array.from(
+      el.querySelectorAll<HTMLElement>('table tr:not([data-ln-row-spacer])'),
+    )
+    if (start !== null && trs.length > 1 && naturalH > room) {
+      const rowPositions = trs.map((tr) => rowPosOf(view, tr))
+      if (rowPositions.every((x) => x !== null)) {
+        trs.forEach((tr, j) => {
+          const pos = rowPositions[j]!
+          const rr = tr.getBoundingClientRect()
+          items.push({
+            top: rr.top - margins - spacerPx(0, pos + 1),
+            height: rr.height,
+            block: i,
+            pos,
+            first: j === 0,
+            tableRow: true,
+          })
+        })
+        return
+      }
+    }
     if (naturalH > room && start !== null) {
       const lines = linesOf(view, el)
       if (lines.length > 1) {
@@ -390,7 +420,7 @@ export function applyPagination(
     }
     if (css <= 0) return
     if (it.pos === undefined || it.first) next.set(ids[it.block], css)
-    else spacers.push({ pos: it.pos, px: css })
+    else spacers.push({ pos: it.pos, px: css, row: it.tableRow })
   })
   let changed = spacers.length !== spacersHad.length
   if (!changed)
@@ -424,13 +454,61 @@ const rowsOf = (outer: HTMLElement) =>
 /** A row's push in CSS px (kept on the element). */
 const rowPush = (row: HTMLElement) => Number(row.dataset.lnPush ?? 0) || 0
 
+/** A table row spacer: a real `tr` of the given height (a `tr` takes no margin). */
+function rowSpacerEl(px: number): HTMLElement {
+  const tr = document.createElement('tr')
+  tr.setAttribute('data-ln-row-spacer', '')
+  tr.setAttribute('aria-hidden', 'true')
+  tr.contentEditable = 'false'
+  tr.style.cssText = `height:${px}px;pointer-events:none`
+  const td = document.createElement('td')
+  td.style.cssText = 'padding:0;border:0;background:none'
+  tr.append(td)
+  return tr
+}
+
+/** The document position just before the table row element, or null. */
+function rowPosOf(view: EditorView, tr: HTMLElement): number | null {
+  try {
+    const $p = view.state.doc.resolve(view.posAtDOM(tr, 0))
+    for (let d = $p.depth; d > 0; d--)
+      if ($p.node(d).type.name === 'tableRow') return $p.before(d)
+  } catch {
+    // The DOM and the document disagree for a moment: no row split now.
+  }
+  return null
+}
+
 function setRowPush(row: HTMLElement, px: number): void {
+  if (row.tagName === 'TR') return setTableRowPush(row, px)
   if (px > 0) {
     row.dataset.lnPush = String(px)
     row.style.marginTop = px + 'px'
   } else {
     delete row.dataset.lnPush
     row.style.marginTop = ''
+  }
+}
+
+/** A pushed React table row (a database table): a spacer `tr` just before it. */
+function setTableRowPush(row: HTMLElement, px: number): void {
+  const before = row.previousElementSibling
+  let spacer =
+    before instanceof HTMLElement && before.hasAttribute('data-ln-row-spacer')
+      ? before
+      : null
+  if (px > 0) {
+    row.dataset.lnPush = String(px)
+    if (!spacer) {
+      spacer = rowSpacerEl(px)
+      row.before(spacer)
+    }
+    spacer.style.height = px + 'px'
+    const cell = spacer.firstElementChild as HTMLTableCellElement | null
+    if (cell) cell.colSpan = Math.max(1, row.children.length)
+  } else {
+    delete row.dataset.lnPush
+    spacer?.remove()
   }
 }
 
@@ -483,6 +561,8 @@ function linesOf(
 export function clearPagination(editorEl: HTMLElement): void {
   for (const x of editorEl.querySelectorAll<HTMLElement>('[data-ln-push]'))
     setRowPush(x, 0)
+  for (const x of editorEl.querySelectorAll('tr[data-ln-row-spacer]'))
+    if (!x.nextElementSibling?.hasAttribute('data-ln-push')) x.remove()
   const view = views.get(editorEl)
   if (!view) return
   if (

@@ -251,3 +251,4 @@ Three ways of using the reader, as presets:
 - Home dashboard plan: docs/plans/home-dashboard-plan.md, 11 questions (picks in bold there).
 - REAL-BUILD requirement (owner): resize dots sit OUTSIDE the box; their hit area extends outward only, never over the text, so caret taps near the edge never grab a handle.
 - REAL-BUILD requirement (owner): pressing a box's grip drops the typing cursor (blur + collapse the selection) and blocks typing until the move/menu ends.
+- REAL-BUILD requirement (owner): cards/sheets are a layer — taps/scroll inside never reach the page; the first outside tap only closes the card (swallowed; pills/strips excepted); card controls keep the text selection; fields return focus to the previous caret.

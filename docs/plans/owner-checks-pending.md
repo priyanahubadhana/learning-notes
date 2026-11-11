@@ -1,5 +1,9 @@
 # Owner checks still pending (collected for the end-of-run iPad pass)
 
+## CI fixes (11 Nov)
+
+On the iPad: (1) Lasso on, tap a text box once (box selected), then three quick taps on a word: only that screen line is selected, not the paragraph. (2) Edit toolbar: tap − on several tools quickly one after another: each tap removes one tool and the rows do not jump sideways. Why human: real Pencil/finger timing on Safari.
+
 ## Claude connector A: writes and Connected computers (13 Nov; needs your OK to deploy the SQL)
 
 Not deployed. (1) Supabase > SQL Editor: paste `supabase/migrations/20261113000001_connector_devices.sql` > Run (safe to run again; run it after the sync files). (2) On the PC: `git pull`, `npm run mcp:build`, `node mcp/dist/index.js setup` (it lists the PC as "Claude (PC)" and writes `~/.learning-notes-mcp/config.json`); restart Claude Desktop. (3) In Claude: "Create a notebook about X with 3 pages and 4 recall cards", then "Read page Y and add a summary at the end", then "Add recall cards to page Y". They appear in the app after a sync; "Remove this AI result" removes a creation. (4) Edit the same page in the app while Claude is told to append with an old version: Claude must say the page changed and add nothing. (5) In the app: Settings > Account > Connected computers shows "Claude (PC)"; tap Revoke, confirm; ask Claude again: it must be refused at once, and reconnecting needs `setup`. (6) Set `"write:create": false` in config.json and restart Claude Desktop: Claude must no longer be offered create_notebook / add_page. Why human: needs the live project, Claude Desktop and your key.

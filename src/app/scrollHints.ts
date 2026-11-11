@@ -99,11 +99,19 @@ function scrollerOf(from: EventTarget | null): HTMLElement | null {
 }
 
 const MARK = 'data-scroll-more'
+/**
+ * The handle's 24 px gutter. Once a list has had the handle it keeps the
+ * gutter, even when it stops overflowing: dropping it would slide every row
+ * 24 px sideways a moment after a row was removed, under the next tap.
+ */
+const GUTTER = 'data-scroll-gutter'
 
 function mark(el: HTMLElement): void {
   const more = moreOf(el.scrollTop, el.scrollHeight, el.clientHeight)
-  if (more) el.setAttribute(MARK, more)
-  else el.removeAttribute(MARK)
+  if (more) {
+    el.setAttribute(MARK, more)
+    el.setAttribute(GUTTER, '')
+  } else el.removeAttribute(MARK)
 }
 
 /**
@@ -228,13 +236,14 @@ export function installScrollHints(isOn: () => boolean): {
   const scan = () => {
     scanTimer = undefined
     const all = document.querySelectorAll<HTMLElement>(
-      `[${MARK}], div, nav, aside, ul, section`,
+      `[${MARK}], [${GUTTER}], div, nav, aside, ul, section`,
     )
     const limit = Math.min(all.length, 4000)
     for (let i = 0; i < limit; i++) {
       const el = all[i]
       if (!isOn()) {
         el.removeAttribute(MARK)
+        el.removeAttribute(GUTTER)
       } else if (el.scrollHeight - el.clientHeight > 1 && scrolls(el)) {
         mark(el)
       } else {

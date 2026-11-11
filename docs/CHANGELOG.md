@@ -2,6 +2,12 @@
 
 Current phase only. Older entries are in [ARCHIVE.md](ARCHIVE.md).
 
+## 2026-11-11 (Lists no longer slide sideways after a row goes)
+
+- **What:** a list that has the scroll handle keeps its 24 px gutter (new `data-scroll-gutter`) even when it stops overflowing. Before, the hints re-checked lists 400 ms after a change and dropped the gutter, so every row slid 24 px right just after a remove, and a quick next tap (Edit toolbar: Remove Eraser right after Remove Pen) landed in the gap and did nothing.
+- **Why:** CI ipad-webkit editToolbar :105 (Eraser stayed, so Text could still be removed; the trace shows the gutter drop). App bug; new chromium test fails without the fix (445 vs 469 px).
+- **Files:** src/app/scrollHints.ts, src/index.css, e2e/editToolbar.spec.ts, docs.
+
 ## 2026-11-11 (penUi test: button scrolled under the page bar on WebKit)
 
 - **What:** the in-page button test scrolls its button into view before checking it is on top.

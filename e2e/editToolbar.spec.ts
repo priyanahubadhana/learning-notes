@@ -126,3 +126,35 @@ test('remove a tool with −, the last main tool cannot go', async ({ page }) =>
     sheet(page).getByRole('button', { name: 'Remove Text' }),
   ).toBeDisabled()
 })
+
+test('rows do not slide sideways after a remove (a quick next tap lands)', async ({
+  page,
+}) => {
+  await openNote(page)
+  await openSheet(page)
+  const list = sheet(page).locator('[data-edit-list="bar"]')
+  // The list overflows at first, so it has the scroll handle (and its gutter).
+  await expect(list.locator('xpath=..')).toHaveAttribute(
+    'data-scroll-more',
+    /bottom|both/,
+  )
+  const x = async () =>
+    (await sheet(page)
+      .getByRole('button', { name: 'Remove Text' })
+      .boundingBox())!.x
+  const before = await x()
+  for (const name of [
+    'Pen',
+    'Highlighter',
+    'Eraser',
+    'New line',
+    'Backspace',
+  ]) {
+    await sheet(page)
+      .getByRole('button', { name: `Remove ${name}` })
+      .click()
+  }
+  // The scroll hints re-check lists 400 ms after a change: the gutter stays.
+  await page.waitForTimeout(800)
+  expect(await x()).toBe(before)
+})

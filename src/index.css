@@ -787,7 +787,7 @@ html[data-note-line] .bn-editor {
 .scroll-hint-thumb.is-drag {
   opacity: 1;
 }
-[data-scroll-more] {
+[data-scroll-gutter] {
   padding-inline-end: 24px;
 }
 .scroll-hint-thumb.is-drag::after {

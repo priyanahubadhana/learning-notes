@@ -1,5 +1,9 @@
 # Owner checks still pending (collected for the end-of-run iPad pass)
 
+## Claude connector, PC checks (11 Nov)
+
+On the PC (not the iPad), follow docs/features/claude-connector.md. (1) `npm run mcp:install`, then `npm run mcp:build`. (2) `node mcp/dist/index.js setup`: email code, then passphrase; `status` says both saved. (3) In the app, switch on Allow AI for one notebook. (4) Add the config to Claude Desktop, restart it, ask "List my Learning Notes notebooks", then "Read the page ..." and "What cards are due?". (5) A notebook with Allow AI off must not show up.
+
 ## Drive status truth (11 Nov)
 
 Redeploy the Drive function once: `npx supabase functions deploy drive-token --project-ref eludllranljtyasdoyaj --no-verify-jwt` (it learns the new `status` answer). Then Settings › Account: the Drive line should match Supabase › Table editor › drive_tokens (1 row = "stays connected", 0 rows = "will ask"). Try on the iPad and the PC: both say the same thing. Why human: needs the live project.
@@ -23,6 +27,7 @@ On the iPad: open an EPUB, Aa › Font › Bookerly-style (Literata): the text c
 ## Reader: PDF page by page (11 Nov)
 
 On the iPad: open a PDF. Tap Pages in the reader bar (or Aa › Layout › Continuous scrolling off): one whole page fills the screen; swipe up: it settles on the next page, no half pages. Pinch to zoom in: you can pan freely; zoom back out: it snaps to a page again. Settings › Reading › PDF pages sets the same thing and is remembered. Why human: touch scrolling and scroll-snap feel on real iPadOS.
+
 ## Batch H, iPad checks (12 Nov)
 
 (1) Notebooks home: All / Starred / Recent tabs. (2) Notebook Database tab: the Page filter. (3) Search a ticked checkbox name and a formula result. (4) Tap a picture, Border cycles thin / thick / none. (5) YouTube card: Start at 1:30 and Small / Medium / Full. (6) Delete a page with a picture, empty Trash: the picture is gone from storage.

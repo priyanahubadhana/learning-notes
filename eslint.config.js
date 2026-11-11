@@ -6,7 +6,7 @@ import tseslint from 'typescript-eslint'
 import { defineConfig, globalIgnores } from 'eslint/config'
 
 export default defineConfig([
-  globalIgnores(['dist', 'src/vendor']),
+  globalIgnores(['dist', 'src/vendor', 'mcp/dist']),
   {
     files: ['**/*.{ts,tsx}'],
     extends: [
@@ -18,6 +18,11 @@ export default defineConfig([
     languageOptions: {
       globals: globals.browser,
     },
+  },
+  // Claude connector (mcp/): runs in Node, not the browser. Its own tests: npm run test:mcp.
+  {
+    files: ['mcp/**/*.{ts,mjs}'],
+    languageOptions: { globals: globals.node },
   },
   // Sync (L3): vendor code and vendor addresses stay inside the connectors.
   // Everything else imports `sync/connectors` (its index) only.

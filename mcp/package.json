@@ -1,0 +1,30 @@
+{
+  "name": "learning-notes-mcp",
+  "version": "0.1.0",
+  "private": true,
+  "description": "Local, read-only MCP server that lets Claude read your Learning Notes (end-to-end encrypted; the key stays on this PC).",
+  "type": "module",
+  "bin": {
+    "learning-notes-mcp": "dist/index.js"
+  },
+  "engines": {
+    "node": ">=20"
+  },
+  "scripts": {
+    "build": "node build.mjs",
+    "typecheck": "tsc -p tsconfig.json",
+    "test": "vitest run",
+    "smoke": "node scripts/smoke.mjs"
+  },
+  "dependencies": {
+    "@modelcontextprotocol/sdk": "1.32.2",
+    "keytar": "7.9.0",
+    "zod": "4.6.7"
+  },
+  "devDependencies": {
+    "@types/node": "^26.6.5",
+    "esbuild": "0.28.2",
+    "typescript": "~6.0.3",
+    "vitest": "^5.0.5"
+  }
+}

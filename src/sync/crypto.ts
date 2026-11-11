@@ -86,8 +86,8 @@ export async function createMasterKey(): Promise<MasterKey> {
   return { keyId, key: await importAes(raw), raw }
 }
 
-/** Opens a master key from its raw bytes (after unlocking a bundle). */
-async function masterFromRaw(
+/** Opens a master key from its raw bytes (after unlocking a bundle; also the Claude connector, mcp/). */
+export async function masterFromRaw(
   keyId: string,
   raw: Uint8Array,
 ): Promise<MasterKey> {

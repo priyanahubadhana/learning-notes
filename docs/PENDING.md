@@ -189,7 +189,7 @@ Questions:
    Tasks only the owner can do:
 
 - Supabase dashboard: OTP expiry ≤10 min, rate limits, refresh-token rotation + reuse detection ON (CAPTCHA later).
-- Redeploy the drive-token function (I'll guide you).
+- Redeploy the drive-token function ONCE (it covers both the security CORS fix and the new Drive status): `npx supabase functions deploy drive-token --project-ref eludllranljtyasdoyaj --no-verify-jwt` (I can run it with your OK).
 - Delete by hand: Downloads\learning-notes\dist-pt, dist-rb, test-results-acct, test-results-b2, dist-map.
 - iPad checks at the top of docs/plans/owner-checks-pending.md once the build is live.
 - Review the mock-ups: toolbar v2/v3, book annotations.

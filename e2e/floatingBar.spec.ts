@@ -197,8 +197,10 @@ test('keyboard: arrow keys on the handle move the bar; double-tap resets', async
   const moved = await box(dockedBar(page))
   expect(moved.y).toBeLessThan(before.y - 100)
   await handle(page).dblclick()
-  const reset = await box(dockedBar(page))
-  expect(Math.abs(reset.y - before.y)).toBeLessThan(2)
+  // The reset glides back: wait for it to land.
+  await expect
+    .poll(async () => Math.abs((await box(dockedBar(page))).y - before.y))
+    .toBeLessThan(2)
 })
 
 test('"Reset bar position" in the ⋯ Toolbar menu', async ({ page }) => {

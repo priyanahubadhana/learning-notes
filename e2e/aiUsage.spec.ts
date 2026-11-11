@@ -48,6 +48,8 @@ async function seed(page: Page, enabled: boolean) {
       ]),
     )
   }, enabled)
+  // The app reads these when it starts: start it again on the seeded values.
+  await page.reload()
 }
 
 test('AI off: calm card with Turn on AI that works in place', async ({

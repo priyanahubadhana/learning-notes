@@ -45,8 +45,14 @@ async function drag(page: Page, dx: number, corner = 'se') {
   return { x: x + dx, y }
 }
 
-const widthOf = async (page: Page) =>
-  (await page.locator('.bn-editor img').first().boundingBox())!.width
+// One in-page read: the picture's node is replaced when a size is saved, so a
+// locator (find, then measure) can lose it in between on a slow machine.
+const widthOf = (page: Page) =>
+  page.evaluate(
+    () =>
+      document.querySelector('.bn-editor img')?.getBoundingClientRect().width ??
+      0,
+  )
 
 /** Waits until a size change has finished (the glide, then the redraw). */
 async function sizeSettled(page: Page) {

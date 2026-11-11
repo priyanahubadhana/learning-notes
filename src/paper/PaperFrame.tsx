@@ -495,7 +495,12 @@ export function PaperFrame({
       if (!frame) frame = requestAnimationFrame(run)
     }
     later()
-    const mo = new MutationObserver(later)
+    // Only the text moves the sheet gaps. The ink tiles (canvases made and
+    // dropped while scrolling) and the bars do not: skip their changes, or
+    // every scroll step measures every block again.
+    const mo = new MutationObserver((records) => {
+      if (records.some((r) => !inInkOverlay(r.target))) later()
+    })
     mo.observe(root, { childList: true, subtree: true, characterData: true })
     const ro = new ResizeObserver(later)
     for (const el of editors()) ro.observe(el)
@@ -2386,3 +2391,9 @@ function MainChrome({
     </div>
   )
 }
+
+/** A change inside the ink canvases (tiles come and go as the page scrolls). */
+const inInkOverlay = (node: Node): boolean =>
+  (node instanceof Element ? node : node.parentElement)?.closest(
+    '[data-ink-canvases]',
+  ) != null

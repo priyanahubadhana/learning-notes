@@ -247,3 +247,4 @@ Three ways of using the reader, as presets:
 - Notebooks mock: published. Questions (picks): Trash in the quiet corner + a More tab; a star only on pinned covers; add Duplicate/Reset look/Start on; tree grip in Professional only; Lock & Allow AI in a Privacy tab only.
 - Search mock: published. Questions (picks): a side panel (not a popup); scope starts at Notebook; Beginner chips All/Pages/Notes/Cards; Books & Highlights shown as 'Soon'; keep Pencil scribble search; no save-search in Beginner.
 - Review mock: published. Questions (picks): add reverse + true/false card types first; undo last rating yes; card editor inside Review yes; forecast chart yes; the Coverage tab is mock only.
+- Settings mock: published. Questions (picks): the experience picker sets the view (New/Little → Beginner, Experienced → Professional); Pencil gets its own category; merge AI/Permissions/Connections/Claude; a 7-step tour; the scheduler visible in Beginner; small 'Pro' tags.

@@ -1,5 +1,18 @@
 # Owner checks still pending (collected for the end-of-run iPad pass)
 
+## Supabase dashboard and deploy checklist (security audit, 12 Nov)
+
+Do these once in the Supabase dashboard (Authentication section) and note "done" here. None costs money.
+
+1. **Email code (OTP) expiry: 600 seconds (10 minutes) or less.** Authentication > Sign In / Providers > Email > "Email OTP expiration". The default is 1 hour, too long for a login code.
+2. **Rate limits.** Authentication > Rate Limits: keep "Rate limit for sending emails" low (for example 4 per hour), "Rate limit for sign-ups and sign-ins" and "Rate limit for token verifications" at or below their defaults (for example 30 per 5 minutes per IP). Do not raise them.
+3. **Refresh-token rotation and reuse detection ON.** Authentication > Sessions (or Settings): "Detect and revoke potentially compromised refresh tokens" on, reuse interval at the default 10 seconds or higher. The app already handles rotated tokens.
+4. **CAPTCHA (bot protection).** Authentication > Attack Protection: turn on CAPTCHA (Cloudflare Turnstile is free) for sign-in and sign-up. Tell Claude when it is on: the sign-in screen then needs the Turnstile widget added (a small separate step; with CAPTCHA on and no widget, email sign-in stops working, so do not switch it on first).
+5. **Minimum password length 15** (matches the app's rule) and leaked-password protection on, if the plan offers it. Authentication > Sign In / Providers > Email.
+6. **Redeploy the drive-token function** so it only answers the app's own address: `supabase functions deploy drive-token` (or ask Claude to). Until then the old open setting stays.
+7. After the next live deploy: open https://learning-notes-app.pages.dev/pencil-test.html. It should now show the app (or a 404), not the test page.
+8. On the iPad: paste a web page that has pictures into a note. Pictures from sites that allow it appear at once; others show a "Load remote image" card, and tapping it loads the picture. Also lock a page, type a wrong PIN three times: a wait appears and stays after you reload the app.
+
 ## AI off card, cost, default paper (12 Nov)
 
 On the iPad: (1) Settings › AI: switch AI off, open a book page: instead of nothing, a small "AI is off" card shows with Turn on AI and Add a key / Open Settings › AI; tapping Turn on AI brings the Summarise buttons back at once. (2) Settings › General › Default paper style: choose Grid, add a new page: it starts on grid; an older page is unchanged. (3) Settings › AI › Usage: ask the same long book question twice with Claude: the second cost line is lower (cached part counts at a tenth).

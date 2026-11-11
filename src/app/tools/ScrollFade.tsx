@@ -14,7 +14,9 @@ import { Icon } from './icons'
  * scrolls it sideways; a thin scrollbar shows while the pointer is over it; a
  * swipe or drag scrolls it on touch. With `snap` a scroll comes to rest with
  * a whole item at the start. The chevrons are zero-width sticky children, so
- * the row's own layout (flex, gaps) does not change.
+ * the row's own layout (flex, gaps) does not change. Both holders are always
+ * there: one that came and went would add or take away a flex gap, and every
+ * tool would slide by it just after a tap (a quick second tap would miss).
  */
 export function ScrollFade({
   snap,
@@ -80,8 +82,8 @@ export function ScrollFade({
       style={style}
       {...rest}
     >
-      {edges.start && (
-        <span className={`${holder} left-0`}>
+      <span className={`${holder} left-0`}>
+        {edges.start && (
           <button
             type="button"
             data-scroll-chevron="start"
@@ -93,11 +95,11 @@ export function ScrollFade({
           >
             <Icon name="chevronLeft" size={16} />
           </button>
-        </span>
-      )}
+        )}
+      </span>
       {children}
-      {edges.end && (
-        <span className={`${holder} right-0`}>
+      <span className={`${holder} right-0`}>
+        {edges.end && (
           <button
             type="button"
             data-scroll-chevron="end"
@@ -109,8 +111,8 @@ export function ScrollFade({
           >
             <Icon name="chevronRight" size={16} />
           </button>
-        </span>
-      )}
+        )}
+      </span>
     </div>
   )
 }

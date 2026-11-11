@@ -2,6 +2,12 @@
 
 Current phase only. Older entries are in [ARCHIVE.md](ARCHIVE.md).
 
+## 2026-11-12 (Ribbon tools slid 6 px when the start chevron appeared)
+
+- **What:** the scrolling rows (ribbon, context strip) always keep both zero-width chevron holders; only the chevron inside comes and goes.
+- **Why:** a holder that appeared added one flex gap, so every tool slid 6 px just after the row scrolled; a quick next tap could miss (CI chromium newLine :76; failed 3 of 10 runs locally, 10 of 10 pass now). App bug.
+- **Files:** src/app/tools/ScrollFade.tsx, docs/CHANGELOG.md.
+
 ## 2026-11-12 (CI: toolBarAlways test lost the sign-in gate switch)
 
 - **What:** the "iPad that says it is a Mac" test sets its own storage, which replaced the config's `accountGate.off`; it now sets that key too.

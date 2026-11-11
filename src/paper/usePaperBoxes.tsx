@@ -1,3 +1,5 @@
+import { AllSelection } from 'prosemirror-state'
+import { boxEditors } from './activeBox'
 import { undoSince } from '../core/historySteps'
 import { useContext, useEffect, useRef, useState, type ReactNode } from 'react'
 import { AppUiContext } from '../app/appUi'
@@ -357,16 +359,37 @@ export function usePaperBoxes(
     )
   }
 
+  /** Copies all of a box's text (Cut also removes the box). */
+  const copyAll = (box: PaperBox, cut: boolean) => {
+    const ed = boxEditors.get(pageId, box.id)
+    if (!ed) return
+    ed.focus()
+    const view = ed.prosemirrorView
+    if (view)
+      view.dispatch(
+        view.state.tr.setSelection(new AllSelection(view.state.doc)),
+      )
+    document.execCommand('copy')
+    if (cut && box.id !== MAIN_BOX) void remove(box)
+  }
+  // Every box has the same menu; the page's first box cannot be deleted.
   const items = (box: PaperBox): MenuItem[] =>
-    box.id === MAIN_BOX
-      ? allItems(box).filter((i) => i.label === t('layout.title'))
-      : allItems(box)
+    allItems(box).filter((i) => !(box.id === MAIN_BOX && i.danger))
   const allItems = (box: PaperBox): MenuItem[] => [
     {
-      label: t(box.locked ? 'paper.box.unlock' : 'paper.box.lock'),
-      icon: box.locked ? 'lockOpen' : 'lock',
-      onSelect: () =>
-        onBoxChange(box.id, { locked: box.locked ? undefined : true }),
+      label: t('boxStyle.title'),
+      icon: 'palette',
+      onSelect: () => openBoxStyle(box.id),
+    },
+    {
+      label: t('pic.act.copy'),
+      icon: 'copy',
+      onSelect: () => copyAll(box, false),
+    },
+    {
+      label: t('pic.act.cut'),
+      icon: 'scissors',
+      onSelect: () => copyAll(box, true),
     },
     {
       label: t('paper.box.duplicate'),
@@ -394,11 +417,6 @@ export function usePaperBoxes(
           onSelect: () => onBoxChange(box.id, { colour: undefined }),
         },
       ],
-    },
-    {
-      label: t('boxStyle.title'),
-      icon: 'palette',
-      onSelect: () => openBoxStyle(box.id),
     },
     {
       label: t('layout.title'),

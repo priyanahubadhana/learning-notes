@@ -2,6 +2,15 @@
 
 Current phase only. Older entries are in [ARCHIVE.md](ARCHIVE.md).
 
+## 2026-11-11 (Text box v2, step 1: the bugs)
+
+- **First box = every box:** the page's first box now has a frame, the 8 handles, a centred ≡ grab tab and the full ⋯ menu (Box style, Copy, Cut, Duplicate, Colour, Layout; no Delete, the page always keeps its first box). Box style (fill, border, corners, padding) and Colour now draw on it, and the "Box style" button in the format bar works for it.
+- **"Lock in place" removed** from the menu (the e2e steps that used it are gone).
+- **Width of a lone box:** the right handle of a box that is alone in its row sets its width (`grid.ts` `tidy` keeps a lone column under 100 %).
+- **Top handle:** moves the top edge and keeps the bottom (the row starts lower, the height shrinks); it no longer acts like the bottom one.
+- **Handles:** corner dots plus side pills (GoodNotes), 1.5 px accent frame on the selected box, ≡ tab as a filled accent tab; the 44 pt targets sit just outside the edge so a tap on the text never hits a handle.
+- Files: paper/BoxFrame.tsx (new `ResizeDots`), paper/PaperFrame.tsx, paper/usePaperBoxes.tsx, paper/grid.ts, app/tools/main/TextBoxExtras.tsx, e2e/textBoxV2.spec.ts (new), e2e/gridRow, paperPage, undoHistory specs.
+
 ## 2026-11-11 (Text box and Layout mode, owner bug batch 3, Priority 1)
 
 - **One box, many lines:** in a Text-tool box, Enter in a plain paragraph adds a line break inside the same block (`editor/boxLineKeys.ts`); lists, headings, code and the "/" menu keep their own Enter. Old pages are not converted (several blocks in a box still work), so no text can be lost.

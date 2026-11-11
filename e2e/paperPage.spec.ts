@@ -94,15 +94,10 @@ test('a tap on empty paper makes a box; it moves, locks, duplicates and deletes 
       .poll(async () => (await extra.boundingBox())!.y, { timeout: 4000 })
       .toBeGreaterThan(b1.y + 50)
   }).toPass({ timeout: 30_000 })
-  // Lock: no grip; a reload keeps everything.
-  await pickBox(page, extra)
-  await extra.locator('[data-box-menu]').click()
-  await page.getByRole('menuitem', { name: 'Lock in place' }).click()
-  await expect(extra.locator('[data-box-grip]')).toHaveCount(0)
+  // A reload keeps everything ("Lock in place" was removed, text box v2).
   await page.waitForTimeout(800) // autosave
   await page.reload()
   await expect(extra).toHaveCount(1)
-  await expect(extra).toHaveAttribute('data-locked', '')
   await expect(extra).toContainText('Second line')
 
   // Duplicate, then delete the copy and bring it back with Undo.

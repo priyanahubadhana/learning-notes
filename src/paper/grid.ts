@@ -102,7 +102,11 @@ function tidy(rows: GridRow[]): GridRow[] {
   for (const row of rows) {
     const cols = row.cols.filter((c) => c.boxIds.length > 0)
     if (cols.length === 0) continue
-    const fracs = normaliseFracs(cols.map((c) => c.w))
+    // A lone box may be narrower than the page (text box v2).
+    const fracs =
+      row.cols.length === 1 && cols.length === 1
+        ? [Math.min(1, Math.max(MIN_FRAC, cols[0].w || 1))]
+        : normaliseFracs(cols.map((c) => c.w))
     out.push({
       ...row,
       cols: cols.map((c, i) => ({ ...c, w: round(fracs[i]) })),

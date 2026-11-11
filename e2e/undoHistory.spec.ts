@@ -164,12 +164,6 @@ test('a new box, its text and a lock are steps; a deleted box comes back', async
     await extra.locator('.bn-editor').click()
     await page.keyboard.type('Box text')
   })
-  await roundTrip(page, async () => {
-    await pickBox(page, extra)
-    await extra.locator('[data-box-menu]').click()
-    await page.getByRole('menuitem', { name: 'Lock in place' }).click()
-    await expect(extra.locator('[data-box-grip]')).toHaveCount(0)
-  })
   // Delete the box, then Undo from the tool bar (not the toast).
   await page.waitForTimeout(900)
   const before = await snap(page)

@@ -4,7 +4,7 @@ import { db } from '../../../core/db'
 import { frameCss, sameStyle, type BoxStyle } from '../../../core/boxStyle'
 import { t } from '../../../i18n/t'
 import { activeBox } from '../../../paper/activeBox'
-import { boxesOf, MAIN_BOX } from '../../../paper/boxes'
+import { boxesOf } from '../../../paper/boxes'
 import { loadNewBoxStyle } from '../../../paper/boxPresets'
 import { openBoxStyle } from '../../../paper/boxStyleBus'
 import { openLayoutMode } from '../../../paper/layoutModeBus'
@@ -28,7 +28,7 @@ export default function TextBoxExtras() {
   }, [at?.boxId])
   const box =
     page && at ? boxesOf(page).find((b) => b.id === at.boxId) : undefined
-  const mine = !!box && box.id !== MAIN_BOX
+  const mine = !!box
   const style = mine ? box.style : dflt
   const differs = mine && !sameStyle(box.style, dflt)
   return (

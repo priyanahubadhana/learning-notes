@@ -1,3 +1,4 @@
+import { frameCss, padOf } from '../core/boxStyle'
 import { PICK_BOX } from '../editor/tapSelect'
 import { isUiEvent } from '../app/uiGuard'
 import {
@@ -22,6 +23,7 @@ import { Tip } from '../help/Help'
 import { t } from '../i18n/t'
 import type { GridRow, Page, PaperBox } from '../core/types'
 import {
+  BOX_COLOURS,
   boxesOf,
   MAIN_BOX,
   mainBox,
@@ -30,7 +32,7 @@ import {
   readingOrder,
   sheetOf,
 } from './boxes'
-import { BoxFrame, type GrabHow } from './BoxFrame'
+import { BoxFrame, ResizeDots, type GrabHow } from './BoxFrame'
 import { caretAtEnd, type ResizeHow } from './boxHandles'
 import { SAFE_GAP_PX, TOUCH_PX, TOUCH_STYLE } from './safeGap'
 import { clampBox, MIN_W, type BoxPatch } from './boxService'
@@ -38,6 +40,7 @@ import {
   insertAt,
   insertRow,
   layoutRows,
+  MIN_FRAC,
   migrateToRows,
   reconcile,
   removeBox as removeFromRows,
@@ -801,6 +804,13 @@ export function PaperFrame({
     rows: GridRow[]
     h?: number
     moved: boolean
+    /** Lone box in its row: the side handles set its width (fraction). */
+    lone: boolean
+    /** The top handle: the top edge moves, the bottom stays. */
+    north: boolean
+    top0: number
+    floorY: number
+    shift?: number
   } | null>(null)
   const [liveH, setLiveH] = useState<{ id: string; h: number } | null>(null)
   const resizeDown = (b: PaperBox, how: ResizeHow, e: ReactPointerEvent) => {
@@ -823,7 +833,23 @@ export function PaperFrame({
     let i: number | null = null
     if (row && how.includes('e') && ci < row.cols.length - 1) i = ci
     else if (row && how.includes('w') && ci > 0) i = ci - 1
+    const lone = !!row && row.cols.length === 1 && how.includes('e')
+    if (lone) i = 0
+    const north = how.includes('n') && !!row && ci === 0
+    const top0 = layout.get(b.id)?.y ?? b.y
+    const floorY =
+      row && north
+        ? (layoutRows(
+            baseRows.map((r) => (r.id === row.id ? { ...r, y: 0 } : r)),
+            heightsMm,
+            geo,
+          ).get(b.id)?.y ?? top0)
+        : top0
     resizing.current = {
+      lone,
+      north,
+      top0,
+      floorY,
       id: b.id,
       x0: e.clientX,
       y0: e.clientY,
@@ -831,7 +857,7 @@ export function PaperFrame({
       minH: (content?.getBoundingClientRect().height ?? 0) / k,
       rowId: i !== null && row ? row.id : null,
       i,
-      vert: how.includes('n') || how.includes('s'),
+      vert: how.includes('s') || north,
       rows: baseRows,
       moved: false,
     }
@@ -848,11 +874,34 @@ export function PaperFrame({
         ((e.clientX - r.left) / k - geo.left) /
         Math.max(1, geo.sheetW - geo.left - geo.right)
       d.rows = baseRows.map((row) =>
-        row.id === d.rowId ? resizeCols(row, d.i!, at) : row,
+        row.id !== d.rowId
+          ? row
+          : d.lone
+            ? {
+                ...row,
+                cols: [
+                  { ...row.cols[0], w: Math.min(1, Math.max(MIN_FRAC, at)) },
+                ],
+              }
+            : resizeCols(row, d.i!, at),
       )
       setPreview(d.rows)
     }
-    if (d.vert) {
+    if (d.north) {
+      // Top edge: moves with the finger, the bottom stays; never above the
+      // place the page flow gives the row, never below the text's minimum.
+      const dy = (e.clientY - d.y0) / k
+      const shift = Math.min(d.h0 - d.minH, Math.max(d.floorY - d.top0, dy))
+      d.shift = shift
+      d.h = d.h0 - shift
+      d.rows = (d.i !== null ? d.rows : baseRows).map((row) =>
+        row.cols.some((c) => c.boxIds.includes(d.id))
+          ? { ...row, y: Math.max(0, d.top0 + shift) }
+          : row,
+      )
+      setPreview(d.rows)
+      setLiveH({ id: d.id, h: d.h })
+    } else if (d.vert) {
       d.h = Math.max(d.minH, d.h0 + (e.clientY - d.y0) / k)
       setLiveH({ id: d.id, h: d.h })
     }
@@ -864,7 +913,7 @@ export function PaperFrame({
     setLiveH(null)
     setPreview(null)
     if (!d || e.type === 'pointercancel' || !d.moved) return
-    if (d.i !== null) {
+    if (d.i !== null || d.north) {
       const places: BoxPatch[] = []
       for (const [id, rc] of layoutRows(d.rows, heightsMm, geo))
         if (id !== MAIN_BOX)
@@ -1197,6 +1246,11 @@ export function PaperFrame({
             onDragEnd={dragEnd}
             onMenu={(at) => onBoxMenu?.(box, at)}
             height={(heightsMm[MAIN_BOX] ?? 40) * k}
+            onResize={{
+              down: (how, e) => resizeDown(box, how, e),
+              move: resizeMove,
+              end: resizeEnd,
+            }}
           />
         )}
         {extra.map((b) => (
@@ -1426,7 +1480,14 @@ export function PaperFrame({
                     marginLeft: mainShown.x * k,
                     width: mainShown.w * k,
                     marginTop: mainShown.y * k - total,
-                    paddingBottom: MARGIN * k,
+                    ...frameCss(box.style),
+                    ...(box.colour && !box.style?.bg
+                      ? {
+                          backgroundColor: `color-mix(in srgb, ${BOX_COLOURS[box.colour] ?? box.colour} 14%, transparent)`,
+                        }
+                      : {}),
+                    ...(box.style ? { padding: padOf(box.style) } : {}),
+                    paddingBottom: MARGIN * k + padOf(box.style),
                     ...(preview || heldRows
                       ? {
                           transition:
@@ -1666,7 +1727,13 @@ function MainChrome({
   onDragMove,
   onDragEnd,
   onMenu,
+  onResize,
 }: {
+  onResize: {
+    down: (how: ResizeHow, e: ReactPointerEvent) => void
+    move: (e: ReactPointerEvent) => void
+    end: (e: ReactPointerEvent) => void
+  }
   at: { x: number; y: number; w: number }
   k: number
   layoutMode: boolean
@@ -1696,33 +1763,48 @@ function MainChrome({
           style={{ top: 0, width: '100%', height }}
         />
       ) : (
-        <div
-          className="pointer-events-none absolute left-0 right-0 z-20 flex items-center justify-between"
-          style={{ top: -TOUCH_PX, height: TOUCH_PX }}
-        >
-          <button
-            type="button"
-            data-box-grip
-            aria-label={t('paper.box.move')}
-            onPointerDown={onGrab}
-            {...pointer}
-            style={TOUCH_STYLE}
-            className="pointer-events-auto cursor-grab touch-none rounded-lg px-3 text-xl leading-none text-muted hover:bg-hover"
+        <>
+          <div
+            aria-hidden
+            data-main-frame
+            className="pointer-events-none absolute left-0 w-full rounded-md border-[1.5px] border-solid border-accent"
+            style={{ top: 0, height }}
+          />
+          <div
+            data-main-handles
+            className="pointer-events-none absolute left-0 w-full"
+            style={{ top: 0, height }}
           >
-            ⠿
-          </button>
-          <button
-            type="button"
-            data-box-menu
-            aria-label={t('paper.box.menu')}
-            aria-haspopup="menu"
-            onClick={(e) => onMenu(e.currentTarget.getBoundingClientRect())}
-            style={TOUCH_STYLE}
-            className="pointer-events-auto rounded-lg px-2 text-xl leading-none text-muted hover:bg-hover"
+            <ResizeDots onResize={onResize} />
+          </div>
+          <div
+            className="pointer-events-none absolute left-0 right-0 z-20 flex items-center justify-end pr-7"
+            style={{ top: -TOUCH_PX - 20, height: TOUCH_PX }}
           >
-            ⋯
-          </button>
-        </div>
+            <button
+              type="button"
+              data-box-grip
+              aria-label={t('paper.box.move')}
+              onPointerDown={onGrab}
+              {...pointer}
+              style={TOUCH_STYLE}
+              className="pointer-events-auto absolute left-1/2 -translate-x-1/2 cursor-grab touch-none rounded-t-xl border border-b-0 border-accent bg-accent px-6 text-2xl leading-none text-white shadow-md"
+            >
+              ≡
+            </button>
+            <button
+              type="button"
+              data-box-menu
+              aria-label={t('paper.box.menu')}
+              aria-haspopup="menu"
+              onClick={(e) => onMenu(e.currentTarget.getBoundingClientRect())}
+              style={TOUCH_STYLE}
+              className="pointer-events-auto rounded-lg px-2 text-xl leading-none text-muted hover:bg-hover"
+            >
+              ⋯
+            </button>
+          </div>
+        </>
       )}
     </div>
   )

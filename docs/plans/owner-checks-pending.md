@@ -1,5 +1,9 @@
 # Owner checks still pending (collected for the end-of-run iPad pass)
 
+## Text box v2, step 1 (11 Nov)
+
+On the iPad: (1) tap a box: a clear blue frame, 8 handles (corner dots, side pills) and the blue ≡ tab on top show, also on the very first box. (2) First box ⋯ menu: Box style, Copy, Cut, Duplicate, Colour, Layout (no Lock, no Delete). (3) Box style button in the format bar opens the panel for any box. (4) A box alone in its row: drag its right handle to make it narrower. (5) Drag the top handle: the top edge moves, the bottom stays. Tell me if any handle is still missing.
+
 ## Text box and Layout mode checks (11 Nov, owner bug batch 3)
 
 On the iPad: (1) Text tool: tap empty paper, type, press Enter: new lines stay in the same box. (2) Tap a box once (frame or text): the grip and the menu show only on the selected box, and are easy to hit with a finger. (3) Drag a box and drop it, then tap empty paper at once: no new box; wait a second, tap again: a new box. (4) Tap any part of a box (the empty right side, the corner) with the Text tool: the caret goes into that box, never a new box on top. (5) The page's first text box shows the grip and the menu while you type in it. (6) Select a box: 8 round handles; drag the bottom or a corner: it grows, and it will not go smaller than its text. (7) Top row: the grip and menu sit clear of the Notes/Summary/Review bar, fully visible. (8) Layout button in the Text strip and the toolbar menu opens Layout mode: the page shrinks a little, boxes wiggle, the strip shows the layouts and the coach line; tap Two columns (changes at once), drag a box (others slide aside), pull a handle, Undo (back to before), Apply to all pages, Done. (9) With the keyboard up, a toast (for example after a drop) sits above the keyboard bar.

@@ -212,7 +212,7 @@ export function BoxFrame({
           aria-hidden
           data-box-frame={i}
           className={
-            'pointer-events-none absolute inset-x-0 rounded-md border border-dashed border-transparent group-hover:border-line group-focus-within:border-line group-data-lasso:group-hover:border-solid group-data-lasso:group-hover:border-accent group-data-picked:border-solid group-data-picked:border-accent' +
+            'pointer-events-none absolute inset-x-0 rounded-md border border-dashed border-transparent group-hover:border-line group-focus-within:border-line group-data-lasso:group-hover:border-solid group-data-lasso:group-hover:border-accent group-data-picked:border-solid group-data-picked:border-accent group-data-picked:border-[1.5px]' +
             (typing ? ' !border-solid !border-line-strong' : '') +
             (dragging ? ' !border-solid !border-accent' : '')
           }
@@ -222,8 +222,8 @@ export function BoxFrame({
       <div
         data-chrome
         // B3-1: only on the selected box, one 44 pt target each.
-        className="pointer-events-none invisible absolute left-0 right-0 z-20 flex items-center justify-between group-data-picked:visible"
-        style={{ top: -TOUCH_PX, height: TOUCH_PX }}
+        className="pointer-events-none invisible absolute left-0 right-0 z-20 flex items-center justify-end pr-7 group-data-picked:visible"
+        style={{ top: -TOUCH_PX - 20, height: TOUCH_PX }}
       >
         {box.locked || stacked ? (
           <span aria-hidden className="px-1 text-xs text-muted">
@@ -237,9 +237,9 @@ export function BoxFrame({
             onPointerDown={(e) => onGrab('move', e)}
             {...pointer}
             style={TOUCH_STYLE}
-            className="pointer-events-auto cursor-grab touch-none rounded-lg px-3 text-xl leading-none text-muted hover:bg-hover"
+            className="pointer-events-auto absolute left-1/2 -translate-x-1/2 cursor-grab touch-none rounded-t-xl border border-b-0 border-accent bg-accent px-6 text-2xl leading-none text-white shadow-md"
           >
-            ⠿
+            ≡
           </button>
         )}
         <button
@@ -301,42 +301,9 @@ export function BoxFrame({
         picked &&
         !stacked &&
         !box.locked &&
-        !dragging &&
-        RESIZE_HANDLES.map((how) => (
-          <div
-            key={how}
-            data-resize-handle={how}
-            role="separator"
-            aria-label={t('paper.box.resize')}
-            onPointerDown={(e) => onResize.down(how, e)}
-            onPointerMove={onResize.move}
-            onPointerUp={onResize.end}
-            onPointerCancel={onResize.end}
-            className="absolute z-10 grid touch-none place-items-center"
-            style={{
-              left: HANDLE_AT[how][0],
-              top: HANDLE_AT[how][1],
-              width: TOUCH_PX,
-              height: TOUCH_PX,
-              transform: 'translate(-50%, -50%)',
-              cursor:
-                how.length === 2
-                  ? how === 'nw' || how === 'se'
-                    ? 'nwse-resize'
-                    : 'nesw-resize'
-                  : how === 'n' || how === 's'
-                    ? 'ns-resize'
-                    : 'ew-resize',
-            }}
-          >
-            <span
-              aria-hidden
-              className="size-3.5 rounded-full border-2 border-accent bg-bg shadow-sm"
-            />
-          </div>
-        ))}
+        !dragging && <ResizeDots onResize={onResize} />}
       {picked && !typing && !dragging && bar && (
-        <div data-box-bar-holder className="absolute top-full left-0 z-20 mt-2">
+        <div data-box-bar-holder className="absolute top-full left-0 z-20 mt-9">
           {bar}
         </div>
       )}
@@ -353,5 +320,74 @@ function isEmptyBox(el: HTMLElement): boolean {
   return (
     content.getAttribute('data-content-type') === 'paragraph' &&
     (content.textContent ?? '').trim() === ''
+  )
+}
+
+const OUT = 16
+const OUT_Y = 8
+
+/** The 8 handles of a selected box: round corner dots, side pills for width/height. */
+export function ResizeDots({
+  onResize,
+}: {
+  onResize: {
+    down: (how: ResizeHow, e: ReactPointerEvent) => void
+    move: (e: ReactPointerEvent) => void
+    end: (e: ReactPointerEvent) => void
+  }
+}) {
+  return (
+    <>
+      {RESIZE_HANDLES.map((how) => {
+        const corner = how.length === 2
+        const side = how === 'e' || how === 'w'
+        // The 44 pt target sits just outside the edge, so a tap on the text
+        // inside never lands on a handle; the dot is drawn back on the edge.
+        const dx = how.includes('e') ? OUT : how.includes('w') ? -OUT : 0
+        const dy = how.includes('s') ? OUT_Y : how.includes('n') ? -OUT_Y : 0
+        return (
+          <div
+            key={how}
+            data-resize-handle={how}
+            role="separator"
+            aria-label={t('paper.box.resize')}
+            onMouseDown={(e) => e.preventDefault()}
+            onPointerDown={(e) => onResize.down(how, e)}
+            onPointerMove={onResize.move}
+            onPointerUp={onResize.end}
+            onPointerCancel={onResize.end}
+            className="pointer-events-auto absolute z-10 grid touch-none place-items-center"
+            style={{
+              left: HANDLE_AT[how][0],
+              top: HANDLE_AT[how][1],
+              width: TOUCH_PX,
+              height: TOUCH_PX,
+              transform: `translate(calc(-50% + ${dx}px), calc(-50% + ${dy}px))`,
+              cursor: corner
+                ? how === 'nw' || how === 'se'
+                  ? 'nwse-resize'
+                  : 'nesw-resize'
+                : how === 'n' || how === 's'
+                  ? 'ns-resize'
+                  : 'ew-resize',
+            }}
+          >
+            <span
+              aria-hidden
+              style={{ transform: `translate(${-dx}px, ${-dy}px)` }}
+              data-handle-dot={corner ? 'corner' : 'side'}
+              className={
+                'border-2 border-accent bg-bg shadow-md ' +
+                (corner
+                  ? 'size-4 rounded-full'
+                  : side
+                    ? 'h-8 w-2.5 rounded-full'
+                    : 'h-2.5 w-8 rounded-full')
+              }
+            />
+          </div>
+        )
+      })}
+    </>
   )
 }

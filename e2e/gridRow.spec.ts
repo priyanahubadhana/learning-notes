@@ -58,7 +58,7 @@ const rects = (page: Page) =>
     }),
   )
 
-test('two columns: side by side, no overlap, stable sizes, grip top-left', async ({
+test('two columns: side by side, no overlap, stable sizes, grip on top, centred', async ({
   page,
 }) => {
   const { extra } = await twoColumns(page)
@@ -86,13 +86,15 @@ test('two columns: side by side, no overlap, stable sizes, grip top-left', async
     await extra.nth(i).hover()
     const box = await rect(extra.nth(i))
     const g = await rect(extra.nth(i).locator('[data-box-grip]'))
-    expect(Math.abs(g.x - box.x)).toBeLessThan(6)
+    expect(Math.abs(g.x + g.width / 2 - (box.x + box.width / 2))).toBeLessThan(
+      6,
+    )
     // The corner above the box's top left (not the middle): WebKit sits a few px lower.
     expect(g.y).toBeLessThan(box.y + 12)
   }
 })
 
-test('after a move the grip is still at the top-left; the drag is one transform', async ({
+test('after a move the grip is still on top, centred; the drag is one transform', async ({
   page,
 }) => {
   const { extra } = await twoColumns(page)
@@ -124,7 +126,10 @@ test('after a move the grip is still at the top-left; the drag is one transform'
     await extra.nth(i).hover()
     const box = await rect(extra.nth(i))
     const g = await rect(extra.nth(i).locator('[data-box-grip]'))
-    expect(Math.abs(g.x - box.x), 'grip x').toBeLessThan(6)
+    expect(
+      Math.abs(g.x + g.width / 2 - (box.x + box.width / 2)),
+      'grip x',
+    ).toBeLessThan(6)
     expect(g.y, 'grip in the top-left corner').toBeLessThan(box.y + 12)
   }
 })

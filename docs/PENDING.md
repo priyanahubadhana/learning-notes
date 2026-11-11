@@ -196,7 +196,7 @@ Questions:
   - (4) Claude edits existing text only via the Inbox, while appends and new pages go straight in;
   - (5) reads logged locally only;
   - (6) no delete ever.
-    Note: PC only, not iPad. Slices 1–2 (shared crypto + read-only server) are built (docs/features/claude-connector.md); the rest waits for the answers.
+    Note: PC only, not iPad. Slices 1–4 are built (docs/features/claude-connector.md); the Inbox, audit screen and rate limits (5–6) are next.
 - OWNER (11 Nov): the Claude connector is the app's MAIN USP.
   - PRIMARY: from the Claude UI, Claude builds whole notebooks for the user using ALL app features (notes, summary, recall cards, databases, layouts, styles, books/highlights…), so the user gets the best notebook with ultimate customisation, then refines by chatting.
   - SECONDARY: refine AI mid-work inside the app (a Claude chat in the notebook).
@@ -211,7 +211,7 @@ Questions:
   5. Lasso Move/Scale/Rotate on text: does "no rotate on boxes" cover it?
   6. Favourites in Pen ▾ Colour vs at the pill end.
   7. The Layout icon and the Professional ▾ chip open the same menu; "Show names" is still in Settings.
-- Claude connector A (local, read-only) merged to main: setup steps are in docs/plans/owner-checks-pending.md (npm run mcp:install, mcp:build, node mcp/dist/index.js setup). Google setup needs the Supabase redirect http://127.0.0.1:53682/callback.
+- Claude connector A (local, now with writes + device list) is built; setup and the SQL to run are in docs/plans/owner-checks-pending.md. Google setup needs the Supabase redirect http://127.0.0.1:53682/callback.
 - Account gate open question: also freeze cards review, tasks, habits, database cells and ink while signed out? (now only pages/notebooks are frozen)
 - Mock feedback (24 comments) in docs/plans/mock-feedback-2026-11-11.md. Building the final toolbar mock (T1–T14) and annotations v2 (A1, A3–A7). A2 (reader lock modes) needs research + owner questions.
 - A2 reader lock: research + 5 questions in docs/plans/mock-feedback-2026-11-11.md (picks: 3 modes / Select with a tool / tap to unlock / per book / notes open read-only).

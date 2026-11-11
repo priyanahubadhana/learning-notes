@@ -38,6 +38,20 @@ export interface PushResult {
   conflicts: string[]
 }
 
+/** A computer connected through the local Claude connector (mcp/), listed in Settings. */
+export interface ConnectorDevice {
+  /** The sign-in session this entry stands for (what Revoke cuts off). */
+  sessionId: string
+  /** Like "mcp-desktop". */
+  deviceId: string
+  /** Like "Claude (PC)". */
+  name: string
+  createdAt: number
+  lastSeenAt: number
+  /** Set when it was revoked; it can never come back (a new setup makes a new entry). */
+  revokedAt: number | null
+}
+
 /** Record store with compare-and-swap (Supabase). */
 export interface RecordStore {
   /** Changes after `sinceSeq`, oldest first, at most `limit`. */
@@ -52,6 +66,10 @@ export interface RecordStore {
   deleteKeyBundle(id: string): Promise<void>
   /** Server time in ms (clock-skew check, L8). */
   serverTime(): Promise<number>
+  /** Computers connected through the local Claude connector, newest first. */
+  connectorDevices?(): Promise<ConnectorDevice[]>
+  /** Cuts one off at once. False if it was already revoked or is not yours. */
+  revokeConnectorDevice?(sessionId: string): Promise<boolean>
 }
 
 /** Write-once file store (Drive): each name is written once, read by id. */

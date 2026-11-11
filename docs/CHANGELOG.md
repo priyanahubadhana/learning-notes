@@ -2,6 +2,13 @@
 
 Current phase only. Older entries are in [ARCHIVE.md](ARCHIVE.md).
 
+## 2026-11-13 (Connector A slices 3-4: device list + write tools)
+
+- **What:** the local Claude connector (mcp/) can now write, and is a revocable device. New tools `create_notebook`, `add_page`, `append_to_page` (version-checked, end of page only), `add_cards`; no delete, no edit of existing text. Records are sealed with the shared crypto under device id `mcp-<pc>` with clock stamps and one audit line per write (no content). Scopes in `~/.learning-notes-mcp/config.json` (all on by default). Settings › Account › Connected computers lists the PC with Revoke; the database refuses a revoked session at once.
+- **Why:** the owner asked for read and write from the start, and for a way to cut a PC off from the app.
+- **Notes:** migration `20261113000001_connector_devices.sql` is NOT deployed (needs the owner's OK). The record builder is shared with the online connector through a generated copy. Judgment calls: DECISIONS (13 Nov, Connector A slices 3-4).
+- **Files:** mcp/src/{config,writeTools,mdParse,source,cache,server,index,setup,model}.ts, mcp/src/gen/notesWrite.ts, mcp/test/{write,fixture,server}.test.ts, mcp/scripts/smoke*, scripts/sync-mcp-write.{mjs,d.mts}, supabase/migrations/20261113000001_connector_devices.sql, src/sync/ConnectedComputers.tsx, src/sync/AccountSection.tsx, src/sync/connectors/{types,supabase}.ts, src/i18n/{en/late,es,hi}/accounts.ts, src/connector/mcpWriteParity.test.ts, src/sync/connectors/connectorDevices.test.ts, docs.
+
 ## 2026-11-12 (i18n folders by feature)
 
 - **What:** `src/i18n` had 114 text files with names like `en9`, `enW5p`, `esO`. Now: `en/` (first download), `en/late/` (loaded after start; was `enO`), `es/`, `hi/`, each with files named by feature (library, sync, ink, reading, settings ...) and an `index.ts`. `src/i18n/README.md` says where to add a text.

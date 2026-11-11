@@ -1,12 +1,12 @@
-# Claude connector (read-only, slices 1-2)
+# Claude connector (local A: read and write; online B)
 
 Security rules: [rules/security.md](../../rules/security.md). Check them before building.
 
-Plan: [plans/claude-connector-plan.md](../plans/claude-connector-plan.md). Built so far: slice 1 (shared crypto + Node tests) and slice 2 (read-only server). Writes, the device list, the Inbox and rate limits come in slices 3-6.
+Plan: [plans/claude-connector-plan.md](../plans/claude-connector-plan.md). Local connector (A) built so far: slice 1 (shared crypto + Node tests), 2 (read tools), 3 (its own revocable device) and 4 (write tools). The Inbox, audit screen and rate limits come in slices 5-6.
 
 ## Purpose
 
-Lets Claude Desktop read your notes: "what did I write about mitochondria?", "quiz me on my due cards". It runs only on your PC. Your notes stay end-to-end encrypted on the server; the key never leaves your PC.
+Lets Claude Desktop read your notes, and add to them (new notebooks, new pages, text at the end of a page, recall cards; never delete, never change existing text): "what did I write about mitochondria?", "quiz me on my due cards". It runs only on your PC. Your notes stay end-to-end encrypted on the server; the key never leaves your PC.
 
 ## Set it up (about 10 minutes, once)
 
@@ -44,9 +44,20 @@ You need: Node.js 20 or newer (check with `node -v` in a terminal), Claude Deskt
    }
    ```
 
-5. **Restart Claude Desktop** (quit from the tray icon, then open it). Ask: "List my Learning Notes notebooks."
+5. **Choose what Claude may do (optional).** `setup` writes `%USERPROFILE%.learning-notes-mcpconfig.json` with everything on:
 
-Check any time with `node mcp/dist/index.js status`. To remove the key from this PC: `node mcp/dist/index.js logout`.
+   ```json
+   {
+     "scopes": { "read": true, "write:append": true, "write:create": true },
+     "deviceId": "mcp-yourpc"
+   }
+   ```
+
+   Set a part to `false` to stop offering it: `write:create` = `create_notebook` and `add_page`; `write:append` = `append_to_page` and `add_cards`; `read` = the read tools (appending needs reading). A broken file turns writing off, never on. Restart Claude Desktop after a change.
+
+6. **Restart Claude Desktop** (quit from the tray icon, then open it). Ask: "List my Learning Notes notebooks." Setup also lists this PC in the app as **Claude (PC)**: Settings > Account > **Connected computers** > **Revoke** cuts it off at once (run `setup` again to reconnect). The SQL for that (`supabase/migrations/20261113000001_connector_devices.sql`) must be run once in Supabase first.
+
+Check any time with `node mcp/dist/index.js status` (shows the device id and what is allowed). To remove the key from this PC: `node mcp/dist/index.js logout`.
 
 If a notebook you expect is missing, Claude's answer says "N notebooks are hidden because Allow AI is off". To let Claude read everything that is not locked, start it with the environment variable `LN_MCP_READ_ALL=1` (add `"env": { "LN_MCP_READ_ALL": "1" }` next to `args`). Locked pages stay hidden anyway.
 
@@ -55,7 +66,7 @@ If a notebook you expect is missing, Claude's answer says "N notebooks are hidde
 - `mcp/` is its own small package (own `package.json`, TypeScript). `npm run mcp:build` bundles it, together with the app's own `src/sync/crypto.ts`, `hlc.ts` and `wire.ts`, into `mcp/dist/index.js`. The code is shared, not copied, so the app and the connector cannot drift apart. The app's own build and size check do not include `mcp/`.
 - Claude Desktop starts `node mcp/dist/index.js` and talks to it through its input and output (stdio). **Nothing listens on the network.** (Only `setup --google` opens a short-lived listener on 127.0.0.1 while you sign in.)
 - On the first question it downloads your encrypted records from Supabase, opens them with the key (in memory only; nothing is written to disk), and keeps a cache. It refreshes at most every 10 seconds, and only fetches what changed.
-- Tools (all read only):
+- Read tools:
 
   | Tool             | What it gives                                                                               |
   | ---------------- | ------------------------------------------------------------------------------------------- |
@@ -65,6 +76,17 @@ If a notebook you expect is missing, Claude's answer says "N notebooks are hidde
   | `read_page`      | One page as Markdown plus a `version` (changes when the page changes; used by writes later) |
   | `list_cards`     | Recall cards (question, answer, due) for a page or notebook                                 |
   | `due_cards`      | Cards due for review now                                                                    |
+
+- Write tools (each needs its scope; every one starts from a fresh copy of the server and fails if the connection was revoked):
+
+  | Tool                                                    | Scope        | What it does                                                                                                                                      |
+  | ------------------------------------------------------- | ------------ | ------------------------------------------------------------------------------------------------------------------------------------------------- |
+  | `create_notebook(spec)`                                 | write:create | A whole new notebook from a notebook spec (checked by `src/connector/spec.ts`, exact error places). Gets Allow AI on so Claude can keep using it. |
+  | `add_page(notebookId, page, parentId?, parentVersion?)` | write:create | One new page, optionally a sub-page                                                                                                               |
+  | `append_to_page(pageId, markdown, expectedVersion)`     | write:append | Markdown added at the END of a page. `expectedVersion` comes from `read_page`; if the page changed, nothing is written                            |
+  | `add_cards(pageId, cards, expectedVersion)`             | write:append | Recall cards (question and answer, or cloze) at the end of a page                                                                                 |
+
+  How a write is saved: new records only (never an overwrite), sealed with the shared crypto under the device id (`mcp-<pc>`) with a hybrid-clock stamp, so the app merges them like another device's changes. An append first touches the page record (compare-and-swap on the revision the version check used), then adds the blocks in one all-or-nothing call. A created notebook is saved last, so a stop half way leaves only invisible records. Blocks are marked as AI results ("Remove this AI result" removes them). One audit line per write goes to `connector_audit` (tool, ids, counts, never content). There is no delete tool and no way to edit existing text.
 
 - Markdown covers headings, text styles, links, lists (nested, numbered, to-do), quotes, code, tables, formulas and cards. Pictures, ink, mind maps and databases show as a short placeholder.
 - The sign-in renewal token is also kept in the vault. The server's refresh tokens are single use, so each renewal saves the new one at once.
@@ -85,13 +107,15 @@ If a notebook you expect is missing, Claude's answer says "N notebooks are hidde
 - **Logs** go to stderr only, never contain notes or secrets. Tool errors are plain messages.
 - **Privacy:** respects Allow AI and Allow AI while locked, as the app's own AI does (`src/ai/aiLock.ts`).
 - **Prompt injection:** a note could contain text that tries to steer Claude. With read-only tools the worst case is that Claude reads other allowed notes. Writes (slice 4) get scopes and the Inbox.
-- **Not done yet (later slices):** the connector does not yet appear in Settings > Connected devices and cannot be revoked from the app (slice 3); revoke for now by signing out everywhere in the app, then `logout`. Rate limits are slice 6. `npm audit` in CI covers the app only, not `mcp/`; run `npm --prefix mcp audit` yourself.
+- **Revoke (slice 3):** each setup registers its sign-in session as a device (`connector_devices`). Revoke in the app marks it; the database then hides all records and key copies from that session and refuses every save, even while its pass is valid, and a revoked session can never register again. The connector checks the status before each server pull and each write and drops its in-memory notes. "Sign out on all devices" also still cuts it off.
+- **Writes and prompt injection:** a note could try to steer Claude into writing. Writes can only ADD (no delete, no overwrite), scopes limit them, appends are version-checked, and the audit shows every write. Read results are not yet wrapped as untrusted data (B does that); slice 6 should add it. Rate limits are slice 6; the Inbox for edits of existing text is slice 5. `npm audit` in CI covers the app only, not `mcp/`; run `npm --prefix mcp audit` yourself.
 - **One-time step for `setup --google`:** add `http://127.0.0.1:53682/callback` to Supabase > Authentication > URL configuration > Redirect URLs. The email-code way needs nothing.
 
 ## Tests
 
 - `npm test` (app): `src/sync/nodeInterop.test.ts` - Node's own `node:crypto` opens a record the app code sealed, and the reverse; a passphrase bundle unlocks to the same key; the shared files import only portable code.
 - `npm run test:mcp`: `mcp/test/*` - tools against fixture data sealed with the real encryption (hiding, locks, deleted items, version changes, cards, cache), the server over the MCP protocol, sign-in and token renewal, key storage, the DPAPI file (Windows only).
+- `mcp/test/write.test.ts`: every write tool against fixture data (the app's own `openRecord` opens what was saved, clock stamps, order after hidden siblings, audit without content, a failed audit, the version check, a save by another device in between, edit locks, hidden and locked notebooks, a revoked device refused on every read and write, scopes and a broken config, the Markdown reader). `src/connector/mcpWriteParity.test.ts`: the generated record builder is current, appended order keys are valid for the app. `src/sync/connectors/connectorDevices.test.ts`: the list and Revoke calls.
 - `npm run smoke:mcp`: starts the server as a real child process and calls it like Claude Desktop would. Add `-- --inspector` to also run the MCP Inspector command line (downloads it once).
 
 ## Online connector (B)

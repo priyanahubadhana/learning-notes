@@ -43,4 +43,17 @@ export const enLateAccounts = {
   'account.title': 'Account',
   'account.unlockInSync': 'Unlock in Sync',
   'account.who': 'Who',
+  'computers.title': 'Connected computers',
+  'computers.hint':
+    'Computers where Claude Desktop can read and add to your notes through the local connector. Revoke cuts one off at once.',
+  'computers.empty': 'No computer is connected.',
+  'computers.lastSeen': 'Last used {when}',
+  'computers.revoked': 'Revoked',
+  'computers.revoke': 'Revoke',
+  'computers.revokeConfirm':
+    'Revoke {name}? It stops reading and writing your notes right away. To use it again, run setup on that computer.',
+  'computers.revokeGo': 'Revoke',
+  'computers.failed':
+    'Could not reach the server. Nothing changed. Try again when you are online.',
+  'computers.loadFailed': 'Could not load the list. Check your connection.',
 }

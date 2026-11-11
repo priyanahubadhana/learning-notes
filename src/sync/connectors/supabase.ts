@@ -646,6 +646,36 @@ export function supabaseRecords(auth: AuthProvider): RecordStore {
       )
     },
 
+    async connectorDevices() {
+      const res = await authed(
+        '/rest/v1/connector_devices?select=session_id,device_id,name,created_at,last_seen_at,revoked_at&order=created_at.desc&limit=50',
+      )
+      const list = (await res.json()) as {
+        session_id: string
+        device_id: string
+        name: string
+        created_at: string
+        last_seen_at: string
+        revoked_at: string | null
+      }[]
+      return list.map((d) => ({
+        sessionId: d.session_id,
+        deviceId: d.device_id,
+        name: d.name,
+        createdAt: Date.parse(d.created_at),
+        lastSeenAt: Date.parse(d.last_seen_at),
+        revokedAt: d.revoked_at ? Date.parse(d.revoked_at) : null,
+      }))
+    },
+
+    async revokeConnectorDevice(sessionId) {
+      const res = await authed('/rest/v1/rpc/connector_revoke', {
+        method: 'POST',
+        body: JSON.stringify({ p_session_id: sessionId }),
+      })
+      return (await res.json()) === true
+    },
+
     async serverTime() {
       const res = await authed('/rest/v1/rpc/sync_now', {
         method: 'POST',

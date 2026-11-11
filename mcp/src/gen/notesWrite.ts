@@ -15,11 +15,7 @@
  */
 import { stableId } from '../../../src/core/ids'
 import { ToolError as ToolFail } from '../tools'
-import type {
-  NotebookSpec,
-  SpecBlock,
-  SpecPage,
-} from '../../../src/connector/spec'
+import type { NotebookSpec, SpecBlock, SpecPage } from '../../../src/connector/spec'
 import type { Notebook } from '../model'
 
 type Rec = Record<string, unknown>

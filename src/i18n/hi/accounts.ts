@@ -1,5 +1,18 @@
 /** Hindi texts (accounts). */
 export const hiAccounts = {
+  'computers.title': 'जुड़े कंप्यूटर',
+  'computers.hint':
+    'वे कंप्यूटर जहाँ Claude Desktop लोकल कनेक्टर से आपके नोट्स पढ़ और जोड़ सकता है। रद्द करने पर वह तुरंत कट जाता है।',
+  'computers.empty': 'कोई कंप्यूटर जुड़ा नहीं है।',
+  'computers.lastSeen': 'आखिरी बार {when}',
+  'computers.revoked': 'रद्द किया गया',
+  'computers.revoke': 'रद्द करें',
+  'computers.revokeConfirm':
+    '{name} रद्द करें? यह तुरंत आपके नोट्स पढ़ना और लिखना बंद कर देगा। दोबारा चलाने के लिए उस कंप्यूटर पर setup चलाएँ।',
+  'computers.revokeGo': 'रद्द करें',
+  'computers.failed':
+    'सर्वर तक नहीं पहुँच सके। कुछ नहीं बदला। ऑनलाइन होने पर फिर कोशिश करें।',
+  'computers.loadFailed': 'सूची लोड नहीं हो सकी। कनेक्शन जाँचें।',
   'account.aiKeys.hint':
     'अपनी AI कुंजियाँ सभी डिवाइस पर रखें (AI सेक्शन देखें)।',
   'account.aiKeysOff': 'AI कुंजियाँ सिर्फ़ इसी डिवाइस पर रहती हैं।',

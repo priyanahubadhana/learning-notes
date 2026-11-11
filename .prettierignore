@@ -5,3 +5,4 @@ docs/prototypes
 docs/ARCHIVE.md
 src/vendor
 mcp/dist
+mcp/src/gen/

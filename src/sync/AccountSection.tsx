@@ -11,6 +11,7 @@ import type { LearningNotesDB } from '../core/db'
 import { lockIsSetUp } from '../core/lock/lockConfig'
 import { t } from '../i18n/t'
 import { ConnectedAccounts } from './ConnectedAccounts'
+import { ConnectedComputers } from './ConnectedComputers'
 import { DriveConnectCard } from './DriveConnectCard'
 import { useGoogleLinked } from './useGoogleLinked'
 import { isTracking } from './device'
@@ -101,6 +102,9 @@ export function AccountSection({ db }: { db: LearningNotesDB }) {
           </Group>
           <Group id="connected" title={t('connected.title')}>
             <ConnectedAccounts />
+          </Group>
+          <Group id="computers" title={t('computers.title')}>
+            <ConnectedComputers />
           </Group>
           <Group id="security" title={t('account.security')}>
             <Security db={db} />

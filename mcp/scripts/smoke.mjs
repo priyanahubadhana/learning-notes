@@ -48,8 +48,8 @@ try {
   )
   const { tools } = await client.listTools()
   check(
-    tools.length === 6,
-    `6 tools listed (${tools.map((t) => t.name).join(', ')})`,
+    tools.length === 10,
+    `10 tools listed (${tools.map((t) => t.name).join(', ')})`,
   )
   const text = (r) => r.content[0].text
   const nb = JSON.parse(
@@ -81,6 +81,24 @@ try {
     ),
   )
   check(hit.results.length === 2, 'search_notes finds 2 pages')
+  const added = JSON.parse(
+    text(
+      await client.callTool({
+        name: 'append_to_page',
+        arguments: {
+          pageId: 'p1',
+          markdown: '## Smoke\n\n- appended',
+          expectedVersion: page.version,
+        },
+      }),
+    ),
+  )
+  check(added.added.blocks === 2, 'append_to_page adds 2 blocks')
+  const stale = await client.callTool({
+    name: 'append_to_page',
+    arguments: { pageId: 'p1', markdown: 'x', expectedVersion: page.version },
+  })
+  check(stale.isError === true, 'a stale version is refused')
   await client.close()
 
   if (process.argv.includes('--inspector')) {

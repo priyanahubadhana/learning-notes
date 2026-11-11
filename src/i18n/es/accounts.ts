@@ -1,5 +1,18 @@
 /** Spanish texts (accounts). */
 export const esAccounts = {
+  'computers.title': 'Ordenadores conectados',
+  'computers.hint':
+    'Ordenadores donde Claude Desktop puede leer y añadir a tus notas con el conector local. Revocar lo corta al instante.',
+  'computers.empty': 'Ningún ordenador conectado.',
+  'computers.lastSeen': 'Último uso {when}',
+  'computers.revoked': 'Revocado',
+  'computers.revoke': 'Revocar',
+  'computers.revokeConfirm':
+    '¿Revocar {name}? Dejará de leer y escribir tus notas de inmediato. Para usarlo de nuevo, ejecuta setup en ese ordenador.',
+  'computers.revokeGo': 'Revocar',
+  'computers.failed':
+    'No se pudo contactar con el servidor. No cambió nada. Inténtalo con conexión.',
+  'computers.loadFailed': 'No se pudo cargar la lista. Revisa tu conexión.',
   'account.aiKeys.hint':
     'Lleva tus claves de IA a todos tus dispositivos (mira la sección IA).',
   'account.aiKeysOff': 'Las claves de IA se quedan solo en este dispositivo.',

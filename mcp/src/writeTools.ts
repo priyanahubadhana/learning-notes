@@ -65,6 +65,17 @@ export interface WriteDeps {
   newId?: () => string
 }
 
+/** Keys that sort after every existing sibling, in order (valid fractional-indexing keys). */
+export function keysAfter(last: string | null, n: number): string[] {
+  if (n > 3000) throw new ToolError('Too many blocks in one append.')
+  const D = '0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz'
+  return Array.from({ length: n }, (_, i) =>
+    last === null
+      ? orderKey(i)
+      : `${last}V${D[Math.floor(i / 61)]}${D[1 + (i % 61)]}`,
+  )
+}
+
 export function makeWriteTools(d: WriteDeps) {
   const now = d.now ?? Date.now
   const newId = d.newId ?? randomUUID
@@ -171,17 +182,6 @@ export function makeWriteTools(d: WriteDeps) {
     if (nb.locked && !nb.allowAiLocked)
       throw new ToolError('That notebook is locked, so Claude may not use it.')
     return nb
-  }
-
-  /** Keys that sort after every existing sibling, in order. */
-  const keysAfter = (last: string | null, n: number): string[] => {
-    if (n > 3000) throw new ToolError('Too many blocks in one append.')
-    const D = '0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz'
-    return Array.from({ length: n }, (_, i) =>
-      last === null
-        ? orderKey(i)
-        : `${last}V${D[Math.floor(i / 61)]}${D[1 + (i % 61)]}`,
-    )
   }
 
   /** Puts the blocks and cards of `made` at the end of an existing page. */

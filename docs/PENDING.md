@@ -206,3 +206,4 @@ Questions:
   - PRIMARY: from the Claude UI, Claude builds whole notebooks for the user using ALL app features (notes, summary, recall cards, databases, layouts, styles, books/highlights…), so the user gets the best notebook with ultimate customisation, then refines by chatting.
   - SECONDARY: refine AI mid-work inside the app (a Claude chat in the notebook).
   - Open decision: A local (PC, private) vs B online (claude.ai everywhere, opt-in server access) vs both. Recommended: both, with B as the main path for regular users.
+- OWNER: connector = BOTH (B online main path, opt-in; A local for privacy). Quality standard written: docs/design/quality-standard.md (+ rules/building.md pointer), owner-approved.

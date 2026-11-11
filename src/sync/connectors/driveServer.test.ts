@@ -1,4 +1,4 @@
-import { afterEach, beforeEach, describe, expect, it } from 'vitest'
+import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
 import {
   handle,
   lockToken,
@@ -10,6 +10,32 @@ import { ALLOWED_EMAIL } from './config'
 import { authorizeUrl, supabaseAuth } from './supabase'
 
 const g = globalThis as Record<string, unknown>
+
+/**
+ * A seeded random source (mulberry32) for crypto.getRandomValues, so the
+ * locked tokens (random IV, so random ciphertext) are the same on every run.
+ */
+function seededRandomValues(seed: number) {
+  let a = seed >>> 0
+  const next = () => {
+    a = (a + 0x6d2b79f5) >>> 0
+    let t = a
+    t = Math.imul(t ^ (t >>> 15), t | 1)
+    t ^= t + Math.imul(t ^ (t >>> 7), t | 61)
+    return ((t ^ (t >>> 14)) >>> 0) / 4294967296
+  }
+  return <T extends ArrayBufferView | null>(array: T): T => {
+    if (array) {
+      const bytes = new Uint8Array(
+        array.buffer,
+        array.byteOffset,
+        array.byteLength,
+      )
+      for (let i = 0; i < bytes.length; i++) bytes[i] = Math.floor(next() * 256)
+    }
+    return array
+  }
+}
 const reply = (status: number, body: object = {}) =>
   new Response([204, 205].includes(status) ? null : JSON.stringify(body), {
     status,
@@ -188,6 +214,12 @@ describe('the app asks the server first (mocked endpoints)', () => {
 })
 
 describe('server function (mocked Supabase and Google)', () => {
+  beforeEach(() => {
+    vi.spyOn(crypto, 'getRandomValues').mockImplementation(
+      seededRandomValues(20261111),
+    )
+  })
+  afterEach(() => vi.restoreAllMocks())
   const env: Env = {
     SUPABASE_URL: 'https://x.test',
     SUPABASE_SERVICE_ROLE_KEY: 'svc',
@@ -242,6 +274,16 @@ describe('server function (mocked Supabase and Google)', () => {
     }) as typeof fetch
     return { f, rows, log }
   }
+
+  it('the seeded source makes the locked token the same on every run', async () => {
+    const first = await lockToken('k', 'U1', 'refresh-secret')
+    vi.mocked(crypto.getRandomValues).mockImplementation(
+      seededRandomValues(20261111),
+    )
+    expect(await lockToken('k', 'U1', 'refresh-secret')).toBe(first)
+    // A second lock in the same run still gets a fresh IV.
+    expect(await lockToken('k', 'U1', 'refresh-secret')).not.toBe(first)
+  })
 
   it('locks a token so only that account can open it', async () => {
     const locked = await lockToken('k', 'U1', 'refresh-secret')

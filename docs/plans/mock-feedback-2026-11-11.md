@@ -141,3 +141,15 @@ Four modes:
 - S6: "Start new pages as" lets the user pick ANY template for the first new page.
 - S7: the Reduce glass "Auto" preview looks bad; make it show auto's real look.
 - S8: default page tabs: 3 by default, plus add/edit/remove/reorder; always one line (sideways scroll + thin track if many); show a mini preview of the tab row itself (not the main preview).
+
+## Owner, 12 Nov 2:40 (toolbar + annotations)
+
+- Settings answers: tours are downloaded on tap from our site (internet needed once), not bundled. "Let AI use my notebooks" with Claude as the first/recommended option ✓. Change highlight: owner leaves it to me (explained in chat).
+- The owner left NEW comments on the toolbar v4 and annotations mocks: read and apply them when tokens are back.
+- STRONG FEEDBACK: the last toolbar v4 pass drifted from the owner's guidelines ("random draft"). Next pass must re-read ALL rules: docs/design/owner-ui-patterns.md, quality-standard.md, every decision in this file, the inventories, and keep v4's approved items.
+- Reference: GoodNotes organisation (owner screenshots):
+  - the Pen card has a live stroke preview, 3 pen types as labelled tiles, Pressure / Stabilisation sliders, a "Settings" list (Pen Settings ›, Writing Aids ›, Math Assist ›) and palette shortcuts;
+  - the Draw Shape card is tiny: one main switch + "Advanced options" (2 switches);
+  - this level of simplicity is the model for BEGINNER.
+- Mocks must open in the DEFAULT new-user state (Beginner, defaults) so the owner sees what a new user sees; Settings can customise later.
+- NEW feature: Elements (stickers / GIFs, with categories and Edit), like GoodNotes, to make notes more interactive. Decide its placement (proposal: Insert › Elements, plus a recent-elements shelf in Shapes & aids).

@@ -4,7 +4,7 @@ import type { Database, DbView } from '../../core/types'
 import type { MessageKey } from '../../i18n/t'
 import { DashboardView } from '../dashboard/DashboardView'
 import { BoardView } from './BoardView'
-import { CalendarView } from './CalendarView'
+import { LazyCalendarView } from './LazyCalendar'
 import { GalleryView } from './GalleryView'
 import { ListView } from './ListView'
 import { TableView } from './TableView'
@@ -63,7 +63,7 @@ registerViewType({
   type: 'calendar',
   icon: '▦',
   label: 'database.view.calendar',
-  component: CalendarView,
+  component: LazyCalendarView,
 })
 
 registerViewType({

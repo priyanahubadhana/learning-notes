@@ -1,5 +1,7 @@
 /** Spanish text of batch H (draft: needs native review). English is enQ.ts. */
+import { esCal } from './esCal'
 export const esQ: Record<string, string> = {
+  ...esCal,
   'notebook.dbPageFilter': 'Página',
   'notebook.dbAllPages': 'Todas las páginas',
   'notebook.dbPageEmpty':

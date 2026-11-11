@@ -1065,3 +1065,10 @@ The other older decisions stand as built (owner, 2026-11-01); they are in [ARCHI
 ## Decisions to review (Bookerly-style font, 11 Nov)
 
 - **Literata stands in for Bookerly.** Bookerly is Amazon's licensed font and cannot be bundled (₹0, licence). Literata is OFL, already in the app, and was designed for long reading on screens, so it is the closest free match. Other options: Source Serif 4 (also bundled, a bit more formal) or Charter (system, not on every device). The default stays "Book default" (the book's own font); the new tile is opt-in. Not applied to PDFs (their letters are pictures).
+
+## Decisions to review (reading progress and favourites sync, 11 Nov)
+
+- **They ride on the page record, not on the `settings` table.** The page already syncs and the book and the star belong to it; a settings row per book would have been a second place to keep in step, and backups and Delete forever already cover pages. Cost: a true conflict on a page now needs the small field rule (`mergePageReading`), which is the only table-specific rule in the merge. The rest of the page still follows the newer clock.
+- **"Last read" = the most recent `openedAt`**, not the furthest place. The furthest place is kept apart (`furthest`, shown by "Sync to furthest page read"). So reading page 20 on the PC after reading page 80 on the iPad moves your place to 20 everywhere, as a Kindle does with "Sync to furthest" as the escape.
+- **A star or a read does not change `updatedAt`** (like progress before), so it does not reorder lists that show the last edit.
+- **Older local stars** are written to their pages the first time the app starts after this update, newest first in the list's order.

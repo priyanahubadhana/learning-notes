@@ -137,6 +137,10 @@ const page: Fields<Page> = {
   title: text,
   sample: yes,
   order,
+  favourite: (v) =>
+    object(v) &&
+    typeof (v as { on?: unknown }).on === 'boolean' &&
+    number((v as { at?: unknown }).at),
   journalDate: text,
   journalMonth: text,
   customTitle: yes,

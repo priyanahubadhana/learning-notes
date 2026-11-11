@@ -142,6 +142,11 @@ export interface Page extends BaseRecord {
   sample?: true
   /** Position among sibling pages (lower comes first). */
   order: OrderKey
+  /**
+   * The favourite star, with when it was set (UTC ms). It lives on the page so
+   * it syncs; "on: false" is a removed star that other devices must hear about.
+   */
+  favourite?: { on: boolean; at: number }
   /** Journal day page: its local date, "YYYY-MM-DD". */
   journalDate?: string
   /** Journal month page: its month, "YYYY-MM". */

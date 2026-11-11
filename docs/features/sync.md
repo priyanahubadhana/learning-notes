@@ -51,6 +51,12 @@ Plan: [plans/settings-sync-plan.md](../plans/settings-sync-plan.md); research: [
 - **One-time migration** (`settingsMigration.ts`): values a device already has become records stamped with the oldest clock, so what is on the server wins and a fresh device never overwrites the account; a quiet notice ("N changed to match your other devices", Undo) shows for two minutes after.
 - **Security:** values that look like a key are refused by `setSetting`, the mirror and the migration; the AI list holds key ids only.
 
+## Reading progress and favourites (11 Nov)
+
+- A book's place (`source.progress`, `at`, `pageCount`, `furthest`, `furthestAt`, `openedAt`) and a page's star (`Page.favourite = {on, at}`) travel in the page record. When both devices changed the page, the newer clock still wins the page, then `mergePageReading` puts back: the place from the side opened most recently, the larger furthest place, the newest star. The merged page is saved here and sent again (`MergeResult.merged`). Not applied when the person chose a side after signing back in.
+- `enqueueChanged` counts `favourite.at` and `source.openedAt` as changes, so a star or a read made while sync was off is sent when it starts.
+- Favourites: `app/favourites.ts` keeps the instant device list and writes the star to the page; `app/favouriteSync.ts` migrates older local stars once and follows stars that arrive (`onApplied`). Tests: `src/sync/readingSync.test.ts`.
+
 ## Clash bars
 
 A "Changed on two devices" bar is raised only when the losing side has words the winner lacks. Blocks without text (picture, video, embed) and changes of position or props alone merge silently (newest wins). Several clashes on a page show one summary bar.
@@ -66,7 +72,7 @@ Vendor code and addresses live only in `src/sync/connectors/` (`supabase.ts`, `g
 - A refused save (someone saved first) fetches the server copy, merges it and sends again; one conflict never stops the rest.
 - Restore › Replace keeps this device's sync rows; the restored notes count as new changes and are sent.
 - Supabase pauses after 7 quiet days: sync shows "Could not reach the server" until the owner presses Resume in the dashboard; notes keep working.
-- Known gaps (see DECISIONS "Decisions to review"): a move and an edit of the same block on two devices keep only the newer one (one clock per block, not two); two journal pages for the same day made before fixed ids both stay; card schedules are not rebuilt from review logs; changing the passphrase and key rotation are not built; erased items can stay in Drive revisions and old backups as they age out; reading progress and favourites are device settings and do not sync yet.
+- Known gaps (see DECISIONS "Decisions to review"): a move and an edit of the same block on two devices keep only the newer one (one clock per block, not two); two journal pages for the same day made before fixed ids both stay; card schedules are not rebuilt from review logs; changing the passphrase and key rotation are not built; erased items can stay in Drive revisions and old backups as they age out; (reading progress and favourites sync since 11 Nov, see below).
 
 ## Wrong passphrase or recovery code (fix #3)
 

@@ -128,6 +128,12 @@ const startSettings = (async () => {
   notice.watchSettingsNotice()
   noticeView.mountSettingsNotice()
 })().catch(() => undefined)
+// Favourite stars sit on the page records (so they sync); this keeps the
+// device's list in step with them. A small chunk, loaded after the database.
+void startSettings
+  .then(() => import('./app/favouriteSync'))
+  .then((m) => m.startFavouriteSync(db))
+  .catch(() => undefined)
 if (
   isTracking() ||
   isWaitingForKey() ||

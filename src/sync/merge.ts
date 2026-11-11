@@ -14,6 +14,10 @@ import type { MergeMode } from './tables'
  *    person chose after signing back in, `prefer`); equal clocks
  *    cannot happen (the device id is part of the clock). For `blocks`, the
  *    loser is kept in History when its content differs.
+ * 6. Pages only: two small things that change all the time are kept from
+ *    both sides instead of one side winning the whole page (see
+ *    `mergePageReading`): where a book was last read (and the furthest
+ *    place), and the favourite star.
  */
 
 export interface LocalCopy {
@@ -29,11 +33,18 @@ export interface RemoteCopy {
   hlc: string
 }
 
-export type MergeResult =
+export type MergeResult = (
   | { action: 'take' }
   | { action: 'keep' }
   | { action: 'take'; loser: Record<string, unknown> }
   | { action: 'keep'; loser: Record<string, unknown> }
+) & {
+  /**
+   * Pages: the winner with the reading place and the star of both sides put
+   * together. It differs from the winner, so it is saved here and sent again.
+   */
+  merged?: Record<string, unknown>
+}
 
 const purged = (v: Record<string, unknown>) => typeof v.purgedAt === 'number'
 
@@ -70,11 +81,64 @@ export function differentText(
   )
 }
 
+type Source = Record<string, unknown> & {
+  progress?: number
+  at?: string
+  openedAt?: number
+  furthest?: number
+  furthestAt?: string
+  pageCount?: number
+}
+type Star = { on: boolean; at: number }
+
+const isStar = (v: unknown): v is Star =>
+  !!v &&
+  typeof v === 'object' &&
+  typeof (v as Star).on === 'boolean' &&
+  typeof (v as Star).at === 'number'
+
+/**
+ * A page changed on two devices. The newer clock wins the page, but a book's
+ * reading place and a page's star are small things both devices keep
+ * changing, so they are put together instead:
+ * - the place last read (progress, spot, page count) comes from the side the
+ *   book was opened on most recently;
+ * - the furthest place ever read is the larger of the two;
+ * - the star is the one set most recently (ties: the winner's).
+ * Returns the winner changed that way, or null when nothing differs.
+ */
+export function mergePageReading(
+  winner: Record<string, unknown>,
+  loser: Record<string, unknown>,
+): Record<string, unknown> | null {
+  const out: Record<string, unknown> = { ...winner }
+  const ws = winner.source as Source | undefined
+  const ls = loser.source as Source | undefined
+  if (ws && ls && typeof ws === 'object' && typeof ls === 'object') {
+    const lastRead = (ls.openedAt ?? 0) > (ws.openedAt ?? 0) ? ls : ws
+    const source: Source = { ...ws }
+    for (const k of ['progress', 'at', 'openedAt', 'pageCount'] as const) {
+      if (lastRead[k] !== undefined) source[k] = lastRead[k] as never
+    }
+    const farthest = (ls.furthest ?? -1) > (ws.furthest ?? -1) ? ls : ws
+    if (farthest.furthest !== undefined) {
+      source.furthest = farthest.furthest
+      source.furthestAt = farthest.furthestAt
+    }
+    out.source = source
+  }
+  const wf = winner.favourite
+  const lf = loser.favourite
+  if (isStar(lf) && (!isStar(wf) || lf.at > wf.at)) out.favourite = lf
+  return JSON.stringify(out) === JSON.stringify(winner) ? null : out
+}
+
 export function mergeRecord(
   mode: MergeMode,
   local: LocalCopy | undefined,
   remote: RemoteCopy,
   prefer?: 'here' | 'there',
+  table?: string,
 ): MergeResult {
   if (!local) return { action: 'take' }
   if (purged(remote.value) && !purged(local.value)) return { action: 'take' }
@@ -95,7 +159,14 @@ export function mergeRecord(
     loser.deletedAt === null &&
     !sameContent(winner, loser) &&
     differentText(winner, loser)
+  const merged =
+    table === 'pages' && !prefer ? mergePageReading(winner, loser) : null
+  const extra = merged ? { merged } : {}
   if (remoteWins)
-    return keepLoser ? { action: 'take', loser } : { action: 'take' }
-  return keepLoser ? { action: 'keep', loser } : { action: 'keep' }
+    return keepLoser
+      ? { action: 'take', loser, ...extra }
+      : { action: 'take', ...extra }
+  return keepLoser
+    ? { action: 'keep', loser, ...extra }
+    : { action: 'keep', ...extra }
 }

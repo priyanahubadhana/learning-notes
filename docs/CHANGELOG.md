@@ -2,6 +2,13 @@
 
 Current phase only. Older entries are in [ARCHIVE.md](ARCHIVE.md).
 
+## 2026-11-11 (Sync: reading progress and favourite stars)
+
+- **What:** Where a book was last read (progress, spot, page count, furthest place) and the favourite star now follow the account. Both live on the page record (a book's `source` and the new `Page.favourite = {on, at}`), which already syncs; a new small merge rule for `pages` (`mergePageReading` in `src/sync/merge.ts`) puts the two sides' reading place and star together when both devices changed the page, instead of one side losing everything: the place comes from the device the book was opened on most recently, the furthest place is the larger, the star is the newest. A person's own choice after signing back in still wins as before. The engine saves the merged page and sends it again. `enqueueChanged` now also finds a star or a read made while sync was off (they do not bump `updatedAt`). Favourites keep their instant device list (`app/favourites.ts`); `app/favouriteSync.ts` writes older local stars to their pages once and follows stars that arrive (lazy chunk, after the database opens). Backups accept the new field.
+- **Why:** Reading progress and favourites were per device (known gap in sync.md); the owner reads on the iPad and the PC.
+- **Tests:** src/sync/readingSync.test.ts (17: two devices offline, furthest kept, title edit not undone, found after sync was off, star both ways, two stars at once, list rebuild, start-up migration).
+- **Files:** src/sync/{merge,engine}.ts, src/core/types.ts, src/share/checkRows.ts, src/app/{favourites,favouriteSync}.ts, src/main.tsx, docs/features/sync.md.
+
 ## 2026-11-11 (Reader bar: pin in Settings, bar stays mounted)
 
 - **What:** Settings › Reading › "Keep the reader bar showing" (On/Off) is the same value as the pin on the bar (it was a device setting with no row in Settings). The reader bar is now always mounted while reading: hiding slides it up (CSS transform, 180 ms, none for reduced motion), marks it `inert` and `aria-hidden` so nothing in it can be focused or announced; showing it is instant and keeps its state. The small ✕ still shows in place when the bar is away. The full-screen reader's tap-to-show controls use the same mounted bar (no small ✕ there).

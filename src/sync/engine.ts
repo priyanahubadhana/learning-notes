@@ -96,6 +96,21 @@ const emptyReport = (): SyncReport => ({
   seq: 0,
 })
 
+type ChangedRow = {
+  id: string
+  updatedAt?: number
+  /** Pages: the star and where a book was last read are not "edits" (they keep `updatedAt`), but they travel. */
+  favourite?: { at?: number }
+  source?: { openedAt?: number }
+}
+/** When a row last changed here: an edit, a star, or a book being read. */
+export const lastChangeOf = (row: ChangedRow): number =>
+  Math.max(
+    row.updatedAt ?? 0,
+    row.favourite?.at ?? 0,
+    row.source?.openedAt ?? 0,
+  )
+
 /**
  * Marks every synced record that changed since it was last synced (or was
  * never synced) as "changed here". Run when sync is turned on and at each
@@ -111,17 +126,17 @@ export async function enqueueChanged(db: LearningNotesDB): Promise<number> {
       ).map((s) => [s.recordId, s]),
     )
     const add: SyncState[] = []
-    await table.each((row: { id: string; updatedAt?: number }) => {
+    await table.each((row: ChangedRow) => {
       const s = states.get(row.id)
       const since = s ? Number(s.hlc.slice(0, 15)) : -1
       if (s?.dirty === 1) return
-      if (s && (row.updatedAt ?? 0) <= since) return
+      if (s && lastChangeOf(row) <= since) return
       add.push({
         ...(s ?? { rev: 0 }),
         id: syncStateId(table.name, row.id),
         table: table.name,
         recordId: row.id,
-        hlc: nextHlc(Math.max(Date.now(), row.updatedAt ?? 0)),
+        hlc: nextHlc(Math.max(Date.now(), lastChangeOf(row))),
         dirty: 1,
         ...(SYNC_TABLES[table.name] === 'file' ? { fileState: 'up' } : {}),
       })
@@ -266,6 +281,7 @@ async function applyRemote(
               hlc: item.env.h,
             },
             chosen?.prefer,
+            table,
           ),
         }
       })
@@ -315,7 +331,10 @@ async function applyRemote(
     }
     report.pulled += items.length
     // The open screens put these into the page live (R6-13).
-    const taken = decisions.filter((d) => d.result.action === 'take')
+    const taken = decisions.filter(
+      (d) =>
+        d.result.action === 'take' || (d.result as { merged?: unknown }).merged,
+    )
     if (taken.length > 0) {
       announceApplied({
         table,
@@ -368,6 +387,12 @@ async function writeDecisions(
             : new ArrayBuffer(0)
       }
     }
+    // Pages: the reading place and the star of both sides, put together.
+    const merged = (result as { merged?: Record<string, unknown> }).merged
+    if (merged) {
+      value = merged
+      hlc = nextHlc() // sent again, so the other device gets the merged page
+    }
     if (noticed) {
       const other = (result as { loser: Record<string, unknown> }).loser
       const winner = value ?? { ...(locals[i] as Record<string, unknown>) }
@@ -391,7 +416,7 @@ async function writeDecisions(
       recordId: item.id,
       rev: item.rev,
       hlc,
-      dirty: noticed ? 1 : take ? 0 : 1,
+      dirty: noticed || merged ? 1 : take ? 0 : 1,
       ...(mode === 'file'
         ? take
           ? {

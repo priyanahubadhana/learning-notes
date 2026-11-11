@@ -1,5 +1,9 @@
 # Owner checks still pending (collected for the end-of-run iPad pass)
 
+## Sync: reading place and favourite stars (11 Nov)
+
+On the iPad and the PC, both signed in with sync on: (1) read a PDF to page 20 on the iPad, wait a few seconds (Settings › Sync shows Last synced), open the same book on the PC: it opens at page 20. (2) Star a page on the PC (⋯ › Favourite): within about 10 seconds the sidebar Favourites on the iPad shows it; remove the star on the iPad: it leaves the PC list. (3) Airplane mode on both: read page 5 on one, star a different page on the other; reconnect both: the star and the place read are both there. Why human: needs both real devices and sign-in.
+
 ## Reader bar pin and ready bar (11 Nov)
 
 On the iPad: open a note in reading mode. Settings › Reading › Keep the reader bar showing › On: the bar stays while you scroll, and its pin icon is lit. Off: scroll down, the bar slides up out of sight and a small ✕ stays; scroll up a little: it slides back at once with no flash. Why human: how the slide feels.

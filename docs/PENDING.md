@@ -194,3 +194,11 @@ Questions:
 - iPad checks at the top of docs/plans/owner-checks-pending.md once the build is live.
 - Review the mock-ups: toolbar v2/v3, book annotations.
 - Send the BUG-002 screenshot (format bar out of bounds).
+- Claude connector plan: docs/plans/claude-connector-plan.md. Questions:
+  - (1) write access ON from the start (the owner said read+write) vs off until allowed in Settings;
+  - (2) the key in Windows Credential Manager;
+  - (3) run from the local repo (not npm) at first;
+  - (4) Claude edits existing text only via the Inbox, while appends and new pages go straight in;
+  - (5) reads logged locally only;
+  - (6) no delete ever.
+    Note: PC only, not iPad. Slices 1–2 (shared crypto + read-only server) are being built now since they don't depend on the answers.

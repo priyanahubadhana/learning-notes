@@ -127,6 +127,26 @@ describe('saveBlockChanges', () => {
     order,
   })
 
+  it('saves a checklist line inside the editor transaction (BUG-001)', async () => {
+    // The editor saves in one transaction; a checklist line used to close it
+    // too early (PrematureCommitError), so the page never saved.
+    await db.transaction('rw', db.pages, db.blocks, db.cards, async () => {
+      await saveBlockChanges(db, pageId, {
+        upserts: [
+          {
+            id: 'c',
+            parentId: null,
+            type: 'checkListItem',
+            content: { text: 'milk', checked: false },
+            order: 'a0',
+          },
+        ],
+        deletes: [],
+      })
+    })
+    expect((await db.blocks.get('c'))?.type).toBe('checkListItem')
+  })
+
   it('creates and updates blocks using the given ids', async () => {
     await saveBlockChanges(db, pageId, {
       upserts: [upsert('x', 'one', 'a0'), upsert('y', 'two', 'a1')],

@@ -218,11 +218,19 @@ export async function saveBlockChanges(
   // separate step (its own transaction, outside any the caller holds): a
   // failure here never loses the note.
   if (saved.some((b) => b.type === 'checkListItem')) {
-    try {
-      await Dexie.ignoreTransaction(() => syncTasksFromBlocks(db, saved, now))
-    } catch (error) {
-      console.error('Could not update the linked Home task', error)
+    const syncTasks = async () => {
+      try {
+        await Dexie.ignoreTransaction(() => syncTasksFromBlocks(db, saved, now))
+      } catch (error) {
+        console.error('Could not update the linked Home task', error)
+      }
     }
+    // Inside the caller's transaction, awaiting a separate one would let the
+    // caller's commit too early (PrematureCommitError, the "Not saved yet"
+    // bar on every checklist line). So it runs once the caller's is done.
+    const outer = Dexie.currentTransaction
+    if (outer && outer.active) outer.on('complete', () => void syncTasks())
+    else await syncTasks()
   }
 }
 

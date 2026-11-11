@@ -53,6 +53,7 @@ test('As text box: the paste lands in a new box, the page text stays, Undo remov
     'Main text',
   )
 
-  await page.getByRole('status').getByRole('button', { name: 'Undo' }).click()
+  // The "done" toast was removed (Priority 4): the page's own Undo takes it back.
+  await page.keyboard.press('Control+z')
   await expect(page.locator(EXTRA)).toHaveCount(0)
 })

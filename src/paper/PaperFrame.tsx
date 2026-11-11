@@ -702,6 +702,8 @@ export function PaperFrame({
     const ids = box.locked ? [] : group.map((b) => b.id)
     // The grabbed box leads, the others follow in reading order.
     ids.sort((a, b2) => (a === box.id ? -1 : b2 === box.id ? 1 : 0))
+    if (!scrollLoop.current)
+      scrollLoop.current = requestAnimationFrame(scrollTick)
     drag.current = {
       x0: e.clientX,
       y0: e.clientY,
@@ -880,33 +882,33 @@ export function PaperFrame({
   }
   // Edge auto-scroll: holding a dragged box near the top or bottom of the
   // screen scrolls the page (and the box follows the paper).
-  useEffect(() => {
-    let raf = 0
-    const tick = () => {
-      raf = requestAnimationFrame(tick)
-      const d = drag.current
-      const p = lastPt.current
-      if (!d || !d.moved || !p) return
-      const sc = d.scroller ?? document.scrollingElement
-      if (!sc) return
-      const r = d.scroller?.getBoundingClientRect()
-      const top = r ? Math.max(0, r.top) : 0
-      const bottom = r
-        ? Math.min(window.innerHeight, r.bottom)
-        : window.innerHeight
-      const edge = 70
-      let v = 0
-      if (p.clientY < top + edge) v = -Math.ceil((top + edge - p.clientY) / 4)
-      else if (p.clientY > bottom - edge)
-        v = Math.ceil((p.clientY - (bottom - edge)) / 4)
-      if (!v) return
-      const before = sc.scrollTop
-      sc.scrollTop = before + Math.max(-24, Math.min(24, v))
-      if (sc.scrollTop !== before) applyMove(p, d)
+  const scrollLoop = useRef(0)
+  const scrollTick = () => {
+    const d = drag.current
+    if (!d) {
+      scrollLoop.current = 0
+      return
     }
-    raf = requestAnimationFrame(tick)
-    return () => cancelAnimationFrame(raf)
-  })
+    scrollLoop.current = requestAnimationFrame(scrollTick)
+    const p = lastPt.current
+    if (!d.moved || !p) return
+    const sc = d.scroller ?? document.scrollingElement
+    if (!sc) return
+    const r = d.scroller?.getBoundingClientRect()
+    const top = r ? Math.max(0, r.top) : 0
+    const bottom = r
+      ? Math.min(window.innerHeight, r.bottom)
+      : window.innerHeight
+    const edge = 70
+    let v = 0
+    if (p.clientY < top + edge) v = -Math.ceil((top + edge - p.clientY) / 4)
+    else if (p.clientY > bottom - edge)
+      v = Math.ceil((p.clientY - (bottom - edge)) / 4)
+    if (!v) return
+    const before = sc.scrollTop
+    sc.scrollTop = before + Math.max(-24, Math.min(24, v))
+    if (sc.scrollTop !== before) applyMove(p, d)
+  }
   // Esc while a box is dragged: nothing changes (the preview closes).
   useEffect(() => {
     const key = (e: KeyboardEvent) => {

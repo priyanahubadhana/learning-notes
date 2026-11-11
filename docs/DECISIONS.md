@@ -69,6 +69,8 @@ Current phase only. Older decisions are in [ARCHIVE.md](ARCHIVE.md).
 
 ## Decisions to review
 
+- **2026-11-12 · Red CI fixes (review).** (a) `pasteBox.spec` now undoes the "As text box" paste with Ctrl+Z, because the "done" toast was removed in Priority 4 (toast noise rule). (b) `boxTaps.spec` "five quick taps" now expects the owner's counts (3 quick taps = the line). (c) The drag auto-scroll loop only runs while a box is dragged (an always-on frame loop had slowed the big-page scroll budget). The `penUi` and `inkLayers` WebKit failures and `leftPanel`, `newLine`, `reading`, `aiUsage` were already red at commit 25a9dde, before the text box work; not touched here.
+
 - **2026-11-12 · Text box v2, owner list step 1 (review).** (a) A new box is a row of its own, so two taps at the same height make the second box sit just under the first, not beside it (columns need the Layout or a drop beside a box). (b) The stored box width of a text-wide box is the widest it may grow, so exports wrap where the screen does. (c) A tap within 700 ms and 60 px of a box-making tap does nothing (stops a double tap from making two boxes). (d) The box frame, hover frame and "Type here" are gone until a box is selected (owner 4a).
 
 - **2026-11-11 · BUG-004: how an update is marked required (review).** `version.json` gets `required: true` when the last commit message contains `[required-update]` (or env `REQUIRED_UPDATE=1`). Only the newest version's flag counts, so a device that skips a required build and sees a later normal one is not forced. Other options: a list of required versions, or a minimum-version number. Cancel aborts the app's own download of the new files; a service-worker install already running cannot be aborted.

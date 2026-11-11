@@ -114,10 +114,12 @@ for (const how of ['mouse', 'touch'] as const) {
     await setup(page)
     await tool(page, 'Lasso').click()
     await taps(page, how, 3)
-    // 1 box, 2 caret, 3 word.
+    // Owner final (11 Nov): tap counts are 1 caret, 2 word, 3 line, 4
+    // paragraph, so three quick taps select the line.
     const s = await state(page)
     expect(s.picked).toBe(true)
-    expect(s.text).toBe('gamma')
+    expect(s.text.length).toBeGreaterThan(20)
+    expect(s.text.length).toBeLessThan(TEXT.length)
     await page.waitForTimeout(600)
   })
 

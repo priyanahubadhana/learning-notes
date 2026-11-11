@@ -239,3 +239,4 @@ Three ways of using the reader, as presets:
 - Library questions (docs/plans/library-revamp-plan.md A5, 10 questions; picks marked there) + which deep-study ideas 1–5 go with the Library.
 - REAL-BUILD requirement (owner): box resize/move handles must be easy with the Apple Pencil: ≥44 pt hit area, pointer capture, touch-action none, no switch to ink mid-drag, a small dead-zone, grow-on-grab feedback, live resize.
 - REAL-BUILD fix (owner): the main bar's 'more tools' scroll arrow overlaps the last icon (Backspace). Give it its own slot at the right end, never over a tool.
+- OWNER (11 Nov night): apply the toolbar mock-up approach to the OTHER areas too (Search, Home, Review/cards, Notebooks/sidebar, Settings), but NOT Reader/Library (in progress). Learned patterns are in docs/design/owner-ui-patterns.md. Mock-ups are being built per area.

@@ -71,3 +71,4 @@ plans/owner-ideas-batch-2-2026-11-10.md: update bar, Acrobat PDF tools, customiz
 - Grow-then-wrap box width and small-box-at-tap (coordinator spec 11 Nov) NOT built: the width is a grid column fraction, needs auto-width flag on lone boxes; do in a fresh session. Tap counts 1 caret/2 word/3 line/4 paragraph already match the code.
 - Grow-then-wrap max width: stop about one page side margin before the right edge (coordinator 11 Nov); placement unchanged until the owner answers.
 - Smart guides in the drag step (thin red edge/centre lines, equal-spacing marks, gentle snap); on/off switch ONLY in Settings (default on). Layout pop-up tidy: Line up left, Space evenly (3+), One box, Columns. Approved 11 Nov, not built.
+- Smart guide look: 1 px magenta, only while dragging, each line spans from the dragged box edge/centre to the matched object only, plus a page-centre line and equal-spacing marks, gentle snap, never overlap. Not built.

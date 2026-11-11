@@ -243,3 +243,4 @@ Three ways of using the reader, as presets:
 - REAL-BUILD fix (owner): the main bar's 'more tools' scroll arrow overlaps the last icon (Backspace). Give it its own slot at the right end, never over a tool.
 - OWNER (11 Nov night): apply the toolbar mock-up approach to the OTHER areas too (Search, Home, Review/cards, Notebooks/sidebar, Settings), but NOT Reader/Library (in progress). Learned patterns are in docs/design/owner-ui-patterns.md. Mock-ups are being built per area.
 - REAL-BUILD requirement (owner): resize handles pick the NEAREST handle, side vs corner zones don't overlap, and a short hold with feedback before the drag commits. The text box must never wrap letter by letter (one line until near the right margin).
+- Home mock: published. Questions (picks): Beginner 4 cards; a Daily Highlight from saved highlights; Continue as a sideways row; glance widgets as counts only; Tasks/Plan/Routines/Reports as tabs.

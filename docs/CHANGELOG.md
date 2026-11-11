@@ -9,6 +9,7 @@ Current phase only. Older entries are in [ARCHIVE.md](ARCHIVE.md).
 - **Item 3:** search finds ticked checkboxes (by column name) and Formula values (search/rowComputed.ts; Relation/Rollup read as blank; TODAY() = save time). Search index version 5 -> 6 (rebuilds once).
 - **Item 4:** Notebooks home tabs All / Starred / Recent (Recent = last opened, max 20).
 - **Item 5a:** Delete forever also erases the page pictures (picture, edit copies, original, book cover) unless another page, a trashed page, a cell or a notebook still shows it (core/imagePurge.ts, trash/purgeFiles.test.ts; attached files tested too).
+- **Item 5b:** picture Border button in the picture action bar (none / thin / thick; new border prop on the image block, saved and undoable). Video cards (YouTube, Vimeo, Loom, .mp4) get a Start at field and Small / Medium / Full size (new size prop on the embed block). Not built: text wrap, Draw on picture (see DECISIONS). Files: editor/schema.tsx, editor/PictureHandles.tsx, editor/embed/*, index.css, e2e/pictureActions.spec.ts, e2e/videoOptions.spec.ts.
 - **Item 6:** slow-moments recorder batches writes, samples long tasks, pauses while hidden.
 - **Item 7:** driveServer tests use a seeded RNG (mulberry32 on crypto.getRandomValues).
 - **Item 8:** first load 319,934 B -> about 300,000 B gzipped: writePad/padState.ts no longer imports prosemirror-state at run time (it pulled about 27 KB of editor engine into the first download). Next screens are prefetched one per idle slice, never while hidden (app/idlePrefetch.ts).

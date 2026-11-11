@@ -1,5 +1,9 @@
 # Owner checks still pending (collected for the end-of-run iPad pass)
 
+## Batch H, iPad checks (12 Nov)
+
+(1) Notebooks home: All / Starred / Recent tabs. (2) Notebook Database tab: the Page filter. (3) Search a ticked checkbox name and a formula result. (4) Tap a picture, Border cycles thin / thick / none. (5) YouTube card: Start at 1:30 and Small / Medium / Full. (6) Delete a page with a picture, empty Trash: the picture is gone from storage.
+
 ## Supabase dashboard and deploy checklist (security audit, 12 Nov)
 
 Do these once in the Supabase dashboard (Authentication section) and note "done" here. None costs money.

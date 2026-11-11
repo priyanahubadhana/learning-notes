@@ -205,7 +205,6 @@ const {
   quote,
   divider,
   codeBlock,
-  image,
   toggleListItem,
 } = defaultBlockSpecs
 
@@ -242,6 +241,24 @@ const table = {
     }),
   },
 } as unknown as typeof baseTable
+
+/**
+ * The picture block with one extra prop: border, a frame around the
+ * picture ("" = none, otherwise a line style: "thin" or "thick"). Stored
+ * with the block like any prop, so it syncs and is backed up.
+ */
+const baseImage = defaultBlockSpecs.image
+const image = {
+  ...baseImage,
+  config: {
+    ...baseImage.config,
+    propSchema: {
+      ...baseImage.config.propSchema,
+      border: { default: '' as string },
+    },
+  },
+  implementation: baseImage.implementation,
+} as unknown as typeof baseImage
 
 export const schema = BlockNoteSchema.create({
   blockSpecs: {

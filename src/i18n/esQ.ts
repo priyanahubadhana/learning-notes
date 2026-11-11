@@ -11,4 +11,10 @@ export const esQ: Record<string, string> = {
   'nbh.empty.starred':
     'Aún no hay cuadernos destacados. Abre el menú de un cuaderno y elige Fijar arriba.',
   'nbh.empty.recent': 'Los cuadernos que abras aparecerán aquí.',
+  'pic.act.border': 'Borde',
+  'embed.start': 'Empezar en',
+  'embed.size': 'Tamaño',
+  'embed.size.s': 'Pequeño',
+  'embed.size.m': 'Mediano',
+  'embed.size.l': 'Completo',
 }

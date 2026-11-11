@@ -31,6 +31,75 @@ export interface EmbedProps {
   videoId: string
   start: number
   caption: string
+  size?: string
+}
+
+/** How wide a video card is for each size choice. */
+const SIZE_WIDTH: Record<string, string> = { s: '45%', m: '70%' }
+const sizeStyle = (size?: string) => ({
+  width: SIZE_WIDTH[size ?? ''] ?? '100%',
+})
+
+/** Start time and size of a video (when the page can be edited). */
+function VideoOptions({
+  props: p,
+  setProps,
+  withStart,
+}: {
+  props: EmbedProps
+  setProps: (p: Partial<EmbedProps>) => void
+  withStart: boolean
+}) {
+  const [bad, setBad] = useState(false)
+  return (
+    <div
+      data-video-options
+      className="flex flex-wrap items-center gap-x-4 gap-y-1 px-3 pb-2 text-sm"
+    >
+      {withStart && (
+        <label className="flex items-center gap-2">
+          {t('embed.start')}
+          <input
+            key={p.start}
+            defaultValue={p.start > 0 ? formatTime(p.start) : ''}
+            placeholder="0:00"
+            aria-label={t('embed.start')}
+            aria-invalid={bad}
+            onKeyDown={(e) => {
+              e.stopPropagation()
+              if (e.key === 'Enter') (e.target as HTMLInputElement).blur()
+            }}
+            onBlur={(e) => {
+              const text = e.target.value.trim()
+              const seconds = text === '' ? 0 : parseTime(text)
+              setBad(seconds === null)
+              if (seconds !== null && seconds !== p.start)
+                setProps({ start: seconds })
+            }}
+            className="min-h-11 w-24 rounded-lg border border-line bg-bg px-2"
+          />
+        </label>
+      )}
+      <div
+        role="group"
+        aria-label={t('embed.size')}
+        className="flex items-center gap-1"
+      >
+        {(['s', 'm', ''] as const).map((id) => (
+          <button
+            key={id}
+            type="button"
+            data-video-size={id || 'l'}
+            aria-pressed={(p.size ?? '') === id}
+            onClick={() => setProps({ size: id })}
+            className="min-h-11 rounded-lg px-3 text-ink hover:bg-hover aria-pressed:bg-accent aria-pressed:text-white"
+          >
+            {t(`embed.size.${id || 'l'}` as 'embed.size.l')}
+          </button>
+        ))}
+      </div>
+    </div>
+  )
 }
 
 /** What the view needs from the editor. */
@@ -221,7 +290,8 @@ function PlayerCard({
       data-chrome
       data-embed={p.provider}
       contentEditable={false}
-      className="w-full overflow-hidden rounded-lg border border-line bg-soft"
+      style={sizeStyle(p.size)}
+      className="overflow-hidden rounded-lg border border-line bg-soft"
     >
       <div className="px-3 pt-2">
         <Caption
@@ -233,11 +303,14 @@ function PlayerCard({
           {label} · {p.url}
         </p>
       </div>
+      {editable && !playing && (
+        <VideoOptions props={p} setProps={setProps} withStart />
+      )}
       {playing ? (
         <div className="aspect-video w-full bg-black">
           {file ? (
             <video
-              src={p.url}
+              src={p.start > 0 ? `${p.url}#t=${p.start}` : p.url}
               controls
               autoPlay
               playsInline
@@ -406,7 +479,8 @@ function VideoCard({
       data-chrome
       data-embed="youtube"
       contentEditable={false}
-      className="w-full overflow-hidden rounded-lg border border-line bg-soft"
+      style={sizeStyle(p.size)}
+      className="overflow-hidden rounded-lg border border-line bg-soft"
     >
       <div className="px-3 pt-2">
         <Caption
@@ -419,6 +493,9 @@ function VideoCard({
           {p.start > 0 && ` · ${formatTime(p.start)}`}
         </p>
       </div>
+      {editable && !playing && (
+        <VideoOptions props={p} setProps={setProps} withStart />
+      )}
       {playing ? (
         <div className="aspect-video w-full bg-black">
           <iframe

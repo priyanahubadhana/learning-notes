@@ -10,4 +10,10 @@ export const hiQ: Record<string, string> = {
   'nbh.empty.starred':
     'अभी कोई तारांकित नोटबुक नहीं। किसी नोटबुक के मेनू में "ऊपर पिन करें" चुनें।',
   'nbh.empty.recent': 'आप जो नोटबुक खोलेंगे वे यहाँ दिखेंगी।',
+  'pic.act.border': 'बॉर्डर',
+  'embed.start': 'यहाँ से शुरू',
+  'embed.size': 'आकार',
+  'embed.size.s': 'छोटा',
+  'embed.size.m': 'मध्यम',
+  'embed.size.l': 'पूरा',
 }

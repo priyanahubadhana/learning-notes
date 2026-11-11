@@ -4,7 +4,7 @@ import { EmbedView, type EmbedHostApi, type EmbedProps } from './EmbedView'
 /**
  * The `embed` block (G2a). Props: `url` (empty until the user adds one),
  * `provider` ('youtube' or 'link'), `videoId`, `start` (seconds) and
- * `caption` (the name shown on the card; also searchable). No inline text.
+ * `size` ('' full width, 'm' 70%, 's' 45%) and `caption` (the name shown on the card; also searchable). No inline text.
  */
 export const createEmbedBlock = createReactBlockSpec(
   {
@@ -15,6 +15,7 @@ export const createEmbedBlock = createReactBlockSpec(
       videoId: { default: '' },
       start: { default: 0 },
       caption: { default: '' },
+      size: { default: '' },
     },
     content: 'none',
   },

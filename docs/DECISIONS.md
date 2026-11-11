@@ -71,6 +71,8 @@ Current phase only. Older decisions are in [ARCHIVE.md](ARCHIVE.md).
 
 ## Decisions to review
 
+- **2026-11-12 · Batch H, pictures.** Not built: (1) text wrap around pictures: the sheet rule (src/paper) measures block by block, a floating picture would break it, so it needs the owner's paper redesign first; (2) Draw on picture: the Picture strip lives in src/app/tools and the drawing engine in src/ink (both off limits). Plan: a small separate draw sheet that bakes strokes into the picture (keeps Restore original), opened from the picture action bar. Search of formulas: Relation/Rollup cells read as blank while indexing. Delete forever keeps a shared original while another page still shows an edit of it.
+
 - **2026-11-12 · Default paper style:** applied where the app makes a page from the UI (`createPageIn`), not in `createPage` itself, so imports, captures and tests keep blank pages. Only blank pages (no paper of their own) get it, so a template's paper wins. Synced with General.
 
 - **2026-11-12 · Cached AI tokens:** only Claude's cache-read rate is assumed (a tenth of the input price, its published rate); other providers keep the full input price until a `price.cached` is added to the model table. Errs high, never under the cap.

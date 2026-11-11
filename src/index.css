@@ -1190,3 +1190,14 @@ html[data-box-drag] {
   -webkit-user-select: none;
   user-select: none;
 }
+
+/* Picture frame (the picture block's border prop): drawn on the picture
+   itself, so it follows any resize, crop or alignment. */
+.bn-block-content[data-content-type='image'][data-border='thin']
+  img.bn-visual-media {
+  border: 1px solid var(--color-ink-soft);
+}
+.bn-block-content[data-content-type='image'][data-border='thick']
+  img.bn-visual-media {
+  border: 3px solid var(--color-ink);
+}

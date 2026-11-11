@@ -10,4 +10,10 @@ export const enQ = {
   'nbh.empty.starred':
     'No starred notebooks yet. Open the menu of a notebook and choose Pin to the top.',
   'nbh.empty.recent': 'Notebooks you open will show here.',
+  'pic.act.border': 'Border',
+  'embed.start': 'Start at',
+  'embed.size': 'Size',
+  'embed.size.s': 'Small',
+  'embed.size.m': 'Medium',
+  'embed.size.l': 'Full',
 }

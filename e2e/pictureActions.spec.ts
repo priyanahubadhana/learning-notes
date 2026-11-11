@@ -57,3 +57,30 @@ test('tap a picture: action bar above it; Duplicate, Resize, Deselect, Delete', 
   await expect(page.locator('.bn-editor img')).toHaveCount(1)
   await expect(bar).toHaveCount(0)
 })
+
+test('Border: one tap frames the picture, again thicker, again none; kept after reload', async ({
+  page,
+}) => {
+  await pageWithPicture(page)
+  const img = page.locator('.bn-editor img').first()
+  const frame = () => img.evaluate((i) => getComputedStyle(i).borderTopWidth)
+  await img.click()
+  expect(await frame()).toBe('0px')
+  await act(page, 'border').click()
+  await expect(act(page, 'border')).toHaveAttribute('aria-pressed', 'true')
+  expect(await frame()).toBe('1px')
+  await act(page, 'border').click()
+  expect(await frame()).toBe('3px')
+  await act(page, 'border').click()
+  expect(await frame()).toBe('0px')
+  await act(page, 'border').click()
+  await page.waitForTimeout(1200) // saved
+  await page.reload()
+  await expect(page.locator('.bn-editor img').first()).toBeVisible()
+  expect(
+    await page
+      .locator('.bn-editor img')
+      .first()
+      .evaluate((i) => getComputedStyle(i).borderTopWidth),
+  ).toBe('1px')
+})

@@ -416,6 +416,13 @@ export function PictureHandles({ editor }: { editor: Host }) {
     editor.updateBlock(blockId, { props: { textAlignment: side } })
     redraw((n) => n + 1)
   }
+  /** None, thin, thick, none: one tap, one Undo step. */
+  const border = String(block?.props.border ?? '')
+  const cycleBorder = () => {
+    const next = border === '' ? 'thin' : border === 'thin' ? 'thick' : ''
+    editor.updateBlock(blockId, { props: { border: next } })
+    redraw((n) => n + 1)
+  }
   const actions: [string, MessageKey, () => void][] = [
     ['copy', 'pic.act.copy', () => void run('copy')],
     ['cut', 'pic.act.cut', () => void run('cut')],
@@ -424,6 +431,7 @@ export function PictureHandles({ editor }: { editor: Host }) {
     ['smaller', 'pic.s.smaller', () => sizeTo('smaller')],
     ['bigger', 'pic.s.bigger', () => sizeTo('bigger')],
     ['resize', 'pic.act.resize', () => setHandles((h) => !h)],
+    ['border', 'pic.act.border', cycleBorder],
     ['deselect', 'pic.act.deselect', () => setImg(null)],
   ]
   const barTop = box.top > 72 ? box.top - 62 : box.bottom + 8
@@ -443,7 +451,7 @@ export function PictureHandles({ editor }: { editor: Host }) {
         data-picture-actions
         aria-label={t('pic.act.label')}
         onPointerDown={(e) => e.stopPropagation()}
-        className="fixed z-[var(--z-popup)] flex gap-0.5 rounded-2xl border border-ink-soft bg-bg p-1 shadow-[0_2px_4px_rgba(0,0,0,0.08),0_10px_28px_rgba(0,0,0,0.2)]"
+        className="fixed z-[var(--z-popup)] flex max-w-[calc(100vw-16px)] flex-wrap gap-0.5 rounded-2xl border border-ink-soft bg-bg p-1 shadow-[0_2px_4px_rgba(0,0,0,0.08),0_10px_28px_rgba(0,0,0,0.2)]"
         style={{ left: barLeft, top: barTop }}
       >
         {actions.map(([id, key, onClick]) => (
@@ -451,7 +459,13 @@ export function PictureHandles({ editor }: { editor: Host }) {
             key={id}
             type="button"
             data-picture-action={id}
-            aria-pressed={id === 'resize' ? handles : undefined}
+            aria-pressed={
+              id === 'resize'
+                ? handles
+                : id === 'border'
+                  ? border !== ''
+                  : undefined
+            }
             onMouseDown={(e) => e.preventDefault()}
             onClick={onClick}
             className="min-h-11 rounded-xl px-2.5 text-[13px] text-ink hover:bg-hover aria-pressed:bg-hover aria-pressed:text-accent"

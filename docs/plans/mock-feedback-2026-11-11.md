@@ -46,3 +46,19 @@ Four modes:
 3. **View only**: no edits or highlights; only zoom, scroll, page turns, search and basic viewing.
 4. **Frozen**: nothing at all responds (a page left on display).
    Unlock with a long press, and a Netflix-style ring fills around the padlock while you hold. The mode is remembered per book.
+
+## Home (owner, 11–12 Nov)
+
+- H1: Home = a personal organisation hub and dashboard for daily life:
+  - time tracking, tasks and important tasks, routines;
+  - progress dashboard (how learning AI is going, what's pending, plans);
+  - occasional finance records.
+    Purpose-first: fewer things at once, more useful.
+- H2: a fully customisable dashboard builder:
+  - add/remove/drag sections and tabs (e.g. a "Morning" tab);
+  - templates: create your own, multiple built-ins, import/export, preview + edit before applying, start a new template from old presets.
+- H3: time blocks with a duration slider (10 min … 10 h).
+- H4: Top 3: tapping ticks (done) and stays; only ✕ removes it.
+- H5: a smaller Beginner view.
+- H6: Daily Highlight, customisable like Apple Photos "Memories": a full settings section choosing sources (knowledge bank, notebooks, books, cards…), frequency, etc.
+- H7: Continue as a sideways row ✓. Tasks/Plan/Routines/Reports tabs ✓.

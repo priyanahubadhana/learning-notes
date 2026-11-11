@@ -1495,3 +1495,4 @@ Plan: [plans/polish-2-2026-11.md](plans/polish-2-2026-11.md). Items 8, 9 and 15 
 - 2026-11-11: Ideas list: added item 4 (layers; one multi-line text box). Files: docs/plans/owner-ideas-batch-2-2026-11-10.md
 - 2026-11-11: Added docs/PENDING.md (one prioritized open-work list; the text box is Priority 1); HANDOFF points to it. Files: docs/PENDING.md, docs/HANDOFF.md
 - 2026-11-11: CI runs per commit (no cancels); deploy skips a commit that is no longer main's head. Files: .github/workflows/ci.yml
+- 2026-11-11: allow search -> databases (search finds formula values). Files: scripts/feature-links.json

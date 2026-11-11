@@ -110,6 +110,7 @@
   "recall -> search",
   "revise -> editor",
   "revise -> recall",
+  "search -> databases",
   "search -> editor",
   "search -> links",
   "search -> recall",

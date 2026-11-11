@@ -147,3 +147,76 @@ test('a double tap on blank paper does not make a second box', async ({
   await page.waitForTimeout(500)
   expect(await page.locator(EXTRA).count()).toBeLessThanOrEqual(1)
 })
+
+test('a tap inside a box puts the caret there at once (1a)', async ({
+  page,
+}) => {
+  await start(page, 'Caret')
+  await tapBlank(page, 0.3, 70)
+  const b = page.locator(EXTRA)
+  await expect(b.locator('.bn-editor')).toBeFocused()
+  await page.keyboard.type('alpha beta gamma')
+  await page.waitForTimeout(500)
+  await page.evaluate(() => (document.activeElement as HTMLElement)?.blur())
+  const p = await page.evaluate(() => {
+    const ed = document.querySelector(
+      '[data-paper-box]:not([data-paper-box="main"]) .bn-editor',
+    )!
+    const w = document.createTreeWalker(ed, NodeFilter.SHOW_TEXT)
+    const n = w.nextNode()!
+    const r = document.createRange()
+    r.setStart(n, 6)
+    r.setEnd(n, 7)
+    const q = r.getBoundingClientRect()
+    return { x: q.left + 1, y: q.top + q.height / 2 }
+  })
+  await page.mouse.click(p.x, p.y)
+  await expect(b.locator('.bn-editor')).toBeFocused()
+  await page.keyboard.type('X')
+  await expect(b.locator('.bn-editor')).toContainText('alpha Xbeta gamma')
+})
+
+test('with a box selected, a tap on empty paper only deselects (2a)', async ({
+  page,
+}) => {
+  await start(page, 'Deselect')
+  await tapBlank(page, 0.3, 70)
+  await expect(page.locator(EXTRA + ' .bn-editor')).toBeFocused()
+  await page.keyboard.type('Keep me')
+  await page.waitForTimeout(500)
+  await page.evaluate(() => (document.activeElement as HTMLElement)?.blur())
+  const b = page.locator(EXTRA)
+  await b.hover()
+  const band = await box(b.locator('[data-box-band="bottom"]'))
+  await page.mouse.click(band.x + band.width / 2, band.y + band.height / 2)
+  await expect(b).toHaveAttribute('data-picked', '')
+  await expect(b.locator('[data-box-bar]')).toBeVisible()
+  // One tap on empty paper: deselected, no new box.
+  await tapBlank(page, 0.7, 260)
+  await expect(b).not.toHaveAttribute('data-picked', '')
+  await page.waitForTimeout(500)
+  await expect(page.locator(EXTRA)).toHaveCount(1)
+  // The next tap makes a box.
+  await page.waitForTimeout(800)
+  await tapBlank(page, 0.7, 260)
+  await expect(page.locator(EXTRA)).toHaveCount(2)
+})
+
+test('while typing only the text bar shows; the box bar waits until you stop (3b)', async ({
+  page,
+}) => {
+  await start(page, 'OneBar')
+  await tapBlank(page, 0.3, 70)
+  await expect(page.locator(EXTRA + ' .bn-editor')).toBeFocused()
+  await page.keyboard.type('Some words')
+  await page.waitForTimeout(500)
+  const b = page.locator(EXTRA)
+  await page.evaluate(() => (document.activeElement as HTMLElement)?.blur())
+  await b.hover()
+  const band = await box(b.locator('[data-box-band="bottom"]'))
+  await page.mouse.click(band.x + band.width / 2, band.y + band.height / 2)
+  await expect(b.locator('[data-box-bar]')).toBeVisible()
+  await b.locator('.bn-editor').click()
+  await expect(b).toHaveAttribute('data-typing', '')
+  await expect(b.locator('[data-box-bar]')).toHaveCount(0)
+})

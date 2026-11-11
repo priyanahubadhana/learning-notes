@@ -114,8 +114,12 @@ test('B3-2/3/4: no new box after a drag, a tap on a box edits it, empty paper st
   await page.mouse.click(sheet.x + sheet.width * 0.8, r1.y + r1.height + 200)
   await page.waitForTimeout(300)
   await expect(page.locator(EXTRA)).toHaveCount(1)
-  // After the short wait, empty paper makes a box again.
+  // After the short wait: the first tap only deselects the dropped box (2a),
+  // the next one makes a box.
   await page.waitForTimeout(900)
+  await page.mouse.click(sheet.x + sheet.width * 0.8, r1.y + r1.height + 200)
+  await page.waitForTimeout(300)
+  await expect(page.locator(EXTRA)).toHaveCount(1)
   await page.mouse.click(sheet.x + sheet.width * 0.8, r1.y + r1.height + 200)
   await expect(page.locator(EXTRA)).toHaveCount(2)
 })

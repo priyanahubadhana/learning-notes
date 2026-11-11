@@ -90,4 +90,9 @@ export const hiL: Record<string, string> = {
   'layout.mode.all': 'सभी पेजों पर लागू करें',
   'layout.mode.pickFirst': 'पहले एक लेआउट चुनें, फिर सभी पेजों पर लागू करें',
   'layout.mode.tapFirst': 'पहले पेज में टैप करें, फिर लेआउट चुनें',
+  'kbBar.back': 'वापस',
+  'kbBar.sizeDown': 'छोटा टेक्स्ट',
+  'kbBar.sizeUp': 'बड़ा टेक्स्ट',
+  'kbBar.more': 'और',
+  'paper.box.copyFailed': 'टेक्स्ट कॉपी नहीं हो सका',
 }

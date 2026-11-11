@@ -198,7 +198,7 @@ test('a row that does not fit what is left of a sheet starts on the next sheet',
   expect(box.y).toBeGreaterThanOrEqual(s2.y - 1)
 })
 
-test('a tapped box shows a floating bar: Bold, Duplicate and Delete work on the whole box', async ({
+test('a tapped box shows a floating bar above it: Style, Duplicate, Cut, Copy, Delete, More', async ({
   page,
 }) => {
   const { extra } = await boxes(page, 1)
@@ -209,9 +209,14 @@ test('a tapped box shows a floating bar: Bold, Duplicate and Delete work on the 
   await page.mouse.click(top.x, top.y)
   const bar = extra.locator('[data-box-bar]')
   await expect(bar).toBeVisible()
-  // Bold applies to all the box's text.
-  await bar.locator('[data-box-bar-action="bold"]').click()
-  await expect(extra.locator('strong, b').first()).toContainText('Box 1')
+  // Owner final 3b: the box bar has these six, text formatting is in the text bar.
+  for (const id of ['style', 'duplicate', 'cut', 'copy', 'delete', 'more'])
+    await expect(bar.locator(`[data-box-bar-action="${id}"]`)).toBeVisible()
+  await expect(bar.locator('[data-box-bar-action="bold"]')).toHaveCount(0)
+  // It sits above the box (above its grip row).
+  const bb = (await bar.boundingBox())!
+  const eb = (await extra.boundingBox())!
+  expect(bb.y + bb.height).toBeLessThanOrEqual(eb.y)
   // Duplicate makes a second box.
   await bar.locator('[data-box-bar-action="duplicate"]').click()
   await expect(page.locator(EXTRA)).toHaveCount(2)

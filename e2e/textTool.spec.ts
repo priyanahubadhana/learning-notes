@@ -275,6 +275,19 @@ test('the keyboard bar shows on a shrunk viewport and bold works from it', async
     (window as unknown as { __kbShow: (n: number) => void }).__kbShow(320),
   )
   await expect(page.locator('[data-kb-bar]')).toBeVisible()
+  // Owner final 3b: font, size - and +, colour, B / I / U, highlight, link.
+  for (const id of [
+    'font',
+    'sizeDown',
+    'sizeUp',
+    'colour',
+    'bold',
+    'italic',
+    'underline',
+    'highlight',
+    'link',
+  ])
+    await expect(page.locator(`[data-kb-action="${id}"]`)).toBeVisible()
   await page.keyboard.press('ControlOrMeta+a')
   await page.locator('[data-kb-action="bold"]').click()
   await expect(

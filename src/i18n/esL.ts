@@ -90,4 +90,9 @@ export const esL: Record<string, string> = {
   'layout.mode.pickFirst':
     'Elige primero un diseño y luego aplícalo a todas las páginas',
   'layout.mode.tapFirst': 'Toca primero la página y luego elige Diseño',
+  'kbBar.back': 'Atrás',
+  'kbBar.sizeDown': 'Texto más pequeño',
+  'kbBar.sizeUp': 'Texto más grande',
+  'kbBar.more': 'Más',
+  'paper.box.copyFailed': 'No se pudo copiar el texto',
 }

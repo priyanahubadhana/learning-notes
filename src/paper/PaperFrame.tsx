@@ -1231,7 +1231,14 @@ export function PaperFrame({
       !(e.target as Element).closest('[data-paper-sheet]')
     )
       return
-    if (activeTool.get() !== 'lasso') send({ type: 'clear' })
+    // Owner final 2a: with a box selected (or being typed in), a tap on empty
+    // paper only deselects; the next tap makes a box.
+    if (bsRef.current.kind !== 'idle') {
+      send({ type: 'clear' })
+      const live = document.activeElement as HTMLElement | null
+      if (live?.closest('[data-paper-box]')) live.blur()
+      return
+    }
     const r = paperEl.current?.getBoundingClientRect()
     if (!r) return
     const x = (e.clientX - r.left) / k

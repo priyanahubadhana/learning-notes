@@ -2,6 +2,10 @@
 
 Current phase only. Older entries are in [ARCHIVE.md](ARCHIVE.md).
 
+## 2026-11-12 (Text box v2, owner list: step 2, interaction)
+
+- **Bars.** A selected box (not typing) shows the box bar ABOVE it: Style, Duplicate, Cut, Copy, Delete, More (below the box only when it is at the top of the paper). While typing, only the text bar above the keyboard: Font, size - and + (the note text size), Colour, B/I/U, Highlight, Link, ⋯ (indent, lists, align, strikethrough), Hide. With a box selected or typed in, a tap on empty paper only deselects (2a). Files: `paper/BoxBar.tsx`, `paper/BoxFrame.tsx`, `paper/PaperFrame.tsx`, `app/tools/main/KeyboardBar.tsx`, `i18n/*L.ts`. Tests: `e2e/textBoxFree.spec.ts` (1a, 2a, 3b), `paperBoxes`, `textTool`, `textBoxBatch3` specs adjusted.
+
 ## 2026-11-11 (Text box v2, owner list: step 1, box model)
 
 - **Free text boxes.** One Text-tool tap on empty paper makes a SMALL box (about one caret wide) exactly where tapped, its first line on the paper line; it is as wide as its text up to 5 mm before the right margin (210 - 15 - 5 mm, `freeMaxW`), then the text soft-wraps (still one paragraph). A user-set width (east or west handle) is kept (`wmm`). Empty boxes still go when the caret leaves. No double-tap-to-create (a tap within 700 ms and 60 px of a box-making tap is ignored). Boxes never overlap: a free box is a row of its own (`x`, `auto`, `wmm` on `GridRow`), rows below slide down. A box dropped on blank paper stays where it was put; dropped on another box it joins the page grid (columns) as before. Boxes are invisible until selected (no hover or focus frame, no "Type here" in a small box). Small boxes get the grip and ⋯ side by side above them. Files: `core/types.ts`, `core/gridRows.ts`, `paper/grid.ts` (`isFreeRow`, `freeMaxW`, `placesOf`), `paper/boxService.ts`, `paper/PaperFrame.tsx`, `paper/BoxFrame.tsx`, `paper/usePaperBoxes.tsx`, `index.css`. Tests: `paper/freeBox.test.ts`, `e2e/textBoxFree.spec.ts`; `textTool`, `paperBoxes` specs updated (no hover frame, grip drags small boxes).

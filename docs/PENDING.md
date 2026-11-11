@@ -32,8 +32,6 @@ Detail: plans/owner-bug-batch-3-2026-11-11.md (B3) and plans/owner-ideas-batch-2
 
 **Text box v2 progress (11 Nov):** DONE steps 1 (bugs: first box handles/menu/Box style, Lock removed, lone box width, top handle) and 2 (wrap); waiting for the owner iPad check in owner-checks-pending.md. Step 3 is partly in (frame 1.5 px, ≡ tab, side pills, min size = content). NEXT: finish 3 if needed, then 4 (8-point drag), 5 (bars above box and bottom format bar), 6 (groups). Each step: commit, push, CI green.
 
-- [ ] Notability-style box: 4 corner dots (resize), a grab tab ≡ on top (move), a rotate handle (a line + white dot on the right side), and a floating bar above the box: edit, style, duplicate, cut, copy, lock, bring forward, send back, delete, more.
-- [ ] Notability-style format bar at the bottom while typing: font, size − 35 +, colour, B / I / U, more, highlight, link.
 - [ ] GoodNotes-style side pills on the left and right edges to change width.
 - [ ] Rotation is new (text box rotate). Layer order (forward/back) ties into the parked layers idea.
 
@@ -79,7 +77,6 @@ plans/owner-ideas-batch-2-2026-11-10.md: update bar, Acrobat PDF tools, customiz
 - Layout presets: the owner uses only "One box" (ask whether to keep the others in the pop-up).
 - Progress: a short note per live part, with a 2–3 line test.
 - Owner 4:45 (GoodNotes iPhone screenshots), the text box model:
-  - Pencil/finger taps: 1 = caret, 2 = word, 3 = line, 4 = paragraph.
 - Research 11 Nov, additions to consider for box layout and tidying (proposed to the owner):
   - Smart guides while dragging: centre/edge lines and equal-spacing hints (Keynote, Freeform, Notability pink guides).
   - Tidy: Line up left, Distribute evenly (3+ boxes), One box, Columns.
@@ -96,7 +93,6 @@ plans/owner-ideas-batch-2-2026-11-10.md: update bar, Acrobat PDF tools, customiz
   - Text tool: drawn arrows, lines, circles and rectangles become clean shapes on the ink layer (reuse the shape recogniser). A digit with a circle drawn round it becomes a circled number (②). One Undo turns it back.
   - FINAL: NO double-tap-to-make-a-box at all. A single tap with the Text tool makes a box (as before).
   - Box styles: sticky note/callout in Box style settings (no quick dots). Remember the last style. User-saved text/box presets.
-- OWNER FINAL (11 Nov): 1a a tap inside a box with the Text tool puts the caret there straight away; 2a with a box selected, a tap on empty paper only deselects; 3b one bar while typing (the text bar above the keyboard), the box bar only when the box is selected and you're not typing; 4a boxes invisible until selected.
 
 ## Questions for owner
 

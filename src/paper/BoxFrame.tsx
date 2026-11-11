@@ -1,5 +1,6 @@
 import {
   useEffect,
+  useLayoutEffect,
   useRef,
   useState,
   type PointerEvent as ReactPointerEvent,
@@ -336,10 +337,48 @@ export function BoxFrame({
         !box.locked &&
         !dragging && <ResizeDots onResize={onResize} />}
       {picked && !typing && !dragging && bar && (
-        <div data-box-bar-holder className="absolute top-full left-0 z-20 mt-9">
-          {bar}
-        </div>
+        <BarHolder below={shown.y * k < BAR_ROOM_PX}>{bar}</BarHolder>
       )}
+    </div>
+  )
+}
+
+/** A box this near the top of the paper shows its bar below it (no room above). */
+const BAR_ROOM_PX = 150
+
+/**
+ * Holds the box bar ABOVE the box (above the grip row), pulled left if it
+ * would run off the right edge of the screen; below the box when the box is
+ * at the top of the paper.
+ */
+function BarHolder({
+  below,
+  children,
+}: {
+  below: boolean
+  children: ReactNode
+}) {
+  const ref = useRef<HTMLDivElement>(null)
+  useLayoutEffect(() => {
+    const el = ref.current
+    if (!el) return
+    el.style.transform = ''
+    const r = el.getBoundingClientRect()
+    const over = r.right - (window.innerWidth - 8)
+    if (over > 0) el.style.transform = `translateX(${-over}px)`
+    else if (r.left < 8) el.style.transform = `translateX(${8 - r.left}px)`
+  })
+  return (
+    <div
+      ref={ref}
+      data-box-bar-holder
+      data-below={below ? '' : undefined}
+      className={
+        'absolute left-0 z-20 ' + (below ? 'top-full mt-9' : 'bottom-full')
+      }
+      style={below ? undefined : { marginBottom: TOUCH_PX + 28 }}
+    >
+      {children}
     </div>
   )
 }

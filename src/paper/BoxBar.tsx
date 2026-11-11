@@ -1,39 +1,24 @@
-import { useState } from 'react'
-import { AllSelection } from 'prosemirror-state'
-import { MenuPopover, type MenuItem } from '../app/ui'
-import { runEditorCommand } from '../app/tools/editorCommands'
-import { activeTool } from '../app/tools/main/mainTools'
-import { runTool } from '../app/tools/toolRegistry'
+import { useContext } from 'react'
+import { AppUiContext } from '../app/appUi'
 import { Icon, type IconName } from '../app/tools/icons'
-import {
-  ALIGNS,
-  setAlign,
-  setList,
-  setStyle,
-  TEXT_STYLES,
-} from '../app/tools/main/textOps'
-import {
-  COLOR_NAMES,
-  colorLabel,
-  setColor,
-  TEXT_HEX,
-} from '../editor/colorData'
-import type { Editor } from '../editor/barActions'
-import { t, type MessageKey } from '../i18n/t'
+import { t } from '../i18n/t'
 import { boxEditors } from './activeBox'
 import { openBoxStyle } from './boxStyleBus'
 
-/** Select every block of a box's editor, so a change applies to all of it. */
-function selectAllBlocks(editor: Editor): void {
-  const view = editor.prosemirrorView
-  if (!view) return
-  view.dispatch(view.state.tr.setSelection(new AllSelection(view.state.doc)))
+/** All the text of a box as plain lines (no focus change, so the bar stays). */
+function boxText(pageId: string, boxId: string): string {
+  const view = boxEditors.get(pageId, boxId)?.prosemirrorView
+  if (!view) return ''
+  const doc = view.state.doc
+  return doc.textBetween(0, doc.content.size, '\n', ' ')
 }
 
 /**
- * The floating bar under a tapped box (owner fix 7b): text colour, size,
- * font, Bold, Italic, align, list, Cut, Duplicate, Delete and ⋯. It reuses
- * the toolbar's own text operations and applies them to the whole box.
+ * The floating bar above a selected box (owner final 3b, 11 Nov): Box style,
+ * Duplicate, Cut, Copy, Delete and ⋯ (the rest). It shows when the box is
+ * selected and you are NOT typing; while typing only the text bar above the
+ * keyboard shows. Text formatting lives in that text bar, so nothing here
+ * touches the editor's focus.
  */
 export function BoxBar({
   pageId,
@@ -42,7 +27,6 @@ export function BoxBar({
   onDuplicate,
   onDelete,
   onMenu,
-  onLayout,
 }: {
   pageId: string
   boxId: string
@@ -50,36 +34,18 @@ export function BoxBar({
   onDuplicate: () => void
   onDelete: () => void
   onMenu: (at: DOMRect) => void
-  /** Opens Layout Assist for this box. */
+  /** Opens Layout for this page (kept in the ⋯ menu). */
   onLayout?: () => void
 }) {
-  const [menu, setMenu] = useState<{ at: DOMRect; items: MenuItem[] } | null>(
-    null,
-  )
-  /** Runs a text change on all of this box's text. */
-  const onAll = (fn: (editor: Editor) => void) => {
-    let tries = 0
-    const run = () => {
-      const editor = boxEditors.get(pageId, boxId)
-      if (!editor) return
-      // The page takes a moment to become editable after the tool changes.
-      if (!editor.isEditable && tries++ < 25) {
-        window.setTimeout(run, 80)
-        return
-      }
-      editor.focus()
-      selectAllBlocks(editor)
-      fn(editor)
-    }
-    // The ink tools keep the text still: switch to the Text tool first.
-    if (activeTool.get() === 'text') return run()
-    activeTool.set('text')
-    window.setTimeout(run, 80)
+  const { toast } = useContext(AppUiContext)
+  const copy = () => {
+    const text = boxText(pageId, boxId)
+    void navigator.clipboard
+      ?.writeText(text)
+      .catch(() => toast(t('paper.box.copyFailed')))
   }
-  const open = (e: { currentTarget: Element }, items: MenuItem[]) =>
-    setMenu({ at: e.currentTarget.getBoundingClientRect(), items })
   const cut = () => {
-    onAll(() => document.execCommand('copy'))
+    copy()
     onDelete()
   }
   const btn = (
@@ -97,9 +63,9 @@ export function BoxBar({
       // The editor keeps its selection while a bar button is pressed.
       onMouseDown={(e) => e.preventDefault()}
       onClick={onClick}
-      className={`flex size-9 items-center justify-center rounded-md hover:bg-hover ${danger ? 'text-danger' : ''}`}
+      className={`flex size-11 items-center justify-center rounded-md hover:bg-hover ${danger ? 'text-danger' : ''}`}
     >
-      <Icon name={icon} size={18} />
+      <Icon name={icon} size={20} />
     </button>
   )
   return (
@@ -108,74 +74,16 @@ export function BoxBar({
       data-ui
       role="toolbar"
       aria-label={t('paper.bar.label')}
-      className="flex max-w-[92vw] flex-wrap items-center gap-0.5 rounded-lg border border-line bg-surface p-1 shadow-md"
+      className="flex max-w-[92vw] items-center gap-0.5 rounded-xl border border-line bg-surface p-1 shadow-md"
     >
-      {canEdit && (
-        <>
-          {btn('colour', 'palette', t('main.card.text.textColor'), (e) =>
-            open(
-              e,
-              COLOR_NAMES.map((name) => ({
-                label: colorLabel(name),
-                icon: name === 'default' ? '○' : '●',
-                onSelect: () => onAll((ed) => setColor(ed, 'textColor', name)),
-                hint: name === 'default' ? undefined : TEXT_HEX[name],
-              })),
-            ),
-          )}
-          {btn('size', 'textSize', t('main.text.size'), (e) =>
-            open(
-              e,
-              TEXT_STYLES.map((s) => ({
-                label: t(`main.style.${s}` as MessageKey),
-                icon: 'A',
-                onSelect: () => onAll((ed) => setStyle(ed, s)),
-              })),
-            ),
-          )}
-          {btn('font', 'font', t('tool.font'), () => runTool('font'))}
-          {btn('bold', 'bold', t('tool.bold'), () =>
-            onAll((editor) =>
-              runEditorCommand('bold', { editor, extras: null, app: null }),
-            ),
-          )}
-          {btn('italic', 'italic', t('tool.italic'), () =>
-            onAll((editor) =>
-              runEditorCommand('italic', { editor, extras: null, app: null }),
-            ),
-          )}
-          {btn('align', 'alignCenter', t('main.align.center'), (e) =>
-            open(
-              e,
-              ALIGNS.map((a) => ({
-                label: t(`main.align.${a}` as MessageKey),
-                icon: '≡',
-                onSelect: () => onAll((ed) => setAlign(ed, a)),
-              })),
-            ),
-          )}
-          {btn('list', 'list', t('main.list.bullets'), () =>
-            onAll((ed) => setList(ed, 'bullets')),
-          )}
-          {btn('cut', 'scissors', t('pic.act.cut'), cut)}
-        </>
-      )}
       {canEdit &&
         btn('style', 'palette', t('boxStyle.title'), () => openBoxStyle(boxId))}
-      {canEdit &&
-        onLayout &&
-        btn('layout', 'grid', t('layout.title'), () => onLayout())}
       {btn('duplicate', 'copy', t('paper.box.duplicate'), onDuplicate)}
+      {canEdit && btn('cut', 'scissors', t('pic.act.cut'), cut)}
+      {btn('copy', 'clipboard', t('pic.act.copy'), copy)}
       {canEdit && btn('delete', 'trash', t('paper.box.delete'), onDelete, true)}
       {btn('more', 'more', t('paper.box.menu'), (e) =>
         onMenu(e.currentTarget.getBoundingClientRect()),
-      )}
-      {menu && (
-        <MenuPopover
-          anchor={menu.at}
-          items={menu.items}
-          onClose={() => setMenu(null)}
-        />
       )}
     </div>
   )

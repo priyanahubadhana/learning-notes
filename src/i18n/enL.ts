@@ -90,4 +90,9 @@ export const enL = {
   'layout.mode.all': 'Apply to all pages',
   'layout.mode.pickFirst': 'Pick a layout first, then apply it to all pages',
   'layout.mode.tapFirst': 'Tap in the page first, then choose Layout',
+  'kbBar.back': 'Back',
+  'kbBar.sizeDown': 'Smaller text',
+  'kbBar.sizeUp': 'Bigger text',
+  'kbBar.more': 'More',
+  'paper.box.copyFailed': 'Could not copy the text',
 }

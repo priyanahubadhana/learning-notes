@@ -947,9 +947,25 @@ html[data-note-line] .bn-editor {
 .reader-bar-in {
   animation: reader-bar-in 180ms ease-out;
 }
+/* The reader bar stays mounted; hiding slides it up, showing slides it down. */
+.reader-bar {
+  transition: transform 180ms ease-out;
+}
+.reader-bar[data-hidden='true'] {
+  transform: translateY(-100%);
+  visibility: hidden;
+  pointer-events: none;
+  transition:
+    transform 180ms ease-out,
+    visibility 0s linear 180ms;
+}
 @media (prefers-reduced-motion: reduce) {
   .reader-bar-in {
     animation: none;
+  }
+  .reader-bar,
+  .reader-bar[data-hidden='true'] {
+    transition: none;
   }
 }
 

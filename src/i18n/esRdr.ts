@@ -114,8 +114,14 @@ export const esRdr: Record<string, string> = {
   'reader.ink.opacity': 'Opacidad',
   'reader.ink.customColour': 'Color personalizado',
   'settings.reading.pdfFlow.label': 'Páginas del PDF',
-  'settings.reading.pdfFlow.description': 'Lee un PDF como un desplazamiento largo o una página entera cada vez (desliza para pasar).',
+  'settings.reading.pdfFlow.description':
+    'Lee un PDF como un desplazamiento largo o una página entera cada vez (desliza para pasar).',
   'reading.opt.pdfFlow.scrolled': 'Desplazamiento continuo',
   'reading.opt.pdfFlow.paged': 'Una página cada vez',
   'aa.font.bookerly': 'Estilo Bookerly (Literata)',
+  'settings.reading.barPin.label': 'Mantener visible la barra del lector',
+  'settings.reading.barPin.description':
+    'Fija la barra superior del lector para que siga visible al desplazarte. El alfiler de la propia barra hace lo mismo.',
+  'reading.opt.barPin.on': 'Activado',
+  'reading.opt.barPin.off': 'Desactivado',
 }

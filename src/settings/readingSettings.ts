@@ -241,6 +241,7 @@ for (const definition of [
   readingBlanksSetting,
   readingAlignSetting,
   readingBarSetting,
+  readingBarPinSetting,
   readingPdfFlowSetting,
   readingDimSetting,
   readingGlideSetting,

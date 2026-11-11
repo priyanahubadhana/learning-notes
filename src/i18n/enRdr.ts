@@ -112,8 +112,14 @@ export const enRdr = {
   'reader.ink.opacity': 'Opacity',
   'reader.ink.customColour': 'Custom colour',
   'settings.reading.pdfFlow.label': 'PDF pages',
-  'settings.reading.pdfFlow.description': 'Read a PDF as one long scroll, or one whole page at a time (swipe to turn).',
+  'settings.reading.pdfFlow.description':
+    'Read a PDF as one long scroll, or one whole page at a time (swipe to turn).',
   'reading.opt.pdfFlow.scrolled': 'Continuous scroll',
   'reading.opt.pdfFlow.paged': 'One page at a time',
   'aa.font.bookerly': 'Bookerly-style (Literata)',
+  'settings.reading.barPin.label': 'Keep the reader bar showing',
+  'settings.reading.barPin.description':
+    'Pin the bar at the top of the reader so it stays visible while you scroll. The pin on the bar itself does the same.',
+  'reading.opt.barPin.on': 'On',
+  'reading.opt.barPin.off': 'Off',
 }

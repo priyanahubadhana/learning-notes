@@ -5,6 +5,7 @@ import { createNotebook, openCorner } from './helpers.ts'
 import {
   barTool,
   controls,
+  expectBarHidden,
   frame,
   landings,
   mockSpeech,
@@ -74,13 +75,13 @@ test('small ✕ while scrolling down; the bar returns after scrolling up', async
   await readSwitch(page).click()
   await expect(controls(page)).toBeVisible()
   await main(page).evaluate((m) => m.scrollTo({ top: 600 }))
-  await expect(controls(page)).toHaveCount(0)
+  await expectBarHidden(page)
   await expect(page.getByTestId('reader-mini-exit')).toBeVisible()
   await main(page).evaluate((m) => m.scrollBy(0, -40))
   await expect(controls(page)).toBeVisible()
   // The small ✕ leaves reading, too.
   await main(page).evaluate((m) => m.scrollTo({ top: 900 }))
-  await expect(controls(page)).toHaveCount(0)
+  await expectBarHidden(page)
   await page.getByTestId('reader-mini-exit').getByRole('button').click()
   await expect(frame(page)).toHaveAttribute('data-view', 'off')
 })
@@ -282,13 +283,13 @@ test('reader bar: hides scrolling down, returns on a small scroll up, a tap, or 
   await readSwitch(page).click()
   await expect(controls(page)).toBeVisible()
   await main(page).evaluate((m) => m.scrollTo({ top: 600 }))
-  await expect(controls(page)).toHaveCount(0)
+  await expectBarHidden(page)
   // A small scroll up (10 px or a bit more) brings it back.
   await main(page).evaluate((m) => m.scrollBy(0, -15))
   await expect(controls(page)).toBeVisible()
   // Hide it again, then a tap on the page shows it.
   await main(page).evaluate((m) => m.scrollBy(0, 400))
-  await expect(controls(page)).toHaveCount(0)
+  await expectBarHidden(page)
   await page.mouse.click(600, 350)
   await expect(controls(page)).toBeVisible()
   // Pinned: it stays while scrolling down.
@@ -298,5 +299,56 @@ test('reader bar: hides scrolling down, returns on a small scroll up, a tap, or 
   await expect(controls(page)).toBeVisible()
   await controls(page).getByTestId('reader-pin').click()
   await main(page).evaluate((m) => m.scrollBy(0, 400))
-  await expect(controls(page)).toHaveCount(0)
+  await expectBarHidden(page)
+})
+
+test('Settings › Reading › keep the reader bar showing pins it, and the bar icon agrees', async ({
+  page,
+}) => {
+  await page.goto('/#/settings/reading')
+  const row = page.locator('[data-setting-id="reading.barPin"]')
+  await expect(row).toBeVisible()
+  await row.getByRole('button', { name: 'On', exact: true }).click()
+  await page.goto('/')
+  await createNotebook(page, 'Heart', 'Cardiology book')
+  await writeBook(page, 3)
+  await readSwitch(page).click()
+  await expect(controls(page)).toBeVisible()
+  // The pin on the bar itself shows it is pinned.
+  await expect(controls(page).getByTestId('reader-pin')).toHaveAttribute(
+    'aria-pressed',
+    'true',
+  )
+  // Pinned: scrolling down does not hide it.
+  await main(page).evaluate((m) => m.scrollTo({ top: 900 }))
+  await page.waitForTimeout(300)
+  await expect(controls(page)).toBeVisible()
+  // Unpin on the bar: the Settings value follows (one setting), and it hides.
+  await controls(page).getByTestId('reader-pin').click()
+  await main(page).evaluate((m) => m.scrollBy(0, 400))
+  await expectBarHidden(page)
+  await page.goto('/#/settings/reading')
+  await expect(
+    page
+      .locator('[data-setting-id="reading.barPin"]')
+      .getByRole('button', { name: 'Off', exact: true }),
+  ).toHaveAttribute('aria-pressed', 'true')
+})
+
+test('a hidden bar stays mounted: it is not focusable, and showing it keeps the same element', async ({
+  page,
+}) => {
+  await startBook(page)
+  await readSwitch(page).click()
+  await expect(controls(page)).toBeVisible()
+  const handle = await controls(page).elementHandle()
+  await main(page).evaluate((m) => m.scrollTo({ top: 900 }))
+  await expectBarHidden(page)
+  // Nothing in the hidden bar can take focus (inert).
+  await expect(controls(page)).toHaveJSProperty('inert', true)
+  await main(page).evaluate((m) => m.scrollBy(0, -40))
+  await expect(controls(page)).toBeVisible()
+  // The same element came back: it was never rebuilt.
+  expect(await handle!.evaluate((el) => el.isConnected)).toBe(true)
+  await expect(controls(page)).toHaveJSProperty('inert', false)
 })

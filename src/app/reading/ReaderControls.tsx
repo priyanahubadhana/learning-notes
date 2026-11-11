@@ -71,12 +71,15 @@ export function ReaderControls({
   title,
   visible,
   showTitle,
+  miniExit = true,
 }: {
   view: Exclude<ReadingView, 'off'>
   title: string
   /** The bar shows in full; otherwise only the small ✕ (mini mode). */
   visible: boolean
   showTitle?: boolean
+  /** When hidden, a small ✕ stays (in place); the full-screen reader shows none. */
+  miniExit?: boolean
 }) {
   const { toast } = useContext(AppUiContext)
   const panel = readingPanel.useValue()
@@ -121,115 +124,120 @@ export function ReaderControls({
     requestOutline()
   }
   const exit = () => exitReading()
-  if (!visible) {
-    // Mini mode: only a small ✕, top left inside the safe area.
-    return (
+  return (
+    <>
+      {!visible && miniExit && (
+        // Mini mode: only a small ✕, top left inside the safe area.
+        <div
+          data-chrome
+          data-reader-chrome
+          data-testid="reader-mini-exit"
+          className="fixed top-[env(safe-area-inset-top)] left-1 z-[40]"
+        >
+          <button
+            type="button"
+            data-chrome
+            aria-label={t('reading.ctl.exit')}
+            onClick={exit}
+            className="grid size-11 place-items-center rounded-full border border-[var(--rd-soft,#ccc)]"
+            style={{
+              background: 'var(--rd-bg, #fff)',
+              color: 'var(--rd-fg, #000)',
+            }}
+          >
+            <Icon name="close" size={18} />
+          </button>
+        </div>
+      )}
+      {/* The bar stays mounted while hidden (slid up, not focusable, not
+          announced), so showing it is instant and keeps its state. */}
       <div
         data-chrome
         data-reader-chrome
-        data-testid="reader-mini-exit"
-        className="fixed top-[env(safe-area-inset-top)] left-1 z-[40]"
+        data-testid="reader-controls"
+        data-hidden={visible ? undefined : 'true'}
+        inert={!visible}
+        aria-hidden={!visible}
+        role="toolbar"
+        aria-label={t('reading.ctl.label')}
+        className="reader-bar fixed inset-x-0 top-0 z-[40] flex min-h-[calc(3.25rem+env(safe-area-inset-top))] items-center gap-0.5 border-b px-2 pt-[env(safe-area-inset-top)]"
+        style={{
+          background: 'var(--rd-bg, #fff)',
+          color: 'var(--rd-fg, #000)',
+          borderColor: 'var(--rd-soft, #ccc)',
+        }}
       >
-        <button
-          type="button"
-          data-chrome
-          aria-label={t('reading.ctl.exit')}
-          onClick={exit}
-          className="grid size-11 place-items-center rounded-full border border-[var(--rd-soft,#ccc)]"
-          style={{
-            background: 'var(--rd-bg, #fff)',
-            color: 'var(--rd-fg, #000)',
-          }}
-        >
-          <Icon name="close" size={18} />
-        </button>
-      </div>
-    )
-  }
-  return (
-    <div
-      data-chrome
-      data-reader-chrome
-      data-testid="reader-controls"
-      role="toolbar"
-      aria-label={t('reading.ctl.label')}
-      className="reader-bar-in fixed inset-x-0 top-0 z-[40] flex min-h-[calc(3.25rem+env(safe-area-inset-top))] items-center gap-0.5 border-b px-2 pt-[env(safe-area-inset-top)]"
-      style={{
-        background: 'var(--rd-bg, #fff)',
-        color: 'var(--rd-fg, #000)',
-        borderColor: 'var(--rd-soft, #ccc)',
-      }}
-    >
-      <HistoryButtons />
-      <Button
-        label={t('reading.ctl.exit')}
-        icon="close"
-        testId="reader-exit"
-        onClick={exit}
-      />
-      <Button
-        label={t('reading.ctl.contents')}
-        icon="list"
-        onClick={openContents}
-      />
-      <Button
-        label={t('reading.ctl.bookmarks')}
-        icon="star"
-        pressed={panel === 'bookmarks'}
-        onClick={() => toggle('bookmarks')}
-      />
-      <Button
-        label={t('reading.ctl.aa')}
-        icon="textSize"
-        pressed={panel === 'settings'}
-        onClick={() => toggle('settings')}
-      />
-      <Button
-        label={t('reading.ctl.find')}
-        icon="search"
-        pressed={panel === 'find'}
-        onClick={() => toggle('find')}
-      />
-      <Button
-        label={t('reading.ctl.listen')}
-        icon="volume"
-        pressed={panel === 'aloud'}
-        onClick={() => toggle('aloud')}
-      />
-      {view === 'inPlace' && (
+        <HistoryButtons />
         <Button
-          label={t('reading.ctl.edit')}
-          icon="penLine"
-          onClick={() => {
-            if (!exitReadingForEdit()) toast(t('reading.lockedExit'))
-          }}
+          label={t('reading.ctl.exit')}
+          icon="close"
+          testId="reader-exit"
+          onClick={exit}
         />
-      )}
-      <span className="min-w-0 flex-1 truncate ps-2 text-sm font-medium">
-        {showTitle ? title || t('review.untitled') : ''}
-      </span>
-      <Button
-        label={t(pin === 'on' ? 'reading.ctl.unpin' : 'reading.ctl.pin')}
-        icon={pin === 'on' ? 'pinOff' : 'pin'}
-        testId="reader-pin"
-        pressed={pin === 'on'}
-        onClick={() => setPin(pin === 'on' ? 'off' : 'on')}
-      />
-      <Button
-        label={t('reading.ctl.more')}
-        icon="more"
-        pressed={!!menu}
-        onClick={(e) => setMenu(e.currentTarget.getBoundingClientRect())}
-      />
-      {menu && (
-        <MenuPopover
-          anchor={menu}
-          items={items}
+        <Button
+          label={t('reading.ctl.contents')}
+          icon="list"
+          onClick={openContents}
+        />
+        <Button
+          label={t('reading.ctl.bookmarks')}
+          icon="star"
+          pressed={panel === 'bookmarks'}
+          onClick={() => toggle('bookmarks')}
+        />
+        <Button
+          label={t('reading.ctl.aa')}
+          icon="textSize"
+          pressed={panel === 'settings'}
+          onClick={() => toggle('settings')}
+        />
+        <Button
+          label={t('reading.ctl.find')}
+          icon="search"
+          pressed={panel === 'find'}
+          onClick={() => toggle('find')}
+        />
+        <Button
+          label={t('reading.ctl.listen')}
+          icon="volume"
+          pressed={panel === 'aloud'}
+          onClick={() => toggle('aloud')}
+        />
+        {view === 'inPlace' && (
+          <Button
+            label={t('reading.ctl.edit')}
+            icon="penLine"
+            onClick={() => {
+              if (!exitReadingForEdit()) toast(t('reading.lockedExit'))
+            }}
+          />
+        )}
+        <span className="min-w-0 flex-1 truncate ps-2 text-sm font-medium">
+          {showTitle ? title || t('review.untitled') : ''}
+        </span>
+        <Button
+          label={t(pin === 'on' ? 'reading.ctl.unpin' : 'reading.ctl.pin')}
+          icon={pin === 'on' ? 'pinOff' : 'pin'}
+          testId="reader-pin"
+          pressed={pin === 'on'}
+          onClick={() => setPin(pin === 'on' ? 'off' : 'on')}
+        />
+        <Button
           label={t('reading.ctl.more')}
-          onClose={() => setMenu(null)}
+          icon="more"
+          pressed={!!menu}
+          onClick={(e) => setMenu(e.currentTarget.getBoundingClientRect())}
         />
-      )}
-    </div>
+        {menu && (
+          <MenuPopover
+            anchor={menu}
+            items={items}
+            label={t('reading.ctl.more')}
+            onClose={() => setMenu(null)}
+          />
+        )}
+      </div>
+    </>
   )
 }
 

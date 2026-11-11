@@ -1,5 +1,9 @@
 # Owner checks still pending (collected for the end-of-run iPad pass)
 
+## Reader bar pin and ready bar (11 Nov)
+
+On the iPad: open a note in reading mode. Settings › Reading › Keep the reader bar showing › On: the bar stays while you scroll, and its pin icon is lit. Off: scroll down, the bar slides up out of sight and a small ✕ stays; scroll up a little: it slides back at once with no flash. Why human: how the slide feels.
+
 ## Reader: Bookerly-style font (11 Nov)
 
 On the iPad: open an EPUB, Aa › Font › Bookerly-style (Literata): the text changes to Literata (a warm serif with soft curves) right away, also offline; close and reopen the book: still chosen. A PDF keeps its own letters. Why human: judging whether the look suits you.

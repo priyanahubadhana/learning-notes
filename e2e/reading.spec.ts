@@ -121,7 +121,9 @@ test('the full-screen reader: a tap in the middle shows or hides the controls', 
   const top = page.getByTestId('reader-controls')
   await expect(top).toBeVisible()
   await page.mouse.click(450, 300)
-  await expect(top).toHaveCount(0)
+  // Hidden, but still mounted (ready to show at once).
+  await expect(top).toBeHidden()
+  await expect(top).toHaveCount(1)
   await page.mouse.click(450, 300)
   await expect(top).toBeVisible()
   // Esc leaves.

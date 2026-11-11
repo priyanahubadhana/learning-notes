@@ -112,8 +112,14 @@ export const hiRdr: Record<string, string> = {
   'reader.ink.opacity': 'पारदर्शिता',
   'reader.ink.customColour': 'अपना रंग',
   'settings.reading.pdfFlow.label': 'PDF पेज',
-  'settings.reading.pdfFlow.description': 'PDF को एक लंबे स्क्रॉल में पढ़ें, या एक बार में एक पूरा पेज (पलटने के लिए स्वाइप करें)।',
+  'settings.reading.pdfFlow.description':
+    'PDF को एक लंबे स्क्रॉल में पढ़ें, या एक बार में एक पूरा पेज (पलटने के लिए स्वाइप करें)।',
   'reading.opt.pdfFlow.scrolled': 'लगातार स्क्रॉल',
   'reading.opt.pdfFlow.paged': 'एक बार में एक पेज',
   'aa.font.bookerly': 'Bookerly जैसा (Literata)',
+  'settings.reading.barPin.label': 'रीडर बार दिखता रखें',
+  'settings.reading.barPin.description':
+    'रीडर के ऊपर का बार पिन करें ताकि स्क्रॉल करते समय दिखता रहे। बार का पिन भी यही करता है।',
+  'reading.opt.barPin.on': 'चालू',
+  'reading.opt.barPin.off': 'बंद',
 }

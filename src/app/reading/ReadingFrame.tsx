@@ -365,11 +365,12 @@ export function ReadingFrame({
           : `contents ${active && settings.blanks === 'hide' ? 'reading-hide-blanks' : ''}`
       }
     >
-      {active && (!reader || controls) && (
+      {active && (
         <ReaderControls
           view={view === 'reader' ? 'reader' : 'inPlace'}
           title={pageTitle}
-          visible={barVisible}
+          visible={reader ? controls : barVisible}
+          miniExit={!reader}
           showTitle={reader}
         />
       )}

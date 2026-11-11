@@ -205,3 +205,15 @@ export const landings = (page: Page) =>
   page.evaluate(
     () => document.getAnimations().filter((a) => a.id === 'ln-landing').length,
   )
+
+/**
+ * The bar is slid away and cannot be reached, but it stays mounted so showing
+ * it again is instant: one element, hidden from sight and from assistive tech.
+ */
+export async function expectBarHidden(page: Page): Promise<void> {
+  const bar = controls(page)
+  await expect(bar).toBeHidden()
+  await expect(bar).toHaveCount(1)
+  await expect(bar).toHaveAttribute('data-hidden', 'true')
+  await expect(bar).toHaveAttribute('aria-hidden', 'true')
+}

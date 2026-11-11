@@ -2,6 +2,13 @@
 
 Current phase only. Older entries are in [ARCHIVE.md](ARCHIVE.md).
 
+## 2026-11-11 (Reader bar: pin in Settings, bar stays mounted)
+
+- **What:** Settings › Reading › "Keep the reader bar showing" (On/Off) is the same value as the pin on the bar (it was a device setting with no row in Settings). The reader bar is now always mounted while reading: hiding slides it up (CSS transform, 180 ms, none for reduced motion), marks it `inert` and `aria-hidden` so nothing in it can be focused or announced; showing it is instant and keeps its state. The small ✕ still shows in place when the bar is away. The full-screen reader's tap-to-show controls use the same mounted bar (no small ✕ there).
+- **Why:** Remounting the bar on every scroll made it flash in with an animation and rebuilt its buttons.
+- **Tests:** e2e/readerControls.spec.ts (new: Settings pin, hidden-but-mounted). Existing hidden-bar checks now assert the bar is hidden and still one element (`expectBarHidden`) instead of count 0.
+- **Files:** src/app/reading/{ReaderControls,ReadingFrame}.tsx, src/settings/readingSettings.ts, src/index.css, src/i18n/{en,es,hi}Rdr.ts, e2e/{readerControls,reading,readingHelpers}.
+
 ## 2026-11-11 (Reader: Bookerly-style font)
 
 - **What:** Aa › Font gets "Bookerly-style (Literata)". Literata is the free typeface Google Play Books reads in (SIL Open Font Licence 1.1, already bundled for the notes' Reading mode, licence text in public/licenses/fonts-OFL.txt). An EPUB page is its own document, so the app's font rules do not reach it: `src/reader/epub/bookFont.ts` declares the four bundled woff2 files inside the page (the browser downloads a file only when the book uses it; works offline). Test proves the frame really loads the font.

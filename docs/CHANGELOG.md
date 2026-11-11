@@ -2,6 +2,11 @@
 
 Current phase only. Older entries are in [ARCHIVE.md](ARCHIVE.md).
 
+## 2026-11-12 (Text box v2, owner list: step 3, drag and smart guides)
+
+- **Drag.** A lifted box gets a shadow and a small scale; the page scrolls when it is held within 70 px of the top or bottom edge; the whole app is frozen during the drag (toolbars, menus, panels ignore touches: `html[data-grip-drag]` in `index.css`); a drop back at the start writes nothing (no Undo step); the calm after a drop is 0.5 s. NOT done: the settle animation after the drop (the box jumps to its place; the others still slide).
+- **Smart guides** (`paper/guides.ts`, pure): 1 px magenta lines between the dragged box and the box it matches (edges and centres), a page-centre line, equal-spacing marks with end ticks, a gentle snap of 1.5 mm. Shown only when the drop would be on blank paper. On/off switch only in Settings › Advanced › Smart guides (default on). Tests: `paper/guides.test.ts`, `e2e/textBoxFree.spec.ts`.
+
 ## 2026-11-12 (Text box v2, owner list: step 2, interaction)
 
 - **Bars.** A selected box (not typing) shows the box bar ABOVE it: Style, Duplicate, Cut, Copy, Delete, More (below the box only when it is at the top of the paper). While typing, only the text bar above the keyboard: Font, size - and + (the note text size), Colour, B/I/U, Highlight, Link, ⋯ (indent, lists, align, strikethrough), Hide. With a box selected or typed in, a tap on empty paper only deselects (2a). Files: `paper/BoxBar.tsx`, `paper/BoxFrame.tsx`, `paper/PaperFrame.tsx`, `app/tools/main/KeyboardBar.tsx`, `i18n/*L.ts`. Tests: `e2e/textBoxFree.spec.ts` (1a, 2a, 3b), `paperBoxes`, `textTool`, `textBoxBatch3` specs adjusted.

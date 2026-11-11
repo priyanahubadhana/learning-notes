@@ -95,4 +95,7 @@ export const hiL: Record<string, string> = {
   'kbBar.sizeUp': 'बड़ा टेक्स्ट',
   'kbBar.more': 'और',
   'paper.box.copyFailed': 'टेक्स्ट कॉपी नहीं हो सका',
+  'settings.smartGuides.label': 'स्मार्ट गाइड',
+  'settings.smartGuides.description':
+    'टेक्स्ट बॉक्स खींचते समय पतली रेखाएँ दिखती हैं जब वह किसी दूसरे बॉक्स या पेज के केंद्र से मेल खाता है, और वह हल्के से चिपकता है। बॉक्स फिर भी एक-दूसरे पर नहीं चढ़ते।',
 }

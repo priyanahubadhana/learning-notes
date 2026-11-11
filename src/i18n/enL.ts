@@ -95,4 +95,7 @@ export const enL = {
   'kbBar.sizeUp': 'Bigger text',
   'kbBar.more': 'More',
   'paper.box.copyFailed': 'Could not copy the text',
+  'settings.smartGuides.label': 'Smart guides',
+  'settings.smartGuides.description':
+    'While you drag a text box, thin lines show when it lines up with another box or the page centre, and it snaps gently. Boxes still never overlap.',
 }

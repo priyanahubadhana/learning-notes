@@ -1175,3 +1175,18 @@ body:has([data-ink-pad]) [data-sel-handle]::after {
   outline: none;
   background: none;
 }
+
+/* Text box v2: while a box is dragged the whole app is frozen: no taps reach
+   toolbars, menus, panels or other boxes until it is dropped. */
+html[data-grip-drag] [data-ui],
+html[data-grip-drag] aside,
+html[data-grip-drag] nav,
+html[data-grip-drag] [role='toolbar'],
+html[data-grip-drag] [role='menu'],
+html[data-grip-drag] [data-bar] {
+  pointer-events: none !important;
+}
+html[data-grip-drag] {
+  -webkit-user-select: none;
+  user-select: none;
+}

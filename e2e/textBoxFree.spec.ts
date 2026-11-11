@@ -220,3 +220,47 @@ test('while typing only the text bar shows; the box bar waits until you stop (3b
   await expect(b).toHaveAttribute('data-typing', '')
   await expect(b.locator('[data-box-bar]')).toHaveCount(0)
 })
+
+test('smart guides: a dragged box shows a thin magenta line and snaps onto another box', async ({
+  page,
+}) => {
+  await start(page, 'Guides')
+  await tapBlank(page, 0.3, 70)
+  await expect(page.locator(EXTRA + ' .bn-editor')).toBeFocused()
+  await page.keyboard.type('First box')
+  await page.waitForTimeout(500)
+  await page.evaluate(() => (document.activeElement as HTMLElement)?.blur())
+  await page.waitForTimeout(700)
+  await tapBlank(page, 0.5, 170)
+  await expect(page.locator(EXTRA)).toHaveCount(2)
+  await expect(page.locator(EXTRA + ' .bn-editor').nth(1)).toBeFocused()
+  await page.keyboard.type('Second box')
+  await page.waitForTimeout(500)
+  await page.evaluate(() => (document.activeElement as HTMLElement)?.blur())
+  const a = page.locator(EXTRA).nth(0)
+  const b = page.locator(EXTRA).nth(1)
+  await b.hover()
+  const band = await box(b.locator('[data-box-band="bottom"]'))
+  await page.mouse.click(band.x + band.width / 2, band.y + band.height / 2)
+  await expect(b).toHaveAttribute('data-picked', '')
+  const ra = await box(a)
+  const rb = await box(b)
+  const g = await box(b.locator('[data-box-grip]'))
+  const gx = g.x + g.width / 2
+  const gy = g.y + g.height / 2
+  await page.mouse.move(gx, gy)
+  await page.mouse.down()
+  await page.mouse.move(gx + (ra.x - rb.x) + 2, gy + 20, { steps: 10 })
+  await expect(
+    page.locator('[data-smart-guides] [data-guide]').first(),
+  ).toBeVisible()
+  const line = await box(
+    page.locator('[data-smart-guides] [data-guide]').first(),
+  )
+  expect(line.width).toBeLessThanOrEqual(2)
+  await page.mouse.up()
+  await page.waitForTimeout(500)
+  await expect(page.locator('[data-smart-guides]')).toHaveCount(0)
+  const after = await box(b)
+  expect(Math.abs(after.x - ra.x)).toBeLessThan(2)
+})

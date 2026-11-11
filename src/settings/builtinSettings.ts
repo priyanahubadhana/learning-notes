@@ -585,6 +585,19 @@ const pencilScrollsSetting: SettingDefinition<OnOff> = {
   control: { kind: 'segmented', options: onOffOptions() },
 }
 
+/** Smart guides while a text box is dragged (the only place this switch lives). */
+export const smartGuidesSetting: SettingDefinition<OnOff> = {
+  id: 'advanced.smartGuides',
+  labelKey: 'settings.smartGuides.label',
+  descriptionKey: 'settings.smartGuides.description',
+  category: 'advanced',
+  keywords: 'guides smart snap align box drag lines centre spacing magenta',
+  scope: 'device',
+  defaultValue: 'on',
+  isValid: isOnOff,
+  control: { kind: 'segmented', options: onOffOptions() },
+}
+
 /** Whether a Pencil (or a finger) switches the device mode by itself. */
 export const autoSwitchSetting: SettingDefinition<AutoSwitch> = {
   id: 'advanced.autoSwitch',
@@ -755,6 +768,7 @@ for (const definition of [
   holdSelectSetting,
   holdMenuSetting,
   pencilScrollsSetting,
+  smartGuidesSetting,
   pencilTapTwiceSetting,
   pathStyleSetting,
   openNotebookAtSetting,

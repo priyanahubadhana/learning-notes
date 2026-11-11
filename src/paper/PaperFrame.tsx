@@ -55,6 +55,9 @@ import {
   type Zone,
 } from './grid'
 import { GridDividers } from './GridDividers'
+import { snapBox, type SnapResult } from './guides'
+import { readDeviceSetting } from '../settings/settingsService'
+import { smartGuidesSetting } from '../settings/builtinSettings'
 import { boxReducer, IDLE, pickedOf, type BoxEvent } from './boxState'
 import { startBlankHold } from './blankHold'
 import { bounds, record, replay, waitFor, type Recorded } from './penOnPaper'
@@ -665,7 +668,15 @@ export function PaperFrame({
     rows0: GridRow[]
     moved: boolean
     shift: boolean
+    /** The (snapped) move in mm, noted by applyMove for the drop. */
+    dxMm?: number
+    dyMm?: number
+    /** The scroller and where it was, for edge auto-scroll. */
+    scroller?: HTMLElement | null
+    scroll0?: number
   } | null>(null)
+  const [guides, setGuides] = useState<SnapResult | null>(null)
+  const lastPt = useRef<{ clientX: number; clientY: number } | null>(null)
   const grab = (box: PaperBox, _how: GrabHow, e: ReactPointerEvent) => {
     if (e.button !== 0) return
     e.preventDefault()
@@ -688,6 +699,10 @@ export function PaperFrame({
       rows0: baseRows,
       moved: false,
       shift: e.shiftKey,
+      scroller: paperEl.current ? scrollParent(paperEl.current) : null,
+      scroll0:
+        (paperEl.current ? scrollParent(paperEl.current) : null)?.scrollTop ??
+        0,
     }
   }
   /** The arrangement a drop at the pointer would give (pure, from the rows at drag start). */
@@ -696,7 +711,13 @@ export function PaperFrame({
     cy: number,
     ids: string[],
     rows0: GridRow[],
-    held?: { x0: number; y0: number; orig: Map<string, PaperBox> } | null,
+    held?: {
+      x0: number
+      y0: number
+      orig: Map<string, PaperBox>
+      dxMm?: number
+      dyMm?: number
+    } | null,
   ) => {
     const r = paperEl.current!.getBoundingClientRect()
     const mx = (cx - r.left) / k
@@ -728,7 +749,7 @@ export function PaperFrame({
         }
         prev = id
       }
-      return { rows: d.rows, full: d.full }
+      return { rows: d.rows, full: d.full, blank: false }
     }
     // Blank paper: a new full-width row at that height.
     let rows = ids.reduce((acc, id) => removeFromRows(acc, id), rows0)
@@ -739,8 +760,8 @@ export function PaperFrame({
     // Text box v2: a box dropped on blank paper stays where it was put (a free
     // box at the dropped left edge, its width kept); the page's own text box
     // goes back to a full-width row.
-    const dxMm = held ? (cx - held.x0) / k : 0
-    const dyMm = held ? (cy - held.y0) / k : 0
+    const dxMm = held ? (held.dxMm ?? (cx - held.x0) / k) : 0
+    const dyMm = held ? (held.dyMm ?? (cy - held.y0) / k) : 0
     const leadTop = held?.orig.get(lead)
     const yTop = leadTop ? leadTop.y + dyMm : my
     let idx = rows.filter((row) => top(row) < yTop).length
@@ -769,7 +790,7 @@ export function PaperFrame({
         },
       )
     }
-    return { rows, full: false }
+    return { rows, full: false, blank: true }
   }
   // One update per frame (item 25): pointer moves only note the spot; the
   // frame callback plans the drop and re-draws once.
@@ -795,19 +816,85 @@ export function PaperFrame({
     if (!d.moved && Math.hypot(e.clientX - d.x0, e.clientY - d.y0) < TAP_PX)
       return
     d.moved = true
-    const dx = (e.clientX - d.x0) / k
-    const dy = (e.clientY - d.y0) / k
+    lastPt.current = { clientX: e.clientX, clientY: e.clientY }
+    // The page may have scrolled under the pointer (edge auto-scroll).
+    const scrolled = d.scroller ? d.scroller.scrollTop - (d.scroll0 ?? 0) : 0
+    d.dxMm = (e.clientX - d.x0) / k
+    d.dyMm = (e.clientY - d.y0 + scrolled) / k
+    let drop = dropAt(e.clientX, e.clientY, d.ids, d.rows0, d)
+    // Smart guides (blank paper only): thin lines and a gentle snap.
+    let snapped: SnapResult | null = null
+    const lead = d.orig.get(d.lead)
+    if (drop.blank && lead && readDeviceSetting(smartGuidesSetting) !== 'off') {
+      const now = layoutRows(d.rows0, heightsMm, geo)
+      const rc = now.get(d.lead)
+      const others = [...now]
+        .filter(([id]) => !d.ids.includes(id))
+        .map(([id, r]) => ({ id, x: r.x, y: r.y, w: r.w, h: r.h }))
+      const sn = snapBox(
+        {
+          x: lead.x + d.dxMm,
+          y: lead.y + d.dyMm,
+          w: rc?.w ?? lead.w,
+          h: rc?.h ?? DEFAULT_H_MM,
+        },
+        others,
+        sheet.w,
+      )
+      snapped = sn
+      if (sn.dx || sn.dy) {
+        d.dxMm += sn.dx
+        d.dyMm += sn.dy
+        drop = dropAt(e.clientX, e.clientY, d.ids, d.rows0, d)
+      }
+    }
+    setGuides(
+      snapped && (snapped.guides.length || snapped.marks.length)
+        ? snapped
+        : null,
+    )
     const live = new Map<string, PaperBox>()
     for (const id of d.ids) {
       const o = d.orig.get(id)!
-      live.set(id, clampBox({ ...o, x: o.x + dx, y: o.y + dy }, sheet.w))
+      live.set(
+        id,
+        clampBox({ ...o, x: o.x + d.dxMm, y: o.y + d.dyMm }, sheet.w),
+      )
     }
     setLiveBoxes(live)
     setDragOrigin(d.orig)
-    const drop = dropAt(e.clientX, e.clientY, d.ids, d.rows0, d)
     setPreview(drop.rows)
     setGhost({ id: d.lead, full: drop.full })
   }
+  // Edge auto-scroll: holding a dragged box near the top or bottom of the
+  // screen scrolls the page (and the box follows the paper).
+  useEffect(() => {
+    let raf = 0
+    const tick = () => {
+      raf = requestAnimationFrame(tick)
+      const d = drag.current
+      const p = lastPt.current
+      if (!d || !d.moved || !p) return
+      const sc = d.scroller ?? document.scrollingElement
+      if (!sc) return
+      const r = d.scroller?.getBoundingClientRect()
+      const top = r ? Math.max(0, r.top) : 0
+      const bottom = r
+        ? Math.min(window.innerHeight, r.bottom)
+        : window.innerHeight
+      const edge = 70
+      let v = 0
+      if (p.clientY < top + edge) v = -Math.ceil((top + edge - p.clientY) / 4)
+      else if (p.clientY > bottom - edge)
+        v = Math.ceil((p.clientY - (bottom - edge)) / 4)
+      if (!v) return
+      const before = sc.scrollTop
+      sc.scrollTop = before + Math.max(-24, Math.min(24, v))
+      if (sc.scrollTop !== before) applyMove(p, d)
+    }
+    raf = requestAnimationFrame(tick)
+    return () => cancelAnimationFrame(raf)
+  })
   // Esc while a box is dragged: nothing changes (the preview closes).
   useEffect(() => {
     const key = (e: KeyboardEvent) => {
@@ -817,6 +904,7 @@ export function PaperFrame({
       setDragOrigin(null)
       setGhost(null)
       setPreview(null)
+      setGuides(null)
     }
     window.addEventListener('keydown', key)
     return () => window.removeEventListener('keydown', key)
@@ -840,6 +928,7 @@ export function PaperFrame({
     setDragOrigin(null)
     setGhost(null)
     setPreview(null)
+    setGuides(null)
     if (!d) return
     if (e.type === 'pointercancel') return
     if (!d.moved) {
@@ -851,6 +940,8 @@ export function PaperFrame({
       return selectBox(d.lead, d.shift)
     }
     if (!rows) return
+    // Dragged back to where it was: nothing changes, no write, no Undo step.
+    if (JSON.stringify(rows) === JSON.stringify(d.rows0)) return
     // The places the new arrangement gives (for old clients and exports).
     const places: BoxPatch[] = placesOf(rows, heightsMm, geo)
     setHeldRows(rows)
@@ -1338,6 +1429,7 @@ export function PaperFrame({
         }
       >
         <LoopLayer ref={loopLayer} />
+        {guides && <GuideLines g={guides} k={k} />}
         {ghost &&
           (() => {
             const g = layout.get(ghost.id)
@@ -1688,6 +1780,87 @@ const withoutAuto = (row: GridRow): GridRow => {
   return next
 }
 
+/** A guess for a box whose height is not measured yet (mm). */
+const DEFAULT_H_MM = 14
+
+/** Smart guides: 1 px magenta lines between the dragged box and what it matches, equal-gap marks. */
+function GuideLines({ g, k }: { g: SnapResult; k: number }) {
+  const col = '#e11d8f'
+  return (
+    <div
+      aria-hidden
+      data-smart-guides
+      className="pointer-events-none absolute z-30"
+    >
+      {g.guides.map((l, i) => (
+        <div
+          key={'g' + i}
+          data-guide={l.kind}
+          className="absolute"
+          style={
+            l.axis === 'x'
+              ? {
+                  left: l.at * k,
+                  top: l.from * k,
+                  width: 1,
+                  height: (l.to - l.from) * k,
+                  background: col,
+                }
+              : {
+                  top: l.at * k,
+                  left: l.from * k,
+                  height: 1,
+                  width: (l.to - l.from) * k,
+                  background: col,
+                }
+          }
+        />
+      ))}
+      {g.marks.map((m, i) => (
+        <div
+          key={'m' + i}
+          data-guide-gap
+          className="absolute"
+          style={
+            m.axis === 'x'
+              ? {
+                  left: m.from * k,
+                  top: m.across * k,
+                  width: (m.to - m.from) * k,
+                  height: 1,
+                  background: col,
+                }
+              : {
+                  top: m.from * k,
+                  left: m.across * k,
+                  height: (m.to - m.from) * k,
+                  width: 1,
+                  background: col,
+                }
+          }
+        >
+          <span
+            className="absolute"
+            style={
+              m.axis === 'x'
+                ? { left: 0, top: -4, width: 1, height: 9, background: col }
+                : { top: 0, left: -4, height: 1, width: 9, background: col }
+            }
+          />
+          <span
+            className="absolute"
+            style={
+              m.axis === 'x'
+                ? { right: 0, top: -4, width: 1, height: 9, background: col }
+                : { bottom: 0, left: -4, height: 1, width: 9, background: col }
+            }
+          />
+        </div>
+      ))}
+    </div>
+  )
+}
+
 /** A press that moves less than this (px) is a tap. */
 const TAP_PX = 4
 
@@ -1704,7 +1877,7 @@ const DOUBLE_TAP_MS = 700
 const DOUBLE_TAP_PX = 60
 
 /** B3-3: no new box this long (ms) after a drag, drop or resize. */
-const AFTER_DRAG_MS = 800
+const AFTER_DRAG_MS = 500
 
 /** Layout mode shows the page a little smaller. */
 const LAYOUT_ZOOM = 0.85

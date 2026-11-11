@@ -42,7 +42,6 @@ Detail: plans/owner-bug-batch-3-2026-11-11.md (B3) and plans/owner-ideas-batch-2
   - Dropped from the list: layers, front/back, hide/show, recall card from a box, send to Summary, handwriting into a box, fold a box.
 
   - Grouping: the Lasso loops boxes, then Group; tap the group, then Ungroup (owner chose A).
-  - Drag smoothness plan (8 points proposed in chat: lift and shadow on pick-up, 1:1 follow with the app frozen, landing outline and others slide, edge auto-scroll, gentle snap guides, settle animation and stays selected, drag back to cancel, 0.5 s calm after drop, palm rejection). No ✓ needed. OWNER APPROVED 11 Nov.
   - Selected box border clear by default like GoodNotes/Notability: a solid 1.5 px accent line with clear corner dots, visible on dark and light paper (ours is too faint). Line highlight/selection is fine, leave it.
 
 ## Priority 4: other bugs
@@ -65,8 +64,6 @@ plans/owner-ideas-batch-2-2026-11-10.md: update bar, Acrobat PDF tools, customiz
 - CI fix pushed 11 Nov for Text box v2 (deploy pending green CI); check the deploy ran, then delete this line.
 
 - Owner top bugs 1-3 (box line outline, caret spot, Pencil double/triple tap) fixed in code 11 Nov, need the owner iPad check. NOT done yet: Text box v2 steps 4-6 and Layout mode v2 (large; need a fresh session). Pencil-writes-text default in a box not verified.
-- Smart guides in the drag step (thin red edge/centre lines, equal-spacing marks, gentle snap); on/off switch ONLY in Settings (default on). Layout pop-up tidy: Line up left, Space evenly (3+), One box, Columns. Approved 11 Nov, not built.
-- Smart guide look: 1 px magenta, only while dragging, each line spans from the dragged box edge/centre to the matched object only, plus a page-centre line and equal-spacing marks, gentle snap, never overlap. Not built.
 
 ## Owner answers 11 Nov (top priority: text box, typing, Pencil)
 
@@ -83,11 +80,6 @@ plans/owner-ideas-batch-2-2026-11-10.md: update bar, Acrobat PDF tools, customiz
   - A dot grid or paper lines as a visual aid. A guide toggle in settings.
   - Box options as in Notability: rounded corners, wrap on/off.
   - Locked boxes are skipped by tidy (no lock for now).
-- OWNER OK (11 Nov): smart guides while dragging, Notability-style thin red lines (edge/centre alignment + equal-spacing marks), gentle snap. Tidy choices: Line up left, Space evenly, One box, Columns. Guides on/off switch ONLY in Settings (not in the layout UI). Paper lines/dot grid already exist, nothing new. The owner can share Notability guide references.
-- Notability guide reference (owner screenshots, 11 Nov):
-  - Guides are thin 1 px magenta lines, shown only while dragging.
-  - Each line runs from the dragged box's edge or centre to the matched object only (not across the page): top-edge to top-edge, left-edge vertical, centre horizontal.
-  - Our version should be better: the same thin lines in the accent or magenta colour, plus small equal-spacing marks, a page-centre line, and a soft haptic-like snap. No overlap (Notability lets boxes overlap and that looks messy).
 - Owner 11 Nov (text tool vs pen):
   - Text tool + Pencil writing inside a box = handwriting becomes text. Pen tool = ink on its own layer over the text, never converted.
   - Text tool: drawn arrows, lines, circles and rectangles become clean shapes on the ink layer (reuse the shape recogniser). A digit with a circle drawn round it becomes a circled number (②). One Undo turns it back.
@@ -119,3 +111,5 @@ plans/owner-ideas-batch-2-2026-11-10.md: update bar, Acrobat PDF tools, customiz
 - BUG-005 plan addition (owner, do NOT build yet): on first launch a small pop-up asks "New to the app / Used it a little / Experienced".
   - New → the full guided walkthrough, a few steps at a time (never too much at once).
   - Used a little / Experienced → no walkthrough (maybe a "Replay tour" in Help).
+
+- Settle animation after a drop (the dropped box glides into place) is NOT built yet.

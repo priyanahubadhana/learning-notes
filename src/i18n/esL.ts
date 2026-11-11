@@ -95,4 +95,7 @@ export const esL: Record<string, string> = {
   'kbBar.sizeUp': 'Texto más grande',
   'kbBar.more': 'Más',
   'paper.box.copyFailed': 'No se pudo copiar el texto',
+  'settings.smartGuides.label': 'Guías inteligentes',
+  'settings.smartGuides.description':
+    'Al arrastrar un cuadro de texto, líneas finas muestran cuándo se alinea con otro cuadro o con el centro de la página, y se ajusta suavemente. Los cuadros nunca se superponen.',
 }

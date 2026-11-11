@@ -177,7 +177,7 @@ export function BoxFrame({
       className={
         (stacked ? 'relative mt-8 ' : 'absolute ') +
         'group' +
-        (dragging ? ' opacity-60' : '') +
+        (dragging ? ' opacity-90 shadow-2xl' : '') +
         (pushed && !dragging
           ? ' transition-[left,top,width] duration-150 motion-reduce:transition-none'
           : '')
@@ -195,7 +195,7 @@ export function BoxFrame({
                 ...(autoMaxW
                   ? { width: 'max-content', maxWidth: autoMaxW }
                   : { width: shown.w * k }),
-                transform: `translate3d(${(shown.x - box.x) * k}px, ${(shown.y - box.y) * k}px, 0)`,
+                transform: `translate3d(${(shown.x - box.x) * k}px, ${(shown.y - box.y) * k}px, 0) scale(1.02)`,
                 willChange: 'transform',
               }
             : {

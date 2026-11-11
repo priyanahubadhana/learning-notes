@@ -2,6 +2,10 @@
 
 Current phase only. Older entries are in [ARCHIVE.md](ARCHIVE.md).
 
+## 2026-11-11 (Priority 4: page scroll bar)
+
+- **B3-13:** a tap on the page scroll-bar track jumps the thumb (centred) to the tapped spot and keeps following the finger if it keeps moving; the thumb moves in the same frame as the finger while dragging. `trackJumpTop` in `paper/pageBar.ts`, `PageScrollBar.tsx`. Tests: `pageScrollBar.test.ts`, `e2e/paperEdge.spec.ts`. The arrows still move one sheet.
+
 ## 2026-11-11 (Priority 4: toasts)
 
 - **B3-11:** the toast lifts above the on-screen keyboard and its bar from 40 px of keyboard (`toastBottom` in `app/toastTiming.ts`, used by `Toast` in `app/ui.tsx`); still one toast at a time.

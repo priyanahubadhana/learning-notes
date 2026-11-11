@@ -6,7 +6,14 @@ import {
 } from 'react'
 import { createPortal } from 'react-dom'
 import { t } from '../i18n/t'
-import { ARROW, BAR_W, barGeometry, dragTop, sheetTarget } from './pageBar'
+import {
+  ARROW,
+  BAR_W,
+  barGeometry,
+  dragTop,
+  sheetTarget,
+  trackJumpTop,
+} from './pageBar'
 
 const reduced = () =>
   typeof matchMedia === 'function' &&
@@ -113,7 +120,7 @@ export function PageScrollBar({ sheetsKey }: { sheetsKey: number }) {
     const d = drag.current
     const el = sc.current
     if (!d || !el) return
-    el.scrollTop = dragTop(
+    const top = dragTop(
       d.top,
       e.clientY - d.y,
       state.scrollH,
@@ -121,15 +128,32 @@ export function PageScrollBar({ sheetsKey }: { sheetsKey: number }) {
       track,
       g.thumbH,
     )
+    el.scrollTop = top
+    // The thumb moves in the same frame as the finger, not a scroll event later.
+    setState((old) => (old ? { ...old, scrollTop: top } : old))
   }
   const up = () => {
     drag.current = null
     setDragging(false)
   }
+  /** B3-13: a tap on the track jumps the thumb (centred) to the tapped spot; keep dragging from there. */
   const trackTap = (e: ReactPointerEvent<HTMLDivElement>) => {
     if (e.target !== e.currentTarget) return
-    const y = e.clientY - state.rect.top - ARROW
-    go(y < g.thumbTop ? -1 : 1)
+    const el = sc.current
+    if (!el) return
+    e.preventDefault()
+    e.stopPropagation()
+    const y = e.clientY - e.currentTarget.getBoundingClientRect().top
+    const top = trackJumpTop(y, state.scrollH, state.clientH, track, g.thumbH)
+    el.scrollTop = top
+    setState((old) => (old ? { ...old, scrollTop: top } : old))
+    try {
+      e.currentTarget.setPointerCapture(e.pointerId)
+    } catch {
+      // Not a real pointer (a test): the moves still arrive.
+    }
+    drag.current = { y: e.clientY, top }
+    setDragging(true)
   }
 
   const arrow = (dir: 1 | -1) => (
@@ -174,6 +198,9 @@ export function PageScrollBar({ sheetsKey }: { sheetsKey: number }) {
       <div
         data-pagebar-track
         onPointerDown={trackTap}
+        onPointerMove={move}
+        onPointerUp={up}
+        onPointerCancel={up}
         className="relative flex-1 rounded-full bg-hover/60"
         style={{ margin: '0 7px' }}
       >
@@ -187,9 +214,6 @@ export function PageScrollBar({ sheetsKey }: { sheetsKey: number }) {
           tabIndex={0}
           data-pagebar-thumb
           onPointerDown={down}
-          onPointerMove={move}
-          onPointerUp={up}
-          onPointerCancel={up}
           onKeyDown={(e) => {
             if (e.key === 'ArrowDown') go(1)
             if (e.key === 'ArrowUp') go(-1)

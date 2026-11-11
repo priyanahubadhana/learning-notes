@@ -49,7 +49,6 @@ Detail: plans/owner-bug-batch-3-2026-11-11.md (B3) and plans/owner-ideas-batch-2
 
 ## Priority 4: other bugs
 
-- [ ] B3-13 A tap on the scroll-bar track jumps to that spot; the thumb follows the finger.
 - [ ] Text and ink Undo after a reload (batch-1 item 47).
 - [ ] Text strip: its own font, size and line-spacing controls.
 

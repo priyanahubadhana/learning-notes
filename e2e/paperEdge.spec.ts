@@ -122,6 +122,17 @@ test('the page scroll bar: track, thumb, and one sheet per arrow tap', async ({
   })
   await page.mouse.up()
   expect(await scroller.evaluate((el) => el.scrollTop)).toBeGreaterThan(100)
+  // B3-13: a tap on the track jumps the thumb so its centre is under the tap.
+  await scroller.evaluate((el) => (el.scrollTop = 0))
+  const tr = (await page.locator('[data-pagebar-track]').boundingBox())!
+  const tapY = tr.y + tr.height * 0.8
+  await page.mouse.click(tr.x + tr.width / 2, tapY)
+  await expect
+    .poll(async () => {
+      const t2 = (await page.locator('[data-pagebar-thumb]').boundingBox())!
+      return Math.abs(t2.y + t2.height / 2 - tapY)
+    })
+    .toBeLessThan(6)
 })
 
 test('item 5: rows of a long list block never sit in the gap between sheets', async ({

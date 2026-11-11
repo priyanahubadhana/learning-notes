@@ -63,3 +63,21 @@ export function sheetTarget(
   const to = pick ?? scrollTop + dir * clientH * 0.9
   return Math.min(max, Math.max(0, to))
 }
+
+/**
+ * B3-13: the scrollTop that puts the thumb's CENTRE under a tap at `y` px from
+ * the top of the track (the thumb jumps there; it is clamped at both ends). Pure.
+ */
+export function trackJumpTop(
+  y: number,
+  scrollH: number,
+  clientH: number,
+  track: number,
+  thumbH: number,
+): number {
+  const range = scrollH - clientH
+  const travel = track - thumbH
+  if (range <= 0 || travel <= 0) return 0
+  const thumbTop = Math.min(travel, Math.max(0, y - thumbH / 2))
+  return (thumbTop / travel) * range
+}

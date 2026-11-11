@@ -136,7 +136,7 @@ Glass recipe (`.glass`, frame only):
 
 - Blur: bars 16 px, sidebar 20 px, menus 24 px, palette 24 px plus a dimmed backdrop (`rgba(0,0,0,.24)` light, `.48` dark, no blur on the dim).
 - Budget: at most 3 blurred elements visible at once. Never blur the paper. Never animate the blur.
-- `data-glass='lite'` turns on automatically when the iPad perf probe (the existing `perf/` tooling) sees frame time over 20 ms, while ink is drawing, or on pages over the big-page budget. There is also a manual switch in Settings > Appearance ("Reduce glass").
+- `data-glass='lite'` turns on automatically when the frame-time probe (`src/design/glass.ts`) sees more than half of 30 frames over 20 ms during a scroll or pointer (Pencil) burst; it is kept for the session. Big pages and ink are covered by the same probe, not separate triggers (the paper never blurs). The manual switch is Settings > General > "Reduce glass" (Automatic / Solid; Solid is kept across reloads).
 
 ## 6. Motion tokens
 

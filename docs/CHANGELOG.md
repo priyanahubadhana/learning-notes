@@ -2,6 +2,11 @@
 
 Current phase only. Older entries are in [ARCHIVE.md](ARCHIVE.md).
 
+## 2026-11-12 (Reduce glass check)
+
+- **Checked and found as documented:** the automatic probe (30 frames, over half slower than 20 ms, only during scroll or pointer bursts, kept for the session, ignores the idle gap between bursts), the Solid choice (sets `data-glass="lite"`, computed backdrop-filter becomes none, kept after reload, Automatic restores the blur) and the solid toast (`bg-surface-3`, no glass class). No code fault found, so none changed.
+- New tests: src/design/glassProbe.test.ts (fake frame clock), e2e/glassSolid.spec.ts. docs/design/system.md now names the real trigger and the real Settings place (it said "Settings > Appearance" and "big-page budget").
+
 ## 2026-11-12 (Settings: Default paper style)
 
 - **New setting Settings › General › Default paper style** (Blank, Lined, Grid, Dots; synced, group General; default Blank). A page made from the sidebar, a notebook's first page or Add page starts on it; a template that brings its own paper keeps it. Existing pages are not changed, and the page's ⋯ menu › Paper style still changes one page.

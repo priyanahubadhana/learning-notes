@@ -16,4 +16,5 @@
 Every change must meet docs/design/quality-standard.md (Apple simplicity, Toyota reliability, premium feel). Going above is fine; below is not.
 
 ## Agent hierarchy (owner, 12 Nov 2026)
+
 Every task runs through the hierarchy: the main manager (Fable, `.claude/agents/fable-manager.md`) plans and delegates to Opus sub-managers (`opus-submanager-ui/-build/-qa`), which delegate to executors (`sonnet-executor`, `haiku-executor`), review their output and report up. Use parallel execution when the files do not overlap. The main manager verifies quality and delivers the final result.

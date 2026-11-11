@@ -154,3 +154,11 @@ Four modes:
 - Mocks must open in the DEFAULT new-user state (Beginner, defaults) so the owner sees what a new user sees; Settings can customise later.
 - NEW feature: Elements (stickers / GIFs, with categories and Edit), like GoodNotes, to make notes more interactive. Decide its placement (proposal: Insert › Elements, plus a recent-elements shelf in Shapes & aids).
 - OWNER (12 Nov): use references (GoodNotes etc.) only to LEARN; build our OWN design that combines 3 sources: the owner's design principles, the shared references, and the design already in our app (best of all three). Never copy.
+
+## Owner answers, 12 Nov (round 2)
+- Toolbar: remove repeated size/colour from the Beginner pen card; Recent elements seeded with 3–4 starters.
+- Shell: Undo/Redo, ✕ clear and the tab style move into the shared shell.
+- Settings: phone preview pill at the bottom.
+- Home: Edit period bar visible for all; Top 3 drag = reorder tasks AND move the whole card.
+- Reader: Pages-grid edits change the real book (with Undo, original kept); no dimming behind the panel; Minimise hides the whole strip.
+- Library: Export in Bank + shortcut in More; Themes tab default in Professional only; search in place on Knowledge, grouped elsewhere; "All" shelf first and default.

@@ -2,6 +2,17 @@
 
 Current phase only. Older entries are in [ARCHIVE.md](ARCHIVE.md).
 
+## 2026-11-12 (batch H: tables, search, notebooks home, perf, size, Delete forever)
+
+- **Item 1:** table and database rows never cross a sheet gap: guaranteed by the spacer rows in paginate.ts; checked by e2e/tableGap.spec.ts and e2e/databaseGap.spec.ts (both green). No change.
+- **Item 2:** notebook Database tab has a Page filter (databases placed on that page or under it). Files: notebooks/NotebookScreen.tsx, i18n/{enQ,hiQ,esQ}.ts, e2e/notebookDbPageFilter.spec.ts.
+- **Item 3:** search finds ticked checkboxes (by column name) and Formula values (search/rowComputed.ts; Relation/Rollup read as blank; TODAY() = save time). Search index version 5 -> 6 (rebuilds once).
+- **Item 4:** Notebooks home tabs All / Starred / Recent (Recent = last opened, max 20).
+- **Item 5a:** Delete forever also erases the page pictures (picture, edit copies, original, book cover) unless another page, a trashed page, a cell or a notebook still shows it (core/imagePurge.ts, trash/purgeFiles.test.ts; attached files tested too).
+- **Item 6:** slow-moments recorder batches writes, samples long tasks, pauses while hidden.
+- **Item 7:** driveServer tests use a seeded RNG (mulberry32 on crypto.getRandomValues).
+- **Item 8:** first load 319,934 B -> about 300,000 B gzipped: writePad/padState.ts no longer imports prosemirror-state at run time (it pulled about 27 KB of editor engine into the first download). Next screens are prefetched one per idle slice, never while hidden (app/idlePrefetch.ts).
+
 ## 2026-11-12 (Security: low findings)
 
 - **Pencil test page out of production:** moved from `public/` to `dev/pencil-test/`; served only by `npm run dev` and by the E2E preview (E2E=1) through a Vite plugin, never built or deployed. The worker's special rules for it were removed. (The owner's old iPad link /pencil-test.html no longer exists on the live site; run it from the dev server.)

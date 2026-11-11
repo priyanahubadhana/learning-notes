@@ -1563,3 +1563,4 @@ Plan: [plans/polish-2-2026-11.md](plans/polish-2-2026-11.md). Items 8, 9 and 15 
 - 2026-11-11: CI runs per commit (no cancels); deploy skips a commit that is no longer main's head. Files: .github/workflows/ci.yml
 - 2026-11-11: allow search -> databases (search finds formula values). Files: scripts/feature-links.json
 - 2026-11-11: reader revamp research plan. Files: docs/plans/reader-revamp-plan.md
+- 2026-11-11: library revamp plan + deep-study ideas explainer. Files: docs/plans/library-revamp-plan.md

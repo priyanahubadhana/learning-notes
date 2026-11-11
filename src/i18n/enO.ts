@@ -986,6 +986,11 @@ export const enO = {
     'Lock notebooks and pages with a PIN (see the Lock section).',
   'account.aiKeys.hint':
     'Keep your AI keys on all your devices (see the AI section).',
+  'account.signOut.hint': 'Sign out on this device only. Your notes stay.',
+  'account.signOutForget.hint':
+    'Sign out here and remove the key from this device. Your notes stay.',
+  'account.signOutAll.hint':
+    'Sign out on every device and disconnect Google Drive. Notes stay on each device.',
   // ---- AI page order, AI-off card, Usage and cost, Connections (9 Nov) ----
   'ai.sec.keys': 'Keys and default model',
   'ai.sec.spending': 'Spending limit',
@@ -1050,9 +1055,4 @@ export const enO = {
   'conn.manage': 'Manage keys in AI',
   'conn.permissions': 'Which notebooks may use AI',
   'conn.getKey': 'Make a key',
-  'account.signOut.hint': 'Sign out on this device only. Your notes stay.',
-  'account.signOutForget.hint':
-    'Sign out here and remove the key from this device. Your notes stay.',
-  'account.signOutAll.hint':
-    'Sign out on every device and disconnect Google Drive. Notes stay on each device.',
 }

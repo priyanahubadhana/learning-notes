@@ -101,3 +101,25 @@ plans/owner-ideas-batch-2-2026-11-10.md: update bar, Acrobat PDF tools, customiz
 ## Questions for owner
 
 - Two taps at the same height: the second box goes just UNDER the first (every free box is its own row; others slide down). Do you want boxes side by side at the same height from a tap? That needs a different layout model (overlap checks per box). Safest option taken: stacked.
+
+## Owner bug register (PDF, 11 Nov): plan first, questions pending
+
+- BUG-001: turning a block into a checklist shows "Not saved yet" (src/i18n/en.ts:1282 save-failed bar). "Try again" does nothing, and typing feels laggy. NOT fixed yet (string still live; needs a repro).
+- BUG-002: the floating format toolbar extends or moves beyond its bounds. Keep it at its size and position.
+- BUG-003: toolbar turned off in Settings. After "Show" plus using a tool it should auto-hide again, with a very visible "Show toolbar" control.
+- BUG-004: replace the black "Updating…" overlay (update.splash) with one full-screen MANDATORY update flow:
+  - a short countdown, then auto download;
+  - the download can be cancelled, but the app stays blocked until it updates;
+  - progress, then a full-screen "installing" state with interactions blocked;
+  - restore with all data kept;
+  - handle failures and interruptions.
+- BUG-005: settings need visual previews (e.g. toolbar on/off) plus a guided walkthrough highlighting Compact view, Ribbon and Toolbar.
+- Standing instruction: ask until fully understood; no assumptions.
+- OWNER answers for the register:
+  - BUG-004: forced only when needed (storage change or data fix); other updates stay optional with the pill. 5 s countdown.
+  - BUG-003: the bar hides when you start writing or typing; a small "Show toolbar" pill stays at the top edge.
+  - BUG-005: the walkthrough shows on first launch, with replay in Help and Settings.
+  - Still need: the BUG-001/002/003 screenshots resent as images (the PDF images couldn't be read).
+- BUG-005 plan addition (owner, do NOT build yet): on first launch a small pop-up asks "New to the app / Used it a little / Experienced".
+  - New → the full guided walkthrough, a few steps at a time (never too much at once).
+  - Used a little / Experienced → no walkthrough (maybe a "Replay tour" in Help).

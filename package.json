@@ -15,7 +15,11 @@
     "format": "prettier --write .",
     "format:check": "prettier --check .",
     "check:links": "node scripts/check-feature-links.mjs",
-    "check:size": "node scripts/check-size.mjs"
+    "check:size": "node scripts/check-size.mjs",
+    "mcp:install": "npm --prefix mcp install",
+    "mcp:build": "npm --prefix mcp run build",
+    "test:mcp": "npm --prefix mcp test",
+    "smoke:mcp": "npm --prefix mcp run smoke"
   },
   "dependencies": {
     "@blocknote/core": "^0.56.0",

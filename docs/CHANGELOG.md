@@ -46,6 +46,13 @@ Current phase only. Older entries are in [ARCHIVE.md](ARCHIVE.md).
 - **What:** A PDF can now be read one whole page at a time. Settings › Reading › PDF pages (Continuous scroll / One page at a time, a device setting), a Scroll/Pages toggle in the reader bar, and the Aa sheet's Continuous scrolling switch (Layout tab) all change the same value. Page by page fits the whole page on one screen (`fitPageScale`: width and height) and the scroller snaps to page edges (CSS scroll-snap, `mandatory`, switched off while zoomed in so panning stays free). Page Flip, Contents, bookmarks, Find, highlights and ink keep working because the layout is the same column.
 - **Why:** Owner asked for it (Builder H left it undone, DECISIONS d).
 - **Files:** src/reader/pdf/{PdfView.tsx,pdfLayout.ts}, src/reader/{BookReader,AaSheet}.tsx, src/settings/readingSettings.ts, src/i18n/{en,es,hi}Rdr.ts, src/reader/reader.test.ts, e2e/pdfFlow.spec.ts.
+
+## 2026-11-11 (Claude connector, slices 1-2)
+
+- **Slice 1:** `src/sync/crypto.ts`, `hlc.ts`, `wire.ts` (and the two small core files they use) already ran in Node 20, so they are shared as they are, not copied; the browser build is unchanged (only `masterFromRaw` is now exported). New `src/sync/nodeInterop.test.ts`: Node's own `node:crypto` opens a record the app sealed and the reverse; a bundle unlocks to the same key; a guard fails if those files ever import browser-only code.
+- **Slice 2:** new package `mcp/` (own package.json; esbuild bundle `mcp/dist/index.js`; MCP SDK over stdio, nothing listens on the network). `setup` (email code, or `--google` / `--password`; then the passphrase) keeps the master key in Windows Credential Manager (keytar) or a DPAPI file. Read-only tools: list_notebooks, list_pages, search_notes, read_page (Markdown + version), list_cards, due_cards. Respects Allow AI and Allow AI while locked. Tests: 31 in `mcp/test` (`npm run test:mcp`), smoke script (`npm run smoke:mcp`, `-- --inspector`). The app build, size check and tests do not include `mcp/`.
+- **Files:** src/sync/crypto.ts, src/sync/nodeInterop.test.ts, mcp/*, package.json (4 scripts), eslint.config.js (mcp block), .prettierignore, docs/features/claude-connector.md.
+
 ## 2026-11-12 (batch H: tables, search, notebooks home, perf, size, Delete forever)
 
 - **Item 1:** table and database rows never cross a sheet gap: guaranteed by the spacer rows in paginate.ts; checked by e2e/tableGap.spec.ts and e2e/databaseGap.spec.ts (both green). No change.

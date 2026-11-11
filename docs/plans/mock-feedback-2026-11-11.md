@@ -108,3 +108,16 @@ Four modes:
 - Q9: highlight sharing: image card + text + PDF now.
 - Q10: highlight defaults as proposed + more default options.
 - Q11: build order: FIRST a mock-up of the templates themselves (Planner, Learning tracker, Finance) for approval, THEN the building tools so users can make them.
+
+## Notebooks v2 review + shell decisions (owner, 12 Nov): APPROVED with these notes
+
+- Rail icons: Home the same; Library = A (books on a shelf); Notebooks = B (ruled notebook); Review = B (repeat arrows around a card); the others A.
+- On a page inside a notebook, HIDE the notebook tab row (More · Notes · Summary · Cards · Revise · Mind map): that space belongs to the editing tools. A small arrow can bring it back, plus an on/off option in Settings.
+- Pages tab: full organise customisation (add, delete, reorder, duplicate, extract — like the PDF organiser).
+- The left panel/sidebar is a bit bigger (easier to tap).
+- Notebook search gets an ✕ clear button (apply to every search field).
+- "Share layers": explained (exports the notebook's add-on Layers as a file a friend can import).
+- The More sheet docked right at full height (full screen on phone): OK for now; REMIND the owner to test it on the iPad.
+- Phone: bottom tab bar, full width ✓.
+- Settings: keep the 3 experience levels (incl. Standard) inside Settings only. The VIEW switch has only 2: Beginner / Professional, shown as a toggle at the top of EVERY space. Users can later re-map these two toggles to their own custom layouts; the defaults are Beginner and Professional.
+- Execute only after all planning is done.

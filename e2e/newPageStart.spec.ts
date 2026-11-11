@@ -59,6 +59,28 @@ test('Always start new pages as Study fills every new page', async ({
   await expect(start(page)).toHaveCount(0)
 })
 
+test('Settings › Default paper style: new pages start on it; existing pages keep theirs', async ({
+  page,
+}) => {
+  await page.goto('/')
+  await createNotebook(page, 'Biology', 'First')
+  await addPage(page, 'Biology', 'Cells')
+  const paperOf = (style: string) =>
+    start(page).locator(`[data-paper-style="${style}"]`)
+  await expect(paperOf('blank')).toHaveAttribute('aria-pressed', 'true')
+
+  await page.goto('/#/settings/general')
+  const group = page.getByRole('group', { name: 'Default paper style' })
+  await group.getByRole('button', { name: 'Grid' }).click()
+  await expect(group.getByRole('button', { name: 'Grid' })).toHaveAttribute(
+    'aria-pressed',
+    'true',
+  )
+  await page.goto('/')
+  await addPage(page, 'Biology', 'Tissues')
+  await expect(paperOf('grid')).toHaveAttribute('aria-pressed', 'true')
+})
+
 test('the list fits a phone', async ({ page }) => {
   await page.setViewportSize({ width: 390, height: 844 })
   await page.goto('/')

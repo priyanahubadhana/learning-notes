@@ -77,6 +77,7 @@ export const SETTING_GROUPS: Readonly<Record<string, SyncGroupId>> = {
   'general.openNotebookAt': 'general',
   'general.newPageStudy': 'general',
   'general.newPageChooser': 'general',
+  'general.defaultPaper': 'general',
   'general.pasteMode': 'general',
   'advanced.showRefresh': 'general',
   'general.theme': 'appearance',

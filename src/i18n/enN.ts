@@ -18,6 +18,9 @@ export const enN = {
   'newPage.always': 'Always start new pages as Study',
   'newPage.notBlank': 'The page already has writing, so nothing was added.',
   'settings.newPageStudy.label': 'Start new pages as Study',
+  'settings.defaultPaper.label': 'Default paper style',
+  'settings.defaultPaper.description':
+    'The paper a new page starts on: blank, lined, grid or dots. You can still change one page from its ⋯ menu.',
 
   // ---- Maths (N1) ----
   'math.slash.title': 'Formula',

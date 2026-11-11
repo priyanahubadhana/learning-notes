@@ -101,10 +101,12 @@ import {
 } from './notebooks/notebookService'
 import {
   createPage,
+  setPageInkBg,
   getPage,
   getPagePath,
   renamePage,
 } from './pages/pageService'
+import { choiceToBg } from './pages/paperStyles'
 import { pageForNotebook, rememberNotebookPage } from './notebooks/lastPage'
 import { touchNotebookOpened } from './notebooks/notebookLook'
 import { LazyNameSheet } from './app/LazyNameSheet'
@@ -123,6 +125,7 @@ import {
   dateStyleSetting,
   languageSetting,
   newPageStudySetting,
+  defaultPaperSetting,
   openNotebookAtSetting,
   reviseLabelsSetting,
   theme as themeSetting,
@@ -1047,6 +1050,13 @@ function App() {
     const page = fillId
       ? await createPageFromTemplate(db, notebookId, parentId, fillId)
       : await createPage(db, notebookId, parentId)
+    // Settings › Default paper style: a page that came with no paper of its
+    // own (a template's own paper wins) starts on the chosen one.
+    const paper = choiceToBg(await getSetting(db, defaultPaperSetting))
+    if (paper && !page.inkBg) {
+      await setPageInkBg(db, page.id, paper)
+      page.inkBg = paper
+    }
     const sheet = focusTitle && touchUi() && !fillId
     openNewPage(page, focusTitle && !sheet)
     if (sheet) {

@@ -33,6 +33,11 @@ import { dateLocale, t, type DateStyle, type MessageKey } from '../i18n/t'
 import { freeTip } from '../app/tools/freeBar'
 import { isPathStyle, PATH_STYLES, type PathStyle } from '../pages/pathStyle'
 import {
+  isPaperChoice,
+  PAPER_CHOICES,
+  type PaperChoice,
+} from '../pages/paperStyles'
+import {
   isOpenNotebookAt,
   OPEN_NOTEBOOK_AT,
   type OpenNotebookAt,
@@ -709,6 +714,25 @@ export const newPageChooserSetting: SettingDefinition<OnOff> = {
   control: { kind: 'segmented', options: onOffOptions() },
 }
 
+/** Default paper style for new pages (blank, lined, grid or dots). Synced. */
+export const defaultPaperSetting: SettingDefinition<PaperChoice> = {
+  id: 'general.defaultPaper',
+  labelKey: 'settings.defaultPaper.label',
+  descriptionKey: 'settings.defaultPaper.description',
+  category: 'general',
+  keywords: 'paper style default new page blank lined grid dots ruled squared',
+  scope: 'synced',
+  defaultValue: 'blank',
+  isValid: isPaperChoice,
+  control: {
+    kind: 'segmented',
+    options: PAPER_CHOICES.map((value) => ({
+      value,
+      label: () => t(`ink.paper.${value}` as MessageKey),
+    })),
+  },
+}
+
 /** Paste chooser: ask on a rich paste, or always keep the format / paste plain text. */
 export type PasteMode = 'ask' | 'keep' | 'plain'
 const PASTE_MODES: readonly PasteMode[] = ['ask', 'keep', 'plain']
@@ -787,6 +811,7 @@ for (const definition of [
   nestedCardPlacement,
   newPageStudySetting,
   newPageChooserSetting,
+  defaultPaperSetting,
   pasteModeSetting,
 ]) {
   settingsRegistry.register(definition as SettingDefinition)

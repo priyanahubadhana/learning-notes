@@ -17,6 +17,9 @@ export const hiN: Record<string, string> = {
   'newPage.always': 'नए पेज हमेशा अध्ययन से शुरू करें',
   'newPage.notBlank': 'पेज पर पहले से लिखा है, इसलिए कुछ जोड़ा नहीं गया।',
   'settings.newPageStudy.label': 'नए पेज अध्ययन से शुरू करें',
+  'settings.defaultPaper.label': 'डिफ़ॉल्ट काग़ज़ शैली',
+  'settings.defaultPaper.description':
+    'नया पेज किस काग़ज़ पर शुरू हो: ख़ाली, रूल्ड, ग्रिड या डॉट्स। किसी एक पेज को उसके ⋯ मेनू से बदला जा सकता है।',
   'settings.newPageStudy.description':
     'चालू: हर नया पेज अध्ययन नोट्स टेम्पलेट के साथ खुलता है। बंद: नया पेज ख़ाली खुलता है और कर्सर के नीचे टेम्पलेट की सूची दिखती है।',
   'help.tip.newPage.always.meaning':

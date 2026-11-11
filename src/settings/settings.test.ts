@@ -39,6 +39,22 @@ afterEach(async () => {
   await db.delete()
 })
 
+import { defaultPaperSetting } from './builtinSettings'
+import { choiceToBg, isPaperChoice } from '../pages/paperStyles'
+
+describe('default paper style', () => {
+  it('is blank unless chosen, accepts only the four styles, maps to inkBg', () => {
+    expect(defaultPaperSetting.defaultValue).toBe('blank')
+    expect(defaultPaperSetting.scope).toBe('synced')
+    for (const ok of ['blank', 'lined', 'grid', 'dots'])
+      expect(defaultPaperSetting.isValid(ok)).toBe(true)
+    for (const bad of ['', 'Grid', 'ruled', null, 3])
+      expect(isPaperChoice(bad)).toBe(false)
+    expect(choiceToBg('blank')).toBeUndefined()
+    expect(choiceToBg('dots')).toBe('dots')
+  })
+})
+
 describe('settings registry', () => {
   it('shows one setting in several categories', () => {
     for (const cat of ['general', 'review', 'journal']) {

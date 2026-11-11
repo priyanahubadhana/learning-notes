@@ -17,6 +17,9 @@ export const esN: Record<string, string> = {
   'newPage.always': 'Empezar siempre las páginas nuevas como Estudio',
   'newPage.notBlank': 'La página ya tiene texto, así que no se añadió nada.',
   'settings.newPageStudy.label': 'Empezar páginas nuevas como Estudio',
+  'settings.defaultPaper.label': 'Estilo de papel predeterminado',
+  'settings.defaultPaper.description':
+    'El papel con el que empieza una página nueva: en blanco, rayado, cuadriculado o de puntos. Aún puedes cambiar una página desde su menú ⋯.',
   'settings.newPageStudy.description':
     'Activado: cada página nueva se abre con la plantilla de apuntes de estudio. Desactivado: la página nueva está en blanco, con una lista de plantillas bajo el cursor.',
   'help.tip.newPage.always.meaning':

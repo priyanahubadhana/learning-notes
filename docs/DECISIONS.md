@@ -71,6 +71,8 @@ Current phase only. Older decisions are in [ARCHIVE.md](ARCHIVE.md).
 
 ## Decisions to review
 
+- **2026-11-12 · Default paper style:** applied where the app makes a page from the UI (`createPageIn`), not in `createPage` itself, so imports, captures and tests keep blank pages. Only blank pages (no paper of their own) get it, so a template's paper wins. Synced with General.
+
 - **2026-11-12 · Cached AI tokens:** only Claude's cache-read rate is assumed (a tenth of the input price, its published rate); other providers keep the full input price until a `price.cached` is added to the model table. Errs high, never under the cap.
 
 - **2026-11-12 · Red CI fixes (review).** (a) `pasteBox.spec` now undoes the "As text box" paste with Ctrl+Z, because the "done" toast was removed in Priority 4 (toast noise rule). (b) `boxTaps.spec` "five quick taps" now expects the owner's counts (3 quick taps = the line). (c) The drag auto-scroll loop only runs while a box is dragged (an always-on frame loop had slowed the big-page scroll budget). The `penUi` and `inkLayers` WebKit failures and `leftPanel`, `newLine`, `reading`, `aiUsage` were already red at commit 25a9dde, before the text box work; not touched here.

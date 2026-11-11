@@ -2,6 +2,12 @@
 
 Current phase only. Older entries are in [ARCHIVE.md](ARCHIVE.md).
 
+## 2026-11-12 (Settings: Default paper style)
+
+- **New setting Settings › General › Default paper style** (Blank, Lined, Grid, Dots; synced, group General; default Blank). A page made from the sidebar, a notebook's first page or Add page starts on it; a template that brings its own paper keeps it. Existing pages are not changed, and the page's ⋯ menu › Paper style still changes one page.
+- Text in enN/esN/hiN (new keys only; enO/hiO untouched). Tests: settings.test.ts, e2e/newPageStart.spec.ts.
+- **Files:** src/settings/{builtinSettings,syncGroups}.ts, src/pages/paperStyles.ts, src/App.tsx, src/i18n/{en,es,hi}N.ts.
+
 ## 2026-11-12 (AI off: page actions explain themselves)
 
 - **AI off no longer hides Summarise, Key points and Cards silently:** on a book page header the AI actions now show the same small "AI is off" card as everywhere else (Turn on AI in place, Add a key / Open Settings › AI). It follows the switch live (`useAiTick`). The Prompts button stays (the paste-in path needs no AI). e2e/ai.spec.ts checks the card and the link.

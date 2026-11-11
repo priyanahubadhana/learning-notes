@@ -1,5 +1,9 @@
 # Owner checks still pending (collected for the end-of-run iPad pass)
 
+## AI off card, cost, default paper (12 Nov)
+
+On the iPad: (1) Settings › AI: switch AI off, open a book page: instead of nothing, a small "AI is off" card shows with Turn on AI and Add a key / Open Settings › AI; tapping Turn on AI brings the Summarise buttons back at once. (2) Settings › General › Default paper style: choose Grid, add a new page: it starts on grid; an older page is unchanged. (3) Settings › AI › Usage: ask the same long book question twice with Claude: the second cost line is lower (cached part counts at a tenth).
+
 ## Text tool + Pencil, Scribble and Undo (12 Nov)
 
 On the iPad with the Text tool: (1) write a word with the Pencil inside a box: Scribble turns it into text, with and without the on-screen keyboard showing; write fast, several words: nothing is cancelled. (2) Draw an arrow, line, circle or rectangle on blank paper and lift: after a short moment (under half a second) it becomes a clean shape; Undo once removes it, Redo brings it back; Lasso moves it. (3) Write a few letters or a dash on blank paper (an o, a short dash, a quick word): nothing turns into a shape. (4) Circle a digit in a box (1 to 20): it becomes the circled number; ONE Undo takes only that back and the text you typed stays. (5) Choose the Pen: every stroke stays exactly as drawn (never a shape, never a circled number). (6) With two or more boxes on the page, Undo steps back one step per press.

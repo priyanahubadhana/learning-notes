@@ -1,6 +1,7 @@
 import { createHash } from 'node:crypto'
 import { openRecord, type MasterKey } from '../../src/sync/crypto'
 import { fromWire } from '../../src/sync/wire'
+import { RevokedError } from './source'
 import { blocksToMarkdown, byOrder, plain } from './markdown'
 import {
   READ_TABLES,
@@ -26,6 +27,8 @@ const MIN_GAP_MS = 10_000
 
 interface Held<T> {
   rev: number
+  /** The clock stamp the saving device gave this version. */
+  h: string
   value: T
 }
 
@@ -43,6 +46,8 @@ export class NotesCache {
     cards: new Map(),
   }
   private seq = 0
+  /** The newest clock stamp seen on any record (our own stamps start after it). */
+  maxHlc = ''
   private last: number | null = null
   private running: Promise<void> | null = null
   unreadable = 0
@@ -67,10 +72,28 @@ export class NotesCache {
     if (this.running) return this.running
     if (!force && this.last !== null && this.now() - this.last < MIN_GAP_MS)
       return Promise.resolve()
-    this.running = this.pullAll().finally(() => {
+    this.running = this.guardedPull().finally(() => {
       this.running = null
     })
     return this.running
+  }
+
+  /** A revoked connection gets nothing: not even what is already held. */
+  private async guardedPull(): Promise<void> {
+    if ((await this.source.status()) === 'revoked') {
+      this.clear()
+      throw new RevokedError()
+    }
+    await this.pullAll()
+  }
+
+  /** Forgets everything held in memory. */
+  clear(): void {
+    for (const t of READ_TABLES) this.tables[t].clear()
+    this.seq = 0
+    this.maxHlc = ''
+    this.last = null
+    this.unreadable = 0
   }
 
   private async pullAll(): Promise<void> {
@@ -85,13 +108,16 @@ export class NotesCache {
             { keyId: row.keyId, data: row.data },
           )
           if (!(READ_TABLES as readonly string[]).includes(table)) continue
-          const env = value as { r?: { id?: unknown } } | null
+          const env = value as { r?: { id?: unknown }; h?: unknown } | null
           if (!env?.r || env.r.id !== id) {
             this.unreadable++
             continue
           }
+          const h = typeof env.h === 'string' ? env.h : ''
+          if (h > this.maxHlc) this.maxHlc = h
           this.tables[table as ReadTable].set(id, {
             rev: row.rev,
+            h,
             value: fromWire(env.r),
           })
         } catch {
@@ -112,6 +138,66 @@ export class NotesCache {
       rev: h.rev,
       v: h.value as T,
     }))
+  }
+
+  // ---- What writes need (every record, including hidden and removed ones) ----
+
+  /** The stored page record with its revision and clock stamp, whatever its state. */
+  rawPage(id: string): { value: Page; rev: number; h: string } | undefined {
+    const h = this.tables.pages.get(id)
+    return h ? { value: h.value as Page, rev: h.rev, h: h.h } : undefined
+  }
+
+  /** The person's workspace id (every notebook carries it), or null before the first sync. */
+  workspaceId(): string | null {
+    for (const { v } of this.all<Notebook>('notebooks'))
+      if (typeof v.workspaceId === 'string') return v.workspaceId
+    return null
+  }
+
+  /** The last sort key among ALL notebooks, so a new one never lands between hidden ones. */
+  lastNotebookOrder(): string | null {
+    return lastOf(this.all<Notebook>('notebooks').map((x) => x.v))
+  }
+
+  /** The last sort key among ALL pages with this parent (hidden and removed too). */
+  lastPageOrder(notebookId: string, parentId: string | null): string | null {
+    return lastOf(
+      this.all<Page>('pages')
+        .map((x) => x.v)
+        .filter((p) => p.notebookId === notebookId && p.parentId === parentId),
+    )
+  }
+
+  /** The last sort key among ALL top-level blocks of a page (removed too). */
+  lastBlockOrder(pageId: string): string | null {
+    return lastOf(
+      this.all<Block>('blocks')
+        .map((x) => x.v)
+        .filter((b) => b.pageId === pageId && b.parentId === null),
+    )
+  }
+
+  /** True when the page or its notebook is locked against edits in the app. */
+  editLocked(page: Page): boolean {
+    const nb = this.tables.notebooks.get(page.notebookId)?.value as
+      Notebook | undefined
+    return !!(page.editLocked || nb?.editLocked)
+  }
+
+  /** True when the page already has a top-level heading with exactly this text. */
+  hasHeading(pageId: string, text: string): boolean {
+    return this.blocksOf(pageId).some(
+      ({ b }) =>
+        b.type === 'heading' &&
+        b.parentId === null &&
+        plain(b.content.text) === text,
+    )
+  }
+
+  /** A notebook Claude may read (and so write into), or undefined. */
+  readableNotebook(id: string): Notebook | undefined {
+    return this.notebookOf(id)
   }
 
   // ---- What Claude may see -------------------------------------------
@@ -262,6 +348,9 @@ export class NotesCache {
     return out.sort((a, b) => a.due - b.due)
   }
 }
+
+const lastOf = (list: { order: string; id: string }[]): string | null =>
+  list.length === 0 ? null : [...list].sort(byOrder)[list.length - 1].order
 
 export interface CardView {
   id: string

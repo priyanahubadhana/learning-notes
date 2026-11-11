@@ -16,6 +16,8 @@ export interface Notebook extends Base {
   locked?: true
   allowAi?: true
   allowAiLocked?: true
+  editLocked?: true
+  workspaceId?: string
 }
 
 export interface Page extends Base {
@@ -24,6 +26,7 @@ export interface Page extends Base {
   title: string
   order: string
   locked?: true
+  editLocked?: true
   paused?: true
 }
 

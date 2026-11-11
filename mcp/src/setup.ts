@@ -14,6 +14,7 @@ import {
   GOOGLE_REDIRECT,
   type Session,
 } from './auth'
+import { DEVICE_NAME, ensureConfig, loadConfig } from './config'
 import { forgetAll, loadMaster, passphraseBundle, unlockAndStore } from './keys'
 import { openSecretStore } from './secrets'
 import { supabaseSource } from './source'
@@ -128,6 +129,18 @@ export async function runSetup(args: string[]): Promise<void> {
     }
     if (!ok) throw new AuthError('Three wrong passphrases. Run setup again.')
     await saveSession(store, session)
+    // List this sign-in as its own device in the app, so it can be revoked there.
+    const config = loadConfig()
+    await supabaseSource(async () => session.access).register(
+      config.deviceId,
+      DEVICE_NAME,
+    )
+    say(
+      `Listed in the app as "${DEVICE_NAME}" (${config.deviceId}); revoke it in Settings > Account > Connected computers.`,
+    )
+    say(
+      `What Claude may do is in ${ensureConfig()} (everything is on by default).`,
+    )
     say(
       '\nDone. The key is saved on this PC only. Now add the connector to Claude Desktop (see docs/features/claude-connector.md).',
     )
@@ -147,12 +160,23 @@ export async function runStatus(): Promise<void> {
   say(
     `Key: ${key ? 'saved' : 'missing'}   Sign-in: ${session ? 'saved' : 'missing'}`,
   )
+  const config = loadConfig()
+  say(`Device: ${config.deviceId}`)
+  say(
+    `Allowed: ${
+      Object.entries(config.scopes)
+        .filter(([, v]) => v)
+        .map(([k]) => k)
+        .join(', ') || 'nothing'
+    }`,
+  )
+  for (const p of config.problems) say(p)
   if (!key || !session) process.exitCode = 1
 }
 
 export async function runLogout(): Promise<void> {
   await forgetAll(await openSecretStore())
   say(
-    'Forgot the key and sign-in on this PC. (Revoke access in the app too when it is available.)',
+    'Forgot the key and sign-in on this PC. (To cut off this PC for good, also use Revoke in the app: Settings > Account > Connected computers.)',
   )
 }

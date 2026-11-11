@@ -5,7 +5,15 @@ import {
   type MasterKey,
 } from '../../src/sync/crypto'
 import { toWire } from '../../src/sync/wire'
-import type { RecordSource, RemoteRow } from '../src/source'
+import {
+  RevokedError,
+  SourceError,
+  type DeviceStatus,
+  type PushItem,
+  type PushResult,
+  type RecordSource,
+  type RemoteRow,
+} from '../src/source'
 
 /**
  * Fake server data, sealed with the app's real encryption, so the tests
@@ -16,6 +24,20 @@ export class FixtureSource implements RecordSource {
   private seq = 0
   private revs = new Map<string, number>()
   pulls = 0
+  /** What the server says about this connection (Revoke in the app flips it). */
+  state: DeviceStatus = 'ok'
+  registered: { id: string; name: string }[] = []
+  audits: {
+    tool: string
+    ids: string[]
+    counts: Record<string, number>
+  }[] = []
+  /** Every item ever pushed (what reached the server). */
+  pushed: PushItem[] = []
+  /** Tests: the server is down for the next audit call. */
+  failAudit = false
+  /** Tests: runs just before a save is applied (another device saving in between). */
+  beforePush: (() => Promise<void>) | null = null
 
   master: MasterKey
   constructor(master: MasterKey) {
@@ -50,6 +72,8 @@ export class FixtureSource implements RecordSource {
 
   async pull(since: number, limit: number) {
     this.pulls++
+    // The database's row rules show a revoked connection no rows at all.
+    if (this.state === 'revoked') return []
     return this.rows
       .filter((r) => r.seq > since)
       .sort((a, b) => a.seq - b.seq)
@@ -58,6 +82,51 @@ export class FixtureSource implements RecordSource {
 
   async keyBundles() {
     return []
+  }
+
+  async status() {
+    return this.state
+  }
+
+  async register(deviceId: string, name: string) {
+    if (this.state === 'revoked') throw new RevokedError()
+    this.registered.push({ id: deviceId, name })
+    this.state = 'ok'
+  }
+
+  async push(items: PushItem[]): Promise<PushResult> {
+    if (this.state === 'revoked') throw new RevokedError()
+    await this.beforePush?.()
+    if ((this.state as DeviceStatus) === 'revoked') throw new RevokedError()
+    const accepted: PushResult['accepted'] = []
+    const conflicts: string[] = []
+    for (const it of items) {
+      const have = this.rows.find((r) => r.id === it.id)
+      const ok = it.baseRev === 0 ? !have : have?.rev === it.baseRev
+      if (!ok) {
+        conflicts.push(it.id)
+        continue
+      }
+      const rev = it.baseRev + 1
+      this.revs.set(it.id, rev)
+      this.rows = this.rows.filter((r) => r.id !== it.id)
+      const row = {
+        id: it.id,
+        rev,
+        keyId: it.keyId,
+        data: it.data,
+        seq: ++this.seq,
+      }
+      this.rows.push(row)
+      this.pushed.push(it)
+      accepted.push({ id: it.id, rev, seq: row.seq })
+    }
+    return { accepted, conflicts }
+  }
+
+  async audit(tool: string, ids: string[], counts: Record<string, number>) {
+    if (this.failAudit) throw new SourceError('offline')
+    this.audits.push({ tool, ids, counts })
   }
 }
 
@@ -76,6 +145,7 @@ export async function seedNotes(src: FixtureSource, now = 1_000_000) {
     title: 'Biology',
     order: 'a0',
     allowAi: true,
+    workspaceId: 'ws1',
   })
   await src.put('notebooks', {
     ...base,

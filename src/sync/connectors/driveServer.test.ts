@@ -5,7 +5,12 @@ import {
   unlockToken,
   type Env,
 } from '../../../supabase/functions/_shared/driveTokenHandler'
-import { revokeServerToken, serverPass, storeRefreshToken } from './driveServer'
+import {
+  revokeServerToken,
+  serverHasPass,
+  serverPass,
+  storeRefreshToken,
+} from './driveServer'
 import { ALLOWED_EMAIL } from './config'
 import { authorizeUrl, supabaseAuth } from './supabase'
 
@@ -48,6 +53,21 @@ describe('client: the Drive pass keeper answers', () => {
   })
   afterEach(() => {
     g.fetch = saved
+  })
+
+  it('status: yes, no, or "cannot tell"; never throws', async () => {
+    g.fetch = async () => reply(200, { stored: true })
+    expect(await serverHasPass('jwt')).toBe(true)
+    g.fetch = async () => reply(200, { stored: false })
+    expect(await serverHasPass('jwt')).toBe(false)
+    g.fetch = async () => reply(404, {})
+    expect(await serverHasPass('jwt')).toBeNull()
+    g.fetch = async () => reply(200, { nonsense: 1 })
+    expect(await serverHasPass('jwt')).toBeNull()
+    g.fetch = async () => {
+      throw new TypeError('offline')
+    }
+    expect(await serverHasPass('jwt')).toBeNull()
   })
 
   it('a fresh pass comes back with a minute of slack', async () => {
@@ -205,6 +225,45 @@ describe('the app asks the server first (mocked endpoints)', () => {
     expect(mem.has('learning-notes:sync.session')).toBe(true)
   })
 
+  it('the status line tells the server truth: a device that thinks Drive is kept when the server has no key learns it', async () => {
+    // The memory says "kept" (set at some sign-in), the table has 0 rows.
+    g.fetch = async () => reply(200, { stored: false })
+    const auth = supabaseAuth()
+    expect(auth.driveLasting?.()).toBe('kept')
+    expect(await auth.checkDriveLasting?.()).toBe('ask')
+    expect(mem.has('learning-notes:sync.driveOffline')).toBe(false)
+    expect(auth.driveLasting?.()).toBe('ask')
+  })
+
+  it('a device that does not remember the key, while the server holds it, says kept', async () => {
+    mem.delete('learning-notes:sync.driveOffline')
+    g.fetch = async () => reply(200, { stored: true })
+    const auth = supabaseAuth()
+    expect(auth.driveLasting?.()).toBe('ask')
+    expect(await auth.checkDriveLasting?.()).toBe('kept')
+    expect(mem.get('learning-notes:sync.driveOffline')).toBe('1')
+  })
+
+  it('a pass that comes from the server means the key is kept, whatever this device remembered', async () => {
+    mem.delete('learning-notes:sync.driveOffline')
+    g.fetch = async () => reply(200, { access_token: 'T1', expires_in: 3600 })
+    const auth = supabaseAuth()
+    expect(auth.driveLasting?.()).toBe('ask')
+    expect(await auth.driveToken(false)).toBe('T1')
+    expect(auth.driveLasting?.()).toBe('kept')
+  })
+
+  it('offline or a missing function: the status check changes nothing', async () => {
+    g.fetch = async () => {
+      throw new TypeError('offline')
+    }
+    const auth = supabaseAuth()
+    expect(await auth.checkDriveLasting?.()).toBe('kept')
+    g.fetch = async () => reply(404, { code: 'NOT_FOUND' })
+    expect(await auth.checkDriveLasting?.()).toBe('kept')
+    expect(mem.get('learning-notes:sync.driveOffline')).toBe('1')
+  })
+
   it('offline: null now, asks again next time', async () => {
     g.fetch = async () => {
       throw new TypeError('offline')
@@ -305,6 +364,26 @@ describe('server function (mocked Supabase and Google)', () => {
     expect(w.rows.get('U1')).not.toContain('REFRESH-SECRET-VALUE-1234567890')
     const r = await ask('token', w.f)
     expect(await r.json()).toEqual({ access_token: 'G', expires_in: 3599 })
+  })
+
+  it('status says whether a key is kept, and never the key', async () => {
+    const w = world()
+    const before = await ask('status', w.f)
+    expect(await before.json()).toEqual({ stored: false })
+    await ask('store', w.f, {
+      refresh_token: 'REFRESH-SECRET-VALUE-1234567890',
+    })
+    const after = await ask('status', w.f)
+    const text = await after.text()
+    expect(JSON.parse(text)).toEqual({ stored: true })
+    expect(text).not.toContain('REFRESH-SECRET')
+    await ask('revoke', w.f)
+    expect(await (await ask('status', w.f)).json()).toEqual({ stored: false })
+  })
+
+  it('status is for the owner only', async () => {
+    expect((await ask('status', world().f, {}, null)).status).toBe(401)
+    expect((await ask('status', world({ email: 'x@y.z' }).f)).status).toBe(403)
   })
 
   it('no stored token = 404 none', async () => {

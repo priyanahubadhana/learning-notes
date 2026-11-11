@@ -1072,3 +1072,9 @@ The other older decisions stand as built (owner, 2026-11-01); they are in [ARCHI
 - **"Last read" = the most recent `openedAt`**, not the furthest place. The furthest place is kept apart (`furthest`, shown by "Sync to furthest page read"). So reading page 20 on the PC after reading page 80 on the iPad moves your place to 20 everywhere, as a Kindle does with "Sync to furthest" as the escape.
 - **A star or a read does not change `updatedAt`** (like progress before), so it does not reorder lists that show the last edit.
 - **Older local stars** are written to their pages the first time the app starts after this update, newest first in the list's order.
+
+## Decisions to review (Drive status, 11 Nov)
+
+- **The server is asked, the flag is only a memory.** The status line and the consent choice now follow what the server says when it can be reached. Other option: also count the rows by a direct SQL check by hand (still the quickest way to look: Supabase › Table editor › drive_tokens).
+- **Not confirmed from here:** why a Google sign-in on the owner's live project returned no refresh token at first (the owner later saw "stays connected"). The diagnostics line (Settings › Advanced › Slow moments, kind drive) is the evidence to read if it happens again.
+- I touched `connectors/supabase.ts` in two small places only (the flag when a server pass works, and the new check); no sign-in or session code.

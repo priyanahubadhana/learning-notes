@@ -18,6 +18,7 @@ import { RecoveryCodeView } from './RecoveryCodeView'
 import { SignInPanel } from './SignInPanel'
 import { UnlockForm } from './UnlockForm'
 import {
+  checkDriveLasting,
   driveLastingState,
   aiKeysSyncOn,
   getSyncStatus,
@@ -297,6 +298,15 @@ function Sessions({ onAll }: { onAll: () => void }) {
 
 function DriveLasting() {
   const { linked, refresh } = useGoogleLinked()
+  // The line tells the server's truth, not only this device's memory.
+  const [, redraw] = useState(0)
+  useEffect(() => {
+    let live = true
+    void checkDriveLasting().then(() => live && redraw((n) => n + 1))
+    return () => {
+      live = false
+    }
+  }, [])
   const d = driveLastingState()
   // Signed in by email only: Drive backup needs Google (one clear button).
   if (linked === false) return <DriveConnectCard onDone={refresh} />

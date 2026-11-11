@@ -6,7 +6,12 @@ import {
 } from './config'
 import { driveNote, lastDriveNote } from './driveDiag'
 import { createDrivePass } from './drivePass'
-import { revokeServerToken, serverPass, storeRefreshToken } from './driveServer'
+import {
+  revokeServerToken,
+  serverHasPass,
+  serverPass,
+  storeRefreshToken,
+} from './driveServer'
 import { preloadGoogle, renewDriveToken } from './google'
 import { sessionEnded } from './sessionEnd'
 import { failure, parseMethods, serverFailure } from './emailAuth'
@@ -332,7 +337,12 @@ export function supabaseAuth(): AuthProvider {
       // 1. The server's refresh token: no window, no Google cookies.
       if (Date.now() > serverOffUntil) {
         const r = await serverPass(await freshAccess())
-        if (r.kind === 'ok') return r
+        if (r.kind === 'ok') {
+          // The server holds the key and it works: this device knows it too
+          // (a device signed in another way, or whose memory was cleared).
+          flag(true)
+          return r
+        }
         if (r.kind === 'error') return null // offline: try again later
         if (r.kind === 'unavailable') serverOffUntil = Date.now() + 10 * 60_000
         if (r.kind === 'revoked' || r.kind === 'none') {
@@ -356,6 +366,13 @@ export function supabaseAuth(): AuthProvider {
     signIn: () => startSignIn(!flag()),
 
     driveLasting: () => (flag() ? 'kept' : 'ask'),
+    async checkDriveLasting() {
+      if (session) {
+        const has = await serverHasPass(await freshAccess().catch(() => ''))
+        if (has !== null) flag(has)
+      }
+      return flag() ? 'kept' : 'ask'
+    },
     lastDriveNote,
     // Re-runs Google's consent so the server gets a refresh token.
     setUpLasting: () => startSignIn(true),

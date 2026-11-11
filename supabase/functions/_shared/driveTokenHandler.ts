@@ -1,6 +1,8 @@
 /**
  * The Drive pass keeper (Supabase Edge Function logic, no Deno calls so it can
  * be tested). One address, three jobs, always for the signed-in owner only:
+ *   status - says whether a token is kept (never the token), so the app's
+ *            "Drive: stays connected" line is the server's truth
  *   store  - keeps the Google refresh token, locked (AES-GCM), one per account
  *   token  - trades the refresh token for a fresh one-hour Drive pass
  *   revoke - tells Google to cancel it and deletes the row
@@ -127,6 +129,13 @@ export async function handle(
   }
 
   try {
+    if (body.action === 'status') {
+      const r = await db(`${row}&select=updated_at`)
+      if (!r.ok) return json(502, { error: 'try later' })
+      const rows = (await r.json()) as unknown[]
+      return json(200, { stored: rows.length > 0 })
+    }
+
     if (body.action === 'store') {
       const t = body.refresh_token
       if (!t || t.length > 2000) return json(400, { error: 'bad token' })

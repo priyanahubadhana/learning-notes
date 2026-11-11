@@ -1,5 +1,9 @@
 # Owner checks still pending (collected for the end-of-run iPad pass)
 
+## Drive status truth (11 Nov)
+
+Redeploy the Drive function once: `npx supabase functions deploy drive-token --project-ref eludllranljtyasdoyaj --no-verify-jwt` (it learns the new `status` answer). Then Settings › Account: the Drive line should match Supabase › Table editor › drive_tokens (1 row = "stays connected", 0 rows = "will ask"). Try on the iPad and the PC: both say the same thing. Why human: needs the live project.
+
 ## Drive for email-only accounts (11 Nov)
 
 Sign out, sign in again with an email code only (no Google). Settings › Account › Connections shows "Drive backup needs Google" and a "Connect Google for Drive backup" button; tap it, choose your Google account, allow Drive: you come back to Account and the card is gone (Settings › Account › Connected accounts lists Google). If Drive ever needs a tap, the top banner offers the same button. Why human: needs the real Google screen.

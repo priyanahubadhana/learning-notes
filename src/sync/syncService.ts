@@ -574,6 +574,11 @@ export function driveLastingState(): {
     : null
 }
 
+/** Asks the server if Drive's key is really kept, then answers like `driveLastingState`. */
+export async function checkDriveLasting(): Promise<void> {
+  await getConnectors().auth.checkDriveLasting?.()
+}
+
 /** "Set up lasting connection": signs in again with Google's consent screen. */
 export async function setUpLastingDrive(): Promise<void> {
   await getConnectors().auth.setUpLasting?.()

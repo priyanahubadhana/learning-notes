@@ -134,6 +134,11 @@ export interface AuthProvider {
   dropDriveToken?(): void
   /** Does the server hold Drive's long-lived key? ('ask' = will ask to reconnect). */
   driveLasting?(): 'kept' | 'ask'
+  /**
+   * Asks the server whether it holds Drive's long-lived key and corrects this
+   * device's memory of it, then answers like `driveLasting`. Offline: no change.
+   */
+  checkDriveLasting?(): Promise<'kept' | 'ask'>
   /** The last Drive-connection note (plain words, no secrets). */
   lastDriveNote?(): string
   /** Sign in again WITH Google's consent screen so the server gets the key. */

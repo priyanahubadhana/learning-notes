@@ -63,6 +63,24 @@ export async function serverPass(accessToken: string): Promise<ServerPass> {
   }
 }
 
+/**
+ * Does the server hold Drive's long-lived key for this account? `null` =
+ * cannot tell (offline, function missing, a hiccup): callers keep what they
+ * knew. The key itself never comes back, only yes or no.
+ */
+export async function serverHasPass(
+  accessToken: string,
+): Promise<boolean | null> {
+  try {
+    const res = await post(accessToken, { action: 'status' })
+    if (!res.ok) return null
+    const out = (await res.json().catch(() => ({}))) as { stored?: unknown }
+    return typeof out.stored === 'boolean' ? out.stored : null
+  } catch {
+    return null
+  }
+}
+
 /** Hands Google's refresh token (from sign-in) to the server. True = kept. */
 export async function storeRefreshToken(
   accessToken: string,

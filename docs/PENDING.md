@@ -66,3 +66,5 @@ plans/owner-ideas-batch-2-2026-11-10.md: update bar, Acrobat PDF tools, customiz
 - Empty worktree folders the owner can delete by hand: ln-l, ln-base2, ln-ci2, ln-g, ln-g2, ln-a, ln-base, dist-rb.
 
 - CI fix pushed 11 Nov for Text box v2 (deploy pending green CI); check the deploy ran, then delete this line.
+
+- Owner top bugs 1-3 (box line outline, caret spot, Pencil double/triple tap) fixed in code 11 Nov, need the owner iPad check. NOT done yet: Text box v2 steps 4-6 and Layout mode v2 (large; need a fresh session). Pencil-writes-text default in a box not verified.

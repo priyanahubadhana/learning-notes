@@ -1156,3 +1156,11 @@ body:has([data-ink-pad]) [data-sel-handle]::after {
 [data-paper-box] [data-box-content] .bn-inline-content {
   overflow-wrap: break-word;
 }
+
+/* Owner 11 Nov: inside a text box only the whole box shows as selected (GoodNotes
+   style); a line or block never gets its own outline or flash. */
+[data-paper-box] [data-active-block] > .bn-block-content,
+[data-paper-box] [data-caret-flash] > .bn-block-content {
+  outline: none;
+  background: none;
+}

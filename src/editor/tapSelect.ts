@@ -290,7 +290,7 @@ export function watchTapSelect(
       count,
       shift,
     }
-    const level = count - shift
+    const level = count === 1 ? 1 - shift : count
     // The tap that selects a box types nothing and shows no keyboard; the
     // taps after the first on the Pencil are held off (R6-18).
     if (level <= 0) {
@@ -311,7 +311,7 @@ export function watchTapSelect(
     if (
       touch &&
       (ours(e.target, touch.clientX, touch.clientY) ||
-        (down && down.count - down.shift <= 0))
+        (down && down.count === 1 && down.shift >= 1))
     ) {
       e.preventDefault()
     }
@@ -329,7 +329,7 @@ export function watchTapSelect(
       return
     }
     const count = start.count
-    const level = count - start.shift
+    const level = count === 1 ? 1 - start.shift : count
     last = { ...start, at: Date.now(), x: e.clientX, y: e.clientY }
     const view = editor.prosemirrorView
     if (!view) return
@@ -349,7 +349,7 @@ export function watchTapSelect(
     // The first caret tap is the browser's own (Text tool) or the ink pad's
     // (Lasso); in a paper box under the Lasso it is placed here.
     const inBox = !!dom.closest('[data-paper-box]:not([data-paper-box="main"])')
-    if (level === 1 && (activeTool.get() === 'text' || !inBox)) return
+    if (level === 1 && !inBox) return
     const pos = lookThrough(padOf(e.target), () =>
       posNear(view, e.clientX, e.clientY),
     )

@@ -3,6 +3,7 @@ import { purgeBooksOf } from '../core/bookPurge'
 import { purgeRecordingsOf } from '../core/recordingPurge'
 import { purgeSummaryOf } from '../core/summaryService'
 import { purgeInkOf } from '../core/inkService'
+import { imagesUsedBy, purgeUnusedImages } from '../core/imagePurge'
 import { byOrder, orderAtIndex } from '../core/order'
 import {
   descendantIds,
@@ -353,11 +354,13 @@ export async function purgeNotebook(
       .filter(isInTrash)
       .map((p) => p.id)
     const blockIds = await blocksOf(db, pageIds, null)
+    const images = await imagesUsedBy(db, pageIds, blockIds)
 
     await purgeMany(db.notebooks, [id], { title: '' }, now)
     await purgePages(db, pageIds, now)
     await purgeMany(db.blocks, blockIds, { content: {} }, now)
     await purgeCardsOf(db, blockIds, now)
+    await purgeUnusedImages(db, images, now)
   })
 }
 
@@ -375,10 +378,12 @@ export async function purgePage(
       .toArray()
     const pageIds = deletedTogether(pages, page)
     const blockIds = await blocksOf(db, pageIds, null)
+    const images = await imagesUsedBy(db, pageIds, blockIds)
 
     await purgePages(db, pageIds, now)
     await purgeMany(db.blocks, blockIds, { content: {} }, now)
     await purgeCardsOf(db, blockIds, now)
+    await purgeUnusedImages(db, images, now)
   })
 }
 
@@ -413,6 +418,7 @@ function purgeTables(db: LearningNotesDB) {
     db.inkChunks,
     db.recordings,
     db.bookFiles,
+    db.images,
     db.annotations,
     db.summaryItems,
   ]
@@ -428,6 +434,7 @@ async function purgePages(
     title: '',
     tagIds: undefined,
     values: undefined,
+    coverImageId: undefined,
   }
   await purgeMany(db.pages, pageIds, emptied, now)
   await db.rowRefs.where('fromPageId').anyOf(pageIds).delete()
@@ -459,6 +466,7 @@ async function purgeDatabaseRecords(
       .filter(isInTrash)
       .map((p) => p.id)
     const blockIds = await blocksOf(db, pageIds, null)
+    const images = await imagesUsedBy(db, pageIds, blockIds)
 
     const emptiedDb: Partial<Database> = { title: '', titleName: undefined }
     const emptiedColumn: Partial<DbColumn> = { name: '', config: {} }
@@ -469,5 +477,6 @@ async function purgeDatabaseRecords(
     await purgePages(db, pageIds, now)
     await purgeMany(db.blocks, blockIds, { content: {} }, now)
     await purgeCardsOf(db, blockIds, now)
+    await purgeUnusedImages(db, images, now)
   }
 }

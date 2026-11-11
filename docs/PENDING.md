@@ -255,3 +255,4 @@ Three ways of using the reader, as presets:
 - Shared app shell spec: docs/design/shell-spec.md (23 contradictions found between mocks; all mocks are being moved onto the shell). Rail icon picks: Library = books on a shelf, Notebooks = notebook + pencil, Review = flashcards + tick (B options in the mock). Shell decisions to confirm: the More sheet docks right at full height (full screen on phone); the phone tab bar is attached full width; breakpoints 640/1180.
 - OWNER: Beginner toolbar also gets a small Shapes & drawing aids icon (simple card).
 - REMIND OWNER: test the right-docked full-height More sheet on the iPad (real use) once built.
+- PAUSED 12 Nov (owner at 93% of the limit): shell adoption for search/review/settings/annotations mocks (restart after the reset), the CI WebKit debug watcher (TEMP logging 84e0e9b still on main; read the [tapdbg]/[rddbg] logs, fix, then revert). Only planning continues.

@@ -1608,3 +1608,4 @@ Plan: [plans/polish-2-2026-11.md](plans/polish-2-2026-11.md). Items 8, 9 and 15 
 - 2026-11-11: reader revamp research plan. Files: docs/plans/reader-revamp-plan.md
 - 2026-11-11: library revamp plan + deep-study ideas explainer. Files: docs/plans/library-revamp-plan.md
 - 2026-11-12: Home dashboard plan (building blocks, gaps, templates). Files: docs/plans/home-dashboard-plan.md
+- 2026-11-12: agent hierarchy (Fable manager → Opus sub-managers → Sonnet/Haiku executors). Files: .claude/agents/*.md, rules/building.md

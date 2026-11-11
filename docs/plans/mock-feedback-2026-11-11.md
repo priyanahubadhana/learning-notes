@@ -95,3 +95,16 @@ Four modes:
 - N4: the More sheet must open at a fixed place/height (full height), scrolling inside, not jumping with content size.
 - N5: covers: many more cover styles (patterns, gradients, illustrated), plus a custom photo upload with the right proportions shown and a crop.
 - N6: never remove existing features; the Notebooks tab looked blank-ish. Research everything existing first, then improve it.
+
+### Home dashboard answers (owner, 12 Nov)
+
+- Summary widgets: numbers + streaks.
+- Q1: fixed sizes by default, but resizable, and different per device (e.g. bigger on iPad than iPhone).
+- Q2: move the planner/timer data into normal databases ✓.
+- Q3: an Activity-types list with points ✓. Plus each dashboard chooses WHICH data sources count (e.g. pages read count, cards reviewed don't), Notion-like.
+- Q5, Q6: unclear; explained again in chat.
+- Q7: ask "use existing or new" ✓.
+- Q8: template export may include data freely (the user decides). Export formats incl. PDF now.
+- Q9: highlight sharing: image card + text + PDF now.
+- Q10: highlight defaults as proposed + more default options.
+- Q11: build order: FIRST a mock-up of the templates themselves (Planner, Learning tracker, Finance) for approval, THEN the building tools so users can make them.

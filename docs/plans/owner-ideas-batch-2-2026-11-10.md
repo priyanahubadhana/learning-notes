@@ -13,3 +13,4 @@ Noted while batch 1 is being built. Test batch 1 first, then decide which of the
 6. **Text box ideas parked (11 Nov):** link two boxes with an arrow (mind-map style); send a box to the Summary; link a box to another page or a book highlight; ask AI about one box (explain, shorten, quiz). Later.
 7. **Rotate a text box (parked 11 Nov).**
 8. **Overlapping boxes like GoodNotes (parked 11 Nov).** After the basics.
+9. **Interactive playground / guided tutor (parked 12 Nov).** In Help, a practice "playground" where a guide bot walks users through building a database, a dashboard and other advanced features hands-on (like a game's tutorial level), instead of reading docs.

@@ -9,6 +9,9 @@ import {
   type GroupedItem,
 } from './rowGroups'
 import { useRowWindow } from './useRowWindow'
+import { idsByGroup } from './reorderRows'
+import { RowGrip } from './RowGrip'
+import { useRowReorder } from './useRowReorder'
 import { AppUiContext } from '../../app/appUi'
 import type { DbColumn, JsonValue } from '../../core/types'
 import { t, type MessageKey } from '../../i18n/t'
@@ -150,6 +153,21 @@ export function TableView({ db, database, view, onOpenPage }: ViewProps) {
       : rows.map((row) => ({ kind: 'row', row }))
   }, [rows, allColumns, view.config, collapsed])
   const { range, before, after } = useRowWindow(items.length, body)
+  // Rows can be moved by hand while nothing sorts them.
+  const groupIds = useMemo(() => idsByGroup(items), [items])
+  const titles = useMemo(
+    () =>
+      new Map(
+        rows.map((r) => [r.page.id, r.page.title || t('review.untitled')]),
+      ),
+    [rows],
+  )
+  const reorder = useRowReorder({
+    db,
+    enabled: !query.sorts?.length,
+    groups: groupIds,
+    nameOf: (id) => titles.get(id) ?? '',
+  })
   if (!data || !allColumns) {
     return <p className="text-sm text-muted">{t('notebook.loading')}</p>
   }
@@ -617,7 +635,12 @@ export function TableView({ db, database, view, onOpenPage }: ViewProps) {
                 }
                 const row = item.row
                 return (
-                  <tr key={row.page.id} data-page-row>
+                  <tr
+                    key={row.page.id}
+                    data-page-row
+                    {...reorder.row(row.page.id)}
+                    className="group/row"
+                  >
                     <th
                       scope="row"
                       className={`${cell} sticky start-0 bg-bg text-start font-medium`}
@@ -640,6 +663,9 @@ export function TableView({ db, database, view, onOpenPage }: ViewProps) {
                         />
                       ) : (
                         <span className="flex items-start gap-1.5">
+                          {!query.sorts?.length && (
+                            <RowGrip grip={reorder.grip(row.page.id)} />
+                          )}
                           <button
                             type="button"
                             aria-label={`${t('table.editCell', {
@@ -701,6 +727,7 @@ export function TableView({ db, database, view, onOpenPage }: ViewProps) {
           </button>
         </NewRowTip>
       </div>
+      {reorder.overlay}
       {!tracker && <HelpLine id="db.table" />}
       {tracker && (
         <>

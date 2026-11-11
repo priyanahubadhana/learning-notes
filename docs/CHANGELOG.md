@@ -2,6 +2,16 @@
 
 Current phase only. Older entries are in [ARCHIVE.md](ARCHIVE.md).
 
+## 2026-11-12 (Q7a: Calendar, Year view, drag to change date, re-order rows)
+
+- **Calendar view:** an optional **End date column** makes a row span several days (lanes per week, so a span keeps its place; the title shows on its first day and on Mondays). "+ N more" is now a button that lists every row of the day (windowed, so a day of thousands of rows is fine). Today highlighted, Previous / Today / Next kept.
+- **Year view:** third range (Month / Week / Year): 12 mini months, a dot on days with rows (stronger with more), today circled; tap a day (or a month name) to open that month. Previous / Next move by a year.
+- **Drag to change the date:** drag a row's chip to another day (mouse; Pencil / pen at once; finger after holding it, moving sooner scrolls); the date changes (a multi-day row keeps its length), a toast offers **Undo** (one step per drag). Keyboard: focus a row, Space picks it up, arrows move it a day (left/right) or a week (up/down), Space drops it, Escape puts it back; screen-reader texts announce each step. Dates with a time keep their local clock time.
+- **Re-order rows in Table and List:** a grip (six dots) on each row; drag it (mouse, Pencil, finger: the grip never scrolls), or Space + Up / Down + Space. Only while the view has no sort; inside a group a row moves within its group. One Undo per move. Lists auto-scroll while dragging near the edge.
+- **First load:** the Calendar screens load only when a Calendar view is opened (LazyCalendar.tsx); first load 301,869 B gzipped (limit 320,000).
+- **Tests:** vitest calendarSpans / calendarMove / reorderRows (UTC-safe date maths run under 4 time zones, 10,000-row speed); e2e/databaseCalendar.spec.ts (mouse, pen, finger, keyboard, Undo, Year, +N more) and e2e/rowReorder.spec.ts (Table + List, mouse, keyboard, touch, sort hides grips).
+- **Files:** databases/views/{CalendarView,CalendarYear,CalendarDayList,LazyCalendar,DragGhost,RowGrip}.tsx, {calendarSpans,calendarMove,reorderRows,useDragGesture,useRowReorder,useCalendarSpans}.ts(x), TableView.tsx, ListView.tsx, viewTypes.ts, index.css, i18n/{enCal,hiCal,esCal}.ts (spread into enQ/hiQ/esQ), docs/features/database-views.md.
+
 ## 2026-11-11 (Claude connector B, slices 1-2: notebook spec, sign-in door, empty server)
 
 - **What:** (1) The notebook spec: `src/connector/spec.schema.json` (JSON Schema 2020-12) and `spec.ts`, a validator that never throws, refuses unknown fields and non-https links, names the exact place of each mistake, and enforces 256 KB, 50 pages, 200 blocks a page, 500 cards. (2) `supabase/functions/mcp`: a stateless MCP Streamable HTTP endpoint; every tool is registered, only `ping` works, the rest say "not enabled yet". (3) OAuth 2.1 in `_shared/oauth.ts`: metadata, dynamic client registration, authorize (PKCE S256 only, claude.ai and claude.com callbacks only), token (1 h passes bound to the address, 30-day refresh passes that rotate; reuse cancels the chain), revoke; passes stored only as hashes (migration `20261111000001_oauth.sql`, RLS on, no policy). (4) The consent screen at `#/connect` (lazy, in the app) with English, Hindi and Spanish text.

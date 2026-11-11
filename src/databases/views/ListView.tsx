@@ -15,7 +15,10 @@ import {
   type GroupedItem,
 } from './rowGroups'
 import { useDatabaseData } from './useDatabaseData'
+import { idsByGroup } from './reorderRows'
 import { useRowWindow } from './useRowWindow'
+import { RowGrip } from './RowGrip'
+import { useRowReorder } from './useRowReorder'
 import { knownQuery, readHidden, readRowQuery, withSort } from './viewConfig'
 import type { ViewProps } from './viewTypes'
 
@@ -50,6 +53,22 @@ export function ListView({ db, database, view, onOpenPage }: ViewProps) {
       : rows.map((row) => ({ kind: 'row', row }))
   }, [rows, columns, view.config, collapsed])
   const { range, before, after } = useRowWindow(items.length, body)
+  // Rows can be moved by hand while nothing sorts them.
+  const groupIds = useMemo(() => idsByGroup(items), [items])
+  const titles = useMemo(
+    () =>
+      new Map(
+        rows.map((r) => [r.page.id, r.page.title || t('review.untitled')]),
+      ),
+    [rows],
+  )
+  const manual = !readRowQuery(view.config).sorts?.length
+  const reorder = useRowReorder({
+    db,
+    enabled: manual,
+    groups: groupIds,
+    nameOf: (id) => titles.get(id) ?? '',
+  })
 
   if (!data || !columns) {
     return <p className="text-sm text-muted">{t('notebook.loading')}</p>
@@ -166,12 +185,16 @@ export function ListView({ db, database, view, onOpenPage }: ViewProps) {
           return (
             <li
               key={row.page.id}
-              className="border-b border-line last:border-b-0"
+              {...reorder.row(row.page.id)}
+              className="group/row flex items-center border-b border-line last:border-b-0"
             >
+              {manual && (
+                <RowGrip grip={reorder.grip(row.page.id)} className="ms-1.5" />
+              )}
               <button
                 type="button"
                 onClick={() => onOpenPage(row.page.id)}
-                className="flex min-h-11 w-full flex-wrap items-baseline gap-x-3 px-3 py-2 text-start hover:bg-hover"
+                className="flex min-h-11 min-w-0 flex-1 flex-wrap items-baseline gap-x-3 px-3 py-2 text-start hover:bg-hover"
               >
                 <span className={row.page.title ? 'font-medium' : 'text-muted'}>
                   {title}
@@ -185,6 +208,7 @@ export function ListView({ db, database, view, onOpenPage }: ViewProps) {
         })}
         {after > 0 && <li aria-hidden style={{ height: after }} />}
       </ul>
+      {reorder.overlay}
       {rows.length === 0 && (
         <p className="px-1 py-3 text-sm text-muted">{t('database.empty')}</p>
       )}

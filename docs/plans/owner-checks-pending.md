@@ -1,5 +1,9 @@
 # Owner checks still pending (collected for the end-of-run iPad pass)
 
+## Q7a Calendar, Year view, drag, re-order (12 Nov)
+
+On the iPad: (1) Database > + View > Calendar: rows sit on their date; hold a row with a finger for a moment (it lifts), drag it to another day, release: the date changes and a toast offers Undo (one tap undoes it). Moving the finger at once scrolls the page instead. (2) The same with the Pencil: touch a row and drag, no hold needed; check the page does not scroll under the Pencil. (3) Month / Week / Year: Year shows 12 small months with dots; tap a day and the month opens. (4) A day with more than 3 rows shows "+ N more"; tapping lists them all. (5) Add a second Date column, choose it in "End date column": a row with both dates spans several days. (6) Table and List: the six-dot grip left of each row; drag it with finger or Pencil (the page must not scroll), release, Undo puts it back. With a sort active the grips are gone. (7) Keyboard (iPad keyboard): Tab to a row in the Calendar, Space, arrows, Space; same on a grip.
+
 ## Claude connector B: set up and try (11 Nov, later; needs your OK to deploy)
 
 Not deployed. When you are ready, follow docs/features/claude-connector.md, "Online connector (B)": run the SQL file in Supabase, deploy `mcp` with `--no-verify-jwt`, publish the app, then in claude.ai add the custom connector with the function address and tap Allow on the Learning Notes screen. Check: the Allow screen ("Connect Claude") lists the permissions in plain words and looks right on the iPad (44 pt buttons, dark and light), and Claude can run the `ping` tool. Why human: needs the live project and claude.ai.

@@ -157,7 +157,7 @@ plans/owner-ideas-batch-2-2026-11-10.md: update bar, Acrobat PDF tools, customiz
 
 ## OWNER open-items choices (11 Nov)
 
-- BUILD: Magnifier in reader; Book annotations; AI-off card; Prompts on note pages; Make notes from a PDF; Claude connector; Cost estimate; Default paper style; Settings previews & tour; Reduce glass check; Table rows across sheet gap; Database page filter; Search checkboxes & formulas; Calendar/year view/row reorder; Custom Views; All/Starred/Recent tabs; Picture border/wrap/draw-on; Delete forever removes pictures; Labels & tape on pictures; Required-update marker; Shorten HANDOFF; CHANGELOG stray text; Old copies (3 unsaved files done 11 Nov); Undo gaps (47); Old flaky tests; Spanish & Hindi; First-download size; Replace emoji icons; Premium design 3–6; Acrobat PDF tools.
+- BUILD: Magnifier in reader; Book annotations; AI-off card; Prompts on note pages; Make notes from a PDF; Claude connector; Cost estimate; Default paper style; Settings previews & tour; Reduce glass check; Table rows across sheet gap; Database page filter; Search checkboxes & formulas; Custom Views; All/Starred/Recent tabs; Picture border/wrap/draw-on; Delete forever removes pictures; Labels & tape on pictures; Required-update marker; Shorten HANDOFF; CHANGELOG stray text; Old copies (3 unsaved files done 11 Nov); Undo gaps (47); Old flaky tests; Spanish & Hindi; First-download size; Replace emoji icons; Premium design 3–6; Acrobat PDF tools.
 - LATER: Shapes/ruler/tape in reader pen; Open sync to everyone; Per-notebook presets; Video timestamps beyond YouTube; Update bar at top.
 - DROP: Update pill vs bar.
 - Rule: anything that touches the UI being redesigned in the mock-up (toolbar, text box, Lasso, ink, layout, settings layout) waits until the owner signs off the mock-up. Everything else goes ahead under the Apple + Toyota + premium-design rules.
@@ -167,7 +167,6 @@ plans/owner-ideas-batch-2-2026-11-10.md: update bar, Acrobat PDF tools, customiz
   - Q4 (a) Notes from a PDF with a cost estimate before each run. PLUS a full audit of every AI/cost setting so no two settings double-enable a paid feature or charge twice (severity: high).
   - Q5 (b) the Claude connector reads AND writes from the start.
   - Q6 unclear ("A. B."), ask.
-  - Q7 (a) calendar + year view + drag a row to change its date.
   - Q8 Acrobat-style: combine files, scan, OCR, organise pages, export. NO Fill & Sign. Our own Pen, Highlighter, Note and Text tools work on PDFs at the same time.
   - Q9 handle the 3 unsaved files as I judge best, safely (no consequences).
   - Q10 reliability first, then features.

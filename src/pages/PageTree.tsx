@@ -4,6 +4,7 @@ import { useLiveQuery } from 'dexie-react-hooks'
 import { useContext, useState, type ReactNode } from 'react'
 import { AppUiContext } from '../app/appUi'
 import { runTask } from '../app/errors'
+import { pushStep, quietAsync } from '../core/historySteps'
 import { favourites, toggleFavourite } from '../app/favourites'
 import { RenameInput, RowMenuButton, IconButton } from '../app/ui'
 import { LazyPageMenu } from '../app/LazyNameSheet'
@@ -91,9 +92,18 @@ export function PageTree({
   const moveWithUndo = (id: string, plan: PageMovePlan | null) => {
     if (!plan) return
     const before = currentPlace(pages, id)
+    // The move is one step of the page's Undo history (no toast: B3-12).
+    const move = (to: { parentId: string | null; index: number }) =>
+      quietAsync(() => movePage(db, id, to.parentId, to.index))
     runTask(
-      movePage(db, id, plan.parentId, plan.index).then(() => {
+      move(plan).then(() => {
         if (!before) return
+        pushStep({
+          kind: 'pageMove',
+          label: t('tree.moved'),
+          undo: () => runTask(move(before)),
+          redo: () => runTask(move(plan)),
+        })
       }),
     )
   }

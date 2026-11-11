@@ -81,3 +81,17 @@ Four modes:
 - Q6b list what the app can't yet build for these templates, and add those building blocks.
 - Q7 Daily Highlight with a full settings page ✓, plus sharing in multiple formats.
 - Research: Notion dashboards, Tableau and pro dashboard makers; build Home as a user-buildable dashboard.
+
+## Notebooks (owner, 12 Nov) + uniformity
+
+- U1: ALL mock-ups must share one app shell (rail, top bar, bottom bars, icons, panels) with no contradictions between mocks. One shared shell spec.
+- U2: rail icons: Home and Light are good. Redesign Recall/Review, Library and Notebook icons to be meaningful.
+- N1: restore the Notion-like sidebar that opens all notebooks, plus the small side bar with Pages · Outline · (Audio) tabs.
+  - Pages: the current page is highlighted and centred, scroll, tap to open, drag to reorder (Acrobat-like organise).
+  - Outline: the whole notebook outline centred on where you are.
+  - Audio: remove it; replace with a flexible "Resources" tab (add images, references, links, anything to reuse).
+- N2: a one-click "Collapse all notebooks" toggle (existed before).
+- N3: notebook settings: pick the notebook from a list/toggle at the top, then edit its settings in one shared panel (not a separate page per book). Apply this pattern in ALL mocks where sensible.
+- N4: the More sheet must open at a fixed place/height (full height), scrolling inside, not jumping with content size.
+- N5: covers: many more cover styles (patterns, gradients, illustrated), plus a custom photo upload with the right proportions shown and a crop.
+- N6: never remove existing features; the Notebooks tab looked blank-ish. Research everything existing first, then improve it.

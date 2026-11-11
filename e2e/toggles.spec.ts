@@ -55,6 +55,41 @@ for (const tab of ['Home', 'Insert', 'Draw', 'View', 'Review']) {
       if ((await tabButton.count()) === 0) {
         // Reading mode (and what starts it) covers the bar by design: leave it
         // and check the ribbon is still on the tab it was on (owner note 18).
+        // TEMP CI debug (remove)
+        console.log(
+          '[rddbg] after',
+          name,
+          await page.evaluate(
+            () =>
+              [...document.querySelectorAll('[data-testid=reader-exit]')]
+                .map((b) => {
+                  const out = []
+                  for (let e: Element | null = b; e; e = e.parentElement) {
+                    const c = getComputedStyle(e)
+                    const r = e.getBoundingClientRect()
+                    out.push(
+                      e.tagName +
+                        '.' +
+                        (e.getAttribute('class') ?? '').slice(0, 40) +
+                        ' d=' +
+                        c.display +
+                        ' v=' +
+                        c.visibility +
+                        ' o=' +
+                        c.opacity +
+                        ' ' +
+                        [r.x, r.y, r.width, r.height].map(Math.round).join(','),
+                    )
+                  }
+                  return out.join(' < ')
+                })
+                .join(' || ') +
+              ' fs=' +
+              !!document.fullscreenElement +
+              ' html=' +
+              document.documentElement.className,
+          ),
+        )
         await page.getByRole('button', { name: 'Exit reading' }).first().click()
         // The restored selection opens its own context tab (by design); a caret
         // puts the bar back on the tab it remembered.

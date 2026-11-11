@@ -125,10 +125,18 @@ export function visualLineRange(
   const away = (r: { top: number; bottom: number }) =>
     y < r.top ? r.top - y : y > r.bottom ? y - r.bottom : 0
   const row = rows.reduce((a, b) => (away(b) < away(a) ? b : a))
+  dbg('line', { pos, y, box: [box.left, box.right, box.top, box.bottom], rows })
   const mid = (row.top + row.bottom) / 2
   const clamp = (p: number) => Math.min(end, Math.max(start, p))
   const left = view.posAtCoords({ left: box.left + 1, top: mid })
   const right = view.posAtCoords({ left: box.right - 1, top: mid })
+  dbg('edges', {
+    left,
+    right,
+    at: document
+      .elementFromPoint(box.left + 1, (row.top + row.bottom) / 2)
+      ?.outerHTML.slice(0, 80),
+  })
   if (!left || !right) return whole
   let a = clamp(left.pos)
   let b = clamp(right.pos)
@@ -154,6 +162,12 @@ export function rangeForTaps(
   if (taps === 3) return visualLineRange(view, pos, y)
   const word = wordAround($pos.parent.textContent, $pos.parentOffset)
   return word ? [$pos.start() + word[0], $pos.start() + word[1]] : null
+}
+
+/** TEMP CI debug (remove): on when a test sets window.__lnTapDebug. */
+const dbg = (...a: unknown[]) => {
+  if ((globalThis as { __lnTapDebug?: boolean }).__lnTapDebug)
+    console.log('[tapdbg]', JSON.stringify(a))
 }
 
 /** Counts taps (pure, tested): same spot and quick enough add up. */
@@ -304,6 +318,14 @@ export function watchTapSelect(
       shift,
     }
     const level = count === 1 ? 1 - shift : count
+    dbg('down', {
+      type: e.pointerType,
+      count,
+      shift,
+      level,
+      target: (e.target as Element)?.outerHTML?.slice(0, 60),
+      picked: isPicked(dom),
+    })
     ownMouseUntil = level >= 2 ? now + 700 : 0
     // The tap that selects a box types nothing and shows no keyboard; the
     // taps after the first on the Pencil are held off (R6-18).
@@ -384,9 +406,11 @@ export function watchTapSelect(
       }, 0)
       return
     }
+    dbg('up', { level, pos, pad: !!pad })
     const range = lookThrough(pad, () =>
       rangeForTaps(view, pos, level, e.clientY),
     )
+    dbg('range', { range, size: view.state.doc.content.size })
     if (!range) return
     ;(e as PointerEvent & { [TAP_SELECTED]?: boolean })[TAP_SELECTED] = true
     // Grace period: nothing may erase or replace this selection for a moment.
@@ -396,6 +420,9 @@ export function watchTapSelect(
       const d = view.state.doc
       if (range[1] > d.content.size) return
       noteTapSelected()
+      dbg('apply', {
+        before: [view.state.selection.from, view.state.selection.to],
+      })
       view.dispatch(
         view.state.tr.setSelection(TextSelection.create(d, range[0], range[1])),
       )

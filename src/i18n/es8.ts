@@ -83,6 +83,8 @@ export const es8: Record<string, string> = {
   'lock.wrong': 'No es correcto. Prueba otra vez.',
   'lock.wait': 'Demasiados intentos. Espera {seconds} segundos.',
   'lock.waitMin': 'Demasiados intentos. Espera unos {minutes} minutos.',
+  'image.remote.load': 'Cargar imagen remota',
+  'image.remote.failed': 'No se pudo cargar esa imagen.',
   'lock.sync.pin':
     'La sincronización está activa, así que este código viaja con tus ajustes sincronizados. Un PIN es fácil de adivinar: una contraseña de 12 o más caracteres es mucho más segura.',
   'lock.sync.password':

@@ -1,6 +1,7 @@
 import { blockToNode } from '@blocknote/core'
 import { Fragment, Slice } from 'prosemirror-model'
 import { t } from '../i18n/t'
+import { isApproved, isRemoteUrl, resolveForCopy } from '../images/remoteImages'
 import { embedPictures, inlineText } from './clipboard'
 import type { AppSchema } from './schema'
 
@@ -420,7 +421,9 @@ export async function copyPictureAsImage(
 ): Promise<boolean> {
   try {
     const src = str(block.props?.url)
-    const url = editor.resolveFileUrl ? await editor.resolveFileUrl(src) : src
+    const url = await resolveForCopy(editor, src)
+    // A web picture still behind its card is not fetched just to be copied.
+    if (isRemoteUrl(url) && !isApproved(url)) return false
     const blob = await (await fetch(url)).blob()
     const png = blob.type === 'image/png' ? blob : await toPng(blob)
     await navigator.clipboard.write([new ClipboardItem({ 'image/png': png })])
@@ -568,8 +571,7 @@ export async function copyBlocksAs(
   } else {
     const html = await embedPictures(
       blocksToHtml(list, { keepSrc: true }),
-      (s) =>
-        editor.resolveFileUrl ? editor.resolveFileUrl(s) : Promise.resolve(s),
+      (s) => resolveForCopy(editor, s),
     )
     done = await writeItem({
       'text/html': html,

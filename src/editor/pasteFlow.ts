@@ -24,6 +24,11 @@ import {
 import { embedProps, parseEmbedUrl } from './embed/embedUrl'
 import { readAiConfig } from '../ai/route'
 import { boxHost, pasteIntoNewBox } from './pasteBox'
+import {
+  hasWebPictures as textHasWebPictures,
+  localizeHtml,
+  localizeMarkdown,
+} from '../images/remoteImages'
 
 /**
  * The paste pipeline. Order: our own copies keep everything (BlockNote's
@@ -514,6 +519,24 @@ const setUi = (next: Partial<Ui>): void => {
 export const closePasteUi = (): void =>
   setUi({ chooser: null, chip: null, cleanup: null })
 
+const hasWebPictures = (plan: PastePlan): boolean =>
+  textHasWebPictures(plan.html ?? plan.markdown ?? '')
+
+/**
+ * Web pictures in a paste are copied into the app first (when their server
+ * allows it); the ones that cannot be copied show a "Load remote image"
+ * card in the page instead of loading by themselves.
+ */
+export async function withLocalImages(plan: PastePlan): Promise<PastePlan> {
+  const db = context?.db
+  if (!db) return plan
+  if (plan.html) return { ...plan, html: await localizeHtml(db, plan.html) }
+  if (plan.markdown) {
+    return { ...plan, markdown: await localizeMarkdown(db, plan.markdown) }
+  }
+  return plan
+}
+
 /** Does the work of a pick and shows the chip that can swap it. */
 async function run(
   editor: Editor,
@@ -521,6 +544,8 @@ async function run(
   choices: PasteChoice[],
   choice: PasteChoice,
 ): Promise<void> {
+  // Only a paste with web pictures waits (a plain one lands at once).
+  if (hasWebPictures(plan)) plan = await withLocalImages(plan)
   await applyPaste(editor, plan, choice)
   // A box has its own Undo (the toast); no chip.
   if (choice === 'box') return setUi({ chip: null })

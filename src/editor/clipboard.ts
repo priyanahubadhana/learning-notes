@@ -1,4 +1,5 @@
 import { t } from '../i18n/t'
+import { isApproved, isRemoteUrl, resolveForCopy } from '../images/remoteImages'
 import type { AppSchema } from './schema'
 import { adopterIn } from '../ink/inkTransfer'
 import { detectSource, normalizePasteDoc } from './pasteSources'
@@ -236,6 +237,8 @@ export async function embedPictures(
   for (const img of [...doc.querySelectorAll('img')]) {
     const src = img.getAttribute('src') ?? ''
     if (!src || src.startsWith('data:')) continue
+    // A web picture the person has not loaded is never fetched for a copy.
+    if (isRemoteUrl(src) && !isApproved(src)) continue
     try {
       const url = await resolve(src)
       const blob = await (await fetch(url)).blob()
@@ -338,7 +341,7 @@ export async function copyPageWithPictures(
   try {
     if (typeof ClipboardItem === 'undefined') throw new Error('no items')
     const html = await embedPictures(editor.blocksToHTMLLossy(blocks), (src) =>
-      editor.resolveFileUrl ? editor.resolveFileUrl(src) : Promise.resolve(src),
+      resolveForCopy(editor, src),
     )
     await navigator.clipboard.write([
       new ClipboardItem({

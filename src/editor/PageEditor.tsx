@@ -129,6 +129,7 @@ import {
   usePictureAsk,
 } from '../images/pictureChooserStore'
 import { shrinkImage } from '../images/shrinkImage'
+import { displayUrl, watchRemoteImages } from '../images/remoteImages'
 import { readingLocked } from '../app/reading/readingState'
 import { holdPageLock, type LockState, type PageLock } from './pageLock'
 import { recoverStash } from './pendingStash'
@@ -369,7 +370,8 @@ function LoadedPageEditor({
     },
     resolveFileUrl: async (url) => {
       const id = parseImageRef(url)
-      return id ? ((await imageObjectUrl(db, id)) ?? '') : url
+      // A web picture shows as a "Load remote image" card until tapped.
+      return id ? ((await imageObjectUrl(db, id)) ?? '') : displayUrl(url)
     },
   })
   const theme = useContext(ThemeContext)
@@ -452,6 +454,15 @@ function LoadedPageEditor({
 
   // Table grips and block handles show only near the pointer (calmHandles.ts).
   useEffect(() => installCalmHandles(), [])
+
+  // A tap on a "Load remote image" card loads that picture (remoteImages.ts).
+  useEffect(
+    () =>
+      watchRemoteImages(editor as never, db, () =>
+        toast(t('image.remote.failed')),
+      ),
+    [editor, db, toast],
+  )
 
   // Pasted rows that become a Database need the notebook (pasteFlow.ts).
   useEffect(() => {

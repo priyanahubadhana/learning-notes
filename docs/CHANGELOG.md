@@ -2,6 +2,12 @@
 
 Current phase only. Older entries are in [ARCHIVE.md](ARCHIVE.md).
 
+## 2026-11-12 (Security: remote images)
+
+- **Web pictures never load silently:** the editor's `resolveFileUrl` now returns a small "Load remote image" card (a data: SVG, loads nothing) for any http(s) picture not approved this visit. A tap copies the picture into the app if its server allows it (image element with CORS, drawn to a bitmap, so it works under the CSP and an SVG is never kept as markup), otherwise loads it from the web for this visit only; a failure puts the card back with a toast. On paste (HTML and Markdown), https pictures are copied first, at most 12 and a 4 s wait; the rest show the card. A paste with no web pictures lands at once as before. Copying a page/picture never fetches a picture still behind its card.
+- **Checked, no change needed:** Notion import keeps remote media as text links (never image blocks); Markdown/NotebookLM/Anki/capture imports only create `lnimg:` pictures; the paste sanitizer already drops svg/video/audio/iframe and `data:image/svg+xml`; DOCX pages pass through the same sanitizer. Not done: remote pictures inside EPUB chapters (see DECISIONS).
+- **Files:** src/images/remoteImages.ts (+test), src/editor/{PageEditor.tsx,pasteFlow.ts,clipboard.ts,copyFormats.ts}, src/i18n/{en8,es8,hi8}.ts, e2e/remoteImages.spec.ts.
+
 ## 2026-11-12 (Security: drive-token CORS)
 
 - **drive-token only answers the app's origins:** `Access-Control-Allow-Origin` was `*`; now it echoes only https://learning-notes-app.pages.dev and http://localhost / 127.0.0.1 (any port) for dev, with `Vary: Origin`; other origins get no CORS headers. Logic in supabase/functions/_shared/cors.ts (tested in src/sync/connectors/driveCors.test.ts). Needs a redeploy of the function (owner/coordinator). Pages preview URLs (hash.learning-notes-app.pages.dev) are not allowed.

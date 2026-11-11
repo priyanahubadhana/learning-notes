@@ -2,6 +2,12 @@
 
 Current phase only. Older entries are in [ARCHIVE.md](ARCHIVE.md).
 
+## 2026-11-11 (CI: rowReorder test waited too little)
+
+- **What:** the re-order test now waits until each new row's title is saved before adding the next, and polls the first order check.
+- **Why:** CI run 43064395551 (chromium) read the order once while Gamma's title was still being saved (the trace shows Gamma a moment later). Test timing, not an app bug; no assertion loosened.
+- **Files:** e2e/rowReorder.spec.ts, docs/CHANGELOG.md.
+
 ## 2026-11-13 (Connector A slices 3-4: device list + write tools)
 
 - **What:** the local Claude connector (mcp/) can now write, and is a revocable device. New tools `create_notebook`, `add_page`, `append_to_page` (version-checked, end of page only), `add_cards`; no delete, no edit of existing text. Records are sealed with the shared crypto under device id `mcp-<pc>` with clock stamps and one audit line per write (no content). Scopes in `~/.learning-notes-mcp/config.json` (all on by default). Settings › Account › Connected computers lists the PC with Revoke; the database refuses a revoked session at once.

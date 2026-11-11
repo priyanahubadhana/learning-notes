@@ -24,6 +24,8 @@ async function booksWithRows(page: Page, view: 'Table' | 'List') {
     await main(page).getByRole('button', { name: '+ New row' }).click()
     await page.getByRole('textbox', { name: /^Title/ }).fill(title)
     await page.getByRole('textbox', { name: /^Title/ }).press('Enter')
+    // The title saves a moment after Enter; wait for it before the next row.
+    await expect(rows(page).filter({ hasText: title })).toHaveCount(1)
   }
   if (view === 'List') {
     await main(page).getByRole('button', { name: '+ View' }).click()
@@ -61,7 +63,7 @@ for (const view of ['Table', 'List'] as const) {
     page,
   }) => {
     await booksWithRows(page, view)
-    expect(await order(page)).toEqual(names)
+    await expect.poll(() => order(page)).toEqual(names)
 
     // Gamma above Alpha.
     await mouseDrag(page, grip(page, 'Gamma'), rows(page).first(), true)

@@ -68,3 +68,4 @@ plans/owner-ideas-batch-2-2026-11-10.md: update bar, Acrobat PDF tools, customiz
 - CI fix pushed 11 Nov for Text box v2 (deploy pending green CI); check the deploy ran, then delete this line.
 
 - Owner top bugs 1-3 (box line outline, caret spot, Pencil double/triple tap) fixed in code 11 Nov, need the owner iPad check. NOT done yet: Text box v2 steps 4-6 and Layout mode v2 (large; need a fresh session). Pencil-writes-text default in a box not verified.
+- Grow-then-wrap box width and small-box-at-tap (coordinator spec 11 Nov) NOT built: the width is a grid column fraction, needs auto-width flag on lone boxes; do in a fresh session. Tap counts 1 caret/2 word/3 line/4 paragraph already match the code.

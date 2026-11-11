@@ -16,6 +16,12 @@ Learning Notes App: a premium, minimal second brain (Notion + OneNote + Anki). E
 - Be honest, not agreeable: flag weak ideas and suggest better ones.
 - Routine updates to project files: just do them. Mid-phase questions the plan doesn't cover: pick the safest option and log it in docs/DECISIONS.md "Decisions to review". Changes to the rules: wait for the owner's OK.
 
+## How Work Runs (agent hierarchy)
+
+- Every task: main manager **Fable** (`.claude/agents/fable-manager.md`) → **Opus** sub-managers (`opus-submanager-ui/-build/-qa`) → **Sonnet/Haiku** executors. Parallel when files do not overlap. The manager verifies quality and delivers one final report.
+- Usage limit hit: stopped helpers are resumed automatically when the limit resets (a scheduled wake-up), and every step is saved to git and `docs/PENDING.md` so nothing is lost.
+
+
 ## Things We Said No To (for now)
 
 - Hosting: allowed. Sync: built after the deep research. Accounts are required (owner-approved 9 Nov 2026): Google, email code or email + password; notes still work offline once signed in. AI: only after the owner approves the cost.

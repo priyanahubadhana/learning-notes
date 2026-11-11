@@ -55,7 +55,7 @@ You need: Node.js 20 or newer (check with `node -v` in a terminal), Claude Deskt
 
    Set a part to `false` to stop offering it: `write:create` = `create_notebook` and `add_page`; `write:append` = `append_to_page` and `add_cards`; `read` = the read tools (appending needs reading). A broken file turns writing off, never on. Restart Claude Desktop after a change.
 
-6. **Restart Claude Desktop** (quit from the tray icon, then open it). Ask: "List my Learning Notes notebooks." Setup also lists this PC in the app as **Claude (PC)**: Settings > Account > **Connected computers** > **Revoke** cuts it off at once (run `setup` again to reconnect). The SQL for that (`supabase/migrations/20261113000001_connector_devices.sql`) must be run once in Supabase first.
+6. **Restart Claude Desktop** (quit from the tray icon, then open it). Ask: "List my Learning Notes notebooks." Setup also lists this PC in the app as **Claude (PC)**: Settings > Account > **Connected computers** > **Revoke** cuts it off at once (run `setup` again to reconnect). The SQL for that (`supabase/migrations/20261113000002_connector_devices.sql`) must be run once in Supabase first.
 
 Check any time with `node mcp/dist/index.js status` (shows the device id and what is allowed). To remove the key from this PC: `node mcp/dist/index.js logout`.
 

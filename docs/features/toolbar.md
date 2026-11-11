@@ -26,14 +26,14 @@ A row wider than its room (the ribbon, the context strip, the main bar, pills) s
 - **Top gap (R8-1):** the page has a gap under the main bar, part of its top margin (`--page-top-gap`, `TOP_GAP` 62 px, set while the main bar is at the top), just tall enough for the options pill. A pill docked at the top sits in it. Scrolled down, or on the left, right or bottom edge, the pill floats over the page (draggable as before). Opening or closing a pill never moves the page.
 - **Pop-up rule:** it follows `usePopup` (closes on a tap outside, Esc, another pop-up, a page scroll, ✕). 📌 pins it open (saved per device); ✕ also unpins. Choosing an option does not close it (logged in DECISIONS).
 - **Press and slide (Pencil friendly):** press and hold a tool for about 350 ms, the pill opens; slide onto an option (it gets `data-hot`) and let go to choose it without lifting. Letting go elsewhere chooses nothing. A short press is a tap.
-- **Options:** Text: Style▾, B, I, U, text colour (▾ card), highlight colour (▾ card), list▾, align▾, ★ key point. Pen: type▾, 3 thicknesses, colours and ⊕. Highlighter: 3 thicknesses, colours and ⊕, settings ▾. Eraser: Precise, Standard, Whole stroke; 3 sizes; Erase highlights only. Lasso: free-hand or rectangle; filter ink, pictures, text. Insert: Table, Shape, Picture, Camera, File or PDF, Callout, Audio, Recall card, Tape, Magnifier, Ruler (Table, Shape, Camera, File, Audio, Tape, Magnifier and Ruler are marked "coming"; Picture, Callout and Recall card work). Read: Aa, Contents, Bookmarks and notes, Listen, Find, Exit.
+- **Options:** Text: Style▾, B, I, U, text colour (▾ card), highlight colour (▾ card), list▾, align▾, ★ key point. Pen: type▾, 3 thicknesses, colours and ⊕. Highlighter: 3 thicknesses, colours and ⊕, settings ▾. Eraser: Precise, Standard, Whole stroke; 3 sizes; Erase highlights only. Lasso: free-hand or rectangle; filter ink, pictures, text. Insert: Table, Shape, Picture, Camera, File or PDF, Callout, Audio, Recall card, Tape, Magnifier, Ruler (all of these work; the only tool still marked "coming" is Print and PDF in the File tab). Read: Aa, Contents, Bookmarks and notes, Listen, Find, Exit.
 
 ## The detail card
 
 Opens when the active option is tapped again, or its ▾. Rows with › open sub-pages; ‹ goes back; every card has a ✕. It sits beside the pill (below a top pill, above a bottom pill, beside a side pill), always inside the screen.
 
 - **Text › Style:** Title, Heading 1, 2, 3, Body; Font ›; size (90 to 150 %); line height; Text-box style › (Plain, Quote, Callout, Code block); Strikethrough, Code, Link. Font, size and line height are device display settings applied as CSS variables only when changed (`textStyle.ts`). Title is the biggest heading, centred (no separate Title block exists).
-- **Text › List / Alignment / colours:** bullets, numbers, checklist (toggle list says "coming"); left, centre, right, justify; every colour by name.
+- **Text › List / Alignment / colours:** bullets, numbers, checklist, toggle list; left, centre, right, justify; every colour by name.
 - **Pen:** a live preview stroke plus sliders for tip sharpness, pressure, stabilisation and (Fountain) flatness; › Pen settings (tilt, thickness by speed, reduce latency, draw and hold for a perfect shape); › Pen gestures (scribble to erase, circle to lasso); › Stroke (solid, dashed or dotted; exact thickness). Colour page with ⊕ (custom colours, newest first, at most 6).
 - **Highlighter:** preview, colour, Snap to text lines, Draw behind ink, opacity, Highlight eraser (selects the Eraser limited to highlights), Save to notes.
 - **Eraser and Lasso:** modes with a one-line explanation, sizes, switches, and the filter.
@@ -97,7 +97,7 @@ What is selected decides an extra tab, like Word's contextual tabs. `context/con
 
 - A saved list or value that is invalid reads as its default (`isMainList`, `isPillMap`, `isPillPlace`, ink field clamps).
 - The pill is clamped into the visible screen and follows the keyboard; rotation re-places it.
-- A tool that is "coming" can be tapped and says so; it is never hidden.
+- A tool that is "coming" can be tapped and says so; it is never hidden. Today only Print and PDF is one (`coming: 'print'` in `toolRegistry.ts`).
 
 ## Security check
 

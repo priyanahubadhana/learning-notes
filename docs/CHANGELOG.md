@@ -2,6 +2,12 @@
 
 Current phase only. Older entries are in [ARCHIVE.md](ARCHIVE.md).
 
+## 2026-11-12 (Docs: HANDOFF short, toolbar spec)
+
+- **docs/HANDOFF.md shortened** from 130 lines to 22: the 79 finished entries moved unchanged to docs/ARCHIVE.md under "HANDOFF entries archived (12 Nov 2026)" (one `### HANDOFF: <title>` heading each, so they can be searched); the top still points to docs/PENDING.md. The "default paper style" line now says DONE.
+- **docs/features/toolbar.md** no longer says Table, Shape, Camera, File, Audio, Tape, Magnifier, Ruler and toggle list are "coming" (they all work; only Print and PDF is still marked, per `toolRegistry.ts`). Docs only.
+- Looked for stray suffix text in CHANGELOG lines and found none that is clearly wrong (see the report).
+
 ## 2026-11-12 (Reduce glass check)
 
 - **Checked and found as documented:** the automatic probe (30 frames, over half slower than 20 ms, only during scroll or pointer bursts, kept for the session, ignores the idle gap between bursts), the Solid choice (sets `data-glass="lite"`, computed backdrop-filter becomes none, kept after reload, Automatic restores the blur) and the solid toast (`bg-surface-3`, no glass class). No code fault found, so none changed.

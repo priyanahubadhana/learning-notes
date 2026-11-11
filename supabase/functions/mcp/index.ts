@@ -13,7 +13,14 @@ import { handleAppRoutes } from '../_shared/escrow.ts'
 const APP_URL =
   Deno.env.get('APP_URL') ?? 'https://learning-notes-app.pages.dev'
 
-Deno.serve(async (req: Request) => {
+Deno.serve(async (rawReq: Request) => {
+  // Inside Supabase the function sees /mcp/... (without /functions/v1); the
+  // handlers expect the public path, so add the prefix back when missing.
+  const u = new URL(rawReq.url)
+  if (!u.pathname.startsWith('/functions/v1/'))
+    u.pathname = '/functions/v1' + u.pathname
+  const req =
+    u.toString() === rawReq.url ? rawReq : new Request(u.toString(), rawReq)
   const supabaseUrl = Deno.env.get('SUPABASE_URL')
   const serviceKey = Deno.env.get('SUPABASE_SERVICE_ROLE_KEY')
   const anonKey = Deno.env.get('SUPABASE_ANON_KEY')

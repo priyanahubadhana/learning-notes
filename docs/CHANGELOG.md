@@ -2,6 +2,12 @@
 
 Current phase only. Older entries are in [ARCHIVE.md](ARCHIVE.md).
 
+## 2026-11-12 (AI cost: cached input tokens)
+
+- **Cached tokens at the cached rate:** the provider answers now carry `cachedTokens` (Claude `cache_read_input_tokens`, OpenAI-style `prompt_tokens_details.cached_tokens`), streaming included (it used to miss Claude's cache tokens). `costOf` prices them at the model's `price.cached`, else a tenth of the input price for Claude, else the full input price (unknown, so errs high). The usage total, the send log and the monthly cap all use it.
+- **The exchange rate** was already a synced setting (`ai.currency`, default 90 for INR, editable in Settings › AI › Cost currency); no hard-coded rate is used anywhere else (checked by search).
+- **Files:** src/ai/{providers,provider,models,usage,route,ai.test}.ts.
+
 ## 2026-11-12 (iPad WebKit: multi-tap select, penUi, paperInk rule 7)
 
 - **Multi-tap select (root cause):** WebKit selects the paragraph itself on the third mousedown and ProseMirror does the same on the third mouseup/click; both ran around our selection and won (213 chars). `editor/tapSelect.ts` now cancels (preventDefault + stopImmediatePropagation, capture) the mousedown, mouseup, click and dblclick of a tap that is the 2nd or later of a run, for 700 ms, so only our counter selects. Specs: boxTaps compares the triple-tap selection with the actual drawn row of the tap (WebKit wraps narrower, 16 chars is a valid row), not a fixed 20.

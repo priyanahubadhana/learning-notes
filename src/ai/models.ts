@@ -23,7 +23,7 @@ export interface ModelInfo {
   freeTier?: true
   speed: Speed
   vision: boolean
-  price: { in: number; out: number }
+  price: { in: number; out: number; cached?: number }
   /** Price not read from the provider's own page (shown as "about"). */
   unverified?: true
 }
@@ -123,7 +123,7 @@ export const modelInfo = (id: string): ModelInfo | undefined =>
 export function modelPrice(
   provider: ProviderId,
   model: string,
-): { in: number; out: number } {
+): { in: number; out: number; cached?: number } {
   const m = modelInfo(model)
   return m && m.provider === provider ? m.price : PROVIDERS[provider].price
 }

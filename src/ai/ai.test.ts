@@ -60,6 +60,7 @@ describe('providers', () => {
       text: '## Key points\n- a',
       inputTokens: 120,
       outputTokens: 30,
+      cachedTokens: 0,
     })
     const h = calls[0].init.headers as Record<string, string>
     expect(calls[0].url).toBe('https://api.anthropic.com/v1/messages')
@@ -161,6 +162,59 @@ describe('usage and the monthly cap', () => {
     expect(
       withinCap('k1', 'anthropic', M, 'x'.repeat(400), 10_000, 1.502, nov),
     ).toBe(false)
+  })
+})
+
+describe('cached input tokens', () => {
+  it('reads cache reads from a Claude answer and counts them in the input', async () => {
+    const { fn } = fakeFetch({
+      content: [{ type: 'text', text: 'ok' }],
+      usage: {
+        input_tokens: 20,
+        cache_creation_input_tokens: 0,
+        cache_read_input_tokens: 900,
+        output_tokens: 5,
+      },
+    })
+    const r = await complete({
+      provider: 'anthropic',
+      key: 'sk-ant-secretsecret',
+      model: M,
+      prompt: 'hi',
+      maxTokens: 100,
+      fetchImpl: fn,
+    })
+    expect(r.inputTokens).toBe(920)
+    expect(r.cachedTokens).toBe(900)
+  })
+  it('prices cache reads at a tenth of the Claude input rate, and never below zero', () => {
+    const full = costOf('anthropic', M, 1_000_000, 0)
+    expect(costOf('anthropic', M, 1_000_000, 0, 1_000_000)).toBeCloseTo(
+      full * 0.1,
+    )
+    expect(costOf('anthropic', M, 1_000_000, 0, 500_000)).toBeCloseTo(
+      full * 0.55,
+    )
+    // More cached than total is clamped; a negative count is ignored.
+    expect(costOf('anthropic', M, 100, 0, 999)).toBeCloseTo(
+      costOf('anthropic', M, 100, 0, 100),
+    )
+    expect(costOf('anthropic', M, 100, 0, -5)).toBeCloseTo(
+      costOf('anthropic', M, 100, 0),
+    )
+  })
+  it('does not discount providers whose cached rate is unknown', () => {
+    expect(costOf('openai', 'gpt-x', 1000, 0, 1000)).toBeCloseTo(
+      costOf('openai', 'gpt-x', 1000, 0),
+    )
+  })
+  it('recordUsage counts the discount', () => {
+    const d = new Date(2026, 10, 7)
+    recordUsage('kc', 'anthropic', M, 1_000_000, 0, d, 1_000_000)
+    expect(readUsage(d).costUsd).toBeGreaterThan(0)
+    expect(readUsage(d).costUsd).toBeLessThan(
+      costOf('anthropic', M, 1_000_000, 0) * 1.01,
+    )
   })
 })
 

@@ -139,12 +139,14 @@ async function anthropic(call: AiCall): Promise<AiResult> {
   if (!text) throw new AiError('the answer was empty')
   return {
     text,
-    // Cached tokens are counted too (they cost less, so this errs high).
+    // Cached tokens are part of the input count; cache reads are priced
+    // at the cached rate (see costOf).
     inputTokens:
       num(data.usage?.input_tokens) +
       num(data.usage?.cache_creation_input_tokens) +
       num(data.usage?.cache_read_input_tokens),
     outputTokens: num(data.usage?.output_tokens),
+    cachedTokens: num(data.usage?.cache_read_input_tokens),
   }
 }
 
@@ -162,7 +164,11 @@ async function openaiStyle(call: AiCall): Promise<AiResult> {
     },
   )) as {
     choices?: { message?: { content?: string } }[]
-    usage?: { prompt_tokens?: number; completion_tokens?: number }
+    usage?: {
+      prompt_tokens?: number
+      completion_tokens?: number
+      prompt_tokens_details?: { cached_tokens?: number }
+    }
   }
   const text = data.choices?.[0]?.message?.content
   if (typeof text !== 'string' || !text) {
@@ -172,6 +178,7 @@ async function openaiStyle(call: AiCall): Promise<AiResult> {
     text,
     inputTokens: num(data.usage?.prompt_tokens),
     outputTokens: num(data.usage?.completion_tokens),
+    cachedTokens: num(data.usage?.prompt_tokens_details?.cached_tokens),
   }
 }
 
@@ -216,11 +223,18 @@ async function* sseData(
 interface StreamEvent {
   type?: string
   delta?: { text?: string }
-  message?: { usage?: { input_tokens?: number } }
+  message?: {
+    usage?: {
+      input_tokens?: number
+      cache_creation_input_tokens?: number
+      cache_read_input_tokens?: number
+    }
+  }
   usage?: {
     output_tokens?: number
     prompt_tokens?: number
     completion_tokens?: number
+    prompt_tokens_details?: { cached_tokens?: number }
   }
   choices?: { delta?: { content?: string } }[]
 }
@@ -284,6 +298,7 @@ export async function stream(
   let text = ''
   let inputTokens = 0
   let outputTokens = 0
+  let cachedTokens = 0
   try {
     for await (const ev of sseData(res.body)) {
       if (stoppedEarly()) break
@@ -291,7 +306,12 @@ export async function stream(
       let piece = ''
       if (anth) {
         if (e.type === 'message_start') {
-          inputTokens = num(e.message?.usage?.input_tokens)
+          const u = e.message?.usage
+          inputTokens =
+            num(u?.input_tokens) +
+            num(u?.cache_creation_input_tokens) +
+            num(u?.cache_read_input_tokens)
+          cachedTokens = num(u?.cache_read_input_tokens)
         } else if (e.type === 'content_block_delta') {
           piece = e.delta?.text ?? ''
         } else if (e.type === 'message_delta') {
@@ -303,6 +323,8 @@ export async function stream(
         piece = e.choices?.[0]?.delta?.content ?? ''
         if (e.usage) {
           inputTokens = num(e.usage.prompt_tokens) || inputTokens
+          cachedTokens =
+            num(e.usage.prompt_tokens_details?.cached_tokens) || cachedTokens
           outputTokens = num(e.usage.completion_tokens) || outputTokens
         }
       }
@@ -322,5 +344,5 @@ export async function stream(
       ((call.cachePrefix?.length ?? 0) + call.prompt.length) / 4,
     )
   if (!outputTokens) outputTokens = Math.ceil(text.length / 4)
-  return { text, inputTokens, outputTokens, stopped }
+  return { text, inputTokens, outputTokens, cachedTokens, stopped }
 }

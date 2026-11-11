@@ -71,15 +71,28 @@ export function readUsage(now: Date = new Date()): Usage {
   }
 }
 
-/** Estimated dollars for some tokens. */
+/**
+ * Estimated dollars for some tokens. `cachedTokens` (part of inputTokens,
+ * read from the provider's cache) cost the cached rate: the table's
+ * `cached`, else a tenth of the input price for Claude (its published
+ * cache-read rate), else the full input price (not known, so errs high).
+ */
 export function costOf(
   provider: ProviderId,
   model: string,
   inputTokens: number,
   outputTokens: number,
+  cachedTokens = 0,
 ): number {
   const p = modelPrice(provider, model)
-  return (inputTokens * p.in + outputTokens * p.out) / 1_000_000
+  const cached = Math.min(Math.max(cachedTokens, 0), inputTokens)
+  const cachedRate = p.cached ?? (provider === 'anthropic' ? p.in * 0.1 : p.in)
+  return (
+    ((inputTokens - cached) * p.in +
+      cached * cachedRate +
+      outputTokens * p.out) /
+    1_000_000
+  )
 }
 
 export function recordUsage(
@@ -89,13 +102,16 @@ export function recordUsage(
   inputTokens: number,
   outputTokens: number,
   now: Date = new Date(),
+  cachedTokens = 0,
 ): Usage {
   const s = read(now)
   const u = s.keys[keyId] ?? NONE
   s.keys[keyId] = {
     inputTokens: u.inputTokens + inputTokens,
     outputTokens: u.outputTokens + outputTokens,
-    costUsd: u.costUsd + costOf(provider, model, inputTokens, outputTokens),
+    costUsd:
+      u.costUsd +
+      costOf(provider, model, inputTokens, outputTokens, cachedTokens),
   }
   writePref('ai.usageByKey', s)
   return { month: s.month, ...s.keys[keyId] }

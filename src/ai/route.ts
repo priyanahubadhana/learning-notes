@@ -217,6 +217,8 @@ export async function callAi(
         c.model,
         result.inputTokens,
         result.outputTokens,
+        undefined,
+        result.cachedTokens,
       )
       {
         logSend({
@@ -233,6 +235,7 @@ export async function callAi(
             c.model,
             result.inputTokens,
             result.outputTokens,
+            result.cachedTokens,
           ),
         })
       }
@@ -267,7 +270,15 @@ export async function testKey(
       fetchImpl,
       sleep: async () => {},
     })
-    recordUsage(key.id, key.provider, model, r.inputTokens, r.outputTokens)
+    recordUsage(
+      key.id,
+      key.provider,
+      model,
+      r.inputTokens,
+      r.outputTokens,
+      undefined,
+      r.cachedTokens,
+    )
     return { ok: true }
   } catch (e) {
     return { ok: false, reason: e instanceof AiError ? e.message : 'error' }

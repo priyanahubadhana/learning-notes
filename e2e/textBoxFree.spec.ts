@@ -304,3 +304,84 @@ test('Group and Ungroup: a group is picked and moved as one', async ({
   await pick(a)
   await expect(page.locator('[data-picked]')).toHaveCount(1)
 })
+
+/** Plays a Pencil stroke (pointer events of type pen) on an element. */
+async function pencil(
+  page: Page,
+  target: Locator,
+  pts: { x: number; y: number }[],
+) {
+  await target.evaluate((el, points) => {
+    const fire = (type: string, p: { x: number; y: number }) =>
+      el.dispatchEvent(
+        new PointerEvent(type, {
+          pointerType: 'pen',
+          pointerId: 7,
+          isPrimary: true,
+          clientX: p.x,
+          clientY: p.y,
+          pressure: type === 'pointerup' ? 0 : 0.5,
+          bubbles: true,
+          cancelable: true,
+          button: 0,
+          buttons: type === 'pointerup' ? 0 : 1,
+        }),
+      )
+    fire('pointerdown', points[0])
+    for (const p of points.slice(1)) fire('pointermove', p)
+    fire('pointerup', points[points.length - 1])
+  }, pts)
+  await page.waitForTimeout(300)
+}
+
+test('Text tool + Pencil: a circle round a digit makes a circled number, one Undo undoes it', async ({
+  page,
+}) => {
+  await start(page, 'Circled')
+  await tapBlank(page, 0.3, 70)
+  await expect(page.locator(EXTRA + ' .bn-editor')).toBeFocused()
+  await page.keyboard.type('Step 2 done')
+  // Typing is its own Undo step (steps within 800 ms join).
+  await page.waitForTimeout(1200)
+  const b = page.locator(EXTRA)
+  const r = await page.evaluate(() => {
+    const ed = document.querySelector(
+      '[data-paper-box]:not([data-paper-box="main"]) .bn-editor',
+    )!
+    const w = document.createTreeWalker(ed, NodeFilter.SHOW_TEXT)
+    const n = w.nextNode()!
+    const q = document.createRange()
+    q.setStart(n, 5)
+    q.setEnd(n, 6)
+    const c = q.getBoundingClientRect()
+    return { cx: c.left + c.width / 2, cy: c.top + c.height / 2, h: c.height }
+  })
+  const ring = Array.from({ length: 41 }, (_, i) => ({
+    x: r.cx + Math.cos((i / 40) * Math.PI * 2) * (r.h * 0.9),
+    y: r.cy + Math.sin((i / 40) * Math.PI * 2) * (r.h * 0.9),
+  }))
+  await pencil(page, b.locator('.bn-editor'), ring)
+  await expect(b.locator('.bn-editor')).toContainText('Step ② done')
+  await page.keyboard.press('Control+z')
+  // One Undo takes the circled number back (the page's history may also take
+  // the typing of the same box with it, see the owner checks).
+  await expect(b.locator('.bn-editor')).not.toContainText('②')
+})
+
+test('Text tool + Pencil: a drawn line on blank paper becomes a clean ink line; the Pen never converts', async ({
+  page,
+}) => {
+  await start(page, 'Shapes')
+  const sheet = await box(page.locator('[data-paper-sheet="1"]'))
+  const main = await box(page.locator('[data-paper-box="main"]'))
+  const y = main.y + main.height + 90
+  const x0 = sheet.x + sheet.width * 0.3
+  // A slightly wobbly, nearly straight stroke.
+  const wobbly = Array.from({ length: 24 }, (_, i) => ({
+    x: x0 + i * 7,
+    y: y + Math.sin(i) * 1.2,
+  }))
+  await pencil(page, page.locator('[data-paper-sheets]'), wobbly)
+  await expect(page.locator(EXTRA)).toHaveCount(1, { timeout: 8000 })
+  await expect(page.locator(EXTRA + ' [data-ink-pad]').first()).toBeAttached()
+})

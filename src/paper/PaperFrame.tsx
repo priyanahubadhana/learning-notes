@@ -57,6 +57,9 @@ import {
 } from './grid'
 import { GridDividers } from './GridDividers'
 import { snapBox, type SnapResult } from './guides'
+import { circleDigit, cleanShape, type DigitView } from './textPencil'
+import { allBoxEditors } from './activeBox'
+import { group as historyGroup } from '../core/historySteps'
 import { readDeviceSetting } from '../settings/settingsService'
 import { smartGuidesSetting } from '../settings/builtinSettings'
 import { boxReducer, IDLE, pickedOf, type BoxEvent } from './boxState'
@@ -1202,6 +1205,83 @@ export function PaperFrame({
     )
   }
 
+  // Text tool + Pencil: the stroke is watched; on lift a circle round a digit
+  // becomes a circled number, and (on blank paper) a drawn line, arrow, circle
+  // or rectangle becomes a clean shape on the ink layer. One Undo.
+  const textPen = useRef<{ pts: Pt[]; blank: boolean } | null>(null)
+  const textPenDown = (e: ReactPointerEvent, blank: boolean) => {
+    if (flat || activeTool.get() !== 'text' || e.pointerType !== 'pen') return
+    if (isUiEvent(e.nativeEvent)) return
+    textPen.current = { pts: [{ x: e.clientX, y: e.clientY }], blank }
+  }
+  const textPenMove = (e: ReactPointerEvent) => {
+    if (textPen.current && e.pointerType === 'pen')
+      textPen.current.pts.push({ x: e.clientX, y: e.clientY })
+  }
+  const textPenUp = (e: ReactPointerEvent) => {
+    const tp = textPen.current
+    textPen.current = null
+    if (!tp || activeTool.get() !== 'text') return
+    tp.pts.push({ x: e.clientX, y: e.clientY })
+    const rec = cleanShape(tp.pts)
+    if (!rec) return
+    const bb = bounds(rec.pts.map((q) => ({ x: q.x, y: q.y })))
+    if (rec.kind === 'ellipse') {
+      const ring = { x: bb.x, y: bb.y, w: bb.w, h: bb.h }
+      for (const ed of allBoxEditors()) {
+        const view = ed.prosemirrorView
+        if (!view) continue
+        const r = view.dom.getBoundingClientRect()
+        if (r.right < ring.x || r.left > ring.x + ring.w) continue
+        if (r.bottom < ring.y || r.top > ring.y + ring.h) continue
+        if (circleDigit(view as unknown as DigitView, ring)) return
+      }
+    }
+    if (!tp.blank || !onInkOnPaper) return
+    const r = paperEl.current?.getBoundingClientRect()
+    if (!r) return
+    const last = rec.pts[rec.pts.length - 1]
+    const events: Recorded[] = [
+      ...rec.pts.map((q, i) => ({
+        type: i === 0 ? 'pointerdown' : 'pointermove',
+        x: q.x,
+        y: q.y,
+        pressure: 0.5,
+        tiltX: 0,
+        tiltY: 0,
+        pointerType: 'pen',
+        pointerId: e.pointerId,
+      })),
+      {
+        type: 'pointerup',
+        x: last.x,
+        y: last.y,
+        pressure: 0,
+        tiltX: 0,
+        tiltY: 0,
+        pointerType: 'pen',
+        pointerId: e.pointerId,
+      },
+    ]
+    // The box that holds the ink and the ink itself are one Undo step.
+    void historyGroup('Shape', async () => {
+      const id = await boxUnder(r, bb)
+      if (!id) return
+      const pad = await waitFor(() =>
+        document.querySelector(
+          '[data-paper-box="' + CSS.escape(id) + '"] [data-ink-pad]',
+        ),
+      )
+      if (!pad) return
+      // The Pen draws it, then the Text tool is back (the person did not switch).
+      activeTool.set('pen')
+      await new Promise((ok) => requestAnimationFrame(ok))
+      replay(pad, events)
+      await new Promise((ok) => window.setTimeout(ok, 700))
+      if (activeTool.get() === 'pen') activeTool.set('text')
+    })
+  }
+
   const tapAt = useRef<{ x: number; y: number; t: number } | null>(null)
   const penDown = (e: ReactPointerEvent<HTMLDivElement>) => {
     // Placing a picture is a mode: no loop, ink or new box meanwhile (22h).
@@ -1209,6 +1289,7 @@ export function PaperFrame({
     if (isUiEvent(e.nativeEvent)) return
     if (lassoDown(e)) return
     const tool = activeTool.get()
+    textPenDown(e, true)
     // Item 9: a Pencil tap on blank paper with a drawing tool goes back to the
     // Lasso (as GoodNotes does); it never makes a box.
     tapAt.current =
@@ -1232,8 +1313,10 @@ export function PaperFrame({
       loopLayer.current?.set(loop.current, lassoSettings.get().shape === 'rect')
     }
     pen.current?.push(record('pointermove', e.nativeEvent))
+    textPenMove(e)
   }
   const penUp = (e: ReactPointerEvent<HTMLDivElement>) => {
+    textPenUp(e)
     lassoUp()
     const tap = tapAt.current
     tapAt.current = null
@@ -1437,6 +1520,9 @@ export function PaperFrame({
         ref={layerRef}
         data-paper-boxes
         onClick={narrow ? gapTap : undefined}
+        onPointerDown={(e) => textPenDown(e, false)}
+        onPointerMove={textPenMove}
+        onPointerUp={textPenUp}
         // First in the paper, at its top (zero height): the boxes are placed
         // from here. Read aloud meets them before the page text (later).
         style={

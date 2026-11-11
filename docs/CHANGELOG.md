@@ -2,6 +2,10 @@
 
 Current phase only. Older entries are in [ARCHIVE.md](ARCHIVE.md).
 
+## 2026-11-12 (Text box v2, owner list: step 5, Text tool + Pencil)
+
+- With the Text tool, a Pencil stroke on blank paper that is a clean line, arrow, circle or rectangle (the existing shape recogniser, plus a small-circle test) becomes a clean ink shape on the ink layer (the box for its ink lines and the ink are one history group). A small circle drawn round a 0 to 20 digit in a box turns the digit into ⓪ to ⑳ (one editor step). The Pen tool never converts (the code only runs for the Text tool). Handwriting inside a box becomes text through iPadOS Scribble (nothing new built; the owner has to check it). Files: `paper/textPencil.ts`, `paper/PaperFrame.tsx`. Tests: `paper/textPencil.test.ts`, `e2e/textBoxFree.spec.ts`.
+
 ## 2026-11-12 (Text box v2, owner list: step 4, Group / Ungroup)
 
 - Boxes carry an optional `group` id (`PaperBox.group`, checked in backups). With two or more boxes picked (Shift-tap or the Lasso) a Group pill appears above them; tapping any member, or a Lasso loop that catches one, picks the whole group, which drags as one; Ungroup removes the id. One write, one Undo. A duplicate leaves the group. Files: `core/types.ts`, `share/checkRows.ts`, `paper/boxService.ts` (`setGroup`), `paper/PaperFrame.tsx` (`GroupBar`), `paper/usePaperBoxes.tsx`, `pages/PageView.tsx`. Test: `e2e/textBoxFree.spec.ts`.

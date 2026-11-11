@@ -65,7 +65,6 @@ plans/owner-ideas-batch-2-2026-11-10.md: update bar, Acrobat PDF tools, customiz
 
 ## Owner answers 11 Nov (top priority: text box, typing, Pencil)
 
-- Pencil in a text box = handwriting becomes text (Scribble) by default.
 - BUG: the cursor lands in the wrong place or jumps.
 - BUG: a Pencil double-tap to select doesn't work at all in a text box (the owner expects a paragraph selection; confirm word vs paragraph).
 - BUG: too many highlights. Tapping a line draws a border or highlight around that single line or block. Instead only the WHOLE box shows as selected (GoodNotes): no per-line or per-block outline inside a box.
@@ -78,9 +77,6 @@ plans/owner-ideas-batch-2-2026-11-10.md: update bar, Acrobat PDF tools, customiz
   - A dot grid or paper lines as a visual aid. A guide toggle in settings.
   - Box options as in Notability: rounded corners, wrap on/off.
   - Locked boxes are skipped by tidy (no lock for now).
-- Owner 11 Nov (text tool vs pen):
-  - Text tool + Pencil writing inside a box = handwriting becomes text. Pen tool = ink on its own layer over the text, never converted.
-  - Text tool: drawn arrows, lines, circles and rectangles become clean shapes on the ink layer (reuse the shape recogniser). A digit with a circle drawn round it becomes a circled number (②). One Undo turns it back.
   - FINAL: NO double-tap-to-make-a-box at all. A single tap with the Text tool makes a box (as before).
   - Box styles: sticky note/callout in Box style settings (no quick dots). Remember the last style. User-saved text/box presets.
 
@@ -111,3 +107,5 @@ plans/owner-ideas-batch-2-2026-11-10.md: update bar, Acrobat PDF tools, customiz
   - Used a little / Experienced → no walkthrough (maybe a "Replay tour" in Help).
 
 - Settle animation after a drop (the dropped box glides into place) is NOT built yet.
+
+- Circled number / shape Undo: one Undo may also take back the typing of the same box if it was just before (page history groups text steps). Handwriting to text rests on iPadOS Scribble, not verified on the iPad.

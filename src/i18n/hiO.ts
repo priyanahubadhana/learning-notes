@@ -950,11 +950,6 @@ export const hiO: Record<string, string> = {
   'account.pinLock.hint': 'नोटबुक और पेज PIN से लॉक करें (लॉक सेक्शन देखें)।',
   'account.aiKeys.hint':
     'अपनी AI कुंजियाँ सभी डिवाइस पर रखें (AI सेक्शन देखें)।',
-  'account.signOut.hint': 'सिर्फ़ इस डिवाइस पर साइन आउट करें। नोट्स रहेंगे।',
-  'account.signOutForget.hint':
-    'यहाँ साइन आउट करें और इस डिवाइस से चाबी हटाएँ। नोट्स रहेंगे।',
-  'account.signOutAll.hint':
-    'हर डिवाइस पर साइन आउट करें और Google Drive डिस्कनेक्ट करें। नोट्स हर डिवाइस पर रहेंगे।',
   'ai.sec.keys': 'कुंजियाँ और डिफ़ॉल्ट मॉडल',
   'ai.sec.spending': 'ख़र्च की सीमा',
   'ai.sec.usage': 'उपयोग और लागत',
@@ -1018,4 +1013,9 @@ export const hiO: Record<string, string> = {
   'conn.manage': 'AI में कुंजियाँ सँभालें',
   'conn.permissions': 'कौन-सी नोटबुक AI इस्तेमाल करें',
   'conn.getKey': 'कुंजी बनाएँ',
+  'account.signOut.hint': 'सिर्फ़ इस डिवाइस पर साइन आउट करें। नोट्स रहेंगे।',
+  'account.signOutForget.hint':
+    'यहाँ साइन आउट करें और इस डिवाइस से चाबी हटाएँ। नोट्स रहेंगे।',
+  'account.signOutAll.hint':
+    'हर डिवाइस पर साइन आउट करें और Google Drive डिस्कनेक्ट करें। नोट्स हर डिवाइस पर रहेंगे।',
 }

@@ -163,7 +163,8 @@ export async function handleAppRoutes(
   const isEscrow = rel === '/escrow'
   const isList = rel === '/connections'
   const isRevoke = rel === '/connections/revoke'
-  if (!isEscrow && !isList && !isRevoke) return null
+  const isActivity = rel === '/activity'
+  if (!isEscrow && !isList && !isRevoke && !isActivity) return null
   const cors = APP_CORS(deps.appUrl, req.headers.get('origin'))
   if (req.method === 'OPTIONS')
     return new Response(null, { status: 204, headers: cors })
@@ -193,6 +194,31 @@ export async function handleAppRoutes(
         })),
       )
       return json({ apps }, 200, cors)
+    }
+    if (isActivity) {
+      // What Claude did (tool, time, ids, counts), never any note content.
+      if (req.method !== 'GET') return json({ error: 'method' }, 405, cors)
+      const rows = await deps.backend.listAudit(user.id, 100)
+      const names = new Map<string, string>()
+      for (const r of rows)
+        if (!names.has(r.clientId))
+          names.set(
+            r.clientId,
+            (await deps.store.getClient(r.clientId))?.name ?? 'Claude',
+          )
+      return json(
+        {
+          entries: rows.map((r) => ({
+            at: r.at,
+            tool: r.tool,
+            app: names.get(r.clientId) ?? 'Claude',
+            ids: r.ids,
+            counts: r.counts,
+          })),
+        },
+        200,
+        cors,
+      )
     }
     if (isRevoke) {
       if (req.method !== 'POST') return json({ error: 'method' }, 405, cors)

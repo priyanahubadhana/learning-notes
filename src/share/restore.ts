@@ -41,10 +41,10 @@ const REPLACE_MIN_VERSION = 12
  * the missing tables simply start empty. Add each new table-only version.
  * (13 ink, 14 recordings, 15 fonts, 16 decks, 17 book files + annotations,
  * 18 sync state, 19 Home cockpit, 20 layer installs, 21 summary lines,
- * 22 device secrets.)
+ * 22 device secrets, 23 Claude Inbox.)
  */
 const TABLE_ONLY_VERSIONS: readonly number[] = [
-  13, 14, 15, 16, 17, 18, 19, 20, 21, 22,
+  13, 14, 15, 16, 17, 18, 19, 20, 21, 22, 23,
 ]
 
 /** Can a file saved at `fileVersion` replace the notes of a database at `current`? */

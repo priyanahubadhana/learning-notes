@@ -33,6 +33,8 @@ export const SYNC_TABLES: Record<string, MergeMode> = {
   inkChunks: 'record',
   annotations: 'record',
   pageVersions: 'record',
+  // Changes Claude proposed that wait for the person (Settings > Claude > Inbox).
+  claudeInbox: 'record',
   images: 'file',
   fonts: 'file',
   recordings: 'file',

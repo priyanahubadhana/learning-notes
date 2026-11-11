@@ -1,6 +1,7 @@
 // Browser types for code that runs inside the page.
 /// <reference lib="dom" />
-import { expect, test, type Page } from '@playwright/test'
+import { expect, test } from '@playwright/test'
+import { seeded } from './claudeMock.ts'
 
 /**
  * Settings › Claude ("Let Claude work with my notes"): the privacy text, the
@@ -10,105 +11,6 @@ import { expect, test, type Page } from '@playwright/test'
  */
 
 test.use({ viewport: { width: 1200, height: 800 } })
-
-const EMAIL = 'priyanahubadhanalegends@gmail.com'
-const SESSION = 'learning-notes:sync.session'
-
-interface Seen {
-  calls: string[]
-  on: boolean
-}
-
-async function seeded(
-  page: Page,
-  opts: { on: boolean; available?: boolean },
-): Promise<Seen> {
-  const seen: Seen = { calls: [], on: opts.on }
-  await page.context().addInitScript(
-    ([key, email]) => {
-      if (localStorage.getItem('seeded-once')) return
-      localStorage.setItem('seeded-once', '1')
-      localStorage.setItem(
-        key,
-        JSON.stringify({
-          access: 'access-token-1',
-          refresh: 'refresh-1',
-          expiresAt: Date.now() + 3_600_000,
-          account: { accountId: 'u1', email, sub: 's1' },
-          drive: { token: 'drive-1', expiresAt: Date.now() + 3_000_000 },
-        }),
-      )
-    },
-    [SESSION, EMAIL] as const,
-  )
-  // A key copy exists on the server, so the app is in "type the passphrase" state.
-  const bundle = JSON.stringify({
-    v: 1,
-    keyId: '0123456789abcdef',
-    method: 'passphrase',
-    salt: 'AAAAAAAAAAAAAAAAAAAAAA==',
-    argon: { memoryKiB: 19456, iterations: 2, parallelism: 1 },
-    iv: 'AAAAAAAAAAAAAAAA',
-    ct: 'AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA',
-    createdAt: 1,
-  })
-  // Later routes win in Playwright, so the general one comes first.
-  await page.route(/supabase\.co\/rest\/v1\//, (r) =>
-    r.fulfill({ status: 200, contentType: 'application/json', body: '[]' }),
-  )
-  await page.route(/supabase\.co\/rest\/v1\/sync_key_bundles/, (r) =>
-    r.fulfill({
-      status: 200,
-      contentType: 'application/json',
-      body: JSON.stringify([{ data: bundle }]),
-    }),
-  )
-  await page.route(/googleapis\.com|accounts\.google\.com/, (r) =>
-    r.fulfill({
-      status: 200,
-      contentType: 'application/json',
-      body: '{"files":[]}',
-    }),
-  )
-  await page.route(/supabase\.co\/functions\/v1\/mcp\//, async (route) => {
-    const req = route.request()
-    const path = new URL(req.url()).pathname.split('/mcp')[1]
-    seen.calls.push(`${req.method()} ${path}`)
-    const json = (body: unknown) =>
-      route.fulfill({
-        status: 200,
-        contentType: 'application/json',
-        body: JSON.stringify(body),
-      })
-    if (req.method() === 'OPTIONS') return route.fulfill({ status: 204 })
-    if (path === '/escrow' && req.method() === 'GET')
-      return json({
-        available: opts.available ?? true,
-        on: seen.on,
-        notebookIds: null,
-        lastUsedAt: seen.on ? Date.now() : null,
-        expiresAt: seen.on ? Date.now() + 30 * 86_400_000 : null,
-      })
-    if (path === '/escrow' && req.method() === 'DELETE') {
-      seen.on = false
-      return json({ ok: true })
-    }
-    if (path === '/connections')
-      return json({
-        apps: [
-          {
-            family: 'fam1',
-            name: 'Claude',
-            scopes: ['notes:read'],
-            lastUsedAt: Date.now(),
-          },
-        ],
-      })
-    if (path === '/connections/revoke') return json({ ok: true })
-    return route.fulfill({ status: 404, body: '{}' })
-  })
-  return seen
-}
 
 test('off: honest privacy text, notebook choice, wrong passphrase is refused', async ({
   page,
@@ -121,7 +23,7 @@ test('off: honest privacy text, notebook choice, wrong passphrase is refused', a
   ).toBeVisible()
   await expect(s).toContainText('gives the server your encryption key once')
   await expect(s).toContainText('30 days without use')
-  await expect(s).toContainText('can never delete or change')
+  await expect(s).toContainText('It can never delete anything')
   await expect(s.getByTestId('claude-state')).toHaveText('Off')
   // The choice defaults to all notebooks; "only these" shows the list.
   await expect(s.getByTestId('claude-mode-all')).toBeChecked()

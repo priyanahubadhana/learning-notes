@@ -1,5 +1,6 @@
 import { afterEach, describe, expect, it, vi } from 'vitest'
 import {
+  claudeActivity,
   claudeDisable,
   claudeEnable,
   claudeSetNotebooks,
@@ -24,6 +25,21 @@ function mockFetch(status: number, body: unknown = {}) {
 afterEach(() => vi.unstubAllGlobals())
 
 describe('Claude settings: server calls', () => {
+  it('reads the activity list with the sign-in token, and says why when it cannot', async () => {
+    mockFetch(200, {
+      entries: [
+        { at: 1, tool: 'add_page', app: 'Claude', ids: ['a'], counts: {} },
+      ],
+    })
+    const r = await claudeActivity('tok')
+    expect(r.ok && r.value.entries[0].tool).toBe('add_page')
+    expect(calls[0].url.endsWith('/functions/v1/mcp/activity')).toBe(true)
+    mockFetch(401)
+    expect(await claudeActivity('tok')).toEqual({ ok: false, reason: 'login' })
+    mockFetch(500)
+    expect(await claudeActivity('tok')).toEqual({ ok: false, reason: 'error' })
+  })
+
   it('reads the status with the sign-in token', async () => {
     mockFetch(200, { available: true, on: false })
     const r = await claudeStatus('tok')

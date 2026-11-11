@@ -44,9 +44,9 @@ const PermissionsSection = lazy(() =>
   })),
 )
 // Sync's screen (and its encryption code) loads only when opened.
-const ClaudeSection = lazy(() =>
-  import('../connector/ClaudeSection').then((m) => ({
-    default: m.ClaudeSection,
+const ClaudeArea = lazy(() =>
+  import('../connector/ClaudeArea').then((m) => ({
+    default: m.ClaudeArea,
   })),
 )
 const AccountSection = lazy(() =>
@@ -184,7 +184,7 @@ export function SettingsScreen({
           )}
           {category === 'claude' && (
             <Suspense fallback={null}>
-              <ClaudeSection db={db} />
+              <ClaudeArea db={db} />
             </Suspense>
           )}
           {category === 'account' && (

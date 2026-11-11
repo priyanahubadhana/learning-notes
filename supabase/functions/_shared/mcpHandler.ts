@@ -4,9 +4,8 @@
  * with a JSON-RPC message and gets one JSON answer (no sessions, no streams, so
  * nothing is kept between calls and any function instance can answer).
  *
- * Slice 2 registered the tools; slices 4-5 make `search`, `read`, the list
- * tools, `create_notebook` and `add_page` work (they need the key escrow, see
- * escrow.ts). The rest say "not enabled yet" until slices 6-7.
+ * Slice 2 registered the tools; slices 4-7 make them all work (they need the
+ * key escrow, see escrow.ts). Slice 8 adds the rate limits (rateCheck).
  *
  * Safety: needs a live access token for this audience; checks the Origin
  * header (DNS-rebinding guard); limits body size; each tool needs its scope;
@@ -145,7 +144,7 @@ export const TOOLS: ToolDef[] = [
     name: 'create_notebook',
     title: 'Create a notebook',
     description:
-      'Creates a whole new notebook from a notebook spec (pages, blocks, recall cards, style). Never deletes or changes anything that exists. Mind maps and databases are not available yet.',
+      'Creates a whole new notebook from a notebook spec (pages, blocks, recall cards, style). Never deletes or changes anything that exists. Blocks may be mind maps (an indented outline) or databases (listed under `databases`).',
     scope: 'notes:write',
     readOnly: false,
     inputSchema: obj(
@@ -180,48 +179,78 @@ export const TOOLS: ToolDef[] = [
   {
     name: 'add_cards',
     title: 'Add recall cards',
-    description: 'Adds recall cards to a page (not available yet).',
+    description:
+      'Adds recall cards at the end of an existing page: question and answer cards ({ kind: "qa", q, a }) or fill-in-the-blank cards ({ kind: "cloze", text: "The {{heart}} pumps blood" }). Only adds; never changes existing text.',
     scope: 'notes:write',
     readOnly: false,
     inputSchema: obj(
-      { pageId: text('The page id'), cards: { type: 'array', maxItems: 500 } },
+      {
+        pageId: text('The page id'),
+        cards: { type: 'array', maxItems: 500 },
+        pageVersion: text(
+          'The version from read of this page (optional check)',
+        ),
+      },
       ['pageId', 'cards'],
     ),
+    notes: notes.addCards,
   },
   {
     name: 'create_database',
     title: 'Create a database',
     description:
-      'Creates a database with columns and rows (not available yet).',
+      'Creates a database (columns of type text, number, date, checkbox, choice, choices, url; rows with a title and cell values) in a notebook, optionally shown on a page. Spec: { key, title, columns: [{ name, type, options? }], rows: [{ title, values?: { columnName: value } }] }.',
     scope: 'notes:write',
     readOnly: false,
     inputSchema: obj(
-      { notebookId: text('The notebook id'), database: { type: 'object' } },
+      {
+        notebookId: text('The notebook id'),
+        database: { type: 'object', description: 'A spec database' },
+        pageId: text('Also show it at the end of this page'),
+      },
       ['notebookId', 'database'],
     ),
+    notes: notes.createDatabase,
   },
   {
     name: 'apply_style',
     title: 'Apply a style',
-    description: 'Changes the look of a notebook (not available yet).',
+    description:
+      'Changes the look: style { colour (#rrggbb cover), view (shelf|tabs), pathStyle (simple|full|page) } for the notebook, and { sheet (A4|Letter), inkBg (lined|grid|dots) } for all its pages or one page (pageId); tabColour for one page.',
     scope: 'notes:write',
     readOnly: false,
     inputSchema: obj(
-      { notebookId: text('The notebook id'), style: { type: 'object' } },
-      ['notebookId', 'style'],
+      {
+        notebookId: text('The notebook id'),
+        style: { type: 'object', description: 'A spec style' },
+        pageId: text('Only this page (sheet, inkBg, tabColour)'),
+        tabColour: text('A page tab colour (needs pageId)'),
+      },
+      ['notebookId'],
     ),
+    notes: notes.applyStyle,
   },
   {
     name: 'refine_page',
     title: 'Refine a page',
     description:
-      'Proposes an improved version of a page; big changes wait for approval in the app Inbox (not available yet).',
+      'Changes an existing page, one block per operation: { op: "add", block, parentId? } appends, { op: "insert", afterBlockId (or null), block } inserts, { op: "replace", blockId, block } replaces one block. Get block ids and baseRevision (the version) from read. The old page is saved in History first. A change over 30% of the page, any change to recall cards, or a page that changed since you read it waits in the person’s Inbox for approval. There is no delete.',
     scope: 'notes:write',
     readOnly: false,
     inputSchema: obj(
-      { pageId: text('The page id'), blocks: { type: 'array' } },
-      ['pageId', 'blocks'],
+      {
+        pageId: text('The page id'),
+        baseRevision: text('The version from read of this page'),
+        ops: {
+          type: 'array',
+          minItems: 1,
+          maxItems: 50,
+          items: { type: 'object' },
+        },
+      },
+      ['pageId', 'baseRevision', 'ops'],
     ),
+    notes: notes.refinePage,
   },
 ]
 
@@ -246,7 +275,9 @@ const jsonResponse = (body: unknown, status = 200): Response =>
     headers: {
       'Content-Type': 'application/json',
       'Cache-Control': 'no-store',
+      'X-Content-Type-Options': 'nosniff',
       'Access-Control-Allow-Origin': '*',
+      'Access-Control-Expose-Headers': 'Retry-After',
       'Access-Control-Allow-Headers':
         'authorization, content-type, mcp-protocol-version, mcp-session-id',
       'Access-Control-Allow-Methods': 'POST, OPTIONS',
@@ -364,6 +395,56 @@ async function handleMessage(msg: unknown, grant: Grant, deps: McpDeps) {
   }
 }
 
+/**
+ * Counts every tool call in the request against the person's limits (60 reads
+ * a minute, 20 writes a minute, 500 writes a day). Over the limit: nothing in
+ * the request runs and the answer is 429 with Retry-After. If the counter
+ * cannot be reached the request is refused (503): no limit check, no writes.
+ */
+async function rateCheck(
+  body: unknown,
+  grant: Grant,
+  deps: McpDeps,
+): Promise<Response | null> {
+  if (!deps.claude) return null
+  const messages = Array.isArray(body) ? body : [body]
+  const now = (deps.now ?? Date.now)()
+  for (const msg of messages) {
+    const m = msg as { method?: unknown; params?: { name?: unknown } } | null
+    if (m?.method !== 'tools/call') continue
+    const tool = TOOLS.find((t) => t.name === m.params?.name)
+    if (!tool || tool.name === 'ping') continue
+    let r
+    try {
+      r = await deps.claude.backend.rateHit(
+        grant.userId,
+        tool.readOnly ? 'read' : 'write',
+        now,
+      )
+    } catch {
+      const res = jsonResponse(
+        rpcError(null, -32000, 'Temporarily unavailable. Try again shortly.'),
+        503,
+      )
+      res.headers.set('Retry-After', '30')
+      return res
+    }
+    if (!r.ok) {
+      const res = jsonResponse(
+        rpcError(
+          null,
+          -32000,
+          `Too many requests: ${tool.readOnly ? 'reads are limited to 60 a minute' : 'writes are limited to 20 a minute and 500 a day'}. Wait ${r.retryAfter} seconds.`,
+        ),
+        429,
+      )
+      res.headers.set('Retry-After', String(r.retryAfter))
+      return res
+    }
+  }
+  return null
+}
+
 /** Handles one request to the MCP address (not the OAuth addresses). */
 export async function handleMcp(
   req: Request,
@@ -404,9 +485,11 @@ export async function handleMcp(
   } catch {
     return jsonResponse(rpcError(null, -32700, 'Parse error.'), 400)
   }
+  if (Array.isArray(body) && (body.length === 0 || body.length > 20))
+    return jsonResponse(rpcError(null, -32600, 'Invalid batch.'), 400)
+  const limited = await rateCheck(body, grant, deps)
+  if (limited) return limited
   if (Array.isArray(body)) {
-    if (body.length === 0 || body.length > 20)
-      return jsonResponse(rpcError(null, -32600, 'Invalid batch.'), 400)
     const out = (
       await Promise.all(body.map((b) => handleMessage(b, grant, deps)))
     ).filter((x) => x !== undefined)

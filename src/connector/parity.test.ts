@@ -299,3 +299,74 @@ describe('order keys', () => {
     }
   })
 })
+
+describe('parity: slice 6-7 copies', () => {
+  it('fracindex makes the same keys as the library (random pairs)', async () => {
+    const { generateKeyBetween: mine, orderBetween } =
+      await import('../../supabase/functions/_shared/fracindex')
+    const { orderBetween: appBetween } = await import('../core/order')
+    // Build a long list by random inserts, once with each; every step must match.
+    let seed = 7
+    const rnd = (n: number) => {
+      seed = (seed * 1103515245 + 12345) & 0x7fffffff
+      return seed % n
+    }
+    const list: string[] = []
+    for (let i = 0; i < 3000; i++) {
+      const at = rnd(list.length + 1)
+      const a = list[at - 1] ?? null
+      const b = list[at] ?? null
+      const lib = generateKeyBetween(a, b)
+      expect(mine(a, b)).toBe(lib)
+      list.splice(at, 0, lib)
+    }
+    // Our suffixed keys are valid for the app's library and fall between.
+    for (let i = 0; i < 500; i++) {
+      const at = rnd(list.length + 1)
+      const a = list[at - 1] ?? null
+      const b = list[at] ?? null
+      const k = orderBetween(a, b)
+      expect(a === null || a < k).toBe(true)
+      expect(b === null || k < b).toBe(true)
+      expect(() => generateKeyBetween(k, null)).not.toThrow()
+      const k2 = appBetween(a, b)
+      expect(a === null || a < k2).toBe(true)
+    }
+    // Odd neighbours never throw.
+    expect(() => orderBetween('a1', 'a1')).not.toThrow()
+    expect(() => orderBetween('a2', 'a1')).not.toThrow()
+    expect(() => orderBetween('!!', null)).not.toThrow()
+  })
+
+  it('the outline becomes the same tree as the app builds', async () => {
+    const { outlineToMap } =
+      await import('../../supabase/functions/_shared/mindmap')
+    const { fromOutline } = await import('../editor/mindMap/model')
+    const shape = (m: {
+      root: string
+      nodes: { id: string; text: string; parent: string | null }[]
+    }) => {
+      const at = new Map(m.nodes.map((n, i) => [n.id, i]))
+      return m.nodes.map((n) => [
+        n.text,
+        n.parent === null ? -1 : at.get(n.parent),
+      ])
+    }
+    const outlines = [
+      '',
+      'Only one',
+      'Plants\n  Trees\n    Oak\n  Herbs',
+      '- a\n- b\n  - c\n- d',
+      '1. one\n2. two\n   - deep\n3. three',
+      'x\n\n\n  y\n\t\tz',
+      '  indented\n  same\n    child',
+    ]
+    for (const o of outlines) {
+      let n = 0
+      const mine = outlineToMap(o, 'Centre', () => `n${n++}`)
+      expect(shape(mine), JSON.stringify(o)).toEqual(
+        shape(fromOutline(o, 'Centre')),
+      )
+    }
+  })
+})

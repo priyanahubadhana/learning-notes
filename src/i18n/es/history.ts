@@ -23,6 +23,7 @@ export const esHistory = {
   'history.pageChange': 'Cambio en la página',
   'history.preview': 'Copia del {when}',
   'history.reason.before-restore': 'antes de restaurar',
+  'history.reason.claude': 'antes de un cambio de Claude',
   'history.reason.big': 'cambio grande',
   'history.reason.leave': 'al salir',
   'history.restore': 'Restaurar esta copia',

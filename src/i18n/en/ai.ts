@@ -95,5 +95,5 @@ export const enAi = {
   'claude.turnOff.confirm':
     'Turn off Claude? The server deletes its copy of your key and every Claude connection stops now.',
   'claude.what':
-    'When this is on, Claude on claude.ai (web, desktop or phone) can search and read the notebooks you choose, and add new notebooks, pages and recall cards. It can never delete or change what you already wrote. Anything it adds can be removed with "Remove this AI result".',
+    'When this is on, Claude on claude.ai (web, desktop or phone) can search and read the notebooks you choose, and add new notebooks, pages, recall cards and databases. It can never delete anything. It can change a page you already wrote only in small steps (the earlier version is kept in History); bigger changes, and anything about recall cards, wait in your Inbox for you to Accept or Reject. Anything it adds can be removed with "Remove this AI result".',
 }

@@ -1,6 +1,7 @@
 /** Hindi texts. A key missing here shows the English text. */
 import { hiAccounts } from './accounts'
 import { hiAi } from './ai'
+import { hiClaude } from './claude'
 import { hiCommon } from './common'
 import { hiDatabases } from './databases'
 import { hiEditor } from './editor'
@@ -26,6 +27,7 @@ import { hiUpdates } from './updates'
 export const hi: Record<string, string> = {
   ...hiAccounts,
   ...hiAi,
+  ...hiClaude,
   ...hiCommon,
   ...hiDatabases,
   ...hiEditor,

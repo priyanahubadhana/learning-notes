@@ -37,6 +37,15 @@ export interface AuditRow {
   counts: Record<string, number>
 }
 
+/** The limits (also written in the migration 20261113000001_claude_rate_limit.sql). */
+export const RATE_LIMITS = {
+  readPerMinute: 60,
+  writePerMinute: 20,
+  writePerDay: 500,
+} as const
+export type RateKind = 'read' | 'write'
+export type RateResult = { ok: true } | { ok: false; retryAfter: number }
+
 export class StoreError extends Error {}
 /** A save that found a record already there; nothing was saved. */
 export class PushConflict extends StoreError {}
@@ -54,6 +63,13 @@ export interface ClaudeBackend {
   /** Deletes escrow rows unused for 30 days and those people's Claude passes. */
   cleanupEscrow(): Promise<void>
   addAudit(row: AuditRow): Promise<void>
+  /** The newest audit lines of one person (no content), newest first. */
+  listAudit(userId: string, limit: number): Promise<AuditRow[]>
+  /**
+   * Counts one call against the person's limits (60 reads a minute, 20 writes
+   * a minute, 500 writes a day). A refused call is not counted.
+   */
+  rateHit(userId: string, kind: RateKind, now: number): Promise<RateResult>
 }
 
 export const ESCROW_TTL_MS = 30 * 24 * 3600 * 1000
@@ -138,6 +154,44 @@ export function memoryBackend(now: () => number = Date.now) {
     },
     async addAudit(row: AuditRow) {
       audit.push(row)
+    },
+    async listAudit(userId: string, limit: number) {
+      return audit
+        .filter((a) => a.userId === userId)
+        .sort((a, b) => b.at - a.at)
+        .slice(0, limit)
+    },
+    /** Tests: calls counted per window. */
+    rates: new Map<string, number>(),
+    async rateHit(userId: string, kind: RateKind, at: number) {
+      const minute = Math.floor(at / 60_000)
+      const day = Math.floor(at / 86_400_000)
+      const mk = `${userId}|${kind}|m|${minute}`
+      const dk = `${userId}|write|d|${day}`
+      const minuteLimit =
+        kind === 'read' ? RATE_LIMITS.readPerMinute : RATE_LIMITS.writePerMinute
+      if ((self.rates.get(mk) ?? 0) >= minuteLimit)
+        return {
+          ok: false as const,
+          retryAfter: Math.max(
+            1,
+            Math.ceil(((minute + 1) * 60_000 - at) / 1000),
+          ),
+        }
+      if (
+        kind === 'write' &&
+        (self.rates.get(dk) ?? 0) >= RATE_LIMITS.writePerDay
+      )
+        return {
+          ok: false as const,
+          retryAfter: Math.max(
+            1,
+            Math.ceil(((day + 1) * 86_400_000 - at) / 1000),
+          ),
+        }
+      self.rates.set(mk, (self.rates.get(mk) ?? 0) + 1)
+      if (kind === 'write') self.rates.set(dk, (self.rates.get(dk) ?? 0) + 1)
+      return { ok: true as const }
     },
   }
   return self satisfies ClaudeBackend
@@ -278,6 +332,12 @@ export function supabaseClaudeBackend(
         headers: headers(),
         body: '{}',
       })
+      // Old rate-limit counters too (best effort).
+      await call('/rpc/claude_rate_cleanup', {
+        method: 'POST',
+        headers: headers(),
+        body: '{}',
+      }).catch(() => undefined)
     },
     async addAudit(row) {
       await call('/claude_audit', {
@@ -292,6 +352,41 @@ export function supabaseClaudeBackend(
           counts: row.counts,
         }),
       })
+    },
+    async listAudit(userId, limit) {
+      const res = await call(
+        `/claude_audit?user_id=eq.${q(userId)}&select=at,tool,client_id,ids,counts&order=at.desc&limit=${Math.max(1, Math.min(200, Math.floor(limit)))}`,
+        { headers: headers() },
+      )
+      const list = (await res.json()) as {
+        at: string
+        tool: string
+        client_id: string
+        ids: string[]
+        counts: Record<string, number>
+      }[]
+      return list.map((r) => ({
+        userId,
+        at: Date.parse(r.at),
+        tool: r.tool,
+        clientId: r.client_id,
+        ids: r.ids,
+        counts: r.counts,
+      }))
+    },
+    async rateHit(userId, kind, now) {
+      const res = await call('/rpc/claude_rate_hit', {
+        method: 'POST',
+        headers: headers(),
+        body: JSON.stringify({ uid: userId, kind, now_ms: Math.floor(now) }),
+      })
+      const r = (await res.json()) as { ok: boolean; retry_after?: number }
+      return r.ok
+        ? { ok: true }
+        : {
+            ok: false,
+            retryAfter: Math.max(1, Math.floor(r.retry_after ?? 60)),
+          }
     },
   }
 }

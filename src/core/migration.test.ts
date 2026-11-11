@@ -12,7 +12,7 @@ import type { Notebook } from './types'
  */
 const T = 1_700_000_000_000
 const base = { createdAt: T, updatedAt: T, deletedAt: null }
-const CURRENT_VERSION = 22
+const CURRENT_VERSION = 23
 let name = ''
 
 afterEach(async () => {

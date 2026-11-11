@@ -39,6 +39,7 @@ import type {
   SavedSearch,
   SearchEntry,
   SecretRecord,
+  ClaudeInboxItem,
   SettingValue,
   SyncState,
   Tag,
@@ -94,6 +95,7 @@ export class LearningNotesDB extends Dexie {
   habitChecks!: EntityTable<HabitCheck, 'id'>
   files!: EntityTable<HomeFile, 'id'>
   secrets!: EntityTable<SecretRecord, 'id'>
+  claudeInbox!: EntityTable<ClaudeInboxItem, 'id'>
 
   /** @param name Database name; tests pass a unique name to stay isolated. */
   constructor(name: string = DEFAULT_DB_NAME) {
@@ -331,6 +333,11 @@ export class LearningNotesDB extends Dexie {
     // chose to sync, encrypted like any record; never in a backup file.
     // Only adds a table.
     this.version(22).stores({ secrets: 'id' })
+
+    // Version 23 (Claude connector, Inbox): changes Claude proposed to a page
+    // that wait for Accept or Reject. Written by the connector as ordinary
+    // synced records. Only adds a table.
+    this.version(23).stores({ claudeInbox: 'id, status, pageId' })
 
     // Every save of a page or block also updates its search entry, in the
     // same transaction (see search/indexMiddleware.ts).

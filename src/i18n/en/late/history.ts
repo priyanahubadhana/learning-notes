@@ -14,6 +14,7 @@ export const enLateHistory = {
   'history.nothingUndo': 'Nothing left to undo.',
   'history.pageChange': 'Page change',
   'history.reason.before-restore': 'before a restore',
+  'history.reason.claude': 'before a change by Claude',
   'history.reason.big': 'big change',
   'history.reason.leave': 'on leaving',
   'history.restoreStep': 'Restored an older copy',

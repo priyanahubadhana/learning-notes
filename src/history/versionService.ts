@@ -278,7 +278,7 @@ async function doRestore(
           updatedAt: Date.now(),
         })
       }
-      await restoreInk(db, version.pageId, version.ink)
+      if (!version.inkKept) await restoreInk(db, version.pageId, version.ink)
       await syncCardRecords(db, version.pageId)
     },
   )

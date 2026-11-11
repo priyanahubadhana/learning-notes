@@ -301,7 +301,7 @@ export const esAi = {
   'claude.turnOff.confirm':
     '¿Desactivar Claude? El servidor borra su copia de tu clave y todas las conexiones de Claude se detienen ahora.',
   'claude.what':
-    'Si lo activas, Claude en claude.ai (web, escritorio o móvil) puede buscar y leer los cuadernos que elijas, y añadir cuadernos, páginas y tarjetas de repaso nuevos. Nunca puede borrar ni cambiar lo que ya escribiste. Lo que añada se puede quitar con "Quitar este resultado de IA".',
+    'Si lo activas, Claude en claude.ai (web, escritorio o móvil) puede buscar y leer los cuadernos que elijas, y añadir cuadernos, páginas, tarjetas de repaso y bases de datos nuevos. Nunca puede borrar nada. Solo puede cambiar una página ya escrita en pasos pequeños (la versión anterior queda en el Historial); los cambios grandes, y todo lo que toque las tarjetas de repaso, esperan en tu Bandeja para que los aceptes o rechaces. Lo que añada se puede quitar con "Quitar este resultado de IA".',
   'claudeSkill.download': 'Descargar la Skill de Claude (.zip)',
   'claudeSkill.how': 'Cómo añadirla en Claude',
   'claudeSkill.intro':

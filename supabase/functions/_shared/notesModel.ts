@@ -15,6 +15,7 @@ export interface Notebook extends Base {
   title: string
   order: string
   kind?: string
+  editLocked?: true
   locked?: true
   allowAi?: true
   allowAiLocked?: true
@@ -27,6 +28,12 @@ export interface Page extends Base {
   order: string
   locked?: true
   paused?: true
+  /** Set when this page is a row of a database (not listed in the notes tree). */
+  databaseId?: string
+  editLocked?: true
+  boxes?: unknown[]
+  inkBg?: string
+  sheet?: string
 }
 
 export interface Block extends Base {
@@ -35,6 +42,7 @@ export interface Block extends Base {
   type: string
   content: { [k: string]: Json }
   order: string
+  boxId?: string
 }
 
 export interface Card extends Base {
@@ -63,5 +71,12 @@ export const LOAD_TABLES = [
   'pages',
   'blocks',
   'cards',
+  'databases',
 ] as const
 export type LoadTable = (typeof LOAD_TABLES)[number]
+
+export interface Database extends Base {
+  title: string
+  order: string
+  notebookId: string | null
+}

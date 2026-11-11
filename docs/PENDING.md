@@ -197,6 +197,8 @@ Questions:
   - (5) reads logged locally only;
   - (6) no delete ever.
     Note: PC only, not iPad. Slices 1–4 are built (docs/features/claude-connector.md); the Inbox, audit screen and rate limits (5–6) are next.
+
+    Note: PC only, not iPad. Connector A slices 1–2 are built; connector B (online) slices 1–8 are built on main and not deployed (docs/features/claude-connector.md has the owner steps).
 - OWNER (11 Nov): the Claude connector is the app's MAIN USP.
   - PRIMARY: from the Claude UI, Claude builds whole notebooks for the user using ALL app features (notes, summary, recall cards, databases, layouts, styles, books/highlights…), so the user gets the best notebook with ultimate customisation, then refines by chatting.
   - SECONDARY: refine AI mid-work inside the app (a Claude chat in the notebook).

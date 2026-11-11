@@ -1,6 +1,7 @@
 /** English texts that load after the first screen (kept out of the first download). */
 import { enLateAccounts } from './accounts'
 import { enLateAi } from './ai'
+import { enLateClaude } from './claude'
 import { enLateCommon } from './common'
 import { enLateDatabases } from './databases'
 import { enLateHelp } from './help'
@@ -23,6 +24,7 @@ import { enLateUpdates } from './updates'
 export const enLate = {
   ...enLateAccounts,
   ...enLateAi,
+  ...enLateClaude,
   ...enLateCommon,
   ...enLateDatabases,
   ...enLateHelp,

@@ -23,6 +23,7 @@ export const hiHistory = {
   'history.pageChange': 'पेज बदलाव',
   'history.preview': '{when} की प्रति',
   'history.reason.before-restore': 'वापस लाने से पहले',
+  'history.reason.claude': 'Claude के बदलाव से पहले',
   'history.reason.big': 'बड़ा बदलाव',
   'history.reason.leave': 'पन्ना छोड़ते समय',
   'history.restore': 'यह प्रति वापस लाएँ',

@@ -82,6 +82,7 @@ const NOT_ACTIONS = [
   'habitChecks',
   'files',
   'secrets',
+  'claudeInbox',
 ]
 
 describe('page history', () => {

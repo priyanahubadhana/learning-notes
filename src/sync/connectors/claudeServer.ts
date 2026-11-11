@@ -106,3 +106,15 @@ export const connectedApps = (token: string) =>
 
 export const revokeApp = (token: string, family: string) =>
   call<{ ok: true }>(token, 'POST', '/connections/revoke', { family })
+
+/** One line of what Claude did (no note content: only ids and counts). */
+export interface ActivityEntry {
+  at: number
+  tool: string
+  app: string
+  ids: string[]
+  counts: Record<string, number>
+}
+
+export const claudeActivity = (token: string) =>
+  call<{ entries: ActivityEntry[] }>(token, 'GET', '/activity')

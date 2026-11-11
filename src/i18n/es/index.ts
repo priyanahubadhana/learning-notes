@@ -1,6 +1,7 @@
 /** Spanish texts. A key missing here shows the English text. */
 import { esAccounts } from './accounts'
 import { esAi } from './ai'
+import { esClaude } from './claude'
 import { esCommon } from './common'
 import { esDatabases } from './databases'
 import { esEditor } from './editor'
@@ -26,6 +27,7 @@ import { esUpdates } from './updates'
 export const es: Record<string, string> = {
   ...esAccounts,
   ...esAi,
+  ...esClaude,
   ...esCommon,
   ...esDatabases,
   ...esEditor,

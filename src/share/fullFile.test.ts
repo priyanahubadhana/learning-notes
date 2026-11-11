@@ -134,7 +134,7 @@ const goodManifest = (over: Record<string, unknown> = {}) => ({
   app: 'learning-notes',
   kind: 'full',
   formatVersion: FULL_FORMAT_VERSION,
-  dbVersion: 22,
+  dbVersion: 23,
   createdAt: 1,
   tables: {},
   counts: { notebooks: 0, pages: 0, cards: 0, pictures: 0 },
@@ -175,7 +175,7 @@ describe('full file', () => {
       app: 'learning-notes',
       kind: 'full',
       formatVersion: 2,
-      dbVersion: 22,
+      dbVersion: 23,
       createdAt: 1000,
     })
     expect(manifest.counts.notebooks).toBeGreaterThan(0)
@@ -373,7 +373,7 @@ describe('refusing bad files', () => {
       { app: 'other' },
       { kind: 'weird' },
       { formatVersion: 3 },
-      { dbVersion: 23 },
+      { dbVersion: 24 },
       { formatVersion: 'x' },
     ]) {
       await expect(

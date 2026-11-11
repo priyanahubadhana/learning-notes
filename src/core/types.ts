@@ -592,7 +592,12 @@ export interface PageVersion extends BaseRecord {
     sheet?: 'A4' | 'Letter'
   }
   /** Why the copy was taken (shown in History). */
-  reason?: 'timed' | 'big' | 'leave' | 'before-restore'
+  reason?: 'timed' | 'big' | 'leave' | 'before-restore' | 'claude'
+  /**
+   * Made by the Claude connector on the server, which cannot copy ink: restoring
+   * this copy leaves the page's ink as it is.
+   */
+  inkKept?: true
   /** Rough size in bytes, for the storage budget. */
   bytes?: number
 }
@@ -764,6 +769,51 @@ export interface SecretRecord extends BaseRecord {
   kind: 'aiKeys' | 'toolbarLayout' | 'aiUsage'
   /** The secret itself, as the owner feature defines it. */
   value: JsonObject
+}
+
+/** One block Claude proposes (new, or the new type and text of a replaced block). */
+export interface InboxBlock {
+  id: string
+  parentId: string | null
+  type: string
+  content: JsonObject
+  order: OrderKey
+}
+
+/** One proposed operation on a page (see supabase/functions/_shared/refine.ts). */
+export interface InboxOp {
+  op: 'add' | 'insert' | 'replace'
+  /** replace: the block that is replaced. */
+  targetId?: string
+  /** add / insert: the parent block (null = top level) and where among its children. */
+  parentId?: string | null
+  place?: 'start' | 'end' | { after: string }
+  /** The new block first, then its children; for replace, only the new type and text. */
+  blocks: InboxBlock[]
+}
+
+/**
+ * A change Claude proposed to an existing page that waits for the person
+ * (Settings > Claude > Inbox, Dexie 23). Written by the Claude connector on
+ * the server as an ordinary synced record; Accept applies it here (the page is
+ * saved to its History first), Reject only closes it.
+ */
+export interface ClaudeInboxItem extends BaseRecord {
+  pageId: string
+  notebookId: string
+  /** The page's title when Claude proposed it (the page may be renamed since). */
+  pageTitle: string
+  /** The page version Claude read. */
+  baseRevision: string
+  /** Why it waits: more than 30% of the page, recall cards, or the page changed. */
+  reasons: ('big' | 'cards' | 'conflict')[]
+  status: 'pending' | 'accepted' | 'rejected'
+  decidedAt?: number
+  /** Set when Accept could not be applied (for example the block is gone). */
+  failed?: 'gone'
+  batchId: string
+  ops: InboxOp[]
+  stats: { replaced: number; added: number; existing: number }
 }
 
 /**

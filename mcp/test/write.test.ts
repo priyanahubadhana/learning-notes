@@ -163,6 +163,7 @@ describe('create_notebook', () => {
       /cannot make yet/,
     )
     expect(s.source.pushed).toHaveLength(0)
+    // (the online connector makes them: see src/connector/claudeTools.test.ts)
   })
 
   it('needs a synced workspace', async () => {

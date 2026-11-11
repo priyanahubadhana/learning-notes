@@ -44,12 +44,10 @@ export interface MadeRecord {
   /** 0 or unset = a new record. Otherwise the revision this edit was made from. */
   baseRev?: number
 }
-export interface Counts {
+export type Counts = Record<string, number> & {
   pages: number
   blocks: number
   cards: number
-  databases?: number
-  rows?: number
 }
 export interface Made {
   /** In the order they must be saved: blocks and cards first, the page or notebook last. */

@@ -271,11 +271,35 @@ export function makeWriteTools(d: WriteDeps) {
     }
   }
 
+  /**
+   * The online connector now makes mind maps and databases; this local one
+   * does not yet (it does not load the database tables), so it still refuses
+   * them with a plain message and writes nothing.
+   */
+  const refuseRich = (spec: NotebookSpec, what: 'notebook' | 'page') => {
+    const out: string[] = []
+    if (spec.databases?.length) out.push('databases')
+    const bad = new Set<string>()
+    const visit = (blocks: readonly SpecBlock[]) => {
+      for (const b of blocks) {
+        if (b.type === 'mindMap' || b.type === 'database') bad.add(b.type)
+        if (b.children) visit(b.children)
+      }
+    }
+    for (const p of spec.pages) visit(p.blocks)
+    for (const t of bad) out.push(`${t} blocks`)
+    if (out.length)
+      throw new ToolError(
+        `This ${what} asks for things the local connector cannot make yet: ${out.join('; ')}. Nothing was changed. Remove them and try again.`,
+      )
+  }
+
   return {
     create_notebook: (a: { spec: unknown }) =>
       serial(async () => {
         need('write:create')
         const spec = checkSpec(a.spec)
+        refuseRich(spec, 'notebook')
         await d.cache.refresh(true)
         const workspaceId = d.cache.workspaceId()
         if (!workspaceId)
@@ -325,6 +349,7 @@ export function makeWriteTools(d: WriteDeps) {
           pages: [a.page],
         })
         const page: SpecPage = spec.pages[0]
+        refuseRich(spec, 'page')
         await d.cache.refresh(true)
         const nb = writableNotebook(a.notebookId)
         const parentId = a.parentId ?? null

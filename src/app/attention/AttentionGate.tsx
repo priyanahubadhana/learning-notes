@@ -7,6 +7,7 @@ import {
   useSyncExternalStore,
 } from 'react'
 import type { LearningNotesDB } from '../../core/db'
+import { useReadOnlyGate } from '../../core/useReadOnlyGate'
 import { LockedAlertGate } from '../../sync/LockedAlertGate'
 import { getSyncStatus, subscribeSync } from '../../sync/syncStatus'
 import { browserSnooze, pickAttention } from './attentionLevel'
@@ -55,6 +56,7 @@ function useQuiet(wanted: boolean): boolean {
  */
 export function AttentionGate({ db }: { db: LearningNotesDB }) {
   const status = useSyncExternalStore(subscribeSync, getSyncStatus)
+  const gated = useReadOnlyGate()
   const signals = useSyncExternalStore(subscribeSignals, getSignals)
   const [now, setNow] = useState(() => Date.now())
   const found = pickAttention(
@@ -64,6 +66,8 @@ export function AttentionGate({ db }: { db: LearningNotesDB }) {
     SESSION,
   )
   const quiet = useQuiet(!!found && found.level > 1)
+  // The sign-in bar (account gate) takes the one spot while the device is read-only.
+  if (gated) return null
   if (found?.level === 1) return <LockedAlertGate />
   if (!found || !quiet) return null
   return (

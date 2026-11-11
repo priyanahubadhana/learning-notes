@@ -1,5 +1,9 @@
 # Owner checks still pending (collected for the end-of-run iPad pass)
 
+## Account gate, iPad check (12 Nov)
+
+On an iPad (or Safari tab) that has notes but is NOT signed in: (1) a bar says "Sign in to keep editing and sync your notes"; (2) pages open and read, search works, typing and Pencil do nothing, the page title is locked, a grey "Read-only until you sign in" line shows; (3) New notebook / New page opens the Sign in sheet; (4) in airplane mode the sheet says you are offline; (5) sign in (Google or email), finish or skip the guide: the bar goes, you can type, and it stays after a reload; (6) a signed-in iPad in airplane mode for a day is never gated.
+
 ## Batch H, iPad checks (12 Nov)
 
 (1) Notebooks home: All / Starred / Recent tabs. (2) Notebook Database tab: the Page filter. (3) Search a ticked checkbox name and a formula result. (4) Tap a picture, Border cycles thin / thick / none. (5) YouTube card: Start at 1:30 and Small / Medium / Full. (6) Delete a page with a picture, empty Trash: the picture is gone from storage.

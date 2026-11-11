@@ -1,5 +1,6 @@
 import type { LearningNotesDB } from './db'
 import { descendantIds } from './records'
+import { isReadOnlyGate } from './readOnlyGate'
 import type { Notebook, Page } from './types'
 
 /**
@@ -17,11 +18,29 @@ export class EditLockedError extends Error {
   }
 }
 
-/** Which flag locks a page: its own, its notebook's, or none. */
+/** Refused because this device is not signed in (account gate, Q3a). */
+export class SignInRequiredError extends EditLockedError {
+  constructor() {
+    super()
+    this.name = 'SignInRequiredError'
+    this.message = 'Sign in to keep editing and sync your notes.'
+  }
+}
+
+/** Throws `SignInRequiredError` while the account gate is on. */
+export function assertSignedIn(): void {
+  if (isReadOnlyGate()) throw new SignInRequiredError()
+}
+
+/**
+ * Which flag locks a page: the account gate (this device is not signed in:
+ * everything is read-only), its own, its notebook's, or none.
+ */
 export function editLockSource(
   page: Pick<Page, 'editLocked'> | undefined,
   notebook: Pick<Notebook, 'editLocked'> | undefined,
-): 'page' | 'notebook' | null {
+): 'page' | 'notebook' | 'account' | null {
+  if (isReadOnlyGate()) return 'account'
   if (page?.editLocked) return 'page'
   if (notebook?.editLocked) return 'notebook'
   return null
@@ -46,7 +65,7 @@ export async function setEditLocked(
 export async function pageEditLock(
   db: LearningNotesDB,
   pageId: string,
-): Promise<'page' | 'notebook' | null> {
+): Promise<'page' | 'notebook' | 'account' | null> {
   const page = await db.pages.get(pageId)
   if (!page) return null
   return editLockSource(page, await db.notebooks.get(page.notebookId))
@@ -65,6 +84,7 @@ export async function pageDeleteBlocked(
   db: LearningNotesDB,
   pageId: string,
 ): Promise<boolean> {
+  if (isReadOnlyGate()) return true
   const page = await db.pages.get(pageId)
   if (!page) return false
   if ((await db.notebooks.get(page.notebookId))?.editLocked) return true
@@ -80,6 +100,7 @@ export async function notebookDeleteBlocked(
   db: LearningNotesDB,
   notebookId: string,
 ): Promise<boolean> {
+  if (isReadOnlyGate()) return true
   if ((await db.notebooks.get(notebookId))?.editLocked) return true
   return (await db.pages.where('notebookId').equals(notebookId).toArray()).some(
     (p) => p.deletedAt === null && p.editLocked,

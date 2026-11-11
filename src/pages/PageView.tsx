@@ -72,6 +72,7 @@ import { pathStyleSetting } from '../settings/builtinSettings'
 import { editLockItem } from '../app/lock/editLockMenu'
 import { useLockItem } from '../app/lock/lockMenu'
 import { editLockSource, setEditLocked } from '../core/editLock'
+import { useReadOnlyGate } from '../core/useReadOnlyGate'
 import { ReadingFrame } from '../app/reading/ReadingFrame'
 import { MARGIN_PX, WIDTH_PX } from '../app/reading/readingPrefs'
 import { setReadFirst } from '../app/reading/readFirst'
@@ -248,6 +249,7 @@ export function PageView({
   const starred = favourites.useValue().includes(page.id)
   const lockItem = useLockItem(db, 'page', page.id, !!page.locked)
   // Edit lock (3c): this page's own flag or its notebook's.
+  useReadOnlyGate() // re-reads the lock when the sign-in changes (Q3a)
   const editLockBy = editLockSource(page, notebook)
   const view = readingView.useValue()
   const reader = view === 'reader'
@@ -314,7 +316,7 @@ export function PageView({
     { label: t('tool.readerFull'), icon: 'bookOpen', onSelect: openReader },
     ...(isTemplate ? [] : paperItems),
     ...lockItem,
-    ...(editLockBy === 'notebook'
+    ...(editLockBy === 'notebook' || editLockBy === 'account'
       ? []
       : [editLockItem(db, 'page', page.id, !!page.editLocked, toast)]),
     {
@@ -521,7 +523,17 @@ export function PageView({
           </Banner>
         )}
       </div>
-      {editLockBy && !reader && (
+      {editLockBy === 'account' && !reader && (
+        <p
+          role="status"
+          data-testid="account-gate-page-bar"
+          className="mb-3 flex min-h-11 w-full items-center gap-2 rounded-lg bg-soft px-3 py-2 text-sm text-ink-soft"
+        >
+          <Icon name="lockKeyhole" size={14} aria-hidden />
+          {t('gate.pageBar')}
+        </p>
+      )}
+      {editLockBy && editLockBy !== 'account' && !reader && (
         <button
           type="button"
           data-testid="edit-lock-bar"

@@ -1,5 +1,5 @@
 import type { LearningNotesDB } from '../core/db'
-import { EditLockedError } from '../core/editLock'
+import { EditLockedError, assertSignedIn } from '../core/editLock'
 import { byOrder, orderAtIndex, orderBetween } from '../core/order'
 import {
   getLive,
@@ -68,6 +68,7 @@ export async function createNotebook(
   title = 'Untitled',
   kind?: Notebook['kind'],
 ): Promise<Notebook> {
+  if (!kind) assertSignedIn()
   return db.transaction('rw', db.workspaces, db.notebooks, async () => {
     await getLive(db.workspaces, workspaceId)
     const last = (await listNotebooks(db, workspaceId)).at(-1)
@@ -109,6 +110,7 @@ export async function renameNotebook(
   id: string,
   title: string,
 ): Promise<void> {
+  assertSignedIn()
   await db.transaction('rw', db.notebooks, async () => {
     await getLive(db.notebooks, id)
     await db.notebooks.update(id, { title, updatedAt: Date.now() })
@@ -121,6 +123,7 @@ export async function moveNotebook(
   id: string,
   toIndex: number,
 ): Promise<void> {
+  assertSignedIn()
   await db.transaction('rw', db.notebooks, async () => {
     const notebook = await getLive(db.notebooks, id)
     const siblings = (await listNotebooks(db, notebook.workspaceId)).filter(
@@ -142,6 +145,7 @@ export async function deleteNotebook(
   db: LearningNotesDB,
   id: string,
 ): Promise<void> {
+  assertSignedIn()
   const tables = [
     db.notebooks,
     db.pages,

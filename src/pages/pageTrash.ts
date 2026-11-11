@@ -2,6 +2,7 @@ import type { ToastAction } from '../app/appUi'
 import { runTask } from '../app/errors'
 import type { LearningNotesDB } from '../core/db'
 import { pageDeleteBlocked } from '../core/editLock'
+import { isReadOnlyGate } from '../core/readOnlyGate'
 import { descendantIds } from '../core/records'
 import type { Page } from '../core/types'
 import { sampleName } from '../i18n/defaultNames'
@@ -20,7 +21,7 @@ export async function trashPageWithUndo(
   hooks: { onGone?: () => void; onBack?: () => void } = {},
 ): Promise<void> {
   if (await pageDeleteBlocked(db, page.id)) {
-    toast(t('editLock.refused'))
+    toast(t(isReadOnlyGate() ? 'gate.pageBar' : 'editLock.refused'))
     return
   }
   const live = (

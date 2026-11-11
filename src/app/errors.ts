@@ -8,6 +8,16 @@ export function onStorageFull(listener: () => void): () => void {
   }
 }
 
+/** Called when an edit was refused because this device is not signed in (Q3a). */
+let signInRequiredListener: (() => void) | undefined
+
+export function onSignInRequired(listener: () => void): () => void {
+  signInRequiredListener = listener
+  return () => {
+    if (signInRequiredListener === listener) signInRequiredListener = undefined
+  }
+}
+
 /** True for a browser or Dexie "no space left" failure. */
 export function isStorageFull(error: unknown): boolean {
   const seen = new Set<unknown>()
@@ -25,6 +35,8 @@ export function isStorageFull(error: unknown): boolean {
 export function reportError(error: unknown, label?: string): void {
   console.error(...(label ? [label, error] : [error]))
   if (isStorageFull(error)) storageFullListener?.()
+  if ((error as { name?: string } | null)?.name === 'SignInRequiredError')
+    signInRequiredListener?.()
 }
 
 /** Runs a background task from a UI event and logs any failure. */

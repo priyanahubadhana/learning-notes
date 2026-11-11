@@ -62,6 +62,7 @@ import { UpdateRiskBar } from './app/UpdateBar'
 import { mandatoryUpdate } from './app/mandatoryState'
 import { AttentionGate } from './app/attention/AttentionGate'
 import { SignedOutGate } from './sync/SignedOutGate'
+import { AccountGate } from './sync/AccountGate'
 import {
   checkStorage,
   loadBackupFailures,
@@ -2006,6 +2007,7 @@ function App() {
             <ReadingSync />
             <AttentionGate db={db} />
             <SignedOutGate />
+            <AccountGate />
             <NowPlayingGate onOpenPage={(id) => openPage(id)} />
             <TimerChip db={db} onOpenHome={() => chooseSpace('home')} />
             <Suspense fallback={null}>

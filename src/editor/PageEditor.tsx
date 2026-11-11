@@ -41,6 +41,7 @@ import { MAIN_BOX } from '../paper/boxes'
 import { syncCardRecords } from '../recall/cardService'
 import type { LearningNotesDB } from '../core/db'
 import { pageEditLock } from '../core/editLock'
+import { useReadOnlyGate } from '../core/useReadOnlyGate'
 import type { Block, Page } from '../core/types'
 import { createPage } from '../pages/pageService'
 import { tagMap } from '../tags/tagService'
@@ -192,9 +193,10 @@ export function PageEditor(props: PageEditorProps) {
   // Only one window edits a page (pageLock.ts).
   const [lock, setLock] = useState<{ pageId: string; state: LockState }>()
   const pageLock = useRef<PageLock>(null)
+  const gated = useReadOnlyGate() // sign-in gate (Q3a): read-only until signed in
   const editLock = useLiveQuery(
     async () => (await pageEditLock(db, pageId)) ?? 'none',
-    [db, pageId],
+    [db, pageId, gated],
   )
   const [taking, setTaking] = useState(false)
   // Raised after Edit here: reads what the other window saved.

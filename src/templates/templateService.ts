@@ -36,9 +36,14 @@ async function addStarterPage(
   parentId: string | null,
   starter: StarterPage & { role?: 'daily'; children?: StarterPage[] },
 ): Promise<string> {
-  const page = await createPage(db, notebookId, parentId, starter.title, {
-    ...(starter.role && { templateRole: starter.role }),
-  })
+  const page = await createPage(
+    db,
+    notebookId,
+    parentId,
+    starter.title,
+    { ...(starter.role && { templateRole: starter.role }) },
+    true, // the app's own starter pages: allowed while read-only
+  )
   const childIds: string[] = []
   for (const child of starter.children ?? []) {
     childIds.push(await addStarterPage(db, notebookId, page.id, child))

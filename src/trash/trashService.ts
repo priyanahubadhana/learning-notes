@@ -1,4 +1,5 @@
 ﻿import type { LearningNotesDB } from '../core/db'
+import { assertSignedIn } from '../core/editLock'
 import { purgeBooksOf } from '../core/bookPurge'
 import { purgeRecordingsOf } from '../core/recordingPurge'
 import { purgeSummaryOf } from '../core/summaryService'
@@ -342,6 +343,7 @@ export async function purgeNotebook(
   db: LearningNotesDB,
   id: string,
 ): Promise<void> {
+  assertSignedIn()
   await db.transaction('rw', purgeTables(db), async () => {
     await getTrashed<Notebook>(db.notebooks, id)
     const now = Date.now()
@@ -369,6 +371,7 @@ export async function purgePage(
   db: LearningNotesDB,
   id: string,
 ): Promise<void> {
+  assertSignedIn()
   await db.transaction('rw', purgeTables(db), async () => {
     const page = await getTrashed<Page>(db.pages, id)
     const now = Date.now()
@@ -395,6 +398,7 @@ export async function purgeDatabase(
   db: LearningNotesDB,
   id: string,
 ): Promise<void> {
+  assertSignedIn()
   await db.transaction('rw', purgeTables(db), async () => {
     const database = await getTrashed<Database>(db.databases, id)
     await purgeDatabaseRecords(db, [database], Date.now())

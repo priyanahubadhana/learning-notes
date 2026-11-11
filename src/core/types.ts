@@ -215,6 +215,15 @@ export interface GridRow {
   id: string
   y?: number
   cols: GridCol[]
+  /**
+   * Free box (text box v2): a row of one box that sits at this left edge (mm
+   * from the sheet's left side) instead of in the page column. `wmm` is a
+   * width the user set; with `auto` and no `wmm` the box is as wide as its
+   * text (up to a little before the right margin) and then wraps.
+   */
+  x?: number
+  wmm?: number
+  auto?: true
 }
 
 export interface PaperBox {

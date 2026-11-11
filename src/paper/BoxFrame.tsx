@@ -11,6 +11,7 @@ import { frameCss, padOf } from '../core/boxStyle'
 import { BOX_COLOURS, sheetSegments } from './boxes'
 import { activeTool } from '../app/tools/main/mainTools'
 import { TOUCH_PX, TOUCH_STYLE } from './safeGap'
+import { FREE_MIN_W } from './grid'
 import {
   caretAtEnd,
   HANDLE_AT,
@@ -41,6 +42,8 @@ export function BoxFrame({
   sheets,
   onBottom,
   onHeight,
+  onWidth,
+  autoMaxW,
   onMenu,
   picked,
   typing,
@@ -71,6 +74,12 @@ export function BoxFrame({
   onBottom: (px: number) => void
   /** The box's own height (px), for the box grid. */
   onHeight?: (px: number) => void
+  /**
+   * Text box v2: the box is as wide as its text, up to this many px (a little
+   * before the right margin), then the text wraps. It reports its width (px).
+   */
+  autoMaxW?: number
+  onWidth?: (px: number) => void
   onMenu: (at: DOMRect) => void
   /** Selected (tap on the frame, or the Lasso). */
   picked: boolean
@@ -103,6 +112,9 @@ export function BoxFrame({
 }) {
   const el = useRef<HTMLDivElement>(null)
   const [h, setH] = useState(0)
+  // A box narrower than the grip and ⋯ side by side (a new, small box): they
+  // sit next to each other above its left edge instead of at its two ends.
+  const [narrowBox, setNarrowBox] = useState(false)
   // A new empty box with the caret: accent dashed frame and "Type here".
   const [emptyFocused, setEmptyFocused] = useState(false)
   const checkEmpty = () => {
@@ -117,13 +129,15 @@ export function BoxFrame({
     const measure = () => {
       onBottom(node.offsetTop + node.offsetHeight)
       onHeight?.(node.offsetHeight)
+      onWidth?.(node.offsetWidth)
+      setNarrowBox(node.offsetWidth < 150)
       setH(node.offsetHeight)
     }
     measure()
     const ro = new ResizeObserver(measure)
     ro.observe(node)
     return () => ro.disconnect()
-  }, [onBottom, onHeight])
+  }, [onBottom, onHeight, onWidth])
 
   const pointer = {
     onPointerMove: onDragMove,
@@ -142,6 +156,7 @@ export function BoxFrame({
       ref={el}
       data-paper-box={box.id}
       data-locked={box.locked ? '' : undefined}
+      data-auto={autoMaxW ? '' : undefined}
       data-picked={picked ? '' : undefined}
       data-typing={typing ? '' : undefined}
       data-empty-focused={emptyFocused ? '' : undefined}
@@ -176,14 +191,22 @@ export function BoxFrame({
                 // nothing (item 25, the white-line flicker).
                 left: box.x * k,
                 top: box.y * k,
-                width: shown.w * k,
+                ...(autoMaxW
+                  ? { width: 'max-content', maxWidth: autoMaxW }
+                  : { width: shown.w * k }),
                 transform: `translate3d(${(shown.x - box.x) * k}px, ${(shown.y - box.y) * k}px, 0)`,
                 willChange: 'transform',
               }
             : {
                 left: shown.x * k,
                 top: shown.y * k,
-                width: shown.w * k,
+                ...(autoMaxW
+                  ? {
+                      width: 'max-content',
+                      maxWidth: autoMaxW,
+                      minWidth: FREE_MIN_W * k,
+                    }
+                  : { width: shown.w * k }),
                 ...(box.h ? { minHeight: box.h * k } : {}),
               }
       }
@@ -212,7 +235,7 @@ export function BoxFrame({
           aria-hidden
           data-box-frame={i}
           className={
-            'pointer-events-none absolute inset-x-0 rounded-md border border-dashed border-transparent group-hover:border-line group-focus-within:border-line group-data-lasso:group-hover:border-solid group-data-lasso:group-hover:border-accent group-data-picked:border-solid group-data-picked:border-accent group-data-picked:border-[1.5px]' +
+            'pointer-events-none absolute inset-x-0 rounded-md border border-dashed border-transparent group-data-picked:border-solid group-data-picked:border-accent group-data-picked:border-[1.5px]' +
             (typing ? ' !border-solid !border-line-strong' : '') +
             (dragging ? ' !border-solid !border-accent' : '')
           }
@@ -222,7 +245,12 @@ export function BoxFrame({
       <div
         data-chrome
         // B3-1: only on the selected box, one 44 pt target each.
-        className="pointer-events-none invisible absolute left-0 right-0 z-20 flex items-center justify-end pr-7 group-data-picked:visible"
+        className={
+          'pointer-events-none invisible absolute z-20 flex items-center group-data-picked:visible ' +
+          (narrowBox
+            ? 'left-1/2 -translate-x-1/2 gap-1'
+            : 'left-0 right-0 justify-end pr-7')
+        }
         style={{ top: -TOUCH_PX - 20, height: TOUCH_PX }}
       >
         {box.locked || stacked ? (
@@ -237,7 +265,10 @@ export function BoxFrame({
             onPointerDown={(e) => onGrab('move', e)}
             {...pointer}
             style={TOUCH_STYLE}
-            className="pointer-events-auto absolute left-1/2 -translate-x-1/2 cursor-grab touch-none rounded-t-xl border border-b-0 border-accent bg-accent px-6 text-2xl leading-none text-white shadow-md"
+            className={
+              'pointer-events-auto cursor-grab touch-none rounded-t-xl border border-b-0 border-accent bg-accent px-6 text-2xl leading-none text-white shadow-md ' +
+              (narrowBox ? '' : 'absolute left-1/2 -translate-x-1/2')
+            }
           >
             ≡
           </button>
@@ -267,8 +298,10 @@ export function BoxFrame({
               'absolute touch-none ' +
               (movable ? 'cursor-move ' : 'cursor-pointer ') +
               (side === 'top'
-                ? // Not over the grip and ⋯ above the corners.
-                  'left-14 right-12 h-2.5 '
+                ? // Not over the corner handles; a small box takes its whole width.
+                  narrowBox
+                  ? 'inset-x-0 h-2.5 '
+                  : 'left-14 right-12 h-2.5 '
                 : side === 'bottom'
                   ? 'inset-x-0 h-2.5 '
                   : 'inset-y-0 w-2.5 ')

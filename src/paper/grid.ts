@@ -31,7 +31,24 @@ export interface Geometry {
   right: number
   top: number
   bottom: number
+  /** Measured widths (mm) of boxes that are as wide as their text (free `auto` rows). */
+  autoW?: Readonly<Record<string, number>>
 }
+
+/** Free boxes stop this far (mm) before the right margin, then wrap. */
+export const FREE_RIGHT_GAP = 5
+/** The width of a new, empty free box (mm): about one caret. */
+export const FREE_MIN_W = 6
+
+/** Does this row hold one free box (placed by `x`, not in the page column)? */
+export const isFreeRow = (row: GridRow): boolean =>
+  row.x !== undefined && row.cols.length === 1
+
+/** The most a free box at `x` may grow to before it wraps (mm). */
+export const freeMaxW = (
+  g: Pick<Geometry, 'sheetW' | 'right'>,
+  x: number,
+): number => Math.max(FREE_MIN_W, g.sheetW - g.right - FREE_RIGHT_GAP - x)
 
 export interface Rect {
   x: number
@@ -107,10 +124,17 @@ function tidy(rows: GridRow[]): GridRow[] {
       row.cols.length === 1 && cols.length === 1
         ? [Math.min(1, Math.max(MIN_FRAC, cols[0].w || 1))]
         : normaliseFracs(cols.map((c) => c.w))
-    out.push({
+    const next: GridRow = {
       ...row,
       cols: cols.map((c, i) => ({ ...c, w: round(fracs[i]) })),
-    })
+    }
+    // Only a lone box can be free: a row with columns is the page grid again.
+    if (cols.length !== 1) {
+      delete next.x
+      delete next.wmm
+      delete next.auto
+    }
+    out.push(next)
   }
   return out
 }
@@ -226,6 +250,7 @@ export function layoutRows(
     const n = row.cols.length
     if (n === 0) continue
     const avail = contentW - COL_GAP * (n - 1)
+    const free = isFreeRow(row) && row.cols[0].boxIds.length >= 1
     const colH = row.cols.map(
       (c) =>
         sum(c.boxIds.map((id) => Math.max(1, heights[id] ?? DEFAULT_H))) +
@@ -238,6 +263,24 @@ export function layoutRows(
     if (start >= end - 1e-6 || (rowH <= usable && start + rowH > end))
       start = (sheet + 1) * period + g.top
     let x = g.left
+    if (free) {
+      // A free box: at its own left edge, as wide as it was set or as its text.
+      const id0 = row.cols[0].boxIds[0]
+      const maxW = freeMaxW(g, row.x!)
+      const w = Math.min(
+        row.wmm ?? (row.auto ? (g.autoW?.[id0] ?? FREE_MIN_W) : maxW),
+        g.sheetW - row.x!,
+      )
+      x = row.x!
+      let yy = start
+      for (const id of row.cols[0].boxIds) {
+        const bh = Math.max(1, heights[id] ?? DEFAULT_H)
+        out.set(id, { x: round(x), y: round(yy), w: round(w), h: bh })
+        yy += bh + ROW_GAP
+      }
+      y = start + rowH + ROW_GAP
+      continue
+    }
     row.cols.forEach((c) => {
       const w = c.w * avail
       let yy = start
@@ -319,16 +362,26 @@ export function insertAt(
   return { rows: base, full: false }
 }
 
-/** Puts `id` in a new full-width row above (index) `before` rows. */
+/**
+ * Puts `id` in a new row above (index) `before` rows. With `free` it is a
+ * free box at that left edge: `wmm` a width set by the user, else `auto`
+ * (as wide as its text).
+ */
 export function insertRow(
   rows: readonly GridRow[],
   index: number,
   id: string,
   y?: number,
+  free?: { x: number; wmm?: number },
 ): GridRow[] {
   const base = clone(removeBox(rows, id))
   const row: GridRow = { id: newRowId(), cols: [{ w: 1, boxIds: [id] }] }
   if (y !== undefined) row.y = round(y)
+  if (free) {
+    row.x = round(free.x)
+    if (free.wmm !== undefined) row.wmm = round(free.wmm)
+    else row.auto = true
+  }
   base.splice(Math.max(0, Math.min(base.length, index)), 0, row)
   return base
 }
@@ -481,4 +534,35 @@ export function freshNeeded(
   const at = find(rows, anchor)
   if (!at) return 0
   return Math.max(0, cellCount(preset) - rowBoxIds(rows[at.r]).length)
+}
+
+/**
+ * The places a layout gives the boxes, as stored on each box (old clients and
+ * exports read these). A box that is as wide as its text stores the widest it
+ * may grow, so an export wraps exactly where the screen does. The default box
+ * keeps its own stored place.
+ */
+export function placesOf(
+  rows: readonly GridRow[],
+  heights: Readonly<Record<string, number>>,
+  g: Geometry,
+  skip = 'main',
+): { id: string; patch: { x: number; y: number; w: number } }[] {
+  const auto = new Set(
+    rows
+      .filter((r) => isFreeRow(r) && r.auto && r.wmm === undefined)
+      .flatMap((r) => r.cols[0].boxIds),
+  )
+  const out: { id: string; patch: { x: number; y: number; w: number } }[] = []
+  for (const [id, rc] of layoutRows(rows, heights, g))
+    if (id !== skip)
+      out.push({
+        id,
+        patch: {
+          x: rc.x,
+          y: rc.y,
+          w: auto.has(id) ? round(freeMaxW(g, rc.x)) : rc.w,
+        },
+      })
+  return out
 }

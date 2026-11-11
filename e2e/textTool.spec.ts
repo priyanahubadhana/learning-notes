@@ -149,31 +149,30 @@ test('Advanced radius and padding show on the real box; the grid gaps do not cha
     '16px',
   )
   const after = await rect(box)
-  // The box keeps its column and width (the padding sits inside the cell).
+  // The box keeps its place (a box as wide as its text grows by the padding).
   expect(Math.abs(after.x - before.x)).toBeLessThan(2)
-  expect(Math.abs(after.width - before.width)).toBeLessThan(2)
+  expect(after.width).toBeGreaterThanOrEqual(before.width)
 })
 
-test('a new box shows a dashed accent frame and "Type here" until the first character', async ({
+test('boxes are invisible until selected: a new empty box has no frame and no Type here', async ({
   page,
 }) => {
   await start(page, 'Frame')
   const box = await newBox(page, 1, '')
   await expect(box.locator('[data-box-frame]').first()).toHaveCSS(
-    'border-top-style',
-    'dashed',
+    'border-top-color',
+    'rgba(0, 0, 0, 0)',
   )
   const hint = await box
     .locator('.bn-block-content')
     .first()
     .evaluate((el) => getComputedStyle(el, '::after').content)
-  expect(hint).toContain('Type here')
-  await page.keyboard.type('x')
-  const after = await box
-    .locator('.bn-block-content')
-    .first()
-    .evaluate((el) => getComputedStyle(el, '::after').content)
-  expect(after).not.toContain('Type here')
+  expect(hint).not.toContain('Type here')
+  await pickFrame(page, box)
+  await expect(box.locator('[data-box-frame]').first()).toHaveCSS(
+    'border-top-style',
+    'solid',
+  )
 })
 
 test('box states: frame tap selects, a tap inside types and hides the bar, the frame brings it back', async ({

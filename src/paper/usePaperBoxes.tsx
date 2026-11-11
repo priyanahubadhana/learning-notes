@@ -60,7 +60,13 @@ export function usePaperBoxes(
   pageId: string,
   editable: boolean,
 ): {
-  onAddBox?: (at: { x: number; y: number; row?: number }) => void
+  onAddBox?: (at: {
+    x: number
+    y: number
+    row?: number
+    free?: boolean
+    rows?: GridRow[]
+  }) => void
   /** Phones: a new box in the reading order (after a box id, 'start' or 'end'). */
   onAddBoxInOrder?: (after: string) => void
   onBoxChange: (id: string, patch: Partial<PaperBox>) => void
@@ -295,7 +301,13 @@ export function usePaperBoxes(
       ),
     )
   }
-  const onAddBox = (at: { x: number; y: number; row?: number }) => {
+  const onAddBox = (at: {
+    x: number
+    y: number
+    row?: number
+    free?: boolean
+    rows?: GridRow[]
+  }) => {
     if (activeTool.get() !== 'text') return
     triggerFirstUse('paperBox')
     runTask(addBox(db, pageId, at).then(setFresh))

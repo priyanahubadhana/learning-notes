@@ -67,8 +67,6 @@ plans/owner-ideas-batch-2-2026-11-10.md: update bar, Acrobat PDF tools, customiz
 - CI fix pushed 11 Nov for Text box v2 (deploy pending green CI); check the deploy ran, then delete this line.
 
 - Owner top bugs 1-3 (box line outline, caret spot, Pencil double/triple tap) fixed in code 11 Nov, need the owner iPad check. NOT done yet: Text box v2 steps 4-6 and Layout mode v2 (large; need a fresh session). Pencil-writes-text default in a box not verified.
-- Grow-then-wrap box width and small-box-at-tap (coordinator spec 11 Nov) NOT built: the width is a grid column fraction, needs auto-width flag on lone boxes; do in a fresh session. Tap counts 1 caret/2 word/3 line/4 paragraph already match the code.
-- Grow-then-wrap max width: stop about one page side margin before the right edge (coordinator 11 Nov); placement unchanged until the owner answers.
 - Smart guides in the drag step (thin red edge/centre lines, equal-spacing marks, gentle snap); on/off switch ONLY in Settings (default on). Layout pop-up tidy: Line up left, Space evenly (3+), One box, Columns. Approved 11 Nov, not built.
 - Smart guide look: 1 px magenta, only while dragging, each line spans from the dragged box edge/centre to the matched object only, plus a page-centre line and equal-spacing marks, gentle snap, never overlap. Not built.
 ## Owner answers 11 Nov (top priority: text box, typing, Pencil)
@@ -79,12 +77,7 @@ plans/owner-ideas-batch-2-2026-11-10.md: update bar, Acrobat PDF tools, customiz
 - Layout presets: the owner uses only "One box" (ask whether to keep the others in the pop-up).
 - Progress: a short note per live part, with a 2–3 line test.
 - Owner 4:45 (GoodNotes iPhone screenshots), the text box model:
-  - A tap with the Text tool makes a SMALL box at the tap point (about one caret wide). If you leave it empty and tap away, it disappears.
-  - While typing, the box GROWS in width with the text until a default max width (about the page width minus margins), then text soft-wraps to the next line (no Enter, still one paragraph). If the user stretched the box wider or narrower, wrapping follows that width.
   - Pencil/finger taps: 1 = caret, 2 = word, 3 = line, 4 = paragraph.
-  - Default layout = free boxes placed where you tap, sized to their content (GoodNotes), not a full-width grid box. (Confirm how this fits the snap grid.)
-- Max width while growing: stop a little before the right margin (a comfortable margin gap, same as the GoodNotes screenshot), then wrap.
-- Placement research (11 Nov): GoodNotes has no official snap. Boxes sit where you tap, and users keep requesting snap-to-grid and lines (feedback.goodnotes.com). Proposed to the owner: free where you tap, with the first line aligned to the paper line (ruled or grid) under the tap, no overlap (others slide aside), and the Layout pop-up to tidy. OWNER OK (11 Nov): free where you tap, the first line on the paper line, no overlap. Overlap = parked idea.
 - Research 11 Nov, additions to consider for box layout and tidying (proposed to the owner):
   - Smart guides while dragging: centre/edge lines and equal-spacing hints (Keynote, Freeform, Notability pink guides).
   - Tidy: Line up left, Distribute evenly (3+ boxes), One box, Columns.
@@ -96,3 +89,13 @@ plans/owner-ideas-batch-2-2026-11-10.md: update bar, Acrobat PDF tools, customiz
   - Guides are thin 1 px magenta lines, shown only while dragging.
   - Each line runs from the dragged box's edge or centre to the matched object only (not across the page): top-edge to top-edge, left-edge vertical, centre horizontal.
   - Our version should be better: the same thin lines in the accent or magenta colour, plus small equal-spacing marks, a page-centre line, and a soft haptic-like snap. No overlap (Notability lets boxes overlap and that looks messy).
+- Owner 11 Nov (text tool vs pen):
+  - Text tool + Pencil writing inside a box = handwriting becomes text. Pen tool = ink on its own layer over the text, never converted.
+  - Text tool: drawn arrows, lines, circles and rectangles become clean shapes on the ink layer (reuse the shape recogniser). A digit with a circle drawn round it becomes a circled number (②). One Undo turns it back.
+  - FINAL: NO double-tap-to-make-a-box at all. A single tap with the Text tool makes a box (as before).
+  - Box styles: sticky note/callout in Box style settings (no quick dots). Remember the last style. User-saved text/box presets.
+- OWNER FINAL (11 Nov): 1a a tap inside a box with the Text tool puts the caret there straight away; 2a with a box selected, a tap on empty paper only deselects; 3b one bar while typing (the text bar above the keyboard), the box bar only when the box is selected and you're not typing; 4a boxes invisible until selected.
+
+## Questions for owner
+
+- Two taps at the same height: the second box goes just UNDER the first (every free box is its own row; others slide down). Do you want boxes side by side at the same height from a tap? That needs a different layout model (overlap checks per box). Safest option taken: stacked.

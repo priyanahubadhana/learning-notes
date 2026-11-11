@@ -37,9 +37,14 @@ import { caretAtEnd, type ResizeHow } from './boxHandles'
 import { SAFE_GAP_PX, TOUCH_PX, TOUCH_STYLE } from './safeGap'
 import { clampBox, MIN_W, type BoxPatch } from './boxService'
 import {
+  freeMaxW,
+  FREE_MIN_W,
+  FREE_RIGHT_GAP,
   insertAt,
   insertRow,
+  isFreeRow,
   layoutRows,
+  placesOf,
   MIN_FRAC,
   migrateToRows,
   reconcile,
@@ -114,7 +119,13 @@ export function PaperFrame({
   /** A box whose editor is made at once (just made: it takes the caret). */
   eager?: string | null
   /** A tap on empty paper (mm); unset = no new boxes (read-only). */
-  onAddBox?: (at: { x: number; y: number; row?: number }) => void
+  onAddBox?: (at: {
+    x: number
+    y: number
+    row?: number
+    free?: boolean
+    rows?: GridRow[]
+  }) => void
   /** Phones (fit width): a new box after a box id, at the 'start' or the 'end'. */
   onAddBoxInOrder?: (after: string) => void
   /** Boxes moved or resized in one go (a drop pushes others): one Undo. */
@@ -207,8 +218,22 @@ export function PaperFrame({
       ),
     [heights, k],
   )
+  // Boxes as wide as their text report their width (px), so drops and guides
+  // know where they really end.
+  const [widths, setWidths] = useState<Record<string, number>>({})
+  const reportWidth = useCallback((id: string, px: number) => {
+    setWidths((w) => (w[id] === px ? w : { ...w, [id]: px }))
+  }, [])
+  const widthsMm = useMemo(
+    () =>
+      Object.fromEntries(
+        Object.entries(widths).map(([id, px]) => [id, px / (k || 1)]),
+      ),
+    [widths, k],
+  )
   const geo: Geometry = useMemo(
     () => ({
+      autoW: widthsMm,
       sheetW: sheet.w,
       sheetH: sheet.h,
       gapMm: SHEET_GAP_PX / (k || 1),
@@ -217,7 +242,7 @@ export function PaperFrame({
       top: box.y,
       bottom: MARGIN,
     }),
-    [sheet.w, sheet.h, k, box.x, box.w, box.y],
+    [sheet.w, sheet.h, k, box.x, box.w, box.y, widthsMm],
   )
   const baseRows = useMemo(
     () =>
@@ -463,6 +488,17 @@ export function PaperFrame({
     }
   }, [k, sheets, narrow, flat, page.boxes?.length])
 
+  /** Boxes as wide as their text (free boxes nobody has widened). */
+  const autoIds = useMemo(
+    () =>
+      new Set(
+        rowsView
+          .filter((r) => isFreeRow(r) && r.auto && r.wmm === undefined)
+          .flatMap((r) => r.cols[0].boxIds),
+      ),
+    [rowsView],
+  )
+  const placedX = (b: PaperBox) => layout.get(b.id)?.x ?? b.x
   const stored = boxesOf(page)
     .filter((b) => b.id !== MAIN_BOX)
     .map(placed)
@@ -655,7 +691,13 @@ export function PaperFrame({
     }
   }
   /** The arrangement a drop at the pointer would give (pure, from the rows at drag start). */
-  const dropAt = (cx: number, cy: number, ids: string[], rows0: GridRow[]) => {
+  const dropAt = (
+    cx: number,
+    cy: number,
+    ids: string[],
+    rows0: GridRow[],
+    held?: { x0: number; y0: number; orig: Map<string, PaperBox> } | null,
+  ) => {
     const r = paperEl.current!.getBoundingClientRect()
     const mx = (cx - r.left) / k
     const my = (cy - r.top) / k
@@ -694,10 +736,38 @@ export function PaperFrame({
       Math.min(
         ...row.cols.flatMap((c) => c.boxIds).map((id) => now.get(id)?.y ?? 1e9),
       )
-    let idx = rows.filter((row) => top(row) < my).length
-    const y = snap(my, step / k)
+    // Text box v2: a box dropped on blank paper stays where it was put (a free
+    // box at the dropped left edge, its width kept); the page's own text box
+    // goes back to a full-width row.
+    const dxMm = held ? (cx - held.x0) / k : 0
+    const dyMm = held ? (cy - held.y0) / k : 0
+    const leadTop = held?.orig.get(lead)
+    const yTop = leadTop ? leadTop.y + dyMm : my
+    let idx = rows.filter((row) => top(row) < yTop).length
     for (const id of [lead, ...rest]) {
-      rows = insertRow(rows, idx++, id, y)
+      const o = held?.orig.get(id)
+      if (!o || id === MAIN_BOX) {
+        rows = insertRow(rows, idx++, id, snap(my, step / k))
+        continue
+      }
+      const was = now.get(id)
+      const row0 = rows0.find((r) => r.cols.some((c) => c.boxIds.includes(id)))
+      const wasAuto =
+        !!row0 && isFreeRow(row0) && !!row0.auto && row0.wmm === undefined
+      const x = Math.min(
+        Math.max(0, o.x + dxMm),
+        sheet.w - 15 - FREE_MIN_W - FREE_RIGHT_GAP,
+      )
+      rows = insertRow(
+        rows,
+        idx++,
+        id,
+        Math.max(0, snap(o.y + dyMm, step / k)),
+        {
+          x,
+          wmm: wasAuto ? undefined : was?.w,
+        },
+      )
     }
     return { rows, full: false }
   }
@@ -734,7 +804,7 @@ export function PaperFrame({
     }
     setLiveBoxes(live)
     setDragOrigin(d.orig)
-    const drop = dropAt(e.clientX, e.clientY, d.ids, d.rows0)
+    const drop = dropAt(e.clientX, e.clientY, d.ids, d.rows0, d)
     setPreview(drop.rows)
     setGhost({ id: d.lead, full: drop.full })
   }
@@ -764,7 +834,7 @@ export function PaperFrame({
     if (d && e.type !== 'pointercancel') applyMove(e, d)
     const rows =
       d?.moved && d.ids.length > 0
-        ? dropAt(e.clientX, e.clientY, d.ids, d.rows0).rows
+        ? dropAt(e.clientX, e.clientY, d.ids, d.rows0, d).rows
         : null
     setLiveBoxes(null)
     setDragOrigin(null)
@@ -782,10 +852,7 @@ export function PaperFrame({
     }
     if (!rows) return
     // The places the new arrangement gives (for old clients and exports).
-    const places: BoxPatch[] = []
-    for (const [id, rc] of layoutRows(rows, heightsMm, geo))
-      if (id !== MAIN_BOX)
-        places.push({ id, patch: { x: rc.x, y: rc.y, w: rc.w } })
+    const places: BoxPatch[] = placesOf(rows, heightsMm, geo)
     setHeldRows(rows)
     onGridChange?.(rows, places)
   }
@@ -806,6 +873,10 @@ export function PaperFrame({
     moved: boolean
     /** Lone box in its row: the side handles set its width (fraction). */
     lone: boolean
+    /** A free box (text box v2): east/west set its width in mm, west also its left edge. */
+    free: 'e' | 'w' | null
+    /** Its right edge (mm) when the press began (the west handle keeps it). */
+    right0: number
     /** The top handle: the top edge moves, the bottom stays. */
     north: boolean
     top0: number
@@ -833,8 +904,11 @@ export function PaperFrame({
     let i: number | null = null
     if (row && how.includes('e') && ci < row.cols.length - 1) i = ci
     else if (row && how.includes('w') && ci > 0) i = ci - 1
+    const isFree = !!row && isFreeRow(row)
     const lone = !!row && row.cols.length === 1 && how.includes('e')
     if (lone) i = 0
+    if (isFree && how.includes('w')) i = 0
+    const rc0 = layout.get(b.id)
     const north = how.includes('n') && !!row && ci === 0
     const top0 = layout.get(b.id)?.y ?? b.y
     const floorY =
@@ -846,6 +920,14 @@ export function PaperFrame({
           ).get(b.id)?.y ?? top0)
         : top0
     resizing.current = {
+      free: isFree
+        ? how.includes('e')
+          ? 'e'
+          : how.includes('w')
+            ? 'w'
+            : null
+        : null,
+      right0: rc0 ? rc0.x + rc0.w : 0,
       lone,
       north,
       top0,
@@ -873,17 +955,43 @@ export function PaperFrame({
       const at =
         ((e.clientX - r.left) / k - geo.left) /
         Math.max(1, geo.sheetW - geo.left - geo.right)
+      const atMm = (e.clientX - r.left) / k
+      const maxX = geo.sheetW - geo.right - FREE_MIN_W
       d.rows = baseRows.map((row) =>
         row.id !== d.rowId
           ? row
-          : d.lone
-            ? {
+          : d.free === 'e'
+            ? withoutAuto({
                 ...row,
-                cols: [
-                  { ...row.cols[0], w: Math.min(1, Math.max(MIN_FRAC, at)) },
-                ],
-              }
-            : resizeCols(row, d.i!, at),
+                wmm:
+                  Math.round(
+                    Math.min(
+                      geo.sheetW - (row.x ?? 0),
+                      Math.max(FREE_MIN_W, atMm - (row.x ?? 0)),
+                    ) * 10,
+                  ) / 10,
+              })
+            : d.free === 'w'
+              ? (() => {
+                  const x = Math.min(maxX, Math.max(0, atMm))
+                  return withoutAuto({
+                    ...row,
+                    x: Math.round(x * 10) / 10,
+                    wmm:
+                      Math.round(Math.max(FREE_MIN_W, d.right0 - x) * 10) / 10,
+                  })
+                })()
+              : d.lone
+                ? {
+                    ...row,
+                    cols: [
+                      {
+                        ...row.cols[0],
+                        w: Math.min(1, Math.max(MIN_FRAC, at)),
+                      },
+                    ],
+                  }
+                : resizeCols(row, d.i!, at),
       )
       setPreview(d.rows)
     }
@@ -914,10 +1022,7 @@ export function PaperFrame({
     setPreview(null)
     if (!d || e.type === 'pointercancel' || !d.moved) return
     if (d.i !== null || d.north) {
-      const places: BoxPatch[] = []
-      for (const [id, rc] of layoutRows(d.rows, heightsMm, geo))
-        if (id !== MAIN_BOX)
-          places.push({ id, patch: { x: rc.x, y: rc.y, w: rc.w } })
+      const places: BoxPatch[] = placesOf(d.rows, heightsMm, geo)
       setHeldRows(d.rows)
       onGridChange?.(d.rows, places)
     }
@@ -929,10 +1034,7 @@ export function PaperFrame({
   }
   useEffect(() => {
     if (!onGridView) return
-    const places: BoxPatch[] = []
-    for (const [id, rc] of layout)
-      if (id !== MAIN_BOX)
-        places.push({ id, patch: { x: rc.x, y: rc.y, w: rc.w } })
+    const places: BoxPatch[] = placesOf(rowsView, heightsMm, geo)
     onGridView(rowsView, places, { heights: heightsMm, geo })
   })
   const toPaper = (e: ReactPointerEvent) => {
@@ -1101,6 +1203,7 @@ export function PaperFrame({
 
   /** A tap on empty paper with the Text tool: a new box there (step 3). */
   const tapStart = useRef<{ x: number; y: number; t: number } | null>(null)
+  const lastCreate = useRef<{ t: number; x: number; y: number } | null>(null)
   const tapPaper = (e: ReactPointerEvent<HTMLDivElement>) => {
     if (document.documentElement.hasAttribute('data-placing')) return
     if (isUiEvent(e.nativeEvent)) return
@@ -1166,10 +1269,27 @@ export function PaperFrame({
             .map((id) => layout.get(id)?.y ?? 1e9),
         ) <= y,
     ).length
+    // No double-tap-to-create (owner final): a second tap right after the
+    // first, near it, never makes another box.
+    const prev = lastCreate.current
+    lastCreate.current = { t: Date.now(), x: e.clientX, y: e.clientY }
+    if (
+      prev &&
+      Date.now() - prev.t < DOUBLE_TAP_MS &&
+      Math.hypot(e.clientX - prev.x, e.clientY - prev.y) < DOUBLE_TAP_PX
+    )
+      return
+    // Text box v2: a SMALL box exactly where tapped (its first line on the
+    // paper line under the tap); it grows with the text, then wraps.
     onAddBox({
-      x: Math.max(0, x - 4),
+      x: Math.min(
+        Math.max(0, x - 1),
+        sheet.w - 15 - FREE_MIN_W - FREE_RIGHT_GAP,
+      ),
       y: Math.max(0, snap(y, step / k)),
       row,
+      free: true,
+      rows: baseRows,
     })
   }
 
@@ -1282,6 +1402,14 @@ export function PaperFrame({
             dragging={!!liveBoxes?.has(b.id)}
             pushed={!!preview || !!heldRows}
             onHeight={(px) => reportHeight(b.id, px)}
+            // Only a box that is as wide as its text reports: a preview that puts it
+            // in a column must not change where it is hit.
+            onWidth={
+              autoIds.has(b.id) ? (px) => reportWidth(b.id, px) : undefined
+            }
+            autoMaxW={
+              autoIds.has(b.id) ? freeMaxW(geo, placedX(b)) * k : undefined
+            }
             onGrab={(how, e) => grab(b, how, e)}
             onDragMove={dragMove}
             onDragEnd={dragEnd}
@@ -1316,10 +1444,7 @@ export function PaperFrame({
             onCommit={(rows) => {
               setPreview(null)
               setHeldRows(rows)
-              const places: BoxPatch[] = []
-              for (const [id, rc] of layoutRows(rows, heightsMm, geo))
-                if (id !== MAIN_BOX)
-                  places.push({ id, patch: { x: rc.x, y: rc.y, w: rc.w } })
+              const places: BoxPatch[] = placesOf(rows, heightsMm, geo)
               onGridChange?.(rows, places)
             }}
           />
@@ -1549,6 +1674,13 @@ export function PaperFrame({
   )
 }
 
+/** A free box the user widened keeps that width (it no longer follows its text). */
+const withoutAuto = (row: GridRow): GridRow => {
+  const next = { ...row }
+  delete next.auto
+  return next
+}
+
 /** A press that moves less than this (px) is a tap. */
 const TAP_PX = 4
 
@@ -1559,6 +1691,10 @@ export type BoxChange = BoxPatch & {
 
 /** Items 6/9: taps this close to a sheet edge (mm) never make a box. */
 const EDGE_MM = 8
+
+/** A tap this soon (ms) and this near (px) after a box-making tap is not another box. */
+const DOUBLE_TAP_MS = 700
+const DOUBLE_TAP_PX = 60
 
 /** B3-3: no new box this long (ms) after a drag, drop or resize. */
 const AFTER_DRAG_MS = 800

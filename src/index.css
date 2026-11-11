@@ -1122,6 +1122,17 @@ body:has([data-ink-pad]) [data-sel-handle]::after {
   border-style: dashed !important;
   border-width: 1.5px !important;
 }
+/* Text box v2: a box as wide as its text starts about one caret wide: no
+   frame and no "Type here" (boxes are invisible until selected). */
+[data-paper-box][data-auto]
+  .bn-block-content[data-is-empty-and-focused]:has(
+    .ProseMirror-trailingBreak:only-child
+  )::after {
+  content: none !important;
+}
+[data-paper-box][data-auto][data-empty-focused] [data-box-frame] {
+  border-color: transparent !important;
+}
 
 /* Owner batch 3, B3-7: Layout mode. The boxes wiggle a little (iPad Home
    Screen style) so it is clear they can be dragged. Only the content moves

@@ -65,10 +65,11 @@ test('Lasso: hover shows the frame, a tap selects, there are no side handles, th
   const { extra } = await boxes(page, 1)
   await lasso(page)
   await expect(extra).toHaveAttribute('data-lasso', '')
+  // 4a (owner): boxes are invisible until selected, hover shows no frame.
   await extra.hover()
   await expect(extra.locator('[data-box-frame]').first()).toHaveCSS(
-    'border-top-style',
-    'solid',
+    'border-top-color',
+    'rgba(0, 0, 0, 0)',
   )
   await expect(extra.locator('[data-box-handle]')).toHaveCount(0)
   // A tap on the frame selects it (no width handles: the grid decides widths).
@@ -80,10 +81,10 @@ test('Lasso: hover shows the frame, a tap selects, there are no side handles, th
   await expect(extra.locator('[data-box-handle]')).toHaveCount(0)
   // Grabbing the frame moves it.
   const y0 = (await extra.boundingBox())!.y
-  const bandBox = (await extra.locator('[data-box-band="top"]').boundingBox())!
-  // A quarter along the top: the corner and middle handles sit elsewhere.
+  // A small box is moved by its ≡ grip (the handles cover its short top edge).
+  const bandBox = (await extra.locator('[data-box-grip]').boundingBox())!
   const left = {
-    x: bandBox.x + bandBox.width * 0.25,
+    x: bandBox.x + bandBox.width / 2,
     y: bandBox.y + bandBox.height / 2,
   }
   await page.mouse.move(left.x, left.y)
@@ -116,9 +117,8 @@ test('dragging shows a see-through copy and an accent landing outline; picked bo
   const ya = (await a.boundingBox())!.y
   const yb = (await b.boundingBox())!.y
   // Drag by the first one's frame: live copy + red line while holding.
-  const gb = (await a.locator('[data-box-band="top"]').boundingBox())!
-  // A quarter along: the middle and corner handles of a picked box sit elsewhere.
-  const g = { x: gb.x + gb.width * 0.25, y: gb.y + gb.height / 2 }
+  const gb = (await a.locator('[data-box-grip]').boundingBox())!
+  const g = { x: gb.x + gb.width / 2, y: gb.y + gb.height / 2 }
   await page.mouse.move(g.x, g.y)
   await page.mouse.down()
   await page.mouse.move(g.x, g.y + 120, { steps: 8 })

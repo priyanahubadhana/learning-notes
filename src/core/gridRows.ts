@@ -18,6 +18,13 @@ export function isGridRows(v: unknown): v is GridRow[] {
       !(typeof row.y === 'number' && Number.isFinite(row.y))
     )
       return false
+    for (const k of ['x', 'wmm'] as const)
+      if (
+        row[k] !== undefined &&
+        !(typeof row[k] === 'number' && Number.isFinite(row[k]))
+      )
+        return false
+    if (row.auto !== undefined && row.auto !== true) return false
     const cols = row.cols
     if (!Array.isArray(cols) || cols.length < 1 || cols.length > MAX_COLS)
       return false
@@ -37,6 +44,12 @@ export function isGridRows(v: unknown): v is GridRow[] {
       }
     }
     if (Math.abs(total - 1) > 0.02) return false
+    // Only a lone box can be free.
+    if (
+      cols.length > 1 &&
+      (row.x !== undefined || row.wmm !== undefined || row.auto)
+    )
+      return false
   }
   return true
 }

@@ -2,6 +2,10 @@
 
 Current phase only. Older entries are in [ARCHIVE.md](ARCHIVE.md).
 
+## 2026-11-11 (Text box v2, owner list: step 1, box model)
+
+- **Free text boxes.** One Text-tool tap on empty paper makes a SMALL box (about one caret wide) exactly where tapped, its first line on the paper line; it is as wide as its text up to 5 mm before the right margin (210 - 15 - 5 mm, `freeMaxW`), then the text soft-wraps (still one paragraph). A user-set width (east or west handle) is kept (`wmm`). Empty boxes still go when the caret leaves. No double-tap-to-create (a tap within 700 ms and 60 px of a box-making tap is ignored). Boxes never overlap: a free box is a row of its own (`x`, `auto`, `wmm` on `GridRow`), rows below slide down. A box dropped on blank paper stays where it was put; dropped on another box it joins the page grid (columns) as before. Boxes are invisible until selected (no hover or focus frame, no "Type here" in a small box). Small boxes get the grip and ⋯ side by side above them. Files: `core/types.ts`, `core/gridRows.ts`, `paper/grid.ts` (`isFreeRow`, `freeMaxW`, `placesOf`), `paper/boxService.ts`, `paper/PaperFrame.tsx`, `paper/BoxFrame.tsx`, `paper/usePaperBoxes.tsx`, `index.css`. Tests: `paper/freeBox.test.ts`, `e2e/textBoxFree.spec.ts`; `textTool`, `paperBoxes` specs updated (no hover frame, grip drags small boxes).
+
 ## 2026-11-11 (Priority 4: Undo after a reload, Text strip)
 
 - **Batch 1 item 47:** text and ink Undo/Redo survive a reload. Text steps save the box's text before and after; ink steps save their edit; `release` keeps steps that have data. Budget 1.5 M characters per page. Files: `history/pageHistory.ts`, `ink/controller.ts`, `ink/InkSurface.tsx`. Tests: `history/textReload.test.ts`, `e2e/undoHistory.spec.ts` (typing and drawing after a reload).

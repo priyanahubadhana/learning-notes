@@ -253,3 +253,4 @@ Three ways of using the reader, as presets:
 - REAL-BUILD requirement (owner): pressing a box's grip drops the typing cursor (blur + collapse the selection) and blocks typing until the move/menu ends.
 - REAL-BUILD requirement (owner): cards/sheets are a layer — taps/scroll inside never reach the page; the first outside tap only closes the card (swallowed; pills/strips excepted); card controls keep the text selection; fields return focus to the previous caret.
 - Shared app shell spec: docs/design/shell-spec.md (23 contradictions found between mocks; all mocks are being moved onto the shell). Rail icon picks: Library = books on a shelf, Notebooks = notebook + pencil, Review = flashcards + tick (B options in the mock). Shell decisions to confirm: the More sheet docks right at full height (full screen on phone); the phone tab bar is attached full width; breakpoints 640/1180.
+- OWNER: Beginner toolbar also gets a small Shapes & drawing aids icon (simple card).

@@ -71,7 +71,6 @@ Current phase only. Older decisions are in [ARCHIVE.md](ARCHIVE.md).
 
 ## Decisions to review
 
-<<<<<<< HEAD
 
 - **2026-11-12 · Q7a Calendar, Year, drag, re-order (review).** (a) Multi-day rows need a second Date column ("End date column" in the Calendar header); only real Date columns are written (Last revised, formulas and rollups are shown but cannot be dragged). (b) Dragging moves the start and the end by the same number of days, keeping the length; a date with a time keeps its local clock time. (c) A finger must hold a chip for 0.35 s to drag it (moving sooner scrolls, as on the Board); the Pencil and pen drag at once. (d) The keyboard way is Space to pick up (Enter still opens the row), because arrow keys alone would clash with moving between chips. (e) Re-ordering has a grip handle and works only while the view has no sort and inside one group, so it never silently changes a group value. (f) The Year view's dot gets stronger with more rows (no numbers) to stay calm. (g) New texts live in enCal/hiCal/esCal (Hindi and Spanish are machine drafts for native review). Not built: auto-scroll sideways in a narrow Calendar while dragging; dragging between Year-view days.
 

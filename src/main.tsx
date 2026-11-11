@@ -43,6 +43,7 @@ import { hasUnsaved } from './app/saveStatus'
 import { requestPersistentStorage } from './core/storage'
 import { db, DEFAULT_DB_NAME } from './core/db'
 import { hasStoredSession, isTracking, isWaitingForKey } from './sync/device'
+import { startAccountGate } from './sync/gateRule'
 import { writePref } from './app/uiPrefs'
 import { initDeviceMode } from './settings/deviceModeSettings'
 import { prefetchAfterIdle } from './app/idlePrefetch'
@@ -144,6 +145,9 @@ if (
     .then(() => import('./sync/syncService'))
     .then((m) => m.startSync(db))
 }
+
+// Q3a: a device with no sign-in is read-only until the person signs in.
+startAccountGate()
 
 // A unique build name makes the silent backup due right now.
 async function backupForUpdate(): Promise<'ok' | 'space' | 'error'> {

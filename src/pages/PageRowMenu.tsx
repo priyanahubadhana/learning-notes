@@ -6,6 +6,7 @@ import { toggleLock } from '../app/lock/lockMenu'
 import { MenuPopover, type MenuItem } from '../app/ui'
 import type { LearningNotesDB } from '../core/db'
 import { editLockSource } from '../core/editLock'
+import { useReadOnlyGate } from '../core/useReadOnlyGate'
 import type { Page } from '../core/types'
 import { t } from '../i18n/t'
 
@@ -46,6 +47,7 @@ export default function PageRowMenu({
     () => db.notebooks.get(page.notebookId),
     [db, page.notebookId],
   )
+  useReadOnlyGate() // re-reads the lock when the sign-in changes (Q3a)
   const editLockBy = editLockSource(page, notebook)
   const items: MenuItem[] = [
     { label: t('sidebar.rename.title'), icon: '✎', onSelect: onRename },
@@ -68,7 +70,7 @@ export default function PageRowMenu({
       },
     )
   }
-  if (editLockBy !== 'notebook') {
+  if (editLockBy !== 'notebook' && editLockBy !== 'account') {
     items.push(editLockItem(db, 'page', page.id, !!page.editLocked, toast))
   }
   if (canMove) {

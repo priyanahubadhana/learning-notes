@@ -77,4 +77,13 @@ export const enAccounts = {
   'drive.google.connect': 'Connect Google for Drive backup',
   'attention.driveNeedsGoogle':
     'Pictures are waiting: Drive backup needs Google.',
+  'gate.banner': 'Sign in to keep editing and sync your notes',
+  'gate.signIn': 'Sign in',
+  'gate.sheet.title': 'Sign in to keep editing',
+  'gate.sheet.help':
+    'Your notes are safe on this device. You can still read, search and export them. Sign in to edit again and to sync.',
+  'gate.sheet.offline':
+    'You are offline. Reading, search and export still work. Sign in when you are back online.',
+  'gate.sheet.later': 'Not now',
+  'gate.pageBar': 'Read-only until you sign in',
 } as const

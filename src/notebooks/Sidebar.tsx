@@ -10,6 +10,7 @@ import {
 import { Tip } from '../help/Help'
 import { AppUiContext } from '../app/appUi'
 import { notebookDeleteBlocked } from '../core/editLock'
+import { isReadOnlyGate } from '../core/readOnlyGate'
 import { runTask } from '../app/errors'
 import { SidebarGroup } from '../app/SidebarGroup'
 import { altShortcutLabel, shortcutLabel } from '../app/keys'
@@ -238,7 +239,10 @@ export function Sidebar({
   const requestNotebookDelete = (notebook: Notebook) =>
     runTask(
       notebookDeleteBlocked(db, notebook.id).then(async (blocked) => {
-        if (blocked) return toast(t('editLock.refused'))
+        if (blocked)
+          return toast(
+            t(isReadOnlyGate() ? 'gate.pageBar' : 'editLock.refused'),
+          )
         const count = (
           await db.pages.where('notebookId').equals(notebook.id).toArray()
         ).filter((p) => p.deletedAt === null).length

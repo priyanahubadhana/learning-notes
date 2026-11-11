@@ -81,4 +81,13 @@ export const esAccounts: Record<string, string> = {
   'drive.google.connect': 'Conectar Google para la copia en Drive',
   'attention.driveNeedsGoogle':
     'Hay imágenes en espera: la copia en Drive necesita Google.',
+  'gate.banner': 'Inicia sesión para seguir editando y sincronizar tus notas',
+  'gate.signIn': 'Iniciar sesión',
+  'gate.sheet.title': 'Inicia sesión para seguir editando',
+  'gate.sheet.help':
+    'Tus notas están a salvo en este dispositivo. Aún puedes leerlas, buscarlas y exportarlas. Inicia sesión para editar de nuevo y sincronizar.',
+  'gate.sheet.offline':
+    'Estás sin conexión. Leer, buscar y exportar siguen funcionando. Inicia sesión cuando vuelvas a tener conexión.',
+  'gate.sheet.later': 'Ahora no',
+  'gate.pageBar': 'Solo lectura hasta que inicies sesión',
 }

@@ -1046,6 +1046,16 @@ The other older decisions stand as built (owner, 2026-11-01); they are in [ARCHI
 
 - **2026-11-09 · Settings sync plan approved** (docs/plans/settings-sync-plan.md). Theme, language and AI spending limit sync by default. Build after the remote sign-out and accounts builders finish.
 
+## Decisions to review (Account gate, Q3a, 12 Nov)
+
+- **Replaces "Existing signed-out devices are not locked out"** (Accounts, 9 Nov): owner chose (a). A device with no stored session is read-only with a top bar and a sign-in sheet. Reading, search, export, review and settings still work.
+- **"Signed in" = a session is stored on the device, not a fresh token.** So offline with an expired token, or a failed renewal, never gates (the stay-signed-in fix and single refresher are untouched). Signing out here, or the server ending the session, gates again (the "You were signed out" lock still shows first and the bar waits behind it).
+- **Enforced where it is safe, not at the database.** A blanket database block would break first-run seeding and reading (last-opened stamps, search index). So: the editor, title, boxes and menus use the edit lock; page and notebook create, rename, move, delete and Delete forever are refused in their services. Not blocked: cards review, tasks, habits, databases cells, settings, ink/paper boxes drawing outside the page editor, imports other than pages/notebooks. If you want those frozen too, say so.
+- **A refused action opens the sign-in sheet** (via `reportError`), so a tap that does nothing explains itself.
+- **Switched account:** signing in on a device that has notes sends them to whichever account signs in (as before); the remote sign-out choice dialog only covers a session that ended. A device that was never signed in has no "other account" to compare with.
+- **Test off switch** `learning-notes:accountGate.off` = 1 (set in playwright.config.ts for every spec; accountGate.spec.ts removes it). Anyone can set it in dev tools: it is a nudge, not security; the notes are on the device.
+- **Fresh install** is unchanged: the welcome already requires sign-in first.
+
 ## Decisions to review (Pencil double tap, 11 Nov)
 
 - **Grace period 600 ms** after a tap selects text, nothing may delete, replace or write over the selection (no key pressed). Chosen just above the 500 ms Pencil-lift window and the 450 ms tap gap; short enough that real Scribble writing still works a moment later. Applies even when Scribble is free (Text tool). Side effect: dictation or autocorrect inside that 600 ms is also refused. Change: SELECT_GRACE_MS in src/editor/penGuard.ts.

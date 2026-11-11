@@ -1,5 +1,5 @@
 import type { LearningNotesDB } from '../core/db'
-import { EditLockedError } from '../core/editLock'
+import { EditLockedError, assertSignedIn } from '../core/editLock'
 import { byOrder, orderAtIndex } from '../core/order'
 import {
   descendantIds,
@@ -135,7 +135,16 @@ export async function createPage(
   title = '', // empty: the UI shows an "Untitled" placeholder
   /** Optional journal/template markers (see Page). */
   extra: Pick<Page, 'journalDate' | 'journalMonth' | 'templateRole'> = {},
+  /** The app's own starter pages (first run): allowed while the device is read-only. */
+  system = false,
 ): Promise<Page> {
+  if (
+    !system &&
+    !extra.journalDate &&
+    !extra.journalMonth &&
+    !extra.templateRole
+  )
+    assertSignedIn()
   return db.transaction('rw', db.notebooks, db.pages, async () => {
     await getLive(db.notebooks, notebookId)
     await assertValidParent(db, notebookId, parentId)
@@ -184,6 +193,7 @@ export async function renamePage(
   id: string,
   title: string,
 ): Promise<void> {
+  assertSignedIn()
   await db.transaction('rw', db.pages, async () => {
     const page = await getLive(db.pages, id)
     await db.pages.update(id, {
@@ -204,6 +214,7 @@ export async function movePage(
   newParentId: string | null,
   toIndex: number,
 ): Promise<void> {
+  assertSignedIn()
   await db.transaction('rw', db.pages, async () => {
     const page = await getLive(db.pages, id)
     await assertValidParent(db, page.notebookId, newParentId)
@@ -249,6 +260,7 @@ export async function deletePage(
   db: LearningNotesDB,
   id: string,
 ): Promise<void> {
+  assertSignedIn()
   await db.transaction('rw', db.pages, db.notebooks, db.blocks, async () => {
     const page = await getLive(db.pages, id)
     const pages = await livePages(db, page.notebookId)

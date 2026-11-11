@@ -34,6 +34,8 @@ export default defineConfig({
             // firstUse.spec.ts and welcome.spec.ts start without these.
             { name: 'learning-notes:onboarding.done', value: 'true' },
             { name: 'learning-notes:toolbar.lastToolOffered', value: 'true' },
+            // Q3a: the sign-in gate (read-only until signed in) is off; accountGate.spec.ts turns it on.
+            { name: 'learning-notes:accountGate.off', value: '1' },
             {
               name: 'learning-notes:firstUse.seen',
               value: '["lasso","writePad","layers","paperBox"]',

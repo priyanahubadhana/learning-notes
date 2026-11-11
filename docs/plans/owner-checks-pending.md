@@ -27,6 +27,9 @@ On the iPad: open an EPUB, Aa › Font › Bookerly-style (Literata): the text c
 ## Reader: PDF page by page (11 Nov)
 
 On the iPad: open a PDF. Tap Pages in the reader bar (or Aa › Layout › Continuous scrolling off): one whole page fills the screen; swipe up: it settles on the next page, no half pages. Pinch to zoom in: you can pan freely; zoom back out: it snaps to a page again. Settings › Reading › PDF pages sets the same thing and is remembered. Why human: touch scrolling and scroll-snap feel on real iPadOS.
+## Account gate, iPad check (12 Nov)
+
+On an iPad (or Safari tab) that has notes but is NOT signed in: (1) a bar says "Sign in to keep editing and sync your notes"; (2) pages open and read, search works, typing and Pencil do nothing, the page title is locked, a grey "Read-only until you sign in" line shows; (3) New notebook / New page opens the Sign in sheet; (4) in airplane mode the sheet says you are offline; (5) sign in (Google or email), finish or skip the guide: the bar goes, you can type, and it stays after a reload; (6) a signed-in iPad in airplane mode for a day is never gated.
 
 ## Batch H, iPad checks (12 Nov)
 

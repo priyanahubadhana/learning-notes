@@ -1,5 +1,9 @@
 # Owner checks still pending (collected for the end-of-run iPad pass)
 
+## Drive for email-only accounts (11 Nov)
+
+Sign out, sign in again with an email code only (no Google). Settings › Account › Connections shows "Drive backup needs Google" and a "Connect Google for Drive backup" button; tap it, choose your Google account, allow Drive: you come back to Account and the card is gone (Settings › Account › Connected accounts lists Google). If Drive ever needs a tap, the top banner offers the same button. Why human: needs the real Google screen.
+
 ## Sync: reading place and favourite stars (11 Nov)
 
 On the iPad and the PC, both signed in with sync on: (1) read a PDF to page 20 on the iPad, wait a few seconds (Settings › Sync shows Last synced), open the same book on the PC: it opens at page 20. (2) Star a page on the PC (⋯ › Favourite): within about 10 seconds the sidebar Favourites on the iPad shows it; remove the star on the iPad: it leaves the PC list. (3) Airplane mode on both: read page 5 on one, star a different page on the other; reconnect both: the star and the place read are both there. Why human: needs both real devices and sign-in.

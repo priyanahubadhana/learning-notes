@@ -11,6 +11,8 @@ import type { LearningNotesDB } from '../core/db'
 import { lockIsSetUp } from '../core/lock/lockConfig'
 import { t } from '../i18n/t'
 import { ConnectedAccounts } from './ConnectedAccounts'
+import { DriveConnectCard } from './DriveConnectCard'
+import { useGoogleLinked } from './useGoogleLinked'
 import { isTracking } from './device'
 import { RecoveryCodeView } from './RecoveryCodeView'
 import { SignInPanel } from './SignInPanel'
@@ -294,7 +296,10 @@ function Sessions({ onAll }: { onAll: () => void }) {
 }
 
 function DriveLasting() {
+  const { linked, refresh } = useGoogleLinked()
   const d = driveLastingState()
+  // Signed in by email only: Drive backup needs Google (one clear button).
+  if (linked === false) return <DriveConnectCard onDone={refresh} />
   if (!d) return null
   const kept = d.state === 'kept'
   return (

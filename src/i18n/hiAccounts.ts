@@ -71,4 +71,10 @@ export const hiAccounts: Record<string, string> = {
   'connected.unlinkFailed': 'हटा नहीं सके। फिर कोशिश करें।',
   'connected.loading': 'लोड हो रहा है…',
   'connected.loadFailed': 'आपके साइन-इन तरीके लोड नहीं हो सके।',
+  'drive.google.title': 'Drive बैकअप के लिए Google चाहिए',
+  'drive.google.body':
+    'आपने ईमेल से साइन इन किया है, इसलिए आपके नोट्स सिंक होते हैं। तस्वीरें, किताबें और रिकॉर्डिंग आपके अपने Google Drive में बैकअप होती हैं, इसलिए Google जोड़ना ज़रूरी है। आपका साइन इन वैसा ही रहेगा।',
+  'drive.google.connect': 'Drive बैकअप के लिए Google जोड़ें',
+  'attention.driveNeedsGoogle':
+    'तस्वीरें इंतज़ार कर रही हैं: Drive बैकअप के लिए Google चाहिए।',
 }

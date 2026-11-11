@@ -1,4 +1,4 @@
-import { useEffect } from 'react'
+import { useEffect, useState } from 'react'
 import { t } from '../../i18n/t'
 import type { LearningNotesDB } from '../../core/db'
 import { dismissUpdateOffer } from '../updates'
@@ -18,19 +18,32 @@ const go = (focus: string) => () => {
 function content(
   code: Attention['code'],
   db: LearningNotesDB,
+  googleLinked: boolean | null,
 ): { text: string; action: Action } {
   switch (code) {
     case 'driveTap':
-      return {
-        text: t('attention.driveTap'),
-        action: {
-          label: t('sync.reconnectDrive'),
-          run: () =>
-            void import('../../sync/syncService').then((m) =>
-              m.reconnectDrive(db),
-            ),
-        },
-      }
+      return googleLinked === false
+        ? {
+            // Signed in by email only: the fix is to connect Google.
+            text: t('attention.driveNeedsGoogle'),
+            action: {
+              label: t('drive.google.connect'),
+              run: () =>
+                void import('../../sync/syncService').then((m) =>
+                  m.linkGoogleAccount(),
+                ),
+            },
+          }
+        : {
+            text: t('attention.driveTap'),
+            action: {
+              label: t('sync.reconnectDrive'),
+              run: () =>
+                void import('../../sync/syncService').then((m) =>
+                  m.reconnectDrive(db),
+                ),
+            },
+          }
     case 'driveFull':
       return {
         text: t('attention.driveFull'),
@@ -139,7 +152,22 @@ export function AttentionBanner({
       root.style.removeProperty('--attn-h')
     }
   }, [])
-  const { text, action } = content(attention.code, db)
+  // Drive needs Google: an account that signs in only by email is told so.
+  const [googleLinked, setGoogleLinked] = useState<boolean | null>(null)
+  useEffect(() => {
+    if (attention.code !== 'driveTap') return
+    let live = true
+    void import('../../sync/syncService')
+      .then(async (m) => {
+        const methods = await m.accountAuth().methods?.()
+        if (live) setGoogleLinked(methods ? !!methods.google : null)
+      })
+      .catch(() => undefined)
+    return () => {
+      live = false
+    }
+  }, [attention.code])
+  const { text, action } = content(attention.code, db, googleLinked)
   const bright = attention.level === 2
   const button = bright ? 'hover:bg-white/15' : 'text-accent hover:bg-accent/10'
   return (

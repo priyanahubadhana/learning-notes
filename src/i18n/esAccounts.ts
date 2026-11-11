@@ -75,4 +75,10 @@ export const esAccounts: Record<string, string> = {
   'connected.loading': 'Cargando…',
   'connected.loadFailed':
     'No se pudieron cargar tus métodos de inicio de sesión.',
+  'drive.google.title': 'La copia en Drive necesita Google',
+  'drive.google.body':
+    'Iniciaste sesión con correo, así que tus notas se sincronizan. Las imágenes, libros y grabaciones se guardan en tu propio Google Drive, por eso hay que conectar Google. Sigues iniciando sesión igual.',
+  'drive.google.connect': 'Conectar Google para la copia en Drive',
+  'attention.driveNeedsGoogle':
+    'Hay imágenes en espera: la copia en Drive necesita Google.',
 }

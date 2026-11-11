@@ -4,6 +4,8 @@ import { t } from '../i18n/t'
 import { passphraseProblem } from './crypto'
 import { checkDevice } from './deviceCheck'
 import { SyncDot } from './SyncDot'
+import { DriveConnectCard } from './DriveConnectCard'
+import { useGoogleLinked } from './useGoogleLinked'
 import { ArrivalNotice, UnlockForm } from './UnlockForm'
 import { RecoveryCodeView } from './RecoveryCodeView'
 import { WhatSyncs } from '../settings/WhatSyncs'
@@ -174,6 +176,8 @@ export function Arrival() {
 
 function Running({ db }: { db: LearningNotesDB }) {
   const status = useSyncExternalStore(subscribeSync, getSyncStatus)
+  const { linked, refresh: refreshGoogle } = useGoogleLinked()
+  const noGoogle = linked === false
   return (
     <div className="flex flex-col gap-3">
       <Arrival />
@@ -196,19 +200,25 @@ function Running({ db }: { db: LearningNotesDB }) {
           </button>
         </p>
       )}
-      <div className="flex flex-wrap gap-2">
-        {status.needsDriveTap && (
-          <button
-            type="button"
-            className={button}
-            onClick={() => void reconnectDrive(db)}
-          >
-            {t('sync.reconnectDrive')}
-          </button>
-        )}
-      </div>
-      {status.needsDriveTap && (
-        <p className="text-sm text-muted">{t('sync.driveTap')}</p>
+      {status.needsDriveTap && noGoogle ? (
+        <DriveConnectCard onDone={refreshGoogle} />
+      ) : (
+        <>
+          <div className="flex flex-wrap gap-2">
+            {status.needsDriveTap && (
+              <button
+                type="button"
+                className={button}
+                onClick={() => void reconnectDrive(db)}
+              >
+                {t('sync.reconnectDrive')}
+              </button>
+            )}
+          </div>
+          {status.needsDriveTap && (
+            <p className="text-sm text-muted">{t('sync.driveTap')}</p>
+          )}
+        </>
       )}
     </div>
   )

@@ -2,6 +2,12 @@
 
 Current phase only. Older entries are in [ARCHIVE.md](ARCHIVE.md).
 
+## 2026-11-11 (Drive: email-only accounts get a Connect Google path)
+
+- **What:** An account that signs in only by email now sees one clear card, "Drive backup needs Google" with the button "Connect Google for Drive backup", in Settings › Account (where "Set up lasting connection" was shown) and in Settings › Sync when Drive needs a tap. The Drive banner says "Pictures are waiting: Drive backup needs Google" with the same button for such an account. The button is the existing Connect Google (`linkGoogleAccount`); an account that already has Google sees exactly what it saw before. When the app cannot tell (offline, loading) nothing changes. No auth or session code was touched.
+- **Why:** For an email-only account, "Reconnect Drive" and "Set up lasting connection" opened a Google sign-in that did not fit the account, and there was nothing saying that Drive needs Google.
+- **Files:** src/sync/{useGoogleLinked.ts,DriveConnectCard.tsx,AccountSection.tsx,SyncSection.tsx}, src/app/attention/AttentionBanner.tsx, src/i18n/{en,es,hi}Accounts.ts, e2e/driveGoogle.spec.ts.
+
 ## 2026-11-11 (Sync: reading progress and favourite stars)
 
 - **What:** Where a book was last read (progress, spot, page count, furthest place) and the favourite star now follow the account. Both live on the page record (a book's `source` and the new `Page.favourite = {on, at}`), which already syncs; a new small merge rule for `pages` (`mergePageReading` in `src/sync/merge.ts`) puts the two sides' reading place and star together when both devices changed the page, instead of one side losing everything: the place comes from the device the book was opened on most recently, the furthest place is the larger, the star is the newest. A person's own choice after signing back in still wins as before. The engine saves the merged page and sends it again. `enqueueChanged` now also finds a star or a read made while sync was off (they do not bump `updatedAt`). Favourites keep their instant device list (`app/favourites.ts`); `app/favouriteSync.ts` writes older local stars to their pages once and follows stars that arrive (lazy chunk, after the database opens). Backups accept the new field.

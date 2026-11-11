@@ -71,4 +71,10 @@ export const enAccounts = {
   'connected.unlinkFailed': 'Could not disconnect. Try again.',
   'connected.loading': 'Loading…',
   'connected.loadFailed': 'Could not load your sign-in methods.',
+  'drive.google.title': 'Drive backup needs Google',
+  'drive.google.body':
+    'You signed in with email, so your notes sync. Pictures, books and recordings are backed up to your own Google Drive, so Google has to be connected for that. You stay signed in the same way.',
+  'drive.google.connect': 'Connect Google for Drive backup',
+  'attention.driveNeedsGoogle':
+    'Pictures are waiting: Drive backup needs Google.',
 } as const

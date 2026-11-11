@@ -1,5 +1,9 @@
 # Owner checks still pending (collected for the end-of-run iPad pass)
 
+## Reader: Bookerly-style font (11 Nov)
+
+On the iPad: open an EPUB, Aa › Font › Bookerly-style (Literata): the text changes to Literata (a warm serif with soft curves) right away, also offline; close and reopen the book: still chosen. A PDF keeps its own letters. Why human: judging whether the look suits you.
+
 ## Reader: PDF page by page (11 Nov)
 
 On the iPad: open a PDF. Tap Pages in the reader bar (or Aa › Layout › Continuous scrolling off): one whole page fills the screen; swipe up: it settles on the next page, no half pages. Pinch to zoom in: you can pan freely; zoom back out: it snaps to a page again. Settings › Reading › PDF pages sets the same thing and is remembered. Why human: touch scrolling and scroll-snap feel on real iPadOS.

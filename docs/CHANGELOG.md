@@ -2,6 +2,12 @@
 
 Current phase only. Older entries are in [ARCHIVE.md](ARCHIVE.md).
 
+## 2026-11-11 (Reader: Bookerly-style font)
+
+- **What:** Aa › Font gets "Bookerly-style (Literata)". Literata is the free typeface Google Play Books reads in (SIL Open Font Licence 1.1, already bundled for the notes' Reading mode, licence text in public/licenses/fonts-OFL.txt). An EPUB page is its own document, so the app's font rules do not reach it: `src/reader/epub/bookFont.ts` declares the four bundled woff2 files inside the page (the browser downloads a file only when the book uses it; works offline). Test proves the frame really loads the font.
+- **Why:** Owner asked for a Bookerly look. Bookerly is Amazon's and not free.
+- **Files:** src/reader/{readStyle.ts,epub/EpubView.tsx,epub/bookFont.ts}, src/i18n/{en,es,hi}Rdr.ts, src/reader/readStyle.test.ts, e2e/bookFont.spec.ts.
+
 ## 2026-11-11 (Reader: PDF continuous or page by page)
 
 - **What:** A PDF can now be read one whole page at a time. Settings › Reading › PDF pages (Continuous scroll / One page at a time, a device setting), a Scroll/Pages toggle in the reader bar, and the Aa sheet's Continuous scrolling switch (Layout tab) all change the same value. Page by page fits the whole page on one screen (`fitPageScale`: width and height) and the scroller snaps to page edges (CSS scroll-snap, `mandatory`, switched off while zoomed in so panning stays free). Page Flip, Contents, bookmarks, Find, highlights and ink keep working because the layout is the same column.

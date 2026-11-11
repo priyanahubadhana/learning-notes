@@ -1,6 +1,7 @@
 import { describe, expect, it } from 'vitest'
 import {
   DEFAULT_STYLE,
+  FONT_STACK,
   cleanStyle,
   dictionaryWord,
   pageSurface,
@@ -36,5 +37,21 @@ describe('reader style (Aa sheet)', () => {
   it('takes the first word of a selection for the dictionary', () => {
     expect(dictionaryWord('  "Hello," she said')).toBe('Hello')
     expect(dictionaryWord('123 !!')).toBe('')
+  })
+})
+
+describe('Bookerly-style font', () => {
+  it('is a valid choice and a Literata stack that falls back to a serif', () => {
+    expect(cleanStyle({ font: 'bookerly' }).font).toBe('bookerly')
+    expect(FONT_STACK.bookerly).toContain('Literata')
+    expect(FONT_STACK.bookerly).toContain('serif')
+    expect(styleCss(cleanStyle({ font: 'bookerly' }))).toContain('Literata')
+  })
+  it('declares four bundled font files for the EPUB page', async () => {
+    const { bookFontCss } = await import('./epub/bookFont')
+    const css = bookFontCss()
+    expect(css.match(/@font-face/g)).toHaveLength(4)
+    expect(css).toContain('font-family: "Literata"')
+    expect(css).toContain('woff2')
   })
 })

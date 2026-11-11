@@ -1061,3 +1061,7 @@ The other older decisions stand as built (owner, 2026-11-01); they are in [ARCHI
 ## Decisions to review (PDF page by page, 11 Nov)
 
 - **Page by page uses scroll-snap, not a one-page viewer.** Same column and layout as the continuous scroll, with the page scaled to fit the screen and snapping to page edges. Keeps ink, highlights, Find and the position locator unchanged. Trade-off: a fast fling can pass over several pages before it settles (Safari decides); the Page Flip slider and Contents land exactly. Other option: render one page at a time (more code, new ink and highlight paths). This replaces the earlier decision that a PDF is always continuous (Builder H, d).
+
+## Decisions to review (Bookerly-style font, 11 Nov)
+
+- **Literata stands in for Bookerly.** Bookerly is Amazon's licensed font and cannot be bundled (₹0, licence). Literata is OFL, already in the app, and was designed for long reading on screens, so it is the closest free match. Other options: Source Serif 4 (also bundled, a bit more formal) or Charter (system, not on every device). The default stays "Book default" (the book's own font); the new tile is opt-in. Not applied to PDFs (their letters are pictures).

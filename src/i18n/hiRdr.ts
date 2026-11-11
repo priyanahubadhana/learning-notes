@@ -115,4 +115,5 @@ export const hiRdr: Record<string, string> = {
   'settings.reading.pdfFlow.description': 'PDF को एक लंबे स्क्रॉल में पढ़ें, या एक बार में एक पूरा पेज (पलटने के लिए स्वाइप करें)।',
   'reading.opt.pdfFlow.scrolled': 'लगातार स्क्रॉल',
   'reading.opt.pdfFlow.paged': 'एक बार में एक पेज',
+  'aa.font.bookerly': 'Bookerly जैसा (Literata)',
 }

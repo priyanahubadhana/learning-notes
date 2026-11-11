@@ -9,6 +9,7 @@ import { COLOUR_FILL } from '../annotations/colours'
 import type { ReaderSelection } from '../BookReader'
 import type { OutlineItem } from '../pdf/PdfView'
 import { pageSurface, styleCss, type ReadStyle } from '../readStyle'
+import { bookFontCss } from './bookFont'
 import { bookSource } from '../aloud/bookText'
 import { setBookAloudHost } from '../aloud/bookAloud'
 import { epubCss, flattenToc, makeEpubLoader, type TocNode } from './epubLoader'
@@ -462,7 +463,10 @@ function applyStyle(view: FoliateView, size: number, look?: ReadStyle) {
       ink:
         surface?.ink ?? (css.getPropertyValue('--color-ink').trim() || '#111'),
       select: css.getPropertyValue('--color-select').trim(),
-      extra: look ? styleCss(look) : '',
+      extra: look
+        ? `${look.font === 'bookerly' ? bookFontCss() : ''}
+${styleCss(look)}`
+        : '',
     }),
   )
 }

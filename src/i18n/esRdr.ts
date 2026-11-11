@@ -117,4 +117,5 @@ export const esRdr: Record<string, string> = {
   'settings.reading.pdfFlow.description': 'Lee un PDF como un desplazamiento largo o una página entera cada vez (desliza para pasar).',
   'reading.opt.pdfFlow.scrolled': 'Desplazamiento continuo',
   'reading.opt.pdfFlow.paged': 'Una página cada vez',
+  'aa.font.bookerly': 'Estilo Bookerly (Literata)',
 }

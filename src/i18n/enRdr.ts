@@ -115,4 +115,5 @@ export const enRdr = {
   'settings.reading.pdfFlow.description': 'Read a PDF as one long scroll, or one whole page at a time (swipe to turn).',
   'reading.opt.pdfFlow.scrolled': 'Continuous scroll',
   'reading.opt.pdfFlow.paged': 'One page at a time',
+  'aa.font.bookerly': 'Bookerly-style (Literata)',
 }

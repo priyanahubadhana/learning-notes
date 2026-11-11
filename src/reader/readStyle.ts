@@ -6,6 +6,7 @@
  */
 export const FONTS = [
   'book',
+  'bookerly',
   'serif',
   'georgia',
   'baskerville',
@@ -89,6 +90,8 @@ export const isReadStyle = (v: unknown): v is ReadStyle =>
 
 export const FONT_STACK: Record<ReadStyle['font'], string> = {
   book: 'inherit',
+  // Literata: a free, licence-safe look-alike for Bookerly (see epub/bookFont.ts).
+  bookerly: '"Literata", Georgia, "Iowan Old Style", serif',
   serif: 'Georgia, "Times New Roman", serif',
   georgia: 'Georgia, serif',
   baskerville: 'Baskerville, "Baskerville Old Face", Georgia, serif',

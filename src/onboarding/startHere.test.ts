@@ -4,7 +4,7 @@ import type { LearningNotesDB } from '../core/db'
 import { createTestDb } from '../core/testing'
 import { getOrCreateDefaultWorkspace } from '../core/workspaceService'
 import { en } from '../i18n/en'
-import { enO } from '../i18n/enO'
+import { enLate } from '../i18n/en/late'
 import { listBlocks } from '../core/blockService'
 import { loadStartHere, START_PAGES } from './startHere'
 
@@ -48,7 +48,7 @@ describe('the Start here notebook', () => {
   })
 
   it('has every text in English', () => {
-    const all: Record<string, string> = { ...en, ...enO }
+    const all: Record<string, string> = { ...en, ...enLate }
     for (const stem of START_PAGES) {
       for (const part of ['title', 'body', 'try']) {
         expect(all[`${stem}.${part}`], `${stem}.${part}`).toBeTruthy()

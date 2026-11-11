@@ -1,6 +1,6 @@
 import { describe, expect, it } from 'vitest'
 import { en } from '../../i18n/en'
-import { enO } from '../../i18n/enO'
+import { enLate } from '../../i18n/en/late'
 import { DEFAULT_PINNED } from '../deviceMode'
 import { TABS } from './tabs'
 import { DEFAULT_SET_TOOLS } from './toolbarState'
@@ -12,7 +12,7 @@ import {
   ribbonGroup,
 } from './toolRegistry'
 
-const keys: Record<string, string> = { ...en, ...enO }
+const keys: Record<string, string> = { ...en, ...enLate }
 
 describe('tool registry', () => {
   it('has unique ids and a name for every tool', () => {

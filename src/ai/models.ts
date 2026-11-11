@@ -2,7 +2,7 @@ import { PROVIDERS, type ProviderId } from './provider'
 
 /**
  * The one table of models the picker offers: price, speed, picture support
- * and the short pros and cons (texts in enO under `ai.m.<slug>.pro|con`).
+ * and the short pros and cons (texts in i18n/en/late/ai.ts under `ai.m.<slug>.pro|con`).
  * Prices are US dollars per million tokens from the providers' own pricing
  * pages. Update `MODELS_CHECKED` whenever the table is checked again.
  */

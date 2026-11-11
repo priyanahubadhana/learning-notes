@@ -1,0 +1,136 @@
+/** Hindi texts (lock). */
+export const hiLock = {
+  'editLock.bar': 'लॉक है — अनलॉक करने के लिए टैप करें',
+  'editLock.barNotebook': 'नोटबुक लॉक है — अनलॉक करने के लिए टैप करें',
+  'editLock.deleteHint': 'लॉक है',
+  'editLock.locked': 'लॉक है। अनलॉक करने तक कुछ नहीं बदल सकता।',
+  'editLock.menu.lock': 'संपादन लॉक करें',
+  'editLock.menu.lockNotebook': 'संपादन लॉक करें (सभी पेज)',
+  'editLock.menu.unlock': 'संपादन अनलॉक करें',
+  'editLock.refused': 'यह संपादन के लिए लॉक है। पहले अनलॉक करें।',
+  'editLock.unlocked': 'अनलॉक। अब आप बदल सकते हैं।',
+  'lock.auth.text':
+    'लॉक बदलने के लिए अपना मौजूदा कोड डालें, या इस डिवाइस का इस्तेमाल करें।',
+  'lock.auth.title': 'पुष्टि करें कि यह आप हैं',
+  'lock.change': 'बदलें',
+  'lock.confirm': 'दोबारा लिखें',
+  'lock.device': 'Face ID, Touch ID या Windows Hello',
+  'lock.device.cancelled':
+    'आपने डिवाइस लॉक रद्द कर दिया। फिर कोशिश करें, या अपना PIN या पासवर्ड इस्तेमाल करें।',
+  'lock.device.done':
+    'डिवाइस का लॉक चालू है। वह न चले तो आपका PIN या पासवर्ड काम करेगा।',
+  'lock.device.failed': 'डिवाइस का लॉक चालू नहीं हो सका।',
+  'lock.device.hint':
+    'इस डिवाइस का अपना लॉक (पासकी) इस्तेमाल करता है। यह सिर्फ़ इसी डिवाइस पर चलता है।',
+  'lock.device.notSetUp':
+    'इस डिवाइस पर डिवाइस लॉक सेट नहीं है। अपना PIN या पासवर्ड इस्तेमाल करें।',
+  'lock.device.refused':
+    'डिवाइस ने तुरंत मना कर दिया, Face ID की स्क्रीन आई ही नहीं। देखें कि पासकी के लिए iCloud कीचेन चालू है, फिर कोशिश करें, या अपना PIN या पासवर्ड इस्तेमाल करें।',
+  'lock.device.unavailable':
+    'यह ब्राउज़र या डिवाइस यह नहीं कर सकता। PIN या पासवर्ड इस्तेमाल करें।',
+  'lock.device.unsupported':
+    'यह ब्राउज़र या पता डिवाइस लॉक इस्तेमाल नहीं कर सकता। अपना PIN या पासवर्ड इस्तेमाल करें।',
+  'lock.deviceFailed':
+    'डिवाइस के लॉक ने पुष्टि नहीं की। इसके बजाय PIN या पासवर्ड इस्तेमाल करें।',
+  'lock.enterPassword': 'अपना पासवर्ड डालें',
+  'lock.enterPin': 'अपना PIN डालें',
+  'lock.explain':
+    'लॉक किया हुआ पृष्ठ, नोटबुक या डेटाबेस खोलने तक एक लॉक स्क्रीन के पीछे छिपा रहता है। कुछ भी बिगड़ता या खोता नहीं।',
+  'lock.explain2':
+    'यह निजता का लॉक है, एन्क्रिप्शन नहीं। यह आम नज़रों को रोकता है, उन विशेषज्ञों को नहीं जिनके पास इस डिवाइस या उसके डेटा तक पहुँच है।',
+  'lock.forgot': 'भूल गए?',
+  'lock.forgot.ack':
+    'मैं समझता/समझती हूँ कि हर लॉक और कोड हट जाएगा और इस डिवाइस वाला कोई भी मेरे नोट पढ़ सकेगा।',
+  'lock.forgot.count': 'अभी लॉक: {count}।',
+  'lock.forgot.device':
+    'इस डिवाइस का अपना लॉक लगा है। इसे अभी खोलने के लिए उससे पुष्टि करें। फिर सेटिंग › लॉक में नया PIN या पासवर्ड लगाएँ।',
+  'lock.forgot.remove': 'लॉक हटाएँ',
+  'lock.forgot.removeDevice':
+    'या पूरा लॉक हटा दें। इस डिवाइस का लॉक पहले आपसे पुष्टि माँगेगा।',
+  'lock.forgot.removePlain':
+    'या पूरा लॉक हटा दें। जिसके पास यह डिवाइस है वह भी यही कर सकता है, क्योंकि निजता का लॉक इसे रोक नहीं सकता।',
+  'lock.forgot.title': 'कोड भूल गए?',
+  'lock.forgot.unlocked': 'खुल गया। सेटिंग › लॉक में नया PIN या पासवर्ड लगाएँ।',
+  'lock.forgot.what':
+    'यह निजता का लॉक है, एन्क्रिप्शन नहीं: आपके नोट उलझाए नहीं गए हैं और कुछ खोया नहीं है। कोड भूल जाएँ तो आप लॉक साफ़ कर सकते हैं; नोट जैसे हैं वैसे ही रहेंगे।',
+  'lock.idle.minutes_one': '{count} मिनट',
+  'lock.idle.minutes_other': '{count} मिनट',
+  'lock.isSet': 'लगा है',
+  'lock.itemLocked':
+    'लॉक हो गया। यह आपके PIN, पासवर्ड या डिवाइस के लॉक से खुलेगा।',
+  'lock.itemUnlocked': 'लॉक हटा दिया गया।',
+  'lock.kind.database': 'डेटाबेस',
+  'lock.kind.notebook': 'नोटबुक',
+  'lock.kind.page': 'पृष्ठ',
+  'lock.locked': 'अभी लॉक है',
+  'lock.locked.database': 'यह डेटाबेस लॉक है।',
+  'lock.locked.notebook': 'यह नोटबुक लॉक है।',
+  'lock.locked.page': 'यह पृष्ठ लॉक है।',
+  'lock.menu.lock.database': 'इस डेटाबेस को लॉक करें',
+  'lock.menu.lock.notebook': 'इस नोटबुक को लॉक करें',
+  'lock.menu.lock.page': 'इस पृष्ठ को लॉक करें',
+  'lock.menu.remove.database': 'इस डेटाबेस से लॉक हटाएँ',
+  'lock.menu.remove.notebook': 'इस नोटबुक से लॉक हटाएँ',
+  'lock.menu.remove.page': 'इस पृष्ठ से लॉक हटाएँ',
+  'lock.methods': 'खोलने के तरीके',
+  'lock.mismatch': 'दोनों मेल नहीं खाते।',
+  'lock.needSetup': 'पहले सेटिंग › लॉक में PIN, पासवर्ड या Face ID लगाएँ।',
+  'lock.noneYet': 'कुछ भी लॉक करने से पहले खोलने का कम से कम एक तरीका लगाएँ।',
+  'lock.notSet': 'नहीं लगा',
+  'lock.nothing': 'कुछ भी लॉक नहीं है।',
+  'lock.openSettings': 'सेटिंग खोलें',
+  'lock.password': 'पासवर्ड',
+  'lock.password.hint': 'कम से कम {min} अक्षर।',
+  'lock.password.invalid': 'पासवर्ड कम से कम {min} अक्षरों का होता है।',
+  'lock.password.new': 'नया पासवर्ड',
+  'lock.password.set': 'पासवर्ड लगाएँ',
+  'lock.passwordPlaceholder': 'यहाँ अपना पासवर्ड लिखें',
+  'lock.pin': 'PIN',
+  'lock.pin.hint': '4 से 6 अंक।',
+  'lock.pin.invalid': 'PIN 4 से 6 अंकों का होता है।',
+  'lock.pin.new': 'नया PIN (4 से 6 अंक)',
+  'lock.pin.set': 'PIN लगाएँ',
+  'lock.pinPlaceholder': 'यहाँ अपना PIN लिखें',
+  'lock.remove': 'हटाएँ',
+  'lock.removeAll': 'पूरा लॉक हटाएँ',
+  'lock.removeAll.confirm':
+    'हर लॉक और हर कोड हटाएँ ({count} लॉक हैं)? आपके नोट जैसे हैं वैसे ही रहेंगे, और इस डिवाइस वाला कोई भी उन्हें पढ़ सकेगा।',
+  'lock.removeAll.yes': 'लॉक हटाएँ',
+  'lock.removeFrom': 'लॉक हटाएँ',
+  'lock.removed': 'लॉक हटा दिया गया। आपके नोट वैसे ही हैं।',
+  'lock.removedMethod': 'हटा दिया गया।',
+  'lock.saved': 'सहेज लिया। उसका सिर्फ़ एक उलझा हुआ निशान रखा जाता है।',
+  'lock.setUp': 'लगाएँ',
+  'lock.sync.password':
+    'सिंक चालू है, इसलिए यह कोड आपकी सिंक की गई सेटिंग्स के साथ जाता है। 12 या अधिक अक्षर रखें; कुछ यादृच्छिक शब्द अच्छे रहते हैं।',
+  'lock.sync.pin':
+    'सिंक चालू है, इसलिए यह कोड आपकी सिंक की गई सेटिंग्स के साथ जाता है। PIN का अनुमान लगाना आसान है: 12 या अधिक अक्षरों का पासवर्ड कहीं ज़्यादा सुरक्षित है।',
+  'lock.sync.short': 'लंबा ज़्यादा सुरक्षित है: 12 या अधिक अक्षर रखें।',
+  'lock.title': 'निजता का लॉक',
+  'lock.unlock': 'खोलें',
+  'lock.unlock.device': 'इस डिवाइस से खोलें',
+  'lock.unlock.with': 'इससे खोलें',
+  'lock.wait': 'बहुत कोशिशें हो गईं। {seconds} सेकंड रुकें।',
+  'lock.waitMin': 'बहुत कोशिशें हो गईं। लगभग {minutes} मिनट रुकें।',
+  'lock.wrong': 'यह सही नहीं है। फिर कोशिश करें।',
+  'unlock.allSet': 'सब तैयार',
+  'unlock.bringing': 'अनलॉक हो गया · आपकी नोटबुक इस डिवाइस पर आ रही हैं…',
+  'unlock.bringingCount':
+    'अनलॉक हो गया · आपकी नोटबुक इस डिवाइस पर आ रही हैं (अब तक {count})',
+  'unlock.caps': 'Caps Lock चालू है।',
+  'unlock.checkingCode': 'आपका रिकवरी कोड जाँचा जा रहा है…',
+  'unlock.checkingPassphrase': 'आपका पासफ़्रेज़ जाँचा जा रहा है…',
+  'unlock.checkingSlow': 'फ़ोन पर इसमें कुछ सेकंड लग सकते हैं।',
+  'unlock.codeLabel': 'रिकवरी कोड',
+  'unlock.codeLength':
+    'रिकवरी कोड में 26 अक्षर और अंक होते हैं। आपने {count} लिखे।',
+  'unlock.hide': 'पासफ़्रेज़ छिपाएँ',
+  'unlock.show': 'पासफ़्रेज़ दिखाएँ',
+  'unlock.useCode': 'इसके बजाय अपना रिकवरी कोड इस्तेमाल करें',
+  'unlock.usePassphrase': 'इसके बजाय अपना पासफ़्रेज़ इस्तेमाल करें',
+  'unlock.wait': 'बहुत सारी कोशिशें। {time} में फिर कोशिश करें।',
+  'unlock.waitSr': 'बहुत सारी कोशिशें। लगभग {count} मिनट में फिर कोशिश करें।',
+  'unlock.wrongCode': 'यह रिकवरी कोड मेल नहीं खाता। इसे जाँचकर फिर कोशिश करें।',
+  'unlock.wrongPassphrase':
+    'यह पासफ़्रेज़ मेल नहीं खाता। इसे जाँचकर फिर कोशिश करें।',
+}

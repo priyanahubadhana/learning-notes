@@ -236,3 +236,4 @@ Three ways of using the reader, as presets:
   - LIBRARY revamp: a knowledge database tab (all books + per book), notes filterable, highlights+notes in one place with a side preview, the knowledge bank alongside.
   - Deep-study extras: research and explain the best ideas with examples; complex ones go in Professional.
   - ORDER: Library first → then reading mode → then the study modes. Ask questions before each mock-up.
+- Library questions (docs/plans/library-revamp-plan.md A5, 10 questions; picks marked there) + which deep-study ideas 1–5 go with the Library.

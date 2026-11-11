@@ -39,6 +39,10 @@ async function penTap(page: Page, target: Locator) {
 
 test('a pen tap on Lasso and Pen selects each tool once', async ({ page }) => {
   await openNote(page, 'pencil')
+  // The fixed Layout button (owner, 11 Nov) pushes the last tools out of view
+  // beside an open sidebar; close it so Lasso is in plain view (as below).
+  await page.getByRole('button', { name: 'Hide menu' }).first().click()
+  await expect(page.locator('aside')).toBeHidden()
   await penTap(page, tool(page, 'Pen'))
   await expect(tool(page, 'Pen')).toHaveAttribute('aria-pressed', 'true')
   await penTap(page, tool(page, 'Lasso'))

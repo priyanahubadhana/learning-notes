@@ -55,7 +55,11 @@ test('add a tool with + , move it up with the arrow, Done keeps it, a reload too
   await expect(list.first()).toHaveAttribute('data-row-id', 'x:writePad')
   await sheet(page).getByRole('button', { name: 'Done' }).click()
   await expect(sheet(page)).toHaveCount(0)
-  expect((await barNames(page))[2]).toBe('Write pad') // after Undo, Redo
+  // The fixed Undo, Redo and Layout buttons come first (owner, 11 Nov), then the tools.
+  const tools = (await barNames(page)).filter(
+    (n) => n !== 'Undo' && n !== 'Redo' && n !== 'Layout',
+  )
+  expect(tools[0]).toBe('Write pad')
   expect((await pref<string[]>(page, 'toolbar.order'))?.[0]).toBe('x:writePad')
   await page.reload()
   await expect(mainBar(page)).toBeVisible()

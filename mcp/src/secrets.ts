@@ -38,7 +38,10 @@ interface Keytar {
 
 async function loadKeytar(): Promise<Keytar | null> {
   try {
-    const mod = (await import('keytar')) as { default?: Keytar } & Keytar
+    const keytarModule = 'keytar' // optional native module; resolved at run time only
+    const mod = (await import(/* @vite-ignore */ keytarModule)) as {
+      default?: Keytar
+    } & Keytar
     const k = mod.default ?? mod
     // Prove the OS vault answers before trusting it.
     await k.getPassword(SERVICE, 'probe')

@@ -227,3 +227,12 @@ Three ways of using the reader, as presets:
    Next: deep research (Obsidian, Readwise, Zotero, LiquidText, MarginNote, Kindle, Apple Books, zettelkasten/PKM), then questions to the owner, then a "Complete reader mode" mock-up.
 
 - Reader revamp plan: docs/plans/reader-revamp-plan.md. 10 owner questions (picks: Read preset uses Reading mode; Light study default; Deep study for everyone; virtual DB rows; Light-study highlights in the DB too; merge duplicates; keep cards marked 'source deleted'; renamable colour meanings; 5 Daily Highlights; Markdown+CSV now, Obsidian later). Mock-up being built with these picks.
+- OWNER reader answers (11 Nov night):
+  - Read preset keeps quick highlights; the Full/Frozen lock board stays separate.
+  - A new book opens in the LAST used preset; the first-ever default is the full "editing" mode (Everything works), not Light study.
+  - A full-screen option.
+  - FIX the reader top bar always looking blurry.
+  - Professional toolbar: a separate tab gathering audio + formats.
+  - LIBRARY revamp: a knowledge database tab (all books + per book), notes filterable, highlights+notes in one place with a side preview, the knowledge bank alongside.
+  - Deep-study extras: research and explain the best ideas with examples; complex ones go in Professional.
+  - ORDER: Library first → then reading mode → then the study modes. Ask questions before each mock-up.

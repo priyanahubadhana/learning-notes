@@ -55,7 +55,14 @@ for (const tab of ['Home', 'Insert', 'Draw', 'View', 'Review']) {
       if ((await tabButton.count()) === 0) {
         // Reading mode (and what starts it) covers the bar by design: leave it
         // and check the ribbon is still on the tab it was on (owner note 18).
-        await page.getByRole('button', { name: 'Exit reading' }).first().click()
+        // On the iPad the sidebar covers the top-left of the reader bar, and
+        // Playwright's scroll-into-view then slides the bar away (it hides on
+        // scroll), so a pointer click never lands. Press Exit directly: this
+        // spec checks the ribbon tab, not where the ✕ sits.
+        await page
+          .locator('[data-reader-chrome] button[aria-label="Exit reading"]')
+          .first()
+          .dispatchEvent('click')
         // The restored selection opens its own context tab (by design); a caret
         // puts the bar back on the tab it remembered.
         await page.locator('.bn-editor').click()

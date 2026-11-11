@@ -215,3 +215,13 @@ Questions:
 - Account gate open question: also freeze cards review, tasks, habits, database cells and ink while signed out? (now only pages/notebooks are frozen)
 - Mock feedback (24 comments) in docs/plans/mock-feedback-2026-11-11.md. Building the final toolbar mock (T1–T14) and annotations v2 (A1, A3–A7). A2 (reader lock modes) needs research + owner questions.
 - A2 reader lock: research + 5 questions in docs/plans/mock-feedback-2026-11-11.md (picks: 3 modes / Select with a tool / tap to unlock / per book / notes open read-only).
+
+## Complete reader mode revamp (owner, 11 Nov night)
+
+Three ways of using the reader, as presets:
+
+1. **Read**: pure reading, nothing to disturb.
+2. **Light study**: highlight, notes and basic tools.
+3. **Deep study**: full knowledge capture.
+   Highlights flow automatically into a notebook per book, and a cross-book Highlights database (10 books → one DB) has one-tap jump-to-context. The lock modes are part of the presets. Goal: a lifelong personal knowledge bank (Obsidian/researcher style).
+   Next: deep research (Obsidian, Readwise, Zotero, LiquidText, MarginNote, Kindle, Apple Books, zettelkasten/PKM), then questions to the owner, then a "Complete reader mode" mock-up.

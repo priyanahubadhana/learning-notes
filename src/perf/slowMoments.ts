@@ -47,7 +47,7 @@ function store(): Storage | undefined {
   }
 }
 
-export function readSlowMoments(): SlowMoment[] {
+function readStored(): SlowMoment[] {
   try {
     const raw = store()?.getItem(KEY)
     const list: unknown = raw ? JSON.parse(raw) : []
@@ -57,7 +57,38 @@ export function readSlowMoments(): SlowMoment[] {
   }
 }
 
+/**
+ * Moments not yet written: a freeze storm must not parse and rewrite the
+ * stored list for every entry (that is itself a stall). They are written
+ * together a few seconds later, when the app goes to the background, or
+ * when KEEP of them are waiting.
+ */
+let pending: SlowMoment[] = []
+let flushTimer: ReturnType<typeof setTimeout> | undefined
+const FLUSH_MS = 3000
+
+/** Writes the waiting moments to the device now (one write). */
+export function flushSlowMoments(): void {
+  clearTimeout(flushTimer)
+  flushTimer = undefined
+  if (pending.length === 0) return
+  const list = [...readStored(), ...pending].slice(-KEEP)
+  pending = []
+  try {
+    store()?.setItem(KEY, JSON.stringify(list))
+  } catch {
+    // Storage full or blocked: these moments are not kept.
+  }
+}
+
+export function readSlowMoments(): SlowMoment[] {
+  return [...readStored(), ...pending].slice(-KEEP)
+}
+
 export function clearSlowMoments(): void {
+  clearTimeout(flushTimer)
+  flushTimer = undefined
+  pending = []
   try {
     store()?.removeItem(KEY)
   } catch {
@@ -95,22 +126,32 @@ export function noteSlowMoment(
     ...(note ? { note } : {}),
     ...context(),
   }
-  const list = [...readSlowMoments(), entry].slice(-KEEP)
-  try {
-    store()?.setItem(KEY, JSON.stringify(list))
-  } catch {
-    // Storage full or blocked: this moment is not kept.
-  }
+  pending.push(entry)
+  if (pending.length >= KEEP) flushSlowMoments()
+  else flushTimer ??= setTimeout(flushSlowMoments, FLUSH_MS)
 }
 
-/** Starts both detectors; returns the stop function. */
+/** Closest two long tasks that are both noted (a burst is one moment). */
+const LONG_TASK_GAP_MS = 250
+
+/**
+ * Starts both detectors; returns the stop function. While the app is in the
+ * background nothing runs (no timer, no notes: a hidden tab is throttled on
+ * purpose), and waiting moments are written as it leaves the front.
+ */
 export function startSlowMoments(): () => void {
   const stops: (() => void)[] = []
+  const visible = () => document.visibilityState === 'visible'
   if (typeof PerformanceObserver !== 'undefined') {
     try {
+      let lastNoted = -Infinity
       const po = new PerformanceObserver((list) => {
         for (const e of list.getEntries()) {
-          if (e.duration >= LONG_TASK_MS) noteSlowMoment('longtask', e.duration)
+          if (e.duration < LONG_TASK_MS || !visible()) continue
+          // Sample: a run of back-to-back long tasks is noted once.
+          if (e.startTime - lastNoted < LONG_TASK_GAP_MS) continue
+          lastNoted = e.startTime
+          noteSlowMoment('longtask', e.duration)
         }
       })
       po.observe({ type: 'longtask', buffered: false })
@@ -120,21 +161,36 @@ export function startSlowMoments(): () => void {
     }
   }
   let last = performance.now()
-  const timer = setInterval(() => {
-    const now = performance.now()
-    const late = now - last - TICK_MS
-    last = now
-    // A hidden tab is throttled on purpose: that is not a freeze.
-    if (late >= STALL_MS && document.visibilityState === 'visible') {
-      noteSlowMoment('stall', late)
-    }
-  }, TICK_MS)
-  stops.push(() => clearInterval(timer))
-  const onVisible = () => {
-    last = performance.now()
+  let timer: ReturnType<typeof setInterval> | undefined
+  const stopTimer = () => {
+    clearInterval(timer)
+    timer = undefined
   }
-  document.addEventListener('visibilitychange', onVisible)
-  stops.push(() => document.removeEventListener('visibilitychange', onVisible))
+  const startTimer = () => {
+    stopTimer()
+    last = performance.now()
+    timer = setInterval(() => {
+      const now = performance.now()
+      const late = now - last - TICK_MS
+      last = now
+      if (late >= STALL_MS && visible()) noteSlowMoment('stall', late)
+    }, TICK_MS)
+  }
+  if (visible()) startTimer()
+  const onVisibility = () => {
+    if (visible()) startTimer()
+    else {
+      stopTimer()
+      flushSlowMoments()
+    }
+  }
+  document.addEventListener('visibilitychange', onVisibility)
+  window.addEventListener('pagehide', flushSlowMoments)
+  stops.push(stopTimer, () => {
+    document.removeEventListener('visibilitychange', onVisibility)
+    window.removeEventListener('pagehide', flushSlowMoments)
+    flushSlowMoments()
+  })
   return () => {
     for (const s of stops) s()
   }

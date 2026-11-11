@@ -121,3 +121,12 @@ Four modes:
 - Phone: bottom tab bar, full width ✓.
 - Settings: keep the 3 experience levels (incl. Standard) inside Settings only. The VIEW switch has only 2: Beginner / Professional, shown as a toggle at the top of EVERY space. Users can later re-map these two toggles to their own custom layouts; the defaults are Beginner and Professional.
 - Execute only after all planning is done.
+
+## Home templates mock (owner, 12 Nov): LOVED. Notes
+
+- HT1: Undo/Redo always in the top bar on EVERY screen (Home included); it may be hidden on PC via a setting (Ctrl+Z/Y exist).
+- HT2: every system text field (search, add topic…) gets an ✕ clear button (not the note text boxes).
+- HT3: Top 3 drag is not smooth: reuse our drop-line guides; add ▲▼ buttons on the right to move an item up/down.
+- HT4: the Today/Week/Year bar is a reusable, user-buildable "period bar" for any template: name it, add presets (today, week, year, custom). Show the user how with a walkthrough example.
+- HT5: no separate "This month" widget control: use the same period bar with more options (custom date range picker).
+- HT6: the owner asked what Database / Transactions / Chart / Formula mean (explained in chat).

@@ -130,3 +130,14 @@ Four modes:
 - HT4: the Today/Week/Year bar is a reusable, user-buildable "period bar" for any template: name it, add presets (today, week, year, custom). Show the user how with a walkthrough example.
 - HT5: no separate "This month" widget control: use the same period bar with more options (custom date range picker).
 - HT6: the owner asked what Database / Transactions / Chart / Formula mean (explained in chat).
+
+## Settings v2 review (owner, 12 Nov): passed the tests; NOTED ONLY, no changes until the owner says
+
+- S1: the General preview shows nothing and doesn't update. Rework the preview (not the settings) so every General setting shows its effect.
+- S2: subtle changes (e.g. Show help on/off changing small tip text) are hard to see. Make the change itself highly visible where it happens: a highlight pulse on the changed element, a before/after hint, or a "what changed" callout.
+- S3: "Your experience": a toggle to hide it (one-time setting, then moved to the bottom). Plus a Tours library: experience-based tours built in; more tour "projects" listed below that the user downloads on demand (not bundled by default).
+- S4: AI & connections: rename "Let Claude use my notes" to "Let AI use my notebooks" — any connected AI/API, not only Claude.
+- S5: the toolbar preview pane blocks the view; the preview must show the real result without covering it.
+- S6: "Start new pages as" lets the user pick ANY template for the first new page.
+- S7: the Reduce glass "Auto" preview looks bad; make it show auto's real look.
+- S8: default page tabs: 3 by default, plus add/edit/remove/reorder; always one line (sideways scroll + thin track if many); show a mini preview of the tab row itself (not the main preview).

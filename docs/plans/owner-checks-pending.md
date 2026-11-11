@@ -1,5 +1,9 @@
 # Owner checks still pending (collected for the end-of-run iPad pass)
 
+## Priority 4 bug checks (11 Nov)
+
+On the iPad: (1) Toasts above the keyboard: type in a box with the on-screen keyboard up, then do something that shows a message (for example delete a box); the message sits above the keyboard bar and can be read, only one at a time. Also with a hardware keyboard (only the short bar at the bottom). (2) Fewer toasts: Copy, Paste, Bookmark, Highlight, Bookmark, Layout change, Reset tool bar, Insert a template, Move a page, Make a card or mind map, Merge layers: no message appears, the result is visible. Deleting a box, emptying a page, removing a bookmark or a prompt still shows a message with Undo. Errors still show. (3) Scroll bar: tap the empty track near the bottom; the thumb jumps there, centred under the finger or Pencil; drag the thumb: it follows exactly. (4) Draw a line, type a line, wait 2 seconds, reload the app, then press Undo: the line and the text go away one step at a time; Redo brings them back. (5) Text strip (Text pill): new Font, Size and Line spacing buttons; each opens the same choices as the Aa card and the page changes at once. Add or hide them in Edit bar.
+
 ## Text box v2, step 1 (11 Nov)
 
 On the iPad: (1) tap a box: a clear blue frame, 8 handles (corner dots, side pills) and the blue ≡ tab on top show, also on the very first box. (2) First box ⋯ menu: Box style, Copy, Cut, Duplicate, Colour, Layout (no Lock, no Delete). (3) Box style button in the format bar opens the panel for any box. (4) A box alone in its row: drag its right handle to make it narrower. (5) Drag the top handle: the top edge moves, the bottom stays. Tell me if any handle is still missing.

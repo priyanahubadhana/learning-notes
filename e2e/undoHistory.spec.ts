@@ -260,3 +260,46 @@ test('50 random steps go back to the start and forward again', async ({
   expect(redoSteps).toBe(steps)
   expect(await snap(page)).toEqual(end)
 })
+
+test('typing can be undone after a reload (batch 1 item 47)', async ({
+  page,
+}) => {
+  await startPage(page)
+  const before = await snap(page)
+  await page.keyboard.press('Enter')
+  await page.keyboard.type('Second line')
+  await page.waitForTimeout(1800) // autosave and the saved Undo list
+  const after = await snap(page)
+  expect(after).not.toEqual(before)
+  await page.reload()
+  await page.getByText('Second line').first().click()
+  await undo(page)
+  expect(await snap(page)).toEqual(before)
+  await redo(page)
+  expect(await snap(page)).toEqual(after)
+})
+
+test('a drawing can be undone after a reload (batch 1 item 47)', async ({
+  page,
+}) => {
+  await openNote(page, 'computer')
+  await page.waitForTimeout(900)
+  await tool(page, 'Pen').click()
+  await expect(page.locator('[data-ink-pad]')).toBeAttached()
+  const box = (await page.locator('.bn-editor').first().boundingBox())!
+  await stroke(
+    page,
+    line([box.x + 40, box.y + 120], [box.x + 240, box.y + 160]),
+    { type: 'mouse' },
+  )
+  await expect.poll(async () => (await savedInk(page)).strokes.length).toBe(1)
+  await page.waitForTimeout(1800)
+  await page.reload()
+  await expect(page.locator('.bn-editor').first()).toBeVisible()
+  await page.waitForTimeout(900)
+  // (a click on the page would add its own empty-line step)
+  await undoBtn(page).click()
+  await expect.poll(async () => (await savedInk(page)).strokes.length).toBe(0)
+  await redoBtn(page).click()
+  await expect.poll(async () => (await savedInk(page)).strokes.length).toBe(1)
+})

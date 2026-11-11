@@ -67,6 +67,9 @@ const HIDDEN_BY_DEFAULT: readonly string[] = ['lineFocus', 'lock', 'selfTest']
 export const PILL_OPTIONS: Record<PillTool, readonly string[]> = {
   text: [
     'style',
+    'font',
+    'size',
+    'lineHeight',
     'bold',
     'italic',
     'underline',

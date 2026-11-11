@@ -51,6 +51,9 @@ describe('the main bar', () => {
     }
     expect(PILL_OPTIONS.text).toEqual([
       'style',
+      'font',
+      'size',
+      'lineHeight',
       'bold',
       'italic',
       'underline',

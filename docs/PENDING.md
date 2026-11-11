@@ -49,8 +49,7 @@ Detail: plans/owner-bug-batch-3-2026-11-11.md (B3) and plans/owner-ideas-batch-2
 
 ## Priority 4: other bugs
 
-- [ ] Text and ink Undo after a reload (batch-1 item 47).
-- [ ] Text strip: its own font, size and line-spacing controls.
+- Built 11 Nov, waiting for the owner iPad checks (top of plans/owner-checks-pending.md). Delete this line after the owner checks them.
 
 ## Owner tests waiting
 

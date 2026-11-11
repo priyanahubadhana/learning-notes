@@ -112,6 +112,7 @@ import {
   dropLast,
   pushStep,
   redo as historyRedo,
+  registerKind,
   releaseOwner,
   undo as historyUndo,
 } from '../core/historySteps'
@@ -144,6 +145,8 @@ export interface TextEditor {
 
 export interface InkEnv {
   wrap: HTMLElement
+  /** The ink rows this surface owns (one box of a paper page); unset: all. */
+  owns?: (blockId: string | null) => boolean
   editorEl: () => HTMLElement | null
   editor: TextEditor
   doc: InkDoc
@@ -315,6 +318,34 @@ const SCROLL_STEP = 160
 
 let penSeenEver = false
 
+/** The ink of the open page: where a step read back after a reload is applied. */
+const liveInk = new Set<InkController>()
+/** Biggest edit (JSON characters) saved with its step over a reload. */
+const MAX_SAVED_EDIT = 250_000
+
+/** The ink surface (one per box) that a saved edit belongs to. */
+const liveFor = (pageId: string, edit: Edit): InkController => {
+  const mine = [...liveInk].filter((c) => c.inkDoc().pageId === pageId)
+  const first = edit.add[0] ?? edit.del[0]
+  const pick = first ? mine.find((c) => c.ownsBlock(first.blockId)) : mine[0]
+  if (!pick) throw new Error(tr('history.why.gone'))
+  return pick
+}
+// Batch 1 item 47: ink steps come back after a reload. The edit is plain data
+// (strokes and layers); undo and redo apply it to the page's ink as it is now.
+registerKind('ink', {
+  undo: (d: { pageId: string; edit: Edit }) => {
+    const c = liveFor(d.pageId, d.edit)
+    c.inkDoc().revert(d.edit)
+    c.afterHistory()
+  },
+  redo: (d: { pageId: string; edit: Edit }) => {
+    const c = liveFor(d.pageId, d.edit)
+    c.inkDoc().apply(d.edit)
+    c.afterHistory()
+  },
+})
+
 export class InkController {
   readonly layout: PageLayout
   readonly renderer: InkRenderer
@@ -372,6 +403,7 @@ export class InkController {
 
   constructor(env: InkEnv) {
     this.env = env
+    liveInk.add(this)
     this.layout = new PageLayout(
       env.wrap,
       (id) => env.doc.fallbackOf(id),
@@ -674,6 +706,7 @@ export class InkController {
   }
 
   destroy(): void {
+    liveInk.delete(this)
     releaseOwner(this)
     cancelAnimationFrame(this.raf)
     window.clearTimeout(this.settleTimer)
@@ -1543,9 +1576,12 @@ export class InkController {
     if (!alreadyApplied) this.env.doc.apply(edit)
     this.env.history.push(edit, this.env.textDepth())
     // The page's one Undo list gets a step for it (core/historySteps.ts).
+    // The edit is kept as data too (if not huge), so Undo works after a reload.
+    const data = { pageId: this.env.doc.pageId, edit }
     pushStep({
       kind: 'ink',
       label: tr('history.drawing'),
+      data: JSON.stringify(data).length <= MAX_SAVED_EDIT ? data : undefined,
       undo: () => this.undoStep(),
       redo: () => this.redoStep(),
       owner: this,
@@ -3103,6 +3139,22 @@ export class InkController {
     this.dropMissingSelection()
     this.notify()
     return true
+  }
+
+  /** Is the text block (or free ink, null) one of this surface's? */
+  ownsBlock(blockId: string | null): boolean {
+    return this.env.owns ? this.env.owns(blockId) : true
+  }
+
+  /** The page's ink document (for steps read back after a reload). */
+  inkDoc(): InkDoc {
+    return this.env.doc
+  }
+
+  /** After a saved step was applied to the ink: tidy the selection and redraw. */
+  afterHistory(): void {
+    this.dropMissingSelection()
+    this.notify()
   }
 
   private dropMissingSelection(): void {

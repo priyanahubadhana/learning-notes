@@ -145,8 +145,11 @@ test('Aa options: style, B I U, colours, list, alignment, key point', async ({
   const names = await pill(page)
     .getByRole('button')
     .evaluateAll((els) => els.map((el) => el.getAttribute('aria-label')))
-  expect(names.slice(1, 10)).toEqual([
+  expect(names.slice(1, 13)).toEqual([
     expect.stringMatching(/^Text style/),
+    'Font: Default',
+    'Text size: 100%',
+    'Line spacing: Normal',
     'Bold',
     'Italic',
     'Underline',
@@ -373,4 +376,31 @@ test('the ⋯ menu: Edit bar first, then All tools (the ribbon), search, Done', 
   await expect(items.nth(3)).toHaveText('Done')
   await page.getByRole('button', { name: 'All tools' }).click()
   await expect(page.getByRole('tablist', { name: 'Tool tabs' })).toBeVisible()
+})
+
+test('Text strip: its own Font, Size and Line spacing buttons open the Aa parts', async ({
+  page,
+}) => {
+  await openNote(page)
+  await openPill(page, 'Text', 'text')
+  const c = card(page)
+  await option(page, /^Text size/).click()
+  await expect(c.getByRole('radio')).toHaveText([
+    '90%',
+    '100%',
+    '115%',
+    '130%',
+    '150%',
+  ])
+  await c.getByRole('radio', { name: '130%' }).click()
+  await expect(page.locator('html')).toHaveAttribute('data-note-size', '')
+  await expect(option(page, /^Text size: 130%/)).toBeVisible()
+  await option(page, /^Line spacing/).click()
+  await expect(c.getByRole('radio')).toHaveText(['Normal', 'Tight', 'Loose'])
+  await c.getByRole('radio', { name: 'Loose' }).click()
+  await expect(page.locator('html')).toHaveAttribute('data-note-line', '')
+  await option(page, /^Font/).click()
+  await expect(c.getByRole('group', { name: 'Font' })).toBeVisible()
+  await c.getByRole('radio', { name: 'Literata' }).click()
+  await expect(page.locator('html')).toHaveAttribute('data-note-font', '')
 })

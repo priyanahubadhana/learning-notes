@@ -18,8 +18,8 @@ Every change a person makes to a page can be taken back from one Undo button, in
 
 ## Edge cases
 
-- Text and ink steps last the session; after a reload only steps with data (page settings, boxes, tags, databases, restores, AI results and imports) can be undone, and a new text history starts.
-- Changing page throws away the closures of the old page's editors (`release`); data steps stay.
+- Text and ink steps are saved too (11 Nov, batch 1 item 47): a text step keeps the box's text before and after (ProseMirror JSON, only boxes up to 30,000 in size), an ink step keeps its edit (strokes and layers, up to 250,000 characters). After a reload Undo and Redo set the box text, or apply the edit to the ink of the box that owns it (`registerKind('pm')` in `pageHistory.ts`, `registerKind('ink')` in `ink/controller.ts`). A bigger step is session-only. The saved list is capped at about 1.5 million characters per page (newest kept). A new text history starts after a reload (the box's own ProseMirror history is empty), but the journal steps work.
+- Changing page throws away the closures of the old page's editors (`release`); steps with data stay (without closures) and use the saved copy.
 - A click below the last line that adds an empty line is a real change and a real step.
 - `HISTORY_TABLES` (rowCapture) lists what is recorded; every other table must be listed as "not an action" in `pageHistory.test.ts`, so a new table cannot be forgotten.
 - First download budget: only the facade (core/historySteps.ts) is in the first load; the journal and the database hooks load in the background right after start.

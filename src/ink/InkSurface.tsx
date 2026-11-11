@@ -189,6 +189,7 @@ export function InkSurface({
       doc.onChoose = (id) => writeActiveLayer(pageId, id)
       const controller = new InkController({
         wrap,
+        owns,
         editorEl: () => editor.domElement ?? wrap.querySelector('.bn-editor'),
         editor,
         doc,

@@ -31,6 +31,7 @@ import { paletteFor, useCustomColours } from './pillKit'
 import { activeLayerOf } from '../../../ink/layers'
 import { useInk } from '../../../ink/inkRuntime'
 import { alignOf, listOf, styleOf } from './textOps'
+import { noteFont, noteLine, noteSize } from './textStyle'
 
 /** The options of each tool's pill. Each option is a button with a name. */
 
@@ -111,6 +112,9 @@ function TextOptions({
   const text = textColourChoice.useValue()
   const mark = highlightChoice.useValue()
   const hasSelection = editor.getSelectedText().length > 0
+  const font = noteFont.useValue()
+  const size = noteSize.useValue()
+  const line = noteLine.useValue()
   return (
     <>
       {ids.map((id) => {
@@ -128,6 +132,43 @@ function TextOptions({
               >
                 <span className="flex items-center gap-1 text-sm text-ink">
                   {name}
+                  <Icon name="chevronDown" size={14} />
+                </span>
+              </PillButton>
+            )
+          }
+          // The Aa card's font, size and line height, one tap away on the strip.
+          case 'font':
+          case 'size':
+          case 'lineHeight': {
+            const shown =
+              id === 'font'
+                ? t(`main.font.${font}` as MessageKey)
+                : id === 'size'
+                  ? `${size}%`
+                  : t(`main.line.${line}` as MessageKey)
+            return (
+              <PillButton
+                key={id}
+                id={id}
+                label={`${opt('text', id)}: ${shown}`}
+                expanded={cardIs(id)}
+                onClick={() => open(id)}
+                className="px-2.5"
+              >
+                <span
+                  data-pill-value={id}
+                  className="flex items-center gap-1 text-sm text-ink"
+                >
+                  {id === 'font' ? (
+                    <span className="font-semibold">Aa</span>
+                  ) : null}
+                  {id === 'lineHeight' ? (
+                    <Icon name="alignLeft" size={16} />
+                  ) : null}
+                  <span className={id === 'font' ? 'max-w-20 truncate' : ''}>
+                    {shown}
+                  </span>
                   <Icon name="chevronDown" size={14} />
                 </span>
               </PillButton>

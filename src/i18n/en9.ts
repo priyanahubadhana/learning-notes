@@ -68,6 +68,11 @@ export const en9 = {
   // ---- Detail cards ----
   'main.card.back': 'Back',
   'main.card.text.style': 'Text style',
+  'main.opt.text.font': 'Font',
+  'main.opt.text.size': 'Text size',
+  'main.opt.text.lineHeight': 'Line spacing',
+  'main.card.text.size': 'Text size',
+  'main.card.text.lineHeight': 'Line spacing',
   'main.card.text.font': 'Font',
   'main.card.text.boxStyle': 'Text-box style',
   'main.card.text.list': 'List',

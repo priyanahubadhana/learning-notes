@@ -117,7 +117,17 @@ const metaId = (scope: string) => `hist:${scope}`
 const timers = new Map<string, ReturnType<typeof setTimeout>>()
 
 const saved = (s: Step): boolean =>
-  s.data !== undefined || (!!s.subs && s.subs.every(saved))
+  (s.kind === 'pm' ? pmReady(s.data) : s.data !== undefined) ||
+  (!!s.subs && s.subs.every(saved))
+
+/** A text step is kept over a reload only with both sides of the box (see attachEditor). */
+const pmReady = (d: unknown): boolean =>
+  !!d && !!(d as PmData).before && !!(d as PmData).after
+
+/** Most characters of saved steps kept per page (the newest ones win). */
+const SAVE_BUDGET = 1_500_000
+/** Biggest box (ProseMirror size) whose text steps are saved. */
+const PM_SAVE_MAX = 30_000
 
 function persistSoon(scope: string): void {
   if (timers.has(scope)) return
@@ -133,6 +143,7 @@ function persistSoon(scope: string): void {
 export async function persistNow(scope: string): Promise<void> {
   const j = journals.get(scope)
   if (!j) return
+  for (const e of editors) e.sync()
   const strip = (s: Step): Step => ({
     id: s.id,
     scope: s.scope,
@@ -143,13 +154,24 @@ export async function persistNow(scope: string): Promise<void> {
     data: s.data,
     subs: s.subs?.map(strip),
   })
+  // Newest first, until the budget is used: a long session never grows the row without end.
+  let used = 0
+  const within = (list: Step[]): Step[] => {
+    const kept: Step[] = []
+    for (const s of [...list].reverse()) {
+      const size = JSON.stringify(strip(s)).length
+      if (used + size > SAVE_BUDGET) break
+      used += size
+      kept.unshift(s)
+    }
+    return kept
+  }
+  const undone = within(j.undone.filter(saved))
+  const done = within(j.done.filter(saved).slice(-LIMIT))
   const row: MetaValue = {
     id: metaId(scope),
     value: JSON.parse(
-      JSON.stringify({
-        done: j.done.filter(saved).slice(-LIMIT).map(strip),
-        undone: j.undone.filter(saved).map(strip),
-      }),
+      JSON.stringify({ done: done.map(strip), undone: undone.map(strip) }),
     ),
   }
   try {
@@ -186,13 +208,30 @@ if (typeof document !== 'undefined')
 
 // ---- Pushing steps ----
 
-const editors = new Set<{ view: () => EditorView | undefined }>()
+interface EditorHandle {
+  view: () => EditorView | undefined
+  /** Writes the box's text as it is now into its newest step. */
+  sync: () => void
+  /** The typing group ended: its step is final. */
+  close: () => void
+}
+const editors = new Set<EditorHandle>()
+/** The editor of each box, to apply a text step read back after a reload. */
+const boxEditors = new Map<string, EditorHandle>()
+
+/** What a saved text step holds: the box's text before and after (ProseMirror JSON). */
+interface PmData {
+  box: string
+  before: unknown
+  after: unknown
+}
 
 /** Ends every box's typing group, so the next typing is a new step. */
 function closeAll(): void {
   for (const e of editors) {
     const v = e.view()
     if (v) v.dispatch(closeHistory(v.state.tr))
+    e.close()
   }
 }
 
@@ -301,10 +340,19 @@ export function chainLast(): void {
 
 /** Forgets the steps whose closures belong to something that went away. */
 export function release(owner: unknown): void {
-  const keep = (s: Step) => s.owner !== owner
+  // A step with saved data stays (it needs no closure); the rest go.
+  const bare = (s: Step): Step => ({
+    ...s,
+    undo: undefined,
+    redo: undefined,
+    owner: undefined,
+    subs: s.subs?.map(bare),
+  })
+  const mine = (s: Step): boolean => s.owner === owner || !!s.subs?.some(mine)
+  const keep = (s: Step): Step[] => (!mine(s) ? [s] : saved(s) ? [bare(s)] : [])
   for (const [scope, j] of journals) {
-    j.done = j.done.filter(keep)
-    j.undone = j.undone.filter(keep)
+    j.done = j.done.flatMap(keep)
+    j.undone = j.undone.flatMap(keep)
     if (scope === active) publish()
   }
 }
@@ -318,9 +366,25 @@ interface EditorLike {
 
 export function attachEditor(editor: EditorLike, boxId: string): () => void {
   const view = () => editor.prosemirrorView
-  const handle = { view }
-  editors.add(handle)
   let last = view() ? undoDepth(view()!.state) : 0
+  // The box's text before the latest change, and the step of the typing group still going.
+  let shadow = view()?.state.doc
+  let open: PmData | null = null
+  const handle: EditorHandle = {
+    view,
+    sync: () => {
+      const v = view()
+      if (!open || !v) return
+      open.after =
+        v.state.doc.content.size <= PM_SAVE_MAX ? v.state.doc.toJSON() : null
+    },
+    close: () => {
+      handle.sync()
+      open = null
+    },
+  }
+  editors.add(handle)
+  boxEditors.set(boxId, handle)
   const run = (dir: 'undo' | 'redo') => (): boolean => {
     const v = view()
     if (!v) return false
@@ -334,6 +398,8 @@ export function attachEditor(editor: EditorLike, boxId: string): () => void {
     const d = undoDepth(v.state)
     const was = last
     last = d
+    const before = shadow
+    shadow = v.state.doc
     if (d < was || isQuiet()) return
     const top = active ? journals.get(active)?.done.at(-1) : undefined
     if (d === was) {
@@ -341,6 +407,14 @@ export function attachEditor(editor: EditorLike, boxId: string): () => void {
       if (top && top.owner === editor) top.at = Date.now()
       return
     }
+    handle.close()
+    const data: PmData = {
+      box: boxId,
+      before:
+        before && before.content.size <= PM_SAVE_MAX ? before.toJSON() : null,
+      after: null,
+    }
+    open = data.before ? data : null
     push(
       {
         kind: 'pm',
@@ -348,17 +422,36 @@ export function attachEditor(editor: EditorLike, boxId: string): () => void {
         undo: run('undo'),
         redo: run('redo'),
         owner: editor,
+        data,
       },
       null,
     )
   })
-  void boxId
   return () => {
+    handle.close()
     editors.delete(handle)
+    if (boxEditors.get(boxId) === handle) boxEditors.delete(boxId)
     if (typeof off === 'function') off()
     release(editor)
   }
 }
+
+/** Sets a box's text to a saved copy (a text step read back after a reload). */
+function setBoxText(box: string, json: unknown): boolean {
+  const v = boxEditors.get(box)?.view()
+  if (!v || !json) throw new Error(t('history.why.gone'))
+  const node = v.state.schema.nodeFromJSON(json)
+  v.dispatch(
+    v.state.tr
+      .replaceWith(0, v.state.doc.content.size, node.content)
+      .setMeta('addToHistory', false),
+  )
+  return true
+}
+registerKind('pm', {
+  undo: (d) => setBoxText((d as PmData).box, (d as PmData).before),
+  redo: (d) => setBoxText((d as PmData).box, (d as PmData).after),
+})
 
 // ---- Undo and Redo ----
 
@@ -644,3 +737,12 @@ if (typeof window !== 'undefined')
       }
     },
   }
+
+/** Tests only: forget the session list and read the saved one again (a reload). */
+export async function reloadSavedForTest(scope: string): Promise<void> {
+  const j = journal(scope)
+  await j.loaded
+  j.done = []
+  j.undone = []
+  await loadSaved(scope, j)
+}

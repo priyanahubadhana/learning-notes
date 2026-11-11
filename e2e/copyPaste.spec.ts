@@ -148,7 +148,7 @@ test('normal copy and paste keep everything on another page and in another noteb
   await expect(editor(page).locator('strong')).toHaveText('beta')
 })
 
-test('block menu: Copy as... Plain text and Markdown say Copied', async ({
+test('block menu: Copy as... Plain text and Markdown copy', async ({
   page,
 }) => {
   await startPage(page)
@@ -163,7 +163,7 @@ test('block menu: Copy as... Plain text and Markdown say Copied', async ({
   await page.locator('.bn-side-menu [draggable="true"]').click()
   await page.getByRole('menuitem', { name: 'Copy as…' }).hover()
   await page.getByRole('menuitem', { name: 'Plain text' }).click()
-  expect(await clipboardText(page)).toBe('plain bold')
+  await expect.poll(() => clipboardText(page)).toBe('plain bold')
 
   await block.hover()
   await page.locator('.bn-side-menu [draggable="true"]').click()
@@ -179,11 +179,13 @@ test('page menu: plain text, Markdown and page with pictures', async ({
   await writeRichPage(page)
 
   await pageSubAction(page, 'Copy & paste', 'Copy page as plain text')
-  expect(await clipboardText(page)).toContain('alpha beta https://example.com')
+  await expect
+    .poll(() => clipboardText(page))
+    .toContain('alpha beta https://example.com')
 
   await pageSubAction(page, 'Copy & paste', 'Copy page as Markdown')
-  expect(await clipboardText(page)).toContain('alpha **beta**')
-  expect(await clipboardText(page)).toContain('(https://example.com')
+  await expect.poll(() => clipboardText(page)).toContain('alpha **beta**')
+  await expect.poll(() => clipboardText(page)).toContain('(https://example.com')
 
   await pageSubAction(page, 'Copy & paste', 'Copy page with pictures')
   // The clipboard is shared with other tests: a read can fail with
@@ -233,7 +235,7 @@ test('Copy page with pictures falls back to text when the browser blocks it', as
   })
   await pageSubAction(page, 'Copy & paste', 'Copy page with pictures')
   await expect(toast(page, /text only/)).toBeVisible()
-  expect(await clipboardText(page)).toBe('only words here')
+  await expect.poll(() => clipboardText(page)).toBe('only words here')
 })
 
 test('Paste as plain text from the page menu drops the formatting', async ({
@@ -337,7 +339,7 @@ test('the toolbar menu copies the selection as plain text and Markdown', async (
     .getByRole('group', { name: 'Toolbar menu' })
     .getByRole('button', { name: 'Copy as plain text' })
     .click()
-  expect(await clipboardText(page)).toBe('first heart')
+  await expect.poll(() => clipboardText(page)).toBe('first heart')
 
   await selectText(page, 'first heart')
   await menu().click()
@@ -345,7 +347,7 @@ test('the toolbar menu copies the selection as plain text and Markdown', async (
     .getByRole('group', { name: 'Toolbar menu' })
     .getByRole('button', { name: 'Copy as Markdown' })
     .click()
-  expect(await clipboardText(page)).toContain('first heart')
+  await expect.poll(() => clipboardText(page)).toContain('first heart')
 })
 
 test('a Notion toggle with a sub-toggle pastes as our Toggle list', async ({

@@ -141,6 +141,10 @@ function CardBody({
       return editor && <StyleCard editor={editor} onPage={onPage} />
     case 'text.font':
       return <FontPage />
+    case 'text.size':
+      return <SizePage />
+    case 'text.lineHeight':
+      return <LinePage />
     case 'text.boxStyle':
       return editor && <BoxStylePage editor={editor} />
     case 'text.list':
@@ -224,31 +228,9 @@ function StyleCard({
         onClick={() => onPage('font')}
       />
       <CardLabel>{t('main.text.size')}</CardLabel>
-      <ChipRow
-        id="size"
-        label={t('main.text.size')}
-        value={size}
-        columns={5}
-        options={NOTE_SIZES.map((s) => ({ value: s, label: `${s}%` }))}
-        onChange={(s) => {
-          noteSize.set(s)
-          applyNoteStyle()
-        }}
-      />
+      <SizeChips value={size} />
       <CardLabel>{t('main.text.lineHeight')}</CardLabel>
-      <ChipRow
-        id="line"
-        label={t('main.text.lineHeight')}
-        value={line}
-        options={NOTE_LINES.map((l) => ({
-          value: l,
-          label: msg(`main.line.${l}`),
-        }))}
-        onChange={(l) => {
-          noteLine.set(l)
-          applyNoteStyle()
-        }}
-      />
+      <LineChips value={line} />
       <NavRow
         id="boxStyle"
         label={t('main.card.text.boxStyle')}
@@ -275,6 +257,50 @@ function StyleCard({
       />
     </>
   )
+}
+
+/** The size chips (Aa › Style, and the Text strip's own size card). */
+function SizeChips({ value }: { value: number }) {
+  return (
+    <ChipRow
+      id="size"
+      label={t('main.text.size')}
+      value={value}
+      columns={5}
+      options={NOTE_SIZES.map((s) => ({ value: s, label: `${s}%` }))}
+      onChange={(s) => {
+        noteSize.set(s)
+        applyNoteStyle()
+      }}
+    />
+  )
+}
+
+/** The line-height chips (Aa › Style, and the Text strip's own card). */
+function LineChips({ value }: { value: (typeof NOTE_LINES)[number] }) {
+  return (
+    <ChipRow
+      id="line"
+      label={t('main.text.lineHeight')}
+      value={value}
+      options={NOTE_LINES.map((l) => ({
+        value: l,
+        label: msg(`main.line.${l}`),
+      }))}
+      onChange={(l) => {
+        noteLine.set(l)
+        applyNoteStyle()
+      }}
+    />
+  )
+}
+
+function SizePage() {
+  return <SizeChips value={noteSize.useValue()} />
+}
+
+function LinePage() {
+  return <LineChips value={noteLine.useValue()} />
 }
 
 function FontPage() {

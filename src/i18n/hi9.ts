@@ -67,6 +67,11 @@ export const hi9: Record<string, string> = {
   // ---- Detail cards ----
   'main.card.back': 'वापस',
   'main.card.text.style': 'टेक्स्ट शैली',
+  'main.opt.text.font': 'फ़ॉन्ट',
+  'main.opt.text.size': 'टेक्स्ट आकार',
+  'main.opt.text.lineHeight': 'पंक्ति अंतर',
+  'main.card.text.size': 'टेक्स्ट आकार',
+  'main.card.text.lineHeight': 'पंक्ति अंतर',
   'main.card.text.font': 'फ़ॉन्ट',
   'main.card.text.boxStyle': 'टेक्स्ट-बॉक्स शैली',
   'main.card.text.list': 'सूची',

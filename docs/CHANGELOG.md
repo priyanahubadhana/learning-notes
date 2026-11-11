@@ -2,6 +2,12 @@
 
 Current phase only. Older entries are in [ARCHIVE.md](ARCHIVE.md).
 
+## 2026-11-11 (Priority 4: Undo after a reload, Text strip)
+
+- **Batch 1 item 47:** text and ink Undo/Redo survive a reload. Text steps save the box's text before and after; ink steps save their edit; `release` keeps steps that have data. Budget 1.5 M characters per page. Files: `history/pageHistory.ts`, `ink/controller.ts`, `ink/InkSurface.tsx`. Tests: `history/textReload.test.ts`, `e2e/undoHistory.spec.ts` (typing and drawing after a reload).
+- **Text strip:** new options Font, Size and Line spacing (after Style) open the Aa card parts (`SizePage`, `LinePage`, `FontPage` in `DetailCard.tsx`). New texts in `en9/hi9/es9`. Test: `e2e/mainBar.spec.ts`. People with a saved custom Text pill order add them in Edit bar.
+- e2e `copyPaste.spec.ts` now waits for the clipboard instead of the removed Copied toast.
+
 ## 2026-11-11 (Priority 4: page scroll bar)
 
 - **B3-13:** a tap on the page scroll-bar track jumps the thumb (centred) to the tapped spot and keeps following the finger if it keeps moving; the thumb moves in the same frame as the finger while dragging. `trackJumpTop` in `paper/pageBar.ts`, `PageScrollBar.tsx`. Tests: `pageScrollBar.test.ts`, `e2e/paperEdge.spec.ts`. The arrows still move one sheet.

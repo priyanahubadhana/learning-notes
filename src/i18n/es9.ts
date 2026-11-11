@@ -67,6 +67,11 @@ export const es9: Record<string, string> = {
   // ---- Detail cards ----
   'main.card.back': 'Atrás',
   'main.card.text.style': 'Estilo de texto',
+  'main.opt.text.font': 'Fuente',
+  'main.opt.text.size': 'Tamaño del texto',
+  'main.opt.text.lineHeight': 'Interlineado',
+  'main.card.text.size': 'Tamaño del texto',
+  'main.card.text.lineHeight': 'Interlineado',
   'main.card.text.font': 'Fuente',
   'main.card.text.boxStyle': 'Estilo del cuadro de texto',
   'main.card.text.list': 'Lista',

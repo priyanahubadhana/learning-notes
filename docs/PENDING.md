@@ -245,3 +245,4 @@ Three ways of using the reader, as presets:
 - REAL-BUILD requirement (owner): resize handles pick the NEAREST handle, side vs corner zones don't overlap, and a short hold with feedback before the drag commits. The text box must never wrap letter by letter (one line until near the right margin).
 - Home mock: published. Questions (picks): Beginner 4 cards; a Daily Highlight from saved highlights; Continue as a sideways row; glance widgets as counts only; Tasks/Plan/Routines/Reports as tabs.
 - Notebooks mock: published. Questions (picks): Trash in the quiet corner + a More tab; a star only on pinned covers; add Duplicate/Reset look/Start on; tree grip in Professional only; Lock & Allow AI in a Privacy tab only.
+- Search mock: published. Questions (picks): a side panel (not a popup); scope starts at Notebook; Beginner chips All/Pages/Notes/Cards; Books & Highlights shown as 'Soon'; keep Pencil scribble search; no save-search in Beginner.

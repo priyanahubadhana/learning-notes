@@ -64,7 +64,10 @@ jobs:
           node-version: lts/*
           cache: npm
       - run: npm ci
-      - run: npx playwright install --with-deps chromium
+      - name: Install chromium (retries if the Ubuntu mirror is down)
+        run: |
+          for i in 1 2 3; do npx playwright install --with-deps chromium && exit 0; echo "install failed, retry $i"; sleep 45; done
+          npx playwright install chromium
       - run: npx playwright test --project=chromium --shard=${{ matrix.shard }}/4
       - uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4
         if: failure()
@@ -92,7 +95,10 @@ jobs:
           node-version: lts/*
           cache: npm
       - run: npm ci
-      - run: npx playwright install --with-deps webkit
+      - name: Install webkit (retries if the Ubuntu mirror is down)
+        run: |
+          for i in 1 2 3; do npx playwright install --with-deps webkit && exit 0; echo "install failed, retry $i"; sleep 45; done
+          npx playwright install webkit
       - run: npx playwright test --project=ipad-webkit --shard=${{ matrix.shard }}/2
       - uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4
         if: failure()
@@ -162,5 +168,8 @@ jobs:
           node-version: lts/*
           cache: npm
       - run: npm ci
-      - run: npx playwright install --with-deps webkit
+      - name: Install webkit (retries if the Ubuntu mirror is down)
+        run: |
+          for i in 1 2 3; do npx playwright install --with-deps webkit && exit 0; echo "install failed, retry $i"; sleep 45; done
+          npx playwright install webkit
       - run: npm run test:e2e:webkit

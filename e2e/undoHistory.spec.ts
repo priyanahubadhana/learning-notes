@@ -286,7 +286,15 @@ test('a drawing can be undone after a reload (batch 1 item 47)', async ({
   await page.waitForTimeout(900)
   await tool(page, 'Pen').click()
   await expect(page.locator('[data-ink-pad]')).toBeAttached()
-  const box = (await page.locator('.bn-editor').first().boundingBox())!
+  // Draw on the ink pad once it is laid out: the editor box can be one line
+  // tall in WebKit, so a point 120 px below it may miss the pad.
+  await expect
+    .poll(
+      async () =>
+        (await page.locator('[data-ink-pad]').boundingBox())?.height ?? 0,
+    )
+    .toBeGreaterThan(200)
+  const box = (await page.locator('[data-ink-pad]').boundingBox())!
   await stroke(
     page,
     line([box.x + 40, box.y + 120], [box.x + 240, box.y + 160]),

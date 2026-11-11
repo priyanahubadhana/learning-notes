@@ -36,3 +36,13 @@ Proposal: a "Reading lock" padlock in the reader top bar with 3 modes:
 3. Full lock: no edits/selection/drawing; zoom, scroll, page turns, search and links still work.
    Unlock with one tap. The mode is remembered per book, with a calm popover, icon states and a subtle shake on an ignored tap.
    Owner questions (picks): 3 modes; default "Select with a tool"; single-tap unlock; remembered per book; in Full lock a highlight still opens its note read-only.
+
+### A2 owner answer (11 Nov)
+
+Four modes:
+
+1. **Everything works** (default): every tool and feature.
+2. **Reading mode**: like Kindle; text can't be selected for editing, but highlight, notes, bookmarks and basic reader features work.
+3. **View only**: no edits or highlights; only zoom, scroll, page turns, search and basic viewing.
+4. **Frozen**: nothing at all responds (a page left on display).
+   Unlock with a long press, and a Netflix-style ring fills around the padlock while you hold. The mode is remembered per book.

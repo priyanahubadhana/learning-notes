@@ -174,3 +174,4 @@ plans/owner-ideas-batch-2-2026-11-10.md: update bar, Acrobat PDF tools, customiz
   - Q9 handle the 3 unsaved files as I judge best, safely (no consequences).
   - Q10 reliability first, then features.
   - Book annotations Q1–6: waiting.
+- Builder H done (11 Nov): DB page filter, search finds checkboxes/formulas, All/Starred/Recent, Delete forever erases pictures, picture Border, video start/size, slowMoments throttled, seeded driveServer tests, first load 319.9 → 301.8 KB. Waiting for the redesign: text wrap around pictures (src/paper) and Draw on picture (src/ink + tools).

@@ -471,7 +471,11 @@ export function AskBook(props: AskBookProps) {
         <button
           type="button"
           data-testid="ask-book-prepare"
-          disabled={mode === 'ask' && !question.trim()}
+          // The book is still opening: wait, rather than say "no text".
+          disabled={
+            (mode === 'ask' && !question.trim()) ||
+            (format === 'pdf' ? !props.pdfDoc : !epub)
+          }
           onClick={() => void runTask(prepare())}
           className={btn}
         >

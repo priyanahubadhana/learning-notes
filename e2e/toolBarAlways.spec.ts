@@ -67,6 +67,8 @@ test.describe('an iPad that says it is a Mac', () => {
           origin: 'http://localhost:' + (process.env.PW_PORT ?? 5199),
           localStorage: [
             { name: 'learning-notes:onboarding.done', value: 'true' },
+            // Own storage replaces the config's: keep the sign-in gate off.
+            { name: 'learning-notes:accountGate.off', value: '1' },
           ],
         },
       ],

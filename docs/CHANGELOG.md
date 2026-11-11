@@ -2,6 +2,12 @@
 
 Current phase only. Older entries are in [ARCHIVE.md](ARCHIVE.md).
 
+## 2026-11-12 (CI: toolBarAlways test lost the sign-in gate switch)
+
+- **What:** the "iPad that says it is a Mac" test sets its own storage, which replaced the config's `accountGate.off`; it now sets that key too.
+- **Why:** since accounts became required (owner, 9 Nov) a device without sign-in is read-only, so the new notebook could not be renamed and the test timed out. Test out of date, not an app bug.
+- **Files:** e2e/toolBarAlways.spec.ts, docs/CHANGELOG.md.
+
 ## 2026-11-11 (Lists no longer slide sideways after a row goes)
 
 - **What:** a list that has the scroll handle keeps its 24 px gutter (new `data-scroll-gutter`) even when it stops overflowing. Before, the hints re-checked lists 400 ms after a change and dropped the gutter, so every row slid 24 px right just after a remove, and a quick next tap (Edit toolbar: Remove Eraser right after Remove Pen) landed in the gap and did nothing.

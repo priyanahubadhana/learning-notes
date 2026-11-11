@@ -55,3 +55,13 @@ Books and other sources live in the app as ordinary pages. The Library space sho
 - **Selection pop-up:** Define (Dictionary sheet, dictionaryapi.dev, offline message, Pronounce), Ask AI (when AI is on). Tool bar choice in ⋯ (Simple, Compact, Full).
 - **Read aloud:** left panel Audio tab; device voice; follows the text.
 - Tests: e2e/readerSheets.spec.ts, src/reader/readStyle.test.ts.
+
+## PDF menu (11 Nov, Q8)
+
+- **PDF button** in the reader bar, PDF books only (`src/reader/pdfTools/`, all lazy; pdf-lib 1.17.1 and tesseract.js 7.0.0, both free). Menu: Organise pages, Combine files, Scan to PDF, Make searchable (OCR), Export with my marks, Export clean copy.
+- **Organise** (`OrganiseSheet`, `pageOps.ts`, `pdfEdit.ts`, `pdfEditService.ts`): a plan (old page or blank, extra turn) is applied with pdf-lib; in one transaction the book file is replaced and annotations (`anchor.page`, rects turned with the page), ink chunks (`blockId` `pdf:<n>`, strokes turned) and `source` (`at`, `furthestAt`, `pageCount`) follow; deleted pages soft-delete their marks. One Undo restores file, marks, ink and place. Ink is flushed first (`flushAllInk`); the ink code (`src/ink`) is unchanged: the tool edits the same stored rows the reader writes.
+- **Combine / Scan / Extract** make a new Library PDF through `importBook`. **Scan** (`scanGeometry.ts`, `ScanSheet`): the sheet is the biggest bright area, then a perspective warp, corner handles, looks Colour / Grey / Document, JPEG pages in an A4-wide PDF.
+- **OCR** (`ocr.ts`): Tesseract worker and core are hashed assets of our site, English data in `public/ocr`; scanned pages (under 8 characters of text) by default; invisible text (render mode 3, Helvetica) written back. **AI reading** (`aiOcr.ts`) shows the cost, goes through `callAi` (AI off, notebook switch, locks, monthly limit apply), feature `pdfOcr`.
+- **Export** (`flattenMarks`): highlights, ink (pen, highlighter, tape), numbered note markers and a Notes page; the clean copy is the stored file.
+- **Limits:** English-only text layer; no password PDFs; the outline (bookmark tree) is not carried by page copy; Undo lasts the session.
+- Tests: `src/reader/pdfTools/*.test.ts`, `e2e/pdfTools.spec.ts`.

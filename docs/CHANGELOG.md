@@ -2,6 +2,10 @@
 
 Current phase only. Older entries are in [ARCHIVE.md](ARCHIVE.md).
 
+## 2026-11-12 (Text box v2, owner list: step 6, box styles)
+
+- Box style has a **Sticky note** preset (yellow, small corners, shadow) next to Note and Callout (all in Box style, no quick dots). A new box now remembers the LAST style given to any box (the "Use for new boxes" tick is on by itself and can still be turned off); the page's own box does not count. The own presets (up to 8, saved per account) were already there. Files: `core/boxStyle.ts`, `paper/BoxStylePopover.tsx`, `i18n/*L.ts`. Tests: `e2e/textBoxFree.spec.ts`, `textTool.spec.ts`.
+
 ## 2026-11-12 (Text box v2, owner list: step 5, Text tool + Pencil)
 
 - With the Text tool, a Pencil stroke on blank paper that is a clean line, arrow, circle or rectangle (the existing shape recogniser, plus a small-circle test) becomes a clean ink shape on the ink layer (the box for its ink lines and the ink are one history group). A small circle drawn round a 0 to 20 digit in a box turns the digit into ⓪ to ⑳ (one editor step). The Pen tool never converts (the code only runs for the Text tool). Handwriting inside a box becomes text through iPadOS Scribble (nothing new built; the owner has to check it). Files: `paper/textPencil.ts`, `paper/PaperFrame.tsx`. Tests: `paper/textPencil.test.ts`, `e2e/textBoxFree.spec.ts`.

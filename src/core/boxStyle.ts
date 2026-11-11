@@ -151,6 +151,10 @@ export const NAMED_PRESETS: readonly BoxPreset[] = [
   { id: 'softCard', style: { bg: 'dark', radius: 12, pad: 12 } },
   { id: 'note', style: { bg: 'yellow', radius: 4, pad: 8 } },
   {
+    id: 'sticky',
+    style: { bg: 'yellow', radius: 4, pad: 12, shadow: true },
+  },
+  {
     id: 'callout',
     style: { bg: 'accent', border: 'accent', borderW: 0, radius: 8, pad: 12 },
   },

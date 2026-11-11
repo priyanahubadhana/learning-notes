@@ -385,3 +385,33 @@ test('Text tool + Pencil: a drawn line on blank paper becomes a clean ink line; 
   await expect(page.locator(EXTRA)).toHaveCount(1, { timeout: 8000 })
   await expect(page.locator(EXTRA + ' [data-ink-pad]').first()).toBeAttached()
 })
+
+test('Box style: Sticky note and Callout presets; a new box remembers the last style', async ({
+  page,
+}) => {
+  await start(page, 'Styles')
+  await tapBlank(page, 0.3, 70)
+  await expect(page.locator(EXTRA + ' .bn-editor')).toBeFocused()
+  await page.keyboard.type('First')
+  await page.waitForTimeout(500)
+  await page.evaluate(() => (document.activeElement as HTMLElement)?.blur())
+  const first = page.locator(EXTRA).first()
+  await first.hover()
+  const band = await box(first.locator('[data-box-band="bottom"]'))
+  await page.mouse.click(band.x + band.width / 2, band.y + band.height / 2)
+  await first.locator('[data-box-bar]').getByLabel('Box style').click()
+  const panel = page.locator('[data-box-style-panel]')
+  await expect(panel.getByRole('button', { name: 'Callout' })).toBeVisible()
+  await panel.getByRole('button', { name: 'Sticky note' }).click()
+  await expect(first.locator('[data-box-style]').first()).toBeVisible()
+  await page.waitForTimeout(500)
+  await panel.getByRole('button', { name: 'Close' }).click()
+  await page.keyboard.press('Escape')
+  await page.waitForTimeout(800)
+  // No "Use for new boxes" tick: the next box has the same style.
+  await tapBlank(page, 0.6, 200)
+  await expect(page.locator(EXTRA)).toHaveCount(2)
+  await expect(
+    page.locator(EXTRA).nth(1).locator('[data-box-style]').first(),
+  ).toBeVisible()
+})

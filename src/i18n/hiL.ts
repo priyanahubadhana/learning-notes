@@ -101,4 +101,5 @@ export const hiL: Record<string, string> = {
   'paper.group.bar': 'बॉक्स समूह',
   'paper.group.group': 'समूह बनाएँ',
   'paper.group.ungroup': 'समूह हटाएँ',
+  'boxStyle.preset.sticky': 'स्टिकी नोट',
 }

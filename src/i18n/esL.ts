@@ -101,4 +101,5 @@ export const esL: Record<string, string> = {
   'paper.group.bar': 'Agrupar cuadros',
   'paper.group.group': 'Agrupar',
   'paper.group.ungroup': 'Desagrupar',
+  'boxStyle.preset.sticky': 'Nota adhesiva',
 }

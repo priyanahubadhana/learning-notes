@@ -18,7 +18,7 @@ import {
   type OwnPreset,
 } from '../core/boxStyle'
 import { t, type MessageKey } from '../i18n/t'
-import { boxesOf } from './boxes'
+import { boxesOf, MAIN_BOX } from './boxes'
 import {
   deletePreset,
   loadNewBoxStyle,
@@ -141,8 +141,15 @@ export default function BoxStylePopover({
     return () => document.removeEventListener('keydown', key)
   }, [onClose])
 
-  const apply = (next: BoxStyle | undefined) =>
+  // A new box remembers the last style you gave a box (owner, 11 Nov); the
+  // page's own box is not the example, it keeps its style to itself.
+  const apply = (next: BoxStyle | undefined) => {
     void updateBox(db, pageId, boxId, { style: cleanStyle(next) })
+    if (boxId !== MAIN_BOX) {
+      setDflt(cleanStyle(next))
+      void setNewBoxStyle(db, cleanStyle(next))
+    }
+  }
   const set = (patch: Partial<BoxStyle>) => {
     const next = { ...style, ...patch, preset: undefined } as BoxStyle
     apply(next)

@@ -78,7 +78,6 @@ plans/owner-ideas-batch-2-2026-11-10.md: update bar, Acrobat PDF tools, customiz
   - Box options as in Notability: rounded corners, wrap on/off.
   - Locked boxes are skipped by tidy (no lock for now).
   - FINAL: NO double-tap-to-make-a-box at all. A single tap with the Text tool makes a box (as before).
-  - Box styles: sticky note/callout in Box style settings (no quick dots). Remember the last style. User-saved text/box presets.
 
 ## Questions for owner
 

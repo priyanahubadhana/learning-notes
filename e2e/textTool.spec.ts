@@ -91,7 +91,6 @@ test('Use for new boxes: the next box has the style, the page box stays frameles
   await pickFrame(page, first)
   await first.locator('[data-box-bar]').getByLabel('Box style').click()
   await panel(page).getByRole('button', { name: 'Yellow' }).click()
-  await panel(page).locator('[data-box-style-new]').check()
   await page.waitForTimeout(500)
   await panel(page).getByRole('button', { name: 'Close' }).click()
   await page.keyboard.press('Escape')

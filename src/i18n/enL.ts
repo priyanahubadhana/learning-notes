@@ -101,4 +101,5 @@ export const enL = {
   'paper.group.bar': 'Group boxes',
   'paper.group.group': 'Group',
   'paper.group.ungroup': 'Ungroup',
+  'boxStyle.preset.sticky': 'Sticky note',
 }

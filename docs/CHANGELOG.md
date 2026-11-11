@@ -1328,3 +1328,5 @@ Plan: [plans/polish-2-2026-11.md](plans/polish-2-2026-11.md). Items 8, 9 and 15 
 - **Files:** .github/workflows/ci.yml, docs/
 
 - 2026-11-08 · Polish plan 2 written (docs/plans/polish-2-2026-11.md), linked in INDEX. Why: overnight review vs other note apps. Files: docs/plans/polish-2-2026-11.md, docs/INDEX.md, docs/CHANGELOG.md.
+- 2026-11-11: Ideas list: added item 4 (layers; one multi-line text box). Files: docs/plans/owner-ideas-batch-2-2026-11-10.md
+- 2026-11-11: Added docs/PENDING.md (one prioritized open-work list; the text box is Priority 1); HANDOFF points to it. Files: docs/PENDING.md, docs/HANDOFF.md

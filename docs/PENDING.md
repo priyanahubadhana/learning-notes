@@ -71,3 +71,28 @@ plans/owner-ideas-batch-2-2026-11-10.md: update bar, Acrobat PDF tools, customiz
 - Grow-then-wrap max width: stop about one page side margin before the right edge (coordinator 11 Nov); placement unchanged until the owner answers.
 - Smart guides in the drag step (thin red edge/centre lines, equal-spacing marks, gentle snap); on/off switch ONLY in Settings (default on). Layout pop-up tidy: Line up left, Space evenly (3+), One box, Columns. Approved 11 Nov, not built.
 - Smart guide look: 1 px magenta, only while dragging, each line spans from the dragged box edge/centre to the matched object only, plus a page-centre line and equal-spacing marks, gentle snap, never overlap. Not built.
+## Owner answers 11 Nov (top priority: text box, typing, Pencil)
+- Pencil in a text box = handwriting becomes text (Scribble) by default.
+- BUG: the cursor lands in the wrong place or jumps.
+- BUG: a Pencil double-tap to select doesn't work at all in a text box (the owner expects a paragraph selection; confirm word vs paragraph).
+- BUG: too many highlights. Tapping a line draws a border or highlight around that single line or block. Instead only the WHOLE box shows as selected (GoodNotes): no per-line or per-block outline inside a box.
+- Layout presets: the owner uses only "One box" (ask whether to keep the others in the pop-up).
+- Progress: a short note per live part, with a 2–3 line test.
+- Owner 4:45 (GoodNotes iPhone screenshots), the text box model:
+  - A tap with the Text tool makes a SMALL box at the tap point (about one caret wide). If you leave it empty and tap away, it disappears.
+  - While typing, the box GROWS in width with the text until a default max width (about the page width minus margins), then text soft-wraps to the next line (no Enter, still one paragraph). If the user stretched the box wider or narrower, wrapping follows that width.
+  - Pencil/finger taps: 1 = caret, 2 = word, 3 = line, 4 = paragraph.
+  - Default layout = free boxes placed where you tap, sized to their content (GoodNotes), not a full-width grid box. (Confirm how this fits the snap grid.)
+- Max width while growing: stop a little before the right margin (a comfortable margin gap, same as the GoodNotes screenshot), then wrap.
+- Placement research (11 Nov): GoodNotes has no official snap. Boxes sit where you tap, and users keep requesting snap-to-grid and lines (feedback.goodnotes.com). Proposed to the owner: free where you tap, with the first line aligned to the paper line (ruled or grid) under the tap, no overlap (others slide aside), and the Layout pop-up to tidy. OWNER OK (11 Nov): free where you tap, the first line on the paper line, no overlap. Overlap = parked idea.
+- Research 11 Nov, additions to consider for box layout and tidying (proposed to the owner):
+  - Smart guides while dragging: centre/edge lines and equal-spacing hints (Keynote, Freeform, Notability pink guides).
+  - Tidy: Line up left, Distribute evenly (3+ boxes), One box, Columns.
+  - A dot grid or paper lines as a visual aid. A guide toggle in settings.
+  - Box options as in Notability: rounded corners, wrap on/off.
+  - Locked boxes are skipped by tidy (no lock for now).
+- OWNER OK (11 Nov): smart guides while dragging, Notability-style thin red lines (edge/centre alignment + equal-spacing marks), gentle snap. Tidy choices: Line up left, Space evenly, One box, Columns. Guides on/off switch ONLY in Settings (not in the layout UI). Paper lines/dot grid already exist, nothing new. The owner can share Notability guide references.
+- Notability guide reference (owner screenshots, 11 Nov):
+  - Guides are thin 1 px magenta lines, shown only while dragging.
+  - Each line runs from the dragged box's edge or centre to the matched object only (not across the page): top-edge to top-edge, left-edge vertical, centre horizontal.
+  - Our version should be better: the same thin lines in the accent or magenta colour, plus small equal-spacing marks, a page-centre line, and a soft haptic-like snap. No overlap (Notability lets boxes overlap and that looks messy).

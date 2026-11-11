@@ -26,6 +26,8 @@ import {
 } from './aiRun'
 import { PopupHeader } from '../app/tools/PopupClose'
 import { PromptsEntry } from '../prompts/PromptsEntry'
+import { AiOffCard } from './AiOffCard'
+import { useAiTick } from './aiOffStore'
 import { AiError, PROVIDERS } from './provider'
 
 const isBool = (v: unknown): v is boolean => typeof v === 'boolean'
@@ -48,6 +50,7 @@ export function AiActions({
   onChanged: () => void
 }) {
   const { toast, openSettings } = useContext(AppUiContext)
+  useAiTick()
   const [busy, setBusy] = useState(false)
   const [privacyFor, setPrivacyFor] = useState<AiAction | null>(null)
   const [proposal, setProposal] = useState<ParsedCard[] | null>(null)
@@ -69,8 +72,19 @@ export function AiActions({
       onChanged={onChanged}
     />
   )
-  // The paste-in path needs no AI: the Prompts button shows either way.
-  if (!config.enabled) return prompts
+  // The paste-in path needs no AI: the Prompts button shows either way. With
+  // AI off, a small card says why Summarise and the rest are not here and
+  // leads to Settings › AI (it never hides them silently).
+  if (!config.enabled) {
+    return (
+      <>
+        {prompts}
+        <div className="basis-full">
+          <AiOffCard />
+        </div>
+      </>
+    )
+  }
 
   const undoable = (batchId: string, label: string) => {
     onChanged()

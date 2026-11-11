@@ -2,6 +2,12 @@
 
 Current phase only. Older entries are in [ARCHIVE.md](ARCHIVE.md).
 
+## 2026-11-12 (AI off: page actions explain themselves)
+
+- **AI off no longer hides Summarise, Key points and Cards silently:** on a book page header the AI actions now show the same small "AI is off" card as everywhere else (Turn on AI in place, Add a key / Open Settings › AI). It follows the switch live (`useAiTick`). The Prompts button stays (the paste-in path needs no AI). e2e/ai.spec.ts checks the card and the link.
+- Checked, already built: Prompts on note pages (page ⋯ menu › Prompts) and Convert to text / Write pad using the chosen saved prompt (`getReadPrompt` → `runVision`, covered by readPrompt.test.ts). Nothing in src/ink touched.
+- **Files:** src/ai/AiActions.tsx, e2e/ai.spec.ts.
+
 ## 2026-11-12 (AI cost: cached input tokens)
 
 - **Cached tokens at the cached rate:** the provider answers now carry `cachedTokens` (Claude `cache_read_input_tokens`, OpenAI-style `prompt_tokens_details.cached_tokens`), streaming included (it used to miss Claude's cache tokens). `costOf` prices them at the model's `price.cached`, else a tenth of the input price for Claude, else the full input price (unknown, so errs high). The usage total, the send log and the monthly cap all use it.

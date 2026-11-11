@@ -61,6 +61,12 @@ test('AI is off by default: no AI buttons and no network call', async ({
   })
   await bookPage(page)
   await expect(page.getByTestId('ai-summary')).toHaveCount(0)
+  // Not hidden silently: a small card says why and leads to Settings › AI.
+  const card = page.getByTestId('ai-off-card')
+  await expect(card).toBeVisible()
+  await expect(card).toContainText('AI is off')
+  await page.getByTestId('ai-off-add-key').click()
+  await expect(page.getByTestId('ai-section')).toBeVisible()
   expect(calls).toHaveLength(0)
 })
 

@@ -225,3 +225,5 @@ Three ways of using the reader, as presets:
 3. **Deep study**: full knowledge capture.
    Highlights flow automatically into a notebook per book, and a cross-book Highlights database (10 books → one DB) has one-tap jump-to-context. The lock modes are part of the presets. Goal: a lifelong personal knowledge bank (Obsidian/researcher style).
    Next: deep research (Obsidian, Readwise, Zotero, LiquidText, MarginNote, Kindle, Apple Books, zettelkasten/PKM), then questions to the owner, then a "Complete reader mode" mock-up.
+
+- Reader revamp plan: docs/plans/reader-revamp-plan.md. 10 owner questions (picks: Read preset uses Reading mode; Light study default; Deep study for everyone; virtual DB rows; Light-study highlights in the DB too; merge duplicates; keep cards marked 'source deleted'; renamable colour meanings; 5 Daily Highlights; Markdown+CSV now, Obsidian later). Mock-up being built with these picks.

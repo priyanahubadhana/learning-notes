@@ -126,4 +126,17 @@ describe('Delete forever removes the page’s pictures and files', () => {
     expect((await db.bookFiles.get(a.file.id))?.data.byteLength).toBe(0)
     expect((await db.bookFiles.get(b.file.id))?.data.byteLength).toBe(0)
   })
+
+  it('erases a book page’s cover picture too', async () => {
+    const nb = await createNotebook(db, ws, 'NB')
+    const page = await createPage(db, nb.id, null, 'Book')
+    const cover = await saveImage(db, png())
+    await db.pages.update(page.id, {
+      source: { kind: 'book', coverImageId: cover.id },
+    } as never)
+    vi.setSystemTime((clock += 1000))
+    await deletePage(db, page.id)
+    await purgePage(db, page.id)
+    expect(await bytesOf(cover.id)).toBe(0)
+  })
 })

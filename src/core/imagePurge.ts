@@ -23,7 +23,8 @@ export async function imagesUsedBy(
   const blocks = await db.blocks.bulkGet([...blockIds])
   const found = imageIdsIn([pages, blocks])
   // A book's cover is stored as a bare picture id, not as a reference.
-  for (const page of pages) if (page?.coverImageId) found.add(page.coverImageId)
+  for (const page of pages)
+    if (page?.source?.coverImageId) found.add(page.source.coverImageId)
   return found
 }
 
@@ -75,8 +76,9 @@ export async function purgeUnusedImages(
   await scan((visit) => db.blocks.each((b) => visit(b.content)))
   await scan((visit) => db.pages.each((p) => visit(p.values)))
   await db.pages.each((p) => {
-    if (p.coverImageId && everyone.has(p.coverImageId))
-      shown.add(p.coverImageId)
+    const cover = p.source?.coverImageId
+    if (cover && p.purgedAt === undefined && everyone.has(cover))
+      shown.add(cover)
   })
   await scan((visit) => db.notebooks.each((n) => visit(n)))
 

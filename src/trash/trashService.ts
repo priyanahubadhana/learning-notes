@@ -434,7 +434,6 @@ async function purgePages(
     title: '',
     tagIds: undefined,
     values: undefined,
-    coverImageId: undefined,
   }
   await purgeMany(db.pages, pageIds, emptied, now)
   await db.rowRefs.where('fromPageId').anyOf(pageIds).delete()

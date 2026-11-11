@@ -2,6 +2,12 @@
 
 Current phase only. Older entries are in [ARCHIVE.md](ARCHIVE.md).
 
+## 2026-11-11 (Settings sync: e2e for the migration notice)
+
+- **What:** Two browser tests for the notice after the one-time step ("Settings now follow you. 1 changed to match your other devices."): a device from before settings followed you (it already has its own text size) joins an account where another device chose a different size; the notice appears with the right count, the synced value is taken, Undo brings this device's own value back and keeps it as "This device only" (also after a reload), OK keeps the synced value and the notice does not return. Run 3 times each, no retries needed.
+- **Why:** HANDOFF: the notice had unit tests but no e2e.
+- **Files:** e2e/settingsSync.spec.ts.
+
 ## 2026-11-11 (Drive status: the line now tells the server's truth)
 
 - **Root cause of "0 rows" with a line that said otherwise:** the "Drive: stays connected / will ask" line, and the choice to show Google's consent screen, read a flag kept only in this browser (`sync.driveOffline`). The flag was set in one place only (a Google sign-in whose reply carried Google's refresh token and whose store call was accepted) and cleared in another (the server said none/revoked). Every other case left it wrong in either direction: a device that signed in another way or lost its browser data said "will ask" while the server held the key and was renewing the pass fine; a device that once stored the key kept saying "stays connected" after the row was gone; an account that signs in only by email never has a Google refresh token, so its table has 0 rows by design. Nothing could correct the flag, and nothing could show what the server really held. Why a particular Google sign-in sends no refresh token (Google sends one only after a consent screen; Supabase passes it on only then) cannot be proven without the live project: the slow-moments `drive` line still names that case.

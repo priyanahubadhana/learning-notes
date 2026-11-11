@@ -123,3 +123,86 @@ test('the AI spending limit set on A shows on B', async ({ browser }) => {
   await b.goto('/#/settings/ai')
   await expect(b.getByTestId('ai-cap')).toHaveValue('12', { timeout: 20_000 })
 })
+
+/**
+ * The one-time step per device: a value this device already had is sent with
+ * the oldest clock, so the account's newer value wins, and a quiet notice
+ * says how many changed, with Undo (keeps this device's own value).
+ */
+const SIZE = '[data-setting-id="reading.size"]'
+
+async function arrivedOnB(browser: Parameters<typeof device>[0]) {
+  const { serve, pages } = makeServer()
+  const a = await device(browser, serve, pages)
+  await setupA(a, ['one line'])
+  // A changes the text size (a Reading setting that follows the account).
+  await a.goto('/#/settings/reading')
+  await a.locator(`${SIZE} select`).selectOption('150')
+  await expect(a.locator(`${SIZE} select`)).toHaveValue('150')
+  await a.waitForTimeout(800)
+
+  const b = await device(browser, serve, pages)
+  // B is a device from before settings followed you: it already has its own
+  // text size and has not done the one-time step yet.
+  await b.context().addInitScript(() => {
+    if (!localStorage.getItem('learning-notes:settings.migrated.v1'))
+      localStorage.setItem('learning-notes:reading.size', '115')
+  })
+  // The first start does the one-time step (and opens the notice window).
+  await b.goto('/')
+  await expect
+    .poll(() =>
+      b.evaluate(() =>
+        localStorage.getItem('learning-notes:settings.migrated.v1'),
+      ),
+    )
+    .toBe('true')
+  await setupB(b)
+  return { a, b }
+}
+
+test('migration notice: says what changed to match your other devices, and Undo keeps this device’s value', async ({
+  browser,
+}) => {
+  test.setTimeout(180_000)
+  const { b } = await arrivedOnB(browser)
+  const notice = b.getByTestId('settings-notice')
+  await expect(notice).toContainText('Settings now follow you', {
+    timeout: 20_000,
+  })
+  await expect(notice).toContainText('1 changed to match your other devices')
+  await b.goto('/#/settings/reading')
+  await expect(b.locator(`${SIZE} select`)).toHaveValue('150')
+  await expect(b.getByTestId('settings-notice')).toBeVisible()
+  await b
+    .getByTestId('settings-notice')
+    .getByRole('button', { name: 'Undo' })
+    .click()
+  await expect(b.getByTestId('settings-notice')).toHaveCount(0)
+  // This device's own value is back, and it stays its own.
+  await expect(b.locator(`${SIZE} select`)).toHaveValue('115')
+  await expect(b.locator(SIZE).getByTestId('setting-tag')).toHaveText(
+    'This device only',
+  )
+  await b.reload()
+  await expect(b.locator(`${SIZE} select`)).toHaveValue('115')
+  await expect(b.getByTestId('settings-notice')).toHaveCount(0)
+})
+
+test('migration notice: OK keeps the synced value and the notice goes', async ({
+  browser,
+}) => {
+  test.setTimeout(180_000)
+  const { b } = await arrivedOnB(browser)
+  const notice = b.getByTestId('settings-notice')
+  await expect(notice).toBeVisible({ timeout: 20_000 })
+  await notice.getByRole('button', { name: 'OK' }).click()
+  await expect(notice).toHaveCount(0)
+  await b.goto('/#/settings/reading')
+  await expect(b.locator(`${SIZE} select`)).toHaveValue('150')
+  await expect(b.locator(SIZE).getByTestId('setting-tag')).toHaveText(
+    'All devices',
+  )
+  await b.reload()
+  await expect(b.getByTestId('settings-notice')).toHaveCount(0)
+})

@@ -85,7 +85,14 @@ test('rule 7: deleting a line hands its ink to the next line, which it then foll
   await tool(page, 'Text').click()
   await page.waitForTimeout(600)
   const editor = page.locator('.bn-editor').first()
-  await editor.getByText('Line two', { exact: true }).click()
+  // A click at the end of the line (no actionability wait on the text node,
+  // which timed out in WebKit while the page hold was still on, run 43031662096).
+  const clickLine = async (text: string) => {
+    await expect(editor).toContainText(text)
+    const l = await lineAt(page, text)
+    await page.mouse.click(l.x + 4, l.y + l.h / 2)
+  }
+  await clickLine('Line two')
   await page.keyboard.press('End')
   await page.keyboard.press('Shift+Home')
   await page.keyboard.press('Backspace')
@@ -100,7 +107,7 @@ test('rule 7: deleting a line hands its ink to the next line, which it then foll
   await expect.poll(() => near('Line three')).toBe(true)
   const kept = (await inkMidY(page))!
   // A new line above pushes "Line three" down, and the ink goes with it.
-  await editor.getByText('Line one', { exact: true }).click()
+  await clickLine('Line one')
   await page.keyboard.press('End')
   await page.keyboard.press('Enter')
   await page.keyboard.type('New line')

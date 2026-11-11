@@ -47,6 +47,33 @@ const wordPoint = (page: Page) =>
     return { x: b.x + b.width / 2, y: b.y + b.height / 2 }
   })
 
+/** The characters on the screen row of "gamma" (what a triple tap must select). */
+const rowText = (page: Page) =>
+  page.evaluate(() => {
+    const ed = document.querySelector(
+      '[data-paper-box]:not([data-paper-box="main"]) .bn-editor',
+    )!
+    const w = document.createTreeWalker(ed, NodeFilter.SHOW_TEXT)
+    let n = w.nextNode()!
+    while (!(n.textContent ?? '').includes('gamma')) n = w.nextNode()!
+    const txt = n.textContent ?? ''
+    const g = txt.indexOf('gamma')
+    const rect = (i: number) => {
+      const r = document.createRange()
+      r.setStart(n, i)
+      r.setEnd(n, i + 1)
+      return r.getBoundingClientRect()
+    }
+    const mid = rect(g).y + rect(g).height / 2
+    let out = ''
+    for (let i = 0; i < txt.length; i++) {
+      const r = rect(i)
+      if (r.height > 0 && Math.abs(r.y + r.height / 2 - mid) < r.height / 2)
+        out += txt[i]
+    }
+    return out
+  })
+
 const state = (page: Page) =>
   page.evaluate(() => {
     const box = document.querySelector(
@@ -101,7 +128,7 @@ for (const how of ['mouse', 'touch'] as const) {
     await page.waitForTimeout(600)
     await taps(page, how, 3)
     const line = (await state(page)).text
-    expect(line.length).toBeGreaterThan(20)
+    expect(line.trim()).toBe((await rowText(page)).trim())
     expect(line.length).toBeLessThan(TEXT.length)
     await page.waitForTimeout(600)
     await taps(page, how, 4)
@@ -118,7 +145,7 @@ for (const how of ['mouse', 'touch'] as const) {
     // paragraph, so three quick taps select the line.
     const s = await state(page)
     expect(s.picked).toBe(true)
-    expect(s.text.length).toBeGreaterThan(20)
+    expect(s.text.trim()).toBe((await rowText(page)).trim())
     expect(s.text.length).toBeLessThan(TEXT.length)
     await page.waitForTimeout(600)
   })
@@ -138,7 +165,8 @@ for (const how of ['mouse', 'touch'] as const) {
     await page.waitForTimeout(600)
     await taps(page, how, 3)
     s = await state(page)
-    expect(s.text.length).toBeGreaterThan(20)
+    // The row of the tap as drawn (WebKit wraps at other places than Chromium).
+    expect(s.text.trim()).toBe((await rowText(page)).trim())
     expect(s.text.length).toBeLessThan(TEXT.length)
     // Four quick taps are timing-sensitive on a slow machine: try the run again.
     await expect(async () => {

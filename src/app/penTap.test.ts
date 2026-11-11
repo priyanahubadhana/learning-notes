@@ -54,6 +54,15 @@ describe('penTap', () => {
     $('b').dispatchEvent(late)
     expect(reached).toBe(false)
   })
+  it('presses a data-ui button that sits in an editable box (Pencil, zero pressure)', () => {
+    document.body.insertAdjacentHTML(
+      'beforeend',
+      '<div data-paper-box="main"><button id="ui" data-ui>U</button><div contenteditable="true">x</div></div>',
+    )
+    pen('pointerdown', $('ui'))
+    pen('pointerup', $('ui'))
+    expect(clicks).toBe(1)
+  })
   it('does not click after moving 20 px', () => {
     pen('pointerdown', $('b'), 10, 10)
     pen('pointerup', $('b'), 30, 10)

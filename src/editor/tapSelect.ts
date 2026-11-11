@@ -243,6 +243,19 @@ export function watchTapSelect(
   }
   let down: Tap | null = null
   let last: Tap | null = null
+  // WebKit runs its own triple-click paragraph select on the third mousedown,
+  // and ProseMirror selects the whole paragraph on the third mouseup/click;
+  // both land around our selection and win. From the second tap of a run,
+  // until its click has passed, the mouse events of the tap never reach them:
+  // the tap counter here is the only one.
+  let ownMouseUntil = 0
+  const mouseNames = ['mousedown', 'mouseup', 'click', 'dblclick']
+  const onMouse = (e: Event) => {
+    if (Date.now() >= ownMouseUntil) return
+    if (!inText(e.target)) return
+    e.preventDefault()
+    e.stopImmediatePropagation()
+  }
 
   const inText = (target: EventTarget | null) =>
     target instanceof Element &&
@@ -291,6 +304,7 @@ export function watchTapSelect(
       shift,
     }
     const level = count === 1 ? 1 - shift : count
+    ownMouseUntil = level >= 2 ? now + 700 : 0
     // The tap that selects a box types nothing and shows no keyboard; the
     // taps after the first on the Pencil are held off (R6-18).
     if (level <= 0) {
@@ -395,6 +409,7 @@ export function watchTapSelect(
     }, 0)
   }
   doc.addEventListener('pointerdown', onDown, true)
+  for (const n of mouseNames) doc.addEventListener(n, onMouse, true)
   // A cancelled tap (the system took the touch) is not a tap and not a lift
   // to wait for: the count must not carry a dead press into the next tap.
   const onCancel = (e: PointerEvent) => {
@@ -425,6 +440,7 @@ export function watchTapSelect(
     offReset()
     offState()
     doc.removeEventListener('pointerdown', onDown, true)
+    for (const n of mouseNames) doc.removeEventListener(n, onMouse, true)
     doc.removeEventListener('pointerup', onUp, true)
     doc.removeEventListener('pointercancel', onCancel, true)
     doc.removeEventListener('touchstart', onTouchStart, true)

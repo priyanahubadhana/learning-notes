@@ -88,6 +88,7 @@ test('a Pencil tap on an in-page button (data-ui) presses it once and does not m
   await openNote(page, 'pencil')
   await tool(page, 'Text').click()
   await expect(tool(page, 'Text')).toHaveAttribute('aria-pressed', 'true')
+  await page.waitForTimeout(700) // the page hold after a tool is chosen
   const info = await page.evaluate(() => {
     const ed = document.querySelector('.bn-editor') as HTMLElement
     ed.focus()
@@ -110,6 +111,17 @@ test('a Pencil tap on an in-page button (data-ui) presses it once and does not m
     return { anchor: sel.anchorOffset }
   })
   const before = await page.evaluate(() => getSelection()?.anchorOffset)
+  // The button must be what is on top at its centre (WebKit lays the page out
+  // later than Chromium); a tap on anything else is not a tap on the button.
+  const hit = () =>
+    page.evaluate(() => {
+      const r = document.querySelector('#ui-btn')!.getBoundingClientRect()
+      return (
+        document.elementFromPoint(r.x + r.width / 2, r.y + r.height / 2)?.id ??
+        'other'
+      )
+    })
+  await expect.poll(hit).toBe('ui-btn')
   const b = (await page.locator('#ui-btn').boundingBox())!
   await penTapAt(page, b.x + b.width / 2, b.y + b.height / 2)
   await expect

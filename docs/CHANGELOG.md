@@ -2,6 +2,13 @@
 
 Current phase only. Older entries are in [ARCHIVE.md](ARCHIVE.md).
 
+## 2026-11-12 (iPad WebKit: multi-tap select, penUi, paperInk rule 7)
+
+- **Multi-tap select (root cause):** WebKit selects the paragraph itself on the third mousedown and ProseMirror does the same on the third mouseup/click; both ran around our selection and won (213 chars). `editor/tapSelect.ts` now cancels (preventDefault + stopImmediatePropagation, capture) the mousedown, mouseup, click and dblclick of a tap that is the 2nd or later of a run, for 700 ms, so only our counter selects. Specs: boxTaps compares the triple-tap selection with the actual drawn row of the tap (WebKit wraps narrower, 16 chars is a valid row), not a fixed 20.
+- **penUi (WebKit):** no app fault found by reading (penTap clicks `[data-ui]` on a Pencil lift). The spec tapped before the page hold ended and without checking what is on top; it now waits and polls the hit target. Unit test added for a data-ui button inside an editable box.
+- **paperInk rule 7:** `getByText(...).click()` timed out in WebKit; the spec now clicks the line by its measured box.
+- **Files:** src/editor/tapSelect.ts, src/app/penTap.test.ts, e2e/{boxTaps,penUi,paperInk}.spec.ts.
+
 ## 2026-11-12 (Text tool + Pencil: safer shapes, Undo fix)
 
 - **Undo fix:** every box has its own ink controller listening to Ctrl/Cmd+Z on the document, and each one ran Undo, so with two or more boxes one press took back several steps (a circled number's Undo also took back the typing). Now the first one stops the key (`stopImmediatePropagation`). Files: `ink/controller.ts`.

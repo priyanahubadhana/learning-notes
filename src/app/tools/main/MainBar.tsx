@@ -1,4 +1,5 @@
 import { useEffect, useRef, useState, type RefObject } from 'react'
+import { LayoutButton } from '../LayoutButton'
 import { Tip } from '../../../help/Help'
 import { t, type MessageKey } from '../../../i18n/t'
 import type { Editor } from '../../../editor/barActions'
@@ -172,6 +173,7 @@ export function MainBarRow({
           />
         )}
       </div>
+      <LayoutButton px={min} />
       <BarScroll className="flex-1 phone:order-last phone:basis-full">
         {resolveBar(order, list, extras).map((token) => {
           const id = token.slice(2)

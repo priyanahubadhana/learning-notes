@@ -11,22 +11,18 @@ import type { GridRow, PaperBox } from '../core/types'
 import { triggerFirstUse } from '../help/firstUse'
 import { t } from '../i18n/t'
 import { BOX_COLOURS, MAIN_BOX } from './boxes'
-import { layoutRows } from './grid'
-import { arrangeAll, type GridInfo } from './layoutPlan'
-import { LayoutModeBarLazy } from './LayoutModeBarLazy'
+import { type GridInfo } from './layoutPlan'
+import { LayoutDialogLazy } from './LayoutDialogLazy'
 import { LAYOUT_MODE_EVENT } from './layoutModeBus'
 import { BoxStylePopoverLazy } from './BoxStylePopoverLazy'
 import { BOX_STYLE_EVENT, openBoxStyle } from './boxStyleBus'
 
-import { NARROW_PX } from './sheets'
 import {
   addBox,
   addBoxInOrder,
   addBoxWithLines,
-  restoreGrid,
   updateGrid,
   type BoxPatch,
-  type GridBefore,
   repairBoxes,
   removeIfEmptyBox,
   duplicateBox,
@@ -208,33 +204,13 @@ export function usePaperBoxes(
     window.addEventListener(BOX_STYLE_EVENT, on)
     return () => window.removeEventListener(BOX_STYLE_EVENT, on)
   }, [])
-  // Layout mode (owner batch 3, B3-7/8): the page itself becomes the editor.
-  // The whole session is one Undo step: the page as it was when it began.
-  const [layoutAsked, setLayoutOn] = useState(false)
-  const layoutOn = layoutAsked && editable
-  const layoutBefore = useRef<GridBefore | null>(null)
-  const [layoutPreset, setLayoutPreset] = useState<string | null>(null)
-  const [layoutDirty, setLayoutDirty] = useState(false)
-  const layoutOnRef = useRef(false)
-  useEffect(() => {
-    layoutOnRef.current = layoutOn
-  }, [layoutOn])
+  // Layout mode v2 (owner, 11 Nov): a full-screen pop-up with a live preview,
+  // opened from the toolbar's Layout button, the Text strip and the box menu.
+  // It writes nothing until Done, and then as one Undo step.
+  const [layoutOpen, setLayoutOpen] = useState(false)
   const openLayoutHere = () => {
     if (!editable) return toast(t('layout.assist.readOnly'))
-    if (window.innerWidth < NARROW_PX) return toast(t('layout.assist.phone'))
-    void db.pages.get(pageId).then((page) => {
-      if (!page) return
-      layoutBefore.current = {
-        rows: page.rows?.map((r) => ({
-          ...r,
-          cols: r.cols.map((c) => ({ ...c, boxIds: [...c.boxIds] })),
-        })),
-        boxes: page.boxes?.map((b) => ({ ...b })),
-      }
-      setLayoutPreset(null)
-      setLayoutDirty(false)
-      setLayoutOn(true)
-    })
+    setLayoutOpen(true)
   }
   // The Text strip's, the toolbar's and the box menu's Layout button.
   useEffect(() => {
@@ -261,49 +237,8 @@ export function usePaperBoxes(
     return () => document.removeEventListener('keydown', key)
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [editable])
-  const undoGrid = (before: GridBefore | null) => {
-    if (!before) return
-    if (layoutOnRef.current) return setLayoutDirty(true) // one Undo for the whole session
-  }
   const onGridChange = (rows: GridRow[], places: BoxPatch[]) =>
-    runTask(updateGrid(db, pageId, rows, places).then(undoGrid))
-  const pickPreset = (presetId: string) => {
-    const info = gridView.current
-    const rows = arrangeAll(info.rows, presetId)
-    if (!rows) return
-    const places: BoxPatch[] = []
-    for (const [id, rc] of layoutRows(rows, info.heights, info.geo))
-      if (id !== MAIN_BOX)
-        places.push({ id, patch: { x: rc.x, y: rc.y, w: rc.w } })
-    setLayoutPreset(presetId)
-    setLayoutDirty(true)
     runTask(updateGrid(db, pageId, rows, places).then(() => {}))
-  }
-  const undoLayout = () => {
-    const before = layoutBefore.current
-    if (!before) return
-    setLayoutPreset(null)
-    setLayoutDirty(false)
-    runTask(restoreGrid(db, pageId, before))
-  }
-  const applyAllPages = () => {
-    const presetId = layoutPreset
-    if (!presetId) return toast(t('layout.mode.pickFirst'))
-    runTask(
-      import('./layoutAssistService').then(
-        async ({ applyNotebook, restoreNotebook }) => {
-          const nb = (await db.pages.get(pageId))?.notebookId
-          if (!nb) return
-          const done = await applyNotebook(db, nb, presetId)
-          if (done.length === 0) return
-          toast(t('layout.assist.notebookDone', { n: done.length }), {
-            label: t('paper.box.undo'),
-            onSelect: () => runTask(restoreNotebook(db, done)),
-          })
-        },
-      ),
-    )
-  }
   const onAddBox = (at: {
     x: number
     y: number
@@ -428,18 +363,9 @@ export function usePaperBoxes(
   ]
 
   return {
-    layoutMode: layoutOn,
+    layoutMode: false,
     onBoxHeight: (id: string, h: number | undefined) => onBoxChange(id, { h }),
-    layoutBar: layoutOn ? (
-      <LayoutModeBarLazy
-        active={layoutPreset}
-        canUndo={layoutDirty}
-        onPreset={pickPreset}
-        onUndo={undoLayout}
-        onApplyAll={applyAllPages}
-        onDone={() => setLayoutOn(false)}
-      />
-    ) : null,
+    layoutBar: null,
     onAddBox: editable ? onAddBox : undefined,
     onAddBoxInOrder: editable ? onAddBoxInOrder : undefined,
     onBoxChange,
@@ -477,6 +403,14 @@ export function usePaperBoxes(
             anchor={menuFor.at}
             items={items(menuFor.box)}
             onClose={() => setMenuFor(null)}
+          />
+        )}
+        {layoutOpen && (
+          <LayoutDialogLazy
+            db={db}
+            pageId={pageId}
+            info={gridView.current}
+            onClose={() => setLayoutOpen(false)}
           />
         )}
         {styleFor && (

@@ -7,7 +7,6 @@ import {
   startInMode,
   typeInEditor,
 } from './helpers.ts'
-import { openPill, pill } from './mainBarHelpers.ts'
 
 /**
  * Owner bug batch 3 (11 Nov 2026), Priority 1: the text box like GoodNotes.
@@ -174,33 +173,68 @@ test('B3-10: the first row sits clear below the tab bar (safe gap)', async ({
   expect(g.y).toBeGreaterThanOrEqual(wrap.y)
 })
 
-test('B3-5/7/8: Layout opens on the page; a layout applies at once; Undo is one step', async ({
+test('Layout mode v2: a full-screen pop-up; ✕ changes nothing, ✓ applies as one Undo', async ({
   page,
 }) => {
   await start(page, 'Mode')
   await newBox(page, 1)
   await newBox(page, 2)
-  // The Text strip has a Layout button (always enabled).
-  await openPill(page, 'Text', 'text')
-  await pill(page, 'text').getByLabel('Layout').click()
-  await expect(page.locator('[data-layout-bar]')).toBeVisible()
-  await expect(page.locator('[data-layout-coach]')).toContainText(
-    'This is how your page will look',
-  )
-  await expect(page.locator('[data-paper][data-layout-mode]')).toHaveCount(1)
   const a = page.locator(EXTRA).nth(0)
   const b = page.locator(EXTRA).nth(1)
   const before = await rect(b)
+  // The fixed Layout button on the main toolbar opens it.
+  await page.getByTestId('main-layout').click()
+  const dialog = page.locator('[data-layout-dialog]')
+  await expect(dialog).toBeVisible()
+  expect((await rect(dialog)).width).toBeGreaterThan(1000)
+  await expect(dialog.locator('[data-layout-cancel]')).toBeVisible()
+  await expect(dialog.locator('[data-layout-done]')).toBeVisible()
+  await expect(dialog.locator('[data-layout-box]')).toHaveCount(3)
+  // A tidy choice only changes the preview; ✕ throws it away.
+  await dialog.locator('[data-layout-tidy="one"]').click()
+  await dialog.locator('[data-layout-cancel]').click()
+  await expect(dialog).toHaveCount(0)
+  expect(Math.abs((await rect(b)).x - before.x)).toBeLessThan(6)
+  // More layouts: Two columns, then ✓.
+  await page.getByTestId('main-layout').click()
+  await page.locator('[data-layout-dialog] summary').click()
   await page.locator('[data-layout-preset="two"]').click()
+  await page.locator('[data-layout-done]').click()
+  await expect(dialog).toHaveCount(0)
   await expect
-    .poll(async () => (await rect(b)).x - (await rect(a)).x)
+    .poll(async () => Math.abs((await rect(b)).x - (await rect(a)).x))
     .toBeGreaterThan(100)
-  // Undo puts the page back as it was when the mode opened.
-  await page.locator('[data-layout-undo]').click()
+  // One Undo puts the page back as it was.
+  await page.locator('[data-paper-box="main"] .bn-editor').click()
+  await page.keyboard.press('Control+z')
   await expect
     .poll(async () => Math.abs((await rect(b)).x - before.x))
     .toBeLessThan(6)
-  await page.locator('[data-layout-done]').click()
-  await expect(page.locator('[data-layout-bar]')).toHaveCount(0)
-  await expect(page.locator('[data-paper][data-layout-mode]')).toHaveCount(0)
+})
+
+test('Layout mode v2: a box dragged in the preview moves on the page after ✓', async ({
+  page,
+}) => {
+  await start(page, 'Drag')
+  await newBox(page, 1)
+  await newBox(page, 2)
+  const a = page.locator(EXTRA).nth(0)
+  const before = await rect(a)
+  await page.getByTestId('main-layout').click()
+  const dialog = page.locator('[data-layout-dialog]')
+  const pa = dialog.locator('[data-layout-box]').nth(1)
+  const r = await rect(pa)
+  const preview = await rect(dialog.locator('[data-layout-preview]'))
+  await page.mouse.move(r.x + r.width / 2, r.y + r.height / 2)
+  await page.mouse.down()
+  await page.mouse.move(preview.x + preview.width * 0.8, r.y + r.height / 2, {
+    steps: 8,
+  })
+  await expect(dialog.locator('[data-layout-ghost]')).toBeVisible()
+  await page.mouse.up()
+  await dialog.locator('[data-layout-done]').click()
+  await expect(dialog).toHaveCount(0)
+  await expect
+    .poll(async () => (await rect(a)).x - before.x)
+    .toBeGreaterThan(60)
 })

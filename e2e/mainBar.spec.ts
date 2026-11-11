@@ -44,6 +44,8 @@ test('the bar has Undo, Redo, the nine tools in order and ⋯; no switch', async
   expect(names).toEqual([
     'Undo',
     'Redo',
+    // Layout mode v2: the fixed Layout button, while a paper page is open.
+    'Layout',
     ...TOOLS,
     'Keyboard',
     'Mini keyboard',

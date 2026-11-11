@@ -102,4 +102,18 @@ export const enL = {
   'paper.group.group': 'Group',
   'paper.group.ungroup': 'Ungroup',
   'boxStyle.preset.sticky': 'Sticky note',
+  'layout.v2.coach':
+    'Drag a box to move it, pull its right edge to resize. ✓ applies everything, ✕ throws it away.',
+  'layout.v2.panel': 'Layout settings',
+  'layout.v2.tidy': 'Tidy',
+  'layout.v2.left': 'Line up left',
+  'layout.v2.even': 'Space evenly',
+  'layout.v2.more': 'More layouts',
+  'layout.v2.box': 'Box',
+  'layout.v2.pickBox': 'Tap a box in the preview to set its style and colour.',
+  'layout.v2.text': 'Text',
+  'layout.v2.textNote': 'Applies to all your notes.',
+  'layout.v2.pages': 'Pages',
+  'layout.v2.noBoxes':
+    'This page has only its own text. Tap the page with the Text tool to add boxes.',
 }

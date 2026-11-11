@@ -1,4 +1,5 @@
 import { useRef, type KeyboardEvent } from 'react'
+import { LayoutButton } from './LayoutButton'
 import { Tip } from '../../help/Help'
 import { t } from '../../i18n/t'
 import { isApple } from '../keys'
@@ -230,6 +231,7 @@ export function Ribbon({
       >
         <div className="flex flex-wrap items-center gap-x-1">
           {pinned}
+          {history && <LayoutButton px={size} />}
           <ScrollFade
             role="tablist"
             aria-label={t('ribbon.label')}

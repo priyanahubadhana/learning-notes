@@ -102,4 +102,19 @@ export const hiL: Record<string, string> = {
   'paper.group.group': 'समूह बनाएँ',
   'paper.group.ungroup': 'समूह हटाएँ',
   'boxStyle.preset.sticky': 'स्टिकी नोट',
+  'layout.v2.coach':
+    'बॉक्स को खींचकर हिलाएँ, दाएँ किनारे को खींचकर आकार बदलें। ✓ सब लागू करता है, ✕ सब छोड़ देता है।',
+  'layout.v2.panel': 'लेआउट सेटिंग',
+  'layout.v2.tidy': 'व्यवस्थित करें',
+  'layout.v2.left': 'बाएँ संरेखित करें',
+  'layout.v2.even': 'बराबर दूरी',
+  'layout.v2.more': 'और लेआउट',
+  'layout.v2.box': 'बॉक्स',
+  'layout.v2.pickBox':
+    'स्टाइल और रंग चुनने के लिए पूर्वावलोकन में बॉक्स पर टैप करें।',
+  'layout.v2.text': 'टेक्स्ट',
+  'layout.v2.textNote': 'आपके सभी नोट्स पर लागू होता है।',
+  'layout.v2.pages': 'पेज',
+  'layout.v2.noBoxes':
+    'इस पेज पर केवल उसका अपना टेक्स्ट है। बॉक्स जोड़ने के लिए टेक्स्ट टूल से पेज पर टैप करें।',
 }

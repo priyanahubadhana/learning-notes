@@ -1,5 +1,19 @@
 # Owner checks still pending (collected for the end-of-run iPad pass)
 
+## Text box v2, owner list (12 Nov, steps 1 to 7)
+
+On the iPad (Pencil and finger):
+
+1. Text tool, tap empty paper once: a small box appears right where you tapped, first line on the paper line, only a caret. Type: it grows to the right, stops a little before the right margin, then wraps. Leave it empty and tap away: it disappears. Tap twice quickly: still one box.
+2. Pull a box's side handle: it keeps that width. Make a second box under or beside the first: they never overlap.
+3. Boxes show no frame until selected. Tap inside a box: caret there at once. 1 tap caret, 2 word, 3 line, 4 paragraph (Pencil and finger). With a box selected, tap empty paper: it only deselects; the next tap makes a box.
+4. Selected, not typing: a bar ABOVE the box (style, duplicate, cut, copy, delete, more). Typing: only the text bar above the keyboard (font, size - / +, colour, B / I / U, highlight, link, ⋯).
+5. Drag a box by its ≡ tab: it lifts with a shadow, follows your finger, the app ignores everything else until you drop, the page scrolls when you hold near the top or bottom. Thin magenta guides appear when edges or centres line up, with a page-centre line and equal-gap marks, and it snaps gently. Settings › Advanced › Smart guides turns them off. (The glide into place after the drop is not built yet.)
+6. Select two boxes (hold Shift on a keyboard, or Lasso loop them): Group; tap one: both select and move together; Ungroup.
+7. Text tool + Pencil: write inside a box (Scribble turns it into text); on blank paper draw an arrow, line, circle or rectangle: it becomes a clean ink shape; circle a digit in a box: it becomes ②. Undo once. The Pen tool never converts.
+8. Box style: Sticky note and Callout presets; a new box starts with the last style you used; save your own preset.
+9. Layout (the grid button next to Undo / Redo, also in the Text strip and the box menu): a full-screen window with ✕ and ✓; drag and resize boxes in the big preview; Tidy choices, More layouts, box style and colour, text size, page list; ✓ applies with one Undo, ✕ changes nothing.
+
 ## Bug fixes 001, 003, 004 (11 Nov)
 
 On the iPad: (1) BUG-001: in a page, type / then Checklist (or turn a line into a checklist), type a few words and tick one: the red "Not saved yet" bar never shows and typing feels normal; close and reopen the app: the checklist is still there. (2) BUG-003: Settings > Tool bar > Show tool bar Off; the bar goes and a blue "Show tool bar" pill stays at the top of the screen, easy to tap. Tap it, pick a tool, type: the bar stays. Turn it off again: the pill stays visible while you write. (3) BUG-004: the black "Updating…" screen is gone. A normal update shows only the small "Restarting…" pill. A REQUIRED update (the build is marked required, for example a storage change) shows a full-screen "Update required" with a 5 second countdown, then a download bar, then "Installing", then the app reopens with all your notes. Cancel keeps the app blocked with a Retry button; turn the network off during the download: you get Retry and nothing is lost. (To try it without a real release: Settings is not needed, ask me to mark a build required.)

@@ -14,19 +14,9 @@ Detail: plans/owner-bug-batch-3-2026-11-11.md (B3) and plans/owner-ideas-batch-2
 
 ## Priority 1 leftovers (text box)
 
-- [ ] Layout button fixed on the MAIN toolbar (owner asked; now only in Text strip, box menu, More).
 - [ ] Minimum width = longest word (now the column minimum).
 - [ ] Apply to all pages: lazy per page (now all at once).
 - [ ] Leftover worktree folders the owner can delete: ln-textbox, ln-textbox-base, ln-auth.
-
-## Layout mode v2 (owner, 11 Nov 7:19; collecting notes, owner will share more)
-
-- [ ] Current on-page Layout mode rejected ("trash"): (1) you can select only one thing (one preset or box); (2) no visible Done ✓ or Cancel ✕ on screen; (3) it sits ON the page and covers it.
-- [ ] Wanted: a full-screen preview like Ctrl+P print preview. The page shown whole as a sheet on a dimmed backdrop, outside the page; layouts and controls around it; clear ✕ Cancel and ✓ Done always visible.
-
-- [ ] Owner clarified: a POP-UP like the Ctrl+P print dialog. A big live page preview where boxes can be dragged and resized, plus a side panel with layout presets, box settings (style, colour, border) and text settings (font, size, spacing), and page or tab switching. All layout and box settings live in this one place. ✕ Cancel / ✓ Done.
-
-- [ ] Owner answers: FULL-SCREEN pop-up (the preview takes the whole screen, like print preview, on every device). Box settings stay in the box ⋯ menu too (both places). Changes apply on Done (assumed; confirm).
 
 ## Text box v2 (owner, 11 Nov 7:32; references Notability + GoodNotes)
 
@@ -68,7 +58,6 @@ plans/owner-ideas-batch-2-2026-11-10.md: update bar, Acrobat PDF tools, customiz
 - BUG: the cursor lands in the wrong place or jumps.
 - BUG: a Pencil double-tap to select doesn't work at all in a text box (the owner expects a paragraph selection; confirm word vs paragraph).
 - BUG: too many highlights. Tapping a line draws a border or highlight around that single line or block. Instead only the WHOLE box shows as selected (GoodNotes): no per-line or per-block outline inside a box.
-- Layout presets: the owner uses only "One box" (ask whether to keep the others in the pop-up).
 - Progress: a short note per live part, with a 2–3 line test.
 - Owner 4:45 (GoodNotes iPhone screenshots), the text box model:
 - Research 11 Nov, additions to consider for box layout and tidying (proposed to the owner):

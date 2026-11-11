@@ -2,6 +2,11 @@
 
 Current phase only. Older entries are in [ARCHIVE.md](ARCHIVE.md).
 
+## 2026-11-12 (Text box v2, owner list: step 7, Layout mode v2)
+
+- **Layout is now a full-screen pop-up** (like Ctrl+P): ✕ Cancel and ✓ Done always on screen; a big live preview of the page where boxes are dragged (over a box: a column or stack; on blank paper: a free place) and resized (right-edge handle); a side panel (below on a phone) with Tidy (Line up left, Space evenly for 3 or more boxes, One box, and Columns / more layouts under "More layouts"), Box (style presets and colour of the picked box), Text (size and line spacing, for all notes) and Pages (switch page; each page keeps its own draft). Nothing is written until ✓; then every changed page is applied together as ONE Undo step (`history.layout`). The old on-page Layout mode and its strip (`LayoutModeBar`) are gone. A fixed Layout button sits next to Undo and Redo on the main toolbar and the ribbon while a paper page is open. Files: `paper/LayoutDialog.tsx` (lazy), `paper/layoutDrop.ts`, `app/tools/LayoutButton.tsx`, `paper/usePaperBoxes.tsx`, `app/tools/main/MainBar.tsx`, `app/tools/Ribbon.tsx`. Tests: `paper/layoutDrop.test.ts`, `e2e/textBoxBatch3.spec.ts`, `mainBar.spec.ts`.
+- Limits: box heights in the preview are the ones measured on the open page (other pages use a guess), so a box narrowed in the preview keeps its old height until the page is open; "Apply to all pages" is gone (use the page list).
+
 ## 2026-11-12 (Text box v2, owner list: step 6, box styles)
 
 - Box style has a **Sticky note** preset (yellow, small corners, shadow) next to Note and Callout (all in Box style, no quick dots). A new box now remembers the LAST style given to any box (the "Use for new boxes" tick is on by itself and can still be turned off); the page's own box does not count. The own presets (up to 8, saved per account) were already there. Files: `core/boxStyle.ts`, `paper/BoxStylePopover.tsx`, `i18n/*L.ts`. Tests: `e2e/textBoxFree.spec.ts`, `textTool.spec.ts`.

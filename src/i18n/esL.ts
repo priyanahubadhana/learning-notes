@@ -102,4 +102,19 @@ export const esL: Record<string, string> = {
   'paper.group.group': 'Agrupar',
   'paper.group.ungroup': 'Desagrupar',
   'boxStyle.preset.sticky': 'Nota adhesiva',
+  'layout.v2.coach':
+    'Arrastra un cuadro para moverlo y tira de su borde derecho para cambiar el tamaño. ✓ aplica todo, ✕ lo descarta.',
+  'layout.v2.panel': 'Ajustes del diseño',
+  'layout.v2.tidy': 'Ordenar',
+  'layout.v2.left': 'Alinear a la izquierda',
+  'layout.v2.even': 'Espaciar por igual',
+  'layout.v2.more': 'Más diseños',
+  'layout.v2.box': 'Cuadro',
+  'layout.v2.pickBox':
+    'Toca un cuadro de la vista previa para elegir su estilo y color.',
+  'layout.v2.text': 'Texto',
+  'layout.v2.textNote': 'Se aplica a todas tus notas.',
+  'layout.v2.pages': 'Páginas',
+  'layout.v2.noBoxes':
+    'Esta página solo tiene su propio texto. Toca la página con la herramienta de texto para añadir cuadros.',
 }

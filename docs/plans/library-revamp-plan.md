@@ -98,3 +98,6 @@ Top of the Library: three tabs — **Books · Knowledge · Bank**. Search sits a
 11. **Canvas of excerpts (LiquidText/Heptabase style)** — drag highlights onto a board and arrange them. _Example: lay out Sapiens' three revolutions as columns._ Benefit: see structure visually. **Professional**, later phase (costly to build).
 
 Recommendation: build 1–5 with the Library revamp (they need the Knowledge tab anyway); 6–10 with study modes; 11 later.
+
+## A6. Owner answers (12 Nov 2026)
+1 Knowledge = tab inside Library. 2 Status automatic, editable. 3 Cover grid default. 4 Many collections per book. 5 Side pane (landscape) / sheet (portrait). 6 Two sentences each side. 7–8 Daily Highlights OFF by default (when on: Bank tab + Home card, 5/day). 9 Any tag can become a theme page. 10 Markdown + CSV export now.

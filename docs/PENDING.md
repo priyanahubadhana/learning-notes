@@ -216,3 +216,4 @@ Questions:
   6. Favourites in Pen ▾ Colour vs at the pill end.
   7. The Layout icon and the Professional ▾ chip open the same menu; "Show names" is still in Settings.
 - Claude connector A (local, read-only) merged to main: setup steps are in docs/plans/owner-checks-pending.md (npm run mcp:install, mcp:build, node mcp/dist/index.js setup). Google setup needs the Supabase redirect http://127.0.0.1:53682/callback.
+- Account gate open question: also freeze cards review, tasks, habits, database cells and ink while signed out? (now only pages/notebooks are frozen)

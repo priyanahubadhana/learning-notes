@@ -26,7 +26,7 @@ Detail: plans/owner-bug-batch-3-2026-11-11.md (B3) and plans/owner-ideas-batch-2
 
 ## Text box v2 (owner, 11 Nov 7:32; references Notability + GoodNotes)
 
-**Text box v2 progress (11 Nov):** DONE step 1 (bugs: first box handles/menu/Box style, Lock removed, lone box width, top handle; waiting for the owner iPad check in owner-checks-pending.md). NEXT: step 2 (text wraps at the box edge), 3 (border/tab polish and min size = content), 4 (8-point drag), 5 (bars above box and bottom format bar), 6 (groups). Each step: commit, push, CI green.
+**Text box v2 progress (11 Nov):** DONE steps 1 (bugs: first box handles/menu/Box style, Lock removed, lone box width, top handle) and 2 (wrap); waiting for the owner iPad check in owner-checks-pending.md. Step 3 is partly in (frame 1.5 px, ≡ tab, side pills, min size = content). NEXT: finish 3 if needed, then 4 (8-point drag), 5 (bars above box and bottom format bar), 6 (groups). Each step: commit, push, CI green.
 - [ ] Notability-style box: 4 corner dots (resize), a grab tab ≡ on top (move), a rotate handle (a line + white dot on the right side), and a floating bar above the box: edit, style, duplicate, cut, copy, lock, bring forward, send back, delete, more.
 - [ ] Notability-style format bar at the bottom while typing: font, size − 35 +, colour, B / I / U, more, highlight, link.
 - [ ] GoodNotes-style side pills on the left and right edges to change width.
@@ -34,7 +34,6 @@ Detail: plans/owner-bug-batch-3-2026-11-11.md (B3) and plans/owner-ideas-batch-2
 
 
 - [ ] Owner 11 Nov 7:40 decisions for Text box v2 (polish the existing box only, no new features):
-  - Text wraps to the next line by itself when it reaches the box edge (Notability), with no Enter needed.
   - Grab handle: bigger and clearer, Notability-style ≡ tab on top of the box.
   - Drag is exclusive: while a box is dragged nothing else in the app reacts (no taps, toolbars, new boxes, menus) until it is dropped. Owner asked about a ✓ confirm after the drop (see question).
   - Group boxes (move together): wanted, with the method to be agreed.

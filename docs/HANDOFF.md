@@ -1,4 +1,4 @@
-- **NOW (11 Nov): Text box v2** — step 1 done, next step 2; see "Text box v2 progress" in docs/PENDING.md. Worktree ../ln-tbv2 (branch tbv2), push to main.
+- **NOW (11 Nov): Text box v2** — steps 1-3 mostly done, next step 4 (drag); see "Text box v2 progress" in docs/PENDING.md. Worktree ../ln-tbv2 (branch tbv2), push to main.
 - **Reader bar follow-ups (9 Nov):** Safari-style hide/show + pin, Contents opens left Outline, centring by whole pixels (centreEl.ts); see CHANGELOG.
 
 # Handoff

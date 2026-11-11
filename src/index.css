@@ -1151,3 +1151,8 @@ body:has([data-ink-pad]) [data-sel-handle]::after {
     animation: none;
   }
 }
+
+/* Text box v2: text wraps at the box edge by itself, even a very long word. */
+[data-paper-box] [data-box-content] .bn-inline-content {
+  overflow-wrap: anywhere;
+}

@@ -9,6 +9,7 @@ Current phase only. Older entries are in [ARCHIVE.md](ARCHIVE.md).
 - **Width of a lone box:** the right handle of a box that is alone in its row sets its width (`grid.ts` `tidy` keeps a lone column under 100 %).
 - **Top handle:** moves the top edge and keeps the bottom (the row starts lower, the height shrinks); it no longer acts like the bottom one.
 - **Handles:** corner dots plus side pills (GoodNotes), 1.5 px accent frame on the selected box, ≡ tab as a filled accent tab; the 44 pt targets sit just outside the edge so a tap on the text never hits a handle.
+- **Step 2:** text wraps at the box edge by itself, even a very long word (`overflow-wrap: anywhere` in index.css; e2e in textBoxV2.spec.ts).
 - Files: paper/BoxFrame.tsx (new `ResizeDots`), paper/PaperFrame.tsx, paper/usePaperBoxes.tsx, paper/grid.ts, app/tools/main/TextBoxExtras.tsx, e2e/textBoxV2.spec.ts (new), e2e/gridRow, paperPage, undoHistory specs.
 
 ## 2026-11-11 (Text box and Layout mode, owner bug batch 3, Priority 1)

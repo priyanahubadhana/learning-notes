@@ -59,3 +59,16 @@ test('a lone full-width box can change width from its right handle', async ({
     (await rect(page.locator('[data-paper-box="main"]'))).width,
   ).toBeLessThan(before - 150)
 })
+
+test('text wraps at the box edge, even a very long word', async ({ page }) => {
+  await start(page, 'Wrap')
+  const main = page.locator('[data-paper-box="main"] .bn-editor')
+  await main.click()
+  await page.keyboard.press('Enter')
+  await page.keyboard.type('x'.repeat(300) + ' ' + 'word '.repeat(60))
+  const over = await page.evaluate(() => {
+    const e = document.querySelector('[data-paper-box="main"]') as HTMLElement
+    return e.scrollWidth - e.clientWidth
+  })
+  expect(over).toBeLessThanOrEqual(1)
+})

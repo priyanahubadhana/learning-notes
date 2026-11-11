@@ -25,3 +25,14 @@
 - A5: add Notes as a tab in the reader's left panel (with Pages, Outline, Audio) for uniformity.
 - A6: a sticky note moves only after a long hold, then drags anywhere with auto-scroll.
 - A7: explain "Finger: draws" (finger draws vs scrolls).
+
+## A2: reader lock research (11 Nov)
+
+GoodNotes has a Read Only Mode (a toggle that hides tools) plus object locking. No app offers graded lock levels, so this would set us apart. Apple editors: 2 taps = word, 3 = paragraph.
+Proposal: a "Reading lock" padlock in the reader top bar with 3 modes:
+
+1. Select with a tool (default): tap counts only while a tool is active.
+2. No selection.
+3. Full lock: no edits/selection/drawing; zoom, scroll, page turns, search and links still work.
+   Unlock with one tap. The mode is remembered per book, with a calm popover, icon states and a subtle shake on an ignored tap.
+   Owner questions (picks): 3 modes; default "Select with a tool"; single-tap unlock; remembered per book; in Full lock a highlight still opens its note read-only.

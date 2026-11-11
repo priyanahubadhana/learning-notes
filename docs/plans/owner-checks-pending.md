@@ -1,5 +1,9 @@
 # Owner checks still pending (collected for the end-of-run iPad pass)
 
+## Claude connector B: Settings › Claude and the notes tools (12 Nov; needs your OK to deploy)
+
+Not deployed. Steps in docs/features/claude-connector.md, "Online connector (B)": run both SQL files, set the secret `CLAUDE_ESCROW_SECRET` (`openssl rand -base64 32`, then `npx supabase secrets set ...`), deploy `mcp` with `--no-verify-jwt`, publish the app. Then on the iPad and the PC: (1) Settings › Claude: read the privacy text (is it clear and honest?), pick "Only the notebooks I pick", type your sync passphrase, **Turn on**. (2) In claude.ai ask "List my Learning Notes notebooks", "Search my notes for ...", "Read the page ...". (3) Ask Claude "Create a notebook about photosynthesis with 3 pages and 5 recall cards": it should appear in the app after a sync, with pages, cards and "Remove this AI result" taking it all away. (4) Settings › Claude: the app shows under Connected apps; **Revoke** it, then ask Claude again: it must be refused. (5) **Turn off**: Claude must stop at once. Also check the page at iPad width in dark and light, and that buttons are 44 pt. Why human: needs the live project, claude.ai and your key.
+
 ## Claude connector B: set up and try (11 Nov, later; needs your OK to deploy)
 
 Not deployed. When you are ready, follow docs/features/claude-connector.md, "Online connector (B)": run the SQL file in Supabase, deploy `mcp` with `--no-verify-jwt`, publish the app, then in claude.ai add the custom connector with the function address and tap Allow on the Learning Notes screen. Check: the Allow screen ("Connect Claude") lists the permissions in plain words and looks right on the iPad (44 pt buttons, dark and light), and Claude can run the `ping` tool. Why human: needs the live project and claude.ai.

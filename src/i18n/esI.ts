@@ -96,4 +96,51 @@ export const esI: Record<string, string> = {
   'connect.scope.read': 'Leer tus cuadernos, páginas y tarjetas de repaso',
   'connect.scope.write':
     'Crear cuadernos, páginas, tarjetas y bases de datos, y añadir a las páginas. Nunca puede borrar nada.',
+
+  // ---- Ajustes > Claude ----
+  'settings.category.claude': 'Claude',
+  'settings.category.claude.hint':
+    'Deja que Claude en claude.ai lea tus notas y añada contenido.',
+  'claude.title': 'Dejar que Claude trabaje con mis notas',
+  'claude.what':
+    'Si lo activas, Claude en claude.ai (web, escritorio o móvil) puede buscar y leer los cuadernos que elijas, y añadir cuadernos, páginas y tarjetas de repaso nuevos. Nunca puede borrar ni cambiar lo que ya escribiste. Lo que añada se puede quitar con "Quitar este resultado de IA".',
+  'claude.privacy.title': 'Qué significa para tu privacidad',
+  'claude.privacy.1':
+    'Tus notas están cifradas de extremo a extremo, así que normalmente ni el servidor puede leerlas. Para dejar entrar a Claude, la app le da al servidor tu clave de cifrado una vez. El servidor la guarda bloqueada con un secreto que no está en la base de datos.',
+  'claude.privacy.2':
+    'Mientras esté activado, el servidor (y quien lo controle) puede abrir los cuadernos que elijas. Claude ve el texto que lee, y Anthropic lo trata según sus propias condiciones. Las páginas bloqueadas siguen ocultas salvo que un cuaderno permita la IA estando bloqueado.',
+  'claude.privacy.3':
+    'Está desactivado hasta que lo actives. Al desactivarlo se borra la copia de la clave y se detienen al instante todas las conexiones de Claude. También se desactiva solo tras 30 días sin uso.',
+  'claude.choice.title': '¿Qué cuadernos puede usar Claude?',
+  'claude.choice.all': 'Todos mis cuadernos',
+  'claude.choice.some': 'Solo los cuadernos que elija',
+  'claude.choice.none': 'Elige al menos un cuaderno.',
+  'claude.pass.title': 'Activar',
+  'claude.pass.help':
+    'Escribe tu frase de acceso de sincronización para confirmar. La frase se queda en este dispositivo; solo se envía, una vez, la clave que abre.',
+  'claude.pass.submit': 'Activar',
+  'claude.state.on': 'Activado',
+  'claude.state.off': 'Desactivado',
+  'claude.lastUsed':
+    'Último uso: {when}. Se desactiva solo el {expires} si no se usa antes.',
+  'claude.turnOff': 'Desactivar',
+  'claude.turnOff.confirm':
+    '¿Desactivar Claude? El servidor borra su copia de tu clave y todas las conexiones de Claude se detienen ahora.',
+  'claude.saveChoice': 'Guardar elección',
+  'claude.saved': 'Guardado.',
+  'claude.apps.title': 'Aplicaciones conectadas',
+  'claude.apps.none':
+    'Aún no hay ninguna aplicación conectada. Añade el conector en claude.ai, en Ajustes, Conectores.',
+  'claude.apps.row': '{name}, última actividad {when}',
+  'claude.apps.revoke': 'Revocar',
+  'claude.apps.revokeFor': 'Revocar {name}',
+  'claude.error.login':
+    'Inicia sesión en tu cuenta primero (Ajustes › Cuenta).',
+  'claude.error.generic':
+    'No se pudo conectar con el servidor. Revisa tu internet e inténtalo de nuevo.',
+  'claude.error.unavailable': 'Aún no está configurado en el servidor.',
+  'claude.noSync':
+    'Configura primero la sincronización (Ajustes › Sincronización): Claude usa la misma clave.',
+  'claude.loading': 'Comprobando…',
+  'claude.retry': 'Reintentar',
 }

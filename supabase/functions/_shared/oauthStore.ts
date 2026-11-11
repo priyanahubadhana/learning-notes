@@ -185,6 +185,13 @@ export function supabaseOAuthStore(
         headers: headers(),
       })
     },
+    async listGrants(userId, now) {
+      const res = await call(
+        `/oauth_tokens?user_id=eq.${q(userId)}&kind=eq.refresh&used_at=is.null&expires_at=gt.${q(iso(now))}&select=*`,
+        { headers: headers() },
+      )
+      return ((await res.json()) as TokenRow[]).map(toToken)
+    },
   }
 }
 

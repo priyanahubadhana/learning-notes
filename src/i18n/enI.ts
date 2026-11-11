@@ -86,4 +86,50 @@ export const enI = {
   'connect.scope.read': 'Read your notebooks, pages and recall cards',
   'connect.scope.write':
     'Create notebooks, pages, cards and databases, and add to pages. It can never delete anything.',
+
+  // ---- Settings > Claude: "Let Claude work with my notes" ----
+  'settings.category.claude': 'Claude',
+  'settings.category.claude.hint':
+    'Let Claude on claude.ai read your notes and add to them.',
+  'claude.title': 'Let Claude work with my notes',
+  'claude.what':
+    'When this is on, Claude on claude.ai (web, desktop or phone) can search and read the notebooks you choose, and add new notebooks, pages and recall cards. It can never delete or change what you already wrote. Anything it adds can be removed with "Remove this AI result".',
+  'claude.privacy.title': 'What this means for your privacy',
+  'claude.privacy.1':
+    'Your notes are end-to-end encrypted, so normally even the server cannot read them. To let Claude in, this app gives the server your encryption key once. The server keeps it locked with a secret that is not stored in the database.',
+  'claude.privacy.2':
+    'While this is on, the server (and whoever controls it) can open the notebooks you choose. Claude sees the text it reads, and Anthropic handles that text under its own terms. Locked pages stay hidden unless a notebook allows AI while locked.',
+  'claude.privacy.3':
+    'It is off until you turn it on. Turning it off deletes the key copy and stops every Claude connection at once. It also switches itself off after 30 days without use.',
+  'claude.choice.title': 'Which notebooks can Claude use?',
+  'claude.choice.all': 'All my notebooks',
+  'claude.choice.some': 'Only the notebooks I pick',
+  'claude.choice.none': 'Pick at least one notebook.',
+  'claude.pass.title': 'Turn it on',
+  'claude.pass.help':
+    'Type your sync passphrase to confirm. The passphrase stays on this device; only the key it opens is sent, once.',
+  'claude.pass.submit': 'Turn on',
+  'claude.state.on': 'On',
+  'claude.state.off': 'Off',
+  'claude.lastUsed':
+    'Last used {when}. It switches itself off on {expires} if it is not used before then.',
+  'claude.turnOff': 'Turn off',
+  'claude.turnOff.confirm':
+    'Turn off Claude? The server deletes its copy of your key and every Claude connection stops now.',
+  'claude.saveChoice': 'Save choice',
+  'claude.saved': 'Saved.',
+  'claude.apps.title': 'Connected apps',
+  'claude.apps.none':
+    'No app is connected yet. Add the connector in claude.ai under Settings, Connectors.',
+  'claude.apps.row': '{name}, last active {when}',
+  'claude.apps.revoke': 'Revoke',
+  'claude.apps.revokeFor': 'Revoke {name}',
+  'claude.error.login': 'Sign in to your account first (Settings › Account).',
+  'claude.error.generic':
+    'Could not reach the server. Check your internet and try again.',
+  'claude.error.unavailable': 'This is not set up on the server yet.',
+  'claude.noSync':
+    'Set up sync first (Settings › Sync): Claude uses the same key.',
+  'claude.loading': 'Checking…',
+  'claude.retry': 'Try again',
 }

@@ -182,6 +182,9 @@ describe('MCP endpoint: tools', () => {
       'apply_style',
       'create_database',
       'create_notebook',
+      'list_cards',
+      'list_notebooks',
+      'list_pages',
       'ping',
       'read',
       'refine_page',
@@ -202,7 +205,14 @@ describe('MCP endpoint: tools', () => {
     const names = (r.result!.tools as { name: string }[])
       .map((x) => x.name)
       .sort()
-    expect(names).toEqual(['ping', 'read', 'search'])
+    expect(names).toEqual([
+      'list_cards',
+      'list_notebooks',
+      'list_pages',
+      'ping',
+      'read',
+      'search',
+    ])
     const call = (await (
       await rpc(t, msg('tools/call', { name: 'add_page', arguments: {} }))
     ).json()) as Rpc

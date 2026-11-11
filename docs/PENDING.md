@@ -202,3 +202,7 @@ Questions:
   - (5) reads logged locally only;
   - (6) no delete ever.
     Note: PC only, not iPad. Slices 1–2 (shared crypto + read-only server) are being built now since they don't depend on the answers.
+- OWNER (11 Nov): the Claude connector is the app's MAIN USP.
+  - PRIMARY: from the Claude UI, Claude builds whole notebooks for the user using ALL app features (notes, summary, recall cards, databases, layouts, styles, books/highlights…), so the user gets the best notebook with ultimate customisation, then refines by chatting.
+  - SECONDARY: refine AI mid-work inside the app (a Claude chat in the notebook).
+  - Open decision: A local (PC, private) vs B online (claude.ai everywhere, opt-in server access) vs both. Recommended: both, with B as the main path for regular users.

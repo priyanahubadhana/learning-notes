@@ -655,6 +655,7 @@ export function PageView({
             onGridChange={editLockBy ? undefined : boxes.onGridChange}
             onGridView={boxes.onGridView}
             onBoxMenu={editLockBy ? undefined : boxes.onBoxMenu}
+            onGroup={editLockBy ? undefined : boxes.onGroup}
             onBoxHeight={editLockBy ? undefined : boxes.onBoxHeight}
             layoutMode={boxes.layoutMode}
             layoutBar={boxes.layoutBar}

@@ -235,6 +235,8 @@ export interface PaperBox {
   colour?: string
   /** Bug batch 2, item 8: background, border, corners, shadow, padding (core/boxStyle.ts). */
   style?: import('./boxStyle').BoxStyle
+  /** Lasso Group (text box v2): boxes with the same id are selected and moved together. */
+  group?: string
   /** Minimum height in mm set by the bottom handles (never below the content; B3-9). */
   h?: number
 }

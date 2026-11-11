@@ -264,3 +264,43 @@ test('smart guides: a dragged box shows a thin magenta line and snaps onto anoth
   const after = await box(b)
   expect(Math.abs(after.x - ra.x)).toBeLessThan(2)
 })
+
+test('Group and Ungroup: a group is picked and moved as one', async ({
+  page,
+}) => {
+  await start(page, 'Group')
+  for (const [i, text] of ['One', 'Two'].entries()) {
+    await tapBlank(page, 0.3 + i * 0.3, 70 + i * 100)
+    await expect(page.locator(EXTRA)).toHaveCount(i + 1)
+    await expect(page.locator(EXTRA + ' .bn-editor').nth(i)).toBeFocused()
+    await page.keyboard.type(text)
+    await page.waitForTimeout(500)
+    await page.evaluate(() => (document.activeElement as HTMLElement)?.blur())
+    await page.waitForTimeout(600)
+  }
+  const a = page.locator(EXTRA).nth(0)
+  const b = page.locator(EXTRA).nth(1)
+  const pick = async (l: Locator, add = false) => {
+    await l.hover()
+    const band = await box(l.locator('[data-box-band="bottom"]'))
+    if (add) await page.keyboard.down('Shift')
+    await page.mouse.click(band.x + band.width / 2, band.y + band.height / 2)
+    if (add) await page.keyboard.up('Shift')
+  }
+  await pick(a)
+  await pick(b, true)
+  await expect(page.locator('[data-picked]')).toHaveCount(2)
+  await page.locator('[data-group-action="group"]').click()
+  await page.waitForTimeout(600)
+  await page.keyboard.press('Escape')
+  await expect(page.locator('[data-picked]')).toHaveCount(0)
+  // One tap on a member picks the whole group.
+  await pick(a)
+  await expect(page.locator('[data-picked]')).toHaveCount(2)
+  await expect(page.locator('[data-group-action="ungroup"]')).toBeVisible()
+  await page.locator('[data-group-action="ungroup"]').click()
+  await page.waitForTimeout(600)
+  await page.keyboard.press('Escape')
+  await pick(a)
+  await expect(page.locator('[data-picked]')).toHaveCount(1)
+})

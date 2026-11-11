@@ -2,6 +2,10 @@
 
 Current phase only. Older entries are in [ARCHIVE.md](ARCHIVE.md).
 
+## 2026-11-12 (Text box v2, owner list: step 4, Group / Ungroup)
+
+- Boxes carry an optional `group` id (`PaperBox.group`, checked in backups). With two or more boxes picked (Shift-tap or the Lasso) a Group pill appears above them; tapping any member, or a Lasso loop that catches one, picks the whole group, which drags as one; Ungroup removes the id. One write, one Undo. A duplicate leaves the group. Files: `core/types.ts`, `share/checkRows.ts`, `paper/boxService.ts` (`setGroup`), `paper/PaperFrame.tsx` (`GroupBar`), `paper/usePaperBoxes.tsx`, `pages/PageView.tsx`. Test: `e2e/textBoxFree.spec.ts`.
+
 ## 2026-11-12 (Text box v2, owner list: step 3, drag and smart guides)
 
 - **Drag.** A lifted box gets a shadow and a small scale; the page scrolls when it is held within 70 px of the top or bottom edge; the whole app is frozen during the drag (toolbars, menus, panels ignore touches: `html[data-grip-drag]` in `index.css`); a drop back at the start writes nothing (no Undo step); the calm after a drop is 0.5 s. NOT done: the settle animation after the drop (the box jumps to its place; the others still slide).

@@ -98,4 +98,7 @@ export const esL: Record<string, string> = {
   'settings.smartGuides.label': 'Guías inteligentes',
   'settings.smartGuides.description':
     'Al arrastrar un cuadro de texto, líneas finas muestran cuándo se alinea con otro cuadro o con el centro de la página, y se ajusta suavemente. Los cuadros nunca se superponen.',
+  'paper.group.bar': 'Agrupar cuadros',
+  'paper.group.group': 'Agrupar',
+  'paper.group.ungroup': 'Desagrupar',
 }

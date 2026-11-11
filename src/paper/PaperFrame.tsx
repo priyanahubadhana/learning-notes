@@ -19,6 +19,7 @@ import {
   type ReactNode,
 } from 'react'
 import { createPortal } from 'react-dom'
+import { createId } from '../core/ids'
 import { Tip } from '../help/Help'
 import { t } from '../i18n/t'
 import type { GridRow, Page, PaperBox } from '../core/types'
@@ -107,6 +108,7 @@ export function PaperFrame({
   onGridChange,
   onGridView,
   onBoxMenu,
+  onGroup,
   onBoxHeight,
   layoutMode = false,
   layoutBar,
@@ -145,6 +147,8 @@ export function PaperFrame({
     measured: { heights: Record<string, number>; geo: Geometry },
   ) => void
   onBoxMenu?: (box: PaperBox, at: DOMRect) => void
+  /** Lasso Group / Ungroup: the picked ids and the new group id (undefined = ungroup). */
+  onGroup?: (ids: string[], group: string | undefined) => void
   /** The bottom handles set a box's minimum height (mm); undefined = back to its content. */
   onBoxHeight?: (id: string, h: number | undefined) => void
   /** Layout mode (owner batch 3, B3-7/8): the page zooms out a little, boxes wiggle and drag; `layoutBar` is the strip. */
@@ -615,8 +619,16 @@ export function PaperFrame({
   }, [send])
   const lassoOn = activeTool.useValue() === 'lasso'
   /** A tap on a box's frame (or grip): it is the selection; Shift adds. */
-  const selectBox = (id: string, add: boolean) =>
+  const selectBox = (id: string, add: boolean) => {
+    // A grouped box brings its whole group with it.
+    const g = extra.find((b) => b.id === id)?.group
+    if (g && !add)
+      return send({
+        type: 'pick',
+        ids: extra.filter((b) => b.group === g).map((b) => b.id),
+      })
     send({ type: 'frameTap', id, add })
+  }
   // A first tap on a box's text selects the box (tapSelect.ts, item 11).
   useEffect(() => {
     const on = (e: Event) => {
@@ -1168,19 +1180,22 @@ export function PaperFrame({
     paperEl.current
       ?.querySelectorAll<HTMLElement>('[data-paper-box]')
       .forEach((el) => frames.set(el.dataset.paperBox ?? '', el))
+    const inLoop = extra.filter((b) => {
+      const el = frames.get(b.id)
+      if (!el) return false
+      // Where the box is on screen, in paper px (as the loop is).
+      const r = el.getBoundingClientRect()
+      const c = {
+        x: r.left - p.left + r.width / 2,
+        y: r.top - p.top + r.height / 2,
+      }
+      return inPolygon(c, poly)
+    })
+    // A loop that catches one member of a group takes the whole group.
+    const groups = new Set(inLoop.flatMap((b) => (b.group ? [b.group] : [])))
     setPicked(
       extra
-        .filter((b) => {
-          const el = frames.get(b.id)
-          if (!el) return false
-          // Where the box is on screen, in paper px (as the loop is).
-          const r = el.getBoundingClientRect()
-          const c = {
-            x: r.left - p.left + r.width / 2,
-            y: r.top - p.top + r.height / 2,
-          }
-          return inPolygon(c, poly)
-        })
+        .filter((b) => inLoop.includes(b) || (b.group && groups.has(b.group)))
         .map((b) => b.id),
     )
   }
@@ -1430,6 +1445,14 @@ export function PaperFrame({
       >
         <LoopLayer ref={loopLayer} />
         {guides && <GuideLines g={guides} k={k} />}
+        {onGroup && picked.length >= 1 && !liveBoxes && (
+          <GroupBar
+            picked={extra.filter((b) => picked.includes(b.id))}
+            layout={layout}
+            k={k}
+            onGroup={(ids, group) => onGroup(ids, group)}
+          />
+        )}
         {ghost &&
           (() => {
             const g = layout.get(ghost.id)
@@ -1778,6 +1801,69 @@ const withoutAuto = (row: GridRow): GridRow => {
   const next = { ...row }
   delete next.auto
   return next
+}
+
+/**
+ * Lasso Group / Ungroup: a small pill above the picked boxes. Two or more
+ * picked boxes that are not one group yet: Group. A group (all its boxes are
+ * picked when one is tapped): Ungroup.
+ */
+function GroupBar({
+  picked,
+  layout,
+  k,
+  onGroup,
+}: {
+  picked: PaperBox[]
+  layout: Map<string, { x: number; y: number; w: number; h: number }>
+  k: number
+  onGroup: (ids: string[], group: string | undefined) => void
+}) {
+  const rects = picked.flatMap((b) => layout.get(b.id) ?? [])
+  if (rects.length === 0) return null
+  const x = Math.min(...rects.map((r) => r.x))
+  const y = Math.min(...rects.map((r) => r.y))
+  const groups = new Set(picked.map((b) => b.group))
+  const oneGroup = groups.size === 1 && !groups.has(undefined)
+  const canGroup = picked.length >= 2 && !oneGroup
+  const canUngroup = picked.some((b) => b.group)
+  if (!canGroup && !canUngroup) return null
+  const ids = picked.map((b) => b.id)
+  const btn =
+    'min-h-11 rounded-lg px-3 text-sm font-medium text-ink hover:bg-hover'
+  return (
+    <div
+      data-group-bar
+      data-ui
+      role="toolbar"
+      aria-label={t('paper.group.bar')}
+      className="absolute z-30 flex gap-1 rounded-xl border border-line bg-surface p-1 shadow-md"
+      style={{ left: x * k, top: Math.max(4, y * k - 120) }}
+    >
+      {canGroup && (
+        <button
+          type="button"
+          data-group-action="group"
+          className={btn}
+          onMouseDown={(e) => e.preventDefault()}
+          onClick={() => onGroup(ids, createId())}
+        >
+          {t('paper.group.group')}
+        </button>
+      )}
+      {canUngroup && (
+        <button
+          type="button"
+          data-group-action="ungroup"
+          className={btn}
+          onMouseDown={(e) => e.preventDefault()}
+          onClick={() => onGroup(ids, undefined)}
+        >
+          {t('paper.group.ungroup')}
+        </button>
+      )}
+    </div>
+  )
 }
 
 /** A guess for a box whose height is not measured yet (mm). */

@@ -170,6 +170,24 @@ export async function updateBox(
   )
 }
 
+/**
+ * Lasso Group / Ungroup: boxes share a group id (one write, one Undo step), or
+ * lose it. A group needs two boxes or more; the page's own text box can join.
+ */
+export async function setGroup(
+  db: LearningNotesDB,
+  pageId: string,
+  ids: readonly string[],
+  group: string | undefined,
+): Promise<void> {
+  if (group !== undefined && ids.length < 2) return
+  await updateBoxes(
+    db,
+    pageId,
+    ids.map((id) => ({ id, patch: { group } })),
+  )
+}
+
 /** The live blocks of one box, in page order. */
 async function blocksOf(
   db: LearningNotesDB,
@@ -268,6 +286,7 @@ export async function duplicateBox(
       sheet.w,
     )
     delete copy.locked
+    delete copy.group
     await writeBoxes(db, pageId, (boxes) => [...boxes, copy])
   })
   return copyId
@@ -348,7 +367,9 @@ export async function updateBoxes(
   for (const { id, patch } of patches) {
     const current = all.find((b) => b.id === id)
     if (!current || current.locked) continue
-    next.set(id, clampBox({ ...current, ...patch }, sheet.w))
+    const merged = clampBox({ ...current, ...patch }, sheet.w)
+    if (patch.group === undefined && 'group' in patch) delete merged.group
+    next.set(id, merged)
   }
   if (next.size === 0) return
   await writeBoxes(db, pageId, (boxes) => {

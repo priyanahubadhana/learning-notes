@@ -30,6 +30,7 @@ import {
   repairBoxes,
   removeIfEmptyBox,
   duplicateBox,
+  setGroup,
   removeBox,
   restoreBox,
   updateBox,
@@ -81,6 +82,8 @@ export function usePaperBoxes(
     measured: { heights: Record<string, number>; geo: GridInfo['geo'] },
   ) => void
   onBoxMenu: (box: PaperBox, at: DOMRect) => void
+  /** Lasso Group / Ungroup of the picked boxes (undefined = ungroup). */
+  onGroup: (ids: string[], group: string | undefined) => void
   onDeleteBox: (box: PaperBox) => void
   /** The floating bar under a selected box. */
   renderBar: (box: PaperBox) => ReactNode
@@ -446,6 +449,7 @@ export function usePaperBoxes(
       gridView.current = { rows, places, ...measured }
     },
     onBoxMenu: (box, at) => setMenuFor({ box, at }),
+    onGroup: (ids, group) => runTask(setGroup(db, pageId, ids, group)),
     onDeleteBox: remove,
     renderBar: (box) => (
       <BoxBar

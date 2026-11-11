@@ -125,6 +125,7 @@ function isPaperBox(v: unknown): boolean {
     (b.w as number) > 0 &&
     (b.locked === undefined || b.locked === true) &&
     (b.colour === undefined || isColour(b.colour)) &&
+    (b.group === undefined || text(b.group)) &&
     isStyleValue(b.style)
   )
 }

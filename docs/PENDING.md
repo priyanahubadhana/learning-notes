@@ -38,10 +38,8 @@ Detail: plans/owner-bug-batch-3-2026-11-11.md (B3) and plans/owner-ideas-batch-2
 - [ ] Owner 11 Nov 7:40 decisions for Text box v2 (polish the existing box only, no new features):
   - Grab handle: bigger and clearer, Notability-style ≡ tab on top of the box.
   - Drag is exclusive: while a box is dragged nothing else in the app reacts (no taps, toolbars, new boxes, menus) until it is dropped. Owner asked about a ✓ confirm after the drop (see question).
-  - Group boxes (move together): wanted, with the method to be agreed.
   - Dropped from the list: layers, front/back, hide/show, recall card from a box, send to Summary, handwriting into a box, fold a box.
 
-  - Grouping: the Lasso loops boxes, then Group; tap the group, then Ungroup (owner chose A).
   - Selected box border clear by default like GoodNotes/Notability: a solid 1.5 px accent line with clear corner dots, visible on dark and light paper (ours is too faint). Line highlight/selection is fine, leave it.
 
 ## Priority 4: other bugs

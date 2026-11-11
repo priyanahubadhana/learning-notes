@@ -80,7 +80,8 @@ describe('no double spend', () => {
     const req = { prompt: 'same', maxTokens: 10, fetchImpl: g.fn }
     const a = callAi(config, req)
     const b = callAi(config, req)
-    await new Promise((r) => setTimeout(r, 5))
+    // The call is on its way (waiting for the answer), not a pause.
+    await vi.waitFor(() => expect(g.calls).toHaveLength(1))
     g.release()
     const [ra, rb] = await Promise.all([a, b])
     expect(ra.text).toBe(rb.text)
@@ -139,7 +140,8 @@ describe('no double spend', () => {
     const g = gated()
     const a = testKey(k.id, g.fn)
     const b = testKey(k.id, g.fn)
-    await new Promise((r) => setTimeout(r, 5))
+    // The call is on its way (waiting for the answer), not a pause.
+    await vi.waitFor(() => expect(g.calls).toHaveLength(1))
     g.release()
     expect(await a).toEqual({ ok: true })
     expect(await b).toEqual({ ok: true })
@@ -276,14 +278,14 @@ describe('a shared key is capped as one key across devices', () => {
       updatedAt: Date.now(),
       deletedAt: null,
     })
-    await new Promise((r) => setTimeout(r, 60))
-    expect(othersSpent(k.id)).toBeCloseTo(0.5)
+    await vi.waitFor(() => expect(othersSpent(k.id)).toBeCloseTo(0.5))
     // This device's own use is written under its own id.
     recordUsage(k.id, 'anthropic', 'claude-haiku-5-5', 1000, 1000)
-    await new Promise((r) => setTimeout(r, 60))
-    const mine = await db.secrets.get(
-      stableId(`secret:aiUsage:${getDeviceId()}`),
+    const mineId = stableId(`secret:aiUsage:${getDeviceId()}`)
+    await vi.waitFor(async () =>
+      expect(await db.secrets.get(mineId)).toBeDefined(),
     )
+    const mine = await db.secrets.get(mineId)
     expect(mine?.kind).toBe('aiUsage')
     expect(JSON.stringify(mine?.value)).not.toContain('sk-ant')
     stopKeySync(db)

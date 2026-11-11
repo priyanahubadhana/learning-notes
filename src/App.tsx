@@ -702,6 +702,7 @@ function App() {
     replaceNext.current = false
     if (replace) replaceEntry(routeHash)
     else pushEntry(routeHash)
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [routeHash])
   const [renamingNotebookId, setRenamingNotebookId] = useState<string | null>(
     null,

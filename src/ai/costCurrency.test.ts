@@ -1,7 +1,7 @@
 /**
  * @vitest-environment jsdom
  */
-import { beforeEach, describe, expect, it } from 'vitest'
+import { beforeEach, describe, expect, it, vi } from 'vitest'
 import { writePref } from '../app/uiPrefs'
 import type { LearningNotesDB } from '../core/db'
 import { createTestDb } from '../core/testing'
@@ -60,9 +60,8 @@ describe('cost currency', () => {
       updatedAt: 1,
     })
     const stop = startCurrencyMirror(db)
-    await new Promise((r) => setTimeout(r, 100))
+    await vi.waitFor(() => expect(readCostCurrency().code).toBe('JPY'))
     stop()
-    expect(readCostCurrency().code).toBe('JPY')
     expect(formatCost(1)).toContain('150')
   })
 })

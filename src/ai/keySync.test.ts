@@ -49,7 +49,6 @@ function become(side: 'a' | 'b') {
   else localStorage.setItem(PREF, s.pref)
   startKeySync(dbOf(side))
 }
-const tick = () => new Promise((r) => setTimeout(r, 30))
 
 beforeEach(async () => {
   localStorage.clear()
@@ -87,22 +86,28 @@ describe('AI keys on all devices (R6-2)', () => {
     localStorage.setItem(PREF, 'true') // B's switch on
     startKeySync(b)
     await syncOnce(b, conn, master)
-    await tick()
-    expect(listKeys().map((k) => k.name)).toEqual(['Claude main'])
+    await vi.waitFor(() =>
+      expect(listKeys().map((k) => k.name)).toEqual(['Claude main']),
+    )
     expect(listKeys()[0].key).toBe('sk-ant-secret-1234567890')
 
     // B adds a key: it reaches A.
     addKey('gemini', 'Gemini free', 'AIza-free-key-1234567890')
-    await tick()
+    // The mirror writes the secret record; wait for it, not for a pause.
+    await vi.waitFor(async () => {
+      const rec = await b.secrets.get(AI_KEYS_SECRET_ID)
+      expect((rec?.value as { keys: unknown[] }).keys).toHaveLength(2)
+    })
     await syncOnce(b, conn, master)
     become('a')
     startKeySync(a)
     await syncOnce(a, conn, master)
-    await tick()
-    expect(listKeys().map((k) => k.name)).toEqual([
-      'Claude main',
-      'Gemini free',
-    ])
+    await vi.waitFor(() =>
+      expect(listKeys().map((k) => k.name)).toEqual([
+        'Claude main',
+        'Gemini free',
+      ]),
+    )
   })
 
   it('turning it off on one device turns it off everywhere; keys stay', async () => {
@@ -114,8 +119,7 @@ describe('AI keys on all devices (R6-2)', () => {
     localStorage.setItem(PREF, 'true')
     startKeySync(b)
     await syncOnce(b, conn, master)
-    await tick()
-    expect(listKeys()).toHaveLength(1)
+    await vi.waitFor(() => expect(listKeys()).toHaveLength(1))
 
     become('a')
     await setKeySync(a, false)
@@ -124,8 +128,7 @@ describe('AI keys on all devices (R6-2)', () => {
 
     become('b')
     await syncOnce(b, conn, master)
-    await tick()
-    expect(keySyncOn()).toBe(false)
+    await vi.waitFor(() => expect(keySyncOn()).toBe(false))
     expect(listKeys()).toHaveLength(1) // B keeps its copy too
   })
 

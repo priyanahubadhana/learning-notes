@@ -7,6 +7,7 @@ import {
   openSidebar,
   cornerAction,
   setTheme,
+  waitForSaved,
 } from './helpers.ts'
 
 const main = (page: Page) => page.getByRole('main')
@@ -24,14 +25,14 @@ test('mark words in a note; they collect on the lesson’s Revise sheet', async 
   await expect(page.locator('.recall-mark[data-mark="key"]')).toHaveText(
     'first heart sound',
   )
-  await page.waitForTimeout(800) // autosave
+  await waitForSaved(page)
 
   // A sub-page's marks count for its lesson.
   await addPage(page, 'Heart sounds', 'Valves', 'sub-page')
   await typeInEditor(page, 'Mitral valve')
   await selectText(page, 'Mitral')
   await page.getByRole('button', { name: 'Keyword', exact: true }).click()
-  await page.waitForTimeout(800)
+  await waitForSaved(page)
 
   await (
     await openSidebar(page)
@@ -92,7 +93,7 @@ for (const [theme, width, height] of [
     await page.getByRole('button', { name: 'Key point', exact: true }).click()
     await selectText(page, 'CO = HR x SV')
     await page.getByRole('button', { name: 'Formula', exact: true }).click()
-    await page.waitForTimeout(800)
+    await waitForSaved(page)
     await setTheme(page, theme)
     await page.setViewportSize({ width, height })
     await (

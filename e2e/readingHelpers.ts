@@ -1,6 +1,7 @@
 // Browser types for code that runs inside the page.
 /// <reference lib="dom" />
 import { expect, type Locator, type Page } from '@playwright/test'
+import { waitForSaved } from './helpers.ts'
 
 /** The Read switch of the short bar. */
 export const readSwitch = (page: Page) =>
@@ -76,7 +77,7 @@ export async function writeBook(page: Page, chapters = 3) {
       await page.keyboard.press('Enter')
     }
   }
-  await page.waitForTimeout(900) // autosave
+  await waitForSaved(page)
 }
 
 /** Replaces speechSynthesis with a pretend one that logs what is spoken. */

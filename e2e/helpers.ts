@@ -217,7 +217,27 @@ export async function typeInEditor(page: Page, text: string) {
     await editor.click({ force: true })
   }
   await page.keyboard.type(text)
-  await page.waitForTimeout(800) // autosave runs ~0.5 s after typing stops
+  await waitForSaved(page)
+}
+
+/**
+ * Waits until every page edit is written. State-based: the app says when
+ * nothing is waiting to be saved, so a slow machine needs no longer pause.
+ */
+export async function waitForSaved(page: Page) {
+  await expect
+    .poll(
+      () =>
+        page.evaluate(() =>
+          (
+            window as unknown as {
+              __lnTools?: { pendingSaves?: () => boolean }
+            }
+          ).__lnTools?.pendingSaves?.(),
+        ),
+      { message: 'page edits were not written', timeout: 15_000 },
+    )
+    .toBe(false)
 }
 
 /** The Templates section's template names, in order. */
@@ -335,7 +355,7 @@ export async function trashAction(
 
 /** Selects `text` (within one line) in the editor, like dragging the mouse. */
 export async function selectText(page: Page, text: string) {
-  await page.evaluate((wanted) => {
+  await page.evaluate(async (wanted) => {
     const root = document.querySelector('.bn-editor')!
     const walker = document.createTreeWalker(root, NodeFilter.SHOW_TEXT)
     for (let node = walker.nextNode(); node; node = walker.nextNode()) {
@@ -345,8 +365,18 @@ export async function selectText(page: Page, text: string) {
       range.setStart(node, at)
       range.setEnd(node, at + wanted.length)
       const selection = window.getSelection()!
+      // The editor learns of a changed selection from the browser's
+      // selectionchange event: wait for it (and one frame after it), or a
+      // button clicked at once would act on the old selection.
+      const heard = new Promise<void>((resolve) => {
+        const done = () => requestAnimationFrame(() => resolve())
+        document.addEventListener('selectionchange', done, { once: true })
+        // The selection was already exactly this one: no event comes.
+        setTimeout(done, 400)
+      })
       selection.removeAllRanges()
       selection.addRange(range)
+      await heard
       return
     }
     throw new Error('Text not found: ' + wanted)

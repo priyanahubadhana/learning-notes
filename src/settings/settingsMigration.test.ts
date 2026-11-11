@@ -40,7 +40,6 @@ function fakeStorage() {
 let master: MasterKey
 let a: LearningNotesDB
 let b: LearningNotesDB
-const settle = () => new Promise((r) => setTimeout(r, 30))
 
 function become(db: LearningNotesDB) {
   stopSettingsMirror()
@@ -74,7 +73,9 @@ describe('one-time migration (step 6)', () => {
       value: 33,
       updatedAt: Date.now(),
     })
-    await settle()
+    await vi.waitFor(async () =>
+      expect(await a.settings.get(theme.id)).toBeDefined(),
+    )
     await syncOnce(a, conn, master)
     stopSettingsMirror()
 
@@ -93,10 +94,11 @@ describe('one-time migration (step 6)', () => {
     expect(await migrateSettings(b)).toBe(false)
     startSettingsMirror(b)
     await syncOnce(b, conn, master)
-    await settle()
     // The account's values win on B.
-    expect(readDeviceSetting(theme)).toBe('night')
-    expect(await getSetting(b, newCardsPerDay)).toBe(33)
+    await vi.waitFor(async () => {
+      expect(readDeviceSetting(theme)).toBe('night')
+      expect(await getSetting(b, newCardsPerDay)).toBe(33)
+    })
     // And A is unchanged after B pushes.
     await syncOnce(b, conn, master)
     stopSettingsMirror()
@@ -114,8 +116,7 @@ describe('one-time migration (step 6)', () => {
     become(a)
     startSettingsMirror(a)
     await syncOnce(a, conn, master)
-    await settle()
-    expect(readDeviceSetting(theme)).toBe('sepia')
+    await vi.waitFor(() => expect(readDeviceSetting(theme)).toBe('sepia'))
   })
 
   it('the notice lists values that changed, and Undo keeps the old ones', async () => {
@@ -123,7 +124,9 @@ describe('one-time migration (step 6)', () => {
     become(a)
     startSettingsMirror(a)
     writeDeviceSetting(theme, 'night')
-    await settle()
+    await vi.waitFor(async () =>
+      expect(await a.settings.count()).toBeGreaterThan(0),
+    )
     await syncOnce(a, conn, master)
     stopSettingsMirror()
 
@@ -134,8 +137,7 @@ describe('one-time migration (step 6)', () => {
     const stop = watchSettingsNotice()
     startSettingsMirror(b)
     await syncOnce(b, conn, master)
-    await settle()
-    expect(readDeviceSetting(theme)).toBe('night')
+    await vi.waitFor(() => expect(readDeviceSetting(theme)).toBe('night'))
     expect(noticeChanges().map((c) => c.id)).toEqual([theme.id])
     undoSettingsNotice()
     expect(readDeviceSetting(theme)).toBe('sepia')

@@ -10,6 +10,7 @@ import {
   openRibbon,
   cornerAction,
   setTheme,
+  waitForSaved,
 } from './helpers.ts'
 import {
   barTool,
@@ -674,11 +675,11 @@ test('read aloud goes on into the next page of the notebook, like an audiobook',
   await createNotebook(page, 'Heart', 'First page')
   await page.locator('.bn-editor').click()
   await page.keyboard.type('Alpha ends here.')
-  await page.waitForTimeout(800)
+  await waitForSaved(page)
   await addPage(page, 'Heart', 'Second page')
   await page.locator('.bn-editor').click()
   await page.keyboard.type('Omega starts now.')
-  await page.waitForTimeout(800)
+  await waitForSaved(page)
   await openPage(page, 'First page')
   await readSwitch(page).click()
   const panel = await openPanel(page, 'Read aloud', 'Read aloud')
@@ -730,7 +731,7 @@ test('blanks are softly marked by default; Self-test hides them until tapped', a
   await createNotebook(page, 'Heart', 'Valves')
   await page.locator('.bn-editor').click()
   await page.keyboard.type('S2 closes the aortic and pulmonary valves')
-  await page.waitForTimeout(800)
+  await waitForSaved(page)
   await selectText(page, 'aortic and pulmonary')
   await page.getByRole('button', { name: 'Toolbar menu' }).click()
   await page

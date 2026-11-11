@@ -76,11 +76,17 @@ afterEach(() => {
 })
 
 async function aToB(storageB = fakeStorage()) {
-  await settle()
+  // A's change is written to its settings table (wait for that, not a pause).
+  await vi.waitFor(async () =>
+    expect(await a.settings.count()).toBeGreaterThan(0),
+  )
   await syncOnce(a, conn, master)
   const storageA = globalThis.localStorage
   const sb = become(b, storageB)
   await syncOnce(b, conn, master)
+  await vi.waitFor(async () =>
+    expect(await b.settings.count()).toBeGreaterThan(0),
+  )
   await settle()
   return { storageA, storageB: sb }
 }
@@ -105,15 +111,17 @@ describe('AI settings follow the account (step 3)', () => {
     writePref('ai.enabled', true)
     writePref('ai.modelOrder', ['m1', 'm2'])
     await aToB()
-    expect(
-      readPref('ai.cap', (v): v is number => typeof v === 'number', 5),
-    ).toBe(12)
-    expect(readPref('ai.enabled', (v): v is boolean => v === true, false)).toBe(
-      true,
-    )
-    expect(
-      readPref('ai.modelOrder', (v): v is string[] => Array.isArray(v), []),
-    ).toEqual(['m1', 'm2'])
+    await vi.waitFor(() => {
+      expect(
+        readPref('ai.cap', (v): v is number => typeof v === 'number', 5),
+      ).toBe(12)
+      expect(
+        readPref('ai.enabled', (v): v is boolean => v === true, false),
+      ).toBe(true)
+      expect(
+        readPref('ai.modelOrder', (v): v is string[] => Array.isArray(v), []),
+      ).toEqual(['m1', 'm2'])
+    })
   })
 
   it('a key-like value is never put in a settings record', async () => {
@@ -144,15 +152,19 @@ describe('General, Appearance and the rest follow the account (step 4)', () => {
     writeDeviceSetting(theme, 'night')
     writeDeviceSetting(languageSetting, 'es')
     await aToB()
-    expect(readDeviceSetting(theme)).toBe('night')
-    expect(readDeviceSetting(languageSetting)).toBe('es')
+    await vi.waitFor(() => {
+      expect(readDeviceSetting(theme)).toBe('night')
+      expect(readDeviceSetting(languageSetting)).toBe('es')
+    })
   })
 
   it('a setting kept in the database follows too', async () => {
     become(a)
     await setSetting(a, newCardsPerDay, 41)
     await aToB()
-    expect(await getSetting(b, newCardsPerDay)).toBe(41)
+    await vi.waitFor(async () =>
+      expect(await getSetting(b, newCardsPerDay)).toBe(41),
+    )
   })
 
   it('device-only settings never get a record', async () => {

@@ -3,6 +3,7 @@ import { registerProbe, runHealth } from './healthCheck'
 import { refreshNow, requestSoftRefresh } from './softRefresh'
 import { inputMachine } from './inputMachine'
 import { lock } from '../editor/editLock'
+import { hasPendingSaves } from '../editor/autosave'
 
 /**
  * `window.__lnTools`: what the end-to-end tests (and a person with the
@@ -31,6 +32,9 @@ export function installToolsDebug(extra: Record<string, unknown> = {}): void {
       const m = await import('./tools/main/inkSettings')
       m.lassoSettings.update(patch as never)
     },
+    // Tests: true while a page edit is waiting to be written (the specs wait
+    // on this instead of a fixed pause after typing).
+    pendingSaves: hasPendingSaves,
     // Tests: one health run now; and a few ways to put a flag in a bad state.
     softRefresh: (why = 'test') => requestSoftRefresh(why),
     refreshNow,

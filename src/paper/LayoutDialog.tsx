@@ -100,12 +100,12 @@ async function loadDraft(
 export default function LayoutDialog({
   db,
   pageId,
-  info,
+  getInfo,
   onClose,
 }: {
   db: LearningNotesDB
   pageId: string
-  info: GridInfo
+  getInfo: () => GridInfo
   onClose: () => void
 }) {
   const [current, setCurrent] = useState(pageId)
@@ -131,7 +131,7 @@ export default function LayoutDialog({
     void (async () => {
       const page = await db.pages.get(pageId)
       if (!page || !alive) return
-      const d = await loadDraft(db, page, info)
+      const d = await loadDraft(db, page, getInfo())
       if (!alive) return
       setDrafts({ [pageId]: d })
       setPages(await notebookPages(db, page.notebookId))
@@ -183,11 +183,10 @@ export default function LayoutDialog({
     return { ...draft.geo, autoW: { ...est, ...draft.geo.autoW } }
   }, [draft])
 
-  const rowsShown = resizing ?? live?.rows ?? draft?.rows ?? []
-  const laid = useMemo(
-    () => (draft && geo ? layoutRows(rowsShown, draft.heights, geo) : null),
-    [draft, geo, rowsShown],
-  )
+  const laid = useMemo(() => {
+    const rowsShown = resizing ?? live?.rows ?? draft?.rows ?? []
+    return draft && geo ? layoutRows(rowsShown, draft.heights, geo) : null
+  }, [draft, geo, resizing, live])
 
   const set = useCallback(
     (fn: (d: Draft) => Draft) =>

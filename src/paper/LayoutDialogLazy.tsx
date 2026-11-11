@@ -8,7 +8,7 @@ const Dialog = lazy(() => import('./LayoutDialog'))
 export function LayoutDialogLazy(props: {
   db: LearningNotesDB
   pageId: string
-  info: GridInfo
+  getInfo: () => GridInfo
   onClose: () => void
 }) {
   return (

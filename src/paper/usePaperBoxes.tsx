@@ -409,7 +409,7 @@ export function usePaperBoxes(
           <LayoutDialogLazy
             db={db}
             pageId={pageId}
-            info={gridView.current}
+            getInfo={() => gridView.current}
             onClose={() => setLayoutOpen(false)}
           />
         )}

@@ -497,7 +497,7 @@ test('selecting while reading offers Highlight (saved as a normal mark, with Und
   const count = await editor(page)
     .locator('[data-style-type="backgroundColor"][data-value="yellow"]')
     .count()
-  await page.getByRole('status').getByRole('button', { name: 'Undo' }).click()
+  await page.getByRole('button', { name: 'Undo', exact: true }).last().click()
   await expect(
     editor(page).locator(
       '[data-style-type="backgroundColor"][data-value="yellow"]',

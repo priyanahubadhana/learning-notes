@@ -31,3 +31,9 @@ dist-perf
 
 dist-bars/
 playwright.bars.config.ts
+
+# build and test leftovers (any variant)
+dist*/
+test-results*/
+.wtb*/
+playwright.*.config.ts

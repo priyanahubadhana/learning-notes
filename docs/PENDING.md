@@ -87,3 +87,71 @@ plans/owner-ideas-batch-2-2026-11-10.md: update bar, Acrobat PDF tools, customiz
 - Settle animation after a drop (the dropped box glides into place) is NOT built yet.
 
 - Circled number / shape Undo: one Undo may also take back the typing of the same box if it was just before (page history groups text steps). Handwriting to text rests on iPadOS Scribble, not verified on the iPad.
+
+## Lane C: toolbar + settings redesign (planning; nothing built until the mock-up is approved)
+
+- Owner 11 Nov:
+  - default = hybrid (minimal, with show-all on demand);
+  - the confusion is the toolbar, Ribbon and Compact view (Pencil-writes-text and device mode are fine);
+  - wants it organised like GoodNotes;
+  - saved layouts: built-in "Beginner" and "Professional speed", plus several (up to 3) user layouts that save the whole toolbar arrangement and its preferences.
+- Step 1 (running): Fable maps every toolbar surface and setting from the code and proposes the organisation. Then an artifact map for the owner to mark, then a tappable mock-up.
+- Step 1 done: map in docs/plans/toolbar-map-2026-11-11.md (Fable). Decision page for the owner: https://claude.ai/artifact/Xquz4AAJC2vssFFa5dGRxX (13 changes + 8 questions). Waiting for the owner's pasted choices, then the tappable mock-up.
+- OWNER answers (11 Nov):
+  1. Ribbon/All tools hidden in Beginner, available in Professional only.
+  2. Compact view merges into the layouts (Beginner = compact); no separate setting.
+  3. Switch layouts in BOTH Settings and the toolbar ⋯.
+  4. Own layouts: yes (sync, each device picks its active one; assumed, confirm).
+  5. NO names under icons in Beginner; icons only, names on hover or long-press.
+- OWNER decision page (11 Nov):
+  - Changes agreed: C1–C8, C10, C12, C13. C9 (one Keyboard button, hold for Pencil keys) and C11 (picture/table "More" expands in place) left blank.
+  - Q1 fixed strip under the bar. Q2 keep the micro bar separate (conflicts with C8 "one Selection bar"; ask). Q3 Read moves under ⋯ as "Reading mode". Q4 no names in Beginner. Q5 Professional = toolbar + one slim All-tools row. Q6 switch everyone to Beginner. Q7 switch layouts in Settings + ⋯. Q8 layouts sync, each device picks its active one.
+- OWNER notes (11 Nov, more coming):
+  - Pen = one tool with pen types inside (Apple Notes style): pen, pencil, marker, highlighter… Highlighter moves inside Pen (no separate button).
+  - Backspace stays on the Beginner/simple bar, next to New line.
+- OWNER artifact comments (11 Nov, discuss at the end):
+  - Layout model: built-ins Beginner and Professional (each customisable), plus 3 optional own layouts.
+  - Per-device copies: customising a layout on a device creates that device's copy (unlimited device copies, e.g. iPhone/PC/iPad versions of Professional).
+  - Layouts can be renamed. "New layout" starts from Blank, Beginner or Professional.
+  - The owner wants C9 (one Keyboard button) and C11 (picture "More") explained.
+- OWNER FINAL toolbar (11 Nov discussion):
+  - C9: the problem is that several keyboard buttons/bars appear by themselves whenever you type or tap. Show only ONE (ours) and stop our extra keyboard bars popping up on their own. The iPadOS system shortcut bar can't be removed from a web app (explain).
+  - C11: bug fix (picture "More" expands in place).
+  - C8/Q2: (a) merge 3 bars into one Selection bar, keep the micro bar.
+  - Layouts: as understood (built-in Beginner/Professional, customisable; per-device copies; 3 own layouts from Blank/Beginner/Professional; rename). Own layouts get device copies too. Every layout has "Reset to original", plus a "Reset all layouts" in Settings. A new device copies the closest device type's version.
+- OWNER OK: a "Keyboard stays hidden" toggle (toolbar icon + Settings, saved per layout). While on, our keyboard/mini/micro bars never auto-pop and the iPad keyboard stays down (inputmode none) until the Keyboard button is tapped. Check on the iPad that Scribble still works while it's on. Next: the tappable mock-up.
+- OWNER OK (11 Nov): an Opus quality review (strict Apple-style) after each feature passes CI, before the owner's iPad test. Toyota-style reliability as a working standard (rule text proposed to the owner).
+- Mock-up (https://claude.ai/artifact/6urqSfFnkCVsvLynEUL54N) owner decisions:
+  - the real system keyboard (no mock keys);
+  - distinct Pen/Pencil/Marker/Highlighter icons;
+  - the All tools row fixed in place, one line with sideways scroll; tools show only after a tab tap and tuck away after use; tabs with icon + label;
+  - the full Lasso: text + ink, loose catch, Cut/Copy/Paste/Duplicate/Colour/Resize/Delete/Convert/Screenshot;
+  - the Text tool pill is BOX-first (styles, border, fill, corners, padding, layout), with text formatting in one "Aa";
+  - "Last tool" becomes "Back to <tool>" showing the target tool's icon, Professional only.
+- OWNER: the eraser. Beginner keeps the simple eraser; Professional brings back the app's CURRENT eraser (its options + size preview, which the owner likes), best of both. The owner will share a reference. Mock pen tray redesigned (Fable, Apple-style matched set).
+- OWNER rule (11 Nov): every change must be applied everywhere the thing is used (toolbar, All tools, menus, pills, settings), so nothing is left half-updated. Real-app check: the tool icons are picked by name, so add a missing-icon fallback + warning and a test that every registered tool's icon exists.
+- Mock: Professional eraser + Lasso ported from the real app and merged with the new ones (in progress).
+- OWNER (11 Nov): Beginner = few, simple options (keep as is). Professional = ALL existing features kept (nothing lost), each purpose-driven: grouped by task, shown in context, advanced behind ▾. Complexity only where it serves a clear purpose.
+- OWNER design north star: like Apple, deep capability that feels effortless. Smart defaults, progressive disclosure, consistent patterns across iPad/PC/phone, no setting needed to get started.
+
+## Audits 11 Nov (read-only, waiting for owner choices)
+
+- Open items planner: https://claude.ai/artifact/Dx2mjXxwovbm3PjtGESgDr
+- Security (Opus spot-check): no Critical/High. Medium:
+  - the lock is a privacy screen only (PIN brute-forceable offline): add attempt delays and a longer password;
+  - the session is in localStorage: refresh-token rotation, clear the PKCE verifier;
+  - the drive-token function allows any CORS origin: restrict it;
+  - confirm the OTP rate limits in the Supabase dashboard;
+  - remote images in imported notes leak IP: proxy or ask.
+    Low: style-src unsafe-inline, HSTS includeSubDomains, pencil-test.html shipped, SW cache checks, npm audit, import paths not yet checked.
+- Root causes of UI bugs (Opus):
+  1. One editor per box, each adding global listeners (161 global listeners) → multi-Undo, save races, stray boxes, perf. Fix: one page-level event router.
+  2. Competing Pencil/tap handlers settled by timers. Fix: inputMachine as the single gesture router.
+  3. No single owner of selection/focus (window CustomEvents). Fix: one selection store.
+  4. Five floating bars/toasts. Fix: one overlay manager (part of the toolbar redesign).
+  5. WebKit can't be tested locally. Fix: WebKit as a required CI check / Docker.
+  6. The 320 KB budget forces lazy workarounds. Fix: a critical-path budget + preload.
+  7. Builders colliding. Fix: one branch per builder, a conflict-marker pre-commit check.
+  8. Session renewal triggers. Fix: a single auth refresher (mostly done today).
+  9. slowMoments writes per long task. Fix: throttle.
+     Latent: duplicate save flushes on exit, a stale timer caretIn, a stale closure in the usePaperBoxes keydown, an unguarded window Delete handler, the listenerCount undercount, seeded RNG in driveServer tests.

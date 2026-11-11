@@ -114,12 +114,30 @@ export function recordUsage(
       costOf(provider, model, inputTokens, outputTokens, cachedTokens),
   }
   writePref('ai.usageByKey', s)
+  for (const l of recordedListeners) l()
   return { month: s.month, ...s.keys[keyId] }
+}
+
+/** The most one call can cost: the prompt (and pictures) in, the whole limit out. */
+export function worstCost(
+  provider: ProviderId,
+  model: string,
+  prompt: string,
+  maxTokens: number,
+  images: readonly AiImage[] = [],
+): number {
+  const input =
+    estimateTokens(prompt) +
+    images.reduce((n, i) => n + imageTokens(i.width, i.height), 0)
+  return costOf(provider, model, input, maxTokens)
 }
 
 /**
  * Would this call stay under the monthly cap of this key? Uses the prompt
  * size and the most the answer can be, so the check is on the safe side.
+ * `reservedUsd` is what calls still running on this key may cost (they are
+ * not recorded yet), so two calls started together cannot both slip under.
+ * What the same key spent on the user's other devices counts too.
  */
 export function withinCap(
   keyId: string,
@@ -130,12 +148,46 @@ export function withinCap(
   capUsd: number,
   now: Date = new Date(),
   images: readonly AiImage[] = [],
+  reservedUsd = 0,
 ): boolean {
-  const input =
-    estimateTokens(prompt) +
-    images.reduce((n, i) => n + imageTokens(i.width, i.height), 0)
-  const worst = costOf(provider, model, input, maxTokens)
-  return readKeyUsage(keyId, now).costUsd + worst <= capUsd
+  const worst = worstCost(provider, model, prompt, maxTokens, images)
+  const spent = readKeyUsage(keyId, now).costUsd + othersSpent(keyId, now)
+  return spent + reservedUsd + worst <= capUsd
+}
+
+// ---- Other devices (a key shared by key sync is capped as ONE key) ----
+
+const OTHERS = 'ai.usageOthers'
+
+/** Dollars this month that the same key spent on the user's other devices. */
+export function othersSpent(keyId: string, now: Date = new Date()): number {
+  const fresh: Saved = { month: monthKey(now), keys: {} }
+  const saved = readPref(OTHERS, isSaved, fresh)
+  return saved.month === fresh.month ? (saved.keys[keyId]?.costUsd ?? 0) : 0
+}
+
+/** Replaces what the other devices spent (sync calls this; it is not mirrored back). */
+export function setOthersUsage(
+  month: string,
+  keys: Record<string, Part>,
+): void {
+  writePref(OTHERS, { month, keys })
+}
+
+/** This device's month so far, per key (what sync sends to the other devices). */
+export function ownUsage(now: Date = new Date()): {
+  month: string
+  keys: Record<string, Part>
+} {
+  const s = read(now)
+  return { month: s.month, keys: s.keys }
+}
+
+const recordedListeners = new Set<() => void>()
+/** Called after every recorded call (sync mirrors this device's usage). */
+export function onUsageRecorded(fn: () => void): () => void {
+  recordedListeners.add(fn)
+  return () => recordedListeners.delete(fn)
 }
 
 export const isCap = (v: unknown): v is number =>

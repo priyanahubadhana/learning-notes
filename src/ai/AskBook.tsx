@@ -121,6 +121,7 @@ export function AskBook(props: AskBookProps) {
   const [stopped, setStopped] = useState(false)
   const [cards, setCards] = useState<ParsedCard[] | null>(null)
   const stop = useRef<AbortController | null>(null)
+  const making = useRef(false)
   useEffect(() => () => stop.current?.abort(), [])
 
   useEffect(() => {
@@ -287,6 +288,13 @@ export function AskBook(props: AskBookProps) {
       const r = await callAi(config, {
         prompt: prepared.prompt,
         maxTokens: prepared.maxTokens,
+        // The cost line above the Send button is this number.
+        approvedUsd: costOf(
+          config.provider,
+          config.candidates[0]?.model ?? config.model,
+          promptTokens(prepared.prompt),
+          prepared.maxTokens,
+        ),
         signal: ctrl.signal,
         onText: (piece) => setAnswer((a) => a + piece),
         log: {
@@ -320,6 +328,9 @@ export function AskBook(props: AskBookProps) {
   }
 
   const makeCards = async () => {
+    // One run at a time: a second tap waits for the first.
+    if (making.current) return
+    making.current = true
     try {
       const r = await runAi(
         config,
@@ -335,6 +346,8 @@ export function AskBook(props: AskBookProps) {
     } catch (e) {
       if (e instanceof AiError) toast(t('ai.failed', { reason: e.message }))
       else throw e
+    } finally {
+      making.current = false
     }
   }
 

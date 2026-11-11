@@ -224,6 +224,8 @@ export const esLib: Record<string, string> = {
   'ai.model': 'Modelo (vacío para el predeterminado)',
   'ai.cap': 'Límite mensual de cada clave ({currency})',
   'ai.usage': 'Este mes: unos {cost} gastados, {tokens} tokens.',
+  'ai.needsApproval':
+    'Esto podría costar unos {amount}. Ejecútalo desde una pantalla que muestre el coste antes, o elige un modelo más barato en Ajustes › IA.',
   'ai.capReached':
     'Se alcanzó el límite mensual. Súbelo en Ajustes › IA para continuar.',
   'ai.privacyTitle': 'Antes de usar la IA',

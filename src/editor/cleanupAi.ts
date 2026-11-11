@@ -87,6 +87,7 @@ export async function runCleanup(
   const r = await callAi(config, {
     prompt: composeCleanup(prompt, text),
     maxTokens: answerTokens(text),
+    approvedUsd: cleanupCost(config, prompt, text).usd,
     fetchImpl: o.fetchImpl,
     log: { notebookId: o.notebookId, feature: 'cleanup' },
   })

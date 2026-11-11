@@ -223,6 +223,8 @@ export const enLib = {
   'ai.model': 'Model (leave empty for the default)',
   'ai.cap': 'Monthly limit for each key ({currency})',
   'ai.usage': 'This month: about {cost} used, {tokens} tokens.',
+  'ai.needsApproval':
+    'This could cost about {amount}. Run it from a screen that shows the cost first, or choose a cheaper model in Settings › AI.',
   'ai.capReached':
     'The monthly cap is reached. Raise it in Settings › AI to continue.',
   'ai.privacyTitle': 'Before you use AI',

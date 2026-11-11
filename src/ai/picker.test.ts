@@ -186,6 +186,7 @@ describe('model order and fallback', () => {
   it('stops with the reason when every key fails, and on a refused request', async () => {
     addKey('anthropic', 'Claude', 'sk-ant-aaaaaaaa1111')
     addKey('gemini', 'Gemini', 'AIzaCCCCCCCC3333')
+    writePref(AI_KEYS.enabled, true)
     const cfg = readAiConfig()
     await expect(
       callAi(cfg, {

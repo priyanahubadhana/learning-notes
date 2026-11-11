@@ -98,9 +98,11 @@ async function postOnce(
     return await res.json()
   } catch (e) {
     if (e instanceof AiError) throw e
-    throw new AiError(
-      timeout.signal.aborted ? 'it took too long' : 'no connection',
-    )
+    // A timeout may still have been processed (and billed) on their side.
+    if (timeout.signal.aborted) {
+      throw new AiError('it took too long', undefined, true)
+    }
+    throw new AiError('no connection')
   } finally {
     clearTimeout(timer)
   }
@@ -299,6 +301,7 @@ export async function stream(
   let inputTokens = 0
   let outputTokens = 0
   let cachedTokens = 0
+  let cutOff = false
   try {
     for await (const ev of sseData(res.body)) {
       if (stoppedEarly()) break
@@ -334,10 +337,13 @@ export async function stream(
       }
     }
   } catch (e) {
-    if (e instanceof AiError) throw e
-    if (!stoppedEarly()) throw new AiError('no connection')
+    if (e instanceof AiError && !text) throw e
+    // The connection dropped part way: the words that came were billed, so
+    // they are kept and counted (marked stopped) instead of lost.
+    if (!stoppedEarly() && !text) throw new AiError('no connection')
+    cutOff = !stoppedEarly()
   }
-  const stopped = stoppedEarly()
+  const stopped = stoppedEarly() || cutOff
   if (!text && !stopped) throw new AiError('the answer was empty')
   if (!inputTokens)
     inputTokens = Math.ceil(

@@ -761,7 +761,7 @@ export interface Annotation extends BaseRecord {
  * is never written to a backup file (share/fullFile.ts).
  */
 export interface SecretRecord extends BaseRecord {
-  kind: 'aiKeys' | 'toolbarLayout'
+  kind: 'aiKeys' | 'toolbarLayout' | 'aiUsage'
   /** The secret itself, as the owner feature defines it. */
   value: JsonObject
 }

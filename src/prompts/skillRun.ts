@@ -117,10 +117,12 @@ export async function runSkill(
   if (estimateTokens(prefix + prompt) > MAX_INPUT_TOKENS) {
     throw new AiError(t('ai.tooMuch'))
   }
-  const r = await callAi(skillConfig(config, item), {
+  const chosen = skillConfig(config, item)
+  const r = await callAi(chosen, {
     cachePrefix: prefix,
     prompt,
     maxTokens: skillMaxTokens(item.parts),
+    approvedUsd: skillCost(chosen, item, input).usd,
     fetchImpl: o.fetchImpl,
     log: { notebookId: o.page?.notebookId, feature: 'skill' },
     where: o.page && o.db ? { db: o.db, pageId: o.page.id } : undefined,
@@ -211,6 +213,7 @@ export async function runFactCheck(
   const r = await callAi(secondModelConfig(config, mainModel), {
     prompt: factCheckPrompt(result),
     maxTokens: factCheckMaxTokens(result.points.length),
+    approvedUsd: factCheckCost(config, result, mainModel).usd,
     fetchImpl: o.fetchImpl,
     log: { notebookId: o.page?.notebookId, feature: 'factCheck' },
     where: o.page && o.db ? { db: o.db, pageId: o.page.id } : undefined,

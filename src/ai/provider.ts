@@ -101,9 +101,15 @@ export interface AiResult {
 /** A failure with a plain reason (never contains the key). */
 export class AiError extends Error {
   status?: number
-  constructor(message: string, status?: number) {
+  /**
+   * The request may have been processed and billed although no answer came
+   * (it timed out). Such a call is never retried or sent to another model.
+   */
+  maybeBilled?: boolean
+  constructor(message: string, status?: number, maybeBilled?: boolean) {
     super(message)
     this.status = status
+    this.maybeBilled = maybeBilled
   }
 }
 

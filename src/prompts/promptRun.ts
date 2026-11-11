@@ -129,9 +129,12 @@ export async function runPrompt(
   if (estimateTokens(prompt) > MAX_INPUT_TOKENS) {
     throw new AiError(t('ai.tooMuch'))
   }
-  const r = await callAi(configFor(config, item), {
+  const chosen = configFor(config, item)
+  const r = await callAi(chosen, {
     prompt,
     maxTokens: PROMPT_MAX_TOKENS,
+    // The cost line the person saw before Run.
+    approvedUsd: estimateCost(chosen, prompt, PROMPT_MAX_TOKENS).usd,
     fetchImpl: o.fetchImpl,
     log: { notebookId: o.page?.notebookId, feature: 'prompt' },
     where: o.page && o.db ? { db: o.db, pageId: o.page.id } : undefined,

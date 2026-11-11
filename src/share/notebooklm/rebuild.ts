@@ -72,6 +72,13 @@ export async function rebuildMindMap(
   const result = await callAi(config, {
     prompt: REBUILD_PROMPT,
     maxTokens: MAX_OUT,
+    // The cost line shown before the picture is sent.
+    approvedUsd: costOf(
+      config.provider,
+      config.model,
+      estimateTokens(REBUILD_PROMPT) + imageTokens(image.width, image.height),
+      MAX_OUT,
+    ),
     images: [image],
     log: { feature: 'mindMapPicture' },
     where: { db, pageId },

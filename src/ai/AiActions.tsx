@@ -1,5 +1,5 @@
 import { useLiveQuery } from 'dexie-react-hooks'
-import { useContext, useState } from 'react'
+import { useContext, useRef, useState } from 'react'
 import { AppUiContext } from '../app/appUi'
 import { runTask } from '../app/errors'
 import { readPref, writePref } from '../app/uiPrefs'
@@ -52,6 +52,9 @@ export function AiActions({
   const { toast, openSettings } = useContext(AppUiContext)
   useAiTick()
   const [busy, setBusy] = useState(false)
+  // Set at once on a tap (state updates later): a second tap while the first
+  // is still checking cannot start a second paid call.
+  const working = useRef(false)
   const [privacyFor, setPrivacyFor] = useState<AiAction | null>(null)
   const [proposal, setProposal] = useState<ParsedCard[] | null>(null)
   // A summary or key points wait here until you press Add to page.
@@ -101,6 +104,16 @@ export function AiActions({
   }
 
   const start = async (action: AiAction) => {
+    if (working.current) return
+    working.current = true
+    try {
+      await startOnce(action)
+    } finally {
+      working.current = false
+    }
+  }
+
+  const startOnce = async (action: AiAction) => {
     const why = blocker(
       config,
       !!notebook?.allowAi,

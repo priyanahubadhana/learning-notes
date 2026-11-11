@@ -1,9 +1,11 @@
 import { liveQuery } from 'dexie'
 import type { LearningNotesDB } from '../core/db'
 import { stableId } from '../core/ids'
+import { getDeviceId } from '../sync/device'
 import { newRecordFields } from '../core/records'
 import type { JsonObject, SecretRecord } from '../core/types'
 import { readPref, writePref } from '../app/uiPrefs'
+import { monthKey, onUsageRecorded, ownUsage, setOthersUsage } from './usage'
 import {
   isAiKey,
   listKeys,
@@ -22,6 +24,9 @@ import {
  * - The switch travels in the record (`on`): turning it off on one device
  *   empties the record and turns it off everywhere; every device keeps the
  *   keys it already has.
+ * - Each device also writes what its calls cost this month (an `aiUsage`
+ *   record of its own, no keys in it), and every device adds the others' use
+ *   of a shared key to its monthly-cap check, so N devices share ONE cap.
  * - Turning it on joins the record's keys with this device's (by id; this
  *   device's copy of a key wins), then sends the result.
  */
@@ -56,6 +61,51 @@ async function writeValue(db: LearningNotesDB, value: AiKeysValue) {
     deletedAt: null,
   }
   await db.secrets.put(rec)
+}
+
+/** This device's own usage record (one per device, so devices never overwrite each other). */
+const usageIdOf = (device: string) => stableId(`secret:aiUsage:${device}`)
+
+async function writeOwnUsage(db: LearningNotesDB) {
+  const own = ownUsage()
+  const id = usageIdOf(getDeviceId())
+  const old = await db.secrets.get(id)
+  await db.secrets.put({
+    ...(old ?? { ...newRecordFields(), id }),
+    kind: 'aiUsage',
+    value: own as unknown as JsonObject,
+    updatedAt: Date.now(),
+    deletedAt: null,
+  })
+}
+
+/** Adds up the other devices' records for this month and hands the total to the cap check. */
+export async function readOthersUsage(db: LearningNotesDB) {
+  const mine = usageIdOf(getDeviceId())
+  const month = monthKey()
+  const keys: Record<
+    string,
+    { inputTokens: number; outputTokens: number; costUsd: number }
+  > = {}
+  for (const r of await db.secrets.toArray()) {
+    if (r.kind !== 'aiUsage' || r.deletedAt || r.id === mine) continue
+    const v = r.value as unknown as ReturnType<typeof ownUsage>
+    if (!v || v.month !== month || !v.keys || typeof v.keys !== 'object')
+      continue
+    for (const [keyId, u] of Object.entries(v.keys)) {
+      const n = (x: unknown) =>
+        typeof x === 'number' && Number.isFinite(x) && x >= 0 ? x : 0
+      const t = (keys[keyId] ??= {
+        inputTokens: 0,
+        outputTokens: 0,
+        costUsd: 0,
+      })
+      t.inputTokens += n(u?.inputTokens)
+      t.outputTokens += n(u?.outputTokens)
+      t.costUsd += n(u?.costUsd)
+    }
+  }
+  setOthersUsage(month, keys)
 }
 
 const changeListeners = new Set<() => void>()
@@ -99,6 +149,14 @@ export function startKeySync(db: LearningNotesDB): void {
     if (applying || !keySyncOn()) return
     void writeValue(db, { on: true, keys: list })
   })
+  // Spending is shared with the keys: this device's use goes out, the others' comes in.
+  const offUsage = onUsageRecorded(() => {
+    if (keySyncOn()) void writeOwnUsage(db)
+  })
+  const usageSub = liveQuery(() => readOthersUsage(db)).subscribe({
+    next: () => {},
+    error: () => {},
+  })
   let last: string | undefined
   const sub = liveQuery(() => db.secrets.get(AI_KEYS_SECRET_ID)).subscribe({
     next: (rec) => {
@@ -127,6 +185,8 @@ export function startKeySync(db: LearningNotesDB): void {
   })
   running.set(db, () => {
     offSave()
+    offUsage()
+    usageSub.unsubscribe()
     sub.unsubscribe()
   })
 }

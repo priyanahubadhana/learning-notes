@@ -14,7 +14,8 @@ import {
 } from './provider'
 import { complete, stream } from './providers'
 import { logSend } from './sendLog'
-import { costOf, isCap, recordUsage, withinCap } from './usage'
+import { formatAmount, toCurrency } from './costCurrency'
+import { costOf, isCap, recordUsage, withinCap, worstCost } from './usage'
 
 /**
  * Which key and model a request uses, and what happens when one fails.
@@ -122,8 +123,17 @@ export function forNotebook(
   return withHead({ ...config, candidates: [c] }, keys)
 }
 
+/**
+ * A single call whose worst case costs more than this (US dollars) never goes
+ * out unless the screen showed that cost first and passed it as
+ * `approvedUsd`. Cheap one-tap actions stay one tap.
+ */
+export const AUTO_OK_USD = 0.1
+
 /** Errors another key or model could get past: refused, no credit, busy, offline. */
 function canFallBack(e: AiError): boolean {
+  // A timeout may already be billed: asking another model would pay twice.
+  if (e.maybeBilled) return false
   return (
     e.status === undefined ||
     e.status === 401 ||
@@ -148,18 +158,88 @@ export interface AiRequest {
   /** For the "Everything AI sent" log (no content is logged). */
   log?: { notebookId?: string; feature: string }
   /**
+   * The worst-case cost (US dollars) the screen showed the person before the
+   * run. A call that could cost more than `AUTO_OK_USD` and more than this
+   * is refused, so no costly call can start unseen.
+   */
+  approvedUsd?: number
+  /**
    * The page the words or picture come from. With it, `callAi` refuses a
    * locked page (or notebook) unless the notebook allows AI while locked.
    */
   where?: { db: LearningNotesDB; pageId: string }
 }
 
+/** Dollars each key may still have to pay for calls that have not finished. */
+const reserved = new Map<string, number>()
+/** Identical requests running now share one call (a double tap pays once). */
+const running = new Map<string, Promise<AiResult & { stopped?: boolean }>>()
+const testing = new Map<
+  string,
+  Promise<{ ok: true } | { ok: false; reason: string }>
+>()
+
+function hashText(text: string): string {
+  let h = 5381
+  for (let i = 0; i < text.length; i++) {
+    h = ((h * 33) ^ text.charCodeAt(i)) >>> 0
+  }
+  return h.toString(36)
+}
+
+/** The same words, pictures, limit and choices give the same fingerprint. */
+function fingerprint(config: AiConfig, req: AiRequest): string {
+  return hashText(
+    JSON.stringify([
+      config.candidates,
+      req.prompt,
+      req.cachePrefix ?? '',
+      req.maxTokens,
+      (req.images ?? []).map((i) => [
+        i.width,
+        i.height,
+        i.data.length,
+        i.data.slice(0, 64),
+        i.data.slice(-64),
+      ]),
+      req.log?.feature,
+    ]),
+  )
+}
+
+/** Runs `fn` unless the very same request is already running: then it shares that one. */
+function once<T>(
+  id: string,
+  map: Map<string, Promise<T>>,
+  fn: () => Promise<T>,
+): Promise<T> {
+  const live = map.get(id)
+  if (live) return live
+  const p = fn().finally(() => map.delete(id))
+  map.set(id, p)
+  return p
+}
+
 /**
- * One request with every check: the key's monthly cap before the call, the
- * usage recorded after it. A key that fails (or is at its cap) is skipped and
- * the next choice is tried; a refused request (400) stops at once.
+ * One request with every check: AI is on (read live, so a switch turned off
+ * a moment ago holds), the key's monthly cap before the call (counting calls
+ * still running and the same key's use on other devices), the cost shown for
+ * a costly call, the usage recorded after it. A key that fails (or is at its
+ * cap) is skipped and the next choice is tried; a refused request (400)
+ * stops at once. An identical request already running is shared, not paid
+ * for twice.
  */
-export async function callAi(
+export function callAi(
+  config: AiConfig,
+  req: AiRequest,
+): Promise<AiResult & { stopped?: boolean }> {
+  if (!config.enabled || !readPref(AI_KEYS.enabled, isBool, false)) {
+    return Promise.reject(new AiError(t('ai.notReady')))
+  }
+  return once(fingerprint(config, req), running, () => callAiOnce(config, req))
+}
+
+async function callAiOnce(
   config: AiConfig,
   req: AiRequest,
 ): Promise<AiResult & { stopped?: boolean }> {
@@ -174,23 +254,46 @@ export async function callAi(
     const key = getKeyById(c.keyId)
     if (!key) continue
     if (req.images?.length && modelInfo(c.model)?.vision === false) continue
+    // The switch is read again here: it may have been turned off while the
+    // lock check above or an earlier choice was running.
+    if (!readPref(AI_KEYS.enabled, isBool, false)) {
+      throw new AiError(t('ai.notReady'))
+    }
     const cap = key.capUsd ?? config.capUsd
+    const all = (req.cachePrefix ?? '') + req.prompt
+    const worst = worstCost(
+      key.provider,
+      c.model,
+      all,
+      req.maxTokens,
+      req.images,
+    )
+    if (worst > Math.max(AUTO_OK_USD, (req.approvedUsd ?? 0) * 1.1 + 0.001)) {
+      last = new AiError(
+        t('ai.needsApproval', { amount: formatAmount(toCurrency(worst)) }),
+      )
+      continue
+    }
     if (
       !withinCap(
         key.id,
         key.provider,
         c.model,
-        (req.cachePrefix ?? '') + req.prompt,
+        all,
         req.maxTokens,
         cap,
         new Date(),
         req.images,
+        reserved.get(key.id) ?? 0,
       )
     ) {
       last = new AiError(t('ai.capReached'))
       failed.add(key.id)
       continue
     }
+    // No await between the cap check and this line: the reservation makes a
+    // second call started at the same moment count this one.
+    reserved.set(key.id, (reserved.get(key.id) ?? 0) + worst)
     try {
       const call = {
         provider: key.provider,
@@ -220,31 +323,37 @@ export async function callAi(
         undefined,
         result.cachedTokens,
       )
-      {
-        logSend({
-          at: Date.now(),
-          notebookId: req.log?.notebookId,
-          feature: req.log?.feature ?? 'other',
-          host: PROVIDERS[key.provider].host,
-          keyId: key.id,
-          model: c.model,
-          inputTokens: result.inputTokens,
-          outputTokens: result.outputTokens,
-          costUsd: costOf(
-            key.provider,
-            c.model,
-            result.inputTokens,
-            result.outputTokens,
-            result.cachedTokens,
-          ),
-        })
-      }
+      logSend({
+        at: Date.now(),
+        notebookId: req.log?.notebookId,
+        feature: req.log?.feature ?? 'other',
+        host: PROVIDERS[key.provider].host,
+        keyId: key.id,
+        model: c.model,
+        inputTokens: result.inputTokens,
+        outputTokens: result.outputTokens,
+        costUsd: costOf(
+          key.provider,
+          c.model,
+          result.inputTokens,
+          result.outputTokens,
+          result.cachedTokens,
+        ),
+      })
       return result
     } catch (e) {
+      if (e instanceof AiError && e.maybeBilled) {
+        // No answer came, but their side may have counted the words we sent.
+        recordUsage(key.id, key.provider, c.model, Math.ceil(all.length / 4), 0)
+      }
       // Once part of an answer has been shown, another key is not tried.
       if (streamed || !(e instanceof AiError) || !canFallBack(e)) throw e
       last = e
       failed.add(key.id)
+    } finally {
+      const left = (reserved.get(key.id) ?? 0) - worst
+      if (left > 1e-12) reserved.set(key.id, left)
+      else reserved.delete(key.id)
     }
   }
   throw last ?? new AiError(t('ai.notReady'))
@@ -260,12 +369,40 @@ export async function testKey(
     return { ok: false, reason: t('ai.notReady') }
   }
   const model = PROVIDERS[key.provider].defaultModel
+  return once(`test:${keyId}`, testing, () => runTest(key, model, fetchImpl))
+}
+
+const TEST_PROMPT = 'Reply with the word OK.'
+
+async function runTest(
+  key: AiKey,
+  model: string,
+  fetchImpl?: typeof fetch,
+): Promise<{ ok: true } | { ok: false; reason: string }> {
+  // A test is a real (tiny) call: the cap holds for it too.
+  const cap = key.capUsd ?? readPref(AI_KEYS.cap, isCap, DEFAULT_CAP_USD)
+  const held = reserved.get(key.id) ?? 0
+  if (
+    !withinCap(
+      key.id,
+      key.provider,
+      model,
+      TEST_PROMPT,
+      64,
+      cap,
+      new Date(),
+      [],
+      held,
+    )
+  ) {
+    return { ok: false, reason: t('ai.capReached') }
+  }
   try {
     const r = await complete({
       provider: key.provider,
       key: key.key,
       model,
-      prompt: 'Reply with the word OK.',
+      prompt: TEST_PROMPT,
       maxTokens: 64,
       fetchImpl,
       sleep: async () => {},

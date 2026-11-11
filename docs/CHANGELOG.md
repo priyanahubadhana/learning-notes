@@ -2,6 +2,10 @@
 
 Current phase only. Older entries are in [ARCHIVE.md](ARCHIVE.md).
 
+## 2026-11-11 (CI fix for Text box v2)
+
+- Prettier on docs/PENDING.md (the `checks` job). Text wrap uses `overflow-wrap: break-word` (same look; `anywhere` made scrolling a mixed page slow, p95 100 ms). "Tap here to keep writing" sits lower (mt-10) so the first box's bottom handle never covers it. pictureStrip e2e taps the editor bottom-right (the picture corner handle owns the top-left). Files: docs/PENDING.md, src/index.css, src/editor/PageEditor.tsx, e2e/pictureStrip.spec.ts.
+
 ## 2026-11-11 (Text box v2, step 1: the bugs)
 
 - **First box = every box:** the page's first box now has a frame, the 8 handles, a centred ≡ grab tab and the full ⋯ menu (Box style, Copy, Cut, Duplicate, Colour, Layout; no Delete, the page always keeps its first box). Box style (fill, border, corners, padding) and Colour now draw on it, and the "Box style" button in the format bar works for it.

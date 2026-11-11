@@ -1000,7 +1000,7 @@ function LoadedPageEditor({
         <button
           type="button"
           onClick={() => focusEndLine(editor)}
-          className="ln-tap-below mt-2 flex min-h-24 w-full cursor-text items-start rounded-lg px-1 py-2 text-left text-sm text-muted/70"
+          className="ln-tap-below mt-10 flex min-h-24 w-full cursor-text items-start rounded-lg px-1 py-2 text-left text-sm text-muted/70"
         >
           {t('bar.tapBelow')}
         </button>

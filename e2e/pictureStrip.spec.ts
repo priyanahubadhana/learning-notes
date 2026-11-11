@@ -136,7 +136,11 @@ test('resize, background and back, type, resize again: the picture stays, Undo r
     set('visible')
     document.dispatchEvent(new Event('visibilitychange'))
   })
-  await page.locator('.bn-editor').click({ position: { x: 5, y: 5 } })
+  // Bottom-right of the editor: the picture's corner handle sits at the top-left.
+  const eb = (await page.locator('.bn-editor').boundingBox())!
+  await page.locator('.bn-editor').click({
+    position: { x: eb.width - 6, y: eb.height - 6 },
+  })
   await page.keyboard.type('hello')
 
   // Select it again and shrink far past the minimum.

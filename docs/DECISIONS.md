@@ -1028,3 +1028,8 @@ The other older decisions stand as built (owner, 2026-11-01); they are in [ARCHI
 ## Decisions to review (Pencil double tap, 11 Nov)
 
 - **Grace period 600 ms** after a tap selects text, nothing may delete, replace or write over the selection (no key pressed). Chosen just above the 500 ms Pencil-lift window and the 450 ms tap gap; short enough that real Scribble writing still works a moment later. Applies even when Scribble is free (Text tool). Side effect: dictation or autocorrect inside that 600 ms is also refused. Change: SELECT_GRACE_MS in src/editor/penGuard.ts.
+
+## Decisions to review (CI fix, 11 Nov)
+
+- **pictureStrip e2e:** the test now clicks the editor bottom-right instead of (5,5), because the owner new handle design puts the picture corner handle over the top-left. Behaviour was intentionally changed, not a bug.
+- **Tap-below button** moved 24 px lower so the first box handles do not cover it; text wrap uses break-word instead of anywhere (performance).

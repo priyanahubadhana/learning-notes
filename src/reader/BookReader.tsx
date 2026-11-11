@@ -75,7 +75,10 @@ import {
   recordSpeed,
 } from './extras/timeLeft'
 import { useDeviceSetting } from '../settings/useSetting'
-import { readingOrientSetting } from '../settings/readingSettings'
+import {
+  readingOrientSetting,
+  readingPdfFlowSetting,
+} from '../settings/readingSettings'
 
 const PdfView = lazy(() =>
   import('./pdf/PdfView').then((m) => ({ default: m.PdfView })),
@@ -139,6 +142,9 @@ export function BookReader({
   } | null>(null)
   const [epubSize, setEpubSize] = usePref('epubSize', isSize, 100)
   const [epubFlow, setEpubFlow] = usePref('epubFlow', isFlow, 'scrolled')
+  // A PDF: one long scroll, or one whole page at a time (Settings › Reading).
+  const [pdfFlow, setPdfFlow] = useDeviceSetting(readingPdfFlowSetting)
+  const pdfPaged = pdfFlow === 'paged'
   const [command, setCommand] = useState<{
     type: 'prev' | 'next' | 'fraction'
     nonce: number
@@ -953,6 +959,15 @@ export function BookReader({
           <>
             <button
               type="button"
+              aria-pressed={pdfPaged}
+              data-testid="pdf-flow"
+              className={panelBtn(false)}
+              onClick={() => setPdfFlow(pdfPaged ? 'scrolled' : 'paged')}
+            >
+              {pdfPaged ? t('bookreader.pages') : t('bookreader.scroll')}
+            </button>
+            <button
+              type="button"
               data-testid="reader-find"
               aria-pressed={panel === 'find'}
               className={panelBtn(panel === 'find')}
@@ -1192,6 +1207,7 @@ export function BookReader({
               startAt={at ?? page.source.at}
               annotations={annotations ?? []}
               zoom={zoom}
+              paged={pdfPaged}
               onZoom={setZoom}
               onDoc={setPdfDoc}
               target={target}
@@ -1318,8 +1334,18 @@ export function BookReader({
             onLook={setLook}
             size={epubSize}
             onSize={setEpubSize}
-            flow={epubFlow}
-            onFlow={setEpubFlow}
+            flow={
+              format === 'pdf'
+                ? pdfPaged
+                  ? 'paginated'
+                  : 'scrolled'
+                : epubFlow
+            }
+            onFlow={(f) =>
+              format === 'pdf'
+                ? setPdfFlow(f === 'paginated' ? 'paged' : 'scrolled')
+                : setEpubFlow(f)
+            }
             format={bridgeFormat}
             onClose={() => setAaOpen(false)}
           />

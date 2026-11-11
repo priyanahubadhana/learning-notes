@@ -5,7 +5,7 @@
  */
 
 /** Gap between pages (CSS px). */
-const PAGE_GAP = 12
+export const PAGE_GAP = 12
 
 export interface PageSize {
   w: number
@@ -107,6 +107,24 @@ export function fitWidthScale(
   padding = 24,
 ): number {
   return Math.max(0.1, (containerWidth - padding) / pageWidth)
+}
+
+/**
+ * Page-by-page mode: the scale that fits a whole page on one screen (width
+ * and height), leaving a gap above and below so the next page never peeks in.
+ * With no height yet it falls back to fit width.
+ */
+export function fitPageScale(
+  containerWidth: number,
+  containerHeight: number,
+  size: PageSize,
+  gap: number = PAGE_GAP,
+  padding = 24,
+): number {
+  const byWidth = fitWidthScale(containerWidth, size.w, padding)
+  if (containerHeight <= 0) return byWidth
+  const byHeight = Math.max(0.1, (containerHeight - 2 * gap) / size.h)
+  return Math.min(byWidth, byHeight)
 }
 
 /** Largest scale that keeps one canvas under `maxPixels` (16.7 M by default). */

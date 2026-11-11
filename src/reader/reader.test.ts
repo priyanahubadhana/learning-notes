@@ -22,7 +22,9 @@ import { saveAnnotationTo } from './annotations/saveToNotes'
 import { lookupUrl } from './annotations/colours'
 import {
   capScale,
+  fitPageScale,
   fitWidthScale,
+  PAGE_GAP,
   flattenRects,
   groupRects,
   layoutPages,
@@ -242,5 +244,27 @@ describe('look up', () => {
     )
     expect(lookupUrl('wikipedia', 'a b')).toContain('search=a%20b')
     expect(lookupUrl('translate', 'x'.repeat(200)).length).toBeLessThan(200)
+  })
+})
+
+describe('PDF page by page', () => {
+  it('fits a whole page on one screen (width or height, whichever is tighter)', () => {
+    const size = { w: 600, h: 800 }
+    // A tall, narrow screen: the width decides.
+    expect(fitPageScale(324, 2000, size)).toBeCloseTo((324 - 24) / 600)
+    // A wide, short screen: the height decides, with a gap above and below.
+    const s = fitPageScale(1400, 700, size)
+    expect(s).toBeCloseTo((700 - 24) / 800)
+    expect(size.h * s + 2 * PAGE_GAP).toBeLessThanOrEqual(700 + 0.001)
+  })
+
+  it('falls back to fit width before the screen height is known', () => {
+    expect(fitPageScale(624, 0, { w: 600, h: 800 })).toBe(
+      fitWidthScale(624, 600),
+    )
+  })
+
+  it('never goes below the smallest scale on a tiny screen', () => {
+    expect(fitPageScale(10, 10, { w: 600, h: 800 })).toBeGreaterThanOrEqual(0.1)
   })
 })

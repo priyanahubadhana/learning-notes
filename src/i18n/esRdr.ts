@@ -113,4 +113,8 @@ export const esRdr: Record<string, string> = {
   'reader.ink.type': 'Tipo de pluma',
   'reader.ink.opacity': 'Opacidad',
   'reader.ink.customColour': 'Color personalizado',
+  'settings.reading.pdfFlow.label': 'Páginas del PDF',
+  'settings.reading.pdfFlow.description': 'Lee un PDF como un desplazamiento largo o una página entera cada vez (desliza para pasar).',
+  'reading.opt.pdfFlow.scrolled': 'Desplazamiento continuo',
+  'reading.opt.pdfFlow.paged': 'Una página cada vez',
 }

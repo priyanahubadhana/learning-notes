@@ -22,7 +22,9 @@ import {
   capScale,
   pinchRatio,
   roundZoom,
+  fitPageScale,
   fitWidthScale,
+  PAGE_GAP,
   flattenRects,
   groupRects,
   layoutPages,
@@ -83,6 +85,8 @@ export interface PdfViewProps {
   startAt?: string
   annotations: readonly Annotation[]
   zoom: number
+  /** Page by page: a swipe or turn shows one whole page (default: one long scroll). */
+  paged?: boolean
   /** Jump to a locator; a new `nonce` repeats the jump. `glow` flashes an annotation. */
   target?: { at: string; nonce: number; glow?: string } | null
   onReady: (info: { pageCount: number }) => void
@@ -108,10 +112,12 @@ const DEFAULT_SIZE: PageSize = { w: 612, h: 792 }
  */
 export function PdfView(props: PdfViewProps) {
   const { data, annotations, zoom, target, startAt } = props
+  const paged = props.paged === true
   const scroller = useRef<HTMLDivElement>(null)
   const [doc, setDoc] = useState<PDFDocumentProxy | null>(null)
   const [sizes, setSizes] = useState<PageSize[]>([])
   const [width, setWidth] = useState(0)
+  const [height, setHeight] = useState(0)
   const [range, setRange] = useState<[number, number]>([0, 0])
   const [inkWrap, setInkWrap] = useState<HTMLElement | null>(null)
   const propsRef = useRef(props)
@@ -176,7 +182,10 @@ export function PdfView(props: PdfViewProps) {
   useLayoutEffect(() => {
     const el = scroller.current
     if (!el) return
-    const update = () => setWidth(el.clientWidth)
+    const update = () => {
+      setWidth(el.clientWidth)
+      setHeight(el.clientHeight)
+    }
     update()
     const ro = new ResizeObserver(update)
     ro.observe(el)
@@ -184,7 +193,10 @@ export function PdfView(props: PdfViewProps) {
   }, [])
 
   const base = sizes[0] ?? DEFAULT_SIZE
-  const scale = width > 0 ? fitWidthScale(width, base.w) * zoom : 1
+  const fit = paged
+    ? fitPageScale(width, height, base)
+    : fitWidthScale(width, base.w)
+  const scale = width > 0 ? fit * zoom : 1
   const layout = useMemo(() => layoutPages(sizes, scale), [sizes, scale])
 
   // Which pages to draw and where the reader is.
@@ -410,7 +422,14 @@ export function PdfView(props: PdfViewProps) {
       data-testid="pdf-scroller"
       data-reader-scroll
       tabIndex={0}
+      data-flow={paged ? 'paged' : 'scrolled'}
       className="relative min-h-0 flex-1 overflow-auto bg-soft"
+      style={
+        // Page by page: a swipe settles on a page edge (not while zoomed in).
+        paged && zoom <= 1.05
+          ? { scrollSnapType: 'y mandatory', overscrollBehavior: 'contain' }
+          : undefined
+      }
     >
       <div
         ref={content}
@@ -433,6 +452,9 @@ export function PdfView(props: PdfViewProps) {
                 transform: 'translateX(-50%)',
                 inlineSize: size.w * scale,
                 blockSize: size.h * scale,
+                ...(paged && zoom <= 1.05
+                  ? { scrollSnapAlign: 'start', scrollMarginTop: PAGE_GAP }
+                  : {}),
               }}
               className="bg-white shadow-sm"
             >

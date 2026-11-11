@@ -180,6 +180,18 @@ export const readingBarSetting: SettingDefinition<BarMode> = choice(
   isBarMode,
   { keywords: 'reader bar top close exit controls scroll' },
 )
+/** A PDF: one long scroll, or one whole page at a time. */
+const PDF_FLOWS = ['scrolled', 'paged'] as const
+type PdfFlow = (typeof PDF_FLOWS)[number]
+const isPdfFlow = (v: unknown): v is PdfFlow =>
+  v === 'scrolled' || v === 'paged'
+export const readingPdfFlowSetting: SettingDefinition<PdfFlow> = choice(
+  'pdfFlow',
+  PDF_FLOWS,
+  'scrolled',
+  isPdfFlow,
+  { keywords: 'pdf page by page paged continuous scroll swipe turn' },
+)
 export const readingBarPinSetting: SettingDefinition<OnOffValue> = choice(
   'barPin',
   ON_OFF,
@@ -229,6 +241,7 @@ for (const definition of [
   readingBlanksSetting,
   readingAlignSetting,
   readingBarSetting,
+  readingPdfFlowSetting,
   readingDimSetting,
   readingGlideSetting,
   readingSpeedSetting,

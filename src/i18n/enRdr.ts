@@ -111,4 +111,8 @@ export const enRdr = {
   'reader.ink.type': 'Pen type',
   'reader.ink.opacity': 'Opacity',
   'reader.ink.customColour': 'Custom colour',
+  'settings.reading.pdfFlow.label': 'PDF pages',
+  'settings.reading.pdfFlow.description': 'Read a PDF as one long scroll, or one whole page at a time (swipe to turn).',
+  'reading.opt.pdfFlow.scrolled': 'Continuous scroll',
+  'reading.opt.pdfFlow.paged': 'One page at a time',
 }

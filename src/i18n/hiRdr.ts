@@ -111,4 +111,8 @@ export const hiRdr: Record<string, string> = {
   'reader.ink.type': 'कलम का प्रकार',
   'reader.ink.opacity': 'पारदर्शिता',
   'reader.ink.customColour': 'अपना रंग',
+  'settings.reading.pdfFlow.label': 'PDF पेज',
+  'settings.reading.pdfFlow.description': 'PDF को एक लंबे स्क्रॉल में पढ़ें, या एक बार में एक पूरा पेज (पलटने के लिए स्वाइप करें)।',
+  'reading.opt.pdfFlow.scrolled': 'लगातार स्क्रॉल',
+  'reading.opt.pdfFlow.paged': 'एक बार में एक पेज',
 }

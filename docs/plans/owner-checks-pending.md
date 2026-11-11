@@ -1,5 +1,8 @@
 # Owner checks still pending (collected for the end-of-run iPad pass)
 
+## Reader: PDF page by page (11 Nov)
+
+On the iPad: open a PDF. Tap Pages in the reader bar (or Aa › Layout › Continuous scrolling off): one whole page fills the screen; swipe up: it settles on the next page, no half pages. Pinch to zoom in: you can pan freely; zoom back out: it snaps to a page again. Settings › Reading › PDF pages sets the same thing and is remembered. Why human: touch scrolling and scroll-snap feel on real iPadOS.
 ## Batch H, iPad checks (12 Nov)
 
 (1) Notebooks home: All / Starred / Recent tabs. (2) Notebook Database tab: the Page filter. (3) Search a ticked checkbox name and a formula result. (4) Tap a picture, Border cycles thin / thick / none. (5) YouTube card: Start at 1:30 and Small / Medium / Full. (6) Delete a page with a picture, empty Trash: the picture is gone from storage.

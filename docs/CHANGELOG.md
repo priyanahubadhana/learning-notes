@@ -2,6 +2,11 @@
 
 Current phase only. Older entries are in [ARCHIVE.md](ARCHIVE.md).
 
+## 2026-11-11 (Reader: PDF continuous or page by page)
+
+- **What:** A PDF can now be read one whole page at a time. Settings › Reading › PDF pages (Continuous scroll / One page at a time, a device setting), a Scroll/Pages toggle in the reader bar, and the Aa sheet's Continuous scrolling switch (Layout tab) all change the same value. Page by page fits the whole page on one screen (`fitPageScale`: width and height) and the scroller snaps to page edges (CSS scroll-snap, `mandatory`, switched off while zoomed in so panning stays free). Page Flip, Contents, bookmarks, Find, highlights and ink keep working because the layout is the same column.
+- **Why:** Owner asked for it (Builder H left it undone, DECISIONS d).
+- **Files:** src/reader/pdf/{PdfView.tsx,pdfLayout.ts}, src/reader/{BookReader,AaSheet}.tsx, src/settings/readingSettings.ts, src/i18n/{en,es,hi}Rdr.ts, src/reader/reader.test.ts, e2e/pdfFlow.spec.ts.
 ## 2026-11-12 (batch H: tables, search, notebooks home, perf, size, Delete forever)
 
 - **Item 1:** table and database rows never cross a sheet gap: guaranteed by the spacer rows in paginate.ts; checked by e2e/tableGap.spec.ts and e2e/databaseGap.spec.ts (both green). No change.

@@ -163,20 +163,20 @@ export default function AaSheet({
                 </button>
               ))}
             </div>
+            <label className="flex min-h-11 items-center justify-between gap-3 text-sm">
+              {t('aa.continuous')}
+              <input
+                type="checkbox"
+                checked={flow === 'scrolled'}
+                data-testid="aa-continuous"
+                onChange={(e) =>
+                  onFlow(e.target.checked ? 'scrolled' : 'paginated')
+                }
+                className="size-5"
+              />
+            </label>
             {epub && (
               <>
-                <label className="flex min-h-11 items-center justify-between gap-3 text-sm">
-                  {t('aa.continuous')}
-                  <input
-                    type="checkbox"
-                    checked={flow === 'scrolled'}
-                    data-testid="aa-continuous"
-                    onChange={(e) =>
-                      onFlow(e.target.checked ? 'scrolled' : 'paginated')
-                    }
-                    className="size-5"
-                  />
-                </label>
                 <div className="flex gap-2">
                   {(['left', 'justify'] as const).map((a) => (
                     <button

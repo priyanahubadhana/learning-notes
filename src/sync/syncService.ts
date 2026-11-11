@@ -463,6 +463,24 @@ export async function unlock(
   return true
 }
 
+/**
+ * "Let Claude work with my notes": checks the passphrase (or recovery code)
+ * against the key copies on the server and returns the key for one hand-over
+ * to the server (see supabase/functions/_shared/escrow.ts). The caller sends
+ * it at once and wipes the bytes. null = wrong secret. Nothing is kept here.
+ */
+export async function keyForClaude(
+  secret: string,
+): Promise<{ keyId: string; raw: Uint8Array } | null> {
+  try {
+    const m = await unlockKey(getConnectors(), secret, { keepRaw: true })
+    return m.raw ? { keyId: m.keyId, raw: m.raw } : null
+  } catch (e) {
+    if (e instanceof SyncCryptoError) return null
+    throw e
+  }
+}
+
 /** Runs one sync now (joins a running one). */
 export function syncNow(db: LearningNotesDB): Promise<void> {
   if (running) return running

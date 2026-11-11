@@ -77,6 +77,8 @@ export interface OAuthStore {
   revokeFamily(family: string): Promise<void>
   /** Cancels everything granted to one person (escrow off, "disconnect"). */
   revokeUser(userId: string): Promise<void>
+  /** The live (unused, unexpired) refresh token of each connection of one person: the "Connected apps" list. */
+  listGrants(userId: string, now: number): Promise<TokenRec[]>
 }
 
 export interface OAuthDeps {
@@ -724,7 +726,7 @@ export function unauthorized(baseUrl: string, error?: string): Response {
 
 // ---------- the router ----------
 
-const APP_CORS = (
+export const APP_CORS = (
   appUrl: string,
   origin: string | null,
 ): Record<string, string> => {
@@ -735,7 +737,7 @@ const APP_CORS = (
     ? {
         'Access-Control-Allow-Origin': origin!,
         'Access-Control-Allow-Headers': 'authorization, apikey, content-type',
-        'Access-Control-Allow-Methods': 'POST, OPTIONS',
+        'Access-Control-Allow-Methods': 'GET, POST, PUT, DELETE, OPTIONS',
         Vary: 'Origin',
       }
     : { Vary: 'Origin' }
@@ -846,5 +848,13 @@ export function memoryStore(): OAuthStore & {
     revokeUser: async (u) => {
       for (const [k, t] of tokens) if (t.userId === u) tokens.delete(k)
     },
+    listGrants: async (u, now) =>
+      [...tokens.values()].filter(
+        (t) =>
+          t.userId === u &&
+          t.kind === 'refresh' &&
+          t.usedAt === null &&
+          t.expiresAt > now,
+      ),
   }
 }

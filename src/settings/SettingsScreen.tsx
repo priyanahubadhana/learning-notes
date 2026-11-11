@@ -30,6 +30,7 @@ import './labSettings'
 import './readingSettings'
 import './lockSettings'
 import '../ai/aiSettings'
+import '../connector/claudeSettings'
 import { AiSection } from '../ai/AiSection'
 import { ConnectionsSection } from '../ai/ConnectionsSection'
 import { LockSection } from '../app/lock/LockSection'
@@ -43,6 +44,11 @@ const PermissionsSection = lazy(() =>
   })),
 )
 // Sync's screen (and its encryption code) loads only when opened.
+const ClaudeSection = lazy(() =>
+  import('../connector/ClaudeSection').then((m) => ({
+    default: m.ClaudeSection,
+  })),
+)
 const AccountSection = lazy(() =>
   import('../sync/AccountSection').then((m) => ({ default: m.AccountSection })),
 )
@@ -174,6 +180,11 @@ export function SettingsScreen({
           {category === 'permissions' && (
             <Suspense fallback={null}>
               <PermissionsSection db={db} />
+            </Suspense>
+          )}
+          {category === 'claude' && (
+            <Suspense fallback={null}>
+              <ClaudeSection db={db} />
             </Suspense>
           )}
           {category === 'account' && (

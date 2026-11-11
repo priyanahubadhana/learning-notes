@@ -95,10 +95,15 @@ const looksLikeCode = (s: string) =>
     s.trim().replace(/\s+/g, '-'),
   )
 
-/** Opens the key with the passphrase or the recovery code. */
+/**
+ * Opens the key with the passphrase or the recovery code. The raw bytes are
+ * dropped, except for `keepRaw` (the Claude opt-in, which must hand the key
+ * to the server once; the caller wipes it right after).
+ */
 export async function unlockKey(
   conn: Connectors,
   secret: string,
+  opts: { keepRaw?: boolean } = {},
 ): Promise<MasterKey> {
   const bundles = await findBundles(conn)
   if (bundles.length === 0) throw new SyncCryptoError('No key found.')
@@ -109,7 +114,7 @@ export async function unlockKey(
   for (const b of tries) {
     try {
       const master = await unlockBundle(b, secret)
-      delete master.raw
+      if (!opts.keepRaw) delete master.raw
       return master
     } catch {
       // Try an older copy.

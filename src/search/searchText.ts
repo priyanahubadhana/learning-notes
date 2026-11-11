@@ -1,4 +1,5 @@
 import type { InkChunk } from '../core/inkTypes'
+import { computedText } from './rowComputed'
 import type {
   Block,
   DbColumn,
@@ -22,9 +23,9 @@ import { cardParts, hasQuestion } from '../recall/cardService'
  * (and the links and block tags lists, see links/linkRows.ts and
  * tags/tagRows.ts). 2 = links (Phase 4 Step 4), 3 = block tags (Step 5),
  * 4 = empty Cards get an entry (Step 6), 5 = database rows also carry
- * their property values.
+ * their property values, 6 = also ticked checkboxes and formula values.
  */
-export const SEARCH_INDEX_VERSION = 5
+export const SEARCH_INDEX_VERSION = 6
 
 /** Longer "words" (e.g. pasted hashes) are cut to this many characters. */
 const MAX_WORD_LENGTH = 40
@@ -155,7 +156,7 @@ export function rowTagIds(
 /**
  * The text of a database row's property values, for search: text, links,
  * numbers, dates, the names of chosen options and of tags. Computed columns
- * (formula, rollup, relation) and checkboxes are not searched.
+ * (rollup, relation) are not searched; ticked checkboxes and formulas are added by computedText.
  */
 export function rowValueText(
   values: Page['values'],
@@ -208,7 +209,11 @@ export function pageEntry(
   const words = searchWords(page.title)
   if (columns && page.values) {
     const seen = new Set(words)
-    const extra = searchWords(rowValueText(page.values, columns, tagNames))
+    const extra = searchWords(
+      rowValueText(page.values, columns, tagNames) +
+        ' ' +
+        computedText(page, columns),
+    )
     for (const w of extra.slice(0, MAX_VALUE_WORDS)) {
       if (!seen.has(w)) words.push(w)
     }

@@ -93,4 +93,42 @@ describe('search finds database rows by their property values', () => {
     )
     expect(await find('meaning299')).toEqual([titleEntryId(rows[299].id)])
   })
+  it('finds ticked checkboxes by column name, and formula results', async () => {
+    const lib = await createDatabase(db, ws, nb, 'Tasks')
+    const done = await addColumn(db, lib.id, {
+      name: 'Finished',
+      type: 'checkbox',
+    })
+    const price = await addColumn(db, lib.id, { name: 'Price', type: 'number' })
+    await addColumn(db, lib.id, {
+      name: 'Label',
+      type: 'formula',
+      config: { formula: '"Total " & ([Price] * 2) & " for " & [Name]' },
+    })
+    const a = await addRow(db, lib.id, {
+      title: 'Apples',
+      values: { [done.id]: true, [price.id]: 21 },
+    })
+    const b = await addRow(db, lib.id, {
+      title: 'Pears',
+      values: { [price.id]: 7 },
+    })
+    expect(await find('finished')).toEqual([titleEntryId(a.id)])
+    expect(await find('42')).toContain(titleEntryId(a.id))
+    expect(await find('total')).toEqual(
+      expect.arrayContaining([titleEntryId(a.id), titleEntryId(b.id)]),
+    )
+    expect(await find('14')).toEqual([titleEntryId(b.id)])
+    // Untick: no longer found. A changed price changes the formula text.
+    await setCell(db, a.id, done.id, null)
+    await setCell(db, a.id, price.id, 50)
+    expect(await find('finished')).toEqual([])
+    expect(await find('42')).toEqual([])
+    expect(await find('100')).toEqual([titleEntryId(a.id)])
+    // A rebuilt index gives the same answer.
+    await db.meta.clear()
+    await db.searchEntries.clear()
+    await ensureSearchIndex(db)
+    expect(await find('100')).toEqual([titleEntryId(a.id)])
+  })
 })

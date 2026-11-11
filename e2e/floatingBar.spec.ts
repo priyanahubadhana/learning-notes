@@ -188,6 +188,8 @@ test('keyboard: arrow keys on the handle move the bar; double-tap resets', async
 }) => {
   await page.setViewportSize({ width: 820, height: 1180 })
   await openPage(page, floating)
+  // The Layout button appears with the paper page: measure after it.
+  await expect(page.getByTestId('main-layout')).toBeVisible()
   const before = await box(dockedBar(page))
   await handle(page).focus()
   await page.keyboard.press('Shift+ArrowUp')

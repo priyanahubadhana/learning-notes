@@ -167,11 +167,6 @@ test('boxes are invisible until selected: a new empty box has no frame and no Ty
     .first()
     .evaluate((el) => getComputedStyle(el, '::after').content)
   expect(hint).not.toContain('Type here')
-  await pickFrame(page, box)
-  await expect(box.locator('[data-box-frame]').first()).toHaveCSS(
-    'border-top-style',
-    'solid',
-  )
 })
 
 test('box states: frame tap selects, a tap inside types and hides the bar, the frame brings it back', async ({

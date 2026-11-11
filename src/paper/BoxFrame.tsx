@@ -130,7 +130,10 @@ export function BoxFrame({
     const measure = () => {
       onBottom(node.offsetTop + node.offsetHeight)
       onHeight?.(node.offsetHeight)
-      onWidth?.(node.offsetWidth)
+      // Only while the box is as wide as its text (the attribute is current,
+      // a closure may be one render old): a preview that puts it in a column
+      // must not change where it is hit.
+      if (node.hasAttribute('data-auto')) onWidth?.(node.offsetWidth)
       setNarrowBox(node.offsetWidth < 150)
       setH(node.offsetHeight)
     }

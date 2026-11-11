@@ -528,7 +528,13 @@ export function PaperFrame({
         bg: page.inkBg,
       })
   }, [flat, narrow, page.id, sheets, navSheet, page.inkBg])
-  useEffect(() => () => sheetNav.set(null), [])
+  useEffect(
+    () => () => {
+      sheetNav.set(null)
+      document.documentElement.removeAttribute('data-box-drag')
+    },
+    [],
+  )
 
   // Rule 4: a stroke on empty paper is recorded, a box is made under it and
   // the stroke is played into that box's ink pad.
@@ -699,6 +705,7 @@ export function PaperFrame({
     // The drag owns every pointer and key (item 25): the page leaves text
     // input (no "/" menu, no caret), the ink and Lasso ignore the touch.
     startGripDrag(e.currentTarget as Element, e.pointerId)
+    document.documentElement.setAttribute('data-box-drag', '')
     const group = picked.includes(box.id)
       ? extra.filter((b) => picked.includes(b.id) && !b.locked)
       : [box]
@@ -916,6 +923,7 @@ export function PaperFrame({
   useEffect(() => {
     const key = (e: KeyboardEvent) => {
       if (e.key !== 'Escape' || !drag.current?.moved) return
+      document.documentElement.removeAttribute('data-box-drag')
       drag.current = null
       setLiveBoxes(null)
       setDragOrigin(null)
@@ -927,6 +935,7 @@ export function PaperFrame({
     return () => window.removeEventListener('keydown', key)
   }, [])
   const dragEnd = (e: ReactPointerEvent) => {
+    document.documentElement.removeAttribute('data-box-drag')
     if (frame.current) cancelAnimationFrame(frame.current)
     frame.current = 0
     pending.current = null

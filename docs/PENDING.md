@@ -10,19 +10,15 @@ Detail: plans/owner-bug-batch-3-2026-11-11.md (B3) and plans/owner-ideas-batch-2
 
 - Double-tap no longer erases a word (600 ms grace) and sign-in is kept; see owner-checks-pending.md. Delete this line after the owner checks it.
 
-## Priority 1 (continued): layout, part of the text-box settings (owner)
-
 ## Priority 1 leftovers (text box)
 
+- Owner checks for the whole text box v2 list (steps 1 to 7, 12 Nov) are at the top of plans/owner-checks-pending.md. Not built from that list: the glide into place after a drop, minimum width = longest word, rotation, a box wrapping ahead of a neighbour at the same height (see Questions).
+
 - [ ] Minimum width = longest word (now the column minimum).
-- [ ] Apply to all pages: lazy per page (now all at once).
 - [ ] Leftover worktree folders the owner can delete: ln-textbox, ln-textbox-base, ln-auth.
 
 ## Text box v2 (owner, 11 Nov 7:32; references Notability + GoodNotes)
 
-**Text box v2 progress (11 Nov):** DONE steps 1 (bugs: first box handles/menu/Box style, Lock removed, lone box width, top handle) and 2 (wrap); waiting for the owner iPad check in owner-checks-pending.md. Step 3 is partly in (frame 1.5 px, ≡ tab, side pills, min size = content). NEXT: finish 3 if needed, then 4 (8-point drag), 5 (bars above box and bottom format bar), 6 (groups). Each step: commit, push, CI green.
-
-- [ ] GoodNotes-style side pills on the left and right edges to change width.
 - [ ] Rotation is new (text box rotate). Layer order (forward/back) ties into the parked layers idea.
 
 - [ ] Owner 11 Nov 7:40 decisions for Text box v2 (polish the existing box only, no new features):
@@ -51,22 +47,12 @@ plans/owner-ideas-batch-2-2026-11-10.md: update bar, Acrobat PDF tools, customiz
 
 - CI fix pushed 11 Nov for Text box v2 (deploy pending green CI); check the deploy ran, then delete this line.
 
-- Owner top bugs 1-3 (box line outline, caret spot, Pencil double/triple tap) fixed in code 11 Nov, need the owner iPad check. NOT done yet: Text box v2 steps 4-6 and Layout mode v2 (large; need a fresh session). Pencil-writes-text default in a box not verified.
-
 ## Owner answers 11 Nov (top priority: text box, typing, Pencil)
 
 - BUG: the cursor lands in the wrong place or jumps.
 - BUG: a Pencil double-tap to select doesn't work at all in a text box (the owner expects a paragraph selection; confirm word vs paragraph).
 - BUG: too many highlights. Tapping a line draws a border or highlight around that single line or block. Instead only the WHOLE box shows as selected (GoodNotes): no per-line or per-block outline inside a box.
 - Progress: a short note per live part, with a 2–3 line test.
-- Owner 4:45 (GoodNotes iPhone screenshots), the text box model:
-- Research 11 Nov, additions to consider for box layout and tidying (proposed to the owner):
-  - Smart guides while dragging: centre/edge lines and equal-spacing hints (Keynote, Freeform, Notability pink guides).
-  - Tidy: Line up left, Distribute evenly (3+ boxes), One box, Columns.
-  - A dot grid or paper lines as a visual aid. A guide toggle in settings.
-  - Box options as in Notability: rounded corners, wrap on/off.
-  - Locked boxes are skipped by tidy (no lock for now).
-  - FINAL: NO double-tap-to-make-a-box at all. A single tap with the Text tool makes a box (as before).
 
 ## Questions for owner
 

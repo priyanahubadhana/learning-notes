@@ -23,7 +23,7 @@ async function setup(page: Page) {
   await typeInEditor(page, 'Main text')
   const sheet = (await page.locator('[data-paper-sheet="1"]').boundingBox())!
   const main = (await page.locator('[data-paper-box="main"]').boundingBox())!
-  await page.mouse.click(sheet.x + sheet.width * 0.1, main.y + main.height + 60)
+  await page.mouse.click(sheet.x + sheet.width * 0.3, main.y + main.height + 60)
   await expect(page.locator(EXTRA)).toHaveCount(1)
   await expect(page.locator(EXTRA + ' .bn-editor')).toBeFocused()
   await page.keyboard.type(TEXT)

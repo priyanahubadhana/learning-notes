@@ -227,7 +227,7 @@ export function ConvertInk({
                 onClick={() => {
                   void navigator.clipboard
                     ?.writeText(text)
-                    .then(() => toast(t('ai.convert.copied')))
+
                     .catch(() => toast(t('ink.sel.copyFailed')))
                   onClose()
                 }}

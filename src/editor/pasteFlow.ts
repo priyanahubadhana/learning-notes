@@ -1,4 +1,4 @@
-import { undo as undoPage, undoSince } from '../core/historySteps'
+import { undo as undoPage } from '../core/historySteps'
 import { t } from '../i18n/t'
 import {
   readDeviceSetting,
@@ -396,7 +396,6 @@ async function blocksOfPlan(
 /** "As text box": the paste goes into a new box at the paste spot. */
 async function applyAsBox(editor: Editor, plan: PastePlan): Promise<void> {
   if (!context) return
-  const since = Date.now()
   const undo = await pasteIntoNewBox(
     context.db,
     editor,
@@ -407,14 +406,6 @@ async function applyAsBox(editor: Editor, plan: PastePlan): Promise<void> {
     await applyPaste(editor, plan, 'keep')
     return
   }
-  context.toast(t('pasteChooser.boxMade'), {
-    label: t('annot.undo'),
-    // The page's history takes it back when it is the newest step.
-    onSelect: () =>
-      void undoSince(since).then((ok) => {
-        if (!ok) void undo()
-      }),
-  })
 }
 
 /** Runs a choice. Resolves when the content is in the page. */

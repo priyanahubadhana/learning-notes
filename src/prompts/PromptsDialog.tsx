@@ -119,7 +119,6 @@ export default function PromptsDialog({
     await savePrompt(db, lib, next, old)
     setEditing(null)
     await reload(lib)
-    toast(t('prompts.saved'))
   }
 
   const remove = async (item: PromptItem) => {

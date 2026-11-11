@@ -13,3 +13,15 @@ describe('toastDuration', () => {
     expect(toastDuration('x'.repeat(500), true)).toBe(8000)
   })
 })
+
+describe('toastBottom (B3-11)', () => {
+  it('stays at the default spot without a keyboard', async () => {
+    const { toastBottom } = await import('./toastTiming')
+    expect(toastBottom(0)).toBeUndefined()
+  })
+  it('sits above the keyboard and its bar, even a short keyboard bar', async () => {
+    const { toastBottom } = await import('./toastTiming')
+    expect(toastBottom(300)).toBe(356)
+    expect(toastBottom(60)).toBe(116)
+  })
+})

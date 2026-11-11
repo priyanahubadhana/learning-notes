@@ -143,7 +143,6 @@ export function RunPrompt({
       ratePrompt(db, lib, item, n).then((next) => {
         setItem(next)
         setRated(n)
-        toast(t('prompts.rated'))
       }),
     )
 
@@ -226,13 +225,7 @@ export function RunPrompt({
             <button
               type="button"
               className={btn}
-              onClick={() =>
-                runTask(
-                  navigator.clipboard
-                    .writeText(answer)
-                    .then(() => toast(t('prompts.copied'))),
-                )
-              }
+              onClick={() => runTask(navigator.clipboard.writeText(answer))}
             >
               {t('prompts.copy')}
             </button>

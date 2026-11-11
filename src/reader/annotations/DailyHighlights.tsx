@@ -6,10 +6,7 @@ import { usePref } from '../../app/usePref'
 import type { LearningNotesDB } from '../../core/db'
 import type { Annotation } from '../../core/types'
 import { t } from '../../i18n/t'
-import {
-  makeCardsFromAnnotations,
-  undoMakeCards,
-} from '../../recall/cardFromAnnotation'
+import { makeCardsFromAnnotations } from '../../recall/cardFromAnnotation'
 import {
   EMPTY_DAILY,
   isDailyState,
@@ -78,10 +75,6 @@ export function DailyHighlights({
       (async () => {
         const made = await makeCardsFromAnnotations(db, a.pageId, [a])
         if (made.blockIds.length === 0) return toast(t('recall.bulkNone'))
-        toast(t('recall.cardMade'), {
-          label: t('annot.undo'),
-          onSelect: () => void runTask(undoMakeCards(db, made)),
-        })
       })(),
     )
 
@@ -104,7 +97,6 @@ export function DailyHighlights({
       )
       await saveAnnotationTo(db, a, created.id, where)
     } else await saveAnnotationTo(db, a, a.pageId, where, 'highlights')
-    toast(t('annot.saved'))
   }
 
   if (!all) return null

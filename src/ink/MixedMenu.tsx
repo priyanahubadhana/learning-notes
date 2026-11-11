@@ -111,7 +111,6 @@ export function MixedMenu({
         void selectionPng(controller, paper(), wrap).then((blob) => {
           if (!blob) return
           downloadFile('selection.png', blob, 'image/png')
-          toast(t('ink.sel.saved'))
         }),
     },
     {

@@ -346,7 +346,6 @@ export async function copyPageWithPictures(
         'text/plain': new Blob([plain], { type: 'text/plain' }),
       }),
     ])
-    toast(t('copy.done'))
   } catch {
     // The browser blocked rich copy: the words still go.
     toast((await copyText(plain)) ? t('copy.doneTextOnly') : t('copy.blocked'))
@@ -383,7 +382,6 @@ export async function pastePlainFromClipboard(
     // Rule 9: the copied lines' ink comes with them.
     if (ink) ink.pasteLines(text, () => insertPlainText(editor, text))
     else insertPlainText(editor, text)
-    toast(t('paste.done'))
   } catch {
     toast(t('paste.blocked'))
   }

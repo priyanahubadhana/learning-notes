@@ -619,7 +619,6 @@ function LoadedPageEditor({
           current.content.length === 0
         if (emptyLine) editor.replaceBlocks([current], blocks)
         else editor.insertBlocks(blocks, current, 'after')
-        toast(t('editor.templateInserted'))
       })(),
     )
 

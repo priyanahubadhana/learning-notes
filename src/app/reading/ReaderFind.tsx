@@ -1,4 +1,4 @@
-import { useContext, useEffect, useMemo, useRef, useState } from 'react'
+import { useEffect, useMemo, useRef, useState } from 'react'
 import type { LearningNotesDB } from '../../core/db'
 import { t } from '../../i18n/t'
 import {
@@ -7,7 +7,6 @@ import {
   runSearch,
   type SearchHit,
 } from '../../search/searchQuery'
-import { AppUiContext } from '../appUi'
 import { runTask } from '../errors'
 import { Icon } from '../tools/icons'
 import { FIND_SCOPES, findRanges, type FindScope } from './findInPage'
@@ -67,7 +66,6 @@ export function ReaderFind({
   onOpenPage: (pageId: string, blockId?: string) => void
   onClose: () => void
 }) {
-  const { toast } = useContext(AppUiContext)
   const [scope, setScope] = useState<FindScope>('page')
   const [text, setText] = useState('')
   const [index, setIndex] = useState(0)
@@ -124,7 +122,6 @@ export function ReaderFind({
       runTask(
         nextPageInNotebook(db, pageId).then((page) => {
           if (page) {
-            toast(t('reading.find.nextPage'))
             onOpenPage(page.id)
           } else {
             setIndex(0)

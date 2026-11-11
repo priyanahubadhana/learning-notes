@@ -71,7 +71,6 @@ const slowMomentsCopySetting: SettingDefinition<'idle'> = {
         const text = m.slowMomentsReport(list)
         try {
           await navigator.clipboard.writeText(text)
-          toast(t('settings.slowMomentsCopy.done'))
         } catch {
           console.info(text)
           toast(t('settings.slowMomentsCopy.failed'))
@@ -105,7 +104,6 @@ const toolStateCopySetting: SettingDefinition<'idle'> = {
         const text = m.buildToolStateReport()
         try {
           await navigator.clipboard.writeText(text)
-          toast(t('settings.toolStateCopy.done'))
         } catch {
           console.info(text)
           toast(t('settings.toolStateCopy.failed'))

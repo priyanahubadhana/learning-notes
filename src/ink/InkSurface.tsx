@@ -210,7 +210,7 @@ export function InkSurface({
             pageId,
             t('ink.page.highlights'),
             text,
-          ).then((id) => id && latest.current.toast(t('ink.hl.saved')))
+          )
         },
         setTool: (tool: ModeTool) => activeTool.set(tool),
         returnTool: () => void swapToLastTool(),
@@ -364,7 +364,7 @@ export function InkSurface({
             pageId,
             t('ink.page.highlights'),
             text,
-          ).then((id) => id && latest.current.toast(t('ink.hl.saved')))
+          )
         },
         setPaper: (p) => void setPageInkBg(db, pageId, p),
         paper: () => paperRef.current,
@@ -494,7 +494,6 @@ export function InkUi({
     if (!question) return
     const card = await pictureCard(db, blob, question, shrinkImage)
     insertPictureCard(editor, card)
-    toast(t('ink.card.made'))
   }
 
   const png = async (how: 'copy' | 'save') => {
@@ -507,7 +506,6 @@ export function InkUi({
       )
     } else {
       downloadFile('drawing.png', blob, 'image/png')
-      toast(t('ink.sel.saved'))
     }
   }
 

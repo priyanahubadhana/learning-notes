@@ -103,7 +103,6 @@ export function AiActions({
     }
     if (!readPref(AI_KEYS.privacy, isBool, false)) return setPrivacyFor(action)
     setBusy(true)
-    toast(t('ai.working'))
     try {
       const text = await gatherText(db, page, action)
       const result = await runAi(

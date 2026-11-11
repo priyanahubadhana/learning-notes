@@ -535,7 +535,6 @@ export async function copyBlocksAllFormats(
       : copyTargetBlocks(editor)
   const pic = lonePicture(list)
   if (pic && (await copyPictureAsImage(editor, pic))) {
-    toast(t('copy.done'))
     return blocksToMarkdown(list)
   }
   let done = copyWithEvent((d) =>

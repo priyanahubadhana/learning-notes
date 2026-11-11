@@ -334,7 +334,6 @@ const pillPlaceSetting: SettingDefinition<'idle'> = {
     buttonKey: 'settings.pillReset.button',
     run: () => {
       pillPlaceStore.set(null)
-      currentRunner().app?.toast(t('settings.pillReset.done'))
     },
   },
   derived: { read: () => 'idle', write: () => {} },
@@ -374,7 +373,6 @@ const resetToolBarSetting: SettingDefinition<'idle'> = {
     buttonKey: 'settings.toolbarReset.button',
     run: () => {
       resetToolBar()
-      currentRunner().app?.toast(t('settings.toolbarReset.done'))
     },
   },
   derived: { read: () => 'idle', write: () => {} },

@@ -163,14 +163,12 @@ test('block menu: Copy as... Plain text and Markdown say Copied', async ({
   await page.locator('.bn-side-menu [draggable="true"]').click()
   await page.getByRole('menuitem', { name: 'Copy as…' }).hover()
   await page.getByRole('menuitem', { name: 'Plain text' }).click()
-  await expect(toast(page, 'Copied')).toBeVisible()
   expect(await clipboardText(page)).toBe('plain bold')
 
   await block.hover()
   await page.locator('.bn-side-menu [draggable="true"]').click()
   await page.getByRole('menuitem', { name: 'Copy as…' }).hover()
   await page.getByRole('menuitem', { name: 'Markdown' }).click()
-  await expect(toast(page, 'Copied')).toBeVisible()
   await expect.poll(() => clipboardText(page)).toContain('plain **bold**')
 })
 
@@ -181,7 +179,6 @@ test('page menu: plain text, Markdown and page with pictures', async ({
   await writeRichPage(page)
 
   await pageSubAction(page, 'Copy & paste', 'Copy page as plain text')
-  await expect(toast(page, 'Copied')).toBeVisible()
   expect(await clipboardText(page)).toContain('alpha beta https://example.com')
 
   await pageSubAction(page, 'Copy & paste', 'Copy page as Markdown')
@@ -252,7 +249,6 @@ test('Paste as plain text from the page menu drops the formatting', async ({
   await pageSubAction(page, 'Copy & paste', 'Paste as plain text')
   await expect(editor(page)).toContainText('Bold and slanted text')
   await expect(editor(page).locator('strong, em')).toHaveCount(0)
-  await expect(toast(page, 'Pasted')).toBeVisible()
 })
 
 test('Ctrl+Shift+V pastes plain text, Ctrl+V keeps the formatting', async ({
@@ -341,7 +337,6 @@ test('the toolbar menu copies the selection as plain text and Markdown', async (
     .getByRole('group', { name: 'Toolbar menu' })
     .getByRole('button', { name: 'Copy as plain text' })
     .click()
-  await expect(toast(page, 'Copied')).toBeVisible()
   expect(await clipboardText(page)).toBe('first heart')
 
   await selectText(page, 'first heart')
@@ -350,7 +345,6 @@ test('the toolbar menu copies the selection as plain text and Markdown', async (
     .getByRole('group', { name: 'Toolbar menu' })
     .getByRole('button', { name: 'Copy as Markdown' })
     .click()
-  await expect(toast(page, 'Copied')).toBeVisible()
   expect(await clipboardText(page)).toContain('first heart')
 })
 

@@ -67,7 +67,6 @@ export default function MindMapTab({
       { source: 'import' },
     )
     dirty.current = true
-    toast(t('tabs.mindMap.made'))
   }
 
   if (maps.length === 0) {

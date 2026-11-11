@@ -249,7 +249,6 @@ export function LockSection({ db }: { db: LearningNotesDB }) {
             runTask(
               removeAllLocks(db).then(() => {
                 relockAll()
-                toast(t('lock.removed'))
               }),
             )
           }}

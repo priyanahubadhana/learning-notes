@@ -410,9 +410,7 @@ export function BookReader({
     const sel = selection
     if (!sel) return
     clearSelection()
-    runTask(
-      makeAnnotation(sel, 'highlight', c).then(() => toast(t('annot.saved'))),
-    )
+    runTask(makeAnnotation(sel, 'highlight', c))
   }
 
   const saveTo = async (a: Annotation, target: SaveTarget) => {
@@ -425,11 +423,8 @@ export function BookReader({
       toast(t(ok ? 'summary.saved' : 'summary.full'))
     } else if (target.kind === 'book') {
       await saveAnnotationTo(db, a, pageId, where, 'highlights')
-      toast(t('annot.savedTo', { page: page?.title || t('review.untitled') }))
     } else if (target.kind === 'page') {
       await saveAnnotationTo(db, a, target.pageId, where)
-      const p = await db.pages.get(target.pageId)
-      toast(t('annot.savedTo', { page: p?.title || t('review.untitled') }))
     } else {
       const created = await createPage(
         db,
@@ -442,7 +437,6 @@ export function BookReader({
       )
       await addBlocks(db, created.id, [])
       await saveAnnotationTo(db, a, created.id, where)
-      toast(t('annot.savedTo', { page: created.title }))
     }
   }
 
@@ -663,7 +657,6 @@ export function BookReader({
       (async () => {
         if (bookmarkHere) {
           await deleteAnnotation(db, bookmarkHere.id)
-          toast(t('bookreader.bookmarkRemoved'))
         } else {
           await createAnnotation(db, {
             pageId,
@@ -674,7 +667,6 @@ export function BookReader({
                 : { type: 'pdf', page: pageNo, rects: [] },
             chapter: format === 'epub' ? position?.label : chapterAt(pageNo),
           })
-          toast(t('bookreader.bookmarked'))
         }
       })(),
     )
@@ -756,7 +748,6 @@ export function BookReader({
       return toast(t('reader.syncFurthest.here'))
     }
     setTarget((prev) => ({ at: farAt, nonce: (prev?.nonce ?? 0) + 1 }))
-    toast(t('reader.syncFurthest.done'))
   }
   const moreItems: MenuItem[] = [
     {
@@ -1398,20 +1389,12 @@ export function BookReader({
           onCopy={() => {
             const text = selection.text
             clearSelection()
-            runTask(
-              navigator.clipboard
-                .writeText(text)
-                .then(() => toast(t('annot.copied'))),
-            )
+            runTask(navigator.clipboard.writeText(text))
           }}
           onPin={() => {
             const sel = selection
             clearSelection()
-            runTask(
-              makeAnnotation(sel, 'bookmark').then(() =>
-                toast(t('bookreader.bookmarked')),
-              ),
-            )
+            runTask(makeAnnotation(sel, 'bookmark'))
           }}
           onSaveTo={() => {
             const sel = selection
@@ -1459,11 +1442,7 @@ export function BookReader({
           onSave={(note) => {
             const sel = noting
             setNoting(null)
-            runTask(
-              makeAnnotation(sel, 'note', 'yellow', note).then(() =>
-                toast(t('annot.noteSaved')),
-              ),
-            )
+            runTask(makeAnnotation(sel, 'note', 'yellow', note))
           }}
         />
       )}

@@ -178,9 +178,6 @@ test('Reset tool bar in Settings puts the standard tools and positions back', as
     .locator('[data-setting-id="toolbar.reset"]')
     .getByRole('button', { name: 'Reset tool bar' })
     .click()
-  await expect(
-    page.getByRole('status').filter({ hasText: 'Tool bar reset' }),
-  ).toBeVisible()
   const layout = page.locator('[data-setting-id="toolbar.layout"]')
   await expect(
     layout.getByRole('button', { name: 'Short bar' }),

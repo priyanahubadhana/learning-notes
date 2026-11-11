@@ -71,7 +71,6 @@ export function LayersCard() {
     controller.commit(edit)
     if (!doc.layer(doc.chosenLayer ?? '')) doc.chooseLayer(intoId)
     bumpInk()
-    toast(t('ink.layers.merged'), undo)
   }
 
   const top = layers[0]

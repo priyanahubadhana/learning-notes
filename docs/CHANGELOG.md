@@ -2,6 +2,11 @@
 
 Current phase only. Older entries are in [ARCHIVE.md](ARCHIVE.md).
 
+## 2026-11-11 (Priority 4: toasts)
+
+- **B3-11:** the toast lifts above the on-screen keyboard and its bar from 40 px of keyboard (`toastBottom` in `app/toastTiming.ts`, used by `Toast` in `app/ui.tsx`); still one toast at a time.
+- **B3-12:** removed the plain "done" toasts the owner listed (copy, paste, bookmark added, highlighted, layout changed, resets, template inserted, page moved, saved/rated/made messages, listening, asking AI, merged, boxes moved, lock removed, furthest place and more). Deletes keep Undo. Test: `src/app/toastNoise.test.ts`; e2e expectations updated (copyPaste, highlightRecall, readerControls, toolBarOff). Files: about 30 under `src/` (ai, app, capture, editor, ink, pages, paper, prompts, reader, settings).
+
 ## 2026-11-11 (CI fix for Text box v2)
 
 - Prettier on docs/PENDING.md (the `checks` job). Text wrap uses `overflow-wrap: break-word` (same look; `anywhere` made scrolling a mixed page slow, p95 100 ms). "Tap here to keep writing" sits lower (mt-10) so the first box's bottom handle never covers it. pictureStrip e2e taps the editor bottom-right (the picture corner handle owns the top-left). Files: docs/PENDING.md, src/index.css, src/editor/PageEditor.tsx, e2e/pictureStrip.spec.ts.

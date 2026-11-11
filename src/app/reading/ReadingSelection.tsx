@@ -1,8 +1,5 @@
-import { useContext, useEffect, useState } from 'react'
+import { useEffect, useState } from 'react'
 import { t } from '../../i18n/t'
-import { AppUiContext } from '../appUi'
-import { runHistory } from '../../editor/historyActions'
-import { currentRunner } from '../tools/toolRuntime'
 import { readFromPoint } from './aloudController'
 import { firstWord, highlightDomSelection, lookUpUrl } from './readingHighlight'
 
@@ -36,7 +33,6 @@ function selectionInside(root: HTMLElement): Shown | null {
 }
 
 export function ReadingSelection({ root }: { root: HTMLElement | null }) {
-  const { toast } = useContext(AppUiContext)
   const [shown, setShown] = useState<Shown | null>(null)
 
   useEffect(() => {
@@ -56,13 +52,6 @@ export function ReadingSelection({ root }: { root: HTMLElement | null }) {
     const ok = highlightDomSelection()
     clear()
     if (!ok) return
-    toast(t('reading.highlighted'), {
-      label: t('mode.undo'),
-      onSelect: () => {
-        const ed = currentRunner().editor
-        if (ed) runHistory(ed as never, 'undo')
-      },
-    })
   }
   const lookUp = () => {
     const word = firstWord(shown.text)

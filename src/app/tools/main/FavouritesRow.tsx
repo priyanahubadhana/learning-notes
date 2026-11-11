@@ -81,7 +81,6 @@ export function FavouritesRow({ tool }: { tool: Favourite['tool'] }) {
     const made = addFavourite(all, currentFavourite(tool))
     if (made.result === 'added') {
       penFavourites.set(made.list)
-      toast(t('ink.fav.saved'))
     } else toast(t(made.result === 'same' ? 'ink.fav.same' : 'ink.fav.full'))
   }
   return (

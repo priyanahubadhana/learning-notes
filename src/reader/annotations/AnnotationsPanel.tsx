@@ -74,12 +74,7 @@ export function AnnotationsPanel({
       location: (where) => t('annot.exportLocation', { where }),
     })
 
-  const copyAll = () =>
-    runTask(
-      navigator.clipboard
-        .writeText(markdown())
-        .then(() => toast(t('annot.exportCopied'))),
-    )
+  const copyAll = () => runTask(navigator.clipboard.writeText(markdown()))
 
   const saveFile = () => {
     const url = URL.createObjectURL(

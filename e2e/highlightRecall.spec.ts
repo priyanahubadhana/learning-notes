@@ -93,7 +93,6 @@ test('Cards from all highlights: preview, untick one, one Undo takes the batch a
   ] as const) {
     await select(page, text, n)
     await page.getByTestId('hl-yellow').click()
-    await expect(page.getByText('Highlight saved.')).toBeVisible()
   }
   await page.getByTestId('reader-annotations').click()
   await expect(page.getByTestId('annotation-row')).toHaveCount(3)
@@ -118,14 +117,12 @@ test('Highlights for today: shown on Review, Make card from the tile', async ({
   await openBook(page)
   await select(page, 'Chloroplasts', 2)
   await page.getByTestId('hl-green').click()
-  await expect(page.getByText('Highlight saved.')).toBeVisible()
   await page.getByTestId('reader-close').click()
   await space(page, 'Review').click()
   await page.getByRole('button', { name: 'All cards' }).first().click()
   const tile = page.getByTestId('daily-highlights')
   await expect(tile).toContainText('Chloroplasts capture sunlight')
   await tile.getByTestId('daily-make-card').click()
-  await expect(page.getByText('Card made.')).toBeVisible()
   await expect(tile.getByTestId('daily-make-card')).toBeDisabled()
   await tile.getByTestId('daily-seen').click()
   await expect(tile).toContainText('All caught up for today.')

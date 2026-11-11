@@ -49,11 +49,7 @@ export function NotesPanel({
   const [busy, setBusy] = useState(false)
 
   const copy = () =>
-    runTask(
-      navigator.clipboard
-        .writeText(buildPrompt(input, extra))
-        .then(() => toast(t('capture.promptCopied'))),
-    )
+    runTask(navigator.clipboard.writeText(buildPrompt(input, extra)))
 
   const savePreset = () => {
     const next = withPreset(presets, {

@@ -44,7 +44,6 @@ export function PageAiActions({
       (async () => {
         const input = await pageSourceInput(db, page)
         await navigator.clipboard.writeText(buildPrompt(input, ''))
-        toast(t('capture.promptCopied'))
       })(),
     )
 

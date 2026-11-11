@@ -143,7 +143,6 @@ function Strip({ editor }: { editor: Editor }) {
     try {
       r.start()
       setListening(true)
-      toast(t('keys.listening'))
     } catch {
       rec.current = null
     }

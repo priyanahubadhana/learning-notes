@@ -94,11 +94,6 @@ export function PageTree({
     runTask(
       movePage(db, id, plan.parentId, plan.index).then(() => {
         if (!before) return
-        toast(t('tree.moved'), {
-          label: t('reading.undo'),
-          onSelect: () =>
-            runTask(movePage(db, id, before.parentId, before.index)),
-        })
       }),
     )
   }

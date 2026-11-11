@@ -205,18 +205,17 @@ test('a jump takes the same time near and far, and a touch stops it', async ({
   expect(Date.now() - t0).toBeLessThan(4000)
 })
 
-test('adding a bookmark says so with Undo and drops a ribbon in the margin', async ({
+test('adding a bookmark drops a ribbon in the margin (no toast)', async ({
   page,
 }) => {
   await startBook(page)
   await readSwitch(page).click()
   const panel = await openPanel(page, 'Bookmarks', 'Bookmarks')
   await panel.getByRole('button', { name: 'Add a bookmark here' }).click()
-  const toast = page.getByRole('status').filter({ hasText: 'Bookmark added' })
-  await expect(toast).toBeVisible()
   await expect(page.locator('style#ln-bookmark-ribbons')).toHaveCount(1)
-  await toast.getByRole('button', { name: 'Undo' }).click()
-  await expect(page.locator('style#ln-bookmark-ribbons')).toHaveCount(0)
+  await expect(
+    page.getByRole('status').filter({ hasText: 'Bookmark added' }),
+  ).toHaveCount(0)
 })
 
 // ------------------------------------------------------------------- B3

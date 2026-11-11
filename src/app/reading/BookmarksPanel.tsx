@@ -46,13 +46,6 @@ export function BookmarksPanel({
   const add = () => {
     const mark = addBookmarkHere(pageId, position)
     if (!mark) return
-    toast(t('reading.bookmarkAdded'), {
-      label: t('reading.undo'),
-      onSelect: () => {
-        removeBookmark(pageId, mark.id)
-        changed()
-      },
-    })
   }
   const remove = (m: Bookmark) => {
     removeBookmark(pageId, m.id)

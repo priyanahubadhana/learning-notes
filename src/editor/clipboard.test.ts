@@ -164,7 +164,7 @@ describe('copying', () => {
     await copyPageWithPictures(editor, toast)
     const item = (write.mock.calls[0] as unknown as [Item[]])[0][0]
     expect(Object.keys(item.data).sort()).toEqual(['text/html', 'text/plain'])
-    expect(toast).toHaveBeenCalledWith('Copied')
+    expect(toast).not.toHaveBeenCalled() // B3-12: a visible result needs no toast
   })
 })
 

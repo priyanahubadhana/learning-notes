@@ -255,10 +255,6 @@ export function usePaperBoxes(
   const undoGrid = (before: GridBefore | null) => {
     if (!before) return
     if (layoutOnRef.current) return setLayoutDirty(true) // one Undo for the whole session
-    toast(t('layout.done'), {
-      label: t('paper.box.undo'),
-      onSelect: () => runTask(restoreGrid(db, pageId, before)),
-    })
   }
   const onGridChange = (rows: GridRow[], places: BoxPatch[]) =>
     runTask(updateGrid(db, pageId, rows, places).then(undoGrid))
@@ -312,28 +308,12 @@ export function usePaperBoxes(
     runTask(updateBox(db, pageId, id, patch))
 
   const onBoxesChange = (changes: BoxChange[]) => {
-    const since = stamp()
     runTask(
       updateBoxes(
         db,
         pageId,
         changes.map(({ id, patch }) => ({ id, patch })),
-      ).then(() => {
-        if (changes.length < 2) return
-        toast(t('paper.box.movedMany', { n: String(changes.length) }), {
-          label: t('paper.box.undo'),
-          onSelect: () =>
-            undoOr(since, () =>
-              runTask(
-                updateBoxes(
-                  db,
-                  pageId,
-                  changes.map(({ id, before }) => ({ id, patch: before })),
-                ),
-              ),
-            ),
-        })
-      }),
+      ),
     )
   }
 

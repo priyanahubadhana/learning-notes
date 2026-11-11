@@ -1,5 +1,4 @@
-import { useContext, useRef, useState } from 'react'
-import { AppUiContext } from '../app/appUi'
+import { useRef, useState } from 'react'
 import { runTask } from '../app/errors'
 import { t, type MessageKey } from '../i18n/t'
 import { copyTextFor } from './pasteText'
@@ -26,7 +25,6 @@ export function PasteIn({
   input: string
   onImport: (raw: string) => FormatProblem | null
 }) {
-  const { toast } = useContext(AppUiContext)
   const [raw, setRaw] = useState('')
   const [problem, setProblem] = useState<FormatProblem | null>(null)
   const fileRef = useRef<HTMLInputElement>(null)
@@ -62,11 +60,7 @@ export function PasteIn({
           data-testid="paste-copy"
           className={`${btn} self-start`}
           onClick={() =>
-            runTask(
-              navigator.clipboard
-                .writeText(copyTextFor(item, input))
-                .then(() => toast(t('prompts.paste.copied'))),
-            )
+            runTask(navigator.clipboard.writeText(copyTextFor(item, input)))
           }
         >
           {t('prompts.paste.copy')}

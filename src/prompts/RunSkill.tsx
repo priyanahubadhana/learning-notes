@@ -117,7 +117,6 @@ export function RunSkill({
       ratePrompt(db, lib, item, n).then((next) => {
         setItem(next)
         setRated(n)
-        toast(t('prompts.rated'))
       }),
     )
 
@@ -135,7 +134,6 @@ export function RunSkill({
             runTask(
               undoSave(db, saved).then(() => {
                 setSaved(null)
-                toast(t('prompts.undone'))
               }),
             )
           }

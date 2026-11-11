@@ -15,10 +15,11 @@ permissions:
 # A newer push to main replaces a run still waiting or running, so the
 # queue never backs up and the newest code deploys first.
 concurrency:
-  # One group per commit: a newer push no longer cancels an older run, so
-  # every commit gets a full result (several builders push to main).
-  group: ci-${{ github.sha }}
-  cancel-in-progress: true
+  # One run at a time per branch: a running test run always finishes (no
+  # cancels), and only the NEWEST waiting push runs next (older waiting ones
+  # are skipped), so the queue never backs up when several builders push.
+  group: ci-${{ github.ref }}
+  cancel-in-progress: false
 
 jobs:
   checks:

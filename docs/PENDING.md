@@ -208,3 +208,12 @@ Questions:
   - Open decision: A local (PC, private) vs B online (claude.ai everywhere, opt-in server access) vs both. Recommended: both, with B as the main path for regular users.
 - OWNER: connector = BOTH (B online main path, opt-in; A local for privacy). Quality standard written: docs/design/quality-standard.md (+ rules/building.md pointer), owner-approved.
 - Connector B plan in docs/plans/claude-connector-plan.md. Questions: Supabase hosting? escrow 30-day expiry? Inbox thresholds? notebooks scope? B first? (picks: yes / yes / >30% or cards / default all / B first). Deploying needs the owner's OK.
+- Toolbar mock v3 (Fable, the reorganised Professional): https://claude.ai/artifact/ (v3 link in chat). Questions for the owner:
+  1. Pen/Ballpoint/Sticky note labels in Beginner too.
+  2. "Callout" appears 3 times; rename the Box look to "Accent"?
+  3. Layers in both Pen and Lasso, or Pen only?
+  4. The layer chip on the Pen pill only with 2 layers.
+  5. Lasso Move/Scale/Rotate on text: does "no rotate on boxes" cover it?
+  6. Favourites in Pen ▾ Colour vs at the pill end.
+  7. The Layout icon and the Professional ▾ chip open the same menu; "Show names" is still in Settings.
+- Claude connector A (local, read-only) merged to main: setup steps are in docs/plans/owner-checks-pending.md (npm run mcp:install, mcp:build, node mcp/dist/index.js setup). Google setup needs the Supabase redirect http://127.0.0.1:53682/callback.

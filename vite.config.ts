@@ -69,7 +69,12 @@ const precacheList = (): Plugin => ({
   apply: 'build',
   generateBundle(_o, bundle) {
     const files = Object.values(bundle)
-      .filter((f) => /.(js|css|html|svg|png|wasm|woff2)$/.test(f.fileName))
+      // The on-device text reader (about 4 MB) loads on first use, not at install.
+      .filter(
+        (f) =>
+          /.(js|css|html|svg|png|wasm|woff2)$/.test(f.fileName) &&
+          !/tesseract-core/.test(f.fileName),
+      )
       .map((f) => ({
         u: '/' + f.fileName,
         s: f.type === 'chunk' ? Buffer.byteLength(f.code) : f.source.length,
@@ -155,7 +160,7 @@ export default defineConfig({
       manifest: false,
       workbox: {
         globPatterns: ['**/*.{js,css,html,svg,png,wasm,woff2}'],
-        globIgnores: ['404.html'],
+        globIgnores: ['404.html', '**/tesseract-core*'],
         maximumFileSizeToCacheInBytes: 4 * 1024 * 1024,
         navigateFallback: 'index.html',
         navigateFallbackDenylist: [/^\/privacy(\.html)?$/],

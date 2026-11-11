@@ -34,6 +34,7 @@ const GROUP_OF: Record<string, FeatureGroup> = {
   cleanup: 'cleanup',
   handwriting: 'convert',
   latex: 'convert',
+  pdfOcr: 'convert',
   mindMapPicture: 'convert',
   askBook: 'askBook',
   storySoFar: 'askBook',

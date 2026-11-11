@@ -61,6 +61,7 @@ import {
 } from './annotations/saveToNotes'
 import { SelectionPopup } from './annotations/SelectionPopup'
 import type { OutlineItem, PdfSelection } from './pdf/PdfView'
+import type { PdfTool } from './pdfTools/PdfTools'
 import { requestOutline } from '../app/panel/outlineRequest'
 import { FindPanel } from './pdf/FindPanel'
 import { pageText } from './pdf/pdfSearch'
@@ -90,6 +91,8 @@ const EpubView = lazy(() =>
 const AaSheet = lazy(() => import('./AaSheet'))
 const DictionarySheet = lazy(() => import('./DictionarySheet'))
 const ZoomPreview = lazy(() => import('./pdf/ZoomPreview'))
+// The PDF menu's tools (Q8): pdf-lib, OCR and the sheets load only when used.
+const PdfTools = lazy(() => import('./pdfTools/PdfTools'))
 const AskBook = lazy(() =>
   import('../ai/AskBook').then((m) => ({ default: m.AskBook })),
 )
@@ -163,6 +166,11 @@ export function BookReader({
   } | null>(null)
   const [wordsPerPage, setWordsPerPage] = useState(300)
   const [moreAt, setMoreAt] = useState<DOMRect | null>(null)
+  // The PDF menu (Q8): its button place, the tool open, and a count that
+  // redraws the pages after a tool changed the file.
+  const [pdfMenuAt, setPdfMenuAt] = useState<DOMRect | null>(null)
+  const [pdfTool, setPdfTool] = useState<PdfTool | null>(null)
+  const [pdfVersion, setPdfVersion] = useState(0)
   const [goTo, setGoTo] = useState(false)
   // Kindle-style full screen (item 29): only the text; a tap in the middle
   // shows the bar, taps at the edges turn the page.
@@ -778,6 +786,44 @@ export function BookReader({
       onSelect: syncFurthest,
     },
   ]
+  const openPdfTool = (tool: PdfTool) => {
+    // Drawing in progress is saved first; the tool then works on the file.
+    stopInking()
+    clearSelection()
+    setPdfTool(tool)
+  }
+  const pdfMenuItems: MenuItem[] = [
+    {
+      label: t('pdftools.menu.organise'),
+      icon: 'grid',
+      onSelect: () => openPdfTool('organise'),
+    },
+    {
+      label: t('pdftools.menu.combine'),
+      icon: 'duplicate',
+      onSelect: () => openPdfTool('combine'),
+    },
+    {
+      label: t('pdftools.menu.scan'),
+      icon: 'camera',
+      onSelect: () => openPdfTool('scan'),
+    },
+    {
+      label: t('pdftools.menu.ocr'),
+      icon: 'search',
+      onSelect: () => openPdfTool('ocr'),
+    },
+    {
+      label: t('pdftools.menu.export'),
+      icon: 'save',
+      onSelect: () => openPdfTool('export'),
+    },
+    {
+      label: t('pdftools.menu.clean'),
+      icon: 'copy',
+      onSelect: () => openPdfTool('clean'),
+    },
+  ]
   const startScrub = () =>
     setFlipFrom(
       (prev) =>
@@ -1061,6 +1107,21 @@ export function BookReader({
         >
           Aa
         </button>
+        {format === 'pdf' && (
+          <button
+            type="button"
+            data-testid="reader-pdf-menu"
+            aria-haspopup="menu"
+            aria-expanded={!!pdfMenuAt}
+            aria-label={t('pdftools.menu.label')}
+            className={panelBtn(!!pdfMenuAt)}
+            onClick={(e) =>
+              setPdfMenuAt(e.currentTarget.getBoundingClientRect())
+            }
+          >
+            {t('pdftools.menu')}
+          </button>
+        )}
         <button
           type="button"
           data-testid="reader-lock"
@@ -1202,6 +1263,7 @@ export function BookReader({
             <p className="p-6">{t('bookreader.failed')}</p>
           ) : format === 'pdf' ? (
             <PdfView
+              key={pdfVersion}
               data={data}
               ink={{ db, pageId, on: drawing }}
               startAt={at ?? page.source.at}
@@ -1354,6 +1416,31 @@ export function BookReader({
       {dict && (
         <Suspense fallback={null}>
           <DictionarySheet word={dict} onClose={() => setDict(null)} />
+        </Suspense>
+      )}
+      {pdfMenuAt && format === 'pdf' && (
+        <MenuPopover
+          anchor={pdfMenuAt}
+          items={pdfMenuItems}
+          label={t('pdftools.menu.label')}
+          onClose={() => setPdfMenuAt(null)}
+        />
+      )}
+      {pdfTool && format === 'pdf' && data && (
+        <Suspense fallback={null}>
+          <PdfTools
+            tool={pdfTool}
+            db={db}
+            pageId={pageId}
+            title={page.title}
+            data={data}
+            onClose={() => setPdfTool(null)}
+            onEdited={(next) => {
+              setData(next)
+              setPdfVersion((v) => v + 1)
+              setFailed(false)
+            }}
+          />
         </Suspense>
       )}
       {moreAt && (

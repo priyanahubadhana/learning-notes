@@ -17,6 +17,7 @@ import { enF } from './enF'
 import { enD } from './enD'
 import { enN } from './enN'
 import { enM } from './enM'
+import { enPdf } from './enPdf'
 /**
  * English text for the app. Every new piece of on-screen text gets a key
  * here and is shown with `t('key')`, so translations can be added later as
@@ -45,6 +46,7 @@ export const en = {
   ...enD,
   ...enN,
   ...enM,
+  ...enPdf,
   // Shared dialogs
   'dialog.cancel': 'Cancel',
   'dialog.save': 'Save',

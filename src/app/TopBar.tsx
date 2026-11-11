@@ -128,7 +128,7 @@ export function TopBar({
           type="button"
           data-testid="show-tool-bar"
           onClick={showToolBar}
-          className="min-h-11 shrink-0 rounded-lg border border-line px-3 text-xs text-ink-soft hover:bg-hover hover:text-ink"
+          className="min-h-11 shrink-0 rounded-full bg-accent px-4 text-sm font-semibold text-white shadow-sm hover:opacity-90"
         >
           {t('bar.show')}
         </button>

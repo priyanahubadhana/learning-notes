@@ -211,3 +211,23 @@ test('on a Pencil iPad (Touch/Pencil) the bar is visible with a way back, in bot
   await showButton(page).click()
   await expect(bar(page)).toBeVisible()
 })
+
+// BUG-003: a clear Show tool bar pill stays at the top edge while writing.
+test('the Show tool bar pill is 44 pt, stays while typing, and brings the bar back', async ({
+  page,
+}) => {
+  await openPage(page)
+  await pageAction(page, 'Hide tool bar')
+  await dialog(page).getByRole('button', { name: 'Turn off' }).click()
+  const pill = showButton(page)
+  await expect(pill).toBeVisible()
+  expect((await pill.boundingBox())!.height).toBeGreaterThanOrEqual(44)
+  await page.locator('.bn-editor').click()
+  await page.keyboard.type(' more words')
+  await expect(pill).toBeVisible()
+  await pill.click()
+  await expect(bar(page)).toBeVisible()
+  await page.locator('.bn-editor').click()
+  await page.keyboard.type(' and more')
+  await expect(bar(page)).toBeVisible()
+})

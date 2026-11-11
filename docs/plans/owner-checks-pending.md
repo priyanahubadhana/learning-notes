@@ -1,5 +1,9 @@
 # Owner checks still pending (collected for the end-of-run iPad pass)
 
+## Claude connector B: set up and try (11 Nov, later; needs your OK to deploy)
+
+Not deployed. When you are ready, follow docs/features/claude-connector.md, "Online connector (B)": run the SQL file in Supabase, deploy `mcp` with `--no-verify-jwt`, publish the app, then in claude.ai add the custom connector with the function address and tap Allow on the Learning Notes screen. Check: the Allow screen ("Connect Claude") lists the permissions in plain words and looks right on the iPad (44 pt buttons, dark and light), and Claude can run the `ping` tool. Why human: needs the live project and claude.ai.
+
 ## Claude connector, PC checks (11 Nov)
 
 On the PC (not the iPad), follow docs/features/claude-connector.md. (1) `npm run mcp:install`, then `npm run mcp:build`. (2) `node mcp/dist/index.js setup`: email code, then passphrase; `status` says both saved. (3) In the app, switch on Allow AI for one notebook. (4) Add the config to Claude Desktop, restart it, ask "List my Learning Notes notebooks", then "Read the page ..." and "What cards are due?". (5) A notebook with Allow AI off must not show up.
@@ -27,6 +31,7 @@ On the iPad: open an EPUB, Aa › Font › Bookerly-style (Literata): the text c
 ## Reader: PDF page by page (11 Nov)
 
 On the iPad: open a PDF. Tap Pages in the reader bar (or Aa › Layout › Continuous scrolling off): one whole page fills the screen; swipe up: it settles on the next page, no half pages. Pinch to zoom in: you can pan freely; zoom back out: it snaps to a page again. Settings › Reading › PDF pages sets the same thing and is remembered. Why human: touch scrolling and scroll-snap feel on real iPadOS.
+
 ## Account gate, iPad check (12 Nov)
 
 On an iPad (or Safari tab) that has notes but is NOT signed in: (1) a bar says "Sign in to keep editing and sync your notes"; (2) pages open and read, search works, typing and Pencil do nothing, the page title is locked, a grey "Read-only until you sign in" line shows; (3) New notebook / New page opens the Sign in sheet; (4) in airplane mode the sheet says you are offline; (5) sign in (Google or email), finish or skip the guide: the bar goes, you can type, and it stays after a reload; (6) a signed-in iPad in airplane mode for a day is never gated.

@@ -68,4 +68,22 @@ export const enI = {
   'layers.study-kit.add1': 'A weekly plan with an exam checklist',
   'layers.study-kit.add2': 'A Cornell notes page',
   'layers.study-kit.add3': 'A Feynman check page with a card',
+
+  // ---- Claude connector consent screen ----
+  'connect.title': 'Connect Claude',
+  'connect.intro':
+    '{name} wants to use your Learning Notes. It never sees your password.',
+  'connect.canDo': 'It will be able to:',
+  'connect.sendsTo': 'After you choose, you go back to {host}.',
+  'connect.allow': 'Allow',
+  'connect.deny': 'Not now',
+  'connect.signIn':
+    'Sign in to Learning Notes in this browser first (Settings › Account), then connect again from Claude.',
+  'connect.open': 'Open Learning Notes',
+  'connect.bad': 'This connection link is not valid. Start again from Claude.',
+  'connect.error': 'Could not connect. Check your internet and try again.',
+  'connect.working': 'Connecting…',
+  'connect.scope.read': 'Read your notebooks, pages and recall cards',
+  'connect.scope.write':
+    'Create notebooks, pages, cards and databases, and add to pages. It can never delete anything.',
 }

@@ -73,4 +73,22 @@ export const hiI: Record<string, string> = {
   'layers.study-kit.add1': 'परीक्षा सूची के साथ साप्ताहिक योजना',
   'layers.study-kit.add2': 'एक कॉर्नेल नोट्स पृष्ठ',
   'layers.study-kit.add3': 'कार्ड वाला एक फ़ाइनमैन जाँच पृष्ठ',
+
+  // ---- Claude connector consent screen ----
+  'connect.title': 'Claude को जोड़ें',
+  'connect.intro':
+    '{name} आपके Learning Notes का उपयोग करना चाहता है। यह आपका पासवर्ड कभी नहीं देखता।',
+  'connect.canDo': 'यह ये कर सकेगा:',
+  'connect.sendsTo': 'चुनने के बाद आप {host} पर लौट जाएँगे।',
+  'connect.allow': 'अनुमति दें',
+  'connect.deny': 'अभी नहीं',
+  'connect.signIn':
+    'पहले इस ब्राउज़र में Learning Notes में साइन इन करें (सेटिंग्स › खाता), फिर Claude से दोबारा जोड़ें।',
+  'connect.open': 'Learning Notes खोलें',
+  'connect.bad': 'यह कनेक्शन लिंक मान्य नहीं है। Claude से फिर शुरू करें।',
+  'connect.error': 'जोड़ा नहीं जा सका। इंटरनेट जाँचें और दोबारा कोशिश करें।',
+  'connect.working': 'जोड़ रहे हैं…',
+  'connect.scope.read': 'आपके नोटबुक, पृष्ठ और रिकॉल कार्ड पढ़ना',
+  'connect.scope.write':
+    'नोटबुक, पृष्ठ, कार्ड और डेटाबेस बनाना और पृष्ठों में जोड़ना। यह कुछ भी हटा नहीं सकता।',
 }

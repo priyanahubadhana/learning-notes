@@ -76,4 +76,24 @@ export const esI: Record<string, string> = {
   'layers.study-kit.add1': 'Un plan semanal con lista para el examen',
   'layers.study-kit.add2': 'Una página de notas Cornell',
   'layers.study-kit.add3': 'Una página de control Feynman con una tarjeta',
+
+  // ---- Claude connector consent screen ----
+  'connect.title': 'Conectar Claude',
+  'connect.intro':
+    '{name} quiere usar tus Learning Notes. Nunca ve tu contraseña.',
+  'connect.canDo': 'Podrá:',
+  'connect.sendsTo': 'Después de elegir, volverás a {host}.',
+  'connect.allow': 'Permitir',
+  'connect.deny': 'Ahora no',
+  'connect.signIn':
+    'Primero inicia sesión en Learning Notes en este navegador (Ajustes › Cuenta) y vuelve a conectar desde Claude.',
+  'connect.open': 'Abrir Learning Notes',
+  'connect.bad':
+    'Este enlace de conexión no es válido. Empieza de nuevo desde Claude.',
+  'connect.error':
+    'No se pudo conectar. Revisa tu conexión e inténtalo de nuevo.',
+  'connect.working': 'Conectando…',
+  'connect.scope.read': 'Leer tus cuadernos, páginas y tarjetas de repaso',
+  'connect.scope.write':
+    'Crear cuadernos, páginas, tarjetas y bases de datos, y añadir a las páginas. Nunca puede borrar nada.',
 }

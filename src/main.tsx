@@ -59,6 +59,7 @@ import {
 import { saveEverythingLazy as saveEverything } from './share/saveEverythingLazy'
 import { loadInter } from './design/loadInter'
 import { isDesignTokensRoute } from './design/designRoute'
+import { isConnectRoute } from './connector/connectRoute'
 import { setSlowMomentsOn, slowMomentsWanted } from './perf/slowMomentsSwitch'
 
 initDeviceMode()
@@ -312,7 +313,12 @@ function goHome() {
 }
 
 // Hidden review page for the design system (not linked from the app).
-if (isDesignTokensRoute(location.hash)) {
+if (isConnectRoute(location.hash)) {
+  // Consent screen of the online Claude connector (lazy: normal starts never load it).
+  void import('./connector/ConnectPage').then((m) =>
+    createRoot(document.getElementById('root')!).render(<m.default />),
+  )
+} else if (isDesignTokensRoute(location.hash)) {
   void import('./design/DesignTokensPage').then((m) =>
     createRoot(document.getElementById('root')!).render(<m.default />),
   )

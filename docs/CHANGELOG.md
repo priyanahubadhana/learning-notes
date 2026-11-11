@@ -2,6 +2,13 @@
 
 Current phase only. Older entries are in [ARCHIVE.md](ARCHIVE.md).
 
+## 2026-11-11 (Claude connector B, slices 1-2: notebook spec, sign-in door, empty server)
+
+- **What:** (1) The notebook spec: `src/connector/spec.schema.json` (JSON Schema 2020-12) and `spec.ts`, a validator that never throws, refuses unknown fields and non-https links, names the exact place of each mistake, and enforces 256 KB, 50 pages, 200 blocks a page, 500 cards. (2) `supabase/functions/mcp`: a stateless MCP Streamable HTTP endpoint; every tool is registered, only `ping` works, the rest say "not enabled yet". (3) OAuth 2.1 in `_shared/oauth.ts`: metadata, dynamic client registration, authorize (PKCE S256 only, claude.ai and claude.com callbacks only), token (1 h passes bound to the address, 30-day refresh passes that rotate; reuse cancels the chain), revoke; passes stored only as hashes (migration `20261111000001_oauth.sql`, RLS on, no policy). (4) The consent screen at `#/connect` (lazy, in the app) with English, Hindi and Spanish text.
+- **Why:** The online connector is the main way to use Claude with the notes (plan B). Nothing is deployed; no secrets in code.
+- **Tests:** about 100 new (spec limits and 3,000 fuzz mutations, PKCE RFC example, rotation, replay, bad redirects, MCP protocol). Deno is not installed here, so the same files are tested in Node.
+- **Files:** src/connector/*, src/sync/connectors/connectServer.ts, src/main.tsx, src/i18n/{enI,hiI,esI}.ts, supabase/functions/{mcp,_shared/oauth.ts,_shared/oauthStore.ts,_shared/mcpHandler.ts}, supabase/migrations/20261111000001_oauth.sql, scripts/feature-links.json, docs/features/claude-connector.md.
+
 ## 2026-11-11 (Settings sync: e2e for the migration notice)
 
 - **What:** Two browser tests for the notice after the one-time step ("Settings now follow you. 1 changed to match your other devices."): a device from before settings followed you (it already has its own text size) joins an account where another device chose a different size; the notice appears with the right count, the synced value is taken, Undo brings this device's own value back and keeps it as "This device only" (also after a reload), OK keeps the synced value and the notice does not return. Run 3 times each, no retries needed.

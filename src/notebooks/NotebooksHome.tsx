@@ -13,11 +13,14 @@ import { listNotePages } from '../pages/pageService'
 import { dueByNotebook } from '../recall/reviewLazy'
 import {
   dayKind,
+  HOME_TABS,
+  homeTabList,
+  isHomeTab,
   lastOpened,
   nextColour,
+  type HomeTab,
   notebookColour,
   notebookOpenedAt,
-  shelfOrder,
   shortLabel,
   visibleRows,
 } from './notebookLook'
@@ -70,6 +73,7 @@ export function NotebooksHome({
     isLayout,
     'shelf',
   )
+  const [tab, setTab] = usePref<HomeTab>('notebooksTab', isHomeTab, 'all')
   const scroller = useRef<HTMLDivElement>(null)
   const [box, setBox] = useState({ w: 0, h: 0 })
   const [scrollTop, setScrollTop] = useState(0)
@@ -97,7 +101,10 @@ export function NotebooksHome({
   }, [db, minute])
 
   const opened = useMemo(() => notebookOpenedAt(), [])
-  const list = useMemo(() => shelfOrder(notebooks), [notebooks])
+  const list = useMemo(
+    () => homeTabList(notebooks, tab, opened),
+    [notebooks, tab, opened],
+  )
 
   // ---- Layout maths: which rows are on screen ----
   const pad = box.w >= 640 ? 24 : 16
@@ -110,7 +117,8 @@ export function NotebooksHome({
     ? Math.min(MAX_COL, (inner - GAP_X * (cols - 1)) / cols)
     : inner
   const rowH = shelf ? Math.round((colW * 4) / 3) + META_H + GAP_Y : LIST_ROW
-  const count = shelf ? list.length + 1 : list.length // the "+" tile closes the shelf
+  const addTile = shelf && tab === 'all' // the "+" tile closes the whole shelf
+  const count = addTile ? list.length + 1 : list.length
   const rows = Math.ceil(count / cols)
   const { from, to } = visibleRows(scrollTop, box.h, rowH, rows)
 
@@ -231,6 +239,34 @@ export function NotebooksHome({
           </button>
         </div>
       </header>
+      <div
+        role="tablist"
+        aria-label={t('nbh.tabs')}
+        className="flex gap-1 pb-2"
+        style={{ paddingInline: pad }}
+      >
+        {HOME_TABS.map((id) => (
+          <button
+            key={id}
+            type="button"
+            role="tab"
+            data-home-tab={id}
+            aria-selected={tab === id}
+            onClick={() => {
+              setTab(id)
+              setScrollTop(0)
+              scroller.current?.scrollTo({ top: 0 })
+            }}
+            className={`min-h-9 rounded-full px-3.5 text-sm any-pointer-coarse:min-h-11 ${
+              tab === id
+                ? 'bg-accent-soft font-semibold text-accent'
+                : 'text-ink-soft hover:bg-hover'
+            }`}
+          >
+            {t(`nbh.tab.${id}`)}
+          </button>
+        ))}
+      </div>
       {/* Room for the "Views" row (custom views, later). */}
       <div
         ref={scroller}
@@ -245,6 +281,15 @@ export function NotebooksHome({
         >
           {cells}
         </div>
+        {list.length === 0 && (
+          <p
+            data-testid="nbh-empty"
+            className="text-sm text-muted"
+            style={{ paddingInline: pad }}
+          >
+            {t(tab === 'starred' ? 'nbh.empty.starred' : 'nbh.empty.recent')}
+          </p>
+        )}
       </div>
       {menu && menuNotebook && (
         <MenuPopover

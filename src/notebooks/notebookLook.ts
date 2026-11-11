@@ -116,3 +116,30 @@ export function visibleRows(
   )
   return { from, to }
 }
+
+// ---- Tabs of the home: All, Starred, Recent ----
+
+export const HOME_TABS = ['all', 'starred', 'recent'] as const
+export type HomeTab = (typeof HOME_TABS)[number]
+export const isHomeTab = (v: unknown): v is HomeTab =>
+  HOME_TABS.includes(v as HomeTab)
+
+/** Most notebooks the Recent tab lists. */
+export const RECENT_NOTEBOOKS = 20
+
+/**
+ * The notebooks one home tab shows. All: pinned first, then the sidebar's
+ * order. Starred: only the pinned ones. Recent: the last opened (or changed)
+ * first, at most RECENT_NOTEBOOKS.
+ */
+export function homeTabList<
+  T extends Pick<Notebook, 'id' | 'starred' | 'updatedAt'>,
+>(notebooks: readonly T[], tab: HomeTab, opened: Record<string, number>): T[] {
+  if (tab === 'starred') return notebooks.filter((n) => n.starred)
+  if (tab === 'recent') {
+    return [...notebooks]
+      .sort((a, b) => lastOpened(b, opened) - lastOpened(a, opened))
+      .slice(0, RECENT_NOTEBOOKS)
+  }
+  return shelfOrder(notebooks)
+}

@@ -4,4 +4,11 @@ export const esQ: Record<string, string> = {
   'notebook.dbAllPages': 'Todas las páginas',
   'notebook.dbPageEmpty':
     'No hay ninguna base de datos en esta página ni debajo.',
+  'nbh.tabs': 'Mostrar cuadernos',
+  'nbh.tab.all': 'Todos',
+  'nbh.tab.starred': 'Destacados',
+  'nbh.tab.recent': 'Recientes',
+  'nbh.empty.starred':
+    'Aún no hay cuadernos destacados. Abre el menú de un cuaderno y elige Fijar arriba.',
+  'nbh.empty.recent': 'Los cuadernos que abras aparecerán aquí.',
 }

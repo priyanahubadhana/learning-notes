@@ -2682,7 +2682,9 @@ export class InkController {
       const redo = e.key.toLowerCase() === 'y' || e.shiftKey
       void (redo ? historyRedo() : historyUndo())
       e.preventDefault()
-      e.stopPropagation()
+      // Every box has its own ink controller on the document: only the first
+      // may act, or Undo would take one step per box.
+      e.stopImmediatePropagation()
       return
     }
     if (inText || this.env.frozen()) return

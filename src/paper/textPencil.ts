@@ -1,5 +1,5 @@
 import { recogniseShape, type Recognised } from '../ink/shapes'
-import type { Pt } from '../ink/geometry'
+import { distToSegment, type Pt } from '../ink/geometry'
 
 /**
  * Text tool + Pencil (owner, 11 Nov). With the Text tool on, the Pencil
@@ -49,7 +49,84 @@ function roundStroke(points: readonly Pt[]): Recognised | null {
   return { kind: 'ellipse', pts, closed: true }
 }
 
-export function cleanShape(points: readonly Pt[]): Recognised | null {
+/**
+ * Decision thresholds (logged in docs/DECISIONS.md). The Text tool only turns
+ * a stroke into a shape when the recogniser scores it high AND it does not
+ * look like handwriting going on.
+ */
+export const MIN_SCORE = 0.55
+/** Smallest stroke (px across) that may become a shape on blank paper. */
+export const MIN_PAPER_DIAG: Record<string, number> = {
+  line: 60,
+  arrow: 60,
+  rect: 48,
+  ellipse: 48,
+}
+/** A pen stroke this recent (ms) and this near (px) is handwriting going on. */
+export const WRITING_GAP_MS = 1200
+export const WRITING_NEAR_PX = 80
+/** After the lift the shape waits this long (ms) for a nearby next stroke. */
+export const HOLD_MS = 400
+
+/**
+ * How well the clean outline fits the stroke, 0 to 1: the mean distance of
+ * the drawn points to the outline, as a share of the outline's size. 1 is
+ * exact; 0 is 8 % of the size or worse.
+ */
+export function score(points: readonly Pt[], outline: readonly Pt[]): number {
+  if (points.length === 0 || outline.length < 2) return 0
+  const xs = outline.map((p) => p.x)
+  const ys = outline.map((p) => p.y)
+  const diag = Math.hypot(
+    Math.max(...xs) - Math.min(...xs),
+    Math.max(...ys) - Math.min(...ys),
+  )
+  if (diag === 0) return 0
+  let sum = 0
+  for (const p of points) {
+    let d = Infinity
+    for (let i = 1; i < outline.length; i++)
+      d = Math.min(d, distToSegment(p, outline[i - 1], outline[i]))
+    sum += d
+  }
+  return Math.max(0, 1 - sum / points.length / (0.08 * diag))
+}
+
+export interface Scored extends Recognised {
+  score: number
+}
+
+/** A finished pen stroke, kept briefly to tell handwriting from a shape. */
+export interface RecentStroke {
+  at: number
+  x: number
+  y: number
+  w: number
+  h: number
+}
+
+/** Is a stroke with these bounds next to a pen stroke made a moment ago? */
+export function overlapsWriting(
+  b: { x: number; y: number; w: number; h: number },
+  recent: readonly RecentStroke[],
+  now: number,
+): boolean {
+  const n = WRITING_NEAR_PX
+  return recent.some(
+    (r) =>
+      now - r.at <= WRITING_GAP_MS &&
+      r.x <= b.x + b.w + n &&
+      r.x + r.w >= b.x - n &&
+      r.y <= b.y + b.h + n &&
+      r.y + r.h >= b.y - n,
+  )
+}
+
+/** May this clean shape land on blank paper (big enough, not a small mark)? */
+export const bigEnough = (rec: Recognised, diag: number): boolean =>
+  diag >= (MIN_PAPER_DIAG[rec.kind] ?? Infinity)
+
+export function cleanShape(points: readonly Pt[]): Scored | null {
   if (points.length < 6) return null
   const xs = points.map((p) => p.x)
   const ys = points.map((p) => p.y)
@@ -58,10 +135,19 @@ export function cleanShape(points: readonly Pt[]): Recognised | null {
     Math.max(...ys) - Math.min(...ys),
   )
   if (diag < MIN_DIAG) return null
+  // Both readings compete (a rectangle is also "roundish"): the better fit wins.
+  const cands: Recognised[] = []
   const round = roundStroke(points)
-  if (round) return round
+  if (round) cands.push(round)
   const found = recogniseShape(points, { snap: true })
-  return found && KINDS.has(found.kind) ? found : null
+  if (found && KINDS.has(found.kind)) cands.push(found)
+  let best: Scored | null = null
+  for (const c of cands) {
+    const sc = score(points, c.pts)
+    if (sc >= MIN_SCORE && (!best || sc > best.score))
+      best = { ...c, score: sc }
+  }
+  return best
 }
 
 const CIRCLED = [
@@ -96,7 +182,7 @@ export const circledNumber = (n: number): string | null =>
 export function digitRuns(
   text: string,
 ): { start: number; end: number; n: number }[] {
-  return [...text.matchAll(/\d{1,2}/g)].map((m) => ({
+  return [...text.matchAll(/(?<!\d)\d{1,2}(?!\d)/g)].map((m) => ({
     start: m.index ?? 0,
     end: (m.index ?? 0) + m[0].length,
     n: Number(m[0]),

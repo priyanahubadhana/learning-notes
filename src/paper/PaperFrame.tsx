@@ -57,7 +57,18 @@ import {
 } from './grid'
 import { GridDividers } from './GridDividers'
 import { snapBox, type SnapResult } from './guides'
-import { circleDigit, cleanShape, type DigitView } from './textPencil'
+import {
+  bigEnough,
+  circleDigit,
+  cleanShape,
+  HOLD_MS,
+  overlapsWriting,
+  WRITING_GAP_MS,
+  WRITING_NEAR_PX,
+  type DigitView,
+  type RecentStroke,
+  type Scored,
+} from './textPencil'
 import { allBoxEditors } from './activeBox'
 import { group as historyGroup } from '../core/historySteps'
 import { readDeviceSetting } from '../settings/settingsService'
@@ -67,6 +78,7 @@ import { startBlankHold } from './blankHold'
 import { bounds, record, replay, waitFor, type Recorded } from './penOnPaper'
 import { activeTool } from '../app/tools/main/mainTools'
 import { onGestureReset } from '../app/gestureReset'
+import type { Rect } from '../ink/geometry'
 import { startGripDrag } from '../app/tools/gripDrag'
 import { adopterIn, lassoAcrossBoxes, setPaperDrop } from '../ink/inkTransfer'
 import { lassoSettings } from '../app/tools/main/inkSettings'
@@ -1218,9 +1230,47 @@ export function PaperFrame({
   // becomes a circled number, and (on blank paper) a drawn line, arrow, circle
   // or rectangle becomes a clean shape on the ink layer. One Undo.
   const textPen = useRef<{ pts: Pt[]; blank: boolean } | null>(null)
+  // Pen strokes of the last moments (handwriting going on) and the shape that
+  // waits a moment for a next stroke nearby (then it was handwriting after all).
+  const recentPen = useRef<RecentStroke[]>([])
+  const shapeHold = useRef<{ timer: number; b: Rect } | null>(null)
+  const noteStroke = (pts: Pt[], now: number) => {
+    const b = bounds(pts)
+    recentPen.current = [
+      ...recentPen.current.filter((s) => now - s.at <= WRITING_GAP_MS),
+      { at: now, ...b },
+    ].slice(-8)
+  }
+  const dropHold = () => {
+    if (shapeHold.current) window.clearTimeout(shapeHold.current.timer)
+    shapeHold.current = null
+  }
+  useEffect(() => {
+    const off = onGestureReset(() => {
+      textPen.current = null
+      dropHold()
+    })
+    return () => {
+      off()
+      dropHold()
+    }
+  }, [])
   const textPenDown = (e: ReactPointerEvent, blank: boolean) => {
     if (flat || activeTool.get() !== 'text' || e.pointerType !== 'pen') return
     if (isUiEvent(e.nativeEvent)) return
+    // A stroke whose lift never came (Scribble took it) was handwriting.
+    if (textPen.current) noteStroke(textPen.current.pts, e.timeStamp)
+    // A new stroke next to the waiting shape: this is handwriting, not a shape.
+    const hold = shapeHold.current
+    if (hold) {
+      const n = WRITING_NEAR_PX
+      const near =
+        e.clientX >= hold.b.x - n &&
+        e.clientX <= hold.b.x + hold.b.w + n &&
+        e.clientY >= hold.b.y - n &&
+        e.clientY <= hold.b.y + hold.b.h + n
+      if (near) dropHold()
+    }
     textPen.current = { pts: [{ x: e.clientX, y: e.clientY }], blank }
   }
   const textPenMove = (e: ReactPointerEvent) => {
@@ -1233,7 +1283,11 @@ export function PaperFrame({
     if (!tp || activeTool.get() !== 'text') return
     tp.pts.push({ x: e.clientX, y: e.clientY })
     const rec = cleanShape(tp.pts)
-    if (!rec) return
+    const before = [...recentPen.current]
+    if (!rec) {
+      noteStroke(tp.pts, e.timeStamp)
+      return
+    }
     const bb = bounds(rec.pts.map((q) => ({ x: q.x, y: q.y })))
     if (rec.kind === 'ellipse') {
       const ring = { x: bb.x, y: bb.y, w: bb.w, h: bb.h }
@@ -1246,7 +1300,31 @@ export function PaperFrame({
         if (circleDigit(view as unknown as DigitView, ring)) return
       }
     }
-    if (!tp.blank || !onInkOnPaper) return
+    // A shape on blank paper: big enough, and not next to handwriting going on.
+    const sb = bounds(tp.pts)
+    if (
+      !tp.blank ||
+      !onInkOnPaper ||
+      !bigEnough(rec, Math.hypot(sb.w, sb.h)) ||
+      overlapsWriting(sb, before, e.timeStamp)
+    ) {
+      noteStroke(tp.pts, e.timeStamp)
+      return
+    }
+    // Every stroke counts as pen writing for the strokes that follow it.
+    noteStroke(tp.pts, e.timeStamp)
+    dropHold()
+    const pid = e.pointerId
+    shapeHold.current = {
+      b: sb,
+      timer: window.setTimeout(() => {
+        shapeHold.current = null
+        if (activeTool.get() !== 'text') return
+        convertShape(rec, bb, pid)
+      }, HOLD_MS),
+    }
+  }
+  const convertShape = (rec: Scored, bb: Rect, pointerId: number) => {
     const r = paperEl.current?.getBoundingClientRect()
     if (!r) return
     const last = rec.pts[rec.pts.length - 1]
@@ -1259,7 +1337,7 @@ export function PaperFrame({
         tiltX: 0,
         tiltY: 0,
         pointerType: 'pen',
-        pointerId: e.pointerId,
+        pointerId: pointerId,
       })),
       {
         type: 'pointerup',
@@ -1269,7 +1347,7 @@ export function PaperFrame({
         tiltX: 0,
         tiltY: 0,
         pointerType: 'pen',
-        pointerId: e.pointerId,
+        pointerId: pointerId,
       },
     ]
     // The box that holds the ink and the ink itself are one Undo step.

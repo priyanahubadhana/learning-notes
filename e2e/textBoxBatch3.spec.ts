@@ -204,8 +204,8 @@ test('Layout mode v2: a full-screen pop-up; ✕ changes nothing, ✓ applies as 
   await expect
     .poll(async () => Math.abs((await rect(b)).x - (await rect(a)).x))
     .toBeGreaterThan(100)
-  // One Undo puts the page back as it was.
-  await page.locator('[data-paper-box="main"] .bn-editor').click()
+  // One Undo puts the page back as it was. (No click into the text first: a
+  // click makes the editor add its empty last line, which is its own step.)
   await page.keyboard.press('Control+z')
   await expect
     .poll(async () => Math.abs((await rect(b)).x - before.x))

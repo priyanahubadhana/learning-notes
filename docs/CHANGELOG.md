@@ -2,6 +2,12 @@
 
 Current phase only. Older entries are in [ARCHIVE.md](ARCHIVE.md).
 
+## 2026-11-12 (Text tool + Pencil: safer shapes, Undo fix)
+
+- **Undo fix:** every box has its own ink controller listening to Ctrl/Cmd+Z on the document, and each one ran Undo, so with two or more boxes one press took back several steps (a circled number's Undo also took back the typing). Now the first one stops the key (`stopImmediatePropagation`). Files: `ink/controller.ts`.
+- **Shapes no longer misread handwriting:** the Text tool converts a stroke only when its fit score is 0.55 or more, it is big enough (line/arrow 60 px, rectangle/circle 48 px across), no other pen stroke was made within 1.2 s and 80 px, and no nearby stroke starts within 0.4 s after the lift (the shape waits that long). A circle round a digit is immediate and keeps its own check (the circle must hug a 0 to 20 number). A number inside a longer number (2024) is never circled. Files: `paper/textPencil.ts`, `paper/PaperFrame.tsx`. Tests: `paper/textPencil.test.ts`, `e2e/textBoxFree.spec.ts` (chromium and ipad-webkit).
+- Checked by reading, not changed: iPad Scribble is not blocked by our guards. The Pencil-hold, double-tap and stylus-touch guards in `editor/tapSelect.ts`, `holdSelect.ts` and `app/penTap.ts` act only on second taps, on a hold, or on our own chrome; `inputmode="none"` only hides the on-screen keyboard. Needs the owner's iPad check.
+
 ## 2026-11-12 (Text box v2, owner list: step 7, Layout mode v2)
 
 - **Layout is now a full-screen pop-up** (like Ctrl+P): ✕ Cancel and ✓ Done always on screen; a big live preview of the page where boxes are dragged (over a box: a column or stack; on blank paper: a free place) and resized (right-edge handle); a side panel (below on a phone) with Tidy (Line up left, Space evenly for 3 or more boxes, One box, and Columns / more layouts under "More layouts"), Box (style presets and colour of the picked box), Text (size and line spacing, for all notes) and Pages (switch page; each page keeps its own draft). Nothing is written until ✓; then every changed page is applied together as ONE Undo step (`history.layout`). The old on-page Layout mode and its strip (`LayoutModeBar`) are gone. A fixed Layout button sits next to Undo and Redo on the main toolbar and the ribbon while a paper page is open. Files: `paper/LayoutDialog.tsx` (lazy), `paper/layoutDrop.ts`, `app/tools/LayoutButton.tsx`, `paper/usePaperBoxes.tsx`, `app/tools/main/MainBar.tsx`, `app/tools/Ribbon.tsx`. Tests: `paper/layoutDrop.test.ts`, `e2e/textBoxBatch3.spec.ts`, `mainBar.spec.ts`.

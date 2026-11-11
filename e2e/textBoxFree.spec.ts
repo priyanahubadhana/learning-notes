@@ -10,6 +10,16 @@ import { createNotebook, startInMode, typeInEditor } from './helpers.ts'
  */
 test.use({ viewport: { width: 1336, height: 1100 }, hasTouch: true })
 
+// On the iPad stand-in (ipad-webkit) only the Pencil conversion specs run.
+test.beforeEach(({ browserName }, info) => {
+  test.skip(
+    browserName === 'webkit' &&
+      info.project.name === 'ipad-webkit' &&
+      !/Pencil|Pen tool/.test(info.title),
+    'Pencil specs only on the iPad stand-in',
+  )
+})
+
 const EXTRA = '[data-paper-box]:not([data-paper-box="main"])'
 const box = async (l: Locator) => (await l.boundingBox())!
 
@@ -310,6 +320,7 @@ async function pencil(
   page: Page,
   target: Locator,
   pts: { x: number; y: number }[],
+  wait = 300,
 ) {
   await target.evaluate((el, points) => {
     const fire = (type: string, p: { x: number; y: number }) =>
@@ -331,7 +342,7 @@ async function pencil(
     for (const p of points.slice(1)) fire('pointermove', p)
     fire('pointerup', points[points.length - 1])
   }, pts)
-  await page.waitForTimeout(300)
+  if (wait) await page.waitForTimeout(wait)
 }
 
 test('Text tool + Pencil: a circle round a digit makes a circled number, one Undo undoes it', async ({
@@ -363,9 +374,12 @@ test('Text tool + Pencil: a circle round a digit makes a circled number, one Und
   await pencil(page, b.locator('.bn-editor'), ring)
   await expect(b.locator('.bn-editor')).toContainText('Step ② done')
   await page.keyboard.press('Control+z')
-  // One Undo takes the circled number back (the page's history may also take
-  // the typing of the same box with it, see the owner checks).
+  // One Undo takes back ONLY the circled number; the typing stays.
   await expect(b.locator('.bn-editor')).not.toContainText('②')
+  await expect(b.locator('.bn-editor')).toContainText('Step 2 done')
+  // Redo brings the circled number back.
+  await page.keyboard.press('Control+Shift+z')
+  await expect(b.locator('.bn-editor')).toContainText('Step ② done')
 })
 
 test('Text tool + Pencil: a drawn line on blank paper becomes a clean ink line; the Pen never converts', async ({
@@ -414,4 +428,90 @@ test('Box style: Sticky note and Callout presets; a new box remembers the last s
   await expect(
     page.locator(EXTRA).nth(1).locator('[data-box-style]').first(),
   ).toBeVisible()
+})
+
+async function wobblyLine(page: Page, wait = 300, dy = 90, x0f = 0.3) {
+  const sheet = await box(page.locator('[data-paper-sheet="1"]'))
+  const main = await box(page.locator('[data-paper-box="main"]'))
+  const y = main.y + main.height + dy
+  const x0 = sheet.x + sheet.width * x0f
+  const pts = Array.from({ length: 24 }, (_, i) => ({
+    x: x0 + i * 7,
+    y: y + Math.sin(i) * 1.2,
+  }))
+  await pencil(page, page.locator('[data-paper-sheets]'), pts, wait)
+}
+
+test('Text tool + Pencil: one Undo takes a converted shape back, Redo returns it', async ({
+  page,
+}) => {
+  await start(page, 'ShapeUndo')
+  await wobblyLine(page)
+  await expect(page.locator(EXTRA)).toHaveCount(1, { timeout: 8000 })
+  await page.waitForTimeout(1000)
+  await page.keyboard.press('Control+z')
+  await expect(page.locator(EXTRA)).toHaveCount(0, { timeout: 8000 })
+  await expect(page.locator('[data-paper-box="main"]')).toContainText(
+    'Main text',
+  )
+  await page.keyboard.press('Control+Shift+z')
+  await expect(page.locator(EXTRA)).toHaveCount(1, { timeout: 8000 })
+})
+
+test('Text tool + Pencil: strokes that look like handwriting are not converted', async ({
+  page,
+}) => {
+  await start(page, 'Hand')
+  // Two strokes next to each other, the second within the hold time.
+  await wobblyLine(page, 0)
+  await wobblyLine(page, 0, 110, 0.32)
+  await page.waitForTimeout(1500)
+  await expect(page.locator(EXTRA)).toHaveCount(0)
+  // A small round mark (a letter c) and a short dash are not shapes either.
+  const sheet = await box(page.locator('[data-paper-sheet="1"]'))
+  const main = await box(page.locator('[data-paper-box="main"]'))
+  const cx = sheet.x + sheet.width * 0.6
+  const cy = main.y + main.height + 200
+  const ring = Array.from({ length: 33 }, (_, i) => ({
+    x: cx + Math.cos((i / 32) * Math.PI * 1.6) * 14,
+    y: cy + Math.sin((i / 32) * Math.PI * 1.6) * 14,
+  }))
+  await pencil(page, page.locator('[data-paper-sheets]'), ring, 1200)
+  const dash = Array.from({ length: 12 }, (_, i) => ({
+    x: cx + 100 + i * 3,
+    y: cy + 60,
+  }))
+  await pencil(page, page.locator('[data-paper-sheets]'), dash, 1200)
+  await expect(page.locator(EXTRA)).toHaveCount(0)
+})
+
+test('The Pen tool never converts: a ring round a digit stays a ring', async ({
+  page,
+}) => {
+  await start(page, 'PenNever')
+  await tapBlank(page, 0.3, 70)
+  await expect(page.locator(EXTRA + ' .bn-editor')).toBeFocused()
+  await page.keyboard.type('Step 2 done')
+  await page.waitForTimeout(1200)
+  const b = page.locator(EXTRA).filter({ hasText: 'Step 2 done' })
+  const r = await page.evaluate(() => {
+    const ed = document.querySelector(
+      '[data-paper-box]:not([data-paper-box="main"]) .bn-editor',
+    )!
+    const w = document.createTreeWalker(ed, NodeFilter.SHOW_TEXT)
+    const n = w.nextNode()!
+    const q = document.createRange()
+    q.setStart(n, 5)
+    q.setEnd(n, 6)
+    const c = q.getBoundingClientRect()
+    return { cx: c.left + c.width / 2, cy: c.top + c.height / 2, h: c.height }
+  })
+  await page.getByRole('button', { name: 'Pen', exact: true }).first().click()
+  const ring = Array.from({ length: 41 }, (_, i) => ({
+    x: r.cx + Math.cos((i / 40) * Math.PI * 2) * (r.h * 0.9),
+    y: r.cy + Math.sin((i / 40) * Math.PI * 2) * (r.h * 0.9),
+  }))
+  await pencil(page, page.locator('[data-paper-sheets]'), ring, 1500)
+  await expect(b.locator('.bn-editor')).toContainText('Step 2 done')
+  await expect(b.locator('.bn-editor')).not.toContainText('②')
 })

@@ -1,5 +1,9 @@
 # Owner checks still pending (collected for the end-of-run iPad pass)
 
+## Text tool + Pencil, Scribble and Undo (12 Nov)
+
+On the iPad with the Text tool: (1) write a word with the Pencil inside a box: Scribble turns it into text, with and without the on-screen keyboard showing; write fast, several words: nothing is cancelled. (2) Draw an arrow, line, circle or rectangle on blank paper and lift: after a short moment (under half a second) it becomes a clean shape; Undo once removes it, Redo brings it back; Lasso moves it. (3) Write a few letters or a dash on blank paper (an o, a short dash, a quick word): nothing turns into a shape. (4) Circle a digit in a box (1 to 20): it becomes the circled number; ONE Undo takes only that back and the text you typed stays. (5) Choose the Pen: every stroke stays exactly as drawn (never a shape, never a circled number). (6) With two or more boxes on the page, Undo steps back one step per press.
+
 ## Text box v2, owner list (12 Nov, steps 1 to 7)
 
 On the iPad (Pencil and finger):

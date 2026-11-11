@@ -2,6 +2,12 @@
 
 Current phase only. Older entries are in [ARCHIVE.md](ARCHIVE.md).
 
+## 2026-11-12 (Triple tap in a box picked the whole paragraph on iPad)
+
+- **What:** the visual-line measure looks through overlays (a box's resize handles) at the row edges while it measures.
+- **Why:** WebKit hit the nw resize handle at the box edge, so both row edges came back as the same spot and three taps selected the whole paragraph (CI ipad-webkit boxTaps). App bug. TEMP CI debug logging removed.
+- **Files:** src/editor/tapSelect.ts, e2e/boxTaps.spec.ts, e2e/toggles.spec.ts, docs/CHANGELOG.md.
+
 ## 2026-11-12 (Ribbon tools slid 6 px when the start chevron appeared)
 
 - **What:** the scrolling rows (ribbon, context strip) always keep both zero-width chevron holders; only the chevron inside comes and goes.

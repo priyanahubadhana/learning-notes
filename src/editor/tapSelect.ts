@@ -101,6 +101,29 @@ export type LineView = Pick<
 >
 
 /**
+ * posAtCoords at (x, y), looking through anything drawn over the text there
+ * (a box's resize handles sit on its edges): WebKit hit-tests the overlay
+ * and answers a position near the block start instead of the row's edge.
+ * Overlays are made click-through only for the measurement.
+ */
+function probe(view: LineView, el: Element, x: number, y: number) {
+  const hidden: [HTMLElement, string][] = []
+  try {
+    if (typeof document !== 'undefined') {
+      for (let i = 0; i < 4; i++) {
+        const hit = document.elementFromPoint(x, y) as HTMLElement | null
+        if (!hit || el.contains(hit) || hit.contains(el)) break
+        hidden.push([hit, hit.style.pointerEvents])
+        hit.style.pointerEvents = 'none'
+      }
+    }
+    return view.posAtCoords({ left: x, top: y })
+  } finally {
+    for (const [h, pe] of hidden) h.style.pointerEvents = pe
+  }
+}
+
+/**
  * The visual line (one row on screen) of the text block at `pos`, as
  * [from, to]: the caret positions found at the row's left and right edges
  * (R6-19). `y` is where the tap landed, which says which row is meant when
@@ -127,8 +150,8 @@ export function visualLineRange(
   const row = rows.reduce((a, b) => (away(b) < away(a) ? b : a))
   const mid = (row.top + row.bottom) / 2
   const clamp = (p: number) => Math.min(end, Math.max(start, p))
-  const left = view.posAtCoords({ left: box.left + 1, top: mid })
-  const right = view.posAtCoords({ left: box.right - 1, top: mid })
+  const left = probe(view, el, box.left + 1, mid)
+  const right = probe(view, el, box.right - 1, mid)
   if (!left || !right) return whole
   let a = clamp(left.pos)
   let b = clamp(right.pos)

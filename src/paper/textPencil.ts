@@ -41,7 +41,7 @@ function roundStroke(points: readonly Pt[]): Recognised | null {
     Math.hypot((p.x - cx) / (w / 2), (p.y - cy) / (h / 2)),
   )
   const mean = rs.reduce((a, r) => a + r, 0) / rs.length
-  if (rs.some((r) => Math.abs(r - mean) > 0.3)) return null
+  if (rs.some((r) => Math.abs(r - mean) > 0.18)) return null
   const pts = Array.from({ length: 73 }, (_, i) => ({
     x: cx + Math.cos((i / 72) * Math.PI * 2) * (w / 2),
     y: cy + Math.sin((i / 72) * Math.PI * 2) * (h / 2),

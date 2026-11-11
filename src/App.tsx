@@ -613,6 +613,9 @@ function App() {
     routeHashRef.current = routeHash
   })
   const historyReady = useRef(false)
+  // The address when the app first drew: if it differs by the first effect, a
+  // link was opened while the app was starting (see the route effect below).
+  const firstHash = useRef(location.hash)
   const replaceNext = useRef(false)
   const checkAddress = useRef(true)
 
@@ -680,6 +683,15 @@ function App() {
   // A new screen adds a history entry; the first write and the fix-up for a
   // missing page only replace the entry they are on.
   useEffect(() => {
+    if (!historyReady.current && location.hash !== firstHash.current) {
+      // Opened while starting: follow the new address, never overwrite it with
+      // the screen the app began on.
+      historyReady.current = true
+      checkAddress.current = true
+      replaceNext.current = true
+      applyRoute(parseHash(location.hash))
+      return
+    }
     if (baseHash(location.hash) === routeHash) {
       historyReady.current = true
       replaceNext.current = false // nothing to replace: do not carry it over

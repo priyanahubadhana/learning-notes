@@ -62,3 +62,22 @@ Four modes:
 - H5: a smaller Beginner view.
 - H6: Daily Highlight, customisable like Apple Photos "Memories": a full settings section choosing sources (knowledge bank, notebooks, books, cards…), frequency, etc.
 - H7: Continue as a sideways row ✓. Tasks/Plan/Routines/Reports tabs ✓.
+
+### Home answers (owner, 12 Nov)
+
+- Q1 summary widgets: unclear; explained again (see chat).
+- Q2 time tracking: BOTH a live timer and logging afterwards.
+- Q3 progress: all measures (hours, goal topics, cards mastered), with user-set WEIGHTS per activity (e.g. reading one book counts more than 100 flashcards).
+- Q4 finance: built ENTIRELY from existing app tools (databases, views, formulas, charts…) to show what the app can do:
+  - an expense/income log with categories and a monthly total;
+  - a Notion-style budget dashboard;
+  - replicable by users, with easy settings.
+- Q5 personal only (no Work/Life split). Work hours are logged as time only; no work data.
+- Q6 templates:
+  - ONE planner covering daily/weekly/yearly (routines inside it, no separate routine tab);
+  - a Learning tracker;
+  - a Finance log/dashboard.
+  - All are built with the app's own tools; users must be able to build the same UI themselves.
+- Q6b list what the app can't yet build for these templates, and add those building blocks.
+- Q7 Daily Highlight with a full settings page ✓, plus sharing in multiple formats.
+- Research: Notion dashboards, Tableau and pro dashboard makers; build Home as a user-buildable dashboard.

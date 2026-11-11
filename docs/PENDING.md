@@ -175,3 +175,22 @@ plans/owner-ideas-batch-2-2026-11-10.md: update bar, Acrobat PDF tools, customiz
   - Q10 reliability first, then features.
   - Book annotations Q1–6: waiting.
 - Builder H done (11 Nov): DB page filter, search finds checkboxes/formulas, All/Starred/Recent, Delete forever erases pictures, picture Border, video start/size, slowMoments throttled, seeded driveServer tests, first load 319.9 → 301.8 KB. Waiting for the redesign: text wrap around pictures (src/paper) and Draw on picture (src/ink + tools).
+
+## OWNER TO-DO (answer in one go later)
+
+Questions:
+
+1. Q6 Custom Views: (a) short plan first or (b) build straight away? (owner wrote "A. B.")
+2. PDF tools: scan with auto-crop? on-device OCR (free) with optional AI OCR (cost shown)? export with notes plus a clean copy? a "PDF" menu only when a PDF is open? (my picks: yes/yes/both/yes; building with these unless changed)
+3. Book annotations Q1–6 (my picks used in the mock-up): scroll-only drawing; a phrase = 3 s; sticky notes yes; Beginner shows everything; user-named colours; sync strokes only.
+4. Toyota-style rules into rules/building.md: yes/no?
+5. Mock-up renames: keep "Pen"/"Sticky note" names (Fable is reviewing).
+6. What was the rest of "And make…"?
+   Tasks only the owner can do:
+
+- Supabase dashboard: OTP expiry ≤10 min, rate limits, refresh-token rotation + reuse detection ON (CAPTCHA later).
+- Redeploy the drive-token function (I'll guide you).
+- Delete by hand: Downloads\learning-notes\dist-pt, dist-rb, test-results-acct, test-results-b2, dist-map.
+- iPad checks at the top of docs/plans/owner-checks-pending.md once the build is live.
+- Review the mock-ups: toolbar v2/v3, book annotations.
+- Send the BUG-002 screenshot (format bar out of bounds).

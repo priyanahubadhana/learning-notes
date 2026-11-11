@@ -1,5 +1,10 @@
 import { useLiveQuery } from 'dexie-react-hooks'
-import { useContext, useState, type FormEvent } from 'react'
+import {
+  useContext,
+  useState,
+  useSyncExternalStore,
+  type FormEvent,
+} from 'react'
 import type { LearningNotesDB } from '../../core/db'
 import {
   getLockConfig,
@@ -12,6 +17,7 @@ import {
   isPassword,
   isPin,
   PASSWORD_MIN,
+  PASSWORD_RECOMMENDED as RECOMMENDED,
 } from '../../core/lock/lockCrypto'
 import {
   listLocked,
@@ -26,6 +32,7 @@ import {
 } from '../../core/lock/webauthn'
 import { HelpLine } from '../../help/Help'
 import { t } from '../../i18n/t'
+import { getSyncStatus, subscribeSync } from '../../sync/syncStatus'
 import { AppUiContext } from '../appUi'
 import { runTask } from '../errors'
 import { ConfirmDialog } from '../ui'
@@ -319,6 +326,10 @@ function SetCodeDialog({
   const [b, setB] = useState('')
   const [error, setError] = useState<string | null>(null)
   const [busy, setBusy] = useState(false)
+  // With sync on, the code's hash travels with the synced settings: push for a long password.
+  const synced =
+    useSyncExternalStore(subscribeSync, getSyncStatus).phase !== 'signedOut'
+  const short = kind === 'password' && a.length > 0 && a.length < RECOMMENDED
   const valid = kind === 'pin' ? isPin : isPassword
   const submit = async (e: FormEvent) => {
     e.preventDefault()
@@ -386,6 +397,14 @@ function SetCodeDialog({
           }
           className="min-h-11 rounded-lg border border-line bg-bg px-3 outline-none focus:border-accent"
         />
+        {synced && (
+          <p className="text-sm text-muted" data-testid="lock-sync-note">
+            {t(kind === 'pin' ? 'lock.sync.pin' : 'lock.sync.password')}
+          </p>
+        )}
+        {synced && short && (
+          <p className="text-sm text-muted">{t('lock.sync.short')}</p>
+        )}
         {error && (
           <p role="alert" className="text-sm text-danger">
             {error}

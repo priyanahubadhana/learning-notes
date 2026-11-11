@@ -17,7 +17,8 @@ import { t } from '../../i18n/t'
 /**
  * Asks for a way to unlock: the device lock (Face ID, Touch ID, Windows
  * Hello), the PIN or the password. A wrong code never says which part was
- * wrong, and five wrong tries in a row make a wait that doubles each time.
+ * wrong, and three wrong tries in a row start a wait that grows each time
+ * (kept on the device, so a reload does not reset it).
  * If the device lock fails or is cancelled, the PIN or password still works.
  */
 export function UnlockForm({
@@ -183,7 +184,9 @@ export function UnlockForm({
         className="min-h-5 text-center text-sm text-danger"
       >
         {wait > 0
-          ? t('lock.wait', { seconds: wait })
+          ? wait >= 120
+            ? t('lock.waitMin', { minutes: Math.ceil(wait / 60) })
+            : t('lock.wait', { seconds: wait })
           : error === 'wrong'
             ? t('lock.wrong')
             : error === 'device'

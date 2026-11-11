@@ -143,11 +143,13 @@ test('a locked page shows only a lock screen: no text, then the right PIN opens 
   await expect(title(page)).toHaveValue('Private page')
 })
 
-test('five wrong tries make a short wait', async ({ page }) => {
+test('three wrong tries make a wait that a reload does not reset', async ({
+  page,
+}) => {
   await start(page)
   await openPage(page, 'Private page')
   await lockThisPage(page)
-  for (let i = 0; i < 5; i++) {
+  for (let i = 0; i < 3; i++) {
     await enterCode(page, '0000')
     // The field empties once the try was checked.
     await expect(page.locator('#unlock-code')).toHaveValue('')
@@ -158,6 +160,12 @@ test('five wrong tries make a short wait', async ({ page }) => {
   await expect(
     lockScreen(page).getByRole('button', { name: 'Unlock' }),
   ).toBeDisabled()
+  // A reload gives no fresh tries.
+  await page.reload()
+  await openLockedPage(page, 'Private page')
+  await expect(lockScreen(page).getByRole('alert')).toContainText(
+    /Wait \d+ seconds/,
+  )
 })
 
 test('it locks again when you leave the page', async ({ page }) => {

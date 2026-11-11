@@ -2,6 +2,12 @@
 
 Current phase only. Older entries are in [ARCHIVE.md](ARCHIVE.md).
 
+## 2026-11-12 (Security: Lock tries)
+
+- **Wrong-code delay now survives a reload:** 3 free tries, then a wait of 30 s, 1 min, 5 min, 15 min, then 1 h each, stored per device in localStorage (a reload or restart gives no fresh tries; a clock set back cannot stretch it past 1 h). Before it was memory only and 5 free tries. The wait shows minutes once it is 2 min or more.
+- **Sync on:** the Set PIN / Set password dialogs say the code travels with the synced settings and push for a 12+ character password (a PIN is flagged as easy to guess). Still allowed (privacy lock, honestly labelled).
+- **Files:** src/core/lock/{lockState,lockCrypto,lock.test}.ts, src/app/lock/{UnlockForm,LockSection}.tsx, src/i18n/{en8,es8,hi8}.ts, e2e/lock.spec.ts.
+
 ## 2026-11-12 (Docs: HANDOFF short, toolbar spec)
 
 - **docs/HANDOFF.md shortened** from 130 lines to 22: the 79 finished entries moved unchanged to docs/ARCHIVE.md under "HANDOFF entries archived (12 Nov 2026)" (one `### HANDOFF: <title>` heading each, so they can be searched); the top still points to docs/PENDING.md. The "default paper style" line now says DONE.

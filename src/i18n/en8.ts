@@ -81,6 +81,12 @@ export const en8 = {
   'lock.enterPassword': 'Enter your password',
   'lock.wrong': 'That is not right. Try again.',
   'lock.wait': 'Too many tries. Wait {seconds} seconds.',
+  'lock.waitMin': 'Too many tries. Wait about {minutes} minutes.',
+  'lock.sync.pin':
+    'Sync is on, so this code travels with your synced settings. A PIN is easy to guess: a password of 12 or more characters is much safer.',
+  'lock.sync.password':
+    'Sync is on, so this code travels with your synced settings. Use 12 or more characters; a few random words work well.',
+  'lock.sync.short': 'Longer is safer: aim for 12 or more characters.',
   'lock.deviceFailed':
     'The device lock did not confirm. Use your PIN or password instead.',
   'lock.forgot': 'Forgot?',

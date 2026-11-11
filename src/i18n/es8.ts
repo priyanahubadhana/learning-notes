@@ -82,6 +82,12 @@ export const es8: Record<string, string> = {
   'lock.enterPassword': 'Escribe tu contraseña',
   'lock.wrong': 'No es correcto. Prueba otra vez.',
   'lock.wait': 'Demasiados intentos. Espera {seconds} segundos.',
+  'lock.waitMin': 'Demasiados intentos. Espera unos {minutes} minutos.',
+  'lock.sync.pin':
+    'La sincronización está activa, así que este código viaja con tus ajustes sincronizados. Un PIN es fácil de adivinar: una contraseña de 12 o más caracteres es mucho más segura.',
+  'lock.sync.password':
+    'La sincronización está activa, así que este código viaja con tus ajustes sincronizados. Usa 12 o más caracteres; unas cuantas palabras al azar funcionan bien.',
+  'lock.sync.short': 'Más largo es más seguro: usa 12 o más caracteres.',
   'lock.deviceFailed':
     'El bloqueo del dispositivo no lo confirmó. Usa tu PIN o contraseña.',
   'lock.forgot': '¿Lo olvidaste?',

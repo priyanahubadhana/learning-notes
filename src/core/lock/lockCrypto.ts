@@ -22,6 +22,8 @@ const DEFAULT_ITERATIONS = 210_000
 
 const PIN_PATTERN = /^\d{4,6}$/
 export const PASSWORD_MIN = 6
+/** Suggested length when sync is on (the hash then travels with the settings). */
+export const PASSWORD_RECOMMENDED = 12
 const PASSWORD_MAX = 128
 
 export const isPin = (value: string): boolean => PIN_PATTERN.test(value)

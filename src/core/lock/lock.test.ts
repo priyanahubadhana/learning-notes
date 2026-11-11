@@ -1,4 +1,4 @@
-import { afterEach, beforeEach, describe, expect, it } from 'vitest'
+import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
 import type { LearningNotesDB } from '../db'
 import { createTestDb } from '../testing'
 import { getOrCreateDefaultWorkspace } from '../workspaceService'
@@ -193,17 +193,54 @@ describe('locked things', () => {
 })
 
 describe('wrong-code pause', () => {
-  it('waits after five wrong tries, longer each round, and clears on success', () => {
+  const store = new Map<string, string>()
+  beforeEach(() => {
+    store.clear()
+    vi.stubGlobal('localStorage', {
+      getItem: (k: string) => store.get(k) ?? null,
+      setItem: (k: string, v: string) => void store.set(k, v),
+      removeItem: (k: string) => void store.delete(k),
+    })
     noteSuccess()
+  })
+  afterEach(() => vi.unstubAllGlobals())
+
+  it('waits after three wrong tries, longer each round, and clears on success', () => {
     const now = 1_000_000
     for (let i = 0; i < FAIL_LIMIT - 1; i++) noteFailure(now)
     expect(waitSeconds(now)).toBe(0)
     noteFailure(now)
     expect(waitSeconds(now)).toBe(30)
-    for (let i = 0; i < FAIL_LIMIT; i++) noteFailure(now)
+    noteFailure(now)
     expect(waitSeconds(now)).toBe(60)
-    expect(waitSeconds(now + 61_000)).toBe(0)
+    noteFailure(now)
+    expect(waitSeconds(now)).toBe(300)
+    expect(waitSeconds(now + 301_000)).toBe(0)
     noteSuccess()
     expect(waitSeconds(now)).toBe(0)
+  })
+
+  it('caps the wait at one hour', () => {
+    const now = 1_000_000
+    for (let i = 0; i < 30; i++) noteFailure(now)
+    expect(waitSeconds(now)).toBe(3600)
+  })
+
+  it('survives a reload (kept in storage) and a clock set far back', () => {
+    const now = 5_000_000
+    for (let i = 0; i < FAIL_LIMIT; i++) noteFailure(now)
+    expect(store.size).toBe(1)
+    expect(waitSeconds(now + 1000)).toBe(29)
+    expect(waitSeconds(now - 10 * 3_600_000)).toBe(3600)
+  })
+
+  it('ignores damaged stored data', () => {
+    store.set('learning-notes:lock-throttle-v1', '{nonsense')
+    expect(waitSeconds()).toBe(0)
+    store.set(
+      'learning-notes:lock-throttle-v1',
+      '{"failures":"x","blockedUntil":"y"}',
+    )
+    expect(waitSeconds()).toBe(0)
   })
 })

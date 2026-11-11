@@ -17,25 +17,6 @@ const TEXT =
   'Alpha beta gamma delta epsilon zeta eta theta iota kappa lambda mu nu xi omicron pi rho sigma tau upsilon phi chi psi omega and more words to make the paragraph wrap onto a second visual row inside this narrow box'
 
 async function setup(page: Page) {
-  // TEMP CI debug (remove)
-  await page.addInitScript(() => {
-    ;(window as unknown as { __lnTapDebug: boolean }).__lnTapDebug = true
-    document.addEventListener('selectionchange', () => {
-      const s = getSelection()
-      console.log(
-        '[tapdbg] selchange ' +
-          JSON.stringify([
-            s?.toString().length,
-            s?.anchorOffset,
-            s?.focusOffset,
-            performance.now() | 0,
-          ]),
-      )
-    })
-  })
-  page.on('console', (m) => {
-    if (m.text().startsWith('[tapdbg]')) console.log(m.text())
-  })
   await startInMode(page, 'computer')
   await page.goto('/')
   await createNotebook(page, 'Taps', 'Box taps')

@@ -284,7 +284,14 @@ watchControllerChange(navigator.serviceWorker, () =>
   ),
 )
 
-prefetchAfterIdle([() => import('./share/saveEverything')])
+// After the first screen: the screens people open next, one at a time.
+prefetchAfterIdle([
+  () => import('./notebooks/NotebooksHome'),
+  () => import('./notebooks/NotebookScreen'),
+  () => import('./pages/PageView'),
+  () => import('./search/SearchPopup'),
+  () => import('./share/saveEverything'),
+])
 
 /** The way out of a whole-app failure: start again with nothing open. */
 function goHome() {

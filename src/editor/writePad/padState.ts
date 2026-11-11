@@ -1,4 +1,4 @@
-import { Selection } from 'prosemirror-state'
+import type { Selection } from 'prosemirror-state'
 import { memStore } from '../../app/tools/store'
 import type { Editor } from '../barActions'
 import { triggerFirstUse } from '../../help/firstUse'
@@ -37,8 +37,12 @@ export function startRange(editor: Editor): { from: number; to: number } {
   const view = editor.prosemirrorView
   if (!view || view.hasFocus() || r.from !== r.to) return r
   const doc = view.state.doc
-  if (r.from !== Selection.atStart(doc).from) return r
-  const end = Selection.atEnd(doc).to
+  // The statics of the selection's own class (all inherit them from
+  // Selection): importing prosemirror-state here would put the whole
+  // editor engine in the first download.
+  const kind = view.state.selection.constructor as typeof Selection
+  if (r.from !== kind.atStart(doc).from) return r
+  const end = kind.atEnd(doc).to
   return { from: end, to: end }
 }
 

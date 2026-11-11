@@ -155,3 +155,10 @@ plans/owner-ideas-batch-2-2026-11-10.md: update bar, Acrobat PDF tools, customiz
   8. Session renewal triggers. Fix: a single auth refresher (mostly done today).
   9. slowMoments writes per long task. Fix: throttle.
      Latent: duplicate save flushes on exit, a stale timer caretIn, a stale closure in the usePaperBoxes keydown, an unguarded window Delete handler, the listenerCount undercount, seeded RNG in driveServer tests.
+
+## OWNER open-items choices (11 Nov)
+
+- BUILD: PDF scroll/paged; Magnifier in reader; Bookerly font; Book annotations; Reader bar pin; Lock out signed-out old devices; Drive needs Google; Sync reading progress & favourites; Drive 0-rows; Settings-sync test; AI-off card; Prompts on note pages; Make notes from a PDF; Claude connector; Cost estimate; Default paper style; Settings previews & tour; Reduce glass check; Table rows across sheet gap; Database page filter; Search checkboxes & formulas; Calendar/year view/row reorder; Custom Views; All/Starred/Recent tabs; Picture border/wrap/draw-on; Delete forever removes pictures; Labels & tape on pictures; Required-update marker; Shorten HANDOFF; CHANGELOG stray text; Old copies & 3 unsaved files; Undo gaps (47); Old flaky tests; Spanish & Hindi; First-download size; Replace emoji icons; Premium design 3–6; Acrobat PDF tools.
+- LATER: Shapes/ruler/tape in reader pen; Open sync to everyone; Per-notebook presets; Video timestamps beyond YouTube; Update bar at top.
+- DROP: Update pill vs bar.
+- Rule: anything that touches the UI being redesigned in the mock-up (toolbar, text box, Lasso, ink, layout, settings layout) waits until the owner signs off the mock-up. Everything else goes ahead under the Apple + Toyota + premium-design rules.

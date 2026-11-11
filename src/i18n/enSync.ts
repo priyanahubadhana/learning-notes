@@ -69,7 +69,6 @@ export const enSync = {
     'Lock time {ms} ms · Web Crypto {crypto} · Storage kept {persist}',
   'sync.yes': 'yes',
   'sync.no': 'no',
-  'update.splash': 'Updating…',
   'sync.ended.title': 'You were signed out',
   'sync.ended.text':
     'Sign in to continue. Your account was signed out from another device. Your notes are safe on this device and hidden until you sign in.',

@@ -49,7 +49,7 @@ export function etaSeconds(
 /** A download with this many seconds left or more is called slow. */
 export const SLOW_ETA_S = 8
 
-async function cachedPaths(): Promise<Set<string>> {
+export async function cachedPaths(): Promise<Set<string>> {
   const out = new Set<string>()
   try {
     for (const name of await caches.keys()) {
@@ -63,7 +63,7 @@ async function cachedPaths(): Promise<Set<string>> {
   return out
 }
 
-async function listFiles(): Promise<Listed[]> {
+export async function listFiles(): Promise<Listed[]> {
   try {
     const res = await fetch(`/precache.json?t=${Date.now()}`, {
       cache: 'no-store',

@@ -69,7 +69,6 @@ export const hiSync: Record<string, string> = {
     'ताले का समय {ms} ms · Web Crypto {crypto} · डेटा सुरक्षित {persist}',
   'sync.yes': 'हाँ',
   'sync.no': 'नहीं',
-  'update.splash': 'अपडेट हो रहा है…',
   'sync.ended.title': 'आप साइन आउट हो गए',
   'sync.ended.text':
     'जारी रखने के लिए साइन इन करें। आपका खाता किसी दूसरे डिवाइस से साइन आउट किया गया। आपके नोट्स इस डिवाइस पर सुरक्षित हैं और साइन इन करने तक छिपे रहेंगे।',

@@ -40,4 +40,20 @@ export const esNbh: Record<string, string> = {
     'Cuadros: {boxes}. Dibujo: {ink}. Restaurar recupera toda la página.',
   'history.inkYes': 'sí',
   'history.inkNo': 'ninguno',
+  'update.req.title': 'Actualización necesaria',
+  'update.req.body':
+    'Esta actualización cambia cómo se guardan tus notas y es necesaria para seguir. Tus notas están a salvo.',
+  'update.req.countdown':
+    'Esta actualización cambia cómo se guardan tus notas. La descarga empieza en {s} s. Tus notas están a salvo.',
+  'update.req.downloading': 'Descargando la actualización… {pct}%',
+  'update.req.paused':
+    'Se detuvo la descarga. La app queda en pausa hasta actualizarse.',
+  'update.req.installing': 'Instalando',
+  'update.req.installingBody':
+    'Mantén esta ventana abierta. Tus notas no se tocan.',
+  'update.req.failed':
+    'La actualización no terminó. Revisa tu conexión e inténtalo de nuevo. Tus notas están a salvo.',
+  'update.req.failedSave':
+    'Algunos cambios aún no se guardaron, así que la actualización espera. Tus notas están a salvo. Inténtalo de nuevo.',
+  'update.req.retry': 'Reintentar',
 }

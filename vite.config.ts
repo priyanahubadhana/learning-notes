@@ -33,6 +33,23 @@ function currentCommit(): string {
 }
 const COMMIT = currentCommit()
 
+/**
+ * Whether this build is a REQUIRED update (a storage change or a data fix):
+ * the full-screen update flow is used instead of the normal pill. Set by the
+ * words "[required-update]" in the last commit message, or REQUIRED_UPDATE=1.
+ */
+function isRequiredUpdate(): boolean {
+  if (process.env.REQUIRED_UPDATE === '1') return true
+  try {
+    return execSync('git log -1 --format=%B')
+      .toString()
+      .includes('[required-update]')
+  } catch {
+    return false
+  }
+}
+const REQUIRED = isRequiredUpdate()
+
 /** Writes version.json, which the live site checks read. */
 const versionStamp = (): Plugin => ({
   name: 'version-stamp',
@@ -41,7 +58,7 @@ const versionStamp = (): Plugin => ({
     this.emitFile({
       type: 'asset',
       fileName: 'version.json',
-      source: JSON.stringify({ commit: COMMIT }),
+      source: JSON.stringify({ commit: COMMIT, required: REQUIRED }),
     })
   },
 })

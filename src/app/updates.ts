@@ -60,6 +60,8 @@ export function resetUpdates() {
   dismissed = false
   checker = undefined
   fallback = undefined
+  requiredUpdate = false
+  requiredListeners.clear()
 }
 
 // ---- "Check for updates now" (Settings › About this app) ----
@@ -93,6 +95,23 @@ export function setUpdateFallback(apply: () => void) {
   fallback = apply
 }
 
+// ---- Required updates (BUG-004) ----
+
+/** The newest version found is marked `required` (storage change or data fix). */
+let requiredUpdate = false
+export const isUpdateRequired = (): boolean => requiredUpdate
+
+type RequiredListener = (apply: () => void) => void
+const requiredListeners = new Set<RequiredListener>()
+
+/** Calls `next` when a required update is found (once per look). */
+export function onRequiredUpdate(next: RequiredListener): () => void {
+  requiredListeners.add(next)
+  return () => {
+    requiredListeners.delete(next)
+  }
+}
+
 /**
  * Reads /version.json (never from a cache) and compares it with the commit
  * this page was built from. Works with or without a service worker.
@@ -106,10 +125,16 @@ export async function latestVersion(
       cache: 'no-store',
     })
     if (!res.ok) return 'failed'
-    const { commit } = (await res.json()) as { commit?: unknown }
+    const { commit, required } = (await res.json()) as {
+      commit?: unknown
+      required?: unknown
+    }
     if (typeof commit !== 'string' || !commit) return 'failed'
     if (current === 'unknown') return 'same'
-    return commit === current ? 'same' : 'newer'
+    if (commit === current) return 'same'
+    // Only the live version.json can mark an update as required.
+    requiredUpdate = required === true
+    return 'newer'
   } catch {
     return 'failed'
   }
@@ -139,6 +164,11 @@ export async function lookForUpdate(
       : undefined,
   ])
   if (latest === 'failed' && swFailed) return 'failed'
+  if (latest === 'newer' && requiredUpdate) {
+    // A required update never waits for a safe moment: its own screen asks.
+    const apply = pending ?? fallback
+    if (apply) for (const fn of [...requiredListeners]) fn(apply)
+  }
   if (latest === 'newer' && !pending) {
     // The service worker may still be fetching the new files.
     await new Promise((r) => setTimeout(r, wait))

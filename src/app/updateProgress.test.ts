@@ -1,7 +1,8 @@
 // @vitest-environment jsdom
 import { describe, expect, it, vi } from 'vitest'
 import { etaSeconds, progressOf } from './updateProgress'
-import { SPLASH_MAX_MS, showUpdatingSplash } from './autoUpdate'
+import { SPLASH_MAX_MS, showUpdatingPill } from './autoUpdate'
+import { updateStatus } from './updateStatus'
 
 describe('update progress', () => {
   it('counts only files that were not cached before', () => {
@@ -21,12 +22,13 @@ describe('update progress', () => {
     expect(etaSeconds(0, 100, 1000)).toBeUndefined()
     expect(etaSeconds(50, 100, 10_000)).toBe(10)
   })
-  it('removes the update cover after at most 5 s', () => {
+  it('shows the restart in the pill (no black cover) and gives up after 5 s', () => {
     vi.useFakeTimers()
-    showUpdatingSplash(document)
-    expect(document.querySelector('[data-update-splash]')).not.toBeNull()
-    vi.advanceTimersByTime(SPLASH_MAX_MS + 10)
+    showUpdatingPill()
     expect(document.querySelector('[data-update-splash]')).toBeNull()
+    expect(updateStatus.get().phase).toBe('updating')
+    vi.advanceTimersByTime(SPLASH_MAX_MS + 10)
+    expect(updateStatus.get().phase).toBe('ready')
     vi.useRealTimers()
   })
 })

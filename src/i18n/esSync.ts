@@ -71,7 +71,6 @@ export const esSync: Record<string, string> = {
     'Tiempo de cierre {ms} ms · Web Crypto {crypto} · Datos protegidos {persist}',
   'sync.yes': 'sí',
   'sync.no': 'no',
-  'update.splash': 'Actualizando…',
   'sync.ended.title': 'Se cerró tu sesión',
   'sync.ended.text':
     'Inicia sesión para continuar. Tu cuenta se cerró desde otro dispositivo. Tus notas están a salvo en este dispositivo y ocultas hasta que inicies sesión.',

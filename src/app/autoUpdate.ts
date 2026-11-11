@@ -4,13 +4,12 @@
  * pen or finger down, no Write pad draft, no dialog open, and the app either
  * just came back to the front or has paused for about 1.5 seconds (no IME
  * composition either). Any input also triggers a throttled version check
- * (updates.ts); the "Updating…" splash shows for a moment. Saves
+ * (updates.ts); the pill says "Restarting…" for a moment. Saves
  * are flushed and the silent backup (R7-2) is taken first. The person is
  * asked only when an update could lose data (no backup, low space, changes
  * that would not save).
  */
 import { memStore } from './tools/store'
-import { t } from '../i18n/t'
 import { updateStatus } from './updateStatus'
 
 /** The first pause (no key, touch or pen) after which an update may apply. */
@@ -20,7 +19,7 @@ export const FOREGROUND_MS = 1500
 export const POLL_MS = 500
 /** The longest the update waits for its backup. */
 export const BACKUP_MAX_MS = 8000
-/** The cover never stays longer than this (item 16). */
+/** The "Restarting" pill never stays longer than this (item 16). */
 export const SPLASH_MAX_MS = 5000
 /** If the restart has not come by now, force it. */
 export const HARD_RESTART_MS = 4000
@@ -255,7 +254,7 @@ export function startAutoUpdate(d: AutoUpdateDeps) {
   const begin = (apply: () => void) => {
     rememberPlace()
     d.announce?.()
-    showUpdatingSplash(doc)
+    showUpdatingPill()
     apply()
     // Several open windows can keep the new worker from taking over: force
     // the restart if it has not come (items 16, 24).
@@ -296,31 +295,27 @@ export function startAutoUpdate(d: AutoUpdateDeps) {
   }
 }
 
-/** A calm "Updating…" cover for the second or so the restart takes. */
-export function showUpdatingSplash(doc: Document): void {
-  try {
-    const el = doc.createElement('div')
-    el.setAttribute('data-update-splash', '')
-    el.setAttribute('role', 'status')
-    el.textContent = t('update.splash')
-    el.style.cssText =
-      'position:fixed;inset:0;z-index:2147483647;display:flex;align-items:center;justify-content:center;background:var(--color-bg,#fff);color:var(--color-fg,#222);font:500 16px system-ui,sans-serif;opacity:0.96'
-    doc.body.appendChild(el)
-    // Never longer than 5 s: if the restart did not happen, give the app back.
-    setTimeout(() => {
-      if (!el.isConnected) return
-      el.remove()
-      updateStatus.set({ phase: 'ready' })
-      void import('../perf/slowMoments').then((m) =>
-        m.noteSlowMoment(
-          'update',
-          SPLASH_MAX_MS,
-          Date.now(),
-          'update cover removed: the restart did not start',
-        ),
-      )
-    }, SPLASH_MAX_MS)
-  } catch {
-    // The splash is only a courtesy.
-  }
+/**
+ * The pill says "Restarting into the new version…" for the second or so the
+ * restart takes (no black cover any more; a REQUIRED update has its own
+ * full-screen flow, see mandatoryFlow.ts). Never longer than 5 s: if the
+ * restart did not happen, the pill goes back to "ready".
+ */
+export function showUpdatingPill(
+  after: (run: () => void, ms: number) => unknown = (run, ms) =>
+    setTimeout(run, ms),
+): void {
+  updateStatus.set({ phase: 'updating' })
+  after(() => {
+    if (updateStatus.get().phase !== 'updating') return
+    updateStatus.set({ phase: 'ready' })
+    void import('../perf/slowMoments').then((m) =>
+      m.noteSlowMoment(
+        'update',
+        SPLASH_MAX_MS,
+        Date.now(),
+        'update restart did not start',
+      ),
+    )
+  }, SPLASH_MAX_MS)
 }

@@ -50,4 +50,20 @@ export const enNbh = {
     'Boxes: {boxes}. Drawing: {ink}. Restoring brings back the whole page.',
   'history.inkYes': 'yes',
   'history.inkNo': 'none',
+  'update.req.title': 'Update required',
+  'update.req.body':
+    'This update changes how your notes are stored, so it is needed to keep going. Your notes stay safe.',
+  'update.req.countdown':
+    'This update changes how your notes are stored. Downloading starts in {s} s. Your notes stay safe.',
+  'update.req.downloading': 'Downloading the update… {pct}%',
+  'update.req.paused':
+    'The download was stopped. The app stays paused until it is updated.',
+  'update.req.installing': 'Installing',
+  'update.req.installingBody':
+    'Please keep this window open. Your notes are not touched.',
+  'update.req.failed':
+    'The update did not finish. Check your connection and try again. Your notes are safe.',
+  'update.req.failedSave':
+    'Some changes are not saved yet, so the update is waiting. Your notes are safe. Try again.',
+  'update.req.retry': 'Retry',
 }

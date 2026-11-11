@@ -59,6 +59,7 @@ import { SIDEBAR_DEFAULT, isSidebarWidth } from './app/sidebarWidth'
 import { Toast, ChoiceDialog, EmptyState } from './app/ui'
 import { onUpdateOffer } from './app/updates'
 import { UpdateRiskBar } from './app/UpdateBar'
+import { mandatoryUpdate } from './app/mandatoryState'
 import { AttentionGate } from './app/attention/AttentionGate'
 import { SignedOutGate } from './sync/SignedOutGate'
 import {
@@ -223,6 +224,7 @@ const AudioDock = lazy(() =>
   import('./audio/AudioDock').then((m) => ({ default: m.AudioDock })),
 )
 const UpdatePill = lazy(() => import('./app/UpdatePill'))
+const MandatoryUpdate = lazy(() => import('./app/MandatoryUpdate'))
 const BookReader = lazy(() =>
   import('./reader/BookReader').then((m) => ({ default: m.BookReader })),
 )
@@ -896,6 +898,7 @@ function App() {
   const [autoUpdate] = useDeviceSetting(autoUpdateSetting)
   const updateQuestion = updateRisk.useValue()
   const updatePhase = updateStatus.useValue().phase
+  const mandatory = mandatoryUpdate.useValue() !== null
   // The alerts banner (one spot at the top) shows the waiting update.
   useEffect(() => {
     setSignals({
@@ -1998,7 +2001,12 @@ function App() {
             <Suspense fallback={null}>
               <AudioDock db={db} pageId={currentPage?.id ?? null} />
             </Suspense>
-            {updatePhase !== 'idle' && (
+            {mandatory && (
+              <Suspense fallback={null}>
+                <MandatoryUpdate />
+              </Suspense>
+            )}
+            {updatePhase !== 'idle' && !mandatory && (
               <Suspense fallback={null}>
                 <UpdatePill />
               </Suspense>

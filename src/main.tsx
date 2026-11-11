@@ -13,6 +13,8 @@ import {
   noteChecked,
   offerUpdate,
   onUpdateOffer,
+  onRequiredUpdate,
+  isUpdateRequired,
   updateWaiting,
   reloadWhenSafe,
   repeatUpdateOffer,
@@ -31,7 +33,7 @@ import {
 import { inputMachine, installInputMachine } from './app/inputMachine'
 import { installListenerCount } from './app/listenerCount'
 import { activeTool } from './app/tools/main/mainTools'
-import { rememberPlace, startAutoUpdate } from './app/autoUpdate'
+import { prepareUpdate, rememberPlace, startAutoUpdate } from './app/autoUpdate'
 import { flushAllSaves, hasPendingSaves } from './editor/autosave'
 import { writePad } from './editor/writePad/padState'
 import { loadDraft } from './editor/writePad/draft'
@@ -137,10 +139,21 @@ if (
     .then((m) => m.startSync(db))
 }
 
+// A unique build name makes the silent backup due right now.
+async function backupForUpdate(): Promise<'ok' | 'space' | 'error'> {
+  const result = await runAutoBackup(
+    DEFAULT_DB_NAME,
+    db.verno,
+    `update-${Date.now()}`,
+  )
+  return result.kind === 'failed' ? result.reason : 'ok'
+}
+
 // Automatic updates: a found version is applied at a safe moment (the
 // setting "Update automatically"); with it off the "Update" bar is shown.
 const autoUpdate = startAutoUpdate({
-  enabled: () => readDeviceSetting(autoUpdateSetting) === 'on',
+  enabled: () =>
+    readDeviceSetting(autoUpdateSetting) === 'on' && !isUpdateRequired(),
   win: window,
   penDown: () => penIsDown(),
   hasPendingSaves,
@@ -150,21 +163,38 @@ const autoUpdate = startAutoUpdate({
     return !!session && loadDraft(session.pageId) !== ''
   },
   flush: flushAllSaves,
-  // A unique build name makes the silent backup due right now.
-  backup: async () => {
-    const result = await runAutoBackup(
-      DEFAULT_DB_NAME,
-      db.verno,
-      `update-${Date.now()}`,
-    )
-    return result.kind === 'failed' ? result.reason : 'ok'
-  },
+  backup: backupForUpdate,
   onReset: (fn) => void onGestureReset(fn),
   hardRestart: () => void restartIntoNewFiles(),
   announce: () =>
     void import('./app/updateChannel').then((c) => c.announceApply()),
 })
 onUpdateOffer((apply) => void autoUpdate(apply))
+// A REQUIRED update (storage change or data fix) uses the full-screen flow.
+const startRequired = (apply: () => void) =>
+  void import('./app/mandatoryFlow').then((m) =>
+    m.startMandatoryUpdate({
+      apply: () => {
+        resetGestures('manual')
+        rememberPlace()
+        apply()
+      },
+      prepare: () =>
+        prepareUpdate({
+          flush: flushAllSaves,
+          hasUnsaved,
+          backup: backupForUpdate,
+        }),
+      hardRestart: () => void restartIntoNewFiles(),
+    }),
+  )
+onRequiredUpdate(startRequired)
+window.addEventListener('learning-notes:test-required-update', () =>
+  startRequired(() => {
+    ;(window as unknown as { __requiredApplied?: boolean }).__requiredApplied =
+      true
+  }),
+)
 subscribeDeviceSettings(() => {
   if (updateWaiting()) repeatUpdateOffer()
 })

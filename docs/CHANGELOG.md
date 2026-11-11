@@ -2,6 +2,11 @@
 
 Current phase only. Older entries are in [ARCHIVE.md](ARCHIVE.md).
 
+## 2026-11-12 (Security: drive-token CORS)
+
+- **drive-token only answers the app's origins:** `Access-Control-Allow-Origin` was `*`; now it echoes only https://learning-notes-app.pages.dev and http://localhost / 127.0.0.1 (any port) for dev, with `Vary: Origin`; other origins get no CORS headers. Logic in supabase/functions/_shared/cors.ts (tested in src/sync/connectors/driveCors.test.ts). Needs a redeploy of the function (owner/coordinator). Pages preview URLs (hash.learning-notes-app.pages.dev) are not allowed.
+- **Files:** supabase/functions/_shared/cors.ts, supabase/functions/drive-token/index.ts, src/sync/connectors/driveCors.test.ts.
+
 ## 2026-11-12 (Security: PKCE verifier)
 
 - **PKCE verifier is always cleared:** removed from sessionStorage and localStorage in a `finally` after the code exchange (also after a network error, a denied sign-in or a failed link), not only on success. Tests: driveServer.test.ts. Also a test that a rotated refresh token is stored and the next renewal sends the new one (sessionEnd.test.ts). Single refresher and Web Locks untouched.

@@ -1,14 +1,10 @@
 // Entry point only; the logic is in ../_shared/driveTokenHandler.ts (tested).
+import { corsHeaders } from '../_shared/cors.ts'
 import { handle } from '../_shared/driveTokenHandler.ts'
 
-const CORS = {
-  'Access-Control-Allow-Origin': '*',
-  'Access-Control-Allow-Headers': 'authorization, apikey, content-type',
-  'Access-Control-Allow-Methods': 'POST, OPTIONS',
-}
-
 Deno.serve(async (req: Request) => {
-  if (req.method === 'OPTIONS') return new Response(null, { headers: CORS })
+  const cors = corsHeaders(req.headers.get('Origin'))
+  if (req.method === 'OPTIONS') return new Response(null, { headers: cors })
   const res = await handle(req, {
     ...Deno.env.toObject(),
     GOOGLE_CLIENT_ID:
@@ -18,6 +14,6 @@ Deno.serve(async (req: Request) => {
       Deno.env.get('ALLOWED_EMAIL') ?? 'priyanahubadhanalegends@gmail.com',
   })
   const headers = new Headers(res.headers)
-  for (const [k, v] of Object.entries(CORS)) headers.set(k, v)
+  for (const [k, v] of Object.entries(cors)) headers.set(k, v)
   return new Response(res.body, { status: res.status, headers })
 })

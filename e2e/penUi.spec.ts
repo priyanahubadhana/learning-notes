@@ -113,9 +113,13 @@ test('a Pencil tap on an in-page button (data-ui) presses it once and does not m
   const before = await page.evaluate(() => getSelection()?.anchorOffset)
   // The button must be what is on top at its centre (WebKit lays the page out
   // later than Chromium); a tap on anything else is not a tap on the button.
+  // WebKit scrolls the page to the focused editor's caret, which can leave
+  // the button (prepended above it) under the page bar: bring it into view.
   const hit = () =>
     page.evaluate(() => {
-      const r = document.querySelector('#ui-btn')!.getBoundingClientRect()
+      const btn = document.querySelector('#ui-btn')!
+      btn.scrollIntoView({ block: 'center' })
+      const r = btn.getBoundingClientRect()
       return (
         document.elementFromPoint(r.x + r.width / 2, r.y + r.height / 2)?.id ??
         'other'

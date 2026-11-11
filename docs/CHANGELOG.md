@@ -2,6 +2,12 @@
 
 Current phase only. Older entries are in [ARCHIVE.md](ARCHIVE.md).
 
+## 2026-11-11 (penUi test: button scrolled under the page bar on WebKit)
+
+- **What:** the in-page button test scrolls its button into view before checking it is on top.
+- **Why:** CI ipad-webkit penUi :85: focusing the editor scrolled the page 308 px (trace), so the button prepended above the text sat under the page bar and was never hit. Test setup, not an app bug; the checks are unchanged.
+- **Files:** e2e/penUi.spec.ts, docs/CHANGELOG.md.
+
 ## 2026-11-11 (Lasso triple tap in a box selected the paragraph on WebKit)
 
 - **What:** under the Lasso the ink pad covers the words; the tap counter looked through it to find the tap's spot but not to measure the line's left and right edges, so on WebKit (iPad) the edges hit the pad, the line could not be measured and three taps selected the whole paragraph. Both hit tests now look through the pad.

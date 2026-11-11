@@ -3,7 +3,7 @@ import { readFileSync } from 'node:fs'
 import basicSsl from '@vitejs/plugin-basic-ssl'
 import tailwindcss from '@tailwindcss/vite'
 import react from '@vitejs/plugin-react'
-import { defineConfig, type Plugin } from 'vite'
+import { defineConfig, type Connect, type Plugin } from 'vite'
 import { VitePWA } from 'vite-plugin-pwa'
 import { buildSkillZip, SKILL_ZIP_NAME } from './scripts/skillZip.ts'
 
@@ -100,6 +100,35 @@ const claudeSkillZip = (): Plugin => ({
   },
 })
 
+/**
+ * The throwaway Pencil test page lives in dev/pencil-test/ and is served only
+ * by the dev server and by the preview used for the end-to-end tests (E2E=1).
+ * It is not in public/, so it is never built into, or deployed with, the site.
+ */
+const PENCIL_FILES: Record<string, string> = {
+  '/pencil-test.html': 'text/html; charset=utf-8',
+  '/pencil-test.css': 'text/css; charset=utf-8',
+  '/pencil-test.js': 'text/javascript; charset=utf-8',
+}
+const devOnlyPencilTest = (): Plugin => {
+  const serve: Connect.NextHandleFunction = (req, res, next) => {
+    const path = (req.url ?? '').split('?')[0]
+    const type = PENCIL_FILES[path]
+    if (!type) return next()
+    res.setHeader('Content-Type', type)
+    res.end(readFileSync(`dev/pencil-test${path}`))
+  }
+  return {
+    name: 'dev-only-pencil-test',
+    configureServer(server) {
+      server.middlewares.use(serve)
+    },
+    configurePreviewServer(server) {
+      if (process.env.E2E) server.middlewares.use(serve)
+    },
+  }
+}
+
 // https://vite.dev/config/
 export default defineConfig({
   define: {
@@ -116,6 +145,7 @@ export default defineConfig({
     versionStamp(),
     precacheList(),
     claudeSkillZip(),
+    devOnlyPencilTest(),
     ...(process.env.E2E ? [] : [basicSsl()]),
     // Offline: the built app is kept on the device. A new version waits for
     // the user's OK (src/app/updates.ts); the manifest is in public/.
@@ -125,14 +155,10 @@ export default defineConfig({
       manifest: false,
       workbox: {
         globPatterns: ['**/*.{js,css,html,svg,png,wasm,woff2}'],
-        // The Pencil test page is a throwaway: always fetched fresh, never kept offline.
-        globIgnores: ['404.html', 'pencil-test.*'],
+        globIgnores: ['404.html'],
         maximumFileSizeToCacheInBytes: 4 * 1024 * 1024,
         navigateFallback: 'index.html',
-        navigateFallbackDenylist: [
-          /^\/pencil-test(\.html)?$/,
-          /^\/privacy(\.html)?$/,
-        ],
+        navigateFallbackDenylist: [/^\/privacy(\.html)?$/],
         clientsClaim: true,
       },
     }),

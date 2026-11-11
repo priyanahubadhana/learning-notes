@@ -3,7 +3,7 @@
 import { expect, test, type Page } from '@playwright/test'
 
 /**
- * The Pencil test page (public/pencil-test.html) is a throwaway page for the
+ * The Pencil test page (dev/pencil-test/pencil-test.html, served only by dev and E2E preview) is a throwaway page for the
  * iPad check. It must load under the site's security rules (no inline script)
  * and draw only with a pen.
  */

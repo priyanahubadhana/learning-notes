@@ -2,6 +2,14 @@
 
 Current phase only. Older entries are in [ARCHIVE.md](ARCHIVE.md).
 
+## 2026-11-12 (Security: low findings)
+
+- **Pencil test page out of production:** moved from `public/` to `dev/pencil-test/`; served only by `npm run dev` and by the E2E preview (E2E=1) through a Vite plugin, never built or deployed. The worker's special rules for it were removed. (The owner's old iPad link /pencil-test.html no longer exists on the live site; run it from the dev server.)
+- **HSTS:** `includeSubDomains` added (no preload).
+- **Service worker checked:** it is generated with precache only (no runtime caching), so it stores only the build's own same-origin files and never an opaque or cross-origin response. A guard test (scripts/siteRules.test.mjs) fails if `runtimeCaching` is ever added.
+- **Import paths checked:** EPUB renders in script-less sandboxed frames; PDF in canvas; Markdown/NotebookLM/Notion create text and `lnimg:` pictures only; the paste/DOCX sanitizer drops svg, math, video, audio, iframes and `data:image/svg+xml`; stored pictures accept PNG/JPEG/WebP/GIF only, so an SVG is never shown as markup (Notion SVG files become download-only File blocks).
+- **Files:** vite.config.ts, public/_headers, dev/pencil-test/*, e2e/pencilTest.spec.ts, scripts/siteRules.test.mjs.
+
 ## 2026-11-12 (Security: remote images)
 
 - **Web pictures never load silently:** the editor's `resolveFileUrl` now returns a small "Load remote image" card (a data: SVG, loads nothing) for any http(s) picture not approved this visit. A tap copies the picture into the app if its server allows it (image element with CORS, drawn to a bitmap, so it works under the CSP and an SVG is never kept as markup), otherwise loads it from the web for this visit only; a failure puts the card back with a toast. On paste (HTML and Markdown), https pictures are copied first, at most 12 and a 4 s wait; the rest show the card. A paste with no web pictures lands at once as before. Copying a page/picture never fetches a picture still behind its card.

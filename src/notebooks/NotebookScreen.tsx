@@ -23,6 +23,9 @@ import { pushRouteParts, useRouteParts } from '../app/router'
 import { usePref } from '../app/usePref'
 import type { LearningNotesDB } from '../core/db'
 import type { Notebook, NotebookTab } from '../core/types'
+import { isLive } from '../core/records'
+import { pageTitle } from '../app/pageTitle'
+import { scopedDatabaseIds } from '../pages/tabs/databaseScope'
 import { ensureStudyTracker } from '../databases/databaseService'
 import { studyTrackerId, tabName } from '../databases/notebookTabs'
 import { DatabaseView } from '../databases/views/DatabaseView'
@@ -378,17 +381,71 @@ function DatabaseTab({
       ...own.filter((d) => d.kind !== 'studyTracker'),
     ]
   }, [db, notebookId])
+  // Filter by page: only the databases placed on that page or under it.
+  const [pageFilter, setPageFilter] = useState('')
+  const pages = useLiveQuery(
+    async () =>
+      (await db.pages.where('notebookId').equals(notebookId).toArray())
+        .filter(isLive)
+        .sort((a, b) => (a.order < b.order ? -1 : a.order > b.order ? 1 : 0)),
+    [db, notebookId],
+  )
+  const onPage = useLiveQuery(
+    async () =>
+      pageFilter
+        ? new Set(
+            await scopedDatabaseIds(
+              db,
+              '',
+              { id: pageFilter, notebookId },
+              'sub',
+            ),
+          )
+        : null,
+    [db, notebookId, pageFilter],
+  )
   // The chosen database is the second level of the address (the view the third).
   const pickedId = useRouteParts(1)
-  if (!ready || !databases) {
+  if (!ready || !databases || pages === undefined) {
     return <p className="text-sm text-muted">{t('notebook.loading')}</p>
   }
-  const shownId = databases.some((d) => d.id === pickedId)
+  // A page that is gone no longer filters.
+  const filterOn = !!pageFilter && pages.some((p) => p.id === pageFilter)
+  const filtering = filterOn && !!onPage
+  const listed = filtering
+    ? databases.filter((d) => onPage.has(d.id))
+    : databases
+  const shownId = listed.some((d) => d.id === pickedId)
     ? pickedId!
-    : databaseId
+    : listed.some((d) => d.id === databaseId)
+      ? databaseId
+      : (listed[0]?.id ?? databaseId)
   return (
     <div>
-      {databases.length > 1 && (
+      {pages.length > 0 && (
+        <label className="mb-3 flex flex-wrap items-center gap-2 text-[13px] text-muted">
+          {t('notebook.dbPageFilter')}
+          <select
+            value={filterOn ? pageFilter : ''}
+            data-db-page-filter
+            onChange={(e) => setPageFilter(e.target.value)}
+            className="min-h-9 any-pointer-coarse:min-h-11 max-w-full rounded-lg border border-line bg-bg px-2 text-[13px] text-ink"
+          >
+            <option value="">{t('notebook.dbAllPages')}</option>
+            {pages.map((p) => (
+              <option key={p.id} value={p.id}>
+                {pageTitle(p)}
+              </option>
+            ))}
+          </select>
+        </label>
+      )}
+      {filtering && listed.length === 0 && (
+        <p className="text-sm text-muted" data-db-page-empty>
+          {t('notebook.dbPageEmpty')}
+        </p>
+      )}
+      {listed.length > 1 && (
         <Tip
           id="notebook.databasePicker"
           className="mb-3 block"
@@ -399,7 +456,7 @@ function DatabaseTab({
             aria-label={t('notebook.databases')}
             className="flex flex-wrap gap-1.5"
           >
-            {databases.map((d) => (
+            {listed.map((d) => (
               <button
                 key={d.id}
                 type="button"
@@ -413,14 +470,16 @@ function DatabaseTab({
           </div>
         </Tip>
       )}
-      <DatabaseView
-        key={shownId}
-        db={db}
-        databaseId={shownId}
-        onOpenPage={onOpenPage}
-        routeIndex={2}
-        routePrefix={[tabId, shownId]}
-      />
+      {(!filtering || listed.length > 0) && (
+        <DatabaseView
+          key={shownId}
+          db={db}
+          databaseId={shownId}
+          onOpenPage={onOpenPage}
+          routeIndex={2}
+          routePrefix={[tabId, shownId]}
+        />
+      )}
     </div>
   )
 }

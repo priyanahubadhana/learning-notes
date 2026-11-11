@@ -31,6 +31,7 @@ import { hiG } from './hiG'
 import { hiM } from './hiM'
 import { hiNlm } from './hiNlm'
 import { hiNbh } from './hiNbh'
+import { hiQ } from './hiQ'
 
 /** Hindi texts. A key missing here shows the English text. */
 export const hi: Record<string, string> = {
@@ -67,4 +68,5 @@ export const hi: Record<string, string> = {
   ...hiM,
   ...hiNlm,
   ...hiNbh,
+  ...hiQ,
 }

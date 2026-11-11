@@ -31,6 +31,7 @@ import { esG } from './esG'
 import { esM } from './esM'
 import { esNlm } from './esNlm'
 import { esNbh } from './esNbh'
+import { esQ } from './esQ'
 
 /** Spanish texts. A key missing here shows the English text. */
 export const es: Record<string, string> = {
@@ -67,4 +68,5 @@ export const es: Record<string, string> = {
   ...esM,
   ...esNlm,
   ...esNbh,
+  ...esQ,
 }

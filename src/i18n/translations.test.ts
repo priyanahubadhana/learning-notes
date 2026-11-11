@@ -1,11 +1,11 @@
 import { describe, expect, it } from 'vitest'
 import { en as enCore } from './en'
-import { enO } from './enO'
+import { enLate } from './en/late'
 import { es } from './es'
 import { hi } from './hi'
 
 /** All English texts: the first-download ones and the late-loaded ones. */
-const en: Record<string, string> = { ...enCore, ...enO }
+const en: Record<string, string> = { ...enCore, ...enLate }
 
 const languages = { hi, es } as const
 

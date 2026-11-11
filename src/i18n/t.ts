@@ -15,7 +15,7 @@ type BaseKey<K> = K extends `${infer B}_${PluralForm}` ? B : K
 
 /** Every valid key (plural keys are used without their `_one`/`_other` suffix). */
 export type MessageKey = BaseKey<
-  keyof typeof en | keyof (typeof import('./enO'))['enO']
+  keyof typeof en | keyof (typeof import('./en/late'))['enLate']
 >
 
 type Messages = Partial<Record<string, string>>

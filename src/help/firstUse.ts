@@ -7,7 +7,7 @@ import { readDeviceSetting } from '../settings/settingsService'
  * dismissible line says what to do ("Loop ink to select"). On a touch screen
  * hover tips do not exist, so this is how a new user learns. Each tip shows
  * once per device (the seen list is saved on the device); Settings › Show
- * help off hides them all. Texts are `firstUse.<id>` in enO.ts.
+ * help off hides them all. Texts are `firstUse.<id>` in i18n/en/late/help.ts.
  */
 
 export const FIRST_USE_IDS = [

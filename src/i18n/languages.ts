@@ -39,7 +39,7 @@ export const getEditorDictionary = (): unknown => editorDictionary
 export async function applyLanguage(language: Language): Promise<void> {
   // English texts of later features load here, not in the first download
   // (the first-load size limit); other languages carry their own copies.
-  const late = await import('./enO').then((m) => m.enO)
+  const late = await import('./en/late').then((m) => m.enLate)
   if (language === 'en') {
     setMessages('en', late)
     editorDictionary = undefined

@@ -2,6 +2,13 @@
 
 Current phase only. Older entries are in [ARCHIVE.md](ARCHIVE.md).
 
+## 2026-11-12 (i18n folders by feature)
+
+- **What:** `src/i18n` had 114 text files with names like `en9`, `enW5p`, `esO`. Now: `en/` (first download), `en/late/` (loaded after start; was `enO`), `es/`, `hi/`, each with files named by feature (library, sync, ink, reading, settings ...) and an `index.ts`. `src/i18n/README.md` says where to add a text.
+- **Why:** nobody could tell where a text lives. No key and no text changed: a script compared the full key to text maps of the four sets (English first download, English late, Spanish, Hindi) before and after; all identical.
+- **Notes:** `enO` is now `enLate` (imports in t.ts, languages.ts, vitest.setup.ts and 5 tests changed). Keys are grouped by their first part. Comments that sat between keys in the old files were not carried over.
+- **Files:** src/i18n/**, vitest.setup.ts, src/help/helpRegistry.ts, docs/HELP-TEXTS.md, docs/CODE-MAP.md, 5 test files.
+
 ## 2026-11-12 (Q7a: Calendar, Year view, drag to change date, re-order rows)
 
 - **Calendar view:** an optional **End date column** makes a row span several days (lanes per week, so a span keeps its place; the title shows on its first day and on Mondays). "+ N more" is now a button that lists every row of the day (windowed, so a day of thousands of rows is fine). Today highlighted, Previous / Today / Next kept.

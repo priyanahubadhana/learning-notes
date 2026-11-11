@@ -2,7 +2,7 @@
 import { readdirSync, readFileSync, writeFileSync } from 'node:fs'
 import { describe, expect, it } from 'vitest'
 import { en as enCore } from '../i18n/en'
-import { enO } from '../i18n/enO'
+import { enLate } from '../i18n/en/late'
 import { es } from '../i18n/es'
 import { hi } from '../i18n/hi'
 import {
@@ -14,7 +14,7 @@ import {
 } from './helpRegistry'
 
 /** Core texts plus the ones that load late. */
-const en: Record<string, string> = { ...enCore, ...enO }
+const en: Record<string, string> = { ...enCore, ...enLate }
 const FILE = new URL('../../docs/HELP-TEXTS.md', import.meta.url)
 
 /** All source text of the app (not tests, not the registry itself). */

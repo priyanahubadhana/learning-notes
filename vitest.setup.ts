@@ -1,5 +1,5 @@
 import { afterAll } from 'vitest'
-import { enO } from './src/i18n/enO'
+import { enLate } from './src/i18n/en/late'
 import { setMessages } from './src/i18n/t'
 
 // Editors in jsdom tests leave a short timer running; let it finish before
@@ -7,4 +7,4 @@ import { setMessages } from './src/i18n/t'
 afterAll(() => new Promise((done) => setTimeout(done, 100)))
 
 // The English texts of later features are loaded by the app at start-up.
-setMessages('en', enO)
+setMessages('en', enLate)

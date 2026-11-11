@@ -35,6 +35,17 @@ import {
 
 const SESSION = 'learning-notes:sync.session'
 const VERIFIER = 'learning-notes:sync.pkce'
+
+/** Removes the one-time PKCE verifier from both stores (it is useless after one exchange). */
+function clearVerifier(): void {
+  for (const store of [sessionStorage, localStorage]) {
+    try {
+      store.removeItem(VERIFIER)
+    } catch {
+      // Storage blocked: nothing was kept there.
+    }
+  }
+}
 /** '1' once the server holds Google's refresh token for this account. */
 const OFFLINE = 'learning-notes:sync.driveOffline'
 /** '1' while a "connect Google" round trip is under way (a failure must not sign out). */
@@ -356,6 +367,7 @@ export function supabaseAuth(): AuthProvider {
       const linking = localStorage.getItem(LINKING) === '1'
       localStorage.removeItem(LINKING)
       if (!code && linking && session) {
+        clearVerifier()
         // A failed "connect Google" (already used by another account...):
         // the person stays signed in; Connected accounts shows the reason.
         try {
@@ -365,16 +377,24 @@ export function supabaseAuth(): AuthProvider {
         }
         return true
       }
-      if (!code) throw new NotAllowedError(error ?? 'no code')
+      if (!code) {
+        clearVerifier()
+        throw new NotAllowedError(error ?? 'no code')
+      }
       const verifier =
         sessionStorage.getItem(VERIFIER) ?? localStorage.getItem(VERIFIER)
       if (!verifier) throw new NotAllowedError('no verifier')
-      const res = await call('/auth/v1/token?grant_type=pkce', {
-        method: 'POST',
-        body: JSON.stringify({ auth_code: code, code_verifier: verifier }),
-      })
-      sessionStorage.removeItem(VERIFIER)
-      localStorage.removeItem(VERIFIER)
+      let res: Response
+      try {
+        res = await call('/auth/v1/token?grant_type=pkce', {
+          method: 'POST',
+          body: JSON.stringify({ auth_code: code, code_verifier: verifier }),
+        })
+      } finally {
+        // The code is single-use, so the verifier is dead weight whatever
+        // happened (also after a network error): never leave it in storage.
+        clearVerifier()
+      }
       if (!res.ok) throw new NotAllowedError(`sign-in ${res.status}`)
       const reply = (await res.json()) as TokenReply
       session = toSession(reply)

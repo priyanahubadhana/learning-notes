@@ -77,6 +77,26 @@ describe('remote sign-out: telling it from a normal expiry', () => {
       expect(r).toEqual({ ended: 0, result: 'new' })
     })
 
+    it('a rotated refresh token is stored and the next renewal sends the new one', async () => {
+      const sent: string[] = []
+      let n = 0
+      g.fetch = async (_u: string, init: RequestInit) => {
+        sent.push(JSON.parse(String(init.body)).refresh_token)
+        n++
+        return reply(200, {
+          access_token: 'a' + n,
+          refresh_token: 'r' + (n + 1),
+          expires_in: 1, // runs out at once: renew again
+          user: { id: 'u', email: ALLOWED_EMAIL },
+        })
+      }
+      const auth = supabaseAuth()
+      await auth.accessToken()
+      expect(JSON.parse(mem2.get(SESSION)!).refresh).toBe('r2')
+      await auth.accessToken()
+      expect(sent).toEqual(['r', 'r2'])
+    })
+
     it('the server refusing the renewal as invalid is a remote sign-out', async () => {
       const r = await run(async () =>
         reply(400, { error_code: 'refresh_token_not_found' }),

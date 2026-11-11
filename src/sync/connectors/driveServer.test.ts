@@ -392,3 +392,41 @@ describe('sign-in hands Google’s refresh token to the server', () => {
     expect(mem.has('learning-notes:sync.driveOffline')).toBe(false)
   })
 })
+
+describe('PKCE verifier clean-up', () => {
+  it('is gone from both stores after the exchange, also when it fails', async () => {
+    const g = globalThis as unknown as Record<string, unknown>
+    const mem = new Map([['learning-notes:sync.pkce', 'v']])
+    const store = {
+      getItem: (k: string) => mem.get(k) ?? null,
+      setItem: (k: string, v: string) => mem.set(k, v),
+      removeItem: (k: string) => mem.delete(k),
+    }
+    const saved = { f: g.fetch, l: g.localStorage, s: g.sessionStorage }
+    g.localStorage = store
+    g.sessionStorage = store
+    try {
+      g.fetch = async () => {
+        throw new TypeError('offline')
+      }
+      await expect(
+        supabaseAuth().finishSignIn(
+          new URL('https://app.test/?sync=callback&code=c'),
+        ),
+      ).rejects.toBeDefined()
+      expect(mem.has('learning-notes:sync.pkce')).toBe(false)
+
+      mem.set('learning-notes:sync.pkce', 'v')
+      await expect(
+        supabaseAuth().finishSignIn(
+          new URL('https://app.test/?sync=callback&error_description=denied'),
+        ),
+      ).rejects.toBeDefined()
+      expect(mem.has('learning-notes:sync.pkce')).toBe(false)
+    } finally {
+      g.fetch = saved.f
+      g.localStorage = saved.l
+      g.sessionStorage = saved.s
+    }
+  })
+})

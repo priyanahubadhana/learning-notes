@@ -1050,3 +1050,8 @@ The other older decisions stand as built (owner, 2026-11-01); they are in [ARCHI
 
 - **pictureStrip e2e:** the test now clicks the editor bottom-right instead of (5,5), because the owner new handle design puts the picture corner handle over the top-left. Behaviour was intentionally changed, not a bug.
 - **Tap-below button** moved 24 px lower so the first box handles do not cover it; text wrap uses break-word instead of anywhere (performance).
+
+## Decisions to review (Security audit, 12 Nov)
+
+- **Supabase refresh-token rotation + reuse detection must be ON (dashboard, owner).** Authentication > Sessions > "Detect and revoke potentially compromised refresh tokens". The client already handles rotation: each renewal stores the new refresh token, one renewal at a time (single refresher + Web Locks), a token spent by another tab adopts that tab's session. Known edge: if the server rotates but the reply is lost (network drop), the next try sends the old token; inside Supabase's reuse interval (10 s default) this is allowed, after it the session is revoked and the person signs in again (no data lost). Judged acceptable; keep the reuse interval at its default or higher.
+- **Lock delay (2026-11-12):** 3 free tries, then 30 s, 1 min, 5 min, 15 min, 1 h (cap), stored in localStorage on the device (not in synced settings, so another device cannot reset it). Someone who clears browser storage resets it: the lock stays an honestly labelled privacy screen. With sync on, setting a PIN/password shows a nudge for 12+ characters, not a block (a hard rule would lock out existing short codes).

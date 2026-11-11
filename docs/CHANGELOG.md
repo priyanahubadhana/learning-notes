@@ -2,6 +2,11 @@
 
 Current phase only. Older entries are in [ARCHIVE.md](ARCHIVE.md).
 
+## 2026-11-12 (Security: PKCE verifier)
+
+- **PKCE verifier is always cleared:** removed from sessionStorage and localStorage in a `finally` after the code exchange (also after a network error, a denied sign-in or a failed link), not only on success. Tests: driveServer.test.ts. Also a test that a rotated refresh token is stored and the next renewal sends the new one (sessionEnd.test.ts). Single refresher and Web Locks untouched.
+- **Files:** src/sync/connectors/supabase.ts, driveServer.test.ts, sessionEnd.test.ts.
+
 ## 2026-11-12 (Security: Lock tries)
 
 - **Wrong-code delay now survives a reload:** 3 free tries, then a wait of 30 s, 1 min, 5 min, 15 min, then 1 h each, stored per device in localStorage (a reload or restart gives no fresh tries; a clock set back cannot stretch it past 1 h). Before it was memory only and 5 free tries. The wait shows minutes once it is 2 min or more.

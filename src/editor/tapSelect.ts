@@ -364,9 +364,11 @@ export function watchTapSelect(
     // (Lasso); in a paper box under the Lasso it is placed here.
     const inBox = !!dom.closest('[data-paper-box]:not([data-paper-box="main"])')
     if (level === 1 && !inBox) return
-    const pos = lookThrough(padOf(e.target), () =>
-      posNear(view, e.clientX, e.clientY),
-    )
+    // Under the Lasso the ink pad covers the words: every hit test (the tap's
+    // spot and the line's edges) looks through it, or WebKit finds no text at
+    // the edges and a triple tap selects the whole paragraph.
+    const pad = padOf(e.target)
+    const pos = lookThrough(pad, () => posNear(view, e.clientX, e.clientY))
     if (pos === null) return
     if (level === 1) {
       // The caret goes exactly where the tap landed (Lasso, picked box).
@@ -382,7 +384,9 @@ export function watchTapSelect(
       }, 0)
       return
     }
-    const range = rangeForTaps(view, pos, level, e.clientY)
+    const range = lookThrough(pad, () =>
+      rangeForTaps(view, pos, level, e.clientY),
+    )
     if (!range) return
     ;(e as PointerEvent & { [TAP_SELECTED]?: boolean })[TAP_SELECTED] = true
     // Grace period: nothing may erase or replace this selection for a moment.

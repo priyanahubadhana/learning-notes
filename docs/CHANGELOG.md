@@ -2,6 +2,12 @@
 
 Current phase only. Older entries are in [ARCHIVE.md](ARCHIVE.md).
 
+## 2026-11-11 (Lasso triple tap in a box selected the paragraph on WebKit)
+
+- **What:** under the Lasso the ink pad covers the words; the tap counter looked through it to find the tap's spot but not to measure the line's left and right edges, so on WebKit (iPad) the edges hit the pad, the line could not be measured and three taps selected the whole paragraph. Both hit tests now look through the pad.
+- **Why:** CI ipad-webkit boxTaps :107 and :138 (got the paragraph instead of the line). The earlier fix b56c056 (native multi-click) was not the cause. Minimal fix in tapSelect.ts with the owner's redesign in mind.
+- **Files:** src/editor/tapSelect.ts, docs/CHANGELOG.md.
+
 ## 2026-11-11 (CI: rowReorder test waited too little)
 
 - **What:** the re-order test now waits until each new row's title is saved before adding the next, and polls the first order check.

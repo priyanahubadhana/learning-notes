@@ -207,3 +207,4 @@ Questions:
   - SECONDARY: refine AI mid-work inside the app (a Claude chat in the notebook).
   - Open decision: A local (PC, private) vs B online (claude.ai everywhere, opt-in server access) vs both. Recommended: both, with B as the main path for regular users.
 - OWNER: connector = BOTH (B online main path, opt-in; A local for privacy). Quality standard written: docs/design/quality-standard.md (+ rules/building.md pointer), owner-approved.
+- Connector B plan in docs/plans/claude-connector-plan.md. Questions: Supabase hosting? escrow 30-day expiry? Inbox thresholds? notebooks scope? B first? (picks: yes / yes / >30% or cards / default all / B first). Deploying needs the owner's OK.

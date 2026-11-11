@@ -162,3 +162,15 @@ plans/owner-ideas-batch-2-2026-11-10.md: update bar, Acrobat PDF tools, customiz
 - LATER: Shapes/ruler/tape in reader pen; Open sync to everyone; Per-notebook presets; Video timestamps beyond YouTube; Update bar at top.
 - DROP: Update pill vs bar.
 - Rule: anything that touches the UI being redesigned in the mock-up (toolbar, text box, Lasso, ink, layout, settings layout) waits until the owner signs off the mock-up. Everything else goes ahead under the Apple + Toyota + premium-design rules.
+- OWNER answers (wave 2 questions): Q1 (a) the redesign-touching items (settings previews & tour, emoji icons, premium design 3–6, labels & tape on pictures, reader magnifier) WAIT and get added to the mock-up artifact to be designed there first. Q2 (a) a short Book annotations plan for approval, then build. Q3–Q10: waiting.
+- Book annotations short plan ready (3 slices, 6 questions); waiting for owner approval. Summary in chat 11 Nov; detail in docs/plans/book-annotations-plan.md (existing) + this plan.
+- OWNER answers (wave 2):
+  - Q3 (a) a never-signed-in device asks to sign in; notes are read-only until then.
+  - Q4 (a) Notes from a PDF with a cost estimate before each run. PLUS a full audit of every AI/cost setting so no two settings double-enable a paid feature or charge twice (severity: high).
+  - Q5 (b) the Claude connector reads AND writes from the start.
+  - Q6 unclear ("A. B."), ask.
+  - Q7 (a) calendar + year view + drag a row to change its date.
+  - Q8 Acrobat-style: combine files, scan, OCR, organise pages, export. NO Fill & Sign. Our own Pen, Highlighter, Note and Text tools work on PDFs at the same time.
+  - Q9 handle the 3 unsaved files as I judge best, safely (no consequences).
+  - Q10 reliability first, then features.
+  - Book annotations Q1–6: waiting.

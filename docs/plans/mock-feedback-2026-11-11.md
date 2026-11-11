@@ -153,3 +153,4 @@ Four modes:
   - this level of simplicity is the model for BEGINNER.
 - Mocks must open in the DEFAULT new-user state (Beginner, defaults) so the owner sees what a new user sees; Settings can customise later.
 - NEW feature: Elements (stickers / GIFs, with categories and Edit), like GoodNotes, to make notes more interactive. Decide its placement (proposal: Insert › Elements, plus a recent-elements shelf in Shapes & aids).
+- OWNER (12 Nov): use references (GoodNotes etc.) only to LEARN; build our OWN design that combines 3 sources: the owner's design principles, the shared references, and the design already in our app (best of all three). Never copy.

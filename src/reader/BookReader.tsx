@@ -768,7 +768,10 @@ export function BookReader({
   const goToSubmit = (value: string) => {
     setGoTo(false)
     const n = Number(value.replace('%', '').trim().replace(',', '.'))
-    const [min, max] = format === 'pdf' ? [1, pageCount || 1] : [0, 100]
+    // A PDF still opening has no page count yet: any page from 1 is accepted
+    // and the view cuts it to the last page when it is laid out.
+    const [min, max] =
+      format === 'pdf' ? [1, pageCount || Number.MAX_SAFE_INTEGER] : [0, 100]
     if (!value.trim() || !Number.isFinite(n) || n < min || n > max) {
       return toast(t('reader.goTo.bad', { min, max }))
     }

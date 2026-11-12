@@ -182,9 +182,11 @@ export function EpubView(props: EpubViewProps) {
         view = document.createElement('foliate-view') as FoliateView
         view.style.cssText = 'display:block;width:100%;height:100%'
         el.append(view)
-        viewRef.current = view
         await view.open(book)
         if (cancelled) return
+        // Published only now: until open() finishes the view has no renderer,
+        // and the effects that follow the look and the flow would crash on it.
+        viewRef.current = view
         view.renderer.setAttribute('flow', propsRef.current.flow)
         applyStyle(view, propsRef.current.size, propsRef.current.look)
         view.renderer.addEventListener('scroll', pokeInk)

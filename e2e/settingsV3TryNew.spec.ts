@@ -94,8 +94,16 @@ test('SET-B26 Turn all off switches every flag off in one Undo step', async ({
   expect(await stored()).toEqual(
     expect.arrayContaining(['media.v2', 'page.menus']),
   )
+  // The new Settings has its own switch; Turn all off says it keeps it on.
+  await expect(page.locator('[data-try-new-keeps]')).toHaveText(
+    'Keeps the new Settings on',
+  )
+  const v3 = page.locator('[data-setting-id="tryNew.settings.v3"]')
+  await expect(v3.getByRole('radio', { name: 'On' })).toBeChecked()
   await page.locator('[data-try-new-off]').click()
   await expect(page.getByText('2 new features turned off')).toBeVisible()
+  await expect(v3.getByRole('radio', { name: 'On' })).toBeChecked()
+  await expect(page.locator('[data-settings-v3]')).toBeVisible()
   await expect(media.getByRole('radio', { name: 'Off' })).toBeChecked()
   expect(await stored()).not.toContain('media.v2')
   await page.getByTestId('sv3-undo').click()

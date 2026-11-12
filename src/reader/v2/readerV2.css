@@ -1,0 +1,104 @@
+/* Reader v2 bars (slice 7a). Colours, radii and motion come from tokens.css. */
+
+/* The whole layer is one manual popover: the browser's top layer, so the
+   sidebar can never cover the bars and no stacking number is needed. The
+   host is click-through; only the bars and chips take taps. */
+.rv2-host {
+  position: fixed;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  margin: 0;
+  padding: 0;
+  border: 0;
+  background: none;
+  overflow: visible;
+  pointer-events: none;
+  color: var(--color-ink);
+}
+
+.rv2-stack {
+  position: absolute;
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  pointer-events: auto;
+  transition:
+    transform var(--dur-3) var(--ease-out),
+    opacity var(--dur-3) var(--ease-out);
+}
+.rv2-stack--away {
+  transform: translateY(-130%);
+  opacity: 0;
+  pointer-events: none;
+}
+
+.rv2-bar {
+  display: flex;
+  align-items: flex-start;
+  border-radius: var(--r-lg);
+  padding: 4px;
+}
+.rv2-bar__body {
+  min-width: 0;
+  flex: 1;
+}
+
+.rv2-min,
+.rv2-chip {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-width: 44px;
+  min-height: 44px;
+  border: 0;
+  background: none;
+  color: var(--color-ink);
+  font: inherit;
+  cursor: pointer;
+  border-radius: var(--r-md);
+}
+.rv2-min {
+  flex: none;
+}
+.rv2-min:hover {
+  background: rgba(127, 127, 127, 0.14);
+}
+
+.rv2-chips {
+  position: absolute;
+  inset-inline-end: 0;
+  top: 0;
+  pointer-events: none;
+}
+.rv2-chip {
+  position: absolute;
+  inset-inline-end: 0;
+  gap: 4px;
+  padding-inline: 10px 8px;
+  font-size: 13px;
+  font-weight: 600;
+  pointer-events: auto;
+  border-radius: var(--r-md) 0 0 var(--r-md);
+  animation: rv2-chip-in var(--dur-2) var(--ease-out);
+}
+@keyframes rv2-chip-in {
+  from {
+    opacity: 0;
+    transform: translateX(12px);
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .rv2-stack,
+  .rv2-chip {
+    transition: none;
+    animation: none;
+  }
+}
+
+/* Every tap target in the new bars is at least 44 px, whatever the text size. */
+.rv2-bar__body button {
+  min-height: 44px;
+  min-width: 44px;
+}

@@ -1,4 +1,5 @@
 /** Hindi texts. A key missing here shows the English text. */
+import { hiReaderV2 } from './readerV2'
 import { hiAccounts } from './accounts'
 import { hiAi } from './ai'
 import { hiClaude } from './claude'
@@ -55,4 +56,5 @@ export const hi: Record<string, string> = {
   ...hiUpdateV2,
   ...hiFlags,
   ...hiAiBuild,
+  ...hiReaderV2,
 }

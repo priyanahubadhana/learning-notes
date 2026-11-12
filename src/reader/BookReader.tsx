@@ -11,6 +11,7 @@ import {
   useEffect,
   useRef,
   useState,
+  type UIEvent,
 } from 'react'
 import type { PDFDocumentProxy } from 'pdfjs-dist'
 import { AppUiContext } from '../app/appUi'
@@ -76,6 +77,8 @@ import {
   recordSpeed,
 } from './extras/timeLeft'
 import { useDeviceSetting } from '../settings/useSetting'
+import { useFlag } from '../app/flags'
+import { START_SCROLL, scrollStep, type ScrollHide } from './v2/barState'
 import {
   readingOrientSetting,
   readingPdfFlowSetting,
@@ -89,6 +92,8 @@ const EpubView = lazy(() =>
 )
 // Ask this book (Phase P): the AI code loads only when the panel opens.
 const AaSheet = lazy(() => import('./AaSheet'))
+// The new bars (flag reader.v2): their own chunk, loaded only when the flag is on.
+const ReaderBarsV2 = lazy(() => import('./v2/ReaderBars'))
 const DictionarySheet = lazy(() => import('./DictionarySheet'))
 const ZoomPreview = lazy(() => import('./pdf/ZoomPreview'))
 // The PDF menu's tools (Q8): pdf-lib, OCR and the sheets load only when used.
@@ -131,6 +136,25 @@ export function BookReader({
   onOpenPage: (pageId: string) => void
 }) {
   const { toast } = useContext(AppUiContext)
+  const v2 = useFlag('reader.v2')
+  const rootRef = useRef<HTMLDivElement>(null)
+  const [barsAway, setBarsAway] = useState(false)
+  const scrolling = useRef<{ el: HTMLElement | null; s: ScrollHide }>({
+    el: null,
+    s: START_SCROLL,
+  })
+  // v2: the bars slide away while reading down, and come back on a short scroll up.
+  const onV2Scroll = (e: UIEvent<HTMLDivElement>) => {
+    const el = e.target
+    if (!(el instanceof HTMLElement)) return
+    const r = scrolling.current
+    if (r.el !== el) {
+      r.el = el
+      r.s = { ...START_SCROLL, last: el.scrollTop, turn: el.scrollTop }
+    }
+    r.s = scrollStep(r.s, el.scrollTop)
+    setBarsAway(r.s.hidden)
+  }
   const page = useLiveQuery(() => db.pages.get(pageId), [db, pageId])
   const [data, setData] = useState<ArrayBuffer | null | undefined>(undefined)
   const [failed, setFailed] = useState(false)
@@ -841,6 +865,327 @@ export function BookReader({
           : null),
     )
 
+  const v2Bars = v2 && !full
+  const readerBar = (
+    <div
+      data-chrome
+      data-testid="reader-bar"
+      hidden={locked || (full && !barShown)}
+      className={
+        v2Bars
+          ? 'flex flex-wrap items-center gap-0.5 p-1'
+          : `flex flex-wrap items-center gap-1 border-b border-line bg-bg px-2 py-1 ${
+              full ? 'absolute inset-x-0 top-0 z-30 shadow-md' : ''
+            }`
+      }
+    >
+      <HistoryButtons />
+      <IconButton
+        tip="reader.close"
+        bare
+        tipClassName="inline-flex shrink-0"
+        type="button"
+        onClick={() => onOpenPage(pageId)}
+        aria-label={t('bookreader.close')}
+        data-testid="reader-close"
+        className={panelBtn(false)}
+      >
+        ✕
+      </IconButton>
+      <h1
+        className={`min-w-0 flex-1 truncate text-sm font-medium ${v2Bars ? 'max-sm:hidden' : ''}`}
+      >
+        {page.title}
+      </h1>
+      {format === 'pdf' && (
+        <>
+          <span className="text-xs text-muted" data-testid="reader-page">
+            {pageCount
+              ? t('bookreader.page', { page: pageNo, total: pageCount })
+              : ''}
+          </span>
+          <IconButton
+            tip="reader.zoomOut"
+            bare
+            tipClassName="inline-flex shrink-0"
+            type="button"
+            aria-label={t('bookreader.zoomOut')}
+            className={panelBtn(false)}
+            onClick={() =>
+              setZoom(
+                (z) =>
+                  ZOOMS[Math.max(0, ZOOMS.findIndex((v) => v >= z) - 1)] ?? z,
+              )
+            }
+          >
+            −
+          </IconButton>
+          <IconButton
+            tip="reader.fitWidth"
+            bare
+            tipClassName="inline-flex shrink-0"
+            type="button"
+            aria-label={t('bookreader.fitWidth')}
+            className={panelBtn(false)}
+            onClick={() => setZoom(1)}
+          >
+            {Math.round(zoom * 100)}%
+          </IconButton>
+          <IconButton
+            tip="reader.zoomIn"
+            bare
+            tipClassName="inline-flex shrink-0"
+            type="button"
+            aria-label={t('bookreader.zoomIn')}
+            className={panelBtn(false)}
+            onClick={() =>
+              setZoom((z) => ZOOMS.find((v) => v > z + 0.001) ?? z)
+            }
+          >
+            +
+          </IconButton>
+        </>
+      )}
+      {format === 'epub' && (
+        <>
+          <IconButton
+            tip="reader.prev"
+            bare
+            tipClassName="inline-flex shrink-0"
+            type="button"
+            aria-label={t('bookreader.prev')}
+            data-testid="epub-prev"
+            className={panelBtn(false)}
+            onClick={() =>
+              setCommand((c) => ({
+                type: 'prev',
+                nonce: (c?.nonce ?? 0) + 1,
+              }))
+            }
+          >
+            ‹
+          </IconButton>
+          <IconButton
+            tip="reader.next"
+            bare
+            tipClassName="inline-flex shrink-0"
+            type="button"
+            aria-label={t('bookreader.next')}
+            data-testid="epub-next"
+            className={panelBtn(false)}
+            onClick={() =>
+              setCommand((c) => ({
+                type: 'next',
+                nonce: (c?.nonce ?? 0) + 1,
+              }))
+            }
+          >
+            ›
+          </IconButton>
+          <IconButton
+            tip="reader.smaller"
+            bare
+            tipClassName="inline-flex shrink-0"
+            type="button"
+            aria-label={t('bookreader.epubSmaller')}
+            className={panelBtn(false)}
+            onClick={() => setEpubSize((n) => stepSize(n, -1))}
+          >
+            A−
+          </IconButton>
+          <IconButton
+            tip="reader.larger"
+            bare
+            tipClassName="inline-flex shrink-0"
+            type="button"
+            aria-label={t('bookreader.epubLarger')}
+            data-testid="epub-larger"
+            className={panelBtn(false)}
+            onClick={() => setEpubSize((n) => stepSize(n, 1))}
+          >
+            A+
+          </IconButton>
+          <button
+            type="button"
+            aria-pressed={epubFlow === 'paginated'}
+            data-testid="epub-flow"
+            className={panelBtn(false)}
+            onClick={() =>
+              setEpubFlow((f) => (f === 'paginated' ? 'scrolled' : 'paginated'))
+            }
+          >
+            {epubFlow === 'paginated'
+              ? t('bookreader.pages')
+              : t('bookreader.scroll')}
+          </button>
+        </>
+      )}
+      {format === 'pdf' && (
+        <>
+          <button
+            type="button"
+            aria-pressed={pdfPaged}
+            data-testid="pdf-flow"
+            className={panelBtn(false)}
+            onClick={() => setPdfFlow(pdfPaged ? 'scrolled' : 'paged')}
+          >
+            {pdfPaged ? t('bookreader.pages') : t('bookreader.scroll')}
+          </button>
+          <button
+            type="button"
+            data-testid="reader-find"
+            aria-pressed={panel === 'find'}
+            className={panelBtn(panel === 'find')}
+            onClick={() => setPanel((p) => (p === 'find' ? null : 'find'))}
+          >
+            {t('reader.find')}
+          </button>
+        </>
+      )}
+      <button
+        type="button"
+        data-testid="reader-ink"
+        aria-pressed={drawing}
+        aria-label={t('reader.ink.label')}
+        className={panelBtn(drawing)}
+        onClick={() => {
+          if (inking) return stopInking()
+          if (format === 'epub' && epubFlow === 'paginated') {
+            toast(t('reader.ink.scrollOnly'))
+            return
+          }
+          toolBefore.current = activeTool.get()
+          activeTool.set('pen')
+          setInking(true)
+        }}
+      >
+        {t('reader.ink')}
+      </button>
+      <button
+        type="button"
+        data-testid="reader-flip"
+        aria-pressed={flipOpen}
+        className={panelBtn(flipOpen)}
+        onClick={() => setFlipOpen((v) => !v)}
+      >
+        {t('reader.flip')}
+      </button>
+      <IconButton
+        tip="reader.bookmark"
+        bare
+        tipClassName="inline-flex shrink-0"
+        type="button"
+        aria-label={
+          bookmarked ? t('bookreader.bookmarked') : t('bookreader.bookmark')
+        }
+        aria-pressed={bookmarked}
+        data-testid="reader-bookmark"
+        className={panelBtn(bookmarked)}
+        onClick={toggleBookmark}
+      >
+        {bookmarked ? '★' : '☆'}
+      </IconButton>
+      <button
+        type="button"
+        data-testid="reader-contents"
+        className={panelBtn(false)}
+        onClick={() => openLeft('outline')}
+      >
+        {t('bookreader.contents')}
+      </button>
+      <button
+        type="button"
+        data-testid="reader-annotations"
+        className={panelBtn(false)}
+        onClick={() => openLeft('annotations')}
+      >
+        {t('bookreader.annotations')}
+      </button>
+      {aiOn && (
+        <IconButton
+          tip="reader.askAi"
+          bare
+          tipClassName="inline-flex shrink-0"
+          type="button"
+          data-testid="reader-ask"
+          aria-pressed={panel === 'ask'}
+          className={panelBtn(panel === 'ask')}
+          onClick={() => setPanel((p) => (p === 'ask' ? null : 'ask'))}
+        >
+          {t('ai.book.button')}
+        </IconButton>
+      )}
+      <button
+        type="button"
+        data-testid="reader-aa"
+        aria-haspopup="dialog"
+        aria-expanded={aaOpen}
+        aria-label={t('aa.title')}
+        className={panelBtn(aaOpen)}
+        onClick={() => setAaOpen((v) => !v)}
+      >
+        Aa
+      </button>
+      {format === 'pdf' && (
+        <button
+          type="button"
+          data-testid="reader-pdf-menu"
+          aria-haspopup="menu"
+          aria-expanded={!!pdfMenuAt}
+          aria-label={t('pdftools.menu.label')}
+          className={panelBtn(!!pdfMenuAt)}
+          onClick={(e) => setPdfMenuAt(e.currentTarget.getBoundingClientRect())}
+        >
+          {t('pdftools.menu')}
+        </button>
+      )}
+      <button
+        type="button"
+        data-testid="reader-lock"
+        aria-label={t('reader.lock')}
+        className={panelBtn(false)}
+        onClick={() => {
+          stopInking()
+          clearSelection()
+          setPanel(null)
+          setAaOpen(false)
+          setBarShown(false)
+          setFlipOpen(false)
+          setLocked(true)
+        }}
+      >
+        <Icon name="lock" size={18} />
+      </button>
+      <button
+        type="button"
+        data-testid="reader-fullscreen"
+        aria-pressed={full}
+        aria-label={t(full ? 'reader.fullscreen.exit' : 'reader.fullscreen')}
+        className={panelBtn(full)}
+        onClick={() => {
+          setBarShown(false)
+          setFull((v) => !v)
+        }}
+      >
+        <Icon name="maximize" size={18} />
+      </button>
+      <button
+        type="button"
+        data-testid="reader-more"
+        aria-label={t('reader.more')}
+        aria-haspopup="menu"
+        className={panelBtn(!!moreAt)}
+        onClick={(e) => setMoreAt(e.currentTarget.getBoundingClientRect())}
+      >
+        <Icon name="more" size={18} />
+      </button>
+    </div>
+  )
+  const inkBar =
+    drawing && !full && !locked ? (
+      <ReaderInkBar onDone={stopInking} mode={penBar} v2={v2Bars} />
+    ) : null
+
   return (
     <div
       className={
@@ -850,321 +1195,24 @@ export function BookReader({
       }
       data-full={full ? 'true' : undefined}
       data-testid="book-reader"
+      ref={rootRef}
       aria-label={t('bookreader.label')}
     >
-      <div
-        data-chrome
-        data-testid="reader-bar"
-        hidden={locked || (full && !barShown)}
-        className={`flex flex-wrap items-center gap-1 border-b border-line bg-bg px-2 py-1 ${
-          full ? 'absolute inset-x-0 top-0 z-30 shadow-md' : ''
-        }`}
-      >
-        <HistoryButtons />
-        <IconButton
-          tip="reader.close"
-          bare
-          tipClassName="inline-flex shrink-0"
-          type="button"
-          onClick={() => onOpenPage(pageId)}
-          aria-label={t('bookreader.close')}
-          data-testid="reader-close"
-          className={panelBtn(false)}
-        >
-          ✕
-        </IconButton>
-        <h1 className="min-w-0 flex-1 truncate text-sm font-medium">
-          {page.title}
-        </h1>
-        {format === 'pdf' && (
-          <>
-            <span className="text-xs text-muted" data-testid="reader-page">
-              {pageCount
-                ? t('bookreader.page', { page: pageNo, total: pageCount })
-                : ''}
-            </span>
-            <IconButton
-              tip="reader.zoomOut"
-              bare
-              tipClassName="inline-flex shrink-0"
-              type="button"
-              aria-label={t('bookreader.zoomOut')}
-              className={panelBtn(false)}
-              onClick={() =>
-                setZoom(
-                  (z) =>
-                    ZOOMS[Math.max(0, ZOOMS.findIndex((v) => v >= z) - 1)] ?? z,
-                )
-              }
-            >
-              −
-            </IconButton>
-            <IconButton
-              tip="reader.fitWidth"
-              bare
-              tipClassName="inline-flex shrink-0"
-              type="button"
-              aria-label={t('bookreader.fitWidth')}
-              className={panelBtn(false)}
-              onClick={() => setZoom(1)}
-            >
-              {Math.round(zoom * 100)}%
-            </IconButton>
-            <IconButton
-              tip="reader.zoomIn"
-              bare
-              tipClassName="inline-flex shrink-0"
-              type="button"
-              aria-label={t('bookreader.zoomIn')}
-              className={panelBtn(false)}
-              onClick={() =>
-                setZoom((z) => ZOOMS.find((v) => v > z + 0.001) ?? z)
-              }
-            >
-              +
-            </IconButton>
-          </>
-        )}
-        {format === 'epub' && (
-          <>
-            <IconButton
-              tip="reader.prev"
-              bare
-              tipClassName="inline-flex shrink-0"
-              type="button"
-              aria-label={t('bookreader.prev')}
-              data-testid="epub-prev"
-              className={panelBtn(false)}
-              onClick={() =>
-                setCommand((c) => ({
-                  type: 'prev',
-                  nonce: (c?.nonce ?? 0) + 1,
-                }))
-              }
-            >
-              ‹
-            </IconButton>
-            <IconButton
-              tip="reader.next"
-              bare
-              tipClassName="inline-flex shrink-0"
-              type="button"
-              aria-label={t('bookreader.next')}
-              data-testid="epub-next"
-              className={panelBtn(false)}
-              onClick={() =>
-                setCommand((c) => ({
-                  type: 'next',
-                  nonce: (c?.nonce ?? 0) + 1,
-                }))
-              }
-            >
-              ›
-            </IconButton>
-            <IconButton
-              tip="reader.smaller"
-              bare
-              tipClassName="inline-flex shrink-0"
-              type="button"
-              aria-label={t('bookreader.epubSmaller')}
-              className={panelBtn(false)}
-              onClick={() => setEpubSize((n) => stepSize(n, -1))}
-            >
-              A−
-            </IconButton>
-            <IconButton
-              tip="reader.larger"
-              bare
-              tipClassName="inline-flex shrink-0"
-              type="button"
-              aria-label={t('bookreader.epubLarger')}
-              data-testid="epub-larger"
-              className={panelBtn(false)}
-              onClick={() => setEpubSize((n) => stepSize(n, 1))}
-            >
-              A+
-            </IconButton>
-            <button
-              type="button"
-              aria-pressed={epubFlow === 'paginated'}
-              data-testid="epub-flow"
-              className={panelBtn(false)}
-              onClick={() =>
-                setEpubFlow((f) =>
-                  f === 'paginated' ? 'scrolled' : 'paginated',
-                )
-              }
-            >
-              {epubFlow === 'paginated'
-                ? t('bookreader.pages')
-                : t('bookreader.scroll')}
-            </button>
-          </>
-        )}
-        {format === 'pdf' && (
-          <>
-            <button
-              type="button"
-              aria-pressed={pdfPaged}
-              data-testid="pdf-flow"
-              className={panelBtn(false)}
-              onClick={() => setPdfFlow(pdfPaged ? 'scrolled' : 'paged')}
-            >
-              {pdfPaged ? t('bookreader.pages') : t('bookreader.scroll')}
-            </button>
-            <button
-              type="button"
-              data-testid="reader-find"
-              aria-pressed={panel === 'find'}
-              className={panelBtn(panel === 'find')}
-              onClick={() => setPanel((p) => (p === 'find' ? null : 'find'))}
-            >
-              {t('reader.find')}
-            </button>
-          </>
-        )}
-        <button
-          type="button"
-          data-testid="reader-ink"
-          aria-pressed={drawing}
-          aria-label={t('reader.ink.label')}
-          className={panelBtn(drawing)}
-          onClick={() => {
-            if (inking) return stopInking()
-            if (format === 'epub' && epubFlow === 'paginated') {
-              toast(t('reader.ink.scrollOnly'))
-              return
-            }
-            toolBefore.current = activeTool.get()
-            activeTool.set('pen')
-            setInking(true)
-          }}
-        >
-          {t('reader.ink')}
-        </button>
-        <button
-          type="button"
-          data-testid="reader-flip"
-          aria-pressed={flipOpen}
-          className={panelBtn(flipOpen)}
-          onClick={() => setFlipOpen((v) => !v)}
-        >
-          {t('reader.flip')}
-        </button>
-        <IconButton
-          tip="reader.bookmark"
-          bare
-          tipClassName="inline-flex shrink-0"
-          type="button"
-          aria-label={
-            bookmarked ? t('bookreader.bookmarked') : t('bookreader.bookmark')
-          }
-          aria-pressed={bookmarked}
-          data-testid="reader-bookmark"
-          className={panelBtn(bookmarked)}
-          onClick={toggleBookmark}
-        >
-          {bookmarked ? '★' : '☆'}
-        </IconButton>
-        <button
-          type="button"
-          data-testid="reader-contents"
-          className={panelBtn(false)}
-          onClick={() => openLeft('outline')}
-        >
-          {t('bookreader.contents')}
-        </button>
-        <button
-          type="button"
-          data-testid="reader-annotations"
-          className={panelBtn(false)}
-          onClick={() => openLeft('annotations')}
-        >
-          {t('bookreader.annotations')}
-        </button>
-        {aiOn && (
-          <IconButton
-            tip="reader.askAi"
-            bare
-            tipClassName="inline-flex shrink-0"
-            type="button"
-            data-testid="reader-ask"
-            aria-pressed={panel === 'ask'}
-            className={panelBtn(panel === 'ask')}
-            onClick={() => setPanel((p) => (p === 'ask' ? null : 'ask'))}
-          >
-            {t('ai.book.button')}
-          </IconButton>
-        )}
-        <button
-          type="button"
-          data-testid="reader-aa"
-          aria-haspopup="dialog"
-          aria-expanded={aaOpen}
-          aria-label={t('aa.title')}
-          className={panelBtn(aaOpen)}
-          onClick={() => setAaOpen((v) => !v)}
-        >
-          Aa
-        </button>
-        {format === 'pdf' && (
-          <button
-            type="button"
-            data-testid="reader-pdf-menu"
-            aria-haspopup="menu"
-            aria-expanded={!!pdfMenuAt}
-            aria-label={t('pdftools.menu.label')}
-            className={panelBtn(!!pdfMenuAt)}
-            onClick={(e) =>
-              setPdfMenuAt(e.currentTarget.getBoundingClientRect())
-            }
-          >
-            {t('pdftools.menu')}
-          </button>
-        )}
-        <button
-          type="button"
-          data-testid="reader-lock"
-          aria-label={t('reader.lock')}
-          className={panelBtn(false)}
-          onClick={() => {
-            stopInking()
-            clearSelection()
-            setPanel(null)
-            setAaOpen(false)
-            setBarShown(false)
-            setFlipOpen(false)
-            setLocked(true)
-          }}
-        >
-          <Icon name="lock" size={18} />
-        </button>
-        <button
-          type="button"
-          data-testid="reader-fullscreen"
-          aria-pressed={full}
-          aria-label={t(full ? 'reader.fullscreen.exit' : 'reader.fullscreen')}
-          className={panelBtn(full)}
-          onClick={() => {
-            setBarShown(false)
-            setFull((v) => !v)
-          }}
-        >
-          <Icon name="maximize" size={18} />
-        </button>
-        <button
-          type="button"
-          data-testid="reader-more"
-          aria-label={t('reader.more')}
-          aria-haspopup="menu"
-          className={panelBtn(!!moreAt)}
-          onClick={(e) => setMoreAt(e.currentTarget.getBoundingClientRect())}
-        >
-          <Icon name="more" size={18} />
-        </button>
-      </div>
-      {drawing && !full && !locked && (
-        <ReaderInkBar onDone={stopInking} mode={penBar} />
+      {v2Bars ? (
+        <Suspense fallback={null}>
+          <ReaderBarsV2
+            hidden={locked}
+            away={barsAway}
+            rootRef={rootRef}
+            reader={readerBar}
+            ink={inkBar}
+          />
+        </Suspense>
+      ) : (
+        <>
+          {readerBar}
+          {inkBar}
+        </>
       )}
       {noText && format === 'pdf' && (
         <p className="bg-soft px-3 py-1 text-xs text-muted">
@@ -1183,6 +1231,7 @@ export function BookReader({
       )}
       <div
         ref={contentRef}
+        onScrollCapture={v2Bars ? onV2Scroll : undefined}
         data-read-page={look.page}
         className="relative flex min-h-0 flex-1"
         style={{ background: pageSurface(look.page)?.bg }}

@@ -1,4 +1,5 @@
 /** Spanish texts. A key missing here shows the English text. */
+import { esReaderV2 } from './readerV2'
 import { esAccounts } from './accounts'
 import { esAi } from './ai'
 import { esClaude } from './claude'
@@ -55,4 +56,5 @@ export const es: Record<string, string> = {
   ...esUpdateV2,
   ...esFlags,
   ...esAiBuild,
+  ...esReaderV2,
 }

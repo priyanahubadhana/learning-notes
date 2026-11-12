@@ -29,9 +29,12 @@ const btn = (active: boolean) =>
 export function ReaderInkBar({
   onDone,
   mode = 'simple',
+  v2 = false,
 }: {
   onDone: () => void
   mode?: InkBarMode
+  /** Flag reader.v2: sits inside the floating glass bar, so no strip of its own. */
+  v2?: boolean
 }) {
   const tool = activeTool.useValue()
   const pen = penSettings.useValue()
@@ -55,7 +58,11 @@ export function ReaderInkBar({
       role="toolbar"
       aria-label={t('reader.ink.tools')}
       data-testid="reader-ink-bar"
-      className="flex flex-wrap items-center gap-1 border-b border-line bg-bg px-2 py-1"
+      className={
+        v2
+          ? 'flex flex-wrap items-center gap-1 px-1.5 py-1'
+          : 'flex flex-wrap items-center gap-1 border-b border-line bg-bg px-2 py-1'
+      }
     >
       {TOOLS.map((id) => (
         <button

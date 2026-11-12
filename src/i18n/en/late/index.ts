@@ -1,4 +1,5 @@
 /** English texts that load after the first screen (kept out of the first download). */
+import { enLateReaderV2 } from './readerV2'
 import { enLateAccounts } from './accounts'
 import { enLateAi } from './ai'
 import { enLateClaude } from './claude'
@@ -49,4 +50,5 @@ export const enLate = {
   ...enLateUpdateV2,
   ...enLateFlags,
   ...enLateAiBuild,
+  ...enLateReaderV2,
 }

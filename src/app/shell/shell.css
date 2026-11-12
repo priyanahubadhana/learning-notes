@@ -208,6 +208,8 @@
 
 /* ---- top bar (SH-04): one row, 52 px, flat ---- */
 .sh-top {
+  /* Above the glass layer behind the bars (a positioned sibling paints over plain content). */
+  position: relative;
   flex: none;
   box-sizing: border-box;
   display: flex;

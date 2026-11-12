@@ -1,4 +1,5 @@
 import { centreEl } from './app/centreEl'
+import { useFlag } from './app/flags'
 import { setActiveScope } from './core/historySteps'
 import { useLiveQuery } from 'dexie-react-hooks'
 import {
@@ -293,6 +294,10 @@ const DatabasesScreen = lazy(() =>
 const ReviewScreen = lazy(() =>
   import('./recall/ReviewScreen').then((m) => ({ default: m.ReviewScreen })),
 )
+// Flag `settings.v3`: the new Settings screen loads only when the flag is ON.
+const SettingsV3 = lazy(() =>
+  import('./settings/v3/SettingsV3').then((m) => ({ default: m.SettingsV3 })),
+)
 const SettingsScreen = lazy(() =>
   import('./settings/SettingsScreen').then((m) => ({
     default: m.SettingsScreen,
@@ -375,6 +380,7 @@ function App() {
   )
   // Settings replaces the open page in the main area until a page is opened.
   const [showSettings, setShowSettings] = useState(boot?.kind === 'settings')
+  const settingsV3 = useFlag('settings.v3')
   // Setting to scroll to and highlight when Settings opens (e.g. from a dialog).
   const [settingsFocus, setSettingsFocus] = useState<string | null>(null)
   const openSettings = (settingId?: string) => {
@@ -1597,11 +1603,19 @@ function App() {
                   >
                     <Suspense fallback={null}>
                       {showSettings ? (
-                        <SettingsScreen
-                          key={settingsFocus ?? ''}
-                          db={db}
-                          focusId={settingsFocus ?? undefined}
-                        />
+                        settingsV3 ? (
+                          <SettingsV3
+                            key={settingsFocus ?? ''}
+                            db={db}
+                            focusId={settingsFocus ?? undefined}
+                          />
+                        ) : (
+                          <SettingsScreen
+                            key={settingsFocus ?? ''}
+                            db={db}
+                            focusId={settingsFocus ?? undefined}
+                          />
+                        )
                       ) : reviewScope ? (
                         <ReviewScreen
                           key={JSON.stringify(reviewScope)}

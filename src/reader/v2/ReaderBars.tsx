@@ -52,6 +52,7 @@ export default function ReaderBars({
   })
   const [stackH, setStackH] = useState(0)
   const [vh, setVh] = useState(() => window.innerHeight)
+  const [underPanel, setUnderPanel] = useState(false)
 
   // Top layer through the overlay manager as a persistent bar: it stays open
   // on an outside tap and Esc; only the reading lock (hidden) closes it.
@@ -92,6 +93,23 @@ export default function ReaderBars({
     ro.observe(document.documentElement)
     return () => ro.disconnect()
   }, [measure, rootRef])
+
+  // A narrow screen lays the left panel (Pages / Outline / Audio tabs) over the
+  // reader's top. The bar steps aside while it is open, so it never covers the
+  // tab row or clips the first chip; it slides back when the panel closes.
+  useEffect(() => {
+    const check = () => {
+      const panel = document.querySelector('[data-testid="left-panel"]')
+      setUnderPanel(
+        !!panel && window.getComputedStyle(panel).position === 'fixed',
+      )
+    }
+    check()
+    if (typeof MutationObserver === 'undefined') return
+    const mo = new MutationObserver(check)
+    mo.observe(document.body, { childList: true, subtree: true })
+    return () => mo.disconnect()
+  }, [])
   const hasInk = ink != null
   const showReader = !bars.reader
   const showInk = hasInk && !bars.draw
@@ -156,9 +174,9 @@ export default function ReaderBars({
         {stackShown && (
           <div
             ref={stack}
-            className={`rv2-stack ${away ? 'rv2-stack--away' : ''}`}
+            className={`rv2-stack ${away || underPanel ? 'rv2-stack--away' : ''}`}
             data-testid="rv2-stack"
-            inert={away || undefined}
+            inert={away || underPanel || undefined}
             style={{ left: box.left, top: box.top, width: box.width }}
           >
             {showReader && bar('reader', reader)}

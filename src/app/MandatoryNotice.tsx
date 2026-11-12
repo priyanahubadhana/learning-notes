@@ -66,7 +66,7 @@ function Ring({ left }: { left: number }) {
 }
 
 const btn =
-  'min-h-11 min-w-28 rounded-xl px-5 text-sm font-semibold phone:w-full'
+  'min-h-[44px] min-w-[112px] rounded-xl px-5 text-sm font-semibold phone:w-full'
 const primaryBtn = `${btn} bg-accent text-white hover:opacity-90`
 const tonalBtn = `${btn} bg-hover text-ink hover:opacity-90`
 

@@ -83,7 +83,10 @@
   border: 1.5px solid var(--color-accent);
   border-inline-end: 0;
   background-color: var(--color-surface-2);
-  background-image: linear-gradient(var(--color-accent-soft), var(--color-accent-soft));
+  background-image: linear-gradient(
+    var(--color-accent-soft),
+    var(--color-accent-soft)
+  );
   color: var(--color-accent);
   border-radius: 14px 0 0 14px;
   animation: rv2-chip-in var(--dur-2) var(--ease-out);

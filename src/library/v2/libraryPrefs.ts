@@ -151,6 +151,21 @@ export function setPrefs(patch: Partial<LibraryPrefs>): LibraryPrefs {
   return before
 }
 
+/**
+ * Changes some choices and returns a function that puts back only those
+ * (later changes to other choices stay): the Undo of a toast.
+ */
+export function setPrefsWithUndo(patch: Partial<LibraryPrefs>): () => void {
+  const before = state
+  setPrefs(patch)
+  return () => {
+    const back: Record<string, unknown> = {}
+    for (const k of Object.keys(patch))
+      back[k] = before[k as keyof LibraryPrefs]
+    setPrefs(back as Partial<LibraryPrefs>)
+  }
+}
+
 /** Puts back an earlier value (Undo). */
 export const restorePrefs = (before: LibraryPrefs): void => {
   setPrefs(before)

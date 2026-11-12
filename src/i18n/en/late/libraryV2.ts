@@ -88,6 +88,7 @@ export const enLateLibraryV2 = {
   'lib2.movedTo.finished': 'Moved to Finished',
   'lib2.movedTo.reading': 'Moved to Reading now',
   'lib2.movedTo.want': 'Moved to Want to read',
+  'lib2.noTags': 'No tags yet.',
   'lib2.noCollections': 'No collections yet.',
   'lib2.openExport': 'Open Export',
   'lib2.openOriginal': 'Open the original',

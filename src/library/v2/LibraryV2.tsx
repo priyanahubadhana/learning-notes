@@ -37,8 +37,8 @@ import { exportBookHighlights } from './exportData'
 import { Knowledge } from './Knowledge'
 import {
   newCollectionId,
-  restorePrefs,
   setPrefs,
+  setPrefsWithUndo,
   useLibraryPrefs,
   type LibraryPrefs,
   type ManualStatus,
@@ -208,11 +208,8 @@ export function LibraryV2({
 
   /** Changes prefs with a toast and one Undo. */
   const change = (patch: Partial<LibraryPrefs>, message: string) => {
-    const before = setPrefs(patch)
-    toast(message, {
-      label: t('annot.undo'),
-      onSelect: () => restorePrefs(before),
-    })
+    const undo = setPrefsWithUndo(patch)
+    toast(message, { label: t('annot.undo'), onSelect: undo })
   }
 
   const actions: BookActions = {
@@ -226,11 +223,10 @@ export function LibraryV2({
         })(),
       ),
     setStatus: (p, status: ManualStatus) => {
-      const before = setPrefs({ manual: { ...prefs.manual, [p.id]: status } })
-      toast(t(`lib2.movedTo.${status}`), {
-        label: t('annot.undo'),
-        onSelect: () => restorePrefs(before),
-      })
+      change(
+        { manual: { ...prefs.manual, [p.id]: status } },
+        t(`lib2.movedTo.${status}`),
+      )
     },
     collections: (p) => setCollectionsFor(p),
     tags: (p, anchor) => setTagAssign({ pages: [p], anchor }),

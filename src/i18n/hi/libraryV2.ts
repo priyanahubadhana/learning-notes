@@ -87,6 +87,7 @@ export const hiLibraryV2 = {
   'lib2.movedTo.finished': 'पूरा हुआ में ले जाया गया',
   'lib2.movedTo.reading': 'अभी पढ़ रहे हैं में ले जाया गया',
   'lib2.movedTo.want': 'पढ़ना चाहता हूँ में ले जाया गया',
+  'lib2.noTags': 'अभी कोई टैग नहीं।',
   'lib2.noCollections': 'अभी कोई संग्रह नहीं।',
   'lib2.openExport': 'निर्यात खोलें',
   'lib2.openOriginal': 'मूल खोलें',

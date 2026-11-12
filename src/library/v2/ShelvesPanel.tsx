@@ -81,7 +81,12 @@ export function ShelvesPanel({
           <h3 className="mt-3 mb-1 px-1 text-[11px] tracking-[0.06em] text-muted uppercase">
             {t('lib2.tags')}
           </h3>
-          <ul data-testid="panel-tags">
+          {tagItems.length === 0 && (
+            <p data-testid="panel-tags" className="px-3 text-xs text-muted">
+              {t('lib2.noTags')}
+            </p>
+          )}
+          <ul data-testid="panel-tags-list">
             {[...tagItems]
               .sort((a, b) => b.count - a.count)
               .slice(0, 5)

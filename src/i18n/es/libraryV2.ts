@@ -88,6 +88,7 @@ export const esLibraryV2 = {
   'lib2.movedTo.finished': 'Movido a Terminados',
   'lib2.movedTo.reading': 'Movido a Leyendo ahora',
   'lib2.movedTo.want': 'Movido a Quiero leer',
+  'lib2.noTags': 'Aún no hay etiquetas.',
   'lib2.noCollections': 'Aún no hay colecciones.',
   'lib2.openExport': 'Abrir Exportar',
   'lib2.openOriginal': 'Abrir el original',

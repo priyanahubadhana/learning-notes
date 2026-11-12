@@ -350,9 +350,21 @@ export function useReorder<T>(props: ReorderProps<T>) {
       // Draw the new order now. The next pointer move measures the rows to find
       // the slot under the finger; if this render were still waiting (a busy
       // device), it would measure the old layout and pick the wrong slot.
+      // WebKit crashes when the element holding the pointer capture is
+      // moved in the page, so let go first and take hold again right after.
+      try {
+        p.cap?.releasePointerCapture(p.pointerId)
+      } catch {
+        /* already released */
+      }
       flushSync(() =>
         setDrag({ id: p.id, phase: 'lifted', order: next, invalid }),
       )
+      try {
+        if (p.cap?.isConnected) p.cap.setPointerCapture(p.pointerId)
+      } catch {
+        /* the pointer is gone */
+      }
     } else {
       setDrag((d) => (d && d.invalid !== invalid ? { ...d, invalid } : d))
     }

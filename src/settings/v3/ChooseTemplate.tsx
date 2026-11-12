@@ -23,6 +23,7 @@ export function ChooseTemplate({
   const [open, setOpen] = useState(false)
   const [opener, setOpener] = useState<HTMLElement | null>(null)
   const [query, setQuery] = useState('')
+  const [why, setWhy] = useState<string | null>(null)
   const all = useUnlocked('general.newPageStudy')
   const study = starterTemplates().find((x) => x.title === 'Study notes')
   const choices = [
@@ -85,8 +86,14 @@ export function ChooseTemplate({
                     data-template={c.id}
                     className="sv3-tpl"
                     aria-pressed={c.usable && value === c.pick}
-                    disabled={!c.usable}
+                    aria-haspopup={c.usable ? undefined : 'dialog'}
                     onClick={() => {
+                      if (!c.usable) {
+                        // Not a stored choice yet: explain why, in a pop-up.
+                        close()
+                        setWhy(c.name)
+                        return
+                      }
                       if (value !== c.pick) onSave(c.pick)
                       close()
                     }}
@@ -102,6 +109,16 @@ export function ChooseTemplate({
               ))}
             </ul>
           )}
+        </SheetBase>
+      )}
+      {why !== null && (
+        <SheetBase
+          title={tv('sv3.templateWhyTitle')}
+          anchor={opener}
+          onClose={() => setWhy(null)}
+          data-testid="sv3-template-why"
+        >
+          <p>{tv('sv3.templateWhy', { name: why })}</p>
         </SheetBase>
       )}
     </>

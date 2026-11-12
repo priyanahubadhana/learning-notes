@@ -284,3 +284,7 @@ Mock: claude.ai/artifact/NqQG7z5SGyLv5YxnkArK9e (all owner comments on it are bu
 5. "Where this comes from" (was "Built from") opens a separate pop-up with ✕/Esc/tap-outside; the widget never swaps its content (app-wide rule).
 6. Plain words: "Period" → "Time range" ("Edit time range", "Show: Today / This week…"); help lines in everyday words, one idea per line, identical in Beginner and Professional (app-wide rule).
 7. Optional gap: a "Pending items" widget (overdue + open tasks); ask the owner when building.
+
+## Settings mock v3: APPROVED by owner (12 Nov 2026), build with this condition
+Mock: claude.ai/artifact/RqQwq5CgT1srfExuQPnP46 (incl. Professional features switches, 169 items in scratchpad pro-features.md; re-check the Home/Library counts).
+1. The "Bold · Pen · Read" preview illustration (a setting preview) pops out too much: redo it in calm theme colours/style, matching the design rules.

@@ -206,13 +206,13 @@ Today's reader (code in `src/reader/` and `src/app/reading/`) → new place. Lin
 | BookReader.tsx:935, 952                                          | Prev/next page (R04)                                                                          | Reader bar, edge taps RD-B42                              |
 | BookReader.tsx:969-981                                           | Text smaller/larger (R07)                                                                     | Aa › Font                                                 |
 | BookReader.tsx:990, 1009                                         | Scroll / Pages toggle (R05, R33)                                                              | Aa › Layout                                               |
-| BookReader.tsx:1017, FindPanel.tsx:56                            | Find in book (R08)                                                                            | Find bar, ✕ field, RD-B45                                 |
+| BookReader.tsx:1017, pdf/FindPanel.tsx:56                        | Find in book (R08)                                                                            | Find bar, ✕ field, RD-B45                                 |
 | BookReader.tsx:1028, ReaderInkBar.tsx:29                         | Pen / drawing bar (R09, R56 to R67)                                                           | Drawing bar, minimisable (RD-B05)                         |
 | ReaderInkBar.tsx:76, 103, 131                                    | Ink colour, size, type                                                                        | Pen ▾ card; Pro inkLook RD-P19                            |
-| BookReader.tsx:1047, PageFlip.tsx:74                             | Page Flip (R10, R11)                                                                          | Page Flip card; Back to p. N is RD-P04                    |
+| BookReader.tsx:1047, extras/PageFlip.tsx:74                      | Page Flip (R10, R11)                                                                          | Page Flip card; Back to p. N is RD-P04                    |
 | BookReader.tsx:1063, 1241                                        | Bookmark star and corner ribbon (R12, R13)                                                    | Reader bar star, ribbon kept                              |
 | BookReader.tsx:1071, BookPanel.tsx:56                            | Contents (R14, R69)                                                                           | Outline tab                                               |
-| BookReader.tsx:1079, AnnotationsPanel.tsx:32                     | Notes/Annotations (R15, R50 to R55)                                                           | Annotations tab                                           |
+| BookReader.tsx:1079, annotations/AnnotationsPanel.tsx:32         | Notes/Annotations (R15, R50 to R55)                                                           | Annotations tab                                           |
 | BookReader.tsx:1091                                              | Ask AI about the book (R16)                                                                   | RD-P05 (rework Won't do)                                  |
 | BookReader.tsx:1101, AaSheet.tsx:28                              | Aa sheet (R17, R25 to R38)                                                                    | Aa card; Style "Full" default                             |
 | BookReader.tsx:1113, pdfTools/PdfTools.tsx                       | PDF tools menu (organise, combine, scan, OCR)                                                 | Stays in More; Organise is the Pages grid                 |
@@ -229,7 +229,7 @@ Today's reader (code in `src/reader/` and `src/app/reading/`) → new place. Lin
 | BookReader.tsx:698-709 `onEdgeTap`                               | Edge tap and bar toggle (R79)                                                                 | RD-B42                                                    |
 | BookReader.tsx:710-735                                           | Double-tap zoom, corner overview (R80)                                                        | RD-P25, ZoomPreview.tsx:12                                |
 | pdf/PdfView.tsx:377                                              | Pinch zoom (R81)                                                                              | RD-P25                                                    |
-| BookReader.tsx:1475, SelectionPopup.tsx:12                       | Select pop-up (R38 to R49)                                                                    | Select pop-up; extras RD-P13                              |
+| BookReader.tsx:1475, annotations/SelectionPopup.tsx:12           | Select pop-up (R38 to R49)                                                                    | Select pop-up; extras RD-P13                              |
 | annotations/NoteSheet.tsx:6                                      | Note edit / delete (R52)                                                                      | Note dialog; sticky read view RD-B28                      |
 | annotations/SaveToSheet.tsx:18                                   | Save to… (R46)                                                                                | Same sheet with ✕                                         |
 | annotations/BulkCardsDialog.tsx:10                               | Cards from all highlights (R54)                                                               | RD-P16                                                    |
@@ -314,3 +314,11 @@ One surface group per commit; each ends with tests green and a mirror copy.
 8. **Eraser in the reader** appears in Beginner (owner A3); Lasso and Redo stay Pro (`reader.inkTools`) as in pro-features.md.
 9. **Audio tab** moves under + as a default custom tab (Beginner sees three tabs plus +). It is Pro only when a book has no recordings (`reader.resourcesTab`).
 10. **Mock differences:** the mock shows panel width and some colours without exact numbers; the build takes panel width from the shell left-panel spec, not the mock.
+
+## Storage changes needing approval (checked 12 Nov 2026)
+
+The build adds no database version. These spec lines need a type or table change in hot files, so their sub-slice parts wait for the owner/manager:
+
+- Sticky notes: `Annotation.kind` (src/core/types.ts:747) is `'highlight' | 'note' | 'bookmark'`; add `'sticky'` (type only, no index change).
+- 4-mode lock memory per book (decision 7): the book is a `Page` record (types.ts:134), which has no lock-mode field; add optional `readLockMode?` on `Page` (no index).
+- Restore original: needs one stored copy of the PDF bytes; proposal: optional `original?: ArrayBuffer` on `BookFile` (types.ts:713), under the 200 MB cap.

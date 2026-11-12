@@ -288,3 +288,10 @@ Mock: claude.ai/artifact/NqQG7z5SGyLv5YxnkArK9e (all owner comments on it are bu
 ## Settings mock v3: APPROVED by owner (12 Nov 2026), build with this condition
 Mock: claude.ai/artifact/RqQwq5CgT1srfExuQPnP46 (incl. Professional features switches, 169 items in scratchpad pro-features.md; re-check the Home/Library counts).
 1. The "Bold · Pen · Read" preview illustration (a setting preview) pops out too much: redo it in calm theme colours/style, matching the design rules.
+
+## Toolbar mock v6: APPROVED by owner (12 Nov 2026), build with these conditions
+Mock: claude.ai/artifact/UNS1UzPv4wb6errBrtpv4h (v6; sources and mapping in scratchpad v6\; old → new map in v6\mapping.md, 878 probes).
+1. Visible feedback for every setting change: the changed part glows briefly, new items slide/fade in, a toast with Undo, a tiny live preview per row (app-wide rule).
+2. Professional: "+" at the end of each tool row to pin any setting (reorder, rename, remove, group); overflow goes into "⋯ more pinned ▾", never sideways scroll; Beginner unchanged.
+3. The Box card opens beside the selected box, never over it.
+4. Remove the second minimise on the text box's own mini-bar; remove the top-bar Done if it has no purpose.

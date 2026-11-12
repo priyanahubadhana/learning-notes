@@ -6,6 +6,8 @@
 import { enPartsArrange } from './arrange'
 import { enPartsCore } from './core'
 import { enPartsDrag } from './drag'
+import { enPartsFeedback } from './feedback'
+import { enPartsMenus } from './menus'
 import { enPartsMisc } from './misc'
 
 export const enParts = {
@@ -13,4 +15,6 @@ export const enParts = {
   ...enPartsDrag,
   ...enPartsArrange,
   ...enPartsMisc,
+  ...enPartsMenus,
+  ...enPartsFeedback,
 }

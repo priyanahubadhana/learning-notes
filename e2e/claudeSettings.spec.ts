@@ -15,7 +15,7 @@ test.use({ viewport: { width: 1200, height: 800 } })
 test('off: honest privacy text, notebook choice, wrong passphrase is refused', async ({
   page,
 }) => {
-  const seen = await seeded(page, { on: false })
+  const seen = await seeded(page, { lockedShown: true, on: false })
   await page.goto('/#/settings/claude')
   const s = page.getByTestId('claude-section')
   await expect(
@@ -44,7 +44,7 @@ test('off: honest privacy text, notebook choice, wrong passphrase is refused', a
 test('on: shows the state and the apps; Revoke and Turn off work', async ({
   page,
 }) => {
-  const seen = await seeded(page, { on: true })
+  const seen = await seeded(page, { lockedShown: true, on: true })
   await page.goto('/#/settings/claude')
   const s = page.getByTestId('claude-section')
   await expect(s.getByTestId('claude-state')).toHaveText('On')
@@ -71,7 +71,7 @@ test('on: shows the state and the apps; Revoke and Turn off work', async ({
 })
 
 test('not set up on the server: says so plainly', async ({ page }) => {
-  await seeded(page, { on: false, available: false })
+  await seeded(page, { lockedShown: true, on: false, available: false })
   await page.goto('/#/settings/claude')
   await expect(page.getByTestId('claude-section')).toContainText(
     'not set up on the server yet',
@@ -80,7 +80,7 @@ test('not set up on the server: says so plainly', async ({ page }) => {
 
 test('works at phone width with no sideways scroll', async ({ page }) => {
   await page.setViewportSize({ width: 375, height: 700 })
-  await seeded(page, { on: true })
+  await seeded(page, { lockedShown: true, on: true })
   await page.goto('/#/settings/claude')
   await expect(page.getByTestId('claude-state')).toBeVisible()
   const wider = await page.evaluate(

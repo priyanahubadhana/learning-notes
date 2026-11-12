@@ -20,6 +20,9 @@ export async function seeded(
   opts: {
     on: boolean
     available?: boolean
+    /** The once-per-session "notebooks locked" pop-up counts as already shown
+     * (the seeded session is locked on purpose; the pop-up would cover the page). */
+    lockedShown?: boolean
     activity?: {
       at: number
       tool: string
@@ -46,6 +49,14 @@ export async function seeded(
     },
     [SESSION, EMAIL] as const,
   )
+  if (opts.lockedShown)
+    await page.context().addInitScript(() => {
+      try {
+        sessionStorage.setItem('attn.locked.shown', '1')
+      } catch {
+        // Storage blocked: nothing to preset.
+      }
+    })
   // A key copy exists on the server, so the app is in "type the passphrase" state.
   const bundle = JSON.stringify({
     v: 1,

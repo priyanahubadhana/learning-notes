@@ -2,6 +2,7 @@
 /// <reference lib="dom" />
 import { expect, test, type Page } from '@playwright/test'
 import { cornerAction, createNotebook } from './helpers.ts'
+import { UPDATE_LEVEL as MINE } from '../src/app/updateLevel.ts'
 
 /**
  * Update flow v2 (slice 10, flag update.v2): the must-have rule and the
@@ -57,7 +58,11 @@ const versionJson = (page: Page, body: object) =>
 test('U2 a higher level shows the notice with the reason and counts down', async ({
   page,
 }) => {
-  await versionJson(page, { commit: 'zzzz999', level: 2, reason: 'datafix' })
+  await versionJson(page, {
+    commit: 'zzzz999',
+    level: MINE + 1,
+    reason: 'datafix',
+  })
   await page.goto(FLAG)
   await expect(notice(page)).toBeVisible({ timeout: 5000 })
   await expect(notice(page)).toHaveAttribute('role', 'alertdialog')
@@ -76,7 +81,7 @@ test('U2 a higher level shows the notice with the reason and counts down', async
 test('U3 a skipped must-have version (level 2 above mine) still shows the notice', async ({
   page,
 }) => {
-  await versionJson(page, { commit: 'zzzz999', level: 3 })
+  await versionJson(page, { commit: 'zzzz999', level: MINE + 2 })
   await page.goto(FLAG)
   await expect(notice(page)).toBeVisible({ timeout: 5000 })
   await expect(notice(page)).toContainText(
@@ -86,9 +91,9 @@ test('U3 a skipped must-have version (level 2 above mine) still shows the notice
 
 for (const [name, body] of [
   ['no level', { commit: 'zzzz999' }],
-  ['a text level', { commit: 'zzzz999', level: '2' }],
-  ['a lower level', { commit: 'zzzz999', level: 0 }],
-  ['the same level', { commit: 'zzzz999', level: 1 }],
+  ['a text level', { commit: 'zzzz999', level: String(MINE + 1) }],
+  ['a lower level', { commit: 'zzzz999', level: MINE - 1 }],
+  ['the same level', { commit: 'zzzz999', level: MINE }],
 ] as const) {
   test(`U1/U4 ${name}: no full-screen notice`, async ({ page }) => {
     await versionJson(page, body)
@@ -211,7 +216,7 @@ test('U11 a second tab that upgraded the notes asks this tab to update', async (
 test('U13 flag off: the old screen and the marker rule only', async ({
   page,
 }) => {
-  await versionJson(page, { commit: 'zzzz999', level: 5 })
+  await versionJson(page, { commit: 'zzzz999', level: MINE + 4 })
   await start(page, '/')
   await page.waitForTimeout(3500)
   await expect(notice(page)).toHaveCount(0)
@@ -277,7 +282,7 @@ test('U14 About shows version, level, last check and Check for updates now', asy
   await openAbout(page)
   const about = page.locator('[data-about]')
   await expect(about).toContainText('Version ')
-  await expect(about).toContainText('Update level 1')
+  await expect(about).toContainText(`Update level ${MINE}`)
   await about.getByRole('button', { name: 'Check for updates now' }).click()
   await expect(about).toContainText('Last checked for updates:', {
     timeout: 15_000,
@@ -288,7 +293,7 @@ test('U14 a check that finds a must-have version starts the notice', async ({
   page,
 }) => {
   await openAbout(page)
-  await versionJson(page, { commit: 'zzzz999', level: 2 })
+  await versionJson(page, { commit: 'zzzz999', level: MINE + 1 })
   await page
     .locator('[data-about]')
     .getByRole('button', { name: 'Check for updates now' })

@@ -1,10 +1,12 @@
 [
+  "ai -> aibuild",
   "ai -> capture",
   "ai -> editor",
   "ai -> prompts",
   "ai -> reader",
   "ai -> recall",
   "ai -> sync",
+  "aibuild -> aitools",
   "aitools -> ..",
   "aitools -> connector",
   "anki -> editor",

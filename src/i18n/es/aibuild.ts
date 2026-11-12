@@ -87,8 +87,7 @@ export const esAiBuild = {
   'aifw.paste.submit': 'Usar esta respuesta',
   'aifw.paste.notNow': 'Ahora no',
   'aifw.paste.bad': 'Esa respuesta no encaja en este paso:',
-  'aifw.paste.repair':
-    'La última respuesta no encajaba. Pega una corregida.',
+  'aifw.paste.repair': 'La última respuesta no encajaba. Pega una corregida.',
   'aifw.paste.empty': 'Pega primero la respuesta.',
   'aifw.paste.json': 'Eso no es JSON válido.',
   'aifw.paste.object': 'La respuesta debe ser un objeto JSON.',

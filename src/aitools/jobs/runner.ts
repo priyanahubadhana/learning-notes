@@ -553,21 +553,21 @@ export class JobRunner {
     signal: AbortSignal,
   ) {
     const ctl = new AbortController()
-    const onAbort = () => ctl.abort()
-    signal.addEventListener('abort', onAbort)
+    // The run's own signal: only one wait uses it at a time (no shared listeners).
+    signal.onabort = () => ctl.abort()
     const timer = setTimeout(
       () => ctl.abort(),
       this.fillTimeoutMs ?? tool.limits.timeoutMs,
     )
     try {
-      const timeout = new Promise<never>((_, reject) =>
-        ctl.signal.addEventListener('abort', () =>
-          reject(
-            signal.aborted
-              ? new Error('aborted')
-              : new StepError('timeout', 'The step took too long.'),
-          ),
-        ),
+      const timeout = new Promise<never>(
+        (_, reject) =>
+          (ctl.signal.onabort = () =>
+            reject(
+              signal.aborted
+                ? new Error('aborted')
+                : new StepError('timeout', 'The step took too long.'),
+            )),
       )
       return await Promise.race([
         this.filler.fill({ stepId: step.id, tool, args, repair }, ctl.signal),
@@ -575,7 +575,7 @@ export class JobRunner {
       ])
     } finally {
       clearTimeout(timer)
-      signal.removeEventListener('abort', onAbort)
+      signal.onabort = null
     }
   }
 

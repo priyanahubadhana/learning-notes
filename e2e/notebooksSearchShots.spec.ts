@@ -55,6 +55,20 @@ for (const level of ['beginner', 'professional'] as const)
         await page.screenshot({
           path: `${OUT}/home-strip-${level}-${theme}-${size}.png`,
         })
+        await page.keyboard.press('Escape')
+        await page.keyboard.press('Control+K')
+        const popup = page.getByRole('dialog', { name: 'Search' })
+        await popup.waitFor()
+        await page.keyboard.type('cells')
+        await page.waitForTimeout(500)
+        await page.screenshot({
+          path: `${OUT}/search-${level}-${theme}-${size}.png`,
+        })
+        await popup.getByTestId('srv2-row').first().click({ button: 'right' })
+        await page.waitForTimeout(400)
+        await page.screenshot({
+          path: `${OUT}/search-strip-${level}-${theme}-${size}.png`,
+        })
       })
     }
 

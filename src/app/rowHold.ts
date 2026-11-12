@@ -1,6 +1,6 @@
 import { useEffect, useRef } from 'react'
-import { getGestureRouter, type Claimant } from '../../app/input/gestureRouter'
-import { overlay } from '../../app/overlay'
+import { getGestureRouter, type Claimant } from './input/gestureRouter'
+import { overlay } from './overlay'
 
 /** Marks a row that opens the Context menu strip: `data-hold="kind:id"`. */
 export const HOLD_ATTR = 'data-hold'

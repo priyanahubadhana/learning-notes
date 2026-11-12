@@ -34,7 +34,7 @@ import {
 import { Cover, StarButton } from '../NotebooksHome'
 import { ContinueStrip } from './ContinueStrip'
 import { continueList, filterByName, moveState } from './homeLogic'
-import { holdJustFired, rightClickInfo, useRowHold } from './rowHold'
+import { holdJustFired, rightClickInfo, useRowHold } from '../../app/rowHold'
 import { openedLabel, usePageCount } from './openedLabel'
 import { notebookStripItems } from './strips'
 import { tn } from './tn'

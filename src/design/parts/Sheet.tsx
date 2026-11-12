@@ -10,13 +10,16 @@ import {
 } from 'react'
 import { createPortal } from 'react-dom'
 import { Icon } from '../../app/tools/icons'
-import { overlay, trapFocus } from '../../app/overlay'
+import { openInTopLayer, trapFocus } from '../../app/overlay'
 import { motionMs } from './motion'
 import { tf } from './textFeedback'
-import { popoverAttr, sheetDocks, showTop } from './topLayer'
 import './Sheet.css'
 
 const OUT_MS = 180
+
+/** The sheet docks beside the page from this width up; below it, it fills the screen. */
+const SHEET_DOCK_MIN = 1024
+const sheetDocks = (width = window.innerWidth) => width >= SHEET_DOCK_MIN
 const SWIPE = 80
 
 export interface SheetProps {
@@ -67,7 +70,6 @@ export function Sheet(props: SheetProps) {
     if (mode !== 'floating') return
     const el = ref.current
     if (!el) return
-    showTop(el)
     let live = true
     const opener =
       props.opener ??
@@ -75,15 +77,14 @@ export function Sheet(props: SheetProps) {
         ? document.activeElement
         : null)
     const docked = sheetDocks()
-    const handle = overlay.open({
+    const handle = openInTopLayer(el, {
       id,
       layer: 'sheet',
-      close: () => {
+      onClose: () => {
         if (live) requestClose()
       },
       // Docked: a tap on the page beside it does not close it.
-      inside: (n) =>
-        docked || el.contains(n) || !!(n as Element).closest?.('.fb-toasts'),
+      inside: (n) => docked || !!(n as Element).closest?.('.fb-toasts'),
       opener,
     })
     const release = docked ? null : trapFocus(el, opener)
@@ -123,7 +124,6 @@ export function Sheet(props: SheetProps) {
       role="dialog"
       aria-modal={mode === 'floating' && !sheetDocks() ? 'true' : undefined}
       aria-labelledby={`${id}-title`}
-      popover={mode === 'floating' ? popoverAttr() : undefined}
       tabIndex={-1}
       onPointerDown={down}
       onPointerUp={up}

@@ -8,7 +8,7 @@ import {
   type KeyboardEvent,
 } from 'react'
 import { createPortal } from 'react-dom'
-import { overlay, type Rect } from '../../app/overlay'
+import { openInTopLayer, type Rect } from '../../app/overlay'
 import { Icon, type IconName } from '../../app/tools/icons'
 import { CommandList } from './CommandList'
 import type { Command, CommandGroup } from './commandListLogic'
@@ -20,7 +20,6 @@ import {
 } from './contextStripPlace'
 import { useLevel } from '../../settings/level'
 import { motionMs } from './motion'
-import { popoverAttr, showTop } from './topLayer'
 import { tm } from './textMenus'
 import { useAnchoredCard } from './useAnchoredCard'
 import './ContextStrip.css'
@@ -174,24 +173,19 @@ export function ContextStrip(props: ContextStripProps) {
     opener?.focus?.()
   }, [opener])
 
-  useLayoutEffect(() => {
-    if (floating) showTop(rootRef.current)
-  }, [floating])
-
   // Overlay: Esc and a tap outside close the strip (and a picker first).
-  useEffect(() => {
-    if (!floating) return
+  useLayoutEffect(() => {
+    const el = rootRef.current
+    if (!floating || !el) return
     let live = true
     closingRef.current = false
-    const el = rootRef.current
-    handleRef.current = overlay.open({
+    handleRef.current = openInTopLayer(el, {
       id: 'ctx-strip',
       layer: 'menu',
       opener,
-      close: () => {
+      onClose: () => {
         if (live) request()
       },
-      inside: (n) => !!el && el.contains(n),
     })
     return () => {
       live = false
@@ -310,7 +304,6 @@ export function ContextStrip(props: ContextStripProps) {
   const bar = (
     <div
       ref={rootRef}
-      popover={floating ? popoverAttr() : undefined}
       className="cs"
       data-testid={props.testId ?? 'context-strip'}
       data-mode={mode}
@@ -442,20 +435,16 @@ function FloatingPicker(props: {
     closeRef.current = onClose
   })
   useLayoutEffect(() => {
-    showTop(node)
-  }, [node])
-  useEffect(() => {
     if (!node) return
     let live = true
-    const handle = overlay.open({
+    const handle = openInTopLayer(node, {
       id: 'ctx-picker',
       layer: 'card',
       parentId: 'ctx-strip',
       opener: anchor,
-      close: () => {
+      onClose: () => {
         if (live) closeRef.current()
       },
-      inside: (n) => node.contains(n),
     })
     return () => {
       live = false
@@ -513,7 +502,6 @@ function PickerCard(props: {
     <div
       ref={(el) => props.onNode?.(el)}
       className="cs-pick"
-      popover={props.inline ? undefined : popoverAttr()}
       data-testid="cs-picker"
       data-inline={props.inline || undefined}
       style={props.style}

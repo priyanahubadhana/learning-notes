@@ -1,11 +1,29 @@
 import { useEffect, useLayoutEffect, useRef, useState } from 'react'
 import { createPortal } from 'react-dom'
 import { Icon } from '../../app/tools/icons'
-import { stackPositions, type ToastItem } from '../../app/overlay'
+import {
+  createOverlayManager,
+  openInTopLayer,
+  stackPositions,
+  type OverlayHandle,
+  type ToastItem,
+} from '../../app/overlay'
 import { type Toasts } from './toastLogic'
 import { tf } from './textFeedback'
-import { popoverAttr, raiseTop, showTop } from './topLayer'
 import './ToastStack.css'
+
+/**
+ * Toasts take the top layer but never join the real overlay manager: Esc and
+ * outside taps belong to the dialog or sheet under them. A private manager
+ * with no listeners gives them `openInTopLayer` alone.
+ */
+const toastLayer = createOverlayManager({
+  onEscape: () => () => {},
+  onPointerDown: () => () => {},
+  onBackground: () => () => {},
+})
+const openToastLayer = (el: HTMLElement): OverlayHandle =>
+  openInTopLayer(el, { id: 'toasts', layer: 'toast' }, toastLayer)
 
 const AVOID_SELECTOR =
   '[data-toast-avoid], .fb-sheet[data-mode="floating"] .fb-sheet__foot, .fb-dialog-layer .fb-dialog__foot, h1'
@@ -63,14 +81,27 @@ export function ToastStack({
     itemsRef.current = items
   })
 
+  const layerRef = useRef<OverlayHandle | null>(null)
   useEffect(() => {
-    if (mode === 'floating') showTop(regionRef.current)
+    const el = regionRef.current
+    if (mode !== 'floating' || !el) return
+    layerRef.current = openToastLayer(el)
+    return () => {
+      layerRef.current?.close()
+      layerRef.current = null
+    }
   }, [mode])
 
-  // A new toast must sit above a dialog that opened before it.
+  // A new toast must sit above a dialog that opened before it (open again = raised).
   useLayoutEffect(() => {
-    if (mode === 'floating' && items.length > seen.current)
-      raiseTop(regionRef.current)
+    const el = regionRef.current
+    if (
+      mode === 'floating' &&
+      el &&
+      items.length > seen.current &&
+      layerRef.current
+    )
+      layerRef.current = openToastLayer(el)
     seen.current = items.length
   }, [items.length, mode])
 
@@ -120,7 +151,6 @@ export function ToastStack({
       ref={regionRef}
       className="fb-toasts"
       data-mode={mode}
-      popover={mode === 'floating' ? popoverAttr() : undefined}
       role="status"
       aria-live="polite"
       aria-label={tf('parts.fb.toasts')}

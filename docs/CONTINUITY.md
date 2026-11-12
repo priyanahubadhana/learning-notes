@@ -17,7 +17,7 @@ Owner request (12 Nov 2026): work must survive a power cut, the PC turning off, 
 
 | Event                               | What survives                              | How work resumes                                                                                                                                                                                                                                                        |
 | ----------------------------------- | ------------------------------------------ | ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| **Power cut / PC off**              | everything pushed to GitHub; local commits | Open VS Code → Claude → type `/next` (or "continue"). The new session reads PENDING + CHANGELOG + git log and restarts unfinished helpers from their last commit. At most the last few minutes of one helper are redone.                                                |
+| **Power cut / PC off**              | everything pushed to GitHub; local commits | Open VS Code → Claude → type `/next` (or "continue"). The new session (`/next`) reads HANDOFF + INDEX + PENDING + git log and restarts unfinished helpers from their last commit. At most the last few minutes of one helper are redone.                                |
 | **Claude window closed by mistake** | same as above; running helpers stop        | Reopen and say "continue". Prefer resuming the same chat (Claude Code's resume / chat history) so the context returns.                                                                                                                                                  |
 | **Internet lost**                   | everything local                           | Helpers pause; when online again, say "continue". Pushes happen on the next step.                                                                                                                                                                                       |
 | **Usage limit reached**             | all saved work                             | The manager schedules a restart at the reset time and resumes the stopped helpers from where they stopped (no new work started). Note: that scheduled restart lives only while this Claude window stays open; if the window was closed, say "continue" after the reset. |
@@ -30,7 +30,7 @@ Owner request (12 Nov 2026): work must survive a power cut, the PC turning off, 
 2. Update `docs/PENDING.md` when a task starts, changes or ends.
 3. Approved or in-progress mock-ups are copied to `docs/mockups/` and committed.
 4. Each helper works in its own worktree and branch, so a crash never mixes half-done work into main.
-5. On restart, first read PENDING + CHANGELOG + `git log -20`, then continue; never redo finished work.
+5. On restart, first read HANDOFF + PENDING + `git log -20`, then continue; never redo finished work.
 6. The quality rules (`rules/quality.md`) apply after a restart exactly as before: same checks, same 3 gates.
 
 ## Restart checklist for the owner (30 seconds)

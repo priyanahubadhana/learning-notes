@@ -20,6 +20,16 @@ Learning Notes App: a premium, minimal second brain (Notion + OneNote + Anki). E
 
 - Every task: main manager **Fable** (`.claude/agents/fable-manager.md`) → **Opus** sub-managers (`opus-submanager-ui/-build/-qa`) → **Sonnet/Haiku** executors. Parallel when files do not overlap. The manager verifies quality and delivers one final report.
 - Usage limit hit: stopped helpers are resumed automatically when the limit resets (a scheduled wake-up), and every step is saved to git and `docs/PENDING.md` so nothing is lost.
+- Build phase: Fable is the top orchestrator (designs the system first, then delegates slices to Opus sub-managers → Sonnet builders).
+
+## Always Apply (owner never repeats these)
+
+Every task, every helper brief, every session, including after a restart:
+
+- **Quality:** [rules/quality.md](rules/quality.md): one design system, spec before code, Definition of Done, tests stop the line, 3 gates.
+- **Design:** docs/design/quality-standard.md, docs/design/owner-ui-patterns.md, docs/plans/mock-feedback-2026-11-11.md, and the approved conditions in docs/PENDING.md (calm, ▾ menus, ✕ everywhere, Undo/Redo, plain identical words in both modes, explanations as pop-ups, visible feedback on every change, live-reflow drag, every Professional feature unlockable, never drop a feature).
+- **Continuity:** [docs/CONTINUITY.md](docs/CONTINUITY.md): small commits, PENDING always current, mock-ups in docs/mockups/, own worktree per helper, resume from the last commit. The owner only needs to type "continue".
+- **Owner comments on mock-ups:** read every open comment and give each one to the helper; verify each in a browser before saying done.
 
 ## Things We Said No To (for now)
 

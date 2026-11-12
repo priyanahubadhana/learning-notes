@@ -1,14 +1,8 @@
 import { useAiTick } from '../../ai/aiOffStore'
 import { listKeys } from '../../ai/keyStore'
-import type { ProviderId } from '../../ai/provider'
 import { t, type MessageKey } from '../../i18n/t'
+import { aiListOrder } from './aiListOrder'
 import { tv } from './tv'
-
-/** Claude first, then every other AI that has a saved key (SET-B25). */
-export function aiListOrder(providers: ProviderId[]): string[] {
-  const others = [...new Set(providers)].filter((p) => p !== 'anthropic')
-  return ['claude', ...others]
-}
 
 /** "Let AI use my notebooks": which AIs are connected; Claude is listed first. */
 export function ConnectedAiList() {

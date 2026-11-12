@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest'
-import { aiListOrder } from './ConnectedAiList'
+import { aiListOrder } from './aiListOrder'
 
 describe('Connected AI list order (SET-B25)', () => {
   it('lists Claude first whatever else is connected', () => {

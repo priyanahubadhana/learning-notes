@@ -174,4 +174,10 @@ export const hiSettingsV3 = {
   'sv3.why': 'क्यों?',
   'sv3.why.label': 'क्यों? {title}',
   'sv3.cancel': 'रद्द करें',
+  'sv3.aiNotebooks.title': 'AI को मेरी नोटबुक इस्तेमाल करने दें',
+  'sv3.aiNotebooks.help':
+    'चुनें कि कौन-सा AI आपकी नोटबुक पढ़ सकता है। Claude सबसे पहले है। पुराना नाम, Claude को मेरे नोट इस्तेमाल करने दें, खोज में अब भी मिलता है।',
+  'sv3.pencil.title': 'पेंसिल और स्पर्श',
+  'sv3.pencil.lead':
+    'लिखते, चुनते और स्क्रॉल करते समय Apple Pencil और आपकी उंगली क्या करती हैं।',
 }

@@ -175,4 +175,10 @@ export const esSettingsV3 = {
   'sv3.why': '¿Por qué?',
   'sv3.why.label': '¿Por qué? {title}',
   'sv3.cancel': 'Cancelar',
+  'sv3.aiNotebooks.title': 'Dejar que la IA use mis cuadernos',
+  'sv3.aiNotebooks.help':
+    'Elige qué IA puede leer tus cuadernos. Claude va primero. El nombre antiguo, Dejar que Claude use mis notas, sigue encontrándolo.',
+  'sv3.pencil.title': 'Lápiz y tacto',
+  'sv3.pencil.lead':
+    'Qué hacen el Apple Pencil y tu dedo al escribir, seleccionar y desplazar.',
 }

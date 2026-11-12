@@ -99,7 +99,10 @@ function SettingsV3Body({
     count: s.kind === 'rows' ? inSection(visible, s.id).length : undefined,
   }))
   const section = sections.find((s) => s.id === current)
-  const rows = section?.kind === 'rows' ? inSection(visible, current) : []
+  const rows =
+    section?.kind === 'rows' || section?.kind === 'help'
+      ? inSection(visible, current)
+      : []
   const [moved, setMoved] = useState<string | undefined>(undefined)
   // The page tabs sit after the space switches (or last when those are hidden).
   const tabsAfter =
@@ -208,9 +211,9 @@ function SettingsV3Body({
               onOpen={openHit}
             />
           )}
-          {!searching && section?.kind === 'rows' && section.lead && (
-            <p className="sv3-lead">{section.lead}</p>
-          )}
+          {!searching &&
+            (section?.kind === 'rows' || section?.kind === 'help') &&
+            section.lead && <p className="sv3-lead">{section.lead}</p>}
           {!searching && section?.kind === 'experience' && (
             <ExperienceSection
               onMoved={() => {
@@ -220,12 +223,6 @@ function SettingsV3Body({
             />
           )}
           {!searching && section?.kind === 'pro' && <ProFeatures />}
-          {!searching && section?.kind === 'help' && (
-            <>
-              {section.lead && <p className="sv3-lead">{section.lead}</p>}
-              <HelpSection onShow={openHit} />
-            </>
-          )}
           {!searching &&
             rows.map((s) => (
               <Fragment key={s.id}>
@@ -239,6 +236,9 @@ function SettingsV3Body({
                 {tabsAfter === s.id && <PageTabsEditor />}
               </Fragment>
             ))}
+          {!searching && section?.kind === 'help' && (
+            <HelpSection onShow={openHit} />
+          )}
           {!searching && rows.length > 0 && section && (
             <SectionReset db={db} sectionName={section.label} rows={rows} />
           )}

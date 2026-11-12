@@ -3,7 +3,7 @@ import { AppUiContext } from '../../app/appUi'
 import type { LearningNotesDB } from '../../core/db'
 import type { JsonValue } from '../../core/types'
 import { t } from '../../i18n/t'
-import { settingsRegistry } from '../builtinSettings'
+import { sectionIdsOf, sectionLabel } from './sections'
 import type { SettingDefinition } from '../registry'
 import { SettingSyncBadge } from '../SettingSyncBadge'
 import { setSetting } from '../settingsService'
@@ -79,12 +79,9 @@ function RowBody({
   }
   const isDefault =
     JSON.stringify(value) === JSON.stringify(definition.defaultValue)
-  const others = [definition.category, ...(definition.alsoIn ?? [])]
+  const others = sectionIdsOf(definition)
     .filter((c) => c !== section)
-    .map((c) => {
-      const cat = settingsRegistry.categories().find((x) => x.id === c)
-      return cat ? t(cat.labelKey) : c
-    })
+    .map((c) => sectionLabel(c))
 
   // A change after the first showing (from here or another window or device).
   const [glow, setGlow] = useState(() => (takeJustShown(definition.id) ? 1 : 0))

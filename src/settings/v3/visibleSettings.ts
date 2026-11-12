@@ -4,6 +4,7 @@ import { settingsRegistry } from '../builtinSettings'
 import type { SettingDefinition } from '../registry'
 import { getSetting } from '../settingsService'
 import { rowShown, useGateVersion } from './experience'
+import { sectionIdsOf } from './sections'
 
 /**
  * The settings Settings v3 lists: the same registry as today's screen, minus
@@ -44,6 +45,5 @@ export function inSection(
   visible: SettingDefinition[],
   sectionId: string,
 ): SettingDefinition[] {
-  const ids = new Set(settingsRegistry.inCategory(sectionId).map((s) => s.id))
-  return visible.filter((s) => ids.has(s.id))
+  return visible.filter((s) => sectionIdsOf(s).includes(sectionId))
 }

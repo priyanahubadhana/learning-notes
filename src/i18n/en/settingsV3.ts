@@ -174,4 +174,10 @@ export const enSettingsV3 = {
   'sv3.why': 'Why?',
   'sv3.why.label': 'Why? {title}',
   'sv3.cancel': 'Cancel',
+  'sv3.aiNotebooks.title': 'Let AI use my notebooks',
+  'sv3.aiNotebooks.help':
+    'Choose which AI can read your notebooks. Claude comes first. The old name, Let Claude use my notes, still finds this.',
+  'sv3.pencil.title': 'Pencil & touch',
+  'sv3.pencil.lead':
+    'What the Apple Pencil and your finger do when you write, select and scroll.',
 }

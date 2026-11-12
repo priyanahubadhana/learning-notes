@@ -203,7 +203,7 @@ const ROWS: [id: string, section: string][] = [
   ['toolbar.newLineHold', 'toolbar'],
   ['toolbar.pillReset', 'toolbar'],
   ['toolbar.reset', 'toolbar'],
-  ['advanced.holdMenu', 'advanced'],
+  ['advanced.holdMenu', 'pencil'],
   ['reading.pdfFlow', 'reading'],
   ['reading.bar', 'reading'],
   ['reading.barPin', 'reading'],

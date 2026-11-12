@@ -37,6 +37,13 @@ export function virtualRows(): VirtualRow[] {
       keywords: 'professional features switch unlock beginner',
     },
     {
+      id: 'claude.section',
+      section: 'claude',
+      name: tv('sv3.aiNotebooks.title'),
+      help: tv('sv3.aiNotebooks.help'),
+      keywords: 'let claude use my notes claude connected ai api connector mcp',
+    },
+    {
       id: 'help.tours',
       section: 'help',
       name: tv('sv3.tours.title'),

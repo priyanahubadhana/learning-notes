@@ -1391,6 +1391,7 @@ function App() {
         runTask(db.annotations.get(id).then((a) => a && openAnnotation(a)))
       }
       onOpenNotebooks={() => chooseSpace('notebooks')}
+      onStart={(next) => openReview(next)}
       onClose={() => setReviewScope(null)}
     />
   )

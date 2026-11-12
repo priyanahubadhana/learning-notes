@@ -1,6 +1,7 @@
 import {
   cloneElement,
   useCallback,
+  useRef,
   useState,
   type CSSProperties,
   type ReactElement,
@@ -10,7 +11,8 @@ import { t } from '../../i18n/t'
 import { SidebarResizer } from '../SidebarResizer'
 import type { Space } from '../spaces/spaces'
 import { OverSide, PanelSlot, SideSlot } from './ColumnSlots'
-import { columnsFor, effectiveSidebarWidth } from './columns'
+import { columnsFor, effectiveSidebarWidth, panelLeft } from './columns'
+import { usePanelOverlay } from './usePanelOverlay'
 import { type GearActions } from './GearMenu'
 import { Rail } from './Rail'
 import { ShellTopBar } from './ShellTopBar'
@@ -97,7 +99,14 @@ export default function Shell(p: ShellProps) {
   const [overAt, setOverAt] = useState<string | null>(null)
   const sideOver = overAt === routeKey
   const panelShown = hasPanel && panelOpen
-  const base = { width, height, sidebarHidden, panelOpen: panelShown }
+  const drawn = effectiveSidebarWidth(sidebarWidth)
+  const base = {
+    width,
+    height,
+    sidebarHidden,
+    panelOpen: panelShown,
+    sidebarWidth: drawn,
+  }
   const cols = columnsFor({ ...base, sideOver })
   const stepped = columnsFor({ ...base, sideOver: false }).steppedAside
 
@@ -105,11 +114,14 @@ export default function Shell(p: ShellProps) {
   const closePanel = useCallback(() => onPanelOpen(false), [onPanelOpen])
   useEscape(cols.sidebar === 'over', closeOver)
   useEscape(cols.phone && cols.panel === 'over', closePanel)
+  // Beside the page there was no room to dock the panel: it opens over the page.
+  const panelOver = !cols.phone && cols.panel === 'over'
+  const panelWrap = useRef<HTMLDivElement | null>(null)
+  usePanelOverlay(panelOver, panelWrap, closePanel)
 
   const toggleSidebar = () =>
     stepped ? setOverAt(sideOver ? null : routeKey) : onToggleSidebar()
   const sidebarOff = stepped ? !sideOver : sidebarHidden
-  const drawn = effectiveSidebarWidth(sidebarWidth)
 
   const nav = {
     spaces,
@@ -145,7 +157,12 @@ export default function Shell(p: ShellProps) {
             <SidebarResizer width={drawn} onChange={onSidebarWidth} />
           </div>
         )}
-        <PanelSlot cols={cols} render={(o) => cloneElement(panel, o)} />
+        <PanelSlot
+          cols={cols}
+          wrapRef={panelWrap}
+          left={panelLeft(cols.sidebar === 'docked' ? drawn : null)}
+          render={(o) => cloneElement(panel, o)}
+        />
         <div className="sh-main">
           {/* One glass layer for the top bar and the tool bar (blur budget).
               It is a sibling behind the bars, so a floating bar inside is

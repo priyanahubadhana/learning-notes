@@ -1,4 +1,4 @@
-import type { CSSProperties, ReactNode } from 'react'
+import type { CSSProperties, ReactNode, Ref } from 'react'
 import { t } from '../../i18n/t'
 import { COLUMN_WIDTH, type Columns } from './columns'
 
@@ -64,14 +64,28 @@ export function OverSide({
 export function PanelSlot({
   cols,
   render,
+  wrapRef,
+  left,
 }: {
   cols: Columns
+  wrapRef?: Ref<HTMLDivElement>
+  /** Where a panel over the page starts (px from the left). */
+  left?: number
   render: (o: { docked: boolean; width: number }) => ReactNode
 }) {
   if (cols.panel === 'hidden') return null
   const docked = cols.panel === 'docked'
   return (
-    <div className="sh-panelwrap" data-state={cols.panel}>
+    <div
+      ref={wrapRef}
+      className="sh-panelwrap"
+      data-state={cols.panel}
+      style={
+        !docked && !cols.phone && left !== undefined
+          ? ({ '--panel-left': `${left}px` } as CSSProperties)
+          : undefined
+      }
+    >
       {render({ docked, width: COLUMN_WIDTH })}
     </div>
   )

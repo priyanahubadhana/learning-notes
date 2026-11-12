@@ -190,10 +190,10 @@ test('SH-08 the pages panel docks beside the page at 288 px', async ({
   expect(Math.round(box?.width ?? 0)).toBe(286) // 288 less its 1 px card border on each side
 })
 
-test('SH-07/08 on an iPad portrait the open panel takes the place of the sidebar, which opens over the page', async ({
+test('SH-07/08 at 1024 the open panel takes the place of the sidebar, which opens over the page', async ({
   page,
 }) => {
-  await withPage(page, { width: 820, height: 1180 })
+  await withPage(page, { width: 1024, height: 768 })
   await top(page).getByTestId('panel-toggle').click()
   await expect(page.getByTestId('left-panel')).toBeVisible()
   await expect(side(page)).toBeHidden()
@@ -312,4 +312,62 @@ test('SH-04 the top bar says Saved while a page is open, and nothing otherwise',
   await expect(top(page).locator('.sh-status')).toHaveCount(0)
   await createNotebook(page, 'Biology', 'Cells')
   await expect(top(page).locator('.sh-status')).toHaveText('Saved')
+})
+
+const mainWidth = async (page: Page) =>
+  Math.round((await page.locator('.sh-main').boundingBox())?.width ?? 0)
+
+test('SH-08 iPad landscape 1180: the panel opens over the page and the page keeps its writing width', async ({
+  page,
+}) => {
+  await withPage(page, { width: 1180, height: 820 })
+  expect(await mainWidth(page)).toBeGreaterThanOrEqual(600)
+  const before = await mainWidth(page)
+  await top(page).getByTestId('panel-toggle').click()
+  const panel = page.getByTestId('left-panel')
+  await expect(panel).toBeVisible()
+  await expect(side(page)).toBeVisible()
+  // Over the page: the page does not shrink, and the panel starts after the sidebar.
+  expect(await mainWidth(page)).toBe(before)
+  const sideBox = await side(page).boundingBox()
+  const box = await panel.boundingBox()
+  expect(box?.x ?? 0).toBeGreaterThanOrEqual(
+    (sideBox?.x ?? 0) + (sideBox?.width ?? 0),
+  )
+  await page.keyboard.press('Escape')
+  await expect(panel).toBeHidden()
+  await top(page).getByTestId('panel-toggle').click()
+  await expect(panel).toBeVisible()
+  await page
+    .locator('[data-page-scroller]')
+    .click({ position: { x: 700, y: 300 } })
+  await expect(panel).toBeHidden()
+})
+
+test('SH-08 iPad portrait 820: the sidebar sits on the rail and the panel opens over the page', async ({
+  page,
+}) => {
+  await withPage(page)
+  await page.setViewportSize({ width: 820, height: 1180 })
+  await expect(side(page)).toBeHidden()
+  expect(await mainWidth(page)).toBeGreaterThanOrEqual(600)
+  const before = await mainWidth(page)
+  await top(page).getByTestId('panel-toggle').click()
+  await expect(page.getByTestId('left-panel')).toBeVisible()
+  expect(await mainWidth(page)).toBe(before)
+  await page.keyboard.press('Escape')
+  await expect(page.getByTestId('left-panel')).toBeHidden()
+  await top(page).getByRole('button', { name: 'Show menu' }).click()
+  await expect(side(page)).toBeVisible()
+  await expect(page.getByTestId('shell-scrim')).toBeVisible()
+})
+
+test('SH-08 1366 wide still docks both and the page keeps 600 or more', async ({
+  page,
+}) => {
+  await withPage(page, { width: 1366, height: 800 })
+  await top(page).getByTestId('panel-toggle').click()
+  await expect(page.getByTestId('left-panel')).toBeVisible()
+  await expect(side(page)).toBeVisible()
+  expect(await mainWidth(page)).toBeGreaterThanOrEqual(600)
 })

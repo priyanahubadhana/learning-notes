@@ -342,3 +342,7 @@ Mock: claude.ai/artifact/UNS1UzPv4wb6errBrtpv4h; sources docs/mockups/toolbar-v8
 - Old ideas: layers, shrink a box to scale its text, snapshot Lasso → mock-up batch 3; update bar → batch 6.
 - BUG-001 / BUG-002 = fix within the build (no work on the current app now; saves tokens).
 - Owner: PLANNING ONLY now; execution later in auto mode (owner sleeps).
+
+## Build master plan (Fable, 12 Nov 2026): waiting for the owner's answers
+
+Plan: [plans/build-master-plan.md](plans/build-master-plan.md). Nothing built. Text box v2 decision: keep the layout engine and saved data, rebuild the touch / select / drag layer on the new foundation. Before the first night the owner answers the 8 questions in section 8 (release route, Fable and credits, GitHub test minutes, picks for batches 2 to 6, text box v2, new-page card, on-device database changes, PC stays on). Then say "start the build".

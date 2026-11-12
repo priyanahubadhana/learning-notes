@@ -2,6 +2,12 @@
 
 Current phase only. Older entries are in [ARCHIVE.md](ARCHIVE.md).
 
+## 2026-11-12 (Build master plan)
+
+- **What:** one complete plan for the rebuild: remaining mock-up batches 1 to 6 (with the owner's batch 1 answers), build slice 0 (4 root causes, shared parts, shell, tool registry base), slices per area with spec, Definition of Done, tests, flag and rollback, lanes and models, continuity, the first-night run list and 8 owner questions. Text box v2: keep the layout engine, rebuild the touch layer. Plan only, no app code.
+- **Why:** the owner wants execution to run later in auto mode overnight without stopping to ask.
+- **Files:** docs/plans/build-master-plan.md, docs/INDEX.md, docs/PENDING.md, docs/CHANGELOG.md.
+
 ## 2026-11-12 (Triple tap in a box picked the whole paragraph on iPad)
 
 - **What:** the visual-line measure looks through overlays (a box's resize handles) at the row edges while it measures.

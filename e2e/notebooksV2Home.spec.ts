@@ -293,13 +293,29 @@ test('NB-B13 with no notebook left there is no blank screen, and Undo brings it 
     .getByTestId('nbv2-delete-dialog')
     .getByRole('button', { name: 'Move to Trash' })
     .click()
-  // Today the app itself shows its empty page (with New notebook) here.
+  // The new home's own Empty state shows, not the old app-level one.
+  await expect(home(page).getByTestId('nbh-empty')).toContainText(
+    'No notebooks yet',
+  )
   await expect(
-    page.getByRole('button', { name: 'Create notebook' }),
+    home(page)
+      .getByTestId('nbh-empty')
+      .getByRole('button', { name: 'New notebook' }),
   ).toBeVisible()
+  await expect(page.getByTestId('no-notebooks')).toHaveCount(0)
   await page.getByRole('button', { name: 'Undo' }).click()
-  await openHome(page)
   await expect(card(page, 'Only book')).toBeVisible()
+})
+
+test('NB-B13 a first start with no notebook shows the new home Empty state', async ({
+  page,
+}) => {
+  await start(page)
+  await page.locator('[data-space="notebooks"]').click()
+  await expect(home(page).getByTestId('nbh-empty')).toContainText(
+    'No notebooks yet',
+  )
+  await expect(page.getByTestId('no-notebooks')).toHaveCount(0)
 })
 
 test('NB-P01 Find a notebook filters as I type; ✕ clears (needs nb.find)', async ({

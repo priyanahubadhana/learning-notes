@@ -100,8 +100,10 @@ export function ToastStack({
       el &&
       items.length > seen.current &&
       layerRef.current
-    )
+    ) {
+      layerRef.current.close()
       layerRef.current = openToastLayer(el)
+    }
     seen.current = items.length
   }, [items.length, mode])
 

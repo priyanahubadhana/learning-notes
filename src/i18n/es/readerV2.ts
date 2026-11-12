@@ -14,4 +14,22 @@ export const esReaderV2 = {
   'readerv2.more.pdf': 'Herramientas PDF',
   'readerv2.more.other': 'Más',
   'readerv2.more.toolBar': 'Barra de lápiz: {mode}',
+  'readerv2.listen.title': 'Escuchar',
+  'readerv2.listen.settings': 'Ajustes de Escuchar',
+  'readerv2.listen.group.premium': 'Voces Premium',
+  'readerv2.listen.group.enhanced': 'Voces mejoradas',
+  'readerv2.listen.group.device': 'Voces del dispositivo',
+  'readerv2.listen.group.other': 'Otros idiomas',
+  'readerv2.listen.pin': 'Fijar la voz {name} arriba',
+  'readerv2.listen.unpin': 'Quitar la voz {name} de arriba',
+  'readerv2.listen.pinned': '{name} fijada arriba.',
+  'readerv2.listen.unpinned': '{name} ya no está fijada.',
+  'readerv2.listen.voiceSet': 'Voz: {name}.',
+  'readerv2.listen.speedSet': 'Velocidad: {speed}×.',
+  'readerv2.listen.sleepSet': 'Temporizador: {when}.',
+  'readerv2.listen.stopped': 'Lectura detenida.',
+  'readerv2.listen.noVoices':
+    'Este dispositivo no tiene voces integradas para mostrar.',
+  'readerv2.listen.deviceOnly':
+    'Solo se usan voces de este dispositivo. Tu texto no sale de él.',
 } as const

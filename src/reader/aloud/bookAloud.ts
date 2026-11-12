@@ -38,6 +38,16 @@ export const bookAloudAvailable = speechAvailable
 
 let host: BookAloudHost | null = null
 let engine: ReadAloud | null = null
+/** Reader v2 (flag reader.v2): only voices that run on the device. */
+let localOnly = false
+export const setBookLocalOnly = (on: boolean) => {
+  localOnly = on
+}
+/** Sleep timer "end of page": stop when the piece now read is done. */
+let stopAtEnd = false
+export const setBookStopAtEnd = (on: boolean) => {
+  stopAtEnd = on
+}
 /** Bumped by every start/stop, so a late "next page" never restarts speech. */
 let run = 0
 
@@ -66,6 +76,7 @@ async function play(source: BookSource, from: number, id: number) {
       voiceURI: voiceChoice.get(),
       lang: document.documentElement.lang || undefined,
       pauses: true,
+      localOnly,
     },
     {
       state: (s) => {
@@ -73,6 +84,10 @@ async function play(source: BookSource, from: number, id: number) {
       },
       finished: () => {
         if (id !== run || !host) return
+        if (stopAtEnd) {
+          stopAtEnd = false
+          return stopBookAloud()
+        }
         void host.next().then(async (more) => {
           if (id !== run) return
           if (!more) return stopBookAloud()
@@ -104,6 +119,7 @@ export const skipBookAloud = (dir: 1 | -1) => engine?.skip(dir)
 
 export function stopBookAloud(): void {
   run++
+  stopAtEnd = false
   engine?.dispose()
   engine = null
   bookAloudState.set('idle')

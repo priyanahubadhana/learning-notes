@@ -81,85 +81,97 @@ export async function writeBook(page: Page, chapters = 3) {
 }
 
 /** Replaces speechSynthesis with a pretend one that logs what is spoken. */
-export async function mockSpeech(page: Page, msPerWord = 40) {
-  await page.addInitScript((ms) => {
-    type Utter = {
-      text: string
-      rate: number
-      voice: { voiceURI: string } | null
-      lang: string
-      onstart?: () => void
-      onend?: () => void
-      onboundary?: (e: { name: string; charIndex: number }) => void
-      onerror?: (e: { error: string }) => void
-    }
-    class FakeUtterance {
-      text: string
-      rate = 1
-      voice: { voiceURI: string } | null = null
-      lang = ''
-      onstart?: () => void
-      onend?: () => void
-      onboundary?: (e: { name: string; charIndex: number }) => void
-      onerror?: (e: { error: string }) => void
-      constructor(text: string) {
-        this.text = text
+export async function mockSpeech(
+  page: Page,
+  msPerWord = 40,
+  voices: {
+    voiceURI: string
+    name: string
+    lang: string
+    localService?: boolean
+  }[] = [
+    { voiceURI: 'v-daniel', name: 'Daniel', lang: 'en-GB' },
+    { voiceURI: 'v-samantha', name: 'Samantha', lang: 'en-US' },
+  ],
+) {
+  await page.addInitScript(
+    ([ms, voiceList]) => {
+      type Utter = {
+        text: string
+        rate: number
+        voice: { voiceURI: string } | null
+        lang: string
+        onstart?: () => void
+        onend?: () => void
+        onboundary?: (e: { name: string; charIndex: number }) => void
+        onerror?: (e: { error: string }) => void
       }
-    }
-    const log: { text: string; rate: number; voice: string | null }[] = []
-    let current: Utter | null = null
-    let timers: ReturnType<typeof setTimeout>[] = []
-    const synth = {
-      speaking: false,
-      paused: false,
-      getVoices: () => [
-        { voiceURI: 'v-daniel', name: 'Daniel', lang: 'en-GB' },
-        { voiceURI: 'v-samantha', name: 'Samantha', lang: 'en-US' },
-      ],
-      addEventListener: () => {},
-      removeEventListener: () => {},
-      speak(u: Utter) {
-        log.push({
-          text: u.text,
-          rate: u.rate,
-          voice: u.voice?.voiceURI ?? null,
-        })
-        current = u
-        synth.speaking = true
-        const words = [...u.text.matchAll(/\S+/g)]
-        let i = 0
-        const step = () => {
-          if (current !== u) return
-          if (i === 0) u.onstart?.()
-          if (i < words.length) {
-            u.onboundary?.({ name: 'word', charIndex: words[i].index ?? 0 })
-            i++
-            timers.push(setTimeout(step, ms))
-          } else {
-            synth.speaking = false
-            current = null
-            u.onend?.()
-          }
+      class FakeUtterance {
+        text: string
+        rate = 1
+        voice: { voiceURI: string } | null = null
+        lang = ''
+        onstart?: () => void
+        onend?: () => void
+        onboundary?: (e: { name: string; charIndex: number }) => void
+        onerror?: (e: { error: string }) => void
+        constructor(text: string) {
+          this.text = text
         }
-        timers.push(setTimeout(step, 10))
-      },
-      cancel() {
-        current = null
-        synth.speaking = false
-        timers.forEach(clearTimeout)
-        timers = []
-      },
-      pause() {},
-      resume() {},
-    }
-    Object.defineProperty(window, 'speechSynthesis', {
-      value: synth,
-      configurable: true,
-    })
-    ;(window as unknown as Record<string, unknown>).SpeechSynthesisUtterance =
-      FakeUtterance
-    ;(window as unknown as Record<string, unknown>).__speech = log
-  }, msPerWord)
+      }
+      const log: { text: string; rate: number; voice: string | null }[] = []
+      let current: Utter | null = null
+      let timers: ReturnType<typeof setTimeout>[] = []
+      const synth = {
+        speaking: false,
+        paused: false,
+        getVoices: () => voiceList,
+        addEventListener: () => {},
+        removeEventListener: () => {},
+        speak(u: Utter) {
+          log.push({
+            text: u.text,
+            rate: u.rate,
+            voice: u.voice?.voiceURI ?? null,
+          })
+          current = u
+          synth.speaking = true
+          const words = [...u.text.matchAll(/\S+/g)]
+          let i = 0
+          const step = () => {
+            if (current !== u) return
+            if (i === 0) u.onstart?.()
+            if (i < words.length) {
+              u.onboundary?.({ name: 'word', charIndex: words[i].index ?? 0 })
+              i++
+              timers.push(setTimeout(step, ms))
+            } else {
+              synth.speaking = false
+              current = null
+              u.onend?.()
+            }
+          }
+          timers.push(setTimeout(step, 10))
+        },
+        cancel() {
+          current = null
+          synth.speaking = false
+          timers.forEach(clearTimeout)
+          timers = []
+        },
+        pause() {},
+        resume() {},
+      }
+      Object.defineProperty(window, 'speechSynthesis', {
+        value: synth,
+        configurable: true,
+      })
+      ;(window as unknown as Record<string, unknown>).SpeechSynthesisUtterance =
+        FakeUtterance
+      ;(window as unknown as Record<string, unknown>).__speech = log
+    },
+    [msPerWord, voices] as const,
+  )
 }
 
 /** What the pretend voice was asked to say so far. */

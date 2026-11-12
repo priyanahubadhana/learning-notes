@@ -190,3 +190,84 @@
   overflow-y: auto;
   overscroll-behavior: contain;
 }
+
+/* Listen (slice 7b): a hold must never select text, show a callout or a
+   magnifier on iPad; the button is the only place this is switched off. */
+.rv2-btn[data-hold] {
+  -webkit-touch-callout: none;
+  -webkit-user-select: none;
+  user-select: none;
+  touch-action: manipulation;
+}
+.rv2-listen-controls {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 6px 8px;
+}
+.rv2-listen-btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-width: 44px;
+  min-height: 44px;
+  border: 1px solid var(--color-line);
+  border-radius: var(--r-md);
+  background: none;
+  color: var(--color-ink);
+  font: inherit;
+  cursor: pointer;
+}
+.rv2-listen-btn:disabled {
+  opacity: 0.4;
+  cursor: default;
+}
+.rv2-listen-btn--main {
+  flex: 1;
+  font-weight: 600;
+}
+.rv2-listen-btn--main[aria-pressed='true'] {
+  background: var(--color-accent-soft);
+  border-color: var(--color-accent);
+  color: var(--color-accent);
+}
+.rv2-listen-field {
+  display: flex;
+  padding: 6px 8px;
+}
+.rv2-listen-field select {
+  flex: 1;
+  min-height: 44px;
+  padding: 0 8px;
+  border: 1px solid var(--color-line);
+  border-radius: var(--r-md);
+  background: var(--color-bg);
+  color: var(--color-ink);
+  font: inherit;
+}
+.rv2-voice {
+  display: flex;
+  align-items: center;
+}
+.rv2-voice__pick {
+  flex: 1;
+  min-width: 0;
+}
+.rv2-voice__pin {
+  display: inline-flex;
+  flex: none;
+  align-items: center;
+  justify-content: center;
+  width: 44px;
+  min-height: 44px;
+  border: 0;
+  background: none;
+  color: var(--color-muted);
+  cursor: pointer;
+}
+.rv2-voice__pin[aria-pressed='true'] {
+  color: var(--color-accent);
+}
+.rv2-voice__pin[aria-pressed='true'] svg {
+  fill: currentColor;
+}

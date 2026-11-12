@@ -14,4 +14,22 @@ export const hiReaderV2 = {
   'readerv2.more.pdf': 'PDF टूल',
   'readerv2.more.other': 'और',
   'readerv2.more.toolBar': 'पेन बार: {mode}',
+  'readerv2.listen.title': 'सुनें',
+  'readerv2.listen.settings': 'सुनने की सेटिंग',
+  'readerv2.listen.group.premium': 'प्रीमियम आवाज़ें',
+  'readerv2.listen.group.enhanced': 'बेहतर आवाज़ें',
+  'readerv2.listen.group.device': 'डिवाइस की आवाज़ें',
+  'readerv2.listen.group.other': 'अन्य भाषाएँ',
+  'readerv2.listen.pin': 'आवाज़ {name} को ऊपर पिन करें',
+  'readerv2.listen.unpin': 'आवाज़ {name} का पिन हटाएँ',
+  'readerv2.listen.pinned': '{name} ऊपर पिन हुई।',
+  'readerv2.listen.unpinned': '{name} का पिन हट गया।',
+  'readerv2.listen.voiceSet': 'आवाज़: {name}।',
+  'readerv2.listen.speedSet': 'गति: {speed}×।',
+  'readerv2.listen.sleepSet': 'स्लीप टाइमर: {when}।',
+  'readerv2.listen.stopped': 'पढ़ना रुक गया।',
+  'readerv2.listen.noVoices':
+    'इस डिवाइस में दिखाने लायक अंतर्निहित आवाज़ें नहीं हैं।',
+  'readerv2.listen.deviceOnly':
+    'सिर्फ़ इस डिवाइस की आवाज़ें इस्तेमाल होती हैं। आपका पाठ बाहर नहीं जाता।',
 } as const

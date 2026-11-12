@@ -1,3 +1,4 @@
+import { rankVoices } from './voices'
 import { chunkIndexAt, makeChunks, wordAt, type Chunk } from './speechChunks'
 
 /**
@@ -32,6 +33,8 @@ export interface AloudOptions {
   lang?: string
   /** Natural pauses between pieces: 0.25 s after a sentence, 0.6 s after a paragraph. */
   pauses?: boolean
+  /** Only voices that run on the device (never a network voice). */
+  localOnly?: boolean
 }
 
 /** Pause after a sentence and after a paragraph, in ms. */
@@ -132,7 +135,17 @@ export class ReadAloud {
     s.cancel() // also clears anything left from before
     const u = new SpeechSynthesisUtterance(chunk.text)
     u.rate = Math.min(2, Math.max(0.5, this.opts.rate))
-    const voice = s.getVoices().find((v) => v.voiceURI === this.opts.voiceURI)
+    const voices = this.opts.localOnly
+      ? s.getVoices().filter((v) => v.localService === true)
+      : s.getVoices()
+    let voice = voices.find((v) => v.voiceURI === this.opts.voiceURI)
+    // No usable choice: the best on-device voice for the language, if any.
+    if (!voice && this.opts.localOnly && this.opts.lang)
+      voice = rankVoices(
+        voices.filter(
+          (v) => v.lang.slice(0, 2) === this.opts.lang!.slice(0, 2),
+        ),
+      )[0]
     if (voice) {
       u.voice = voice
       u.lang = voice.lang

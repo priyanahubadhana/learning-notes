@@ -1,12 +1,24 @@
-import { useLayoutEffect, useRef, useState, type ReactNode } from 'react'
+import {
+  lazy,
+  Suspense,
+  useEffect,
+  useLayoutEffect,
+  useRef,
+  useState,
+  type ReactNode,
+} from 'react'
+import { getGestureRouter } from '../../app/input/gestureRouter'
 import { Icon, type IconName } from '../../app/tools/icons'
 import type { MenuItem } from '../../app/ui'
 import { Card, CardTrigger } from '../../design/parts/Card'
 import { CardGroup, CardWell } from '../../design/parts/CardParts'
 import { usePhone } from '../../design/parts/useAnchoredCard'
 import { t } from '../../i18n/t'
-import { bookAloudState } from '../aloud/bookAloud'
+import { bookAloudState, setBookLocalOnly } from '../aloud/bookAloud'
 import { fitItems } from './barFit'
+import { createHoldTap } from './holdTap'
+
+const ListenCard = lazy(() => import('./ListenCard'))
 
 /** One button of the reader bar. Too many for the row: it moves into the ⋯ card. */
 export interface BarItem {
@@ -70,6 +82,18 @@ function menuRows(list: MenuItem[]): CardRowDef[] {
 
 type Rect = { left: number; top: number; width: number; height: number }
 
+/** Where a card hangs: under the button AND the whole bar, so it never covers the bar. */
+function anchorFor(el: Element): Rect {
+  const r = el.getBoundingClientRect()
+  const bar = el.closest('.rv2-bar')?.getBoundingClientRect()
+  return {
+    left: r.left,
+    top: r.top,
+    width: r.width,
+    height: Math.max(r.height, (bar?.bottom ?? r.bottom) - r.top),
+  }
+}
+
 const BTN_W = 46
 const MORE_W = 64
 const CLOSE_W = 46
@@ -103,6 +127,41 @@ export default function ReaderBarRow({
   // Where the card hangs: under the ⋯ button AND the whole bar (time-left line
   // included), so it never covers the bar.
   const [anchor, setAnchor] = useState<Rect | null>(null)
+  // The Listen card (hold on Listen). A hold opens settings only (RD-B11):
+  // the click that follows the lift is swallowed (RD-B12).
+  const [listenAnchor, setListenAnchor] = useState<Rect | null>(null)
+  const holdTap = useRef(createHoldTap())
+  const openListen = (el: Element) => {
+    setAnchor(null)
+    setListenAnchor(anchorFor(el))
+  }
+  const openListenRef = useRef(openListen)
+  useEffect(() => {
+    openListenRef.current = openListen
+  })
+  // Listen reads with device voices only while the new reader is on.
+  useEffect(() => {
+    setBookLocalOnly(true)
+    return () => setBookLocalOnly(false)
+  }, [])
+  useEffect(
+    () =>
+      getGestureRouter().register({
+        id: 'reader-listen-hold',
+        claim: (g) =>
+          g.target instanceof Element &&
+          g.target.closest('[data-hold="listen"]')
+            ? 'longpress'
+            : null,
+        onStart: (g) => {
+          holdTap.current.hold()
+          const el = (g.target as Element).closest('[data-hold="listen"]')
+          if (el) openListenRef.current(el)
+        },
+        onEnd: () => holdTap.current.end(),
+      }),
+    [],
+  )
 
   useLayoutEffect(() => {
     const el = row.current
@@ -126,13 +185,11 @@ export default function ReaderBarRow({
   const phone = usePhone()
   // The card opens BELOW the bar and never over its buttons: its list scrolls
   // inside the room under the bar (a phone shows a sheet instead).
-  const room =
-    anchor && !phone
-      ? Math.max(
-          160,
-          Math.floor(window.innerHeight - (anchor.top + anchor.height) - 104),
-        )
+  const roomFor = (a: Rect | null) =>
+    a && !phone
+      ? Math.max(160, Math.floor(window.innerHeight - (a.top + a.height) - 104))
       : undefined
+  const room = roomFor(anchor)
 
   return (
     <div ref={row} className="rv2-row" data-testid="rv2-row" data-chrome>
@@ -159,7 +216,27 @@ export default function ReaderBarRow({
             aria-haspopup={i.popup}
             aria-expanded={i.popup ? i.expanded : undefined}
             data-pressed={i.pressed || undefined}
-            onClick={i.onClick}
+            data-hold={i.id === 'listen' ? 'listen' : undefined}
+            onContextMenu={
+              i.id === 'listen'
+                ? (e) => {
+                    // A long press (or right-click, or the menu key) opens
+                    // settings, never the system callout.
+                    e.preventDefault()
+                    if (!listenAnchor) openListen(e.currentTarget)
+                  }
+                : undefined
+            }
+            onClick={
+              i.id === 'listen'
+                ? () => {
+                    if (holdTap.current.swallowClick()) return
+                    if (listenAnchor) return setListenAnchor(null)
+                    setAnchor(null)
+                    i.onClick()
+                  }
+                : i.onClick
+            }
           >
             <Icon name={i.icon} size={18} />
           </button>
@@ -172,18 +249,21 @@ export default function ReaderBarRow({
         className="rv2-more"
         onClick={(el) => {
           if (anchor) return setAnchor(null)
-          const r = el.getBoundingClientRect()
-          const bar = el.closest('.rv2-bar')?.getBoundingClientRect()
-          setAnchor({
-            left: r.left,
-            top: r.top,
-            width: r.width,
-            height: Math.max(r.height, (bar?.bottom ?? r.bottom) - r.top),
-          })
+          setListenAnchor(null)
+          setAnchor(anchorFor(el))
         }}
       >
         <Icon name="more" size={18} />
       </CardTrigger>
+      {listenAnchor && (
+        <Suspense fallback={null}>
+          <ListenCard
+            anchor={listenAnchor}
+            maxHeight={roomFor(listenAnchor)}
+            onClose={() => setListenAnchor(null)}
+          />
+        </Suspense>
+      )}
       {anchor && (
         <Card
           anchor={anchor}
@@ -223,6 +303,23 @@ export default function ReaderBarRow({
                 </CardWell>
               </CardGroup>
             )}
+            <CardGroup label={t('readerv2.listen.title')}>
+              <CardWell>
+                <button
+                  type="button"
+                  className="pcard-row"
+                  data-testid="reader-listen-settings"
+                  onClick={() => {
+                    const el = row.current?.querySelector('.rv2-more')
+                    close()
+                    if (el) openListen(el)
+                  }}
+                >
+                  <span>{t('readerv2.listen.settings')}</span>
+                  <Icon name="volume" size={18} />
+                </button>
+              </CardWell>
+            </CardGroup>
             {groups
               .map((g) => ({
                 ...g,

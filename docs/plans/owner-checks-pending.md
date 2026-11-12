@@ -1,5 +1,13 @@
 # Owner checks still pending (collected for the end-of-run iPad pass)
 
+## Build night 1 (12 Nov 2026)
+
+- [ ] Claude connector: finish the 3 setup steps, then ask Claude to list your notebooks.
+- [ ] Live app after today's update: open a page on the iPad, write with the Pencil, type in a box; nothing should look different.
+- [ ] (When the toolbar slice is on the preview) Format bar: select text near each edge and corner of the screen, in landscape and portrait; the floating bar must stay fully on screen (BUG-002).
+- [ ] (Preview, switch "update.v2" on) Settings › About › "Pretend a must-have update": countdown shows; "Not now", then "Update now" work.
+- [ ] (Preview, switch "security.m1" on) Wrong PIN several times shows a countdown that survives reopening; Change PIN refuses 4 digits and accepts 6; a web picture in a gallery asks before loading.
+
 ## CI fixes (11 Nov)
 
 On the iPad: (1) Lasso on, tap a text box once (box selected), then three quick taps on a word: only that screen line is selected, not the paragraph. (2) Edit toolbar: tap − on several tools quickly one after another: each tap removes one tool and the rows do not jump sideways. Why human: real Pencil/finger timing on Safari.

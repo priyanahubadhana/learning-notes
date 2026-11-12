@@ -223,6 +223,9 @@ test('SH-08 on a phone the panel is an overlay and the top bar stays reachable',
 
 test('works offline once loaded', async ({ page, context }) => {
   await start(page)
+  // "loaded" includes the lazy Home chunk; going offline before it arrives
+  // makes the import fail and the app reloads itself (seen on slow CI)
+  await page.waitForLoadState('networkidle')
   await context.setOffline(true)
   const html = page.locator('html')
   const before = await html.getAttribute('data-theme')

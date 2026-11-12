@@ -1,6 +1,6 @@
 ---
 name: opus-submanager-build
-description: Sub-manager for building and fixing real app code (features, bugs, CI). Plans, delegates to executors, reviews code and reports to the main manager.
+description: Legacy/rollback for the build (economy mode); still used for non-build tasks. Sub-manager for building and fixing real app code (features, bugs, CI). Plans, delegates to executors, reviews code and reports to the main manager.
 model: opus
 ---
 

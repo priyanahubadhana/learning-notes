@@ -1,0 +1,126 @@
+/* SP-54 / SP-55 Toast stack: bottom centre, 44 px tall, 8 px apart, 16 px above the safe area. */
+.fb-toasts[data-mode='floating'] {
+  position: fixed;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  max-width: none;
+  max-height: none;
+  margin: 0;
+  padding: 0;
+  border: 0;
+  background: transparent;
+  overflow: visible;
+  pointer-events: none;
+}
+.fb-toasts[data-mode='inline'] {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  align-items: stretch;
+  max-width: 420px;
+}
+.fb-toast {
+  box-sizing: border-box;
+  display: flex;
+  align-items: center;
+  gap: var(--space-2);
+  min-height: 44px;
+  padding: 0 var(--space-3);
+  border-radius: var(--r-md);
+  background: var(--card-fill);
+  color: var(--color-ink);
+  box-shadow:
+    0 0 0 1px var(--card-hair),
+    var(--card-hi),
+    var(--card-shadow);
+  -webkit-backdrop-filter: blur(28px) saturate(170%);
+  backdrop-filter: blur(28px) saturate(170%);
+  font-family: var(--font-sans);
+  font-size: 14px;
+  line-height: 20px;
+  animation: fb-toast-in var(--fb-dur-toast-in) var(--ease-out) both;
+}
+.fb-toasts[data-mode='floating'] .fb-toast {
+  position: fixed;
+  left: 50%;
+  bottom: 16px;
+  width: min(var(--fb-toast-w), calc(100vw - 32px));
+  translate: -50% calc(-1 * env(safe-area-inset-bottom, 0px));
+  pointer-events: auto;
+}
+:root[data-glass='lite'] .fb-toast {
+  background: var(--color-surface-2);
+  -webkit-backdrop-filter: none;
+  backdrop-filter: none;
+}
+@media (prefers-reduced-transparency: reduce) {
+  .fb-toast {
+    background: var(--color-surface-2);
+    -webkit-backdrop-filter: none;
+    backdrop-filter: none;
+  }
+}
+.fb-toast__icon {
+  flex: none;
+  display: grid;
+  place-items: center;
+  width: 20px;
+  height: 20px;
+  color: var(--color-success);
+  font-weight: 700;
+}
+.fb-toast[data-kind='problem'] .fb-toast__icon {
+  border-radius: var(--r-pill);
+  background: var(--color-danger);
+  color: #fff;
+  font-size: 13px;
+}
+.fb-toast__text {
+  flex: 1;
+  min-width: 0;
+  padding: var(--space-2) 0;
+  overflow-wrap: anywhere;
+}
+.fb-toast__undo {
+  flex: none;
+  min-width: 44px;
+  min-height: 44px;
+  margin-right: calc(-1 * var(--space-2));
+  padding: 0 var(--space-3);
+  border: 0;
+  border-radius: var(--r-md);
+  background: transparent;
+  color: var(--color-accent);
+  font: inherit;
+  font-weight: 600;
+  cursor: pointer;
+}
+.fb-toast__undo:hover {
+  background: var(--color-accent-soft);
+}
+.fb-toast__undo:focus-visible {
+  outline: 2px solid var(--color-accent);
+  outline-offset: -2px;
+}
+.fb-toast__x {
+  margin-right: calc(-1 * var(--space-3));
+}
+@keyframes fb-toast-in {
+  from {
+    opacity: 0;
+    margin-top: 12px;
+  }
+}
+
+/* Gallery examples sit on a plain page, where the blur shows nothing, and a
+   dozen 28 px blurs at once stall software-rendered WebKit (CI). */
+.fb-toasts[data-mode='inline'] .fb-toast {
+  -webkit-backdrop-filter: none;
+  backdrop-filter: none;
+}
+@media (prefers-reduced-motion: reduce) {
+  .fb-toast {
+    animation-duration: 0.01ms;
+  }
+}

@@ -18,6 +18,8 @@ interface RowProps {
   /** The section on screen (for the "Also in" note). */
   section: string
   onChanged(change: Omit<Change, 'seq'>): void
+  /** Counts up when a search result opened this row: it glows. */
+  jump?: number
 }
 
 /** One editable setting: same stored value as today's screen (registry only). */
@@ -55,6 +57,7 @@ function RowBody({
   value,
   onSave,
   onChanged,
+  jump,
 }: RowProps & { value: JsonValue; onSave(next: JsonValue): void }) {
   const id = useId()
   const labelId = `${id}-label`
@@ -89,9 +92,19 @@ function RowBody({
       to: text,
     })
     setGlow((n) => n + 1)
+  }, [json, text, definition])
+
+  // A search result opened this row: glow once per opening.
+  const [jumpSeen, setJumpSeen] = useState(0)
+  if (jump && jump !== jumpSeen) {
+    setJumpSeen(jump)
+    setGlow((n) => n + 1)
+  }
+  useEffect(() => {
+    if (glow === 0) return
     const timer = setTimeout(() => setGlow(0), GLOW_MS)
     return () => clearTimeout(timer)
-  }, [json, text, definition])
+  }, [glow])
 
   return (
     <section

@@ -17,4 +17,9 @@ export const enSettingsV3 = {
   'sv3.labelsCount_one': '{count} label',
   'sv3.labelsCount_other': '{count} labels',
   'sv3.previewLast': 'Last change',
+  'sv3.search': 'Search settings',
+  'sv3.searchNone': 'No settings match “{query}”',
+  'sv3.searchTip': 'Try a shorter word, like “glass” or “pen”.',
+  'sv3.searchFound_one': '{count} setting found',
+  'sv3.searchFound_other': '{count} settings found',
 }

@@ -17,4 +17,9 @@ export const hiSettingsV3 = {
   'sv3.labelsCount_one': '{count} लेबल',
   'sv3.labelsCount_other': '{count} लेबल',
   'sv3.previewLast': 'आख़िरी बदलाव',
+  'sv3.search': 'सेटिंग्स खोजें',
+  'sv3.searchNone': '“{query}” से कोई सेटिंग नहीं मिली',
+  'sv3.searchTip': 'छोटा शब्द आज़माएँ, जैसे “ग्लास” या “पेन”।',
+  'sv3.searchFound_one': '{count} सेटिंग मिली',
+  'sv3.searchFound_other': '{count} सेटिंग्स मिलीं',
 }

@@ -18,6 +18,9 @@ import { PreviewPane } from './PreviewPane'
 import { PreviewPill } from './PreviewPill'
 import { SettingRow } from './SettingRow'
 import type { Change } from './changeNote'
+import { ClearField } from '../../design/parts/ClearField'
+import { SearchResults } from './SearchResults'
+import { searchSettings } from './settingsSearch'
 import { SectionList } from './SectionList'
 import { inSection, useVisibleSettings } from './visibleSettings'
 import { tv } from './tv'
@@ -67,7 +70,8 @@ export function SettingsV3({
     )
   }, [focusId])
 
-  const visible = useVisibleSettings(db)
+  const everything = useVisibleSettings(db, true)
+  const visible = everything.filter((s) => !s.searchOnly)
   const items = sections.map((s) => ({
     id: s.id,
     label: t(s.labelKey),
@@ -75,6 +79,29 @@ export function SettingsV3({
   }))
   const section = sections.find((s) => s.id === current)
   const rows = inSection(visible, current)
+
+  // SET-B05 / B06: search every section; a result opens its row and it glows.
+  const [query, setQuery] = useState('')
+  const [jump, setJump] = useState<{ id: string; seq: number } | null>(null)
+  const searching = query.trim() !== ''
+  const hits = searching
+    ? searchSettings(everything, query, (s) => ({
+        name: t(s.labelKey).toLowerCase(),
+        help: t(s.descriptionKey).toLowerCase(),
+        keywords: (s.keywords ?? '').toLowerCase(),
+      }))
+    : []
+  const openHit = (settingId: string, sectionId: string) => {
+    setQuery('')
+    pick(sectionId)
+    setJump((j) => ({ id: settingId, seq: (j?.seq ?? 0) + 1 }))
+    revealWhenReady(
+      () =>
+        root.current?.querySelector<HTMLElement>(
+          `[data-setting-id="${CSS.escape(settingId)}"]`,
+        ) ?? null,
+    )
+  }
 
   // The phone preview: open or shut, and how many changes it has not shown.
   const wide = useWide(root)
@@ -98,25 +125,40 @@ export function SettingsV3({
       className="sv3"
     >
       <h1 className="sv3-title">{tv('sv3.title')}</h1>
+      <div className="sv3-search">
+        <ClearField
+          type="search"
+          value={query}
+          placeholder={tv('sv3.search')}
+          aria-label={tv('sv3.search')}
+          onChange={(e) => setQuery(e.target.value)}
+          onClear={() => setQuery('')}
+        />
+      </div>
       <div className="sv3-cols">
         <SectionList sections={items} current={current} onPick={pick} />
         <section
           className="sv3-main"
           aria-label={section ? t(section.labelKey) : undefined}
         >
-          {section?.descriptionKey && (
+          {searching && (
+            <SearchResults hits={hits} query={query.trim()} onOpen={openHit} />
+          )}
+          {!searching && section?.descriptionKey && (
             <p className="sv3-lead">{t(section.descriptionKey)}</p>
           )}
-          {rows.map((s) => (
-            <SettingRow
-              key={s.id}
-              db={db}
-              definition={s}
-              section={current}
-              onChanged={changed}
-            />
-          ))}
-          {rows.length === 0 && (
+          {!searching &&
+            rows.map((s) => (
+              <SettingRow
+                key={s.id}
+                db={db}
+                definition={s}
+                section={current}
+                onChanged={changed}
+                jump={jump?.id === s.id ? jump.seq : undefined}
+              />
+            ))}
+          {!searching && rows.length === 0 && (
             <p className="sv3-lead">
               {section?.emptyKey ? t(section.emptyKey) : tv('sv3.sectionEmpty')}
             </p>

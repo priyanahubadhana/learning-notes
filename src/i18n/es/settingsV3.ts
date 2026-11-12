@@ -17,4 +17,10 @@ export const esSettingsV3 = {
   'sv3.labelsCount_one': '{count} etiqueta',
   'sv3.labelsCount_other': '{count} etiquetas',
   'sv3.previewLast': 'Último cambio',
+  'sv3.search': 'Buscar ajustes',
+  'sv3.searchNone': 'Ningún ajuste coincide con “{query}”',
+  'sv3.searchTip':
+    'Prueba con una palabra más corta, como “cristal” o “lápiz”.',
+  'sv3.searchFound_one': '{count} ajuste encontrado',
+  'sv3.searchFound_other': '{count} ajustes encontrados',
 }

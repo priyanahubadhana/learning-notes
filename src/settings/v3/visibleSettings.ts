@@ -8,8 +8,13 @@ import { getSetting } from '../settingsService'
  * The settings Settings v3 lists: the same registry as today's screen, minus
  * `searchOnly` ones and those hidden by `shownWhen` (hidden while loading).
  */
-export function useVisibleSettings(db: LearningNotesDB): SettingDefinition[] {
-  const all = settingsRegistry.list().filter((s) => !s.searchOnly)
+export function useVisibleSettings(
+  db: LearningNotesDB,
+  withSearchOnly = false,
+): SettingDefinition[] {
+  const all = settingsRegistry
+    .list()
+    .filter((s) => withSearchOnly || !s.searchOnly)
   const controllers = useLiveQuery(async () => {
     const ids = [
       ...new Set(

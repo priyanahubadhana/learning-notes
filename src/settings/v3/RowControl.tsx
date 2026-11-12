@@ -100,7 +100,6 @@ function NumberField({
           aria-label={label}
           aria-describedby={descId}
           aria-invalid={error}
-          clearLabel={label}
           onChange={(e) => setDraft(e.target.value)}
           onClear={() => setDraft('')}
           onBlur={commit}

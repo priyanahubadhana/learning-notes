@@ -1,4 +1,5 @@
 import { randomUUID } from 'node:crypto'
+import type { JobStore } from '../../src/aitools/jobs/jobStore'
 import {
   describeErrors,
   SPEC_VERSION,
@@ -23,6 +24,7 @@ import {
 import { markdownToBlocks } from './mdParse'
 import type { Page } from './model'
 import type { PushItem, RecordSource } from './source'
+import { makePlanTools } from './planTools'
 import { ToolError } from './tools'
 
 /**
@@ -45,7 +47,7 @@ import { ToolError } from './tools'
 const CHUNK = 400
 const CARDS_HEADING = 'Recall cards'
 
-interface Out {
+export interface Out {
   table: string
   id: string
   value: Record<string, unknown>
@@ -65,6 +67,12 @@ export interface WriteDeps {
   newId?: () => string
 }
 
+/** Records to save plus what to do with the staged job afterwards. */
+interface Staged {
+  outs: Out[]
+  finish: (saved: boolean) => Promise<void>
+}
+
 /** Keys that sort after every existing sibling, in order (valid fractional-indexing keys). */
 export function keysAfter(last: string | null, n: number): string[] {
   if (n > 3000) throw new ToolError('Too many blocks in one append.')
@@ -76,7 +84,8 @@ export function keysAfter(last: string | null, n: number): string[] {
   )
 }
 
-export function makeWriteTools(d: WriteDeps) {
+/** The shared parts of every write: serial queue, scope check, clock stamps, sealing, saving, audit. */
+export function makeSaver(d: WriteDeps) {
   const now = d.now ?? Date.now
   const newId = d.newId ?? randomUUID
   let clock: Clock = { ms: 0, n: 0, deviceId: d.deviceId }
@@ -156,6 +165,16 @@ export function makeWriteTools(d: WriteDeps) {
     return audit ? { audit } : {}
   }
 
+  return { now, newId, serial, need, stamp, seal, push, afterSave }
+}
+
+export type Saver = ReturnType<typeof makeSaver>
+
+export function makeWriteTools(d: WriteDeps, jobStore?: JobStore) {
+  const saver = makeSaver(d)
+  const { now, newId, serial, need, seal, push, afterSave } = saver
+  const plan = makePlanTools(d, saver, jobStore)
+
   const checkSpec = (input: unknown): NotebookSpec => {
     const r = validateSpec(input)
     if (!r.ok)
@@ -217,7 +236,7 @@ export function makeWriteTools(d: WriteDeps) {
     tool: string,
     pageId: string,
     expectedVersion: string,
-    build: (page: Page, at: number) => Out[],
+    build: (page: Page, at: number) => Out[] | Staged | Promise<Out[] | Staged>,
   ) => {
     need('write:append')
     await d.cache.refresh(true)
@@ -232,11 +251,15 @@ export function makeWriteTools(d: WriteDeps) {
         'That page changed since you read it. Nothing was changed. Read it again (read_page) and retry with the new version.',
       )
     const at = now()
-    const added = build(page, at)
-    if (added.length > CHUNK)
+    const built = await build(page, at)
+    const added = Array.isArray(built) ? built : built.outs
+    const finish = Array.isArray(built) ? undefined : built.finish
+    if (added.length > CHUNK) {
+      await finish?.(false)
       throw new ToolError(
         `That is too much for one append (${added.length} records, at most ${CHUNK}). Split it into smaller parts.`,
       )
+    }
     const raw = d.cache.rawPage(pageId)!
     // 1. Touch the page first, against the revision the version check used.
     //    If someone saved in between, this fails and nothing else is written.
@@ -252,13 +275,24 @@ export function makeWriteTools(d: WriteDeps) {
       ],
       at,
     )
-    const res = await d.source.push([touch])
-    if (res.conflicts.length > 0)
+    const res = await d.source.push([touch]).catch(async (e: unknown) => {
+      await finish?.(false)
+      throw e
+    })
+    if (res.conflicts.length > 0) {
+      await finish?.(false)
       throw new ToolError(
         'That page changed while saving. Nothing was added. Read it again and retry.',
       )
+    }
     // 2. Then the new records, all in one call (all or nothing).
-    await push(await seal(added, at))
+    try {
+      await push(await seal(added, at))
+    } catch (e) {
+      await finish?.(false)
+      throw e
+    }
+    await finish?.(true)
     const blocks = added.filter((o) => o.table === 'blocks').length
     const cards = added.filter((o) => o.table === 'cards').length
     const note = await afterSave(tool, [pageId], { blocks, cards })
@@ -306,6 +340,33 @@ export function makeWriteTools(d: WriteDeps) {
           throw new ToolError(
             'Open Learning Notes once so your notes have synced, then try again.',
           )
+        const routed = await plan.viaPlan(
+          `Create the notebook "${spec.title}"`,
+          { kind: 'new_notebook', title: spec.title },
+          [{ tool: 'notebooks.create_from_spec', args: { spec } }],
+          newId,
+        )
+        if (routed) {
+          // The same engine as run_plan: a job with an id, saved in one go, that can be undone.
+          const out = routed.job.steps[0].outputs as {
+            notebookId: string
+            pageIds: string[]
+            counts: Record<string, number>
+          }
+          await plan.commitJob(routed.job.id)
+          const note = await afterSave(
+            'create_notebook',
+            [out.notebookId, ...out.pageIds],
+            out.counts,
+          )
+          return {
+            notebookId: out.notebookId,
+            pageIds: out.pageIds,
+            ...out.counts,
+            message: `Created "${spec.title}". It appears in Learning Notes after the app next syncs, and can be removed there with "Remove this AI result".`,
+            ...note,
+          }
+        }
         const at = now()
         const made = notebookFromSpec(spec, {
           now: at,
@@ -365,6 +426,42 @@ export function makeWriteTools(d: WriteDeps) {
             throw new ToolError(
               'That page changed since you read it. Nothing was changed. Read it again.',
             )
+        }
+        const routed = await plan.viaPlan(
+          `Add the page "${page.title}"`,
+          { kind: 'notebook', id: a.notebookId },
+          [
+            {
+              tool: 'pages.write_notes',
+              args: {
+                notebookId: a.notebookId,
+                page,
+                ...(parentId ? { parentId } : {}),
+              },
+            },
+          ],
+          newId,
+        )
+        if (routed) {
+          const job = await plan.commitJob(routed.job.id)
+          const pageId = String(job.steps[0].outputs?.pageId)
+          const tables = job.changeSet?.counts ?? {}
+          const counts = {
+            pages: tables.pages ?? 0,
+            blocks: tables.blocks ?? 0,
+            cards: tables.cards ?? 0,
+          }
+          const note = await afterSave(
+            'add_page',
+            [a.notebookId, pageId],
+            counts,
+          )
+          return {
+            pageId,
+            notebook: nb.title,
+            ...counts,
+            ...note,
+          }
         }
         const at = now()
         const made = pageIntoNotebook(page, {
@@ -429,38 +526,80 @@ export function makeWriteTools(d: WriteDeps) {
       expectedVersion: string
     }) =>
       serial(() =>
-        appendBlocks('add_cards', a.pageId, a.expectedVersion, (page, at) => {
-          // Validated with a stand-in block, then built with none.
-          const filler: SpecBlock = { type: 'paragraph', text: 'x' }
-          const spec = checkSpec({
-            version: SPEC_VERSION,
-            title: 'cards',
-            pages: [{ title: 'cards', blocks: [filler] }],
-            cards: a.cards,
-          })
-          const made = notebookFromSpec(
-            { ...spec, pages: [{ title: 'cards', blocks: [] }] },
-            {
-              now: at,
-              newId,
-              batchId: newId(),
-              workspaceId: 'unused',
-              lastNotebookOrder: null,
-            },
-          )
-          // The notebook and page it made are dropped; only blocks and cards are kept.
-          const out = intoPage(
-            made,
-            page,
-            d.cache.hasHeading(page.id, CARDS_HEADING),
-          )
-          return out.map((o) =>
-            o.table === 'cards'
-              ? { ...o, value: { ...o.value, notebookId: page.notebookId } }
-              : o,
-          )
-        }),
+        appendBlocks(
+          'add_cards',
+          a.pageId,
+          a.expectedVersion,
+          async (page, at) => {
+            // Validated with a stand-in block, then built with none.
+            const filler: SpecBlock = { type: 'paragraph', text: 'x' }
+            const spec = checkSpec({
+              version: SPEC_VERSION,
+              title: 'cards',
+              pages: [{ title: 'cards', blocks: [filler] }],
+              cards: a.cards,
+            })
+            // The same engine as run_plan: runs of recall and fill-in-the-blank cards become steps.
+            const runs: { tool: string; cards: Record<string, unknown>[] }[] =
+              []
+            for (const c of spec.cards ?? []) {
+              const { page: _page, ...card } = c as Record<string, unknown>
+              void _page
+              const tool =
+                c.kind === 'cloze' ? 'cards.make_cloze' : 'cards.make_recall'
+              const last = runs[runs.length - 1]
+              if (last && last.tool === tool) last.cards.push(card)
+              else runs.push({ tool, cards: [card] })
+            }
+            const routed =
+              runs.length > 0 && runs.length < 40
+                ? await plan.viaPlan(
+                    `Add recall cards to "${page.title}"`,
+                    { kind: 'page', id: page.id },
+                    runs.map((r) => ({
+                      tool: r.tool,
+                      args: { pageId: page.id, cards: r.cards },
+                    })),
+                    newId,
+                  )
+                : null
+            if (routed && routed.job.changeSet) {
+              const outs = routed.job.changeSet.records.map((r) => ({
+                table: r.table,
+                id: r.id,
+                value: r.value,
+                baseRev: 0,
+              }))
+              return {
+                outs,
+                finish: (saved: boolean) => plan.finish(routed.job.id, saved),
+              }
+            }
+            const made = notebookFromSpec(
+              { ...spec, pages: [{ title: 'cards', blocks: [] }] },
+              {
+                now: at,
+                newId,
+                batchId: newId(),
+                workspaceId: 'unused',
+                lastNotebookOrder: null,
+              },
+            )
+            // The notebook and page it made are dropped; only blocks and cards are kept.
+            const out = intoPage(
+              made,
+              page,
+              d.cache.hasHeading(page.id, CARDS_HEADING),
+            )
+            return out.map((o) =>
+              o.table === 'cards'
+                ? { ...o, value: { ...o.value, notebookId: page.notebookId } }
+                : o,
+            )
+          },
+        ),
       ),
+    plan,
   }
 }
 

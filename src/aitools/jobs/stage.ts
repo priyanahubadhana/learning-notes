@@ -191,9 +191,7 @@ export async function stageStep(
     switch (tool.id) {
       case 'notebooks.create': {
         const style = args.style as SpecStyle | undefined
-        const mine = await allRows('notebooks', {
-          workspaceId: env.workspaceId,
-        })
+        const mine = await allRows('notebooks', {})
         const out = det.notebookFromSpec(
           {
             version: 'ln-spec/1',
@@ -216,9 +214,7 @@ export async function stageStep(
         const checked = validateSpec(args.spec)
         if (!checked.ok)
           throw new StepError('validation', describeErrors(checked.errors))
-        const mine = await allRows('notebooks', {
-          workspaceId: env.workspaceId,
-        })
+        const mine = await allRows('notebooks', {})
         const out = det.notebookFromSpec(checked.spec, {
           ...base,
           workspaceId: env.workspaceId,

@@ -2,6 +2,12 @@
 
 Current phase only. Older entries are in [ARCHIVE.md](ARCHIVE.md).
 
+### 13 Nov 2026: gate 3, third visit
+
+- What: gate 3 verdicts added for 5 Home v2, 6 Library v2, 9b AI Build (all FAIL), 12 Page menus re-shoot (FAIL, 2 small fixes), 0g follow-ups (PASS), 8 Review v2 re-shoot (PASS), 4 Notebooks + Search re-shoot (FAIL, 7 fixes).
+- Why: the fix lists and flag-on pictures were ready for the design check before merge.
+- Files: docs/plans/gate3-2026-11-13.md.
+
 ### 13 Nov 2026: build/next green again
 
 - What: CI run 43310172930 on build/next is green. Test races fixed: shell offline, Pen 44 pt, SP-50, SP-56, gallery widths. Lint fix in mcp/src/setup.ts.

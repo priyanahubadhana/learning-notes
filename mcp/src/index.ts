@@ -2,6 +2,7 @@ import { StdioServerTransport } from '@modelcontextprotocol/sdk/server/stdio.js'
 import { sessionKeeper } from './auth'
 import { NotesCache } from './cache'
 import { DEVICE_NAME, loadConfig } from './config'
+import { FileJobStore } from './jobFile'
 import { loadMaster } from './keys'
 import { openSecretStore } from './secrets'
 import { buildServer } from './server'
@@ -38,13 +39,16 @@ async function serve(): Promise<void> {
       `Could not check the device list: ${e instanceof Error ? e.message : 'unknown problem'}`,
     )
   }
-  const write = makeWriteTools({
-    cache,
-    source,
-    master,
-    deviceId: config.deviceId,
-    scopes: config.scopes,
-  })
+  const write = makeWriteTools(
+    {
+      cache,
+      source,
+      master,
+      deviceId: config.deviceId,
+      scopes: config.scopes,
+    },
+    new FileJobStore(),
+  )
   const server = buildServer(makeTools(cache), { write, scopes: config.scopes })
   await server.connect(new StdioServerTransport())
   const on = Object.entries(config.scopes)

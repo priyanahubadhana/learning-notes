@@ -17,4 +17,6 @@ export const esShell = {
   'shell.view': 'Vista',
   'shell.view.beginner': 'Principiante',
   'shell.view.pro': 'Profesional',
+  'settings.showUndoRedo.label': 'Mostrar Deshacer y Rehacer en un ordenador',
+  'settings.showUndoRedo.description': 'Mantiene los botones Deshacer y Rehacer en la barra superior. Ctrl Z sigue funcionando si se ocultan. En iPad y móvil siempre se muestran.',
 }

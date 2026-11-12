@@ -82,7 +82,8 @@ export function Sheet(props: SheetProps) {
         if (live) requestClose()
       },
       // Docked: a tap on the page beside it does not close it.
-      inside: (n) => docked || el.contains(n),
+      inside: (n) =>
+        docked || el.contains(n) || !!(n as Element).closest?.('.fb-toasts'),
       opener,
     })
     const release = docked ? null : trapFocus(el, opener)

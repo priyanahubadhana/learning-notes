@@ -227,6 +227,13 @@ export function CommandList(props: CommandListProps) {
     if (e.key === 'ArrowDown' || e.key === 'ArrowUp') {
       e.preventDefault()
       setActive(moveIndex(active, e.key === 'ArrowDown' ? 1 : -1, navCount))
+    } else if (
+      (e.key === 'Home' || e.key === 'End') &&
+      !(e.target as HTMLInputElement).value
+    ) {
+      // With text typed, Home / End keep moving the caret; with none, they jump the highlight.
+      e.preventDefault()
+      setActive(e.key === 'Home' ? (navCount > 0 ? 0 : -1) : navCount - 1)
     } else if (e.key === 'Enter') {
       e.preventDefault()
       if (activeKey) pick(activeKey)

@@ -112,3 +112,15 @@
     margin-top: 12px;
   }
 }
+
+/* Gallery examples sit on a plain page, where the blur shows nothing, and a
+   dozen 28 px blurs at once stall software-rendered WebKit (CI). */
+.fb-toasts[data-mode='inline'] .fb-toast {
+  -webkit-backdrop-filter: none;
+  backdrop-filter: none;
+}
+@media (prefers-reduced-motion: reduce) {
+  .fb-toast {
+    animation-duration: 0.01ms;
+  }
+}

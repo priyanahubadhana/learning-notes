@@ -91,6 +91,17 @@ describe('CommandList', () => {
     ).toBeDefined()
   })
 
+  it('Home and End jump the highlight to the first and last row', () => {
+    show()
+    const rows = () => $$('[role="option"]')
+    key(input(), 'End')
+    expect(input()?.getAttribute('aria-activedescendant')).toBe(
+      rows().at(-1)?.id,
+    )
+    key(input(), 'Home')
+    expect(input()?.getAttribute('aria-activedescendant')).toBe(rows()[0].id)
+  })
+
   it('Esc closes an inline list', () => {
     const { onClose } = show()
     key(input(), 'Escape')

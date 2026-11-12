@@ -182,3 +182,10 @@
   overflow: visible;
   color: var(--color-ink);
 }
+
+/* Gallery examples sit on a plain page, where the blur shows nothing, and a
+   dozen 28 px blurs at once stall software-rendered WebKit (CI). */
+.cl[data-mode='inline'] {
+  -webkit-backdrop-filter: none;
+  backdrop-filter: none;
+}

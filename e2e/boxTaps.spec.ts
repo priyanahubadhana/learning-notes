@@ -98,7 +98,35 @@ async function taps(page: Page, how: How, n: number) {
     await page.mouse.move(p.x, p.y)
     await page.mouse.click(p.x, p.y, { clickCount: n })
   } else {
-    for (let i = 0; i < n; i++) await page.touchscreen.tap(p.x, p.y)
+    // Same as the mouse: all the taps in ONE call. Separate touchscreen.tap
+    // calls are a protocol round trip (and a trace snapshot) apart, which on
+    // the CI machine took more than the app's 450 ms between taps of a run.
+    await page.evaluate(
+      async ({ x, y, n }) => {
+        const fire = (type: string, buttons: number) =>
+          document.elementFromPoint(x, y)!.dispatchEvent(
+            new PointerEvent(type, {
+              pointerType: 'touch',
+              pointerId: 21,
+              isPrimary: true,
+              clientX: x,
+              clientY: y,
+              button: 0,
+              buttons,
+              pressure: buttons ? 0.5 : 0,
+              bubbles: true,
+              cancelable: true,
+            }),
+          )
+        for (let i = 0; i < n; i++) {
+          fire('pointerdown', 1)
+          await new Promise((r) => setTimeout(r, 30))
+          fire('pointerup', 0)
+          await new Promise((r) => setTimeout(r, 30))
+        }
+      },
+      { x: p.x, y: p.y, n },
+    )
   }
   await page.waitForTimeout(150)
 }

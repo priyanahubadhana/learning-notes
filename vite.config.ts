@@ -51,8 +51,8 @@ function isRequiredUpdate(): boolean {
 
 /** Reads UPDATE_LEVEL / UPDATE_REASON out of the text of updateLevel.ts. */
 function readLevelFile(src: string): { level: number; reason: string } {
-  const level = /UPDATE_LEVELs*=s*(d+)/.exec(src)?.[1]
-  const reason = /UPDATE_REASON[^=]*=s*'(w+)'/.exec(src)?.[1]
+  const level = /UPDATE_LEVEL\s*=\s*(\d+)/.exec(src)?.[1]
+  const reason = /UPDATE_REASON[^=]*=\s*'(\w+)'/.exec(src)?.[1]
   return { level: level ? Number(level) : 1, reason: reason ?? 'storage' }
 }
 const LEVEL_FILE = 'src/app/updateLevel.ts'

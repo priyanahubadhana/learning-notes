@@ -1,4 +1,5 @@
 import { centreEl } from './app/centreEl'
+import { isOn } from './app/flags'
 import { setActiveScope } from './core/historySteps'
 import { useLiveQuery } from 'dexie-react-hooks'
 import {
@@ -1223,7 +1224,8 @@ function App() {
       ) {
         e.preventDefault()
         e.stopPropagation()
-        setSearchChip('all')
+        // search.v2: this shortcut opens on the Features chip (SR-B01).
+        setSearchChip(isOn('search.v2') ? 'feature' : 'all')
         setSearchPopup(true)
       }
     }
@@ -1909,6 +1911,9 @@ function App() {
                           notebooks={notebooks}
                           onOpen={(id) => openNotebook(id)}
                           onCreate={() => runTask(createNotebookAndOpen())}
+                          onReview={(notebookId) =>
+                            openReview({ kind: 'notebook', notebookId })
+                          }
                         />
                       ) : null}
                     </Suspense>

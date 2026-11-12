@@ -3,6 +3,14 @@ import { afterEach, describe, expect, it } from 'vitest'
 import { LearningNotesDB } from './db'
 import { defaultNotebookTabs, studyTrackerId } from '../databases/notebookTabs'
 import { createId } from './ids'
+import {
+  backupDbName,
+  needsUpgrade,
+  readBrowserBackup,
+  readSnapshot,
+  saveBrowserBackup,
+  storedVersion,
+} from './upgradeBackup'
 import type { Notebook } from './types'
 
 /**
@@ -865,5 +873,121 @@ describe('database upgrade', () => {
       await db.layerInstalls.where('packId').equals('finance-tracker').count(),
     ).toBe(1)
     db.close()
+  })
+
+  /** A saved database exactly as version 23 left it, with rows in several tables. */
+  async function savedAtVersion23() {
+    name = `migrate-${createId()}`
+    const old = new Dexie(name)
+    old.version(1).stores(V1)
+    old.version(2).stores(V2)
+    old.version(3).stores(V3)
+    old.version(4).stores(V4)
+    for (const v of [5, 6, 7, 8, 9, 10]) old.version(v).stores({})
+    old.version(11).stores({ pageVersions: 'id, pageId, createdAt' })
+    old.version(12).stores({ images: 'id' })
+    old.version(13).stores({
+      inkLayers: 'id, pageId',
+      inkChunks: 'id, pageId, layerId',
+    })
+    old.version(14).stores({ recordings: 'id, pageId' })
+    old.version(15).stores({ fonts: 'id' })
+    old.version(16).stores({ decks: 'id' })
+    old.version(17).stores({
+      bookFiles: 'id, pageId',
+      annotations: 'id, pageId, [pageId+kind], updatedAt',
+    })
+    old.version(18).stores({ syncState: 'id, dirty, fileState' })
+    old.version(19).stores({
+      tasks:
+        'id, status, quadrant, plannedDay, doneDay, top3Day, projectId, sourceBlockId',
+      projects: 'id',
+      timeEntries: 'id, startedAt, day, projectId',
+      dayPlans: 'id, day',
+      habits: 'id',
+      habitChecks: 'id, habitId, day, [habitId+day]',
+      files: 'id, kind',
+    })
+    old.version(20).stores({ layerInstalls: 'id, packId' })
+    old.version(21).stores({
+      summaryItems: 'id, pageId, notebookId, sourceBlockId',
+    })
+    old.version(22).stores({ secrets: 'id' })
+    old.version(23).stores({ claudeInbox: 'id, status, pageId' })
+    await addVersion1Data(old)
+    await old.table('claudeInbox').add({
+      ...base,
+      id: 'ci1',
+      status: 'pending',
+      pageId: 'p1',
+    })
+    await old.table('secrets').add({
+      ...base,
+      id: 's1',
+      kind: 'aiKeys',
+      value: { k: 'x' },
+    })
+    old.close()
+  }
+
+  it('from version 23 adds the AI jobs table (empty), every row intact', async () => {
+    await savedAtVersion23()
+    expect(await storedVersion(name)).toBe(23)
+    // The safety copy is taken from the saved data before the upgrade runs.
+    expect(await needsUpgrade(name, CURRENT_VERSION)).toBe(true)
+    const snapshot = await readSnapshot(name)
+    expect(snapshot.version).toBe(23)
+    await saveBrowserBackup(snapshot)
+    expect(Object.keys(snapshot.tables)).not.toContain('aiJobs')
+    const raw = await new Dexie(name).open()
+    const before = {
+      workspaces: await raw.table('workspaces').toArray(),
+      notebooks: await raw.table('notebooks').toArray(),
+      pages: await raw.table('pages').toArray(),
+      blocks: await raw.table('blocks').toArray(),
+      claudeInbox: await raw.table('claudeInbox').toArray(),
+      secrets: await raw.table('secrets').toArray(),
+    }
+    raw.close()
+    expect(before.blocks).toHaveLength(2)
+
+    const db = new LearningNotesDB(name)
+    await db.open()
+    expect(db.verno).toBe(CURRENT_VERSION)
+    expect(await db.aiJobs.count()).toBe(0)
+    expect(await db.workspaces.toArray()).toEqual(before.workspaces)
+    expect(await db.notebooks.toArray()).toEqual(before.notebooks)
+    expect(await db.pages.toArray()).toEqual(before.pages)
+    expect(await db.blocks.toArray()).toEqual(before.blocks)
+    expect(await db.claudeInbox.toArray()).toEqual(before.claudeInbox)
+    expect(await db.secrets.toArray()).toEqual(before.secrets)
+
+    // The table is usable and its indexes work.
+    await db.aiJobs.add({ id: 'j1', state: 'running', updatedAt: 5 } as never)
+    expect(await db.aiJobs.where('state').equals('running').count()).toBe(1)
+    expect(await db.aiJobs.where('updatedAt').below(10).count()).toBe(1)
+    db.close()
+
+    // The safety copy still holds the version-23 data, untouched by the upgrade.
+    const copy = await readBrowserBackup(name)
+    expect(copy?.version).toBe(23)
+    expect(copy?.tables.blocks).toHaveLength(2)
+    expect(copy?.tables.claudeInbox).toHaveLength(1)
+    expect(copy?.tables.secrets).toHaveLength(1)
+    expect(copy?.tables.aiJobs).toBeUndefined()
+    await Dexie.delete(backupDbName(name))
+  })
+
+  it('deleting the whole database (Start fresh) removes AI jobs too', async () => {
+    name = `migrate-${createId()}`
+    const db = new LearningNotesDB(name)
+    await db.open()
+    await db.aiJobs.add({ id: 'j1', state: 'applied', updatedAt: 1 } as never)
+    db.close()
+    await Dexie.delete(name) // what remoteSignOut.startFresh does
+    const again = new LearningNotesDB(name)
+    await again.open()
+    expect(await again.aiJobs.count()).toBe(0)
+    again.close()
   })
 })

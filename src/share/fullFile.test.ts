@@ -274,6 +274,16 @@ describe('full file', () => {
     await expect(undoRestore(target)).rejects.toBeInstanceOf(RestoreError)
   })
 
+  it('leaves AI job history alone on both sides (never saved, never replaced)', async () => {
+    const job = { id: 'j1', state: 'applied', updatedAt: 1 }
+    await db.aiJobs.add(job as never)
+    await target.aiJobs.add({ ...job, id: 'mine' } as never)
+    const blob = await writeFullFile(db, 'full')
+    expect(await entryNames(blob)).not.toContain('tables/aiJobs.jsonl')
+    await replaceWithFile(target, await readFullFile(blob, target))
+    expect((await target.aiJobs.toArray()).map((j) => j.id)).toEqual(['mine'])
+  })
+
   it('does not touch the upgrade backup database', async () => {
     const parsed = await readFullFile(await writeFullFile(db, 'full'), target)
     await replaceWithFile(target, parsed)

@@ -1,4 +1,4 @@
-import { useCallback, useEffect, useRef, useState } from 'react'
+import { lazy, Suspense, useCallback, useEffect, useRef, useState } from 'react'
 import { Card } from '../../../design/parts/Card'
 import { t } from '../../../i18n/t'
 import { applyLayerVars } from '../../overlay'
@@ -13,9 +13,13 @@ import {
 } from './barState'
 import { NEWLINE_CARD, ToolBar } from './ToolBar'
 import { ToolRow } from './ToolRow'
+import { cardAutoClose, isPenCard } from './cards/pen/penModel'
 import { cardInfo } from './rowItems'
 import type { V8ToolId } from './registryV8'
 import './toolbarV8.css'
+
+// The Pen cards load when the first one opens (keeps the first load small).
+const PenCardBody = lazy(() => import('./cards/pen/PenCards'))
 
 /**
  * The new tool bar (toolbar.v8). Slice 1b: the tool bar, the tool row and an
@@ -95,12 +99,19 @@ export default function ToolbarV8() {
           key={card.id}
           anchor={card.anchor}
           size={info.size}
+          autoClose={cardAutoClose(card.id)}
           title={t(info.title)}
           testId={`v8-card-${card.id}`}
           onClose={() => onCloseCard(card.id)}
         >
-          {/* 1c to 1f fill the cards. */}
-          <p className="v8note">{t('v8.card.empty')}</p>
+          {isPenCard(card.id) ? (
+            <Suspense fallback={null}>
+              <PenCardBody id={card.id} />
+            </Suspense>
+          ) : (
+            /* 1d to 1f fill the other cards. */
+            <p className="v8note">{t('v8.card.empty')}</p>
+          )}
         </Card>
       ) : null}
     </div>

@@ -25,6 +25,7 @@ import { enLateFlags } from './flags'
 import { enLateAiBuild } from './aibuild'
 import { enLateAiJobs } from './aijobs'
 import { enParts } from '../parts'
+import { enV8Pen } from '../v8Pen'
 
 export const enLate = {
   ...enLateAccounts,
@@ -53,4 +54,5 @@ export const enLate = {
   ...enLateAiBuild,
   ...enLateAiJobs,
   ...enParts,
+  ...enV8Pen,
 }

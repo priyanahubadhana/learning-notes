@@ -2,8 +2,9 @@ import { useActiveStyles, useBlockNoteEditor } from '@blocknote/react'
 import { CardTrigger } from '../../../design/parts/Card'
 import { t } from '../../../i18n/t'
 import { Icon } from '../icons'
-import { penSettings, penWidth, type PenSettings } from '../main/inkSettings'
 import { ROW_ITEMS, cardIdOf, type RowItem } from './rowItems'
+import { dotPx, usePenFace, type PenFace } from './penFace'
+import { useChangeCounts } from './changeCount'
 import type { V8ToolId } from './registryV8'
 import { FoldCard } from './FoldCard'
 import type { OpenCard } from './barState'
@@ -13,16 +14,16 @@ import './toolbarV8.css'
 const keepFocus = (e: { preventDefault: () => void }) => e.preventDefault()
 
 /** What a chip says, and how its dot looks, from the pen's saved settings. */
-function view(item: RowItem, pen: PenSettings) {
+function view(item: RowItem, pen: PenFace) {
   let text = t(item.label)
   if (item.tool === 'pen' && item.id === 'type')
-    text = t(`v8.pen.type.${pen.type}`)
+    text = t(`v8.pen.type.${pen.typeId}`)
   if (item.tool === 'pen' && item.id === 'size')
     text = t(`v8.pen.size.${pen.size}`)
   return {
     text,
     colour: item.dot === 'colour' ? pen.colour : undefined,
-    dotPx: item.dot === 'size' ? Math.round(5 + penWidth(pen) * 1.6) : 0,
+    dotPx: item.dot === 'size' ? dotPx(pen) : 0,
   }
 }
 
@@ -32,7 +33,7 @@ function Face({
   names,
 }: {
   item: RowItem
-  pen: PenSettings
+  pen: PenFace
   names: boolean
 }) {
   const v = view(item, pen)
@@ -74,7 +75,13 @@ export function ToolRow({
   onCloseCard,
 }: ToolRowProps) {
   const openCard = card?.id ?? null
-  const pen = penSettings.useValue()
+  const pen = usePenFace()
+  // Each changed chip glows once (TB-70).
+  const glow = useChangeCounts({
+    'pen.type': pen.typeId,
+    'pen.size': `${pen.size}-${pen.px}`,
+    'pen.colour': pen.colour,
+  })
   const editor = useBlockNoteEditor()
   const active = useActiveStyles(editor as never) as Record<string, unknown>
   const items = ROW_ITEMS[tool]
@@ -111,6 +118,7 @@ export function ToolRow({
               className="v8chip"
               open={openCard === cardIdOf(item)}
               label={view(item, pen).text}
+              glowKey={glow[cardIdOf(item)]}
               testId={`v8-chip-${cardIdOf(item)}`}
               onClick={(el) => onToggleCard(cardIdOf(item), el)}
             >

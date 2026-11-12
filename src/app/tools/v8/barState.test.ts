@@ -55,7 +55,7 @@ describe('modeToTool', () => {
     expect(modeToTool('pen')).toBe('pen')
     expect(modeToTool('lasso')).toBe('lasso')
     expect(modeToTool('read')).toBeNull()
-    expect(modeToTool('highlighter')).toBeNull()
+    expect(modeToTool('highlighter')).toBe('pen')
   })
 })
 

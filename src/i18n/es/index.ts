@@ -28,6 +28,7 @@ import { esFlags } from './flags'
 import { esAiBuild } from './aibuild'
 import { esAiJobs } from './aijobs'
 import { esParts } from './parts'
+import { esV8Pen } from './v8Pen'
 
 export const es: Record<string, string> = {
   ...esAccounts,
@@ -59,4 +60,5 @@ export const es: Record<string, string> = {
   ...esAiBuild,
   ...esAiJobs,
   ...esParts,
+  ...esV8Pen,
 }

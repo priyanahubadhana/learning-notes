@@ -8,7 +8,7 @@ const isV8Tool = (v: string): v is V8ToolId =>
 
 /** The tool that is on now (it starts from today's mode where one exists). */
 export const v8Tool: Store<V8ToolId> = memStore<V8ToolId>(
-  isV8Tool(activeTool.get()) ? (activeTool.get() as V8ToolId) : 'text',
+  modeToTool(activeTool.get()) ?? 'text',
 )
 
 /** An open card and the element it hangs from. */
@@ -44,10 +44,13 @@ export const toggleCard = (state: BarState, card: string): BarState => ({
 
 /** Makes the page follow the chosen tool (only the tools that are a mode). */
 export function followMode(id: V8ToolId): void {
+  // The highlighter is a type of the Pen tool: keep it when Pen is chosen.
+  if (id === 'pen' && activeTool.get() === 'highlighter') return
   if (isModeTool(id)) activeTool.set(id)
 }
 
 /** Today's mode changed from elsewhere (the Pencil, a shortcut): follow it. */
 export function modeToTool(mode: string): V8ToolId | null {
+  if (mode === 'highlighter') return 'pen'
   return isV8Tool(mode) ? mode : null
 }

@@ -37,6 +37,7 @@ jobs:
       - run: npm run lint
       - run: npm run format:check
       - run: npm run check:links
+      - run: npm run check:ratchet
       - run: npm test
       - run: npm run build
       - run: npm run check:size

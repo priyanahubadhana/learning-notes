@@ -2,7 +2,7 @@
 
 ## Needs you
 
-- Needs you: finish the Claude connector (3 steps). The app update it waited for is live.
+- DONE 13 Nov: Claude connector A tested by the owner on the PC (list, create notebook, append, revoke, reconnect all passed; safety switch passed in tests). It is registered with Claude Code (user scope), not Claude Desktop.
 - Needs you (Supabase, when free; nothing is blocked): turn on refresh-token rotation; confirm the email-code limits; restrict CORS on the `drive-token` function.
 - Needs you (one check before the strict security header is switched on): Google sign-in, Drive and fonts still work. Until then the strict rule only reports, it blocks nothing.
 - Preview (free, new parts can be switched on there): https://build-next.learning-notes-app.pages.dev . New parts are under Settings › Try new features, all OFF. The live app got the same code on 12 Nov with everything off.

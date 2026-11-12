@@ -288,7 +288,11 @@ export default function MenusSection() {
               type="button"
               className="ds-btn ds-ghost"
               data-testid={`menus-at-${p}`}
-              onClick={() => setAt(p)}
+              onClick={(e) => {
+                // Safari does not focus a button on tap; the strip returns focus here.
+                e.currentTarget.focus()
+                setAt(p)
+              }}
             >
               {p}
             </button>

@@ -188,7 +188,8 @@ test.describe('Parts gallery: menus', () => {
       .poll(async () => (await box(card)).y)
       .toBeGreaterThanOrEqual(s.y + s.height)
     const p = await box(card)
-    expect(Math.round(p.width)).toBe(304)
+    // (the card scales in for 160 ms: wait for its final width)
+    await expect.poll(async () => Math.round((await box(card)).width)).toBe(304)
     expect(p.x).toBeGreaterThanOrEqual(12)
     await expect(card.getByRole('menuitem')).toHaveCount(4)
     // Another arrow replaces it: still one picker, now with the colours.

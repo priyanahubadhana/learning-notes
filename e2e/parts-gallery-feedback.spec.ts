@@ -300,14 +300,20 @@ test.describe('Feedback parts (SP-50 to SP-56)', () => {
       page,
     }) => {
       await open(page, size)
-      const done = page.getByTestId('fb-toast-done')
-      const undo = page.getByTestId('fb-toast-undo-btn')
       const toasts = page.getByTestId('fb-toast')
       // 4 things: done, undo, done, done
-      await done.click()
-      await undo.click()
-      await done.click()
-      await done.click()
+      // (one task, so a slow browser cannot let the first 2.5 s toast expire first)
+      await page.evaluate(() => {
+        for (const id of [
+          'fb-toast-done',
+          'fb-toast-undo-btn',
+          'fb-toast-done',
+          'fb-toast-done',
+        ])
+          (
+            document.querySelector(`[data-testid="${id}"]`) as HTMLElement
+          ).click()
+      })
       await expect(toasts).toHaveCount(3)
       for (let i = 0; i < 3; i++) await settled(toasts.nth(i))
       await expect(page.getByTestId('fb-toast-undo')).toHaveCount(1)
@@ -363,8 +369,9 @@ test.describe('Feedback parts (SP-50 to SP-56)', () => {
       await page.getByTestId('fb-open-sheet').click()
       const sheet = page.getByTestId('fb-sheet')
       await expect(sheet).toBeVisible()
+      // (a problem toast stays, so a slow browser cannot let it expire while the sheet slides in)
       await page.evaluate(() => {
-        for (const id of ['fb-toast-done', 'fb-toast-undo-btn'])
+        for (const id of ['fb-toast-problem', 'fb-toast-undo-btn'])
           (
             document.querySelector(`[data-testid="${id}"]`) as HTMLElement
           ).click()

@@ -90,3 +90,38 @@ list in this slice.
   records (parity test).
 
 Won't do (D): no delete tool; no database change; no tool outside 5a.
+
+## E. Framework slice 5b: Mind maps, Cards (behind `ai.framework`, off)
+
+- V4-E1. When a plan names `mindmaps.add` with a `pageId` and an `outline` (an
+  indented list) or a `brief` → one editable mind map block (never a picture)
+  is added at the end of that page; the model path fills `outline` from the brief.
+  An empty outline, a gone page or a locked page/notebook → the step fails with
+  a plain sentence and nothing is written.
+- V4-E2. When a plan names `mindmaps.set_theme` with a `blockId` and a theme
+  (`calm`, `bold`, `paper`) → only that mind map's theme changes. A block that is
+  not a mind map, or is gone → the step fails, nothing is written.
+- V4-E3. When a plan names `cards.suspend` with a `cardId` and `suspended`
+  true/false → the card is set aside (or brought back) without deleting
+  anything; its reviews stay. A gone card or a locked notebook → the step fails.
+- V4-E4. Each tool runs the same from the app and from `mcp/` (parity goldens),
+  applies in one save, and Undo and Redo put everything back.
+
+Won't do (E): no card deletion, no edit of card text or schedule, no mind map
+node editing, no tool outside 5b.
+
+## F. Framework slice 5c: Databases, Styles, Layouts (behind `ai.framework`, off)
+
+- V4-F1. When a plan names `databases.rename` with a `databaseId` and a `title`
+  → only the database title changes. A gone or locked database, or a locked
+  notebook → the step fails, nothing is written. The Study tracker database is
+  not renamed.
+- V4-F2. When a plan names `styles.set_paper` with a `pageId` and `paper`
+  (`plain`, `lined`, `grid`, `dots`) → only the paper behind the ink changes.
+- V4-F3. When a plan names `layouts.set_path_style` with a `pageId` and `pathStyle`
+  (`simple`, `full`, `page`, `inherit`) → that page's own path style is set, or
+  cleared for `inherit`.
+- V4-F4. Same parity, one-save and Undo/Redo rules as V4-E4.
+
+Won't do (F): no database column, row or view changes; no notebook layout
+boxes; no tool outside 5c.

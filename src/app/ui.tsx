@@ -454,7 +454,7 @@ export function Toast({
       data-popup-trigger
       data-toast
       style={{ bottom: toastBottom(kb) }}
-      className="fixed bottom-5 left-1/2 z-40 flex max-w-[calc(100vw-32px)] items-center gap-3 rounded-xl border border-line bg-surface-3 px-3.5 py-2 text-[13px] text-ink shadow-[var(--elev-2)]"
+      className="fixed bottom-5 left-1/2 z-40 flex max-w-[calc(100vw-32px)] items-center gap-3 rounded-xl phone:bottom-[calc(var(--sh-tabbar,56px)+env(safe-area-inset-bottom,0px)+16px)] border border-line bg-surface-3 px-3.5 py-2 text-[13px] text-ink shadow-[var(--elev-2)]"
     >
       <span>{message}</span>
       {action && (

@@ -91,7 +91,9 @@ type Rect = { left: number; top: number; width: number; height: number }
 /** Where a card hangs: under the button AND the whole bar, so it never covers the bar. */
 function anchorFor(el: Element): Rect {
   const r = el.getBoundingClientRect()
-  const bar = el.closest('.rv2-bar')?.getBoundingClientRect()
+  const bar = (
+    el.closest('.rv2-stack') ?? el.closest('.rv2-bar')
+  )?.getBoundingClientRect()
   return {
     left: r.left,
     top: r.top,
@@ -104,6 +106,8 @@ const BTN_W = 46
 const MORE_W = 64
 const CLOSE_W = 46
 const PAGE_W = 96
+/** The title keeps at least this much room before more buttons fold into ⋯ (RD fix 6). */
+const TITLE_MIN = 150
 
 /**
  * The reader bar's one row (slice 7a, RD-B01): ✕ Exit, title, "Page n of N",
@@ -189,7 +193,12 @@ export default function ReaderBarRow({
     return () => ro.disconnect()
   }, [])
 
-  const avail = width - CLOSE_W - MORE_W - (pageText ? PAGE_W : 0)
+  const avail =
+    width -
+    CLOSE_W -
+    MORE_W -
+    (width >= 600 ? TITLE_MIN : 0) -
+    (pageText ? PAGE_W : 0)
   const keep = fitItems(
     items.map((i) => ({ id: i.id, w: i.w ?? BTN_W, rank: i.rank })),
     avail,

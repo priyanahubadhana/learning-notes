@@ -37,3 +37,6 @@ dist*/
 test-results*/
 .wtb*/
 playwright.*.config.ts
+
+# local Supabase CLI temp
+supabase/.temp/

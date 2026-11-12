@@ -1,6 +1,7 @@
 import type { JsonValue } from '../../core/types'
 import type { SettingDefinition } from '../registry'
 import { ChooseTemplate } from './ChooseTemplate'
+import { tv } from './tv'
 
 /** Extra controls that sit under a row's own control (the stored value is the row's). */
 export function RowExtra({
@@ -14,5 +15,7 @@ export function RowExtra({
 }) {
   if (definition.id === 'general.newPageStudy')
     return <ChooseTemplate value={value} onSave={onSave} />
+  if (definition.id.startsWith('tryNew.'))
+    return <p className="sv3-line-help">{tv('sv3.tryNew.rowRisk')}</p>
   return null
 }

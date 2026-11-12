@@ -33,6 +33,8 @@ import { HelpSection } from './HelpSection'
 import { ProFeatures } from './ProFeatures'
 import { rowShown, useExperienceOnTop } from './experience'
 import { searchVirtual, virtualRows } from './virtualRows'
+import { asksForTryNew, openTryNew, useTryNewOpen } from './tryNew'
+import { TryNewHeader } from './TryNewHeader'
 import { inSection, useVisibleSettings } from './visibleSettings'
 import { tv } from './tv'
 import { useWide } from './useWide'
@@ -60,7 +62,8 @@ function SettingsV3Body({
   focusId?: string
 }) {
   const top = useExperienceOnTop()
-  const sections = buildSections(top)
+  const tryOpen = useTryNewOpen()
+  const sections = buildSections(top, tryOpen)
   const history = useSettingsHistory()
   const [own, setOwn] = useState(
     () =>
@@ -91,7 +94,9 @@ function SettingsV3Body({
     )
   }, [focusId])
 
-  const everything = useVisibleSettings(db, true)
+  const everything = useVisibleSettings(db, true).filter(
+    (s) => tryOpen || s.category !== 'tryNew',
+  )
   const visible = everything.filter((s) => !s.searchOnly)
   const items = sections.map((s) => ({
     id: s.id,
@@ -188,7 +193,19 @@ function SettingsV3Body({
           value={query}
           placeholder={tv('sv3.search')}
           aria-label={tv('sv3.search')}
-          onChange={(e) => setQuery(e.target.value)}
+          onChange={(e) => {
+            const text = e.target.value
+            // SET-B26: the phrase opens the hidden list.
+            if (asksForTryNew(text)) {
+              openTryNew()
+              setQuery('')
+              pick('tryNew')
+              setMoved('tryNew')
+              setTimeout(() => setMoved(undefined), 3000)
+              return
+            }
+            setQuery(text)
+          }}
           onClear={() => setQuery('')}
         />
       </div>
@@ -223,6 +240,7 @@ function SettingsV3Body({
             />
           )}
           {!searching && section?.kind === 'pro' && <ProFeatures />}
+          {!searching && current === 'tryNew' && <TryNewHeader />}
           {!searching &&
             rows.map((s) => (
               <Fragment key={s.id}>
@@ -237,7 +255,15 @@ function SettingsV3Body({
               </Fragment>
             ))}
           {!searching && section?.kind === 'help' && (
-            <HelpSection onShow={openHit} />
+            <HelpSection
+              onShow={openHit}
+              onFiveTaps={() => {
+                openTryNew()
+                pick('tryNew')
+                setMoved('tryNew')
+                setTimeout(() => setMoved(undefined), 3000)
+              }}
+            />
           )}
           {!searching && rows.length > 0 && section && (
             <SectionReset db={db} sectionName={section.label} rows={rows} />

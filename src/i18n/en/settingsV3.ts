@@ -180,4 +180,17 @@ export const enSettingsV3 = {
   'sv3.pencil.title': 'Pencil & touch',
   'sv3.pencil.lead':
     'What the Apple Pencil and your finger do when you write, select and scroll.',
+  'sv3.tryNew.title': 'Try new features',
+  'sv3.tryNew.risk':
+    'These new parts are still being built. They can change how the app looks or works, and some may feel unfinished. If something feels wrong, turn it off. Nothing here changes your notes.',
+  'sv3.tryNew.rowRisk': 'Early version. Turn it off if something feels wrong.',
+  'sv3.tryNew.turnAllOff': 'Turn all off',
+  'sv3.tryNew.noneOn': 'No new feature is on',
+  'sv3.tryNew.allOff_one': '{count} new feature turned off',
+  'sv3.tryNew.allOff_other': '{count} new features turned off',
+  'sv3.version.name': 'Version',
+  'sv3.version.help': 'The version of the app you are using.',
+  'sv3.version.details': 'Version {commit}, built {date}.',
+  'sv3.tryNew.keepScreen':
+    'Turn all off leaves this new Settings screen on, so you do not lose this page. Turn it off in its own switch.',
 }

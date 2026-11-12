@@ -2,6 +2,7 @@ import { useState } from 'react'
 import { ExperienceDialog } from './ExperienceDialog'
 import { rowShown, useGateVersion } from './experience'
 import { ToursLibrary } from './ToursLibrary'
+import { VersionRow } from './VersionRow'
 import { ShowInBeginner } from './ShowInBeginner'
 import { tv } from './tv'
 
@@ -11,8 +12,11 @@ import { tv } from './tv'
  */
 export function HelpSection({
   onShow,
+  onFiveTaps,
 }: {
   onShow(settingId: string, sectionId: string): void
+  /** The Version row was tapped five times. */
+  onFiveTaps(): void
 }) {
   useGateVersion()
   const [opener, setOpener] = useState<HTMLElement | null>(null)
@@ -20,6 +24,7 @@ export function HelpSection({
   return (
     <>
       <ToursLibrary onShow={onShow} />
+      <VersionRow onFiveTaps={onFiveTaps} />
       {rowShown('help.firstLaunch') && (
         <section className="sv3-row" data-setting-id="help.firstLaunch">
           <h3 className="sv3-row-name">{tv('sv3.firstLaunch.name')}</h3>

@@ -181,4 +181,17 @@ export const esSettingsV3 = {
   'sv3.pencil.title': 'Lápiz y tacto',
   'sv3.pencil.lead':
     'Qué hacen el Apple Pencil y tu dedo al escribir, seleccionar y desplazar.',
+  'sv3.tryNew.title': 'Probar funciones nuevas',
+  'sv3.tryNew.risk':
+    'Estas partes nuevas aún se están construyendo. Pueden cambiar cómo se ve o funciona la app, y algunas pueden sentirse sin terminar. Si algo no te gusta, apágalo. Nada de aquí cambia tus notas.',
+  'sv3.tryNew.rowRisk': 'Versión temprana. Apágala si algo no te gusta.',
+  'sv3.tryNew.turnAllOff': 'Apagar todas',
+  'sv3.tryNew.noneOn': 'Ninguna función nueva está activa',
+  'sv3.tryNew.allOff_one': '{count} función nueva apagada',
+  'sv3.tryNew.allOff_other': '{count} funciones nuevas apagadas',
+  'sv3.version.name': 'Versión',
+  'sv3.version.help': 'La versión de la app que estás usando.',
+  'sv3.version.details': 'Versión {commit}, compilada el {date}.',
+  'sv3.tryNew.keepScreen':
+    'Apagar todas deja encendida esta pantalla nueva de Ajustes, para que no pierdas esta página. Apágala con su propio interruptor.',
 }

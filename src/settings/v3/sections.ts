@@ -61,12 +61,18 @@ export function sectionIdsOf(def: SettingDefinition): string[] {
  * order, plus Your experience (first, or last when moved), Help & tour and
  * Professional features. Nothing is removed from the registry.
  */
-export function buildSections(experienceOnTop: boolean): V3Section[] {
-  const cats = [...settingsRegistry.categories()].sort((a, b) => {
-    const ia = ORDER.indexOf(a.id)
-    const ib = ORDER.indexOf(b.id)
-    return (ia < 0 ? 1000 + a.order : ia) - (ib < 0 ? 1000 + b.order : ib)
-  })
+export function buildSections(
+  experienceOnTop: boolean,
+  tryNewOpen = false,
+): V3Section[] {
+  const cats = [...settingsRegistry.categories()]
+    // "Try new features" stays hidden until it is asked for (SET-B26).
+    .filter((c) => c.id !== 'tryNew' || tryNewOpen)
+    .sort((a, b) => {
+      const ia = ORDER.indexOf(a.id)
+      const ib = ORDER.indexOf(b.id)
+      return (ia < 0 ? 1000 + a.order : ia) - (ib < 0 ? 1000 + b.order : ib)
+    })
   const rows: V3Section[] = cats.map((c) => ({
     id: c.id,
     // "Let Claude use my notes" is now "Let AI use my notebooks" (SET-B25).

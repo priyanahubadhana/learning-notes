@@ -21,6 +21,14 @@ async function open(page: Page, hash = V3) {
   await page.getByRole('button', { name: 'Hide menu' }).click()
   await expect(page.locator('[data-settings-v3]')).toBeVisible()
   await page.waitForLoadState('networkidle')
+  // A service worker that is still installing can reload the page: wait for it
+  // before a test goes offline.
+  await page.evaluate(() =>
+    Promise.race([
+      navigator.serviceWorker?.ready,
+      new Promise((r) => setTimeout(r, 1500)),
+    ]),
+  )
 }
 
 test('SET-B17 Your experience is the first section with three choices', async ({

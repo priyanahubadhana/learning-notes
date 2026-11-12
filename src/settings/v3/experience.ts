@@ -172,6 +172,8 @@ const ALWAYS = new Set(['general.newPageStudy'])
 
 export function rowShown(id: string): boolean {
   if (getLevel() === 'professional' || ALWAYS.has(id)) return true
+  // The hidden Try new features list shows all its switches once opened.
+  if (id.startsWith('tryNew.')) return true
   const tag = tagOf(id)
   if (tag === 'A') return isUnlocked(id as never)
   if (tag === 'E') return true

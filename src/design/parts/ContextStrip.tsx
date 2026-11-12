@@ -8,7 +8,7 @@ import {
   type KeyboardEvent,
 } from 'react'
 import { createPortal } from 'react-dom'
-import { LAYERS, overlay, type Rect } from '../../app/overlay'
+import { overlay, type Rect } from '../../app/overlay'
 import { Icon, type IconName } from '../../app/tools/icons'
 import { CommandList } from './CommandList'
 import type { Command, CommandGroup } from './commandListLogic'
@@ -19,6 +19,7 @@ import {
   type StripPlacement,
 } from './contextStripPlace'
 import { motionMs } from './motion'
+import { popoverAttr, showTop } from './topLayer'
 import { tm } from './textMenus'
 import { useAnchoredCard } from './useAnchoredCard'
 import './ContextStrip.css'
@@ -157,6 +158,10 @@ export function ContextStrip(props: ContextStripProps) {
     opener?.focus?.()
   }, [opener])
 
+  useLayoutEffect(() => {
+    if (floating) showTop(rootRef.current)
+  }, [floating])
+
   // Overlay: Esc and a tap outside close the strip (and a picker first).
   useEffect(() => {
     if (!floating) return
@@ -277,7 +282,6 @@ export function ContextStrip(props: ContextStripProps) {
   const style: CSSProperties & Record<string, string | number | undefined> =
     floating
       ? {
-          zIndex: LAYERS.menu,
           left: pos?.left ?? 0,
           top: pos?.top ?? 0,
           visibility: pos ? 'visible' : 'hidden',
@@ -288,6 +292,7 @@ export function ContextStrip(props: ContextStripProps) {
   const bar = (
     <div
       ref={rootRef}
+      popover={floating ? popoverAttr() : undefined}
       className="cs"
       data-testid={props.testId ?? 'context-strip'}
       data-mode={mode}
@@ -418,6 +423,9 @@ function FloatingPicker(props: {
   useLayoutEffect(() => {
     closeRef.current = onClose
   })
+  useLayoutEffect(() => {
+    showTop(node)
+  }, [node])
   useEffect(() => {
     if (!node) return
     let live = true
@@ -454,7 +462,6 @@ function FloatingPicker(props: {
       onClose={onClose}
       onNode={setNode}
       style={{
-        zIndex: LAYERS.card,
         left: pos?.left ?? 0,
         top: pos?.top ?? 0,
         visibility: pos ? 'visible' : 'hidden',
@@ -488,6 +495,7 @@ function PickerCard(props: {
     <div
       ref={(el) => props.onNode?.(el)}
       className="cs-pick"
+      popover={props.inline ? undefined : popoverAttr()}
       data-testid="cs-picker"
       data-inline={props.inline || undefined}
       style={props.style}

@@ -9,7 +9,7 @@ import {
   type KeyboardEvent,
 } from 'react'
 import { createPortal } from 'react-dom'
-import { LAYERS, overlay, type Rect } from '../../app/overlay'
+import { overlay, type Rect } from '../../app/overlay'
 import { Icon } from '../../app/tools/icons'
 import {
   buildList,
@@ -19,6 +19,7 @@ import {
   type CommandGroup,
 } from './commandListLogic'
 import { motionMs } from './motion'
+import { popoverAttr, showTop } from './topLayer'
 import {
   placeStrip,
   STRIP_GAP,
@@ -117,6 +118,10 @@ export function CommandList(props: CommandListProps) {
     handleRef.current?.close()
     timerRef.current = setTimeout(() => onCloseRef.current(), motionMs(120))
   }, [])
+
+  useLayoutEffect(() => {
+    if (floating) showTop(rootRef.current)
+  }, [floating])
 
   // Overlay: Esc and a tap outside close it; the strip that opened it stays.
   useEffect(() => {
@@ -234,7 +239,6 @@ export function CommandList(props: CommandListProps) {
   const listId = `${uid}-list`
   const style = floating
     ? {
-        zIndex: LAYERS.card,
         left: pos?.left ?? 0,
         top: pos?.top ?? 0,
         maxHeight: maxH ?? undefined,
@@ -245,6 +249,7 @@ export function CommandList(props: CommandListProps) {
   const card = (
     <div
       ref={rootRef}
+      popover={floating ? popoverAttr() : undefined}
       className="cl"
       data-testid={props.testId ?? 'command-list'}
       data-mode={mode}

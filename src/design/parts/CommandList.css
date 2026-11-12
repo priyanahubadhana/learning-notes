@@ -173,3 +173,12 @@
 :root[data-motion='reduce'] .cl[data-state='closing'] {
   animation: none;
 }
+
+/* Top-layer (popover) element: undo the browser's default box. */
+.cl[popover] {
+  inset: auto;
+  margin: 0;
+  border: 0;
+  overflow: visible;
+  color: var(--color-ink);
+}

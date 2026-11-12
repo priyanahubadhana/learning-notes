@@ -272,3 +272,20 @@
 :root[data-motion='reduce'] .cs-pick {
   animation: none;
 }
+
+/* Top-layer (popover) elements: undo the browser's default box. */
+.cs[popover],
+.cs-pick[popover] {
+  inset: auto;
+  margin: 0;
+  border: 0;
+}
+.cs[popover] {
+  padding: 0;
+  overflow: visible;
+  background: transparent;
+  color: inherit;
+}
+.cs-pick[popover] {
+  color: var(--color-ink);
+}

@@ -42,6 +42,7 @@ Learning Notes App: a premium, minimal second brain (Notion + OneNote + Anki). E
 | [rules/global.md](rules/global.md)             | Any UI or stored data: text, UTC, accessibility, upgrades          |
 | [rules/scalability.md](rules/scalability.md)   | Queries, lists, storage, anything that grows with data             |
 | [rules/security.md](rules/security.md)         | Inputs, secrets, dependencies, deleting data, end of phase         |
+| [rules/quality.md](rules/quality.md)           | Every feature: design system, spec, Definition of Done, 3 gates    |
 | [rules/phase-end.md](rules/phase-end.md)       | Closing a phase                                                    |
 
 ## Project Files

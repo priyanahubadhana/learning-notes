@@ -56,6 +56,8 @@ export const SYNC_TABLES: Record<string, MergeMode> = {
   links: 'local',
   blockTags: 'local',
   syncState: 'local',
+  // AI build jobs and checkpoints: working state of this device.
+  aiJobs: 'local',
 }
 
 export const isSynced = (table: string): boolean =>

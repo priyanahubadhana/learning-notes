@@ -8,7 +8,7 @@ import {
   type ReactNode,
 } from 'react'
 import { createPortal } from 'react-dom'
-import { CardCtx } from './cardPick'
+import { CardCtx, focusTarget } from './cardPick'
 import {
   LAYERS,
   overlay,
@@ -111,10 +111,7 @@ export function Card(props: CardProps) {
       inside: (t) => !!el && el.contains(t),
     })
     const release = el ? trapFocus(el, null) : () => {}
-    const first = el?.querySelector<HTMLElement>(
-      '.pcard-body button:not([disabled]), .pcard-body input:not([disabled]), .pcard-body [tabindex="0"]',
-    )
-    ;(first ?? el)?.focus()
+    if (el) focusTarget(el).focus()
     return () => {
       closingRef.current = true
       clearTimeout(timerRef.current)
@@ -138,10 +135,7 @@ export function Card(props: CardProps) {
     if (isStatic || !placed) return
     const el = rootRef.current
     if (!el || el.contains(document.activeElement)) return
-    const first = el.querySelector<HTMLElement>(
-      '.pcard-body button:not([disabled]), .pcard-body input:not([disabled]), .pcard-body [tabindex="0"]',
-    )
-    ;(first ?? el).focus()
+    focusTarget(el).focus()
   }, [isStatic, placed])
 
   // The bottom edge fades while there is more to scroll.

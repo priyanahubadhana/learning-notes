@@ -23,6 +23,7 @@ import { enLateUpdates } from './updates'
 import { enLateUpdateV2 } from './updateV2'
 import { enLateFlags } from './flags'
 import { enLateShell } from './shell'
+import { enLateAiBuild } from './aibuild'
 
 export const enLate = {
   ...enLateAccounts,
@@ -49,4 +50,5 @@ export const enLate = {
   ...enLateUpdateV2,
   ...enLateFlags,
   ...enLateShell,
+  ...enLateAiBuild,
 }

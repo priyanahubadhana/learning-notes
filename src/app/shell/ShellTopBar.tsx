@@ -34,7 +34,6 @@ export interface ShellTopBarProps {
 function Btn({
   icon,
   label,
-  tip,
   onClick,
   disabled,
   pressed,
@@ -45,7 +44,6 @@ function Btn({
 }: {
   icon: ShellIconName
   label: string
-  tip?: string
   onClick: () => void
   disabled?: boolean
   pressed?: boolean
@@ -59,7 +57,6 @@ function Btn({
       type="button"
       className={`sh-tb ${className}`}
       aria-label={label}
-      title={tip ?? label}
       disabled={disabled}
       aria-pressed={pressed}
       aria-controls={controls}
@@ -194,7 +191,6 @@ export function ShellTopBar(props: ShellTopBarProps) {
       <Btn
         icon="search"
         label={t('shell.search')}
-        tip={t('shell.searchTip')}
         testId="shell-search"
         onClick={onSearch}
       />

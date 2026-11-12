@@ -40,7 +40,6 @@ export function Rail({ spaces, current, onSelect, due, gear }: SpaceNavProps) {
             data-space={space}
             aria-label={t('space.button', { name })}
             aria-current={active ? 'page' : undefined}
-            title={name}
             onClick={() => onSelect(space)}
           >
             <ShellIcon name={SPACE_SHELL_ICON[space]} />
@@ -58,7 +57,6 @@ export function Rail({ spaces, current, onSelect, due, gear }: SpaceNavProps) {
         className="sh-ib"
         data-testid="shell-daynight"
         aria-label={dayNight}
-        title={dayNight}
         onClick={() => gear.onTheme(next)}
       >
         <ShellIcon name={themeIcon(gear.theme)} />
@@ -74,7 +72,6 @@ export function Rail({ spaces, current, onSelect, due, gear }: SpaceNavProps) {
             aria-label={t('corner.label')}
             aria-haspopup="dialog"
             aria-expanded={open}
-            title={t('shell.gear')}
             onClick={(e) => onClick(e.currentTarget)}
           >
             <ShellIcon name="gear" />

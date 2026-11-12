@@ -1,8 +1,9 @@
-import { useMemo, useState } from 'react'
+import { useEffect, useMemo, useState } from 'react'
 import { AlertDialog, ConfirmDialog, PromptDialog } from '../parts/Dialogs'
 import { Sheet } from '../parts/Sheet'
 import { ToastStack } from '../parts/ToastStack'
 import { createToasts } from '../parts/toastLogic'
+import { createPartsClock } from './partsClock'
 import { BannerHost } from '../parts/Banner'
 import { createBannerQueue } from '../parts/bannerQueue'
 import '../parts/Dialogs.css'
@@ -56,14 +57,23 @@ export default function FeedbackSection() {
   const [sheetOpener, setSheetOpener] = useState<HTMLElement | null>(null)
   const [said, setSaid] = useState('Nothing chosen yet')
   const [opener, setOpener] = useState<HTMLElement | null>(null)
-  const toasts = useMemo(() => createToasts(), [])
+  // One clock for the gallery's toasts; tests reach it as window.__partsClock.
+  const clock = useMemo(() => createPartsClock(), [])
+  useEffect(() => {
+    window.__partsClock = clock
+    return () => {
+      delete window.__partsClock
+      clock.dispose()
+    }
+  }, [clock])
+  const toasts = useMemo(() => createToasts(clock), [clock])
   const staticToasts = useMemo(() => {
-    const t = createToasts()
+    const t = createToasts(clock)
     t.push('done', 'Saved')
     t.push('undo', 'Page moved to Trash', () => {})
     t.push('problem', 'Could not save. Try again.')
     return t
-  }, [])
+  }, [clock])
   const banners = useMemo(() => {
     const q = createBannerQueue()
     q.push({

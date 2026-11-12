@@ -17,6 +17,8 @@ Researched 12 Nov 2026 from official Claude Code docs (costs, sub-agents, prompt
 
 ## Model per role
 
+Non-build tasks. The build: docs/ECONOMY-MODE.md section 2.
+
 | Role                                   | Model                                 | Effort |
 | -------------------------------------- | ------------------------------------- | ------ |
 | Manager: plan, delegate, verify        | Fable 5.2 (or Opus 5.5 to save quota) | medium |

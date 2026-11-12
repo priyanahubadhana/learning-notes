@@ -16,12 +16,32 @@ type Size = { width: number; height: number }
 
 async function open(page: Page, size: Size) {
   await page.setViewportSize(size)
+  // a fresh document each time: the same address twice is a hash jump, not a load
+  await page.goto('about:blank')
   await page.goto('/#/design-tokens')
+  // every section has arrived: nothing above can still push the page down
+  await expect(page.getByTestId('gal-parts')).toHaveAttribute(
+    'data-ready',
+    'true',
+  )
   const sec = page.getByTestId('gal-feedback')
   await expect(sec).toBeAttached()
   await sec.scrollIntoViewIfNeeded()
   await expect(page.getByTestId('fb-open-sheet')).toBeVisible()
 }
+
+/** Stops toast time (gallery only): a toast ends when the test says, not when the machine is slow. */
+type Hook = { pause(): void; advance(ms: number): void }
+const freezeToasts = (page: Page) =>
+  page.evaluate(() =>
+    (window as unknown as { __partsClock: Hook }).__partsClock.pause(),
+  )
+const toastTime = (page: Page, ms: number) =>
+  page.evaluate(
+    (n) =>
+      (window as unknown as { __partsClock: Hook }).__partsClock.advance(n),
+    ms,
+  )
 
 const box = async (l: Locator) => {
   const b = await l.boundingBox()
@@ -31,6 +51,19 @@ const box = async (l: Locator) => {
 
 /** Nothing of `l` is outside the screen. */
 async function onScreen(page: Page, l: Locator, what: string) {
+  // a scroll or slide may still be moving: wait for the box to stop, then assert
+  await expect
+    .poll(
+      async () => {
+        // the page can still shift as lazy parts arrive: bring it back into view
+        await l.scrollIntoViewIfNeeded()
+        const r = await l.boundingBox()
+        const v = page.viewportSize()!
+        return !!r && r.y >= -0.5 && r.y + r.height <= v.height + 0.5
+      },
+      { message: what },
+    )
+    .toBe(true)
   const b = await box(l)
   const v = page.viewportSize()!
   expect(b.x, `${what} left`).toBeGreaterThanOrEqual(-0.5)
@@ -104,13 +137,14 @@ test.describe('Feedback parts (SP-50 to SP-56)', () => {
       0,
     )
     // the page beside it still works: a tap on a page button does not close it
-    const beside = page.getByTestId('fb-toast-done')
+    // (the first column; where the other demos sit depends on the font width)
+    const beside = page.getByTestId('fb-banner-add')
     await beside.scrollIntoViewIfNeeded()
-    expect((await box(beside)).x + (await box(beside)).width).toBeLessThan(
-      IPAD_L.width - 376,
-    )
+    await expect
+      .poll(async () => (await box(beside)).x + (await box(beside)).width)
+      .toBeLessThan(IPAD_L.width - 376)
     await beside.tap()
-    await expect(page.getByTestId('fb-toast')).toHaveCount(1)
+    await expect(page.getByTestId('fb-banner-more')).toHaveText('+1')
     await expect(sheet).toBeVisible()
     // Esc closes and focus returns to the button that opened it
     await page.keyboard.press('Escape')
@@ -269,6 +303,8 @@ test.describe('Feedback parts (SP-50 to SP-56)', () => {
       const input = page.getByTestId('fb-prompt-input')
       const count = page.getByTestId('fb-prompt-count')
       await expect(input).toBeFocused()
+      // the dialog scales in; sizes are final once it says so
+      await expect(dlg).toHaveAttribute('data-settled', 'true')
       await input.fill('a'.repeat(31))
       await expect(count).toBeHidden()
       await input.fill('a'.repeat(32))
@@ -301,19 +337,14 @@ test.describe('Feedback parts (SP-50 to SP-56)', () => {
     }) => {
       await open(page, size)
       const toasts = page.getByTestId('fb-toast')
+      await freezeToasts(page)
+      const done = page.getByTestId('fb-toast-done')
+      const undo = page.getByTestId('fb-toast-undo-btn')
       // 4 things: done, undo, done, done
-      // (one task, so a slow browser cannot let the first 2.5 s toast expire first)
-      await page.evaluate(() => {
-        for (const id of [
-          'fb-toast-done',
-          'fb-toast-undo-btn',
-          'fb-toast-done',
-          'fb-toast-done',
-        ])
-          (
-            document.querySelector(`[data-testid="${id}"]`) as HTMLElement
-          ).click()
-      })
+      await done.click()
+      await undo.click()
+      await done.click()
+      await done.click()
       await expect(toasts).toHaveCount(3)
       for (let i = 0; i < 3; i++) await settled(toasts.nth(i))
       await expect(page.getByTestId('fb-toast-undo')).toHaveCount(1)
@@ -348,13 +379,36 @@ test.describe('Feedback parts (SP-50 to SP-56)', () => {
     page,
   }) => {
     await open(page, IPAD_L)
+    await freezeToasts(page)
     await page.getByTestId('fb-toast-problem').click()
     const t = page.getByTestId('fb-toast')
     await expect(t).toHaveCount(1)
-    await page.waitForTimeout(2900)
+    await toastTime(page, 2900)
+    await expect(t).toHaveCount(1)
+    await toastTime(page, 60_000)
     await expect(t).toHaveCount(1)
     await page.getByTestId('fb-toast-x').tap()
     await expect(t).toHaveCount(0)
+  })
+
+  test('SP-54 a done toast goes after 2.5 s and an Undo toast after 6 s', async ({
+    page,
+  }) => {
+    await open(page, IPAD_L)
+    await freezeToasts(page)
+    await page.getByTestId('fb-toast-done').click()
+    await page.getByTestId('fb-toast-undo-btn').click()
+    const toasts = page.getByTestId('fb-toast')
+    await expect(toasts).toHaveCount(2)
+    await toastTime(page, 2499)
+    await expect(toasts).toHaveCount(2)
+    await toastTime(page, 1)
+    await expect(toasts).toHaveCount(1)
+    await expect(page.getByTestId('fb-toast-undo')).toHaveCount(1)
+    await toastTime(page, 3499)
+    await expect(toasts).toHaveCount(1)
+    await toastTime(page, 1)
+    await expect(toasts).toHaveCount(0)
   })
 
   for (const size of ALL) {
@@ -362,6 +416,7 @@ test.describe('Feedback parts (SP-50 to SP-56)', () => {
       page,
     }) => {
       await open(page, size)
+      await freezeToasts(page)
       const region = page.getByTestId('fb-toasts')
       await expect(region).toHaveAttribute('role', 'status')
       await expect(region).toHaveAttribute('aria-live', 'polite')
@@ -369,9 +424,9 @@ test.describe('Feedback parts (SP-50 to SP-56)', () => {
       await page.getByTestId('fb-open-sheet').click()
       const sheet = page.getByTestId('fb-sheet')
       await expect(sheet).toBeVisible()
-      // (a problem toast stays, so a slow browser cannot let it expire while the sheet slides in)
+      // (the open sheet covers the page buttons, so these two are pressed in the page)
       await page.evaluate(() => {
-        for (const id of ['fb-toast-problem', 'fb-toast-undo-btn'])
+        for (const id of ['fb-toast-done', 'fb-toast-undo-btn'])
           (
             document.querySelector(`[data-testid="${id}"]`) as HTMLElement
           ).click()

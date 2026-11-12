@@ -47,7 +47,10 @@ function askHidden(question: string): Promise<string> {
     stdin.resume()
     stdin.setEncoding('utf8')
     let text = ''
-    const onData = (chunk: string) => {
+    const onData = (raw: string) => {
+      // Pasted text may arrive with bracketed-paste markers; drop them.
+      // eslint-disable-next-line no-control-regex -- the escape character is the point
+      const chunk = raw.replace(/\u001b\[20[01]~/g, '')
       for (const ch of chunk) {
         if (ch === '\r' || ch === '\n') {
           stdin.setRawMode(false)
@@ -61,8 +64,14 @@ function askHidden(question: string): Promise<string> {
           stdin.setRawMode(false)
           process.exit(130)
         }
-        if (ch === '\u007f' || ch === '\b') text = text.slice(0, -1)
-        else text += ch
+        if (ch === '\u007f' || ch === '\b') {
+          if (text.length > 0) process.stderr.write('\b \b')
+          text = text.slice(0, -1)
+        } else if (ch >= ' ') {
+          // Show one * per key so you can see typing and pasting work.
+          text += ch
+          process.stderr.write('*')
+        }
       }
     }
     stdin.on('data', onData)

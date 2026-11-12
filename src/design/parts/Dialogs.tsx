@@ -9,10 +9,9 @@ import {
 } from 'react'
 import { createPortal } from 'react-dom'
 import { Icon } from '../../app/tools/icons'
-import { overlay, trapFocus } from '../../app/overlay'
+import { openInTopLayer, trapFocus } from '../../app/overlay'
 import { ClearField } from './ClearField'
 import { tf } from './textFeedback'
-import { popoverAttr, showTop } from './topLayer'
 import './Dialogs.css'
 
 export const NAME_MAX = 40
@@ -75,16 +74,14 @@ export function Dialog(props: BaseProps) {
       (document.activeElement instanceof HTMLElement
         ? document.activeElement
         : null)
-    showTop(layer)
     let live = true
-    const handle = overlay.open({
+    const handle = openInTopLayer(layer, {
       id,
       layer: 'dialog',
-      close: () => {
+      onClose: () => {
         if (live) cancelRef.current()
       },
       // The dim backdrop belongs to the dialog: a tap on it never closes it.
-      inside: (n) => layer.contains(n),
       opener,
     })
     const release = trapFocus(card, opener)
@@ -110,6 +107,8 @@ export function Dialog(props: BaseProps) {
     onMain()
   }
 
+  // true once the opening motion has ended (inline examples have none)
+  const [settled, setSettled] = useState(false)
   const sfx = mode === 'inline' ? '-inline' : ''
   const card = (
     <div
@@ -120,6 +119,10 @@ export function Dialog(props: BaseProps) {
       aria-labelledby={`${id}-title`}
       data-testid={props['data-testid'] ?? `fb-dialog${sfx}`}
       data-danger={danger ? '' : undefined}
+      data-settled={settled || mode === 'inline' || undefined}
+      onAnimationEnd={(e) => {
+        if (e.target === e.currentTarget) setSettled(true)
+      }}
       tabIndex={-1}
       onKeyDown={onKey}
     >
@@ -169,7 +172,6 @@ export function Dialog(props: BaseProps) {
     <div
       ref={layerRef}
       className="fb-dialog-layer"
-      popover={popoverAttr()}
       data-testid="fb-dialog-layer"
     >
       {card}

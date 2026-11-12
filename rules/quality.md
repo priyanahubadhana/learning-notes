@@ -16,8 +16,9 @@ Goal: Apple-level results, delivered with Toyota-level consistency: every featur
 ## 3. Definition of Done (every feature, no exceptions)
 
 - Works in Beginner and Professional; every Professional feature is individually unlockable.
-- Works in light and dark themes; on iPad (landscape and portrait), phone and PC; and offline.
+- Works in light, dark and sepia themes; on iPad (landscape and portrait), phone and PC; and offline.
 - Undo/Redo works; ✕ on fields and dialogs; plain words, identical in both modes; visible feedback on every change; explanations open as pop-ups.
+- Calm (no colours, shadows or motion outside the design tokens); options in ▾ menus; drag reflows live; never drop a feature.
 - Apple Pencil and touch: hit areas ≥ 44 pt; no accidental typing, selecting or drawing.
 - Nothing lost: checked against the mock-up and the feature inventory (file:line).
 - Accessible (labels, contrast, keyboard) and within the speed and size budgets (first load ≤ 320,000 B).

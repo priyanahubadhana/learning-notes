@@ -9,7 +9,7 @@ import {
   type KeyboardEvent,
 } from 'react'
 import { createPortal } from 'react-dom'
-import { overlay, type Rect } from '../../app/overlay'
+import { openInTopLayer, type Rect } from '../../app/overlay'
 import { Icon } from '../../app/tools/icons'
 import {
   buildList,
@@ -19,7 +19,6 @@ import {
   type CommandGroup,
 } from './commandListLogic'
 import { motionMs } from './motion'
-import { popoverAttr, showTop } from './topLayer'
 import {
   placeStrip,
   STRIP_GAP,
@@ -119,27 +118,22 @@ export function CommandList(props: CommandListProps) {
     timerRef.current = setTimeout(() => onCloseRef.current(), motionMs(120))
   }, [])
 
-  useLayoutEffect(() => {
-    if (floating) showTop(rootRef.current)
-  }, [floating])
-
   // Overlay: Esc and a tap outside close it; the strip that opened it stays.
-  useEffect(() => {
-    if (!floating) return
-    closingRef.current = false
+  useLayoutEffect(() => {
     const el = rootRef.current
+    if (!floating || !el) return
+    closingRef.current = false
     const opener =
       props.opener ??
       (document.activeElement instanceof HTMLElement
         ? document.activeElement
         : null)
-    handleRef.current = overlay.open({
+    handleRef.current = openInTopLayer(el, {
       id: 'command-list',
       layer: 'card',
       parentId,
       opener,
-      close: request,
-      inside: (n) => !!el && el.contains(n),
+      onClose: request,
     })
     return () => {
       closingRef.current = true
@@ -256,7 +250,6 @@ export function CommandList(props: CommandListProps) {
   const card = (
     <div
       ref={rootRef}
-      popover={floating ? popoverAttr() : undefined}
       className="cl"
       data-testid={props.testId ?? 'command-list'}
       data-mode={mode}

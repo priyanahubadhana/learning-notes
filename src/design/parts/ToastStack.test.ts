@@ -120,3 +120,21 @@ describe('ToastStack', () => {
     expect(texts()).toEqual([])
   })
 })
+
+describe('createToasts with its own clock', () => {
+  it('ends a toast only when the injected clock says so', () => {
+    let now = 0
+    let due: { at: number; fn: () => void } | undefined
+    const t = createToasts({
+      now: () => now,
+      setTimer: (fn, ms) => (due = { at: now + ms, fn }),
+      clearTimer: () => (due = undefined),
+    })
+    const id = t.push('done', 'Saved')
+    expect(due?.at).toBe(2500)
+    expect(t.queue.visible().map((x) => x.id)).toEqual([id])
+    now = 2500
+    due?.fn()
+    expect(t.queue.visible()).toHaveLength(0)
+  })
+})

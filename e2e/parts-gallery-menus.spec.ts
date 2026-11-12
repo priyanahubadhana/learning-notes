@@ -23,6 +23,11 @@ const POSITIONS = [
 async function open(page: Page, size?: { width: number; height: number }) {
   if (size) await page.setViewportSize(size)
   await page.goto('/#/design-tokens')
+  // every section has arrived: nothing above can still push the page down
+  await expect(page.getByTestId('gal-parts')).toHaveAttribute(
+    'data-ready',
+    'true',
+  )
   await expect(page.getByTestId('gal-menus')).toBeAttached()
   await expect(page.getByTestId('menus-at-middle')).toBeAttached()
 }

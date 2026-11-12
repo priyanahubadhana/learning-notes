@@ -28,6 +28,7 @@ import { enLateAiBuild } from './aibuild'
 import { enLateAiJobs } from './aijobs'
 import { enLateAiPlan } from './aiplan'
 import { enParts } from '../parts'
+import { enV8Pen } from '../v8Pen'
 
 export const enLate = {
   ...enLateAccounts,
@@ -59,4 +60,5 @@ export const enLate = {
   ...enLateAiPlan,
   ...enParts,
   ...enLateLibraryV2,
+  ...enV8Pen,
 }

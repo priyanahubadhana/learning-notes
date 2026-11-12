@@ -31,6 +31,7 @@ import { esAiBuild } from './aibuild'
 import { esAiJobs } from './aijobs'
 import { esAiPlan } from './aiplan'
 import { esParts } from './parts'
+import { esV8Pen } from './v8Pen'
 
 export const es: Record<string, string> = {
   ...esAccounts,
@@ -65,4 +66,5 @@ export const es: Record<string, string> = {
   ...esAiPlan,
   ...esParts,
   ...esLibraryV2,
+  ...esV8Pen,
 }

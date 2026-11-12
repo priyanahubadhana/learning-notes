@@ -2,6 +2,13 @@
 
 Current phase only. Older entries are in [ARCHIVE.md](ARCHIVE.md).
 
+### 13 Nov 2026: rules aligned with economy mode, 4 project hooks
+
+- What: rules/ and agent files now match economy mode (docs audit A4-A11, B1-B5, D2-D4); legacy Fable/Opus files kept for rollback and non-build tasks. Sepia joins light and dark in the Definition of Done and the gate checklists; checklist line 17 (bug fix = why-note + new test); builders read rules/global.md and security.md; "could delete or lose the owner's data" is a stop reason; gate 3 fails on a contrast ✗. rules/testing.md: related tests locally, full suite green in GitHub CI before any merge. Start with 4 builders, up to 6 only while rework stays under 2 rounds. INDEX gained the build files; HANDOFF has one NOW line; 3 old plans moved to docs/plans/archive/.
+- Hooks (.claude/settings.json, scripts in .claude/hooks/): test guard blocks edits that add .skip/.only, raise timeout/retries or remove expect() in tests; secret scan before git commit/push; mirror to gdrive notes once at Stop after edits to docs/, rules/, src/ or CLAUDE.md; at Stop, eslint + incremental tsc only when .ts/.tsx changed (about 4 s), blocks once on errors in changed files, never loops. Each tested with a harmless trial.
+- Why: owner decisions 13 Nov (docs/plans/docs-audit-2026-11-13.md).
+- Files: CLAUDE.md, rules/{building,sessions,testing,quality}.md, docs/ECONOMY-MODE.md, docs/INDEX.md, docs/HANDOFF.md, docs/ARCHIVE.md, docs/design/token-efficiency.md, .claude/agents/_, .claude/hooks/_, .claude/settings.json.
+
 ### 12 Nov 2026: build night 1 (Fable orchestrator)
 
 - First job: fixed the 3 failures blocking the deploy. Lint ignored the design mock-ups (eslint.config.js); the Settings › Claude test met the new "locked" pop-up (e2e/claudeMock.ts, claudeSettings.spec.ts); the copy menu test had a step with no time limit (e2e/copyFormats.spec.ts). Main is green and deployed (run 43161211224, commits 5d58789, 082fd96, 58df642). supabase/.temp is ignored by git.

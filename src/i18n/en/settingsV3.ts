@@ -43,4 +43,20 @@ export const enSettingsV3 = {
   'sv3.langBold': 'Bold',
   'sv3.langPen': 'Pen',
   'sv3.langRead': 'Read',
+  'sv3.tab.page': 'Page',
+  'sv3.tab.summary': 'Summary',
+  'sv3.tab.cards': 'Cards',
+  'sv3.pageTabs.name': 'Default page tabs',
+  'sv3.pageTabs.help':
+    'The tabs a new notebook shows: three at first. Add, rename, reorder or remove them.',
+  'sv3.pageTabs.preview': 'Preview of the tab row',
+  'sv3.pageTabs.note':
+    'Always one line. With many tabs it scrolls sideways under a thin track. Tap + to add or edit.',
+  'sv3.chooseTemplate': 'Choose a template…',
+  'sv3.templateTitle': 'Start new pages as',
+  'sv3.templateSearch': 'Search templates',
+  'sv3.templateBlank': 'Blank page',
+  'sv3.templateNone': 'No template matches “{query}”',
+  'sv3.templateLater':
+    'Cannot be the start page yet. Pick it from the list under the cursor of a new page.',
 }

@@ -1,4 +1,4 @@
-import { useEffect, useRef, useState } from 'react'
+import { Fragment, useEffect, useRef, useState } from 'react'
 import { revealWhenReady } from '../../editor/revealBlock'
 import type { LearningNotesDB } from '../../core/db'
 import { t } from '../../i18n/t'
@@ -26,6 +26,7 @@ import { ClearField } from '../../design/parts/ClearField'
 import { SearchResults } from './SearchResults'
 import { searchSettings } from './settingsSearch'
 import { SectionList } from './SectionList'
+import { PageTabsEditor } from './PageTabsEditor'
 import { inSection, useVisibleSettings } from './visibleSettings'
 import { tv } from './tv'
 import { useWide } from './useWide'
@@ -188,14 +189,18 @@ function SettingsV3Body({
           )}
           {!searching &&
             rows.map((s) => (
-              <SettingRow
-                key={s.id}
-                db={db}
-                definition={s}
-                section={current}
-                onChanged={changed}
-                jump={jump?.id === s.id ? jump.seq : undefined}
-              />
+              <Fragment key={s.id}>
+                <SettingRow
+                  db={db}
+                  definition={s}
+                  section={current}
+                  onChanged={changed}
+                  jump={jump?.id === s.id ? jump.seq : undefined}
+                />
+                {current === 'general' && s.id === 'general.space.review' && (
+                  <PageTabsEditor />
+                )}
+              </Fragment>
             ))}
           {!searching && rows.length > 0 && section && (
             <SectionReset

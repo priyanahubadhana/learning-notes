@@ -44,4 +44,20 @@ export const esSettingsV3 = {
   'sv3.langBold': 'Negrita',
   'sv3.langPen': 'Lápiz',
   'sv3.langRead': 'Leer',
+  'sv3.tab.page': 'Página',
+  'sv3.tab.summary': 'Resumen',
+  'sv3.tab.cards': 'Tarjetas',
+  'sv3.pageTabs.name': 'Pestañas de página por defecto',
+  'sv3.pageTabs.help':
+    'Las pestañas que muestra un cuaderno nuevo: tres al principio. Añádelas, renómbralas, reordénalas o quítalas.',
+  'sv3.pageTabs.preview': 'Vista previa de la fila de pestañas',
+  'sv3.pageTabs.note':
+    'Siempre una sola línea. Con muchas pestañas se desplaza hacia los lados bajo una barra fina. Toca + para añadir o editar.',
+  'sv3.chooseTemplate': 'Elegir una plantilla…',
+  'sv3.templateTitle': 'Empezar páginas nuevas como',
+  'sv3.templateSearch': 'Buscar plantillas',
+  'sv3.templateBlank': 'Página en blanco',
+  'sv3.templateNone': 'Ninguna plantilla coincide con “{query}”',
+  'sv3.templateLater':
+    'Aún no puede ser la página de inicio. Elígela en la lista bajo el cursor de una página nueva.',
 }

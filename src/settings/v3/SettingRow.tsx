@@ -10,6 +10,7 @@ import { setSetting } from '../settingsService'
 import { useDeviceSetting, useSyncedSetting } from '../useSetting'
 import { useSettingsHistory } from './historyCtx'
 import { RowControl } from './RowControl'
+import { RowExtra } from './RowExtra'
 import { RowPreview } from './RowPreview'
 import { valueText, type Change } from './changeNote'
 
@@ -140,6 +141,7 @@ function RowBody({
           label={name}
           descId={descId}
         />
+        <RowExtra definition={definition} value={value} onSave={commit} />
       </div>
       <RowPreview definition={definition} value={value} glowKey={glow} />
       {((definition.alsoIn && others.length > 0) || !isDefault) && (

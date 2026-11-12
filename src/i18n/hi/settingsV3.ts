@@ -43,4 +43,20 @@ export const hiSettingsV3 = {
   'sv3.langBold': 'मोटा',
   'sv3.langPen': 'पेन',
   'sv3.langRead': 'पढ़ें',
+  'sv3.tab.page': 'पेज',
+  'sv3.tab.summary': 'सारांश',
+  'sv3.tab.cards': 'कार्ड',
+  'sv3.pageTabs.name': 'पेज के डिफ़ॉल्ट टैब',
+  'sv3.pageTabs.help':
+    'नई नोटबुक में दिखने वाले टैब: शुरू में तीन। उन्हें जोड़ें, नाम बदलें, क्रम बदलें या हटाएँ।',
+  'sv3.pageTabs.preview': 'टैब पंक्ति का पूर्वावलोकन',
+  'sv3.pageTabs.note':
+    'हमेशा एक ही पंक्ति। ज़्यादा टैब होने पर वह पतली पट्टी के नीचे बगल में स्क्रॉल होती है। जोड़ने या बदलने के लिए + दबाएँ।',
+  'sv3.chooseTemplate': 'टेम्पलेट चुनें…',
+  'sv3.templateTitle': 'नए पेज इससे शुरू करें',
+  'sv3.templateSearch': 'टेम्पलेट खोजें',
+  'sv3.templateBlank': 'खाली पेज',
+  'sv3.templateNone': '“{query}” से कोई टेम्पलेट नहीं मिला',
+  'sv3.templateLater':
+    'अभी शुरुआती पेज नहीं बन सकता। नए पेज के कर्सर के नीचे की सूची से चुनें।',
 }

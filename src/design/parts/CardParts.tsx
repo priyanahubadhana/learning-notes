@@ -1,5 +1,5 @@
 import { useEffect, useRef, type KeyboardEvent, type ReactNode } from 'react'
-import { useCardPick } from './Card'
+import { useCardPick } from './cardPick'
 
 /** A labelled group inside a card body. */
 export function CardGroup({
@@ -36,7 +36,14 @@ export function CardNote({ children }: { children: ReactNode }) {
   return <p className="pcard-note">{children}</p>
 }
 
-const ARROWS = ['ArrowRight', 'ArrowDown', 'ArrowLeft', 'ArrowUp', 'Home', 'End']
+const ARROWS = [
+  'ArrowRight',
+  'ArrowDown',
+  'ArrowLeft',
+  'ArrowUp',
+  'Home',
+  'End',
+]
 
 /** A row of tiles: `radiogroup` (one choice) or `group` of checkboxes (many). */
 export function TileGroup({

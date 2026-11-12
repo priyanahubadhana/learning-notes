@@ -28,7 +28,14 @@ export function MoveButtons({
         onClick={() => onMove('up')}
       >
         <svg viewBox="0 0 12 12" width="12" height="12" aria-hidden="true">
-          <path d="M2 8l4-4 4 4" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round" />
+          <path
+            d="M2 8l4-4 4 4"
+            fill="none"
+            stroke="currentColor"
+            strokeWidth="1.8"
+            strokeLinecap="round"
+            strokeLinejoin="round"
+          />
         </svg>
       </button>
       <button
@@ -40,7 +47,14 @@ export function MoveButtons({
         onClick={() => onMove('down')}
       >
         <svg viewBox="0 0 12 12" width="12" height="12" aria-hidden="true">
-          <path d="M2 4l4 4 4-4" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round" />
+          <path
+            d="M2 4l4 4 4-4"
+            fill="none"
+            stroke="currentColor"
+            strokeWidth="1.8"
+            strokeLinecap="round"
+            strokeLinejoin="round"
+          />
         </svg>
       </button>
     </span>

@@ -174,7 +174,10 @@ export function addCustomTab(
   return {
     ...d,
     ids: [...d.ids, id],
-    custom: { ...d.custom, [id]: { label: name, ...(source ? { source } : {}) } },
+    custom: {
+      ...d.custom,
+      [id]: { label: name, ...(source ? { source } : {}) },
+    },
   }
 }
 
@@ -194,12 +197,19 @@ export function moveTab(d: TabSetData, from: number, to: number): TabSetData {
   return { ...d, ids }
 }
 
-export function renameTab(d: TabSetData, id: string, label: string): TabSetData {
+export function renameTab(
+  d: TabSetData,
+  id: string,
+  label: string,
+): TabSetData {
   const name = cleanLabel(label)
   if (!d.ids.includes(id)) return d
   if (id in d.custom) {
     if (!name) return d
-    return { ...d, custom: { ...d.custom, [id]: { ...d.custom[id], label: name } } }
+    return {
+      ...d,
+      custom: { ...d.custom, [id]: { ...d.custom[id], label: name } },
+    }
   }
   const labels = { ...d.labels }
   if (name) labels[id] = name

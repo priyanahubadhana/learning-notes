@@ -23,7 +23,9 @@ export function clearInput(
 const TEXT_TYPES = new Set(['', 'text', 'search', 'email', 'url', 'tel'])
 
 /** True when a field gets a ✕: a system text field, not opted out. */
-export function wantsClear(el: HTMLInputElement | HTMLTextAreaElement): boolean {
+export function wantsClear(
+  el: HTMLInputElement | HTMLTextAreaElement,
+): boolean {
   if (el.hasAttribute('data-noclr')) return false
   if (el instanceof HTMLTextAreaElement) return true
   return TEXT_TYPES.has((el.getAttribute('type') ?? '').toLowerCase())

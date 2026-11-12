@@ -95,9 +95,9 @@ export function TimeRangeBar({
     if (next < 0) return
     e.preventDefault()
     choose(visible[next])
-    track.current
-      ?.querySelectorAll<HTMLElement>('[role="radio"]')
-      [next]?.focus()
+    const radios =
+      track.current?.querySelectorAll<HTMLElement>('[role="radio"]')
+    radios?.[next]?.focus()
   }
 
   const apply = () => {
@@ -137,7 +137,8 @@ export function TimeRangeBar({
               data-testid={`range-${p.id}`}
               onClick={() => choose(p)}
               ref={(el) => {
-                if (el && on) el.scrollIntoView?.({ inline: 'nearest', block: 'nearest' })
+                if (el && on)
+                  el.scrollIntoView?.({ inline: 'nearest', block: 'nearest' })
               }}
             >
               {p.label}
@@ -156,7 +157,12 @@ export function TimeRangeBar({
         </button>
       )}
       {picking && (
-        <div className="pm-pop" role="group" aria-label={tp('parts.range.custom')} data-testid="range-picker">
+        <div
+          className="pm-pop"
+          role="group"
+          aria-label={tp('parts.range.custom')}
+          data-testid="range-picker"
+        >
           <label>
             {tp('parts.range.from')}
             <input

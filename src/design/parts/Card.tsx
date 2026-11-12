@@ -1,7 +1,5 @@
 import {
-  createContext,
   useCallback,
-  useContext,
   useEffect,
   useLayoutEffect,
   useRef,
@@ -10,6 +8,7 @@ import {
   type ReactNode,
 } from 'react'
 import { createPortal } from 'react-dom'
+import { CardCtx } from './cardPick'
 import {
   LAYERS,
   overlay,
@@ -47,10 +46,6 @@ export type CardProps = {
   phone?: boolean
   testId?: string
 }
-
-const CardCtx = createContext<{ pick(): void }>({ pick: () => {} })
-/** Tiles call this after a simple choice in a pick card. */
-export const useCardPick = (): (() => void) => useContext(CardCtx).pick
 
 const WIDTH = { pick: 304, panel: 376 } as const
 

@@ -95,6 +95,9 @@ export function useReorder<T>(props: ReorderProps<T>) {
     propsRef.current = props
   })
   const containerRef = useRef<HTMLElement | null>(null)
+  const setContainer = useCallback((el: HTMLElement | null) => {
+    containerRef.current = el
+  }, [])
   const [drag, setDrag] = useState<DragState | null>(null)
   const [line, setLine] = useState<DropLineRect | null>(null)
   const [flashId, setFlashId] = useState<string | null>(null)
@@ -414,7 +417,8 @@ export function useReorder<T>(props: ReorderProps<T>) {
 
   const onKeyDown = (e: RKeyboardEvent<HTMLElement>, id: string) => {
     if (disabled || !e.altKey) return
-    if ((e.target as Element).closest('input,textarea,[contenteditable]')) return
+    if ((e.target as Element).closest('input,textarea,[contenteditable]'))
+      return
     const mv = keyToMove(e.key, axis)
     if (!mv) return
     e.preventDefault()
@@ -454,7 +458,6 @@ export function useReorder<T>(props: ReorderProps<T>) {
       map.get(focusId.current)?.focus()
       focusId.current = null
     }
-    // eslint-disable-next-line react-hooks/exhaustive-deps
   })
 
   // Non-passive touchmove on the list: once lifted, the page must not scroll.
@@ -476,7 +479,6 @@ export function useReorder<T>(props: ReorderProps<T>) {
       press.current = null
       document.documentElement.removeAttribute(ACTIVE_ATTR)
     },
-    // eslint-disable-next-line react-hooks/exhaustive-deps
     [],
   )
 
@@ -489,7 +491,7 @@ export function useReorder<T>(props: ReorderProps<T>) {
     drag,
     line,
     announcement,
-    containerRef,
+    setContainer,
     hasGrip,
     moveBy,
     containerProps: {

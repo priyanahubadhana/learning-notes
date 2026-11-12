@@ -7,7 +7,13 @@ export function Grip(props: ButtonHTMLAttributes<HTMLButtonElement>) {
       <svg viewBox="0 0 12 18" width="12" height="18" aria-hidden="true">
         {[3, 9].flatMap((x) =>
           [3, 9, 15].map((y) => (
-            <circle key={`${x}${y}`} cx={x} cy={y} r="1.5" fill="currentColor" />
+            <circle
+              key={`${x}${y}`}
+              cx={x}
+              cy={y}
+              r="1.5"
+              fill="currentColor"
+            />
           )),
         )}
       </svg>

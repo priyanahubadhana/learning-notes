@@ -115,7 +115,8 @@ export default function TagPicker(props: TagPickerProps) {
   const exact =
     typed &&
     entries.some(
-      (e) => e.name.toLowerCase() === query.replace(/^#/, '').trim().toLowerCase(),
+      (e) =>
+        e.name.toLowerCase() === query.replace(/^#/, '').trim().toLowerCase(),
     )
   const canCreate = typed && !exact && cleaned.length > 0 && !!onCreate
   const dup = canCreate ? nearDuplicate(query, entries) : null
@@ -133,7 +134,11 @@ export default function TagPicker(props: TagPickerProps) {
       if (canCreate)
         out.push({ kind: 'create', key: 'create', nav: nav++, name: cleaned })
       else if (!found.length)
-        out.push({ kind: 'note', key: 'nomatch', text: tp('parts.tags.noMatch') })
+        out.push({
+          kind: 'note',
+          key: 'nomatch',
+          text: tp('parts.tags.noMatch'),
+        })
     } else if (entries.length === 0) {
       out.push({ kind: 'note', key: 'empty', text: tp('parts.tags.empty') })
     } else {
@@ -160,17 +165,35 @@ export default function TagPicker(props: TagPickerProps) {
         })
         if (isOpen) {
           row(`cr-${c.category.id}`, c.category, 1)
-          c.tags.forEach((t) => row(`cr-${t.id}`, t, t.path.length - c.category.path.length + 1))
+          c.tags.forEach((t) =>
+            row(`cr-${t.id}`, t, t.path.length - c.category.path.length + 1),
+          )
         }
       }
       if (uncategorised.length) {
-        out.push({ kind: 'h', key: 'h-un', text: tp('parts.tags.uncategorised') })
+        out.push({
+          kind: 'h',
+          key: 'h-un',
+          text: tp('parts.tags.uncategorised'),
+        })
         uncategorised.forEach((t) => row(`u-${t.id}`, t))
       }
     }
     return { view: out, navCount: nav }
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [typed, query, entries, canCreate, cleaned, open, pinned, recent, suggest, mode, itemTags.length])
+  }, [
+    typed,
+    query,
+    entries,
+    canCreate,
+    cleaned,
+    open,
+    pinned,
+    recent,
+    suggest,
+    mode,
+    itemTags.length,
+  ])
 
   const navItems = view.filter(
     (v): v is Extract<ViewItem, { nav: number }> => 'nav' in v,
@@ -180,7 +203,9 @@ export default function TagPicker(props: TagPickerProps) {
 
   const toggleTag = (id: string) => {
     if (mode === 'filter') {
-      onChange?.(value.includes(id) ? value.filter((x) => x !== id) : [...value, id])
+      onChange?.(
+        value.includes(id) ? value.filter((x) => x !== id) : [...value, id],
+      )
     } else {
       onToggle?.(id, stateOf(id) !== 'all')
     }
@@ -211,7 +236,12 @@ export default function TagPicker(props: TagPickerProps) {
         setQuery('')
         setActive(0)
       }
-    } else if (e.key === 'Backspace' && !query && mode === 'filter' && value.length) {
+    } else if (
+      e.key === 'Backspace' &&
+      !query &&
+      mode === 'filter' &&
+      value.length
+    ) {
       onChange?.(value.slice(0, -1))
     }
     // Letters never reach the page behind (Tab and Esc stay for the frame).
@@ -234,14 +264,24 @@ export default function TagPicker(props: TagPickerProps) {
         <span data-testid="tp-count" aria-live="polite">
           {tp('parts.tags.ticked', { count: value.length })}
         </span>
-        <button type="button" className="pm-btn" data-testid="tp-done" onClick={() => onClose('x')}>
+        <button
+          type="button"
+          className="pm-btn"
+          data-testid="tp-done"
+          onClick={() => onClose('x')}
+        >
           {tp('parts.tags.done')}
         </button>
       </div>
     ) : (
       <div className="pm-tp__foot">
         <span data-testid="tp-hint">{tp('parts.tags.assignHint')}</span>
-        <button type="button" className="pm-btn" data-testid="tp-done" onClick={() => onClose('x')}>
+        <button
+          type="button"
+          className="pm-btn"
+          data-testid="tp-done"
+          onClick={() => onClose('x')}
+        >
           {tp('parts.tags.done')}
         </button>
       </div>
@@ -305,7 +345,11 @@ export default function TagPicker(props: TagPickerProps) {
         {mode === 'filter' && (
           <div className="pm-tp__opts" data-testid="tp-options">
             <span id={`${uid}-match`}>{tp('parts.tags.match')}</span>
-            <div role="radiogroup" aria-labelledby={`${uid}-match`} style={{ display: 'flex', gap: 2 }}>
+            <div
+              role="radiogroup"
+              aria-labelledby={`${uid}-match`}
+              style={{ display: 'flex', gap: 2 }}
+            >
               {(['any', 'all'] as const).map((m) => (
                 <button
                   key={m}
@@ -317,7 +361,9 @@ export default function TagPicker(props: TagPickerProps) {
                   style={{ minHeight: 44 }}
                   onClick={() => onMatch?.(m)}
                 >
-                  {m === 'any' ? tp('parts.tags.matchAny') : tp('parts.tags.matchAll')}
+                  {m === 'any'
+                    ? tp('parts.tags.matchAny')
+                    : tp('parts.tags.matchAll')}
                 </button>
               ))}
             </div>
@@ -354,7 +400,12 @@ export default function TagPicker(props: TagPickerProps) {
                 )
               case 'note':
                 return (
-                  <p key={v.key} className="pm-dlg__hint" role="presentation" style={{ padding: 8 }}>
+                  <p
+                    key={v.key}
+                    className="pm-dlg__hint"
+                    role="presentation"
+                    style={{ padding: 8 }}
+                  >
                     {v.text}
                   </p>
                 )
@@ -375,7 +426,10 @@ export default function TagPicker(props: TagPickerProps) {
                       })
                     }
                   >
-                    <Icon name={v.open ? 'chevronDown' : 'chevronRight'} size={16} />
+                    <Icon
+                      name={v.open ? 'chevronDown' : 'chevronRight'}
+                      size={16}
+                    />
                     <span className="pm-row__main">
                       <span className="pm-row__name">{v.tag.name}</span>
                     </span>
@@ -396,13 +450,14 @@ export default function TagPicker(props: TagPickerProps) {
                   >
                     <Icon name="plus" size={18} />
                     <span className="pm-row__main">
-                      <span className="pm-row__name">{tp('parts.tags.create', { name: v.name })}</span>
+                      <span className="pm-row__name">
+                        {tp('parts.tags.create', { name: v.name })}
+                      </span>
                     </span>
                   </div>
                 )
               case 'row': {
-                const dim =
-                  mode === 'filter' && !!scope && !scope.has(v.tag.id)
+                const dim = mode === 'filter' && !!scope && !scope.has(v.tag.id)
                 return (
                   <TagRow
                     key={v.key}

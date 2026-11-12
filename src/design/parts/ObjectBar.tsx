@@ -46,20 +46,17 @@ export function ObjectBar({
 }: ObjectBarProps) {
   const ref = useRef<HTMLDivElement>(null)
   const [pos, setPos] = useState<{ left: number; top: number } | null>(null)
-  const [vw, setVw] = useState(
-    maxWidth ?? (typeof window === 'undefined' ? 1024 : window.innerWidth - 24),
-  )
   const [open, setOpen] = useState(false)
   const [focusIdx, setFocusIdx] = useState(0)
 
+  const vw =
+    maxWidth ?? (typeof window === 'undefined' ? 1024 : window.innerWidth - 24)
   const label = count && count > 1 ? tp('parts.objbar.selected', { count }) : ''
   const { shown, overflow } = splitActions(actions, vw, label ? 110 : 0)
 
   useLayoutEffect(() => {
     const el = ref.current
     if (!el) return
-    const w = maxWidth ?? window.innerWidth - 24
-    if (w !== vw) setVw(w)
     if (!target) return
     const rect = typeof target === 'function' ? target() : target
     setPos(
@@ -69,7 +66,7 @@ export function ObjectBar({
         { width: window.innerWidth, height: window.innerHeight },
       ),
     )
-  }, [target, shown.length, overflow.length, maxWidth, vw])
+  }, [target, shown.length, overflow.length, maxWidth])
 
   const buttons: ObjectBarAction[] = [...shown]
   const hasMore = overflow.length > 0
@@ -79,9 +76,8 @@ export function ObjectBar({
     e.preventDefault()
     const next = (focusIdx + delta + total) % total
     setFocusIdx(next)
-    ref.current
-      ?.querySelectorAll<HTMLElement>('[data-bar-btn]')
-      [next]?.focus()
+    const btns = ref.current?.querySelectorAll<HTMLElement>('[data-bar-btn]')
+    btns?.[next]?.focus()
   }
   const onKeyDown = (e: KeyboardEvent) => {
     if (e.key === 'ArrowRight') move(e, 1)

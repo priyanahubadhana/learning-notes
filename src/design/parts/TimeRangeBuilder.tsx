@@ -1,4 +1,4 @@
-import { useEffect, useRef, useState } from 'react'
+import { useEffect, useLayoutEffect, useRef, useState } from 'react'
 import { Icon } from '../../app/tools/icons'
 import { LAYERS, overlay, trapFocus } from '../../app/overlay'
 import { tp } from './textMisc'
@@ -26,7 +26,9 @@ export default function TimeRangeBuilder({
   const [ids, setIds] = useState<string[]>(presets.map((p) => p.id))
   const box = useRef<HTMLDivElement>(null)
   const cancel = useRef(onCancel)
-  cancel.current = onCancel
+  useLayoutEffect(() => {
+    cancel.current = onCancel
+  })
 
   useEffect(() => {
     const el = box.current
@@ -52,7 +54,9 @@ export default function TimeRangeBuilder({
   const rest = all.filter((p) => !ids.includes(p.id))
   const rows = [...selected, ...rest]
   const toggle = (id: string) =>
-    setIds((cur) => (cur.includes(id) ? cur.filter((x) => x !== id) : [...cur, id]))
+    setIds((cur) =>
+      cur.includes(id) ? cur.filter((x) => x !== id) : [...cur, id],
+    )
   const done = () => {
     if (!ids.length) return
     onConfirm({ name: title.trim() || name, presets: selected })
@@ -96,7 +100,11 @@ export default function TimeRangeBuilder({
             const i = ids.indexOf(p.id)
             const on = i >= 0
             return (
-              <div className="pm-dlg__row" key={p.id} data-testid={`rb-row-${p.id}`}>
+              <div
+                className="pm-dlg__row"
+                key={p.id}
+                data-testid={`rb-row-${p.id}`}
+              >
                 <label>
                   <input
                     type="checkbox"

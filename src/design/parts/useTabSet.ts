@@ -66,7 +66,11 @@ export function useTabSet(
       ref.current = next
       setData(next)
       if (record) setPast((p) => [...p.slice(-49), cur])
-      if (next.ids.join() === defaults.join() && !Object.keys(next.custom).length && !Object.keys(next.labels).length)
+      if (
+        next.ids.join() === defaults.join() &&
+        !Object.keys(next.custom).length &&
+        !Object.keys(next.labels).length
+      )
         store.remove(setKey)
       else saveTabSet(store, setKey, next)
     },
@@ -89,7 +93,8 @@ export function useTabSet(
     tabs,
     canUndo: past.length > 0,
     add: (id) => apply(addTab(ref.current, id)),
-    addCustom: (label, source) => apply(addCustomTab(ref.current, label, source)),
+    addCustom: (label, source) =>
+      apply(addCustomTab(ref.current, label, source)),
     remove: (id) => apply(removeTab(ref.current, id)),
     move: (from, to) => apply(moveTab(ref.current, from, to)),
     rename: (id, label) => apply(renameTab(ref.current, id, label)),

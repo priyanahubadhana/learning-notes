@@ -96,7 +96,6 @@ export function useAnchoredCard(opts: {
   const [pos, setPos] = useState<CardPos | null>(null)
   useLayoutEffect(() => {
     if (!active || !anchor || !card) {
-      setPos(null)
       return
     }
     const run = () => {
@@ -123,5 +122,5 @@ export function useAnchoredCard(opts: {
     ro.observe(document.documentElement)
     return () => ro.disconnect()
   }, [anchor, card, widthPx, active])
-  return pos
+  return active && anchor && card ? pos : null
 }

@@ -41,7 +41,8 @@ export function withPaths(tags: readonly TagItem[]): TagEntry[] {
 
 const isSubsequence = (needle: string, hay: string): boolean => {
   let i = 0
-  for (const ch of hay) if (ch === needle[i] && ++i === needle.length) return true
+  for (const ch of hay)
+    if (ch === needle[i] && ++i === needle.length) return true
   return needle.length === 0
 }
 
@@ -50,7 +51,10 @@ const isSubsequence = (needle: string, hay: string): boolean => {
  * prefix 80, contains 60, path match 40, subsequence 30; 0 = no match.
  * Ignores case and accents; a leading "#" is ignored.
  */
-export function scoreTag(query: string, tag: Pick<TagEntry, 'name' | 'path'>): number {
+export function scoreTag(
+  query: string,
+  tag: Pick<TagEntry, 'name' | 'path'>,
+): number {
   const q = fold(query.replace(/^#/, '')).trim()
   if (!q) return 0
   const name = fold(tag.name)

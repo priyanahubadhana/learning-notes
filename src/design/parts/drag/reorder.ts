@@ -17,7 +17,11 @@ export interface Point {
 export type Axis = 'y' | 'x' | 'grid'
 
 /** `ids` with the item at `from` moved so it ends up at index `to`. */
-export function moveItem<T>(items: readonly T[], from: number, to: number): T[] {
+export function moveItem<T>(
+  items: readonly T[],
+  from: number,
+  to: number,
+): T[] {
   if (from < 0 || from >= items.length) return [...items]
   const clamped = Math.max(0, Math.min(items.length - 1, to))
   const next = [...items]
@@ -31,7 +35,11 @@ export function moveItem<T>(items: readonly T[], from: number, to: number): T[] 
  * `centres` are the centres of the others in their current order;
  * `p` is the centre of the dragged item. Result: 0..centres.length.
  */
-export function targetIndex(centres: readonly Point[], p: Point, axis: Axis): number {
+export function targetIndex(
+  centres: readonly Point[],
+  p: Point,
+  axis: Axis,
+): number {
   if (!centres.length) return 0
   if (axis === 'y') return centres.filter((c) => c.y < p.y).length
   if (axis === 'x') return centres.filter((c) => c.x < p.x).length
@@ -79,7 +87,10 @@ export interface Placement {
   col: number
   span: number
 }
-export function layoutGrid(spans: readonly number[], cols: number): Placement[] {
+export function layoutGrid(
+  spans: readonly number[],
+  cols: number,
+): Placement[] {
   const out: Placement[] = []
   let row = 0
   let col = 0

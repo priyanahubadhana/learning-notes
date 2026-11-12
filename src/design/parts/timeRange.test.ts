@@ -10,8 +10,11 @@ import {
   todayYmd,
 } from './timeRange'
 
-const r = (kind: Parameters<typeof rangeFor>[0]['kind'], today: string, ws: 0 | 1 = 1) =>
-  rangeFor({ kind }, today, ws)
+const r = (
+  kind: Parameters<typeof rangeFor>[0]['kind'],
+  today: string,
+  ws: 0 | 1 = 1,
+) => rangeFor({ kind }, today, ws)
 
 describe('timeRange: every preset', () => {
   // Thursday 12 Nov 2026
@@ -20,13 +23,22 @@ describe('timeRange: every preset', () => {
   it('this week (Monday start)', () =>
     expect(r('week', today)).toEqual({ from: '2026-11-09', to: '2026-11-15' }))
   it('this week (Sunday start)', () =>
-    expect(r('week', today, 0)).toEqual({ from: '2026-11-08', to: '2026-11-14' }))
+    expect(r('week', today, 0)).toEqual({
+      from: '2026-11-08',
+      to: '2026-11-14',
+    }))
   it('this month', () =>
     expect(r('month', today)).toEqual({ from: '2026-11-01', to: '2026-11-30' }))
   it('last month', () =>
-    expect(r('lastmonth', today)).toEqual({ from: '2026-10-01', to: '2026-10-31' }))
+    expect(r('lastmonth', today)).toEqual({
+      from: '2026-10-01',
+      to: '2026-10-31',
+    }))
   it('this quarter', () =>
-    expect(r('quarter', today)).toEqual({ from: '2026-10-01', to: '2026-12-31' }))
+    expect(r('quarter', today)).toEqual({
+      from: '2026-10-01',
+      to: '2026-12-31',
+    }))
   it('this year', () =>
     expect(r('year', today)).toEqual({ from: '2026-01-01', to: '2026-12-31' }))
   it('last 7 days includes today', () =>
@@ -43,37 +55,77 @@ describe('timeRange: every preset', () => {
 
 describe('timeRange: week start edges', () => {
   it('a Monday starts its own week (Monday start)', () =>
-    expect(r('week', '2026-11-09')).toEqual({ from: '2026-11-09', to: '2026-11-15' }))
+    expect(r('week', '2026-11-09')).toEqual({
+      from: '2026-11-09',
+      to: '2026-11-15',
+    }))
   it('a Sunday ends the week (Monday start)', () =>
-    expect(r('week', '2026-11-15')).toEqual({ from: '2026-11-09', to: '2026-11-15' }))
+    expect(r('week', '2026-11-15')).toEqual({
+      from: '2026-11-09',
+      to: '2026-11-15',
+    }))
   it('a Sunday starts its own week (Sunday start)', () =>
-    expect(r('week', '2026-11-15', 0)).toEqual({ from: '2026-11-15', to: '2026-11-21' }))
+    expect(r('week', '2026-11-15', 0)).toEqual({
+      from: '2026-11-15',
+      to: '2026-11-21',
+    }))
   it('a week can cross a year end', () =>
-    expect(r('week', '2026-12-31')).toEqual({ from: '2026-12-28', to: '2027-01-03' }))
+    expect(r('week', '2026-12-31')).toEqual({
+      from: '2026-12-28',
+      to: '2027-01-03',
+    }))
 })
 
 describe('timeRange: month ends and leap years', () => {
   it('knows which years are leap', () => {
-    expect([2024, 2000, 2026, 1900].map(isLeapYear)).toEqual([true, true, false, false])
+    expect([2024, 2000, 2026, 1900].map(isLeapYear)).toEqual([
+      true,
+      true,
+      false,
+      false,
+    ])
   })
   it('days in each month', () => {
-    expect([1, 2, 4, 12].map((m) => daysInMonth(2026, m))).toEqual([31, 28, 30, 31])
+    expect([1, 2, 4, 12].map((m) => daysInMonth(2026, m))).toEqual([
+      31, 28, 30, 31,
+    ])
     expect(daysInMonth(2024, 2)).toBe(29)
   })
   it('this month in a leap February', () =>
-    expect(r('month', '2024-02-10')).toEqual({ from: '2024-02-01', to: '2024-02-29' }))
+    expect(r('month', '2024-02-10')).toEqual({
+      from: '2024-02-01',
+      to: '2024-02-29',
+    }))
   it('this month in a normal February', () =>
-    expect(r('month', '2026-02-10')).toEqual({ from: '2026-02-01', to: '2026-02-28' }))
+    expect(r('month', '2026-02-10')).toEqual({
+      from: '2026-02-01',
+      to: '2026-02-28',
+    }))
   it('last month in January goes to December of the year before', () =>
-    expect(r('lastmonth', '2026-01-15')).toEqual({ from: '2025-12-01', to: '2025-12-31' }))
+    expect(r('lastmonth', '2026-01-15')).toEqual({
+      from: '2025-12-01',
+      to: '2025-12-31',
+    }))
   it('last month from March reaches a leap day', () =>
-    expect(r('lastmonth', '2024-03-31')).toEqual({ from: '2024-02-01', to: '2024-02-29' }))
+    expect(r('lastmonth', '2024-03-31')).toEqual({
+      from: '2024-02-01',
+      to: '2024-02-29',
+    }))
   it('quarter ends: Q1 and Q2', () => {
-    expect(r('quarter', '2026-03-31')).toEqual({ from: '2026-01-01', to: '2026-03-31' })
-    expect(r('quarter', '2026-04-01')).toEqual({ from: '2026-04-01', to: '2026-06-30' })
+    expect(r('quarter', '2026-03-31')).toEqual({
+      from: '2026-01-01',
+      to: '2026-03-31',
+    })
+    expect(r('quarter', '2026-04-01')).toEqual({
+      from: '2026-04-01',
+      to: '2026-06-30',
+    })
   })
   it('last 7 days across a leap day', () =>
-    expect(r('last7', '2024-03-02')).toEqual({ from: '2024-02-25', to: '2024-03-02' }))
+    expect(r('last7', '2024-03-02')).toEqual({
+      from: '2024-02-25',
+      to: '2024-03-02',
+    }))
   it('adding days is not moved by daylight saving', () => {
     expect(addDays('2026-03-28', 2)).toBe('2026-03-30')
     expect(addDays('2026-11-01', -1)).toBe('2026-10-31')

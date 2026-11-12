@@ -1,3 +1,4 @@
+/* eslint-disable react-hooks/refs -- useReorder keeps drag state in refs on purpose (updated by pointer events, not render); the props it returns only read them inside event handlers. */
 import type { CSSProperties, ReactNode } from 'react'
 import { DropLine } from './DropLine'
 import { Grip } from './Grip'
@@ -32,9 +33,7 @@ export function ReorderList<T>(
   return (
     <>
       <ul
-        ref={(el) => {
-          r.containerRef.current = el
-        }}
+        ref={r.setContainer}
         role="list"
         aria-label={props['aria-label']}
         className={`rord ${className ?? ''}`}

@@ -12,7 +12,12 @@ import {
   type TagItem,
 } from './tagSearch'
 
-const T = (id: string, name: string, parentId: string | null, count = 0): TagItem => ({
+const T = (
+  id: string,
+  name: string,
+  parentId: string | null,
+  count = 0,
+): TagItem => ({
   id,
   name,
   parentId,
@@ -41,14 +46,18 @@ describe('tag search scoring', () => {
     expect(scoreTag('#HABITS', get('hab'))).toBe(100)
     expect(scoreTag('cárdio', get('card'))).toBe(100)
   })
-  it('empty text scores nothing', () => expect(scoreTag('  ', get('hab'))).toBe(0))
+  it('empty text scores nothing', () =>
+    expect(scoreTag('  ', get('hab'))).toBe(0))
   it('sorts by score, then by use', () => {
     const r = searchTags('h', tags)
     expect(r[0].tag.id).toBe('hab') // prefix, used 9, beats Health (prefix, used 1)
     expect(r[1].tag.id).toBe('h')
   })
   it('finds a tag by its path', () => {
-    expect(searchTags('medicine', tags).map((m) => m.tag.id)).toEqual(['med', 'card'])
+    expect(searchTags('medicine', tags).map((m) => m.tag.id)).toEqual([
+      'med',
+      'card',
+    ])
   })
   it('builds the path from the top', () => {
     expect(get('rou').path).toEqual(['Health', 'habits', 'routines'])
@@ -109,7 +118,8 @@ describe('tri-state, browse tree, recent', () => {
   })
   it('recent keeps 6, newest first, no repeats', () => {
     let r: string[] = []
-    for (const id of ['a', 'b', 'c', 'd', 'e', 'f', 'g', 'c']) r = pushRecent(r, id)
+    for (const id of ['a', 'b', 'c', 'd', 'e', 'f', 'g', 'c'])
+      r = pushRecent(r, id)
     expect(r).toEqual(['c', 'g', 'f', 'e', 'd', 'b'])
   })
 })

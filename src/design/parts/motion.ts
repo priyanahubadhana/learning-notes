@@ -4,7 +4,10 @@ export function reducedMotion(): boolean {
     if (document.documentElement.dataset.motion === 'reduce') return true
   }
   try {
-    return globalThis.matchMedia?.('(prefers-reduced-motion: reduce)').matches ?? false
+    return (
+      globalThis.matchMedia?.('(prefers-reduced-motion: reduce)').matches ??
+      false
+    )
   } catch {
     return false
   }

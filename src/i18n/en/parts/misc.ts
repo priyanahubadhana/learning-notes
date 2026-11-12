@@ -39,7 +39,8 @@ export const enPartsMisc = {
   'parts.range.reset': 'Reset',
   'parts.range.done': 'Done',
   'parts.range.close': 'Close',
-  'parts.range.tryIt': 'Try it: tick This week, rename the bar, then press Done.',
+  'parts.range.tryIt':
+    'Try it: tick This week, rename the bar, then press Done.',
   'parts.range.needOne': 'Pick at least one range.',
 
   'parts.tags.title': 'Tags',

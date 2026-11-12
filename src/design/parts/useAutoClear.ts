@@ -45,7 +45,7 @@ export function attachAutoClear(root: HTMLElement): () => void {
     })
     el.addEventListener('input', () => sync(el, btn))
     el.addEventListener('keydown', (e) => {
-      if (e.key === 'Escape' && el.value) {
+      if ((e as KeyboardEvent).key === 'Escape' && el.value) {
         e.preventDefault()
         e.stopPropagation()
         clearInput(el)

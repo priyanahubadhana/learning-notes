@@ -4,7 +4,8 @@ export const enPartsDrag = {
   'parts.drag.up': 'Move {name} up',
   'parts.drag.down': 'Move {name} down',
   'parts.drag.moved': '{name} moved to position {pos} of {total}',
-  'parts.drag.lifted': '{name} picked up. Use the arrow keys, or let go to drop.',
+  'parts.drag.lifted':
+    '{name} picked up. Use the arrow keys, or let go to drop.',
   'parts.drag.failed': 'Could not drop {name} there. It went back.',
   'parts.drag.list': 'Reorderable list',
   'parts.drag.galIdle': 'List, idle',

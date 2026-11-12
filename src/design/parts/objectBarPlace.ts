@@ -20,7 +20,10 @@ export function placeBar(
   const fitsBelow = belowTop + size.height <= viewport.height - BAR_MARGIN
   const side = fitsAbove || !fitsBelow ? 'above' : 'below'
   const rawTop = side === 'above' ? aboveTop : belowTop
-  const maxTop = Math.max(BAR_MARGIN, viewport.height - size.height - BAR_MARGIN)
+  const maxTop = Math.max(
+    BAR_MARGIN,
+    viewport.height - size.height - BAR_MARGIN,
+  )
   const top = Math.min(Math.max(rawTop, BAR_MARGIN), maxTop)
   const centre = target.left + target.width / 2 - size.width / 2
   const maxLeft = Math.max(BAR_MARGIN, viewport.width - size.width - BAR_MARGIN)
@@ -41,7 +44,8 @@ export function splitActions<T extends { pro?: string }>(
   const pro = actions.filter((a) => a.pro)
   const room = Math.floor((availableWidth - 8 - labelWidth) / BTN)
   // If everything fits with no menu, show all; else keep one slot for "…".
-  if (!pro.length && direct.length <= room) return { shown: direct, overflow: [] }
+  if (!pro.length && direct.length <= room)
+    return { shown: direct, overflow: [] }
   const slots = Math.max(0, room - 1)
   return {
     shown: direct.slice(0, slots),

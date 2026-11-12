@@ -59,6 +59,8 @@ export const enV2Notebooks = {
   'nbv2.tab.recent': 'Recent',
   'nbv2.pages_one': '{count} page',
   'nbv2.pages_other': '{count} pages',
+  'nbv2.sidebar.collapseAll': 'Collapse all',
+  'nbv2.sidebar.expandAll': 'Expand all',
   'nbv2.today': 'Today',
   'nbv2.yesterday': 'Yesterday',
   'nbv2.more': 'More actions for {name}',

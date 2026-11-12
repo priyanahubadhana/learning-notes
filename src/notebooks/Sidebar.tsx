@@ -23,6 +23,8 @@ import {
   RenameInput,
 } from '../app/ui'
 import type { TreeState } from '../app/useTreeState'
+import { useFlag } from '../app/flags'
+import { CollapseAllButton } from './v2/CollapseAllButton'
 import type { LearningNotesDB } from '../core/db'
 import type { Notebook, Page, SavedSearch } from '../core/types'
 import { dateKey, shortDayLabel } from '../journal/dates'
@@ -162,6 +164,7 @@ export function Sidebar({
   onCreateTemplate,
 }: SidebarProps) {
   const { chooseTemplate, toast, askName } = useContext(AppUiContext)
+  const v2 = useFlag('notebooks.v2')
   useRowPalmGuard()
   // Touch and Pencil: names are typed in the "Name it" sheet, rows show only ⋯.
   const touch = touchUi()
@@ -484,13 +487,21 @@ export function Sidebar({
               title={t('sidebar.notebooks')}
               defaultOpen
               action={
-                <IconButton
-                  title={t('sidebar.newNotebook.title')}
-                  tip="sidebar.newNotebook"
-                  onClick={onCreateNotebook}
-                >
-                  +
-                </IconButton>
+                <span className="flex items-center gap-1">
+                  {v2 && (
+                    <CollapseAllButton
+                      ids={notebooks.map((n) => n.id)}
+                      tree={tree}
+                    />
+                  )}
+                  <IconButton
+                    title={t('sidebar.newNotebook.title')}
+                    tip="sidebar.newNotebook"
+                    onClick={onCreateNotebook}
+                  >
+                    +
+                  </IconButton>
+                </span>
               }
             >
               {notebooks.map((notebook) => {

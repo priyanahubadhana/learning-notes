@@ -10,12 +10,14 @@ import {
   styleFields,
   type MadeRecord,
 } from '../../../mcp/src/gen/notesWrite'
-import type {
-  SpecBlock,
-  SpecCard,
-  SpecDatabase,
-  SpecPage,
-  SpecStyle,
+import {
+  describeErrors,
+  validateSpec,
+  type SpecBlock,
+  type SpecCard,
+  type SpecDatabase,
+  type SpecPage,
+  type SpecStyle,
 } from '../../connector/spec'
 import type { AiToolDef } from '../types'
 import { StepError } from './filler'
@@ -134,8 +136,8 @@ export async function stageStep(
     if (!v) throw new StepError('gone', `The ${what} is gone.`)
     return v
   }
-  /** Live rows of a table with `where`, staged changes included. */
-  const rows = async (table: string, where: Rec): Promise<Rec[]> => {
+  /** Rows of a table with `where`, staged changes included (removed ones too). */
+  const everyRow = async (table: string, where: Rec): Promise<Rec[]> => {
     const byId = new Map<string, Rec>()
     for (const r of await env.port.list(table, where)) byId.set(String(r.id), r)
     for (const r of env.staged)
@@ -144,8 +146,13 @@ export async function stageStep(
         Object.entries(where).every(([k, v]) => r.value[k] === v)
       )
         byId.set(r.id, r.value)
-    return [...byId.values()].filter(live)
+    return [...byId.values()]
   }
+  /** Live rows only. */
+  const rows = async (table: string, where: Rec): Promise<Rec[]> =>
+    (await everyRow(table, where)).filter(live)
+  /** For order keys: a new row sorts after every row, removed ones too. */
+  const allRows = everyRow
   const made = (list: MadeRecord[]): StagedRecord[] =>
     list.map((r) => ({ table: r.table, id: r.id, value: r.value }))
 
@@ -184,7 +191,7 @@ export async function stageStep(
     switch (tool.id) {
       case 'notebooks.create': {
         const style = args.style as SpecStyle | undefined
-        const mine = await rows('notebooks', { workspaceId: env.workspaceId })
+        const mine = await allRows('notebooks', {})
         const out = det.notebookFromSpec(
           {
             version: 'ln-spec/1',
@@ -203,6 +210,25 @@ export async function stageStep(
           outputs: { notebookId: out.notebookId },
         }
       }
+      case 'notebooks.create_from_spec': {
+        const checked = validateSpec(args.spec)
+        if (!checked.ok)
+          throw new StepError('validation', describeErrors(checked.errors))
+        const mine = await allRows('notebooks', {})
+        const out = det.notebookFromSpec(checked.spec, {
+          ...base,
+          workspaceId: env.workspaceId,
+          lastNotebookOrder: maxOrder(mine),
+        })
+        return {
+          records: made(out.records),
+          outputs: {
+            notebookId: out.notebookId,
+            pageIds: out.pageIds,
+            counts: out.counts,
+          },
+        }
+      }
       case 'pages.write_notes': {
         const page = args.page as SpecPage | undefined
         if (!page)
@@ -211,7 +237,7 @@ export async function stageStep(
         await need('notebooks', notebookId, 'notebook')
         const parentId = str(args.parentId) ?? null
         if (parentId) await need('pages', parentId, 'parent page')
-        const siblings = (await rows('pages', { notebookId })).filter(
+        const siblings = (await allRows('pages', { notebookId })).filter(
           (p) => (p.parentId ?? null) === parentId,
         )
         const out = det.pageIntoNotebook(page, {
@@ -234,7 +260,7 @@ export async function stageStep(
         const version = str(args.expectedVersion)
         if (version && version !== String(page.updatedAt))
           throw new StepError('stale', 'The page changed since it was read.')
-        const blocks = (await rows('blocks', { pageId })).filter(top)
+        const blocks = (await allRows('blocks', { pageId })).filter(top)
         const out = det.cardsIntoPage(cards, {
           ...base,
           notebookId: String(page.notebookId),
@@ -243,6 +269,7 @@ export async function stageStep(
           lastBlockOrder: maxOrder(blocks),
           hasHeading: blocks.some(
             (b) =>
+              live(b) &&
               b.type === 'heading' &&
               JSON.stringify(b.content).includes('Recall cards'),
           ),

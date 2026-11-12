@@ -70,6 +70,7 @@ describe('settings registry', () => {
       'journal',
       'toolbar',
       'advanced',
+      'tryNew',
       'apis',
     ])
   })

@@ -29,6 +29,7 @@ Every task, every helper brief, every session, including after a restart:
 - **Quality:** [rules/quality.md](rules/quality.md): one design system, spec before code, Definition of Done, tests stop the line, 3 gates.
 - **Design:** docs/design/quality-standard.md, docs/design/owner-ui-patterns.md, docs/plans/mock-feedback-2026-11-11.md, and the approved conditions in docs/PENDING.md (calm, ▾ menus, ✕ everywhere, Undo/Redo, plain identical words in both modes, explanations as pop-ups, visible feedback on every change, live-reflow drag, every Professional feature unlockable, never drop a feature).
 - **Continuity:** [docs/CONTINUITY.md](docs/CONTINUITY.md): small commits, PENDING always current, mock-ups in docs/mockups/, own worktree per helper, resume from the last commit. The owner only needs to type "continue".
+- **Token efficiency:** [docs/design/token-efficiency.md](docs/design/token-efficiency.md) (checked against the official Claude Code docs, 12 Nov 2026; re-check monthly and drop tips that newer tools make unnecessary). Fable = top manager/design only, Opus = review, Sonnet = coding, Haiku = search/mechanical; short briefs pointing to files; no re-reads; parallel only on separate files.
 - **Owner comments on mock-ups:** read every open comment and give each one to the helper; verify each in a browser before saying done.
 
 ## Things We Said No To (for now)

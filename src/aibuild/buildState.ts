@@ -216,3 +216,8 @@ export function toPlan(
     steps,
   }
 }
+
+/** A new job id: letters and digits, unique enough for one device. */
+export function newJobId(): string {
+  return `job_${Date.now().toString(36)}${Math.random().toString(36).slice(2, 7)}`
+}

@@ -11,7 +11,6 @@ export const enV2Panel = {
   'lp2.close': 'Close the page panel',
   'lp2.undo': 'Undo',
   'lp2.undone': 'Undone',
-  'lp2.open': 'Open',
   'lp2.gone': 'That was removed.',
   // Pages
   'lp2.pages.list': 'Pages in this notebook',
@@ -43,7 +42,6 @@ export const enV2Panel = {
   'lp2.copied_other': 'Copied {count} pages',
   'lp2.extracted_one': 'Moved 1 page to {name}',
   'lp2.extracted_other': 'Moved {count} pages to {name}',
-  'lp2.extractedOpen': '{name} is ready',
   'lp2.extractLocked': 'That notebook is locked. Unlock it first.',
   // Row strip
   'lp2.act.open': 'Open',

@@ -61,8 +61,8 @@ import {
 } from './pageOrganiseService'
 import { pageStripItems } from './pageStrip'
 
-/** One row: 74 px thumbnail card + 6 px gap. Fixed, so the list can be windowed. */
-export const ROW_H = 80
+/** One row: 94 px thumbnail card + 6 px gap. Fixed, so the list can be windowed. */
+export const ROW_H = 100
 /** NB-B41: up to this many rows, then "Show more". */
 export const PAGE_CAP = 200
 
@@ -155,6 +155,7 @@ export function PagesTabV2({
     () => new Map((rows ?? []).map((r) => [r.page.id, r])),
     [rows],
   )
+  const loaded = rows !== null
   const [asked, setLimit] = useState(PAGE_CAP)
   // The open page is always within the rows shown, so it can be centred.
   const openAt = rows ? rows.findIndex((x) => x.page.id === pageId) : -1
@@ -182,7 +183,8 @@ export function PagesTabV2({
     const ro = new ResizeObserver(measure)
     ro.observe(el)
     return () => ro.disconnect()
-  }, [])
+    // The list shows once the pages are read, so measure again then.
+  }, [loaded])
   const lifted = useRef(false)
   const lastRange = useRef({ from: 0, to: 0 })
   const live = rowWindow(shown.length, ROW_H, scrollTop, viewH)
@@ -289,10 +291,6 @@ export function PagesTabV2({
       remember(t('lp2.extracted', { count: gone.size, name }), async () => {
         await undoExtract(db, undo)
         if (next) onOpenPage(pageId)
-      })
-      toast(t('lp2.extractedOpen', { name }), {
-        label: t('lp2.open'),
-        onSelect: () => onOpenPage(roots[0]),
       })
     } catch (e) {
       if (e instanceof ExtractRefusedError)
@@ -542,6 +540,12 @@ export function PagesTabV2({
                     {...ip}
                     onPointerDown={noPen(ip.onPointerDown)}
                     onKeyDown={onKey}
+                    // A pressed row holds the pointer, so the click lands on the row itself.
+                    onClick={(e) => {
+                      if ((e.target as Element).closest('[data-reorder-grip]'))
+                        return
+                      tap(id)
+                    }}
                     style={{ top: (range.from + i) * ROW_H }}
                     aria-label={t('lp2.pages.rowLabel', {
                       n: number,
@@ -569,11 +573,7 @@ export function PagesTabV2({
                           />
                         </span>
                       )}
-                      <div
-                        role="button"
-                        className="lpv2-main"
-                        onClick={() => tap(id)}
-                      >
+                      <div role="button" className="lpv2-main">
                         <Thumb
                           db={db}
                           page={row.page}

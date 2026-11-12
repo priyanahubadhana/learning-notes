@@ -1,5 +1,6 @@
 import { useLiveQuery } from 'dexie-react-hooks'
-import { useEffect, useId, useMemo, useRef, useState } from 'react'
+import { useEffect, useMemo, useRef, useState } from 'react'
+import { onRouted } from '../../input/eventRouter'
 import { overlay } from '../../overlay'
 import { usePref } from '../../usePref'
 import { Icon } from '../../tools/icons'
@@ -77,37 +78,32 @@ export default function PanelV2({
 
   const catalog = useMemo<TabDef[]>(
     () => [
-      { id: 'pages', label: t('lp2.tab.pages'), icon: 'fileText' },
-      { id: 'outline', label: t('lp2.tab.outline'), icon: 'list' },
-      { id: 'resources', label: t('lp2.tab.resources'), icon: 'paperclip' },
+      { id: 'pages', label: t('lp2.tab.pages') },
+      { id: 'outline', label: t('lp2.tab.outline') },
+      { id: 'resources', label: t('lp2.tab.resources') },
     ],
     [],
   )
 
   const layerRef = useRef<HTMLDivElement>(null)
-  const panelRef = useRef<HTMLElement>(null)
   const closeRef = useRef(onClose)
   useEffect(() => {
     closeRef.current = onClose
   })
-  const dialogId = useId()
-  // The drawer sits in the top layer; Esc and the first tap outside close it.
+  // The drawer sits in the top layer. It is not an overlay of the manager (a
+  // finger held on a thumbnail must still open the strip), so its Esc and the
+  // tap on the scrim are its own; anything open on top of it takes Esc first.
   useEffect(() => {
     if (docked) return
-    const layer = layerRef.current
-    const panel = panelRef.current
-    if (!layer || !panel) return
-    showTop(layer)
-    const handle = overlay.open({
-      id: `left-panel-${dialogId}`,
-      layer: 'sheet',
-      close: () => closeRef.current(),
-      inside: (n) =>
-        panel.contains(n) || !!(n as Element).closest?.('.fb-toasts'),
-      opener: null,
-    })
-    return () => handle.close()
-  }, [docked, dialogId])
+    showTop(layerRef.current)
+    return onRouted(
+      'keydown',
+      (e) => {
+        if (e.key === 'Escape' && overlay.count() === 0) closeRef.current()
+      },
+      { name: 'left-panel-esc' },
+    )
+  }, [docked])
 
   const open = (id: string) => {
     onOpenPage(id)
@@ -117,7 +113,6 @@ export default function PanelV2({
 
   const panel = (
     <aside
-      ref={panelRef}
       className="lpv2"
       data-mode={docked ? 'docked' : 'over'}
       data-testid="left-panel"
@@ -165,7 +160,12 @@ export default function PanelV2({
       popover={popoverAttr()}
       data-testid="lpv2-layer"
     >
-      <div className="lpv2-scrim" aria-hidden="true" />
+      <div
+        className="lpv2-scrim"
+        data-testid="lpv2-scrim"
+        aria-hidden="true"
+        onPointerDown={onClose}
+      />
       {panel}
     </div>
   )

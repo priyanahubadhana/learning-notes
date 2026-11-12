@@ -1,16 +1,13 @@
 import { useLiveQuery } from 'dexie-react-hooks'
 import { useContext, useEffect, useMemo, useRef, useState } from 'react'
 import { AppUiContext } from '../../appUi'
-import { holdJustFired, rightClickInfo, useRowHold } from '../../rowHold'
 import { usePref } from '../../usePref'
+import { AnchoredMenu } from '../../tools/AnchoredMenu'
 import { Icon } from '../../tools/icons'
+import { useAnchoredMenu } from '../../tools/useAnchoredMenu'
 import { formatDuration } from '../../../audio/recordingService'
 import type { LearningNotesDB } from '../../../core/db'
 import { ClearField } from '../../../design/parts/ClearField'
-import {
-  ContextStrip,
-  type StripItem,
-} from '../../../design/parts/ContextStrip'
 import { EmptyState } from '../../../design/parts/EmptyState'
 import { sampleName } from '../../../i18n/defaultNames'
 import { t } from '../../../i18n/t'
@@ -144,9 +141,6 @@ export function ResourcesTab({
   )
   const scope = effectiveScope(savedScope, everywhere)
   const [query, setQuery] = useState('')
-  const [strip, setStrip] = useState<{ id: string; el: HTMLElement } | null>(
-    null,
-  )
   // The reader's "Audio" request lands here with the Audio chip on.
   const ask = outlineRequest.useValue()
   useEffect(() => {
@@ -177,31 +171,11 @@ export function ResourcesTab({
   }, [])
   const win = rowWindow(shown.length, RES_H, scrollTop, viewH)
 
-  useRowHold((info) => {
-    if (info.kind === 'res') setStrip({ id: info.id, el: info.el })
-  })
-  const onContext = (e: React.MouseEvent) => {
-    const info = rightClickInfo(e.target)
-    if (!info || info.kind !== 'res') return
-    e.preventDefault()
-    setStrip({ id: info.id, el: info.el })
-  }
-
-  const target = strip ? shown.find((r) => r.id === strip.id) : undefined
-  const stripItems: StripItem[] = [
-    { id: 'open', icon: 'arrowUpRight', label: t('lp2.res.openPage') },
-    { id: 'copy', icon: 'copy', label: t('lp2.res.copy') },
-  ]
-  const act = (id: string) => {
-    setStrip(null)
-    if (!target) return
-    if (id === 'open') onOpenPage(target.pageId)
-    else if (id === 'copy') {
-      void navigator.clipboard
-        ?.writeText(target.copy)
-        .then(() => toast(t('lp2.res.copied')))
-        .catch(() => toast(t('lp2.res.copyFailed')))
-    }
+  const copy = (text: string) => {
+    void navigator.clipboard
+      ?.writeText(text)
+      .then(() => toast(t('lp2.res.copied')))
+      .catch(() => toast(t('lp2.res.copyFailed')))
   }
 
   return (
@@ -268,7 +242,6 @@ export function ResourcesTab({
         className="lpv2-scroll"
         data-testid="lpv2-res-scroll"
         onScroll={(e) => setScrollTop(e.currentTarget.scrollTop)}
-        onContextMenu={onContext}
       >
         {data && shown.length === 0 ? (
           <EmptyState
@@ -297,7 +270,6 @@ export function ResourcesTab({
                 className="lpv2-res"
                 data-testid="lpv2-resource"
                 data-kind={r.kind}
-                data-hold={`res:${r.id}`}
                 style={{ top: (win.from + i) * RES_H }}
               >
                 <span className="lpv2-th" aria-hidden="true">
@@ -312,20 +284,11 @@ export function ResourcesTab({
                     {data?.titles.get(r.pageId) ?? ''}
                   </small>
                 </span>
-                <button
-                  type="button"
-                  className="lpv2-more"
-                  aria-label={t('lp2.res.more', { name: r.title })}
-                  onClick={(e) => {
-                    if (holdJustFired()) return
-                    setStrip({
-                      id: r.id,
-                      el: e.currentTarget.closest('li') ?? e.currentTarget,
-                    })
-                  }}
-                >
-                  <Icon name="more" size={18} />
-                </button>
+                <ResMenu
+                  item={r}
+                  onOpen={() => onOpenPage(r.pageId)}
+                  onCopy={() => copy(r.copy)}
+                />
               </li>
             ))}
           </ul>
@@ -334,24 +297,46 @@ export function ResourcesTab({
       <div className="lpv2-foot">
         <span>{t('lp2.res.hint')}</span>
       </div>
-      {strip && target && (
-        <ContextStrip
-          items={stripItems}
-          target={() => {
-            const rc = strip.el.getBoundingClientRect()
-            return {
-              left: rc.left,
-              top: rc.top,
-              width: rc.width,
-              height: rc.height,
-            }
-          }}
-          opener={strip.el}
-          testId="lpv2-res-strip"
-          onAction={act}
-          onClose={() => setStrip(null)}
-        />
-      )}
+    </>
+  )
+}
+
+/** The ⋯ of one row: open its page, copy its text. */
+function ResMenu({
+  item,
+  onOpen,
+  onCopy,
+}: {
+  item: ResItem
+  onOpen: () => void
+  onCopy: () => void
+}) {
+  const menu = useAnchoredMenu()
+  const pick = (fn: () => void) => {
+    menu.close()
+    fn()
+  }
+  return (
+    <>
+      <button
+        type="button"
+        className="lpv2-more"
+        {...menu.trigger}
+        aria-label={t('lp2.res.more', { name: item.title })}
+        onClick={menu.toggle}
+      >
+        <Icon name="more" size={18} />
+      </button>
+      <AnchoredMenu menu={menu} label={t('lp2.res.more', { name: item.title })}>
+        <div className="tabrow-menu" data-testid="lpv2-res-menu">
+          <button type="button" role="menuitem" onClick={() => pick(onOpen)}>
+            {t('lp2.res.openPage')}
+          </button>
+          <button type="button" role="menuitem" onClick={() => pick(onCopy)}>
+            {t('lp2.res.copy')}
+          </button>
+        </div>
+      </AnchoredMenu>
     </>
   )
 }

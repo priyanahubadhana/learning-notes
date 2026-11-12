@@ -59,11 +59,7 @@ test.describe('Professional', () => {
     await expect(popup).toBeHidden()
   })
 
-  // Needs one word in App.tsx (setSearchChip('feature') for Ctrl+Shift+K); the
-  // integration commit adds it, then this test runs.
-  test.fixme('SR-B01 Ctrl+Shift+K opens on the Features chip', async ({
-    page,
-  }) => {
+  test('SR-B01 Ctrl+Shift+K opens on the Features chip', async ({ page }) => {
     await sidebar(page).waitFor({ state: 'attached' })
     await page.keyboard.press('Control+Shift+K')
     const popup = page.getByRole('dialog', { name: 'Search' })

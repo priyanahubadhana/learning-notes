@@ -16,6 +16,8 @@ type Size = { width: number; height: number }
 
 async function open(page: Page, size: Size) {
   await page.setViewportSize(size)
+  // a fresh document each time: the same address twice is a hash jump, not a load
+  await page.goto('about:blank')
   await page.goto('/#/design-tokens')
   // every section has arrived: nothing above can still push the page down
   await expect(page.getByTestId('gal-parts')).toHaveAttribute(
@@ -135,15 +137,14 @@ test.describe('Feedback parts (SP-50 to SP-56)', () => {
       0,
     )
     // the page beside it still works: a tap on a page button does not close it
-    await freezeToasts(page)
-    const beside = page.getByTestId('fb-toast-done')
+    // (the first column; where the other demos sit depends on the font width)
+    const beside = page.getByTestId('fb-banner-add')
     await beside.scrollIntoViewIfNeeded()
-    // the page narrows beside the sheet; wait for that layout to settle
     await expect
       .poll(async () => (await box(beside)).x + (await box(beside)).width)
       .toBeLessThan(IPAD_L.width - 376)
     await beside.tap()
-    await expect(page.getByTestId('fb-toast')).toHaveCount(1)
+    await expect(page.getByTestId('fb-banner-more')).toHaveText('+1')
     await expect(sheet).toBeVisible()
     // Esc closes and focus returns to the button that opened it
     await page.keyboard.press('Escape')

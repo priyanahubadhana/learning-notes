@@ -261,3 +261,4 @@ Three ways of using the reader, as presets:
 
 - Search and Review mock-ups are approved ("okay to pass").
 - Review › More: "Again comes back after…" row has image and text overlapping; fix the layout in the real app.
+- BUG (iPad): the sidebar covers the reader bar's ✕ (Exit reading). Found by CI 12 Nov; fix in a real-build slice.

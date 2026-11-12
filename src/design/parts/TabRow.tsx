@@ -117,6 +117,25 @@ export function TabRow(props: TabRowProps) {
     focusTab(to)
   }
 
+  // SP-08: a newly added tab scrolls into view (instantly with reduced motion).
+  const prevIds = useRef<string[] | null>(null)
+  useEffect(() => {
+    const before = prevIds.current
+    prevIds.current = tabs.map((t) => t.id)
+    if (!before) return
+    const added = tabs.find((t) => !before.includes(t.id))
+    if (!added) return
+    const reduce = window.matchMedia?.('(prefers-reduced-motion: reduce)')
+    const el = scroller.current?.querySelector<HTMLElement>(
+      `[data-tab-id="${CSS.escape(added.id)}"]`,
+    )
+    el?.scrollIntoView?.({
+      block: 'nearest',
+      inline: 'nearest',
+      behavior: reduce?.matches ? 'auto' : 'smooth',
+    })
+  }, [tabs])
+
   const inSet = new Set(set.data.ids)
   const addable = usable.filter((c) => !inSet.has(c.id))
   const room = canAdd(set.data)

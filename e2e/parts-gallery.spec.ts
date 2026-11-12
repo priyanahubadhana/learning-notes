@@ -391,9 +391,13 @@ test.describe('Parts gallery', () => {
       )
       expect(new Set(tops).size).toBe(1) // one line
       const s = await box(scroller)
-      const last = await box(tabs.last())
-      expect(last.x).toBeGreaterThanOrEqual(s.x - 1)
-      expect(last.x + last.width).toBeLessThanOrEqual(s.x + s.width + 1)
+      // The row scrolls the new tab into view (smooth), so wait for it to land.
+      await expect
+        .poll(async () => {
+          const last = await box(tabs.last())
+          return last.x >= s.x - 1 && last.x + last.width <= s.x + s.width + 1
+        })
+        .toBe(true)
       await expect(row.getByTestId('tabrow-track')).toBeVisible()
     })
 
@@ -565,8 +569,8 @@ test.describe('Parts gallery', () => {
       const row = c.getByTestId('tag-row-habits')
       await expect(row).toBeVisible()
       await expect(row.locator('.pm-row__name')).toHaveText('#Habits')
-      // The path above the name: the spec writes it `Life › Habits`.
-      await expect(row.locator('.pm-row__path')).toHaveText('Life')
+      // The muted path line: the spec writes it `Life › Habits`.
+      await expect(row.locator('.pm-row__path')).toHaveText('Life › Habits')
       await expect(c.getByTestId('tag-row-habit')).toBeVisible()
       // Fuzzy: a skipped letter still finds it.
       await c.getByTestId('tp-search').fill('hbts')

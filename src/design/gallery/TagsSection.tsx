@@ -139,7 +139,10 @@ function Live() {
       data-testid="tag-hash-list"
       className="bg-surface-1 t-small w-64 rounded-[var(--r-md)] p-3"
       onKeyDown={(e) => {
-        if (e.key === '#') setAnchor(e.currentTarget)
+        if (e.key === '#') {
+          e.preventDefault()
+          setAnchor(e.currentTarget)
+        }
       }}
     >
       A list. Focus it and press #.

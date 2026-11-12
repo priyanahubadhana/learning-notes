@@ -44,7 +44,7 @@ export function TagRow({
       <span className="pm-row__main">
         <span className="pm-row__name">#{tag.name}</span>
         {showPath && parents.length > 0 && (
-          <span className="pm-row__path">{parents.join(' › ')}</span>
+          <span className="pm-row__path">{tag.path.join(' › ')}</span>
         )}
       </span>
       <span className="pm-row__count">{tag.count}</span>

@@ -131,6 +131,19 @@ export function Card(props: CardProps) {
     active: !isStatic && !phone && !!anchor,
   })
 
+  // A floating card is hidden until positioned, and a hidden element cannot
+  // take focus, so focus again once it is visible (SP-14).
+  const placed = !!pos
+  useEffect(() => {
+    if (isStatic || !placed) return
+    const el = rootRef.current
+    if (!el || el.contains(document.activeElement)) return
+    const first = el.querySelector<HTMLElement>(
+      '.pcard-body button:not([disabled]), .pcard-body input:not([disabled]), .pcard-body [tabindex="0"]',
+    )
+    ;(first ?? el).focus()
+  }, [isStatic, placed])
+
   // The bottom edge fades while there is more to scroll.
   useEffect(() => {
     const body = bodyRef.current

@@ -8,4 +8,10 @@ export const esReaderV2 = {
   'readerv2.show.reader': 'Mostrar la barra del lector',
   'readerv2.original.tooBig':
     'Este libro pesa {size}. La copia original solo se guarda hasta 200 MB, así que "Restaurar original" no estará disponible. Deshacer sigue funcionando.',
+  'readerv2.listen': 'Escuchar',
+  'readerv2.more.bar': 'Barra del lector',
+  'readerv2.more.view': 'Vista y páginas',
+  'readerv2.more.pdf': 'Herramientas PDF',
+  'readerv2.more.other': 'Más',
+  'readerv2.more.toolBar': 'Barra de lápiz: {mode}',
 } as const

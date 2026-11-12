@@ -1,5 +1,7 @@
 import { IconButton, MenuPopover, NameDialog, type MenuItem } from '../app/ui'
 import { Icon } from '../app/tools/icons'
+import { toggleListen } from './v2/listen'
+import type { BarItem, CardGroupDef, CardRowDef } from './v2/ReaderBarRow'
 import { tapZone } from '../app/reading/readingMath'
 import { readerBridge } from './readerBridge'
 import { useLiveQuery } from 'dexie-react-hooks'
@@ -94,6 +96,7 @@ const EpubView = lazy(() =>
 const AaSheet = lazy(() => import('./AaSheet'))
 // The new bars (flag reader.v2): their own chunk, loaded only when the flag is on.
 const ReaderBarsV2 = lazy(() => import('./v2/ReaderBars'))
+const ReaderBarRowV2 = lazy(() => import('./v2/ReaderBarRow'))
 const DictionarySheet = lazy(() => import('./DictionarySheet'))
 const ZoomPreview = lazy(() => import('./pdf/ZoomPreview'))
 // The PDF menu's tools (Q8): pdf-lib, OCR and the sheets load only when used.
@@ -1181,6 +1184,279 @@ export function BookReader({
       </button>
     </div>
   )
+  // Flag reader.v2: the same actions in ONE row; what does not fit goes into
+  // the ⋯ card (src/reader/v2/ReaderBarRow.tsx).
+  const viewRows: CardRowDef[] = [
+    ...(format === 'pdf'
+      ? [
+          {
+            id: 'zoomOut',
+            label: t('bookreader.zoomOut'),
+            icon: 'minus' as const,
+            keepOpen: true,
+            onClick: () =>
+              setZoom(
+                (z) =>
+                  ZOOMS[Math.max(0, ZOOMS.findIndex((v) => v >= z) - 1)] ?? z,
+              ),
+          },
+          {
+            id: 'fit',
+            label: t('bookreader.fitWidth'),
+            icon: 'maximize' as const,
+            keepOpen: true,
+            onClick: () => setZoom(1),
+          },
+          {
+            id: 'zoomIn',
+            label: t('bookreader.zoomIn'),
+            icon: 'zoom' as const,
+            keepOpen: true,
+            onClick: () =>
+              setZoom((z) => ZOOMS.find((v) => v > z + 0.001) ?? z),
+          },
+          {
+            id: 'flow',
+            label: pdfPaged ? t('bookreader.pages') : t('bookreader.scroll'),
+            icon: 'bookOpen' as const,
+            testId: 'pdf-flow',
+            onClick: () => setPdfFlow(pdfPaged ? 'scrolled' : 'paged'),
+          },
+        ]
+      : [
+          {
+            id: 'prev',
+            label: t('bookreader.prev'),
+            icon: 'chevronUp' as const,
+            keepOpen: true,
+            onClick: () =>
+              setCommand((c) => ({ type: 'prev', nonce: (c?.nonce ?? 0) + 1 })),
+          },
+          {
+            id: 'next',
+            label: t('bookreader.next'),
+            icon: 'chevronDown' as const,
+            keepOpen: true,
+            onClick: () =>
+              setCommand((c) => ({ type: 'next', nonce: (c?.nonce ?? 0) + 1 })),
+          },
+          {
+            id: 'smaller',
+            label: t('bookreader.epubSmaller'),
+            icon: 'minus' as const,
+            keepOpen: true,
+            onClick: () => setEpubSize((n) => stepSize(n, -1)),
+          },
+          {
+            id: 'larger',
+            label: t('bookreader.epubLarger'),
+            icon: 'textSize' as const,
+            keepOpen: true,
+            onClick: () => setEpubSize((n) => stepSize(n, 1)),
+          },
+          {
+            id: 'flow',
+            label:
+              epubFlow === 'paginated'
+                ? t('bookreader.pages')
+                : t('bookreader.scroll'),
+            icon: 'bookOpen' as const,
+            testId: 'epub-flow',
+            onClick: () =>
+              setEpubFlow((f) =>
+                f === 'paginated' ? 'scrolled' : 'paginated',
+              ),
+          },
+        ]),
+    {
+      id: 'flip',
+      label: t('reader.flip'),
+      icon: 'layoutGrid' as const,
+      testId: 'reader-flip',
+      checked: flipOpen,
+      onClick: () => setFlipOpen((v) => !v),
+    },
+    {
+      id: 'fullscreen',
+      label: t(full ? 'reader.fullscreen.exit' : 'reader.fullscreen'),
+      icon: 'maximize' as const,
+      testId: 'reader-fullscreen',
+      onClick: () => {
+        setBarShown(false)
+        setFull((v) => !v)
+      },
+    },
+  ]
+  const barItems: BarItem[] = [
+    {
+      id: 'history',
+      label: t('readerv2.more.bar'),
+      icon: 'undo',
+      testId: 'reader-history',
+      rank: 9,
+      w: 92,
+      onClick: () => {},
+      node: <HistoryButtons />,
+    },
+    ...(format === 'pdf'
+      ? [
+          {
+            id: 'find',
+            label: t('reader.find'),
+            icon: 'search' as const,
+            testId: 'reader-find',
+            rank: 2,
+            pressed: panel === 'find',
+            onClick: () => setPanel((p) => (p === 'find' ? null : 'find')),
+          },
+        ]
+      : []),
+    {
+      id: 'ink',
+      label: t('reader.ink.label'),
+      icon: 'pen',
+      testId: 'reader-ink',
+      rank: 1,
+      pressed: drawing,
+      onClick: () => {
+        if (inking) return stopInking()
+        if (format === 'epub' && epubFlow === 'paginated') {
+          toast(t('reader.ink.scrollOnly'))
+          return
+        }
+        toolBefore.current = activeTool.get()
+        activeTool.set('pen')
+        setInking(true)
+      },
+    },
+    {
+      id: 'bookmark',
+      label: bookmarked ? t('bookreader.bookmarked') : t('bookreader.bookmark'),
+      icon: 'bookmark',
+      testId: 'reader-bookmark',
+      rank: 4,
+      pressed: bookmarked,
+      onClick: toggleBookmark,
+    },
+    {
+      id: 'contents',
+      label: t('bookreader.contents'),
+      icon: 'list',
+      testId: 'reader-contents',
+      rank: 7,
+      onClick: () => openLeft('outline'),
+    },
+    {
+      id: 'annotations',
+      label: t('bookreader.annotations'),
+      icon: 'highlighter',
+      testId: 'reader-annotations',
+      rank: 8,
+      onClick: () => openLeft('annotations'),
+    },
+    {
+      id: 'aa',
+      label: t('aa.title'),
+      icon: 'textSize',
+      testId: 'reader-aa',
+      rank: 5,
+      popup: 'dialog',
+      expanded: aaOpen,
+      pressed: aaOpen,
+      onClick: () => setAaOpen((v) => !v),
+    },
+    {
+      id: 'listen',
+      label: t('readerv2.listen'),
+      icon: 'volume',
+      testId: 'reader-listen',
+      rank: 3,
+      onClick: toggleListen,
+    },
+    {
+      id: 'lock',
+      label: t('reader.lock'),
+      icon: 'lock',
+      testId: 'reader-lock',
+      rank: 6,
+      onClick: () => {
+        stopInking()
+        clearSelection()
+        setPanel(null)
+        setAaOpen(false)
+        setBarShown(false)
+        setFlipOpen(false)
+        setLocked(true)
+      },
+    },
+  ]
+  const cardGroups: CardGroupDef[] = [
+    { label: t('readerv2.more.view'), rows: viewRows },
+    ...(aiOn
+      ? [
+          {
+            label: t('ai.book.button'),
+            rows: [
+              {
+                id: 'ask',
+                label: t('ai.book.button'),
+                icon: 'sparkles' as const,
+                testId: 'reader-ask',
+                checked: panel === 'ask',
+                onClick: () => setPanel((p) => (p === 'ask' ? null : 'ask')),
+              },
+            ],
+          },
+        ]
+      : []),
+    ...(format === 'pdf'
+      ? [{ label: t('readerv2.more.pdf'), rows: [], menu: pdfMenuItems }]
+      : []),
+    { label: t('readerv2.more.other'), rows: [], menu: moreItems },
+  ]
+  const readerBarV2 = (
+    <div
+      data-chrome
+      data-testid="reader-bar"
+      hidden={locked}
+      className="flex flex-col"
+    >
+      <ReaderBarRowV2
+        lead={
+          <IconButton
+            tip="reader.close"
+            bare
+            tipClassName="inline-flex shrink-0"
+            type="button"
+            onClick={() => onOpenPage(pageId)}
+            aria-label={t('bookreader.close')}
+            data-testid="reader-close"
+            className={panelBtn(false)}
+          >
+            ✕
+          </IconButton>
+        }
+        title={page.title}
+        pageText={
+          format === 'pdf' && pageCount
+            ? t('bookreader.page', { page: pageNo, total: pageCount })
+            : ''
+        }
+        items={barItems}
+        groups={cardGroups}
+      />
+      {(timeLeftText || clock) && (
+        <p
+          className="rv2-timeleft"
+          data-testid="reader-timeleft"
+          aria-label={t('reader.timeLeft.label')}
+        >
+          {look.progress === 'location' ? timeLeftText : progressText}
+          {clock ? ` · ${clock}` : ''}
+        </p>
+      )}
+    </div>
+  )
   const inkBar =
     drawing && !full && !locked ? (
       <ReaderInkBar onDone={stopInking} mode={penBar} v2={v2Bars} />
@@ -1204,7 +1480,7 @@ export function BookReader({
             hidden={locked}
             away={barsAway}
             rootRef={rootRef}
-            reader={readerBar}
+            reader={readerBarV2}
             ink={inkBar}
           />
         </Suspense>
@@ -1219,7 +1495,7 @@ export function BookReader({
           {t('bookreader.noText')}
         </p>
       )}
-      {(timeLeftText || clock) && !full && (
+      {(timeLeftText || clock) && !full && !v2Bars && (
         <p
           className="truncate px-3 py-0.5 text-xs text-muted"
           data-testid="reader-timeleft"

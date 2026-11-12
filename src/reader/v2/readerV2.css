@@ -102,3 +102,81 @@
   min-height: 44px;
   min-width: 44px;
 }
+
+/* The reader bar's one row (7a). It never wraps and never scrolls sideways;
+   what does not fit goes into the ⋯ card (ReaderBarRow). */
+.rv2-row {
+  display: flex;
+  flex-wrap: nowrap;
+  align-items: center;
+  gap: 2px;
+  min-width: 0;
+  overflow: hidden;
+}
+.rv2-row__title {
+  flex: 1 1 0;
+  min-width: 0;
+  margin: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  font-size: 14px;
+  font-weight: 500;
+}
+.rv2-row__page {
+  flex: none;
+  max-width: 96px;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  font-size: 12px;
+  color: var(--color-muted);
+}
+.rv2-row__node {
+  display: inline-flex;
+  flex: none;
+}
+.rv2-btn,
+.rv2-row .rv2-more {
+  display: inline-flex;
+  flex: none;
+  align-items: center;
+  justify-content: center;
+  min-width: 44px;
+  min-height: 44px;
+  padding: 0;
+  border: 0;
+  border-radius: var(--r-md);
+  background: none;
+  color: var(--color-ink);
+  font: inherit;
+  cursor: pointer;
+}
+.rv2-row .rv2-more {
+  min-width: 62px;
+  padding-inline: 8px;
+}
+.rv2-btn:hover,
+.rv2-row .rv2-more:hover {
+  background: rgba(127, 127, 127, 0.14);
+}
+.rv2-btn[data-pressed],
+.rv2-row .rv2-more[data-pressed] {
+  background: var(--color-accent-soft);
+  color: var(--color-accent);
+}
+.rv2-timeleft {
+  margin: 0;
+  padding: 0 10px 4px;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  font-size: 12px;
+  color: var(--color-muted);
+}
+.rv2-card-node {
+  display: flex;
+  min-height: 44px;
+  align-items: center;
+  padding: 0 8px;
+}

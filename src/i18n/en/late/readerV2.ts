@@ -8,4 +8,10 @@ export const enLateReaderV2 = {
   'readerv2.show.reader': 'Show reader bar',
   'readerv2.original.tooBig':
     'This book is {size}. A first copy is kept only up to 200 MB, so "Restore original" will not be available for it. Undo still works.',
+  'readerv2.listen': 'Listen',
+  'readerv2.more.bar': 'Reader bar',
+  'readerv2.more.view': 'View and pages',
+  'readerv2.more.pdf': 'PDF tools',
+  'readerv2.more.other': 'More',
+  'readerv2.more.toolBar': 'Pen bar: {mode}',
 } as const

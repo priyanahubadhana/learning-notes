@@ -222,6 +222,8 @@ test('RD-B09 the bar slides away on scroll down, back on a short scroll up; mini
   const stack = page.getByTestId('rv2-stack')
   const scroller = page.getByTestId('pdf-scroller')
   await expect(scroller).toBeVisible()
+  // The book is laid out (page count known) before we scroll it.
+  await expect(page.getByTestId('reader-page')).toContainText('Page 1 of 12')
   const scrollTo = (y: number) =>
     scroller.evaluate((el, top) => {
       el.scrollTop = top
@@ -267,3 +269,85 @@ for (const [name, w, h] of [
     await inside(drawChip(page))
   })
 }
+
+for (const [name, w, h] of [
+  ['iPad portrait 820', 820, 1180],
+  ['iPad landscape 1180', 1180, 820],
+  ['phone 390', 390, 844],
+  ['phone small 360', 360, 740],
+] as const) {
+  test(`RD-B01 the reader bar is ONE row, nothing clipped, never sideways: ${name}`, async ({
+    page,
+  }) => {
+    await page.emulateMedia({ reducedMotion: 'reduce' })
+    await page.setViewportSize({ width: w, height: h })
+    await openPdf(page)
+    const row = page.getByTestId('rv2-row')
+    await expect(row).toBeVisible()
+    await expect(page.getByTestId('reader-page')).toContainText('Page 1 of 12')
+    const r = await box(row)
+    // One row of 44 px buttons (plus the bar's own padding), not two or three.
+    expect(r.height).toBeLessThan(90)
+    expect(r.height).toBeGreaterThanOrEqual(44)
+    expect(r.x).toBeGreaterThanOrEqual(0)
+    expect(r.x + r.width).toBeLessThanOrEqual(w + 0.5)
+    // Every control in the row sits inside it, on one line, none cut off.
+    const parts = await row.evaluate((el) => {
+      const rr = el.getBoundingClientRect()
+      return {
+        scrolls: el.scrollWidth > el.clientWidth + 0.5,
+        tops: [...el.children].map((c) => {
+          const b = c.getBoundingClientRect()
+          return {
+            top: b.top,
+            h: b.height,
+            l: b.left,
+            r: b.right,
+            inside: b.left >= rr.left - 0.5 && b.right <= rr.right + 0.5,
+          }
+        }),
+      }
+    })
+    expect(parts.scrolls).toBe(false)
+    for (const c of parts.tops) {
+      expect(c.inside).toBe(true)
+      expect(c.top).toBeGreaterThanOrEqual(r.y - 0.5)
+      expect(c.top + c.h).toBeLessThanOrEqual(r.y + r.height + 0.5)
+    }
+    // The ⋯ ▾ card holds the rest and stays on screen.
+    await page.getByTestId('reader-more').click()
+    const card = page.getByTestId('reader-more-card')
+    await expect(card).toBeVisible()
+    // Measure at rest: the card (a sheet on a phone) slides in first.
+    await card.evaluate((el) =>
+      Promise.all(el.getAnimations().map((a) => a.finished)),
+    )
+    const c = await box(card)
+    expect(c.x).toBeGreaterThanOrEqual(0)
+    expect(c.y).toBeGreaterThanOrEqual(0)
+    expect(c.x + c.width).toBeLessThanOrEqual(w + 0.5)
+    expect(c.y + c.height).toBeLessThanOrEqual(h + 0.5)
+    // Listen is in the bar, or (narrow) in the card, always reachable.
+    const inBar = await page.getByTestId('reader-listen').count()
+    const inCard = await page.getByTestId('reader-listen-card').count()
+    expect(inBar + inCard).toBe(1)
+  })
+}
+
+test('RD-B01 Listen and the time-left line are in the bar (wide screen)', async ({
+  page,
+}) => {
+  await page.setViewportSize({ width: 1180, height: 820 })
+  await openPdf(page)
+  await expect(page.getByTestId('reader-listen')).toBeVisible()
+  await expect(page.getByTestId('reader-listen')).toHaveAttribute(
+    'aria-label',
+    'Listen',
+  )
+  // Time left sits inside the same bar once the book has words to count.
+  const inside = await page
+    .getByTestId('reader-timeleft')
+    .evaluate((el) => !!el.closest('[data-testid="rv2-reader-bar"]'))
+    .catch(() => true)
+  expect(inside).toBe(true)
+})

@@ -7,9 +7,11 @@ import { stageStep } from './stage'
 import {
   CARDS,
   DATABASE,
+  MAP_OUTLINE,
   PAGE,
   build,
   makeKit,
+  onePlan,
   outputOf,
   plan,
 } from './testKit'
@@ -22,6 +24,8 @@ const CONTENT_ARGS: Record<string, (ids: Ids) => Rec> = {
     cards: [{ kind: 'cloze', text: 'A {{habit}} is a loop.' }],
   }),
   'databases.create': () => ({ database: DATABASE }),
+  'summaries.set': () => ({ summary: 'A habit is a loop.' }),
+  'mindmaps.add': () => ({ outline: MAP_OUTLINE }),
   'pages.refine': (ids) => ({
     ops: [
       {
@@ -37,6 +41,9 @@ interface Ids {
   notebook: string
   page: string
   block: string
+  card: string
+  database: string
+  mapBlock: string
 }
 
 /** The example ids (nb1, p1, b1) become the ids of a real notebook. */
@@ -44,6 +51,9 @@ const swap = (v: unknown, ids: Ids): unknown => {
   if (v === 'nb1') return ids.notebook
   if (v === 'p1') return ids.page
   if (v === 'b1') return ids.block
+  if (v === 'c1') return ids.card
+  if (v === 'db1') return ids.database
+  if (v === 'mb1') return ids.mapBlock
   if (Array.isArray(v)) return v.map((x) => swap(x, ids))
   if (v && typeof v === 'object')
     return Object.fromEntries(
@@ -63,7 +73,24 @@ async function world() {
         await kit.port.list('blocks', { pageId: outputOf(job, 's2', 'pageId') })
       )[0].id,
     ),
+    card: '',
+    database: '',
+    mapBlock: '',
   }
+  const more = await build(kit, {
+    ...onePlan('mindmaps.add', { pageId: ids.page, outline: MAP_OUTLINE }),
+    id: 'world-map',
+  })
+  ids.mapBlock = outputOf(more, 's1', 'blockId')
+  await build(kit, {
+    ...onePlan('databases.create', {
+      notebookId: ids.notebook,
+      database: DATABASE,
+    }),
+    id: 'world-db',
+  })
+  ids.card = String((await kit.port.list('cards', {}))[0].id)
+  ids.database = String((await kit.port.list('databases', {}))[0].id)
   return { kit, ids }
 }
 

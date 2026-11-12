@@ -8,6 +8,7 @@ import { Activity } from './Activity'
 import { BuildPlan } from './BuildPlan'
 import { BuildToasts, type BuildToastsApi } from './BuildToasts'
 import { getEngine, type Engine } from './engine'
+import { GoalBox } from './GoalBox'
 import { RunCard } from './RunCard'
 
 type Tab = 'build' | 'activity'
@@ -186,7 +187,15 @@ export default function AiBuild({
               }}
             />
           ) : (
-            <BuildPlan key={fresh} db={db} onStart={start} />
+            <>
+              <GoalBox
+                key={`goal${fresh}`}
+                db={db}
+                onStart={start}
+                onReady={(title) => say(t('aifw.goal.toast', { name: title }))}
+              />
+              <BuildPlan key={fresh} db={db} onStart={start} />
+            </>
           )}
         </div>
         <BuildToasts ref={toasts} />

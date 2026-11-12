@@ -413,12 +413,18 @@ function LeftPanelToday({
   pageId,
   onOpenPage,
   onClose,
+  docked: dockedProp,
+  width,
 }: {
   db: LearningNotesDB
   notebookId: string
   pageId: string
   onOpenPage: (id: string) => void
   onClose: () => void
+  /** The new app frame decides docked or overlay itself (flag foundation.shell). */
+  docked?: boolean
+  /** Docked width in px (the new frame uses 288). */
+  width?: number
 }) {
   const [noteTab, setTab] = usePref<Tab>('leftPanel.tab', isTab, 'pages')
   // While a book is open the panel is about the book (items 32 and 45).
@@ -433,11 +439,12 @@ function LeftPanelToday({
       ;(book ? setBookTab : setTab)(want as never)
     }
   }, [ask, setTab, book])
-  const docked = window.innerWidth >= PANEL_DOCK_MIN
+  const docked = dockedProp ?? window.innerWidth >= PANEL_DOCK_MIN
   return (
     <aside
       data-chrome
       data-testid="left-panel"
+      style={docked && width ? { width } : undefined}
       aria-label={t('lp.label')}
       className={
         docked

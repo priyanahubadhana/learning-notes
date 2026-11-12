@@ -17,6 +17,7 @@ import { listKeys } from './keyStore'
 import { ModelCards } from './ModelCards'
 import { isCap } from './usage'
 import { UsageSection } from './UsageSection'
+import { AreaInput } from '../settings/AreaInput'
 
 const isBool = (v: unknown): v is boolean => typeof v === 'boolean'
 const isStrings = (v: unknown): v is string[] =>
@@ -137,7 +138,7 @@ export function AiSection({
       <h3 className={head}>{t('ai.sec.spending')}</h3>
       <label className="flex flex-col gap-1 text-sm">
         {t('ai.cap', { currency: code })}
-        <input
+        <AreaInput
           key={`${code}${readCostCurrency().rates[code]}-${capFrom}`}
           type="number"
           min={0}

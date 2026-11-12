@@ -17,6 +17,7 @@ const SECTIONS = [
   'empty',
   'objbar',
   'range',
+  'menus',
 ] as const
 
 async function open(page: Page, size?: { width: number; height: number }) {
@@ -135,6 +136,25 @@ test.describe('Parts gallery', () => {
         'danger',
       ],
       range: ['presets', 'custom', 'editing', 'phone-wrap'],
+      feedback: [
+        'sheet',
+        'dialogs',
+        'toasts',
+        'banner',
+        'sheet-inline',
+        'confirm-inline',
+        'prompt-inline',
+        'toasts-inline',
+      ],
+      menus: [
+        'strip',
+        'strip-phone',
+        'strip-picker',
+        'list',
+        'list-filtered',
+        'list-empty',
+        'live',
+      ],
     }
     // The sections come in the order of the spec.
     const ids = await page
@@ -422,7 +442,7 @@ test.describe('Parts gallery', () => {
       const row = page.getByTestId('tabs-three')
       await row.scrollIntoViewIfNeeded()
       await row.getByTestId('tabrow-plus').click()
-      const menu = page.getByRole('menu')
+      const menu = page.getByRole('menu', { name: 'Add a tab' })
       await expect(menu).toBeVisible()
       await expect(page.getByTestId('tabrow-add').first()).toBeVisible()
       await expect(page.getByTestId('tabrow-create')).toBeVisible()

@@ -385,6 +385,38 @@ Keep all of that. Split into `src/design/gallery/` (one file per section, lazy) 
 
 Gallery controls added to the top: Theme (Night, Day, Sepia), Reduce glass, Beginner/Professional, "Show Pro unlocked" (unlock all), Reduce motion, width presets (390, 820, 1180, 1366). The screenshot test iterates these. English only stays (review page).
 
+### 2b. Parts (slice 0g step 2)
+
+Source: `docs/features/page-menus.md` "New shared parts", approved pictures `docs/mockups/favourites/menu-*.png`, and PENDING "Favourites row + Organise + long-press strip + Paste: APPROVED" (fix 1: the strip never covers the selection handles or the B/I/U bar; fix 2: every phone item in ⋯ is tappable). All floating behaviour goes through `src/app/overlay/` only. Words in `src/i18n/en/parts/`.
+
+| Part               | File                                | Behaviour (short)                                                                                                                                                                                                                                          | Sizes and motion                                                                       |
+| ------------------ | ----------------------------------- | ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | -------------------------------------------------------------------------------------- |
+| Context menu strip | `src/design/parts/ContextStrip.tsx` | One row: Cut, Copy, Paste ▾, Delete (red, last), ⋯. ▾ opens a 304 px picker below (replaces, never stacks). ⋯ opens the Command list in the same place. Above the selection, else below, else beside; ≥ 12 px inside every edge. Phone: up to 4 items + ⋯. | 48 px tall, radius 16, items 44 px, gap 8 px from the selection; 160 ms in, 120 ms out |
+| Command list       | `src/design/parts/CommandList.tsx`  | Search as you type (names + aliases), groups, Recent (last 3) on top, "Show all" row, ↑ ↓ Enter Esc, "No match" line.                                                                                                                                      | 320 px (phone: full width − 24), max 420 px high, min 240, rows 44 px                  |
+| Sheet              | `src/design/parts/Sheet.tsx`        | Docked right, full height; full screen on phone; title, ✕, body scrolls, optional footer. Swipe right / down closes.                                                                                                                                       | 376 px at ≥ 1024 px else 100 %; header 56 px; 240 ms in, 180 ms out                    |
+| Dialog set         | `src/design/parts/Dialogs.tsx`      | Confirm, Alert, Prompt (Name: ✕ clear, 40-character limit shown at 32+). ✕, Esc = cancel, Enter = main, focus kept inside and returned. Red only for danger.                                                                                               | 360 px (phone: full width − 32), radius 20, buttons 44 px; backdrop 30 % black         |
+| Toast queue        | `src/design/parts/ToastStack.tsx`   | Up to 3 at the bottom centre; done 2.5 s, undo 6 s with Undo, problem stays until ✕; never replaces an Undo; hover pauses; polite live region; never covers a title or a sheet footer.                                                                     | up to 420 px wide, 44 px tall, 8 px apart, 16 px above the safe area                   |
+| Banner             | `src/design/parts/Banner.tsx`       | One line at the top of content: icon, text, one action, ✕. One at a time; a newer one queues.                                                                                                                                                              | 44 px, radius 12, margin 12, slides down 200 ms                                        |
+
+| Id    | When I…                                                        | Then…                                                                                  |
+| ----- | -------------------------------------------------------------- | -------------------------------------------------------------------------------------- |
+| SP-40 | open the strip on a selection                                  | Cut, Copy, Paste ▾, Delete, ⋯ show above it, never covering it or its handles          |
+| SP-41 | open the strip near any edge or corner (iPad both ways, phone) | the whole strip stays on screen, at least 12 px inside                                 |
+| SP-42 | tap Paste ▾                                                    | a picker card opens below the strip; opening another ▾ replaces it                     |
+| SP-43 | tap ⋯ on the strip (phone too)                                 | the full list opens as a Command list in the same place; every item is tappable        |
+| SP-44 | press Esc or tap outside                                       | the strip closes and focus returns                                                     |
+| SP-45 | type in the Command list                                       | rows filter by name and alias as I type; "No match" shows when nothing fits            |
+| SP-46 | use ↑ ↓ and Enter                                              | the highlighted row moves and Enter picks it                                           |
+| SP-47 | have picked items before                                       | the last 3 show in "Recent" on top                                                     |
+| SP-48 | tap "Show all"                                                 | every group shows                                                                      |
+| SP-50 | open a Sheet on iPad / PC                                      | it docks right at full height; the page beside it still works                          |
+| SP-51 | open a Sheet on a phone                                        | it fills the screen; ✕ closes it                                                       |
+| SP-52 | open a Confirm dialog                                          | focus stays inside; Esc cancels; Enter confirms; focus returns to the button I pressed |
+| SP-53 | type a name of 32+ characters in a Prompt                      | the count shows; 40 is the limit; ✕ clears                                             |
+| SP-54 | do 4 things that show toasts                                   | at most 3 stack; an Undo toast is never pushed out by a newer one; Undo works          |
+| SP-55 | show a toast                                                   | it is read politely by a screen reader and never covers a title or a sheet footer      |
+| SP-56 | show a Banner, then another                                    | one shows at a time; ✕ shows the next                                                  |
+
 ### 3. Shell (slice 0h)
 
 Ids SH-01 to SH-14. Paths under `src/app/shell/`. Values: CSS = `docs/mockups/shell.css`, JS = `shell.js`, SS = `docs/design/shell-spec.md`. Breakpoints: **640** (phone) and **1180** (room for sidebar + panel) only (SS 8). Today's code uses `phone:` = width < 40rem or height < 32rem (`src/index.css:5-17`); the new shell keeps that rule (height < 32rem also counts as phone).

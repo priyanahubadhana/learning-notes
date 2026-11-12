@@ -147,6 +147,15 @@ Code: `src/aitools/plan/` (pure) and `src/aibuild/GoalBox.tsx`.
 - When the plan is shown → it says "free" for copy-and-paste and what a paid model would cost per effort level (V4-C6).
 - When any paid model call would start → `spendGate` refuses it while the limit is ₹0, before the call exists (V4-C7, V4-C8, V4-C9, V4-C10).
 
+### Slice 5a: Pages, Tabs, Summaries (both doors)
+
+Tools: `pages.rename`, `tabs.rename`, `tabs.set_hidden`, `summaries.set` (code in `src/aitools/tools/`; staged in `src/aitools/jobs/stage.ts`; the local connector uses the same files).
+
+- When a plan names one of these four tools → it is checked, staged, previewed, applied and undone exactly like the older tools, from the Build screen, the goal box or Claude (V4-D1).
+- When the same plan runs in the app and through `run_plan` → the records are byte-equal (V4-D2, `mcp/test/planParity.test.ts`).
+- When a notebook or page is locked, a tab or page is gone, a summary targets a sub-page, or the page changed meanwhile → nothing is written and the reason is shown in plain words in English, Spanish and Hindi.
+- When I pick steps by hand on the Build screen → the three tools that need their own arguments (rename page, rename tab, show or hide tab) are not offered there; they come through a plan.
+
 ### Slice 3: Build screen texts
 
 - AF-43. When a step or job shows a reason (step failed, stopped, nothing to

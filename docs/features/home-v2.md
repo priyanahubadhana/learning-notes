@@ -322,3 +322,22 @@ Each commit ships behind `home.v2`, with its HM tests and screenshots.
 - **D10 Cancel asks first** ("Discard all changes?") as in the mock (HOME 9169); Reset is undoable instead of asking.
 - **D11 Delete confirm.** Delete removes at once with Undo (no dialog), because Undo is always visible.
 - **D12 Wording** "Add a card" replaces the mock's "Add widget" / "widget" to match the owner's "box/card" words; Settings strings use "card" too.
+
+## First build (slice 5): When lines
+
+The first cut is described in [../plans/home-v2-spec.md](../plans/home-v2-spec.md) (six widgets, edit bar, shared reflow drag, S/M/L, source pop-up, Pending items). Its checks:
+
+- When this applies: Home > Today, flag on -> I see the widgets as a board, plus an "Edit layout" button. Flag off -> the old stacked Today, unchanged.
+- When I tap "Edit layout" -> an edit bar sticks to the top of the board with Done, Cancel and Reset; every widget shows a grip, its S / M / L control, ▲▼ and "Where this comes from". Text inside widgets cannot be selected while editing.
+- When I drag a widget by its grip -> the other widgets slide out of the way live, so the final layout shows before I let go (shared grid drag, `ReorderList`).
+- When I drop a wide widget (M or L) between small ones -> it lands exactly there; the small ones wrap to the next row.
+- When I drop a widget where it cannot fit (it would leave a hole in a row, e.g. a full-row L after one S) -> it snaps to the nearest spot that fits, and that spot is what the live preview shows.
+- When I use ▲ / ▼ or Alt+arrows on a widget -> it moves to the next spot that fits (same rule as drag).
+- When I pick S, M or L on a widget -> its size changes with a short animation; the chosen size is marked (selected); the widget never disappears and keeps its place.
+- When I tap "Where this comes from" on a widget -> a separate pop-up opens (top layer) with where the numbers come from, in plain words, and a "How to build this" line. The widget behind stays unchanged. I close it with ✕, Esc or a tap outside.
+- When I tap Done -> the layout is saved on this device and edit mode ends. Cancel -> every change since I started editing is dropped. Reset -> the default order and sizes (still inside edit mode, so Cancel can undo it).
+- When I reload the page -> my saved layout is back.
+- When this applies: A widget with nothing to show (e.g. no cards due) -> still shown, with a calm one-line empty text. A widget is never hidden by size or data.
+- When this applies: The Pending items widget -> lists overdue tasks first (planned before today, still open), then other open tasks, at most 5, with "N more" when there are more; the title shows the count; tapping a row's tick completes it. Dropped and done tasks are never listed. Nothing pending -> "Nothing pending."
+- When this applies: Wording: every "Period" becomes "Time range"; "Built from" becomes "Where this comes from". Same words in Beginner and Professional.
+- When this applies: There is no Done button in the top bar of Home (only the one on the edit bar).

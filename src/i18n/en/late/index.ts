@@ -7,9 +7,11 @@ import { enLateDatabases } from './databases'
 import { enLateHelp } from './help'
 import { enLateHistory } from './history'
 import { enLateHome } from './home'
+import { enLateHomeV2 } from './homeV2'
 import { enLateImportExport } from './importExport'
 import { enLateInk } from './ink'
 import { enLateLibrary } from './library'
+import { enLateLibraryV2 } from './libraryV2'
 import { enLateLock } from './lock'
 import { enLateMedia } from './media'
 import { enLateReading } from './reading'
@@ -23,9 +25,12 @@ import { enLateUpdates } from './updates'
 import { enLateUpdateV2 } from './updateV2'
 import { enLateFlags } from './flags'
 import { enLateSlashMenu } from './slashMenu'
+import { enLateShell } from './shell'
 import { enLateAiBuild } from './aibuild'
 import { enLateAiJobs } from './aijobs'
+import { enLateAiPlan } from './aiplan'
 import { enParts } from '../parts'
+import { enV8Pen } from '../v8Pen'
 
 export const enLate = {
   ...enLateAccounts,
@@ -36,6 +41,7 @@ export const enLate = {
   ...enLateHelp,
   ...enLateHistory,
   ...enLateHome,
+  ...enLateHomeV2,
   ...enLateImportExport,
   ...enLateInk,
   ...enLateLibrary,
@@ -52,7 +58,11 @@ export const enLate = {
   ...enLateUpdateV2,
   ...enLateFlags,
   ...enLateSlashMenu,
+  ...enLateShell,
   ...enLateAiBuild,
   ...enLateAiJobs,
+  ...enLateAiPlan,
   ...enParts,
+  ...enLateLibraryV2,
+  ...enV8Pen,
 }

@@ -31,6 +31,8 @@ export const CARDS = [
   { kind: 'qa', q: 'What ends it?', a: 'The reward.' },
 ]
 
+export const MAP_OUTLINE = 'Habits\n  Cue\n  Craving\n  Response'
+
 export const DATABASE = {
   key: 'books',
   title: 'Books',
@@ -46,6 +48,10 @@ export const CONTENT: Record<string, FillHandler> = {
     cards: [{ kind: 'cloze', text: 'A {{habit}} is a loop.' }],
   }),
   'databases.create': () => ({ database: DATABASE }),
+  'mindmaps.add': () => ({ outline: MAP_OUTLINE }),
+  'summaries.set': () => ({
+    summary: 'A habit is a loop: cue, craving, response, reward.',
+  }),
 }
 
 export interface Kit {

@@ -8,6 +8,7 @@ import { hiEditor } from './editor'
 import { hiHelp } from './help'
 import { hiHistory } from './history'
 import { hiHome } from './home'
+import { hiHomeV2 } from './homeV2'
 import { hiImportExport } from './importExport'
 import { hiInk } from './ink'
 import { hiLibrary } from './library'
@@ -24,11 +25,15 @@ import { hiTags } from './tags'
 import { hiToolbar } from './toolbar'
 import { hiUpdates } from './updates'
 import { hiUpdateV2 } from './updateV2'
+import { hiLibraryV2 } from './libraryV2'
 import { hiFlags } from './flags'
 import { hiSlashMenu } from './slashMenu'
+import { hiShell } from './shell'
 import { hiAiBuild } from './aibuild'
 import { hiAiJobs } from './aijobs'
+import { hiAiPlan } from './aiplan'
 import { hiParts } from './parts'
+import { hiV8Pen } from './v8Pen'
 
 export const hi: Record<string, string> = {
   ...hiAccounts,
@@ -40,6 +45,7 @@ export const hi: Record<string, string> = {
   ...hiHelp,
   ...hiHistory,
   ...hiHome,
+  ...hiHomeV2,
   ...hiImportExport,
   ...hiInk,
   ...hiLibrary,
@@ -58,7 +64,11 @@ export const hi: Record<string, string> = {
   ...hiUpdateV2,
   ...hiFlags,
   ...hiSlashMenu,
+  ...hiShell,
   ...hiAiBuild,
   ...hiAiJobs,
+  ...hiAiPlan,
   ...hiParts,
+  ...hiLibraryV2,
+  ...hiV8Pen,
 }

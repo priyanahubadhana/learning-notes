@@ -15,6 +15,7 @@ import {
 import { clockText } from '../../core/limiter'
 import { t } from '../../i18n/t'
 import { useFlag } from '../flags'
+import { AreaInput } from '../../settings/AreaInput'
 
 /**
  * Asks for a way to unlock: the device lock (Face ID, Touch ID, Windows
@@ -146,7 +147,7 @@ export function UnlockForm({
           <label className="text-sm" htmlFor="unlock-code">
             {t(mode === 'pin' ? 'lock.enterPin' : 'lock.enterPassword')}
           </label>
-          <input
+          <AreaInput
             id="unlock-code"
             ref={input}
             placeholder={t(

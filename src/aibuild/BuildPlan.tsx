@@ -7,6 +7,7 @@ import { t, type MessageKey } from '../i18n/t'
 import { toolDesc, toolName } from './names'
 import {
   COLOURS,
+  NEEDS_OWN_ARGS,
   check,
   isReady,
   newDraft,
@@ -61,7 +62,10 @@ export function BuildPlan({
   const checked = check(draft, tools)
   const dest = draft.destination
   const pickable = tools.filter(
-    (x) => x.id !== 'notebooks.create' && x.surfaces.includes('app'),
+    (x) =>
+      x.id !== 'notebooks.create' &&
+      x.surfaces.includes('app') &&
+      !NEEDS_OWN_ARGS.has(x.id),
   )
 
   const setKind = (kind: Kind) =>

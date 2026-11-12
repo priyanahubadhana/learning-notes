@@ -318,6 +318,24 @@ export async function stageStep(
         return stageStyle()
       case 'pages.refine':
         return stageRefine()
+      case 'pages.rename':
+        return stageRename()
+      case 'summaries.set':
+        return stageSummary()
+      case 'tabs.rename':
+      case 'tabs.set_hidden':
+        return stageTab()
+      case 'mindmaps.add':
+        return stageMindMap()
+      case 'mindmaps.set_theme':
+        return stageTheme()
+      case 'cards.suspend':
+        return stageSuspend()
+      case 'databases.rename':
+        return stageDbRename()
+      case 'styles.set_paper':
+      case 'layouts.set_path_style':
+        return stagePageField()
       default:
         throw new StepError('validation', `No stage for ${tool.id}.`)
     }
@@ -349,6 +367,161 @@ export async function stageStep(
       for (const p of pages)
         records.push(...(await edit('pages', p, pageChanges)))
     }
+    return { records, outputs: { notebookId } }
+  }
+
+  /** The privacy lock hides, the edit lock freezes: AI changes neither (unless the person allowed locked pages). */
+  function unlocked(nb: Rec, page?: Rec) {
+    if (nb.editLocked) throw new StepError('lock', 'This notebook is locked.')
+    if (page?.editLocked) throw new StepError('lock', 'This page is locked.')
+    if ((nb.locked || page?.locked) && !nb.allowAiLocked)
+      throw new StepError(
+        'lock',
+        page?.locked && !nb.locked
+          ? 'This page is locked.'
+          : 'This notebook is locked.',
+      )
+  }
+
+  /** The page and its notebook, after the lock checks. */
+  async function lockedPage(pageId: string) {
+    const page = await need('pages', pageId, 'page')
+    const nb = await need('notebooks', String(page.notebookId), 'notebook')
+    unlocked(nb, page)
+    return { page, nb }
+  }
+
+  async function stageMindMap(): Promise<StageResult> {
+    const outline = str(args.outline)
+    if (!outline?.trim())
+      throw new StepError('validation', 'The outline is missing.')
+    const pageId = String(args.pageId)
+    const { page } = await lockedPage(pageId)
+    const version = str(args.baseRevision)
+    if (version && version !== String(page.updatedAt))
+      throw new StepError('stale', 'The page changed since it was read.')
+    const blocks = (await allRows('blocks', { pageId })).filter(top)
+    const order = calm(() => appendKeys(maxOrder(blocks))())
+    const t = det.blockTree(
+      { type: 'mindMap', outline },
+      {
+        ...base,
+        notebookId: String(page.notebookId),
+        pageId,
+        pageTitle: String(page.title),
+        parentId: null,
+        order,
+      },
+    )
+    return { records: made(t.records), outputs: { pageId, blockId: t.blockId } }
+  }
+
+  async function stageTheme(): Promise<StageResult> {
+    const blockId = String(args.blockId)
+    const block = await need('blocks', blockId, 'block')
+    if (block.type !== 'mindMap')
+      throw new StepError('validation', 'This block is not a mind map.')
+    await lockedPage(String(block.pageId))
+    const content = (block.content ?? {}) as Rec
+    const records = await edit('blocks', block, {
+      content: { ...content, theme: String(args.theme) },
+    })
+    return { records, outputs: { blockId } }
+  }
+
+  async function stageSuspend(): Promise<StageResult> {
+    const cardId = String(args.cardId)
+    const card = await need('cards', cardId, 'card')
+    unlocked(await need('notebooks', String(card.notebookId), 'notebook'))
+    const page = await look('pages', String(card.pageId))
+    if (page) unlocked({}, page)
+    const records =
+      args.suspended === true
+        ? card.suspendedAt != null
+          ? []
+          : await edit('cards', card, { suspendedAt: env.now })
+        : await edit('cards', card, { suspendedAt: null })
+    return { records, outputs: { cardId } }
+  }
+
+  async function stageDbRename(): Promise<StageResult> {
+    const databaseId = String(args.databaseId)
+    const db = await need('databases', databaseId, 'database')
+    if (db.kind === 'studyTracker')
+      throw new StepError('validation', 'The Study tracker cannot be renamed.')
+    const nbId = str(db.notebookId)
+    const nb = nbId ? await need('notebooks', nbId, 'notebook') : undefined
+    if (nb) unlocked(nb)
+    if (db.locked && !nb?.allowAiLocked)
+      throw new StepError('lock', 'This database is locked.')
+    const records = await edit('databases', db, { title: String(args.title) })
+    return { records, outputs: { databaseId } }
+  }
+
+  /** Paper and path style: one optional field on a page; "plain" and "inherit" remove it. */
+  async function stagePageField(): Promise<StageResult> {
+    const pageId = String(args.pageId)
+    const { page } = await lockedPage(pageId)
+    const [key, raw, none] =
+      tool.id === 'styles.set_paper'
+        ? (['inkBg', args.paper, 'plain'] as const)
+        : (['pathStyle', args.pathStyle, 'inherit'] as const)
+    const records = await edit('pages', page, {
+      [key]: raw === none ? undefined : raw,
+    })
+    for (const r of records) if (r.value[key] === undefined) delete r.value[key]
+    return { records, outputs: { pageId } }
+  }
+
+  async function stageRename(): Promise<StageResult> {
+    const pageId = String(args.pageId)
+    const page = await need('pages', pageId, 'page')
+    unlocked(await need('notebooks', String(page.notebookId), 'notebook'), page)
+    const records = await edit('pages', page, { title: String(args.title) })
+    return { records, outputs: { pageId } }
+  }
+
+  async function stageSummary(): Promise<StageResult> {
+    const text = str(args.summary)
+    if (!text) throw new StepError('validation', 'The summary is missing.')
+    const pageId = String(args.pageId)
+    const page = await need('pages', pageId, 'page')
+    unlocked(await need('notebooks', String(page.notebookId), 'notebook'), page)
+    if (page.parentId)
+      throw new StepError(
+        'validation',
+        'A summary belongs on a top-level page.',
+      )
+    const version = str(args.baseRevision)
+    if (version && version !== String(page.updatedAt))
+      throw new StepError('stale', 'The page changed since it was read.')
+    const records = await edit('pages', page, { summary: text })
+    return { records, outputs: { pageId } }
+  }
+
+  async function stageTab(): Promise<StageResult> {
+    const notebookId = String(args.notebookId)
+    const nb = await need('notebooks', notebookId, 'notebook')
+    unlocked(nb)
+    const tabs = nb.tabs as Rec[] | undefined
+    if (!Array.isArray(tabs))
+      throw new StepError('validation', 'This notebook has no tabs.')
+    const tabId = String(args.tabId)
+    if (!tabs.some((x) => x.id === tabId))
+      throw new StepError('gone', 'The tab is gone.')
+    const next = tabs.map((x) => {
+      if (x.id !== tabId) return x
+      if (tool.id === 'tabs.rename') return { ...x, title: String(args.title) }
+      const { hidden, ...rest } = x
+      void hidden
+      return args.hidden === true ? { ...rest, hidden: true } : rest
+    })
+    const records = await edit(
+      'notebooks',
+      nb,
+      { tabs: next },
+      Number(args.baseRev) || undefined,
+    )
     return { records, outputs: { notebookId } }
   }
 

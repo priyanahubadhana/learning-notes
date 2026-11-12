@@ -66,7 +66,7 @@ export function MainBarRow({
   editor: Editor
   px: number
   tips: boolean
-  history: { canUndo: boolean; canRedo: boolean }
+  history: { canUndo: boolean; canRedo: boolean; hidden?: boolean }
   menuOpen: boolean
   menuRef: RefObject<HTMLButtonElement | null>
   onMenu: () => void
@@ -148,31 +148,33 @@ export function MainBarRow({
   const redo = findTool('redo')
   return (
     <div className="flex items-start gap-1 phone:flex-wrap" data-main-bar>
-      <div
-        role="group"
-        aria-label={t('main.history')}
-        data-slot="history"
-        className="flex shrink-0 rounded-xl bg-hover"
-      >
-        {undo && (
-          <ToolButton
-            tool={undo}
-            px={min}
-            variant="bar"
-            disabled={!history.canUndo || undefined}
-            tip={tips}
-          />
-        )}
-        {redo && (
-          <ToolButton
-            tool={redo}
-            px={min}
-            variant="bar"
-            disabled={!history.canRedo || undefined}
-            tip={tips}
-          />
-        )}
-      </div>
+      {!history.hidden && (
+        <div
+          role="group"
+          aria-label={t('main.history')}
+          data-slot="history"
+          className="flex shrink-0 rounded-xl bg-hover"
+        >
+          {undo && (
+            <ToolButton
+              tool={undo}
+              px={min}
+              variant="bar"
+              disabled={!history.canUndo || undefined}
+              tip={tips}
+            />
+          )}
+          {redo && (
+            <ToolButton
+              tool={redo}
+              px={min}
+              variant="bar"
+              disabled={!history.canRedo || undefined}
+              tip={tips}
+            />
+          )}
+        </div>
+      )}
       <LayoutButton px={min} />
       <BarScroll className="flex-1 phone:order-last phone:basis-full">
         {resolveBar(order, list, extras).map((token) => {

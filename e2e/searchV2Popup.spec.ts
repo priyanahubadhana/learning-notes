@@ -158,6 +158,54 @@ test.describe('Professional', () => {
     ).toBeVisible()
   })
 
+  for (const [name, viewport] of [
+    ['phone', { width: 390, height: 844 }],
+    ['iPad landscape', { width: 1194, height: 834 }],
+    ['iPad portrait', { width: 834, height: 1194 }],
+    ['short window', { width: 700, height: 360 }],
+  ] as const)
+    test(`SR-B10 the strip on a result is fully on screen and not covered (${name})`, async ({
+      page,
+    }) => {
+      await page.setViewportSize(viewport)
+      const popup = await openSearchPopup(page)
+      await page.keyboard.type('cells')
+      const row = popup.getByTestId('srv2-row').first()
+      await expect(row).toBeVisible()
+      await row.click({ button: 'right' })
+      const strip = page.getByTestId('srv2-strip')
+      await expect(strip).toBeVisible()
+      const box = (await strip.boundingBox())!
+      const rowBox = (await row.boundingBox())!
+      // Fully inside the window, 12 px from every edge.
+      expect(box.x).toBeGreaterThanOrEqual(12)
+      expect(box.y).toBeGreaterThanOrEqual(12)
+      expect(box.x + box.width).toBeLessThanOrEqual(viewport.width - 12)
+      expect(box.y + box.height).toBeLessThanOrEqual(viewport.height - 12)
+      // Not on top of its own row.
+      const apart =
+        box.y + box.height <= rowBox.y || box.y >= rowBox.y + rowBox.height
+      expect(apart).toBe(true)
+      // Nothing is drawn over it: every corner and the middle hit the strip.
+      const covered = await strip.evaluate((el) => {
+        const r = el.getBoundingClientRect()
+        const pts = [
+          [r.left + 6, r.top + 6],
+          [r.right - 6, r.top + 6],
+          [r.left + 6, r.bottom - 6],
+          [r.right - 6, r.bottom - 6],
+          [r.left + r.width / 2, r.top + r.height / 2],
+        ]
+        return pts.some(
+          ([x, y]) => !el.contains(document.elementFromPoint(x, y)),
+        )
+      })
+      expect(covered).toBe(false)
+      // It still works from there.
+      await strip.getByRole('menuitem', { name: 'Copy link' }).click()
+      await expect(strip).toBeHidden()
+    })
+
   test('SR-B12 no match: Nothing found, and no "arrive with" text anywhere', async ({
     page,
   }) => {

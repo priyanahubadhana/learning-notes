@@ -4,7 +4,6 @@ import { AppUiContext } from '../app/appUi'
 import { useFlag } from '../app/flags'
 import { toggleFavourite, isFavourite } from '../app/favourites'
 import { ClearField } from '../design/parts/ClearField'
-import { ContextStrip } from '../design/parts/ContextStrip'
 import { isUnlocked, useLevel } from '../settings/level'
 import { buildRows, rowMatches, type Row } from '../app/tools/controlRows'
 import { Icon } from '../app/tools/icons'
@@ -28,6 +27,7 @@ import { ToolSections } from './ToolSections'
 import { TYPE_ICON, useHitDetails, useSearch } from './useSearch'
 import { chipList } from './v2/chips'
 import { holdJustFired, rightClickInfo, useRowHold } from '../app/rowHold'
+import { ResultStrip } from './v2/ResultStrip'
 import { pageLink, resultStripItems } from './v2/strips'
 import { ts } from './v2/ts'
 
@@ -488,33 +488,26 @@ export function SearchPopup({
                       }}
                     >
                       {strip?.hit.id === hit.id && (
-                        <div className="relative h-0" data-strip-host>
-                          <div className="absolute inset-x-0 bottom-0 flex justify-center">
-                            <ContextStrip
-                              mode="inline"
-                              phone={window.innerWidth <= 640}
-                              items={resultStripItems({
-                                pinned: isFavourite(hit.pageId),
-                                canPin: !hit.deleted,
-                              })}
-                              testId="srv2-strip"
-                              onAction={(id) => {
-                                setStrip(null)
-                                if (id === 'open') onOpenHit(hit)
-                                else if (id === 'pin')
-                                  toggleFavourite(hit.pageId)
-                                else if (id === 'copyLink')
-                                  void navigator.clipboard
-                                    .writeText(pageLink(hit.pageId))
-                                    .then(
-                                      () => toast(ts('srv2.linkCopied')),
-                                      () => toast(ts('srv2.linkFailed')),
-                                    )
-                              }}
-                              onClose={() => setStrip(null)}
-                            />
-                          </div>
-                        </div>
+                        <ResultStrip
+                          row={strip.el}
+                          items={resultStripItems({
+                            pinned: isFavourite(hit.pageId),
+                            canPin: !hit.deleted,
+                          })}
+                          onAction={(id) => {
+                            setStrip(null)
+                            if (id === 'open') onOpenHit(hit)
+                            else if (id === 'pin') toggleFavourite(hit.pageId)
+                            else if (id === 'copyLink')
+                              void navigator.clipboard
+                                .writeText(pageLink(hit.pageId))
+                                .then(
+                                  () => toast(ts('srv2.linkCopied')),
+                                  () => toast(ts('srv2.linkFailed')),
+                                )
+                          }}
+                          onClose={() => setStrip(null)}
+                        />
                       )}
                       {row}
                     </div>

@@ -19,8 +19,8 @@ const NOTES_SKIP_MEDIA: ReadonlySet<string> = new Set([
   'bookFiles',
   'files',
 ])
-/** Tables never written to a file: device secrets (AI keys, R6-2). */
-export const NEVER_SAVED: ReadonlySet<string> = new Set(['secrets'])
+/** Tables never written to a file: device secrets (AI keys, R6-2) and AI job history (device-local working state). */
+export const NEVER_SAVED: ReadonlySet<string> = new Set(['secrets', 'aiJobs'])
 
 export const FULL_FORMAT_VERSION = 2
 /** Largest zip file read or promised (bytes): about 1 GB. */

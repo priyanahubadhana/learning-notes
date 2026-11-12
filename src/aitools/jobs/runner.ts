@@ -42,6 +42,11 @@ export interface RunnerDeps {
   /** 0..1, for the retry jitter. Tests pass a fixed one. */
   random?: () => number
   catalog?: readonly CatalogTool[]
+  /**
+   * How long one fill may take, instead of the tool's own limit. The Build
+   * screen waits for a person to paste an answer, which takes minutes.
+   */
+  fillTimeoutMs?: number
 }
 
 export type CreateResult =
@@ -140,6 +145,7 @@ export class JobRunner {
   private readonly isOnline: () => boolean
   private readonly random: () => number
   private readonly catalog: readonly CatalogTool[]
+  private readonly fillTimeoutMs?: number
   private tail: Promise<unknown> = Promise.resolve()
   private busy = 0
   /** Errors thrown by the job store: they crash the run instead of failing a step. */
@@ -156,6 +162,7 @@ export class JobRunner {
     this.isOnline = deps.isOnline ?? (() => true)
     this.random = deps.random ?? Math.random
     this.catalog = deps.catalog ?? toCatalog()
+    this.fillTimeoutMs = deps.fillTimeoutMs
   }
 
   // ---- public ----
@@ -546,18 +553,21 @@ export class JobRunner {
     signal: AbortSignal,
   ) {
     const ctl = new AbortController()
-    const onAbort = () => ctl.abort()
-    signal.addEventListener('abort', onAbort)
-    const timer = setTimeout(() => ctl.abort(), tool.limits.timeoutMs)
+    // The run's own signal: only one wait uses it at a time (no shared listeners).
+    signal.onabort = () => ctl.abort()
+    const timer = setTimeout(
+      () => ctl.abort(),
+      this.fillTimeoutMs ?? tool.limits.timeoutMs,
+    )
     try {
-      const timeout = new Promise<never>((_, reject) =>
-        ctl.signal.addEventListener('abort', () =>
-          reject(
-            signal.aborted
-              ? new Error('aborted')
-              : new StepError('timeout', 'The step took too long.'),
-          ),
-        ),
+      const timeout = new Promise<never>(
+        (_, reject) =>
+          (ctl.signal.onabort = () =>
+            reject(
+              signal.aborted
+                ? new Error('aborted')
+                : new StepError('timeout', 'The step took too long.'),
+            )),
       )
       return await Promise.race([
         this.filler.fill({ stepId: step.id, tool, args, repair }, ctl.signal),
@@ -565,7 +575,7 @@ export class JobRunner {
       ])
     } finally {
       clearTimeout(timer)
-      signal.removeEventListener('abort', onAbort)
+      signal.onabort = null
     }
   }
 

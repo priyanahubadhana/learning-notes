@@ -1,3 +1,4 @@
+import type { AiJob } from '../aitools/jobs/jobTypes'
 import type { InkSnapshot } from './inkTypes'
 
 /**
@@ -840,3 +841,10 @@ export interface SyncState {
   /** Drive file id of the encrypted bytes. */
   fileRef?: string
 }
+
+/**
+ * One AI build job as saved on this device (table `aiJobs`, Dexie v24). The
+ * job itself plus `updatedAt` as a top-level field so it can be indexed.
+ * Device-local: never synced and never written to a backup file.
+ */
+export type AiJobRecord = AiJob & { updatedAt: number }

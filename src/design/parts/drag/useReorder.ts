@@ -1,3 +1,4 @@
+import { onRouted } from '../../../app/input/eventRouter'
 import {
   useCallback,
   useEffect,
@@ -461,15 +462,18 @@ export function useReorder<T>(props: ReorderProps<T>) {
   })
 
   // Non-passive touchmove on the list: once lifted, the page must not scroll.
+  // Through the event router, and only while a row is lifted.
+  const isLifted = drag?.phase === 'lifted'
   useEffect(() => {
-    const c = containerRef.current
-    if (!c) return
-    const stop = (ev: TouchEvent) => {
-      if (press.current?.lifted) ev.preventDefault()
-    }
-    c.addEventListener('touchmove', stop, { passive: false })
-    return () => c.removeEventListener('touchmove', stop)
-  }, [])
+    if (!isLifted) return
+    return onRouted(
+      'touchmove',
+      (ev) => {
+        if (press.current?.lifted && ev.cancelable) ev.preventDefault()
+      },
+      { scope: () => containerRef.current, name: 'reorder-touchmove' },
+    )
+  }, [isLifted])
 
   useEffect(
     () => () => {

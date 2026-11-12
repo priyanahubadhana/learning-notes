@@ -1,17 +1,129 @@
-import { chromium } from 'file:///C:/Users/pc/Downloads/learning-notes/node_modules/playwright/index.mjs';
-const D='C:/Users/pc/AppData/Local/Temp/claude/4d2a322303203713/e6354cc9-3f84-4a5e-9756-7304491d5da4/scratchpad/';
-const b=await chromium.launch();const p=await b.newPage({viewport:{width:1180,height:820}});
-await p.goto('file:///'+D+'v8/toolbar-mock-v8.html');await p.waitForTimeout(600);await p.click('[data-sh-mode=pro]');await p.waitForTimeout(400);
-const sk=async(sel,depth=4)=>console.log('\n## '+sel+'\n'+await p.evaluate(([sel,depth])=>{const seen={};const f=(e,d)=>{if(d>depth)return'';const k=e.tagName.toLowerCase()+(e.id?'#'+e.id:'')+(e.className&&typeof e.className==='string'?'.'+e.className.trim().split(/\s+/).join('.'):'');const kids=[...e.children].filter(c=>c.tagName!=='svg'&&c.tagName!=='path');const sigs=[];const out=[];for(const c of kids){const s=f(c,d+1);if(!sigs.includes(s)){sigs.push(s);out.push(s)}}const cs=getComputedStyle(e);return'  '.repeat(d)+k+' ['+cs.position[0]+' r'+cs.borderRadius+' bg'+cs.backgroundColor.replace(/\s/g,'')+' fs'+cs.fontSize+' h'+Math.round(e.getBoundingClientRect().height)+'] '+(kids.length?'':JSON.stringify((e.textContent||'').trim().slice(0,24)))+'\n'+out.join('')};const e=document.querySelector(sel);return e?f(e,0):'none'},[sel,depth]));
-const ev=async f=>{await p.evaluate(f);await p.waitForTimeout(250)};
-await p.click('#tb [data-id=text]');await ev(()=>{select(document.querySelectorAll('.box')[1]);updateBoxBar()});await sk('#boxbar',2);
-await ev(()=>{buildSelbar(false);selbar.hidden=false});await sk('#selbar',1);await ev(()=>{selbar.hidden=true;toggleKb()});await sk('#kbbar',2);await ev(()=>toggleKb());
-await ev(()=>settingsSheet());await sk('#sheet',4);await ev(()=>closeSheet());
-await ev(()=>newLayoutDlg());await sk('#sheet',3);await ev(()=>closeSheet());
-await ev(()=>readSheet());await sk('#sheet',3);await ev(()=>closeSheet());
-await p.click('#tb [data-id=more]');await p.waitForTimeout(300);await sk('#morecard',4);await p.click('#morecard [data-z=lay]');await p.waitForTimeout(300);await sk('#laycard',4);await ev(()=>closeCards());
-await ev(()=>{deselect();setTool('pen');strokes.push({id:99,pts:[[700,300,.5],[800,340,.5]],col:'#a78bfa',w:2,pen:'Ball',layer:(typeof LY!=='undefined'&&LY.cur)||0});});
-await ev(()=>toggleStrip());await sk('#strip',2);await ev(()=>toggleStrip());await ev(()=>openPad('write'));await sk('#pad',2);await ev(()=>closePad());
-await ev(()=>toggleReading(true));await sk('#rbar',2);await ev(()=>toggleReading(false));
-await sk('#toast',1);await sk('#mindock',1);
-await b.close();
+import { chromium } from 'file:///C:/Users/pc/Downloads/learning-notes/node_modules/playwright/index.mjs'
+const D =
+  'C:/Users/pc/AppData/Local/Temp/claude/4d2a322303203713/e6354cc9-3f84-4a5e-9756-7304491d5da4/scratchpad/'
+const b = await chromium.launch()
+const p = await b.newPage({ viewport: { width: 1180, height: 820 } })
+await p.goto('file:///' + D + 'v8/toolbar-mock-v8.html')
+await p.waitForTimeout(600)
+await p.click('[data-sh-mode=pro]')
+await p.waitForTimeout(400)
+const sk = async (sel, depth = 4) =>
+  console.log(
+    '\n## ' +
+      sel +
+      '\n' +
+      (await p.evaluate(
+        ([sel, depth]) => {
+          const seen = {}
+          const f = (e, d) => {
+            if (d > depth) return ''
+            const k =
+              e.tagName.toLowerCase() +
+              (e.id ? '#' + e.id : '') +
+              (e.className && typeof e.className === 'string'
+                ? '.' + e.className.trim().split(/\s+/).join('.')
+                : '')
+            const kids = [...e.children].filter(
+              (c) => c.tagName !== 'svg' && c.tagName !== 'path',
+            )
+            const sigs = []
+            const out = []
+            for (const c of kids) {
+              const s = f(c, d + 1)
+              if (!sigs.includes(s)) {
+                sigs.push(s)
+                out.push(s)
+              }
+            }
+            const cs = getComputedStyle(e)
+            return (
+              '  '.repeat(d) +
+              k +
+              ' [' +
+              cs.position[0] +
+              ' r' +
+              cs.borderRadius +
+              ' bg' +
+              cs.backgroundColor.replace(/\s/g, '') +
+              ' fs' +
+              cs.fontSize +
+              ' h' +
+              Math.round(e.getBoundingClientRect().height) +
+              '] ' +
+              (kids.length
+                ? ''
+                : JSON.stringify((e.textContent || '').trim().slice(0, 24))) +
+              '\n' +
+              out.join('')
+            )
+          }
+          const e = document.querySelector(sel)
+          return e ? f(e, 0) : 'none'
+        },
+        [sel, depth],
+      )),
+  )
+const ev = async (f) => {
+  await p.evaluate(f)
+  await p.waitForTimeout(250)
+}
+await p.click('#tb [data-id=text]')
+await ev(() => {
+  select(document.querySelectorAll('.box')[1])
+  updateBoxBar()
+})
+await sk('#boxbar', 2)
+await ev(() => {
+  buildSelbar(false)
+  selbar.hidden = false
+})
+await sk('#selbar', 1)
+await ev(() => {
+  selbar.hidden = true
+  toggleKb()
+})
+await sk('#kbbar', 2)
+await ev(() => toggleKb())
+await ev(() => settingsSheet())
+await sk('#sheet', 4)
+await ev(() => closeSheet())
+await ev(() => newLayoutDlg())
+await sk('#sheet', 3)
+await ev(() => closeSheet())
+await ev(() => readSheet())
+await sk('#sheet', 3)
+await ev(() => closeSheet())
+await p.click('#tb [data-id=more]')
+await p.waitForTimeout(300)
+await sk('#morecard', 4)
+await p.click('#morecard [data-z=lay]')
+await p.waitForTimeout(300)
+await sk('#laycard', 4)
+await ev(() => closeCards())
+await ev(() => {
+  deselect()
+  setTool('pen')
+  strokes.push({
+    id: 99,
+    pts: [
+      [700, 300, 0.5],
+      [800, 340, 0.5],
+    ],
+    col: '#a78bfa',
+    w: 2,
+    pen: 'Ball',
+    layer: (typeof LY !== 'undefined' && LY.cur) || 0,
+  })
+})
+await ev(() => toggleStrip())
+await sk('#strip', 2)
+await ev(() => toggleStrip())
+await ev(() => openPad('write'))
+await sk('#pad', 2)
+await ev(() => closePad())
+await ev(() => toggleReading(true))
+await sk('#rbar', 2)
+await ev(() => toggleReading(false))
+await sk('#toast', 1)
+await sk('#mindock', 1)
+await b.close()

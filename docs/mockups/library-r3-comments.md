@@ -1,3 +1,4 @@
 # Library: owner comments round 3 (12 Nov)
+
 LB1. Export: 'What to include' toggles (highlights, notes, In my words, bookmarks, cards Q+A, summaries, chapter recaps, tags) + filters (★ key only, colour), beside which-books and format.
 LB2. ONE universal Tag picker used everywhere (Library chip, book tags, highlights, notebooks, bulk tag, AI bar): search-first fuzzy match showing paths (Category › Tag › Sub-tag); before typing: Pinned / Recent / Suggested for this item / Browse by category tree; counts, sorted by use; in filter mode only tags present in current results (others dimmed); multi-select + Any/All + Include sub-tags; inline Create #tag with parent pick + near-duplicate warning/merge; keyboard (# or T, arrows, Enter); bottom sheet on phone, popover on iPad/desktop. Research: Gmail labels, Notion multi-select, Obsidian/Bear nested tags, Zotero tag selector, Readwise/Raindrop, YouTube/Google search-first.

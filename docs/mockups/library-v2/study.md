@@ -4,12 +4,12 @@
 
 ## 1. What was measured
 
-| Screen | First cover starts at | Controls on screen before the first cover |
-| --- | --- | --- |
-| iPad 1180×820 Beginner | 460 px (56% of the screen is chrome) | 44 (about 20 belong to Library itself, the rest is shell + side panel) |
-| iPad 1180×820 Professional | 460 px | 46 |
-| Phone 400×820 Beginner | 602 px (73% of the screen is chrome) | 30 |
-| Phone 400×820 Professional | 602 px | 32 |
+| Screen                     | First cover starts at                | Controls on screen before the first cover                              |
+| -------------------------- | ------------------------------------ | ---------------------------------------------------------------------- |
+| iPad 1180×820 Beginner     | 460 px (56% of the screen is chrome) | 44 (about 20 belong to Library itself, the rest is shell + side panel) |
+| iPad 1180×820 Professional | 460 px                               | 46                                                                     |
+| Phone 400×820 Beginner     | 602 px (73% of the screen is chrome) | 30                                                                     |
+| Phone 400×820 Professional | 602 px                               | 32                                                                     |
 
 Beginner and Professional differ by two controls on Books (the Themes tab and Select). Beginner is Professional with two things hidden, not a calm essentials view.
 
@@ -106,26 +106,26 @@ iPad Beginner: Library-owned controls before content drop from about 20 to 5; fi
 
 ## 5. Where every current feature goes (none lost)
 
-| Inventory item | New home |
-| --- | --- |
-| L01 title | Page title (becomes the shelf name on phone) |
-| L02 Import, L03 Capture, L04 Prompts | The single + Add menu (Prompts also in the universal AI bar, decision 11) |
-| L05 hint | Add menu caption + empty state + drop banner |
-| L06 busy status, L09 toasts | Unchanged (banner + toasts) |
-| L07 type chips | More › Filter in Beginner; Type ▾ on the second row in Professional |
-| L08 drag and drop | Unchanged |
-| L10 empty states | Unchanged, one action each |
-| L11 grid, L12 card | Grid stays default; card simplified, nothing removed (status, % read and author move to list view, ⋯ and the book page; question 7 decides) |
-| L13 primary button, L14 cover tap, L15 ⋯ menu, L16 delete | Question 7 decides the tap; every action stays in ⋯ and press-and-hold |
-| L17 order, L18 kinds | Unchanged |
-| S01 heading | Side panel heading becomes "Shelves" |
-| S02 Capture | + Add |
-| S03 quick-open list, S04 empty | Side panel "Recent" with "Show all" (question 6) |
-| B01–B07 book page | Unchanged |
-| O01–O06 | Unchanged |
-| Plan A3/A6 additions (shelves, collections, list, sort, search, Knowledge, preview, key star, tags, Jump, Daily Highlights, themes, export, bulk, saved filters) | All kept; placed as in section 4 |
-| LB1 export "what to include" | Knowledge › View ▾ › Export, and More shortcut |
-| LB2 universal tag picker | Opens from Tag in More (Beginner) and Tag ▾ (Professional) |
+| Inventory item                                                                                                                                                   | New home                                                                                                                                    |
+| ---------------------------------------------------------------------------------------------------------------------------------------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------- |
+| L01 title                                                                                                                                                        | Page title (becomes the shelf name on phone)                                                                                                |
+| L02 Import, L03 Capture, L04 Prompts                                                                                                                             | The single + Add menu (Prompts also in the universal AI bar, decision 11)                                                                   |
+| L05 hint                                                                                                                                                         | Add menu caption + empty state + drop banner                                                                                                |
+| L06 busy status, L09 toasts                                                                                                                                      | Unchanged (banner + toasts)                                                                                                                 |
+| L07 type chips                                                                                                                                                   | More › Filter in Beginner; Type ▾ on the second row in Professional                                                                         |
+| L08 drag and drop                                                                                                                                                | Unchanged                                                                                                                                   |
+| L10 empty states                                                                                                                                                 | Unchanged, one action each                                                                                                                  |
+| L11 grid, L12 card                                                                                                                                               | Grid stays default; card simplified, nothing removed (status, % read and author move to list view, ⋯ and the book page; question 7 decides) |
+| L13 primary button, L14 cover tap, L15 ⋯ menu, L16 delete                                                                                                        | Question 7 decides the tap; every action stays in ⋯ and press-and-hold                                                                      |
+| L17 order, L18 kinds                                                                                                                                             | Unchanged                                                                                                                                   |
+| S01 heading                                                                                                                                                      | Side panel heading becomes "Shelves"                                                                                                        |
+| S02 Capture                                                                                                                                                      | + Add                                                                                                                                       |
+| S03 quick-open list, S04 empty                                                                                                                                   | Side panel "Recent" with "Show all" (question 6)                                                                                            |
+| B01–B07 book page                                                                                                                                                | Unchanged                                                                                                                                   |
+| O01–O06                                                                                                                                                          | Unchanged                                                                                                                                   |
+| Plan A3/A6 additions (shelves, collections, list, sort, search, Knowledge, preview, key star, tags, Jump, Daily Highlights, themes, export, bulk, saved filters) | All kept; placed as in section 4                                                                                                            |
+| LB1 export "what to include"                                                                                                                                     | Knowledge › View ▾ › Export, and More shortcut                                                                                              |
+| LB2 universal tag picker                                                                                                                                         | Opens from Tag in More (Beginner) and Tag ▾ (Professional)                                                                                  |
 
 ## 6. Questions for the owner (⭐ = recommended)
 

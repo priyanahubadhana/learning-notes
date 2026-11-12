@@ -1,6 +1,7 @@
 # OPEN owner comments: Settings + Home (apply all, verify in a browser)
 
 ## Settings (settings-mock-v3.html)
+
 S-a. "Icons A / B" switcher: the choice is already made (Library A, Notebooks B, Review B, rest A). REMOVE the switcher from EVERY mock (shell + all files) and hard-set the chosen icons.
 S-b. Default page tabs: 3 by default, plus add / edit / remove / reorder more. Always ONE line (scroll if many). Preview the tab row in its own mini preview right there, not in the main preview.
 S-c. Reduce glass "Auto": its preview looks bad; make the Auto preview beautiful and honest.
@@ -12,6 +13,7 @@ S-h. General preview must update for EVERY General setting (it showed nothing).
 S-i. "Your experience": a switch to turn it off, which moves it to the bottom (one-time setting). Below it, a Tours list: our experience-based guide included; other tour projects downloadable from the site (not downloaded by default).
 
 ## Home (home-mock-v2.html)
+
 H-a. Edit layout: drag whole boxes (widgets) anywhere; holding the 6-dot grip drags items within a box. While editing the layout, text and inner content must NEVER get selected (user-select none, pointer capture on the grip). Confirm it also holds in the real app.
 H-b. Done button: much more visible. Add Cancel (discard every change) and Reset. Undo/Redo always visible in the top bar on Home and every page (a setting can hide them on PC; Ctrl+Z/Ctrl+Y).
 H-c. Delete button: far more visible.

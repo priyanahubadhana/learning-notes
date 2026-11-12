@@ -1,53 +1,208 @@
-import { chromium } from 'file:///C:/Users/pc/Downloads/learning-notes/node_modules/playwright/index.mjs';
-const D='C:/Users/pc/AppData/Local/Temp/claude/4d2a322303203713/e6354cc9-3f84-4a5e-9756-7304491d5da4/scratchpad/';
-const out=process.argv[2]||'audit';const only=process.argv[3]||'';
-const b=await chromium.launch();const errs=[];
-const p=await b.newPage({viewport:{width:1180,height:820}});
-p.on('pageerror',e=>errs.push('PE '+e.message));
-await p.goto('file:///'+D+'v8/toolbar-mock-v8.html');await p.waitForTimeout(600);
-await p.click('[data-sh-mode=pro]');await p.waitForTimeout(400);
-const S=async n=>{if(only&&!n.includes(only))return;await p.waitForTimeout(400);await p.screenshot({path:D+'v8/'+out+'/'+n+'.png'})};
-const ev=async f=>{try{await p.evaluate(f)}catch(e){errs.push('EV '+e.message.split('\n')[0])}await p.waitForTimeout(250)};
-const tool=async id=>{await p.click('#tb [data-id='+id+']');await p.waitForTimeout(250)};
-const B=await p.evaluate(()=>{const r=document.querySelector('#paper').getBoundingClientRect();return{x:r.left,y:r.top}});
+import { chromium } from 'file:///C:/Users/pc/Downloads/learning-notes/node_modules/playwright/index.mjs'
+const D =
+  'C:/Users/pc/AppData/Local/Temp/claude/4d2a322303203713/e6354cc9-3f84-4a5e-9756-7304491d5da4/scratchpad/'
+const out = process.argv[2] || 'audit'
+const only = process.argv[3] || ''
+const b = await chromium.launch()
+const errs = []
+const p = await b.newPage({ viewport: { width: 1180, height: 820 } })
+p.on('pageerror', (e) => errs.push('PE ' + e.message))
+await p.goto('file:///' + D + 'v8/toolbar-mock-v8.html')
+await p.waitForTimeout(600)
+await p.click('[data-sh-mode=pro]')
+await p.waitForTimeout(400)
+const S = async (n) => {
+  if (only && !n.includes(only)) return
+  await p.waitForTimeout(400)
+  await p.screenshot({ path: D + 'v8/' + out + '/' + n + '.png' })
+}
+const ev = async (f) => {
+  try {
+    await p.evaluate(f)
+  } catch (e) {
+    errs.push('EV ' + e.message.split('\n')[0])
+  }
+  await p.waitForTimeout(250)
+}
+const tool = async (id) => {
+  await p.click('#tb [data-id=' + id + ']')
+  await p.waitForTimeout(250)
+}
+const B = await p.evaluate(() => {
+  const r = document.querySelector('#paper').getBoundingClientRect()
+  return { x: r.left, y: r.top }
+})
 // text box bar + selbar + kbbar
-await tool('text');await ev(()=>{select(document.querySelectorAll('.box')[1]);updateBoxBar()});await S('01-boxbar');
-await p.click('.box.sel .tab');await S('02-boxmenu');await p.keyboard.press('Escape');await ev(()=>{closeMenu();closeCards()});
-await ev(()=>{buildSelbar(false);selbar.hidden=false;selbar.style.top='330px';selbar.style.left='200px'});await S('03-selbar-mini');
-await p.click('#selbar [data-c=more]').catch(()=>{});await S('04-selbar-more');await p.keyboard.press('Escape');await ev(()=>closeMenu());
-await ev(()=>{buildSelbar(true);selbar.hidden=false});await S('05-selbar-micro');
-await ev(()=>{selbar.hidden=true;toggleKb()});await S('06-kb');await ev(()=>toggleKb());
+await tool('text')
+await ev(() => {
+  select(document.querySelectorAll('.box')[1])
+  updateBoxBar()
+})
+await S('01-boxbar')
+await p.click('.box.sel .tab')
+await S('02-boxmenu')
+await p.keyboard.press('Escape')
+await ev(() => {
+  closeMenu()
+  closeCards()
+})
+await ev(() => {
+  buildSelbar(false)
+  selbar.hidden = false
+  selbar.style.top = '330px'
+  selbar.style.left = '200px'
+})
+await S('03-selbar-mini')
+await p.click('#selbar [data-c=more]').catch(() => {})
+await S('04-selbar-more')
+await p.keyboard.press('Escape')
+await ev(() => closeMenu())
+await ev(() => {
+  buildSelbar(true)
+  selbar.hidden = false
+})
+await S('05-selbar-micro')
+await ev(() => {
+  selbar.hidden = true
+  toggleKb()
+})
+await S('06-kb')
+await ev(() => toggleKb())
 // lasso
-await ev(()=>deselect());await tool('pen');await ev(()=>{R.acard=false;renderOpts()});
-await p.mouse.move(B.x+700,B.y+300);await p.mouse.down();await p.mouse.move(B.x+800,B.y+340,{steps:6});await p.mouse.up();
-await tool('lasso');
-await p.mouse.move(B.x+660,B.y+280);await p.mouse.down();for(const q of [[860,280],[860,460],[660,460],[662,282]])await p.mouse.move(B.x+q[0],B.y+q[1],{steps:3});await p.mouse.up();await p.waitForTimeout(300);
-await S('07-lsel');await p.click('#lsel [data-m=more]').catch(e=>errs.push('lselmore'));await S('08-lsel-more');
-await ev(()=>{R.lm={col:true};syncLsel()});await S('09-lsel-col');
-await ev(()=>{addInsert('pic');setTool('lasso');const bx=[...document.querySelectorAll('.box')].find(b=>b.dataset.t==='pic');L.ids=new Set();L.boxes=[bx];calcBBox();R.lm={size:true};syncLsel()});await S('10-picbar');
-await ev(()=>{R.lm={edit:true};syncLsel()});await S('11-picedit');
-await ev(()=>clearLasso());
+await ev(() => deselect())
+await tool('pen')
+await ev(() => {
+  R.acard = false
+  renderOpts()
+})
+await p.mouse.move(B.x + 700, B.y + 300)
+await p.mouse.down()
+await p.mouse.move(B.x + 800, B.y + 340, { steps: 6 })
+await p.mouse.up()
+await tool('lasso')
+await p.mouse.move(B.x + 660, B.y + 280)
+await p.mouse.down()
+for (const q of [
+  [860, 280],
+  [860, 460],
+  [660, 460],
+  [662, 282],
+])
+  await p.mouse.move(B.x + q[0], B.y + q[1], { steps: 3 })
+await p.mouse.up()
+await p.waitForTimeout(300)
+await S('07-lsel')
+await p.click('#lsel [data-m=more]').catch((e) => errs.push('lselmore'))
+await S('08-lsel-more')
+await ev(() => {
+  R.lm = { col: true }
+  syncLsel()
+})
+await S('09-lsel-col')
+await ev(() => {
+  addInsert('pic')
+  setTool('lasso')
+  const bx = [...document.querySelectorAll('.box')].find(
+    (b) => b.dataset.t === 'pic',
+  )
+  L.ids = new Set()
+  L.boxes = [bx]
+  calcBBox()
+  R.lm = { size: true }
+  syncLsel()
+})
+await S('10-picbar')
+await ev(() => {
+  R.lm = { edit: true }
+  syncLsel()
+})
+await S('11-picedit')
+await ev(() => clearLasso())
 // sheets
-await ev(()=>settingsSheet());await S('12-settings');await ev(()=>closeSheet());
-await ev(()=>customiseSheet());await S('13-customise');await ev(()=>closeSheet());
-await ev(()=>helpSheet());await S('14-help');await ev(()=>closeSheet());
-await p.click('#tb [data-id=more]');await p.waitForTimeout(300);await p.evaluate(()=>document.querySelector('#morecard .cpane').scrollTop=9999);await S('15-more-bottom');
-await p.click('#morecard [data-z=lay]');await S('16-layouts');await ev(()=>newLayoutDlg());await S('17-newlayout');await p.keyboard.press('Escape');await ev(()=>{closeSheet();closeCards()});
-await ev(()=>toggleReading(true));await S('18-reader');await ev(()=>readSheet());await S('19-readsheet');await ev(()=>{closeSheet();toggleReading(false)});
-await ev(()=>pictureSheet());await S('20-picsheet');await ev(()=>closeSheet());
-await ev(()=>recallSheet());await S('21-recall');await ev(()=>closeSheet());
-await ev(()=>handwritingSheet());await S('22-handwriting');await ev(()=>closeSheet());
-await ev(()=>linkSheet());await S('23-link');await ev(()=>closeSheet());
-await ev(()=>arrangeSheet());await S('24-arrange');await ev(()=>closeSheet());
-await ev(()=>savePresetSheet());await S('25-savepreset');await ev(()=>closeSheet());
-await ev(()=>toggleStrip());await S('26-strip');await ev(()=>toggleStrip());
-await ev(()=>openPad('write'));await S('27-pad');await ev(()=>closePad());
-await ev(()=>setTbHidden(true));await S('28-tbhidden');await ev(()=>setTbHidden(false));
-await ev(()=>toastAct('Layer hidden','Undo',()=>{}));await S('29-toast');
-await ev(()=>setMin('main',true));await S('30-min');await ev(()=>setMin('main',false));
-await p.click('#tb [data-dd=insert]');await p.waitForTimeout(250);await p.click('#acard [data-v=elements]');await S('31-elements');await ev(()=>closeCards());
-await tool('pen');await ev(()=>toggleRuler(true));await S('32-ruler');await ev(()=>toggleRuler(false));
-await ev(()=>layoutAssist());await S('33-layoutassist');await ev(()=>closeSheet());
-await ev(()=>layoutPopup());await S('34-layoutpopup');await ev(()=>{closeSheet();closeMenu()});
-await p.hover('#tb [data-id=eraser]');await p.waitForTimeout(900);await S('35-tip');
-console.log('ERR',errs.join('\n'));await b.close();
+await ev(() => settingsSheet())
+await S('12-settings')
+await ev(() => closeSheet())
+await ev(() => customiseSheet())
+await S('13-customise')
+await ev(() => closeSheet())
+await ev(() => helpSheet())
+await S('14-help')
+await ev(() => closeSheet())
+await p.click('#tb [data-id=more]')
+await p.waitForTimeout(300)
+await p.evaluate(
+  () => (document.querySelector('#morecard .cpane').scrollTop = 9999),
+)
+await S('15-more-bottom')
+await p.click('#morecard [data-z=lay]')
+await S('16-layouts')
+await ev(() => newLayoutDlg())
+await S('17-newlayout')
+await p.keyboard.press('Escape')
+await ev(() => {
+  closeSheet()
+  closeCards()
+})
+await ev(() => toggleReading(true))
+await S('18-reader')
+await ev(() => readSheet())
+await S('19-readsheet')
+await ev(() => {
+  closeSheet()
+  toggleReading(false)
+})
+await ev(() => pictureSheet())
+await S('20-picsheet')
+await ev(() => closeSheet())
+await ev(() => recallSheet())
+await S('21-recall')
+await ev(() => closeSheet())
+await ev(() => handwritingSheet())
+await S('22-handwriting')
+await ev(() => closeSheet())
+await ev(() => linkSheet())
+await S('23-link')
+await ev(() => closeSheet())
+await ev(() => arrangeSheet())
+await S('24-arrange')
+await ev(() => closeSheet())
+await ev(() => savePresetSheet())
+await S('25-savepreset')
+await ev(() => closeSheet())
+await ev(() => toggleStrip())
+await S('26-strip')
+await ev(() => toggleStrip())
+await ev(() => openPad('write'))
+await S('27-pad')
+await ev(() => closePad())
+await ev(() => setTbHidden(true))
+await S('28-tbhidden')
+await ev(() => setTbHidden(false))
+await ev(() => toastAct('Layer hidden', 'Undo', () => {}))
+await S('29-toast')
+await ev(() => setMin('main', true))
+await S('30-min')
+await ev(() => setMin('main', false))
+await p.click('#tb [data-dd=insert]')
+await p.waitForTimeout(250)
+await p.click('#acard [data-v=elements]')
+await S('31-elements')
+await ev(() => closeCards())
+await tool('pen')
+await ev(() => toggleRuler(true))
+await S('32-ruler')
+await ev(() => toggleRuler(false))
+await ev(() => layoutAssist())
+await S('33-layoutassist')
+await ev(() => closeSheet())
+await ev(() => layoutPopup())
+await S('34-layoutpopup')
+await ev(() => {
+  closeSheet()
+  closeMenu()
+})
+await p.hover('#tb [data-id=eraser]')
+await p.waitForTimeout(900)
+await S('35-tip')
+console.log('ERR', errs.join('\n'))
+await b.close()

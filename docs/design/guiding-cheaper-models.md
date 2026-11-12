@@ -20,18 +20,18 @@ Researched 13 Nov 2026. Question: Sonnet and Haiku get work done but are not the
 
 ## Gaps found in our setup, and what was changed
 
-| Gap | Fix (applied) |
-| --- | --- |
+| Gap                                                                           | Fix (applied)                                                                                                           |
+| ----------------------------------------------------------------------------- | ----------------------------------------------------------------------------------------------------------------------- |
 | Builder brief had a goal but no output format, done criteria or file pointers | New template: objective, exact spec IDs + won't-do, files to touch, pattern to copy, tests first, done = commands green |
-| No examples of existing patterns to copy | Brief names one existing file that does the same thing |
-| No self-check before reporting | Builder ticks the Design + quality checklist and pastes command results |
-| "Stop and ask" triggers vague | Explicit list in the builder file |
-| Escalation after 2 tries was only in the orchestrator | Builder stops after 2 tries; orchestrator sends it to an Opus builder |
-| Complex step went straight to code | Sub-slices touching more than 3 files or a new state shape: plan first (10 lines in the report), then build |
-| Tests written alongside code | Tests written first from the spec lines and seen to fail |
-| Judgement used where scripts exist | `check:dod`, `check:ratchet`, `check:size`, `check:links`, lint, tsc required in done criteria |
-| Design principles could get lost in cheap runs | One checkable checklist in builder, gate 2 and gate 3; any fail = slice rejected |
-| Haiku jobs unclear on done | Mechanic brief: one job, exact command, expected result |
+| No examples of existing patterns to copy                                      | Brief names one existing file that does the same thing                                                                  |
+| No self-check before reporting                                                | Builder ticks the Design + quality checklist and pastes command results                                                 |
+| "Stop and ask" triggers vague                                                 | Explicit list in the builder file                                                                                       |
+| Escalation after 2 tries was only in the orchestrator                         | Builder stops after 2 tries; orchestrator sends it to an Opus builder                                                   |
+| Complex step went straight to code                                            | Sub-slices touching more than 3 files or a new state shape: plan first (10 lines in the report), then build             |
+| Tests written alongside code                                                  | Tests written first from the spec lines and seen to fail                                                                |
+| Judgement used where scripts exist                                            | `check:dod`, `check:ratchet`, `check:size`, `check:links`, lint, tsc required in done criteria                          |
+| Design principles could get lost in cheap runs                                | One checkable checklist in builder, gate 2 and gate 3; any fail = slice rejected                                        |
+| Haiku jobs unclear on done                                                    | Mechanic brief: one job, exact command, expected result                                                                 |
 
 Quality rules are unchanged (rules/quality.md); this only makes them easier to follow.
 

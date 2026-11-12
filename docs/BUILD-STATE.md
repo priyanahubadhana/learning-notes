@@ -34,49 +34,49 @@ Specs for every slice exist in `docs/features/` on `build/next` (file named in t
 
 ### Merged into build/next (gate 2 passed)
 
-| Slice | Flag | Branch @ SHA | Notes |
-| --- | --- | --- | --- |
-| 0a flags + level, 0b test tools | `foundation.*` | slice/0ab-flags-tests 30d6fee7 | live on main, off |
-| 0c event router, 0d gesture router | `foundation.*` | slice/0cd-routers 60849037 | live on main, off |
-| 0e selection store, 0f overlay manager | `foundation.*` | slice/0ef-selection-overlay f2a27f56, slice/0f-overlay 0d38c9e9 | live on main, off; `persistent` overlay kind added da5187fe |
-| 0i tool registry + AI slice 0 | - | slice/0i-tool-registry 322ec0b9 | live on main |
-| 10 update flow (BUG-004) | `update.v2` | slice/10-update-v2 95e66a93 | live on main, off |
-| 11 security mediums | `security.m1` | slice/11-security-m1 235a80fc | live on main, off; strict header is report-only until the owner check |
-| 0g step 1 shared parts + gallery | - | (in build/next, up to fc0e4e9) | spec shared-parts.md |
-| 0h shell | `foundation.shell` | slice/0h-shell fbde80de (ln-s0h) | merged 88624e40. Gate 3 (screenshots) not recorded |
-| 5 Home v2 | `home.v2` | slice/5-home-v2 23d15e36 (ln-s5) | merged 6fb8a08c; board made lazy in 25c3729c. Gate 3 not recorded |
-| 6 Library v2 | `library.v2` | slice/6-library-v2 e6f8953e (ln-s6) | merged 3d63ae22. Gate 3 not recorded |
-| 9 AI framework slices 1-3, 4, 5a-5c | `ai.framework` | slice/9-ai-framework-1 fd0339f4, slice/9-ai-framework-4 (ln-s9b) | merged c403b6d2 and 496a2336; spend gate at ₹0 |
+| Slice                                  | Flag               | Branch @ SHA                                                     | Notes                                                                 |
+| -------------------------------------- | ------------------ | ---------------------------------------------------------------- | --------------------------------------------------------------------- |
+| 0a flags + level, 0b test tools        | `foundation.*`     | slice/0ab-flags-tests 30d6fee7                                   | live on main, off                                                     |
+| 0c event router, 0d gesture router     | `foundation.*`     | slice/0cd-routers 60849037                                       | live on main, off                                                     |
+| 0e selection store, 0f overlay manager | `foundation.*`     | slice/0ef-selection-overlay f2a27f56, slice/0f-overlay 0d38c9e9  | live on main, off; `persistent` overlay kind added da5187fe           |
+| 0i tool registry + AI slice 0          | -                  | slice/0i-tool-registry 322ec0b9                                  | live on main                                                          |
+| 10 update flow (BUG-004)               | `update.v2`        | slice/10-update-v2 95e66a93                                      | live on main, off                                                     |
+| 11 security mediums                    | `security.m1`      | slice/11-security-m1 235a80fc                                    | live on main, off; strict header is report-only until the owner check |
+| 0g step 1 shared parts + gallery       | -                  | (in build/next, up to fc0e4e9)                                   | spec shared-parts.md                                                  |
+| 0h shell                               | `foundation.shell` | slice/0h-shell fbde80de (ln-s0h)                                 | merged 88624e40. Gate 3 (screenshots) not recorded                    |
+| 5 Home v2                              | `home.v2`          | slice/5-home-v2 23d15e36 (ln-s5)                                 | merged 6fb8a08c; board made lazy in 25c3729c. Gate 3 not recorded     |
+| 6 Library v2                           | `library.v2`       | slice/6-library-v2 e6f8953e (ln-s6)                              | merged 3d63ae22. Gate 3 not recorded                                  |
+| 9 AI framework slices 1-3, 4, 5a-5c    | `ai.framework`     | slice/9-ai-framework-1 fd0339f4, slice/9-ai-framework-4 (ln-s9b) | merged c403b6d2 and 496a2336; spend gate at ₹0                        |
 
 ### Partly merged, work continues
 
-| Slice | Flag | Branch @ SHA (folder) | State | What is left |
-| --- | --- | --- | --- | --- |
-| 1 Toolbar v8 | `toolbar.v8` | slice/1-toolbar-v8 b3829852 (ln-s1) | 1a, 1b, 1c (Pen cards) in build/next | 1d to 1f per toolbar-v8.md, BUG-003, the 878-probe check, gate 2 and 3 |
-| 3 Settings v3 | `settings.v3` | slice/3-settings-v3 0e0eb4ef (ln-s3) | merged partial 4e05c8bf; **6 commits ahead** (section pictures, Turn all off text, badge fix) | merge the 6 commits, finish any open SET-B lines in settings-v3.md, gate 2 and 3 |
-| 9 AI framework 5d | `ai.framework` | slice/9-ai-framework-4 831f4a6b (ln-s9b) | **4 commits ahead** (tags.add/remove/rename, library.pin) | gate 2, merge; then framework slices 6, 7, 8 (ai-framework.md section 16 order) |
+| Slice             | Flag           | Branch @ SHA (folder)                    | State                                                                                         | What is left                                                                     |
+| ----------------- | -------------- | ---------------------------------------- | --------------------------------------------------------------------------------------------- | -------------------------------------------------------------------------------- |
+| 1 Toolbar v8      | `toolbar.v8`   | slice/1-toolbar-v8 b3829852 (ln-s1)      | 1a, 1b, 1c (Pen cards) in build/next                                                          | 1d to 1f per toolbar-v8.md, BUG-003, the 878-probe check, gate 2 and 3           |
+| 3 Settings v3     | `settings.v3`  | slice/3-settings-v3 0e0eb4ef (ln-s3)     | merged partial 4e05c8bf; **6 commits ahead** (section pictures, Turn all off text, badge fix) | merge the 6 commits, finish any open SET-B lines in settings-v3.md, gate 2 and 3 |
+| 9 AI framework 5d | `ai.framework` | slice/9-ai-framework-4 831f4a6b (ln-s9b) | **4 commits ahead** (tags.add/remove/rename, library.pin)                                     | gate 2, merge; then framework slices 6, 7, 8 (ai-framework.md section 16 order)  |
 
 ### Built on its branch, not merged
 
-| Slice | Flag | Branch @ SHA (folder) | State | What is left |
-| --- | --- | --- | --- | --- |
-| 0g step 2 (strip, command list, sheet, dialogs, toasts, banner) | - | slice/0g-parts 9b6c7f0d (ln-s0g) | 24 ahead, behind 115; builder fixing flaky gallery tests at the root (data-ready, data-settled) | merge build/next in, **SP-54 on ipad-webkit**, gate 2, merge. Blocks nothing already merged; slice 12 and 17 need it |
-| 4 Notebooks + Search v2 | `notebooks.v2`, `search.v2` | slice/4-notebooks-search ce2c28bc (ln-s4) | 37 ahead, behind 115; panel v2 (Pages, Outline, Resources) built with e2e | merge build/next in, CI, gate 2 and 3, merge |
-| 7 Reader v2 | `reader.v2` | slice/7-reader-v2 5c72642e (ln-s7) | 11 ahead, behind 1; 7a bars, 7b Listen built | remaining sub-slices in reader-v2.md (sticky read view, pages-grid Undo/Restore, sidebar vs Exit), gate 2 and 3 |
-| 8 Review v2 | `review.v2` | slice/8-review-v2 3a3f6ecb (ln-s8) | 7 ahead, behind 115; 8a, 8c built with screenshots | 8b if open in review-v2.md, merge build/next in, gate 2 and 3 |
-| 12 Page menus | `page.menus` | slice/12-page-menus 89bb4194 (ln-s12) | 16 ahead, behind 115; 12a spec check, 12b "/" menu on the Command list | context strip, Paste ▾, page ⋯ side sheet, stars / My blocks (page-menus.md); needs 0g step 2 merged |
+| Slice                                                           | Flag                        | Branch @ SHA (folder)                     | State                                                                                           | What is left                                                                                                         |
+| --------------------------------------------------------------- | --------------------------- | ----------------------------------------- | ----------------------------------------------------------------------------------------------- | -------------------------------------------------------------------------------------------------------------------- |
+| 0g step 2 (strip, command list, sheet, dialogs, toasts, banner) | -                           | slice/0g-parts 9b6c7f0d (ln-s0g)          | 24 ahead, behind 115; builder fixing flaky gallery tests at the root (data-ready, data-settled) | merge build/next in, **SP-54 on ipad-webkit**, gate 2, merge. Blocks nothing already merged; slice 12 and 17 need it |
+| 4 Notebooks + Search v2                                         | `notebooks.v2`, `search.v2` | slice/4-notebooks-search ce2c28bc (ln-s4) | 37 ahead, behind 115; panel v2 (Pages, Outline, Resources) built with e2e                       | merge build/next in, CI, gate 2 and 3, merge                                                                         |
+| 7 Reader v2                                                     | `reader.v2`                 | slice/7-reader-v2 5c72642e (ln-s7)        | 11 ahead, behind 1; 7a bars, 7b Listen built                                                    | remaining sub-slices in reader-v2.md (sticky read view, pages-grid Undo/Restore, sidebar vs Exit), gate 2 and 3      |
+| 8 Review v2                                                     | `review.v2`                 | slice/8-review-v2 3a3f6ecb (ln-s8)        | 7 ahead, behind 115; 8a, 8c built with screenshots                                              | 8b if open in review-v2.md, merge build/next in, gate 2 and 3                                                        |
+| 12 Page menus                                                   | `page.menus`                | slice/12-page-menus 89bb4194 (ln-s12)     | 16 ahead, behind 115; 12a spec check, 12b "/" menu on the Command list                          | context strip, Paste ▾, page ⋯ side sheet, stars / My blocks (page-menus.md); needs 0g step 2 merged                 |
 
 ### Not started (spec ready)
 
-| Slice | Flag | Spec | Starts after |
-| --- | --- | --- | --- |
-| 2 Text box v2 (keep engine, rebuild touch layer; BUG-001, BUG-002 if on this screen) | `textbox.v2` | textbox-v2.md | slice 1 (same lane P, strictly one after another) |
-| 0g step 3 (Tool frame, Wizard steps, Status pill stack, Before/after) | - | shared-parts.md | 0g step 2 |
-| 13 Things inside a page | `page.objects` | page-objects.md | slice 12 |
-| 14 Pictures, PDF, audio, reading | `media.v2` | media-v2.md | slice 13 |
-| 15 Study tabs | `study.v2` | study-v2.md | slice 8 |
-| 16 Safety and data | `safety.v2` | safety-v2.md | slice 7 |
-| 17 System layer | `system.v2` | system-v2.md | 0g step 3, slice 16 |
+| Slice                                                                                | Flag           | Spec            | Starts after                                      |
+| ------------------------------------------------------------------------------------ | -------------- | --------------- | ------------------------------------------------- |
+| 2 Text box v2 (keep engine, rebuild touch layer; BUG-001, BUG-002 if on this screen) | `textbox.v2`   | textbox-v2.md   | slice 1 (same lane P, strictly one after another) |
+| 0g step 3 (Tool frame, Wizard steps, Status pill stack, Before/after)                | -              | shared-parts.md | 0g step 2                                         |
+| 13 Things inside a page                                                              | `page.objects` | page-objects.md | slice 12                                          |
+| 14 Pictures, PDF, audio, reading                                                     | `media.v2`     | media-v2.md     | slice 13                                          |
+| 15 Study tabs                                                                        | `study.v2`     | study-v2.md     | slice 8                                           |
+| 16 Safety and data                                                                   | `safety.v2`    | safety-v2.md    | slice 7                                           |
+| 17 System layer                                                                      | `system.v2`    | system-v2.md    | 0g step 3, slice 16                               |
 
 Lane order (master plan 4.1): P = 1 → 2 → 12 → 13 → 14; S = 3, 4, 5, 6, 8, 15 (two at a time); R = 7 → 16 → 17; A = AI 5d → 6 → 7 → 8.
 
@@ -84,15 +84,15 @@ Old helper branches (`worktree-agent-*`, `connector-b*`, `mcp-writes`, `pdf-tool
 
 ## Red and flaky tests (andon: fix the cause, never add retries, never weaken)
 
-| Test | Where | State |
-| --- | --- | --- |
-| `parts-gallery.spec.ts` **SP-54** toast stack | ipad-webkit, all four sizes, under load | open on slice/0g-parts; cause unknown (builder's theory: the 2.5 s toast timer ends before the check). Do not merge 0g step 2 with it flaky |
-| `parts-gallery.spec.ts:442` SP-10 edit tabs (rename, drag, ▲, remove, Undo) | chromium, run 43275508089 | **failed** on build/next |
-| `parts-gallery.spec.ts:771` SP-22 dragging over text selects no text | chromium, run 43275508089 | flaky |
-| `parts-gallery.spec.ts:729` SP-20 grip drags with the mouse at once | chromium, run 43267846587 | flaky; the data-ready / data-settled work on slice/0g-parts targets these |
-| `undoHistory.spec.ts:210` 50 random steps back and forward | ipad-webkit, run 43275508089 | **failed**; flag-on twins were added in 19701520, check that first |
-| `foundationInput.spec.ts:8` unused routers not in the first load; `homeV2.spec.ts:112` drag | chromium, run 43267846587 | fixed in 25c3729c (lazy board); confirm on the next green run |
-| `inkLayers:140`, `boxTaps:138` | ipad-webkit | fixed on main (0e7f9cd5, 016b5fdc); watch for a return |
+| Test                                                                                        | Where                                   | State                                                                                                                                       |
+| ------------------------------------------------------------------------------------------- | --------------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------- |
+| `parts-gallery.spec.ts` **SP-54** toast stack                                               | ipad-webkit, all four sizes, under load | open on slice/0g-parts; cause unknown (builder's theory: the 2.5 s toast timer ends before the check). Do not merge 0g step 2 with it flaky |
+| `parts-gallery.spec.ts:442` SP-10 edit tabs (rename, drag, ▲, remove, Undo)                 | chromium, run 43275508089               | **failed** on build/next                                                                                                                    |
+| `parts-gallery.spec.ts:771` SP-22 dragging over text selects no text                        | chromium, run 43275508089               | flaky                                                                                                                                       |
+| `parts-gallery.spec.ts:729` SP-20 grip drags with the mouse at once                         | chromium, run 43267846587               | flaky; the data-ready / data-settled work on slice/0g-parts targets these                                                                   |
+| `undoHistory.spec.ts:210` 50 random steps back and forward                                  | ipad-webkit, run 43275508089            | **failed**; flag-on twins were added in 19701520, check that first                                                                          |
+| `foundationInput.spec.ts:8` unused routers not in the first load; `homeV2.spec.ts:112` drag | chromium, run 43267846587               | fixed in 25c3729c (lazy board); confirm on the next green run                                                                               |
+| `inkLayers:140`, `boxTaps:138`                                                              | ipad-webkit                             | fixed on main (0e7f9cd5, 016b5fdc); watch for a return                                                                                      |
 
 Rule from the master plan: `build/next` red for two slices in a row = stop and find the basic cause. It is red now, so **the first job after the switch is a green `build/next`**.
 

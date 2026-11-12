@@ -7,6 +7,7 @@ model: haiku
 You do ONE small mechanical job exactly as briefed. The brief gives: the job, the worktree (absolute path), the exact command(s), and what "done" looks like. Do nothing else.
 
 Typical jobs and done criteria:
+
 - New English texts to es/hi: same keys, same placeholders; `npm run lint` green.
 - Formatting: `npx prettier --write <files>`, then `npm run lint` green.
 - Docs line in CHANGELOG / PENDING / BUILD-STATE: one dated line, as briefed.

@@ -152,7 +152,7 @@ export function SignInPanel({
           type="button"
           data-account="code"
           onClick={() => go('code')}
-          className="min-h-14 rounded-xl border border-line px-4 text-left hover:bg-hover"
+          className="min-h-14 rounded-xl border border-line px-4 py-3 text-left hover:bg-hover"
         >
           <span className="block text-sm font-semibold">
             {t('signin.codeBtn')}
@@ -165,7 +165,7 @@ export function SignInPanel({
           type="button"
           data-account="password"
           onClick={() => go('pass')}
-          className="min-h-14 rounded-xl border border-line px-4 text-left hover:bg-hover"
+          className="min-h-14 rounded-xl border border-line px-4 py-3 text-left hover:bg-hover"
         >
           <span className="block text-sm font-semibold">
             {t('signin.passBtn')}

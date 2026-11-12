@@ -31,7 +31,7 @@ export function Rail({ spaces, current, onSelect, due, gear }: SpaceNavProps) {
       </span>
       {spaces.map((space) => {
         const name = t(`space.${space}` as MessageKey)
-        const active = space === current
+        const active = space === current && !gear.settingsOpen
         return (
           <button
             key={space}
@@ -70,6 +70,7 @@ export function Rail({ spaces, current, onSelect, due, gear }: SpaceNavProps) {
             data-testid="corner-button"
             data-popup-trigger=""
             aria-label={t('corner.label')}
+            aria-current={gear.settingsOpen ? 'page' : undefined}
             aria-haspopup="dialog"
             aria-expanded={open}
             onClick={(e) => onClick(e.currentTarget)}

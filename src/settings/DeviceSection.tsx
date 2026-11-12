@@ -8,6 +8,7 @@ import { dateKey, shortDayLabel } from '../journal/dates'
 import { lastBackupAt } from '../share/backupReminder'
 import { shortcutShiftLabel } from '../app/keys'
 import { getAppActions } from '../app/tools/toolRuntime'
+import { touchUi } from '../app/touchUi'
 
 /** Opened from the Home Screen or as an installed app, not a browser tab. */
 function isInstalled(): boolean {
@@ -69,7 +70,9 @@ export function DeviceSection({ db }: { db: LearningNotesDB }) {
           onClick={() => getAppActions()?.openControlPanel()}
           className="min-h-11 rounded-lg border border-line px-3 hover:bg-hover"
         >
-          {t('settings.controlPanel', { key: shortcutShiftLabel('K') })}
+          {touchUi()
+            ? t('bar.search')
+            : t('settings.controlPanel', { key: shortcutShiftLabel('K') })}
         </button>
       </div>
       {!isInstalled() && (

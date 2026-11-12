@@ -90,8 +90,9 @@
   cursor: pointer;
 }
 .sv3-section[aria-current='page'] {
-  border-color: var(--color-ink);
-  color: var(--color-ink);
+  border-color: transparent;
+  background: var(--color-accent-soft);
+  color: var(--color-accent);
   font-weight: 600;
 }
 .sv3-section:focus-visible {
@@ -311,8 +312,7 @@
 /* The Preview pill and its sheet (portalled to the page, fixed). */
 .sv3-pill {
   position: fixed;
-  left: 50%;
-  transform: translateX(-50%);
+  right: var(--space-4);
   bottom: calc(
     var(--sh-tabbar, 56px) + env(safe-area-inset-bottom, 0px) + 12px
   );
@@ -405,9 +405,6 @@
     border-color: transparent;
     border-radius: var(--r-md);
     color: var(--color-ink);
-  }
-  .sv3-section[aria-current='page'] {
-    background: var(--color-hover);
   }
   .sv3-section-name {
     flex: 1;
@@ -949,4 +946,13 @@
 .sv3-area {
   min-width: 0;
   margin-bottom: 16px;
+}
+
+/* A row with no real picture draws nothing: the control above already shows the value. */
+.sv3-rowprev[data-picture='none'] {
+  min-height: 0;
+  margin: 0;
+  padding: 0;
+  border: 0;
+  background: none;
 }

@@ -45,6 +45,7 @@ import {
   type SortKey,
 } from './libraryPrefs'
 import { MoreSheet } from './MoreSheet'
+import { useWindowed } from './windowed'
 import { ShelfButton } from './ShelvesPanel'
 import { shelfName } from './shelfNames'
 import {
@@ -170,6 +171,7 @@ export function LibraryV2({
     [prefs, tags],
   )
   const books = useMemo(() => querySources(all, effective), [all, effective])
+  const { limit: winLimit, more: winMore, watchEnd } = useWindowed(books.length)
   const filters = activeFilters(prefs)
   const showContinue =
     prefs.shelf === 'all' && filters.length === 0 && !search.trim()
@@ -657,7 +659,7 @@ export function LibraryV2({
               className="grid gap-x-3.5 gap-y-5 [grid-template-columns:repeat(2,minmax(0,1fr))] sm:[grid-template-columns:repeat(auto-fill,minmax(150px,1fr))]"
               data-testid="library-grid"
             >
-              {books.map((p) => (
+              {books.slice(0, winLimit).map((p) => (
                 <li key={p.id}>
                   <BookCard
                     page={p}
@@ -669,6 +671,14 @@ export function LibraryV2({
                   />
                 </li>
               ))}
+              {winMore && (
+                <li
+                  ref={watchEnd}
+                  data-testid="grid-more"
+                  aria-hidden="true"
+                  className="h-1"
+                />
+              )}
             </ul>
           )}
         </>

@@ -94,6 +94,7 @@ export const hiLibraryV2 = {
   'lib2.pro.status': 'स्थिति',
   'lib2.pro.type': 'प्रकार',
   'lib2.recent': 'हाल के',
+  'lib2.recent.none': 'अभी कुछ नहीं।',
   'lib2.saved': 'सहेजा गया',
   'lib2.search': 'लाइब्रेरी में खोजें',
   'lib2.search.books': 'किताबें',

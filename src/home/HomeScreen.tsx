@@ -111,7 +111,7 @@ export function HomeScreen({
       className="mx-auto w-full max-w-3xl px-4 py-5"
     >
       <header className="mb-4 flex flex-wrap items-baseline justify-between gap-2">
-        <h2 className="text-xl font-semibold">{t('space.home')}</h2>
+        <h2 className="t-h2">{t('space.home')}</h2>
         <p className="text-sm text-muted">{dayMonthLabel(today)}</p>
       </header>
       <div role="tablist" className="mb-4 flex flex-wrap gap-1.5">

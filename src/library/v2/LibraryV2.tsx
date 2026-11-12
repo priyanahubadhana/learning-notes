@@ -12,6 +12,7 @@ import { AppUiContext } from '../../app/appUi'
 import { runTask } from '../../app/errors'
 import { onRouted } from '../../app/input/eventRouter'
 import { ConfirmDialog, MenuPopover, type MenuItem } from '../../app/ui'
+import { Icon } from '../../app/tools/icons'
 import { isBigBook, megabytes } from '../../core/bookFormat'
 import type { LearningNotesDB } from '../../core/db'
 import type { Page } from '../../core/types'
@@ -81,6 +82,48 @@ function useWidth() {
   return [ref, w] as const
 }
 
+/**
+ * True while the Shelves side panel is on screen beside the page (not on a
+ * phone, not hidden): the shelf button by the title then stays away (LB-B18).
+ */
+function useShelvesPanelShown() {
+  const [shown, setShown] = useState(false)
+  useEffect(() => {
+    let raf = 0
+    const check = () => {
+      raf = 0
+      const el = document.querySelector<HTMLElement>(
+        '[data-testid="library-panel"]',
+      )
+      const wide =
+        typeof matchMedia !== 'function' ||
+        matchMedia('(width >= 40rem) and (height >= 32rem)').matches
+      const on = wide && !!el && el.getBoundingClientRect().width > 0
+      setShown((was) => (was === on ? was : on))
+    }
+    const soon = () => {
+      if (!raf) raf = requestAnimationFrame(check)
+    }
+    check()
+    const mo = new MutationObserver(soon)
+    mo.observe(document.body, {
+      subtree: true,
+      childList: true,
+      attributes: true,
+      attributeFilter: ['class', 'style', 'hidden'],
+    })
+    const ro =
+      typeof ResizeObserver === 'undefined' ? null : new ResizeObserver(soon)
+    ro?.observe(document.documentElement)
+    return () => {
+      mo.disconnect()
+      ro?.disconnect()
+      if (raf) cancelAnimationFrame(raf)
+    }
+  }, [])
+  return shown
+}
+
 const when = (ms?: number) =>
   ms ? new Date(ms).toLocaleDateString(undefined, { dateStyle: 'medium' }) : ''
 
@@ -132,6 +175,7 @@ export function LibraryV2({
   const fileInput = useRef<HTMLInputElement>(null)
   const searchInput = useRef<HTMLInputElement>(null)
   const [rowRef, rowWidth] = useWidth()
+  const panelShown = useShelvesPanelShown()
   const sources = useLiveQuery(
     () => listSources(db, workspaceId),
     [db, workspaceId],
@@ -313,7 +357,7 @@ export function LibraryV2({
   const empty = sources !== undefined && !hasAny
   return (
     <div
-      className="mx-auto max-w-[1120px] px-3 pt-4 pb-24 md:px-5"
+      className="mx-auto max-w-[1120px] px-4 pt-5 pb-24"
       onDragOver={(e) => {
         e.preventDefault()
         setDragging(true)
@@ -324,12 +368,8 @@ export function LibraryV2({
       data-library-v2=""
     >
       <div className="mb-2 flex min-h-12 items-center gap-2.5">
-        <h1 className="text-2xl font-bold tracking-[-0.025em] md:text-[28px]">
-          {t('library.title')}
-        </h1>
-        <span className="lg:hidden">
-          <ShelfButton db={db} workspaceId={workspaceId} />
-        </span>
+        <h1 className="t-h2">{t('library.title')}</h1>
+        {!panelShown && <ShelfButton db={db} workspaceId={workspaceId} />}
         <span className="flex-1" />
         <input
           ref={fileInput}
@@ -351,9 +391,10 @@ export function LibraryV2({
           aria-haspopup="menu"
           disabled={busy !== null}
           onClick={(e) => setAddAt(e.currentTarget.getBoundingClientRect())}
-          className="min-h-11 rounded-full bg-accent px-5 text-sm font-semibold text-white hover:opacity-90 disabled:opacity-50"
+          className="inline-flex min-h-11 items-center gap-1.5 rounded-full bg-accent px-5 text-sm font-semibold text-white hover:opacity-90 disabled:opacity-50"
         >
-          + {t('lib2.add')}
+          <Icon name="plus" size={18} />
+          {t('lib2.add')}
         </button>
         {addAt && (
           <MenuPopover
@@ -396,8 +437,9 @@ export function LibraryV2({
             data-testid="library-more-button"
             aria-haspopup="dialog"
             onClick={() => setMore(true)}
-            className="min-h-11 rounded-full bg-soft px-4 text-sm font-medium"
+            className="inline-flex min-h-11 items-center gap-1.5 rounded-full bg-soft px-4 text-sm font-medium"
           >
+            <Icon name="sliders" size={18} />
             {t('lib2.more')}
           </button>
           <div
@@ -433,7 +475,7 @@ export function LibraryV2({
             onClick={() => setSearchOpen((o) => !o)}
             className={`grid size-11 place-items-center rounded-full ${searchOpen ? 'bg-accent/15' : 'hover:bg-hover'}`}
           >
-            ⌕
+            <Icon name="search" size={20} />
           </button>
         </div>
         {searchOpen && (

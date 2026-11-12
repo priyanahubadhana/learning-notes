@@ -95,6 +95,7 @@ export const enLateLibraryV2 = {
   'lib2.pro.status': 'Status',
   'lib2.pro.type': 'Type',
   'lib2.recent': 'Recent',
+  'lib2.recent.none': 'Nothing yet.',
   'lib2.saved': 'Saved',
   'lib2.search': 'Search the library',
   'lib2.search.books': 'Books',

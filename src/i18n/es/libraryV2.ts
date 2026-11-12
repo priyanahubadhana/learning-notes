@@ -95,6 +95,7 @@ export const esLibraryV2 = {
   'lib2.pro.status': 'Estado',
   'lib2.pro.type': 'Tipo',
   'lib2.recent': 'Recientes',
+  'lib2.recent.none': 'Nada aún.',
   'lib2.saved': 'Guardado',
   'lib2.search': 'Buscar en la biblioteca',
   'lib2.search.books': 'Libros',

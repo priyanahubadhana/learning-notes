@@ -179,6 +179,7 @@ export default function Shell(p: ShellProps) {
               space={space}
               title={title}
               sidebarHidden={sidebarOff}
+              steppedAside={stepped}
               drawerOpen={drawerOpen}
               onOpenDrawer={onOpenDrawer}
               onToggleSidebar={toggleSidebar}

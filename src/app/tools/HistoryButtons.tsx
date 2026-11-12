@@ -13,10 +13,13 @@ import { currentRunner } from './toolRuntime'
 export function HistoryButtons({
   className = '',
   tips = false,
+  also,
 }: {
   className?: string
   /** The new shell's top bar: tooltips with the keys ("Undo (Ctrl Z)"). */
   tips?: boolean
+  /** More steps that can be undone or redone (the open Write pad keeps its own list). */
+  also?: { canUndo: boolean; canRedo: boolean }
 }) {
   const { canUndo, canRedo } = historyState.useValue()
   const go = (kind: 'undo' | 'redo') => {
@@ -39,7 +42,7 @@ export function HistoryButtons({
         data-testid="history-undo"
         aria-label={t('tool.undo')}
         title={tips ? historyTip('undo', t('tool.undo')) : undefined}
-        disabled={!canUndo}
+        disabled={!(canUndo || also?.canUndo)}
         className={btn}
         onClick={() => go('undo')}
       >
@@ -51,7 +54,7 @@ export function HistoryButtons({
         data-testid="history-redo"
         aria-label={t('tool.redo')}
         title={tips ? historyTip('redo', t('tool.redo')) : undefined}
-        disabled={!canRedo}
+        disabled={!(canRedo || also?.canRedo)}
         className={btn}
         onClick={() => go('redo')}
       >

@@ -118,7 +118,8 @@ describe('Shell columns (SH-07, SH-08)', () => {
   it('the sidebar toggle opens the stepped-aside sidebar over the page; Esc closes it', () => {
     const onToggleSidebar = vi.fn()
     mount(h(Shell, props({ hasPanel: true, panelOpen: true, onToggleSidebar })))
-    click(byLabel('Show menu'))
+    // It opens a drawer over the page, so it is named like the phone's button.
+    click($('.sh-wide-only button'))
     expect(onToggleSidebar).not.toHaveBeenCalled() // the saved choice is untouched
     expect($('.sh-overwrap #sidebar')).not.toBeNull()
     expect($('.sh-scrim')).not.toBeNull()
@@ -131,7 +132,28 @@ describe('Shell columns (SH-07, SH-08)', () => {
     })
   })
 
-  it('docks both columns at 1180 and wider', () => {
+  it('1180 (iPad landscape): the panel opens over the page and Esc closes it', () => {
+    size(1180, 820)
+    const onPanelOpen = vi.fn()
+    mount(h(Shell, props({ hasPanel: true, panelOpen: true, onPanelOpen })))
+    expect($('#panel')?.getAttribute('data-docked')).toBe('false')
+    expect($('.sh-sidewrap')?.getAttribute('data-state')).toBe('docked')
+    expect($('.sh-panelwrap')?.getAttribute('data-state')).toBe('over')
+    expect($('.sh-panelwrap')?.getAttribute('style')).toContain('--panel-left')
+    document.dispatchEvent(new KeyboardEvent('keydown', { key: 'Escape' }))
+    expect(onPanelOpen).toHaveBeenCalledWith(false)
+  })
+
+  it('820 (iPad portrait): the sidebar sits on the rail', () => {
+    size(820, 1180)
+    mount(h(Shell, props()))
+    expect($('.sh-sidewrap')?.getAttribute('data-state')).toBe('hidden')
+    expect($('.sh-wide-only button')?.getAttribute('aria-label')).toBe(
+      'Open menu',
+    )
+  })
+
+  it('docks both columns when the page keeps its writing width', () => {
     size(1366, 1024)
     mount(h(Shell, props({ hasPanel: true, panelOpen: true })))
     expect($('#sidebar')).not.toBeNull()

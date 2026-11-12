@@ -18,7 +18,8 @@ export const hiShell = {
   'shell.view.beginner': 'शुरुआती',
   'shell.view.pro': 'प्रोफेशनल',
   'settings.showUndoRedo.label': 'कंप्यूटर पर पूर्ववत और फिर करें दिखाएँ',
-  'settings.showUndoRedo.description': 'ऊपरी बार में पूर्ववत और फिर करें बटन रखता है। छिपे होने पर भी Ctrl Z काम करता है। iPad और फ़ोन पर ये हमेशा दिखते हैं।',
+  'settings.showUndoRedo.description':
+    'ऊपरी बार में पूर्ववत और फिर करें बटन रखता है। छिपे होने पर भी Ctrl Z काम करता है। iPad और फ़ोन पर ये हमेशा दिखते हैं।',
   'shell.saved': 'सहेजा गया',
   'shell.notSaved': 'अभी सहेजा नहीं गया',
   'shell.close': 'बंद करें',

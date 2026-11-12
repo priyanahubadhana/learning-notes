@@ -12,6 +12,7 @@ import { useSyncLabel } from '../../sync/useSyncLabel'
 import { DeviceModeButton } from '../DeviceModeMenu'
 import { useCanGoBack, useCanGoForward } from '../navHistory'
 import type { Space } from '../spaces/spaces'
+import { padHistoryState } from '../../editor/writePad/padHistory'
 import { HistoryButtons } from '../tools/HistoryButtons'
 import { showToolBar, useShowBarButton } from '../tools/toolbarVisibility'
 import { crumbsFor } from './crumbs'
@@ -27,6 +28,8 @@ export interface ShellTopBarProps {
   /** The screen's name; a page puts its own path here. */
   title: string | null
   sidebarHidden: boolean
+  /** The sidebar is on the rail for lack of room: its button opens it over the page, like a drawer. */
+  steppedAside?: boolean
   drawerOpen: boolean
   onOpenDrawer: () => void
   onToggleSidebar: () => void
@@ -86,6 +89,7 @@ export function ShellTopBar(props: ShellTopBarProps) {
     space,
     title,
     sidebarHidden,
+    steppedAside,
     drawerOpen,
     onOpenDrawer,
     onToggleSidebar,
@@ -97,6 +101,8 @@ export function ShellTopBar(props: ShellTopBarProps) {
   const canGoBack = useCanGoBack()
   const canGoForward = useCanGoForward()
   const barOff = useShowBarButton()
+  // The editor toolbar's pair counted the Write pad's steps too; so does this one.
+  const pad = padHistoryState.useValue()
   const [mode] = useDeviceSetting(deviceModeSetting)
   const [undoPref] = useDeviceSetting(showUndoRedoSetting)
   const showRefresh = useSyncedSetting(db, showRefreshSetting)
@@ -104,7 +110,9 @@ export function ShellTopBar(props: ShellTopBarProps) {
   const sync = useSyncLabel()
   const spaceName = t(`space.${space}` as MessageKey)
   const crumbs = crumbsFor(space, spaceName, title, !!panel)
-  const toggleName = t(sidebarHidden ? 'nav.showMenu' : 'nav.hideMenu')
+  const toggleName = steppedAside
+    ? t(sidebarHidden ? 'nav.openMenu' : 'nav.hideMenu')
+    : t(sidebarHidden ? 'nav.showMenu' : 'nav.hideMenu')
   const status = statusFor({
     unsaved,
     syncLabel: sync?.display === 'offline' ? sync.label : null,
@@ -160,7 +168,7 @@ export function ShellTopBar(props: ShellTopBarProps) {
         onClick={() => history.forward()}
       />
       {showHistoryPair(mode, undoPref) && (
-        <HistoryButtons className="sh-history" tips />
+        <HistoryButtons className="sh-history" tips also={pad} />
       )}
       <div ref={onSlot} className="sh-slot">
         <nav aria-label={t('shell.crumbs')} className="sh-crumbs">
@@ -185,7 +193,12 @@ export function ShellTopBar(props: ShellTopBarProps) {
         </nav>
       </div>
       {status && (
-        <span role="status" className="sh-status">
+        <span
+          // Only a problem is announced; "Saved" is quiet text.
+          role={unsaved || sync?.display === 'offline' ? 'status' : undefined}
+          className="sh-status"
+          data-testid="shell-status"
+        >
           {status}
         </span>
       )}

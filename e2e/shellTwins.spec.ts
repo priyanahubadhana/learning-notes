@@ -77,7 +77,7 @@ test('at iPad width (shell on) the menu sits on the rail and opens over the page
   await page.goto(ON)
   await expect(page.locator('.sh-frame')).toBeVisible()
   await expect(side(page)).toBeHidden()
-  await page.getByRole('button', { name: 'Show menu' }).click()
+  await page.getByRole('button', { name: 'Open menu' }).click()
   await expect(side(page)).toBeVisible()
   await page.keyboard.press('Escape')
   await expect(side(page)).toBeHidden()

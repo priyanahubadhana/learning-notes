@@ -23,3 +23,6 @@ export const mandatoryMeta = memStore<{ v2: boolean; reason: UpdateReason }>({
 
 /** null = no required update (the normal pill handles updates). */
 export const mandatoryUpdate = memStore<MandatoryState | null>(null)
+
+/** The stacking class of the must-have update screens (above everything). */
+export const MANDATORY_TOP = 'z-[2147483000]'

@@ -1,7 +1,7 @@
 import { useEffect, useRef } from 'react'
 import { createPortal } from 'react-dom'
 import { t } from '../i18n/t'
-import { mandatoryMeta, mandatoryUpdate } from './mandatoryState'
+import { MANDATORY_TOP, mandatoryMeta, mandatoryUpdate } from './mandatoryState'
 import MandatoryNotice from './MandatoryNotice'
 import { flow } from './mandatoryFlow'
 
@@ -65,7 +65,7 @@ export default function MandatoryUpdate() {
       data-mandatory-update
       data-phase={s.phase}
       onKeyDown={(e) => e.key === 'Escape' && e.preventDefault()}
-      className="fixed inset-0 z-[2147483000] flex flex-col items-center justify-center gap-5 bg-bg px-8 text-center text-ink"
+      className={`fixed inset-0 ${MANDATORY_TOP} flex flex-col items-center justify-center gap-5 bg-bg px-8 text-center text-ink`}
     >
       <h1 id="req-update-title" className="text-2xl font-semibold">
         {title}

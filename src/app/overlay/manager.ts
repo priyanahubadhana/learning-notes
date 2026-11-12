@@ -17,6 +17,13 @@ export interface OverlayOptions {
    * menus, cards and sheets (a card is a sheet on a phone), off otherwise.
    */
   swallowOutsideTap?: boolean
+  /**
+   * A bar or pill that stays open (e.g. the reader's bars): registered for
+   * layer order and placed fully on screen like any overlay, but NOT closed
+   * by an outside tap, Esc, the app going to the background or another
+   * overlay opening. Only its own handle (or opening the same id) closes it.
+   */
+  persistent?: boolean
 }
 
 export interface OverlayHandle {
@@ -77,9 +84,10 @@ export function createOverlayManager(
     return entries.some((e) => ancestors(e).has(entry.id) && e.inside(el))
   }
 
-  function topEntry(): Entry | undefined {
+  function topEntry(dismissable = false): Entry | undefined {
     let best: Entry | undefined
     for (const e of entries) {
+      if (dismissable && e.persistent) continue
       if (
         !best ||
         LAYERS[e.layer] > LAYERS[best.layer] ||
@@ -91,7 +99,7 @@ export function createOverlayManager(
   }
 
   function onEscape() {
-    const top = topEntry()
+    const top = topEntry(true)
     if (!top) return
     remove(top)
     top.opener?.focus()
@@ -102,7 +110,7 @@ export function createOverlayManager(
     if (target.closest('[data-popup-trigger]')) return false
     let swallow = false
     for (const e of [...entries]) {
-      if (!entries.includes(e) || ownedBy(e, target)) continue
+      if (!entries.includes(e) || e.persistent || ownedBy(e, target)) continue
       if (e.swallowOutsideTap ?? FLOATING.has(e.layer)) swallow = true
       remove(e)
     }
@@ -111,7 +119,7 @@ export function createOverlayManager(
 
   function onBackground() {
     for (const e of [...entries])
-      if (e.layer === 'menu' || e.layer === 'card') remove(e)
+      if (!e.persistent && (e.layer === 'menu' || e.layer === 'card')) remove(e)
   }
 
   function open(opts: OverlayOptions): OverlayHandle {
@@ -120,7 +128,7 @@ export function createOverlayManager(
     const entry: Entry = { ...opts, seq: ++seq }
     const keep = ancestors(entry)
     for (const e of [...entries]) {
-      if (keep.has(e.id) || !entries.includes(e)) continue
+      if (keep.has(e.id) || !entries.includes(e) || e.persistent) continue
       const sameLayer = e.layer === entry.layer
       const bothFloating = FLOATING.has(e.layer) && FLOATING.has(entry.layer)
       if (sameLayer || bothFloating) remove(e)

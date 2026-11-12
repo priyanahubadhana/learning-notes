@@ -384,3 +384,6 @@
     animation: none;
   }
 }
+.sh-scrim-phone {
+  bottom: calc(var(--sh-tabbar) + env(safe-area-inset-bottom, 0px));
+}

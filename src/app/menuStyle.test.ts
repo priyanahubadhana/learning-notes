@@ -10,7 +10,15 @@ import { describe, expect, it } from 'vitest'
  * so every menu has the same ✕ header, 44 px items and red last Delete. A
  * hand-made `<div role="menu">` anywhere else fails here.
  */
-const HOMES = new Set(['src/app/ui.tsx', 'src/app/tools/AnchoredMenu.tsx'])
+/**
+ * The Paste ▾ picker of the Context strip is a card in the overlay manager
+ * (✕ header, 44 px rows, same list roles), so it is the third home.
+ */
+const HOMES = new Set([
+  'src/app/ui.tsx',
+  'src/app/tools/AnchoredMenu.tsx',
+  'src/design/parts/ContextStrip.tsx',
+])
 
 function files(dir: string): string[] {
   return readdirSync(dir, { withFileTypes: true }).flatMap((e) => {

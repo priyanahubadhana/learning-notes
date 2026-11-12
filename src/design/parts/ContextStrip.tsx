@@ -66,9 +66,6 @@ export type ContextStripProps = {
 const SEP = '\u0001'
 
 /** Beginner sees only these on the strip, in this order; Professional sees every item. */
-/** The ▾ picker is a menu of choices under the strip (a part of its own, not a ⋯ menu). */
-const PICKER_ROLE = 'menu'
-
 const BEGINNER_STRIP_IDS = ['cut', 'copy', 'paste', 'delete'] as const
 
 /**
@@ -519,7 +516,7 @@ function PickerCard(props: {
           <Icon name="close" size={16} />
         </button>
       </div>
-      <div className="cs-pick__well" role={PICKER_ROLE} aria-label={item.label}>
+      <div className="cs-pick__well" role="menu" aria-label={item.label}>
         {item.menu?.map((m) => (
           <button
             key={m.id}

@@ -450,7 +450,8 @@
   box-shadow: 0 0 0 3px var(--color-accent-soft);
 }
 .sh-view button {
-  min-height: 38px;
+  position: relative;
+  min-height: 36px;
   padding: 0 12px;
   border: 0;
   border-radius: 999px;
@@ -460,6 +461,12 @@
   font-size: 13px;
   font-weight: 500;
   cursor: pointer;
+}
+.sh-view button::after {
+  /* The visible segment is 36 px; the touch target is 44. */
+  content: '';
+  position: absolute;
+  inset: -4px 0;
 }
 .sh-view button[aria-pressed='true'] {
   background: var(--color-accent-soft);
@@ -482,5 +489,22 @@
 @media (prefers-reduced-motion: reduce) {
   .sh-view {
     transition: none;
+  }
+}
+
+/* Tablet widths: the toggle gets compact and the quiet status steps back, so the path keeps room. */
+@media (max-width: 1279.98px) {
+  .sh-view {
+    padding: 2px;
+  }
+  .sh-view button {
+    min-height: 36px;
+    padding: 0 9px;
+    font-size: 12.5px;
+  }
+}
+@media (max-width: 899.98px) {
+  .sh-status {
+    display: none;
   }
 }

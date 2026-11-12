@@ -11,11 +11,13 @@ export function RowSelect({
   value,
   options,
   onChange,
+  describedBy,
 }: {
   label: string
   value: string | number
   options: readonly { value: string | number; label: string }[]
   onChange(next: string | number): void
+  describedBy?: string
 }) {
   const [anchor, setAnchor] = useState<HTMLElement | null>(null)
   const current = options.find((o) => o.value === value)
@@ -24,6 +26,7 @@ export function RowSelect({
       <CardTrigger
         open={!!anchor}
         label={label}
+        describedBy={describedBy}
         className="sv3-select"
         onClick={(el) => setAnchor(anchor ? null : el)}
       >

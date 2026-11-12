@@ -26,6 +26,7 @@ export function RowControl(props: Props) {
       return (
         <OnOff
           label={label}
+          describedBy={descId}
           checked={value === 'on'}
           onChange={(next) => onSave(next ? 'on' : 'off')}
         />
@@ -34,6 +35,7 @@ export function RowControl(props: Props) {
       return (
         <OnOffChoice
           label={label}
+          describedBy={descId}
           value={value as string | number}
           options={c.options.map((o) => ({ value: o.value, label: o.label() }))}
           onChange={(v) => onSave(v)}
@@ -42,6 +44,7 @@ export function RowControl(props: Props) {
     return (
       <RowSelect
         label={label}
+        describedBy={descId}
         value={value as string | number}
         options={c.options.map((o) => ({ value: o.value, label: o.label() }))}
         onChange={onSave}

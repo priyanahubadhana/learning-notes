@@ -17,7 +17,13 @@ import { tv } from './tv'
  * same stored switch as in the central list, so both stay in step. Off hides
  * the row in Beginner; Professional shows every row anyway.
  */
-export function ShowInBeginner({ id }: { id: string }) {
+export function ShowInBeginner({
+  id,
+  descId,
+}: {
+  id: string
+  descId?: string
+}) {
   useLevelVersion()
   const level = useLevel()
   const history = useSettingsHistory()
@@ -28,6 +34,7 @@ export function ShowInBeginner({ id }: { id: string }) {
     <div data-show-in-beginner className="sv3-showbeg">
       <OnOff
         checked={on}
+        describedBy={descId}
         label={tv('sv3.showInBeginner', { name })}
         onChange={(next) => {
           history.record(

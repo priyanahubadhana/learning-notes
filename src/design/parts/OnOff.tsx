@@ -10,6 +10,8 @@ export type OnOffProps = {
   /** Optional text drawn beside the switch. */
   children?: ReactNode
   testId?: string
+  /** Id of the element that describes this switch. */
+  describedBy?: string
 }
 
 /**
@@ -24,6 +26,7 @@ export function OnOff({
   disabled,
   children,
   testId,
+  describedBy,
 }: OnOffProps) {
   const onKey = (e: KeyboardEvent<HTMLButtonElement>) => {
     if (disabled) return
@@ -41,6 +44,7 @@ export function OnOff({
       role="switch"
       aria-checked={checked}
       aria-label={label}
+      aria-describedby={describedBy}
       disabled={disabled}
       data-testid={testId}
       className="onoff"
@@ -63,6 +67,8 @@ export type OnOffChoiceProps<V extends string | number> = {
   label: string
   disabled?: boolean
   testId?: string
+  /** Id of the element that describes this group. */
+  describedBy?: string
 }
 
 /**
@@ -76,6 +82,7 @@ export function OnOffChoice<V extends string | number>({
   label,
   disabled,
   testId,
+  describedBy,
 }: OnOffChoiceProps<V>) {
   const group = useRef<HTMLDivElement>(null)
   const onKey = (e: KeyboardEvent<HTMLDivElement>) => {
@@ -99,6 +106,7 @@ export function OnOffChoice<V extends string | number>({
       ref={group}
       role="radiogroup"
       aria-label={label}
+      aria-describedby={describedBy}
       aria-disabled={disabled || undefined}
       data-testid={testId}
       className="onoff-choice"

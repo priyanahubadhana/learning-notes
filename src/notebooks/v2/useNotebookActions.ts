@@ -18,6 +18,7 @@ import {
   setNotebookStarred,
 } from '../notebookService'
 import { tn } from './tn'
+import { duplicateNotebook, undoDuplicateNotebook } from './duplicateNotebook'
 
 export const notebookName = (n: Notebook): string =>
   displayName(sampleName(n)) || t('review.untitled')
@@ -137,7 +138,24 @@ export function useNotebookActions(
       ),
     )
 
+  /** NB-B08: a copy of the notebook with all its pages; Undo sends it to Trash. */
+  const duplicate = (n: Notebook) =>
+    runTask(
+      duplicateNotebook(
+        db,
+        n,
+        tn('nbv2.duplicate.name', { name: notebookName(n) }),
+      ).then((id) => {
+        if (!id) return toast(tn('nbv2.duplicate.none'))
+        toast(tn('nbv2.duplicated', { name: notebookName(n) }), {
+          label: tn('nbv2.undo'),
+          onSelect: () => runTask(undoDuplicateNotebook(db, id)),
+        })
+      }),
+    )
+
   return {
+    duplicate,
     togglePin,
     rename,
     create,

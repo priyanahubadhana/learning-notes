@@ -93,6 +93,7 @@ export function HomeV2({
   const [tab, setTab] = usePref<HomeTab>('notebooksTab', isHomeTab, 'all')
   const [query, setQuery] = useState('')
   const scroller = useRef<HTMLDivElement>(null)
+  const root = useRef<HTMLDivElement>(null)
   const [box, setBox] = useState({ w: 0, h: 0 })
   const [scrollTop, setScrollTop] = useState(0)
   const [strip, setStrip] = useState<{ id: string; el: HTMLElement } | null>(
@@ -210,6 +211,7 @@ export function HomeV2({
     else if (id === 'pin') actions.togglePin(n)
     else if (id === 'rename') setDialog({ kind: 'rename', id: n.id })
     else if (id === 'cover') actions.cover(n, sub)
+    else if (id === 'duplicate') actions.duplicate(n)
     else if (id === 'addPage') actions.addPage(n)
     else if (id === 'addTemplate') actions.addFromTemplate(n)
     else if (id === 'review') onReview?.(n.id)
@@ -229,6 +231,7 @@ export function HomeV2({
 
   return (
     <div
+      ref={root}
       data-testid="notebooks-home"
       data-v2
       className="flex h-full min-h-0 flex-col"
@@ -241,27 +244,28 @@ export function HomeV2({
         <h1 className="text-[28px] leading-tight font-bold tracking-tight">
           {t('nbh.title')}
         </h1>
-        <div className="flex flex-wrap items-center gap-2">
+        <div className="flex flex-wrap items-center gap-2 phone:w-full">
           {finder && (
-            <ClearField
-              type="search"
-              value={query}
-              placeholder={tn('nbv2.find.placeholder')}
-              aria-label={tn('nbv2.find.placeholder')}
-              data-testid="nbv2-find"
-              autoComplete="off"
-              onChange={(e) => {
-                setQuery(e.target.value)
-                setScrollTop(0)
-              }}
-              onClear={() => setQuery('')}
-              className="w-[200px]"
-            />
+            <div className="w-[200px] phone:order-first phone:w-full">
+              <ClearField
+                type="search"
+                value={query}
+                placeholder={tn('nbv2.find.placeholder')}
+                aria-label={tn('nbv2.find.placeholder')}
+                data-testid="nbv2-find"
+                autoComplete="off"
+                onChange={(e) => {
+                  setQuery(e.target.value)
+                  setScrollTop(0)
+                }}
+                onClear={() => setQuery('')}
+              />
+            </div>
           )}
           <div
             role="group"
             aria-label={tn('nbv2.layout')}
-            className="flex rounded-full border border-line p-0.5 text-sm"
+            className="flex min-h-11 items-center rounded-full border border-line p-0.5 text-sm"
           >
             {(['shelf', 'list'] as const).map((l) => (
               <button
@@ -270,7 +274,7 @@ export function HomeV2({
                 data-layout={l}
                 aria-pressed={layout === l}
                 onClick={() => setLayout(l)}
-                className={`min-h-9 rounded-full px-3 any-pointer-coarse:min-h-11 ${
+                className={`min-h-10 rounded-full px-3 any-pointer-coarse:min-h-10 ${
                   layout === l
                     ? 'bg-accent-soft font-semibold text-accent'
                     : 'text-ink-soft hover:bg-hover'
@@ -284,7 +288,7 @@ export function HomeV2({
             type="button"
             data-testid="nbh-new"
             onClick={askNew}
-            className="inline-flex min-h-10 items-center gap-1.5 rounded-full bg-accent px-4 text-sm font-semibold text-on-accent hover:opacity-90 any-pointer-coarse:min-h-11"
+            className="inline-flex min-h-11 items-center gap-1.5 rounded-full bg-accent px-4 text-sm font-semibold text-on-accent hover:opacity-90"
           >
             <Plus aria-hidden size={16} strokeWidth={2.25} />
             {t('nbh.new')}
@@ -360,7 +364,11 @@ export function HomeV2({
             unlocked: isUnlocked,
             canMoveUp: ms.canMoveUp,
             canMoveDown: ms.canMoveDown,
+            canDuplicate: true,
           }).filter((i) => i.id !== 'review' || !!onReview)}
+          allLevels
+          phoneLabels
+          bounds={() => root.current?.getBoundingClientRect() ?? null}
           target={() => {
             const r = strip.el.getBoundingClientRect()
             return {

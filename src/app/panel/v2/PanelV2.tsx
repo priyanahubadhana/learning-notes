@@ -6,7 +6,6 @@ import { usePref } from '../../usePref'
 import { Icon } from '../../tools/icons'
 import type { LearningNotesDB } from '../../../core/db'
 import { TabRow, type TabDef } from '../../../design/parts/TabRow'
-import { popoverAttr, showTop } from '../../../design/parts/topLayer'
 import { displayName, sampleName } from '../../../i18n/defaultNames'
 import { t } from '../../../i18n/t'
 import { outlineRequest } from '../outlineRequest'
@@ -17,6 +16,21 @@ import './panelV2.css'
 
 const TABS = ['pages', 'outline', 'resources'] as const
 type Tab = (typeof TABS)[number]
+/** The browser's top layer, where it exists (the drawer is not a manager overlay). */
+const popoverAttr = (): 'manual' | undefined =>
+  typeof HTMLElement !== 'undefined' && 'showPopover' in HTMLElement.prototype
+    ? 'manual'
+    : undefined
+function showTop(el: HTMLElement | null) {
+  try {
+    ;(
+      el as (HTMLElement & { showPopover?: () => void }) | null
+    )?.showPopover?.()
+  } catch {
+    /* already open or not supported */
+  }
+}
+
 /** `audio` is what an older version stored: recordings are a kind of Resource now. */
 const isTab = (v: unknown): v is Tab | 'audio' =>
   v === 'audio' || TABS.includes(v as Tab)

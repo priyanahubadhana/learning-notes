@@ -48,10 +48,7 @@ export function ContinueStrip({
       >
         {tn('nbv2.continue.title')}
       </h2>
-      <div
-        className="flex gap-2.5 overflow-x-auto pb-1"
-        style={{ paddingInline: pad, scrollbarWidth: 'thin' }}
-      >
+      <div className="h-track flex gap-2.5 pb-2" style={{ paddingInline: pad }}>
         {shown.map((c) => {
           const page = titles?.[c.pageId]
           const name = notebookName(c.notebook)

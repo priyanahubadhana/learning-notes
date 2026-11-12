@@ -86,6 +86,8 @@ export function ResultStrip({
         mode="inline"
         phone={window.innerWidth <= 640}
         items={items}
+        allLevels
+        phoneLabels
         testId="srv2-strip"
         onAction={onAction}
         onClose={onClose}

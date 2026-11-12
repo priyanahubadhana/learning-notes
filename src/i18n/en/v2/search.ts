@@ -6,6 +6,7 @@
 export const enV2Search = {
   'srv2.strip.label': 'Actions for this result',
   'srv2.act.open': 'Open',
+  'srv2.act.openNew': 'Open in new place',
   'srv2.act.copyLink': 'Copy link',
   'srv2.act.pin': 'Pin as favourite',
   'srv2.act.unpin': 'Remove from favourites',

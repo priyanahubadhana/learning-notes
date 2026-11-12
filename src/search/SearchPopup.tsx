@@ -497,6 +497,12 @@ export function SearchPopup({
                           onAction={(id) => {
                             setStrip(null)
                             if (id === 'open') onOpenHit(hit)
+                            else if (id === 'openNew')
+                              window.open(
+                                pageLink(hit.pageId),
+                                '_blank',
+                                'noopener',
+                              )
                             else if (id === 'pin') toggleFavourite(hit.pageId)
                             else if (id === 'copyLink')
                               void navigator.clipboard

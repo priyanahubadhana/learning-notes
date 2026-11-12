@@ -3,8 +3,9 @@ import { routeToHash } from '../../app/router'
 import { ts } from './ts'
 
 /**
- * SR-B10: the strip on a result row: Open, Copy link, Pin as favourite.
- * ("Open in new place" waits for the side-panel slice.) It never runs the
+ * SR-B10: the strip on a result row: Open, Open in new place
+ * (a new browser tab until the side panel exists), Copy link, Pin as
+ * favourite. It never runs the
  * search again.
  */
 export function resultStripItems(input: {
@@ -14,6 +15,7 @@ export function resultStripItems(input: {
 }): StripItem[] {
   const items: StripItem[] = [
     { id: 'open', icon: 'arrowUpRight', label: ts('srv2.act.open') },
+    { id: 'openNew', icon: 'openNew', label: ts('srv2.act.openNew') },
     { id: 'copyLink', icon: 'link', label: ts('srv2.act.copyLink') },
   ]
   if (input.canPin)

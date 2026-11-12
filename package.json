@@ -17,6 +17,8 @@
     "check:links": "node scripts/check-feature-links.mjs",
     "check:size": "node scripts/check-size.mjs",
     "check:ratchet": "node scripts/check-ratchet.mjs",
+    "test:visual": "playwright test --project=visual",
+    "test:visual:update": "playwright test --project=visual --update-snapshots",
     "mcp:install": "npm --prefix mcp install",
     "mcp:build": "npm --prefix mcp run build",
     "test:mcp": "npm --prefix mcp test",

@@ -175,3 +175,28 @@ jobs:
           for i in 1 2 3; do npx playwright install --with-deps webkit && exit 0; echo "install failed, retry $i"; sleep 45; done
           npx playwright install webkit
       - run: npm run test:e2e:webkit
+
+  # By hand only (Run workflow): makes the screenshot baselines for Linux
+  # and keeps them as a download. Download, put the pictures in
+  # e2e/visual/__screenshots__/linux/ and commit them.
+  visual-baselines:
+    if: github.event_name == 'workflow_dispatch'
+    runs-on: ubuntu-latest
+    timeout-minutes: 45
+    steps:
+      - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262 # v4
+      - uses: actions/setup-node@49933ea5288caeca8642d1e84afbd3f7d6820020 # v4
+        with:
+          node-version: lts/*
+          cache: npm
+      - run: npm ci
+      - name: Install chromium (retries if the Ubuntu mirror is down)
+        run: |
+          for i in 1 2 3; do npx playwright install --with-deps chromium && exit 0; echo "install failed, retry $i"; sleep 45; done
+          npx playwright install chromium
+      - run: npm run test:visual:update
+      - uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4
+        with:
+          name: visual-baselines-linux
+          path: e2e/visual/__screenshots__/linux
+          retention-days: 14

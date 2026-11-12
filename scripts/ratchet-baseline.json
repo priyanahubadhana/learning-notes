@@ -1,12 +1,14 @@
 {
   "totals": {
-    "listeners": 359,
+    "listeners": 364,
     "zIndex": 128
   },
   "files": {
     "listeners": {
       "src/App.tsx": 6,
       "src/ai/providers.ts": 1,
+      "src/aitools/jobs/filler.ts": 1,
+      "src/aitools/jobs/runner.ts": 2,
       "src/app/attention/AttentionGate.tsx": 1,
       "src/app/autoUpdate.ts": 8,
       "src/app/chunkReload.ts": 1,
@@ -18,6 +20,7 @@
       "src/app/inputMachine.ts": 5,
       "src/app/lab/labStats.ts": 3,
       "src/app/lock/useLock.ts": 3,
+      "src/app/mandatoryFlow.ts": 2,
       "src/app/navHistory.ts": 1,
       "src/app/palmGuard.ts": 1,
       "src/app/penTap.ts": 6,
@@ -121,11 +124,11 @@
       "src/App.tsx": 2,
       "src/ai/AiActions.tsx": 3,
       "src/ai/ConvertInk.tsx": 1,
-      "src/app/MandatoryUpdate.tsx": 1,
       "src/app/SidebarResizer.tsx": 1,
       "src/app/UpdatePill.tsx": 1,
       "src/app/attention/AttentionBanner.tsx": 1,
       "src/app/lab/PencilLab.tsx": 1,
+      "src/app/mandatoryState.ts": 1,
       "src/app/panel/LeftPanel.tsx": 1,
       "src/app/reading/NowPlayingPill.tsx": 1,
       "src/app/reading/ReaderControls.tsx": 2,

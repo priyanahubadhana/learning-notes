@@ -19,7 +19,7 @@ import {
   tileColumns,
   type TilePlace,
 } from './galleryTiles'
-import { useImageUrl } from '../../images/useImageUrl'
+import { GatedPicture } from '../../images/RemotePictureCard'
 import type { ViewProps } from './viewTypes'
 
 /** Tiles drawn at first, and added per "Show more". */
@@ -366,24 +366,26 @@ export function GalleryView({ db, database, view, onOpenPage }: ViewProps) {
 
 /** A tile's picture: a web address as it is, or one stored on this device. */
 function TileImage({ src }: { src: string }) {
-  const url = useImageUrl(src)
-  if (!url) {
-    return (
-      <div
-        aria-hidden
-        className="flex h-28 w-full items-center justify-center bg-soft text-2xl text-muted"
-      >
-        ◫
-      </div>
-    )
-  }
+  const empty = (
+    <div
+      aria-hidden
+      className="flex h-28 w-full items-center justify-center bg-soft text-2xl text-muted"
+    >
+      ◫
+    </div>
+  )
   return (
-    <img
-      src={url}
-      alt=""
-      loading="lazy"
-      referrerPolicy="no-referrer"
-      className="h-28 w-full object-cover"
-    />
+    <GatedPicture source={src} fallback={empty}>
+      {(url, onError) => (
+        <img
+          src={url}
+          alt=""
+          loading="lazy"
+          referrerPolicy="no-referrer"
+          onError={onError}
+          className="h-28 w-full object-cover"
+        />
+      )}
+    </GatedPicture>
   )
 }

@@ -5,6 +5,8 @@
   "ai -> reader",
   "ai -> recall",
   "ai -> sync",
+  "aitools -> ..",
+  "aitools -> connector",
   "anki -> editor",
   "anki -> notebooks",
   "anki -> pages",

@@ -11,8 +11,9 @@
  * written holds the update back instead.
  */
 import { cachedPaths, listFiles, type Listed } from './updateProgress'
-import { mandatoryUpdate } from './mandatoryState'
+import { mandatoryMeta, mandatoryUpdate } from './mandatoryState'
 import type { UpdateRisk } from './autoUpdate'
+import type { UpdateReason } from './updateLevel'
 
 export const COUNTDOWN_S = 5
 /** If the restart has not come this long after Install, show Retry. */
@@ -20,6 +21,23 @@ export const INSTALL_MAX_MS = 30_000
 /** The restart is forced if the service worker has not done it by now. */
 export const FORCE_RESTART_MS = 6_000
 const PARALLEL = 4
+/** update.v2: how long a change that is not saved yet may delay the install. */
+export const SAVE_WAIT_MS = 5000
+const SAVE_POLL_MS = 500
+
+/** Whole seconds left at the measured speed; undefined while unknown. */
+export function etaSeconds(
+  loaded: number,
+  total: number,
+  elapsedMs: number,
+): number | undefined {
+  if (total <= 0 || loaded <= 0 || elapsedMs < 500 || loaded >= total)
+    return undefined
+  return Math.max(
+    1,
+    Math.ceil(((total - loaded) / loaded) * (elapsedMs / 1000)),
+  )
+}
 
 export interface MandatoryDeps {
   /** Restarts into the new version. */
@@ -35,6 +53,14 @@ export interface MandatoryDeps {
   ) => Promise<void>
   after?: (run: () => void, ms: number) => unknown
   clear?: (handle: unknown) => void
+  /** update.v2: the new rules (reason, offline wait, save wait, 6 s limit). */
+  v2?: boolean
+  reason?: UpdateReason
+  /** update.v2: is there a network now? */
+  online?: () => boolean
+  /** update.v2: calls `fn` when the network goes or comes back; returns a stop. */
+  watchOnline?: (fn: (online: boolean) => void) => () => void
+  now?: () => number
 }
 
 /** Fetches every new file of the build (not yet cached), counting bytes. */
@@ -78,6 +104,7 @@ export interface Flow {
 }
 
 let current: Flow | null = null
+let stopWatching: (() => void) | undefined
 
 /** The running flow's actions (the screen's buttons). */
 export const flow = (): Flow | null => current
@@ -90,6 +117,12 @@ export function startMandatoryUpdate(deps: MandatoryDeps): Flow {
     deps.clear ?? ((h) => clearTimeout(h as ReturnType<typeof setTimeout>))
   const download = deps.download ?? ((p, s) => downloadNewFiles(p, s))
   const set = mandatoryUpdate.set
+  const v2 = deps.v2 === true
+  mandatoryMeta.set({ v2, reason: deps.reason ?? 'storage' })
+  const now = deps.now ?? Date.now
+  const isOnline =
+    deps.online ?? (() => typeof navigator === 'undefined' || navigator.onLine)
+  let startedAt = 0
   let abort: AbortController | null = null
   let timer: unknown
   let installTimer: unknown
@@ -108,14 +141,20 @@ export function startMandatoryUpdate(deps: MandatoryDeps): Flow {
     stopped = false
     const controller = (abort = new AbortController())
     set({ phase: 'downloading', loaded: 0, total: 0 })
+    startedAt = now()
     try {
       await download((loaded, total) => {
-        if (!controller.signal.aborted && !stopped)
-          set({ phase: 'downloading', loaded, total })
+        if (controller.signal.aborted || stopped) return
+        const etaS = v2
+          ? etaSeconds(loaded, total, now() - startedAt)
+          : undefined
+        set({ phase: 'downloading', loaded, total, etaS })
       }, controller.signal)
     } catch {
-      if (!controller.signal.aborted)
-        set({ phase: 'failed', reason: 'download' })
+      if (controller.signal.aborted) return
+      // Offline is not a failure: wait for the network (update.v2).
+      if (v2 && !isOnline()) set({ phase: 'offline' })
+      else set({ phase: 'failed', reason: 'download' })
       return
     }
     if (controller.signal.aborted) return
@@ -125,10 +164,22 @@ export function startMandatoryUpdate(deps: MandatoryDeps): Flow {
   const install = async () => {
     set({ phase: 'installing' })
     let risk: UpdateRisk | null
-    try {
-      risk = await deps.prepare()
-    } catch {
-      risk = { kind: 'unsaved' }
+    const prep = async (): Promise<UpdateRisk | null> => {
+      try {
+        return await deps.prepare()
+      } catch {
+        return { kind: 'unsaved' }
+      }
+    }
+    risk = await prep()
+    // update.v2: a save that is still running gets up to 5 s to finish.
+    for (
+      let waited = 0;
+      v2 && risk?.kind === 'unsaved' && waited < SAVE_WAIT_MS;
+      waited += SAVE_POLL_MS
+    ) {
+      await new Promise<void>((r) => after(r, SAVE_POLL_MS))
+      risk = await prep()
     }
     // Unwritten changes hold the update back; a low-space backup does not
     // (the notes stay in the browser database across the restart).
@@ -142,11 +193,17 @@ export function startMandatoryUpdate(deps: MandatoryDeps): Flow {
       set({ phase: 'failed', reason: 'install' })
       return
     }
-    after(() => deps.hardRestart?.(), FORCE_RESTART_MS)
-    installTimer = after(() => {
+    const failIfStuck = () => {
       if (mandatoryUpdate.get()?.phase === 'installing')
         set({ phase: 'failed', reason: 'install' })
-    }, INSTALL_MAX_MS)
+    }
+    if (v2) {
+      // No restart within 6 s: say so, with Try again (nothing is lost).
+      installTimer = after(failIfStuck, FORCE_RESTART_MS)
+      return
+    }
+    after(() => deps.hardRestart?.(), FORCE_RESTART_MS)
+    installTimer = after(failIfStuck, INSTALL_MAX_MS)
   }
 
   current = {
@@ -165,12 +222,42 @@ export function startMandatoryUpdate(deps: MandatoryDeps): Flow {
       void run()
     },
   }
-  countdown(COUNTDOWN_S)
+  if (v2) {
+    const watch =
+      deps.watchOnline ??
+      ((fn) => {
+        if (typeof window === 'undefined') return () => {}
+        const up = () => fn(true)
+        const down = () => fn(false)
+        window.addEventListener('online', up)
+        window.addEventListener('offline', down)
+        return () => {
+          window.removeEventListener('online', up)
+          window.removeEventListener('offline', down)
+        }
+      })
+    stopWatching = watch((online) => {
+      const phase = mandatoryUpdate.get()?.phase
+      if (!online && (phase === 'countdown' || phase === 'downloading')) {
+        stopped = true
+        clear(timer)
+        abort?.abort()
+        set({ phase: 'offline' })
+      } else if (online && phase === 'offline') {
+        countdown(COUNTDOWN_S)
+      }
+    })
+  }
+  if (v2 && !isOnline()) set({ phase: 'offline' })
+  else countdown(COUNTDOWN_S)
   return current
 }
 
 /** Tests only. */
 export function resetMandatoryUpdate(): void {
+  stopWatching?.()
+  stopWatching = undefined
   current = null
+  mandatoryMeta.set({ v2: false, reason: 'storage' })
   mandatoryUpdate.set(null)
 }

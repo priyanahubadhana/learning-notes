@@ -1,4 +1,5 @@
 import { memStore } from '../../app/tools/store'
+import { msLeft, waitFor, type LimiterSteps } from '../limiter'
 
 /**
  * Which locked things are open right now. It lives only in memory, so a
@@ -42,6 +43,7 @@ const SECOND = 1000
 /** After the 3rd wrong try: 30 s, 1 min, 5 min, 15 min, then 1 h each. */
 const WAITS = [30 * SECOND, 60 * SECOND, 300 * SECOND, 900 * SECOND]
 export const MAX_WAIT_MS = 3_600_000
+const RULE: LimiterSteps = { free: FAIL_LIMIT, steps: WAITS, cap: MAX_WAIT_MS }
 const KEY = 'learning-notes:lock-throttle-v1'
 
 interface Throttle {
@@ -51,8 +53,7 @@ interface Throttle {
 
 /** How long to wait after this many wrong tries in a row (0 = still free). */
 export function waitAfter(failures: number): number {
-  if (failures < FAIL_LIMIT) return 0
-  return WAITS[failures - FAIL_LIMIT] ?? MAX_WAIT_MS
+  return waitFor(RULE, failures)
 }
 
 let memory: Throttle = { failures: 0, blockedUntil: 0 }
@@ -92,6 +93,5 @@ export function noteSuccess(): void {
 }
 /** Seconds still to wait (0 = try now). A clock set far back cannot stretch it past the cap. */
 export function waitSeconds(now: number = Date.now()): number {
-  const left = Math.min(MAX_WAIT_MS, read().blockedUntil - now)
-  return Math.max(0, Math.ceil(left / SECOND))
+  return Math.ceil(msLeft(RULE, read().blockedUntil, now) / SECOND)
 }

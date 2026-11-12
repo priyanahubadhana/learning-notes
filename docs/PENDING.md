@@ -273,3 +273,4 @@ Mock: claude.ai/artifact/UQuji6cLjk9PNuuF9vsGEB (all owner comments on it are bu
 4. Listen: tap = read aloud; hold = settings only (release must not start playback); no selection/callout on long-press.
 5. Pages-grid edits change the real book (Undo + Restore original); no dimming behind the panel; Minimise hides the whole strip; edge-tap page turns with a slide; voices by type with pins; Style "Full" by default; ✕ on every dialog; customisable tabs Pages/Outline/Annotations/+.
 6. The top-bar AI button needs a rework: do it together with the AI mode build (not in this mock).
+- Real build (Home): widget drag uses live reflow preview; a wide widget dropped between small ones lands there (small ones wrap); impossible spots snap to nearest fit. Owner, 12 Nov.

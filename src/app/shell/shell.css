@@ -508,3 +508,31 @@
     display: none;
   }
 }
+
+/* Undo / Redo hover names ("Undo (Ctrl Z)"): only where there is a real hover, never on a touch screen. */
+.sh-history [data-tooltip] {
+  position: relative;
+}
+@media (hover: hover) and (pointer: fine) {
+  .sh-history [data-tooltip]:hover::after {
+    content: attr(data-tooltip);
+    position: absolute;
+    top: calc(100% + 2px);
+    left: 0;
+    padding: 4px 8px;
+    border: 1px solid var(--color-line);
+    border-radius: var(--r-sm);
+    background: var(--color-surface-3);
+    color: var(--color-ink);
+    box-shadow: var(--elev-2);
+    font-size: 12px;
+    white-space: nowrap;
+    pointer-events: none;
+    animation: sh-tip-in var(--dur-2) var(--ease-out) 450ms backwards;
+  }
+}
+@keyframes sh-tip-in {
+  from {
+    opacity: 0;
+  }
+}

@@ -24,7 +24,8 @@ import {
   snapSide,
 } from './minimise'
 import { MoreSheet } from './MoreSheet'
-import { PopMenu, popPosition } from './PopMenu'
+import { PopMenu } from './PopMenu'
+import { popPosition } from './popPosition'
 import { createShellToasts } from './toastStore'
 
 // jsdom hides a closed popover and cannot focus inside it; the real top layer is open.

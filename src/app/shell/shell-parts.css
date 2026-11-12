@@ -1,6 +1,6 @@
 /* ---- floating shell parts (SH-09 to SH-13) ----
    Each sits in the browser's top layer (popover="manual"), in the order it
-   was opened, so none needs a z-index (SH-14 gives the order they keep). */
+   was opened, so none needs a stacking number (SH-14 gives the order they keep). */
 .sh-layer {
   position: fixed;
   inset: 0;

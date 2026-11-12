@@ -3,7 +3,8 @@ import { createElement as h } from 'react'
 import { afterEach, beforeEach, describe, expect, it } from 'vitest'
 import { $, $$, click, cleanDom, mount } from '../../design/parts/testHelpers'
 import { getLevel, setLevel } from '../../settings/level'
-import { modeOf, ViewToggle } from './ViewToggle'
+import { ViewToggle } from './ViewToggle'
+import { modeOf } from './views'
 
 beforeEach(() => setLevel('professional'))
 afterEach(cleanDom)

@@ -3,7 +3,7 @@ import { useLayoutEffect, type RefObject } from 'react'
 /**
  * Puts an element (marked `popover="manual"`) in the browser's top layer:
  * above the page and every positioned element, in the order things are
- * opened, with no z-index. Where the Popover API is missing the element
+ * opened, with no stacking number. Where the Popover API is missing the element
  * just stays fixed on the page.
  */
 export function useTopLayer(ref: RefObject<HTMLElement | null>): void {

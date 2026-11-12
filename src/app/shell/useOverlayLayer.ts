@@ -64,6 +64,5 @@ export function useOverlayLayer(
       release?.()
       handle.close()
     }
-    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [ref, id, layer, modal, parentId, trap, epoch])
 }

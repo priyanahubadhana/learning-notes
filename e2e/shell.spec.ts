@@ -262,11 +262,11 @@ test('SH-05 tooltips name the keys; the setting hides the pair on a computer onl
 }) => {
   await start(page)
   await expect(top(page).getByRole('button', { name: 'Undo' })).toHaveAttribute(
-    'title',
+    'data-tooltip',
     /^Undo \((Ctrl|Cmd) Z\)$/,
   )
   await expect(top(page).getByRole('button', { name: 'Redo' })).toHaveAttribute(
-    'title',
+    'data-tooltip',
     /^Redo \((Ctrl Y|Cmd Shift Z)\)$/,
   )
   await page.evaluate(() =>

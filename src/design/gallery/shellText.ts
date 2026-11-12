@@ -1,0 +1,23 @@
+/** English text of the shell-parts gallery section (an English-only review page). */
+export const S = {
+  title: 'Shell parts',
+  help: 'More sheet, small dialog, pop menu, toast, floating bars and chips.',
+  openMore: 'Open More',
+  plain: 'Plain',
+  destructive: 'Destructive',
+  name: 'Name',
+  openMenu: 'Open menu',
+  menuLow: 'Menu near the bottom',
+  withUndo: 'With Undo',
+  two: 'Two',
+  showEdge: 'Show edge handle',
+  pen: 'Pen',
+  notebookOptions: 'Notebook options',
+  titleLabel: 'Title',
+  row: 'row',
+  moveTitle: 'Move this page?',
+  moveBody: 'It goes to the top of Biology.',
+  deleteTitle: 'Delete this page?',
+  deleteBody: 'Cells will move to Trash.',
+  nameTitle: 'Name this page',
+} as const

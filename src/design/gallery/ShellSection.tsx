@@ -1,4 +1,4 @@
-import { useEffect, useRef, useState } from 'react'
+import { useEffect, useState } from 'react'
 import { applyLanguage } from '../../i18n/languages'
 import { Dialog } from '../../app/shell/Dialog'
 import { EdgeHandle } from '../../app/shell/EdgeHandle'
@@ -8,6 +8,7 @@ import { PopMenu } from '../../app/shell/PopMenu'
 import { ToastHost } from '../../app/shell/Toast'
 import { shellToasts } from '../../app/shell/toastStore'
 import { Cells, Demo, Section } from './Bits'
+import { S } from './shellText'
 
 const btn = 'sh-btn'
 
@@ -27,8 +28,8 @@ export default function ShellSection() {
   const [popLow, setPopLow] = useState(false)
   const [edge, setEdge] = useState(false)
   const [said, setSaid] = useState('Nothing yet')
-  const popBtn = useRef<HTMLButtonElement | null>(null)
-  const lowBtn = useRef<HTMLButtonElement | null>(null)
+  const [popAnchor, setPopAnchor] = useState<HTMLElement | null>(null)
+  const [lowAnchor, setLowAnchor] = useState<HTMLElement | null>(null)
   const items = (close: () => void) => [
     {
       items: [
@@ -55,11 +56,7 @@ export default function ShellSection() {
     },
   ]
   return (
-    <Section
-      id="shellparts"
-      title="Shell parts"
-      help="More sheet, small dialog, pop menu, toast, floating bars and chips."
-    >
+    <Section id="shellparts" title={S.title} help={S.help}>
       <p
         className="t-small"
         data-ready={ready ? '' : undefined}
@@ -76,7 +73,7 @@ export default function ShellSection() {
             data-testid="open-more"
             onClick={() => setSheet(true)}
           >
-            Open More
+            {S.openMore}
           </button>
         </Demo>
         <Demo state="dialogs" label="Small dialog">
@@ -86,7 +83,7 @@ export default function ShellSection() {
             data-testid="open-dialog"
             onClick={() => setDialog('plain')}
           >
-            Plain
+            {S.plain}
           </button>
           <button
             type="button"
@@ -94,7 +91,7 @@ export default function ShellSection() {
             data-testid="open-danger"
             onClick={() => setDialog('danger')}
           >
-            Destructive
+            {S.destructive}
           </button>
           <button
             type="button"
@@ -102,27 +99,31 @@ export default function ShellSection() {
             data-testid="open-name"
             onClick={() => setDialog('name')}
           >
-            Name
+            {S.name}
           </button>
         </Demo>
         <Demo state="pop" label="Pop menu">
           <button
-            ref={popBtn}
             type="button"
             className={btn}
             data-testid="open-pop"
-            onClick={() => setPop(true)}
+            onClick={(e) => {
+              setPopAnchor(e.currentTarget)
+              setPop(true)
+            }}
           >
-            Open menu
+            {S.openMenu}
           </button>
           <button
-            ref={lowBtn}
             type="button"
             className={btn}
             data-testid="open-pop-low"
-            onClick={() => setPopLow(true)}
+            onClick={(e) => {
+              setLowAnchor(e.currentTarget)
+              setPopLow(true)
+            }}
           >
-            Menu near the bottom
+            {S.menuLow}
           </button>
         </Demo>
         <Demo state="toast" label="Toast">
@@ -132,7 +133,7 @@ export default function ShellSection() {
             data-testid="toast-plain"
             onClick={() => shellToasts.show('Saved to this device')}
           >
-            Plain
+            {S.plain}
           </button>
           <button
             type="button"
@@ -145,7 +146,7 @@ export default function ShellSection() {
               })
             }
           >
-            With Undo
+            {S.withUndo}
           </button>
           <button
             type="button"
@@ -156,7 +157,7 @@ export default function ShellSection() {
               shellToasts.show('Second message')
             }}
           >
-            Two
+            {S.two}
           </button>
         </Demo>
         <Demo state="bars" label="Floating bars and chips">
@@ -166,7 +167,7 @@ export default function ShellSection() {
             data-testid="open-edge"
             onClick={() => setEdge(true)}
           >
-            Show edge handle
+            {S.showEdge}
           </button>
           <FloatingBar id="demo-reader" label="Reader bar">
             <button type="button" className={btn}>
@@ -175,7 +176,7 @@ export default function ShellSection() {
           </FloatingBar>
           <FloatingBar id="demo-draw" label="Drawing bar" lift={64}>
             <button type="button" className={btn}>
-              Pen
+              {S.pen}
             </button>
           </FloatingBar>
         </Demo>
@@ -192,7 +193,7 @@ export default function ShellSection() {
       )}
       {sheet && (
         <MoreSheet
-          title="Notebook options"
+          title={S.notebookOptions}
           sub="Biology"
           tabs={[
             { id: 'look', label: 'Look' },
@@ -221,7 +222,7 @@ export default function ShellSection() {
           }}
         >
           <label>
-            Title{' '}
+            {S.titleLabel}{' '}
             <input
               data-testid="more-field"
               defaultValue="Biology"
@@ -230,14 +231,14 @@ export default function ShellSection() {
           </label>
           {Array.from({ length: 30 }, (_, i) => (
             <p key={i}>
-              {tab} row {i + 1}
+              {tab} {S.row} {i + 1}
             </p>
           ))}
         </MoreSheet>
       )}
       {dialog === 'plain' && (
         <Dialog
-          title="Move this page?"
+          title={S.moveTitle}
           confirmLabel="Move"
           onConfirm={() => {
             setDialog(null)
@@ -248,12 +249,12 @@ export default function ShellSection() {
             setSaid('Not moved')
           }}
         >
-          <p>It goes to the top of Biology.</p>
+          <p>{S.moveBody}</p>
         </Dialog>
       )}
       {dialog === 'danger' && (
         <Dialog
-          title="Delete this page?"
+          title={S.deleteTitle}
           confirmLabel="Delete"
           destructive
           onConfirm={() => {
@@ -265,12 +266,12 @@ export default function ShellSection() {
             setSaid('Kept')
           }}
         >
-          <p>Cells will move to Trash.</p>
+          <p>{S.deleteBody}</p>
         </Dialog>
       )}
       {dialog === 'name' && (
         <Dialog
-          title="Name this page"
+          title={S.nameTitle}
           confirmLabel="Save"
           confirmDisabled={!name.trim()}
           onConfirm={() => {
@@ -282,7 +283,7 @@ export default function ShellSection() {
           <input
             data-autofocus
             data-testid="name-field"
-            aria-label="Name"
+            aria-label={S.name}
             value={name}
             onChange={(e) => setName(e.target.value)}
           />
@@ -291,7 +292,7 @@ export default function ShellSection() {
       {pop && (
         <PopMenu
           label="Page actions"
-          anchor={popBtn.current}
+          anchor={popAnchor}
           sections={items(() => setPop(false))}
           onClose={() => setPop(false)}
         />
@@ -299,7 +300,7 @@ export default function ShellSection() {
       {popLow && (
         <PopMenu
           label="Page actions"
-          anchor={lowBtn.current}
+          anchor={lowAnchor}
           sections={items(() => setPopLow(false))}
           onClose={() => setPopLow(false)}
         />

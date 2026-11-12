@@ -2,7 +2,7 @@
  * SH-14: the shell's layer scale (shell-spec 8), bottom to top. The numbers
  * are the `--z-*` tokens in src/design/tokens.css. New floating shell parts
  * (sheet, dialog, pop menu, toast, chips, floating bar) sit in the browser's
- * top layer in opening order (see `useTopLayer`), so they need no z-index of
+ * top layer in opening order (see `useTopLayer`), so they need no stacking number of
  * their own; this table is the order they must keep and the one the area
  * slices map today's loose values onto.
  */

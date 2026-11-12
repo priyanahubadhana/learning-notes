@@ -16,7 +16,7 @@ export function HistoryButtons({
   also,
 }: {
   className?: string
-  /** The new shell's top bar: tooltips with the keys ("Undo (Ctrl Z)"). */
+  /** The new shell's top bar: tooltips with the keys ("Undo (Ctrl Z)"; a native title is avoided, it sticks on an iPad). */
   tips?: boolean
   /** More steps that can be undone or redone (the open Write pad keeps its own list). */
   also?: { canUndo: boolean; canRedo: boolean }
@@ -41,7 +41,8 @@ export function HistoryButtons({
         data-chrome
         data-testid="history-undo"
         aria-label={t('tool.undo')}
-        title={tips ? historyTip('undo', t('tool.undo')) : undefined}
+        data-tooltip={tips ? historyTip('undo', t('tool.undo')) : undefined}
+        aria-description={tips ? historyTip('undo', t('tool.undo')) : undefined}
         disabled={!(canUndo || also?.canUndo)}
         className={btn}
         onClick={() => go('undo')}
@@ -53,7 +54,8 @@ export function HistoryButtons({
         data-chrome
         data-testid="history-redo"
         aria-label={t('tool.redo')}
-        title={tips ? historyTip('redo', t('tool.redo')) : undefined}
+        data-tooltip={tips ? historyTip('redo', t('tool.redo')) : undefined}
+        aria-description={tips ? historyTip('redo', t('tool.redo')) : undefined}
         disabled={!(canRedo || also?.canRedo)}
         className={btn}
         onClick={() => go('redo')}

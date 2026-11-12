@@ -32,12 +32,12 @@ describe('Undo / Redo tooltips and visibility (SH-05)', () => {
 
   it('only the shell top bar adds tooltips', () => {
     mount(h(HistoryButtons, { tips: true }))
-    expect(byLabel('Undo')?.getAttribute('title')).toMatch(
+    expect(byLabel('Undo')?.getAttribute('data-tooltip')).toMatch(
       /^Undo \((Ctrl|Cmd) Z\)$/,
     )
     cleanDom()
     mount(h(HistoryButtons, {}))
-    expect(byLabel('Undo')?.hasAttribute('title')).toBe(false)
+    expect(byLabel('Undo')?.hasAttribute('data-tooltip')).toBe(false)
   })
 
   it('the top bar drops the pair on a computer when the setting is off', () => {

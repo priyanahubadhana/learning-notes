@@ -200,6 +200,31 @@ describe('golden plans, slice 5d', () => {
     )
   })
 
+  it('g46 Undo sends a tag the job made to Trash (kept, deletedAt set), not erased', async () => {
+    const kit = makeKit()
+    const { pageId } = await seeded(kit)
+    const live = kit.port.count('tags')
+    const all = kit.port.count('tags', true)
+    await kit.runner.create(
+      planOf('g46t', { kind: 'page', id: pageId }, [
+        step('s1', 'tags.add', { pageId, tag: 'brand-new' }),
+      ]),
+    )
+    await kit.runner.run('g46t')
+    expect((await kit.runner.apply('g46t')).outcome).toBe('applied')
+    expect(kit.port.count('tags')).toBe(live + 1)
+    await kit.runner.undo('g46t')
+    expect(kit.port.count('tags')).toBe(live)
+    expect(kit.port.count('tags', true)).toBe(all + 1)
+    const made = (await kit.port.list('tags', {})).find(
+      (t) => t.name === 'brand-new',
+    )
+    expect(made).toBeTruthy()
+    expect(
+      (await kit.port.read('tags', String(made!.id)))!.deletedAt,
+    ).not.toBeNull()
+  })
+
   it('a tag the page already has, and a no-change pin, write nothing', async () => {
     const kit = makeKit()
     const { pageId, notebookId } = await seeded(kit)

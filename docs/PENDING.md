@@ -304,4 +304,12 @@ Mock: claude.ai/artifact/UNS1UzPv4wb6errBrtpv4h (v6; sources and mapping in scra
 2. Professional: "+" at the end of each tool row to pin any setting (reorder, rename, remove, group); overflow goes into "⋯ more pinned ▾", never sideways scroll; Beginner unchanged.
 3. The Box card opens beside the selected box, never over it.
 4. Remove the second minimise on the text box's own mini-bar; remove the top-bar Done if it has no purpose.
+
 - Real build (AI): a tool framework, where every catalog tool is a defined action (inputs, outputs, where it writes) the AI can chain into plans; Studio multi-select builds one plan. Owner, 12 Nov.
+
+## AI mode mock v4: APPROVED by owner (12 Nov 2026), build with the owner's comments
+
+Mock: claude.ai/artifact/7rKh3JHCSZwHcPZQ2DdSTD (all owner comments on it are build requirements). Framework: docs/design/ai-tool-framework.md (8e3ff82). Explainer: docs/design/ai-flow-explained.pdf.
+
+- Jobs tab still uses the v3 run flow: switch it to the framework executor in the build.
+- The "Plan ready" toast must not cover the plan title.

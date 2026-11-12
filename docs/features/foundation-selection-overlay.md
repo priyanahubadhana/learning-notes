@@ -45,6 +45,10 @@ held today (file:line) is listed in [Inventory](#inventory).
   never over it, and fully inside the screen with an 8 px margin; widths 304 or 376 px.
 - When a dialog opens → Tab and Shift+Tab stay inside it; on close focus returns to the opener.
 - When toasts arrive → up to 3 stack; a 4th waits; none covers a title rectangle.
+- When a bar or pill must stay open (e.g. the reader's bars) → it opens with `persistent: true`:
+  it takes part in layer order and the same fully-on-screen placement, but an outside tap, Esc,
+  the app going to the background or another overlay opening never closes it; only its own
+  handle (or opening the same id again) does. No lane uses a raw popover for this.
 - Esc / tap-outside come from an injected `OverlayEvents` (DOM default today; the event router
   from slice 0c later, one-line swap).
 

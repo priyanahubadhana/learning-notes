@@ -285,7 +285,8 @@ const ICONS = {
 
 export type IconName = keyof typeof ICONS
 
-const isIconName = (n: string): n is IconName =>
+// eslint-disable-next-line react-refresh/only-export-components -- tiny shared check
+export const isIconName = (n: string): n is IconName =>
   Object.prototype.hasOwnProperty.call(ICONS, n)
 
 /** A thin (1.6 px) line icon, decorative: the button carries the name. */

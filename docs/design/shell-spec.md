@@ -55,26 +55,28 @@ One row, 52 px, flat (not glass), inside the main column. Left to right:
 1. sidebar toggle (when the screen has a sidebar)
 2. page-panel toggle (only while a notebook or book is open)
 3. Back · Forward (36 px icons, 44 px hit area)
+   3b. **Undo · Redo** (always visible, SH-05)
 4. breadcrumbs (earlier crumbs are buttons, the last one is plain text, truncates with …)
 5. "Saved" status (muted, only while editing)
-6. Search (opens the search popup, Ctrl K)
+6. Search (opens the search popup, Ctrl K), then the Beginner | Professional view toggle (SH-06; on a phone it moves to the screen's title row)
 7. screen actions (max 3 icons; in a Professional view only if rare). "Done" (reader, drawing) goes last.
 
 A screen's own title, tabs and More button sit in the content below, never in the top bar.
 
 ## 4. Sidebar and left panel
 
-Two columns, both 264 px, both `--surface-1` cards with a header, optional tabs, a scrolling body and an optional footer.
+Two columns, both 288 px (owner: a bit bigger; the mock drew 264, see shared-parts D1), both `--surface-1` cards with a header, optional tabs, a scrolling body and an optional footer.
 
-|             | Sidebar (`#sh-side`)                                                                                                              | Left panel (`#sh-panel`)                                                                                       |
-| ----------- | --------------------------------------------------------------------------------------------------------------------------------- | -------------------------------------------------------------------------------------------------------------- |
-| Holds       | what the current space lists (Notebooks: Today, Search, Review, Quick access, the notebook tree, Tags, Templates, Saved searches) | what the open notebook or book holds                                                                           |
-| Tabs        | none                                                                                                                              | **Pages · Outline · Resources** (books add Annotations). "Audio" is gone: recordings are one kind of Resource. |
-| Shown       | always, unless hidden with its toggle                                                                                             | only while a notebook/book is open                                                                             |
-| ≥ 1180 px   | docked                                                                                                                            | docked                                                                                                         |
-| 641–1179 px | docked; steps aside while the panel is docked (its toggle then opens it as an overlay)                                            | docked                                                                                                         |
-| ≤ 640 px    | drawer from the left (tap Notebooks in the tab bar, or its toggle)                                                                | drawer from the left (its toggle)                                                                              |
+|             | Sidebar (`#sh-side`)                                                                                                                      | Left panel (`#sh-panel`)                                                                                       |
+| ----------- | ----------------------------------------------------------------------------------------------------------------------------------------- | -------------------------------------------------------------------------------------------------------------- |
+| Holds       | what the current space lists (Notebooks: Today, Search, Review, Quick access, the notebook tree, Tags, Templates, Saved searches)         | what the open notebook or book holds                                                                           |
+| Tabs        | none                                                                                                                                      | **Pages · Outline · Resources** (books add Annotations). "Audio" is gone: recordings are one kind of Resource. |
+| Shown       | always, unless hidden with its toggle                                                                                                     | only while a notebook/book is open                                                                             |
+| ≥ 1180 px   | docked                                                                                                                                    | docked while the page keeps 600 px, else opens over the page (page-width rule below)                           |
+| 641–1179 px | docked while the page keeps 600 px; steps aside while the panel is docked; else collapses to the rail (its toggle opens it over the page) | docked while the page keeps 600 px, else opens over the page                                                   |
+| ≤ 640 px    | drawer from the left (tap Notebooks in the tab bar, or its toggle)                                                                        | drawer from the left (its toggle)                                                                              |
 
+- **Page-width rule (0h, 12 Nov 2026).** The page keeps a comfortable writing width of at least **600 px** (`MIN_PAGE_W`). Docked columns may take only what is left; the frame (12 px padding both sides), the 56 px rail and its gap are always paid first. Columns give way in this order, and the first that leaves 600 px wins: (1) sidebar and panel both docked (≥ 1180 only); (2) the sidebar steps aside and the panel docks (under 1180); (3) the **panel opens over the page** (overlay manager: Esc or a tap outside closes it; it starts after the rail and a docked sidebar) and the sidebar stays docked; (4) the **sidebar collapses to the rail** (its toggle opens it over the page) and the panel docks if it fits, else opens over the page. A wider sidebar (resized up) gives way sooner. Example: iPad landscape 1180 with both open leaves 488 px, so the panel opens over the page and the page stays 788 px; iPad portrait 820 leaves 428 px with the sidebar docked, so the sidebar sits on the rail until opened.
 - Overlay/drawer: 86 vw (max 320), scrim behind, tap outside or Esc closes.
 - Pages: thumbnails (title + 3 lines + page number). The current page is highlighted and **centred** on open. Tap opens. Hold 0.3 s (or use the grip) and drag to reorder; a line shows the drop place; Undo toast. Keyboard: Alt + ↑/↓.
 - Outline: the whole notebook; other pages folded to one line; the current heading is highlighted and kept **centred** while reading.
@@ -109,7 +111,7 @@ Bottom centre, pill, one at a time, 24 px up (above the tab bar on phones, above
 ## 8. Tokens and rules
 
 - Colours, radii, motion: the app's `src/design/tokens.css` values, as in toolbar v4. Themes: Night (default), Day, Sepia, all three in every mock.
-- Shell sizes (CSS variables): rail 56 · sidebar 264 · panel 264 · top bar 52 · tab bar 56 · sheet 440 · hit 44 · gap 12.
+- Shell sizes (CSS variables): rail 56 · sidebar 288 · panel 288 · top bar 52 · tab bar 56 · sheet 440 · hit 44 · gap 12.
 - Breakpoints: **640** (phone) and **1180** (room for sidebar + panel). No others for shell parts.
 - Layers: tab bar 30 · floating bar 40 · chips 41 · drawer scrim 59 · drawers 60 · sheet scrim 79 · sheet 80 · dialog 85 · pop 86 · toast 90.
 - Hit areas: 44 pt everywhere. A control drawn at 32–36 px carries an invisible extender (`::before`).
@@ -123,11 +125,11 @@ One dictionary, `Shell.I`, Lucide geometry: 24 grid, 1.6 stroke, round caps, no 
 
 ### Rail icons (U2). Home, sun/moon and gear are kept.
 
-| Space               | Option A                                                           | Option B                             | Pick                                                                                                                                          |
-| ------------------- | ------------------------------------------------------------------ | ------------------------------------ | --------------------------------------------------------------------------------------------------------------------------------------------- |
-| **Library**         | Books standing on a shelf (two upright, one leaning, a shelf line) | Open book                            | **A.** A shelf says "a collection you read from". An open book looks like a notebook, which is the confusion today.                           |
-| **Notebooks**       | Ring-bound notebook with a pencil                                  | Ring-bound notebook with ruled lines | **A.** The pencil says "you write here", the opposite of Library's "you read here". B is the safe fallback if the pencil feels busy at 22 px. |
-| **Review / Recall** | Two flashcards with a tick on the front one                        | Repeat arrows around a card          | **A.** Reads as "cards to get through" and carries the due badge well. B explains spaced repetition but looks like "refresh/sync".            |
+| Space               | Option A                                                           | Option B                             | Pick                                                                                                                               |
+| ------------------- | ------------------------------------------------------------------ | ------------------------------------ | ---------------------------------------------------------------------------------------------------------------------------------- |
+| **Library**         | Books standing on a shelf (two upright, one leaning, a shelf line) | Open book                            | **A (owner kept A).** A shelf says "a collection you read from". An open book looks like a notebook, which is the confusion today. |
+| **Notebooks**       | Ring-bound notebook with a pencil                                  | Ring-bound notebook with ruled lines | **B (owner chose B, MF 114).** Ruled notebook; the pencil was judged busy.                                                         |
+| **Review / Recall** | Two flashcards with a tick on the front one                        | Repeat arrows around a card          | **A.** Reads as "cards to get through" and carries the due badge well. B explains spaced repetition but looks like "refresh/sync". |
 
 Both sets are live in `notebooks-mock-v2.html` (demo bar: "Icons A / Icons B"). The brain (old Review) and the four bare lines (old Library) are retired.
 
@@ -150,7 +152,7 @@ Mocks: T = toolbar v4 (approved), A = annotations/reader, H = home, N = notebook
 | 7   | Phone bottom bar    | **H: floating tab bar (8 px inset, radius 24). N: attached full-width bar. A: floating bar (≤ 600). T and S: the rail just disappears, no way to change space.** R/G: none.                                                   | attached full-width tab bar ≤ 640                                                     |
 | 8   | Phone breakpoint    | 640 (T, H), 600 + 760 (A), 820 (N), 520 + 860 (S), 759 (G)                                                                                                                                                                    | 640 (and 1180 for two columns)                                                        |
 | 9   | Top bar             | T, A: 52 px bar with crumbs. S: crumbs only. **H, N, R, G: none.** "Saved" and "Done" only in T.                                                                                                                              | one top bar everywhere                                                                |
-| 10  | Left column         | N: tabs inside the sidebar (Notebooks/Pages/Outline/Audio, 276 px). A: Notes panel. S: search panel on the right. G: its own category column.                                                                                 | sidebar + left panel, 264 px each, fixed tab names                                    |
+| 10  | Left column         | N: tabs inside the sidebar (Notebooks/Pages/Outline/Audio, 276 px). A: Notes panel. S: search panel on the right. G: its own category column.                                                                                 | sidebar + left panel, 288 px each, fixed tab names                                    |
 | 11  | More button place   | H, S, R, N: first in the row (correct). **T: a ▾ at the END of each pill. A: a chevron at the END of the reader bar.** N showed two More buttons at once (sidebar and page).                                                  | first, one per screen                                                                 |
 | 12  | More surface        | T: 360–400 px card anchored under the bar. H: centred modal, height by content. N: centred modal, height by content (the N4 complaint). R: bottom sheet 440 px, fixed height. S: overlay inside the search panel. A: popover. | one fixed full-height sheet (tool cards under a bar stay cards, capped at one height) |
 | 13  | Sheet footer        | N: ✕ and ✓ icons with no words; each mock builds its own footer.                                                                                                                                                              | hint · Cancel · ✓ Done                                                                |

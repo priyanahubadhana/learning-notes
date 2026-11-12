@@ -62,7 +62,7 @@ export function Ribbon({
   tip: boolean
   hint: boolean
   /** Undo and Redo are pinned at the left, outside the scrolling tools. */
-  history?: { canUndo: boolean; canRedo: boolean }
+  history?: { canUndo: boolean; canRedo: boolean; hidden?: boolean }
 }) {
   const tab = ribbonTab.useValue()
   const expanded = ribbonExpanded.useValue()
@@ -193,7 +193,7 @@ export function Ribbon({
 
   const undo = history ? findTool('undo') : undefined
   const redo = history ? findTool('redo') : undefined
-  const pinned = history && (undo || redo) && (
+  const pinned = history && !history.hidden && (undo || redo) && (
     <div
       role="group"
       aria-label={t('main.history')}

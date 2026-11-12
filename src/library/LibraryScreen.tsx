@@ -1,5 +1,13 @@
 import { useLiveQuery } from 'dexie-react-hooks'
-import { useContext, useRef, useState } from 'react'
+import {
+  lazy,
+  Suspense,
+  useContext,
+  useRef,
+  useState,
+  type ComponentProps,
+} from 'react'
+import { useFlag } from '../app/flags'
 import { AppUiContext } from '../app/appUi'
 import { ConfirmDialog, EmptyState, IconButton, MenuPopover } from '../app/ui'
 import { useLongPress } from '../app/useLongPress'
@@ -30,7 +38,7 @@ const FILTERS: SourceFilter[] = ['all', 'books', 'videos', 'articles', 'pasted']
  * cover, a progress bar and Continue. Import with the button, or drop files
  * (PC); links and text dropped here open Capture.
  */
-export function LibraryScreen({
+function LibraryScreenToday({
   db,
   workspaceId,
   onOpenPage,
@@ -206,6 +214,23 @@ export function LibraryScreen({
         />
       )}
     </div>
+  )
+}
+
+const LibraryV2 = lazy(() =>
+  import('./v2/LibraryV2').then((m) => ({ default: m.LibraryV2 })),
+)
+
+/** The Library space: today's screen, or Library v2 when the library.v2 switch is on. */
+export function LibraryScreen(
+  props: ComponentProps<typeof LibraryScreenToday>,
+) {
+  const v2 = useFlag('library.v2')
+  if (!v2) return <LibraryScreenToday {...props} />
+  return (
+    <Suspense fallback={null}>
+      <LibraryV2 {...props} />
+    </Suspense>
   )
 }
 

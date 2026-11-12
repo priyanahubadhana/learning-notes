@@ -421,3 +421,45 @@ test('NB-P07 Review this notebook in the strip reviews only its cards (needs nb.
   await expect(main).toContainText('Zeta question?')
   await expect(main).not.toContainText('Alpha question?')
 })
+
+test('NB-B12 scale: 2,000 notebooks keep only about a screenful of covers in the page, and scrolling shows later ones', async ({
+  page,
+}) => {
+  await start(page)
+  await createNotebook(page, 'Seed book', 'A page')
+  const COUNT = 2000
+  await page.evaluate(async (count) => {
+    const open = indexedDB.open('learning-notes')
+    const db: IDBDatabase = await new Promise((res) => {
+      open.onsuccess = () => res(open.result)
+    })
+    const all = await new Promise<Record<string, unknown>[]>((res) => {
+      const r = db.transaction('notebooks').objectStore('notebooks').getAll()
+      r.onsuccess = () => res(r.result)
+    })
+    const seed = all.find((n) => n.title === 'Seed book')!
+    await new Promise<void>((res) => {
+      const tx = db.transaction('notebooks', 'readwrite')
+      for (let i = 1; i <= count; i++) {
+        tx.objectStore('notebooks').put({
+          ...seed,
+          id: 'scale-nb-' + i,
+          title: 'Scale book ' + String(i).padStart(4, '0'),
+          order: String(seed.order) + String(i).padStart(5, '0'),
+        })
+      }
+      tx.oncomplete = () => res()
+    })
+    db.close()
+  }, COUNT)
+  await page.reload()
+  await openHome(page)
+  const cards = home(page).locator('[data-notebook-card]')
+  await expect(cards.first()).toBeVisible()
+  expect(await cards.count()).toBeLessThan(100)
+  const scroller = home(page).getByTestId('nbh-scroll')
+  await scroller.evaluate((el) => el.scrollTo(0, el.scrollHeight))
+  await expect(card(page, 'Scale book 2000')).toBeVisible()
+  expect(await cards.count()).toBeLessThan(100)
+  await expect(card(page, 'Seed book')).toHaveCount(0)
+})

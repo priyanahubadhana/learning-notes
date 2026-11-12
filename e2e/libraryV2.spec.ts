@@ -562,7 +562,9 @@ test.describe('Library v2: Knowledge filters, saved filters, Daily count', () =>
     await page.getByRole('dialog').getByRole('button', { name: 'Done' }).click()
     await expect(page.getByText('Saved filter “This week”')).toBeVisible()
     const panel = page.getByTestId('panel-saved')
-    await expect(panel.getByRole('button', { name: 'This week', exact: true })).toBeVisible()
+    await expect(
+      panel.getByRole('button', { name: 'This week', exact: true }),
+    ).toBeVisible()
     // Reset, then apply it from the side panel (opens Knowledge).
     await page.getByTestId('know-date').selectOption('any')
     await page.getByTestId('tab-books').click()
@@ -572,7 +574,9 @@ test.describe('Library v2: Knowledge filters, saved filters, Daily count', () =>
     await panel.getByRole('button', { name: /Remove saved filter/ }).click()
     await expect(page.getByTestId('panel-saved-empty')).toBeVisible()
     await page.getByRole('button', { name: 'Undo' }).click()
-    await expect(panel.getByRole('button', { name: 'This week', exact: true })).toBeVisible()
+    await expect(
+      panel.getByRole('button', { name: 'This week', exact: true }),
+    ).toBeVisible()
   })
 
   test('LB-B43 Daily Highlights: pick 3, 5 or 10 a day and it is remembered', async ({
@@ -599,6 +603,57 @@ test.describe('Library v2: Knowledge filters, saved filters, Daily count', () =>
       'aria-checked',
       'true',
     )
+  })
+})
+
+test.describe('Library v2: Themes, Journal and Tags map (Professional)', () => {
+  test('LB-P17/P18 tags assigned from the book menu, a tag becomes a theme page with Export, Tags map and Journal work', async ({
+    page,
+  }) => {
+    await openLibrary(page, { level: 'professional' })
+    await importBook(page, 'Alpha Book')
+    for (const id of ['themes', 'journal', 'tags'])
+      await expect(page.getByTestId(`tab-${id}`)).toBeVisible()
+    // Assign a new tag to the book (Tag picker, assign mode).
+    await page.getByTestId('source-menu-button').click()
+    await page.getByRole('menuitem', { name: 'Tags' }).click()
+    const search = page.getByPlaceholder('Find or create a tag')
+    await search.fill('habits')
+    await page
+      .getByText(/Create/)
+      .first()
+      .click()
+    await page.keyboard.press('Escape')
+    // Themes: any tag becomes a page.
+    await page.getByTestId('tab-themes').click()
+    await expect(page.getByText('No themes yet')).toBeVisible()
+    await page.getByTestId('theme-pick').selectOption({ label: '#habits' })
+    await page.getByTestId('theme-new').click()
+    await page.getByTestId('theme-card').click()
+    const tp = page.getByTestId('theme-page')
+    await expect(tp).toContainText('#habits')
+    await expect(tp.getByRole('button', { name: 'Alpha Book' })).toBeVisible()
+    const dl = page.waitForEvent('download')
+    await page.getByTestId('theme-export').click()
+    expect((await dl).suggestedFilename()).toContain('habits')
+    await page.getByTestId('theme-delete').click()
+    await expect(page.getByTestId('themes-tab')).toBeVisible()
+    await page.getByRole('button', { name: 'Undo' }).click()
+    await expect(page.getByTestId('theme-card')).toHaveCount(1)
+    // Tags map.
+    await page.getByTestId('tab-tags').click()
+    await expect(page.getByTestId('tag-node').first()).toContainText('habits')
+    await page.getByTestId('tag-node').first().click()
+    await expect(page.getByTestId('theme-page')).toContainText('Alpha Book')
+    // Journal.
+    await page.getByTestId('tab-journal').click()
+    await page.getByTestId('journal-new').click()
+    await page.getByTestId('journal-read').fill('Chapter one')
+    await page.getByTestId('journal-question').fill('Why?')
+    await page.getByTestId('journal-save').click()
+    await expect(page.getByTestId('journal-list')).toContainText('Chapter one')
+    await page.getByRole('button', { name: 'Undo' }).click()
+    await expect(page.getByTestId('journal-list')).toHaveCount(0)
   })
 })
 

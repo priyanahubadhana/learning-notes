@@ -2,6 +2,12 @@
 
 Current phase only. Older entries are in [ARCHIVE.md](ARCHIVE.md).
 
+## 2026-11-12 (Slice 6 second pass: Library v2 Knowledge filters, saved filters, themes)
+
+- **What:** behind library.v2: Knowledge Type / Tag / Date filters, saved filters (Knowledge menu and Professional side panel), Daily Highlights 3 / 5 / 10 a day, long lists drawn in steps (1,000+ books), Professional tabs Themes (a tag becomes a page, with Export), Journal and Tags map.
+- **Why:** items left after the first pass of the approved mock v2.
+- **Files:** src/library/v2/* (Knowledge, Themes, knowledgeFilter, themeLogic, windowed, libraryPrefs), src/reader/annotations/DailyHighlights.tsx (optional count), src/i18n/*/libraryV2.ts, e2e/libraryV2.spec.ts, docs/plans/library-v2-spec.md.
+
 ## 2026-11-12 (Slice 6: Library v2, behind library.v2)
 
 - **What:** Library v2 built behind the OFF switch library.v2: Continue reading with covers, one + Add menu, shelves only in the side panel, More sheet with an active-filter chip, the shared Tag picker wired into Library (filter and assign), Knowledge with highlights first, preview and Jump, Export with What to include (Markdown and CSV), Professional row that stays on one line at 820 px, grouped search, list view, Select with Tag / Status / Move to. Collections, manual status and view choices are kept in a small local store for now.

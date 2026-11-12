@@ -150,4 +150,36 @@ export const hiLibraryV2 = {
   'lib2.know.date.week': 'इस सप्ताह',
   'lib2.know.date.month': 'इस महीने',
   'lib2.daily.count': 'प्रति दिन',
+  'lib2.tab.themes': 'थीम',
+  'lib2.tab.journal': 'जर्नल',
+  'lib2.tab.tags': 'टैग',
+  'lib2.themes.remove': 'थीम हटाएँ',
+  'lib2.themes.removed': 'थीम हटाई गई',
+  'lib2.themes.added': 'थीम जोड़ी गई',
+  'lib2.themes.all': 'सभी थीम',
+  'lib2.themes.count': 'इस टैग वाले {n} आइटम',
+  'lib2.themes.tagEmpty': 'अभी किसी में यह टैग नहीं है।',
+  'lib2.themes.intro':
+    'कोई भी टैग एक थीम पेज बन सकता है जो उस टैग वाली सभी किताबें, नोट्स और हाइलाइट जमा करता है।',
+  'lib2.themes.none': 'अभी कोई थीम नहीं',
+  'lib2.themes.noneHint':
+    'किसी टैग को थीम बनाएँ ताकि उसकी सब चीज़ें साथ दिखें।',
+  'lib2.themes.books': '{n} किताबें',
+  'lib2.themes.pick': 'एक टैग चुनें',
+  'lib2.themes.new': 'टैग से नई थीम',
+  'lib2.tags.intro':
+    'एक टैग सब कुछ जमा करता है। उसका पेज खोलने के लिए नाम दबाएँ।',
+  'lib2.tags.none':
+    'अभी कोई टैग नहीं। किसी किताब में टैग जोड़ें, वह यहाँ दिखेगा।',
+  'lib2.journal.saved': 'प्रविष्टि सहेजी गई',
+  'lib2.journal.noBook': 'कोई किताब नहीं',
+  'lib2.journal.read': 'मैंने क्या पढ़ा',
+  'lib2.journal.struck': 'मुझे क्या खास लगा',
+  'lib2.journal.question': 'एक सवाल',
+  'lib2.journal.new': 'नई प्रविष्टि',
+  'lib2.journal.none': 'अभी कोई प्रविष्टि नहीं',
+  'lib2.journal.noneHint':
+    'पढ़ने के बाद एक छोटा नोट याद रखने में मदद करता है। पहला जोड़ें।',
+  'lib2.journal.remove': 'प्रविष्टि हटाएँ',
+  'lib2.journal.removed': 'प्रविष्टि हटाई गई',
 }

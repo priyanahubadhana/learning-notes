@@ -25,6 +25,17 @@ export interface SavedFilter {
   tagId: string
 }
 
+export interface JournalEntry {
+  id: string
+  /** Book page id ('' = none). */
+  book: string
+  read: string
+  struck: string
+  question: string
+  /** UTC ms. */
+  at: number
+}
+
 export interface LibraryPrefs {
   shelf: ShelfId
   type: SourceFilter
@@ -46,6 +57,9 @@ export interface LibraryPrefs {
   /** Page id to the status set by hand (wins over the automatic one). */
   manual: Record<string, ManualStatus>
   recentAll: boolean
+  /** Tag ids that are theme pages (Professional). */
+  themes: string[]
+  journal: JournalEntry[]
   /** Knowledge filters saved by name (Professional). */
   saved: SavedFilter[]
   /** Daily Highlights a day: 3, 5 or 10. */
@@ -72,6 +86,8 @@ export const DEFAULT_PREFS: LibraryPrefs = {
   membership: {},
   manual: {},
   recentAll: false,
+  themes: [],
+  journal: [],
   saved: [],
   dailyCount: 5,
   openSaved: '',
@@ -140,12 +156,36 @@ export function cleanPrefs(raw: unknown): LibraryPrefs {
     membership,
     manual,
     recentAll: false,
+    themes: Array.isArray(raw.themes)
+      ? [...new Set(raw.themes.filter((x): x is string => str(x, 64)))].slice(
+          0,
+          200,
+        )
+      : [],
+    journal: cleanJournal(raw.journal),
     saved: cleanSaved(raw.saved),
     dailyCount:
       raw.dailyCount === 3 || raw.dailyCount === 10 ? raw.dailyCount : 5,
     openSaved:
       typeof raw.openSaved === 'string' ? raw.openSaved.slice(0, 64) : '',
   }
+}
+
+function cleanJournal(raw: unknown): JournalEntry[] {
+  if (!Array.isArray(raw)) return []
+  const text = (v: unknown, n: number) =>
+    typeof v === 'string' ? v.slice(0, n) : ''
+  return raw
+    .filter((x): x is Record<string, unknown> => isObj(x) && str(x.id, 64))
+    .slice(0, 2000)
+    .map((x) => ({
+      id: x.id as string,
+      book: text(x.book, 64),
+      read: text(x.read, 500),
+      struck: text(x.struck, 500),
+      question: text(x.question, 500),
+      at: typeof x.at === 'number' && Number.isFinite(x.at) ? x.at : 0,
+    }))
 }
 
 const SAVED_TYPES = ['all', 'highlight', 'note', 'bookmark']

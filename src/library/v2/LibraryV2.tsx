@@ -45,6 +45,7 @@ import {
   type SortKey,
 } from './libraryPrefs'
 import { MoreSheet } from './MoreSheet'
+import { JournalTab, TagsMapTab, ThemesTab } from './Themes'
 import { useWindowed } from './windowed'
 import { ShelfButton } from './ShelvesPanel'
 import { shelfName } from './shelfNames'
@@ -59,7 +60,7 @@ import { TagAssignPicker, TagFilterPicker } from './tagWiring'
 
 const PromptsDialog = lazy(() => import('../../prompts/PromptsDialog'))
 
-type Tab = 'books' | 'knowledge'
+type Tab = 'books' | 'knowledge' | 'themes' | 'journal' | 'tags'
 const TYPES: SourceFilter[] = ['all', 'books', 'videos', 'articles', 'pasted']
 const SORTS: SortKey[] = ['recent', 'added', 'title', 'author', 'progress']
 const STATUS_FILTERS = ['any', 'want', 'reading', 'finished'] as const
@@ -402,9 +403,12 @@ export function LibraryV2({
           <div
             role="tablist"
             aria-label={t('library.title')}
-            className="flex flex-1 gap-1"
+            className="flex min-w-0 flex-1 gap-1 overflow-x-auto"
           >
-            {(['books', 'knowledge'] as const).map((x) => (
+            {(pro
+              ? (['books', 'knowledge', 'themes', 'journal', 'tags'] as const)
+              : (['books', 'knowledge'] as const)
+            ).map((x) => (
               <button
                 key={x}
                 type="button"
@@ -415,7 +419,7 @@ export function LibraryV2({
                   setTab(x)
                   setExportFocus(false)
                 }}
-                className={`min-h-11 rounded-full px-4 text-sm ${tab === x ? 'bg-accent/10 font-semibold text-ink' : 'text-muted hover:bg-hover'}`}
+                className={`min-h-11 shrink-0 rounded-full px-4 text-sm ${tab === x ? 'bg-accent/10 font-semibold text-ink' : 'text-muted hover:bg-hover'}`}
               >
                 {t(`lib2.tab.${x}`)}
               </button>
@@ -532,7 +536,13 @@ export function LibraryV2({
         </p>
       )}
 
-      {tab === 'knowledge' ? (
+      {tab === 'themes' && pro ? (
+        <ThemesTab db={db} pages={all} onOpenPage={onOpenPage} />
+      ) : tab === 'journal' && pro ? (
+        <JournalTab pages={all} />
+      ) : tab === 'tags' && pro ? (
+        <TagsMapTab db={db} pages={all} onOpenPage={onOpenPage} />
+      ) : tab === 'knowledge' ? (
         <Knowledge
           db={db}
           search={search}

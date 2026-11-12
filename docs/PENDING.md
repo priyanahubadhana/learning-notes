@@ -346,3 +346,7 @@ Mock: claude.ai/artifact/UNS1UzPv4wb6errBrtpv4h; sources docs/mockups/toolbar-v8
 ## Build master plan (Fable, 12 Nov 2026): waiting for the owner's answers
 
 Plan: [plans/build-master-plan.md](plans/build-master-plan.md). Nothing built. Text box v2 decision: keep the layout engine and saved data, rebuild the touch / select / drag layer on the new foundation. Before the first night the owner answers the 8 questions in section 8 (release route, Fable and credits, GitHub test minutes, picks for batches 2 to 6, text box v2, new-page card, on-device database changes, PC stays on). Then say "start the build".
+
+## Favourites row + Organise + long-press strip + Paste: APPROVED (owner, 12 Nov 2026)
+
+Pictures and mock: docs/mockups/favourites/. Favourites live inside the tool row on every tab, with "+" (Add form: tool → Current setup / Any preset → ticks → preview → name) and "☰" (Organise sheet: live preview, big rows, drag handle + ▲▼ + Move to start/end, remove with Undo, Reset, Add, Done; full-height on phone). The ★ custom tool is removed. Long-press = right-click = a horizontal GoodNotes-style strip above the selection; paste keeps the original by default, Paste ▾ offers formats, and Settings has a default paste format. Fix in the build: the B/I/U bar covering the selection handles; phone "More favourites" items must be tappable.

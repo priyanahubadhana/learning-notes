@@ -165,3 +165,16 @@
     transform: translateY(100%);
   }
 }
+
+/* Gallery examples sit on a plain page, where the blur shows nothing, and a
+   dozen 28 px blurs at once stall software-rendered WebKit (CI). */
+.fb-sheet[data-mode='inline'] {
+  -webkit-backdrop-filter: none;
+  backdrop-filter: none;
+}
+@media (prefers-reduced-motion: reduce) {
+  .fb-sheet[data-mode='floating'],
+  .fb-sheet[data-mode='floating'][data-closing] {
+    animation-duration: 0.01ms;
+  }
+}

@@ -111,6 +111,23 @@ test.describe('Parts gallery: menus', () => {
     }
   })
 
+  test('SP-40 Beginner shows exactly Cut, Copy, Paste, Delete and more', async ({
+    page,
+  }) => {
+    await page.addInitScript(() =>
+      localStorage.setItem(
+        'learning-notes:level',
+        JSON.stringify({ level: 'beginner', unlocked: [] }),
+      ),
+    )
+    await open(page, { width: 1180, height: 820 })
+    await openAt(page, 'middle')
+    const names = await bar(page)
+      .getByRole('menuitem')
+      .evaluateAll((els) => els.map((e) => e.getAttribute('aria-label')))
+    expect(names).toEqual(['Cut', 'Copy', 'Paste', 'Delete', 'More actions'])
+  })
+
   const DEVICES = [
     { name: 'iPad landscape', width: 1180, height: 820, touch: true },
     { name: 'iPad portrait', width: 820, height: 1180, touch: true },

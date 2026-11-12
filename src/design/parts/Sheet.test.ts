@@ -26,6 +26,41 @@ describe('Sheet', () => {
     expect($('[data-testid="fb-sheet-foot"]')).not.toBeNull()
   })
 
+  it('docks right from 1024 px wide: page beside it keeps working, not modal', () => {
+    const w = window.innerWidth
+    Object.defineProperty(window, 'innerWidth', {
+      value: 1180,
+      configurable: true,
+    })
+    try {
+      mount(sheet())
+      expect($('[role="dialog"]')?.getAttribute('aria-modal')).toBeNull()
+    } finally {
+      Object.defineProperty(window, 'innerWidth', {
+        value: w,
+        configurable: true,
+      })
+    }
+  })
+
+  it('fills the screen below 1024 px: modal, with a 44 px close button', () => {
+    const w = window.innerWidth
+    Object.defineProperty(window, 'innerWidth', {
+      value: 390,
+      configurable: true,
+    })
+    try {
+      mount(sheet())
+      expect($('[role="dialog"]')?.getAttribute('aria-modal')).toBe('true')
+      expect(byLabel('Close')).not.toBeNull()
+    } finally {
+      Object.defineProperty(window, 'innerWidth', {
+        value: w,
+        configurable: true,
+      })
+    }
+  })
+
   it('closes with the close button (after the closing motion)', () => {
     vi.useFakeTimers()
     const onClose = vi.fn()

@@ -70,3 +70,9 @@
     transform: translateY(-100%);
   }
 }
+
+@media (prefers-reduced-motion: reduce) {
+  .fb-banner {
+    animation-duration: 0.01ms;
+  }
+}

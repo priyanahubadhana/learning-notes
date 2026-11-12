@@ -289,3 +289,11 @@
 .cs-pick[popover] {
   color: var(--color-ink);
 }
+
+/* Gallery examples sit on a plain page, where the blur shows nothing, and a
+   dozen 28 px blurs at once stall software-rendered WebKit (CI). */
+.cs[data-mode='inline'] .cs__bar,
+.cs-pick[data-inline] {
+  -webkit-backdrop-filter: none;
+  backdrop-filter: none;
+}

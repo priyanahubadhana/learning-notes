@@ -28,6 +28,8 @@ import { esFlags } from './flags'
 import { esAiBuild } from './aibuild'
 import { esAiJobs } from './aijobs'
 import { esParts } from './parts'
+import { esNotebooksV2 } from './notebooksV2'
+import { esSearchV2 } from './searchV2'
 
 export const es: Record<string, string> = {
   ...esAccounts,
@@ -59,4 +61,6 @@ export const es: Record<string, string> = {
   ...esAiBuild,
   ...esAiJobs,
   ...esParts,
+  ...esNotebooksV2,
+  ...esSearchV2,
 }

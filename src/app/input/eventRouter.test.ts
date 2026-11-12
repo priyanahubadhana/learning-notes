@@ -1,5 +1,8 @@
+/**
+ * @vitest-environment jsdom
+ */
 import { afterEach, describe, expect, it, vi } from 'vitest'
-import { JSDOM } from 'jsdom'
+// The smoke tests use the page vitest provides (jsdom).
 import {
   PRIORITY,
   createEventRouter,
@@ -204,14 +207,12 @@ describe('lazy listeners', () => {
 
   it('importing the module attaches nothing', async () => {
     const add = vi.fn()
-    vi.stubGlobal('document', { addEventListener: add })
-    vi.stubGlobal('window', { addEventListener: add })
     try {
       vi.resetModules()
       await import('./eventRouter')
       expect(add).not.toHaveBeenCalled()
     } finally {
-      vi.unstubAllGlobals()
+      resetEventRouterForTests()
     }
   })
 })
@@ -394,7 +395,9 @@ describe('changes during delivery', () => {
   it('last unsubscribe during delivery removes the listener', () => {
     const f = fakeTargets()
     const r = createEventRouter(f.targets)
-    const off = r.subscribe('keydown', () => off())
+    const off: () => void = r.subscribe('keydown', () => {
+      off()
+    })
     f.fire('doc', 'keydown', node())
     expect(r.domListenerCount()).toBe(0)
     expect(f.live()).toBe(0)
@@ -564,9 +567,10 @@ describe('counts', () => {
 
 describe('jsdom smoke', () => {
   it('works against a real document and window', () => {
-    const dom = new JSDOM('<!doctype html><div id="a"><b id="in"></b></div>')
-    const { document: d, window: w } = dom.window
-    const r = createEventRouter({ doc: d, win: w as unknown as Window })
+    document.body.innerHTML = '<div id="a"><b id="in"></b></div>'
+    const d = document
+    const w = window
+    const r = createEventRouter({ doc: d, win: w })
     const log: string[] = []
     const scoped: string[] = []
     r.subscribe('keydown', (e) => void log.push(e.key))
@@ -587,22 +591,16 @@ describe('jsdom smoke', () => {
     expect(r.domListenerCount()).toBe(0)
     d.body.dispatchEvent(key('z'))
     expect(log).toHaveLength(4)
-    w.close()
   })
 
   it('the app router is a lazy singleton on the real document', () => {
-    const dom = new JSDOM('<!doctype html>')
-    vi.stubGlobal('document', dom.window.document)
-    vi.stubGlobal('window', dom.window)
     try {
       const r1 = getEventRouter()
       expect(getEventRouter()).toBe(r1)
       expect(r1.domListenerCount()).toBe(0)
       const h = vi.fn()
       const off = onRouted('keyup', h)
-      dom.window.document.body.dispatchEvent(
-        new dom.window.KeyboardEvent('keyup', { bubbles: true }),
-      )
+      document.body.dispatchEvent(new KeyboardEvent('keyup', { bubbles: true }))
       expect(h).toHaveBeenCalledTimes(1)
       expect(r1.domListenerCount()).toBe(1)
       off()
@@ -612,8 +610,7 @@ describe('jsdom smoke', () => {
       expect(r1.domListenerCount()).toBe(0)
       expect(getEventRouter()).not.toBe(r1)
     } finally {
-      vi.unstubAllGlobals()
-      dom.window.close()
+      resetEventRouterForTests()
     }
   })
 })

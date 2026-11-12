@@ -194,7 +194,7 @@ export function createEventRouter(targets?: RouterTargets): EventRouter {
     return (e: Event) => {
       if (
         (domType === 'blur' || domType === 'focus') &&
-        e.target !== (t.win as unknown)
+        isNode(e.target) // an element's or the page's own focus, not the window's
       )
         return
       if (domType === 'visibilitychange') {

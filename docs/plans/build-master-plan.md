@@ -313,3 +313,13 @@ This is a guess and depends on the usage limits and on how fast mock-ups are app
 6. **New page:** show the start card every time (today), or only until you choose "Always start with…"? My pick: only until you choose.
 7. **On-device database changes** (for example a new table for AI jobs): may they be built and tested on the side copy without asking each time? They reach real devices only at a release. Supabase (online) changes always wait for your OK. My pick: yes.
 8. **Night setup:** can the PC stay on, awake, with the Claude window open on build nights? If not, work stops at the first limit and continues when you type "continue". My pick: keep it on and turn off sleep for those nights.
+
+## Owner answers to the open questions (12 Nov 2026)
+
+- Release: every night's work goes to a free preview link; the live app updates nightly ONLY when all tests pass; new parts arrive switched OFF (Settings › "Try new features"); the owner tests whenever and gives feedback; rollback always ready. The work never waits for the owner.
+- GitHub minutes: the repo is PUBLIC, so standard runners are free and unlimited; no night cap (never pay).
+- Fable may run at night (Max plan covers it).
+- Batches 2–6 with Fable's picks: yes. Text box v2 (keep the engine and data, rebuild the touch layer): yes. New-page card until "Always start with…": yes.
+- On-device storage changes: allowed with a safe upgrade + backup; the online database (Supabase) always asks the owner.
+- PC stays on, awake, Claude window open on build nights.
+- FIRST JOB of the first night: fix the 3 failures blocking today's deploy (lint; e2e claudeSettings.spec.ts:15; copyFormats.spec.ts:97, run 43154265787), deploy, then tell the owner to finish the Claude connector.

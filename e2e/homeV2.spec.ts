@@ -262,3 +262,135 @@ test('Pending items lists open tasks and a tick finishes one', async ({
     'Write essay',
   )
 })
+
+test('Edit layout shows the edit bar and per-widget controls; text cannot be selected', async ({
+  page,
+}) => {
+  await openHome(page)
+  await expect(page.getByTestId('home-edit')).toHaveText('Edit layout')
+  await edit(page)
+  const bar = page.getByTestId('home-edit-bar')
+  for (const name of ['Done', 'Cancel', 'Reset'])
+    await expect(bar.getByRole('button', { name, exact: true })).toBeVisible()
+  const w = widget(page, 'top3')
+  await expect(w.locator('.rord-grip')).toBeVisible()
+  await expect(w.getByTestId('move-up')).toBeVisible()
+  await expect(w.getByTestId('move-down')).toBeVisible()
+  await expect(w.getByRole('radio')).toHaveCount(3)
+  await expect(w.getByTestId('source-top3')).toBeVisible()
+  await expect(page.getByTestId('widget-top3')).toHaveCSS('user-select', 'none')
+})
+
+test('up/down buttons and Alt+arrows move a widget to the next spot that fits', async ({
+  page,
+}) => {
+  await openHome(page)
+  await edit(page)
+  const start = await ids(page)
+  expect(start.indexOf('top3')).toBeLessThan(start.indexOf('pending'))
+  await widget(page, 'top3').getByTestId('move-down').click()
+  const a = await ids(page)
+  expect(a.indexOf('top3')).toBeGreaterThan(a.indexOf('pending'))
+  await widget(page, 'top3').focus()
+  await page.keyboard.press('Alt+ArrowUp')
+  const b = await ids(page)
+  expect(b.indexOf('top3')).toBeLessThan(b.indexOf('pending'))
+  expect(b).toHaveLength(6)
+})
+
+test('a widget with nothing to show is still there with a calm line', async ({
+  page,
+}) => {
+  await openHome(page)
+  await expect(page.getByTestId('widget-cards')).toContainText(
+    'No cards are due.',
+  )
+  await expect(page.getByTestId('widget-pending')).toContainText(
+    'Nothing pending.',
+  )
+  await expect(page.getByTestId('widget-top3')).toBeVisible()
+  await expect(page.getByTestId('widget-record')).toBeVisible()
+})
+
+test('Pending items shows at most 5 and says how many more', async ({
+  page,
+}) => {
+  await openHome(page)
+  await page.getByRole('tab', { name: 'Tasks', exact: true }).click()
+  for (let i = 1; i <= 7; i++) {
+    await page.getByTestId('quick-add').fill(`Chore ${i}`)
+    await page.getByTestId('quick-add').press('Enter')
+  }
+  await page.getByRole('tab', { name: 'Today', exact: true }).click()
+  await expect(page.getByTestId('pending-title')).toHaveText(
+    'Pending items (7)',
+  )
+  await expect(
+    page.getByTestId('pending-card').getByRole('checkbox'),
+  ).toHaveCount(5)
+  await expect(page.getByTestId('pending-card')).toContainText('2 more')
+})
+
+test('reload keeps the saved layout (order and sizes)', async ({ page }) => {
+  await openHome(page)
+  await edit(page)
+  await widget(page, 'top3').getByTestId('move-down').click()
+  await page.getByTestId('size-timer-m').click()
+  const order = await ids(page)
+  await page.getByRole('button', { name: 'Done', exact: true }).click()
+  await page.reload()
+  await closeCorner(page)
+  await page.locator('[data-space="home"]').click()
+  await expect(page.getByTestId('home-widgets')).toBeVisible()
+  expect(await ids(page)).toEqual(order)
+  await expect(page.getByTestId('widget-timer')).toHaveAttribute(
+    'data-size',
+    'm',
+  )
+})
+
+async function inside(page: Page) {
+  const gb = await box(page.getByTestId('home-widgets'))
+  for (const id of (await ids(page)) as string[]) {
+    await settled(widget(page, id))
+    const b = await box(widget(page, id))
+    expect(b.x).toBeGreaterThanOrEqual(gb.x - 1)
+    expect(b.x + b.width).toBeLessThanOrEqual(gb.x + gb.width + 1)
+  }
+}
+
+for (const dev of [
+  { name: 'phone', w: 390, h: 844 },
+  { name: 'iPad portrait', w: 820, h: 1180 },
+]) {
+  test(`${dev.name}: widgets stay inside the grid, sizes, moves and pop-up work`, async ({
+    page,
+  }) => {
+    await page.setViewportSize({ width: dev.w, height: dev.h })
+    await openHome(page)
+    await inside(page)
+    await edit(page)
+    for (const id of ['cards', 'briefing', 'top3', 'pending']) {
+      await page.getByTestId(`size-${id}-s`).click()
+    }
+    await inside(page)
+    await page.getByTestId('size-top3-l').click()
+    await expect(page.getByTestId('widget-top3')).toHaveAttribute(
+      'data-size',
+      'l',
+    )
+    await inside(page)
+    // the full-row widget starts at the left edge: it never leaves a hole
+    const gb = await box(page.getByTestId('home-widgets'))
+    await settled(widget(page, 'top3'))
+    expect((await box(widget(page, 'top3'))).x).toBeLessThanOrEqual(gb.x + 1)
+    await widget(page, 'pending').getByTestId('move-up').click()
+    await inside(page)
+    expect(await ids(page)).toHaveLength(6)
+    await page.getByRole('button', { name: 'Done', exact: true }).click()
+    await page.getByTestId('source-timer').click()
+    await expect(page.getByTestId('home-source-popup')).toBeVisible()
+    await page.getByTestId('home-source-close').click()
+    await expect(page.getByTestId('home-source-popup')).toHaveCount(0)
+  })
+}

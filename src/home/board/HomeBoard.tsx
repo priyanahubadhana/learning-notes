@@ -11,6 +11,7 @@ import { TimerCard } from '../TimerCard'
 import { Top3 } from '../Top3'
 import {
   BOARD_COLS,
+  columnsFor,
   DEFAULT_LAYOUT,
   SIZES,
   spanOf,
@@ -160,10 +161,11 @@ function useGridCols() {
     const ul = el?.querySelector('ul')
     if (!el || !ul) return
     const read = () => {
-      const n = getComputedStyle(ul)
-        .gridTemplateColumns.split(' ')
-        .filter(Boolean).length
-      if (n > 0) setCols(n)
+      const cs = getComputedStyle(ul)
+      const gap = parseFloat(cs.columnGap) || 0
+      const rem =
+        parseFloat(getComputedStyle(document.documentElement).fontSize) || 16
+      setCols(columnsFor(ul.clientWidth, gap, 9 * rem))
     }
     read()
     if (typeof ResizeObserver === 'undefined') return
@@ -207,7 +209,7 @@ function WidgetFrame({
           <div
             role="radiogroup"
             aria-label={t('home.v2.size', { name })}
-            className="inline-flex"
+            className="flex w-full"
           >
             {SIZES.map((size) => (
               <button
@@ -218,7 +220,7 @@ function WidgetFrame({
                 aria-label={t(`home.v2.size.${size}.name` as MessageKey)}
                 data-testid={`size-${slot.id}-${size}`}
                 onClick={() => onSize(size)}
-                className={`min-h-11 min-w-11 rounded-lg text-sm ${
+                className={`min-h-11 min-w-0 flex-1 rounded-lg text-sm ${
                   slot.size === size
                     ? 'bg-hover font-semibold text-accent'
                     : 'text-ink-soft hover:bg-hover'

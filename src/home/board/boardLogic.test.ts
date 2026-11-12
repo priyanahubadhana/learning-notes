@@ -7,6 +7,7 @@ import {
   setSize,
   settleWidget,
   spanOf,
+  columnsFor,
   WIDGET_IDS,
   type Layout,
 } from './boardLogic'
@@ -142,5 +143,15 @@ describe('real column count (phone and narrow widths)', () => {
         2,
       ),
     ).toBe(true)
+  })
+})
+
+describe('columnsFor', () => {
+  it('matches the grid css at phone, iPad and desktop widths', () => {
+    expect(columnsFor(358, 12, 144)).toBe(2)
+    expect(columnsFor(260, 12, 144)).toBe(1)
+    expect(columnsFor(736, 12, 144)).toBe(4)
+    expect(columnsFor(2000, 12, 144)).toBe(4)
+    expect(columnsFor(0, 12, 144)).toBe(4)
   })
 })

@@ -125,3 +125,20 @@ export function settleWidget(
   }
   return layout
 }
+
+/**
+ * How many columns the shared grid really has for a list `width` px wide.
+ * Same maths as the grid's css (auto-fill, each cell at least `minCell` px and
+ * a quarter of the row): measured from the width, never from the rendered
+ * tracks (a wide widget on a narrow screen would make extra empty tracks).
+ */
+export function columnsFor(
+  width: number,
+  gap: number,
+  minCell: number,
+): number {
+  if (!(width > 0)) return BOARD_COLS
+  const cell = Math.max(minCell, width / BOARD_COLS - gap)
+  const n = Math.floor((width + gap) / (cell + gap))
+  return Math.max(1, Math.min(BOARD_COLS, n))
+}

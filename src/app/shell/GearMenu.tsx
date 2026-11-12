@@ -28,6 +28,15 @@ export interface GearActions {
   onOpenHelp: () => void
 }
 
+/**
+ * The shared card announces itself as a dialog. This menu is a region, like
+ * today's corner panel, so a real dialog opened from it (Delete forever) is
+ * the only dialog on the screen.
+ */
+function asRegion(el: HTMLElement | null): void {
+  el?.closest('[role="dialog"]')?.setAttribute('role', 'region')
+}
+
 const ROW =
   'flex min-h-11 w-full items-center gap-2 rounded-lg px-2.5 text-left text-sm hover:bg-hover'
 
@@ -66,7 +75,7 @@ export function GearMenu({
           testId="corner-panel"
           onClose={() => setAnchor(null)}
         >
-          <div className="flex flex-col gap-0.5">
+          <div ref={asRegion} className="flex flex-col gap-0.5">
             <button
               type="button"
               onClick={pick(actions.onOpenSettings)}

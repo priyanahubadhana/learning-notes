@@ -1,6 +1,7 @@
 import { useEffect, useRef, useState } from 'react'
 import { applyLanguage } from '../../i18n/languages'
 import { Dialog } from '../../app/shell/Dialog'
+import { EdgeHandle } from '../../app/shell/EdgeHandle'
 import { FloatingBar } from '../../app/shell/FloatingBar'
 import { MoreSheet } from '../../app/shell/MoreSheet'
 import { PopMenu } from '../../app/shell/PopMenu'
@@ -24,6 +25,7 @@ export default function ShellSection() {
   const [name, setName] = useState('Cells')
   const [pop, setPop] = useState(false)
   const [popLow, setPopLow] = useState(false)
+  const [edge, setEdge] = useState(false)
   const [said, setSaid] = useState('Nothing yet')
   const popBtn = useRef<HTMLButtonElement | null>(null)
   const lowBtn = useRef<HTMLButtonElement | null>(null)
@@ -158,6 +160,14 @@ export default function ShellSection() {
           </button>
         </Demo>
         <Demo state="bars" label="Floating bars and chips">
+          <button
+            type="button"
+            className={btn}
+            data-testid="open-edge"
+            onClick={() => setEdge(true)}
+          >
+            Show edge handle
+          </button>
           <FloatingBar id="demo-reader" label="Reader bar">
             <button type="button" className={btn}>
               Aa
@@ -171,6 +181,15 @@ export default function ShellSection() {
         </Demo>
       </Cells>
       <ToastHost />
+      {edge && (
+        <EdgeHandle
+          label="Tool bar"
+          onShow={() => {
+            setEdge(false)
+            setSaid('Tool bar shown')
+          }}
+        />
+      )}
       {sheet && (
         <MoreSheet
           title="Notebook options"

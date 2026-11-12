@@ -232,6 +232,38 @@ test('SH-13 two bars minimise into two stacked chips; each restores only its own
   await expect(page.getByTestId('floating-bar')).toHaveCount(1)
 })
 
+test('SH-13 the edge handle drags, snaps to the nearest side, remembers, and a tap shows the bar', async ({
+  page,
+}) => {
+  await open(page, { width: 1366, height: 800 })
+  await page.getByTestId('open-edge').click()
+  const handle = page.getByTestId('edge-handle')
+  await expect(handle).toHaveAttribute('data-edge', 'right')
+  await expect(handle).toHaveAttribute(
+    'aria-label',
+    'Show Tool bar (drag to move)',
+  )
+  const box = (await handle.boundingBox())!
+  await page.mouse.move(box.x + box.width / 2, box.y + box.height / 2)
+  await page.mouse.down()
+  await page.mouse.move(300, 500, { steps: 6 })
+  await page.mouse.up()
+  await expect(handle).toHaveAttribute('data-edge', 'left')
+  await expect(page.getByTestId('shell-said')).not.toHaveText('Tool bar shown')
+  const moved = (await handle.boundingBox())!
+  expect(moved.x).toBeLessThanOrEqual(1)
+  expect(Math.round(moved.y + moved.height / 2)).toBeGreaterThan(450)
+  await page.reload()
+  await page.getByTestId('open-edge').click()
+  await expect(page.getByTestId('edge-handle')).toHaveAttribute(
+    'data-edge',
+    'left',
+  )
+  await page.getByTestId('edge-handle').click()
+  await expect(page.getByTestId('shell-said')).toHaveText('Tool bar shown')
+  await expect(page.getByTestId('edge-handle')).toHaveCount(0)
+})
+
 test('SH-14 layer order holds: the sheet is above a floating bar, a dialog above the sheet', async ({
   page,
 }) => {

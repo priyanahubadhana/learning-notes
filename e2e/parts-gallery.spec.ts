@@ -442,7 +442,7 @@ test.describe('Parts gallery', () => {
       const row = page.getByTestId('tabs-three')
       await row.scrollIntoViewIfNeeded()
       await row.getByTestId('tabrow-plus').click()
-      const menu = page.getByRole('menu')
+      const menu = page.getByRole('menu', { name: 'Add a tab' })
       await expect(menu).toBeVisible()
       await expect(page.getByTestId('tabrow-add').first()).toBeVisible()
       await expect(page.getByTestId('tabrow-create')).toBeVisible()

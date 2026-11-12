@@ -260,3 +260,76 @@ test.describe('AI framework: slice 5a tools through the goal box', () => {
     await expect(page.getByTestId('aifw-redo')).toBeVisible()
   })
 })
+
+test.describe('AI framework: slice 5b and 5c tools through the goal box', () => {
+  test.use({ viewport: { width: 1200, height: 900 } })
+
+  test('a mind map with its colours, paper and page path run as one job', async ({
+    page,
+  }) => {
+    const s = (
+      id: string,
+      tool: string,
+      args: object,
+      dependsOn?: string[],
+    ) => ({
+      id,
+      tool,
+      toolVersion: 1,
+      args,
+      ...(dependsOn ? { dependsOn } : {}),
+    })
+    const plan = JSON.stringify({
+      steps: [
+        s('s1', 'notebooks.create', { title: 'Goal nb 5b' }),
+        s(
+          's2',
+          'pages.write_notes',
+          { notebookId: { $from: 's1.notebookId' }, brief: 'Notes' },
+          ['s1'],
+        ),
+        s(
+          's3',
+          'mindmaps.add',
+          { pageId: { $from: 's2.pageId' }, outline: 'Cells\n  Nucleus' },
+          ['s2'],
+        ),
+        s(
+          's4',
+          'mindmaps.set_theme',
+          { blockId: { $from: 's3.blockId' }, theme: 'bold' },
+          ['s3'],
+        ),
+        s(
+          's5',
+          'styles.set_paper',
+          { pageId: { $from: 's2.pageId' }, paper: 'grid' },
+          ['s2'],
+        ),
+        s(
+          's6',
+          'layouts.set_path_style',
+          { pageId: { $from: 's2.pageId' }, pathStyle: 'full' },
+          ['s2'],
+        ),
+      ],
+    })
+    await openGoal(page)
+    await ask(page)
+    await page.getByTestId('aifw-goal-answer').fill(plan)
+    await page.getByTestId('aifw-goal-check').click()
+    await expect(page.getByTestId('aifw-goal-step')).toHaveCount(6)
+    await page.getByTestId('aifw-goal-run').click()
+    await expect(page.getByTestId('aifw-paste')).toHaveAttribute(
+      'data-step',
+      's2',
+    )
+    await page.getByTestId('aifw-answer').fill(PAGE_ANSWER)
+    await page.getByTestId('aifw-submit').click()
+    await expect(page.getByTestId('aifw-preview')).toBeVisible()
+    await page.getByTestId('aifw-apply').click()
+    await expect(page.getByTestId('aifw-done')).toBeVisible()
+    await page.getByTestId('aifw-undo').click()
+    await expect(page.getByTestId('aifw-redo')).toBeVisible()
+  })
+})

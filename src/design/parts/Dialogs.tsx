@@ -107,6 +107,8 @@ export function Dialog(props: BaseProps) {
     onMain()
   }
 
+  // true once the opening motion has ended (inline examples have none)
+  const [settled, setSettled] = useState(false)
   const sfx = mode === 'inline' ? '-inline' : ''
   const card = (
     <div
@@ -117,6 +119,10 @@ export function Dialog(props: BaseProps) {
       aria-labelledby={`${id}-title`}
       data-testid={props['data-testid'] ?? `fb-dialog${sfx}`}
       data-danger={danger ? '' : undefined}
+      data-settled={settled || mode === 'inline' || undefined}
+      onAnimationEnd={(e) => {
+        if (e.target === e.currentTarget) setSettled(true)
+      }}
       tabIndex={-1}
       onKeyDown={onKey}
     >

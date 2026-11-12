@@ -288,6 +288,8 @@ test.describe('Feedback parts (SP-50 to SP-56)', () => {
       const input = page.getByTestId('fb-prompt-input')
       const count = page.getByTestId('fb-prompt-count')
       await expect(input).toBeFocused()
+      // the dialog scales in; sizes are final once it says so
+      await expect(dlg).toHaveAttribute('data-settled', 'true')
       await input.fill('a'.repeat(31))
       await expect(count).toBeHidden()
       await input.fill('a'.repeat(32))

@@ -24,7 +24,9 @@ const TABLES = [
 type Table = {
   get(id: string): Promise<unknown>
   put(value: never): Promise<unknown>
-  where(field: string): { equals(v: unknown): { toArray(): Promise<unknown[]> } }
+  where(field: string): {
+    equals(v: unknown): { toArray(): Promise<unknown[]> }
+  }
   toArray(): Promise<unknown[]>
 }
 

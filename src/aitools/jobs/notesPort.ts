@@ -56,11 +56,14 @@ export class MemoryNotesPort implements NotesPort {
     return v ? structuredClone(v) : undefined
   }
   /** Every record that is not deleted, sorted: the "state" tests compare. */
-  liveSnapshot(): string {
+  liveSnapshot(ignoreUpdatedAt = false): string {
     const rows: string[] = []
     for (const [table, map] of this.tables)
       for (const v of map.values())
-        if (v.deletedAt == null) rows.push(`${table}:${JSON.stringify(v)}`)
+        if (v.deletedAt == null)
+          rows.push(
+            `${table}:${JSON.stringify(ignoreUpdatedAt ? { ...v, updatedAt: 0 } : v)}`,
+          )
     return rows.sort().join('\n')
   }
   count(table: string, includeDeleted = false) {

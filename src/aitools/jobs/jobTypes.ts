@@ -19,12 +19,7 @@ export type JobState =
   | 'cancelled'
 
 export type StepState =
-  | 'waiting'
-  | 'running'
-  | 'done'
-  | 'failed'
-  | 'skipped'
-  | 'blocked'
+  'waiting' | 'running' | 'done' | 'failed' | 'skipped' | 'blocked'
 
 export const JOB_STATES: readonly JobState[] = [
   'draft',
@@ -167,6 +162,8 @@ export interface JobStep {
   /** hash(job id, step id, tool id + version, resolved args); empty until resolved. */
   key: string
   outputs: Rec | null
+  /** Content the filler made for this key; kept so a resume never asks twice. */
+  filled?: Rec
   records: StagedRecord[]
   /** One plain line; set when the step failed or was skipped. */
   error: string | null

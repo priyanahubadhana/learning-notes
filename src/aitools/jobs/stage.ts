@@ -59,7 +59,8 @@ const str = (v: unknown) => (typeof v === 'string' ? v : undefined)
 const top = (r: Rec) => r.parentId == null
 const maxOrder = (rows: Rec[]): string | null =>
   rows.reduce<string | null>(
-    (m, r) => (typeof r.order === 'string' && (!m || r.order > m) ? r.order : m),
+    (m, r) =>
+      typeof r.order === 'string' && (!m || r.order > m) ? r.order : m,
     null,
   )
 
@@ -109,7 +110,8 @@ export async function stageStep(
   ): Promise<StagedRecord[]> => {
     const prior = priorOf(table, String(cur.id))
     const diff = Object.keys(changes).filter(
-      (k) => JSON.stringify(canon(cur[k])) !== JSON.stringify(canon(changes[k])),
+      (k) =>
+        JSON.stringify(canon(cur[k])) !== JSON.stringify(canon(changes[k])),
     )
     if (!diff.length) return []
     const value = { ...cur, ...changes, updatedAt: env.now }
@@ -155,7 +157,8 @@ export async function stageStep(
       }
       case 'pages.write_notes': {
         const page = args.page as SpecPage | undefined
-        if (!page) throw new StepError('validation', 'The page text is missing.')
+        if (!page)
+          throw new StepError('validation', 'The page text is missing.')
         const notebookId = String(args.notebookId)
         await need('notebooks', notebookId, 'notebook')
         const parentId = str(args.parentId) ?? null
@@ -201,7 +204,9 @@ export async function stageStep(
           records,
           outputs: {
             pageId,
-            cardIds: records.filter((r) => r.table === 'cards').map((r) => r.id),
+            cardIds: records
+              .filter((r) => r.table === 'cards')
+              .map((r) => r.id),
           },
         }
       }
@@ -252,13 +257,22 @@ export async function stageStep(
     const tabColour = str(args.tabColour)
     if (tabColour && !pageId)
       throw new StepError('validation', 'A tab colour needs a page.')
-    const records = await edit('notebooks', nb, fields.notebook, Number(args.baseRev) || undefined)
-    const pageChanges: Rec = { ...fields.page, ...(tabColour ? { tabColour } : {}) }
+    const records = await edit(
+      'notebooks',
+      nb,
+      fields.notebook,
+      Number(args.baseRev) || undefined,
+    )
+    const pageChanges: Rec = {
+      ...fields.page,
+      ...(tabColour ? { tabColour } : {}),
+    }
     if (Object.keys(pageChanges).length) {
       const pages = pageId
         ? [await need('pages', pageId, 'page')]
         : await rows('pages', { notebookId })
-      for (const p of pages) records.push(...(await edit('pages', p, pageChanges)))
+      for (const p of pages)
+        records.push(...(await edit('pages', p, pageChanges)))
     }
     return { records, outputs: { notebookId } }
   }
@@ -303,7 +317,8 @@ export async function stageStep(
           order: String(old.order),
         })
         const root = t.records.find((r) => r.id === t.blockId)
-        if (!root) throw new StepError('validation', 'Could not build the block.')
+        if (!root)
+          throw new StepError('validation', 'Could not build the block.')
         records.push(
           ...(await edit('blocks', old, {
             type: root.value.type,
@@ -323,10 +338,15 @@ export async function stageStep(
       let order: string
       if (op.op === 'insert') {
         const after = op.afterBlockId ? byId.get(op.afterBlockId) : undefined
-        if (!after) throw new StepError('gone', 'The block to insert after is gone.')
+        if (!after)
+          throw new StepError('gone', 'The block to insert after is gone.')
         parent = (after.parentId as string | null) ?? null
         const next = blocks
-          .filter((b) => (b.parentId ?? null) === parent && String(b.order) > String(after.order))
+          .filter(
+            (b) =>
+              (b.parentId ?? null) === parent &&
+              String(b.order) > String(after.order),
+          )
           .map((b) => String(b.order))
           .sort()[0]
         order = generateKeyBetween(String(after.order), next ?? null)

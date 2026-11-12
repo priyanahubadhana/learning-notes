@@ -41,6 +41,20 @@ const card = (page: Page, name: string) =>
   home(page).locator('[data-notebook-card]').filter({ hasText: name })
 const strip = (page: Page) => page.getByTestId('nbv2-strip')
 
+/**
+ * A Beginner's strip shows only Delete and "More actions" (the parts rule);
+ * every other item, unlocked or not, lives in that list.
+ */
+async function openMoreList(page: Page) {
+  await strip(page).getByRole('menuitem', { name: 'More actions' }).click()
+  await page.getByRole('option', { name: 'Show all' }).click()
+}
+
+async function pickFromMore(page: Page, name: string | RegExp) {
+  await openMoreList(page)
+  await page.getByRole('option', { name }).click()
+}
+
 async function openHome(page: Page) {
   const rail = page.locator('[data-space="notebooks"]')
   await rail.click()
@@ -317,7 +331,7 @@ test('NB-P03 Move to top and Undo in the strip (needs nb.move)', async ({
   await twoBooks(page)
   await unlock(page, 'nb.move')
   await card(page, 'Zeta book').click({ button: 'right' })
-  await strip(page).getByRole('menuitem', { name: 'Move to top' }).click()
+  await pickFromMore(page, 'Move to top')
   await expect(
     home(page).locator('[data-notebook-card]').first(),
   ).toContainText('Zeta book')
@@ -334,7 +348,7 @@ test('NB-P05 Add empty page in the strip adds a page and opens it (needs nb.addE
   await twoBooks(page)
   await unlock(page, 'nb.addEmptyPage')
   await card(page, 'Alpha book').click({ button: 'right' })
-  await strip(page).getByRole('menuitem', { name: 'Add empty page' }).click()
+  await pickFromMore(page, 'Add empty page')
   await expect(home(page)).toBeHidden()
 })
 
@@ -343,11 +357,14 @@ test('A Beginner sees no Professional items in the strip', async ({ page }) => {
   await twoBooks(page)
   await card(page, 'Alpha book').click({ button: 'right' })
   await expect(strip(page)).toBeVisible()
+  // Nothing is unlocked, so the whole list fits without "Show all".
+  await strip(page).getByRole('menuitem', { name: 'More actions' }).click()
+  await expect(page.getByRole('option', { name: 'Rename' })).toBeVisible()
   for (const name of [
     'Add empty page',
     'Add from template…',
     'Review this notebook',
     'Move up',
   ])
-    await expect(strip(page).getByRole('menuitem', { name })).toHaveCount(0)
+    await expect(page.getByRole('option', { name })).toHaveCount(0)
 })

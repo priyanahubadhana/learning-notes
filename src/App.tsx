@@ -38,7 +38,7 @@ import { setGlassLite, startGlassProbe } from './design/glass'
 import { ThemeContext } from './app/themeContext'
 import type { ToastAction } from './app/appUi'
 import { toggleFavourite } from './app/favourites'
-import { useFlag } from './app/flags'
+import { isOn, useFlag } from './app/flags'
 import { SpaceStrip } from './app/spaces/SpaceStrip'
 import { QuietCorner } from './app/spaces/QuietCorner'
 import {
@@ -842,7 +842,13 @@ function App() {
     SIDEBAR_DEFAULT,
   )
   const [sidebarHidden, setSidebarHidden] = useState(() =>
-    readPref('sidebarHidden', isBoolean, false),
+    // Home v2 (gate 3): on a tablet held upright the sidebar starts closed, so the board keeps its width. An own choice is remembered.
+    readPref(
+      'sidebarHidden',
+      isBoolean,
+      isOn('home.v2') &&
+        matchMedia('(min-width: 40rem) and (max-width: 859.98px)').matches,
+    ),
   )
   const [panelOpen, setPanelOpen] = usePref('leftPanel.open', isBoolean, false)
   const outlineAsk = outlineRequest.useValue()

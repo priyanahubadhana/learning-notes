@@ -114,7 +114,11 @@ export function HomeScreen({
         <h2 className="text-xl font-semibold">{t('space.home')}</h2>
         <p className="text-sm text-muted">{dayMonthLabel(today)}</p>
       </header>
-      <div role="tablist" className="mb-4 flex flex-wrap gap-1.5">
+      <div
+        role="tablist"
+        data-testid="home-tabs"
+        className="mb-4 flex flex-nowrap gap-1.5 overflow-x-auto [scrollbar-width:thin]"
+      >
         {TABS.map((id) => (
           <button
             key={id}
@@ -122,7 +126,7 @@ export function HomeScreen({
             role="tab"
             aria-selected={tab === id}
             onClick={() => setTab(id)}
-            className={`min-h-11 rounded-lg px-4 text-sm ${
+            className={`min-h-11 shrink-0 rounded-lg px-4 text-sm whitespace-nowrap ${
               tab === id
                 ? 'bg-hover font-semibold text-accent'
                 : 'text-ink-soft hover:bg-hover'

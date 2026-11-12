@@ -1,5 +1,7 @@
 import { useContext, useEffect, useRef, useState, type ReactNode } from 'react'
 import { AppUiContext } from '../../app/appUi'
+import { Icon, type IconName } from '../../app/tools/icons'
+import { useUnlocked } from '../../settings/level'
 import { usePref } from '../../app/usePref'
 import type { LearningNotesDB } from '../../core/db'
 import type { Project, Task } from '../../core/homeTypes'
@@ -56,7 +58,7 @@ export function HomeBoard({ data }: { data: BoardData }) {
   const [draft, setDraft] = useState<Layout | null>(null)
   const editing = draft !== null
   const layout = draft ?? saved
-  const [cols, listRef] = useGridCols()
+  const [cols, listRef, most] = useGridCols()
 
   const done = () => {
     if (draft) setStored(draft)
@@ -75,7 +77,7 @@ export function HomeBoard({ data }: { data: BoardData }) {
           items={layout}
           getId={(s) => s.id}
           axis="grid"
-          cols={BOARD_COLS}
+          cols={most}
           span={(s) => spanOf(s.size, cols)}
           handle="grip"
           showMoveButtons
@@ -152,10 +154,14 @@ export function HomeBoard({ data }: { data: BoardData }) {
   )
 }
 
+/** Viewport width from which the board has 4 columns (spec: 860). */
+const WIDE_FROM = 860
+
 /** How many columns the grid really has right now (it drops to fewer on narrow screens). */
 function useGridCols() {
   const ref = useRef<HTMLDivElement>(null)
   const [cols, setCols] = useState(BOARD_COLS)
+  const [most, setMost] = useState(BOARD_COLS)
   useEffect(() => {
     const el = ref.current
     const ul = el?.querySelector('ul')
@@ -165,7 +171,10 @@ function useGridCols() {
       const gap = parseFloat(cs.columnGap) || 0
       const rem =
         parseFloat(getComputedStyle(document.documentElement).fontSize) || 16
-      setCols(columnsFor(ul.clientWidth, gap, 9 * rem))
+      // Spec: 2 columns below 860 px wide (phone, iPad portrait), 4 from there.
+      const most = window.innerWidth >= WIDE_FROM ? BOARD_COLS : 2
+      setMost(most)
+      setCols(columnsFor(ul.clientWidth, gap, 9 * rem, most))
     }
     read()
     if (typeof ResizeObserver === 'undefined') return
@@ -173,7 +182,16 @@ function useGridCols() {
     ro.observe(ul)
     return () => ro.disconnect()
   }, [])
-  return [cols, ref] as const
+  return [cols, ref, most] as const
+}
+
+const WIDGET_ICON: Record<WidgetId, IconName> = {
+  cards: 'cards',
+  briefing: 'sunrise',
+  top3: 'star',
+  timer: 'clock',
+  pending: 'list',
+  record: 'checkSquare',
 }
 
 function WidgetFrame({
@@ -192,6 +210,8 @@ function WidgetFrame({
   children: ReactNode
 }) {
   const [source, setSource] = useState(false)
+  // Professional only (home.builtFrom): Beginner shows no explanation entry (HM-B64).
+  const builtFrom = useUnlocked('home.builtFrom')
   const opener = useRef<HTMLButtonElement>(null)
   const name = t(`home.v2.w.${slot.id}` as MessageKey)
   return (
@@ -201,9 +221,16 @@ function WidgetFrame({
       data-size={slot.size}
       className={`home-widget rounded-xl border border-line bg-bg p-3 ${editing ? 'select-none' : ''}`}
     >
-      <header className="mb-2 flex flex-wrap items-center gap-1">
+      <header className="mb-2 flex min-h-10 flex-wrap items-center gap-1">
         {editing && grip}
-        <h3 className="me-auto text-sm font-semibold">{name}</h3>
+        <Icon
+          name={WIDGET_ICON[slot.id]}
+          size={17}
+          className="shrink-0 text-ink-soft"
+        />
+        <h3 className="me-auto min-w-0 truncate text-[13px] font-semibold text-ink-soft">
+          {name}
+        </h3>
         {editing && moveButtons}
         {editing && (
           <div
@@ -231,15 +258,18 @@ function WidgetFrame({
             ))}
           </div>
         )}
-        <button
-          ref={opener}
-          type="button"
-          onClick={() => setSource(true)}
-          data-testid={`source-${slot.id}`}
-          className="min-h-11 rounded-lg px-2 text-xs text-muted hover:bg-hover hover:text-ink"
-        >
-          {t('home.v2.source')}
-        </button>
+        {builtFrom && slot.size !== 's' && (
+          <button
+            ref={opener}
+            type="button"
+            aria-label={t('home.v2.source')}
+            onClick={() => setSource(true)}
+            data-testid={`source-${slot.id}`}
+            className="grid min-h-11 min-w-11 place-items-center rounded-lg text-muted hover:bg-hover hover:text-ink"
+          >
+            <Icon name="layers" size={17} />
+          </button>
+        )}
       </header>
       {/* key: a size change replays the short settle animation. */}
       <div
@@ -282,12 +312,16 @@ function WidgetBody({ id, data }: { id: WidgetId; data: BoardData }) {
       )
     case 'briefing':
       return data.briefing ? (
-        <BriefingCard briefing={data.briefing} onOpenCards={data.openReview} />
+        <BriefingCard
+          briefing={data.briefing}
+          onOpenCards={data.openReview}
+          bare
+        />
       ) : null
     case 'top3':
-      return <Top3 db={db} tasks={tasks} today={today} />
+      return <Top3 db={db} tasks={tasks} today={today} bare />
     case 'timer':
-      return <TimerCard db={db} projects={projects} />
+      return <TimerCard db={db} projects={projects} bare />
     case 'pending':
       return <PendingCard db={db} tasks={tasks} today={today} />
     case 'record':

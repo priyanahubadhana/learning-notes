@@ -15,6 +15,9 @@ import {
   onUpdateOffer,
   onRequiredUpdate,
   isUpdateRequired,
+  isOtherTabUpgrade,
+  updateReason,
+  triggerMustHave,
   updateWaiting,
   reloadWhenSafe,
   repeatUpdateOffer,
@@ -42,6 +45,8 @@ import { penIsDown } from './app/palmGuard'
 import { hasUnsaved } from './app/saveStatus'
 import { requestPersistentStorage } from './core/storage'
 import { db, DEFAULT_DB_NAME } from './core/db'
+import { isOn } from './app/flags'
+import type { UpdateReason } from './app/updateLevel'
 import { hasStoredSession, isTracking, isWaitingForKey } from './sync/device'
 import { startAccountGate } from './sync/gateRule'
 import { writePref } from './app/uiPrefs'
@@ -182,29 +187,49 @@ const autoUpdate = startAutoUpdate({
 })
 onUpdateOffer((apply) => void autoUpdate(apply))
 // A REQUIRED update (storage change or data fix) uses the full-screen flow.
-const startRequired = (apply: () => void) =>
+const startRequired = (
+  apply: () => void,
+  test?: { reason?: UpdateReason; unsaved?: boolean },
+) =>
   void import('./app/mandatoryFlow').then((m) =>
     m.startMandatoryUpdate({
+      v2: isOn('update.v2'),
+      reason: test?.reason ?? updateReason(),
       apply: () => {
         resetGestures('manual')
         rememberPlace()
         apply()
       },
+      // Another tab upgraded the notes: this tab must not touch the database.
       prepare: () =>
-        prepareUpdate({
-          flush: flushAllSaves,
-          hasUnsaved,
-          backup: backupForUpdate,
-        }),
+        test?.unsaved
+          ? Promise.resolve({ kind: 'unsaved' as const })
+          : isOtherTabUpgrade()
+            ? Promise.resolve(null)
+            : prepareUpdate({
+                flush: flushAllSaves,
+                hasUnsaved,
+                backup: backupForUpdate,
+              }),
       hardRestart: () => void restartIntoNewFiles(),
     }),
   )
-onRequiredUpdate(startRequired)
-window.addEventListener('learning-notes:test-required-update', () =>
-  startRequired(() => {
-    ;(window as unknown as { __requiredApplied?: boolean }).__requiredApplied =
-      true
-  }),
+onRequiredUpdate((apply) => startRequired(apply))
+// update.v2: a tab older than the stored notes asks for the update at once.
+if (isOn('update.v2'))
+  void import('./app/otherTab').then((m) =>
+    m.watchOtherTabUpgrade(db, () => triggerMustHave('storage')),
+  )
+window.addEventListener('learning-notes:test-required-update', (e) =>
+  startRequired(
+    () => {
+      ;(
+        window as unknown as { __requiredApplied?: boolean }
+      ).__requiredApplied = true
+    },
+    (e as CustomEvent<{ reason?: UpdateReason; unsaved?: boolean } | null>)
+      .detail ?? undefined,
+  ),
 )
 subscribeDeviceSettings(() => {
   if (updateWaiting()) repeatUpdateOffer()

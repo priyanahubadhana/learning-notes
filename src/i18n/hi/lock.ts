@@ -128,6 +128,14 @@ export const hiLock = {
   'unlock.show': 'पासफ़्रेज़ दिखाएँ',
   'unlock.useCode': 'इसके बजाय अपना रिकवरी कोड इस्तेमाल करें',
   'unlock.usePassphrase': 'इसके बजाय अपना पासफ़्रेज़ इस्तेमाल करें',
+  'lock.pin.changeBtn': 'PIN बदलें',
+  'lock.pin.changed': 'PIN बदल गया',
+  'lock.pin.hint6': 'PIN 6 अंकों का होता है।',
+  'lock.pin.new6': 'नया PIN (6 अंक)',
+  'lock.pin.shorter':
+    'आपका PIN 6 अंकों से छोटा है। बेहतर निजता के लिए इसे बदलें।',
+  'lock.pin.shorterMaybe':
+    'आपका PIN 6 अंकों से छोटा हो सकता है। बेहतर निजता के लिए इसे बदलें।',
   'unlock.wait': 'बहुत सारी कोशिशें। {time} में फिर कोशिश करें।',
   'unlock.waitSr': 'बहुत सारी कोशिशें। लगभग {count} मिनट में फिर कोशिश करें।',
   'unlock.wrongCode': 'यह रिकवरी कोड मेल नहीं खाता। इसे जाँचकर फिर कोशिश करें।',

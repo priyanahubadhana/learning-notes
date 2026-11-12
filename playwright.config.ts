@@ -81,6 +81,8 @@ export default defineConfig({
       testMatch: [
         /parts-gallery/,
         /pencilIsolation/,
+        /updateV2/,
+        /security-m1-/,
         /chromeIsolation/,
         /penTapChrome/,
         /ipadKeyboard/,

@@ -25,4 +25,5 @@ export const hiUpdateV2 = {
   'update.v2.unsaved': 'आपका आखिरी बदलाव अभी सहेजा नहीं गया है',
   'update.v2.updateNow': 'अभी अपडेट करें',
   'about.v2.level': 'अपडेट स्तर {level}',
+  'about.v2.pretend': 'ज़रूरी अपडेट का नमूना दिखाएँ',
 }

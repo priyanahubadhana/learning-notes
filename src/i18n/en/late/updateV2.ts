@@ -25,4 +25,5 @@ export const enLateUpdateV2 = {
   'update.v2.unsaved': 'Your last change is not saved yet',
   'update.v2.updateNow': 'Update now',
   'about.v2.level': 'Update level {level}',
+  'about.v2.pretend': 'Pretend a must-have update',
 }

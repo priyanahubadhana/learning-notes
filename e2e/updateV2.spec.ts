@@ -324,3 +324,11 @@ test('U15 the reason line opens a plain explanation, closed with the cross', asy
   await pop.getByRole('button', { name: 'Close' }).click()
   await expect(pop).toHaveCount(0)
 })
+
+test('U2 the About test button pretends a must-have update', async ({
+  page,
+}) => {
+  await openAbout(page)
+  await page.locator('[data-about-pretend]').click()
+  await expect(notice(page)).toContainText('Downloading starts in')
+})

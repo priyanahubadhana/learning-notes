@@ -25,4 +25,5 @@ export const esUpdateV2 = {
   'update.v2.unsaved': 'Tu último cambio aún no está guardado',
   'update.v2.updateNow': 'Actualizar ahora',
   'about.v2.level': 'Nivel de actualización {level}',
+  'about.v2.pretend': 'Simular una actualización necesaria',
 }

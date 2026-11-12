@@ -27,6 +27,7 @@ import { esUpdateV2 } from './updateV2'
 import { esFlags } from './flags'
 import { esAiBuild } from './aibuild'
 import { esAiJobs } from './aijobs'
+import { esParts } from './parts'
 
 export const es: Record<string, string> = {
   ...esAccounts,
@@ -57,4 +58,5 @@ export const es: Record<string, string> = {
   ...esFlags,
   ...esAiBuild,
   ...esAiJobs,
+  ...esParts,
 }

@@ -11,7 +11,7 @@ async function openTryNew(page: Page, query = '') {
 async function showTryNew(page: Page) {
   await expect(
     main(page).getByRole('heading', { name: 'Settings', level: 1 }),
-  ).toBeVisible()
+  ).toBeVisible({ timeout: 45_000 }) // cold lazy load on iPad webkit
   await page
     .getByRole('navigation', { name: 'Settings categories' })
     .getByRole('button', { name: /^Try new features/ })

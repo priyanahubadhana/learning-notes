@@ -347,3 +347,7 @@ See section 10. Files: `src/settings/v3/*.test.ts`, `e2e/settings-v3.spec.ts` (+
 9. **Dev-only rows** (`help.resetMock`) are not built in the real app; the pro-features count keeps the id for the mock only.
 10. **Reset per section** includes synced settings; the reset syncs like any change (Undo restores and syncs the old value).
 11. **Library unlock ids.** This spec first proposed `lib.select`, `lib.themesTab`, `lib.linksTab`, `lib.typeRow`, `lib.layers`. `library-v2.md` D1 names the same things `lib.bulkSelect`, `lib.themes`, `lib.filterRow` (plus `lib.knowStats`, `lib.knowFilters`). The list in `pro-features.md` now holds the library-v2 names plus `lib.linksTab` and `lib.layers`; 50 ids were added (219 total). Owner to confirm or merge duplicates.
+
+## Deliberate exceptions
+
+None. The "nothing lost" unit test (`src/settings/v3/nothingLost.test.ts`) checks that every registry setting and category, and every custom screen today's Settings renders (This device, About, Page tabs, Lock, AI, Connections, Permissions, Claude, Account, Sync), has a home in a v3 section.

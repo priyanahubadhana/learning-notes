@@ -48,6 +48,15 @@ test('SET-B25 the section is named "Let AI use my notebooks"; the old name still
   )
 })
 
+test('SET-B25 inside "Let AI use my notebooks" Claude is listed first', async ({
+  page,
+}) => {
+  await open(page, 'claude')
+  const items = page.locator('[data-testid="sv3-ai-list"] [data-ai]')
+  await expect(items.first()).toHaveAttribute('data-ai', 'claude')
+  await expect(items.first()).toContainText('Claude')
+})
+
 test('Pencil & touch has its own section with the pencil rows, and Advanced no longer lists them', async ({
   page,
 }) => {

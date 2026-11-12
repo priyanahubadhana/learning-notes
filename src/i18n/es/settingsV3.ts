@@ -178,6 +178,8 @@ export const esSettingsV3 = {
   'sv3.aiNotebooks.title': 'Dejar que la IA use mis cuadernos',
   'sv3.aiNotebooks.help':
     'Elige qué IA puede leer tus cuadernos. Claude va primero. El nombre antiguo, Dejar que Claude use mis notas, sigue encontrándolo.',
+  'sv3.aiList.title': 'IA conectada',
+  'sv3.aiList.claude': 'Claude (conector)',
   'sv3.pencil.title': 'Lápiz y tacto',
   'sv3.pencil.lead':
     'Qué hacen el Apple Pencil y tu dedo al escribir, seleccionar y desplazar.',

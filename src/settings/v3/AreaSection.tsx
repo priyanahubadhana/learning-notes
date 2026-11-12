@@ -5,6 +5,7 @@ import { ConnectionsSection } from '../../ai/ConnectionsSection'
 import { LockSection } from '../../app/lock/LockSection'
 import { AboutSection } from '../AboutSection'
 import { DeviceSection } from '../DeviceSection'
+import { ConnectedAiList } from './ConnectedAiList'
 import type { AreaId } from './sections'
 
 // Same lazy chunks as today's screen, so the first load stays small.
@@ -49,7 +50,12 @@ export function AreaSection({
         {area === 'ai' && <AiSection db={db} onGo={onGo} />}
         {area === 'apis' && <ConnectionsSection onGo={onGo} />}
         {area === 'permissions' && <PermissionsSection db={db} />}
-        {area === 'claude' && <ClaudeArea db={db} />}
+        {area === 'claude' && (
+          <>
+            <ConnectedAiList />
+            <ClaudeArea db={db} />
+          </>
+        )}
         {area === 'account' && <AccountSection db={db} />}
         {area === 'sync' && <SyncSection db={db} />}
       </Suspense>

@@ -177,6 +177,8 @@ export const enSettingsV3 = {
   'sv3.aiNotebooks.title': 'Let AI use my notebooks',
   'sv3.aiNotebooks.help':
     'Choose which AI can read your notebooks. Claude comes first. The old name, Let Claude use my notes, still finds this.',
+  'sv3.aiList.title': 'Connected AI',
+  'sv3.aiList.claude': 'Claude (connector)',
   'sv3.pencil.title': 'Pencil & touch',
   'sv3.pencil.lead':
     'What the Apple Pencil and your finger do when you write, select and scroll.',

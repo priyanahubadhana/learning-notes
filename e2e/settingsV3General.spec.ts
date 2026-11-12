@@ -68,6 +68,20 @@ test.describe('iPad landscape General previews', () => {
     )
   })
 
+  test('SET-B27 Show help off greys the tips line, glows and writes a before / after note', async ({
+    page,
+  }) => {
+    await row(page, 'general.showHelp')
+      .getByRole('radio', { name: 'Off' })
+      .click()
+    const tip = page.locator('.sv3-mini-tip:visible')
+    await expect(tip).toHaveAttribute('data-off', '')
+    await expect(tip).toHaveAttribute('data-glow', 'on')
+    await expect(page.locator('[data-preview-note]:visible')).toContainText(
+      'Show help: On → Off',
+    )
+  })
+
   test('SET-B08 the update chip and the rail follow the settings', async ({
     page,
   }) => {

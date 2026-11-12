@@ -1,0 +1,82 @@
+// Vitest Snapshot v1, https://vitest.dev/guide/snapshot.html
+
+exports[`golden plans (records compared with stored snapshots) > cloze cards and a style on a notebook 1`] = `
+{
+  "counts": {
+    "blocks": 6,
+    "cards": 1,
+    "notebooks": 1,
+    "pages": 1,
+  },
+  "records": [
+    "blocks new {"id":"32deb04f-9ced-8326-8379-21d31b8f7189","createdAt":1700000000000,"updatedAt":1700000000000,"deletedAt":null,"pageId":"3be0e84f-a220-88ce-bbbd-89d317718e61","parentId":null,"type":"paragraph","content":{"text":[{"type":"text","text":"A ","styles":{}},{"type":"text","text":"habit","styles":{"blank":"32deaf4f-9ced-8173-8379-1ed31b8f6c70"}},{"type":"text","text":" is a loop.","styles":{}}]},"order":"a4BL","source":"ai","batchId":"b2c42a1d-fc70-8158-ba64-c2876bd75a95"}",
+    "blocks new {"id":"32deb14f-9ced-84d9-8379-20d31b8f6fd6","createdAt":1700000000000,"updatedAt":1700000000000,"deletedAt":null,"pageId":"3be0e84f-a220-88ce-bbbd-89d317718e61","parentId":null,"type":"heading","content":{"level":2,"text":[{"type":"text","text":"Recall cards","styles":{}}]},"order":"a39u","source":"ai","batchId":"b2c42a1d-fc70-8158-ba64-c2876bd75a95"}",
+    "blocks new {"id":"3be0e64f-a220-8568-bbbd-87d317718afb","createdAt":1700000000000,"updatedAt":1700000000000,"deletedAt":null,"pageId":"3be0e84f-a220-88ce-bbbd-89d317718e61","parentId":null,"type":"paragraph","content":{"text":[{"type":"text","text":"A ","styles":{}},{"type":"text","text":"habit","styles":{"bold":true}},{"type":"text","text":" is a loop: cue, craving, response, reward.","styles":{}}]},"order":"a1","source":"ai","batchId":"b2c42a1d-fc70-8158-ba64-c2876bd75a95"}",
+    "blocks new {"id":"3be0e74f-a220-871b-bbbd-86d317718948","createdAt":1700000000000,"updatedAt":1700000000000,"deletedAt":null,"pageId":"3be0e84f-a220-88ce-bbbd-89d317718e61","parentId":null,"type":"bulletListItem","content":{"text":[{"type":"text","text":"Cue","styles":{}}]},"order":"a2","source":"ai","batchId":"b2c42a1d-fc70-8158-ba64-c2876bd75a95"}",
+    "blocks new {"id":"3be0e94f-a220-8a81-bbbd-88d317718cae","createdAt":1700000000000,"updatedAt":1700000000000,"deletedAt":null,"pageId":"3be0e84f-a220-88ce-bbbd-89d317718e61","parentId":null,"type":"heading","content":{"level":1,"text":[{"type":"text","text":"Habits","styles":{}}]},"order":"a0","source":"ai","batchId":"b2c42a1d-fc70-8158-ba64-c2876bd75a95"}",
+    "blocks new {"id":"3be0ec4f-a220-8f9a-bbbd-8dd31771952d","createdAt":1700000000000,"updatedAt":1700000000000,"deletedAt":null,"pageId":"3be0e84f-a220-88ce-bbbd-89d317718e61","parentId":"3be0e74f-a220-871b-bbbd-86d317718948","type":"paragraph","content":{"text":[{"type":"text","text":"The trigger.","styles":{}}]},"order":"a0","source":"ai","batchId":"b2c42a1d-fc70-8158-ba64-c2876bd75a95"}",
+    "cards new {"id":"958a216a-7734-87cb-974e-0af13ad8f7a2","createdAt":1700000000000,"updatedAt":1700000000000,"deletedAt":null,"blockId":"32deb04f-9ced-8326-8379-21d31b8f7189","part":"32deaf4f-9ced-8173-8379-1ed31b8f6c70","pageId":"3be0e84f-a220-88ce-bbbd-89d317718e61","notebookId":"228e634f-93f9-8acf-b328-52d3129aac4c","due":1700000000000,"intervalDays":0,"step":0,"reps":0,"lapses":0,"suspendedAt":null}",
+    "notebooks new {"id":"228e634f-93f9-8acf-b328-52d3129aac4c","createdAt":1700000000000,"updatedAt":1700000000000,"deletedAt":null,"workspaceId":"ws1","title":"Anatomy","order":"a0","tabs":[{"id":"notes","kind":"notes"},{"id":"summary","kind":"summary"},{"id":"database","kind":"database","databaseId":"tracker:228e634f-93f9-8acf-b328-52d3129aac4c"},{"id":"cards","kind":"cards"},{"id":"revise","kind":"revise"}],"colour":"#2e9e6b"}",
+    "pages new {"id":"3be0e84f-a220-88ce-bbbd-89d317718e61","createdAt":1700000000000,"updatedAt":1700000000000,"deletedAt":null,"notebookId":"228e634f-93f9-8acf-b328-52d3129aac4c","parentId":null,"title":"Habits","order":"a0","summary":"How habits form.","inkBg":"grid","tabColour":"#8a5cf6"}",
+  ],
+}
+`;
+
+exports[`golden plans (records compared with stored snapshots) > notebook with a database 1`] = `
+{
+  "counts": {
+    "databases": 1,
+    "dbColumns": 1,
+    "dbViews": 3,
+    "notebooks": 1,
+    "pages": 1,
+  },
+  "records": [
+    "databases new {"id":"7312af0c-1dee-8823-ac8f-eb30d8d410e4","createdAt":1700000000000,"updatedAt":1700000000000,"deletedAt":null,"workspaceId":"ws1","notebookId":"8dabb40c-2d2b-8242-b525-0230ddaabc99","title":"Books","titleName":"Name","order":"a0"}",
+    "dbColumns new {"id":"7312b30c-1dee-8eef-ac8f-e730d8d40a18","createdAt":1700000000000,"updatedAt":1700000000000,"deletedAt":null,"databaseId":"7312af0c-1dee-8823-ac8f-eb30d8d410e4","name":"Status","type":"choice","config":{"options":[{"id":"7312b20c-1dee-8d3c-ac8f-e830d8d40bcb","name":"To read"},{"id":"7312b50c-1dee-8255-ac8f-e930d8d40d7e","name":"Done"}]},"order":"a0"}",
+    "dbViews new {"id":"7312ae0c-1dee-8670-ac8f-ec30d8d41297","createdAt":1700000000000,"updatedAt":1700000000000,"deletedAt":null,"databaseId":"7312af0c-1dee-8823-ac8f-eb30d8d410e4","name":"Table","type":"table","config":{},"order":"a0"}",
+    "dbViews new {"id":"7312b00c-1dee-89d6-ac8f-ee30d8d415fd","createdAt":1700000000000,"updatedAt":1700000000000,"deletedAt":null,"databaseId":"7312af0c-1dee-8823-ac8f-eb30d8d410e4","name":"Board","type":"board","config":{},"order":"a2"}",
+    "dbViews new {"id":"7312b10c-1dee-8b89-ac8f-ed30d8d4144a","createdAt":1700000000000,"updatedAt":1700000000000,"deletedAt":null,"databaseId":"7312af0c-1dee-8823-ac8f-eb30d8d410e4","name":"Dashboard","type":"dashboard","config":{},"order":"a1"}",
+    "notebooks new {"id":"8dabb40c-2d2b-8242-b525-0230ddaabc99","createdAt":1700000000000,"updatedAt":1700000000000,"deletedAt":null,"workspaceId":"ws1","title":"Reading","order":"a0","tabs":[{"id":"notes","kind":"notes"},{"id":"summary","kind":"summary"},{"id":"database","kind":"database","databaseId":"tracker:8dabb40c-2d2b-8242-b525-0230ddaabc99"},{"id":"cards","kind":"cards"},{"id":"revise","kind":"revise"}]}",
+    "pages new {"id":"7312b40c-1dee-80a2-ac8f-ea30d8d40f31","createdAt":1700000000000,"updatedAt":1700000000000,"deletedAt":null,"notebookId":"8dabb40c-2d2b-8242-b525-0230ddaabc99","parentId":null,"title":"Atomic Habits","order":"a0","databaseId":"7312af0c-1dee-8823-ac8f-eb30d8d410e4","values":{"7312b30c-1dee-8eef-ac8f-e730d8d40a18":"7312b50c-1dee-8255-ac8f-e930d8d40d7e"}}",
+  ],
+}
+`;
+
+exports[`golden plans (records compared with stored snapshots) > notebook, notes and recall cards 1`] = `
+{
+  "counts": {
+    "blocks": 9,
+    "cards": 2,
+    "notebooks": 1,
+    "pages": 1,
+  },
+  "records": [
+    "blocks new {"id":"72eb5e85-2a74-8ae8-9861-9bb730069fbf","createdAt":1700000000000,"updatedAt":1700000000000,"deletedAt":null,"pageId":"7b807685-2f4b-8850-8ef3-03b72a772817","parentId":null,"type":"card","content":{"text":[{"type":"text","text":"What starts a habit loop?","styles":{}}]},"order":"a4rN","source":"ai","batchId":"55312d3e-1fc8-817a-806d-4e70356411eb"}",
+    "blocks new {"id":"72eb5f85-2a74-8c9b-9861-9ab730069e0c","createdAt":1700000000000,"updatedAt":1700000000000,"deletedAt":null,"pageId":"7b807685-2f4b-8850-8ef3-03b72a772817","parentId":null,"type":"heading","content":{"level":2,"text":[{"type":"text","text":"Recall cards","styles":{}}]},"order":"a3rX","source":"ai","batchId":"55312d3e-1fc8-817a-806d-4e70356411eb"}",
+    "blocks new {"id":"72eb6085-2a74-8e4e-9861-9db73006a325","createdAt":1700000000000,"updatedAt":1700000000000,"deletedAt":null,"pageId":"7b807685-2f4b-8850-8ef3-03b72a772817","parentId":null,"type":"card","content":{"text":[{"type":"text","text":"What ends it?","styles":{}}]},"order":"a53O","source":"ai","batchId":"55312d3e-1fc8-817a-806d-4e70356411eb"}",
+    "blocks new {"id":"72eb6185-2a74-8001-9861-9cb73006a172","createdAt":1700000000000,"updatedAt":1700000000000,"deletedAt":null,"pageId":"7b807685-2f4b-8850-8ef3-03b72a772817","parentId":"72eb5e85-2a74-8ae8-9861-9bb730069fbf","type":"paragraph","content":{"text":[{"type":"text","text":"The cue.","styles":{}}]},"order":"a0","source":"ai","batchId":"55312d3e-1fc8-817a-806d-4e70356411eb"}",
+    "blocks new {"id":"72eb6385-2a74-8367-9861-96b730069740","createdAt":1700000000000,"updatedAt":1700000000000,"deletedAt":null,"pageId":"7b807685-2f4b-8850-8ef3-03b72a772817","parentId":"72eb6085-2a74-8e4e-9861-9db73006a325","type":"paragraph","content":{"text":[{"type":"text","text":"The reward.","styles":{}}]},"order":"a0","source":"ai","batchId":"55312d3e-1fc8-817a-806d-4e70356411eb"}",
+    "blocks new {"id":"7b807785-2f4b-8a03-8ef3-02b72a772664","createdAt":1700000000000,"updatedAt":1700000000000,"deletedAt":null,"pageId":"7b807685-2f4b-8850-8ef3-03b72a772817","parentId":null,"type":"heading","content":{"level":1,"text":[{"type":"text","text":"Habits","styles":{}}]},"order":"a0","source":"ai","batchId":"55312d3e-1fc8-817a-806d-4e70356411eb"}",
+    "blocks new {"id":"7b807885-2f4b-8bb6-8ef3-05b72a772b7d","createdAt":1700000000000,"updatedAt":1700000000000,"deletedAt":null,"pageId":"7b807685-2f4b-8850-8ef3-03b72a772817","parentId":null,"type":"paragraph","content":{"text":[{"type":"text","text":"A ","styles":{}},{"type":"text","text":"habit","styles":{"bold":true}},{"type":"text","text":" is a loop: cue, craving, response, reward.","styles":{}}]},"order":"a1","source":"ai","batchId":"55312d3e-1fc8-817a-806d-4e70356411eb"}",
+    "blocks new {"id":"7b807985-2f4b-8d69-8ef3-04b72a7729ca","createdAt":1700000000000,"updatedAt":1700000000000,"deletedAt":null,"pageId":"7b807685-2f4b-8850-8ef3-03b72a772817","parentId":null,"type":"bulletListItem","content":{"text":[{"type":"text","text":"Cue","styles":{}}]},"order":"a2","source":"ai","batchId":"55312d3e-1fc8-817a-806d-4e70356411eb"}",
+    "blocks new {"id":"7b807a85-2f4b-8f1c-8ef2-ffb72a77214b","createdAt":1700000000000,"updatedAt":1700000000000,"deletedAt":null,"pageId":"7b807685-2f4b-8850-8ef3-03b72a772817","parentId":"7b807985-2f4b-8d69-8ef3-04b72a7729ca","type":"paragraph","content":{"text":[{"type":"text","text":"The trigger.","styles":{}}]},"order":"a0","source":"ai","batchId":"55312d3e-1fc8-817a-806d-4e70356411eb"}",
+    "cards new {"id":"64eb41bf-7535-8362-9901-dba85c0fdff3","createdAt":1700000000000,"updatedAt":1700000000000,"deletedAt":null,"blockId":"72eb5e85-2a74-8ae8-9861-9bb730069fbf","part":"main","pageId":"7b807685-2f4b-8850-8ef3-03b72a772817","notebookId":"84822d85-347e-82c5-a8b2-68b738fb6196","due":1700000000000,"intervalDays":0,"step":0,"reps":0,"lapses":0,"suspendedAt":null}",
+    "cards new {"id":"a9930d78-843d-8f20-8829-bfe93ca76235","createdAt":1700000000000,"updatedAt":1700000000000,"deletedAt":null,"blockId":"72eb6085-2a74-8e4e-9861-9db73006a325","part":"main","pageId":"7b807685-2f4b-8850-8ef3-03b72a772817","notebookId":"84822d85-347e-82c5-a8b2-68b738fb6196","due":1700000000000,"intervalDays":0,"step":0,"reps":0,"lapses":0,"suspendedAt":null}",
+    "notebooks new {"id":"84822d85-347e-82c5-a8b2-68b738fb6196","createdAt":1700000000000,"updatedAt":1700000000000,"deletedAt":null,"workspaceId":"ws1","title":"Habits that stick","order":"a0","tabs":[{"id":"notes","kind":"notes"},{"id":"summary","kind":"summary"},{"id":"database","kind":"database","databaseId":"tracker:84822d85-347e-82c5-a8b2-68b738fb6196"},{"id":"cards","kind":"cards"},{"id":"revise","kind":"revise"}]}",
+    "pages new {"id":"7b807685-2f4b-8850-8ef3-03b72a772817","createdAt":1700000000000,"updatedAt":1700000000000,"deletedAt":null,"notebookId":"84822d85-347e-82c5-a8b2-68b738fb6196","parentId":null,"title":"Habits","order":"a0","summary":"How habits form."}",
+  ],
+}
+`;
+
+exports[`golden plans (records compared with stored snapshots) > tidy up an existing page 1`] = `
+{
+  "counts": {
+    "blocks": 2,
+  },
+  "records": [
+    "blocks edit {"id":"ecfc45c3-a7a3-8723-9859-ea682a6e3e3a","createdAt":1700000000000,"updatedAt":1700000000000,"deletedAt":null,"pageId":"ecfc44c3-a7a3-8570-9859-eb682a6e3fed","parentId":null,"type":"paragraph","content":{"text":[{"type":"text","text":"Tidied.","styles":{}}]},"order":"a0","source":"ai","batchId":"331260f8-e95a-8ccf-8b5e-56a4b61c94d8"}",
+    "blocks new {"id":"00289886-d7c7-8895-9576-e84c5b50b79c","createdAt":1700000000000,"updatedAt":1700000000000,"deletedAt":null,"pageId":"ecfc44c3-a7a3-8570-9859-eb682a6e3fed","parentId":null,"type":"quote","content":{"text":[{"type":"text","text":"Small steps.","styles":{}}]},"order":"a6V5","source":"ai","batchId":"331260f8-e95a-8ccf-8b5e-56a4b61c94d8"}",
+  ],
+}
+`;

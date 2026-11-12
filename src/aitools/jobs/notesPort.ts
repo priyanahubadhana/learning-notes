@@ -83,7 +83,12 @@ export class MemoryNotesPort implements NotesPort {
       .filter((v) => Object.entries(where).every(([k, x]) => v[k] === x))
       .map((v) => structuredClone(v))
   }
-  async commit(_id: string, records: readonly StagedRecord[]) {
+  async commit(
+    _id: string,
+    records: readonly StagedRecord[],
+    undo?: UndoRecord,
+  ) {
+    void undo
     this.commits++
     await this.atomic((tx) => writeAll(tx, records))
   }

@@ -3,6 +3,7 @@ import {
   Suspense,
   useEffect,
   useLayoutEffect,
+  useContext,
   useRef,
   useState,
   type ReactNode,
@@ -14,7 +15,12 @@ import { Card, CardTrigger } from '../../design/parts/Card'
 import { CardGroup, CardWell } from '../../design/parts/CardParts'
 import { usePhone } from '../../design/parts/useAnchoredCard'
 import { t } from '../../i18n/t'
-import { bookAloudState, setBookLocalOnly } from '../aloud/bookAloud'
+import { AppUiContext } from '../../app/appUi'
+import {
+  bookAloudState,
+  bookNoVoice,
+  setBookLocalOnly,
+} from '../aloud/bookAloud'
 import { fitItems } from './barFit'
 import { createHoldTap } from './holdTap'
 
@@ -139,6 +145,15 @@ export default function ReaderBarRow({
   useEffect(() => {
     openListenRef.current = openListen
   })
+  // No on-device voice for the language: say so in plain words (nothing is spoken).
+  const { toast } = useContext(AppUiContext)
+  const noVoice = bookNoVoice.useValue()
+  const seenNoVoice = useRef(noVoice)
+  useEffect(() => {
+    if (noVoice === seenNoVoice.current) return
+    seenNoVoice.current = noVoice
+    toast(t('readerv2.listen.noDeviceVoice'))
+  }, [noVoice, toast])
   // Listen reads with device voices only while the new reader is on.
   useEffect(() => {
     setBookLocalOnly(true)

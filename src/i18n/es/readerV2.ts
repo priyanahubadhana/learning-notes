@@ -30,6 +30,8 @@ export const esReaderV2 = {
   'readerv2.listen.stopped': 'Lectura detenida.',
   'readerv2.listen.noVoices':
     'Este dispositivo no tiene voces integradas para mostrar.',
+  'readerv2.listen.noDeviceVoice':
+    'No hay ninguna voz en este dispositivo para este idioma, así que no se lee nada en voz alta. Para añadir una, abre los ajustes del dispositivo (Accesibilidad, luego Contenido hablado o Texto a voz) y descarga una voz.',
   'readerv2.listen.deviceOnly':
     'Solo se usan voces de este dispositivo. Tu texto no sale de él.',
 } as const

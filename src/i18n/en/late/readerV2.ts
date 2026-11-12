@@ -29,6 +29,8 @@ export const enLateReaderV2 = {
   'readerv2.listen.sleepSet': 'Sleep timer: {when}.',
   'readerv2.listen.stopped': 'Reading stopped.',
   'readerv2.listen.noVoices': 'This device has no built-in voices to list.',
+  'readerv2.listen.noDeviceVoice':
+    'No voice on this device for this language, so nothing is read aloud. To add one, open your device settings (Accessibility, then Spoken Content or Text-to-speech) and download a voice.',
   'readerv2.listen.deviceOnly':
     'Only voices on this device are used. Your text never leaves it.',
 } as const

@@ -74,6 +74,25 @@ describe('Listen uses only the device voices (fake speechSynthesis)', () => {
     expect(spoken[0].voice?.voiceURI).toBe('loc')
   })
 
+  it('speaks nothing and says so when no on-device voice fits the language', () => {
+    const only = [voices[0]]
+    Object.defineProperty(window.speechSynthesis, 'getVoices', {
+      configurable: true,
+      value: () => only,
+    })
+    const noVoice = vi.fn()
+    const state = vi.fn()
+    const r = new ReadAloud(
+      text(),
+      { rate: 1, voiceURI: 'net', lang: 'en', localOnly: true },
+      { noVoice, state },
+    )
+    r.start(0)
+    expect(spoken).toHaveLength(0)
+    expect(noVoice).toHaveBeenCalledTimes(1)
+    expect(r.state).toBe('idle')
+  })
+
   it('without the option the engine is unchanged (notes keep working)', () => {
     const r = new ReadAloud(text(), { rate: 1, voiceURI: 'net' }, {})
     r.start(0)

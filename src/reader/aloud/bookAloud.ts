@@ -35,6 +35,8 @@ export interface BookAloudHost {
 
 export const bookAloudState = memStore<AloudState>('idle')
 export const bookAloudAvailable = speechAvailable
+/** Counts the times Listen could not start because the device has no voice (reader v2: device voices only). */
+export const bookNoVoice = memStore<number>(0)
 
 let host: BookAloudHost | null = null
 let engine: ReadAloud | null = null
@@ -81,6 +83,11 @@ async function play(source: BookSource, from: number, id: number) {
     {
       state: (s) => {
         if (id === run) bookAloudState.set(s)
+      },
+      noVoice: () => {
+        if (id !== run) return
+        bookNoVoice.set(bookNoVoice.get() + 1)
+        stopBookAloud()
       },
       finished: () => {
         if (id !== run || !host) return

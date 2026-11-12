@@ -41,8 +41,8 @@ const space = (page: Page, name: string) =>
     .getByRole('navigation', { name: 'Spaces' })
     .getByRole('button', { name: `Space: ${name}` })
 
-async function openPdf(page: Page) {
-  await mockSpeech(page, 40, VOICES)
+async function openPdf(page: Page, voices = VOICES) {
+  await mockSpeech(page, 40, voices)
   await page.goto('/?flags=reader.v2')
   const menu = page.getByRole('button', { name: 'Open menu' })
   if (await menu.isVisible()) await menu.click()
@@ -279,4 +279,24 @@ test.describe('iPad portrait, touch', () => {
     expect(c!.x + c!.width).toBeLessThanOrEqual(820.5)
     expect(c!.y + c!.height).toBeLessThanOrEqual(1180.5)
   })
+})
+
+test('RD-B44 with no on-device voice for the language Listen says so and never speaks', async ({
+  page,
+}) => {
+  await openPdf(page, [
+    {
+      voiceURI: 'v-net',
+      name: 'Network Voice',
+      lang: 'en-US',
+      localService: false,
+    },
+    { voiceURI: 'v-amelie', name: 'Amelie', lang: 'fr-FR', localService: true },
+  ])
+  await listen(page).click()
+  await expect(
+    page.getByText(/No voice on this device for this language/),
+  ).toBeVisible()
+  await expect(listen(page)).toHaveAttribute('aria-pressed', 'false')
+  expect(await spoken(page)).toHaveLength(0)
 })

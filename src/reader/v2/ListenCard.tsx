@@ -12,6 +12,7 @@ import { useUnlocked } from '../../settings/level'
 import { useDeviceSetting } from '../../settings/useSetting'
 import {
   bookAloudState,
+  bookNoVoice,
   setBookAloudSpeed,
   setBookAloudVoice,
   skipBookAloud,
@@ -61,6 +62,7 @@ export default function ListenCard({
   const voice = voiceChoice.useValue()
   const pins = voicePins.useValue()
   const sleep = sleepChoice.useValue()
+  const noVoice = bookNoVoice.useValue()
   const [speed] = useDeviceSetting(readingSpeedSetting)
   const speedOn = useUnlocked('reader.aloudVoice')
   const skipOn = useUnlocked('reader.aloudSkip')
@@ -237,6 +239,15 @@ export default function ListenCard({
                   </label>
                 </CardWell>
               </CardGroup>
+            )}
+            {noVoice > 0 && (
+              <p
+                className="pcard-note"
+                role="status"
+                data-testid="rv2-listen-nodevicevoice"
+              >
+                {t('readerv2.listen.noDeviceVoice')}
+              </p>
             )}
             {groups.length === 0 ? (
               <p className="pcard-note" data-testid="rv2-listen-novoice">

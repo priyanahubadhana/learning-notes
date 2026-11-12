@@ -81,6 +81,8 @@ export class ReadAloud {
     finished?: () => void
     /** The piece changed (offset in the text). */
     chunk?: (start: number) => void
+    /** localOnly is on and the device has no voice for the language: nothing was spoken. */
+    noVoice?: () => void
   }
 
   constructor(
@@ -140,12 +142,25 @@ export class ReadAloud {
       : s.getVoices()
     let voice = voices.find((v) => v.voiceURI === this.opts.voiceURI)
     // No usable choice: the best on-device voice for the language, if any.
-    if (!voice && this.opts.localOnly && this.opts.lang)
+    if (!voice && this.opts.localOnly)
       voice = rankVoices(
-        voices.filter(
-          (v) => v.lang.slice(0, 2) === this.opts.lang!.slice(0, 2),
-        ),
+        this.opts.lang
+          ? voices.filter(
+              (v) =>
+                v.lang.slice(0, 2).toLowerCase() ===
+                this.opts.lang!.slice(0, 2).toLowerCase(),
+            )
+          : voices,
       )[0]
+    if (!voice && this.opts.localOnly) {
+      // Never fall back to the browser's default voice: it may be a network voice.
+      this.token++
+      this.clearTimers()
+      this.source.clearMarks()
+      this.set('idle')
+      this.on.noVoice?.()
+      return
+    }
     if (voice) {
       u.voice = voice
       u.lang = voice.lang

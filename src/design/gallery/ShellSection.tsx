@@ -27,6 +27,9 @@ export default function ShellSection() {
   const [pop, setPop] = useState(false)
   const [popLow, setPopLow] = useState(false)
   const [edge, setEdge] = useState(false)
+  // The demo bars float over the whole gallery; shown only on request so
+  // they never cover another part's demo.
+  const [bars, setBars] = useState(false)
   const [said, setSaid] = useState('Nothing yet')
   const [popAnchor, setPopAnchor] = useState<HTMLElement | null>(null)
   const [lowAnchor, setLowAnchor] = useState<HTMLElement | null>(null)
@@ -169,16 +172,28 @@ export default function ShellSection() {
           >
             {S.showEdge}
           </button>
-          <FloatingBar id="demo-reader" label="Reader bar">
-            <button type="button" className={btn}>
-              Aa
-            </button>
-          </FloatingBar>
-          <FloatingBar id="demo-draw" label="Drawing bar" lift={64}>
-            <button type="button" className={btn}>
-              {S.pen}
-            </button>
-          </FloatingBar>
+          <button
+            type="button"
+            className={btn}
+            data-testid="open-bars"
+            onClick={() => setBars(true)}
+          >
+            {S.showBars}
+          </button>
+          {bars && (
+            <>
+              <FloatingBar id="demo-reader" label="Reader bar">
+                <button type="button" className={btn}>
+                  Aa
+                </button>
+              </FloatingBar>
+              <FloatingBar id="demo-draw" label="Drawing bar" lift={64}>
+                <button type="button" className={btn}>
+                  {S.pen}
+                </button>
+              </FloatingBar>
+            </>
+          )}
         </Demo>
       </Cells>
       <ToastHost />

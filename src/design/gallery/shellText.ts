@@ -11,6 +11,7 @@ export const S = {
   withUndo: 'With Undo',
   two: 'Two',
   showEdge: 'Show edge handle',
+  showBars: 'Show floating bars',
   pen: 'Pen',
   notebookOptions: 'Notebook options',
   titleLabel: 'Title',

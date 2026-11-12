@@ -30,6 +30,9 @@ export function RowPreview({
   return (
     <div
       data-row-preview
+      data-picture={
+        definition.id === 'general.reduceGlass' ? 'glass' : undefined
+      }
       data-glow={glowKey > 0 ? 'on' : undefined}
       className="sv3-rowprev"
     >

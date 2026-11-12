@@ -5,7 +5,7 @@ import { ClearField } from '../../design/parts/ClearField'
 import { OnOffChoice } from '../../design/parts/OnOff'
 import type { SettingDefinition } from '../registry'
 import { tv } from './tv'
-import { valueText } from './changeNote'
+import { LabelsEditor } from './LabelsEditor'
 
 interface Props {
   definition: SettingDefinition
@@ -63,8 +63,7 @@ export function RowControl(props: Props) {
         {t(c.buttonKey)}
       </button>
     )
-  // labels: shown as a count; the list editor comes with a later step.
-  return <span className="sv3-line-help">{valueText(definition, value)}</span>
+  return <LabelsEditor value={value} onSave={onSave} descId={descId} />
 }
 
 function NumberField({

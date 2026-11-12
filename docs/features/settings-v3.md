@@ -273,6 +273,26 @@ New: Your experience, Tours library, Professional features list, hidden Try new 
 | 12   | Try new features list                                                                                                              | `v3/TryNewDesign.tsx`                                                                                                                                                   |
 | 13   | Texts                                                                                                                              | `src/i18n/en/settingsV3.ts` (this slice's own file)                                                                                                                     |
 
+Spec lines per step (so no line is left without a commit):
+
+| Lines                          | Step    | Note                                                                                                                 |
+| ------------------------------ | ------- | -------------------------------------------------------------------------------------------------------------------- |
+| SET-B01 to B04                 | 3       | Shell, sections, phone pill                                                                                          |
+| SET-B05, B06                   | 5       | Search                                                                                                               |
+| SET-B07, B09, B12, B15, B16    | 4       | Rows                                                                                                                 |
+| SET-B10, B11, B13, B14         | 6       | History, section reset                                                                                               |
+| SET-B08, B32 to B35            | 7       | General previews                                                                                                     |
+| SET-B27                        | 7       | Show help off: tips line in the preview greys out, glow and before / after note                                      |
+| SET-B28 to B31                 | 8       | Page tabs editor; B31 "Start new pages as" with "Choose a template" picker                                           |
+| SET-B17 to B24                 | 9       | Your experience, Tours library, first-launch question                                                                |
+| SET-B37 to B44, SET-P01 to P30 | 10      | Professional features list, Show in Beginner                                                                         |
+| SET-B45                        | 3 to 10 | A ✕ on every Settings text field (search, feature search, template search, tours, numbers); checked again in step 13 |
+| SET-B25                        | 11      | "Let AI use my notebooks" section                                                                                    |
+| SET-B26                        | 12      | Try new features                                                                                                     |
+| SET-B46                        | 13      | ? and "Why?" pop-ups (shared sheet, ✕ / Esc / tap outside), same words in both levels                                |
+| SET-B47                        | 3, 13   | Lazy chunks: screen, previews, Tours load only with the flag; size check in step 13                                  |
+| SET-B48                        | 13      | Own en / es / hi files with the same keys                                                                            |
+
 Hot files (`App.tsx`, `builtinSettings.ts`, `flags.ts`) are touched only by the integration builder, one change at a time.
 
 ### 10. Tests

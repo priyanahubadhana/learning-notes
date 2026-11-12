@@ -565,41 +565,89 @@
   animation: sv3-glow 1.5s var(--ease-out) 2;
 }
 
-/* Reduce glass preview: honest bars over a striped page. */
+/* Reduce glass preview: real frosted and solid bars over a colourful page. */
+.sv3-rowprev[data-picture='glass'] {
+  min-height: 0;
+  padding: var(--space-3);
+}
 .sv3-glass {
   display: flex;
   flex-direction: column;
-  gap: var(--space-1);
+  gap: var(--space-3);
   width: 100%;
-  padding: var(--space-2) 0;
 }
 .sv3-glass-stage {
+  position: relative;
+  height: 104px;
+  overflow: hidden;
+  border-radius: var(--r-md);
+  background: linear-gradient(135deg, #6d5ce8, #e0709a 55%, #f3b45c);
+}
+.sv3-glass-dot {
+  position: absolute;
+  border-radius: 50%;
+}
+.sv3-glass-dot-1 {
+  left: 14%;
+  top: -10px;
+  width: 70px;
+  height: 70px;
+  background: #3fd0c4;
+}
+.sv3-glass-dot-2 {
+  right: 12%;
+  top: 30px;
+  width: 54px;
+  height: 54px;
+  background: #2b3a8c;
+}
+.sv3-glass-dot-3 {
+  left: 46%;
+  top: 52px;
+  width: 44px;
+  height: 44px;
+  background: #fff6;
+}
+.sv3-glass-line {
+  position: absolute;
+  top: 16px;
+  right: 12px;
+  left: 12px;
+  height: 6px;
+  border-radius: 3px;
+  background: #ffffffb0;
+}
+.sv3-glass-line-s {
+  top: 30px;
+  right: 50%;
+}
+.sv3-glass-bars {
+  position: absolute;
+  right: var(--space-3);
+  bottom: var(--space-3);
+  left: var(--space-3);
   display: flex;
-  gap: var(--space-2);
-  padding: var(--space-2);
-  border-radius: var(--r-sm);
-  background-image: repeating-linear-gradient(
-    45deg,
-    var(--color-line) 0,
-    var(--color-line) 6px,
-    var(--color-surface-1) 6px,
-    var(--color-surface-1) 12px
-  );
+  justify-content: center;
+  gap: var(--space-3);
 }
 .sv3-glass-bar {
-  flex: 1;
-  padding: 4px var(--space-2);
-  border-radius: var(--r-sm);
-  font-size: 12px;
+  flex: 0 1 auto;
+  padding: 8px 16px;
+  border-radius: 99px;
+  font-size: 13px;
+  font-weight: 600;
+  color: #fff;
   text-align: center;
-  color: var(--color-ink);
+  white-space: nowrap;
 }
 .sv3-glass-bar[data-kind='frosted'] {
-  background: color-mix(in srgb, var(--color-surface-0) 55%, transparent);
-  backdrop-filter: blur(8px);
+  border: 1px solid rgba(255, 255, 255, 0.35);
+  background: rgba(255, 255, 255, 0.22);
+  backdrop-filter: blur(12px) saturate(1.4);
 }
 .sv3-glass-bar[data-kind='solid'] {
-  background: var(--color-surface-0);
+  border: 1px solid #4a4955;
+  background: #2b2a33;
 }
 
 /* Language card: calm, theme colours, shared radius, no bright fills. */
@@ -618,4 +666,59 @@
   background: var(--color-neutral-fill);
   font-size: 13px;
   color: var(--color-ink-soft);
+}
+
+/* Revise labels editor: name with ✕, colour dots, remove; all 44 pt. */
+.sv3-labels-list {
+  display: grid;
+  gap: var(--space-2);
+  margin: 0 0 var(--space-2);
+  padding: 0;
+  list-style: none;
+}
+.sv3-labels-item {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: var(--space-2);
+}
+.sv3-labels-name {
+  width: 12rem;
+  max-width: 100%;
+}
+.sv3-labels-colors {
+  display: flex;
+  flex-wrap: wrap;
+}
+.sv3-swatch {
+  display: inline-grid;
+  place-items: center;
+  width: 44px;
+  height: 44px;
+  padding: 0;
+  border: 0;
+  background: none;
+  cursor: pointer;
+}
+.sv3-swatch span {
+  width: 24px;
+  height: 24px;
+  border: 2px solid transparent;
+  border-radius: 50%;
+}
+.sv3-swatch[aria-pressed='true'] span {
+  border-color: var(--color-ink);
+}
+.sv3-icon-btn {
+  min-width: 44px;
+  min-height: 44px;
+  border: 0;
+  border-radius: var(--r-md);
+  background: none;
+  color: var(--color-ink-soft);
+  cursor: pointer;
+}
+.sv3-icon-btn:hover {
+  background: var(--color-hover);
+  color: var(--color-ink);
 }

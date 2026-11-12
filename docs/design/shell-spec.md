@@ -178,3 +178,28 @@ Not a contradiction, but to carry over: T's drag-and-snap for bars, T's keyboard
 5. Run the checks: no page scroll, sheet box identical across tabs, 44 pt targets, three themes, 400 px and 1280 px.
 
 Suggested order: Review and Settings (no shell at all today), Search (wrong rail), Home, reader, then the toolbar mock last (it is the approved one; it changes least).
+
+## 13. What each area slice calls (SH-09 to SH-13, 0h)
+
+All of these live in `src/app/shell/` and are used only while `foundation.shell` is ON (an area slice keeps its old part for flag OFF). Never copy them; if one is wrong, report it. Each opens through the overlay layer, so position, order, Esc and first-outside-tap are already right.
+
+**Owned by the frame (nothing to call except the toast):** SH-12 `ToastHost` is mounted by `Shell.tsx`, and `App.tsx` sends every `appUi.toast(message, action?)` to it while the flag is ON. An area slice keeps calling `useContext(AppUiContext)` (`src/app/appUi.ts`) and `toast(message, { label, onSelect })`. No slice mounts its own toast.
+
+| Part                 | Import (from `src/`)                                                         | Props (required first)                                                                                                                                                                                                                              |
+| -------------------- | ---------------------------------------------------------------------------- | --------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| SH-09 `MoreSheet`    | `import { MoreSheet, type PickerTile } from 'app/shell/MoreSheet'`           | `title`, `tabs: TabDef[]`, `tab`, `onTab(id)`, `onDone()`, `onClose()`; optional `sub`, `icon`, `picker: PickerTile[]`, `picked`, `onPicked(id)`, `setKey`, `hint`, `dirty` (asks "Discard changes?"), `id`; children = the body of the current tab |
+| SH-10 `Dialog`       | `import { Dialog } from 'app/shell/Dialog'`                                  | `title`, `confirmLabel`, `onConfirm()`, `onCancel()`; optional `cancelLabel`, `destructive`, `undoNote`, `confirmDisabled`, `parentId` (the sheet it came from), `id`; children = body or the name field                                            |
+| SH-11 `PopMenu`      | `import { PopMenu } from 'app/shell/PopMenu'`                                | `anchor: HTMLElement \| null`, `sections: { label?, items: { id, label, onPick(), icon?, danger?, disabled? }[] }[]`, `label`, `onClose()`; optional `id`                                                                                           |
+| SH-13 `FloatingBar`  | `import { FloatingBar } from 'app/shell/FloatingBar'`                        | `id` (remembered per bar), `label`; optional `icon`, `lift` (px, when two bars show); children = the bar's buttons. Draws its own minimise button and, minimised, its chip                                                                          |
+| SH-13 `MinimiseChip` | `import { MinimiseChip } from 'app/shell/MinimiseChip'`                      | `label`, `onRestore()`; optional `icon`. Only for a bar that is not a `FloatingBar` (a toolbar with its own look)                                                                                                                                   |
+| SH-13 `EdgeHandle`   | `import { EdgeHandle } from 'app/shell/EdgeHandle'`                          | `label`, `onShow()`. For a hidden bar; draggable, snaps left or right, remembers the place                                                                                                                                                          |
+| SH-13 minimise state | `import { minimiseBar, restoreBar, useMinimised } from 'app/shell/minimise'` | `minimiseBar(id)`, `restoreBar(id)`, `useMinimised(id): boolean` (saved in `shell.minimised`)                                                                                                                                                       |
+
+Who uses what (slice, then parts):
+
+- **Library, Notebooks, Review, Home (spaces):** `MoreSheet` for the space's More button (with `picker` for "All notebooks / decks / books" tiles); `Dialog` for name, confirm and delete (replaces `NameDialog`, `ConfirmDialog`, `ChoiceDialog`, `NameSheet`); `PopMenu` for row menus; toast through `appUi.toast`.
+- **Page and editor:** `FloatingBar` (`id="draw-bar"`, `label` from `t()`) for the drawing bar and the reader-style floating tools; `minimiseBar`/`useMinimised` where the docked toolbar already minimises; `EdgeHandle` for the hidden tool bar (`label={t('bar.show')}`, `onShow` = `showToolBar`); `PopMenu` for block, lasso and mixed menus; `Dialog` (`destructive`) for Delete forever.
+- **Settings and Save & restore:** `MoreSheet` for any per-item settings (pick on top, edit below); `Dialog` for Reset and Delete; no toast of their own.
+- **Reader and books:** `FloatingBar` (`id="reader-bar"`) when the reader bar floats; `MoreSheet` for per-book settings (`picker` = the books); `PopMenu` for the ⋯ menu; the bar never starts left of the top bar's menu buttons (see `useReaderInset`).
+- **Search and command palette:** `PopMenu` only for result row menus; its own popup stays a popup.
+- **Tags, databases, calendar:** `PopMenu` and `Dialog`; the Tag picker is the shared part in `design/parts`, not a shell part.

@@ -1217,8 +1217,7 @@ function App() {
       ) {
         e.preventDefault()
         e.stopPropagation()
-        // search.v2: this shortcut opens on the Features chip (SR-B01).
-        setSearchChip(isOn('search.v2') ? 'feature' : 'all')
+        setSearchChip('all')
         setSearchPopup(true)
       }
     }
@@ -1233,7 +1232,8 @@ function App() {
       ) {
         e.preventDefault()
         e.stopPropagation()
-        setSearchChip('all')
+        // search.v2: this shortcut opens on the Features chip (SR-B01).
+        setSearchChip(isOn('search.v2') ? 'feature' : 'all')
         setSearchPopup(true)
       }
     }

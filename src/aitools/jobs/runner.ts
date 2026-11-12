@@ -55,6 +55,15 @@ export interface ApplyResult {
   job: AiJob
 }
 
+/** States in which run() does work; in any other state it changes nothing. */
+const RUNNABLE: ReadonlySet<JobState> = new Set([
+  'validated',
+  'queued',
+  'running',
+  'needs_attention',
+  'waiting_offline',
+])
+
 type Verdict = 'done' | 'paused' | 'offline' | 'cancelled' | 'too_many'
 
 const FROM = /^(s\d+)\.([A-Za-z][A-Za-z0-9_]*)$/
@@ -133,6 +142,8 @@ export class JobRunner {
   private readonly catalog: readonly CatalogTool[]
   private tail: Promise<unknown> = Promise.resolve()
   private busy = 0
+  /** Errors thrown by the job store: they crash the run instead of failing a step. */
+  private readonly saveErrors = new WeakSet<object>()
   private readonly aborts = new Map<string, AbortController>()
 
   constructor(deps: RunnerDeps) {
@@ -193,6 +204,11 @@ export class JobRunner {
   async run(id: string): Promise<AiJob> {
     if (this.busy) await this.markQueued(id)
     return this.exclusive(() => this.runLocked(id))
+  }
+
+  /** AF-5: a page changed; stage everything again from fresh reads. */
+  restage(id: string): Promise<AiJob> {
+    return this.exclusive(() => this.runLocked(id, true))
   }
 
   /** AF-8 Retry: runs the failed step again with a fresh retry budget. */
@@ -310,10 +326,10 @@ export class JobRunner {
 
   // ---- running ----
 
-  private async runLocked(id: string): Promise<AiJob> {
+  private async runLocked(id: string, again = false): Promise<AiJob> {
     const job = await this.need(id)
-    if (job.state === 'cancelled' || job.state === 'failed') return job
-    if (job.state === 'preview') this.restage(job)
+    if (job.state === 'preview' && again) this.resetForRestage(job)
+    else if (!RUNNABLE.has(job.state)) return job
     if (job.state !== 'running') {
       this.go(job, 'running')
       job.notice = null
@@ -449,6 +465,8 @@ export class JobRunner {
       this.setStep(step, 'done')
       return 'done'
     } catch (e) {
+      // A failed save is a crash, not a failed step: the next start resumes.
+      if (typeof e === 'object' && e && this.saveErrors.has(e)) throw e
       if (signal.aborted) return 'cancelled'
       const err =
         e instanceof StepError
@@ -594,7 +612,7 @@ export class JobRunner {
   // ---- restage / recovery ----
 
   /** Preview again after a page changed: every step is staged again from fresh reads. */
-  private restage(job: AiJob) {
+  private resetForRestage(job: AiJob) {
     this.go(job, 'running')
     job.notice = null
     job.changeSet = null
@@ -690,7 +708,12 @@ export class JobRunner {
 
   private async save(job: AiJob) {
     job.timings.updatedAt = this.clock.now()
-    await this.store.put(job)
+    try {
+      await this.store.put(job)
+    } catch (e) {
+      if (typeof e === 'object' && e) this.saveErrors.add(e)
+      throw e
+    }
   }
 
   /** One job at a time on this device. */

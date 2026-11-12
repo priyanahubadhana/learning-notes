@@ -42,6 +42,41 @@ export interface StageResult {
   outputs: Rec
 }
 
+/**
+ * The app's order-key helpers add two random digits so two devices rarely make
+ * the same key. A job must stage to identical records every time (AF-3), so
+ * while a builder runs (synchronously) those digits come from a generator
+ * seeded with (job id, step id). Only crypto.getRandomValues is swapped, and
+ * it is put back before anything else can run.
+ */
+function seededRandom(seed: string) {
+  let a = Number.parseInt(stableId(seed).replace(/-/g, '').slice(0, 8), 16) | 0
+  const next = () => {
+    a = (a + 0x6d2b79f5) | 0
+    let t = Math.imul(a ^ (a >>> 15), 1 | a)
+    t = (t + Math.imul(t ^ (t >>> 7), 61 | t)) ^ t
+    return ((t ^ (t >>> 14)) >>> 0) / 4294967296
+  }
+  return <T>(fn: () => T): T => {
+    const c = globalThis.crypto as unknown as Record<string, unknown>
+    const own = Object.getOwnPropertyDescriptor(c, 'getRandomValues')
+    Object.defineProperty(c, 'getRandomValues', {
+      configurable: true,
+      writable: true,
+      value: (arr: Uint8Array) => {
+        for (let i = 0; i < arr.length; i++) arr[i] = Math.floor(next() * 256)
+        return arr
+      },
+    })
+    try {
+      return fn()
+    } finally {
+      if (own) Object.defineProperty(c, 'getRandomValues', own)
+      else delete c.getRandomValues
+    }
+  }
+}
+
 /** hash(job id, step id, tool id + version, resolved args). */
 export function stepKey(
   jobId: string,
@@ -70,6 +105,19 @@ export async function stageStep(
   args: Rec,
   env: StageEnv,
 ): Promise<StageResult> {
+  const calm = seededRandom(`${env.jobId}/${env.stepId}`)
+  const det = {
+    notebookFromSpec: (...a: Parameters<typeof notebookFromSpec>) =>
+      calm(() => notebookFromSpec(...a)),
+    pageIntoNotebook: (...a: Parameters<typeof pageIntoNotebook>) =>
+      calm(() => pageIntoNotebook(...a)),
+    cardsIntoPage: (...a: Parameters<typeof cardsIntoPage>) =>
+      calm(() => cardsIntoPage(...a)),
+    databaseIntoNotebook: (...a: Parameters<typeof databaseIntoNotebook>) =>
+      calm(() => databaseIntoNotebook(...a)),
+    blockTree: (...a: Parameters<typeof blockTree>) =>
+      calm(() => blockTree(...a)),
+  }
   let n = 0
   const newId = () => stableId(`${env.jobId}/${env.stepId}/${n++}`)
   const base = { now: env.now, newId, batchId: stableId(`${env.jobId}/batch`) }
@@ -137,7 +185,7 @@ export async function stageStep(
       case 'notebooks.create': {
         const style = args.style as SpecStyle | undefined
         const mine = await rows('notebooks', { workspaceId: env.workspaceId })
-        const out = notebookFromSpec(
+        const out = det.notebookFromSpec(
           {
             version: 'ln-spec/1',
             title: String(args.title),
@@ -166,7 +214,7 @@ export async function stageStep(
         const siblings = (await rows('pages', { notebookId })).filter(
           (p) => (p.parentId ?? null) === parentId,
         )
-        const out = pageIntoNotebook(page, {
+        const out = det.pageIntoNotebook(page, {
           ...base,
           notebookId,
           parentId,
@@ -187,7 +235,7 @@ export async function stageStep(
         if (version && version !== String(page.updatedAt))
           throw new StepError('stale', 'The page changed since it was read.')
         const blocks = (await rows('blocks', { pageId })).filter(top)
-        const out = cardsIntoPage(cards, {
+        const out = det.cardsIntoPage(cards, {
           ...base,
           notebookId: String(page.notebookId),
           pageId,
@@ -219,7 +267,7 @@ export async function stageStep(
         const pageId = str(args.pageId)
         const page = pageId ? await need('pages', pageId, 'page') : undefined
         const dbs = await rows('databases', { notebookId })
-        const out = databaseIntoNotebook(database, {
+        const out = det.databaseIntoNotebook(database, {
           ...base,
           workspaceId: env.workspaceId,
           notebookId,
@@ -311,7 +359,7 @@ export async function stageStep(
       if (op.op === 'replace') {
         const old = op.blockId ? byId.get(op.blockId) : undefined
         if (!old) throw new StepError('gone', 'The block to replace is gone.')
-        const t = blockTree(op.block, {
+        const t = det.blockTree(op.block, {
           ...ctx,
           parentId: (old.parentId as string | null) ?? null,
           order: String(old.order),
@@ -354,10 +402,10 @@ export async function stageStep(
         parent = op.parentId ?? null
         if (parent && !byId.has(parent))
           throw new StepError('gone', 'The parent block is gone.')
-        order = appendKeys(lastOf(parent))()
+        order = calm(() => appendKeys(lastOf(parent))())
         last.set(parent, order)
       }
-      const t = blockTree(op.block, { ...ctx, parentId: parent, order })
+      const t = det.blockTree(op.block, { ...ctx, parentId: parent, order })
       records.push(...made(t.records))
     }
     return { records, outputs: { pageId } }

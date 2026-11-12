@@ -156,7 +156,7 @@ Full text: `docs/DECISIONS.md` "Decisions to review" on `build/next`. Build-nigh
 
 ## Waves 5-7 (13 Nov, orchestrator run 2) and handover
 
-- CI 43318864743 on build/next f49fdad9 (9b merged): see result below / re-check first.
+- CI 43318864743 on build/next f49fdad9 (9b merged) was CANCELLED: re-run CI on build/next first.
 - Gate 2 PASS: 4 a67d622c (SR-B05 marked Later), 12 b11e5756 (merge 1b810fc9 + G3 fixes + test follow-ups), 8 044370f7 (rotation via useFrameSize, RV-G02 webkit helper wait, RV-B08), 3 6132fcb3 (aria-describedby fix; test-only re-check not re-gated). 0g follow-ups f741719d.
 - Gate 3 (third visit, gate3 file, main 918c0060): PASS 8, 0g follow-ups. FAIL 5 (7), 6 (6), 9b (8), 12 (2: G3-2 row 24 px short, generic + icons H4-6/Toggle), 4 (7 left). Slice 3 needs a re-shoot + gate 3 (incl. sepia).
 - Slice 7: gate 2 FAIL = unfinished: 7g (RD-B42 edge-tap, Style Full), 7h rest (proSwitches.ts, Pro list, eraser); e2e missing RD-P02-17, P19-34, RD-B24/25/26/42/45/46/50; nothing-lost script R01-R92. Head 55e0ea34.

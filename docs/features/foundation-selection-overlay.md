@@ -67,3 +67,14 @@ No input from outside, no storage, no secrets. Pure in-memory state.
   the modules are not in the first-load bundle.
 
 ## Inventory
+
+Kind — file:line — what (found 12 Nov 2026):
+
+- text — `src/editor/ownSelection.ts:49-51` — module variables (`lastInputAt`, `pointerDown`, `keptUntil`) around the ProseMirror selection; the real text selection lives in the editor view (`PageEditor.tsx`, `HoldMenu.tsx:34`, `dragSelect.ts:140`, `lassoWords.ts:156`).
+- text — `src/reader/BookReader.tsx:204` — `useState<ReaderSelection>` for a selection inside a book (quote, anchor, rect); fits `text` with owner `reader` (the anchor stays with the reader).
+- box — `src/paper/boxState.ts:18` — reducer state `{kind:'selected', ids}` (also `typing`), held in `PaperFrame.tsx:598` via `useReducer`.
+- ink — `src/ink/controller.ts:360` — `selection: string[]` (lasso-picked stroke ids), plus mixed page blocks at `:361`.
+- picture — `src/app/tools/context/contextStore.ts:26` — only a "something is selected" flag (`setContextActive('picture', on)`), the picture itself is a ProseMirror node selection.
+- cells — `src/editor/selectAllSteps.ts:2,45-100` — ProseMirror `CellSelection` of table cells (no own state).
+- rows — none found today (no row selection in `src/databases`); kind reserved for database rows.
+- Union covers every kind found; no kind added. Context strip flags (`contextStore.ts`) become a read of the store later.

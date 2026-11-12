@@ -29,6 +29,7 @@ Noted while batch 1 is being built. Test batch 1 first, then decide which of the
 - Library: merge "Bank" into Knowledge. Knowledge gets sort/filter views for Daily Highlights, Study prompts and Export, plus an optional dashboard at the top (stats) that the user can switch off. No separate Bank tab.
 
 ## 12. AI mode (owner, 12 Nov 2026), decided so far
+
 - Professional only. Its own "AI" space in the sidebar + the universal AI button/bar on every screen.
 - Features: Ask my notes (chat with citations), Tutor/quiz me, Playground, Auto-organise, and the MAIN one: Jobs, where Claude turns captured sources (YouTube video transcript + frames, articles, posts) into app content (Library entry, notebook notes with frames, mind map, cards, tags) using the app's own tools.
 - Destination: every job chooses where it goes (Library / an existing notebook / a new notebook / a section inside a notebook, under Advanced). The app remembers the path per tag/topic and routes similar items there automatically next time.
@@ -38,6 +39,7 @@ Noted while batch 1 is being built. Test batch 1 first, then decide which of the
 - Capture path (phased): 1) now: drop transcript + frames into a job card; 2) our own small Chrome extension "Send to Learning Notes" (one click: URL, title, transcript, current-frame screenshots) → the app's Inbox; 3) automatic: Claude processes the Inbox via the connector (or a scheduled routine) and drafts the jobs for Preview.
 
 ## 13. AI mode v2 (owner, 12 Nov 2026), decided
+
 - Layout (NotebookLM-style): Sources | Chat (citations, Save to notes) | Studio (notes, mind map, cards, quiz, summary; audio later); tabs above for Jobs, Workflows, Activity, Settings; collapses to tabs on portrait/phone.
 - "Recipe" renamed "Workflow".
 - Sources: anything (files, links, YouTube, text, images, audio, Drive, own notebooks/books), each with a tick box.

@@ -266,17 +266,22 @@ Three ways of using the reader, as presets:
 - Real build (reader): Listen long-press = hold only (release must not also start read-aloud); no selection/callout on long-press. Owner, 12 Nov.
 
 ## Book annotations / Reader mock: APPROVED by owner (12 Nov 2026), build with these conditions
+
 Mock: claude.ai/artifact/UQuji6cLjk9PNuuF9vsGEB (all owner comments on it are build requirements).
+
 1. "Highlight where I land" switch: the jump/scroll glow is ON for new users and can be turned off (remembered).
 2. The reader bar and the drawing bar minimise/restore independently.
 3. Sticky note: tapping opens a READ view that looks like a real sticky note (paper colour, text, ✕, ✏️). Only ✏️ opens the edit dialog; a new note opens in edit.
 4. Listen: tap = read aloud; hold = settings only (release must not start playback); no selection/callout on long-press.
 5. Pages-grid edits change the real book (Undo + Restore original); no dimming behind the panel; Minimise hides the whole strip; edge-tap page turns with a slide; voices by type with pins; Style "Full" by default; ✕ on every dialog; customisable tabs Pages/Outline/Annotations/+.
 6. The top-bar AI button needs a rework: do it together with the AI mode build (not in this mock).
+
 - Real build (Home): widget drag uses live reflow preview; a wide widget dropped between small ones lands there (small ones wrap); impossible spots snap to nearest fit. Owner, 12 Nov.
 
 ## Home dashboard mock: APPROVED by owner (12 Nov 2026), build with these conditions
+
 Mock: claude.ai/artifact/NqQG7z5SGyLv5YxnkArK9e (all owner comments on it are build requirements).
+
 1. Remove the leftover top-bar Done button (the edit bar has its own Done/Cancel/Reset).
 2. Drag uses a live reflow preview: other widgets slide out of the way while dragging (app-wide rule).
 3. A wide widget dropped between small ones lands there (small ones wrap); impossible spots snap to the nearest fit.
@@ -286,11 +291,15 @@ Mock: claude.ai/artifact/NqQG7z5SGyLv5YxnkArK9e (all owner comments on it are bu
 7. Optional gap: a "Pending items" widget (overdue + open tasks); ask the owner when building.
 
 ## Settings mock v3: APPROVED by owner (12 Nov 2026), build with this condition
+
 Mock: claude.ai/artifact/RqQwq5CgT1srfExuQPnP46 (incl. Professional features switches, 169 items in scratchpad pro-features.md; re-check the Home/Library counts).
+
 1. The "Bold · Pen · Read" preview illustration (a setting preview) pops out too much: redo it in calm theme colours/style, matching the design rules.
 
 ## Toolbar mock v6: APPROVED by owner (12 Nov 2026), build with these conditions
+
 Mock: claude.ai/artifact/UNS1UzPv4wb6errBrtpv4h (v6; sources and mapping in scratchpad v6\; old → new map in v6\mapping.md, 878 probes).
+
 1. Visible feedback for every setting change: the changed part glows briefly, new items slide/fade in, a toast with Undo, a tiny live preview per row (app-wide rule).
 2. Professional: "+" at the end of each tool row to pin any setting (reorder, rename, remove, group); overflow goes into "⋯ more pinned ▾", never sideways scroll; Beginner unchanged.
 3. The Box card opens beside the selected box, never over it.

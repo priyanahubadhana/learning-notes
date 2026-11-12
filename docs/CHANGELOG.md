@@ -1617,6 +1617,7 @@ Plan: [plans/polish-2-2026-11.md](plans/polish-2-2026-11.md). Items 8, 9 and 15 
 - 2026-11-12: agent hierarchy (Fable manager → Opus sub-managers → Sonnet/Haiku executors). Files: .claude/agents/*.md, rules/building.md
 
 ## 12 Nov 2026: CI green again
+
 - boxTaps (WebKit): edge probe made overlays click-through (tapSelect `probe()`), eeaf986; TEMP debug logging reverted.
 - aiBook cap: "show what will be sent" disabled until the book has opened (db388de).
 - toggles View tab: spec presses the reader ✕ directly (1f7b4e6); OPEN UI bug: on iPad the sidebar covers the reader bar ✕.

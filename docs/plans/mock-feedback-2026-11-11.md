@@ -165,4 +165,5 @@ Four modes:
 - Library: Export in Bank + shortcut in More; Themes tab default in Professional only; search in place on Knowledge, grouped elsewhere; "All" shelf first and default.
 
 ## Owner rule, 12 Nov: every Professional feature is individually unlockable
+
 Every Professional-only feature/setting has its own toggle so a Beginner can turn on just that one and stay in Beginner. Central list: Settings › Your experience › Professional features (grouped by space, searchable, "turn on all in group", "reset to Beginner"); plus a "Show in Beginner" switch on each Pro setting row.

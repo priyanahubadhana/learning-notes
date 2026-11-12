@@ -156,7 +156,8 @@ test('SET-B43 Professional reads every switch as on and keeps the stored choices
     'aria-checked',
     'true',
   )
-  await expect(sw(page, 'home.cardSizes')).toBeDisabled()
+  // SET-B20: in Professional every switch can be turned off by itself.
+  await expect(sw(page, 'home.cardSizes')).toBeEnabled()
   expect((await state(page)).unlocked).toEqual(['home.builtFrom'])
   await level.getByRole('radio', { name: 'Beginner' }).click()
   await expect(page.locator('[data-pro-total]')).toHaveText('1 of 219 on')
@@ -164,6 +165,40 @@ test('SET-B43 Professional reads every switch as on and keeps the stored choices
     'aria-checked',
     'true',
   )
+})
+
+test('SET-B20 Professional: turn one switch off, it stays off, the others stay on, Undo brings it back', async ({
+  page,
+}) => {
+  await open(page, 'pro', JSON.stringify({ level: 'professional' }))
+  await expect(page.locator('[data-pro-total]')).toHaveText('219 of 219 on')
+  await expect(sw(page, 'home.cardSizes')).toBeEnabled()
+  await sw(page, 'home.cardSizes').click()
+  await expect(sw(page, 'home.cardSizes')).toHaveAttribute(
+    'aria-checked',
+    'false',
+  )
+  await expect(sw(page, 'home.builtFrom')).toHaveAttribute(
+    'aria-checked',
+    'true',
+  )
+  await expect(page.locator('[data-pro-total]')).toHaveText('218 of 219 on')
+  await page.getByTestId('sv3-undo').click()
+  await expect(sw(page, 'home.cardSizes')).toHaveAttribute(
+    'aria-checked',
+    'true',
+  )
+  await expect(page.locator('[data-pro-total]')).toHaveText('219 of 219 on')
+  await page.getByTestId('sv3-redo').click()
+  await expect(page.locator('[data-pro-total]')).toHaveText('218 of 219 on')
+  // It stays off after a reload.
+  await page.reload()
+  await expect(page.locator('[data-settings-v3]')).toBeVisible()
+  await expect(sw(page, 'home.cardSizes')).toHaveAttribute(
+    'aria-checked',
+    'false',
+  )
+  await expect(page.locator('[data-pro-total]')).toHaveText('218 of 219 on')
 })
 
 test('SET-B44 the Beginner / Professional control is in Professional features and in Your experience', async ({

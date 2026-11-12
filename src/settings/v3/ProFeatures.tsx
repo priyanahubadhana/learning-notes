@@ -5,8 +5,10 @@ import { OnOff } from '../../design/parts/OnOff'
 import { SheetBase } from '../../design/parts/SheetBase'
 import { PRO_FEATURES, type ProFeatureId } from '../proFeatures.gen'
 import {
+  getLevel,
   isStoredOn,
   isUnlocked,
+  setProOff,
   setUnlocked,
   unlockedIds,
   useLevel,
@@ -17,7 +19,7 @@ import { useSettingsHistory } from './historyCtx'
 import { LevelControl } from './LevelControl'
 import { PRO_FEATURE_TEXT } from './proFeatureText.gen'
 import { proGroups, type ProGroup } from './proGroups'
-import { unlockId } from './virtualWrites'
+import { proOffId, unlockId } from './virtualWrites'
 import { WhyLink } from './WhyLink'
 import { tv, type V3Key } from './tv'
 
@@ -56,15 +58,27 @@ export function ProFeatures() {
   const flash = (ids: string[]) =>
     setGlow((g) => ({ ids, seq: (g?.seq ?? 0) + 1 }))
 
-  const change = (ids: ProFeatureId[], next: boolean, text: string) => {
-    const items = ids
-      .filter((id) => isStoredOn(id) !== next)
-      .map((id) => ({ id: unlockId(id), before: !next, after: next }))
+  const change = (
+    ids: ProFeatureId[],
+    next: boolean,
+    text: string,
+    stored = false,
+  ) => {
+    // Professional: the level is the default (all on), the switch is a stored override.
+    const proNow = !stored && getLevel() === 'professional'
+    const items = proNow
+      ? ids
+          .filter((id) => isUnlocked(id) !== next)
+          .map((id) => ({ id: proOffId(id), before: next, after: !next }))
+      : ids
+          .filter((id) => isStoredOn(id) !== next)
+          .map((id) => ({ id: unlockId(id), before: !next, after: next }))
     if (items.length === 0) return
     history.record({ label: text, items }, text)
     for (const id of ids) {
       if (next) markJustShown(id)
-      setUnlocked(id, next)
+      if (proNow) setProOff(id, !next)
+      else setUnlocked(id, next)
     }
     flash(ids)
   }
@@ -76,7 +90,7 @@ export function ProFeatures() {
       toast(tv('sv3.pro.resetNone'))
       return
     }
-    change(ids, false, tv('sv3.pro.resetDone', { count: ids.length }))
+    change(ids, false, tv('sv3.pro.resetDone', { count: ids.length }), true)
   }
 
   return (
@@ -127,7 +141,6 @@ export function ProFeatures() {
           key={g.slug}
           group={g}
           ids={g.shown}
-          pro={pro}
           glow={glow}
           onToggle={(id, next) =>
             change(
@@ -185,14 +198,12 @@ export function ProFeatures() {
 function GroupCard({
   group,
   ids,
-  pro,
   glow,
   onToggle,
   onAll,
 }: {
   group: ProGroup
   ids: readonly ProFeatureId[]
-  pro: boolean
   glow: { ids: string[]; seq: number } | null
   onToggle(id: ProFeatureId, next: boolean): void
   onAll(next: boolean): void
@@ -218,7 +229,6 @@ function GroupCard({
           type="button"
           className="sv3-btn"
           data-pro-all
-          disabled={pro}
           aria-label={
             tv(allOn ? 'sv3.pro.allOff' : 'sv3.pro.allOn') + ': ' + name
           }
@@ -243,7 +253,6 @@ function GroupCard({
               </div>
               <OnOff
                 checked={checked}
-                disabled={pro}
                 label={nameOf(id)}
                 onChange={(next) => onToggle(id, next)}
               />

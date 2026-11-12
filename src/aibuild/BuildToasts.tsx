@@ -25,8 +25,8 @@ const TITLE = '[data-aifw-title]'
 
 /**
  * Messages at the bottom of the Build screen, from the shared toast queue.
- * They sit in the browser's top layer (a manual popover), so no private
- * z-index is needed, and each one moves above the plan title if it would
+ * They sit in the browser's top layer (a manual popover), so no stacking
+ * number is needed, and each one moves above the plan title if it would
  * cover it.
  */
 export const BuildToasts = forwardRef<BuildToastsApi>(

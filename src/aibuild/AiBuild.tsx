@@ -32,7 +32,7 @@ export default function AiBuild({
   const toasts = useRef<BuildToastsApi>(null)
   const sheet = useRef<HTMLDivElement>(null)
 
-  // A full-screen sheet in the browser's top layer (no private z-index).
+  // A full-screen sheet in the browser's top layer (no stacking number of its own).
   useEffect(() => {
     const el = sheet.current
     if (!el) return

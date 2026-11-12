@@ -143,7 +143,7 @@ export class PasteFiller implements Filler {
     return new Promise((resolve, reject) => {
       if (signal.aborted) return reject(new Error('aborted'))
       const done = () => {
-        signal.removeEventListener('abort', onAbort)
+        signal.onabort = null
         this.waiting = null
         this.emit()
       }
@@ -151,7 +151,7 @@ export class PasteFiller implements Filler {
         done()
         reject(new Error('aborted'))
       }
-      signal.addEventListener('abort', onAbort)
+      signal.onabort = onAbort
       this.waiting = {
         req: {
           stepId: req.stepId,

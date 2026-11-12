@@ -252,49 +252,21 @@ export function useReadingPosition(o: Options): ReadingPosition {
   useEffect(() => {
     if (!active || !inner) return
     let done = false
-    /** Where the jump left the scroll; the place is held there until the reader scrolls. */
-    let heldAt: number | null = null
-    /** The saved place as it was when reading started (saving moves it later). */
-    let point: ReturnType<typeof getResume> | null = null
     const restore = () => {
       if (done || !inner.querySelector('.bn-block-outer[data-id]')) return
-      point ??= getResume(pageId) ?? null
-      if (!point) {
-        done = true
-        return
-      }
+      done = true
+      const point = getResume(pageId)
+      if (!point) return
       // Paged: by share of the pages, once they are counted (a block that
       // runs across a page break has no single page).
-      if (paged) {
-        done = true
-        pendingRef.current = point.progress
-        return
-      }
-      // The text arrives and settles in pieces (the saved block may not be
-      // there yet; pictures and fonts above it change heights). So the place
-      // is put back each time the page changes, until the reader scrolls.
-      const s = scroller()
-      if (heldAt !== null && s && Math.abs(s.scrollTop - heldAt) > 2) {
-        done = true
-        return
-      }
-      if (goToBlock(point.blockId, true)) heldAt = s?.scrollTop ?? 0
-      else if (heldAt === null) {
-        goToProgress(point.progress)
-        heldAt = s?.scrollTop ?? 0
-      }
+      if (paged) pendingRef.current = point.progress
+      else if (!goToBlock(point.blockId, true)) goToProgress(point.progress)
     }
     restore()
     if (done) return
     const observer = new MutationObserver(restore)
     observer.observe(inner, { childList: true, subtree: true })
-    const sizes = new ResizeObserver(restore)
-    sizes.observe(inner)
-    if (inner.parentElement) sizes.observe(inner.parentElement)
-    return () => {
-      observer.disconnect()
-      sizes.disconnect()
-    }
+    return () => observer.disconnect()
     // Only when reading starts or the page changes.
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [active, inner, pageId, paged])

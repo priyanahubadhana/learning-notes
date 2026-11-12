@@ -46,7 +46,9 @@ export async function writeAll(tx: Tx, records: readonly StagedRecord[]) {
   for (const r of records) {
     const cur = await tx.get(r.table, r.id)
     if (r.baseRev) {
-      if (!cur || revOf(cur) !== r.baseRev) throw new StaleError(r.table, r.id)
+      // Staging gives a record with no time stamp the revision 1.
+      if (!cur || (revOf(cur) || 1) !== r.baseRev)
+        throw new StaleError(r.table, r.id)
     } else if (cur) {
       if (same(cur, r.value)) continue
       throw new Error(`${r.table} ${r.id} already exists`)

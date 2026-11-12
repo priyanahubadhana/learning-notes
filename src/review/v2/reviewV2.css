@@ -233,7 +233,7 @@
   overflow: auto;
   text-align: center;
 }
-.rv2-face > :first-child {
+.rv2-face > .rv2-src + * {
   margin-top: auto;
 }
 .rv2-face > :last-child {

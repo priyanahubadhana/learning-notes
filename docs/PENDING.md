@@ -304,3 +304,4 @@ Mock: claude.ai/artifact/UNS1UzPv4wb6errBrtpv4h (v6; sources and mapping in scra
 2. Professional: "+" at the end of each tool row to pin any setting (reorder, rename, remove, group); overflow goes into "⋯ more pinned ▾", never sideways scroll; Beginner unchanged.
 3. The Box card opens beside the selected box, never over it.
 4. Remove the second minimise on the text box's own mini-bar; remove the top-bar Done if it has no purpose.
+- Real build (AI): a tool framework, where every catalog tool is a defined action (inputs, outputs, where it writes) the AI can chain into plans; Studio multi-select builds one plan. Owner, 12 Nov.

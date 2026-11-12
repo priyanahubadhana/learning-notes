@@ -323,3 +323,11 @@ This is a guess and depends on the usage limits and on how fast mock-ups are app
 - On-device storage changes: allowed with a safe upgrade + backup; the online database (Supabase) always asks the owner.
 - PC stays on, awake, Claude window open on build nights.
 - FIRST JOB of the first night: fix the 3 failures blocking today's deploy (lint; e2e claudeSettings.spec.ts:15; copyFormats.spec.ts:97, run 43154265787), deploy, then tell the owner to finish the Claude connector.
+
+## Never wait for the owner (owner rule, 12 Nov 2026)
+
+- Work never stops because the owner is away. If a question comes up: take the safest choice that follows the approved mock-ups, rules/quality.md and the design rules, log it in DECISIONS "to review", and continue.
+- Areas without an approved mock-up: draw the mock-up, publish it, and keep building OTHER approved areas meanwhile. Never build an unapproved design into the app.
+- Nothing wrong can reach the owner's daily use: new parts ship switched off; QA + the 3 gates check every slice against its approved mock-up and spec before merging.
+- Only three things truly wait for the owner: spending money, online database (Supabase) changes, and turning a new part ON for daily use (the owner does that after testing).
+- Each morning: a short report (done, preview link, what to test with 2–3 line steps, decisions to review). The owner tests when free and reports bugs; bugs go to the top of the next night's queue.

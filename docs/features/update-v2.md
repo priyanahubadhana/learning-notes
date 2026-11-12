@@ -125,5 +125,5 @@ Dialog set (alert, full-screen variant), Status pill stack (the update pill), Ba
 - **Offline must-have (U10) - decided safety rule:** an offline must-have update NEVER locks a person out of their notes. The notice shows only when online; offline it is a small bottom note ("Connect to the internet to finish this update. Your notes are safe.") and the app stays usable. The countdown starts by itself when the network is back (also if the network drops during the countdown or download). This replaces the earlier wording "the app stays blocked until online".
 - **Skipped versions (rule 3):** a number that only goes up replaces "the newest commit says required". Old devices keep today's rule through the `required` field.
 - **Other tab (U11):** treated as must-have without a network check, because old code writing to a newer database can damage notes.
-- **New unlock id** `about.updateDetails` is proposed (not yet in `docs/mockups/pro-features.md`).
+- **New unlock id** `about.updateDetails` is still proposed (not yet in `docs/mockups/pro-features.md`). Until the owner agrees, U15 (tap the reason line) uses the existing unlock `about.version`, so no list or count changes.
 - The pause button is called "Not now" during the countdown and "Cancel" during the download, but both lead to the same "Paused" screen; the app stays blocked, as BUG-004 says.

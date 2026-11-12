@@ -1,7 +1,7 @@
 // Browser types for code that runs inside the page.
 /// <reference lib="dom" />
 import { expect, test, type Page } from '@playwright/test'
-import { createNotebook } from './helpers.ts'
+import { cornerAction, createNotebook } from './helpers.ts'
 
 /**
  * Update flow v2 (slice 10, flag update.v2): the must-have rule and the
@@ -263,4 +263,64 @@ test('phone: buttons are at least 44 px tall and wide enough', async ({
     .boundingBox()
   expect(b!.height).toBeGreaterThanOrEqual(44)
   expect(b!.width).toBeGreaterThanOrEqual(112)
+})
+
+async function openAbout(page: Page) {
+  await page.goto(FLAG)
+  await cornerAction(page, 'Settings')
+  await expect(page.locator('[data-about]')).toBeVisible()
+}
+
+test('U14 About shows version, level, last check and Check for updates now', async ({
+  page,
+}) => {
+  await openAbout(page)
+  const about = page.locator('[data-about]')
+  await expect(about).toContainText('Version ')
+  await expect(about).toContainText('Update level 1')
+  await about.getByRole('button', { name: 'Check for updates now' }).click()
+  await expect(about).toContainText('Last checked for updates:', {
+    timeout: 15_000,
+  })
+})
+
+test('U14 a check that finds a must-have version starts the notice', async ({
+  page,
+}) => {
+  await openAbout(page)
+  await versionJson(page, { commit: 'zzzz999', level: 2 })
+  await page
+    .locator('[data-about]')
+    .getByRole('button', { name: 'Check for updates now' })
+    .click()
+  await expect(notice(page)).toBeVisible({ timeout: 8000 })
+})
+
+test('U14 Beginner without the unlock sees only the check button', async ({
+  page,
+}) => {
+  await page.addInitScript(() =>
+    localStorage.setItem(
+      'learning-notes:level',
+      JSON.stringify({ level: 'beginner', unlocked: [] }),
+    ),
+  )
+  await openAbout(page)
+  const about = page.locator('[data-about]')
+  await expect(about).not.toContainText('Update level')
+  await expect(
+    about.getByRole('button', { name: 'Check for updates now' }),
+  ).toBeVisible()
+})
+
+test('U15 the reason line opens a plain explanation, closed with the cross', async ({
+  page,
+}) => {
+  await start(page)
+  await pretend(page, { reason: 'datafix' })
+  await notice(page).locator('[data-update-reason]').click()
+  const pop = notice(page).locator('[data-update-details]')
+  await expect(pop).toContainText('repairs some saved notes')
+  await pop.getByRole('button', { name: 'Close' }).click()
+  await expect(pop).toHaveCount(0)
 })

@@ -1,8 +1,9 @@
-import { useEffect, useRef } from 'react'
+import { useEffect, useRef, useState } from 'react'
 import { t } from '../i18n/t'
 import { COUNTDOWN_S, flow } from './mandatoryFlow'
 import type { MandatoryState } from './mandatoryState'
 import type { UpdateReason } from './updateLevel'
+import { useUnlocked } from '../settings/level'
 
 /** Fades a block in (200 ms, scale .96 to 1); instant when motion is reduced. */
 function useFadeIn(ref: React.RefObject<HTMLElement | null>, key: string) {
@@ -81,6 +82,9 @@ export default function MandatoryNotice({
   const primary = useRef<HTMLButtonElement>(null)
   const column = useRef<HTMLDivElement>(null)
   const phaseText = useRef<HTMLDivElement>(null)
+  // Professional (unlock about.version): the reason opens a plain explanation.
+  const canExplain = useUnlocked('about.version')
+  const [explain, setExplain] = useState(false)
   useFadeIn(column, 'open')
   useFadeIn(phaseText, s.phase)
 
@@ -163,9 +167,46 @@ export default function MandatoryNotice({
         <h1 id="req-update-title" className="text-[22px] font-semibold">
           {title}
         </h1>
-        <p id="req-update-reason" data-update-reason className="text-[15px]">
-          {reasonText}
-        </p>
+        {canExplain ? (
+          <button
+            id="req-update-reason"
+            type="button"
+            data-update-reason
+            aria-haspopup="dialog"
+            onClick={() => setExplain(true)}
+            className="min-h-[44px] rounded-xl px-3 text-[15px] underline decoration-dotted underline-offset-4"
+          >
+            {reasonText}
+          </button>
+        ) : (
+          <p id="req-update-reason" data-update-reason className="text-[15px]">
+            {reasonText}
+          </p>
+        )}
+        {explain && (
+          <div
+            role="dialog"
+            aria-label={reasonText}
+            data-update-details
+            className="relative w-full rounded-xl border border-line bg-surface-3 p-4 pr-12 text-left text-[15px] shadow-[var(--elev-2)]"
+          >
+            <p>
+              {t(
+                reason === 'datafix'
+                  ? 'update.v2.detailsDatafix'
+                  : 'update.v2.detailsStorage',
+              )}
+            </p>
+            <button
+              type="button"
+              aria-label={t('update.v2.close')}
+              onClick={() => setExplain(false)}
+              className="absolute right-1 top-1 flex h-11 w-11 items-center justify-center rounded-xl hover:bg-hover"
+            >
+              ✕
+            </button>
+          </div>
+        )}
         <div
           ref={phaseText}
           className="flex w-full flex-col items-center gap-4"

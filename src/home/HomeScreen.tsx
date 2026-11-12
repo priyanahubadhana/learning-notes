@@ -20,6 +20,8 @@ import { TimerCard } from './TimerCard'
 import { Top3 } from './Top3'
 import { useTasks, useToday } from './useHomeData'
 import { Icon } from '../app/tools/icons'
+import { useFlag } from '../app/flags'
+import { HomeBoard } from './board/HomeBoard'
 
 const TABS = ['today', 'tasks', 'plan', 'routines', 'reports'] as const
 type Tab = (typeof TABS)[number]
@@ -49,6 +51,7 @@ export function HomeScreen({
   db: LearningNotesDB
   deps: HomeDeps
 }) {
+  const v2 = useFlag('home.v2')
   const [tab, setTab] = usePref<Tab>('home.tab', isTab, 'today')
   const today = useToday(db)
   const [allDone, setAllDone] = useState(false)
@@ -124,7 +127,37 @@ export function HomeScreen({
           </button>
         ))}
       </div>
-      {tab === 'today' && record && (
+      {tab === 'today' && record && v2 && (
+        <div className="flex flex-col gap-4" data-testid="home-today">
+          <HomeBoard
+            data={{
+              db,
+              today,
+              tasks,
+              projects,
+              briefing,
+              cardsDue,
+              record,
+              openReview: deps.openReview,
+            }}
+          />
+          <button
+            type="button"
+            onClick={deps.openToday}
+            className="min-h-11 rounded-lg border border-line px-3 text-start text-sm hover:border-accent"
+          >
+            <Icon name="sun" size={16} className="me-1 inline" />
+            {t('space.home.today', { date: dayMonthLabel(today) })}
+          </button>
+          <EveningReview
+            db={db}
+            tasks={tasks}
+            today={today}
+            appendJournal={deps.appendJournal}
+          />
+        </div>
+      )}
+      {tab === 'today' && record && !v2 && (
         <div className="flex flex-col gap-4" data-testid="home-today">
           <DueTile count={cardsDue} onStart={deps.openReview} />
           {briefing && (

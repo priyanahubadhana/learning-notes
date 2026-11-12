@@ -8,6 +8,7 @@ import { esEditor } from './editor'
 import { esHelp } from './help'
 import { esHistory } from './history'
 import { esHome } from './home'
+import { esHomeV2 } from './homeV2'
 import { esImportExport } from './importExport'
 import { esInk } from './ink'
 import { esLibrary } from './library'
@@ -40,6 +41,7 @@ export const es: Record<string, string> = {
   ...esHelp,
   ...esHistory,
   ...esHome,
+  ...esHomeV2,
   ...esImportExport,
   ...esInk,
   ...esLibrary,

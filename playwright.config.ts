@@ -157,6 +157,7 @@ export default defineConfig({
         /layoutAssist/,
         /textTool/,
         /textBoxFree/,
+        /homeV2/,
       ],
       use: { ...devices['iPad Pro 11'], hasTouch: true },
       expect: { timeout: 15_000 },

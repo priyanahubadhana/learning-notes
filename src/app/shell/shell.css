@@ -394,3 +394,24 @@
   top: calc(var(--attn-h, 0px) + var(--top-clear, 0px) + var(--sh-top));
   padding-top: 0;
 }
+
+.sh-resizewrap {
+  display: flex;
+  flex: none;
+  position: relative;
+  isolation: isolate;
+}
+.sh-hide-phone {
+  display: contents;
+}
+@media (max-width: 39.999rem), (max-height: 31.999rem) {
+  /* Device mode is in the gear menu; the bar keeps room for the page's own buttons. */
+  .sh-hide-phone {
+    display: none;
+  }
+}
+@media (max-width: 22.999rem) {
+  .sh-hide-narrow {
+    display: none;
+  }
+}

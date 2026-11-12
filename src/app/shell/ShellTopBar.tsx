@@ -144,6 +144,7 @@ export function ShellTopBar(props: ShellTopBarProps) {
         onClick={() => history.back()}
       />
       <Btn
+        className="sh-hide-narrow"
         icon="fwd"
         label={t('nav.forward')}
         disabled={!canGoForward}
@@ -187,7 +188,9 @@ export function ShellTopBar(props: ShellTopBarProps) {
           }
         />
       )}
-      <DeviceModeButton />
+      <span className="sh-hide-phone">
+        <DeviceModeButton />
+      </span>
       <Btn
         icon="search"
         label={t('shell.search')}

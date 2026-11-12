@@ -132,7 +132,10 @@ export default function Shell(p: ShellProps) {
           render={(o) => cloneElement(sidebar, o)}
         />
         {cols.sidebar === 'docked' && (
-          <SidebarResizer width={drawn} onChange={onSidebarWidth} />
+          // Its own stacking group, so the page's pop-ups (block menus) paint above it.
+          <div className="sh-resizewrap">
+            <SidebarResizer width={drawn} onChange={onSidebarWidth} />
+          </div>
         )}
         <PanelSlot cols={cols} render={(o) => cloneElement(panel, o)} />
         <div className="sh-main">

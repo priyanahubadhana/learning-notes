@@ -27,6 +27,7 @@ import { hiUpdateV2 } from './updateV2'
 import { hiFlags } from './flags'
 import { hiAiBuild } from './aibuild'
 import { hiAiJobs } from './aijobs'
+import { hiAiPlan } from './aiplan'
 import { hiParts } from './parts'
 
 export const hi: Record<string, string> = {
@@ -58,5 +59,6 @@ export const hi: Record<string, string> = {
   ...hiFlags,
   ...hiAiBuild,
   ...hiAiJobs,
+  ...hiAiPlan,
   ...hiParts,
 }

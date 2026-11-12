@@ -44,6 +44,8 @@ const REFUSALS: Record<Refusal | 'pause', string> = {
 }
 
 /** A refusal in plain English (the Build screen shows it in the person's language). */
+const PAUSE_TEXT = REFUSALS.pause
+
 export const refusalText = (r: Refusal | 'pause'): string => REFUSALS[r]
 
 export function fillPrompt(req: FillRequest): string {
@@ -99,7 +101,7 @@ export class ModelFiller implements Filler {
       this.usdToInr,
     )
     if (this.spentInr + estimate > this.approvedInr * (1 + OVERRUN))
-      throw new StepError('budget', refusalText('pause'))
+      throw new StepError('budget', PAUSE_TEXT)
     try {
       const out = await guardedPaidCall(
         this.gate,

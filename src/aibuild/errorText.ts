@@ -33,6 +33,13 @@ export const STEP_TEXTS: Readonly<Record<string, MessageKey>> = {
   'The page is gone.': 'aifw.err.gonePage',
   'The parent page is gone.': 'aifw.err.goneParent',
   'This step cannot be prepared here.': 'aifw.err.noStage',
+  // Spend refusals (the model filler; no paid call is ever made at a limit of 0)
+  'The spend limit is ₹0, so no paid model was used.': 'aifw.err.spendZero',
+  'This would pass the monthly spend limit, so it was not sent.':
+    'aifw.err.spendMonthly',
+  'This job would cost more than the limit for one job.': 'aifw.err.spendJob',
+  'This costs money and needs your OK first.': 'aifw.err.spendAsk',
+  'The cost passed the estimate, so the job paused.': 'aifw.err.spendPause',
   // Job notices
   'Stopped. Nothing was written.': 'aifw.notice.stopped',
   'There was nothing to write.': 'aifw.notice.nothing',

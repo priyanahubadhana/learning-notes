@@ -546,6 +546,21 @@ describe('no real AI call exists in the framework code', () => {
   })
 })
 
+describe('spend refusals are translated', () => {
+  it('every refusal sentence is in the step text table', async () => {
+    const { STEP_TEXTS } = await import('../../aibuild/errorText')
+    const { refusalText } = await import('./modelFiller')
+    for (const r of [
+      'zero_limit',
+      'monthly',
+      'per_job',
+      'ask',
+      'pause',
+    ] as const)
+      expect(STEP_TEXTS[refusalText(r)], r).toBeTruthy()
+  })
+})
+
 describe('spendStore: the app reads Rs 0 unless told otherwise', () => {
   it('missing, broken or odd settings all read as Rs 0', async () => {
     const { readSpendSettings } = await import('./spendStore')

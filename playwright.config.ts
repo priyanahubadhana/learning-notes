@@ -77,6 +77,7 @@ export default defineConfig({
       name: 'ipad-webkit',
       testMatch: [
         /pencilIsolation/,
+        /updateV2/,
         /chromeIsolation/,
         /penTapChrome/,
         /ipadKeyboard/,

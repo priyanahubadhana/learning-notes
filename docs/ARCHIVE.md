@@ -1834,3 +1834,9 @@ Finished entries moved out of docs/HANDOFF.md, text unchanged, newest areas firs
 
 - **R8-1/R8-2 (8 Nov, no Dexie version):** top gap in the page for the options pill (no hold-and-settle code), one-time Pencil mode offer (only when Auto switch is off). CHANGELOG, DECISIONS, owner checks at the top of owner-checks-pending.md.
 
+
+## HANDOFF entries archived 13 Nov
+
+- **NOW (12 Nov 2026, build night 1):** the build runs per docs/plans/build-master-plan.md. Night 1 work was released to main and is live (b5b0bc7, run 43205383635), all new parts switched off. Next Dexie version to give out: 25 (24 = aiJobs). All new code is on `build/next` (draft pull request #5, full tests + free preview, nothing switched on). State of every slice: "Build board" at the top of docs/PENDING.md. Worktrees: ../ln-buildnext (integration), ../ln-s0g, ../ln-s10, ../ln-s11, ../ln-ai1, ../ln-flakes, ../ln-s1, ../ln-s0h, ../ln-s3. Resume: read the Build board, `git status` + `git log` in the slice's worktree, continue from the first unfinished row. Note: iPad (WebKit) tests do not run reliably on this PC under load; the pull request's CI is the judge. Owner still has to finish the Claude connector (3 steps).
+- **NOW (11 Nov): Text box v2** — steps 1-3 mostly done, next step 4 (drag); see "Text box v2 progress" in docs/PENDING.md. Worktree ../ln-tbv2 (branch tbv2), push to main.
+- **NOW (10 Nov evening):** fix layout, Text tool and text problems first: docs/plans/archive/owner-bug-batch-2-2026-11-10.md items 1-10 with plans layout-assist-plan.md and text-tool-plan.md. Owner tests properly after that.

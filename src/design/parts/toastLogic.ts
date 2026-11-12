@@ -10,13 +10,25 @@ export const TOAST_MS: Record<ToastKind, number> = {
 }
 export const MAX_TOASTS = 3
 
+/** Where the toast timers take their time from. The product uses the real one. */
+export interface ToastClock {
+  now(): number
+  setTimer(fn: () => void, ms: number): unknown
+  clearTimer(handle: unknown): void
+}
+export const realClock: ToastClock = {
+  now: () => Date.now(),
+  setTimer: (fn, ms) => setTimeout(fn, ms),
+  clearTimer: (h) => clearTimeout(h as ReturnType<typeof setTimeout>),
+}
+
 interface Meta {
   kind: ToastKind
   onUndo?: () => void
   left: number
   /** ms left, or 0 when it never times out */
   started: number
-  timer?: ReturnType<typeof setTimeout>
+  timer?: unknown
   paused: boolean
 }
 
@@ -32,18 +44,18 @@ export interface Toasts {
 }
 
 /** The toast logic for the stack: kinds, timers that can pause, and who may be pushed out. */
-export function createToasts(): Toasts {
+export function createToasts(clock: ToastClock = realClock): Toasts {
   const queue = createToastQueue({ max: MAX_TOASTS, timeoutMs: 0 })
   const meta = new Map<number, Meta>()
 
   const arm = (id: number) => {
     const m = meta.get(id)
     if (!m || m.left <= 0 || m.paused) return
-    m.started = Date.now()
-    m.timer = setTimeout(() => dismiss(id), m.left)
+    m.started = clock.now()
+    m.timer = clock.setTimer(() => dismiss(id), m.left)
   }
   const disarm = (m: Meta) => {
-    if (m.timer !== undefined) clearTimeout(m.timer)
+    if (m.timer !== undefined) clock.clearTimer(m.timer)
     m.timer = undefined
   }
   function dismiss(id: number) {
@@ -92,7 +104,7 @@ export function createToasts(): Toasts {
       if (!m || m.left <= 0 || m.paused === on) return
       m.paused = on
       if (on) {
-        if (m.timer !== undefined) m.left -= Date.now() - m.started
+        if (m.timer !== undefined) m.left -= clock.now() - m.started
         disarm(m)
       } else {
         // after letting go, give it at least 1.5 s

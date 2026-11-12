@@ -6,8 +6,44 @@
   padding: var(--space-8) var(--space-4) 160px;
   color: var(--color-ink);
 }
+.sv3-titlebar {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--space-3);
+  margin-bottom: var(--space-5);
+}
+.sv3-history {
+  display: flex;
+  gap: 2px;
+}
+.sv3-history button {
+  display: grid;
+  place-items: center;
+  width: 44px;
+  height: 44px;
+  border: 0;
+  border-radius: var(--r-md);
+  background: transparent;
+  color: var(--color-ink);
+  cursor: pointer;
+}
+.sv3-history button:hover:not(:disabled) {
+  background: var(--color-hover);
+}
+.sv3-history button:disabled {
+  opacity: 0.4;
+  cursor: default;
+}
+.sv3-history button:focus-visible {
+  outline: 2px solid var(--color-accent);
+}
+.sv3-reset {
+  align-self: flex-start;
+  margin-top: var(--space-4);
+}
 .sv3-title {
-  margin: 0 0 var(--space-5);
+  margin: 0;
   font-size: 32px;
   line-height: 1.15;
   font-weight: 700;

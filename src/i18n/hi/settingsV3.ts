@@ -22,4 +22,13 @@ export const hiSettingsV3 = {
   'sv3.searchTip': 'छोटा शब्द आज़माएँ, जैसे “ग्लास” या “पेन”।',
   'sv3.searchFound_one': '{count} सेटिंग मिली',
   'sv3.searchFound_other': '{count} सेटिंग्स मिलीं',
+  'sv3.toastChanged': 'बदला गया: {name}',
+  'sv3.resetSection': 'यह हिस्सा रीसेट करें',
+  'sv3.resetAsk_one':
+    '{section} की {count} सेटिंग को उसके डिफ़ॉल्ट पर लौटाएँ? और कुछ नहीं बदलेगा। आप इसे पूर्ववत कर सकते हैं।',
+  'sv3.resetAsk_other':
+    '{section} की {count} सेटिंग्स को उनके डिफ़ॉल्ट पर लौटाएँ? और कुछ नहीं बदलेगा। आप इसे पूर्ववत कर सकते हैं।',
+  'sv3.resetConfirm': 'रीसेट करें',
+  'sv3.resetDone': 'हिस्सा रीसेट हुआ',
+  'sv3.resetNone': 'यहाँ सब कुछ पहले से डिफ़ॉल्ट पर है।',
 }

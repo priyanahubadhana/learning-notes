@@ -8,6 +8,7 @@ import type { SettingDefinition } from '../registry'
 import { SettingSyncBadge } from '../SettingSyncBadge'
 import { setSetting } from '../settingsService'
 import { useDeviceSetting, useSyncedSetting } from '../useSetting'
+import { useSettingsHistory } from './historyCtx'
 import { RowControl } from './RowControl'
 import { RowPreview } from './RowPreview'
 import { valueText, type Change } from './changeNote'
@@ -60,9 +61,18 @@ function RowBody({
   jump,
 }: RowProps & { value: JsonValue; onSave(next: JsonValue): void }) {
   const id = useId()
+  const history = useSettingsHistory()
   const labelId = `${id}-label`
   const descId = `${id}-desc`
   const name = t(definition.labelKey)
+  // Every change is one Undo step with a toast (SET-B10).
+  const commit = (next: JsonValue) => {
+    history.record({
+      label: name,
+      items: [{ id: definition.id, before: value, after: next }],
+    })
+    onSave(next)
+  }
   const isDefault =
     JSON.stringify(value) === JSON.stringify(definition.defaultValue)
   const others = [definition.category, ...(definition.alsoIn ?? [])]
@@ -126,7 +136,7 @@ function RowBody({
         <RowControl
           definition={definition}
           value={value}
-          onSave={onSave}
+          onSave={commit}
           label={name}
           descId={descId}
         />
@@ -144,7 +154,7 @@ function RowBody({
               type="button"
               data-row-reset
               className="sv3-link"
-              onClick={() => onSave(definition.defaultValue)}
+              onClick={() => commit(definition.defaultValue)}
             >
               {t('settings.reset')}
             </button>

@@ -14,6 +14,10 @@ import '../../ai/aiSettings'
 import '../../connector/claudeSettings'
 import '../../sync/syncSettings'
 import '../accountSettings'
+import { Icon } from '../../app/tools/icons'
+import { SettingsHistoryProvider } from './HistoryContext'
+import { useSettingsHistory } from './historyCtx'
+import { SectionReset } from './SectionReset'
 import { PreviewPane } from './PreviewPane'
 import { PreviewPill } from './PreviewPill'
 import { SettingRow } from './SettingRow'
@@ -33,7 +37,15 @@ import './settingsV3.css'
  * (a pill and a sheet below 1180 px wide). It reads the same settings registry
  * and the same stored values as today's screen; nothing is copied.
  */
-export function SettingsV3({
+export function SettingsV3(props: { db: LearningNotesDB; focusId?: string }) {
+  return (
+    <SettingsHistoryProvider db={props.db}>
+      <SettingsV3Body {...props} />
+    </SettingsHistoryProvider>
+  )
+}
+
+function SettingsV3Body({
   db,
   focusId,
 }: {
@@ -41,6 +53,7 @@ export function SettingsV3({
   focusId?: string
 }) {
   const sections = settingsRegistry.categories()
+  const history = useSettingsHistory()
   const [own, setOwn] = useState(
     () =>
       (focusId?.startsWith('category:') && focusId.slice(9)) ||
@@ -124,7 +137,33 @@ export function SettingsV3({
       data-wide={wide ? '' : undefined}
       className="sv3"
     >
-      <h1 className="sv3-title">{tv('sv3.title')}</h1>
+      <div className="sv3-titlebar">
+        <h1 className="sv3-title">{tv('sv3.title')}</h1>
+        <div
+          role="group"
+          aria-label={t('main.history')}
+          className="sv3-history"
+        >
+          <button
+            type="button"
+            data-testid="sv3-undo"
+            aria-label={t('tool.undo')}
+            disabled={!history.canUndo}
+            onClick={history.undo}
+          >
+            <Icon name="undo" />
+          </button>
+          <button
+            type="button"
+            data-testid="sv3-redo"
+            aria-label={t('tool.redo')}
+            disabled={!history.canRedo}
+            onClick={history.redo}
+          >
+            <Icon name="redo" />
+          </button>
+        </div>
+      </div>
       <div className="sv3-search">
         <ClearField
           type="search"
@@ -158,6 +197,13 @@ export function SettingsV3({
                 jump={jump?.id === s.id ? jump.seq : undefined}
               />
             ))}
+          {!searching && rows.length > 0 && section && (
+            <SectionReset
+              db={db}
+              sectionName={t(section.labelKey)}
+              rows={rows}
+            />
+          )}
           {!searching && rows.length === 0 && (
             <p className="sv3-lead">
               {section?.emptyKey ? t(section.emptyKey) : tv('sv3.sectionEmpty')}

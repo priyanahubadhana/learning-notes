@@ -22,4 +22,13 @@ export const enSettingsV3 = {
   'sv3.searchTip': 'Try a shorter word, like “glass” or “pen”.',
   'sv3.searchFound_one': '{count} setting found',
   'sv3.searchFound_other': '{count} settings found',
+  'sv3.toastChanged': 'Changed {name}',
+  'sv3.resetSection': 'Reset this section',
+  'sv3.resetAsk_one':
+    'Reset {count} setting in {section} to its default? Nothing else changes. You can undo it.',
+  'sv3.resetAsk_other':
+    'Reset {count} settings in {section} to their defaults? Nothing else changes. You can undo it.',
+  'sv3.resetConfirm': 'Reset',
+  'sv3.resetDone': 'Section reset',
+  'sv3.resetNone': 'Everything here is already at its default.',
 }

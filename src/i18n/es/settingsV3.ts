@@ -23,4 +23,13 @@ export const esSettingsV3 = {
     'Prueba con una palabra más corta, como “cristal” o “lápiz”.',
   'sv3.searchFound_one': '{count} ajuste encontrado',
   'sv3.searchFound_other': '{count} ajustes encontrados',
+  'sv3.toastChanged': 'Cambiado: {name}',
+  'sv3.resetSection': 'Restablecer esta sección',
+  'sv3.resetAsk_one':
+    '¿Restablecer {count} ajuste de {section} a su valor predeterminado? Nada más cambia. Puedes deshacerlo.',
+  'sv3.resetAsk_other':
+    '¿Restablecer {count} ajustes de {section} a sus valores predeterminados? Nada más cambia. Puedes deshacerlo.',
+  'sv3.resetConfirm': 'Restablecer',
+  'sv3.resetDone': 'Sección restablecida',
+  'sv3.resetNone': 'Todo aquí ya tiene su valor predeterminado.',
 }

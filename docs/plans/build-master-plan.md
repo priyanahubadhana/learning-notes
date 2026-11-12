@@ -331,3 +331,10 @@ This is a guess and depends on the usage limits and on how fast mock-ups are app
 - Nothing wrong can reach the owner's daily use: new parts ship switched off; QA + the 3 gates check every slice against its approved mock-up and spec before merging.
 - Only three things truly wait for the owner: spending money, online database (Supabase) changes, and turning a new part ON for daily use (the owner does that after testing).
 - Each morning: a short report (done, preview link, what to test with 2–3 line steps, decisions to review). The owner tests when free and reports bugs; bugs go to the top of the next night's queue.
+
+## Running principles (owner, 12 Nov 2026)
+
+1. Usage: the build may use the WHOLE Claude limit, day and night, for THIS project only.
+2. No more mock-up rounds for the remaining areas (recommended by the manager, owner's direction "an app that works the way it was told"): the design system is now fixed (9 approved mock-ups + Fable's card system in docs/mockups/). For batches 1–6, Fable writes a precise spec ("When I do X → Y", which shared parts, Beginner/Professional) instead of a mock-up, and the slice is built directly behind a switch; the owner tests the REAL thing on the preview link. A picture mock-up is made only if a screen needs a genuinely new visual pattern not covered by the design system.
+3. Status line: every message to the owner starts with 1–2 short lines: "Status: <what's happening>" and "Needs you: no" or "Needs you: yes, <what, in a few words>". Repeat it in every following message until resolved. Short reports are written by a cheap model (Haiku).
+4. Failures: first try to fix (up to 3 attempts, within about an hour of work per slice). If still red: undo that slice, record it in docs/FAILED.md (what, why, logs, the attempts made, the suggested next step), move on, and list it in the next status line. Failed items are retried with the owner present.

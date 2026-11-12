@@ -1885,7 +1885,9 @@ function App() {
                             },
                           }}
                         />
-                      ) : notebooks.length === 0 && currentPage === null ? (
+                      ) : notebooks.length === 0 &&
+                        currentPage === null &&
+                        !isOn('notebooks.v2') ? (
                         <EmptyState
                           testId="no-notebooks"
                           className="mx-auto mt-[24vh] max-w-md"

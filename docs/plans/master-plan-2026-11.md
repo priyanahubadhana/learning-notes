@@ -920,7 +920,7 @@ Everything else follows the standing decisions; mid-build questions go to DECISI
     Example: Gemini summarises a YouTube video and saves it into a chosen notebook automatically.
     The user's own accounts pay the AI costs (keeps the app ₹0). Verify each vendor's current MCP/action support during P.
 
-## Audit changes (6 Nov 2026, from [audit-2026-11.md](audit-2026-11.md); each change has its reason there)
+## Audit changes (6 Nov 2026, from [audit-2026-11.md](archive/audit-2026-11.md); each change has its reason there)
 
 Yardstick added by the owner during the audit: a practical learning experience, where the app makes the notes (automatically where possible, through the user's own AI) and the user's time goes to consuming, understanding and recalling; notes stay the core, made automatically or fully by hand in the visual GoodNotes style (edited pictures, labels, tape, YouTube embeds with timestamped screenshots, handwriting with typing, short keyword notes). Standing decisions 1–10 and the run decisions stay; the items below add to them.
 

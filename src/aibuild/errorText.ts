@@ -46,6 +46,9 @@ export const STEP_TEXTS: Readonly<Record<string, MessageKey>> = {
   'This block is not a mind map.': 'aifw.err.notMindMap',
   'The Study tracker cannot be renamed.': 'aifw.err.studyRename',
   'This database is locked.': 'aifw.err.lockDatabase',
+  'The tag is gone.': 'aifw.err.goneTag',
+  'The tag name is missing.': 'aifw.err.tagName',
+  'That tag name is already used here.': 'aifw.err.tagTaken',
   // Spend refusals (the model filler; no paid call is ever made at a limit of 0)
   'The spend limit is ₹0, so no paid model was used.': 'aifw.err.spendZero',
   'This would pass the monthly spend limit, so it was not sent.':

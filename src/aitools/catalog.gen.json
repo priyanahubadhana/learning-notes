@@ -1883,5 +1883,251 @@
     },
     "surfaces": ["app", "mcp"],
     "offline": true
+  },
+  {
+    "id": "tags.add",
+    "version": 1,
+    "label": "Add tag",
+    "group": "Tags",
+    "summary": "Puts a tag on a page.",
+    "aiDescription": "Puts one tag on one existing page. Needs pageId and tag (a name, or a path like medicine/cardio; a missing tag is made). Changes only the tag list of that page. Not for removing tags (use tags.remove) or renaming them.",
+    "inputs": {
+      "type": "object",
+      "required": ["pageId", "tag"],
+      "additionalProperties": false,
+      "properties": {
+        "pageId": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 64,
+          "pattern": "^[A-Za-z0-9_-]+$"
+        },
+        "tag": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 200
+        }
+      }
+    },
+    "outputs": {
+      "type": "object",
+      "properties": {
+        "pageId": {
+          "type": "string"
+        },
+        "tagId": {
+          "type": "string"
+        }
+      }
+    },
+    "writes": [
+      {
+        "target": "tags",
+        "mode": "create"
+      },
+      {
+        "target": "page",
+        "mode": "edit"
+      }
+    ],
+    "permissions": {
+      "scope": "notes:write",
+      "respectsLocks": true,
+      "needsSources": false
+    },
+    "cost": {
+      "class": "none",
+      "fill": "none",
+      "outTokens": 0
+    },
+    "tier": "simple",
+    "reversible": "values",
+    "risk": "direct",
+    "idempotent": true,
+    "limits": {
+      "timeoutMs": 30000,
+      "maxRetries": 3
+    },
+    "surfaces": ["app"],
+    "offline": true
+  },
+  {
+    "id": "tags.remove",
+    "version": 1,
+    "label": "Remove tag",
+    "group": "Tags",
+    "summary": "Takes a tag off a page.",
+    "aiDescription": "Takes one tag off one existing page. Needs pageId and tagId. The tag itself and every other page keep it. Not for deleting or renaming a tag.",
+    "inputs": {
+      "type": "object",
+      "required": ["pageId", "tagId"],
+      "additionalProperties": false,
+      "properties": {
+        "pageId": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 64,
+          "pattern": "^[A-Za-z0-9_-]+$"
+        },
+        "tagId": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 64,
+          "pattern": "^[A-Za-z0-9_-]+$"
+        }
+      }
+    },
+    "outputs": {
+      "type": "object",
+      "properties": {
+        "pageId": {
+          "type": "string"
+        }
+      }
+    },
+    "writes": [
+      {
+        "target": "page",
+        "mode": "edit"
+      }
+    ],
+    "permissions": {
+      "scope": "notes:write",
+      "respectsLocks": true,
+      "needsSources": false
+    },
+    "cost": {
+      "class": "none",
+      "fill": "none",
+      "outTokens": 0
+    },
+    "tier": "simple",
+    "reversible": "values",
+    "risk": "direct",
+    "idempotent": true,
+    "limits": {
+      "timeoutMs": 30000,
+      "maxRetries": 3
+    },
+    "surfaces": ["app", "mcp"],
+    "offline": true
+  },
+  {
+    "id": "tags.rename",
+    "version": 1,
+    "label": "Rename tag",
+    "group": "Tags",
+    "summary": "Gives a tag a new name.",
+    "aiDescription": "Renames one existing tag (one level only; its sub-tags keep their names). Needs tagId and name. The new name shows on every page that has the tag. Not for moving or deleting a tag.",
+    "inputs": {
+      "type": "object",
+      "required": ["tagId", "name"],
+      "additionalProperties": false,
+      "properties": {
+        "tagId": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 64,
+          "pattern": "^[A-Za-z0-9_-]+$"
+        },
+        "name": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 60
+        }
+      }
+    },
+    "outputs": {
+      "type": "object",
+      "properties": {
+        "tagId": {
+          "type": "string"
+        }
+      }
+    },
+    "writes": [
+      {
+        "target": "tags",
+        "mode": "edit"
+      }
+    ],
+    "permissions": {
+      "scope": "notes:write",
+      "respectsLocks": true,
+      "needsSources": false
+    },
+    "cost": {
+      "class": "none",
+      "fill": "none",
+      "outTokens": 0
+    },
+    "tier": "simple",
+    "reversible": "values",
+    "risk": "direct",
+    "idempotent": true,
+    "limits": {
+      "timeoutMs": 30000,
+      "maxRetries": 3
+    },
+    "surfaces": ["app"],
+    "offline": true
+  },
+  {
+    "id": "library.pin",
+    "version": 1,
+    "label": "Pin notebook",
+    "group": "Library",
+    "summary": "Pins a notebook to the top, or unpins it.",
+    "aiDescription": "Pins one existing notebook to the top of the shelf and list, or unpins it. Needs notebookId and pinned (true or false). Changes only the pin; never touches notes.",
+    "inputs": {
+      "type": "object",
+      "required": ["notebookId", "pinned"],
+      "additionalProperties": false,
+      "properties": {
+        "notebookId": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 64,
+          "pattern": "^[A-Za-z0-9_-]+$"
+        },
+        "pinned": {
+          "type": "boolean"
+        }
+      }
+    },
+    "outputs": {
+      "type": "object",
+      "properties": {
+        "notebookId": {
+          "type": "string"
+        }
+      }
+    },
+    "writes": [
+      {
+        "target": "library",
+        "mode": "edit"
+      }
+    ],
+    "permissions": {
+      "scope": "notes:write",
+      "respectsLocks": true,
+      "needsSources": false
+    },
+    "cost": {
+      "class": "none",
+      "fill": "none",
+      "outTokens": 0
+    },
+    "tier": "simple",
+    "reversible": "values",
+    "risk": "direct",
+    "idempotent": true,
+    "limits": {
+      "timeoutMs": 30000,
+      "maxRetries": 3
+    },
+    "surfaces": ["app", "mcp"],
+    "offline": true
   }
 ]

@@ -165,6 +165,15 @@ const GOLDEN: Record<string, Rec> = {
       step('s2', 'cards.suspend', { cardId: 'c1', suspended: true }),
     ],
   ),
+  // Framework slice 5d (tags.add and tags.rename are app-only: the local connector does not read tags yet).
+  'a tag taken off a page and a notebook pinned': plan(
+    'g12',
+    { kind: 'page', id: 'p1' },
+    [
+      step('s1', 'tags.remove', { pageId: 'p1', tagId: 't1' }),
+      step('s2', 'library.pin', { notebookId: 'nb1', pinned: true }),
+    ],
+  ),
   'paper and page path': plan('g11', { kind: 'page', id: 'p1' }, [
     step('s1', 'styles.set_paper', { pageId: 'p1', paper: 'grid' }),
     step('s2', 'layouts.set_path_style', { pageId: 'p1', pathStyle: 'full' }),
@@ -190,6 +199,17 @@ async function both(p: Rec) {
     allowAi: true,
     workspaceId: 'ws1',
     tabs: TABS,
+  })
+  await source.put('pages', {
+    createdAt: 1,
+    updatedAt: 1000,
+    deletedAt: null,
+    id: 'p1',
+    notebookId: 'nb1',
+    parentId: null,
+    title: 'Cells',
+    order: 'a0',
+    tagIds: ['t1', 't2'],
   })
   await source.put('blocks', {
     createdAt: 1,
@@ -334,6 +354,8 @@ describe('app-only tools are refused by the local connector, writing nothing', (
   it.each([
     ['mindmaps.add', { pageId: 'p1', outline: 'Cells' }],
     ['databases.rename', { databaseId: 'd1', title: 'X' }],
+    ['tags.add', { pageId: 'p1', tag: 'biology' }],
+    ['tags.rename', { tagId: 't1', name: 'cells' }],
   ])('%s', async (tool, args) => {
     const { master, source } = await newFixture()
     await seedNotes(source, NOW)

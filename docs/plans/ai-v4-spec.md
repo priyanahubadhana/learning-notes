@@ -129,3 +129,31 @@ node editing, no tool outside 5b.
 
 Won't do (F): no database column, row or view changes; no notebook layout
 boxes; no tool outside 5c.
+
+## G. Framework slice 5d: Tags, Library (behind `ai.framework`, off)
+
+- V4-G1. When a plan names `tags.add` with a `pageId` and a `tag` (a name or a
+  path such as `medicine/cardio`) → the page gets that tag; a tag that does not
+  exist yet is made (each level reuses a live tag of the same name, case and
+  accents ignored). A page that already has the tag, nothing changes. A gone or
+  locked page or notebook → the step fails, nothing is written.
+- V4-G2. When a plan names `tags.remove` with a `pageId` and a `tagId` → the tag
+  is taken off that page only; the tag itself stays. A page that does not have it,
+  nothing changes.
+- V4-G3. When a plan names `tags.rename` with a `tagId` and a `name` → only that
+  level is renamed (its sub-tags keep their names) and the new name shows on
+  every page at once. A name that is blank, or taken by a tag under the same
+  parent, or a gone tag → the step fails, nothing is written.
+- V4-G4. When a plan names `library.pin` with a `notebookId` and `pinned` true/false
+  → that notebook is pinned to the top of the shelf and list, or unpinned. A gone
+  or locked notebook → the step fails.
+- V4-G5. `tags.remove` and `library.pin` have parity goldens (the same records
+  from the app and from `run_plan`). `tags.add` and `tags.rename` are app-only (the
+  local connector does not read tags yet). Every job applies in one save and one
+  Undo puts everything back (a tag made by the job goes to Trash).
+- V4-G6. The spend limit stays ₹0: none of these tools needs a model, so no
+  network or paid call is made, and a test proves it.
+
+Won't do (G): no tag delete or merge, no tag colour change, no moving a tag
+under another; no moving of library items (no existing service for it); no tool
+outside 5d.

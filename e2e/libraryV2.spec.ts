@@ -538,6 +538,70 @@ test.describe('Library v2 (Professional, phone and iPad)', () => {
   })
 })
 
+test.describe('Library v2: Knowledge filters, saved filters, Daily count', () => {
+  test('LB-P15/P16 Type, Tag and Date filters; save a filter, see it in the panel, apply it, remove with Undo', async ({
+    page,
+  }) => {
+    await openLibrary(page, { level: 'professional' })
+    await importBook(page, 'Alpha Book')
+    await addHighlight(page, 'Alpha Book', 'Filter me please')
+    await page.getByTestId('tab-knowledge').click()
+    await expect(page.getByTestId('know-pro-row')).toBeVisible()
+    await expect(page.getByTestId('highlight-row')).toHaveCount(1)
+    await page.getByTestId('know-type').selectOption('note')
+    await expect(page.getByTestId('knowledge-empty')).toBeVisible()
+    await page.getByTestId('know-type').selectOption('highlight')
+    await expect(page.getByTestId('highlight-row')).toHaveCount(1)
+    await page.getByTestId('know-date').selectOption('week')
+    await expect(page.getByTestId('highlight-row')).toHaveCount(1)
+    await expect(page.getByTestId('know-tag')).toBeVisible()
+    // Save the filter.
+    await page.getByTestId('know-saved').click()
+    await page.getByRole('menuitem', { name: 'Save this filter' }).click()
+    await page.getByRole('dialog').getByRole('textbox').fill('This week')
+    await page.getByRole('dialog').getByRole('button', { name: 'Done' }).click()
+    await expect(page.getByText('Saved filter “This week”')).toBeVisible()
+    const panel = page.getByTestId('panel-saved')
+    await expect(panel.getByRole('button', { name: 'This week', exact: true })).toBeVisible()
+    // Reset, then apply it from the side panel (opens Knowledge).
+    await page.getByTestId('know-date').selectOption('any')
+    await page.getByTestId('tab-books').click()
+    await panel.getByRole('button', { name: 'This week', exact: true }).click()
+    await expect(page.getByTestId('know-date')).toHaveValue('week')
+    // Remove with Undo.
+    await panel.getByRole('button', { name: /Remove saved filter/ }).click()
+    await expect(page.getByTestId('panel-saved-empty')).toBeVisible()
+    await page.getByRole('button', { name: 'Undo' }).click()
+    await expect(panel.getByRole('button', { name: 'This week', exact: true })).toBeVisible()
+  })
+
+  test('LB-B43 Daily Highlights: pick 3, 5 or 10 a day and it is remembered', async ({
+    page,
+  }) => {
+    await openLibrary(page)
+    await page.getByTestId('tab-knowledge').click()
+    await page.getByTestId('know-view').click()
+    await page.getByRole('menuitemradio', { name: 'Daily Highlights' }).click()
+    await expect(page.getByTestId('daily-5')).toHaveAttribute(
+      'aria-checked',
+      'true',
+    )
+    await page.getByTestId('daily-10').click()
+    await expect(page.getByTestId('daily-10')).toHaveAttribute(
+      'aria-checked',
+      'true',
+    )
+    await page.reload()
+    await page.getByTestId('tab-knowledge').click()
+    await page.getByTestId('know-view').click()
+    await page.getByRole('menuitemradio', { name: 'Daily Highlights' }).click()
+    await expect(page.getByTestId('daily-10')).toHaveAttribute(
+      'aria-checked',
+      'true',
+    )
+  })
+})
+
 test.describe('Library: flag off and nothing lost', () => {
   test('LB-B56 with the flag OFF today’s screen is unchanged', async ({
     page,

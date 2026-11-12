@@ -630,6 +630,8 @@ test('RV-B08: with 25 new cards and a limit of 20 the counts line says 20, and 1
   await page.getByTestId('rv2-start').click()
   for (let i = 0; i < 3; i++) {
     await expect(session(page)).toHaveAttribute('data-revealed', '0')
+    // The card face has loaded (Space is ignored before it).
+    await expect(front(page)).toContainText('Question 1')
     await page.keyboard.press('Space')
     await expect(session(page)).toHaveAttribute('data-revealed', '1')
     await page.keyboard.press('3')

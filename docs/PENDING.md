@@ -258,5 +258,6 @@ Three ways of using the reader, as presets:
 - PAUSED 12 Nov (owner at 93% of the limit): shell adoption for search/review/settings/annotations mocks (restart after the reset), the CI WebKit debug watcher (TEMP logging 84e0e9b still on main; read the [tapdbg]/[rddbg] logs, fix, then revert). Only planning continues.
 
 ## Review mock: owner note (12 Nov), apply only in the real build
+
 - Search and Review mock-ups are approved ("okay to pass").
 - Review › More: "Again comes back after…" row has image and text overlapping; fix the layout in the real app.

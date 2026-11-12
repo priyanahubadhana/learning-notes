@@ -156,6 +156,7 @@ Four modes:
 - OWNER (12 Nov): use references (GoodNotes etc.) only to LEARN; build our OWN design that combines 3 sources: the owner's design principles, the shared references, and the design already in our app (best of all three). Never copy.
 
 ## Owner answers, 12 Nov (round 2)
+
 - Toolbar: remove repeated size/colour from the Beginner pen card; Recent elements seeded with 3–4 starters.
 - Shell: Undo/Redo, ✕ clear and the tab style move into the shared shell.
 - Settings: phone preview pill at the bottom.

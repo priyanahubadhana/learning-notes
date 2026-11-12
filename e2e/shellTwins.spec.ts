@@ -67,3 +67,18 @@ test('dragging the handle shares the screen, and this device remembers (shell on
   await page.getByRole('button', { name: 'Hide menu' }).click()
   await expect(handle).toBeHidden()
 })
+
+test('at iPad width (shell on) the menu sits on the rail and opens over the page', async ({
+  page,
+}) => {
+  // topBar "at iPad width the menu can be hidden too": 695 px cannot dock a
+  // 288 px menu and keep the page 600 px wide, so it starts on the rail.
+  await page.setViewportSize({ width: 695, height: 1000 })
+  await page.goto(ON)
+  await expect(page.locator('.sh-frame')).toBeVisible()
+  await expect(side(page)).toBeHidden()
+  await page.getByRole('button', { name: 'Show menu' }).click()
+  await expect(side(page)).toBeVisible()
+  await page.keyboard.press('Escape')
+  await expect(side(page)).toBeHidden()
+})

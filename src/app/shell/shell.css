@@ -424,6 +424,12 @@
     display: none;
   }
 }
+@media (max-width: 39.999rem), (max-height: 31.999rem) {
+  /* The phone's top bar keeps room for the page's own buttons. */
+  .sh-status {
+    display: none;
+  }
+}
 @media (max-width: 22.999rem) {
   .sh-hide-narrow {
     display: none;

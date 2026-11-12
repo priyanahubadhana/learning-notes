@@ -23,6 +23,7 @@ import {
   useCallback,
   useContext,
   useEffect,
+  useLayoutEffect,
   useRef,
   useState,
   type UIEvent,
@@ -263,6 +264,21 @@ export function BookReader({
   const clock = useClock(look.clock)
   const contentRef = useRef<HTMLDivElement>(null)
   const tapDown = useRef<{ x: number; y: number; t: number } | null>(null)
+  // v2: once the book has told us where it is (after any "start where you left
+  // off" jump), that place is the scroll baseline. Without it the first scroll
+  // event seen was taken as the baseline, so one big first jump never hid the bars.
+  const placed = position !== null
+  useLayoutEffect(() => {
+    if (!v2 || !placed) return
+    const el = contentRef.current?.querySelector<HTMLElement>(
+      '[data-reader-scroll]',
+    )
+    if (!el) return
+    scrolling.current = {
+      el,
+      s: { ...START_SCROLL, last: el.scrollTop, turn: el.scrollTop },
+    }
+  }, [v2, placed])
   const lastTap = useRef<{ x: number; y: number; t: number } | null>(null)
   const tapTimer = useRef(0)
   const [orient] = useDeviceSetting(readingOrientSetting)
@@ -1620,6 +1636,7 @@ export function BookReader({
       <div
         ref={contentRef}
         onScrollCapture={v2Bars ? onV2Scroll : undefined}
+        data-bars-ready={v2Bars && placed ? '' : undefined}
         data-read-page={look.page}
         className="relative flex min-h-0 flex-1"
         style={{ background: pageSurface(look.page)?.bg }}

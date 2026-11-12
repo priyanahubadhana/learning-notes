@@ -224,6 +224,8 @@ test('RD-B09 the bar slides away on scroll down, back on a short scroll up; mini
   await expect(scroller).toBeVisible()
   // The book is laid out (page count known) before we scroll it.
   await expect(page.getByTestId('reader-page')).toContainText('Page 1 of 12')
+  // The reader has said where it is: the scroll baseline is set (a real ready signal).
+  await expect(page.locator('[data-bars-ready]')).toHaveCount(1)
   const scrollTo = (y: number) =>
     scroller.evaluate((el, top) => {
       el.scrollTop = top

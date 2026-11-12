@@ -326,3 +326,7 @@ Mock: claude.ai/artifact/Ffc86ofYpqurWGnMvsXS3L (Fable v2; study in scratchpad l
 
 - Study modes: summary layers, theme pages, links between notes, reading journal, chapter recap, Quiz/Teach-back (AI), focus session (ideas in docs/plans/library-revamp-plan.md B6–B10). Open questions: which modes, where they live (Study tab vs own space vs Review), Beginner vs Professional.
 - First-launch welcome + tours (New / Used it a little / Experienced).
+
+## Toolbar mock v8: APPROVED by owner (12 Nov 2026)
+
+Mock: claude.ai/artifact/UNS1UzPv4wb6errBrtpv4h; sources docs/mockups/toolbar-v8/ (Fable design-study.md = card system for the whole app). Last change: Favourites on the Text row too (same as Pen). Earlier v6 conditions are built in.

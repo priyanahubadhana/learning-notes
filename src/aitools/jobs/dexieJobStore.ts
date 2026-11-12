@@ -8,7 +8,10 @@ import type { AiJob } from './jobTypes'
  * table can be indexed by it. Never synced, never in a backup file.
  */
 export class DexieJobStore implements JobStore {
-  constructor(private readonly db: LearningNotesDB) {}
+  private readonly db: LearningNotesDB
+  constructor(db: LearningNotesDB) {
+    this.db = db
+  }
 
   async get(id: string): Promise<AiJob | undefined> {
     const row = await this.db.aiJobs.get(id)

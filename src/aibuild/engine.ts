@@ -11,7 +11,10 @@ import { PasteFiller } from './pasteFiller'
  * may pass the memory one.
  */
 export class ObservableJobStore implements JobStore {
-  constructor(private readonly inner: JobStore) {}
+  private readonly inner: JobStore
+  constructor(inner: JobStore) {
+    this.inner = inner
+  }
   private readonly subs = new Set<() => void>()
   subscribe(cb: () => void): () => void {
     this.subs.add(cb)

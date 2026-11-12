@@ -24,23 +24,33 @@ function Tiles({ prefix }: { prefix: string }) {
     <CardGroup label="Tile states">
       <TileGroup label={`${prefix} tiles`} columns={3}>
         <span {...cell('tile-default')}>
-          <Tile label="Default" testId={`${prefix}-tile-default`} />
+          <Tile label="Default" testId={`${prefix}-tile-default`}>
+            <i aria-hidden className="pcard-swatch bg-surface-3" />
+          </Tile>
         </span>
         <span {...cell('tile-hover')}>
-          <Tile label="Hover" force="hover" testId={`${prefix}-tile-hover`} />
+          <Tile label="Hover" force="hover" testId={`${prefix}-tile-hover`}>
+            <i aria-hidden className="pcard-swatch bg-surface-3" />
+          </Tile>
         </span>
         <span {...cell('tile-pressed')}>
           <Tile
             label="Pressed"
             force="pressed"
             testId={`${prefix}-tile-pressed`}
-          />
+          >
+            <i aria-hidden className="pcard-swatch bg-surface-3" />
+          </Tile>
         </span>
         <span {...cell('tile-selected')}>
-          <Tile label="Selected" selected testId={`${prefix}-tile-selected`} />
+          <Tile label="Selected" selected testId={`${prefix}-tile-selected`}>
+            <i aria-hidden className="pcard-swatch bg-surface-3" />
+          </Tile>
         </span>
         <span {...cell('tile-disabled')}>
-          <Tile label="Disabled" disabled testId={`${prefix}-tile-disabled`} />
+          <Tile label="Disabled" disabled testId={`${prefix}-tile-disabled`}>
+            <i aria-hidden className="pcard-swatch bg-surface-3" />
+          </Tile>
         </span>
       </TileGroup>
     </CardGroup>
@@ -157,7 +167,11 @@ export default function CardSection() {
         </div>
       </Demo>
       <Cells>
-        <Demo state="pick-open" label="Pick card, open (304)">
+        <Demo
+          state="pick-open"
+          className="w-full sm:w-auto max-sm:[&_.pcard:not([data-phone])]:mx-auto"
+          label="Pick card, open (304)"
+        >
           <Card
             anchor={null}
             size="pick"
@@ -169,7 +183,11 @@ export default function CardSection() {
             <Tiles prefix="pick" />
           </Card>
         </Demo>
-        <Demo state="panel-open" label="Panel card, open (376)">
+        <Demo
+          state="panel-open"
+          className="w-full sm:w-auto max-sm:[&_.pcard:not([data-phone])]:mx-auto"
+          label="Panel card, open (376)"
+        >
           <Card
             anchor={null}
             size="panel"
@@ -189,6 +207,7 @@ export default function CardSection() {
         </Demo>
         <Demo
           state="scroll-fade"
+          className="w-full sm:w-auto max-sm:[&_.pcard:not([data-phone])]:mx-auto"
           label="Taller than the screen: scrolls, bottom edge fades"
         >
           <div style={{ maxHeight: 260, display: 'flex' }}>
@@ -204,7 +223,11 @@ export default function CardSection() {
             </Card>
           </div>
         </Demo>
-        <Demo state="phone-sheet" label="Phone sheet (grab bar)">
+        <Demo
+          state="phone-sheet"
+          className="w-full sm:w-auto max-sm:[&_.pcard:not([data-phone])]:mx-auto"
+          label="Phone sheet (grab bar)"
+        >
           <Card
             anchor={null}
             size="pick"
@@ -217,7 +240,11 @@ export default function CardSection() {
             <Tiles prefix="phone" />
           </Card>
         </Demo>
-        <Demo state="loading" label="Loading (skeleton wells)">
+        <Demo
+          state="loading"
+          className="w-full sm:w-auto max-sm:[&_.pcard:not([data-phone])]:mx-auto"
+          label="Loading (skeleton wells)"
+        >
           <Card
             anchor={null}
             size="pick"

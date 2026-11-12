@@ -13,7 +13,17 @@
 }
 .rord[data-axis='grid'] {
   display: grid;
-  grid-template-columns: repeat(var(--rord-cols, 4), minmax(0, 1fr));
+  /* --rord-cols is the most columns; a cell never gets narrower than --rord-min, so on a phone the grid drops to fewer columns (a wide item then fills the row). */
+  grid-template-columns: repeat(
+    auto-fill,
+    minmax(
+      max(
+        var(--rord-min, 9rem),
+        calc(100% / var(--rord-cols, 4) - var(--space-3))
+      ),
+      1fr
+    )
+  );
   gap: var(--space-3);
 }
 .rord[data-dragging],

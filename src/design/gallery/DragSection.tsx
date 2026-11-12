@@ -23,14 +23,21 @@ const GRID: Item[] = [
 const COLS = 4
 
 /** Every item must start inside its row (a wide one never straddles the end). */
-function gridFits(order: string[]): boolean {
+function gridFits(order: string[], cols: number): boolean {
   let col = 0
   for (const id of order) {
     const span = GRID.find((g) => g.id === id)?.wide ? 2 : 1
-    if (col + span > COLS) return false
-    col = (col + span) % COLS
+    if (col + span > cols) return false
+    col = (col + span) % cols
   }
   return true
+}
+
+/** Columns the grid really shows right now (it drops columns on a phone). */
+function gridCols(): number {
+  const el = document.querySelector('[data-testid="drag-grid"]')
+  if (!el) return COLS
+  return Math.max(1, getComputedStyle(el).gridTemplateColumns.split(' ').length)
 }
 
 function Row({
@@ -187,7 +194,7 @@ function Grid() {
   const [items, setItems] = useState(GRID)
   const [rejected, setRejected] = useState('')
   return (
-    <div className="flex w-96 max-w-full flex-col gap-2">
+    <div className="flex w-full max-w-lg flex-col gap-2 [--rord-min:7rem]">
       <ReorderList
         items={items}
         getId={(i) => i.id}
@@ -199,7 +206,7 @@ function Grid() {
         showMoveButtons
         testId="drag-grid"
         aria-label={G.widgetGrid}
-        fit={(_id, _slot, order) => gridFits(order)}
+        fit={(_id, _slot, order) => gridFits(order, gridCols())}
         onReject={(id) => setRejected(`${id} went back`)}
         onMove={(id, to) => {
           const from = items.findIndex((i) => i.id === id)
@@ -207,11 +214,13 @@ function Grid() {
         }}
         renderItem={(item, ctx) => (
           <div
-            className="flex items-center gap-1 p-2"
+            className="flex flex-wrap items-center gap-x-1 p-2"
             data-wide={item.wide ? '' : undefined}
           >
             {ctx.grip}
-            <span className="t-small flex-1">{item.name}</span>
+            <span className="t-small flex-1 whitespace-nowrap">
+              {item.name}
+            </span>
             {ctx.moveButtons}
           </div>
         )}

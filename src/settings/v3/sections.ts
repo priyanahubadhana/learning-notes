@@ -90,6 +90,17 @@ export const areasOf = (sectionId: string): AreaId[] =>
     c.area && c.section === sectionId ? [c.area] : [],
   )
 
+/** The number shown beside a section: none when 0 and its screen is custom. */
+export const sectionBadge = (
+  sectionId: string,
+  rowCount: number,
+): number | undefined =>
+  rowCount === 0 && areasOf(sectionId).length > 0 ? undefined : rowCount
+
+/** The empty text shows only when no row and no custom screen is present. */
+export const showsEmptyState = (sectionId: string, rowCount: number): boolean =>
+  rowCount === 0 && areasOf(sectionId).length === 0
+
 /** Every section a row appears in: its home first, then "also in". */
 export function sectionIdsOf(def: SettingDefinition): string[] {
   return [MOVED[def.id] ?? def.category, ...(def.alsoIn ?? [])]

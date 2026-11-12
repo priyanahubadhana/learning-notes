@@ -11,7 +11,13 @@ import '../../ai/aiSettings'
 import '../../connector/claudeSettings'
 import '../../sync/syncSettings'
 import '../accountSettings'
-import { CUSTOM_SECTIONS, buildSections, sectionIdsOf } from './sections'
+import {
+  CUSTOM_SECTIONS,
+  buildSections,
+  sectionBadge,
+  sectionIdsOf,
+  showsEmptyState,
+} from './sections'
 
 /** "Nothing lost": everything today's Settings shows has a home in v3. */
 describe('Settings v3 loses nothing from today', () => {
@@ -46,5 +52,17 @@ describe('Settings v3 loses nothing from today', () => {
     const known = new Map(CUSTOM_SECTIONS.map((c) => [c.today, c.section]))
     expect(rendered.filter((n) => !known.has(n))).toEqual([])
     for (const [, section] of known) expect(sectionIds.has(section)).toBe(true)
+  })
+})
+
+describe('sections with a custom screen', () => {
+  it('show no 0 badge and never the empty text', () => {
+    for (const id of ['account', 'sync', 'lock']) {
+      expect(sectionBadge(id, 0)).toBeUndefined()
+      expect(showsEmptyState(id, 0)).toBe(false)
+    }
+    expect(sectionBadge('account', 3)).toBe(3)
+    expect(sectionBadge('journal', 0)).toBe(0)
+    expect(showsEmptyState('journal', 0)).toBe(true)
   })
 })

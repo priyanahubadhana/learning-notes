@@ -1,0 +1,1168 @@
+[
+  {
+    "id": "notebooks.create",
+    "version": 1,
+    "label": "Create notebook",
+    "group": "Notebooks",
+    "summary": "Makes an empty notebook with a title and a look.",
+    "aiDescription": "Creates a new empty notebook. Use first when the goal needs a new notebook; later steps add pages, cards and databases with the notebookId it returns. Does not write pages. Do not use to add to an existing notebook.",
+    "inputs": {
+      "type": "object",
+      "required": ["title"],
+      "additionalProperties": false,
+      "properties": {
+        "title": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 120
+        },
+        "summary": {
+          "type": "string",
+          "maxLength": 2000
+        },
+        "style": {
+          "type": "object",
+          "additionalProperties": false,
+          "properties": {
+            "colour": {
+              "type": "string",
+              "pattern": "^#[0-9a-fA-F]{6}$"
+            },
+            "view": {
+              "enum": ["shelf", "tabs"]
+            },
+            "pathStyle": {
+              "enum": ["simple", "full", "page"]
+            },
+            "sheet": {
+              "enum": ["A4", "Letter"]
+            },
+            "inkBg": {
+              "enum": ["lined", "grid", "dots"]
+            }
+          }
+        }
+      }
+    },
+    "outputs": {
+      "type": "object",
+      "properties": {
+        "notebookId": {
+          "type": "string"
+        }
+      }
+    },
+    "writes": [
+      {
+        "target": "notebook",
+        "mode": "create"
+      }
+    ],
+    "permissions": {
+      "scope": "notes:write",
+      "respectsLocks": true,
+      "needsSources": false
+    },
+    "cost": {
+      "class": "none",
+      "fill": "none",
+      "outTokens": 0
+    },
+    "tier": "simple",
+    "reversible": "batch",
+    "risk": "direct",
+    "idempotent": true,
+    "limits": {
+      "timeoutMs": 30000,
+      "maxRetries": 3
+    },
+    "surfaces": ["app", "mcp"],
+    "offline": true
+  },
+  {
+    "id": "pages.write_notes",
+    "version": 1,
+    "label": "Write notes",
+    "group": "Pages",
+    "summary": "Adds a page of notes to a notebook.",
+    "aiDescription": "Adds one page of notes to a notebook. Needs notebookId (from an earlier step or the destination). Send a short brief, or the full page when you already have the content. Do not use for cards or databases; chain the other tools.",
+    "inputs": {
+      "type": "object",
+      "required": ["notebookId"],
+      "additionalProperties": false,
+      "anyOf": [
+        {
+          "required": ["brief"]
+        },
+        {
+          "required": ["page"]
+        }
+      ],
+      "properties": {
+        "notebookId": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 64,
+          "pattern": "^[A-Za-z0-9_-]+$"
+        },
+        "brief": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 2000
+        },
+        "page": {
+          "type": "object",
+          "required": ["title", "blocks"],
+          "additionalProperties": false,
+          "properties": {
+            "title": {
+              "type": "string",
+              "minLength": 1,
+              "maxLength": 120
+            },
+            "summary": {
+              "type": "string",
+              "maxLength": 2000
+            },
+            "tabColour": {
+              "enum": [
+                "#2f6feb",
+                "#2e9e6b",
+                "#d9822b",
+                "#c8402f",
+                "#8a5cf6",
+                "#c2417f"
+              ]
+            },
+            "blocks": {
+              "type": "array",
+              "maxItems": 200,
+              "items": {
+                "type": "object",
+                "required": ["type"],
+                "additionalProperties": false,
+                "properties": {
+                  "type": {
+                    "enum": [
+                      "paragraph",
+                      "heading",
+                      "bulletListItem",
+                      "numberedListItem",
+                      "checkListItem",
+                      "quote",
+                      "divider",
+                      "codeBlock",
+                      "table",
+                      "toggleListItem",
+                      "callout",
+                      "card",
+                      "mindMap",
+                      "math",
+                      "embed",
+                      "pageLink",
+                      "database"
+                    ]
+                  },
+                  "text": {
+                    "type": "string",
+                    "maxLength": 20000
+                  },
+                  "level": {
+                    "enum": [1, 2, 3]
+                  },
+                  "checked": {
+                    "type": "boolean"
+                  },
+                  "language": {
+                    "type": "string",
+                    "maxLength": 30,
+                    "pattern": "^[A-Za-z0-9+#._-]*$"
+                  },
+                  "emoji": {
+                    "type": "string",
+                    "minLength": 1,
+                    "maxLength": 16
+                  },
+                  "rows": {
+                    "type": "array",
+                    "minItems": 1,
+                    "maxItems": 50,
+                    "items": {
+                      "type": "array",
+                      "minItems": 1,
+                      "maxItems": 12,
+                      "items": {
+                        "type": "string",
+                        "maxLength": 5000
+                      }
+                    }
+                  },
+                  "outline": {
+                    "type": "string",
+                    "minLength": 1,
+                    "maxLength": 5000
+                  },
+                  "latex": {
+                    "type": "string",
+                    "minLength": 1,
+                    "maxLength": 5000
+                  },
+                  "url": {
+                    "type": "string",
+                    "minLength": 1,
+                    "maxLength": 2000,
+                    "pattern": "^https://\\S+$"
+                  },
+                  "caption": {
+                    "type": "string",
+                    "maxLength": 500
+                  },
+                  "page": {
+                    "type": "string",
+                    "minLength": 1,
+                    "maxLength": 120
+                  },
+                  "database": {
+                    "type": "string",
+                    "minLength": 1,
+                    "maxLength": 40
+                  },
+                  "children": {
+                    "type": "array",
+                    "maxItems": 50,
+                    "items": {
+                      "type": "object",
+                      "required": ["type"],
+                      "additionalProperties": false,
+                      "properties": {
+                        "type": {
+                          "enum": [
+                            "paragraph",
+                            "heading",
+                            "bulletListItem",
+                            "numberedListItem",
+                            "checkListItem",
+                            "quote",
+                            "divider",
+                            "codeBlock",
+                            "table",
+                            "toggleListItem",
+                            "callout",
+                            "card",
+                            "mindMap",
+                            "math",
+                            "embed",
+                            "pageLink",
+                            "database"
+                          ]
+                        },
+                        "text": {
+                          "type": "string",
+                          "maxLength": 20000
+                        },
+                        "level": {
+                          "enum": [1, 2, 3]
+                        },
+                        "checked": {
+                          "type": "boolean"
+                        },
+                        "language": {
+                          "type": "string",
+                          "maxLength": 30,
+                          "pattern": "^[A-Za-z0-9+#._-]*$"
+                        },
+                        "emoji": {
+                          "type": "string",
+                          "minLength": 1,
+                          "maxLength": 16
+                        },
+                        "rows": {
+                          "type": "array",
+                          "minItems": 1,
+                          "maxItems": 50,
+                          "items": {
+                            "type": "array",
+                            "minItems": 1,
+                            "maxItems": 12,
+                            "items": {
+                              "type": "string",
+                              "maxLength": 5000
+                            }
+                          }
+                        },
+                        "outline": {
+                          "type": "string",
+                          "minLength": 1,
+                          "maxLength": 5000
+                        },
+                        "latex": {
+                          "type": "string",
+                          "minLength": 1,
+                          "maxLength": 5000
+                        },
+                        "url": {
+                          "type": "string",
+                          "minLength": 1,
+                          "maxLength": 2000,
+                          "pattern": "^https://\\S+$"
+                        },
+                        "caption": {
+                          "type": "string",
+                          "maxLength": 500
+                        },
+                        "page": {
+                          "type": "string",
+                          "minLength": 1,
+                          "maxLength": 120
+                        },
+                        "database": {
+                          "type": "string",
+                          "minLength": 1,
+                          "maxLength": 40
+                        }
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          }
+        },
+        "parentId": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 64,
+          "pattern": "^[A-Za-z0-9_-]+$"
+        },
+        "parentVersion": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 64
+        }
+      }
+    },
+    "outputs": {
+      "type": "object",
+      "properties": {
+        "pageId": {
+          "type": "string"
+        },
+        "notebookId": {
+          "type": "string"
+        }
+      }
+    },
+    "writes": [
+      {
+        "target": "page",
+        "mode": "create"
+      }
+    ],
+    "permissions": {
+      "scope": "notes:write",
+      "respectsLocks": true,
+      "needsSources": true
+    },
+    "cost": {
+      "class": "medium",
+      "fill": "model",
+      "outTokens": 1500
+    },
+    "tier": "writing",
+    "reversible": "batch",
+    "risk": "direct",
+    "idempotent": true,
+    "limits": {
+      "timeoutMs": 90000,
+      "maxRetries": 3
+    },
+    "surfaces": ["app", "mcp"],
+    "offline": false
+  },
+  {
+    "id": "cards.make_recall",
+    "version": 1,
+    "label": "Make recall cards",
+    "group": "Cards",
+    "summary": "Turns the notes into question and answer cards.",
+    "aiDescription": "Adds question and answer cards to an existing page, under its Recall cards heading. Needs pageId from an earlier step. Give cards, or a count and a brief. For fill-in-the-blank cards use cards.make_cloze. Not for quizzes.",
+    "inputs": {
+      "type": "object",
+      "required": ["pageId"],
+      "additionalProperties": false,
+      "anyOf": [
+        {
+          "required": ["cards"]
+        },
+        {
+          "required": ["count"]
+        }
+      ],
+      "properties": {
+        "pageId": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 64,
+          "pattern": "^[A-Za-z0-9_-]+$"
+        },
+        "count": {
+          "type": "integer",
+          "minimum": 1,
+          "maximum": 200
+        },
+        "brief": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 2000
+        },
+        "cards": {
+          "type": "array",
+          "minItems": 1,
+          "maxItems": 200,
+          "items": {
+            "type": "object",
+            "required": ["kind", "q", "a"],
+            "additionalProperties": false,
+            "properties": {
+              "kind": {
+                "const": "qa"
+              },
+              "q": {
+                "type": "string",
+                "minLength": 1,
+                "maxLength": 5000
+              },
+              "a": {
+                "type": "string",
+                "minLength": 1,
+                "maxLength": 5000
+              },
+              "page": {
+                "type": "string",
+                "minLength": 1,
+                "maxLength": 120
+              }
+            }
+          }
+        },
+        "expectedVersion": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 64
+        }
+      }
+    },
+    "outputs": {
+      "type": "object",
+      "properties": {
+        "pageId": {
+          "type": "string"
+        },
+        "cardIds": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          }
+        }
+      }
+    },
+    "writes": [
+      {
+        "target": "blocks",
+        "mode": "append"
+      },
+      {
+        "target": "cards",
+        "mode": "create"
+      }
+    ],
+    "permissions": {
+      "scope": "notes:write",
+      "respectsLocks": true,
+      "needsSources": true
+    },
+    "cost": {
+      "class": "small",
+      "fill": "model",
+      "outTokens": 900
+    },
+    "tier": "simple",
+    "reversible": "batch",
+    "risk": "direct",
+    "idempotent": true,
+    "limits": {
+      "timeoutMs": 60000,
+      "maxRetries": 3
+    },
+    "surfaces": ["app", "mcp"],
+    "offline": false
+  },
+  {
+    "id": "cards.make_cloze",
+    "version": 1,
+    "label": "Make fill-in-the-blank cards",
+    "group": "Cards",
+    "summary": "Turns the notes into cards with hidden words.",
+    "aiDescription": "Adds fill-in-the-blank cards to an existing page, under its Recall cards heading. Each card text hides words as {{word}}. Needs pageId from an earlier step. Give cards, or a count and a brief. For question and answer cards use cards.make_recall.",
+    "inputs": {
+      "type": "object",
+      "required": ["pageId"],
+      "additionalProperties": false,
+      "anyOf": [
+        {
+          "required": ["cards"]
+        },
+        {
+          "required": ["count"]
+        }
+      ],
+      "properties": {
+        "pageId": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 64,
+          "pattern": "^[A-Za-z0-9_-]+$"
+        },
+        "count": {
+          "type": "integer",
+          "minimum": 1,
+          "maximum": 200
+        },
+        "brief": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 2000
+        },
+        "cards": {
+          "type": "array",
+          "minItems": 1,
+          "maxItems": 200,
+          "items": {
+            "type": "object",
+            "required": ["kind", "text"],
+            "additionalProperties": false,
+            "properties": {
+              "kind": {
+                "const": "cloze"
+              },
+              "text": {
+                "type": "string",
+                "minLength": 1,
+                "maxLength": 5000,
+                "pattern": "\\{\\{[^{}]+\\}\\}"
+              },
+              "page": {
+                "type": "string",
+                "minLength": 1,
+                "maxLength": 120
+              }
+            }
+          }
+        },
+        "expectedVersion": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 64
+        }
+      }
+    },
+    "outputs": {
+      "type": "object",
+      "properties": {
+        "pageId": {
+          "type": "string"
+        },
+        "cardIds": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          }
+        }
+      }
+    },
+    "writes": [
+      {
+        "target": "blocks",
+        "mode": "append"
+      },
+      {
+        "target": "cards",
+        "mode": "create"
+      }
+    ],
+    "permissions": {
+      "scope": "notes:write",
+      "respectsLocks": true,
+      "needsSources": true
+    },
+    "cost": {
+      "class": "small",
+      "fill": "model",
+      "outTokens": 700
+    },
+    "tier": "simple",
+    "reversible": "batch",
+    "risk": "direct",
+    "idempotent": true,
+    "limits": {
+      "timeoutMs": 60000,
+      "maxRetries": 3
+    },
+    "surfaces": ["app", "mcp"],
+    "offline": false
+  },
+  {
+    "id": "databases.create",
+    "version": 1,
+    "label": "Create database",
+    "group": "Databases",
+    "summary": "Adds a table of rows with three starter views.",
+    "aiDescription": "Adds one database (columns and rows) to a notebook, with three starter views, and can show it at the end of a page. Needs notebookId from an earlier step. Give the database, or a brief. Use for lists with fields; use pages for prose.",
+    "inputs": {
+      "type": "object",
+      "required": ["notebookId"],
+      "additionalProperties": false,
+      "anyOf": [
+        {
+          "required": ["database"]
+        },
+        {
+          "required": ["brief"]
+        }
+      ],
+      "properties": {
+        "notebookId": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 64,
+          "pattern": "^[A-Za-z0-9_-]+$"
+        },
+        "pageId": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 64,
+          "pattern": "^[A-Za-z0-9_-]+$"
+        },
+        "brief": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 2000
+        },
+        "database": {
+          "type": "object",
+          "required": ["key", "title", "columns", "rows"],
+          "additionalProperties": false,
+          "properties": {
+            "key": {
+              "type": "string",
+              "pattern": "^[a-z0-9_-]{1,40}$"
+            },
+            "title": {
+              "type": "string",
+              "minLength": 1,
+              "maxLength": 120
+            },
+            "columns": {
+              "type": "array",
+              "minItems": 1,
+              "maxItems": 30,
+              "items": {
+                "type": "object",
+                "required": ["name", "type"],
+                "additionalProperties": false,
+                "properties": {
+                  "name": {
+                    "type": "string",
+                    "minLength": 1,
+                    "maxLength": 60
+                  },
+                  "type": {
+                    "enum": [
+                      "text",
+                      "number",
+                      "date",
+                      "checkbox",
+                      "choice",
+                      "choices",
+                      "url"
+                    ]
+                  },
+                  "options": {
+                    "type": "array",
+                    "minItems": 1,
+                    "maxItems": 50,
+                    "items": {
+                      "type": "string",
+                      "minLength": 1,
+                      "maxLength": 60
+                    }
+                  }
+                }
+              }
+            },
+            "rows": {
+              "type": "array",
+              "maxItems": 1000,
+              "items": {
+                "type": "object",
+                "required": ["title"],
+                "additionalProperties": false,
+                "properties": {
+                  "title": {
+                    "type": "string",
+                    "minLength": 1,
+                    "maxLength": 120
+                  },
+                  "values": {
+                    "type": "object",
+                    "additionalProperties": true
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "outputs": {
+      "type": "object",
+      "properties": {
+        "notebookId": {
+          "type": "string"
+        },
+        "databaseId": {
+          "type": "string"
+        }
+      }
+    },
+    "writes": [
+      {
+        "target": "database",
+        "mode": "create"
+      },
+      {
+        "target": "rows",
+        "mode": "create"
+      }
+    ],
+    "permissions": {
+      "scope": "notes:write",
+      "respectsLocks": true,
+      "needsSources": true
+    },
+    "cost": {
+      "class": "small",
+      "fill": "model",
+      "outTokens": 1000
+    },
+    "tier": "simple",
+    "reversible": "batch",
+    "risk": "direct",
+    "idempotent": true,
+    "limits": {
+      "timeoutMs": 60000,
+      "maxRetries": 3
+    },
+    "surfaces": ["app", "mcp"],
+    "offline": false
+  },
+  {
+    "id": "styles.apply",
+    "version": 1,
+    "label": "Apply style",
+    "group": "Styles",
+    "summary": "Changes the cover colour, view or paper of a notebook or page.",
+    "aiDescription": "Changes the look of an existing notebook: cover colour, shelf or tabs view, path style, paper size and lines. Can set one page tab colour. Needs notebookId. Changes values only; never touches content. Not for writing notes.",
+    "inputs": {
+      "type": "object",
+      "required": ["notebookId"],
+      "additionalProperties": false,
+      "anyOf": [
+        {
+          "required": ["style"]
+        },
+        {
+          "required": ["tabColour"]
+        }
+      ],
+      "properties": {
+        "notebookId": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 64,
+          "pattern": "^[A-Za-z0-9_-]+$"
+        },
+        "pageId": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 64,
+          "pattern": "^[A-Za-z0-9_-]+$"
+        },
+        "style": {
+          "type": "object",
+          "additionalProperties": false,
+          "properties": {
+            "colour": {
+              "type": "string",
+              "pattern": "^#[0-9a-fA-F]{6}$"
+            },
+            "view": {
+              "enum": ["shelf", "tabs"]
+            },
+            "pathStyle": {
+              "enum": ["simple", "full", "page"]
+            },
+            "sheet": {
+              "enum": ["A4", "Letter"]
+            },
+            "inkBg": {
+              "enum": ["lined", "grid", "dots"]
+            }
+          }
+        },
+        "tabColour": {
+          "enum": [
+            "#2f6feb",
+            "#2e9e6b",
+            "#d9822b",
+            "#c8402f",
+            "#8a5cf6",
+            "#c2417f"
+          ]
+        },
+        "baseRev": {
+          "type": "integer",
+          "minimum": 0
+        }
+      }
+    },
+    "outputs": {
+      "type": "object",
+      "properties": {
+        "notebookId": {
+          "type": "string"
+        }
+      }
+    },
+    "writes": [
+      {
+        "target": "style",
+        "mode": "edit"
+      }
+    ],
+    "permissions": {
+      "scope": "notes:write",
+      "respectsLocks": true,
+      "needsSources": false
+    },
+    "cost": {
+      "class": "none",
+      "fill": "none",
+      "outTokens": 0
+    },
+    "tier": "simple",
+    "reversible": "values",
+    "risk": "direct",
+    "idempotent": true,
+    "limits": {
+      "timeoutMs": 30000,
+      "maxRetries": 3
+    },
+    "surfaces": ["app", "mcp"],
+    "offline": true
+  },
+  {
+    "id": "pages.refine",
+    "version": 1,
+    "label": "Refine page",
+    "group": "Pages",
+    "summary": "Improves a page block by block, keeping a History copy.",
+    "aiDescription": "Edits an existing page one block at a time: add, insert after a block, or replace a block. A copy goes to History first. Big changes wait in the Inbox for Accept. Needs pageId. Give ops, or a brief. Never deletes pages.",
+    "inputs": {
+      "type": "object",
+      "required": ["pageId"],
+      "additionalProperties": false,
+      "anyOf": [
+        {
+          "required": ["ops"]
+        },
+        {
+          "required": ["brief"]
+        }
+      ],
+      "properties": {
+        "pageId": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 64,
+          "pattern": "^[A-Za-z0-9_-]+$"
+        },
+        "brief": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 2000
+        },
+        "baseRevision": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 64
+        },
+        "ops": {
+          "type": "array",
+          "minItems": 1,
+          "maxItems": 100,
+          "items": {
+            "type": "object",
+            "required": ["op", "block"],
+            "additionalProperties": false,
+            "properties": {
+              "op": {
+                "enum": ["add", "insert", "replace"]
+              },
+              "block": {
+                "type": "object",
+                "required": ["type"],
+                "additionalProperties": false,
+                "properties": {
+                  "type": {
+                    "enum": [
+                      "paragraph",
+                      "heading",
+                      "bulletListItem",
+                      "numberedListItem",
+                      "checkListItem",
+                      "quote",
+                      "divider",
+                      "codeBlock",
+                      "table",
+                      "toggleListItem",
+                      "callout",
+                      "card",
+                      "mindMap",
+                      "math",
+                      "embed",
+                      "pageLink",
+                      "database"
+                    ]
+                  },
+                  "text": {
+                    "type": "string",
+                    "maxLength": 20000
+                  },
+                  "level": {
+                    "enum": [1, 2, 3]
+                  },
+                  "checked": {
+                    "type": "boolean"
+                  },
+                  "language": {
+                    "type": "string",
+                    "maxLength": 30,
+                    "pattern": "^[A-Za-z0-9+#._-]*$"
+                  },
+                  "emoji": {
+                    "type": "string",
+                    "minLength": 1,
+                    "maxLength": 16
+                  },
+                  "rows": {
+                    "type": "array",
+                    "minItems": 1,
+                    "maxItems": 50,
+                    "items": {
+                      "type": "array",
+                      "minItems": 1,
+                      "maxItems": 12,
+                      "items": {
+                        "type": "string",
+                        "maxLength": 5000
+                      }
+                    }
+                  },
+                  "outline": {
+                    "type": "string",
+                    "minLength": 1,
+                    "maxLength": 5000
+                  },
+                  "latex": {
+                    "type": "string",
+                    "minLength": 1,
+                    "maxLength": 5000
+                  },
+                  "url": {
+                    "type": "string",
+                    "minLength": 1,
+                    "maxLength": 2000,
+                    "pattern": "^https://\\S+$"
+                  },
+                  "caption": {
+                    "type": "string",
+                    "maxLength": 500
+                  },
+                  "page": {
+                    "type": "string",
+                    "minLength": 1,
+                    "maxLength": 120
+                  },
+                  "database": {
+                    "type": "string",
+                    "minLength": 1,
+                    "maxLength": 40
+                  },
+                  "children": {
+                    "type": "array",
+                    "maxItems": 50,
+                    "items": {
+                      "type": "object",
+                      "required": ["type"],
+                      "additionalProperties": false,
+                      "properties": {
+                        "type": {
+                          "enum": [
+                            "paragraph",
+                            "heading",
+                            "bulletListItem",
+                            "numberedListItem",
+                            "checkListItem",
+                            "quote",
+                            "divider",
+                            "codeBlock",
+                            "table",
+                            "toggleListItem",
+                            "callout",
+                            "card",
+                            "mindMap",
+                            "math",
+                            "embed",
+                            "pageLink",
+                            "database"
+                          ]
+                        },
+                        "text": {
+                          "type": "string",
+                          "maxLength": 20000
+                        },
+                        "level": {
+                          "enum": [1, 2, 3]
+                        },
+                        "checked": {
+                          "type": "boolean"
+                        },
+                        "language": {
+                          "type": "string",
+                          "maxLength": 30,
+                          "pattern": "^[A-Za-z0-9+#._-]*$"
+                        },
+                        "emoji": {
+                          "type": "string",
+                          "minLength": 1,
+                          "maxLength": 16
+                        },
+                        "rows": {
+                          "type": "array",
+                          "minItems": 1,
+                          "maxItems": 50,
+                          "items": {
+                            "type": "array",
+                            "minItems": 1,
+                            "maxItems": 12,
+                            "items": {
+                              "type": "string",
+                              "maxLength": 5000
+                            }
+                          }
+                        },
+                        "outline": {
+                          "type": "string",
+                          "minLength": 1,
+                          "maxLength": 5000
+                        },
+                        "latex": {
+                          "type": "string",
+                          "minLength": 1,
+                          "maxLength": 5000
+                        },
+                        "url": {
+                          "type": "string",
+                          "minLength": 1,
+                          "maxLength": 2000,
+                          "pattern": "^https://\\S+$"
+                        },
+                        "caption": {
+                          "type": "string",
+                          "maxLength": 500
+                        },
+                        "page": {
+                          "type": "string",
+                          "minLength": 1,
+                          "maxLength": 120
+                        },
+                        "database": {
+                          "type": "string",
+                          "minLength": 1,
+                          "maxLength": 40
+                        }
+                      }
+                    }
+                  }
+                }
+              },
+              "blockId": {
+                "type": "string",
+                "minLength": 1,
+                "maxLength": 64,
+                "pattern": "^[A-Za-z0-9_-]+$"
+              },
+              "afterBlockId": {
+                "type": "string",
+                "minLength": 1,
+                "maxLength": 64,
+                "pattern": "^[A-Za-z0-9_-]+$"
+              },
+              "parentId": {
+                "type": "string",
+                "minLength": 1,
+                "maxLength": 64,
+                "pattern": "^[A-Za-z0-9_-]+$"
+              }
+            }
+          }
+        }
+      }
+    },
+    "outputs": {
+      "type": "object",
+      "properties": {
+        "pageId": {
+          "type": "string"
+        }
+      }
+    },
+    "writes": [
+      {
+        "target": "blocks",
+        "mode": "edit"
+      }
+    ],
+    "permissions": {
+      "scope": "notes:write",
+      "respectsLocks": true,
+      "needsSources": false
+    },
+    "cost": {
+      "class": "medium",
+      "fill": "model",
+      "outTokens": 1500
+    },
+    "tier": "writing",
+    "reversible": "history",
+    "risk": "preview",
+    "idempotent": true,
+    "limits": {
+      "timeoutMs": 90000,
+      "maxRetries": 3
+    },
+    "surfaces": ["app", "mcp"],
+    "offline": false
+  }
+]

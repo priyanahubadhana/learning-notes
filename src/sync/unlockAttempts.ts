@@ -9,6 +9,8 @@
  * kept in memory, so the same wrong value twice counts once.
  */
 
+import { clockText, waitFor, type LimiterSteps } from '../core/limiter'
+
 export type SecretKind = 'passphrase' | 'code'
 
 export const FREE_TRIES = 3
@@ -16,6 +18,7 @@ const MIN = 60_000
 /** After the 3rd wrong try: 1 min, then 5, then 15, then 1 h each (never permanent). */
 const WAITS = [MIN, 5 * MIN, 15 * MIN]
 export const MAX_WAIT = 60 * MIN
+const RULE: LimiterSteps = { free: FREE_TRIES, steps: WAITS, cap: MAX_WAIT }
 export const CODE_LENGTH = 26
 const KEY = 'learning-notes:unlock-throttle-v1'
 
@@ -27,8 +30,7 @@ type Saved = Record<SecretKind, Entry>
 
 /** How long to wait after this many wrong tries (0 = still free). */
 export function waitAfter(fails: number): number {
-  if (fails < FREE_TRIES) return 0
-  return WAITS[fails - FREE_TRIES] ?? MAX_WAIT
+  return waitFor(RULE, fails)
 }
 
 /** Letters of a typed code after case, spaces, dashes, dots and look-alikes are tolerated. */
@@ -140,7 +142,4 @@ export async function fingerprint(value: string): Promise<string> {
 }
 
 /** "4:32" for a wait in ms (rounded up to the second). */
-export function clock(ms: number): string {
-  const s = Math.ceil(ms / 1000)
-  return `${Math.floor(s / 60)}:${String(s % 60).padStart(2, '0')}`
-}
+export const clock = clockText

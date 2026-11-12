@@ -90,6 +90,12 @@ settingsRegistry.registerCategory({
   order: 80,
 })
 settingsRegistry.registerCategory({
+  id: 'tryNew',
+  labelKey: 'settings.category.tryNew',
+  descriptionKey: 'settings.category.tryNew.hint',
+  order: 85,
+})
+settingsRegistry.registerCategory({
   id: 'apis',
   labelKey: 'settings.category.connections',
   descriptionKey: 'settings.category.connections.hint',

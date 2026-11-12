@@ -126,7 +126,9 @@ test('every old item is still reachable', async ({ page }) => {
     page.getByRole('heading', { name: /Save/ }).first(),
   ).toBeVisible()
   await cornerAction(page, 'Settings')
-  await expect(page.getByRole('heading', { name: 'Settings' })).toBeVisible()
+  await expect(
+    page.getByRole('heading', { name: 'Settings', level: 1 }),
+  ).toBeVisible()
   await openTrash(page)
   await expect(corner(page).getByText('Trash is empty')).toBeVisible()
 })

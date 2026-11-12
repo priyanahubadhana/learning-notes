@@ -57,6 +57,7 @@ export default defineConfig({
   projects: [
     {
       name: 'chromium',
+      testIgnore: /visual\//,
       use: {
         ...devices['Desktop Chrome'],
         // 56 px wider than before: the strip of spaces takes that much.
@@ -65,6 +66,7 @@ export default defineConfig({
     },
     {
       name: 'webkit',
+      testIgnore: /visual\//,
       use: {
         ...devices['Desktop Safari'],
         viewport: { width: 1336, height: 720 },
@@ -75,8 +77,11 @@ export default defineConfig({
       // Stand-in for the owner's iPad: WebKit, touch, iPad size. Only the
       // Pencil/Scribble/keyboard specs of Phase A run here (CI time).
       name: 'ipad-webkit',
+      testIgnore: /visual\//,
       testMatch: [
         /pencilIsolation/,
+        /updateV2/,
+        /security-m1-/,
         /chromeIsolation/,
         /penTapChrome/,
         /ipadKeyboard/,
@@ -97,6 +102,9 @@ export default defineConfig({
         /magnifier/,
         /aiPicker/,
         /openNotebook/,
+        /tryNewFeatures/,
+        /foundationInput/,
+        /foundationSelectionOverlay/,
         /barFixes/,
         /pencilTaps/,
         /boxPills/,
@@ -152,6 +160,16 @@ export default defineConfig({
       use: { ...devices['iPad Pro 11'], hasTouch: true },
       expect: { timeout: 15_000 },
       timeout: 60_000,
+    },
+    {
+      // Pictures of the main screens (e2e/visual), one folder per operating
+      // system. Not part of normal runs: `npm run test:visual`.
+      name: 'visual',
+      testDir: './e2e/visual',
+      testMatch: /screens\.spec\.ts/,
+      retries: 0,
+      snapshotPathTemplate: '{testDir}/__screenshots__/{platform}/{arg}{ext}',
+      use: { ...devices['Desktop Chrome'] },
     },
   ],
   webServer: {

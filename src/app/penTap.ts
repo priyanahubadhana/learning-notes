@@ -24,8 +24,8 @@ const NATIVE =
 const ACTION =
   'button, [role=button], [role=link], [role=menuitem], [role=tab], [role=option], [role=switch], a, label'
 
-const MAX_MOVE = 12
-const MAX_MS = 1000
+export const MAX_MOVE = 12
+export const MAX_MS = 1000
 const SWALLOW_MS = 500
 
 export interface PenTapStats {

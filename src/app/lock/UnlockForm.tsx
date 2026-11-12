@@ -12,7 +12,9 @@ import {
   verifyWithPasskey,
   type PasskeyResult,
 } from '../../core/lock/webauthn'
+import { clockText } from '../../core/limiter'
 import { t } from '../../i18n/t'
+import { useFlag } from '../flags'
 
 /**
  * Asks for a way to unlock: the device lock (Face ID, Touch ID, Windows
@@ -42,6 +44,7 @@ export function UnlockForm({
   const [busy, setBusy] = useState(false)
   const [deviceResult, setDeviceResult] = useState<PasskeyResult | null>(null)
   const [wait, setWait] = useState(waitSeconds())
+  const m1 = useFlag('security.m1')
   const input = useRef<HTMLInputElement>(null)
 
   useEffect(() => {
@@ -165,9 +168,10 @@ export function UnlockForm({
             pattern={mode === 'pin' ? '[0-9]*' : undefined}
             maxLength={mode === 'pin' ? 6 : 128}
             autoComplete="off"
+            disabled={m1 && wait > 0}
             aria-invalid={error === 'wrong'}
             aria-describedby={error || wait > 0 ? 'unlock-error' : undefined}
-            className="min-h-12 rounded-xl border-2 border-ink-soft bg-bg px-3 text-center text-lg tracking-widest outline-none placeholder:text-sm placeholder:tracking-normal placeholder:text-ink-soft focus:border-accent"
+            className="min-h-12 rounded-xl border-2 border-ink-soft bg-bg px-3 text-center text-lg tracking-widest outline-none disabled:opacity-50 placeholder:text-sm placeholder:tracking-normal placeholder:text-ink-soft focus:border-accent"
           />
           <button
             type="submit"
@@ -184,9 +188,11 @@ export function UnlockForm({
         className="min-h-5 text-center text-sm text-danger"
       >
         {wait > 0
-          ? wait >= 120
-            ? t('lock.waitMin', { minutes: Math.ceil(wait / 60) })
-            : t('lock.wait', { seconds: wait })
+          ? m1
+            ? t('unlock.wait', { time: clockText(wait * 1000) })
+            : wait >= 120
+              ? t('lock.waitMin', { minutes: Math.ceil(wait / 60) })
+              : t('lock.wait', { seconds: wait })
           : error === 'wrong'
             ? t('lock.wrong')
             : error === 'device'

@@ -88,6 +88,10 @@ export const esMedia = {
     'Esta imagen no está en el almacenamiento de esta aplicación.',
   'image.remote.failed': 'No se pudo cargar esa imagen.',
   'image.remote.load': 'Cargar imagen remota',
+  'image.remote.cardError': 'No se pudo cargar esta imagen',
+  'image.remote.loadBtn': 'Cargar imagen',
+  'image.remote.offline': 'Sin conexión',
+  'image.remote.retry': 'Intentar de nuevo',
   'image.tooBig':
     'Esta imagen es demasiado grande (el límite es de unos 25 MB).',
   'layers.add': 'Añadir',

@@ -1,5 +1,30 @@
 # Pending: one list (11 Nov 2026)
 
+## For the owner this morning (build night 1, 12 Nov 2026)
+
+- Needs you: finish the Claude connector (3 steps). The app update it waited for is live.
+- Needs you (Supabase, when free; nothing is blocked): turn on refresh-token rotation; confirm the email-code limits; restrict CORS on the `drive-token` function.
+- Needs you (one check before the strict security header is switched on): Google sign-in, Drive and fonts still work. Until then the strict rule only reports, it blocks nothing.
+- Preview (free, new parts can be switched on there): https://build-next.learning-notes-app.pages.dev . New parts are under Settings › Try new features, all OFF. The live app got the same code on 12 Nov with everything off.
+- Needs you (Supabase, when free): the online part of the Claude connector needs the new job tools deployed (list in docs/features/ai-framework.md "Needs the owner"); the app side is built and waits.
+- To review: a new unlock switch "about.updateDetails" is proposed (until your OK it uses "about.version"); 50 new unlock switches were added to docs/mockups/pro-features.md under "Added by the build specs" (169 → 219).
+- Decisions to review: see docs/DECISIONS.md "Decisions to review" (build night 1).
+
+## Build board (one row per slice)
+
+| Slice                                                                                                                 | State                                                        | Branch                                      | Next step                                                | Gate                                |
+| --------------------------------------------------------------------------------------------------------------------- | ------------------------------------------------------------ | ------------------------------------------- | -------------------------------------------------------- | ----------------------------------- |
+| First job: CI green + deploy                                                                                          | DONE, live                                                   | main                                        | none                                                     | done                                |
+| Night 1 release: 0a, 0b, 0c, 0d, 0e, 0f, 0i, 9 (AI slices 0-1), 10 update flow, 11 security mediums, iPad flake fixes | DONE, live, all switched off (main b5b0bc7, run 43205383635) | main                                        | owner tests when free                                    | done                                |
+| 0g step 1 shared parts (10 parts + gallery), AI slice 2 (Build screen), outside-tap swallow                           | merged to build/next, green (run 43219746700)                | build/next                                  | next release                                             | QA passed, Fable passed screenshots |
+| 0g step 2 (strip, command list, sheet, dialogs, toasts, banner)                                                       | built, gate not finished                                     | slice/0g-parts                              | merge build/next, finish gate                            | builder                             |
+| 0h shell                                                                                                              | SH-01..08 built behind foundation.shell                      | slice/0h-shell                              | SH-06, SH-09..14, then QA                                | builder                             |
+| 1 toolbar v8                                                                                                          | 1a, 1b built                                                 | slice/1-toolbar-v8                          | 1c Pen cards onwards                                     | builder                             |
+| 3 Settings v3                                                                                                         | 7 of 13 sub-slices built; unlock list now 219                | slice/3-settings-v3                         | sub-slices 8-13                                          | builder                             |
+| 9 AI framework slice 3 + local table aiJobs (Dexie version 24)                                                        | built, green on its branch                                   | slice/9-ai-framework-1                      | QA review of the version 24 upgrade, merge; then slice 4 | QA                                  |
+| 4 Notebooks + Search v2, 7 Reader v2                                                                                  | starting                                                     | slice/4-notebooks-search, slice/7-reader-v2 | build from spec                                          | builder                             |
+| 2 text box v2, 5 Home, 6 Library, 8 Review, 12-17                                                                     | spec ready, not built                                        | -                                           | after toolbar / shell                                    | -                                   |
+
 nContinuity: see [CONTINUITY.md](CONTINUITY.md). Mock-ups: docs/mockups/.
 
 Owner rule: remove a line when it's solved. Tokens are low until Fri 13 Nov, so only Priority 1 is built now. The full detail for each item lives in the linked plan file.

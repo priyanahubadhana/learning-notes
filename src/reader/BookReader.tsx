@@ -259,7 +259,8 @@ export function BookReader({
   const [penBar, setPenBar] = usePref<InkBarMode>(
     'reader.penBar',
     isInkBarMode,
-    'simple',
+    // Reader v2: a new reader starts with the full pen bar (RD-B43).
+    v2 ? 'full' : 'simple',
   )
   const clock = useClock(look.clock)
   const contentRef = useRef<HTMLDivElement>(null)

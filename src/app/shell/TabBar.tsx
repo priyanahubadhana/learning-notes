@@ -20,6 +20,7 @@ export function TabBar({
     <nav
       data-chrome
       data-shell-tabbar
+      data-toast-avoid
       aria-label={t('spaces.label')}
       className="sh-tabbar glass-flat"
     >

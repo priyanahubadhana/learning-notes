@@ -79,7 +79,13 @@
   font-size: 13px;
   font-weight: 600;
   pointer-events: auto;
-  border-radius: var(--r-md) 0 0 var(--r-md);
+  /* The shared minimise chip look (accent, icon + word), readable in every theme. */
+  border: 1.5px solid var(--color-accent);
+  border-inline-end: 0;
+  background-color: var(--color-surface-2);
+  background-image: linear-gradient(var(--color-accent-soft), var(--color-accent-soft));
+  color: var(--color-accent);
+  border-radius: 14px 0 0 14px;
   animation: rv2-chip-in var(--dur-2) var(--ease-out);
 }
 @keyframes rv2-chip-in {
@@ -167,7 +173,7 @@
 }
 .rv2-timeleft {
   margin: 0;
-  padding: 0 10px 4px;
+  padding: 2px 16px 8px;
   overflow: hidden;
   text-overflow: ellipsis;
   white-space: nowrap;
@@ -645,4 +651,11 @@
   color: var(--color-ink);
   font-size: 14px;
   line-height: 1.5;
+}
+
+/* The ⋯ card keeps 44 px rows and readable text; the list scrolls inside it. */
+.rv2-card-scroll .pcard-row {
+  min-height: 44px;
+  font-size: 15px;
+  flex: none;
 }

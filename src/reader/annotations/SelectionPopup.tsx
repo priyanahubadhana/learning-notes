@@ -98,7 +98,7 @@ export function SelectionPopup({
           onClick={onSticky}
           className={btn}
         >
-          {t('readerv2.sticky.tool')}
+          {t('readerv2.sticky.popup')}
         </button>
       )}
       <button type="button" onClick={onCopy} className={btn}>

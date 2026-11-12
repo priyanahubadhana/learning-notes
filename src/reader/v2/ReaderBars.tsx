@@ -53,6 +53,8 @@ export default function ReaderBars({
   const [stackH, setStackH] = useState(0)
   const [vh, setVh] = useState(() => window.innerHeight)
   const [underPanel, setUnderPanel] = useState(false)
+  // A modal sheet or dialog is open: the bar (top layer) would cover its title and ✕, so it waits.
+  const [modalOpen, setModalOpen] = useState(false)
 
   // Top layer through the overlay manager as a persistent bar: it stays open
   // on an outside tap and Esc; only the reading lock (hidden) closes it.
@@ -104,6 +106,7 @@ export default function ReaderBars({
       setUnderPanel(
         !!panel && window.getComputedStyle(panel).position === 'fixed',
       )
+      setModalOpen(!!document.querySelector('[aria-modal="true"]'))
     }
     check()
     if (typeof MutationObserver === 'undefined') return
@@ -128,8 +131,9 @@ export default function ReaderBars({
     return () => ro.disconnect()
   }, [stackShown, hidden])
 
+  const gone = away || modalOpen
   const barBottom =
-    underPanel && stackShown && !away && !hidden ? box.top + stackH : 0
+    underPanel && stackShown && !gone && !hidden ? box.top + stackH : 0
   useLayoutEffect(() => {
     const root = document.documentElement
     if (barBottom > 0)
@@ -187,9 +191,9 @@ export default function ReaderBars({
         {stackShown && (
           <div
             ref={stack}
-            className={`rv2-stack ${away ? 'rv2-stack--away' : ''}`}
+            className={`rv2-stack ${gone ? 'rv2-stack--away' : ''}`}
             data-testid="rv2-stack"
-            inert={away || undefined}
+            inert={gone || undefined}
             style={{ left: box.left, top: box.top, width: box.width }}
           >
             {showReader && bar('reader', reader)}

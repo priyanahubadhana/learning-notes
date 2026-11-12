@@ -35,6 +35,7 @@ export const hiReaderV2 = {
   'readerv2.listen.deviceOnly':
     'सिर्फ़ इस डिवाइस की आवाज़ें इस्तेमाल होती हैं। आपका पाठ बाहर नहीं जाता।',
   'readerv2.sticky.tool': 'स्टिकी नोट',
+  'readerv2.sticky.popup': 'स्टिकी',
   'readerv2.sticky.hint': 'पेज पर वहाँ टैप करें जहाँ नोट रखना है।',
   'readerv2.sticky.unsupported': 'किताब में शब्द चुनें, फिर स्टिकी नोट चुनें।',
   'readerv2.sticky.readLabel': 'स्टिकी नोट',

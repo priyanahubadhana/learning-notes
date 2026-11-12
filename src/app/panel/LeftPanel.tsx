@@ -39,8 +39,10 @@ import {
 } from './panelModel'
 import { Icon } from '../tools/icons'
 import { readerBridge } from '../../reader/readerBridge'
+import { useFlag } from '../flags'
 import type { BookTab } from '../../reader/BookPanel'
 
+const PanelTabs = lazy(() => import('../../reader/v2/PanelTabs'))
 const BookPanel = lazy(() => import('../../reader/BookPanel'))
 const AloudPanel = lazy(() => import('../../reader/aloud/AloudPanel'))
 const BOOK_TABS = ['pages', 'outline', 'audio', 'annotations'] as const
@@ -426,8 +428,9 @@ export function LeftPanel({
   const [noteTab, setTab] = usePref<Tab>('leftPanel.tab', isTab, 'pages')
   // While a book is open the panel is about the book (items 32 and 45).
   const book = readerBridge.useValue()
-  const [bookTab, setBookTab] = useState<BookTabId>('pages')
-  const tab: BookTabId = book ? bookTab : noteTab
+  const [bookTab, setBookTab] = useState<string>('pages')
+  const v2Tabs = useFlag('reader.v2') && !!book
+  const tab: string = book ? bookTab : noteTab
   const tabs: readonly BookTabId[] = book ? BOOK_TABS : TABS
   const ask = outlineRequest.useValue()
   useEffect(() => {
@@ -449,8 +452,18 @@ export function LeftPanel({
           : 'fixed inset-y-0 start-0 z-[39] flex w-[300px] max-w-[88vw] flex-col border-e border-line bg-bg pt-[max(calc(env(safe-area-inset-top)+3rem),var(--rv2-bar-bottom,0px))] shadow-[8px_0_24px_rgba(0,0,0,0.08)] phone:bottom-14'
       }
     >
-      <div className="flex items-center gap-1 px-2 pt-2" role="tablist">
-        {tabs.map((id) => (
+      <div
+        className="flex items-center gap-1 px-2 pt-2"
+        role={v2Tabs ? undefined : 'tablist'}
+      >
+        {v2Tabs && (
+          <div className="min-w-0 flex-1">
+            <Suspense fallback={null}>
+              <PanelTabs value={tab} onPick={setBookTab} />
+            </Suspense>
+          </div>
+        )}
+        {(v2Tabs ? [] : tabs).map((id) => (
           <button
             key={id}
             type="button"
@@ -491,7 +504,11 @@ export function LeftPanel({
       >
         {book && tab !== 'audio' && (
           <Suspense fallback={null}>
-            <BookPanel db={db} bridge={book} tab={tab as BookTab} />
+            <BookPanel
+              db={db}
+              bridge={book}
+              tab={(tab.startsWith('custom:') ? 'annotations' : tab) as BookTab}
+            />
           </Suspense>
         )}
         {!book && tab === 'pages' && (

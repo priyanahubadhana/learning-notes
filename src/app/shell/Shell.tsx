@@ -15,6 +15,8 @@ import { type GearActions } from './GearMenu'
 import { Rail } from './Rail'
 import { ShellTopBar } from './ShellTopBar'
 import { TabBar } from './TabBar'
+import { modeOf, ViewToggle } from './ViewToggle'
+import { useLevel } from '../../settings/level'
 import { useDue } from './useDue'
 import { useEscape } from './useEscape'
 import { useFrameSize } from './useFrameSize'
@@ -89,6 +91,7 @@ export default function Shell(p: ShellProps) {
     children,
   } = p
   const { width, height } = useFrameSize()
+  const level = useLevel()
   const due = useDue(gear.db)
   // The sidebar opened over the page lasts for the screen it was opened on.
   const [overAt, setOverAt] = useState<string | null>(null)
@@ -120,7 +123,12 @@ export default function Shell(p: ShellProps) {
   }
 
   return (
-    <div data-app-shell className="sh-frame bg-wash" style={frameStyle}>
+    <div
+      data-app-shell
+      data-mode={modeOf(level)}
+      className="sh-frame bg-wash"
+      style={frameStyle}
+    >
       <button type="button" className="sh-skip" onClick={focusMain}>
         {t('shell.skip')}
       </button>
@@ -173,6 +181,11 @@ export default function Shell(p: ShellProps) {
               className="relative pb-1 empty:p-0"
             />
           </div>
+          {cols.phone && (
+            <div className="sh-viewrow">
+              <ViewToggle />
+            </div>
+          )}
           {children}
         </div>
         <OverSide

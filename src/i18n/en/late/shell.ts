@@ -14,4 +14,7 @@ export const enLateShell = {
   'shell.main': 'Main content',
   'shell.panelToggle': 'Pages panel',
   'shell.theme': 'Theme',
+  'shell.view': 'View',
+  'shell.view.beginner': 'Beginner',
+  'shell.view.pro': 'Professional',
 } as const

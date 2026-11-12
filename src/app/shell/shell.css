@@ -417,3 +417,52 @@
     display: none;
   }
 }
+
+/* ---- view toggle (SH-06) ---- */
+.sh-view {
+  flex: none;
+  display: inline-flex;
+  padding: 3px;
+  gap: 2px;
+  border-radius: 999px;
+  background: var(--color-hover);
+  transition: box-shadow var(--dur-2) var(--ease-out);
+}
+.sh-view[data-glow] {
+  box-shadow: 0 0 0 3px var(--color-accent-soft);
+}
+.sh-view button {
+  min-height: 38px;
+  padding: 0 12px;
+  border: 0;
+  border-radius: 999px;
+  background: none;
+  color: var(--color-muted);
+  font: inherit;
+  font-size: 13px;
+  font-weight: 500;
+  cursor: pointer;
+}
+.sh-view button[aria-pressed='true'] {
+  background: var(--color-accent-soft);
+  color: var(--color-accent);
+  font-weight: 600;
+}
+.sh-viewrow {
+  display: none;
+}
+@media (max-width: 39.999rem), (max-height: 31.999rem) {
+  .sh-viewrow {
+    display: flex;
+    justify-content: center;
+    padding: 0 8px 4px;
+  }
+  .sh-top .sh-view {
+    display: none;
+  }
+}
+@media (prefers-reduced-motion: reduce) {
+  .sh-view {
+    transition: none;
+  }
+}

@@ -232,3 +232,27 @@ test('works offline once loaded', async ({ page, context }) => {
   await expect(side(page)).toBeHidden()
   await context.setOffline(false)
 })
+
+test('SH-06 the view toggle switches Beginner and Professional and is remembered', async ({
+  page,
+}) => {
+  await start(page)
+  const toggle = top(page).getByTestId('view-toggle')
+  const frame = page.locator('.sh-frame')
+  await expect(frame).toHaveAttribute('data-mode', 'pro')
+  await toggle.getByRole('button', { name: 'Beginner' }).click()
+  await expect(frame).toHaveAttribute('data-mode', 'beg')
+  await expect(
+    toggle.getByRole('button', { name: 'Beginner' }),
+  ).toHaveAttribute('aria-pressed', 'true')
+  await page.reload()
+  await expect(page.locator('.sh-frame')).toHaveAttribute('data-mode', 'beg')
+})
+
+test('SH-06 on a phone the toggle sits under the top bar', async ({ page }) => {
+  await start(page, { width: 390, height: 844 })
+  await expect(
+    page.locator('.sh-viewrow').getByTestId('view-toggle'),
+  ).toBeVisible()
+  await expect(top(page).getByTestId('view-toggle')).toBeHidden()
+})

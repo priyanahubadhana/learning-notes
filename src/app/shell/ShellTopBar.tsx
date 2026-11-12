@@ -12,6 +12,7 @@ import { HistoryButtons } from '../tools/HistoryButtons'
 import { showToolBar, useShowBarButton } from '../tools/toolbarVisibility'
 import { crumbsFor } from './crumbs'
 import { ShellIcon } from './shellIcons'
+import { ViewToggle } from './ViewToggle'
 import type { ShellIconName } from './shellPaths'
 import { hasUnsaved, onUnsavedChange } from '../saveStatus'
 
@@ -191,6 +192,7 @@ export function ShellTopBar(props: ShellTopBarProps) {
       <span className="sh-hide-phone">
         <DeviceModeButton />
       </span>
+      <ViewToggle />
       <Btn
         icon="search"
         label={t('shell.search')}

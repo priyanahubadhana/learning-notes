@@ -14,4 +14,7 @@ export const esShell = {
   'shell.main': 'Contenido principal',
   'shell.panelToggle': 'Panel de páginas',
   'shell.theme': 'Tema',
+  'shell.view': 'Vista',
+  'shell.view.beginner': 'Principiante',
+  'shell.view.pro': 'Profesional',
 }

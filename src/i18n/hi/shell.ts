@@ -14,4 +14,7 @@ export const hiShell = {
   'shell.main': 'मुख्य सामग्री',
   'shell.panelToggle': 'पेज पैनल',
   'shell.theme': 'थीम',
+  'shell.view': 'दृश्य',
+  'shell.view.beginner': 'शुरुआती',
+  'shell.view.pro': 'प्रोफेशनल',
 }

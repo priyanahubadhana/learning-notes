@@ -1,6 +1,7 @@
 import { useCallback, useEffect, useRef, useState } from 'react'
 import { Card } from '../../../design/parts/Card'
 import { t } from '../../../i18n/t'
+import { applyLayerVars } from '../../overlay'
 import { activeTool } from '../main/mainTools'
 import {
   followMode,
@@ -24,6 +25,9 @@ export default function ToolbarV8() {
   const tool = v8Tool.useValue()
   const [card, setCard] = useState<OpenCard | null>(null)
   const root = useRef<HTMLDivElement>(null)
+
+  // The shared stacking table as --z-* variables (the name tip uses --z-menu).
+  useEffect(() => applyLayerVars(), [])
 
   // The page's own mode changed (the Pencil, a shortcut): the bar follows.
   useEffect(

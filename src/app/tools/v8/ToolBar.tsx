@@ -7,7 +7,6 @@ import { addLineAfterCursor, deleteBackward } from '../../../editor/lineActions'
 import type { Editor } from '../../../editor/barActions'
 import { t } from '../../../i18n/t'
 import { useLevel } from '../../../settings/level'
-import { LAYERS } from '../../overlay'
 import { Icon, type IconName } from '../icons'
 import { TOOL_HOLD_MS } from '../main/mainTools'
 import { REPEAT_AFTER_MS, backspaceStep } from '../main/backspaceHold'
@@ -56,11 +55,10 @@ function NameTip({ el, text }: { el: HTMLElement; text: string }) {
   const r = el.getBoundingClientRect()
   return createPortal(
     <div
-      className="v8tip"
+      className="v8tip z-(--z-menu)"
       role="tooltip"
       data-testid="v8-tip"
       style={{
-        zIndex: LAYERS.menu,
         left: r.left + r.width / 2,
         top: r.bottom + 6,
       }}

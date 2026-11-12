@@ -79,6 +79,7 @@ export default defineConfig({
       name: 'ipad-webkit',
       testIgnore: /visual\//,
       testMatch: [
+        /parts-gallery/,
         /pencilIsolation/,
         /updateV2/,
         /security-m1-/,

@@ -9,6 +9,7 @@ import { esEditor } from './editor'
 import { esHelp } from './help'
 import { esHistory } from './history'
 import { esHome } from './home'
+import { esHomeV2 } from './homeV2'
 import { esImportExport } from './importExport'
 import { esInk } from './ink'
 import { esLibrary } from './library'
@@ -25,8 +26,14 @@ import { esTags } from './tags'
 import { esToolbar } from './toolbar'
 import { esUpdates } from './updates'
 import { esUpdateV2 } from './updateV2'
+import { esLibraryV2 } from './libraryV2'
 import { esFlags } from './flags'
+import { esShell } from './shell'
 import { esAiBuild } from './aibuild'
+import { esAiJobs } from './aijobs'
+import { esAiPlan } from './aiplan'
+import { esParts } from './parts'
+import { esV8Pen } from './v8Pen'
 
 export const es: Record<string, string> = {
   ...esAccounts,
@@ -38,6 +45,7 @@ export const es: Record<string, string> = {
   ...esHelp,
   ...esHistory,
   ...esHome,
+  ...esHomeV2,
   ...esImportExport,
   ...esInk,
   ...esLibrary,
@@ -55,6 +63,12 @@ export const es: Record<string, string> = {
   ...esUpdates,
   ...esUpdateV2,
   ...esFlags,
+  ...esShell,
   ...esAiBuild,
   ...esReaderV2,
+  ...esAiJobs,
+  ...esAiPlan,
+  ...esParts,
+  ...esLibraryV2,
+  ...esV8Pen,
 }

@@ -1,0 +1,120 @@
+/* Toolbar v8, slice 1c: the Pen cards. Tokens only. */
+.v8gl {
+  position: relative;
+  border-radius: var(--r-md);
+}
+.v8tiletype {
+  display: grid;
+  justify-items: center;
+  gap: 2px;
+}
+.v8tiletype small {
+  max-width: 88px;
+  font-size: 11px;
+  line-height: 14px;
+  color: var(--color-muted);
+  text-align: center;
+}
+.pcard-tile[data-selected] .v8tiletype small {
+  color: var(--color-ink-soft);
+}
+.v8pane {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-3);
+  padding-top: var(--space-3);
+}
+.v8slider {
+  padding: 4px 4px 2px;
+}
+.v8slider-top {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  min-height: 24px;
+  font-size: 13px;
+  font-weight: 600;
+}
+.v8slider-top output {
+  color: var(--color-muted);
+  font-variant-numeric: tabular-nums;
+}
+.v8range {
+  width: 100%;
+  min-height: 44px;
+  margin: 0;
+  background: transparent;
+  accent-color: var(--color-accent);
+  touch-action: pan-y;
+}
+.v8range[data-wedge] {
+  background: linear-gradient(
+      to bottom right,
+      transparent 49%,
+      var(--card-track) 50%
+    )
+    center / 100% 14px no-repeat;
+}
+.v8btn,
+.v8disc {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--space-2);
+  min-height: 44px;
+  padding: 0 var(--space-3);
+  border: 0;
+  border-radius: var(--r-md);
+  background: var(--card-well);
+  color: var(--color-ink);
+  font: inherit;
+  font-size: 14px;
+  font-weight: 600;
+  cursor: pointer;
+}
+.v8btn:hover:not(:disabled),
+.v8disc:hover {
+  background: var(--card-well-2);
+}
+.v8btn:disabled {
+  opacity: 0.35;
+  cursor: not-allowed;
+}
+.v8btn:focus-visible,
+.v8disc:focus-visible,
+.v8range:focus-visible,
+.v8colourinput:focus-visible {
+  outline: 2px solid var(--color-accent);
+  outline-offset: 2px;
+}
+.v8disc {
+  width: 100%;
+}
+.v8disc span {
+  flex: 1;
+  text-align: left;
+}
+.v8disc svg:last-child {
+  transition: transform var(--dur-2) var(--ease-out);
+}
+.v8disc[aria-expanded='true'] svg:last-child {
+  transform: rotate(180deg);
+}
+.v8pick {
+  display: flex;
+  align-items: center;
+  gap: var(--space-3);
+}
+.v8colourinput {
+  width: 56px;
+  height: 44px;
+  padding: 2px;
+  border: 1px solid var(--color-line-strong);
+  border-radius: var(--r-md);
+  background: var(--color-surface-1);
+  cursor: pointer;
+}
+@media (prefers-reduced-motion: reduce) {
+  .v8disc svg:last-child {
+    transition: none;
+  }
+}

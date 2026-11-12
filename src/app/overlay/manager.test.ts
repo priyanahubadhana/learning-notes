@@ -33,7 +33,11 @@ function setup() {
   const mk = (
     id: string,
     layer: Layer,
-    extra: { parentId?: string; opener?: HTMLElement } = {},
+    extra: {
+      parentId?: string
+      opener?: HTMLElement
+      persistent?: boolean
+    } = {},
   ) => {
     const el = document.createElement('div')
     document.body.append(el)
@@ -161,5 +165,58 @@ describe('overlay manager', () => {
     })
     expect(overlay.isOpen('y')).toBe(true)
     h.close()
+  })
+})
+
+describe('overlay manager: persistent bars and pills', () => {
+  it('stay open on outside tap, Esc, background and another overlay opening', () => {
+    const { f, m, mk } = setup()
+    const bar = mk('reader-bar', 'bar', { persistent: true })
+    const pill = mk('reader-pill', 'pill', { persistent: true })
+    const outside = document.createElement('p')
+    document.body.append(outside)
+    f.pd(outside)
+    f.esc()
+    f.bg()
+    mk('menu', 'menu')
+    mk('other-bar', 'bar')
+    mk('sheet', 'sheet')
+    expect(bar.close).not.toHaveBeenCalled()
+    expect(pill.close).not.toHaveBeenCalled()
+    expect(m.isOpen('reader-bar') && m.isOpen('reader-pill')).toBe(true)
+  })
+
+  it('Esc and an outside tap still close the normal overlay above them', () => {
+    const { f, m, mk } = setup()
+    const bar = mk('reader-bar', 'bar', { persistent: true })
+    const menu = mk('menu', 'menu')
+    f.esc()
+    expect(menu.close).toHaveBeenCalledTimes(1)
+    expect(m.isOpen('reader-bar')).toBe(true)
+    const card = mk('card', 'card')
+    f.pd(document.body)
+    expect(card.close).toHaveBeenCalledTimes(1)
+    expect(bar.close).not.toHaveBeenCalled()
+  })
+
+  it('takes part in layer order and closes by its own handle or the same id', () => {
+    const { m, mk } = setup()
+    const pill = mk('pill', 'pill', { persistent: true })
+    expect(m.top()).toBe('pill')
+    mk('menu', 'menu')
+    expect(m.top()).toBe('menu')
+    const again = mk('pill', 'pill', { persistent: true })
+    expect(pill.close).toHaveBeenCalledTimes(1)
+    again.h.close()
+    expect(again.close).toHaveBeenCalledTimes(1)
+    expect(m.isOpen('pill')).toBe(false)
+  })
+
+  it('a lone persistent bar ignores Esc', () => {
+    const { f, m, mk } = setup()
+    const bar = mk('bar', 'bar', { persistent: true })
+    f.esc()
+    expect(bar.close).not.toHaveBeenCalled()
+    expect(m.count()).toBe(1)
   })
 })

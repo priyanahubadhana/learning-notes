@@ -17,15 +17,26 @@ describe('catalog file', () => {
 })
 
 describe('registry', () => {
-  it('has the seven mapped tools and a lookup for each', () => {
+  it('has the eighteen mapped tools and a lookup for each', () => {
     expect(AI_TOOLS.map((t) => t.id)).toEqual([
       'notebooks.create',
+      'notebooks.create_from_spec',
       'pages.write_notes',
       'cards.make_recall',
       'cards.make_cloze',
       'databases.create',
       'styles.apply',
       'pages.refine',
+      'pages.rename',
+      'tabs.rename',
+      'tabs.set_hidden',
+      'summaries.set',
+      'mindmaps.add',
+      'mindmaps.set_theme',
+      'cards.suspend',
+      'databases.rename',
+      'styles.set_paper',
+      'layouts.set_path_style',
     ])
     for (const tool of AI_TOOLS) expect(AI_TOOLS_BY_ID.get(tool.id)).toBe(tool)
   })
@@ -34,6 +45,9 @@ describe('registry', () => {
 describe.each(AI_TOOLS.map((t) => [t.id, t] as const))(
   'contract: %s',
   (_id, tool) => {
+    const surface = tool.surfaces.includes('app') ? 'app' : 'mcp'
+    const check = (args: object) =>
+      validatePlan(onePlan(tool.id, args), CATALOG, { surface })
     it('has a complete definition', () => {
       expect(tool.id).toMatch(/^[a-z]+\.[a-z]+(_[a-z]+)*$/)
       expect(Number.isInteger(tool.version) && tool.version >= 1).toBe(true)
@@ -57,13 +71,13 @@ describe.each(AI_TOOLS.map((t) => [t.id, t] as const))(
 
     it('accepts every good example in a minimal plan', () => {
       for (const args of tool.examples.good) {
-        expect(validatePlan(onePlan(tool.id, args), CATALOG)).toEqual([])
+        expect(check(args)).toEqual([])
       }
     })
 
     it('refuses every bad example at the expected path', () => {
       for (const bad of tool.examples.bad) {
-        const errors = validatePlan(onePlan(tool.id, bad.args), CATALOG)
+        const errors = check(bad.args)
         const want = `/steps/0/args${bad.path}`
         expect(
           errors.map((e) => e.path),

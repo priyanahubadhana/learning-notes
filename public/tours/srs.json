@@ -1,0 +1,11 @@
+{
+  "id": "srs",
+  "version": 1,
+  "steps": [
+    { "setting": "review.scheduler" },
+    { "setting": "review.newPerDay" },
+    { "setting": "review.maxPerDay" },
+    { "setting": "review.againMinutes" },
+    { "setting": "review.goodSteps" }
+  ]
+}

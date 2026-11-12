@@ -313,3 +313,9 @@ Mock: claude.ai/artifact/7rKh3JHCSZwHcPZQ2DdSTD (all owner comments on it are bu
 
 - Jobs tab still uses the v3 run flow: switch it to the framework executor in the build.
 - The "Plan ready" toast must not cover the plan title.
+
+## Library mock v2: APPROVED by owner (12 Nov 2026)
+
+Mock: claude.ai/artifact/Ffc86ofYpqurWGnMvsXS3L (Fable v2; study in scratchpad library-v2\study.md). Owner said yes to: Continue-reading first + covers, one "+ Add", shelves only in the side panel, filters in More with active-filter chip, universal Tag picker, Knowledge highlights-first + Export "What to include", Professional = one extra row.
+
+- Build: the universal Tag picker everywhere (notebooks, AI bar, highlights); fix the Professional 820-portrait filter row wrap; re-probe all 34 inventory features; cover tap keeps opening the notes page (Continue reading first in ⋯).

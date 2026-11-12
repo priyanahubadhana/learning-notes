@@ -7,6 +7,7 @@ import { enLateDatabases } from './databases'
 import { enLateHelp } from './help'
 import { enLateHistory } from './history'
 import { enLateHome } from './home'
+import { enLateHomeV2 } from './homeV2'
 import { enLateImportExport } from './importExport'
 import { enLateInk } from './ink'
 import { enLateLibrary } from './library'
@@ -35,6 +36,7 @@ export const enLate = {
   ...enLateHelp,
   ...enLateHistory,
   ...enLateHome,
+  ...enLateHomeV2,
   ...enLateImportExport,
   ...enLateInk,
   ...enLateLibrary,

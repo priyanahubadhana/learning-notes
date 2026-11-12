@@ -8,6 +8,7 @@ import { hiEditor } from './editor'
 import { hiHelp } from './help'
 import { hiHistory } from './history'
 import { hiHome } from './home'
+import { hiHomeV2 } from './homeV2'
 import { hiImportExport } from './importExport'
 import { hiInk } from './ink'
 import { hiLibrary } from './library'
@@ -39,6 +40,7 @@ export const hi: Record<string, string> = {
   ...hiHelp,
   ...hiHistory,
   ...hiHome,
+  ...hiHomeV2,
   ...hiImportExport,
   ...hiInk,
   ...hiLibrary,

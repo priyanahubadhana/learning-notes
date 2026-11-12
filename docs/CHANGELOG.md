@@ -2,6 +2,18 @@
 
 Current phase only. Older entries are in [ARCHIVE.md](ARCHIVE.md).
 
+### 13 Nov 2026: build/next green again
+
+- What: CI run 43310172930 on build/next is green. Test races fixed: shell offline, Pen 44 pt, SP-50, SP-56, gallery widths. Lint fix in mcp/src/setup.ts.
+- Why: build/next was red after the 0g merge; main must stay releasable before the next slice.
+- Files: test files under e2e/, src/ shell and gallery, mcp/src/setup.ts.
+
+### 13 Nov 2026: gate-2 rule proposed, Settings switch decision logged
+
+- What: proposed gate-2 rule "report only spec gaps and breakages, not style" added to PENDING "Needs you" (not applied, needs owner OK). Settings On/Off uses the switch from the approved mock-up, not the spec's two-part button; logged in DECISIONS "Decisions to review" for spec alignment.
+- Why: owner review of gate 2 and the Settings mock-up.
+- Files: docs/PENDING.md, docs/DECISIONS.md, docs/CHANGELOG.md.
+
 ### 13 Nov 2026: rules aligned with economy mode, 4 project hooks
 
 - What: rules/ and agent files now match economy mode (docs audit A4-A11, B1-B5, D2-D4); legacy Fable/Opus files kept for rollback and non-build tasks. Sepia joins light and dark in the Definition of Done and the gate checklists; checklist line 17 (bug fix = why-note + new test); builders read rules/global.md and security.md; "could delete or lose the owner's data" is a stop reason; gate 3 fails on a contrast ✗. rules/testing.md: related tests locally, full suite green in GitHub CI before any merge. Start with 4 builders, up to 6 only while rework stays under 2 rounds. INDEX gained the build files; HANDOFF has one NOW line; 3 old plans moved to docs/plans/archive/.

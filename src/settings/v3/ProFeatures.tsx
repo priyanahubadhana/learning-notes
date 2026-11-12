@@ -17,14 +17,14 @@ import {
 import { markJustShown } from './experience'
 import { useSettingsHistory } from './historyCtx'
 import { LevelControl } from './LevelControl'
-import { PRO_FEATURE_TEXT } from './proFeatureText.gen'
+import { proFeatureText } from './proFeatureText'
 import { proGroups, type ProGroup } from './proGroups'
 import { proOffId, unlockId } from './virtualWrites'
 import { WhyLink } from './WhyLink'
 import { tv, type V3Key } from './tv'
 
-const nameOf = (id: string) => PRO_FEATURE_TEXT[id]?.[0] ?? id
-const doesOf = (id: string) => PRO_FEATURE_TEXT[id]?.[1] ?? ''
+const nameOf = (id: string) => proFeatureText(id)[0]
+const doesOf = (id: string) => proFeatureText(id)[1]
 
 /**
  * Professional features (SET-B37 to B41, B43, B44): every unlock switch in

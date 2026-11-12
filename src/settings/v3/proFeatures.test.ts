@@ -12,6 +12,7 @@ import { reloadLevel, setLevel, setUnlocked } from '../level'
 import { PRO_FEATURES, type ProFeatureId } from '../proFeatures.gen'
 import { reloadExperience, rowShown } from './experience'
 import { PRO_FEATURE_TEXT } from './proFeatureText.gen'
+import { proFeatureText } from './proFeatureText'
 import { proGroups } from './proGroups'
 import { searchSettings } from './settingsSearch'
 import { tv, type V3Key } from './tv'
@@ -31,6 +32,19 @@ describe('the Professional features list', () => {
       expect(text, f.id).toBeDefined()
       expect(text[0].length, f.id).toBeGreaterThan(1)
       expect(text[1].length, f.id).toBeGreaterThan(1)
+    }
+  })
+
+  it('every feature has a name and a plain line in Spanish and Hindi, different from English', () => {
+    for (const f of PRO_FEATURES) {
+      const en = PRO_FEATURE_TEXT[f.id]
+      for (const lang of ['es', 'hi']) {
+        const text = proFeatureText(f.id, lang)
+        expect(text[0].length, `${f.id} ${lang}`).toBeGreaterThan(1)
+        expect(text[1].length, `${f.id} ${lang}`).toBeGreaterThan(1)
+        // The plain line is always translated; a name may stay (Anki, Markdown).
+        expect(text[1], `${f.id} ${lang} line`).not.toBe(en[1])
+      }
     }
   })
 

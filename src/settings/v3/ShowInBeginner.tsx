@@ -8,7 +8,7 @@ import {
 } from '../level'
 import { markJustShown } from './experience'
 import { useSettingsHistory } from './historyCtx'
-import { PRO_FEATURE_TEXT } from './proFeatureText.gen'
+import { proFeatureText } from './proFeatureText'
 import { unlockId } from './virtualWrites'
 import { tv } from './tv'
 
@@ -23,7 +23,7 @@ export function ShowInBeginner({ id }: { id: string }) {
   const history = useSettingsHistory()
   if (!isProFeatureId(id)) return null
   const on = isStoredOn(id)
-  const name = PRO_FEATURE_TEXT[id]?.[0] ?? id
+  const name = proFeatureText(id)[0]
   return (
     <div data-show-in-beginner className="sv3-showbeg">
       <OnOff

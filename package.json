@@ -16,6 +16,7 @@
     "format:check": "prettier --check .",
     "check:links": "node scripts/check-feature-links.mjs",
     "check:size": "node scripts/check-size.mjs",
+    "aitools:catalog": "node scripts/aitools-catalog.mjs",
     "mcp:install": "npm --prefix mcp install",
     "mcp:build": "npm --prefix mcp run build",
     "test:mcp": "npm --prefix mcp test",

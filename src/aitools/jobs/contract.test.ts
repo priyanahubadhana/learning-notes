@@ -22,6 +22,7 @@ const CONTENT_ARGS: Record<string, (ids: Ids) => Rec> = {
     cards: [{ kind: 'cloze', text: 'A {{habit}} is a loop.' }],
   }),
   'databases.create': () => ({ database: DATABASE }),
+  'summaries.set': () => ({ summary: 'A habit is a loop.' }),
   'pages.refine': (ids) => ({
     ops: [
       {

@@ -40,4 +40,19 @@ export const esAiPlan = {
   'aifw.err.spendAsk': 'Esto cuesta dinero y necesita tu visto bueno antes.',
   'aifw.err.spendPause':
     'El coste superó la estimación, así que el trabajo se pausó.',
+  'aifw.tool.pages.rename.name': 'Renombrar página',
+  'aifw.tool.pages.rename.desc': 'Da un título nuevo a una página.',
+  'aifw.tool.tabs.rename.name': 'Renombrar pestaña',
+  'aifw.tool.tabs.rename.desc':
+    'Da a una pestaña del cuaderno su propio nombre.',
+  'aifw.tool.tabs.set_hidden.name': 'Mostrar u ocultar pestaña',
+  'aifw.tool.tabs.set_hidden.desc': 'Oculta una pestaña o la vuelve a mostrar.',
+  'aifw.tool.summaries.set.name': 'Escribir resumen',
+  'aifw.tool.summaries.set.desc': 'Pone el resumen corto de una página.',
+  'aifw.err.goneTab': 'La pestaña ya no está.',
+  'aifw.err.noTabs': 'Este cuaderno no tiene pestañas.',
+  'aifw.err.summaryMissing': 'Falta el resumen.',
+  'aifw.err.summaryTop': 'Un resumen va en una página de primer nivel.',
+  'aifw.err.lockNotebook': 'Este cuaderno está bloqueado.',
+  'aifw.err.lockPage': 'Esta página está bloqueada.',
 }

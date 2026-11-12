@@ -1234,5 +1234,281 @@
     },
     "surfaces": ["app", "mcp"],
     "offline": false
+  },
+  {
+    "id": "pages.rename",
+    "version": 1,
+    "label": "Rename page",
+    "group": "Pages",
+    "summary": "Gives an existing page a new title.",
+    "aiDescription": "Changes the title of one existing page. Needs pageId (from an earlier step or the destination) and the new title. Changes the title only; never touches the content. Not for writing or tidying notes.",
+    "inputs": {
+      "type": "object",
+      "required": ["pageId", "title"],
+      "additionalProperties": false,
+      "properties": {
+        "pageId": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 64,
+          "pattern": "^[A-Za-z0-9_-]+$"
+        },
+        "title": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 200
+        }
+      }
+    },
+    "outputs": {
+      "type": "object",
+      "properties": {
+        "pageId": {
+          "type": "string"
+        }
+      }
+    },
+    "writes": [
+      {
+        "target": "page",
+        "mode": "edit"
+      }
+    ],
+    "permissions": {
+      "scope": "notes:write",
+      "respectsLocks": true,
+      "needsSources": false
+    },
+    "cost": {
+      "class": "none",
+      "fill": "none",
+      "outTokens": 0
+    },
+    "tier": "simple",
+    "reversible": "values",
+    "risk": "direct",
+    "idempotent": true,
+    "limits": {
+      "timeoutMs": 30000,
+      "maxRetries": 3
+    },
+    "surfaces": ["app", "mcp"],
+    "offline": true
+  },
+  {
+    "id": "tabs.rename",
+    "version": 1,
+    "label": "Rename tab",
+    "group": "Tabs",
+    "summary": "Gives a notebook tab its own name.",
+    "aiDescription": "Renames one tab of an existing notebook (tabs are notes, summary, database, cards, revise). Needs notebookId and tabId. Changes the name only; never touches the pages. Not for hiding a tab.",
+    "inputs": {
+      "type": "object",
+      "required": ["notebookId", "tabId", "title"],
+      "additionalProperties": false,
+      "properties": {
+        "notebookId": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 64,
+          "pattern": "^[A-Za-z0-9_-]+$"
+        },
+        "tabId": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 64,
+          "pattern": "^[A-Za-z0-9_-]+$"
+        },
+        "title": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 60
+        },
+        "baseRev": {
+          "type": "integer",
+          "minimum": 0
+        }
+      }
+    },
+    "outputs": {
+      "type": "object",
+      "properties": {
+        "notebookId": {
+          "type": "string"
+        }
+      }
+    },
+    "writes": [
+      {
+        "target": "tab",
+        "mode": "edit"
+      }
+    ],
+    "permissions": {
+      "scope": "notes:write",
+      "respectsLocks": true,
+      "needsSources": false
+    },
+    "cost": {
+      "class": "none",
+      "fill": "none",
+      "outTokens": 0
+    },
+    "tier": "simple",
+    "reversible": "values",
+    "risk": "direct",
+    "idempotent": true,
+    "limits": {
+      "timeoutMs": 30000,
+      "maxRetries": 3
+    },
+    "surfaces": ["app", "mcp"],
+    "offline": true
+  },
+  {
+    "id": "tabs.set_hidden",
+    "version": 1,
+    "label": "Show or hide tab",
+    "group": "Tabs",
+    "summary": "Hides a notebook tab, or shows it again.",
+    "aiDescription": "Hides or shows one tab of an existing notebook. Hidden tabs keep everything inside and can be shown again. Needs notebookId, tabId and hidden (true or false). Never deletes a tab. Not for renaming.",
+    "inputs": {
+      "type": "object",
+      "required": ["notebookId", "tabId", "hidden"],
+      "additionalProperties": false,
+      "properties": {
+        "notebookId": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 64,
+          "pattern": "^[A-Za-z0-9_-]+$"
+        },
+        "tabId": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 64,
+          "pattern": "^[A-Za-z0-9_-]+$"
+        },
+        "hidden": {
+          "type": "boolean"
+        },
+        "baseRev": {
+          "type": "integer",
+          "minimum": 0
+        }
+      }
+    },
+    "outputs": {
+      "type": "object",
+      "properties": {
+        "notebookId": {
+          "type": "string"
+        }
+      }
+    },
+    "writes": [
+      {
+        "target": "tab",
+        "mode": "edit"
+      }
+    ],
+    "permissions": {
+      "scope": "notes:write",
+      "respectsLocks": true,
+      "needsSources": false
+    },
+    "cost": {
+      "class": "none",
+      "fill": "none",
+      "outTokens": 0
+    },
+    "tier": "simple",
+    "reversible": "values",
+    "risk": "direct",
+    "idempotent": true,
+    "limits": {
+      "timeoutMs": 30000,
+      "maxRetries": 3
+    },
+    "surfaces": ["app", "mcp"],
+    "offline": true
+  },
+  {
+    "id": "summaries.set",
+    "version": 1,
+    "label": "Write summary",
+    "group": "Summaries",
+    "summary": "Sets the short summary of a lesson page.",
+    "aiDescription": "Sets the short summary shown on a top-level lesson page. Needs pageId. Send a brief, or the finished summary text when you already have it. Replaces the old summary (History keeps it). Not for notes or cards.",
+    "inputs": {
+      "type": "object",
+      "required": ["pageId"],
+      "additionalProperties": false,
+      "anyOf": [
+        {
+          "required": ["summary"]
+        },
+        {
+          "required": ["brief"]
+        }
+      ],
+      "properties": {
+        "pageId": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 64,
+          "pattern": "^[A-Za-z0-9_-]+$"
+        },
+        "brief": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 2000
+        },
+        "summary": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 2000
+        },
+        "baseRevision": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 64
+        }
+      }
+    },
+    "outputs": {
+      "type": "object",
+      "properties": {
+        "pageId": {
+          "type": "string"
+        }
+      }
+    },
+    "writes": [
+      {
+        "target": "page",
+        "mode": "edit"
+      }
+    ],
+    "permissions": {
+      "scope": "notes:write",
+      "respectsLocks": true,
+      "needsSources": true
+    },
+    "cost": {
+      "class": "small",
+      "fill": "model",
+      "outTokens": 300
+    },
+    "tier": "writing",
+    "reversible": "values",
+    "risk": "direct",
+    "idempotent": true,
+    "limits": {
+      "timeoutMs": 60000,
+      "maxRetries": 3
+    },
+    "surfaces": ["app", "mcp"],
+    "offline": false
   }
 ]

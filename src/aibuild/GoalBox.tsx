@@ -405,7 +405,6 @@ export function GoalBox({
                 role="radio"
                 aria-checked={effort === e}
                 data-testid={`aifw-effort-${e}`}
-                title={t(`aifw.effort.${e}.hint` as MessageKey)}
                 className={`inline-flex min-h-11 items-center rounded-lg border px-3 text-sm ${
                   effort === e
                     ? 'border-accent bg-soft'

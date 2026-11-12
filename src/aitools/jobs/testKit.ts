@@ -46,6 +46,9 @@ export const CONTENT: Record<string, FillHandler> = {
     cards: [{ kind: 'cloze', text: 'A {{habit}} is a loop.' }],
   }),
   'databases.create': () => ({ database: DATABASE }),
+  'summaries.set': () => ({
+    summary: 'A habit is a loop: cue, craving, response, reward.',
+  }),
 }
 
 export interface Kit {

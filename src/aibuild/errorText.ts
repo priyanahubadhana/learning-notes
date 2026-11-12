@@ -33,6 +33,12 @@ export const STEP_TEXTS: Readonly<Record<string, MessageKey>> = {
   'The page is gone.': 'aifw.err.gonePage',
   'The parent page is gone.': 'aifw.err.goneParent',
   'This step cannot be prepared here.': 'aifw.err.noStage',
+  'The tab is gone.': 'aifw.err.goneTab',
+  'This notebook has no tabs.': 'aifw.err.noTabs',
+  'The summary is missing.': 'aifw.err.summaryMissing',
+  'A summary belongs on a top-level page.': 'aifw.err.summaryTop',
+  'This notebook is locked.': 'aifw.err.lockNotebook',
+  'This page is locked.': 'aifw.err.lockPage',
   // Spend refusals (the model filler; no paid call is ever made at a limit of 0)
   'The spend limit is ₹0, so no paid model was used.': 'aifw.err.spendZero',
   'This would pass the monthly spend limit, so it was not sent.':

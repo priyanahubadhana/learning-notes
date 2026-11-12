@@ -130,11 +130,54 @@ const GOLDEN: Record<string, Rec> = {
       ],
     }),
   ]),
+  // Framework slice 5a: Pages, Tabs, Summaries (the same tools on both doors).
+  'a page renamed': plan('g7', { kind: 'page', id: 'p1' }, [
+    step('s1', 'pages.rename', { pageId: 'p1', title: 'Cell energy' }),
+  ]),
+  'a tab renamed and another hidden': plan(
+    'g8',
+    { kind: 'notebook', id: 'nb1' },
+    [
+      step('s1', 'tabs.rename', {
+        notebookId: 'nb1',
+        tabId: 'cards',
+        title: 'Quiz',
+      }),
+      step('s2', 'tabs.set_hidden', {
+        notebookId: 'nb1',
+        tabId: 'revise',
+        hidden: true,
+      }),
+    ],
+  ),
+  'a summary on a page': plan('g9', { kind: 'page', id: 'p1' }, [
+    step('s1', 'summaries.set', {
+      pageId: 'p1',
+      summary: 'Cells make energy in the mitochondria.',
+    }),
+  ]),
 }
+
+/** The seeded notebook has no tabs; the tab tools need the standard five. */
+const TABS = ['notes', 'summary', 'database', 'cards', 'revise'].map((id) => ({
+  id,
+  kind: id,
+}))
 
 async function both(p: Rec) {
   const { master, source } = await newFixture()
   await seedNotes(source, NOW)
+  await source.put('notebooks', {
+    createdAt: 1,
+    updatedAt: 1000,
+    deletedAt: null,
+    id: 'nb1',
+    title: 'Biology',
+    order: 'a0',
+    allowAi: true,
+    workspaceId: 'ws1',
+    tabs: TABS,
+  })
   const cache = new NotesCache(source, master, { now: () => NOW })
   await cache.refresh(true)
 

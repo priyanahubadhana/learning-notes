@@ -137,7 +137,7 @@ Dialog set (unlock, set code), ✕ field, Toast queue (Undo), Banner (the short-
 
 ## Needs the owner
 
-- Supabase dashboard (no code): confirm the email-code rate limits, set the account password minimum to 8, and turn on refresh-token rotation. Not part of this slice; listed so nothing is forgotten.
+- Supabase dashboard (no code): confirm the email-code rate limits (the app already asks 15 characters for the account password) and turn on refresh-token rotation. Not part of this slice; listed so nothing is forgotten.
 - The `drive-token` online function allows any CORS origin: restricting it is a Supabase function change, so it waits for the owner.
 
 ## Sub-slices (one commit each)

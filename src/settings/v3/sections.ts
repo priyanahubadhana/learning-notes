@@ -51,6 +51,45 @@ export const MOVED: Record<string, string> = {
   'advanced.shortcutHints': 'help',
 }
 
+/**
+ * The custom screens today's Settings renders besides registry rows, and the
+ * v3 section each one lives in (the "nothing lost" test walks this list).
+ * `PageTabsSection` is `PageTabsEditor`, shown in General after the spaces.
+ */
+export type AreaId =
+  | 'device'
+  | 'about'
+  | 'lock'
+  | 'ai'
+  | 'apis'
+  | 'permissions'
+  | 'claude'
+  | 'account'
+  | 'sync'
+
+export const CUSTOM_SECTIONS: {
+  today: string
+  area?: AreaId
+  section: string
+}[] = [
+  { today: 'DeviceSection', area: 'device', section: 'general' },
+  { today: 'AboutSection', area: 'about', section: 'help' },
+  { today: 'PageTabsSection', section: 'general' },
+  { today: 'LockSection', area: 'lock', section: 'lock' },
+  { today: 'AiSection', area: 'ai', section: 'ai' },
+  { today: 'ConnectionsSection', area: 'apis', section: 'apis' },
+  { today: 'PermissionsSection', area: 'permissions', section: 'permissions' },
+  { today: 'ClaudeArea', area: 'claude', section: 'claude' },
+  { today: 'AccountSection', area: 'account', section: 'account' },
+  { today: 'SyncSection', area: 'sync', section: 'sync' },
+]
+
+/** The custom screens a v3 section shows, in order. */
+export const areasOf = (sectionId: string): AreaId[] =>
+  CUSTOM_SECTIONS.flatMap((c) =>
+    c.area && c.section === sectionId ? [c.area] : [],
+  )
+
 /** Every section a row appears in: its home first, then "also in". */
 export function sectionIdsOf(def: SettingDefinition): string[] {
   return [MOVED[def.id] ?? def.category, ...(def.alsoIn ?? [])]

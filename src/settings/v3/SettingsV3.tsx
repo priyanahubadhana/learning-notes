@@ -27,7 +27,8 @@ import { SearchResults } from './SearchResults'
 import { searchSettings } from './settingsSearch'
 import { SectionList } from './SectionList'
 import { PageTabsEditor } from './PageTabsEditor'
-import { buildSections } from './sections'
+import { areasOf, buildSections } from './sections'
+import { AreaSection } from './AreaSection'
 import { ExperienceSection } from './ExperienceSection'
 // Tours and the Professional list load as their own chunks, only when opened (SET-B47).
 const HelpSection = lazy(() =>
@@ -249,6 +250,11 @@ function SettingsV3Body({
               <ProFeatures />
             </Suspense>
           )}
+          {!searching &&
+            section?.kind === 'rows' &&
+            areasOf(current).map((a) => (
+              <AreaSection key={a} area={a} db={db} onGo={pick} />
+            ))}
           {!searching && current === 'tryNew' && <TryNewHeader />}
           {!searching &&
             rows.map((s) => (
@@ -276,6 +282,11 @@ function SettingsV3Body({
               />
             </Suspense>
           )}
+          {!searching &&
+            section?.kind === 'help' &&
+            areasOf('help').map((a) => (
+              <AreaSection key={a} area={a} db={db} onGo={pick} />
+            ))}
           {!searching && rows.length > 0 && section && (
             <SectionReset db={db} sectionName={section.label} rows={rows} />
           )}

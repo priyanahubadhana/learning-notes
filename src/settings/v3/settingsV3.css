@@ -944,3 +944,9 @@
 .sv3-row-head [data-testid='setting-sync-menu'] {
   min-width: 44px;
 }
+
+/* Today's screens (Account, Sync, Lock, AI...) inside a section (same stores). */
+.sv3-area {
+  min-width: 0;
+  margin-bottom: 16px;
+}

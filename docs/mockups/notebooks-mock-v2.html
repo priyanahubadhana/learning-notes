@@ -1,0 +1,1288 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<title>Notebooks mock-up v2</title>
+<style>
+/* ==== shell.css · the ONE shared app shell for every mock-up (12 Nov 2026) ====
+   Paste this whole file at the top of a mock's <style>. See shell-spec.md.
+   Structure classes are prefixed sh-. Primitives (.btn .seg .sw .ib .badge .glass .track) are the one shared version. */
+:root{--canvas:#0f0e13;--surface-0:#16151b;--surface-1:#1d1c23;--surface-2:#25242c;--surface-3:#2e2d36;--ink:#ecebf2;--ink-soft:#b8b6c3;--muted:#9a98a6;--line:#2a2931;--line-strong:#7f7d8c;--hover:rgba(255,255,255,.06);--pressed:rgba(255,255,255,.1);--accent:#a08cff;--on-accent:#16112e;--accent-soft:rgba(160,140,255,.16);--danger:#ff7a6b;--success:#5fd39a;--warn:#f0b35a;--glass-fill:rgba(29,28,35,.7);--glass-line:rgba(255,255,255,.08);--elev-1:0 0 0 1px rgba(255,255,255,.06);--elev-2:0 8px 24px rgba(0,0,0,.4);--elev-3:0 16px 48px rgba(0,0,0,.55);--scrim:rgba(0,0,0,.48);--wash:radial-gradient(at 15% 0%,oklch(.35 .12 290/.45),transparent 55%),radial-gradient(at 90% 10%,oklch(.32 .1 255/.35),transparent 50%);
+ --r-xs:6px;--r-sm:8px;--r-md:12px;--r-lg:16px;--r-xl:24px;--dur-1:120ms;--dur-2:180ms;--dur-3:240ms;--ease-out:cubic-bezier(.2,.8,.2,1);--ease-in:cubic-bezier(.4,0,1,1);
+ --sans:-apple-system,BlinkMacSystemFont,'SF Pro Text','Inter Variable',Inter,system-ui,sans-serif;
+ /* shell sizes: change here only */
+ --sh-rail:56px;--sh-side:264px;--sh-panel:264px;--sh-top:52px;--sh-tabbar:56px;--sh-gap:12px;--sh-sheet:440px;--sh-hit:44px;
+ --sh-safe-b:env(safe-area-inset-bottom,0px);--sh-bottom:0px;--sh-bar:0px;color-scheme:dark}
+@media (prefers-color-scheme:light){:root:not([data-theme="dark"]):not([data-theme="sepia"]){--canvas:#f4f3f8;--surface-0:#ffffff;--surface-1:#fafafc;--surface-2:#ffffff;--surface-3:#ffffff;--ink:#18171c;--ink-soft:#4d4b55;--muted:#6b6976;--line:#eceaf1;--line-strong:#8a8796;--hover:rgba(24,23,28,.05);--pressed:rgba(24,23,28,.09);--accent:#6941e0;--on-accent:#ffffff;--accent-soft:rgba(105,65,224,.1);--danger:#c0352b;--success:#1a7248;--warn:#8f5200;--glass-fill:rgba(255,255,255,.72);--glass-line:rgba(255,255,255,.6);--elev-1:0 1px 2px rgba(24,23,28,.06);--elev-2:0 4px 16px rgba(24,23,28,.08),0 1px 2px rgba(24,23,28,.06);--elev-3:0 16px 48px rgba(24,23,28,.14);--scrim:rgba(0,0,0,.24);--wash:radial-gradient(at 15% 0%,oklch(.92 .06 290/.55),transparent 55%),radial-gradient(at 90% 10%,oklch(.93 .05 250/.45),transparent 50%);color-scheme:light}}
+:root[data-theme="light"]{--canvas:#f4f3f8;--surface-0:#ffffff;--surface-1:#fafafc;--surface-2:#ffffff;--surface-3:#ffffff;--ink:#18171c;--ink-soft:#4d4b55;--muted:#6b6976;--line:#eceaf1;--line-strong:#8a8796;--hover:rgba(24,23,28,.05);--pressed:rgba(24,23,28,.09);--accent:#6941e0;--on-accent:#ffffff;--accent-soft:rgba(105,65,224,.1);--danger:#c0352b;--success:#1a7248;--warn:#8f5200;--glass-fill:rgba(255,255,255,.72);--glass-line:rgba(255,255,255,.6);--elev-1:0 1px 2px rgba(24,23,28,.06);--elev-2:0 4px 16px rgba(24,23,28,.08),0 1px 2px rgba(24,23,28,.06);--elev-3:0 16px 48px rgba(24,23,28,.14);--scrim:rgba(0,0,0,.24);--wash:radial-gradient(at 15% 0%,oklch(.92 .06 290/.55),transparent 55%),radial-gradient(at 90% 10%,oklch(.93 .05 250/.45),transparent 50%);color-scheme:light}
+:root[data-theme="sepia"]{--canvas:#f3e9d2;--surface-0:#fbf3e0;--surface-1:#f7eed8;--surface-2:#fbf3e0;--surface-3:#fbf3e0;--ink:#3b2f1e;--ink-soft:#5c4b33;--muted:#74644a;--line:#e6d8b8;--line-strong:#8e7d5e;--hover:rgba(59,47,30,.06);--pressed:rgba(59,47,30,.1);--accent:#8a4b1f;--on-accent:#fff;--accent-soft:rgba(138,75,31,.12);--danger:#b3341f;--success:#2f6b3f;--warn:#8f5200;--glass-fill:rgba(251,243,224,.78);--glass-line:rgba(255,255,255,.5);--elev-1:0 1px 2px rgba(59,47,30,.08);--elev-2:0 4px 16px rgba(59,47,30,.1);--elev-3:0 16px 48px rgba(59,47,30,.18);--scrim:rgba(30,22,8,.34);--wash:radial-gradient(at 15% 0%,oklch(.9 .05 80/.55),transparent 55%);color-scheme:light}
+
+/* ---- base ---- */
+*{box-sizing:border-box}
+[hidden]{display:none!important}
+html,body{height:100%}
+body{margin:0;background:var(--canvas);background-image:var(--wash);background-attachment:fixed;color:var(--ink);font:15px/1.5 var(--sans);overflow:hidden;-webkit-text-size-adjust:100%}
+button,input,select,textarea{font:inherit;color:inherit}
+button{-webkit-tap-highlight-color:transparent;touch-action:manipulation}
+svg{fill:none;stroke:currentColor;stroke-width:1.6;stroke-linecap:round;stroke-linejoin:round;width:20px;height:20px;flex:none}
+:focus-visible{outline:2px solid var(--accent);outline-offset:2px}
+.glass{background:var(--glass-fill);border:1px solid var(--glass-line);box-shadow:var(--elev-2);-webkit-backdrop-filter:blur(18px) saturate(160%);backdrop-filter:blur(18px) saturate(160%)}
+@media (prefers-reduced-transparency:reduce){.glass{background:var(--surface-2);-webkit-backdrop-filter:none;backdrop-filter:none}}
+
+/* ---- primitives ---- */
+.ib{width:var(--sh-hit);height:var(--sh-hit);border:0;border-radius:var(--r-md);background:transparent;color:var(--ink-soft);display:grid;place-items:center;cursor:pointer;transition:background var(--dur-1),color var(--dur-1);flex:none;position:relative}
+.ib:hover{background:var(--hover);color:var(--ink)}.ib:active{background:var(--pressed)}.ib.on{background:var(--accent-soft);color:var(--accent)}
+.ib:disabled{opacity:.35;cursor:not-allowed}
+.ib.sm{width:36px;height:36px}.ib.sm svg{width:18px;height:18px}
+.ib.sm::before{content:"";position:absolute;inset:-4px}/* 44pt hit area on small icons */
+.btn{display:inline-flex;align-items:center;justify-content:center;gap:6px;min-height:var(--sh-hit);padding:0 16px;border-radius:999px;border:1px solid var(--line);background:var(--surface-2);color:var(--ink);font-weight:600;font-size:14px;cursor:pointer;white-space:nowrap;transition:background var(--dur-1),transform var(--dur-1)}
+.btn:hover{background:var(--hover)}.btn:active{transform:scale(.98)}
+.btn.pri{background:var(--accent);color:var(--on-accent);border-color:transparent}.btn.pri:hover{filter:brightness(1.06)}
+.btn.dng{color:var(--danger);border-color:color-mix(in srgb,var(--danger) 40%,transparent)}
+.btn.sm{min-height:36px;padding:0 12px;font-size:13px;position:relative}
+.btn.sm::before,.seg.sm button::before{content:"";position:absolute;inset:-4px 0}/* small controls still get a 44pt hit area */
+.btn.more{background:var(--accent-soft);color:var(--accent);border-color:transparent}/* the More button: sliders icon + label, FIRST in its row */
+.seg{display:inline-flex;padding:2px;border-radius:999px;background:var(--hover);max-width:100%}
+.seg button{border:0;background:transparent;color:var(--ink-soft);font-size:13px;font-weight:600;padding:0 14px;min-height:var(--sh-hit);border-radius:999px;cursor:pointer;white-space:nowrap;transition:background var(--dur-1),color var(--dur-1)}
+.seg.sm button{min-height:36px;padding:0 11px;font-size:12.5px;position:relative;min-width:44px}
+.seg button.on{background:var(--surface-2);color:var(--accent);box-shadow:var(--elev-1)}
+.sw{position:relative;width:52px;height:32px;border-radius:999px;border:0;background:var(--line-strong);cursor:pointer;flex:none;transition:background var(--dur-1)}
+.sw::after{content:"";position:absolute;top:3px;left:3px;width:26px;height:26px;border-radius:50%;background:#fff;transition:transform var(--dur-1) var(--ease-out)}
+.sw[aria-checked=true]{background:var(--accent)}.sw[aria-checked=true]::after{transform:translateX(20px)}
+.sw:disabled{opacity:.4;cursor:not-allowed}
+.sw::before{content:"";position:absolute;inset:-6px 0}
+.badge{font-size:11.5px;font-weight:700;padding:1px 8px;border-radius:999px;background:var(--accent-soft);color:var(--accent);white-space:nowrap}
+.inp{min-height:var(--sh-hit);border-radius:var(--r-sm);border:1px solid var(--line);background:var(--surface-0);padding:0 12px;width:100%}
+.mini{font-size:12px;color:var(--muted)}
+.scrollx{overflow-x:auto;scrollbar-width:none;overscroll-behavior-x:contain}.scrollx::-webkit-scrollbar{display:none}
+.track{height:3px;border-radius:3px;background:var(--line);margin-top:2px;position:relative}.track i{position:absolute;top:0;bottom:0;border-radius:3px;background:var(--line-strong)}
+.track.off{visibility:hidden}
+.utabs{display:flex;gap:2px}
+.utabs button{background:none;border:0;border-bottom:2px solid transparent;min-height:var(--sh-hit);min-width:var(--sh-hit);justify-content:center;padding:0 12px;font-weight:600;font-size:13.5px;color:var(--muted);cursor:pointer;white-space:nowrap;display:flex;align-items:center;gap:6px}
+.utabs button.on{color:var(--accent);border-color:var(--accent)}
+[data-mode=beg] .pro{display:none!important}
+
+/* ---- frame ---- */
+.sh-wrap{height:100dvh;display:flex;flex-direction:column;max-width:1320px;margin:0 auto;padding:12px max(12px,env(safe-area-inset-right,0px)) 12px max(12px,env(safe-area-inset-left,0px))}
+.sh-demo{display:flex;flex-wrap:wrap;align-items:center;gap:8px;margin-bottom:10px;flex:none}
+.sh-demo .t{font-size:13px;font-weight:600;color:var(--muted);margin-right:auto}
+.sh-shell{flex:1;min-height:0;display:flex;gap:var(--sh-gap);align-items:stretch;position:relative}
+
+/* ---- rail (left edge) / tab bar (phone) ---- */
+.sh-rail{width:var(--sh-rail);flex:none;display:flex;flex-direction:column;align-items:center;gap:4px;padding:8px 6px;border-radius:var(--r-lg);-webkit-user-select:none;user-select:none}
+.sh-rail .mk{width:32px;height:32px;border-radius:var(--r-md);background:var(--accent);color:var(--on-accent);display:grid;place-items:center;font-weight:700;margin-bottom:8px;font-size:15px;flex:none}
+.sh-rail .grow{flex:1}
+.sh-rail .ib svg{width:24px;height:24px}
+.sh-rail .ib .lbl{display:none}
+.sh-rail .ib .bd{position:absolute;top:2px;right:0;min-width:17px;height:17px;padding:0 4px;border-radius:999px;background:var(--accent);color:var(--on-accent);font-size:10.5px;font-weight:700;display:grid;place-items:center}
+.sh-rail .ib.on::before{content:"";position:absolute;left:-6px;top:10px;bottom:10px;width:3px;border-radius:0 3px 3px 0;background:var(--accent)}
+
+/* ---- sidebar + left panel (two columns that dock, overlay or hide) ---- */
+.sh-side,.sh-panel{flex:none;border-radius:var(--r-lg);background:var(--surface-1);border:1px solid var(--line);display:flex;flex-direction:column;overflow:hidden;min-height:0}
+.sh-side{width:var(--sh-side)}.sh-panel{width:var(--sh-panel)}
+.sh-side[data-state=hidden],.sh-panel[data-state=hidden]{display:none}
+.sh-side[data-state=over],.sh-panel[data-state=over]{position:fixed;left:max(8px,env(safe-area-inset-left,0px));top:8px;bottom:8px;width:min(86vw,320px);z-index:60;box-shadow:var(--elev-3);animation:shIn var(--dur-2) var(--ease-out)}
+.sh-colhd{display:flex;align-items:center;gap:4px;padding:8px 8px 4px;flex:none}
+.sh-colhd h2{font-size:15px;margin:0 auto 0 6px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.sh-coltabs{display:flex;gap:2px;padding:0 8px;border-bottom:1px solid var(--line);flex:none}
+.sh-coltabs button{flex:1;background:none;border:0;border-bottom:2px solid transparent;min-height:var(--sh-hit);font-size:12.5px;font-weight:600;color:var(--muted);cursor:pointer;display:flex;align-items:center;justify-content:center;gap:5px;white-space:nowrap}
+.sh-coltabs button svg{width:16px;height:16px}
+.sh-coltabs button.on{color:var(--accent);border-color:var(--accent)}
+.sh-colscroll{overflow:auto;padding:6px 8px 12px;flex:1;min-height:0;overscroll-behavior:contain;position:relative}
+.sh-colfoot{flex:none;border-top:1px solid var(--line);padding:6px 8px;display:flex;gap:6px;align-items:center}
+
+/* ---- main column + top bar ---- */
+.sh-main{flex:1;min-width:0;display:flex;flex-direction:column;gap:8px;position:relative}
+.sh-top{display:flex;align-items:center;gap:4px;min-height:var(--sh-top);padding:0 4px;flex:none}
+.sh-crumbs{display:flex;align-items:center;gap:2px;min-width:0;font-size:13px;color:var(--muted);flex:1;overflow:hidden;white-space:nowrap;padding-left:4px}
+.sh-crumbs svg{width:14px;height:14px;flex:none}
+.sh-crumbs button{border:0;background:none;color:inherit;cursor:pointer;padding:0 4px;min-height:var(--sh-hit);border-radius:var(--r-xs);font-size:13px}
+.sh-crumbs button:hover{color:var(--ink);background:var(--hover)}
+.sh-crumbs b{font-weight:500;color:var(--ink);overflow:hidden;text-overflow:ellipsis;padding:0 4px}
+.sh-saved{font-size:12px;color:var(--muted);padding:0 6px;white-space:nowrap}
+.sh-scroll{position:relative;flex:1;min-height:0;overflow:auto;overscroll-behavior:contain;border-radius:var(--r-lg);padding-bottom:calc(84px + var(--sh-safe-b))}
+
+/* ---- floating bar (bottom centre of the main column) + minimise chips (right edge) ---- */
+.sh-fbar{position:absolute;left:50%;bottom:16px;transform:translateX(-50%);z-index:40;display:flex;align-items:center;gap:2px;padding:4px;border-radius:999px;max-width:calc(100% - 24px);transition:opacity 150ms var(--ease-out),transform 150ms var(--ease-out);-webkit-user-select:none;user-select:none}
+.sh-fbar[hidden]{display:none!important}
+.sh-fbar .lab{font-size:13px;font-weight:600;padding:0 10px;white-space:nowrap}
+.sh-fbar .sep{width:1px;height:24px;background:var(--line);margin:0 4px;flex:none}
+.sh-fbar .minb{color:var(--muted)}.sh-fbar .minb svg{width:18px;height:18px}
+.sh-mdock{position:fixed;right:0;top:calc(12px + var(--sh-top) + 64px);z-index:41;display:flex;flex-direction:column;align-items:flex-end;gap:8px;pointer-events:none}
+.sh-mchip{pointer-events:auto;display:flex;align-items:center;gap:6px;height:var(--sh-hit);padding:0 12px 0 8px;border:1.5px solid var(--accent);border-right:0;border-radius:14px 0 0 14px;background:color-mix(in srgb,var(--accent) 16%,var(--surface-2));box-shadow:var(--elev-2);color:var(--accent);font-size:13px;font-weight:600;white-space:nowrap;cursor:pointer;animation:shChip 150ms var(--ease-out);transition:padding 150ms var(--ease-out),background 150ms var(--ease-out)}
+.sh-mchip:hover{padding-right:16px;background:color-mix(in srgb,var(--accent) 24%,var(--surface-2))}
+.sh-mchip svg.c{width:14px;height:14px}.sh-mchip span{color:var(--ink)}
+
+/* ---- scrim, More sheet (fixed, full height, scrolls inside), dialog, pop, toast ---- */
+.sh-scrim{position:fixed;inset:0;background:var(--scrim);z-index:59;opacity:0;pointer-events:none;transition:opacity var(--dur-2)}
+.sh-scrim.on{opacity:1;pointer-events:auto}
+.sh-scrim.hi{z-index:79}
+.sh-sheet{position:fixed;z-index:80;top:12px;bottom:12px;right:max(12px,env(safe-area-inset-right,0px));width:min(var(--sh-sheet),calc(100vw - 24px));display:flex;flex-direction:column;border-radius:var(--r-xl);background:var(--surface-1);border:1px solid var(--line);box-shadow:var(--elev-3);overflow:hidden;transform:translateX(calc(100% + 24px));visibility:hidden;transition:transform var(--dur-3) var(--ease-out),visibility 0s linear var(--dur-3)}
+.sh-sheet.on{transform:none;visibility:visible;transition:transform var(--dur-3) var(--ease-out),visibility 0s}
+.sh-shd{display:flex;align-items:center;gap:8px;padding:10px 8px 6px 14px;flex:none}
+.sh-shd h3{margin:0;font-size:17px}.sh-shd p{margin:0;font-size:12.5px;color:var(--muted)}.sh-shd .gr{flex:1;min-width:0}
+.sh-spick{flex:none;padding:0 12px 4px}
+.sh-stabs{flex:none;padding:0 10px}
+.sh-stabs .utabs{border-bottom:1px solid var(--line)}
+.sh-sbody{flex:1;min-height:0;overflow-y:auto;overscroll-behavior:contain;padding:12px 16px 20px}
+.sh-sft{flex:none;display:flex;align-items:center;gap:8px;padding:8px 12px calc(8px + var(--sh-safe-b));border-top:1px solid var(--line);background:var(--surface-0)}
+.sh-sft .gr{flex:1;font-size:12.5px;color:var(--muted)}
+.sh-dialog{position:fixed;z-index:85;left:50%;top:50%;width:min(420px,calc(100vw - 24px));transform:translate(-50%,-48%) scale(.98);opacity:0;pointer-events:none;transition:opacity var(--dur-2),transform var(--dur-2) var(--ease-out);border-radius:var(--r-xl);background:var(--surface-1);border:1px solid var(--line);box-shadow:var(--elev-3);padding:18px}
+.sh-dialog.on{opacity:1;pointer-events:auto;transform:translate(-50%,-50%)}
+.sh-dialog h3{margin:0 0 10px;font-size:17px}
+.sh-dialog .ft{display:flex;justify-content:flex-end;gap:8px;margin-top:14px}
+.sh-pop{position:fixed;z-index:86;min-width:220px;max-width:calc(100vw - 16px);max-height:calc(100dvh - 16px);overflow:auto;border-radius:var(--r-md);padding:6px;background:var(--surface-2);border:1px solid var(--line);box-shadow:var(--elev-3);animation:shPop var(--dur-1) var(--ease-out)}
+.sh-pop .mi{display:flex;align-items:center;gap:10px;width:100%;min-height:var(--sh-hit);padding:0 10px;border:0;background:none;border-radius:var(--r-sm);cursor:pointer;text-align:left;font-size:14px}
+.sh-pop .mi:hover{background:var(--hover)}.sh-pop .mi svg{width:18px;height:18px;color:var(--muted)}
+.sh-pop .mi.dng,.sh-pop .mi.dng svg{color:var(--danger)}
+.sh-pop hr{border:0;border-top:1px solid var(--line);margin:4px 0}
+.sh-pop .lbl{font-size:11px;text-transform:uppercase;letter-spacing:.06em;font-weight:700;color:var(--muted);padding:6px 10px 2px}
+.sh-toast{position:fixed;left:50%;bottom:calc(24px + var(--sh-bottom) + var(--sh-bar) + var(--sh-safe-b));transform:translate(-50%,16px);opacity:0;pointer-events:none;z-index:90;display:flex;align-items:center;gap:8px;min-height:48px;padding:0 6px 0 18px;border-radius:999px;background:var(--surface-3);color:var(--ink);border:1px solid var(--line);box-shadow:var(--elev-3);transition:opacity var(--dur-2),transform var(--dur-2) var(--ease-out);max-width:calc(100vw - 24px);font-size:14px;font-weight:500}
+.sh-toast.on{opacity:1;transform:translate(-50%,0);pointer-events:auto}
+.sh-toast span{padding-right:12px}
+.sh-toast button{border:0;background:none;color:var(--accent);font-weight:700;min-height:var(--sh-hit);padding:0 12px;cursor:pointer;border-radius:999px}
+.sh-tabbar{display:none}
+@keyframes shIn{from{transform:translateX(-24px);opacity:0}}
+@keyframes shChip{from{transform:translateX(100%)}}
+@keyframes shPop{from{opacity:0;transform:translateY(-4px)}}
+
+/* ---- phone (640 and under): rail becomes the bottom tab bar, columns become drawers, the sheet fills the screen ---- */
+@media (max-width:640px){
+ :root{--sh-bottom:var(--sh-tabbar)}
+ .sh-wrap{padding:8px 8px calc(var(--sh-tabbar) + var(--sh-safe-b))}
+ .sh-rail{display:none}
+ .sh-side:not([data-state=over]),.sh-panel:not([data-state=over]){display:none}
+ .sh-tabbar{display:flex;position:fixed;left:0;right:0;bottom:0;z-index:30;height:calc(var(--sh-tabbar) + var(--sh-safe-b));padding:0 4px var(--sh-safe-b);justify-content:space-around;align-items:center;border-radius:0;border-left:0;border-right:0;border-bottom:0}
+ .sh-tabbar .ib{flex:1;width:auto;height:48px;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:1px;font-size:10px;font-weight:600;border-radius:var(--r-sm)}
+ .sh-tabbar .ib svg{width:22px;height:22px}
+ .sh-tabbar .ib .bd{position:absolute;top:2px;left:calc(50% + 6px);min-width:16px;height:16px;padding:0 4px;border-radius:999px;background:var(--accent);color:var(--on-accent);font-size:10px;font-weight:700;display:grid;place-items:center}
+ .sh-fbar{bottom:12px}
+ .sh-sheet{top:max(8px,env(safe-area-inset-top,0px));bottom:0;right:0;left:0;width:auto;border-radius:var(--r-xl) var(--r-xl) 0 0;transform:translateY(105%)}
+ .sh-mdock{top:calc(8px + var(--sh-top) + 56px)}
+}
+@media (prefers-reduced-motion:reduce){*,*::before,*::after{transition-duration:.01ms!important;animation-duration:.01ms!important;scroll-behavior:auto!important}}
+
+/* Many sheet tabs: keep each tab its natural width and scroll the row instead of squeezing. */
+.sh-stabs .utabs button{flex:none}
+
+/* ==== 12 Nov 2026 (U3): dialog close, universal minimise button, edge handle, customisable tabs ==== */
+/* every #sh-dialog has a visible close button */
+.sh-dialog>.sh-dx{position:absolute;top:4px;right:4px;z-index:3}
+.sh-dialog>.sh-dx svg{width:20px;height:20px}
+.sh-dialog h3{padding-right:40px}
+/* the minimise button: the same in every bar, large, clearly visible; pulses gently until first used */
+.ib.minb,.ib.sm.minb{width:44px;height:44px;border:1.5px solid color-mix(in srgb,var(--accent) 45%,var(--line));background:var(--accent-soft);color:var(--accent);border-radius:var(--r-md);flex:none}
+.ib.minb:hover,.ib.sm.minb:hover{background:color-mix(in srgb,var(--accent) 24%,transparent);color:var(--accent)}
+.ib.minb svg,.ib.sm.minb svg{width:22px;height:22px}
+.ib.minb.pulse{animation:shPulse 1.6s ease-in-out 2}
+@keyframes shPulse{0%,100%{box-shadow:0 0 0 0 transparent}50%{box-shadow:0 0 0 7px color-mix(in srgb,var(--accent) 30%,transparent)}}
+/* edge handle: a minimised bar docked to the left or right edge; drag it anywhere, tap to restore */
+.sh-handle{position:fixed;z-index:42;width:36px;height:56px;padding:0;display:grid;place-items:center;border:1.5px solid var(--accent);background:color-mix(in srgb,var(--accent) 16%,var(--surface-2));color:var(--accent);box-shadow:var(--elev-2);cursor:grab;touch-action:none;-webkit-user-select:none;user-select:none;transition:left 180ms var(--ease-out),top 180ms var(--ease-out)}
+.sh-handle[data-side=r]{border-right:0;border-radius:14px 0 0 14px}
+.sh-handle[data-side=l]{border-left:0;border-radius:0 14px 14px 0}
+.sh-handle svg{width:20px;height:20px;pointer-events:none}
+.sh-handle.drag{cursor:grabbing;transition:none;box-shadow:var(--elev-3);border-radius:14px;border-width:1.5px}
+.sh-handle:hover{background:color-mix(in srgb,var(--accent) 26%,var(--surface-2))}
+/* customisable tabs: scrolling tabs, "+" always visible at the end */
+.sh-coltabs.sh-tabs{display:block;padding:0 4px 0 8px}
+.sh-tabs .sh-trow{display:flex;align-items:stretch;gap:2px}
+.sh-tabs .sh-tscroll{display:flex;gap:2px;overflow-x:auto;scrollbar-width:none;flex:1;min-width:0}
+.sh-tabs .sh-tscroll::-webkit-scrollbar{display:none}
+.sh-tabs .sh-tscroll button{flex:none;padding:0 11px}
+.sh-tabs .sh-tplus{flex:none;width:var(--sh-hit);padding:0;color:var(--accent);border-bottom-color:transparent}
+.sh-tabs .sh-tplus svg{display:block;width:20px;height:20px}
+.sh-tabs .track{margin:0 4px 0 0}
+.sh-tedit{display:flex;flex-direction:column;gap:4px;max-height:min(52vh,360px);overflow:auto;margin:4px -4px 0;padding:2px 4px}
+.sh-trw{display:flex;align-items:center;gap:2px;padding:2px;border:1px solid var(--line);border-radius:var(--r-md);background:var(--surface-2);position:relative}
+.sh-trw .gp{cursor:grab;touch-action:none;color:var(--muted)}
+.sh-trw .gp svg{width:18px;height:18px}
+.sh-trw input{flex:1;min-width:0;min-height:40px;border:0;background:transparent;font:inherit;font-weight:600;font-size:14px;color:var(--ink);padding:0 6px;border-radius:var(--r-sm)}
+.sh-trw input:focus{outline:2px solid var(--accent);outline-offset:-2px}
+.sh-trw .ib[disabled]{opacity:.35;pointer-events:none}
+.sh-trw.drag{box-shadow:var(--elev-2);z-index:2;border-color:var(--accent)}
+.sh-trw .rm{color:var(--danger)}
+.sh-tpop .mi small{margin-left:auto;color:var(--muted);font-size:12px}
+/* ---- clear (x) button inside any text field (Shell.clearable / Shell.autoClear) ---- */
+.sh-clr{position:relative;display:flex;flex:1 1 auto;min-width:0;align-items:center}
+.sh-clr>input,.sh-clr>textarea{padding-right:40px!important}
+.sh-clr .sh-clrb{position:absolute;right:2px;top:50%;transform:translateY(-50%);color:var(--muted)}
+.sh-clr.ta .sh-clrb{top:6px;transform:none}
+.sh-clr>input:placeholder-shown~.sh-clrb,.sh-clr>textarea:placeholder-shown~.sh-clrb{display:none}
+.sh-clr input[type=search]::-webkit-search-cancel-button{display:none}
+/* ==== end shell.css (all) ==== */
+.sh-trw{flex-wrap:wrap}.sh-trw .sh-tsrc{box-sizing:border-box;flex:1 0 100%;display:flex;align-items:center;gap:8px;padding:0 6px 4px 46px;font-size:12px;color:var(--muted)}.sh-trw .sh-tsrc select{flex:1 1 0;width:0;min-width:0;min-height:36px;border:1px solid var(--line);border-radius:var(--r-sm);background:var(--surface-1);color:var(--ink);font:inherit;font-size:13px;padding:0 6px}
+.sh-tcreate{width:100%;margin-top:10px;justify-content:center}.sh-flab{display:block;font-size:12.5px;font-weight:600;color:var(--muted);margin-top:8px}.sh-flab .inp{display:block;width:100%;margin-top:4px;min-height:var(--sh-hit);font-weight:400;color:var(--ink)}
+.sh-trw{flex-wrap:wrap}.sh-trw .sh-tsrc{box-sizing:border-box;flex:1 0 100%;display:flex;align-items:center;gap:8px;padding:0 6px 4px 46px;font-size:12px;color:var(--muted)}.sh-trw .sh-tsrc select{flex:1;min-width:0;min-height:36px;border:1px solid var(--line);border-radius:var(--r-sm);background:var(--surface-1);color:var(--ink);font:inherit;font-size:13px;padding:0 6px}
+.sh-tcreate{width:100%;margin-top:10px;justify-content:center}.sh-flab{display:block;font-size:12.5px;font-weight:600;color:var(--muted);margin-top:8px}.sh-flab .inp{display:block;width:100%;margin-top:4px;min-height:var(--sh-hit);font-weight:400;color:var(--ink)}
+.sh-trw{flex-wrap:wrap}.sh-trw .sh-tsrc{flex:1 0 100%;display:flex;align-items:center;gap:8px;padding:0 6px 4px 46px;font-size:12px;color:var(--muted)}.sh-trw .sh-tsrc select{flex:1;min-width:0;min-height:36px;border:1px solid var(--line);border-radius:var(--r-sm);background:var(--surface-1);color:var(--ink);font:inherit;font-size:13px;padding:0 6px}
+.sh-tcreate{width:100%;margin-top:10px;justify-content:center}.sh-flab{display:block;font-size:12.5px;font-weight:600;color:var(--muted);margin-top:8px}.sh-flab .inp{display:block;width:100%;margin-top:4px;min-height:var(--sh-hit);font-weight:400;color:var(--ink)}
+
+/* ==== notebooks v2: screen-specific styles (everything shared lives in shell.css) ==== */
+.panelc{background:var(--surface-1);border:1px solid var(--line);border-radius:var(--r-lg);padding:16px;box-shadow:var(--elev-1);margin-bottom:12px}
+.toprow{display:flex;align-items:center;gap:8px;flex-wrap:wrap}
+.toprow h1{font-size:26px;letter-spacing:-.02em;margin:0;line-height:1.2}
+.toprow .gr{flex:1;min-width:0}
+.rowbar{display:flex;align-items:center;gap:10px;flex-wrap:wrap}
+.stats{display:flex;gap:8px;flex-wrap:wrap;margin-top:10px}
+.stat{display:flex;align-items:center;gap:8px;padding:8px 12px;border-radius:var(--r-md);background:var(--surface-0);border:1px solid var(--line);font-size:13px;color:var(--ink-soft);min-height:44px}
+.stat b{font-size:17px;color:var(--ink)}.stat svg{color:var(--accent);width:18px;height:18px}
+button.stat{cursor:pointer}button.stat:hover{background:var(--hover)}
+.sech{display:flex;align-items:center;gap:8px;margin:0 0 10px;font-size:12px;font-weight:700;text-transform:uppercase;letter-spacing:.06em;color:var(--muted)}
+.cont{display:flex;gap:10px;padding-bottom:2px}
+.cc{flex:none;width:228px;display:flex;gap:10px;align-items:center;padding:8px;border-radius:var(--r-md);border:1px solid var(--line);background:var(--surface-0);cursor:pointer;text-align:left;min-height:64px;color:var(--ink)}
+.cc:hover{background:var(--hover)}
+.cc .cover{width:36px;flex:none;border-radius:3px 6px 6px 3px;box-shadow:none}.cc .cover::after{width:3px}.cc .cover .lab,.cc .cover .lk,.cc .cover .pv{display:none}
+.cc b{display:block;font-size:14px;line-height:1.25;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.cc div{min-width:0}
+/* covers */
+.shelf{display:grid;grid-template-columns:repeat(auto-fill,minmax(140px,1fr));gap:18px 14px}
+.nb{display:flex;flex-direction:column;gap:6px;position:relative;min-width:0}
+.cover{aspect-ratio:3/4;border-radius:6px 14px 14px 6px;position:relative;overflow:hidden;color:#fff;box-shadow:var(--elev-2);display:block;width:100%;background:var(--cc)}
+.cover>svg.art{position:absolute;inset:0;width:100%;height:100%;stroke:none}
+.cover>img{position:absolute;inset:0;width:100%;height:100%;object-fit:cover;pointer-events:none;-webkit-user-drag:none}
+.cover::after{content:"";position:absolute;inset:0 auto 0 0;width:6px;background:rgba(0,0,0,.18)}
+.cover .lab{position:absolute;left:16px;top:12px;font-size:28px;font-weight:700;letter-spacing:-.03em;text-shadow:0 1px 3px rgba(0,0,0,.35);z-index:1}
+.cover.pg{background:var(--surface-2)!important;color:var(--ink);box-shadow:var(--elev-2),inset 0 0 0 1px var(--line)}
+.cover.pg::after{background:var(--cc)}
+.cover.pg .lab{font-size:14px;top:12px;left:16px;right:8px;color:var(--ink);text-shadow:none;line-height:1.25;letter-spacing:0}
+.cover.pg .pv{position:absolute;left:16px;right:10px;top:52px;font-size:11px;color:var(--ink-soft);line-height:1.45}
+.cover .lk{position:absolute;right:6px;bottom:6px;width:32px;height:32px;display:grid;place-items:center;border-radius:999px;background:rgba(0,0,0,.34);color:#fff;z-index:1}.cover .lk svg{width:15px;height:15px}
+.coverbtn{all:unset;display:block;width:100%;cursor:pointer;border-radius:6px 14px 14px 6px;transition:transform var(--dur-2) var(--ease-out)}
+.coverbtn:hover{transform:translateY(-3px)}.coverbtn:focus-visible{outline:2px solid var(--accent);outline-offset:3px}
+.nbstar{position:absolute;top:4px;right:4px;width:36px;height:36px;border:0;border-radius:999px;background:rgba(0,0,0,.34);color:#fff;display:grid;place-items:center;cursor:pointer;z-index:2}
+.nbstar::before{content:"";position:absolute;inset:-4px}
+.nbstar svg{width:17px;height:17px}.nbstar.on svg{fill:#f3dc7a;stroke:#f3dc7a}
+[data-mode=beg] .nbstar:not(.on){display:none}
+.nbmeta{display:flex;align-items:center;gap:4px;padding:0 2px;min-width:0}
+.nbmeta b{font-size:14px;flex:1;min-width:0;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.nbsub{font-size:12px;color:var(--muted);padding:0 2px;margin-top:-6px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.newtile{aspect-ratio:3/4;border-radius:6px 14px 14px 6px;border:2px dashed var(--line-strong);background:none;color:var(--muted);display:grid;place-items:center;align-content:center;gap:6px;cursor:pointer;font-weight:600;font-size:13px;width:100%}
+.newtile:hover{background:var(--hover);color:var(--ink)}
+.list .nbrow{display:flex;align-items:center;gap:12px;min-height:60px;padding:6px 8px;border-radius:var(--r-md);cursor:pointer}
+.list .nbrow:hover{background:var(--hover)}
+.list .nbrow .cover{width:40px;flex:none;border-radius:3px 7px 7px 3px;box-shadow:none}.list .nbrow .cover::after{width:4px}.list .nbrow .cover .lab{font-size:12px;left:8px;top:5px}.list .nbrow .cover .lk,.list .nbrow .cover .pv{display:none}
+.list .nbrow .cover.pg .lab{font-size:0}
+.empty{padding:36px 12px;text-align:center;color:var(--muted)}
+.tag{display:inline-flex;align-items:center;gap:6px;min-height:36px;padding:0 12px;border-radius:999px;background:var(--surface-3);font-size:12.5px;border:1px solid var(--line);cursor:pointer;color:var(--ink);position:relative}
+.tag::before{content:"";position:absolute;inset:-4px 0}
+.tag.on{background:var(--accent);color:var(--on-accent);border-color:transparent}
+.dot{width:12px;height:12px;border-radius:50%;flex:none;display:inline-block}
+/* sidebar */
+.nav{display:flex;align-items:center;gap:8px;width:100%;min-height:44px;padding:0 10px;border:0;border-radius:var(--r-sm);background:none;text-align:left;font-size:14px;cursor:pointer;color:var(--ink)}
+.nav:hover{background:var(--hover)}.nav svg{width:18px;height:18px;color:var(--muted)}.nav .sp{flex:1}
+.grp{margin-top:8px}
+.gh{display:flex;align-items:center;gap:4px;min-height:44px;padding:0 6px;font-size:11.5px;letter-spacing:.06em;text-transform:uppercase;font-weight:700;color:var(--muted);border:0;background:none;width:100%;text-align:left}
+button.gh{cursor:pointer;border-radius:var(--r-sm)}button.gh:hover{background:var(--hover)}
+.gh>svg{width:14px;height:14px;transition:transform var(--dur-1)}.grp.open>.gh>svg{transform:rotate(90deg)}
+.grp:not(.open)>.gb{display:none}
+.foldall{margin-left:auto;display:inline-flex;align-items:center;gap:4px;min-height:32px;padding:0 9px;border-radius:999px;border:1px solid var(--line);background:var(--surface-2);color:var(--ink-soft);font-size:11.5px;font-weight:600;letter-spacing:0;text-transform:none;cursor:pointer;position:relative;white-space:nowrap}
+.foldall::before{content:"";position:absolute;inset:-6px -2px}
+.foldall:hover{color:var(--accent);border-color:var(--accent)}.foldall svg{width:14px;height:14px}
+.trow{position:relative;display:flex;align-items:flex-start;gap:2px;min-height:44px;border-radius:var(--r-sm);padding:2px 2px 2px 0}
+.trow:hover{background:var(--hover)}.trow.cur{background:var(--accent-soft)}
+.trow .tw{width:28px;height:40px;display:grid;place-items:center;border:0;background:none;color:var(--muted);cursor:pointer;flex:none;border-radius:var(--r-xs);position:relative}
+.trow .tw::before{content:"";position:absolute;inset:-2px -8px}
+.trow .tw svg{width:16px;height:16px;transition:transform var(--dur-1)}.trow .tw.o svg{transform:rotate(90deg)}
+.trow .tt{flex:1;min-width:0;border:0;background:none;text-align:left;cursor:pointer;padding:12px 2px 10px;min-height:44px;font-size:14px;line-height:1.3;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden;color:var(--ink)}
+.trow .ex{display:flex;align-items:center;gap:2px;padding-top:4px;flex:none}
+.trow .ib{width:32px;height:32px}.trow .ib svg{width:17px;height:17px}.trow .ib::before{content:"";position:absolute;inset:-6px}
+.trow .acts{display:none}.trow:hover .acts,.trow:focus-within .acts{display:flex}
+.trow .grip{cursor:grab;touch-action:none}
+.trow.lift,.pth.lift{opacity:.55;outline:2px dashed var(--accent)}
+.dB::before,.dA::after{content:"";position:absolute;left:8px;right:8px;height:3px;border-radius:3px;background:var(--accent);z-index:2}
+.dB::before{top:-4px}.dA::after{bottom:-4px}
+.trow.dI{outline:2px solid var(--accent);outline-offset:-2px}
+.tkids{padding-left:10px;border-left:1px solid var(--line);margin-left:14px}
+.nbdot{width:22px;height:29px;border-radius:3px 6px 6px 3px;flex:none;margin:7px 4px 0 0;overflow:hidden;position:relative}
+.nbdot .cover{position:absolute;inset:0;border-radius:0;box-shadow:none;aspect-ratio:auto;height:100%}.nbdot .cover::after{width:3px}.nbdot .cover .lab,.nbdot .cover .lk,.nbdot .cover .pv{display:none}
+/* left panel: pages / outline / resources */
+.pth{position:relative;display:flex;gap:0;align-items:stretch;width:100%;margin-bottom:6px;border-radius:var(--r-md);border:1px solid var(--line);background:var(--surface-0);text-align:left;cursor:pointer;padding:0;min-height:64px;-webkit-user-select:none;user-select:none;color:var(--ink)}
+.pth:hover{background:var(--hover)}
+.pth.cur{border-color:var(--accent);background:var(--accent-soft);box-shadow:0 0 0 1px var(--accent)}
+.pth .gp{width:30px;display:grid;place-items:center;color:var(--muted);cursor:grab;flex:none;touch-action:none;border-radius:var(--r-md) 0 0 var(--r-md)}.pth .gp svg{width:16px;height:16px}
+.pth .bd{flex:1;min-width:0;padding:8px 26px 8px 0}
+.pth b{display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden;font-size:13.5px;line-height:1.3}
+.pth .pv{font-size:11.5px;color:var(--muted);line-height:1.4;display:-webkit-box;-webkit-line-clamp:3;-webkit-box-orient:vertical;overflow:hidden;margin-top:2px}
+.pth .no{position:absolute;right:8px;top:7px;font-size:10.5px;font-weight:700;color:var(--muted)}
+.pth.cur .no{color:var(--accent)}
+.ol{display:flex;align-items:flex-start;gap:0;min-height:40px;border-radius:var(--r-sm);position:relative}.ol:hover{background:var(--hover)}
+.ol button.t{flex:1;min-width:0;text-align:left;background:none;border:0;padding:10px 4px;cursor:pointer;line-height:1.3;font-size:13px;color:var(--ink)}
+.ol .fo{width:28px;height:40px;border:0;background:none;color:var(--muted);cursor:pointer;flex:none;display:grid;place-items:center}
+.ol .fo svg{width:14px;height:14px;transition:transform var(--dur-1)}.ol .fo.o svg{transform:rotate(90deg)}
+.ol .nofo{width:28px;flex:none}
+.ol.pg button.t{font-weight:700;font-size:13.5px}
+.ol.h1 .t{font-weight:600}.ol.h3 .t{color:var(--ink-soft)}
+.ol.cur{background:var(--accent-soft)}.ol.cur .t{color:var(--accent);font-weight:700}
+.ol.cur::before{content:"";position:absolute;left:0;top:6px;bottom:6px;width:3px;border-radius:3px;background:var(--accent)}
+.ol.curpg .t{color:var(--accent)}
+.chips{display:flex;gap:6px;padding:4px 0}
+.chipf{flex:none;min-height:36px;padding:0 12px;border-radius:999px;border:1px solid var(--line);background:var(--surface-0);font-size:12.5px;font-weight:600;color:var(--ink-soft);cursor:pointer;display:inline-flex;align-items:center;gap:5px;position:relative}
+.chipf::before{content:"";position:absolute;inset:-4px 0}
+.chipf.on{background:var(--accent-soft);color:var(--accent);border-color:transparent}.chipf svg{width:14px;height:14px}
+.res{display:flex;gap:8px;align-items:center;padding:6px;border-radius:var(--r-md);border:1px solid var(--line);background:var(--surface-0);margin-bottom:6px;min-height:56px}
+.res .th{width:40px;height:40px;border-radius:var(--r-sm);display:grid;place-items:center;flex:none;background:var(--accent-soft);color:var(--accent);overflow:hidden}
+.res .th img{width:100%;height:100%;object-fit:cover}
+.res .bd{flex:1;min-width:0}.res b{font-size:13px;line-height:1.3;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden}.res .mini{display:block;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.res .ib{width:36px;height:36px}.res .ib svg{width:17px;height:17px}.res .ib::before{content:"";position:absolute;inset:-4px -1px}
+.addf{border:1px solid var(--accent);border-radius:var(--r-md);padding:10px;margin-bottom:8px;background:var(--surface-0);display:grid;gap:8px}
+.addf textarea{min-height:72px;padding:10px 12px;resize:vertical}
+.drop{border:2px dashed var(--line-strong);border-radius:var(--r-md);padding:14px 8px;text-align:center;color:var(--muted);font-size:12.5px;cursor:pointer;background:none;width:100%}
+.drop:hover{border-color:var(--accent);color:var(--accent)}
+/* notebook screen */
+.tabsx{display:flex;align-items:center;gap:2px}
+.tabsx .tb{background:none;border:0;border-bottom:3px solid transparent;min-height:44px;padding:0 12px;font-weight:600;font-size:14px;color:var(--muted);cursor:pointer;white-space:nowrap;display:flex;align-items:center;gap:6px}
+.tabsx .tb.on{color:var(--accent);border-bottom-color:var(--accent)}
+.pgs.table{display:grid;grid-template-columns:1fr auto auto;gap:6px 14px;align-items:center}
+.pgs .pr{display:flex;align-items:center;gap:10px;min-height:52px;padding:4px 8px;border-radius:var(--r-sm);cursor:pointer;border:0;background:none;text-align:left;width:100%;color:var(--ink)}.pgs .pr:hover{background:var(--hover)}
+.pgs.gallery{display:grid;grid-template-columns:repeat(auto-fill,minmax(150px,1fr));gap:12px}
+.gc{border:1px solid var(--line);background:var(--surface-2);border-radius:var(--r-md);padding:12px;min-height:110px;text-align:left;cursor:pointer;display:block;width:100%;border-top:4px solid var(--cc,var(--line));color:var(--ink)}
+.gc span{display:block;font-size:12px;color:var(--muted);margin-top:4px}
+.board{display:flex;gap:12px;overflow-x:auto;padding-bottom:6px}.board .col{min-width:170px;flex:1;background:var(--surface-0);border-radius:var(--r-md);padding:8px}
+.board .col h4{margin:0 0 6px;font-size:12px;text-transform:uppercase;letter-spacing:.06em;color:var(--muted)}
+.doc{max-width:42em;margin:0 auto}
+.doc h1{font-size:28px;letter-spacing:-.02em;margin:4px 0 6px}
+.doc h2{font-size:21px;margin:26px 0 6px}.doc h3{font-size:17px;margin:20px 0 4px}.doc h4{font-size:15px;margin:16px 0 2px;color:var(--ink-soft)}
+.doc p{color:var(--ink-soft);margin:6px 0}
+.doc [data-h]{transition:box-shadow var(--dur-2)}
+.doc [data-h].here{box-shadow:-12px 0 0 -8px var(--accent)}
+.doc .rsx{display:flex;gap:8px;flex-wrap:wrap;margin:10px 0}
+/* settings sheet */
+.fld{display:flex;align-items:center;gap:10px;min-height:52px;padding:6px 0;border-bottom:1px solid var(--line)}
+.fld:last-child{border-bottom:0}
+.fld .l{flex:1;min-width:0}.fld .l b{display:block;font-size:14px;font-weight:600}.fld .l span{font-size:12.5px;color:var(--muted);display:block;line-height:1.35}
+.fld .inp{max-width:190px}
+.mgh{display:flex;align-items:center;gap:8px;margin:16px 0 6px;font-size:12px;font-weight:700;text-transform:uppercase;letter-spacing:.06em;color:var(--muted)}.mgh::after{content:"";flex:1;border-top:1px solid var(--line)}
+.mgh:first-child{margin-top:0}
+.pickrow{display:flex;gap:6px;padding:2px 2px 4px}
+.ptile{flex:none;display:flex;align-items:center;gap:8px;min-height:48px;padding:4px 12px 4px 6px;border-radius:var(--r-md);border:1.5px solid var(--line);background:var(--surface-0);cursor:pointer;font-size:13px;font-weight:600;color:var(--ink-soft);max-width:170px}
+.ptile span{overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.ptile .cover{width:27px;flex:none;border-radius:2px 5px 5px 2px;box-shadow:none}.ptile .cover::after{width:3px}.ptile .cover .lab,.ptile .cover .lk,.ptile .cover .pv{display:none}
+.ptile .all{width:27px;height:36px;display:grid;place-items:center;color:var(--accent);flex:none}
+.ptile.on{border-color:var(--accent);background:var(--accent-soft);color:var(--ink)}
+.prev{display:flex;gap:14px;align-items:center;padding:12px;border-radius:var(--r-md);background:var(--surface-0);border:1px solid var(--line)}
+.prev .cover{width:96px;flex:none}.prev .cover .lab{font-size:22px;left:14px;top:10px}
+.prev .cover.pg .lab{font-size:10px}.prev .cover.pg .pv{font-size:7.5px;top:40px;left:14px}
+.cvgrid{display:grid;grid-template-columns:repeat(auto-fill,minmax(64px,1fr));gap:8px;margin:8px 0}
+.cvt{border:2px solid transparent;border-radius:var(--r-md);background:none;padding:4px;cursor:pointer;display:flex;flex-direction:column;align-items:center;gap:3px;font-size:11px;color:var(--ink-soft);min-width:0}
+.cvt .cover{width:100%;border-radius:3px 8px 8px 3px;box-shadow:var(--elev-1)}.cvt .cover::after{width:4px}.cvt .cover .lab,.cvt .cover .lk,.cvt .cover .pv{display:none}
+.cvt.on{border-color:var(--accent);color:var(--ink);background:var(--accent-soft)}
+.cvt span{max-width:100%;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.sws{display:flex;gap:10px;flex-wrap:wrap;padding:6px 0}.sws button{width:36px;height:36px;border-radius:50%;border:3px solid var(--surface-1);cursor:pointer;box-shadow:0 0 0 1px var(--line);position:relative}.sws button::before{content:"";position:absolute;inset:-5px}.sws button.on{box-shadow:0 0 0 2px var(--ink)}
+.crop{display:flex;gap:14px;align-items:flex-start;flex-wrap:wrap;margin-top:8px}
+.cropst{position:relative;width:180px;aspect-ratio:3/4;border-radius:6px 14px 14px 6px;overflow:hidden;background:var(--surface-3);flex:none;touch-action:none;cursor:grab;box-shadow:var(--elev-2)}
+.cropst:active{cursor:grabbing}
+.cropst img{position:absolute;inset:0;width:100%;height:100%;object-fit:cover;pointer-events:none;-webkit-user-drag:none}
+.cropst .g3{position:absolute;inset:0;pointer-events:none;background:linear-gradient(to right,transparent calc(33.33% - .5px),rgba(255,255,255,.6) calc(33.33% - .5px) calc(33.33% + .5px),transparent calc(33.33% + .5px) calc(66.66% - .5px),rgba(255,255,255,.6) calc(66.66% - .5px) calc(66.66% + .5px),transparent calc(66.66% + .5px)),linear-gradient(to bottom,transparent calc(33.33% - .5px),rgba(255,255,255,.6) calc(33.33% - .5px) calc(33.33% + .5px),transparent calc(33.33% + .5px) calc(66.66% - .5px),rgba(255,255,255,.6) calc(66.66% - .5px) calc(66.66% + .5px),transparent calc(66.66% + .5px));box-shadow:inset 0 0 0 2px rgba(255,255,255,.8)}
+.cropst .rt{position:absolute;left:8px;bottom:8px;font-size:11px;font-weight:700;background:rgba(0,0,0,.55);color:#fff;padding:2px 8px;border-radius:999px}
+.cropside{flex:1;min-width:150px;display:grid;gap:8px}
+.cropside input[type=range]{width:100%;min-height:44px;accent-color:var(--accent)}
+.ok{color:var(--success)}.wn{color:var(--warn)}
+.ring{position:relative;width:48px;height:48px;border-radius:50%;border:0;background:conic-gradient(var(--accent) calc(var(--p,0)*1%),var(--line) 0);display:grid;place-items:center;cursor:pointer;flex:none;touch-action:none}
+.ring::before{content:"";position:absolute;inset:4px;border-radius:50%;background:var(--surface-1)}.ring svg{position:relative}
+.ring.lk{color:var(--accent)}
+.trashit{display:flex;align-items:center;gap:8px;padding:8px 0;border-bottom:1px solid var(--line);flex-wrap:wrap}
+.trashit .l{flex:1;min-width:140px}.trashit b{display:block;font-size:14px}.trashit span{font-size:12.5px;color:var(--muted)}
+.badge.cov{background:var(--surface-3);color:var(--ink-soft);cursor:help}
+/* ==== round 3: N2-N13 ==== */
+:root{--sh-panel:340px;--sh-side:284px}
+input[type=search]::-webkit-search-cancel-button{display:none}
+.clr{position:relative;display:block;min-width:0}.clr .inp{padding-right:42px}
+.clrx{position:absolute;right:2px;top:50%;transform:translateY(-50%);width:40px;height:40px;border:0;border-radius:50%;background:none;color:var(--muted);display:grid;place-items:center;cursor:pointer}
+.clrx:hover{background:var(--hover);color:var(--ink)}.clrx svg{width:16px;height:16px}
+.clrx[hidden]{display:none}
+.tabtog{display:flex;align-items:center;gap:6px;min-height:40px;padding:0 4px}
+.tabtog .gr{flex:1}
+.tbplus{flex:none}
+.arr{transition:transform var(--dur-1)}
+.arr.dn{transform:rotate(90deg)}.arr.up{transform:rotate(-90deg)}
+#sh-panel .sh-coltabs button{min-height:48px;font-size:13.5px}
+#sh-panel .sh-colscroll,#sh-side .sh-colscroll{padding:8px 10px 14px}
+#sh-panel .seg.sm button{min-height:44px}
+#sh-panel .chipf{min-height:44px;font-size:13px}
+#sh-panel .ol button.t{min-height:44px;padding:12px 6px;font-size:14px}
+#sh-panel .ol .fo{width:40px;height:44px}#sh-panel .ol .nofo{width:40px}
+#sh-panel .res{min-height:64px}
+#sh-panel .sh-colfoot .btn{min-height:44px}
+.trow{min-height:48px}.trow .ib{width:36px;height:36px}.trow .ib::before{inset:-4px}
+.nav,.gh{min-height:48px}
+.pth{min-height:84px;margin-bottom:8px;align-items:center}
+.pth .th{width:48px;height:64px;flex:none;margin:10px 10px 10px 0;border-radius:4px;background:var(--surface-2);border:1px solid var(--line-strong);position:relative;overflow:hidden;box-shadow:var(--elev-1);padding:7px 5px 0}
+.pth .th i{display:block;height:3px;border-radius:2px;background:var(--line-strong);margin-bottom:4px}
+.pth .th i.h{background:var(--ink-soft);height:4px;margin-bottom:6px}
+.pth .th .no{position:absolute;right:4px;bottom:2px;top:auto;font-size:10px}
+.pth.cur .th{border-color:var(--accent)}
+.pth .bd{padding:8px 4px 8px 0}
+.pth .pa{display:flex;flex-direction:column;justify-content:center;flex:none;padding-right:4px}
+.pth .pa .ib{width:36px;height:36px}.pth .pa .ib svg{width:17px;height:17px}
+.pgfind{margin-bottom:8px}
+.pvwrap{width:min(360px,calc(100vw - 32px))}
+.pvstrip{display:flex;gap:8px;overflow-x:auto;padding:6px 4px 8px;scrollbar-width:thin}
+.pvth{flex:none;width:64px;min-height:44px;border:1px solid var(--line);background:var(--surface-0);border-radius:var(--r-sm);padding:6px 5px 4px;cursor:pointer;text-align:left;color:var(--ink);display:block}
+.pvth i{display:block;height:3px;border-radius:2px;background:var(--line-strong);margin-bottom:3px}.pvth i.h{background:var(--ink-soft);height:4px;margin-bottom:5px}
+.pvth span{display:block;font-size:10.5px;margin-top:4px;color:var(--muted);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.pvth.cur{border-color:var(--accent);background:var(--accent-soft)}.pvth.cur span{color:var(--accent);font-weight:700}
+.pvol{max-height:min(50vh,360px);overflow-y:auto;overscroll-behavior:contain}
+.pvol button{display:block;width:100%;text-align:left;border:0;background:none;min-height:44px;padding:0 10px;border-radius:var(--r-sm);cursor:pointer;color:var(--ink);font-size:13.5px}
+.pvol button:hover{background:var(--hover)}.pvol button.cur{background:var(--accent-soft);color:var(--accent);font-weight:700}
+.pvhd{font-size:11px;text-transform:uppercase;letter-spacing:.06em;font-weight:700;color:var(--muted);padding:4px 8px}
+.pickdd{display:flex;align-items:center;gap:10px;padding:2px 0 8px}
+.pickdd .nbdot{margin:0;flex:none}
+.pickdd select{flex:1;min-width:0;min-height:48px;border-radius:var(--r-md);border:1.5px solid var(--accent);background:var(--surface-0);color:var(--ink);font-weight:600;font-size:14px;padding:0 10px}
+.cvhint{display:flex;gap:10px;align-items:flex-start;padding:10px;border-radius:var(--r-md);background:var(--accent-soft);margin-top:8px;font-size:12.5px;color:var(--ink-soft);line-height:1.4}
+.cvhint .fr{flex:none;width:30px;aspect-ratio:3/4;border:2px solid var(--accent);border-radius:3px 6px 6px 3px;display:grid;place-items:center;font-size:9px;font-weight:700;color:var(--accent)}
+.cvgrid{grid-template-columns:repeat(auto-fill,minmax(72px,1fr))}
+.exwrap{display:flex;flex-wrap:wrap;gap:8px;margin:0 0 12px}
+@media (max-width:640px){.toprow h1{font-size:22px}.panelc{padding:12px}.shelf{grid-template-columns:repeat(auto-fill,minmax(120px,1fr));gap:14px 10px}.sh-demo .t{flex-basis:100%}.fld .inp{max-width:150px}}
+</style>
+</head>
+<body>
+<div class="sh-wrap" id="app" data-mode="beg">
+ <div class="sh-demo">
+  <span class="t">Notebooks v2 · on the shared app shell</span>
+  <div class="seg" role="group" aria-label="Mode"><button data-sh-mode="beg">Beginner</button><button data-sh-mode="pro">Professional</button></div>
+  <span class="badge cov" id="covChip">Coverage</span>
+ </div>
+ <div class="sh-shell">
+  <nav class="sh-rail glass" id="sh-rail" aria-label="Spaces"></nav>
+  <aside class="sh-side" id="sh-side" aria-label="Sidebar"></aside>
+  <aside class="sh-panel" id="sh-panel" aria-label="Pages, outline and resources" data-state="hidden"></aside>
+  <div class="sh-main">
+   <header class="sh-top" id="sh-top"></header>
+   <main class="sh-scroll" id="main" tabindex="-1"></main>
+  </div>
+ </div>
+</div>
+<input type="file" id="photoIn" accept="image/*" hidden aria-hidden="true" tabindex="-1">
+<input type="file" id="resIn" hidden aria-hidden="true" tabindex="-1">
+<script>
+/* ==== shell.js · the ONE shared app shell for every mock-up (12 Nov 2026) ====
+   Paste this whole file first in a mock's <script>. See shell-spec.md.
+   Needs in the page:  <nav id="sh-rail">  <header id="sh-top">  (optional: <aside id="sh-side">, <aside id="sh-panel">, .sh-main)
+   Everything else (tab bar, scrim, sheet, dialog, pop, toast, chip dock) is created here. */
+const Shell=(()=>{
+ const $=s=>document.querySelector(s);
+ const esc=s=>String(s==null?'':s).replace(/[&<>"]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]));
+ /* ---- the icon set: 24 grid, 1.6 stroke, round caps (Lucide style). One name = one drawing. ---- */
+ const I={
+  /* rail: kept */
+  home:'<path d="M15 21v-8a1 1 0 0 0-1-1h-4a1 1 0 0 0-1 1v8"/><path d="M3 10a2 2 0 0 1 .709-1.528l7-5.999a2 2 0 0 1 2.582 0l7 5.999A2 2 0 0 1 21 10v9a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/>',
+  sun:'<circle cx="12" cy="12" r="4"/><path d="M12 2v2M12 20v2M4.93 4.93l1.41 1.41M17.66 17.66l1.41 1.41M2 12h2M20 12h2M6.34 17.66l-1.41 1.41M19.07 4.93l-1.41 1.41"/>',
+  moon:'<path d="M20.985 12.486a9 9 0 1 1-9.473-9.472c.405-.022.617.46.402.803a6 6 0 0 0 8.268 8.268c.344-.215.825-.004.803.401"/>',
+  gear:'<path d="M9.671 4.136a2.34 2.34 0 0 1 4.659 0 2.34 2.34 0 0 0 3.319 1.915 2.34 2.34 0 0 1 2.33 4.033 2.34 2.34 0 0 0 0 3.831 2.34 2.34 0 0 1-2.33 4.033 2.34 2.34 0 0 0-3.319 1.915 2.34 2.34 0 0 1-4.659 0 2.34 2.34 0 0 0-3.32-1.915 2.34 2.34 0 0 1-2.33-4.033 2.34 2.34 0 0 0 0-3.831A2.34 2.34 0 0 1 6.35 6.051a2.34 2.34 0 0 0 3.319-1.915"/><circle cx="12" cy="12" r="3"/>',
+  /* rail: redesigned (U2). A = the pick, B = the alternative. */
+  libraryA:'<path d="M3 20.5h18"/><rect x="4" y="5" width="4" height="12.5" rx="1"/><rect x="8" y="8" width="4" height="9.5" rx="1"/><path d="m13.6 7.4 3.5-1 3 10.2-3.5 1z"/>',
+  libraryB:'<path d="M12 7v14"/><path d="M3 18a1 1 0 0 1-1-1V4a1 1 0 0 1 1-1h5a4 4 0 0 1 4 4 4 4 0 0 1 4-4h5a1 1 0 0 1 1 1v13a1 1 0 0 1-1 1h-6a3 3 0 0 0-3 3 3 3 0 0 0-3-3z"/>',
+  notebooksA:'<path d="M12.5 21H7a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h10a2 2 0 0 1 2 2v5.5"/><path d="M3 7.5h4M3 12h4M3 16.5h4"/><path d="m14.3 20.7.6-2.7 4.8-4.8a1.45 1.45 0 0 1 2.05 2.05L17 20.1z"/>',
+  notebooksB:'<rect x="5" y="3" width="15" height="18" rx="2"/><path d="M3 7.5h4M3 12h4M3 16.5h4"/><path d="M11 8h5M11 12h5M11 16h3"/>',
+  reviewA:'<rect x="3" y="7.5" width="14.5" height="13" rx="2"/><path d="M7 4h12a2 2 0 0 1 2 2v10.5"/><path d="m7 14.2 2.4 2.4 4.4-5"/>',
+  reviewB:'<path d="M20.5 11A8.5 8.5 0 0 0 5.6 6.4L3.5 8.5"/><path d="M3.5 3.5v5h5"/><path d="M3.5 13a8.5 8.5 0 0 0 14.9 4.6l2.1-2.1"/><path d="M20.5 20.5v-5h-5"/><rect x="9" y="9.5" width="6" height="5" rx="1"/>',
+  /* top bar + chrome */
+  sidebar:'<rect x="3" y="4" width="18" height="16" rx="2"/><path d="M9 4v16"/>',
+  panel:'<rect x="3" y="4" width="5" height="4" rx="1"/><rect x="3" y="10" width="5" height="4" rx="1"/><rect x="3" y="16" width="5" height="4" rx="1"/><path d="M12 6h9M12 12h9M12 18h6"/>',
+  back:'<path d="m15 18-6-6 6-6"/>',fwd:'<path d="m9 18 6-6-6-6"/>',chev:'<path d="m9 18 6-6-6-6"/>',chevL:'<path d="m15 18-6-6 6-6"/>',
+  up:'<path d="m18 15-6-6-6 6"/>',down:'<path d="m6 9 6 6 6-6"/>',
+  search:'<path d="m21 21-4.34-4.34"/><circle cx="11" cy="11" r="8"/>',
+  sliders:'<path d="M10 5H3"/><path d="M12 19H3"/><path d="M14 3v4"/><path d="M16 17v4"/><path d="M21 12h-9"/><path d="M21 19h-5"/><path d="M21 5h-7"/><path d="M8 10v4"/><path d="M8 12H3"/>',
+  minim:'<path d="M5 12h9"/><path d="m10 8 4 4-4 4"/><path d="M19 5v14"/>',
+  x:'<path d="M18 6 6 18"/><path d="m6 6 12 12"/>',check:'<path d="M20 6 9 17l-5-5"/>',plus:'<path d="M5 12h14"/><path d="M12 5v14"/>',
+  dots:'<circle cx="5" cy="12" r="1"/><circle cx="12" cy="12" r="1"/><circle cx="19" cy="12" r="1"/>',
+  grip:'<circle cx="9" cy="6" r="1"/><circle cx="15" cy="6" r="1"/><circle cx="9" cy="12" r="1"/><circle cx="15" cy="12" r="1"/><circle cx="9" cy="18" r="1"/><circle cx="15" cy="18" r="1"/>',
+  undo:'<path d="M9 14 4 9l5-5"/><path d="M4 9h10.5a5.5 5.5 0 0 1 0 11H11"/>',redo:'<path d="m15 14 5-5-5-5"/><path d="M20 9H9.5a5.5 5.5 0 0 0 0 11H13"/>',
+  save:'<path d="M12 3v12"/><path d="m7 10 5 5 5-5"/><path d="M5 21h14"/>',trash:'<path d="M3 6h18"/><path d="M8 6V4h8v2"/><path d="m6 6 1 14h10l1-14"/><path d="M10 11v5M14 11v5"/>',
+  device:'<rect x="5" y="2" width="14" height="20" rx="2"/><path d="M11 18h2"/>',help:'<circle cx="12" cy="12" r="9"/><path d="M9.2 9a3 3 0 0 1 5.6 1c0 2-3 2.3-3 4"/><path d="M12 17h.01"/>',
+  lock:'<rect x="4" y="11" width="16" height="10" rx="2"/><path d="M8 11V7a4 4 0 0 1 8 0v4"/>',star:'<path d="m12 2 3.1 6.3 6.9 1-5 4.9 1.2 6.8L12 17.8 5.8 21l1.2-6.8-5-4.9 6.9-1z"/>'
+ };
+ const warned=new Set();
+ const ic=(n,cls)=>{if(!I[n]){if(!warned.has(n)){warned.add(n);console.warn('[shell] missing icon "'+n+'"')}n='help'}return'<svg viewBox="0 0 24 24"'+(cls?' class="'+cls+'"':'')+' aria-hidden="true">'+I[n]+'</svg>'};
+ /* ---- persisted shell state (one key for every mock) ---- */
+ const KEY='ln-shell-v1';
+ let st={theme:null,mode:'beg',min:{},hpos:{},tabs:{},minUsed:false};
+ try{Object.assign(st,JSON.parse(localStorage.getItem(KEY)||'{}'))}catch(_){}st.hpos=st.hpos||{};st.tabs=st.tabs||{};st.custom=st.custom||{};
+ const save=()=>{try{localStorage.setItem(KEY,JSON.stringify(st))}catch(_){}};
+ /* ---- spaces: the ONE order ---- */
+ const SPACES=[['home','Home'],['library','Library'],['notebooks','Notebooks'],['review','Review']];
+ /* owner-chosen rail icons: Library A, Notebooks B, Review B (everything else A). A page may override with Shell.rail({icons:{library:'B'}}). */
+ const ICONSET={library:'A',notebooks:'B',review:'B'};
+ const spaceIcon=k=>k==='home'?'home':k+((cfg.icons&&cfg.icons[k])||ICONSET[k]||'A');
+ let cfg={space:'notebooks',due:0,hidden:[],onSpace:null,onCorner:null,corner:null,onChange:null};
+ const el=(tag,id,cls,attrs)=>{let n=document.getElementById(id);if(!n){n=document.createElement(tag);n.id=id;if(cls)n.className=cls;document.body.appendChild(n)}if(attrs)for(const k in attrs)n.setAttribute(k,attrs[k]);return n};
+ /* ---- theme ---- */
+ const themeName=()=>{const t=document.documentElement.dataset.theme;return t==='light'?'Day':t==='sepia'?'Sepia':t==='dark'?'Night':(matchMedia('(prefers-color-scheme: light)').matches?'Day':'Night')};
+ function setTheme(n){document.documentElement.dataset.theme=n==='Day'?'light':n==='Sepia'?'sepia':'dark';st.theme=n;save();renderRail();if(cfg.onChange)cfg.onChange('theme',n)}
+ /* ---- mode: 'beg' | 'pro' (the only two spellings) ---- */
+ function setMode(m){st.mode=m==='pro'?'pro':'beg';save();const a=$('.sh-wrap');if(a)a.dataset.mode=st.mode;document.querySelectorAll('[data-sh-mode]').forEach(b=>b.classList.toggle('on',b.dataset.shMode===st.mode));if(cfg.onChange)cfg.onChange('mode',st.mode)}
+ /* ---- rail + phone tab bar ---- */
+ function railBtn(k,n,phone){const on=cfg.space===k;return'<button type="button" class="ib'+(on?' on':'')+'" data-sh-space="'+k+'" aria-label="'+n+'" title="'+n+'"'+(on?' aria-current="page"':'')+'>'+ic(spaceIcon(k))+(phone?'<span class="lbl">'+n+'</span>':'')+(k==='review'&&cfg.due?'<span class="bd">'+cfg.due+'</span>':'')+'</button>'}
+ function renderRail(){const vis=SPACES.filter(s=>s[0]==='notebooks'||!cfg.hidden.includes(s[0]));const night=themeName()==='Night';
+  const r=$('#sh-rail');if(r)r.innerHTML='<div class="mk" aria-hidden="true">L</div>'+vis.map(s=>railBtn(s[0],s[1])).join('')+'<span class="grow"></span><button type="button" class="ib" data-sh-theme aria-label="Switch to '+(night?'Day':'Night')+'" title="Day / Night">'+ic(night?'sun':'moon')+'</button><button type="button" class="ib" data-sh-corner aria-label="Settings and more" title="Settings and more" aria-haspopup="menu">'+ic('gear')+'</button>';
+  const t=el('nav','sh-tabbar','sh-tabbar glass',{'aria-label':'Spaces'});t.innerHTML=vis.map(s=>railBtn(s[0],s[1],true)).join('')+'<button type="button" class="ib" data-sh-corner aria-label="Settings and more" aria-haspopup="menu">'+ic('gear')+'<span class="lbl">More</span></button>'}
+ /* ---- top bar ---- */
+ let top={crumbs:[],saved:'',actions:'',side:false,panel:false,nav:true};
+ function renderTop(o){Object.assign(top,o||{});const t=$('#sh-top');if(!t)return;const c=top.crumbs;
+  t.innerHTML=(top.side?'<button type="button" class="ib" data-sh-toggle="side" aria-label="Show or hide the sidebar" title="Sidebar">'+ic('sidebar')+'</button>':'')+
+   (top.panel?'<button type="button" class="ib" data-sh-toggle="panel" aria-label="Show or hide the page panel" title="Pages · Outline · Resources">'+ic('panel')+'</button>':'')+
+   (top.nav?'<button type="button" class="ib sm" data-sh-nav="back" aria-label="Back">'+ic('back')+'</button><button type="button" class="ib sm" data-sh-nav="fwd" aria-label="Forward">'+ic('fwd')+'</button>':'')+
+   '<nav class="sh-crumbs" aria-label="Where you are">'+c.map((x,i)=>i<c.length-1?'<button type="button" data-sh-crumb="'+i+'">'+esc(x)+'</button>'+ic('chev'):'<b>'+esc(x)+'</b>').join('')+'</nav>'+
+   (top.saved?'<span class="sh-saved">'+esc(top.saved)+'</span>':'')+
+   '<button type="button" class="ib" data-sh-search aria-label="Search (Ctrl K)" title="Search (Ctrl K)">'+ic('search')+'</button>'+(top.actions||'')}
+ /* ---- side columns: 'dock' | 'over' | 'hidden' ---- */
+ function col(which,state){const n=$('#sh-'+which);if(!n)return null;if(state){n.dataset.state=state;syncScrim()}return n.dataset.state||'dock'}
+ const isPhone=()=>innerWidth<=640;
+ function toggleCol(which){const s=col(which);if(isPhone()||s==='over'){col(which,s==='over'?'hidden':'over');return}col(which,s==='dock'?'hidden':'dock')}
+ function syncScrim(){const any=['side','panel'].some(w=>{const n=$('#sh-'+w);return n&&n.dataset.state==='over'});const hi=sheetOn||dialogOn;const s=el('div','sh-scrim','sh-scrim');s.classList.toggle('on',any||hi);s.classList.toggle('hi',hi)}
+ /* ---- toast: one at a time, pill, bottom centre; Undo keeps it 6 s ---- */
+ let tT=null,tUndo=null;
+ function toast(msg,undo){const t=el('div','sh-toast','sh-toast',{role:'status','aria-live':'polite'});clearTimeout(tT);tUndo=undo||null;t.innerHTML='<span>'+esc(msg)+'</span>'+(undo?'<button type="button" data-sh-undo>Undo</button>':'');t.classList.toggle('on',true);tT=setTimeout(()=>t.classList.remove('on'),undo?6000:2600)}
+ /* ---- pop menu, anchored to a button ---- */
+ function pop(anchor,html){const p=el('div','sh-pop','sh-pop',{role:'menu'});p.innerHTML=html;p.hidden=false;const r=anchor.getBoundingClientRect(),w=p.offsetWidth,h=p.offsetHeight;p.style.left=Math.max(8,Math.min(innerWidth-w-8,r.right-w))+'px';p.style.top=Math.max(8,Math.min(innerHeight-h-8,r.bottom+4))+'px';p._a=anchor;return p}
+ function closePop(){const p=$('#sh-pop');if(p)p.hidden=true}
+ /* ---- the More sheet: fixed place, full height, header + picker + tabs stay put, only the body scrolls ---- */
+ let sheetOn=false,sh=null;
+ function sheetOpen(o){sh=Object.assign({title:'More',sub:'',picker:null,tabs:[],tab:null,body:()=>'',hint:'Changes apply when you tap ✓',onClose:null},o);if(!sh.tab&&sh.tabs.length)sh.tab=sh.tabs[0][0];sheetOn=true;sheetDraw(true);el('div','sh-sheet','sh-sheet').classList.add('on');syncScrim()}
+ function sheetDraw(full){const s=el('div','sh-sheet','sh-sheet',{role:'dialog','aria-modal':'true','aria-label':sh.title});const tabs=typeof sh.tabs==='function'?sh.tabs():sh.tabs;if(!tabs.some(t=>t[0]===sh.tab))sh.tab=tabs[0]?tabs[0][0]:null;
+  if(full||!s.querySelector('.sh-sbody')){s.innerHTML='<div class="sh-shd"><span class="ib on" style="cursor:default" aria-hidden="true">'+ic('sliders')+'</span><div class="gr"><h3></h3><p></p></div><button type="button" class="ib" data-sh-sheet="cancel" aria-label="Close without saving">'+ic('x')+'</button></div><div class="sh-spick"></div><div class="sh-stabs"><div class="utabs scrollx" role="tablist"></div><div class="track"><i></i></div></div><div class="sh-sbody" tabindex="-1"></div><div class="sh-sft"><span class="gr"></span><button type="button" class="btn" data-sh-sheet="cancel">Cancel</button><button type="button" class="btn pri" data-sh-sheet="apply">'+ic('check')+'Done</button></div>'}
+  s.querySelector('h3').textContent=sh.title;s.querySelector('.sh-shd p').textContent=typeof sh.sub==='function'?sh.sub():sh.sub;s.querySelector('.sh-sft .gr').textContent=sh.hint;
+  const pk=s.querySelector('.sh-spick');const keepX=pk.firstElementChild?pk.firstElementChild.scrollLeft:0;pk.innerHTML=sh.picker?sh.picker():'';pk.hidden=!sh.picker;if(pk.firstElementChild)pk.firstElementChild.scrollLeft=keepX;
+  const tb=s.querySelector('.utabs');const tx=tb.scrollLeft;tb.innerHTML=tabs.map(t=>'<button type="button" role="tab" aria-selected="'+(t[0]===sh.tab)+'" data-sh-tab="'+t[0]+'" class="'+(t[0]===sh.tab?'on':'')+'">'+esc(t[1])+'</button>').join('');tb.scrollLeft=tx;track(tb,s.querySelector('.sh-stabs .track'));
+  const b=s.querySelector('.sh-sbody');const y=full?0:b.scrollTop;b.innerHTML=sh.body(sh.tab);b.scrollTop=y;if(sh.after)sh.after()}
+ function sheetClose(commit){if(!sheetOn)return;sheetOn=false;const s=$('#sh-sheet');if(s)s.classList.remove('on');syncScrim();const f=sh&&sh.onClose;if(f)f(!!commit)}
+ /* ---- small dialogs (ask a name, confirm): centred, content-sized ---- */
+ let dialogOn=false;
+ function dialog(html,wire){const d=el('div','sh-dialog','sh-dialog',{role:'dialog','aria-modal':'true'});d.innerHTML=html+'<button type="button" class="ib sh-dx" data-sh-dx aria-label="Close" title="Close">'+ic('x')+'</button>';d.classList.add('on');dialogOn=true;syncScrim();if(wire)wire(d)}
+ function dialogClose(){const was=dialogOn;const d=$('#sh-dialog');if(d)d.classList.remove('on');dialogOn=false;syncScrim();if(was)document.dispatchEvent(new Event('sh-dialog-closed'))}
+ function ask(title,val,cb){dialog('<h3>'+esc(title)+'</h3><input class="inp" id="sh-ask" value="'+esc(val)+'" aria-label="'+esc(title)+'"><div class="ft"><button type="button" class="btn" data-x>Cancel</button><button type="button" class="btn pri" data-ok>Done</button></div>',d=>{const i=d.querySelector('#sh-ask');i.focus();i.select();const ok=()=>{const v=i.value.trim();dialogClose();cb(v)};d.querySelector('[data-ok]').onclick=ok;d.querySelector('[data-x]').onclick=dialogClose;i.onkeydown=e=>{if(e.key==='Enter')ok()}})}
+ function confirmBox(msg,okLabel,cb,note){dialog('<h3>'+esc(msg)+'</h3><p class="mini" style="margin:0">'+esc(note||'You can undo this.')+'</p><div class="ft"><button type="button" class="btn" data-x>Cancel</button><button type="button" class="btn dng" data-ok>'+esc(okLabel)+'</button></div>',d=>{d.querySelector('[data-x]').onclick=dialogClose;d.querySelector('[data-ok]').onclick=()=>{dialogClose();cb()}})}
+ /* ---- floating bars + minimise chips ---- */
+ const bars={};
+ function bar(key,o){bars[key]=Object.assign({label:key,icon:'sliders',html:'',show:true},o);drawBars()}
+ function drawBars(){const host=$('.sh-main')||document.body;const dock=el('div','sh-mdock','sh-mdock');
+  for(const k in bars){const b=bars[k];let n=document.getElementById('sh-fbar-'+k);if(!n){n=document.createElement('div');n.id='sh-fbar-'+k;n.className='sh-fbar glass';n.setAttribute('role','toolbar');host.appendChild(n)}
+   n.setAttribute('aria-label',b.label);const min=!!st.min[k];n.hidden=!b.show||min;n.innerHTML=b.html+'<span class="sep"></span><button type="button" class="ib minb" data-sh-min="'+k+'" aria-label="Minimise '+esc(b.label)+'" title="Minimise to the edge">'+ic('minim')+'</button>';
+   handle('bar-'+k,b.show&&min?{icon:b.icon,label:b.label,onTap:()=>{st.min[k]=false;save();drawBars()}}:null)}
+  dock.innerHTML='';document.documentElement.style.setProperty('--sh-bar',Object.keys(bars).some(k=>bars[k].show&&!st.min[k])?'60px':'0px')}
+ /* ---- thin scroll track under any sideways row ---- */
+ function track(sc,tr){if(!sc||!tr)return;const i=tr.querySelector('i');const up=()=>{const r=sc.clientWidth/Math.max(1,sc.scrollWidth);tr.classList.toggle('off',r>=.999);i.style.width=r*100+'%';i.style.left=(sc.scrollLeft/Math.max(1,sc.scrollWidth)*100)+'%'};sc.onscroll=up;up()}
+ /* ---- minimise button: pulse gently every few minutes until it has been used once ---- */
+ let pulseT=null;
+ function pulse(){document.querySelectorAll('.minb').forEach(b=>{b.classList.remove('pulse');void b.offsetWidth;b.classList.add('pulse')})}
+ function minUsed(){if(st.minUsed)return;st.minUsed=true;save();clearInterval(pulseT);document.querySelectorAll('.minb.pulse').forEach(b=>b.classList.remove('pulse'))}
+ function startPulse(){if(st.minUsed)return;setTimeout(()=>{if(!st.minUsed)pulse()},45000);pulseT=setInterval(()=>{if(!st.minUsed)pulse()},180000)}
+ /* ---- edge handle: a minimised bar shown as a small handle on the left/right edge; drag anywhere, tap restores ---- */
+ const clampY=y=>Math.max(64,Math.min(innerHeight-80,y));
+ function placeHandle(h,key){const p=st.hpos[key]||{side:'r',y:Math.round(innerHeight*.35)+64*Math.max(0,[...document.querySelectorAll('.sh-handle')].indexOf(h))};h.dataset.side=p.side;h.style.top=clampY(p.y)+'px';h.style.left=p.side==='l'?'0px':'auto';h.style.right=p.side==='r'?'0px':'auto'}
+ function handle(key,o){let h=document.getElementById('sh-h-'+key);
+  if(!o){if(h)h.remove();return}
+  if(!h){h=document.createElement('button');h.type='button';h.id='sh-h-'+key;h.className='sh-handle';document.body.appendChild(h);let d=null;
+   h.addEventListener('pointerdown',e=>{if(e.button)return;try{h.setPointerCapture(e.pointerId)}catch(_){}const r=h.getBoundingClientRect();d={id:e.pointerId,ox:e.clientX-r.left,oy:e.clientY-r.top,sx:e.clientX,sy:e.clientY,moved:false}});
+   h.addEventListener('pointermove',e=>{if(!d||e.pointerId!==d.id)return;if(!d.moved&&Math.hypot(e.clientX-d.sx,e.clientY-d.sy)<6)return;d.moved=true;h.classList.add('drag');h.style.right='auto';h.style.left=(e.clientX-d.ox)+'px';h.style.top=(e.clientY-d.oy)+'px'});
+   const end=e=>{if(!d||e.pointerId!==d.id)return;const m=d.moved;d=null;h.classList.remove('drag');
+    if(m){const r=h.getBoundingClientRect();st.hpos[key]={side:r.left+r.width/2<innerWidth/2?'l':'r',y:Math.round(clampY(r.top))};save();h.dataset.side=st.hpos[key].side;placeHandle(h,key);return}
+    if(e.type==='pointerup'&&h._o&&h._o.onTap)h._o.onTap()};
+   h.addEventListener('pointerup',end);h.addEventListener('pointercancel',end);
+   h.addEventListener('keydown',e=>{if(e.key==='Enter'||e.key===' '){e.preventDefault();if(h._o&&h._o.onTap)h._o.onTap()}})}
+  h._o=o;h.innerHTML=ic(o.icon||'sliders');h.setAttribute('aria-label','Show '+o.label+' (drag to move)');h.title='Show '+o.label+' · drag to move';placeHandle(h,key)}
+ addEventListener('resize',()=>document.querySelectorAll('.sh-handle').forEach(h=>placeHandle(h,h.id.slice(5))));
+ /* ---- tabs: ONE customisable tab row for every space (+ add, edit, remove, reorder) ----
+    Shell.tabs(key,{host:'#ptabs',catalog:[{id,label,icon?,pro?}],defaults:[ids],cur:()=>id,onPick:id=>{},onChange:()=>{},utabs:true (underline style for a stand-alone row)}) -> {draw,list,add,remove,reset,move,rename} */
+ const tabSets={};
+ function tabs(key,o){const T=tabSets[key]=Object.assign({key,catalog:[],defaults:[]},o);
+  const cus=()=>(st.custom[key]||[]);
+  const cat=id=>{const c=T.catalog.find(c=>c.id===id);if(c)return c;const u=cus().find(c=>c.id===id);return u?Object.assign({custom:true,icon:'star'},u):null};
+  const ok=id=>{const c=cat(id);return c&&!(c.pro&&st.mode!=='pro')};
+  const raw=()=>{let l=st.tabs[key];if(!Array.isArray(l)||!l.length)l=T.defaults.map(id=>({id}));return l.filter(x=>cat(x.id))};
+  T.list=()=>raw().filter(x=>ok(x.id)).map(x=>({id:x.id,label:x.label||cat(x.id).label,icon:cat(x.id).icon,custom:!!cat(x.id).custom,src:cat(x.id).src}));
+  const put=l=>{st.tabs[key]=l;save()};
+  T.add=id=>{const l=raw();if(!l.some(x=>x.id===id)){l.push({id});put(l)}T.draw();if(T.onChange)T.onChange('add',id)};
+  T.remove=id=>{const l=raw();if(T.list().length<=1)return false;put(l.filter(x=>x.id!==id));if(cus().some(c=>c.id===id)){st.custom[key]=cus().filter(c=>c.id!==id);save()}T.draw();if(T.onChange)T.onChange('remove',id);return true};
+  T.reset=()=>{delete st.tabs[key];delete st.custom[key];save();T.draw();if(T.onChange)T.onChange('reset')};
+  T.rename=(id,label)=>{const l=raw();const x=l.find(y=>y.id===id);const cu=cus().find(y=>y.id===id);if(cu){const v=String(label||'').trim().slice(0,24);if(v){cu.label=v;save();T.draw();if(T.onChange)T.onChange('rename',id)}return}if(x){const v=String(label||'').trim().slice(0,24);if(v&&v!==cat(id).label)x.label=v;else delete x.label;put(l);T.draw()}};
+  /* Create your own tab: Shell.tabs(key,{sources:()=>[{kind:'filter',title:'Saved filters',items:[{id,label}]},...], onCustom:tab=>{}}). A custom tab points at ONE source 'kind:id'. */
+  T.srcList=()=>typeof T.sources==='function'?T.sources().filter(g=>g.items&&g.items.length):[];
+  T.addCustom=(label,src)=>{label=String(label||'').trim().slice(0,24);if(!label||!src)return null;const id='cu'+Date.now().toString(36)+Math.floor(Math.random()*1e3);(st.custom[key]=cus()).push({id,label,src});const l=raw();l.push({id});put(l);T.draw();if(T.onChange)T.onChange('add',id);return id};
+  T.setSrc=(id,src)=>{const c=cus().find(x=>x.id===id);if(c){c.src=src;save();if(T.onChange)T.onChange('src',id)}};
+  T.move=ids=>{const l=raw();const by=Object.fromEntries(l.map(x=>[x.id,x]));const vis=ids.map(i=>by[i]).filter(Boolean);const hid=l.filter(x=>!ids.includes(x.id));put(vis.concat(hid));T.draw();if(T.onChange)T.onChange('move')};
+  T.draw=()=>{const h=typeof T.host==='string'?$(T.host):T.host;if(!h)return;const cur=T.cur?T.cur():null;const old=h.querySelector('.sh-tscroll');const kx=old?old.scrollLeft:0;
+   h.classList.add('sh-tabs');h.dataset.tabkey=key;
+   h.innerHTML='<div class="sh-trow"><div class="sh-tscroll" role="presentation">'+T.list().map(t=>'<button type="button" role="tab" aria-selected="'+(t.id===cur)+'" data-sh-pt="'+t.id+'" class="'+(t.id===cur?'on':'')+'">'+esc(t.label)+'</button>').join('')+'</div><button type="button" class="sh-tplus" data-sh-tplus="'+key+'" aria-label="Add or edit tabs" title="Add or edit tabs" aria-haspopup="menu">'+ic('plus')+'</button></div><div class="track"><i></i></div>';if(T.utabs)h.querySelector('.sh-trow').classList.add('utabs');
+   const sc=h.querySelector('.sh-tscroll');sc.scrollLeft=kx;const on=sc.querySelector('.on');if(on){const l=on.offsetLeft,r=l+on.offsetWidth;if(l<sc.scrollLeft)sc.scrollLeft=l-8;else if(r>sc.scrollLeft+sc.clientWidth)sc.scrollLeft=r-sc.clientWidth+8}track(sc,h.querySelector('.track'))};
+  T.pick=id=>{const c=cat(id);if(c&&c.custom&&T.onCustom)T.onCustom({id,label:c.label,src:c.src});else if(T.onPick)T.onPick(id)};
+  T.menu=btn=>{const have=new Set(T.list().map(t=>t.id));const rest=T.catalog.filter(c=>ok(c.id)&&!have.has(c.id));
+   const p=pop(btn,'<div class="lbl">Add a tab</div>'+(rest.length?rest.map(c=>'<button type="button" class="mi" role="menuitem" data-sh-tadd="'+key+':'+c.id+'">'+ic(c.icon||'plus')+esc(c.label)+(c.desc?'<small>'+esc(c.desc)+'</small>':'')+'</button>').join(''):'<div class="mini" style="padding:6px 10px">All tabs are already here.</div>')+'<hr><button type="button" class="mi" role="menuitem" data-sh-tedit="'+key+'">'+ic('sliders')+'Edit tabs…</button>');p.classList.add('sh-tpop')};
+  const srcOpts=cur=>{const gs=T.srcList();let h=gs.map(g=>'<optgroup label="'+esc(g.title)+'">'+g.items.map(i=>{const v=g.kind+':'+i.id;return'<option value="'+esc(v)+'"'+(v===cur?' selected':'')+'>'+esc(i.label)+'</option>'}).join('')+'</optgroup>').join('');if(cur&&!gs.some(g=>g.items.some(i=>g.kind+':'+i.id===cur)))h='<option value="'+esc(cur)+'" selected>Source missing</option>'+h;return h};
+  T.create=()=>{const gs=T.srcList();dialog('<h3>Create your own tab</h3><p class="mini" style="margin:0 0 8px">Name it, then point it at one thing to show.</p><label class="sh-flab">Name<input class="inp" id="sh-cn" maxlength="24" placeholder="For example, Exam prep" aria-label="Tab name"></label><label class="sh-flab">Shows<select class="inp" id="sh-cs" aria-label="Source">'+srcOpts('')+'</select></label><p class="mini" id="sh-ce" style="color:var(--danger);margin:6px 0 0;min-height:1.2em" role="alert"></p><div class="ft"><button type="button" class="btn" data-cm="back">Back</button><button type="button" class="btn pri" data-cm="ok">'+ic('check')+'Create tab</button></div>',d=>{
+    const n=d.querySelector('#sh-cn'),s=d.querySelector('#sh-cs'),er=d.querySelector('#sh-ce');setTimeout(()=>n.focus(),60);
+    const go=()=>{const nm=n.value.trim();if(!nm){er.textContent='Give the tab a name.';n.focus();return}if(!s.value){er.textContent='Pick what the tab shows.';return}if(T.list().some(t=>t.label.toLowerCase()===nm.toLowerCase())){er.textContent='A tab with this name already exists.';n.focus();return}const id=T.addCustom(nm,s.value);if(id){T.edit();toast('Tab "'+nm+'" added')}};
+    d.addEventListener('click',e=>{const b=e.target.closest('[data-cm]');if(!b)return;if(b.dataset.cm==='back')T.edit();else go()});n.addEventListener('keydown',e=>{if(e.key==='Enter'){e.preventDefault();go()}})})};
+  T.edit=()=>{const rows=()=>T.list().map((t,i,a)=>'<div class="sh-trw" data-id="'+t.id+'"><button type="button" class="ib sm gp" data-gp aria-label="Drag to reorder '+esc(t.label)+'" title="Drag to reorder">'+ic('grip')+'</button><input value="'+esc(t.label)+'" maxlength="24" aria-label="Tab name" data-tn="'+t.id+'"><button type="button" class="ib sm" data-tm="up:'+t.id+'" aria-label="Move up"'+(i?'':' disabled')+'>'+ic('up')+'</button><button type="button" class="ib sm" data-tm="dn:'+t.id+'" aria-label="Move down"'+(i<a.length-1?'':' disabled')+'>'+ic('down')+'</button><button type="button" class="ib sm rm" data-tm="rm:'+t.id+'" aria-label="Remove tab"'+(a.length>1?'':' disabled')+'>'+ic('trash')+'</button>'+(t.custom?'<label class="sh-tsrc"><span>Shows</span><select data-ts="'+t.id+'" aria-label="What '+esc(t.label)+' shows">'+srcOpts(t.src)+'</select></label>':'')+'</div>').join('');
+   dialog('<h3>Edit tabs</h3><p class="mini" style="margin:0 0 6px">Rename, reorder with the handle or arrows, remove. Use + to add more.</p><div class="sh-tedit" id="sh-tedit">'+rows()+'</div>'+(T.srcList().length?'<button type="button" class="btn sh-tcreate" data-tm="create">'+ic('plus')+'Create your own tab</button>':'')+'<div class="ft"><button type="button" class="btn" data-tm="reset">Reset to default</button><button type="button" class="btn pri" data-tm="done">Done</button></div>',d=>{
+    const box=d.querySelector('#sh-tedit');const redo=()=>{box.innerHTML=rows()};
+    d.addEventListener('click',e=>{const b=e.target.closest('[data-tm]');if(!b)return;const [k,id]=b.dataset.tm.split(':');
+     if(k==='done'){dialogClose();return}if(k==='create'){T.create();return}if(k==='reset'){T.reset();redo();return}
+     const ids=T.list().map(t=>t.id),i=ids.indexOf(id);
+     if(k==='up'&&i>0){ids.splice(i-1,0,ids.splice(i,1)[0]);T.move(ids);redo()}
+     else if(k==='dn'&&i<ids.length-1){ids.splice(i+1,0,ids.splice(i,1)[0]);T.move(ids);redo()}
+     else if(k==='rm'){if(T.remove(id))redo()}});
+    box.addEventListener('change',e=>{if(e.target.dataset.tn)T.rename(e.target.dataset.tn,e.target.value);else if(e.target.dataset.ts)T.setSrc(e.target.dataset.ts,e.target.value)});
+    box.addEventListener('keydown',e=>{if(e.key==='Enter'&&e.target.dataset.tn)e.target.blur()});
+    let dr=null;box.addEventListener('pointerdown',e=>{const g=e.target.closest('[data-gp]');if(!g)return;e.preventDefault();const row=g.closest('.sh-trw');dr={row,id:e.pointerId};g.setPointerCapture(e.pointerId);row.classList.add('drag')});
+    box.addEventListener('pointermove',e=>{if(!dr||e.pointerId!==dr.id)return;const sib=[...box.children].filter(r=>r!==dr.row);let before=null;for(const r of sib){const b=r.getBoundingClientRect();if(e.clientY<b.top+b.height/2){before=r;break}}box.insertBefore(dr.row,before)});
+    const end=e=>{if(!dr||e.pointerId!==dr.id)return;dr.row.classList.remove('drag');dr=null;T.move([...box.children].map(r=>r.dataset.id));redo()};
+    box.addEventListener('pointerup',end);box.addEventListener('pointercancel',end)})};
+  T.draw();return T}
+ /* ---- history: ONE Undo / Redo for every mock (buttons, Ctrl Z / Ctrl Y / Ctrl Shift Z, enabled state) ----
+    const H=Shell.history({undo:fn,redo:fn,can:()=>[canUndo,canRedo]});  H.html() -> the two top-bar icon buttons;  H.sync() after every change.
+    Own buttons already in the page: pass els:()=>({undo:el,redo:el}), click:false (page wires the click), keys:false, disCls:'dis'. */
+ function history(o){const H=Object.assign({keys:true,click:true,disCls:''},o);
+  const els=()=>H.els?H.els():{undo:document.querySelector('[data-sh-hist=undo]'),redo:document.querySelector('[data-sh-hist=redo]')};
+  H.html=()=>{const c=H.can();return['undo','redo'].map((k,i)=>{const l=k==='undo'?'Undo':'Redo',key=k==='undo'?'Ctrl Z':'Ctrl Y';return'<button type="button" class="ib" data-sh-hist="'+k+'" aria-label="'+l+' ('+key+')" title="'+l+' ('+key+')"'+(c[i]?'':' disabled')+'>'+ic(k)+'</button>'}).join('')};
+  H.sync=()=>{const c=H.can(),e=els();['undo','redo'].forEach((k,i)=>{const b=e[k];if(!b)return;const d=!c[i];if(b.classList.contains('ib'))b.disabled=d;b.setAttribute('aria-disabled',d);if(H.disCls)b.classList.toggle(H.disCls,d)})};
+  hists.push(H);return H}
+ const hists=[];
+ document.addEventListener('keydown',e=>{if(!(e.ctrlKey||e.metaKey)||e.altKey)return;const k=e.key.toLowerCase(),t=e.target;
+  if(t&&(t.isContentEditable||(/^(input|textarea|select)$/i.test(t.tagName)&&!/^(range|checkbox|radio|button)$/.test(t.type||''))))return;
+  const H=hists.find(h=>h.keys);if(!H)return;
+  if(k==='z'&&!e.shiftKey){e.preventDefault();H.undo()}else if(k==='y'||(k==='z'&&e.shiftKey)){e.preventDefault();H.redo()}},true);
+ /* ---- clear (x) button: ONE for every text field. Shell.clearable(root,ok) wraps now; Shell.autoClear(ok) keeps wrapping new fields.
+    ok(input) -> false to skip. Opt out in markup with data-noclr. The button shows only while the field has text (:placeholder-shown), so
+    changing .value from code needs nothing. Clearing fires input + change, then refocuses. ---- */
+ const CSEL='input:not([type=range]):not([type=time]):not([type=checkbox]):not([type=radio]):not([type=hidden]):not([type=file]):not([type=button]):not([type=submit]):not([type=color]):not([readonly]),textarea';
+ function clearable(root,ok){(root||document.body).querySelectorAll(CSEL).forEach(i=>{if(i.closest('.sh-clr,[data-noclr]')||(ok&&!ok(i)))return;
+  const act=document.activeElement===i;let s=null,e=null;try{s=i.selectionStart;e=i.selectionEnd}catch(_){}
+  const w=document.createElement('span');w.className='sh-clr'+(i.tagName==='TEXTAREA'?' ta':'');i.parentNode.insertBefore(w,i);w.appendChild(i);if(!i.getAttribute('placeholder'))i.setAttribute('placeholder',' ');
+  const b=document.createElement('button');b.type='button';b.className='ib sm sh-clrb';b.setAttribute('aria-label','Clear '+(i.getAttribute('aria-label')||'field'));b.title='Clear';b.innerHTML=ic('x');w.appendChild(b);
+  if(act){i.focus();try{if(s!=null)i.setSelectionRange(s,e)}catch(_){}}})}
+ let acOk=null,acQ=0;
+ function autoClear(ok){acOk=ok||null;clearable(document.body,acOk);if(autoClear.on)return;autoClear.on=true;
+  new MutationObserver(()=>{if(acQ)return;acQ=requestAnimationFrame(()=>{acQ=0;clearable(document.body,acOk)})}).observe(document.body,{childList:true,subtree:true})}
+ document.addEventListener('click',e=>{const b=e.target.closest&&e.target.closest('.sh-clrb');if(!b)return;const i=b.parentNode.querySelector('input,textarea');if(!i)return;i.value='';i.dispatchEvent(new Event('input',{bubbles:true}));i.dispatchEvent(new Event('change',{bubbles:true}));i.focus()});
+ /* ---- the quiet corner (gear): the same list everywhere ---- */
+ function cornerHTML(){return'<div class="lbl">Settings and more</div>'+[['settings','gear','Settings'],['save','save','Save &amp; restore'],['trash','trash','Trash'],['device','device','Device mode'],['help','help','Help']].map(x=>'<button type="button" class="mi" role="menuitem" data-sh-q="'+x[0]+'">'+ic(x[1])+x[2]+'</button>').join('')+'<hr><div style="padding:4px 6px"><div class="seg sm" role="group" aria-label="Theme">'+['Day','Night','Sepia'].map(t=>'<button type="button" data-sh-th="'+t+'" class="'+(themeName()===t?'on':'')+'">'+t+'</button>').join('')+'</div></div>'}
+ /* ---- one delegated listener for the whole shell ---- */
+ document.addEventListener('click',e=>{const T=e.target;if(!T.closest)return;let b;
+  if(T.closest('.minb'))minUsed();
+  if(T.closest('[data-sh-dx]')){dialogClose();return}
+  if((b=T.closest('[data-sh-pt]'))){const h=b.closest('[data-tabkey]'),S=h&&tabSets[h.dataset.tabkey];if(S){S.pick(b.dataset.shPt);S.draw()}return}
+  if((b=T.closest('[data-sh-tplus]'))){const S=tabSets[b.dataset.shTplus];if(S)S.menu(b);return}
+  if((b=T.closest('[data-sh-tadd]'))){const [k,id]=b.dataset.shTadd.split(':'),S=tabSets[k];closePop();if(S){S.add(id);S.pick(id);S.draw()}return}
+  if((b=T.closest('[data-sh-tedit]'))){const S=tabSets[b.dataset.shTedit];closePop();if(S)S.edit();return}
+  if((b=T.closest('[data-sh-space]'))){const k=b.dataset.shSpace;if(cfg.onSpace&&cfg.onSpace(k)===false)return;cfg.space=k;renderRail();return}
+  if(T.closest('[data-sh-theme]')){setTheme(themeName()==='Night'?'Day':'Night');return}
+  if((b=T.closest('[data-sh-corner]'))){pop(b,cornerHTML());return}
+  if((b=T.closest('[data-sh-th]'))){setTheme(b.dataset.shTh);b.parentElement.querySelectorAll('button').forEach(x=>x.classList.toggle('on',x===b));return}
+  if((b=T.closest('[data-sh-q]'))){closePop();if(cfg.onCorner)cfg.onCorner(b.dataset.shQ);return}
+  if((b=T.closest('[data-sh-toggle]'))){toggleCol(b.dataset.shToggle);if(cfg.onChange)cfg.onChange('col',b.dataset.shToggle);return}
+  if((b=T.closest('[data-sh-mode]'))){setMode(b.dataset.shMode);return}
+  if((b=T.closest('[data-sh-min]'))){st.min[b.dataset.shMin]=true;save();drawBars();return}
+  if((b=T.closest('[data-sh-unmin]'))){st.min[b.dataset.shUnmin]=false;save();drawBars();return}
+  if((b=T.closest('[data-sh-hist]'))){const H=hists.find(h=>h.click);if(H)H[b.dataset.shHist]();return}
+  if(T.closest('[data-sh-undo]')){const u=tUndo;tUndo=null;$('#sh-toast').classList.remove('on');if(u)u();return}
+  if((b=T.closest('[data-sh-tab]'))&&sh){sh.tab=b.dataset.shTab;sheetDraw(false);$('#sh-sheet .sh-sbody').scrollTop=0;return}
+  if((b=T.closest('[data-sh-sheet]'))){sheetClose(b.dataset.shSheet==='apply');return}
+  if(T.id==='sh-scrim'){if(dialogOn)return;if(sheetOn){sheetClose(false);return}['side','panel'].forEach(w=>{if(col(w)==='over')col(w,'hidden')});return}
+ });
+ document.addEventListener('pointerdown',e=>{const p=$('#sh-pop');if(p&&!p.hidden&&!e.target.closest('#sh-pop')&&!(p._a&&p._a.contains(e.target)))closePop()},true);
+ document.addEventListener('keydown',e=>{if(e.key!=='Escape')return;const p=$('#sh-pop');if(p&&!p.hidden){closePop();return}if(dialogOn){dialogClose();return}if(sheetOn){sheetClose(false);return}['side','panel'].forEach(w=>{if(col(w)==='over')col(w,'hidden')})});
+ function mount(o){Object.assign(cfg,o||{});if(st.theme)document.documentElement.dataset.theme=st.theme==='Day'?'light':st.theme==='Sepia'?'sepia':'dark';el('div','sh-scrim','sh-scrim');el('div','sh-toast','sh-toast',{role:'status','aria-live':'polite'});const p=el('div','sh-pop','sh-pop');p.hidden=true;el('div','sh-sheet','sh-sheet');el('div','sh-dialog','sh-dialog');el('div','sh-mdock','sh-mdock');renderRail();renderTop();startPulse();const a=$('.sh-wrap');if(a)a.dataset.mode=st.mode;document.querySelectorAll('[data-sh-mode]').forEach(b=>b.classList.toggle('on',b.dataset.shMode===st.mode))}
+ return{I,ic,esc,SPACES,mount,
+  rail:o=>{Object.assign(cfg,o||{});renderRail()},top:renderTop,col,toggleCol,isPhone,
+  toast,pop,closePop,ask,confirm:confirmBox,dialog,dialogClose,
+  sheet:{open:sheetOpen,draw:()=>{if(sheetOn)sheetDraw(false)},close:sheetClose,isOpen:()=>sheetOn,tab:t=>{if(t&&sh){sh.tab=t}return sh&&sh.tab}},
+  history,clearable,autoClear,
+  bar,drawBars,isMin:k=>!!st.min[k],track,tabs,handle,pulse,minUsed,setMin:(k,v)=>{st.min[k]=!!v;save();drawBars()},cornerHTML,
+  theme:themeName,setTheme,mode:()=>st.mode,setMode};
+})();
+/* ==== end shell.js ==== */
+
+/* ==== notebooks v2 (N1–N6) on the shared shell. Needs shell.js above it. ==== */
+const $=s=>document.querySelector(s),$$=s=>[...document.querySelectorAll(s)];
+const {ic,esc,toast}=Shell;
+Object.assign(Shell.I,{
+ file:'<path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><path d="M14 2v6h6"/><path d="M8 13h8"/><path d="M8 17h5"/>',
+ cal:'<rect x="3" y="5" width="18" height="16" rx="2"/><path d="M3 10h18M8 3v4M16 3v4"/>',clock:'<circle cx="12" cy="12" r="9"/><path d="M12 7v5l3 2"/>',
+ cards:'<rect x="3" y="7.5" width="14.5" height="13" rx="2"/><path d="M7 4h12a2 2 0 0 1 2 2v10.5"/>',db:'<ellipse cx="12" cy="6" rx="8" ry="3"/><path d="M4 6v6c0 1.7 3.6 3 8 3s8-1.3 8-3V6"/><path d="M4 12v6c0 1.7 3.6 3 8 3s8-1.3 8-3v-6"/>',
+ pen:'<path d="M12 20h9"/><path d="M16.5 3.5a2.1 2.1 0 0 1 3 3L7 19l-4 1 1-4z"/>',palette:'<path d="M12 3a9 9 0 1 0 0 18c1.2 0 1.8-.9 1.8-1.8 0-1.4-1-1.5-1-2.7 0-.9.7-1.5 1.6-1.5H16a5 5 0 0 0 5-5c0-3.9-4-7-9-7z"/><circle cx="7.5" cy="11.5" r="1"/><circle cx="10.5" cy="7.5" r="1"/><circle cx="15.5" cy="7.5" r="1"/>',
+ copy:'<rect x="9" y="9" width="12" height="12" rx="2"/><path d="M5 15V5a2 2 0 0 1 2-2h8"/>',rot:'<path d="M3 12a9 9 0 1 0 3-6.7L3 8"/><path d="M3 3v5h5"/>',eye:'<path d="M2 12s3.6-7 10-7 10 7 10 7-3.6 7-10 7S2 12 2 12z"/><circle cx="12" cy="12" r="3"/>',
+ dl:'<path d="M12 3v12"/><path d="m7 10 5 5 5-5"/><path d="M5 21h14"/>',share:'<path d="m12 3 9 5-9 5-9-5z"/><path d="m3 13 9 5 9-5"/>',mic:'<rect x="9" y="2" width="6" height="12" rx="3"/><path d="M5 11a7 7 0 0 0 14 0"/><path d="M12 18v4"/>',
+ merge:'<path d="M6 3v6a6 6 0 0 0 6 6h6"/><path d="m15 12 3 3-3 3"/><path d="M6 21v-6"/>',top:'<path d="M5 4h14"/><path d="m6 14 6-6 6 6"/><path d="M12 8v13"/>',
+ fold:'<path d="m7 20 5-5 5 5"/><path d="m7 4 5 5 5-5"/>',unfold:'<path d="m7 15 5 5 5-5"/><path d="m7 9 5-5 5 5"/>',
+ image:'<rect x="3" y="4" width="18" height="16" rx="2"/><circle cx="9" cy="10" r="2"/><path d="m21 16-5-5L5 20"/>',link:'<path d="M10 13a5 5 0 0 0 7.5.5l3-3a5 5 0 0 0-7-7l-1.7 1.7"/><path d="M14 11a5 5 0 0 0-7.5-.5l-3 3a5 5 0 0 0 7 7l1.7-1.7"/>',
+ quote:'<path d="M7 7H4v6h4v-3a3 3 0 0 0-3-3"/><path d="M17 7h-3v6h4v-3a3 3 0 0 0-3-3"/><path d="M4 18h16"/>',note:'<path d="M5 3h14a1 1 0 0 1 1 1v10l-6 6H5a1 1 0 0 1-1-1V4a1 1 0 0 1 1-1z"/><path d="M14 20v-5a1 1 0 0 1 1-1h5"/>',
+ play:'<path d="m7 4 13 8-13 8z"/>',list:'<path d="M8 6h13M8 12h13M8 18h13M3 6h.01M3 12h.01M3 18h.01"/>',tag:'<path d="M3 12V4a1 1 0 0 1 1-1h8l9 9-9 9z"/><circle cx="8" cy="8" r="1.4"/>',
+ plug:'<path d="M9 2v6M15 2v6"/><path d="M6 8h12v4a6 6 0 0 1-12 0z"/><path d="M12 18v4"/>',
+ upload:'<path d="M12 16V4"/><path d="m7 9 5-5 5 5"/><path d="M5 20h14"/>',box:'<path d="M3 8l9-5 9 5v8l-9 5-9-5z"/><path d="M3 8l9 5 9-5"/><path d="M12 13v8"/>',insert:'<path d="M4 6h16"/><path d="M4 18h16"/><path d="M12 9v6"/><path d="M9 12h6"/>'
+});
+const COLS=['#6941E0','#1D7A50','#C2410C','#2563EB','#BE185D','#0E7490','#A16207','#475569','#B91C1C','#4D7C0F','#0369A1','#7E22CE'];
+const COLN=['Violet','Green','Orange','Blue','Pink','Teal','Amber','Slate','Red','Lime','Sky','Purple'];
+const TAGC=['#6941E0','#1D7A50','#C2410C','#2563EB'];
+const GRADS=[['Dusk','linear-gradient(160deg,#6941E0,#E0417F)'],['Ocean','linear-gradient(160deg,#0E7490,#2563EB)'],['Forest','linear-gradient(160deg,#1D7A50,#0E7490)'],['Sunset','linear-gradient(160deg,#F59E0B,#C2410C 60%,#BE185D)'],['Berry','linear-gradient(160deg,#BE185D,#6941E0)'],['Night','linear-gradient(160deg,#1e1b4b,#4338ca)'],['Sand','linear-gradient(160deg,#A16207,#78350f)'],['Aurora','linear-gradient(160deg,#10b981,#6941E0 70%)'],['Rose','linear-gradient(160deg,#fda4af,#e11d48 70%)'],['Lagoon','linear-gradient(200deg,#67e8f9,#0e7490 60%,#134e4a)'],['Ember','linear-gradient(160deg,#fbbf24,#dc2626 65%,#450a0a)'],['Mist','linear-gradient(160deg,#cbd5e1,#64748b 70%,#334155)'],['Orchid','linear-gradient(160deg,#f0abfc,#7e22ce 65%,#2e1065)'],['Meadow','linear-gradient(160deg,#bef264,#16a34a 60%,#14532d)'],['Twilight','radial-gradient(circle at 20% 15%,#fbcfe8,transparent 45%),linear-gradient(160deg,#3730a3,#0f172a)'],['Coral','radial-gradient(circle at 80% 80%,#fde68a,transparent 50%),linear-gradient(160deg,#fb7185,#be123c)']];
+const W='rgba(255,255,255,';
+const PATS=[['Dots',c=>`radial-gradient(${W}.42) 1.6px,transparent 2.2px) 0 0/12px 12px,${c}`],
+ ['Grid',c=>`linear-gradient(${W}.22) 1px,transparent 1px) 0 0/14px 14px,linear-gradient(90deg,${W}.22) 1px,transparent 1px) 0 0/14px 14px,${c}`],
+ ['Stripes',c=>`repeating-linear-gradient(45deg,${W}.18) 0 6px,transparent 6px 14px),${c}`],
+ ['Ruled',c=>`repeating-linear-gradient(0deg,transparent 0 11px,${W}.28) 11px 12px),${c}`],
+ ['Checks',c=>`conic-gradient(${W}.16) 25%,transparent 0 50%,${W}.16) 0 75%,transparent 0) 0 0/20px 20px,${c}`],
+ ['Zigzag',c=>`linear-gradient(135deg,${W}.2) 25%,transparent 25%) -10px 0/20px 20px,linear-gradient(225deg,${W}.2) 25%,transparent 25%) -10px 0/20px 20px,${c}`],
+ ['Rings',c=>`repeating-radial-gradient(circle at 80% 18%,transparent 0 9px,${W}.2) 9px 10px),${c}`],
+ ['Plaid',c=>`repeating-linear-gradient(0deg,${W}.16) 0 8px,transparent 8px 18px),repeating-linear-gradient(90deg,${W}.16) 0 8px,transparent 8px 18px),${c}`],
+ ['Sunburst',c=>`repeating-conic-gradient(from 0deg at 50% 105%,${W}.2) 0 5deg,transparent 5deg 10deg),${c}`],
+ ['Confetti',c=>`radial-gradient(${W}.5) 2px,transparent 3px) 0 0/26px 26px,radial-gradient(${W}.32) 3px,transparent 4px) 13px 9px/31px 31px,radial-gradient(${W}.24) 1.5px,transparent 2.5px) 7px 20px/17px 17px,${c}`],
+ ['Scales',c=>`radial-gradient(circle at 50% 0,transparent 0 9px,${W}.22) 9px 10px,transparent 10px) 0 0/20px 12px,${c}`],
+ ['Diamonds',c=>`linear-gradient(45deg,${W}.16) 25%,transparent 25% 75%,${W}.16) 75%) 0 0/18px 18px,linear-gradient(45deg,${W}.16) 25%,transparent 25% 75%,${W}.16) 75%) 9px 9px/18px 18px,${c}`]];
+const art=s=>`<svg class="art" viewBox="0 0 90 120" preserveAspectRatio="xMidYMid slice" aria-hidden="true">${s}</svg>`;
+const ARTS=[['Mountains',art('<circle cx="64" cy="34" r="11" fill="#fff" opacity=".85"/><path d="M0 96 30 52l18 24 14-18 28 38v24H0z" fill="#fff" opacity=".28"/><path d="M0 104 22 78l16 16 18-22 34 32v16H0z" fill="#000" opacity=".22"/>')],
+ ['Leaves',art('<g fill="#fff"><ellipse cx="62" cy="40" rx="9" ry="22" transform="rotate(35 62 40)" opacity=".5"/><ellipse cx="36" cy="66" rx="9" ry="24" transform="rotate(-30 36 66)" opacity=".34"/><ellipse cx="66" cy="88" rx="8" ry="20" transform="rotate(50 66 88)" opacity=".42"/><ellipse cx="24" cy="104" rx="7" ry="16" transform="rotate(-50 24 104)" opacity=".26"/></g>')],
+ ['Atom',art('<g fill="none" stroke="#fff" stroke-width="1.6" opacity=".7"><ellipse cx="48" cy="72" rx="32" ry="12"/><ellipse cx="48" cy="72" rx="32" ry="12" transform="rotate(60 48 72)"/><ellipse cx="48" cy="72" rx="32" ry="12" transform="rotate(-60 48 72)"/></g><circle cx="48" cy="72" r="5" fill="#fff"/>')],
+ ['Planets',art('<g fill="#fff"><circle cx="58" cy="70" r="20" opacity=".34"/><circle cx="26" cy="38" r="7" opacity=".7"/><circle cx="72" cy="26" r="1.6"/><circle cx="16" cy="78" r="1.4"/><circle cx="40" cy="104" r="1.6"/><circle cx="78" cy="106" r="1.2"/></g><ellipse cx="58" cy="70" rx="31" ry="8" transform="rotate(-18 58 70)" fill="none" stroke="#fff" stroke-width="1.6" opacity=".75"/>')],
+ ['Books',art('<g fill="#fff"><rect x="18" y="92" width="58" height="11" rx="2" opacity=".5"/><rect x="24" y="79" width="48" height="11" rx="2" opacity=".32"/><rect x="20" y="66" width="52" height="11" rx="2" opacity=".62"/><rect x="30" y="53" width="38" height="11" rx="2" opacity=".28"/></g><path d="M38 53V44l5 3 5-3v9" fill="#fff" opacity=".8"/>')],
+ ['Sunrise',art('<path d="M12 84a33 33 0 0 1 66 0z" fill="#fff" opacity=".5"/><g stroke="#fff" stroke-width="2" stroke-linecap="round" opacity=".7"><path d="M45 38v-9M18 56l-6-6M72 56l6-6M28 44l-4-7M62 44l4-7"/></g><path d="M0 84h90v7H0zM0 97h90v5H0zM0 108h90v4H0z" fill="#fff" opacity=".22"/>')],
+ ['Waves',art('<g fill="#fff"><path d="M0 70c15-10 30 10 45 0s30-10 45 0v50H0z" opacity=".2"/><path d="M0 84c15-10 30 10 45 0s30-10 45 0v36H0z" opacity=".26"/><path d="M0 98c15-10 30 10 45 0s30-10 45 0v22H0z" opacity=".34"/></g>')],
+ ['Stars',art('<g fill="#fff"><path d="m60 30 4 10 11 1-8 7 3 11-10-6-10 6 3-11-8-7 11-1z" opacity=".85"/><path d="m26 74 3 7 8 1-6 5 2 8-7-4-7 4 2-8-6-5 8-1z" opacity=".55"/><circle cx="20" cy="30" r="1.6"/><circle cx="76" cy="84" r="1.6"/><circle cx="48" cy="104" r="1.4"/><circle cx="14" cy="104" r="1.2"/></g>')],
+ ['City',art('<g fill="#fff"><rect x="8" y="70" width="18" height="50" opacity=".3"/><rect x="28" y="50" width="20" height="70" opacity=".45"/><rect x="50" y="78" width="16" height="42" opacity=".3"/><rect x="68" y="58" width="16" height="62" opacity=".4"/></g><g fill="#000" opacity=".22"><rect x="33" y="58" width="4" height="4"/><rect x="40" y="58" width="4" height="4"/><rect x="33" y="68" width="4" height="4"/><rect x="73" y="66" width="4" height="4"/><rect x="73" y="76" width="4" height="4"/></g>')],
+ ['Flowers',art('<g fill="#fff"><g opacity=".6"><circle cx="30" cy="40" r="7"/><circle cx="43" cy="40" r="7"/><circle cx="36.5" cy="29" r="7"/><circle cx="36.5" cy="51" r="7"/></g><g opacity=".4"><circle cx="64" cy="88" r="6"/><circle cx="75" cy="88" r="6"/><circle cx="69.5" cy="79" r="6"/><circle cx="69.5" cy="97" r="6"/></g></g><circle cx="36.5" cy="40" r="4" fill="#000" opacity=".25"/><circle cx="69.5" cy="88" r="3.4" fill="#000" opacity=".25"/>')],
+ ['Circuit',art('<g fill="none" stroke="#fff" stroke-width="1.8" opacity=".65"><path d="M10 30h26l10 12h30"/><path d="M10 60h18l12 14h36"/><path d="M10 90h40l10-12h20"/></g><g fill="#fff"><circle cx="46" cy="42" r="3.4"/><circle cx="76" cy="42" r="3.4"/><circle cx="40" cy="74" r="3.4"/><circle cx="76" cy="74" r="3.4"/><circle cx="80" cy="78" r="3.4" opacity=".6"/></g>')],
+ ['Shapes',art('<circle cx="60" cy="50" r="18" fill="#fff" opacity=".42"/><rect x="16" y="66" width="30" height="30" rx="3" fill="#000" opacity=".2"/><path d="M48 106 66 76l18 30z" fill="#fff" opacity=".7"/>')]];
+const KINDS=[['solid','Solid'],['grad','Gradient'],['pat','Pattern'],['art','Illustrated'],['photo','Photo'],['page','First page']];
+const SAMPLE='data:image/svg+xml,'+encodeURIComponent('<svg xmlns="http://www.w3.org/2000/svg" width="1600" height="1200" viewBox="0 0 1600 1200"><defs><linearGradient id="g" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#27346b"/><stop offset=".55" stop-color="#e98a5b"/><stop offset="1" stop-color="#f7d08a"/></linearGradient></defs><rect width="1600" height="1200" fill="url(#g)"/><circle cx="1050" cy="640" r="120" fill="#fff3c4"/><path d="M0 820 300 560l220 190 260-300 320 330 200-150 300 240v330H0z" fill="#1d2440"/><path d="M0 960 380 780l300 140 360-190 560 250v220H0z" fill="#101425"/></svg>');
+/* ---------- data ---------- */
+let uid=100;
+const PV='Cell theory says all living things are made of cells. Cells are the basic unit of life. New cells come from cells that already exist.';
+const mk=(t,o={})=>({id:'p'+(uid++),t,open:false,fav:false,due:0,lock:false,pv:PV,tags:[],col:0,ch:[],...o});
+const mkNb=o=>({id:'n'+(uid++),t:'',label:'',colour:COLS[0],cv:{k:'solid',i:0},photo:null,star:false,opened:9,due:0,locked:false,ai:false,aiLocked:false,editLock:false,open:false,extras:[],tabNames:{},tabHidden:{},tabCol:{},cust:{},view:'default',layout:'list',board:'coloured',pages:[],...o});
+function fresh(){return{
+ nbs:[
+  mkNb({id:'bio',t:'Biology 101',colour:COLS[1],cv:{k:'art',i:1},star:true,opened:0,due:12,open:true,ai:true,extras:['mindMap'],pages:[
+   mk('Cell structure',{open:true,due:7,tags:['bio'],col:1,ch:[mk('Organelles and what each one does in the cell',{fav:true,due:4,tags:['bio/cell'],pv:'The nucleus stores DNA. Mitochondria release energy. Ribosomes build proteins from amino acids.'}),mk('Membranes',{col:2,pv:'A thin, flexible layer of lipids and proteins. It decides what enters and what leaves the cell.'})]}),
+   mk('Genetics',{pv:'Genes are instructions. Each one is a stretch of DNA that codes for a protein.',ch:[mk('Mendel and pea plants',{tags:['bio'],pv:'Mendel crossed tall and short pea plants and counted the offspring. The 3:1 ratio appeared again and again.'}),mk('DNA replication',{due:1,pv:'The double helix unzips. Each old strand is the template for a new one.'})]}),
+   mk('Photosynthesis',{col:1,pv:'Light energy turns water and carbon dioxide into glucose and oxygen inside the chloroplast.'}),
+   mk('Exam revision plan',{lock:true,col:3,pv:'Locked page. Unlock to read.'})]}),
+  mkNb({id:'ca',t:'CA Finals',colour:COLS[0],cv:{k:'grad',i:0},star:true,opened:1,due:5,pages:[mk('Accounting standards',{due:5,pv:'Ind AS 116 puts most leases on the balance sheet as a right-of-use asset and a lease liability.',ch:[mk('Ind AS 116')]}),mk('Audit basics',{pv:'An audit gives reasonable assurance, not a guarantee. Materiality decides what matters.'})]}),
+  mkNb({id:'es',t:'Spanish A2',colour:COLS[2],cv:{k:'pat',i:0},opened:3,pages:[mk('Verbs: ser y estar',{pv:'Ser is for what something is. Estar is for how or where it is right now.'}),mk('Vocabulary: food')]}),
+  mkNb({id:'phy',t:'Physics Notes',colour:COLS[3],cv:{k:'art',i:2},opened:12,locked:true,editLock:true,pages:[mk('Motion'),mk('Waves')]}),
+  mkNb({id:'des',t:'Design Notes',colour:COLS[4],cv:{k:'page',i:0},opened:2,pages:[mk('Type scale',{pv:'Pick a ratio, then name the steps. Keep body at 16px and headings on the scale.'}),mk('Colour')]}),
+  mkNb({id:'trv',t:'Travel Journal',colour:COLS[5],cv:{k:'photo',i:0},photo:{src:SAMPLE,x:62,y:50,z:1,w:1600,h:1200},opened:40,pages:[mk('Kyoto in spring',{pv:'Arrived at dawn. The Philosopher’s Path was empty, and the cherry trees were just opening.'})]})
+ ],
+ trash:[{id:'t1',k:'notebook',t:'Old Chemistry',n:8,when:'Today',nb:mkNb({id:'chem',t:'Old Chemistry',colour:COLS[6],pages:[mk('Atoms')]})},{id:'t2',k:'page',t:'Intro draft',n:2,when:'Yesterday'},{id:'t3',k:'database',t:'Sales tracker',n:1,when:'3 days ago'}],
+ tags:[{id:'g1',t:'bio',c:0,n:6,ch:[{id:'g2',t:'cell',c:1,n:3,ch:[]}]},{id:'g3',t:'exams',c:2,n:4,ch:[]},{id:'g4',t:'ideas',c:3,n:2,ch:[]}],
+ tpl:[{id:'tp1',t:'Daily journal',prot:true},{id:'tp2',t:'Lecture notes'},{id:'tp3',t:'Meeting'}],
+ saved:['Due this week','Locked pages'],
+ res:[{id:'r1',k:'image',t:'Cell diagram (labelled)',m:'PNG · 1200 × 900',nb:'bio',pg:0,sw:'linear-gradient(135deg,#1D7A50,#0E7490)'},{id:'r2',k:'link',t:'Khan Academy: structure of a cell',m:'khanacademy.org',nb:'bio',pg:0},{id:'r3',k:'ref',t:'Alberts et al. (2022), Molecular Biology of the Cell, 7th ed.',m:'Book · ch. 1',nb:'bio',pg:0},{id:'r4',k:'note',t:'Mnemonic: “Mighty mitochondria make ATP”',m:'Quick note',nb:'bio',pg:0},{id:'r5',k:'audio',t:'Lecture 3',m:'Recording · 12:40',nb:'bio',pg:0},{id:'r6',k:'audio',t:'Revision notes',m:'Recording · 04:12',nb:'bio',pg:1},{id:'r7',k:'file',t:'Past paper 2025.pdf',m:'PDF · 14 pages',nb:'bio',pg:null},{id:'r8',k:'link',t:'ICAI study material',m:'icai.org',nb:'ca',pg:null},{id:'r10',k:'plugin',t:'Anki card sync',m:'Plugin · ankiweb.net',nb:'bio',pg:null},{id:'r9',k:'image',t:'Colour wheel',m:'SVG',nb:'des',pg:null,sw:'conic-gradient(#e11d48,#f59e0b,#10b981,#2563eb,#7c3aed,#e11d48)'}],
+ prefs:{layout:'shelf',tab:'all',start:'all',openAt:'last',defExtras:['mindMap'],keepTabs:false}
+}}
+let S=fresh();
+const KEY='nbmock-v2';
+try{Object.assign(S.prefs,JSON.parse(localStorage.getItem(KEY)||'{}'))}catch(_){}
+const save=()=>{try{localStorage.setItem(KEY,JSON.stringify(S.prefs))}catch(_){}};
+let U={pq:'',oq:'',rq:'',tabsShown:false,tab:S.prefs.start,open:null,page:null,nbtab:'notes',ptab:'pages',tag:null,q:'',outLvl:3,outTog:true,outNum:false,fold:{},head:null,resScope:'page',resKind:'all',addRes:null,sideWant:true,panelWant:true,prevOpen:null,groups:{quick:true,tags:true,tpl:false,saved:false,study:true}};
+let forcePro=false;const isPro=()=>forcePro||Shell.mode()==='pro';
+const nbBy=id=>S.nbs.find(n=>n.id===id);
+const label=n=>n.label||n.t.replace(/[^A-Za-z0-9 ]/g,'').split(' ').filter(Boolean).slice(0,2).map((w,i,a)=>a.length>1?w[0]:w.slice(0,3)).join('').toUpperCase().slice(0,3);
+const opened=n=>n.opened===0?'Today':n.opened===1?'Yesterday':n.opened+' days ago';
+const dueAll=()=>S.nbs.reduce((a,n)=>a+n.due,0);
+const flat=l=>l.flatMap(p=>[p,...flat(p.ch)]);
+const countPages=n=>flat(n.pages).length;
+const countSub=p=>flat(p.ch).length;
+function findPage(id,list,par){for(const p of list){if(p.id===id)return{p,list,par};const r=findPage(id,p.ch,p);if(r)return r}return null}
+function findAny(id){for(const nb of S.nbs){const r=findPage(id,nb.pages,null);if(r)return{...r,nb}}return null}
+function ordered(){const a=S.nbs.slice();return[...a.filter(n=>n.star),...a.filter(n=>!n.star)]}
+function homeList(){let a=ordered();if(U.tab==='starred')a=a.filter(n=>n.star);if(U.tab==='recent')a=S.nbs.slice().sort((x,y)=>x.opened-y.opened).slice(0,20);if(U.q)a=a.filter(n=>n.t.toLowerCase().includes(U.q.toLowerCase()));if(U.tag)a=a.filter(n=>flat(n.pages).some(p=>p.tags.some(t=>t.startsWith(U.tag))));return a}
+const snapshot=()=>JSON.stringify(S.nbs);
+function restore(s){S.nbs=JSON.parse(s);renderAll()}
+/* ---------- covers (N5) ---------- */
+function coverHTML(n){const c=n.cv||{k:'solid',i:0};const lk=n.locked?`<span class="lk" data-cov="L01">${ic('lock')}</span>`:'';
+ if(c.k==='page'){const p=n.pages[0];return `<span class="cover pg" style="--cc:${n.colour}" data-cov="H08"><span class="lab">${esc(p?p.t:n.t)}</span><span class="pv">${esc(p?(p.lock?'Locked':p.pv):'')}</span>${lk}</span>`}
+ let bg=n.colour,inner='';
+ if(c.k==='grad')bg=GRADS[c.i%GRADS.length][1];if(c.k==='pat')bg=PATS[c.i%PATS.length][1](n.colour);if(c.k==='art')inner=ARTS[c.i%ARTS.length][1];
+ if(c.k==='photo'&&n.photo){const p=n.photo;inner=`<img alt="" src="${p.src}" style="object-position:${p.x}% ${p.y}%;transform:scale(${p.z});transform-origin:${p.x}% ${p.y}%">`}
+ return `<span class="cover" style="--cc:${n.colour};background:${bg}" data-cov="H09 A10">${inner}<span class="lab">${esc(label(n))}</span>${lk}</span>`}
+/* ---------- sidebar: the Notion-like tree (N1) + Collapse all (N2) ---------- */
+function rowHTML(p,nb){const hasK=p.ch.length>0;
+ return `<div class="trow ${U.page===p.id?'cur':''}" data-row="${p.id}" data-cov="T13 T04">
+  <button class="tw ${p.open?'o':''}" data-a="tw" data-id="${p.id}" aria-label="${p.open?'Collapse':'Expand'} ${esc(p.t)}" aria-expanded="${p.open}" ${hasK?'':'style="visibility:hidden"'} data-cov="T02">${ic('chev')}</button>
+  <button class="tt" data-a="openp" data-id="${p.id}">${p.fav?'<span style="color:#e0b73a" aria-label="Favourite">★ </span>':''}${esc(p.t)}</button>
+  <span class="ex">${p.due?`<span class="badge" data-cov="T10">${p.due}</span>`:''}${p.lock?`<span style="color:var(--muted);display:grid" data-cov="T11">${ic('lock')}</span>`:''}
+  <button class="ib" data-a="pmenu" data-id="${p.id}" aria-label="More for ${esc(p.t)}" data-cov="T12">${ic('dots')}</button>
+  <span class="pro"><button class="ib grip" data-grip="${p.id}" aria-label="Hold and drag to move ${esc(p.t)}" title="Hold and drag to move">${ic('grip')}</button></span></span>
+ </div>`+(hasK&&p.open?`<div class="tkids">${p.ch.map(c=>rowHTML(c,nb)).join('')}</div>`:'')}
+const anyOpen=()=>S.nbs.some(n=>n.open);
+function treeHTML(){const open=anyOpen();
+ return `<div class="grp open"><div class="gh">Notebooks<button class="foldall" data-a="foldall" aria-pressed="${!open}" data-cov="A07" title="${open?'Close every notebook in this list':'Open them again'}">${ic(open?'fold':'unfold')}${open?'Collapse all':'Expand all'}</button><button class="ib sm" data-a="newnb" aria-label="New notebook" title="New notebook">${ic('plus')}</button></div><div class="gb">`+
+ S.nbs.map(nb=>`<div class="trow ${U.open===nb.id&&!U.page?'cur':''}" data-nbrow="${nb.id}" data-cov="T01">
+  <button class="tw ${nb.open?'o':''}" data-a="nbtw" data-id="${nb.id}" aria-label="${nb.open?'Collapse':'Expand'} ${esc(nb.t)}" aria-expanded="${nb.open}">${ic('chev')}</button>
+  <span class="nbdot" aria-hidden="true">${coverHTML(nb)}</span>
+  <button class="tt" data-a="opennb" data-id="${nb.id}">${esc(nb.t)}</button>
+  <span class="ex">${nb.due?`<span class="badge">${nb.due}</span>`:''}${nb.locked?`<span style="color:var(--muted);display:grid">${ic('lock')}</span>`:''}
+  <button class="ib" data-a="addmenu" data-id="${nb.id}" aria-label="Add a page to ${esc(nb.t)}" title="Add page">${ic('plus')}</button>
+  <button class="ib" data-a="nbmenu" data-id="${nb.id}" aria-label="More for ${esc(nb.t)}">${ic('dots')}</button></span></div>`+
+  (nb.open?`<div class="tkids">${nb.locked?`<div class="mini" style="padding:10px 8px">Locked. Unlock in notebook settings.</div>`:nb.pages.length?nb.pages.map(p=>rowHTML(p,nb)).join(''):`<div class="mini" style="padding:10px 8px">No pages yet.</div>`}</div>`:'')).join('')+
+  `<div class="pro"><div class="trow" data-cov="T14"><span class="tw"></span><span class="nbdot" style="background:var(--muted)"></span><button class="tt" data-a="jr">Journal</button><span class="ex"><span class="mini" style="padding:8px 6px">fixed order</span></span></div></div></div></div>`}
+function groupHTML(id,title,body){return `<div class="grp ${U.groups[id]?'open':''}" data-cov="S13"><button class="gh" data-a="grp" data-id="${id}" aria-expanded="${!!U.groups[id]}">${ic('chev')}${title}</button><div class="gb">${body}</div></div>`}
+function tagsHTML(list,d=0){return list.map(t=>`<button class="nav" style="padding-left:${10+d*14}px" data-a="tagf" data-id="${t.t}"><span class="dot" style="background:${TAGC[t.c%4]}"></span><span class="sp">${esc(t.t)}</span><span class="mini">${t.n}</span></button>`+tagsHTML(t.ch,d+1)).join('')}
+function sideHTML(){const pro=isPro();
+ const top=`<div class="sh-colhd"><h2>Notebooks</h2><button class="ib sm" data-a="closeside" aria-label="Close the sidebar" data-cov="S20">${ic('x')}</button></div>`;
+ const base=`<button class="nav" data-a="today" data-cov="S02">${ic('cal')}<span>Today · 12 Nov</span></button><button class="nav" data-a="search" data-cov="S03">${ic('search')}<span class="sp">Search</span><span class="mini">Ctrl K</span></button>
+ <button class="nav" data-a="review" data-cov="S04">${ic('reviewA')}<span class="sp">Review</span><span class="badge">${dueAll()} due</span></button>`;
+ const body=base+(pro?groupHTML('study','Study',`<button class="nav" data-cov="S05" data-a="toast" data-m="All cards opens here">${ic('cards')}All cards</button>`)+groupHTML('quick','Quick access',`<button class="nav" data-cov="S06" data-a="favs">${ic('star')}Favourites</button><button class="nav" data-cov="S07" data-a="recentp">${ic('clock')}Recent pages</button><button class="nav" data-cov="S08" data-a="toast" data-m="Calendar opens here">${ic('cal')}Calendar</button><button class="nav" data-cov="S09" data-a="toast" data-m="Databases opens here">${ic('db')}Databases</button>`):'')+treeHTML()+
+  (pro?groupHTML('tags','Tags',`<div data-cov="S11 G01">${tagsHTML(S.tags)}<button class="nav" data-a="more" data-pane="tags">${ic('sliders')}Manage tags</button></div>`)+groupHTML('tpl','Templates',`<div data-cov="S12">${S.tpl.map(t=>`<button class="nav" data-a="usetpl" data-id="${t.id}">${ic('file')}<span class="sp">${esc(t.t)}</span></button>`).join('')}<button class="nav" data-a="more" data-pane="tpl">${ic('sliders')}Manage templates</button></div>`)+groupHTML('saved','Saved searches',`<div data-cov="S10">${S.saved.map(s=>`<button class="nav" data-a="toast" data-m="Saved search: ${s}">${ic('search')}${s}</button>`).join('')}</div>`):'');
+ return top+`<div class="sh-colscroll" id="sidescroll">${body}</div>`}
+function renderSide(){const sc=$('#sidescroll');const y=sc?sc.scrollTop:0;$('#sh-side').innerHTML=sideHTML();$('#sidescroll').scrollTop=y}
+/* ---------- left panel: Pages · Outline · Resources (N1) ---------- */
+const HEADS=[[1,'Overview'],[2,'Key ideas'],[3,'Definitions'],[3,'Worked example'],[2,'Why does it matter?',1],[1,'In detail'],[2,'Step by step'],[3,'Common mistakes'],[1,'Summary']];
+const headsOf=p=>HEADS.map((h,i)=>({l:h[0],t:h[1],tog:!!h[2],id:p.id+'-h'+i}));
+function pagesHTML(nb){const fl=[];const walk=(l,d)=>l.forEach(p=>{fl.push({p,d});walk(p.ch,d+1)});walk(nb.pages,0);
+ if(nb.locked)return `<div class="empty">${ic('lock')}<br>This notebook is locked.</div>`;
+ if(!fl.length)return `<div class="empty">No pages yet.<br><button class="btn sm pri" style="margin-top:10px" data-a="addp" data-id="${nb.id}">${ic('plus')}New page</button></div>`;
+ const q=U.pq.trim().toLowerCase();const find=findBox('pq','Find a page',U.pq);
+ const rows=fl.map((x,i)=>({...x,i})).filter(x=>!q||x.p.t.toLowerCase().includes(q));
+ if(!rows.length)return find+`<div class="empty">No page called “${esc(U.pq)}”.</div>`;
+ return find+`<div data-cov="P01 A12" role="list" aria-label="Pages in ${esc(nb.t)}">`+rows.map(({p,d,i})=>{const dd=q?0:Math.min(d,3);return `<div class="pth ${U.page===p.id?'cur':''}" role="listitem" tabindex="0" data-pth="${p.id}" ${U.page===p.id?'aria-current="page"':''} style="margin-left:${dd*10}px;width:calc(100% - ${dd*10}px)" aria-label="Page ${i+1}: ${esc(p.t)}. Hold and drag to reorder."><span class="gp" aria-hidden="true">${ic('grip')}</span><span class="th" aria-hidden="true">${p.lock?'<span style="display:grid;place-items:center;height:100%;color:var(--muted)">'+ic('lock')+'</span>':thumbHTML(p,i)}<span class="no">${i+1}</span></span><span class="bd"><b>${esc(p.t)}</b>${p.lock?'<span class="pv">Locked</span>':`<span class="pv">${esc(p.pv)}</span>`}</span><span class="pa"><button class="ib sm" data-a="pdup" data-id="${p.id}" aria-label="Duplicate ${esc(p.t)}" title="Duplicate">${ic('copy')}</button><button class="ib sm" data-a="pdel" data-id="${p.id}" aria-label="Delete ${esc(p.t)}" title="Delete">${ic('trash')}</button></span></div>`}).join('')+`</div>`}
+function outlineHTML(nb){if(nb.locked)return `<div class="empty">${ic('lock')}<br>This notebook is locked.</div>`;
+ const pro=isPro();let out='';const q=U.oq.trim().toLowerCase();
+ const ctl=`<div class="pro" style="padding:0 2px 6px"><div class="seg sm" role="group" aria-label="Outline level" data-cov="P03">${[[1,'Level 1'],[2,'1–2'],[3,'All']].map(([v,t])=>`<button data-a="lvl" data-id="${v}" class="${U.outLvl===v?'on':''}">${t}</button>`).join('')}</div>
+ <div class="fld" style="min-height:44px;border:0" data-cov="P04"><div class="l"><b>Toggles</b></div><button class="sw" role="switch" aria-checked="${U.outTog}" data-a="otog" aria-label="Show toggles in the outline"></button></div>
+ <div class="fld" style="min-height:44px;border:0" data-cov="P05"><div class="l"><b>Numbers</b></div><button class="sw" role="switch" aria-checked="${U.outNum}" data-a="onum" aria-label="Number the headings"></button></div></div>`;
+ flat(nb.pages).forEach(p=>{const cur=U.page===p.id;let pf=U.fold[p.id]===undefined?!cur:U.fold[p.id];if(q){if(!headsOf(p).some(h=>h.t.toLowerCase().includes(q))&&!p.t.toLowerCase().includes(q))return;pf=false}
+  out+=`<div class="ol pg ${cur?'curpg':''}" data-olp="${p.id}"><button class="fo ${pf?'':'o'}" data-a="fold" data-id="${p.id}" aria-label="${pf?'Unfold':'Fold'} ${esc(p.t)}" aria-expanded="${!pf}" data-cov="P06">${ic('chev')}</button><button class="t" data-a="openp" data-id="${p.id}">${esc(p.t)}</button></div>`;
+  if(pf||p.lock)return;
+  const lvl=pro?U.outLvl:3,tog=pro?U.outTog:false,num=pro&&U.outNum;
+  const show=headsOf(p).filter(h=>q?h.t.toLowerCase().includes(q):(h.tog?tog:h.l<=lvl));let n=[0,0,0],skip=null;
+  show.forEach((h,k)=>{const nx=show[k+1];const deeper=nx&&nx.l>h.l;if(skip!==null){if(h.l>skip)return;skip=null}
+   let no='';if(num&&!h.tog){n[h.l-1]++;for(let j=h.l;j<3;j++)n[j]=0;no=n.slice(0,h.l).join('.')+' '}
+   const closed=U.fold[h.id];if(closed&&deeper)skip=h.l;
+   out+=`<div class="ol h${h.l} ${cur&&U.head===h.id?'cur':''}" data-olh="${h.id}" style="padding-left:${h.l*12}px">${deeper?`<button class="fo ${closed?'':'o'}" data-a="fold" data-id="${h.id}" aria-label="${closed?'Unfold':'Fold'}" aria-expanded="${!closed}">${ic('chev')}</button>`:'<span class="nofo"></span>'}<button class="t" data-a="outgo" data-id="${h.id}" data-pg="${p.id}">${h.tog?'▸ ':''}${no}${esc(h.t)}</button></div>`})});
+ const allF=flat(nb.pages).every(p=>U.fold[p.id]===undefined?U.page!==p.id:U.fold[p.id]);
+ const head=`${findBox('oq','Find a heading',U.oq)}<div class="rowbar" style="padding:0 0 8px"><button class="chipf" data-a="olall" data-id="${allF?'unfold':'fold'}" aria-label="${allF?'Expand every page in the outline':'Collapse every page in the outline'}">${ic(allF?'unfold':'fold')}${allF?'Expand all':'Collapse all'}</button><span class="mini">Whole notebook · ${flat(nb.pages).length} pages</span></div>`;
+ return `<div data-cov="P02 A13">${head}${ctl}${out}</div>`}
+const RK=[['all','All','box'],['image','Images','image'],['link','Links','link'],['plugin','Plugins','plug'],['ref','References','quote'],['note','Notes','note'],['audio','Audio','mic'],['file','Files','file']];
+const rkIcon=k=>(RK.find(x=>x[0]===k)||RK[0])[2];
+function resList(nb){const fl=flat(nb.pages);const pi=U.page?fl.findIndex(p=>p.id===U.page):-1;
+ return S.res.filter(r=>(U.resScope==='all'||(r.nb===nb.id&&(U.resScope==='nb'||r.pg===pi||(pi<0&&r.pg===null))))&&(U.resKind==='all'||r.k===U.resKind)&&(!U.rq||r.t.toLowerCase().includes(U.rq.toLowerCase())))}
+function addFormHTML(){const k=U.addRes;if(!k)return'';const nm=RK.find(x=>x[0]===k)[1].replace(/s$/,'');
+ const body={image:`<button class="drop" data-a="resfile">${ic('upload')}<br>Choose an image, or drop one here</button><input class="inp" id="resT" placeholder="Name (optional)" aria-label="Image name">`,
+  link:`<input class="inp" id="resU" type="url" inputmode="url" placeholder="https://…" aria-label="Link address"><input class="inp" id="resT" placeholder="Title (optional)" aria-label="Link title">`,
+  ref:`<textarea class="inp" id="resT" placeholder="Author (year), title, publisher or journal…" aria-label="Reference"></textarea>`,
+  note:`<textarea class="inp" id="resT" placeholder="A fact, a quote, a mnemonic… anything to reuse" aria-label="Note"></textarea>`,
+  plugin:`<input class="inp" id="resT" placeholder="Plugin name" aria-label="Plugin name"><input class="inp" id="resU" type="url" inputmode="url" placeholder="https://… (optional)" aria-label="Plugin address">`,
+  audio:`<button class="drop" data-a="resrec" data-cov="P07">${ic('mic')}<br>Start recording</button><input class="inp" id="resT" placeholder="Name (optional)" aria-label="Recording name">`,
+  file:`<button class="drop" data-a="resfile">${ic('upload')}<br>Choose a file (PDF, slides, sheet…)</button><input class="inp" id="resT" placeholder="Name (optional)" aria-label="File name">`}[k];
+ return `<div class="addf"><b style="font-size:13px">New ${nm.toLowerCase()}</b>${body}<div style="display:flex;gap:8px;justify-content:flex-end"><button class="btn sm" data-a="resx">Cancel</button><button class="btn sm pri" data-a="resok">${ic('check')}Add</button></div></div>`}
+function resHTML(nb){const l=resList(nb);
+ return `<div data-cov="A08">${findBox('rq','Find a resource',U.rq)}<div class="seg sm pro" role="group" aria-label="Where to look" style="margin-bottom:4px">${[['page','This page'],['nb','Notebook'],['all','Everywhere']].map(([v,t])=>`<button data-a="rscope" data-id="${v}" class="${U.resScope===v?'on':''}">${t}</button>`).join('')}</div>
+ <div class="chips scrollx" id="reschips" role="group" aria-label="Kind">${RK.map(([k,n,i])=>`<button class="chipf ${U.resKind===k?'on':''}" data-a="rkind" data-id="${k}" aria-pressed="${U.resKind===k}" ${k==='audio'?'data-cov="P07"':''}>${ic(i)}${n}</button>`).join('')}</div><div class="track" id="restrk" style="margin-bottom:8px"><i></i></div>
+ ${addFormHTML()}
+ ${l.length?l.map(r=>`<div class="res"><span class="th" ${r.sw?`style="background:${r.sw}"`:''}>${r.src?`<img alt="" src="${r.src}">`:r.sw?'':ic(rkIcon(r.k))}</span><span class="bd"><b title="${esc(r.t)}">${esc(r.t)}</b><span class="mini">${esc(r.m)}</span></span>${r.k==='audio'?`<button class="ib" data-a="toast" data-m="Playing ${esc(r.t)}" aria-label="Play ${esc(r.t)}">${ic('play')}</button>`:''}<button class="ib" data-a="resins" data-id="${r.id}" aria-label="Insert ${esc(r.t)} in the page" title="Insert in the page">${ic('insert')}</button><button class="ib" data-a="resmenu" data-id="${r.id}" aria-label="More for ${esc(r.t)}">${ic('dots')}</button></div>`).join(''):`<div class="empty" style="padding:20px 8px">Nothing here yet.<br><span class="mini">Keep images, links, references, notes, recordings and files here, and reuse them on any page.</span></div>`}</div>`}
+function panelHTML(){const nb=nbBy(U.open);if(!nb)return'';
+ const tabs=[['pages','Pages','file'],['outline','Outline','list'],['res','Resources','box']];
+ const foot=U.ptab==='pages'?`<span class="mini" style="flex:1">Hold and drag to reorder</span><button class="btn sm" data-a="addp" data-id="${nb.id}">${ic('plus')}Page</button>`:U.ptab==='res'?`<span class="mini" style="flex:1">Reuse anything on any page</span><button class="btn sm pri" data-a="resadd" aria-haspopup="menu">${ic('plus')}Add</button>`:`<span class="mini" style="flex:1">Follows where you are reading</span>`;
+ return `<div class="sh-colhd"><span class="nbdot" style="margin:0 0 0 4px" aria-hidden="true">${coverHTML(nb)}</span><h2>${esc(nb.t)}</h2><button class="ib sm" data-a="closepanel" aria-label="Close the page panel">${ic('x')}</button></div>
+ <div class="sh-coltabs" role="tablist">${tabs.map(([k,n,i])=>`<button role="tab" aria-selected="${U.ptab===k}" data-a="ptab" data-id="${k}" class="${U.ptab===k?'on':''}">${ic(i)}${n}</button>`).join('')}</div>
+ <div class="sh-colscroll" id="panelscroll">${U.ptab==='pages'?pagesHTML(nb):U.ptab==='outline'?outlineHTML(nb):resHTML(nb)}</div><div class="sh-colfoot">${foot}</div>`}
+function centre(sc,el){if(sc&&el&&sc.clientHeight)sc.scrollTop+=el.getBoundingClientRect().top-sc.getBoundingClientRect().top-(sc.clientHeight-el.offsetHeight)/2}
+function centreCur(){const sc=$('#panelscroll');if(sc)centre(sc,sc.querySelector('.pth.cur,.ol.cur')||sc.querySelector('.ol.curpg'))}
+function renderPanel(keep){const old=$('#panelscroll');const y=old?old.scrollTop:0;$('#sh-panel').innerHTML=panelHTML();const sc=$('#panelscroll');if(!sc)return;
+ if(keep){sc.scrollTop=y}else{centreCur();requestAnimationFrame(centreCur)}
+ Shell.track($('#reschips'),$('#restrk'));if(keep&&U.open&&U.nbtab==='resources')renderMain(true)}
+/* ---------- main ---------- */
+function shelfHTML(){const l=homeList();
+ if(!l.length)return `<div class="empty" data-cov="H04 H05">${U.tab==='starred'?'Pin a notebook and it will show here.':U.tab==='recent'?'Notebooks you open will show here.':'No notebooks match.'}</div>`;
+ if(S.prefs.layout==='list')return `<div class="list" data-cov="H02">`+l.map(n=>`<div class="nbrow" data-open="${n.id}">${coverHTML(n)}<div style="flex:1;min-width:0"><b>${esc(n.t)}</b><div class="mini">${countPages(n)} pages · opened ${opened(n).toLowerCase()}</div></div>${n.due?`<span class="badge">${n.due} due</span>`:''}${n.locked?ic('lock'):''}<button class="ib ${n.star?'on':''}" data-a="star" data-id="${n.id}" aria-label="${n.star?'Unpin':'Pin'} ${esc(n.t)}" aria-pressed="${n.star}">${ic('star')}</button><button class="ib" data-a="nbmenu" data-id="${n.id}" aria-label="Options for ${esc(n.t)}">${ic('dots')}</button></div>`).join('')+`</div>`;
+ return `<div class="shelf" data-cov="H01">`+l.map(n=>`<div class="nb"><div style="position:relative"><button class="coverbtn" data-open="${n.id}" aria-label="Open ${esc(n.t)}">${coverHTML(n)}</button><button class="nbstar ${n.star?'on':''}" data-a="star" data-id="${n.id}" aria-label="${n.star?'Unpin':'Pin'} ${esc(n.t)}" aria-pressed="${n.star}" data-cov="H06">${ic('star')}</button></div>
+ <div class="nbmeta"><b>${esc(n.t)}</b>${n.due?`<span class="badge" data-cov="H10">${n.due} due</span>`:''}<button class="ib sm" data-a="nbmenu" data-id="${n.id}" aria-label="Options for ${esc(n.t)}" data-cov="H12">${ic('dots')}</button></div><div class="nbsub" data-cov="H11">${countPages(n)} pages · ${opened(n)}</div></div>`).join('')+
+ (U.tab==='all'&&!U.q&&!U.tag?`<div class="nb"><button class="newtile" data-a="newnb">${ic('plus')}New notebook</button></div>`:'')+`</div>`}
+function continueHTML(){const items=[];S.nbs.slice().sort((a,b)=>a.opened-b.opened).forEach(n=>{if(n.locked)return;const p=flat(n.pages).find(x=>!x.lock);if(p&&items.length<4)items.push({n,p})});
+ return `<div class="panelc" data-cov="A14"><div class="sech">${ic('clock')}Continue where you stopped</div><div class="cont scrollx" id="cont">${items.map(({n,p})=>`<button class="cc" data-a="openp" data-id="${p.id}">${coverHTML(n)}<div><b>${esc(p.t)}</b><span class="mini">${esc(n.t)} · ${opened(n)}</span></div></button>`).join('')}</div><div class="track" id="conttrk"><i></i></div></div>`}
+function homeHTML(){const pro=isPro();const pages=S.nbs.reduce((a,n)=>a+countPages(n),0),due=dueAll();
+ return `<div class="panelc"><div class="toprow"><div class="gr"><h1>Notebooks</h1></div>${pro?`<span class="clr" style="width:200px"><input class="inp" id="nbq" type="search" placeholder="Find a notebook" aria-label="Find a notebook" value="${esc(U.q)}" autocomplete="off"><button class="clrx" data-a="clr" data-for="nbq" aria-label="Clear search" ${U.q?'':'hidden'}>${ic('x')}</button></span>`:''}<button class="btn pri" data-a="newnb" data-cov="H13">${ic('plus')}New notebook</button></div>
+ <div class="stats"><span class="stat">${ic('notebooksA')}<b>${S.nbs.length}</b>notebooks</span><span class="stat">${ic('file')}<b>${pages}</b>pages</span><button class="stat" data-a="review">${ic('reviewA')}<b>${due}</b>cards due · Review</button></div></div>
+ ${continueHTML()}
+ <div class="panelc"><div class="rowbar" style="margin-bottom:12px"><button class="btn sm more" data-a="more" aria-haspopup="dialog" data-cov="A05">${ic('sliders')}More</button>
+ <div class="utabs scrollx" style="flex:1;min-width:190px;border-bottom:1px solid var(--line)" role="tablist" aria-label="Show notebooks">${[['all','All','H03'],['starred','Starred','H04'],['recent','Recent','H05']].map(([k,n,c])=>`<button role="tab" aria-selected="${U.tab===k}" data-a="htab" data-id="${k}" class="${U.tab===k?'on':''}" data-cov="${c}">${n}</button>`).join('')}</div>
+ <div class="seg sm" role="group" aria-label="Layout">${[['shelf','Shelf'],['list','List']].map(([k,n])=>`<button data-a="lay" data-id="${k}" class="${S.prefs.layout===k?'on':''}">${n}</button>`).join('')}</div></div>
+ ${pro?`<div class="rowbar" style="margin-bottom:12px;gap:6px" data-cov="G02"><span class="mini">Tags</span>${S.tags.map(t=>`<button class="tag ${U.tag===t.t?'on':''}" data-a="tagf" data-id="${U.tag===t.t?'':t.t}" aria-pressed="${U.tag===t.t}"><span class="dot" style="background:${TAGC[t.c%4]}"></span>${esc(t.t)}</button>`).join('')}</div>`:''}
+ ${shelfHTML()}</div>`}
+const TABS=[['notes','Notes'],['summary','Summary'],['cards','Cards'],['revise','Revise']],EXTRA={mindMap:'Mind map',slides:'Slides',resources:'Resources',database:'Database'};
+const tabList=nb=>[...TABS,...nb.extras.filter(k=>EXTRA[k]||(nb.cust&&nb.cust[k])).map(k=>[k,EXTRA[k]||nb.cust[k]])];
+function pagesContent(nb){let top=nb.pages;if(U.tag)top=top.filter(p=>[p,...flat(p.ch)].some(x=>x.tags.some(t=>t.startsWith(U.tag))));
+ if(nb.locked)return `<div class="empty">${ic('lock')}<br>This notebook is locked.<br><button class="btn sm" style="margin-top:10px" data-a="more" data-pane="privacy" data-id="${nb.id}">Unlock in settings</button></div>`;
+ if(!top.length)return `<div class="empty" data-cov="N14">No pages yet.<br><button class="btn pri" style="margin-top:10px" data-a="addp" data-id="${nb.id}">${ic('plus')}New page</button></div>`;
+ const L=nb.view==='shelf'?'gallery':nb.layout;const sub=p=>p.ch.length?p.ch.length+' sub-pages':'No sub-pages';
+ if(L==='table')return `<div class="pgs table"><b class="mini">Page</b><b class="mini">Sub-pages</b><b class="mini">Changed</b>`+top.map(p=>`<button class="pr" data-a="openp" data-id="${p.id}">${esc(p.t)}</button><span class="mini">${p.ch.length}</span><span class="mini">Today</span>`).join('')+`</div>`;
+ if(L==='board'){const groups=nb.board==='coloured'?[0,1,2,3]:[0];return `<div class="board">`+groups.map(g=>`<div class="col"><h4>${nb.board==='coloured'?(g?COLN[g]:'No colour'):'All pages'}</h4>${top.filter(p=>nb.board!=='coloured'||p.col===g).map(p=>`<button class="gc" style="--cc:${nb.board==='coloured'&&g?COLS[g]:'var(--line)'};min-height:0;margin-bottom:6px" data-a="openp" data-id="${p.id}">${esc(p.t)}</button>`).join('')}</div>`).join('')+`</div>`}
+ if(L==='gallery')return `<div class="pgs gallery">`+top.map(p=>`<button class="gc" style="--cc:${COLS[p.col]}" data-a="openp" data-id="${p.id}"><b>${esc(p.t)}</b><span>${p.lock?'Locked':esc(p.pv).slice(0,70)}</span></button>`).join('')+`</div>`;
+ return `<div class="pgs">`+top.map(p=>`<button class="pr" data-a="openp" data-id="${p.id}"><span class="dot" style="background:${COLS[p.col]}"></span><span style="flex:1;min-width:0"><b>${esc(p.t)}</b><br><span class="mini">${sub(p)}</span></span>${p.due?`<span class="badge">${p.due} due</span>`:''}${p.lock?ic('lock'):''}</button>`).join('')+`</div>`}
+function docHTML(pg){const p=pg.p;if(p.lock)return `<div class="doc"><h1>${esc(p.t)}</h1><div class="empty">${ic('lock')}<br>This page is locked.<br><button class="btn sm" style="margin-top:10px" data-a="plock" data-id="${p.id}">Unlock this page</button></div></div>`;
+ const ins=(p.ins||[]).map(id=>S.res.find(r=>r.id===id)).filter(Boolean);
+ return `<article class="doc"><h1>${esc(p.t)}</h1><div class="rowbar">${p.tags.map(t=>`<span class="tag" style="cursor:default"><span class="dot" style="background:${TAGC[0]}"></span>${esc(t)}</span>`).join('')}</div><p>${esc(p.pv)}</p>
+ ${ins.length?`<div class="rsx">${ins.map(r=>`<span class="tag" style="cursor:default">${ic(rkIcon(r.k))}${esc(r.t)}</span>`).join('')}</div>`:''}
+ ${headsOf(p).map(h=>`<h${h.l+1} data-h="${h.id}" class="${U.head===h.id?'here':''}">${h.tog?'▸ ':''}${esc(h.t)}</h${h.l+1}><p>${esc(PV)} This short paragraph stands in for your notes under “${esc(h.t)}”.</p><p>Scroll the page and watch the Outline follow you.</p>`).join('')}</article>`}
+function nbScreen(){const nb=nbBy(U.open);const pro=isPro();const tl=tabList(nb).filter(t=>!nb.tabHidden[t[0]]);
+ if(!tl.find(t=>t[0]===U.nbtab))U.nbtab=tl[0][0];const pg=U.page?findAny(U.page):null;
+ const showTabs=!pg||S.prefs.keepTabs||U.tabsShown;
+ const hideBtn=pg&&!S.prefs.keepTabs?`<button class="ib sm" data-a="tabtog" aria-label="${showTabs?'Hide':'Show'} the tab row" aria-expanded="${showTabs}" title="${showTabs?'Hide the tab row':'Show the tab row'}" data-cov="N02"><span class="arr ${showTabs?'up':'dn'}" style="display:grid">${ic('chev')}</span></button>`:'';
+ const slim=`<div class="tabtog" data-cov="N01"><button class="btn sm more" data-a="more" data-pane="look" data-id="${nb.id}" aria-haspopup="dialog">${ic('sliders')}More</button><span class="gr mini">${esc(nb.t)}</span>${hideBtn}</div>`;
+ const headFull=`<div class="panelc" style="${pg?'padding:8px 12px':''}">${pg?'':`<div class="toprow"><span style="width:44px;flex:none">${coverHTML(nb)}</span><div class="gr"><h1>${esc(nb.t)}</h1><div class="mini">${countPages(nb)} pages · ${nb.due} cards due · opened ${opened(nb).toLowerCase()}</div></div><button class="btn sm" data-a="closenb" data-cov="N10">${ic('x')}Close</button></div>`}
+ <div class="rowbar" style="${pg?'':'margin-top:10px'};flex-wrap:nowrap"><button class="btn sm more" data-a="more" data-pane="look" data-id="${nb.id}" aria-haspopup="dialog">${ic('sliders')}More</button>
+ <div style="flex:1;min-width:0"><div class="scrollx tabsx" id="nbtabs" role="tablist" data-cov="N01 N02">${tl.map(([k,n])=>`<button class="tb ${U.nbtab===k?'on':''}" role="tab" aria-selected="${U.nbtab===k}" data-a="nbtab" data-id="${k}">${nb.tabCol[k]!=null?`<span class="dot" style="background:${COLS[nb.tabCol[k]]}"></span>`:''}${esc(nb.tabNames[k]||n)}</button>`).join('')}</div><div class="track" id="nbtrk"><i></i></div></div>
+ <button class="ib sm tbplus" data-a="tabplus" aria-haspopup="menu" aria-label="Add a tab" title="Add a tab (resources, mind map, your own)">${ic('plus')}</button>
+ ${pro?`<button class="ib" data-a="more" data-pane="tabs" data-id="${nb.id}" aria-label="Tab options (rename, hide, colour)" title="Tab options" data-cov="N03">${ic('pen')}</button>`:''}${hideBtn}</div></div>`;
+ const head=showTabs?headFull:slim;
+ const tools=pro&&U.nbtab==='notes'&&!pg&&!nb.locked?`<div class="rowbar" style="margin-bottom:12px"><div class="seg sm" role="group" aria-label="View" data-cov="N05">${['default','shelf','tabs'].map(v=>`<button data-a="view" data-id="${v}" class="${nb.view===v?'on':''}">${v[0].toUpperCase()+v.slice(1)}</button>`).join('')}</div>
+ <div class="seg sm" role="group" aria-label="Page layout" data-cov="N06">${['list','table','board','gallery'].map(v=>`<button data-a="nlay" data-id="${v}" class="${nb.layout===v?'on':''}">${v[0].toUpperCase()+v.slice(1)}</button>`).join('')}</div>
+ ${nb.layout==='board'?`<div class="seg sm" role="group" aria-label="Board grouping" data-cov="N07">${['coloured','none'].map(v=>`<button data-a="bgrp" data-id="${v}" class="${nb.board===v?'on':''}">${v==='none'?'No colour':'Coloured'}</button>`).join('')}</div>`:''}
+ <select class="inp" style="max-width:200px;min-height:44px" aria-label="Databases in this notebook" data-cov="N11"><option>Databases: all pages</option><option>Database · Exam tracker</option></select></div>`:'';
+ const body=U.nbtab==='notes'?(pg?docHTML(pg):tools+pagesContent(nb)+(nb.locked?'':`<div style="margin-top:12px"><button class="btn sm" data-a="addmenu" data-id="${nb.id}" data-cov="H17">${ic('plus')}New page</button></div>`)):U.nbtab==='resources'?resTabHTML(nb):`<div class="empty">${esc(nb.tabNames[U.nbtab]||tabList(nb).find(t=>t[0]===U.nbtab)[1])} for this notebook<br><span class="mini">${nb.cust&&nb.cust[U.nbtab]?'Your own tab: keep notes, links and files here.':'Opens its own screen in the app.'}</span></div>`;
+ return head+`<div class="panelc">${body}</div>`}
+function renderMain(keep){const m=$('#main');const y=m.scrollTop;m.innerHTML=U.open?nbScreen():homeHTML();m.scrollTop=keep?y:0;Shell.track($('#nbtabs'),$('#nbtrk'));Shell.track($('#cont'),$('#conttrk'))}
+function renderTop(){const nb=nbBy(U.open),pg=U.page?findAny(U.page):null;
+ Shell.top({side:true,panel:!!nb,crumbs:['Notebooks',...(nb?[nb.t]:[]),...(pg?[pg.p.t]:[])],saved:pg?'Saved':'',
+  actions:nb&&isPro()?topActions(nb):''})}
+function topActions(nb){return `<button class="ib" data-a="toast" data-m="Exported ${esc(nb.t)} as a file" aria-label="Export notebook" title="Export notebook" data-cov="N12">${ic('dl')}</button><button class="ib" data-a="layers" aria-haspopup="menu" aria-label="Share layers" title="Share layers" data-cov="N13">${ic('share')}</button>`}
+function renderBar(){const pg=U.page?findAny(U.page):null;if(!pg){Shell.bar('pages',{label:'Pages',icon:'file',show:false,html:''});return}
+ Shell.bar('pages',{label:'Pages',icon:'file',show:true,html:barHTML(pg)})}
+function barHTML(pg){const fl=flat(pg.nb.pages),i=fl.indexOf(pg.p);return `<button class="ib" data-a="pstep" data-id="-1" aria-label="Previous page" ${i?'':'disabled'}>${ic('back')}</button><span class="lab" data-cov="A15" aria-label="Page ${i+1} of ${fl.length}">${i+1} / ${fl.length}</span><button class="ib" data-a="pstep" data-id="1" aria-label="Next page" ${i<fl.length-1?'':'disabled'}>${ic('fwd')}</button><span class="sep"></span><button class="ib" data-a="pvt" data-id="pages" aria-haspopup="dialog" aria-label="Preview pages" title="Preview pages" data-cov="P01">${ic('file')}</button><button class="ib" data-a="pvt" data-id="outline" aria-haspopup="dialog" aria-label="Preview outline" title="Preview outline" data-cov="P02">${ic('list')}</button><button class="ib" data-a="addp" data-id="${pg.nb.id}" aria-label="New page" title="New page">${ic('plus')}</button>`}
+function applyCols(){if(Shell.isPhone()){['side','panel'].forEach(w=>{if(Shell.col(w)!=='over')Shell.col(w,'hidden')});return}
+ const pan=!!U.open&&U.panelWant;Shell.col('panel',pan?'dock':'hidden');if(Shell.col('side')==='over')return;
+ Shell.col('side',U.sideWant&&!(pan&&innerWidth<1180)?'dock':'hidden')}
+function renderAll(keep){Shell.rail({due:dueAll()});renderTop();renderSide();renderPanel(keep);renderMain(keep);renderBar();applyCols()}
+/* ---------- navigation ---------- */
+function openNb(id){const nb=nbBy(id);nb.opened=0;nb.open=true;U.open=id;U.nbtab='notes';U.page=null;U.head=null;U.fold={};U.pq=U.oq=U.rq='';
+ if(!nb.locked&&S.prefs.openAt!=='tabs'&&nb.pages.length){const fl=flat(nb.pages).filter(p=>!p.lock);const f=S.prefs.openAt==='first'?fl[0]:fl[Math.min(1,fl.length-1)];if(f){U.page=f.id;U.head=f.id+'-h0'}}
+ closeOver();renderAll()}
+function openPage(id,head){const r=findAny(id);if(!r)return;if(r.nb.locked){toast('This notebook is locked');return}U.open=r.nb.id;r.nb.open=true;let par=r.par;while(par){par.open=true;par=findAny(par.id).par}
+ U.page=id;U.nbtab='notes';U.head=head||id+'-h0';closeOver();renderAll();if(head){const h=document.querySelector('[data-h="'+head+'"]');if(h)$('#main').scrollTop=h.offsetTop-12}}
+function closeOver(){['side','panel'].forEach(w=>{if(Shell.col(w)==='over')Shell.col(w,'hidden')})}
+function goHome(){U.open=null;U.page=null;renderAll()}
+/* the outline follows the reader */
+$('#main').addEventListener('scroll',()=>{if(!U.page)return;const m=$('#main'),top=m.getBoundingClientRect().top+90;let cur=null;const hs=m.querySelectorAll('[data-h]');hs.forEach(h=>{if(h.getBoundingClientRect().top<=top)cur=h.dataset.h});if(hs.length&&m.scrollTop>=m.scrollHeight-m.clientHeight-2)cur=hs[hs.length-1].dataset.h;
+ cur=cur||U.page+'-h0';if(cur===U.head)return;U.head=cur;m.querySelectorAll('[data-h]').forEach(h=>h.classList.toggle('here',h.dataset.h===cur));
+ if(U.ptab==='outline'){const sc=$('#panelscroll');if(!sc)return;sc.querySelectorAll('.ol.cur').forEach(x=>x.classList.remove('cur'));const row=sc.querySelector('[data-olh="'+cur+'"]');if(row){row.classList.add('cur');centre(sc,row)}}},{passive:true});
+/* ---------- menus ---------- */
+const mi=(attr,icn,txt,cov,cls)=>`<button class="mi ${cls||''}" role="menuitem" ${attr} ${cov?`data-cov="${cov}"`:''}>${ic(icn)}${txt}</button>`;
+function nbMenuHTML(n){const pro=isPro(),d=`data-id="${n.id}"`;
+ return mi(`data-m="open" ${d}`,'notebooksA','Open')+mi(`data-m="star" ${d}`,'star',n.star?'Unpin from the top':'Pin to the top','H06')+mi(`data-m="rename" ${d}`,'pen','Rename','H14')+mi(`data-m="settings" ${d}`,'palette','Cover and settings…','H07 A09')+
+ (pro?mi(`data-m="blank" ${d}`,'plus','Add empty page','H17')+mi(`data-m="tpl" ${d}`,'file','Add from template…')+mi(`data-m="review" ${d}`,'reviewA','Review this notebook','H16')+mi(`data-m="mup" ${d}`,'up','Move up','H18')+mi(`data-m="mdown" ${d}`,'down','Move down'):'')+'<hr>'+mi(`data-m="delete" ${d}`,'trash','Delete notebook','H15','dng')}
+function addMenuHTML(n){const d=`data-id="${n.id}"`;return `<div class="lbl">New page in ${esc(n.t)}</div>`+mi(`data-m="blank" ${d}`,'plus','Blank page','H17')+mi(`data-m="tpl" ${d}`,'file','From template…')}
+function rowMenuHTML(p){const pro=isPro(),d=`data-id="${p.id}"`;
+ return mi(`data-pm="sub" ${d}`,'plus','Add sub-page','T03')+mi(`data-pm="rename" ${d}`,'pen','Rename','T09')+mi(`data-pm="fav" ${d}`,'star',p.fav?'Remove favourite':'Favourite','T08')+
+ (pro?mi(`data-pm="up" ${d}`,'up','Move up','T05')+mi(`data-pm="down" ${d}`,'down','Move down')+mi(`data-pm="top" ${d}`,'top','Move to top level','T06')+mi(`data-pm="lock" ${d}`,'lock',p.lock?'Unlock this page':'Lock this page','L02'):'')+'<hr>'+mi(`data-pm="del" ${d}`,'trash','Delete page','T07','dng')}
+function resMenuHTML(r){const d=`data-id="${r.id}"`;return mi(`data-rm="ins" ${d}`,'insert','Insert in the page')+mi(`data-rm="rename" ${d}`,'pen','Rename')+mi(`data-rm="scope" ${d}`,'notebooksA',r.pg===null?'Keep for this page only':'Keep for the whole notebook')+mi(`data-rm="copy" ${d}`,'copy','Copy')+'<hr>'+mi(`data-rm="del" ${d}`,'trash','Delete','','dng')}
+function resAddHTML(){return `<div class="lbl">Add a resource</div>`+RK.slice(1).map(([k,n,i])=>mi(`data-ra="${k}"`,i,{image:'Image',link:'Link',plugin:'Plugin',ref:'Reference',note:'Note',audio:'Recording',file:'File'}[k])).join('')}
+/* ---------- tree edits ---------- */
+function moveStep(p,dir){const r=findAny(p.id);const i=r.list.indexOf(p),j=i+(dir==='up'?-1:1);if(j<0||j>=r.list.length){toast('Already at the '+(dir==='up'?'top':'bottom'));return}const snap=snapshot();r.list.splice(i,1);r.list.splice(j,0,p);renderAll(true);toast('Page moved.',()=>restore(snap))}
+function toTop(p){const r=findAny(p.id);if(!r.par){toast('Already at the top level');return}const snap=snapshot();r.list.splice(r.list.indexOf(p),1);r.nb.pages.push(p);renderAll(true);toast('Page moved.',()=>restore(snap))}
+function delPage(p){const r=findAny(p.id);if(r.nb.editLock){toast('This notebook is edit-locked. Turn the lock off to delete.');return}const snap=snapshot();const subs=countSub(p);r.list.splice(r.list.indexOf(p),1);S.trash.unshift({id:'t'+uid++,k:'page',t:p.t,n:subs+1,when:'Just now'});if(U.page===p.id||!findAny(U.page||''))U.page=null;renderAll(true);toast(`Moved “${p.t}”${subs?` and ${subs} sub-pages`:''} to Trash`,()=>{S.trash.shift();restore(snap)})}
+function addPage(nb,msg,title){if(nb.locked){toast('This notebook is locked');return}const p=mk(title||'Untitled',{pv:'A fresh page. Start writing.'});nb.pages.push(p);nb.open=true;openPage(p.id);toast(msg||'Empty page added')}
+function deleteNb(n){if(n.editLock){toast('“'+n.t+'” is edit-locked. Turn the lock off to delete.');return}Shell.confirm(`Move “${n.t}” and its ${countPages(n)} pages to Trash?`,'Move to Trash',()=>{const i=S.nbs.indexOf(n);S.nbs.splice(i,1);S.trash.unshift({id:'t'+uid++,k:'notebook',t:n.t,n:countPages(n),when:'Just now',nb:n});if(U.open===n.id){U.open=null;U.page=null}renderAll();toast(`Moved “${n.t}” to Trash`,()=>{const t=S.trash.shift();S.nbs.splice(i,0,t.nb);renderAll()})})}
+function movePage(id,target,zone){const a=findAny(id);if(!a||id===target||findPage(target,a.p.ch))return false;const snap=snapshot();a.list.splice(a.list.indexOf(a.p),1);const b=findAny(target);
+ if(zone==='I'){b.p.ch.push(a.p);b.p.open=true}else b.list.splice(b.list.indexOf(b.p)+(zone==='A'?1:0),0,a.p);renderAll(true);toast('Page moved.',()=>restore(snap));return true}
+function foldAll(){if(anyOpen()){U.prevOpen=S.nbs.filter(n=>n.open).map(n=>n.id);S.nbs.forEach(n=>{n.open=false});toast('All notebooks collapsed')}else{const prev=U.prevOpen&&U.prevOpen.length?U.prevOpen:S.nbs.map(n=>n.id);S.nbs.forEach(n=>{n.open=prev.includes(n.id)});U.prevOpen=null}renderSide()}
+/* ---------- drag: hold, then move (sidebar tree rows and Pages thumbnails) ---------- */
+let drag=null,justDragged=false;
+function lift(){if(!drag)return;drag.on=true;drag.el.classList.add('lift');try{if(navigator.vibrate)navigator.vibrate(10)}catch(_){}}
+document.addEventListener('pointerdown',e=>{if(e.button>0)return;const g=e.target.closest('[data-grip]'),th=e.target.closest('.pa')?null:e.target.closest('.pth');
+ if(g){const row=g.closest('.trow');drag={kind:'tree',id:g.dataset.grip,el:row,x:e.clientX,y:e.clientY,sel:'.trow[data-row]',key:'row'};drag.timer=setTimeout(lift,180)}
+ else if(th){const grip=!!e.target.closest('.gp');drag={kind:'pth',id:th.dataset.pth,el:th,x:e.clientX,y:e.clientY,sel:'.pth',key:'pth'};drag.timer=setTimeout(lift,grip?60:320)}});
+document.addEventListener('pointermove',e=>{if(!drag)return;if(!drag.on){if(Math.hypot(e.clientX-drag.x,e.clientY-drag.y)>10){clearTimeout(drag.timer);drag=null}return}
+ $$('.dB,.dA,.dI').forEach(r=>r.classList.remove('dB','dA','dI'));drag.target=null;
+ const sc=drag.el.closest('.sh-colscroll');if(sc){const b=sc.getBoundingClientRect();if(e.clientY<b.top+36)sc.scrollTop-=10;if(e.clientY>b.bottom-36)sc.scrollTop+=10}
+ const el=document.elementFromPoint(e.clientX,e.clientY);const r=el&&el.closest(drag.sel);if(!r||r.dataset[drag.key]===drag.id)return;
+ const me=findAny(drag.id).p;if(findPage(r.dataset[drag.key],me.ch))return;const b=r.getBoundingClientRect(),f=(e.clientY-b.top)/b.height;
+ const z=drag.kind==='tree'?(f<.25?'B':f>.75?'A':'I'):(f<.5?'B':'A');r.classList.add('d'+z);drag.target=r.dataset[drag.key];drag.zone=z});
+function endDrag(cancel){if(!drag)return;clearTimeout(drag.timer);const d=drag;drag=null;if(!d.on)return;justDragged=true;setTimeout(()=>{justDragged=false},60);
+ $$('.dB,.dA,.dI,.lift').forEach(r=>r.classList.remove('dB','dA','dI','lift'));if(!cancel&&d.target)movePage(d.id,d.target,d.zone)}
+document.addEventListener('pointerup',()=>endDrag(false));document.addEventListener('pointercancel',()=>endDrag(true));
+document.addEventListener('touchmove',e=>{if(drag&&drag.on)e.preventDefault()},{passive:false});
+document.addEventListener('contextmenu',e=>{if(e.target.closest('.pth,.trow'))e.preventDefault()});
+document.addEventListener('keydown',e=>{const th=e.target.closest&&e.target.closest('.pth');if(!th)return;const id=th.dataset.pth;
+ if(e.key==='Enter'||e.key===' '){e.preventDefault();openPage(id)}
+ if(e.altKey&&(e.key==='ArrowUp'||e.key==='ArrowDown')){e.preventDefault();moveStep(findAny(id).p,e.key==='ArrowUp'?'up':'down');const n=document.querySelector('[data-pth="'+id+'"]');if(n)n.focus()}});
+/* ---------- delegated actions ---------- */
+document.addEventListener('click',e=>{const T=e.target;if(justDragged)return;let b;
+ if((b=T.closest('#sh-pop [data-m]'))){const n=nbBy(b.dataset.id),a=b.dataset.m;Shell.closePop();
+  if(a==='open')openNb(n.id);if(a==='star'){n.star=!n.star;renderAll(true)}
+  if(a==='rename')Shell.ask('Rename notebook',n.t,v=>{if(v){n.t=v;renderAll(true)}});
+  if(a==='settings')openMore('look',n.id);
+  if(a==='blank')addPage(n);if(a==='tpl')addPage(n,'New page from “Lecture notes”','Lecture notes');
+  if(a==='review')toast('Reviewing '+n.t+' ('+n.due+' cards due)');
+  if(a==='mup'||a==='mdown'){const i=S.nbs.indexOf(n),j=i+(a==='mup'?-1:1);if(j>=0&&j<S.nbs.length){S.nbs.splice(i,1);S.nbs.splice(j,0,n);renderAll(true)}else toast('Already at the '+(a==='mup'?'top':'bottom'))}
+  if(a==='delete')deleteNb(n);return}
+ if((b=T.closest('#sh-pop [data-pm]'))){Shell.closePop();const r=findAny(b.dataset.id);if(!r)return;const p=r.p,a=b.dataset.pm;
+  if(a==='sub'){p.ch.push(mk('Untitled'));p.open=true;renderAll(true)}
+  if(a==='rename')Shell.ask('Rename page',p.t,v=>{if(v){p.t=v;renderAll(true)}});
+  if(a==='fav'){p.fav=!p.fav;renderAll(true)}if(a==='up'||a==='down')moveStep(p,a);if(a==='top')toTop(p);
+  if(a==='lock'){p.lock=!p.lock;renderAll(true);toast(p.lock?'Page locked':'Page unlocked')}if(a==='del')delPage(p);return}
+ if((b=T.closest('#sh-pop [data-rm]'))){Shell.closePop();const r=S.res.find(x=>x.id===b.dataset.id),a=b.dataset.rm;if(!r)return;
+  if(a==='ins')insertRes(r);if(a==='rename')Shell.ask('Rename',r.t,v=>{if(v){r.t=v;renderPanel(true)}});
+  if(a==='scope'){const nb=nbBy(U.open),i=flat(nb.pages).findIndex(p=>p.id===U.page);r.pg=r.pg===null?(i<0?0:i):null;renderPanel(true);toast(r.pg===null?'Kept for the whole notebook':'Kept for this page')}
+  if(a==='copy')toast('Copied');if(a==='del'){const i=S.res.indexOf(r);S.res.splice(i,1);renderPanel(true);toast('Resource deleted',()=>{S.res.splice(i,0,r);renderPanel(true)})}return}
+ if((b=T.closest('#sh-pop [data-ra]'))){Shell.closePop();U.addRes=b.dataset.ra;renderPanel(true);$('#panelscroll').scrollTop=0;const f=$('#resU')||$('#resT');if(f)f.focus();return}
+ if((b=T.closest('#sh-pop [data-tp]'))){Shell.closePop();const nb=nbBy(U.open);if(!nb)return;const k=b.dataset.tp;
+  if(k==='custom'){Shell.ask('Name your tab','Reading list',v=>{if(!v)return;const key='u'+uid++;nb.cust[key]=v.slice(0,40);nb.extras.push(key);U.nbtab=key;U.page=null;renderAll(true);toast('Tab added')});return}
+  if(!nb.extras.includes(k))nb.extras.push(k);U.nbtab=k;U.page=null;renderAll(true);toast((EXTRA[k]||'Tab')+' tab added');return}
+ if((b=T.closest('[data-open]'))&&!T.closest('[data-a]')){openNb(b.dataset.open);return}
+ if((b=T.closest('.pth'))&&!T.closest('[data-a]')){openPage(b.dataset.pth);return}
+ b=T.closest('[data-a]');if(!b||b.closest('#sh-sheet'))return;const a=b.dataset.a,id=b.dataset.id;if(b.closest('#sh-pop'))Shell.closePop();
+ switch(a){
+ case'star':{const n=nbBy(id);n.star=!n.star;renderAll(true);break}
+ case'htab':U.tab=id;renderMain(true);break;
+ case'lay':S.prefs.layout=id;save();renderMain(true);break;
+ case'newnb':Shell.ask('New notebook','Untitled notebook',v=>{const n=mkNb({t:v||'Untitled notebook',colour:COLS[S.nbs.length%COLS.length],cv:{k:'grad',i:S.nbs.length%GRADS.length},opened:0,extras:S.prefs.defExtras.slice()});S.nbs.unshift(n);renderAll(true);toast('Notebook created')});break;
+ case'nbmenu':Shell.pop(b,nbMenuHTML(nbBy(id)));break;
+ case'addmenu':Shell.pop(b,addMenuHTML(nbBy(id)));break;
+ case'pmenu':Shell.pop(b,rowMenuHTML(findAny(id).p));break;
+ case'nbtw':nbBy(id).open=!nbBy(id).open;renderSide();break;
+ case'tw':{const p=findAny(id).p;p.open=!p.open;renderSide();break}
+ case'foldall':foldAll();break;
+ case'tabtog':U.tabsShown=!U.tabsShown;renderMain(true);break;
+ case'tabplus':{const p=Shell.pop(b,tabPlusHTML(nbBy(U.open)));break}
+ case'pdup':dupPage(findAny(id).p);break;
+ case'pdel':delPage(findAny(id).p);break;
+ case'olall':olAll(id);break;
+ case'clr':{const i=document.getElementById(b.dataset.for);if(i){i.value='';i.dispatchEvent(new Event('input',{bubbles:true}));const j=document.getElementById(b.dataset.for);if(j)j.focus()}break}
+ case'resnew':U.addRes=id;U.ptab='res';U.panelWant=true;if(Shell.isPhone())Shell.col('panel','over');else applyCols();renderPanel();{const sc=$('#panelscroll');if(sc)sc.scrollTop=0;const f=id==='link'?$('#resU'):$('#resT');if(f)f.focus()}break;
+ case'showpanel':U.ptab=id;U.panelWant=true;if(Shell.isPhone())Shell.col('panel','over');else applyCols();renderPanel();break;
+ case'pvt':previewPop(b,id);break;
+ case'layers':Shell.pop(b,`<div class="lbl">Share layers</div><div class="mini" style="padding:2px 10px 8px;max-width:270px">Send this page with its pen, text and picture layers kept apart, so the other person can show, hide or edit each one.</div><button class="mi" role="menuitem" data-a="layersgo">${ic('share')}Share layers</button>`);break;
+ case'layersgo':toast('Layers shared');break;
+ case'opennb':openNb(id);break;
+ case'openp':openPage(id);break;
+ case'closenb':goHome();break;
+ case'addp':addPage(nbBy(id));break;
+ case'pstep':{const r=findAny(U.page),fl=flat(r.nb.pages),n=fl[fl.indexOf(r.p)+(+id)];if(n)openPage(n.id);break}
+ case'plock':{const p=findAny(id).p;p.lock=false;renderAll();toast('Page unlocked');break}
+ case'nbtab':U.nbtab=id;U.page=null;renderAll();break;
+ case'view':nbBy(U.open).view=id;renderMain(true);break;
+ case'nlay':nbBy(U.open).layout=id;renderMain(true);break;
+ case'bgrp':nbBy(U.open).board=id;renderMain(true);break;
+ case'ptab':U.ptab=id;U.addRes=null;renderPanel();break;
+ case'closepanel':if(Shell.col('panel')==='over')Shell.col('panel','hidden');else{U.panelWant=false;applyCols()}break;
+ case'closeside':if(Shell.col('side')==='over')Shell.col('side','hidden');else{U.sideWant=false;applyCols()}break;
+ case'grp':U.groups[id]=!U.groups[id];renderSide();break;
+ case'lvl':U.outLvl=+id;renderPanel(true);break;
+ case'otog':U.outTog=!U.outTog;renderPanel(true);break;
+ case'onum':U.outNum=!U.outNum;renderPanel(true);break;
+ case'fold':{const cur=U.fold[id]===undefined?(id.includes('-h')?false:U.page!==id):U.fold[id];U.fold[id]=!cur;renderPanel(true);break}
+ case'outgo':if(b.dataset.pg!==U.page)openPage(b.dataset.pg,id);else{const h=document.querySelector('[data-h="'+id+'"]');if(h)$('#main').scrollTo({top:h.offsetTop-12,behavior:matchMedia('(prefers-reduced-motion: reduce)').matches?'auto':'smooth'})}break;
+ case'rscope':U.resScope=id;renderPanel(true);break;
+ case'rkind':U.resKind=id;renderPanel(true);break;
+ case'resadd':Shell.pop(b,resAddHTML());break;
+ case'resmenu':Shell.pop(b,resMenuHTML(S.res.find(r=>r.id===id)));break;
+ case'resins':insertRes(S.res.find(r=>r.id===id));break;
+ case'resx':U.addRes=null;renderPanel(true);break;
+ case'resfile':$('#resIn').accept=U.addRes==='image'?'image/*':'';$('#resIn').click();break;
+ case'resrec':b.innerHTML=ic('mic')+'<br>Recording… 00:03 (tap Add to keep it)';pendingRes={m:'Recording · 00:03'};break;
+ case'resok':addRes();break;
+ case'tagf':U.tag=id||null;if(U.open&&!id)renderAll(true);else{U.open=null;U.page=null;renderAll()}break;
+ case'usetpl':{const t=S.tpl.find(x=>x.id===id);addPage(nbBy(U.open)||S.nbs[0],'New page from “'+t.t+'”',t.t);break}
+ case'toast':toast(b.dataset.m);break;
+ case'today':toast('Today’s journal opens here');break;
+ case'jr':toast('Journal pages stay in date order');break;
+ case'search':toast('Search opens here (Ctrl K)');break;
+ case'review':toast(dueAll()+' cards due across your notebooks');break;
+ case'favs':toast('Favourites: '+(S.nbs.flatMap(n=>flat(n.pages)).filter(p=>p.fav).map(p=>p.t).join(', ')||'none yet'));break;
+ case'recentp':toast('Recent pages: Organelles, Mendel, Type scale');break;
+ case'more':openMore(b.dataset.pane||(U.open?'look':'organise'),id||(b.dataset.pane&&['tags','tpl','trash','organise'].includes(b.dataset.pane)?'all':U.open)||'all');break;
+ }});
+document.addEventListener('input',e=>{if(e.target.id==='nbq'){U.q=e.target.value;const pos=e.target.selectionStart;renderMain(true);const i=$('#nbq');if(i){i.focus();i.setSelectionRange(pos,pos)}}});
+/* ---------- round 3 helpers: finders with a clear button, page thumbnails, tabs, previews ---------- */
+function findBox(id,ph,val){return `<div class="clr pgfind"><input class="inp" id="${id}" type="search" placeholder="${ph}" aria-label="${ph}" value="${esc(val)}" autocomplete="off"><button class="clrx" data-a="clr" data-for="${id}" aria-label="Clear ${ph.toLowerCase()}" ${val?'':'hidden'}>${ic('x')}</button></div>`}
+function thumbHTML(p,i){const h=(p.t.length*7+i*13)%5,w=[88,72,95,60,80];let r='<i class="h" style="width:'+(45+h*9)+'%"></i>';for(let k=0;k<5;k++)r+='<i style="width:'+w[(k+h)%5]+'%"></i>';return r}
+function dupPage(p){const r=findAny(p.id);if(!r)return;const snap=snapshot();const c=JSON.parse(JSON.stringify(p));(function re(x){x.id='p'+uid++;x.ch.forEach(re)})(c);c.t=p.t+' copy';r.list.splice(r.list.indexOf(p)+1,0,c);renderAll(true);toast('Duplicated “'+p.t+'”',()=>restore(snap))}
+function olAll(id){const nb=nbBy(U.open);flat(nb.pages).forEach(p=>{U.fold[p.id]=(id==='fold')});renderPanel(true)}
+function tabPlusHTML(nb){const items=Object.entries(EXTRA).filter(([k])=>!nb.extras.includes(k));const ico={mindMap:'share',slides:'play',resources:'box',database:'db'};const sub={resources:'Images, links, plugins, references'};
+ return `<div class="lbl">Add a tab</div>`+items.map(([k,t])=>mi(`data-tp="${k}"`,ico[k]||'plus',`<span>${t}${sub[k]?`<span class="mini" style="display:block;font-weight:400">${sub[k]}</span>`:''}</span>`)).join('')+mi('data-tp="custom"','plus','Your own tab…')}
+function resTabHTML(nb){const q=U.rq.trim().toLowerCase();const l=S.res.filter(r=>r.nb===nb.id&&(U.resKind==='all'||r.k===U.resKind)&&(!q||r.t.toLowerCase().includes(q)));
+ return `<div data-cov="A08"><div class="sech">${ic('box')}Resources</div><p class="mini" style="margin:-4px 0 10px">Images, links, plugins and references for this notebook. Add with the buttons, then insert on any page.</p>
+ <div class="exwrap">${[['image','Image'],['link','Link'],['plugin','Plugin'],['ref','Reference']].map(([k,t])=>`<button class="btn sm" data-a="resnew" data-id="${k}">${ic(rkIcon(k))}${t}</button>`).join('')}</div>
+ ${findBox('rqm','Find a resource',U.rq)}
+ <div class="chips scrollx" role="group" aria-label="Kind">${RK.map(([k,n,i])=>`<button class="chipf ${U.resKind===k?'on':''}" data-a="rkind" data-id="${k}" aria-pressed="${U.resKind===k}">${ic(i)}${n}</button>`).join('')}</div>
+ ${l.length?l.map(r=>`<div class="res"><span class="th" ${r.sw?`style="background:${r.sw}"`:''}>${r.src?`<img alt="" src="${r.src}">`:r.sw?'':ic(rkIcon(r.k))}</span><span class="bd"><b title="${esc(r.t)}">${esc(r.t)}</b><span class="mini">${esc(r.m)}</span></span><button class="ib" data-a="resins" data-id="${r.id}" aria-label="Insert ${esc(r.t)} in the page" title="Insert in the page">${ic('insert')}</button><button class="ib" data-a="resmenu" data-id="${r.id}" aria-label="More for ${esc(r.t)}">${ic('dots')}</button></div>`).join(''):`<div class="empty" style="padding:20px 8px">Nothing here yet.<br><span class="mini">Add an image, link, plugin or reference above.</span></div>`}</div>`}
+function previewPop(b,kind){const r=U.page&&findAny(U.page);if(!r)return;const fl=flat(r.nb.pages);let html;
+ if(kind==='pages')html=`<div class="pvwrap"><div class="pvhd">Pages · ${fl.length}</div><div class="pvstrip" id="pvstrip">${fl.map((p,i)=>`<button class="pvth ${p.id===r.p.id?'cur':''}" data-a="openp" data-id="${p.id}" aria-label="Page ${i+1}: ${esc(p.t)}">${thumbHTML(p,i)}<span>${i+1} ${esc(p.t)}</span></button>`).join('')}</div><button class="btn sm" data-a="showpanel" data-id="pages">Open in the side panel</button></div>`;
+ else html=`<div class="pvwrap"><div class="pvhd">Outline · ${esc(r.p.t)}</div><div class="pvol" id="pvol">${headsOf(r.p).map(h=>`<button class="${U.head===h.id?'cur':''}" style="padding-left:${6+h.l*12}px" data-a="outgo" data-id="${h.id}" data-pg="${r.p.id}">${esc(h.t)}</button>`).join('')}</div><button class="btn sm" style="margin-top:6px" data-a="showpanel" data-id="outline">Open in the side panel</button></div>`;
+ const p=Shell.pop(b,html);p.style.top=Math.max(8,b.getBoundingClientRect().top-p.offsetHeight-10)+'px';
+ const cur=p.querySelector('.pvth.cur');if(cur)p.querySelector('#pvstrip').scrollLeft=cur.offsetLeft-80;const oc=p.querySelector('.pvol .cur');if(oc){const v=p.querySelector('#pvol');v.scrollTop=oc.offsetTop-v.clientHeight/2}}
+const FINDS={pq:'pq',oq:'oq',rq:'rq',rqm:'rq'};
+document.addEventListener('input',e=>{const t=e.target;if(!t.closest)return;const w=t.closest('.clr');if(w){const x=w.querySelector('.clrx');if(x)x.hidden=!t.value}
+ const key=FINDS[t.id];if(!key||!U.open)return;U[key]=t.value;const pos=t.selectionStart,id=t.id;renderPanel(true);const i=document.getElementById(id);if(i){i.focus();try{i.setSelectionRange(pos,pos)}catch(_){}}});
+/* ---------- resources ---------- */
+let pendingRes=null;
+function insertRes(r){if(!U.page){toast('Open a page first, then insert');return}const p=findAny(U.page).p;p.ins=p.ins||[];if(!p.ins.includes(r.id))p.ins.push(r.id);renderMain(true);toast('Added to “'+p.t+'”',()=>{p.ins=p.ins.filter(x=>x!==r.id);renderMain(true)})}
+function addRes(){const k=U.addRes,nb=nbBy(U.open);const t=($('#resT')||{}).value||'',u=($('#resU')||{}).value||'';
+ if(k==='plugin'&&!t.trim()){toast('Give the plugin a name');$('#resT').focus();return}
+ if(k==='link'&&!/^https?:\/\/\S+\.\S+/.test(u.trim())){toast('Type a full link, starting with https://');$('#resU').focus();return}
+ if((k==='ref'||k==='note')&&!t.trim()){toast('Write something first');$('#resT').focus();return}
+ if((k==='image'||k==='file'||k==='audio')&&!pendingRes){toast(k==='audio'?'Tap “Start recording” first':'Choose a file first');return}
+ const i=flat(nb.pages).findIndex(p=>p.id===U.page);let host='';try{host=new URL(u.trim()).hostname}catch(_){}
+ const r={id:'r'+uid++,k,t:t.trim().slice(0,200)||(pendingRes&&pendingRes.name)||host||'Untitled',m:k==='link'?host:k==='plugin'?'Plugin'+(host?' · '+host:''):(pendingRes&&pendingRes.m)||{ref:'Reference',note:'Quick note'}[k]||'',nb:nb.id,pg:U.resScope==='page'&&i>=0?i:null,src:pendingRes&&pendingRes.src};
+ S.res.unshift(r);pendingRes=null;U.addRes=null;U.resKind='all';renderPanel(true);toast('Added to Resources',()=>{S.res=S.res.filter(x=>x!==r);renderPanel(true)})}
+$('#resIn').addEventListener('change',e=>{const f=e.target.files[0];if(!f)return;const done=src=>{pendingRes={name:f.name,m:(f.type.split('/')[1]||'file').toUpperCase()+' · '+Math.max(1,Math.round(f.size/1024))+' KB',src};const d=document.querySelector('.addf .drop');if(d)d.innerHTML=ic('check')+'<br>'+esc(f.name)};
+ if(f.type.startsWith('image/')){const fr=new FileReader();fr.onload=()=>done(fr.result);fr.readAsDataURL(f)}else done(null);e.target.value=''});
+/* ---------- More: ONE settings sheet. Pick the notebook on top, edit below (N3, N4) ---------- */
+let D=null,pickId='all',cvTab='solid',holdT=null;
+const PANES={all:[['organise','Organise'],['tags','Tags'],['tpl','Templates'],['trash','Trash']],nb:[['look','Look'],['tabs','Tabs & views'],['privacy','Privacy & AI'],['actions','Actions']]};
+const tabsFor=()=>{const l=PANES[pickId==='all'?'all':'nb'];return isPro()?l:l.filter(x=>['organise','trash','look','privacy','actions'].includes(x[0]))};
+function openMore(pane,nbId){D=JSON.parse(JSON.stringify({nbs:S.nbs,trash:S.trash,tags:S.tags,tpl:S.tpl,prefs:S.prefs}));pickId=nbId&&D.nbs.some(n=>n.id===nbId)?nbId:'all';const n=dn();if(n)cvTab=n.cv.k;
+ Shell.sheet.open({title:'Notebook settings',sub:()=>pickId==='all'?'For all notebooks':'For “'+dn().t+'”',picker:pickerHTML,tabs:tabsFor,tab:pane,body:paneHTML,hint:'Nothing changes until you tap Done',after:()=>{Shell.track($('#cvtabs'),$('#cvtrk'))},onClose:commit=>{cancelAnimationFrame(holdT);if(commit){S.nbs=D.nbs;S.trash=D.trash;S.tags=D.tags;S.tpl=D.tpl;Object.assign(S.prefs,D.prefs);save();if(U.open&&!nbBy(U.open)){U.open=null;U.page=null}if(U.page&&!findAny(U.page))U.page=null;toast('Saved')}D=null;renderAll(true)}})}
+const dn=()=>D&&D.nbs.find(x=>x.id===pickId);
+function setPick(v){pickId=v;if(dn())cvTab=dn().cv.k;Shell.sheet.tab(pickId==='all'?'organise':(['look','tabs','privacy','actions'].includes(Shell.sheet.tab())?Shell.sheet.tab():'look'));redraw();const sb=$('#sh-sheet .sh-sbody');if(sb)sb.scrollTop=0}
+document.addEventListener('change',e=>{if(D&&e.target.id==='pickSel')setPick(e.target.value)});
+function cvHint(){return `<div class="cvhint" data-cov="A11"><span class="fr">3:4</span><div><b style="color:var(--ink)">Cover shape: portrait 3 : 4</b><br>Best size 900 × 1200 px (smallest 600 × 800). JPG, PNG, WebP or HEIC, up to 12 MB. After you choose a photo, drag it to crop and use Zoom. The grid shows thirds.</div></div>`}
+function pickerHTML(){const n=dn();return `<div class="pickdd" data-cov="A09 A01"><span class="nbdot" aria-hidden="true" ${n?'':'style="background:var(--accent-soft);display:grid;place-items:center;color:var(--accent)"'}>${n?coverHTML(n):ic('notebooksA')}</span><select id="pickSel" aria-label="Which notebook these settings apply to" data-k="pick"><option value="all" ${pickId==='all'?'selected':''}>All notebooks</option>${D.nbs.map(x=>`<option value="${x.id}" ${x.id===pickId?'selected':''}>${esc(x.t)}</option>`).join('')}</select></div>`}
+const sw=(on,key,lbl,dis)=>`<button class="sw" role="switch" aria-checked="${!!on}" data-k="${key}" aria-label="${lbl}" ${dis?'disabled':''}></button>`;
+const fld=(l,s,ctl,cov)=>`<div class="fld" ${cov?`data-cov="${cov}"`:''}><div class="l"><b>${l}</b>${s?`<span>${s}</span>`:''}</div>${ctl}</div>`;
+const segk=(key,opts,cur,cov)=>`<div class="seg sm" role="group" ${cov?`data-cov="${cov}"`:''}>${opts.map(([v,t])=>`<button data-k="${key}" data-v="${v}" class="${cur===v?'on':''}" aria-pressed="${cur===v}">${t}</button>`).join('')}</div>`;
+function cropHTML(n){const p=n.photo;if(!p)return `<button class="drop" data-k="photo" style="margin-top:8px">${ic('upload')}<br><b>Choose a photo</b><br>Best shape: upright 3 : 4 (for example 900 × 1200 px or larger)</button><div style="margin-top:8px"><button class="btn sm" data-k="sample">${ic('image')}Try a sample photo</button></div>`;
+ const r=p.w/p.h,fit=Math.abs(r-.75)<.02,small=p.w<900||p.h<1200;
+ return `<div class="crop" data-cov="A11"><div class="cropst" id="cropst" role="img" aria-label="Crop preview. Drag to choose the part to keep."><img alt="" src="${p.src}" style="object-position:${p.x}% ${p.y}%;transform:scale(${p.z});transform-origin:${p.x}% ${p.y}%"><span class="g3"></span><span class="rt">3 : 4</span></div>
+ <div class="cropside"><div class="mini"><b style="color:var(--ink)">Your photo: ${p.w} × ${p.h} px</b><br>${fit?'<span class="ok">Fits the cover exactly.</span>':`It is ${r>.75?'wider':'taller'} than the cover, so the sides outside the frame are cut. <b>Drag the photo</b> to choose the part to keep.`}${small?'<br><span class="wn">Small photo: it may look soft. Best is 900 × 1200 px or larger.</span>':''}</div>
+ <label class="mini" for="zoom">Zoom</label><input id="zoom" type="range" min="1" max="3" step="0.01" value="${p.z}" data-k="zoom" aria-label="Zoom the photo">
+ <div class="rowbar" style="gap:6px"><button class="btn sm" data-k="photo">${ic('upload')}Replace</button><button class="btn sm" data-k="centre">${ic('rot')}Centre</button><button class="btn sm dng" data-k="nophoto">${ic('trash')}Remove</button></div></div></div>`}
+function lookHTML(n){const k=cvTab;const tile=(on,key,v,name,fake)=>`<button class="cvt ${on?'on':''}" data-k="${key}" data-v="${v}" aria-pressed="${on}">${coverHTML({...n,locked:false,...fake})}<span>${name}</span></button>`;
+ let grid='';
+ if(k==='solid')grid=`<div class="cvgrid" data-cov="H07">${COLS.map((c,i)=>tile(n.cv.k==='solid'&&n.colour===c,'solid',i,COLN[i],{cv:{k:'solid',i:0},colour:c})).join('')}</div>`;
+ if(k==='grad')grid=`<div class="cvgrid">${GRADS.map((g,i)=>tile(n.cv.k==='grad'&&n.cv.i===i,'cvi','grad:'+i,g[0],{cv:{k:'grad',i}})).join('')}</div>`;
+ if(k==='pat')grid=`<div class="cvgrid">${PATS.map((g,i)=>tile(n.cv.k==='pat'&&n.cv.i===i,'cvi','pat:'+i,g[0],{cv:{k:'pat',i}})).join('')}</div>`;
+ if(k==='art')grid=`<div class="cvgrid">${ARTS.map((g,i)=>tile(n.cv.k==='art'&&n.cv.i===i,'cvi','art:'+i,g[0],{cv:{k:'art',i}})).join('')}</div>`;
+ if(k==='page')grid=`<div class="cvgrid" data-cov="H08">${tile(n.cv.k==='page','cvi','page:0','First page',{cv:{k:'page',i:0}})}</div><p class="mini" style="margin:0">Shows the title and first lines of the first page. It updates as you write.</p>`;
+ if(k==='photo')grid=cvHint()+cropHTML(n);
+ const tint=['pat','art','page'].includes(k)?`<div class="mini" style="margin-top:6px">Colour</div><div class="sws" role="group" aria-label="Cover colour" data-cov="H07">${COLS.map((c,i)=>`<button style="background:${c}" class="${n.colour===c?'on':''}" data-k="tint" data-v="${i}" aria-label="${COLN[i]}" aria-pressed="${n.colour===c}"></button>`).join('')}</div>`:'';
+ return `<div class="prev" id="lookprev">${coverHTML(n)}<div style="flex:1;min-width:0"><b>${esc(n.t)}</b><div class="mini">Live preview · ${countPages(n)} pages · ${n.due} due</div></div></div>
+ ${fld('Name','',`<input class="inp" data-k="nm" value="${esc(n.t)}" aria-label="Notebook name" maxlength="80">`,'H14 A02')}
+ ${fld('Short label','On the cover. Empty = automatic.',`<input class="inp" style="max-width:90px" maxlength="3" data-k="lb" value="${esc(n.label)}" placeholder="${esc(label({...n,label:''}))}" aria-label="Short label">`,'H09')}
+ <div class="mgh">Cover</div><div class="scrollx" id="cvtabs" data-cov="A10"><div class="seg sm" role="group" aria-label="Cover style">${KINDS.map(([v,t])=>`<button data-k="cvtab" data-v="${v}" class="${k===v?'on':''}" aria-pressed="${k===v}">${t}</button>`).join('')}</div></div><div class="track" id="cvtrk"><i></i></div>
+ ${grid}${tint}
+ <div class="mgh">Home</div>${fld('Pin to the top','Pinned notebooks come first.',sw(n.star,'star','Pin to the top'),'H06')}
+ <div class="mgh">Inside a page</div>${fld('Keep the tab row shown','Off: the row hides so the pen and tools get the space. A small arrow brings it back. Applies to all notebooks.',sw(D.prefs.keepTabs,'pk','Keep the tab row shown inside a page'),'N02')}`}
+function tabsHTML(n){const all=[...TABS,...Object.entries(EXTRA)];
+ return `<div class="mgh">Tabs in “${esc(n.t)}”</div><p class="mini" style="margin:0 0 4px">Rename, colour or hide a tab. Notes, Summary, Cards and Revise come with every notebook.</p>`+all.map(([k,nm],i)=>{const extra=i>=4,on=!extra||n.extras.includes(k),hid=!!n.tabHidden[k];
+  return `<div class="fld" style="flex-wrap:wrap" ${i===0?'data-cov="N03 N04"':i===4?'data-cov="N02"':''}><input class="inp" style="flex:1;min-width:110px;max-width:none" data-k="tn:${k}" value="${esc(n.tabNames[k]||'')}" placeholder="${nm}" aria-label="Name of the ${nm} tab" ${on?'':'disabled'} maxlength="100">
+  <button class="ib sm" data-k="tc:${k}" aria-label="Colour of the ${nm} tab: ${n.tabCol[k]==null?'none':COLN[n.tabCol[k]]}. Tap to change." title="Tab colour" ${on?'':'disabled'}><span class="dot" style="width:18px;height:18px;background:${n.tabCol[k]==null?'transparent':COLS[n.tabCol[k]]};box-shadow:0 0 0 1.5px var(--line-strong)"></span></button>
+  ${sw(extra?on:!hid,(extra?'tx:':'th:')+k,(extra?'Add the ':'Show the ')+nm+' tab')}</div>`}).join('')+
+ `<div class="mgh">Pages</div>${fld('View','How the Notes tab opens.',segk('nview',[['default','Default'],['shelf','Shelf'],['tabs','Tabs']],n.view,'N05'))}
+ ${fld('Page layout','',segk('nlay',[['list','List'],['table','Table'],['board','Board'],['gallery','Gallery']],n.layout,'N06'))}
+ ${n.layout==='board'?fld('Board grouping','',segk('nbrd',[['coloured','Coloured'],['none','No colour']],n.board,'N07')):''}`}
+function privacyHTML(n){return `<p class="mini" style="margin:0 0 6px" data-cov="L05">A privacy lock hides a notebook from casual eyes. It is not encryption.</p>
+ ${fld('Lock this notebook',n.locked?'Hold the ring for a second to unlock.':'Tap the ring to lock.',`<button class="ring ${n.locked?'lk':''}" data-ring="${n.id}" aria-label="${n.locked?'Hold to unlock':'Lock'} ${esc(n.t)}">${ic('lock')}</button>`,'L01')}
+ ${fld('Allow AI','Off by default. Locked pages are never sent.',sw(n.ai,'ai','Allow AI'),'L03')}
+ ${fld('Allow AI while locked','Only when Allow AI is on.',sw(n.aiLocked,'aiL','Allow AI while locked',!n.ai),'L04')}
+ ${fld('Edit-lock','Blocks deleting. You will see a “locked” message.',sw(n.editLock,'el','Edit-lock'),'L05')}
+ <div class="mgh">Locked pages</div>${flat(n.pages).filter(p=>p.lock).map(p=>fld(esc(p.t),'Page lock',`<button class="btn sm" data-k="punlock" data-v="${p.id}">Unlock</button>`,'L02')).join('')||`<p class="mini" data-cov="L02">None. Lock a single page from its ··· menu in the sidebar.</p>`}`}
+function actionsHTML(n){return `<div class="mgh">${esc(n.t)}</div>${fld('Review this notebook',n.due+' cards due',`<button class="btn sm" data-k="rev">${ic('reviewA')}Review</button>`,'H16')}
+ ${fld('Move in the list','Order on the shelf and in the sidebar.',`<button class="ib sm" data-k="mv" data-v="-1" aria-label="Move up">${ic('up')}</button><button class="ib sm" data-k="mv" data-v="1" aria-label="Move down">${ic('down')}</button>`,'H18')}
+ ${fld('Duplicate','A copy with all its pages.',`<button class="btn sm" data-k="dup" data-cov="A04">${ic('copy')}Duplicate</button>`)}
+ ${fld('Export','One file you can keep or share.',`<button class="btn sm" data-k="exp">${ic('dl')}Export</button>`,'N12')}
+ ${isPro()?fld('Share layers','Share the pen, text and picture layers separately, so others can show, hide or edit each.',`<button class="btn sm" data-k="layers">${ic('share')}Share</button>`,'N13'):''}
+ ${fld('Reset look','Back to a plain colour cover and automatic label.',`<button class="btn sm" data-k="reset" data-cov="A03">${ic('rot')}Reset</button>`)}
+ ${fld('Delete notebook','Goes to Trash. You can restore it.',`<button class="btn sm dng" data-k="del" data-cov="H15">${ic('trash')}Delete</button>`)}`}
+function organiseHTML(){const P=D.prefs,pro=isPro();
+ return `${fld('Home layout','How notebooks are shown.',segk('pl',[['shelf','Shelf'],['list','List']],P.layout,'H02'))}
+ ${fld('Start on','The tab you see first.',segk('ps',[['all','All'],['starred','Starred'],['recent','Recent']],P.start,'A06'))}
+ ${fld('Open a notebook at','Where you land.',segk('po',[['last','Last page'],['first','First page'],['tabs','Tabs']],P.openAt,'N08'))}
+ ${fld('Keep the tab row shown inside a page','Off: the row hides so the pen and tools get the space. A small arrow brings it back.',sw(P.keepTabs,'pk','Keep the tab row shown inside a page'),'N02')}
+ ${pro?`<div class="mgh">Extra tabs for new notebooks</div>`+Object.entries(EXTRA).map(([k,t],i)=>fld(t,'',sw(P.defExtras.includes(k),'dx:'+k,t),i?'':'N09')).join(''):''}
+ <div class="mgh">Order</div>`+D.nbs.map((n,i)=>`<div class="fld"><span class="nbdot" style="margin:0">${coverHTML(n)}</span><div class="l"><b>${esc(n.t)}</b></div><button class="ib sm" data-k="omv" data-v="${n.id}:-1" aria-label="Move ${esc(n.t)} up" ${i?'':'disabled'}>${ic('up')}</button><button class="ib sm" data-k="omv" data-v="${n.id}:1" aria-label="Move ${esc(n.t)} down" ${i<D.nbs.length-1?'':'disabled'}>${ic('down')}</button><button class="btn sm" data-k="pick" data-v="${n.id}">Edit</button></div>`).join('')}
+function tagsPaneHTML(){const row=(t,d)=>`<div class="fld" style="padding-left:${d*16}px"><span class="dot" style="background:${TAGC[t.c%4]}"></span><div class="l"><b>${esc(t.t)}</b><span>${t.n} pages</span></div><button class="ib sm" data-k="trn" data-v="${t.id}" aria-label="Rename ${esc(t.t)}">${ic('pen')}</button><button class="ib sm" data-k="tcol" data-v="${t.id}" aria-label="Change colour of ${esc(t.t)}">${ic('palette')}</button><button class="ib sm" data-k="tmv" data-v="${t.id}" aria-label="Move ${esc(t.t)} up a level">${ic('top')}</button><button class="ib sm" data-k="tmg" data-v="${t.id}" aria-label="Merge ${esc(t.t)} into the next tag">${ic('merge')}</button><button class="ib sm" data-k="tdl" data-v="${t.id}" aria-label="Delete ${esc(t.t)}" style="color:var(--danger)">${ic('trash')}</button></div>`+t.ch.map(c=>row(c,d+1)).join('');
+ return `<p class="mini" style="margin:0 0 6px" data-cov="S11 G01 G02">Rename, colour, move, merge or delete. Your notes are kept. Tap a tag in the sidebar to filter.</p>`+D.tags.map(t=>row(t,0)).join('')}
+function tplPaneHTML(){return `<div data-cov="S12">`+D.tpl.map(t=>`<div class="fld"><span style="display:grid">${ic('file')}</span><div class="l"><b>${esc(t.t)}</b>${t.prot?'<span>Protected: the journal needs it.</span>':''}</div><button class="btn sm" data-k="tuse" data-v="${t.id}">Use</button><button class="ib sm" ${t.prot?'disabled':''} data-k="tdel" data-v="${t.id}" aria-label="Delete ${esc(t.t)}" style="color:var(--danger)">${ic('trash')}</button></div>`).join('')+`</div><button class="btn sm" style="margin-top:10px" data-k="tnew">${ic('plus')}New template</button>`}
+function trashPaneHTML(){return `<div data-cov="R01">`+(D.trash.length?D.trash.map(t=>`<div class="trashit"><div class="l"><b>${esc(t.t)}</b><span>${t.k==='notebook'?'Notebook, '+t.n+' pages':t.k==='page'?'Page and '+(t.n-1)+' sub-pages':'Database'} · ${t.when}</span></div><button class="btn sm" data-k="rest" data-v="${t.id}" data-cov="R02">${ic('undo')}Restore</button><button class="btn sm dng" data-k="purge" data-v="${t.id}" data-cov="R03">Delete forever</button></div>`).join(''):'<div class="empty">Trash is empty.</div>')+`</div><p class="mini">Restore brings back everything deleted at the same moment.</p>`}
+function paneHTML(tab){const n=dn();if(pickId!=='all'&&!n){pickId='all'}
+ if(tab==='organise')return organiseHTML();if(tab==='tags')return tagsPaneHTML();if(tab==='tpl')return tplPaneHTML();if(tab==='trash')return trashPaneHTML();
+ if(!n)return'';if(tab==='look')return lookHTML(n);if(tab==='tabs')return tabsHTML(n);if(tab==='privacy')return privacyHTML(n);if(tab==='actions')return actionsHTML(n);return''}
+const redraw=()=>Shell.sheet.draw();
+const findTag=(list,id)=>{for(const t of list){if(t.id===id)return t;const r=findTag(t.ch,id);if(r)return r}};
+function delTag(list,id){for(let i=0;i<list.length;i++){if(list[i].id===id){list.splice(i,1,...list[i].ch);return true}if(delTag(list[i].ch,id))return true}return false}
+document.addEventListener('click',e=>{const k=e.target.closest('#sh-sheet [data-k]');if(!k||!D||k.tagName==='INPUT'||k.tagName==='SELECT')return;const v=k.dataset.v,[key,arg]=k.dataset.k.split(':');const n=dn();
+ if(k.classList.contains('sw')){const on=k.getAttribute('aria-checked')!=='true';if(key==='pk')D.prefs.keepTabs=on;
+  if(key==='star')n.star=on;if(key==='ai'){n.ai=on;if(!on)n.aiLocked=false}if(key==='aiL')n.aiLocked=on;if(key==='el')n.editLock=on;
+  if(key==='dx'){const a=D.prefs.defExtras,i=a.indexOf(arg);if(on&&i<0)a.push(arg);if(!on&&i>=0)a.splice(i,1)}
+  if(key==='tx'){const i=n.extras.indexOf(arg);if(on&&i<0)n.extras.push(arg);if(!on&&i>=0)n.extras.splice(i,1)}
+  if(key==='th'){if(!on&&TABS.filter(t=>!n.tabHidden[t[0]]).length+n.extras.length<2){toast('A notebook keeps at least one tab');return}if(on)delete n.tabHidden[arg];else n.tabHidden[arg]=true}
+  redraw();return}
+ switch(key){
+ case'pick':setPick(v);return;
+ case'pl':D.prefs.layout=v;break;case'ps':D.prefs.start=v;break;case'po':D.prefs.openAt=v;break;
+ case'omv':{const[a,b]=v.split(':');const i=D.nbs.findIndex(x=>x.id===a);const[x]=D.nbs.splice(i,1);D.nbs.splice(i+(+b),0,x);break}
+ case'mv':{const i=D.nbs.indexOf(n),j=i+(+v);if(j<0||j>=D.nbs.length){toast('Already at the '+(+v<0?'top':'bottom'));return}D.nbs.splice(i,1);D.nbs.splice(j,0,n);toast('Moved '+(+v<0?'up':'down'));break}
+ case'cvtab':cvTab=v;break;
+ case'solid':n.colour=COLS[+v];n.cv={k:'solid',i:0};break;
+ case'cvi':{const[a,b]=v.split(':');n.cv={k:a,i:+b};break}
+ case'tint':n.colour=COLS[+v];break;
+ case'photo':$('#photoIn').click();return;
+ case'sample':setPhoto(SAMPLE,1600,1200);return;
+ case'centre':Object.assign(n.photo,{x:50,y:50,z:1});break;
+ case'nophoto':n.photo=null;n.cv={k:'solid',i:0};cvTab='solid';break;
+ case'tc':{const c=n.tabCol[arg];if(c==null)n.tabCol[arg]=0;else if(c>=5)delete n.tabCol[arg];else n.tabCol[arg]=c+1;break}
+ case'nview':n.view=v;break;case'nlay':n.layout=v;break;case'nbrd':n.board=v;break;
+ case'punlock':{const p=findPage(v,n.pages);if(p)p.p.lock=false;toast('Page unlocked');break}
+ case'rev':toast('Review opens for '+n.t+' ('+n.due+' due)');return;
+ case'exp':toast('Exported '+n.t+' as a file');return;
+ case'layers':toast('Layers shared');return;
+ case'dup':{const c=JSON.parse(JSON.stringify(n));c.id='n'+uid++;c.t=n.t+' copy';c.star=false;(function re(l){l.forEach(p=>{p.id='p'+uid++;re(p.ch)})})(c.pages);D.nbs.splice(D.nbs.indexOf(n)+1,0,c);pickId=c.id;Shell.sheet.tab('look');toast('Duplicated');break}
+ case'reset':n.colour=COLS[0];n.cv={k:'solid',i:0};n.label='';n.photo=null;cvTab='solid';toast('Look reset');break;
+ case'del':{if(n.editLock){toast('Turn off Edit-lock in Privacy & AI first');return}const i=D.nbs.indexOf(n);D.nbs.splice(i,1);D.trash.unshift({id:'t'+uid++,k:'notebook',t:n.t,n:countPages(n),when:'Just now',nb:n});pickId='all';Shell.sheet.tab('trash');toast(`Moved “${n.t}” to Trash`,()=>{if(!D)return;const t=D.trash.shift();D.nbs.splice(i,0,t.nb);pickId=t.nb.id;Shell.sheet.tab('actions');redraw()});break}
+ case'trn':{const t=findTag(D.tags,v);Shell.ask('Rename tag',t.t,x=>{if(x&&D){t.t=x.replace(/\s+/g,'-').replace(/[#\/]/g,'');redraw()}});return}
+ case'tcol':findTag(D.tags,v).c++;break;
+ case'tmv':{const par=D.tags.find(p=>p.ch.some(c=>c.id===v));if(par){const t=par.ch.find(c=>c.id===v);par.ch=par.ch.filter(c=>c!==t);D.tags.push(t)}else{toast('Already at the top level');return}break}
+ case'tmg':{const t=findTag(D.tags,v),i=D.tags.indexOf(t),o=D.tags[i+1]||D.tags[i-1];if(i<0||!o||o===t){toast('Nothing to merge into here');return}o.n+=t.n;D.tags.splice(i,1);toast(`Merged into #${o.t}`);break}
+ case'tdl':delTag(D.tags,v);toast('Tag deleted. Your notes are kept.');break;
+ case'tuse':toast('New page from “'+D.tpl.find(x=>x.id===v).t+'”');return;
+ case'tdel':D.tpl=D.tpl.filter(x=>x.id!==v);break;
+ case'tnew':Shell.ask('New template','Untitled template',x=>{if(x&&D){D.tpl.push({id:'tp'+uid++,t:x});redraw()}});return;
+ case'rest':{const i=D.trash.findIndex(x=>x.id===v),t=D.trash[i];D.trash.splice(i,1);if(t.k==='notebook'&&t.nb)D.nbs.push(t.nb);toast(`Restored “${t.t}” with everything deleted with it`);break}
+ case'purge':{if(k.dataset.arm!=='1'){k.dataset.arm='1';k.textContent='Tap again to erase';setTimeout(()=>{if(k.isConnected){k.dataset.arm='0';k.textContent='Delete forever'}},3000);return}D.trash=D.trash.filter(x=>x.id!==v);toast('Erased for good');break}
+ default:return}
+ redraw()});
+const livePrev=()=>{const n=dn(),pv=$('#lookprev');if(!n||!pv)return;pv.querySelector('.cover').outerHTML=coverHTML(n);pv.querySelector('b').textContent=n.t;const o=$('#pickSel option:checked');if(o)o.textContent=n.t;const d=$('.pickdd .nbdot');if(d)d.innerHTML=coverHTML(n)};
+const photoCss=p=>`object-position:${p.x}% ${p.y}%;transform:scale(${p.z});transform-origin:${p.x}% ${p.y}%`;
+document.addEventListener('input',e=>{const el=e.target;if(!D||!el.closest('#sh-sheet')||!el.dataset.k)return;const n=dn(),[key,arg]=el.dataset.k.split(':');if(!n)return;
+ if(key==='nm'){n.t=el.value.trim()||n.t;livePrev()}
+ if(key==='lb'){n.label=el.value.toUpperCase();livePrev()}
+ if(key==='tn'){const v=el.value.trim().slice(0,100);if(v)n.tabNames[arg]=v;else delete n.tabNames[arg]}
+ if(key==='zoom'&&n.photo){n.photo.z=+el.value;const i=$('#cropst img');if(i)i.style.cssText=photoCss(n.photo);livePrev()}});
+function setPhoto(src,w,h){const n=dn();if(!n)return;n.photo={src,x:50,y:50,z:1,w,h};n.cv={k:'photo',i:0};cvTab='photo';redraw()}
+$('#photoIn').addEventListener('change',e=>{const f=e.target.files[0];e.target.value='';if(!f)return;if(!f.type.startsWith('image/')){toast('Choose an image file (JPG, PNG, HEIC or WebP)');return}if(f.size>12e6){toast('That photo is over 12 MB. Choose a smaller one.');return}
+ const fr=new FileReader();fr.onload=()=>{const im=new Image();im.onload=()=>setPhoto(fr.result,im.naturalWidth,im.naturalHeight);im.onerror=()=>toast('That photo could not be opened');im.src=fr.result};fr.readAsDataURL(f)});
+/* crop: drag the photo inside the 3:4 frame; hold-to-unlock ring */
+document.addEventListener('pointerdown',e=>{const st=e.target.closest('#cropst');
+ if(st&&D){const n=dn(),p=n.photo;if(!p)return;try{st.setPointerCapture(e.pointerId)}catch(_){}let x0=e.clientX,y0=e.clientY;const w=st.clientWidth,h=st.clientHeight,img=st.querySelector('img');
+  const mv=ev=>{p.x=Math.max(0,Math.min(100,p.x-(ev.clientX-x0)/w*100/p.z));p.y=Math.max(0,Math.min(100,p.y-(ev.clientY-y0)/h*100/p.z));x0=ev.clientX;y0=ev.clientY;img.style.cssText=photoCss(p)};
+  const up=()=>{st.removeEventListener('pointermove',mv);st.removeEventListener('pointerup',up);st.removeEventListener('pointercancel',up);livePrev()};st.addEventListener('pointermove',mv);st.addEventListener('pointerup',up);st.addEventListener('pointercancel',up);return}
+ const r=e.target.closest('.ring');if(!r||!D)return;const n=D.nbs.find(x=>x.id===r.dataset.ring);
+ if(!n.locked){n.locked=true;toast('Locked');redraw();return}
+ try{r.setPointerCapture(e.pointerId)}catch(_){}const t0=performance.now();const step=()=>{const p=Math.min(100,(performance.now()-t0)/900*100);r.style.setProperty('--p',p);if(p>=100){n.locked=false;toast('Unlocked');redraw()}else holdT=requestAnimationFrame(step)};holdT=requestAnimationFrame(step);
+ const stop=()=>{cancelAnimationFrame(holdT);r.style.setProperty('--p',0);r.removeEventListener('pointerup',stop);r.removeEventListener('pointercancel',stop)};r.addEventListener('pointerup',stop);r.addEventListener('pointercancel',stop)});
+/* ---------- coverage: every inventory item must be on screen somewhere ---------- */
+const INV='H01 H02 H03 H04 H05 H06 H07 H08 H09 H10 H11 H12 H13 H14 H15 H16 H17 H18 N01 N02 N03 N04 N05 N06 N07 N08 N09 N10 N11 N12 N13 N14 S01 S02 S03 S04 S05 S06 S07 S08 S09 S10 S11 S12 S13 S14 S15 S16 S17 S18 S19 S20 T01 T02 T03 T04 T05 T06 T07 T08 T09 T10 T11 T12 T13 T14 P01 P02 P03 P04 P05 P06 P07 L01 L02 L03 L04 L05 R01 R02 R03 G01 G02 A01 A02 A03 A04 A05 A06 A07 A08 A09 A10 A11 A12 A13 A14 A15'.split(' ');
+function audit(){const cov=new Set(),f=document.createElement('div');const add=h=>{f.innerHTML=h;f.querySelectorAll('[data-cov]').forEach(x=>x.dataset.cov.split(' ').forEach(c=>cov.add(c)))};
+ const keepU=JSON.stringify(U),keepS=JSON.stringify(S),kD=D,kP=pickId,kC=cvTab;forcePro=true;
+ try{const nb=S.nbs[0];add(nbMenuHTML(nb)+addMenuHTML(nb)+rowMenuHTML(nb.pages[0].ch[0]));
+  for(const t of['all','starred','recent'])for(const l of['shelf','list']){U.tab=t;S.prefs.layout=l;add(homeHTML())}
+  U.tab='starred';S.nbs.forEach(n=>{n.star=false});add(shelfHTML());S=JSON.parse(keepS);U.tab='all';
+  add(sideHTML());U.open='bio';U.page=null;S.nbs[0].layout='board';add(nbScreen());S.nbs[0].pages=[];add(nbScreen());S=JSON.parse(keepS);
+  U.page=S.nbs[0].pages[0].id;add(nbScreen());for(const t of['pages','outline','res']){U.ptab=t;add(panelHTML())}U.addRes='audio';add(addFormHTML());
+  add(topActions(S.nbs[0]));add(barHTML(findAny(U.page)));
+  D=JSON.parse(JSON.stringify({nbs:S.nbs,trash:S.trash,tags:S.tags,tpl:S.tpl,prefs:S.prefs}));pickId='all';add(pickerHTML());for(const p of PANES.all)add(paneHTML(p[0]));
+  pickId='bio';dn().layout='board';dn().pages[0].lock=true;for(const k of KINDS){cvTab=k[0];add(paneHTML('look'))}pickId='trv';cvTab='photo';add(paneHTML('look'));pickId='bio';for(const p of PANES.nb)add(paneHTML(p[0]));
+ }catch(err){console.error('audit',err)}
+ forcePro=false;S=JSON.parse(keepS);U=JSON.parse(keepU);D=kD;pickId=kP;cvTab=kC;
+ if($('#sh-rail [data-sh-space]'))cov.add('S01');f.innerHTML=Shell.cornerHTML();
+ [['settings','S14'],['save','S15'],['trash','S16'],['device','S17'],['help','S18']].forEach(([q,c])=>{if(f.querySelector('[data-sh-q="'+q+'"]'))cov.add(c)});if(f.querySelector('[data-sh-th="Sepia"]'))cov.add('S19');
+ const missing=INV.filter(c=>!cov.has(c)),chip=$('#covChip');chip.textContent=`Coverage ${INV.length-missing.length}/${INV.length}`;chip.title=missing.length?'Missing: '+missing.join(' '):'Every inventory item (83 existing + 15 added) is present';chip.dataset.missing=missing.join(' ')}
+/* ---------- boot ---------- */
+Shell.mount({space:'notebooks',due:dueAll(),
+ onSpace:k=>{if(k==='notebooks'){if(Shell.isPhone())Shell.col('side',Shell.col('side')==='over'?'hidden':'over');else goHome();return}toast(Shell.SPACES.find(s=>s[0]===k)[1]+' is a separate mock-up');return false},
+ onCorner:q=>{if(q==='trash')openMore('trash','all');else toast({settings:'Settings',save:'Save & restore',device:'Device mode: Computer / Touch / Pencil',help:'Help'}[q]+' opens here')},
+ onChange:(what,v)=>{if(what==='mode'){renderAll(true)}
+  if(what==='col'&&!Shell.isPhone()){const s=Shell.col(v);if(v==='side'){if(s==='dock'&&U.open&&Shell.col('panel')==='dock'&&innerWidth<1180)Shell.col('side','over');else if(s!=='over')U.sideWant=s==='dock'}
+   if(v==='panel'&&s!=='over'){U.panelWant=s==='dock';applyCols()}}
+  if(what==='col'&&v==='panel')renderPanel()}});
+document.addEventListener('click',e=>{const c=e.target.closest('[data-sh-crumb]');if(c){if(c.dataset.shCrumb==='0')goHome();else{U.page=null;renderAll()}return}
+ const nv=e.target.closest('[data-sh-nav]');if(nv){if(nv.dataset.shNav==='back'){if(U.page){U.page=null;renderAll()}else if(U.open)goHome();else toast('Nothing to go back to')}else toast('Nothing to go forward to');return}
+ if(e.target.closest('[data-sh-search]')){toast('Search opens here (Ctrl K)');return}
+ });
+let rT;addEventListener('resize',()=>{clearTimeout(rT);rT=setTimeout(()=>{applyCols();Shell.track($('#nbtabs'),$('#nbtrk'));Shell.track($('#cont'),$('#conttrk'))},80)});
+renderAll();audit();
+</script>
+</body>
+</html>

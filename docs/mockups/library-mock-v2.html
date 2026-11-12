@@ -1,0 +1,1451 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>Library Mock-up v2</title>
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<link rel="stylesheet" href="shell.css">
+<style>
+/* ---- Library screen only. Everything shared comes from shell.css ---- */
+.lib{max-width:1100px;margin:0 auto;padding:4px 16px 24px}
+.lh{display:flex;flex-wrap:wrap;align-items:center;gap:8px;margin:4px 0 6px}
+.lh h1{font-size:26px;line-height:1.2;letter-spacing:-.02em;margin:0 auto 0 0;font-weight:700}
+.lh h1 small{display:block;font-size:13px;font-weight:500;letter-spacing:0;color:var(--muted);margin-top:2px}
+.lrow{display:flex;flex-wrap:wrap;align-items:center;gap:8px;margin:8px 0}
+.lrow.nw{flex-wrap:nowrap}
+.sh-clr{flex:1;min-width:140px}
+.sh-trw .sh-clr{flex:1;min-width:0}.sh-dialog .sh-clr{min-width:0;width:100%}
+.rw{margin:6px 0}
+.chips{display:flex;gap:6px;padding-bottom:2px}
+.chip{min-height:44px;padding:0 14px;border-radius:999px;border:1px solid var(--line);background:transparent;color:var(--ink-soft);font-size:13.5px;font-weight:600;display:inline-flex;align-items:center;gap:6px;cursor:pointer;white-space:nowrap;flex:none;transition:background var(--dur-1),color var(--dur-1)}
+.chip:hover{background:var(--hover)}
+.chip[aria-pressed=true]{background:var(--accent-soft);color:var(--accent);border-color:transparent}
+.chip .n{font-size:11.5px;opacity:.7;font-weight:700}
+.chip svg{width:16px;height:16px}
+.chip.add{border-style:dashed;color:var(--muted)}
+.sel{min-height:44px;border-radius:999px;border:1px solid var(--line);background:var(--surface-2);padding:0 14px;font-size:13.5px;font-weight:600;color:var(--ink-soft);cursor:pointer}
+.sp{flex:1}
+#libtabs,#bptab{margin:2px 0 6px}
+#libtabs .sh-tscroll button,#bptab .sh-tscroll button,#libtabs .sh-tplus,#bptab .sh-tplus{background:none;border:0;border-bottom:2px solid transparent;min-height:44px;min-width:44px;font-weight:600;font-size:14.5px;color:var(--muted);cursor:pointer;white-space:nowrap;padding:0 14px}
+#libtabs .sh-tscroll button:hover,#bptab .sh-tscroll button:hover{color:var(--ink)}
+#libtabs .sh-tscroll button.on,#bptab .sh-tscroll button.on{color:var(--accent);border-bottom-color:var(--accent)}
+#libtabs .sh-tplus,#bptab .sh-tplus{padding:0;color:var(--accent)}
+#libtabs .sh-trow,#bptab .sh-trow{border-bottom:1px solid var(--line)}
+.cols{display:flex;gap:2px;align-items:center}
+.cdot{width:44px;height:44px;border:0;background:transparent;display:grid;place-items:center;cursor:pointer;border-radius:50%;position:relative}
+.cdot i{width:20px;height:20px;border-radius:50%;background:var(--c);display:block;box-shadow:0 0 0 2px var(--surface-0),0 0 0 3px transparent;transition:box-shadow var(--dur-1)}
+.cdot[aria-pressed=true] i{box-shadow:0 0 0 2px var(--surface-0),0 0 0 4px var(--ink-soft)}
+.cdot:hover{background:var(--hover)}
+/* books grid */
+.grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(158px,1fr));gap:18px 16px;list-style:none;margin:12px 0;padding:0}
+.bk{position:relative;display:flex;flex-direction:column;height:100%;border-radius:var(--r-lg);background:var(--surface-0);border:1px solid var(--line);overflow:hidden;transition:box-shadow var(--dur-2),transform var(--dur-2) var(--ease-out)}
+.bk:hover{box-shadow:var(--elev-2)}
+.bk.sel{border-color:var(--accent);box-shadow:0 0 0 2px var(--accent-soft)}
+.cvb{display:block;width:100%;aspect-ratio:3/4;border:0;padding:0;cursor:pointer;background:var(--surface-2);overflow:hidden;position:relative}
+.cv{width:100%;height:100%;display:flex;flex-direction:column;justify-content:space-between;padding:14px 12px;text-align:left;color:#fff;background:linear-gradient(150deg,hsl(var(--h) 52% 44%),hsl(calc(var(--h) + 38) 58% 26%));position:relative}
+.cv::after{content:"";position:absolute;inset:0;background:linear-gradient(90deg,rgba(0,0,0,.28),rgba(255,255,255,.08) 6%,transparent 12%);pointer-events:none}
+.cv b{font-size:15px;line-height:1.2;letter-spacing:-.01em;font-weight:700}
+.cv i{font-style:normal;font-size:11.5px;opacity:.85}
+.cv .kic svg{width:30px;height:30px;stroke-width:1.4}
+.cv.kind{justify-content:center;align-items:center;text-align:center;gap:6px}
+.cm{position:absolute;top:2px;right:2px;background:color-mix(in srgb,var(--surface-0) 78%,transparent);border-radius:50%;-webkit-backdrop-filter:blur(8px);backdrop-filter:blur(8px)}
+.bi{display:flex;flex-direction:column;gap:2px;padding:10px 12px 12px;flex:1}
+.bi h3{font-size:14px;line-height:1.3;margin:0;font-weight:650;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden}
+.bi p{margin:0;font-size:12px;color:var(--muted);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.bi .cta{margin-top:auto}
+.pb{height:6px;border-radius:99px;background:var(--line);overflow:hidden;margin-top:6px}.pb i{display:block;height:100%;background:var(--accent);border-radius:99px}
+.st{display:inline-flex;align-items:center;gap:5px;font-size:11.5px;font-weight:650;color:var(--muted)}
+.st::before{content:"";width:7px;height:7px;border-radius:50%;background:var(--line-strong)}
+.st.reading{color:var(--accent)}.st.reading::before{background:var(--accent)}
+.st.finished{color:var(--success)}.st.finished::before{background:var(--success)}
+.chk{position:absolute;top:6px;left:6px;width:28px;height:28px;border-radius:50%;border:2px solid #fff;background:rgba(0,0,0,.35);display:grid;place-items:center;color:#fff;z-index:2}
+.chk::before{content:"";position:absolute;inset:-8px}
+.chk svg{width:16px;height:16px;opacity:0}.bk.sel .chk{background:var(--accent);border-color:var(--accent)}.bk.sel .chk svg{opacity:1}
+/* list view */
+.lst{list-style:none;margin:10px 0;padding:0;border:1px solid var(--line);border-radius:var(--r-lg);overflow:hidden;background:var(--surface-0)}
+.lst>li+li{border-top:1px solid var(--line)}
+.lr{display:grid;grid-template-columns:var(--cols);align-items:center;gap:10px;padding:6px 10px;min-height:60px}
+.lr.hd{min-height:36px;font-size:11.5px;letter-spacing:.04em;text-transform:uppercase;color:var(--muted);font-weight:650;background:var(--surface-1)}
+.lr .t{display:flex;align-items:center;gap:10px;min-width:0;background:none;border:0;text-align:left;cursor:pointer;min-height:48px;padding:0}
+.lr .t:hover b{color:var(--accent)}
+.lr .mc{width:32px;height:44px;border-radius:5px;overflow:hidden;flex:none}.lr .mc .cv{padding:3px;font-size:0}.lr .mc .cv b,.lr .mc .cv i{display:none}.lr .mc .kic svg{width:16px;height:16px}
+.lr .tt{min-width:0}.lr .tt b{display:block;font-size:14px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}.lr .tt span{font-size:12px;color:var(--muted)}
+.lr .c{font-size:12.5px;color:var(--ink-soft);white-space:nowrap}
+.lr .pbw{min-width:60px}
+.lr input[type=checkbox]{width:22px;height:22px;accent-color:var(--accent)}
+@container lib (max-width:700px){.lr .c-op,.lr .c-hl,.lr .c-tg{display:none}}
+@container lib (max-width:520px){.lr .c-st{display:none}}
+#main{container:lib/inline-size}
+/* drop + status */
+.drop{display:none;border:2px dashed var(--accent);border-radius:var(--r-lg);padding:18px;text-align:center;color:var(--accent);background:var(--accent-soft);margin:8px 0;font-weight:600}
+.lib.dragging .drop{display:block}
+.busy{display:flex;align-items:center;gap:10px;padding:10px 14px;border-radius:var(--r-md);background:var(--surface-1);border:1px solid var(--line);font-size:13.5px;margin:8px 0}
+.busy .pb{flex:1;margin:0;max-width:160px}.busy .pb i{animation:bz 1s ease-in-out infinite alternate;width:40%}
+@keyframes bz{to{margin-left:60%}}
+.empty{text-align:center;padding:48px 16px;color:var(--muted)}
+.empty .ei{width:56px;height:56px;border-radius:18px;background:var(--accent-soft);color:var(--accent);display:grid;place-items:center;margin:0 auto 12px}.empty .ei svg{width:28px;height:28px}
+.empty h3{color:var(--ink);font-size:17px;margin:0 0 4px}.empty p{margin:0 0 14px;font-size:14px}
+/* knowledge */
+.kn{display:grid;grid-template-columns:minmax(0,1fr);gap:16px;margin-top:8px}
+.kn.pane{grid-template-columns:minmax(0,1fr) 360px;align-items:start}
+.klist{list-style:none;margin:0;padding:0;display:flex;flex-direction:column;gap:6px}
+.kr{display:flex;gap:12px;width:100%;text-align:left;border:1px solid var(--line);background:var(--surface-0);border-radius:var(--r-md);padding:12px 14px;cursor:pointer;min-height:64px;align-items:flex-start;transition:background var(--dur-1),border-color var(--dur-1)}
+.kr:hover{background:var(--surface-1)}.kr[aria-pressed=true]{border-color:var(--accent);background:var(--accent-soft)}
+.kr .dot{width:10px;height:10px;border-radius:50%;margin-top:7px;flex:none;background:var(--c)}
+.kr .bd{flex:1;min-width:0}
+.kr .meta{display:block}.kr .q{margin:0;font-size:14.5px;line-height:1.45;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden}
+.kr .nt{margin:4px 0 0;font-size:13px;color:var(--ink-soft);font-style:italic;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden}
+.kr .meta{margin:4px 0 0;font-size:12px;color:var(--muted)}
+.kr .stx{color:var(--warn);flex:none}.kr .stx svg{width:16px;height:16px;fill:currentColor}
+.kr input[type=checkbox]{width:22px;height:22px;accent-color:var(--accent);flex:none;margin-top:2px}
+.snip{height:56px;border-radius:8px;background:repeating-linear-gradient(135deg,var(--surface-2) 0 8px,var(--surface-3) 8px 16px);display:flex;align-items:center;gap:8px;padding:0 12px;font-size:12.5px;color:var(--muted);margin-top:4px}
+.pv{background:var(--surface-1);border:1px solid var(--line);border-radius:var(--r-lg);padding:16px;position:sticky;top:0;display:flex;flex-direction:column;gap:12px}
+.pv h3{margin:0;font-size:12px;letter-spacing:.05em;text-transform:uppercase;color:var(--muted);font-weight:650}
+.pv .ctx{font-size:14px;line-height:1.6;color:var(--muted)}
+.pv .ctx mark{background:color-mix(in srgb,var(--c) 40%,transparent);color:var(--ink);border-radius:4px;padding:1px 2px}
+.pv textarea{width:100%;min-height:72px;border-radius:var(--r-sm);border:1px solid var(--line);background:var(--surface-0);padding:10px 12px;resize:vertical;font-size:14px}
+.pv .acts,.acts{display:flex;flex-wrap:wrap;gap:8px}
+.pv .hd{display:flex;align-items:center;gap:8px}.pv .hd .sp{flex:1}
+.tg{display:inline-flex;align-items:center;gap:2px;padding:0 4px 0 10px;min-height:32px;border-radius:999px;background:var(--hover);font-size:12.5px;font-weight:600;color:var(--ink-soft)}
+.tg button{width:28px;height:28px;border:0;background:none;border-radius:50%;display:grid;place-items:center;cursor:pointer;color:var(--muted);position:relative}
+.tg button::before{content:"";position:absolute;inset:-8px}
+.tg svg{width:14px;height:14px}
+.tg.ro{padding:0 10px}
+.tags{display:flex;flex-wrap:wrap;gap:6px;align-items:center}
+.ctxh{display:flex;align-items:center;gap:8px;font-size:12px;color:var(--muted)}
+.lsc{position:fixed;inset:0;z-index:81;background:rgba(0,0,0,.45);opacity:0;pointer-events:none;transition:opacity var(--dur-2)}.lsc.on{opacity:1;pointer-events:auto}
+.lsh{position:fixed;z-index:82;left:50%;width:min(560px,100%);bottom:0;top:10%;transform:translate(-50%,102%);transition:transform var(--dur-3) var(--ease-out),visibility 0s var(--dur-3);visibility:hidden;background:var(--surface-1);border:1px solid var(--line);border-radius:var(--r-xl) var(--r-xl) 0 0;box-shadow:var(--elev-3);display:flex;flex-direction:column;overflow:hidden}
+.lsh.on{transform:translate(-50%,0);visibility:visible;transition:transform var(--dur-3) var(--ease-out),visibility 0s}
+.lsh .hd{display:flex;align-items:center;padding:8px 8px 0 16px;font-weight:650}.lsh .hd span{flex:1}
+.lsh .bd{overflow:auto;padding:4px 16px calc(16px + var(--sh-safe-b));flex:1}
+.lsh .pv{position:static;border:0;padding:0;background:none}
+/* bank / cards / panels */
+.cardx{background:var(--surface-0);border:1px solid var(--line);border-radius:var(--r-lg);padding:16px;margin:12px 0}
+.cardx h2{font-size:16px;margin:0 0 4px;display:flex;align-items:center;gap:8px}
+.cardx>p{margin:0 0 12px;font-size:13.5px;color:var(--muted)}
+.frow{display:flex;align-items:center;gap:12px;padding:10px 0;border-top:1px solid var(--line)}
+.frow:first-of-type{border-top:0}
+.frow .gr{flex:1;min-width:0}.frow .gr b{display:block;font-size:14px;font-weight:600}.frow .gr span{font-size:12.5px;color:var(--muted)}
+.dq{display:flex;flex-direction:column;gap:10px}
+.dh{background:var(--surface-1);border:1px solid var(--line);border-radius:var(--r-md);padding:14px}
+.dh.done{opacity:.55}
+.dh q{display:block;quotes:none;font-size:15px;line-height:1.5;margin-bottom:4px}
+.dh .meta{font-size:12px;color:var(--muted);margin-bottom:10px}
+.thg{display:grid;grid-template-columns:repeat(auto-fill,minmax(210px,1fr));gap:10px}
+.th{border:1px solid var(--line);background:var(--surface-0);border-radius:var(--r-md);padding:14px;text-align:left;cursor:pointer;min-height:84px}
+.th:hover{background:var(--surface-1)}.th b{display:block;font-size:15px}.th span{font-size:12.5px;color:var(--muted)}
+.bh{display:flex;gap:14px;align-items:center;max-width:440px;border:1px solid var(--line);background:var(--surface-0);border-radius:var(--r-lg);padding:12px;margin:8px 0;box-shadow:var(--elev-1,none)}
+.bh .bc{width:84px;flex:none;aspect-ratio:3/4;border-radius:10px;overflow:hidden}
+.bh .bc .cv{padding:10px 8px}.bh .bc .cv b{font-size:12px}.bh .bc .cv i{font-size:10px}
+.bh .bm{flex:1;min-width:0;display:flex;flex-direction:column;gap:5px}
+.bh h2{margin:0;font-size:17px;line-height:1.25;letter-spacing:-.01em;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden}
+.bh .sub{font-size:12.5px;color:var(--muted)}
+.bh .pbr{display:flex;align-items:center;gap:8px;font-size:12px;color:var(--muted)}.bh .pbr .pb{flex:1;max-width:140px;margin:0}
+.bh .acts{margin-top:2px;flex-wrap:nowrap;align-items:center}
+.bx{border:1px solid var(--line);border-radius:var(--r-lg);background:var(--surface-1);padding:4px 14px;margin:8px 0}
+.bxr{display:flex;gap:12px;padding:10px 0;border-top:1px solid var(--line);align-items:flex-start}.bxr:first-child{border-top:0}
+.bxl{width:92px;flex:none;font-size:12px;letter-spacing:.04em;text-transform:uppercase;color:var(--muted);font-weight:650;min-height:44px;display:flex;align-items:center}
+.bxv{flex:1;min-width:0;display:flex;flex-wrap:wrap;align-items:center;gap:8px;min-height:44px}.bxv .tgx{width:100%}.bxv .tgx .lrow{margin:6px 0 0}
+.tg.sug{background:transparent;border:1px dashed var(--accent);color:var(--accent);padding:0 2px 0 10px;gap:6px}
+.tg.sug button{color:var(--accent)}.tg.sug button.ok{background:var(--accent-soft)}
+.tg .aut{font-style:normal;font-size:10.5px;font-weight:700;letter-spacing:.04em;text-transform:uppercase;color:var(--accent);margin-left:6px}
+.tg.auto{padding-right:4px}
+.kst{position:relative;align-items:stretch}.kst .kx{align-self:center;flex:none}
+.tmap{list-style:none;margin:0;padding:0}.tmap .tmap{margin-left:18px;padding-left:10px;border-left:1px solid var(--line)}
+.tn{display:flex;align-items:center;gap:4px;min-height:44px}
+.tn .tl{flex:1;min-width:0;display:flex;align-items:center;gap:8px;min-height:44px;border:0;background:none;border-radius:var(--r-sm);padding:0 8px;cursor:pointer;text-align:left;font-size:14.5px}
+.tn .tl:hover{background:var(--hover)}.tn .tl svg{width:18px;height:18px;color:var(--muted)}.tn .tl .n{font-size:12px;color:var(--muted)}
+.tn .tc{display:flex;flex:none}.tn .tc .ib{width:40px}
+.sg{border:1px dashed var(--accent);border-radius:var(--r-md);padding:12px 14px;margin:8px 0;background:var(--accent-soft)}
+.sg .sgh{display:flex;align-items:baseline;gap:10px;margin-bottom:6px}.sg .sgh b{font-size:15px}.sg .acts{margin-top:10px}
+.stk{display:grid;grid-template-columns:repeat(auto-fill,minmax(200px,1fr));gap:12px;margin:8px 0}
+.sk{border-radius:var(--r-md);background:color-mix(in srgb,var(--c) 30%,var(--surface-0));border:1px solid color-mix(in srgb,var(--c) 55%,transparent);padding:10px;display:flex;flex-direction:column;gap:4px}
+.sk textarea{width:100%;min-height:96px;border:0;background:transparent;resize:vertical;font-size:14px;line-height:1.5;padding:2px}
+.skf{display:flex;align-items:center}
+.sumbox{width:100%;min-height:150px;border-radius:var(--r-md);border:1px solid var(--line);background:var(--surface-0);padding:12px 14px;font-size:15px;line-height:1.6;resize:vertical}
+.lay{display:flex;gap:8px;flex-wrap:wrap;margin:8px 0}
+.lay div{flex:1;min-width:120px;border:1px solid var(--line);border-radius:var(--r-md);padding:10px 12px;background:var(--surface-0)}.lay b{display:block;font-size:20px}.lay span{font-size:12px;color:var(--muted)}
+.lay div.on{border-color:var(--accent);background:var(--accent-soft)}
+.qa{border:1px solid var(--line);border-radius:var(--r-md);padding:12px 14px;background:var(--surface-0);margin:8px 0}.qa b{display:block;margin-bottom:4px}.qa span{font-size:13.5px;color:var(--ink-soft)}
+.rs{display:flex;align-items:center;gap:10px;width:100%;text-align:left;border:0;background:none;border-radius:var(--r-sm);padding:6px 8px;min-height:48px;cursor:pointer;font-size:13.5px}
+.rs:hover,.rs.on{background:var(--hover)}.rs.on{color:var(--accent);font-weight:600}.rs small{display:block;color:var(--muted);font-size:11.5px}
+.rs .g{flex:1;min-width:0}
+.ptile{flex:none;min-width:120px;min-height:44px;border-radius:var(--r-md);border:1px solid var(--line);background:var(--surface-0);padding:8px 12px;text-align:left;cursor:pointer;font-size:13px;font-weight:600}
+.ptile[aria-pressed=true]{border-color:var(--accent);background:var(--accent-soft);color:var(--accent)}
+.ptile small{display:block;font-weight:500;color:var(--muted)}
+.sbp{display:flex;gap:8px;padding:0 0 4px;overflow-x:auto;scrollbar-width:none}
+mark{background:color-mix(in srgb,var(--accent) 30%,transparent);color:inherit;border-radius:3px;padding:0 1px}
+.grp{font-size:12px;letter-spacing:.05em;text-transform:uppercase;color:var(--muted);font-weight:650;margin:18px 0 8px}
+.hint{font-size:12.5px;color:var(--muted)}
+.hm{border:1px dashed var(--line-strong);border-radius:var(--r-md);padding:10px 12px;background:var(--surface-1);font-size:13px}
+.sh-side .sb-i{display:flex;align-items:center;gap:8px;width:100%;min-height:44px;border:0;background:none;border-radius:var(--r-sm);text-align:left;padding:0 8px;cursor:pointer;font-size:14px;color:var(--ink)}
+.sb-i:hover{background:var(--hover)}.sb-i[aria-current=page]{background:var(--accent-soft);color:var(--accent);font-weight:600}
+.sb-i span.g{flex:1;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}.sb-i .n{font-size:12px;color:var(--muted)}
+.sb-h{display:flex;align-items:center;font-size:11.5px;letter-spacing:.06em;text-transform:uppercase;color:var(--muted);font-weight:650;padding:10px 8px 2px}.sb-h span{flex:1}
+.demo-b{min-height:36px}
+.ro-sr{position:absolute;width:1px;height:1px;overflow:hidden;clip:rect(0 0 0 0)}
+@media (max-width:640px){
+ .lh h1{font-size:23px}.grid{grid-template-columns:repeat(2,minmax(0,1fr));gap:14px 12px}
+ .bh .bc{width:72px}.sh-demo .t{flex-basis:100%}.bxr{flex-direction:column;gap:2px}.bxl{width:auto;min-height:28px}.bxv{width:100%}
+ .lib{padding:4px 8px 24px}
+}
+/* ===== Library v2: one place for where, one row for how, content first. Card system from toolbar v7 ===== */
+:root{--c7-bg:color-mix(in srgb,var(--surface-1) 90%,transparent);--c7-shadow:0 1px 2px rgba(0,0,0,.10),0 18px 44px -12px rgba(0,0,0,.34);--c7-hi:inset 0 1px 0 rgba(255,255,255,.10);--well:var(--hover);--spring:cubic-bezier(.34,1.45,.64,1);--out7:cubic-bezier(.2,.8,.2,1)}
+.lib{max-width:1120px;padding:6px 20px 32px}
+/* header: title, shelf picker (only when the side panel is closed), one Add */
+.lh2{display:flex;align-items:center;gap:10px;margin:2px 0 8px;min-height:48px}
+.lh2 h1{font-size:28px;line-height:1.15;letter-spacing:-.025em;margin:0;font-weight:700}
+.lh2 .sp{flex:1}
+.shelfbtn{display:none;align-items:center;gap:4px;min-height:44px;padding:0 10px 0 14px;border-radius:999px;border:0;background:var(--well);color:var(--ink-soft);font-size:14px;font-weight:600;cursor:pointer;max-width:46vw;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.shelfbtn svg{width:16px;height:16px;flex:none}
+#app.noside .shelfbtn{display:inline-flex}
+/* the one control row: More · tabs · search */
+.trow{display:flex;align-items:center;gap:8px;border-bottom:1px solid var(--line);margin:0 0 4px}
+.trow #libtabs{flex:1;min-width:0;margin:0}
+.trow #libtabs .sh-trow{border-bottom:0}
+.trow .btn.more{flex:none;margin-bottom:4px}
+.trow .ib{margin-bottom:4px;border-radius:50%}
+.trow .ib.on{background:var(--accent-soft);color:var(--accent)}
+.qrow{display:flex;margin:10px 0 2px;animation:c7in 200ms var(--out7)}
+.qrow .inp{border-radius:14px;background:var(--well);border-color:transparent;min-height:46px;font-size:15px}
+/* chips: tonal fill, no outline */
+.chip{border-color:transparent;background:var(--well);gap:6px}
+.chip:hover{background:var(--pressed)}
+.chip:active,.btn:active,.tile7:active,.tpr:active{transform:scale(.97)}
+.chip svg:last-child:not(:first-child){width:14px;height:14px;opacity:.6;margin-left:-2px}
+.chip .cd{width:12px;height:12px;border-radius:50%;background:var(--c,conic-gradient(#f5c84c,#62c98b,#6aa8ff,#f27fb0,#ff9a5c,#f5c84c));flex:none}
+.frow2{margin:10px 0 2px}.kbar{margin:10px 0 6px}
+.fchips{margin:10px 0 0}
+.lnk{border:0;background:none;color:var(--accent);font-weight:600;font-size:13.5px;min-height:44px;padding:0 8px;cursor:pointer;border-radius:10px}
+.lnk:hover{background:var(--hover)}
+/* labels: sentence case, never capitals */
+.grp,.sb-h,.pv h3,.bxl,.lr.hd,.sh-pop .lbl,.glab{font-size:12.5px;letter-spacing:0;text-transform:none;font-weight:600;color:var(--muted)}
+.glab{margin:14px 2px 6px}.glab:first-child{margin-top:4px}
+.sech{display:flex;align-items:center;gap:8px;margin:18px 0 0;min-height:44px}
+.sech h2{font-size:17px;letter-spacing:-.01em;margin:0;font-weight:650}
+.sech .n{font-size:13px;color:var(--muted);font-weight:600}
+.sech .lnk{margin-left:auto}
+/* continue reading */
+.cont{margin-top:2px}.cont .sech{margin-top:10px}
+.contg{list-style:none;margin:2px 0 0;padding:0;display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:12px}
+.cc{display:flex;gap:14px;align-items:center;padding:12px;border-radius:20px;background:var(--surface-0);box-shadow:var(--elev-1);border:1px solid var(--line);height:100%;transition:box-shadow var(--dur-2),transform var(--dur-2) var(--out7)}
+.cc:hover{box-shadow:var(--elev-2);transform:translateY(-1px)}
+.ccv{flex:none;width:66px;aspect-ratio:3/4;border:0;padding:0;border-radius:9px;overflow:hidden;cursor:pointer;box-shadow:0 6px 14px -6px rgba(0,0,0,.45);position:relative}
+.ccv .cv{padding:4px}.ccv .cv b,.ccv .cv i{display:none}.ccv .kic svg{width:22px;height:22px}
+.ccb{flex:1;min-width:0;display:flex;flex-direction:column;gap:3px;align-items:flex-start}
+.ccb h3{margin:0;font-size:14.5px;line-height:1.25;font-weight:650;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden}
+.ccb p{margin:0;font-size:12.5px;color:var(--muted);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;max-width:100%}
+.plr{display:flex;align-items:center;gap:8px;width:100%;font-size:11.5px;color:var(--muted);font-weight:600;min-height:16px}
+.pl{flex:1;height:4px;border-radius:99px;background:var(--line);overflow:hidden}.pl i{display:block;height:100%;background:var(--accent);border-radius:99px}
+.ccb .btn{margin-top:5px}.ccb .btn svg{width:14px;height:14px}
+@container lib (max-width:860px){.contg{grid-template-columns:repeat(2,minmax(0,1fr))}.contg li:nth-child(n+3){display:none}}
+@container lib (max-width:560px){.contg{grid-template-columns:minmax(0,1fr)}.contg li:nth-child(n+2){display:none}}
+/* covers: the cover is the object, text sits quietly under it */
+.grid{grid-template-columns:repeat(auto-fill,minmax(150px,1fr));gap:22px 18px;margin:4px 0 12px}
+.bk.v2{background:none;border:0;overflow:visible;border-radius:0}
+.bk.v2:hover{box-shadow:none}
+.bk.v2 .cvb{border-radius:12px;box-shadow:0 1px 2px rgba(0,0,0,.14),0 12px 22px -12px rgba(0,0,0,.5);transition:transform var(--dur-2) var(--out7),box-shadow var(--dur-2)}
+.bk.v2 .cvb:hover{transform:translateY(-2px)}
+.bk.v2.sel .cvb{outline:2.5px solid var(--accent);outline-offset:2px}
+.bk.v2 .bi{padding:10px 2px 0;gap:4px}
+.bk.v2 .bi h3{font-size:13.5px;font-weight:600}
+.bk.v2 .cta{margin-top:auto;align-self:flex-start;background:var(--well);border-color:transparent;color:var(--ink)}
+.bk.v2 .cta:hover{background:var(--accent-soft);color:var(--accent)}
+.bk.v2 .cm{top:6px;right:6px}
+.fin{position:absolute;left:8px;bottom:8px;width:24px;height:24px;border-radius:50%;background:var(--success);color:#fff;display:grid;place-items:center;box-shadow:0 2px 6px rgba(0,0,0,.3)}.fin svg{width:14px;height:14px;stroke-width:2.6}
+/* side panel */
+.sb-h{padding:14px 8px 2px}.sb-h .lnk{min-height:32px;font-size:12.5px;padding:0 6px}
+.sh-side .sb-i{border-radius:12px}
+/* v7 frame on every menu that opens here */
+.sh-pop{border-radius:20px;padding:8px;background:var(--c7-bg);-webkit-backdrop-filter:blur(28px) saturate(1.4);backdrop-filter:blur(28px) saturate(1.4);border:1px solid var(--glass-line);box-shadow:var(--c7-shadow),var(--c7-hi);animation:c7in 200ms var(--out7);transform-origin:top right}
+.sh-pop .mi{border-radius:12px}
+.sh-pop .mi[aria-checked=true],.sh-pop .mi.on{background:var(--accent-soft);color:var(--accent);font-weight:600}
+.sh-pop .mi[aria-checked=true] svg,.sh-pop .mi.on svg{color:var(--accent)}
+.sh-pop .mi .n{margin-left:auto;font-size:12px;color:var(--muted);font-weight:600}
+.sh-pop .mi.big{min-height:60px;gap:12px;padding:6px 10px}
+.sh-pop .mi.big .ti{width:40px;height:40px;border-radius:12px;background:var(--accent-soft);display:grid;place-items:center;flex:none}
+.sh-pop .mi.big .ti svg{color:var(--accent);width:20px;height:20px}
+.sh-pop .mi.big b{display:block;font-size:14.5px;font-weight:600}.sh-pop .mi.big small{display:block;font-size:12.5px;color:var(--muted);white-space:normal;line-height:1.3}
+.sh-pop .cap{font-size:12px;color:var(--muted);padding:8px 10px 4px;max-width:300px;line-height:1.4;border-top:1px solid var(--line);margin-top:6px}
+.swg{display:flex;gap:2px;padding:2px 4px}
+@keyframes c7in{from{opacity:0;transform:translateY(-6px) scale(.96)}to{opacity:1;transform:none}}
+@keyframes c7up{from{opacity:0;transform:translateY(24px)}to{opacity:1;transform:none}}
+@keyframes c7pop{0%{transform:scale(.93)}100%{transform:scale(1)}}
+/* wells, tiles, switch rows */
+.well{background:var(--well);border-radius:14px;padding:0 12px}
+.well .frow{padding:8px 0;min-height:52px}
+.well .frow .gr b{font-weight:600;font-size:14px}
+.note7{font-size:12.5px;color:var(--muted);margin:6px 2px 0}
+.tiles5{display:grid;grid-template-columns:repeat(auto-fill,minmax(92px,1fr));gap:8px}
+.tile7{display:flex;flex-direction:column;align-items:center;justify-content:center;gap:6px;min-height:72px;border-radius:14px;border:0;background:var(--well);color:var(--ink-soft);font-size:12.5px;font-weight:600;cursor:pointer;padding:8px 6px;box-shadow:inset 0 0 0 1.5px transparent;transition:background var(--dur-1),box-shadow var(--dur-1),transform 120ms}
+.tile7 svg{width:22px;height:22px}
+.tile7:hover{background:var(--pressed)}
+.tile7[aria-pressed=true]{background:var(--accent-soft);color:var(--accent);box-shadow:inset 0 0 0 1.5px var(--accent);animation:c7pop 280ms var(--spring)}
+.cardx{border-radius:20px;padding:18px;border-color:var(--line);box-shadow:var(--elev-1)}
+.cardx h2{font-size:17px;letter-spacing:-.01em}
+.exg{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:0 20px}
+@container lib (max-width:620px){.exg{grid-template-columns:minmax(0,1fr)}}
+.exf{display:flex;flex-wrap:wrap;align-items:center;gap:10px;margin-top:16px}
+.exf .hint{flex:1;min-width:160px}
+/* knowledge */
+.kr{border-radius:16px;border-color:transparent;box-shadow:var(--elev-1)}
+.kr[aria-pressed=true]{box-shadow:inset 0 0 0 1.5px var(--accent)}
+.pv{border-radius:20px}
+.lay.kst div{border-radius:16px;border-color:transparent;box-shadow:var(--elev-1)}
+.lst{border-radius:18px}
+/* ===== the one universal Tag picker ===== */
+#tpsc{position:fixed;inset:0;z-index:87;background:transparent;display:none}
+#tpsc.on{display:block}
+#tpk{position:fixed;z-index:88;width:348px;max-width:calc(100vw - 24px);max-height:min(580px,calc(100dvh - 24px));display:none;flex-direction:column;border-radius:20px;background:var(--c7-bg);-webkit-backdrop-filter:blur(28px) saturate(1.4);backdrop-filter:blur(28px) saturate(1.4);border:1px solid var(--glass-line);box-shadow:var(--c7-shadow),var(--c7-hi);overflow:hidden}
+#tpk.on{display:flex;animation:c7in 200ms var(--out7)}
+#tpk.sheet{left:0!important;right:0;top:auto!important;bottom:0;width:100%;max-width:none;max-height:86dvh;border-radius:24px 24px 0 0;padding-bottom:var(--sh-safe-b,0px)}
+#tpk.sheet.on{animation:c7up 240ms var(--out7)}
+#tpsc.dim{background:rgba(0,0,0,.42)}
+.tph{display:flex;align-items:center;gap:8px;padding:12px 8px 4px 16px}
+.tph b{flex:1;font-size:15px;font-weight:650;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.tph .ib{width:44px;height:44px}.tph .ib::after{content:"";position:absolute;inset:7px;border-radius:50%;background:var(--well);z-index:-1}
+.tph .ib svg{width:16px;height:16px}
+.tpq{padding:0 12px 8px;display:flex}
+.tpq .inp{border-radius:12px;background:var(--well);border-color:transparent}
+#tpb{overflow:auto;padding:0 8px 8px;flex:1;min-height:80px;overscroll-behavior:contain}
+.tprw{display:flex;align-items:center}
+.tpr{flex:1;min-width:0;display:flex;align-items:center;gap:10px;min-height:46px;padding:4px 8px 4px calc(8px + var(--d,0)*20px);border:0;background:none;border-radius:12px;cursor:pointer;text-align:left;font-size:14.5px;color:var(--ink);transition:background var(--dur-1),transform 120ms}
+.tpr:hover,.tpr.act{background:var(--hover)}
+.tpr.act{box-shadow:inset 0 0 0 1.5px var(--accent-soft)}
+.tpr.dim{opacity:.42}
+.tpr .g{flex:1;min-width:0}.tpr .g b{font-weight:600;display:block;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.tpr .g small{display:block;font-size:12px;color:var(--muted);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.tpr .n{font-size:12px;color:var(--muted);font-weight:600;flex:none}
+.tpc{width:22px;height:22px;border-radius:7px;box-shadow:inset 0 0 0 1.5px var(--line-strong);display:grid;place-items:center;flex:none;color:var(--on-accent);transition:background var(--dur-1)}
+.tpc svg{width:14px;height:14px;stroke-width:2.8;opacity:0}
+.tpc.all{background:var(--accent);box-shadow:none;animation:c7pop 280ms var(--spring)}.tpc.all svg{opacity:1}
+.tpc.some{background:var(--accent-soft);box-shadow:inset 0 0 0 1.5px var(--accent)}.tpc.some::after{content:"";width:10px;height:2.5px;border-radius:2px;background:var(--accent);position:absolute}
+.tpc{position:relative}
+.tpp{color:var(--line-strong)}.tpp[aria-pressed=true]{color:var(--warn)}.tpp[aria-pressed=true] svg{fill:currentColor}
+.tpcat{font-weight:650}.tpcat svg{width:16px;height:16px;color:var(--muted);transition:transform var(--dur-1)}
+.tpcat[aria-expanded=true] svg{transform:rotate(90deg)}
+.tpnew{margin:6px 0;padding:6px;border-radius:14px;background:var(--well)}
+.tpnew .tpr{color:var(--accent);font-weight:600}
+.tpnew label{display:flex;align-items:center;gap:8px;font-size:12.5px;color:var(--muted);padding:2px 8px 6px}
+.tpnew .sel{flex:1;min-width:0;border:0;background:var(--surface-0)}
+.tpnew .hm{margin:0 4px 4px;border-radius:12px}
+.tpo{margin:8px 0 2px}
+.tpo .frow{border-top:1px solid var(--line)}.tpo .frow:first-child{border-top:0}
+.tpf{display:flex;align-items:center;gap:8px;padding:8px 12px 12px;border-top:1px solid var(--line)}
+.tpf .hint{flex:1;min-width:0}
+@media (max-width:640px){
+ .lib{padding:4px 12px 28px}.lh2 h1{font-size:24px}
+ .trow .btn.more{padding:0 12px}
+ .grid{grid-template-columns:repeat(2,minmax(0,1fr));gap:18px 14px}
+}
+@media (prefers-reduced-motion:reduce){.sh-pop,#tpk.on,#tpk.sheet.on,.qrow,.tile7[aria-pressed=true],.tpc.all{animation:none}.cc:hover,.bk.v2 .cvb:hover{transform:none}}
+
+</style>
+</head>
+<body>
+<div class="sh-wrap" id="app" data-mode="beg">
+ <div class="sh-demo">
+  <span class="t">Library v2 · on the shared app shell</span>
+  <div class="seg" role="group" aria-label="Mode"><button data-sh-mode="beg">Beginner</button><button data-sh-mode="pro">Professional</button></div>
+  <button type="button" class="btn sm demo-b" id="demoEmpty" aria-pressed="false">Show empty library</button>
+ </div>
+ <div class="sh-shell">
+  <nav class="sh-rail glass" id="sh-rail" aria-label="Spaces"></nav>
+  <aside class="sh-side" id="sh-side" aria-label="Library sidebar"></aside>
+  <aside class="sh-panel" id="sh-panel" aria-label="Book panel" data-state="hidden"></aside>
+  <div class="sh-main">
+   <header class="sh-top" id="sh-top"></header>
+   <main class="sh-scroll" id="main" tabindex="-1"></main>
+  </div>
+ </div>
+</div>
+<input type="file" id="fileIn" multiple accept=".pdf,.epub,.docx,application/pdf,application/epub+zip" hidden aria-label="PDF, EPUB or DOCX. DRM-free files only." data-noclr>
+<div class="lsc" id="lsc"></div>
+<aside class="lsh" id="lsh" role="dialog" aria-modal="true" aria-label="Highlight"><div class="hd"><span id="lshT">Highlight</span><button type="button" class="ib" data-a="pvclose" aria-label="Close"></button></div><div class="bd" id="lshB"></div></aside>
+<script src="shell.js"></script>
+<script>
+const $=s=>document.querySelector(s),$$=s=>[...document.querySelectorAll(s)];
+const {ic,esc}=Shell;
+const T=(m,u)=>Shell.toast(m,u);
+Object.assign(Shell.I,{
+ book:Shell.I.libraryB,
+ video:'<circle cx="12" cy="12" r="10"/><path d="m10 8 6 4-6 4z"/>',
+ article:'<path d="M15 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V7z"/><path d="M14 2v5h6"/><path d="M8 13h8M8 17h5"/>',
+ paste:'<rect x="8" y="2" width="8" height="4" rx="1"/><path d="M16 4h2a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2V6a2 2 0 0 1 2-2h2"/>',
+ audio:'<path d="M3 14v-2a9 9 0 0 1 18 0v2"/><path d="M21 15a2 2 0 0 1-2 2h-1v-5h1a2 2 0 0 1 2 2zM3 15a2 2 0 0 0 2 2h1v-5H5a2 2 0 0 0-2 2z"/>',
+ file:'<path d="M15 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V7z"/><path d="M14 2v5h6"/>',
+ grid:'<rect x="3" y="3" width="7" height="7" rx="1"/><rect x="14" y="3" width="7" height="7" rx="1"/><rect x="3" y="14" width="7" height="7" rx="1"/><rect x="14" y="14" width="7" height="7" rx="1"/>',
+ list:'<path d="M8 6h13M8 12h13M8 18h13M3 6h.01M3 12h.01M3 18h.01"/>',
+ tag:'<path d="M12.586 2.586A2 2 0 0 0 11.172 2H4a2 2 0 0 0-2 2v7.172a2 2 0 0 0 .586 1.414l8.704 8.704a2.426 2.426 0 0 0 3.42 0l6.58-6.58a2.426 2.426 0 0 0 0-3.42z"/><circle cx="7.5" cy="7.5" r=".5"/>',
+ bookmark:'<path d="m19 21-7-4-7 4V5a2 2 0 0 1 2-2h10a2 2 0 0 1 2 2z"/>',
+ pen:'<path d="M21.174 6.812a1 1 0 0 0-3.986-3.987L3.842 16.174a2 2 0 0 0-.5.83l-1.321 4.352a.5.5 0 0 0 .623.622l4.353-1.32a2 2 0 0 0 .83-.497z"/>',
+
+ link:'<path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71"/><path d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71"/>',
+ jump:'<path d="M7 7h10v10"/><path d="M7 17 17 7"/>',
+ copy:'<rect x="8" y="8" width="14" height="14" rx="2"/><path d="M4 16c-1.1 0-2-.9-2-2V4c0-1.1.9-2 2-2h10c1.1 0 2 .9 2 2"/>',
+ download:'<path d="M12 15V3"/><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><path d="m7 10 5 5 5-5"/>',
+ upload:'<path d="M12 3v12"/><path d="m17 8-5-5-5 5"/><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/>',
+ sparkle:'<path d="M12 3l1.9 5.1L19 10l-5.1 1.9L12 17l-1.9-5.1L5 10l5.1-1.9z"/><path d="M19 17v4M17 19h4"/>',
+ folder:'<path d="M20 20a2 2 0 0 0 2-2V8a2 2 0 0 0-2-2h-7.9a2 2 0 0 1-1.69-.9L9.6 3.9A2 2 0 0 0 7.93 3H4a2 2 0 0 0-2 2v13a2 2 0 0 0 2 2z"/>',
+ layers:'<path d="m12.83 2.18a2 2 0 0 0-1.66 0L2.6 6.08a1 1 0 0 0 0 1.83l8.58 3.91a2 2 0 0 0 1.66 0l8.58-3.9a1 1 0 0 0 0-1.83z"/><path d="m22 17.65-9.17 4.16a2 2 0 0 1-1.66 0L2 17.65"/><path d="m22 12.65-9.17 4.16a2 2 0 0 1-1.66 0L2 12.65"/>',
+ hash:'<path d="M4 9h16M4 15h16M10 3 8 21M16 3l-2 18"/>',
+ selectc:'<path d="m9 11 3 3L22 4"/><path d="M21 12v7a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11"/>',
+ sort:'<path d="m3 16 4 4 4-4"/><path d="M7 20V4"/><path d="m21 8-4-4-4 4"/><path d="M17 4v16"/>',
+ clock:'<circle cx="12" cy="12" r="10"/><path d="M12 6v6l4 2"/>',
+ image:'<rect x="3" y="3" width="18" height="18" rx="2"/><circle cx="9" cy="9" r="2"/><path d="m21 15-3.1-3.1a2 2 0 0 0-2.8 0L6 21"/>',
+ journal:'<path d="M4 19.5v-15A2.5 2.5 0 0 1 6.5 2H19a1 1 0 0 1 1 1v18a1 1 0 0 1-1 1H6.5a1 1 0 0 1 0-5H20"/>',
+ external:'<path d="M15 3h6v6"/><path d="M10 14 21 3"/><path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6"/>',
+ filter:'<path d="M22 3H2l8 9.46V19l4 2v-8.54z"/>',
+ sticky:'<path d="M16 3H5a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2V8z"/><path d="M15 3v4a2 2 0 0 0 2 2h4"/>'
+});
+Shell.I.starf=Shell.I.star;
+/* ---------- data ---------- */
+const MON=['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'];
+const ago=d=>{const t=new Date(Date.UTC(2026,10,12-d));return t.getUTCDate()+' '+MON[t.getUTCMonth()]};
+const COLS=[['y','Yellow','#f5c84c'],['g','Green','#62c98b'],['b','Blue','#6aa8ff'],['p','Pink','#f27fb0'],['o','Orange','#ff9a5c']];
+const ST={want:'Want to read',reading:'Reading now',finished:'Finished'};
+const KL={book:'Book',file:'File',video:'Video',audio:'Audio',article:'Article',paste:'Pasted text'};
+const KI={book:'book',file:'file',video:'video',audio:'audio',article:'article',paste:'paste'};
+const BK=(id,t,a,kind,fmt,pages,prog,st,opened,added,h,cols,url)=>({id,t,a,kind,fmt,pages,prog,st,man:false,opened,added,h,cols,url:url||'',sum:'',tags:[]});
+const HL=(id,b,c,type,key,ch,pg,d,q,bef,aft,note,mine,tags,x)=>Object.assign({id,b,c,type,key,ch,pg,d,q,bef,aft,note,mine,tags,card:false,cq:'',lost:false,box:false,at:''},x||{});
+const S0={
+ books:[
+  BK('b1','Atomic Habits','James Clear','book','pdf',306,.62,'reading',0,60,262,['c1','c3']),
+  BK('b2','Deep Work','Cal Newport','book','epub',296,.35,'reading',2,50,205,['c2']),
+  BK('b3','Sapiens','Yuval Noah Harari','book','epub',464,.45,'reading',6,40,32,[]),
+  BK('b4','Thinking, Fast and Slow','Daniel Kahneman','book','pdf',499,1,'finished',20,140,12,['c1']),
+  BK('b5','The Psychology of Money','Morgan Housel','book','epub',256,1,'finished',31,120,160,['c3']),
+  BK('b6','Superforecasting','Philip Tetlock','book','pdf',352,0,'want',null,5,340,[]),
+  BK('b7',"Poor Charlie's Almanack",'Charles Munger','book','docx',200,0,'want',null,4,300,['c2']),
+  BK('b8','Meditations','Marcus Aurelius','book','epub',254,0,'want',null,3,90,[]),
+  BK('b14','Range','David Epstein','book','pdf',352,.2,'reading',9,25,185,['c1']),
+  BK('b9','How to learn anything (talk)','Study Lab','video','',0,.5,'reading',1,15,230,[],'https://example.com/watch/learn'),
+  BK('b10','The making of a good manager','Harvard Business Review','article','',0,.3,'reading',12,18,25,['c2'],'https://example.com/articles/manager'),
+  BK('b11','Meeting notes: a feedback framework','Pasted text','paste','',0,0,'want',null,8,120,['c2']),
+  BK('b12','Sleep and learning (episode 41)','Podcast','audio','',0,.15,'reading',4,22,270,[]),
+  BK('b13','Lecture notes week 3','lecture-3.pdf','file','pdf',34,0,'want',null,2,60,[])
+ ],
+ hls:[
+  HL('h1','b1',0,'hl',true,1,27,3,'You do not rise to the level of your goals. You fall to the level of your systems.','Goals are good for setting a direction, but systems are best for making progress.','Your goal is the result you want. Your system is the set of daily habits that gets you there.','Focus on the system, not the target.','Winning comes from the daily routine, not from the dream.',['habits','systems'],{card:true,cq:'What is the difference between a goal and a system?'}),
+  HL('h2','b1',1,'hl',false,1,31,3,'Every action is a vote for the type of person you wish to become.','Your habits shape your identity, and your identity shapes your habits.','No single vote decides the election, but each one nudges the result.','','',['identity','habits']),
+  HL('h3','b1',2,'hl',true,3,54,5,'Make it obvious, make it attractive, make it easy, make it satisfying.','The four laws of behaviour change are a simple set of rules.','Invert them to break a bad habit.','','',['habits'],{card:true,cq:'What are the four laws of behaviour change?'}),
+  HL('h4','b1',3,'note',false,2,62,6,'After I pour my coffee, I will write one line in my journal.','Habit stacking links a new habit to one you already have.','The old habit becomes the cue for the new one.','Try this with the evening tea too.','Attach the new thing to something I never skip.',['habits','routines']),
+  HL('h5','b1',4,'bm',false,4,88,8,'Design your environment so the good choice is the easy choice.','Small changes in your surroundings can change what you do.','','','',['environment']),
+  HL('h6','b1',0,'hl',false,5,102,9,'Habits are the compound interest of self-improvement.','Getting 1 percent better every day counts for a lot in the long run.','','','',['habits','compounding']),
+  HL('h7','b1',0,'hl',false,1,18,12,'If you get one percent better each day for a year, you end up thirty-seven times better.','The effect of small gains builds slowly.','','','',['compounding'],{lost:true}),
+  HL('h8','b1',1,'hl',false,6,141,14,'The two-minute rule: scale a habit down until it takes two minutes.','Start with a version so small you cannot say no.','','','',['habits']),
+  HL('h9','b2',0,'hl',true,2,41,2,'Switching tasks leaves part of your attention behind on the old task.','This is called attention residue.','It is worse when the old task was left unfinished.','','Switching tasks leaves part of my mind on the old one.',['focus'],{card:true,cq:'What is attention residue?'}),
+  HL('h10','b2',2,'hl',false,1,19,4,'Clarity about what matters provides clarity about what does not.','Deep work is a skill that rewards a clear plan.','','','',['focus','decisions']),
+  HL('h11','b2',1,'note',false,3,77,5,'Schedule every minute of your day.','Give every block of time a job.','You can change the plan later, but start with one.','Try time blocks on Monday.','',['routines']),
+  HL('h12','b2',3,'hl',false,4,120,7,'Practise being bored so you can focus without a distraction on hand.','Do not take breaks from distraction. Take breaks from focus.','','','',['focus']),
+  HL('h13','b2',0,'hl',false,5,148,10,'Quit social media as a thirty-day experiment and see what you miss.','Most people find they miss very little.','','','',['focus']),
+  HL('h14','b3',0,'hl',false,2,24,6,'Language evolved partly so people could share information about each other.','The gossip theory says this kept groups together.','','','',['history']),
+  HL('h15','b3',2,'hl',true,6,180,9,'Money is the most universal and most efficient system of mutual trust.','Strangers can cooperate because they trust the same currency.','','','',['history','money']),
+  HL('h16','b3',4,'hl',false,2,29,11,'Shared fictions let large numbers of strangers cooperate.','Nations, firms and rights exist because people believe in them.','','','',['history','systems']),
+  HL('h17','b3',1,'note',false,3,51,13,'Is social media the same kind of shared fiction?','','','Check with the Deep Work notes.','',['history','focus']),
+  HL('h18','b4',0,'hl',true,1,20,22,'System 1 is fast and intuitive. System 2 is slow and deliberate.','The mind has two modes of thinking.','','','',['decisions'],{card:true,cq:'What is the difference between System 1 and System 2?'}),
+  HL('h19','b4',2,'hl',true,7,85,23,'What you see is all there is.','We build stories from the evidence we have and ignore what is missing.','','','',['decisions','bias']),
+  HL('h20','b4',3,'hl',false,26,283,24,'Losses loom larger than gains.','People weigh a loss more heavily than an equal gain.','','','',['decisions','money']),
+  HL('h21','b4',1,'hl',false,11,119,25,'Anchors pull your estimate towards the first number you hear.','Even random numbers can anchor a guess.','','','',['bias']),
+  HL('h22','b4',4,'bm',false,12,130,26,'Chapter on base rates.','','','','',['bias']),
+  HL('h23','b5',0,'hl',true,1,17,33,'Getting wealthy and staying wealthy are two different skills.','Staying wealthy takes frugality and a fear of ruin.','','','',['money']),
+  HL('h24','b5',1,'hl',false,3,48,34,'Enough is a powerful word.','Knowing when to stop is a rare skill.','','','',['money','decisions']),
+  HL('h25','b5',2,'hl',false,7,96,35,'Compounding needs time more than it needs talent.','Time is the multiplier.','','','',['money','compounding']),
+  HL('h26','b14',4,'hl',false,5,112,9,'Scanned page 112 (drawn box, no text).','','','Great chart on sampling periods.','',['learning'],{box:true}),
+  HL('h27','b9',0,'hl',false,1,0,1,'Spacing your practice beats cramming.','','','','',['learning'],{at:'12:32'}),
+  HL('h28','b9',2,'hl',false,1,0,1,'Test yourself instead of rereading.','','','','',['learning'],{at:'23:25',card:true,cq:'Why test yourself instead of rereading?'})
+ ],
+ cols:[{id:'c1',t:'Psychology'},{id:'c2',t:'Work'},{id:'c3',t:'2026 reads'}],
+ themes:['habits','decisions'],
+ saved:[{id:'sv1',name:'Key highlights from psychology books',f:{key:true,col:'c1'}}],
+ journal:[{id:'j1',b:'b3',d:3,read:'Sapiens, chapter 2: how gossip held groups together.',struck:'Social media may play the same role today.',q:'Is a shared story always a good thing?'}],
+ recaps:{b1:{1:'1 percent better each day adds up.',2:'Habits shape identity.'}},
+ links:[{id:'l1',from:'b2',to:'b1',note:'Both are about building systems, not setting goals.'}],
+ res:[{id:'r1',k:'Links',t:'Atomic Habits website'},{id:'r2',k:'References',t:'Charlie Munger talk'},{id:'r3',k:'Images',t:'Habit loop diagram'}],
+ prefs:{view:'grid',sort:'opened',progress:true,author:true,auto:true,dup:true,bigwarn:true,daily:false,dailyN:5,dailyHome:true,dailyStar:true,recap:true,jprompt:false,
+  columns:{author:true,progress:true,opened:true,hl:true,status:true,tags:false}}
+};
+/* tags for everything: books, videos, articles, pasted text, highlights, notes and cards all carry tags */
+{const BT={b1:['habits','identity'],b2:['focus','productivity'],b3:['history'],b4:['decisions','psychology'],b5:['money'],b9:['learning'],b10:['leadership'],b12:['sleep','learning'],b14:['learning']};
+ S0.books.forEach(b=>{b.tags=BT[b.id]||[]});
+ S0.tree=[{n:'Self-improvement',kids:[{n:'habits',kids:[{n:'routines'},{n:'identity'}]},{n:'focus',kids:[{n:'productivity'}]}]},{n:'Money and decisions',kids:[{n:'money',kids:[{n:'compounding'}]},{n:'decisions',kids:[{n:'bias'}]}]}];
+ S0.catSug=[{id:'sg1',n:'History and society',tags:['history','systems']},{id:'sg2',n:'Learning and mind',tags:['learning','environment','psychology']}];
+ S0.tagMem={};
+ S0.stickies=[{id:'sk1',b:'b1',c:0,t:'Try the two-minute rule on Monday.'},{id:'sk2',b:'b1',c:3,t:'Chapter 3 is the one to re-read.'}];
+ S0.prefs.kstats=true}
+/* per-book memory for the book side panel (open or closed), kept in this browser */
+const LK='ln-lib-v1';let LS={panel:{}};try{Object.assign(LS,JSON.parse(localStorage.getItem(LK)||'{}'));LS.panel=LS.panel||{}}catch(_){}
+const lsave=()=>{try{localStorage.setItem(LK,JSON.stringify(LS))}catch(_){}};
+const panelPref=id=>LS.panel[id]===true;
+const setPanelPref=(id,v)=>{LS.panel[id]=!!v;lsave()};
+let S=JSON.parse(JSON.stringify(S0));
+const U={tab:'books',shelf:'all',type:'all',ptype:'all',q:'',book:null,btab:'highlights',ptab:'pages',ch:null,sel:new Set(),selMode:false,
+ kbook:'all',kcol:-1,ktype:'all',ktag:'all',kdate:'all',ksort:'new',kcur:null,kshow:40,dailyDone:{},busy:null,empty:false,sideWant:true,panelWant:false,theme:null,tq:'',nav:[],navI:-1,kview:'all',sug:{},sugNo:{},autoT:{}};
+const bk=id=>S.books.find(b=>b.id===id);
+const hlOf=id=>S.hls.filter(h=>h.b===id);
+const colOf=id=>S.cols.find(c=>c.id===id);
+const uid=(()=>{let n=100;return p=>p+(++n)})();
+/* ---------- undo / redo ---------- */
+let H=[],R=[];
+const HH=Shell.history({undo:()=>undo(),redo:()=>redo(),can:()=>[H.length>0,R.length>0]});
+const snap=()=>JSON.stringify(S);
+function act(label,fn){H.push({s:snap(),l:label});if(H.length>100)H.shift();R=[];fn();fix();renderAll(true)}
+function undo(){const h=H.pop();if(!h)return;R.push({s:snap(),l:h.l});S=JSON.parse(h.s);fix();renderAll(true);T('Undid: '+h.l)}
+function redo(){const h=R.pop();if(!h)return;H.push({s:snap(),l:h.l});S=JSON.parse(h.s);fix();renderAll(true);T('Redid: '+h.l)}
+function fix(){if(U.book&&!bk(U.book)){U.book=null}if(U.kcur&&!S.hls.some(h=>h.id===U.kcur))U.kcur=null;if(U.shelf.startsWith('c')&&!colOf(U.shelf))U.shelf='all';U.sel=new Set([...U.sel].filter(id=>bk(id)||S.hls.some(h=>h.id===id)))}
+/* ---------- helpers ---------- */
+const fld=(id,v,ph,label)=>`<input class="inp" id="${id}" type="text" value="${esc(v)}" placeholder="${esc(ph)}" aria-label="${esc(label||ph)}" autocomplete="off">`;
+const sw=(k,on,label)=>`<button type="button" class="sw" role="switch" aria-checked="${!!on}" aria-label="${esc(label)}" data-a="sw" data-k="${k}"></button>`;
+const chip=(a,id,label,on,extra,icon)=>`<button type="button" class="chip" aria-pressed="${!!on}" data-a="${a}" data-id="${id}">${icon?ic(icon):''}${esc(label)}${extra!=null?` <span class="n">${extra}</span>`:''}</button>`;
+const rowx=(inner,id)=>`<div class="rw" data-rw><div class="chips scrollx" ${id?`id="${id}"`:''}>${inner}</div><div class="track"><i></i></div></div>`;
+const isPro=()=>Shell.mode()==='pro';
+const mark=(s,q)=>{let o=esc(s);if(!q)return o;const e=esc(q).replace(/[.*+?^${}()|[\]\\]/g,'\\$&');return o.replace(new RegExp(e,'gi'),m=>'<mark>'+m+'</mark>')};
+const sentCover=b=>{
+ const inner=(b.kind==='book'||b.kind==='file')?`<b>${esc(b.t)}</b><i>${esc(b.a)}</i>`:`<span class="kic">${ic(KI[b.kind])}</span><b style="font-size:13px">${esc(b.t)}</b><i>${KL[b.kind]}</i>`;
+ return `<div class="cv${(b.kind==='book'||b.kind==='file')?'':' kind'}" style="--h:${b.h}">${inner}</div>`};
+const pct=b=>Math.round(Math.min(1,Math.max(0,b.prog))*100);
+const ctaLabel=b=>b.kind!=='book'?'Open':b.st==='finished'?'Read again':(b.st==='reading'||pct(b)>0)?'Continue reading':'Start reading';
+const books=()=>U.empty?[]:S.books;
+const typeOK=(b,t)=>t==='all'||(t==='books'&&(b.kind==='book'||b.kind==='file'))||(t==='videos'&&(b.kind==='video'||b.kind==='audio'))||(t==='articles'&&b.kind==='article')||(t==='pasted'&&b.kind==='paste');
+const shelfOK=(b,s)=>s==='all'||b.st===s||b.cols.includes(s);
+function sorted(list){const s=S.prefs.sort;const a=[...list];
+ const rec=b=>b.opened==null?-1e6+(-b.added):-b.opened;
+ if(s==='opened')a.sort((x,y)=>rec(y)-rec(x));else if(s==='added')a.sort((x,y)=>x.added-y.added);else if(s==='title')a.sort((x,y)=>x.t.localeCompare(y.t));else if(s==='author')a.sort((x,y)=>x.a.localeCompare(y.a));else if(s==='progress')a.sort((x,y)=>y.prog-x.prog);return a}
+const SORTS={opened:'Last opened',added:'Date added',title:'Title',author:'Author',progress:'Progress'};
+const shelfName=s=>s==='all'?'All':ST[s]||(colOf(s)||{}).t||'All';
+const allTags=()=>[...new Set([...S.hls.flatMap(h=>h.tags),...S.books.flatMap(b=>b.tags||[])])].sort();
+const recentTags=()=>allTags().slice(0,6);
+/* ---------- tab sets (universal, customisable, with +) ---------- */
+const cuOn=()=>{const c=U.cu;if(!c||U.book)return null;const live=libTabs.list().some(t=>t.id===c.id);if(!live)return null;if(c.k==='collection')return U.tab==='books'&&U.shelf===c.v?c.id:null;if(c.k==='tag')return U.tab==='themes'&&U.theme===c.v?c.id:null;return U.tab==='knowledge'?c.id:null};
+const libTabs=Shell.tabs('lib',{host:'#libtabs',
+ catalog:[{id:'books',label:'Books',icon:'book'},{id:'knowledge',label:'Knowledge',icon:'layers'},{id:'themes',label:'Themes',icon:'hash',pro:true,desc:'Any tag as a page across books'},{id:'journal',label:'Journal',icon:'journal',desc:'Short dated reading entries'},{id:'tags',label:'Tags',icon:'tag',pro:true,desc:'Category › Tag › Sub-tag map'}],
+ defaults:['books','knowledge','themes'],cur:()=>cuOn()||U.tab,
+ sources:()=>[{kind:'filter',title:'Saved filters',items:S.saved.map(s=>({id:s.id,label:s.name}))},{kind:'tag',title:'Tags and themes',items:allTags().map(t=>({id:t,label:'#'+t}))},{kind:'collection',title:'Collections',items:S.cols.map(c=>({id:c.id,label:c.t}))}],
+ onCustom:c=>{const [k,...r]=c.src.split(':'),id=r.join(':');U.cu={id:c.id,k,v:id};U.sel=new Set();U.selMode=false;U.book=null;
+  if(k==='collection'){if(!colOf(id)){T('That collection is gone. Pick another in Edit tabs.');return}U.tab='books';U.shelf=id;U.type='all';U.theme=null}
+  else if(k==='tag'){U.tab='themes';U.theme=id}
+  else{const s=S.saved.find(x=>x.id===id);if(!s){T('That saved filter is gone. Pick another in Edit tabs.');return}U.tab='knowledge';U.theme=null;U.ktype=s.f.key?'key':'all';U.kbook='all';U.kcol=-1;U.kcl=s.f.col&&s.f.col!=='all'?s.f.col:null}
+  renderAll()},
+ onPick:id=>{U.cu=null;U.tab=id;U.theme=null;U.sel=new Set();U.selMode=false;renderMain()},
+ onChange:()=>{if(!libTabs.list().some(t=>t.id===U.tab)){U.tab=libTabs.list()[0].id;renderMain()}}});
+const bookTabs=Shell.tabs('bookpage',{host:'#bptab',
+ catalog:[{id:'highlights',label:'Highlights',icon:'pen'},{id:'summary',label:'Summary',icon:'article'},{id:'cards',label:'Cards',icon:'layers'},{id:'journal',label:'Journal',icon:'journal'},{id:'links',label:'Links',icon:'link',pro:true,desc:'Backlinks to other books'},{id:'info',label:'Info',icon:'file'},
+  {id:'sticky',label:'Sticky notes',icon:'sticky',desc:'Little notes pinned to this book'},{id:'bookmarks',label:'Bookmarks',icon:'bookmark',desc:'Pages you marked'},
+  {id:'pages',label:'Pages',icon:'file',desc:'Chapters, as in the side panel'},{id:'outline',label:'Outline',icon:'list',desc:'The chapter outline'},{id:'resources',label:'Resources',icon:'folder',desc:'Links, images and references'},{id:'annotations',label:'Annotations',icon:'pen',desc:'Every mark in reading order'}],
+ defaults:['highlights','summary','cards'],cur:()=>U.btab,
+ onPick:id=>{U.btab=id;renderBookBody()},
+ onChange:()=>{if(!bookTabs.list().some(t=>t.id===U.btab)){U.btab=bookTabs.list()[0].id;renderBookBody()}}});
+const panelTabs=Shell.tabs('bookpanel',{host:'#bptabs',
+ catalog:[{id:'pages',label:'Pages',icon:'file'},{id:'outline',label:'Outline',icon:'list'},{id:'resources',label:'Resources',icon:'folder'},{id:'annotations',label:'Annotations',icon:'pen'}],
+ defaults:['pages','outline','resources','annotations'],cur:()=>U.ptab,
+ onPick:id=>{U.ptab=id;renderPanelBody()},
+ onChange:()=>{if(!panelTabs.list().some(t=>t.id===U.ptab)){U.ptab=panelTabs.list()[0].id;renderPanelBody()}}});
+/* ---------- top bar, sidebar, panel ---------- */
+function updTop(){
+ const cr=['Library'];if(U.book)cr.push(bk(U.book).t);else if(U.theme)cr.push('Themes','#'+U.theme);
+ Shell.top({side:true,panel:!!U.book,crumbs:cr,saved:'',
+  actions:HH.html()})}
+function counts(s){return books().filter(b=>shelfOK(b,s)).length}
+function renderSide(){
+ const list=sorted(books()).slice(0,12);
+ const shelf=(id,n,icn)=>`<button type="button" class="sb-i" data-a="shelf" data-id="${id}"${(!U.book&&U.tab==='books'&&U.shelf===id)?' aria-current="page"':''}>${ic(icn||'folder')}<span class="g">${esc(n)}</span><span class="n">${counts(id)}</span></button>`;
+ $('#sh-side').innerHTML=`<div class="sh-colhd"><h2>Library</h2><button type="button" class="ib sm" data-a="closeside" aria-label="Close the sidebar">${ic('x')}</button></div>
+ <div class="sh-colscroll" id="sidescroll"><button type="button" class="btn pri" style="width:100%;margin:2px 0 6px" data-a="capture">${ic('plus')}Capture</button>
+ <div class="sb-h"><span>Shelves</span></div>${shelf('all','All','grid')}${shelf('reading','Reading now','book')}${shelf('want','Want to read','bookmark')}${shelf('finished','Finished','check')}
+ <div class="sb-h"><span>Collections</span><button type="button" class="ib sm" data-a="newcol" aria-label="New collection">${ic('plus')}</button></div>
+ ${S.cols.map(c=>shelf(c.id,c.t,'folder')).join('')||'<p class="hint" style="padding:4px 8px">No collections yet.</p>'}
+ <div class="sb-h"><span>Sources</span></div>
+ ${list.map(b=>`<button type="button" class="sb-i" data-a="open" data-id="${b.id}"${U.book===b.id?' aria-current="page"':''}>${ic(KI[b.kind])}<span class="g">${esc(b.t)}</span></button>`).join('')||`<p class="hint" style="padding:4px 8px">Your library is empty. Import a book, or capture a link, a video or an article.</p>`}
+ </div>`}
+function renderPanel(){
+ const p=$('#sh-panel');if(!U.book){p.innerHTML='';return}
+ const b=bk(U.book);
+ p.innerHTML=`<div class="sh-colhd"><span style="width:20px;height:28px;border-radius:4px;overflow:hidden;margin-left:4px;flex:none;display:block"><span style="display:block;height:100%;background:linear-gradient(150deg,hsl(${b.h} 52% 44%),hsl(${b.h+38} 58% 26%))"></span></span><h2>${esc(b.t)}</h2><button type="button" class="ib sm" data-a="closepanel" aria-label="Close the book panel">${ic('x')}</button></div>
+ <div class="sh-coltabs" id="bptabs" role="tablist"></div><div class="sh-colscroll" id="panelscroll"></div>`;
+ panelTabs.draw();renderPanelBody()}
+const CHS=n=>Array.from({length:7},(_,i)=>({n:i+1,t:i===0?'Introduction':'Chapter '+(i+1)}));
+function panelHTML(tab,b){
+ const hs=hlOf(b.id);let h='';
+ if(tab==='pages'){h=`<p class="hint" style="margin:4px 8px 6px">Tap a chapter to show only its highlights.</p>`+CHS().map(c=>{const n=hs.filter(x=>x.ch===c.n).length;return`<button type="button" class="rs${U.ch===c.n?' on':''}" data-a="pch" data-id="${c.n}"><span class="g"><b style="font-weight:600">${c.n}. ${esc(c.t)}</b><small>${n} highlight${n===1?'':'s'}</small></span></button>`}).join('')}
+ else if(tab==='outline'){h=CHS().map(c=>`<button type="button" class="rs${U.ch===c.n?' on':''}" data-a="pch" data-id="${c.n}"><span class="g">${esc(c.t)}${c.n<3?`<small>${['Why it matters','How it works'][c.n-1]||''}</small>`:''}</span></button>`).join('')}
+ else if(tab==='resources'){h=`<div class="rw" data-rw><div class="chips scrollx">${['All','Images','Links','References','Notes','Audio','Files'].map((k,i)=>`<button type="button" class="chip" aria-pressed="${(U.rk||'All')===k}" data-a="rkind" data-id="${k}">${k}</button>`).join('')}</div><div class="track"><i></i></div></div>
+ ${S.res.filter(r=>!U.rk||U.rk==='All'||r.k===U.rk).map(r=>`<div class="rs"><span class="g">${esc(r.t)}<small>${r.k}</small></span></div>`).join('')||'<p class="hint" style="padding:8px">Nothing here yet.</p>'}
+ <button type="button" class="btn sm" style="margin:6px 8px" data-a="resadd">${ic('plus')}Add</button>`}
+ else{h=hs.length?hs.map(x=>`<button type="button" class="rs${U.kcur===x.id?' on':''}" data-a="kpick" data-id="${x.id}"><span class="dot" style="width:10px;height:10px;border-radius:50%;background:${COLS[x.c][2]};flex:none"></span><span class="g">${esc(x.q).slice(0,70)}…<small>Ch. ${x.ch}</small></span></button>`).join(''):'<p class="hint" style="padding:8px">No highlights yet.</p>'}
+ return h}
+function renderPanelBody(){const sc=$('#panelscroll');if(!sc||!U.book)return;sc.innerHTML=panelHTML(U.ptab,bk(U.book));$$('#panelscroll [data-rw]').forEach(r=>Shell.track(r.firstElementChild,r.querySelector('.track')))}
+/* ---------- Library page ---------- */
+function libPage(){
+ const n=books().length;
+ return`<div class="lib" id="lib"><div class="lh"><h1>Library<small>${n} item${n===1?'':'s'}${U.busy?'':''}</small></h1>
+  <button type="button" class="btn pri" data-a="import">${ic('upload')}Import a book</button>
+  <button type="button" class="btn" data-a="addmenu" aria-haspopup="menu">${ic('plus')}Add${ic('down')}</button></div>
+  <p class="hint" style="margin:0 0 4px">PDF, EPUB or DOCX. DRM-free files only. You can also drop files, links or text here.</p>
+  <div class="drop" role="status">Drop a book, a link or some text anywhere here.</div>
+  <div id="busy"></div>
+  <div class="lrow"><button type="button" class="btn more" data-a="more">${ic('sliders')}More</button>${fld('q',U.q,'Search titles, authors, highlights and notes','Search the library')}<button type="button" class="chip" data-a="ktagmenu" aria-haspopup="menu" aria-pressed="${U.ktag!=='all'}">${ic('tag')}Tag: ${U.ktag==='all'?'Any':esc(U.ktag)}${ic('down')}</button></div>
+  <div id="libtabs"></div>
+  <div id="lbody"></div></div>`}
+function renderBusy(){const e=$('#busy');if(e)e.innerHTML=U.busy?`<div class="busy" role="status">${ic('upload')}<span>Saving ${esc(U.busy)}…</span><div class="pb"><i></i></div></div>`:''}
+function bodyHTML(){
+ if((U.q||U.ktag!=='all')&&U.tab!=='knowledge')return searchHTML();
+ if(U.theme)return themePage(U.theme);
+ if(U.tab==='tags')return tagsHTML();
+ if(U.tab==='books')return booksHTML();
+ if(U.tab==='knowledge')return knowHTML();
+ if(U.tab==='themes')return themesHTML();
+ if(U.tab==='journal')return journalHTML();return''}
+function renderBody(){const e=$('#lbody');if(!e)return;e.innerHTML=bodyHTML();afterBody()}
+function afterBody(){$$('#lbody [data-rw]').forEach(r=>Shell.track(r.firstElementChild,r.querySelector('.track')));renderBar();decoAll()}
+function es(icon,title,text,btn,a){return`<div class="empty"><div class="ei">${ic(icon)}</div><h3>${esc(title)}</h3><p>${esc(text)}</p>${btn?`<button type="button" class="btn pri" data-a="${a}">${esc(btn)}</button>`:''}</div>`}
+/* books tab */
+function booksHTML(){
+ const typeChips=[['all','All'],['books','Books'],['videos','Videos'],['articles','Articles'],['pasted','Pasted']];
+ const shelves=[['all','All'],['reading','Reading now'],['want','Want to read'],['finished','Finished']];
+ let list=books().filter(b=>shelfOK(b,U.shelf)&&typeOK(b,U.type));
+ list=sorted(list);
+ const head=`${rowx(shelves.map(([id,n])=>chip('shelf',id,n,U.shelf===id,counts(id))).join('')+S.cols.map(c=>chip('shelf',c.id,c.t,U.shelf===c.id,counts(c.id),'folder')).join('')+`<button type="button" class="chip add" data-a="newcol">${ic('plus')}New collection</button>`)}
+ <div class="lrow"><div style="flex:1 1 300px;min-width:0">${rowx(typeChips.map(([id,n])=>chip('type',id,n,U.type===id)).join(''))}</div>
+  <button type="button" class="chip" data-a="sortmenu" aria-haspopup="menu">${ic('sort')}Sort: ${SORTS[S.prefs.sort]}</button>
+  <div class="seg sm" role="group" aria-label="View"><button type="button" data-a="view" data-id="grid" class="${S.prefs.view==='grid'?'on':''}" aria-label="Cover grid">${ic('grid')}</button><button type="button" data-a="view" data-id="list" class="${S.prefs.view==='list'?'on':''}" aria-label="List">${ic('list')}</button></div>
+  <button type="button" class="chip pro" data-a="selmode" aria-pressed="${U.selMode}">${ic('selectc')}Select</button></div>`;
+ if(!list.length)return head+(books().length===0?es('book','Your library is empty','Import a book, or capture a link, a video or an article.','Import a book','import'):es('book','Nothing here yet.','Try another shelf or type, or clear the search.','Show all','showall'));
+ return head+(S.prefs.view==='grid'?`<ul class="grid">${list.map(cardHTML).join('')}</ul>`:listHTML(list))}
+function cardHTML(b){
+ const hn=hlOf(b.id).length,on=U.sel.has(b.id);
+ return`<li><article class="bk${on?' sel':''}" data-id="${b.id}" data-testid="source-card">
+  ${U.selMode?`<button type="button" class="chk" data-a="selbook" data-id="${b.id}" role="checkbox" aria-checked="${on}" aria-label="Select ${esc(b.t)}">${ic('check')}</button>`:''}
+  <button type="button" class="cvb" data-a="open" data-id="${b.id}" aria-label="${esc(b.t)}">${sentCover(b)}</button>
+  <button type="button" class="ib sm cm" data-a="bmenu" data-id="${b.id}" aria-label="More actions" aria-haspopup="menu" data-testid="source-menu-button">${ic('dots')}</button>
+  <div class="bi"><h3>${esc(b.t)}</h3>${S.prefs.author?`<p>${esc(b.a||KL[b.kind])}</p>`:''}
+   <span class="st ${b.st}">${ST[b.st]}</span>
+   ${b.kind==='book'&&S.prefs.progress?`<div><div class="pb" role="progressbar" aria-label="Reading progress: ${pct(b)}%" aria-valuenow="${pct(b)}" aria-valuemin="0" aria-valuemax="100"><i style="width:${pct(b)}%"></i></div><span class="hint">${pct(b)}% read</span></div>`:''}
+   <p class="pro hint">${hn} highlight${hn===1?'':'s'}${b.cols.length?' · '+b.cols.map(c=>(colOf(c)||{}).t).join(', '):''}</p>
+   <button type="button" class="btn sm cta" data-a="start" data-id="${b.id}">${ctaLabel(b)}</button></div></article></li>`}
+function listHTML(list){
+ const c=S.prefs.columns;const pro=isPro();
+ const cols=['28px','minmax(0,1fr)'];if(c.progress)cols.push('90px');if(c.opened&&pro)cols.push('92px');if(c.hl&&pro)cols.push('64px');if(c.status)cols.push('96px');if(c.tags&&pro)cols.push('120px');cols.push('44px');
+ const hd=`<li class="lr hd" style="--cols:${cols.join(' ')}" aria-hidden="true"><span></span><span>Title</span>${c.progress?'<span>Progress</span>':''}${c.opened&&pro?'<span class="c-op">Last opened</span>':''}${c.hl&&pro?'<span class="c-hl">Notes</span>':''}${c.status?'<span class="c-st">Status</span>':''}${c.tags&&pro?'<span class="c-tg">Tags</span>':''}<span></span></li>`;
+ return`<ul class="lst">${hd}${list.map(b=>{const on=U.sel.has(b.id);const tg=[...new Set(hlOf(b.id).flatMap(h=>h.tags))].slice(0,2).join(', ');
+  return`<li class="lr" style="--cols:${cols.join(' ')}" data-id="${b.id}" data-testid="source-card">${U.selMode?`<input type="checkbox" data-a="selbook" data-id="${b.id}" ${on?'checked':''} aria-label="Select ${esc(b.t)}">`:`<span class="mc">${sentCover(b)}</span>`}
+  <button type="button" class="t" data-a="open" data-id="${b.id}"><span class="tt"><b>${esc(b.t)}</b>${S.prefs.author?`<span>${esc(b.a||KL[b.kind])}</span>`:''}</span></button>
+  ${c.progress?`<span class="c pbw">${b.kind==='book'?`<span class="pb" style="display:block;margin:0 0 3px"><i style="width:${pct(b)}%"></i></span>${pct(b)}%`:'—'}</span>`:''}
+  ${c.opened&&pro?`<span class="c c-op">${b.opened==null?'Never':ago(b.opened)}</span>`:''}${c.hl&&pro?`<span class="c c-hl">${hlOf(b.id).length}</span>`:''}
+  ${c.status?`<span class="c c-st"><span class="st ${b.st}">${ST[b.st]}</span></span>`:''}${c.tags&&pro?`<span class="c c-tg">${esc(tg)||'—'}</span>`:''}
+  <button type="button" class="ib sm" data-a="bmenu" data-id="${b.id}" aria-label="More actions for ${esc(b.t)}" aria-haspopup="menu">${ic('dots')}</button></li>`}).join('')}</ul>`}
+/* search results (grouped, every item type) */
+const tagHas=(x,t)=>(U.ktSub?family(t):[t]).some(s=>(x.tags||[]).includes(s));const tagMatch=x=>!U.ktags.length||(U.ktAll?U.ktags.every(t=>tagHas(x,t)):U.ktags.some(t=>tagHas(x,t)));
+function bookList(l){return`<ul class="lst">${l.map(b=>`<li><button type="button" class="rs" data-a="open" data-id="${b.id}" style="padding:8px 12px">${ic(KI[b.kind])}<span class="g">${mark(b.t,U.q)}<small>${esc(KL[b.kind])}${b.kind==='book'&&b.a?' · '+mark(b.a,U.q):''}</small></span></button></li>`).join('')}</ul>`}
+function cardRow(h){const b=bk(h.b);return`<li><button type="button" class="kr" data-a="kpick" data-id="${h.id}"><span class="dot" style="--c:${COLS[h.c][2]}"></span><span class="bd"><span class="q">${mark(h.cq,U.q)}</span><span class="meta">Card · ${esc(b.t)} · Ch. ${h.ch}</span></span></button></li>`}
+function groupedHTML(bs,hs){
+ const G=[['Books',bs.filter(b=>b.kind==='book'||b.kind==='file'),'b'],['Videos',bs.filter(b=>b.kind==='video'||b.kind==='audio'),'b'],['Articles',bs.filter(b=>b.kind==='article'),'b'],['Pasted text',bs.filter(b=>b.kind==='paste'),'b'],['Highlights',hs.filter(h=>h.type!=='note'),'h'],['Notes',hs.filter(h=>h.type==='note'),'h'],['Cards',hs.filter(h=>h.card),'c']];
+ return G.filter(g=>g[1].length).map(([n,l,k])=>`<div class="grp">${n} (${l.length})</div>`+(k==='b'?bookList(l):`<ul class="klist">${l.map(h=>k==='c'?cardRow(h):krow(h)).join('')}</ul>`)).join('')}
+function searchHTML(){
+ const q=U.q.trim().toLowerCase();
+ const bs0=books().filter(tagMatch),hs0=U.empty?[]:S.hls.filter(h=>!!bk(h.b)&&tagMatch(h));
+ const sub=[];
+ const chip0=tagChips();
+ if(!q){
+  if(!bs0.length&&!hs0.length)return chip0+es('tag','Nothing has this tag yet','Add the tag to a book, a note or a highlight.','Clear the tag filter','cleartag');
+  return chip0+groupedHTML(bs0,hs0)}
+ const bs=bs0.filter(b=>(b.t+' '+b.a+' '+(b.tags||[]).join(' ')).toLowerCase().includes(q));
+ const hs=hs0.filter(h=>(h.q+' '+h.tags.join(' ')).toLowerCase().includes(q));
+ const ns=hs0.filter(h=>(h.note+' '+h.mine).toLowerCase().includes(q));
+ const cs=hs0.filter(h=>h.card&&h.cq.toLowerCase().includes(q));
+ if(!bs.length&&!hs.length&&!ns.length&&!cs.length)return chip0+es('search','No results for “'+U.q+'”','Check the spelling, or try a shorter word.','Clear search','clearq');
+ const hrow=(h,field)=>`<li><button type="button" class="kr" data-a="kjump" data-id="${h.id}"><span class="dot" style="--c:${COLS[h.c][2]}"></span><span class="bd"><p class="q">${mark(field==='n'?(h.note||h.mine):h.q,U.q)}</p><p class="meta">${esc(bk(h.b).t)} · Ch. ${h.ch}</p></span></button></li>`;
+ return chip0+(bs.length?`<div class="grp">Books and other items (${bs.length})</div>${bookList(bs)}`:'')+
+ (hs.length?`<div class="grp">Highlights (${hs.length})</div><ul class="klist">${hs.map(h=>hrow(h)).join('')}</ul>`:'')+
+ (ns.length?`<div class="grp">Notes (${ns.length})</div><ul class="klist">${ns.map(h=>hrow(h,'n')).join('')}</ul>`:'')+
+ (cs.length?`<div class="grp">Cards (${cs.length})</div><ul class="klist">${cs.map(h=>cardRow(h)).join('')}</ul>`:'')}
+/* knowledge */
+function kfilter(scope){
+ let l=S.hls.filter(h=>!!bk(h.b));if(U.empty)l=[];
+ if(scope)l=l.filter(h=>h.b===scope);else if(U.kbook!=='all')l=l.filter(h=>h.b===U.kbook);
+ if(U.kcol>=0)l=l.filter(h=>h.c===U.kcol);
+ if(U.kcl)l=l.filter(h=>bk(h.b).cols.includes(U.kcl));
+ if(U.ktype==='key')l=l.filter(h=>h.key);else if(U.ktype!=='all')l=l.filter(h=>h.type===U.ktype);
+ l=l.filter(tagMatch);
+ if(U.kdate==='week')l=l.filter(h=>h.d<=7);else if(U.kdate==='month')l=l.filter(h=>h.d<=30);
+ if(U.q&&!scope){const q=U.q.toLowerCase();l=l.filter(h=>(h.q+' '+h.note+' '+h.mine+' '+bk(h.b).t).toLowerCase().includes(q))}
+ if(scope||U.ksort==='book')l.sort((a,b)=>(a.b===b.b?0:S.books.indexOf(bk(a.b))-S.books.indexOf(bk(b.b)))||a.ch-b.ch||a.pg-b.pg);
+ else if(U.ksort==='colour')l.sort((a,b)=>a.c-b.c||a.d-b.d);else l.sort((a,b)=>a.d-b.d);
+ return l}
+function filterBar(scope){
+ const bkn=U.kbook==='all'?'All books':bk(U.kbook).t;
+ return`<div class="lrow">${scope?'':`<button type="button" class="chip" data-a="kbookmenu" aria-haspopup="menu">${ic('book')}${esc(bkn.length>22?bkn.slice(0,21)+'…':bkn)}${ic('down')}</button>`}
+  <div class="cols" role="group" aria-label="Colour">${COLS.map((c,i)=>`<button type="button" class="cdot" style="--c:${c[2]}" aria-pressed="${U.kcol===i}" data-a="kcol" data-id="${i}" aria-label="${c[1]}" title="${c[1]}"><i></i></button>`).join('')}</div>
+  <button type="button" class="chip" data-a="ksortmenu" aria-haspopup="menu">${ic('sort')}${{new:'Newest',book:'Book order',colour:'Colour'}[U.ksort]}</button>
+  <span class="sp"></span><button type="button" class="chip pro" data-a="selmode" aria-pressed="${U.selMode}">${ic('selectc')}Select</button></div>
+ ${U.kcl?`<div class="lrow"><span class="tg">Collection: ${esc((colOf(U.kcl)||{}).t||'')}<button type="button" data-a="kclcl" aria-label="Remove collection filter">${ic('x')}</button></span></div>`:''}
+ <div class="lrow pro"><button type="button" class="chip" data-a="ktypemenu" aria-haspopup="menu">${ic('filter')}Type: ${{all:'All',hl:'Highlights',note:'Notes',bm:'Bookmarks',key:'★ Key'}[U.ktype]}</button>
+  <button type="button" class="chip" data-a="ktagmenu" aria-haspopup="menu">${ic('tag')}Tag: ${U.ktag==='all'?'Any':esc(U.ktag)}</button>
+  <button type="button" class="chip" data-a="kdatemenu" aria-haspopup="menu">${ic('clock')}${{all:'Any date',week:'This week',month:'This month'}[U.kdate]}</button>
+  <button type="button" class="chip" data-a="ksave">${ic('save')}Save this filter</button></div>
+ ${S.saved.length?`<div class="pro">${rowx(S.saved.map(s=>chip('ksaved',s.id,s.name,false,null,'star')).join(''))}</div>`:''}`}
+function krow(h,sel){
+ const b=bk(h.b);const on=U.kcur===h.id;
+ return`<li><button type="button" class="kr" data-a="${U.selMode?'selhl':'kpick'}" data-id="${h.id}" aria-pressed="${U.selMode?U.sel.has(h.id):on}">${U.selMode?`<input type="checkbox" tabindex="-1" aria-hidden="true" ${U.sel.has(h.id)?'checked':''}>`:''}<span class="dot" style="--c:${COLS[h.c][2]}"></span><span class="bd">${h.box?`<span class="snip">${ic('image')} Drawn box on page ${h.pg} (no text)</span>`:`<span class="q">${mark(h.q,U.q)}</span>`}${h.note||h.mine?`<span class="nt">${esc(h.mine||h.note)}</span>`:''}<span class="meta">${esc(b.t)} · Ch. ${h.ch}${h.at?' · '+h.at:''} · ${ago(h.d)}${h.type==='bm'?' · Bookmark':h.type==='note'?' · Note':''}</span></span>${h.key?`<span class="stx" aria-label="Key highlight">${ic('starf')}</span>`:''}</button></li>`}
+function knowListHTML(){
+ const l=kfilter();const wide=$('#main')&&$('#main').clientWidth>=760;
+ const shown=l.slice(0,U.kshow);
+ const list=!l.length?(S.hls.length===0||U.empty?es('layers','No highlights yet','Highlight while reading and everything shows up here.'):es('filter','Nothing here yet.','No highlights match these filters.','Clear filters','kclear')):`<ul class="klist">${shown.map(h=>krow(h)).join('')}</ul>${l.length>shown.length?`<button type="button" class="btn" style="margin:12px auto;display:flex" data-a="kmore">Show more (${l.length-shown.length})</button>`:''}<p class="hint" style="text-align:center;margin-top:8px">${l.length} of ${S.hls.length}. Only visible rows are drawn, so a book with 2,000 highlights stays fast.</p>`;
+ const cur=S.hls.find(h=>h.id===U.kcur);
+ return filterBar()+`<div class="kn${wide?' pane':''}"><div>${list}</div>${wide?`<div>${cur?pvHTML(cur):`<div class="pv"><div class="empty" style="padding:24px 8px"><div class="ei">${ic('layers')}</div><h3>Pick a highlight</h3><p>Its context, your note and Jump appear here.</p></div></div>`}</div>`:''}</div>`}
+function pvHTML(h){
+ const b=bk(h.b);
+ return`<div class="pv" style="--c:${COLS[h.c][2]}" data-hl="${h.id}">
+ <div class="hd"><h3>${esc(b.t)} · Ch. ${h.ch}</h3><span class="sp"></span><button type="button" class="ib sm" data-a="pvstar" data-id="${h.id}" aria-pressed="${h.key}" aria-label="${h.key?'Remove key mark':'Mark as key highlight'}" style="color:${h.key?'var(--warn)':'var(--muted)'}">${ic('star')}</button></div>
+ ${h.box?`<div class="snip" style="height:120px">${ic('image')} Drawn box on page ${h.pg}: an image snippet is shown, because there is no text.</div>`:`<div class="ctx">${h.bef?esc(h.bef)+' ':''}<mark>${esc(h.q)}</mark>${h.aft?' '+esc(h.aft):''}</div><span class="hint">Two sentences before and after, for context.</span>`}
+ ${h.lost?`<div class="hm" role="status">Spot not found — open at page ${h.pg}. The file may have changed since you highlighted this.</div>`:''}
+ <div class="cols" role="group" aria-label="Colour">${COLS.map((c,i)=>`<button type="button" class="cdot" style="--c:${c[2]}" aria-pressed="${h.c===i}" data-a="pvcol" data-id="${h.id}" data-c="${i}" aria-label="${c[1]}"><i></i></button>`).join('')}</div>
+ <label class="hint" for="pvnote">Your note</label><textarea id="pvnote" data-f="note" data-id="${h.id}" placeholder="Add a note…">${esc(h.note)}</textarea>
+ <label class="hint" for="pvmine">In my words <span>(optional)</span></label><textarea id="pvmine" data-f="mine" data-id="${h.id}" placeholder="Explain the idea as you would to a friend…">${esc(h.mine)}</textarea>
+ <div><span class="hint">Tags</span>${tagEditor(h.id,'pvtag')}
+  </div>
+ ${isPro()?`<div class="hint">${S.links.filter(l=>l.to===h.b).map(l=>`Mentioned in “${esc(bk(l.from).t)}”`).join(' · ')||'Not linked from other notes yet.'}</div>`:''}
+ <div class="hint">${h.card?`Card made: ${esc(h.cq)}`:'No card yet.'}</div>
+ <div class="acts"><button type="button" class="btn pri" data-a="jump" data-id="${h.id}">${ic('jump')}${h.at?'Play from '+h.at:h.lost?'Open at page '+h.pg:'Jump'}</button>${h.card?'':`<button type="button" class="btn" data-a="mkcard" data-id="${h.id}">${ic('layers')}Make card</button>`}<button type="button" class="btn dng" data-a="pvdel" data-id="${h.id}">${ic('trash')}Delete</button></div></div>`}
+/* bank */
+/* knowledge: highlights + Daily Highlights + Study prompts + Export (the old Bank, merged) */
+function kstatsHTML(){if(!S.prefs.kstats)return'';const hs=U.empty?[]:S.hls;
+ return`<div class="lay kst" role="group" aria-label="Your knowledge at a glance"><div><b>${hs.length}</b><span>highlights</span></div><div><b>${hs.filter(h=>h.key).length}</b><span>★ key</span></div><div><b>${hs.filter(h=>h.card).length}</b><span>cards made</span></div><div><b>${U.empty?0:allTags().length}</b><span>tags</span></div><button type="button" class="ib sm kx" data-a="kstatsoff" aria-label="Hide these stats" title="Hide these stats (turn back on in More)">${ic('x')}</button></div>`}
+function kviewBar(){return rowx([['all','All highlights'],['daily','Daily Highlights'],['study','Study prompts'],['export','Export']].map(([id,n])=>chip('kview',id,n,U.kview===id)).join(''))}
+function knowHTML(){
+ const head=kstatsHTML()+kviewBar();
+ if(U.kview==='daily')return head+dailyHTML();
+ if(U.kview==='study')return head+studyHTML();
+ if(U.kview==='export')return head+exportHTML();
+ return head+knowListHTML()}
+function dailyPick(){const pool=S.hls.filter(h=>bk(h.b)&&!h.less);const star=pool.filter(h=>h.key),rest=pool.filter(h=>!h.key);const mix=[...star,...rest,...star.slice(0,2)];const seen=new Set();return mix.filter(h=>!seen.has(h.id)&&seen.add(h.id)).slice(0,S.prefs.dailyN)}
+function dailyHTML(){
+ const p=S.prefs;
+ if(!p.daily)return`<div class="cardx"><h2>${ic('sparkle')}Daily Highlights</h2><p>Old highlights come back to you, a few each day, so you remember what you read. It is off until you turn it on.</p><div class="acts"><button type="button" class="btn pri" data-a="dailyon">Turn on</button><button type="button" class="btn" data-a="dailyset">${ic('sliders')}Settings</button></div></div>`;
+ const l=dailyPick();return`<div class="cardx"><h2>${ic('sparkle')}Today’s ${l.length} highlights<span class="sp"></span><button type="button" class="ib sm" data-a="dailyset" aria-label="Daily Highlights settings">${ic('sliders')}</button></h2><p>${Object.keys(U.dailyDone).length} of ${l.length} done${p.dailyHome?' · also shown as a card on Home':''}.</p><div class="dq">${l.map(h=>`<div class="dh${U.dailyDone[h.id]?' done':''}"><q>${esc(h.q)}</q><div class="meta">${esc(bk(h.b).t)} · Ch. ${h.ch}</div>${U.dailyDone[h.id]?`<span class="hint">${U.dailyDone[h.id]}</span>`:`<div class="acts"><button type="button" class="btn sm" data-a="dkeep" data-id="${h.id}">${ic('check')}Keep</button><button type="button" class="btn sm" data-a="dless" data-id="${h.id}">Less often</button>${h.card?'':`<button type="button" class="btn sm" data-a="mkcard" data-id="${h.id}">${ic('layers')}Make card</button>`}</div>`}</div>`).join('')}</div></div>`}
+function studyHTML(){const p=S.prefs;
+ return`<div class="cardx"><h2>${ic('journal')}Study prompts</h2><p>Small questions that help ideas stick. Both are optional.</p>
+  <div class="frow"><div class="gr"><b>Chapter recap</b><span>At the end of a chapter: “Sum it up in one line.”</span></div>${sw('recap',p.recap,'Chapter recap prompt')}</div>
+  <div class="frow"><div class="gr"><b>Reading journal</b><span>When you close the reader: what I read, what struck me, one question.</span></div>${sw('jprompt',p.jprompt,'Reading journal prompt')}</div>
+  <div class="acts" style="margin-top:8px"><button type="button" class="btn sm" data-a="recapdemo">Preview chapter recap</button><button type="button" class="btn sm" data-a="jdemo">Preview journal prompt</button></div></div>`}
+function exportHTML(){
+ return`<div class="cardx"><h2>${ic('download')}Export</h2><p>Your notes are never locked in. Download highlights and notes as a file.</p>
+  <div class="lrow"><select class="sel" id="expB" aria-label="Which books"><option value="all">All books</option>${S.books.map(b=>`<option value="${b.id}">${esc(b.t)}</option>`).join('')}</select>
+  <button type="button" class="btn" data-a="export" data-id="md">${ic('download')}Markdown</button><button type="button" class="btn" data-a="export" data-id="csv">${ic('download')}CSV</button></div></div>`}
+function themesHTML(){
+ if(U.theme)return themePage(U.theme);
+ const tags=allTags();
+ return`<div class="cardx"><h2>${ic('hash')}Themes</h2><p>Any tag can become a theme page that gathers every book, video, article, note, highlight and card with that tag.</p>
+ ${S.themes.length?`<div class="thg">${S.themes.map(t=>{const {bs,hs}=itemsByTag(t);return`<button type="button" class="th" data-a="theme" data-id="${esc(t)}"><b>#${esc(t)}</b><span>${bs.length+hs.length} items · ${bs.length} book${bs.length===1?'':'s'}, ${hs.length} highlight${hs.length===1?'':'s'}</span></button>`}).join('')}</div>`:es('hash','No themes yet','Turn a tag into a theme to see everything with that tag together.')}
+ <div class="acts" style="margin-top:12px"><button type="button" class="btn pri" data-a="newtheme">${ic('plus')}New theme from a tag</button></div>
+ <p class="hint" style="margin-top:10px">Tags in use: ${tags.map(t=>`#${esc(t)}`).join(' ')||'none yet'}</p></div>`}
+function themePage(t){
+ const {bs,hs}=itemsByTag(t);hs.sort((a,b)=>a.d-b.d);const sub=family(t).slice(1);const n=bs.length+hs.length;
+ return`<div class="lrow"><button type="button" class="btn sm" data-a="themeback">${ic('back')}${U.tab==='tags'?'Tags':'All themes'}</button><span class="sp"></span><button type="button" class="btn sm" data-a="themeexp">${ic('download')}Export</button>${S.themes.includes(t)?`<button type="button" class="btn sm dng" data-a="themedel">Remove theme</button>`:''}</div>
+ <h2 style="margin:6px 0 2px">#${esc(t)}</h2><p class="hint" style="margin:0 0 8px">${n} item${n===1?'':'s'}: every kind with this tag${sub.length?', including the sub-tags '+sub.map(x=>'#'+esc(x)).join(' '):''}.</p>
+ ${n?groupedHTML(bs,hs):es('tag','Nothing has this tag yet','Add the tag to a book, a note or a highlight.')}`}
+function journalHTML(scope){
+ const l=S.journal.filter(j=>!scope||j.b===scope);
+ return`<div class="lrow"><button type="button" class="btn pri" data-a="jnew" data-id="${scope||''}">${ic('plus')}New entry</button></div>`+(l.length?l.map(j=>`<div class="qa"><b>${ago(j.d)} · ${esc(bk(j.b)?bk(j.b).t:'')}</b><span>${esc(j.read)}<br>${esc(j.struck)}<br><i>${esc(j.q)}</i></span></div>`).join(''):es('journal','No journal entries yet','A short note after reading helps you remember. Add the first one.'))}
+/* ---------- tags for everything: items, suggestions, memory, the Category > Tag > Sub-tag map ---------- */
+const TAGMAP={focus:['focus','attention','distraction','deep work'],money:['money','wealth','invest','income'],habits:['habit','routine','cue'],learning:['learn','study','practice','recall','memory','test yourself'],decisions:['decision','choice','bias','judgment'],history:['history','sapiens','language','civili'],'ai-agents':['agent',' llm','prompt','automation'],leadership:['manager','feedback','team','leader'],sleep:['sleep'],psychology:['psycholog','mind','thinking','behaviour'],productivity:['schedule','time block','planning','productiv'],systems:['system'],compounding:['compound']};
+const STOP=new Set(['about','their','which','would','there','these','those','where','being','people','should','because','between','through']);
+const normTag=v=>String(v||'').trim().replace(/^#/,'').replace(/\s+/g,'-').toLowerCase();
+const itemOf=id=>bk(id)||S.hls.find(h=>h.id===id);
+const itemText=it=>(it.t!=null?[it.t,it.a,KL[it.kind],hlOf(it.id).slice(0,6).map(h=>h.q).join(' ')]:[it.q,it.note,it.mine,(bk(it.b)||{}).t]).join(' ').toLowerCase();
+function walk(nodes,f,d,par){d=d||1;for(const n of nodes){f(n,d,par||null);if(n.kids&&n.kids.length)walk(n.kids,f,d+1,n)}}
+function findNode(name){let r=null;const k=String(name).toLowerCase();walk(S.tree,(n,d,p)=>{if(!r&&n.n.toLowerCase()===k)r={n,d,p}});return r}
+function family(t){const f=findNode(t);const out=[t];if(f)walk(f.n.kids||[],n=>out.push(n.n),f.d+1,f.n);return out}
+const height=n=>1+Math.max(0,...(n.kids||[]).map(height));
+function removeNode(name){const f=findNode(name);if(!f)return null;const arr=f.p?f.p.kids:S.tree;arr.splice(arr.indexOf(f.n),1);return f.n}
+function canPlace(name,parent){const pf=findNode(parent);if(!pf)return false;const ex=findNode(name);if(ex&&ex.d===1)return false;const node=ex?ex.n:{n:name,kids:[]};if(ex&&findNode(parent)&&(function inside(n){return(n.kids||[]).some(k=>k.n.toLowerCase()===parent.toLowerCase()||inside(k))})(node))return false;return pf.d+height(node)<=3}
+function placeUnder(name,parent){if(!canPlace(name,parent))return false;const pf=findNode(parent),ex=findNode(name);const node=ex?ex.n:{n:name,kids:[]};if(ex)removeNode(name);pf.n.kids=pf.n.kids||[];pf.n.kids.push(node);return true}
+function parentsFor(h){const out=[];walk(S.tree,(n,d)=>{if(d+h<=3)out.push({n:n.n,d})});return out}
+function itemsByTag(t){const fam=family(t);return{bs:S.books.filter(b=>(b.tags||[]).some(x=>fam.includes(x))),hs:S.hls.filter(h=>!!bk(h.b)&&h.tags.some(x=>fam.includes(x)))}}
+const cntTag=t=>{const {bs,hs}=itemsByTag(t);return bs.length+hs.length};
+function suggestTags(it){const txt=itemText(it),no=U.sugNo[it.id]||[];
+ const sc=Object.entries(TAGMAP).map(([t,ks])=>[t,ks.reduce((n,k)=>n+(txt.includes(k)?1:0),0)]).filter(([t,n])=>n>0&&!it.tags.includes(t)&&!no.includes(t)&&!S.tagMem[t]);
+ sc.sort((a,b)=>b[1]-a[1]);let out=sc.slice(0,4).map(x=>x[0]);
+ if(!out.length)out=['ideas'].filter(t=>!it.tags.includes(t)&&!no.includes(t));return out}
+function autoApply(it){const txt=itemText(it),out=[];
+ for(const t in S.tagMem){const m=S.tagMem[t];if(it.tags.includes(t))continue;
+  if((m.kw||[]).some(k=>txt.includes(k))||(m.words||[]).filter(w=>txt.includes(w)).length>=2){it.tags.push(t);out.push(t)}}
+ return out}
+function remember(t,it){const txt=itemText(it),f={};(txt.match(/[a-z]{6,}/g)||[]).forEach(w=>{if(!STOP.has(w))f[w]=(f[w]||0)+1});
+ S.tagMem[t]={kw:[...new Set([t.replace(/-/g,' '),...(TAGMAP[t]||[])])],words:Object.keys(f).sort((a,b)=>f[b]-f[a]).slice(0,6)}}
+function suggestFor(ids){ids=[].concat(ids).filter(id=>itemOf(id));let na=0,ns=0;if(!ids.length)return;
+ act('Suggest tags',()=>{ids.forEach(id=>{const it=itemOf(id);const a=autoApply(it);na+=a.length;if(a.length)U.autoT[id]=[...(U.autoT[id]||[]),...a];const s=suggestTags(it);U.sug[id]=s;ns+=s.length})});
+ pvRefresh();
+ T((na?'Added '+na+' tag'+(na===1?'':'s')+' you accepted before. ':'')+(ns?ns+' new idea'+(ns===1?'':'s')+' to review: tap ✓ to keep, ✕ to dismiss.':'No new ideas.'),null)}
+function tagEditor(id,inputId){
+ const it=itemOf(id);if(!it)return'';const sg=(U.sug[id]||[]).filter(t=>!it.tags.includes(t)),auto=U.autoT[id]||[];
+ return`<div class="tgx"><div class="tags">${it.tags.map(t=>`<span class="tg${auto.includes(t)?' auto':''}">${esc(t)}${auto.includes(t)?'<i class="aut" title="Added automatically because you accepted this tag before">auto</i>':''}<button type="button" data-a="untag" data-id="${id}" data-t="${esc(t)}" aria-label="Remove tag ${esc(t)}">${ic('x')}</button></span>`).join('')}${sg.map(t=>`<span class="tg sug" role="group" aria-label="Suggested tag ${esc(t)}"><span>${esc(t)}</span><button type="button" class="ok" data-a="sugok" data-id="${id}" data-t="${esc(t)}" aria-label="Accept the tag ${esc(t)}">${ic('check')}</button><button type="button" data-a="sugno" data-id="${id}" data-t="${esc(t)}" aria-label="Dismiss the tag ${esc(t)}">${ic('x')}</button></span>`).join('')}${it.tags.length||sg.length?'':'<span class="hint">No tags yet.</span>'}</div>
+  <div class="lrow" style="margin:6px 0 0">${fld(inputId,'','Add a tag','Add a tag')}<button type="button" class="btn sm" data-a="sugget" data-id="${id}">${ic('sparkle')}Suggest tags</button></div></div>`}
+/* the Tags tab (Professional): tag map + Claude's category suggestions */
+function treeHTML(nodes,d){return`<ul class="tmap">${nodes.map(n=>{const c=cntTag(n.n),e=esc(n.n);return`<li><div class="tn"><button type="button" class="tl" data-a="theme" data-id="${e}" title="Open the page for ${e}">${ic(d===1?'folder':'tag')}<b>${e}</b><span class="n">${c}</span></button><span class="tc">${d<3?`<button type="button" class="ib sm" data-a="tagadd" data-id="${e}" aria-label="Add a ${d===1?'tag':'sub-tag'} under ${e}" title="Add a ${d===1?'tag':'sub-tag'}">${ic('plus')}</button>`:''}<button type="button" class="ib sm" data-a="tagren" data-id="${e}" aria-label="Rename ${e}" title="Rename">${ic('pen')}</button><button type="button" class="ib sm" data-a="tagrm" data-id="${e}" aria-label="Take ${e} out of the map" title="Take out of the map">${ic('x')}</button></span></div>${n.kids&&n.kids.length?treeHTML(n.kids,d+1):''}</li>`}).join('')}</ul>`}
+function tagsHTML(){
+ const un=allTags().filter(t=>!findNode(t));
+ const sugs=S.catSug.map(g=>`<div class="sg" data-sg="${g.id}"><div class="sgh"><b>${esc(g.n)}</b><span class="hint">Suggested by Claude</span></div><div class="tags">${g.tags.map(t=>`<span class="tg ro">${esc(t)}</span>`).join('')}</div><div class="acts"><button type="button" class="btn sm pri" data-a="sgok" data-id="${g.id}">${ic('check')}Approve</button><button type="button" class="btn sm" data-a="sgren" data-id="${g.id}">${ic('pen')}Rename</button><button type="button" class="btn sm" data-a="sgmerge" data-id="${g.id}" aria-haspopup="menu">${ic('layers')}Merge into…</button><button type="button" class="btn sm" data-a="sgno" data-id="${g.id}">Dismiss</button></div></div>`).join('');
+ return`<div class="cardx"><h2>${ic('tag')}Tags</h2><p>One tag gathers every book, video, article, note, highlight and card. Group them as Category › Tag › Sub-tag (three levels at most). Tap a name to open its page.</p><div class="acts"><button type="button" class="btn" data-a="newcat">${ic('plus')}New category</button><button type="button" class="btn" data-a="aicats">${ic('sparkle')}Suggest categories</button></div></div>`+
+ (sugs?`<div class="grp">Suggested categories</div>${sugs}`:'')+
+ `<div class="grp">Tag map</div>${S.tree.length?treeHTML(S.tree,1):'<p class="hint">No categories yet. Add one, or ask Claude to suggest some.</p>'}`+
+ (un.length?`<div class="grp">Not in a category yet (${un.length})</div><div class="tags">${un.map(t=>`<button type="button" class="chip" data-a="tagmenu" data-id="${esc(t)}" aria-haspopup="menu">#${esc(t)} <span class="n">${cntTag(t)}</span></button>`).join('')}</div>`:'')}
+function renameTag(o,n){S.hls.forEach(h=>{h.tags=[...new Set(h.tags.map(t=>t===o?n:t))]});S.books.forEach(b=>{b.tags=[...new Set((b.tags||[]).map(t=>t===o?n:t))]});S.themes=S.themes.map(t=>t===o?n:t);if(S.tagMem[o]){S.tagMem[n]=S.tagMem[o];delete S.tagMem[o]}const f=findNode(o);if(f)f.n.n=n}
+function aiCats(){const un=allTags().filter(t=>!findNode(t)&&!S.catSug.some(g=>g.tags.includes(t)));
+ if(!un.length){T(S.catSug.length?'Claude’s suggestions are waiting in Tags':'Every tag is already in a category');return}
+ act('Suggest categories',()=>{S.catSug.push({id:uid('sg'),n:'Other ideas',tags:un})});T('Claude suggested a new category. Approve, rename or merge it.')}
+/* ---------- book page ---------- */
+function bookPage(){
+ const b=bk(U.book);const hs=hlOf(b.id);const link=b.url&&/^https:/.test(b.url);
+ return`<div class="lib" id="lib"><div class="lrow"><button type="button" class="btn sm" data-a="backlib">${ic('back')}Library</button></div>
+ <section class="bh" aria-label="About this source"><div class="bc">${sentCover(b)}</div><div class="bm"><h2>${esc(b.t)}</h2>
+  <div class="sub">${KL[b.kind]}${b.a?' · '+esc(b.a):''}${b.pages?' · '+b.pages+' pages':''}</div>
+  <span class="st ${b.st}">${ST[b.st]}</span>
+  ${b.kind==='book'?`<div class="pbr"><div class="pb" role="progressbar" aria-label="Reading progress: ${pct(b)}%" aria-valuenow="${pct(b)}" aria-valuemin="0" aria-valuemax="100"><i style="width:${pct(b)}%"></i></div>${pct(b)}%</div>`:''}
+  <div class="acts"><button type="button" class="btn pri" data-a="start" data-id="${b.id}">${b.kind==='book'?'▶ ':''}${ctaLabel(b)}</button><button type="button" class="ib" data-a="bmenu" data-id="${b.id}" aria-label="More actions" aria-haspopup="menu">${ic('dots')}</button></div></div></section>
+ <section class="bx" aria-label="Details and controls">
+  <div class="bxr"><span class="bxl">Status</span><div class="bxv"><div class="seg sm" role="group" aria-label="Status (automatic, you can change it)">${['want','reading','finished'].map(s=>`<button type="button" class="${b.st===s?'on':''}" data-a="setst" data-id="${s}">${ST[s]}</button>`).join('')}</div><span class="hint">${b.man?'Set by you.':'Set automatically from your reading.'}</span></div></div>
+  <div class="bxr"><span class="bxl">Reading</span><div class="bxv"><span class="hint">${b.opened!=null?'Last read '+ago(b.opened):'Not opened yet'} · ${hs.length} highlights · ${hs.filter(h=>h.card).length} cards · ${hs.filter(h=>h.key).length} ★</span></div></div>
+  <div class="bxr"><span class="bxl">Collections</span><div class="bxv"><div class="tags">${b.cols.map(c=>`<span class="tg ro">${esc((colOf(c)||{}).t||'')}</span>`).join('')||'<span class="hint">None</span>'}<button type="button" class="chip" style="min-height:44px" data-a="tocol" data-id="${b.id}">${ic('folder')}Collections</button></div></div></div>
+  <div class="bxr"><span class="bxl">Tags</span><div class="bxv">${tagEditor(b.id,'bktag')}</div></div>
+  ${link?`<div class="bxr"><span class="bxl">Original</span><div class="bxv"><a class="btn" href="${esc(b.url)}" target="_blank" rel="noopener noreferrer" data-a="ext">${ic('external')}Open the original</a></div></div>`:''}
+ </section>
+ <div class="lrow"><button type="button" class="btn more" data-a="more">${ic('sliders')}More</button></div><div id="bptab"></div><div id="bbody"></div></div>`}
+function stickyHTML(b){const l=S.stickies.filter(s=>s.b===b.id);
+ return`<div class="lrow"><button type="button" class="btn pri" data-a="stkadd">${ic('plus')}New sticky note</button><span class="hint">Little notes pinned to this book.</span></div>`+(l.length?`<div class="stk">${l.map(s=>`<div class="sk" style="--c:${COLS[s.c][2]}"><textarea data-f="stk" data-id="${s.id}" aria-label="Sticky note" placeholder="Write a note…">${esc(s.t)}</textarea><div class="skf"><button type="button" class="cdot" style="--c:${COLS[s.c][2]}" data-a="stkcol" data-id="${s.id}" aria-label="Change colour"><i></i></button><span class="sp"></span><button type="button" class="ib sm" data-a="stkdel" data-id="${s.id}" aria-label="Delete this sticky note">${ic('trash')}</button></div></div>`).join('')}</div>`:es('sticky','No sticky notes yet','Add one for a quick reminder about this book.'))}
+/* ---------- the universal AI bar: what Library tells it ---------- */
+function pvVisible(){return !!U.kcur&&!!document.querySelector('.pv[data-hl="'+U.kcur+'"]')}
+function aiTarget(){if(U.sel.size)return[...U.sel];if(pvVisible())return[U.kcur];if(U.book)return[U.book];return[]}
+function aiReg(){
+ const ctx=()=>{const t=aiTarget();
+  if(t.length===1&&bk(t[0])){const b=bk(t[0]);return{title:b.t,text:hlOf(b.id).map(h=>'- '+h.q).join('\n')}}
+  if(t.length===1){const h=itemOf(t[0]);return{title:bk(h.b).t+' · Ch. '+h.ch,text:h.q+(h.note?'\nMy note: '+h.note:'')}}
+  if(t.length>1)return{title:t.length+' selected items',text:t.map(id=>{const it=itemOf(id);return'- '+(it.t||it.q)}).join('\n')};
+  return{title:U.tab==='knowledge'?'Knowledge':'Library',text:books().map(b=>'- '+b.t).join('\n')}};
+ const untagged=()=>[...books().filter(b=>!(b.tags||[]).length).map(b=>b.id),...(U.empty?[]:S.hls.filter(h=>!h.tags.length&&bk(h.b)).map(h=>h.id))];
+ Shell.ai.page({context:ctx,
+  handlers:{
+   tags:()=>{let t=aiTarget();if(!t.length)t=untagged();if(!t.length){T('Everything already has tags');return}suggestFor(t)},
+   summarise:()=>{const t=aiTarget();const b=t.length===1&&bk(t[0]);if(!b){T('Open a book first, then ask for a summary');return}
+    const keys=hlOf(b.id).filter(h=>h.key||h.card).slice(0,3);const txt='Claude’s draft: '+(keys.length?keys.map(h=>h.q.replace(/\.$/,'')).join('; ')+'.':'Not enough highlights yet to summarise.');
+    act('Summarise with Claude',()=>{b.sum=b.sum?b.sum+'\n\n'+txt:txt});if(U.book&&bookTabs.list().some(x=>x.id==='summary')){U.btab='summary';renderBookBody()}T('Draft added to the Summary. Edit it in your own words.',undo)},
+   cards:()=>{const t=aiTarget();const ids=new Set(t);let hs=[];t.forEach(id=>{if(bk(id))hs.push(...hlOf(id));else{const h=itemOf(id);if(h)hs.push(h)}});hs=hs.filter(h=>!h.card&&h.type!=='bm').slice(0,5);
+    if(!hs.length){T(t.length?'Nothing new to turn into cards here':'Open a book or pick a highlight first');return}
+    act('Make cards with Claude',()=>{hs.forEach(h=>{h.card=true;h.cq='What does this mean: “'+h.q.split(' ').slice(0,7).join(' ')+'…”?'})});T('Made '+hs.length+' card'+(hs.length===1?'':'s')+'. They join your next review.',undo)},
+   paste:(txt)=>{const t=aiTarget();const b=t.length===1&&bk(t[0]);
+    if(b){act('Paste the AI answer',()=>{b.sum=b.sum?b.sum+'\n\n'+txt:txt});if(U.book&&bookTabs.list().some(x=>x.id==='summary')){U.btab='summary';renderBookBody()}T('Answer added to the Summary of “'+b.t+'”',undo)}
+    else{act('Paste the AI answer',()=>{const nb=BK(uid('b'),txt.split('\n')[0].slice(0,48)||'AI answer','Pasted text','paste','',0,0,'want',null,0,Math.floor(Math.random()*360),[]);S.books.unshift(nb);autoApply(nb)});T('Saved to your library as pasted text',undo)}},
+   send:c=>{T('Sent “'+c.title+'” to Claude through the connector (demo). The answer comes back here.')}},
+  actions:[{id:'autotag',label:'Tag everything untagged',desc:'Uses tags you accepted before, suggests the rest',icon:'tag',run:()=>{const u=untagged();if(!u.length){T('Everything already has tags');return}suggestFor(u)}}]
+   .concat(isPro()?[{id:'cats',label:'Suggest tag categories',desc:'Group your tags: Category › Tag › Sub-tag',icon:'folder',run:()=>{if(!libTabs.list().some(t=>t.id==='tags'))libTabs.add('tags');U.cu=null;go({tab:'tags'});aiCats()}}]:[])})}
+function renderBookBody(){
+ const e=$('#bbody');if(!e||!U.book)return;const b=bk(U.book),hs=hlOf(b.id);let h='';
+ if(U.btab==='highlights'){
+  const l=kfilter(b.id).filter(x=>U.ch==null||x.ch===U.ch);const wide=$('#main').clientWidth>=760;const cur=S.hls.find(x=>x.id===U.kcur&&x.b===b.id);
+  h=filterBar(b.id)+(U.ch!=null?`<div class="lrow"><span class="tg">Chapter ${U.ch}<button type="button" data-a="pch" data-id="${U.ch}" aria-label="Show all chapters">${ic('x')}</button></span></div>`:'')+
+  `<div class="kn${wide?' pane':''}"><div>${l.length?`<ul class="klist">${l.map(x=>krow(x)).join('')}</ul>`:es('pen','No highlights here yet','Highlight while reading and they appear here, by chapter.')}</div>${wide?`<div>${cur?pvHTML(cur):`<div class="pv"><div class="empty" style="padding:24px 8px"><div class="ei">${ic('layers')}</div><h3>Pick a highlight</h3><p>Its context, your note and Jump appear here.</p></div></div>`}</div>`:''}</div>`}
+ else if(U.btab==='summary'){
+  const keys=hs.filter(x=>x.key);
+  h=`<div class="cardx"><h2>Summary</h2><p>Write the book in your own words. Future you reads one page, not 300.</p>
+  <div class="pro"><div class="lay"><div class="on"><b>${hs.length}</b><span>1 · Highlights</span></div><div class="${keys.length?'on':''}"><b>${keys.length}</b><span>2 · ★ Key</span></div><div class="${b.sum?'on':''}"><b>${b.sum?1:0}</b><span>3 · Summary</span></div></div>
+  ${keys.map(k=>`<div class="hint" style="margin:4px 0">★ ${esc(k.q)}</div>`).join('')}</div>
+  <textarea class="sumbox" id="sum" data-f="sum" aria-label="Summary" placeholder="The big idea in my own words…">${esc(b.sum)}</textarea></div>
+  <div class="cardx"><h2>Chapter recaps</h2><p>One line per chapter.</p>${Object.entries(S.recaps[b.id]||{}).map(([c,t])=>`<div class="qa" style="margin:6px 0"><b>Chapter ${c}</b><span>${esc(t)}</span></div>`).join('')||'<p class="hint">No recaps yet.</p>'}
+  <button type="button" class="btn sm" data-a="recapdemo" data-id="${b.id}">${ic('plus')}Add a recap</button></div>`}
+ else if(U.btab==='cards'){const cs=hs.filter(x=>x.card);h=cs.length?cs.map(x=>`<div class="qa"><b>${esc(x.cq)}</b><span>${esc(x.q)}</span></div>`).join('')+`<button type="button" class="btn" data-a="reviewmock">${ic('layers')}Review these cards</button>`:es('layers','No cards yet','Open a highlight and tap Make card to turn it into a question.')}
+ else if(U.btab==='journal')h=journalHTML(b.id);
+ else if(U.btab==='sticky')h=stickyHTML(b);
+ else if(U.btab==='bookmarks'){const l=hs.filter(x=>x.type==='bm');h=l.length?`<ul class="klist">${l.map(x=>krow(x)).join('')}</ul>`:es('bookmark','No bookmarks yet','Bookmark a page while reading and it appears here.')}
+ else if(['pages','outline','resources','annotations'].includes(U.btab))h=`<div class="cardx" style="padding:8px">${panelHTML(U.btab,b)}</div>`;
+ else if(U.btab==='links'){const out=S.links.filter(l=>l.from===b.id),inn=S.links.filter(l=>l.to===b.id);
+  h=`<div class="cardx"><h2>Links to</h2>${out.map(l=>`<div class="qa"><b>${esc(bk(l.to).t)}</b><span>${esc(l.note)}</span></div>`).join('')||'<p class="hint">No links yet.</p>'}<button type="button" class="btn sm" data-a="linkadd">${ic('plus')}Link to another book</button></div><div class="cardx"><h2>Mentioned in</h2>${inn.map(l=>`<div class="qa"><b>${esc(bk(l.from).t)}</b><span>${esc(l.note)}</span></div>`).join('')||'<p class="hint">Nothing links here yet.</p>'}</div>`}
+ else h=`<div class="cardx"><h2>Info</h2><div class="frow"><div class="gr"><b>Format</b><span>${(b.fmt||b.kind).toUpperCase()}${b.fmt==='docx'?' · imported as chapter pages':''}</span></div></div><div class="frow"><div class="gr"><b>Added</b><span>${ago(b.added)}</span></div></div><div class="frow"><div class="gr"><b>Status</b><span>${ST[b.st]} (${b.man?'set by you':'automatic'})</span></div></div></div>`;
+ e.innerHTML=h;$$('#bbody [data-rw]').forEach(r=>Shell.track(r.firstElementChild,r.querySelector('.track')));bookTabs.draw();renderBar();decoAll()}
+/* ---------- preview sheet (portrait / narrow) ---------- */
+let pvFrom=null;
+function openPv(id){U.kcur=id;const wide=$('#main').clientWidth>=760&&(U.book?U.btab==='highlights':U.tab==='knowledge');
+ if(wide){U.kcur=id;if(U.book)renderBookBody();else renderBody();return}
+ const h=S.hls.find(x=>x.id===id);if(!h)return;pvFrom=document.activeElement;$('#lshB').innerHTML=pvHTML(h);$('#lshT').textContent='Highlight';$('#lsc').classList.add('on');$('#lsh').classList.add('on');decoAll();setTimeout(()=>{const c=$('#lsh [data-a=pvclose]');if(c)c.focus()},30)}
+function closePv(){$('#lsc').classList.remove('on');$('#lsh').classList.remove('on');U.kcur=U.kcur;if(pvFrom&&pvFrom.focus){try{pvFrom.focus()}catch(_){}}pvFrom=null}
+function pvRefresh(){if($('#lsh').classList.contains('on')){const h=S.hls.find(x=>x.id===U.kcur);if(h){const y=$('#lshB').scrollTop;$('#lshB').innerHTML=pvHTML(h);$('#lshB').scrollTop=y;decoAll()}else closePv()}}
+/* ---------- renderers ---------- */
+function renderMain(keep){const m=$('#main');const y=m.scrollTop;m.innerHTML=U.book?bookPage():libPage();
+ if(U.book){bookTabs.draw();renderBookBody()}else{libTabs.draw();renderBody();renderBusy()}
+ m.scrollTop=keep?y:0;$('#lib').classList.toggle('dragging',false);decoAll();aiReg()}
+function renderBar(){
+ const n=U.sel.size;
+ if(!U.selMode){Shell.bar('sel',{label:'Selection',icon:'selectc',show:false,html:''});return}
+ const kn=U.book||U.tab==='knowledge'||U.tab==='themes';
+ Shell.bar('sel',{label:'Selection',icon:'selectc',show:true,html:`<span class="lab">${n} selected</span>${kn?`<button type="button" class="btn sm" data-a="bulktag"${n?'':' disabled'}>${ic('tag')}Tag</button><button type="button" class="btn sm" data-a="bulkkey"${n?'':' disabled'}>${ic('star')}Key</button>`:`<button type="button" class="btn sm" data-a="bulktag"${n?'':' disabled'}>${ic('tag')}Tag</button><button type="button" class="btn sm" data-a="bulkcol"${n?'':' disabled'}>${ic('folder')}Move to…</button><button type="button" class="btn sm" data-a="bulkst"${n?'':' disabled'}>Status</button>`}<button type="button" class="btn sm pri" data-a="bulkdone">Done</button>`})}
+function applyCols(){
+ if(Shell.isPhone()){['side','panel'].forEach(w=>{if(Shell.col(w)!=='over')Shell.col(w,'hidden')});return}
+ const pan=!!U.book&&U.panelWant;Shell.col('panel',pan?'dock':'hidden');if(Shell.col('side')==='over')return;
+ Shell.col('side',U.sideWant&&!(pan&&innerWidth<1180)?'dock':'hidden')}
+function renderAll(keep){Shell.rail({due:12});updTop();applyCols();renderSide();renderPanel();renderMain(keep);renderBar()}
+/* ---------- navigation ---------- */
+function view(){return{tab:U.tab,book:U.book,theme:U.theme,shelf:U.shelf}}
+function go(v,noPush){if(!noPush){U.nav=U.nav.slice(0,U.navI+1);U.nav.push(view());U.navI=U.nav.length-1}
+ Object.assign(U,{book:null,theme:null},v);U.kcur=null;U.ch=null;U.sel=new Set();U.selMode=false;renderAll();if(!noPush){}}
+function navStep(d){/*panel memory below*/const i=U.navI+d;if(i<0||i>=U.nav.length){return}
+ if(U.navI===U.nav.length-1&&d<0){U.nav.push(view())}U.navI=i;Object.assign(U,{book:null,theme:null},U.nav[i]);U.kcur=null;U.ch=null;if(U.book)U.panelWant=panelPref(U.book);renderAll()}
+function openBook(id){const b=bk(id);if(!b)return;U.nav=U.nav.slice(0,U.navI+1);U.nav.push(view());U.navI=U.nav.length-1;U.book=id;U.panelWant=panelPref(id);U.btab=bookTabs.list()[0].id;U.ch=null;U.kcur=null;U.ptab=panelTabs.list()[0].id;U.sel=new Set();U.selMode=false;renderAll()}
+/* ---------- the More sheet (draft model) ---------- */
+let D=null,dtab='view',dpick='all';
+function openMore(tab){
+ D={ui:{type:U.type,tags:[...U.ktags]},prefs:JSON.parse(JSON.stringify(S.prefs)),cols:JSON.parse(JSON.stringify(S.cols)),saved:JSON.parse(JSON.stringify(S.saved))};dtab=tab||(U.book?'view':'filter');dpick='all';
+ Shell.sheet.open({title:'More',sub:'How your library looks and behaves',tab:dtab,
+  tabs:()=>[...(U.book?[]:[['filter','Filter']]),['view','View'],['shelves','Shelves'],['import','Import & capture'],['daily','Daily Highlights'],...(isPro()?[['saved','Saved filters']]:[])],
+  picker:()=>dtab==='shelves'?`<div class="sbp" id="pickrow"><button type="button" class="ptile" aria-pressed="${dpick==='all'}" data-a="dpick" data-id="all">All shelves<small>${D.cols.length} collections</small></button>${D.cols.map(c=>`<button type="button" class="ptile" aria-pressed="${dpick===c.id}" data-a="dpick" data-id="${c.id}">${esc(c.t)}<small>${S.books.filter(b=>b.cols.includes(c.id)).length} books</small></button>`).join('')}</div><div class="track" id="picktrk"><i></i></div>`:'',
+  body:t=>{dtab=t;return moreBody(t)},hint:'Nothing changes until you tap Done',
+  after:()=>{const pk=$('#sh-sheet .sh-spick');if(pk)pk.hidden=dtab!=='shelves';const r=$('#pickrow');if(r)Shell.track(r,$('#picktrk'));decoAll()},
+  onClose:commit=>{if(commit){const before=snap();if(!U.book){U.type=D.ui.type;U.ktags=D.ui.tags}act('Library settings',()=>{S.prefs=D.prefs;S.cols=D.cols;S.saved=D.saved});T('Saved')}D=null}})}
+function frow(t,s,ctl){return`<div class="frow"><div class="gr"><b>${t}</b>${s?`<span>${s}</span>`:''}</div>${ctl}</div>`}
+const dsw=(k,label)=>`<button type="button" class="sw" role="switch" aria-checked="${!!D.prefs[k]}" aria-label="${esc(label)}" data-a="dsw" data-k="${k}"></button>`;
+function moreBody0(t){
+ const p=D.prefs;
+ if(t==='view')return`<div class="frow"><div class="gr"><b>Default view</b><span>Covers look best. List shows more at once.</span></div><div class="seg sm" role="group" aria-label="Default view"><button type="button" class="${p.view==='grid'?'on':''}" data-a="dset" data-k="view" data-v="grid">Covers</button><button type="button" class="${p.view==='list'?'on':''}" data-a="dset" data-k="view" data-v="list">List</button></div></div>
+ ${frow('Sort by','Newest activity first is the default.',`<select class="sel" data-a="dsel" data-k="sort" aria-label="Sort by">${Object.entries(SORTS).map(([k,v])=>`<option value="${k}"${p.sort===k?' selected':''}>${v}</option>`).join('')}</select>`)}
+ ${frow('Export your notes','Download highlights as Markdown or CSV. It lives in Knowledge, under Export.',`<button type="button" class="btn sm" data-a="goexport">${ic('download')}Open Export</button>`)}
+ ${frow('Stats at the top of Knowledge','Counts of highlights, key marks, cards and tags.',dsw('kstats','Show stats at the top of Knowledge'))} ${frow('Show progress','The reading bar on every cover.',dsw('progress','Show progress'))}${frow('Show author','Under each title.',dsw('author','Show author'))}
+ ${isPro()?`<div><div class="grp">List columns</div>${[['progress','Progress'],['opened','Last opened'],['hl','Highlight count'],['status','Status'],['tags','Tags']].map(([k,n])=>frow(n,'',`<button type="button" class="sw" role="switch" aria-checked="${!!p.columns[k]}" aria-label="Show column ${n}" data-a="dcol" data-k="${k}"></button>`)).join('')}</div>`:''}`;
+ if(t==='shelves'){
+  if(dpick==='all')return`<p class="hint" style="margin:4px 0 8px">Made for you: Reading now, Want to read, Finished. They fill by themselves from your reading.</p>
+  ${D.cols.map(c=>frow(esc(c.t),S.books.filter(b=>b.cols.includes(c.id)).length+' books',`<button type="button" class="btn sm" data-a="dpick" data-id="${c.id}">Edit</button>`)).join('')}
+  <div class="acts" style="margin-top:12px"><button type="button" class="btn" data-a="dnewcol">${ic('plus')}New collection</button></div>`;
+  const c=D.cols.find(x=>x.id===dpick);if(!c)return'';
+  return`<label class="hint" for="cname">Collection name</label>${fld('cname',c.t,'Collection name','Collection name')}
+  <p class="hint" style="margin:8px 0">A book can be in many collections, like a playlist.</p>
+  <div class="acts"><button type="button" class="btn dng" data-a="ddelcol" data-id="${c.id}">${ic('trash')}Delete collection</button></div><p class="hint">The books stay in your library. You can undo this.</p>`}
+ if(t==='import')return`${frow('Set status automatically','Opening a book moves it to Reading now. Reaching 100% moves it to Finished. You can always change it by hand.',dsw('auto','Set status automatically'))}
+ ${frow('Ask about duplicates','If you import the same book twice, choose to merge or keep both.',dsw('dup','Ask about duplicates'))}
+ ${frow('Warn about big files','Big files may not open on iPad.',dsw('bigwarn','Warn about big files'))}
+ <div class="grp">Try the messages</div><div class="acts"><button type="button" class="btn sm" data-a="demoerr" data-id="big">Big file</button><button type="button" class="btn sm" data-a="demoerr" data-id="type">Wrong type</button><button type="button" class="btn sm" data-a="demoerr" data-id="size">Over 300 MB</button><button type="button" class="btn sm" data-a="demoerr" data-id="drm">Protected file</button></div>
+ <div class="grp">Prompts</div><div class="acts"><button type="button" class="btn" data-a="prompts">${ic('sparkle')}Prompts</button></div><p class="hint">Ready-made prompts for a pasted text or a PDF. Nothing is sent anywhere.</p>`;
+ if(t==='daily')return`${frow('Daily Highlights','Old highlights come back, a few each day. Off by default.',dsw('daily','Daily Highlights'))}
+ ${frow('How many a day','5 is small enough to actually do.',`<div class="seg sm" role="group" aria-label="How many a day">${[3,5,10].map(n=>`<button type="button" class="${p.dailyN===n?'on':''}" data-a="dset" data-k="dailyN" data-v="${n}">${n}</button>`).join('')}</div>`)}
+ ${frow('Show a card on Home','“Today’s highlights”, so you see it without hunting.',dsw('dailyHome','Show a card on Home'))}
+ ${isPro()?frow('Favour ★ key highlights','They come back more often.',dsw('dailyStar','Favour key highlights')):''}
+ ${p.dailyHome&&p.daily?`<div class="grp">Preview of the Home card</div><div class="dh"><q>${esc((dailyPick()[0]||S.hls[0]).q)}</q><div class="meta">${esc(bk((dailyPick()[0]||S.hls[0]).b).t)}</div></div>`:''}`;
+ if(t==='saved')return`<p class="hint" style="margin:4px 0 8px">Filters you saved in Knowledge.</p>${D.saved.map(s=>frow(esc(s.name),'',`<button type="button" class="btn sm dng" data-a="dsvdel" data-id="${s.id}">Remove</button>`)).join('')||'<p class="hint">None yet.</p>'}`;return''}
+/* ---------- dialogs ---------- */
+function captureDialog(draft){draft=draft||{};
+ Shell.dialog(`<h3>Capture</h3><p class="mini" style="margin:0 0 8px">A link, a video or some text. Links and text dropped on the Library open here.</p>
+ <label class="hint" for="cu">Link</label>${fld('cu',draft.url||'','https://…','Link')}<label class="hint" for="ct">Title (optional)</label>${fld('ct',draft.title||'','Title','Title')}
+ <label class="hint" for="cx">Or paste text</label><textarea id="cx" class="inp" style="min-height:80px;padding:10px 12px" placeholder="Paste text…">${esc(draft.text||'')}</textarea>
+ <div class="ft"><button type="button" class="btn" data-x>Cancel</button><button type="button" class="btn pri" data-ok>Save to library</button></div>`,d=>{
+  d.querySelector('[data-x]').onclick=Shell.dialogClose;
+  d.querySelector('[data-ok]').onclick=()=>{const u=d.querySelector('#cu').value.trim(),t=d.querySelector('#ct').value.trim(),x=d.querySelector('#cx').value.trim();
+   if(!u&&!x){T('Add a link or some text first');return}
+   if(u&&!/^https?:\/\//i.test(u)){T('That link should start with https://');return}
+   Shell.dialogClose();
+   const kind=u?(/youtu|vimeo/i.test(u)?'video':'article'):'paste';
+   let ap=[];act('Capture',()=>{const nb=BK(uid('b'),t||(u?u.replace(/^https?:\/\//,'').slice(0,40):x.slice(0,40)),u?new URL(u).hostname:'Pasted text',kind,'',0,0,'want',null,0,Math.floor(Math.random()*360),[],u&&u.startsWith('https')?u:'');S.books.unshift(nb);ap=autoApply(nb)});
+   T('Captured to your library'+(ap.length?'. Tagged '+ap.map(x=>'#'+x).join(' ')+' for you.':''),undo)};
+  setTimeout(()=>d.querySelector('#cu').focus(),30)})}
+function promptsDialog(){
+ const P=[['Summarise this chapter','Summarise the text below in 5 bullet points, in plain words.'],['Make recall questions','Write 10 short questions that test the main ideas of the text below.'],['Find the key ideas','List the 5 ideas that matter most in the text below and why.'],['Explain it simply','Explain the text below to a 12-year-old, with one example.']];
+ Shell.dialog(`<h3>Prompts</h3><p class="mini" style="margin:0 0 6px">For a pasted text or a PDF. Copy one, paste it with your text.</p>${P.map((p,i)=>`<div class="frow"><div class="gr"><b>${p[0]}</b><span>${p[1]}</span></div><button type="button" class="btn sm" data-cp="${i}" aria-label="Copy ${p[0]}">${ic('copy')}Copy</button></div>`).join('')}`,d=>{
+  d.addEventListener('click',e=>{const b=e.target.closest('[data-cp]');if(!b)return;const t=P[+b.dataset.cp][1];try{navigator.clipboard.writeText(t).catch(()=>{})}catch(_){}T('Prompt copied')})})}
+function colsDialog(ids){ // add to collections
+ const sel=new Set();const bs=ids.map(bk);const common=S.cols.filter(c=>bs.every(b=>b.cols.includes(c.id)));common.forEach(c=>sel.add(c.id));
+ Shell.dialog(`<h3>Collections</h3><p class="mini" style="margin:0 0 6px">${bs.length===1?esc(bs[0].t):bs.length+' items'} can be in many collections.</p><div id="cl"></div>
+ <div class="ft"><button type="button" class="btn" data-x>Cancel</button><button type="button" class="btn pri" data-ok>Done</button></div>`,d=>{
+  const draw=()=>d.querySelector('#cl').innerHTML=S.cols.map(c=>`<label class="frow" style="cursor:pointer"><div class="gr"><b>${esc(c.t)}</b></div><input type="checkbox" data-c="${c.id}" ${sel.has(c.id)?'checked':''} style="width:24px;height:24px;accent-color:var(--accent)"></label>`).join('')+`<div class="lrow">${fld('ncn','','New collection','New collection name')}<button type="button" class="btn sm" data-add>${ic('plus')}Add</button></div>`;
+  draw();decoAll();
+  d.addEventListener('change',e=>{const c=e.target.dataset.c;if(!c)return;e.target.checked?sel.add(c):sel.delete(c)});
+  d.addEventListener('click',e=>{if(e.target.closest('[data-add]')){const v=d.querySelector('#ncn').value.trim();if(!v)return;const id=uid('c');act('New collection',()=>{S.cols.push({id,t:v})});sel.add(id);draw();decoAll()}});
+  d.querySelector('[data-x]').onclick=Shell.dialogClose;
+  d.querySelector('[data-ok]').onclick=()=>{Shell.dialogClose();act('Collections',()=>{bs.forEach(b=>{const keep=b.cols.filter(c=>!S.cols.some(x=>x.id===c));b.cols=[...keep,...sel]})});T('Collections updated',undo)}})}
+function moveDialog(ids,titleOnly){colsDialog(ids)}
+function importFiles(files){
+ const next=i=>{if(i>=files.length)return;const f=files[i];
+  const ext=(f.name.split('.').pop()||'').toLowerCase();
+  if(!['pdf','epub','docx'].includes(ext)){T('This is not a PDF, EPUB or DOCX file, or it is damaged.');return next(i+1)}
+  if(f.size>300*1024*1024){T('This file is bigger than 300 MB. Try a smaller one.');return next(i+1)}
+  if(S.prefs.bigwarn&&f.size>50*1024*1024)T('Big files may not open on iPad. Importing it anyway.');
+  U.busy=f.name+' ('+(f.size/1048576).toFixed(1)+' MB)';renderBusy();
+  setTimeout(()=>{U.busy=null;renderBusy();
+   const title=f.name.replace(/\.[^.]+$/,'').replace(/[_-]+/g,' ').replace(/\s+/g,' ').trim()||'Untitled';
+   const add=()=>{let ap=[];act('Import '+title,()=>{const nb=BK(uid('b'),title,'',  'book',ext,0,0,'want',null,0,Math.floor(Math.random()*360),[]);S.books.unshift(nb);ap=autoApply(nb)});T('Added “'+title+'” to your library.'+(ap.length?' Tagged '+ap.map(x=>'#'+x).join(' ')+' for you.':''),undo);next(i+1)};
+   const dupe=S.books.find(b=>b.t.toLowerCase()===title.toLowerCase());
+   if(dupe&&S.prefs.dup){Shell.dialog(`<h3>“${esc(title)}” is already in your library</h3><p class="mini" style="margin:0">Merge the two, or keep both?</p><div class="ft"><button type="button" class="btn" data-both>Keep both</button><button type="button" class="btn pri" data-merge>Merge</button></div>`,d=>{d.querySelector('[data-both]').onclick=()=>{Shell.dialogClose();add()};d.querySelector('[data-merge]').onclick=()=>{Shell.dialogClose();T('Merged with the existing copy');next(i+1)}})}
+   else add()},700)};
+ next(0)}
+function exportMD(scope){const bs=scope==='all'?S.books:[bk(scope)];
+ return bs.map(b=>{const hs=hlOf(b.id);if(!hs.length)return'';return`# ${b.t}${b.a?' — '+b.a:''}\n\n`+hs.map(h=>`> ${h.q}\n${h.note?'\n'+h.note+'\n':''}${h.mine?'\n*In my words:* '+h.mine+'\n':''}\n— Ch. ${h.ch}, ${ago(h.d)}${h.tags.length?' · '+h.tags.map(t=>'#'+t).join(' '):''}${h.key?' · ★':''}\n`).join('\n')}).filter(Boolean).join('\n\n')||'# No highlights yet\n'}
+function exportCSV(scope){const bs=scope==='all'?S.books:[bk(scope)];const q=s=>'"'+String(s).replace(/"/g,'""')+'"';
+ const rows=[['book','chapter','colour','type','key','quote','note','tags','date'].join(',')];
+ bs.forEach(b=>hlOf(b.id).forEach(h=>rows.push([b.t,h.ch,COLS[h.c][1],h.type,h.key?'yes':'',h.q,h.note,h.tags.join(' '),ago(h.d)].map(q).join(','))));return rows.join('\n')}
+function download(name,text,mime){try{const a=document.createElement('a');a.href=URL.createObjectURL(new Blob([text],{type:mime}));a.download=name;document.body.appendChild(a);a.click();setTimeout(()=>{URL.revokeObjectURL(a.href);a.remove()},500)}catch(_){}}
+/* ---------- clear (✕) buttons on every text field ---------- */
+const libOk=i=>i.type==='text';
+const decoAll=()=>Shell.clearable(document.body,libOk);
+Shell.autoClear(libOk);
+/* ---------- events ---------- */
+document.addEventListener('input',e=>{const t=e.target;if(!t.closest)return; if(t.id==='q'){U.q=t.value;U.kshow=40;renderBody()}
+});
+document.addEventListener('keydown',e=>{const t=e.target;
+ if(t.id==='pvtag'&&e.key==='Enter'){e.preventDefault();addTag(U.kcur,t.value)}
+ if(t.id==='bktag'&&e.key==='Enter'){e.preventDefault();addTag(U.book,t.value)}
+ if(t.id==='q'&&e.key==='Escape'&&U.q){U.q='';renderMain(true);e.stopPropagation()}
+ if(e.key==='Escape'&&$('#lsh').classList.contains('on')&&!Shell.sheet.isOpen()){closePv();e.stopPropagation();return}
+ if((e.ctrlKey||e.metaKey)&&e.key.toLowerCase()==='k'){e.preventDefault();focusSearch()}
+},true);
+function focusSearch(){if(U.book){go({tab:U.tab})}const q=$('#q');if(q)q.focus()}
+document.addEventListener('change',e=>{const t=e.target;
+ if(t.dataset&&t.dataset.f){const id=t.dataset.id,f=t.dataset.f;
+  if(f==='stk'){const k=S.stickies.find(x=>x.id===id);if(k&&k.t!==t.value)act('Edit sticky note',()=>{k.t=t.value})}
+  else if(f==='sum'){const b=bk(U.book);if(b.sum!==t.value)act('Summary',()=>{b.sum=t.value})}
+  else{const h=S.hls.find(x=>x.id===id);if(h&&h[f]!==t.value)act(f==='note'?'Edit note':'Edit “in my words”',()=>{h[f]=t.value});pvRefresh()}}
+ if(t.id==='cname'&&D){const c=D.cols.find(x=>x.id===dpick);if(c&&t.value.trim())c.t=t.value.trim()}
+ if(t.dataset&&t.dataset.a==='dsel'&&D){D.prefs[t.dataset.k]=t.value}
+});
+function addTag(id,v){v=normTag(v);const h=itemOf(id);if(!h||!v||h.tags.includes(v))return;act('Add tag',()=>{h.tags.push(v)});pvRefresh();if(bk(id)){const e=$('#bktag');if(e)e.focus()}}
+document.addEventListener('click',e=>{
+ const T0=e.target;if(!T0.closest)return;
+ if(T0.closest('[data-sh-search]')){focusSearch();return}
+ const cr=T0.closest('[data-sh-crumb]');if(cr){const i=+cr.dataset.shCrumb;if(i===0)go({tab:U.tab});else if(U.theme)go({tab:'themes'});return}
+ const nv=T0.closest('[data-sh-nav]');if(nv){navStep(nv.dataset.shNav==='back'?-1:1);return}
+ if(T0.id==='lsc'){closePv();return}
+ const b=T0.closest('[data-a]');if(!b)return;
+ act1(b.dataset.a,b.dataset.id,b,e)});
+function act1(a,id,b,e){
+ if(act2(a,id,b,e))return;
+ switch(a){
+ case'import':Shell.closePop();$('#fileIn').click();break;
+ case'addmenu':Shell.pop(b,`<button type="button" class="mi" role="menuitem" data-a="import">${ic('upload')}Import a book</button><button type="button" class="mi" role="menuitem" data-a="capture">${ic('link')}Capture a link, video or text</button><button type="button" class="mi" role="menuitem" data-a="prompts">${ic('sparkle')}Prompts</button>`);break;
+ case'capture':Shell.closePop();if(Shell.col('side')==='over')Shell.col('side','hidden');captureDialog();break;
+ case'prompts':Shell.closePop();promptsDialog();break;
+ case'more':openMore();break;
+ case'goexport':Shell.sheet.close(false);if(!libTabs.list().some(t=>t.id==='knowledge'))libTabs.add('knowledge');U.tab='knowledge';U.kview='export';U.cu=null;U.theme=null;U.sel=new Set();U.selMode=false;libTabs.draw();renderMain();setTimeout(()=>{const e=$('#expB');if(e){e.scrollIntoView({block:'center'});e.focus()}},60);break;
+ case'shelf':Shell.closePop();if(Shell.col('side')==='over')Shell.col('side','hidden');if(U.book||U.tab!=='books'){U.shelf=id;go({tab:'books',shelf:id})}else{U.shelf=id;U.type='all';renderMain(true);renderSide()}if(!libTabs.list().some(t=>t.id==='books'))libTabs.add('books');break;
+ case'type':U.type=id;renderMain(true);break;
+ case'view':act('View',()=>{S.prefs.view=id});break;
+ case'sortmenu':Shell.pop(b,Object.entries(SORTS).map(([k,v])=>`<button type="button" class="mi" role="menuitemradio" aria-checked="${S.prefs.sort===k}" data-a="sort" data-id="${k}">${S.prefs.sort===k?ic('check'):'<span style="width:20px"></span>'}${v}</button>`).join(''));break;
+ case'sort':Shell.closePop();act('Sort',()=>{S.prefs.sort=id});break;
+ case'showall':U.shelf='all';U.type='all';U.q='';renderMain(true);renderSide();break;
+ case'clearq':U.q='';renderMain(true);break;
+ case'open':Shell.closePop();if(Shell.col('side')==='over')Shell.col('side','hidden');if(U.selMode){break}openBook(id);break;
+ case'backlib':go({tab:U.tab});break;
+ case'start':{const bkx=bk(id);const lbl=ctaLabel(bkx);act('Open “'+bkx.t+'”',()=>{bkx.opened=0;if(S.prefs.auto&&bkx.st!=='finished'&&!(bkx.man&&bkx.st==='finished')){bkx.st='reading';bkx.man=false}});
+  T(bkx.kind==='book'?(bkx.fmt==='docx'?'Opening the first chapter page…':'Opening “'+bkx.t+'” in the reader (a separate mock-up)'):'Opening the notes page…',null);if(bkx.kind!=='book'||bkx.fmt==='docx')openBook(id);break}
+ case'bmenu':{const bkx=bk(id);Shell.pop(b,`<button type="button" class="mi" role="menuitem" data-a="start" data-id="${id}">${ic('play')}${ctaLabel(bkx)}</button><button type="button" class="mi" role="menuitem" data-a="open" data-id="${id}">${ic('article')}Open notes page</button>
+  <div class="lbl">Mark as</div>${['want','reading','finished'].map(s=>`<button type="button" class="mi" role="menuitemradio" aria-checked="${bkx.st===s}" data-a="markst" data-id="${id}" data-v="${s}">${bkx.st===s?ic('check'):'<span style="width:20px"></span>'}${ST[s]}</button>`).join('')}
+  <button type="button" class="mi" role="menuitem" data-a="tocol" data-id="${id}">${ic('folder')}Add to collections…</button>
+  ${bkx.url&&/^https:/.test(bkx.url)?`<button type="button" class="mi" role="menuitem" data-a="ext2" data-id="${id}">${ic('external')}Open the original</button>`:''}
+  <button type="button" class="mi" role="menuitem" data-a="exportbook" data-id="${id}">${ic('download')}Export highlights</button><hr>
+  <button type="button" class="mi dng" role="menuitem" data-a="delbook" data-id="${id}">${ic('trash')}Delete</button>`);break}
+ case'markst':Shell.closePop();{const bkx=bk(id);act('Mark as '+ST[b.dataset.v],()=>{bkx.st=b.dataset.v;bkx.man=true});T('Moved to '+ST[b.dataset.v],undo);break}
+ case'setst':{const bkx=bk(U.book);act('Mark as '+ST[id],()=>{bkx.st=id;bkx.man=true});break}
+ case'tocol':Shell.closePop();colsDialog([id]);break;
+ case'ext2':Shell.closePop();T('Opens the original page in a new tab');break;
+ case'ext':e.preventDefault();T('Opens the original page in a new tab');break;
+ case'exportbook':Shell.closePop();download(bk(id).t+'.md',exportMD(id),'text/markdown');T('Exported highlights as Markdown');break;
+ case'delbook':Shell.closePop();{const bkx=bk(id);Shell.confirm('Move “'+bkx.t+'” and its '+hlOf(id).length+' highlights to Trash?','Move to Trash',()=>{act('Delete “'+bkx.t+'”',()=>{S.books=S.books.filter(x=>x.id!==id);S.hls=S.hls.filter(h=>h.b!==id);if(U.book===id)U.book=null});T('Moved “'+bkx.t+'” to Trash',undo)});break}
+ case'selmode':U.selMode=!U.selMode;U.sel=new Set();renderMain(true);break;
+ case'selbook':if(U.sel.has(id))U.sel.delete(id);else U.sel.add(id);renderBody();break;
+ case'selhl':if(U.sel.has(id))U.sel.delete(id);else U.sel.add(id);(U.book?renderBookBody:renderBody)();break;
+ case'bulkdone':U.selMode=false;U.sel=new Set();renderMain(true);break;
+ case'bulkcol':colsDialog([...U.sel]);break;
+ case'bulkst':Shell.pop(b,['want','reading','finished'].map(s=>`<button type="button" class="mi" role="menuitem" data-a="bulkst2" data-id="${s}">${ST[s]}</button>`).join(''));break;
+ case'bulkst2':Shell.closePop();{const ids=[...U.sel];act('Change status',()=>{ids.forEach(i=>{const x=bk(i);if(x){x.st=id;x.man=true}})});T(ids.length+' moved to '+ST[id],undo);break}
+ case'bulktag':Shell.ask('Add a tag to '+U.sel.size+' item'+(U.sel.size===1?'':'s'),'',v=>{v=normTag(v);if(!v)return;const ids=[...U.sel];act('Tag many',()=>{ids.forEach(i=>{const it=itemOf(i);if(it&&!it.tags.includes(v))it.tags.push(v)})});T('Tagged '+ids.length+' item'+(ids.length===1?'':'s')+' #'+v,undo)});break;
+ case'bulkkey':{const ids=[...U.sel];act('Mark key',()=>{S.hls.forEach(h=>{if(ids.includes(h.id))h.key=true})});T('Marked '+ids.length+' as key',undo);break}
+ case'newcol':Shell.closePop();Shell.ask('New collection','',v=>{if(!v)return;act('New collection',()=>{S.cols.push({id:uid('c'),t:v})});T('Collection “'+v+'” created',undo)});break;
+ case'closeside':Shell.col('side','hidden');break;
+ case'closepanel':if(U.book&&!Shell.isPhone())setPanelPref(U.book,false);if(Shell.col('panel')==='over')Shell.col('panel','hidden');else{U.panelWant=false;applyCols()}break;
+ case'pch':U.ch=U.ch===+id?null:+id;if(Shell.col('panel')==='over')Shell.col('panel','hidden');if(U.btab!=='highlights'&&bookTabs.list().some(t=>t.id==='highlights'))U.btab='highlights';renderBookBody();renderPanelBody();break;
+ case'rkind':U.rk=id;renderPanelBody();if(U.btab==='resources')renderBookBody();break;
+ case'resadd':Shell.ask('Add a link or reference','',v=>{if(!v)return;act('Add resource',()=>{S.res.push({id:uid('r'),k:'Links',t:v})});renderPanelBody()});break;
+ case'kpick':case'kjump':if(a==='kjump'){const h=S.hls.find(x=>x.id===id);if(!libTabs.list().some(t=>t.id==='knowledge'))libTabs.add('knowledge');U.tab='knowledge';U.kcur=id;U.kbook='all';renderMain();}openPv(id);break;
+ case'kbookmenu':Shell.pop(b,`<button type="button" class="mi" role="menuitem" data-a="kbook" data-id="all">${ic('book')}All books</button>`+S.books.filter(x=>hlOf(x.id).length).map(x=>`<button type="button" class="mi" role="menuitem" data-a="kbook" data-id="${x.id}">${ic(KI[x.kind])}${esc(x.t)}</button>`).join(''));break;
+ case'kbook':Shell.closePop();U.kbook=id;U.kshow=40;renderBody();break;
+ case'kcol':U.kcol=U.kcol===+id?-1:+id;(U.book?renderBookBody:renderBody)();break;
+ case'ksortmenu':Shell.pop(b,[['new','Newest'],['book','Book order'],['colour','Colour']].map(([k,v])=>`<button type="button" class="mi" role="menuitem" data-a="ksort" data-id="${k}">${v}</button>`).join(''));break;
+ case'ksort':Shell.closePop();U.ksort=id;(U.book?renderBookBody:renderBody)();break;
+ case'ktypemenu':Shell.pop(b,[['all','All'],['hl','Highlights'],['note','Notes'],['bm','Bookmarks'],['key','★ Key']].map(([k,v])=>`<button type="button" class="mi" role="menuitem" data-a="ktype" data-id="${k}">${v}</button>`).join(''));break;
+ case'ktype':Shell.closePop();U.ktype=id;(U.book?renderBookBody:renderBody)();break;
+ case'ktagmenu':Shell.pop(b,`<button type="button" class="mi" role="menuitem" data-a="ktag" data-id="all">Any tag</button>`+(isPro()&&S.tree.length?'<div class="lbl">Categories</div>'+S.tree.map(c=>`<button type="button" class="mi" role="menuitem" data-a="ktag" data-id="${esc(c.n)}">${ic('folder')}${esc(c.n)}</button>`).join(''):'')+'<div class="lbl">Tags</div>'+allTags().map(t=>`<button type="button" class="mi" role="menuitem" data-a="ktag" data-id="${esc(t)}">#${esc(t)}</button>`).join(''));break;
+ case'ktag':Shell.closePop();U.ktag=id;if(U.book)renderBookBody();else renderMain(true);break;
+ case'cleartag':U.ktag='all';renderMain(true);break;
+ case'kview':U.kview=id;renderBody();break;
+ case'kstatsoff':act('Hide Knowledge stats',()=>{S.prefs.kstats=false});T('Stats hidden. Turn them back on in More.',undo);break;
+ case'untag':{const it=itemOf(id);act('Remove tag',()=>{it.tags=it.tags.filter(t=>t!==b.dataset.t)});pvRefresh();break}
+ case'sugget':suggestFor(id);break;
+ case'sugok':{const it=itemOf(id),t=b.dataset.t;U.sug[id]=(U.sug[id]||[]).filter(x=>x!==t);act('Accept tag',()=>{if(!it.tags.includes(t))it.tags.push(t);remember(t,it)});pvRefresh();T('Tag #'+t+' added. Next time it is applied for you to similar items.',undo);break}
+ case'sugno':{const t=b.dataset.t;U.sug[id]=(U.sug[id]||[]).filter(x=>x!==t);(U.sugNo[id]=U.sugNo[id]||[]).push(t);renderAll(true);pvRefresh();break}
+ case'stkadd':act('New sticky note',()=>{S.stickies.push({id:uid('sk'),b:U.book,c:S.stickies.length%COLS.length,t:''})});break;
+ case'stkcol':{const k=S.stickies.find(x=>x.id===id);act('Sticky note colour',()=>{k.c=(k.c+1)%COLS.length});break}
+ case'stkdel':act('Delete sticky note',()=>{S.stickies=S.stickies.filter(x=>x.id!==id)});T('Sticky note deleted',undo);break;
+ case'newcat':Shell.ask('New category','',v=>{v=v.trim();if(!v)return;if(findNode(v)){T('That name is already in the map');return}act('New category',()=>{S.tree.push({n:v,kids:[]})})});break;
+ case'aicats':aiCats();break;
+ case'tagadd':{const par=findNode(id);if(!par)break;Shell.ask('New '+(par.d===1?'tag':'sub-tag')+' under '+id,'',v=>{v=normTag(v);if(!v)return;if(!canPlace(v,id)){T('Three levels at most: Category › Tag › Sub-tag');return}act('Add to the tag map',()=>{placeUnder(v,id)})});break}
+ case'tagren':{const f=findNode(id);if(!f)break;Shell.ask('Rename '+id,id,v=>{v=f.d===1?v.trim():normTag(v);if(!v||v===id)return;if(findNode(v)||(f.d>1&&allTags().includes(v))){T('That name is already used');return}act('Rename',()=>{if(f.d===1)f.n.n=v;else renameTag(id,v)})});break}
+ case'tagrm':{act('Take out of the map',()=>{removeNode(id)});T('Taken out of the map. The tag stays on your items.',undo);break}
+ case'tagmenu':{const ps=parentsFor(1);Shell.pop(b,`<button type="button" class="mi" role="menuitem" data-a="theme" data-id="${esc(id)}">${ic('hash')}Open the page for #${esc(id)}</button><div class="lbl">Put under</div>`+(ps.map(p=>`<button type="button" class="mi" role="menuitem" data-a="tagput" data-id="${esc(id)}" data-p="${esc(p.n)}">${ic(p.d===1?'folder':'tag')}${esc(p.n)}</button>`).join('')||'<div class="mini" style="padding:6px 10px">Make a category first.</div>'));break}
+ case'tagput':Shell.closePop();act('Put tag in the map',()=>{placeUnder(id,b.dataset.p)});break;
+ case'sgok':{const g=S.catSug.find(x=>x.id===id);act('Approve category',()=>{S.catSug=S.catSug.filter(x=>x.id!==id);const ex=findNode(g.n);g.tags.forEach(t=>removeNode(t));if(ex&&ex.d===1)ex.n.kids.push(...g.tags.map(t=>({n:t,kids:[]})));else S.tree.push({n:g.n,kids:g.tags.map(t=>({n:t,kids:[]}))})});T('Category “'+g.n+'” approved',undo);break}
+ case'sgren':{const g=S.catSug.find(x=>x.id===id);Shell.ask('Rename this category',g.n,v=>{if(!v)return;act('Rename category',()=>{g.n=v})});break}
+ case'sgmerge':{const cs=S.tree;Shell.pop(b,'<div class="lbl">Merge into</div>'+(cs.map(c=>`<button type="button" class="mi" role="menuitem" data-a="sgmergeto" data-id="${id}" data-p="${esc(c.n)}">${ic('folder')}${esc(c.n)}</button>`).join('')||'<div class="mini" style="padding:6px 10px">No category to merge into yet. Approve this one instead.</div>'));break}
+ case'sgmergeto':{Shell.closePop();const g=S.catSug.find(x=>x.id===id),p=b.dataset.p;act('Merge category',()=>{S.catSug=S.catSug.filter(x=>x.id!==id);const c=findNode(p);g.tags.forEach(t=>removeNode(t));c.n.kids.push(...g.tags.map(t=>({n:t,kids:[]})))});T('Merged into “'+p+'”',undo);break}
+ case'sgno':act('Dismiss category',()=>{S.catSug=S.catSug.filter(x=>x.id!==id)});break;
+ case'kdatemenu':Shell.pop(b,[['all','Any date'],['week','This week'],['month','This month']].map(([k,v])=>`<button type="button" class="mi" role="menuitem" data-a="kdate" data-id="${k}">${v}</button>`).join(''));break;
+ case'kdate':Shell.closePop();U.kdate=id;(U.book?renderBookBody:renderBody)();break;
+ case'kclear':Object.assign(U,{kview:'all',kbook:'all',kcol:-1,ktype:'all',ktag:'all',kdate:'all',kcl:null,q:''});renderMain(true);break;
+ case'kclcl':U.kcl=null;(U.book?renderBookBody:renderBody)();break;
+ case'kmore':U.kshow+=40;renderBody();break;
+ case'ksave':Shell.ask('Name this filter','',v=>{if(!v)return;act('Save filter',()=>{S.saved.push({id:uid('sv'),name:v,f:{key:U.ktype==='key',col:U.kbook}})});T('Filter saved',undo)});break;
+ case'ksaved':{const s=S.saved.find(x=>x.id===id);if(s){U.ktype=s.f.key?'key':'all';U.kbook='all';U.kcol=-1;U.kcl=s.f.col&&s.f.col!=='all'?s.f.col:null;renderBody()}break}
+ case'pvclose':closePv();break;
+ case'pvstar':{const h=S.hls.find(x=>x.id===id);act(h.key?'Remove key mark':'Mark as key',()=>{h.key=!h.key});pvRefresh();break}
+ case'pvcol':{const h=S.hls.find(x=>x.id===id);act('Change colour',()=>{h.c=+b.dataset.c});pvRefresh();break}
+ case'pvuntag':{const h=S.hls.find(x=>x.id===id);act('Remove tag',()=>{h.tags=h.tags.filter(t=>t!==b.dataset.t)});pvRefresh();break}
+ case'pvaddtag':addTag(id,b.dataset.t);break;
+ case'pvdel':{const h=S.hls.find(x=>x.id===id);act('Delete highlight',()=>{S.hls=S.hls.filter(x=>x.id!==id)});closePv();U.kcur=null;renderAll(true);T('Highlight deleted',undo);break}
+ case'jump':{const h=S.hls.find(x=>x.id===id);T(h.at?'Playing from '+h.at+'…':h.lost?'Spot not found. Opening at page '+h.pg+'.':'Opening the reader at the exact spot (a separate mock-up)');break}
+ case'mkcard':{const h=S.hls.find(x=>x.id===id);cardDialog(h);break}
+ case'dailyon':act('Turn on Daily Highlights',()=>{S.prefs.daily=true});T('Daily Highlights is on',undo);break;
+ case'dailyset':openMore('daily');break;
+ case'dkeep':U.dailyDone[id]='Kept. It will come back later.';renderBody();break;
+ case'dless':{const h=S.hls.find(x=>x.id===id);act('Show less often',()=>{h.less=true});U.dailyDone[id]='You will see this less often.';renderBody();T('Shown less often',undo);break}
+ case'sw':{const k=b.dataset.k;act('Change setting',()=>{S.prefs[k]=!S.prefs[k]});break}
+ case'export':{const scope=($('#expB')||{value:'all'}).value;const md=id==='md';download(md?'learning-notes-highlights.md':'learning-notes-highlights.csv',md?exportMD(scope):exportCSV(scope),md?'text/markdown':'text/csv');T('Exported '+(md?'Markdown':'CSV')+' file');break}
+ case'recapdemo':recapDialog(id||U.book||'b1');break;
+ case'jdemo':journalDialog(U.book||'b3');break;
+ case'jnew':journalDialog(id||'b3');break;
+ case'theme':U.theme=id;renderAll();break;
+ case'themeback':U.theme=null;renderAll();break;
+ case'theme_':break;
+ case'themeexp':{const {bs,hs}=itemsByTag(U.theme);download('theme-'+U.theme+'.md','# #'+U.theme+'\n\n'+bs.map(b=>'- '+b.t+' ('+KL[b.kind]+')').join('\n')+'\n\n'+hs.map(h=>'> '+(h.card?h.cq+' — ':'')+h.q+'\n— '+bk(h.b).t).join('\n\n'),'text/markdown');T('Exported theme as Markdown');break}
+ case'themedel':{const t=U.theme;Shell.confirm('Remove the theme #'+t+'?','Remove theme',()=>{act('Remove theme',()=>{S.themes=S.themes.filter(x=>x!==t)});U.theme=null;renderAll();T('Theme removed. The tag and highlights stay.',undo)},'The tag and highlights stay. You can undo this.');break}
+ case'newtheme':themeDialog();break;
+ case'reviewmock':T('Review is a separate mock-up');break;
+  case'linkadd':linkDialog();break;
+ case'dpick':dpick=id;Shell.sheet.draw();break;
+ case'dsw':{D.prefs[b.dataset.k]=!D.prefs[b.dataset.k];Shell.sheet.draw();break}
+ case'dcol':{D.prefs.columns[b.dataset.k]=!D.prefs.columns[b.dataset.k];Shell.sheet.draw();break}
+ case'dset':{const v=b.dataset.v;D.prefs[b.dataset.k]=isNaN(+v)?v:+v;Shell.sheet.draw();break}
+ case'dnewcol':Shell.ask('New collection','',v=>{if(!v)return;const id2=uid('c');D.cols.push({id:id2,t:v});dpick=id2;Shell.sheet.draw()});break;
+ case'ddelcol':{D.cols=D.cols.filter(c=>c.id!==id);dpick='all';Shell.sheet.draw();T('Collection removed. Tap Cancel to undo this.');break}
+ case'dsvdel':D.saved=D.saved.filter(s=>s.id!==id);Shell.sheet.draw();break;
+ case'demoerr':T({big:'Big files may not open on iPad. Importing it anyway.',type:'This is not a PDF, EPUB or DOCX file, or it is damaged.',size:'This file is bigger than 300 MB. Try a smaller one.',drm:'The book could not be read. It may be damaged or protected (DRM).'}[id]);break;
+ }}
+function cardDialog(h){
+ Shell.dialog(`<h3>Make a question card</h3><p class="mini" style="margin:0 0 6px">Testing yourself beats rereading.</p><label class="hint" for="cq">Question</label>${fld('cq',h.cq||'What is the idea behind this?','Question','Question')}<label class="hint">Answer</label><div class="hm">${esc(h.q)}</div><div class="ft"><button type="button" class="btn" data-x>Cancel</button><button type="button" class="btn pri" data-ok>Make card</button></div>`,d=>{
+  d.querySelector('[data-x]').onclick=Shell.dialogClose;d.querySelector('[data-ok]').onclick=()=>{const q=d.querySelector('#cq').value.trim();if(!q){T('Write a question first');return}Shell.dialogClose();act('Make card',()=>{h.card=true;h.cq=q});pvRefresh();T('Card made. It joins your next review.',undo)}})}
+function recapDialog(bid){
+ Shell.dialog(`<h3>Sum it up in one line</h3><p class="mini" style="margin:0 0 6px">End of a chapter in “${esc(bk(bid)?bk(bid).t:'')}”.</p>${fld('rc','','One line, in your words','Chapter recap')}<div class="ft"><button type="button" class="btn" data-x>Skip</button><button type="button" class="btn pri" data-ok>Save</button></div>`,d=>{
+  d.querySelector('[data-x]').onclick=Shell.dialogClose;d.querySelector('[data-ok]').onclick=()=>{const v=d.querySelector('#rc').value.trim();if(!v)return;Shell.dialogClose();act('Chapter recap',()=>{S.recaps[bid]=S.recaps[bid]||{};S.recaps[bid][Object.keys(S.recaps[bid]).length+1]=v});T('Recap saved',undo)}})}
+function journalDialog(bid){
+ Shell.dialog(`<h3>Reading journal</h3><p class="mini" style="margin:0 0 6px">Optional. Three short lines.</p><label class="hint" for="j1">What I read</label>${fld('j1','','What I read','What I read')}<label class="hint" for="j2">What struck me</label>${fld('j2','','What struck me','What struck me')}<label class="hint" for="j3">One question</label>${fld('j3','','One question','One question')}<div class="ft"><button type="button" class="btn" data-x>Skip</button><button type="button" class="btn pri" data-ok>Save</button></div>`,d=>{
+  d.querySelector('[data-x]').onclick=Shell.dialogClose;d.querySelector('[data-ok]').onclick=()=>{const a=d.querySelector('#j1').value.trim();if(!a){T('Write what you read first');return}Shell.dialogClose();act('Journal entry',()=>{S.journal.unshift({id:uid('j'),b:bid,d:0,read:a,struck:d.querySelector('#j2').value.trim(),q:d.querySelector('#j3').value.trim()})});T('Entry saved',undo)}})}
+function themeDialog(){
+ const tags=allTags().filter(t=>!S.themes.includes(t));
+ Shell.dialog(`<h3>New theme from a tag</h3><p class="mini" style="margin:0 0 8px">Pick a tag. Its highlights from every book come together on one page.</p>${tags.length?`<div class="tags">${tags.map(t=>`<button type="button" class="chip" data-t="${esc(t)}">#${esc(t)}</button>`).join('')}</div>`:'<p class="hint">Every tag is already a theme.</p>'}`,d=>{
+  d.addEventListener('click',e=>{const b=e.target.closest('[data-t]');if(!b)return;Shell.dialogClose();act('New theme',()=>{S.themes.push(b.dataset.t)});T('Theme #'+b.dataset.t+' created',undo)})})}
+function linkDialog(){
+ const b=bk(U.book);Shell.dialog(`<h3>Link to another book</h3><label class="hint">Book</label><select class="sel" id="lk" style="width:100%;margin-bottom:8px" aria-label="Book to link to">${S.books.filter(x=>x.id!==b.id).map(x=>`<option value="${x.id}">${esc(x.t)}</option>`).join('')}</select>${fld('ln','','Why are they linked?','Why they are linked')}<div class="ft"><button type="button" class="btn" data-x>Cancel</button><button type="button" class="btn pri" data-ok>Link</button></div>`,d=>{
+  d.querySelector('[data-x]').onclick=Shell.dialogClose;d.querySelector('[data-ok]').onclick=()=>{const to=d.querySelector('#lk').value,n=d.querySelector('#ln').value.trim();Shell.dialogClose();act('Add link',()=>{S.links.push({id:uid('l'),from:b.id,to,note:n||'Related.'})});T('Linked. The other book shows “Mentioned in”.',undo)}})}
+/* ---------- drag and drop, file input, long press ---------- */
+document.addEventListener('dragover',e=>{e.preventDefault();const l=$('#lib');if(l&&!U.book)l.classList.add('dragging')});
+document.addEventListener('dragleave',e=>{if(e.relatedTarget===null){const l=$('#lib');if(l)l.classList.remove('dragging')}});
+document.addEventListener('drop',e=>{e.preventDefault();const l=$('#lib');if(l)l.classList.remove('dragging');const dt=e.dataTransfer;if(!dt)return;
+ if(dt.files&&dt.files.length){importFiles([...dt.files]);return}
+ const url=(dt.getData('text/uri-list')||'').split('\n')[0].trim(),text=dt.getData('text/plain');if(url||text)captureDialog({url:url||'',text:url?'':text})});
+$('#fileIn').addEventListener('change',e=>{const f=[...e.target.files];e.target.value='';if(f.length)importFiles(f)});
+let hold=null;
+document.addEventListener('pointerdown',e=>{const c=e.target.closest&&e.target.closest('article.bk');if(!c||e.target.closest('button.ib'))return;const b=c.querySelector('[data-a=bmenu]');hold=setTimeout(()=>{if(b)b.click()},550)});
+['pointerup','pointercancel','pointermove'].forEach(t=>document.addEventListener(t,()=>{clearTimeout(hold)}));
+$('#demoEmpty').addEventListener('click',e=>{U.empty=!U.empty;e.currentTarget.setAttribute('aria-pressed',U.empty);e.currentTarget.textContent=U.empty?'Show sample library':'Show empty library';renderAll()});
+/* ===================== Library v2 ===================== */
+Object.assign(U,{ktags:[],ktAll:false,ktSub:true,qopen:false,stf:'all',sideAll:false,
+ ex:{scope:'all',hl:true,note:true,mine:true,bm:true,cards:true,sum:true,recap:true,tags:true,key:false,cols:[],fmt:'md'}});
+S.prefs.author=false;S.prefs.kstatsBeg=false;S.pins=['habits','focus'];S.tagRecent=['decisions','money','learning'];
+Object.assign(Shell.I,{play:'<path d="M6 4.5v15a1 1 0 0 0 1.5.86l12.5-7.5a1 1 0 0 0 0-1.72L7.5 3.64A1 1 0 0 0 6 4.5z"/>',pin:'<path d="M12 17v5"/><path d="M9 10.76a2 2 0 0 1-1.11 1.79l-1.78.9A2 2 0 0 0 5 15.24V16a1 1 0 0 0 1 1h12a1 1 0 0 0 1-1v-.76a2 2 0 0 0-1.11-1.79l-1.78-.9A2 2 0 0 1 15 10.76V7a1 1 0 0 1 1-1 2 2 0 0 0 0-4H8a2 2 0 0 0 0 4 1 1 0 0 1 1 1z"/>'});
+const TYPES=[['all','Everything','grid'],['books','Books','book'],['videos','Videos','video'],['articles','Articles','article'],['pasted','Pasted','paste']];
+const typeName=t=>(TYPES.find(x=>x[0]===t)||TYPES[0])[1];
+const rer=()=>{U.book?renderBookBody():renderMain(true)};
+/* the side panel tells the page whether shelves are on screen */
+function syncSide(){const a=$('#app'),s=$('#sh-side');if(a&&s)a.classList.toggle('noside',s.dataset.state!=='dock'||Shell.isPhone())}
+new MutationObserver(syncSide).observe($('#sh-side'),{attributes:true,attributeFilter:['data-state']});
+addEventListener('resize',syncSide);
+/* ---------- side panel: where things live (shelves, collections), nothing else ---------- */
+function renderSide(){
+ const shelf=(id,n,icn)=>`<button type="button" class="sb-i" data-a="shelf" data-id="${id}"${(!U.book&&U.tab==='books'&&U.shelf===id&&!U.ktags.length)?' aria-current="page"':''}>${ic(icn||'folder')}<span class="g">${esc(n)}</span><span class="n">${counts(id)}</span></button>`;
+ const rec=[...books()].sort((a,b)=>(a.opened==null?1e6+a.added:a.opened)-(b.opened==null?1e6+b.added:b.opened));
+ const list=U.sideAll?rec:rec.slice(0,5);
+ const top=allTags().map(t=>[t,cntTag(t)]).sort((a,b)=>b[1]-a[1]).slice(0,5);
+ $('#sh-side').innerHTML=`<div class="sh-colhd"><h2>Shelves</h2><button type="button" class="ib sm" data-a="closeside" aria-label="Close the side panel">${ic('x')}</button></div>
+ <div class="sh-colscroll" id="sidescroll">
+ ${shelf('all','All','grid')}${shelf('reading','Reading now','book')}${shelf('want','Want to read','bookmark')}${shelf('finished','Finished','check')}
+ <div class="sb-h"><span>My collections</span><button type="button" class="ib sm" data-a="newcol" aria-label="New collection">${ic('plus')}</button></div>
+ ${S.cols.map(c=>shelf(c.id,c.t,'folder')).join('')||'<p class="hint" style="padding:4px 8px">No collections yet.</p>'}
+ ${isPro()?`<div class="sb-h"><span>Tags</span><button type="button" class="lnk" data-a="tagfilter">All tags</button></div>
+ ${top.map(([t,n])=>`<button type="button" class="sb-i" data-a="sidetag" data-id="${esc(t)}"${U.ktags.length===1&&U.ktags[0]===t&&!U.book?' aria-current="page"':''}>${ic('hash')}<span class="g">${esc(t)}</span><span class="n">${n}</span></button>`).join('')}
+ ${S.saved.length?`<div class="sb-h"><span>Saved filters</span></div>${S.saved.map(s=>`<button type="button" class="sb-i" data-a="ksavedgo" data-id="${s.id}">${ic('star')}<span class="g">${esc(s.name)}</span></button>`).join('')}`:''}`:''}
+ <div class="sb-h"><span>${U.sideAll?'Everything':'Recent'}</span>${rec.length>5?`<button type="button" class="lnk" data-a="sideall">${U.sideAll?'Show less':'Show all'}</button>`:''}</div>
+ ${list.map(b=>`<button type="button" class="sb-i" data-a="open" data-id="${b.id}"${U.book===b.id?' aria-current="page"':''}>${ic(KI[b.kind])}<span class="g">${esc(b.t)}</span></button>`).join('')||`<p class="hint" style="padding:4px 8px">Your library is empty. Tap Add to bring in a book, a link or a video.</p>`}
+ </div>`;syncSide()}
+/* ---------- the page: title, one Add, one row ---------- */
+function libPage(){
+ const sn=shelfName(U.shelf),so=!!(U.qopen||U.q);
+ return`<div class="lib" id="lib"><div class="lh2"><h1>Library</h1>
+  ${U.tab==='books'?`<button type="button" class="shelfbtn" data-a="shelfmenu" aria-haspopup="menu" aria-label="Shelf: ${esc(sn)}. Choose a shelf">${esc(sn)}${ic('down')}</button>`:''}<span class="sp"></span>
+  <button type="button" class="btn pri" data-a="addmenu" aria-haspopup="menu">${ic('plus')}Add</button></div>
+  <div class="drop" role="status">Drop a book, a link or some text anywhere here.</div>
+  <div id="busy"></div>
+  <div class="trow"><button type="button" class="btn more" data-a="more">${ic('sliders')}More</button><div id="libtabs"></div><button type="button" class="ib${so?' on':''}" data-a="qopen" aria-label="Search the library" aria-expanded="${so}">${ic('search')}</button></div>
+  ${so?`<div class="qrow">${fld('q',U.q,'Search titles, authors, highlights and notes','Search the library')}</div>`:''}
+  <div id="lbody"></div></div>`}
+function focusSearch(){if(U.book){go({tab:U.tab})}if(!U.qopen){U.qopen=true;renderMain(true)}const q=$('#q');if(q)q.focus()}
+function bodyHTML(){
+ if((U.q||U.ktags.length)&&U.tab!=='knowledge')return searchHTML();
+ if(U.theme)return themePage(U.theme);
+ if(U.tab==='tags')return tagsHTML();
+ if(U.tab==='books')return booksHTML();
+ if(U.tab==='knowledge')return knowHTML();
+ if(U.tab==='themes')return themesHTML();
+ if(U.tab==='journal')return journalHTML();return''}
+function tagChips(){if(!U.ktags.length)return'';
+ return`<div class="lrow fchips">${U.ktags.map(t=>`<span class="tg">#${esc(t)}<button type="button" data-a="untagf" data-id="${esc(t)}" aria-label="Remove the tag ${esc(t)}">${ic('x')}</button></span>`).join(U.ktags.length>1?`<span class="hint">${U.ktAll?'and':'or'}</span>`:'')}<button type="button" class="lnk" data-a="tagfilter">Change</button><span class="hint">Books, videos, notes and highlights with ${U.ktags.length>1?(U.ktAll?'all of these tags':'any of these tags'):'this tag'}${U.ktSub?' or its sub-tags':''}.</span></div>`}
+/* books tab */
+function begChips(){const c=[];
+ if(U.type!=='all')c.push(`<span class="tg">${typeName(U.type)}<button type="button" data-a="type" data-id="all" aria-label="Show every type again">${ic('x')}</button></span>`);
+ if(U.stf!=='all')c.push(`<span class="tg">${ST[U.stf]}<button type="button" data-a="stf" data-id="all" aria-label="Show every status again">${ic('x')}</button></span>`);
+ return c.length?`<div class="lrow fchips">${c.join('')}<span class="hint">Showing only these. Change it in More.</span></div>`:''}
+function proRow(){const isSt=['reading','want','finished'].includes(U.shelf);
+ const c=(a,icn,label,on)=>`<button type="button" class="chip" data-a="${a}" aria-haspopup="menu" aria-pressed="${!!on}">${ic(icn)}${esc(label)}${ic('down')}</button>`;
+ return`<div class="lrow frow2">${c('typemenu','filter',U.type==='all'?'Type':typeName(U.type),U.type!=='all')}${isSt?'':c('stmenu','check',U.stf==='all'?'Status':ST[U.stf],U.stf!=='all')}${c('tagfilter','tag',U.ktags.length?'#'+U.ktags.join(', #'):'Tag',U.ktags.length)}${c('sortmenu','sort',SORTS[S.prefs.sort],false)}<span class="sp"></span>
+  <div class="seg sm" role="group" aria-label="View"><button type="button" data-a="view" data-id="grid" class="${S.prefs.view==='grid'?'on':''}" aria-label="Cover grid">${ic('grid')}</button><button type="button" data-a="view" data-id="list" class="${S.prefs.view==='list'?'on':''}" aria-label="List">${ic('list')}</button></div>
+  <button type="button" class="chip" data-a="selmode" aria-pressed="${U.selMode}">${ic('selectc')}Select</button></div>`}
+function contHTML(){const l=books().filter(b=>b.st==='reading'&&b.opened!=null).sort((a,b)=>a.opened-b.opened);if(!l.length)return'';
+ return`<section class="cont" aria-label="Continue reading"><div class="sech"><h2>Continue reading</h2>${l.length>1?`<button type="button" class="lnk" data-a="shelf" data-id="reading">See all ${l.length}</button>`:''}</div>
+ <ul class="contg">${l.slice(0,3).map((b,i)=>{const p=pct(b);return`<li><article class="cc" data-id="${b.id}" data-testid="continue-card"><button type="button" class="ccv" data-a="open" data-id="${b.id}" aria-label="${esc(b.t)}: open the notes page">${sentCover(b)}</button><div class="ccb"><h3>${esc(b.t)}</h3><p>${esc(b.a||KL[b.kind])}</p>
+  <div class="plr"><div class="pl" role="progressbar" aria-label="Progress: ${p}%" aria-valuenow="${p}" aria-valuemin="0" aria-valuemax="100"><i style="width:${p}%"></i></div>${p}%${b.kind==='book'?' read':''}</div>
+  <button type="button" class="btn sm${i===0?' pri':''}" data-a="start" data-id="${b.id}">${ic('play')}${ctaLabel(b)}</button></div></article></li>`}).join('')}</ul></section>`}
+function booksHTML(){
+ const list=sorted(books().filter(b=>shelfOK(b,U.shelf)&&typeOK(b,U.type)&&(U.stf==='all'||b.st===U.stf)));
+ const head=isPro()?proRow():begChips();
+ if(!list.length)return head+(books().length===0?es('book','Your library is empty','Add a book (PDF, EPUB or DOCX, DRM-free files only), or capture a link, a video or an article. You can also drop files, links or text here.','Import a book','import'):es('book','Nothing here yet.','Try another shelf or type.','Show all','showall'));
+ const plain=U.shelf==='all'&&U.type==='all'&&U.stf==='all'&&!U.selMode;
+ return head+(plain?contHTML():'')+`<div class="sech"><h2>${esc(shelfName(U.shelf))}</h2><span class="n">${list.length}</span></div>`+(S.prefs.view==='grid'?`<ul class="grid">${list.map(cardHTML).join('')}</ul>`:listHTML(list))}
+function cardHTML(b){
+ const hn=hlOf(b.id).length,on=U.sel.has(b.id),p=pct(b);
+ return`<li><article class="bk v2${on?' sel':''}" data-id="${b.id}" data-testid="source-card">
+  ${U.selMode?`<button type="button" class="chk" data-a="selbook" data-id="${b.id}" role="checkbox" aria-checked="${on}" aria-label="Select ${esc(b.t)}">${ic('check')}</button>`:''}
+  <button type="button" class="cvb" data-a="open" data-id="${b.id}" aria-label="${esc(b.t)}: open the notes page">${sentCover(b)}${b.st==='finished'?`<span class="fin" title="Finished" aria-label="Finished">${ic('check')}</span>`:''}</button>
+  <button type="button" class="ib sm cm" data-a="bmenu" data-id="${b.id}" aria-label="More actions" aria-haspopup="menu" data-testid="source-menu-button">${ic('dots')}</button>
+  <div class="bi"><h3>${esc(b.t)}</h3>${S.prefs.author?`<p>${esc(b.a||KL[b.kind])}</p>`:''}
+   ${b.kind==='book'&&S.prefs.progress&&p>0&&p<100?`<div class="plr"><div class="pl" role="progressbar" aria-label="Reading progress: ${p}%" aria-valuenow="${p}" aria-valuemin="0" aria-valuemax="100"><i style="width:${p}%"></i></div>${p}% read</div>`:''}
+   ${isPro()?`<p class="hint">${ST[b.st]} · ${hn} highlight${hn===1?'':'s'}${b.cols.length?' · '+b.cols.map(c=>(colOf(c)||{}).t).join(', '):''}</p>`:''}
+   <button type="button" class="btn sm cta" data-a="start" data-id="${b.id}">${ctaLabel(b)}</button></div></article></li>`}
+/* ---------- knowledge: straight to the highlights ---------- */
+const KV={all:['All highlights','layers','Everything you marked, from every book'],daily:['Daily Highlights','sparkle','A few old highlights come back each day'],study:['Study prompts','journal','Chapter recap and reading journal'],export:['Export','download','Download your notes as a file']};
+const viewChip=()=>`<button type="button" class="chip" data-a="kviewmenu" aria-haspopup="menu" aria-pressed="${U.kview!=='all'}">${ic(KV[U.kview][1])}${KV[U.kview][0]}${ic('down')}</button>`;
+function kstatsHTML(){if(!S.prefs.kstats||(!isPro()&&!S.prefs.kstatsBeg))return'';const hs=U.empty?[]:S.hls;
+ return`<div class="lay kst" role="group" aria-label="Your knowledge at a glance"><div><b>${hs.length}</b><span>highlights</span></div><div><b>${hs.filter(h=>h.key).length}</b><span>★ key</span></div><div><b>${hs.filter(h=>h.card).length}</b><span>cards made</span></div><div><b>${U.empty?0:allTags().length}</b><span>tags</span></div><button type="button" class="ib sm kx" data-a="kstatsoff" aria-label="Hide these numbers" title="Hide these numbers (turn them back on in More)">${ic('x')}</button></div>`}
+function knowHTML(){
+ const head=kstatsHTML();
+ if(U.kview==='all')return head+knowListHTML();
+ return head+`<div class="lrow kbar">${viewChip()}</div>`+(U.kview==='daily'?dailyHTML():U.kview==='study'?studyHTML():exportHTML())}
+function filterBar(scope){
+ const bkn=U.kbook==='all'?'All books':bk(U.kbook).t,col=U.kcol>=0?COLS[U.kcol]:null,pro=isPro();
+ const c=(a,inner,on)=>`<button type="button" class="chip" data-a="${a}" aria-haspopup="menu" aria-pressed="${!!on}">${inner}${ic('down')}</button>`;
+ return`<div class="lrow kbar">${scope?'':viewChip()+c('kbookmenu',ic('book')+esc(bkn.length>22?bkn.slice(0,21)+'…':bkn),U.kbook!=='all')}
+  ${c('kcolmenu',`<span class="cd"${col?` style="--c:${col[2]}"`:''}></span>${col?col[1]:'Any colour'}`,!!col)}
+  ${c('ksortmenu',ic('sort')+{new:'Newest',book:'Book order',colour:'Colour'}[U.ksort],false)}
+  ${pro?c('ktypemenu',ic('filter')+{all:'Type',hl:'Highlights',note:'Notes',bm:'Bookmarks',key:'★ Key'}[U.ktype],U.ktype!=='all')+c('tagfilter',ic('tag')+(U.ktags.length?'#'+U.ktags.map(esc).join(', #'):'Tag'),U.ktags.length)+c('kdatemenu',ic('clock')+{all:'Any date',week:'This week',month:'This month'}[U.kdate],U.kdate!=='all')+(scope?'':c('ksavedmenu',ic('star')+'Saved',false)):''}
+  <span class="sp"></span>${pro?`<button type="button" class="chip" data-a="selmode" aria-pressed="${U.selMode}">${ic('selectc')}Select</button>`:''}</div>
+ ${U.kcl?`<div class="lrow fchips"><span class="tg">Collection: ${esc((colOf(U.kcl)||{}).t||'')}<button type="button" data-a="kclcl" aria-label="Remove collection filter">${ic('x')}</button></span></div>`:''}`}
+/* ---------- export: which books, what to include, only, format (LB1) ---------- */
+const EXI=[['hl','Highlights','The lines you marked'],['note','Notes','What you wrote next to them'],['mine','In my words','Your own explanation'],['bm','Bookmarks','Pages you marked'],['cards','Cards','Question and answer'],['sum','Summaries','Your summary of each book'],['recap','Chapter recaps','One line per chapter'],['tags','Tags','The tags on each item']];
+function exData(scope){const x=U.ex,sc=scope||x.scope;const bs=sc==='all'?S.books:sc==='shelf'?S.books.filter(b=>shelfOK(b,U.shelf)):[bk(sc)].filter(Boolean);
+ const ok=h=>((h.type==='hl'&&x.hl)||(h.type==='note'&&x.note)||(h.type==='bm'&&x.bm)||(x.cards&&h.card))&&(!x.key||h.key)&&(!x.cols.length||x.cols.includes(h.c));
+ return bs.map(b=>({b,hs:hlOf(b.id).filter(ok),sum:x.sum&&b.sum?b.sum:'',rec:x.recap&&S.recaps[b.id]?S.recaps[b.id]:null})).filter(r=>r.hs.length||r.sum||r.rec)}
+function exportMD(scope){const x=U.ex;
+ return exData(scope).map(({b,hs,sum,rec})=>`# ${b.t}${b.a?' — '+b.a:''}\n\n`+(sum?`## Summary\n\n${sum}\n\n`:'')+(rec?`## Chapter recaps\n\n${Object.entries(rec).map(([c,t])=>`- Ch. ${c}: ${t}`).join('\n')}\n\n`:'')+hs.map(h=>`> ${h.q}\n${x.note&&h.note?'\n'+h.note+'\n':''}${x.mine&&h.mine?'\n*In my words:* '+h.mine+'\n':''}${x.cards&&h.card?'\n**Q:** '+h.cq+'\n**A:** '+h.q+'\n':''}\n— Ch. ${h.ch}, ${ago(h.d)}${h.type==='bm'?' · Bookmark':''}${x.tags&&h.tags.length?' · '+h.tags.map(t=>'#'+t).join(' '):''}${h.key?' · ★':''}\n`).join('\n')).join('\n\n')||'# Nothing to export yet\n'}
+function exportCSV(scope){const x=U.ex,q=s=>'"'+String(s==null?'':s).replace(/"/g,'""')+'"';
+ const cols=['book','chapter','colour','type','key','quote'];if(x.note)cols.push('note');if(x.mine)cols.push('in my words');if(x.cards)cols.push('card question','card answer');if(x.tags)cols.push('tags');cols.push('date');
+ const rows=[cols.join(',')];
+ exData(scope).forEach(({b,hs,sum,rec})=>{hs.forEach(h=>{const r=[b.t,h.ch,COLS[h.c][1],h.type,h.key?'yes':'',h.q];if(x.note)r.push(h.note);if(x.mine)r.push(h.mine);if(x.cards)r.push(h.card?h.cq:'',h.card?h.q:'');if(x.tags)r.push(h.tags.join(' '));r.push(ago(h.d));rows.push(r.map(q).join(','))});
+  if(sum)rows.push([b.t,'','','summary','',sum].map(q).join(','));if(rec)Object.entries(rec).forEach(([c,t])=>rows.push([b.t,c,'','chapter recap','',t].map(q).join(',')))});
+ return rows.join('\n')}
+function exportHTML(){const x=U.ex,d=exData(),n=d.reduce((s,r)=>s+r.hs.length+(r.sum?1:0)+(r.rec?Object.keys(r.rec).length:0),0);
+ const sw7=(k,label)=>`<button type="button" class="sw" role="switch" aria-checked="${!!x[k]}" aria-label="${esc(label)}" data-a="exsw" data-k="${k}"></button>`;
+ return`<div class="cardx"><h2>${ic('download')}Export</h2><p>Your notes are never locked in. Choose what goes into the file.</p>
+  <div class="glab">Which books</div>
+  <select class="sel" id="expB" aria-label="Which books" style="width:100%;max-width:360px"><option value="all"${x.scope==='all'?' selected':''}>All books</option>${U.shelf!=='all'?`<option value="shelf"${x.scope==='shelf'?' selected':''}>Only the shelf “${esc(shelfName(U.shelf))}”</option>`:''}${S.books.map(b=>`<option value="${b.id}"${x.scope===b.id?' selected':''}>${esc(b.t)}</option>`).join('')}</select>
+  <div class="glab">What to include</div>
+  <div class="well exg">${EXI.map(([k,n,s])=>`<div class="frow"><div class="gr"><b>${n}</b><span>${s}</span></div>${sw7(k,'Include '+n)}</div>`).join('')}</div>
+  <div class="glab">Only</div>
+  <div class="well"><div class="frow"><div class="gr"><b>★ Key highlights only</b><span>Leave out everything you did not star</span></div>${sw7('key','Key highlights only')}</div>
+   <div class="frow"><div class="gr"><b>Colours</b><span>${x.cols.length?'Only '+x.cols.map(i=>COLS[i][1].toLowerCase()).join(', '):'Every colour'}</span></div><div class="cols" role="group" aria-label="Only these colours">${COLS.map((c,i)=>`<button type="button" class="cdot" style="--c:${c[2]}" aria-pressed="${x.cols.includes(i)}" data-a="excol" data-id="${i}" aria-label="${c[1]}" title="${c[1]}"><i></i></button>`).join('')}</div></div></div>
+  <div class="exf"><div class="seg sm" role="group" aria-label="File format"><button type="button" class="${x.fmt==='md'?'on':''}" data-a="exfmt" data-id="md">Markdown</button><button type="button" class="${x.fmt==='csv'?'on':''}" data-a="exfmt" data-id="csv">CSV</button></div>
+   <span class="hint" role="status">${n?`${n} item${n===1?'':'s'} from ${d.length} book${d.length===1?'':'s'}. ${x.fmt==='md'?'Markdown opens in Notion, Obsidian or any text app.':'CSV opens in Excel or Google Sheets.'}`:'Nothing matches yet. Turn something on above.'}</span>
+   <button type="button" class="btn pri" data-a="export" data-id="${x.fmt}"${n?'':' disabled'}>${ic('download')}Export</button></div></div>`}
+/* ---------- tags on an item: chips + one button that opens the Tag picker ---------- */
+function tagEditor(id,inputId){
+ const it=itemOf(id);if(!it)return'';const sg=(U.sug[id]||[]).filter(t=>!it.tags.includes(t)),auto=U.autoT[id]||[];
+ return`<div class="tgx"><div class="tags">${it.tags.map(t=>`<span class="tg${auto.includes(t)?' auto':''}">${esc(t)}${auto.includes(t)?'<i class="aut" title="Added automatically because you accepted this tag before">auto</i>':''}<button type="button" data-a="untag" data-id="${id}" data-t="${esc(t)}" aria-label="Remove tag ${esc(t)}">${ic('x')}</button></span>`).join('')}${sg.map(t=>`<span class="tg sug" role="group" aria-label="Suggested tag ${esc(t)}"><span>${esc(t)}</span><button type="button" class="ok" data-a="sugok" data-id="${id}" data-t="${esc(t)}" aria-label="Accept the tag ${esc(t)}">${ic('check')}</button><button type="button" data-a="sugno" data-id="${id}" data-t="${esc(t)}" aria-label="Dismiss the tag ${esc(t)}">${ic('x')}</button></span>`).join('')}${it.tags.length||sg.length?'':'<span class="hint">No tags yet.</span>'}</div>
+  <div class="lrow" style="margin:6px 0 0"><button type="button" class="btn sm" data-a="tagpick" data-id="${id}" id="${inputId}">${ic('tag')}Add tags</button><button type="button" class="btn sm" data-a="sugget" data-id="${id}">${ic('sparkle')}Suggest tags</button></div></div>`}
+/* ---------- More: a Filter section first ---------- */
+function moreBody(t){
+ if(t==='filter'){const ui=D.ui;const tags=[...new Set([...(S.pins||[]),...(S.tagRecent||[]),...ui.tags,...allTags()])].slice(0,8);
+  return`<div class="glab">Show</div><div class="tiles5">${TYPES.map(([id,n,icn])=>`<button type="button" class="tile7" aria-pressed="${ui.type===id}" data-a="dtype" data-id="${id}">${ic(icn)}<span>${n}</span></button>`).join('')}</div>
+  <div class="glab">Tags</div><div class="tags">${tags.map(x=>chip('dtag',x,'#'+x,ui.tags.includes(x))).join('')}</div>
+  <div class="acts" style="margin-top:10px"><button type="button" class="btn sm" data-a="dtagall">${ic('tag')}All tags</button></div>
+  <p class="note7">A small chip appears above your covers while a filter is on, so you never forget it. Sorting, and covers or list, are under View.</p>`}
+ let h=moreBody0(t);
+ if(t==='view')h+=frow('Show the Knowledge numbers in Beginner','They are already on in Professional.',dsw('kstatsBeg','Show the Knowledge numbers in Beginner'));
+ return h}
+/* =====================================================================
+   The ONE Tag picker (LB2). Used by: the Library filter, a book's tags,
+   a highlight's tags, bulk tag, and the keys # or T. Popover on iPad and
+   desktop, bottom sheet on phone.
+   ===================================================================== */
+const TP={on:false,mode:'filter',ids:[],q:'',act:-1,open:{},from:null};
+function tagPath(t){let out=null;(function rec(ns,tr){for(const n of ns){const p=[...tr,n.n];if(n.n.toLowerCase()===String(t).toLowerCase())out=p;if(n.kids)rec(n.kids,p)}})(S.tree,[]);return out||[t]}
+function tpAll(){const s=new Set(allTags());walk(S.tree,(n,d)=>{if(d>1)s.add(n.n)});return[...s]}
+function fuzzy(q,t){q=q.toLowerCase();t=t.toLowerCase();if(t===q)return 100;if(t.startsWith(q))return 80;if(t.includes(q))return 60;let i=0;for(const ch of t){if(ch===q[i])i++}return i===q.length?30:0}
+function lev(a,b){const m=[];for(let i=0;i<=a.length;i++){m[i]=[i];for(let j=1;j<=b.length;j++)m[i][j]=i===0?j:Math.min(m[i-1][j]+1,m[i][j-1]+1,m[i-1][j-1]+(a[i-1]===b[j-1]?0:1))}return m[a.length][b.length]}
+const nearDup=v=>tpAll().find(t=>t!==v&&(t===v+'s'||v===t+'s'||(v.length>3&&lev(t,v)<=(v.length>6?2:1))));
+function tpPresent(){const set=new Set(),add=x=>(x.tags||[]).forEach(t=>set.add(t));
+ if(U.book)hlOf(U.book).forEach(add);
+ else if(U.tab==='knowledge'){const keep=U.ktags;U.ktags=[];kfilter().forEach(add);U.ktags=keep}
+ else books().filter(b=>shelfOK(b,U.shelf)&&typeOK(b,U.type)).forEach(b=>{add(b);hlOf(b.id).forEach(add)});
+ [...set].forEach(t=>tagPath(t).slice(1).forEach(p=>set.add(p)));return set}
+const tpItems=()=>TP.ids.map(itemOf).filter(Boolean);
+function tpState(t){if(TP.mode==='filter')return U.ktags.includes(t)?'all':'none';const its=tpItems(),n=its.filter(i=>i.tags.includes(t)).length;return!n?'none':n===its.length?'all':'some'}
+function tpRecent(t){S.tagRecent=[t,...(S.tagRecent||[]).filter(x=>x!==t)].slice(0,6)}
+function tpToggle(t){
+ if(TP.mode==='filter'){U.ktags=U.ktags.includes(t)?U.ktags.filter(x=>x!==t):[...U.ktags,t];tpRecent(t);U.kshow=40;rer();renderSide()}
+ else{const its=tpItems(),on=tpState(t)==='all';
+  act(on?'Remove tag':'Add tag',()=>{tpRecent(t);its.forEach(i=>{if(on)i.tags=i.tags.filter(x=>x!==t);else if(!i.tags.includes(t)){i.tags.push(t);if(its.length===1)remember(t,i)}})});pvRefresh()}
+ tpDraw()}
+function tpRow(t,o){o=o||{};const st=tpState(t),path=tagPath(t),dim=o.present&&!o.present.has(t)&&st==='none',pin=(S.pins||[]).includes(t);
+ return`<div class="tprw"><button type="button" class="tpr${dim?' dim':''}" role="option" aria-selected="${st==='all'}" data-a="tptog" data-id="${esc(t)}" style="--d:${o.d||0}"${dim?' title="Nothing on this screen has this tag"':''}><span class="tpc ${st}">${ic('check')}</span><span class="g"><b>#${esc(t)}</b>${o.path&&path.length>1?`<small>${path.map(esc).join(' › ')}</small>`:''}</span><span class="n">${cntTag(t)}</span></button><button type="button" class="ib sm tpp" data-a="tppin" data-id="${esc(t)}" aria-pressed="${pin}" aria-label="${pin?'Unpin':'Pin'} #${esc(t)}" title="Pin to the top">${ic('pin')}</button></div>`}
+function tpBody(){
+ const q=TP.q.trim(),nq=normTag(q),present=TP.mode==='filter'?tpPresent():null,byUse=(a,b)=>cntTag(b)-cntTag(a);
+ let h='';
+ if(nq){
+  const res=tpAll().map(t=>[t,Math.max(fuzzy(nq,t),tagPath(t).some(p=>p.toLowerCase().includes(q.toLowerCase()))?40:0)]).filter(x=>x[1]>0).sort((a,b)=>b[1]-a[1]||cntTag(b[0])-cntTag(a[0])).map(x=>x[0]);
+  h+=res.map(t=>tpRow(t,{path:true,present})).join('');
+  const exact=tpAll().some(t=>t===nq);
+  if(!exact&&TP.mode==='assign'){const dup=nearDup(nq),par=parentsFor(1);
+   h+=`<div class="tpnew"><button type="button" class="tpr" data-a="tpcreate" data-id="${esc(nq)}">${ic('plus')}<span class="g"><b>Create #${esc(nq)}</b></span></button>
+   <label>Put it under<select class="sel" id="tpparent" aria-label="Put the new tag under"><option value="">Nothing (decide later)</option>${par.map(p=>`<option value="${esc(p.n)}">${esc(tagPath(p.n).join(' › '))}</option>`).join('')}</select></label>
+   ${dup?`<div class="hm" role="status">This looks like <b>#${esc(dup)}</b>, which you already have. <button type="button" class="lnk" data-a="tptog" data-id="${esc(dup)}">Use #${esc(dup)}</button></div>`:''}</div>`}
+  else if(!res.length)h+=`<p class="hint" style="padding:14px 10px">No tag matches “${esc(q)}”.</p>`}
+ else{
+  const all=tpAll(),pins=(S.pins||[]).filter(t=>all.includes(t)),rec=(S.tagRecent||[]).filter(t=>!pins.includes(t)&&all.includes(t)).slice(0,4);
+  const its=tpItems(),sug=TP.mode==='assign'&&its.length===1?suggestTags(its[0]).filter(t=>!its[0].tags.includes(t)):[];
+  if(pins.length)h+=`<div class="glab">Pinned</div>`+pins.map(t=>tpRow(t,{present})).join('');
+  if(rec.length)h+=`<div class="glab">Recent</div>`+rec.map(t=>tpRow(t,{present})).join('');
+  if(sug.length)h+=`<div class="glab">Suggested for this ${its[0].t!=null?'item':'highlight'}</div>`+sug.map(t=>tpRow(t,{})).join('');
+  h+=`<div class="glab">Browse</div>`;
+  const inTree=new Set();walk(S.tree,n=>inTree.add(n.n));
+  const sub=(n,d)=>[...(n.kids||[])].sort((a,b)=>byUse(a.n,b.n)).map(k=>tpRow(k.n,{d,present})+sub(k,d+1)).join('');
+  h+=S.tree.map(c=>{const op=!!TP.open[c.n];let cn=0;walk(c.kids||[],()=>cn++);return`<button type="button" class="tpr tpcat" data-a="tpcat" data-id="${esc(c.n)}" aria-expanded="${op}">${ic('chev')}<span class="g"><b>${esc(c.n)}</b></span><span class="n">${cn} tag${cn===1?'':'s'}</span></button>${op?sub(c,1):''}`}).join('');
+  const loose=all.filter(t=>!inTree.has(t)).sort(byUse);
+  if(loose.length){const op=!!TP.open['~'];h+=`<button type="button" class="tpr tpcat" data-a="tpcat" data-id="~" aria-expanded="${op}">${ic('chev')}<span class="g"><b>Not in a category yet</b></span><span class="n">${loose.length} tags</span></button>${op?loose.map(t=>tpRow(t,{d:1,present})).join(''):''}`}}
+ if(TP.mode==='filter')h+=`<div class="well tpo"><div class="frow"><div class="gr"><b>Match</b><span>${U.ktAll?'Items that have every ticked tag':'Items that have at least one ticked tag'}</span></div><div class="seg sm" role="group" aria-label="Match"><button type="button" class="${U.ktAll?'':'on'}" data-a="tpmatch" data-id="any">Any</button><button type="button" class="${U.ktAll?'on':''}" data-a="tpmatch" data-id="all">All</button></div></div>
+  <div class="frow"><div class="gr"><b>Include sub-tags</b><span>#habits also finds #routines</span></div><button type="button" class="sw" role="switch" aria-checked="${U.ktSub}" aria-label="Include sub-tags" data-a="tpsub"></button></div></div>`;
+ return h}
+function tpDraw(){const b=$('#tpb');if(!b||!TP.on)return;const y=b.scrollTop;b.innerHTML=tpBody();b.scrollTop=y;
+ const rows=$$('#tpb .tpr');if(TP.act>=rows.length)TP.act=rows.length-1;if(rows[TP.act]){rows[TP.act].classList.add('act');rows[TP.act].scrollIntoView({block:'nearest'})}
+ const f=$('#tpf'),n=TP.mode==='filter'?U.ktags.length:0;
+ f.innerHTML=TP.mode==='filter'?`<button type="button" class="btn sm" data-a="tpclear"${n?'':' disabled'}>Clear</button><span class="hint">${n?n+' ticked':'Tick one or more'}</span><button type="button" class="btn sm pri" data-a="tpclose">Done</button>`:`<span class="hint">Saved as you tap. Undo works.</span><button type="button" class="btn sm pri" data-a="tpclose">Done</button>`}
+function tpOpen(o){
+ Shell.closePop();TP.on=true;TP.mode=o.mode;TP.ids=o.ids||[];TP.q='';TP.act=-1;TP.from=o.anchor||null;
+ let sc=$('#tpsc');if(!sc){sc=document.createElement('div');sc.id='tpsc';document.body.appendChild(sc);sc.addEventListener('click',tpClose)}
+ let p=$('#tpk');if(!p){p=document.createElement('aside');p.id='tpk';p.setAttribute('role','dialog');document.body.appendChild(p)}
+ const its=tpItems(),title=TP.mode==='filter'?'Filter by tag':its.length===1?'Tags for “'+(its[0].t!=null?its[0].t:'this highlight')+'”':'Tag '+its.length+' items';
+ p.setAttribute('aria-label',title);
+ p.innerHTML=`<div class="tph"><b>${esc(title)}</b><button type="button" class="ib" data-a="tpclose" aria-label="Close">${ic('x')}</button></div>
+  <div class="tpq"><input class="inp" id="tpq" type="text" placeholder="${TP.mode==='filter'?'Search tags':'Search or create a tag'}" aria-label="Search tags" autocomplete="off" autocapitalize="off" spellcheck="false" role="combobox" aria-controls="tpb" aria-expanded="true"></div>
+  <div id="tpb" role="listbox" aria-multiselectable="true" aria-label="Tags"></div><div class="tpf" id="tpf"></div>`;
+ const phone=Shell.isPhone();p.classList.toggle('sheet',phone);sc.classList.toggle('dim',phone);sc.classList.add('on');p.classList.add('on');
+ tpDraw();decoAll();
+ if(!phone){const a=o.anchor&&o.anchor.isConnected?o.anchor.getBoundingClientRect():{left:innerWidth/2-174,bottom:120,top:120};const w=p.offsetWidth,hh=Math.max(p.offsetHeight,440);
+  let top=a.bottom+8;if(top+hh>innerHeight-12)top=Math.max(12,innerHeight-12-hh);
+  p.style.left=Math.max(12,Math.min(innerWidth-w-12,a.left))+'px';p.style.top=top+'px'}
+ else{p.style.left='';p.style.top=''}
+ const q=$('#tpq');if(q)q.focus()}
+function tpClose(){if(!TP.on)return;TP.on=false;const p=$('#tpk'),sc=$('#tpsc');if(p)p.classList.remove('on');if(sc)sc.classList.remove('on');const f=TP.from;if(f&&f.isConnected){try{f.focus()}catch(_){}}}
+document.addEventListener('input',e=>{if(e.target.id==='tpq'){TP.q=e.target.value;TP.act=TP.q.trim()?0:-1;tpDraw()}});
+document.addEventListener('change',e=>{if(e.target.id==='expB'){U.ex.scope=e.target.value;renderBody();const s=$('#expB');if(s)s.focus()}});
+document.addEventListener('keydown',e=>{
+ if(TP.on){
+  if(e.key==='Escape'){e.preventDefault();e.stopPropagation();tpClose();return}
+  if(e.target.id==='tpparent')return;
+  const rows=$$('#tpb .tpr');
+  if(e.key==='ArrowDown'||e.key==='ArrowUp'){e.preventDefault();if(!rows.length)return;TP.act=(TP.act+(e.key==='ArrowDown'?1:-1)+rows.length)%rows.length;rows.forEach((r,i)=>r.classList.toggle('act',i===TP.act));rows[TP.act].scrollIntoView({block:'nearest'});return}
+  if(e.key==='Enter'&&e.target.id==='tpq'){e.preventDefault();const r=rows[TP.act<0?0:TP.act];if(r&&(TP.q.trim()||TP.act>=0))r.click();return}
+  return}
+ const t=e.target,typing=t&&(t.tagName==='INPUT'||t.tagName==='TEXTAREA'||t.tagName==='SELECT'||t.isContentEditable);
+ if(t&&t.id==='q'&&e.key==='Escape'&&U.qopen&&!U.q){U.qopen=false;renderMain(true);const s=$('[data-a=qopen]');if(s)s.focus();return}
+ if(typing||e.ctrlKey||e.metaKey||e.altKey||Shell.sheet.isOpen()||$('#sh-dialog.on'))return;
+ if(e.key==='#'||e.key==='t'||e.key==='T'){e.preventDefault();const ids=aiTarget();if(ids.length)tpOpen({mode:'assign',ids,anchor:$('[data-a=tagpick]')||$('[data-a=bulktag]')});else tpOpen({mode:'filter',anchor:$('[data-a=tagfilter]')||$('[data-a=more]')})}
+},true);
+/* ---------- actions (new ones, and old ones that now behave differently) ---------- */
+function act2(a,id,b,e){
+ const mi=(act,did,icn,label,on,n)=>`<button type="button" class="mi${on?' on':''}" role="menuitemradio" aria-checked="${!!on}" data-a="${act}" data-id="${esc(did)}">${ic(icn)}${esc(label)}${n!=null?`<span class="n">${n}</span>`:''}</button>`;
+ switch(a){
+ case'qopen':{const on=!(U.qopen||U.q);U.qopen=on;if(!on)U.q='';renderMain(true);const q=$('#q');if(on&&q)q.focus();else{const s=$('[data-a=qopen]');if(s)s.focus()}return true}
+ case'addmenu':{const big=(act,icn,t,s)=>`<button type="button" class="mi big" role="menuitem" data-a="${act}"><span class="ti">${ic(icn)}</span><span><b>${t}</b><small>${s}</small></span></button>`;
+  Shell.pop(b,big('import','upload','Import a book','A PDF, EPUB or DOCX file from this device')+big('capture','link','Capture a link, video or text','Save an article, a YouTube video or pasted text')+big('prompts','sparkle','Prompts','Ready-made prompts for your AI')+`<div class="cap">DRM-free files only. You can also drop files, links or text anywhere on this page.</div>`);return true}
+ case'shelfmenu':Shell.pop(b,[['all','All','grid'],['reading','Reading now','book'],['want','Want to read','bookmark'],['finished','Finished','check']].map(([s,n,i])=>mi('shelf',s,i,n,U.shelf===s,counts(s))).join('')+(S.cols.length?'<div class="lbl">My collections</div>':'')+S.cols.map(c=>mi('shelf',c.id,'folder',c.t,U.shelf===c.id,counts(c.id))).join('')+`<hr><button type="button" class="mi" role="menuitem" data-a="newcol">${ic('plus')}New collection</button>`);return true;
+ case'typemenu':Shell.pop(b,TYPES.map(([t,n,i])=>mi('type',t,i,n,U.type===t)).join(''));return true;
+ case'type':Shell.closePop();return false;
+ case'stmenu':Shell.pop(b,mi('stf','all','grid','Any status',U.stf==='all')+['reading','want','finished'].map(s=>mi('stf',s,{reading:'book',want:'bookmark',finished:'check'}[s],ST[s],U.stf===s)).join(''));return true;
+ case'stf':Shell.closePop();U.stf=id;renderMain(true);return true;
+ case'start':Shell.closePop();return false;
+ case'showall':Object.assign(U,{shelf:'all',type:'all',stf:'all',q:'',qopen:false,ktags:[]});renderMain(true);renderSide();return true;
+ case'tagfilter':case'ktagmenu':tpOpen({mode:'filter',anchor:b});return true;
+ case'tagpick':tpOpen({mode:'assign',ids:[id],anchor:b});return true;
+ case'bulktag':if(U.sel.size)tpOpen({mode:'assign',ids:[...U.sel],anchor:b});return true;
+ case'untagf':U.ktags=U.ktags.filter(t=>t!==id);rer();renderSide();return true;
+ case'cleartag':U.ktags=[];rer();renderSide();return true;
+ case'ktag':Shell.closePop();U.ktags=id==='all'?[]:[id];rer();return true;
+ case'sidetag':if(Shell.col('side')==='over')Shell.col('side','hidden');U.ktags=(U.ktags.length===1&&U.ktags[0]===id)?[]:[id];if(U.book||U.tab==='knowledge'||U.theme)go({tab:'books'});else{renderMain(true);renderSide()}return true;
+ case'sideall':U.sideAll=!U.sideAll;renderSide();return true;
+ case'kclear':Object.assign(U,{kview:'all',kbook:'all',kcol:-1,ktype:'all',ktags:[],kdate:'all',kcl:null,q:''});renderMain(true);return true;
+ case'kviewmenu':Shell.pop(b,Object.entries(KV).map(([k,v])=>`<button type="button" class="mi big${U.kview===k?' on':''}" role="menuitemradio" aria-checked="${U.kview===k}" data-a="kview" data-id="${k}"><span class="ti">${ic(v[1])}</span><span><b>${v[0]}</b><small>${v[2]}</small></span></button>`).join(''));return true;
+ case'kview':case'ksort':case'ktype':case'kdate':case'ksaved':case'ksave':case'kbook':Shell.closePop();return false;
+ case'kcolmenu':Shell.pop(b,`<div class="lbl">Show one colour</div><div class="swg cols">${COLS.map((c,i)=>`<button type="button" class="cdot" style="--c:${c[2]}" aria-pressed="${U.kcol===i}" data-a="kcol" data-id="${i}" aria-label="${c[1]}" title="${c[1]}"><i></i></button>`).join('')}</div>${U.kcol>=0?`<button type="button" class="mi" role="menuitem" data-a="kcol" data-id="${U.kcol}">${ic('x')}Any colour</button>`:''}`);return true;
+ case'kcol':Shell.closePop();return false;
+ case'ksavedmenu':Shell.pop(b,(S.saved.length?'<div class="lbl">Saved filters</div>'+S.saved.map(s=>`<button type="button" class="mi" role="menuitem" data-a="ksaved" data-id="${s.id}">${ic('star')}${esc(s.name)}</button>`).join('')+'<hr>':'')+`<button type="button" class="mi" role="menuitem" data-a="ksave">${ic('save')}Save this filter</button>`);return true;
+ case'ksavedgo':if(Shell.col('side')==='over')Shell.col('side','hidden');if(U.book||U.tab!=='knowledge'||U.theme){U.kview='all';go({tab:'knowledge'})}act1('ksaved',id,b,e);return true;
+ case'exsw':{const k=b.dataset.k;U.ex[k]=!U.ex[k];renderBody();const n=$('[data-a=exsw][data-k='+k+']');if(n)n.focus();return true}
+ case'excol':{const i=+id;U.ex.cols=U.ex.cols.includes(i)?U.ex.cols.filter(x=>x!==i):[...U.ex.cols,i].sort();renderBody();return true}
+ case'exfmt':U.ex.fmt=id;renderBody();return true;
+ case'export':{const md=U.ex.fmt==='md';download(md?'learning-notes-highlights.md':'learning-notes-highlights.csv',md?exportMD():exportCSV(),md?'text/markdown':'text/csv');T('Exported a '+(md?'Markdown':'CSV')+' file');return true}
+ case'dtype':D.ui.type=id;Shell.sheet.draw();return true;
+ case'dtag':D.ui.tags=D.ui.tags.includes(id)?D.ui.tags.filter(t=>t!==id):[...D.ui.tags,id];Shell.sheet.draw();return true;
+ case'dtagall':Shell.sheet.close(true);setTimeout(()=>tpOpen({mode:'filter',anchor:$('[data-a=more]')}),80);return true;
+ case'tptog':tpToggle(id);return true;
+ case'tppin':{const on=(S.pins||[]).includes(id);S.pins=on?S.pins.filter(t=>t!==id):[...(S.pins||[]),id];tpDraw();return true}
+ case'tpcat':TP.open[id]=!TP.open[id];tpDraw();return true;
+ case'tpcreate':{const par=($('#tpparent')||{}).value||'';const its=tpItems();act('Create tag',()=>{its.forEach(i=>{if(!i.tags.includes(id))i.tags.push(id)});if(par)placeUnder(id,par);tpRecent(id)});pvRefresh();TP.q='';const q=$('#tpq');if(q){q.value='';q.focus()}tpDraw();T('Tag #'+id+' created'+(par?' under '+par:''),undo);return true}
+ case'tpclear':U.ktags=[];rer();renderSide();tpDraw();return true;
+ case'tpmatch':U.ktAll=id==='all';rer();tpDraw();return true;
+ case'tpsub':U.ktSub=!U.ktSub;rer();tpDraw();return true;
+ case'tpclose':tpClose();return true;
+ }
+ return false}
+
+/* ---------- mount ---------- */
+Shell.mount({space:'library',due:12,
+ onSpace:k=>{if(k==='library'){if(Shell.isPhone())Shell.col('side',Shell.col('side')==='over'?'hidden':'over');else if(U.book||U.tab!=='books')go({tab:'books'});return}T(Shell.SPACES.find(s=>s[0]===k)[1]+' is a separate mock-up');return false},
+ onCorner:k=>T(k.charAt(0).toUpperCase()+k.slice(1)+' is a separate mock-up'),
+ onChange:(what,v)=>{
+  if(what==='col'&&!Shell.isPhone()){const s=Shell.col(v);if(v==='side'){if(s==='dock'&&U.book&&Shell.col('panel')==='dock'&&innerWidth<1180)Shell.col('side','over');else if(s!=='over')U.sideWant=s==='dock'}else{if(s!=='over')U.panelWant=s==='dock';applyCols()}}
+  if(what==='col'&&v==='panel'&&U.book&&!Shell.isPhone()){setPanelPref(U.book,Shell.col('panel')==='dock')}
+  if(what==='mode'){if(!libTabs.list().some(t=>t.id===U.tab))U.tab=libTabs.list()[0].id;if(U.theme&&!isPro())U.theme=null;renderAll(true)}
+ }});
+$('[data-a=pvclose]').innerHTML=ic('x');
+U.nav=[view()];U.navI=0;
+renderAll();
+addEventListener('resize',()=>{clearTimeout(window.__rt);window.__rt=setTimeout(()=>{applyCols();$$('[data-rw]').forEach(r=>Shell.track(r.firstElementChild,r.querySelector('.track')));if(U.kcur||U.tab==='knowledge'){(U.book?renderBookBody:renderBody)()}},80)});
+</script>
+</body>
+</html>

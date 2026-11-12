@@ -1,4 +1,5 @@
 # Pending: one list (11 Nov 2026)
+nContinuity: see [CONTINUITY.md](CONTINUITY.md). Mock-ups: docs/mockups/.
 
 Owner rule: remove a line when it's solved. Tokens are low until Fri 13 Nov, so only Priority 1 is built now. The full detail for each item lives in the linked plan file.
 

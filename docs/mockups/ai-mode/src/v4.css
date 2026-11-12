@@ -1,0 +1,129 @@
+/* ---- AI mode v4: premium card system (same rules as the toolbar v7 cards) + the job runner ---- */
+.card,.pn{border-radius:20px;box-shadow:inset 0 1px 0 rgba(255,255,255,.05),0 1px 2px rgba(0,0,0,.04),0 12px 28px -18px rgba(0,0,0,.28)}
+.card{padding:18px 20px;margin-bottom:12px}
+.card>h2,.card .ch h2{font-size:16.5px}
+.lbl,.pb h3,.tierh,.tgrp>h3{font-size:12.5px;letter-spacing:0;text-transform:none;font-weight:650;color:var(--ink-soft)}
+.rr.hd,.tbl th{font-size:12.5px;letter-spacing:0;text-transform:none;font-weight:600}
+.rr .c[data-l]::before{text-transform:none;letter-spacing:0;font-size:12.5px}
+.well,.tgrp .tw{border-radius:14px;background:var(--surface-0);border:1px solid var(--line);padding:2px 12px;box-shadow:none}
+.tile{border-radius:14px;position:relative;transition:transform 120ms var(--ease-out),background var(--dur-1),box-shadow var(--dur-1)}
+.tile:active,.btn:active,.chip:active,.effb:active{transform:scale(.97)}
+.tile[aria-pressed=true]{border-color:transparent;box-shadow:inset 0 0 0 1.5px var(--accent);background:var(--accent-soft);color:var(--accent)}
+.mrow{border-radius:14px}.mrow[aria-pressed=true]{border-color:transparent;box-shadow:inset 0 0 0 1.5px var(--accent)}
+.drop,.empty,.mock,.pb,.o2{border-radius:14px}
+.qp{border-radius:20px}
+.ec{border-radius:14px}
+/* effort: one segmented control with a raised thumb */
+.eff{border:0;background:var(--hover);padding:3px;border-radius:14px;gap:2px;overflow:visible}
+.effb{border-radius:11px;min-height:46px;transition:background var(--dur-1),color var(--dur-1),transform 120ms}
+.effb+.effb{border-left:0}
+.effb[aria-pressed=true]{background:var(--surface-2);box-shadow:0 1px 3px rgba(0,0,0,.14),0 0 0 .5px var(--line);color:var(--accent)}
+/* stage change: the card fades up once */
+.stg{animation:stg 200ms var(--ease-out)}
+@keyframes stg{from{opacity:0;transform:translateY(6px) scale(.985)}to{opacity:1;transform:none}}
+@keyframes pop{0%{transform:scale(.7)}100%{transform:scale(1)}}
+/* plan rows: placement, validation */
+.plist.well{padding:2px 6px}
+.pr{min-height:68px;background:transparent;padding:6px 2px}
+.pr .ty{width:36px;height:36px;border-radius:10px}
+.plc{display:inline-flex;align-items:center;gap:5px;margin-top:3px;font-size:12px;font-weight:600;color:var(--accent);max-width:100%}
+.plc svg{width:12px;height:12px;flex:none}.plc span{overflow:hidden;text-overflow:ellipsis;white-space:nowrap;min-width:0}
+.pr.off .plc{display:none}
+.pr.bad{background:color-mix(in srgb,var(--danger) 7%,transparent)}
+.perr{display:flex;flex-wrap:wrap;align-items:center;gap:4px 8px;margin-top:4px;font-size:12.5px;font-weight:600;color:var(--danger)}
+.fixb{position:relative;border:0;border-radius:999px;background:var(--danger);color:#fff;font:inherit;font-size:12.5px;font-weight:700;min-height:28px;padding:0 12px;cursor:pointer}
+.fixb::before{content:"";position:absolute;inset:-8px -4px}
+.vsum{display:flex;align-items:center;gap:8px;margin:10px 0 0;font-size:13px;font-weight:600;color:var(--danger)}
+.vsum.ok{color:var(--success)}.vsum svg{width:16px;height:16px}
+.dst{display:flex;flex-wrap:wrap;gap:8px;align-items:center;margin-bottom:4px}
+.dst .inp{flex:1;min-width:180px}.dsel{display:flex;gap:8px;flex:1;min-width:0;flex-wrap:wrap}.dsel .inp{flex:1;min-width:140px}
+.dseg{flex:none}
+/* run bar: effort · model + cost · Run */
+.runbar.jr{align-items:center}.rmeta{display:flex;align-items:center;gap:10px;flex-wrap:wrap}
+.runbar .path{max-width:100%}
+/* the job runner */
+.jst{list-style:none;margin:0;padding:0}
+.jst li{display:flex;align-items:flex-start;gap:12px;padding:12px 0;border-top:1px solid var(--line)}.jst li:first-child{border-top:0}
+.jst .st{width:26px;height:26px;border-radius:50%;display:grid;place-items:center;flex:none;border:1.5px solid var(--line-strong);color:#fff;margin-top:1px;font-size:13px;font-weight:800;line-height:1}
+.jst .st svg{width:14px;height:14px}
+.jst li.wait .st svg,.jst li.run .st svg{display:none}
+.jst li.done .st{background:var(--success);border-color:var(--success)}
+.jst li.done.new .st{animation:pop 280ms cubic-bezier(.34,1.45,.64,1)}
+.jst li.run .st{border-color:var(--accent);border-right-color:transparent;animation:spin .8s linear infinite}
+.jst li.retry .st{border-color:var(--warn);color:var(--warn)}
+.jst li.fail .st{background:var(--danger);border-color:var(--danger)}
+.jst li.skip .st,.jst li.blocked .st{border-style:dashed;color:var(--muted)}
+.jst .g{flex:1;min-width:0}.jst b{display:block;font-size:14px;font-weight:600}.jst small{display:block;font-size:12.5px;color:var(--muted);line-height:1.4}
+.jst li.wait b,.jst li.skip b,.jst li.blocked b{color:var(--ink-soft)}
+.jst li.fail small.e{color:var(--danger);font-weight:600}.jst li.retry small.e{color:var(--warn);font-weight:600}
+.jst .acts{display:flex;gap:8px;flex-wrap:wrap;margin-top:10px}
+.attn{display:flex;gap:10px;align-items:flex-start;border-radius:14px;padding:12px 14px;margin:0 0 6px;background:color-mix(in srgb,var(--warn) 14%,transparent);color:var(--ink);font-size:13.5px}
+.attn svg{color:var(--warn);margin-top:1px}.attn b{display:block}.attn span{color:var(--ink-soft)}
+.attn.off{background:var(--hover)}.attn.off svg{color:var(--muted)}
+.bar2 i.warn{background:var(--warn)}
+.saved{margin:10px 0 14px}.saved .jdr b{font-weight:600}
+.jdr{display:flex;align-items:center;gap:10px;min-height:44px;border-top:1px solid var(--line);font-size:13.5px}.jdr:first-child{border-top:0}
+.jdr span{flex:1;min-width:0}.jdr small{color:var(--muted);font-size:12.5px;text-align:right}.jdr svg{width:16px;height:16px;color:var(--success)}
+.al li{flex-wrap:wrap}.al .jd{flex-basis:100%;margin:0 0 4px 48px}
+.demo2{display:flex;align-items:center;gap:8px;flex-wrap:wrap}.demo2 small{font-size:12.5px;font-weight:600;color:var(--muted)}
+/* catalog details: what the AI reads about each tool */
+.tl{flex-wrap:wrap}
+.tdet{flex-basis:100%;margin:0 0 4px 46px;display:grid;grid-template-columns:auto 1fr;gap:4px 14px;font-size:12.5px;color:var(--ink-soft);border-radius:12px;background:var(--hover);padding:10px 12px}
+.tdet dt{color:var(--muted);font-weight:600}.tdet dd{margin:0}
+.tl .ib[aria-expanded=true] svg{transform:rotate(180deg)}.tl .ib svg{transition:transform var(--dur-2) var(--ease-out)}
+/* Studio: pick several, make one plan */
+.mk2 .tile .tkk{position:absolute;top:8px;right:8px;width:20px;height:20px;border-radius:50%;border:1.5px solid var(--line-strong);display:grid;place-items:center;color:transparent}
+.mk2 .tile .tkk svg{width:12px;height:12px;margin:0;color:inherit}
+.mk2 .tile[aria-pressed=true] .tkk{background:var(--accent);border-color:var(--accent);color:var(--on-accent);animation:pop 280ms cubic-bezier(.34,1.45,.64,1)}
+.mkbar{border-radius:14px;background:var(--surface-0);border:1px solid var(--line);padding:12px;margin:0 0 12px;display:flex;flex-direction:column;gap:8px}
+.mkbar .lbl{margin:0}.mkbar .seg{display:flex;width:100%}.mkbar .seg button{flex:1;padding:0 6px}
+.mkl{list-style:none;margin:0;padding:0}.mkl li{display:flex;gap:8px;align-items:baseline;font-size:13px;padding:3px 0}.mkl b{font-weight:600;flex:none}.mkl small{color:var(--muted);font-size:12px;min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.mkbar .btn.pri{width:100%}
+/* Workflows: the shared filter bar (More first, search, Tags, Sort, saved views, chips, count) */
+.fline{display:flex;flex-wrap:wrap;gap:8px;align-items:center}
+.fline .inp{flex:1;min-width:180px}
+.fline .chip{min-height:var(--sh-hit)}.chip.on{background:var(--accent-soft);color:var(--accent);border-color:transparent}
+.vrow{display:flex;flex-wrap:wrap;gap:6px;align-items:center;margin-top:10px}
+.vrow .tag.btn2{min-height:36px;padding:0 12px;position:relative}.vrow .tag.btn2::before{content:"";position:absolute;inset:-4px 0}
+.vrow .tag.v{background:var(--hover);color:var(--ink-soft);padding:0 2px 0 0;min-height:36px}.vrow .tag.v.on{background:var(--accent-soft);color:var(--accent)}
+.vrow .tag.v>button:first-child{border:0;background:none;font:inherit;font-weight:600;color:inherit;min-height:36px;padding:0 6px 0 12px;cursor:pointer;border-radius:999px}
+.fmore{margin-top:10px;padding:10px 12px 12px}.fmore .lbl{margin:10px 0 6px}.fmore .lbl:first-child{margin-top:2px}
+.fmore .tg .tag.btn2{min-height:36px;padding:0 12px;position:relative}.fmore .tg .tag.btn2::before{content:"";position:absolute;inset:-4px 0}
+.acts2{display:flex;flex-wrap:wrap;gap:6px;align-items:center;margin-top:10px;min-height:36px}
+.acts2 .tag{min-height:32px}
+.cnt{margin-left:auto;font-size:13px;font-weight:600;color:var(--muted);white-space:nowrap}
+.fpop{position:fixed;z-index:86;width:min(320px,calc(100vw - 16px));max-height:min(520px,calc(100dvh - 32px));display:flex;flex-direction:column;border-radius:20px;background:var(--surface-2);border:1px solid var(--line);box-shadow:var(--elev-3);padding:12px;animation:fpop 200ms var(--ease-out);transform-origin:top left}
+@keyframes fpop{from{opacity:0;transform:translateY(6px) scale(.96)}to{opacity:1;transform:none}}
+.fpop .fh{display:flex;align-items:center;gap:8px;margin:0 0 8px}.fpop .fh b{flex:1;font-size:15px;padding-left:4px}
+.fpop .seg{display:flex;width:100%;margin-bottom:8px}.fpop .seg button{flex:1}
+.fpop .fl2{overflow:auto;margin:8px -4px 0;padding:0 4px;min-height:0}
+.fo{display:flex;align-items:center;gap:12px;min-height:var(--sh-hit);padding:0 8px;border-radius:10px;cursor:pointer;font-size:14px;width:100%;border:0;background:none;text-align:left}
+.fo:hover{background:var(--hover)}.fo input{width:22px;height:22px;accent-color:var(--accent);margin:0;flex:none}.fo span{flex:1;min-width:0}.fo small{color:var(--muted);font-size:12.5px}
+.fo .rd{width:20px;height:20px;border-radius:50%;border:1.5px solid var(--line-strong);flex:none;display:grid;place-items:center}
+.fo[aria-checked=true] .rd{border-color:var(--accent);background:var(--accent)}.fo[aria-checked=true] .rd::after{content:"";width:8px;height:8px;border-radius:50%;background:var(--on-accent)}
+.fpop .ff{display:flex;gap:8px;justify-content:space-between;margin-top:10px}
+/* the toast sits in the free middle of the top bar: it never covers a title or a control in the page */
+.sh-toast{bottom:auto;top:var(--tt,74px);max-width:min(440px,calc(100vw - 480px));transform:translate(-50%,-8px)}
+.sh-toast.on{transform:translate(-50%,0)}
+@media (max-width:640px){
+ .sh-toast{max-width:calc(100vw - 24px)}
+ .card{padding:16px}
+ /* A1: nothing overlaps on a phone. Path on its own line, then model + cost, then a full-width Run */
+ .runbar.jr{display:grid;grid-template-columns:minmax(0,1fr);gap:10px}
+ .runbar.jr .gr{min-width:0}
+ .runbar.jr .path{display:flex;align-items:flex-start;white-space:normal;border-radius:12px;padding:8px 12px;line-height:1.35}.runbar.jr .path svg{margin-top:2px}
+ .rmeta{justify-content:space-between}
+ .runbar.jr .btn.pri{width:100%}
+ .runbar.jr .effrow,.runbar.jr .eff{width:100%}
+ .sw-row.rem{align-items:flex-start;gap:12px;padding:12px 0 4px}.sw-row.rem .sw{margin-top:2px}
+ .dst .seg{display:flex;width:100%}.dst .seg button{flex:1;padding:0 6px}
+ .fpop{left:8px!important;right:8px;top:auto!important;bottom:8px;width:auto;max-height:76dvh;transform-origin:bottom center}
+ .fline .btn.more{flex:1 1 100%}.fline .chip{flex:1;justify-content:center}
+ .cnt{flex-basis:100%;margin-left:0}
+ .al .jd,.tdet{margin-left:0}
+ .demo2{flex-basis:100%}.demo2 .seg{display:flex;flex:1}.demo2 .seg button{flex:1;padding:0 4px}
+ .jst .acts .btn{flex:1}
+}
+.sw-row.rem{margin-top:12px;border-top:1px solid var(--line);padding-top:6px}
+@media (prefers-reduced-motion:reduce){.stg,.fpop,.jst li .st,.mk2 .tile .tkk{animation:none!important}.tile,.effb{transition:none}}
+@media (max-width:640px){.jdr{flex-wrap:wrap;gap:0 10px;padding:8px 0}.jdr small{flex-basis:100%;text-align:left}.jdr svg~small{padding-left:26px}}

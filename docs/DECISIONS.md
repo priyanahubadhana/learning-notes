@@ -871,6 +871,26 @@ The other older decisions stand as built (owner, 2026-11-01); they are in [ARCHI
 
 - **8 Nov, fix #6 (alerts):** (a) Level 2 uses the accent colour, not red (red kept for the locked modal/banner, real data risk). (b) "Update needed" and "backups failing" are wired but "update needed" has no source yet (no version check exists); backups count failed silent backups across starts (`attn.backupFailures`). (c) Storage warning uses the browser quota estimate (>90%), checked at start only. (d) Update × now hides 7 days (was until next start). (e) Sign-in-again, clock "Details" and Switch account all open Settings > Sync.
 
+- **2026-11-12 · build night 1.** Level (Beginner / Professional) is stored per device and defaults to Professional, so nothing changes on screen until a slice uses it. Other option: synced setting, default Beginner.
+
+- **2026-11-12 · build night 1.** Settings › "Try new features" is the one visible change of the foundation (owner asked for it). `?flags=` in the address turns switches on for that visit only; other option: tests only.
+
+- **2026-11-12 · build night 1.** The shared On/Off control is 36 px tall (rule says 44 pt); fixed in the Settings v3 slice, not now, because it touches every Settings row.
+
+- **2026-11-12 · build night 1.** Mock-up reference scripts in docs/mockups are skipped by lint (same as Prettier).
+
+- **2026-11-12 · build night 1.** Update flow: an offline must-have update never blocks the notes; the notice waits for the network. The "Pretend a must-have update" test button sits in Settings › About.
+
+- **2026-11-12 · build night 1.** Security: the strict Content-Security-Policy ships as report-only until the owner checks Google sign-in, Drive and fonts. "Load picture" allows a web picture for this visit only.
+
+- **2026-11-12 · build night 1.** Specs propose about 43 new unlock switch ids not yet in docs/mockups/pro-features.md (page menus 7, text box/objects/media 18, study/safety/system 18, library 5, general 1); to be added in the Settings v3 slice. Sidebar width 288 px (shell spec says 264). Snapshot Lasso = "turn the selection into a picture" (no source defines it). Slice 14 adds box fields (rotation, layer order, hidden, scale): additive only.
+
+- **2026-11-12 · build night 1.** AI job engine: jobs are kept in memory for now; an `aiJobs` table (new Dexie version) comes with a later slice. 4 golden plans instead of about 20 so far.
+
+- **2026-11-12 · build night 1.** iPad (WebKit) tests cannot run reliably on this PC while several builders run; the pull request CI judges them.
+
+- **2026-11-12 · build night 1.** A free preview build of build/next is published by CI (job `preview`, Cloudflare preview branch `build-next`), not the live site.
+
 ## Owner answers 9 Nov (parked features)
 
 - Database pages: full Notion-like (relations, rollups, formulas, Table/Board/Gallery/Calendar). Built before the prompt library, because the library is stored as a built-in database.

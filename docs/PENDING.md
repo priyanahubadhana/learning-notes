@@ -1,5 +1,31 @@
 # Pending: one list (11 Nov 2026)
 
+## For the owner this morning (build night 1, 12 Nov 2026)
+
+- Needs you: finish the Claude connector (3 steps). The app update it waited for is live.
+- Needs you (Supabase, when free; nothing is blocked): turn on refresh-token rotation; confirm the email-code limits; restrict CORS on the `drive-token` function.
+- Needs you (one check before the strict security header is switched on): Google sign-in, Drive and fonts still work. Until then the strict rule only reports, it blocks nothing.
+- Preview: draft pull request #4 (build/next) publishes a free preview build after its tests; the address is in the "preview" job of the newest run on that pull request. New parts are under Settings › Try new features, all OFF.
+- Decisions to review: see docs/DECISIONS.md "Decisions to review" (build night 1).
+
+## Build board (one row per slice)
+
+| Slice                                                                              | State                                                              | Branch                 | Next step                                                        | Gate            |
+| ---------------------------------------------------------------------------------- | ------------------------------------------------------------------ | ---------------------- | ---------------------------------------------------------------- | --------------- |
+| First job: CI green + deploy                                                       | DONE, live (run 43161211224)                                       | main 58df642           | none                                                             | done            |
+| 0a flags + level, 0i tool registry + AI slice 0                                    | merged to build/next                                               | build/next             | none                                                             | QA passed       |
+| 0b test tools (ratchet 359 listeners / 128 z-index, screenshots, check:dod, probe) | merged to build/next                                               | build/next             | none                                                             | QA passed       |
+| 0c event router, 0d gesture router                                                 | merged to build/next (unused)                                      | build/next             | iPad test result from CI                                         | QA passed       |
+| 0e selection store, 0f overlay manager                                             | merged to build/next (unused)                                      | build/next             | iPad test result from CI                                         | QA passed       |
+| 0g step 1 shared parts (10 parts + gallery)                                        | built; gate 3 found phone overflow (Arrange sheet, Time range bar) | slice/0g-parts         | fix phone widths, then merge                                     | Fable sent back |
+| 0g step 2, 0h shell                                                                | not started                                                        | -                      | after 0g step 1                                                  | -               |
+| 9 AI framework slice 1 (job engine)                                                | built, green                                                       | slice/9-ai-framework-1 | QA gate, merge; then slice 2                                     | QA              |
+| 10 update flow (BUG-004)                                                           | built; iPad tests must run on CI                                   | slice/10-update-v2     | QA gate, merge                                                   | QA              |
+| 11 security mediums                                                                | built; iPad tests must run on CI; S15 + card-answer test open      | slice/11-security-m1   | QA gate, merge                                                   | QA              |
+| iPad test flakes (inkLayers:140, boxTaps:138)                                      | fix written, not confirmed                                         | fix/ipad-flakes        | confirm on CI, then main                                         | QA              |
+| Specs (17 files in docs/features)                                                  | written, on build/next                                             | build/next             | Fable spot-check; add about 43 new unlock ids to pro-features.md | Fable           |
+| 1 toolbar v8, 2 text box v2, 3-8 screens, 12-17                                    | spec ready, not built                                              | -                      | start after shared parts merge                                   | -               |
+
 nContinuity: see [CONTINUITY.md](CONTINUITY.md). Mock-ups: docs/mockups/.
 
 Owner rule: remove a line when it's solved. Tokens are low until Fri 13 Nov, so only Priority 1 is built now. The full detail for each item lives in the linked plan file.

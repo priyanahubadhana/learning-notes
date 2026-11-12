@@ -2,6 +2,15 @@
 
 Current phase only. Older entries are in [ARCHIVE.md](ARCHIVE.md).
 
+### 12 Nov 2026: build night 1 (Fable orchestrator)
+
+- First job: fixed the 3 failures blocking the deploy. Lint ignored the design mock-ups (eslint.config.js); the Settings › Claude test met the new "locked" pop-up (e2e/claudeMock.ts, claudeSettings.spec.ts); the copy menu test had a step with no time limit (e2e/copyFormats.spec.ts). Main is green and deployed (run 43161211224, commits 5d58789, 082fd96, 58df642). supabase/.temp is ignored by git.
+- New branch build/next + draft pull request #4 (full tests, free preview build, no live deploy).
+- Merged to build/next, all switched off: switches file src/app/flags.ts + Settings › Try new features; Beginner / Professional level store (src/settings/level.ts, 169 unlock ids); test tools (listener and z-index ratchet, screenshot harness, check:dod, probe:inventory); event router and gesture router (src/app/input/); selection store (src/app/selection/); overlay manager (src/app/overlay/); tool registry facts (src/app/tools/toolRegistryMeta.ts) and AI tool framework slice 0 (src/aitools/).
+- Built on their own branches, waiting for the QA gate: shared parts (slice/0g-parts), update flow BUG-004 (slice/10-update-v2), security mediums (slice/11-security-m1), AI job engine (slice/9-ai-framework-1), iPad test flake fixes (fix/ipad-flakes).
+- 17 specs written in docs/features/ (foundation, foundation-input, foundation-selection-overlay, tool-registry, shared-parts, toolbar-v8, page-menus, textbox-v2, page-objects, media-v2, study-v2, safety-v2, system-v2, update-v2, security-m1, settings-v3, notebooks-search-v2, home-v2, library-v2, reader-v2, review-v2, ai-framework). They are on build/next.
+- Why: owner said "start the build" (docs/plans/build-master-plan.md).
+
 ## 2026-11-12 (Build master plan)
 
 - **What:** one complete plan for the rebuild: remaining mock-up batches 1 to 6 (with the owner's batch 1 answers), build slice 0 (4 root causes, shared parts, shell, tool registry base), slices per area with spec, Definition of Done, tests, flag and rollback, lanes and models, continuity, the first-night run list and 8 owner questions. Text box v2: keep the layout engine, rebuild the touch layer. Plan only, no app code.

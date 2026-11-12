@@ -36,3 +36,11 @@ Noted while batch 1 is being built. Test batch 1 first, then decide which of the
 - Prompt library = recipes kept in the existing database, filtered by tags (per AI and per job type), with a rating/success score per recipe, plus a Claude "prompt checker" that reviews recipes regularly and suggests updates when rules change (e.g. no need to tell it to compact).
 - Engine: Claude via the connector first (₹0); built-in AI later only with cost approval; the same buttons for both.
 - Capture path (phased): 1) now: drop transcript + frames into a job card; 2) our own small Chrome extension "Send to Learning Notes" (one click: URL, title, transcript, current-frame screenshots) → the app's Inbox; 3) automatic: Claude processes the Inbox via the connector (or a scheduled routine) and drafts the jobs for Preview.
+
+## 13. AI mode v2 (owner, 12 Nov 2026), decided
+- Layout (NotebookLM-style): Sources | Chat (citations, Save to notes) | Studio (notes, mind map, cards, quiz, summary; audio later); tabs above for Jobs, Workflows, Activity, Settings; collapses to tabs on portrait/phone.
+- "Recipe" renamed "Workflow".
+- Sources: anything (files, links, YouTube, text, images, audio, Drive, own notebooks/books), each with a tick box.
+- Model chip "Auto ▾" next to every Run/Send and in the top AI button. Auto = our own router: a small model classifies the task → tier (planning = top, writing = middle, simple = small); preference Best / Balanced (default) / Cheapest; free first (Claude via connector). Manual "Pick exact model" list with cost badges; bring-your-own-key vault (OpenRouter as one key for many models).
+- Cost settings (switches): monthly limit (default ₹0, warn at 80%, hard stop), per-job limit, ask above ₹X, estimate before each job (default ON), spend history/usage page like a provider's usage limits (default ON), CSV export.
+- The top-bar AI button needs a full rework to match (a quick panel: Ask about this page, actions, model chip, link to AI mode).

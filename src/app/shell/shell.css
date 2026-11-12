@@ -323,3 +323,64 @@
     display: none;
   }
 }
+
+/* ---- sidebar + pages panel (SH-07, SH-08) ---- */
+.sh-main {
+  /* Everything inside the page stays inside it: a column opened over the page
+     (drawn after it) always paints above, without any stacking numbers. */
+  isolation: isolate;
+}
+.sh-sidewrap[data-state='hidden'] {
+  display: none;
+}
+.sh-panelwrap[data-state='docked'] {
+  flex: none;
+  display: flex;
+  width: var(--sh-panel);
+  min-height: 0;
+  overflow: hidden;
+  border-radius: var(--r-lg);
+  border: 1px solid var(--color-line);
+  background: var(--color-surface-1);
+}
+.sh-panelwrap[data-state='docked'] > aside {
+  flex: 1;
+  width: auto !important;
+  min-width: 0;
+  border-inline-end: 0;
+  background: transparent;
+}
+.sh-panelwrap[data-state='over'] {
+  display: contents;
+}
+.sh-scrim {
+  position: fixed;
+  inset: 0;
+  border: 0;
+  padding: 0;
+  background: var(--scrim, rgba(0, 0, 0, 0.32));
+  cursor: default;
+}
+.sh-overwrap {
+  position: fixed;
+  top: 8px;
+  bottom: 8px;
+  left: max(8px, env(safe-area-inset-left, 0px));
+  width: min(86vw, 320px);
+  display: flex;
+  --sidebar-width: min(86vw, 320px);
+  border-radius: var(--r-lg);
+  box-shadow: var(--elev-3);
+  animation: sh-in var(--dur-2) var(--ease-out);
+}
+@keyframes sh-in {
+  from {
+    opacity: 0;
+    transform: translateX(-12px);
+  }
+}
+@media (prefers-reduced-motion: reduce) {
+  .sh-overwrap {
+    animation: none;
+  }
+}

@@ -56,7 +56,6 @@ export function SourcePopup({
         <button
           type="button"
           aria-label={t('home.v2.sourceClose')}
-          title={t('home.v2.sourceClose')}
           data-testid="home-source-close"
           onClick={() => handle.current?.close()}
           className="grid min-h-11 min-w-11 place-items-center rounded-lg text-muted hover:bg-hover hover:text-ink"

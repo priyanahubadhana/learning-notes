@@ -63,51 +63,11 @@ export function HomeBoard({ data }: { data: BoardData }) {
   }
 
   return (
-    <div data-testid="home-board" data-editing={editing ? '' : undefined}>
-      {editing ? (
-        <div
-          role="toolbar"
-          aria-label={t('home.v2.editBar')}
-          data-testid="home-edit-bar"
-          className="sticky top-0 z-10 mb-3 flex flex-wrap items-center gap-2 rounded-xl border border-accent bg-bg px-3 py-2"
-        >
-          <span className="me-auto text-sm font-semibold">
-            {t('home.v2.editBar')}
-          </span>
-          <button
-            type="button"
-            onClick={() => setDraft(null)}
-            className="min-h-11 rounded-lg border border-line px-4 text-sm hover:bg-hover"
-          >
-            {t('home.v2.cancel')}
-          </button>
-          <button
-            type="button"
-            onClick={() => setDraft(normalizeLayout(null))}
-            className="min-h-11 rounded-lg border border-line px-4 text-sm hover:bg-hover"
-          >
-            {t('home.v2.reset')}
-          </button>
-          <button
-            type="button"
-            onClick={done}
-            className="min-h-11 rounded-lg bg-accent px-5 text-sm font-semibold text-on-accent"
-          >
-            {t('home.v2.done')}
-          </button>
-        </div>
-      ) : (
-        <div className="mb-3 flex justify-end">
-          <button
-            type="button"
-            onClick={() => setDraft(saved)}
-            data-testid="home-edit"
-            className="min-h-11 rounded-lg border border-line px-4 text-sm hover:border-accent"
-          >
-            {t('home.v2.edit')}
-          </button>
-        </div>
-      )}
+    <div
+      data-testid="home-board"
+      data-editing={editing ? '' : undefined}
+      className="flex flex-col"
+    >
       <ReorderList<Slot>
         items={layout}
         getId={(s) => s.id}
@@ -137,6 +97,51 @@ export function HomeBoard({ data }: { data: BoardData }) {
           </WidgetFrame>
         )}
       />
+      {/* After the list in the page, shown first: it then paints above the widgets. */}
+      {editing ? (
+        <div
+          role="toolbar"
+          aria-label={t('home.v2.editBar')}
+          data-testid="home-edit-bar"
+          className="sticky top-0 order-first mb-3 flex flex-wrap items-center gap-2 rounded-xl border border-accent bg-bg px-3 py-2"
+        >
+          <span className="me-auto text-sm font-semibold">
+            {t('home.v2.editBar')}
+          </span>
+          <button
+            type="button"
+            onClick={() => setDraft(null)}
+            className="min-h-11 rounded-lg border border-line px-4 text-sm hover:bg-hover"
+          >
+            {t('home.v2.cancel')}
+          </button>
+          <button
+            type="button"
+            onClick={() => setDraft(normalizeLayout(null))}
+            className="min-h-11 rounded-lg border border-line px-4 text-sm hover:bg-hover"
+          >
+            {t('home.v2.reset')}
+          </button>
+          <button
+            type="button"
+            onClick={done}
+            className="min-h-11 rounded-lg bg-accent px-5 text-sm font-semibold text-on-accent"
+          >
+            {t('home.v2.done')}
+          </button>
+        </div>
+      ) : (
+        <div className="order-first mb-3 flex justify-end">
+          <button
+            type="button"
+            onClick={() => setDraft(saved)}
+            data-testid="home-edit"
+            className="min-h-11 rounded-lg border border-line px-4 text-sm hover:border-accent"
+          >
+            {t('home.v2.edit')}
+          </button>
+        </div>
+      )}
     </div>
   )
 }
@@ -183,7 +188,6 @@ function WidgetFrame({
                 role="radio"
                 aria-checked={slot.size === size}
                 aria-label={t(`home.v2.size.${size}.name` as MessageKey)}
-                title={t(`home.v2.size.${size}.name` as MessageKey)}
                 data-testid={`size-${slot.id}-${size}`}
                 onClick={() => onSize(size)}
                 className={`min-h-11 min-w-11 rounded-lg text-sm ${

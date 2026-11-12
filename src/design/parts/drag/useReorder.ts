@@ -383,6 +383,22 @@ export function useReorder<T>(props: ReorderProps<T>) {
     finish(!fitFn || fitFn(p.id, order.indexOf(p.id), order))
   }
 
+  /**
+   * Showing a new order makes React move the dragged row in the page, and the
+   * browser then lets go of the pointer. The drag goes on, so take hold again;
+   * otherwise a pointer that outruns the row (a busy device) is no longer ours
+   * and the drag stops in the middle.
+   */
+  const onLostCapture = (e: RPointerEvent<HTMLElement>) => {
+    const p = press.current
+    if (!p || e.pointerId !== p.pointerId || !p.cap?.isConnected) return
+    try {
+      p.cap.setPointerCapture(p.pointerId)
+    } catch {
+      /* the pointer is gone */
+    }
+  }
+
   const onCancel = (e: RPointerEvent<HTMLElement>) => {
     const p = press.current
     if (!p || e.pointerId !== p.pointerId) return
@@ -534,6 +550,7 @@ export function useReorder<T>(props: ReorderProps<T>) {
       onPointerMove: onMove,
       onPointerUp: onUp,
       onPointerCancel: onCancel,
+      onLostPointerCapture: onLostCapture,
       onKeyDown: (e: RKeyboardEvent<HTMLElement>) => onKeyDown(e, id),
     }),
     gripProps: (id: string) => ({

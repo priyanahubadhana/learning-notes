@@ -1995,6 +1995,8 @@ function App() {
                   }}
                   onSeeAll={openSearch}
                   initialChip={searchChip}
+                  pageId={currentPageId}
+                  notebookId={notebookId}
                 />
               </Suspense>
             )}

@@ -395,15 +395,15 @@ export function Sidebar({
             type="button"
             onClick={onOpenToday}
             aria-label={t('sidebar.openToday')}
-            className="mb-1 flex min-h-9 any-pointer-coarse:min-h-11 w-full items-center gap-2 rounded-lg border border-line bg-bg px-2.5 py-1.5 text-left text-sm transition-colors hover:border-accent"
+            className="mb-1 flex min-h-9 any-pointer-coarse:min-h-11 w-full min-w-0 items-center gap-2 rounded-lg border border-line bg-bg px-2.5 py-1.5 text-left text-sm transition-colors hover:border-accent"
           >
             <Icon name="sun" size={16} />
-            <span className="flex-1">
+            <span className="min-w-0 flex-1 truncate whitespace-nowrap">
               {t('sidebar.todayLabel', {
                 date: shortDayLabel(dateKey(new Date())),
               })}
             </span>
-            <kbd className="rounded border border-line bg-side px-1 font-mono text-[11px] text-muted">
+            <kbd className="shrink-0 rounded border border-line bg-side px-1 font-mono text-[11px] text-muted">
               {altShortcutLabel('T')}
             </kbd>
           </button>

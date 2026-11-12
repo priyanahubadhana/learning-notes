@@ -1650,3 +1650,7 @@ Plan: [plans/polish-2-2026-11.md](plans/polish-2-2026-11.md). Items 8, 9 and 15 
 - Doc spacing for format:check (3d3e7fe).
 - CI: a manual run (workflow_dispatch) on main now runs checks, e2e and deploy too, so docs-only fixes can still be deployed.
 - Supabase: connector migrations applied, connector_devices renumbered to 20261113000002; mcp function prefix fix (ad3ec12).
+
+## 2026-11-13 · Slice 4 gate 3 fix list (13 items)
+
+Home strip shows every item at every level, stays inside the pane, labels on phone; Continue and chip rows show a thin track; header controls one height, Find full width on phone; Duplicate notebook; Search: scope switch, lilac chips, Tasks count, single scroll row, solid phone surface, "Close" on touch, strip with Open in new place; sidebar Today one line, group header 8 px gap; PanelV2 top-layer import fixed after the 0g merge. Files: src/design/parts/ContextStrip.*, contextStripPlace.ts, src/notebooks/v2/*, src/search/SearchPopup.tsx, src/search/v2/*, src/app/SidebarGroup.tsx, src/index.css, docs/DECISIONS.md.

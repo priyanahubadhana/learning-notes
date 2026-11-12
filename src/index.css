@@ -1248,3 +1248,12 @@ html[data-box-drag] {
   border-radius: 3px;
   background: var(--card-track, var(--color-line-strong));
 }
+
+/* Search v2 on a phone: a solid surface (the covers behind must not show through). */
+@media (width < 40rem), (height < 32rem) {
+  .srv2-dialog {
+    background: var(--color-surface-2);
+    -webkit-backdrop-filter: none;
+    backdrop-filter: none;
+  }
+}

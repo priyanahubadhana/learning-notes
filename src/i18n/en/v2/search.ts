@@ -13,4 +13,9 @@ export const enV2Search = {
   'srv2.linkCopied': 'Link copied',
   'srv2.linkFailed': 'Could not copy the link',
   'srv2.chips': 'Show',
+  'srv2.scope': 'Search in',
+  'srv2.scope.page': 'This page',
+  'srv2.scope.notebook': 'Notebook',
+  'srv2.scope.all': 'Everything',
+  'srv2.scope.pageCount': 'Matches on this page: {count}',
 } as const

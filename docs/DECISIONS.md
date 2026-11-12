@@ -1142,3 +1142,10 @@ The other older decisions stand as built (owner, 2026-11-01); they are in [ARCHI
 - Shell: phone = width under 640 or height under 512; a page shows two Undo/Redo pairs until the toolbar slice removes one; Device mode is hidden from the phone top bar (stays in the gear menu).
 - Settings v3: three columns need a Settings area of at least 980 px; Settings has its own Undo/Redo until the shell top bar is connected.
 - Toasts: a 4th toast waits when 3 are showing.
+
+## Decisions to review (slice 4 gate 3 fixes, 13 Nov)
+
+- **Home v2 "More" button, count tiles and cover due badges are later.** Gate 3 item 12 (mock: sliders + "More" first in the filter row; tiles for notebooks, pages, cards due; "due" badge on the cover). The "More" button has nothing to open until the notebook More sheet is wired to Home, the tiles need a cross-notebook count query (cost to check at 500+ notebooks), and the due badge is today beside the name (not on the cover). Left out on purpose so this slice stays inside the bundle limit; re-plan with Home v2 (slice 5).
+- **"Open in new place" opens a new browser tab** until the side panel exists (SR-B10).
+- **"This page" search scope** keeps hits on the open page and shows the number of matches; the previous / next arrows ("3 of 12") wait for the editor find slice.
+- **Duplicate notebook** copies every page (sub-pages, text, drawings, cards) and the cover colour, using the page copy and move services; Undo sends the copy to Trash. Tabs and privacy settings are not copied.

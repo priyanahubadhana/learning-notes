@@ -2,12 +2,6 @@
 
 Current phase only. Older entries are in [ARCHIVE.md](ARCHIVE.md).
 
-## 2026-11-12 (AI framework slices 5b and 5c)
-
-- **What:** six more AI tools behind the off switch ai.framework: mindmaps.add, mindmaps.set_theme, cards.suspend (5b); databases.rename, styles.set_paper, layouts.set_path_style (5c). Texts in English, Spanish and Hindi; contract, golden and fault tests; parity goldens. mindmaps.add and databases.rename are app-only for now. The in-memory test snapshot ignores key order.
-- **Why:** catalog growth, rollout slices 5b and 5c.
-- **Files:** src/aitools/tools/, registry.ts, catalog.gen.json, jobs/stage.ts, jobs/tools5bc.test.ts, jobs/contract.test.ts, jobs/testKit.ts, jobs/notesPort.ts, src/aibuild/errorText.ts, buildState.ts, src/i18n aiplan files, mcp/test/planParity.test.ts, docs/plans/ai-v4-spec.md, docs/features/ai-framework.md.
-
 ## 2026-11-12 (Build master plan)
 
 - **What:** one complete plan for the rebuild: remaining mock-up batches 1 to 6 (with the owner's batch 1 answers), build slice 0 (4 root causes, shared parts, shell, tool registry base), slices per area with spec, Definition of Done, tests, flag and rollback, lanes and models, continuity, the first-night run list and 8 owner questions. Text box v2: keep the layout engine, rebuild the touch layer. Plan only, no app code.

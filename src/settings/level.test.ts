@@ -22,9 +22,9 @@ beforeEach(() => {
 })
 
 describe('pro features list', () => {
-  it('has 169 entries with unique ids', () => {
-    expect(PRO_FEATURES).toHaveLength(169)
-    expect(new Set(PRO_FEATURES.map((f) => f.id)).size).toBe(169)
+  it('has 219 entries with unique ids', () => {
+    expect(PRO_FEATURES).toHaveLength(219)
+    expect(new Set(PRO_FEATURES.map((f) => f.id)).size).toBe(219)
   })
 
   it('matches docs/mockups/pro-features.md', () => {

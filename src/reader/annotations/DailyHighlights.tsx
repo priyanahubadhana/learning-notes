@@ -28,9 +28,12 @@ const today = () => new Date().toLocaleDateString('en-CA')
 export function DailyHighlights({
   db,
   onOpen,
+  count,
 }: {
   db: LearningNotesDB
   onOpen: (a: Annotation) => void
+  /** How many a day (default 5). The Library chooses 3, 5 or 10. */
+  count?: number
 }) {
   const { toast } = useContext(AppUiContext)
   const [state, setState] = usePref(
@@ -43,8 +46,8 @@ export function DailyHighlights({
 
   // Pick today's five once per day (adjusting state while rendering).
   const picked = useMemo(
-    () => (all ? pickDaily(all, state, today()) : null),
-    [all, state],
+    () => (all ? pickDaily(all, state, today(), count) : null),
+    [all, state, count],
   )
   if (
     picked &&

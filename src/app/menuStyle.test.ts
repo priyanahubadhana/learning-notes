@@ -10,7 +10,13 @@ import { describe, expect, it } from 'vitest'
  * so every menu has the same ✕ header, 44 px items and red last Delete. A
  * hand-made `<div role="menu">` anywhere else fails here.
  */
-const HOMES = new Set(['src/app/ui.tsx', 'src/app/tools/AnchoredMenu.tsx'])
+// PopMenu is the new shell's pop menu (SH-11, built on the overlay manager); it is the
+// successor of MenuPopover and is added here by slice 0h.
+const HOMES = new Set([
+  'src/app/ui.tsx',
+  'src/app/tools/AnchoredMenu.tsx',
+  'src/app/shell/PopMenu.tsx',
+])
 
 function files(dir: string): string[] {
   return readdirSync(dir, { withFileTypes: true }).flatMap((e) => {

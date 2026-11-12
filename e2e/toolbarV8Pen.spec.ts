@@ -348,6 +348,8 @@ test('every tile and control has a name and a 44 pt target', async ({
   await open(page, 'professional')
   for (const id of ['type', 'size', 'colour', 'feel']) {
     await openCard(page, id)
+    // measure only after the open motion has ended (the card scales in)
+    await expect(card(page, id)).toHaveAttribute('data-settled', 'true')
     const controls = card(page, id).locator(
       'button:visible, input:visible, [role="radio"]:visible',
     )

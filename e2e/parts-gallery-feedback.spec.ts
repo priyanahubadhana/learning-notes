@@ -49,6 +49,19 @@ const box = async (l: Locator) => {
 
 /** Nothing of `l` is outside the screen. */
 async function onScreen(page: Page, l: Locator, what: string) {
+  // a scroll or slide may still be moving: wait for the box to stop, then assert
+  await expect
+    .poll(
+      async () => {
+        // the page can still shift as lazy parts arrive: bring it back into view
+        await l.scrollIntoViewIfNeeded()
+        const r = await l.boundingBox()
+        const v = page.viewportSize()!
+        return !!r && r.y >= -0.5 && r.y + r.height <= v.height + 0.5
+      },
+      { message: what },
+    )
+    .toBe(true)
   const b = await box(l)
   const v = page.viewportSize()!
   expect(b.x, `${what} left`).toBeGreaterThanOrEqual(-0.5)
@@ -125,9 +138,10 @@ test.describe('Feedback parts (SP-50 to SP-56)', () => {
     await freezeToasts(page)
     const beside = page.getByTestId('fb-toast-done')
     await beside.scrollIntoViewIfNeeded()
-    expect((await box(beside)).x + (await box(beside)).width).toBeLessThan(
-      IPAD_L.width - 376,
-    )
+    // the page narrows beside the sheet; wait for that layout to settle
+    await expect
+      .poll(async () => (await box(beside)).x + (await box(beside)).width)
+      .toBeLessThan(IPAD_L.width - 376)
     await beside.tap()
     await expect(page.getByTestId('fb-toast')).toHaveCount(1)
     await expect(sheet).toBeVisible()

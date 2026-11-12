@@ -1,0 +1,291 @@
+/* SP-40..44 Context menu strip and its Paste picker. Glass card look from design-study 3. */
+.cs {
+  display: inline-flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 8px;
+  max-width: calc(100vw - 24px);
+}
+.cs[data-mode='floating'] {
+  position: fixed;
+  gap: 0;
+}
+.cs__bar {
+  --arrow-x: 40px;
+  position: relative;
+  display: flex;
+  align-items: center;
+  box-sizing: border-box;
+  height: 48px;
+  max-width: calc(100vw - 24px);
+  padding: 2px 4px;
+  border-radius: 16px;
+  background: var(--card-fill);
+  color: var(--color-ink);
+  box-shadow:
+    0 0 0 1px var(--card-hair),
+    var(--card-hi),
+    var(--card-shadow);
+  -webkit-backdrop-filter: blur(28px) saturate(170%);
+  backdrop-filter: blur(28px) saturate(170%);
+  font-size: 14px;
+  transform-origin: var(--arrow-x) 100%;
+  animation: cs-in 160ms var(--ease-out) both;
+}
+.cs__bar[hidden] {
+  display: none;
+}
+.cs[data-side='below'] .cs__bar {
+  transform-origin: var(--arrow-x) 0;
+}
+.cs[data-state='closing'] .cs__bar {
+  animation: cs-out 120ms var(--ease-in) both;
+  pointer-events: none;
+}
+:root[data-glass='lite'] .cs__bar {
+  background: var(--color-surface-2);
+  -webkit-backdrop-filter: none;
+  backdrop-filter: none;
+}
+@media (prefers-reduced-transparency: reduce) {
+  .cs__bar {
+    background: var(--color-surface-2);
+    -webkit-backdrop-filter: none;
+    backdrop-filter: none;
+  }
+}
+@keyframes cs-in {
+  from {
+    opacity: 0;
+    transform: scale(0.96);
+  }
+  to {
+    opacity: 1;
+    transform: none;
+  }
+}
+@keyframes cs-out {
+  from {
+    opacity: 1;
+  }
+  to {
+    opacity: 0;
+    transform: scale(0.96);
+  }
+}
+.cs__arrow {
+  position: absolute;
+  left: calc(var(--arrow-x) - 6px);
+  width: 12px;
+  height: 12px;
+  background: var(--card-fill);
+  box-shadow: 1px 1px 0 var(--card-hair);
+  transform: rotate(45deg);
+  bottom: -6px;
+  pointer-events: none;
+}
+.cs[data-side='below'] .cs__arrow {
+  bottom: auto;
+  top: -6px;
+  box-shadow: -1px -1px 0 var(--card-hair);
+}
+.cs__slot {
+  display: inline-flex;
+  align-items: center;
+}
+.cs__sep {
+  width: 1px;
+  height: 22px;
+  margin: 0 4px;
+  background: var(--card-hair);
+}
+.cs__btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  min-width: 44px;
+  height: 44px;
+  padding: 0 12px;
+  border: 0;
+  border-radius: 12px;
+  background: transparent;
+  color: var(--color-ink);
+  font: inherit;
+  font-weight: 500;
+  white-space: nowrap;
+  cursor: pointer;
+  justify-content: center;
+  transition:
+    background-color var(--dur-1) var(--ease-out),
+    transform var(--dur-1) var(--ease-out);
+}
+.cs[data-phone] .cs__btn {
+  padding: 0 10px;
+}
+.cs__btn:hover {
+  background: var(--card-well);
+}
+.cs__btn:active {
+  transform: scale(0.97);
+}
+.cs__btn[data-pressed] {
+  background: var(--card-well-2);
+}
+.cs__btn:focus-visible,
+.cs-pick__row:focus-visible,
+.cs-pick__x:focus-visible {
+  outline: 2px solid var(--color-accent);
+  outline-offset: -2px;
+}
+.cs__btn:disabled {
+  opacity: 0.4;
+  cursor: not-allowed;
+}
+.cs__btn--danger {
+  color: var(--color-danger);
+}
+.cs__btn--danger:hover {
+  background: var(--color-danger-soft);
+}
+.cs__caret {
+  margin-left: -2px;
+  opacity: 0.7;
+  transition: transform var(--dur-1) var(--ease-out);
+}
+.cs__btn[data-pressed] .cs__caret {
+  transform: rotate(180deg);
+}
+
+/* Paste picker: 304 px card under the strip */
+.cs-pick {
+  box-sizing: border-box;
+  width: min(var(--card-w-pick, 304px), calc(100vw - 24px));
+  max-height: calc(100dvh - 24px);
+  overflow-y: auto;
+  padding: 0 12px 12px;
+  border-radius: 20px;
+  background: var(--card-fill);
+  color: var(--color-ink);
+  box-shadow:
+    0 0 0 1px var(--card-hair),
+    var(--card-hi),
+    var(--card-shadow);
+  -webkit-backdrop-filter: blur(28px) saturate(170%);
+  backdrop-filter: blur(28px) saturate(170%);
+  font-size: 14px;
+  animation: cs-in 160ms var(--ease-out) both;
+}
+.cs-pick:not([data-inline]) {
+  position: fixed;
+}
+:root[data-glass='lite'] .cs-pick {
+  background: var(--color-surface-2);
+  -webkit-backdrop-filter: none;
+  backdrop-filter: none;
+}
+@media (prefers-reduced-transparency: reduce) {
+  .cs-pick {
+    background: var(--color-surface-2);
+    -webkit-backdrop-filter: none;
+    backdrop-filter: none;
+  }
+}
+.cs-pick__head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  min-height: 52px;
+}
+.cs-pick__title {
+  margin: 0;
+  padding-left: 4px;
+  font-size: 15px;
+  font-weight: 600;
+}
+.cs-pick__x {
+  display: grid;
+  place-items: center;
+  width: 44px;
+  height: 44px;
+  margin-right: -8px;
+  border: 0;
+  border-radius: 50%;
+  background: transparent;
+  color: var(--color-ink-soft);
+  cursor: pointer;
+}
+.cs-pick__x:hover {
+  background: var(--card-well);
+}
+.cs-pick__well {
+  display: flex;
+  flex-direction: column;
+  padding: 4px;
+  border-radius: 14px;
+  background: var(--card-well);
+}
+.cs-pick__row {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  justify-content: center;
+  gap: 1px;
+  min-height: 52px;
+  padding: 6px 12px;
+  border: 0;
+  border-radius: 10px;
+  background: transparent;
+  color: var(--color-ink);
+  font: inherit;
+  text-align: left;
+  cursor: pointer;
+  transition: background-color var(--dur-1) var(--ease-out);
+}
+.cs-pick__row + .cs-pick__row {
+  box-shadow: 0 -1px 0 var(--card-hair);
+}
+.cs-pick__row:hover {
+  background: var(--card-well-2);
+}
+.cs-pick__name {
+  font-weight: 600;
+}
+.cs-pick__hint {
+  font-size: 12px;
+  color: var(--color-muted);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .cs__bar,
+  .cs[data-state='closing'] .cs__bar,
+  .cs-pick {
+    animation: none;
+  }
+  .cs__btn,
+  .cs__caret,
+  .cs-pick__row {
+    transition: none;
+  }
+}
+:root[data-motion='reduce'] .cs__bar,
+:root[data-motion='reduce'] .cs[data-state='closing'] .cs__bar,
+:root[data-motion='reduce'] .cs-pick {
+  animation: none;
+}
+
+/* Top-layer (popover) elements: undo the browser's default box. */
+.cs[popover],
+.cs-pick[popover] {
+  inset: auto;
+  margin: 0;
+  border: 0;
+}
+.cs[popover] {
+  padding: 0;
+  overflow: visible;
+  background: transparent;
+  color: inherit;
+}
+.cs-pick[popover] {
+  color: var(--color-ink);
+}

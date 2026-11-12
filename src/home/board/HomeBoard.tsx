@@ -1,4 +1,4 @@
-import { useContext, useRef, useState, type ReactNode } from 'react'
+import { useContext, useEffect, useRef, useState, type ReactNode } from 'react'
 import { AppUiContext } from '../../app/appUi'
 import { usePref } from '../../app/usePref'
 import type { LearningNotesDB } from '../../core/db'
@@ -13,7 +13,7 @@ import {
   BOARD_COLS,
   DEFAULT_LAYOUT,
   SIZES,
-  SPAN,
+  spanOf,
   fitsSlot,
   isLayoutish,
   moveWidget,
@@ -55,6 +55,7 @@ export function HomeBoard({ data }: { data: BoardData }) {
   const [draft, setDraft] = useState<Layout | null>(null)
   const editing = draft !== null
   const layout = draft ?? saved
+  const [cols, listRef] = useGridCols()
 
   const done = () => {
     if (draft) setStored(draft)
@@ -68,35 +69,39 @@ export function HomeBoard({ data }: { data: BoardData }) {
       data-editing={editing ? '' : undefined}
       className="flex flex-col"
     >
-      <ReorderList<Slot>
-        items={layout}
-        getId={(s) => s.id}
-        axis="grid"
-        cols={BOARD_COLS}
-        span={(s) => SPAN[s.size]}
-        handle="grip"
-        showMoveButtons
-        disabled={!editing}
-        label={(s) => t(`home.v2.w.${s.id}` as MessageKey)}
-        fit={(_id, slot, order) => fitsSlot(layout, order, slot)}
-        onMove={(id, to) => setDraft(moveWidget(layout, id as WidgetId, to))}
-        aria-label={t('home.v2.board')}
-        testId="home-widgets"
-        className="home-board"
-        renderItem={(slot, ctx) => (
-          <WidgetFrame
-            slot={slot}
-            editing={editing}
-            grip={ctx.grip}
-            moveButtons={ctx.moveButtons}
-            onSize={(size) =>
-              setDraft(settleWidget(setSize(layout, slot.id, size), slot.id))
-            }
-          >
-            <WidgetBody id={slot.id} data={data} />
-          </WidgetFrame>
-        )}
-      />
+      <div ref={listRef}>
+        <ReorderList<Slot>
+          items={layout}
+          getId={(s) => s.id}
+          axis="grid"
+          cols={BOARD_COLS}
+          span={(s) => spanOf(s.size, cols)}
+          handle="grip"
+          showMoveButtons
+          disabled={!editing}
+          label={(s) => t(`home.v2.w.${s.id}` as MessageKey)}
+          fit={(_id, slot, order) => fitsSlot(layout, order, slot, cols)}
+          onMove={(id, to) => setDraft(moveWidget(layout, id as WidgetId, to))}
+          aria-label={t('home.v2.board')}
+          testId="home-widgets"
+          className="home-board"
+          renderItem={(slot, ctx) => (
+            <WidgetFrame
+              slot={slot}
+              editing={editing}
+              grip={ctx.grip}
+              moveButtons={ctx.moveButtons}
+              onSize={(size) =>
+                setDraft(
+                  settleWidget(setSize(layout, slot.id, size), slot.id, cols),
+                )
+              }
+            >
+              <WidgetBody id={slot.id} data={data} />
+            </WidgetFrame>
+          )}
+        />
+      </div>
       {/* After the list in the page, shown first: it then paints above the widgets. */}
       {editing ? (
         <div
@@ -144,6 +149,29 @@ export function HomeBoard({ data }: { data: BoardData }) {
       )}
     </div>
   )
+}
+
+/** How many columns the grid really has right now (it drops to fewer on narrow screens). */
+function useGridCols() {
+  const ref = useRef<HTMLDivElement>(null)
+  const [cols, setCols] = useState(BOARD_COLS)
+  useEffect(() => {
+    const el = ref.current
+    const ul = el?.querySelector('ul')
+    if (!el || !ul) return
+    const read = () => {
+      const n = getComputedStyle(ul)
+        .gridTemplateColumns.split(' ')
+        .filter(Boolean).length
+      if (n > 0) setCols(n)
+    }
+    read()
+    if (typeof ResizeObserver === 'undefined') return
+    const ro = new ResizeObserver(read)
+    ro.observe(ul)
+    return () => ro.disconnect()
+  }, [])
+  return [cols, ref] as const
 }
 
 function WidgetFrame({

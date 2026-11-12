@@ -61,8 +61,9 @@ export function normalizeLayout(raw: unknown): Layout {
   return out
 }
 
-export const spansOf = (layout: Layout): number[] =>
-  layout.map((s) => SPAN[s.size])
+/** Columns a widget takes on a board of `cols` columns (never more than the board has). */
+export const spanOf = (size: Size, cols: number = BOARD_COLS): number =>
+  Math.min(SPAN[size], Math.max(1, cols))
 
 /** Same layout with one widget's size changed (order and widget kept). */
 export function setSize(layout: Layout, id: WidgetId, size: Size): Layout {
@@ -78,10 +79,11 @@ export function fitsSlot(
   layout: Layout,
   order: readonly string[],
   slot: number,
+  cols: number = BOARD_COLS,
 ): boolean {
   const byId = new Map(layout.map((s) => [s.id as string, s.size]))
-  const spans = order.map((id) => SPAN[byId.get(id) ?? 's'])
-  return fitsWithoutGap(spans, slot, BOARD_COLS)
+  const spans = order.map((id) => spanOf(byId.get(id) ?? 's', cols))
+  return fitsWithoutGap(spans, slot, cols)
 }
 
 /** Layout after moving `id` to `toIndex` of the final order. */
@@ -99,7 +101,11 @@ export function moveWidget(
  * layout with the widget moved to the nearest slot that fits (or unchanged
  * when it fits already). The widget is always kept.
  */
-export function settleWidget(layout: Layout, id: WidgetId): Layout {
+export function settleWidget(
+  layout: Layout,
+  id: WidgetId,
+  cols: number = BOARD_COLS,
+): Layout {
   const from = layout.findIndex((s) => s.id === id)
   if (from < 0) return layout
   const ok = (order: Layout, slot: number) =>
@@ -107,6 +113,7 @@ export function settleWidget(layout: Layout, id: WidgetId): Layout {
       order,
       order.map((s) => s.id),
       slot,
+      cols,
     )
   if (ok(layout, from)) return layout
   for (let d = 1; d < layout.length; d++) {

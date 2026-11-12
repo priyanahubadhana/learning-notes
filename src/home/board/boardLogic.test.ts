@@ -6,6 +6,7 @@ import {
   normalizeLayout,
   setSize,
   settleWidget,
+  spanOf,
   WIDGET_IDS,
   type Layout,
 } from './boardLogic'
@@ -103,5 +104,43 @@ describe('fit rule (reflow / snap)', () => {
 
   it('settleWidget leaves a widget that already fits', () => {
     expect(settleWidget(DEFAULT_LAYOUT, 'cards')).toBe(DEFAULT_LAYOUT)
+  })
+})
+
+describe('real column count (phone and narrow widths)', () => {
+  it('a full-row widget takes the whole row on 2 columns, never more', () => {
+    expect(spanOf('l', 2)).toBe(2)
+    expect(spanOf('m', 2)).toBe(2)
+    expect(spanOf('s', 2)).toBe(1)
+    expect(spanOf('l', 1)).toBe(1)
+    expect(spanOf('l')).toBe(4)
+  })
+  it('the fit rule follows the columns', () => {
+    const l: Layout = [
+      { id: 'cards', size: 's' },
+      { id: 'briefing', size: 'm' },
+      { id: 'top3', size: 's' },
+    ]
+    const order = ['cards', 'briefing', 'top3']
+    // 4 columns: a medium after one small fits. 2 columns: it would leave a hole.
+    expect(fitsSlot(l, order, 1, 4)).toBe(true)
+    expect(fitsSlot(l, order, 1, 2)).toBe(false)
+  })
+  it('settleWidget uses the given columns', () => {
+    const l: Layout = [
+      { id: 'cards', size: 's' },
+      { id: 'briefing', size: 'm' },
+      { id: 'top3', size: 's' },
+    ]
+    const out = settleWidget(l, 'briefing', 2)
+    const i = out.findIndex((s) => s.id === 'briefing')
+    expect(
+      fitsSlot(
+        out,
+        out.map((s) => s.id),
+        i,
+        2,
+      ),
+    ).toBe(true)
   })
 })

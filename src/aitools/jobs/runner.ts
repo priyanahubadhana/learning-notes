@@ -358,12 +358,38 @@ export class JobRunner {
     })
   }
 
-  /** AF-9. Called when the app starts. */
+  /**
+   * AF-9. Called when the app starts. Jobs that need nobody's answer run
+   * first, so a job that waits for a pasted answer never holds them back;
+   * the waiting ones follow (the runner stages one job at a time).
+   */
   async recover(): Promise<void> {
-    for (const j of await this.store.list()) {
-      if (j.state === 'running' || j.state === 'queued') await this.run(j.id)
-      else if (j.state === 'applying') await this.settleApplying(j.id)
-    }
+    const jobs = await this.store.list()
+    const runs: Promise<unknown>[] = []
+    for (const j of jobs)
+      if (j.state === 'applying') runs.push(this.settleApplying(j.id))
+    const runnable = jobs.filter(
+      (j) => j.state === 'running' || j.state === 'queued',
+    )
+    const quick = runnable.filter((j) => !this.needsAnswer(j))
+    const slow = runnable.filter((j) => this.needsAnswer(j))
+    for (const j of [...quick, ...slow]) runs.push(this.run(j.id))
+    const done = await Promise.allSettled(runs)
+    const failed = done.find((d) => d.status === 'rejected')
+    if (failed?.status === 'rejected') throw failed.reason
+  }
+
+  /** True if a step still to run needs content that a person or model must give. */
+  private needsAnswer(job: AiJob): boolean {
+    return job.steps.some((s) => {
+      if (s.state === 'done' || s.state === 'skipped' || s.filled) return false
+      const tool = AI_TOOLS_BY_ID.get(s.tool)
+      const field = tool && contentField(tool)
+      if (!tool || !field || tool.cost.fill === 'none') return false
+      const def = job.plan.steps.find((p) => p.id === s.id)
+      const given = (def?.args as Rec | undefined)?.[field]
+      return given === undefined
+    })
   }
 
   // ---- running ----

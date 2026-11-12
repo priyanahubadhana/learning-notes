@@ -136,3 +136,11 @@ Full text: `docs/DECISIONS.md` "Decisions to review" on `build/next`. Build-nigh
 - Pending docs jobs: docs/plans/docs-audit-2026-11-13.md SAFE list; research recs in docs/design/research-effectiveness-2026-11-13.md (gate 2 brief narrowing needs owner OK if it changes a rule).
 - Gate 2 results (13 Nov): all four FAIL. Common: check:dod does not read table-format spec lines (| XX-Bnn |) and needs a flag; fix in scripts/check-dod on build/next (wave 2, one builder). 0g: only that. 9b: tools5d.test.ts:170 g46 must assert the job's tag is in Trash (deletedAt). 3: fix flaky SET-B39/B40/B45 at the root, label SET-B36 test, add Won't do section. 8: e2e for RV-B08/B10/B20/B23/B27/B28, Error and Loading states, spec file list (Extras inline).
 - Decisions to review: runner.ts recover() runs jobs in parallel (9ebf1383); reviewService skips purgedAt logs also for flag-off users.
+
+## Wave 2 (13 Nov) and handover
+
+- check:dod reads table rows and flag "-" (build/next 2a4b809f). Real flags: notebooks.v2, page.menus.
+- Fixes done: 9b 5a4c818c (g46 Trash test; gate 2 fix closed, not re-gated: test-only). 3 779820be and 8 a6da5c17: gate 2 re-check PASS (8 also fixed useDue.ts rail badge bug).
+- Gate 3 (docs/plans/gate3-2026-11-13.md, b04a4737): 3 FAIL 10 fixes, 8 FAIL 8 fixes (both: no Sepia pictures). Next wave: fix-list builders for 3 and 8, 0g's 3 follow-ups, 4 (13), 12 (4), 7 (7); flag-on pictures for 5, 6, 9b then gate 3.
+- **build/next RED now.** 0g merged (baf5676f), gallery open() waits for 13 sections (2f7c5d65), origin/main merged in (0c936ce3, PR #5 conflict). CI 43295237433 failed: chromium shell.spec.ts:224 "works offline once loaded"; toolbarV8Pen.spec.ts:345 44 pt (maybe passed on retry); ipad-webkit parts-gallery-feedback SP-50 (sheet height) and SP-56 (banner bottom). First check if they fail on 3cbf6107 too. Fixing this is the next wave. 9b not merged yet (waits for green).
+- Owner question for gate 3 (in gate3 file): Settings On/Off as segmented button vs switches.

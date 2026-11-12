@@ -8,6 +8,27 @@ import { createBannerQueue } from '../parts/bannerQueue'
 import '../parts/Dialogs.css'
 import { Cells, Demo, Section } from './Bits'
 
+const T = {
+  sheetDialogsToastsAnd: 'Sheet, dialogs, toasts and banner',
+  openTheSheet: 'Open the sheet',
+  confirm: 'Confirm',
+  deleteRed: 'Delete (red)',
+  alert: 'Alert',
+  name: 'Name',
+  done: 'Done',
+  undo: 'Undo',
+  problem: 'Problem',
+  showABanner: 'Show a banner',
+  pageSettings: 'Page settings',
+  theBodyScrollsThe: 'The body scrolls. The footer stays.',
+  deleteThisPage: 'Delete this page?',
+  nameTheNotebook: 'Name the notebook',
+  cancel: 'Cancel',
+  setting: 'Setting',
+  moveToAnotherNotebook: 'Move to another notebook?',
+  youAreOffline: 'You are offline',
+} as const
+
 type Open = null | 'confirm' | 'danger' | 'alert' | 'prompt'
 
 const LONG_NAME = 'A notebook name that is quite long'
@@ -72,7 +93,7 @@ export default function FeedbackSection() {
   return (
     <Section
       id="feedback"
-      title="Sheet, dialogs, toasts and banner"
+      title={T.sheetDialogsToastsAnd}
       help="Press a button to open the real thing. Esc and ✕ close it."
     >
       <p className="t-small" data-testid="fb-said" aria-live="polite">
@@ -82,22 +103,22 @@ export default function FeedbackSection() {
       <Cells>
         <Demo state="sheet" label="Sheet">
           <Btn id="fb-open-sheet" onClick={showSheet}>
-            Open the sheet
+            {T.openTheSheet}
           </Btn>
         </Demo>
         <Demo state="dialogs" label="Dialogs">
           <div className="flex flex-wrap gap-2">
             <Btn id="fb-open-confirm" onClick={show('confirm')}>
-              Confirm
+              {T.confirm}
             </Btn>
             <Btn id="fb-open-danger" onClick={show('danger')}>
-              Delete (red)
+              {T.deleteRed}
             </Btn>
             <Btn id="fb-open-alert" onClick={show('alert')}>
-              Alert
+              {T.alert}
             </Btn>
             <Btn id="fb-open-prompt" onClick={show('prompt')}>
-              Name
+              {T.name}
             </Btn>
           </div>
         </Demo>
@@ -107,7 +128,7 @@ export default function FeedbackSection() {
               id="fb-toast-done"
               onClick={() => toasts.push('done', 'Saved')}
             >
-              Done
+              {T.done}
             </Btn>
             <Btn
               id="fb-toast-undo-btn"
@@ -117,7 +138,7 @@ export default function FeedbackSection() {
                 )
               }
             >
-              Undo
+              {T.undo}
             </Btn>
             <Btn
               id="fb-toast-problem"
@@ -125,7 +146,7 @@ export default function FeedbackSection() {
                 toasts.push('problem', 'Could not save. Try again.')
               }
             >
-              Problem
+              {T.problem}
             </Btn>
           </div>
         </Demo>
@@ -148,7 +169,7 @@ export default function FeedbackSection() {
                 })
               }}
             >
-              Show a banner
+              {T.showABanner}
             </Btn>
           </div>
         </Demo>
@@ -163,22 +184,22 @@ export default function FeedbackSection() {
           <div style={{ width: 376, maxWidth: '100%' }}>
             <Sheet
               mode="inline"
-              title="Page settings"
+              title={T.pageSettings}
               onClose={() => {}}
               footer={
                 <button type="button" className="fb-btn" data-variant="main">
-                  Done
+                  {T.done}
                 </button>
               }
             >
-              <p className="t-small">The body scrolls. The footer stays.</p>
+              <p className="t-small">{T.theBodyScrollsThe}</p>
             </Sheet>
           </div>
         </Demo>
         <Demo state="confirm-inline" label="Confirm (drawn in place)">
           <ConfirmDialog
             mode="inline"
-            title="Delete this page?"
+            title={T.deleteThisPage}
             text="You can undo this."
             confirmLabel="Delete"
             danger
@@ -189,7 +210,7 @@ export default function FeedbackSection() {
         <Demo state="prompt-inline" label="Name, 33 of 40 (drawn in place)">
           <PromptDialog
             mode="inline"
-            title="Name the notebook"
+            title={T.nameTheNotebook}
             label="Name"
             initial={LONG_NAME}
             onSubmit={() => {}}
@@ -203,7 +224,7 @@ export default function FeedbackSection() {
 
       {sheetOpen && (
         <Sheet
-          title="Page settings"
+          title={T.pageSettings}
           opener={sheetOpener}
           onClose={() => {
             setSheetOpen(false)
@@ -216,7 +237,7 @@ export default function FeedbackSection() {
                 className="fb-btn"
                 onClick={() => setSaid('Sheet cancelled')}
               >
-                Cancel
+                {T.cancel}
               </button>
               <button
                 type="button"
@@ -225,7 +246,7 @@ export default function FeedbackSection() {
                 data-autofocus=""
                 onClick={() => setSaid('Sheet done')}
               >
-                Done
+                {T.done}
               </button>
             </>
           }
@@ -233,7 +254,7 @@ export default function FeedbackSection() {
           <div data-testid="fb-sheet-lines">
             {Array.from({ length: 24 }, (_, i) => (
               <p key={i} className="t-small" style={{ margin: '0 0 12px' }}>
-                Setting {i + 1}
+                {T.setting} {i + 1}
               </p>
             ))}
           </div>
@@ -241,7 +262,7 @@ export default function FeedbackSection() {
       )}
       {open === 'confirm' && (
         <ConfirmDialog
-          title="Move to another notebook?"
+          title={T.moveToAnotherNotebook}
           text="The page keeps its links."
           confirmLabel="Move"
           opener={opener}
@@ -251,7 +272,7 @@ export default function FeedbackSection() {
       )}
       {open === 'danger' && (
         <ConfirmDialog
-          title="Delete this page?"
+          title={T.deleteThisPage}
           text="You can undo this."
           confirmLabel="Delete"
           danger
@@ -262,7 +283,7 @@ export default function FeedbackSection() {
       )}
       {open === 'alert' && (
         <AlertDialog
-          title="You are offline"
+          title={T.youAreOffline}
           text="Your notes are on this device."
           opener={opener}
           onClose={close('Alert closed')}
@@ -270,7 +291,7 @@ export default function FeedbackSection() {
       )}
       {open === 'prompt' && (
         <PromptDialog
-          title="Name the notebook"
+          title={T.nameTheNotebook}
           label="Name"
           opener={opener}
           onSubmit={(v) => close(`Named ${v}`)()}

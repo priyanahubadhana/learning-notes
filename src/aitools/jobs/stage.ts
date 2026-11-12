@@ -336,6 +336,14 @@ export async function stageStep(
       case 'styles.set_paper':
       case 'layouts.set_path_style':
         return stagePageField()
+      case 'tags.add':
+        return stageTagAdd()
+      case 'tags.remove':
+        return stageTagRemove()
+      case 'tags.rename':
+        return stageTagRename()
+      case 'library.pin':
+        return stagePin()
       default:
         throw new StepError('validation', `No stage for ${tool.id}.`)
     }
@@ -471,6 +479,98 @@ export async function stageStep(
     })
     for (const r of records) if (r.value[key] === undefined) delete r.value[key]
     return { records, outputs: { pageId } }
+  }
+
+  /** One tag level as stored: no "#" or "/", spaces become "-", at most 60 characters (as src/tags/tagNames.ts; copied so the connector bundle stays small). */
+  const tagLevel = (text: string) =>
+    text.replace(/[#/]/g, '').trim().replace(/\s+/g, '-').slice(0, 60)
+  /** "The same tag": case and accents ignored. */
+  const tagKey = (name: string) =>
+    name.toLowerCase().normalize('NFD').replace(/\p{M}/gu, '').normalize('NFC')
+
+  async function stageTagAdd(): Promise<StageResult> {
+    const levels = String(args.tag ?? '')
+      .replace(/^#+/, '')
+      .split('/')
+      .map(tagLevel)
+      .filter(Boolean)
+    if (!levels.length)
+      throw new StepError('validation', 'The tag name is missing.')
+    const pageId = String(args.pageId)
+    const { page } = await lockedPage(pageId)
+    const tags = await rows('tags', {})
+    const records: StagedRecord[] = []
+    let parentId: string | null = null
+    for (const name of levels) {
+      const here: string | null = parentId
+      const found: Rec | undefined = tags.find(
+        (x) =>
+          (x.parentId ?? null) === here &&
+          tagKey(String(x.name)) === tagKey(name),
+      )
+      if (found) {
+        parentId = String(found.id)
+        continue
+      }
+      const made: Rec = {
+        id: newId(),
+        createdAt: env.now,
+        updatedAt: env.now,
+        deletedAt: null,
+        name,
+        parentId: here,
+      }
+      tags.push(made)
+      records.push({ table: 'tags', id: String(made.id), value: made })
+      parentId = String(made.id)
+    }
+    const have = (page.tagIds as string[] | undefined) ?? []
+    if (!have.includes(parentId!))
+      records.push(
+        ...(await edit('pages', page, { tagIds: [...have, parentId] })),
+      )
+    return { records, outputs: { pageId, tagId: parentId } }
+  }
+
+  async function stageTagRemove(): Promise<StageResult> {
+    const pageId = String(args.pageId)
+    const { page } = await lockedPage(pageId)
+    const tagId = String(args.tagId)
+    const have = (page.tagIds as string[] | undefined) ?? []
+    const records = have.includes(tagId)
+      ? await edit('pages', page, { tagIds: have.filter((x) => x !== tagId) })
+      : []
+    return { records, outputs: { pageId } }
+  }
+
+  async function stageTagRename(): Promise<StageResult> {
+    const tagId = String(args.tagId)
+    const tag = await need('tags', tagId, 'tag')
+    const name = tagLevel(String(args.name ?? ''))
+    if (!name) throw new StepError('validation', 'The tag name is missing.')
+    const taken = (await rows('tags', {})).some(
+      (x) =>
+        x.id !== tagId &&
+        (x.parentId ?? null) === (tag.parentId ?? null) &&
+        tagKey(String(x.name)) === tagKey(name),
+    )
+    if (taken)
+      throw new StepError('validation', 'That tag name is already used here.')
+    const records = await edit('tags', tag, { name })
+    return { records, outputs: { tagId } }
+  }
+
+  /** Pin = the notebook's `starred` flag; unpinning removes it. */
+  async function stagePin(): Promise<StageResult> {
+    const notebookId = String(args.notebookId)
+    const nb = await need('notebooks', notebookId, 'notebook')
+    unlocked(nb)
+    const records = await edit('notebooks', nb, {
+      starred: args.pinned === true ? true : undefined,
+    })
+    for (const r of records)
+      if (r.value.starred === undefined) delete r.value.starred
+    return { records, outputs: { notebookId } }
   }
 
   async function stageRename(): Promise<StageResult> {

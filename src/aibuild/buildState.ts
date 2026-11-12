@@ -38,6 +38,10 @@ export const NEEDS_OWN_ARGS: ReadonlySet<string> = new Set([
   'databases.rename',
   'styles.set_paper',
   'layouts.set_path_style',
+  'tags.add',
+  'tags.remove',
+  'tags.rename',
+  'library.pin',
 ])
 
 export const COLOURS = [

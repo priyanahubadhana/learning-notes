@@ -8,9 +8,7 @@
     "aiDescription": "Creates a new empty notebook. Use first when the goal needs a new notebook; later steps add pages, cards and databases with the notebookId it returns. Does not write pages. Do not use to add to an existing notebook.",
     "inputs": {
       "type": "object",
-      "required": [
-        "title"
-      ],
+      "required": ["title"],
       "additionalProperties": false,
       "properties": {
         "title": {
@@ -31,30 +29,16 @@
               "pattern": "^#[0-9a-fA-F]{6}$"
             },
             "view": {
-              "enum": [
-                "shelf",
-                "tabs"
-              ]
+              "enum": ["shelf", "tabs"]
             },
             "pathStyle": {
-              "enum": [
-                "simple",
-                "full",
-                "page"
-              ]
+              "enum": ["simple", "full", "page"]
             },
             "sheet": {
-              "enum": [
-                "A4",
-                "Letter"
-              ]
+              "enum": ["A4", "Letter"]
             },
             "inkBg": {
-              "enum": [
-                "lined",
-                "grid",
-                "dots"
-              ]
+              "enum": ["lined", "grid", "dots"]
             }
           }
         }
@@ -92,10 +76,7 @@
       "timeoutMs": 30000,
       "maxRetries": 3
     },
-    "surfaces": [
-      "app",
-      "mcp"
-    ],
+    "surfaces": ["app", "mcp"],
     "offline": true
   },
   {
@@ -107,9 +88,7 @@
     "aiDescription": "Creates a new notebook with all its pages, blocks and recall cards in one step, from a complete ln-spec/1 spec. Use when you already have all the content. For step-by-step building use notebooks.create and then pages.write_notes. Never changes existing notebooks.",
     "inputs": {
       "type": "object",
-      "required": [
-        "spec"
-      ],
+      "required": ["spec"],
       "additionalProperties": false,
       "properties": {
         "spec": {
@@ -167,9 +146,7 @@
       "timeoutMs": 30000,
       "maxRetries": 0
     },
-    "surfaces": [
-      "mcp"
-    ],
+    "surfaces": ["mcp"],
     "offline": false
   },
   {
@@ -181,20 +158,14 @@
     "aiDescription": "Adds one page of notes to a notebook. Needs notebookId (from an earlier step or the destination). Send a short brief, or the full page when you already have the content. Do not use for cards or databases; chain the other tools.",
     "inputs": {
       "type": "object",
-      "required": [
-        "notebookId"
-      ],
+      "required": ["notebookId"],
       "additionalProperties": false,
       "anyOf": [
         {
-          "required": [
-            "brief"
-          ]
+          "required": ["brief"]
         },
         {
-          "required": [
-            "page"
-          ]
+          "required": ["page"]
         }
       ],
       "properties": {
@@ -211,10 +182,7 @@
         },
         "page": {
           "type": "object",
-          "required": [
-            "title",
-            "blocks"
-          ],
+          "required": ["title", "blocks"],
           "additionalProperties": false,
           "properties": {
             "title": {
@@ -241,9 +209,7 @@
               "maxItems": 200,
               "items": {
                 "type": "object",
-                "required": [
-                  "type"
-                ],
+                "required": ["type"],
                 "additionalProperties": false,
                 "properties": {
                   "type": {
@@ -272,11 +238,7 @@
                     "maxLength": 20000
                   },
                   "level": {
-                    "enum": [
-                      1,
-                      2,
-                      3
-                    ]
+                    "enum": [1, 2, 3]
                   },
                   "checked": {
                     "type": "boolean"
@@ -340,9 +302,7 @@
                     "maxItems": 50,
                     "items": {
                       "type": "object",
-                      "required": [
-                        "type"
-                      ],
+                      "required": ["type"],
                       "additionalProperties": false,
                       "properties": {
                         "type": {
@@ -371,11 +331,7 @@
                           "maxLength": 20000
                         },
                         "level": {
-                          "enum": [
-                            1,
-                            2,
-                            3
-                          ]
+                          "enum": [1, 2, 3]
                         },
                         "checked": {
                           "type": "boolean"
@@ -490,10 +446,7 @@
       "timeoutMs": 90000,
       "maxRetries": 3
     },
-    "surfaces": [
-      "app",
-      "mcp"
-    ],
+    "surfaces": ["app", "mcp"],
     "offline": false
   },
   {
@@ -505,20 +458,14 @@
     "aiDescription": "Adds question and answer cards to an existing page, under its Recall cards heading. Needs pageId from an earlier step. Give cards, or a count and a brief. For fill-in-the-blank cards use cards.make_cloze. Not for quizzes.",
     "inputs": {
       "type": "object",
-      "required": [
-        "pageId"
-      ],
+      "required": ["pageId"],
       "additionalProperties": false,
       "anyOf": [
         {
-          "required": [
-            "cards"
-          ]
+          "required": ["cards"]
         },
         {
-          "required": [
-            "count"
-          ]
+          "required": ["count"]
         }
       ],
       "properties": {
@@ -544,11 +491,7 @@
           "maxItems": 200,
           "items": {
             "type": "object",
-            "required": [
-              "kind",
-              "q",
-              "a"
-            ],
+            "required": ["kind", "q", "a"],
             "additionalProperties": false,
             "properties": {
               "kind": {
@@ -621,10 +564,7 @@
       "timeoutMs": 60000,
       "maxRetries": 3
     },
-    "surfaces": [
-      "app",
-      "mcp"
-    ],
+    "surfaces": ["app", "mcp"],
     "offline": false
   },
   {
@@ -636,20 +576,14 @@
     "aiDescription": "Adds fill-in-the-blank cards to an existing page, under its Recall cards heading. Each card text hides words as {{word}}. Needs pageId from an earlier step. Give cards, or a count and a brief. For question and answer cards use cards.make_recall.",
     "inputs": {
       "type": "object",
-      "required": [
-        "pageId"
-      ],
+      "required": ["pageId"],
       "additionalProperties": false,
       "anyOf": [
         {
-          "required": [
-            "cards"
-          ]
+          "required": ["cards"]
         },
         {
-          "required": [
-            "count"
-          ]
+          "required": ["count"]
         }
       ],
       "properties": {
@@ -675,10 +609,7 @@
           "maxItems": 200,
           "items": {
             "type": "object",
-            "required": [
-              "kind",
-              "text"
-            ],
+            "required": ["kind", "text"],
             "additionalProperties": false,
             "properties": {
               "kind": {
@@ -747,10 +678,7 @@
       "timeoutMs": 60000,
       "maxRetries": 3
     },
-    "surfaces": [
-      "app",
-      "mcp"
-    ],
+    "surfaces": ["app", "mcp"],
     "offline": false
   },
   {
@@ -762,20 +690,14 @@
     "aiDescription": "Adds one database (columns and rows) to a notebook, with three starter views, and can show it at the end of a page. Needs notebookId from an earlier step. Give the database, or a brief. Use for lists with fields; use pages for prose.",
     "inputs": {
       "type": "object",
-      "required": [
-        "notebookId"
-      ],
+      "required": ["notebookId"],
       "additionalProperties": false,
       "anyOf": [
         {
-          "required": [
-            "database"
-          ]
+          "required": ["database"]
         },
         {
-          "required": [
-            "brief"
-          ]
+          "required": ["brief"]
         }
       ],
       "properties": {
@@ -798,12 +720,7 @@
         },
         "database": {
           "type": "object",
-          "required": [
-            "key",
-            "title",
-            "columns",
-            "rows"
-          ],
+          "required": ["key", "title", "columns", "rows"],
           "additionalProperties": false,
           "properties": {
             "key": {
@@ -821,10 +738,7 @@
               "maxItems": 30,
               "items": {
                 "type": "object",
-                "required": [
-                  "name",
-                  "type"
-                ],
+                "required": ["name", "type"],
                 "additionalProperties": false,
                 "properties": {
                   "name": {
@@ -861,9 +775,7 @@
               "maxItems": 1000,
               "items": {
                 "type": "object",
-                "required": [
-                  "title"
-                ],
+                "required": ["title"],
                 "additionalProperties": false,
                 "properties": {
                   "title": {
@@ -921,10 +833,7 @@
       "timeoutMs": 60000,
       "maxRetries": 3
     },
-    "surfaces": [
-      "app",
-      "mcp"
-    ],
+    "surfaces": ["app", "mcp"],
     "offline": false
   },
   {
@@ -936,20 +845,14 @@
     "aiDescription": "Changes the look of an existing notebook: cover colour, shelf or tabs view, path style, paper size and lines. Can set one page tab colour. Needs notebookId. Changes values only; never touches content. Not for writing notes.",
     "inputs": {
       "type": "object",
-      "required": [
-        "notebookId"
-      ],
+      "required": ["notebookId"],
       "additionalProperties": false,
       "anyOf": [
         {
-          "required": [
-            "style"
-          ]
+          "required": ["style"]
         },
         {
-          "required": [
-            "tabColour"
-          ]
+          "required": ["tabColour"]
         }
       ],
       "properties": {
@@ -974,30 +877,16 @@
               "pattern": "^#[0-9a-fA-F]{6}$"
             },
             "view": {
-              "enum": [
-                "shelf",
-                "tabs"
-              ]
+              "enum": ["shelf", "tabs"]
             },
             "pathStyle": {
-              "enum": [
-                "simple",
-                "full",
-                "page"
-              ]
+              "enum": ["simple", "full", "page"]
             },
             "sheet": {
-              "enum": [
-                "A4",
-                "Letter"
-              ]
+              "enum": ["A4", "Letter"]
             },
             "inkBg": {
-              "enum": [
-                "lined",
-                "grid",
-                "dots"
-              ]
+              "enum": ["lined", "grid", "dots"]
             }
           }
         },
@@ -1049,10 +938,7 @@
       "timeoutMs": 30000,
       "maxRetries": 3
     },
-    "surfaces": [
-      "app",
-      "mcp"
-    ],
+    "surfaces": ["app", "mcp"],
     "offline": true
   },
   {
@@ -1064,20 +950,14 @@
     "aiDescription": "Edits an existing page one block at a time: add, insert after a block, or replace a block. A copy goes to History first. Big changes wait in the Inbox for Accept. Needs pageId. Give ops, or a brief. Never deletes pages.",
     "inputs": {
       "type": "object",
-      "required": [
-        "pageId"
-      ],
+      "required": ["pageId"],
       "additionalProperties": false,
       "anyOf": [
         {
-          "required": [
-            "ops"
-          ]
+          "required": ["ops"]
         },
         {
-          "required": [
-            "brief"
-          ]
+          "required": ["brief"]
         }
       ],
       "properties": {
@@ -1103,24 +983,15 @@
           "maxItems": 100,
           "items": {
             "type": "object",
-            "required": [
-              "op",
-              "block"
-            ],
+            "required": ["op", "block"],
             "additionalProperties": false,
             "properties": {
               "op": {
-                "enum": [
-                  "add",
-                  "insert",
-                  "replace"
-                ]
+                "enum": ["add", "insert", "replace"]
               },
               "block": {
                 "type": "object",
-                "required": [
-                  "type"
-                ],
+                "required": ["type"],
                 "additionalProperties": false,
                 "properties": {
                   "type": {
@@ -1149,11 +1020,7 @@
                     "maxLength": 20000
                   },
                   "level": {
-                    "enum": [
-                      1,
-                      2,
-                      3
-                    ]
+                    "enum": [1, 2, 3]
                   },
                   "checked": {
                     "type": "boolean"
@@ -1217,9 +1084,7 @@
                     "maxItems": 50,
                     "items": {
                       "type": "object",
-                      "required": [
-                        "type"
-                      ],
+                      "required": ["type"],
                       "additionalProperties": false,
                       "properties": {
                         "type": {
@@ -1248,11 +1113,7 @@
                           "maxLength": 20000
                         },
                         "level": {
-                          "enum": [
-                            1,
-                            2,
-                            3
-                          ]
+                          "enum": [1, 2, 3]
                         },
                         "checked": {
                           "type": "boolean"
@@ -1371,10 +1232,7 @@
       "timeoutMs": 90000,
       "maxRetries": 3
     },
-    "surfaces": [
-      "app",
-      "mcp"
-    ],
+    "surfaces": ["app", "mcp"],
     "offline": false
   },
   {
@@ -1386,10 +1244,7 @@
     "aiDescription": "Changes the title of one existing page. Needs pageId (from an earlier step or the destination) and the new title. Changes the title only; never touches the content. Not for writing or tidying notes.",
     "inputs": {
       "type": "object",
-      "required": [
-        "pageId",
-        "title"
-      ],
+      "required": ["pageId", "title"],
       "additionalProperties": false,
       "properties": {
         "pageId": {
@@ -1437,10 +1292,7 @@
       "timeoutMs": 30000,
       "maxRetries": 3
     },
-    "surfaces": [
-      "app",
-      "mcp"
-    ],
+    "surfaces": ["app", "mcp"],
     "offline": true
   },
   {
@@ -1452,11 +1304,7 @@
     "aiDescription": "Renames one tab of an existing notebook (tabs are notes, summary, database, cards, revise). Needs notebookId and tabId. Changes the name only; never touches the pages. Not for hiding a tab.",
     "inputs": {
       "type": "object",
-      "required": [
-        "notebookId",
-        "tabId",
-        "title"
-      ],
+      "required": ["notebookId", "tabId", "title"],
       "additionalProperties": false,
       "properties": {
         "notebookId": {
@@ -1514,10 +1362,7 @@
       "timeoutMs": 30000,
       "maxRetries": 3
     },
-    "surfaces": [
-      "app",
-      "mcp"
-    ],
+    "surfaces": ["app", "mcp"],
     "offline": true
   },
   {
@@ -1529,11 +1374,7 @@
     "aiDescription": "Hides or shows one tab of an existing notebook. Hidden tabs keep everything inside and can be shown again. Needs notebookId, tabId and hidden (true or false). Never deletes a tab. Not for renaming.",
     "inputs": {
       "type": "object",
-      "required": [
-        "notebookId",
-        "tabId",
-        "hidden"
-      ],
+      "required": ["notebookId", "tabId", "hidden"],
       "additionalProperties": false,
       "properties": {
         "notebookId": {
@@ -1589,10 +1430,7 @@
       "timeoutMs": 30000,
       "maxRetries": 3
     },
-    "surfaces": [
-      "app",
-      "mcp"
-    ],
+    "surfaces": ["app", "mcp"],
     "offline": true
   },
   {
@@ -1604,20 +1442,14 @@
     "aiDescription": "Sets the short summary shown on a top-level lesson page. Needs pageId. Send a brief, or the finished summary text when you already have it. Replaces the old summary (History keeps it). Not for notes or cards.",
     "inputs": {
       "type": "object",
-      "required": [
-        "pageId"
-      ],
+      "required": ["pageId"],
       "additionalProperties": false,
       "anyOf": [
         {
-          "required": [
-            "summary"
-          ]
+          "required": ["summary"]
         },
         {
-          "required": [
-            "brief"
-          ]
+          "required": ["brief"]
         }
       ],
       "properties": {
@@ -1676,10 +1508,7 @@
       "timeoutMs": 60000,
       "maxRetries": 3
     },
-    "surfaces": [
-      "app",
-      "mcp"
-    ],
+    "surfaces": ["app", "mcp"],
     "offline": false
   },
   {
@@ -1691,20 +1520,14 @@
     "aiDescription": "Adds one mind map block at the end of an existing page. Needs pageId. Send a brief, or the finished outline: an indented list where the first line is the central topic and each deeper level is indented by two spaces. The map stays editable (never a picture). Not for notes or cards.",
     "inputs": {
       "type": "object",
-      "required": [
-        "pageId"
-      ],
+      "required": ["pageId"],
       "additionalProperties": false,
       "anyOf": [
         {
-          "required": [
-            "outline"
-          ]
+          "required": ["outline"]
         },
         {
-          "required": [
-            "brief"
-          ]
+          "required": ["brief"]
         }
       ],
       "properties": {
@@ -1766,9 +1589,7 @@
       "timeoutMs": 60000,
       "maxRetries": 3
     },
-    "surfaces": [
-      "app"
-    ],
+    "surfaces": ["app"],
     "offline": false
   },
   {
@@ -1780,10 +1601,7 @@
     "aiDescription": "Sets the colour theme of one existing mind map block: calm, bold or paper. Needs blockId (the mind map block). Changes only the theme, never the topics. Not for adding a map.",
     "inputs": {
       "type": "object",
-      "required": [
-        "blockId",
-        "theme"
-      ],
+      "required": ["blockId", "theme"],
       "additionalProperties": false,
       "properties": {
         "blockId": {
@@ -1793,11 +1611,7 @@
           "pattern": "^[A-Za-z0-9_-]+$"
         },
         "theme": {
-          "enum": [
-            "calm",
-            "bold",
-            "paper"
-          ]
+          "enum": ["calm", "bold", "paper"]
         }
       }
     },
@@ -1833,10 +1647,7 @@
       "timeoutMs": 30000,
       "maxRetries": 3
     },
-    "surfaces": [
-      "app",
-      "mcp"
-    ],
+    "surfaces": ["app", "mcp"],
     "offline": true
   },
   {
@@ -1848,10 +1659,7 @@
     "aiDescription": "Suspends or brings back one existing recall card. Needs cardId and suspended (true or false). A suspended card stays saved and keeps its history but never appears in reviews. Never deletes a card and never edits its text.",
     "inputs": {
       "type": "object",
-      "required": [
-        "cardId",
-        "suspended"
-      ],
+      "required": ["cardId", "suspended"],
       "additionalProperties": false,
       "properties": {
         "cardId": {
@@ -1897,10 +1705,7 @@
       "timeoutMs": 30000,
       "maxRetries": 3
     },
-    "surfaces": [
-      "app",
-      "mcp"
-    ],
+    "surfaces": ["app", "mcp"],
     "offline": true
   },
   {
@@ -1912,10 +1717,7 @@
     "aiDescription": "Changes the title of one existing database. Needs databaseId (from an earlier step) and the new title. Changes the title only; never touches columns, rows or views. The Study tracker cannot be renamed.",
     "inputs": {
       "type": "object",
-      "required": [
-        "databaseId",
-        "title"
-      ],
+      "required": ["databaseId", "title"],
       "additionalProperties": false,
       "properties": {
         "databaseId": {
@@ -1963,9 +1765,7 @@
       "timeoutMs": 30000,
       "maxRetries": 3
     },
-    "surfaces": [
-      "app"
-    ],
+    "surfaces": ["app"],
     "offline": true
   },
   {
@@ -1977,10 +1777,7 @@
     "aiDescription": "Sets the paper behind the ink of one existing page: plain, lined, grid or dots. Needs pageId and paper. Changes only the paper; never touches notes or drawings. Not for notebook colours (use styles.apply).",
     "inputs": {
       "type": "object",
-      "required": [
-        "pageId",
-        "paper"
-      ],
+      "required": ["pageId", "paper"],
       "additionalProperties": false,
       "properties": {
         "pageId": {
@@ -1990,12 +1787,7 @@
           "pattern": "^[A-Za-z0-9_-]+$"
         },
         "paper": {
-          "enum": [
-            "plain",
-            "lined",
-            "grid",
-            "dots"
-          ]
+          "enum": ["plain", "lined", "grid", "dots"]
         }
       }
     },
@@ -2031,10 +1823,7 @@
       "timeoutMs": 30000,
       "maxRetries": 3
     },
-    "surfaces": [
-      "app",
-      "mcp"
-    ],
+    "surfaces": ["app", "mcp"],
     "offline": true
   },
   {
@@ -2046,10 +1835,7 @@
     "aiDescription": "Sets how the path above one existing page is shown: simple, full or page. Use inherit to follow the notebook again. Needs pageId and pathStyle. Changes only that page; never touches notes. Not for notebook-wide styles.",
     "inputs": {
       "type": "object",
-      "required": [
-        "pageId",
-        "pathStyle"
-      ],
+      "required": ["pageId", "pathStyle"],
       "additionalProperties": false,
       "properties": {
         "pageId": {
@@ -2059,12 +1845,7 @@
           "pattern": "^[A-Za-z0-9_-]+$"
         },
         "pathStyle": {
-          "enum": [
-            "simple",
-            "full",
-            "page",
-            "inherit"
-          ]
+          "enum": ["simple", "full", "page", "inherit"]
         }
       }
     },
@@ -2100,10 +1881,253 @@
       "timeoutMs": 30000,
       "maxRetries": 3
     },
-    "surfaces": [
-      "app",
-      "mcp"
+    "surfaces": ["app", "mcp"],
+    "offline": true
+  },
+  {
+    "id": "tags.add",
+    "version": 1,
+    "label": "Add tag",
+    "group": "Tags",
+    "summary": "Puts a tag on a page.",
+    "aiDescription": "Puts one tag on one existing page. Needs pageId and tag (a name, or a path like medicine/cardio; a missing tag is made). Changes only the tag list of that page. Not for removing tags (use tags.remove) or renaming them.",
+    "inputs": {
+      "type": "object",
+      "required": ["pageId", "tag"],
+      "additionalProperties": false,
+      "properties": {
+        "pageId": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 64,
+          "pattern": "^[A-Za-z0-9_-]+$"
+        },
+        "tag": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 200
+        }
+      }
+    },
+    "outputs": {
+      "type": "object",
+      "properties": {
+        "pageId": {
+          "type": "string"
+        },
+        "tagId": {
+          "type": "string"
+        }
+      }
+    },
+    "writes": [
+      {
+        "target": "tags",
+        "mode": "create"
+      },
+      {
+        "target": "page",
+        "mode": "edit"
+      }
     ],
+    "permissions": {
+      "scope": "notes:write",
+      "respectsLocks": true,
+      "needsSources": false
+    },
+    "cost": {
+      "class": "none",
+      "fill": "none",
+      "outTokens": 0
+    },
+    "tier": "simple",
+    "reversible": "values",
+    "risk": "direct",
+    "idempotent": true,
+    "limits": {
+      "timeoutMs": 30000,
+      "maxRetries": 3
+    },
+    "surfaces": ["app"],
+    "offline": true
+  },
+  {
+    "id": "tags.remove",
+    "version": 1,
+    "label": "Remove tag",
+    "group": "Tags",
+    "summary": "Takes a tag off a page.",
+    "aiDescription": "Takes one tag off one existing page. Needs pageId and tagId. The tag itself and every other page keep it. Not for deleting or renaming a tag.",
+    "inputs": {
+      "type": "object",
+      "required": ["pageId", "tagId"],
+      "additionalProperties": false,
+      "properties": {
+        "pageId": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 64,
+          "pattern": "^[A-Za-z0-9_-]+$"
+        },
+        "tagId": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 64,
+          "pattern": "^[A-Za-z0-9_-]+$"
+        }
+      }
+    },
+    "outputs": {
+      "type": "object",
+      "properties": {
+        "pageId": {
+          "type": "string"
+        }
+      }
+    },
+    "writes": [
+      {
+        "target": "page",
+        "mode": "edit"
+      }
+    ],
+    "permissions": {
+      "scope": "notes:write",
+      "respectsLocks": true,
+      "needsSources": false
+    },
+    "cost": {
+      "class": "none",
+      "fill": "none",
+      "outTokens": 0
+    },
+    "tier": "simple",
+    "reversible": "values",
+    "risk": "direct",
+    "idempotent": true,
+    "limits": {
+      "timeoutMs": 30000,
+      "maxRetries": 3
+    },
+    "surfaces": ["app", "mcp"],
+    "offline": true
+  },
+  {
+    "id": "tags.rename",
+    "version": 1,
+    "label": "Rename tag",
+    "group": "Tags",
+    "summary": "Gives a tag a new name.",
+    "aiDescription": "Renames one existing tag (one level only; its sub-tags keep their names). Needs tagId and name. The new name shows on every page that has the tag. Not for moving or deleting a tag.",
+    "inputs": {
+      "type": "object",
+      "required": ["tagId", "name"],
+      "additionalProperties": false,
+      "properties": {
+        "tagId": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 64,
+          "pattern": "^[A-Za-z0-9_-]+$"
+        },
+        "name": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 60
+        }
+      }
+    },
+    "outputs": {
+      "type": "object",
+      "properties": {
+        "tagId": {
+          "type": "string"
+        }
+      }
+    },
+    "writes": [
+      {
+        "target": "tags",
+        "mode": "edit"
+      }
+    ],
+    "permissions": {
+      "scope": "notes:write",
+      "respectsLocks": true,
+      "needsSources": false
+    },
+    "cost": {
+      "class": "none",
+      "fill": "none",
+      "outTokens": 0
+    },
+    "tier": "simple",
+    "reversible": "values",
+    "risk": "direct",
+    "idempotent": true,
+    "limits": {
+      "timeoutMs": 30000,
+      "maxRetries": 3
+    },
+    "surfaces": ["app"],
+    "offline": true
+  },
+  {
+    "id": "library.pin",
+    "version": 1,
+    "label": "Pin notebook",
+    "group": "Library",
+    "summary": "Pins a notebook to the top, or unpins it.",
+    "aiDescription": "Pins one existing notebook to the top of the shelf and list, or unpins it. Needs notebookId and pinned (true or false). Changes only the pin; never touches notes.",
+    "inputs": {
+      "type": "object",
+      "required": ["notebookId", "pinned"],
+      "additionalProperties": false,
+      "properties": {
+        "notebookId": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 64,
+          "pattern": "^[A-Za-z0-9_-]+$"
+        },
+        "pinned": {
+          "type": "boolean"
+        }
+      }
+    },
+    "outputs": {
+      "type": "object",
+      "properties": {
+        "notebookId": {
+          "type": "string"
+        }
+      }
+    },
+    "writes": [
+      {
+        "target": "library",
+        "mode": "edit"
+      }
+    ],
+    "permissions": {
+      "scope": "notes:write",
+      "respectsLocks": true,
+      "needsSources": false
+    },
+    "cost": {
+      "class": "none",
+      "fill": "none",
+      "outTokens": 0
+    },
+    "tier": "simple",
+    "reversible": "values",
+    "risk": "direct",
+    "idempotent": true,
+    "limits": {
+      "timeoutMs": 30000,
+      "maxRetries": 3
+    },
+    "surfaces": ["app", "mcp"],
     "offline": true
   }
 ]

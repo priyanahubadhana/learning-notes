@@ -95,8 +95,9 @@ export default function ReaderBars({
   }, [measure, rootRef])
 
   // A narrow screen lays the left panel (Pages / Outline / Audio tabs) over the
-  // reader's top. The bar steps aside while it is open, so it never covers the
-  // tab row or clips the first chip; it slides back when the panel closes.
+  // reader's top. The panel starts below the bar (it reads --rv2-bar-bottom),
+  // so the bar never covers its tab row or clips its first chip, and the
+  // ✕ Exit reading stays in reach. Without the bar the variable is gone.
   useEffect(() => {
     const check = () => {
       const panel = document.querySelector('[data-testid="left-panel"]')
@@ -126,6 +127,18 @@ export default function ReaderBars({
     ro.observe(el)
     return () => ro.disconnect()
   }, [stackShown, hidden])
+
+  const barBottom =
+    underPanel && stackShown && !away && !hidden ? box.top + stackH : 0
+  useLayoutEffect(() => {
+    const root = document.documentElement
+    if (barBottom > 0)
+      root.style.setProperty('--rv2-bar-bottom', `${barBottom + EDGE_GAP}px`)
+    else root.style.removeProperty('--rv2-bar-bottom')
+    return () => {
+      root.style.removeProperty('--rv2-bar-bottom')
+    }
+  }, [barBottom])
 
   if (hidden) return null
 
@@ -174,9 +187,9 @@ export default function ReaderBars({
         {stackShown && (
           <div
             ref={stack}
-            className={`rv2-stack ${away || underPanel ? 'rv2-stack--away' : ''}`}
+            className={`rv2-stack ${away ? 'rv2-stack--away' : ''}`}
             data-testid="rv2-stack"
-            inert={away || underPanel || undefined}
+            inert={away || undefined}
             style={{ left: box.left, top: box.top, width: box.width }}
           >
             {showReader && bar('reader', reader)}

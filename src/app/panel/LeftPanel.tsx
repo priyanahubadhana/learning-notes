@@ -446,7 +446,7 @@ export function LeftPanel({
       className={
         docked
           ? 'flex w-[280px] shrink-0 flex-col border-e border-line bg-bg'
-          : 'fixed inset-y-0 start-0 z-[39] flex w-[300px] max-w-[88vw] flex-col border-e border-line bg-bg pt-[calc(env(safe-area-inset-top)+3rem)] shadow-[8px_0_24px_rgba(0,0,0,0.08)] phone:bottom-14'
+          : 'fixed inset-y-0 start-0 z-[39] flex w-[300px] max-w-[88vw] flex-col border-e border-line bg-bg pt-[max(calc(env(safe-area-inset-top)+3rem),var(--rv2-bar-bottom,0px))] shadow-[8px_0_24px_rgba(0,0,0,0.08)] phone:bottom-14'
       }
     >
       <div className="flex items-center gap-1 px-2 pt-2" role="tablist">

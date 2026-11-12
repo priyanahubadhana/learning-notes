@@ -60,7 +60,17 @@ for (const [name, w, h] of SIZES) {
     await expect(stack).not.toHaveClass(/rv2-stack--away/)
     await page.getByTestId('panel-toggle').click()
     await expect(page.getByTestId('left-panel')).toBeVisible()
-    await expect(stack).toHaveClass(/rv2-stack--away/)
+    // The bar stays (✕ Exit reading in reach); the panel starts below it.
+    await expect(stack).not.toHaveClass(/rv2-stack--away/)
+    await expect(page.getByTestId('reader-close')).toBeVisible()
+    expect(await onTop(page.getByTestId('reader-close'))).toBe(true)
+    const barBox = await stack.boundingBox()
+    const tabBox = await page
+      .getByTestId('left-panel')
+      .getByRole('tab')
+      .first()
+      .boundingBox()
+    expect(barBox && tabBox && tabBox.y >= barBox.y + barBox.height).toBe(true)
     if (process.env.SHOTS) {
       await page.waitForTimeout(700)
       await page.screenshot({

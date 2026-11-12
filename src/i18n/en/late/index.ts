@@ -20,6 +20,7 @@ import { enLateSidebar } from './sidebar'
 import { enLateSync } from './sync'
 import { enLateToolbar } from './toolbar'
 import { enLateUpdates } from './updates'
+import { enLateFlags } from './flags'
 
 export const enLate = {
   ...enLateAccounts,
@@ -43,4 +44,5 @@ export const enLate = {
   ...enLateSync,
   ...enLateToolbar,
   ...enLateUpdates,
+  ...enLateFlags,
 }

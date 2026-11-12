@@ -23,6 +23,7 @@ import { esSync } from './sync'
 import { esTags } from './tags'
 import { esToolbar } from './toolbar'
 import { esUpdates } from './updates'
+import { esFlags } from './flags'
 
 export const es: Record<string, string> = {
   ...esAccounts,
@@ -49,4 +50,5 @@ export const es: Record<string, string> = {
   ...esTags,
   ...esToolbar,
   ...esUpdates,
+  ...esFlags,
 }

@@ -11,8 +11,8 @@ const T = {
   help: 'The strip over a selection, and the searchable list behind its ⋯. Placed above, else below, else beside.',
   nothing: 'Nothing picked yet',
   picked: 'Picked: ',
-  strip: 'Strip (iPad, PC)',
-  phone: 'Strip on a phone: 4 items and ⋯',
+  strip: 'Beginner strip: Cut, Copy, Paste ▾, Delete, ⋯',
+  phone: 'Same strip on a phone: icons only',
   picker: 'Paste ▾ open',
   list: 'Command list (type, arrows, Enter)',
   filtered: 'Typed "col"',
@@ -75,6 +75,11 @@ const ITEMS: StripItem[] = [
     danger: true,
   },
 ]
+
+/** What a Beginner sees, in order. The live strip below keeps the fuller Professional set. */
+const BASIC: StripItem[] = ['cut', 'copy', 'paste', 'delete'].map((id) =>
+  ITEMS.find((i) => i.id === id)!,
+)
 
 const GROUPS: CommandGroup[] = [
   {
@@ -220,7 +225,7 @@ export default function MenusSection() {
           <ContextStrip
             mode="inline"
             testId="strip-demo"
-            items={ITEMS}
+            items={BASIC}
             commands={GROUPS}
             onAction={act}
             onClose={() => {}}
@@ -231,7 +236,7 @@ export default function MenusSection() {
             mode="inline"
             phone
             testId="strip-phone-demo"
-            items={ITEMS}
+            items={BASIC}
             commands={GROUPS}
             onAction={act}
             onClose={() => {}}
@@ -241,7 +246,7 @@ export default function MenusSection() {
           <ContextStrip
             mode="inline"
             testId="strip-picker-demo"
-            items={ITEMS}
+            items={BASIC}
             initialPicker="paste"
             onAction={act}
             onClose={() => {}}

@@ -33,10 +33,9 @@ async function openLibrary(
   }, level)
   await page.goto(flag ? '/?flags=library.v2' : '/')
   await expect(async () => {
-    await page
-      .getByRole('navigation', { name: 'Spaces' })
-      .getByRole('button', { name: 'Space: Library' })
-      .click()
+    const space = page.locator('[data-space="library"]')
+    if ((await space.getAttribute('aria-current')) !== 'page')
+      await space.click()
     await expect(
       main(page).getByRole('heading', { name: 'Library' }),
     ).toBeVisible({ timeout: 3000 })
@@ -156,10 +155,7 @@ test.describe('Library v2 (Beginner)', () => {
     await page.getByTestId('source-start').first().click()
     await expect(page.getByTestId('book-reader')).toBeVisible()
     await page.getByTestId('reader-close').click()
-    await page
-      .getByRole('navigation', { name: 'Spaces' })
-      .getByRole('button', { name: 'Space: Library' })
-      .click()
+    await page.locator('[data-space="library"]').click()
     const block = page.getByTestId('continue-block')
     await expect(block.getByTestId('continue-card')).toHaveCount(1)
     // The first cover starts near the top (today it starts at 460 px).
@@ -172,10 +168,7 @@ test.describe('Library v2 (Beginner)', () => {
     await block.getByTestId('book-continue-card').click()
     await expect(page.getByTestId('book-reader')).toBeVisible()
     await page.getByTestId('reader-close').click()
-    await page
-      .getByRole('navigation', { name: 'Spaces' })
-      .getByRole('button', { name: 'Space: Library' })
-      .click()
+    await page.locator('[data-space="library"]').click()
     // Hidden on another shelf and while searching.
     await page.getByTestId('shelf-finished').click()
     await expect(page.getByTestId('continue-block')).toHaveCount(0)

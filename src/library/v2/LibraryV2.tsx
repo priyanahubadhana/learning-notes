@@ -677,7 +677,7 @@ export function LibraryV2({
           role="toolbar"
           aria-label={t('lib2.select')}
           data-testid="select-bar"
-          className="fixed inset-x-0 bottom-4 z-40 mx-auto flex w-fit max-w-[95vw] items-center gap-1 rounded-full border border-line bg-bg px-2 shadow-lg"
+          className="fixed inset-x-0 bottom-4 z-(--z-pill) mx-auto flex w-fit max-w-[95vw] items-center gap-1 rounded-full border border-line bg-bg px-2 shadow-lg"
         >
           <span className="px-3 text-sm">
             {t('lib2.selected', { n: selected.length })}

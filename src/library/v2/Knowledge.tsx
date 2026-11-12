@@ -257,7 +257,7 @@ export function Knowledge({
               <aside
                 data-testid="highlight-preview"
                 aria-label={t('lib2.knowledge.preview')}
-                className="rounded-[20px] border border-line p-4 max-md:fixed max-md:inset-x-0 max-md:bottom-0 max-md:z-40 max-md:rounded-b-none max-md:bg-bg max-md:shadow-lg"
+                className="rounded-[20px] border border-line p-4 max-md:fixed max-md:inset-x-0 max-md:bottom-0 max-md:z-(--z-sheet) max-md:rounded-b-none max-md:bg-bg max-md:shadow-lg"
               >
                 <div className="mb-2 flex items-start gap-2">
                   <p className="flex-1 text-sm leading-relaxed">

@@ -263,3 +263,4 @@ Three ways of using the reader, as presets:
 - Review › More: "Again comes back after…" row has image and text overlapping; fix the layout in the real app.
 - BUG (iPad): the sidebar covers the reader bar's ✕ (Exit reading). Found by CI 12 Nov; fix in a real-build slice.
 - Real build (reader): the reader bar and the drawing bar must minimise/restore independently (each edge handle restores only its own bar). Owner, 12 Nov.
+- Real build (reader): Listen long-press = hold only (release must not also start read-aloud); no selection/callout on long-press. Owner, 12 Nov.

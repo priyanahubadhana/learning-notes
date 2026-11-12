@@ -34,6 +34,11 @@ export const enLateReaderV2 = {
   'readerv2.listen.deviceOnly':
     'Only voices on this device are used. Your text never leaves it.',
   'readerv2.sticky.tool': 'Sticky note',
+  'readerv2.finger.label': 'Finger draws',
+  'readerv2.finger.on':
+    'Your finger draws, and the page does not scroll under it.',
+  'readerv2.finger.off': 'Your finger scrolls the page. Only the Pencil draws.',
+  'readerv2.ink.switchScroll': 'Switch to Scroll',
   'readerv2.sticky.popup': 'Sticky',
   'readerv2.sticky.hint': 'Tap the page where the note goes.',
   'readerv2.sticky.unsupported':

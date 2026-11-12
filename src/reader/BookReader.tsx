@@ -1443,7 +1443,10 @@ export function BookReader({
         if (inking) return stopInking()
         if (lockBlocked('draw')) return turnedAway()
         if (format === 'epub' && epubFlow === 'paginated') {
-          toast(t('reader.ink.scrollOnly'))
+          toast(t('reader.ink.scrollOnly'), {
+            label: t('readerv2.ink.switchScroll'),
+            onSelect: () => setEpubFlow('scrolled'),
+          })
           return
         }
         toolBefore.current = activeTool.get()

@@ -35,6 +35,10 @@ export const esReaderV2 = {
   'readerv2.listen.deviceOnly':
     'Solo se usan voces de este dispositivo. Tu texto no sale de él.',
   'readerv2.sticky.tool': 'Nota adhesiva',
+  'readerv2.finger.label': 'Dibujar con el dedo',
+  'readerv2.finger.on': 'Tu dedo dibuja y la página no se desplaza debajo.',
+  'readerv2.finger.off': 'Tu dedo desplaza la página. Solo el Pencil dibuja.',
+  'readerv2.ink.switchScroll': 'Cambiar a desplazamiento',
   'readerv2.sticky.popup': 'Adhesiva',
   'readerv2.sticky.hint': 'Toca la página donde va la nota.',
   'readerv2.sticky.unsupported':

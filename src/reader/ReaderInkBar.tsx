@@ -10,6 +10,7 @@ import {
 } from '../app/tools/main/inkSettings'
 import { Icon } from '../app/tools/icons'
 import { t } from '../i18n/t'
+import { useUnlocked } from '../settings/level'
 import type { InkBarMode } from './readStyle'
 
 const TOOLS = [
@@ -43,6 +44,9 @@ export function ReaderInkBar({
   const tool = activeTool.useValue()
   const pen = penSettings.useValue()
   const hl = highlighterSettings.useValue()
+  // Reader v2: Lasso waits behind its Professional switch (RD-P18).
+  const inkTools = useUnlocked('reader.inkTools')
+  const tools = v2 && !inkTools ? TOOLS.filter((x) => x !== 'lasso') : TOOLS
   // Drawing starts with the Pen.
   useEffect(() => {
     if (!TOOLS.includes(activeTool.get() as (typeof TOOLS)[number])) {
@@ -68,7 +72,7 @@ export function ReaderInkBar({
           : 'flex flex-wrap items-center gap-1 border-b border-line bg-bg px-2 py-1'
       }
     >
-      {TOOLS.map((id) => (
+      {tools.map((id) => (
         <button
           key={id}
           type="button"
@@ -198,7 +202,23 @@ export function ReaderInkBar({
           />
         </label>
       )}
-      <span className="flex-1" />
+      {v2 && (
+        <>
+          <button
+            type="button"
+            aria-pressed={pen.finger === 'on'}
+            data-testid="reader-ink-finger"
+            className={btn(pen.finger === 'on')}
+            onClick={() =>
+              penSettings.update({ finger: pen.finger === 'on' ? 'off' : 'on' })
+            }
+          >
+            {t('readerv2.finger.label')}
+          </button>
+          <span className="flex-1" />
+        </>
+      )}
+      {!v2 && <span className="flex-1" />}
       <button
         type="button"
         data-testid="reader-ink-done"
@@ -207,6 +227,16 @@ export function ReaderInkBar({
       >
         {t('reader.ink.done')}
       </button>
+      {v2 && (
+        <p
+          className="basis-full px-2 text-xs text-ink-soft"
+          data-testid="reader-ink-finger-note"
+        >
+          {pen.finger === 'on'
+            ? t('readerv2.finger.on')
+            : t('readerv2.finger.off')}
+        </p>
+      )}
     </div>
   )
 }

@@ -35,6 +35,12 @@ export const hiReaderV2 = {
   'readerv2.listen.deviceOnly':
     'सिर्फ़ इस डिवाइस की आवाज़ें इस्तेमाल होती हैं। आपका पाठ बाहर नहीं जाता।',
   'readerv2.sticky.tool': 'स्टिकी नोट',
+  'readerv2.finger.label': 'उँगली से चित्र बनाएँ',
+  'readerv2.finger.on':
+    'आपकी उँगली चित्र बनाती है, और पेज उसके नीचे नहीं खिसकता।',
+  'readerv2.finger.off':
+    'आपकी उँगली पेज को खिसकाती है। सिर्फ़ Pencil चित्र बनाती है।',
+  'readerv2.ink.switchScroll': 'स्क्रॉल पर जाएँ',
   'readerv2.sticky.popup': 'स्टिकी',
   'readerv2.sticky.hint': 'पेज पर वहाँ टैप करें जहाँ नोट रखना है।',
   'readerv2.sticky.unsupported': 'किताब में शब्द चुनें, फिर स्टिकी नोट चुनें।',

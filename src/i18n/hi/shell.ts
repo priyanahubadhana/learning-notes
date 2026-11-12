@@ -1,0 +1,20 @@
+/** Hindi texts of the new app frame. */
+export const hiShell = {
+  'shell.skip': 'सामग्री पर जाएँ',
+  'shell.brand': 'Learning Notes',
+  'shell.more': 'और',
+  'shell.gear': 'सेटिंग और अधिक',
+  'shell.toNight': 'रात पर जाएँ',
+  'shell.toDay': 'दिन पर जाएँ',
+  'shell.due_one': '{count} कार्ड बाकी',
+  'shell.due_other': '{count} कार्ड बाकी',
+  'shell.search': 'खोजें',
+  'shell.searchTip': 'खोजें (Ctrl K)',
+  'shell.undoTip': 'पूर्ववत करें (Ctrl Z)',
+  'shell.redoTip': 'फिर से करें (Ctrl Y)',
+  'shell.top': 'ऊपरी बार',
+  'shell.crumbs': 'आप यहाँ हैं',
+  'shell.main': 'मुख्य सामग्री',
+  'shell.panelToggle': 'पेज पैनल',
+  'shell.theme': 'थीम',
+}

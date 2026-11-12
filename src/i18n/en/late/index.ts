@@ -22,6 +22,7 @@ import { enLateToolbar } from './toolbar'
 import { enLateUpdates } from './updates'
 import { enLateUpdateV2 } from './updateV2'
 import { enLateFlags } from './flags'
+import { enLateShell } from './shell'
 
 export const enLate = {
   ...enLateAccounts,
@@ -47,4 +48,5 @@ export const enLate = {
   ...enLateUpdates,
   ...enLateUpdateV2,
   ...enLateFlags,
+  ...enLateShell,
 }

@@ -11,6 +11,8 @@ async function open(page: Page, size?: { width: number; height: number }) {
   await page.goto('/#/design-tokens')
   await expect(page.getByTestId('gal-shellparts')).toBeAttached()
   await expect(page.getByTestId('shell-said')).toHaveAttribute('data-ready', '')
+  // The pen-tap guard ignores clicks inside a toolbar for 700 ms after the page starts.
+  await page.waitForFunction(() => performance.now() > 1000)
 }
 
 const inTopLayer = (page: Page, testId: string) =>

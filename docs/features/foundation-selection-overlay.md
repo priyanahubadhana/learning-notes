@@ -36,6 +36,11 @@ held today (file:line) is listed in [Inventory](#inventory).
   from inside another stays: its parent).
 - When I press Esc → only the top-most open overlay closes and focus returns to its opener.
 - When I tap outside an open overlay → it closes (a tap on its own trigger does not).
+- When a card, menu or sheet is open and I tap outside it (pen, touch or mouse) → the tap only
+  closes it: its pointerdown, pointerup and click are swallowed, so no tool, box or page reacts
+  (option `swallowOutsideTap`, on by default for menu/card/sheet, off for dialogs; toolbar TB-06).
+  The next tap works normally. A keyboard click, a scroll (pointercancel) or a click more than
+  0.7 s after the pointerup is never swallowed. Code: `src/app/overlay/swallow.ts`.
 - When a card opens → it sits beside its target (right, else left, else below, else above),
   never over it, and fully inside the screen with an 8 px margin; widths 304 or 376 px.
 - When a dialog opens → Tab and Shift+Tab stay inside it; on close focus returns to the opener.

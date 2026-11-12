@@ -25,6 +25,10 @@
 }
 .pcard[data-static] {
   animation: none;
+  /* Gallery frames sit on a plain page, where the blur shows nothing, and
+     a dozen 28 px blurs at once stall software-rendered WebKit (CI). */
+  -webkit-backdrop-filter: none;
+  backdrop-filter: none;
 }
 :root[data-glass='lite'] .pcard {
   background: var(--color-surface-2);

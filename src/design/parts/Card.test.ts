@@ -3,6 +3,7 @@ import { createElement as h } from 'react'
 import { act } from 'react'
 import { afterEach, describe, expect, it, vi } from 'vitest'
 import { Card } from './Card'
+import { focusTarget } from './cardPick'
 import { $, byLabel, click, cleanDom, key, mount } from './testHelpers'
 
 afterEach(() => {
@@ -70,5 +71,31 @@ describe('Card', () => {
     settle()
     expect(onClose).toHaveBeenCalled()
     expect(onClose.mock.calls[0][0]).toBe('esc')
+  })
+
+  it('focuses the Close button, not the card itself, when the body has nothing focusable', () => {
+    mount(card())
+    const d = $('[role="dialog"]') as HTMLElement
+    expect(focusTarget(d)).toBe(byLabel('Close'))
+  })
+
+  it('focuses the first control in the body when there is one', () => {
+    mount(
+      h(
+        Card,
+        {
+          anchor: null,
+          size: 'pick',
+          title: 'T',
+          onClose: () => {},
+          placement: 'static',
+          children: null,
+        },
+        h('button', { type: 'button' }, 'Pick me'),
+      ),
+    )
+    expect(focusTarget($('[role="dialog"]') as HTMLElement).textContent).toBe(
+      'Pick me',
+    )
   })
 })

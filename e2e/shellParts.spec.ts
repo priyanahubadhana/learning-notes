@@ -210,6 +210,7 @@ test('SH-13 two bars minimise into two stacked chips; each restores only its own
   page,
 }) => {
   await open(page, { width: 1366, height: 800 })
+  await page.getByTestId('open-bars').click()
   await expect(page.getByTestId('floating-bar')).toHaveCount(2)
   await page
     .locator('[data-bar="demo-reader"]')
@@ -228,6 +229,7 @@ test('SH-13 two bars minimise into two stacked chips; each restores only its own
   )
   expect(a?.height).toBeGreaterThanOrEqual(44)
   await page.reload()
+  await page.getByTestId('open-bars').click()
   await expect(page.getByTestId('minimise-chip')).toHaveCount(2)
   await page.getByTestId('minimise-chip').first().click()
   await expect(page.getByTestId('minimise-chip')).toHaveCount(1)
@@ -270,6 +272,7 @@ test('SH-14 layer order holds: the sheet is above a floating bar, a dialog above
   page,
 }) => {
   await open(page, { width: 1366, height: 800 })
+  await page.getByTestId('open-bars').click()
   await expect(page.getByTestId('floating-bar').first()).toBeVisible()
   await page.getByTestId('open-more').click()
   await expect(page.getByTestId('more-sheet')).toBeVisible()

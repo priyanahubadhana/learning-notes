@@ -518,3 +518,32 @@
   --card-dur-glow: 0.01ms;
   --card-dur-pop: 0.01ms;
 }
+
+/* ---------- Feedback parts (slice 0g step 2): additive only ---------- */
+:root {
+  --fb-sheet-w: 376px;
+  --fb-dialog-w: 360px;
+  --fb-toast-w: 420px;
+  --fb-backdrop: rgba(0, 0, 0, 0.3);
+  --fb-dur-sheet-in: 240ms;
+  --fb-dur-sheet-out: 180ms;
+  --fb-dur-toast-in: 200ms;
+  --fb-dur-toast-out: 150ms;
+  --fb-dur-banner: 200ms;
+}
+@media (prefers-reduced-motion: reduce) {
+  :root {
+    --fb-dur-sheet-in: 0.01ms;
+    --fb-dur-sheet-out: 0.01ms;
+    --fb-dur-toast-in: 0.01ms;
+    --fb-dur-toast-out: 0.01ms;
+    --fb-dur-banner: 0.01ms;
+  }
+}
+:root[data-motion='reduce'] {
+  --fb-dur-sheet-in: 0.01ms;
+  --fb-dur-sheet-out: 0.01ms;
+  --fb-dur-toast-in: 0.01ms;
+  --fb-dur-toast-out: 0.01ms;
+  --fb-dur-banner: 0.01ms;
+}

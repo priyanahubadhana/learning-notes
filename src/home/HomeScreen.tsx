@@ -1,5 +1,5 @@
 import { useLiveQuery } from 'dexie-react-hooks'
-import { useEffect, useMemo, useRef, useState } from 'react'
+import { Suspense, lazy, useEffect, useMemo, useRef, useState } from 'react'
 import { usePref } from '../app/usePref'
 import type { LearningNotesDB } from '../core/db'
 import { addDays } from '../core/homeDays'
@@ -21,7 +21,12 @@ import { Top3 } from './Top3'
 import { useTasks, useToday } from './useHomeData'
 import { Icon } from '../app/tools/icons'
 import { useFlag } from '../app/flags'
-import { HomeBoard } from './board/HomeBoard'
+
+// Home v2 (flag home.v2) loads only when the flag is on: with it off the
+// first load stays as today (no drag part, no event router).
+const HomeBoard = lazy(() =>
+  import('./board/HomeBoard').then((m) => ({ default: m.HomeBoard })),
+)
 
 const TABS = ['today', 'tasks', 'plan', 'routines', 'reports'] as const
 type Tab = (typeof TABS)[number]
@@ -129,18 +134,20 @@ export function HomeScreen({
       </div>
       {tab === 'today' && record && v2 && (
         <div className="flex flex-col gap-4" data-testid="home-today">
-          <HomeBoard
-            data={{
-              db,
-              today,
-              tasks,
-              projects,
-              briefing,
-              cardsDue,
-              record,
-              openReview: deps.openReview,
-            }}
-          />
+          <Suspense fallback={null}>
+            <HomeBoard
+              data={{
+                db,
+                today,
+                tasks,
+                projects,
+                briefing,
+                cardsDue,
+                record,
+                openReview: deps.openReview,
+              }}
+            />
+          </Suspense>
           <button
             type="button"
             onClick={deps.openToday}

@@ -11,6 +11,11 @@ async function openHome(page: Page, url = '/?flags=home.v2') {
   await page.locator('[data-space="home"]').click()
   await expect(page.getByTestId('home-screen')).toBeVisible()
   await page.getByRole('tab', { name: 'Today', exact: true }).click()
+  // The board is its own chunk: wait until it has drawn its widgets.
+  if (url.includes('home.v2'))
+    await expect(
+      page.getByTestId('home-widgets').locator('> li[data-reorder-id]'),
+    ).not.toHaveCount(0)
 }
 
 const ids = (page: Page) =>
@@ -54,6 +59,10 @@ async function setSizes(page: Page, sizes: Record<string, 's' | 'm' | 'l'>) {
       size,
     )
   }
+  // The board animates to its new layout; boxes measured mid-way aimed the
+  // drags at the wrong spot on a busy runner. Wait until every widget is still.
+  for (const id of Object.keys(sizes))
+    await settled(page.locator(`li[data-reorder-id="${id}"]`))
 }
 
 test('flag off: Home looks as before (no board, no edit button)', async ({
@@ -125,14 +134,17 @@ test('drag: others slide away live, a wide widget lands between small ones, an i
   const grid = page.getByTestId('home-widgets')
   const before = await ids(page)
   await widget(page, 'cards').scrollIntoViewIfNeeded()
+  await settled(widget(page, 'cards'))
+  await settled(widget(page, 'pending'))
   const first = await box(widget(page, 'cards'))
   const grip = widget(page, 'pending').locator('.rord-grip')
   const g = await box(grip)
+  // Aim so the dragged card's centre sits on the edge of the first small card
+  // (measured before the lift, while the card is still).
+  const pb = await box(widget(page, 'pending'))
   await page.mouse.move(g.x + g.width / 2, g.y + g.height / 2)
   await page.mouse.down()
   await page.mouse.move(g.x + g.width / 2, g.y + g.height / 2 + 6, { steps: 2 })
-  // Aim so the dragged card's centre sits on the edge of the first small card.
-  const pb = await box(widget(page, 'pending'))
   const off = {
     x: pb.x + pb.width / 2 - (g.x + g.width / 2),
     y: pb.y + pb.height / 2 - (g.y + g.height / 2),

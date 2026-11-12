@@ -2,6 +2,25 @@
 
 Current phase only. Older entries are in [ARCHIVE.md](ARCHIVE.md).
 
+### 13 Nov 2026: rules aligned with economy mode, 4 project hooks
+
+- What: rules/ and agent files now match economy mode (docs audit A4-A11, B1-B5, D2-D4); legacy Fable/Opus files kept for rollback and non-build tasks. Sepia joins light and dark in the Definition of Done and the gate checklists; checklist line 17 (bug fix = why-note + new test); builders read rules/global.md and security.md; "could delete or lose the owner's data" is a stop reason; gate 3 fails on a contrast ✗. rules/testing.md: related tests locally, full suite green in GitHub CI before any merge. Start with 4 builders, up to 6 only while rework stays under 2 rounds. INDEX gained the build files; HANDOFF has one NOW line; 3 old plans moved to docs/plans/archive/.
+- Hooks (.claude/settings.json, scripts in .claude/hooks/): test guard blocks edits that add .skip/.only, raise timeout/retries or remove expect() in tests; secret scan before git commit/push; mirror to gdrive notes once at Stop after edits to docs/, rules/, src/ or CLAUDE.md; at Stop, eslint + incremental tsc only when .ts/.tsx changed (about 4 s), blocks once on errors in changed files, never loops. Each tested with a harmless trial.
+- Why: owner decisions 13 Nov (docs/plans/docs-audit-2026-11-13.md).
+- Files: CLAUDE.md, rules/{building,sessions,testing,quality}.md, docs/ECONOMY-MODE.md, docs/INDEX.md, docs/HANDOFF.md, docs/ARCHIVE.md, docs/design/token-efficiency.md, .claude/agents/_, .claude/hooks/_, .claude/settings.json.
+
+### 12 Nov 2026: build night 1 (Fable orchestrator)
+
+- First job: fixed the 3 failures blocking the deploy. Lint ignored the design mock-ups (eslint.config.js); the Settings › Claude test met the new "locked" pop-up (e2e/claudeMock.ts, claudeSettings.spec.ts); the copy menu test had a step with no time limit (e2e/copyFormats.spec.ts). Main is green and deployed (run 43161211224, commits 5d58789, 082fd96, 58df642). supabase/.temp is ignored by git.
+- New branch build/next + draft pull request #4 (full tests, free preview build, no live deploy).
+- Merged to build/next, all switched off: switches file src/app/flags.ts + Settings › Try new features; Beginner / Professional level store (src/settings/level.ts, 169 unlock ids); test tools (listener and z-index ratchet, screenshot harness, check:dod, probe:inventory); event router and gesture router (src/app/input/); selection store (src/app/selection/); overlay manager (src/app/overlay/); tool registry facts (src/app/tools/toolRegistryMeta.ts) and AI tool framework slice 0 (src/aitools/).
+- Built on their own branches, waiting for the QA gate: shared parts (slice/0g-parts), update flow BUG-004 (slice/10-update-v2), security mediums (slice/11-security-m1), AI job engine (slice/9-ai-framework-1), iPad test flake fixes (fix/ipad-flakes).
+- 17 specs written in docs/features/ (foundation, foundation-input, foundation-selection-overlay, tool-registry, shared-parts, toolbar-v8, page-menus, textbox-v2, page-objects, media-v2, study-v2, safety-v2, system-v2, update-v2, security-m1, settings-v3, notebooks-search-v2, home-v2, library-v2, reader-v2, review-v2, ai-framework). They are on build/next.
+- Why: owner said "start the build" (docs/plans/build-master-plan.md).
+- Released to main, live, all switched off: build/next at 1c412c8 (merge b5b0bc7, run 43205383635): foundation 0a-0f + 0i, update flow, security mediums (report-only strict policy + Permissions-Policy in public/_headers), AI job engine, iPad test flake fixes (inkLayers, boxTaps), free preview job in CI.
+- On build/next after the release: shared parts step 1 (src/design/parts/, gallery), AI Build screen, "first outside tap only closes" in the overlay manager, event router gained click / input / touchmove. Ratchet now 362 listeners / 137 z-index.
+- Fixed on the way (why it happened): version.json always said level 1 because two regexes in vite.config.ts had lost their backslashes; Parts gallery stalled iPad WebKit in CI because of a dozen 28 px blurs on static cards; phone layouts of the Time range bar and Arrange sheet were clipped because the editor sat in the page flow with no width limit.
+
 ## 2026-11-12 (Build master plan)
 
 - **What:** one complete plan for the rebuild: remaining mock-up batches 1 to 6 (with the owner's batch 1 answers), build slice 0 (4 root causes, shared parts, shell, tool registry base), slices per area with spec, Definition of Done, tests, flag and rollback, lanes and models, continuity, the first-night run list and 8 owner questions. Text box v2: keep the layout engine, rebuild the touch layer. Plan only, no app code.
@@ -1403,7 +1422,7 @@ Plan: [plans/polish-2-2026-11.md](plans/polish-2-2026-11.md). Items 8, 9 and 15 
 
 ## 2026-11-06 (audit)
 
-- **What:** Overnight audit of direction and quality, read-only on code: [plans/audit-2026-11.md](plans/audit-2026-11.md). Verdict: foundation and Phase A are on the right path; the plan lacked a capture → notes → recall pipeline and the visual-notes tools, so the master plan gains an "Audit changes" section (Phase CR with one notes format any AI can fill, a picture editor, mind map and embed blocks, re-cut waves, C5 and H2 later; AI output stays ordinary editable content with one-step removal). Docs made accurate: README status, LIMITATIONS (first load about 370 KB, "coming" items), `features/ink.md` (two layers), CODE-MAP folders, ROADMAP pointer to the master plan, INDEX rows. HANDOFF cut to five lines; the owner checks moved to [plans/owner-checks-pending.md](plans/owner-checks-pending.md). DECISIONS rows for every audit decision.
+- **What:** Overnight audit of direction and quality, read-only on code: [plans/archive/audit-2026-11.md](plans/archive/audit-2026-11.md). Verdict: foundation and Phase A are on the right path; the plan lacked a capture → notes → recall pipeline and the visual-notes tools, so the master plan gains an "Audit changes" section (Phase CR with one notes format any AI can fill, a picture editor, mind map and embed blocks, re-cut waves, C5 and H2 later; AI output stays ordinary editable content with one-step removal). Docs made accurate: README status, LIMITATIONS (first load about 370 KB, "coming" items), `features/ink.md` (two layers), CODE-MAP folders, ROADMAP pointer to the master plan, INDEX rows. HANDOFF cut to five lines; the owner checks moved to [plans/owner-checks-pending.md](plans/owner-checks-pending.md). DECISIONS rows for every audit decision.
 - **Why:** owner request (6 Nov): confirm the right path against "the app makes the notes, the user experiences and recalls", then quality.
 - **Files:** `docs/plans/audit-2026-11.md`, `owner-checks-pending.md`, `master-plan-2026-11.md`, `docs/HANDOFF.md`, `INDEX.md`, `ROADMAP.md`, `LIMITATIONS.md`, `CODE-MAP.md`, `DECISIONS.md`, `features/ink.md`, `README.md`. No `src/` change.
 

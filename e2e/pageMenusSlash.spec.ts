@@ -254,6 +254,32 @@ test.describe('gate-3 fixes', () => {
     })
   })
 
+  for (const [name, vp] of [
+    ['phone', { width: 390, height: 844 }],
+    ['iPad', { width: 1180, height: 820 }],
+  ] as const) {
+    test.describe(`row width (${name}, touch)`, () => {
+      test.use({ viewport: vp, hasTouch: true })
+      test(`G3-2 ${name}: the highlighted row is as wide as the search box`, async ({
+        page,
+      }) => {
+        await openNote(page, 'professional')
+        await page.keyboard.type('/')
+        await expect
+          .poll(async () => {
+            const search = (await list(page)
+              .locator('.cl__search')
+              .boundingBox())!
+            const row = (await list(page)
+              .locator('[role="option"][aria-selected="true"]')
+              .boundingBox())!
+            return Math.abs(row.x + row.width - (search.x + search.width))
+          })
+          .toBeLessThanOrEqual(1)
+      })
+    })
+  }
+
   test.describe('phone', () => {
     test.use({ viewport: { width: 390, height: 844 }, hasTouch: true })
     test('G3-3 solid surface, stops above the tab bar', async ({ page }) => {

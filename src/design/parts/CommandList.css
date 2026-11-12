@@ -100,6 +100,11 @@
 .cl__list::-webkit-scrollbar {
   display: none;
 }
+/* G3-2: on touch the scroll hint reserves a 24 px gutter; here its handle
+   floats over the rows instead, so rows keep the search box's right edge. */
+.cl__list[data-scroll-gutter] {
+  padding-inline-end: 0;
+}
 .cl__clear {
   flex: none;
   display: grid;

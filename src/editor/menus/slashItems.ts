@@ -117,6 +117,16 @@ const BY_KEY: Record<string, string> = {
   divider: 'divider',
 }
 
+/** BlockNote blocks outside the catalogue still get their own icon (G3). */
+const EXTRA_ICON: Record<string, IconName> = {
+  heading_4: 'heading4',
+  heading_5: 'heading5',
+  heading_6: 'heading6',
+  toggle_heading: 'toggleHeading',
+  toggle_heading_2: 'toggleHeading',
+  toggle_heading_3: 'toggleHeading',
+}
+
 /** Our own items have no key: they are found by their (translated) title. */
 const OWN_TITLES: readonly (readonly [MessageKey, string])[] = [
   ['card.slash.title', 'card'],
@@ -179,7 +189,7 @@ export function buildSlashEntries(
           id: extraId,
           label: s.title,
           aliases: s.aliases,
-          icon: 'plus',
+          icon: (s.key && EXTRA_ICON[s.key]) || 'plus',
         },
       })
     }

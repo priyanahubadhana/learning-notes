@@ -157,6 +157,25 @@ describe('slash menu items', () => {
   it('in a table cell only the items that fit show (PM-05)', () => {
     expect(ids(cellGroups(entries))).toEqual([['link']])
   })
+
+  it('G3: Heading 4-6 and Toggle Heading each get their own icon, not "+"', () => {
+    const more = buildSlashEntries([
+      bn('heading_4', 'Heading 4'),
+      bn('heading_5', 'Heading 5'),
+      bn('heading_6', 'Heading 6'),
+      bn('toggle_heading', 'Toggle Heading 1'),
+      bn('toggle_heading_2', 'Toggle Heading 2'),
+      bn('toggle_heading_3', 'Toggle Heading 3'),
+    ])
+    expect(more.map((e) => e.command.icon)).toEqual([
+      'heading4',
+      'heading5',
+      'heading6',
+      'toggleHeading',
+      'toggleHeading',
+      'toggleHeading',
+    ])
+  })
 })
 
 describe('slash recent storage', () => {

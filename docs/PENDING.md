@@ -330,3 +330,15 @@ Mock: claude.ai/artifact/Ffc86ofYpqurWGnMvsXS3L (Fable v2; study in scratchpad l
 ## Toolbar mock v8: APPROVED by owner (12 Nov 2026)
 
 Mock: claude.ai/artifact/UNS1UzPv4wb6errBrtpv4h; sources docs/mockups/toolbar-v8/ (Fable design-study.md = card system for the whole app). Last change: Favourites on the Text row too (same as Pen). Earlier v6 conditions are built in.
+
+## Carry-over review (owner, 12 Nov 2026; done a day early)
+
+- Root causes (one event router, one gesture router, one selection store, one overlay manager) = FIRST slice of the real build.
+- Security mediums (PIN attempt delays + longer PIN, ask before loading remote pictures, headers) = fix in the build.
+- Custom Views = skipped for now (parked).
+- Home: ADD the "Pending items" card (overdue + open tasks).
+- BUG-003 (auto-hide toolbar while writing + small "Show toolbar" pill) and BUG-004 (forced full-screen update only when needed, 5 s countdown) = build's first slices. Check: BUG-003 must sit with toolbar v8's Minimise (an optional setting "Hide toolbar while writing", same pill style); BUG-004 keeps the optional update pill for normal updates (no contradiction).
+- Text box v2 (half-built): Fable decides reuse vs restart, following the approved toolbar/Box design and rules/quality.md.
+- Old ideas: layers, shrink a box to scale its text, snapshot Lasso → mock-up batch 3; update bar → batch 6.
+- BUG-001 / BUG-002 = fix within the build (no work on the current app now; saves tokens).
+- Owner: PLANNING ONLY now; execution later in auto mode (owner sleeps).

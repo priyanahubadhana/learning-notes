@@ -32,11 +32,11 @@ async function open(page: Page, size?: { width: number; height: number }) {
   await expect(page.getByTestId('demo-phone-wrap')).toBeAttached()
   // Every section is its own lazy chunk and they arrive in any order: one
   // landing above another after a test measured it moved its rows (SP-20 and
-  // SP-22 dragged to stale spots on CI). Wait for all 11 sections (see
+  // SP-22 dragged to stale spots on CI). Wait for all 13 sections (see
   // src/design/gallery/index.tsx) and the shell texts, then a still page.
   await expect(
     page.getByTestId('gal-parts').locator('section[data-testid^="gal-"]'),
-  ).toHaveCount(11)
+  ).toHaveCount(13)
   await expect(
     page.locator('[data-testid="shell-said"][data-ready]'),
   ).toBeAttached()

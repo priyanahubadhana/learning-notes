@@ -1,5 +1,5 @@
 import { expect, test, type Page } from '@playwright/test'
-import { createNotebook, typeInEditor } from './helpers.ts'
+import { cornerAction, createNotebook, typeInEditor } from './helpers.ts'
 
 /**
  * Slice 0h: the new app frame (flag foundation.shell). One test per line of
@@ -327,12 +327,15 @@ test('SH-08 iPad landscape 1180: the panel opens over the page and the page keep
   const panel = page.getByTestId('left-panel')
   await expect(panel).toBeVisible()
   await expect(side(page)).toBeVisible()
-  // Over the page: the page does not shrink, and the panel starts after the sidebar.
+  // Over the docked sidebar, never the page: the page does not shrink, and
+  // the panel ends where the page starts (the page's own ✕ stays reachable).
   expect(await mainWidth(page)).toBe(before)
   const sideBox = await side(page).boundingBox()
+  const mainBox = await page.locator('.sh-main').boundingBox()
   const box = await panel.boundingBox()
-  expect(box?.x ?? 0).toBeGreaterThanOrEqual(
-    (sideBox?.x ?? 0) + (sideBox?.width ?? 0),
+  expect(box?.x ?? 0).toBeLessThanOrEqual((sideBox?.x ?? 0) + 1)
+  expect((box?.x ?? 0) + (box?.width ?? 0)).toBeLessThanOrEqual(
+    (mainBox?.x ?? 0) + 1,
   )
   await page.keyboard.press('Escape')
   await expect(panel).toBeHidden()
@@ -370,4 +373,44 @@ test('SH-08 1366 wide still docks both and the page keeps 600 or more', async ({
   await expect(page.getByTestId('left-panel')).toBeVisible()
   await expect(side(page)).toBeVisible()
   expect(await mainWidth(page)).toBeGreaterThanOrEqual(600)
+})
+
+test('SH-05 flag off: Settings has no "Show Undo and Redo on a computer" row, a saved value changes nothing; flag on lists it', async ({
+  page,
+}) => {
+  const label = 'Show Undo and Redo on a computer'
+  const settings = async (url: string) => {
+    await page.goto(url)
+    await cornerAction(page, 'Settings')
+    await expect(
+      page.locator('main').getByRole('heading', { name: 'Settings', level: 1 }),
+    ).toBeVisible()
+    await page
+      .locator('main')
+      .getByRole('searchbox', { name: 'Search all settings' })
+      .fill('undo')
+  }
+  // Flag off: no row, even when searched for.
+  await settings('/')
+  await expect(page.locator('main')).toContainText('No settings match')
+  await expect(
+    page.locator('main').getByRole('region', { name: label, exact: true }),
+  ).toHaveCount(0)
+  // A saved "off" (from an earlier run with the switch on) changes nothing:
+  // the editor toolbar keeps its Undo / Redo pair.
+  await page.evaluate(() =>
+    localStorage.setItem('learning-notes:general.showUndoRedo', '"off"'),
+  )
+  await page.goto('/')
+  await createNotebook(page, 'Biology', 'Cells')
+  await typeInEditor(page, 'The nucleus holds the DNA')
+  await expect(
+    page.locator('[data-main-bar] [data-slot="history"]'),
+  ).toHaveCount(1)
+  await expect(page.locator('header[data-shell-top]')).toHaveCount(0)
+  // Flag on: the row is there.
+  await settings(ON)
+  await expect(
+    page.locator('main').getByRole('region', { name: label, exact: true }),
+  ).toBeVisible()
 })

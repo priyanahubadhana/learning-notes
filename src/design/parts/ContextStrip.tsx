@@ -18,6 +18,7 @@ import {
   STRIP_PHONE_MAX,
   type StripPlacement,
 } from './contextStripPlace'
+import { useLevel } from '../../settings/level'
 import { motionMs } from './motion'
 import { popoverAttr, showTop } from './topLayer'
 import { tm } from './textMenus'
@@ -65,13 +66,22 @@ export type ContextStripProps = {
 
 const SEP = '\u0001'
 
+/** Beginner sees only these on the strip, in this order; Professional sees every item. */
+export const BEGINNER_STRIP_IDS = ['cut', 'copy', 'paste', 'delete'] as const
+
 /**
  * The strip over a selection (SP-40..SP-44): Cut, Copy, Paste ▾, Delete, ⋯.
  * Placed by `placeStrip` (above, else below, else beside; 12 px inside every
  * edge). Esc / tap outside close it through `src/app/overlay`.
  */
 export function ContextStrip(props: ContextStripProps) {
-  const { items, commands, onAction, mode = 'floating' } = props
+  const { commands, onAction, mode = 'floating' } = props
+  const beginner = useLevel() === 'beginner'
+  // The full set stays reachable: what Beginner does not show on the strip folds into "⋯".
+  const items = beginner
+    ? BEGINNER_STRIP_IDS.flatMap((id) => props.items.filter((i) => i.id === id))
+    : props.items
+  const hidden = beginner ? props.items.filter((i) => !items.includes(i)) : []
   const floating = mode === 'floating'
   const rootRef = useRef<HTMLDivElement>(null)
   const barRef = useRef<HTMLDivElement>(null)
@@ -113,11 +123,14 @@ export function ContextStrip(props: ContextStripProps) {
   })
 
   const phone = props.phone ?? vw < STRIP_PHONE_MAX
-  const { shown, overflow, showMore } = splitStripItems(items, {
+  const split = splitStripItems(items, {
     phone,
     maxWidth: vw - 24,
-    hasExtra: !!commands?.some((g) => g.items.length),
+    hasExtra: !!commands?.some((g) => g.items.length) || hidden.length > 0,
   })
+  const { shown } = split
+  const overflow = [...split.overflow, ...hidden]
+  const showMore = split.showMore || hidden.length > 0
 
   // "⋯" list: the items that did not fit (a ▾ item becomes one row per choice), then the extra commands.
   const listGroups = ((): CommandGroup[] => {
@@ -277,7 +290,7 @@ export function ContextStrip(props: ContextStripProps) {
     if (floating) finish()
   }
 
-  const pickerItem = picker ? items.find((i) => i.id === picker.id) : undefined
+  const pickerItem = picker ? props.items.find((i) => i.id === picker.id) : undefined
   const side = pos?.side ?? 'above'
   const style: CSSProperties & Record<string, string | number | undefined> =
     floating

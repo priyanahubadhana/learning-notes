@@ -3,6 +3,7 @@ import { createElement as h } from 'react'
 import { afterEach, describe, expect, it, vi } from 'vitest'
 import { ContextStrip, type StripItem } from './ContextStrip'
 import type { CommandGroup } from './commandListLogic'
+import { setLevel } from '../../settings/level'
 import { $, $$, cleanDom, click, key, mount } from './testHelpers'
 
 afterEach(cleanDom)
@@ -142,5 +143,39 @@ describe('ContextStrip (floating)', () => {
     vi.advanceTimersByTime(300)
     expect(onClose).toHaveBeenCalledTimes(1)
     vi.useRealTimers()
+  })
+})
+
+describe('ContextStrip levels', () => {
+  afterEach(() => setLevel('professional'))
+
+  it('Beginner shows exactly Cut, Copy, Paste, Delete and more', () => {
+    setLevel('beginner')
+    strip()
+    expect(names()).toEqual([
+      'Cut',
+      'Copy',
+      'Paste',
+      'Delete',
+      expect.stringMatching(/more/i),
+    ])
+    expect($$('[data-strip-btn]')).toHaveLength(5)
+    expect($('[data-testid="cs-paste"]')?.getAttribute('aria-haspopup')).toBe(
+      'menu',
+    )
+  })
+
+  it('Beginner still reaches the other items through more', () => {
+    setLevel('beginner')
+    strip({ commands: undefined })
+    click($('[data-testid="cs-more"]'))
+    expect(document.body.textContent).toContain('Duplicate')
+  })
+
+  it('Professional shows the fuller set', () => {
+    setLevel('professional')
+    strip({ commands: undefined })
+    expect(names()).toContain('Duplicate')
+    expect(names().length).toBeGreaterThan(4)
   })
 })

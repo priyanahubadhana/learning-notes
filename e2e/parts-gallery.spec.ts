@@ -1111,3 +1111,79 @@ test.describe('Parts gallery', () => {
     })
   })
 })
+
+test.describe('Parts gallery fits the screen', () => {
+  for (const width of [320, 360, 430, 820]) {
+    test(`SP-35 nothing is clipped or scrolls sideways at ${width} px`, async ({
+      page,
+    }) => {
+      await open(page, { width, height: 900 })
+      for (const s of SECTIONS) {
+        await page.getByTestId(`gal-${s}`).scrollIntoViewIfNeeded()
+      }
+      const bad = await page.evaluate(
+        (ids) => {
+          const vw = window.innerWidth
+          const scrolls = (el: Element) => {
+            const o = getComputedStyle(el).overflowX
+            return o === 'auto' || o === 'scroll' || o === 'hidden'
+          }
+          const out: string[] = []
+          for (const id of ids) {
+            const root = document.querySelector(`[data-testid="gal-${id}"]`)
+            if (!root) {
+              out.push(`gal-${id} missing`)
+              continue
+            }
+            for (const el of root.querySelectorAll('*')) {
+              // Skip anything inside a scrolling box (the box itself is checked).
+              let inside = false
+              for (
+                let p = el.parentElement;
+                p && p !== root;
+                p = p.parentElement
+              )
+                if (scrolls(p)) inside = true
+              if (inside) continue
+              const r = el.getBoundingClientRect()
+              if (r.width === 0 && r.height === 0) continue
+              if (r.right > vw + 0.5 || r.left < -0.5)
+                out.push(
+                  `${id}: <${el.tagName.toLowerCase()} ${
+                    (el as HTMLElement).dataset.testid ?? el.className
+                  }> ${Math.round(r.left)}..${Math.round(r.right)}`,
+                )
+            }
+          }
+          return out
+        },
+        [...SECTIONS],
+      )
+      expect(bad).toEqual([])
+      const wide = await page.evaluate(
+        () =>
+          document.documentElement.scrollWidth -
+          document.documentElement.clientWidth,
+      )
+      expect(wide).toBeLessThanOrEqual(0)
+    })
+  }
+
+  test('SP-36 the custom range editor stays on a 320 px screen', async ({
+    page,
+  }) => {
+    await open(page, { width: 320, height: 700 })
+    const c = cell(page, 'range', 'editing')
+    await c.scrollIntoViewIfNeeded()
+    const picker = c.getByTestId('range-picker')
+    await expect(picker).toBeVisible()
+    const b = await box(picker)
+    expect(b.x).toBeGreaterThanOrEqual(0)
+    expect(b.x + b.width).toBeLessThanOrEqual(320)
+    expect(b.width).toBeLessThanOrEqual(320 - 32)
+    for (const t of ['range-from', 'range-to']) {
+      const i = await box(c.getByTestId(t))
+      expect(i.x + i.width).toBeLessThanOrEqual(b.x + b.width + 0.5)
+    }
+  })
+})

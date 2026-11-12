@@ -61,11 +61,11 @@ export default function TokensSection() {
           <ul className="t-small flex flex-col gap-1">
             {SHELL.map((v) => (
               <li key={v} className="flex items-center gap-2">
-                <span className="text-muted w-20">{v}</span>
+                <span className="text-muted w-20 shrink-0">{v}</span>
                 <span
                   data-testid={`size-${v}`}
-                  className="bg-accent block h-2 rounded-[var(--r-xs)]"
-                  style={{ width: `var(--${v})` }}
+                  className="bg-accent block h-2 min-w-0 rounded-[var(--r-xs)]"
+                  style={{ width: `var(--${v})`, maxWidth: '100%' }}
                 />
               </li>
             ))}

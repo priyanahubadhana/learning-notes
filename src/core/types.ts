@@ -163,6 +163,11 @@ export interface Page extends BaseRecord {
   locked?: true
   /** Edit lock (queue 3c): read-only; see Notebook.editLocked. */
   editLocked?: true
+  /**
+   * Reader v2 padlock mode of this book (everything works, reading mode, view
+   * only, frozen). A comfort lock, not security. Unset = the last mode used.
+   */
+  readLockMode?: 'all' | 'reading' | 'view' | 'frozen'
   /** Always opens in Reading mode (batch 3). */
   readFirst?: true
   /** Paused (E1): this page and its sub-pages stay out of reviews. */
@@ -716,6 +721,12 @@ export interface BookFile extends BaseRecord {
   mime: string
   size: number
   data: ArrayBuffer
+  /**
+   * Reader v2: the first copy of the book, kept so "Restore original" works
+   * after page edits. DEVICE ONLY: never synced, never written to a backup or
+   * export file (see src/reader/v2/originalCopy.ts).
+   */
+  original?: ArrayBuffer
   /** An attached file (G2) opened in the reader: its Library page. */
   readerPageId?: string
   /** Brought in from NotebookLM as a slide deck: the page's Slides tab shows it. */
@@ -744,7 +755,7 @@ export type AnnotationAnchor =
 export interface Annotation extends BaseRecord {
   /** The book page or note page. */
   pageId: string
-  kind: 'highlight' | 'note' | 'bookmark'
+  kind: 'highlight' | 'note' | 'bookmark' | 'sticky'
   colour?: HighlightColour
   anchor: AnnotationAnchor
   /** W3C text-quote selector, to find the spot again if it moved. */

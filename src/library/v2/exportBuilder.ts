@@ -4,7 +4,7 @@ import type { HighlightColour } from '../../core/types'
 export interface ExportItem {
   bookId: string
   book: string
-  kind: 'highlight' | 'note' | 'bookmark'
+  kind: 'highlight' | 'note' | 'bookmark' | 'sticky'
   quote?: string
   note?: string
   /** What you wrote "in my words" (not stored yet: empty today). */

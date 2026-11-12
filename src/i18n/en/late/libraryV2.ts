@@ -146,6 +146,7 @@ export const enLateLibraryV2 = {
   'lib2.know.type.highlight': 'Highlights',
   'lib2.know.type.note': 'Notes',
   'lib2.know.type.bookmark': 'Bookmarks',
+  'lib2.know.type.sticky': 'Sticky notes',
   'lib2.know.date': 'Date',
   'lib2.know.date.any': 'Any date',
   'lib2.know.date.week': 'This week',

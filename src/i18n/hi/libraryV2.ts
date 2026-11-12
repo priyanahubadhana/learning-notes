@@ -145,6 +145,7 @@ export const hiLibraryV2 = {
   'lib2.know.type.highlight': 'हाइलाइट',
   'lib2.know.type.note': 'नोट्स',
   'lib2.know.type.bookmark': 'बुकमार्क',
+  'lib2.know.type.sticky': 'स्टिकी नोट्स',
   'lib2.know.date': 'तारीख',
   'lib2.know.date.any': 'कोई भी तारीख',
   'lib2.know.date.week': 'इस सप्ताह',

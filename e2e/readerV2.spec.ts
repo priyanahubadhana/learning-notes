@@ -270,6 +270,19 @@ for (const [name, w, h] of [
   })
 }
 
+test('the bars stay open on an outside tap and on Esc (persistent overlay)', async ({
+  page,
+}) => {
+  await openPdf(page)
+  await startPen(page)
+  await expect(readerBar(page)).toBeVisible()
+  await expect(page.getByTestId('rv2-draw-bar')).toBeVisible()
+  await page.mouse.click(5, 790)
+  await page.keyboard.press('Escape')
+  await expect(readerBar(page)).toBeVisible()
+  await expect(page.getByTestId('rv2-draw-bar')).toBeVisible()
+})
+
 for (const [name, w, h] of [
   ['iPad portrait 820', 820, 1180],
   ['iPad landscape 1180', 1180, 820],

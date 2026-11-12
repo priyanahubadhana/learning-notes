@@ -7,6 +7,7 @@ import {
   type ReactNode,
   type RefObject,
 } from 'react'
+import { openInTopLayer } from '../../app/overlay'
 import { usePref } from '../../app/usePref'
 import { t } from '../../i18n/t'
 import { CHIP_H, CHIP_TOP, EDGE_GAP, chipTops } from './barLayout'
@@ -22,7 +23,7 @@ import './readerV2.css'
 /**
  * Reader v2 (slice 7a): the reader bar and the drawing bar in one stack.
  * Each can shrink to its own chip on the right edge and come back on its own;
- * the choice is remembered. The layer is a manual popover (top layer), so the
+ * the choice is remembered. The layer is a persistent overlay in the top layer, so the
  * sidebar never covers the ✕ Exit reading.
  */
 export default function ReaderBars({
@@ -52,20 +53,18 @@ export default function ReaderBars({
   const [stackH, setStackH] = useState(0)
   const [vh, setVh] = useState(() => window.innerHeight)
 
-  // Top layer. Browsers without it keep the same host in place.
+  // Top layer through the overlay manager as a persistent bar: it stays open
+  // on an outside tap and Esc; only the reading lock (hidden) closes it.
   useEffect(() => {
     const el = host.current
-    try {
-      if (
-        el &&
-        typeof el.showPopover === 'function' &&
-        !el.matches(':popover-open')
-      )
-        el.showPopover()
-    } catch {
-      /* not supported: shown in place */
-    }
-  })
+    if (!el || hidden) return
+    const h = openInTopLayer(el, {
+      id: 'reader-v2-bars',
+      layer: 'bar',
+      persistent: true,
+    })
+    return () => h.close()
+  }, [hidden])
 
   // Follow the reader's own box (the sidebar may be beside it) and the screen.
   const measure = useCallback(() => {
@@ -150,12 +149,7 @@ export default function ReaderBars({
     <>
       {/* Keeps the page below the bars while they show. */}
       <div aria-hidden style={{ height: stackShown ? stackH + EDGE_GAP : 0 }} />
-      <div
-        ref={host}
-        popover="manual"
-        className="rv2-host"
-        data-testid="rv2-host"
-      >
+      <div ref={host} className="rv2-host" data-testid="rv2-host">
         {stackShown && (
           <div
             ref={stack}

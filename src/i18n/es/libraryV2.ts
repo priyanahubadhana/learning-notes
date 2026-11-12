@@ -146,6 +146,7 @@ export const esLibraryV2 = {
   'lib2.know.type.highlight': 'Destacados',
   'lib2.know.type.note': 'Notas',
   'lib2.know.type.bookmark': 'Marcadores',
+  'lib2.know.type.sticky': 'Notas adhesivas',
   'lib2.know.date': 'Fecha',
   'lib2.know.date.any': 'Cualquier fecha',
   'lib2.know.date.week': 'Esta semana',

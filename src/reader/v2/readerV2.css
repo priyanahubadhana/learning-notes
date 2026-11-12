@@ -1,6 +1,6 @@
 /* Reader v2 bars (slice 7a). Colours, radii and motion come from tokens.css. */
 
-/* The whole layer is one manual popover: the browser's top layer, so the
+/* The whole layer is one persistent overlay (top layer), so the
    sidebar can never cover the bars and no stacking number is needed. The
    host is click-through; only the bars and chips take taps. */
 .rv2-host {

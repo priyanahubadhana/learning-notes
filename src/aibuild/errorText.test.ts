@@ -46,7 +46,11 @@ function sentences(file: string): string[] {
   return out
 }
 
-const FILES = ['src/aitools/jobs/runner.ts', 'src/aitools/jobs/stage.ts']
+const FILES = [
+  'src/aitools/jobs/runner.ts',
+  'src/aitools/jobs/stage.ts',
+  'src/aitools/plan/modelFiller.ts',
+]
 
 describe('step and job sentences are translated', () => {
   const found = FILES.flatMap(sentences)

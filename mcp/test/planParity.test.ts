@@ -130,11 +130,84 @@ const GOLDEN: Record<string, Rec> = {
       ],
     }),
   ]),
+  // Framework slice 5a: Pages, Tabs, Summaries (the same tools on both doors).
+  'a page renamed': plan('g7', { kind: 'page', id: 'p1' }, [
+    step('s1', 'pages.rename', { pageId: 'p1', title: 'Cell energy' }),
+  ]),
+  'a tab renamed and another hidden': plan(
+    'g8',
+    { kind: 'notebook', id: 'nb1' },
+    [
+      step('s1', 'tabs.rename', {
+        notebookId: 'nb1',
+        tabId: 'cards',
+        title: 'Quiz',
+      }),
+      step('s2', 'tabs.set_hidden', {
+        notebookId: 'nb1',
+        tabId: 'revise',
+        hidden: true,
+      }),
+    ],
+  ),
+  'a summary on a page': plan('g9', { kind: 'page', id: 'p1' }, [
+    step('s1', 'summaries.set', {
+      pageId: 'p1',
+      summary: 'Cells make energy in the mitochondria.',
+    }),
+  ]),
+  // Framework slices 5b and 5c (databases.rename and mindmaps.add are app-only: the local connector cannot make them yet).
+  'a mind map theme and a card set aside': plan(
+    'g10',
+    { kind: 'page', id: 'p1' },
+    [
+      step('s1', 'mindmaps.set_theme', { blockId: 'mb1', theme: 'bold' }),
+      step('s2', 'cards.suspend', { cardId: 'c1', suspended: true }),
+    ],
+  ),
+  'paper and page path': plan('g11', { kind: 'page', id: 'p1' }, [
+    step('s1', 'styles.set_paper', { pageId: 'p1', paper: 'grid' }),
+    step('s2', 'layouts.set_path_style', { pageId: 'p1', pathStyle: 'full' }),
+  ]),
 }
+
+/** The seeded notebook has no tabs; the tab tools need the standard five. */
+const TABS = ['notes', 'summary', 'database', 'cards', 'revise'].map((id) => ({
+  id,
+  kind: id,
+}))
 
 async function both(p: Rec) {
   const { master, source } = await newFixture()
   await seedNotes(source, NOW)
+  await source.put('notebooks', {
+    createdAt: 1,
+    updatedAt: 1000,
+    deletedAt: null,
+    id: 'nb1',
+    title: 'Biology',
+    order: 'a0',
+    allowAi: true,
+    workspaceId: 'ws1',
+    tabs: TABS,
+  })
+  await source.put('blocks', {
+    createdAt: 1,
+    updatedAt: 1000,
+    deletedAt: null,
+    id: 'mb1',
+    pageId: 'p1',
+    parentId: null,
+    type: 'mindMap',
+    order: 'a13',
+    content: {
+      data: JSON.stringify({
+        root: 'r',
+        nodes: [{ id: 'r', text: 'Cells', parent: null }],
+      }),
+      theme: 'calm',
+    },
+  })
   const cache = new NotesCache(source, master, { now: () => NOW })
   await cache.refresh(true)
 
@@ -255,4 +328,29 @@ describe('undo gives the same result in the app and through undo_job', () => {
       expect(trashedInApp.length).toBeGreaterThan(0)
     },
   )
+})
+
+describe('app-only tools are refused by the local connector, writing nothing', () => {
+  it.each([
+    ['mindmaps.add', { pageId: 'p1', outline: 'Cells' }],
+    ['databases.rename', { databaseId: 'd1', title: 'X' }],
+  ])('%s', async (tool, args) => {
+    const { master, source } = await newFixture()
+    await seedNotes(source, NOW)
+    const cache = new NotesCache(source, master, { now: () => NOW })
+    await cache.refresh(true)
+    const write = makeWriteTools(
+      { cache, source, master, deviceId: DEVICE, scopes: ALL, now: () => NOW },
+      new MemoryJobStore(),
+    )
+    const before = source.pushed.length
+    await expect(
+      write.plan.run_plan({
+        plan: plan('r1', { kind: 'page', id: 'p1' }, [
+          step('s1', tool, args as Rec),
+        ]),
+      }),
+    ).rejects.toThrow(/not offered on mcp/)
+    expect(source.pushed).toHaveLength(before)
+  })
 })

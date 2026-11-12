@@ -210,7 +210,7 @@ function SettingsV3Body({
             </p>
           )}
         </section>
-        <PreviewPane last={last} />
+        <PreviewPane last={last} db={db} section={current} />
       </div>
       {!wide && (
         <PreviewPill
@@ -218,6 +218,8 @@ function SettingsV3Body({
           onToggle={toggleSheet}
           pulse={unseen}
           last={last}
+          db={db}
+          section={current}
           area={root}
         />
       )}

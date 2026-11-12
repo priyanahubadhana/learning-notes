@@ -457,3 +457,165 @@
     outline-color: transparent;
   }
 }
+
+/* General preview: a mini app drawn with the app's own tokens. */
+.sv3-general {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-3);
+}
+.sv3-mini {
+  display: flex;
+  min-height: 150px;
+  overflow: hidden;
+  border: 1px solid var(--color-line);
+  border-radius: var(--r-md);
+  background: var(--color-canvas);
+}
+.sv3-mini-rail {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: var(--space-2);
+  padding: var(--space-2);
+  border-right: 1px solid var(--color-line);
+  background: var(--color-surface-1);
+}
+.sv3-mini-dot {
+  display: grid;
+  place-items: center;
+  width: 24px;
+  height: 24px;
+  border-radius: var(--r-xs);
+  color: var(--color-ink-soft);
+}
+.sv3-mini-main {
+  display: flex;
+  flex: 1;
+  flex-direction: column;
+  min-width: 0;
+}
+.sv3-mini-bar {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--space-1);
+  padding: var(--space-2);
+  border-bottom: 1px solid var(--color-line);
+  background: color-mix(in srgb, var(--color-surface-0) 70%, transparent);
+  backdrop-filter: blur(10px);
+}
+.sv3-mini-bar[data-solid] {
+  background: var(--color-surface-0);
+  backdrop-filter: none;
+}
+.sv3-mini-chip {
+  padding: 2px var(--space-2);
+  border-radius: var(--r-pill);
+  background: var(--color-chip);
+  font-size: 11px;
+  color: var(--color-ink-soft);
+}
+.sv3-mini-chip[data-update] {
+  background: var(--color-accent-soft);
+  color: var(--color-accent);
+}
+.sv3-mini-page {
+  display: flex;
+  flex: 1;
+  flex-direction: column;
+  gap: var(--space-1);
+  padding: var(--space-3);
+  background-color: var(--color-surface-0);
+  font-size: 12px;
+}
+.sv3-mini-page[data-paper*='line'] {
+  background-image: repeating-linear-gradient(
+    to bottom,
+    transparent 0,
+    transparent 17px,
+    var(--color-line) 18px
+  );
+}
+.sv3-mini-page[data-paper*='grid'] {
+  background-image:
+    linear-gradient(var(--color-line) 1px, transparent 1px),
+    linear-gradient(90deg, var(--color-line) 1px, transparent 1px);
+  background-size: 18px 18px;
+}
+.sv3-mini-page[data-paper*='dot'] {
+  background-image: radial-gradient(
+    var(--color-line-strong) 1px,
+    transparent 1px
+  );
+  background-size: 18px 18px;
+}
+.sv3-mini-date {
+  color: var(--color-muted);
+}
+.sv3-mini-text {
+  font-weight: 600;
+}
+.sv3-mini-tip {
+  color: var(--color-ink-soft);
+}
+.sv3-mini-tip[data-off] {
+  opacity: 0.4;
+}
+.sv3-mini [data-glow='on'] {
+  animation: sv3-glow 1.5s var(--ease-out) 2;
+}
+
+/* Reduce glass preview: honest bars over a striped page. */
+.sv3-glass {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-1);
+  width: 100%;
+  padding: var(--space-2) 0;
+}
+.sv3-glass-stage {
+  display: flex;
+  gap: var(--space-2);
+  padding: var(--space-2);
+  border-radius: var(--r-sm);
+  background-image: repeating-linear-gradient(
+    45deg,
+    var(--color-line) 0,
+    var(--color-line) 6px,
+    var(--color-surface-1) 6px,
+    var(--color-surface-1) 12px
+  );
+}
+.sv3-glass-bar {
+  flex: 1;
+  padding: 4px var(--space-2);
+  border-radius: var(--r-sm);
+  font-size: 12px;
+  text-align: center;
+  color: var(--color-ink);
+}
+.sv3-glass-bar[data-kind='frosted'] {
+  background: color-mix(in srgb, var(--color-surface-0) 55%, transparent);
+  backdrop-filter: blur(8px);
+}
+.sv3-glass-bar[data-kind='solid'] {
+  background: var(--color-surface-0);
+}
+
+/* Language card: calm, theme colours, shared radius, no bright fills. */
+.sv3-lang {
+  display: flex;
+  gap: var(--space-2);
+  padding: var(--space-2) var(--space-3);
+  border: 1px solid var(--color-line);
+  border-radius: var(--r-md);
+  background: var(--color-surface-0);
+  box-shadow: var(--elev-1);
+}
+.sv3-lang-label {
+  padding: 2px var(--space-2);
+  border-radius: var(--r-sm);
+  background: var(--color-neutral-fill);
+  font-size: 13px;
+  color: var(--color-ink-soft);
+}

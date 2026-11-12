@@ -1,6 +1,8 @@
 import type { JsonValue } from '../../core/types'
 import type { SettingDefinition } from '../registry'
 import { valueText } from './changeNote'
+import { GlassPreview } from './previews/GlassPreview'
+import { LangCard } from './previews/LangCard'
 import { tv } from './tv'
 
 /**
@@ -19,12 +21,19 @@ export function RowPreview({
   glowKey: number
 }) {
   const now = valueText(definition, value) || tv('sv3.valueNone')
+  const picture =
+    definition.id === 'general.reduceGlass' ? (
+      <GlassPreview value={value} />
+    ) : definition.id === 'general.language' ? (
+      <LangCard value={value} />
+    ) : null
   return (
     <div
       data-row-preview
       data-glow={glowKey > 0 ? 'on' : undefined}
       className="sv3-rowprev"
     >
+      {picture}
       <span className="sv3-rowprev-text">
         {tv('sv3.rowNow', { value: now })}
       </span>

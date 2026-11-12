@@ -3,6 +3,7 @@ import { createPortal } from 'react-dom'
 import { overlay } from '../../app/overlay'
 import { Icon } from '../../app/tools/icons'
 import { PreviewBody } from './PreviewPane'
+import type { LearningNotesDB } from '../../core/db'
 import type { Change } from './changeNote'
 import { tv } from './tv'
 
@@ -20,6 +21,8 @@ export function PreviewPill({
   pulse,
   area,
   last,
+  db,
+  section,
 }: {
   open: boolean
   onToggle(): void
@@ -28,6 +31,8 @@ export function PreviewPill({
   /** The Settings screen: taps inside it do not close the sheet. */
   area: RefObject<HTMLElement | null>
   last: Change | null
+  db: LearningNotesDB
+  section: string
 }) {
   const pill = useRef<HTMLButtonElement>(null)
   const sheet = useRef<HTMLDivElement>(null)
@@ -80,7 +85,7 @@ export function PreviewPill({
               <Icon name="close" />
             </button>
           </div>
-          <PreviewBody last={last} />
+          <PreviewBody last={last} db={db} section={section} />
         </div>
       )}
       <button

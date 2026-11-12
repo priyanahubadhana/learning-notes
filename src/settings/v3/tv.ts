@@ -21,13 +21,17 @@ const tables: Record<string, Record<string, string>> = {
  * (`src/i18n/{en,es,hi}/settingsV3.ts`) and load with the screen, so no v3
  * text sits in a shared i18n file. Falls back to English, then to the key.
  */
-export function tv(key: V3Key, params?: Record<string, string | number>) {
-  const locale = currentLocale().slice(0, 2)
+export function tv(
+  key: V3Key,
+  params?: Record<string, string | number>,
+  language?: string,
+) {
+  const locale = (language ?? currentLocale()).slice(0, 2)
   const table = tables[locale] ?? enSettingsV3
   const count = params?.count
   const plural =
     typeof count === 'number'
-      ? `${key}_${new Intl.PluralRules(currentLocale()).select(count)}`
+      ? `${key}_${new Intl.PluralRules(language ?? currentLocale()).select(count)}`
       : undefined
   let text =
     (plural && (table[plural] ?? table[`${key}_other`])) ??

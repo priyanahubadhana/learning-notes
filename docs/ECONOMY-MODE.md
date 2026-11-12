@@ -1,0 +1,128 @@
+# Economy mode for the build (proposed 13 Nov 2026)
+
+Goal: the same features, speed, quality and design at a much lower usage cost. Quality is protected by keeping the same 3 gates, the same tests and the same Definition of Done (rules/quality.md). Only who does which job changes.
+
+Status: PROPOSAL. It changes the agent hierarchy in CLAUDE.md, so the owner's OK is needed before the CLAUDE.md lines are changed (section 7).
+
+## 1. What the measurements say
+
+Source: 63 helper transcripts of this session (tokens per turn, per model). Cost is shown as "price-weighted units" (tokens x the published API price of that model), the closest public stand-in for how the plan counts usage. The plan's real weighting is not published, so treat every figure as a ratio, not as money.
+
+| Finding                                                                                                                                                                           | Evidence                                                                                                     |
+| --------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | ------------------------------------------------------------------------------------------------------------ |
+| The `subagent_tokens` number in helper reports is the helper's last context size, not what it used. Real use is 20 to 100 times larger.                                           | Library v2 builder: reported about 0.3 M, real 36 M cache-read + 0.6 M cache-write + 0.16 M output           |
+| Sonnet builders are about 60% of the build cost.                                                                                                                                  | 12 build-night builders: 38 units, average 3.2 each, 95 turns, context growing to 180-340 k                  |
+| Builder cost is about 0.035 units per turn, whatever the size. Fewer turns = lower cost.                                                                                          | 41 Sonnet helpers, three size groups: 0.036 / 0.037 / 0.034                                                  |
+| The Fable orchestrator was about 30% of the sampled cost, and 71% of that was waste: each time it woke after a wait, its whole 100-270 k context was written again at full price. | 7 wake-ups rewrote 96 k, 124 k, 147 k, 169 k, 195 k, 225 k, 263 k tokens = 1.22 M of its 1.34 M cache writes |
+| Opus sub-managers are cheap (about 9%).                                                                                                                                           | 6 sampled: 0.9 units each, 17 turns                                                                          |
+| Haiku is almost free.                                                                                                                                                             | 0.03 units per job                                                                                           |
+| Rework is real: most slices needed 3 rounds of sub-manager + builder, and local iPad tests are unreliable under load.                                                             | 51 sub-manager launches for about 17 slices; flake-fix commits; HANDOFF note                                 |
+
+Limits of the data: only about a third of the build night's helpers have transcripts here, the main chat is not included, and the old week mixed design work with building.
+
+## 2. Recommended setup
+
+| Role                 | Old                                | Economy                                                                                                      | Why                                                                               |
+| -------------------- | ---------------------------------- | ------------------------------------------------------------------------------------------------------------ | --------------------------------------------------------------------------------- |
+| Top (main chat)      | Fable                              | Fable, but thin: starts the orchestrator, relays, nothing else                                               | owner rule: Fable at most half the plan                                           |
+| Orchestrator         | Fable, one long chat               | **Opus**, `economy-orchestrator`, small context, restarted every 3 waves; state lives in docs/BUILD-STATE.md | half the price per token and a quarter of the context: about 80% less per wake-up |
+| Sub-managers         | 3 Opus relays per slice round      | **removed as a relay**; the orchestrator briefs builders directly                                            | one less layer to pay and wait for                                                |
+| Builders             | Sonnet, whole slice, 100-170 turns | **Sonnet**, `economy-builder`, one sub-slice of about 60 turns, targeted tests only                          | cost follows turns                                                                |
+| Mechanical work      | mostly done by Sonnet builders     | **Haiku**, `economy-mechanic`: es/hi texts, formatting, docs lines, clean merges, watching CI                | about 20 times cheaper than Sonnet                                                |
+| Gate 2 (QA)          | Opus sub-manager                   | **Opus**, `economy-gate2`, read-only, once per finished slice                                                | same check, same model                                                            |
+| Gate 3 (screenshots) | Fable                              | **Fable**, `economy-gate3`, 2 to 4 slices per visit                                                          | same check, fewer cold starts                                                     |
+| Hard cases           | Opus then Fable                    | Sonnet twice, then an Opus builder, then Fable; a new visual pattern goes to Fable                           | unchanged rule                                                                    |
+
+The old agent files are untouched (`fable-manager`, `opus-submanager-*`, `sonnet-executor`, `haiku-executor`), so rollback is just using them again.
+
+## 3. Rules for every helper
+
+- **Briefs point to files, never paste them.** Under 250 words.
+- **Worktrees:** one per slice (they exist: `../ln-s*`), reused by each new builder of that slice. A new worktree only for a new slice. Docs-only and read-only jobs need none.
+- **Tests:** locally run only the spec files of the sub-slice (chromium; ipad-webkit for touch code) plus lint, tsc and the size check. The full matrix runs once per merge in CI on the `build/next` pull request (free, public repo). A Haiku helper runs `gh run watch <id> --exit-status`, then lists the failed test names from `gh run view <id> --log-failed`. No local full suites.
+- **Output:** long command output goes to a file; read the tail or search the failures.
+- **Batching:** up to 3 builders at once on files that do not overlap; gate 3 in batches; one docs commit per wave for BUILD-STATE, the PENDING board and CHANGELOG; one CI run per merge, not per commit.
+- **Status messages:** helpers report in under 150 words (Haiku 80). The orchestrator writes state to docs/BUILD-STATE.md instead of long messages. The owner's "Status / Needs you" lines are written by Haiku from that file.
+- **No polling.** Wait for reports; do not check on running helpers.
+- **Work in bursts.** A helper that waits more than 5 minutes pays for its context again, so builders do not wait for CI; they report and end.
+
+## 4. Brief templates
+
+Builder:
+
+```
+Slice <id> sub-slice <id>: <one line goal>. Worktree C:\Users\pc\Downloads\<folder>, branch slice/<name>, flag <flag>.
+Spec: docs/features/<file>.md lines <IDs>. Done already: <SHAs>. Not yours: <files / hot files>.
+Tests to write and run: <spec files>. Follow .claude/agents/economy-builder.md.
+```
+
+Gate 2: `Gate 2 for slice <id>: branch slice/<name> at <SHA>, spec docs/features/<file>.md. Builder reports: <2 lines>.`
+
+Gate 3: `Gate 3 for slices <ids>: screenshots in <folders>; mock-ups docs/mockups/<names>.`
+
+Mechanic: `<one job>. Worktree <folder>. Stop if it needs judgement.`
+
+## 5. Estimates (honest ranges)
+
+A "slice" = one master-plan area brought to merged on `build/next` after gate 2.
+
+| Per slice                 | Old setup             | Economy               | Basis                                                                                                                                                   |
+| ------------------------- | --------------------- | --------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| Orchestrator              | 1.4                   | 0.3                   | measured 18.8 units over about 14 slices; Opus at a quarter of the context                                                                              |
+| Sub-manager / gate 2      | 2.8                   | 1.0                   | 3 rounds x 0.93 measured; one gate-2 run                                                                                                                |
+| Builders                  | 14                    | 8 to 10               | 3 rounds x 1.5 builders x 3.2 measured; minus local full-suite runs, mechanical work moved to Haiku, smaller contexts (25-40% saving, not yet measured) |
+| Integration + CI watching | 2                     | 0.7                   | Opus integrators with 80-113 tool calls; Haiku watcher                                                                                                  |
+| Gate 3 (Fable)            | 0.5                   | 0.5                   | small, batched                                                                                                                                          |
+| **Total**                 | **about 21** (17-25)  | **about 11.5** (9-15) | **about 45% less (30-55%)**                                                                                                                             |
+| Fable share of the spend  | about 30% + main chat | under 10% + main chat |                                                                                                                                                         |
+
+**Remaining work:** about 18 slice-equivalents (range 14-24): finish 1, 3, 4, 7, 8, 12, 0g step 2, AI 5d (about 5); new 2, 13, 14, 15, 16, 17, 0g step 3, AI 6-8 (about 10); fixes after owner tests and releases (about 3).
+
+| To finish the master plan     | Old setup                                      | Economy                              |
+| ----------------------------- | ---------------------------------------------- | ------------------------------------ |
+| Units                         | about 380 (290-600)                            | about 205 (130-360)                  |
+| Share of ONE week's allowance | about 60-75%                                   | **about 30-40% (range 20-60%)**      |
+| Weeks of quota needed         | 1, with little room for anything else          | **1, with about half the week left** |
+| Running time                  | about 3 to 4 build nights (30-45 h of running) | **the same, within 20%**             |
+
+How the share was worked out, and why it is rough: this week's measured helpers add up to about 250 units and the unmeasured build helpers to about 290 more; that, plus the main chat, roughly used up one weekly allowance, so one week is taken as about 550-650 units. That is an inference, not a reading. **Calibrate on day 1:** note `/usage` before and after the first economy slice; that weekly share x 18 is the real figure. If one slice uses more than 3% of the week, stop and review.
+
+Speed stays the same because the number of parallel builders (3) and the CI time (about 30 min per merge) set the pace, not the manager's model. The risk to speed is the 5-hour window, as before.
+
+## 6. Risks and how quality is protected
+
+| Risk                                               | Guard                                                                                                                  |
+| -------------------------------------------------- | ---------------------------------------------------------------------------------------------------------------------- |
+| An Opus orchestrator plans less well than Fable    | the plan and the specs already exist (Fable wrote them); Fable still does gate 3 and the hard cases                    |
+| No sub-manager reads each diff as it lands         | gate 2 by Opus is kept for every slice before the merge; CI full matrix on every merge                                 |
+| Fewer local test runs let a break through          | it cannot reach a green `build/next` or `main`: CI is the judge, red blocks the merge and the release; flags start OFF |
+| Smaller builder tasks lose context between helpers | commits, spec IDs and BUILD-STATE carry it; each brief lists the "done already" SHAs                                   |
+| Haiku does a judgement job badly                   | it must stop and say so; it never edits tests                                                                          |
+| Savings are smaller than estimated                 | measured on day 1 with `/usage`; rollback is one prompt                                                                |
+
+Unchanged: rules/quality.md, the Definition of Done, tests never weakened, 3 attempts then FAILED.md, and money / Supabase / switching a part ON wait for the owner.
+
+## 7. Proposed CLAUDE.md wording (main applies it after the owner's OK)
+
+```diff
+ ## How Work Runs (agent hierarchy)
+
+-- Every task: main manager **Fable** (`.claude/agents/fable-manager.md`) → **Opus** sub-managers (`opus-submanager-ui/-build/-qa`) → **Sonnet/Haiku** executors. Parallel when files do not overlap. The manager verifies quality and delivers one final report.
++- Build (economy mode, docs/ECONOMY-MODE.md): **Fable** stays the main manager but only starts the run, does gate 3 (screenshots) and takes named hard cases. An **Opus** orchestrator (`economy-orchestrator`) reads docs/BUILD-STATE.md and briefs **Sonnet** builders (`economy-builder`) directly; **Haiku** (`economy-mechanic`) does mechanical work and CI watching; **Opus** (`economy-gate2`) does gate 2. Same 3 gates, same tests. Parallel when files do not overlap (at most 3 builders).
++- Other tasks (design, planning, mock-ups): Fable → Opus sub-managers → Sonnet/Haiku as before (`fable-manager`, `opus-submanager-*`).
+-- Build phase: Fable is the top orchestrator (designs the system first, then delegates slices to Opus sub-managers → Sonnet builders).
++- Build state lives in docs/BUILD-STATE.md (updated after every merge); a new orchestrator needs only that file and its brief.
+```
+
+```diff
+-- **Token efficiency:** ... Fable = top manager/design only, Opus = review, Sonnet = coding, Haiku = search/mechanical; short briefs pointing to files; no re-reads; parallel only on separate files.
++- **Token efficiency:** ... Fable = gate 3 and hard cases only, Opus = orchestrating and gate 2, Sonnet = coding in sub-slices of about 60 turns, Haiku = mechanical work and CI watching; short briefs pointing to files; targeted tests locally, full matrix in CI; no re-reads; no polling; parallel only on separate files.
+```
+
+The owner's global file (`~/.claude/CLAUDE.md`, "Agent hierarchy") says Fable → Opus sub-managers → Sonnet/Haiku for every task; it needs the same exception for the build.
+
+## 8. Switch and rollback
+
+Switch: let the Fable build orchestrator finish and merge its current slice (or stop it once its helpers have pushed), make sure docs/BUILD-STATE.md is current, then start the agent `economy-orchestrator` with the prompt: `Continue the build. Read docs/BUILD-STATE.md and follow your agent file.` When it ends with "RESTART economy-orchestrator", start it again with the same prompt.
+
+Rollback (any time, nothing to undo in code): stop it and start `fable-manager` with `Continue the build from docs/BUILD-STATE.md per docs/plans/build-master-plan.md`. Delete nothing.

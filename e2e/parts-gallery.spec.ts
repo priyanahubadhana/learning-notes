@@ -712,19 +712,16 @@ test.describe('Parts gallery', () => {
       const y = r.y + r.height / 2
       await touch(label, 'pointerdown', x, y)
       await expect(row).toHaveAttribute('data-state', 'hold-pending')
-      await page.waitForTimeout(450)
+      // the row says when it is lifted; no fixed wait
       await expect(row).toHaveAttribute('data-state', 'lifted')
       // Drag below the 4th row.
       const d = await box(list.locator('li[data-reorder-id="delta"]'))
       await touch(label, 'pointermove', x, d.y + d.height * 0.8)
       await expect(page.getByTestId('drop-line')).toBeVisible()
-      expect(await order(list)).toEqual([
-        'alpha',
-        'charlie',
-        'delta',
-        'bravo',
-        'echo',
-      ])
+      // (the others slide when the move is drawn: wait for that, then it must be exact)
+      await expect
+        .poll(() => order(list))
+        .toEqual(['alpha', 'charlie', 'delta', 'bravo', 'echo'])
       await touch(label, 'pointerup', x, d.y + d.height * 0.8)
       await expect(list.locator('li[data-state="lifted"]')).toHaveCount(0)
       expect(await order(list)).toEqual([

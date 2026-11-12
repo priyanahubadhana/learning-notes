@@ -1,3 +1,4 @@
+import { flushSync } from 'react-dom'
 import { onRouted } from '../../../app/input/eventRouter'
 import {
   useCallback,
@@ -346,7 +347,12 @@ export function useReorder<T>(props: ReorderProps<T>) {
     if (dest !== cur) {
       const next = moveItem(order, cur, dest)
       orderRef.current = next
-      setDrag({ id: p.id, phase: 'lifted', order: next, invalid })
+      // Draw the new order now. The next pointer move measures the rows to find
+      // the slot under the finger; if this render were still waiting (a busy
+      // device), it would measure the old layout and pick the wrong slot.
+      flushSync(() =>
+        setDrag({ id: p.id, phase: 'lifted', order: next, invalid }),
+      )
     } else {
       setDrag((d) => (d && d.invalid !== invalid ? { ...d, invalid } : d))
     }

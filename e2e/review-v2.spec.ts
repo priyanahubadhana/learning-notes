@@ -6,6 +6,8 @@ import {
   selectText,
   typeInEditor,
   cardRecordCount,
+  contrastOf,
+  startInTheme,
   openSidebar,
 } from './helpers.ts'
 
@@ -34,8 +36,8 @@ async function asBeginner(page: Page) {
 }
 
 /** Starts with a notebook and `n` cards ("Question 1", "Question 2" ...). */
-async function seed(page: Page, n: number) {
-  await page.goto(FLAGGED)
+async function seed(page: Page, n: number, url = FLAGGED) {
+  await page.goto(url)
   await createNotebook(page, 'Cardiology', 'Heart sounds')
   for (let i = 1; i <= n; i++) {
     if (i > 1) await page.keyboard.press('Enter')
@@ -165,6 +167,7 @@ test.describe('Beginner home and session', () => {
     await seed(page, 1)
     await openReview(page)
     await page.getByTestId('rv2-start').click()
+    await expect(front(page)).toBeVisible() // keys count only once the card is on screen
     await page.keyboard.press('Space')
     await page.keyboard.press('4') // Easy: not due again for days
     await expect(page.getByTestId('rv2-done')).toBeVisible()
@@ -196,6 +199,7 @@ test.describe('Beginner home and session', () => {
     await seed(page, 1)
     await openReview(page)
     await page.getByTestId('rv2-start').click()
+    await expect(front(page)).toBeVisible() // keys count only once the card is on screen
     await page.keyboard.press('Space')
     await page.keyboard.press('1') // Again
     const waiting = page.getByTestId('rv2-waiting')
@@ -238,6 +242,7 @@ test.describe('Beginner home and session', () => {
     await seed(page, 2)
     await openReview(page)
     await page.getByTestId('rv2-start').click()
+    await expect(front(page)).toBeVisible() // keys count only once the card is on screen
     await page.keyboard.press('Space')
     await page.keyboard.press('4')
     await expect(front(page)).toContainText('Question 2')
@@ -259,6 +264,7 @@ test.describe('Beginner home and session', () => {
     await seed(page, 2)
     await openReview(page)
     await page.getByTestId('rv2-start').click()
+    await expect(front(page)).toBeVisible() // keys count only once the card is on screen
     await page.keyboard.press('Space')
     await page.getByRole('button', { name: /^Easy/ }).dblclick()
     await expect(front(page)).toContainText('Question 2')
@@ -293,6 +299,7 @@ test.describe('Beginner home and session', () => {
     await seed(page, 1)
     await openReview(page)
     await page.getByTestId('rv2-start').click()
+    await expect(front(page)).toBeVisible() // keys count only once the card is on screen
     await page.keyboard.press('Space')
     const ms = await page
       .locator('.rv2-fc')
@@ -578,4 +585,268 @@ test.describe('Professional session extras (rev.sessionExtras, rev.keyHints)', (
     await page.getByTestId('rv2-undo').click()
     await expect(left(page)).toHaveText('2 left')
   })
+})
+
+/** Adds `extra` copies of the first card (new cards, due now) straight to the database. */
+async function cloneCards(page: Page, extra: number) {
+  await page.evaluate(
+    (count) =>
+      new Promise<void>((resolve) => {
+        const open = indexedDB.open('learning-notes')
+        open.onsuccess = () => {
+          const db = open.result
+          const tx = db.transaction('cards', 'readwrite')
+          const all = tx.objectStore('cards').getAll()
+          all.onsuccess = () => {
+            const first = all.result[0]
+            for (let i = 0; i < count; i++) {
+              tx.objectStore('cards').add({
+                ...first,
+                id: crypto.randomUUID(),
+              })
+            }
+          }
+          tx.oncomplete = () => {
+            db.close()
+            resolve()
+          }
+        }
+      }),
+    extra,
+  )
+}
+
+const newCount = (page: Page) =>
+  page.getByTestId('rv2-counts').locator('b').first()
+
+test('RV-B08: with 25 new cards and a limit of 20 the counts line says 20, and 17 after three are done', async ({
+  page,
+}) => {
+  await seed(page, 1) // default level = Professional
+  await cloneCards(page, 24)
+  await page.reload()
+  await openReview(page)
+  await expect(newCount(page)).toHaveText('20')
+  await page.getByTestId('rv2-start').click()
+  for (let i = 0; i < 3; i++) {
+    await expect(session(page)).toHaveAttribute('data-revealed', '0')
+    await page.keyboard.press('Space')
+    await expect(session(page)).toHaveAttribute('data-revealed', '1')
+    await page.keyboard.press('3')
+    await expect.poll(async () => (await dbCounts(page)).logs).toBe(i + 1)
+  }
+  await page.keyboard.press('Escape')
+  await expect(home(page)).toBeVisible()
+  await expect(newCount(page)).toHaveText('17')
+})
+
+test('RV-B10: the Review icon in the rail is selected and its badge counts the same as the Home number', async ({
+  page,
+}) => {
+  // The rail (with its badge) is the new shell.
+  await seed(page, 2, '/?flags=review.v2,foundation.shell')
+  await openReview(page)
+  const icon = page.locator('[data-space="review"]')
+  await expect(icon).toHaveAttribute('aria-current', 'page')
+  // countDue is what Home shows as the big number.
+  await expect(page.getByTestId('rv2-count')).toHaveText('2')
+  await expect(icon.locator('.sh-badge')).toHaveText('2')
+})
+
+test('RV-B20: a Picture card shows its picture under the answer', async ({
+  page,
+}) => {
+  await seed(page, 1)
+  const dot =
+    'data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAADUlEQVR42mP8z8BQDwAEhQGAhKmMIQAAAABJRU5ErkJggg=='
+  await page.evaluate(
+    (url) =>
+      new Promise<void>((resolve) => {
+        const open = indexedDB.open('learning-notes')
+        open.onsuccess = () => {
+          const db = open.result
+          const tx = db.transaction(['blocks', 'cards'], 'readwrite')
+          const store = tx.objectStore('blocks')
+          const cards = tx.objectStore('cards').getAll()
+          cards.onsuccess = () => {
+            const cardBlock = (cards.result[0] as { blockId: string }).blockId
+            const all = store.getAll()
+            all.onsuccess = () => {
+              const answer = (
+                all.result as { parentId: string | null; type: string }[]
+              ).find((b) => b.parentId === cardBlock)
+              if (answer)
+                store.put({ ...answer, type: 'image', content: { url } })
+            }
+          }
+          tx.oncomplete = () => {
+            db.close()
+            resolve()
+          }
+        }
+      }),
+    dot,
+  )
+  await page.reload()
+  await openReview(page)
+  await page.getByTestId('rv2-start').click()
+  await expect(page.getByTestId('rv2-card')).toHaveAttribute(
+    'data-type',
+    'picture',
+  )
+  await expect(page.getByTestId('rv2-type')).toHaveText('Picture')
+  await expect(page.locator('[data-answer-picture]')).toHaveCount(0)
+  await page.keyboard.press('Space')
+  await expect(page.locator('[data-answer-picture]')).toBeVisible()
+})
+
+test('RV-B23: a card made from a highlight shows "From ..." and tapping it opens the annotation', async ({
+  page,
+}) => {
+  await asBeginner(page)
+  await seed(page, 1)
+  await page.evaluate(
+    () =>
+      new Promise<void>((resolve) => {
+        const open = indexedDB.open('learning-notes')
+        open.onsuccess = () => {
+          const db = open.result
+          const tx = db.transaction(['cards', 'annotations'], 'readwrite')
+          const cards = tx.objectStore('cards')
+          const all = cards.getAll()
+          all.onsuccess = () => {
+            const card = all.result[0]
+            const now = Date.now()
+            tx.objectStore('annotations').add({
+              id: 'rv-b23-note',
+              createdAt: now,
+              updatedAt: now,
+              deletedAt: null,
+              pageId: card.pageId,
+              kind: 'highlight',
+              anchor: { type: 'block', blockId: card.blockId },
+              origin: 'user',
+            })
+            cards.put({ ...card, sourceAnnotationId: 'rv-b23-note' })
+          }
+          tx.oncomplete = () => {
+            db.close()
+            resolve()
+          }
+        }
+      }),
+  )
+  await page.reload()
+  await openReview(page)
+  await page.getByTestId('rv2-start').click()
+  const source = page.getByTestId('card-source')
+  await expect(source).toContainText('From')
+  await source.click()
+  // The annotation opens at its page: the note editor is on screen again.
+  await expect(session(page)).toHaveCount(0)
+  await expect(page.locator('.bn-editor')).toContainText('Question 1')
+})
+
+test('RV-B27: with the flag OFF the old Review screens show with the same data', async ({
+  page,
+}) => {
+  await seed(page, 1, '/')
+  await openReview(page)
+  await expect(page.getByTestId('rv2-home')).toHaveCount(0)
+  await page.getByRole('button', { name: 'All cards' }).first().click()
+  await page
+    .getByRole('main')
+    .getByRole('button', { name: /^Study/ })
+    .first()
+    .click()
+  await expect(page.getByRole('main')).toContainText('Question 1')
+  await expect(page.getByTestId('rv2-session')).toHaveCount(0)
+})
+
+for (const theme of ['day', 'night', 'sepia'] as const) {
+  // No axe package is installed (see a11yWave34.spec.ts): the same check as the
+  // other specs, WCAG contrast of the real colours through `contrastOf`.
+  test(`RV-B28: ${theme} keeps readable contrast on the hero, card face and rate buttons`, async ({
+    page,
+  }) => {
+    await startInTheme(page, theme)
+    await seed(page, 1)
+    await openReview(page)
+    expect(await contrastOf(page.getByTestId('rv2-hero'))).toBeGreaterThan(4.5)
+    expect(await contrastOf(page.getByTestId('rv2-start'))).toBeGreaterThan(4.5)
+    await page.getByTestId('rv2-start').click()
+    await expect(front(page)).toBeVisible()
+    await page.keyboard.press('Space')
+    await expect(session(page)).toHaveAttribute('data-revealed', '1')
+    expect(await contrastOf(front(page))).toBeGreaterThan(4.5)
+    expect(
+      await contrastOf(page.locator('[data-side="back"]')),
+    ).toBeGreaterThan(4.5)
+    const rates = page.getByTestId('rv2-rates').getByRole('button')
+    for (let i = 0; i < 4; i++)
+      expect(await contrastOf(rates.nth(i))).toBeGreaterThan(4.5)
+  })
+}
+
+test('Error state: "Could not load" with Try again, which loads the session', async ({
+  page,
+}) => {
+  await seed(page, 1)
+  await openReview(page)
+  await expect(page.getByTestId('rv2-start')).toBeVisible()
+  // From now on every read of the database fails, until we say otherwise.
+  await page.evaluate(() => {
+    const w = window as unknown as { __fail?: boolean }
+    w.__fail = true
+    for (const proto of [IDBObjectStore.prototype, IDBIndex.prototype]) {
+      for (const m of ['getAll', 'getAllKeys', 'openCursor', 'openKeyCursor']) {
+        const orig = (
+          proto as unknown as Record<string, (...a: unknown[]) => unknown>
+        )[m]
+        ;(proto as unknown as Record<string, unknown>)[m] = function (
+          this: unknown,
+          ...a: unknown[]
+        ) {
+          const store =
+            this instanceof IDBIndex
+              ? this.objectStore
+              : (this as IDBObjectStore)
+          if (w.__fail && store.name === 'cards')
+            throw new DOMException('test', 'DataError')
+          return orig.apply(this, a)
+        }
+      }
+    }
+  })
+  await page.getByTestId('rv2-start').click()
+  const error = page.getByTestId('rv2-error')
+  await expect(error).toContainText('Could not load')
+  await page.evaluate(() => {
+    ;(window as unknown as { __fail?: boolean }).__fail = false
+  })
+  await error.getByRole('button', { name: 'Try again' }).click()
+  await expect(front(page)).toContainText('Question 1')
+})
+
+test('Loading: a skeleton shows on Home and in the session until the data arrives', async ({
+  page,
+}) => {
+  await page.addInitScript(() => {
+    const saw = { home: false, session: false }
+    ;(window as unknown as { __saw: typeof saw }).__saw = saw
+    new MutationObserver(() => {
+      if (document.querySelector('[data-testid="rv2-home"][data-loading="1"]'))
+        saw.home = true
+      if (document.querySelector('[data-testid="rv2-session"] .rv2-skel'))
+        saw.session = true
+    }).observe(document, { childList: true, subtree: true })
+  })
+  await seed(page, 1)
+  await openReview(page)
+  await page.getByTestId('rv2-start').click()
+  await expect(front(page)).toContainText('Question 1')
+  const saw = await page.evaluate(
+    () => (window as unknown as { __saw: object }).__saw,
+  )
+  expect(saw).toEqual({ home: true, session: true })
 })

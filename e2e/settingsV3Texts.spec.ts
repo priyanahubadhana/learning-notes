@@ -114,7 +114,7 @@ test('SET-B46 the ? on a row opens a pop-up with the plain explanation; Esc, ✕
     (await row.locator('.sv3-line-help').first().innerText()).trim(),
   )
   // The row is still there and was not replaced.
-  await expect(row.getByRole('radiogroup')).toBeVisible()
+  await expect(row.getByRole('switch')).toBeVisible()
   await page.keyboard.press('Escape')
   await expect(popup).toHaveCount(0)
   await ask.click()

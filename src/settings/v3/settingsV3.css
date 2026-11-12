@@ -574,7 +574,11 @@
   height: 104px;
   overflow: hidden;
   border-radius: var(--r-md);
-  background: linear-gradient(135deg, #6d5ce8, #e0709a 55%, #f3b45c);
+  background: linear-gradient(
+    135deg,
+    var(--color-accent),
+    color-mix(in srgb, var(--color-accent) 35%, var(--color-surface-0))
+  );
 }
 .sv3-glass-dot {
   position: absolute;
@@ -585,21 +589,21 @@
   top: -10px;
   width: 70px;
   height: 70px;
-  background: #3fd0c4;
+  background: color-mix(in srgb, var(--color-surface-0) 45%, transparent);
 }
 .sv3-glass-dot-2 {
   right: 12%;
   top: 30px;
   width: 54px;
   height: 54px;
-  background: #2b3a8c;
+  background: color-mix(in srgb, var(--color-ink) 30%, transparent);
 }
 .sv3-glass-dot-3 {
   left: 46%;
   top: 52px;
   width: 44px;
   height: 44px;
-  background: #fff6;
+  background: color-mix(in srgb, var(--color-surface-0) 30%, transparent);
 }
 .sv3-glass-line {
   position: absolute;
@@ -608,7 +612,7 @@
   left: 12px;
   height: 6px;
   border-radius: 3px;
-  background: #ffffffb0;
+  background: color-mix(in srgb, var(--color-surface-0) 70%, transparent);
 }
 .sv3-glass-line-s {
   top: 30px;

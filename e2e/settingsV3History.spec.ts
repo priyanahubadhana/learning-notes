@@ -127,9 +127,7 @@ test('SET-B13 / B14 Reset this section resets only this section, as one Undo ste
     .click()
   // ... and one in General, which must stay.
   await page.locator('[data-section="general"]').click()
-  await row(page, 'general.scrollHints')
-    .getByRole('radio', { name: 'Off' })
-    .click()
+  await row(page, 'general.scrollHints').getByRole('switch').uncheck()
   await page.locator('[data-section="review"]').click()
 
   await page.locator('[data-section-reset]').click()

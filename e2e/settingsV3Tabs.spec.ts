@@ -107,7 +107,7 @@ test('SET-B31 Beginner: "Choose a template" offers Blank and Study notes and set
   await expect(picker.locator('[data-template]')).toHaveCount(2)
   await picker.locator('[data-template="study"]').click()
   await expect(picker).toHaveCount(0)
-  await expect(row.getByRole('radio', { name: 'On' })).toBeChecked()
+  await expect(row.getByRole('switch').first()).toBeChecked()
 })
 
 test('SET-B31 Professional: every template is listed and searchable; the ✕ clears', async ({
@@ -133,7 +133,7 @@ test('SET-B31 a template that cannot be the start page yet is tappable and expla
   await page.goto(V3)
   await page.getByRole('button', { name: 'Hide menu' }).click()
   const row = page.locator('[data-setting-id="general.newPageStudy"]')
-  const before = await row.getByRole('radio', { name: 'On' }).isChecked()
+  const before = await row.getByRole('switch').first().isChecked()
   await row.locator('[data-choose-template]').click()
   const picker = page.getByTestId('sv3-template-picker')
   const other = picker
@@ -151,7 +151,5 @@ test('SET-B31 a template that cannot be the start page yet is tappable and expla
   // The pop-up closes with Esc and nothing was saved.
   await page.keyboard.press('Escape')
   await expect(why).toHaveCount(0)
-  await expect(row.getByRole('radio', { name: 'On' })).toBeChecked({
-    checked: before,
-  })
+  await expect(row.getByRole('switch').first()).toBeChecked({ checked: before })
 })

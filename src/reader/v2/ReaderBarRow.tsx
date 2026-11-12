@@ -3,6 +3,7 @@ import { Icon, type IconName } from '../../app/tools/icons'
 import type { MenuItem } from '../../app/ui'
 import { Card, CardTrigger } from '../../design/parts/Card'
 import { CardGroup, CardWell } from '../../design/parts/CardParts'
+import { usePhone } from '../../design/parts/useAnchoredCard'
 import { t } from '../../i18n/t'
 import { bookAloudState } from '../aloud/bookAloud'
 import { fitItems } from './barFit'
@@ -67,6 +68,8 @@ function menuRows(list: MenuItem[]): CardRowDef[] {
   )
 }
 
+type Rect = { left: number; top: number; width: number; height: number }
+
 const BTN_W = 46
 const MORE_W = 64
 const CLOSE_W = 46
@@ -97,7 +100,9 @@ export default function ReaderBarRow({
   )
   const row = useRef<HTMLDivElement>(null)
   const [width, setWidth] = useState(0)
-  const [anchor, setAnchor] = useState<HTMLElement | null>(null)
+  // Where the card hangs: under the ⋯ button AND the whole bar (time-left line
+  // included), so it never covers the bar.
+  const [anchor, setAnchor] = useState<Rect | null>(null)
 
   useLayoutEffect(() => {
     const el = row.current
@@ -118,6 +123,16 @@ export default function ReaderBarRow({
   const shown = items.filter((i) => keep.has(i.id))
   const hidden = items.filter((i) => !keep.has(i.id))
   const close = () => setAnchor(null)
+  const phone = usePhone()
+  // The card opens BELOW the bar and never over its buttons: its list scrolls
+  // inside the room under the bar (a phone shows a sheet instead).
+  const room =
+    anchor && !phone
+      ? Math.max(
+          160,
+          Math.floor(window.innerHeight - (anchor.top + anchor.height) - 104),
+        )
+      : undefined
 
   return (
     <div ref={row} className="rv2-row" data-testid="rv2-row" data-chrome>
@@ -140,7 +155,6 @@ export default function ReaderBarRow({
             className="rv2-btn"
             data-testid={i.testId}
             aria-label={i.label}
-            title={i.label}
             aria-pressed={i.popup ? undefined : i.pressed}
             aria-haspopup={i.popup}
             aria-expanded={i.popup ? i.expanded : undefined}
@@ -156,7 +170,17 @@ export default function ReaderBarRow({
         label={t('reader.more')}
         testId="reader-more"
         className="rv2-more"
-        onClick={(el) => setAnchor(anchor ? null : el)}
+        onClick={(el) => {
+          if (anchor) return setAnchor(null)
+          const r = el.getBoundingClientRect()
+          const bar = el.closest('.rv2-bar')?.getBoundingClientRect()
+          setAnchor({
+            left: r.left,
+            top: r.top,
+            width: r.width,
+            height: Math.max(r.height, (bar?.bottom ?? r.bottom) - r.top),
+          })
+        }}
       >
         <Icon name="more" size={18} />
       </CardTrigger>
@@ -168,65 +192,70 @@ export default function ReaderBarRow({
           onClose={close}
           testId="reader-more-card"
         >
-          {hidden.length > 0 && (
-            <CardGroup label={t('readerv2.more.bar')}>
-              <CardWell>
-                {hidden.map((i) =>
-                  i.node ? (
-                    <div key={i.id} className="rv2-card-node">
-                      {i.node}
-                    </div>
-                  ) : (
-                    <button
-                      key={i.id}
-                      type="button"
-                      className="pcard-row"
-                      data-testid={`${i.testId}-card`}
-                      onClick={() => {
-                        close()
-                        i.onClick()
-                      }}
-                    >
-                      <span>{i.label}</span>
-                      <Icon name={i.icon} size={18} />
-                    </button>
-                  ),
-                )}
-              </CardWell>
-            </CardGroup>
-          )}
-          {groups
-            .map((g) => ({
-              ...g,
-              rows: [...g.rows, ...menuRows(g.menu ?? [])],
-            }))
-            .filter((g) => g.rows.length > 0)
-            .map((g) => (
-              <CardGroup key={g.label} label={g.label}>
+          <div
+            className="rv2-card-scroll"
+            style={room ? { maxHeight: room } : undefined}
+          >
+            {hidden.length > 0 && (
+              <CardGroup label={t('readerv2.more.bar')}>
                 <CardWell>
-                  {g.rows.map((r) => (
-                    <button
-                      key={r.id}
-                      type="button"
-                      className="pcard-row"
-                      data-testid={r.testId}
-                      aria-pressed={r.checked}
-                      onClick={() => {
-                        if (!r.keepOpen) close()
-                        r.onClick()
-                      }}
-                    >
-                      <span>{r.label}</span>
-                      {r.checked ? (
-                        <Icon name="check" size={18} />
-                      ) : (
-                        <Icon name={r.icon} size={18} />
-                      )}
-                    </button>
-                  ))}
+                  {hidden.map((i) =>
+                    i.node ? (
+                      <div key={i.id} className="rv2-card-node">
+                        {i.node}
+                      </div>
+                    ) : (
+                      <button
+                        key={i.id}
+                        type="button"
+                        className="pcard-row"
+                        data-testid={`${i.testId}-card`}
+                        onClick={() => {
+                          close()
+                          i.onClick()
+                        }}
+                      >
+                        <span>{i.label}</span>
+                        <Icon name={i.icon} size={18} />
+                      </button>
+                    ),
+                  )}
                 </CardWell>
               </CardGroup>
-            ))}
+            )}
+            {groups
+              .map((g) => ({
+                ...g,
+                rows: [...g.rows, ...menuRows(g.menu ?? [])],
+              }))
+              .filter((g) => g.rows.length > 0)
+              .map((g) => (
+                <CardGroup key={g.label} label={g.label}>
+                  <CardWell>
+                    {g.rows.map((r) => (
+                      <button
+                        key={r.id}
+                        type="button"
+                        className="pcard-row"
+                        data-testid={r.testId}
+                        aria-pressed={r.checked}
+                        onClick={() => {
+                          if (!r.keepOpen) close()
+                          r.onClick()
+                        }}
+                      >
+                        <span>{r.label}</span>
+                        {r.checked ? (
+                          <Icon name="check" size={18} />
+                        ) : (
+                          <Icon name={r.icon} size={18} />
+                        )}
+                      </button>
+                    ))}
+                  </CardWell>
+                </CardGroup>
+              ))}
+          </div>
         </Card>
       )}
     </div>

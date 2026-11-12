@@ -107,6 +107,7 @@
   "prompts -> pages",
   "prompts -> recall",
   "reader -> ai",
+  "reader -> design",
   "reader -> ink",
   "reader -> library",
   "reader -> pages",

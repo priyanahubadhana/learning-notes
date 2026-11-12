@@ -1,4 +1,3 @@
-import { formatSize } from '../../share/formatSize'
 import { t } from '../../i18n/t'
 
 /**
@@ -19,5 +18,7 @@ export function canKeepOriginal(size: number): boolean {
  */
 export function originalCapNotice(size: number): string | null {
   if (canKeepOriginal(size)) return null
-  return t('readerv2.original.tooBig', { size: formatSize(size) })
+  return t('readerv2.original.tooBig', {
+    size: `${Math.round(size / 1_000_000)} MB`,
+  })
 }

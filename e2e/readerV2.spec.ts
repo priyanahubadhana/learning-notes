@@ -327,6 +327,9 @@ for (const [name, w, h] of [
     expect(c.y).toBeGreaterThanOrEqual(0)
     expect(c.x + c.width).toBeLessThanOrEqual(w + 0.5)
     expect(c.y + c.height).toBeLessThanOrEqual(h + 0.5)
+    // Beside the target, never over the bar (a phone shows a sheet at the bottom).
+    const bar = await box(readerBar(page))
+    if (w > 640) expect(c.y).toBeGreaterThanOrEqual(bar.y + bar.height - 0.5)
     // Listen is in the bar, or (narrow) in the card, always reachable.
     const inBar = await page.getByTestId('reader-listen').count()
     const inCard = await page.getByTestId('reader-listen-card').count()

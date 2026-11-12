@@ -12,6 +12,8 @@ export interface SecretHash {
   salt: string
   hash: string
   iterations: number
+  /** How many characters the code had when it was set (only newer codes have it). */
+  len?: number
 }
 
 /**
@@ -25,6 +27,26 @@ export const PASSWORD_MIN = 6
 /** Suggested length when sync is on (the hash then travels with the settings). */
 export const PASSWORD_RECOMMENDED = 12
 const PASSWORD_MAX = 128
+
+/** A NEW PIN (set or change): exactly 6 digits. */
+export const isNewPin = (value: string): boolean => /^[0-9]{6}$/.test(value)
+/** A PIN that may already be stored (unlock only): 4 to 6 digits. */
+export const isStoredPin = (value: string): boolean => PIN_PATTERN.test(value)
+/** Shortest NEW lock password. */
+export const NEW_PASSWORD_MIN = 8
+/** A NEW lock password (set or change): 8 to 128 characters. */
+export const isNewPassword = (value: string): boolean =>
+  value.length >= NEW_PASSWORD_MIN && value.length <= PASSWORD_MAX
+
+/** The saved length of a code, or undefined for an older code that has none. */
+export function storedLength(hash: SecretHash | undefined): number | undefined {
+  const n = hash?.len
+  return Number.isInteger(n) &&
+    (n as number) > 0 &&
+    (n as number) <= PASSWORD_MAX
+    ? n
+    : undefined
+}
 
 export const isPin = (value: string): boolean => PIN_PATTERN.test(value)
 export const isPassword = (value: string): boolean =>

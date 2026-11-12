@@ -19,4 +19,6 @@ export const enLateShell = {
   'shell.view.pro': 'Professional',
   'settings.showUndoRedo.label': 'Show Undo and Redo on a computer',
   'settings.showUndoRedo.description': 'Keeps the Undo and Redo buttons in the top bar. Ctrl Z still works when they are hidden. On an iPad or a phone they always show.',
+  'shell.saved': 'Saved',
+  'shell.notSaved': 'Not saved yet',
 } as const

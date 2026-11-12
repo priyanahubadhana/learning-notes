@@ -2,8 +2,12 @@ import { Fragment } from 'react'
 import { useSyncExternalStore } from 'react'
 import { t, type MessageKey } from '../../i18n/t'
 import { db } from '../../core/db'
-import { useSyncedSetting } from '../../settings/useSetting'
-import { showRefreshSetting } from '../../settings/builtinSettings'
+import { useDeviceSetting, useSyncedSetting } from '../../settings/useSetting'
+import {
+  deviceModeSetting,
+  showRefreshSetting,
+  showUndoRedoSetting,
+} from '../../settings/builtinSettings'
 import { useSyncLabel } from '../../sync/useSyncLabel'
 import { DeviceModeButton } from '../DeviceModeMenu'
 import { useCanGoBack, useCanGoForward } from '../navHistory'
@@ -11,6 +15,8 @@ import type { Space } from '../spaces/spaces'
 import { HistoryButtons } from '../tools/HistoryButtons'
 import { showToolBar, useShowBarButton } from '../tools/toolbarVisibility'
 import { crumbsFor } from './crumbs'
+import { statusFor } from './status'
+import { showHistoryPair } from './historyTips'
 import { ShellIcon } from './shellIcons'
 import { ViewToggle } from './ViewToggle'
 import type { ShellIconName } from './shellPaths'
@@ -91,17 +97,19 @@ export function ShellTopBar(props: ShellTopBarProps) {
   const canGoBack = useCanGoBack()
   const canGoForward = useCanGoForward()
   const barOff = useShowBarButton()
+  const [mode] = useDeviceSetting(deviceModeSetting)
+  const [undoPref] = useDeviceSetting(showUndoRedoSetting)
   const showRefresh = useSyncedSetting(db, showRefreshSetting)
   const unsaved = useSyncExternalStore(onUnsavedChange, hasUnsaved)
   const sync = useSyncLabel()
   const spaceName = t(`space.${space}` as MessageKey)
   const crumbs = crumbsFor(space, spaceName, title, !!panel)
   const toggleName = t(sidebarHidden ? 'nav.showMenu' : 'nav.hideMenu')
-  const status = unsaved
-    ? t('save.failed')
-    : sync?.display === 'offline'
-      ? sync.label
-      : null
+  const status = statusFor({
+    unsaved,
+    syncLabel: sync?.display === 'offline' ? sync.label : null,
+    editing: !!panel,
+  })
 
   return (
     <header
@@ -151,7 +159,9 @@ export function ShellTopBar(props: ShellTopBarProps) {
         disabled={!canGoForward}
         onClick={() => history.forward()}
       />
-      <HistoryButtons className="sh-history" />
+      {showHistoryPair(mode, undoPref) && (
+        <HistoryButtons className="sh-history" tips />
+      )}
       <div ref={onSlot} className="sh-slot">
         <nav aria-label={t('shell.crumbs')} className="sh-crumbs">
           {crumbs.map((c, i) => {

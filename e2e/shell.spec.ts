@@ -256,3 +256,60 @@ test('SH-06 on a phone the toggle sits under the top bar', async ({ page }) => {
   ).toBeVisible()
   await expect(top(page).getByTestId('view-toggle')).toBeHidden()
 })
+
+test('SH-05 tooltips name the keys; the setting hides the pair on a computer only', async ({
+  page,
+}) => {
+  await start(page)
+  await expect(top(page).getByRole('button', { name: 'Undo' })).toHaveAttribute(
+    'title',
+    /^Undo \((Ctrl|Cmd) Z\)$/,
+  )
+  await expect(top(page).getByRole('button', { name: 'Redo' })).toHaveAttribute(
+    'title',
+    /^Redo \((Ctrl Y|Cmd Shift Z)\)$/,
+  )
+  await page.evaluate(() =>
+    localStorage.setItem('learning-notes:general.showUndoRedo', '"off"'),
+  )
+  await page.reload()
+  await expect(page.locator('.sh-frame')).toBeVisible()
+  await expect(top(page).getByTestId('history-undo')).toHaveCount(0)
+  // Another device mode always shows the pair.
+  await page.evaluate(() =>
+    localStorage.setItem('learning-notes:general.deviceMode', '"touch"'),
+  )
+  await page.reload()
+  await expect(top(page).getByTestId('history-undo')).toBeVisible()
+})
+
+test('SH-05 the editor toolbar drops its own Undo / Redo pair; flag off keeps it', async ({
+  page,
+}) => {
+  await withPage(page)
+  await expect(page.locator('[data-main-bar]')).toBeVisible()
+  await expect(
+    page.locator('[data-main-bar] [data-slot="history"]'),
+  ).toHaveCount(0)
+  await expect(top(page).getByTestId('history-undo')).toBeVisible()
+})
+
+test('SH-05 flag off: the editor toolbar keeps its Undo / Redo pair', async ({
+  page,
+}) => {
+  await page.goto('/')
+  await createNotebook(page, 'Biology', 'Cells')
+  await typeInEditor(page, 'The nucleus holds the DNA')
+  await expect(
+    page.locator('[data-main-bar] [data-slot="history"]'),
+  ).toHaveCount(1)
+})
+
+test('SH-04 the top bar says Saved while a page is open, and nothing otherwise', async ({
+  page,
+}) => {
+  await start(page)
+  await expect(top(page).locator('.sh-status')).toHaveCount(0)
+  await createNotebook(page, 'Biology', 'Cells')
+  await expect(top(page).locator('.sh-status')).toHaveText('Saved')
+})

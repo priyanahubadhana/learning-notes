@@ -15,7 +15,7 @@ Noted while batch 1 is being built. Test batch 1 first, then decide which of the
 8. **Overlapping boxes like GoodNotes (parked 11 Nov).** After the basics.
 9. **Interactive playground / guided tutor (parked 12 Nov).** In Help, a practice "playground" where a guide bot walks users through building a database, a dashboard and other advanced features hands-on (like a game's tutorial level), instead of reading docs.
 
-## 10. AI tags for everything (owner, 12 Nov 2026), decided
+## 10. Tags for everything (just "Tags"; never call them AI tags) (owner, 12 Nov 2026), decided
 - Tag ANYTHING: books, articles, YouTube videos, LinkedIn posts, notes, highlights, cards, database rows, so one tag (e.g. "AI agents") gathers them all.
 - The AI suggests tags; once the owner accepts a tag the first time, it is remembered and applied automatically next time (no re-asking for known tags). Everything stays editable.
 - AI: Claude via the connector by default (₹0, own plan); option to use any AI later (paid AI only with cost approval).

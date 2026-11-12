@@ -24,6 +24,102 @@ export interface ToolMeta {
 }
 
 export const TOOL_META: Readonly<Record<string, ToolMeta>> = {
+  strike: {
+    level: 'beginner',
+    places: ['toolbar', 'palette'],
+    favourite: true,
+    icon: 'strike',
+  },
+  highlight: {
+    level: 'beginner',
+    places: ['toolbar', 'palette'],
+    favourite: true,
+    icon: 'highlighter',
+  },
+  heading1: {
+    level: 'beginner',
+    places: ['toolbar', 'slash', 'palette'],
+    favourite: true,
+    icon: 'heading1',
+  },
+  heading2: {
+    level: 'beginner',
+    places: ['toolbar', 'slash', 'palette'],
+    favourite: true,
+    icon: 'heading2',
+  },
+  heading3: {
+    level: 'beginner',
+    places: ['toolbar', 'slash', 'palette'],
+    favourite: true,
+    icon: 'heading3',
+  },
+  bulletList: {
+    level: 'beginner',
+    places: ['toolbar', 'slash', 'palette'],
+    favourite: true,
+    icon: 'list',
+  },
+  numberedList: {
+    level: 'beginner',
+    places: ['toolbar', 'slash', 'palette'],
+    favourite: true,
+    icon: 'numbered',
+  },
+  checklist: {
+    level: 'beginner',
+    places: ['toolbar', 'slash', 'palette'],
+    favourite: true,
+    icon: 'checklist',
+  },
+  quote: {
+    level: 'beginner',
+    places: ['toolbar', 'slash', 'palette'],
+    favourite: true,
+    icon: 'quote',
+  },
+  alignLeft: {
+    level: 'beginner',
+    places: ['toolbar', 'palette'],
+    favourite: true,
+    icon: 'alignLeft',
+  },
+  alignRight: {
+    level: 'beginner',
+    places: ['toolbar', 'palette'],
+    favourite: true,
+    icon: 'alignRight',
+  },
+  blank: {
+    level: 'beginner',
+    places: ['toolbar', 'slash', 'palette'],
+    favourite: true,
+    icon: 'input',
+  },
+  picture: {
+    level: 'beginner',
+    places: ['toolbar', 'slash', 'palette'],
+    favourite: true,
+    icon: 'image',
+  },
+  database: {
+    level: 'beginner',
+    places: ['toolbar', 'slash', 'palette'],
+    favourite: true,
+    icon: 'database',
+  },
+  callout: {
+    level: 'beginner',
+    places: ['toolbar', 'slash', 'palette'],
+    favourite: true,
+    icon: 'sparkles',
+  },
+  divider: {
+    level: 'beginner',
+    places: ['toolbar', 'slash', 'palette'],
+    favourite: true,
+    icon: 'minus',
+  },
   saveRestore: {
     level: 'beginner',
     places: ['toolbar', 'palette'],

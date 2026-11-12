@@ -1,0 +1,23 @@
+{
+  "note": "One entry per feature the app has today. Each entry says where the feature lives (file and line) and, when it has one, a probe in e2e/probes/ whose title names the id as [probe:<id>]. Run: npm run probe:inventory",
+  "features": [
+    {
+      "id": "flags.isOn",
+      "name": "Read a feature switch at once",
+      "file": "src/app/flags.ts",
+      "line": 99
+    },
+    {
+      "id": "flags.setFlag",
+      "name": "Turn a feature switch on or off on this device",
+      "file": "src/app/flags.ts",
+      "line": 102
+    },
+    {
+      "id": "flags.useFlag",
+      "name": "React hook for a feature switch",
+      "file": "src/app/flags.ts",
+      "line": 138
+    }
+  ]
+}

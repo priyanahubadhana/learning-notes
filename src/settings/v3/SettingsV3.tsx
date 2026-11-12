@@ -30,6 +30,7 @@ import { PageTabsEditor } from './PageTabsEditor'
 import { buildSections } from './sections'
 import { ExperienceSection } from './ExperienceSection'
 import { HelpSection } from './HelpSection'
+import { ProFeatures } from './ProFeatures'
 import { rowShown, useExperienceOnTop } from './experience'
 import { searchVirtual, virtualRows } from './virtualRows'
 import { inSection, useVisibleSettings } from './visibleSettings'
@@ -218,6 +219,7 @@ function SettingsV3Body({
               }}
             />
           )}
+          {!searching && section?.kind === 'pro' && <ProFeatures />}
           {!searching && section?.kind === 'help' && (
             <>
               {section.lead && <p className="sv3-lead">{section.lead}</p>}

@@ -60,7 +60,12 @@ export function buildSections(experienceOnTop: boolean): V3Section[] {
     lead: tv('sv3.help.lead'),
     kind: 'help',
   }
+  const pro: V3Section = {
+    id: 'pro',
+    label: tv('sv3.pro.title'),
+    kind: 'pro',
+  }
   return experienceOnTop
-    ? [experience, ...rows, help]
-    : [...rows, help, experience]
+    ? [experience, ...rows, help, pro]
+    : [...rows, help, pro, experience]
 }

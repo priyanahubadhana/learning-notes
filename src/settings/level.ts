@@ -104,6 +104,9 @@ export const levelVersion = (): number => version
 export const unlockedIds = (): ProFeatureId[] =>
   PRO_FEATURES.map((f) => f.id).filter((id) => state.unlocked.has(id))
 
+/** The stored choice of one switch, whatever the level (Professional reads all as on). */
+export const isStoredOn = (id: ProFeatureId): boolean => state.unlocked.has(id)
+
 /** Listens for any change of the level or of an unlock switch. */
 export const subscribeLevel = subscribe
 

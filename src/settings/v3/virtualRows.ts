@@ -30,6 +30,13 @@ export function virtualRows(): VirtualRow[] {
       keywords: 'new beginner used experienced level essentials',
     },
     {
+      id: 'pro.features',
+      section: 'pro',
+      name: tv('sv3.pro.title'),
+      help: tv('sv3.pro.lead'),
+      keywords: 'professional features switch unlock beginner',
+    },
+    {
       id: 'help.tours',
       section: 'help',
       name: tv('sv3.tours.title'),

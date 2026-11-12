@@ -11,6 +11,9 @@ import { useDeviceSetting, useSyncedSetting } from '../useSetting'
 import { useSettingsHistory } from './historyCtx'
 import { RowControl } from './RowControl'
 import { RowExtra } from './RowExtra'
+import { takeJustShown } from './experience'
+import { ShowInBeginner } from './ShowInBeginner'
+import { isProFeatureId } from '../level'
 import { RowPreview } from './RowPreview'
 import { valueText, type Change } from './changeNote'
 
@@ -84,7 +87,7 @@ function RowBody({
     })
 
   // A change after the first showing (from here or another window or device).
-  const [glow, setGlow] = useState(0)
+  const [glow, setGlow] = useState(() => (takeJustShown(definition.id) ? 1 : 0))
   const seen = useRef<{ json: string; text: string } | undefined>(undefined)
   const notify = useRef(onChanged)
   useEffect(() => {
@@ -144,6 +147,7 @@ function RowBody({
         <RowExtra definition={definition} value={value} onSave={commit} />
       </div>
       <RowPreview definition={definition} value={value} glowKey={glow} />
+      {isProFeatureId(definition.id) && <ShowInBeginner id={definition.id} />}
       {((definition.alsoIn && others.length > 0) || !isDefault) && (
         <div className="sv3-row-foot">
           {definition.alsoIn && others.length > 0 && (

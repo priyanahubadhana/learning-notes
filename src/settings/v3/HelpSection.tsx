@@ -2,6 +2,7 @@ import { useState } from 'react'
 import { ExperienceDialog } from './ExperienceDialog'
 import { rowShown, useGateVersion } from './experience'
 import { ToursLibrary } from './ToursLibrary'
+import { ShowInBeginner } from './ShowInBeginner'
 import { tv } from './tv'
 
 /**
@@ -34,6 +35,7 @@ export function HelpSection({
               {tv('sv3.firstLaunch.button')}
             </button>
           </div>
+          <ShowInBeginner id="help.firstLaunch" />
         </section>
       )}
       {open && (

@@ -149,6 +149,7 @@ const ESSENTIAL = new Set([
   'help.experience',
   'help.replay',
   'help.tours',
+  'pro.features',
   'experience.pin',
 ])
 
@@ -188,4 +189,17 @@ export function countFor(exp: Experience): number {
         exp === 'expert' || tag === 'E' || (tag === 'C' && exp === 'little')
       )
     }).length
+}
+
+/** Rows whose switch was just turned on: they glow once when they appear. */
+const recent = new Map<string, number>()
+const RECENT_MS = 30_000
+export function markJustShown(id: string): void {
+  recent.set(id, Date.now())
+}
+export function takeJustShown(id: string): boolean {
+  const at = recent.get(id)
+  if (at === undefined) return false
+  recent.delete(id)
+  return Date.now() - at < RECENT_MS
 }

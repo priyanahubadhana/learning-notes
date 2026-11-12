@@ -48,6 +48,12 @@ export default function SlashCommandList({ editor, actions }: Props) {
       query={state.query}
       cursor={state.referencePos}
       close={() => ext.closeMenu()}
+      clearAll={() => {
+        // ✕ in the list: drop the "/word" from the page and close.
+        ext.closeMenu()
+        ext.clearQuery()
+        editor.focus()
+      }}
       pick={(run) => {
         // Same order as BlockNote's own menu: close, remove "/word", act.
         ext.closeMenu()
@@ -65,11 +71,13 @@ function Open({
   query,
   cursor,
   close,
+  clearAll,
   pick,
 }: Props & {
   query: string
   cursor: DOMRect
   close(): void
+  clearAll(): void
   pick(run: () => void): void
 }) {
   const level = useLevel()
@@ -101,13 +109,19 @@ function Open({
   const limit = compact ? BEGINNER_COUNT : 999
 
   const vw = typeof window === 'undefined' ? 1024 : window.innerWidth
-  const vh = typeof window === 'undefined' ? 768 : window.innerHeight
+  const barTop =
+    typeof document === 'undefined'
+      ? null
+      : document.querySelector('.sh-tabbar')?.getBoundingClientRect().top
+  const winH = typeof window === 'undefined' ? 768 : window.innerHeight
+  // The phone tab bar is the bottom edge.
+  const vh = barTop && barTop > 0 && barTop < winH ? Math.floor(barTop) : winH
   const width = vw < NARROW ? vw - 24 : 320
   const { left, top, height } = cursor
-  // Under the cursor line; above it only when there is no room below.
+  // Under the cursor line when it fits; else above it, if that has more room.
   const roomBelow = vh - (top + height) - GAP - 12
   const roomAbove = top - GAP - 12
-  const below = roomBelow >= 240 || roomAbove < 240
+  const below = roomBelow >= 320 || roomAbove <= roomBelow
   const { target, avoid } = useMemo(() => {
     const h = Math.max(0, height)
     return below
@@ -225,6 +239,7 @@ function Open({
           })
         }
         onClose={close}
+        onClearQuery={clearAll}
       />
     </div>
   )

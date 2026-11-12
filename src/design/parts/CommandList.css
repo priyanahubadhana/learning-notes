@@ -94,6 +94,35 @@
   margin-top: 6px;
   overflow-y: auto;
   overscroll-behavior: contain;
+  /* No bar taking width: rows run edge to edge, same as the search box. */
+  scrollbar-width: none;
+}
+.cl__list::-webkit-scrollbar {
+  display: none;
+}
+.cl__clear {
+  flex: none;
+  display: grid;
+  place-items: center;
+  width: 44px;
+  height: 44px;
+  margin-right: -12px;
+  padding: 0;
+  border: 0;
+  background: transparent;
+  color: var(--color-ink-soft, var(--color-muted));
+  cursor: pointer;
+}
+.cl__clear:focus-visible {
+  outline: 2px solid var(--color-accent);
+  outline-offset: -6px;
+  border-radius: var(--r-pill);
+}
+/* Phone: a solid surface, so nothing behind (tab highlight) shows through. */
+.cl[data-phone] {
+  background: var(--color-surface-2);
+  -webkit-backdrop-filter: none;
+  backdrop-filter: none;
 }
 .cl__group {
   padding: 10px 12px 4px;

@@ -191,6 +191,7 @@ export const hiParts = {
   'parts.menus.closePicker': 'बंद करें',
   'parts.menus.listLabel': 'कमांड',
   'parts.menus.search': 'कमांड खोजें',
+  'parts.menus.clearSearch': 'खोज साफ़ करें',
   'parts.menus.searchPlaceholder': 'खोजने के लिए लिखें',
   'parts.menus.recent': 'हाल के',
   'parts.menus.actions': 'क्रियाएँ',

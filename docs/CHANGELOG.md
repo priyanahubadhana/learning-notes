@@ -6,7 +6,7 @@ Current phase only. Older entries are in [ARCHIVE.md](ARCHIVE.md).
 
 - **What:** Library v2 built behind the OFF switch library.v2: Continue reading with covers, one + Add menu, shelves only in the side panel, More sheet with an active-filter chip, the shared Tag picker wired into Library (filter and assign), Knowledge with highlights first, preview and Jump, Export with What to include (Markdown and CSV), Professional row that stays on one line at 820 px, grouped search, list view, Select with Tag / Status / Move to. Collections, manual status and view choices are kept in a small local store for now.
 - **Why:** owner-approved mock v2 (PENDING 12 Nov). With the switch off, today's screen is unchanged (LibraryScreen and LibrarySidebar choose by the switch; no App.tsx edit).
-- **Files:** src/library/v2/*, src/library/LibraryScreen.tsx, src/library/LibrarySidebar.tsx, src/i18n/*/libraryV2.ts (+ indexes), e2e/libraryV2.spec.ts, playwright.config.ts (one line: libraryV2 runs on ipad-webkit), scripts/feature-links.json, docs/plans/library-v2-spec.md, docs/features/library-v2.md.
+- **Files:** src/library/v2/_, src/library/LibraryScreen.tsx, src/library/LibrarySidebar.tsx, src/i18n/_/libraryV2.ts (+ indexes), e2e/libraryV2.spec.ts, playwright.config.ts (one line: libraryV2 runs on ipad-webkit), scripts/feature-links.json, docs/plans/library-v2-spec.md, docs/features/library-v2.md.
 
 ## 2026-11-12 (Build master plan)
 

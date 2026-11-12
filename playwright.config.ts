@@ -97,6 +97,7 @@ export default defineConfig({
         /magnifier/,
         /aiPicker/,
         /openNotebook/,
+        /tryNewFeatures/,
         /barFixes/,
         /pencilTaps/,
         /boxPills/,

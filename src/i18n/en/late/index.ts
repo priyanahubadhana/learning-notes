@@ -10,6 +10,7 @@ import { enLateHome } from './home'
 import { enLateImportExport } from './importExport'
 import { enLateInk } from './ink'
 import { enLateLibrary } from './library'
+import { enLateLibraryV2 } from './libraryV2'
 import { enLateLock } from './lock'
 import { enLateMedia } from './media'
 import { enLateReading } from './reading'
@@ -53,4 +54,5 @@ export const enLate = {
   ...enLateAiBuild,
   ...enLateAiJobs,
   ...enParts,
+  ...enLateLibraryV2,
 }

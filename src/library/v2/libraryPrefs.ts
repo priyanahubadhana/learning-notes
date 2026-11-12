@@ -22,6 +22,8 @@ export interface LibraryPrefs {
   status: 'any' | ManualStatus
   tagIds: string[]
   tagMatch: 'any' | 'all'
+  /** Include the sub-tags of the ticked tags. */
+  tagSub: boolean
   view: 'grid' | 'list'
   sort: SortKey
   showProgress: boolean
@@ -44,6 +46,7 @@ export const DEFAULT_PREFS: LibraryPrefs = {
   status: 'any',
   tagIds: [],
   tagMatch: 'any',
+  tagSub: false,
   view: 'grid',
   sort: 'recent',
   showProgress: true,
@@ -108,6 +111,7 @@ export function cleanPrefs(raw: unknown): LibraryPrefs {
           .slice(0, 50)
       : [],
     tagMatch: raw.tagMatch === 'all' ? 'all' : 'any',
+    tagSub: raw.tagSub === true,
     view: raw.view === 'list' ? 'list' : 'grid',
     sort: SORTS.includes(raw.sort as string) ? (raw.sort as SortKey) : d.sort,
     showProgress: raw.showProgress !== false,

@@ -880,6 +880,19 @@ test.describe('Gate 3 fixes (second visit)', () => {
       const card = (await page.getByTestId('rv2-card').boundingBox())!
       expect(card.width).toBeGreaterThan(560)
     })
+
+    test('RV-G02b: rotating the iPad updates the sidebar state', async ({
+      page,
+    }) => {
+      await seed(page, 1)
+      await openReview(page)
+      const side = page.getByRole('complementary', { name: 'Sidebar' })
+      await expect(side).toBeHidden()
+      await page.setViewportSize({ width: 1180, height: 820 })
+      await expect(side).toBeVisible()
+      await page.setViewportSize({ width: 820, height: 1180 })
+      await expect(side).toBeHidden()
+    })
   })
 
   test.describe('phone', () => {

@@ -39,6 +39,7 @@ import { ThemeContext } from './app/themeContext'
 import type { ToastAction } from './app/appUi'
 import { toggleFavourite } from './app/favourites'
 import { useFlag } from './app/flags'
+import { useFrameSize } from './app/shell/useFrameSize'
 import { SpaceStrip } from './app/spaces/SpaceStrip'
 import { QuietCorner } from './app/spaces/QuietCorner'
 import {
@@ -855,12 +856,13 @@ function App() {
   }, [outlineAsk.n, setPanelOpen])
   // Review v2 on a narrow tablet (portrait iPad): the session needs the room,
   // so the sidebar starts closed (the toggle still opens it).
+  const frame = useFrameSize()
   const narrowReview =
     reviewV2 &&
     space === 'review' &&
     currentPage === null &&
-    innerWidth >= 640 &&
-    innerWidth < 1000
+    frame.width >= 640 &&
+    frame.width < 1000
   const [reviewSideOpen, setReviewSideOpen] = useState(false)
   const sidebarHidden = narrowReview ? !reviewSideOpen : sidebarHiddenPref
   const toggleSidebar = () => {

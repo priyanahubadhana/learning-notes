@@ -88,10 +88,14 @@ for (const level of ['beginner', 'professional'] as const)
         let context = await open()
         let page = await context.newPage()
         await page.clock.install()
-        const shot = (state: string) =>
-          page.screenshot({
+        // No hover in the pictures: the pointer rests in a blank corner.
+        const shot = async (state: string) => {
+          await page.mouse.move(viewport.width - 2, viewport.height - 2)
+          await page.waitForTimeout(250)
+          await page.screenshot({
             path: `${OUT}/${level}-${theme}-${name}-${state}.png`,
           })
+        }
         const pause = () => page.waitForTimeout(500)
 
         // A notebook with no cards yet: Review home with its empty state.

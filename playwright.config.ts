@@ -80,6 +80,7 @@ export default defineConfig({
       testIgnore: /visual\//,
       testMatch: [
         /pencilIsolation/,
+        /updateV2/,
         /chromeIsolation/,
         /penTapChrome/,
         /ipadKeyboard/,

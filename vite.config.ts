@@ -48,7 +48,27 @@ function isRequiredUpdate(): boolean {
     return false
   }
 }
-const REQUIRED = isRequiredUpdate()
+
+/** Reads UPDATE_LEVEL / UPDATE_REASON out of the text of updateLevel.ts. */
+function readLevelFile(src: string): { level: number; reason: string } {
+  const level = /UPDATE_LEVELs*=s*(d+)/.exec(src)?.[1]
+  const reason = /UPDATE_REASON[^=]*=s*'(w+)'/.exec(src)?.[1]
+  return { level: level ? Number(level) : 1, reason: reason ?? 'storage' }
+}
+const LEVEL_FILE = 'src/app/updateLevel.ts'
+const NOW = readLevelFile(readFileSync(LEVEL_FILE, 'utf8'))
+/** Did UPDATE_LEVEL change in the last commit? Old devices read that as `required`. */
+function levelChanged(): boolean {
+  try {
+    const before = execSync(`git show HEAD~1:${LEVEL_FILE}`, {
+      stdio: ['ignore', 'pipe', 'ignore'],
+    }).toString()
+    return readLevelFile(before).level !== NOW.level
+  } catch {
+    return false
+  }
+}
+const REQUIRED = isRequiredUpdate() || levelChanged()
 
 /** Writes version.json, which the live site checks read. */
 const versionStamp = (): Plugin => ({
@@ -58,7 +78,12 @@ const versionStamp = (): Plugin => ({
     this.emitFile({
       type: 'asset',
       fileName: 'version.json',
-      source: JSON.stringify({ commit: COMMIT, required: REQUIRED }),
+      source: JSON.stringify({
+        commit: COMMIT,
+        required: REQUIRED,
+        level: NOW.level,
+        reason: NOW.reason,
+      }),
     })
   },
 })

@@ -102,6 +102,7 @@ export default defineConfig({
         /openNotebook/,
         /tryNewFeatures/,
         /foundationInput/,
+        /foundationSelectionOverlay/,
         /barFixes/,
         /pencilTaps/,
         /boxPills/,

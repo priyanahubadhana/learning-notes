@@ -1,14 +1,12 @@
 {
   "totals": {
-    "listeners": 365,
+    "listeners": 362,
     "zIndex": 137
   },
   "files": {
     "listeners": {
       "src/App.tsx": 6,
       "src/ai/providers.ts": 1,
-      "src/aitools/jobs/filler.ts": 1,
-      "src/aitools/jobs/runner.ts": 2,
       "src/app/attention/AttentionGate.tsx": 1,
       "src/app/autoUpdate.ts": 8,
       "src/app/chunkReload.ts": 1,

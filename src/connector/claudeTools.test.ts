@@ -1754,7 +1754,8 @@ describe('slice 7: refine_page', () => {
   })
 })
 
-describe('slice 8: rate limits', () => {
+// ~560 signed calls (about 1 s alone): far slower when the machine is busy.
+describe('slice 8: rate limits', { timeout: 60_000 }, () => {
   let t: string
   beforeEach(async () => {
     await enable()

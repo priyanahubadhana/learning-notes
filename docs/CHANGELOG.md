@@ -1615,3 +1615,12 @@ Plan: [plans/polish-2-2026-11.md](plans/polish-2-2026-11.md). Items 8, 9 and 15 
 - 2026-11-11: library revamp plan + deep-study ideas explainer. Files: docs/plans/library-revamp-plan.md
 - 2026-11-12: Home dashboard plan (building blocks, gaps, templates). Files: docs/plans/home-dashboard-plan.md
 - 2026-11-12: agent hierarchy (Fable manager → Opus sub-managers → Sonnet/Haiku executors). Files: .claude/agents/*.md, rules/building.md
+
+## 12 Nov 2026: CI green again
+- boxTaps (WebKit): edge probe made overlays click-through (tapSelect `probe()`), eeaf986; TEMP debug logging reverted.
+- aiBook cap: "show what will be sent" disabled until the book has opened (db388de).
+- toggles View tab: spec presses the reader ✕ directly (1f7b4e6); OPEN UI bug: on iPad the sidebar covers the reader bar ✕.
+- undoHistory: stroke drawn on the sized drawing area (0383430).
+- Doc spacing for format:check (3d3e7fe).
+- CI: a manual run (workflow_dispatch) on main now runs checks, e2e and deploy too, so docs-only fixes can still be deployed.
+- Supabase: connector migrations applied, connector_devices renumbered to 20261113000002; mcp function prefix fix (ad3ec12).

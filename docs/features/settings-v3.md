@@ -1,0 +1,322 @@
+# Settings v3
+
+Security rules: [rules/security.md](../../rules/security.md). Check them before building.
+
+Slice 3 of [build-master-plan.md](../plans/build-master-plan.md). Mock: `docs/mockups/settings-mock-v3.html` (approved 12 Nov 2026). Builds on [settings.md](settings.md), [sync.md](sync.md), [lock.md](lock.md).
+
+## Purpose
+
+One calm place for every choice. You can search any setting. Each row shows a tiny live preview of what it changes. You can turn on a single Professional feature without leaving Beginner. Nothing from today's screen is removed.
+
+## How it works
+
+### 1. Plain-words summary
+
+- Settings has a left list of sections (a row of chips on a phone) and the settings on the right.
+- A big preview sits beside the settings on wide screens. On a phone it is a small pill at the bottom. Tap the pill to open the preview above the tab bar.
+- Every row has a small picture of its effect. The part that changed glows for a moment and a note says what changed. There is always an Undo.
+- Search at the top finds any setting, by name or by plain words (for example "ribbon").
+- "Your experience" sets how much Settings shows: New, Used a little, Experienced. It is a one-time choice. A switch moves it to the bottom once you have chosen.
+- "Professional features" is one list of every Professional feature, grouped by space. Each has its own switch. Turn one on and it shows in Beginner too.
+- Every section can be reset. After a reset an Undo toast appears.
+- Tours come as a list. Our own guide is built in. Other tours are downloaded only when you tap.
+
+### 2. Flag names
+
+- `settings.v3`: OFF = today's `SettingsScreen.tsx` unchanged. ON = the new screen. Defined in `src/app/flags.ts` (hot file, one integration builder).
+- Uses `foundation.level` (slice 0a) for Beginner / Professional and the 169-item unlock list from `docs/mockups/pro-features.md`.
+- Hidden "Try new design" list (see SET-B26) shows every slice flag, so the owner can turn this one on for himself.
+
+### 3. When I do X, then Y
+
+Ids: SET-Bxx works in Beginner (and Professional). SET-Pxx is Professional only; each names its unlock switch (exact id from pro-features.md). Each line is one e2e test (chromium + ipad-webkit).
+
+#### Layout, search, preview
+
+| id      | When I do X                                             | Then Y                                                                                                                                                                               |
+| ------- | ------------------------------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------ |
+| SET-B01 | open Settings on iPad landscape (≥ 1180)                | List of sections on the left, settings in the middle, a preview column (340 px, sticky) on the right. Settings are never covered by the preview (S5, S-e).                           |
+| SET-B02 | open Settings on a phone (≤ 640)                        | Sections become a chip row. No preview column. A "Preview" pill (44 pt, accent) sits at the bottom, above the tab bar.                                                               |
+| SET-B03 | tap the Preview pill                                    | The preview opens as a sheet above the tab bar (max 46 vh, scrolls). Tap the pill again, ✕ or Esc closes it. Settings behind it stay tappable above the sheet.                       |
+| SET-B04 | change any setting on a phone while the preview is shut | The pill pulses 3 times (1 s each) so I know something changed. Tapping it shows the change.                                                                                         |
+| SET-B05 | type in the Settings search box                         | Rows from every section that match name, help text or plain-word keywords are listed, each with its section name. ✕ clears the box. Nothing matches: "No settings match" plus a tip. |
+| SET-B06 | open a search result                                    | The section opens, scrolls to the row and the row glows (`data-setting-id`). Works for account items too (`searchOnly`).                                                             |
+| SET-B07 | change a setting                                        | The changed part of the live preview glows (accent outline + soft fill, 1.5 s, twice). A one-line note names what changed (S2, S-g).                                                 |
+| SET-B08 | change a General setting (any of them)                  | The General preview (a mini app) shows the effect: theme, paper, reduce glass, date style, language, device mode, path style, update chip, hidden spaces in the rail (S1, S-h).      |
+| SET-B09 | look at any row                                         | A tiny live preview (about 56 px tall) sits in the row and updates at once. Rows with nothing to show carry a text line instead (never blank).                                       |
+| SET-B10 | change a setting                                        | Toast "Changed X" with Undo (6 s). The top-bar Undo and Redo also undo and redo the change. Ctrl+Z / Ctrl+Y work when no text field is focused.                                      |
+| SET-B11 | tap Undo then Redo                                      | The value, the row, the preview and the stored value (database or device) all return together.                                                                                       |
+| SET-B12 | see any row                                             | The sync badge stays: "All devices" or "This device", with the same menu as today (Keep on this device only, Use this device's value everywhere, Reset to synced value).             |
+| SET-B13 | open a section and tap "Reset this section"             | A small dialog (420 px max) says what will reset. Confirm resets only that section's non-default settings. Toast "Section reset" with Undo (6 s). Nothing else changes.              |
+| SET-B14 | tap Undo after a section reset                          | Every setting in that section returns to its earlier value in one step.                                                                                                              |
+| SET-B15 | a row differs from its default                          | A "Reset" link shows on that row (as today). Tap: the default returns, toast with Undo.                                                                                              |
+| SET-B16 | a row also lives in another section (`alsoIn`)          | Row note "Also in: Tool bar" stays. Changing it in one place shows in the other at once.                                                                                             |
+
+#### Your experience (inside Settings only)
+
+| id      | When I do X                                              | Then Y                                                                                                                                                                       |
+| ------- | -------------------------------------------------------- | ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| SET-B17 | open Settings first time                                 | "Your experience" is the first section. Three choices: New, Used a little, Experienced. The app's view toggle stays two levels (Beginner / Professional).                    |
+| SET-B18 | choose New                                               | Settings shows essentials only. The app view is Beginner. A short note says how many settings are hidden and where to find them.                                             |
+| SET-B19 | choose Used a little                                     | Settings shows essentials and common rows. The app view stays Beginner. Professional features stay off unless unlocked one by one.                                           |
+| SET-B20 | choose Experienced                                       | Settings shows everything. The app view becomes Professional. All unlock switches read as on (and can be turned off one by one).                                             |
+| SET-B21 | turn off "Show Your experience at the top"               | The section moves to the bottom of the list, stays one tap away, and the switch remembers (S3, S-i). Glow + toast show where it went.                                        |
+| SET-B22 | open Tours library                                       | Our experience-based guide is listed as built in. Other tour projects show a Download button and a size. Nothing is downloaded by default.                                   |
+| SET-B23 | tap Download on a tour                                   | Progress shows, then "Ready". Offline: "You are offline. Try again when connected." The row stays and nothing breaks. Tap Replay starts the tour.                            |
+| SET-B24 | tap "Show the first-launch question again"               | The New / Used a little / Experienced pop-up opens (same words as the first launch).                                                                                         |
+| SET-B25 | open "Let AI use my notebooks"                           | Section named "Let AI use my notebooks". Any connected AI or API is listed; Claude is first (S4, S-f). Old name "Let Claude use my notes" is a search keyword.               |
+| SET-B26 | tap Version 5 times (or type "try new design" in search) | A hidden list "Try new design" opens: one switch per slice flag (`settings.v3`, `home.v2`, ...). Each has a plain line, a risk note and "Turn all off". Not shown otherwise. |
+
+#### General rows that changed
+
+| id      | When I do X                                     | Then Y                                                                                                                                                                                             |
+| ------- | ----------------------------------------------- | -------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| SET-B27 | set Show help off                               | Small tip text disappears. The tips line in the preview greys out and the changed spot glows with a before / after note (S2, S-g).                                                                 |
+| SET-B28 | open Default page tabs                          | Three tabs by default (Page, Summary, Cards). I can add, rename, remove and reorder. The row is always one line; extra tabs scroll sideways with the thin track (S8, S-b).                         |
+| SET-B29 | change the page tabs                            | A small preview of the tab row itself is shown right there, not in the main preview (S-b).                                                                                                         |
+| SET-B30 | drag a tab                                      | Drop-line plus ▲▼ buttons; other tabs slide aside live. Undo restores the order.                                                                                                                   |
+| SET-B31 | open "Start new pages as" (Beginner)            | Choices: Blank, and the study template. A "Choose a template" option opens the template picker (S6, S-d).                                                                                          |
+| SET-B32 | choose Reduce glass: Off / On                   | Frosted bars become solid (On) or frosted (Off). Preview shows both honestly.                                                                                                                      |
+| SET-B33 | choose Reduce glass: Auto                       | Preview shows a split: left frosted (device fast), right solid (device slow), plus the plain line "Turns blur off if the device gets slow". No distorted blur (S7, S-c).                           |
+| SET-B34 | open the "Bold · Pen · Read" preview (Language) | Calm card in theme colours: three small plain labels, same radius and type as other previews, no bright fills, no shadows beyond `--elev-1`. Text follows the chosen language (PENDING condition). |
+| SET-B35 | open Home / Library / Review space switches     | Each is a Show / Hide switch. At least one space always stays shown; hiding the last one is blocked with a toast. Preview rail updates.                                                            |
+| SET-B36 | segmented control, any setting                  | Each button is at least 44 pt tall. See "Sizes" and the nothing-lost row N-01.                                                                                                                     |
+
+#### Professional features list (central, every feature has its own switch)
+
+| id      | When I do X                                      | Then Y                                                                                                                                             |
+| ------- | ------------------------------------------------ | -------------------------------------------------------------------------------------------------------------------------------------------------- |
+| SET-B37 | open "Professional features"                     | All switches are listed in groups: Home, Notebooks, Toolbar/Text/Pen, Reader, Library, Review, Search, AI mode, Settings. Counts show "n of N on". |
+| SET-B38 | type in "Search features"                        | List filters by name and by what it does. ✕ clears. Empty: "No Professional feature matches".                                                      |
+| SET-B39 | turn one switch on while in Beginner             | The feature shows in its own screen at once (glow on the spot), the app stays Beginner, toast "X is on" with Undo.                                 |
+| SET-B40 | tap "Turn on all in this group"                  | Every switch in the group turns on in one step; the button becomes "Turn off all in this group". One Undo reverses the whole group.                |
+| SET-B41 | tap "Reset to Beginner"                          | A confirm dialog; then every unlock switch turns off. Toast with Undo.                                                                             |
+| SET-B42 | a Pro row appears in its own section in Beginner | Each Pro row has a "Show in Beginner" switch (same state as the central list). Off: the row is hidden in Beginner. Both places stay in sync.       |
+| SET-B43 | switch the app view to Professional              | All rows show; every unlock reads as on without losing stored per-switch choices; back to Beginner restores them.                                  |
+
+#### Professional-only settings (each names its unlock switch)
+
+| id      | Setting (hidden in Beginner unless unlocked)                                                                            | Unlock switch                                                                                                                                     | Then Y when on                                                                  |
+| ------- | ----------------------------------------------------------------------------------------------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------- | ------------------------------------------------------------------------------- |
+| SET-P01 | Start new pages as: pick ANY template incl. own                                                                         | `general.newPageStudy`                                                                                                                            | Row shows the full template picker.                                             |
+| SET-P02 | Reduce glass (with Auto)                                                                                                | `general.reduceGlass`                                                                                                                             | Row shows with the three choices.                                               |
+| SET-P03 | Refresh button in the top bar                                                                                           | `advanced.showRefresh`                                                                                                                            | Switch shows; on = refresh button in top bar (saves first).                     |
+| SET-P04 | Home space show / hide                                                                                                  | `general.space.home`                                                                                                                              | Row shows.                                                                      |
+| SET-P05 | Library space show / hide                                                                                               | `general.space.library`                                                                                                                           | Row shows.                                                                      |
+| SET-P06 | Review space show / hide                                                                                                | `general.space.review`                                                                                                                            | Row shows.                                                                      |
+| SET-P07 | Last backup                                                                                                             | `device.backup`                                                                                                                                   | Row shows date and "Back up now".                                               |
+| SET-P08 | Choose this device again                                                                                                | `device.picker`                                                                                                                                   | Re-opens Computer / iPad / Phone question.                                      |
+| SET-P09 | Control panel (Shift+K)                                                                                                 | `device.controlPanel`                                                                                                                             | Row shows the shortcut and "Open".                                              |
+| SET-P10 | Install the app                                                                                                         | `device.install`                                                                                                                                  | Row shows the install help.                                                     |
+| SET-P11 | Version                                                                                                                 | `about.version`                                                                                                                                   | Row shows the version (the 5-tap target of SET-B26 stays on in Beginner).       |
+| SET-P12 | Sign out and forget the key                                                                                             | `account.signOutForget`                                                                                                                           | Button shows (asks first).                                                      |
+| SET-P13 | Sign out everywhere                                                                                                     | `account.signOutAll`                                                                                                                              | Button shows (asks first).                                                      |
+| SET-P14 | Your devices                                                                                                            | `account.computers`                                                                                                                               | List of signed-in devices.                                                      |
+| SET-P15 | Connected apps                                                                                                          | `account.connected`                                                                                                                               | List with Remove.                                                               |
+| SET-P16 | PIN lock (link to Lock)                                                                                                 | `account.pinLock`                                                                                                                                 | Link row.                                                                       |
+| SET-P17 | AI keys on all devices                                                                                                  | `account.aiKeys`                                                                                                                                  | Link row to AI & connections.                                                   |
+| SET-P18 | Reconnect Drive                                                                                                         | `sync.reconnectDrive`                                                                                                                             | Button shows.                                                                   |
+| SET-P19 | Sync groups: General, Appearance, Review, Reading, AI settings, Lock, AI keys                                           | `sync.group.general`, `sync.group.appearance`, `sync.group.review`, `sync.group.reading`, `sync.group.ai`, `sync.group.lock`, `sync.group.aiKeys` | Each group switch shows in What syncs (7 tests, one per id).                    |
+| SET-P20 | What is locked / Remove all locks                                                                                       | `lock.methods`, `lock.removeAll`                                                                                                                  | Two rows show (2 tests).                                                        |
+| SET-P21 | Model per notebook, Everything AI sent this month                                                                       | `ai.nb.model`, `ai.perm.usage`                                                                                                                    | Rows show (2 tests).                                                            |
+| SET-P22 | Test a key, Get a key                                                                                                   | `conn.test`, `conn.getKey`                                                                                                                        | Buttons show (2 tests).                                                         |
+| SET-P23 | Claude area: Apps using AI access, Sync passphrase, What AI can see, Turn AI access off                                 | `claude.apps`, `claude.pass`, `claude.privacy`, `claude.turnOff`                                                                                  | Four rows show (4 tests).                                                       |
+| SET-P24 | Tool bar: All tools display, New line hold time, Options pill position, Reset tool bar                                  | `toolbar.ribbonMode`, `toolbar.newLineHold`, `toolbar.pillReset`, `toolbar.reset`                                                                 | Four rows show (4 tests).                                                       |
+| SET-P25 | Press-and-hold menu time                                                                                                | `advanced.holdMenu`                                                                                                                               | Row shows.                                                                      |
+| SET-P26 | Reader: PDF pages, Reader bar, Keep bar showing, Jump speed, Read aloud speed, Keep screen awake, Lock screen direction | `reading.pdfFlow`, `reading.bar`, `reading.barPin`, `reading.glide`, `reading.speed`, `reading.awake`, `reading.orient`                           | Seven rows show (7 tests).                                                      |
+| SET-P27 | Review: Target memory, New card inside an answer, Revise labels                                                         | `review.targetMemory`, `review.nestedCard`, `review.reviseLabels`                                                                                 | Three rows show (3 tests).                                                      |
+| SET-P28 | Advanced tools: Pencil lab, Record slow moments, Slow-moments report, Tool state                                        | `advanced.pencilLab`, `advanced.slowMoments`, `advanced.slowMomentsCopy`, `advanced.toolStateCopy`                                                | Four rows show (4 tests).                                                       |
+| SET-P29 | Show the first-launch question again; Reset this mock-up (removed in the real app, see Decisions)                       | `help.firstLaunch`, `help.resetMock`                                                                                                              | First shows; second is not built.                                               |
+| SET-P30 | Professional features list is complete                                                                                  | all 169 (see pro-features.md)                                                                                                                     | A test reads the file and checks every id has a row, a name and a switch, once. |
+
+All of SET-P01 to SET-P29 follow one pattern: Beginner and switch off = row hidden and search does not find it; switch on (central list or "Show in Beginner" on the row) = row shown at once with a glow, search finds it. The e2e test is data-driven from the list, one assertion per id.
+
+### 4. Shared parts used
+
+Tokens; Card ▾ frame (304 / 376) for the section cards; Tab row (page tabs); ✕ field (search, feature search, template search); Drag (drop-line + ▲▼, live reflow) for page tabs; Arrange sheet; Empty state; shell: rail, top bar, sidebar, More sheet (440) for "Settings tools" (Level, Tours, Reset; draft until Done), small dialog (reset, confirm), pop menu (sync badge), toast with Undo, Undo / Redo. The glow, the tiny live preview and the phone pill are new shared parts (see Decisions 3 and 4).
+
+### 5. Sizes, spacing and motion
+
+| Item                 | Value                                                                           | Mock reference                              |
+| -------------------- | ------------------------------------------------------------------------------- | ------------------------------------------- |
+| Preview column       | 340 px, sticky, grid `minmax(0,1fr) 340px`, gap 18, from 1180 up                | settings-mock-v3.html:2733-2748             |
+| Preview card         | radius 16, 1 px line, padding 12, gap 8; inner page radius 12, min-height 150   | settings-mock-v3.html:1791-1829             |
+| Phone Preview pill   | min-height 44, padding 0 18, radius full, bottom = tab bar + safe area + 12     | settings-mock-v3.html:3190-3202             |
+| Phone preview sheet  | left/right 8, bottom = tab bar + safe + 68, max-height 46 vh                    | settings-mock-v3.html:3220-3232             |
+| Pill pulse           | 1 s, 3 times, ring grows to 14 px                                               | settings-mock-v3.html:3233-3246             |
+| Glow                 | outline 2 px accent, offset 2, ring 5 px at 24 %, blur 22 px, 1.5 s, twice      | settings-mock-v3.html:2765-2790             |
+| Toast                | bottom centre, 2.6 s; 6 s with Undo; z 90                                       | settings-mock-v3.html:3681-3700             |
+| Segmented button hit | `--sh-hit` 44 px (the small variant draws 36 and adds an invisible 44 extender) | shell.css:53; settings-mock-v3.html:355-383 |
+| Switch               | 52 × 32 drawn, 44 pt hit                                                        | settings-mock-v3.html:389-399               |
+| Motion               | 120 / 180 / 240 ms, ease-out                                                    | shell-spec.md section 8                     |
+| Breakpoints          | 640 (phone), 1180 (preview column)                                              | shell-spec.md section 8                     |
+| Page width           | max 760 for the settings column on PC today; with the preview 760 + 340         | SettingsScreen.tsx:~110                     |
+
+#### Today's 36 px segmented control (must become 44 pt)
+
+- `src/settings/SettingsScreen.tsx:489`: segmented buttons use `min-h-9` (36 px). Change to `min-h-11` (44 px). The wrapper at line 483 (`p-0.5`, `rounded-lg`) becomes `rounded-xl p-0.5`, so the track is 48 px tall.
+- Same file, same fix, so no control in Settings is below 44 pt: line 157 (section chips `min-h-9`), line 423 (`fieldClass` for select and number fields), lines 616, 628 and 732 (buttons). Also `src/settings/settingsNotice.tsx:15` (`min-h-9` Undo / dismiss buttons).
+- Other segmented users already pass: `src/app/tools/main/DetailCard.tsx:929` (`min-h-11`), `src/onboarding/Welcome.tsx:56` (`min-h-11`).
+- Wide-screen and mouse: still 44 pt (owner rule: hit areas ≥ 44 pt for Pencil and touch). `any-pointer-coarse` is not used for this control.
+- Test: SET-B36, plus a unit scan that fails if any `button` inside `[data-setting-id]` measures under 44 px.
+
+### 6. States
+
+| State                | What shows                                                                                                                                                                                                                        |
+| -------------------- | --------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| Empty                | Journal section: "Nothing to set yet" with the Empty state part. Search with no result: tip and ✕ to clear. Tours with none downloaded: built-in tour only.                                                                       |
+| Error                | Number field out of range: red border and a line under it (as today, `settings.error.number`). Save failure: toast "Could not save. Try again." and the old value stays. Download failure: row shows "Could not download. Retry". |
+| Offline              | Everything local works. Sync rows show "Offline, will sync later". Tour download and Reconnect Drive are disabled with a plain reason.                                                                                            |
+| Phone ≤ 640          | Chip row, preview pill and sheet, one column. Reset and ✕ stay 44 pt.                                                                                                                                                             |
+| iPad landscape       | Three columns with the preview on the right.                                                                                                                                                                                      |
+| iPad portrait        | Two columns (sections + settings). The preview is the pill and sheet as on a phone below 1180 wide.                                                                                                                               |
+| Light / dark / sepia | All colours from tokens. The preview uses scoped theme variables so it shows the chosen theme before it is applied.                                                                                                               |
+| Reduced motion       | Glow becomes a static outline (no animation) that fades after 1.5 s by opacity only. Pill pulse is off. Toast has no slide.                                                                                                       |
+| Reduced transparency | Preview pill and bars are solid.                                                                                                                                                                                                  |
+
+### 7. Nothing lost: every setting today
+
+Row ids are what the code registers. "New home" uses the mock's sections: Your experience, General, Account, Sync, Lock, AI & connections, Tool bar, Pencil & touch, Reading, Review, Journal, Advanced, Help & tour, plus Professional features.
+
+| #    | Today (file:line)                                                                                                                                                                                                                     | New home                                                            |
+| ---- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | ------------------------------------------------------------------- |
+| N-01 | Segmented control `SettingsScreen.tsx:469-500`                                                                                                                                                                                        | Same control, 44 pt (section 5)                                     |
+| N-02 | `general.theme` `builtinSettings.ts:109`                                                                                                                                                                                              | General                                                             |
+| N-03 | `general.language` `:140`                                                                                                                                                                                                             | General                                                             |
+| N-04 | `general.showHelp` `:161`                                                                                                                                                                                                             | General                                                             |
+| N-05 | `general.dateStyle` `:181`                                                                                                                                                                                                            | General                                                             |
+| N-06 | `general.dayStartHour` `:198`                                                                                                                                                                                                         | General                                                             |
+| N-07 | `general.deviceMode` `:348` (+ `deviceModeSettings.ts`, `app/DeviceModeMenu.tsx`)                                                                                                                                                     | General (also Advanced as today via `alsoIn`)                       |
+| N-08 | `general.scrollHints` `:442`                                                                                                                                                                                                          | General                                                             |
+| N-09 | `general.autoUpdate` `:455`                                                                                                                                                                                                           | General                                                             |
+| N-10 | `general.pathStyle` `:631`                                                                                                                                                                                                            | General                                                             |
+| N-11 | `general.openNotebookAt` `:651`                                                                                                                                                                                                       | General                                                             |
+| N-12 | `general.newPageStudy` `:690`                                                                                                                                                                                                         | General, Pro `general.newPageStudy`                                 |
+| N-13 | `general.newPageChooser` `:706`                                                                                                                                                                                                       | General                                                             |
+| N-14 | `general.defaultPaper` `:719`                                                                                                                                                                                                         | General                                                             |
+| N-15 | `general.pasteMode` `:740`                                                                                                                                                                                                            | General ("Paste as", default format from the paste decision)        |
+| N-16 | `general.reduceGlass` `:760`                                                                                                                                                                                                          | General, Pro `general.reduceGlass`                                  |
+| N-17 | `general.space.home/library/review` `spaceSettings.ts:15-29`                                                                                                                                                                          | General, Pro `general.space.*`                                      |
+| N-18 | Default page tabs `PageTabsSection.tsx:50-66`                                                                                                                                                                                         | General (SET-B28 to B30)                                            |
+| N-19 | `review.newPerDay` `builtinSettings.ts:213` + `TimeHint` `SettingsScreen.tsx:~260`                                                                                                                                                    | Review (time hint kept)                                             |
+| N-20 | `review.maxPerDay` `:225`                                                                                                                                                                                                             | Review                                                              |
+| N-21 | `review.againMinutes` `:241`                                                                                                                                                                                                          | Review                                                              |
+| N-22 | `review.goodSteps` `:254` (steps control `SettingsScreen.tsx:~560`)                                                                                                                                                                   | Review                                                              |
+| N-23 | `review.scheduler` `:274`                                                                                                                                                                                                             | Review                                                              |
+| N-24 | `review.targetMemory` `:291`                                                                                                                                                                                                          | Review, Pro `review.targetMemory`                                   |
+| N-25 | `review.nestedCard` `:307`                                                                                                                                                                                                            | Review, Pro `review.nestedCard`                                     |
+| N-26 | `review.practiceOrder` `:328`                                                                                                                                                                                                         | Review                                                              |
+| N-27 | `review.reviseLabels` `:128` (labels control)                                                                                                                                                                                         | Review, Pro `review.reviseLabels`                                   |
+| N-28 | Journal category, empty `:74-79`                                                                                                                                                                                                      | Journal (empty state)                                               |
+| N-29 | `advanced.barPlacement` `:374`, `advanced.barSize` `:400`, `advanced.barAutoHide` `:480`                                                                                                                                              | Tool bar (still in Advanced via `alsoIn`)                           |
+| N-30 | `advanced.hoverTips` `:419`, `advanced.shortcutHints` `:430`                                                                                                                                                                          | Help & tour (decision 6)                                            |
+| N-31 | `advanced.showRefresh` `:468`                                                                                                                                                                                                         | Advanced, Pro `advanced.showRefresh`                                |
+| N-32 | `advanced.pencilWrites` `:495`, `holdSelect` `:512`, `pencilTapTwice` `:562`, `pencilScrolls` `:582`, `smartGuides` `:595`, `autoSwitch` `:608`                                                                                       | Pencil & touch                                                      |
+| N-33 | `advanced.holdMenu` `:534`                                                                                                                                                                                                            | Pencil & touch, Pro `advanced.holdMenu`                             |
+| N-34 | `toolbar.show` `toolbarSettings.ts:62`, `layout` `:84`, `ribbonBehaviour` `:112`, `ribbonSize` `:158`, `ribbonPlacement` `:181`, `sets` `:207`, `newLineExtras` `:228`, `penPicksPen` `:275`, `fingerOnly` `:291`, `showNames` `:308` | Tool bar                                                            |
+| N-35 | `toolbar.ribbonMode` `:135`, `newLineHold` `:252`, `pillReset` `:324`, `reset` `:363`                                                                                                                                                 | Tool bar, Pro `toolbar.*`                                           |
+| N-36 | `advanced.pencilLab` `labSettings.ts:10`, `slowMoments` `:42`, `slowMomentsCopy` `:55`, `toolStateCopy` `:90`                                                                                                                         | Advanced, Pro `advanced.*`                                          |
+| N-37 | Reading: entry, theme, font, size `readingSettings.ts:123`, spacing `:127`, margin, width, flow, ruler, blanks, align, dim `:202`, bar                                                                                                | Reading                                                             |
+| N-38 | Reading: `pdfFlow`, `barPin`, `glide` `:206`, `speed` `:210`, `awake`, `orient` (lines ~189-230)                                                                                                                                      | Reading, Pro `reading.*`                                            |
+| N-39 | `lock.idleMinutes` `lockSettings.ts:20`; `LockSection.tsx:82-423`                                                                                                                                                                     | Lock (what is locked and remove-all are Pro `lock.*`)               |
+| N-40 | `AiSection.tsx:80-178` (enable, keys, spending, usage link)                                                                                                                                                                           | AI & connections                                                    |
+| N-41 | `ConnectionsSection.tsx:42-139` (keys, test, get a key)                                                                                                                                                                               | AI & connections (`conn.*` Pro)                                     |
+| N-42 | `PermissionsSection.tsx:37-123` (per-notebook switches, model)                                                                                                                                                                        | AI & connections, "Let AI use my notebooks"                         |
+| N-43 | `ClaudeArea.tsx:45-84` tabs                                                                                                                                                                                                           | "Let AI use my notebooks", Claude first                             |
+| N-44 | `SyncSection.tsx:52-264`; `WhatSyncs.tsx:51-127` incl. reset-device-settings `:100`                                                                                                                                                   | Sync                                                                |
+| N-45 | `AccountSection.tsx:62-439`; `accountSettings.ts` (search-only)                                                                                                                                                                       | Account                                                             |
+| N-46 | `SettingSyncBadge.tsx`, `syncPrefs.ts`, `syncGroups.ts`                                                                                                                                                                               | Badge on every row (SET-B12)                                        |
+| N-47 | `DeviceSection.tsx:34-85` (device, backup, install)                                                                                                                                                                                   | General top card; backup, picker, panel, install are Pro `device.*` |
+| N-48 | `AboutSection.tsx:26-69`                                                                                                                                                                                                              | Help & tour (version, Pro `about.version`)                          |
+| N-49 | `settingsNotice.tsx:15`, `settingsNoticeState.ts:41-71` (Undo notice)                                                                                                                                                                 | Reused as the Undo toast and the reset Undo                         |
+| N-50 | `PencilOffer.tsx` (Pencil offer)                                                                                                                                                                                                      | Unchanged; also reachable from Pencil & touch                       |
+| N-51 | `SettingsLink.tsx`, `focusId` in `SettingsScreen.tsx:~80-95`                                                                                                                                                                          | Unchanged (deep links `section/row`)                                |
+| N-52 | Search box `SettingsScreen.tsx:~371`, counts `:~150`, keywords                                                                                                                                                                        | Global search (SET-B05)                                             |
+| N-53 | Row Reset link `SettingsScreen.tsx:~399`; `alsoIn` note `:~394`; `shownWhen` `:~290`                                                                                                                                                  | Kept (SET-B15, B16)                                                 |
+| N-54 | `settingsMirror.ts`, `settingsMigration.ts`, `syncAllMigration.ts`                                                                                                                                                                    | Unchanged data layer                                                |
+| N-55 | `app/tools/controlRows.ts` (control panel reads the registry)                                                                                                                                                                         | Unchanged; reads the same registry                                  |
+| N-56 | `onboarding/Welcome.tsx:48-90` (first-launch choices)                                                                                                                                                                                 | Feeds "Your experience"; same wording (SET-B24)                     |
+
+New: Your experience, Tours library, Professional features list, hidden Try new design, per-section reset, live row previews. A probe test (section 10) lists every registry id and fails if one has no row in the new screen.
+
+### 8. Won't do
+
+- No new settings stored in a new place: the registry stays the only source.
+- No editing the app's top-level view toggle from Settings beyond the two levels (Beginner / Professional); the third level lives only inside Settings.
+- No bundling of extra tours (they are downloaded on tap).
+- No dummy "Reset this mock-up" button in the real app.
+- No new colours or a second design system for previews.
+- No automatic switching of the whole app to Professional when one feature is unlocked.
+- No sync of tour downloads or the Try new design flags (device only).
+
+### 9. Build order (one surface group per commit)
+
+| Step | Commit                                            | Files owned (proposed)                                                                                  |
+| ---- | ------------------------------------------------- | ------------------------------------------------------------------------------------------------------- |
+| 1    | Flag and level plumbing                           | `src/app/flags.ts` (hot), `src/settings/level.ts`, `src/settings/proFeatures.ts` (169 ids, from the md) |
+| 2    | 44 pt controls + tokens fix                       | `SettingsScreen.tsx` (lines in section 5), `settingsNotice.tsx`                                         |
+| 3    | New screen shell (list, columns, phone pill)      | `src/settings/v3/SettingsV3.tsx`, `SectionList.tsx`, `PreviewPane.tsx`, `PreviewPill.tsx`               |
+| 4    | Row, sync badge, tiny preview, glow               | `v3/SettingRow.tsx`, `v3/RowPreview.tsx`, `v3/glow.css`, `v3/changeNote.ts`                             |
+| 5    | Search                                            | `v3/settingsSearch.ts` (+ test)                                                                         |
+| 6    | Undo / Redo history and section reset             | `v3/settingsHistory.ts`, `v3/SectionReset.tsx`                                                          |
+| 7    | General previews and the calm "Bold · Pen · Read" | `v3/previews/GeneralPreview.tsx`, `v3/previews/LangCard.tsx`, `v3/previews/GlassPreview.tsx`            |
+| 8    | Page tabs editor (mini preview, drag)             | `v3/PageTabsEditor.tsx` (reuses `PageTabsSection.tsx` data)                                             |
+| 9    | Your experience and Tours library                 | `v3/ExperienceSection.tsx`, `v3/ToursLibrary.tsx`, `src/help/tours/` (download)                         |
+| 10   | Professional features list                        | `v3/ProFeatures.tsx`, `v3/ShowInBeginner.tsx`                                                           |
+| 11   | Move sections (AI rename, Pencil & touch, Help)   | `v3/sections.ts` map only (no data change)                                                              |
+| 12   | Try new design list                               | `v3/TryNewDesign.tsx`                                                                                   |
+| 13   | Texts                                             | `src/i18n/en/settingsV3.ts` (this slice's own file)                                                     |
+
+Hot files (`App.tsx`, `builtinSettings.ts`, `flags.ts`) are touched only by the integration builder, one change at a time.
+
+### 10. Tests
+
+- **Unit:** search ranking and keywords; history stack (undo / redo / section reset); the unlock list (169 ids unique, each with a name); level mapping New / Used / Experienced; segmented height scan; tour download state machine.
+- **E2E (chromium + ipad-webkit), one per line id:** SET-B01 to B43, SET-P01 to P30 (P30 and the grouped lines are data-driven, one assertion per id).
+- **Screenshots:** Beginner and Professional × light and dark × iPad landscape, iPad portrait, phone, PC. Also a screenshot of the calm "Bold · Pen · Read" card in each theme.
+- **Accessibility:** labels on every control and pill, focus order, visible focus, contrast in all 3 themes, keyboard use of tabs, Esc closes sheet.
+- **Size budget:** first load ≤ 320,000 B; the screen and tours load lazily; new CSS under the budget.
+- **Nothing-lost probe:** read every id from `settingsRegistry.list()` and every file in section 7; each must render in the new screen (in Professional with all unlocks) or be found by search.
+- **Flag:** OFF renders today's screen byte for byte (snapshot).
+
+### 11. Owner iPad check (3 steps)
+
+1. Open Settings, type "glass" in the search. Change Reduce glass. Watch the preview glow and tap Undo.
+2. Open Professional features, turn on one feature in Beginner, then go to its screen to see it. Tap Reset to Beginner.
+3. Turn the iPad upright. Check the Preview pill at the bottom, open it, and tap a segmented button with your Pencil: it should be easy to hit.
+
+## Edge cases
+
+- Hiding every space: blocked, one always stays (toast explains).
+- A stored value no longer valid reads as the default (unchanged).
+- Search matches a setting hidden by level: it is not listed; a line "N more with Used a little or Experienced" offers to change the level.
+- Unlock switch on, then the feature's own flag is off: the switch stays on, the row shows "Turns on when the new design is on".
+- Download fails or is cancelled: no partial tour is kept.
+- Two devices change the same setting: last write wins as today; the badge shows "Changed on another device" and Undo reverts only this device's change.
+- Experience hidden at the top: the section is still reachable by search and from Help.
+- Undo after leaving Settings: the stack resets when Settings closes (decision 2).
+
+## Security check
+
+- Follows [rules/security.md](../../rules/security.md): values validated before saving; no secrets in tours, flags or notes; settings are never sent anywhere except the existing sync of synced groups.
+- Tour downloads: only from our own site over https, fixed list, checked by a hash; no scripts run from a tour (plain data).
+- Sign-out, remove-all-locks, turn AI off and reset buttons always ask first and explain.
+- The "Try new design" flags are stored on this device only; they are not exported or backed up.
+- Delete: nothing is deleted; reset writes defaults and Undo writes them back.
+
+## Tests
+
+See section 10. Files: `src/settings/v3/*.test.ts`, `e2e/settings-v3.spec.ts` (+ existing `e2e/settings.spec.ts`, `e2e/account.spec.ts`, `src/settings/settings.test.ts`).
+
+## Decisions to review
+
+1. **Home and Library counts.** Recounted against the mocks. Home: 2 in the list, the mock marks only `home.builtFrom` (one "Built from: all" button); `home.cardSizes` stays listed (sizes are Pro in the plan). Library: 6 listed, but `library-mock-v2.html` gates at least 5 more: Select mode (lines 3864, 4073), Themes tab (3525), Links tab (3621), Type filter row (4075) and Key / Summary layers strip (4786). Proposed new ids: `lib.select`, `lib.themesTab`, `lib.linksTab`, `lib.typeRow`, `lib.layers`; total becomes 174. Until the owner agrees, this slice builds the 169 and the five are logged. Other Pro counts not re-checked here.
+2. **Undo scope.** Settings keeps its own history while open and wires it to the top-bar Undo / Redo; it resets when you leave. Alternative (global history) not chosen: settings are device-level and hard to replay across devices.
+3. **Tiny live preview per row and the glow** are new shared parts; both are specified here and should be moved to shared-parts.md.
+4. **Phone preview.** The mock has two pill styles (`.pvpill` at line 3187 and `.ppill` at 3241, a framed 390 px preview). The spec takes the first for Settings (accent, 44 pt, sheet above the tab bar) and treats `.ppill` as a mock-only device-preview tool.
+5. **Three levels inside Settings.** New = Beginner; Used a little = Beginner with common rows; Experienced = Professional. Tags E / C / A in the mock (`RANK`, line 6918) decide which rows show. Unlock switches are independent of the level.
+6. **Moves.** `hoverTips` and `shortcutHints` move from Advanced to Help & tour; bar placement / size / auto-hide stay in both Tool bar and Advanced (`alsoIn`). Pencil settings get the Pencil & touch section. Nothing is removed.
+7. **Hidden "Try new design"** opens by tapping Version 5 times or typing the phrase in search. Alternative was a URL flag; rejected as less friendly on iPad.
+8. **Tours** are downloaded from a fixed own-site list with a hash check; the host and hosting plan are not decided (₹0 budget, ask the owner before any cost).
+9. **Dev-only rows** (`help.resetMock`) are not built in the real app; the pro-features count keeps the id for the mock only.
+10. **Reset per section** includes synced settings; the reset syncs like any change (Undo restores and syncs the old value).

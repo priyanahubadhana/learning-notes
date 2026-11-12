@@ -97,7 +97,7 @@ export function ShellTopBar(props: ShellTopBarProps) {
   const unsaved = useSyncExternalStore(onUnsavedChange, hasUnsaved)
   const sync = useSyncLabel()
   const spaceName = t(`space.${space}` as MessageKey)
-  const crumbs = crumbsFor(space, spaceName, title)
+  const crumbs = crumbsFor(space, spaceName, title, !!panel)
   const toggleName = t(sidebarHidden ? 'nav.showMenu' : 'nav.hideMenu')
   const status = unsaved
     ? t('save.failed')
@@ -156,11 +156,11 @@ export function ShellTopBar(props: ShellTopBarProps) {
       <div ref={onSlot} className="sh-slot">
         <nav aria-label={t('shell.crumbs')} className="sh-crumbs">
           {crumbs.map((c, i) => {
-            const last = i === crumbs.length - 1
+            const plain = !c.space
             return (
               <Fragment key={i}>
                 {i > 0 && <ShellIcon name="chevR" size={14} />}
-                {last ? (
+                {plain ? (
                   <b aria-current="page">{c.label}</b>
                 ) : (
                   <button

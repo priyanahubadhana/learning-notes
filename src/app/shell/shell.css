@@ -387,3 +387,10 @@
 .sh-scrim-phone {
   bottom: calc(var(--sh-tabbar) + env(safe-area-inset-bottom, 0px));
 }
+
+/* A phone panel starts under the top bar, so the bar (and its buttons, such as
+   Exit reading) stays reachable. */
+.sh-panelwrap[data-state='over'] > aside {
+  top: calc(var(--attn-h, 0px) + var(--top-clear, 0px) + var(--sh-top));
+  padding-top: 0;
+}

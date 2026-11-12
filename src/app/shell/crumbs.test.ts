@@ -12,6 +12,11 @@ describe('crumbsFor (SH-04)', () => {
     expect(crumbsFor('home', 'Home', null)).toEqual([{ label: 'Home' }])
     expect(crumbsFor('home', 'Home', '  ')).toEqual([{ label: 'Home' }])
   })
+  it('keeps the space a button while a page is open (the page adds its own path)', () => {
+    expect(crumbsFor('notebooks', 'Notebooks', null, true)).toEqual([
+      { label: 'Notebooks', space: 'notebooks' },
+    ])
+  })
   it('does not repeat the space name', () => {
     expect(crumbsFor('review', 'Review', 'Review')).toEqual([
       { label: 'Review' },

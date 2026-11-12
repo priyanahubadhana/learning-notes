@@ -15,8 +15,11 @@ export function crumbsFor(
   space: Space,
   spaceName: string,
   title: string | null,
+  /** A page or book is open: it puts its own path in the bar after the space. */
+  deeper = false,
 ): Crumb[] {
   const name = title?.trim()
-  if (!name || name === spaceName) return [{ label: spaceName }]
+  if (!name || name === spaceName)
+    return [deeper ? { label: spaceName, space } : { label: spaceName }]
   return [{ label: spaceName, space }, { label: name }]
 }

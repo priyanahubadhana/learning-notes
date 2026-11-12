@@ -21,3 +21,7 @@ Noted while batch 1 is being built. Test batch 1 first, then decide which of the
 - AI: Claude via the connector by default (₹0, own plan); option to use any AI later (paid AI only with cost approval).
 - Structure: single tags grouped under categories; up to 3 levels (Category › Tag › Sub-tag); categories suggested by the AI, approved by the owner. A "tag map" (mind-map style tree) to view/edit the nesting.
 - Tags section: hidden by default; Professional adds it with "+" (the full tag database). Search can filter by existing tags (already exists, extend it to all item types).
+
+## 11. Universal AI bar + merged Knowledge (owner, 12 Nov 2026)
+- One universal AI bar (always available at the top, every space) that holds every AI action: copy a ready prompt, paste the AI answer back, suggest tags, summarise, make cards, send to Claude via the connector. It replaces scattered buttons like the book page's "Copy prompt"/"Paste notes".
+- Library: merge "Bank" into Knowledge. Knowledge gets sort/filter views for Daily Highlights, Study prompts and Export, plus an optional dashboard at the top (stats) that the user can switch off. No separate Bank tab.

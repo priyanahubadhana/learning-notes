@@ -1,7 +1,9 @@
 import {
+  cloneElement,
   useCallback,
   useState,
   type CSSProperties,
+  type ReactElement,
   type ReactNode,
 } from 'react'
 import { t } from '../../i18n/t'
@@ -45,14 +47,10 @@ export interface ShellProps {
   onSearch: () => void
   onSlot: (element: HTMLElement | null) => void
   onStackSlot: (element: HTMLElement | null) => void
-  /** The sidebar. `hidden` is true while its toggle has it off. */
-  sidebar: (o: { hidden: boolean }) => ReactNode
-  /** The pages panel; `docked` false means an overlay (phone). */
-  panel: (o: {
-    docked: boolean
-    width: number
-    onClose: () => void
-  }) => ReactNode
+  /** The sidebar element; the frame sets its `hidden` prop. */
+  sidebar: ReactElement<{ hidden?: boolean }>
+  /** The pages panel element; the frame sets `docked` and `width`. */
+  panel: ReactElement<{ docked?: boolean; width?: number }>
   /** Under the bars: the page area. */
   children: ReactNode
 }
@@ -128,14 +126,15 @@ export default function Shell(p: ShellProps) {
       </button>
       <div className="sh-row">
         {!cols.phone && <Rail {...nav} />}
-        <SideSlot cols={cols} width={drawn} render={sidebar} />
+        <SideSlot
+          cols={cols}
+          width={drawn}
+          render={(o) => cloneElement(sidebar, o)}
+        />
         {cols.sidebar === 'docked' && (
           <SidebarResizer width={drawn} onChange={onSidebarWidth} />
         )}
-        <PanelSlot
-          cols={cols}
-          render={(o) => panel({ ...o, onClose: closePanel })}
-        />
+        <PanelSlot cols={cols} render={(o) => cloneElement(panel, o)} />
         <div className="sh-main">
           {/* One glass layer for the top bar and the tool bar (blur budget).
               It is a sibling behind the bars, so a floating bar inside is
@@ -173,7 +172,11 @@ export default function Shell(p: ShellProps) {
           </div>
           {children}
         </div>
-        <OverSide cols={cols} render={sidebar} onClose={closeOver} />
+        <OverSide
+          cols={cols}
+          render={(o) => cloneElement(sidebar, o)}
+          onClose={closeOver}
+        />
         {cols.phone && drawerOpen && (
           // A second way to close the drawer for fingers; the sidebar's own
           // button is the one for keyboards and screen readers.

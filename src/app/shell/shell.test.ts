@@ -24,6 +24,11 @@ const size = (w: number, ht: number) => {
   window.innerHeight = ht
 }
 
+const Side = ({ hidden }: { hidden?: boolean }) =>
+  h('aside', { id: 'sidebar', 'data-hidden': String(hidden) }, 'Sidebar')
+const Panel = ({ docked }: { docked?: boolean }) =>
+  h('aside', { id: 'panel', 'data-docked': String(docked) }, 'Panel')
+
 const props = (over: Partial<ShellProps> = {}): ShellProps => ({
   space: 'notebooks',
   spaces: ['home', 'library', 'notebooks', 'review'],
@@ -54,10 +59,8 @@ const props = (over: Partial<ShellProps> = {}): ShellProps => ({
   onSearch: vi.fn(),
   onSlot: vi.fn(),
   onStackSlot: vi.fn(),
-  sidebar: ({ hidden }) =>
-    h('aside', { id: 'sidebar', 'data-hidden': String(hidden) }, 'Sidebar'),
-  panel: ({ docked }) =>
-    h('aside', { id: 'panel', 'data-docked': String(docked) }, 'Panel'),
+  sidebar: h(Side, {}),
+  panel: h(Panel, {}),
   children: h('main', { 'data-page-scroller': '' }, 'Page'),
   ...over,
 })

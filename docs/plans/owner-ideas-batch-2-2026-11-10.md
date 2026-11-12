@@ -27,3 +27,12 @@ Noted while batch 1 is being built. Test batch 1 first, then decide which of the
 
 - One universal AI bar (always available at the top, every space) that holds every AI action: copy a ready prompt, paste the AI answer back, suggest tags, summarise, make cards, send to Claude via the connector. It replaces scattered buttons like the book page's "Copy prompt"/"Paste notes".
 - Library: merge "Bank" into Knowledge. Knowledge gets sort/filter views for Daily Highlights, Study prompts and Export, plus an optional dashboard at the top (stats) that the user can switch off. No separate Bank tab.
+
+## 12. AI mode (owner, 12 Nov 2026), decided so far
+- Professional only. Its own "AI" space in the sidebar + the universal AI button/bar on every screen.
+- Features: Ask my notes (chat with citations), Tutor/quiz me, Playground, Auto-organise, and the MAIN one: Jobs, where Claude turns captured sources (YouTube video transcript + frames, articles, posts) into app content (Library entry, notebook notes with frames, mind map, cards, tags) using the app's own tools.
+- Destination: every job chooses where it goes (Library / an existing notebook / a new notebook / a section inside a notebook, under Advanced). The app remembers the path per tag/topic and routes similar items there automatically next time.
+- Approval: Preview → Apply by default; a Settings switch "Apply automatically" once trusted.
+- Prompt library = recipes kept in the existing database, filtered by tags (per AI and per job type), with a rating/success score per recipe, plus a Claude "prompt checker" that reviews recipes regularly and suggests updates when rules change (e.g. no need to tell it to compact).
+- Engine: Claude via the connector first (₹0); built-in AI later only with cost approval; the same buttons for both.
+- Capture path (phased): 1) now: drop transcript + frames into a job card; 2) our own small Chrome extension "Send to Learning Notes" (one click: URL, title, transcript, current-frame screenshots) → the app's Inbox; 3) automatic: Claude processes the Inbox via the connector (or a scheduled routine) and drafts the jobs for Preview.

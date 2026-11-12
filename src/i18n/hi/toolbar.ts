@@ -77,6 +77,7 @@ export const hiToolbar = {
   'bar.search': 'सभी सुविधाएँ खोजें',
   'bar.show': 'टूल बार दिखाएँ',
   'bar.size': 'आकार',
+  'bar.v8Label': 'औज़ार',
   'bar.tapBelow': 'लिखते रहने के लिए यहाँ टैप करें',
   'ctx.align': 'संरेखण',
   'ctx.copy': 'कॉपी',

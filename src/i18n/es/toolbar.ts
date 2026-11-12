@@ -78,6 +78,7 @@ export const esToolbar = {
   'bar.search': 'Buscar todas las funciones',
   'bar.show': 'Mostrar la barra de herramientas',
   'bar.size': 'Tamaño',
+  'bar.v8Label': 'Herramientas',
   'bar.tapBelow': 'Toca aquí para seguir escribiendo',
   'ctx.align': 'Alinear',
   'ctx.copy': 'Copiar',

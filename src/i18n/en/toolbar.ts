@@ -28,6 +28,7 @@ export const enToolbar = {
   'bar.search': 'Search all features',
   'bar.show': 'Show tool bar',
   'bar.size': 'Size',
+  'bar.v8Label': 'Tools',
   'bar.tapBelow': 'Tap here to keep writing',
   'ctx.align': 'Align',
   'ctx.copy': 'Copy',

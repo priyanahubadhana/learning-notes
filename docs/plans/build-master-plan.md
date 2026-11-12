@@ -327,7 +327,7 @@ This is a guess and depends on the usage limits and on how fast mock-ups are app
 ## Never wait for the owner (owner rule, 12 Nov 2026)
 
 - Work never stops because the owner is away. If a question comes up: take the safest choice that follows the approved mock-ups, rules/quality.md and the design rules, log it in DECISIONS "to review", and continue.
-- Areas without an approved mock-up: draw the mock-up, publish it, and keep building OTHER approved areas meanwhile. Never build an unapproved design into the app.
+- The mock-up rule is satisfied (owner, 12 Nov): every needed mock-up or picture was made and checked. Remaining areas go spec → build → test: Fable writes the spec from the design system, builders build it behind a switch, automatic tests + QA + the manager check it, then the owner tests the real thing on the preview.
 - Nothing wrong can reach the owner's daily use: new parts ship switched off; QA + the 3 gates check every slice against its approved mock-up and spec before merging.
 - Only three things truly wait for the owner: spending money, online database (Supabase) changes, and turning a new part ON for daily use (the owner does that after testing).
 - Each morning: a short report (done, preview link, what to test with 2–3 line steps, decisions to review). The owner tests when free and reports bugs; bugs go to the top of the next night's queue.

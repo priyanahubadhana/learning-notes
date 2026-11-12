@@ -6,6 +6,7 @@ import { LockSection } from '../../app/lock/LockSection'
 import { AboutSection } from '../AboutSection'
 import { DeviceSection } from '../DeviceSection'
 import { ConnectedAiList } from './ConnectedAiList'
+import { ClearableArea } from '../AreaInput'
 import type { AreaId } from './sections'
 
 // Same lazy chunks as today's screen, so the first load stays small.
@@ -43,22 +44,24 @@ export function AreaSection({
 }) {
   return (
     <div className="sv3-area" data-area={area}>
-      <Suspense fallback={null}>
-        {area === 'device' && <DeviceSection db={db} />}
-        {area === 'about' && <AboutSection />}
-        {area === 'lock' && <LockSection db={db} />}
-        {area === 'ai' && <AiSection db={db} onGo={onGo} />}
-        {area === 'apis' && <ConnectionsSection onGo={onGo} />}
-        {area === 'permissions' && <PermissionsSection db={db} />}
-        {area === 'claude' && (
-          <>
-            <ConnectedAiList />
-            <ClaudeArea db={db} />
-          </>
-        )}
-        {area === 'account' && <AccountSection db={db} />}
-        {area === 'sync' && <SyncSection db={db} />}
-      </Suspense>
+      <ClearableArea>
+        <Suspense fallback={null}>
+          {area === 'device' && <DeviceSection db={db} />}
+          {area === 'about' && <AboutSection />}
+          {area === 'lock' && <LockSection db={db} />}
+          {area === 'ai' && <AiSection db={db} onGo={onGo} />}
+          {area === 'apis' && <ConnectionsSection onGo={onGo} />}
+          {area === 'permissions' && <PermissionsSection db={db} />}
+          {area === 'claude' && (
+            <>
+              <ConnectedAiList />
+              <ClaudeArea db={db} />
+            </>
+          )}
+          {area === 'account' && <AccountSection db={db} />}
+          {area === 'sync' && <SyncSection db={db} />}
+        </Suspense>
+      </ClearableArea>
     </div>
   )
 }

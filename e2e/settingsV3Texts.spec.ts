@@ -32,10 +32,7 @@ test('SET-B45 every text field in Settings has a ✕ of 44 pt and clears it', as
       .waitFor({ timeout: 2000 })
       .catch(() => {})
     await page.waitForTimeout(400)
-    // Fields inside today's own screens (.sv3-area: keys, passphrases) are not rows.
-    const fields = page
-      .locator(`.sv3-main ${FIELDS}`)
-      .and(page.locator(':not(.sv3-area *)'))
+    const fields = page.locator(`.sv3-main ${FIELDS}`)
     const n = await fields.count()
     for (let i = 0; i < n; i++) {
       const field = fields.nth(i)

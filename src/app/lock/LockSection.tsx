@@ -44,6 +44,7 @@ import { ConfirmDialog } from '../ui'
 import { AuthDialog, LockDialog } from './LockDialogs'
 import { useLockMethods } from './useLock'
 import { sampleName } from '../../i18n/defaultNames'
+import { AreaInput } from '../../settings/AreaInput'
 
 /**
  * Settings › Lock: the plain truth about the lock, the ways to unlock, and
@@ -418,7 +419,7 @@ function SetCodeDialog({
               : 'lock.password.new',
           )}
         </label>
-        <input
+        <AreaInput
           id="code-a"
           type="password"
           autoFocus
@@ -438,7 +439,7 @@ function SetCodeDialog({
         <label htmlFor="code-b" className="text-sm">
           {t('lock.confirm')}
         </label>
-        <input
+        <AreaInput
           id="code-b"
           type="password"
           value={b}

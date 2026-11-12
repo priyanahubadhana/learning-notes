@@ -27,6 +27,7 @@ import { esUpdates } from './updates'
 import { esUpdateV2 } from './updateV2'
 import { esLibraryV2 } from './libraryV2'
 import { esFlags } from './flags'
+import { esShell } from './shell'
 import { esAiBuild } from './aibuild'
 import { esAiJobs } from './aijobs'
 import { esAiPlan } from './aiplan'
@@ -61,6 +62,7 @@ export const es: Record<string, string> = {
   ...esUpdates,
   ...esUpdateV2,
   ...esFlags,
+  ...esShell,
   ...esAiBuild,
   ...esAiJobs,
   ...esAiPlan,

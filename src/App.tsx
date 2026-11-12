@@ -1,5 +1,4 @@
 import { centreEl } from './app/centreEl'
-import { useFlag } from './app/flags'
 import { setActiveScope } from './core/historySteps'
 import { useLiveQuery } from 'dexie-react-hooks'
 import {
@@ -39,6 +38,7 @@ import { setGlassLite, startGlassProbe } from './design/glass'
 import { ThemeContext } from './app/themeContext'
 import type { ToastAction } from './app/appUi'
 import { toggleFavourite } from './app/favourites'
+import { useFlag } from './app/flags'
 import { SpaceStrip } from './app/spaces/SpaceStrip'
 import { QuietCorner } from './app/spaces/QuietCorner'
 import {
@@ -188,6 +188,8 @@ const HandwritingChooser = lazy(() =>
     default: m.HandwritingChooser,
   })),
 )
+// The new app frame (flag foundation.shell); loaded only when the flag is on.
+const LazyShell = lazy(() => import('./app/shell/Shell'))
 const SearchPopup = lazy(() =>
   import('./search/SearchPopup').then((m) => ({ default: m.SearchPopup })),
 )
@@ -380,7 +382,6 @@ function App() {
   )
   // Settings replaces the open page in the main area until a page is opened.
   const [showSettings, setShowSettings] = useState(boot?.kind === 'settings')
-  const settingsV3 = useFlag('settings.v3')
   // Setting to scroll to and highlight when Settings opens (e.g. from a dialog).
   const [settingsFocus, setSettingsFocus] = useState<string | null>(null)
   const openSettings = (settingId?: string) => {
@@ -714,6 +715,8 @@ function App() {
     null,
   )
   const tree = useTreeState()
+  const shellOn = useFlag('foundation.shell')
+  const settingsV3 = useFlag('settings.v3')
   const [theme, setTheme] = useDeviceSetting(themeSetting)
   // Dates follow this setting everywhere; changing it re-draws the app.
   const [dateStyle] = useDeviceSetting(dateStyleSetting)
@@ -1378,558 +1381,577 @@ function App() {
 
   if (!workspace || !notebooks) return null // loading (a split second)
 
+  const sidebarEl = (
+    <Sidebar
+      db={db}
+      workspaceId={workspace.id}
+      notebooks={notebooks}
+      currentPage={currentPage ?? null}
+      tree={tree}
+      space={space}
+      renamingNotebookId={renamingNotebookId}
+      onRenamingChange={setRenamingNotebookId}
+      onOpenPage={(id) => choose(() => openPage(id))}
+      drawerOpen={drawerOpen}
+      hidden={sidebarHidden}
+      onCloseDrawer={() => setDrawerAt(null)}
+      openNotebookId={openNotebookRecord?.id ?? null}
+      onOpenNotebook={(id) => choose(() => openNotebook(id))}
+      onOpenToday={() => choose(() => runTask(openToday()))}
+      libraryPanel={
+        <Suspense fallback={null}>
+          <LibrarySidebar
+            db={db}
+            workspaceId={workspace.id}
+            currentPageId={currentPage?.id ?? null}
+            onOpenPage={(id) => choose(() => openPage(id))}
+            onCapture={() =>
+              choose(() => {
+                openPage(null)
+                setHub({ kind: 'capture' })
+              })
+            }
+          />
+        </Suspense>
+      }
+      onCreateNotebook={() => runTask(createNotebookAndOpen())}
+      onCreatePage={(notebookId, parentId, templateId) =>
+        runTask(createPageIn(notebookId, parentId, true, templateId))
+      }
+      onCreateTemplate={() => runTask(newTemplate())}
+      reviewOpen={reviewScope?.kind === 'all' || reviewScope?.kind === 'wrong'}
+      onOpenReview={(scope) => choose(() => openReview(scope))}
+      onOpenAllCards={() =>
+        choose(() => {
+          openPage(null)
+          setStudyTab('review')
+          setHub({ kind: 'cards' })
+        })
+      }
+      allCardsOpen={
+        hub?.kind === 'cards' &&
+        studyTab !== 'summary' &&
+        !showSettings &&
+        !reviewScope
+      }
+      onOpenSummaries={() =>
+        choose(() => {
+          openPage(null)
+          setStudyTab('summary')
+          setHub({ kind: 'cards' })
+        })
+      }
+      summariesOpen={
+        hub?.kind === 'cards' &&
+        studyTab === 'summary' &&
+        !showSettings &&
+        !reviewScope
+      }
+      onOpenAllDatabases={() =>
+        choose(() => {
+          openPage(null)
+          setHub({ kind: 'databases' })
+        })
+      }
+      allDatabasesOpen={
+        (hub?.kind === 'databases' || hub?.kind === 'database') &&
+        !showSettings &&
+        !reviewScope
+      }
+      searchOpen={!!search && !search.savedId && !showSettings && !reviewScope}
+      onOpenSearch={() => choose(() => setSearchPopup(true))}
+      onOpenCalendar={() => choose(openCalendar)}
+      calendarOpen={hub?.kind === 'calendar' && !showSettings && !reviewScope}
+      savedSearchId={
+        search && !showSettings && !reviewScope
+          ? (search.savedId ?? null)
+          : null
+      }
+      onOpenSavedSearch={(saved) =>
+        choose(() => openSearch(readSavedQuery(saved.query), saved.id))
+      }
+      onReviewSavedSearch={(saved) =>
+        choose(() => runTask(reviewSavedSearch(saved)))
+      }
+      onOpenTag={(tagId) => choose(() => openTag(tagId))}
+      onNotesRewritten={(pageIds) => {
+        // The open page's editor still shows the old tags: reload it.
+        if (currentPage && pageIds.includes(currentPage.id)) {
+          setNotesVersion((v) => v + 1)
+        }
+      }}
+    />
+  )
+  const leftPanelEl = (
+    <LeftPanel
+      db={db}
+      notebookId={currentPage?.notebookId ?? ''}
+      pageId={currentPage?.id ?? ''}
+      onOpenPage={(id) => openPage(id)}
+      onClose={() => setPanelOpen(false)}
+    />
+  )
+  const pageArea = (
+    <>
+      {currentPage && currentPage.id === labPage && (
+        <Suspense fallback={null}>
+          <PencilLabPanel />
+        </Suspense>
+      )}
+      <main
+        data-page-scroller
+        className="mb-[var(--dock-bottom,0px)] min-h-0 flex-1 overflow-auto rounded-[var(--r-lg)] border border-line bg-bg pt-[var(--page-top-gap,0px)] shadow-[var(--elev-1)] phone:rounded-none phone:border-0 phone:shadow-none"
+      >
+        <ErrorBoundary
+          resetKey={`${routeHash}:${notesVersion}:${currentPage?.id}`}
+          onHome={() => openPage(null)}
+          onSaveAll={saveEverything}
+        >
+          <Suspense fallback={null}>
+            {showSettings ? (
+              settingsV3 ? (
+                <SettingsV3
+                  key={settingsFocus ?? ''}
+                  db={db}
+                  focusId={settingsFocus ?? undefined}
+                />
+              ) : (
+                <SettingsScreen
+                  key={settingsFocus ?? ''}
+                  db={db}
+                  focusId={settingsFocus ?? undefined}
+                />
+              )
+            ) : reviewScope ? (
+              <ReviewScreen
+                key={JSON.stringify(reviewScope)}
+                db={db}
+                scope={reviewScope}
+                keysPaused={drawerOpen}
+                onScopeChange={setReviewScope}
+                onOpenNote={(pageId, blockId) => {
+                  openPage(pageId)
+                  revealBlock(blockId)
+                }}
+                onOpenAnnotation={(id) =>
+                  runTask(
+                    db.annotations.get(id).then((a) => a && openAnnotation(a)),
+                  )
+                }
+                onClose={() => setReviewScope(null)}
+              />
+            ) : hub?.kind === 'read' ? (
+              <BookReader
+                key={hub.pageId}
+                db={db}
+                pageId={hub.pageId}
+                at={hub.at}
+                onOpenPage={openPage}
+              />
+            ) : hub?.kind === 'capture' ? (
+              <CaptureScreen
+                key={routeHash}
+                db={db}
+                workspaceId={workspace.id}
+                draft={hub}
+                onOpenPage={openPage}
+                onClose={() => {
+                  setHub(null)
+                  setLastSpace('library')
+                }}
+              />
+            ) : hub?.kind === 'lab' ? (
+              <PencilLabEntry
+                db={db}
+                workspaceId={workspace.id}
+                onOpenPage={openPage}
+              />
+            ) : hub?.kind === 'cards' ? (
+              <AllCardsScreen
+                db={db}
+                onOpenHit={(hit) => runTask(openHit(hit))}
+                onReview={openReview}
+                onClose={() => setHub(null)}
+                tab={studyTab}
+                onTab={setStudyTab}
+                summary={
+                  <Suspense fallback={null}>
+                    <AppSummary
+                      db={db}
+                      workspaceId={workspace.id}
+                      onOpenPage={openPage}
+                    />
+                  </Suspense>
+                }
+                notes={
+                  <Suspense fallback={null}>
+                    <NotesOverview
+                      db={db}
+                      workspaceId={workspace.id}
+                      onOpenNotebook={openNotebook}
+                      onOpenPage={openPage}
+                    />
+                  </Suspense>
+                }
+                highlights={<DailyHighlights db={db} onOpen={openAnnotation} />}
+              />
+            ) : hub?.kind === 'data' ? (
+              <DataScreen
+                db={db}
+                workspaceId={workspace.id}
+                onClose={() => setHub(null)}
+              />
+            ) : hub?.kind === 'calendar' ? (
+              <CalendarScreen
+                db={db}
+                workspaceId={workspace.id}
+                onOpenPage={openPage}
+                onOpenDay={(day) => runTask(openJournalOn(day))}
+                onClose={() => setHub(null)}
+              />
+            ) : hub?.kind === 'databases' ? (
+              <DatabasesScreen
+                db={db}
+                workspaceId={workspace.id}
+                onOpenDatabase={(id) => setHub({ kind: 'database', id })}
+                onClose={() => setHub(null)}
+              />
+            ) : hub?.kind === 'database' ? (
+              <DatabaseGate db={db} databaseId={hub.id}>
+                <DatabaseScreen
+                  key={hub.id}
+                  db={db}
+                  databaseId={hub.id}
+                  onOpenPage={openPage}
+                  onBack={() => setHub({ kind: 'databases' })}
+                  onOpenDatabase={(id) => setHub({ kind: 'database', id })}
+                />
+              </DatabaseGate>
+            ) : search ? (
+              <SearchScreen
+                key={search.key}
+                db={db}
+                initial={search.query}
+                title={savedSearch?.name}
+                // Typing changes the address in place (no new Back step).
+                onChange={(query) =>
+                  setSearch((s) => {
+                    if (!s || s.savedId) return s
+                    if (JSON.stringify(s.query) === JSON.stringify(query)) {
+                      return s
+                    }
+                    replaceNext.current = true
+                    return { ...s, query }
+                  })
+                }
+                actions={(query) => (
+                  <SaveSearchActions
+                    db={db}
+                    query={query}
+                    saved={savedSearch}
+                    onSaved={(saved) =>
+                      setSearch((s) => s && { ...s, savedId: saved.id })
+                    }
+                  />
+                )}
+                onOpenHit={(hit) => runTask(openHit(hit))}
+                onReview={(blockIds, name) =>
+                  openReview({ kind: 'blocks', blockIds, name })
+                }
+                onClose={() => setSearch(null)}
+              />
+            ) : openNotebookRecord ? (
+              <LockGate
+                db={db}
+                rootId={
+                  openNotebookRecord.locked ? openNotebookRecord.id : null
+                }
+                title={openNotebookRecord.title}
+                kind="notebook"
+              >
+                <NotebookScreen
+                  key={openNotebookRecord.id}
+                  db={db}
+                  notebook={openNotebookRecord}
+                  onOpenPage={openPage}
+                  onCreatePage={(id) => runTask(createPageIn(id, null))}
+                  onOpenHit={(hit) => runTask(openHit(hit))}
+                  onReview={openReview}
+                  onClose={() => setNotebookId(null)}
+                />
+              </LockGate>
+            ) : currentPage ? (
+              <PageGate db={db} page={currentPage}>
+                <PageView
+                  key={`${currentPage.id}:${notesVersion}`}
+                  db={db}
+                  page={currentPage}
+                  autoFocusTitle={focusTitlePageId === currentPage.id}
+                  offerStart={startOfferPageId === currentPage.id}
+                  onOpenPage={openPage}
+                  onOpenNewPage={openNewPage}
+                  onReview={(includeSubpages) =>
+                    openReview({
+                      kind: 'page',
+                      pageId: currentPage.id,
+                      includeSubpages,
+                    })
+                  }
+                  onNewPageFromTemplate={(id) =>
+                    runTask(newPageFromTemplate(id))
+                  }
+                  onOpenTag={openTag}
+                  onReload={() => setNotesVersion((v) => v + 1)}
+                  onOpenBackup={() => {
+                    openPage(null)
+                    setHub({ kind: 'data' })
+                  }}
+                  onOpenDatabase={(id) => {
+                    openPage(null)
+                    setHub({ kind: 'database', id })
+                  }}
+                  onOpenAttachment={(fileId) =>
+                    runTask(
+                      openAttachment(workspace.id, fileId).then(
+                        (book) => setHub({ kind: 'read', pageId: book.id }),
+                        (e: unknown) => {
+                          if (e instanceof FileError) {
+                            appUi.toast(e.message)
+                          } else throw e
+                        },
+                      ),
+                    )
+                  }
+                  header={
+                    currentPage.source ? (
+                      <BookHeader
+                        db={db}
+                        page={currentPage}
+                        onRead={(pageId, at) =>
+                          setHub({ kind: 'read', pageId, at })
+                        }
+                        onOpenPage={openPage}
+                        actions={
+                          <>
+                            <AiActions
+                              db={db}
+                              workspaceId={workspace.id}
+                              page={currentPage}
+                              onChanged={() => setNotesVersion((v) => v + 1)}
+                            />
+                            <PageAiActions
+                              db={db}
+                              workspaceId={workspace.id}
+                              page={currentPage}
+                              onChanged={() => setNotesVersion((v) => v + 1)}
+                            />
+                          </>
+                        }
+                      />
+                    ) : undefined
+                  }
+                />
+              </PageGate>
+            ) : space === 'library' ? (
+              <LibraryScreen
+                db={db}
+                workspaceId={workspace.id}
+                onOpenPage={openPage}
+                onRead={(pageId, at) => setHub({ kind: 'read', pageId, at })}
+                onCapture={(draft) => setHub({ kind: 'capture', ...draft })}
+              />
+            ) : space === 'home' ? (
+              <HomeScreenSwitch
+                db={db}
+                deps={{
+                  openToday: () => runTask(openToday()),
+                  openPage: (id) => openPage(id),
+                  countCardsDue: () => countDue(db, Date.now()),
+                  openReview: () => openReview({ kind: 'all' }),
+                  appendJournal: async (entries) => {
+                    await appendJournalNotes(db, workspace.id, entries)
+                  },
+                }}
+              />
+            ) : notebooks.length === 0 && currentPage === null ? (
+              <EmptyState
+                testId="no-notebooks"
+                className="mx-auto mt-[24vh] max-w-md"
+                icon="📓"
+                text={t('app.empty.intro')}
+                action={t('app.empty.create')}
+                onAction={() => runTask(createNotebookAndOpen())}
+              />
+            ) : space === 'review' && currentPage === null ? (
+              <ReviewHome
+                db={db}
+                notebooks={notebooks}
+                onReview={(scope) => openReview(scope)}
+                onAllCards={() => {
+                  openPage(null)
+                  setStudyTab('review')
+                  setHub({ kind: 'cards' })
+                }}
+              />
+            ) : currentPage === null ? (
+              <NotebooksHome
+                db={db}
+                notebooks={notebooks}
+                onOpen={(id) => openNotebook(id)}
+                onCreate={() => runTask(createNotebookAndOpen())}
+              />
+            ) : null}
+          </Suspense>
+        </ErrorBoundary>
+      </main>
+    </>
+  )
+
   return (
     <ThemeContext value={theme}>
       <AppUiContext value={appUi}>
         <TopBarSlotContext value={barSlot}>
           <TopStackSlotContext value={stackSlot}>
-            <div
-              data-app-shell
-              className="bg-wash flex h-screen h-dvh gap-[var(--frame-gap)] px-[var(--frame-gap)] pb-[var(--frame-gap)] phone:pb-[calc(56px+env(safe-area-inset-bottom))]"
-              style={
-                {
-                  '--sidebar-width': `${sidebarWidth}px`,
-                  paddingTop: 'calc(var(--attn-h, 0px) + var(--frame-gap))',
-                } as CSSProperties
-              }
-            >
-              <SpaceStrip
-                spaces={visibleSpaces(hiddenSpaces)}
-                current={space}
-                onSelect={chooseSpace}
-                corner={
-                  <QuietCorner
-                    db={db}
-                    workspaceId={workspace.id}
-                    theme={theme}
-                    onThemeChange={setTheme}
-                    settingsOpen={showSettings}
-                    dataOpen={hub?.kind === 'data' && !showSettings}
-                    onOpenSettings={() => choose(() => openSettings())}
-                    onOpenData={() =>
+            {shellOn ? (
+              <Suspense fallback={null}>
+                <LazyShell
+                  space={space}
+                  spaces={visibleSpaces(hiddenSpaces)}
+                  onSelectSpace={chooseSpace}
+                  gear={{
+                    db,
+                    workspaceId: workspace.id,
+                    theme,
+                    onTheme: setTheme,
+                    settingsOpen: showSettings,
+                    dataOpen: hub?.kind === 'data' && !showSettings,
+                    onOpenSettings: () => choose(() => openSettings()),
+                    onOpenData: () =>
                       choose(() => {
                         openPage(null)
                         setHub({ kind: 'data' })
-                      })
-                    }
-                    onOpenHelp={() =>
-                      choose(() => openSettings('general.showHelp'))
-                    }
-                  />
+                      }),
+                    onOpenHelp: () =>
+                      choose(() => openSettings('general.showHelp')),
+                  }}
+                  routeKey={routeHash}
+                  title={barTitle}
+                  sidebarHidden={sidebarHidden}
+                  onToggleSidebar={toggleSidebar}
+                  drawerOpen={drawerOpen}
+                  onOpenDrawer={() => setDrawerAt(routeHash)}
+                  onCloseDrawer={() => setDrawerAt(null)}
+                  hasPanel={!!(currentPage || hub?.kind === 'read')}
+                  panelOpen={panelOpen}
+                  onPanelOpen={setPanelOpen}
+                  sidebarWidth={sidebarWidth}
+                  onSidebarWidth={setSidebarWidth}
+                  onSearch={() => choose(() => setSearchPopup(true))}
+                  onSlot={setBarSlot}
+                  onStackSlot={setStackSlot}
+                  sidebar={sidebarEl}
+                  panel={leftPanelEl}
+                >
+                  {pageArea}
+                </LazyShell>
+              </Suspense>
+            ) : (
+              <div
+                data-app-shell
+                className="bg-wash flex h-screen h-dvh gap-[var(--frame-gap)] px-[var(--frame-gap)] pb-[var(--frame-gap)] phone:pb-[calc(56px+env(safe-area-inset-bottom))]"
+                style={
+                  {
+                    '--sidebar-width': `${sidebarWidth}px`,
+                    paddingTop: 'calc(var(--attn-h, 0px) + var(--frame-gap))',
+                  } as CSSProperties
                 }
-              />
-              <Sidebar
-                db={db}
-                workspaceId={workspace.id}
-                notebooks={notebooks}
-                currentPage={currentPage ?? null}
-                tree={tree}
-                space={space}
-                renamingNotebookId={renamingNotebookId}
-                onRenamingChange={setRenamingNotebookId}
-                onOpenPage={(id) => choose(() => openPage(id))}
-                drawerOpen={drawerOpen}
-                hidden={sidebarHidden}
-                onCloseDrawer={() => setDrawerAt(null)}
-                openNotebookId={openNotebookRecord?.id ?? null}
-                onOpenNotebook={(id) => choose(() => openNotebook(id))}
-                onOpenToday={() => choose(() => runTask(openToday()))}
-                libraryPanel={
-                  <Suspense fallback={null}>
-                    <LibrarySidebar
+              >
+                <SpaceStrip
+                  spaces={visibleSpaces(hiddenSpaces)}
+                  current={space}
+                  onSelect={chooseSpace}
+                  corner={
+                    <QuietCorner
                       db={db}
                       workspaceId={workspace.id}
-                      currentPageId={currentPage?.id ?? null}
-                      onOpenPage={(id) => choose(() => openPage(id))}
-                      onCapture={() =>
+                      theme={theme}
+                      onThemeChange={setTheme}
+                      settingsOpen={showSettings}
+                      dataOpen={hub?.kind === 'data' && !showSettings}
+                      onOpenSettings={() => choose(() => openSettings())}
+                      onOpenData={() =>
                         choose(() => {
                           openPage(null)
-                          setHub({ kind: 'capture' })
+                          setHub({ kind: 'data' })
                         })
                       }
+                      onOpenHelp={() =>
+                        choose(() => openSettings('general.showHelp'))
+                      }
                     />
-                  </Suspense>
-                }
-                onCreateNotebook={() => runTask(createNotebookAndOpen())}
-                onCreatePage={(notebookId, parentId, templateId) =>
-                  runTask(createPageIn(notebookId, parentId, true, templateId))
-                }
-                onCreateTemplate={() => runTask(newTemplate())}
-                reviewOpen={
-                  reviewScope?.kind === 'all' || reviewScope?.kind === 'wrong'
-                }
-                onOpenReview={(scope) => choose(() => openReview(scope))}
-                onOpenAllCards={() =>
-                  choose(() => {
-                    openPage(null)
-                    setStudyTab('review')
-                    setHub({ kind: 'cards' })
-                  })
-                }
-                allCardsOpen={
-                  hub?.kind === 'cards' &&
-                  studyTab !== 'summary' &&
-                  !showSettings &&
-                  !reviewScope
-                }
-                onOpenSummaries={() =>
-                  choose(() => {
-                    openPage(null)
-                    setStudyTab('summary')
-                    setHub({ kind: 'cards' })
-                  })
-                }
-                summariesOpen={
-                  hub?.kind === 'cards' &&
-                  studyTab === 'summary' &&
-                  !showSettings &&
-                  !reviewScope
-                }
-                onOpenAllDatabases={() =>
-                  choose(() => {
-                    openPage(null)
-                    setHub({ kind: 'databases' })
-                  })
-                }
-                allDatabasesOpen={
-                  (hub?.kind === 'databases' || hub?.kind === 'database') &&
-                  !showSettings &&
-                  !reviewScope
-                }
-                searchOpen={
-                  !!search && !search.savedId && !showSettings && !reviewScope
-                }
-                onOpenSearch={() => choose(() => setSearchPopup(true))}
-                onOpenCalendar={() => choose(openCalendar)}
-                calendarOpen={
-                  hub?.kind === 'calendar' && !showSettings && !reviewScope
-                }
-                savedSearchId={
-                  search && !showSettings && !reviewScope
-                    ? (search.savedId ?? null)
-                    : null
-                }
-                onOpenSavedSearch={(saved) =>
-                  choose(() =>
-                    openSearch(readSavedQuery(saved.query), saved.id),
-                  )
-                }
-                onReviewSavedSearch={(saved) =>
-                  choose(() => runTask(reviewSavedSearch(saved)))
-                }
-                onOpenTag={(tagId) => choose(() => openTag(tagId))}
-                onNotesRewritten={(pageIds) => {
-                  // The open page's editor still shows the old tags: reload it.
-                  if (currentPage && pageIds.includes(currentPage.id)) {
-                    setNotesVersion((v) => v + 1)
                   }
-                }}
-              />
-              {!sidebarHidden && (
-                <SidebarResizer
-                  width={sidebarWidth}
-                  onChange={setSidebarWidth}
                 />
-              )}
-              {panelOpen && (currentPage || hub?.kind === 'read') && (
-                <LeftPanel
-                  db={db}
-                  notebookId={currentPage?.notebookId ?? ''}
-                  pageId={currentPage?.id ?? ''}
-                  onOpenPage={(id) => openPage(id)}
-                  onClose={() => setPanelOpen(false)}
-                />
-              )}
-              {drawerOpen && (
-                // A second way to close for fingers; the sidebar's button is the
-                // one for keyboards and screen readers.
-                <button
-                  type="button"
-                  aria-hidden
-                  tabIndex={-1}
-                  onClick={() => setDrawerAt(null)}
-                  className="fixed inset-0 z-30 hidden bg-black/30 phone:bottom-14 phone:block"
-                />
-              )}
-              <div className="flex min-w-0 flex-1 flex-col gap-[var(--frame-gap)]">
-                {/* One glass layer for the top bar and the tool bar (blur budget). The
+                {sidebarEl}
+                {!sidebarHidden && (
+                  <SidebarResizer
+                    width={sidebarWidth}
+                    onChange={setSidebarWidth}
+                  />
+                )}
+                {panelOpen &&
+                  (currentPage || hub?.kind === 'read') &&
+                  leftPanelEl}
+                {drawerOpen && (
+                  // A second way to close for fingers; the sidebar's button is the
+                  // one for keyboards and screen readers.
+                  <button
+                    type="button"
+                    aria-hidden
+                    tabIndex={-1}
+                    onClick={() => setDrawerAt(null)}
+                    className="fixed inset-0 z-30 hidden bg-black/30 phone:bottom-14 phone:block"
+                  />
+                )}
+                <div className="flex min-w-0 flex-1 flex-col gap-[var(--frame-gap)]">
+                  {/* One glass layer for the top bar and the tool bar (blur budget). The
                     glass is a sibling layer behind the bars: a backdrop-filter on
                     the wrapper itself would trap the floating bar and the tray
                     (position: fixed) inside it. */}
-                <div
-                  data-frame-bars
-                  className="relative shrink-0 rounded-[var(--r-lg)]"
-                >
                   <div
-                    aria-hidden
-                    className="glass pointer-events-none absolute inset-0 rounded-[inherit] phone:rounded-none phone:border-x-0 phone:border-t-0 phone:shadow-none"
-                  />
-                  <TopBar
-                    title={barTitle}
-                    sidebarHidden={sidebarHidden}
-                    drawerOpen={drawerOpen}
-                    onOpenDrawer={() => setDrawerAt(routeHash)}
-                    onToggleSidebar={toggleSidebar}
-                    panel={
-                      currentPage || hub?.kind === 'read'
-                        ? {
-                            open: panelOpen,
-                            onToggle: () => setPanelOpen(!panelOpen),
-                          }
-                        : undefined
-                    }
-                    onSlot={setBarSlot}
-                  />
-                  <div
-                    ref={setStackSlot}
-                    data-chrome
-                    data-bar-slot
-                    className="relative pb-1 empty:p-0"
-                  />
-                </div>
-                {currentPage && currentPage.id === labPage && (
-                  <Suspense fallback={null}>
-                    <PencilLabPanel />
-                  </Suspense>
-                )}
-                <main
-                  data-page-scroller
-                  className="mb-[var(--dock-bottom,0px)] min-h-0 flex-1 overflow-auto rounded-[var(--r-lg)] border border-line bg-bg pt-[var(--page-top-gap,0px)] shadow-[var(--elev-1)] phone:rounded-none phone:border-0 phone:shadow-none"
-                >
-                  <ErrorBoundary
-                    resetKey={`${routeHash}:${notesVersion}:${currentPage?.id}`}
-                    onHome={() => openPage(null)}
-                    onSaveAll={saveEverything}
+                    data-frame-bars
+                    className="relative shrink-0 rounded-[var(--r-lg)]"
                   >
-                    <Suspense fallback={null}>
-                      {showSettings ? (
-                        settingsV3 ? (
-                          <SettingsV3
-                            key={settingsFocus ?? ''}
-                            db={db}
-                            focusId={settingsFocus ?? undefined}
-                          />
-                        ) : (
-                          <SettingsScreen
-                            key={settingsFocus ?? ''}
-                            db={db}
-                            focusId={settingsFocus ?? undefined}
-                          />
-                        )
-                      ) : reviewScope ? (
-                        <ReviewScreen
-                          key={JSON.stringify(reviewScope)}
-                          db={db}
-                          scope={reviewScope}
-                          keysPaused={drawerOpen}
-                          onScopeChange={setReviewScope}
-                          onOpenNote={(pageId, blockId) => {
-                            openPage(pageId)
-                            revealBlock(blockId)
-                          }}
-                          onOpenAnnotation={(id) =>
-                            runTask(
-                              db.annotations
-                                .get(id)
-                                .then((a) => a && openAnnotation(a)),
-                            )
-                          }
-                          onClose={() => setReviewScope(null)}
-                        />
-                      ) : hub?.kind === 'read' ? (
-                        <BookReader
-                          key={hub.pageId}
-                          db={db}
-                          pageId={hub.pageId}
-                          at={hub.at}
-                          onOpenPage={openPage}
-                        />
-                      ) : hub?.kind === 'capture' ? (
-                        <CaptureScreen
-                          key={routeHash}
-                          db={db}
-                          workspaceId={workspace.id}
-                          draft={hub}
-                          onOpenPage={openPage}
-                          onClose={() => {
-                            setHub(null)
-                            setLastSpace('library')
-                          }}
-                        />
-                      ) : hub?.kind === 'lab' ? (
-                        <PencilLabEntry
-                          db={db}
-                          workspaceId={workspace.id}
-                          onOpenPage={openPage}
-                        />
-                      ) : hub?.kind === 'cards' ? (
-                        <AllCardsScreen
-                          db={db}
-                          onOpenHit={(hit) => runTask(openHit(hit))}
-                          onReview={openReview}
-                          onClose={() => setHub(null)}
-                          tab={studyTab}
-                          onTab={setStudyTab}
-                          summary={
-                            <Suspense fallback={null}>
-                              <AppSummary
-                                db={db}
-                                workspaceId={workspace.id}
-                                onOpenPage={openPage}
-                              />
-                            </Suspense>
-                          }
-                          notes={
-                            <Suspense fallback={null}>
-                              <NotesOverview
-                                db={db}
-                                workspaceId={workspace.id}
-                                onOpenNotebook={openNotebook}
-                                onOpenPage={openPage}
-                              />
-                            </Suspense>
-                          }
-                          highlights={
-                            <DailyHighlights db={db} onOpen={openAnnotation} />
-                          }
-                        />
-                      ) : hub?.kind === 'data' ? (
-                        <DataScreen
-                          db={db}
-                          workspaceId={workspace.id}
-                          onClose={() => setHub(null)}
-                        />
-                      ) : hub?.kind === 'calendar' ? (
-                        <CalendarScreen
-                          db={db}
-                          workspaceId={workspace.id}
-                          onOpenPage={openPage}
-                          onOpenDay={(day) => runTask(openJournalOn(day))}
-                          onClose={() => setHub(null)}
-                        />
-                      ) : hub?.kind === 'databases' ? (
-                        <DatabasesScreen
-                          db={db}
-                          workspaceId={workspace.id}
-                          onOpenDatabase={(id) =>
-                            setHub({ kind: 'database', id })
-                          }
-                          onClose={() => setHub(null)}
-                        />
-                      ) : hub?.kind === 'database' ? (
-                        <DatabaseGate db={db} databaseId={hub.id}>
-                          <DatabaseScreen
-                            key={hub.id}
-                            db={db}
-                            databaseId={hub.id}
-                            onOpenPage={openPage}
-                            onBack={() => setHub({ kind: 'databases' })}
-                            onOpenDatabase={(id) =>
-                              setHub({ kind: 'database', id })
+                    <div
+                      aria-hidden
+                      className="glass pointer-events-none absolute inset-0 rounded-[inherit] phone:rounded-none phone:border-x-0 phone:border-t-0 phone:shadow-none"
+                    />
+                    <TopBar
+                      title={barTitle}
+                      sidebarHidden={sidebarHidden}
+                      drawerOpen={drawerOpen}
+                      onOpenDrawer={() => setDrawerAt(routeHash)}
+                      onToggleSidebar={toggleSidebar}
+                      panel={
+                        currentPage || hub?.kind === 'read'
+                          ? {
+                              open: panelOpen,
+                              onToggle: () => setPanelOpen(!panelOpen),
                             }
-                          />
-                        </DatabaseGate>
-                      ) : search ? (
-                        <SearchScreen
-                          key={search.key}
-                          db={db}
-                          initial={search.query}
-                          title={savedSearch?.name}
-                          // Typing changes the address in place (no new Back step).
-                          onChange={(query) =>
-                            setSearch((s) => {
-                              if (!s || s.savedId) return s
-                              if (
-                                JSON.stringify(s.query) ===
-                                JSON.stringify(query)
-                              ) {
-                                return s
-                              }
-                              replaceNext.current = true
-                              return { ...s, query }
-                            })
-                          }
-                          actions={(query) => (
-                            <SaveSearchActions
-                              db={db}
-                              query={query}
-                              saved={savedSearch}
-                              onSaved={(saved) =>
-                                setSearch(
-                                  (s) => s && { ...s, savedId: saved.id },
-                                )
-                              }
-                            />
-                          )}
-                          onOpenHit={(hit) => runTask(openHit(hit))}
-                          onReview={(blockIds, name) =>
-                            openReview({ kind: 'blocks', blockIds, name })
-                          }
-                          onClose={() => setSearch(null)}
-                        />
-                      ) : openNotebookRecord ? (
-                        <LockGate
-                          db={db}
-                          rootId={
-                            openNotebookRecord.locked
-                              ? openNotebookRecord.id
-                              : null
-                          }
-                          title={openNotebookRecord.title}
-                          kind="notebook"
-                        >
-                          <NotebookScreen
-                            key={openNotebookRecord.id}
-                            db={db}
-                            notebook={openNotebookRecord}
-                            onOpenPage={openPage}
-                            onCreatePage={(id) =>
-                              runTask(createPageIn(id, null))
-                            }
-                            onOpenHit={(hit) => runTask(openHit(hit))}
-                            onReview={openReview}
-                            onClose={() => setNotebookId(null)}
-                          />
-                        </LockGate>
-                      ) : currentPage ? (
-                        <PageGate db={db} page={currentPage}>
-                          <PageView
-                            key={`${currentPage.id}:${notesVersion}`}
-                            db={db}
-                            page={currentPage}
-                            autoFocusTitle={focusTitlePageId === currentPage.id}
-                            offerStart={startOfferPageId === currentPage.id}
-                            onOpenPage={openPage}
-                            onOpenNewPage={openNewPage}
-                            onReview={(includeSubpages) =>
-                              openReview({
-                                kind: 'page',
-                                pageId: currentPage.id,
-                                includeSubpages,
-                              })
-                            }
-                            onNewPageFromTemplate={(id) =>
-                              runTask(newPageFromTemplate(id))
-                            }
-                            onOpenTag={openTag}
-                            onReload={() => setNotesVersion((v) => v + 1)}
-                            onOpenBackup={() => {
-                              openPage(null)
-                              setHub({ kind: 'data' })
-                            }}
-                            onOpenDatabase={(id) => {
-                              openPage(null)
-                              setHub({ kind: 'database', id })
-                            }}
-                            onOpenAttachment={(fileId) =>
-                              runTask(
-                                openAttachment(workspace.id, fileId).then(
-                                  (book) =>
-                                    setHub({ kind: 'read', pageId: book.id }),
-                                  (e: unknown) => {
-                                    if (e instanceof FileError) {
-                                      appUi.toast(e.message)
-                                    } else throw e
-                                  },
-                                ),
-                              )
-                            }
-                            header={
-                              currentPage.source ? (
-                                <BookHeader
-                                  db={db}
-                                  page={currentPage}
-                                  onRead={(pageId, at) =>
-                                    setHub({ kind: 'read', pageId, at })
-                                  }
-                                  onOpenPage={openPage}
-                                  actions={
-                                    <>
-                                      <AiActions
-                                        db={db}
-                                        workspaceId={workspace.id}
-                                        page={currentPage}
-                                        onChanged={() =>
-                                          setNotesVersion((v) => v + 1)
-                                        }
-                                      />
-                                      <PageAiActions
-                                        db={db}
-                                        workspaceId={workspace.id}
-                                        page={currentPage}
-                                        onChanged={() =>
-                                          setNotesVersion((v) => v + 1)
-                                        }
-                                      />
-                                    </>
-                                  }
-                                />
-                              ) : undefined
-                            }
-                          />
-                        </PageGate>
-                      ) : space === 'library' ? (
-                        <LibraryScreen
-                          db={db}
-                          workspaceId={workspace.id}
-                          onOpenPage={openPage}
-                          onRead={(pageId, at) =>
-                            setHub({ kind: 'read', pageId, at })
-                          }
-                          onCapture={(draft) =>
-                            setHub({ kind: 'capture', ...draft })
-                          }
-                        />
-                      ) : space === 'home' ? (
-                        <HomeScreenSwitch
-                          db={db}
-                          deps={{
-                            openToday: () => runTask(openToday()),
-                            openPage: (id) => openPage(id),
-                            countCardsDue: () => countDue(db, Date.now()),
-                            openReview: () => openReview({ kind: 'all' }),
-                            appendJournal: async (entries) => {
-                              await appendJournalNotes(
-                                db,
-                                workspace.id,
-                                entries,
-                              )
-                            },
-                          }}
-                        />
-                      ) : notebooks.length === 0 && currentPage === null ? (
-                        <EmptyState
-                          testId="no-notebooks"
-                          className="mx-auto mt-[24vh] max-w-md"
-                          icon="📓"
-                          text={t('app.empty.intro')}
-                          action={t('app.empty.create')}
-                          onAction={() => runTask(createNotebookAndOpen())}
-                        />
-                      ) : space === 'review' && currentPage === null ? (
-                        <ReviewHome
-                          db={db}
-                          notebooks={notebooks}
-                          onReview={(scope) => openReview(scope)}
-                          onAllCards={() => {
-                            openPage(null)
-                            setStudyTab('review')
-                            setHub({ kind: 'cards' })
-                          }}
-                        />
-                      ) : currentPage === null ? (
-                        <NotebooksHome
-                          db={db}
-                          notebooks={notebooks}
-                          onOpen={(id) => openNotebook(id)}
-                          onCreate={() => runTask(createNotebookAndOpen())}
-                        />
-                      ) : null}
-                    </Suspense>
-                  </ErrorBoundary>
-                </main>
+                          : undefined
+                      }
+                      onSlot={setBarSlot}
+                    />
+                    <div
+                      ref={setStackSlot}
+                      data-chrome
+                      data-bar-slot
+                      className="relative pb-1 empty:p-0"
+                    />
+                  </div>
+                  {pageArea}
+                </div>
               </div>
-            </div>
+            )}
 
             {picker && (
               <Suspense fallback={null}>

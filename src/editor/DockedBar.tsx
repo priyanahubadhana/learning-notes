@@ -33,10 +33,10 @@ import {
   useKeyboardInset,
 } from '../settings/deviceModeSettings'
 import { historyState } from '../core/historySteps'
+import { useFlag } from '../app/flags'
 import { padHistoryState } from './writePad/padHistory'
 import { MainBarRow } from '../app/tools/main/MainBar'
 import { ToolbarV8Lazy } from '../app/tools/v8/ToolbarV8Lazy'
-import { useFlag } from '../app/flags'
 import { HoverName } from '../app/tools/HoverName'
 import { MiniToolbar } from '../app/tools/main/MiniToolbar'
 import { MicroBar } from '../app/tools/main/MicroBar'
@@ -155,9 +155,12 @@ function Bar({ editor, slot }: { editor: Editor; slot: HTMLElement }) {
   const isActive = useToolActive(editor)
   const pageHistory = historyState.useValue()
   const pad = padHistoryState.useValue()
+  // The new shell's top bar already has the pair (SH-05), so the bar drops its copy.
+  const shellOn = useFlag('foundation.shell')
   const history = {
     canUndo: pageHistory.canUndo || pad.canUndo,
     canRedo: pageHistory.canRedo || pad.canRedo,
+    hidden: shellOn,
   }
   usePenPicksPen()
 

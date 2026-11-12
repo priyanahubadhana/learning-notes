@@ -24,6 +24,7 @@ import { enLateToolbar } from './toolbar'
 import { enLateUpdates } from './updates'
 import { enLateUpdateV2 } from './updateV2'
 import { enLateFlags } from './flags'
+import { enLateShell } from './shell'
 import { enLateAiBuild } from './aibuild'
 import { enLateAiJobs } from './aijobs'
 import { enLateAiPlan } from './aiplan'
@@ -55,6 +56,7 @@ export const enLate = {
   ...enLateUpdates,
   ...enLateUpdateV2,
   ...enLateFlags,
+  ...enLateShell,
   ...enLateAiBuild,
   ...enLateAiJobs,
   ...enLateAiPlan,

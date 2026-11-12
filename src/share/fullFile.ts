@@ -112,7 +112,9 @@ export async function writeFullFile(
       let n = 0
       await table.each((row: Record<string, unknown>) => {
         const out: Record<string, unknown> = { ...row }
-        for (const [field, value] of Object.entries(row)) {
+        // Device only: the first copy of a book (Reader v2) is never saved.
+        if (table.name === 'bookFiles') delete out.original
+        for (const [field, value] of Object.entries(out)) {
           if (!isBinary(value)) continue
           const entry = !skipsMedia(table.name)
             ? `media/${table.name}/${refs.length}`

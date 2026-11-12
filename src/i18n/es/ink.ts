@@ -51,6 +51,7 @@ export const esInk = {
   'annot.saved': 'Subrayado guardado.',
   'annot.savedTo': 'Guardado en {page}.',
   'annot.type.bookmark': 'Marcadores',
+  'annot.type.sticky': 'Notas adhesivas',
   'annot.type.highlight': 'Subrayados',
   'annot.type.note': 'Notas',
   'annot.undo': 'Deshacer',

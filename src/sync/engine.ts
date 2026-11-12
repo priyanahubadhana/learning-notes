@@ -385,6 +385,13 @@ async function writeDecisions(
           have?.data && old?.fileRef === item.env.file
             ? have.data
             : new ArrayBuffer(0)
+        // Device only: keep this device's first copy of a book (Reader v2).
+        if (table === 'bookFiles') {
+          delete value.original // never taken from the wire
+          const mine = (have as { original?: ArrayBuffer } | undefined)
+            ?.original
+          if (mine) value.original = mine
+        }
       }
     }
     // Pages: the reading place and the star of both sides, put together.
@@ -492,6 +499,8 @@ async function push(
       }
       const value = { ...row }
       if (SYNC_TABLES[s.table] === 'file') delete value.data
+      // Device only: the first copy of a book (Reader v2) is never sent.
+      if (s.table === 'bookFiles') delete value.original
       const env: Envelope = {
         f: SYNC_FORMAT_VERSION,
         h: s.hlc,

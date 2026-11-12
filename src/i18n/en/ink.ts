@@ -49,6 +49,7 @@ export const enInk = {
   'annot.saved': 'Highlight saved.',
   'annot.savedTo': 'Saved to {page}.',
   'annot.type.bookmark': 'Bookmarks',
+  'annot.type.sticky': 'Sticky notes',
   'annot.type.highlight': 'Highlights',
   'annot.type.note': 'Notes',
   'annot.undo': 'Undo',

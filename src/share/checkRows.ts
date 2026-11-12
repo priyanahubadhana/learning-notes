@@ -160,6 +160,7 @@ const page: Fields<Page> = {
   boxes: (v) => Array.isArray(v) && v.length <= 500 && v.every(isPaperBox),
   rows: isGridRows,
   sheet: oneOf('A4', 'Letter'),
+  readLockMode: oneOf('all', 'reading', 'view', 'frozen'),
 }
 
 const block: Fields<Block> = {
@@ -422,6 +423,8 @@ const bookFile: Fields<BookFile> = {
   mime: bookMime,
   size: number,
   data: object,
+  /** Device only: the first copy for "Restore original"; never read from a file. */
+  original: DROP,
   /** An attached file that was opened in the reader: its Library page. */
   readerPageId: text,
   /** A NotebookLM slide deck: shown in the page's Slides tab. */
@@ -431,7 +434,7 @@ const bookFile: Fields<BookFile> = {
 const annotation: Fields<Annotation> = {
   ...times,
   pageId: text,
-  kind: oneOf('highlight', 'note', 'bookmark'),
+  kind: oneOf('highlight', 'note', 'bookmark', 'sticky'),
   colour: isColour,
   anchor: isAnchor,
   quote: isQuote,

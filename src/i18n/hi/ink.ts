@@ -51,6 +51,7 @@ export const hiInk = {
   'annot.saved': 'हाइलाइट सहेजा गया।',
   'annot.savedTo': '{page} में सहेजा गया।',
   'annot.type.bookmark': 'बुकमार्क',
+  'annot.type.sticky': 'स्टिकी नोट',
   'annot.type.highlight': 'हाइलाइट',
   'annot.type.note': 'नोट',
   'annot.undo': 'पूर्ववत',

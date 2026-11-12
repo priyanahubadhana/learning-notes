@@ -12,4 +12,9 @@ export const hiSettingsV3 = {
   'sv3.previewChanged': 'एक सेटिंग बदली। देखने के लिए झलक खोलें।',
   'sv3.previewEmptyTitle': 'अभी दिखाने को कुछ नहीं',
   'sv3.previewEmptyText': 'कोई सेटिंग बदलें, उसका असर यहाँ दिखेगा।',
+  'sv3.noteChanged': '{name}: {from} → {to}',
+  'sv3.rowNow': 'अभी: {value}',
+  'sv3.labelsCount_one': '{count} लेबल',
+  'sv3.labelsCount_other': '{count} लेबल',
+  'sv3.previewLast': 'आख़िरी बदलाव',
 }

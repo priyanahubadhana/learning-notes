@@ -1,12 +1,9 @@
 import { useEffect, useRef, useState } from 'react'
 import { revealWhenReady } from '../../editor/revealBlock'
 import type { LearningNotesDB } from '../../core/db'
-import type { JsonValue } from '../../core/types'
 import { t } from '../../i18n/t'
 import { pushRouteParts, useRouteParts } from '../../app/router'
 import { settingsRegistry } from '../builtinSettings'
-import type { SettingDefinition } from '../registry'
-import { useDeviceSetting, useSyncedSetting } from '../useSetting'
 import '../toolbarSettings'
 import '../spaceSettings'
 import '../labSettings'
@@ -19,6 +16,8 @@ import '../../sync/syncSettings'
 import '../accountSettings'
 import { PreviewPane } from './PreviewPane'
 import { PreviewPill } from './PreviewPill'
+import { SettingRow } from './SettingRow'
+import type { Change } from './changeNote'
 import { SectionList } from './SectionList'
 import { inSection, useVisibleSettings } from './visibleSettings'
 import { tv } from './tv'
@@ -85,7 +84,11 @@ export function SettingsV3({
     setSheetOpen((o) => !o)
     setUnseen(0)
   }
-  const changed = () => setUnseen((n) => n + 1)
+  const [last, setLast] = useState<Change | null>(null)
+  const changed = (c: Omit<Change, 'seq'>) => {
+    setUnseen((n) => n + 1)
+    setLast((l) => ({ ...c, seq: (l?.seq ?? 0) + 1 }))
+  }
 
   return (
     <div
@@ -105,10 +108,11 @@ export function SettingsV3({
             <p className="sv3-lead">{t(section.descriptionKey)}</p>
           )}
           {rows.map((s) => (
-            <SettingLine
+            <SettingRow
               key={s.id}
               db={db}
               definition={s}
+              section={current}
               onChanged={changed}
             />
           ))}
@@ -118,98 +122,17 @@ export function SettingsV3({
             </p>
           )}
         </section>
-        <PreviewPane />
+        <PreviewPane last={last} />
       </div>
       {!wide && (
         <PreviewPill
           open={sheetOpen}
           onToggle={toggleSheet}
           pulse={unseen}
+          last={last}
           area={root}
         />
       )}
-    </div>
-  )
-}
-
-/** One setting, read from the registry and its stored value (shell only). */
-function SettingLine(props: {
-  db: LearningNotesDB
-  definition: SettingDefinition
-  onChanged(): void
-}) {
-  return props.definition.scope === 'device' ? (
-    <DeviceLine {...props} />
-  ) : (
-    <SyncedLine {...props} />
-  )
-}
-
-function SyncedLine({
-  db,
-  definition,
-  onChanged,
-}: {
-  db: LearningNotesDB
-  definition: SettingDefinition
-  onChanged(): void
-}) {
-  const value = useSyncedSetting(db, definition)
-  if (value === undefined) return null
-  return <Line definition={definition} value={value} onChanged={onChanged} />
-}
-
-function DeviceLine({
-  definition,
-  onChanged,
-}: {
-  definition: SettingDefinition
-  onChanged(): void
-}) {
-  const [value] = useDeviceSetting(definition)
-  return <Line definition={definition} value={value} onChanged={onChanged} />
-}
-
-function valueText(definition: SettingDefinition, value: JsonValue): string {
-  const c = definition.control
-  if (c.kind === 'segmented' || c.kind === 'select')
-    return (
-      c.options.find((o) => o.value === value)?.label() ?? tv('sv3.valueNone')
-    )
-  if (typeof value === 'number' || typeof value === 'string')
-    return String(value)
-  return ''
-}
-
-function Line({
-  definition,
-  value,
-  onChanged,
-}: {
-  definition: SettingDefinition
-  value: JsonValue
-  onChanged(): void
-}) {
-  // Tell the shell when the stored value changes after the first showing.
-  const seen = useRef<string | undefined>(undefined)
-  const now = JSON.stringify(value)
-  const notify = useRef(onChanged)
-  useEffect(() => {
-    notify.current = onChanged
-  })
-  useEffect(() => {
-    if (seen.current !== undefined && seen.current !== now) notify.current()
-    seen.current = now
-  }, [now])
-  return (
-    <div data-setting-id={definition.id} className="sv3-line">
-      <div className="sv3-line-text">
-        <div className="sv3-line-label">{t(definition.labelKey)}</div>
-        <div className="sv3-line-help">{t(definition.descriptionKey)}</div>
-      </div>
-      <div className="sv3-line-value" data-testid="sv3-value">
-        {valueText(definition, value)}
-      </div>
     </div>
   )
 }

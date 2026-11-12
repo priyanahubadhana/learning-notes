@@ -12,4 +12,9 @@ export const esSettingsV3 = {
   'sv3.previewChanged': 'Un ajuste cambió. Abre la vista previa para verlo.',
   'sv3.previewEmptyTitle': 'Aún no hay nada que mostrar',
   'sv3.previewEmptyText': 'Cambia un ajuste y su efecto aparece aquí.',
+  'sv3.noteChanged': '{name}: {from} → {to}',
+  'sv3.rowNow': 'Ahora: {value}',
+  'sv3.labelsCount_one': '{count} etiqueta',
+  'sv3.labelsCount_other': '{count} etiquetas',
+  'sv3.previewLast': 'Último cambio',
 }

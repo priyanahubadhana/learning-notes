@@ -99,10 +99,8 @@ test.describe('iPad landscape (touch)', () => {
       page.locator('[data-setting-id="review.scheduler"]'),
     ).toContainText('Scheduler')
     await expect(
-      page.locator(
-        '[data-setting-id="review.scheduler"] [data-testid="sv3-value"]',
-      ),
-    ).toHaveText('FSRS (smart)')
+      page.locator('[data-setting-id="review.scheduler"] [data-row-preview]'),
+    ).toHaveText('Now: FSRS (smart)')
   })
 })
 
@@ -185,10 +183,8 @@ test.describe('phone', () => {
   }) => {
     await page.goto('/?flags=settings.v3#/settings/review')
     await expect(
-      page.locator(
-        '[data-setting-id="review.scheduler"] [data-testid="sv3-value"]',
-      ),
-    ).toHaveText('FSRS (smart)')
+      page.locator('[data-setting-id="review.scheduler"] [data-row-preview]'),
+    ).toHaveText('Now: FSRS (smart)')
     const pill = page.locator('[data-preview-pill]')
     await expect(pill).not.toHaveAttribute('data-pulse', 'on')
 
@@ -201,10 +197,8 @@ test.describe('phone', () => {
       .selectOption({ label: 'Simple steps' })
 
     await expect(
-      page.locator(
-        '[data-setting-id="review.scheduler"] [data-testid="sv3-value"]',
-      ),
-    ).toHaveText('Simple steps')
+      page.locator('[data-setting-id="review.scheduler"] [data-row-preview]'),
+    ).toHaveText('Now: Simple steps')
     await expect(pill).toHaveAttribute('data-pulse', 'on')
     await expect(page.locator('[role="status"].sr-only')).toContainText(
       'A setting changed',

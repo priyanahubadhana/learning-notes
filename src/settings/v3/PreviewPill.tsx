@@ -3,6 +3,7 @@ import { createPortal } from 'react-dom'
 import { overlay } from '../../app/overlay'
 import { Icon } from '../../app/tools/icons'
 import { PreviewBody } from './PreviewPane'
+import type { Change } from './changeNote'
 import { tv } from './tv'
 
 /**
@@ -18,6 +19,7 @@ export function PreviewPill({
   onToggle,
   pulse,
   area,
+  last,
 }: {
   open: boolean
   onToggle(): void
@@ -25,6 +27,7 @@ export function PreviewPill({
   pulse: number
   /** The Settings screen: taps inside it do not close the sheet. */
   area: RefObject<HTMLElement | null>
+  last: Change | null
 }) {
   const pill = useRef<HTMLButtonElement>(null)
   const sheet = useRef<HTMLDivElement>(null)
@@ -77,7 +80,7 @@ export function PreviewPill({
               <Icon name="close" />
             </button>
           </div>
-          <PreviewBody />
+          <PreviewBody last={last} />
         </div>
       )}
       <button

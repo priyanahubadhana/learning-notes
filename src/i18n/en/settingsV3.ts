@@ -12,4 +12,9 @@ export const enSettingsV3 = {
   'sv3.previewChanged': 'A setting changed. Open the preview to see it.',
   'sv3.previewEmptyTitle': 'Nothing to preview yet',
   'sv3.previewEmptyText': 'Change a setting and its effect shows here.',
+  'sv3.noteChanged': '{name}: {from} → {to}',
+  'sv3.rowNow': 'Now: {value}',
+  'sv3.labelsCount_one': '{count} label',
+  'sv3.labelsCount_other': '{count} labels',
+  'sv3.previewLast': 'Last change',
 }

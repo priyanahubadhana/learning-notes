@@ -68,30 +68,154 @@
   color: var(--color-muted);
 }
 
-/* One setting (the real row arrives in the next step). */
-.sv3-line {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  gap: var(--space-4);
-  padding: var(--space-3) 0;
+/* One setting row. */
+.sv3-row {
+  padding: var(--space-4) 0;
   border-bottom: 1px solid var(--color-line);
 }
-.sv3-line-label {
+.sv3-row:last-child {
+  border-bottom: 0;
+}
+.sv3-row-head {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: var(--space-2);
+}
+.sv3-row-name {
+  margin: 0;
   font-size: 15px;
   font-weight: 600;
 }
 .sv3-line-help {
-  margin-top: 2px;
+  margin: 2px 0 0;
   font-size: 13px;
   color: var(--color-muted);
 }
-.sv3-line-value {
-  flex: none;
-  max-width: 40%;
+.sv3-row-control {
+  margin-top: var(--space-3);
+}
+.sv3-row-foot {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: var(--space-3);
+  margin-top: var(--space-2);
+  font-size: 12px;
+  color: var(--color-muted);
+}
+.sv3-link {
+  min-height: 44px;
+  padding: 0 var(--space-2);
+  border: 0;
+  background: transparent;
+  color: var(--color-accent);
+  font: inherit;
+  cursor: pointer;
+}
+.sv3-link:hover {
+  text-decoration: underline;
+}
+.sv3-btn {
+  min-height: 44px;
+  padding: 0 var(--space-4);
+  border: 1px solid var(--color-line-strong);
+  border-radius: var(--r-md);
+  background: transparent;
+  color: var(--color-ink);
+  font: inherit;
   font-size: 14px;
-  color: var(--color-ink-soft);
+  cursor: pointer;
+}
+.sv3-btn:disabled {
+  opacity: 0.4;
+  cursor: not-allowed;
+}
+.sv3-select {
+  min-height: 44px;
+  max-width: 100%;
+  padding: 0 var(--space-3);
+  border: 1px solid var(--color-line-strong);
+  border-radius: var(--r-md);
+  background: var(--color-surface-0);
+  color: var(--color-ink);
+  font: inherit;
+  font-size: 14px;
+}
+.sv3-num {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-2);
+}
+.sv3-num-row {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: var(--space-2);
+}
+.sv3-num-field {
+  width: 120px;
   text-align: right;
+}
+.sv3-step {
+  box-sizing: border-box;
+  width: 64px;
+  min-height: 44px;
+  border: 1px solid var(--color-line-strong);
+  border-radius: var(--r-md);
+  background: var(--color-surface-0);
+  color: var(--color-ink);
+  font: inherit;
+  text-align: center;
+}
+.sv3-error {
+  margin: 0;
+  font-size: 12px;
+  color: var(--color-danger);
+}
+
+/* The tiny live preview of a row (about 56 px). */
+.sv3-rowprev {
+  display: flex;
+  align-items: center;
+  box-sizing: border-box;
+  min-height: 56px;
+  margin-top: var(--space-3);
+  padding: 0 var(--space-3);
+  border: 1px solid var(--color-line);
+  border-radius: var(--r-md);
+  background: var(--color-surface-1);
+  font-size: 13px;
+  color: var(--color-ink-soft);
+}
+/* S2: what just changed glows (1.5 s, twice) and a note says what it was. */
+[data-glow='on'].sv3-rowprev,
+.sv3-note[data-glow='on'] {
+  animation: sv3-glow 1.5s var(--ease-out) 2;
+}
+@keyframes sv3-glow {
+  0% {
+    outline: 2px solid var(--color-accent);
+    outline-offset: 2px;
+    background: var(--color-accent-soft);
+    box-shadow: 0 0 22px var(--color-accent-soft);
+  }
+  100% {
+    outline: 2px solid transparent;
+    outline-offset: 2px;
+  }
+}
+.sv3-note {
+  padding: var(--space-3);
+  border-radius: var(--r-md);
+  background: var(--color-surface-0);
+  font-size: 14px;
+  border: 1px solid var(--color-line);
+}
+.sv3-note-title {
+  margin-bottom: 2px;
+  font-size: 12px;
+  color: var(--color-muted);
 }
 
 /* Preview: a card in the wide column, a body inside the phone sheet. */
@@ -235,7 +359,22 @@
   overflow: auto;
 }
 @media (prefers-reduced-motion: reduce) {
+  [data-glow='on'].sv3-rowprev,
+  .sv3-note[data-glow='on'] {
+    animation: sv3-fade 1.5s linear 1;
+    outline: 2px solid var(--color-accent);
+    outline-offset: 2px;
+  }
   .sv3-pill[data-pulse='on'] {
     animation: none;
+  }
+}
+@keyframes sv3-fade {
+  0% {
+    opacity: 1;
+  }
+  100% {
+    opacity: 1;
+    outline-color: transparent;
   }
 }

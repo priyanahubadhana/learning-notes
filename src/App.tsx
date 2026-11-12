@@ -1,4 +1,5 @@
 import { centreEl } from './app/centreEl'
+import { useFlag } from './app/flags'
 import { setActiveScope } from './core/historySteps'
 import { useLiveQuery } from 'dexie-react-hooks'
 import {
@@ -293,6 +294,9 @@ const DatabasesScreen = lazy(() =>
 const ReviewScreen = lazy(() =>
   import('./recall/ReviewScreen').then((m) => ({ default: m.ReviewScreen })),
 )
+const ReviewV2 = lazy(() =>
+  import('./review/v2/ReviewV2').then((m) => ({ default: m.ReviewV2 })),
+)
 const SettingsScreen = lazy(() =>
   import('./settings/SettingsScreen').then((m) => ({
     default: m.SettingsScreen,
@@ -413,6 +417,7 @@ function App() {
   const [studyTab, setStudyTab] = useState<'notes' | 'summary' | 'review'>(
     'review',
   )
+  const reviewV2 = useFlag('review.v2')
   // Review replaces the open page the same way (null = not reviewing).
   const [reviewScope, setReviewScope] = useState<ReviewScope | null>(() =>
     boot?.kind === 'review' && boot.scope.kind !== 'custom' ? boot.scope : null,
@@ -1372,6 +1377,24 @@ function App() {
 
   if (!workspace || !notebooks) return null // loading (a split second)
 
+  const reviewV2Screen = (scope: ReviewScope | null) => (
+    <ReviewV2
+      key={JSON.stringify(scope)}
+      db={db}
+      scope={scope}
+      keysPaused={drawerOpen}
+      onOpenNote={(pageId, blockId) => {
+        openPage(pageId)
+        revealBlock(blockId)
+      }}
+      onOpenAnnotation={(id) =>
+        runTask(db.annotations.get(id).then((a) => a && openAnnotation(a)))
+      }
+      onOpenNotebooks={() => chooseSpace('notebooks')}
+      onClose={() => setReviewScope(null)}
+    />
+  )
+
   return (
     <ThemeContext value={theme}>
       <AppUiContext value={appUi}>
@@ -1602,6 +1625,8 @@ function App() {
                           db={db}
                           focusId={settingsFocus ?? undefined}
                         />
+                      ) : reviewV2 && reviewScope ? (
+                        reviewV2Screen(reviewScope)
                       ) : reviewScope ? (
                         <ReviewScreen
                           key={JSON.stringify(reviewScope)}
@@ -1892,6 +1917,10 @@ function App() {
                           action={t('app.empty.create')}
                           onAction={() => runTask(createNotebookAndOpen())}
                         />
+                      ) : reviewV2 &&
+                        space === 'review' &&
+                        currentPage === null ? (
+                        reviewV2Screen(null)
                       ) : space === 'review' && currentPage === null ? (
                         <ReviewHome
                           db={db}

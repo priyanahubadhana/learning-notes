@@ -25,6 +25,7 @@ import { hiToolbar } from './toolbar'
 import { hiUpdates } from './updates'
 import { hiUpdateV2 } from './updateV2'
 import { hiFlags } from './flags'
+import { hiSlashMenu } from './slashMenu'
 import { hiAiBuild } from './aibuild'
 import { hiAiJobs } from './aijobs'
 import { hiParts } from './parts'
@@ -56,6 +57,7 @@ export const hi: Record<string, string> = {
   ...hiUpdates,
   ...hiUpdateV2,
   ...hiFlags,
+  ...hiSlashMenu,
   ...hiAiBuild,
   ...hiAiJobs,
   ...hiParts,

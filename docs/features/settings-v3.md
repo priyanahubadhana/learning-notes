@@ -254,6 +254,7 @@ New: Your experience, Tours library, Professional features list, hidden Try new 
 - No automatic switching of the whole app to Professional when one feature is unlocked.
 - The mock-only "Icons A / B" switcher (owner S-a) and the phone device-preview pill `.ppill` are not built.
 - No sync of tour downloads or the Try new features flags (device only).
+- Nothing else beyond the build master plan, slice 3 (docs/plans/build-master-plan.md).
 
 ### 9. Build order (one surface group per commit)
 

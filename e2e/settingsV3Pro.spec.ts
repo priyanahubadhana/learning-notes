@@ -1,6 +1,6 @@
 // Browser types for code that runs inside the page.
 /// <reference lib="dom" />
-import { expect, test, type Page } from '@playwright/test'
+import { expect, test, type Locator, type Page } from '@playwright/test'
 
 /** Settings v3 Professional features: SET-B37 to B44, B46 (Why pop-up) and SET-P01 to P29. */
 
@@ -18,6 +18,19 @@ const state = (page: Page) =>
 const feature = (page: Page, id: string) =>
   page.locator(`[data-pro-feature="${id}"]`)
 const sw = (page: Page, id: string) => feature(page, id).getByRole('switch')
+
+/** Waits until the box stops moving (the pattern of slice 0g's settled()), so a click or a size never lands mid-animation. */
+async function settled(l: Locator) {
+  let last = ''
+  await expect
+    .poll(async () => {
+      const now = JSON.stringify(await l.boundingBox())
+      const same = now === last
+      last = now
+      return same
+    })
+    .toBe(true)
+}
 
 async function open(page: Page, section: string, level = BEGINNER) {
   await page.addInitScript((v) => {
@@ -69,6 +82,7 @@ test('SET-B39 one switch on in Beginner: the feature shows at once with a glow, 
   page,
 }) => {
   await open(page, 'pro')
+  await settled(sw(page, 'general.reduceGlass'))
   await sw(page, 'general.reduceGlass').click()
   await expect(page.getByText('Reduce glass is on')).toBeVisible()
   await expect(feature(page, 'general.reduceGlass')).toHaveAttribute(
@@ -91,6 +105,7 @@ test('SET-B40 turn on / off all in a group is one Undo step', async ({
 }) => {
   await open(page, 'pro')
   const group = page.locator('[data-pro-group="home"]')
+  await settled(group.locator('[data-pro-all]'))
   await group.locator('[data-pro-all]').click()
   await expect(group.locator('[data-pro-count]')).toHaveText('2 of 2 on')
   await expect(group.locator('[data-pro-all]')).toContainText(
@@ -104,6 +119,7 @@ test('SET-B40 turn on / off all in a group is one Undo step', async ({
   await expect(group.locator('[data-pro-count]')).toHaveText('0 of 2 on')
   await page.getByTestId('sv3-redo').click()
   await expect(group.locator('[data-pro-count]')).toHaveText('2 of 2 on')
+  await settled(group.locator('[data-pro-all]'))
   await group.locator('[data-pro-all]').click()
   await expect(group.locator('[data-pro-count]')).toHaveText('0 of 2 on')
 })

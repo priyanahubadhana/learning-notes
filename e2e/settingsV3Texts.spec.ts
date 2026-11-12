@@ -15,29 +15,59 @@ async function open(page: Page, section = 'general') {
 const FIELDS =
   'input:not([type=checkbox]):not([type=radio]):not([type=range]):not([type=hidden]):not([type=button]), textarea'
 
-test('SET-B45 every text field in Settings has a ✕ of 44 pt and clears it', async ({
-  page,
-}) => {
-  await open(page)
-  const sections = await page
-    .locator('[data-section]')
-    .evaluateAll((els) => els.map((e) => e.getAttribute('data-section')!))
-  let seen = 0
-  for (const id of sections) {
+/** Every section of the screen. The last test fails if a new one is missing here. */
+const SECTIONS = [
+  'experience',
+  'general',
+  'account',
+  'sync',
+  'lock',
+  'ai',
+  'apis',
+  'permissions',
+  'claude',
+  'toolbar',
+  'pencil',
+  'reading',
+  'review',
+  'journal',
+  'advanced',
+  'help',
+  'pro',
+]
+
+/** Waits until the number of text fields stops changing (rows loaded). */
+async function settledMain(page: Page) {
+  let last = -1
+  let same = 0
+  await expect
+    .poll(async () => {
+      const now = await page.locator(`.sv3-main ${FIELDS}`).count()
+      same = now === last ? same + 1 : 0
+      last = now
+      return same >= 3
+    })
+    .toBe(true)
+}
+
+// One test per section: each has its own time budget, so a slow machine can no
+// longer run the whole sweep out of time (it did, with a fixed sleep per section).
+for (const id of SECTIONS)
+  test(`SET-B45 every text field in "${id}" has a ✕ of 44 pt and clears it`, async ({
+    page,
+  }) => {
+    await open(page)
     await page.locator(`[data-section="${id}"]`).click()
-    // Rows load from the database a moment after the section opens.
-    await page
-      .locator('.sv3-main .sv3-row')
-      .first()
-      .waitFor({ timeout: 2000 })
-      .catch(() => {})
-    await page.waitForTimeout(400)
+    await expect(page.locator(`[data-section="${id}"]`)).toHaveAttribute(
+      'aria-current',
+      'page',
+    )
+    await settledMain(page)
     const fields = page.locator(`.sv3-main ${FIELDS}`)
     const n = await fields.count()
     for (let i = 0; i < n; i++) {
       const field = fields.nth(i)
       if (!(await field.isVisible())) continue
-      seen++
       // Every field is a shared ✕ field.
       await expect(field, `${id} field ${i}`).toHaveClass(/clr-field/)
       await field.fill('1')
@@ -48,13 +78,18 @@ test('SET-B45 every text field in Settings has a ✕ of 44 pt and clears it', as
       expect(box!.height).toBeGreaterThanOrEqual(44)
       await btn.click()
       await expect(field).toHaveValue('')
-      // Put a valid value back so the row is not left in an error state.
       await field.press('Escape').catch(() => {})
     }
-  }
-  // The search box, the number fields and the review steps were all met.
-  expect(seen).toBeGreaterThan(5)
-  // The page's own search and the feature search have it too.
+  })
+
+test('SET-B45 the feature search has a ✕ too, and no section is missing from the list', async ({
+  page,
+}) => {
+  await open(page)
+  const sections = await page
+    .locator('[data-section]')
+    .evaluateAll((els) => els.map((e) => e.getAttribute('data-section')!))
+  expect(sections.filter((s) => !SECTIONS.includes(s))).toEqual([])
   await page.locator('[data-section="pro"]').click()
   await page.getByRole('searchbox', { name: 'Search features' }).fill('x')
   await expect(

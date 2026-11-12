@@ -144,3 +144,12 @@ Full text: `docs/DECISIONS.md` "Decisions to review" on `build/next`. Build-nigh
 - Gate 3 (docs/plans/gate3-2026-11-13.md, b04a4737): 3 FAIL 10 fixes, 8 FAIL 8 fixes (both: no Sepia pictures). Next wave: fix-list builders for 3 and 8, 0g's 3 follow-ups, 4 (13), 12 (4), 7 (7); flag-on pictures for 5, 6, 9b then gate 3.
 - **build/next RED now.** 0g merged (baf5676f), gallery open() waits for 13 sections (2f7c5d65), origin/main merged in (0c936ce3, PR #5 conflict). CI 43295237433 failed: chromium shell.spec.ts:224 "works offline once loaded"; toolbarV8Pen.spec.ts:345 44 pt (maybe passed on retry); ipad-webkit parts-gallery-feedback SP-50 (sheet height) and SP-56 (banner bottom). First check if they fail on 3cbf6107 too. Fixing this is the next wave. 9b not merged yet (waits for green).
 - Owner question for gate 3 (in gate3 file): Settings On/Off as segmented button vs switches.
+
+## Waves 3-4 (13 Nov) and handover
+
+- build/next GREEN: CI 43310172930 (test races fixed, no app code: shell offline, Pen 44 pt, SP-50, SP-56, gallery widths; lint in mcp/src/setup.ts).
+- 9b merged into build/next f49fdad9 (local tsc/lint/vitest green); **CI for f49fdad9 not confirmed yet**: watch it first.
+- Slice 12: merging build/next hits a conflict in src/design/gallery/index.tsx; needs a Sonnet builder (aborted, nothing pushed).
+- Gate-3 fix lists done, pushed, need gate 2 then Fable gate 3 re-shoot review: 3 5ad4bd15 (10/10, On/Off = mock-up switch, SET-B09 spec changed: "Now:" box removed), 8 e06a98e8 (8/8; touched hot file src/App.tsx: iPad portrait sidebar closed; tooltip over sidebar in iPad landscape Home shots), 4 fc8ddf89 (13/13, size 318,226; "3 of 12" arrows and item 12 deferred in DECISIONS), 7 6a8141c7 (7/7; check:dod looks for readerV2.md, spec is reader-v2.md: pass the right slug; worktree has uncommitted sticky/panel edits from an earlier builder, keep them).
+- Still open: 12b fix list (after conflict), 0g 3 follow-ups, flag-on shots + gate 3 for 5, 6, 9b; 7 remaining sub-slices; iPad storage-safety slice; owner iPad checklist; first full preview.
+- Docs done on main: DECISIONS (On/Off switch), PENDING Needs you (gate-2 style rule, not applied), CHANGELOG, mirror.

@@ -42,6 +42,11 @@ export interface RunnerDeps {
   /** 0..1, for the retry jitter. Tests pass a fixed one. */
   random?: () => number
   catalog?: readonly CatalogTool[]
+  /**
+   * How long one fill may take, instead of the tool's own limit. The Build
+   * screen waits for a person to paste an answer, which takes minutes.
+   */
+  fillTimeoutMs?: number
 }
 
 export type CreateResult =
@@ -140,6 +145,7 @@ export class JobRunner {
   private readonly isOnline: () => boolean
   private readonly random: () => number
   private readonly catalog: readonly CatalogTool[]
+  private readonly fillTimeoutMs?: number
   private tail: Promise<unknown> = Promise.resolve()
   private busy = 0
   /** Errors thrown by the job store: they crash the run instead of failing a step. */
@@ -156,6 +162,7 @@ export class JobRunner {
     this.isOnline = deps.isOnline ?? (() => true)
     this.random = deps.random ?? Math.random
     this.catalog = deps.catalog ?? toCatalog()
+    this.fillTimeoutMs = deps.fillTimeoutMs
   }
 
   // ---- public ----
@@ -548,7 +555,10 @@ export class JobRunner {
     const ctl = new AbortController()
     const onAbort = () => ctl.abort()
     signal.addEventListener('abort', onAbort)
-    const timer = setTimeout(() => ctl.abort(), tool.limits.timeoutMs)
+    const timer = setTimeout(
+      () => ctl.abort(),
+      this.fillTimeoutMs ?? tool.limits.timeoutMs,
+    )
     try {
       const timeout = new Promise<never>((_, reject) =>
         ctl.signal.addEventListener('abort', () =>

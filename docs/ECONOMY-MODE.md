@@ -1,8 +1,8 @@
-# Economy mode for the build (proposed 13 Nov 2026)
+# Economy mode for the build (in force from 13 Nov 2026, owner-approved)
 
 Goal: the same features, speed, quality and design at a much lower usage cost. Quality is protected by keeping the same 3 gates, the same tests and the same Definition of Done (rules/quality.md). Only who does which job changes.
 
-Status: PROPOSAL. It changes the agent hierarchy in CLAUDE.md, so the owner's OK is needed before the CLAUDE.md lines are changed (section 7).
+Status: IN FORCE. CLAUDE.md "How Work Runs" carries the rule. Start with 4 parallel builders; go up to 6 only while rework stays under 2 rounds (owner, 13 Nov).
 
 ## 1. What the measurements say
 
@@ -38,7 +38,7 @@ The old agent files are untouched (`fable-manager`, `opus-submanager-*`, `sonnet
 ## 3. Rules for every helper
 
 - **Briefs point to files, never paste them.** Under 250 words, every field of the section 4 template filled.
-- **Design + quality checklist:** builders tick the 16 lines in .claude/agents/economy-builder.md with proof; gate 2 and gate 3 reject a slice on any ✗.
+- **Design + quality checklist:** builders tick the 17 lines in .claude/agents/economy-builder.md with proof; gate 2 and gate 3 reject a slice on any ✗.
 - **Worktrees:** one per slice (they exist: `../ln-s*`), reused by each new builder of that slice. A new worktree only for a new slice. Docs-only and read-only jobs need none.
 - **Tests:** locally run only the spec files of the sub-slice (chromium; ipad-webkit for touch code) plus lint, tsc and the size check. The full matrix runs once per merge in CI on the `build/next` pull request (free, public repo). A Haiku helper runs `gh run watch <id> --exit-status`, then lists the failed test names from `gh run view <id> --log-failed`. No local full suites.
 - **Output:** long command output goes to a file; read the tail or search the failures.
@@ -57,6 +57,7 @@ Builder:
 Objective: slice <id> sub-slice <id>: <one line, user-visible result>.
 Where: worktree C:\Users\pc\Downloads\<folder>, branch slice/<name>, flag <flag>.
 Spec: docs/features/<file>.md IDs <IDs>. Won't do: <IDs or lines>.
+Rules to read: rules/global.md, rules/security.md (always); architecture / scalability as the slice needs.
 Files to change: <paths>. Not yours: <hot files / other lanes>.
 Copy this pattern: <existing file:line that does the same kind of thing>.
 [PLAN FIRST - only if more than 3 files or new stored data]
@@ -129,24 +130,9 @@ Speed depends on the number of parallel builders and the CI time (about 30 min p
 
 Unchanged: rules/quality.md, the Definition of Done, tests never weakened, 3 attempts then FAILED.md, and money / Supabase / switching a part ON wait for the owner.
 
-## 7. Proposed CLAUDE.md wording (main applies it after the owner's OK)
+## 7. CLAUDE.md wording
 
-```diff
- ## How Work Runs (agent hierarchy)
-
--- Every task: main manager **Fable** (`.claude/agents/fable-manager.md`) → **Opus** sub-managers (`opus-submanager-ui/-build/-qa`) → **Sonnet/Haiku** executors. Parallel when files do not overlap. The manager verifies quality and delivers one final report.
-+- Build (economy mode, docs/ECONOMY-MODE.md): **Fable** stays the main manager but only starts the run, does gate 3 (screenshots) and takes named hard cases. An **Opus** orchestrator (`economy-orchestrator`) reads docs/BUILD-STATE.md and briefs **Sonnet** builders (`economy-builder`) directly; **Haiku** (`economy-mechanic`) does mechanical work and CI watching; **Opus** (`economy-gate2`) does gate 2. Same 3 gates, same tests. Parallel when files do not overlap (up to 6 builders).
-+- Other tasks (design, planning, mock-ups): Fable → Opus sub-managers → Sonnet/Haiku as before (`fable-manager`, `opus-submanager-*`).
--- Build phase: Fable is the top orchestrator (designs the system first, then delegates slices to Opus sub-managers → Sonnet builders).
-+- Build state lives in docs/BUILD-STATE.md (updated after every merge); a new orchestrator needs only that file and its brief.
-```
-
-```diff
--- **Token efficiency:** ... Fable = top manager/design only, Opus = review, Sonnet = coding, Haiku = search/mechanical; short briefs pointing to files; no re-reads; parallel only on separate files.
-+- **Token efficiency:** ... Fable = gate 3 and hard cases only, Opus = orchestrating and gate 2, Sonnet = coding in sub-slices of about 60 turns, Haiku = mechanical work and CI watching; short briefs pointing to files; targeted tests locally, full matrix in CI; no re-reads; no polling; parallel only on separate files.
-```
-
-The owner's global file (`~/.claude/CLAUDE.md`, "Agent hierarchy") says Fable → Opus sub-managers → Sonnet/Haiku for every task; it needs the same exception for the build.
+Applied 13 Nov; the live wording is CLAUDE.md "How Work Runs".
 
 ## 8. Switch and rollback
 

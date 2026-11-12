@@ -18,18 +18,18 @@ Learning Notes App: a premium, minimal second brain (Notion + OneNote + Anki). E
 
 ## How Work Runs (agent hierarchy)
 
-- Every task: main manager **Fable** (`.claude/agents/fable-manager.md`) → **Opus** sub-managers (`opus-submanager-ui/-build/-qa`) → **Sonnet/Haiku** executors. Parallel when files do not overlap. The manager verifies quality and delivers one final report.
+- Non-build tasks (design, planning, mock-ups): main manager **Fable** (`.claude/agents/fable-manager.md`) → **Opus** sub-managers (`opus-submanager-ui/-build/-qa`) → **Sonnet/Haiku** executors. Parallel when files do not overlap. The manager verifies quality and delivers one final report.
 - Usage limit hit: stopped helpers are resumed automatically when the limit resets (a scheduled wake-up), and every step is saved to git and `docs/PENDING.md` so nothing is lost.
-- Build (economy mode, from 13 Nov 2026, owner-approved; docs/ECONOMY-MODE.md): an **Opus** orchestrator (`economy-orchestrator`) reads docs/BUILD-STATE.md and briefs up to 6 **Sonnet** builders (`economy-builder`) directly; **Haiku** (`economy-mechanic`) does mechanical work and CI watching; **Opus** (`economy-gate2`) does gate 2. **Fable** plans, takes hard cases and checks every slice at least twice: the brief against the spec and mock-up before building, and the screenshots (gate 3) before merge. Same 3 gates, same tests. Rollback: `fable-manager`. Other tasks use the hierarchy above.
+- Build (economy mode, from 13 Nov 2026, owner-approved; docs/ECONOMY-MODE.md): an **Opus** orchestrator (`economy-orchestrator`) reads docs/BUILD-STATE.md and briefs up to 6 **Sonnet** builders (`economy-builder`) directly; **Haiku** (`economy-mechanic`) does mechanical work and CI watching; **Opus** (`economy-gate2`) does gate 2. **Fable** plans, takes hard cases and checks every slice at least twice: the brief against the spec and mock-up before building, and the screenshots (gate 3) before merge. Same 3 gates, same tests. Rollback: `fable-manager`.
 
 ## Always Apply (owner never repeats these)
 
 Every task, every helper brief, every session, including after a restart:
 
 - **Quality:** [rules/quality.md](rules/quality.md): one design system, spec before code, Definition of Done, tests stop the line, 3 gates.
-- **Design:** docs/design/quality-standard.md, docs/design/owner-ui-patterns.md, docs/plans/mock-feedback-2026-11-11.md, and the approved conditions in docs/PENDING.md (calm, ▾ menus, ✕ everywhere, Undo/Redo, plain identical words in both modes, explanations as pop-ups, visible feedback on every change, live-reflow drag, every Professional feature unlockable, never drop a feature).
-- **Continuity:** [docs/CONTINUITY.md](docs/CONTINUITY.md): small commits, PENDING always current, mock-ups in docs/mockups/, own worktree per helper, resume from the last commit. The owner only needs to type "continue".
-- **Token efficiency:** [docs/design/token-efficiency.md](docs/design/token-efficiency.md) (checked against the official Claude Code docs, 12 Nov 2026; re-check monthly and drop tips that newer tools make unnecessary). Fable = planning, double checks and hard cases, Opus = orchestrating and gate 2, Sonnet = coding in sub-slices of about 60 turns, Haiku = mechanical work and CI watching; targeted tests locally, full matrix in CI; no polling; short briefs pointing to files; no re-reads; parallel only on separate files.
+- **Design:** docs/design/quality-standard.md, docs/design/owner-ui-patterns.md, docs/plans/mock-feedback-2026-11-11.md, and the approved conditions in docs/PENDING.md; the conditions themselves are listed once, in rules/quality.md section 3 (Definition of Done).
+- **Continuity:** [docs/CONTINUITY.md](docs/CONTINUITY.md): small commits, PENDING always current, mock-ups in docs/mockups/, one worktree per slice (reused), resume from the last commit. The owner only needs to type "continue".
+- **Token efficiency:** [docs/design/token-efficiency.md](docs/design/token-efficiency.md) (checked against the official Claude Code docs, 12 Nov 2026; re-check monthly and drop tips that newer tools make unnecessary). Model roles: "How Work Runs" above; build cost rules (targeted tests locally, full suite in CI, no polling, short briefs, no re-reads, parallel only on separate files): docs/ECONOMY-MODE.md section 3.
 - **Owner comments on mock-ups:** read every open comment and give each one to the helper; verify each in a browser before saying done.
 
 ## Things We Said No To (for now)

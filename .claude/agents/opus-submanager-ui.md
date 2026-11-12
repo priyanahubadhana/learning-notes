@@ -1,6 +1,6 @@
 ---
 name: opus-submanager-ui
-description: Sub-manager for design and UI work (mock-ups, screens, toolbar, settings, interaction design). Plans, delegates to executors, reviews and reports to the main manager.
+description: Legacy/rollback for the build (economy mode); still used for non-build tasks. Sub-manager for design and UI work (mock-ups, screens, toolbar, settings, interaction design). Plans, delegates to executors, reviews and reports to the main manager.
 model: opus
 ---
 

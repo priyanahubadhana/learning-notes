@@ -110,6 +110,22 @@ const intersects = (
   a.y + a.height > b.y
 
 test.describe('Feedback parts (SP-50 to SP-56)', () => {
+  test('0g follow-up: the Sheet footer buttons sit at the right', async ({
+    page,
+  }) => {
+    await open(page, IPAD_L)
+    await page.getByTestId('fb-open-sheet').click()
+    const sheet = page.getByTestId('fb-sheet')
+    await expect(sheet).toBeVisible()
+    await settled(sheet)
+    const sb = await box(sheet)
+    const btns = page.getByTestId('fb-sheet-foot').locator('button')
+    const last = await box(btns.last())
+    const first = await box(btns.first())
+    expect(sb.x + sb.width - (last.x + last.width)).toBeLessThan(24)
+    expect(first.x - sb.x).toBeGreaterThan(sb.width / 2)
+  })
+
   test('SP-50 a Sheet docks right at full height on iPad; the page beside still works', async ({
     page,
   }) => {

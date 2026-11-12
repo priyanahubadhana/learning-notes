@@ -161,7 +161,8 @@ export default function Shell(p: ShellProps) {
         <PanelSlot
           cols={cols}
           wrapRef={panelWrap}
-          left={panelLeft(cols.sidebar === 'docked' ? drawn : null)}
+          // Over the page it covers the docked sidebar, never the page (its ✕ and bars stay reachable).
+          left={panelLeft(null)}
           render={(o) => cloneElement(panel, o)}
         />
         <div className="sh-main">

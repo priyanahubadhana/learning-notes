@@ -120,7 +120,9 @@ test('quiet corner: Settings, Save & restore, Theme, Device mode and Help', asyn
 }) => {
   await start(page)
   await cornerAction(page, 'Settings')
-  await expect(page.getByRole('heading', { name: 'Settings' })).toBeVisible()
+  await expect(
+    page.getByRole('heading', { name: 'Settings', level: 1 }),
+  ).toBeVisible()
   await expect(corner(page)).toHaveCount(0) // it closes after the choice
   await cornerAction(page, 'Save & restore')
   await expect(
@@ -221,7 +223,9 @@ test('deep links keep working and choose the matching space', async ({
   await page.goto('/#/calendar')
   await expect(space(page, 'Notebooks')).toHaveAttribute('aria-current', 'page')
   await page.goto('/#/settings')
-  await expect(page.getByRole('heading', { name: 'Settings' })).toBeVisible()
+  await expect(
+    page.getByRole('heading', { name: 'Settings', level: 1 }),
+  ).toBeVisible()
 })
 
 test.describe('phone', () => {
@@ -252,7 +256,9 @@ test.describe('phone', () => {
       corner(page).getByRole('button', { name: 'Settings' }),
     ).toBeVisible()
     await corner(page).getByRole('button', { name: 'Settings' }).tap()
-    await expect(page.getByRole('heading', { name: 'Settings' })).toBeVisible()
+    await expect(
+      page.getByRole('heading', { name: 'Settings', level: 1 }),
+    ).toBeVisible()
   })
 
   test('Library shows its page on a phone', async ({ page }) => {

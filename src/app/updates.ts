@@ -71,6 +71,7 @@ export function resetUpdates() {
   requiredUpdate = false
   requiredReason = 'storage'
   liveLevel = null
+  otherTab = false
   requiredListeners.clear()
 }
 
@@ -117,6 +118,10 @@ export const updateReason = (): UpdateReason => requiredReason
 
 /** The `level` of the newest live version.json (null: none or invalid). */
 let liveLevel: number | null = null
+/** True when the stored notes are newer than this tab's code (no writing then). */
+let otherTab = false
+export const isOtherTabUpgrade = (): boolean => otherTab
+
 export const liveUpdateLevel = (): number | null => liveLevel
 
 type RequiredListener = (apply: () => void) => void
@@ -177,6 +182,7 @@ export function triggerMustHave(
 ): void {
   requiredUpdate = true
   requiredReason = reason
+  otherTab = true
   if (apply) for (const fn of [...requiredListeners]) fn(apply)
 }
 

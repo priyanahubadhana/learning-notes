@@ -15,6 +15,8 @@ import {
   onUpdateOffer,
   onRequiredUpdate,
   isUpdateRequired,
+  isOtherTabUpgrade,
+  triggerMustHave,
   updateWaiting,
   reloadWhenSafe,
   repeatUpdateOffer,
@@ -42,6 +44,7 @@ import { penIsDown } from './app/palmGuard'
 import { hasUnsaved } from './app/saveStatus'
 import { requestPersistentStorage } from './core/storage'
 import { db, DEFAULT_DB_NAME } from './core/db'
+import { isOn } from './app/flags'
 import { hasStoredSession, isTracking, isWaitingForKey } from './sync/device'
 import { startAccountGate } from './sync/gateRule'
 import { writePref } from './app/uiPrefs'
@@ -190,16 +193,24 @@ const startRequired = (apply: () => void) =>
         rememberPlace()
         apply()
       },
+      // Another tab upgraded the notes: this tab must not touch the database.
       prepare: () =>
-        prepareUpdate({
-          flush: flushAllSaves,
-          hasUnsaved,
-          backup: backupForUpdate,
-        }),
+        isOtherTabUpgrade()
+          ? Promise.resolve(null)
+          : prepareUpdate({
+              flush: flushAllSaves,
+              hasUnsaved,
+              backup: backupForUpdate,
+            }),
       hardRestart: () => void restartIntoNewFiles(),
     }),
   )
 onRequiredUpdate(startRequired)
+// update.v2: a tab older than the stored notes asks for the update at once.
+if (isOn('update.v2'))
+  void import('./app/otherTab').then((m) =>
+    m.watchOtherTabUpgrade(db, () => triggerMustHave('storage')),
+  )
 window.addEventListener('learning-notes:test-required-update', () =>
   startRequired(() => {
     ;(window as unknown as { __requiredApplied?: boolean }).__requiredApplied =

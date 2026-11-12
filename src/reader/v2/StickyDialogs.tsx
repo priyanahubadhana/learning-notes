@@ -168,12 +168,15 @@ export function StickyEdit({
  * too), with the page dimmed behind it. Esc and a tap on the dim area close
  * it; focus is kept inside and returned.
  */
-function TopSheet({
+export function TopSheet({
   onClose,
   children,
+  small,
 }: {
   onClose: () => void
   children: ReactNode
+  /** A short question: a card, not a full-height sheet, on a phone too. */
+  small?: boolean
 }) {
   const id = useId()
   const ref = useRef<HTMLDivElement>(null)
@@ -208,7 +211,7 @@ function TopSheet({
   return createPortal(
     <div
       ref={ref}
-      className="rv2-stk-layer"
+      className={small ? 'rv2-stk-layer rv2-stk-layer--small' : 'rv2-stk-layer'}
       popover="manual"
       onPointerDown={(e) => {
         if (e.target === e.currentTarget) onClose()

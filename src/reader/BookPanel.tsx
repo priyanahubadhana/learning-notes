@@ -1,12 +1,22 @@
-import { useEffect, useLayoutEffect, useRef, useState } from 'react'
+import {
+  lazy,
+  Suspense,
+  useEffect,
+  useLayoutEffect,
+  useRef,
+  useState,
+} from 'react'
 import type { PDFDocumentProxy, RenderTask } from 'pdfjs-dist'
 import type { LearningNotesDB } from '../core/db'
+import { useFlag } from '../app/flags'
 import { t } from '../i18n/t'
 import { AnnotationsPanel } from './annotations/AnnotationsPanel'
 import { currentOutline, THUMB_ROW, visibleRows } from './bookPanelMath'
 import type { ReaderBridge } from './readerBridge'
 
 const THUMB_W = 72
+// Reader v2: the Pages tab that edits the real book (own chunk).
+const PagesGrid = lazy(() => import('./v2/PagesGrid'))
 
 export type BookTab = 'pages' | 'outline' | 'annotations'
 
@@ -20,6 +30,7 @@ export default function BookPanel({
   bridge: ReaderBridge
   tab: BookTab
 }) {
+  const v2 = useFlag('reader.v2')
   if (tab === 'annotations') {
     return (
       <AnnotationsPanel
@@ -33,6 +44,13 @@ export default function BookPanel({
     )
   }
   if (tab === 'outline') return <ContentsTab bridge={bridge} />
+  if (bridge.format === 'pdf' && bridge.doc && v2 && bridge.pageEdit) {
+    return (
+      <Suspense fallback={null}>
+        <PagesGrid bridge={bridge} />
+      </Suspense>
+    )
+  }
   return bridge.format === 'pdf' && bridge.doc ? (
     <PdfThumbs bridge={bridge} doc={bridge.doc} />
   ) : (
@@ -190,7 +208,15 @@ function PdfThumbs({
   )
 }
 
-function Thumb({ doc, page }: { doc: PDFDocumentProxy; page: number }) {
+export function Thumb({
+  doc,
+  page,
+  width = THUMB_W,
+}: {
+  doc: PDFDocumentProxy
+  page: number
+  width?: number
+}) {
   const canvas = useRef<HTMLCanvasElement>(null)
   useEffect(() => {
     const el = canvas.current
@@ -204,7 +230,7 @@ function Thumb({ doc, page }: { doc: PDFDocumentProxy; page: number }) {
           const p = await doc.getPage(page)
           if (cancelled) return
           const base = p.getViewport({ scale: 1 })
-          const vp = p.getViewport({ scale: (THUMB_W / base.width) * 2 })
+          const vp = p.getViewport({ scale: (width / base.width) * 2 })
           el.width = Math.ceil(vp.width)
           el.height = Math.ceil(vp.height)
           el.style.width = `${Math.ceil(vp.width / 2)}px`
@@ -222,13 +248,13 @@ function Thumb({ doc, page }: { doc: PDFDocumentProxy; page: number }) {
       window.clearTimeout(id)
       task?.cancel()
     }
-  }, [doc, page])
+  }, [doc, page, width])
   return (
     <canvas
       ref={canvas}
       aria-hidden
       className="shrink-0 rounded border border-line bg-white"
-      style={{ width: THUMB_W, height: Math.round(THUMB_W * 1.3) }}
+      style={{ width, height: Math.round(width * 1.3) }}
     />
   )
 }

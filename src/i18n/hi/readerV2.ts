@@ -79,4 +79,22 @@ export const hiReaderV2 = {
   'readerv2.glow.label': 'जहाँ पहुँचूँ उसे चमकाएँ',
   'readerv2.glow.help':
     'हाइलाइट या बुकमार्क पर जाने पर वह जगह थोड़ी देर चमकती है, ताकि आप उसे आसानी से पा सकें।',
+  'readerv2.pages.label': 'इस किताब के पन्ने',
+  'readerv2.pages.turnLeft': 'पन्ना बाएँ घुमाएँ',
+  'readerv2.pages.turnRight': 'पन्ना दाएँ घुमाएँ',
+  'readerv2.pages.delete': 'पन्ना हटाएँ',
+  'readerv2.pages.blank': 'खाली पन्ना जोड़ें',
+  'readerv2.pages.restore': 'मूल प्रति वापस लाएँ',
+  'readerv2.pages.moved': 'पन्ना {n} खिसकाया',
+  'readerv2.pages.deleted': 'पन्ना {n} हटाया',
+  'readerv2.pages.turned': 'पन्ना {n} घुमाया',
+  'readerv2.pages.blankAdded': 'पन्ना {n} के बाद खाली पन्ना जोड़ा',
+  'readerv2.pages.restored': 'मूल किताब वापस आ गई।',
+  'readerv2.pages.restoreTitle': 'मूल प्रति वापस लाएँ?',
+  'readerv2.pages.restoreBody':
+    'किताब उस पहली प्रति पर लौट जाएगी जो आपने खोली थी। हाइलाइट, नोट और बुकमार्क वहीं रहेंगे जहाँ उनका पन्ना अब भी है। आप इसे पूर्ववत कर सकते हैं।',
+  'readerv2.pages.restoreYes': 'वापस लाएँ',
+  'readerv2.pages.restoreNo': 'मेरे बदलाव रखें',
+  'readerv2.pages.pageName': 'पन्ना {n}',
+  'readerv2.pages.tools': 'पन्ने के औज़ार',
 } as const

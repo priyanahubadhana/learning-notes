@@ -1,6 +1,7 @@
 import type { PDFDocumentProxy } from 'pdfjs-dist'
 import { memStore } from '../app/tools/store'
 import type { Annotation } from '../core/types'
+import type { PageEditApi } from './v2/usePageEdit'
 
 /** One line of a book's contents. `at` is an EPUB locator when it has one. */
 export interface BridgeOutlineItem {
@@ -31,6 +32,8 @@ export interface ReaderBridge {
   jump: (a: Annotation) => void
   /** Cards from one or several notes (the reader owns the card maker). */
   makeCards: (list: Annotation[]) => void
+  /** Flag reader.v2, PDF: edits from the Pages grid (see v2/usePageEdit.ts). */
+  pageEdit?: PageEditApi
 }
 
 export const readerBridge = memStore<ReaderBridge | null>(null)

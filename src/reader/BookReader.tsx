@@ -37,6 +37,7 @@ import { createPage } from '../pages/pageService'
 import { usePref } from '../app/usePref'
 import { isBoolean, readPref } from '../app/uiPrefs'
 import { GLOW_DEFAULT, GLOW_KEY, glowTarget, isGlowPref } from './v2/glowPref'
+import { usePageEdit } from './v2/usePageEdit'
 import { stepSize } from './epub/epubLoader'
 import { getBookFile, saveProgress } from '../library/libraryService'
 import { addBlocks } from '../core/blockBulk'
@@ -575,6 +576,19 @@ export function BookReader({
   const bridgePage = position?.page ?? 1
   const bridgeLabel = position?.label ?? ''
   const bridgeProgress = position?.progress ?? 0
+  // Pages grid edits (flag reader.v2): the new file replaces the shown one.
+  const onBookData = useCallback((next: ArrayBuffer) => {
+    setData(next)
+    setPdfVersion((v) => v + 1)
+    setFailed(false)
+  }, [])
+  const pageEdit = usePageEdit({
+    db,
+    pageId,
+    data: data ?? null,
+    enabled: v2 && format === 'pdf',
+    onData: onBookData,
+  })
   useEffect(() => {
     readerBridge.set({
       pageId,
@@ -588,6 +602,7 @@ export function BookReader({
       doc: pdfDoc,
       go: (at) => setTarget((prev) => ({ at, nonce: (prev?.nonce ?? 0) + 1 })),
       makeCards: (list) => setBulk(list),
+      pageEdit,
       jump: (a) => {
         const loc = locatorOf(a.anchor)
         if (!loc) return
@@ -610,6 +625,7 @@ export function BookReader({
     pdfDoc,
     landOn,
     v2,
+    pageEdit,
   ])
   useEffect(() => () => readerBridge.set(null), [])
 

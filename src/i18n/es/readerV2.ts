@@ -80,4 +80,22 @@ export const esReaderV2 = {
   'readerv2.glow.label': 'Resaltar donde llego',
   'readerv2.glow.help':
     'Al saltar a un resaltado o marcador, el lugar brilla un momento para que lo encuentres.',
+  'readerv2.pages.label': 'Páginas de este libro',
+  'readerv2.pages.turnLeft': 'Girar página a la izquierda',
+  'readerv2.pages.turnRight': 'Girar página a la derecha',
+  'readerv2.pages.delete': 'Eliminar página',
+  'readerv2.pages.blank': 'Añadir página en blanco',
+  'readerv2.pages.restore': 'Restaurar original',
+  'readerv2.pages.moved': 'Página {n} movida',
+  'readerv2.pages.deleted': 'Página {n} eliminada',
+  'readerv2.pages.turned': 'Página {n} girada',
+  'readerv2.pages.blankAdded': 'Página en blanco añadida tras la página {n}',
+  'readerv2.pages.restored': 'El libro original ha vuelto.',
+  'readerv2.pages.restoreTitle': '¿Restaurar el original?',
+  'readerv2.pages.restoreBody':
+    'El libro vuelve a la primera copia que abriste. Los resaltados, notas y marcadores se quedan donde su página siga existiendo. Puedes deshacerlo.',
+  'readerv2.pages.restoreYes': 'Restaurar',
+  'readerv2.pages.restoreNo': 'Conservar mis cambios',
+  'readerv2.pages.pageName': 'Página {n}',
+  'readerv2.pages.tools': 'Herramientas de página',
 } as const

@@ -457,6 +457,16 @@
   }
 }
 
+@media (max-width: 640px) {
+  .rv2-stk-layer--small {
+    place-items: end stretch;
+  }
+  .rv2-stk-layer--small > .sheet-base {
+    height: auto;
+    max-height: calc(100% - var(--space-6));
+  }
+}
+
 .rv2-stk-layer .sheet-base-body {
   padding-top: 4px;
   padding-inline: 14px;
@@ -552,4 +562,87 @@
     outline: 3px solid var(--color-accent);
     outline-offset: 2px;
   }
+}
+
+/* Pages grid (7f): page pictures, a grip on each, the tools above. */
+.rv2-pg {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-3);
+  height: 100%;
+  overflow-y: auto;
+  padding-bottom: var(--space-4);
+}
+.rv2-pg-tools {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--space-2);
+}
+.rv2-pg-chip {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  min-height: 44px;
+  padding: 0 var(--space-3);
+  border: 1px solid var(--color-line-strong);
+  border-radius: var(--r-pill);
+  background: transparent;
+  color: var(--color-ink);
+  font: inherit;
+  font-size: 13px;
+  cursor: pointer;
+}
+.rv2-pg-chip:hover:not(:disabled) {
+  background: var(--color-hover);
+}
+.rv2-pg-chip:disabled {
+  opacity: 0.4;
+  cursor: default;
+}
+.rv2-pg-note {
+  margin: 0;
+  padding: var(--space-2) var(--space-3);
+  border-radius: var(--r-md);
+  background: var(--color-hover);
+  color: var(--color-muted);
+  font-size: 12.5px;
+  line-height: 1.4;
+}
+.rv2-pg-grid {
+  --rord-min: 7rem;
+}
+.rv2-pg-cell {
+  position: relative;
+  border: 1px solid transparent;
+  border-radius: var(--r-md);
+}
+.rv2-pg-cell[data-selected] {
+  border-color: var(--color-accent);
+  background: var(--color-hover);
+}
+.rv2-pg-thumb {
+  display: flex;
+  width: 100%;
+  min-height: 44px;
+  flex-direction: column;
+  align-items: center;
+  gap: 4px;
+  padding: var(--space-2);
+  border: 0;
+  background: transparent;
+  color: var(--color-ink);
+  font: inherit;
+  font-size: 12px;
+  cursor: pointer;
+}
+.rv2-pg-grip {
+  position: absolute;
+  inset-block-start: 0;
+  inset-inline-end: 0;
+}
+.rv2-pg-body {
+  margin: 0;
+  color: var(--color-ink);
+  font-size: 14px;
+  line-height: 1.5;
 }

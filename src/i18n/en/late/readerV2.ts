@@ -77,4 +77,22 @@ export const enLateReaderV2 = {
   'readerv2.glow.label': 'Highlight where I land',
   'readerv2.glow.help':
     'When you jump to a highlight or bookmark, the spot glows for a moment so you can find it.',
+  'readerv2.pages.label': 'Pages of this book',
+  'readerv2.pages.turnLeft': 'Turn page left',
+  'readerv2.pages.turnRight': 'Turn page right',
+  'readerv2.pages.delete': 'Delete page',
+  'readerv2.pages.blank': 'Add blank page',
+  'readerv2.pages.restore': 'Restore original',
+  'readerv2.pages.moved': 'Moved page {n}',
+  'readerv2.pages.deleted': 'Deleted page {n}',
+  'readerv2.pages.turned': 'Turned page {n}',
+  'readerv2.pages.blankAdded': 'Added a blank page after page {n}',
+  'readerv2.pages.restored': 'The original book is back.',
+  'readerv2.pages.restoreTitle': 'Restore the original?',
+  'readerv2.pages.restoreBody':
+    'The book goes back to the first copy you opened. Highlights, notes and bookmarks stay where their page still exists. You can undo this.',
+  'readerv2.pages.restoreYes': 'Restore',
+  'readerv2.pages.restoreNo': 'Keep my edits',
+  'readerv2.pages.pageName': 'Page {n}',
+  'readerv2.pages.tools': 'Page tools',
 } as const

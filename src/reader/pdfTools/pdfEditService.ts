@@ -2,6 +2,7 @@ import type { LearningNotesDB } from '../../core/db'
 import type { InkChunk } from '../../core/inkTypes'
 import type { Annotation, BookFile, Page } from '../../core/types'
 import { getBookFile } from '../../library/libraryService'
+import { canKeepOriginal } from '../v2/originalCopy'
 import {
   fateMap,
   mapAnnotations,
@@ -40,6 +41,8 @@ export async function applyPageEdit(
   sizes: readonly PageSize[],
   bytes: Uint8Array,
   now: number = Date.now(),
+  /** Reader v2: keep the first copy of the book (device only, up to 200 MB). */
+  opts: { keepOriginal?: boolean } = {},
 ): Promise<EditUndo> {
   const fates = fateMap(plan)
   return db.transaction(
@@ -63,6 +66,11 @@ export async function applyPageEdit(
         data: toBuffer(bytes),
         size: bytes.byteLength,
         updatedAt: now,
+        ...(opts.keepOriginal &&
+        !file.original &&
+        canKeepOriginal(file.data.byteLength)
+          ? { original: file.data }
+          : {}),
       })
       for (const c of mapAnnotations(
         annotations.filter((a) => a.deletedAt === null),

@@ -132,9 +132,13 @@ test('ink follows its text when the text moves or the page is resized', async ({
   const grip = page.getByRole('separator', { name: 'Resize menu' })
   await grip.focus()
   for (let i = 0; i < 20; i++) await page.keyboard.press('ArrowRight')
-  await page.waitForTimeout(600)
-  const c = (await paintedBox(page, 'ink'))!
-  expect((c.x1 - c.x0) / c.dpr).toBeLessThan(wide * 0.98)
+  // Wait for the re-layout (a slow CI WebKit can take more than 600 ms).
+  await expect
+    .poll(async () => {
+      const c = (await paintedBox(page, 'ink'))!
+      return (c.x1 - c.x0) / c.dpr
+    })
+    .toBeLessThan(wide * 0.98)
 })
 
 test('Undo and Redo walk drawings and typing in one history', async ({

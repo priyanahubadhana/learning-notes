@@ -226,9 +226,15 @@ export function createGestureRouter(
       return true
     }
     // A duplicate down for a pointer we already own: the old one is over.
+    // A reused pointer id: forget an old swallowed or owned pointer first.
+    palmIds.delete(e.pointerId)
     const old = entries.get(e.pointerId)
     if (old) end(old, 'cancelled')
-    if (dragActive()) return true // refused; nothing else reacts
+    if (dragActive()) {
+      // Refused: its moves and lift are swallowed too, so nothing else reacts.
+      palmIds.add(e.pointerId)
+      return true
+    }
     const s: GestureStart = {
       pointerId: e.pointerId,
       pointerType: type,

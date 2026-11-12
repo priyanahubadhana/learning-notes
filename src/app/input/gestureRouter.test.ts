@@ -338,12 +338,27 @@ describe('drag', () => {
     expect(gr.pointerDown(pe(3, 'pen'))).toBe(true)
     expect(claim).not.toHaveBeenCalled()
     expect(gr.active()).toHaveLength(1)
-    // The refused pointers' moves/ups are not owned.
-    expect(gr.pointerMove(pe(2, 'touch', 1, 1, 'pointermove'))).toBe(false)
+    // The refused pointers' moves/ups are swallowed too (nothing else reacts).
+    expect(gr.pointerMove(pe(2, 'touch', 1, 1, 'pointermove'))).toBe(true)
     gr.pointerUp(pe(1, 'mouse'))
     expect(d.ends).toEqual(['done'])
     expect(gr.dragActive()).toBeNull()
-    gr.pointerUp(pe(3, 'pen'))
+    expect(gr.pointerUp(pe(3, 'pen', 0, 0, 'pointerup'))).toBe(true)
+    expect(other.starts).toHaveLength(0)
+  })
+
+  it('a refused pointer whose lift was lost does not swallow a later pointer with the same id', () => {
+    const d = rec('d', (s) => (s.pointerId === 1 ? 'drag' : null))
+    const t = rec('t', (s) => (s.pointerId === 2 ? 'tap' : null))
+    gr.register(d.c)
+    gr.register(t.c)
+    gr.pointerDown(pe(1, 'mouse'))
+    gr.pointerDown(pe(2, 'touch')) // refused, its lift never comes
+    gr.pointerUp(pe(1, 'mouse', 0, 0, 'pointerup'))
+    expect(gr.pointerDown(pe(2, 'touch'))).toBe(true)
+    expect(t.starts).toHaveLength(1)
+    gr.pointerMove(pe(2, 'touch', 1, 1, 'pointermove'))
+    expect(t.moves).toBe(1)
   })
 
   it('Escape ends the drag with escape and is handled; without a drag it is not', () => {

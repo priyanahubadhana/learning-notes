@@ -60,7 +60,9 @@ export function BuildPlan({
   )
   const checked = check(draft, tools)
   const dest = draft.destination
-  const pickable = tools.filter((x) => x.id !== 'notebooks.create')
+  const pickable = tools.filter(
+    (x) => x.id !== 'notebooks.create' && x.surfaces.includes('app'),
+  )
 
   const setKind = (kind: Kind) =>
     dispatch({

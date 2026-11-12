@@ -16,3 +16,4 @@ export {
   type ToastItem,
   type ToastQueue,
 } from './toasts'
+export { openInTopLayer, type TopLayerOptions } from './topLayer'

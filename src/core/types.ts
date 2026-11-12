@@ -815,6 +815,7 @@ export interface ClaudeInboxItem extends BaseRecord {
   batchId: string
   ops: InboxOp[]
   stats: { replaced: number; added: number; existing: number }
+  job?: import('../aitools/connector/inboxJob').ClaudeInboxJob
 }
 
 /**

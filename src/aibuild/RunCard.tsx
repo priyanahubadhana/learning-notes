@@ -4,6 +4,7 @@ import { t, type MessageKey } from '../i18n/t'
 import type { Engine } from './engine'
 import { useJob, usePasteRequest } from './hooks'
 import { previewLines, toolName } from './names'
+import { stepErrorText } from './errorText'
 import { PasteBox } from './PasteBox'
 
 const btn =
@@ -121,7 +122,9 @@ export function RunCard({
                 )}
               </div>
               {s.state === 'failed' && s.error && (
-                <p className="text-xs text-muted">{s.error}</p>
+                <p className="text-xs text-muted" data-testid="aifw-step-error">
+                  {stepErrorText(s.error)}
+                </p>
               )}
               {waiting && pending && (
                 <PasteBox

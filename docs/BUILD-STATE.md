@@ -10,6 +10,12 @@ git fetch -q origin && for b in $(git for-each-ref --format='%(refname:short)' r
 
 "ahead 0" = fully merged into `build/next`. Update this file after every merge (one row, one commit, on `main`).
 
+## Owner instructions (13 Nov, keep across restarts)
+
+1. Fully autonomous: never stop and wait. Items for the owner (money, Supabase, switching a part ON for daily use, iPad tests) go to "Needs you" in docs/PENDING.md; keep working on everything else.
+2. Budget: up to 80% of this week's quota, used efficiently. Near it, stop at a clean commit.
+3. Top priority: FIRST FULL BUILD fast: build/next green, merge waiting slices, release the preview with new parts ON in the preview (Settings › Try new features), write the owner's iPad checklist (BUG-002, connector, key flows). Then the remaining slices.
+
 ## Fixed facts
 
 - **Live app:** `main` 9e2ec70d. App code last released at b5b0bc74 (CI run 43205383635), every new part switched OFF. A push of app code to `main` deploys by itself; docs-only pushes do not.

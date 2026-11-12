@@ -190,7 +190,7 @@ Questions:
 - ~~Delete leftover folders~~ DONE 12 Nov (checked: plain build output, no links).
 - iPad checks at the top of docs/plans/owner-checks-pending.md once the build is live.
 - Review the mock-ups: toolbar v2/v3, book annotations.
-- Send the BUG-002 screenshot (format bar out of bounds).
+- BUG-002 (format bar moves/extends beyond its bounds): no screenshot needed (owner, 12 Nov). The build adds an automatic test (bar stays inside the screen on iPad sizes) AND puts it in the owner's iPad test checklist.
 - Claude connector plan: docs/plans/claude-connector-plan.md. Questions:
   - (1) write access ON from the start (the owner said read+write) vs off until allowed in Settings;
   - (2) the key in Windows Credential Manager;

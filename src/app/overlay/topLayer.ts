@@ -43,7 +43,8 @@ export function openInTopLayer(
   const dialog = mode === 'dialog' ? (el as HTMLDialogElement) : null
   const onCancel = (e: Event) => {
     e.preventDefault()
-    handle.close()
+    // Esc never closes a persistent bar; only its own handle does.
+    if (!opts.persistent) handle.close()
   }
 
   let shown = false

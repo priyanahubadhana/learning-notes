@@ -17,7 +17,7 @@ describe('catalog file', () => {
 })
 
 describe('registry', () => {
-  it('has the eight mapped tools and a lookup for each', () => {
+  it('has the eighteen mapped tools and a lookup for each', () => {
     expect(AI_TOOLS.map((t) => t.id)).toEqual([
       'notebooks.create',
       'notebooks.create_from_spec',
@@ -27,6 +27,16 @@ describe('registry', () => {
       'databases.create',
       'styles.apply',
       'pages.refine',
+      'pages.rename',
+      'tabs.rename',
+      'tabs.set_hidden',
+      'summaries.set',
+      'mindmaps.add',
+      'mindmaps.set_theme',
+      'cards.suspend',
+      'databases.rename',
+      'styles.set_paper',
+      'layouts.set_path_style',
     ])
     for (const tool of AI_TOOLS) expect(AI_TOOLS_BY_ID.get(tool.id)).toBe(tool)
   })

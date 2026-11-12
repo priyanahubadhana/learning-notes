@@ -135,6 +135,36 @@ part of this slice: see "Online part still needed".
 - AF-42. When an "Undo this job" request is in the Inbox → Accept undoes the
   job in one save (created things to Trash); Reject closes the request.
 
+### Slice 4: goal box, effort, router, cost, spend gate
+
+Full lines with "Won't do": [docs/plans/ai-v4-spec.md](../plans/ai-v4-spec.md).
+Code: `src/aitools/plan/` (pure) and `src/aibuild/GoalBox.tsx`.
+
+- When I type a goal, pick where it goes and tap "Make a plan" → the app shows a prompt to copy; I paste the answer; no AI call is made (V4-C1).
+- When the pasted plan passes the checker → it becomes the plan with "Plan ready" shown under the title, never over it, plus its estimate; Run starts it through the one executor (V4-C2, V4-B1, V4-A1).
+- When the pasted plan is wrong → I see the problems and may paste again; after 2 repair rounds a simple built-in plan is offered (V4-C3).
+- When I pick Quick, Standard or Deep → the plan records the effort and the router uses the tier it maps to (V4-C4, V4-C5).
+- When the plan is shown → it says "free" for copy-and-paste and what a paid model would cost per effort level (V4-C6).
+- When any paid model call would start → `spendGate` refuses it while the limit is ₹0, before the call exists (V4-C7, V4-C8, V4-C9, V4-C10).
+
+### Slice 5a: Pages, Tabs, Summaries (both doors)
+
+Tools: `pages.rename`, `tabs.rename`, `tabs.set_hidden`, `summaries.set` (code in `src/aitools/tools/`; staged in `src/aitools/jobs/stage.ts`; the local connector uses the same files).
+
+- When a plan names one of these four tools → it is checked, staged, previewed, applied and undone exactly like the older tools, from the Build screen, the goal box or Claude (V4-D1).
+- When the same plan runs in the app and through `run_plan` → the records are byte-equal (V4-D2, `mcp/test/planParity.test.ts`).
+- When a notebook or page is locked, a tab or page is gone, a summary targets a sub-page, or the page changed meanwhile → nothing is written and the reason is shown in plain words in English, Spanish and Hindi.
+- When I pick steps by hand on the Build screen → the three tools that need their own arguments (rename page, rename tab, show or hide tab) are not offered there; they come through a plan.
+
+### Slice 5b and 5c: Mind maps, Cards, Databases, Styles, Layouts
+
+Tools: `mindmaps.add`, `mindmaps.set_theme`, `cards.suspend`, `databases.rename`, `styles.set_paper`, `layouts.set_path_style` (same folders as 5a).
+
+- When a plan names one of these tools → it is checked, staged, previewed, applied and undone like the older tools (V4-E1 to V4-E3, V4-F1 to V4-F3).
+- When `mindmaps.set_theme`, `cards.suspend`, `styles.set_paper` or `layouts.set_path_style` run in the app and through `run_plan` → the records are byte-equal (V4-E4, V4-F4, `mcp/test/planParity.test.ts`).
+- When Claude's local connector is asked for `mindmaps.add` or `databases.rename` → it says they are not offered there and writes nothing (they are app-only for now).
+- When a notebook, page or database is locked, the Study tracker is renamed, a block is not a mind map, an outline is blank, or the thing is gone → nothing is written and the reason is shown in plain words in English, Spanish and Hindi.
+
 ### Slice 3: Build screen texts
 
 - AF-43. When a step or job shows a reason (step failed, stopped, nothing to
@@ -150,7 +180,8 @@ per job (ids and counts only). This slice builds only the app and `mcp/` side.
 
 ## Won't do
 
-- No planner, no filler model, no cost estimator, no spend gate (slice 4).
+- Slices 1-3: no planner, filler model, cost estimator or spend gate (they arrive in slice 4, above).
+- Slice 4: no real paid call in any code or test, no key or secret, no new Dexie version; the spend limit stays ₹0.
 - No real AI or network call anywhere in these slices, and none in any test.
 - No `supabase/` changes: the online function stays as is until the online part above is done.
 - No delete tool. No new dependency.

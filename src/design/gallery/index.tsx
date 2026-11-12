@@ -21,6 +21,7 @@ const SECTIONS = [
   lazy(() => import('./ArrangeSection')),
   lazy(() => import('./EmptySection')),
   lazy(() => import('./ObjBarSection')),
+<<<<<<< HEAD
   lazy(() =>
     Promise.all([
       import('./RangeSection'),
@@ -29,6 +30,10 @@ const SECTIONS = [
   ),
   lazy(() => import('./MenusSection')),
   lazy(() => import('./FeedbackSection')),
+=======
+  lazy(() => import('./RangeSection')),
+  lazy(() => import('./ShellSection')),
+>>>>>>> origin/build/next
 ]
 
 /** Tells the gallery that its section is on the page (it renders nothing). */

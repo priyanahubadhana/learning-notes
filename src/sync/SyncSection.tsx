@@ -20,6 +20,7 @@ import {
   unlock,
 } from './syncService'
 import { SettingsLink } from '../settings/SettingsLink'
+import { AreaInput } from '../settings/AreaInput'
 
 const field =
   'min-h-11 w-full rounded-lg border border-line bg-bg px-3 text-sm outline-none focus:border-accent'
@@ -123,7 +124,7 @@ export function SetUp({ onMade }: { onMade: (p: string) => Promise<void> }) {
       <p className="text-sm text-muted">{t('sync.setupHelp')}</p>
       <label className="flex flex-col gap-1 text-sm">
         {t('sync.passphrase')}
-        <input
+        <AreaInput
           type="password"
           autoComplete="new-password"
           className={field}
@@ -133,7 +134,7 @@ export function SetUp({ onMade }: { onMade: (p: string) => Promise<void> }) {
       </label>
       <label className="flex flex-col gap-1 text-sm">
         {t('sync.passphraseAgain')}
-        <input
+        <AreaInput
           type="password"
           autoComplete="new-password"
           className={field}

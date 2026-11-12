@@ -10,17 +10,26 @@ import {
   getReviewQueue,
   previewCard,
   rateCard,
+  suspendCard,
+  unsuspendCard,
   type ReviewScope,
 } from '../../recall/reviewService'
 import {
   afterRating,
   currentCard,
   nextWaitingAt,
+  putBack,
   releaseWaiting,
   skipCurrent,
   startSession,
   type ReviewSession,
 } from '../../recall/reviewSession'
+import {
+  undoInSession,
+  undoRating,
+  type LastAnswer,
+  type UndoResult,
+} from './undoRating'
 
 /**
  * The study session: the same data calls as today's screen (`getReviewQueue`,
@@ -40,6 +49,8 @@ export function useSession(
   const [failed, setFailed] = useState(false)
   const [attempt, setAttempt] = useState(0)
   const [pending, setPending] = useState(false)
+  /** The last answer of this session, kept so it can be undone. */
+  const [last, setLast] = useState<LastAnswer | null>(null)
   const shownAt = useRef(0)
   /** True while a rating is being saved: a second tap or key does nothing. */
   const busy = useRef(false)
@@ -129,6 +140,8 @@ export function useSession(
       setPending(true)
       try {
         const time = Date.now()
+        // The card as saved right now: this is what Undo puts back.
+        const before = (await db.cards.get(card.id)) ?? card
         const { card: after, log } = await rateCard(db, card.id, rating, {
           durationMs: time - shownAt.current,
           now: time,
@@ -139,6 +152,7 @@ export function useSession(
             s && releaseWaiting(afterRating(s, rating, after, wasDue), time),
         )
         setRevealed(false)
+        setLast({ before, after, logId: log.id, rating })
       } finally {
         busy.current = false
         setPending(false)
@@ -147,10 +161,54 @@ export function useSession(
     [card, db],
   )
 
+  /** Takes the current card out of the session and suspends it (null = nothing to do). */
+  const suspend = useCallback(async (): Promise<Card | null> => {
+    if (!card || busy.current) return null
+    busy.current = true
+    try {
+      await suspendCard(db, card.id)
+      setSession((s) => s && skipCurrent(s))
+      setRevealed(false)
+      return card
+    } finally {
+      busy.current = false
+    }
+  }, [card, db])
+
+  /** Undo of a suspend: the card is active again and comes back as the current one. */
+  const unsuspend = useCallback(
+    async (back: Card) => {
+      await unsuspendCard(db, back.id)
+      setSession((s) => s && putBack(s, back))
+      setRevealed(false)
+    },
+    [db],
+  )
+
+  /** Undo of the last rating: 'none' = nothing to undo, 'changed' = refused. */
+  const undo = useCallback(async (): Promise<UndoResult | 'none'> => {
+    if (!last || busy.current) return 'none'
+    busy.current = true
+    setPending(true)
+    try {
+      const result = await undoRating(db, last)
+      setLast(null)
+      if (result === 'ok') {
+        setSession((s) => s && undoInSession(s, last.before, last.after))
+        setRevealed(false)
+      }
+      return result
+    } finally {
+      busy.current = false
+      setPending(false)
+    }
+  }, [db, last])
+
   /** Practice anyway: up to 50 cards, schedule unchanged. */
   const practice = useCallback(async () => {
     const cards = await getPracticeCards(db, scope)
     setRevealed(false)
+    setLast(null)
     setTotal(cards.length)
     setSession(startSession(cards))
   }, [db, scope])
@@ -168,6 +226,7 @@ export function useSession(
     waitingAt,
     failed,
     pending,
+    canUndo: last !== null,
     reveal,
     rate: (rating: Rating) => runTask(rate(rating)),
     practice: () => runTask(practice()),
@@ -175,7 +234,8 @@ export function useSession(
       setFailed(false)
       setAttempt((n) => n + 1)
     },
-    setSession,
-    setRevealed,
+    suspend,
+    unsuspend,
+    undo,
   }
 }

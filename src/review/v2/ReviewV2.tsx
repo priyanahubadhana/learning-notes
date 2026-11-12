@@ -20,6 +20,8 @@ export interface ReviewV2Props {
   /** Closes the session that came from an address. */
   onClose: () => void
   onOpenNotebooks?: () => void
+  /** Starts a session from Home with its own address, so Back returns to it. Without it the session stays inside this screen. */
+  onStart?: (scope: ReviewScope) => void
 }
 
 const ALL: ReviewScope = { kind: 'all' }
@@ -53,7 +55,11 @@ export function ReviewV2(props: ReviewV2Props) {
       <Home
         db={db}
         scope={ALL}
-        onStart={(s) => setLocal({ scope: s, practice: false })}
+        onStart={(s) =>
+          props.onStart
+            ? props.onStart(s)
+            : setLocal({ scope: s, practice: false })
+        }
         onPractice={(s) => setLocal({ scope: s, practice: true })}
         onOpenNotebooks={props.onOpenNotebooks}
       />
@@ -83,6 +89,7 @@ export function ReviewV2(props: ReviewV2Props) {
       showTitle={s.kind !== 'all'}
       startInPractice={active.practice}
       keysPaused={props.keysPaused}
+      onOpenNote={props.onOpenNote}
       onOpenAnnotation={props.onOpenAnnotation}
       onClose={scope ? onClose : () => setLocal(null)}
     />

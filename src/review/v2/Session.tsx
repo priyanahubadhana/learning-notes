@@ -1,5 +1,7 @@
-import { useEffect, useRef } from 'react'
+import { useContext, useEffect, useRef } from 'react'
 import { useLiveQuery } from 'dexie-react-hooks'
+import { AppUiContext } from '../../app/appUi'
+import { runTask } from '../../app/errors'
 import { onRouted } from '../../app/input/eventRouter'
 import type { LearningNotesDB } from '../../core/db'
 import type { Rating } from '../../core/types'
@@ -7,6 +9,7 @@ import { t } from '../../i18n/t'
 import { SourceLine } from '../../recall/SourceLine'
 import { getPracticeCards, type ReviewScope } from '../../recall/reviewService'
 import { RATINGS } from '../../recall/scheduler'
+import { useUnlocked } from '../../settings/level'
 import { EmptyState } from '../../design/parts/EmptyState'
 import { CardFace } from './faces/CardFace'
 import { countdown, intervalLabel } from './format'
@@ -24,6 +27,7 @@ export interface SessionProps {
   startInPractice: boolean
   /** True while the phone menu covers this screen: keys are for the menu. */
   keysPaused: boolean
+  onOpenNote: (pageId: string, blockId: string) => void
   onOpenAnnotation?: (annotationId: string) => void
   onClose: () => void
 }
@@ -31,13 +35,34 @@ export interface SessionProps {
 /** The study session: flip card, Show answer, the four buttons, Waiting, Done. */
 export function Session(props: SessionProps) {
   const { db, scope, title, showTitle, onClose, onOpenAnnotation } = props
+  const ui = useContext(AppUiContext)
   const s = useSession(db, scope, props.startInPractice)
   const { card, face, revealed } = s
+  const extras = useUnlocked('rev.sessionExtras')
+  const hints = useUnlocked('rev.keyHints')
+
+  const doUndo = () =>
+    runTask(
+      s.undo().then((result) => {
+        if (result === 'ok') ui.toast(t('rv2.undone'))
+        else if (result === 'changed') ui.toast(t('rv2.undoRefused'))
+      }),
+    )
+  const doSuspend = () =>
+    runTask(
+      s.suspend().then((suspended) => {
+        if (!suspended) return
+        ui.toast(t('review.suspended'), {
+          label: t('review.undo'),
+          onSelect: () => runTask(s.unsuspend(suspended)),
+        })
+      }),
+    )
 
   // Keys go through the app's one event router (never a private listener).
-  const keyState = useRef({ ...props, ...s })
+  const keyState = useRef({ ...props, ...s, extras, doUndo })
   useEffect(() => {
-    keyState.current = { ...props, ...s }
+    keyState.current = { ...props, ...s, extras, doUndo }
   })
   useEffect(
     () =>
@@ -45,7 +70,7 @@ export function Session(props: SessionProps) {
         'keydown',
         (e) => {
           const k = keyState.current
-          if (k.keysPaused || e.ctrlKey || e.metaKey || e.altKey) return false
+          if (k.keysPaused) return false
           const target = e.target as HTMLElement | null
           if (
             target?.closest?.(
@@ -53,6 +78,19 @@ export function Session(props: SessionProps) {
             )
           )
             return false
+          // Ctrl / Cmd + Z undoes the last rating (Professional extras).
+          if (
+            k.extras &&
+            (e.ctrlKey || e.metaKey) &&
+            !e.altKey &&
+            !e.shiftKey &&
+            e.key.toLowerCase() === 'z'
+          ) {
+            e.preventDefault()
+            k.doUndo()
+            return true
+          }
+          if (e.ctrlKey || e.metaKey || e.altKey) return false
           if (e.key === 'Escape') {
             k.onClose()
             return true
@@ -183,7 +221,14 @@ export function Session(props: SessionProps) {
       {bar}
       {progress}
       <div className="rv2-scroll">
-        <div className="rv2-col">{body}</div>
+        <div className="rv2-col">
+          {body}
+          {extras && !card && s.session && s.canUndo && (
+            <div className="rv2-row">
+              <UndoButton enabled onClick={doUndo} />
+            </div>
+          )}
+        </div>
       </div>
       <div className="rv2-sr" role="status" aria-live="polite">
         {revealed && card ? t('rv2.answerShown') : ''}
@@ -243,10 +288,56 @@ export function Session(props: SessionProps) {
                 })}
               </div>
             )}
+            {extras && (
+              <div className="rv2-xrow" data-testid="rv2-extras">
+                <button
+                  type="button"
+                  className="rv2-btn rv2-btn--sm"
+                  data-testid="rv2-open-note"
+                  onClick={() => props.onOpenNote(card.pageId, card.blockId)}
+                >
+                  {t('review.openNote')}
+                </button>
+                <button
+                  type="button"
+                  className="rv2-btn rv2-btn--sm"
+                  data-testid="rv2-suspend"
+                  onClick={doSuspend}
+                >
+                  {t('review.suspend')}
+                </button>
+                <UndoButton enabled={s.canUndo} onClick={doUndo} />
+              </div>
+            )}
+            {hints && (
+              <p className="rv2-keys" data-testid="rv2-keyhints">
+                {t('rv2.keyHints')}
+              </p>
+            )}
           </div>
         </footer>
       )}
     </section>
+  )
+}
+
+function UndoButton({
+  enabled,
+  onClick,
+}: {
+  enabled: boolean
+  onClick: () => void
+}) {
+  return (
+    <button
+      type="button"
+      className="rv2-btn rv2-btn--sm"
+      data-testid="rv2-undo"
+      disabled={!enabled}
+      onClick={onClick}
+    >
+      {t('rv2.undoRating')}
+    </button>
   )
 }
 

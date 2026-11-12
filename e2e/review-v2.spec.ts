@@ -19,6 +19,8 @@ const FLAGGED = '/?flags=review.v2'
 
 const session = (page: Page) => page.getByTestId('rv2-session')
 const home = (page: Page) => page.getByTestId('rv2-home')
+/** The question side of the open card (a card's answer can hold the next block). */
+const front = (page: Page) => page.locator('[data-side="front"]')
 const left = (page: Page) => page.getByTestId('rv2-left')
 
 /** Beginner level for this device (set before the app starts). */
@@ -89,7 +91,7 @@ test.describe('Beginner home and session', () => {
     )
 
     await page.getByTestId('rv2-start').click()
-    await expect(session(page)).toContainText('Question 1')
+    await expect(front(page)).toContainText('Question 1')
     await expect(left(page)).toHaveText('1 left')
     await expect(home(page)).toHaveCount(0)
   })
@@ -123,7 +125,7 @@ test.describe('Beginner home and session', () => {
     await seed(page, 2)
     await openReview(page)
     await page.getByTestId('rv2-start').click()
-    await expect(session(page)).toContainText('Question 1')
+    await expect(front(page)).toContainText('Question 1')
 
     // RV-B14: 1 before the flip does nothing.
     await page.keyboard.press('1')
@@ -144,7 +146,7 @@ test.describe('Beginner home and session', () => {
 
     // RV-B13: Easy (4) rates; the next card shows face up (question side).
     await page.keyboard.press('4')
-    await expect(session(page)).toContainText('Question 2')
+    await expect(front(page)).toContainText('Question 2')
     await expect(session(page)).toHaveAttribute('data-revealed', '0')
     await expect(left(page)).toHaveText('1 left')
     await page.keyboard.press('Enter')
@@ -177,7 +179,7 @@ test.describe('Beginner home and session', () => {
 
     // RV-B06: practice opens with the practising note, logs a cram row only.
     await page.getByTestId('rv2-nothing-action').click()
-    await expect(session(page)).toContainText('Question 1')
+    await expect(front(page)).toContainText('Question 1')
     await expect(session(page)).toContainText('schedule stays the same')
     await page.keyboard.press('Space')
     await page.keyboard.press('3')
@@ -201,7 +203,7 @@ test.describe('Beginner home and session', () => {
     await expect(waiting.getByRole('timer')).toHaveText(/^\d+:\d\d$/)
     await expect(session(page)).not.toContainText('Question 1')
     await page.clock.fastForward('10:05')
-    await expect(session(page)).toContainText('Question 1')
+    await expect(front(page)).toContainText('Question 1')
   })
 
   test('RV-B17: x and Esc close; Esc in a text box does not', async ({
@@ -238,7 +240,7 @@ test.describe('Beginner home and session', () => {
     await page.getByTestId('rv2-start').click()
     await page.keyboard.press('Space')
     await page.keyboard.press('4')
-    await expect(session(page)).toContainText('Question 2')
+    await expect(front(page)).toContainText('Question 2')
     await expect
       .poll(async () => (await dbCounts(page)).logs, { timeout: 3000 })
       .toBe(1)
@@ -248,7 +250,7 @@ test.describe('Beginner home and session', () => {
     await openReview(page)
     await expect(page.getByTestId('rv2-count')).toHaveText('1')
     await page.getByTestId('rv2-start').click()
-    await expect(session(page)).toContainText('Question 2')
+    await expect(front(page)).toContainText('Question 2')
     await expect(left(page)).toHaveText('1 left')
     expect((await dbCounts(page)).logs).toBe(1)
   })
@@ -259,7 +261,7 @@ test.describe('Beginner home and session', () => {
     await page.getByTestId('rv2-start').click()
     await page.keyboard.press('Space')
     await page.getByRole('button', { name: /^Easy/ }).dblclick()
-    await expect(session(page)).toContainText('Question 2')
+    await expect(front(page)).toContainText('Question 2')
     await page.waitForTimeout(300)
     expect((await dbCounts(page)).logs).toBe(1)
   })
@@ -274,7 +276,7 @@ test.describe('Beginner home and session', () => {
     await page.getByTestId('rv2-start').focus()
     await expect(page.getByTestId('rv2-start')).toBeFocused()
     await page.keyboard.press('Enter')
-    await expect(session(page)).toContainText('Question 1')
+    await expect(front(page)).toContainText('Question 1')
     // The Show answer button is focused: Enter turns the card.
     await expect(page.getByTestId('rv2-show')).toBeFocused()
     await page.keyboard.press('Enter')
@@ -310,7 +312,7 @@ test.describe('Beginner home and session', () => {
     await context.setOffline(true)
     for (let i = 1; i <= 3; i++) {
       // Wait for the card to show before pressing its keys.
-      await expect(session(page)).toContainText('Question ' + i)
+      await expect(front(page)).toContainText('Question ' + i)
       await page.keyboard.press('Space')
       await expect(session(page)).toHaveAttribute('data-revealed', '1')
       await page.keyboard.press('4')
@@ -390,7 +392,7 @@ test.describe('Phone', () => {
     )
       .getByRole('button', { name: /^Review(?! this)/ })
       .click()
-    await expect(session(page)).toContainText('Question 1')
+    await expect(front(page)).toContainText('Question 1')
     await page.getByTestId('rv2-show').tap()
     const rates = page.getByTestId('rv2-rates')
     await expect(rates).toBeVisible()
@@ -418,9 +420,162 @@ test.describe('iPad (touch)', () => {
     await page.getByTestId('rv2-show').tap()
     await expect(page.getByTestId('rv2-rates')).toBeVisible()
     await page.getByRole('button', { name: /^Easy/ }).tap()
-    await expect(session(page)).toContainText('Question 2')
+    await expect(front(page)).toContainText('Question 2')
     await expect(left(page)).toHaveText('1 left')
     const card = (await page.getByTestId('rv2-card').boundingBox())!
     expect(card.width).toBeLessThanOrEqual(640)
+  })
+})
+
+test.describe('Professional session extras (rev.sessionExtras, rev.keyHints)', () => {
+  const toast = (page: Page) =>
+    page.getByRole('status').filter({ hasText: /./ })
+
+  test('RV-P05: the key line shows with rev.keyHints and is absent without it', async ({
+    page,
+  }) => {
+    await seed(page, 1)
+    await openReview(page)
+    await page.getByTestId('rv2-start').click()
+    await expect(page.getByTestId('rv2-keyhints')).toHaveText(
+      'Space show · 1 Again · 2 Hard · 3 Good · 4 Easy · Esc close',
+    )
+    // A Beginner with only Session extras unlocked: extras yes, key line no.
+    await page.evaluate(() =>
+      localStorage.setItem(
+        'learning-notes:level',
+        JSON.stringify({ level: 'beginner', unlocked: ['rev.sessionExtras'] }),
+      ),
+    )
+    await page.reload()
+    await openReview(page)
+    await page.getByTestId('rv2-start').click()
+    await expect(page.getByTestId('rv2-extras')).toBeVisible()
+    await expect(page.getByTestId('rv2-keyhints')).toHaveCount(0)
+  })
+
+  test('without rev.sessionExtras a Beginner sees no Open note, Suspend or Undo rating', async ({
+    page,
+  }) => {
+    await asBeginner(page)
+    await seed(page, 1)
+    await openReview(page)
+    await page.getByTestId('rv2-start').click()
+    await expect(front(page)).toContainText('Question 1')
+    await expect(page.getByTestId('rv2-extras')).toHaveCount(0)
+    await expect(page.getByTestId('rv2-keyhints')).toHaveCount(0)
+  })
+
+  test('RV-P03 / RV-P04: Undo rating is off at first; after Good it brings the card back', async ({
+    page,
+  }) => {
+    await seed(page, 2)
+    await openReview(page)
+    await page.getByTestId('rv2-start').click()
+    const undo = page.getByTestId('rv2-undo')
+    await expect(front(page)).toContainText('Question 1')
+    await expect(undo).toBeDisabled() // RV-P04
+    const before = await dbCounts(page)
+
+    await page.keyboard.press('Space')
+    await page.keyboard.press('3') // Good: a new card waits in a 10-minute step
+    await expect(front(page)).toContainText('Question 2')
+    await expect(undo).toBeEnabled()
+
+    await undo.click()
+    await expect(front(page)).toContainText('Question 1')
+    await expect(session(page)).toHaveAttribute('data-revealed', '0')
+    await expect(left(page)).toHaveText('2 left')
+    await expect(undo).toBeDisabled()
+    await expect(toast(page)).toContainText('Rating undone')
+    // The card is back to its old schedule; the log row stays (marked), not deleted.
+    const after = await dbCounts(page)
+    expect(after.reps).toEqual(before.reps)
+    expect(after.logs).toBe(1)
+    const marked = await page.evaluate(
+      () =>
+        new Promise<boolean>((resolve) => {
+          const open = indexedDB.open('learning-notes')
+          open.onsuccess = () => {
+            const all = open.result
+              .transaction('reviewLogs')
+              .objectStore('reviewLogs')
+              .getAll()
+            all.onsuccess = () => {
+              resolve(
+                (all.result as { purgedAt?: number }[]).every(
+                  (l) => typeof l.purgedAt === 'number',
+                ),
+              )
+              open.result.close()
+            }
+          }
+        }),
+    )
+    expect(marked).toBe(true)
+
+    // And the same card can be rated again: exactly one counted log row more.
+    await page.keyboard.press('Space')
+    await page.keyboard.press('4')
+    await expect(front(page)).toContainText('Question 2')
+    expect((await dbCounts(page)).logs).toBe(2)
+  })
+
+  test('Ctrl+Z in a session undoes the last rating', async ({ page }) => {
+    await seed(page, 2)
+    await openReview(page)
+    await page.getByTestId('rv2-start').click()
+    await expect(front(page)).toContainText('Question 1')
+    await page.keyboard.press('Space')
+    await page.keyboard.press('4')
+    await expect(front(page)).toContainText('Question 2')
+    await expect(left(page)).toHaveText('1 left')
+    await page.keyboard.press('Control+z')
+    await expect(front(page)).toContainText('Question 1')
+    await expect(left(page)).toHaveText('2 left')
+  })
+
+  test('RV-P02: Suspend takes the card out and Undo puts it back as the current card', async ({
+    page,
+  }) => {
+    await seed(page, 2)
+    await openReview(page)
+    await page.getByTestId('rv2-start').click()
+    await expect(front(page)).toContainText('Question 1')
+    await page.getByTestId('rv2-suspend').click()
+    await expect(toast(page)).toContainText('Card suspended')
+    await expect(front(page)).toContainText('Question 2')
+    await expect(left(page)).toHaveText('1 left')
+    await toast(page).getByRole('button', { name: 'Undo' }).click()
+    await expect(front(page)).toContainText('Question 1')
+    await expect(left(page)).toHaveText('2 left')
+  })
+
+  test('RV-P01: Open note opens the note and Back returns to Review', async ({
+    page,
+  }) => {
+    await seed(page, 1)
+    await openReview(page)
+    await page.getByTestId('rv2-start').click()
+    await page.getByTestId('rv2-open-note').click()
+    await expect(page.getByRole('textbox', { name: 'Page title' })).toHaveValue(
+      'Heart sounds',
+    )
+    await page.goBack()
+    await expect(front(page)).toContainText('Question 1')
+  })
+
+  test('RV-P03 at iPad size: tap Easy, tap Undo rating, the count goes back', async ({
+    page,
+  }) => {
+    await page.setViewportSize({ width: 1180, height: 820 })
+    await seed(page, 2)
+    await openReview(page)
+    await page.getByTestId('rv2-start').click()
+    await page.getByTestId('rv2-show').click()
+    await page.getByRole('button', { name: /^Easy/ }).click()
+    await expect(left(page)).toHaveText('1 left')
+    await page.getByTestId('rv2-undo').click()
+    await expect(left(page)).toHaveText('2 left')
   })
 })

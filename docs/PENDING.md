@@ -264,3 +264,12 @@ Three ways of using the reader, as presets:
 - BUG (iPad): the sidebar covers the reader bar's ✕ (Exit reading). Found by CI 12 Nov; fix in a real-build slice.
 - Real build (reader): the reader bar and the drawing bar must minimise/restore independently (each edge handle restores only its own bar). Owner, 12 Nov.
 - Real build (reader): Listen long-press = hold only (release must not also start read-aloud); no selection/callout on long-press. Owner, 12 Nov.
+
+## Book annotations / Reader mock: APPROVED by owner (12 Nov 2026), build with these conditions
+Mock: claude.ai/artifact/UQuji6cLjk9PNuuF9vsGEB (all owner comments on it are build requirements).
+1. "Highlight where I land" switch: the jump/scroll glow is ON for new users and can be turned off (remembered).
+2. The reader bar and the drawing bar minimise/restore independently.
+3. Sticky note: tapping opens a READ view that looks like a real sticky note (paper colour, text, ✕, ✏️). Only ✏️ opens the edit dialog; a new note opens in edit.
+4. Listen: tap = read aloud; hold = settings only (release must not start playback); no selection/callout on long-press.
+5. Pages-grid edits change the real book (Undo + Restore original); no dimming behind the panel; Minimise hides the whole strip; edge-tap page turns with a slide; voices by type with pins; Style "Full" by default; ✕ on every dialog; customisable tabs Pages/Outline/Annotations/+.
+6. The top-bar AI button needs a rework: do it together with the AI mode build (not in this mock).

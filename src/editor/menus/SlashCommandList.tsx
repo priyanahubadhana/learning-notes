@@ -107,7 +107,7 @@ function Open({
   // Under the cursor line; above it only when there is no room below.
   const roomBelow = vh - (top + height) - GAP - 12
   const roomAbove = top - GAP - 12
-  const below = roomBelow >= 420 || roomBelow >= roomAbove
+  const below = roomBelow >= 240 || roomAbove < 240
   const { target, avoid } = useMemo(() => {
     const h = Math.max(0, height)
     return below

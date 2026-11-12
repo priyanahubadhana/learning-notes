@@ -156,3 +156,35 @@ test('PM-09 Beginner always has Show all, and nothing is lost behind it', async 
     page.locator('.bn-editor [data-content-type="mindMap"]'),
   ).toHaveCount(1)
 })
+
+test.describe('placement', () => {
+  const caretBottom = (page: Page) =>
+    page.evaluate(
+      () => getSelection()!.getRangeAt(0).getBoundingClientRect().bottom,
+    )
+
+  test.describe('iPad', () => {
+    test.use({ viewport: { width: 1024, height: 768 }, hasTouch: true })
+    test('PM-01 the list opens under the cursor line', async ({ page }) => {
+      await openNote(page, 'professional')
+      await page.keyboard.type('/')
+      await expect(list(page)).toBeVisible()
+      const box = (await list(page).boundingBox())!
+      expect(box.y).toBeGreaterThanOrEqual((await caretBottom(page)) + 4)
+    })
+  })
+
+  test.describe('phone', () => {
+    test.use({ viewport: { width: 390, height: 844 }, hasTouch: true })
+    test('PM-01 the list is fully on screen', async ({ page }) => {
+      await openNote(page, 'beginner')
+      await page.keyboard.type('/')
+      await expect(list(page)).toBeVisible()
+      const box = (await list(page).boundingBox())!
+      expect(box.x).toBeGreaterThanOrEqual(12)
+      expect(box.y).toBeGreaterThanOrEqual(12)
+      expect(box.x + box.width).toBeLessThanOrEqual(390 - 12)
+      expect(box.y + box.height).toBeLessThanOrEqual(844 - 12)
+    })
+  })
+})

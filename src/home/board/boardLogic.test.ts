@@ -50,7 +50,12 @@ describe('setSize', () => {
 })
 
 describe('fit rule (reflow / snap)', () => {
-  const four = L(['cards', 's'], ['briefing', 's'], ['top3', 's'], ['timer', 's'])
+  const four = L(
+    ['cards', 's'],
+    ['briefing', 's'],
+    ['top3', 's'],
+    ['timer', 's'],
+  )
   const ids = (l: Layout) => l.map((s) => s.id as string)
 
   it('a medium widget dropped between small ones fits and the smalls wrap', () => {

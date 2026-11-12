@@ -10,7 +10,7 @@
 import { onGestureReset, registerToolState } from './gestureReset'
 
 /** A Pencil that stayed "down" for this long without any event is forgotten. */
-const STALE_MS = 3000
+export const STALE_MS = 3000
 
 let penId: number | null = null
 let lastPenEvent = 0

@@ -187,7 +187,7 @@ Questions:
 
 - ~~Supabase dashboard~~ DONE 12 Nov: Email OTP expiry 600 s (owner); rotation = Supabase default; rate limits default. (CAPTCHA later.)
 - ~~Redeploy drive-token~~ DONE 12 Nov (owner).
-- Delete by hand: Downloads\learning-notes\dist-pt, dist-rb, test-results-acct, test-results-b2, dist-map.
+- ~~Delete leftover folders~~ DONE 12 Nov (checked: plain build output, no links).
 - iPad checks at the top of docs/plans/owner-checks-pending.md once the build is live.
 - Review the mock-ups: toolbar v2/v3, book annotations.
 - Send the BUG-002 screenshot (format bar out of bounds).

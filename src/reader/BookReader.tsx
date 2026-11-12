@@ -1,7 +1,17 @@
 import { IconButton, MenuPopover, NameDialog, type MenuItem } from '../app/ui'
 import { Icon } from '../app/tools/icons'
 import { toggleListen } from './v2/listen'
-import { stickyArmed } from './v2/sticky'
+import { stickyArmed, stickyView } from './v2/sticky'
+import { noteAtPoint } from './v2/stickyDrag'
+import {
+  activeLock,
+  isLockMode,
+  lockAllows,
+  lockBlocked,
+  resolveMode,
+  type LockMode,
+} from './v2/lockModes'
+import { useUnlocked } from '../settings/level'
 import { StickyPins } from './v2/StickyPins'
 import type { BarItem, CardGroupDef, CardRowDef } from './v2/ReaderBarRow'
 import { tapZone } from '../app/reading/readingMath'
@@ -100,6 +110,10 @@ const AaSheet = lazy(() => import('./AaSheet'))
 const ReaderBarsV2 = lazy(() => import('./v2/ReaderBars'))
 const ReaderBarRowV2 = lazy(() => import('./v2/ReaderBarRow'))
 const StickyHost = lazy(() => import('./v2/StickyHost'))
+const LockButtonV2 = lazy(() => import('./v2/LockMenu'))
+const LockMenuCardV2 = lazy(() =>
+  import('./v2/LockMenu').then((m) => ({ default: m.LockMenuCard })),
+)
 const DictionarySheet = lazy(() => import('./DictionarySheet'))
 const ZoomPreview = lazy(() => import('./pdf/ZoomPreview'))
 // The PDF menu's tools (Q8): pdf-lib, OCR and the sheets load only when used.
@@ -216,7 +230,27 @@ export function BookReader({
   const setLook = (patch: Partial<ReadStyle>) =>
     setLookRaw(cleanStyle({ ...look, ...patch }))
   const [aaOpen, setAaOpen] = useState(false)
-  const [locked, setLocked] = useState(false)
+  const [localLocked, setLocked] = useState(false)
+  // Reader v2: four lock modes, kept per book (Page.readLockMode); a new book
+  // opens in the last mode used (RD-B21, RD-B22).
+  const [lastLock, setLastLock] = usePref<LockMode>(
+    'reader.lockLast',
+    isLockMode,
+    'all',
+  )
+  const frozenOn = useUnlocked('reader.readLock')
+  // Where the padlock menu hangs (null = closed). It lives here, not in the
+  // button, so it still opens when the padlock sits in the ⋯ card.
+  const [lockMenu, setLockMenu] = useState<{
+    left: number
+    top: number
+    width: number
+    height: number
+  } | null>(null)
+  const lockMode: LockMode = v2
+    ? resolveMode(page?.readLockMode, lastLock, frozenOn)
+    : 'all'
+  const locked = localLocked || lockMode === 'frozen'
   const [dict, setDict] = useState<string | null>(null)
   const [askSeed, setAskSeed] = useState('')
   const [penBar, setPenBar] = usePref<InkBarMode>(
@@ -453,6 +487,32 @@ export function BookReader({
     document.getSelection()?.removeAllRanges()
     setSelection(null)
   }
+  // Reader v2: the mode the open book is in, for the pieces that cannot see this screen.
+  useEffect(() => {
+    activeLock.set(lockMode)
+    return () => activeLock.set('all')
+  }, [lockMode])
+  const setLockMode = (m: LockMode) => {
+    // Entering a stronger mode puts away what it does not allow.
+    if (!lockAllows(m, 'draw')) stopInking()
+    if (!lockAllows(m, 'highlight')) clearSelection()
+    if (m === 'frozen') {
+      setPanel(null)
+      setAaOpen(false)
+      setBarShown(false)
+      setFlipOpen(false)
+    }
+    setLastLock(m)
+    runTask(db.pages.update(pageId, { readLockMode: m, updatedAt: Date.now() }))
+  }
+  const unlockAll = () => {
+    setLockMode('all')
+    setLocked(false)
+    toast(t('readerv2.lock.unlocked'))
+  }
+  const turnedAway = () => toast(t('readerv2.lock.unlockToUse'))
+  const onSelectionV2 = (s: ReaderSelection | null) =>
+    setSelection(s && lockAllows(lockMode, 'highlight') ? s : null)
   const onColour = (c: HighlightColour) => {
     const sel = selection
     if (!sel) return
@@ -700,23 +760,26 @@ export function BookReader({
   const goPage = (p: number) =>
     setTarget((prev) => ({ at: `pdf:${p}:0`, nonce: (prev?.nonce ?? 0) + 1 }))
   const toggleBookmark = () =>
-    runTask(
-      (async () => {
-        if (bookmarkHere) {
-          await deleteAnnotation(db, bookmarkHere.id)
-        } else {
-          await createAnnotation(db, {
-            pageId,
-            kind: 'bookmark',
-            anchor:
-              format === 'epub' && hereCfi
-                ? { type: 'epub', cfi: hereCfi }
-                : { type: 'pdf', page: pageNo, rects: [] },
-            chapter: format === 'epub' ? position?.label : chapterAt(pageNo),
-          })
-        }
-      })(),
-    )
+    v2 && lockBlocked('bookmark')
+      ? turnedAway()
+      : runTask(
+          (async () => {
+            if (bookmarkHere) {
+              await deleteAnnotation(db, bookmarkHere.id)
+            } else {
+              await createAnnotation(db, {
+                pageId,
+                kind: 'bookmark',
+                anchor:
+                  format === 'epub' && hereCfi
+                    ? { type: 'epub', cfi: hereCfi }
+                    : { type: 'pdf', page: pageNo, rects: [] },
+                chapter:
+                  format === 'epub' ? position?.label : chapterAt(pageNo),
+              })
+            }
+          })(),
+        )
   const turn = (dir: 1 | -1) => {
     if (format === 'pdf') {
       goPage(Math.min(pageCount || 1, Math.max(1, pageNo + dir)))
@@ -1329,6 +1392,7 @@ export function BookReader({
       pressed: drawing,
       onClick: () => {
         if (inking) return stopInking()
+        if (lockBlocked('draw')) return turnedAway()
         if (format === 'epub' && epubFlow === 'paginated') {
           toast(t('reader.ink.scrollOnly'))
           return
@@ -1380,7 +1444,7 @@ export function BookReader({
       icon: 'volume',
       testId: 'reader-listen',
       rank: 3,
-      onClick: toggleListen,
+      onClick: () => (lockBlocked('listen') ? turnedAway() : toggleListen()),
     },
     {
       id: 'lock',
@@ -1388,15 +1452,17 @@ export function BookReader({
       icon: 'lock',
       testId: 'reader-lock',
       rank: 6,
-      onClick: () => {
-        stopInking()
-        clearSelection()
-        setPanel(null)
-        setAaOpen(false)
-        setBarShown(false)
-        setFlipOpen(false)
-        setLocked(true)
-      },
+      onClick: () => {},
+      node: (
+        <Suspense fallback={<span className="rv2-btn" aria-hidden />}>
+          <LockButtonV2
+            mode={lockMode}
+            menuOpen={!!lockMenu}
+            onMenu={setLockMenu}
+            onUnlock={unlockAll}
+          />
+        </Suspense>
+      ),
     },
   ]
   const cardGroups: CardGroupDef[] = [
@@ -1496,6 +1562,7 @@ export function BookReader({
       }
       data-full={full ? 'true' : undefined}
       data-testid="book-reader"
+      data-lock={v2 ? lockMode : undefined}
       ref={rootRef}
       aria-label={t('bookreader.label')}
     >
@@ -1551,6 +1618,13 @@ export function BookReader({
           if (Math.hypot(e.clientX - d.x, e.clientY - d.y) > 10) return
           if (Date.now() - d.t > 400) return
           if (!document.getSelection()?.isCollapsed) return
+          if (v2) {
+            // A tap on a highlight that has a note opens the note (read view).
+            const id = noteAtPoint(e.clientX, e.clientY, (n) =>
+              (annotations ?? []).some((a) => a.id === n && !!a.note),
+            )
+            if (id) return stickyView.set({ mode: 'read', id })
+          }
           pdfTap(e.clientX, e.clientY)
         }}
       >
@@ -1564,7 +1638,10 @@ export function BookReader({
           />
         )}
         {locked && (
-          <ReadingLock onUnlock={() => setLocked(false)} onSwipe={turn} />
+          <ReadingLock
+            onUnlock={v2 ? unlockAll : () => setLocked(false)}
+            onSwipe={turn}
+          />
         )}
         {full && (
           <>
@@ -1639,7 +1716,7 @@ export function BookReader({
                   pos.page,
                 )
               }
-              onSelection={setSelection}
+              onSelection={v2 ? onSelectionV2 : setSelection}
               onFailed={() => setFailed(true)}
               onNoText={() => setNoText(true)}
             />
@@ -1658,7 +1735,7 @@ export function BookReader({
               onPosition={(pos) =>
                 report(pos.progress, pos.locator, pos.label, 0, pos.unitsLeft)
               }
-              onSelection={setSelection}
+              onSelection={v2 ? onSelectionV2 : setSelection}
               onTap={onEdgeTap}
               onFailed={() => setFailed(true)}
             />
@@ -1914,9 +1991,31 @@ export function BookReader({
           }}
         />
       )}
+      {v2 && lockMenu && (
+        <Suspense fallback={null}>
+          <LockMenuCardV2
+            anchor={lockMenu}
+            mode={lockMode}
+            frozenOn={frozenOn}
+            onPick={(m) => {
+              setLockMenu(null)
+              if (m === lockMode) return
+              setLockMode(m)
+              toast(t('readerv2.lock.set', { mode: t(`readerv2.lock.${m}`) }))
+            }}
+            onClose={() => setLockMenu(null)}
+          />
+        </Suspense>
+      )}
       {v2 && format === 'pdf' && (
         <Suspense fallback={null}>
-          <StickyHost db={db} pageId={pageId} annotations={annotations ?? []} />
+          <StickyHost
+            db={db}
+            pageId={pageId}
+            annotations={annotations ?? []}
+            canEditSticky={lockAllows(lockMode, 'sticky')}
+            canEditNote={lockAllows(lockMode, 'editNote')}
+          />
         </Suspense>
       )}
       {bulk && (

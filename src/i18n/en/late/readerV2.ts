@@ -53,4 +53,25 @@ export const enLateReaderV2 = {
   'readerv2.sticky.undone': 'Undone.',
   'readerv2.sticky.redone': 'Done again.',
   'readerv2.sticky.redo': 'Redo',
+  'readerv2.lock.title': 'Reader lock',
+  'readerv2.lock.label': 'Reader lock: {mode}',
+  'readerv2.lock.all': 'Everything works',
+  'readerv2.lock.allHint': 'Highlight, draw, edit and select freely.',
+  'readerv2.lock.reading': 'Reading mode',
+  'readerv2.lock.readingHint':
+    'Highlights, notes and bookmarks work. No drawing or sticky notes.',
+  'readerv2.lock.view': 'View only',
+  'readerv2.lock.viewHint':
+    'No edits or highlights. Only zoom, scroll, page turns, search and view settings.',
+  'readerv2.lock.frozen': 'Frozen',
+  'readerv2.lock.frozenHint':
+    'Nothing responds except the padlock. A swipe still turns the page.',
+  'readerv2.lock.note':
+    'Remembered for this book. To leave View only or Frozen, hold the padlock for 1.5 seconds. This is a comfort lock, not a password.',
+  'readerv2.lock.set': '{mode}.',
+  'readerv2.lock.holdHint': 'Hold the padlock to unlock.',
+  'readerv2.lock.holding': 'Hold to unlock…',
+  'readerv2.lock.unlocked': 'Unlocked. Everything works.',
+  'readerv2.lock.unlockToUse': 'Unlock to use this.',
+  'readerv2.lock.noteView': 'Note',
 } as const

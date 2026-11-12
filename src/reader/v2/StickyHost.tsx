@@ -28,13 +28,16 @@ export default function StickyHost({
   db,
   pageId,
   annotations,
-  canEdit = true,
+  canEditSticky = true,
+  canEditNote = true,
 }: {
   db: LearningNotesDB
   pageId: string
   annotations: readonly Annotation[]
-  /** False in the View only and Frozen lock modes: notes can be read, not changed. */
-  canEdit?: boolean
+  /** False in Reading mode, View only and Frozen: sticky notes can be read, not changed or moved. */
+  canEditSticky?: boolean
+  /** False in View only and Frozen: the note of a highlight can be read, not changed. */
+  canEditNote?: boolean
 }) {
   const { toast } = useContext(AppUiContext)
   const view = stickyView.useValue()
@@ -90,7 +93,7 @@ export default function StickyHost({
   }
 
   useStickyDrag({
-    enabled: canEdit,
+    enabled: canEditSticky,
     note: (id) => list.current.find((a) => a.id === id && !a.deletedAt),
     onLift: () => toast(t('readerv2.sticky.lifted')),
     onDrop: (a, to) =>
@@ -106,6 +109,7 @@ export default function StickyHost({
     if (stickyView.get() === view) stickyView.set(null)
   }
   const current = view && view.mode !== 'new' ? find(view.id) : undefined
+  const canEdit = current?.kind === 'sticky' ? canEditSticky : canEditNote
   return (
     <>
       {view?.mode === 'read' && current && (
@@ -132,17 +136,21 @@ export default function StickyHost({
               ),
             )
           }}
-          onDelete={() => {
-            stickyView.set(null)
-            runTask(
-              removeSticky(db, current).then((step) =>
-                announce(t('readerv2.sticky.deleted'), step),
-              ),
-            )
-          }}
+          onDelete={
+            current.kind === 'sticky'
+              ? () => {
+                  stickyView.set(null)
+                  runTask(
+                    removeSticky(db, current).then((step) =>
+                      announce(t('readerv2.sticky.deleted'), step),
+                    ),
+                  )
+                }
+              : undefined
+          }
         />
       )}
-      {view?.mode === 'new' && canEdit && (
+      {view?.mode === 'new' && canEditSticky && (
         <StickyEdit
           initial=""
           isNew

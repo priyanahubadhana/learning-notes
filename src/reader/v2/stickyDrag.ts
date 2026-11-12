@@ -100,3 +100,23 @@ export function useStickyDrag(opts: {
     }
   }, [])
 }
+
+/**
+ * The note under a tap: the id of a highlight (drawn click-through, so it
+ * is found by its box) that has a note, if the point is inside one.
+ */
+export function noteAtPoint(
+  x: number,
+  y: number,
+  hasNote: (id: string) => boolean,
+): string | null {
+  for (const el of document.querySelectorAll<HTMLElement>(
+    '[data-annotation]',
+  )) {
+    const id = el.dataset.annotation
+    if (!id || !hasNote(id)) continue
+    const r = el.getBoundingClientRect()
+    if (x >= r.left && x <= r.right && y >= r.top && y <= r.bottom) return id
+  }
+  return null
+}

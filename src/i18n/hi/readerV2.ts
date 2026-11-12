@@ -55,4 +55,25 @@ export const hiReaderV2 = {
   'readerv2.sticky.undone': 'वापस किया।',
   'readerv2.sticky.redone': 'फिर से किया।',
   'readerv2.sticky.redo': 'फिर से करें',
+  'readerv2.lock.title': 'रीडर लॉक',
+  'readerv2.lock.label': 'रीडर लॉक: {mode}',
+  'readerv2.lock.all': 'सब कुछ चलता है',
+  'readerv2.lock.allHint': 'हाइलाइट, ड्रॉ, बदलाव और चयन खुलकर करें।',
+  'readerv2.lock.reading': 'पढ़ने का मोड',
+  'readerv2.lock.readingHint':
+    'हाइलाइट, नोट और बुकमार्क चलते हैं। ड्रॉइंग और स्टिकी नोट नहीं।',
+  'readerv2.lock.view': 'सिर्फ़ देखना',
+  'readerv2.lock.viewHint':
+    'कोई बदलाव या हाइलाइट नहीं। सिर्फ़ ज़ूम, स्क्रॉल, पेज पलटना, खोज और व्यू सेटिंग।',
+  'readerv2.lock.frozen': 'जमा हुआ',
+  'readerv2.lock.frozenHint':
+    'ताले के अलावा कुछ नहीं चलता। स्वाइप से पेज फिर भी पलटता है।',
+  'readerv2.lock.note':
+    'इस किताब के लिए याद रखा जाता है। सिर्फ़ देखना या जमा हुआ से निकलने के लिए ताले को 1.5 सेकंड दबाए रखें। यह आराम का लॉक है, पासवर्ड नहीं।',
+  'readerv2.lock.set': '{mode}।',
+  'readerv2.lock.holdHint': 'अनलॉक करने के लिए ताले को दबाए रखें।',
+  'readerv2.lock.holding': 'अनलॉक के लिए दबाए रखें…',
+  'readerv2.lock.unlocked': 'अनलॉक हो गया। सब कुछ चलता है।',
+  'readerv2.lock.unlockToUse': 'इसे इस्तेमाल करने के लिए अनलॉक करें।',
+  'readerv2.lock.noteView': 'नोट',
 } as const

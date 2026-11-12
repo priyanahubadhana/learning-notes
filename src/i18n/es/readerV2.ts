@@ -56,4 +56,25 @@ export const esReaderV2 = {
   'readerv2.sticky.undone': 'Deshecho.',
   'readerv2.sticky.redone': 'Rehecho.',
   'readerv2.sticky.redo': 'Rehacer',
+  'readerv2.lock.title': 'Bloqueo del lector',
+  'readerv2.lock.label': 'Bloqueo del lector: {mode}',
+  'readerv2.lock.all': 'Todo funciona',
+  'readerv2.lock.allHint': 'Resalta, dibuja, edita y selecciona con libertad.',
+  'readerv2.lock.reading': 'Modo lectura',
+  'readerv2.lock.readingHint':
+    'Resaltados, notas y marcadores funcionan. Sin dibujo ni notas adhesivas.',
+  'readerv2.lock.view': 'Solo ver',
+  'readerv2.lock.viewHint':
+    'Sin ediciones ni resaltados. Solo zoom, desplazamiento, cambio de página, búsqueda y ajustes de vista.',
+  'readerv2.lock.frozen': 'Congelado',
+  'readerv2.lock.frozenHint':
+    'Nada responde salvo el candado. Un deslizamiento sigue pasando la página.',
+  'readerv2.lock.note':
+    'Se recuerda para este libro. Para salir de Solo ver o Congelado, mantén pulsado el candado 1,5 segundos. Es un bloqueo de comodidad, no una contraseña.',
+  'readerv2.lock.set': '{mode}.',
+  'readerv2.lock.holdHint': 'Mantén pulsado el candado para desbloquear.',
+  'readerv2.lock.holding': 'Mantén pulsado para desbloquear…',
+  'readerv2.lock.unlocked': 'Desbloqueado. Todo funciona.',
+  'readerv2.lock.unlockToUse': 'Desbloquea para usar esto.',
+  'readerv2.lock.noteView': 'Nota',
 } as const

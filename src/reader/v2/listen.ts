@@ -7,12 +7,14 @@ import {
   stopBookAloud,
 } from '../aloud/bookAloud'
 import { memStore } from '../../app/tools/store'
+import { lockBlocked } from './lockModes'
 
 /**
  * Listen button (RD-B10): a tap reads aloud at once, then pauses and resumes.
  * The hold (settings only) lives in ReaderBarRow and ListenCard.
  */
 export function toggleListen(): void {
+  if (lockBlocked('listen')) return
   const s = bookAloudState.get()
   if (s === 'playing') pauseBookAloud()
   else if (s === 'paused') resumeBookAloud()

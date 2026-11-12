@@ -80,7 +80,10 @@ export default function ReaderBars({
     })
     setVh(window.innerHeight)
   }, [rootRef])
-  useLayoutEffect(() => {
+  // A plain effect, not a layout effect: when the bars mount together with the
+  // reader (the second book opened in a session, the code already loaded) the
+  // reader's own box is only attached after a layout effect would have run.
+  useEffect(() => {
     measure()
     const root = rootRef.current
     if (!root || typeof ResizeObserver === 'undefined') return

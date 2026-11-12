@@ -461,3 +461,67 @@
   padding-top: 4px;
   padding-inline: 14px;
 }
+
+/* Padlock (slice 7d): icon per mode, a ring that fills while held, a short shake when a tool is turned away. */
+.rv2-lock {
+  position: relative;
+}
+.rv2-lock__ring {
+  position: absolute;
+  inset: 0;
+  margin: auto;
+  width: 44px;
+  height: 44px;
+  transform: rotate(-90deg);
+  pointer-events: none;
+  stroke: var(--color-accent);
+  stroke-width: 2.5;
+}
+.rv2-lock[data-shake] {
+  animation: rv2-shake 240ms var(--ease-out);
+}
+@keyframes rv2-shake {
+  20% {
+    transform: translateX(-3px);
+  }
+  40% {
+    transform: translateX(3px);
+  }
+  60% {
+    transform: translateX(-2px);
+  }
+  80% {
+    transform: translateX(2px);
+  }
+}
+@media (prefers-reduced-motion: reduce) {
+  .rv2-lock[data-shake] {
+    animation: none;
+  }
+  .rv2-lock__ring circle {
+    transition: none !important;
+  }
+}
+.rv2-lock-row {
+  align-items: flex-start;
+  gap: 12px;
+  min-height: 56px;
+  text-align: start;
+}
+.rv2-lock-row__text {
+  display: flex;
+  flex: 1;
+  flex-direction: column;
+  gap: 2px;
+}
+.rv2-lock-row__text small {
+  color: var(--color-muted);
+  font-size: 12px;
+  line-height: 1.35;
+}
+/* View only and Frozen: the text cannot be selected. */
+[data-lock='view'] [data-pdf-page] .textLayer,
+[data-lock='frozen'] [data-pdf-page] .textLayer {
+  -webkit-user-select: none;
+  user-select: none;
+}

@@ -1,5 +1,5 @@
 import { expect, test, type Locator, type Page } from '@playwright/test'
-import { createNotebook, sidebar } from './helpers.ts'
+import { createNotebook, makeCard, sidebar } from './helpers.ts'
 
 /**
  * Notebooks home v2 (slice 4, flag notebooks.v2): spec lines NB-B01..NB-B13
@@ -367,4 +367,41 @@ test('A Beginner sees no Professional items in the strip', async ({ page }) => {
     'Move up',
   ])
     await expect(page.getByRole('option', { name })).toHaveCount(0)
+})
+
+/** Two notebooks, each with one card (a new card is due at once). */
+async function twoBooksWithCards(page: Page) {
+  await createNotebook(page, 'Alpha book', 'A page')
+  await makeCard(page, 'Alpha question?', 1)
+  await createNotebook(page, 'Zeta book', 'Z page')
+  await makeCard(page, 'Zeta question?', 2)
+  await openHome(page)
+}
+
+test('NB-B05 the "N due" badge shows on a cover; tapping it reviews that notebook only', async ({
+  page,
+}) => {
+  await start(page)
+  await twoBooksWithCards(page)
+  const badge = card(page, 'Alpha book').getByTestId('nbv2-due')
+  await expect(badge).toContainText('1 due')
+  await badge.click()
+  await expect(home(page)).toBeHidden()
+  const main = page.getByRole('main')
+  await expect(main).toContainText('Alpha question?')
+  await expect(main).not.toContainText('Zeta question?')
+})
+
+test('NB-P07 Review this notebook in the strip reviews only its cards (needs nb.reviewNotebook)', async ({
+  page,
+}) => {
+  await start(page, { level: 'beginner' })
+  await twoBooksWithCards(page)
+  await unlock(page, 'nb.reviewNotebook')
+  await card(page, 'Zeta book').click({ button: 'right' })
+  await pickFromMore(page, 'Review this notebook')
+  await expect(home(page)).toBeHidden()
+  const main = page.getByRole('main')
+  await expect(main).toContainText('Zeta question?')
+  await expect(main).not.toContainText('Alpha question?')
 })

@@ -28,6 +28,13 @@ export interface Draft {
   next: number
 }
 
+/** Tools that need their own arguments (a title, a tab): a plan from the goal box or Claude carries them; the step picker does not offer them. */
+export const NEEDS_OWN_ARGS: ReadonlySet<string> = new Set([
+  'pages.rename',
+  'tabs.rename',
+  'tabs.set_hidden',
+])
+
 export const COLOURS = [
   '#2f6feb',
   '#2e9e6b',

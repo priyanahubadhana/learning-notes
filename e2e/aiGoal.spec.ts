@@ -179,3 +179,84 @@ test.describe('AI framework: goal box, flag off', () => {
     await expect(page.getByTestId('aifw-goal')).toHaveCount(0)
   })
 })
+
+test.describe('AI framework: slice 5a tools through the goal box', () => {
+  test.use({ viewport: { width: 1200, height: 900 } })
+
+  test('summary, page rename and a hidden tab run as one job', async ({
+    page,
+  }) => {
+    const plan = JSON.stringify({
+      steps: [
+        {
+          id: 's1',
+          tool: 'notebooks.create',
+          toolVersion: 1,
+          args: { title: 'Goal nb' },
+        },
+        {
+          id: 's2',
+          tool: 'pages.write_notes',
+          toolVersion: 1,
+          args: { notebookId: { $from: 's1.notebookId' }, brief: 'Notes' },
+          dependsOn: ['s1'],
+        },
+        {
+          id: 's3',
+          tool: 'summaries.set',
+          toolVersion: 1,
+          args: { pageId: { $from: 's2.pageId' }, brief: 'Short' },
+          dependsOn: ['s2'],
+        },
+        {
+          id: 's4',
+          tool: 'pages.rename',
+          toolVersion: 1,
+          args: { pageId: { $from: 's2.pageId' }, title: 'Renamed page' },
+          dependsOn: ['s2'],
+        },
+        {
+          id: 's5',
+          tool: 'tabs.set_hidden',
+          toolVersion: 1,
+          args: {
+            notebookId: { $from: 's1.notebookId' },
+            tabId: 'revise',
+            hidden: true,
+          },
+          dependsOn: ['s1'],
+        },
+      ],
+    })
+    await openGoal(page)
+    await ask(page)
+    await page.getByTestId('aifw-goal-answer').fill(plan)
+    await page.getByTestId('aifw-goal-check').click()
+    await expect(page.getByTestId('aifw-goal-step')).toHaveCount(5)
+    await page.getByTestId('aifw-goal-run').click()
+    await expect(page.getByTestId('aifw-paste')).toHaveAttribute(
+      'data-step',
+      's2',
+    )
+    await page.getByTestId('aifw-answer').fill(PAGE_ANSWER)
+    await page.getByTestId('aifw-submit').click()
+    await expect(page.getByTestId('aifw-paste')).toHaveAttribute(
+      'data-step',
+      's3',
+    )
+    await page
+      .getByTestId('aifw-answer')
+      .fill(JSON.stringify({ summary: 'A short summary.' }))
+    await page.getByTestId('aifw-submit').click()
+    await expect(page.getByTestId('aifw-preview')).toBeVisible()
+    await expect(
+      page
+        .getByTestId('aifw-preview-line')
+        .filter({ hasText: 'New: Renamed page' }),
+    ).toHaveCount(1)
+    await page.getByTestId('aifw-apply').click()
+    await expect(page.getByTestId('aifw-done')).toBeVisible()
+    await page.getByTestId('aifw-undo').click()
+    await expect(page.getByTestId('aifw-redo')).toBeVisible()
+  })
+})

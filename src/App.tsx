@@ -845,7 +845,7 @@ function App() {
     isSidebarWidth,
     SIDEBAR_DEFAULT,
   )
-  const [sidebarHidden, setSidebarHidden] = useState(() =>
+  const [sidebarHiddenPref, setSidebarHidden] = useState(() =>
     readPref('sidebarHidden', isBoolean, false),
   )
   const [panelOpen, setPanelOpen] = usePref('leftPanel.open', isBoolean, false)
@@ -853,9 +853,20 @@ function App() {
   useEffect(() => {
     if (outlineAsk.n > 0) setPanelOpen(true)
   }, [outlineAsk.n, setPanelOpen])
+  // Review v2 on a narrow tablet (portrait iPad): the session needs the room,
+  // so the sidebar starts closed (the toggle still opens it).
+  const narrowReview =
+    reviewV2 &&
+    space === 'review' &&
+    currentPage === null &&
+    innerWidth >= 640 &&
+    innerWidth < 1000
+  const [reviewSideOpen, setReviewSideOpen] = useState(false)
+  const sidebarHidden = narrowReview ? !reviewSideOpen : sidebarHiddenPref
   const toggleSidebar = () => {
-    setSidebarHidden(!sidebarHidden)
-    writePref('sidebarHidden', !sidebarHidden)
+    if (narrowReview) return setReviewSideOpen(!reviewSideOpen)
+    setSidebarHidden(!sidebarHiddenPref)
+    writePref('sidebarHidden', !sidebarHiddenPref)
   }
   const [barSlot, setBarSlot] = useState<HTMLElement | null>(null)
   const labPage = labPageId.useValue()
@@ -1340,9 +1351,17 @@ function App() {
   useEffect(() => installDeepLinks(), [])
 
   // The top bar's name for the open screen (pages put their own path there).
+  const reviewHomeOpen =
+    reviewV2 &&
+    space === 'review' &&
+    currentPage === null &&
+    !reviewScope &&
+    !hub &&
+    !search &&
+    !showSettings
   const barTitle = showSettings
     ? t('settings.title')
-    : reviewScope
+    : reviewScope || reviewHomeOpen
       ? t('review.sidebar')
       : hub?.kind === 'cards'
         ? t('sidebar.allCards')
@@ -1442,7 +1461,11 @@ function App() {
         runTask(createPageIn(notebookId, parentId, true, templateId))
       }
       onCreateTemplate={() => runTask(newTemplate())}
-      reviewOpen={reviewScope?.kind === 'all' || reviewScope?.kind === 'wrong'}
+      reviewOpen={
+        reviewScope?.kind === 'all' ||
+        reviewScope?.kind === 'wrong' ||
+        reviewHomeOpen
+      }
       onOpenReview={(scope) => choose(() => openReview(scope))}
       onOpenAllCards={() =>
         choose(() => {

@@ -13,7 +13,7 @@
   flex: 1;
   min-height: 0;
   overflow: auto;
-  padding: 16px;
+  padding: var(--rv2-pad);
 }
 .rv2-col {
   margin: 0 auto;
@@ -23,11 +23,18 @@
   flex-direction: column;
   gap: 12px;
 }
+.rv2 {
+  --rv2-pad: 16px;
+}
+/* The bar and the progress line share the card's edges (the column, 640 wide). */
 .rv2-bar {
   display: flex;
   align-items: center;
   gap: 8px;
-  padding: 4px 8px 4px 12px;
+  box-sizing: border-box;
+  width: calc(100% - 2 * var(--rv2-pad));
+  max-width: 640px;
+  margin: 0 auto;
   min-height: 52px;
 }
 .rv2-bar__mid {
@@ -72,7 +79,9 @@
   border-radius: 99px;
   background: var(--color-line);
   overflow: hidden;
-  margin: 0 12px;
+  width: calc(100% - 2 * var(--rv2-pad));
+  max-width: 640px;
+  margin: 0 auto;
 }
 .rv2-prog b {
   display: block;
@@ -431,9 +440,26 @@
   outline-offset: 2px;
 }
 
+/* No keyboard on touch: no key hints, no "Space" tag. */
+@media (hover: none), (pointer: coarse) {
+  .rv2-keys,
+  .rv2-btn kbd {
+    display: none;
+  }
+}
 @media (max-width: 640px) {
+  .rv2 {
+    --rv2-pad: 12px;
+  }
   .rv2-scroll {
-    padding: 12px;
+    padding: var(--rv2-pad);
+  }
+  .rv2-row--done {
+    flex-direction: column;
+    align-self: stretch;
+  }
+  .rv2-row--done .rv2-btn {
+    width: 100%;
   }
   .rv2-foot {
     padding-inline: 12px;

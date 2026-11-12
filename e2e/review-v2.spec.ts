@@ -850,3 +850,75 @@ test('Loading: a skeleton shows on Home and in the session until the data arrive
   )
   expect(saw).toEqual({ home: true, session: true })
 })
+
+test.describe('Gate 3 fixes (second visit)', () => {
+  test('RV-G05: Home has the Review title and the sidebar Review row is selected', async ({
+    page,
+  }) => {
+    await seed(page, 1)
+    await openReview(page)
+    await expect(home(page)).toBeVisible()
+    await expect(
+      page.locator('[data-frame-bars] span.truncate', { hasText: /^Review$/ }),
+    ).toBeVisible()
+    const sidebarRow = page
+      .getByRole('complementary', { name: 'Sidebar' })
+      .locator('[aria-current="page"]')
+      .filter({ hasText: /Review/ })
+    await expect(sidebarRow).toHaveCount(1)
+  })
+
+  test.describe('iPad portrait', () => {
+    test.use({ viewport: { width: 820, height: 1180 }, hasTouch: true })
+    test('RV-G02: the sidebar is closed by default, the session keeps the room', async ({
+      page,
+    }) => {
+      await seed(page, 1)
+      await openReview(page)
+      await page.getByTestId('rv2-start').tap()
+      await expect(front(page)).toContainText('Question 1')
+      const card = (await page.getByTestId('rv2-card').boundingBox())!
+      expect(card.width).toBeGreaterThan(560)
+    })
+  })
+
+  test.describe('phone', () => {
+    test.use({
+      viewport: { width: 390, height: 844 },
+      hasTouch: true,
+      isMobile: true,
+    })
+    test('RV-G04: no key hints and no Space tag without a keyboard', async ({
+      page,
+    }) => {
+      await seed(page, 1)
+      await (
+        await openSidebar(page)
+      )
+        .getByRole('button', { name: /^Review(?! this)/ })
+        .click()
+      // The menu opens the session directly.
+      await expect(front(page)).toBeVisible()
+      await expect(page.getByTestId('rv2-show')).toBeVisible()
+      await expect(page.getByTestId('rv2-keyhints')).toBeHidden()
+      await expect(page.getByTestId('rv2-show').locator('kbd')).toBeHidden()
+    })
+  })
+
+  test.describe('iPad landscape', () => {
+    test.use({ viewport: { width: 1194, height: 834 } })
+    test('RV-G07: the close button and the progress line share the card edges', async ({
+      page,
+    }) => {
+      await seed(page, 1)
+      await openReview(page)
+      await page.getByTestId('rv2-start').click()
+      const card = (await page.getByTestId('rv2-card').boundingBox())!
+      const prog = (await page.getByRole('progressbar').boundingBox())!
+      const bar = (await page.getByTestId('rv2-close').boundingBox())!
+      expect(Math.abs(prog.x - card.x)).toBeLessThanOrEqual(1)
+      expect(Math.abs(prog.width - card.width)).toBeLessThanOrEqual(1)
+      expect(Math.abs(bar.x - card.x)).toBeLessThanOrEqual(1)
+    })
+  })
+})

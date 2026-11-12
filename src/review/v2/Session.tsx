@@ -1,4 +1,4 @@
-import { useContext, useEffect, useRef } from 'react'
+import { useContext, useEffect, useRef, type ReactNode } from 'react'
 import { useLiveQuery } from 'dexie-react-hooks'
 import { AppUiContext } from '../../app/appUi'
 import { runTask } from '../../app/errors'
@@ -207,6 +207,11 @@ export function Session(props: SessionProps) {
         hasCards={hasCards ?? true}
         onPractice={s.practice}
         onClose={onClose}
+        undo={
+          extras && s.canUndo ? (
+            <UndoButton enabled onClick={doUndo} />
+          ) : undefined
+        }
       />
     )
   }
@@ -221,14 +226,7 @@ export function Session(props: SessionProps) {
       {bar}
       {progress}
       <div className="rv2-scroll">
-        <div className="rv2-col">
-          {body}
-          {extras && !card && s.session && s.canUndo && (
-            <div className="rv2-row">
-              <UndoButton enabled onClick={doUndo} />
-            </div>
-          )}
-        </div>
+        <div className="rv2-col">{body}</div>
       </div>
       <div className="rv2-sr" role="status" aria-live="polite">
         {revealed && card ? t('rv2.answerShown') : ''}
@@ -347,12 +345,15 @@ function Done({
   hasCards,
   onPractice,
   onClose,
+  undo,
 }: {
   reviewed: number
   scope: ReviewScope
   hasCards: boolean
   onPractice: () => void
   onClose: () => void
+  /** Professional: Undo rating, laid out with the other buttons (one row, or stacked on a phone). */
+  undo?: ReactNode
 }) {
   const canPractice = scope.kind !== 'wrong' && hasCards
   if (reviewed === 0) {
@@ -376,7 +377,7 @@ function Done({
     <div className="rv2-msg" data-testid="rv2-done">
       <h2>{t('rv2.allDone')}</h2>
       <p className="rv2-hint">{t('rv2.youReviewed', { count: reviewed })}</p>
-      <div className="rv2-row">
+      <div className="rv2-row rv2-row--done">
         {canPractice && (
           <button
             type="button"
@@ -390,6 +391,7 @@ function Done({
         <button type="button" className="rv2-btn" onClick={onClose}>
           {t('review.close')}
         </button>
+        {undo}
       </div>
     </div>
   )

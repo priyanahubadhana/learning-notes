@@ -17,6 +17,11 @@ type Size = { width: number; height: number }
 async function open(page: Page, size: Size) {
   await page.setViewportSize(size)
   await page.goto('/#/design-tokens')
+  // every section has arrived: nothing above can still push the page down
+  await expect(page.getByTestId('gal-parts')).toHaveAttribute(
+    'data-ready',
+    'true',
+  )
   const sec = page.getByTestId('gal-feedback')
   await expect(sec).toBeAttached()
   await sec.scrollIntoViewIfNeeded()
@@ -402,8 +407,13 @@ test.describe('Feedback parts (SP-50 to SP-56)', () => {
       await page.getByTestId('fb-open-sheet').click()
       const sheet = page.getByTestId('fb-sheet')
       await expect(sheet).toBeVisible()
-      await page.getByTestId('fb-toast-done').click()
-      await page.getByTestId('fb-toast-undo-btn').click()
+      // (the open sheet covers the page buttons, so these two are pressed in the page)
+      await page.evaluate(() => {
+        for (const id of ['fb-toast-done', 'fb-toast-undo-btn'])
+          (
+            document.querySelector(`[data-testid="${id}"]`) as HTMLElement
+          ).click()
+      })
       const toasts = page.getByTestId('fb-toast')
       await expect(toasts).toHaveCount(2)
       // once the sheet has slid in and the stack has settled, nothing is covered

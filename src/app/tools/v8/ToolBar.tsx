@@ -3,18 +3,36 @@ import { useEffect, useRef, useState, type PointerEvent } from 'react'
 import { createPortal } from 'react-dom'
 import { historyState } from '../../../core/historySteps'
 import { runHistory } from '../../../editor/historyActions'
-import { addLineAfterCursor, deleteBackward } from '../../../editor/lineActions'
+import {
+  addExtraLine,
+  addLineAfterCursor,
+  deleteBackward,
+} from '../../../editor/lineActions'
 import type { Editor } from '../../../editor/barActions'
-import { t } from '../../../i18n/t'
+import { t, type MessageKey } from '../../../i18n/t'
 import { useLevel } from '../../../settings/level'
 import { Icon, type IconName } from '../icons'
-import { TOOL_HOLD_MS } from '../main/mainTools'
+import { TOOL_HOLD_MS, newLineExtras, newLineHoldMs } from '../main/mainTools'
+import {
+  NEW_LINE_EXTRA_KINDS,
+  holdOpensExtras,
+  tapAction,
+} from '../main/newLineGesture'
 import { REPEAT_AFTER_MS, backspaceStep } from '../main/backspaceHold'
 import { FoldCard, type FoldEntry } from './FoldCard'
 import type { OpenCard } from './barState'
 import { v8Tools, type V8ToolId } from './registryV8'
 import { useFold, type FoldSpec } from './useFold'
 import './toolbarV8.css'
+
+/** The card behind holding New line: heading, checklist, divider (TB-11). */
+export const NEWLINE_CARD = 'newline.extras'
+
+const EXTRA_ICON: Record<(typeof NEW_LINE_EXTRA_KINDS)[number], IconName> = {
+  heading: 'heading2',
+  checklist: 'checklist',
+  divider: 'minus',
+}
 
 const keepFocus = (e: { preventDefault: () => void }) => e.preventDefault()
 
@@ -176,6 +194,49 @@ function useBackspace(editor: Editor | null) {
   }
 }
 
+/** Hold New line to open its extras; or double-tap, or never - the same setting as today (TB-11). */
+function useNewLineHold(onOpen: (el: HTMLElement) => void, add: () => void) {
+  const mode = newLineExtras.useValue()
+  const holdMs = newLineHoldMs.useValue()
+  const s = useRef({ timer: 0, held: false, lastTap: 0 })
+  const stop = () => {
+    window.clearTimeout(s.current.timer)
+    s.current.timer = 0
+  }
+  useEffect(() => stop, [])
+  return {
+    mode,
+    props: {
+      onPointerDown: (e: PointerEvent<HTMLElement>) => {
+        if (e.button !== 0 || !holdOpensExtras(mode)) return
+        stop()
+        s.current.held = false
+        const el = e.currentTarget
+        s.current.timer = window.setTimeout(() => {
+          s.current.timer = 0
+          s.current.held = true
+          onOpen(el)
+        }, holdMs)
+      },
+      onPointerUp: stop,
+      onPointerCancel: stop,
+      onPointerLeave: stop,
+      onContextMenu: (e: { preventDefault: () => void }) => e.preventDefault(),
+      onClick: (e: { currentTarget: HTMLElement }) => {
+        if (s.current.held) {
+          s.current.held = false
+          return
+        }
+        const now = Date.now()
+        const action = tapAction(mode, s.current.lastTap, now)
+        s.current.lastTap = now
+        if (action === 'extras') onOpen(e.currentTarget)
+        else add()
+      },
+    },
+  }
+}
+
 function ToolFace({
   icon,
   name,
@@ -212,6 +273,12 @@ export function ToolBar({
   const tools = v8Tools()
   const hold = useToolHold(onTool)
   const backspace = useBackspace(editor)
+  const nlHold = useNewLineHold(
+    (el) => onToggleCard(NEWLINE_CARD, el),
+    () => {
+      if (editor) addLineAfterCursor(editor)
+    },
+  )
   const names = level === 'professional'
 
   const specs: FoldSpec[] = [
@@ -371,8 +438,10 @@ export function ToolBar({
           data-testid="v8-newline"
           className={btn}
           aria-label={t('v8.bar.newLine')}
+          aria-haspopup={nlHold.mode === 'off' ? undefined : 'dialog'}
           onMouseDown={keepFocus}
-          onClick={newLine}
+          {...nlHold.props}
+          style={{ touchAction: 'pan-x' }}
         >
           <Icon name="newLine" size={20} />
         </button>
@@ -449,6 +518,23 @@ export function ToolBar({
           testId="v8-card-fold.bar"
           entries={entries}
           onClose={() => onCloseCard('fold.bar')}
+        />
+      ) : null}
+      {card?.id === NEWLINE_CARD ? (
+        <FoldCard
+          anchor={card.anchor}
+          testId={`v8-card-${NEWLINE_CARD}`}
+          title={t('main.newLine.extras')}
+          entries={NEW_LINE_EXTRA_KINDS.map((kind) => ({
+            id: kind,
+            label: t(`main.newLine.${kind}` as MessageKey),
+            icon: EXTRA_ICON[kind],
+            onPick: () => {
+              if (editor) addExtraLine(editor, kind)
+              onCloseCard(NEWLINE_CARD)
+            },
+          }))}
+          onClose={() => onCloseCard(NEWLINE_CARD)}
         />
       ) : null}
       <div className="v8measure" ref={measureRef} aria-hidden inert>

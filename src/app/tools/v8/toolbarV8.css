@@ -295,7 +295,3 @@
     animation: none;
   }
 }
-.v8note:focus-visible {
-  outline-offset: -2px;
-  border-radius: var(--r-sm);
-}

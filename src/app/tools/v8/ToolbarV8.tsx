@@ -11,7 +11,7 @@ import {
   v8Tool,
   type OpenCard,
 } from './barState'
-import { ToolBar } from './ToolBar'
+import { NEWLINE_CARD, ToolBar } from './ToolBar'
 import { ToolRow } from './ToolRow'
 import { cardInfo } from './rowItems'
 import type { V8ToolId } from './registryV8'
@@ -87,7 +87,10 @@ export default function ToolbarV8() {
         onToggleCard={onToggleCard}
         onCloseCard={onCloseCard}
       />
-      {card && info && !card.id.startsWith('fold.') ? (
+      {card &&
+      info &&
+      !card.id.startsWith('fold.') &&
+      card.id !== NEWLINE_CARD ? (
         <Card
           key={card.id}
           anchor={card.anchor}
@@ -97,9 +100,7 @@ export default function ToolbarV8() {
           onClose={() => onCloseCard(card.id)}
         >
           {/* 1c to 1f fill the cards. */}
-          <p className="v8note" tabIndex={0}>
-            {t('v8.card.empty')}
-          </p>
+          <p className="v8note">{t('v8.card.empty')}</p>
         </Card>
       ) : null}
     </div>

@@ -513,7 +513,7 @@ function Bar({ editor, slot }: { editor: Editor; slot: HTMLElement }) {
         <MiniKeys editor={editor} />
       </ToolsBoundary>
       <HoverName />
-      {layout.short !== null && (
+      {!toolbarV8 && layout.short !== null && (
         <ToolsBoundary name="options pill">
           <OptionsPill editor={editor} barPlace={layout.short} />
         </ToolsBoundary>

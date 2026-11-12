@@ -179,3 +179,65 @@ test('TB-11 Backspace and New line sit next to each other; New line adds a line'
   await page.getByTestId('v8-newline').click()
   await expect(blocks).toHaveCount(before + 1)
 })
+
+test('TB-11 holding New line opens heading, checklist and divider; a pick adds that line', async ({
+  page,
+}) => {
+  await open(page, 'beginner')
+  const nl = page.getByTestId('v8-newline')
+  const box = (await nl.boundingBox())!
+  await page.mouse.move(box.x + box.width / 2, box.y + box.height / 2)
+  await page.mouse.down()
+  const card = page.getByTestId('v8-card-newline.extras')
+  await expect(card).toBeVisible()
+  await page.mouse.up()
+  await expect(card).toBeVisible()
+  for (const k of ['heading', 'checklist', 'divider'])
+    await expect(page.getByTestId(`v8-fold-${k}`)).toBeVisible()
+  await page.getByTestId('v8-fold-checklist').click()
+  await expect(card).toHaveCount(0)
+  await expect(page.locator('[data-content-type="checkListItem"]')).toHaveCount(
+    1,
+  )
+})
+
+test('the old Options pill does not show when the new bar is on', async ({
+  page,
+}) => {
+  await open(page, 'beginner')
+  await page.getByTestId('v8-tool-pen').click()
+  await expect(page.getByTestId('v8-row')).toBeVisible()
+  await expect(page.locator('[data-options-pill]')).toHaveCount(0)
+})
+
+test('TB-06 the first tap outside a card only closes it; the page gets nothing', async ({
+  page,
+}) => {
+  await open(page, 'beginner')
+  await page.getByTestId('v8-chip-text.format').click()
+  const card = page.getByTestId('v8-card-text.format')
+  await expect(card).toBeVisible()
+  // Count taps that reach the page content while the card is open.
+  await page.evaluate(() => {
+    const w = window as unknown as { __hits: number }
+    w.__hits = 0
+    window.addEventListener(
+      'pointerdown',
+      (e) => {
+        if ((e.target as Element).closest('.bn-editor')) w.__hits += 1
+      },
+      false,
+    )
+  })
+  const ed = (await page.locator('.bn-block-content').first().boundingBox())!
+  await page.mouse.click(ed.x + 40, ed.y + 40)
+  await expect(card).toHaveCount(0)
+  expect(
+    await page.evaluate(() => (window as never as { __hits: number }).__hits),
+  ).toBe(0)
+  // The next tap reaches the page again.
+  await page.mouse.click(ed.x + 40, ed.y + 40)
+  expect(
+    await page.evaluate(() => (window as never as { __hits: number }).__hits),
+  ).toBe(1)
+})

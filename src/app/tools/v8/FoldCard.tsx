@@ -23,25 +23,25 @@ export function FoldCard({
   entries,
   onClose,
   testId,
+  title,
 }: {
   anchor: HTMLElement
   entries: FoldEntry[]
   onClose: (reason: CardCloseReason) => void
   testId: string
+  title?: string
 }) {
   return (
     <Card
       anchor={anchor}
       size="pick"
-      title={t('v8.fold.title')}
+      title={title ?? t('v8.fold.title')}
       onClose={onClose}
       testId={testId}
     >
       <div className="v8fold" role="group" aria-label={t('v8.fold.title')}>
         {entries.length === 0 ? (
-          <p className="v8note" tabIndex={0}>
-            {t('v8.card.empty')}
-          </p>
+          <p className="v8note">{t('v8.card.empty')}</p>
         ) : null}
         {entries.map((e) => (
           <button

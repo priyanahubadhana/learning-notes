@@ -41,7 +41,7 @@ The old agent files are untouched (`fable-manager`, `opus-submanager-*`, `sonnet
 - **Worktrees:** one per slice (they exist: `../ln-s*`), reused by each new builder of that slice. A new worktree only for a new slice. Docs-only and read-only jobs need none.
 - **Tests:** locally run only the spec files of the sub-slice (chromium; ipad-webkit for touch code) plus lint, tsc and the size check. The full matrix runs once per merge in CI on the `build/next` pull request (free, public repo). A Haiku helper runs `gh run watch <id> --exit-status`, then lists the failed test names from `gh run view <id> --log-failed`. No local full suites.
 - **Output:** long command output goes to a file; read the tail or search the failures.
-- **Batching:** up to 3 builders at once on files that do not overlap; gate 3 in batches; one docs commit per wave for BUILD-STATE, the PENDING board and CHANGELOG; one CI run per merge, not per commit.
+- **Batching:** up to 6 builders at once on files that do not overlap (owner, 13 Nov: Sonnet builders are cheap on the Max plan); gate 3 in batches; one docs commit per wave for BUILD-STATE, the PENDING board and CHANGELOG; one CI run per merge, not per commit.
 - **Status messages:** helpers report in under 150 words (Haiku 80). The orchestrator writes state to docs/BUILD-STATE.md instead of long messages. The owner's "Status / Needs you" lines are written by Haiku from that file.
 - **No polling.** Wait for reports; do not check on running helpers.
 - **Work in bursts.** A helper that waits more than 5 minutes pays for its context again, so builders do not wait for CI; they report and end.
@@ -87,7 +87,21 @@ A "slice" = one master-plan area brought to merged on `build/next` after gate 2.
 
 How the share was worked out, and why it is rough: this week's measured helpers add up to about 250 units and the unmeasured build helpers to about 290 more; that, plus the main chat, roughly used up one weekly allowance, so one week is taken as about 550-650 units. That is an inference, not a reading. **Calibrate on day 1:** note `/usage` before and after the first economy slice; that weekly share x 18 is the real figure. If one slice uses more than 3% of the week, stop and review.
 
-Speed stays the same because the number of parallel builders (3) and the CI time (about 30 min per merge) set the pace, not the manager's model. The risk to speed is the 5-hour window, as before.
+### With up to 6 builders at once (owner's choice, 13 Nov)
+
+The tables above assume 3 builders. With 6:
+
+| To finish the master plan     | Economy, 3 builders     | **Economy, 6 builders**                                                                       |
+| ----------------------------- | ----------------------- | --------------------------------------------------------------------------------------------- |
+| Units                         | about 205 (130-360)     | about 225 (140-400): the same work, plus about 10% for more merges, conflicts and gate visits |
+| Share of ONE week's allowance | about 30-40%            | **about 35-45% (range 20-65%)**                                                               |
+| Fable + Opus part of that     | under 20%               | under 20% (builders are about 75% of the spend, Haiku under 1%)                               |
+| Running time                  | 30-45 h (3 to 4 nights) | **about 18-26 h (about 2 nights)**                                                            |
+| Weeks                         | 1                       | **1**                                                                                         |
+
+Why not twice as fast again: (1) lane P is strictly one after another (toolbar → text box → page menus → page objects → media: 5 big slices, about 3 to 4 h each), so it sets the floor at about 15-20 h; (2) merges go one at a time and each needs a CI run of about 30 minutes; (3) this PC's iPad (WebKit) tests get unreliable under load, so builders must keep to their own spec files; (4) the 5-hour window is reached about twice as fast, and a pause there costs time, not quota. The old build night already ran 6 to 9 lanes at once and did about 1.3 slices an hour; 6 economy builders should match that pace at a little over half its cost.
+
+Speed depends on the number of parallel builders and the CI time (about 30 min per merge) set the pace, not the manager's model. The risk to speed is the 5-hour window, as before.
 
 ## 6. Risks and how quality is protected
 
@@ -108,7 +122,7 @@ Unchanged: rules/quality.md, the Definition of Done, tests never weakened, 3 att
  ## How Work Runs (agent hierarchy)
 
 -- Every task: main manager **Fable** (`.claude/agents/fable-manager.md`) → **Opus** sub-managers (`opus-submanager-ui/-build/-qa`) → **Sonnet/Haiku** executors. Parallel when files do not overlap. The manager verifies quality and delivers one final report.
-+- Build (economy mode, docs/ECONOMY-MODE.md): **Fable** stays the main manager but only starts the run, does gate 3 (screenshots) and takes named hard cases. An **Opus** orchestrator (`economy-orchestrator`) reads docs/BUILD-STATE.md and briefs **Sonnet** builders (`economy-builder`) directly; **Haiku** (`economy-mechanic`) does mechanical work and CI watching; **Opus** (`economy-gate2`) does gate 2. Same 3 gates, same tests. Parallel when files do not overlap (at most 3 builders).
++- Build (economy mode, docs/ECONOMY-MODE.md): **Fable** stays the main manager but only starts the run, does gate 3 (screenshots) and takes named hard cases. An **Opus** orchestrator (`economy-orchestrator`) reads docs/BUILD-STATE.md and briefs **Sonnet** builders (`economy-builder`) directly; **Haiku** (`economy-mechanic`) does mechanical work and CI watching; **Opus** (`economy-gate2`) does gate 2. Same 3 gates, same tests. Parallel when files do not overlap (up to 6 builders).
 +- Other tasks (design, planning, mock-ups): Fable → Opus sub-managers → Sonnet/Haiku as before (`fable-manager`, `opus-submanager-*`).
 -- Build phase: Fable is the top orchestrator (designs the system first, then delegates slices to Opus sub-managers → Sonnet builders).
 +- Build state lives in docs/BUILD-STATE.md (updated after every merge); a new orchestrator needs only that file and its brief.

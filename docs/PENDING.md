@@ -274,3 +274,13 @@ Mock: claude.ai/artifact/UQuji6cLjk9PNuuF9vsGEB (all owner comments on it are bu
 5. Pages-grid edits change the real book (Undo + Restore original); no dimming behind the panel; Minimise hides the whole strip; edge-tap page turns with a slide; voices by type with pins; Style "Full" by default; ✕ on every dialog; customisable tabs Pages/Outline/Annotations/+.
 6. The top-bar AI button needs a rework: do it together with the AI mode build (not in this mock).
 - Real build (Home): widget drag uses live reflow preview; a wide widget dropped between small ones lands there (small ones wrap); impossible spots snap to nearest fit. Owner, 12 Nov.
+
+## Home dashboard mock: APPROVED by owner (12 Nov 2026), build with these conditions
+Mock: claude.ai/artifact/NqQG7z5SGyLv5YxnkArK9e (all owner comments on it are build requirements).
+1. Remove the leftover top-bar Done button (the edit bar has its own Done/Cancel/Reset).
+2. Drag uses a live reflow preview: other widgets slide out of the way while dragging (app-wide rule).
+3. A wide widget dropped between small ones lands there (small ones wrap); impossible spots snap to the nearest fit.
+4. Widget size S/M/L applies visibly (short animation, selected size shown); a widget can never vanish.
+5. "Where this comes from" (was "Built from") opens a separate pop-up with ✕/Esc/tap-outside; the widget never swaps its content (app-wide rule).
+6. Plain words: "Period" → "Time range" ("Edit time range", "Show: Today / This week…"); help lines in everyday words, one idea per line, identical in Beginner and Professional (app-wide rule).
+7. Optional gap: a "Pending items" widget (overdue + open tasks); ask the owner when building.

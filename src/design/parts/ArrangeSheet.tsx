@@ -1,13 +1,6 @@
-import {
-  useEffect,
-  useId,
-  useRef,
-  useState,
-  type KeyboardEvent,
-  type ReactNode,
-} from 'react'
-import { createPortal } from 'react-dom'
-import { overlay, placeBeside } from '../../app/overlay'
+import { useEffect, useId, useRef, useState, type ReactNode } from 'react'
+import { AnchoredMenu } from '../../app/tools/AnchoredMenu'
+import { useAnchoredMenu } from '../../app/tools/useAnchoredMenu'
 import { ReorderList } from './drag/ReorderList'
 import { SheetBase } from './SheetBase'
 import { moveRow, previewChips, removeRow, restoreRow } from './arrangeLogic'
@@ -58,84 +51,34 @@ interface Undo {
   index: number
 }
 
-const ITEMS = '[role="menuitem"]:not([disabled])'
-
 function RowMenu({
   row,
   index,
   count,
-  parentId,
   onMove,
   onRemove,
 }: {
   row: ArrangeRow
   index: number
   count: number
-  parentId: string
   onMove(to: number): void
   onRemove(): void
 }) {
-  const [open, setOpen] = useState(false)
-  const [pos, setPos] = useState({ left: 0, top: 0 })
-  const btn = useRef<HTMLButtonElement | null>(null)
-  const menu = useRef<HTMLDivElement | null>(null)
-  const id = useId()
-
-  useEffect(() => {
-    if (!open) return
-    const el = menu.current
-    const b = btn.current
-    if (!el || !b) return
-    const r = b.getBoundingClientRect()
-    const p = placeBeside(
-      { left: r.left, top: r.top, width: r.width, height: r.height },
-      { width: el.offsetWidth, height: el.offsetHeight },
-      { width: window.innerWidth, height: window.innerHeight },
-    )
-    setPos({ left: p.left, top: p.top })
-    el.querySelector<HTMLElement>(ITEMS)?.focus()
-    const h = overlay.open({
-      id: `arrange-menu-${id}`,
-      layer: 'menu',
-      parentId,
-      opener: b,
-      close: () => setOpen(false),
-      inside: (n) => el.contains(n),
-    })
-    return () => h.close()
-  }, [open, id, parentId])
-
+  const menu = useAnchoredMenu()
   const pick = (fn: () => void) => {
-    setOpen(false)
-    btn.current?.focus()
+    menu.close()
+    menu.opener?.focus()
     fn()
   }
-  const onKey = (e: KeyboardEvent) => {
-    const items = Array.from(
-      menu.current?.querySelectorAll<HTMLElement>(ITEMS) ?? [],
-    )
-    const i = items.indexOf(document.activeElement as HTMLElement)
-    if (e.key === 'ArrowDown') {
-      e.preventDefault()
-      items[(i + 1) % items.length]?.focus()
-    } else if (e.key === 'ArrowUp') {
-      e.preventDefault()
-      items[(i - 1 + items.length) % items.length]?.focus()
-    }
-  }
-
   return (
     <>
       <button
-        ref={btn}
         type="button"
         className="arr-icon"
-        data-popup-trigger=""
+        {...menu.trigger}
         data-testid="row-menu"
-        aria-haspopup="menu"
-        aria-expanded={open}
         aria-label={tp('parts.arrange.rowMenu', { name: row.label })}
-        onClick={() => setOpen((o) => !o)}
+        onClick={menu.toggle}
       >
         <svg viewBox="0 0 16 16" width="16" height="16" aria-hidden="true">
           {[3, 8, 13].map((x) => (
@@ -143,48 +86,43 @@ function RowMenu({
           ))}
         </svg>
       </button>
-      {open
-        ? createPortal(
-            <div
-              ref={menu}
-              role="menu"
-              className="arr-menu"
-              style={pos}
-              onKeyDown={onKey}
+      <AnchoredMenu
+        menu={menu}
+        label={tp('parts.arrange.rowMenu', { name: row.label })}
+        width={200}
+      >
+        <div className="arr-menu">
+          <button
+            type="button"
+            role="menuitem"
+            data-testid="menu-start"
+            disabled={index === 0}
+            onClick={() => pick(() => onMove(0))}
+          >
+            {tp('parts.arrange.toStart')}
+          </button>
+          <button
+            type="button"
+            role="menuitem"
+            data-testid="menu-end"
+            disabled={index === count - 1}
+            onClick={() => pick(() => onMove(count - 1))}
+          >
+            {tp('parts.arrange.toEnd')}
+          </button>
+          {row.removable !== false ? (
+            <button
+              type="button"
+              role="menuitem"
+              data-testid="menu-remove"
+              className="arr-danger"
+              onClick={() => pick(onRemove)}
             >
-              <button
-                type="button"
-                role="menuitem"
-                data-testid="menu-start"
-                disabled={index === 0}
-                onClick={() => pick(() => onMove(0))}
-              >
-                {tp('parts.arrange.toStart')}
-              </button>
-              <button
-                type="button"
-                role="menuitem"
-                data-testid="menu-end"
-                disabled={index === count - 1}
-                onClick={() => pick(() => onMove(count - 1))}
-              >
-                {tp('parts.arrange.toEnd')}
-              </button>
-              {row.removable !== false ? (
-                <button
-                  type="button"
-                  role="menuitem"
-                  data-testid="menu-remove"
-                  className="arr-danger"
-                  onClick={() => pick(onRemove)}
-                >
-                  {tp('parts.arrange.remove')}
-                </button>
-              ) : null}
-            </div>,
-            document.body,
-          )
-        : null}
+              {tp('parts.arrange.remove')}
+            </button>
+          ) : null}
+        </div>
+      </AnchoredMenu>
     </>
   )
 }
@@ -355,7 +293,6 @@ export function ArrangeSheet(props: ArrangeSheetProps) {
                 row={row}
                 index={ctx.index}
                 count={ctx.count}
-                parentId={sheetId}
                 onMove={(to) => move(row.id, to)}
                 onRemove={() => remove(row.id)}
               />

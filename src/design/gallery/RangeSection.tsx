@@ -3,6 +3,7 @@ import { TimeRangeBar } from '../parts/TimeRangeBar'
 import type { DateRange } from '../parts/timeRange'
 import { allPresets, defaultPresets } from '../parts/timeRangePresets'
 import { Cells, Demo, Section } from './Bits'
+import { G } from './galleryText'
 
 const TODAY = '2026-11-12'
 
@@ -73,7 +74,7 @@ export default function RangeSection() {
   return (
     <Section
       id="range"
-      title="Time range bar"
+      title={G.timeRangeBar}
       help="One bar that every widget in a template follows."
     >
       <Cells>

@@ -2,6 +2,7 @@ import { useState, type ReactNode } from 'react'
 import { ReorderList } from '../parts/drag/ReorderList'
 import { moveItem } from '../parts/drag/reorder'
 import { Cells, Demo, Section } from './Bits'
+import { G } from './galleryText'
 
 type Item = { id: string; name: string; wide?: boolean }
 
@@ -66,7 +67,7 @@ function LiveList() {
         handle="both"
         showMoveButtons
         testId="drag-list"
-        aria-label="Reorderable list"
+        aria-label={G.reorderableList}
         className="bg-surface-1 rounded-[var(--r-md)]"
         onMove={(id, to, kind) => {
           const from = items.findIndex((i) => i.id === id)
@@ -89,7 +90,7 @@ function LiveList() {
           data-testid="drag-steps"
           data-steps={past.length}
         >
-          {past.length} step(s)
+          {past.length} {G.stepS}
         </span>
       </div>
       {toast && (
@@ -112,7 +113,7 @@ function LiveList() {
               setToast('')
             }}
           >
-            Undo
+            {G.undo}
           </button>
         </div>
       )}
@@ -129,7 +130,7 @@ function LiveList() {
           setToast('')
         }}
       >
-        Undo last move
+        {G.undoLastMove}
       </button>
     </div>
   )
@@ -197,7 +198,7 @@ function Grid() {
         handle="both"
         showMoveButtons
         testId="drag-grid"
-        aria-label="Widget grid"
+        aria-label={G.widgetGrid}
         fit={(_id, _slot, order) => gridFits(order)}
         onReject={(id) => setRejected(`${id} went back`)}
         onMove={(id, to) => {
@@ -236,7 +237,7 @@ function Ends() {
       handle="grip"
       showMoveButtons
       testId="drag-ends"
-      aria-label="Ends list"
+      aria-label={G.endsList}
       className="bg-surface-1 w-72 rounded-[var(--r-md)]"
       onMove={() => {}}
       renderItem={(item, ctx) => (
@@ -250,7 +251,7 @@ export default function DragSection() {
   return (
     <Section
       id="drag"
-      title="Drag to reorder"
+      title={G.dragToReorder}
       help="Drag by the grip, hold a row for 0.3 seconds, or press Alt with the arrow keys."
     >
       <Demo state="idle" label="List, idle (live: try it)">

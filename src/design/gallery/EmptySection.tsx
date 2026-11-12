@@ -1,6 +1,7 @@
 import { useState } from 'react'
 import { EmptyState } from '../parts/EmptyState'
 import { Cells, Demo, Section } from './Bits'
+import { G } from './galleryText'
 
 export default function EmptySection() {
   const [said, setSaid] = useState('Nothing pressed yet')
@@ -8,7 +9,7 @@ export default function EmptySection() {
   return (
     <Section
       id="empty"
-      title="Empty state"
+      title={G.emptyState}
       help="One icon, one line, one button."
     >
       <p className="t-small" data-testid="empty-said" aria-live="polite">
@@ -18,7 +19,7 @@ export default function EmptySection() {
         <Demo state="page" label="Page">
           <EmptyState
             testId="es-page"
-            title="No notebooks yet"
+            title={G.noNotebooksYet}
             text="Start your first notebook."
             action="New notebook"
             onAction={press('page action')}
@@ -28,7 +29,7 @@ export default function EmptySection() {
           <EmptyState
             variant="inline"
             testId="es-inline"
-            title="No cards due"
+            title={G.noCardsDue}
             text="Come back tomorrow."
             action="Add a card"
             onAction={press('inline action')}
@@ -47,7 +48,7 @@ export default function EmptySection() {
         <Demo state="second-action" label="With a second action">
           <EmptyState
             testId="es-second"
-            title="No tags"
+            title={G.noTags}
             text="Tags group your notes."
             action="Create a tag"
             onAction={press('first')}

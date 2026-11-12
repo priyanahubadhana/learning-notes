@@ -1,13 +1,6 @@
-import {
-  useEffect,
-  useId,
-  useMemo,
-  useRef,
-  useState,
-  type KeyboardEvent,
-} from 'react'
-import { createPortal } from 'react-dom'
-import { overlay, placeBeside } from '../../app/overlay'
+import { useEffect, useMemo, useRef, useState, type KeyboardEvent } from 'react'
+import { AnchoredMenu } from '../../app/tools/AnchoredMenu'
+import { useAnchoredMenu } from '../../app/tools/useAnchoredMenu'
 import { Icon } from '../../app/tools/icons'
 import { CreateTab, TabEditor } from './TabEditor'
 import { canAdd, localTabSetStore, type TabSetStore } from './tabSets'
@@ -36,8 +29,6 @@ export type TabRowProps = {
   store?: TabSetStore
 }
 
-const ITEMS = '[role="menuitem"]:not([disabled])'
-
 interface Scroll {
   left: number
   client: number
@@ -64,12 +55,10 @@ export function TabRow(props: TabRowProps) {
   )
   const set = useTabSet(setKey, usable, defaults, store)
   const { tabs } = set
-  const rowId = useId()
   const scroller = useRef<HTMLDivElement | null>(null)
   const [plus, setPlus] = useState<HTMLButtonElement | null>(null)
-  const menuEl = useRef<HTMLDivElement | null>(null)
+  const menu = useAnchoredMenu()
   const [scroll, setScroll] = useState<Scroll>({ left: 0, client: 0, total: 0 })
-  const [menuOpen, setMenuOpen] = useState(false)
   const [dialog, setDialog] = useState<'edit' | 'create' | null>(null)
 
   const measure = () => {
@@ -140,46 +129,8 @@ export function TabRow(props: TabRowProps) {
   const addable = usable.filter((c) => !inSet.has(c.id))
   const room = canAdd(set.data)
 
-  useEffect(() => {
-    if (!menuOpen) return
-    const el = menuEl.current
-    const b = plus
-    if (!el || !b) return
-    const r = b.getBoundingClientRect()
-    const p = placeBeside(
-      { left: r.left, top: r.top, width: r.width, height: r.height },
-      { width: el.offsetWidth, height: el.offsetHeight },
-      { width: window.innerWidth, height: window.innerHeight },
-    )
-    // Position the menu once it is measured; no other state depends on it.
-    el.style.left = `${p.left}px`
-    el.style.top = `${p.top}px`
-    el.querySelector<HTMLElement>(ITEMS)?.focus()
-    const h = overlay.open({
-      id: `tabrow-menu-${rowId}`,
-      layer: 'menu',
-      opener: b,
-      close: () => setMenuOpen(false),
-      inside: (n) => el.contains(n),
-    })
-    return () => h.close()
-  }, [menuOpen, rowId, plus])
-
-  const onMenuKey = (e: KeyboardEvent) => {
-    const items = Array.from(
-      menuEl.current?.querySelectorAll<HTMLElement>(ITEMS) ?? [],
-    )
-    const i = items.indexOf(document.activeElement as HTMLElement)
-    if (e.key === 'ArrowDown') {
-      e.preventDefault()
-      items[(i + 1) % items.length]?.focus()
-    } else if (e.key === 'ArrowUp') {
-      e.preventDefault()
-      items[(i - 1 + items.length) % items.length]?.focus()
-    }
-  }
   const pick = (fn: () => void) => {
-    setMenuOpen(false)
+    menu.close()
     fn()
   }
 
@@ -218,13 +169,9 @@ export function TabRow(props: TabRowProps) {
             type="button"
             className="tabrow-plus"
             data-testid="tabrow-plus"
-            data-popup-trigger=""
-            aria-haspopup="menu"
-            aria-expanded={menuOpen}
+            {...menu.trigger}
             aria-label={tp('parts.tabs.add')}
-            onClick={() => {
-              setMenuOpen((o) => !o)
-            }}
+            onClick={menu.toggle}
           >
             <Icon name="plus" size={18} />
           </button>
@@ -241,49 +188,40 @@ export function TabRow(props: TabRowProps) {
           style={{ width: `${thumbW}%`, left: `${thumbX}%` }}
         />
       </div>
-      {menuOpen
-        ? createPortal(
-            <div
-              ref={menuEl}
-              role="menu"
-              className="tabrow-menu"
-              aria-label={tp('parts.tabs.add')}
-              onKeyDown={onMenuKey}
-            >
-              {room
-                ? addable.map((c) => (
-                    <button
-                      key={c.id}
-                      type="button"
-                      role="menuitem"
-                      data-testid="tabrow-add"
-                      onClick={() => pick(() => set.add(c.id))}
-                    >
-                      {tp('parts.tabs.add')}: {c.label}
-                    </button>
-                  ))
-                : null}
-              <button
-                type="button"
-                role="menuitem"
-                data-testid="tabrow-create"
-                disabled={!room}
-                onClick={() => pick(() => setDialog('create'))}
-              >
-                {tp('parts.tabs.create')}
-              </button>
-              <button
-                type="button"
-                role="menuitem"
-                data-testid="tabrow-edit"
-                onClick={() => pick(() => setDialog('edit'))}
-              >
-                {tp('parts.tabs.edit')}
-              </button>
-            </div>,
-            document.body,
-          )
-        : null}
+      <AnchoredMenu menu={menu} label={tp('parts.tabs.add')}>
+        <div className="tabrow-menu">
+          {room
+            ? addable.map((c) => (
+                <button
+                  key={c.id}
+                  type="button"
+                  role="menuitem"
+                  data-testid="tabrow-add"
+                  onClick={() => pick(() => set.add(c.id))}
+                >
+                  {tp('parts.tabs.add')}: {c.label}
+                </button>
+              ))
+            : null}
+          <button
+            type="button"
+            role="menuitem"
+            data-testid="tabrow-create"
+            disabled={!room}
+            onClick={() => pick(() => setDialog('create'))}
+          >
+            {tp('parts.tabs.create')}
+          </button>
+          <button
+            type="button"
+            role="menuitem"
+            data-testid="tabrow-edit"
+            onClick={() => pick(() => setDialog('edit'))}
+          >
+            {tp('parts.tabs.edit')}
+          </button>
+        </div>
+      </AnchoredMenu>
       {dialog === 'edit' ? (
         <TabEditor set={set} anchor={plus} onClose={() => setDialog(null)} />
       ) : null}

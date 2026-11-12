@@ -3,6 +3,7 @@ import { TabRow } from '../parts/TabRow'
 import { memoryTabSetStore } from '../parts/tabSets'
 import type { TabDef } from '../parts/useTabSet'
 import { Demo, Section } from './Bits'
+import { G } from './galleryText'
 
 const NAMES = [
   'Overview',
@@ -78,7 +79,7 @@ function ProRow() {
         data-testid="tabs-pro-switch"
         onClick={() => setPro(!pro)}
       >
-        Show Pro unlocked
+        {G.showProUnlocked}
       </button>
       <Row
         id="tabs-pro"
@@ -94,7 +95,7 @@ export default function TabsSection() {
   return (
     <Section
       id="tabs"
-      title="Tab row"
+      title={G.tabRow}
       help="One line that scrolls sideways. The + adds a tab, creates your own, or edits the row."
     >
       <Demo state="three" label="3 tabs">

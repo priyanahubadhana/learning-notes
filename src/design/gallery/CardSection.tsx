@@ -10,6 +10,7 @@ import {
   TileGroup,
 } from '../parts/CardParts'
 import { Cells, Demo, Section } from './Bits'
+import { G } from './galleryText'
 
 const noop = () => {}
 const COLOURS = ['#6941e0', '#0ea5e9', '#16a34a', '#f59e0b']
@@ -51,7 +52,7 @@ function Lines({ n }: { n: number }) {
     <CardWell>
       {Array.from({ length: n }, (_, i) => (
         <div key={i} className="pcard-row">
-          Row {i + 1}
+          {G.row} {i + 1}
         </div>
       ))}
     </CardWell>
@@ -78,13 +79,13 @@ function Live({ align }: { align: 'left' | 'right' }) {
           className="mr-2 inline-block size-4 rounded-full"
           style={{ background: colour }}
         />
-        Colour
+        {G.colour}
       </CardTrigger>
       {anchor && (
         <Card
           anchor={anchor}
           size="pick"
-          title="Colour"
+          title={G.colour}
           autoClose
           testId={`${id}-card`}
           onClose={() => setAnchor(null)}
@@ -120,13 +121,13 @@ function Tall() {
         testId="live-tall-trigger"
         onClick={(el) => setAnchor(anchor ? null : el)}
       >
-        Tall card
+        {G.tallCard}
       </CardTrigger>
       {anchor && (
         <Card
           anchor={anchor}
           size="panel"
-          title="A long list"
+          title={G.aLongList}
           testId="live-tall-card"
           onClose={() => setAnchor(null)}
         >
@@ -142,7 +143,7 @@ export default function CardSection() {
   return (
     <Section
       id="card"
-      title="Card and the ▾ frame"
+      title={G.cardAndTheFrame}
       help="Pick card 304, panel card 376, and the phone sheet. Live cards open from the ▾ buttons."
     >
       <Demo
@@ -160,7 +161,7 @@ export default function CardSection() {
           <Card
             anchor={null}
             size="pick"
-            title="Pick"
+            title={G.pick}
             placement="static"
             testId="gal-pick-card"
             onClose={noop}
@@ -172,11 +173,11 @@ export default function CardSection() {
           <Card
             anchor={null}
             size="panel"
-            title="Panel"
+            title={G.panel}
             placement="static"
             testId="gal-panel-card"
             onClose={noop}
-            footer={<CardNote>Footer note</CardNote>}
+            footer={<CardNote>{G.footerNote}</CardNote>}
           >
             <Tiles prefix="panel" />
             <CardGroup label="Switch">
@@ -194,7 +195,7 @@ export default function CardSection() {
             <Card
               anchor={null}
               size="pick"
-              title="Scrolling"
+              title={G.scrolling}
               placement="static"
               testId="gal-scroll-card"
               onClose={noop}
@@ -207,7 +208,7 @@ export default function CardSection() {
           <Card
             anchor={null}
             size="pick"
-            title="Phone"
+            title={G.phone}
             placement="static"
             phone
             testId="gal-phone-card"
@@ -220,7 +221,7 @@ export default function CardSection() {
           <Card
             anchor={null}
             size="pick"
-            title="Loading"
+            title={G.loading}
             placement="static"
             loading
             testId="gal-loading-card"

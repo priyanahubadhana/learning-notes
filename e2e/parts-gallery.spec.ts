@@ -35,6 +35,20 @@ const box = async (l: Locator) => {
   return b!
 }
 
+/** Waits until an element stops moving (a list slides its rows into place for 160 ms). */
+async function still(l: Locator) {
+  let last = ''
+  await expect
+    .poll(async () => {
+      const b = await l.boundingBox()
+      const now = JSON.stringify(b)
+      const same = now === last
+      last = now
+      return same
+    })
+    .toBe(true)
+}
+
 /** Real mouse drag by the grip (immediate mode). */
 async function dragGrip(
   page: Page,
@@ -447,6 +461,8 @@ test.describe('Parts gallery', () => {
       await expect.poll(names).toEqual(['Notes', 'Home', 'Cards'])
       // Drag the last row to the top.
       const rows = dlg.getByTestId('tabed-row')
+      await still(rows.first())
+      await still(rows.nth(2))
       const top = await box(rows.first())
       await dragGrip(page, rows.nth(2).locator('.rord-grip'), {
         x: top.x + 40,
@@ -1022,9 +1038,9 @@ test.describe('Parts gallery', () => {
       // Too narrow: the rest goes to the … menu.
       const ov = cell(page, 'objbar', 'overflow').getByTestId('object-bar')
       await ov.getByTestId('ob-more').click()
-      await expect(ov.getByTestId('ob-menu')).toBeVisible()
+      await expect(page.getByTestId('ob-menu')).toBeVisible()
       await page.keyboard.press('Escape')
-      await expect(ov.getByTestId('ob-menu')).toHaveCount(0)
+      await expect(page.getByTestId('ob-menu')).toHaveCount(0)
     })
 
     test('SP-31 three selected: the bar says so and Delete acts', async ({

@@ -1,4 +1,4 @@
-import { fold } from '../../../search/searchText'
+import { fold } from './tagText'
 
 /** One tag as the picker sees it. Built from `src/tags/tagService.ts` data. */
 export type TagItem = {

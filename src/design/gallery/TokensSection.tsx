@@ -1,5 +1,6 @@
 import { LAYERS } from '../../app/overlay'
 import { Cells, Demo, Section } from './Bits'
+import { G } from './galleryText'
 
 const CARD_VARS = [
   'card-fill',
@@ -29,7 +30,7 @@ export default function TokensSection() {
   return (
     <Section
       id="tokens"
-      title="Part tokens"
+      title={G.partTokens}
       help="Card fills, layers, motion and shell sizes, in the live theme."
     >
       <Cells>

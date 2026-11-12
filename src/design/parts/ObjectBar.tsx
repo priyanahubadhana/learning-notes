@@ -1,6 +1,8 @@
 import { useLayoutEffect, useRef, useState, type KeyboardEvent } from 'react'
 import { Icon, type IconName } from '../../app/tools/icons'
 import { LAYERS } from '../../app/overlay'
+import { AnchoredMenu } from '../../app/tools/AnchoredMenu'
+import { useAnchoredMenu } from '../../app/tools/useAnchoredMenu'
 import { placeBar, splitActions } from './objectBarPlace'
 import { tp } from './textMisc'
 import './partsMisc.css'
@@ -46,7 +48,8 @@ export function ObjectBar({
 }: ObjectBarProps) {
   const ref = useRef<HTMLDivElement>(null)
   const [pos, setPos] = useState<{ left: number; top: number } | null>(null)
-  const [open, setOpen] = useState(false)
+  const moreMenu = useAnchoredMenu()
+  const open = moreMenu.open
   const [focusIdx, setFocusIdx] = useState(0)
 
   const vw =
@@ -85,7 +88,7 @@ export function ObjectBar({
     else if (e.key === 'Home') move(e, -focusIdx)
     else if (e.key === 'End') move(e, total - 1 - focusIdx)
     else if (e.key === 'Escape') {
-      if (open) setOpen(false)
+      if (open) moreMenu.close()
       else onEscape?.()
     }
   }
@@ -118,7 +121,6 @@ export function ObjectBar({
           data-bar-btn
           data-testid={`ob-${a.id}`}
           aria-label={a.label}
-          title={a.label}
           aria-pressed={a.pressed === undefined ? undefined : a.pressed}
           disabled={a.disabled}
           tabIndex={i === focusIdx ? 0 : -1}
@@ -136,18 +138,16 @@ export function ObjectBar({
             data-bar-btn
             data-testid="ob-more"
             aria-label={tp('parts.objbar.more')}
-            title={tp('parts.objbar.more')}
-            aria-haspopup="menu"
-            aria-expanded={open}
+            {...moreMenu.trigger}
             tabIndex={buttons.length === focusIdx ? 0 : -1}
             className="pm-ob__btn"
             onFocus={() => setFocusIdx(buttons.length)}
-            onClick={() => setOpen((o) => !o)}
+            onClick={moreMenu.toggle}
           >
             <Icon name="more" size={20} />
           </button>
-          {open && (
-            <div role="menu" className="pm-ob__menu" data-testid="ob-menu">
+          <AnchoredMenu menu={moreMenu} label={tp('parts.objbar.more')}>
+            <div data-testid="ob-menu">
               {overflow.map((a) => (
                 <button
                   key={a.id}
@@ -157,7 +157,7 @@ export function ObjectBar({
                   data-testid={`ob-menu-${a.id}`}
                   className={`pm-ob__item ${a.danger ? 'pm-ob__item--danger' : ''}`}
                   onClick={() => {
-                    setOpen(false)
+                    moreMenu.close()
                     onAction(a.id)
                   }}
                 >
@@ -166,7 +166,7 @@ export function ObjectBar({
                 </button>
               ))}
             </div>
-          )}
+          </AnchoredMenu>
         </>
       )}
     </div>

@@ -1,6 +1,7 @@
 import { useState } from 'react'
 import { ObjectBar, type ObjectBarAction } from '../parts/ObjectBar'
 import { Cells, Demo, Section } from './Bits'
+import { G } from './galleryText'
 
 const COMMON: ObjectBarAction[] = [
   { id: 'duplicate', icon: 'duplicate', label: 'Duplicate' },
@@ -28,7 +29,7 @@ export default function ObjBarSection() {
   return (
     <Section
       id="objbar"
-      title="Object bar"
+      title={G.objectBar}
       help="One toolbar over a selected thing. Extra actions go in a … menu."
     >
       <p className="t-small" data-testid="objbar-did" aria-live="polite">

@@ -7,7 +7,7 @@ import {
   type ReactNode,
 } from 'react'
 import { Icon } from '../../../app/tools/icons'
-import { cleanTagName } from '../../../tags/tagNames'
+import { cleanTagName } from './tagText'
 import { Card, type CardCloseReason } from '../Card'
 import { tp } from '../textMisc'
 import {
@@ -373,7 +373,7 @@ export default function TagPicker(props: TagPickerProps) {
               aria-checked={includeSub}
               className="pm-btn pm-btn--quiet"
               data-testid="tp-include-sub"
-              title={tp('parts.tags.includeSubHint')}
+              aria-label={`${tp('parts.tags.includeSub')}. ${tp('parts.tags.includeSubHint')}`}
               onClick={() => onIncludeSub?.(!includeSub)}
             >
               {includeSub ? '● ' : '○ '}

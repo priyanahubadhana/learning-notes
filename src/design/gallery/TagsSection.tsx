@@ -3,6 +3,7 @@ import { CardTrigger } from '../parts/Card'
 import { TagPickerLazy } from '../parts/TagPicker/TagPickerLazy'
 import type { TagItem } from '../parts/TagPicker/tagSearch'
 import { Cells, Demo, Section } from './Bits'
+import { G } from './galleryText'
 
 const TAGS: TagItem[] = [
   { id: 'life', name: 'Life', parentId: null, count: 12 },
@@ -84,7 +85,7 @@ function Assign() {
       />
       <div className="flex items-center gap-3" data-testid="assign-bar">
         <span className="t-small" data-testid="assign-steps">
-          {past.length} change(s)
+          {past.length} {G.changeS}
         </span>
         <button
           type="button"
@@ -98,7 +99,7 @@ function Assign() {
             setPast(past.slice(0, -1))
           }}
         >
-          Undo
+          {G.undo}
         </button>
       </div>
     </div>
@@ -135,7 +136,7 @@ function Live() {
     <div
       tabIndex={0}
       role="group"
-      aria-label="A list (press # to tag)"
+      aria-label={G.aListPressToTag}
       data-testid="tag-hash-list"
       className="bg-surface-1 t-small w-64 rounded-[var(--r-md)] p-3"
       onKeyDown={(e) => {
@@ -145,7 +146,7 @@ function Live() {
         }
       }}
     >
-      A list. Focus it and press #.
+      {G.aListFocusItAndPress}
     </div>
   )
   return (
@@ -156,7 +157,7 @@ function Live() {
         testId="tags-live-trigger"
         onClick={(el) => setAnchor(anchor ? null : el)}
       >
-        Tags
+        {G.tags}
       </CardTrigger>
       {list}
       {anchor && (
@@ -180,7 +181,7 @@ export default function TagsSection() {
   return (
     <Section
       id="tags"
-      title="Tag picker"
+      title={G.tagPicker}
       help="Search first, pinned, recent, browse, tri-state, create with a duplicate warning."
     >
       <Demo

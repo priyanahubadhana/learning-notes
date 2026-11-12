@@ -1,6 +1,7 @@
 import { useState } from 'react'
 import { ArrangeSheet, type ArrangeRow } from '../parts/ArrangeSheet'
 import { Cells, Demo, Section } from './Bits'
+import { G } from './galleryText'
 
 const noop = () => {}
 const DEFAULT: ArrangeRow[] = [
@@ -36,7 +37,7 @@ function Sheet({
       className={phone ? 'w-[390px] max-w-full' : 'w-96 max-w-full'}
     >
       <ArrangeSheet
-        title="Organise the row"
+        title={G.organiseTheRow}
         mode="inline"
         phone={phone}
         rows={rows}
@@ -83,11 +84,11 @@ function Floating() {
         data-testid="arrange-open"
         onClick={(e) => setAnchor(e.currentTarget)}
       >
-        Open the sheet
+        {G.openTheSheet}
       </button>
       {anchor && (
         <ArrangeSheet
-          title="Organise the row"
+          title={G.organiseTheRow}
           rows={rows}
           anchor={anchor}
           onChange={setRows}
@@ -102,7 +103,7 @@ export default function ArrangeSection() {
   return (
     <Section
       id="arrange"
-      title="Arrange sheet"
+      title={G.arrangeSheet}
       help="Big rows with a grip, ▲▼ and a menu. Removing a row shows an Undo bar."
     >
       <Cells>

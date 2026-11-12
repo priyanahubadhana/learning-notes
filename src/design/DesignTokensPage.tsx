@@ -74,7 +74,10 @@ const T = {
 }
 
 /** The "Parts" gallery (SP-12): lazy, so nothing is added to the first load. */
-const Gallery = lazy(() => import('./gallery'))
+// The chunk starts loading with this page, not after the language is ready,
+// so the three lazy steps (page, gallery, sections) do not wait in a line.
+const galleryChunk = import('./gallery')
+const Gallery = lazy(() => galleryChunk)
 const WIDTHS = [390, 820, 1180, 1366] as const
 
 const heading = 't-h2 mt-10 mb-4'

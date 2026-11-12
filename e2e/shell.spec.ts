@@ -1,5 +1,13 @@
 import { expect, test, type Page } from '@playwright/test'
-import { cornerAction, createNotebook, typeInEditor } from './helpers.ts'
+import {
+  addPage,
+  cornerAction,
+  createNotebook,
+  openPage,
+  pageAction,
+  showSidebar,
+  typeInEditor,
+} from './helpers.ts'
 
 /**
  * Slice 0h: the new app frame (flag foundation.shell). One test per line of
@@ -390,9 +398,8 @@ test('SH-05 flag off: Settings has no "Show Undo and Redo on a computer" row, a 
       .getByRole('searchbox', { name: 'Search all settings' })
       .fill('undo')
   }
-  // Flag off: no row, even when searched for.
+  // Flag off: no row, even when searched for (other undo settings are listed).
   await settings('/')
-  await expect(page.locator('main')).toContainText('No settings match')
   await expect(
     page.locator('main').getByRole('region', { name: label, exact: true }),
   ).toHaveCount(0)
@@ -412,5 +419,28 @@ test('SH-05 flag off: Settings has no "Show Undo and Redo on a computer" row, a 
   await settings(ON)
   await expect(
     page.locator('main').getByRole('region', { name: label, exact: true }),
+  ).toBeVisible()
+})
+
+test('SH-12 the app’s messages use the shell toast: Delete page shows one with Undo, and Undo restores', async ({
+  page,
+}) => {
+  await start(page)
+  await createNotebook(page, 'Delete NB', 'Parent')
+  await addPage(page, 'Parent', 'Child', 'sub-page')
+  await openPage(page, 'Parent')
+  await pageAction(page, 'Delete page')
+  const toast = page.getByTestId('shell-toast')
+  await expect(toast).toContainText('1 sub-page')
+  await expect(toast).toHaveAttribute('role', 'status')
+  // One toast only: the older one is not drawn.
+  await expect(page.getByRole('status')).toHaveCount(1)
+  await toast.getByRole('button', { name: 'Undo' }).click()
+  await expect(toast).toBeHidden()
+  await showSidebar(page)
+  await expect(
+    page
+      .locator('#sidebar')
+      .getByRole('button', { name: 'Parent', exact: true }),
   ).toBeVisible()
 })

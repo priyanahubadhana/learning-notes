@@ -104,6 +104,7 @@ export default defineConfig({
         /aiPicker/,
         /openNotebook/,
         /tryNewFeatures/,
+        /libraryV2/,
         /foundationInput/,
         /foundationSelectionOverlay/,
         /barFixes/,

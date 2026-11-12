@@ -482,6 +482,19 @@ export const showRefreshSetting: SettingDefinition<OnOff> = {
   control: { kind: 'segmented', options: onOffOptions() },
 }
 
+/** Undo and Redo in the top bar when the device mode is Computer (iPad and phone always show them). */
+export const showUndoRedoSetting: SettingDefinition<OnOff> = {
+  id: 'general.showUndoRedo',
+  labelKey: 'settings.showUndoRedo.label',
+  descriptionKey: 'settings.showUndoRedo.description',
+  category: 'general',
+  keywords: 'undo redo top bar buttons computer',
+  scope: 'device',
+  defaultValue: 'on',
+  isValid: isOnOff,
+  control: { kind: 'segmented', options: onOffOptions() },
+}
+
 export const barAutoHideSetting: SettingDefinition<OnOff> = {
   id: 'advanced.barAutoHide',
   labelKey: 'settings.barAutoHide.label',
@@ -791,6 +804,7 @@ for (const definition of [
   shortcutHintsSetting,
   barAutoHideSetting,
   showRefreshSetting,
+  showUndoRedoSetting,
   scrollHintsSetting,
   autoUpdateSetting,
   autoSwitchSetting,

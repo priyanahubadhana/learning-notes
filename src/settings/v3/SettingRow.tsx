@@ -11,6 +11,8 @@ import { useDeviceSetting, useSyncedSetting } from '../useSetting'
 import { useSettingsHistory } from './historyCtx'
 import { RowControl } from './RowControl'
 import { RowExtra } from './RowExtra'
+import { WhyLink } from './WhyLink'
+import { tv } from './tv'
 import { takeJustShown } from './experience'
 import { ShowInBeginner } from './ShowInBeginner'
 import { isProFeatureId } from '../level'
@@ -129,6 +131,14 @@ function RowBody({
           {name}
         </h3>
         <SettingSyncBadge definition={definition} />
+        <WhyLink
+          mark
+          id={definition.id}
+          title={name}
+          label={tv('sv3.why.label', { title: name })}
+        >
+          <p>{t(definition.descriptionKey)}</p>
+        </WhyLink>
       </div>
       <p id={descId} className="sv3-line-help">
         {t(definition.descriptionKey)}

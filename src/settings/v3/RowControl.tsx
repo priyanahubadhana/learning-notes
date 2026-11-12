@@ -150,9 +150,8 @@ function StepsField({
     <div className="sv3-num">
       <div className="sv3-num-row">
         {draft.map((step, i) => (
-          <input
+          <ClearField
             key={i}
-            type="text"
             inputMode="numeric"
             className="sv3-step"
             value={step}
@@ -162,6 +161,7 @@ function StepsField({
             onChange={(e) =>
               setDraft(draft.map((s, j) => (j === i ? e.target.value : s)))
             }
+            onClear={() => setDraft(draft.map((s, j) => (j === i ? '' : s)))}
             onBlur={() => commit(draft)}
             onKeyDown={(e) => e.key === 'Enter' && commit(draft)}
           />

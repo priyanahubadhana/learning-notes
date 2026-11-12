@@ -194,4 +194,7 @@ export const esSettingsV3 = {
   'sv3.version.details': 'Versión {commit}, compilada el {date}.',
   'sv3.tryNew.keepScreen':
     'Apagar todas deja encendida esta pantalla nueva de Ajustes, para que no pierdas esta página. Apágala con su propio interruptor.',
+  'sv3.glassWhyTitle': 'Reducir cristal: Automático',
+  'sv3.glassWhy':
+    'Automático mantiene el aspecto esmerilado mientras tu dispositivo va rápido. Si empieza a ir lento, apaga el desenfoque solo para que el desplazamiento siga fluido. Sólido siempre apaga el desenfoque y además ahorra algo de batería.',
 }

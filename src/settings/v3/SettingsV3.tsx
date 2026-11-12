@@ -1,4 +1,4 @@
-import { Fragment, useEffect, useRef, useState } from 'react'
+import { Fragment, Suspense, lazy, useEffect, useRef, useState } from 'react'
 import { revealWhenReady } from '../../editor/revealBlock'
 import type { LearningNotesDB } from '../../core/db'
 import { t } from '../../i18n/t'
@@ -29,8 +29,13 @@ import { SectionList } from './SectionList'
 import { PageTabsEditor } from './PageTabsEditor'
 import { buildSections } from './sections'
 import { ExperienceSection } from './ExperienceSection'
-import { HelpSection } from './HelpSection'
-import { ProFeatures } from './ProFeatures'
+// Tours and the Professional list load as their own chunks, only when opened (SET-B47).
+const HelpSection = lazy(() =>
+  import('./HelpSection').then((m) => ({ default: m.HelpSection })),
+)
+const ProFeatures = lazy(() =>
+  import('./ProFeatures').then((m) => ({ default: m.ProFeatures })),
+)
 import { rowShown, useExperienceOnTop } from './experience'
 import { searchVirtual, virtualRows } from './virtualRows'
 import { asksForTryNew, openTryNew, useTryNewOpen } from './tryNew'
@@ -239,7 +244,11 @@ function SettingsV3Body({
               }}
             />
           )}
-          {!searching && section?.kind === 'pro' && <ProFeatures />}
+          {!searching && section?.kind === 'pro' && (
+            <Suspense fallback={null}>
+              <ProFeatures />
+            </Suspense>
+          )}
           {!searching && current === 'tryNew' && <TryNewHeader />}
           {!searching &&
             rows.map((s) => (
@@ -255,15 +264,17 @@ function SettingsV3Body({
               </Fragment>
             ))}
           {!searching && section?.kind === 'help' && (
-            <HelpSection
-              onShow={openHit}
-              onFiveTaps={() => {
-                openTryNew()
-                pick('tryNew')
-                setMoved('tryNew')
-                setTimeout(() => setMoved(undefined), 3000)
-              }}
-            />
+            <Suspense fallback={null}>
+              <HelpSection
+                onShow={openHit}
+                onFiveTaps={() => {
+                  openTryNew()
+                  pick('tryNew')
+                  setMoved('tryNew')
+                  setTimeout(() => setMoved(undefined), 3000)
+                }}
+              />
+            </Suspense>
           )}
           {!searching && rows.length > 0 && section && (
             <SectionReset db={db} sectionName={section.label} rows={rows} />

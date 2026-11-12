@@ -193,4 +193,7 @@ export const enSettingsV3 = {
   'sv3.version.details': 'Version {commit}, built {date}.',
   'sv3.tryNew.keepScreen':
     'Turn all off leaves this new Settings screen on, so you do not lose this page. Turn it off in its own switch.',
+  'sv3.glassWhyTitle': 'Reduce glass: Automatic',
+  'sv3.glassWhy':
+    'Automatic keeps the frosted look while your device is fast. If the device starts to feel slow, it turns the blur off by itself so scrolling stays smooth. Solid always turns the blur off, and it also saves some battery.',
 }

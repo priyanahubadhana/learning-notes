@@ -97,3 +97,8 @@
     transition: none;
   }
 }
+
+/* A coarse pointer's global button rule (min-width 32 px) must not shrink the 44 pt choice. */
+.onoff-choice .onoff-opt {
+  min-width: 44px;
+}

@@ -46,3 +46,11 @@ Noted while batch 1 is being built. Test batch 1 first, then decide which of the
 - Model chip "Auto ▾" next to every Run/Send and in the top AI button. Auto = our own router: a small model classifies the task → tier (planning = top, writing = middle, simple = small); preference Best / Balanced (default) / Cheapest; free first (Claude via connector). Manual "Pick exact model" list with cost badges; bring-your-own-key vault (OpenRouter as one key for many models).
 - Cost settings (switches): monthly limit (default ₹0, warn at 80%, hard stop), per-job limit, ask above ₹X, estimate before each job (default ON), spend history/usage page like a provider's usage limits (default ON), CSV export.
 - The top-bar AI button needs a full rework to match (a quick panel: Ask about this page, actions, model chip, link to AI mode).
+
+## 14. AI = builder, not chat (owner, 12 Nov 2026), decided
+
+- AI's main purpose: automate note-making with the app's own tools (notes, short notes, summaries, Summary/other tabs, mind maps, cards, databases, styles, layouts…). Ask/chat is secondary.
+- AI space opens on **Build**: "What should I build?" box + sources → AI shows a PLAN of steps, each with the tool it uses → user ticks/unticks/adds steps from a searchable **Tool catalog** (every app feature labelled + described, readable by the AI) → Run → Preview → Apply.
+- Effort: Quick · Standard · Deep next to "Auto ▾", each showing its cost; Deep = top model plans, workers write (the owner's hierarchy).
+- Top-bar AI bar = "Claude Code for your page": type ANY instruction ("make this a 2-column page with a summary tab and 10 cards", "rename all headings…") and the AI changes the page with any app tool; quick "Build from this page" actions (notes, summary, mind map, cards, database); Ask second; plan preview + Undo for every change.
+- Technically possible: the connector already exposes tools (create_notebook, add_page, add_cards, create_database, apply_style, refine_page); the catalog extends this to every feature.

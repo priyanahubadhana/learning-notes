@@ -30,6 +30,7 @@ import { esAiJobs } from './aijobs'
 import { esParts } from './parts'
 import { esNotebooksV2 } from './notebooksV2'
 import { esSearchV2 } from './searchV2'
+import { esPanelV2 } from './panelV2'
 
 export const es: Record<string, string> = {
   ...esAccounts,
@@ -63,4 +64,5 @@ export const es: Record<string, string> = {
   ...esParts,
   ...esNotebooksV2,
   ...esSearchV2,
+  ...esPanelV2,
 }

@@ -27,6 +27,7 @@ import { enLateAiJobs } from './aijobs'
 import { enParts } from '../parts'
 import { enV2Notebooks } from '../v2/notebooks'
 import { enV2Search } from '../v2/search'
+import { enV2Panel } from '../v2/panel'
 
 export const enLate = {
   ...enLateAccounts,
@@ -57,4 +58,5 @@ export const enLate = {
   ...enParts,
   ...enV2Notebooks,
   ...enV2Search,
+  ...enV2Panel,
 }

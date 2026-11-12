@@ -7,7 +7,11 @@ import { createNotebook } from './helpers.ts'
  * Slice 12b (flag page.menus): the "/" menu on the shared Command list.
  * One test per spec line PM-01 .. PM-05 and PM-09 (docs/features/page-menus.md).
  */
-test.use({ viewport: { width: 1024, height: 900 } })
+test.use({
+  viewport: { width: 1024, height: 900 },
+  // Headless Chromium hides scrollbars by default; show real ones (G3-2).
+  launchOptions: { ignoreDefaultArgs: ['--hide-scrollbars'] },
+})
 
 const list = (page: Page) => page.getByTestId('slash-list')
 const items = (page: Page) => list(page).locator('[data-testid^="cl-item-"]')
@@ -179,6 +183,18 @@ test.describe('placement', () => {
     })
   })
 
+  test.describe('desktop, plenty of room below', () => {
+    test.use({ viewport: { width: 1280, height: 1000 } })
+    test('PM-01 the list opens under the cursor line', async ({ page }) => {
+      await openNote(page, 'professional')
+      await page.keyboard.type('/')
+      await expect(list(page)).toBeVisible()
+      const box = (await list(page).boundingBox())!
+      const caret = await caretBottom(page)
+      expect(box.y).toBeGreaterThanOrEqual(caret + 4)
+    })
+  })
+
   test.describe('phone', () => {
     test.use({ viewport: { width: 390, height: 844 }, hasTouch: true })
     test('PM-01 the list is fully on screen', async ({ page }) => {
@@ -213,7 +229,9 @@ test.describe('gate-3 fixes', () => {
   })
 
   test.describe('row width (desktop scrollbar)', () => {
-    test.use({ viewport: { width: 1024, height: 768 } })
+    test.use({
+      viewport: { width: 1024, height: 768 },
+    })
     test('G3-2 the highlighted row is as wide as the search box', async ({
       page,
     }) => {

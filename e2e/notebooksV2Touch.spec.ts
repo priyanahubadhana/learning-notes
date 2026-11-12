@@ -17,9 +17,15 @@ for (const [name, viewport] of Object.entries(SCREENS)) {
     test.use({ viewport, hasTouch: true })
 
     async function openHome(page: Page) {
+      // The notebook is made on a wide screen (the helper's naming flow is
+      // built for it), then the screen shrinks to the touch size.
+      await page.setViewportSize({ width: 1336, height: 720 })
       await page.goto(FLAG)
       await sidebar(page).waitFor({ state: 'attached' })
       await createNotebook(page, 'Alpha book', 'A page')
+      await page.setViewportSize(viewport)
+      await page.reload()
+      await sidebar(page).waitFor({ state: 'attached' })
       const home = page.getByTestId('notebooks-home')
       const rail = page.locator('[data-space="notebooks"]')
       await rail.click()

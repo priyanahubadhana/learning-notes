@@ -13,7 +13,7 @@ git fetch -q origin && for b in $(git for-each-ref --format='%(refname:short)' r
 ## Owner instructions (13 Nov, keep across restarts)
 
 1. Fully autonomous: never stop and wait. Items for the owner (money, Supabase, switching a part ON for daily use, iPad tests) go to "Needs you" in docs/PENDING.md; keep working on everything else.
-2. Budget: up to 80% of this week's quota, used efficiently. Near it, stop at a clean commit.
+2. Budget: 80% of the week is a reference, not a cap. Speed matters more than saving quota; quality and design rules first, then the first full build fast.
 3. Top priority: FIRST FULL BUILD fast: build/next green, merge waiting slices, release the preview with new parts ON in the preview (Settings › Try new features), write the owner's iPad checklist (BUG-002, connector, key flows). Then the remaining slices.
 
 ## Fixed facts
@@ -24,7 +24,7 @@ git fetch -q origin && for b in $(git for-each-ref --format='%(refname:short)' r
 - **Dexie:** next version to give out is **25** (24 = `aiJobs`). One lane at a time; the orchestrator gives out the number.
 - **Hot files** (one integration builder, one change at a time): `src/App.tsx`, `src/core/db.ts`, `src/core/types.ts`, `src/settings/builtinSettings.ts`, `src/app/flags.ts`, `package.json`, `playwright.config.ts`.
 - **Unlock switches:** 219 in `docs/mockups/pro-features.md`.
-- **Always waits for the owner:** money, Supabase (online database or function) changes, turning a new part ON for daily use. Everything else: safest choice, log in DECISIONS "Decisions to review", continue.
+- **Always waits for the owner:** money, Supabase (online database or function) changes, turning a new part ON for daily use, or anything that could delete or lose the owner's data. Everything else: safest choice, log in DECISIONS "Decisions to review", continue.
 - **Failures:** 3 fix attempts (about 1 hour), then undo the slice, write `docs/FAILED.md`, move on. FAILED.md is empty today.
 - **iPad WebKit tests are not reliable on this PC under load.** The pull request's CI is the judge.
 
@@ -122,6 +122,15 @@ Full text: `docs/DECISIONS.md` "Decisions to review" on `build/next`. Build-nigh
 
 1. Run the refresh command. Read only the spec file of the slice you touch.
 2. First: `build/next` green (the red tests above).
-3. Then, at most 3 builders at once, in this order: finish and merge 3, 9 (5d), 4, 8, 7; 0g step 2 (SP-54); 1 (1d to 1f); 12; then 2, 0g step 3, 15, 16, 13, 14, 17; AI 6 to 8 beside them.
+3. Then, 4 builders at once (up to 6 while rework stays under 2 rounds), in this order: finish and merge 3, 9 (5d), 4, 8, 7; 0g step 2 (SP-54); 1 (1d to 1f); 12; then 2, 0g step 3, 15, 16, 13, 14, 17; AI 6 to 8 beside them.
 4. After each merge: update this file and the Build board in `docs/PENDING.md`, add the CHANGELOG line, run the mirror copy (rules/sessions.md).
 5. Release to `main` only on a green `build/next`, flags off, as the master plan says.
+
+## Wave 1 (economy orchestrator, 13 Nov)
+
+- build/next: CI 43281718615 GREEN on 877fc57a. Then eeed0c2d (DECISIONS markers removed) and 3cbf6107 (gallery e2e wait, old lane); CI 43285941871 running.
+- build/next merged into slices, pushed, builder checks green (tsc, lint, size, ratchet, own e2e chromium): 0g 40d08712 (also fixes SP-20/22/23 WebKit drag in useReorder.ts; ipad-webkit gallery green), 4 de761c3b (size 319,539 of 320,000!), 12 909b8288 (does NOT yet contain 0g; re-merge after 0g lands), 8 b64c7422 (8b open: MoreSheet, Chips, PickerRow), 3 1373c4a4, 9b 65a38e46.
+- check:dod fails "0 When lines" on shared-parts, page-menus, review-v2, settings-v3, notebooks-search-v2 specs (table format). Safest fix: add When bullets to those specs (mechanic job), do not relax the checker.
+- Gate 3 partial (docs/plans/gate3-2026-11-13.md): 0g PASS + 3 follow-ups; 4 FAIL 13 fixes; 12 FAIL 4; 7 FAIL 7. Not reviewed: 8, 3, 5, 6, 9b (5/6/9b need flag-on pictures).
+- Next: gate 2 on 9b, 3, 0g, 8; 0g follow-ups builder; fix-list builders for 4, 12, 7; merge order 9b, 3, 0g, 8, then 4, 12, 7 after re-shot gate 3. New slice: iPad storage safety (owner 13 Nov).
+- Pending docs jobs: docs/plans/docs-audit-2026-11-13.md SAFE list; research recs in docs/design/research-effectiveness-2026-11-13.md (gate 2 brief narrowing needs owner OK if it changes a rule).

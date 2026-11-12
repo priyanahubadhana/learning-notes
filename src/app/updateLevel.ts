@@ -13,7 +13,7 @@
  * The unit test pins DB_LEVEL_PIN, so changing the Dexie version without
  * adding it here (with the new level) fails the build.
  */
-export const UPDATE_LEVEL = 1
+export const UPDATE_LEVEL = 2
 
 export type UpdateReason = 'storage' | 'datafix'
 
@@ -21,7 +21,7 @@ export type UpdateReason = 'storage' | 'datafix'
 export const UPDATE_REASON: UpdateReason = 'storage'
 
 /** Database version -> the level that introduced it. Keep in step with db.ts. */
-export const DB_LEVEL_PIN: Readonly<Record<number, number>> = { 23: 1 }
+export const DB_LEVEL_PIN: Readonly<Record<number, number>> = { 23: 1, 24: 2 }
 
 /** The level written in a version.json, or null when it is not a valid one. */
 export function parseLevel(value: unknown): number | null {

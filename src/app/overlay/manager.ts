@@ -11,6 +11,12 @@ export interface OverlayOptions {
   opener?: HTMLElement | null
   /** The overlay this one was opened from; it stays open. */
   parentId?: string
+  /**
+   * The first tap outside only closes this overlay and is swallowed (its
+   * pointerdown, pointerup and click reach nothing else). Default: on for
+   * menus, cards and sheets (a card is a sheet on a phone), off otherwise.
+   */
+  swallowOutsideTap?: boolean
 }
 
 export interface OverlayHandle {
@@ -91,9 +97,16 @@ export function createOverlayManager(
     top.opener?.focus()
   }
 
-  function onPointerDown(target: Element) {
-    if (target.closest('[data-popup-trigger]')) return
-    for (const e of [...entries]) if (!ownedBy(e, target)) remove(e)
+  /** True when the tap closed an overlay that swallows its outside tap. */
+  function onPointerDown(target: Element): boolean {
+    if (target.closest('[data-popup-trigger]')) return false
+    let swallow = false
+    for (const e of [...entries]) {
+      if (!entries.includes(e) || ownedBy(e, target)) continue
+      if (e.swallowOutsideTap ?? FLOATING.has(e.layer)) swallow = true
+      remove(e)
+    }
+    return swallow
   }
 
   function onBackground() {

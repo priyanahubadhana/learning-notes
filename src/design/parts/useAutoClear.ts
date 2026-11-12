@@ -1,6 +1,7 @@
 import { useEffect, type RefObject } from 'react'
 import { clearInput, wantsClear } from './clearInput'
 import { tp } from './tp'
+import { PRIORITY, onRouted } from '../../app/input/eventRouter'
 import './ClearField.css'
 
 type Field = HTMLInputElement | HTMLTextAreaElement
@@ -38,24 +39,62 @@ export function attachAutoClear(root: HTMLElement): () => void {
     btn.textContent = '✕'
     btn.style.opacity = '1'
     btn.style.pointerEvents = 'auto'
-    btn.addEventListener('pointerdown', (e) => e.preventDefault())
-    btn.addEventListener('click', () => {
-      clearInput(el)
-      sync(el, btn)
-    })
-    el.addEventListener('input', () => sync(el, btn))
-    el.addEventListener('keydown', (e) => {
-      if ((e as KeyboardEvent).key === 'Escape' && el.value) {
-        e.preventDefault()
-        e.stopPropagation()
-        clearInput(el)
-        sync(el, btn)
-      }
-    })
     el.after(btn)
     sync(el, btn)
     added.set(el, btn)
   }
+  const fieldOf = (t: EventTarget | null): Field | null => {
+    if (!(t instanceof Element)) return null
+    const b = t.closest('.clr-btn')
+    for (const [el, btn] of added) if (btn === b || el === t) return el
+    return null
+  }
+  const isBtn = (t: EventTarget | null) =>
+    t instanceof Element && !!t.closest('.clr-btn[data-auto]')
+  const scope = { scope: root, name: 'auto-clear' }
+  const offs = [
+    // Keep focus in the field when the ✕ is pressed.
+    onRouted(
+      'pointerdown',
+      (e) => {
+        if (isBtn(e.target) && fieldOf(e.target)) e.preventDefault()
+      },
+      scope,
+    ),
+    onRouted(
+      'click',
+      (e) => {
+        const el = isBtn(e.target) ? fieldOf(e.target) : null
+        if (!el) return
+        clearInput(el)
+        sync(el, added.get(el)!)
+        return true
+      },
+      scope,
+    ),
+    onRouted(
+      'input',
+      (e) => {
+        const el = fieldOf(e.target)
+        if (el) sync(el, added.get(el)!)
+      },
+      scope,
+    ),
+    // Esc clears first; above the overlay so an open card stays open.
+    onRouted(
+      'keydown',
+      (e) => {
+        const el = fieldOf(e.target)
+        if (!el || e.key !== 'Escape' || !el.value || isBtn(e.target)) return
+        e.preventDefault()
+        e.stopPropagation()
+        clearInput(el)
+        sync(el, added.get(el)!)
+        return true
+      },
+      { ...scope, priority: PRIORITY.modal + 1 },
+    ),
+  ]
   const scan = () =>
     root.querySelectorAll<Field>('input, textarea').forEach(attach)
   scan()
@@ -63,6 +102,7 @@ export function attachAutoClear(root: HTMLElement): () => void {
   mo.observe(root, { childList: true, subtree: true })
   return () => {
     mo.disconnect()
+    offs.forEach((off) => off())
     added.forEach((btn) => btn.remove())
     added.clear()
   }

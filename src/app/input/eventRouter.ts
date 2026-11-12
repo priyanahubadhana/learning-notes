@@ -114,15 +114,177 @@ export interface EventRouter {
   destroy(): void
 }
 
-/** Makes a router on the given targets (tests); the app uses `eventRouter`. */
-export function createEventRouter(targets?: RouterTargets): EventRouter {
-  void targets
-  throw new Error('eventRouter: not built yet')
+interface Sub {
+  handler: (e: never) => boolean | void
+  priority: number
+  scope?: Element | (() => Element | null)
+  name: string
+  active: boolean
 }
+
+type DomWhere = 'doc' | 'win'
+
+/** Which routed types each real DOM event feeds, and where it is heard. */
+const DOM_EVENTS: Record<
+  string,
+  { where: DomWhere; feeds: readonly RoutedType[] }
+> = {
+  keydown: { where: 'doc', feeds: ['keydown'] },
+  keyup: { where: 'doc', feeds: ['keyup'] },
+  pointerdown: { where: 'doc', feeds: ['pointerdown'] },
+  pointermove: { where: 'doc', feeds: ['pointermove'] },
+  pointerup: { where: 'doc', feeds: ['pointerup'] },
+  pointercancel: { where: 'doc', feeds: ['pointercancel'] },
+  focusin: { where: 'doc', feeds: ['focusin'] },
+  focusout: { where: 'doc', feeds: ['focusout'] },
+  visibilitychange: { where: 'doc', feeds: ['background', 'foreground'] },
+  pagehide: { where: 'win', feeds: ['background'] },
+  pageshow: { where: 'win', feeds: ['foreground'] },
+  blur: { where: 'win', feeds: ['background'] },
+  focus: { where: 'win', feeds: ['foreground'] },
+}
+
+const CAPTURE = { capture: true } as const
+
+function isNode(t: unknown): t is Node {
+  return (
+    typeof t === 'object' &&
+    t !== null &&
+    typeof (t as { nodeType?: unknown }).nodeType === 'number'
+  )
+}
+
+/**
+ * Makes a router on the given targets (tests); the app uses `eventRouter`.
+ *
+ * Delivery snapshot: the subscribers are copied when a delivery starts. One
+ * that unsubscribes during the delivery and has not run yet is skipped; one
+ * that subscribes during the delivery waits for the next event.
+ */
+export function createEventRouter(targets?: RouterTargets): EventRouter {
+  const t: RouterTargets = targets ?? { doc: document, win: window }
+  const subs = new Map<RoutedType, Sub[]>()
+  const attached = new Map<string, (e: Event) => void>()
+
+  const count = (type: RoutedType) => subs.get(type)?.length ?? 0
+
+  function deliver(type: RoutedType, e: unknown): boolean {
+    const list = subs.get(type)
+    if (!list || list.length === 0) return false
+    const appLevel = type === 'background' || type === 'foreground'
+    const target = appLevel ? null : (e as Event | null)?.target
+    for (const sub of list.slice()) {
+      if (!sub.active) continue
+      try {
+        if (sub.scope && !appLevel) {
+          const el = typeof sub.scope === 'function' ? sub.scope() : sub.scope
+          if (!el || !isNode(target) || !el.contains(target)) continue
+        }
+        if ((sub.handler as (e: unknown) => boolean | void)(e) === true)
+          return true
+      } catch (err) {
+        console.error(`eventRouter: handler "${sub.name}" threw`, err)
+      }
+    }
+    return false
+  }
+
+  function listenerFor(domType: string): (e: Event) => void {
+    const info = DOM_EVENTS[domType]
+    return (e: Event) => {
+      if (
+        (domType === 'blur' || domType === 'focus') &&
+        e.target !== (t.win as unknown)
+      )
+        return
+      if (domType === 'visibilitychange') {
+        const hidden = t.doc.visibilityState === 'hidden'
+        deliver(hidden ? 'background' : 'foreground', {
+          reason: hidden ? 'hidden' : 'visible',
+          event: e,
+        })
+        return
+      }
+      if (info.where === 'win') {
+        deliver(info.feeds[0], { reason: domType as AppSwitchReason, event: e })
+        return
+      }
+      deliver(info.feeds[0], e)
+    }
+  }
+
+  function sync() {
+    for (const [domType, info] of Object.entries(DOM_EVENTS)) {
+      const wanted = info.feeds.some((f) => count(f) > 0)
+      const fn = attached.get(domType)
+      if (wanted && !fn) {
+        const l = listenerFor(domType)
+        attached.set(domType, l)
+        if (info.where === 'doc') t.doc.addEventListener(domType, l, CAPTURE)
+        else t.win.addEventListener(domType, l)
+      } else if (!wanted && fn) {
+        attached.delete(domType)
+        if (info.where === 'doc')
+          t.doc.removeEventListener(domType, fn, CAPTURE)
+        else t.win.removeEventListener(domType, fn)
+      }
+    }
+  }
+
+  return {
+    subscribe(type, handler, options = {}) {
+      const sub: Sub = {
+        handler: handler as Sub['handler'],
+        priority: options.priority ?? PRIORITY.normal,
+        scope: options.scope,
+        name: options.name ?? type,
+        active: true,
+      }
+      const list = subs.get(type) ?? []
+      // Higher priority first; equal priority keeps subscription order.
+      let at = list.length
+      while (at > 0 && list[at - 1].priority < sub.priority) at--
+      list.splice(at, 0, sub)
+      subs.set(type, list)
+      sync()
+      return () => {
+        if (!sub.active) return
+        sub.active = false
+        const cur = subs.get(type)
+        const idx = cur ? cur.indexOf(sub) : -1
+        if (cur && idx >= 0) {
+          cur.splice(idx, 1)
+          if (cur.length === 0) subs.delete(type)
+        }
+        sync()
+      }
+    },
+    dispatch(type, e) {
+      return deliver(type, e)
+    },
+    domListenerCount() {
+      return attached.size
+    },
+    subscriberCount(type) {
+      if (type) return count(type)
+      let n = 0
+      for (const l of subs.values()) n += l.length
+      return n
+    },
+    destroy() {
+      for (const l of subs.values()) for (const s of l) s.active = false
+      subs.clear()
+      sync()
+    },
+  }
+}
+
+let appRouter: EventRouter | null = null
 
 /** The app's one router (on `document` and `window`), made on first use. */
 export function getEventRouter(): EventRouter {
-  throw new Error('eventRouter: not built yet')
+  appRouter ??= createEventRouter()
+  return appRouter
 }
 
 /** Shortcut for `getEventRouter().subscribe(...)`. */
@@ -135,4 +297,7 @@ export function onRouted<T extends RoutedType>(
 }
 
 /** Tests only: drops the app router so the next `getEventRouter` makes a new one. */
-export function resetEventRouterForTests(): void {}
+export function resetEventRouterForTests(): void {
+  appRouter?.destroy()
+  appRouter = null
+}

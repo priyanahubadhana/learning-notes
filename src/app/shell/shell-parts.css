@@ -1,0 +1,522 @@
+/* ---- floating shell parts (SH-09 to SH-13) ----
+   Each sits in the browser's top layer (popover="manual"), in the order it
+   was opened, so none needs a z-index (SH-14 gives the order they keep). */
+.sh-layer {
+  position: fixed;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  margin: 0;
+  padding: 0;
+  border: 0;
+  background: none;
+  color: var(--color-ink);
+  overflow: visible;
+  pointer-events: none;
+  font-family: var(--font-sans);
+}
+.sh-layer > * {
+  pointer-events: auto;
+}
+.sh-x {
+  flex: none;
+  width: var(--sh-hit);
+  height: var(--sh-hit);
+  display: grid;
+  place-items: center;
+  border: 0;
+  border-radius: var(--r-pill);
+  background: none;
+  color: var(--color-ink-soft);
+  font-size: 15px;
+  cursor: pointer;
+}
+.sh-x:hover {
+  background: var(--color-hover);
+  color: var(--color-ink);
+}
+.sh-btn {
+  min-height: var(--sh-hit);
+  padding: 0 16px;
+  border: 1px solid var(--color-line);
+  border-radius: var(--r-md);
+  background: var(--color-surface-1);
+  color: var(--color-ink);
+  font: inherit;
+  font-size: 14px;
+  font-weight: 500;
+  cursor: pointer;
+}
+.sh-btn:hover:enabled {
+  background: var(--color-hover);
+}
+.sh-btn:disabled {
+  opacity: 0.4;
+  cursor: default;
+}
+.sh-btn-main {
+  border-color: transparent;
+  background: var(--color-accent);
+  color: var(--color-on-accent);
+}
+.sh-btn-main:hover:enabled {
+  background: var(--color-accent-hover);
+}
+.sh-btn-danger {
+  border-color: transparent;
+  background: var(--color-danger);
+  color: var(--color-on-accent);
+}
+.sh-btn-danger:hover:enabled {
+  background: var(--color-danger);
+  filter: brightness(0.92);
+}
+
+/* small dialog (SH-10) */
+.sh-layer-dialog {
+  display: grid;
+  place-items: center;
+}
+.sh-dscrim,
+.sh-sscrim {
+  position: absolute;
+  inset: 0;
+  background: rgba(0, 0, 0, 0.48);
+  animation: sh-fade var(--dur-2) var(--ease-out);
+}
+.sh-dialog {
+  position: relative;
+  box-sizing: border-box;
+  width: min(420px, calc(100vw - 24px));
+  max-height: calc(100dvh - 24px);
+  overflow: auto;
+  padding: 18px;
+  border: 1px solid var(--color-line);
+  border-radius: 24px;
+  background: var(--color-surface-2);
+  box-shadow: var(--elev-3);
+  outline: none;
+  animation: sh-dialog-in var(--dur-2) var(--ease-out);
+}
+.sh-dialog .sh-x {
+  position: absolute;
+  top: 6px;
+  inset-inline-end: 6px;
+}
+.sh-dialog-title {
+  margin: 0 44px 8px 0;
+  font-size: 17px;
+  line-height: 24px;
+  font-weight: 600;
+}
+.sh-dialog-body {
+  font-size: 14px;
+  line-height: 20px;
+  color: var(--color-ink-soft);
+}
+.sh-dialog-body p {
+  margin: 0;
+}
+.sh-dialog-undo {
+  margin: 10px 0 0;
+  font-size: 12.5px;
+  color: var(--color-muted);
+}
+.sh-dialog-foot {
+  display: flex;
+  justify-content: flex-end;
+  gap: 8px;
+  margin-top: 16px;
+}
+@keyframes sh-fade {
+  from {
+    opacity: 0;
+  }
+}
+@keyframes sh-dialog-in {
+  from {
+    opacity: 0;
+    transform: scale(0.98);
+  }
+}
+
+/* More sheet (SH-09): a fixed box, 440 wide; a phone gets the full width */
+.sh-sheet {
+  position: absolute;
+  top: 12px;
+  right: 12px;
+  bottom: 12px;
+  box-sizing: border-box;
+  width: min(var(--sh-sheet), calc(100vw - 24px));
+  display: flex;
+  flex-direction: column;
+  border: 1px solid var(--color-line);
+  border-radius: 24px;
+  background: var(--color-surface-1);
+  box-shadow: var(--elev-3);
+  overflow: hidden;
+  outline: none;
+  animation: sh-sheet-in 240ms var(--ease-out);
+}
+@keyframes sh-sheet-in {
+  from {
+    opacity: 0;
+    transform: translateX(24px);
+  }
+}
+.sh-sheet-head {
+  flex: none;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 14px 8px 8px 18px;
+}
+.sh-sheet-ic {
+  display: grid;
+  place-items: center;
+  width: 36px;
+  height: 36px;
+  border-radius: var(--r-md);
+  background: var(--color-accent-soft);
+  color: var(--color-accent);
+}
+.sh-sheet-tt {
+  flex: 1;
+  min-width: 0;
+}
+.sh-sheet-tt h2 {
+  margin: 0;
+  font-size: 17px;
+  line-height: 22px;
+  font-weight: 600;
+}
+.sh-sheet-tt p {
+  margin: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  font-size: 12.5px;
+  color: var(--color-muted);
+}
+.sh-sheet-pick {
+  flex: none;
+  display: flex;
+  gap: 8px;
+  padding: 4px 18px 10px;
+  overflow-x: auto;
+}
+.sh-sheet-pick button {
+  flex: none;
+  min-height: var(--sh-hit);
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 0 14px;
+  border: 1px solid var(--color-line);
+  border-radius: var(--r-md);
+  background: var(--color-surface-2);
+  color: var(--color-ink-soft);
+  font: inherit;
+  font-size: 13px;
+  cursor: pointer;
+}
+.sh-sheet-pick button[aria-pressed='true'] {
+  border-color: var(--color-accent);
+  background: var(--color-accent-soft);
+  color: var(--color-accent);
+}
+.sh-sheet-tabs {
+  flex: none;
+  padding: 0 10px;
+  border-bottom: 1px solid var(--color-line);
+}
+.sh-sheet-body {
+  flex: 1;
+  min-height: 0;
+  overflow-y: auto;
+  padding: 14px 18px;
+}
+.sh-sheet-foot {
+  flex: none;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 10px 14px 12px 18px;
+  border-top: 1px solid var(--color-line);
+}
+.sh-sheet-hint {
+  flex: 1;
+  min-width: 0;
+  font-size: 12.5px;
+  color: var(--color-muted);
+}
+@media (max-width: 39.999rem), (max-height: 31.999rem) {
+  .sh-sheet {
+    top: 8px;
+    right: 0;
+    bottom: 0;
+    left: 0;
+    width: auto;
+    border-radius: 24px 24px 0 0;
+    padding-bottom: env(safe-area-inset-bottom, 0px);
+    animation-name: sh-sheet-up;
+  }
+}
+@keyframes sh-sheet-up {
+  from {
+    transform: translateY(105%);
+  }
+}
+
+/* pop menu (SH-11) */
+.sh-pop {
+  position: absolute;
+  box-sizing: border-box;
+  min-width: 220px;
+  max-width: calc(100vw - 16px);
+  max-height: calc(100dvh - 16px);
+  overflow-y: auto;
+  padding: 6px;
+  border: 1px solid var(--color-line);
+  border-radius: var(--r-md);
+  background: var(--color-surface-2);
+  box-shadow: var(--elev-3);
+  animation: sh-pop-in 120ms var(--ease-out);
+}
+.sh-pop[data-flipped] {
+  animation-name: sh-pop-up;
+}
+@keyframes sh-pop-in {
+  from {
+    opacity: 0;
+    transform: translateY(-4px);
+  }
+}
+@keyframes sh-pop-up {
+  from {
+    opacity: 0;
+    transform: translateY(4px);
+  }
+}
+.sh-pop-row {
+  width: 100%;
+  min-height: var(--sh-hit);
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 0 10px;
+  border: 0;
+  border-radius: var(--r-sm);
+  background: none;
+  color: var(--color-ink);
+  font: inherit;
+  font-size: 14px;
+  text-align: start;
+  cursor: pointer;
+}
+.sh-pop-row:hover:enabled,
+.sh-pop-row:focus-visible {
+  background: var(--color-hover);
+}
+.sh-pop-row:disabled {
+  opacity: 0.4;
+  cursor: default;
+}
+.sh-pop-row[data-danger] {
+  color: var(--color-danger);
+}
+.sh-pop-ic {
+  display: grid;
+  place-items: center;
+  width: 18px;
+  height: 18px;
+  flex: none;
+}
+.sh-pop-div {
+  margin: 4px 6px;
+  border: 0;
+  border-top: 1px solid var(--color-line);
+}
+.sh-pop-label {
+  padding: 8px 10px 2px;
+  font-size: 11px;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  color: var(--color-muted);
+}
+
+/* toast (SH-12) */
+.sh-toast {
+  position: absolute;
+  inset-inline: 0;
+  bottom: 24px;
+  margin-inline: auto;
+  width: fit-content;
+  max-width: min(calc(100vw - 24px), 560px);
+  box-sizing: border-box;
+  min-height: 48px;
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 6px 8px 6px 18px;
+  border: 1px solid var(--color-line);
+  border-radius: 999px;
+  background: var(--color-surface-3);
+  color: var(--color-ink);
+  box-shadow: var(--elev-3);
+  font-size: 14px;
+  animation: sh-toast-in var(--dur-2) var(--ease-out);
+}
+@media (max-width: 39.999rem), (max-height: 31.999rem) {
+  .sh-toast {
+    bottom: calc(var(--sh-tabbar) + env(safe-area-inset-bottom, 0px) + 24px);
+  }
+}
+.sh-toast-act {
+  min-height: var(--sh-hit);
+  padding: 0 14px;
+  border: 0;
+  border-radius: 999px;
+  background: none;
+  color: var(--color-accent);
+  font: inherit;
+  font-weight: 600;
+  cursor: pointer;
+}
+.sh-toast-act:hover {
+  background: var(--color-accent-soft);
+}
+@keyframes sh-toast-in {
+  from {
+    opacity: 0;
+    transform: translateY(16px);
+  }
+}
+
+/* minimise chip + floating bar + edge handle (SH-13) */
+.sh-chips {
+  position: absolute;
+  top: calc(var(--attn-h, 0px) + var(--sh-top) + 12px);
+  inset-inline-end: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  align-items: flex-end;
+}
+.sh-chip {
+  min-height: var(--sh-hit);
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 0 12px 0 8px;
+  border: 1.5px solid var(--color-accent);
+  border-inline-end: 0;
+  border-radius: 14px 0 0 14px;
+  background: var(--color-surface-2);
+  background-image: linear-gradient(
+    var(--color-accent-soft),
+    var(--color-accent-soft)
+  );
+  color: var(--color-accent);
+  font: inherit;
+  font-size: 13px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: padding var(--dur-1) var(--ease-out);
+  animation: sh-chip-in 150ms var(--ease-out);
+}
+.sh-chip:hover {
+  padding-inline-start: 12px;
+}
+@keyframes sh-chip-in {
+  from {
+    transform: translateX(100%);
+  }
+}
+.sh-fbar {
+  position: absolute;
+  bottom: calc(16px + var(--fbar-lift, 0px));
+  left: 50%;
+  transform: translateX(-50%);
+  display: flex;
+  align-items: center;
+  gap: 2px;
+  padding: 4px;
+  border: 1px solid var(--color-line);
+  border-radius: 999px;
+  background: var(--color-surface-2);
+  box-shadow: var(--elev-3);
+}
+.sh-fbar-sep {
+  width: 1px;
+  height: 24px;
+  margin: 0 4px;
+  background: var(--color-line);
+}
+.sh-fbar-min {
+  width: var(--sh-hit);
+  height: var(--sh-hit);
+  display: grid;
+  place-items: center;
+  border: 0;
+  border-radius: 999px;
+  background: none;
+  color: var(--color-ink-soft);
+  cursor: pointer;
+}
+.sh-fbar-min:hover {
+  background: var(--color-hover);
+}
+.sh-fbar[data-pulse] .sh-fbar-min {
+  animation: sh-pulse 1.2s var(--ease-out) 2;
+}
+@keyframes sh-pulse {
+  50% {
+    box-shadow: 0 0 0 6px var(--color-accent-soft);
+  }
+}
+@media (max-width: 39.999rem), (max-height: 31.999rem) {
+  .sh-fbar {
+    bottom: calc(
+      var(--sh-tabbar) + env(safe-area-inset-bottom, 0px) + 12px +
+        var(--fbar-lift, 0px)
+    );
+  }
+}
+.sh-edge {
+  position: absolute;
+  top: 40%;
+  width: 28px;
+  height: 64px;
+  display: grid;
+  place-items: center;
+  border: 1.5px solid var(--color-accent);
+  background: var(--color-surface-2);
+  color: var(--color-accent);
+  font-size: 12px;
+  cursor: grab;
+  touch-action: none;
+}
+.sh-edge[data-edge='right'] {
+  right: 0;
+  border-right: 0;
+  border-radius: 12px 0 0 12px;
+}
+.sh-edge[data-edge='left'] {
+  left: 0;
+  border-left: 0;
+  border-radius: 0 12px 12px 0;
+}
+@media (prefers-reduced-motion: reduce) {
+  .sh-dscrim,
+  .sh-sscrim,
+  .sh-dialog,
+  .sh-sheet,
+  .sh-pop,
+  .sh-toast,
+  .sh-chip,
+  .sh-fbar-min {
+    animation: none !important;
+    transition: none !important;
+  }
+}

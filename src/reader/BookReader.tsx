@@ -36,6 +36,7 @@ import { t } from '../i18n/t'
 import { createPage } from '../pages/pageService'
 import { usePref } from '../app/usePref'
 import { isBoolean, readPref } from '../app/uiPrefs'
+import { GLOW_DEFAULT, GLOW_KEY, glowTarget, isGlowPref } from './v2/glowPref'
 import { stepSize } from './epub/epubLoader'
 import { getBookFile, saveProgress } from '../library/libraryService'
 import { addBlocks } from '../core/blockBulk'
@@ -270,6 +271,7 @@ export function BookReader({
   const [saving, setSaving] = useState<Annotation | null>(null)
   const [noText, setNoText] = useState(false)
   const [bulk, setBulk] = useState<Annotation[] | null>(null)
+  const [landOn, setLandOn] = usePref(GLOW_KEY, isGlowPref, GLOW_DEFAULT)
   const [target, setTarget] = useState<{
     at: string
     nonce: number
@@ -592,7 +594,7 @@ export function BookReader({
         setTarget((prev) => ({
           at: loc,
           nonce: (prev?.nonce ?? 0) + 1,
-          glow: a.id,
+          glow: v2 ? glowTarget(a.id, landOn) : a.id,
         }))
       },
     })
@@ -606,6 +608,8 @@ export function BookReader({
     bridgeProgress,
     outline,
     pdfDoc,
+    landOn,
+    v2,
   ])
   useEffect(() => () => readerBridge.set(null), [])
 
@@ -1705,6 +1709,7 @@ export function BookReader({
               onZoom={setZoom}
               onDoc={setPdfDoc}
               target={target}
+              landGlow={v2}
               chapterAt={chapterAt}
               onReady={(info) => setPageCount(info.pageCount)}
               onOutline={setOutline}
@@ -1727,6 +1732,7 @@ export function BookReader({
               startAt={at ?? page.source.at}
               annotations={annotations ?? []}
               target={target}
+              landGlow={v2}
               size={epubSize}
               look={look}
               flow={epubFlow}
@@ -1841,6 +1847,7 @@ export function BookReader({
                 : setEpubFlow(f)
             }
             format={bridgeFormat}
+            landGlow={v2 ? { on: landOn, onChange: setLandOn } : undefined}
             onClose={() => setAaOpen(false)}
           />
         </Suspense>

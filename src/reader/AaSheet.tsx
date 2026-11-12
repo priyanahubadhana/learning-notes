@@ -33,6 +33,7 @@ export default function AaSheet({
   flow,
   onFlow,
   format,
+  landGlow,
   onClose,
 }: {
   look: ReadStyle
@@ -42,6 +43,8 @@ export default function AaSheet({
   flow: 'paginated' | 'scrolled'
   onFlow: (f: 'paginated' | 'scrolled') => void
   format: 'pdf' | 'epub'
+  /** Reader v2: the "Highlight where I land" switch. */
+  landGlow?: { on: boolean; onChange: (on: boolean) => void }
   onClose: () => void
 }) {
   const epub = format === 'epub'
@@ -295,6 +298,21 @@ export default function AaSheet({
                 className="size-5"
               />
             </label>
+            {landGlow && (
+              <>
+                <label className="flex min-h-11 items-center justify-between gap-3 text-sm">
+                  {t('readerv2.glow.label')}
+                  <input
+                    type="checkbox"
+                    checked={landGlow.on}
+                    data-testid="aa-land-glow"
+                    onChange={(e) => landGlow.onChange(e.target.checked)}
+                    className="size-5"
+                  />
+                </label>
+                <p className="text-xs text-muted">{t('readerv2.glow.help')}</p>
+              </>
+            )}
             <p className="text-xs text-muted">{t('aa.readAloud.where')}</p>
           </>
         )}

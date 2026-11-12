@@ -76,4 +76,7 @@ export const hiReaderV2 = {
   'readerv2.lock.unlocked': 'अनलॉक हो गया। सब कुछ चलता है।',
   'readerv2.lock.unlockToUse': 'इसे इस्तेमाल करने के लिए अनलॉक करें।',
   'readerv2.lock.noteView': 'नोट',
+  'readerv2.glow.label': 'जहाँ पहुँचूँ उसे चमकाएँ',
+  'readerv2.glow.help':
+    'हाइलाइट या बुकमार्क पर जाने पर वह जगह थोड़ी देर चमकती है, ताकि आप उसे आसानी से पा सकें।',
 } as const

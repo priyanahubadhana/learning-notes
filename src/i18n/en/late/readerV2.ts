@@ -74,4 +74,7 @@ export const enLateReaderV2 = {
   'readerv2.lock.unlocked': 'Unlocked. Everything works.',
   'readerv2.lock.unlockToUse': 'Unlock to use this.',
   'readerv2.lock.noteView': 'Note',
+  'readerv2.glow.label': 'Highlight where I land',
+  'readerv2.glow.help':
+    'When you jump to a highlight or bookmark, the spot glows for a moment so you can find it.',
 } as const

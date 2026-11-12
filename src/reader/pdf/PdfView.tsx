@@ -18,6 +18,7 @@ import { clampDpr, release, reserve } from '../../app/canvasBudget'
 import { parseLocator } from '../../core/sourceCheck'
 import type { Annotation, AnnotationAnchor } from '../../core/types'
 import { t } from '../../i18n/t'
+import { glowMs, prefersReducedMotion } from '../v2/glowPref'
 import { COLOUR_FILL, type PopupRect } from '../annotations/colours'
 import {
   capScale,
@@ -92,6 +93,8 @@ export interface PdfViewProps {
   paged?: boolean
   /** Jump to a locator; a new `nonce` repeats the jump. `glow` flashes an annotation. */
   target?: { at: string; nonce: number; glow?: string } | null
+  /** Reader v2 ("Highlight where I land"): the 2 s glow, also on a bookmark. */
+  landGlow?: boolean
   onReady: (info: { pageCount: number }) => void
   /** The opened document (for Find, the left panel and Page Flip previews). */
   onDoc?: (doc: PDFDocumentProxy) => void
@@ -258,8 +261,12 @@ export function PdfView(props: PdfViewProps) {
   }
   useEffect(() => {
     if (!glowing) return
-    const id = window.setTimeout(() => setGlowing(null), 1700)
+    const id = window.setTimeout(
+      () => setGlowing(null),
+      props.landGlow ? glowMs(prefersReducedMotion()) : 1700,
+    )
     return () => window.clearTimeout(id)
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [glowing])
   useEffect(() => {
     if (!target || !scroller.current || !doc) return
@@ -469,6 +476,7 @@ export function PdfView(props: PdfViewProps) {
                   size={size}
                   annotations={byPage.get(i + 1) ?? []}
                   glowing={glowing}
+                  land={props.landGlow}
                   onNoText={props.onNoText}
                   onBox={(rect, box) =>
                     props.onSelection({
@@ -578,6 +586,7 @@ function PdfPageView({
   size,
   annotations,
   glowing,
+  land,
   onNoText,
   onBox,
 }: {
@@ -587,6 +596,7 @@ function PdfPageView({
   size: PageSize
   annotations: Annotation[]
   glowing: string | null
+  land?: boolean
   onNoText: () => void
   onBox: (rect: PopupRect, box: Rect4) => void
 }) {
@@ -679,6 +689,7 @@ function PdfPageView({
                 data-testid="pdf-highlight"
                 data-annotation={a.id}
                 className={glowing === a.id ? 'pdf-glow' : undefined}
+                data-land={glowing === a.id && land ? '' : undefined}
                 style={{
                   position: 'absolute',
                   insetInlineStart: `${r[0] * 100}%`,
@@ -695,6 +706,20 @@ function PdfPageView({
             ))
           : null,
       )}
+      {land &&
+        annotations.map((a) =>
+          glowing === a.id &&
+          a.anchor.type === 'pdf' &&
+          a.kind === 'bookmark' ? (
+            // A bookmark marks a page, not a line: the whole page glows.
+            <div
+              key={`${a.id}:land`}
+              data-testid="pdf-land-glow"
+              data-land=""
+              className="pdf-glow rv2-land-page"
+            />
+          ) : null,
+        )}
       {!hasText && (
         // A page with no text: highlight by drawing a box.
         <div

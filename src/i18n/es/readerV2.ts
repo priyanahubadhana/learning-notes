@@ -77,4 +77,7 @@ export const esReaderV2 = {
   'readerv2.lock.unlocked': 'Desbloqueado. Todo funciona.',
   'readerv2.lock.unlockToUse': 'Desbloquea para usar esto.',
   'readerv2.lock.noteView': 'Nota',
+  'readerv2.glow.label': 'Resaltar donde llego',
+  'readerv2.glow.help':
+    'Al saltar a un resaltado o marcador, el lugar brilla un momento para que lo encuentres.',
 } as const

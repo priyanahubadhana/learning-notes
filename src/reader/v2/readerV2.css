@@ -525,3 +525,31 @@
   -webkit-user-select: none;
   user-select: none;
 }
+
+/* "Highlight where I land": a soft ring for 2 s (RD-B30); reduced motion keeps a still outline (RD-B32). */
+@keyframes rv2-land {
+  0%,
+  70% {
+    outline: 3px solid var(--color-accent);
+    outline-offset: 2px;
+  }
+  100% {
+    outline: 3px solid transparent;
+    outline-offset: 2px;
+  }
+}
+.pdf-glow[data-land] {
+  animation: rv2-land 2s ease-out;
+}
+.rv2-land-page {
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+}
+@media (prefers-reduced-motion: reduce) {
+  .pdf-glow[data-land] {
+    animation: none;
+    outline: 3px solid var(--color-accent);
+    outline-offset: 2px;
+  }
+}

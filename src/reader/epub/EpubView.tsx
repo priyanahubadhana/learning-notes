@@ -12,6 +12,7 @@ import { pageSurface, styleCss, type ReadStyle } from '../readStyle'
 import { bookFontCss } from './bookFont'
 import { bookSource } from '../aloud/bookText'
 import { setBookAloudHost } from '../aloud/bookAloud'
+import { glowMs, prefersReducedMotion } from '../v2/glowPref'
 import { epubCss, flattenToc, makeEpubLoader, type TocNode } from './epubLoader'
 
 /** The parts of foliate-js's view that we use (the library is plain JS). */
@@ -60,6 +61,8 @@ export interface EpubViewProps {
   startAt?: string
   annotations: readonly Annotation[]
   target?: { at: string; nonce: number; glow?: string } | null
+  /** Reader v2 ("Highlight where I land"): the glow lasts 2 s. */
+  landGlow?: boolean
   /** Text size in percent. */
   size: number
   flow: 'paginated' | 'scrolled'
@@ -375,12 +378,15 @@ export function EpubView(props: EpubViewProps) {
       if (!t.glow || !t.at.startsWith('epub:')) return
       const glow = { value: where, color: ACCENT, glow: true }
       void v.addAnnotation(glow)
-      window.setTimeout(() => {
-        // Back to the normal colour (or nothing, if it was not a highlight).
-        void v.deleteAnnotation(glow)
-        const normal = drawn.current.get(where)
-        if (normal) void v.addAnnotation(normal)
-      }, 1700)
+      window.setTimeout(
+        () => {
+          // Back to the normal colour (or nothing, if it was not a highlight).
+          void v.deleteAnnotation(glow)
+          const normal = drawn.current.get(where)
+          if (normal) void v.addAnnotation(normal)
+        },
+        props.landGlow ? glowMs(prefersReducedMotion()) : 1700,
+      )
     })
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [props.target?.nonce])

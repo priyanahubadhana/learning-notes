@@ -1,4 +1,4 @@
-import { useState } from 'react'
+import { lazy, Suspense, useState } from 'react'
 import { applyTheme, THEMES, type Theme } from '../app/theme'
 
 /**
@@ -51,6 +51,9 @@ const T = {
     'Review page for the design system (docs/design/system.md). Hidden: not linked from the app.',
   theme: 'Theme',
   reduceGlass: 'Reduce glass',
+  reduceMotion: 'Reduce motion',
+  width: 'Width',
+  parts: 'Parts',
   colour: 'Colour',
   type: 'Type',
   spacing: 'Spacing (4-pt)',
@@ -69,6 +72,10 @@ const T = {
   back: 'Back to the app',
 }
 
+/** The "Parts" gallery (SP-12): lazy, so nothing is added to the first load. */
+const Gallery = lazy(() => import('./gallery'))
+const WIDTHS = [390, 820, 1180, 1366] as const
+
 const heading = 't-h2 mt-10 mb-4'
 
 export default function DesignTokensPage() {
@@ -76,6 +83,8 @@ export default function DesignTokensPage() {
     () => (document.documentElement.dataset.theme as Theme) || 'day',
   )
   const [glassLite, setGlassLite] = useState(false)
+  const [motionLite, setMotionLite] = useState(false)
+  const [width, setWidth] = useState<number | null>(null)
   const pick = (t: Theme) => {
     applyTheme(t)
     setTheme(t)
@@ -85,6 +94,12 @@ export default function DesignTokensPage() {
     setGlassLite(next)
     if (next) document.documentElement.dataset.glass = 'lite'
     else delete document.documentElement.dataset.glass
+  }
+  const toggleMotion = () => {
+    const next = !motionLite
+    setMotionLite(next)
+    if (next) document.documentElement.dataset.motion = 'reduce'
+    else delete document.documentElement.dataset.motion
   }
   return (
     <div
@@ -118,6 +133,33 @@ export default function DesignTokensPage() {
           >
             {T.reduceGlass}
           </button>
+          <button
+            type="button"
+            className={`ds-btn ${motionLite ? 'ds-primary' : 'ds-secondary'}`}
+            aria-pressed={motionLite}
+            data-testid="gal-reduce-motion"
+            onClick={toggleMotion}
+          >
+            {T.reduceMotion}
+          </button>
+        </div>
+        <div
+          className="mt-2 flex flex-wrap gap-2"
+          role="group"
+          aria-label={T.width}
+        >
+          {WIDTHS.map((w) => (
+            <button
+              key={w}
+              type="button"
+              className={`ds-btn ${width === w ? 'ds-primary' : 'ds-secondary'}`}
+              aria-pressed={width === w}
+              data-testid={`gal-width-${w}`}
+              onClick={() => setWidth(width === w ? null : w)}
+            >
+              {w}
+            </button>
+          ))}
         </div>
 
         <h2 className={heading}>{T.colour}</h2>
@@ -233,6 +275,18 @@ export default function DesignTokensPage() {
               </button>
             </div>
           ))}
+        </div>
+        <h2 className={heading}>{T.parts}</h2>
+        <div className="overflow-x-auto">
+          <div
+            data-testid="gal-frame"
+            data-width={width ?? 'fill'}
+            style={{ width: width ?? '100%', maxWidth: '100%' }}
+          >
+            <Suspense fallback={null}>
+              <Gallery />
+            </Suspense>
+          </div>
         </div>
         <p className="mt-10">
           <a className="text-accent underline" href="#/">

@@ -1,4 +1,4 @@
-import { Fragment } from 'react'
+import { Fragment, useRef } from 'react'
 import { useSyncExternalStore } from 'react'
 import { t, type MessageKey } from '../../i18n/t'
 import { db } from '../../core/db'
@@ -20,6 +20,7 @@ import { statusFor } from './status'
 import { showHistoryPair } from './historyTips'
 import { ShellIcon } from './shellIcons'
 import { ViewToggle } from './ViewToggle'
+import { useReaderInset } from './useReaderInset'
 import type { ShellIconName } from './shellPaths'
 import { hasUnsaved, onUnsavedChange } from '../saveStatus'
 
@@ -51,6 +52,7 @@ function Btn({
   className = '',
   controls,
   expanded,
+  lead,
 }: {
   icon: ShellIconName
   label: string
@@ -61,6 +63,8 @@ function Btn({
   className?: string
   controls?: string
   expanded?: boolean
+  /** A leading menu button: the reader's bars start after it. */
+  lead?: boolean
 }) {
   return (
     <button
@@ -72,6 +76,7 @@ function Btn({
       aria-controls={controls}
       aria-expanded={expanded}
       data-testid={testId}
+      data-lead={lead ? '' : undefined}
       onClick={onClick}
     >
       <ShellIcon name={icon} size={20} />
@@ -98,6 +103,8 @@ export function ShellTopBar(props: ShellTopBarProps) {
     onSearch,
     onSlot,
   } = props
+  const barRef = useRef<HTMLElement | null>(null)
+  useReaderInset(barRef)
   const canGoBack = useCanGoBack()
   const canGoForward = useCanGoForward()
   const barOff = useShowBarButton()
@@ -121,6 +128,7 @@ export function ShellTopBar(props: ShellTopBarProps) {
 
   return (
     <header
+      ref={barRef}
       data-chrome
       data-shell-top
       aria-label={t('shell.top')}
@@ -133,6 +141,7 @@ export function ShellTopBar(props: ShellTopBarProps) {
           label={t('nav.openMenu')}
           controls="sidebar"
           expanded={drawerOpen}
+          lead
           onClick={onOpenDrawer}
         />
       </span>
@@ -142,6 +151,7 @@ export function ShellTopBar(props: ShellTopBarProps) {
           label={toggleName}
           controls="sidebar"
           expanded={!sidebarHidden}
+          lead
           onClick={onToggleSidebar}
         />
       </span>
@@ -151,6 +161,7 @@ export function ShellTopBar(props: ShellTopBarProps) {
           label={t('lp.open')}
           testId="panel-toggle"
           pressed={panel.open}
+          lead
           onClick={panel.onToggle}
         />
       )}

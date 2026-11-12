@@ -153,3 +153,12 @@ Full text: `docs/DECISIONS.md` "Decisions to review" on `build/next`. Build-nigh
 - Gate-3 fix lists done, pushed, need gate 2 then Fable gate 3 re-shoot review: 3 5ad4bd15 (10/10, On/Off = mock-up switch, SET-B09 spec changed: "Now:" box removed), 8 e06a98e8 (8/8; touched hot file src/App.tsx: iPad portrait sidebar closed; tooltip over sidebar in iPad landscape Home shots), 4 fc8ddf89 (13/13, size 318,226; "3 of 12" arrows and item 12 deferred in DECISIONS), 7 6a8141c7 (7/7; check:dod looks for readerV2.md, spec is reader-v2.md: pass the right slug; worktree has uncommitted sticky/panel edits from an earlier builder, keep them).
 - Still open: 12b fix list (after conflict), 0g 3 follow-ups, flag-on shots + gate 3 for 5, 6, 9b; 7 remaining sub-slices; iPad storage-safety slice; owner iPad checklist; first full preview.
 - Docs done on main: DECISIONS (On/Off switch), PENDING Needs you (gate-2 style rule, not applied), CHANGELOG, mirror.
+
+## Waves 5-7 (13 Nov, orchestrator run 2) and handover
+
+- CI 43318864743 on build/next f49fdad9 (9b merged): see result below / re-check first.
+- Gate 2 PASS: 4 a67d622c (SR-B05 marked Later), 12 b11e5756 (merge 1b810fc9 + G3 fixes + test follow-ups), 8 044370f7 (rotation via useFrameSize, RV-G02 webkit helper wait, RV-B08), 3 6132fcb3 (aria-describedby fix; test-only re-check not re-gated). 0g follow-ups f741719d.
+- Gate 3 (third visit, gate3 file, main 918c0060): PASS 8, 0g follow-ups. FAIL 5 (7), 6 (6), 9b (8), 12 (2: G3-2 row 24 px short, generic + icons H4-6/Toggle), 4 (7 left). Slice 3 needs a re-shoot + gate 3 (incl. sepia).
+- Slice 7: gate 2 FAIL = unfinished: 7g (RD-B42 edge-tap, Style Full), 7h rest (proSwitches.ts, Pro list, eraser); e2e missing RD-P02-17, P19-34, RD-B24/25/26/42/45/46/50; nothing-lost script R01-R92. Head 55e0ea34.
+- ln-s3 worktree has a popped old stash (conflicts in docs/INDEX.md, PENDING.md, i18n enO/hiO); stash entry kept. Leave it; slice 3 now works in ln-s3b.
+- Next wave: merge 8 then 0g follow-ups into build/next (one at a time, CI); fix lists 5, 6, 9b, 12, 4; re-shoot 3; 7g/7h builder; then storage-safety slice, preview, iPad checklist.

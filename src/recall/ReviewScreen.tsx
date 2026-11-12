@@ -30,7 +30,8 @@ import {
   type ReviewSession,
 } from './reviewSession'
 import { noteLinkProps, tagRefProps } from '../editor/mapping'
-import { useImageUrl } from '../images/useImageUrl'
+import { GatedPicture } from '../images/RemotePictureCard'
+import { isRemoteUrl } from '../images/remoteImages'
 import { RATINGS } from './scheduler'
 import { SourceLine } from './SourceLine'
 
@@ -494,16 +495,21 @@ const asRuns = (value: JsonValue | undefined): Run[] =>
  */
 /** A picture in a card's answer (E2: a vivid image to recall). */
 function AnswerPicture({ source, depth }: { source: string; depth: number }) {
-  const url = useImageUrl(source)
-  if (!url) return null
+  const style = { marginInlineStart: depth * 18 }
   return (
-    <img
-      src={url}
-      alt=""
-      data-answer-picture
-      style={{ marginInlineStart: depth * 18 }}
-      className="mb-1.5 max-h-72 max-w-full rounded-lg object-contain"
-    />
+    <GatedPicture source={source} cardStyle={{ ...style, marginBottom: 6 }}>
+      {(url, onError) => (
+        <img
+          src={url}
+          alt=""
+          data-answer-picture
+          style={style}
+          onError={onError}
+          {...(isRemoteUrl(source) ? { referrerPolicy: 'no-referrer' } : {})}
+          className="mb-1.5 max-h-72 max-w-full rounded-lg object-contain"
+        />
+      )}
+    </GatedPicture>
   )
 }
 

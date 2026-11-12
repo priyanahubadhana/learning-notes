@@ -15,6 +15,8 @@ const SECTIONS = [
   lazy(() => import('./EmptySection')),
   lazy(() => import('./ObjBarSection')),
   lazy(() => import('./RangeSection')),
+  lazy(() => import('./MenusSection')),
+  lazy(() => import('./FeedbackSection')),
 ]
 
 export default function Gallery() {

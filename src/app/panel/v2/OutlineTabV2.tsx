@@ -347,7 +347,6 @@ export function OutlineTabV2({
                     type="button"
                     className="lpv2-ol-t"
                     data-testid="lpv2-outline-line"
-                    title={line.text}
                     onClick={() => go(line)}
                   >
                     {line.number && (

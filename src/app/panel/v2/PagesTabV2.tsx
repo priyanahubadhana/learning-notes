@@ -167,7 +167,7 @@ export function PagesTabV2({
     null,
   )
   const [extract, setExtract] = useState<string[] | null>(null)
-  const undoStack = useRef<UndoEntry[]>([])
+  const stepsDone = useRef<UndoEntry[]>([])
   const [undoCount, setUndoCount] = useState(0)
   const footRef = useRef<HTMLDivElement>(null)
 
@@ -201,8 +201,8 @@ export function PagesTabV2({
   const remember = useCallback(
     (message: string, run: () => Promise<void>) => {
       const entry: UndoEntry = { run, done: false }
-      undoStack.current.push(entry)
-      setUndoCount(undoStack.current.length)
+      stepsDone.current.push(entry)
+      setUndoCount(stepsDone.current.length)
       toast(message, {
         label: t('lp2.undo'),
         onSelect: () => {
@@ -215,8 +215,8 @@ export function PagesTabV2({
     [toast],
   )
   const undoLast = () => {
-    const entry = undoStack.current.pop()
-    setUndoCount(undoStack.current.length)
+    const entry = stepsDone.current.pop()
+    setUndoCount(stepsDone.current.length)
     if (!entry || entry.done) return
     entry.done = true
     runTask(entry.run().then(() => toast(t('lp2.undone'))))

@@ -3,6 +3,7 @@ import { cardsMakeCloze } from './tools/cardsMakeCloze'
 import { cardsMakeRecall } from './tools/cardsMakeRecall'
 import { databasesCreate } from './tools/databasesCreate'
 import { notebooksCreate } from './tools/notebooksCreate'
+import { notebooksCreateFromSpec } from './tools/notebooksCreateFromSpec'
 import { pagesRefine } from './tools/pagesRefine'
 import { pagesWriteNotes } from './tools/pagesWriteNotes'
 import { stylesApply } from './tools/stylesApply'
@@ -13,6 +14,7 @@ import { stylesApply } from './tools/stylesApply'
  */
 export const AI_TOOLS: readonly AiToolDef[] = [
   notebooksCreate,
+  notebooksCreateFromSpec,
   pagesWriteNotes,
   cardsMakeRecall,
   cardsMakeCloze,

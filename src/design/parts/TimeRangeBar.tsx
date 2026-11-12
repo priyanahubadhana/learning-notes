@@ -1,12 +1,15 @@
 import {
   lazy,
   Suspense,
+  useCallback,
+  useLayoutEffect,
   useMemo,
   useRef,
   useState,
   type KeyboardEvent,
 } from 'react'
 import { tp } from './textMisc'
+import { useAnchoredCard } from './useAnchoredCard'
 import {
   formatRange,
   isValidRange,
@@ -64,6 +67,34 @@ export function TimeRangeBar({
   const [draft, setDraft] = useState<DateRange>({ from: now, to: now })
   const [building, setBuilding] = useState(false)
   const track = useRef<HTMLDivElement>(null)
+  const [fade, setFade] = useState('none')
+  const [bar, setBar] = useState<HTMLDivElement | null>(null)
+  const [pop, setPop] = useState<HTMLDivElement | null>(null)
+  const pos = useAnchoredCard({
+    anchor: bar,
+    card: pop,
+    widthPx: 320,
+    active: picking,
+  })
+
+  /** Which edge of the segment track still has hidden content. */
+  const measureFade = useCallback(() => {
+    const el = track.current
+    if (!el) return
+    const max = el.scrollWidth - el.clientWidth
+    const start = el.scrollLeft > 1
+    const end = el.scrollLeft < max - 1
+    const next = start && end ? 'both' : start ? 'start' : end ? 'end' : 'none'
+    setFade((prev) => (prev === next ? prev : next))
+  }, [])
+  useLayoutEffect(() => {
+    measureFade()
+    const el = track.current
+    if (!el || typeof ResizeObserver === 'undefined') return
+    const ro = new ResizeObserver(measureFade)
+    ro.observe(el)
+    return () => ro.disconnect()
+  }, [measureFade, presets, value])
 
   const visible = customRange ? list : list.filter((p) => p.kind !== 'custom')
   const current = visible.find((p) => p.id === value) ?? visible[0]
@@ -110,6 +141,7 @@ export function TimeRangeBar({
 
   return (
     <div
+      ref={setBar}
       className="pm-range"
       data-testid="time-range-bar"
       data-state={picking ? (valid ? 'editing' : 'invalid') : 'default'}
@@ -122,6 +154,8 @@ export function TimeRangeBar({
         className="pm-range__track"
         role="radiogroup"
         aria-label={tp('parts.range.label')}
+        data-fade={fade}
+        onScroll={measureFade}
         onKeyDown={onKeyDown}
       >
         {visible.map((p) => {
@@ -158,7 +192,13 @@ export function TimeRangeBar({
       )}
       {picking && (
         <div
+          ref={setPop}
           className="pm-pop"
+          style={{
+            left: pos && bar ? pos.left - bar.getBoundingClientRect().left : 0,
+            top: pos && bar ? pos.top - bar.getBoundingClientRect().top : 0,
+            visibility: pos ? undefined : 'hidden',
+          }}
           role="group"
           aria-label={tp('parts.range.custom')}
           data-testid="range-picker"

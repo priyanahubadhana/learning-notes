@@ -48,7 +48,7 @@ export function Demo({
 /** Cells that sit side by side and wrap; on a phone they stack, one per row. */
 export function Cells({ children }: { children: ReactNode }) {
   return (
-    <div className="flex flex-col items-start gap-6 sm:flex-row sm:flex-wrap">
+    <div className="flex flex-col gap-6 sm:flex-row sm:flex-wrap sm:items-start">
       {children}
     </div>
   )

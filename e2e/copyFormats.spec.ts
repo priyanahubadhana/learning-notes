@@ -98,16 +98,19 @@ test('block menu: Copy puts every format; Copy as... Markdown writes Markdown on
   page,
 }) => {
   await start(page)
-  // The submenu opens on hover and the menu can redraw: open it all again
-  // until it works (a slow runner).
+  // The submenu opens on hover and the menu can redraw (the item can go
+  // hidden or detached mid-hover): every step has its own short timeout so a
+  // stuck step fails fast and the whole sequence starts again.
+  const step = { timeout: 2000 }
   await expect(async () => {
     await page.keyboard.press('Escape')
-    await editor(page).locator('h2').hover()
-    await page.getByRole('button', { name: 'Open block menu' }).first().click()
-    await page.getByRole('menuitem', { name: 'Copy as…' }).hover()
+    await editor(page).locator('h2').hover(step)
     await page
-      .getByRole('menuitem', { name: 'Markdown' })
-      .click({ timeout: 2000 })
+      .getByRole('button', { name: 'Open block menu' })
+      .first()
+      .click(step)
+    await page.getByRole('menuitem', { name: 'Copy as…' }).hover(step)
+    await page.getByRole('menuitem', { name: 'Markdown' }).click(step)
   }).toPass({ timeout: 15_000 })
   await expect
     .poll(() => page.evaluate(() => navigator.clipboard.readText()))
@@ -121,8 +124,11 @@ test('block menu Copy: rich html and Markdown on the clipboard, pastes back as t
   // The menu can redraw under the click on a slow runner: open it again.
   await expect(async () => {
     await page.keyboard.press('Escape')
-    await editor(page).locator('h2').hover()
-    await page.getByRole('button', { name: 'Open block menu' }).first().click()
+    await editor(page).locator('h2').hover({ timeout: 3000 })
+    await page
+      .getByRole('button', { name: 'Open block menu' })
+      .first()
+      .click({ timeout: 3000 })
     await page
       .getByRole('menuitem', { name: 'Copy', exact: true })
       .click({ timeout: 3000 })

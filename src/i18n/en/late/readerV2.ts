@@ -35,7 +35,8 @@ export const enLateReaderV2 = {
     'Only voices on this device are used. Your text never leaves it.',
   'readerv2.sticky.tool': 'Sticky note',
   'readerv2.sticky.hint': 'Tap the page where the note goes.',
-  'readerv2.sticky.unsupported': 'Sticky notes work on PDF pages.',
+  'readerv2.sticky.unsupported':
+    'In a book, select the words, then choose Sticky note.',
   'readerv2.sticky.readLabel': 'Sticky note',
   'readerv2.sticky.empty': 'Empty note',
   'readerv2.sticky.edit': 'Edit this sticky note',

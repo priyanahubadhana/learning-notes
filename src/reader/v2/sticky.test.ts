@@ -5,6 +5,7 @@ import { listAnnotations } from '../annotations/annotationService'
 import {
   StickyHistory,
   addSticky,
+  addStickyOnText,
   edgeScrollSpeed,
   editSticky,
   isDeliberateTap,
@@ -115,6 +116,34 @@ describe('sticky notes in the annotation table', () => {
     await step.redo()
     rows = await listAnnotations(db, 'book1')
     expect(rows[0].id).toBe(annotation.id)
+  })
+
+  it('adds a note on selected EPUB words, with the words and chapter; Undo / Redo', async () => {
+    const anchor = {
+      type: 'epub' as const,
+      cfi: 'epubcfi(/6/2!/4,/4/1:0,/4/1:9)',
+    }
+    const quote = { exact: 'quick fox', prefix: 'The ', suffix: ' jumps' }
+    const { annotation, step } = await addStickyOnText(
+      db,
+      'book1',
+      { anchor, quote, chapter: 'Chapter 1' },
+      'Check',
+    )
+    const rows = await listAnnotations(db, 'book1')
+    expect(rows).toHaveLength(1)
+    expect(rows[0]).toMatchObject({
+      kind: 'sticky',
+      note: 'Check',
+      anchor,
+      quote,
+      chapter: 'Chapter 1',
+    })
+    expect(stickyPlace(rows[0])).toBeNull()
+    await step.undo()
+    expect(await listAnnotations(db, 'book1')).toHaveLength(0)
+    await step.redo()
+    expect((await listAnnotations(db, 'book1'))[0].id).toBe(annotation.id)
   })
 
   it('edits the words; Undo brings the old words back', async () => {

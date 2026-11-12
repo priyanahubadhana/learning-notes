@@ -1,7 +1,7 @@
 import { IconButton, MenuPopover, NameDialog, type MenuItem } from '../app/ui'
 import { Icon } from '../app/tools/icons'
 import { toggleListen } from './v2/listen'
-import { stickyArmed, stickyView } from './v2/sticky'
+import { stickyAnchor, stickyArmed, stickyView } from './v2/sticky'
 import { noteAtPoint } from './v2/stickyDrag'
 import {
   activeLock,
@@ -530,6 +530,18 @@ export function BookReader({
     toast(t('readerv2.lock.unlocked'))
   }
   const turnedAway = () => toast(t('readerv2.lock.unlockToUse'))
+  // EPUB (v2): a tap on marked words opens the note on them, if there is one.
+  const openNoteAtCfi = (cfi: string) => {
+    const hits = (annotations ?? []).filter(
+      (a) =>
+        a.anchor.type === 'epub' &&
+        a.anchor.cfi === cfi &&
+        !a.deletedAt &&
+        !!a.note,
+    )
+    const hit = hits.find((a) => a.kind === 'sticky') ?? hits[0]
+    if (hit) stickyView.set({ mode: 'read', id: hit.id })
+  }
   const onSelectionV2 = (s: ReaderSelection | null) =>
     setSelection(s && lockAllows(lockMode, 'highlight') ? s : null)
   const onColour = (c: HighlightColour) => {
@@ -1775,6 +1787,7 @@ export function BookReader({
                 report(pos.progress, pos.locator, pos.label, 0, pos.unitsLeft)
               }
               onSelection={v2 ? onSelectionV2 : setSelection}
+              onAnnotationTap={v2 ? openNoteAtCfi : undefined}
               onTap={onEdgeTap}
               onFailed={() => setFailed(true)}
             />
@@ -1971,6 +1984,24 @@ export function BookReader({
             setNoting(selection)
             clearSelection()
           }}
+          onSticky={
+            v2 && lockAllows(lockMode, 'sticky')
+              ? () => {
+                  const sel = selection
+                  clearSelection()
+                  const an = sel.anchor
+                  stickyView.set({
+                    mode: 'newSel',
+                    anchor:
+                      an.type === 'pdf' && an.rects.length >= 2
+                        ? stickyAnchor(an.page, an.rects[0], an.rects[1])
+                        : an,
+                    quote: sel.quote,
+                    chapter: sel.chapter,
+                  })
+                }
+              : undefined
+          }
           onCopy={() => {
             const text = selection.text
             clearSelection()
@@ -2047,7 +2078,7 @@ export function BookReader({
           />
         </Suspense>
       )}
-      {v2 && format === 'pdf' && (
+      {v2 && (format === 'pdf' || format === 'epub') && (
         <Suspense fallback={null}>
           <StickyHost
             db={db}

@@ -7,6 +7,7 @@ import { t } from '../../i18n/t'
 import {
   StickyHistory,
   addSticky,
+  addStickyOnText,
   editSticky,
   moveSticky,
   removeSticky,
@@ -67,7 +68,8 @@ export default function StickyHost({
   )
   // A view of a note that is gone (deleted elsewhere or undone) closes.
   useEffect(() => {
-    if (view && view.mode !== 'new' && !find(view.id)) stickyView.set(null)
+    if (view && view.mode !== 'new' && view.mode !== 'newSel' && !find(view.id))
+      stickyView.set(null)
   })
 
   const undoNow = async () => {
@@ -108,7 +110,10 @@ export default function StickyHost({
   const closeThis = () => {
     if (stickyView.get() === view) stickyView.set(null)
   }
-  const current = view && view.mode !== 'new' ? find(view.id) : undefined
+  const current =
+    view && view.mode !== 'new' && view.mode !== 'newSel'
+      ? find(view.id)
+      : undefined
   const canEdit = current?.kind === 'sticky' ? canEditSticky : canEditNote
   return (
     <>
@@ -159,6 +164,21 @@ export default function StickyHost({
             stickyView.set(null)
             runTask(
               addSticky(db, pageId, view, text).then(({ step }) =>
+                announce(t('readerv2.sticky.added'), step),
+              ),
+            )
+          }}
+        />
+      )}
+      {view?.mode === 'newSel' && canEditSticky && (
+        <StickyEdit
+          initial=""
+          isNew
+          onClose={closeThis}
+          onSave={(text) => {
+            stickyView.set(null)
+            runTask(
+              addStickyOnText(db, pageId, view, text).then(({ step }) =>
                 announce(t('readerv2.sticky.added'), step),
               ),
             )

@@ -14,6 +14,7 @@ export function SelectionPopup({
   selected,
   onColour,
   onNote,
+  onSticky,
   onCopy,
   onPin,
   onSaveTo,
@@ -26,6 +27,8 @@ export function SelectionPopup({
   selected: string
   onColour: (c: HighlightColour) => void
   onNote: () => void
+  /** Reader v2: a sticky note on these words. */
+  onSticky?: () => void
   onCopy: () => void
   onPin: () => void
   onSaveTo: () => void
@@ -88,6 +91,16 @@ export function SelectionPopup({
       <button type="button" onClick={onNote} className={btn}>
         {t('annot.note')}
       </button>
+      {onSticky && (
+        <button
+          type="button"
+          data-testid="popup-sticky"
+          onClick={onSticky}
+          className={btn}
+        >
+          {t('readerv2.sticky.tool')}
+        </button>
+      )}
       <button type="button" onClick={onCopy} className={btn}>
         {t('annot.copy')}
       </button>

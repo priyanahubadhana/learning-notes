@@ -37,7 +37,7 @@ export const esReaderV2 = {
   'readerv2.sticky.tool': 'Nota adhesiva',
   'readerv2.sticky.hint': 'Toca la página donde va la nota.',
   'readerv2.sticky.unsupported':
-    'Las notas adhesivas funcionan en páginas PDF.',
+    'En un libro, selecciona las palabras y elige Nota adhesiva.',
   'readerv2.sticky.readLabel': 'Nota adhesiva',
   'readerv2.sticky.empty': 'Nota vacía',
   'readerv2.sticky.edit': 'Editar esta nota adhesiva',

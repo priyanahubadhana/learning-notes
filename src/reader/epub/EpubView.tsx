@@ -40,6 +40,8 @@ interface AnnotationDraft {
   value: string
   color: string
   glow?: boolean
+  /** A sticky note: its words are underlined, not filled. */
+  sticky?: boolean
 }
 interface RelocateDetail {
   fraction: number
@@ -83,21 +85,28 @@ export interface EpubViewProps {
     unitsLeft?: { chapter: number; book: number }
   }) => void
   onSelection: (sel: ReaderSelection | null) => void
+  /** A tap on marked words: the position (cfi) of the mark. */
+  onAnnotationTap?: (cfi: string) => void
   /** A tap on the text: where across the view (x of width), for page turns. */
   onTap?: (x: number, width: number) => void
   onFailed: () => void
 }
 
 const ACCENT = 'rgba(37, 99, 235, 0.9)'
+const STICKY_LINE = 'rgba(217, 119, 6, 0.95)'
 
 /** The highlights wanted on screen, by position. */
 function wantedHighlights(list: readonly Annotation[]) {
   const wanted = new Map<string, AnnotationDraft>()
   for (const a of list) {
     if (a.anchor.type !== 'epub' || a.kind === 'bookmark') continue
+    const have = wanted.get(a.anchor.cfi)
+    // A highlight on the same words shows; a sticky note only underlines.
+    if (a.kind === 'sticky' && have && !have.sticky) continue
     wanted.set(a.anchor.cfi, {
       value: a.anchor.cfi,
       color: COLOUR_FILL[a.colour ?? 'yellow'],
+      ...(a.kind === 'sticky' && { sticky: true }),
     })
   }
   return wanted
@@ -241,9 +250,20 @@ export function EpubView(props: EpubViewProps) {
           ).detail
           if (annotation.glow) {
             draw(Overlayer.outline, { color: ACCENT, width: 3 })
+          } else if (annotation.sticky) {
+            draw(Overlayer.underline, { color: STICKY_LINE, width: 2 })
           } else draw(Overlayer.highlight, { color: annotation.color })
         })
-        view.addEventListener('create-overlay', () => sync(view!))
+        const overlayEvents: Record<string, (e: Event) => void> = {
+          'create-overlay': () => sync(view!),
+          // A tap on marked words (a highlight, a note, a sticky note).
+          'show-annotation': (e) => {
+            const { value } = (e as CustomEvent<{ value: string }>).detail
+            propsRef.current.onAnnotationTap?.(value)
+          },
+        }
+        for (const [name, fn] of Object.entries(overlayEvents))
+          view.addEventListener(name, fn)
         view.addEventListener('load', (e) => {
           const { doc, index } = (
             e as CustomEvent<{ doc: Document; index: number }>

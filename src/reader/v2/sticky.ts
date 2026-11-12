@@ -22,6 +22,13 @@ export type StickyView =
   | { mode: 'read'; id: string }
   | { mode: 'edit'; id: string }
   | { mode: 'new'; page: number; x: number; y: number }
+  /** A note on selected text (EPUB, and PDF from the selection pop-up): saved with its words. */
+  | {
+      mode: 'newSel'
+      anchor: Annotation['anchor']
+      quote?: Annotation['quote']
+      chapter?: string
+    }
   | null
 export const stickyView = memStore<StickyView>(null)
 
@@ -141,6 +148,34 @@ export async function addSticky(
     pageId,
     kind: 'sticky',
     anchor: stickyAnchor(place.page, place.x, place.y),
+    note,
+  })
+  return {
+    annotation,
+    step: {
+      undo: () => deleteAnnotation(db, annotation.id),
+      redo: () => restoreAnnotation(db, annotation.id),
+    },
+  }
+}
+
+/** Puts a new note on selected text (an EPUB place, or the first line of a PDF selection). */
+export async function addStickyOnText(
+  db: LearningNotesDB,
+  pageId: string,
+  at: {
+    anchor: Annotation['anchor']
+    quote?: Annotation['quote']
+    chapter?: string
+  },
+  note: string,
+): Promise<{ annotation: Annotation; step: StickyStep }> {
+  const annotation = await createAnnotation(db, {
+    pageId,
+    kind: 'sticky',
+    anchor: at.anchor,
+    quote: at.quote,
+    chapter: at.chapter,
     note,
   })
   return {

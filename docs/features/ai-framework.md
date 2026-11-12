@@ -165,6 +165,16 @@ Tools: `mindmaps.add`, `mindmaps.set_theme`, `cards.suspend`, `databases.rename`
 - When Claude's local connector is asked for `mindmaps.add` or `databases.rename` → it says they are not offered there and writes nothing (they are app-only for now).
 - When a notebook, page or database is locked, the Study tracker is renamed, a block is not a mind map, an outline is blank, or the thing is gone → nothing is written and the reason is shown in plain words in English, Spanish and Hindi.
 
+### Slice 5d: Tags, Library
+
+Tools: `tags.add`, `tags.remove`, `tags.rename`, `library.pin` (same folders as 5a).
+
+- When a plan names one of these tools → it is checked, staged, previewed, applied and undone like the older tools (V4-G1 to V4-G4); one Undo reverts the whole job, and a tag made by the job goes to Trash.
+- When `tags.remove` and `library.pin` run in the app and through `run_plan` → the records are byte-equal (V4-G5, `mcp/test/planParity.test.ts`).
+- When Claude's local connector is asked for `tags.add` or `tags.rename` → it says they are not offered there and writes nothing (app-only for now).
+- When a notebook or page is locked, a tag name is blank or already used under the same parent, or the page, tag or notebook is gone → nothing is written and the reason is shown in plain words in English, Spanish and Hindi.
+- When the spend limit is ₹0 → none of these tools makes any network or paid call (V4-G6).
+
 ### Slice 3: Build screen texts
 
 - AF-43. When a step or job shows a reason (step failed, stopped, nothing to

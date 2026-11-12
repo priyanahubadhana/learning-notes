@@ -19,6 +19,7 @@ const TABLES = [
   'databases',
   'dbColumns',
   'dbViews',
+  'tags',
 ] as const
 
 type Table = {

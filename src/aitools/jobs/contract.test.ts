@@ -44,6 +44,7 @@ interface Ids {
   card: string
   database: string
   mapBlock: string
+  tag: string
 }
 
 /** The example ids (nb1, p1, b1) become the ids of a real notebook. */
@@ -54,6 +55,7 @@ const swap = (v: unknown, ids: Ids): unknown => {
   if (v === 'c1') return ids.card
   if (v === 'db1') return ids.database
   if (v === 'mb1') return ids.mapBlock
+  if (v === 't1') return ids.tag
   if (Array.isArray(v)) return v.map((x) => swap(x, ids))
   if (v && typeof v === 'object')
     return Object.fromEntries(
@@ -76,6 +78,7 @@ async function world() {
     card: '',
     database: '',
     mapBlock: '',
+    tag: '',
   }
   const more = await build(kit, {
     ...onePlan('mindmaps.add', { pageId: ids.page, outline: MAP_OUTLINE }),
@@ -89,6 +92,11 @@ async function world() {
     }),
     id: 'world-db',
   })
+  const tagged = await build(kit, {
+    ...onePlan('tags.add', { pageId: ids.page, tag: 'seed-tag' }),
+    id: 'world-tag',
+  })
+  ids.tag = outputOf(tagged, 's1', 'tagId')
   ids.card = String((await kit.port.list('cards', {}))[0].id)
   ids.database = String((await kit.port.list('databases', {}))[0].id)
   return { kit, ids }
@@ -112,6 +120,7 @@ const TABLES = new Set([
   'databases',
   'dbColumns',
   'dbViews',
+  'tags',
 ])
 
 function argsFor(tool: AiToolDef, example: object, ids: Ids): Rec {

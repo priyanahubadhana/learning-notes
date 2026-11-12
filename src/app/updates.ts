@@ -4,6 +4,14 @@
  * message can be missed and an iPad may keep the app open for weeks. Closing
  * the offer hides it until the next app start.
  */
+import { isOn } from './flags'
+import {
+  isMustHaveLevel,
+  parseLevel,
+  parseReason,
+  type UpdateReason,
+} from './updateLevel'
+
 type Listener = (apply: () => void) => void
 
 let pending: (() => void) | undefined
@@ -61,6 +69,9 @@ export function resetUpdates() {
   checker = undefined
   fallback = undefined
   requiredUpdate = false
+  requiredReason = 'storage'
+  liveLevel = null
+  otherTab = false
   requiredListeners.clear()
 }
 
@@ -101,6 +112,18 @@ export function setUpdateFallback(apply: () => void) {
 let requiredUpdate = false
 export const isUpdateRequired = (): boolean => requiredUpdate
 
+/** Why the must-have update is needed (update.v2): storage or a data fix. */
+let requiredReason: UpdateReason = 'storage'
+export const updateReason = (): UpdateReason => requiredReason
+
+/** The `level` of the newest live version.json (null: none or invalid). */
+let liveLevel: number | null = null
+/** True when the stored notes are newer than this tab's code (no writing then). */
+let otherTab = false
+export const isOtherTabUpgrade = (): boolean => otherTab
+
+export const liveUpdateLevel = (): number | null => liveLevel
+
 type RequiredListener = (apply: () => void) => void
 const requiredListeners = new Set<RequiredListener>()
 
@@ -125,19 +148,42 @@ export async function latestVersion(
       cache: 'no-store',
     })
     if (!res.ok) return 'failed'
-    const { commit, required } = (await res.json()) as {
+    const { commit, required, level, reason } = (await res.json()) as {
       commit?: unknown
       required?: unknown
+      level?: unknown
+      reason?: unknown
     }
     if (typeof commit !== 'string' || !commit) return 'failed'
     if (current === 'unknown') return 'same'
     if (commit === current) return 'same'
     // Only the live version.json can mark an update as required.
-    requiredUpdate = required === true
+    if (isOn('update.v2')) {
+      // Must-have exactly when the live level is above this build's level.
+      liveLevel = parseLevel(level)
+      requiredUpdate = isMustHaveLevel(level)
+      if (requiredUpdate) requiredReason = parseReason(reason)
+    } else {
+      requiredUpdate = required === true
+    }
     return 'newer'
   } catch {
     return 'failed'
   }
+}
+
+/**
+ * Makes the update must-have at once, with no network check (this tab's
+ * code is older than the stored notes: another tab already upgraded them).
+ */
+export function triggerMustHave(
+  reason: UpdateReason = 'storage',
+  apply: (() => void) | undefined = pending ?? fallback,
+): void {
+  requiredUpdate = true
+  requiredReason = reason
+  otherTab = true
+  if (apply) for (const fn of [...requiredListeners]) fn(apply)
 }
 
 const builtCommit = () =>

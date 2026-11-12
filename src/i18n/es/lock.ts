@@ -132,6 +132,14 @@ export const esLock = {
   'unlock.show': 'Mostrar la frase',
   'unlock.useCode': 'Usar mejor tu código de recuperación',
   'unlock.usePassphrase': 'Usar mejor tu frase',
+  'lock.pin.changeBtn': 'Cambiar PIN',
+  'lock.pin.changed': 'PIN cambiado',
+  'lock.pin.hint6': 'Un PIN tiene 6 dígitos.',
+  'lock.pin.new6': 'PIN nuevo (6 dígitos)',
+  'lock.pin.shorter':
+    'Tu PIN tiene menos de 6 dígitos. Cámbialo para más privacidad.',
+  'lock.pin.shorterMaybe':
+    'Tu PIN puede tener menos de 6 dígitos. Cámbialo para más privacidad.',
   'unlock.wait': 'Demasiados intentos. Inténtalo de nuevo en {time}.',
   'unlock.waitSr':
     'Demasiados intentos. Inténtalo de nuevo en unos {count} min.',

@@ -9,6 +9,14 @@ export const enLateLock = {
   'editLock.menu.unlock': 'Unlock editing',
   'editLock.refused': 'This is locked for editing. Unlock it first.',
   'editLock.unlocked': 'Unlocked. You can edit again.',
+  'lock.pin.changeBtn': 'Change PIN',
+  'lock.pin.changed': 'PIN changed',
+  'lock.pin.hint6': 'A PIN is 6 digits.',
+  'lock.pin.new6': 'New PIN (6 digits)',
+  'lock.pin.shorter':
+    'Your PIN is shorter than 6 digits. Change it for better privacy.',
+  'lock.pin.shorterMaybe':
+    'Your PIN may be shorter than 6 digits. Change it for better privacy.',
   'unlock.allSet': 'All set',
   'unlock.bringing': 'Unlocked · Bringing your notebooks to this device…',
   'unlock.bringingCount':

@@ -1,7 +1,8 @@
 import { useEffect, useRef } from 'react'
 import { createPortal } from 'react-dom'
 import { t } from '../i18n/t'
-import { mandatoryUpdate } from './mandatoryState'
+import { mandatoryMeta, mandatoryUpdate } from './mandatoryState'
+import MandatoryNotice from './MandatoryNotice'
 import { flow } from './mandatoryFlow'
 
 /**
@@ -11,7 +12,9 @@ import { flow } from './mandatoryFlow'
 export default function MandatoryUpdate() {
   const s = mandatoryUpdate.useValue()
   const primary = useRef<HTMLButtonElement>(null)
-  const active = s !== null
+  const meta = mandatoryMeta.useValue()
+  // update.v2: while offline the app stays usable (a small note, no block).
+  const active = s !== null && !(meta.v2 && s.phase === 'offline')
 
   // Block the app behind: no taps, no typing, no focus.
   useEffect(() => {
@@ -27,6 +30,11 @@ export default function MandatoryUpdate() {
   }, [phase])
 
   if (!s) return null
+  if (meta.v2)
+    return createPortal(
+      <MandatoryNotice s={s} reason={meta.reason} />,
+      document.body,
+    )
   const pct =
     s.phase === 'downloading' && s.total > 0
       ? Math.min(100, Math.round((s.loaded / s.total) * 100))

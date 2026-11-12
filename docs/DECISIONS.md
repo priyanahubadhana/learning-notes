@@ -1136,3 +1136,11 @@ The other older decisions stand as built (owner, 2026-11-01); they are in [ARCHI
 - **The spec takes text as inline Markdown strings; no pictures or files, no `cardList` or `dayRecord`.** Pictures need uploads (a later decision); the others are made by the app.
 - **Only the optional secret `ALLOWED_EMAIL` limits who may approve.** Unset means any account that can sign in to the app; today that is the owner only (the app's sign-in hook).
 - **Slice 2 is not safe for real notes yet:** the tools do nothing, but escrow, Inbox, audit log, rate limits and a Revoke list are later slices. Until then, disconnect by deleting rows in `oauth_tokens`.
+
+## Decisions to review (build night 1, 12 Nov)
+
+- Night 1 work was released to the live app on 12 Nov after a fully green test run, with every new part switched off (owner's release rule). The next release waits for the end-of-run full check because it includes a new on-device table (Dexie version 24, aiJobs), which cannot be rolled back by a switch.
+- aiJobs is device-local: not synced, not in backup files; "Delete all data" removes it.
+- Shell: phone = width under 640 or height under 512; a page shows two Undo/Redo pairs until the toolbar slice removes one; Device mode is hidden from the phone top bar (stays in the gear menu).
+- Settings v3: three columns need a Settings area of at least 980 px; Settings has its own Undo/Redo until the shell top bar is connected.
+- Toasts: a 4th toast waits when 3 are showing.

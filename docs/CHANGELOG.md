@@ -10,6 +10,9 @@ Current phase only. Older entries are in [ARCHIVE.md](ARCHIVE.md).
 - Built on their own branches, waiting for the QA gate: shared parts (slice/0g-parts), update flow BUG-004 (slice/10-update-v2), security mediums (slice/11-security-m1), AI job engine (slice/9-ai-framework-1), iPad test flake fixes (fix/ipad-flakes).
 - 17 specs written in docs/features/ (foundation, foundation-input, foundation-selection-overlay, tool-registry, shared-parts, toolbar-v8, page-menus, textbox-v2, page-objects, media-v2, study-v2, safety-v2, system-v2, update-v2, security-m1, settings-v3, notebooks-search-v2, home-v2, library-v2, reader-v2, review-v2, ai-framework). They are on build/next.
 - Why: owner said "start the build" (docs/plans/build-master-plan.md).
+- Released to main, live, all switched off: build/next at 1c412c8 (merge b5b0bc7, run 43205383635): foundation 0a-0f + 0i, update flow, security mediums (report-only strict policy + Permissions-Policy in public/_headers), AI job engine, iPad test flake fixes (inkLayers, boxTaps), free preview job in CI.
+- On build/next after the release: shared parts step 1 (src/design/parts/, gallery), AI Build screen, "first outside tap only closes" in the overlay manager, event router gained click / input / touchmove. Ratchet now 362 listeners / 137 z-index.
+- Fixed on the way (why it happened): version.json always said level 1 because two regexes in vite.config.ts had lost their backslashes; Parts gallery stalled iPad WebKit in CI because of a dozen 28 px blurs on static cards; phone layouts of the Time range bar and Arrange sheet were clipped because the editor sat in the page flow with no width limit.
 
 ## 2026-11-12 (Build master plan)
 

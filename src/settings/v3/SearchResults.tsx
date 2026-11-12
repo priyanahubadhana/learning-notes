@@ -1,19 +1,26 @@
 import { t } from '../../i18n/t'
 import { settingsRegistry } from '../builtinSettings'
+import type { VirtualRow } from './virtualRows'
 import type { SearchHit } from './settingsSearch'
 import { tv } from './tv'
 
 /** SET-B05: matching rows from every section, each with its section name. */
 export function SearchResults({
   hits,
+  virtuals = [],
+  sectionName = (id) => id,
   query,
   onOpen,
 }: {
   hits: SearchHit[]
+  /** Rows only the new screen has (page tabs, tours...). */
+  virtuals?: VirtualRow[]
+  sectionName?(sectionId: string): string
   query: string
   onOpen(settingId: string, sectionId: string): void
 }) {
-  if (hits.length === 0)
+  const total = hits.length + virtuals.length
+  if (total === 0)
     return (
       <div data-search-empty role="status" className="sv3-search-empty">
         <p className="sv3-row-name">{tv('sv3.searchNone', { query })}</p>
@@ -23,7 +30,7 @@ export function SearchResults({
   return (
     <>
       <p role="status" className="sr-only">
-        {tv('sv3.searchFound', { count: hits.length })}
+        {tv('sv3.searchFound', { count: total })}
       </p>
       <ul className="sv3-hits">
         {hits.map(({ definition: d }) => {
@@ -47,6 +54,20 @@ export function SearchResults({
             </li>
           )
         })}
+        {virtuals.map((v) => (
+          <li key={v.id}>
+            <button
+              type="button"
+              data-hit={v.id}
+              className="sv3-hit"
+              onClick={() => onOpen(v.id, v.section)}
+            >
+              <span className="sv3-row-name">{v.name}</span>
+              <span className="sv3-hit-section">{sectionName(v.section)}</span>
+              <span className="sv3-line-help">{v.help}</span>
+            </button>
+          </li>
+        ))}
       </ul>
     </>
   )

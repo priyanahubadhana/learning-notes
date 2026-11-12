@@ -27,6 +27,11 @@ import { SearchResults } from './SearchResults'
 import { searchSettings } from './settingsSearch'
 import { SectionList } from './SectionList'
 import { PageTabsEditor } from './PageTabsEditor'
+import { buildSections } from './sections'
+import { ExperienceSection } from './ExperienceSection'
+import { HelpSection } from './HelpSection'
+import { rowShown, useExperienceOnTop } from './experience'
+import { searchVirtual, virtualRows } from './virtualRows'
 import { inSection, useVisibleSettings } from './visibleSettings'
 import { tv } from './tv'
 import { useWide } from './useWide'
@@ -53,7 +58,8 @@ function SettingsV3Body({
   db: LearningNotesDB
   focusId?: string
 }) {
-  const sections = settingsRegistry.categories()
+  const top = useExperienceOnTop()
+  const sections = buildSections(top)
   const history = useSettingsHistory()
   const [own, setOwn] = useState(
     () =>
@@ -88,16 +94,23 @@ function SettingsV3Body({
   const visible = everything.filter((s) => !s.searchOnly)
   const items = sections.map((s) => ({
     id: s.id,
-    label: t(s.labelKey),
-    count: inSection(visible, s.id).length,
+    label: s.label,
+    count: s.kind === 'rows' ? inSection(visible, s.id).length : undefined,
   }))
   const section = sections.find((s) => s.id === current)
-  const rows = inSection(visible, current)
+  const rows = section?.kind === 'rows' ? inSection(visible, current) : []
+  const [moved, setMoved] = useState<string | undefined>(undefined)
+  // The page tabs sit after the space switches (or last when those are hidden).
+  const tabsAfter =
+    current === 'general' && rowShown('general.pageTabs')
+      ? (rows.find((r) => r.id === 'general.space.review') ?? rows.at(-1))?.id
+      : undefined
 
   // SET-B05 / B06: search every section; a result opens its row and it glows.
   const [query, setQuery] = useState('')
   const [jump, setJump] = useState<{ id: string; seq: number } | null>(null)
   const searching = query.trim() !== ''
+  const vhits = searching ? searchVirtual(virtualRows(), query) : []
   const hits = searching
     ? searchSettings(everything, query, (s) => ({
         name: t(s.labelKey).toLowerCase(),
@@ -176,16 +189,40 @@ function SettingsV3Body({
         />
       </div>
       <div className="sv3-cols">
-        <SectionList sections={items} current={current} onPick={pick} />
-        <section
-          className="sv3-main"
-          aria-label={section ? t(section.labelKey) : undefined}
-        >
+        <SectionList
+          sections={items}
+          current={current}
+          onPick={pick}
+          glow={moved}
+        />
+        <section className="sv3-main" aria-label={section?.label}>
           {searching && (
-            <SearchResults hits={hits} query={query.trim()} onOpen={openHit} />
+            <SearchResults
+              hits={hits}
+              virtuals={vhits}
+              sectionName={(id) =>
+                sections.find((x) => x.id === id)?.label ?? id
+              }
+              query={query.trim()}
+              onOpen={openHit}
+            />
           )}
-          {!searching && section?.descriptionKey && (
-            <p className="sv3-lead">{t(section.descriptionKey)}</p>
+          {!searching && section?.kind === 'rows' && section.lead && (
+            <p className="sv3-lead">{section.lead}</p>
+          )}
+          {!searching && section?.kind === 'experience' && (
+            <ExperienceSection
+              onMoved={() => {
+                setMoved('experience')
+                setTimeout(() => setMoved(undefined), 3000)
+              }}
+            />
+          )}
+          {!searching && section?.kind === 'help' && (
+            <>
+              {section.lead && <p className="sv3-lead">{section.lead}</p>}
+              <HelpSection onShow={openHit} />
+            </>
           )}
           {!searching &&
             rows.map((s) => (
@@ -197,21 +234,15 @@ function SettingsV3Body({
                   onChanged={changed}
                   jump={jump?.id === s.id ? jump.seq : undefined}
                 />
-                {current === 'general' && s.id === 'general.space.review' && (
-                  <PageTabsEditor />
-                )}
+                {tabsAfter === s.id && <PageTabsEditor />}
               </Fragment>
             ))}
           {!searching && rows.length > 0 && section && (
-            <SectionReset
-              db={db}
-              sectionName={t(section.labelKey)}
-              rows={rows}
-            />
+            <SectionReset db={db} sectionName={section.label} rows={rows} />
           )}
-          {!searching && rows.length === 0 && (
+          {!searching && section?.kind === 'rows' && rows.length === 0 && (
             <p className="sv3-lead">
-              {section?.emptyKey ? t(section.emptyKey) : tv('sv3.sectionEmpty')}
+              {section.empty ?? tv('sv3.sectionEmpty')}
             </p>
           )}
         </section>

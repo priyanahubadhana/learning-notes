@@ -20,6 +20,7 @@ import {
   type HistoryItem,
 } from './settingsHistory'
 import { Ctx, type Api } from './historyCtx'
+import { writeVirtual } from './virtualWrites'
 import { tv } from './tv'
 
 const typing = (el: EventTarget | null) =>
@@ -47,6 +48,7 @@ export function SettingsHistoryProvider({
 
   const api = useMemo(() => {
     const write = async (id: string, value: JsonValue) => {
+      if (writeVirtual(id, value)) return
       const def = settingsRegistry.get(id)
       if (!def) return
       try {

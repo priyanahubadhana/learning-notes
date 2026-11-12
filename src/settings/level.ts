@@ -43,10 +43,12 @@ function read(): State {
 }
 
 let state = read()
+let version = 0
 const listeners = new Set<() => void>()
 
 function commit(next: State): void {
   state = next
+  version++
   try {
     globalThis.localStorage?.setItem(
       LEVEL_STORAGE_KEY,
@@ -84,6 +86,7 @@ export function setUnlocked(id: ProFeatureId, on: boolean): void {
 /** Tests: forget memory and re-read storage. */
 export function reloadLevel(): void {
   state = read()
+  version++
   for (const l of listeners) l()
 }
 
@@ -93,6 +96,20 @@ const subscribe = (listener: () => void) => {
     listeners.delete(listener)
   }
 }
+
+/** Counts up on every change of the level or of any unlock switch. */
+export const levelVersion = (): number => version
+
+/** The unlock switches that are on (all of them stay stored in Professional). */
+export const unlockedIds = (): ProFeatureId[] =>
+  PRO_FEATURES.map((f) => f.id).filter((id) => state.unlocked.has(id))
+
+/** Listens for any change of the level or of an unlock switch. */
+export const subscribeLevel = subscribe
+
+/** Re-renders on any change of the level or of an unlock switch. */
+export const useLevelVersion = (): number =>
+  useSyncExternalStore(subscribe, levelVersion, () => 0)
 
 export const useLevel = (): Level =>
   useSyncExternalStore(subscribe, getLevel, () => 'professional' as const)

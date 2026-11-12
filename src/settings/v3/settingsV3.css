@@ -760,3 +760,94 @@
   cursor: default;
   opacity: 0.7;
 }
+
+/* Your experience, tours and the small tag. */
+.sv3-tag {
+  display: inline-block;
+  padding: 1px var(--space-2);
+  border-radius: var(--r-pill);
+  background: var(--color-neutral-fill);
+  font-size: 11px;
+  font-weight: 600;
+  color: var(--color-ink-soft);
+  vertical-align: middle;
+}
+.sv3-exp {
+  display: grid;
+  gap: var(--space-3);
+}
+.sv3-exp-card {
+  display: grid;
+  gap: var(--space-1);
+  min-height: 44px;
+  padding: var(--space-3) var(--space-4);
+  border: 1px solid var(--color-line);
+  border-radius: var(--r-md);
+  background: var(--color-surface-0);
+  color: var(--color-ink);
+  font: inherit;
+  text-align: left;
+  cursor: pointer;
+}
+.sv3-exp-card[aria-checked='true'] {
+  border-color: var(--color-accent);
+  background: var(--color-accent-soft);
+}
+.sv3-exp-card:focus-visible {
+  outline: 2px solid var(--color-accent);
+  outline-offset: 2px;
+}
+.sv3-exp-head {
+  display: flex;
+  align-items: center;
+  gap: var(--space-2);
+}
+.sv3-levelctl {
+  display: grid;
+  gap: var(--space-2);
+}
+.sv3-tours {
+  display: grid;
+  gap: var(--space-2);
+  margin: var(--space-3) 0 0;
+  padding: 0;
+  list-style: none;
+}
+.sv3-tour-row {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--space-3);
+  padding: var(--space-3);
+  border: 1px solid var(--color-line);
+  border-radius: var(--r-md);
+  background: var(--color-surface-0);
+}
+.sv3-tour-text {
+  display: grid;
+  flex: 1 1 14rem;
+  gap: var(--space-1);
+  min-width: 0;
+}
+.sv3-tour-actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--space-2);
+  margin-top: var(--space-3);
+}
+.sv3-tour-row .sv3-tour-actions {
+  margin-top: 0;
+}
+.sv3-tour-text progress {
+  width: 100%;
+  accent-color: var(--color-accent);
+}
+.sv3-btn-primary {
+  border-color: var(--color-accent);
+  background: var(--color-accent);
+  color: var(--color-on-accent, #fff);
+}
+.sv3-section[data-glow='on'] {
+  animation: sv3-glow 1.5s var(--ease-out) 2;
+}

@@ -3,7 +3,8 @@ import { tv } from './tv'
 export interface SectionItem {
   id: string
   label: string
-  count: number
+  /** Left out for screens that are not a list of rows. */
+  count?: number
 }
 
 /**
@@ -14,10 +15,13 @@ export function SectionList({
   sections,
   current,
   onPick,
+  glow,
 }: {
   sections: SectionItem[]
   current: string
   onPick(id: string): void
+  /** A section that just moved: it glows for a moment. */
+  glow?: string
 }) {
   return (
     <nav aria-label={tv('sv3.sections')} className="sv3-sections">
@@ -27,14 +31,21 @@ export function SectionList({
           type="button"
           data-section={s.id}
           aria-current={s.id === current ? 'page' : undefined}
-          aria-label={`${s.label}, ${tv('sv3.sectionCount', { count: s.count })}`}
+          data-glow={glow === s.id ? 'on' : undefined}
+          aria-label={
+            s.count === undefined
+              ? s.label
+              : `${s.label}, ${tv('sv3.sectionCount', { count: s.count })}`
+          }
           onClick={() => onPick(s.id)}
           className="sv3-section"
         >
           <span className="sv3-section-name">{s.label}</span>
-          <span className="sv3-section-count" aria-hidden>
-            {s.count}
-          </span>
+          {s.count !== undefined && (
+            <span className="sv3-section-count" aria-hidden>
+              {s.count}
+            </span>
+          )}
         </button>
       ))}
     </nav>

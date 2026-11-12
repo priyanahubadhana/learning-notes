@@ -29,3 +29,11 @@ L01 title, L02 Import + file input, L03 Capture, L04 Prompts, L05 format hint, L
 
 - Collections, manual status, view choices and saved filters live in an add-only localStorage store (`src/library/v2/libraryPrefs.ts`) because `src/core/db.ts` and `types.ts` are hot files. A later step moves them into add-only Dexie tables.
 - `LibraryScreen.tsx` and `LibrarySidebar.tsx` switch to the v2 components when the flag is on (no `App.tsx` edit).
+
+## Step 2 (second pass): more spec lines
+
+- When I am in Professional and open Knowledge, the filter row also has Type (highlights, notes, bookmarks), Tag and Date (any, this week, this month); the list changes at once and "Clear filters" resets all (LB-P15).
+- When I tap `Saved v` > "Save this filter" and name it, the filter is saved with an Undo toast; it lists in the side panel (Professional) and in `Saved v`; a tap applies it and opens Knowledge; ✕ in the panel removes it with Undo (LB-P16).
+- When I open Daily Highlights, I can pick 3, 5 or 10 a day; the choice is remembered and used from the next new day (LB-B43).
+- Grid with 1,000+ books draws only the rows near the screen (virtual window); counts come from the whole list.
+- Themes, Journal and Tags-map tabs: only where the approved mock shows them (Professional tab row); decided after the items above.

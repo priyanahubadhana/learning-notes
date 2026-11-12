@@ -1,11 +1,17 @@
 import { useLiveQuery } from 'dexie-react-hooks'
-import { useState } from 'react'
+import { useContext, useState } from 'react'
+import { AppUiContext } from '../../app/appUi'
 import type { LearningNotesDB } from '../../core/db'
 import { useLevel } from '../../settings/level'
 import { MenuPopover, type MenuItem } from '../../app/ui'
 import { t } from '../../i18n/t'
 import { listSources } from '../libraryService'
-import { setPrefs, useLibraryPrefs, type ShelfId } from './libraryPrefs'
+import {
+  setPrefs,
+  setPrefsWithUndo,
+  useLibraryPrefs,
+  type ShelfId,
+} from './libraryPrefs'
 import { recentSources, shelfCounts } from './shelves'
 import { SHELF_IDS, shelfName } from './shelfNames'
 import { useTagItems } from './tagItems'
@@ -27,6 +33,7 @@ export function ShelvesPanel({
   onOpenPage: (pageId: string) => void
   onSelectShelf?: () => void
 }) {
+  const { toast } = useContext(AppUiContext)
   const prefs = useLibraryPrefs()
   const pro = useLevel() === 'professional'
   const sources = useLiveQuery(
@@ -107,6 +114,47 @@ export function ShelvesPanel({
                 </li>
               ))}
           </ul>
+          <h3 className="mt-3 mb-1 px-1 text-[11px] tracking-[0.06em] text-muted uppercase">
+            {t('lib2.saved.title')}
+          </h3>
+          {prefs.saved.length === 0 ? (
+            <p
+              data-testid="panel-saved-empty"
+              className="px-3 text-xs text-muted"
+            >
+              {t('lib2.saved.none')}
+            </p>
+          ) : (
+            <ul data-testid="panel-saved">
+              {prefs.saved.map((x) => (
+                <li key={x.id} className="flex items-center">
+                  <button
+                    type="button"
+                    onClick={() => setPrefs({ openSaved: x.id })}
+                    className="min-h-11 flex-1 truncate rounded-lg px-3 text-start text-sm hover:bg-hover"
+                  >
+                    {x.name}
+                  </button>
+                  <button
+                    type="button"
+                    aria-label={t('lib2.saved.remove', { name: x.name })}
+                    onClick={() => {
+                      const undo = setPrefsWithUndo({
+                        saved: prefs.saved.filter((y) => y.id !== x.id),
+                      })
+                      toast(t('lib2.saved.removed'), {
+                        label: t('annot.undo'),
+                        onSelect: undo,
+                      })
+                    }}
+                    className="grid size-11 place-items-center rounded-full text-muted hover:bg-hover"
+                  >
+                    ✕
+                  </button>
+                </li>
+              ))}
+            </ul>
+          )}
         </>
       )}
       <h3 className="mt-3 mb-1 px-1 text-[11px] tracking-[0.06em] text-muted uppercase">

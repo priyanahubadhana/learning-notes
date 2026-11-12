@@ -104,6 +104,8 @@ export function LibraryV2({
   const prefs = useLibraryPrefs()
   const pro = useLevel() === 'professional'
   const [tab, setTab] = useState<Tab>('books')
+  // A saved filter picked in the side panel opens Knowledge.
+  if (prefs.openSaved && tab !== 'knowledge') setTab('knowledge')
   const [exportFocus, setExportFocus] = useState(false)
   const [searchOpen, setSearchOpen] = useState(false)
   const [search, setSearch] = useState('')

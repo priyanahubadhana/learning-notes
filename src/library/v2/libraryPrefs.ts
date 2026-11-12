@@ -15,6 +15,16 @@ export interface Collection {
   name: string
 }
 
+export interface SavedFilter {
+  id: string
+  name: string
+  book: string
+  colour: string
+  type: 'all' | 'highlight' | 'note' | 'bookmark'
+  date: 'any' | 'week' | 'month'
+  tagId: string
+}
+
 export interface LibraryPrefs {
   shelf: ShelfId
   type: SourceFilter
@@ -36,6 +46,12 @@ export interface LibraryPrefs {
   /** Page id to the status set by hand (wins over the automatic one). */
   manual: Record<string, ManualStatus>
   recentAll: boolean
+  /** Knowledge filters saved by name (Professional). */
+  saved: SavedFilter[]
+  /** Daily Highlights a day: 3, 5 or 10. */
+  dailyCount: 3 | 5 | 10
+  /** A saved filter to apply when Knowledge opens (set by the side panel). */
+  openSaved: string
 }
 
 export const STORAGE_KEY = 'learning-notes:library.v2'
@@ -56,6 +72,9 @@ export const DEFAULT_PREFS: LibraryPrefs = {
   membership: {},
   manual: {},
   recentAll: false,
+  saved: [],
+  dailyCount: 5,
+  openSaved: '',
 }
 
 const TYPES = ['all', 'books', 'videos', 'articles', 'pasted']
@@ -121,7 +140,37 @@ export function cleanPrefs(raw: unknown): LibraryPrefs {
     membership,
     manual,
     recentAll: false,
+    saved: cleanSaved(raw.saved),
+    dailyCount:
+      raw.dailyCount === 3 || raw.dailyCount === 10 ? raw.dailyCount : 5,
+    openSaved:
+      typeof raw.openSaved === 'string' ? raw.openSaved.slice(0, 64) : '',
   }
+}
+
+const SAVED_TYPES = ['all', 'highlight', 'note', 'bookmark']
+const SAVED_DATES = ['any', 'week', 'month']
+function cleanSaved(raw: unknown): SavedFilter[] {
+  if (!Array.isArray(raw)) return []
+  return raw
+    .filter(
+      (x): x is Record<string, unknown> =>
+        isObj(x) && str(x.id, 64) && str(x.name, 80),
+    )
+    .slice(0, 100)
+    .map((x) => ({
+      id: x.id as string,
+      name: x.name as string,
+      book: typeof x.book === 'string' ? x.book.slice(0, 64) : '',
+      colour: typeof x.colour === 'string' ? x.colour.slice(0, 12) : '',
+      type: SAVED_TYPES.includes(x.type as string)
+        ? (x.type as SavedFilter['type'])
+        : 'all',
+      date: SAVED_DATES.includes(x.date as string)
+        ? (x.date as SavedFilter['date'])
+        : 'any',
+      tagId: typeof x.tagId === 'string' ? x.tagId.slice(0, 64) : '',
+    }))
 }
 
 function read(): LibraryPrefs {

@@ -3,7 +3,9 @@ import { useContext, useMemo, useState } from 'react'
 import { AppUiContext } from '../../app/appUi'
 import { runTask } from '../../app/errors'
 import { EmptyState } from '../../design/parts/EmptyState'
-import { MenuPopover, type MenuItem } from '../../app/ui'
+import { MenuPopover, NameDialog, type MenuItem } from '../../app/ui'
+import { isLive } from '../../core/records'
+import { listTags } from '../../tags/tagService'
 import type { LearningNotesDB } from '../../core/db'
 import {
   HIGHLIGHT_COLOURS,
@@ -14,7 +16,6 @@ import { t } from '../../i18n/t'
 import { DailyHighlights } from '../../reader/annotations/DailyHighlights'
 import {
   deleteAnnotation,
-  listAllHighlights,
   locatorOf,
   placeLabel,
   restoreAnnotation,
@@ -23,6 +24,18 @@ import { COLOUR_FILL } from '../../reader/annotations/colours'
 import { makeCardsFromAnnotations } from '../../recall/cardFromAnnotation'
 import { useLevel } from '../../settings/level'
 import { ExportCard } from './ExportCard'
+import {
+  NO_FILTER,
+  filterKnowledge,
+  isFiltered,
+  type KnowledgeFilter,
+} from './knowledgeFilter'
+import {
+  newCollectionId,
+  setPrefs,
+  setPrefsWithUndo,
+  useLibraryPrefs,
+} from './libraryPrefs'
 
 type View = 'all' | 'daily' | 'export'
 type Sort = 'newest' | 'book' | 'colour'
@@ -50,12 +63,49 @@ export function Knowledge({
   const { toast } = useContext(AppUiContext)
   const pro = useLevel() === 'professional'
   const [view, setView] = useState<View>(exportFocus ? 'export' : 'all')
-  const [book, setBook] = useState('')
-  const [colour, setColour] = useState<HighlightColour | ''>('')
+  const prefs = useLibraryPrefs()
+  const [f, setF] = useState<KnowledgeFilter>(NO_FILTER)
+  const book = f.book
+  const colour = f.colour as HighlightColour | ''
+  const setBook = (v: string) => setF({ ...f, book: v })
+  const setColour = (v: HighlightColour | '') => setF({ ...f, colour: v })
   const [sort, setSort] = useState<Sort>('newest')
   const [openId, setOpenId] = useState<string | null>(null)
   const [menuAt, setMenuAt] = useState<DOMRect | null>(null)
-  const all = useLiveQuery(() => listAllHighlights(db), [db])
+  const [savedAt, setSavedAt] = useState<DOMRect | null>(null)
+  const [naming, setNaming] = useState(false)
+  const all = useLiveQuery(
+    async () =>
+      (await db.annotations.toArray())
+        .filter((a) => isLive(a) && (a.kind !== 'highlight' || !!a.quote))
+        .sort((a, b) => b.createdAt - a.createdAt),
+    [db],
+  )
+  const tagList = useLiveQuery(() => listTags(db), [db]) ?? []
+  const pageTags = useLiveQuery(
+    async () =>
+      new Map(
+        (await db.pages.bulkGet([...new Set((all ?? []).map((a) => a.pageId))]))
+          .filter((p) => !!p)
+          .map((p) => [p!.id, p!.tagIds ?? []] as const),
+      ),
+    [db, all],
+  )
+  // A saved filter picked in the side panel is applied once when we open.
+  const [applied, setApplied] = useState('')
+  if (prefs.openSaved && prefs.openSaved !== applied) {
+    const s = prefs.saved.find((x) => x.id === prefs.openSaved)
+    setApplied(prefs.openSaved)
+    if (s)
+      setF({
+        book: s.book,
+        colour: s.colour,
+        type: s.type,
+        date: s.date,
+        tagId: s.tagId,
+      })
+    setPrefs({ openSaved: '' })
+  }
   const titles = useLiveQuery(
     async () =>
       new Map(
@@ -67,15 +117,7 @@ export function Knowledge({
   )
   const needle = search.trim().toLocaleLowerCase()
   const shown = useMemo(() => {
-    const rows = (all ?? []).filter(
-      (a) =>
-        (!book || a.pageId === book) &&
-        (!colour || a.colour === colour) &&
-        (!needle ||
-          `${a.quote?.exact ?? ''} ${a.note ?? ''}`
-            .toLocaleLowerCase()
-            .includes(needle)),
-    )
+    const rows = filterKnowledge(all ?? [], f, { search, pageTags })
     if (sort === 'newest') return rows
     const title = (a: Annotation) => titles?.get(a.pageId) ?? ''
     return [...rows].sort((a, b) =>
@@ -83,9 +125,21 @@ export function Knowledge({
         ? title(a).localeCompare(title(b)) || a.createdAt - b.createdAt
         : (a.colour ?? '').localeCompare(b.colour ?? ''),
     )
-  }, [all, book, colour, needle, sort, titles])
+  }, [all, f, search, pageTags, sort, titles])
   const open = shown.find((a) => a.id === openId) ?? null
-  const filtered = !!(book || colour || needle)
+  const filtered = isFiltered(f) || !!needle
+  const saveFilter = (name: string) => {
+    const n = name.trim().slice(0, 80)
+    if (!n) return
+    const id = newCollectionId(n, prefs.saved)
+    const undo = setPrefsWithUndo({
+      saved: [...prefs.saved, { id, name: n, ...f }],
+    })
+    toast(t('lib2.saved.done', { name: n }), {
+      label: t('annot.undo'),
+      onSelect: undo,
+    })
+  }
   const viewItems: MenuItem[] = (
     [
       ['all', 'lib2.view.all'],
@@ -194,11 +248,144 @@ export function Knowledge({
               <option value="book">{t('lib2.knowledge.bookOrder')}</option>
               <option value="colour">{t('lib2.knowledge.byColour')}</option>
             </select>
+            {pro && (
+              <div
+                data-testid="know-pro-row"
+                className="flex w-full flex-nowrap items-center gap-2 overflow-x-auto"
+              >
+                <select
+                  aria-label={t('lib2.know.type')}
+                  data-testid="know-type"
+                  value={f.type}
+                  onChange={(e) =>
+                    setF({
+                      ...f,
+                      type: e.target.value as KnowledgeFilter['type'],
+                    })
+                  }
+                  className="min-h-11 shrink-0 rounded-full bg-soft px-3 text-sm"
+                >
+                  {(['all', 'highlight', 'note', 'bookmark'] as const).map(
+                    (x) => (
+                      <option key={x} value={x}>
+                        {t(`lib2.know.type.${x}`)}
+                      </option>
+                    ),
+                  )}
+                </select>
+                <select
+                  aria-label={t('lib2.tag')}
+                  data-testid="know-tag"
+                  value={f.tagId}
+                  onChange={(e) => setF({ ...f, tagId: e.target.value })}
+                  className="min-h-11 shrink-0 rounded-full bg-soft px-3 text-sm"
+                >
+                  <option value="">{t('lib2.allTags')}</option>
+                  {tagList.map((x) => (
+                    <option key={x.id} value={x.id}>
+                      #{x.name}
+                    </option>
+                  ))}
+                </select>
+                <select
+                  aria-label={t('lib2.know.date')}
+                  data-testid="know-date"
+                  value={f.date}
+                  onChange={(e) =>
+                    setF({
+                      ...f,
+                      date: e.target.value as KnowledgeFilter['date'],
+                    })
+                  }
+                  className="min-h-11 shrink-0 rounded-full bg-soft px-3 text-sm"
+                >
+                  {(['any', 'week', 'month'] as const).map((x) => (
+                    <option key={x} value={x}>
+                      {t(`lib2.know.date.${x}`)}
+                    </option>
+                  ))}
+                </select>
+                <button
+                  type="button"
+                  data-testid="know-saved"
+                  aria-haspopup="menu"
+                  onClick={(e) =>
+                    setSavedAt(e.currentTarget.getBoundingClientRect())
+                  }
+                  className="min-h-11 shrink-0 rounded-full bg-soft px-3 text-sm"
+                >
+                  {t('lib2.saved.button')} ▾
+                </button>
+                {savedAt && (
+                  <MenuPopover
+                    anchor={savedAt}
+                    onClose={() => setSavedAt(null)}
+                    items={[
+                      {
+                        label: t('lib2.saved.save'),
+                        icon: 'save',
+                        disabled: !isFiltered(f),
+                        onSelect: () => setNaming(true),
+                      },
+                      ...prefs.saved.map((s) => ({
+                        label: s.name,
+                        icon: 'search',
+                        onSelect: () =>
+                          setF({
+                            book: s.book,
+                            colour: s.colour,
+                            type: s.type,
+                            date: s.date,
+                            tagId: s.tagId,
+                          }),
+                      })),
+                    ]}
+                  />
+                )}
+              </div>
+            )}
           </>
         )}
       </div>
+      {naming && (
+        <NameDialog
+          title={t('lib2.saved.save')}
+          label={t('lib2.saved.name')}
+          initialValue=""
+          confirmLabel={t('lib2.done')}
+          onCancel={() => setNaming(false)}
+          onConfirm={(name) => {
+            setNaming(false)
+            saveFilter(name)
+          }}
+        />
+      )}
       {view === 'export' && <ExportCard db={db} />}
-      {view === 'daily' && <DailyHighlights db={db} onOpen={jump} />}
+      {view === 'daily' && (
+        <>
+          <div
+            role="radiogroup"
+            aria-label={t('lib2.daily.count')}
+            className="mb-2 flex items-center gap-2 text-sm"
+          >
+            <span className="text-muted">{t('lib2.daily.count')}</span>
+            {([3, 5, 10] as const).map((n) => (
+              <button
+                key={n}
+                type="button"
+                role="radio"
+                aria-checked={prefs.dailyCount === n}
+                data-testid={`daily-${n}`}
+                onClick={() => setPrefs({ dailyCount: n })}
+                className={`min-h-11 min-w-11 rounded-full px-3 ${prefs.dailyCount === n ? 'bg-accent/15 font-medium' : 'bg-soft'}`}
+              >
+                {n}
+              </button>
+            ))}
+          </div>
+          <DailyHighlights db={db} onOpen={jump} count={prefs.dailyCount} />
+        </>
+      )}
       {view === 'all' && (pro || showStats) && all && all.length > 0 && (
         <p data-testid="know-stats" className="mb-2 text-sm text-muted">
           {t('lib2.knowledge.stats', {
@@ -215,8 +402,7 @@ export function Knowledge({
             text={t(filtered ? 'library.emptyFilter' : 'lib2.knowledge.empty')}
             action={filtered ? t('lib2.clearFilters') : undefined}
             onAction={() => {
-              setBook('')
-              setColour('')
+              setF(NO_FILTER)
             }}
           />
         ) : (
@@ -237,7 +423,9 @@ export function Knowledge({
                     />
                     <span className="min-w-0">
                       <span className="line-clamp-2 text-sm">
-                        {a.quote?.exact}
+                        {a.quote?.exact ||
+                          a.note ||
+                          t(`lib2.know.type.${a.kind}`)}
                       </span>
                       {a.note && (
                         <span className="line-clamp-1 text-xs text-muted">

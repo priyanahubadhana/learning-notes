@@ -1,6 +1,7 @@
 import { lazy, Suspense, useState } from 'react'
 import { useLiveQuery } from 'dexie-react-hooks'
 import type { LearningNotesDB } from '../core/db'
+import { useFlag } from '../app/flags'
 import { isLive } from '../core/records'
 import { t } from '../i18n/t'
 
@@ -22,13 +23,14 @@ type Tab = 'settings' | 'inbox' | 'activity'
 /** Settings › Claude: the switch and privacy, the Inbox of proposed changes, and the Activity list. */
 export function ClaudeArea({ db }: { db: LearningNotesDB }) {
   const [tab, setTab] = useState<Tab>('settings')
+  const framework = useFlag('ai.framework')
   const waiting =
     useLiveQuery(
       async () =>
         (await db.claudeInbox.toArray()).filter(
-          (i) => isLive(i) && i.status === 'pending',
+          (i) => isLive(i) && i.status === 'pending' && (framework || !i.job),
         ).length,
-      [db],
+      [db, framework],
     ) ?? 0
   const tabs: { id: Tab; label: string }[] = [
     { id: 'settings', label: t('claude.tab.settings') },

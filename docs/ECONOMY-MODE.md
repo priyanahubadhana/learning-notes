@@ -37,7 +37,8 @@ The old agent files are untouched (`fable-manager`, `opus-submanager-*`, `sonnet
 
 ## 3. Rules for every helper
 
-- **Briefs point to files, never paste them.** Under 250 words.
+- **Briefs point to files, never paste them.** Under 250 words, every field of the section 4 template filled.
+- **Design + quality checklist:** builders tick the 16 lines in .claude/agents/economy-builder.md with proof; gate 2 and gate 3 reject a slice on any ✗.
 - **Worktrees:** one per slice (they exist: `../ln-s*`), reused by each new builder of that slice. A new worktree only for a new slice. Docs-only and read-only jobs need none.
 - **Tests:** locally run only the spec files of the sub-slice (chromium; ipad-webkit for touch code) plus lint, tsc and the size check. The full matrix runs once per merge in CI on the `build/next` pull request (free, public repo). A Haiku helper runs `gh run watch <id> --exit-status`, then lists the failed test names from `gh run view <id> --log-failed`. No local full suites.
 - **Output:** long command output goes to a file; read the tail or search the failures.
@@ -48,19 +49,31 @@ The old agent files are untouched (`fable-manager`, `opus-submanager-*`, `sonnet
 
 ## 4. Brief templates
 
+Every brief has: objective, exact spec IDs, output format, scope limits, done criteria. Point to files; never paste them. Why: cheaper models follow briefs literally, so what is missing from the brief is missing from the work (docs/design/guiding-cheaper-models.md).
+
 Builder:
 
 ```
-Slice <id> sub-slice <id>: <one line goal>. Worktree C:\Users\pc\Downloads\<folder>, branch slice/<name>, flag <flag>.
-Spec: docs/features/<file>.md lines <IDs>. Done already: <SHAs>. Not yours: <files / hot files>.
-Tests to write and run: <spec files>. Follow .claude/agents/economy-builder.md.
+Objective: slice <id> sub-slice <id>: <one line, user-visible result>.
+Where: worktree C:\Users\pc\Downloads\<folder>, branch slice/<name>, flag <flag>.
+Spec: docs/features/<file>.md IDs <IDs>. Won't do: <IDs or lines>.
+Files to change: <paths>. Not yours: <hot files / other lanes>.
+Copy this pattern: <existing file:line that does the same kind of thing>.
+[PLAN FIRST - only if more than 3 files or new stored data]
+Tests first: <spec files to write>, seen red, then green.
+Done = green: own spec files (chromium[, ipad-webkit]), lint, tsc, check:size, check:dod, check:ratchet; checklist ticked with proof.
+Done already: <SHAs>. Follow .claude/agents/economy-builder.md.
 ```
 
-Gate 2: `Gate 2 for slice <id>: branch slice/<name> at <SHA>, spec docs/features/<file>.md. Builder reports: <2 lines>.`
+Size: one surface group, at most about 60 turns and about 5 files. Bigger: split before briefing.
 
-Gate 3: `Gate 3 for slices <ids>: screenshots in <folders>; mock-ups docs/mockups/<names>.`
+Gate 2: `Gate 2 for slice <id>: worktree <folder>, branch slice/<name> at <SHA>, spec docs/features/<file>.md. Builder report + checklist: <paste report>.`
 
-Mechanic: `<one job>. Worktree <folder>. Stop if it needs judgement.`
+Gate 3: `Gate 3 for slices <ids>: screenshots in <folders>; mock-ups docs/mockups/<names>; builder checklists: <lines>.`
+
+Mechanic: `Job: <one job>. Worktree <absolute path>. Command: <exact>. Done when: <result>. Stop if it needs judgement.`
+
+Escalation: builder stops after 2 failed tries -> Opus builder (same brief + both logs) -> Fable (`economy-gate3` hard case) -> after 3 failures undo the slice and write docs/FAILED.md. A new visual pattern goes to Fable first.
 
 ## 5. Estimates (honest ranges)
 

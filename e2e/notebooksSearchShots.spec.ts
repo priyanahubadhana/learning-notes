@@ -10,13 +10,14 @@ import { createNotebook, sidebar } from './helpers.ts'
 const OUT = 'docs/mockups/notebooks-search-build-shots'
 const SIZES = {
   ipad: { width: 1194, height: 834 },
+  'ipad-portrait': { width: 834, height: 1194 },
   phone: { width: 390, height: 844 },
 } as const
 
 test.skip(!process.env.SHOTS, 'pictures only on purpose (SHOTS=1)')
 
 for (const level of ['beginner', 'professional'] as const)
-  for (const theme of ['day', 'night'] as const)
+  for (const theme of ['day', 'night', 'sepia'] as const)
     for (const [size, viewport] of Object.entries(SIZES)) {
       test(`shots ${level} ${theme} ${size}`, async ({ page }) => {
         test.setTimeout(120_000)
@@ -56,6 +57,10 @@ for (const level of ['beginner', 'professional'] as const)
           path: `${OUT}/home-strip-${level}-${theme}-${size}.png`,
         })
         await page.keyboard.press('Escape')
+        await page.getByTestId('nbv2-continue').scrollIntoViewIfNeeded()
+        await page.screenshot({
+          path: `${OUT}/home-continue-${level}-${theme}-${size}.png`,
+        })
         await page.keyboard.press('Control+K')
         const popup = page.getByRole('dialog', { name: 'Search' })
         await popup.waitFor()

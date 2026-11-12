@@ -42,8 +42,8 @@ const card = (page: Page, name: string) =>
 const strip = (page: Page) => page.getByTestId('nbv2-strip')
 
 /**
- * A Beginner's strip shows only Delete and "More actions" (the parts rule);
- * every other item, unlocked or not, lives in that list.
+ * The Home strip shows every item (gate 3 fix 2), at every level. What does
+ * not fit folds into "More actions"; this opens that list when it exists.
  */
 async function openMoreList(page: Page) {
   await strip(page).getByRole('menuitem', { name: 'More actions' }).click()
@@ -51,6 +51,11 @@ async function openMoreList(page: Page) {
 }
 
 async function pickFromMore(page: Page, name: string | RegExp) {
+  const direct = strip(page).getByRole('menuitem', { name })
+  if (await direct.count()) {
+    await direct.first().click()
+    return
+  }
   await openMoreList(page)
   await page.getByRole('option', { name }).click()
 }
@@ -373,16 +378,26 @@ test('A Beginner sees no Professional items in the strip', async ({ page }) => {
   await twoBooks(page)
   await card(page, 'Alpha book').click({ button: 'right' })
   await expect(strip(page)).toBeVisible()
-  // Nothing is unlocked, so the whole list fits without "Show all".
-  await strip(page).getByRole('menuitem', { name: 'More actions' }).click()
-  await expect(page.getByRole('option', { name: 'Rename' })).toBeVisible()
+  // Gate 3 fix 2: Open, Pin, Rename, Cover, Duplicate, Delete (last).
+  const names = await strip(page)
+    .getByRole('menuitem')
+    .evaluateAll((els) => els.map((e) => e.getAttribute('aria-label')))
+  expect(names[0]).toBe('Open')
+  expect(names.at(-1)).toBe('Delete')
+  for (const name of [
+    'Pin to the top',
+    'Rename',
+    'Cover and settings',
+    'Duplicate',
+  ])
+    expect(names).toContain(name)
   for (const name of [
     'Add empty page',
     'Add from template…',
     'Review this notebook',
     'Move up',
   ])
-    await expect(page.getByRole('option', { name })).toHaveCount(0)
+    expect(names).not.toContain(name)
 })
 
 /** Two notebooks, each with one card (a new card is due at once). */

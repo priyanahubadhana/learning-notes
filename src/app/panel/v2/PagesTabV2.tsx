@@ -643,7 +643,6 @@ export function PagesTabV2({
             }
           }}
           opener={strip.el}
-          allLevels
           phoneLabels
           testId="lpv2-strip"
           onAction={act}

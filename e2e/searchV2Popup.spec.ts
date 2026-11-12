@@ -144,8 +144,15 @@ test.describe('Professional', () => {
     await popup.getByTestId('srv2-row').first().click({ button: 'right' })
     const strip = page.getByTestId('srv2-strip')
     await expect(strip).toBeVisible()
-    for (const name of ['Open', 'Copy link', 'Pin as favourite'])
-      await expect(strip.getByRole('menuitem', { name })).toBeVisible()
+    for (const name of [
+      'Open',
+      'Open in new place',
+      'Copy link',
+      'Pin as favourite',
+    ])
+      await expect(
+        strip.getByRole('menuitem', { name, exact: true }),
+      ).toBeVisible()
     // It did not run the search again or open the page.
     await expect(popup).toBeVisible()
     await strip.getByRole('menuitem', { name: 'Pin as favourite' }).click()

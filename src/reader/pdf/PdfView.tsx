@@ -9,6 +9,7 @@ import {
   useMemo,
   useRef,
   useState,
+  type ReactNode,
 } from 'react'
 import { loadPdfjs } from '../../app/pdfjs'
 import type { LearningNotesDB } from '../../core/db'
@@ -84,6 +85,8 @@ export interface PdfViewProps {
   /** Where to start: `pdf:<page>:<y>`. */
   startAt?: string
   annotations: readonly Annotation[]
+  /** Reader v2: extra things drawn inside one page (sticky notes). */
+  pageOverlay?: (pageNo: number, notes: readonly Annotation[]) => ReactNode
   zoom: number
   /** Page by page: a swipe or turn shows one whole page (default: one long scroll). */
   paged?: boolean
@@ -489,7 +492,8 @@ export function PdfView(props: PdfViewProps) {
             <div
               ref={setInkWrap}
               data-testid="pdf-ink-wrap"
-              className="pointer-events-none absolute inset-0"
+              // Reader v2: the ink pad stays under the sticky notes layer.
+              className={`pointer-events-none absolute inset-0${props.pageOverlay ? ' isolate' : ''}`}
             />
             <Suspense fallback={null}>
               <BookInk
@@ -501,6 +505,31 @@ export function PdfView(props: PdfViewProps) {
               />
             </Suspense>
           </>
+        )}
+        {props.pageOverlay && doc && (
+          // Above the ink pad, so a note can be tapped while the Pen is on.
+          <div
+            className="pointer-events-none absolute inset-0"
+            data-testid="pdf-page-overlay"
+          >
+            {sizes.map((size, i) =>
+              i >= range[0] && i <= range[1] ? (
+                <div
+                  key={i}
+                  style={{
+                    position: 'absolute',
+                    top: layout.tops[i],
+                    insetInlineStart: '50%',
+                    transform: 'translateX(-50%)',
+                    inlineSize: size.w * scale,
+                    blockSize: size.h * scale,
+                  }}
+                >
+                  {props.pageOverlay?.(i + 1, byPage.get(i + 1) ?? [])}
+                </div>
+              ) : null,
+            )}
+          </div>
         )}
       </div>
     </div>
@@ -643,7 +672,7 @@ function PdfPageView({
         style={{ opacity: 1 }}
       />
       {annotations.map((a) =>
-        a.anchor.type === 'pdf'
+        a.anchor.type === 'pdf' && a.kind !== 'sticky'
           ? groupRects(a.anchor.rects).map((r, k) => (
               <div
                 key={`${a.id}:${k}`}

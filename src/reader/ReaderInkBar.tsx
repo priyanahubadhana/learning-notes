@@ -8,6 +8,7 @@ import {
   highlighterSettings,
   penSettings,
 } from '../app/tools/main/inkSettings'
+import { Icon } from '../app/tools/icons'
 import { t } from '../i18n/t'
 import type { InkBarMode } from './readStyle'
 
@@ -30,11 +31,14 @@ export function ReaderInkBar({
   onDone,
   mode = 'simple',
   v2 = false,
+  sticky,
 }: {
   onDone: () => void
   mode?: InkBarMode
   /** Flag reader.v2: sits inside the floating glass bar, so no strip of its own. */
   v2?: boolean
+  /** Reader v2: the Sticky note tool (arms the next tap on a page). */
+  sticky?: { armed: boolean; onToggle: () => void }
 }) {
   const tool = activeTool.useValue()
   const pen = penSettings.useValue()
@@ -76,6 +80,18 @@ export function ReaderInkBar({
           {t(`main.tool.${id}`)}
         </button>
       ))}
+      {sticky && (
+        <button
+          type="button"
+          aria-pressed={sticky.armed}
+          aria-label={t('readerv2.sticky.tool')}
+          data-testid="reader-ink-sticky"
+          className={btn(sticky.armed)}
+          onClick={sticky.onToggle}
+        >
+          <Icon name="tape" size={18} />
+        </button>
+      )}
       {colours.map((c) => (
         <button
           key={c.id}

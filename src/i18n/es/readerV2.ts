@@ -34,4 +34,26 @@ export const esReaderV2 = {
     'No hay ninguna voz en este dispositivo para este idioma, así que no se lee nada en voz alta. Para añadir una, abre los ajustes del dispositivo (Accesibilidad, luego Contenido hablado o Texto a voz) y descarga una voz.',
   'readerv2.listen.deviceOnly':
     'Solo se usan voces de este dispositivo. Tu texto no sale de él.',
+  'readerv2.sticky.tool': 'Nota adhesiva',
+  'readerv2.sticky.hint': 'Toca la página donde va la nota.',
+  'readerv2.sticky.unsupported':
+    'Las notas adhesivas funcionan en páginas PDF.',
+  'readerv2.sticky.readLabel': 'Nota adhesiva',
+  'readerv2.sticky.empty': 'Nota vacía',
+  'readerv2.sticky.edit': 'Editar esta nota adhesiva',
+  'readerv2.sticky.close': 'Cerrar',
+  'readerv2.sticky.editTitle': 'Nota adhesiva',
+  'readerv2.sticky.placeholder': 'Escribe tu nota',
+  'readerv2.sticky.save': 'Guardar',
+  'readerv2.sticky.delete': 'Eliminar',
+  'readerv2.sticky.pin':
+    'Nota adhesiva. Toca para leerla, mantén para moverla.',
+  'readerv2.sticky.added': 'Nota adhesiva añadida.',
+  'readerv2.sticky.saved': 'Nota adhesiva guardada.',
+  'readerv2.sticky.deleted': 'Nota adhesiva eliminada.',
+  'readerv2.sticky.moved': 'Nota adhesiva movida.',
+  'readerv2.sticky.lifted': 'Arrastra para mover la nota y suelta.',
+  'readerv2.sticky.undone': 'Deshecho.',
+  'readerv2.sticky.redone': 'Rehecho.',
+  'readerv2.sticky.redo': 'Rehacer',
 } as const

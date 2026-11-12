@@ -1,6 +1,8 @@
 import { IconButton, MenuPopover, NameDialog, type MenuItem } from '../app/ui'
 import { Icon } from '../app/tools/icons'
 import { toggleListen } from './v2/listen'
+import { stickyArmed } from './v2/sticky'
+import { StickyPins } from './v2/StickyPins'
 import type { BarItem, CardGroupDef, CardRowDef } from './v2/ReaderBarRow'
 import { tapZone } from '../app/reading/readingMath'
 import { readerBridge } from './readerBridge'
@@ -97,6 +99,7 @@ const AaSheet = lazy(() => import('./AaSheet'))
 // The new bars (flag reader.v2): their own chunk, loaded only when the flag is on.
 const ReaderBarsV2 = lazy(() => import('./v2/ReaderBars'))
 const ReaderBarRowV2 = lazy(() => import('./v2/ReaderBarRow'))
+const StickyHost = lazy(() => import('./v2/StickyHost'))
 const DictionarySheet = lazy(() => import('./DictionarySheet'))
 const ZoomPreview = lazy(() => import('./pdf/ZoomPreview'))
 // The PDF menu's tools (Q8): pdf-lib, OCR and the sheets load only when used.
@@ -259,6 +262,7 @@ export function BookReader({
 
   // Leaving the reader (or the Pen) gives the notes' tool back.
   const stopInking = useCallback(() => {
+    stickyArmed.set(false)
     if (toolBefore.current) activeTool.set(toolBefore.current)
     toolBefore.current = null
     setInking(false)
@@ -271,6 +275,8 @@ export function BookReader({
   )
   // Pages mode cannot hold ink (the text breaks across columns): Scroll only.
   const drawing = inking && !(format === 'epub' && epubFlow === 'paginated')
+  // Reader v2: the Sticky tool is armed (the next tap on a PDF page puts a note there).
+  const armedSticky = stickyArmed.useValue()
 
   // A deep link while the reader is open jumps there.
   const [seenAt, setSeenAt] = useState(at)
@@ -1462,7 +1468,23 @@ export function BookReader({
   )
   const inkBar =
     drawing && !full && !locked ? (
-      <ReaderInkBar onDone={stopInking} mode={penBar} v2={v2Bars} />
+      <ReaderInkBar
+        onDone={stopInking}
+        mode={penBar}
+        v2={v2Bars}
+        sticky={
+          v2Bars
+            ? {
+                armed: armedSticky,
+                onToggle: () => {
+                  if (format !== 'pdf')
+                    return toast(t('readerv2.sticky.unsupported'))
+                  stickyArmed.set(!stickyArmed.get())
+                },
+              }
+            : undefined
+        }
+      />
     ) : null
 
   return (
@@ -1593,9 +1615,14 @@ export function BookReader({
             <PdfView
               key={pdfVersion}
               data={data}
-              ink={{ db, pageId, on: drawing }}
+              ink={{ db, pageId, on: drawing && !armedSticky }}
               startAt={at ?? page.source.at}
               annotations={annotations ?? []}
+              pageOverlay={
+                v2
+                  ? (n, notes) => <StickyPins pageNo={n} notes={notes} />
+                  : undefined
+              }
               zoom={zoom}
               paged={pdfPaged}
               onZoom={setZoom}
@@ -1886,6 +1913,11 @@ export function BookReader({
             runTask(makeAnnotation(sel, 'note', 'yellow', note))
           }}
         />
+      )}
+      {v2 && format === 'pdf' && (
+        <Suspense fallback={null}>
+          <StickyHost db={db} pageId={pageId} annotations={annotations ?? []} />
+        </Suspense>
       )}
       {bulk && (
         <BulkCardsDialog

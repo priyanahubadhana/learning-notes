@@ -55,4 +55,27 @@ export const esAiPlan = {
   'aifw.err.summaryTop': 'Un resumen va en una página de primer nivel.',
   'aifw.err.lockNotebook': 'Este cuaderno está bloqueado.',
   'aifw.err.lockPage': 'Esta página está bloqueada.',
+  'aifw.tool.mindmaps.add.name': 'Añadir mapa mental',
+  'aifw.tool.mindmaps.add.desc': 'Añade un mapa mental editable a una página.',
+  'aifw.tool.mindmaps.set_theme.name': 'Cambiar colores del mapa mental',
+  'aifw.tool.mindmaps.set_theme.desc':
+    'Cambia el tema de color de un mapa mental.',
+  'aifw.tool.cards.suspend.name': 'Apartar una tarjeta',
+  'aifw.tool.cards.suspend.desc':
+    'Aparta una tarjeta de los repasos o la devuelve.',
+  'aifw.tool.databases.rename.name': 'Renombrar base de datos',
+  'aifw.tool.databases.rename.desc': 'Da un título nuevo a una base de datos.',
+  'aifw.tool.styles.set_paper.name': 'Cambiar papel',
+  'aifw.tool.styles.set_paper.desc':
+    'Pone el papel detrás del dibujo de una página.',
+  'aifw.tool.layouts.set_path_style.name': 'Cambiar ruta de la página',
+  'aifw.tool.layouts.set_path_style.desc':
+    'Define cómo se muestra la ruta sobre una página.',
+  'aifw.err.goneBlock': 'El bloque ya no está.',
+  'aifw.err.goneCard': 'La tarjeta ya no está.',
+  'aifw.err.goneDatabase': 'La base de datos ya no está.',
+  'aifw.err.outlineMissing': 'Falta el esquema.',
+  'aifw.err.notMindMap': 'Este bloque no es un mapa mental.',
+  'aifw.err.studyRename': 'El seguimiento de estudio no se puede renombrar.',
+  'aifw.err.lockDatabase': 'Esta base de datos está bloqueada.',
 }

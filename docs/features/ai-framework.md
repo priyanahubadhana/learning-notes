@@ -156,6 +156,15 @@ Tools: `pages.rename`, `tabs.rename`, `tabs.set_hidden`, `summaries.set` (code i
 - When a notebook or page is locked, a tab or page is gone, a summary targets a sub-page, or the page changed meanwhile → nothing is written and the reason is shown in plain words in English, Spanish and Hindi.
 - When I pick steps by hand on the Build screen → the three tools that need their own arguments (rename page, rename tab, show or hide tab) are not offered there; they come through a plan.
 
+### Slice 5b and 5c: Mind maps, Cards, Databases, Styles, Layouts
+
+Tools: `mindmaps.add`, `mindmaps.set_theme`, `cards.suspend`, `databases.rename`, `styles.set_paper`, `layouts.set_path_style` (same folders as 5a).
+
+- When a plan names one of these tools → it is checked, staged, previewed, applied and undone like the older tools (V4-E1 to V4-E3, V4-F1 to V4-F3).
+- When `mindmaps.set_theme`, `cards.suspend`, `styles.set_paper` or `layouts.set_path_style` run in the app and through `run_plan` → the records are byte-equal (V4-E4, V4-F4, `mcp/test/planParity.test.ts`).
+- When Claude's local connector is asked for `mindmaps.add` or `databases.rename` → it says they are not offered there and writes nothing (they are app-only for now).
+- When a notebook, page or database is locked, the Study tracker is renamed, a block is not a mind map, an outline is blank, or the thing is gone → nothing is written and the reason is shown in plain words in English, Spanish and Hindi.
+
 ### Slice 3: Build screen texts
 
 - AF-43. When a step or job shows a reason (step failed, stopped, nothing to

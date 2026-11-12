@@ -52,4 +52,27 @@ export const hiAiPlan = {
   'aifw.err.summaryTop': 'सारांश सबसे ऊपर के स्तर के पेज पर होता है।',
   'aifw.err.lockNotebook': 'यह नोटबुक लॉक है।',
   'aifw.err.lockPage': 'यह पेज लॉक है।',
+  'aifw.tool.mindmaps.add.name': 'माइंड मैप जोड़ें',
+  'aifw.tool.mindmaps.add.desc':
+    'पेज में बदला जा सकने वाला माइंड मैप जोड़ता है।',
+  'aifw.tool.mindmaps.set_theme.name': 'माइंड मैप के रंग बदलें',
+  'aifw.tool.mindmaps.set_theme.desc': 'माइंड मैप की रंग थीम बदलता है।',
+  'aifw.tool.cards.suspend.name': 'कार्ड अलग रखें',
+  'aifw.tool.cards.suspend.desc':
+    'कार्ड को रिवीज़न से अलग रखता है, या वापस लाता है।',
+  'aifw.tool.databases.rename.name': 'डेटाबेस का नाम बदलें',
+  'aifw.tool.databases.rename.desc': 'डेटाबेस को नया शीर्षक देता है।',
+  'aifw.tool.styles.set_paper.name': 'काग़ज़ बदलें',
+  'aifw.tool.styles.set_paper.desc':
+    'पेज पर चित्र के पीछे का काग़ज़ तय करता है।',
+  'aifw.tool.layouts.set_path_style.name': 'पेज का पाथ बदलें',
+  'aifw.tool.layouts.set_path_style.desc':
+    'पेज के ऊपर का पाथ कैसे दिखे, यह तय करता है।',
+  'aifw.err.goneBlock': 'वह ब्लॉक अब नहीं है।',
+  'aifw.err.goneCard': 'वह कार्ड अब नहीं है।',
+  'aifw.err.goneDatabase': 'वह डेटाबेस अब नहीं है।',
+  'aifw.err.outlineMissing': 'रूपरेखा नहीं मिली।',
+  'aifw.err.notMindMap': 'यह ब्लॉक माइंड मैप नहीं है।',
+  'aifw.err.studyRename': 'स्टडी ट्रैकर का नाम नहीं बदला जा सकता।',
+  'aifw.err.lockDatabase': 'यह डेटाबेस लॉक है।',
 }

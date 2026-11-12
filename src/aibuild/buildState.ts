@@ -33,6 +33,11 @@ export const NEEDS_OWN_ARGS: ReadonlySet<string> = new Set([
   'pages.rename',
   'tabs.rename',
   'tabs.set_hidden',
+  'mindmaps.set_theme',
+  'cards.suspend',
+  'databases.rename',
+  'styles.set_paper',
+  'layouts.set_path_style',
 ])
 
 export const COLOURS = [

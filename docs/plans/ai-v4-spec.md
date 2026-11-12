@@ -104,8 +104,10 @@ Won't do (D): no delete tool; no database change; no tool outside 5a.
 - V4-E3. When a plan names `cards.suspend` with a `cardId` and `suspended`
   true/false → the card is set aside (or brought back) without deleting
   anything; its reviews stay. A gone card or a locked notebook → the step fails.
-- V4-E4. Each tool runs the same from the app and from `mcp/` (parity goldens),
-  applies in one save, and Undo and Redo put everything back.
+- V4-E4. `mindmaps.set_theme` and `cards.suspend` run the same from the app and
+  from `mcp/` (parity goldens); `mindmaps.add` is app-only because the local
+  connector cannot make mind maps yet (it is refused as "not offered on mcp", nothing
+  written). Each tool applies in one save, and Undo and Redo put everything back.
 
 Won't do (E): no card deletion, no edit of card text or schedule, no mind map
 node editing, no tool outside 5b.
@@ -121,7 +123,9 @@ node editing, no tool outside 5b.
 - V4-F3. When a plan names `layouts.set_path_style` with a `pageId` and `pathStyle`
   (`simple`, `full`, `page`, `inherit`) → that page's own path style is set, or
   cleared for `inherit`.
-- V4-F4. Same parity, one-save and Undo/Redo rules as V4-E4.
+- V4-F4. `styles.set_paper` and `layouts.set_path_style` have parity goldens;
+  `databases.rename` is app-only (the local connector cannot read databases yet).
+  Same one-save and Undo/Redo rules as V4-E4.
 
 Won't do (F): no database column, row or view changes; no notebook layout
 boxes; no tool outside 5c.

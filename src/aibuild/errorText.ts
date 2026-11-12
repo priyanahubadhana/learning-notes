@@ -39,6 +39,13 @@ export const STEP_TEXTS: Readonly<Record<string, MessageKey>> = {
   'A summary belongs on a top-level page.': 'aifw.err.summaryTop',
   'This notebook is locked.': 'aifw.err.lockNotebook',
   'This page is locked.': 'aifw.err.lockPage',
+  'The block is gone.': 'aifw.err.goneBlock',
+  'The card is gone.': 'aifw.err.goneCard',
+  'The database is gone.': 'aifw.err.goneDatabase',
+  'The outline is missing.': 'aifw.err.outlineMissing',
+  'This block is not a mind map.': 'aifw.err.notMindMap',
+  'The Study tracker cannot be renamed.': 'aifw.err.studyRename',
+  'This database is locked.': 'aifw.err.lockDatabase',
   // Spend refusals (the model filler; no paid call is ever made at a limit of 0)
   'The spend limit is ₹0, so no paid model was used.': 'aifw.err.spendZero',
   'This would pass the monthly spend limit, so it was not sent.':

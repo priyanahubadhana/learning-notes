@@ -49,4 +49,27 @@ export const enLateAiPlan = {
   'aifw.err.summaryTop': 'A summary belongs on a top-level page.',
   'aifw.err.lockNotebook': 'This notebook is locked.',
   'aifw.err.lockPage': 'This page is locked.',
+  'aifw.tool.mindmaps.add.name': 'Add mind map',
+  'aifw.tool.mindmaps.add.desc': 'Adds an editable mind map to a page.',
+  'aifw.tool.mindmaps.set_theme.name': 'Change mind map colours',
+  'aifw.tool.mindmaps.set_theme.desc':
+    'Changes the colour theme of a mind map.',
+  'aifw.tool.cards.suspend.name': 'Set a card aside',
+  'aifw.tool.cards.suspend.desc':
+    'Sets a card aside from reviews, or brings it back.',
+  'aifw.tool.databases.rename.name': 'Rename database',
+  'aifw.tool.databases.rename.desc': 'Gives a database a new title.',
+  'aifw.tool.styles.set_paper.name': 'Change paper',
+  'aifw.tool.styles.set_paper.desc':
+    'Sets the paper behind the drawing on a page.',
+  'aifw.tool.layouts.set_path_style.name': 'Change page path',
+  'aifw.tool.layouts.set_path_style.desc':
+    'Sets how the path above a page is shown.',
+  'aifw.err.goneBlock': 'The block is gone.',
+  'aifw.err.goneCard': 'The card is gone.',
+  'aifw.err.goneDatabase': 'The database is gone.',
+  'aifw.err.outlineMissing': 'The outline is missing.',
+  'aifw.err.notMindMap': 'This block is not a mind map.',
+  'aifw.err.studyRename': 'The Study tracker cannot be renamed.',
+  'aifw.err.lockDatabase': 'This database is locked.',
 }

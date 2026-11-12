@@ -1,6 +1,12 @@
 import type { AiToolDef } from './types'
 import { cardsMakeCloze } from './tools/cardsMakeCloze'
 import { cardsMakeRecall } from './tools/cardsMakeRecall'
+import { mindmapsAdd } from './tools/mindmapsAdd'
+import { mindmapsSetTheme } from './tools/mindmapsSetTheme'
+import { cardsSuspend } from './tools/cardsSuspend'
+import { databasesRename } from './tools/databasesRename'
+import { stylesSetPaper } from './tools/stylesSetPaper'
+import { layoutsSetPathStyle } from './tools/layoutsSetPathStyle'
 import { databasesCreate } from './tools/databasesCreate'
 import { notebooksCreate } from './tools/notebooksCreate'
 import { notebooksCreateFromSpec } from './tools/notebooksCreateFromSpec'
@@ -29,6 +35,12 @@ export const AI_TOOLS: readonly AiToolDef[] = [
   tabsRename,
   tabsSetHidden,
   summariesSet,
+  mindmapsAdd,
+  mindmapsSetTheme,
+  cardsSuspend,
+  databasesRename,
+  stylesSetPaper,
+  layoutsSetPathStyle,
 ]
 
 export const AI_TOOLS_BY_ID: ReadonlyMap<string, AiToolDef> = new Map(

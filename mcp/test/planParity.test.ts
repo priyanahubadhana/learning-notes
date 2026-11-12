@@ -156,6 +156,19 @@ const GOLDEN: Record<string, Rec> = {
       summary: 'Cells make energy in the mitochondria.',
     }),
   ]),
+  // Framework slices 5b and 5c (databases.rename and mindmaps.add are app-only: the local connector cannot make them yet).
+  'a mind map theme and a card set aside': plan(
+    'g10',
+    { kind: 'page', id: 'p1' },
+    [
+      step('s1', 'mindmaps.set_theme', { blockId: 'mb1', theme: 'bold' }),
+      step('s2', 'cards.suspend', { cardId: 'c1', suspended: true }),
+    ],
+  ),
+  'paper and page path': plan('g11', { kind: 'page', id: 'p1' }, [
+    step('s1', 'styles.set_paper', { pageId: 'p1', paper: 'grid' }),
+    step('s2', 'layouts.set_path_style', { pageId: 'p1', pathStyle: 'full' }),
+  ]),
 }
 
 /** The seeded notebook has no tabs; the tab tools need the standard five. */
@@ -177,6 +190,23 @@ async function both(p: Rec) {
     allowAi: true,
     workspaceId: 'ws1',
     tabs: TABS,
+  })
+  await source.put('blocks', {
+    createdAt: 1,
+    updatedAt: 1000,
+    deletedAt: null,
+    id: 'mb1',
+    pageId: 'p1',
+    parentId: null,
+    type: 'mindMap',
+    order: 'a13',
+    content: {
+      data: JSON.stringify({
+        root: 'r',
+        nodes: [{ id: 'r', text: 'Cells', parent: null }],
+      }),
+      theme: 'calm',
+    },
   })
   const cache = new NotesCache(source, master, { now: () => NOW })
   await cache.refresh(true)
@@ -298,4 +328,29 @@ describe('undo gives the same result in the app and through undo_job', () => {
       expect(trashedInApp.length).toBeGreaterThan(0)
     },
   )
+})
+
+describe('app-only tools are refused by the local connector, writing nothing', () => {
+  it.each([
+    ['mindmaps.add', { pageId: 'p1', outline: 'Cells' }],
+    ['databases.rename', { databaseId: 'd1', title: 'X' }],
+  ])('%s', async (tool, args) => {
+    const { master, source } = await newFixture()
+    await seedNotes(source, NOW)
+    const cache = new NotesCache(source, master, { now: () => NOW })
+    await cache.refresh(true)
+    const write = makeWriteTools(
+      { cache, source, master, deviceId: DEVICE, scopes: ALL, now: () => NOW },
+      new MemoryJobStore(),
+    )
+    const before = source.pushed.length
+    await expect(
+      write.plan.run_plan({
+        plan: plan('r1', { kind: 'page', id: 'p1' }, [
+          step('s1', tool, args as Rec),
+        ]),
+      }),
+    ).rejects.toThrow(/not offered on mcp/)
+    expect(source.pushed).toHaveLength(before)
+  })
 })

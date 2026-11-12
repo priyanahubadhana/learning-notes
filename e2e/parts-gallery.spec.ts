@@ -17,11 +17,17 @@ const SECTIONS = [
   'empty',
   'objbar',
   'range',
+  'menus',
 ] as const
 
 async function open(page: Page, size?: { width: number; height: number }) {
   if (size) await page.setViewportSize(size)
   await page.goto('/#/design-tokens')
+  // every section has arrived: nothing above can still push the page down
+  await expect(page.getByTestId('gal-parts')).toHaveAttribute(
+    'data-ready',
+    'true',
+  )
   await expect(page.getByTestId('gal-range')).toBeAttached()
   await expect(page.getByTestId('demo-phone-wrap')).toBeAttached()
   // Every section is its own lazy chunk and they arrive in any order: one
@@ -146,6 +152,25 @@ test.describe('Parts gallery', () => {
         'danger',
       ],
       range: ['presets', 'custom', 'editing', 'phone-wrap'],
+      feedback: [
+        'sheet',
+        'dialogs',
+        'toasts',
+        'banner',
+        'sheet-inline',
+        'confirm-inline',
+        'prompt-inline',
+        'toasts-inline',
+      ],
+      menus: [
+        'strip',
+        'strip-phone',
+        'strip-picker',
+        'list',
+        'list-filtered',
+        'list-empty',
+        'live',
+      ],
     }
     // The sections come in the order of the spec.
     const ids = await page
@@ -280,7 +305,7 @@ test.describe('Parts gallery', () => {
       await expect(trig).toHaveAttribute('data-pressed', 'true')
       // Settled position (after the 200 ms open motion).
       await expect(card).toHaveCSS('animation-duration', '0.2s')
-      await page.waitForTimeout(300)
+      await expect(card).toHaveAttribute('data-settled', 'true')
       const t = await box(trig)
       const c = await box(card)
       expect(Math.abs(c.y - (t.y + t.height + 8))).toBeLessThanOrEqual(2)
@@ -433,7 +458,7 @@ test.describe('Parts gallery', () => {
       const row = page.getByTestId('tabs-three')
       await row.scrollIntoViewIfNeeded()
       await row.getByTestId('tabrow-plus').click()
-      const menu = page.getByRole('menu')
+      const menu = page.getByRole('menu', { name: 'Add a tab' })
       await expect(menu).toBeVisible()
       await expect(page.getByTestId('tabrow-add').first()).toBeVisible()
       await expect(page.getByTestId('tabrow-create')).toBeVisible()
@@ -703,19 +728,16 @@ test.describe('Parts gallery', () => {
       const y = r.y + r.height / 2
       await touch(label, 'pointerdown', x, y)
       await expect(row).toHaveAttribute('data-state', 'hold-pending')
-      await page.waitForTimeout(450)
+      // the row says when it is lifted; no fixed wait
       await expect(row).toHaveAttribute('data-state', 'lifted')
       // Drag below the 4th row.
       const d = await box(list.locator('li[data-reorder-id="delta"]'))
       await touch(label, 'pointermove', x, d.y + d.height * 0.8)
       await expect(page.getByTestId('drop-line')).toBeVisible()
-      expect(await order(list)).toEqual([
-        'alpha',
-        'charlie',
-        'delta',
-        'bravo',
-        'echo',
-      ])
+      // (the others slide when the move is drawn: wait for that, then it must be exact)
+      await expect
+        .poll(() => order(list))
+        .toEqual(['alpha', 'charlie', 'delta', 'bravo', 'echo'])
       await touch(label, 'pointerup', x, d.y + d.height * 0.8)
       await expect(list.locator('li[data-state="lifted"]')).toHaveCount(0)
       expect(await order(list)).toEqual([

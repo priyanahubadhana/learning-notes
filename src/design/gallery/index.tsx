@@ -1,4 +1,4 @@
-import { lazy, Suspense } from 'react'
+import { lazy, Suspense, useCallback, useEffect, useState } from 'react'
 
 /**
  * The "Parts" gallery (SP-12): one lazy chunk per section, so nothing here is
@@ -9,21 +9,52 @@ const SECTIONS = [
   lazy(() => import('./CardSection')),
   lazy(() => import('./TabsSection')),
   lazy(() => import('./ClearSection')),
-  lazy(() => import('./TagsSection')),
+  // (a part that loads its own chunk is fetched with its section, so the page
+  // does not grow after the section appears)
+  lazy(() =>
+    Promise.all([
+      import('./TagsSection'),
+      import('../parts/TagPicker/TagPicker'),
+    ]).then(([m]) => m),
+  ),
   lazy(() => import('./DragSection')),
   lazy(() => import('./ArrangeSection')),
   lazy(() => import('./EmptySection')),
   lazy(() => import('./ObjBarSection')),
-  lazy(() => import('./RangeSection')),
+  lazy(() =>
+    Promise.all([
+      import('./RangeSection'),
+      import('../parts/TimeRangeBuilder'),
+    ]).then(([m]) => m),
+  ),
+  lazy(() => import('./MenusSection')),
+  lazy(() => import('./FeedbackSection')),
   lazy(() => import('./ShellSection')),
 ]
 
+/** Tells the gallery that its section is on the page (it renders nothing). */
+function Seen({ index, mark }: { index: number; mark(i: number): void }) {
+  useEffect(() => mark(index), [index, mark])
+  return null
+}
+
 export default function Gallery() {
+  const [seen, setSeen] = useState<ReadonlySet<number>>(new Set())
+  const mark = useCallback(
+    (i: number) => setSeen((old) => (old.has(i) ? old : new Set(old).add(i))),
+    [],
+  )
   return (
-    <div data-testid="gal-parts">
+    // data-ready: every section has arrived, so nothing above can still push
+    // the page down (the tests wait for this instead of guessing).
+    <div
+      data-testid="gal-parts"
+      data-ready={seen.size >= SECTIONS.length ? 'true' : undefined}
+    >
       {SECTIONS.map((S, i) => (
         <Suspense key={i} fallback={null}>
           <S />
+          <Seen index={i} mark={mark} />
         </Suspense>
       ))}
     </div>

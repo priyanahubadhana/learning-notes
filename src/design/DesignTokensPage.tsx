@@ -1,4 +1,5 @@
-import { lazy, Suspense, useState } from 'react'
+import { lazy, Suspense, useEffect, useState } from 'react'
+import { applyLanguage } from '../i18n/languages'
 import { applyTheme, THEMES, type Theme } from '../app/theme'
 
 /**
@@ -73,12 +74,24 @@ const T = {
 }
 
 /** The "Parts" gallery (SP-12): lazy, so nothing is added to the first load. */
-const Gallery = lazy(() => import('./gallery'))
+// The chunk starts loading with this page, not after the language is ready,
+// so the three lazy steps (page, gallery, sections) do not wait in a line.
+const galleryChunk = import('./gallery')
+const Gallery = lazy(() => galleryChunk)
 const WIDTHS = [390, 820, 1180, 1366] as const
 
 const heading = 't-h2 mt-10 mb-4'
 
+/** The shared parts read their words through t(): load the texts first. */
 export default function DesignTokensPage() {
+  const [ready, setReady] = useState(false)
+  useEffect(() => {
+    void applyLanguage('en').then(() => setReady(true))
+  }, [])
+  return ready ? <TokensPage /> : null
+}
+
+function TokensPage() {
   const [theme, setTheme] = useState<Theme>(
     () => (document.documentElement.dataset.theme as Theme) || 'day',
   )

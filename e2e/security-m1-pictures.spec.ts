@@ -75,7 +75,8 @@ test('S12 S13 S14: a web picture in a gallery shows the card; nothing loads unti
   const img = main(page).locator('[data-tile-id] img')
   await expect(img).toHaveAttribute('src', `${HOST}/a.png`)
   await expect(img).toHaveAttribute('referrerpolicy', 'no-referrer')
-  expect(hits.length).toBeGreaterThan(0)
+  // The lazy picture asks the network a moment after its src is set.
+  await expect.poll(() => hits.length).toBeGreaterThan(0)
   // The tap only loaded the picture; it did not open the page.
   await expect(main(page).getByTestId('remote-picture-card')).toHaveCount(0)
   await page.reload()
@@ -92,5 +93,6 @@ test('S22: flag off, the web picture loads by itself as before', async ({
     `${HOST}/a.png`,
   )
   await expect(main(page).getByTestId('remote-picture-card')).toHaveCount(0)
-  expect(hits.length).toBeGreaterThan(0)
+  // The lazy picture asks the network a moment after its src is set.
+  await expect.poll(() => hits.length).toBeGreaterThan(0)
 })

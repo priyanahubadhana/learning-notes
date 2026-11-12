@@ -1,7 +1,8 @@
 import { useEffect, useRef, useState } from 'react'
 import { t } from '../i18n/t'
 import { COUNTDOWN_S, flow } from './mandatoryFlow'
-import type { MandatoryState } from './mandatoryState'
+import { MANDATORY_TOP, type MandatoryState } from './mandatoryState'
+import { onRouted } from './input/eventRouter'
 import type { UpdateReason } from './updateLevel'
 import { useUnlocked } from '../settings/level'
 
@@ -96,12 +97,16 @@ export default function MandatoryNotice({
   // While installing nothing may be pressed (Esc included).
   useEffect(() => {
     if (phase !== 'installing') return
-    const block = (e: KeyboardEvent) => {
-      e.preventDefault()
-      e.stopPropagation()
-    }
-    window.addEventListener('keydown', block, true)
-    return () => window.removeEventListener('keydown', block, true)
+    // Above every other keyboard owner, including a running gesture.
+    return onRouted(
+      'keydown',
+      (e) => {
+        e.preventDefault()
+        e.stopPropagation()
+        return true
+      },
+      { priority: 2000, name: 'mandatory-installing' },
+    )
   }, [phase])
 
   const pct =
@@ -142,7 +147,7 @@ export default function MandatoryNotice({
         aria-live="polite"
         data-mandatory-update
         data-phase="offline"
-        className="fixed bottom-4 left-4 right-4 z-[2147483000] mx-auto max-w-[420px] rounded-xl border border-line bg-surface-3 px-4 py-3 text-[13px] text-ink shadow-[var(--elev-2)]"
+        className={`fixed bottom-4 left-4 right-4 ${MANDATORY_TOP} mx-auto max-w-[420px] rounded-xl border border-line bg-surface-3 px-4 py-3 text-[13px] text-ink shadow-[var(--elev-2)]`}
       >
         {t('update.v2.offline')}
       </div>
@@ -158,7 +163,7 @@ export default function MandatoryNotice({
       data-mandatory-update
       data-phase={s.phase}
       onKeyDown={(e) => e.key === 'Escape' && e.preventDefault()}
-      className="fixed inset-0 z-[2147483000] flex items-center justify-center bg-bg px-4 text-ink"
+      className={`fixed inset-0 ${MANDATORY_TOP} flex items-center justify-center bg-bg px-4 text-ink`}
     >
       <div
         ref={column}

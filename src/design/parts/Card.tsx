@@ -74,6 +74,14 @@ export function Card(props: CardProps) {
   const [fade, setFade] = useState(false)
   // true once the open motion has finished (at once when there is none)
   const [settled, setSettled] = useState(false)
+  // One stable callback ref: an inline one is detached and attached on every
+  // render, and a parent that renders often (an EPUB reporting its place) then
+  // loops on setNode(null) / setNode(el).
+  const setRoot = useCallback((el: HTMLDivElement | null) => {
+    rootRef.current = el
+    setNode(el)
+    if (el && getComputedStyle(el).animationName === 'none') setSettled(true)
+  }, [])
   const closingRef = useRef(false)
   const reasonRef = useRef<CardCloseReason>('outside')
   const handleRef = useRef<OverlayHandle | null>(null)
@@ -179,12 +187,7 @@ export function Card(props: CardProps) {
   const card = (
     <CardCtx.Provider value={{ pick }}>
       <div
-        ref={(el) => {
-          rootRef.current = el
-          setNode(el)
-          if (el && getComputedStyle(el).animationName === 'none')
-            setSettled(true)
-        }}
+        ref={setRoot}
         className="pcard"
         role="dialog"
         aria-label={title}

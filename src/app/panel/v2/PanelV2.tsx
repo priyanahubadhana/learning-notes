@@ -1,0 +1,172 @@
+import { useLiveQuery } from 'dexie-react-hooks'
+import { useEffect, useId, useMemo, useRef, useState } from 'react'
+import { overlay } from '../../overlay'
+import { usePref } from '../../usePref'
+import { Icon } from '../../tools/icons'
+import type { LearningNotesDB } from '../../../core/db'
+import { TabRow, type TabDef } from '../../../design/parts/TabRow'
+import { popoverAttr, showTop } from '../../../design/parts/topLayer'
+import { displayName, sampleName } from '../../../i18n/defaultNames'
+import { t } from '../../../i18n/t'
+import { outlineRequest } from '../outlineRequest'
+import { OutlineTabV2 } from './OutlineTabV2'
+import { PagesTabV2 } from './PagesTabV2'
+import { ResourcesTab } from './ResourcesTab'
+import './panelV2.css'
+
+const TABS = ['pages', 'outline', 'resources'] as const
+type Tab = (typeof TABS)[number]
+/** `audio` is what an older version stored: recordings are a kind of Resource now. */
+const isTab = (v: unknown): v is Tab | 'audio' =>
+  v === 'audio' || TABS.includes(v as Tab)
+
+/** Screens at least this wide dock the panel beside the page; narrower ones slide it over. */
+const DOCK_MIN = 1024
+
+function useDocked(): boolean {
+  const [docked, setDocked] = useState(() => window.innerWidth >= DOCK_MIN)
+  useEffect(() => {
+    const ro = new ResizeObserver(() =>
+      setDocked(window.innerWidth >= DOCK_MIN),
+    )
+    ro.observe(document.documentElement)
+    return () => ro.disconnect()
+  }, [])
+  return docked
+}
+
+/**
+ * The left panel of the new Notebooks screens (flag `notebooks.v2`, spec
+ * NB-B40..B52): 264 px, tabs Pages · Outline · Resources in the shared Tab
+ * row, ✕ at the top. Docked beside the page on wide screens; on narrower
+ * ones a left drawer (86 vw on a phone) over a scrim.
+ */
+export default function PanelV2({
+  db,
+  notebookId,
+  pageId,
+  onOpenPage,
+  onClose,
+}: {
+  db: LearningNotesDB
+  notebookId: string
+  pageId: string
+  onOpenPage: (id: string) => void
+  onClose: () => void
+}) {
+  const docked = useDocked()
+  const [stored, setTab] = usePref<Tab | 'audio'>(
+    'leftPanel.tab',
+    isTab,
+    'pages',
+  )
+  const tab: Tab = stored === 'audio' ? 'resources' : stored
+  const ask = outlineRequest.useValue()
+  useEffect(() => {
+    if (ask.n > 0 && Date.now() - ask.at < 1500)
+      setTab(ask.tab === 'audio' ? 'resources' : 'outline')
+  }, [ask, setTab])
+
+  const notebook = useLiveQuery(
+    () => db.notebooks.get(notebookId),
+    [db, notebookId],
+  )
+  const title = notebook
+    ? displayName(sampleName(notebook)) || t('review.untitled')
+    : ''
+
+  const catalog = useMemo<TabDef[]>(
+    () => [
+      { id: 'pages', label: t('lp2.tab.pages'), icon: 'fileText' },
+      { id: 'outline', label: t('lp2.tab.outline'), icon: 'list' },
+      { id: 'resources', label: t('lp2.tab.resources'), icon: 'paperclip' },
+    ],
+    [],
+  )
+
+  const layerRef = useRef<HTMLDivElement>(null)
+  const panelRef = useRef<HTMLElement>(null)
+  const closeRef = useRef(onClose)
+  useEffect(() => {
+    closeRef.current = onClose
+  })
+  const dialogId = useId()
+  // The drawer sits in the top layer; Esc and the first tap outside close it.
+  useEffect(() => {
+    if (docked) return
+    const layer = layerRef.current
+    const panel = panelRef.current
+    if (!layer || !panel) return
+    showTop(layer)
+    const handle = overlay.open({
+      id: `left-panel-${dialogId}`,
+      layer: 'sheet',
+      close: () => closeRef.current(),
+      inside: (n) =>
+        panel.contains(n) || !!(n as Element).closest?.('.fb-toasts'),
+      opener: null,
+    })
+    return () => handle.close()
+  }, [docked, dialogId])
+
+  const open = (id: string) => {
+    onOpenPage(id)
+    if (!docked) onClose()
+  }
+  const common = { db, notebookId, pageId }
+
+  const panel = (
+    <aside
+      ref={panelRef}
+      className="lpv2"
+      data-mode={docked ? 'docked' : 'over'}
+      data-testid="left-panel"
+      data-palm-guard
+      data-chrome
+      aria-label={t('lp2.label')}
+    >
+      <header className="lpv2-head">
+        <h2 title={title}>{title}</h2>
+        <button
+          type="button"
+          className="lpv2-x"
+          data-testid="lpv2-close"
+          aria-label={t('lp2.close')}
+          onClick={onClose}
+        >
+          <Icon name="close" size={18} />
+        </button>
+      </header>
+      <div className="lpv2-tabs">
+        <TabRow
+          setKey="leftPanel"
+          catalog={catalog}
+          defaults={[...TABS]}
+          value={tab}
+          variant="underline"
+          label={t('lp2.tabs')}
+          onPick={(id) => {
+            if (TABS.includes(id as Tab)) setTab(id as Tab)
+          }}
+        />
+      </div>
+      <div role="tabpanel" className="lpv2-body" data-tab={tab}>
+        {tab === 'pages' && <PagesTabV2 {...common} onOpenPage={open} />}
+        {tab === 'outline' && <OutlineTabV2 {...common} onOpenPage={open} />}
+        {tab === 'resources' && <ResourcesTab {...common} onOpenPage={open} />}
+      </div>
+    </aside>
+  )
+  if (docked) return panel
+  return (
+    <div
+      ref={layerRef}
+      className="lpv2-layer"
+      popover={popoverAttr()}
+      data-testid="lpv2-layer"
+    >
+      <div className="lpv2-scrim" aria-hidden="true" />
+      {panel}
+    </div>
+  )
+}

@@ -6,7 +6,12 @@ import { byOrder, orderAtIndex } from '../../../core/order'
 import { descendantIds, isLive } from '../../../core/records'
 import type { Block, Page } from '../../../core/types'
 import { createNotebook } from '../../../notebooks/notebookService'
-import { movePage, deletePage, listPages } from '../../../pages/pageService'
+import {
+  createPage,
+  deletePage,
+  listPages,
+  movePage,
+} from '../../../pages/pageService'
 import { syncCardRecords } from '../../../recall/cardService'
 import { restorePage } from '../../../trash/trashService'
 import type { CopyStep, MoveOp } from './pageOrganise'
@@ -308,4 +313,23 @@ export async function undoExtract(
       }
     },
   )
+}
+
+/** NB-B47: a blank page right after `afterId` (same parent), returned for opening. */
+export async function addPageAfter(
+  db: LearningNotesDB,
+  notebookId: string,
+  afterId: string | null,
+): Promise<Page> {
+  const after = afterId ? await db.pages.get(afterId) : undefined
+  const parentId = after && isLive(after) ? after.parentId : null
+  const page = await createPage(db, notebookId, parentId)
+  if (after && isLive(after)) {
+    const sibs = (await listPages(db, notebookId)).filter(
+      (p) => p.parentId === parentId,
+    )
+    const at = sibs.findIndex((p) => p.id === after.id)
+    if (at >= 0) await movePage(db, page.id, parentId, at + 1)
+  }
+  return page
 }

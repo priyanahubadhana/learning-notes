@@ -26,7 +26,7 @@ describe('site rules', () => {
       "script-src 'self' 'wasm-unsafe-eval' https://accounts.google.com/gsi/client;",
     )
     expect(enforced).toContain("worker-src 'self' blob:")
-    expect(enforced).toContain("frame-ancestors 'none'")
+    expect(enforced).toMatch(/frame-ancestors 'self'(;|$)/)
     const strict = value('Content-Security-Policy-Report-Only')
     expect(strict).toContain("script-src-attr 'none'")
     expect(strict).toContain("manifest-src 'self'")

@@ -45,7 +45,7 @@ test('the built app works under the live security rules', async ({ page }) => {
   })
   const response = await page.goto('/')
   expect(response?.headers()['content-security-policy']).toContain(
-    "frame-ancestors 'none'",
+    "frame-ancestors 'self'",
   )
   await page.getByRole('button', { name: 'Create notebook' }).click()
   await page.getByRole('textbox', { name: 'Page title' }).click()

@@ -40,7 +40,6 @@ import {
 } from './panelModel'
 import { Icon } from '../tools/icons'
 import { readerBridge } from '../../reader/readerBridge'
-import { useFlag } from '../flags'
 import type { BookTab } from '../../reader/BookPanel'
 
 const PanelTabs = lazy(() => import('../../reader/v2/PanelTabs'))

@@ -58,7 +58,8 @@
   width: min(100%, 560px);
   height: min(100%, 360px);
   display: grid;
-  place-items: center;
+  place-items: start center; /* the words sit at the top; the dot starts in the middle, clear of them */
+  padding: 16px;
   border-radius: var(--r-lg);
   background: var(--color-surface-2);
   box-shadow: inset 0 0 0 1px var(--card-hair);
@@ -72,6 +73,7 @@
 }
 .tfd-pic p {
   margin: 0;
+  text-align: center;
   font-size: 15px;
   font-weight: 600;
 }

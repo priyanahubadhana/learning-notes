@@ -161,7 +161,9 @@ export function ShelvesPanel({
         {prefs.recentAll ? t('lib2.everything') : t('lib2.recent')}
       </h3>
       {recent.length === 0 ? (
-        <p className="px-3 text-xs text-muted">{t('library.empty')}</p>
+        <p data-testid="panel-recent-empty" className="px-3 text-xs text-muted">
+          {t('lib2.recent.none')}
+        </p>
       ) : (
         <ul data-testid="panel-recent">
           {recent.map((p) => (

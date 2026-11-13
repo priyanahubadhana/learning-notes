@@ -26,6 +26,8 @@ export function ScrollTrack({
   children: ReactNode
   role?: string
   'aria-label'?: string
+  'data-testid'?: string
+  'data-mode'?: string
 }) {
   const ref = useRef<HTMLDivElement>(null)
   const [thumb, setThumb] = useState<{ w: number; x: number } | null>(null)

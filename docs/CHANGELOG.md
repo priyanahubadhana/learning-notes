@@ -67,6 +67,11 @@ Current phase only. Older entries are in [ARCHIVE.md](ARCHIVE.md).
 - What: a drawn thin track under cut rows (Continue cards, search chips; touch screens hide the browser bar); phone-size search shows Close, never Esc; phone strip labels wrap to 2 lines and the phone strip is solid; search v2 is solid at every size (no cover bleed on iPad); Collapse all is an icon button (name on hover and on hold) so the Notebooks heading is never cut.
 - Why: gate 3 re-shoot, docs/plans/gate3-2026-11-13.md slice 4 items 1-7.
 - Files: src/design/parts/ScrollTrack.tsx (new), ContextStrip.css, index.css, notebooks/v2/{ContinueStrip,CollapseAllButton}.tsx, search/SearchPopup.tsx, e2e/notebooksSearchGate3{,Shots}.spec.ts, e2e/notebooksV2Sidebar.spec.ts, screenshots/gate3-4/.
+### 13 Nov 2026: Library v2 gate 3 fourth visit, 5 fixes (slice 6)
+
+- What: 1 Books filter chips keep their words with Lucide icons in one row with the thin track (no typed letters). 2 Knowledge filters are ▾ menu chips (MenuPopover) sized to their words, one row with the track, colour dots at the end. 3 Tab row stops before the search button and shows the track. 4 Book panel overlay (narrow screens) starts below the top bar, solid, full width on a phone, dim layer behind (same layer, no new z-index). 5 Toast sits above the bottom bar of spaces on a phone, so it no longer lands under the pointer and closes on time.
+- Why: docs/plans/gate3-2026-11-13.md "Fourth visit (5, 6)". ScrollTrack copied from slice/4 (build/next does not have it yet), plus a data-testid prop.
+- Files: src/design/parts/ScrollTrack.tsx, src/index.css, src/library/v2/{LibraryV2,Knowledge}.tsx, src/app/panel/LeftPanel.tsx, src/app/ui.tsx, e2e/libraryV2.spec.ts, e2e/libraryV2Shots.spec.ts, screenshots/gate3-6/v4/.
 
 ### 13 Nov 2026: rules aligned with economy mode, 4 project hooks
 

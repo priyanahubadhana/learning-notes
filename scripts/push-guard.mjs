@@ -145,7 +145,7 @@ for (const [, localSha, remoteRef, remoteSha] of lines) {
       if (src.length)
         run(
           'vitest related',
-          `npx vitest related --run ${src.map(q).join(' ')}`,
+          `npx vitest related --run --passWithNoTests ${src.map(q).join(' ')}`,
         )
       let specs = files.filter((f) => /^e2e\/.*\.spec\.ts$/.test(f))
       if (
